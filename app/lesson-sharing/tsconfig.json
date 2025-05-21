@@ -1,0 +1,21 @@
+{
+  "extends": [
+    "@tsconfig/strictest/tsconfig.json",
+    "@tsconfig/node22/tsconfig.json"
+  ],
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "lib": [
+      "ESNext"
+    ],
+    "types": [
+      "vite/client"
+    ],
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx"
+  }
+}
