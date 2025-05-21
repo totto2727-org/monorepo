@@ -18,5 +18,10 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "dprint": "^0.50.0"
+  },
+  "dependencies": {
+    "@tsconfig/node22": "^22.0.2",
+    "@tsconfig/strictest": "^2.0.5",
+    "typescript": "^5.8.3"
   }
 }
