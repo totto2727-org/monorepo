@@ -1,0 +1,4 @@
+[tools]
+"aqua:nodejs/node" = "22"
+"aqua:pnpm/pnpm" = "10"
+"npm:turbo" = "latest"
