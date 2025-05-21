@@ -2,7 +2,14 @@
   "name": "monorepo",
   "packageManager": "pnpm@10.11.0",
   "pnpm": {
-    "onlyBuiltDependencies": ["@biomejs/biome", "core-js", "dprint"]
+    "onlyBuiltDependencies": [
+      "@biomejs/biome",
+      "core-js",
+      "dprint",
+      "esbuild",
+      "sharp",
+      "workerd"
+    ]
   },
   "scripts": {
     "fix": "dprint fmt",
