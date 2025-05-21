@@ -1,0 +1,18 @@
+{
+    "folders": [
+        {
+            "name": "monorepo",
+            "path": "."
+        },
+        {
+            "name": "app/lesson-sharing",
+            "path": "./app/lesson-sharing"
+        },
+    ],
+    "settings": {
+        "prettier.enable": false,
+        "eslint.enable": true,
+        "biome.enabled": true,
+        "editor.defaultFormatter": "dprint.dprint"
+    }
+}
