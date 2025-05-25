@@ -1,13 +1,13 @@
 {
   "tasks": {
-    "prebuild": {
-      "outputs": ["**/worker-configuration.d.ts"]
-    },
-    "fix": {},
+    "//#check": {},
     "//#fix": {},
     "check": {
       "dependsOn": ["prebuild"]
     },
-    "//#check": {}
+    "fix": {},
+    "prebuild": {
+      "outputs": ["**/worker-configuration.d.ts"]
+    }
   }
 }

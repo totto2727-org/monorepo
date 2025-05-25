@@ -1,4 +1,13 @@
 {
+  "dependencies": {
+    "@tsconfig/node22": "^22.0.2",
+    "@tsconfig/strictest": "^2.0.5",
+    "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.0-beta.5",
+    "dprint": "^0.50.0"
+  },
   "name": "monorepo",
   "packageManager": "pnpm@10.11.0",
   "pnpm": {
@@ -12,16 +21,11 @@
     ]
   },
   "scripts": {
-    "fix": "dprint fmt",
-    "check": "dprint check"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.0.0-beta.5",
-    "dprint": "^0.50.0"
-  },
-  "dependencies": {
-    "@tsconfig/node22": "^22.0.2",
-    "@tsconfig/strictest": "^2.0.5",
-    "typescript": "^5.8.3"
+    "check": "$npm_execpath run /check:.*/",
+    "check:biome": "biome check",
+    "check:dprint": "dprint check --allow-no-files",
+    "fix": "$npm_execpath run /fix:.*/",
+    "fix:biome": "biome check --write --unsafe",
+    "fix:dprint": "dprint fmt --allow-no-files"
   }
 }

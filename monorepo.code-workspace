@@ -1,21 +1,21 @@
 {
-    "folders": [
-        {
-            "name": "monorepo",
-            "path": "."
-        },
-        {
-            "name": "app/lesson-sharing",
-            "path": "./app/lesson-sharing"
-        },
-    ],
-    "settings": {
-        "prettier.enable": false,
-        "eslint.enable": true,
-        "biome.enabled": true,
-        "editor.defaultFormatter": "dprint.dprint",
-        "editor.codeActionsOnSave": {
-            "source.fixAll.biome": "explicit"
-        }
+  "folders": [
+    {
+      "name": "monorepo",
+      "path": "."
+    },
+    {
+      "name": "app/lesson-sharing",
+      "path": "./app/lesson-sharing"
     }
+  ],
+  "settings": {
+    "biome.enabled": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.biome": "explicit"
+    },
+    "editor.defaultFormatter": "biomejs.biome",
+    "eslint.enable": true,
+    "prettier.enable": false
+  }
 }

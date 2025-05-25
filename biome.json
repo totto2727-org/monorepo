@@ -3,7 +3,10 @@
   "assist": {
     "actions": {
       "source": {
-        "recommended": true
+        "recommended": true,
+        "useSortedAttributes": "on",
+        "useSortedKeys": "on",
+        "useSortedProperties": "on"
       }
     },
     "enabled": true
@@ -12,7 +15,13 @@
     "ignoreUnknown": true
   },
   "formatter": {
-    "enabled": false
+    "enabled": true,
+    "indentStyle": "space"
+  },
+  "javascript": {
+    "formatter": {
+      "semicolons": "asNeeded"
+    }
   },
   "linter": {
     "enabled": true,
