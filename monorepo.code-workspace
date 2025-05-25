@@ -7,6 +7,10 @@
     {
       "name": "app/lesson-sharing",
       "path": "./app/lesson-sharing"
+    },
+    {
+      "name": "app/template",
+      "path": "./app/template"
     }
   ],
   "settings": {
