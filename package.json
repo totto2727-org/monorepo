@@ -6,7 +6,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.0-beta.5",
-    "dprint": "^0.50.0"
+    "dprint": "^0.50.0",
+    "turbo": "^2.5.3"
   },
   "name": "monorepo",
   "packageManager": "pnpm@10.11.0",

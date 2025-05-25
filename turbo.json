@@ -2,12 +2,19 @@
   "tasks": {
     "//#check": {},
     "//#fix": {},
+    "build": {
+      "dependsOn": ["^build", "prebuild"],
+      "outputs": ["**/build/**"]
+    },
     "check": {
       "dependsOn": ["prebuild"]
     },
+    "deploy": {
+      "dependsOn": ["build"]
+    },
     "fix": {},
     "prebuild": {
-      "outputs": ["**/worker-configuration.d.ts"]
+      "outputs": ["**/worker-configuration.d.ts", "**/.react-router/**"]
     }
   }
 }
