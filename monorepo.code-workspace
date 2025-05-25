@@ -13,6 +13,9 @@
         "prettier.enable": false,
         "eslint.enable": true,
         "biome.enabled": true,
-        "editor.defaultFormatter": "dprint.dprint"
+        "editor.defaultFormatter": "dprint.dprint",
+        "editor.codeActionsOnSave": {
+            "source.fixAll.biome": "explicit"
+        }
     }
 }

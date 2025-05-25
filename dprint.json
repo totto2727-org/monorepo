@@ -1,6 +1,8 @@
 {
   "typescript": {
-    "semiColons": "asi"
+    "semiColons": "asi",
+    "importDeclaration.sortNamedImports": "maintain",
+    "importDeclaration.sortTypeOnlyImports": "none"
   },
   "json": {
   },

@@ -16,7 +16,7 @@
     "check": "dprint check"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.0.0-beta.5",
     "dprint": "^0.50.0"
   },
   "dependencies": {

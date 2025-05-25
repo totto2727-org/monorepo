@@ -1,26 +1,30 @@
 {
   "$schema": "node_modules/@biomejs/biome/configuration_schema.json",
-  "vcs": {
-    "enabled": true,
-    "clientKind": "git",
-    "useIgnoreFile": true,
-    "defaultBranch": "main",
-    "root": "."
+  "assist": {
+    "actions": {
+      "source": {
+        "recommended": true
+      }
+    },
+    "enabled": true
   },
   "files": {
-    "ignoreUnknown": true,
-    "ignore": []
+    "ignoreUnknown": true
   },
   "formatter": {
     "enabled": false
-  },
-  "organizeImports": {
-    "enabled": true
   },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true
     }
+  },
+  "vcs": {
+    "clientKind": "git",
+    "defaultBranch": "main",
+    "enabled": true,
+    "root": ".",
+    "useIgnoreFile": true
   }
 }
