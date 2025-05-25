@@ -1,3 +1,4 @@
+import { Button } from "@yamada-ui/react"
 import type { Route } from "./+types/_index"
 
 export const loader = (args: Route.LoaderArgs) => {
@@ -22,6 +23,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
       <h4>Extra is {extra}</h4>
       <h5>Var in Variables is {myVarInVariables}</h5>
       <h6>waitUntil is {isWaitUntilDefined ? "defined" : "not defined"}</h6>
+      <Button colorScheme="primary">Click me!</Button>
     </div>
   )
 }
