@@ -1,9 +1,12 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "lesson-sharing",
-  "compatibility_date": "2024-04-01",
-  "main": "./src/index.tsx",
   "assets": {
-    "directory": "./dist",
+    "directory": "./build/client"
   },
+  "compatibility_date": "2024-11-06",
+  "main": "./worker.ts",
+  "name": "lesson-sharing",
+  "vars": {
+    "MY_VAR": "My Value"
+  }
 }

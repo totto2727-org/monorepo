@@ -1,21 +1,33 @@
 {
-  "extends": [
-    "@tsconfig/strictest/tsconfig.json",
-    "@tsconfig/node22/tsconfig.json"
-  ],
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "noEmit": true,
-    "skipLibCheck": true,
-    "lib": [
-      "ESNext"
-    ],
-    "types": [
-      "vite/client"
-    ],
+    "allowJs": true,
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx"
-  }
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "moduleResolution": "Bundler",
+    // Remix takes care of building everything in `remix build`.
+    "noEmit": true,
+    "paths": {
+      "~/*": ["./app/*"]
+    },
+    "resolveJsonModule": true,
+    "rootDirs": [".", "./.react-router/types"],
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022",
+    "types": ["vite/client", "@cloudflare/workers-types/2023-07-01"]
+  },
+  "include": [
+    "worker-configuration.d.ts",
+    "env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/.server/**/*.ts",
+    "**/.server/**/*.tsx",
+    "**/.client/**/*.ts",
+    "**/.client/**/*.tsx"
+  ]
 }

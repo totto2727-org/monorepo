@@ -1,28 +1,19 @@
-import { cloudflare } from "@cloudflare/vite-plugin"
-import build from "@hono/vite-build/cloudflare-workers"
+// vite.config.ts
+import adapter from "@hono/vite-dev-server/cloudflare"
+import { reactRouter } from "@react-router/dev/vite"
+import { cloudflareDevProxy as remixCloudflareDevProxy } from "@react-router/dev/vite/cloudflare"
+import serverAdapter from "hono-react-router-adapter/vite"
 import { defineConfig } from "vite"
-import ssrHotReload from "vite-plugin-ssr-hot-reload"
+import { getLoadContext } from "./app/types/react-router"
 
-export default defineConfig(({ command, isSsrBuild }) => {
-  if (command === "serve") {
-    return { plugins: [ssrHotReload(), cloudflare()] }
-  }
-  if (!isSsrBuild) {
-    return {
-      build: {
-        rollupOptions: {
-          input: ["./src/style.css"],
-          output: {
-            assetFileNames: "assets/[name].[ext]",
-          },
-        },
-      },
-    }
-  }
-  return {
-    plugins: [
-      // @ts-expect-error
-      build({ outputDir: "dist-server" }),
-    ],
-  }
+export default defineConfig({
+  plugins: [
+    remixCloudflareDevProxy(),
+    reactRouter(),
+    serverAdapter({
+      adapter,
+      entry: "app/server.ts",
+      getLoadContext,
+    }),
+  ],
 })
