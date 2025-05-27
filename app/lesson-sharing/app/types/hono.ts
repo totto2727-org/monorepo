@@ -1,8 +1,6 @@
 export type Env = {
   Bindings: {
-    MY_VAR: string
-  }
-  Variables: {
-    MY_VAR_IN_VARIABLES: string
+    VITE_CLERK_PUBLISHABLE_KEY: string
+    CLERK_SECRET_KEY: string
   }
 }
