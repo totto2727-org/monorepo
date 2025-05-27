@@ -33,6 +33,9 @@ importers:
       '@clerk/backend':
         specifier: ^1.33.1
         version: 1.33.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@clerk/react-router':
+        specifier: ^1.4.7
+        version: 1.4.7(react-dom@19.1.0(react@19.1.0))(react-router@7.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
       '@hono/clerk-auth':
         specifier: ^2.0.0
         version: 2.0.0(@clerk/backend@1.33.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(hono@4.7.10)
@@ -388,6 +391,21 @@ packages:
     peerDependenciesMeta:
       svix:
         optional: true
+
+  '@clerk/clerk-react@5.31.7':
+    resolution: {integrity: sha512-Zu23e/vFdUTvHcNjjxZed9BmW+2TezeP9JuVEg0KfC9j1VDoek3trbNuCgpibWTsbOAZM7GCMm81ojj9KygL8w==}
+    engines: {node: '>=18.17.0'}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0 || ^19.0.0-0
+      react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-0
+
+  '@clerk/react-router@1.4.7':
+    resolution: {integrity: sha512-Qk+hpJcLCeQHconp9k1v0y9xKZ/8p4e8sgncmQETjPSTe0avTEc6s8MZKnQqHm957Ff9AcoUIu3W7nxM/Tc4pw==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0 || ^19.0.0-0
+      react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-0
+      react-router: ^7.1.2
 
   '@clerk/shared@3.9.4':
     resolution: {integrity: sha512-kUYPFlQ6T5FC8gw87vApahzvGYQ7sj3QLg2cFnJl7t0717+g509GzdXfh3+jMqCPN/PDK7HRYSAnX3kpKYIzqg==}
@@ -3690,6 +3708,28 @@ snapshots:
     transitivePeerDependencies:
       - react
       - react-dom
+
+  '@clerk/clerk-react@5.31.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@clerk/shared': 3.9.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@clerk/types': 4.59.2
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      tslib: 2.8.1
+
+  '@clerk/react-router@1.4.7(react-dom@19.1.0(react@19.1.0))(react-router@7.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@clerk/backend': 1.33.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@clerk/clerk-react': 5.31.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@clerk/shared': 3.9.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@clerk/types': 4.59.2
+      cookie: 0.7.2
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      react-router: 7.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - svix
 
   '@clerk/shared@3.9.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
