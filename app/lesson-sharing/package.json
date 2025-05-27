@@ -2,6 +2,7 @@
   "dependencies": {
     "@react-router/cloudflare": "^7.6.0",
     "@react-router/fs-routes": "^7.6.0",
+    "@totto/function": "jsr:^1.2.2",
     "@yamada-ui/calendar": "^1.8.16",
     "@yamada-ui/charts": "^1.5.15",
     "@yamada-ui/react": "^1.7.6",

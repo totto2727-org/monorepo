@@ -12,7 +12,7 @@ export default defineConfig({
     reactRouter(),
     serverAdapter({
       adapter,
-      entry: "app/server.ts",
+      entry: "app/dev.ts",
       getLoadContext,
     }),
   ],
