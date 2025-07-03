@@ -1,17 +1,22 @@
+// import {
+//   clerkAuthMiddlewaresLive,
+//   clerkAuthUseCaseLive,
+//   clerkCrenditionalLive,
+// } from "./feature/auth/clerk"
 import { Effect, Logger } from "@totto/function/effect"
 import { appEffect } from "#@/entry.hono.js"
-import {
-  clerkAuthMiddlewaresLive,
-  clerkCrenditionalLive,
-} from "./feature/auth/clerk"
+import { devAuthMiddlewaresLive, devAuthUseCaseLive } from "./feature/auth"
 import { drizzleClientLive } from "./feature/db/drizzle"
 import { inMemorySQLiteClientLive } from "./feature/db/sqlite"
 
 const app = await Effect.gen(function* () {
   return yield* appEffect
 }).pipe(
-  Effect.provide(clerkAuthMiddlewaresLive),
-  Effect.provide(clerkCrenditionalLive),
+  // Effect.provide(clerkAuthMiddlewaresLive),
+  // Effect.provide(clerkCrenditionalLive),
+  // Effect.provide(clerkAuthUseCaseLive),
+  Effect.provide(devAuthMiddlewaresLive),
+  Effect.provide(devAuthUseCaseLive),
   Effect.provide(drizzleClientLive),
   Effect.provide(inMemorySQLiteClientLive),
   Effect.provide(Logger.pretty),
