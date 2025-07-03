@@ -1,38 +1,54 @@
-import { createClient } from "@libsql/client/node"
+import { type Client, createClient } from "@libsql/client"
 import { Context, Effect, Layer } from "@totto/function/effect"
 import { env } from "hono/adapter"
 import { getContext } from "#@/feature/hono.js"
 
-export class SQLiteCrenditional extends Context.Tag("SQLiteConfig")<
+class SQLiteCrenditional extends Context.Tag("SQLiteConfig")<
   SQLiteCrenditional,
   {
-    readonly url: string
-    readonly authToken: string
+    getCreanditional: () => {
+      readonly url: string
+      readonly authToken: string
+    }
   }
 >() {}
 
-export const HonoSQLiteCrenditionalLive = Layer.effect(
+export const sqliteCrenditionalLive = Layer.effect(
   SQLiteCrenditional,
-  // biome-ignore lint/correctness/useYield: <explanation>
   Effect.gen(function* () {
     return {
-      authToken: env(getContext()).DATABASE_AUTH_TOKEN as string,
-      url: env(getContext()).DATABASE_URL as string,
+      getCreanditional: () => ({
+        authToken: env(getContext()).DATABASE_AUTH_TOKEN as string,
+        url: env(getContext()).DATABASE_URL as string,
+      }),
     }
   }),
 )
 
-// biome-ignore lint/correctness/useYield: <explanation>
-export const inMemoryClientLive = Effect.gen(function* () {
-  return createClient({
-    url: "file::memory:?cache=shared",
-  })
-})
+export class SQLiteClient extends Context.Tag("SQLiteClient")<
+  SQLiteClient,
+  Client
+>() {}
 
-export const remoteClientLive = Effect.gen(function* () {
-  const config = yield* SQLiteCrenditional
-  return createClient({
-    authToken: config.authToken,
-    url: config.url,
-  })
-})
+export const remoteSQLiteClientLive = Layer.effect(
+  SQLiteClient,
+  Effect.gen(function* () {
+    const { getCreanditional } = yield* SQLiteCrenditional
+    const config = getCreanditional()
+    yield* Effect.logDebug("config", config)
+    return createClient({
+      authToken: config.authToken,
+      url: config.url,
+    })
+  }),
+)
+
+export const inMemorySQLiteClientLive = Layer.effect(
+  SQLiteClient,
+  Effect.gen(function* () {
+    const libSQL = yield* Effect.tryPromise(() => import("@libsql/client/node"))
+    return libSQL.createClient({
+      url: "file::memory:?cache=shared",
+    })
+  }),
+)

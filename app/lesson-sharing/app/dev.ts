@@ -1,10 +1,16 @@
-import { Effect } from "@totto/function/effect"
-import { appEffect } from "#@/entry.hono.js"
-import { DevDrizzleClientLive, DrizzleClient } from "#@/feature/db/drizzle.js"
+import { Effect, Logger } from "@totto/function/effect"
+import { appEffect, clerkCrenditionalLive } from "#@/entry.hono.js"
+import { drizzleClientLive } from "./feature/db/drizzle"
+import { inMemorySQLiteClientLive } from "./feature/db/sqlite"
 
-const app = Effect.gen(function* () {
-  yield* DrizzleClient
+const app = await Effect.gen(function* () {
   return yield* appEffect
-}).pipe(Effect.provide(DevDrizzleClientLive), Effect.runSync)
+}).pipe(
+  Effect.provide(clerkCrenditionalLive),
+  Effect.provide(drizzleClientLive),
+  Effect.provide(inMemorySQLiteClientLive),
+  Effect.provide(Logger.pretty),
+  Effect.runPromise,
+)
 
 export default app
