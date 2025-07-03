@@ -8,6 +8,7 @@ export const loader = async (args: Route.LoaderArgs) => {
   if (auth.userId) {
     return redirect("/app", 303)
   }
+  return null
 }
 
 export default function SignIn() {
