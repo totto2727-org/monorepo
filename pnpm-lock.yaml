@@ -11,6 +11,9 @@ importers:
       '@tsconfig/node22':
         specifier: ^22.0.2
         version: 22.0.2
+      '@tsconfig/remix':
+        specifier: ^2.0.5
+        version: 2.0.5
       '@tsconfig/strictest':
         specifier: ^2.0.5
         version: 2.0.5
@@ -1623,6 +1626,9 @@ packages:
 
   '@tsconfig/node22@22.0.2':
     resolution: {integrity: sha512-Kmwj4u8sDRDrMYRoN9FDEcXD8UpBSaPQQ24Gz+Gamqfm7xxn+GBR7ge/Z7pK8OXNGyUzbSwJj+TH6B+DS/epyA==}
+
+  '@tsconfig/remix@2.0.5':
+    resolution: {integrity: sha512-KawY0Z2oylbBsGbHZFE11O2kXuHF/LfT7NzwPl5CCfgmFy4jsMkVgMfnPQnsPe6Wdu2pNQMRzNoyRHU2PBAO1w==}
 
   '@tsconfig/strictest@2.0.5':
     resolution: {integrity: sha512-ec4tjL2Rr0pkZ5hww65c+EEPYwxOi4Ryv+0MtjeaSQRJyq322Q27eOQiFbuNgw2hpL4hB1/W/HBGk3VKS43osg==}
@@ -5112,6 +5118,8 @@ snapshots:
   '@tanstack/table-core@8.21.3': {}
 
   '@tsconfig/node22@22.0.2': {}
+
+  '@tsconfig/remix@2.0.5': {}
 
   '@tsconfig/strictest@2.0.5': {}
 
