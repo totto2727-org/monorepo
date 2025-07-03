@@ -14,12 +14,15 @@
     }
   ],
   "settings": {
+    "[jsonc]": {
+      "editor.defaultFormatter": "biomejs.biome"
+    },
     "biome.enabled": true,
     "editor.codeActionsOnSave": {
       "source.fixAll.biome": "explicit"
     },
     "editor.defaultFormatter": "biomejs.biome",
-    "eslint.enable": true,
+    "eslint.enable": false,
     "prettier.enable": false
   }
 }
