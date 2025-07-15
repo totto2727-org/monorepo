@@ -7,12 +7,12 @@ import {
   clerkAuthMiddlewaresLive,
   clerkAuthUseCaseLive,
   clerkCrenditionalLive,
-} from "./feature/auth/clerk"
-import { drizzleClientLive } from "./feature/db/drizzle"
+} from "./feature/auth/clerk.js"
+import { drizzleClientLive } from "./feature/db/drizzle.js"
 import {
   remoteSQLiteClientLive,
   sqliteCrenditionalLive,
-} from "./feature/db/sqlite"
+} from "./feature/db/sqlite.js"
 
 const app = await Effect.gen(function* () {
   return handle(build, yield* appEffect, { getLoadContext })

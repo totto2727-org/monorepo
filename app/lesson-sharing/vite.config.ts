@@ -4,7 +4,7 @@ import { reactRouter } from "@react-router/dev/vite"
 import { cloudflareDevProxy as remixCloudflareDevProxy } from "@react-router/dev/vite/cloudflare"
 import serverAdapter from "hono-react-router-adapter/vite"
 import { defineConfig } from "vite"
-import { getLoadContext } from "./app/types/react-router"
+import { getLoadContext } from "./app/types/react-router.js"
 
 export default defineConfig({
   plugins: [

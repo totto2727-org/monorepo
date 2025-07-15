@@ -1,6 +1,6 @@
 import type { Context } from "hono"
 import type { PlatformProxy } from "wrangler"
-import type { Env } from "./hono"
+import type { Env } from "./hono.js"
 
 type GetLoadContextArgs = {
   request: Request

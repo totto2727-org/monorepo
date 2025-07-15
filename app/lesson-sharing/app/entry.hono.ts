@@ -4,7 +4,7 @@ import { contextStorage } from "hono/context-storage"
 import { createFactory } from "hono/factory"
 import { logger } from "hono/logger"
 import type { Env } from "#@/types/hono.js"
-import { AuthMiddlewares, AuthUseCase } from "./feature/auth"
+import { AuthMiddlewares, AuthUseCase } from "./feature/auth.js"
 
 const factory = createFactory()
 

@@ -1,7 +1,7 @@
 import type { Client } from "@libsql/client"
 import { Context, Effect, Layer } from "@totto/function/effect"
 import { drizzle, type LibSQLDatabase } from "drizzle-orm/libsql"
-import { SQLiteClient } from "./sqlite"
+import { SQLiteClient } from "./sqlite.js"
 
 type DrizzleClientType = LibSQLDatabase<Record<string, never>> & {
   $client: Client

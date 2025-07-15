@@ -10,7 +10,7 @@ import { env } from "hono/adapter"
 import { getContext } from "hono/context-storage"
 import { createMiddleware } from "hono/factory"
 import { HTTPException } from "hono/http-exception"
-import { AuthMiddlewares, AuthUseCase, decodePromiseForUser } from "../auth"
+import { AuthMiddlewares, AuthUseCase, decodePromiseForUser } from "../auth.js"
 
 class ClerkCrenditional extends Context.Tag("ClerkCrenditional")<
   ClerkCrenditional,

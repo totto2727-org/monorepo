@@ -5,9 +5,9 @@
 // } from "./feature/auth/clerk"
 import { Effect, Logger } from "@totto/function/effect"
 import { appEffect } from "#@/entry.hono.js"
-import { devAuthMiddlewaresLive, devAuthUseCaseLive } from "./feature/auth"
-import { drizzleClientLive } from "./feature/db/drizzle"
-import { inMemorySQLiteClientLive } from "./feature/db/sqlite"
+import { devAuthMiddlewaresLive, devAuthUseCaseLive } from "./feature/auth.js"
+import { drizzleClientLive } from "./feature/db/drizzle.js"
+import { inMemorySQLiteClientLive } from "./feature/db/sqlite.js"
 
 const app = await Effect.gen(function* () {
   return yield* appEffect
