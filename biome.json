@@ -24,8 +24,19 @@
     }
   },
   "linter": {
+    "domains": {
+      "project": "recommended"
+    },
     "enabled": true,
     "rules": {
+      "correctness": {
+        "useImportExtensions": {
+          "level": "warn",
+          "options": {
+            "forceJsExtensions": true
+          }
+        }
+      },
       "recommended": true
     }
   },

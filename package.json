@@ -6,7 +6,7 @@
     "typescript": "^5.8.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.0.0-beta.5",
+    "@biomejs/biome": "2.0.6",
     "dprint": "^0.50.0",
     "turbo": "^2.5.3"
   },
@@ -28,7 +28,7 @@
   "scripts": {
     "check": "$npm_execpath run /check:.*/",
     "check:biome": "biome check",
-    "check:dprint": "dprint check --allow-no-files",
+    "check:dprint": "dprint check",
     "fix": "$npm_execpath run /fix:.*/",
     "fix:biome": "biome check --write --unsafe",
     "fix:dprint": "dprint fmt --allow-no-files"
