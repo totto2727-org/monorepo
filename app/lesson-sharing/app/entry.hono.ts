@@ -20,14 +20,18 @@ export const appEffect = Effect.gen(function* () {
   const authMiddlewares = yield* AuthMiddlewares
   const getUserHandler = yield* getUserHandlerLive
 
-  return new Hono<Env>()
-    .use(contextStorage())
-    .use(logger())
-    .get("/api/hello", (c) => {
-      return c.json({
-        message: "Hello",
+  return (
+    new Hono<Env>()
+      .use(contextStorage())
+      .use(logger())
+      .get("/api/hello", (c) => {
+        return c.json({
+          message: "Hello",
+        })
       })
-    })
-    .use("*", authMiddlewares.baseMiddleware)
-    .get("/api/user", ...getUserHandler)
+      .use("*", authMiddlewares.baseMiddleware)
+      .use("*", authMiddlewares.requiredUserID)
+      // .use("*", authMiddlewares.requiredOrgID)
+      .get("/api/user", ...getUserHandler)
+  )
 })

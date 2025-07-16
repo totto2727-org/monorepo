@@ -1,5 +1,11 @@
 import { clerkMiddleware, getAuth } from "@hono/clerk-auth"
-import { Context, Effect, Layer, Predicate } from "@totto/function/effect"
+import {
+  Context,
+  Effect,
+  Layer,
+  Predicate,
+  Schema,
+} from "@totto/function/effect"
 import {
   CuidState,
   DateTimes,
@@ -10,7 +16,7 @@ import { env } from "hono/adapter"
 import { getContext } from "hono/context-storage"
 import { createMiddleware } from "hono/factory"
 import { HTTPException } from "hono/http-exception"
-import { AuthMiddlewares, AuthUseCase, decodePromiseForUser } from "../auth.js"
+import { AuthMiddlewares, AuthUseCase, userSchema } from "../auth.js"
 
 class ClerkCrenditional extends Context.Tag("ClerkCrenditional")<
   ClerkCrenditional,
@@ -47,10 +53,17 @@ export const clerkAuthMiddlewaresLive = Layer.effect(
           secretKey: config.secretKey,
         })(...args)
       }),
+      requiredOrgID: createMiddleware((_, next) => {
+        return next()
+      }),
+      requiredUserID: createMiddleware((_, next) => {
+        return next()
+      }),
     }
   }),
 )
 
+const user = Schema.decodePromise(userSchema)
 export const clerkAuthUseCaseLive = Layer.effect(
   AuthUseCase,
   Effect.gen(function* () {
@@ -66,7 +79,7 @@ export const clerkAuthUseCaseLive = Layer.effect(
           Effect.provide([GetRandomValues.CryptoRandom, DateTimes.Default]),
           Effect.runPromise,
         )
-        return decodePromiseForUser({
+        return user({
           id,
           orgID: auth.orgId ? [auth.orgId] : [],
         })
