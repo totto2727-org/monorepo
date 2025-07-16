@@ -11,6 +11,7 @@
     "@yamada-ui/charts": "catalog:",
     "@yamada-ui/react": "catalog:",
     "@yamada-ui/table": "catalog:",
+    "drizzle-cuid2": "catalog:",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
     "hono-react-router-adapter": "catalog:",
