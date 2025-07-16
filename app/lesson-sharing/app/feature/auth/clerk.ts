@@ -16,7 +16,8 @@ import { env } from "hono/adapter"
 import { getContext } from "hono/context-storage"
 import { createMiddleware } from "hono/factory"
 import { HTTPException } from "hono/http-exception"
-import { AuthMiddlewares, AuthUseCase, userSchema } from "../auth.js"
+import { AuthMiddlewares, AuthUseCase } from "../auth.js"
+import { userSchema } from "./user.js"
 
 class ClerkCrenditional extends Context.Tag("ClerkCrenditional")<
   ClerkCrenditional,
@@ -64,6 +65,7 @@ export const clerkAuthMiddlewaresLive = Layer.effect(
 )
 
 const user = Schema.decodePromise(userSchema)
+
 export const clerkAuthUseCaseLive = Layer.effect(
   AuthUseCase,
   Effect.gen(function* () {

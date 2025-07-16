@@ -1,12 +1,8 @@
 import { Context, Effect, Layer, Schema } from "@totto/function/effect"
-import { Cuid } from "@totto/function/effect/id"
 import type { MiddlewareHandler } from "hono"
 import { createMiddleware } from "hono/factory"
+import { userSchema } from "./auth/user.js"
 
-export const userSchema = Schema.Struct({
-  id: Cuid,
-  orgID: Schema.Array(Cuid),
-})
 const user = Schema.decodePromise(userSchema)
 
 export class AuthMiddlewares extends Context.Tag("AuthMiddlewares")<
@@ -16,11 +12,11 @@ export class AuthMiddlewares extends Context.Tag("AuthMiddlewares")<
     requiredUserID: MiddlewareHandler
     requiredOrgID: MiddlewareHandler
   }
->() {}
+>() { }
 
 export const devAuthMiddlewaresLive = Layer.effect(
   AuthMiddlewares,
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     return {
       baseMiddleware: createMiddleware((_, next) => {
         return next()
@@ -40,11 +36,11 @@ export class AuthUseCase extends Context.Tag("AuthUseCase")<
   {
     getUser: () => Promise<typeof userSchema.Type>
   }
->() {}
+>() { }
 
 export const devAuthUseCaseLive = Layer.effect(
   AuthUseCase,
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     return {
       getUser: () =>
         user({
