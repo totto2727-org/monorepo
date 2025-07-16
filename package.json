@@ -1,14 +1,14 @@
 {
   "dependencies": {
-    "@tsconfig/node22": "^22.0.2",
-    "@tsconfig/remix": "^2.0.5",
-    "@tsconfig/strictest": "^2.0.5",
-    "typescript": "^5.8.3"
+    "@tsconfig/node22": "catalog:",
+    "@tsconfig/remix": "catalog:",
+    "@tsconfig/strictest": "catalog:",
+    "typescript": "catalog:"
   },
   "devDependencies": {
     "@biomejs/biome": "2.0.6",
-    "dprint": "^0.50.0",
-    "turbo": "^2.5.3"
+    "dprint": "catalog:",
+    "turbo": "catalog:"
   },
   "name": "monorepo",
   "packageManager": "pnpm@10.11.0",
