@@ -10,5 +10,9 @@
   },
   "placement": {
     "mode": "smart"
+  },
+  "vars": {
+    "NODE_VERSION": "24",
+    "PNPM_VERSION": "10"
   }
 }
