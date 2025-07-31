@@ -1,0 +1,6 @@
+node_modules/
+test-results/
+.dev.vars
+.wrangler/
+worker-configuration.d.ts
+dist/
