@@ -17,12 +17,12 @@ import {
 const app = await Effect.gen(function* () {
   return handle(build, yield* appEffect, { getLoadContext })
 }).pipe(
-  Effect.provide(drizzleClientLive),
-  Effect.provide(remoteSQLiteClientLive),
-  Effect.provide(sqliteCrenditionalLive),
   Effect.provide(clerkAuthMiddlewaresLive),
   Effect.provide(clerkCrenditionalLive),
   Effect.provide(clerkAuthUseCaseLive),
+  Effect.provide(drizzleClientLive),
+  Effect.provide(remoteSQLiteClientLive),
+  Effect.provide(sqliteCrenditionalLive),
   Effect.provide(Logger.json),
   Effect.runPromise,
 )

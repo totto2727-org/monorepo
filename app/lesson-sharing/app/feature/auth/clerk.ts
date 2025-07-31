@@ -3,21 +3,17 @@ import {
   Context,
   Effect,
   Layer,
+  Option,
   Predicate,
-  Schema,
 } from "@totto/function/effect"
-import {
-  CuidState,
-  DateTimes,
-  GetRandomValues,
-  makeCuid,
-} from "@totto/function/effect/id"
+import { eq, inArray } from "drizzle-orm"
 import { env } from "hono/adapter"
 import { getContext } from "hono/context-storage"
 import { createMiddleware } from "hono/factory"
-import { HTTPException } from "hono/http-exception"
 import { AuthMiddlewares, AuthUseCase } from "../auth.js"
-import { userSchema } from "./user.js"
+import { DrizzleClient } from "../db/drizzle.js"
+import { clerkOrganizationTable, clerkUserTable } from "../db/schema/table.js"
+import * as User from "./user.js"
 
 class ClerkCrenditional extends Context.Tag("ClerkCrenditional")<
   ClerkCrenditional,
@@ -64,28 +60,47 @@ export const clerkAuthMiddlewaresLive = Layer.effect(
   }),
 )
 
-const user = Schema.decodePromise(userSchema)
+const getUserEffect = Effect.gen(function* () {
+  const db = yield* DrizzleClient
+
+  return Effect.fn(function* () {
+    const auth = getAuth(getContext())
+    const clerkUserID = yield* Option.fromNullable(auth?.userId)
+
+    const [userDTOArray, organizationDTOArray] = yield* Effect.tryPromise(() =>
+      db.batch([
+        db
+          .select({ id: clerkUserTable.userID })
+          .from(clerkUserTable)
+          .where(eq(clerkUserTable.clerkID, clerkUserID))
+          .limit(1),
+        db
+          .select({ id: clerkOrganizationTable.organizationID })
+          .from(clerkOrganizationTable)
+          .where(
+            inArray(
+              clerkOrganizationTable.clerkID,
+              Predicate.isNotNullable(auth?.orgId) ? [auth.orgId] : [],
+            ),
+          ),
+      ]),
+    )
+
+    const userDTO = yield* Option.fromIterable(userDTOArray)
+
+    return yield* User.fromDTO({
+      organizationDTOArray,
+      userDTO,
+    })
+  })
+})
 
 export const clerkAuthUseCaseLive = Layer.effect(
   AuthUseCase,
   Effect.gen(function* () {
+    const getUser = yield* getUserEffect
     return {
-      getUser: async () => {
-        const auth = getAuth(getContext())
-        if (Predicate.isNullable(auth) || Predicate.isNullable(auth.userId)) {
-          throw new HTTPException(401)
-        }
-
-        const id = await makeCuid.pipe(
-          Effect.provide(CuidState.layer("my-environment")),
-          Effect.provide([GetRandomValues.CryptoRandom, DateTimes.Default]),
-          Effect.runPromise,
-        )
-        return user({
-          id,
-          orgID: auth.orgId ? [auth.orgId] : [],
-        })
-      },
+      getUser: () => getUser().pipe(Effect.runPromise),
     }
   }),
 )
