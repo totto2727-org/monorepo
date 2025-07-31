@@ -12,11 +12,11 @@ export class AuthMiddlewares extends Context.Tag("AuthMiddlewares")<
     requiredUserID: MiddlewareHandler
     requiredOrgID: MiddlewareHandler
   }
->() { }
+>() {}
 
 export const devAuthMiddlewaresLive = Layer.effect(
   AuthMiddlewares,
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     return {
       baseMiddleware: createMiddleware((_, next) => {
         return next()
@@ -36,11 +36,11 @@ export class AuthUseCase extends Context.Tag("AuthUseCase")<
   {
     getUser: () => Promise<typeof userSchema.Type>
   }
->() { }
+>() {}
 
 export const devAuthUseCaseLive = Layer.effect(
   AuthUseCase,
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     return {
       getUser: () =>
         user({

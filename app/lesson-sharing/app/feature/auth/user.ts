@@ -10,10 +10,10 @@ export const userSchema = Schema.Struct({
 const user = Schema.decodeSync(userSchema)
 export const fromDTOtoUser = (args: {
   userDTO: Pick<typeof userTable.$inferSelect, "id">
-  organizationDTO: Pick<typeof organizationTable.$inferSelect, "id">[]
+  organizationDTOArray: Pick<typeof organizationTable.$inferSelect, "id">[]
 }) => {
   return user({
     id: args.userDTO.id,
-    orgID: args.organizationDTO.map((v) => v.id),
+    orgID: args.organizationDTOArray.map((v) => v.id),
   })
 }
