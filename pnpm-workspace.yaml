@@ -7,6 +7,7 @@ catalog:
   "@biomejs/biome": 2.0.6
   "@clerk/backend": ^1.33.1
   "@clerk/react-router": ^1.4.7
+  "@cloudflare/vite-plugin": ^1.11.0
   "@cloudflare/workers-types": ^4.20250525.0
   "@hono/clerk-auth": ^2.0.0
   "@hono/vite-dev-server": ^0.19.1
@@ -15,9 +16,10 @@ catalog:
   "@react-router/cloudflare": ^7.6.0
   "@react-router/dev": ^7.6.0
   "@react-router/fs-routes": ^7.6.0
-  "@tsconfig/node22": ^22.0.2
+  "@tsconfig/node24": ^24.0.0
   "@tsconfig/remix": ^2.0.5
   "@tsconfig/strictest": ^2.0.5
+  "@types/node": ^24.1.0
   "@types/react": ^19.1.5
   "@types/react-dom": ^19.1.5
   "@yamada-ui/calendar": ^1.8.16
@@ -38,4 +40,4 @@ catalog:
   turbo: ^2.5.3
   typescript: ^5.8.3
   vite: ^6.3.5
-  wrangler: ^4.16.1
+  wrangler: ^4.27.0

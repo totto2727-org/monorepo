@@ -32,8 +32,7 @@
     "drizzle-kit": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "wrangler": "catalog:"
+    "vite": "catalog:"
   },
   "engines": {
     "node": ">=22.0.0",

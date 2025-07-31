@@ -1,14 +1,14 @@
 {
-  "dependencies": {
-    "@tsconfig/node22": "catalog:",
-    "@tsconfig/remix": "catalog:",
-    "@tsconfig/strictest": "catalog:",
-    "typescript": "catalog:"
-  },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
+    "@tsconfig/node24": "catalog:",
+    "@tsconfig/remix": "catalog:",
+    "@tsconfig/strictest": "catalog:",
+    "@types/node": "catalog:",
     "dprint": "catalog:",
-    "turbo": "catalog:"
+    "turbo": "catalog:",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
   },
   "name": "monorepo",
   "packageManager": "pnpm@10.11.0",
@@ -26,6 +26,7 @@
     ]
   },
   "scripts": {
+    "catalog": "nlx codemod pnpm/catalog",
     "check": "$npm_execpath run /check:.*/",
     "check:biome": "biome check",
     "check:dprint": "dprint check",
