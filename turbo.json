@@ -4,7 +4,7 @@
     "//#fix": {},
     "build": {
       "dependsOn": ["^build", "prebuild"],
-      "outputs": ["**/build/**"]
+      "outputs": ["**/build/**", "**/dist/**"]
     },
     "check": {
       "dependsOn": ["prebuild"]

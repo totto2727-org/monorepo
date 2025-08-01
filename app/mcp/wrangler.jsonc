@@ -1,5 +1,8 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
+  "ai": {
+    "binding": "AI"
+  },
   "compatibility_date": "2024-11-06",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./app/entry.worker.ts",
@@ -11,8 +14,13 @@
   "placement": {
     "mode": "smart"
   },
+  "r2_buckets": [
+    {
+      "binding": "DATA_SOURCE",
+      "bucket_name": "effect-mcp"
+    }
+  ],
   "vars": {
-    "NODE_VERSION": "24",
-    "PNPM_VERSION": "10"
+    "AUTO_RAG_NAME": "effect-mcp"
   }
 }
