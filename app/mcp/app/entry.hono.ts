@@ -1,12 +1,13 @@
+import { StreamableHTTPTransport } from "@hono/mcp"
 import { Hono } from "hono"
-import { contextStorage } from "hono/context-storage"
 import { logger } from "hono/logger"
+import { createMcpServer } from "#@/mcp-server.js"
 
-export const app = new Hono()
-  .use(contextStorage())
+export const app = new Hono<{ Bindings: Cloudflare.Env }>()
   .use(logger())
-  .get("/api/hello", (c) => {
-    return c.json({
-      message: "Hello",
-    })
+  .all("/api/mcp/effect", async (c) => {
+    const mcpServer = createMcpServer(c.env)
+    const transport = new StreamableHTTPTransport()
+    await mcpServer.connect(transport)
+    return transport.handleRequest(c)
   })
