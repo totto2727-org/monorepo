@@ -10,8 +10,10 @@ catalog:
   "@cloudflare/vite-plugin": ^1.11.0
   "@cloudflare/workers-types": ^4.20250525.0
   "@hono/clerk-auth": ^2.0.0
+  "@hono/mcp": ^0.1.1
   "@hono/vite-dev-server": ^0.19.1
   "@libsql/client": ^0.15.7
+  "@modelcontextprotocol/sdk": ^1.0.0
   "@playwright/test": ^1.52.0
   "@react-router/cloudflare": ^7.6.0
   "@react-router/dev": ^7.6.0
@@ -41,3 +43,4 @@ catalog:
   typescript: ^5.8.3
   vite: ^6.3.5
   wrangler: ^4.27.0
+  zod: ^3.24.1
