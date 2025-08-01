@@ -8,6 +8,7 @@
     "noUnusedParameters": false,
     "verbatimModuleSyntax": true
   },
+  "exclude": ["dist/"],
   "extends": [
     "@tsconfig/strictest/tsconfig.json",
     "@tsconfig/node24/tsconfig.json"
