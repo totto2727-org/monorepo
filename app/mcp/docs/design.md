@@ -1,4 +1,4 @@
-# MCP サーバー設計書
+# MCPサーバー設計書
 
 ## 概要
 
@@ -15,143 +15,145 @@
 └─────────────────┘    └─────────────────┘    └─────────────────┘
                               │
                               ├── Hono Router
-                              ├── @hono/mcp
-                              ├── MCP Server
-                              └── ai_search Tool
+                              ├── Factory Pattern
+                              ├── MCP Handler
+                              └── MCP Server Core
 ```
 
 ### コアコンポーネント
 
-#### 1. MCP サーバーコア
+#### 1. MCPサーバーコア
 
-- **フレームワーク**: `@hono/mcp` + `@modelcontextprotocol/sdk`
+- **フレームワーク**: `@modelcontextprotocol/sdk`
 - **トランスポート**: `StreamableHTTPTransport`
 - **プロトコル**: MCP 2024-11-05 仕様準拠
-- **ライフサイクル**: HTTP 接続
+- **設定**: `McpServerConfig`による動的設定
+- **実装**: [app/mcp/server.ts](./app/mcp/server.ts)
 
-#### 2. ツール実装
+#### 2. ハンドラーレイヤー
 
-**Effect ドキュメント検索ツール** (`search_effect_docs_by_ai`)
+- **ファクトリーパターン**: Hono Factory Helperによる型安全なハンドラー作成
+- **環境統合**: Cloudflare.Envからの動的設定
+- **トランスポート管理**: HTTPトランスポートのライフサイクル管理
+- **実装**: [app/mcp/handler.ts](./app/mcp/handler.ts)
+
+#### 3. ツール実装
+
+**Effectドキュメント検索ツール** (`search_effect_docs_by_ai`)
 
 - Effectライブラリのドキュメント検索に特化
-- Auto RAG の `aiSearch()` メソッドでEffect公式ドキュメントを検索
-- 検索結果 + AI による回答生成
-- JSON レスポンス形式
+- Auto RAG `aiSearch()`メソッド統合
+- 検索結果 + AI回答生成
+- JSONレスポンス形式
+- **セキュリティ**: エラー詳細をクライアントレスポンスから除外
 
-#### 3. Auto RAG 統合
+#### 4. 型システム
 
-```typescript
-// Effect ドキュメント検索の使用例
-const effectDocsResponse = await env.AI.autorag(env.AUTO_RAG_NAME).aiSearch({
-  query: "Effect Data型の使い方",
-  rewrite_query: true
-})
-```
+- 設定管理のための共有型定義
+- 全コンポーネントでのTypeScript型安全性
+- **実装**: [app/mcp/types.ts](./app/mcp/types.ts)
 
 ## 実装ファイル
 
 ### ファイル構成
 
-- `app/mcp-server.ts`: MCP サーバーとツールの実装
-- `app/entry.hono.ts`: Hono アプリケーションエントリーポイント
-- `app/entry.worker.ts`: Workers エントリーポイント
+```
+app/
+├── entry.hono.ts           # Honoアプリケーションエントリーポイント
+├── entry.worker.ts         # Workersエントリーポイント
+├── hono.ts                 # Honoファクトリー設定
+└── mcp/
+    ├── server.ts           # MCPサーバーとツール実装
+    ├── handler.ts          # MCPハンドラーファクトリー
+    └── types.ts            # 共有型定義
+```
+
+### リファクタリングによる主な改善点
+
+1. **関心の分離**: MCPサーバーロジックとHTTP処理の明確な分離
+2. **依存性注入**: 設定関数による環境依存の外部化
+3. **型安全性**: 共有型定義による一貫性確保
+4. **拡張性**: ファクトリーパターンによる他ドキュメントソースへの容易な拡張
+5. **セキュリティ**: サーバーサイドログとサニタイズされたクライアントレスポンスによる強化されたエラーハンドリング
 
 ## 設定
 
 ### 環境変数とバインディング
 
-```json
-// wrangler.jsonc
-{
-  "ai": {
-    "binding": "AI"
-  },
-  "vars": {
-    "AUTO_RAG_NAME": "effect-mcp"
-  }
-}
-```
+Cloudflare Workersバインディングによる設定管理:
+
+- **AIバインディング**: `AI` - Cloudflare AIサービスアクセス
+- **R2バケット**: `EFFECT_DATA_SOURCE` - Effectドキュメントストレージ
+- **Auto RAG**: `EFFECT_AUTO_RAG_NAME` - Effect専用Auto RAG設定
+
+**設定ファイル**: [wrangler.jsonc](./wrangler.jsonc)
 
 ### 依存関係
 
-```json
-// package.json devDependencies（カタログモード使用）
-{
-  "@hono/mcp": "catalog:",
-  "@modelcontextprotocol/sdk": "catalog:",
-  "hono": "catalog:",
-  "zod": "catalog:"
-}
-```
+依存関係は[package.json](./package.json)で定義されたPNPMカタログモードで管理されています。
 
-## レスポンス形式
-
-### Effect ドキュメント検索レスポンス
-
-```typescript
-interface EffectDocsSearchResponse {
-  query: string          // 元の検索クエリ
-  response: string       // Effect関連のAI生成レスポンス
-  retrieved_data: {      // Effectドキュメントからの検索結果
-    content: string      // ドキュメントの内容
-    score: number        // 関連度スコア
-    metadata?: {         // ドキュメントメタデータ
-      title?: string
-      url?: string
-      section?: string
-    }
-  }[]
-}
-```
-
-## 実装計画
-
-### フェーズ 1: 基本セットアップ
-
-1. `@hono/mcp` の統合
-2. 基本的な MCP サーバーの構築
-3. HTTP トランスポートの設定
-
-### フェーズ 2: Effect ドキュメント検索ツール実装
-
-1. `search_effect_docs_by_ai` ツールのEffect特化実装
-2. Auto RAG バインディング統合（Effectドキュメント用）
-3. エラーハンドリングとバリデーション
-
-### フェーズ 3: 最適化
-
-1. エラー処理の改善
-2. パフォーマンス調整
+主要な依存関係:
+- `@hono/mcp` - Hono用MCP統合
+- `@modelcontextprotocol/sdk` - 公式MCP SDK
+- `hono` - Webフレームワーク
+- `zod` - スキーマバリデーション
 
 ## セキュリティとパフォーマンス
 
-### セキュリティ
+### セキュリティ強化
 
-- 入力パラメータの検証
-- クエリ長の制限
-- レート制限（Cloudflare Workers レベル）
+- **入力パラメータバリデーション**: 全入力に対するZodスキーマバリデーション
+- **エラー情報保護**: 詳細エラーはサーバーサイドのみでログ出力
+- **サニタイズされたクライアントレスポンス**: 汎用エラーメッセージで情報漏洩を防止
+- **環境固有バインディング**: マルチドキュメント対応のための明確な命名規則（`EFFECT_*`）
 
-### パフォーマンス
+### パフォーマンス考慮事項
 
-- 適切なタイムアウト設定
-- エラー処理とリトライロジック
+- **適切なタイムアウト設定**: Cloudflare Workers経由で設定可能
+- **エラーハンドリングとリトライロジック**: 堅牢なエラー復旧機構
+- **ファクトリーパターンの効率性**: 最小限のオーバーヘッドでの再利用可能なハンドラー作成
 
-## 監視と可観測性
+## エラーハンドリング
 
-- Cloudflare Workers Analytics
-- Effect ドキュメント検索クエリの分析
-- Auto RAG 使用量監視
-- エラーログとパフォーマンス追跡
+### セキュリティファーストアプローチ
+
+- **サーバーサイドログ**: `console.error()`による詳細エラー情報のログ出力
+- **クライアントレスポンスサニタイゼーション**: 汎用エラーメッセージのみ
+- **情報漏洩防止**: 機密性のあるサーバー詳細をクライアントに公開しない
+
+## 将来の拡張性
+
+### マルチドキュメント対応
+
+リファクタリングされたアーキテクチャは以下により他ドキュメントソースへの容易な拡張をサポート:
+
+- **設定可能なMCPハンドラー**: 環境駆動の設定関数
+- **命名規則**: プレフィックス付きバインディング（`EFFECT_*`、`REACT_*`、`VUE_*`）
+- **ファクトリーパターン**: 異なるドキュメントソース用の再利用可能なハンドラー生成
+
+### 設定のスケーラビリティ
+
+環境バインディングは明確な分離のための命名規則に従います:
+- Effect: `EFFECT_AUTO_RAG_NAME`、`EFFECT_DATA_SOURCE`
+- 将来のReact: `REACT_AUTO_RAG_NAME`、`REACT_DATA_SOURCE`
+- 将来のVue: `VUE_AUTO_RAG_NAME`、`VUE_DATA_SOURCE`
 
 ## 使用例
 
 ### 典型的な検索クエリ
 
-- "Effect Data型の使い方を教えて"
-- "Effect.genでエラーハンドリングする方法"
-- "Effect Schemaでバリデーションする方法"
+- "Effect Data型の使い方"
+- "Effect.genでのエラーハンドリング"
+- "Effect Schemaでのバリデーション"
 - "Effect Configの設定方法"
 
 ### 期待される応答
 
-Effect公式ドキュメントから関連する情報を検索し、AIがEffectライブラリの使用方法について詳細で実用的な回答を生成します。
+システムはEffect公式ドキュメントを検索し、Effectライブラリの使用パターンとベストプラクティスについて詳細で実用的なAI回答を生成します。
+
+## 監視と可観測性
+
+- **Cloudflare Workers Analytics**: 組み込みパフォーマンス監視
+- **Effectドキュメント検索分析**: クエリパターン分析
+- **Auto RAG使用量監視**: リソース使用率追跡
+- **エラーログとパフォーマンス追跡**: Cloudflareプラットフォームによる包括的な可観測性
