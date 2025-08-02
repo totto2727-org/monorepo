@@ -18,19 +18,14 @@ export function createMcpServer(env: Cloudflare.Env) {
           .boolean()
           .default(true)
           .describe("クエリの書き換えを有効にする"),
-        stream: z
-          .boolean()
-          .default(true)
-          .describe("ストリーミングレスポンスを使用する"),
       },
       title: "Effect Documentation Search",
     },
-    async ({ query, rewrite_query, stream }) => {
+    async ({ query, rewrite_query }) => {
       try {
         const result = await env.AI.autorag(env.AUTO_RAG_NAME).aiSearch({
           query,
           rewrite_query: rewrite_query ?? true,
-          stream: stream ?? true,
         })
 
         return {

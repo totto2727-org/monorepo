@@ -27,7 +27,7 @@
 - **フレームワーク**: `@hono/mcp` + `@modelcontextprotocol/sdk`
 - **トランスポート**: `StreamableHTTPTransport`
 - **プロトコル**: MCP 2024-11-05 仕様準拠
-- **ライフサイクル**: HTTP ストリーミング接続
+- **ライフサイクル**: HTTP 接続
 
 #### 2. ツール実装
 
@@ -36,7 +36,7 @@
 - Effectライブラリのドキュメント検索に特化
 - Auto RAG の `aiSearch()` メソッドでEffect公式ドキュメントを検索
 - 検索結果 + AI による回答生成
-- ストリーミングレスポンスをデフォルト有効
+- JSON レスポンス形式
 
 #### 3. Auto RAG 統合
 
@@ -44,8 +44,7 @@
 // Effect ドキュメント検索の使用例
 const effectDocsResponse = await env.AI.autorag(env.AUTO_RAG_NAME).aiSearch({
   query: "Effect Data型の使い方",
-  rewrite_query: true,
-  stream: true
+  rewrite_query: true
 })
 ```
 
@@ -121,9 +120,8 @@ interface EffectDocsSearchResponse {
 
 ### フェーズ 3: 最適化
 
-1. ストリーミング対応
-2. エラー処理の改善
-3. パフォーマンス調整
+1. エラー処理の改善
+2. パフォーマンス調整
 
 ## セキュリティとパフォーマンス
 
@@ -135,7 +133,6 @@ interface EffectDocsSearchResponse {
 
 ### パフォーマンス
 
-- ストリーミングレスポンス対応
 - 適切なタイムアウト設定
 - エラー処理とリトライロジック
 
