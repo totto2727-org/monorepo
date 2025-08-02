@@ -28,8 +28,8 @@
     "dev": "vite dev",
     "prebuild": "$npm_execpath run -p /prebuild:.*/",
     "prebuild:wrangler": "wrangler types",
-    "preview": "wrangler dev",
-    "start": "wrangler dev"
+    "preview": "wrangler dev --test-scheduled",
+    "start": "wrangler dev --test-scheduled"
   },
   "type": "module"
 }
