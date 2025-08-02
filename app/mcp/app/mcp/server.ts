@@ -1,31 +1,31 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
+import type { McpServerConfig } from "./types.js"
 
-export function createMcpServer(env: Cloudflare.Env) {
+export function createMcpServer(config: McpServerConfig) {
   const mcpServer = new McpServer({
-    name: "cloudflare-autorag-mcp-server",
-    version: "1.0.0",
+    name: config.name,
+    version: config.version,
   })
 
-  // Effect Documentation AI Search tool implementation
   mcpServer.registerTool(
-    "search_effect_docs_by_ai",
+    config.aiSearch.name,
     {
-      description: "Effect ドキュメントを検索し、AI回答を生成する",
+      description: config.aiSearch.description,
       inputSchema: {
-        query: z.string().describe("検索クエリ"),
+        query: z.string().describe("Search query"),
         rewrite_query: z
           .boolean()
           .default(true)
-          .describe("クエリの書き換えを有効にする"),
+          .describe("Enable query rewriting"),
       },
-      title: "Effect Documentation Search",
+      title: config.aiSearch.title,
     },
     async ({ query, rewrite_query }) => {
       try {
-        const result = await env.AI.autorag(env.AUTO_RAG_NAME).aiSearch({
+        const result = await config.ai.autorag(config.autoRagName).aiSearch({
           query,
-          rewrite_query: rewrite_query ?? true,
+          rewrite_query: rewrite_query,
         })
 
         return {
@@ -37,10 +37,11 @@ export function createMcpServer(env: Cloudflare.Env) {
           ],
         }
       } catch (error) {
+        console.error("AI search failed:", error)
         return {
           content: [
             {
-              text: `エラーが発生しました: ${error instanceof Error ? error.message : String(error)}`,
+              text: "An error occurred while processing the search request",
               type: "text",
             },
           ],
