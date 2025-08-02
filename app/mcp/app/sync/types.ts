@@ -1,3 +1,5 @@
+import type { Cause, Effect } from "@totto/function/effect"
+
 export type DataSourceType = "http" | "firecrawl"
 
 export type DataSourceTarget = {
@@ -9,3 +11,11 @@ export type DataSourceConfig = {
   r2Bucket: R2Bucket
   dataSources: DataSourceTarget[]
 }
+
+export type DataFetchResult = Effect.Effect<
+  {
+    value: string
+    source: DataSourceTarget
+  },
+  Cause.UnknownException
+>
