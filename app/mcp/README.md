@@ -1,19 +1,52 @@
-# mcp
+# Documentation MCP Server
 
-## 本番環境構築
+A Model Context Protocol (MCP) server that provides technical documentation search capabilities. Runs on Cloudflare Workers and uses Auto RAG for document search and AI response generation.
+
+## Overview
+
+- **Endpoint**: `/api/mcp`
+- **Currently Supported**: Effect library documentation
+- **Future Plans**: Expansion to other technical documentation
+- **Runtime**: Cloudflare Workers
+- **Data Source**: R2 + Auto RAG
+
+## Architecture
+
+For detailed design documentation, please refer to:
+
+- [System Architecture](./docs/architecture.md)
+- [MCP Server Design](./docs/mcp-server.md)
+- [Data Sync Design](./docs/data-sync.md)
+
+## Production Environment Setup
+
+The following is a configuration example for Effect documentation. When adding other document sources, create resources using similar steps.
+
+### Naming Conventions
+
+When adding new document sources, follow these naming patterns:
+
+- **R2 Bucket Names**: `{library-name}-mcp` (e.g., `effect-mcp`, `react-mcp`, `vue-mcp`)
+- **R2 Bindings**: `{LIBRARY_NAME}_DATA_SOURCE` (e.g., `EFFECT_DATA_SOURCE`, `REACT_DATA_SOURCE`)
+- **Auto RAG Names**: `{library-name}-mcp` (e.g., `effect-mcp`, `react-mcp`, `vue-mcp`)
+- **Auto RAG Variables**: `{LIBRARY_NAME}_AUTO_RAG_NAME` (e.g., `EFFECT_AUTO_RAG_NAME`, `REACT_AUTO_RAG_NAME`)
 
 ### Cloudflare R2
 
+Create an R2 bucket for storing Effect documentation data.
+
 ```bash
-na wrangler r2 bucket create $NAME
+na wrangler r2 bucket create effect-mcp
 ```
 
-```json:wrangler.jsonc
+Add the following configuration to `wrangler.jsonc`:
+
+```json
 {
   "r2_buckets": [
     {
-      "binding": "DATA_SOURCE",
-      "bucket_name": "$NAME"
+      "binding": "EFFECT_DATA_SOURCE",
+      "bucket_name": "effect-mcp"
     }
   ]
 }
@@ -21,41 +54,102 @@ na wrangler r2 bucket create $NAME
 
 ### Cloudflare AI Gateway
 
-- 設定しなくても良い
-- MCP用に新規で作成することを推奨する
-  - ログを有効にする
-  - キャッシュを有効にする
+- Not required, but recommended
+- We recommend creating a new one specifically for MCP
+  - Enable logging
+  - Enable caching
 
-TODO: 認証済みゲートウェイを使用する設定を追加する
+TODO: Add configuration for authenticated gateway usage
 
-### Cloudflare Auto Rag
+### Cloudflare Auto RAG
 
-1. 作成したCloudflare R2を選択して次ヘ進む
-1. 次へ進む
-1. AI Gatewayを生成していた場合は選択、していない場合はデフォルトのまま次へ進む
-   - クエリの書き換えを有効にする
-   - 類似性キャッシュを有効にする
-1. 任意の名前で設定する
-1. `wrangler.jsonc`に設定した名前を追加する
-   ```json:wrangler.jsonc
+Configure Auto RAG for Effect documentation search.
+
+1. Select the created Cloudflare R2 bucket (`effect-mcp`) and proceed
+2. Proceed to the next step
+3. If you have created an AI Gateway, select it; otherwise, proceed with defaults
+   - Enable query rewriting
+   - Enable similarity caching
+4. Set the name to `effect-mcp`
+5. Add the following configuration to `wrangler.jsonc`:
+   ```json
    {
      "vars": {
-       "AUTO_RAG_NAME": "$AUTO_RAG_NAME"
+       "EFFECT_AUTO_RAG_NAME": "effect-mcp"
      }
    }
    ```
 
 ### Cloudflare Workers
 
-1. ローカルからデプロイする
-1. GitHubと連携する
+1. Deploy from local environment
+2. Connect with GitHub
    - build: `pnpm turbo build`
    - cwd: `app/mcp`
-1. ビルド環境の設定をする
-   - バージョンは適切に設定すること
+3. Configure build environment
+   - Set appropriate versions
    - `NODE_VERSION`
    - `PNPM_VERSION`
 
-### Cloudflare Access
+## MCP Configuration
 
-TODO
+After deployment, configure the following endpoint in your MCP client (Claude Desktop or Claude Code).
+
+### Endpoint
+
+```
+https://mcp.totto2727.workers.dev/api/mcp
+```
+
+### Claude Code Configuration
+
+To install with user scope in Claude Code:
+
+```bash
+claude mcp add -s user --transport http totto-doc-mcp https://mcp.totto2727.workers.dev/api/mcp
+```
+
+### Available Tools
+
+Currently supported tools:
+
+- **search_ai_effect**: Effect documentation search and AI response generation
+
+### Usage Examples
+
+#### Effect Library
+
+```
+"How to use Effect Data types"
+"Error handling with Effect.gen"
+"Effect pipeline processing"
+```
+
+#### Future Additions
+
+We plan to provide similar search tools for other technical documentation (React, Vue, and other libraries).
+
+## Development
+
+### Local Development
+
+```bash
+# Install dependencies
+ni
+
+# Start development server
+nr dev
+
+# Type checking
+nr check
+
+# Build
+nr build
+```
+
+### Deployment
+
+```bash
+# Deploy to production
+nr deploy
+```
