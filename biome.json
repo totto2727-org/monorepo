@@ -37,7 +37,8 @@
           }
         }
       },
-      "recommended": true
+      "recommended": true,
+      "suspicious": { "noShadowRestrictedNames": "off" }
     }
   },
   "vcs": {
