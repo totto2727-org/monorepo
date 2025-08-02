@@ -2,7 +2,9 @@
 
 ## 概要
 
-この文書は、Effectドキュメント検索のためのMCP（Model Context Protocol）サーバーの設計について説明します。Cloudflare Workers上で`@hono/mcp`を使用し、Cloudflare Auto RAGを通じてEffectライブラリのドキュメントを検索・提供するシステムです。
+この文書は、Effectドキュメント検索のためのMCP（Model Context Protocol）サーバーの設計について説明します。
+
+**共通アーキテクチャ**: システム全体の設計については[architecture.md](./architecture.md)を参照してください。
 
 ## アーキテクチャ
 
