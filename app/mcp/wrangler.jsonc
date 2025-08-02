@@ -21,7 +21,7 @@
     }
   ],
   "triggers": {
-    "crons": ["0 0 * * 0"]
+    "crons": ["0 0 * * 1"]
   },
   "vars": {
     "EFFECT_AUTO_RAG_NAME": "effect-mcp"
