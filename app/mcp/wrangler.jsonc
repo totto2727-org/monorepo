@@ -20,6 +20,9 @@
       "bucket_name": "effect-mcp"
     }
   ],
+  "triggers": {
+    "crons": ["0 0 * * 0"]
+  },
   "vars": {
     "EFFECT_AUTO_RAG_NAME": "effect-mcp"
   }
