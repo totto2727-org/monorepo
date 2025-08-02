@@ -1,8 +1,8 @@
-# 統合MCPサーバー設計書
+# MCPサーバー設計書
 
 ## 概要
 
-この文書は、複数のドキュメントソースに対応する統合MCP（Model Context Protocol）サーバーの設計について説明します。単一のエンドポイントで複数のドキュメント検索ツールを提供します。
+この文書は、EffectドキュメントのMCP（Model Context Protocol）サーバーの設計について説明します。単一のエンドポイントでEffectドキュメント検索ツールを提供します。
 
 **共通アーキテクチャ**: システム全体の設計については[architecture.md](./architecture.md)を参照してください。
 
@@ -12,19 +12,17 @@
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   MCP Client    │────│  Cloudflare     │────│  Multiple Docs  │
-│   (Claude/IDEs) │    │   Workers       │    │   Auto RAGs     │
+│   MCP Client    │────│  Cloudflare     │────│  Effect Docs    │
+│   (Claude/IDEs) │    │   Workers       │    │   Auto RAG      │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
          │                    │                        │
-         │              ┌─────┴─────┐          ┌──────┴──────┐
-         └──/api/mcp────│  Unified  │          │ • Effect    │
-                        │MCP Server │          │ • React     │
-                        └─────┬─────┘          │ • Vue       │
-                              │                └─────────────┘
-                        Multiple Tools:
+         │              ┌─────┴─────┐                  │
+         └──/api/mcp────│  Effect   │──────────────────┘
+                        │MCP Server │
+                        └─────┬─────┘
+                              │
+                        Single Tool:
                         • search_ai_effect
-                        • search_ai_react
-                        • search_ai_vue
 ```
 
 ### コアコンポーネント
@@ -44,16 +42,15 @@
 - **トランスポート管理**: HTTPトランスポートのライフサイクル管理
 - **実装**: [app/mcp/handler.ts](./app/mcp/handler.ts)
 
-#### 3. 統合ツール実装
+#### 3. ツール実装
 
-**統一命名規則**: `search_ai_{source}`
+**ツール名**: `search_ai_effect`
 
 - **search_ai_effect**: Effectライブラリのドキュメント検索
-- **search_ai_react**: Reactライブラリのドキュメント検索  
-- **search_ai_vue**: Vueライブラリのドキュメント検索
 
 **共通機能**:
-- Auto RAG `aiSearch()`メソッド統合
+
+- Auto RAG統合
 - 検索結果 + AI回答生成
 - JSONレスポンス形式
 - **セキュリティ**: エラー詳細をクライアントレスポンスから除外
@@ -104,6 +101,7 @@ Cloudflare Workersバインディングによる設定管理:
 依存関係は[package.json](./package.json)で定義されたPNPMカタログモードで管理されています。
 
 主要な依存関係:
+
 - `@hono/mcp` - Hono用MCP統合
 - `@modelcontextprotocol/sdk` - 公式MCP SDK
 - `hono` - Webフレームワーク
@@ -132,27 +130,24 @@ Cloudflare Workersバインディングによる設定管理:
 - **クライアントレスポンスサニタイゼーション**: 汎用エラーメッセージのみ
 - **情報漏洩防止**: 機密性のあるサーバー詳細をクライアントに公開しない
 
-## 統合アーキテクチャの利点
+## アーキテクチャの利点
 
 ### 運用の簡素化
 
 - **単一エンドポイント**: `/api/mcp`でクライアント設定が簡潔
-- **統一ツール管理**: 全検索ツールが1つのMCPサーバーに集約
-- **一貫した命名**: `search_ai_{source}`パターンで直感的
+- **Effect専用設計**: Effectドキュメントに特化した効率的な実装
 
 ### 拡張性
 
 - **新ドキュメントソース追加**: 設定変更のみで新しい検索ツールを追加
 - **環境別設定**: プレフィックスベースのバインディング管理
-  - Effect: `EFFECT_AUTO_RAG_NAME`、`EFFECT_DATA_SOURCE`  
-  - React: `REACT_AUTO_RAG_NAME`、`REACT_DATA_SOURCE`
-  - Vue: `VUE_AUTO_RAG_NAME`、`VUE_DATA_SOURCE`
+  - Effect: `EFFECT_AUTO_RAG_NAME`、`EFFECT_DATA_SOURCE`
 
 ### 保守性向上
 
-- **統一インターフェース**: 全ツールが同じMCPサーバー構造
+- **シンプルな構造**: 単一ドキュメントソースに特化した設計
 - **設定駆動**: コード変更を最小限に抑えた機能追加
-- **型安全性**: TypeScriptによる統合的な型管理
+- **型安全性**: TypeScriptによる型管理
 
 ## 使用例
 
@@ -161,16 +156,11 @@ Cloudflare Workersバインディングによる設定管理:
 - **search_ai_effect**: Effect関連の検索
   - "Effect Data型の使い方"
   - "Effect.genでのエラーハンドリング"
-- **search_ai_react**: React関連の検索
-  - "React Hooksの使い方"
-  - "useEffectの依存配列の管理"
-- **search_ai_vue**: Vue関連の検索
-  - "Vue Composition APIの使い方"
-  - "Reactivityシステムの仕組み"
+  - "Effectのパイプライン処理"
 
 ### 期待される応答
 
-各ツールは対応するライブラリの公式ドキュメントを検索し、使用パターンとベストプラクティスについて詳細で実用的なAI回答を生成します。
+ツールはEffectライブラリの公式ドキュメントを検索し、使用パターンとベストプラクティスについて詳細で実用的なAI回答を生成します。
 
 ## 監視と可観測性
 
