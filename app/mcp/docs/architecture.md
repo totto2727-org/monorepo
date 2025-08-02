@@ -13,11 +13,18 @@
 │   MCP Client    │────│  Cloudflare     │────│  Data Sources   │
 │   (Claude/IDEs) │    │   Workers       │    │  & Storage      │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
-                              │                        │
-                              ├── MCP Server           ├── R2 Storage
-                              ├── Data Sync Worker     ├── Auto RAG
-                              ├── Hono Router          ├── HTTP APIs
-                              └── Factory Pattern      └── Firecrawl
+         │                    │                        │
+         │              ┌─────┴─────┐                 │
+         └──/api/mcp────│ Unified   │                 ├── R2 Storage
+                        │ MCP Server │                 ├── Auto RAG
+                        └─────┬─────┘                 ├── HTTP APIs
+                              │                        └── Firecrawl
+                        ┌─────┴─────┐
+                        │   Tools   │
+                        ├───────────┤
+                        ├ search_ai_effect
+                        ├ search_ai_react
+                        └ search_ai_vue
 ```
 
 ## 共通プラットフォーム
@@ -88,6 +95,8 @@ app/
 ## 拡張性設計
 
 ### マルチドキュメント対応
+- **統合エンドポイント**: `/api/mcp`で全ドキュメントソースを提供
+- **ツール命名規則**: `search_ai_{source}`パターンで一貫性確保
 - **設定ベース拡張**: 新ドキュメントソース追加時の最小変更
 - **ファクトリーパターン**: 再利用可能なコンポーネント設計
 - **型安全性**: TypeScript静的型チェック
@@ -95,6 +104,6 @@ app/
 ### 新機能統合
 - **モジュラー設計**: 独立したコンポーネント間の疎結合
 - **設定駆動**: コード変更を最小限に抑えた機能追加
-- **後方互換性**: 既存機能への影響を最小化
+- **統一インターフェース**: 全ツールが同一のMCPサーバーで動作
 
 この共通アーキテクチャにより、MCPサーバーとデータ同期システムの一貫性、拡張性、保守性を確保します。

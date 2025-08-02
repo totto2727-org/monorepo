@@ -1,8 +1,8 @@
-# MCPサーバー設計書
+# 統合MCPサーバー設計書
 
 ## 概要
 
-この文書は、Effectドキュメント検索のためのMCP（Model Context Protocol）サーバーの設計について説明します。
+この文書は、複数のドキュメントソースに対応する統合MCP（Model Context Protocol）サーバーの設計について説明します。単一のエンドポイントで複数のドキュメント検索ツールを提供します。
 
 **共通アーキテクチャ**: システム全体の設計については[architecture.md](./architecture.md)を参照してください。
 
@@ -12,14 +12,19 @@
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   MCP Client    │────│  Cloudflare     │────│   Effect Docs   │
-│   (Claude/IDEs) │    │   Workers       │    │   Auto RAG      │
+│   MCP Client    │────│  Cloudflare     │────│  Multiple Docs  │
+│   (Claude/IDEs) │    │   Workers       │    │   Auto RAGs     │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
-                              │
-                              ├── Hono Router
-                              ├── Factory Pattern
-                              ├── MCP Handler
-                              └── MCP Server Core
+         │                    │                        │
+         │              ┌─────┴─────┐          ┌──────┴──────┐
+         └──/api/mcp────│  Unified  │          │ • Effect    │
+                        │MCP Server │          │ • React     │
+                        └─────┬─────┘          │ • Vue       │
+                              │                └─────────────┘
+                        Multiple Tools:
+                        • search_ai_effect
+                        • search_ai_react
+                        • search_ai_vue
 ```
 
 ### コアコンポーネント
@@ -39,11 +44,15 @@
 - **トランスポート管理**: HTTPトランスポートのライフサイクル管理
 - **実装**: [app/mcp/handler.ts](./app/mcp/handler.ts)
 
-#### 3. ツール実装
+#### 3. 統合ツール実装
 
-**Effectドキュメント検索ツール** (`search_effect_docs_by_ai`)
+**統一命名規則**: `search_ai_{source}`
 
-- Effectライブラリのドキュメント検索に特化
+- **search_ai_effect**: Effectライブラリのドキュメント検索
+- **search_ai_react**: Reactライブラリのドキュメント検索  
+- **search_ai_vue**: Vueライブラリのドキュメント検索
+
+**共通機能**:
 - Auto RAG `aiSearch()`メソッド統合
 - 検索結果 + AI回答生成
 - JSONレスポンス形式
@@ -123,35 +132,45 @@ Cloudflare Workersバインディングによる設定管理:
 - **クライアントレスポンスサニタイゼーション**: 汎用エラーメッセージのみ
 - **情報漏洩防止**: 機密性のあるサーバー詳細をクライアントに公開しない
 
-## 将来の拡張性
+## 統合アーキテクチャの利点
 
-### マルチドキュメント対応
+### 運用の簡素化
 
-リファクタリングされたアーキテクチャは以下により他ドキュメントソースへの容易な拡張をサポート:
+- **単一エンドポイント**: `/api/mcp`でクライアント設定が簡潔
+- **統一ツール管理**: 全検索ツールが1つのMCPサーバーに集約
+- **一貫した命名**: `search_ai_{source}`パターンで直感的
 
-- **設定可能なMCPハンドラー**: 環境駆動の設定関数
-- **命名規則**: プレフィックス付きバインディング（`EFFECT_*`、`REACT_*`、`VUE_*`）
-- **ファクトリーパターン**: 異なるドキュメントソース用の再利用可能なハンドラー生成
+### 拡張性
 
-### 設定のスケーラビリティ
+- **新ドキュメントソース追加**: 設定変更のみで新しい検索ツールを追加
+- **環境別設定**: プレフィックスベースのバインディング管理
+  - Effect: `EFFECT_AUTO_RAG_NAME`、`EFFECT_DATA_SOURCE`  
+  - React: `REACT_AUTO_RAG_NAME`、`REACT_DATA_SOURCE`
+  - Vue: `VUE_AUTO_RAG_NAME`、`VUE_DATA_SOURCE`
 
-環境バインディングは明確な分離のための命名規則に従います:
-- Effect: `EFFECT_AUTO_RAG_NAME`、`EFFECT_DATA_SOURCE`
-- 将来のReact: `REACT_AUTO_RAG_NAME`、`REACT_DATA_SOURCE`
-- 将来のVue: `VUE_AUTO_RAG_NAME`、`VUE_DATA_SOURCE`
+### 保守性向上
+
+- **統一インターフェース**: 全ツールが同じMCPサーバー構造
+- **設定駆動**: コード変更を最小限に抑えた機能追加
+- **型安全性**: TypeScriptによる統合的な型管理
 
 ## 使用例
 
-### 典型的な検索クエリ
+### 利用可能なツール
 
-- "Effect Data型の使い方"
-- "Effect.genでのエラーハンドリング"
-- "Effect Schemaでのバリデーション"
-- "Effect Configの設定方法"
+- **search_ai_effect**: Effect関連の検索
+  - "Effect Data型の使い方"
+  - "Effect.genでのエラーハンドリング"
+- **search_ai_react**: React関連の検索
+  - "React Hooksの使い方"
+  - "useEffectの依存配列の管理"
+- **search_ai_vue**: Vue関連の検索
+  - "Vue Composition APIの使い方"
+  - "Reactivityシステムの仕組み"
 
 ### 期待される応答
 
-システムはEffect公式ドキュメントを検索し、Effectライブラリの使用パターンとベストプラクティスについて詳細で実用的なAI回答を生成します。
+各ツールは対応するライブラリの公式ドキュメントを検索し、使用パターンとベストプラクティスについて詳細で実用的なAI回答を生成します。
 
 ## 監視と可観測性
 
