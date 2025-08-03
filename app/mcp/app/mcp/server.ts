@@ -28,7 +28,7 @@ export function createMcpServer(autoRagName: string, config: McpServerConfig) {
             filters: {
               key: "folder",
               type: "eq",
-              value: source.target,
+              value: `${source.target}/`,
             },
             query,
             rewrite_query: rewrite_query,
