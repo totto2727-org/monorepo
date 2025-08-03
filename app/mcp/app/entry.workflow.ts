@@ -1,5 +1,4 @@
 import {
-  env,
   WorkflowEntrypoint,
   type WorkflowEvent,
   type WorkflowStep,
@@ -17,8 +16,8 @@ export class DataSyncWorkflow extends WorkflowEntrypoint<
   override async run(_event: WorkflowEvent<Params>, step: WorkflowStep) {
     await step.do("sync files", async () => {
       return pipe(
-        createDataSourceConfigArray(env),
-        Array.flatMap((c) => syncDataSources(c)),
+        createDataSourceConfigArray(),
+        Array.flatMap((c) => syncDataSources(this.env.DATA_SOURCE, c)),
         Effect.all,
         Effect.asVoid,
         Effect.runPromise,
@@ -27,7 +26,7 @@ export class DataSyncWorkflow extends WorkflowEntrypoint<
   }
 }
 
-function syncDataSources(config: DataSourceConfig) {
+function syncDataSources(r2: R2Bucket, config: DataSourceConfig) {
   return config.dataSources.map((source) =>
     Effect.gen(function* () {
       switch (source.type) {
@@ -41,7 +40,12 @@ function syncDataSources(config: DataSourceConfig) {
           const result = yield* retrieve(source)
 
           yield* Effect.tryPromise(() =>
-            save(config.r2Bucket, filename, result.value, result.source.type),
+            save(
+              r2,
+              path.join(config.target, filename),
+              result.value,
+              result.source.type,
+            ),
           )
           yield* Effect.logInfo(filename)
 
@@ -62,13 +66,13 @@ function syncDataSources(config: DataSourceConfig) {
   )
 }
 
-function createDataSourceConfigArray(env: Cloudflare.Env): DataSourceConfig[] {
+function createDataSourceConfigArray(): DataSourceConfig[] {
   return [
     {
       dataSources: [
         { type: "text", url: new URL("https://effect.website/llms-full.txt") },
       ],
-      r2Bucket: env.EFFECT_DATA_SOURCE,
+      target: "effect",
     },
   ]
 }
