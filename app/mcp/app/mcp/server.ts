@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
 import type { McpServerConfig } from "./types.js"
 
-export function createMcpServer(config: McpServerConfig) {
+export function createMcpServer(autoRagName: string, config: McpServerConfig) {
   const mcpServer = new McpServer({
     name: config.name,
     version: config.version,
@@ -24,7 +24,12 @@ export function createMcpServer(config: McpServerConfig) {
       },
       async ({ query, rewrite_query }) => {
         try {
-          const result = await config.ai.autorag(source.autoRagName).aiSearch({
+          const result = await config.ai.autorag(autoRagName).aiSearch({
+            filters: {
+              key: "folder",
+              type: "eq",
+              value: source.target,
+            },
             query,
             rewrite_query: rewrite_query,
           })
