@@ -25,5 +25,12 @@
   },
   "vars": {
     "EFFECT_AUTO_RAG_NAME": "effect-mcp"
-  }
+  },
+  "workflows": [
+    {
+      "binding": "DATA_SYNC_WORKFLOW",
+      "class_name": "DataSyncWorkflow",
+      "name": "mcp-data-sync-workflow"
+    }
+  ]
 }
