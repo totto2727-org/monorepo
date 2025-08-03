@@ -8,7 +8,7 @@ function syncDataSources(config: DataSourceConfig) {
   return config.dataSources.map((source) =>
     Effect.gen(function* () {
       switch (source.type) {
-        case "http": {
+        case "text": {
           const filename = path
             .join(source.url.hostname, source.url.pathname)
             .split("/")
@@ -18,7 +18,7 @@ function syncDataSources(config: DataSourceConfig) {
           const result = yield* fetch(source)
 
           yield* Effect.tryPromise(() =>
-            save(config.r2Bucket, filename, result.value),
+            save(config.r2Bucket, filename, result.value, result.source.type),
           )
           yield* Effect.logInfo(filename)
 
@@ -43,7 +43,7 @@ function createDataSourceConfigArray(env: Cloudflare.Env): DataSourceConfig[] {
   return [
     {
       dataSources: [
-        { type: "http", url: new URL("https://effect.website/llms-full.txt") },
+        { type: "text", url: new URL("https://effect.website/llms-full.txt") },
       ],
       r2Bucket: env.EFFECT_DATA_SOURCE,
     },

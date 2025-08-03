@@ -1,6 +1,6 @@
 import type { Cause, Effect } from "@totto/function/effect"
 
-export type DataSourceType = "http" | "firecrawl"
+export type DataSourceType = "text" | "firecrawl"
 
 export type DataSourceTarget = {
   type: DataSourceType

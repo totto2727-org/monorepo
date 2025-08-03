@@ -2,7 +2,7 @@ import { Cause, Effect } from "@totto/function/effect"
 import { FetchHttpClient, HttpClient } from "@totto/function/effect/platform"
 import type { DataFetchResult, DataSourceTarget } from "./types.js"
 
-function fetchHttp(target: DataSourceTarget): DataFetchResult {
+function fetchText(target: DataSourceTarget): DataFetchResult {
   return Effect.gen(function* () {
     const httpClient = yield* HttpClient.HttpClient
     const response = yield* httpClient.get(target.url.toString())
@@ -20,8 +20,8 @@ function fetchFirecrawl(_target: DataSourceTarget): DataFetchResult {
 
 export function fetch(target: DataSourceTarget): DataFetchResult {
   switch (target.type) {
-    case "http":
-      return fetchHttp(target)
+    case "text":
+      return fetchText(target)
     case "firecrawl":
       return fetchFirecrawl(target)
   }
