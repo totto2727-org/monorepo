@@ -136,6 +136,50 @@ app/
 - Auto RAG互換フォーマットでの保存
 - 検索効率を考慮したデータ構造
 
+## メタデータとフィルタリング
+
+### 自動メタデータ設定
+
+Cloudflare AutoRAGは、R2オブジェクトに対して以下のメタデータを自動的に設定します：
+
+- **folder**: ファイルのディレクトリパス（例: `effect/`）
+- **filename**: ファイル名（例: `effect-website-llms-full.txt`）
+- **timestamp**: 最終更新時間（Unix timestamp）
+
+### フィルタリング機能
+
+各MCPツールは、AutoRAGの`filters`プロパティを使用して対象ドキュメントのみを検索：
+
+```javascript
+filters: {
+  key: "folder",
+  type: "eq", 
+  value: "effect"  // effectフォルダのみを検索
+}
+```
+
+**サポートされる比較演算子**:
+
+- `eq`: 等しい
+- `ne`: 等しくない
+- `gt`: より大きい
+- `gte`: 以上
+- `lt`: より小さい
+- `lte`: 以下
+
+### フォルダ構造
+
+R2バケット内のファイル構造：
+
+```
+mcp/
+├── effect/
+│   ├── effect-website-llms-full.txt
+│   └── [他のEffectドキュメント]
+└── [将来追加される他のドキュメントタイプ]/
+    └── [ドキュメントファイル]
+```
+
 ## Cloudflare Workflowsの活用
 
 ### Workflowsとは
@@ -201,11 +245,35 @@ Cloudflare Workflowsは、長時間実行可能な耐久性のあるワークフ
 
 ## 将来の拡張性
 
-### 新しいデータソースの追加
+### 新しいドキュメントタイプの追加
 
-1. `types.ts`に新しいデータソースタイプを追加
-2. `retrieve.ts`に取得ロジックを実装
-3. `createDataSourceConfigArray`に設定を追加
+1. **型定義更新**: `mcp/types.ts`の`TargetDocument`に新しいタイプを追加
+2. **データソース設定**: `createDataSourceConfigArray`に新しい設定を追加
+3. **MCPツール設定**: `entry.hono.ts`に新しい検索ツールを追加
+4. **フォルダ作成**: R2内で新しいフォルダが自動作成される
+
+例：Reactドキュメント追加の場合：
+
+```typescript
+// mcp/types.ts
+export type TargetDocument = "effect" | "react"
+
+// entry.workflow.ts  
+{
+  dataSources: [
+    { type: "text", url: new URL("https://react.dev/reference.txt") },
+  ],
+  target: "react",
+}
+
+// entry.hono.ts
+{
+  description: "Search React documentation and generate AI responses",
+  name: "search_ai_react", 
+  target: "react",
+  title: "React Documentation Search",
+}
+```
 
 ### パフォーマンス最適化
 

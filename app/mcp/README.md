@@ -1,14 +1,15 @@
 # Documentation MCP Server
 
-A Model Context Protocol (MCP) server that provides technical documentation search capabilities. Runs on Cloudflare Workers and uses Auto RAG for document search and AI response generation.
+A unified Model Context Protocol (MCP) server that provides multi-document technical documentation search capabilities. Runs on Cloudflare Workers and uses a unified Auto RAG with filtering for document search and AI response generation.
 
 ## Overview
 
 - **Endpoint**: `/api/mcp`
 - **Currently Supported**: Effect library documentation
-- **Future Plans**: Expansion to other technical documentation
+- **Architecture**: Unified Auto RAG with folder-based filtering
+- **Future Plans**: Expansion to React, Vue, and other technical documentation
 - **Runtime**: Cloudflare Workers
-- **Data Source**: R2 + Auto RAG
+- **Data Source**: Unified R2 bucket + Auto RAG
 
 ## Architecture
 
@@ -20,23 +21,24 @@ For detailed design documentation, please refer to:
 
 ## Production Environment Setup
 
-The following is a configuration example for Effect documentation. When adding other document sources, create resources using similar steps.
+The following configuration uses a unified approach where all documentation is stored in a single R2 bucket and managed by a single Auto RAG instance, with folder-based organization and filtering.
 
-### Naming Conventions
+### Unified Naming Convention
 
-When adding new document sources, follow these naming patterns:
+All document types use unified resources:
 
-- **R2 Bucket Names**: `{library-name}-mcp` (e.g., `effect-mcp`, `react-mcp`, `vue-mcp`)
-- **R2 Bindings**: `{LIBRARY_NAME}_DATA_SOURCE` (e.g., `EFFECT_DATA_SOURCE`, `REACT_DATA_SOURCE`)
-- **Auto RAG Names**: `{library-name}-mcp` (e.g., `effect-mcp`, `react-mcp`, `vue-mcp`)
-- **Auto RAG Variables**: `{LIBRARY_NAME}_AUTO_RAG_NAME` (e.g., `EFFECT_AUTO_RAG_NAME`, `REACT_AUTO_RAG_NAME`)
+- **R2 Bucket Name**: `mcp` (single bucket for all documents)
+- **R2 Binding**: `DATA_SOURCE` (unified binding)
+- **Auto RAG Name**: `mcp` (single Auto RAG instance)
+- **Auto RAG Variable**: `AUTO_RAG_NAME` (unified variable)
+- **Folder Structure**: `{document-type}/filename` (e.g., `effect/`, `react/`, `vue/`)
 
 ### Cloudflare R2
 
-Create an R2 bucket for storing Effect documentation data.
+Create a unified R2 bucket for storing all documentation data.
 
 ```bash
-na wrangler r2 bucket create effect-mcp
+na wrangler r2 bucket create mcp
 ```
 
 Add the following configuration to `wrangler.jsonc`:
@@ -45,8 +47,8 @@ Add the following configuration to `wrangler.jsonc`:
 {
   "r2_buckets": [
     {
-      "binding": "EFFECT_DATA_SOURCE",
-      "bucket_name": "effect-mcp"
+      "binding": "DATA_SOURCE",
+      "bucket_name": "mcp"
     }
   ]
 }
@@ -65,22 +67,24 @@ TODO: Add configuration for authenticated gateway usage
 
 ### Cloudflare Auto RAG
 
-Configure Auto RAG for Effect documentation search.
+Configure unified Auto RAG for all documentation search.
 
-1. Select the created Cloudflare R2 bucket (`effect-mcp`) and proceed
+1. Select the created Cloudflare R2 bucket (`mcp`) and proceed
 2. Proceed to the next step
 3. If you have created an AI Gateway, select it; otherwise, proceed with defaults
    - Enable query rewriting
    - Enable similarity caching
-4. Set the name to `effect-mcp`
+4. Set the name to `mcp`
 5. Add the following configuration to `wrangler.jsonc`:
    ```json
    {
      "vars": {
-       "EFFECT_AUTO_RAG_NAME": "effect-mcp"
+       "AUTO_RAG_NAME": "mcp"
      }
    }
    ```
+
+**Filtering**: The system automatically uses folder-based filtering to ensure each search tool only searches its relevant documents (e.g., Effect tool searches only `effect/` folder).
 
 ### Cloudflare Workers
 
@@ -117,6 +121,11 @@ Currently supported tools:
 
 - **search_ai_effect**: Effect documentation search and AI response generation
 
+**Future Tools** (when documentation is added):
+
+- **search_ai_react**: React documentation search
+- **search_ai_vue**: Vue documentation search
+
 ### Usage Examples
 
 #### Effect Library
@@ -127,9 +136,16 @@ Currently supported tools:
 "Effect pipeline processing"
 ```
 
-#### Future Additions
+#### Adding New Documentation
 
-We plan to provide similar search tools for other technical documentation (React, Vue, and other libraries).
+To add a new documentation source:
+
+1. **Add Type**: Update `TargetDocument` in `app/mcp/types.ts`
+2. **Add Data Source**: Configure in `app/entry.workflow.ts`
+3. **Add MCP Tool**: Configure in `app/entry.hono.ts`
+4. **Deploy**: The system automatically creates the folder structure and filtering
+
+Each tool automatically searches only its relevant documentation using folder-based filtering.
 
 ## Development
 
