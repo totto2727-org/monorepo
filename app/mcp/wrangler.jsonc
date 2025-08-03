@@ -16,15 +16,15 @@
   },
   "r2_buckets": [
     {
-      "binding": "EFFECT_DATA_SOURCE",
-      "bucket_name": "effect-mcp"
+      "binding": "DATA_SOURCE",
+      "bucket_name": "mcp"
     }
   ],
   "triggers": {
     "crons": ["0 0 * * 1"]
   },
   "vars": {
-    "EFFECT_AUTO_RAG_NAME": "effect-mcp"
+    "AUTO_RAG_NAME": "mcp"
   },
   "workflows": [
     {
