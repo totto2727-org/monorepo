@@ -52,6 +52,8 @@ Add the following configuration to `wrangler.jsonc`:
 }
 ```
 
+**Important**: Configure R2 bucket lifecycle to automatically delete objects after 2 weeks to manage storage costs and keep data fresh.
+
 ### Cloudflare AI Gateway
 
 - Not required, but recommended

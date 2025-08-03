@@ -66,16 +66,15 @@
 app/
 ├── entry.hono.ts           # Honoアプリケーションエントリーポイント
 ├── entry.worker.ts         # Workersエントリーポイント
+├── entry.scheduled.ts      # Scheduled worker
 ├── hono.ts                 # Honoファクトリー設定
 ├── mcp/                    # MCPサーバーコンポーネント
 │   ├── server.ts           # MCPサーバーコア
 │   ├── handler.ts          # MCPハンドラーファクトリー
 │   └── types.ts            # MCPサーバー型定義
 └── sync/                   # データ同期コンポーネント
-    ├── data-sync.ts        # Scheduled worker
-    ├── data-fetcher.ts     # データ取得ロジック
+    ├── fetch.ts            # データ取得ロジック
     ├── r2-storage.ts       # R2操作ユーティリティ
-    ├── error-handler.ts    # エラーハンドリング
     └── types.ts            # データ同期型定義
 ```
 
