@@ -2,7 +2,7 @@ import { Cause, Effect } from "@totto/function/effect"
 import { FetchHttpClient, HttpClient } from "@totto/function/effect/platform"
 import type { DataFetchResult, DataSourceTarget } from "./types.js"
 
-function fetchText(target: DataSourceTarget): DataFetchResult {
+function retrieveText(target: DataSourceTarget): DataFetchResult {
   return Effect.gen(function* () {
     const httpClient = yield* HttpClient.HttpClient
     const response = yield* httpClient.get(target.url.toString())
@@ -14,15 +14,15 @@ function fetchText(target: DataSourceTarget): DataFetchResult {
   )
 }
 
-function fetchFirecrawl(_target: DataSourceTarget): DataFetchResult {
+function retrieveFirecrawl(_target: DataSourceTarget): DataFetchResult {
   return Effect.fail(new Cause.UnknownException("TODO"))
 }
 
-export function fetch(target: DataSourceTarget): DataFetchResult {
+export function retrieve(target: DataSourceTarget): DataFetchResult {
   switch (target.type) {
     case "text":
-      return fetchText(target)
+      return retrieveText(target)
     case "firecrawl":
-      return fetchFirecrawl(target)
+      return retrieveFirecrawl(target)
   }
 }
