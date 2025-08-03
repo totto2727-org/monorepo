@@ -1,4 +1,5 @@
 import type { Cause, Effect } from "@totto/function/effect"
+import type { TargetDocument } from "#@/mcp/types.js"
 
 export type DataSourceType = "text" | "firecrawl"
 
@@ -8,7 +9,7 @@ export type DataSourceTarget = {
 }
 
 export type DataSourceConfig = {
-  r2Bucket: R2Bucket
+  target: TargetDocument
   dataSources: DataSourceTarget[]
 }
 
