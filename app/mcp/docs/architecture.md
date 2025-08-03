@@ -23,6 +23,11 @@
                         │   Tool    │
                         ├───────────┤
                         └ search_ai_effect
+                        
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Scheduled     │────│   Workflows     │────│  Data Sync      │
+│   Worker        │    │   Platform      │    │  Workflow       │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
 ## 共通プラットフォーム
@@ -31,14 +36,21 @@
 
 - **実行環境**: Edge-first serverless platform
 - **スケーリング**: Automatic scaling and global distribution
-- **統合サービス**: AI, R2, Analytics, Observability
+- **統合サービス**: AI, R2, Analytics, Observability, Workflows
+
+### Cloudflare Workflows
+
+- **実行時間**: 最大15分（通常のWorkersは30秒）
+- **耐久性**: 自動的な状態管理とリトライ
+- **ステップ実行**: 部分的な失敗に対する耐性
+- **用途**: データ同期処理の信頼性向上
 
 ### Auto RAG統合
 
 **データフロー**:
 
-1. データ収集（Scheduled Worker）
-2. R2ストレージへの保存
+1. データ収集（Scheduled Worker → Workflows）
+2. R2ストレージへの保存（Workflow内で実行）
 3. Auto RAGによるインデックス化
 4. MCPツールからの検索提供
 
@@ -60,20 +72,26 @@
 
 **Cloudflare Workers設定**: [wrangler.jsonc](../wrangler.jsonc)
 
+- Workflowsバインディング
+- Scheduled Triggers
+- R2バケット設定
+- 環境変数
+
 ## 共通ファイル構成
 
 ```
 app/
 ├── entry.hono.ts           # Honoアプリケーションエントリーポイント
-├── entry.worker.ts         # Workersエントリーポイント
-├── entry.scheduled.ts      # Scheduled worker
+├── entry.worker.ts         # Workersエントリーポイント (Workflow export含む)
+├── entry.scheduled.ts      # Scheduled Worker (Workflowトリガー)
+├── entry.workflow.ts       # DataSync Workflow実装
 ├── hono.ts                 # Honoファクトリー設定
 ├── mcp/                    # MCPサーバーコンポーネント
 │   ├── server.ts           # MCPサーバーコア
 │   ├── handler.ts          # MCPハンドラーファクトリー
 │   └── types.ts            # MCPサーバー型定義
 └── sync/                   # データ同期コンポーネント
-    ├── fetch.ts            # データ取得ロジック
+    ├── retrieve.ts         # データ取得ロジック (Workflow用)
     ├── r2-storage.ts       # R2操作ユーティリティ
     └── types.ts            # データ同期型定義
 ```

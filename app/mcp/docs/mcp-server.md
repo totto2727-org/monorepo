@@ -5,6 +5,7 @@
 この文書は、EffectドキュメントのMCP（Model Context Protocol）サーバーの設計について説明します。単一のエンドポイントでEffectドキュメント検索ツールを提供します。
 
 **共通アーキテクチャ**: システム全体の設計については[architecture.md](./architecture.md)を参照してください。
+**データ同期**: Workflowsを使用したデータ同期については[data-sync.md](./data-sync.md)を参照してください。
 
 ## アーキテクチャ
 
@@ -168,3 +169,13 @@ Cloudflare Workersバインディングによる設定管理:
 - **Effectドキュメント検索分析**: クエリパターン分析
 - **Auto RAG使用量監視**: リソース使用率追跡
 - **エラーログとパフォーマンス追跡**: Cloudflareプラットフォームによる包括的な可観測性
+
+## データ同期との統合
+
+MCPサーバーはWorkflowsによって定期的に更新されるR2データを参照します：
+
+- **データソース**: R2バケット（`EFFECT_DATA_SOURCE`）
+- **更新頻度**: 週次（Workflowsにより自動更新）
+- **データ形式**: テキスト形式（将来的にMarkdownも対応予定）
+
+詳細については[data-sync.md](./data-sync.md)を参照してください。
