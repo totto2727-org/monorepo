@@ -57,25 +57,29 @@
 
 データソース設定の型定義は[app/sync/types.ts](./app/sync/types.ts)で管理されています。
 
-### 新規型定義要件
+### 実装済み型定義
 
-- データ取得結果の構造化
+- ✅ **DataFetchResult**: Effect.Effectによるデータ取得結果の構造化
+- ✅ **DataSourceType**: HTTPとFirecrawlのデータソース種別
+- ✅ **DataSourceTarget**: URLとタイプによるデータソース設定
+- ✅ **DataSourceConfig**: R2バケットとデータソース配列の設定
+
+### 将来実装予定
+
 - 同期ジョブの実行結果管理
-- エラーハンドリング用の型定義
+- より詳細なエラーハンドリング用の型定義
 
 ## ファイル構成
 
-### 新規追加予定
+### 実装済み構成
 
 ```
 app/
-├── sync/
-│   ├── data-sync.ts        # メインscheduled worker
-│   ├── data-fetcher.ts     # データ取得ロジック
-│   ├── r2-storage.ts       # R2操作ユーティリティ
-│   └── error-handler.ts    # エラーハンドリング
-└── mcp/
-    └── types.ts            # 共通型定義（既存 + 追加）
+├── entry.scheduled.ts      # メインscheduled worker
+└── sync/
+    ├── fetch.ts            # データ取得ロジック
+    ├── r2-storage.ts       # R2操作ユーティリティ
+    └── types.ts            # データソース型定義
 ```
 
 ## 設定管理
@@ -96,10 +100,11 @@ app/
 
 ### データフロー
 
-1. 週次Scheduled Workerによるデータ収集
-2. R2への形式別データ保存（Markdown/テキスト）
-3. Auto RAGによる自動インデックス化
-4. MCPツールからの検索可能化
+1. **週次Scheduled Worker実行** (毎週日曜日午前0時 UTC)
+2. **データ収集**: HTTPソースからテキストデータを取得
+3. **R2保存**: ファイル名はURL由来の安全な形式で保存
+4. **Auto RAGインデックス化**: R2バケットとAuto RAGの連携
+5. **MCP検索**: search_ai_effectツールからの検索可能化
 
 ### データ形式の統一
 
