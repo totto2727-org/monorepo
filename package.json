@@ -32,6 +32,7 @@
     "check:dprint": "dprint check",
     "fix": "$npm_execpath run /fix:.*/",
     "fix:biome": "biome check --write --unsafe",
-    "fix:dprint": "dprint fmt --allow-no-files"
+    "fix:dprint": "dprint fmt --allow-no-files",
+    "precommit": "turbo fix && turbo check"
   }
 }
