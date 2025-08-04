@@ -6,7 +6,7 @@
     "@libsql/client": "catalog:",
     "@react-router/cloudflare": "catalog:",
     "@react-router/fs-routes": "catalog:",
-    "@totto/function": "jsr:^1.2.2",
+    "@totto/function": "catalog:",
     "@yamada-ui/calendar": "catalog:",
     "@yamada-ui/charts": "catalog:",
     "@yamada-ui/react": "catalog:",
