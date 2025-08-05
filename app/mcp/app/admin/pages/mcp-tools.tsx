@@ -1,6 +1,6 @@
 import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "../ui/icons/icon.js"
 
-export function ToolsManager() {
+export function McpToolsManager() {
   // モックデータ
   const tools = [
     {
@@ -15,32 +15,27 @@ export function ToolsManager() {
     },
   ]
 
-  const availableTargets = [
-    { label: "Effect", value: "effect" },
-    { label: "Hono", value: "hono" },
-    { label: "React", value: "react" },
-    { label: "TypeScript", value: "typescript" },
-  ]
+  const availableTargets = [{ label: "Effect", value: "effect" }]
 
   return (
     <div class="space-y-6">
       {/* ページヘッダー */}
       <div class="flex items-center justify-between">
-        <h1 class="text-3xl font-bold">検索ツール管理</h1>
+        <h1 class="text-3xl font-bold">MCPツール管理</h1>
         <button
           class="btn btn-primary"
           onclick="document.getElementById('add-tool-modal').showModal()"
           type="button"
         >
           <PlusIcon ariaLabel="追加アイコン" size="sm" />
-          新しいツールを追加
+          新しいMCPツールを追加
         </button>
       </div>
 
       {/* 統計サマリー */}
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="stat bg-base-100 rounded-lg shadow">
-          <div class="stat-title">総ツール数</div>
+          <div class="stat-title">総MCPツール数</div>
           <div class="stat-value text-primary">{tools.length}</div>
         </div>
         <div class="stat bg-base-100 rounded-lg shadow">
@@ -62,19 +57,19 @@ export function ToolsManager() {
             <div class="form-control flex-1">
               <input
                 class="input input-bordered"
-                hx-get="/app/admin/api/tools/search"
+                hx-get="/app/admin/api/mcp-tools/search"
                 hx-target="#tools-table"
                 hx-trigger="keyup changed delay:300ms"
                 id="tool-search"
                 name="search"
-                placeholder="ツール名で検索..."
+                placeholder="MCPツール名で検索..."
                 type="text"
               />
             </div>
             <div class="form-control">
               <select
                 class="select select-bordered"
-                hx-get="/app/admin/api/tools/filter"
+                hx-get="/app/admin/api/mcp-tools/filter"
                 hx-target="#tools-table"
                 hx-trigger="change"
                 id="tool-filter"
@@ -92,7 +87,7 @@ export function ToolsManager() {
         </div>
       </div>
 
-      {/* ツール一覧テーブル */}
+      {/* MCPツール一覧テーブル */}
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
           <div class="overflow-x-auto" id="tools-table">
@@ -101,7 +96,7 @@ export function ToolsManager() {
                 <tr>
                   <th>ツール名</th>
                   <th>表示名</th>
-                  <th>対象</th>
+                  <th>対象ドキュメント</th>
                   <th>ステータス</th>
                   <th>最終使用</th>
                   <th>操作</th>
@@ -162,15 +157,15 @@ export function ToolsManager() {
         </div>
       </div>
 
-      {/* 新規ツール追加モーダル */}
+      {/* 新規MCPツール追加モーダル */}
       <dialog class="modal" id="add-tool-modal">
         <div class="modal-box w-11/12 max-w-2xl">
-          <h3 class="font-bold text-lg mb-4">新しい検索ツールを追加</h3>
+          <h3 class="font-bold text-lg mb-4">新しいMCPツールを追加</h3>
 
           <form
             class="space-y-4"
             hx-on="htmx:afterRequest: if(event.detail.successful) document.getElementById('add-tool-modal').close()"
-            hx-post="/app/admin/api/tools"
+            hx-post="/app/admin/api/mcp-tools"
             hx-target="#tools-table"
           >
             {/* ツール名 */}
@@ -223,15 +218,15 @@ export function ToolsManager() {
                 id="tool-description"
                 maxLength={300}
                 name="description"
-                placeholder="このツールの機能と用途を説明してください"
+                placeholder="このMCPツールの機能と用途を説明してください"
                 required
               ></textarea>
             </div>
 
-            {/* 対象 */}
+            {/* 対象ドキュメント */}
             <div class="form-control">
               <label class="label" htmlFor="tool-target">
-                <span class="label-text font-semibold">検索対象</span>
+                <span class="label-text font-semibold">対象ドキュメント</span>
                 <span class="label-text-alt text-error">必須</span>
               </label>
               <select
@@ -274,7 +269,7 @@ export function ToolsManager() {
         {`
           function editTool(toolId) {
             // HTMXで編集フォームを取得して表示
-            htmx.ajax('GET', '/app/admin/api/tools/' + toolId + '/edit', {
+            htmx.ajax('GET', '/app/admin/api/mcp-tools/' + toolId + '/edit', {
               target: '#edit-tool-content',
               swap: 'innerHTML'
             }).then(() => {
@@ -283,8 +278,8 @@ export function ToolsManager() {
           }
 
           function deleteTool(toolId) {
-            if (confirm('このツールを削除してもよろしいですか？この操作は取り消せません。')) {
-              htmx.ajax('DELETE', '/app/admin/api/tools/' + toolId, {
+            if (confirm('このMCPツールを削除してもよろしいですか？この操作は取り消せません。')) {
+              htmx.ajax('DELETE', '/app/admin/api/mcp-tools/' + toolId, {
                 target: '#tools-table',
                 swap: 'outerHTML'
               });
