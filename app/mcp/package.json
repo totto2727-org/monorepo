@@ -5,9 +5,12 @@
     "@cloudflare/workers-types": "catalog:",
     "@hono/mcp": "catalog:",
     "@modelcontextprotocol/sdk": "catalog:",
+    "@tailwindcss/cli": "^4.1.11",
     "@totto/function": "jsr:^1.3.6",
+    "daisyui": "^5.0.50",
     "dprint": "catalog:",
     "hono": "catalog:",
+    "tailwindcss": "^4.1.11",
     "typescript": "catalog:",
     "vite": "catalog:",
     "zod": "catalog:"
@@ -27,6 +30,7 @@
     "deploy": "wrangler deploy",
     "dev": "vite dev",
     "prebuild": "$npm_execpath run -p /prebuild:.*/",
+    "prebuild:tailwindcss": "tailwindcss -i ./app/admin/ui/layout/tailwind.css -o ./public/asset/tailwind.css",
     "prebuild:wrangler": "wrangler types",
     "preview": "wrangler dev --test-scheduled",
     "start": "wrangler dev --test-scheduled"
