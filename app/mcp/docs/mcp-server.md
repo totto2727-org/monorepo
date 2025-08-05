@@ -4,60 +4,41 @@
 
 この文書は、統一されたMCP（Model Context Protocol）サーバーの設計について説明します。単一のエンドポイントで複数のドキュメント検索ツールを提供し、統一されたAutoRAGでフィルタリング検索を実現します。
 
-**共通アーキテクチャ**: システム全体の設計については[architecture.md](./architecture.md)を参照してください。
+**共通アーキテクチャ**: システム全体の設計については[system-architecture.md](./system-architecture.md)を参照してください。
 **データ同期**: Workflowsを使用したデータ同期については[data-sync.md](./data-sync.md)を参照してください。
 
 ## アーキテクチャ
 
 ### 高レベルコンポーネント
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   MCP Client    │────│  Cloudflare     │────│  Unified Docs   │
-│   (Claude/IDEs) │    │   Workers       │    │   Auto RAG      │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                    │                        │
-         │              ┌─────┴─────┐                  │
-         └──/api/mcp────│ Unified   │──filters────────┘
-                        │MCP Server │
-                        └─────┬─────┘
-                              │
-                        Document Tools:
-                        • search_ai_effect
-                        • [Future: search_ai_react]
-                        • [Future: search_ai_vue]
-```
+システムは3つの主要コンポーネントで構成されます：
+
+1. **MCPクライアント**: Claude、IDE等のクライアントアプリケーション
+2. **Cloudflare Workers**: 統一MCPサーバーの実行環境
+3. **統合ドキュメントAutoRAG**: フィルタリング検索機能を提供
+
+統一MCPサーバーは単一エンドポイント`/api/mcp`で全ドキュメントツールを提供し、フィルター機能により対象ドキュメントを絞り込みます。
 
 ### コアコンポーネント
 
 #### 1. MCPサーバーコア
 
-- **フレームワーク**: `@modelcontextprotocol/sdk`
-- **トランスポート**: `StreamableHTTPTransport`
+- **フレームワーク**: ModelContextProtocol SDK使用
+- **トランスポート**: StreamableHTTPTransport
 - **プロトコル**: MCP 2024-11-05 仕様準拠
-- **設定**: `McpServerConfig`による動的設定
-- **実装**: [app/mcp/server.ts](./app/mcp/server.ts)
+- **設定**: 動的設定による柔軟な構成管理
 
 #### 2. ハンドラーレイヤー
 
-- **ファクトリーパターン**: Hono Factory Helperによる型安全なハンドラー作成
-- **環境統合**: Cloudflare.Envからの動的設定
+- **ファクトリーパターン**: 型安全なハンドラー作成
+- **環境統合**: Cloudflare環境からの動的設定
 - **トランスポート管理**: HTTPトランスポートのライフサイクル管理
-- **実装**: [app/mcp/handler.ts](./app/mcp/handler.ts)
 
 #### 3. ツール実装
 
 **統一検索アーキテクチャ**:
 
-各ツールは統一されたAutoRAGを使用し、`filters`プロパティで対象ドキュメントを絞り込みます：
-
-```javascript
-filters: {
-  key: "folder",
-  type: "eq",
-  value: source.target  // "effect", "react", etc.
-}
-```
+各ツールは統一されたAutoRAGを使用し、フィルタープロパティで対象ドキュメントを絞り込みます。フィルターはフォルダーキーを使用してドキュメントタイプ（effect、react等）を指定します。
 
 **現在実装済みツール**:
 
@@ -74,28 +55,25 @@ filters: {
 - フィルタリング検索
 - 検索結果 + AI回答生成
 - JSONレスポンス形式
-- **セキュリティ**: エラー詳細をクライアントレスポンスから除外
+- セキュリティ強化エラーハンドリング
 
 #### 4. 型システム
 
 - 設定管理のための共有型定義
 - 全コンポーネントでのTypeScript型安全性
-- **実装**: [app/mcp/types.ts](./app/mcp/types.ts)
 
 ## 実装ファイル
 
 ### ファイル構成
 
-```
-app/
-├── entry.hono.ts           # Honoアプリケーションエントリーポイント
-├── entry.worker.ts         # Workersエントリーポイント
-├── hono.ts                 # Honoファクトリー設定
-└── mcp/
-    ├── server.ts           # MCPサーバーとツール実装
-    ├── handler.ts          # MCPハンドラーファクトリー
-    └── types.ts            # 共有型定義
-```
+プロジェクト内の主要ファイル：
+
+- **entry.hono.ts**: Honoアプリケーションエントリーポイント
+- **entry.worker.ts**: Workersエントリーポイント
+- **hono.ts**: Honoファクトリー設定
+- **mcp/server.ts**: MCPサーバーとツール実装
+- **mcp/handler.ts**: MCPハンドラーファクトリー
+- **mcp/types.ts**: 共有型定義
 
 ### リファクタリングによる主な改善点
 
@@ -109,30 +87,30 @@ app/
 
 ### 環境変数とバインディング
 
-Cloudflare Workersバインディングによる設定管理:
+Cloudflare Workersバインディングによる設定管理：
 
-- **AIバインディング**: `AI` - Cloudflare AIサービスアクセス
-- **R2バケット**: `DATA_SOURCE` - 統一ドキュメントストレージ
-- **Auto RAG**: `AUTO_RAG_NAME` - 統一Auto RAG設定
+- **AIバインディング**: Cloudflare AIサービスアクセス
+- **R2バケット**: 統一ドキュメントストレージ
+- **Auto RAG**: 統一Auto RAG設定
 
-**設定ファイル**: [wrangler.jsonc](./wrangler.jsonc)
+設定ファイル: wrangler.jsonc
 
 ### 依存関係
 
-依存関係は[package.json](./package.json)で定義されたPNPMカタログモードで管理されています。
+依存関係はPNPMカタログモードで管理されています。
 
-主要な依存関係:
+主要な依存関係：
 
-- `@hono/mcp` - Hono用MCP統合
-- `@modelcontextprotocol/sdk` - 公式MCP SDK
-- `hono` - Webフレームワーク
-- `zod` - スキーマバリデーション
+- Hono用MCP統合
+- 公式MCP SDK
+- Webフレームワーク
+- スキーマバリデーション
 
 ## セキュリティとパフォーマンス
 
 ### セキュリティ強化
 
-- **入力パラメータバリデーション**: 全入力に対するZodスキーマバリデーション
+- **入力パラメータバリデーション**: 全入力に対するスキーマバリデーション
 - **エラー情報保護**: 詳細エラーはサーバーサイドのみでログ出力
 - **サニタイズされたクライアントレスポンス**: 汎用エラーメッセージで情報漏洩を防止
 - **統一バインディング**: マルチドキュメント対応のための統一された命名規則
@@ -147,7 +125,7 @@ Cloudflare Workersバインディングによる設定管理:
 
 ### セキュリティファーストアプローチ
 
-- **サーバーサイドログ**: `console.error()`による詳細エラー情報のログ出力
+- **サーバーサイドログ**: 詳細エラー情報のログ出力
 - **クライアントレスポンスサニタイゼーション**: 汎用エラーメッセージのみ
 - **情報漏洩防止**: 機密性のあるサーバー詳細をクライアントに公開しない
 
@@ -175,9 +153,9 @@ Cloudflare Workersバインディングによる設定管理:
 ### 利用可能なツール
 
 - **search_ai_effect**: Effect関連の検索
-  - "Effect Data型の使い方"
-  - "Effect.genでのエラーハンドリング"
-  - "Effectのパイプライン処理"
+  - Effect Data型の使い方
+  - Effect.genでのエラーハンドリング
+  - Effectのパイプライン処理
 
 ### 期待される応答
 
@@ -194,9 +172,9 @@ Cloudflare Workersバインディングによる設定管理:
 
 MCPサーバーはWorkflowsによって定期的に更新される統一R2データを参照します：
 
-- **データソース**: 統一R2バケット（`DATA_SOURCE`）
+- **データソース**: 統一R2バケット
 - **更新頻度**: 週次（Workflowsにより自動更新）
-- **フォルダ構造**: `{document-type}/filename`形式で分類保存
+- **フォルダ構造**: ドキュメントタイプ別分類保存
 - **フィルタリング**: AutoRAGの自動メタデータを使用したフォルダベース検索
 - **データ形式**: テキスト形式（将来的にMarkdownも対応予定）
 
