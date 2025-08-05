@@ -3,6 +3,9 @@
   "ai": {
     "binding": "AI"
   },
+  "assets": {
+    "directory": "./public"
+  },
   "compatibility_date": "2024-11-06",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./app/entry.worker.ts",
