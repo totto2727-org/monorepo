@@ -3,9 +3,7 @@ import { factory } from "#@/hono.js"
 import { createMcpServer } from "./server.js"
 import type { McpServerConfig } from "./types.js"
 
-export function createMcpHandler(
-  configFn: (env: Cloudflare.Env) => McpServerConfig,
-) {
+function createMcpHandler(configFn: (env: Cloudflare.Env) => McpServerConfig) {
   return factory.createHandlers(async (c) => {
     const config = configFn(c.env)
     const mcpServer = createMcpServer(c.env.AUTO_RAG_NAME, config)
@@ -14,3 +12,17 @@ export function createMcpHandler(
     return transport.handleRequest(c)
   })
 }
+
+export const mcpHandler = createMcpHandler((env) => ({
+  ai: env.AI,
+  name: "totto-docs-mcp-server",
+  sources: [
+    {
+      description: "Search Effect documentation and generate AI responses",
+      name: "search_ai_effect",
+      target: "effect",
+      title: "Effect Documentation Search",
+    },
+  ],
+  version: "1.0.0",
+}))

@@ -1,28 +1,12 @@
 import { Hono } from "hono"
 import { jsxRenderer } from "hono/jsx-renderer"
 import { logger } from "hono/logger"
-import { createMcpHandler } from "#@/mcp/handler.js"
-import { Layout } from "./admin/ui/layout.js"
-
-const mcpHandler = createMcpHandler((env) => ({
-  ai: env.AI,
-  name: "totto-docs-mcp-server",
-  sources: [
-    {
-      description: "Search Effect documentation and generate AI responses",
-      name: "search_ai_effect",
-      target: "effect",
-      title: "Effect Documentation Search",
-    },
-  ],
-  version: "1.0.0",
-}))
-
 import { Dashboard } from "./admin/pages/dashboard.js"
-// Admin page routes
 import { AdminLayout } from "./admin/pages/layout.js"
 import { ServerConfig } from "./admin/pages/server.js"
 import { ToolsManager } from "./admin/pages/tools.js"
+import { Layout } from "./admin/ui/layout.js"
+import { mcpHandler } from "./mcp/handler.js"
 
 export const app = new Hono<{ Bindings: Cloudflare.Env }>()
   .use(logger())
