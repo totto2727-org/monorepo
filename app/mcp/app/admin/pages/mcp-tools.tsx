@@ -1,56 +1,37 @@
+import { availableTargets, mockMcpTools } from "../data/mock-data.js"
 import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "../ui/icons/icon.js"
 
 export function McpToolsManager() {
-  // モックデータ
-  const tools = [
-    {
-      createdAt: "2025-01-05T10:30:00Z",
-      description: "Search Effect documentation and generate AI responses",
-      id: "search_ai_effect",
-      lastUsed: "2025-01-05T15:45:00Z",
-      name: "search_ai_effect",
-      status: "active",
-      target: "effect",
-      title: "Effect Documentation Search",
-    },
-  ]
-
-  const availableTargets = [{ label: "Effect", value: "effect" }]
+  const tools = mockMcpTools
 
   return (
     <div class="space-y-6">
-      {/* ページヘッダー */}
+      {/* Page Header */}
       <div class="flex items-center justify-between">
-        <h1 class="text-3xl font-bold">MCPツール管理</h1>
+        <h1 class="text-3xl font-bold">MCP Tools Management</h1>
         <button
           class="btn btn-primary"
           onclick="document.getElementById('add-tool-modal').showModal()"
           type="button"
         >
-          <PlusIcon ariaLabel="追加アイコン" size="sm" />
-          新しいMCPツールを追加
+          <PlusIcon ariaLabel="Add Icon" size="sm" />
+          Add New MCP Tool
         </button>
       </div>
 
-      {/* 統計サマリー */}
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Statistics Summary */}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="stat bg-base-100 rounded-lg shadow">
-          <div class="stat-title">総MCPツール数</div>
+          <div class="stat-title">Total MCP Tools</div>
           <div class="stat-value text-primary">{tools.length}</div>
         </div>
         <div class="stat bg-base-100 rounded-lg shadow">
-          <div class="stat-title">稼働中</div>
-          <div class="stat-value text-success">
-            {tools.filter((t) => t.status === "active").length}
-          </div>
-        </div>
-        <div class="stat bg-base-100 rounded-lg shadow">
-          <div class="stat-title">利用可能な対象</div>
+          <div class="stat-title">Available Targets</div>
           <div class="stat-value text-info">{availableTargets.length}</div>
         </div>
       </div>
 
-      {/* 検索・フィルター */}
+      {/* Search & Filter */}
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
           <div class="flex flex-col md:flex-row gap-4">
@@ -62,7 +43,7 @@ export function McpToolsManager() {
                 hx-trigger="keyup changed delay:300ms"
                 id="tool-search"
                 name="search"
-                placeholder="MCPツール名で検索..."
+                placeholder="Search MCP tools..."
                 type="text"
               />
             </div>
@@ -75,7 +56,7 @@ export function McpToolsManager() {
                 id="tool-filter"
                 name="target"
               >
-                <option value="">すべての対象</option>
+                <option value="">All targets</option>
                 {availableTargets.map((target) => (
                   <option key={target.value} value={target.value}>
                     {target.label}
@@ -87,19 +68,18 @@ export function McpToolsManager() {
         </div>
       </div>
 
-      {/* MCPツール一覧テーブル */}
+      {/* MCP Tools Table */}
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
           <div class="overflow-x-auto" id="tools-table">
             <table class="table table-zebra">
               <thead>
                 <tr>
-                  <th>ツール名</th>
-                  <th>表示名</th>
-                  <th>対象ドキュメント</th>
-                  <th>ステータス</th>
-                  <th>最終使用</th>
-                  <th>操作</th>
+                  <th>Name</th>
+                  <th>Title</th>
+                  <th>Target</th>
+                  <th>Used</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -120,15 +100,24 @@ export function McpToolsManager() {
                       <div class="badge badge-outline">{tool.target}</div>
                     </td>
                     <td>
-                      <div
-                        class={`badge ${tool.status === "active" ? "badge-success" : "badge-warning"}`}
-                      >
-                        {tool.status === "active" ? "稼働中" : "停止中"}
-                      </div>
-                    </td>
-                    <td>
                       <div class="text-sm">
-                        {new Date(tool.lastUsed).toLocaleString("ja-JP")}
+                        {(() => {
+                          const now = new Date()
+                          const lastUsed = new Date(tool.lastUsed)
+                          const diffMs = now.getTime() - lastUsed.getTime()
+                          const diffDays = Math.floor(
+                            diffMs / (1000 * 60 * 60 * 24),
+                          )
+                          const diffHours = Math.floor(
+                            diffMs / (1000 * 60 * 60),
+                          )
+                          const diffMinutes = Math.floor(diffMs / (1000 * 60))
+
+                          if (diffDays > 0) return `${diffDays}d ago`
+                          if (diffHours > 0) return `${diffHours}h ago`
+                          if (diffMinutes > 0) return `${diffMinutes}m ago`
+                          return "Just now"
+                        })()}
                       </div>
                     </td>
                     <td>
@@ -138,14 +127,14 @@ export function McpToolsManager() {
                           onclick={`editTool('${tool.id}')`}
                           type="button"
                         >
-                          <EditIcon ariaLabel="編集アイコン" size="sm" />
+                          <EditIcon ariaLabel="Edit Icon" size="sm" />
                         </button>
                         <button
                           class="btn btn-sm btn-error btn-outline"
                           onclick={`deleteTool('${tool.id}')`}
                           type="button"
                         >
-                          <DeleteIcon ariaLabel="削除アイコン" size="sm" />
+                          <DeleteIcon ariaLabel="Delete Icon" size="sm" />
                         </button>
                       </div>
                     </td>
@@ -157,10 +146,10 @@ export function McpToolsManager() {
         </div>
       </div>
 
-      {/* 新規MCPツール追加モーダル */}
+      {/* Add New MCP Tool Modal */}
       <dialog class="modal" id="add-tool-modal">
         <div class="modal-box w-11/12 max-w-2xl">
-          <h3 class="font-bold text-lg mb-4">新しいMCPツールを追加</h3>
+          <h3 class="font-bold text-lg mb-4">Add New MCP Tool</h3>
 
           <form
             class="space-y-4"
@@ -168,11 +157,11 @@ export function McpToolsManager() {
             hx-post="/app/admin/api/mcp-tools"
             hx-target="#tools-table"
           >
-            {/* ツール名 */}
+            {/* Tool Name */}
             <div class="form-control">
               <label class="label" htmlFor="tool-name">
-                <span class="label-text font-semibold">ツール名</span>
-                <span class="label-text-alt text-error">必須</span>
+                <span class="label-text font-semibold">Tool Name</span>
+                <span class="label-text-alt text-error">Required</span>
               </label>
               <input
                 class="input input-bordered"
@@ -185,16 +174,17 @@ export function McpToolsManager() {
               />
               <label class="label" htmlFor="tool-name">
                 <span class="label-text-alt">
-                  英小文字、数字、アンダースコアのみ。先頭は文字
+                  Lowercase letters, numbers, and underscores only. Must start
+                  with a letter
                 </span>
               </label>
             </div>
 
-            {/* 表示名 */}
+            {/* Display Name */}
             <div class="form-control">
               <label class="label" htmlFor="tool-title">
-                <span class="label-text font-semibold">表示名</span>
-                <span class="label-text-alt text-error">必須</span>
+                <span class="label-text font-semibold">Display Name</span>
+                <span class="label-text-alt text-error">Required</span>
               </label>
               <input
                 class="input input-bordered"
@@ -207,27 +197,27 @@ export function McpToolsManager() {
               />
             </div>
 
-            {/* 説明 */}
+            {/* Description */}
             <div class="form-control">
               <label class="label" htmlFor="tool-description">
-                <span class="label-text font-semibold">説明</span>
-                <span class="label-text-alt text-error">必須</span>
+                <span class="label-text font-semibold">Description</span>
+                <span class="label-text-alt text-error">Required</span>
               </label>
               <textarea
                 class="textarea textarea-bordered h-24"
                 id="tool-description"
                 maxLength={300}
                 name="description"
-                placeholder="このMCPツールの機能と用途を説明してください"
+                placeholder="Describe the functionality and purpose of this MCP tool"
                 required
               ></textarea>
             </div>
 
-            {/* 対象ドキュメント */}
+            {/* Target */}
             <div class="form-control">
               <label class="label" htmlFor="tool-target">
-                <span class="label-text font-semibold">対象ドキュメント</span>
-                <span class="label-text-alt text-error">必須</span>
+                <span class="label-text font-semibold">Target</span>
+                <span class="label-text-alt text-error">Required</span>
               </label>
               <select
                 class="select select-bordered"
@@ -235,7 +225,7 @@ export function McpToolsManager() {
                 name="target"
                 required
               >
-                <option value="">対象を選択</option>
+                <option value="">Select target</option>
                 {availableTargets.map((target) => (
                   <option key={target.value} value={target.value}>
                     {target.label}
@@ -246,15 +236,15 @@ export function McpToolsManager() {
 
             <div class="modal-action">
               <button class="btn btn-primary" type="submit">
-                <CheckIcon ariaLabel="保存アイコン" size="sm" />
-                追加
+                <CheckIcon ariaLabel="Save Icon" size="sm" />
+                Add
               </button>
               <button
                 class="btn btn-outline"
                 onclick="document.getElementById('add-tool-modal').close()"
                 type="button"
               >
-                キャンセル
+                Cancel
               </button>
             </div>
           </form>
@@ -278,7 +268,7 @@ export function McpToolsManager() {
           }
 
           function deleteTool(toolId) {
-            if (confirm('このMCPツールを削除してもよろしいですか？この操作は取り消せません。')) {
+            if (confirm('Are you sure you want to delete this MCP tool? This action cannot be undone.')) {
               htmx.ajax('DELETE', '/app/admin/api/mcp-tools/' + toolId, {
                 target: '#tools-table',
                 swap: 'outerHTML'
@@ -288,10 +278,12 @@ export function McpToolsManager() {
         `}
       </script>
 
-      {/* 編集モーダル（動的に内容が挿入される） */}
+      {/* Edit Modal (content dynamically inserted) */}
       <dialog class="modal" id="edit-tool-modal">
         <div class="modal-box w-11/12 max-w-2xl">
-          <div id="edit-tool-content">{/* HTMXで内容が動的に挿入される */}</div>
+          <div id="edit-tool-content">
+            {/* Content dynamically inserted via HTMX */}
+          </div>
         </div>
         <form class="modal-backdrop" method="dialog">
           <button type="button">close</button>
