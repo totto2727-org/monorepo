@@ -2,9 +2,9 @@ import { Hono } from "hono"
 import { jsxRenderer } from "hono/jsx-renderer"
 import { logger } from "hono/logger"
 import { Dashboard } from "./admin/pages/dashboard.js"
+import { DataSourcesManager } from "./admin/pages/data-sources.js"
 import { AdminLayout } from "./admin/pages/layout.js"
-import { ServerConfig } from "./admin/pages/server.js"
-import { ToolsManager } from "./admin/pages/tools.js"
+import { McpToolsManager } from "./admin/pages/mcp-tools.js"
 import { Layout } from "./admin/ui/layout.js"
 import { mcpHandler } from "./mcp/handler.js"
 
@@ -19,32 +19,17 @@ export const app = new Hono<{ Bindings: Cloudflare.Env }>()
       </AdminLayout>,
     )
   })
-  .get("/app/admin/server", async (c) => {
+  .get("/app/admin/mcp-tools", async (c) => {
     return c.render(
       <AdminLayout>
-        <ServerConfig />
+        <McpToolsManager />
       </AdminLayout>,
     )
   })
-  .get("/app/admin/tools", async (c) => {
+  .get("/app/admin/data-sources", async (c) => {
     return c.render(
       <AdminLayout>
-        <ToolsManager />
-      </AdminLayout>,
-    )
-  })
-  .get("/app/admin/system", async (c) => {
-    return c.render(
-      <AdminLayout>
-        <div class="space-y-6">
-          <h1 class="text-3xl font-bold">システム設定</h1>
-          <div class="card bg-base-100 shadow-lg">
-            <div class="card-body">
-              <h2 class="card-title">準備中</h2>
-              <p>この機能は現在開発中です。</p>
-            </div>
-          </div>
-        </div>
+        <DataSourcesManager />
       </AdminLayout>,
     )
   })
