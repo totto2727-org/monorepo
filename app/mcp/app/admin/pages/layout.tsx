@@ -3,7 +3,6 @@ import {
   DashboardIcon,
   MenuIcon,
   ServerIcon,
-  SystemIcon,
   ToolsIcon,
 } from "../ui/icons/icon.js"
 
@@ -48,21 +47,21 @@ export function AdminLayout({ children }: PropsWithChildren) {
                   </a>
                 </li>
                 <li>
-                  <a class="flex items-center gap-3" href="/app/admin/server">
-                    <ServerIcon ariaLabel="サーバー設定アイコン" />
-                    サーバー設定
+                  <a
+                    class="flex items-center gap-3"
+                    href="/app/admin/mcp-tools"
+                  >
+                    <ToolsIcon ariaLabel="MCPツールアイコン" />
+                    MCPツール
                   </a>
                 </li>
                 <li>
-                  <a class="flex items-center gap-3" href="/app/admin/tools">
-                    <ToolsIcon ariaLabel="検索ツールアイコン" />
-                    検索ツール
-                  </a>
-                </li>
-                <li>
-                  <a class="flex items-center gap-3" href="/app/admin/system">
-                    <SystemIcon ariaLabel="システム設定アイコン" />
-                    システム設定
+                  <a
+                    class="flex items-center gap-3"
+                    href="/app/admin/data-sources"
+                  >
+                    <ServerIcon ariaLabel="データソースアイコン" />
+                    データソース
                   </a>
                 </li>
               </ul>
