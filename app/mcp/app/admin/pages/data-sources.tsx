@@ -1,64 +1,42 @@
+import {
+  availableDataSourceTypes,
+  availableTargets,
+  mockDataSources,
+} from "../data/mock-data.js"
 import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "../ui/icons/icon.js"
 
 export function DataSourcesManager() {
-  // モックデータ
-  const dataSources = [
-    {
-      createdAt: "2025-01-05T10:30:00Z",
-      id: "ds_001",
-      lastUpdated: "2025-01-05T15:45:00Z",
-      sources: [
-        {
-          type: "text",
-          url: "https://effect.website/docs/getting-started",
-        },
-      ],
-      status: "active",
-      target: "effect",
-    },
-  ]
-
-  const availableTypes = [
-    { label: "テキスト", value: "text" },
-    { label: "Firecrawl", value: "firecrawl" },
-  ]
-
-  const availableTargets = [{ label: "Effect", value: "effect" }]
+  const dataSources = mockDataSources
+  const availableTypes = availableDataSourceTypes
 
   return (
     <div class="space-y-6">
-      {/* ページヘッダー */}
+      {/* Page Header */}
       <div class="flex items-center justify-between">
-        <h1 class="text-3xl font-bold">データソース管理</h1>
+        <h1 class="text-3xl font-bold">Data Sources Management</h1>
         <button
           class="btn btn-primary"
           onclick="document.getElementById('add-datasource-modal').showModal()"
           type="button"
         >
-          <PlusIcon ariaLabel="追加アイコン" size="sm" />
-          新しいデータソースを追加
+          <PlusIcon ariaLabel="Add Icon" size="sm" />
+          Add New Data Source
         </button>
       </div>
 
-      {/* 統計サマリー */}
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Statistics Summary */}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="stat bg-base-100 rounded-lg shadow">
-          <div class="stat-title">総データソース数</div>
+          <div class="stat-title">Total Data Sources</div>
           <div class="stat-value text-primary">{dataSources.length}</div>
         </div>
         <div class="stat bg-base-100 rounded-lg shadow">
-          <div class="stat-title">稼働中</div>
-          <div class="stat-value text-success">
-            {dataSources.filter((ds) => ds.status === "active").length}
-          </div>
-        </div>
-        <div class="stat bg-base-100 rounded-lg shadow">
-          <div class="stat-title">対象ドキュメント</div>
+          <div class="stat-title">Targets</div>
           <div class="stat-value text-info">{availableTargets.length}</div>
         </div>
       </div>
 
-      {/* 検索・フィルター */}
+      {/* Search & Filter */}
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
           <div class="flex flex-col md:flex-row gap-4">
@@ -70,7 +48,7 @@ export function DataSourcesManager() {
                 hx-trigger="keyup changed delay:300ms"
                 id="datasource-search"
                 name="search"
-                placeholder="データソースで検索..."
+                placeholder="Search data sources..."
                 type="text"
               />
             </div>
@@ -83,7 +61,7 @@ export function DataSourcesManager() {
                 id="datasource-filter"
                 name="target"
               >
-                <option value="">すべての対象</option>
+                <option value="">All targets</option>
                 {availableTargets.map((target) => (
                   <option key={target.value} value={target.value}>
                     {target.label}
@@ -95,7 +73,7 @@ export function DataSourcesManager() {
         </div>
       </div>
 
-      {/* データソース一覧テーブル */}
+      {/* Data Sources Table */}
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
           <div class="overflow-x-auto" id="datasources-table">
@@ -103,11 +81,10 @@ export function DataSourcesManager() {
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>対象ドキュメント</th>
-                  <th>データソース</th>
-                  <th>ステータス</th>
-                  <th>最終更新</th>
-                  <th>操作</th>
+                  <th>Target</th>
+                  <th>Sources</th>
+                  <th>Updated</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -135,15 +112,24 @@ export function DataSourcesManager() {
                       </div>
                     </td>
                     <td>
-                      <div
-                        class={`badge ${ds.status === "active" ? "badge-success" : "badge-warning"}`}
-                      >
-                        {ds.status === "active" ? "稼働中" : "停止中"}
-                      </div>
-                    </td>
-                    <td>
                       <div class="text-sm">
-                        {new Date(ds.lastUpdated).toLocaleString("ja-JP")}
+                        {(() => {
+                          const now = new Date()
+                          const updatedAt = new Date(ds.updatedAt)
+                          const diffMs = now.getTime() - updatedAt.getTime()
+                          const diffDays = Math.floor(
+                            diffMs / (1000 * 60 * 60 * 24),
+                          )
+                          const diffHours = Math.floor(
+                            diffMs / (1000 * 60 * 60),
+                          )
+                          const diffMinutes = Math.floor(diffMs / (1000 * 60))
+
+                          if (diffDays > 0) return `${diffDays}d ago`
+                          if (diffHours > 0) return `${diffHours}h ago`
+                          if (diffMinutes > 0) return `${diffMinutes}m ago`
+                          return "Just now"
+                        })()}
                       </div>
                     </td>
                     <td>
@@ -153,14 +139,14 @@ export function DataSourcesManager() {
                           onclick={`editDataSource('${ds.id}')`}
                           type="button"
                         >
-                          <EditIcon ariaLabel="編集アイコン" size="sm" />
+                          <EditIcon ariaLabel="Edit Icon" size="sm" />
                         </button>
                         <button
                           class="btn btn-sm btn-error btn-outline"
                           onclick={`deleteDataSource('${ds.id}')`}
                           type="button"
                         >
-                          <DeleteIcon ariaLabel="削除アイコン" size="sm" />
+                          <DeleteIcon ariaLabel="Delete Icon" size="sm" />
                         </button>
                       </div>
                     </td>
@@ -172,10 +158,10 @@ export function DataSourcesManager() {
         </div>
       </div>
 
-      {/* 新規データソース追加モーダル */}
+      {/* Add New Data Source Modal */}
       <dialog class="modal" id="add-datasource-modal">
         <div class="modal-box w-11/12 max-w-2xl">
-          <h3 class="font-bold text-lg mb-4">新しいデータソースを追加</h3>
+          <h3 class="font-bold text-lg mb-4">Add New Data Source</h3>
 
           <form
             class="space-y-4"
@@ -183,11 +169,11 @@ export function DataSourcesManager() {
             hx-post="/app/admin/api/data-sources"
             hx-target="#datasources-table"
           >
-            {/* 対象ドキュメント */}
+            {/* Target */}
             <div class="form-control">
               <label class="label" htmlFor="datasource-target">
-                <span class="label-text font-semibold">対象ドキュメント</span>
-                <span class="label-text-alt text-error">必須</span>
+                <span class="label-text font-semibold">Target</span>
+                <span class="label-text-alt text-error">Required</span>
               </label>
               <select
                 class="select select-bordered"
@@ -195,7 +181,7 @@ export function DataSourcesManager() {
                 name="target"
                 required
               >
-                <option value="">対象を選択</option>
+                <option value="">Select target</option>
                 {availableTargets.map((target) => (
                   <option key={target.value} value={target.value}>
                     {target.label}
@@ -204,28 +190,30 @@ export function DataSourcesManager() {
               </select>
             </div>
 
-            {/* データソース設定 */}
+            {/* Data Sources Configuration */}
             <div class="form-control">
               <label class="label" htmlFor="datasource-list">
-                <span class="label-text font-semibold">データソース</span>
-                <span class="label-text-alt text-error">最低1つ必須</span>
+                <span class="label-text font-semibold">Data Sources</span>
+                <span class="label-text-alt text-error">
+                  At least 1 required
+                </span>
               </label>
               <div class="space-y-3" id="datasource-list">
                 <div class="border border-base-300 rounded-lg p-4 datasource-item">
                   <div class="flex items-center justify-between mb-3">
-                    <span class="font-medium">データソース #1</span>
+                    <span class="font-medium">Data Source #1</span>
                     <button
                       class="btn btn-sm btn-ghost btn-circle"
                       onclick="removeDataSource(this)"
                       type="button"
                     >
-                      <DeleteIcon ariaLabel="削除" size="sm" />
+                      <DeleteIcon ariaLabel="Delete" size="sm" />
                     </button>
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div class="form-control">
                       <label class="label" htmlFor="datasource-0-type">
-                        <span class="label-text">タイプ</span>
+                        <span class="label-text">Type</span>
                       </label>
                       <select
                         class="select select-bordered select-sm"
@@ -233,7 +221,7 @@ export function DataSourcesManager() {
                         name="datasources[0][type]"
                         required
                       >
-                        <option value="">選択</option>
+                        <option value="">Select</option>
                         {availableTypes.map((type) => (
                           <option key={type.value} value={type.value}>
                             {type.label}
@@ -262,22 +250,22 @@ export function DataSourcesManager() {
                 onclick="addDataSourceField()"
                 type="button"
               >
-                <PlusIcon ariaLabel="追加" size="sm" />
-                データソースを追加
+                <PlusIcon ariaLabel="Add" size="sm" />
+                Add Data Source
               </button>
             </div>
 
             <div class="modal-action">
               <button class="btn btn-primary" type="submit">
-                <CheckIcon ariaLabel="保存アイコン" size="sm" />
-                追加
+                <CheckIcon ariaLabel="Save Icon" size="sm" />
+                Add
               </button>
               <button
                 class="btn btn-outline"
                 onclick="document.getElementById('add-datasource-modal').close()"
                 type="button"
               >
-                キャンセル
+                Cancel
               </button>
             </div>
           </form>
@@ -298,9 +286,9 @@ export function DataSourcesManager() {
             newItem.className = 'border border-base-300 rounded-lg p-4 datasource-item';
             newItem.innerHTML = \`
               <div class="flex items-center justify-between mb-3">
-                <span class="font-medium">データソース #\${dataSourceIndex + 1}</span>
+                <span class="font-medium">Data Source #\${dataSourceIndex + 1}</span>
                 <button class="btn btn-sm btn-ghost btn-circle" onclick="removeDataSource(this)" type="button">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="削除">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Delete">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                   </svg>
                 </button>
@@ -308,11 +296,11 @@ export function DataSourcesManager() {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div class="form-control">
                   <label class="label">
-                    <span class="label-text">タイプ</span>
+                    <span class="label-text">Type</span>
                   </label>
                   <select class="select select-bordered select-sm" name="datasources[\${dataSourceIndex}][type]" required>
-                    <option value="">選択</option>
-                    <option value="text">テキスト</option>
+                    <option value="">Select</option>
+                    <option value="text">Text</option>
                     <option value="firecrawl">Firecrawl</option>
                   </select>
                 </div>
@@ -334,7 +322,7 @@ export function DataSourcesManager() {
             if (container.children.length > 1) {
               item.remove();
             } else {
-              alert('最低1つのデータソースが必要です。');
+              alert('At least one data source is required.');
             }
           }
 
@@ -348,7 +336,7 @@ export function DataSourcesManager() {
           }
 
           function deleteDataSource(dataSourceId) {
-            if (confirm('このデータソースを削除してもよろしいですか？この操作は取り消せません。')) {
+            if (confirm('Are you sure you want to delete this data source? This action cannot be undone.')) {
               htmx.ajax('DELETE', '/app/admin/api/data-sources/' + dataSourceId, {
                 target: '#datasources-table',
                 swap: 'outerHTML'
@@ -358,11 +346,11 @@ export function DataSourcesManager() {
         `}
       </script>
 
-      {/* 編集モーダル（動的に内容が挿入される） */}
+      {/* Edit Modal (content dynamically inserted) */}
       <dialog class="modal" id="edit-datasource-modal">
         <div class="modal-box w-11/12 max-w-2xl">
           <div id="edit-datasource-content">
-            {/* HTMXで内容が動的に挿入される */}
+            {/* Content dynamically inserted via HTMX */}
           </div>
         </div>
         <form class="modal-backdrop" method="dialog">
