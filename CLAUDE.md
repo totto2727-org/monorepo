@@ -2,9 +2,27 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Documentation Priority
+
+When working on a project, refer to documentation in the following priority order:
+
+1. **Project-specific docs**: `app/{project}/docs/` - Project-specific implementation details and conventions
+2. **Repository-wide docs**: `docs/` - General standards and patterns applicable across all projects
+3. **CLAUDE.md**: This file - Repository structure, commands, and development guidelines
+4. **README.md**: Project overview and setup instructions
+
 ## Repository Structure
 
 This is a PNPM monorepo with Turbo for task orchestration.
+
+### Applications
+
+- `app/mcp/` - MCP (Model Context Protocol) server application built on Cloudflare Workers + Hono
+- `app/lesson-sharing/` - Lesson sharing application
+
+### Documentation
+
+- `docs/coding-standards.md` - Repository-wide TypeScript/React coding standards
 
 ## Development Commands
 
@@ -38,3 +56,34 @@ This is a PNPM monorepo with Turbo for task orchestration.
 - **Turbo**: Monorepo task orchestration (installed via mise)
 - **Biome**: Fast linting and formatting
 - **dprint**: Additional code formatting
+
+## Coding Standards
+
+All projects in this monorepo follow consistent coding standards:
+
+For detailed guidelines, see `docs/coding-standards.md`.
+
+## Documentation Standards
+
+When creating or updating documentation in this repository:
+
+### Length and Structure
+
+- **200 Line Limit**: Keep each document around 200 lines maximum
+- **Split When Necessary**: If content exceeds 200 lines, split into multiple focused documents
+- **Clear Sections**: Use well-defined sections with descriptive headings
+- **Concise Content**: Focus on essential information and avoid redundancy
+
+### Language Requirements
+
+- **CLAUDE.md**: English only (this file)
+- **Coding Standards**: English only (`docs/coding-standards.md`)
+- **All Other Documents**: Japanese language required
+- **Consistency**: Maintain consistent terminology within each document
+
+### Content Guidelines
+
+- **No Code Examples**: Avoid including specific code snippets in documentation
+- **Conceptual Focus**: Emphasize concepts, patterns, and guidelines
+- **Reference Links**: Link to actual code files when specific examples are needed
+- **Practical Guidance**: Provide actionable guidance without implementation details
