@@ -12,11 +12,11 @@ export function AdminLayout({ children }: PropsWithChildren) {
       {/* Header */}
       <div class="navbar bg-base-100 shadow-lg">
         <div class="flex-1">
-          <h1 class="btn btn-ghost text-xl">MCP管理画面</h1>
+          <h1 class="btn btn-ghost text-xl">MCP Admin</h1>
         </div>
         <div class="flex-none">
           <button class="btn btn-square btn-ghost" type="button">
-            <MenuIcon ariaLabel="メニューアイコン" />
+            <MenuIcon ariaLabel="Menu Icon" />
           </button>
         </div>
       </div>
@@ -32,18 +32,18 @@ export function AdminLayout({ children }: PropsWithChildren) {
         {/* Sidebar */}
         <div class="drawer-side">
           <label
-            aria-label="メニューを閉じる"
+            aria-label="Close menu"
             class="drawer-overlay"
             htmlFor="drawer-toggle"
           ></label>
           <aside class="w-64 min-h-full bg-base-100">
             <div class="p-4">
-              <h2 class="text-lg font-semibold mb-4">メニュー</h2>
+              <h2 class="text-lg font-semibold mb-4">Menu</h2>
               <ul class="menu">
                 <li>
                   <a class="flex items-center gap-3" href="/app/admin">
-                    <DashboardIcon ariaLabel="ダッシュボードアイコン" />
-                    ダッシュボード
+                    <DashboardIcon ariaLabel="Dashboard Icon" />
+                    Dashboard
                   </a>
                 </li>
                 <li>
@@ -51,8 +51,8 @@ export function AdminLayout({ children }: PropsWithChildren) {
                     class="flex items-center gap-3"
                     href="/app/admin/mcp-tools"
                   >
-                    <ToolsIcon ariaLabel="MCPツールアイコン" />
-                    MCPツール
+                    <ToolsIcon ariaLabel="MCP Tools Icon" />
+                    MCP Tools
                   </a>
                 </li>
                 <li>
@@ -60,8 +60,8 @@ export function AdminLayout({ children }: PropsWithChildren) {
                     class="flex items-center gap-3"
                     href="/app/admin/data-sources"
                   >
-                    <ServerIcon ariaLabel="データソースアイコン" />
-                    データソース
+                    <ServerIcon ariaLabel="Data Sources Icon" />
+                    Data Sources
                   </a>
                 </li>
               </ul>
