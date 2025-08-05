@@ -28,10 +28,13 @@ export function ToolsManager() {
         <button
           class="btn btn-primary"
           onclick="document.getElementById('add-tool-modal').showModal()"
+          type="button"
         >
           <svg
+            aria-label="追加アイコン"
             class="w-4 h-4"
             fill="none"
+            role="img"
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
@@ -74,6 +77,7 @@ export function ToolsManager() {
                 hx-get="/app/admin/api/tools/search"
                 hx-target="#tools-table"
                 hx-trigger="keyup changed delay:300ms"
+                id="tool-search"
                 name="search"
                 placeholder="ツール名で検索..."
                 type="text"
@@ -85,6 +89,7 @@ export function ToolsManager() {
                 hx-get="/app/admin/api/tools/filter"
                 hx-target="#tools-table"
                 hx-trigger="change"
+                id="tool-filter"
                 name="target"
               >
                 <option value="">すべての対象</option>
@@ -148,10 +153,13 @@ export function ToolsManager() {
                         <button
                           class="btn btn-sm btn-outline"
                           onclick={`editTool('${tool.id}')`}
+                          type="button"
                         >
                           <svg
+                            aria-label="編集アイコン"
                             class="w-4 h-4"
                             fill="none"
+                            role="img"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
                           >
@@ -166,10 +174,13 @@ export function ToolsManager() {
                         <button
                           class="btn btn-sm btn-error btn-outline"
                           onclick={`deleteTool('${tool.id}')`}
+                          type="button"
                         >
                           <svg
+                            aria-label="削除アイコン"
                             class="w-4 h-4"
                             fill="none"
+                            role="img"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
                           >
@@ -204,19 +215,20 @@ export function ToolsManager() {
           >
             {/* ツール名 */}
             <div class="form-control">
-              <label class="label">
+              <label class="label" htmlFor="tool-name">
                 <span class="label-text font-semibold">ツール名</span>
                 <span class="label-text-alt text-error">必須</span>
               </label>
               <input
                 class="input input-bordered"
+                id="tool-name"
                 name="name"
                 pattern="^[a-z][a-z0-9_]*$"
                 placeholder="search_ai_example"
                 required
                 type="text"
               />
-              <label class="label">
+              <label class="label" htmlFor="tool-name">
                 <span class="label-text-alt">
                   英小文字、数字、アンダースコアのみ。先頭は文字
                 </span>
@@ -225,12 +237,13 @@ export function ToolsManager() {
 
             {/* 表示名 */}
             <div class="form-control">
-              <label class="label">
+              <label class="label" htmlFor="tool-title">
                 <span class="label-text font-semibold">表示名</span>
                 <span class="label-text-alt text-error">必須</span>
               </label>
               <input
                 class="input input-bordered"
+                id="tool-title"
                 maxLength={100}
                 name="title"
                 placeholder="Example Documentation Search"
@@ -241,12 +254,13 @@ export function ToolsManager() {
 
             {/* 説明 */}
             <div class="form-control">
-              <label class="label">
+              <label class="label" htmlFor="tool-description">
                 <span class="label-text font-semibold">説明</span>
                 <span class="label-text-alt text-error">必須</span>
               </label>
               <textarea
                 class="textarea textarea-bordered h-24"
+                id="tool-description"
                 maxLength={300}
                 name="description"
                 placeholder="このツールの機能と用途を説明してください"
@@ -256,11 +270,16 @@ export function ToolsManager() {
 
             {/* 対象 */}
             <div class="form-control">
-              <label class="label">
+              <label class="label" htmlFor="tool-target">
                 <span class="label-text font-semibold">検索対象</span>
                 <span class="label-text-alt text-error">必須</span>
               </label>
-              <select class="select select-bordered" name="target" required>
+              <select
+                class="select select-bordered"
+                id="tool-target"
+                name="target"
+                required
+              >
                 <option value="">対象を選択</option>
                 {availableTargets.map((target) => (
                   <option key={target.value} value={target.value}>
@@ -273,8 +292,10 @@ export function ToolsManager() {
             <div class="modal-action">
               <button class="btn btn-primary" type="submit">
                 <svg
+                  aria-label="保存アイコン"
                   class="w-4 h-4"
                   fill="none"
+                  role="img"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -298,7 +319,7 @@ export function ToolsManager() {
           </form>
         </div>
         <form class="modal-backdrop" method="dialog">
-          <button>close</button>
+          <button type="button">close</button>
         </form>
       </dialog>
 
@@ -332,7 +353,7 @@ export function ToolsManager() {
           <div id="edit-tool-content">{/* HTMXで内容が動的に挿入される */}</div>
         </div>
         <form class="modal-backdrop" method="dialog">
-          <button>close</button>
+          <button type="button">close</button>
         </form>
       </dialog>
     </div>

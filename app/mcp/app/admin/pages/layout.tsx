@@ -9,10 +9,12 @@ export function AdminLayout({ children }: PropsWithChildren) {
           <h1 class="btn btn-ghost text-xl">MCP管理画面</h1>
         </div>
         <div class="flex-none">
-          <button class="btn btn-square btn-ghost">
+          <button class="btn btn-square btn-ghost" type="button">
             <svg
+              aria-label="メニューアイコン"
               class="inline-block w-5 h-5 stroke-current"
               fill="none"
+              role="img"
               viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -37,7 +39,11 @@ export function AdminLayout({ children }: PropsWithChildren) {
 
         {/* Sidebar */}
         <div class="drawer-side">
-          <label class="drawer-overlay" for="drawer-toggle"></label>
+          <label
+            aria-label="メニューを閉じる"
+            class="drawer-overlay"
+            htmlFor="drawer-toggle"
+          ></label>
           <aside class="w-64 min-h-full bg-base-100">
             <div class="p-4">
               <h2 class="text-lg font-semibold mb-4">メニュー</h2>
@@ -51,8 +57,10 @@ export function AdminLayout({ children }: PropsWithChildren) {
                     hx-target="main"
                   >
                     <svg
+                      aria-label="ダッシュボードアイコン"
                       class="w-5 h-5"
                       fill="none"
+                      role="img"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
@@ -75,8 +83,10 @@ export function AdminLayout({ children }: PropsWithChildren) {
                     hx-target="main"
                   >
                     <svg
+                      aria-label="サーバー設定アイコン"
                       class="w-5 h-5"
                       fill="none"
+                      role="img"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
@@ -99,8 +109,10 @@ export function AdminLayout({ children }: PropsWithChildren) {
                     hx-target="main"
                   >
                     <svg
+                      aria-label="検索ツールアイコン"
                       class="w-5 h-5"
                       fill="none"
+                      role="img"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
@@ -129,8 +141,10 @@ export function AdminLayout({ children }: PropsWithChildren) {
                     hx-target="main"
                   >
                     <svg
+                      aria-label="システム設定アイコン"
                       class="w-5 h-5"
                       fill="none"
+                      role="img"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >

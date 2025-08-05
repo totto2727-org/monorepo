@@ -28,12 +28,13 @@ export function ServerConfig() {
           >
             {/* サーバー名 */}
             <div class="form-control">
-              <label class="label">
+              <label class="label" htmlFor="server-name">
                 <span class="label-text font-semibold">サーバー名</span>
                 <span class="label-text-alt text-error">必須</span>
               </label>
               <input
                 class="input input-bordered w-full"
+                id="server-name"
                 maxLength={50}
                 minLength={3}
                 name="name"
@@ -42,7 +43,7 @@ export function ServerConfig() {
                 type="text"
                 value={currentConfig.name}
               />
-              <label class="label">
+              <label class="label" htmlFor="server-name">
                 <span class="label-text-alt">
                   MCPクライアントに表示される識別名
                 </span>
@@ -51,12 +52,13 @@ export function ServerConfig() {
 
             {/* バージョン */}
             <div class="form-control">
-              <label class="label">
+              <label class="label" htmlFor="server-version">
                 <span class="label-text font-semibold">バージョン</span>
                 <span class="label-text-alt text-error">必須</span>
               </label>
               <input
                 class="input input-bordered w-full"
+                id="server-version"
                 name="version"
                 pattern="^\d+\.\d+\.\d+$"
                 placeholder="1.0.0"
@@ -64,7 +66,7 @@ export function ServerConfig() {
                 type="text"
                 value={currentConfig.version}
               />
-              <label class="label">
+              <label class="label" htmlFor="server-version">
                 <span class="label-text-alt">
                   セマンティックバージョニング形式 (例: 1.0.0)
                 </span>
@@ -73,19 +75,20 @@ export function ServerConfig() {
 
             {/* 説明 */}
             <div class="form-control">
-              <label class="label">
+              <label class="label" htmlFor="server-description">
                 <span class="label-text font-semibold">説明</span>
                 <span class="label-text-alt">任意</span>
               </label>
               <textarea
                 class="textarea textarea-bordered h-24"
+                id="server-description"
                 maxLength={200}
                 name="description"
                 placeholder="サーバーの説明を入力"
               >
                 {currentConfig.description}
               </textarea>
-              <label class="label">
+              <label class="label" htmlFor="server-description">
                 <span class="label-text-alt">サーバーの用途や機能の説明</span>
               </label>
             </div>
@@ -94,8 +97,10 @@ export function ServerConfig() {
             <div class="flex items-center gap-4">
               <button class="btn btn-primary" type="submit">
                 <svg
+                  aria-label="保存アイコン"
                   class="w-4 h-4"
                   fill="none"
+                  role="img"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -111,8 +116,10 @@ export function ServerConfig() {
 
               <button class="btn btn-outline" type="reset">
                 <svg
+                  aria-label="リセットアイコン"
                   class="w-4 h-4"
                   fill="none"
+                  role="img"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -170,8 +177,10 @@ export function ServerConfig() {
           <div class="card-body">
             <h2 class="card-title text-warning">
               <svg
+                aria-label="警告アイコン"
                 class="w-5 h-5"
                 fill="none"
+                role="img"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -187,8 +196,10 @@ export function ServerConfig() {
             <ul class="space-y-2 text-sm">
               <li class="flex items-start gap-2">
                 <svg
+                  aria-label="情報アイコン"
                   class="w-4 h-4 mt-0.5 text-info"
                   fill="none"
+                  role="img"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -203,8 +214,10 @@ export function ServerConfig() {
               </li>
               <li class="flex items-start gap-2">
                 <svg
+                  aria-label="情報アイコン"
                   class="w-4 h-4 mt-0.5 text-info"
                   fill="none"
+                  role="img"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -219,8 +232,10 @@ export function ServerConfig() {
               </li>
               <li class="flex items-start gap-2">
                 <svg
+                  aria-label="情報アイコン"
                   class="w-4 h-4 mt-0.5 text-info"
                   fill="none"
+                  role="img"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >

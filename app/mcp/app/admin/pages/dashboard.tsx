@@ -64,8 +64,10 @@ export function Dashboard() {
           <div class="card-body">
             <h2 class="card-title flex items-center gap-2">
               <svg
+                aria-label="登録ツールアイコン"
                 class="w-5 h-5"
                 fill="none"
+                role="img"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -76,7 +78,7 @@ export function Dashboard() {
                   stroke-width="2"
                 ></path>
                 <path
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 616 0z"
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
@@ -120,8 +122,10 @@ export function Dashboard() {
           <div class="card-body">
             <h2 class="card-title flex items-center gap-2">
               <svg
+                aria-label="クイックアクションアイコン"
                 class="w-5 h-5"
                 fill="none"
+                role="img"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -140,10 +144,13 @@ export function Dashboard() {
                 hx-get="/app/admin/tools/new"
                 hx-push-url="true"
                 hx-target="main"
+                type="button"
               >
                 <svg
+                  aria-label="追加アイコン"
                   class="w-4 h-4"
                   fill="none"
+                  role="img"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -162,10 +169,13 @@ export function Dashboard() {
                 hx-get="/app/admin/server"
                 hx-push-url="true"
                 hx-target="main"
+                type="button"
               >
                 <svg
+                  aria-label="設定アイコン"
                   class="w-4 h-4"
                   fill="none"
+                  role="img"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -182,10 +192,13 @@ export function Dashboard() {
               <button
                 class="btn btn-outline w-full justify-start"
                 onclick="location.reload()"
+                type="button"
               >
                 <svg
+                  aria-label="再読み込みアイコン"
                   class="w-4 h-4"
                   fill="none"
+                  role="img"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
