@@ -40,51 +40,27 @@ export function AdminLayout({ children }: PropsWithChildren) {
           <aside class="w-64 min-h-full bg-base-100">
             <div class="p-4">
               <h2 class="text-lg font-semibold mb-4">メニュー</h2>
-              <ul class="menu">
+              <ul class="menu" hx-boost="true">
                 <li>
-                  <a
-                    class="flex items-center gap-3"
-                    href="/app/admin"
-                    hx-get="/app/admin"
-                    hx-push-url="true"
-                    hx-target="main"
-                  >
+                  <a class="flex items-center gap-3" href="/app/admin">
                     <DashboardIcon ariaLabel="ダッシュボードアイコン" />
                     ダッシュボード
                   </a>
                 </li>
                 <li>
-                  <a
-                    class="flex items-center gap-3"
-                    href="/app/admin/server"
-                    hx-get="/app/admin/server"
-                    hx-push-url="true"
-                    hx-target="main"
-                  >
+                  <a class="flex items-center gap-3" href="/app/admin/server">
                     <ServerIcon ariaLabel="サーバー設定アイコン" />
                     サーバー設定
                   </a>
                 </li>
                 <li>
-                  <a
-                    class="flex items-center gap-3"
-                    href="/app/admin/tools"
-                    hx-get="/app/admin/tools"
-                    hx-push-url="true"
-                    hx-target="main"
-                  >
+                  <a class="flex items-center gap-3" href="/app/admin/tools">
                     <ToolsIcon ariaLabel="検索ツールアイコン" />
                     検索ツール
                   </a>
                 </li>
                 <li>
-                  <a
-                    class="flex items-center gap-3"
-                    href="/app/admin/system"
-                    hx-get="/app/admin/system"
-                    hx-push-url="true"
-                    hx-target="main"
-                  >
+                  <a class="flex items-center gap-3" href="/app/admin/system">
                     <SystemIcon ariaLabel="システム設定アイコン" />
                     システム設定
                   </a>
