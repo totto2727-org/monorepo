@@ -1,12 +1,30 @@
 import { availableTargets, mockMcpTools } from "../data/mock-data.js"
 import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "../ui/icons/icon.js"
 
+type StatCardProps = {
+  title: string
+  value: string | number
+  colorClass?: string
+}
+
+function StatCard({
+  title,
+  value,
+  colorClass = "text-primary",
+}: StatCardProps) {
+  return (
+    <div class="stat bg-base-100 rounded-lg shadow">
+      <div class="stat-title">{title}</div>
+      <div class={`stat-value ${colorClass}`}>{value}</div>
+    </div>
+  )
+}
+
 export function McpToolsManager() {
   const tools = mockMcpTools
 
   return (
     <div class="space-y-6">
-      {/* Page Header */}
       <div class="flex items-center justify-between">
         <h1 class="text-3xl font-bold">MCP Tools Management</h1>
         <button
@@ -19,19 +37,19 @@ export function McpToolsManager() {
         </button>
       </div>
 
-      {/* Statistics Summary */}
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="stat bg-base-100 rounded-lg shadow">
-          <div class="stat-title">Total MCP Tools</div>
-          <div class="stat-value text-primary">{tools.length}</div>
-        </div>
-        <div class="stat bg-base-100 rounded-lg shadow">
-          <div class="stat-title">Available Targets</div>
-          <div class="stat-value text-info">{availableTargets.length}</div>
-        </div>
+        <StatCard
+          colorClass="text-primary"
+          title="Total MCP Tools"
+          value={tools.length}
+        />
+        <StatCard
+          colorClass="text-info"
+          title="Available Targets"
+          value={availableTargets.length}
+        />
       </div>
 
-      {/* Search & Filter */}
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
           <div class="flex flex-col md:flex-row gap-4">
@@ -68,7 +86,6 @@ export function McpToolsManager() {
         </div>
       </div>
 
-      {/* MCP Tools Table */}
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
           <div class="overflow-x-auto" id="tools-table">
@@ -146,7 +163,6 @@ export function McpToolsManager() {
         </div>
       </div>
 
-      {/* Add New MCP Tool Modal */}
       <dialog class="modal" id="add-tool-modal">
         <div class="modal-box w-11/12 max-w-2xl">
           <h3 class="font-bold text-lg mb-4">Add New MCP Tool</h3>
@@ -157,7 +173,6 @@ export function McpToolsManager() {
             hx-post="/app/admin/api/mcp-tools"
             hx-target="#tools-table"
           >
-            {/* Tool Name */}
             <div class="form-control">
               <label class="label" htmlFor="tool-name">
                 <span class="label-text font-semibold">Tool Name</span>
@@ -180,7 +195,6 @@ export function McpToolsManager() {
               </label>
             </div>
 
-            {/* Display Name */}
             <div class="form-control">
               <label class="label" htmlFor="tool-title">
                 <span class="label-text font-semibold">Display Name</span>
@@ -197,7 +211,6 @@ export function McpToolsManager() {
               />
             </div>
 
-            {/* Description */}
             <div class="form-control">
               <label class="label" htmlFor="tool-description">
                 <span class="label-text font-semibold">Description</span>
@@ -213,7 +226,6 @@ export function McpToolsManager() {
               ></textarea>
             </div>
 
-            {/* Target */}
             <div class="form-control">
               <label class="label" htmlFor="tool-target">
                 <span class="label-text font-semibold">Target</span>
@@ -254,11 +266,9 @@ export function McpToolsManager() {
         </form>
       </dialog>
 
-      {/* JavaScript for client-side interactions */}
       <script>
         {`
           function editTool(toolId) {
-            // HTMXで編集フォームを取得して表示
             htmx.ajax('GET', '/app/admin/api/mcp-tools/' + toolId + '/edit', {
               target: '#edit-tool-content',
               swap: 'innerHTML'
@@ -278,12 +288,9 @@ export function McpToolsManager() {
         `}
       </script>
 
-      {/* Edit Modal (content dynamically inserted) */}
       <dialog class="modal" id="edit-tool-modal">
         <div class="modal-box w-11/12 max-w-2xl">
-          <div id="edit-tool-content">
-            {/* Content dynamically inserted via HTMX */}
-          </div>
+          <div id="edit-tool-content"></div>
         </div>
         <form class="modal-backdrop" method="dialog">
           <button type="button">close</button>

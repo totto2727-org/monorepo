@@ -5,13 +5,31 @@ import {
 } from "../data/mock-data.js"
 import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "../ui/icons/icon.js"
 
+type StatCardProps = {
+  title: string
+  value: string | number
+  colorClass?: string
+}
+
+function StatCard({
+  title,
+  value,
+  colorClass = "text-primary",
+}: StatCardProps) {
+  return (
+    <div class="stat bg-base-100 rounded-lg shadow">
+      <div class="stat-title">{title}</div>
+      <div class={`stat-value ${colorClass}`}>{value}</div>
+    </div>
+  )
+}
+
 export function DataSourcesManager() {
   const dataSources = mockDataSources
   const availableTypes = availableDataSourceTypes
 
   return (
     <div class="space-y-6">
-      {/* Page Header */}
       <div class="flex items-center justify-between">
         <h1 class="text-3xl font-bold">Data Sources Management</h1>
         <button
@@ -24,19 +42,19 @@ export function DataSourcesManager() {
         </button>
       </div>
 
-      {/* Statistics Summary */}
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="stat bg-base-100 rounded-lg shadow">
-          <div class="stat-title">Total Data Sources</div>
-          <div class="stat-value text-primary">{dataSources.length}</div>
-        </div>
-        <div class="stat bg-base-100 rounded-lg shadow">
-          <div class="stat-title">Targets</div>
-          <div class="stat-value text-info">{availableTargets.length}</div>
-        </div>
+        <StatCard
+          colorClass="text-primary"
+          title="Total Data Sources"
+          value={dataSources.length}
+        />
+        <StatCard
+          colorClass="text-info"
+          title="Targets"
+          value={availableTargets.length}
+        />
       </div>
 
-      {/* Search & Filter */}
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
           <div class="flex flex-col md:flex-row gap-4">
@@ -73,7 +91,6 @@ export function DataSourcesManager() {
         </div>
       </div>
 
-      {/* Data Sources Table */}
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
           <div class="overflow-x-auto" id="datasources-table">
@@ -158,7 +175,6 @@ export function DataSourcesManager() {
         </div>
       </div>
 
-      {/* Add New Data Source Modal */}
       <dialog class="modal" id="add-datasource-modal">
         <div class="modal-box w-11/12 max-w-2xl">
           <h3 class="font-bold text-lg mb-4">Add New Data Source</h3>
@@ -169,7 +185,6 @@ export function DataSourcesManager() {
             hx-post="/app/admin/api/data-sources"
             hx-target="#datasources-table"
           >
-            {/* Target */}
             <div class="form-control">
               <label class="label" htmlFor="datasource-target">
                 <span class="label-text font-semibold">Target</span>
@@ -190,7 +205,6 @@ export function DataSourcesManager() {
               </select>
             </div>
 
-            {/* Data Sources Configuration */}
             <div class="form-control">
               <label class="label" htmlFor="datasource-list">
                 <span class="label-text font-semibold">Data Sources</span>
@@ -275,7 +289,6 @@ export function DataSourcesManager() {
         </form>
       </dialog>
 
-      {/* JavaScript for client-side interactions */}
       <script>
         {`
           let dataSourceIndex = 1;
@@ -346,12 +359,9 @@ export function DataSourcesManager() {
         `}
       </script>
 
-      {/* Edit Modal (content dynamically inserted) */}
       <dialog class="modal" id="edit-datasource-modal">
         <div class="modal-box w-11/12 max-w-2xl">
-          <div id="edit-datasource-content">
-            {/* Content dynamically inserted via HTMX */}
-          </div>
+          <div id="edit-datasource-content"></div>
         </div>
         <form class="modal-backdrop" method="dialog">
           <button type="button">close</button>

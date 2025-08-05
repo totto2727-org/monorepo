@@ -1,4 +1,4 @@
-interface IconProps {
+type IconProps = {
   size?: "sm" | "md" | "lg"
   className?: string
   ariaLabel?: string
