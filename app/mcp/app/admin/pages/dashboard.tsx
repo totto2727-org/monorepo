@@ -91,13 +91,7 @@ export function Dashboard() {
               ))}
             </div>
             <div class="card-actions justify-end mt-4">
-              <a
-                class="btn btn-primary btn-sm"
-                href="/app/admin/tools"
-                hx-get="/app/admin/tools"
-                hx-push-url="true"
-                hx-target="main"
-              >
+              <a class="btn btn-primary btn-sm" href="/app/admin/tools">
                 すべて表示
               </a>
             </div>
@@ -112,27 +106,21 @@ export function Dashboard() {
               クイックアクション
             </h2>
             <div class="space-y-3">
-              <button
+              <a
                 class="btn btn-outline w-full justify-start"
-                hx-get="/app/admin/tools/new"
-                hx-push-url="true"
-                hx-target="main"
-                type="button"
+                href="/app/admin/tools/new"
               >
                 <PlusIcon ariaLabel="追加アイコン" size="sm" />
                 新しいツールを追加
-              </button>
+              </a>
 
-              <button
+              <a
                 class="btn btn-outline w-full justify-start"
-                hx-get="/app/admin/server"
-                hx-push-url="true"
-                hx-target="main"
-                type="button"
+                href="/app/admin/server"
               >
                 <ToolsIcon ariaLabel="設定アイコン" size="sm" />
                 サーバー設定を変更
-              </button>
+              </a>
 
               <button
                 class="btn btn-outline w-full justify-start"

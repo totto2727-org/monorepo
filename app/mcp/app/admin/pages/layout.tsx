@@ -9,7 +9,7 @@ import {
 
 export function AdminLayout({ children }: PropsWithChildren) {
   return (
-    <div class="min-h-screen bg-base-200">
+    <div class="min-h-screen bg-base-200" hx-boost="true">
       {/* Header */}
       <div class="navbar bg-base-100 shadow-lg">
         <div class="flex-1">
@@ -40,7 +40,7 @@ export function AdminLayout({ children }: PropsWithChildren) {
           <aside class="w-64 min-h-full bg-base-100">
             <div class="p-4">
               <h2 class="text-lg font-semibold mb-4">メニュー</h2>
-              <ul class="menu" hx-boost="true">
+              <ul class="menu">
                 <li>
                   <a class="flex items-center gap-3" href="/app/admin">
                     <DashboardIcon ariaLabel="ダッシュボードアイコン" />
