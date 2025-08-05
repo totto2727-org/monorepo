@@ -1,3 +1,10 @@
+import {
+  CheckIcon,
+  InfoIcon,
+  RefreshIcon,
+  WarningIcon,
+} from "../ui/icons/icon.js"
+
 export function ServerConfig() {
   // モックデータ
   const currentConfig = {
@@ -96,40 +103,12 @@ export function ServerConfig() {
             {/* 保存ボタン */}
             <div class="flex items-center gap-4">
               <button class="btn btn-primary" type="submit">
-                <svg
-                  aria-label="保存アイコン"
-                  class="w-4 h-4"
-                  fill="none"
-                  role="img"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M5 13l4 4L19 7"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                  ></path>
-                </svg>
+                <CheckIcon ariaLabel="保存アイコン" size="sm" />
                 設定を保存
               </button>
 
               <button class="btn btn-outline" type="reset">
-                <svg
-                  aria-label="リセットアイコン"
-                  class="w-4 h-4"
-                  fill="none"
-                  role="img"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                  ></path>
-                </svg>
+                <RefreshIcon ariaLabel="リセットアイコン" size="sm" />
                 リセット
               </button>
 
@@ -176,76 +155,32 @@ export function ServerConfig() {
         <div class="card bg-base-100 shadow-lg">
           <div class="card-body">
             <h2 class="card-title text-warning">
-              <svg
-                aria-label="警告アイコン"
-                class="w-5 h-5"
-                fill="none"
-                role="img"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                ></path>
-              </svg>
+              <WarningIcon ariaLabel="警告アイコン" size="md" />
               重要な注意事項
             </h2>
             <ul class="space-y-2 text-sm">
               <li class="flex items-start gap-2">
-                <svg
-                  aria-label="情報アイコン"
-                  class="w-4 h-4 mt-0.5 text-info"
-                  fill="none"
-                  role="img"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                  ></path>
-                </svg>
+                <InfoIcon
+                  ariaLabel="情報アイコン"
+                  className="mt-0.5 text-info"
+                  size="sm"
+                />
                 設定変更後はサーバーの再起動が必要です
               </li>
               <li class="flex items-start gap-2">
-                <svg
-                  aria-label="情報アイコン"
-                  class="w-4 h-4 mt-0.5 text-info"
-                  fill="none"
-                  role="img"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                  ></path>
-                </svg>
+                <InfoIcon
+                  ariaLabel="情報アイコン"
+                  className="mt-0.5 text-info"
+                  size="sm"
+                />
                 サーバー名は接続済みクライアントに影響します
               </li>
               <li class="flex items-start gap-2">
-                <svg
-                  aria-label="情報アイコン"
-                  class="w-4 h-4 mt-0.5 text-info"
-                  fill="none"
-                  role="img"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                  ></path>
-                </svg>
+                <InfoIcon
+                  ariaLabel="情報アイコン"
+                  className="mt-0.5 text-info"
+                  size="sm"
+                />
                 バージョンは適切なセマンティックバージョニングを使用してください
               </li>
             </ul>

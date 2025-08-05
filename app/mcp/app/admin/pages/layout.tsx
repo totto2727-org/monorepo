@@ -1,4 +1,11 @@
 import type { PropsWithChildren } from "hono/jsx"
+import {
+  DashboardIcon,
+  MenuIcon,
+  ServerIcon,
+  SystemIcon,
+  ToolsIcon,
+} from "../ui/icons/icon.js"
 
 export function AdminLayout({ children }: PropsWithChildren) {
   return (
@@ -10,21 +17,7 @@ export function AdminLayout({ children }: PropsWithChildren) {
         </div>
         <div class="flex-none">
           <button class="btn btn-square btn-ghost" type="button">
-            <svg
-              aria-label="メニューアイコン"
-              class="inline-block w-5 h-5 stroke-current"
-              fill="none"
-              role="img"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-              ></path>
-            </svg>
+            <MenuIcon ariaLabel="メニューアイコン" />
           </button>
         </div>
       </div>
@@ -56,21 +49,7 @@ export function AdminLayout({ children }: PropsWithChildren) {
                     hx-push-url="true"
                     hx-target="main"
                   >
-                    <svg
-                      aria-label="ダッシュボードアイコン"
-                      class="w-5 h-5"
-                      fill="none"
-                      role="img"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                      ></path>
-                    </svg>
+                    <DashboardIcon ariaLabel="ダッシュボードアイコン" />
                     ダッシュボード
                   </a>
                 </li>
@@ -82,21 +61,7 @@ export function AdminLayout({ children }: PropsWithChildren) {
                     hx-push-url="true"
                     hx-target="main"
                   >
-                    <svg
-                      aria-label="サーバー設定アイコン"
-                      class="w-5 h-5"
-                      fill="none"
-                      role="img"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                      ></path>
-                    </svg>
+                    <ServerIcon ariaLabel="サーバー設定アイコン" />
                     サーバー設定
                   </a>
                 </li>
@@ -108,27 +73,7 @@ export function AdminLayout({ children }: PropsWithChildren) {
                     hx-push-url="true"
                     hx-target="main"
                   >
-                    <svg
-                      aria-label="検索ツールアイコン"
-                      class="w-5 h-5"
-                      fill="none"
-                      role="img"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                      ></path>
-                      <path
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                      ></path>
-                    </svg>
+                    <ToolsIcon ariaLabel="検索ツールアイコン" />
                     検索ツール
                   </a>
                 </li>
@@ -140,21 +85,7 @@ export function AdminLayout({ children }: PropsWithChildren) {
                     hx-push-url="true"
                     hx-target="main"
                   >
-                    <svg
-                      aria-label="システム設定アイコン"
-                      class="w-5 h-5"
-                      fill="none"
-                      role="img"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                      ></path>
-                    </svg>
+                    <SystemIcon ariaLabel="システム設定アイコン" />
                     システム設定
                   </a>
                 </li>

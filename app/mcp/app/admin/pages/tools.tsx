@@ -1,3 +1,5 @@
+import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "../ui/icons/icon.js"
+
 export function ToolsManager() {
   // モックデータ
   const tools = [
@@ -30,21 +32,7 @@ export function ToolsManager() {
           onclick="document.getElementById('add-tool-modal').showModal()"
           type="button"
         >
-          <svg
-            aria-label="追加アイコン"
-            class="w-4 h-4"
-            fill="none"
-            role="img"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-            ></path>
-          </svg>
+          <PlusIcon ariaLabel="追加アイコン" size="sm" />
           新しいツールを追加
         </button>
       </div>
@@ -155,42 +143,14 @@ export function ToolsManager() {
                           onclick={`editTool('${tool.id}')`}
                           type="button"
                         >
-                          <svg
-                            aria-label="編集アイコン"
-                            class="w-4 h-4"
-                            fill="none"
-                            role="img"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                            ></path>
-                          </svg>
+                          <EditIcon ariaLabel="編集アイコン" size="sm" />
                         </button>
                         <button
                           class="btn btn-sm btn-error btn-outline"
                           onclick={`deleteTool('${tool.id}')`}
                           type="button"
                         >
-                          <svg
-                            aria-label="削除アイコン"
-                            class="w-4 h-4"
-                            fill="none"
-                            role="img"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                            ></path>
-                          </svg>
+                          <DeleteIcon ariaLabel="削除アイコン" size="sm" />
                         </button>
                       </div>
                     </td>
@@ -291,21 +251,7 @@ export function ToolsManager() {
 
             <div class="modal-action">
               <button class="btn btn-primary" type="submit">
-                <svg
-                  aria-label="保存アイコン"
-                  class="w-4 h-4"
-                  fill="none"
-                  role="img"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M5 13l4 4L19 7"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                  ></path>
-                </svg>
+                <CheckIcon ariaLabel="保存アイコン" size="sm" />
                 追加
               </button>
               <button

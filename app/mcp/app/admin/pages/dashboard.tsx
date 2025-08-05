@@ -1,3 +1,10 @@
+import {
+  LightningIcon,
+  PlusIcon,
+  RefreshIcon,
+  ToolsIcon,
+} from "../ui/icons/icon.js"
+
 export function Dashboard() {
   // モックデータ
   const stats = {
@@ -63,27 +70,7 @@ export function Dashboard() {
         <div class="card bg-base-100 shadow-lg">
           <div class="card-body">
             <h2 class="card-title flex items-center gap-2">
-              <svg
-                aria-label="登録ツールアイコン"
-                class="w-5 h-5"
-                fill="none"
-                role="img"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                ></path>
-                <path
-                  d="M15 12a3 3 0 11-6 0 3 3 0 616 0z"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                ></path>
-              </svg>
+              <ToolsIcon ariaLabel="登録ツールアイコン" size="md" />
               登録済みツール
             </h2>
             <div class="space-y-3">
@@ -121,21 +108,7 @@ export function Dashboard() {
         <div class="card bg-base-100 shadow-lg">
           <div class="card-body">
             <h2 class="card-title flex items-center gap-2">
-              <svg
-                aria-label="クイックアクションアイコン"
-                class="w-5 h-5"
-                fill="none"
-                role="img"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                ></path>
-              </svg>
+              <LightningIcon ariaLabel="クイックアクションアイコン" size="md" />
               クイックアクション
             </h2>
             <div class="space-y-3">
@@ -146,21 +119,7 @@ export function Dashboard() {
                 hx-target="main"
                 type="button"
               >
-                <svg
-                  aria-label="追加アイコン"
-                  class="w-4 h-4"
-                  fill="none"
-                  role="img"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                  ></path>
-                </svg>
+                <PlusIcon ariaLabel="追加アイコン" size="sm" />
                 新しいツールを追加
               </button>
 
@@ -171,21 +130,7 @@ export function Dashboard() {
                 hx-target="main"
                 type="button"
               >
-                <svg
-                  aria-label="設定アイコン"
-                  class="w-4 h-4"
-                  fill="none"
-                  role="img"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                  ></path>
-                </svg>
+                <ToolsIcon ariaLabel="設定アイコン" size="sm" />
                 サーバー設定を変更
               </button>
 
@@ -194,21 +139,7 @@ export function Dashboard() {
                 onclick="location.reload()"
                 type="button"
               >
-                <svg
-                  aria-label="再読み込みアイコン"
-                  class="w-4 h-4"
-                  fill="none"
-                  role="img"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                  ></path>
-                </svg>
+                <RefreshIcon ariaLabel="再読み込みアイコン" size="sm" />
                 設定を再読み込み
               </button>
             </div>
