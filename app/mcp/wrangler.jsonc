@@ -8,6 +8,14 @@
   },
   "compatibility_date": "2024-11-06",
   "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_id": "db437e13-e164-443e-909a-46ecec24f119",
+      "database_name": "mcp",
+      "migrations_dir": "drizzle"
+    }
+  ],
   "main": "./app/entry.worker.ts",
   "name": "mcp",
   "observability": {
