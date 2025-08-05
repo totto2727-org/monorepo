@@ -1,6 +1,3 @@
-// Mock data for development and testing purposes
-// This should be replaced with actual API calls in production
-
 export const mockMcpTools = [
   {
     createdAt: "2025-01-05T10:30:00Z",

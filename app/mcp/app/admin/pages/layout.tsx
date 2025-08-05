@@ -9,7 +9,6 @@ import {
 export function AdminLayout({ children }: PropsWithChildren) {
   return (
     <div class="min-h-screen bg-base-200" hx-boost="true">
-      {/* Header */}
       <div class="navbar bg-base-100 shadow-lg">
         <div class="flex-1">
           <h1 class="btn btn-ghost text-xl">MCP Admin</h1>
@@ -24,12 +23,10 @@ export function AdminLayout({ children }: PropsWithChildren) {
       <div class="drawer lg:drawer-open">
         <input class="drawer-toggle" id="drawer-toggle" type="checkbox" />
 
-        {/* Page content */}
         <div class="drawer-content flex flex-col">
           <main class="flex-1 p-6">{children}</main>
         </div>
 
-        {/* Sidebar */}
         <div class="drawer-side">
           <label
             aria-label="Close menu"
