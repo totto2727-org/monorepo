@@ -16,16 +16,19 @@
 ## 基本原則
 
 ### 1. 一貫性の維持
+
 - コードベース全体で統一されたパターンを使用
 - 既存のコンポーネントと命名規則に従う
 - プロジェクト固有の慣例を優先
 
 ### 2. 保守性の重視
+
 - 再利用可能なコンポーネントの作成
 - 関心の分離（UI、ロジック、データ）
 - 明確で自己文書化するコード
 
 ### 3. アクセシビリティファースト
+
 - すべてのUI要素にアクセシビリティを考慮
 - セマンティックHTMLの使用
 - スクリーンリーダー対応
@@ -33,6 +36,7 @@
 ## プロジェクト構成
 
 ### ディレクトリ構造
+
 ```
 app/admin/
 ├── pages/          # ページコンポーネント
@@ -51,6 +55,7 @@ app/admin/
 ```
 
 ### ファイル命名規則
+
 - **コンポーネント**: PascalCase (`Dashboard.tsx`, `ServerConfig.tsx`)
 - **ユーティリティ**: camelCase (`apiClient.ts`, `formatDate.ts`)
 - **設定ファイル**: kebab-case (`tailwind.css`, `api-config.ts`)
@@ -58,7 +63,9 @@ app/admin/
 ## コンポーネント設計
 
 ### 1. 関数コンポーネント
+
 **✅ 良い例:**
+
 ```tsx
 export function Dashboard() {
   const stats = {
@@ -76,6 +83,7 @@ export function Dashboard() {
 ```
 
 **❌ 避けるべき:**
+
 ```tsx
 // アロー関数は避ける
 const Dashboard = () => { /* ... */ }
@@ -85,7 +93,9 @@ export default Dashboard
 ```
 
 ### 2. プロパティ定義
+
 **✅ 良い例:**
+
 ```tsx
 interface IconProps {
   size?: "sm" | "md" | "lg"
@@ -103,7 +113,9 @@ export function PlusIcon({
 ```
 
 ### 3. 条件付きレンダリング
+
 **✅ 良い例:**
+
 ```tsx
 {tools.length > 0 && (
   <div class="space-y-3">
@@ -115,7 +127,9 @@ export function PlusIcon({
 ```
 
 ### 4. イベントハンドラー
+
 **✅ 良い例:**
+
 ```tsx
 <button 
   type="button"
@@ -129,11 +143,13 @@ export function PlusIcon({
 ## スタイリング規約
 
 ### 1. Tailwind CSS
+
 - **クラス順序**: レイアウト → 外観 → インタラクション
 - **レスポンシブ**: モバイルファーストアプローチ
 - **カスタムクラス**: DaisyUIコンポーネントを優先使用
 
 **✅ 良い例:**
+
 ```tsx
 <div class="flex flex-col gap-4 p-6 bg-base-100 rounded-lg shadow-lg md:flex-row">
   <button class="btn btn-primary">
@@ -143,10 +159,12 @@ export function PlusIcon({
 ```
 
 ### 2. DaisyUI コンポーネント
+
 - 標準的なUI要素にはDaisyUIクラスを使用
 - 一貫したテーマカラーの適用
 
 **使用するコンポーネント:**
+
 ```tsx
 // ナビゲーション
 <div class="navbar bg-base-100">
@@ -166,6 +184,7 @@ export function PlusIcon({
 ```
 
 ### 3. レスポンシブデザイン
+
 ```tsx
 // グリッドレイアウト
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -180,7 +199,9 @@ export function PlusIcon({
 ## アクセシビリティ
 
 ### 1. セマンティックHTML
+
 **✅ 良い例:**
+
 ```tsx
 <main class="flex-1 p-6">
   <h1 class="text-3xl font-bold">ページタイトル</h1>
@@ -193,7 +214,9 @@ export function PlusIcon({
 ```
 
 ### 2. アイコンのアクセシビリティ
+
 **✅ 必須実装:**
+
 ```tsx
 export function DashboardIcon({ 
   size = "md", 
@@ -214,7 +237,9 @@ export function DashboardIcon({
 ```
 
 ### 3. フォーム要素
+
 **✅ 良い例:**
+
 ```tsx
 <div class="form-control">
   <label class="label" htmlFor="server-name">
@@ -236,7 +261,9 @@ export function DashboardIcon({
 ```
 
 ### 4. ボタンとリンク
+
 **✅ 良い例:**
+
 ```tsx
 // ナビゲーション用（リンク）
 <a class="btn btn-primary" href="/app/admin/tools">
@@ -258,7 +285,9 @@ export function DashboardIcon({
 ## インタラクティブ要素
 
 ### 1. HTMX の使用
+
 **✅ 推奨パターン:**
+
 ```tsx
 // レイアウト全体にブースト適用
 <div class="min-h-screen bg-base-200" hx-boost="true">
@@ -272,7 +301,9 @@ export function DashboardIcon({
 ```
 
 ### 2. モーダルダイアログ
+
 **✅ 良い例:**
+
 ```tsx
 <dialog id="add-tool-modal" class="modal">
   <div class="modal-box w-11/12 max-w-2xl">
@@ -288,7 +319,9 @@ export function DashboardIcon({
 ```
 
 ### 3. 状態管理
+
 **✅ 良い例:**
+
 ```tsx
 // ローディング状態
 <div class="htmx-indicator loading loading-spinner loading-sm" id="save-spinner"></div>
@@ -301,7 +334,9 @@ export function DashboardIcon({
 ## 型安全性
 
 ### 1. TypeScript型定義
+
 **✅ 良い例:**
+
 ```tsx
 // インターフェース定義
 interface McpSearchTool {
@@ -325,6 +360,7 @@ interface IconProps {
 ```
 
 ### 2. JSX型注釈
+
 ```tsx
 import type { JSX } from "hono/jsx"
 
@@ -336,7 +372,9 @@ export function Dashboard(): JSX.Element {
 ## パフォーマンス
 
 ### 1. 画像とアセット
+
 **✅ 最適化:**
+
 ```tsx
 // 開発環境では CDN、本番環境では静的ファイル
 export function Tailwind() {
@@ -349,7 +387,9 @@ export function Tailwind() {
 ```
 
 ### 2. アイコンコンポーネントの再利用
+
 **✅ 良い例:**
+
 ```tsx
 // 個別のSVG使用を避け、アイコンコンポーネントを使用
 <PlusIcon size="sm" ariaLabel="追加" />
@@ -360,23 +400,28 @@ export function Tailwind() {
 ## 命名規則
 
 ### 1. コンポーネント名
+
 - **ページコンポーネント**: 機能を表す名詞 (`Dashboard`, `ServerConfig`, `ToolsManager`)
 - **UIコンポーネント**: 要素の種類 + 目的 (`AdminLayout`, `ToolForm`)
 - **アイコンコンポーネント**: 対象 + `Icon` (`DashboardIcon`, `PlusIcon`)
 
 ### 2. 関数・変数名
+
 - **関数**: 動詞から始める (`createMcpHandler`, `editTool`, `deleteTool`)
 - **変数**: 名詞または形容詞 (`currentConfig`, `availableTargets`, `isLoading`)
 - **定数**: UPPER_SNAKE_CASE (`API_BASE_URL`, `DEFAULT_TIMEOUT`)
 
 ### 3. CSS クラス名
+
 - Tailwind CSS および DaisyUI の標準クラス名を使用
 - カスタムクラスは避け、既存のユーティリティクラスを組み合わせる
 
 ## エラーハンドリング
 
 ### 1. フォームバリデーション
+
 **✅ 良い例:**
+
 ```tsx
 <input
   type="text"
@@ -390,7 +435,9 @@ export function Tailwind() {
 ```
 
 ### 2. エラー表示
+
 **✅ 良い例:**
+
 ```tsx
 <div class="alert alert-error" role="alert">
   <svg class="w-6 h-6" fill="none" stroke="currentColor">
@@ -403,11 +450,13 @@ export function Tailwind() {
 ## テスト考慮事項
 
 ### 1. テスタビリティ
+
 - `data-testid` 属性の使用を検討
 - 複雑なロジックは別関数に分離
 - モック可能な構造設計
 
 ### 2. アクセシビリティテスト
+
 - スクリーンリーダーでの動作確認
 - キーボードナビゲーションの確認
 - カラーコントラストの検証
@@ -417,18 +466,21 @@ export function Tailwind() {
 新しいコンポーネントを作成する際は、以下の項目を確認してください：
 
 ### 基本実装
+
 - [ ] TypeScript型定義が適切に行われている
 - [ ] 関数コンポーネントを使用している（アロー関数ではない）
 - [ ] 名前付きエクスポートを使用している
 - [ ] 適切なファイル名とディレクトリ配置
 
 ### スタイリング
+
 - [ ] Tailwind CSS クラスを使用している
 - [ ] DaisyUI コンポーネントを活用している
 - [ ] レスポンシブデザインに対応している
 - [ ] 一貫したカラーテーマを使用している
 
 ### アクセシビリティ
+
 - [ ] セマンティックHTMLを使用している
 - [ ] 適切な見出し階層（h1, h2, h3...）
 - [ ] ボタンに `type` 属性を指定している
@@ -437,11 +489,13 @@ export function Tailwind() {
 - [ ] キーボードナビゲーションが機能する
 
 ### パフォーマンス
+
 - [ ] 不要な再レンダリングを避けている
 - [ ] 適切なキー属性をリスト要素に指定
 - [ ] アイコンは再利用可能なコンポーネントを使用
 
 ### HTMX統合
+
 - [ ] ナビゲーションには `hx-boost` を使用
 - [ ] 部分更新が必要な場合のみ個別のHTMX属性を使用
 - [ ] 適切なターゲット要素を指定
