@@ -1,7 +1,7 @@
 import { count, sql } from "drizzle-orm"
 import type { Context } from "hono"
 import type { FC } from "hono/jsx"
-import { createDatabase, schema } from "#@/db/db.js"
+import { createDatabase, schema } from "#@/db.js"
 import { ServerIcon, ToolsIcon } from "#@/ui/icons/icon.js"
 
 type StatCardProps = {
@@ -79,7 +79,7 @@ export async function Dashboard(c: Context) {
   const stats = {
     dataSourcesCount: dataSourcesCountResult[0]?.count ?? 0,
     mcpToolsCount: mcpToolsCountResult[0]?.count ?? 0,
-    updatedAt: lastUpdatedResult[0]?.updatedAt ?? new Date().toISOString(),
+    updatedAt: lastUpdatedResult[0]?.updatedAt ?? "-",
   }
 
   return (

@@ -1,5 +1,5 @@
 import { StreamableHTTPTransport } from "@hono/mcp"
-import { createDatabase, schema } from "#@/db/db.js"
+import { createDatabase, schema } from "#@/db.js"
 import { factory } from "#@/hono.js"
 import { createMcpServer } from "./server.js"
 import type { McpServerConfig } from "./types.js"
