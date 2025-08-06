@@ -2,25 +2,7 @@ import { desc } from "drizzle-orm"
 import type { Context } from "hono"
 import { createDatabase, schema } from "#@/db.js"
 import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "#@/ui/icons/icon.js"
-
-type StatCardProps = {
-  title: string
-  value: string | number
-  colorClass?: string
-}
-
-function StatCard({
-  title,
-  value,
-  colorClass = "text-primary",
-}: StatCardProps) {
-  return (
-    <div class="stat bg-base-100 rounded-lg shadow">
-      <div class="stat-title">{title}</div>
-      <div class={`stat-value ${colorClass}`}>{value}</div>
-    </div>
-  )
-}
+import { SimpleStatCard } from "#@/ui/admin/card/simple-stat-card.js"
 
 export async function McpToolsManager(c: Context) {
   const db = createDatabase(c.env.DB)
@@ -44,7 +26,7 @@ export async function McpToolsManager(c: Context) {
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <StatCard
+        <SimpleStatCard
           colorClass="text-primary"
           title="Total MCP Tools"
           value={tools.length}

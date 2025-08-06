@@ -2,30 +2,12 @@ import { desc } from "drizzle-orm"
 import type { Context } from "hono"
 import { createDatabase, schema } from "#@/db.js"
 import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "#@/ui/icons/icon.js"
+import { SimpleStatCard } from "#@/ui/admin/card/simple-stat-card.js"
 
 const availableDataSourceTypes = [
   { label: "Text", value: "text" },
   { label: "Firecrawl", value: "firecrawl" },
 ] as const
-
-type StatCardProps = {
-  title: string
-  value: string | number
-  colorClass?: string
-}
-
-function StatCard({
-  title,
-  value,
-  colorClass = "text-primary",
-}: StatCardProps) {
-  return (
-    <div class="stat bg-base-100 rounded-lg shadow">
-      <div class="stat-title">{title}</div>
-      <div class={`stat-value ${colorClass}`}>{value}</div>
-    </div>
-  )
-}
 
 export async function DataSourcesManager(c: Context) {
   const db = createDatabase(c.env.DB)
@@ -61,12 +43,12 @@ export async function DataSourcesManager(c: Context) {
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <StatCard
+        <SimpleStatCard
           colorClass="text-primary"
           title="Total Data Sources"
           value={dataSources.length}
         />
-        <StatCard
+        <SimpleStatCard
           colorClass="text-info"
           title="MCP Tools"
           value={mcpTools.length}

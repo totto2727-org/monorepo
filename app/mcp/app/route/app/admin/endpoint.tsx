@@ -1,65 +1,9 @@
 import { count, sql } from "drizzle-orm"
 import type { Context } from "hono"
-import type { FC } from "hono/jsx"
 import { createDatabase, schema } from "#@/db.js"
 import { ServerIcon, ToolsIcon } from "#@/ui/icons/icon.js"
-
-type StatCardProps = {
-  title: string
-  value: string | number
-  description: string
-  colorClass?: string
-}
-
-function StatCard({
-  title,
-  value,
-  description,
-  colorClass = "",
-}: StatCardProps) {
-  return (
-    <div class="card bg-base-100 shadow-lg">
-      <div class="card-body">
-        <h2 class={`card-title ${colorClass}`}>{title}</h2>
-        <p class="text-2xl font-bold">{value}</p>
-        <p class="text-sm text-base-content/70">{description}</p>
-      </div>
-    </div>
-  )
-}
-
-type ManagementCardProps = {
-  icon: FC<{ ariaLabel: string; size: "sm" | "md" | "lg" }>
-  iconLabel: string
-  title: string
-  description: string
-  href: string
-}
-
-function ManagementCard({
-  icon: Icon,
-  iconLabel,
-  title,
-  description,
-  href,
-}: ManagementCardProps) {
-  return (
-    <div class="card bg-base-100 shadow-lg">
-      <div class="card-body">
-        <h2 class="card-title flex items-center gap-2">
-          <Icon ariaLabel={iconLabel} size="md" />
-          {title}
-        </h2>
-        <p class="text-base-content/70">{description}</p>
-        <div class="card-actions justify-end mt-4">
-          <a class="btn btn-primary" href={href}>
-            Manage
-          </a>
-        </div>
-      </div>
-    </div>
-  )
-}
+import { StatCard } from "#@/ui/admin/card/stat-card.js"
+import { ManagementCard } from "#@/ui/admin/card/management-card.js"
 
 export async function Dashboard(c: Context) {
   const db = createDatabase(c.env.DB)
