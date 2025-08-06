@@ -9,8 +9,10 @@ export function createMcpServer(autoRagName: string, config: McpServerConfig) {
   })
 
   for (const source of config.sources) {
+    const toolName = `search_ai_${source.name}`
+
     mcpServer.registerTool(
-      source.name,
+      toolName,
       {
         description: source.description,
         inputSchema: {
@@ -28,7 +30,7 @@ export function createMcpServer(autoRagName: string, config: McpServerConfig) {
             filters: {
               key: "folder",
               type: "eq",
-              value: `${source.target}/`,
+              value: `${source.name}/`,
             },
             query,
             rewrite_query: rewrite_query,

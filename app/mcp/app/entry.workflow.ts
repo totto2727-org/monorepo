@@ -42,7 +42,7 @@ function syncDataSources(r2: R2Bucket, config: DataSourceConfig) {
           yield* Effect.tryPromise(() =>
             save(
               r2,
-              path.join(config.target, filename),
+              path.join(config.mcpToolName, filename),
               result.value,
               result.source.type,
             ),
@@ -72,7 +72,7 @@ function createDataSourceConfigArray(): DataSourceConfig[] {
       dataSources: [
         { type: "text", url: new URL("https://effect.website/llms-full.txt") },
       ],
-      target: "effect",
+      mcpToolName: "effect",
     },
   ]
 }
