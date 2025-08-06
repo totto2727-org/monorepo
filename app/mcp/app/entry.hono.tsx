@@ -26,11 +26,11 @@ export const app = new Hono<{ Bindings: Cloudflare.Env }>()
   .get("/app/admin", async (c) => {
     return c.render(<Dashboard />)
   })
-  .get("/app/admin/mcp-tools", async (c) => {
+  .get("/app/admin/mcp-tool", async (c) => {
     return c.render(<GetMcpTool />)
   })
-  .post("/app/admin/api/mcp-tools", (c) => c.render(<PostMcpTool />))
+  .post("/app/admin/mcp-tool", (c) => c.render(<PostMcpTool />))
   .get("/app/admin/data-source", async (c) => {
     return c.render(<GetDataSource />)
   })
-  .post("/app/admin/api/data-source", (c) => c.render(<PostDataSource />))
+  .post("/app/admin/data-source", (c) => c.render(<PostDataSource />))
