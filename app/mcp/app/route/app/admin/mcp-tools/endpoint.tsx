@@ -1,17 +1,22 @@
-import { desc, sql } from "drizzle-orm"
+import { desc } from "drizzle-orm"
 import { createDatabase, schema } from "#@/db.js"
 import { useRequestContext } from "#@/hono.js"
 import { SimpleStatCard } from "#@/ui/admin/card/simple-stat-card.js"
-import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "#@/ui/icons/icon.js"
-import { formatDurationFromNow } from "#@/utils/duration.js"
+import { Input } from "#@/ui/admin/input/input.js"
+import { Textarea } from "#@/ui/admin/input/textarea.js"
+import { CheckIcon, PlusIcon } from "#@/ui/icons/icon.js"
 
-export const GetMcpTools = async () => {
+async function fetchMcpTools() {
   const c = useRequestContext()
   const db = createDatabase(c.env.DB)
-  const tools = await db
+  return await db
     .select()
     .from(schema.mcpTool)
     .orderBy(desc(schema.mcpTool.createdAt))
+}
+
+export const GetMcpTools = async () => {
+  const tools = await fetchMcpTools()
 
   return (
     <div class="space-y-6">
@@ -35,63 +40,6 @@ export const GetMcpTools = async () => {
         />
       </div>
 
-      <div class="card bg-base-100 shadow-lg">
-        <div class="card-body">
-          <div class="overflow-x-auto" id="tools-table">
-            <table class="table table-zebra">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Title</th>
-                  <th>Used</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tools.map((tool) => (
-                  <tr key={tool.name}>
-                    <td>
-                      <div class="font-mono text-sm">{tool.name}</div>
-                    </td>
-                    <td>
-                      <div>
-                        <div class="font-semibold">{tool.title}</div>
-                        <div class="text-sm text-base-content/70 truncate max-w-xs">
-                          {tool.description}
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="text-sm">
-                        {formatDurationFromNow(new Date(tool.lastUsed))}
-                      </div>
-                    </td>
-                    <td>
-                      <div class="flex gap-2">
-                        <button
-                          class="btn btn-sm btn-outline"
-                          onclick={`editTool('${tool.name}')`}
-                          type="button"
-                        >
-                          <EditIcon ariaLabel="Edit Icon" size="sm" />
-                        </button>
-                        <button
-                          class="btn btn-sm btn-error btn-outline"
-                          onclick={`deleteTool('${tool.name}')`}
-                          type="button"
-                        >
-                          <DeleteIcon ariaLabel="Delete Icon" size="sm" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
       <dialog class="modal" id="add-tool-modal">
         <div class="modal-box w-11/12 max-w-2xl">
           <h3 class="font-bold text-lg mb-4">Add New MCP Tool</h3>
@@ -102,60 +50,42 @@ export const GetMcpTools = async () => {
             hx-post="/app/admin/api/mcp-tools"
             hx-target="#tools-table"
           >
-            <div class="form-control">
-              <div class="label">
-                <span class="label-text font-semibold">Name</span>
-                <span class="label-text-alt text-error">Required</span>
-              </div>
-              <div class="text-sm text-base-content/70 mb-2">
-                Lowercase letters, numbers, and underscores only. Must start
-                with a letter
-              </div>
-              <input
-                class="input input-bordered"
-                id="tool-name"
-                name="name"
-                pattern="^[a-z][a-z0-9_]*$"
-                placeholder="example"
-                required
-                type="text"
-              />
-            </div>
+            <Input
+              description="Lowercase letters, numbers, and underscores only. Must start with a letter."
+              inputAttributes={{
+                id: "tool-name",
+                name: "name",
+                pattern: "^[a-z][a-z0-9_]*$",
+                placeholder: "example",
+                required: true,
+                type: "text",
+              }}
+              name="Name"
+            />
+            <Input
+              inputAttributes={{
+                id: "tool-title",
+                maxLength: 100,
+                name: "title",
+                placeholder: "Example Documentation Search",
+                required: true,
+                type: "text",
+              }}
+              name="Title"
+            />
 
-            <div class="form-control">
-              <div class="label">
-                <span class="label-text font-semibold">Title</span>
-                <span class="label-text-alt text-error">Required</span>
-              </div>
-              <div>
-                <input
-                  class="input input-bordered"
-                  id="tool-title"
-                  maxLength={100}
-                  name="title"
-                  placeholder="Example Documentation Search"
-                  required
-                  type="text"
-                />
-              </div>
-            </div>
-
-            <div class="form-control">
-              <div class="label">
-                <span class="label-text font-semibold">Description</span>
-                <span class="label-text-alt text-error">Required</span>
-              </div>
-              <div>
-                <textarea
-                  class="textarea textarea-bordered h-24"
-                  id="tool-description"
-                  maxLength={300}
-                  name="description"
-                  placeholder="Describe the functionality and purpose of this MCP tool"
-                  required
-                ></textarea>
-              </div>
-            </div>
+            <Textarea
+              name="Description"
+              textareaAttributes={{
+                class: "textarea textarea-bordered h-24",
+                id: "tool-description",
+                maxLength: 300,
+                name: "description",
+                placeholder:
+                  "Describe the functionality and purpose of this MCP tool",
+                required: true,
+              }}
+            />
 
             <div class="modal-action">
               <button class="btn btn-primary" type="submit">
@@ -190,68 +120,5 @@ export const GetMcpTools = async () => {
 }
 
 export const PostMcpTools = async () => {
-  const c = useRequestContext()
-  const db = createDatabase(c.env.DB)
-  const body = await c.req.parseBody()
-
-  await db.insert(schema.mcpTool).values({
-    description: body.description as string,
-    name: body.name as string,
-    title: body.title as string,
-  })
-
-  const tools = await db
-    .select()
-    .from(schema.mcpTool)
-    .orderBy(sql`created_at DESC`)
-
-  return (
-    <div class="overflow-x-auto" id="tools-table">
-      <table class="table table-zebra">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Title</th>
-            <th>Used</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tools.map((tool) => (
-            <tr key={tool.name}>
-              <td>
-                <div class="font-mono text-sm">{tool.name}</div>
-              </td>
-              <td>
-                <div>
-                  <div class="font-semibold">{tool.title}</div>
-                  <div class="text-sm text-base-content/70 truncate max-w-xs">
-                    {tool.description}
-                  </div>
-                </div>
-              </td>
-              <td>
-                <div class="text-sm">
-                  {formatDurationFromNow(new Date(tool.lastUsed))}
-                </div>
-              </td>
-              <td>
-                <div class="flex gap-2">
-                  <button class="btn btn-sm btn-outline" type="button">
-                    Edit
-                  </button>
-                  <button
-                    class="btn btn-sm btn-error btn-outline"
-                    type="button"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
+  return null
 }
