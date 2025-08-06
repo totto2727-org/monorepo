@@ -3,6 +3,7 @@
     "@biomejs/biome": "catalog:",
     "@cloudflare/vite-plugin": "catalog:",
     "@cloudflare/workers-types": "catalog:",
+    "@formatjs/intl-durationformat": "^0.7.4",
     "@hono/mcp": "catalog:",
     "@modelcontextprotocol/sdk": "catalog:",
     "@tailwindcss/cli": "catalog:",
