@@ -1,8 +1,9 @@
 import { desc } from "drizzle-orm"
 import type { Context } from "hono"
 import { createDatabase, schema } from "#@/db.js"
-import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "#@/ui/icons/icon.js"
 import { SimpleStatCard } from "#@/ui/admin/card/simple-stat-card.js"
+import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "#@/ui/icons/icon.js"
+import { formatDurationFromNow } from "#@/utils/duration.js"
 
 export async function McpToolsManager(c: Context) {
   const db = createDatabase(c.env.DB)
@@ -61,23 +62,7 @@ export async function McpToolsManager(c: Context) {
                     </td>
                     <td>
                       <div class="text-sm">
-                        {(() => {
-                          const now = new Date()
-                          const lastUsed = new Date(tool.lastUsed)
-                          const diffMs = now.getTime() - lastUsed.getTime()
-                          const diffDays = Math.floor(
-                            diffMs / (1000 * 60 * 60 * 24),
-                          )
-                          const diffHours = Math.floor(
-                            diffMs / (1000 * 60 * 60),
-                          )
-                          const diffMinutes = Math.floor(diffMs / (1000 * 60))
-
-                          if (diffDays > 0) return `${diffDays}d ago`
-                          if (diffHours > 0) return `${diffHours}h ago`
-                          if (diffMinutes > 0) return `${diffMinutes}m ago`
-                          return "Just now"
-                        })()}
+                        {formatDurationFromNow(new Date(tool.lastUsed))}
                       </div>
                     </td>
                     <td>

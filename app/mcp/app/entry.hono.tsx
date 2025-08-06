@@ -9,6 +9,7 @@ import { Dashboard } from "./route/app/admin/endpoint.js"
 import { AdminLayout } from "./route/app/admin/layout.js"
 import { McpToolsManager } from "./route/app/admin/mcp-tools/endpoint.js"
 import { Layout } from "./ui/layout.js"
+import { formatDurationFromNow } from "./utils/duration.js"
 
 export const app = new Hono<{ Bindings: Cloudflare.Env }>()
   .use(logger())
@@ -59,21 +60,7 @@ export const app = new Hono<{ Bindings: Cloudflare.Env }>()
                   </td>
                   <td>
                     <div class="text-sm">
-                      {(() => {
-                        const now = new Date()
-                        const lastUsed = new Date(tool.lastUsed)
-                        const diffMs = now.getTime() - lastUsed.getTime()
-                        const diffDays = Math.floor(
-                          diffMs / (1000 * 60 * 60 * 24),
-                        )
-                        const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-                        const diffMinutes = Math.floor(diffMs / (1000 * 60))
-
-                        if (diffDays > 0) return `${diffDays}d ago`
-                        if (diffHours > 0) return `${diffHours}h ago`
-                        if (diffMinutes > 0) return `${diffMinutes}m ago`
-                        return "Just now"
-                      })()}
+                      {formatDurationFromNow(new Date(tool.lastUsed))}
                     </div>
                   </td>
                   <td>
@@ -201,21 +188,7 @@ export const app = new Hono<{ Bindings: Cloudflare.Env }>()
                   </td>
                   <td>
                     <div class="text-sm">
-                      {(() => {
-                        const now = new Date()
-                        const updatedAt = new Date(ds.updatedAt)
-                        const diffMs = now.getTime() - updatedAt.getTime()
-                        const diffDays = Math.floor(
-                          diffMs / (1000 * 60 * 60 * 24),
-                        )
-                        const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-                        const diffMinutes = Math.floor(diffMs / (1000 * 60))
-
-                        if (diffDays > 0) return `${diffDays}d ago`
-                        if (diffHours > 0) return `${diffHours}h ago`
-                        if (diffMinutes > 0) return `${diffMinutes}m ago`
-                        return "Just now"
-                      })()}
+                      {formatDurationFromNow(ds.updatedAt)}
                     </div>
                   </td>
                   <td>
