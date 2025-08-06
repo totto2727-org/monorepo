@@ -3,6 +3,7 @@ import { createDatabase, schema } from "#@/db.js"
 import { useRequestContext } from "#@/hono.js"
 import type { DataSourceType } from "#@/sync/types.js"
 import { SimpleStatCard } from "#@/ui/admin/card/simple-stat-card.js"
+import { createModal } from "#@/ui/admin/dialog.js"
 import { Input } from "#@/ui/admin/input/input.js"
 import { Select } from "#@/ui/admin/input/select.js"
 import { CheckIcon, DeleteIcon, PlusIcon } from "#@/ui/icons/icon.js"
@@ -76,22 +77,20 @@ async function fetchDataSourcesAndTools() {
   ])
 }
 
-export async function GetDataSources() {
+export async function GetDataSource() {
   const [dataSources, mcpTools] = await fetchDataSourcesAndTools()
   const availableTypes = availableDataSourceTypes
+
+  const AddNewDataSourceModal = createModal("add-new-data-source-modal")
 
   return (
     <div class="space-y-6">
       <div class="flex items-center justify-between">
         <h1 class="text-3xl font-bold">Data Sources Management</h1>
-        <button
-          class="btn btn-primary"
-          onclick="document.getElementById('add-datasource-modal').showModal()"
-          type="button"
-        >
+        <AddNewDataSourceModal.OpenButton class="btn btn-primary">
           <PlusIcon ariaLabel="Add Icon" size="sm" />
           Add New Data Source
-        </button>
+        </AddNewDataSourceModal.OpenButton>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -107,14 +106,14 @@ export async function GetDataSources() {
         />
       </div>
 
-      <dialog class="modal" id="add-datasource-modal">
+      <AddNewDataSourceModal.Modal>
         <div class="modal-box w-11/12 max-w-2xl">
           <h3 class="font-bold text-lg mb-4">Add New Data Source</h3>
 
           <form
             class="space-y-4"
             hx-on="htmx:afterRequest: if(event.detail.successful) document.getElementById('add-datasource-modal').close()"
-            hx-post="/app/admin/api/data-sources"
+            hx-post="/app/admin/api/data-source"
             hx-target="#datasources-table"
           >
             <Select
@@ -169,20 +168,11 @@ export async function GetDataSources() {
         <form class="modal-backdrop" method="dialog">
           <button type="button">close</button>
         </form>
-      </dialog>
-
-      <dialog class="modal" id="edit-datasource-modal">
-        <div class="modal-box w-11/12 max-w-2xl">
-          <div id="edit-datasource-content"></div>
-        </div>
-        <form class="modal-backdrop" method="dialog">
-          <button type="button">close</button>
-        </form>
-      </dialog>
+      </AddNewDataSourceModal.Modal>
     </div>
   )
 }
 
-export async function PostDataSources() {
-  return null
+export async function PostDataSource() {
+  return <div></div>
 }

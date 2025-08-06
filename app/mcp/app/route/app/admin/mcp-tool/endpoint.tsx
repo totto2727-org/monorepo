@@ -2,6 +2,7 @@ import { desc } from "drizzle-orm"
 import { createDatabase, schema } from "#@/db.js"
 import { useRequestContext } from "#@/hono.js"
 import { SimpleStatCard } from "#@/ui/admin/card/simple-stat-card.js"
+import { createModal } from "#@/ui/admin/dialog.js"
 import { Input } from "#@/ui/admin/input/input.js"
 import { Textarea } from "#@/ui/admin/input/textarea.js"
 import { CheckIcon, PlusIcon } from "#@/ui/icons/icon.js"
@@ -15,21 +16,18 @@ async function fetchMcpTools() {
     .orderBy(desc(schema.mcpTool.createdAt))
 }
 
-export const GetMcpTools = async () => {
+export const GetMcpTool = async () => {
   const tools = await fetchMcpTools()
+  const AddNewMCPTool = createModal("add-new-mcp-tool-modal")
 
   return (
     <div class="space-y-6">
       <div class="flex items-center justify-between">
         <h1 class="text-3xl font-bold">MCP Tools Management</h1>
-        <button
-          class="btn btn-primary"
-          onclick="document.getElementById('add-tool-modal').showModal()"
-          type="button"
-        >
+        <AddNewMCPTool.OpenButton class="btn btn-primary">
           <PlusIcon ariaLabel="Add Icon" size="sm" />
           Add New MCP Tool
-        </button>
+        </AddNewMCPTool.OpenButton>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -40,7 +38,7 @@ export const GetMcpTools = async () => {
         />
       </div>
 
-      <dialog class="modal" id="add-tool-modal">
+      <AddNewMCPTool.Modal>
         <div class="modal-box w-11/12 max-w-2xl">
           <h3 class="font-bold text-lg mb-4">Add New MCP Tool</h3>
 
@@ -88,37 +86,21 @@ export const GetMcpTools = async () => {
             />
 
             <div class="modal-action">
-              <button class="btn btn-primary" type="submit">
+              <AddNewMCPTool.CloseButton class="btn btn-primary" type="submit">
                 <CheckIcon ariaLabel="Save Icon" size="sm" />
                 Add
-              </button>
-              <button
-                class="btn btn-outline"
-                onclick="document.getElementById('add-tool-modal').close()"
-                type="button"
-              >
+              </AddNewMCPTool.CloseButton>
+              <AddNewMCPTool.CloseButton class="btn btn-outline">
                 Cancel
-              </button>
+              </AddNewMCPTool.CloseButton>
             </div>
           </form>
         </div>
-        <form class="modal-backdrop" method="dialog">
-          <button type="button">close</button>
-        </form>
-      </dialog>
-
-      <dialog class="modal" id="edit-tool-modal">
-        <div class="modal-box w-11/12 max-w-2xl">
-          <div id="edit-tool-content"></div>
-        </div>
-        <form class="modal-backdrop" method="dialog">
-          <button type="button">close</button>
-        </form>
-      </dialog>
+      </AddNewMCPTool.Modal>
     </div>
   )
 }
 
-export const PostMcpTools = async () => {
-  return null
+export const PostMcpTool = async () => {
+  return <div></div>
 }
