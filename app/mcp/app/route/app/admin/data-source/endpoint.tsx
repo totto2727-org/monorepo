@@ -7,6 +7,7 @@ import { createModal } from "#@/ui/admin/dialog.js"
 import { Input } from "#@/ui/admin/input/input.js"
 import { Select } from "#@/ui/admin/input/select.js"
 import { CheckIcon, DeleteIcon, PlusIcon } from "#@/ui/icons/icon.js"
+import { formatDurationFromNow } from "#@/utils/duration.js"
 
 const availableDataSourceTypes = [
   { label: "Text", value: "text" },
@@ -60,6 +61,22 @@ function DataSourceItemForm(
   )
 }
 
+function TableItem(props: {
+  mcpToolName: string
+  type: string
+  url: string
+  createdAt: Date
+}) {
+  return (
+    <tr>
+      <th>{props.mcpToolName}</th>
+      <td>{props.type}</td>
+      <td>{props.url}</td>
+      <td>{formatDurationFromNow(props.createdAt)}</td>
+    </tr>
+  )
+}
+
 async function fetchDataSourcesAndTools() {
   const c = useRequestContext()
   const db = createDatabase(c.env.DB)
@@ -82,6 +99,8 @@ export async function GetDataSource() {
   const availableTypes = availableDataSourceTypes
 
   const AddNewDataSourceModal = createModal("add-new-data-source-modal")
+
+  const tableID = "mcp-tool-table"
 
   return (
     <div class="space-y-6">
@@ -106,15 +125,37 @@ export async function GetDataSource() {
         />
       </div>
 
+      <div className="overflow-x-auto">
+        <table className="table" id={tableID}>
+          <thead>
+            <tr>
+              <th>Tool name</th>
+              <th>Type</th>
+              <th>URL</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dataSources.map((tool) => (
+              <TableItem {...tool} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+
       <AddNewDataSourceModal.Modal>
         <div class="modal-box w-11/12 max-w-2xl">
           <h3 class="font-bold text-lg mb-4">Add New Data Source</h3>
 
           <form
             class="space-y-4"
-            hx-on="htmx:afterRequest: if(event.detail.successful) document.getElementById('add-datasource-modal').close()"
-            hx-post="/app/admin/api/data-source"
-            hx-target="#datasources-table"
+            hx-post="/app/admin/data-source"
+            hx-swap="afterbegin"
+            hx-target={`#${tableID} > tbody`}
+            {...{
+              "hx-on::after-request":
+                "if(event.detail.successful) this.reset()",
+            }}
           >
             <Select
               name="MCP Tool"
@@ -151,28 +192,25 @@ export async function GetDataSource() {
             </div>
 
             <div class="modal-action">
-              <button class="btn btn-primary" type="submit">
+              <AddNewDataSourceModal.CloseButton
+                class="btn btn-primary"
+                type="submit"
+              >
                 <CheckIcon ariaLabel="Save Icon" size="sm" />
                 Add
-              </button>
-              <button
-                class="btn btn-outline"
-                onclick="document.getElementById('add-datasource-modal').close()"
-                type="button"
-              >
+              </AddNewDataSourceModal.CloseButton>
+              <AddNewDataSourceModal.CloseButton class="btn btn-outline">
                 Cancel
-              </button>
+              </AddNewDataSourceModal.CloseButton>
             </div>
           </form>
         </div>
-        <form class="modal-backdrop" method="dialog">
-          <button type="button">close</button>
-        </form>
       </AddNewDataSourceModal.Modal>
     </div>
   )
 }
 
-export async function PostDataSource() {
-  return <div></div>
+export const PostMcpTool = async () => {
+  // TODO
+  return <TableItem createdAt={new Date()} mcpToolName="a" type="a" url="a" />
 }

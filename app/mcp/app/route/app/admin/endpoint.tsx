@@ -57,7 +57,7 @@ export async function Dashboard() {
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ManagementCard
           description="Add, edit, and delete search tools"
-          href="/app/admin/mcp-tools"
+          href="/app/admin/mcp-tool"
           icon={ToolsIcon}
           iconLabel="MCP Tools Icon"
           title="MCP Tools Management"

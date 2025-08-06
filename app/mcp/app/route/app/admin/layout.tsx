@@ -46,7 +46,7 @@ export function AdminLayout({ children }: PropsWithChildren) {
                 <li>
                   <a
                     class="flex items-center gap-3"
-                    href="/app/admin/mcp-tools"
+                    href="/app/admin/mcp-tool"
                   >
                     <ToolsIcon ariaLabel="MCP Tools Icon" />
                     MCP Tools

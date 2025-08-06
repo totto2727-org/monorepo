@@ -6,6 +6,23 @@ import { createModal } from "#@/ui/admin/dialog.js"
 import { Input } from "#@/ui/admin/input/input.js"
 import { Textarea } from "#@/ui/admin/input/textarea.js"
 import { CheckIcon, PlusIcon } from "#@/ui/icons/icon.js"
+import { formatDurationFromNow } from "#@/utils/duration.js"
+
+function TableItem(props: {
+  name: string
+  title: string
+  description: string
+  lastUsed: Date
+}) {
+  return (
+    <tr>
+      <th>{props.name}</th>
+      <td>{props.title}</td>
+      <td>{props.description}</td>
+      <td>{formatDurationFromNow(props.lastUsed)}</td>
+    </tr>
+  )
+}
 
 async function fetchMcpTools() {
   const c = useRequestContext()
@@ -19,6 +36,8 @@ async function fetchMcpTools() {
 export const GetMcpTool = async () => {
   const tools = await fetchMcpTools()
   const AddNewMCPTool = createModal("add-new-mcp-tool-modal")
+
+  const tableID = "mcp-tool-table"
 
   return (
     <div class="space-y-6">
@@ -38,15 +57,37 @@ export const GetMcpTool = async () => {
         />
       </div>
 
+      <div className="overflow-x-auto">
+        <table className="table" id={tableID}>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Last used</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tools.map((tool) => (
+              <TableItem {...tool} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+
       <AddNewMCPTool.Modal>
         <div class="modal-box w-11/12 max-w-2xl">
           <h3 class="font-bold text-lg mb-4">Add New MCP Tool</h3>
 
           <form
             class="space-y-4"
-            hx-on="htmx:afterRequest: if(event.detail.successful) document.getElementById('add-tool-modal').close()"
-            hx-post="/app/admin/api/mcp-tools"
-            hx-target="#tools-table"
+            hx-post="/app/admin/mcp-tool"
+            hx-swap="afterbegin"
+            hx-target={`#${tableID} > tbody`}
+            {...{
+              "hx-on::after-request":
+                "if(event.detail.successful) this.reset()",
+            }}
           >
             <Input
               description="Lowercase letters, numbers, and underscores only. Must start with a letter."
@@ -102,5 +143,6 @@ export const GetMcpTool = async () => {
 }
 
 export const PostMcpTool = async () => {
-  return <div></div>
+  // TODO
+  return <TableItem description="a" lastUsed={new Date()} name="a" title="a" />
 }
