@@ -108,42 +108,6 @@ export async function DataSourcesManager(c: Context) {
 
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
-          <div class="flex flex-col md:flex-row gap-4">
-            <div class="form-control flex-1">
-              <input
-                class="input input-bordered"
-                hx-get="/app/admin/api/data-sources/search"
-                hx-target="#datasources-table"
-                hx-trigger="keyup changed delay:300ms"
-                id="datasource-search"
-                name="search"
-                placeholder="Search data sources..."
-                type="text"
-              />
-            </div>
-            <div class="form-control">
-              <select
-                class="select select-bordered"
-                hx-get="/app/admin/api/data-sources/filter"
-                hx-target="#datasources-table"
-                hx-trigger="change"
-                id="datasource-filter"
-                name="mcpToolName"
-              >
-                <option value="">All MCP Tools</option>
-                {mcpTools.map((tool) => (
-                  <option key={tool.name} value={tool.name}>
-                    {tool.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card bg-base-100 shadow-lg">
-        <div class="card-body">
           <div class="overflow-x-auto" id="datasources-table">
             <table class="table table-zebra">
               <thead>
@@ -237,32 +201,32 @@ export async function DataSourcesManager(c: Context) {
             hx-target="#datasources-table"
           >
             <div class="form-control">
-              <label class="label" htmlFor="datasource-mcptool">
-                <span class="label-text font-semibold">
-                  MCP Tool <span class="text-error">*</span>
-                </span>
-              </label>
-              <select
-                class="select select-bordered"
-                id="datasource-mcptool"
-                name="mcpToolName"
-                required
-              >
-                <option value="">Select MCP Tool</option>
-                {mcpTools.map((tool) => (
-                  <option key={tool.name} value={tool.name}>
-                    {tool.name}
-                  </option>
-                ))}
-              </select>
+              <div class="label">
+                <span class="label-text font-semibold">MCP Tool</span>
+                <span class="label-text-alt text-error">Required</span>
+              </div>
+              <div>
+                <select
+                  class="select select-bordered"
+                  id="datasource-mcptool"
+                  name="mcpToolName"
+                  required
+                >
+                  <option value="">Select MCP Tool</option>
+                  {mcpTools.map((tool) => (
+                    <option key={tool.name} value={tool.name}>
+                      {tool.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div class="form-control">
-              <label class="label" htmlFor="datasource-list">
-                <span class="label-text font-semibold">
-                  Data Sources <span class="text-error">*</span>
-                </span>
-              </label>
+              <div class="label">
+                <span class="label-text font-semibold">Data Sources</span>
+                <span class="label-text-alt text-error">Required</span>
+              </div>
               <div class="text-sm text-base-content/70 mb-2">
                 At least 1 required
               </div>
@@ -278,41 +242,43 @@ export async function DataSourcesManager(c: Context) {
                       <DeleteIcon ariaLabel="Delete" size="sm" />
                     </button>
                   </div>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div class="space-y-3">
                     <div class="form-control">
-                      <label class="label" htmlFor="datasource-0-type">
-                        <span class="label-text">
-                          Type <span class="text-error">*</span>
-                        </span>
-                      </label>
-                      <select
-                        class="select select-bordered select-sm"
-                        id="datasource-0-type"
-                        name="datasources[0][type]"
-                        required
-                      >
-                        <option value="">Select</option>
-                        {availableTypes.map((type) => (
-                          <option key={type.value} value={type.value}>
-                            {type.label}
-                          </option>
-                        ))}
-                      </select>
+                      <div class="label">
+                        <span class="label-text">Type</span>
+                        <span class="label-text-alt text-error">Required</span>
+                      </div>
+                      <div>
+                        <select
+                          class="select select-bordered select-sm"
+                          id="datasource-0-type"
+                          name="datasources[0][type]"
+                          required
+                        >
+                          <option value="">Select</option>
+                          {availableTypes.map((type) => (
+                            <option key={type.value} value={type.value}>
+                              {type.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                     <div class="form-control">
-                      <label class="label" htmlFor="datasource-0-url">
-                        <span class="label-text">
-                          URL <span class="text-error">*</span>
-                        </span>
-                      </label>
-                      <input
-                        class="input input-bordered input-sm"
-                        id="datasource-0-url"
-                        name="datasources[0][url]"
-                        placeholder="https://example.com"
-                        required
-                        type="url"
-                      />
+                      <div class="label">
+                        <span class="label-text">URL</span>
+                        <span class="label-text-alt text-error">Required</span>
+                      </div>
+                      <div>
+                        <input
+                          class="input input-bordered input-sm"
+                          id="datasource-0-url"
+                          name="datasources[0][url]"
+                          placeholder="https://example.com"
+                          required
+                          type="url"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -364,11 +330,12 @@ export async function DataSourcesManager(c: Context) {
                   </svg>
                 </button>
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="space-y-3">
                 <div class="form-control">
-                  <label class="label">
-                    <span class="label-text">Type <span class="text-error">*</span></span>
-                  </label>
+                  <div class="label">
+                    <span class="label-text">Type</span>
+                    <span class="label-text-alt text-error">Required</span>
+                  </div>
                   <select class="select select-bordered select-sm" name="datasources[\${dataSourceIndex}][type]" required>
                     <option value="">Select</option>
                     <option value="text">Text</option>
@@ -376,9 +343,10 @@ export async function DataSourcesManager(c: Context) {
                   </select>
                 </div>
                 <div class="form-control">
-                  <label class="label">
-                    <span class="label-text">URL <span class="text-error">*</span></span>
-                  </label>
+                  <div class="label">
+                    <span class="label-text">URL</span>
+                    <span class="label-text-alt text-error">Required</span>
+                  </div>
                   <input class="input input-bordered input-sm" name="datasources[\${dataSourceIndex}][url]" placeholder="https://example.com" required type="url" />
                 </div>
               </div>

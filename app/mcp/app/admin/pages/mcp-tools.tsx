@@ -53,25 +53,6 @@ export async function McpToolsManager(c: Context) {
 
       <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
-          <div class="flex flex-col md:flex-row gap-4">
-            <div class="form-control flex-1">
-              <input
-                class="input input-bordered"
-                hx-get="/app/admin/api/mcp-tools/search"
-                hx-target="#tools-table"
-                hx-trigger="keyup changed delay:300ms"
-                id="tool-search"
-                name="search"
-                placeholder="Search MCP tools..."
-                type="text"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card bg-base-100 shadow-lg">
-        <div class="card-body">
           <div class="overflow-x-auto" id="tools-table">
             <table class="table table-zebra">
               <thead>
@@ -154,11 +135,10 @@ export async function McpToolsManager(c: Context) {
             hx-target="#tools-table"
           >
             <div class="form-control">
-              <label class="label" htmlFor="tool-name">
-                <span class="label-text font-semibold">
-                  Tool Name <span class="text-error">*</span>
-                </span>
-              </label>
+              <div class="label">
+                <span class="label-text font-semibold">Name</span>
+                <span class="label-text-alt text-error">Required</span>
+              </div>
               <div class="text-sm text-base-content/70 mb-2">
                 Lowercase letters, numbers, and underscores only. Must start
                 with a letter
@@ -175,36 +155,38 @@ export async function McpToolsManager(c: Context) {
             </div>
 
             <div class="form-control">
-              <label class="label" htmlFor="tool-title">
-                <span class="label-text font-semibold">
-                  Title <span class="text-error">*</span>
-                </span>
-              </label>
-              <input
-                class="input input-bordered"
-                id="tool-title"
-                maxLength={100}
-                name="title"
-                placeholder="Example Documentation Search"
-                required
-                type="text"
-              />
+              <div class="label">
+                <span class="label-text font-semibold">Title</span>
+                <span class="label-text-alt text-error">Required</span>
+              </div>
+              <div>
+                <input
+                  class="input input-bordered"
+                  id="tool-title"
+                  maxLength={100}
+                  name="title"
+                  placeholder="Example Documentation Search"
+                  required
+                  type="text"
+                />
+              </div>
             </div>
 
             <div class="form-control">
-              <label class="label" htmlFor="tool-description">
-                <span class="label-text font-semibold">
-                  Description <span class="text-error">*</span>
-                </span>
-              </label>
-              <textarea
-                class="textarea textarea-bordered h-24"
-                id="tool-description"
-                maxLength={300}
-                name="description"
-                placeholder="Describe the functionality and purpose of this MCP tool"
-                required
-              ></textarea>
+              <div class="label">
+                <span class="label-text font-semibold">Description</span>
+                <span class="label-text-alt text-error">Required</span>
+              </div>
+              <div>
+                <textarea
+                  class="textarea textarea-bordered h-24"
+                  id="tool-description"
+                  maxLength={300}
+                  name="description"
+                  placeholder="Describe the functionality and purpose of this MCP tool"
+                  required
+                ></textarea>
+              </div>
             </div>
 
             <div class="modal-action">
