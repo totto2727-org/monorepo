@@ -285,6 +285,9 @@ importers:
       '@hono/mcp':
         specifier: 'catalog:'
         version: 0.1.1(@modelcontextprotocol/sdk@1.17.1)(hono@4.7.10)
+      '@hono/standard-validator':
+        specifier: ^0.1.4
+        version: 0.1.4(@standard-schema/spec@1.0.0)(hono@4.7.10)
       '@modelcontextprotocol/sdk':
         specifier: 'catalog:'
         version: 1.17.1
@@ -1366,6 +1369,12 @@ packages:
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
+
+  '@hono/standard-validator@0.1.4':
+    resolution: {integrity: sha512-NPxSO9/Z1FFaJ34/0WJA0JoFRrVrJOG5P/i+PBJu7jCw9v0u8WmGiJu0zv+bTk1pjplBjjczAd59x2X50spRmQ==}
+    peerDependencies:
+      '@standard-schema/spec': 1.0.0
+      hono: '>=3.9.0'
 
   '@hono/vite-dev-server@0.18.3':
     resolution: {integrity: sha512-JztypLmq6qtQ3OAcz5vDzwXYBBymLztSbfDuNf4XTWkfppLjf6DHvYHtQZ5idOfNhUzdnbYY7/6QAKlVk6G3QQ==}
@@ -5596,6 +5605,11 @@ snapshots:
 
   '@hono/node-server@1.14.2(hono@4.7.10)':
     dependencies:
+      hono: 4.7.10
+
+  '@hono/standard-validator@0.1.4(@standard-schema/spec@1.0.0)(hono@4.7.10)':
+    dependencies:
+      '@standard-schema/spec': 1.0.0
       hono: 4.7.10
 
   '@hono/vite-dev-server@0.18.3(hono@4.7.10)(miniflare@4.20250730.0)(wrangler@4.27.0(@cloudflare/workers-types@4.20250525.0))':
