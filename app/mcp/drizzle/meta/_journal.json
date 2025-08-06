@@ -1,13 +1,13 @@
 {
-  "version": "7",
   "dialect": "sqlite",
   "entries": [
     {
+      "breakpoints": true,
       "idx": 0,
-      "version": "6",
-      "when": 1754417087487,
       "tag": "0000_lowly_darkhawk",
-      "breakpoints": true
+      "version": "6",
+      "when": 1754417087487
     }
-  ]
+  ],
+  "version": "7"
 }
