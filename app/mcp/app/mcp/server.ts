@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
+import { createDatabase, schema } from "#@/db/db.js"
 import type { McpServerConfig } from "./types.js"
 
 export function createMcpServer(autoRagName: string, config: McpServerConfig) {

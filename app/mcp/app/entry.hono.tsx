@@ -99,21 +99,24 @@ export const app = new Hono<{ Bindings: Cloudflare.Env }>()
     
     try {
       const mcpToolName = body.mcpToolName as string
-      const dataSources = []
+      const newDataSources = []
       
       // Parse datasources array from form
       let index = 0
       while (body[`datasources[${index}][type]`]) {
-        dataSources.push({
-          mcpToolName,
-          type: body[`datasources[${index}][type]`] as string,
-          url: body[`datasources[${index}][url]`] as string,
-        })
+        const type = body[`datasources[${index}][type]`] as string
+        if (type === "text" || type === "firecrawl") {
+          newDataSources.push({
+            mcpToolName,
+            type: type as "text" | "firecrawl",
+            url: body[`datasources[${index}][url]`] as string,
+          })
+        }
         index++
       }
       
       // Insert all data sources
-      for (const dataSource of dataSources) {
+      for (const dataSource of newDataSources) {
         await db.insert(schema.dataSource).values(dataSource)
       }
       
@@ -144,7 +147,7 @@ export const app = new Hono<{ Bindings: Cloudflare.Env }>()
         return acc
       }, {} as Record<string, any>)
       
-      const dataSources = Object.values(groupedDataSources)
+      const finalDataSources = Object.values(groupedDataSources)
       
       return c.html(
         <div class="overflow-x-auto" id="datasources-table">
@@ -159,7 +162,7 @@ export const app = new Hono<{ Bindings: Cloudflare.Env }>()
               </tr>
             </thead>
             <tbody>
-              {dataSources.map((ds: any) => (
+              {finalDataSources.map((ds: any) => (
                 <tr key={ds.id}>
                   <td>
                     <div class="font-mono text-sm">{ds.id}</div>
