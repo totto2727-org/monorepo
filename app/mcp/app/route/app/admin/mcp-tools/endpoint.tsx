@@ -209,28 +209,6 @@ export async function McpToolsManager(c: Context) {
         </form>
       </dialog>
 
-      <script>
-        {`
-          function editTool(toolId) {
-            htmx.ajax('GET', '/app/admin/api/mcp-tools/' + toolId + '/edit', {
-              target: '#edit-tool-content',
-              swap: 'innerHTML'
-            }).then(() => {
-              document.getElementById('edit-tool-modal').showModal();
-            });
-          }
-
-          function deleteTool(toolId) {
-            if (confirm('Are you sure you want to delete this MCP tool? This action cannot be undone.')) {
-              htmx.ajax('DELETE', '/app/admin/api/mcp-tools/' + toolId, {
-                target: '#tools-table',
-                swap: 'outerHTML'
-              });
-            }
-          }
-        `}
-      </script>
-
       <dialog class="modal" id="edit-tool-modal">
         <div class="modal-box w-11/12 max-w-2xl">
           <div id="edit-tool-content"></div>

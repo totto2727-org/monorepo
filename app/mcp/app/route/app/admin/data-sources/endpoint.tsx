@@ -4,9 +4,9 @@ import { createDatabase, schema } from "#@/db.js"
 import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "#@/ui/icons/icon.js"
 
 const availableDataSourceTypes = [
-  { label: "Text", value: "text" as const },
-  { label: "Firecrawl", value: "firecrawl" as const },
-]
+  { label: "Text", value: "text" },
+  { label: "Firecrawl", value: "firecrawl" },
+] as const
 
 type StatCardProps = {
   title: string
@@ -29,7 +29,7 @@ function StatCard({
 
 export async function DataSourcesManager(c: Context) {
   const db = createDatabase(c.env.DB)
-  const [rawDataSources, mcpTools] = await db.batch([
+  const [dataSources, mcpTools] = await db.batch([
     db
       .select({
         createdAt: schema.dataSource.createdAt,
@@ -45,39 +45,6 @@ export async function DataSourcesManager(c: Context) {
     db.select().from(schema.mcpTool).orderBy(schema.mcpTool.name),
   ])
   const availableTypes = availableDataSourceTypes
-
-  // Group data sources by mcp tool name
-  const groupedDataSources = rawDataSources.reduce(
-    (acc, source) => {
-      const toolName = source.mcpToolName
-      if (!acc[toolName]) {
-        acc[toolName] = {
-          createdAt: source.createdAt,
-          id: `ds_${toolName}`,
-          mcpToolName: toolName,
-          sources: [],
-          updatedAt: source.createdAt,
-        }
-      }
-      acc[toolName].sources.push({
-        type: source.type,
-        url: source.url,
-      })
-      return acc
-    },
-    {} as Record<
-      string,
-      {
-        id: string
-        mcpToolName: string
-        sources: Array<{ url: string; type: string }>
-        createdAt: string
-        updatedAt: string
-      }
-    >,
-  )
-
-  const dataSources = Object.values(groupedDataSources)
 
   return (
     <div class="space-y-6">
@@ -120,34 +87,31 @@ export async function DataSourcesManager(c: Context) {
                 </tr>
               </thead>
               <tbody>
-                {dataSources.map((ds) => (
-                  <tr key={ds.id}>
+                {dataSources.map((dataSource) => (
+                  <tr key={dataSource.mcpToolName}>
                     <td>
-                      <div class="font-mono text-sm">{ds.id}</div>
+                      <div class="font-mono text-sm">
+                        {dataSource.mcpToolName}
+                      </div>
                     </td>
                     <td>
-                      <div class="badge badge-outline">{ds.mcpToolName}</div>
+                      <div class="badge badge-outline">
+                        {dataSource.mcpToolName}
+                      </div>
                     </td>
                     <td>
-                      <div class="space-y-1">
-                        {ds.sources.map((source, index) => (
-                          <div
-                            class="flex items-center gap-2"
-                            key={`${ds.id}-source-${index}`}
-                          >
-                            <div class="badge badge-sm">{source.type}</div>
-                            <div class="text-sm text-base-content/70 truncate max-w-xs">
-                              {source.url}
-                            </div>
-                          </div>
-                        ))}
+                      <div class="flex items-center gap-2">
+                        <div class="badge badge-sm">{dataSource.type}</div>
+                        <div class="text-sm text-base-content/70 truncate max-w-xs">
+                          {dataSource.url}
+                        </div>
                       </div>
                     </td>
                     <td>
                       <div class="text-sm">
                         {(() => {
                           const now = new Date()
-                          const updatedAt = new Date(ds.updatedAt)
+                          const updatedAt = new Date(dataSource.createdAt)
                           const diffMs = now.getTime() - updatedAt.getTime()
                           const diffDays = Math.floor(
                             diffMs / (1000 * 60 * 60 * 24),
@@ -168,14 +132,14 @@ export async function DataSourcesManager(c: Context) {
                       <div class="flex gap-2">
                         <button
                           class="btn btn-sm btn-outline"
-                          onclick={`editDataSource('${ds.id}')`}
+                          onclick={`editDataSource('${dataSource.mcpToolName}')`}
                           type="button"
                         >
                           <EditIcon ariaLabel="Edit Icon" size="sm" />
                         </button>
                         <button
                           class="btn btn-sm btn-error btn-outline"
-                          onclick={`deleteDataSource('${ds.id}')`}
+                          onclick={`deleteDataSource('${dataSource.mcpToolName}')`}
                           type="button"
                         >
                           <DeleteIcon ariaLabel="Delete Icon" size="sm" />
@@ -312,78 +276,6 @@ export async function DataSourcesManager(c: Context) {
           <button type="button">close</button>
         </form>
       </dialog>
-
-      <script>
-        {`
-          let dataSourceIndex = 1;
-
-          function addDataSourceField() {
-            const container = document.getElementById('datasource-list');
-            const newItem = document.createElement('div');
-            newItem.className = 'border border-base-300 rounded-lg p-4 datasource-item';
-            newItem.innerHTML = \`
-              <div class="flex items-center justify-between mb-3">
-                <span class="font-medium">Data Source #\${dataSourceIndex + 1}</span>
-                <button class="btn btn-sm btn-ghost btn-circle" onclick="removeDataSource(this)" type="button">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Delete">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                </button>
-              </div>
-              <div class="space-y-3">
-                <div class="form-control">
-                  <div class="label">
-                    <span class="label-text">Type</span>
-                    <span class="label-text-alt text-error">Required</span>
-                  </div>
-                  <select class="select select-bordered select-sm" name="datasources[\${dataSourceIndex}][type]" required>
-                    <option value="">Select</option>
-                    <option value="text">Text</option>
-                    <option value="firecrawl">Firecrawl</option>
-                  </select>
-                </div>
-                <div class="form-control">
-                  <div class="label">
-                    <span class="label-text">URL</span>
-                    <span class="label-text-alt text-error">Required</span>
-                  </div>
-                  <input class="input input-bordered input-sm" name="datasources[\${dataSourceIndex}][url]" placeholder="https://example.com" required type="url" />
-                </div>
-              </div>
-            \`;
-            container.appendChild(newItem);
-            dataSourceIndex++;
-          }
-
-          function removeDataSource(button) {
-            const item = button.closest('.datasource-item');
-            const container = document.getElementById('datasource-list');
-            if (container.children.length > 1) {
-              item.remove();
-            } else {
-              alert('At least one data source is required.');
-            }
-          }
-
-          function editDataSource(dataSourceId) {
-            htmx.ajax('GET', '/app/admin/api/data-sources/' + dataSourceId + '/edit', {
-              target: '#edit-datasource-content',
-              swap: 'innerHTML'
-            }).then(() => {
-              document.getElementById('edit-datasource-modal').showModal();
-            });
-          }
-
-          function deleteDataSource(dataSourceId) {
-            if (confirm('Are you sure you want to delete this data source? This action cannot be undone.')) {
-              htmx.ajax('DELETE', '/app/admin/api/data-sources/' + dataSourceId, {
-                target: '#datasources-table',
-                swap: 'outerHTML'
-              });
-            }
-          }
-        `}
-      </script>
 
       <dialog class="modal" id="edit-datasource-modal">
         <div class="modal-box w-11/12 max-w-2xl">
