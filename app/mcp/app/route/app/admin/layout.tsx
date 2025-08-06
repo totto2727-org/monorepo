@@ -55,7 +55,7 @@ export function AdminLayout({ children }: PropsWithChildren) {
                 <li>
                   <a
                     class="flex items-center gap-3"
-                    href="/app/admin/data-sources"
+                    href="/app/admin/data-source"
                   >
                     <ServerIcon ariaLabel="Data Sources Icon" />
                     Data Sources

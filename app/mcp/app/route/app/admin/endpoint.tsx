@@ -64,7 +64,7 @@ export async function Dashboard() {
         />
         <ManagementCard
           description="Configure and manage data sources"
-          href="/app/admin/data-sources"
+          href="/app/admin/data-source"
           icon={ServerIcon}
           iconLabel="Data Sources Icon"
           title="Data Sources Management"

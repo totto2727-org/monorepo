@@ -3,15 +3,12 @@ import { jsxRenderer } from "hono/jsx-renderer"
 import { logger } from "hono/logger"
 import { mcpHandler } from "./mcp/handler.js"
 import {
-  GetDataSources,
-  PostDataSources,
-} from "./route/app/admin/data-sources/endpoint.js"
+  GetDataSource,
+  PostDataSource,
+} from "./route/app/admin/data-source/endpoint.js"
 import { Dashboard } from "./route/app/admin/endpoint.js"
 import { AdminLayout } from "./route/app/admin/layout.js"
-import {
-  GetMcpTools,
-  PostMcpTools,
-} from "./route/app/admin/mcp-tools/endpoint.js"
+import { GetMcpTool, PostMcpTool } from "./route/app/admin/mcp-tool/endpoint.js"
 import { Layout } from "./ui/layout.js"
 
 export const app = new Hono<{ Bindings: Cloudflare.Env }>()
@@ -30,10 +27,10 @@ export const app = new Hono<{ Bindings: Cloudflare.Env }>()
     return c.render(<Dashboard />)
   })
   .get("/app/admin/mcp-tools", async (c) => {
-    return c.render(<GetMcpTools />)
+    return c.render(<GetMcpTool />)
   })
-  .post("/app/admin/api/mcp-tools", (c) => c.render(<PostMcpTools />))
-  .get("/app/admin/data-sources", async (c) => {
-    return c.render(<GetDataSources />)
+  .post("/app/admin/api/mcp-tools", (c) => c.render(<PostMcpTool />))
+  .get("/app/admin/data-source", async (c) => {
+    return c.render(<GetDataSource />)
   })
-  .post("/app/admin/api/data-sources", (c) => c.render(<PostDataSources />))
+  .post("/app/admin/api/data-source", (c) => c.render(<PostDataSource />))
