@@ -6,7 +6,9 @@ export const mcpTool = sqliteTable("mcp_tool", {
     .notNull()
     .default(sql`(unixepoch())`),
   description: text("description").notNull(),
-  lastUsed: text("last_used").notNull().default(sql`(unixepoch())`),
+  lastUsed: integer("last_used", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
   name: text("name").primaryKey(),
   title: text("title").notNull(),
 })
@@ -14,7 +16,9 @@ export const mcpTool = sqliteTable("mcp_tool", {
 export const dataSource = sqliteTable(
   "data_source",
   {
-    createdAt: text("created_at").notNull().default(sql`(unixepoch())`),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
     mcpToolName: text("mcp_tool_name")
       .notNull()
       .references(() => mcpTool.name, { onDelete: "cascade" }),
