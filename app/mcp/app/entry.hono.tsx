@@ -13,23 +13,11 @@ export const app = new Hono<{ Bindings: Cloudflare.Env }>()
   .all("/api/mcp", ...mcpHandler)
   .get("/app/*", jsxRenderer(Layout))
   .get("/app/admin", async (c) => {
-    return c.render(
-      <AdminLayout>
-        <Dashboard />
-      </AdminLayout>,
-    )
+    return c.render(<AdminLayout>{await Dashboard(c)}</AdminLayout>)
   })
   .get("/app/admin/mcp-tools", async (c) => {
-    return c.render(
-      <AdminLayout>
-        <McpToolsManager />
-      </AdminLayout>,
-    )
+    return c.render(<AdminLayout>{await McpToolsManager(c)}</AdminLayout>)
   })
   .get("/app/admin/data-sources", async (c) => {
-    return c.render(
-      <AdminLayout>
-        <DataSourcesManager />
-      </AdminLayout>,
-    )
+    return c.render(<AdminLayout>{await DataSourcesManager(c)}</AdminLayout>)
   })
