@@ -1,7 +1,7 @@
 import { desc } from "drizzle-orm"
 import type { Context } from "hono"
 import { createDatabase, schema } from "#@/db/db.js"
-import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "../ui/icons/icon.js"
+import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "#@/ui/icons/icon.js"
 
 const availableDataSourceTypes = [
   { label: "Text", value: "text" as const },

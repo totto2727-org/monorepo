@@ -2,7 +2,7 @@ import { count, sql } from "drizzle-orm"
 import type { Context } from "hono"
 import type { FC } from "hono/jsx"
 import { createDatabase, schema } from "#@/db/db.js"
-import { ServerIcon, ToolsIcon } from "../ui/icons/icon.js"
+import { ServerIcon, ToolsIcon } from "#@/ui/icons/icon.js"
 
 type StatCardProps = {
   title: string
