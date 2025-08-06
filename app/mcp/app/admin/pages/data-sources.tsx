@@ -1,9 +1,12 @@
-import {
-  availableDataSourceTypes,
-  availableTargets,
-  mockDataSources,
-} from "../data/mock-data.js"
+import { desc } from "drizzle-orm"
+import type { Context } from "hono"
+import { createDatabase, schema } from "#@/db/db.js"
 import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "../ui/icons/icon.js"
+
+const availableDataSourceTypes = [
+  { label: "Text", value: "text" as const },
+  { label: "Firecrawl", value: "firecrawl" as const },
+]
 
 type StatCardProps = {
   title: string
@@ -24,9 +27,57 @@ function StatCard({
   )
 }
 
-export function DataSourcesManager() {
-  const dataSources = mockDataSources
+export async function DataSourcesManager(c: Context) {
+  const db = createDatabase(c.env.DB)
+  const [rawDataSources, mcpTools] = await db.batch([
+    db
+      .select({
+        createdAt: schema.dataSource.createdAt,
+        mcpToolName: schema.dataSource.mcpToolName,
+        type: schema.dataSource.type,
+        url: schema.dataSource.url,
+      })
+      .from(schema.dataSource)
+      .orderBy(
+        schema.dataSource.mcpToolName,
+        desc(schema.dataSource.createdAt),
+      ),
+    db.select().from(schema.mcpTool).orderBy(schema.mcpTool.name),
+  ])
   const availableTypes = availableDataSourceTypes
+
+  // Group data sources by mcp tool name
+  const groupedDataSources = rawDataSources.reduce(
+    (acc, source) => {
+      const toolName = source.mcpToolName
+      if (!acc[toolName]) {
+        acc[toolName] = {
+          createdAt: source.createdAt,
+          id: `ds_${toolName}`,
+          mcpToolName: toolName,
+          sources: [],
+          updatedAt: source.createdAt,
+        }
+      }
+      acc[toolName].sources.push({
+        type: source.type,
+        url: source.url,
+      })
+      return acc
+    },
+    {} as Record<
+      string,
+      {
+        id: string
+        mcpToolName: string
+        sources: Array<{ url: string; type: string }>
+        createdAt: string
+        updatedAt: string
+      }
+    >,
+  )
+
+  const dataSources = Object.values(groupedDataSources)
 
   return (
     <div class="space-y-6">
@@ -50,8 +101,8 @@ export function DataSourcesManager() {
         />
         <StatCard
           colorClass="text-info"
-          title="Targets"
-          value={availableTargets.length}
+          title="MCP Tools"
+          value={mcpTools.length}
         />
       </div>
 
@@ -77,12 +128,12 @@ export function DataSourcesManager() {
                 hx-target="#datasources-table"
                 hx-trigger="change"
                 id="datasource-filter"
-                name="target"
+                name="mcpToolName"
               >
-                <option value="">All targets</option>
-                {availableTargets.map((target) => (
-                  <option key={target.value} value={target.value}>
-                    {target.label}
+                <option value="">All MCP Tools</option>
+                {mcpTools.map((tool) => (
+                  <option key={tool.name} value={tool.name}>
+                    {tool.name}
                   </option>
                 ))}
               </select>
@@ -98,7 +149,7 @@ export function DataSourcesManager() {
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Target</th>
+                  <th>MCP Tool</th>
                   <th>Sources</th>
                   <th>Updated</th>
                   <th>Actions</th>
@@ -111,7 +162,7 @@ export function DataSourcesManager() {
                       <div class="font-mono text-sm">{ds.id}</div>
                     </td>
                     <td>
-                      <div class="badge badge-outline">{ds.target}</div>
+                      <div class="badge badge-outline">{ds.mcpToolName}</div>
                     </td>
                     <td>
                       <div class="space-y-1">
@@ -186,20 +237,21 @@ export function DataSourcesManager() {
             hx-target="#datasources-table"
           >
             <div class="form-control">
-              <label class="label" htmlFor="datasource-target">
-                <span class="label-text font-semibold">Target</span>
-                <span class="label-text-alt text-error">Required</span>
+              <label class="label" htmlFor="datasource-mcptool">
+                <span class="label-text font-semibold">
+                  MCP Tool <span class="text-error">*</span>
+                </span>
               </label>
               <select
                 class="select select-bordered"
-                id="datasource-target"
-                name="target"
+                id="datasource-mcptool"
+                name="mcpToolName"
                 required
               >
-                <option value="">Select target</option>
-                {availableTargets.map((target) => (
-                  <option key={target.value} value={target.value}>
-                    {target.label}
+                <option value="">Select MCP Tool</option>
+                {mcpTools.map((tool) => (
+                  <option key={tool.name} value={tool.name}>
+                    {tool.name}
                   </option>
                 ))}
               </select>
@@ -207,11 +259,13 @@ export function DataSourcesManager() {
 
             <div class="form-control">
               <label class="label" htmlFor="datasource-list">
-                <span class="label-text font-semibold">Data Sources</span>
-                <span class="label-text-alt text-error">
-                  At least 1 required
+                <span class="label-text font-semibold">
+                  Data Sources <span class="text-error">*</span>
                 </span>
               </label>
+              <div class="text-sm text-base-content/70 mb-2">
+                At least 1 required
+              </div>
               <div class="space-y-3" id="datasource-list">
                 <div class="border border-base-300 rounded-lg p-4 datasource-item">
                   <div class="flex items-center justify-between mb-3">
@@ -227,7 +281,9 @@ export function DataSourcesManager() {
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div class="form-control">
                       <label class="label" htmlFor="datasource-0-type">
-                        <span class="label-text">Type</span>
+                        <span class="label-text">
+                          Type <span class="text-error">*</span>
+                        </span>
                       </label>
                       <select
                         class="select select-bordered select-sm"
@@ -245,7 +301,9 @@ export function DataSourcesManager() {
                     </div>
                     <div class="form-control">
                       <label class="label" htmlFor="datasource-0-url">
-                        <span class="label-text">URL</span>
+                        <span class="label-text">
+                          URL <span class="text-error">*</span>
+                        </span>
                       </label>
                       <input
                         class="input input-bordered input-sm"
@@ -309,7 +367,7 @@ export function DataSourcesManager() {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div class="form-control">
                   <label class="label">
-                    <span class="label-text">Type</span>
+                    <span class="label-text">Type <span class="text-error">*</span></span>
                   </label>
                   <select class="select select-bordered select-sm" name="datasources[\${dataSourceIndex}][type]" required>
                     <option value="">Select</option>
@@ -319,7 +377,7 @@ export function DataSourcesManager() {
                 </div>
                 <div class="form-control">
                   <label class="label">
-                    <span class="label-text">URL</span>
+                    <span class="label-text">URL <span class="text-error">*</span></span>
                   </label>
                   <input class="input input-bordered input-sm" name="datasources[\${dataSourceIndex}][url]" placeholder="https://example.com" required type="url" />
                 </div>

@@ -24,6 +24,11 @@
 
 **Group related functionality, use descriptive naming**
 
+### File Naming
+
+- **Avoid using `index.ts` for file names**
+- Use `{directory-name}.ts` instead
+
 ## Code Quality
 
 ### Self-Documenting Code

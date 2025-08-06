@@ -1,4 +1,6 @@
-import { availableTargets, mockMcpTools } from "../data/mock-data.js"
+import { desc } from "drizzle-orm"
+import type { Context } from "hono"
+import { createDatabase, schema } from "#@/db/db.js"
 import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "../ui/icons/icon.js"
 
 type StatCardProps = {
@@ -20,8 +22,12 @@ function StatCard({
   )
 }
 
-export function McpToolsManager() {
-  const tools = mockMcpTools
+export async function McpToolsManager(c: Context) {
+  const db = createDatabase(c.env.DB)
+  const tools = await db
+    .select()
+    .from(schema.mcpTool)
+    .orderBy(desc(schema.mcpTool.createdAt))
 
   return (
     <div class="space-y-6">
@@ -43,11 +49,6 @@ export function McpToolsManager() {
           title="Total MCP Tools"
           value={tools.length}
         />
-        <StatCard
-          colorClass="text-info"
-          title="Available Targets"
-          value={availableTargets.length}
-        />
       </div>
 
       <div class="card bg-base-100 shadow-lg">
@@ -65,23 +66,6 @@ export function McpToolsManager() {
                 type="text"
               />
             </div>
-            <div class="form-control">
-              <select
-                class="select select-bordered"
-                hx-get="/app/admin/api/mcp-tools/filter"
-                hx-target="#tools-table"
-                hx-trigger="change"
-                id="tool-filter"
-                name="target"
-              >
-                <option value="">All targets</option>
-                {availableTargets.map((target) => (
-                  <option key={target.value} value={target.value}>
-                    {target.label}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
         </div>
       </div>
@@ -94,14 +78,13 @@ export function McpToolsManager() {
                 <tr>
                   <th>Name</th>
                   <th>Title</th>
-                  <th>Target</th>
                   <th>Used</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {tools.map((tool) => (
-                  <tr key={tool.id}>
+                  <tr key={tool.name}>
                     <td>
                       <div class="font-mono text-sm">{tool.name}</div>
                     </td>
@@ -112,9 +95,6 @@ export function McpToolsManager() {
                           {tool.description}
                         </div>
                       </div>
-                    </td>
-                    <td>
-                      <div class="badge badge-outline">{tool.target}</div>
                     </td>
                     <td>
                       <div class="text-sm">
@@ -141,14 +121,14 @@ export function McpToolsManager() {
                       <div class="flex gap-2">
                         <button
                           class="btn btn-sm btn-outline"
-                          onclick={`editTool('${tool.id}')`}
+                          onclick={`editTool('${tool.name}')`}
                           type="button"
                         >
                           <EditIcon ariaLabel="Edit Icon" size="sm" />
                         </button>
                         <button
                           class="btn btn-sm btn-error btn-outline"
-                          onclick={`deleteTool('${tool.id}')`}
+                          onclick={`deleteTool('${tool.name}')`}
                           type="button"
                         >
                           <DeleteIcon ariaLabel="Delete Icon" size="sm" />
@@ -175,30 +155,30 @@ export function McpToolsManager() {
           >
             <div class="form-control">
               <label class="label" htmlFor="tool-name">
-                <span class="label-text font-semibold">Tool Name</span>
-                <span class="label-text-alt text-error">Required</span>
+                <span class="label-text font-semibold">
+                  Tool Name <span class="text-error">*</span>
+                </span>
               </label>
+              <div class="text-sm text-base-content/70 mb-2">
+                Lowercase letters, numbers, and underscores only. Must start
+                with a letter
+              </div>
               <input
                 class="input input-bordered"
                 id="tool-name"
                 name="name"
                 pattern="^[a-z][a-z0-9_]*$"
-                placeholder="search_ai_example"
+                placeholder="example"
                 required
                 type="text"
               />
-              <label class="label" htmlFor="tool-name">
-                <span class="label-text-alt">
-                  Lowercase letters, numbers, and underscores only. Must start
-                  with a letter
-                </span>
-              </label>
             </div>
 
             <div class="form-control">
               <label class="label" htmlFor="tool-title">
-                <span class="label-text font-semibold">Display Name</span>
-                <span class="label-text-alt text-error">Required</span>
+                <span class="label-text font-semibold">
+                  Title <span class="text-error">*</span>
+                </span>
               </label>
               <input
                 class="input input-bordered"
@@ -213,8 +193,9 @@ export function McpToolsManager() {
 
             <div class="form-control">
               <label class="label" htmlFor="tool-description">
-                <span class="label-text font-semibold">Description</span>
-                <span class="label-text-alt text-error">Required</span>
+                <span class="label-text font-semibold">
+                  Description <span class="text-error">*</span>
+                </span>
               </label>
               <textarea
                 class="textarea textarea-bordered h-24"
@@ -224,26 +205,6 @@ export function McpToolsManager() {
                 placeholder="Describe the functionality and purpose of this MCP tool"
                 required
               ></textarea>
-            </div>
-
-            <div class="form-control">
-              <label class="label" htmlFor="tool-target">
-                <span class="label-text font-semibold">Target</span>
-                <span class="label-text-alt text-error">Required</span>
-              </label>
-              <select
-                class="select select-bordered"
-                id="tool-target"
-                name="target"
-                required
-              >
-                <option value="">Select target</option>
-                {availableTargets.map((target) => (
-                  <option key={target.value} value={target.value}>
-                    {target.label}
-                  </option>
-                ))}
-              </select>
             </div>
 
             <div class="modal-action">

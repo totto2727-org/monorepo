@@ -1,5 +1,7 @@
+import { count, sql } from "drizzle-orm"
+import type { Context } from "hono"
 import type { FC } from "hono/jsx"
-import { dashboardStats } from "../data/mock-data.js"
+import { createDatabase, schema } from "#@/db/db.js"
 import { ServerIcon, ToolsIcon } from "../ui/icons/icon.js"
 
 type StatCardProps = {
@@ -59,8 +61,26 @@ function ManagementCard({
   )
 }
 
-export function Dashboard() {
-  const stats = dashboardStats
+export async function Dashboard(c: Context) {
+  const db = createDatabase(c.env.DB)
+  const [mcpToolsCountResult, dataSourcesCountResult, lastUpdatedResult] =
+    await db.batch([
+      db.select({ count: count() }).from(schema.mcpTool),
+      db.select({ count: count() }).from(schema.dataSource),
+      db
+        .select({
+          updatedAt: sql<string>`MAX(${schema.mcpTool.lastUsed})`.as(
+            "updatedAt",
+          ),
+        })
+        .from(schema.mcpTool),
+    ])
+
+  const stats = {
+    dataSourcesCount: dataSourcesCountResult[0]?.count ?? 0,
+    mcpToolsCount: mcpToolsCountResult[0]?.count ?? 0,
+    updatedAt: lastUpdatedResult[0]?.updatedAt ?? new Date().toISOString(),
+  }
 
   return (
     <div class="space-y-6">
