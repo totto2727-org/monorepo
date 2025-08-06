@@ -1,6 +1,6 @@
-import { desc } from "drizzle-orm"
-import type { Context } from "hono"
+import { desc, sql } from "drizzle-orm"
 import { createDatabase, schema } from "#@/db.js"
+import { useRequestContext } from "#@/hono.js"
 import { SimpleStatCard } from "#@/ui/admin/card/simple-stat-card.js"
 import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "#@/ui/icons/icon.js"
 import { formatDurationFromNow } from "#@/utils/duration.js"
@@ -10,7 +10,8 @@ const availableDataSourceTypes = [
   { label: "Firecrawl", value: "firecrawl" },
 ] as const
 
-export async function DataSourcesManager(c: Context) {
+export async function GetDataSources() {
+  const c = useRequestContext()
   const db = createDatabase(c.env.DB)
   const [dataSources, mcpTools] = await db.batch([
     db
@@ -252,6 +253,124 @@ export async function DataSourcesManager(c: Context) {
           <button type="button">close</button>
         </form>
       </dialog>
+    </div>
+  )
+}
+
+export async function PostDataSources() {
+  const c = useRequestContext()
+  const db = createDatabase(c.env.DB)
+  const body = await c.req.parseBody()
+
+  const mcpToolName = body.mcpToolName as string
+  const newDataSources = []
+
+  let index = 0
+  while (body[`datasources[${index}][type]`]) {
+    const type = body[`datasources[${index}][type]`] as string
+    if (type === "text" || type === "firecrawl") {
+      newDataSources.push({
+        mcpToolName,
+        type: type as "text" | "firecrawl",
+        url: body[`datasources[${index}][url]`] as string,
+      })
+    }
+    index++
+  }
+
+  for (const dataSource of newDataSources) {
+    await db.insert(schema.dataSource).values(dataSource)
+  }
+
+  const rawDataSources = await db
+    .select({
+      createdAt: schema.dataSource.createdAt,
+      mcpToolName: schema.dataSource.mcpToolName,
+      type: schema.dataSource.type,
+      url: schema.dataSource.url,
+    })
+    .from(schema.dataSource)
+    .orderBy(schema.dataSource.mcpToolName, sql`created_at DESC`)
+
+  const groupedDataSources = rawDataSources.reduce(
+    (acc, source) => {
+      const toolName = source.mcpToolName
+      if (!acc[toolName]) {
+        acc[toolName] = {
+          createdAt: source.createdAt,
+          id: `ds_${toolName}`,
+          mcpToolName: toolName,
+          sources: [],
+          updatedAt: source.createdAt,
+        }
+      }
+      acc[toolName].sources.push({
+        type: source.type,
+        url: source.url,
+      })
+      return acc
+    },
+    {} as Record<string, any>,
+  )
+
+  const finalDataSources = Object.values(groupedDataSources)
+
+  return (
+    <div class="overflow-x-auto" id="datasources-table">
+      <table class="table table-zebra">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>MCP Tool</th>
+            <th>Sources</th>
+            <th>Updated</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {finalDataSources.map((ds: any) => (
+            <tr key={ds.id}>
+              <td>
+                <div class="font-mono text-sm">{ds.id}</div>
+              </td>
+              <td>
+                <div class="badge badge-outline">{ds.mcpToolName}</div>
+              </td>
+              <td>
+                <div class="space-y-1">
+                  {ds.sources.map((source: any, index: number) => (
+                    <div
+                      class="flex items-center gap-2"
+                      key={`${ds.id}-source-${index}`}
+                    >
+                      <div class="badge badge-sm">{source.type}</div>
+                      <div class="text-sm text-base-content/70 truncate max-w-xs">
+                        {source.url}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </td>
+              <td>
+                <div class="text-sm">{formatDurationFromNow(ds.updatedAt)}</div>
+              </td>
+              <td>
+                <div class="flex gap-2">
+                  <button class="btn btn-sm btn-outline" type="button">
+                    Edit
+                  </button>
+                  <button
+                    class="btn btn-sm btn-error btn-outline"
+                    type="button"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }

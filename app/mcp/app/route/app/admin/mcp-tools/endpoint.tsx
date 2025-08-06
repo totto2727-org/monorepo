@@ -1,11 +1,12 @@
-import { desc } from "drizzle-orm"
-import type { Context } from "hono"
+import { desc, sql } from "drizzle-orm"
 import { createDatabase, schema } from "#@/db.js"
+import { useRequestContext } from "#@/hono.js"
 import { SimpleStatCard } from "#@/ui/admin/card/simple-stat-card.js"
 import { CheckIcon, DeleteIcon, EditIcon, PlusIcon } from "#@/ui/icons/icon.js"
 import { formatDurationFromNow } from "#@/utils/duration.js"
 
-export async function McpToolsManager(c: Context) {
+export const GetMcpTools = async () => {
+  const c = useRequestContext()
   const db = createDatabase(c.env.DB)
   const tools = await db
     .select()
@@ -184,6 +185,73 @@ export async function McpToolsManager(c: Context) {
           <button type="button">close</button>
         </form>
       </dialog>
+    </div>
+  )
+}
+
+export const PostMcpTools = async () => {
+  const c = useRequestContext()
+  const db = createDatabase(c.env.DB)
+  const body = await c.req.parseBody()
+
+  await db.insert(schema.mcpTool).values({
+    description: body.description as string,
+    name: body.name as string,
+    title: body.title as string,
+  })
+
+  const tools = await db
+    .select()
+    .from(schema.mcpTool)
+    .orderBy(sql`created_at DESC`)
+
+  return (
+    <div class="overflow-x-auto" id="tools-table">
+      <table class="table table-zebra">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Title</th>
+            <th>Used</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tools.map((tool) => (
+            <tr key={tool.name}>
+              <td>
+                <div class="font-mono text-sm">{tool.name}</div>
+              </td>
+              <td>
+                <div>
+                  <div class="font-semibold">{tool.title}</div>
+                  <div class="text-sm text-base-content/70 truncate max-w-xs">
+                    {tool.description}
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="text-sm">
+                  {formatDurationFromNow(new Date(tool.lastUsed))}
+                </div>
+              </td>
+              <td>
+                <div class="flex gap-2">
+                  <button class="btn btn-sm btn-outline" type="button">
+                    Edit
+                  </button>
+                  <button
+                    class="btn btn-sm btn-error btn-outline"
+                    type="button"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }

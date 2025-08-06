@@ -1,11 +1,12 @@
 import { count, sql } from "drizzle-orm"
-import type { Context } from "hono"
 import { createDatabase, schema } from "#@/db.js"
+import { useRequestContext } from "#@/hono.js"
 import { ManagementCard } from "#@/ui/admin/card/management-card.js"
 import { StatCard } from "#@/ui/admin/card/stat-card.js"
 import { ServerIcon, ToolsIcon } from "#@/ui/icons/icon.js"
 
-export async function Dashboard(c: Context) {
+export async function Dashboard() {
+  const c = useRequestContext()
   const db = createDatabase(c.env.DB)
   const [mcpToolsCountResult, dataSourcesCountResult, lastUpdatedResult] =
     await db.batch([
