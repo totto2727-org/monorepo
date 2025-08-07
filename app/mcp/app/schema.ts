@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm"
 import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core"
 
-export const mcpTool = sqliteTable("mcp_tool", {
+export const mcpToolTable = sqliteTable("mcp_tool", {
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),
@@ -13,7 +13,7 @@ export const mcpTool = sqliteTable("mcp_tool", {
   title: text("title").notNull(),
 })
 
-export const dataSource = sqliteTable(
+export const dataSourceTable = sqliteTable(
   "data_source",
   {
     createdAt: integer("created_at", { mode: "timestamp" })
@@ -21,7 +21,7 @@ export const dataSource = sqliteTable(
       .default(sql`(unixepoch())`),
     mcpToolName: text("mcp_tool_name")
       .notNull()
-      .references(() => mcpTool.name, { onDelete: "cascade" }),
+      .references(() => mcpToolTable.name, { onDelete: "cascade" }),
     type: text("type", { enum: ["text", "firecrawl"] }).notNull(),
     url: text("url").notNull(),
   },
