@@ -1,5 +1,5 @@
 CREATE TABLE `data_source` (
-	`created_at` text DEFAULT (unixepoch()) NOT NULL,
+	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
 	`mcp_tool_name` text NOT NULL,
 	`type` text NOT NULL,
 	`url` text NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE `data_source` (
 CREATE TABLE `mcp_tool` (
 	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
 	`description` text NOT NULL,
-	`last_used` text DEFAULT (unixepoch()) NOT NULL,
+	`last_used` integer DEFAULT (unixepoch()) NOT NULL,
 	`name` text PRIMARY KEY NOT NULL,
 	`title` text NOT NULL
 );
