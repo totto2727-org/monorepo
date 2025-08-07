@@ -3,9 +3,9 @@ import { createDatabase, schema } from "#@/db.js"
 import { useRequestContext } from "#@/hono.js"
 import type { DataSourceType } from "#@/sync/types.js"
 import { SimpleStatCard } from "#@/ui/admin/card/simple-stat-card.js"
-import { createModal } from "#@/ui/admin/dialog.js"
 import { Input } from "#@/ui/admin/input/input.js"
 import { Select } from "#@/ui/admin/input/select.js"
+import { createModal } from "#@/ui/admin/modal.js"
 import { CheckIcon, DeleteIcon, PlusIcon } from "#@/ui/icons/icon.js"
 import { formatDurationFromNow } from "#@/utils/duration.js"
 
@@ -147,15 +147,11 @@ export async function GetDataSource() {
         <div class="modal-box w-11/12 max-w-2xl">
           <h3 class="font-bold text-lg mb-4">Add New Data Source</h3>
 
-          <form
+          <AddNewDataSourceModal.Form
             class="space-y-4"
             hx-post="/app/admin/data-source"
             hx-swap="afterbegin"
             hx-target={`#${tableID} > tbody`}
-            {...{
-              "hx-on::after-request":
-                "if(event.detail.successful) this.reset()",
-            }}
           >
             <Select
               name="MCP Tool"
@@ -192,25 +188,22 @@ export async function GetDataSource() {
             </div>
 
             <div class="modal-action">
-              <AddNewDataSourceModal.CloseButton
-                class="btn btn-primary"
-                type="submit"
-              >
+              <button class="btn btn-primary" type="submit">
                 <CheckIcon ariaLabel="Save Icon" size="sm" />
                 Add
-              </AddNewDataSourceModal.CloseButton>
+              </button>
               <AddNewDataSourceModal.CloseButton class="btn btn-outline">
                 Cancel
               </AddNewDataSourceModal.CloseButton>
             </div>
-          </form>
+          </AddNewDataSourceModal.Form>
         </div>
       </AddNewDataSourceModal.Modal>
     </div>
   )
 }
 
-export const PostMcpTool = async () => {
+export const PostDataSource = async () => {
   // TODO
   return <TableItem createdAt={new Date()} mcpToolName="a" type="a" url="a" />
 }

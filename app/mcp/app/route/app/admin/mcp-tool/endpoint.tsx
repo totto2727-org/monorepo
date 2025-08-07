@@ -2,9 +2,9 @@ import { desc } from "drizzle-orm"
 import { createDatabase, schema } from "#@/db.js"
 import { useRequestContext } from "#@/hono.js"
 import { SimpleStatCard } from "#@/ui/admin/card/simple-stat-card.js"
-import { createModal } from "#@/ui/admin/dialog.js"
 import { Input } from "#@/ui/admin/input/input.js"
 import { Textarea } from "#@/ui/admin/input/textarea.js"
+import { createModal } from "#@/ui/admin/modal.js"
 import { CheckIcon, PlusIcon } from "#@/ui/icons/icon.js"
 import { formatDurationFromNow } from "#@/utils/duration.js"
 
@@ -79,15 +79,11 @@ export const GetMcpTool = async () => {
         <div class="modal-box w-11/12 max-w-2xl">
           <h3 class="font-bold text-lg mb-4">Add New MCP Tool</h3>
 
-          <form
+          <AddNewMCPTool.Form
             class="space-y-4"
             hx-post="/app/admin/mcp-tool"
             hx-swap="afterbegin"
             hx-target={`#${tableID} > tbody`}
-            {...{
-              "hx-on::after-request":
-                "if(event.detail.successful) this.reset()",
-            }}
           >
             <Input
               description="Lowercase letters, numbers, and underscores only. Must start with a letter."
@@ -127,15 +123,15 @@ export const GetMcpTool = async () => {
             />
 
             <div class="modal-action">
-              <AddNewMCPTool.CloseButton class="btn btn-primary" type="submit">
+              <button class="btn btn-primary" type="submit">
                 <CheckIcon ariaLabel="Save Icon" size="sm" />
                 Add
-              </AddNewMCPTool.CloseButton>
+              </button>
               <AddNewMCPTool.CloseButton class="btn btn-outline">
                 Cancel
               </AddNewMCPTool.CloseButton>
             </div>
-          </form>
+          </AddNewMCPTool.Form>
         </div>
       </AddNewMCPTool.Modal>
     </div>
