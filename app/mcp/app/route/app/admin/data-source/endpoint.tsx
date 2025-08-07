@@ -83,14 +83,14 @@ async function fetchDataSourcesAndTools() {
   return await db.batch([
     db
       .select({
-        createdAt: schema.dataSource.createdAt,
-        mcpToolName: schema.dataSource.mcpToolName,
-        type: schema.dataSource.type,
-        url: schema.dataSource.url,
+        createdAt: schema.dataSourceTable.createdAt,
+        mcpToolName: schema.dataSourceTable.mcpToolName,
+        type: schema.dataSourceTable.type,
+        url: schema.dataSourceTable.url,
       })
-      .from(schema.dataSource)
-      .orderBy(desc(schema.dataSource.createdAt)),
-    db.select().from(schema.mcpTool).orderBy(schema.mcpTool.name),
+      .from(schema.dataSourceTable)
+      .orderBy(desc(schema.dataSourceTable.createdAt)),
+    db.select().from(schema.mcpToolTable).orderBy(schema.mcpToolTable.name),
   ])
 }
 

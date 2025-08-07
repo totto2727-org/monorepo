@@ -10,15 +10,15 @@ export async function Dashboard() {
   const db = createDatabase(c.env.DB)
   const [mcpToolsCountResult, dataSourcesCountResult, lastUpdatedResult] =
     await db.batch([
-      db.select({ count: count() }).from(schema.mcpTool),
-      db.select({ count: count() }).from(schema.dataSource),
+      db.select({ count: count() }).from(schema.mcpToolTable),
+      db.select({ count: count() }).from(schema.dataSourceTable),
       db
         .select({
-          updatedAt: sql<string>`MAX(${schema.mcpTool.lastUsed})`.as(
+          updatedAt: sql<string>`MAX(${schema.mcpToolTable.lastUsed})`.as(
             "updatedAt",
           ),
         })
-        .from(schema.mcpTool),
+        .from(schema.mcpToolTable),
     ])
 
   const stats = {

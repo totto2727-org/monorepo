@@ -21,7 +21,7 @@ async function loadConfigFromDatabase(
   database: D1Database,
 ): Promise<McpServerConfig> {
   const db = createDatabase(database)
-  const tools = await db.select().from(schema.mcpTool)
+  const tools = await db.select().from(schema.mcpToolTable)
 
   return {
     ai: env.AI,
