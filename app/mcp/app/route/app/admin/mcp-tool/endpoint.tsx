@@ -1,6 +1,8 @@
-import { desc } from "drizzle-orm"
-import { createDatabase, schema } from "#@/db.js"
-import { useRequestContext } from "#@/hono.js"
+import { sValidator } from "@hono/standard-validator"
+import { Effect, Option, Schema } from "@totto/function/effect"
+import type { Database } from "#@/db.js"
+import { factory } from "#@/hono.js"
+import { mcpToolTable } from "#@/schema.js"
 import { SimpleStatCard } from "#@/ui/admin/card/simple-stat-card.js"
 import { Input } from "#@/ui/admin/input/input.js"
 import { Textarea } from "#@/ui/admin/input/textarea.js"
@@ -8,33 +10,54 @@ import { createModal } from "#@/ui/admin/modal.js"
 import { CheckIcon, PlusIcon } from "#@/ui/icons/icon.js"
 import { formatDurationFromNow } from "#@/utils/duration.js"
 
-function TableItem(props: {
-  name: string
-  title: string
-  description: string
-  lastUsed: Date
-}) {
-  return (
-    <tr>
-      <th>{props.name}</th>
-      <td>{props.title}</td>
-      <td>{props.description}</td>
-      <td>{formatDurationFromNow(props.lastUsed)}</td>
-    </tr>
+const mcpToolSchema = Schema.Struct({
+  description: Schema.NonEmptyString,
+  lastUsed: Schema.Union(Schema.DateFromString, Schema.DateFromSelf),
+  name: Schema.NonEmptyString,
+  title: Schema.NonEmptyString,
+})
+const mcpToolWithoutLastUsedStandardSchema = Schema.standardSchemaV1(
+  mcpToolSchema.omit("lastUsed"),
+)
+
+const mcpToolArraySchema = Schema.Array(mcpToolSchema)
+const decodeArray = Schema.decodeSync(mcpToolArraySchema)
+
+export const getHandler = factory.createHandlers(async (c) =>
+  c.render(<GetComponent mcpToolArray={await retrieve(c.var.db)} />),
+)
+
+export const postHandler = factory.createHandlers(
+  sValidator("form", mcpToolWithoutLastUsedStandardSchema),
+  async (c) =>
+    Effect.gen(function* () {
+      const mcpTool = yield* Option.fromIterable(
+        yield* Effect.tryPromise(() =>
+          c.var.db.insert(mcpToolTable).values(c.req.valid("form")).returning(),
+        ),
+      )
+
+      return c.render(<PostComponent {...mcpTool} />)
+    }).pipe(Effect.runPromise),
+)
+
+async function retrieve(db: Database) {
+  return decodeArray(
+    await db.query.mcpToolTable.findMany({
+      columns: {
+        description: true,
+        lastUsed: true,
+        name: true,
+        title: true,
+      },
+      orderBy(fields, operators) {
+        return operators.desc(fields.createdAt)
+      },
+    }),
   )
 }
 
-async function fetchMcpTools() {
-  const c = useRequestContext()
-  const db = createDatabase(c.env.DB)
-  return await db
-    .select()
-    .from(schema.mcpTool)
-    .orderBy(desc(schema.mcpTool.createdAt))
-}
-
-export const GetMcpTool = async () => {
-  const tools = await fetchMcpTools()
+function GetComponent(props: { mcpToolArray: typeof mcpToolArraySchema.Type }) {
   const AddNewMCPTool = createModal("add-new-mcp-tool-modal")
 
   const tableID = "mcp-tool-table"
@@ -53,7 +76,7 @@ export const GetMcpTool = async () => {
         <SimpleStatCard
           colorClass="text-primary"
           title="Total MCP Tools"
-          value={tools.length}
+          value={props.mcpToolArray.length}
         />
       </div>
 
@@ -68,7 +91,7 @@ export const GetMcpTool = async () => {
             </tr>
           </thead>
           <tbody>
-            {tools.map((tool) => (
+            {props.mcpToolArray.map((tool) => (
               <TableItem {...tool} />
             ))}
           </tbody>
@@ -88,7 +111,7 @@ export const GetMcpTool = async () => {
             <Input
               description="Lowercase letters, numbers, and underscores only. Must start with a letter."
               inputAttributes={{
-                id: "tool-name",
+                id: "name",
                 name: "name",
                 pattern: "^[a-z][a-z0-9_]*$",
                 placeholder: "example",
@@ -99,7 +122,7 @@ export const GetMcpTool = async () => {
             />
             <Input
               inputAttributes={{
-                id: "tool-title",
+                id: "title",
                 maxLength: 100,
                 name: "title",
                 placeholder: "Example Documentation Search",
@@ -113,7 +136,7 @@ export const GetMcpTool = async () => {
               name="Description"
               textareaAttributes={{
                 class: "textarea textarea-bordered h-24",
-                id: "tool-description",
+                id: "description",
                 maxLength: 300,
                 name: "description",
                 placeholder:
@@ -138,7 +161,24 @@ export const GetMcpTool = async () => {
   )
 }
 
-export const PostMcpTool = async () => {
-  // TODO
-  return <TableItem description="a" lastUsed={new Date()} name="a" title="a" />
+function PostComponent(props: typeof mcpToolSchema.Type) {
+  return (
+    <TableItem
+      description={props.description}
+      lastUsed={props.lastUsed}
+      name={props.name}
+      title={props.title}
+    />
+  )
+}
+
+function TableItem(props: typeof mcpToolSchema.Type) {
+  return (
+    <tr>
+      <th>{props.name}</th>
+      <td>{props.title}</td>
+      <td>{props.description}</td>
+      <td>{formatDurationFromNow(props.lastUsed)}</td>
+    </tr>
+  )
 }
