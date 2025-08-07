@@ -1,12 +1,14 @@
-import { desc } from "drizzle-orm"
-import { createDatabase, schema } from "#@/db.js"
-import { useRequestContext } from "#@/hono.js"
+import { sValidator } from "@hono/standard-validator"
+import { Effect, Option, Schema } from "@totto/function/effect"
+import type { Database } from "#@/db.js"
+import { factory } from "#@/hono.js"
+import { dataSourceTable } from "#@/schema.js"
 import type { DataSourceType } from "#@/sync/types.js"
 import { SimpleStatCard } from "#@/ui/admin/card/simple-stat-card.js"
 import { Input } from "#@/ui/admin/input/input.js"
 import { Select } from "#@/ui/admin/input/select.js"
 import { createModal } from "#@/ui/admin/modal.js"
-import { CheckIcon, DeleteIcon, PlusIcon } from "#@/ui/icons/icon.js"
+import { CheckIcon, PlusIcon } from "#@/ui/icons/icon.js"
 import { formatDurationFromNow } from "#@/utils/duration.js"
 
 const availableDataSourceTypes = [
@@ -17,87 +19,88 @@ const availableDataSourceTypes = [
   value: DataSourceType
 }[]
 
-function DataSourceItemForm(
-  index: number,
-  availableTypes: typeof availableDataSourceTypes,
-) {
-  return (
-    <div class="border border-base-300 rounded-lg p-4 datasource-item">
-      <div class="flex items-center justify-between mb-3">
-        <span class="font-medium">Data Source #{index + 1}</span>
-        <button
-          class="btn btn-sm btn-ghost btn-circle"
-          onclick="removeDataSource(this)"
-          type="button"
-        >
-          <DeleteIcon ariaLabel="Delete" size="sm" />
-        </button>
-      </div>
-      <div class="space-y-3">
-        <Select
-          name="Type"
-          selectAttributes={{
-            id: `datasource-${index}-type`,
-            name: `datasources[${index}][type]`,
-            required: true,
-          }}
-        >
-          {availableTypes.map((type) => (
-            <option value={type.value}>{type.label}</option>
-          ))}
-        </Select>
-        <Input
-          inputAttributes={{
-            id: `datasource-${index}-url`,
-            name: `datasources[${index}][url]`,
-            placeholder: "https://example.com",
-            required: true,
-            type: "url",
-          }}
-          name="URL"
-        ></Input>
-      </div>
-    </div>
-  )
-}
+const dataSourceSchema = Schema.Struct({
+  createdAt: Schema.Union(Schema.DateFromSelf, Schema.DateFromString),
+  mcpToolName: Schema.NonEmptyString,
+  type: Schema.Literal("text", "firecrawl"),
+  url: Schema.NonEmptyString,
+})
 
-function TableItem(props: {
-  mcpToolName: string
-  type: string
-  url: string
-  createdAt: Date
-}) {
-  return (
-    <tr>
-      <th>{props.mcpToolName}</th>
-      <td>{props.type}</td>
-      <td>{props.url}</td>
-      <td>{formatDurationFromNow(props.createdAt)}</td>
-    </tr>
-  )
-}
+const dataSourceWithoutCreatedAtSchema = dataSourceSchema.omit("createdAt")
+const dataSourceWithoutCreatedAtStandardSchema = Schema.standardSchemaV1(
+  dataSourceWithoutCreatedAtSchema,
+)
 
-async function fetchDataSourcesAndTools() {
-  const c = useRequestContext()
-  const db = createDatabase(c.env.DB)
-  return await db.batch([
-    db
-      .select({
-        createdAt: schema.dataSourceTable.createdAt,
-        mcpToolName: schema.dataSourceTable.mcpToolName,
-        type: schema.dataSourceTable.type,
-        url: schema.dataSourceTable.url,
-      })
-      .from(schema.dataSourceTable)
-      .orderBy(desc(schema.dataSourceTable.createdAt)),
-    db.select().from(schema.mcpToolTable).orderBy(schema.mcpToolTable.name),
+const mcpToolOptionArraySchema = Schema.Array(
+  Schema.Struct({
+    label: Schema.NonEmptyString,
+    value: Schema.NonEmptyString,
+  }),
+)
+
+const dataSourceArrayAndMcpToolOptionArray = Schema.Struct({
+  dataSourceArray: Schema.Array(dataSourceSchema),
+  mcpToolOptionArray: mcpToolOptionArraySchema,
+})
+const decodeDataSourceArrayAndMcpToolOption = Schema.decodeSync(
+  dataSourceArrayAndMcpToolOptionArray,
+)
+
+export const getHandler = factory.createHandlers(async (c) =>
+  c.render(<GetDataSource {...(await fetchDataSourcesAndTools(c.var.db))} />),
+)
+
+export const postHandler = factory.createHandlers(
+  sValidator("form", dataSourceWithoutCreatedAtStandardSchema),
+  async (c) =>
+    Effect.gen(function* () {
+      const dataSource = yield* Option.fromIterable(
+        yield* Effect.tryPromise(() =>
+          c.var.db
+            .insert(dataSourceTable)
+            .values(c.req.valid("form"))
+            .returning(),
+        ),
+      )
+      return c.render(<PostComponent {...dataSource} />)
+    }).pipe(Effect.runPromise),
+)
+
+async function fetchDataSourcesAndTools(db: Database) {
+  const [dataSourceArray, mcpToolOptionArray] = await db.batch([
+    db.query.dataSourceTable.findMany({
+      columns: {
+        createdAt: true,
+        mcpToolName: true,
+        type: true,
+        url: true,
+      },
+      orderBy(fields, operators) {
+        return operators.desc(fields.createdAt)
+      },
+    }),
+    db.query.mcpToolTable.findMany({
+      columns: {
+        name: true,
+        title: true,
+      },
+      orderBy(fields, operators) {
+        return operators.desc(fields.createdAt)
+      },
+    }),
   ])
+  return decodeDataSourceArrayAndMcpToolOption({
+    dataSourceArray,
+    mcpToolOptionArray: mcpToolOptionArray.map((v) => ({
+      label: v.name,
+      value: v.title,
+    })),
+  })
 }
 
-export async function GetDataSource() {
-  const [dataSources, mcpTools] = await fetchDataSourcesAndTools()
-  const availableTypes = availableDataSourceTypes
-
+async function GetDataSource(
+  props: typeof dataSourceArrayAndMcpToolOptionArray.Type,
+) {
   const AddNewDataSourceModal = createModal("add-new-data-source-modal")
 
   const tableID = "mcp-tool-table"
@@ -116,12 +119,12 @@ export async function GetDataSource() {
         <SimpleStatCard
           colorClass="text-primary"
           title="Total Data Sources"
-          value={dataSources.length}
+          value={props.dataSourceArray.length}
         />
         <SimpleStatCard
           colorClass="text-info"
           title="MCP Tools"
-          value={mcpTools.length}
+          value={props.mcpToolOptionArray.length}
         />
       </div>
 
@@ -136,8 +139,8 @@ export async function GetDataSource() {
             </tr>
           </thead>
           <tbody>
-            {dataSources.map((tool) => (
-              <TableItem {...tool} />
+            {props.dataSourceArray.map((dataSource) => (
+              <TableItem {...dataSource} />
             ))}
           </tbody>
         </table>
@@ -161,31 +164,32 @@ export async function GetDataSource() {
                 required: true,
               }}
             >
-              {mcpTools.map((tool) => (
-                <option value={tool.name}>{tool.title}</option>
+              {props.mcpToolOptionArray.map((option) => (
+                <option value={option.value}>{option.label}</option>
               ))}
             </Select>
-
-            <div class="form-control">
-              <div class="label">
-                <span class="label-text font-semibold">Data Sources</span>
-                <span class="label-text-alt text-error">Required</span>
-              </div>
-              <div class="text-sm text-base-content/70 mb-2">
-                At least 1 required
-              </div>
-              <div class="space-y-3" id="datasource-list">
-                {DataSourceItemForm(0, availableTypes)}
-              </div>
-              <button
-                class="btn btn-sm btn-outline mt-3"
-                onclick="addDataSourceField()"
-                type="button"
-              >
-                <PlusIcon ariaLabel="Add" size="sm" />
-                Add Data Source
-              </button>
-            </div>
+            <Select
+              name="Type"
+              selectAttributes={{
+                id: `type`,
+                name: `type`,
+                required: true,
+              }}
+            >
+              {availableDataSourceTypes.map((type) => (
+                <option value={type.value}>{type.label}</option>
+              ))}
+            </Select>
+            <Input
+              inputAttributes={{
+                id: `url`,
+                name: `url`,
+                placeholder: "https://example.com",
+                required: true,
+                type: "url",
+              }}
+              name="URL"
+            ></Input>
 
             <div class="modal-action">
               <button class="btn btn-primary" type="submit">
@@ -203,7 +207,22 @@ export async function GetDataSource() {
   )
 }
 
-export const PostDataSource = async () => {
-  // TODO
-  return <TableItem createdAt={new Date()} mcpToolName="a" type="a" url="a" />
+function PostComponent(props: typeof dataSourceSchema.Type) {
+  return <TableItem {...props} />
+}
+
+function TableItem(props: {
+  mcpToolName: string
+  type: string
+  url: string
+  createdAt: Date
+}) {
+  return (
+    <tr>
+      <th>{props.mcpToolName}</th>
+      <td>{props.type}</td>
+      <td>{props.url}</td>
+      <td>{formatDurationFromNow(props.createdAt)}</td>
+    </tr>
+  )
 }
