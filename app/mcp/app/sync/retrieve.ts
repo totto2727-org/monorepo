@@ -1,8 +1,9 @@
 import { Cause, Effect } from "@totto/function/effect"
 import { FetchHttpClient, HttpClient } from "@totto/function/effect/platform"
-import type { DataFetchResult, DataSourceTarget } from "./types.js"
+import * as DataSourceTarget from "./type/data-source-target.js"
+import type { DataFetchResult } from "./type/data-fetch-result.js"
 
-function retrieveText(target: DataSourceTarget): DataFetchResult {
+function retrieveText(target: typeof DataSourceTarget.schema.Type): DataFetchResult {
   return Effect.gen(function* () {
     const httpClient = yield* HttpClient.HttpClient
     const response = yield* httpClient.get(target.url.toString())
@@ -14,15 +15,17 @@ function retrieveText(target: DataSourceTarget): DataFetchResult {
   )
 }
 
-function retrieveFirecrawl(_target: DataSourceTarget): DataFetchResult {
+function retrieveFirecrawl(_target: typeof DataSourceTarget.schema.Type): DataFetchResult {
   return Effect.fail(new Cause.UnknownException("TODO"))
 }
 
-export function retrieve(target: DataSourceTarget): DataFetchResult {
+export function retrieve(target: typeof DataSourceTarget.schema.Type): DataFetchResult {
   switch (target.type) {
     case "text":
       return retrieveText(target)
     case "firecrawl":
       return retrieveFirecrawl(target)
+    default:
+      return Effect.fail(new Cause.UnknownException(`Unknown data source type: ${(target as any).type}`))
   }
 }

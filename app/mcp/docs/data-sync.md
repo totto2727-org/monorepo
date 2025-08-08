@@ -69,7 +69,7 @@
 
 ### データソース設定
 
-データソース設定の型定義は[app/sync/types.ts](./app/sync/types.ts)で管理されています。
+データソース設定の型定義は[app/sync/type.ts](./app/sync/type.ts)で管理されています。
 
 ### 実装済み型定義
 

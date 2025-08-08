@@ -3,7 +3,7 @@ import { Effect, Option, Schema } from "@totto/function/effect"
 import type { Database } from "#@/db.js"
 import { factory } from "#@/hono.js"
 import { dataSourceTable } from "#@/schema.js"
-import type { DataSourceType } from "#@/sync/types.js"
+import { schema as dataSourceTypeSchema } from "#@/sync/type/data-source-type.js"
 import { SimpleStatCard } from "#@/ui/admin/card/simple-stat-card.js"
 import { Input } from "#@/ui/admin/input/input.js"
 import { Select } from "#@/ui/admin/input/select.js"
@@ -16,7 +16,7 @@ const availableDataSourceTypes = [
   { label: "Firecrawl", value: "firecrawl" },
 ] as const satisfies {
   label: string
-  value: DataSourceType
+  value: typeof dataSourceTypeSchema.Type
 }[]
 
 const dataSourceSchema = Schema.Struct({

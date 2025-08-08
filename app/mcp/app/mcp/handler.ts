@@ -2,10 +2,10 @@ import { StreamableHTTPTransport } from "@hono/mcp"
 import { createDatabase, schema } from "#@/db.js"
 import { factory } from "#@/hono.js"
 import { createMcpServer } from "./server.js"
-import type { McpServerConfig } from "./types.js"
+import * as McpServerConfig from "../../type/mcp-server-config.js"
 
 function createMcpHandler(
-  configFn: (env: Cloudflare.Env, db: D1Database) => Promise<McpServerConfig>,
+  configFn: (env: Cloudflare.Env, db: D1Database) => Promise<typeof McpServerConfig.schema.Type>,
 ) {
   return factory.createHandlers(async (c) => {
     const config = await configFn(c.env, c.env.DB)
@@ -19,7 +19,7 @@ function createMcpHandler(
 async function loadConfigFromDatabase(
   env: Cloudflare.Env,
   database: D1Database,
-): Promise<McpServerConfig> {
+): Promise<typeof McpServerConfig.schema.Type> {
   const db = createDatabase(database)
   const tools = await db.select().from(schema.mcpToolTable)
 

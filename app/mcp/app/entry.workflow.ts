@@ -7,7 +7,7 @@ import path from "node:path"
 import { Array, Effect, pipe } from "@totto/function/effect"
 import { save } from "./sync/r2-storage.js"
 import { retrieve } from "./sync/retrieve.js"
-import type { DataSourceConfig } from "./sync/types.js"
+import * as DataSourceConfig from "./sync/type/data-source-config.js"
 
 export class DataSyncWorkflow extends WorkflowEntrypoint<
   Cloudflare.Env,
@@ -26,7 +26,7 @@ export class DataSyncWorkflow extends WorkflowEntrypoint<
   }
 }
 
-function syncDataSources(r2: R2Bucket, config: DataSourceConfig) {
+function syncDataSources(r2: R2Bucket, config: typeof DataSourceConfig.schema.Type) {
   return config.dataSources.map((source) =>
     Effect.gen(function* () {
       switch (source.type) {
@@ -66,7 +66,7 @@ function syncDataSources(r2: R2Bucket, config: DataSourceConfig) {
   )
 }
 
-function createDataSourceConfigArray(): DataSourceConfig[] {
+function createDataSourceConfigArray(): Array<typeof DataSourceConfig.schema.Type> {
   return [
     {
       dataSources: [
