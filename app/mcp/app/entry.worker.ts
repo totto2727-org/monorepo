@@ -1,9 +1,9 @@
-import { app } from "#@/entry.hono.js"
-import { scheduled } from "#@/entry.scheduled.js"
+import * as Hono from "#@/entry.hono.js"
+import * as Scheduled from "#@/entry.scheduled.js"
 
 export { DataSyncWorkflow } from "./entry.workflow.js"
 
 export default {
-  fetch: app.fetch,
-  scheduled,
+  fetch: Hono.app.fetch,
+  scheduled: Scheduled.scheduled,
 }

@@ -5,9 +5,9 @@ import {
 } from "cloudflare:workers"
 import path from "node:path"
 import { Array, Effect, pipe } from "@totto/function/effect"
-import { save } from "./sync/r2-storage.js"
-import { retrieve } from "./sync/retrieve.js"
-import * as DataSourceConfig from "./sync/type/data-source-config.js"
+import type * as DataSourceConfig from "#@/sync/type/data-source-config.js"
+import * as R2Storage from "./sync/r2-storage.js"
+import * as Retrieve from "./sync/retrieve.js"
 
 export class DataSyncWorkflow extends WorkflowEntrypoint<
   Cloudflare.Env,
@@ -26,7 +26,10 @@ export class DataSyncWorkflow extends WorkflowEntrypoint<
   }
 }
 
-function syncDataSources(r2: R2Bucket, config: typeof DataSourceConfig.schema.Type) {
+function syncDataSources(
+  r2: R2Bucket,
+  config: typeof DataSourceConfig.schema.Type,
+) {
   return config.dataSources.map((source) =>
     Effect.gen(function* () {
       switch (source.type) {
@@ -37,10 +40,10 @@ function syncDataSources(r2: R2Bucket, config: typeof DataSourceConfig.schema.Ty
             .join("-")
             .replaceAll(".", "-")
 
-          const result = yield* retrieve(source)
+          const result = yield* Retrieve.retrieve(source)
 
           yield* Effect.tryPromise(() =>
-            save(
+            R2Storage.save(
               r2,
               path.join(config.mcpToolName, filename),
               result.value,
@@ -66,7 +69,9 @@ function syncDataSources(r2: R2Bucket, config: typeof DataSourceConfig.schema.Ty
   )
 }
 
-function createDataSourceConfigArray(): Array<typeof DataSourceConfig.schema.Type> {
+function createDataSourceConfigArray(): Array<
+  typeof DataSourceConfig.schema.Type
+> {
   return [
     {
       dataSources: [
