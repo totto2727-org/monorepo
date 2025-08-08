@@ -36,6 +36,7 @@ This is a PNPM monorepo with Turbo for task orchestration.
 **Avoid plural forms in file names, directory names, variable names, and table names**
 
 Use structure-based naming instead:
+
 - **Good**: `userList`, `userRecord`, `configMap`, `dataSet`
 - **Bad**: `users`, `configs`, `data`
 
@@ -57,11 +58,13 @@ Use structure-based naming instead:
 - **Bad**: `userId`, `apiUrl`, `XmlParser`, `HttpClient`
 
 Examples:
+
 - Variables: `userID`, `apiKey`, `xmlData`
 - Classes: `APIClient`, `XMLParser`, `HTTPServer`
 - Constants: `API_BASE_URL`, `MAX_RETRY_COUNT`
 
 This applies to all naming throughout the project including:
+
 - File and directory names
 - Variable and function names
 - Database table names
@@ -99,7 +102,6 @@ This applies to all naming throughout the project including:
 - **Turbo**: Monorepo task orchestration (installed via mise)
 - **Biome**: Fast linting and formatting
 - **dprint**: Additional code formatting
-
 
 ## Documentation Standards
 
