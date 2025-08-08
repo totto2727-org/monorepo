@@ -7,9 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 When working on a project, refer to documentation in the following priority order:
 
 1. **Project-specific docs**: `app/{project}/docs/` - Project-specific implementation details and conventions
-2. **Repository-wide docs**: `docs/` - General standards and patterns applicable across all projects
-3. **CLAUDE.md**: This file - Repository structure, commands, and development guidelines
-4. **README.md**: Project overview and setup instructions
+2. **CLAUDE.md**: This file - Repository structure, commands, and development guidelines
+3. **README.md**: Project overview and setup instructions
 
 ## Repository Structure
 
@@ -22,7 +21,51 @@ This is a PNPM monorepo with Turbo for task orchestration.
 
 ### Documentation
 
-- `docs/coding-standards.md` - Repository-wide TypeScript/React coding standards
+- `docs/` - General documentation and standards
+
+### Code Analysis and Search
+
+- **serena MCP Priority**: When serena MCP is available, use serena MCP tools for code search and analysis
+
+### TypeScript Development
+
+- **typescript-coding-expert Agent**: Use typescript-coding-expert agent for all TypeScript implementation tasks
+
+## Naming Conventions
+
+**Avoid plural forms in file names, directory names, variable names, and table names**
+
+Use structure-based naming instead:
+- **Good**: `userList`, `userRecord`, `configMap`, `dataSet`
+- **Bad**: `users`, `configs`, `data`
+
+### Case Style Guidelines
+
+- **File and directory names**: Use `kebab-case`
+- **Database table names**: Use `snake_case`
+- **Variables and classes**: Follow language-specific best practices
+  - TypeScript/JavaScript: `camelCase` for variables, `PascalCase` for classes
+  - **Constants and Enums**: Use `CONSTANT_CASE`
+  - SQL: `snake_case` for columns and identifiers
+  - Other languages: Follow their respective conventions
+
+### Acronym and Abbreviation Guidelines
+
+**In camelCase and PascalCase, keep acronyms and abbreviations as consistent letter case**
+
+- **Good**: `userID`, `apiURL`, `XMLParser`, `HTTPClient`
+- **Bad**: `userId`, `apiUrl`, `XmlParser`, `HttpClient`
+
+Examples:
+- Variables: `userID`, `apiKey`, `xmlData`
+- Classes: `APIClient`, `XMLParser`, `HTTPServer`
+- Constants: `API_BASE_URL`, `MAX_RETRY_COUNT`
+
+This applies to all naming throughout the project including:
+- File and directory names
+- Variable and function names
+- Database table names
+- Type and interface names
 
 ## Development Commands
 
@@ -57,11 +100,6 @@ This is a PNPM monorepo with Turbo for task orchestration.
 - **Biome**: Fast linting and formatting
 - **dprint**: Additional code formatting
 
-## Coding Standards
-
-All projects in this monorepo follow consistent coding standards:
-
-For detailed guidelines, see `docs/coding-standards.md`.
 
 ## Documentation Standards
 
@@ -77,7 +115,6 @@ When creating or updating documentation in this repository:
 ### Language Requirements
 
 - **CLAUDE.md**: English only (this file)
-- **Coding Standards**: English only (`docs/coding-standards.md`)
 - **All Other Documents**: Japanese language required
 - **Consistency**: Maintain consistent terminology within each document
 
