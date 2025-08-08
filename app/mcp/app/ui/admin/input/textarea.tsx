@@ -1,13 +1,13 @@
 import type { JSX } from "hono/jsx"
-import { FormControl, type FormControlProps } from "./form-controll.js"
+import * as FormControl from "./form-controll.js"
 
 export function Textarea(
-  props: FormControlProps & {
+  props: FormControl.FormControlProps & {
     textareaAttributes: JSX.IntrinsicElements["textarea"]
   },
 ) {
   return (
-    <FormControl
+    <FormControl.FormControl
       description={props.description}
       name={props.name}
       required={props.textareaAttributes.required ?? false}
@@ -16,6 +16,6 @@ export function Textarea(
         {...props.textareaAttributes}
         class="textarea textarea-bordered h-24"
       />
-    </FormControl>
+    </FormControl.FormControl>
   )
 }

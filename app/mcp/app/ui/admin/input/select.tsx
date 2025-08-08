@@ -1,15 +1,15 @@
 import type { JSX, PropsWithChildren } from "hono/jsx"
-import { FormControl, type FormControlProps } from "./form-controll.js"
+import * as FormControl from "./form-controll.js"
 
 export function Select(
   props: PropsWithChildren<
-    FormControlProps & {
+    FormControl.FormControlProps & {
       selectAttributes: JSX.IntrinsicElements["select"]
     }
   >,
 ) {
   return (
-    <FormControl
+    <FormControl.FormControl
       description={props.description}
       name={props.name}
       required={props.selectAttributes.required ?? false}
@@ -17,6 +17,6 @@ export function Select(
       <select {...props.selectAttributes} class="select select-bordered">
         {props.children}
       </select>
-    </FormControl>
+    </FormControl.FormControl>
   )
 }

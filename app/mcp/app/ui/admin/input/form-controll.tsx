@@ -1,6 +1,6 @@
 import { Predicate } from "@totto/function/effect"
 import type { PropsWithChildren } from "hono/jsx"
-import { Required } from "./required.js"
+import * as Required from "./required.js"
 
 export type FormControlProps = {
   name: string
@@ -18,7 +18,7 @@ export function FormControl(
     <div class="form-control space-y-2">
       <div class="label">
         <span class="label-text font-semibold">{props.name}</span>
-        <Required required={props.required ?? false} />
+        <Required.Required required={props.required ?? false} />
       </div>
 
       {Predicate.isNotNullable(props.description) ? (
