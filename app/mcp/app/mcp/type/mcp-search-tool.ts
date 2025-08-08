@@ -1,7 +1,7 @@
 import { Schema } from "@totto/function/effect"
 
 export const schema = Schema.Struct({
+  description: Schema.NonEmptyString,
   name: Schema.NonEmptyString,
   title: Schema.NonEmptyString,
-  description: Schema.NonEmptyString,
 })
