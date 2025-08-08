@@ -1,10 +1,10 @@
-import { schema as dataSourceTypeSchema } from "./type/data-source-type.js"
+import type * as DataSourceType from "./type/data-source-type.js"
 
 export async function save(
   bucket: R2Bucket,
   key: string,
   data: string,
-  type: typeof dataSourceTypeSchema.Type,
+  type: typeof DataSourceType.schema.Type,
 ): Promise<void> {
   await bucket.put(addExtention(type, key), data, {
     httpMetadata: {
@@ -13,7 +13,7 @@ export async function save(
   })
 }
 
-function toMineType(type: typeof dataSourceTypeSchema.Type) {
+function toMineType(type: typeof DataSourceType.schema.Type) {
   switch (type) {
     case "text":
       return "text/plain"
@@ -22,7 +22,7 @@ function toMineType(type: typeof dataSourceTypeSchema.Type) {
   }
 }
 
-function addExtention(type: typeof dataSourceTypeSchema.Type, key: string) {
+function addExtention(type: typeof DataSourceType.schema.Type, key: string) {
   switch (type) {
     case "text":
       return [key, "txt"].join(".")

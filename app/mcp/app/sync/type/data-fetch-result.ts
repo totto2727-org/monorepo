@@ -1,10 +1,10 @@
 import type { Cause, Effect } from "@totto/function/effect"
-import { schema as dataSourceTargetSchema } from "./data-source-target.js"
+import type * as DataSourceTarget from "./data-source-target.js"
 
 export type DataFetchResult = Effect.Effect<
   {
     value: string
-    source: typeof dataSourceTargetSchema.Type
+    source: typeof DataSourceTarget.schema.Type
   },
   Cause.UnknownException
 >

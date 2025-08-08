@@ -1,14 +1,10 @@
 import { Schema } from "@totto/function/effect"
-import { schema as dataSourceTypeSchema } from "./data-source-type.js"
+import * as DataSourceType from "./data-source-type.js"
 
 export const schema = Schema.Struct({
-  type: dataSourceTypeSchema,
-  url: Schema.transform(
-    Schema.NonEmptyString,
-    Schema.instanceOf(URL),
-    {
-      decode: (str) => new URL(str),
-      encode: (url) => url.toString(),
-    },
-  ),
+  type: DataSourceType.schema,
+  url: Schema.transform(Schema.NonEmptyString, Schema.instanceOf(URL), {
+    decode: (str) => new URL(str),
+    encode: (url) => url.toString(),
+  }),
 })
