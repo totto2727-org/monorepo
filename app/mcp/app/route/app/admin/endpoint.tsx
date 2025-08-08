@@ -1,24 +1,25 @@
 import { count, sql } from "drizzle-orm"
-import { createDatabase, schema } from "#@/db.js"
-import { useRequestContext } from "#@/hono.js"
-import { ManagementCard } from "#@/ui/admin/card/management-card.js"
-import { StatCard } from "#@/ui/admin/card/stat-card.js"
-import { ServerIcon, ToolsIcon } from "#@/ui/icons/icon.js"
+import * as DataBase from "#@/database.js"
+import * as Hono from "#@/hono.js"
+import * as ManagementCard from "#@/ui/admin/card/management-card.js"
+import * as StatCard from "#@/ui/admin/card/stat-card.js"
+import * as Icon from "#@/ui/icons/icon.js"
 
 export async function Dashboard() {
-  const c = useRequestContext()
-  const db = createDatabase(c.env.DB)
+  const c = Hono.useRequestContext()
+  const db = DataBase.create(c.env.DB)
   const [mcpToolsCountResult, dataSourcesCountResult, lastUpdatedResult] =
     await db.batch([
-      db.select({ count: count() }).from(schema.mcpToolTable),
-      db.select({ count: count() }).from(schema.dataSourceTable),
+      db.select({ count: count() }).from(DataBase.schema.mcpToolTable),
+      db.select({ count: count() }).from(DataBase.schema.dataSourceTable),
       db
         .select({
-          updatedAt: sql<string>`MAX(${schema.mcpToolTable.lastUsed})`.as(
-            "updatedAt",
-          ),
+          updatedAt:
+            sql<string>`MAX(${DataBase.schema.mcpToolTable.lastUsed})`.as(
+              "updatedAt",
+            ),
         })
-        .from(schema.mcpToolTable),
+        .from(DataBase.schema.mcpToolTable),
     ])
 
   const stats = {
@@ -34,19 +35,19 @@ export async function Dashboard() {
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard
+        <StatCard.StatCard
           colorClass="text-primary"
           description="Registered search tools"
           title="MCP Tools"
           value={stats.mcpToolsCount}
         />
-        <StatCard
+        <StatCard.StatCard
           colorClass="text-secondary"
           description="Configured data sources"
           title="Data Sources"
           value={stats.dataSourcesCount}
         />
-        <StatCard
+        <StatCard.StatCard
           colorClass="text-info"
           description="System last updated"
           title="Updated"
@@ -55,17 +56,17 @@ export async function Dashboard() {
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ManagementCard
+        <ManagementCard.ManagementCard
           description="Add, edit, and delete search tools"
           href="/app/admin/mcp-tool"
-          icon={ToolsIcon}
+          icon={Icon.ToolsIcon}
           iconLabel="MCP Tools Icon"
           title="MCP Tools Management"
         />
-        <ManagementCard
+        <ManagementCard.ManagementCard
           description="Configure and manage data sources"
           href="/app/admin/data-source"
-          icon={ServerIcon}
+          icon={Icon.ServerIcon}
           iconLabel="Data Sources Icon"
           title="Data Sources Management"
         />

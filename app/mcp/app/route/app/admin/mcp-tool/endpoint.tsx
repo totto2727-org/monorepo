@@ -1,14 +1,14 @@
 import { sValidator } from "@hono/standard-validator"
 import { Effect, Option, Schema } from "@totto/function/effect"
-import type { Database } from "#@/db.js"
-import { factory } from "#@/hono.js"
-import { mcpToolTable } from "#@/schema.js"
-import { SimpleStatCard } from "#@/ui/admin/card/simple-stat-card.js"
-import { Input } from "#@/ui/admin/input/input.js"
-import { Textarea } from "#@/ui/admin/input/textarea.js"
-import { createModal } from "#@/ui/admin/modal.js"
-import { CheckIcon, PlusIcon } from "#@/ui/icons/icon.js"
-import { formatDurationFromNow } from "#@/utils/duration.js"
+import type { Database } from "#@/database.js"
+import * as Hono from "#@/hono.js"
+import * as Drizzle from "#@/drizzle.js"
+import * as SimpleStatCard from "#@/ui/admin/card/simple-stat-card.js"
+import * as Input from "#@/ui/admin/input/input.js"
+import * as Textarea from "#@/ui/admin/input/textarea.js"
+import * as Modal from "#@/ui/admin/modal.js"
+import * as Icon from "#@/ui/icons/icon.js"
+import * as Duration from "#@/utils/duration.js"
 
 const mcpToolSchema = Schema.Struct({
   description: Schema.NonEmptyString,
@@ -23,17 +23,20 @@ const mcpToolWithoutLastUsedStandardSchema = Schema.standardSchemaV1(
 const mcpToolArraySchema = Schema.Array(mcpToolSchema)
 const decodeArray = Schema.decodeSync(mcpToolArraySchema)
 
-export const getHandler = factory.createHandlers(async (c) =>
+export const getHandler = Hono.factory.createHandlers(async (c) =>
   c.render(<GetComponent mcpToolArray={await retrieve(c.var.db)} />),
 )
 
-export const postHandler = factory.createHandlers(
+export const postHandler = Hono.factory.createHandlers(
   sValidator("form", mcpToolWithoutLastUsedStandardSchema),
   async (c) =>
     Effect.gen(function* () {
       const mcpTool = yield* Option.fromIterable(
         yield* Effect.tryPromise(() =>
-          c.var.db.insert(mcpToolTable).values(c.req.valid("form")).returning(),
+          c.var.db
+            .insert(Drizzle.mcpToolTable)
+            .values(c.req.valid("form"))
+            .returning(),
         ),
       )
 
@@ -58,7 +61,7 @@ async function retrieve(db: Database) {
 }
 
 function GetComponent(props: { mcpToolArray: typeof mcpToolArraySchema.Type }) {
-  const AddNewMCPTool = createModal("add-new-mcp-tool-modal")
+  const AddNewMCPTool = Modal.createModal("add-new-mcp-tool-modal")
 
   const tableID = "mcp-tool-table"
 
@@ -67,13 +70,13 @@ function GetComponent(props: { mcpToolArray: typeof mcpToolArraySchema.Type }) {
       <div class="flex items-center justify-between">
         <h1 class="text-3xl font-bold">MCP Tools Management</h1>
         <AddNewMCPTool.OpenButton class="btn btn-primary">
-          <PlusIcon ariaLabel="Add Icon" size="sm" />
+          <Icon.PlusIcon ariaLabel="Add Icon" size="sm" />
           Add New MCP Tool
         </AddNewMCPTool.OpenButton>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <SimpleStatCard
+        <SimpleStatCard.SimpleStatCard
           colorClass="text-primary"
           title="Total MCP Tools"
           value={props.mcpToolArray.length}
@@ -108,7 +111,7 @@ function GetComponent(props: { mcpToolArray: typeof mcpToolArraySchema.Type }) {
             hx-swap="afterbegin"
             hx-target={`#${tableID} > tbody`}
           >
-            <Input
+            <Input.Input
               description="Lowercase letters, numbers, and underscores only. Must start with a letter."
               inputAttributes={{
                 id: "name",
@@ -120,7 +123,7 @@ function GetComponent(props: { mcpToolArray: typeof mcpToolArraySchema.Type }) {
               }}
               name="Name"
             />
-            <Input
+            <Input.Input
               inputAttributes={{
                 id: "title",
                 maxLength: 100,
@@ -132,7 +135,7 @@ function GetComponent(props: { mcpToolArray: typeof mcpToolArraySchema.Type }) {
               name="Title"
             />
 
-            <Textarea
+            <Textarea.Textarea
               name="Description"
               textareaAttributes={{
                 class: "textarea textarea-bordered h-24",
@@ -147,7 +150,7 @@ function GetComponent(props: { mcpToolArray: typeof mcpToolArraySchema.Type }) {
 
             <div class="modal-action">
               <button class="btn btn-primary" type="submit">
-                <CheckIcon ariaLabel="Save Icon" size="sm" />
+                <Icon.CheckIcon ariaLabel="Save Icon" size="sm" />
                 Add
               </button>
               <AddNewMCPTool.CloseButton class="btn btn-outline">
@@ -178,7 +181,7 @@ function TableItem(props: typeof mcpToolSchema.Type) {
       <th>{props.name}</th>
       <td>{props.title}</td>
       <td>{props.description}</td>
-      <td>{formatDurationFromNow(props.lastUsed)}</td>
+      <td>{Duration.formatDurationFromNow(props.lastUsed)}</td>
     </tr>
   )
 }
