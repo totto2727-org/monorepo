@@ -1,8 +1,11 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
-import * as McpServerConfig from "../../type/mcp-server-config.js"
+import type * as McpServerConfig from "./type/mcp-server-config.js"
 
-export function createMcpServer(autoRagName: string, config: typeof McpServerConfig.schema.Type) {
+export function createMcpServer(
+  autoRagName: string,
+  config: typeof McpServerConfig.schema.Type,
+) {
   const mcpServer = new McpServer({
     name: config.name,
     version: config.version,
