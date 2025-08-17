@@ -6,7 +6,7 @@ import type * as DataSourceTarget from "./type/data-source-target.js"
 function retrieveText(
   target: typeof DataSourceTarget.schema.Type,
 ): DataFetchResult {
-  return Effect.gen(function*() {
+  return Effect.gen(function* () {
     const httpClient = yield* HttpClient.HttpClient
     const response = yield* httpClient.get(target.url.toString())
     const value = yield* response.text
