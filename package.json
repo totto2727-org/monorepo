@@ -17,11 +17,14 @@
       "@biomejs/biome",
       "@clerk/shared",
       "@parcel/watcher",
+      "@pulumi/docker",
+      "@pulumi/docker-build",
       "@tailwindcss/oxide",
       "core-js",
       "dprint",
       "esbuild",
       "msgpackr-extract",
+      "protobufjs",
       "sharp",
       "workerd"
     ]
@@ -35,5 +38,6 @@
     "fix:biome": "biome check --write --unsafe",
     "fix:dprint": "dprint fmt --allow-no-files",
     "precommit": "turbo fix && turbo check"
-  }
+  },
+  "type": "module"
 }

@@ -2,6 +2,7 @@ $schema: https://pnpm.io/pnpm-workspace_yaml
 packages:
   - app/*
   - config/*
+  - infra/*
 catalogMode: strict
 catalog:
   "@biomejs/biome": 2.0.6
@@ -15,6 +16,9 @@ catalog:
   "@libsql/client": ^0.15.7
   "@modelcontextprotocol/sdk": ^1.0.0
   "@playwright/test": ^1.52.0
+  "@pulumi/aws": "^7.0.0"
+  "@pulumi/awsx": "^3.0.0"
+  "@pulumi/pulumi": "^3.113.0"
   "@react-router/cloudflare": ^7.6.0
   "@react-router/dev": ^7.6.0
   "@react-router/fs-routes": ^7.6.0
