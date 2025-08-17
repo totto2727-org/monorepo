@@ -1,18 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "exactOptionalPropertyTypes": false,
     "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx",
-    "noEmit": true,
-    "noPropertyAccessFromIndexSignature": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "verbatimModuleSyntax": true
+    "jsxImportSource": "hono/jsx"
   },
   "exclude": ["dist/"],
-  "extends": [
-    "@tsconfig/strictest/tsconfig.json",
-    "@tsconfig/node24/tsconfig.json"
-  ]
+  "extends": ["@totto/function/tsconfig/node24"]
 }
