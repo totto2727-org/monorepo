@@ -241,7 +241,7 @@ function processUserData(rawData: unknown) {
 
 ### Effect-TS Framework
 
-- **Use yield* for functional programming style**
+- **Use `yield*` for functional programming style**
 - Standardize asynchronous processing patterns with Effect.gen
 - Ensure type safety in database access operations
 
