@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "@pulumi/cloudflare": "^6.5.0",
+    "@pulumi/pulumi": "catalog:",
+    "@totto/function": "catalog:"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "@types/node": "catalog:",
+    "dprint": "catalog:",
+    "typescript": "catalog:"
+  },
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "main": "index.ts",
+  "name": "cloudflare",
+  "scripts": {
+    "check": "tsc"
+  },
+  "type": "module"
+}
