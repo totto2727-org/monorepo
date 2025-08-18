@@ -50,7 +50,7 @@ export const getHandler = Hono.factory.createHandlers(async (c) =>
 export const postHandler = Hono.factory.createHandlers(
   sValidator("form", dataSourceWithoutCreatedAtStandardSchema),
   async (c) =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const dataSource = yield* Option.fromIterable(
         yield* Effect.tryPromise(() =>
           c.var.db
@@ -66,7 +66,7 @@ export const postHandler = Hono.factory.createHandlers(
 export const deleteHandler = Hono.factory.createHandlers(
   sValidator("query", dataSourceWithoutCreatedAtStandardSchema),
   async (c) =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const query = c.req.valid("query")
 
       yield* Effect.tryPromise(() =>

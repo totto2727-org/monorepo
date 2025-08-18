@@ -5,6 +5,7 @@ import {
 } from "cloudflare:workers"
 import path from "node:path"
 import { Array, Effect, pipe } from "@totto/function/effect"
+import * as Database from "#@/database.js"
 import type * as DataSourceConfig from "#@/sync/type/data-source-config.js"
 import * as R2Storage from "./sync/r2-storage.js"
 import * as Retrieve from "./sync/retrieve.js"
@@ -14,9 +15,11 @@ export class DataSyncWorkflow extends WorkflowEntrypoint<
   Params
 > {
   override async run(_event: WorkflowEvent<Params>, step: WorkflowStep) {
+    const db = Database.create(this.env.DB)
+
     await step.do("sync files", async () => {
       return pipe(
-        createDataSourceConfigArray(),
+        await createDataSourceConfigArray(db),
         Array.flatMap((c) => syncDataSources(this.env.DATA_SOURCE, c)),
         Effect.all,
         Effect.asVoid,
@@ -69,15 +72,36 @@ function syncDataSources(
   )
 }
 
-function createDataSourceConfigArray(): Array<
-  typeof DataSourceConfig.schema.Type
-> {
-  return [
-    {
-      dataSources: [
-        { type: "text", url: new URL("https://effect.website/llms-full.txt") },
-      ],
-      mcpToolName: "effect",
-    },
-  ]
+async function createDataSourceConfigArray(
+  db: Database.Database,
+): Promise<Array<typeof DataSourceConfig.schema.Type>> {
+  return Effect.gen(function* () {
+    const dataSourceArray = yield* Effect.tryPromise(() =>
+      db.query.dataSourceTable.findMany({
+        columns: {
+          mcpToolName: true,
+          type: true,
+          url: true,
+        },
+        orderBy(fields, operators) {
+          return operators.desc(fields.createdAt)
+        },
+      }),
+    )
+
+    const groupedDataSources = Array.groupBy(
+      dataSourceArray,
+      (dataSource) => dataSource.mcpToolName,
+    )
+
+    return Object.entries(groupedDataSources).map(
+      ([mcpToolName, dataSources]) => ({
+        dataSources: dataSources.map((ds) => ({
+          type: ds.type,
+          url: new URL(ds.url),
+        })),
+        mcpToolName,
+      }),
+    )
+  }).pipe(Effect.runPromise)
 }
