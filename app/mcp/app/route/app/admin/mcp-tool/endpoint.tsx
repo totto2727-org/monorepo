@@ -1,5 +1,6 @@
 import { sValidator } from "@hono/standard-validator"
 import { Effect, Option, Schema } from "@totto/function/effect"
+import { eq } from "drizzle-orm"
 import type { Database } from "#@/database.js"
 import * as Drizzle from "#@/drizzle.js"
 import * as Hono from "#@/hono.js"
@@ -19,6 +20,12 @@ const mcpToolSchema = Schema.Struct({
 const mcpToolWithoutLastUsedStandardSchema = Schema.standardSchemaV1(
   mcpToolSchema.omit("lastUsed"),
 )
+
+const deleteQuerySchema = Schema.Struct({
+  name: Schema.NonEmptyString,
+})
+const deleteQueryStandardSchema = Schema.standardSchemaV1(deleteQuerySchema)
+const encodeDeleteQuery = Schema.encodeSync(deleteQuerySchema)
 
 const mcpToolArraySchema = Schema.Array(mcpToolSchema)
 const decodeArray = Schema.decodeSync(mcpToolArraySchema)
@@ -41,6 +48,22 @@ export const postHandler = Hono.factory.createHandlers(
       )
 
       return c.render(<PostComponent {...mcpTool} />)
+    }).pipe(Effect.runPromise),
+)
+
+export const deleteHandler = Hono.factory.createHandlers(
+  sValidator("query", deleteQueryStandardSchema),
+  async (c) =>
+    Effect.gen(function* () {
+      const query = c.req.valid("query")
+
+      yield* Effect.tryPromise(() =>
+        c.var.db
+          .delete(Drizzle.mcpToolTable)
+          .where(eq(Drizzle.mcpToolTable.name, query.name)),
+      )
+
+      return c.json(null)
     }).pipe(Effect.runPromise),
 )
 
@@ -91,6 +114,7 @@ function GetComponent(props: { mcpToolArray: typeof mcpToolArraySchema.Type }) {
               <th>Title</th>
               <th>Description</th>
               <th>Last used</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -182,6 +206,21 @@ function TableItem(props: typeof mcpToolSchema.Type) {
       <td>{props.title}</td>
       <td>{props.description}</td>
       <td>{Duration.formatDurationFromNow(props.lastUsed)}</td>
+      <td>
+        <button
+          class="btn btn-error btn-sm"
+          hx-delete={`/app/admin/mcp-tool?${new URLSearchParams(
+            encodeDeleteQuery({
+              name: props.name,
+            }),
+          ).toString()}`}
+          hx-swap="delete"
+          hx-target="closest tr"
+          type="button"
+        >
+          <Icon.DeleteIcon ariaLabel="Delete" size="sm" />
+        </button>
+      </td>
     </tr>
   )
 }
