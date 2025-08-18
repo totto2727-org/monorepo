@@ -1,4 +1,2 @@
 environment:
   - cloudflare/production
-config:
-  aws:region: ap-northeast-1
