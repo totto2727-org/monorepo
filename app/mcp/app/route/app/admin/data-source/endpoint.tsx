@@ -1,5 +1,6 @@
 import { sValidator } from "@hono/standard-validator"
 import { Effect, Option, Schema } from "@totto/function/effect"
+import { and, eq } from "drizzle-orm"
 import type { Database } from "#@/database.js"
 import * as Drizzle from "#@/drizzle.js"
 import * as Hono from "#@/hono.js"
@@ -30,17 +31,13 @@ const dataSourceWithoutCreatedAtSchema = dataSourceSchema.omit("createdAt")
 const dataSourceWithoutCreatedAtStandardSchema = Schema.standardSchemaV1(
   dataSourceWithoutCreatedAtSchema,
 )
-
-const mcpToolOptionArraySchema = Schema.Array(
-  Schema.Struct({
-    label: Schema.NonEmptyString,
-    value: Schema.NonEmptyString,
-  }),
+const encodeDataSourceWithoutCreatedAt = Schema.encodeSync(
+  dataSourceWithoutCreatedAtSchema,
 )
 
 const dataSourceArrayAndMcpToolOptionArray = Schema.Struct({
   dataSourceArray: Schema.Array(dataSourceSchema),
-  mcpToolOptionArray: mcpToolOptionArraySchema,
+  mcpToolNameArray: Schema.Array(Schema.NonEmptyString),
 })
 const decodeDataSourceArrayAndMcpToolOption = Schema.decodeSync(
   dataSourceArrayAndMcpToolOptionArray,
@@ -53,7 +50,7 @@ export const getHandler = Hono.factory.createHandlers(async (c) =>
 export const postHandler = Hono.factory.createHandlers(
   sValidator("form", dataSourceWithoutCreatedAtStandardSchema),
   async (c) =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const dataSource = yield* Option.fromIterable(
         yield* Effect.tryPromise(() =>
           c.var.db
@@ -63,6 +60,28 @@ export const postHandler = Hono.factory.createHandlers(
         ),
       )
       return c.render(<PostComponent {...dataSource} />)
+    }).pipe(Effect.runPromise),
+)
+
+export const deleteHandler = Hono.factory.createHandlers(
+  sValidator("query", dataSourceWithoutCreatedAtStandardSchema),
+  async (c) =>
+    Effect.gen(function*() {
+      const query = c.req.valid("query")
+
+      yield* Effect.tryPromise(() =>
+        c.var.db
+          .delete(Drizzle.dataSourceTable)
+          .where(
+            and(
+              eq(Drizzle.dataSourceTable.url, query.url),
+              eq(Drizzle.dataSourceTable.mcpToolName, query.mcpToolName),
+              eq(Drizzle.dataSourceTable.type, query.type),
+            ),
+          ),
+      )
+
+      return c.json(null)
     }).pipe(Effect.runPromise),
 )
 
@@ -91,10 +110,7 @@ async function fetchDataSourcesAndTools(db: Database) {
   ])
   return decodeDataSourceArrayAndMcpToolOption({
     dataSourceArray,
-    mcpToolOptionArray: mcpToolOptionArray.map((v) => ({
-      label: v.name,
-      value: v.title,
-    })),
+    mcpToolNameArray: mcpToolOptionArray.map((v) => v.name),
   })
 }
 
@@ -124,7 +140,7 @@ async function GetDataSource(
         <SimpleStatCard.SimpleStatCard
           colorClass="text-info"
           title="MCP Tools"
-          value={props.mcpToolOptionArray.length}
+          value={props.mcpToolNameArray.length}
         />
       </div>
 
@@ -136,6 +152,7 @@ async function GetDataSource(
               <th>Type</th>
               <th>URL</th>
               <th>Created At</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -164,8 +181,8 @@ async function GetDataSource(
                 required: true,
               }}
             >
-              {props.mcpToolOptionArray.map((option) => (
-                <option value={option.value}>{option.label}</option>
+              {props.mcpToolNameArray.map((name) => (
+                <option value={name}>{name}</option>
               ))}
             </Select.Select>
             <Select.Select
@@ -211,18 +228,30 @@ function PostComponent(props: typeof dataSourceSchema.Type) {
   return <TableItem {...props} />
 }
 
-function TableItem(props: {
-  mcpToolName: string
-  type: string
-  url: string
-  createdAt: Date
-}) {
+function TableItem(props: typeof dataSourceSchema.Type) {
   return (
     <tr>
       <th>{props.mcpToolName}</th>
       <td>{props.type}</td>
       <td>{props.url}</td>
       <td>{Duration.formatDurationFromNow(props.createdAt)}</td>
+      <td>
+        <button
+          class="btn btn-error btn-sm"
+          hx-delete={`/app/admin/data-source?${new URLSearchParams(
+            encodeDataSourceWithoutCreatedAt({
+              mcpToolName: props.mcpToolName,
+              type: props.type,
+              url: props.url,
+            }),
+          ).toString()}`}
+          hx-swap="delete"
+          hx-target="closest tr"
+          type="button"
+        >
+          <Icon.DeleteIcon ariaLabel="Delete" size="sm" />
+        </button>
+      </td>
     </tr>
   )
 }
