@@ -88,3 +88,32 @@ export const mcp = new cloudflare.ZeroTrustAccessApplication(
     protect: true,
   },
 )
+
+export const mcpOidc = new cloudflare.ZeroTrustAccessApplication(
+  "mcp-oidc-application",
+  {
+    accountId: config.accountID,
+    allowedIdps: [identityCenter.awsSaml.id],
+    appLauncherVisible: true,
+    autoRedirectToIdentity: true,
+    name: "MCP OIDC",
+    policies: [
+      {
+        id: policy.mcp.id,
+      },
+    ],
+    saasApp: {
+      accessTokenLifetime: "5m",
+      appLauncherUrl: "https://mcp.totto2727.workers.dev/app/admin",
+      authType: "oidc",
+      grantTypes: ["authorization_code"],
+      redirectUris: ["https://mcp.totto2727.workers.dev/api/mcp/authorize"],
+      scopes: ["openid", "email", "profile", "groups"],
+    },
+    sessionDuration: "24h",
+    type: "saas",
+  },
+  {
+    protect: true,
+  },
+)
