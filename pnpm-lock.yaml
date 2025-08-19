@@ -321,6 +321,9 @@ importers:
       hono:
         specifier: 'catalog:'
         version: 4.7.10
+      mcp-auth:
+        specifier: 0.2.0-beta.1
+        version: 0.2.0-beta.1(express@5.1.0)
       tailwindcss:
         specifier: 'catalog:'
         version: 4.1.11
@@ -2378,6 +2381,10 @@ packages:
     resolution: {integrity: sha512-8iKx79/F73DKbGfRf7+t4dqrc0bRr0thdPrxAtCKWRm/F0tG71i6O1rvlnScncJLLBZHn3h8M3c1BSUAb9yu8g==}
     engines: {node: ^16.14.0 || >=18.0.0}
 
+  '@silverhand/essentials@2.9.2':
+    resolution: {integrity: sha512-bD+82D9Dfa1F5xX1kfdR5ODIoJS41NOxTuHx4shVS5A4/ayEG+ZplpDDjB19fsa7kZXgSgD75R4sUCXjm88x6w==}
+    engines: {node: ^18.12.0 || ^20.9.0 || ^22.0.0, pnpm: ^9.0.0}
+
   '@sindresorhus/is@4.6.0':
     resolution: {integrity: sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==}
     engines: {node: '>=10'}
@@ -3495,6 +3502,14 @@ packages:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
     engines: {node: '>=6'}
 
+  camelcase-keys@9.1.3:
+    resolution: {integrity: sha512-Rircqi9ch8AnZscQcsA1C47NFdaO3wukpmIRzYcDOrmvgt78hM/sj5pZhZNec2NM12uk5vTwRHZ4anGcrC4ZTg==}
+    engines: {node: '>=16'}
+
+  camelcase@8.0.0:
+    resolution: {integrity: sha512-8WB3Jcas3swSvjIeA2yvCJ+Miyz5l1ZmB6HFb9R1317dt9LCQoswg/BGrmAmkWVEszSrrg4RwmO46qIm2OEnSA==}
+    engines: {node: '>=16'}
+
   caniuse-lite@1.0.30001718:
     resolution: {integrity: sha512-AflseV1ahcSunK53NfEs9gFWgOEmzr0f+kaMFA4xiLZlr9Hzt7HxcSpIFcnNCUkz6R6dWKa54rUz3HUmI3nVcw==}
 
@@ -4327,6 +4342,9 @@ packages:
     resolution: {integrity: sha512-twQoecYPiVA5K/h6SxtORw/Bs3ar+mLUtoPSc7iMXzQzK8d7eJ/R09wmTwAjiamETn1cXYPGfNnu7DMoHgu12w==}
     hasBin: true
 
+  jose@6.0.12:
+    resolution: {integrity: sha512-T8xypXs8CpmiIi78k0E+Lk7T2zlK4zDyg+o1CZ4AkOHgDg98ogdP2BeZ61lTFKFyoEwJ9RgAgN+SdM3iPgNonQ==}
+
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
     engines: {node: '>=10'}
@@ -4522,9 +4540,19 @@ packages:
     resolution: {integrity: sha512-hdN1wVrZbb29eBGiGjJbeP8JbKjq1urkHJ/LIP/NY48MZ1QVXUsQBV1G1zvYFHn1XE06cwjBsOI2K3Ulnj1YXQ==}
     engines: {node: '>=8'}
 
+  map-obj@5.0.0:
+    resolution: {integrity: sha512-2L3MIgJynYrZ3TYMriLDLWocz15okFakV6J12HXvMXDHui2x/zgChzg1u9mFFGbbGWE+GsLpQByt4POb9Or+uA==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
+
+  mcp-auth@0.2.0-beta.1:
+    resolution: {integrity: sha512-SzpjuKIcr5W4WWZgemIXEwCq0glxDM5qqlgGtuo9xf94XtpOwgmd1KlBcRfwhoD8EtUwXH9u7hKLfvKx8gqwTw==}
+    engines: {node: ^20.19.0 || ^22.0.0 || ^23.0.0 || ^24.0.0}
+    peerDependencies:
+      express: ^5.0.1
 
   media-typer@1.1.0:
     resolution: {integrity: sha512-aisnrDP4GNe06UcKFnV5bfMNPBUw4jsLGaWwWfnH3v02GnBuXX2MCVn5RbrWo0j3pczUilYblq7fQ7Nw2t5XKw==}
@@ -5016,6 +5044,10 @@ packages:
   quick-lru@5.1.1:
     resolution: {integrity: sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==}
     engines: {node: '>=10'}
+
+  quick-lru@6.1.2:
+    resolution: {integrity: sha512-AAFUA5O1d83pIHEhJwWCq/RQcRukCkn/NSm2QsTEMle5f2hP0ChI2+3Xb051PZCkLryI/Ir1MVKviT2FIloaTQ==}
+    engines: {node: '>=12'}
 
   range-parser@1.2.1:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
@@ -8106,6 +8138,8 @@ snapshots:
       '@sigstore/core': 1.1.0
       '@sigstore/protobuf-specs': 0.3.3
 
+  '@silverhand/essentials@2.9.2': {}
+
   '@sindresorhus/is@4.6.0': {}
 
   '@sindresorhus/is@7.0.2': {}
@@ -10096,6 +10130,15 @@ snapshots:
 
   callsites@3.1.0: {}
 
+  camelcase-keys@9.1.3:
+    dependencies:
+      camelcase: 8.0.0
+      map-obj: 5.0.0
+      quick-lru: 6.1.2
+      type-fest: 4.41.0
+
+  camelcase@8.0.0: {}
+
   caniuse-lite@1.0.30001718: {}
 
   chai@5.2.1:
@@ -10874,6 +10917,8 @@ snapshots:
 
   jiti@2.5.1: {}
 
+  jose@6.0.12: {}
+
   joycon@3.1.1: {}
 
   js-base64@3.7.7: {}
@@ -11040,7 +11085,19 @@ snapshots:
 
   map-obj@4.3.0: {}
 
+  map-obj@5.0.0: {}
+
   math-intrinsics@1.1.0: {}
+
+  mcp-auth@0.2.0-beta.1(express@5.1.0):
+    dependencies:
+      '@silverhand/essentials': 2.9.2
+      camelcase-keys: 9.1.3
+      cors: 2.8.5
+      express: 5.1.0
+      jose: 6.0.12
+      snakecase-keys: 8.0.1
+      zod: 3.25.76
 
   media-typer@1.1.0: {}
 
@@ -11530,6 +11587,8 @@ snapshots:
       side-channel: 1.1.0
 
   quick-lru@5.1.1: {}
+
+  quick-lru@6.1.2: {}
 
   range-parser@1.2.1: {}
 
