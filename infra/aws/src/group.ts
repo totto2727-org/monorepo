@@ -48,3 +48,15 @@ export const cloudflareAccess = new aws.identitystore.Group(
     protect: true,
   },
 )
+
+export const mcp = new aws.identitystore.Group(
+  "mcp",
+  {
+    displayName: "MCP",
+    identityStoreId: identifyStore.id,
+    region: identifyStore.region,
+  },
+  {
+    protect: true,
+  },
+)

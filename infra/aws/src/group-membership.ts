@@ -54,3 +54,29 @@ export const cloudflareAccessTotto2727 = new aws.identitystore.GroupMembership(
     protect: true,
   },
 )
+
+export const mcpTotto2727 = new aws.identitystore.GroupMembership(
+  "mcp-totto2727",
+  {
+    groupId: group.mcp.groupId,
+    identityStoreId: identifyStore.id,
+    memberId: user.totto2727.userId,
+    region: identifyStore.region,
+  },
+  {
+    protect: true,
+  },
+)
+
+export const cloudflareAccessTest = new aws.identitystore.GroupMembership(
+  "cloudflare-access-test",
+  {
+    groupId: group.cloudflareAccess.groupId,
+    identityStoreId: identifyStore.id,
+    memberId: user.test.userId,
+    region: identifyStore.region,
+  },
+  {
+    protect: true,
+  },
+)

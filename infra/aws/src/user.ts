@@ -22,3 +22,25 @@ export const totto2727 = new aws.identitystore.User(
     protect: true,
   },
 )
+
+export const test = new aws.identitystore.User(
+  "test",
+  {
+    displayName: "test",
+    emails: {
+      primary: true,
+      type: "work",
+      value: "hayato.2000.0727@gmail.com",
+    },
+    identityStoreId: identifyStore.id,
+    name: {
+      familyName: "test",
+      givenName: "test",
+    },
+    region: identifyStore.region,
+    userName: "test",
+  },
+  {
+    protect: true,
+  },
+)
