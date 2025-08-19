@@ -1,7 +1,7 @@
 import * as cloudflare from "@pulumi/cloudflare"
 import * as policy from "./access-policy.ts"
 import * as config from "./config.ts"
-import * as identityCenter from "./identity-center.ts"
+import * as identityCenter from "./identity-provider.ts"
 
 export const gitea = new cloudflare.ZeroTrustAccessApplication(
   "gitea-application",
@@ -34,7 +34,7 @@ export const gitea = new cloudflare.ZeroTrustAccessApplication(
   },
 )
 
-export const argocd_application = new cloudflare.ZeroTrustAccessApplication(
+export const argocd = new cloudflare.ZeroTrustAccessApplication(
   "argocd-application",
   {
     accountId: config.accountID,
@@ -57,6 +57,32 @@ export const argocd_application = new cloudflare.ZeroTrustAccessApplication(
     },
     sessionDuration: "24h",
     type: "saas",
+  },
+  {
+    protect: true,
+  },
+)
+
+export const mcp = new cloudflare.ZeroTrustAccessApplication(
+  "mcp-application",
+  {
+    accountId: config.accountID,
+    allowedIdps: [identityCenter.awsSaml.id],
+    appLauncherVisible: true,
+    autoRedirectToIdentity: true,
+    domain: "mcp.totto2727.workers.dev/app",
+    name: "mcp.totto2727.workers.dev",
+    policies: [
+      {
+        id: policy.mcp.id,
+      },
+    ],
+    selfHostedDomains: [
+      "mcp.totto2727.workers.dev/app",
+      "*-mcp.totto2727.workers.dev/app",
+    ],
+    sessionDuration: "24h",
+    type: "self_hosted",
   },
   {
     protect: true,
