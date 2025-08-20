@@ -9,14 +9,16 @@ import * as AdminEndpoint from "./route/app/admin/endpoint.js"
 import * as AdminLayout from "./route/app/admin/layout.js"
 import * as McpTool from "./route/app/admin/mcp-tool/endpoint.js"
 import * as Layout from "./ui/layout.js"
+import { handleAccessRequest } from "./oauth/handler.js"
 
-export const app = new Hono<Env>()
-  .use(logger())
-  .use("*", (c, next) => {
-    c.set("db", DataBase.create(c.env.DB))
-    return next()
-  })
-  .all("/api/mcp", ...McpHandler.mcpHandler)
+const baseApp = new Hono<Env>().use(logger()).use("*", (c, next) => {
+  c.set("db", DataBase.create(c.env.DB))
+  return next()
+})
+
+export const mcpApp = baseApp.all("/api/mcp", ...McpHandler.mcpHandler)
+
+export const adminApp = baseApp
   .get("/app/*", jsxRenderer(Layout.Layout))
   .get(
     "/app/admin/*",
@@ -35,3 +37,6 @@ export const app = new Hono<Env>()
   .get("/app/admin/data-source", ...DataSource.getHandler)
   .post("/app/admin/data-source", ...DataSource.postHandler)
   .delete("/app/admin/data-source", ...DataSource.deleteHandler)
+  .use("*", (c) =>
+    handleAccessRequest(c.req.raw as any, c.env as any, c.executionCtx as any),
+  )
