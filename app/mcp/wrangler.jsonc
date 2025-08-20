@@ -16,6 +16,12 @@
       "migrations_dir": "drizzle"
     }
   ],
+  "kv_namespaces": [
+    {
+      "binding": "OAUTH_KV",
+      "id": "7b73e63c5f5f49f1bcf6378b0c5a50e9"
+    }
+  ],
   "main": "./app/entry.worker.ts",
   "name": "mcp",
   "observability": {
