@@ -1,15 +1,4 @@
 {
-  "compilerOptions": {
-    "lib": ["ES2022"],
-    "module": "ESNext",
-    "noEmit": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "isolatedModules": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "bundler",
-    "useDefineForClassFields": true,
-    "allowImportingTsExtensions": true
-  },
-  "include": ["src"]
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": ["@totto/function/tsconfig/node24"]
 }

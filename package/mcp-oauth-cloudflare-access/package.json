@@ -1,26 +1,30 @@
 {
-  "name": "mcp-oauth-cloudflare-access",
-  "version": "0.0.0",
-  "type": "module",
+  "dependencies": {
+    "@totto/function": "catalog:util"
+  },
+  "devDependencies": {
+    "@rslib/core": "catalog:build",
+    "@rstest/core": "catalog:test",
+    "@types/node": "catalog:dev",
+    "typescript": "catalog:build"
+  },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
-  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
+  "name": "mcp-oauth-cloudflare-access",
   "scripts": {
     "build": "rslib build",
+    "check": "tsc",
     "dev": "rslib build --watch",
     "test": "rstest"
   },
-  "devDependencies": {
-    "@rslib/core": "^0.12.2",
-    "@rstest/core": "^0.2.1",
-    "@types/node": "^22.17.2",
-    "typescript": "^5.9.2"
-  }
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "version": "0.0.0"
 }
