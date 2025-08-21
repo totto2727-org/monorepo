@@ -1,12 +1,10 @@
 {
-  "dependencies": {
-    "@pulumi/aws": "catalog:network",
-    "@pulumi/awsx": "catalog:network",
-    "@pulumi/pulumi": "catalog:prod",
-    "@totto/function": "catalog:prod"
-  },
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
+    "@pulumi/aws": "catalog:network",
+    "@pulumi/awsx": "catalog:network",
+    "@pulumi/pulumi": "catalog:dev",
+    "@totto/function": "catalog:dev",
     "@types/node": "catalog:types",
     "dprint": "catalog:dev",
     "typescript": "catalog:dev"

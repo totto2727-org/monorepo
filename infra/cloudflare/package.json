@@ -1,11 +1,9 @@
 {
-  "dependencies": {
-    "@pulumi/cloudflare": "catalog:prod",
-    "@pulumi/pulumi": "catalog:prod",
-    "@totto/function": "catalog:prod"
-  },
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
+    "@pulumi/cloudflare": "catalog:dev",
+    "@pulumi/pulumi": "catalog:dev",
+    "@totto/function": "catalog:dev",
     "@types/node": "catalog:types",
     "dprint": "catalog:dev",
     "typescript": "catalog:dev"
