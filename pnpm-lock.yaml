@@ -5,64 +5,52 @@ settings:
   excludeLinksFromLockfile: false
 
 catalogs:
-  default:
-    '@biomejs/biome':
-      specifier: 2.0.6
-      version: 2.0.6
-    '@clerk/backend':
-      specifier: ^1.33.1
-      version: 1.33.1
-    '@clerk/react-router':
-      specifier: ^1.4.7
-      version: 1.4.7
-    '@cloudflare/vite-plugin':
-      specifier: ^1.11.0
-      version: 1.11.0
-    '@cloudflare/workers-types':
-      specifier: ^4.20250525.0
-      version: 4.20250525.0
-    '@hono/clerk-auth':
-      specifier: ^2.0.0
-      version: 2.0.0
-    '@hono/mcp':
-      specifier: ^0.1.1
-      version: 0.1.1
-    '@hono/vite-dev-server':
-      specifier: ^0.19.1
-      version: 0.19.1
-    '@libsql/client':
-      specifier: ^0.15.7
-      version: 0.15.7
-    '@modelcontextprotocol/sdk':
-      specifier: ^1.0.0
-      version: 1.17.1
+  automation:
     '@playwright/test':
       specifier: ^1.52.0
       version: 1.52.0
-    '@pulumi/aws':
-      specifier: ^7.0.0
-      version: 7.4.0
-    '@pulumi/awsx':
-      specifier: ^3.0.0
-      version: 3.0.0
-    '@pulumi/pulumi':
-      specifier: ^3.113.0
-      version: 3.190.0
-    '@react-router/cloudflare':
-      specifier: ^7.6.0
-      version: 7.6.0
+  backend:
+    drizzle-cuid2:
+      specifier: ^2.1.0
+      version: 2.1.0
+    drizzle-kit:
+      specifier: ^0.31.1
+      version: 0.31.1
+    drizzle-orm:
+      specifier: ^0.43.1
+      version: 0.43.1
+  build:
+    '@cloudflare/vite-plugin':
+      specifier: ^1.11.0
+      version: 1.11.0
+    '@hono/vite-dev-server':
+      specifier: ^0.19.1
+      version: 0.19.1
+    vite:
+      specifier: ^6.3.5
+      version: 6.3.5
+  dev:
+    '@cloudflare/workers-oauth-provider':
+      specifier: ^0.0.6
+      version: 0.0.6
+    '@cloudflare/workers-types':
+      specifier: ^4.20250525.0
+      version: 4.20250525.0
+    '@formatjs/intl-durationformat':
+      specifier: ^0.7.4
+      version: 0.7.4
+    '@hono/mcp':
+      specifier: ^0.1.1
+      version: 0.1.1
+    '@hono/standard-validator':
+      specifier: ^0.1.4
+      version: 0.1.4
+    '@modelcontextprotocol/sdk':
+      specifier: ^1.0.0
+      version: 1.17.3
     '@react-router/dev':
       specifier: ^7.6.0
       version: 7.6.0
-    '@react-router/fs-routes':
-      specifier: ^7.6.0
-      version: 7.6.0
-    '@tailwindcss/cli':
-      specifier: ^4.1.11
-      version: 4.1.11
-    '@totto/function':
-      specifier: jsr:^1.4.0
-      version: 1.4.0
     '@tsconfig/node24':
       specifier: ^24.0.0
       version: 24.0.1
@@ -72,15 +60,64 @@ catalogs:
     '@tsconfig/strictest':
       specifier: ^2.0.5
       version: 2.0.5
-    '@types/node':
-      specifier: ^24.1.0
-      version: 24.1.0
-    '@types/react':
-      specifier: ^19.1.5
-      version: 19.1.5
-    '@types/react-dom':
-      specifier: ^19.1.5
-      version: 19.1.5
+    agents:
+      specifier: ^0.0.113
+      version: 0.0.113
+    daisyui:
+      specifier: ^5.0.50
+      version: 5.0.50
+    dprint:
+      specifier: ^0.50.0
+      version: 0.50.0
+    typescript:
+      specifier: ^5.8.3
+      version: 5.8.3
+    wrangler:
+      specifier: ^4.27.0
+      version: 4.27.0
+  lint:
+    '@biomejs/biome':
+      specifier: 2.0.6
+      version: 2.0.6
+  monorepo:
+    turbo:
+      specifier: ^2.5.3
+      version: 2.5.3
+  network:
+    '@pulumi/aws':
+      specifier: ^7.0.0
+      version: 7.4.0
+    '@pulumi/awsx':
+      specifier: ^3.0.0
+      version: 3.0.0
+  prod:
+    '@clerk/backend':
+      specifier: ^1.33.1
+      version: 1.33.1
+    '@clerk/react-router':
+      specifier: ^1.4.7
+      version: 1.4.7
+    '@hono/clerk-auth':
+      specifier: ^2.0.0
+      version: 2.0.0
+    '@libsql/client':
+      specifier: ^0.15.7
+      version: 0.15.7
+    '@pulumi/cloudflare':
+      specifier: ^6.5.0
+      version: 6.5.0
+    '@pulumi/pulumi':
+      specifier: ^3.113.0
+      version: 3.190.0
+    '@react-router/cloudflare':
+      specifier: ^7.6.0
+      version: 7.6.0
+    '@react-router/fs-routes':
+      specifier: ^7.6.0
+      version: 7.6.0
+    '@totto/function':
+      specifier: jsr:^1.4.0
+      version: 1.4.0
     '@yamada-ui/calendar':
       specifier: ^1.8.16
       version: 1.8.16
@@ -93,21 +130,6 @@ catalogs:
     '@yamada-ui/table':
       specifier: ^1.3.13
       version: 1.3.13
-    daisyui:
-      specifier: ^5.0.50
-      version: 5.0.50
-    dprint:
-      specifier: ^0.50.0
-      version: 0.50.0
-    drizzle-cuid2:
-      specifier: ^2.1.0
-      version: 2.1.0
-    drizzle-kit:
-      specifier: ^0.31.1
-      version: 0.31.1
-    drizzle-orm:
-      specifier: ^0.43.1
-      version: 0.43.1
     hono:
       specifier: ^4.7.10
       version: 4.7.10
@@ -126,24 +148,28 @@ catalogs:
     react-router:
       specifier: ^7.6.0
       version: 7.6.0
-    tailwindcss:
-      specifier: ^4.1.11
-      version: 4.1.11
+  script:
     tsx:
       specifier: ^4.19.4
       version: 4.19.4
-    turbo:
-      specifier: ^2.5.3
-      version: 2.5.3
-    typescript:
-      specifier: ^5.8.3
-      version: 5.8.3
-    vite:
-      specifier: ^6.3.5
-      version: 6.3.5
-    wrangler:
-      specifier: ^4.27.0
-      version: 4.27.0
+  style:
+    '@tailwindcss/cli':
+      specifier: ^4.1.11
+      version: 4.1.11
+    tailwindcss:
+      specifier: ^4.1.11
+      version: 4.1.11
+  types:
+    '@types/node':
+      specifier: ^24.1.0
+      version: 24.1.0
+    '@types/react':
+      specifier: ^19.1.5
+      version: 19.1.5
+    '@types/react-dom':
+      specifier: ^19.1.5
+      version: 19.1.5
+  utils:
     zod:
       specifier: ^3.24.1
       version: 3.25.76
@@ -153,244 +179,244 @@ importers:
   .:
     devDependencies:
       '@biomejs/biome':
-        specifier: 'catalog:'
+        specifier: catalog:lint
         version: 2.0.6
       '@tsconfig/node24':
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 24.0.1
       '@tsconfig/remix':
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 2.0.5
       '@tsconfig/strictest':
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 2.0.5
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:types
         version: 24.1.0
       dprint:
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 0.50.0
       turbo:
-        specifier: 'catalog:'
+        specifier: catalog:monorepo
         version: 2.5.3
       typescript:
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 5.8.3
       wrangler:
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 4.27.0(@cloudflare/workers-types@4.20250525.0)
 
   app/lesson-sharing:
     dependencies:
       '@clerk/backend':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 1.33.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@clerk/react-router':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 1.4.7(react-dom@19.1.0(react@19.1.0))(react-router@7.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
       '@hono/clerk-auth':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 2.0.0(@clerk/backend@1.33.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(hono@4.7.10)
       '@libsql/client':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 0.15.7
       '@react-router/cloudflare':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 7.6.0(@cloudflare/workers-types@4.20250525.0)(react-router@7.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(tsup@8.5.0(jiti@2.5.1)(postcss@8.5.6)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.8.0))(typescript@5.8.3)
       '@react-router/fs-routes':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 7.6.0(@react-router/dev@7.6.0(@types/node@24.1.0)(babel-plugin-macros@3.1.0)(jiti@2.5.1)(lightningcss@1.30.1)(react-router@7.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(tsx@4.19.4)(typescript@5.8.3)(vite@6.3.5(@types/node@24.1.0)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.0))(wrangler@4.27.0(@cloudflare/workers-types@4.20250525.0))(yaml@2.8.0))(typescript@5.8.3)
       '@totto/function':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: '@jsr/totto__function@1.4.0(@effect/cluster@0.46.2(@effect/platform@0.90.0(effect@3.17.2))(@effect/rpc@0.68.0(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/sql@0.44.0(@effect/experimental@0.54.1(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/workflow@0.8.1(@effect/platform@0.90.0(effect@3.17.2))(@effect/rpc@0.68.0(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(effect@3.17.2))(effect@3.17.2))(@effect/sql@0.44.0(@effect/experimental@0.54.1(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(vitest@3.1.4(@types/node@24.1.0)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.0))'
       '@yamada-ui/calendar':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 1.8.16(@emotion/is-prop-valid@1.3.1)(@types/react@19.1.5)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@yamada-ui/charts':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 1.5.15(@types/react@19.1.5)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@yamada-ui/react':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 1.7.6(@emotion/is-prop-valid@1.3.1)(@emotion/react@11.11.0(@types/react@19.1.5)(react@19.1.0))(@emotion/styled@11.11.0(@emotion/react@11.11.0(@types/react@19.1.5)(react@19.1.0))(@types/react@19.1.5)(react@19.1.0))(@types/react@19.1.5)(motion@12.5.0(@emotion/is-prop-valid@1.3.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@yamada-ui/table':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 1.3.13(@emotion/is-prop-valid@1.3.1)(@types/react@19.1.5)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       drizzle-cuid2:
-        specifier: 'catalog:'
+        specifier: catalog:backend
         version: 2.1.0(drizzle-orm@0.43.1(@cloudflare/workers-types@4.20250525.0)(@libsql/client@0.15.7)(@opentelemetry/api@1.9.0))
       drizzle-orm:
-        specifier: 'catalog:'
+        specifier: catalog:backend
         version: 0.43.1(@cloudflare/workers-types@4.20250525.0)(@libsql/client@0.15.7)(@opentelemetry/api@1.9.0)
       hono:
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 4.7.10
       hono-react-router-adapter:
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 0.6.5(hono@4.7.10)(miniflare@4.20250730.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(wrangler@4.27.0(@cloudflare/workers-types@4.20250525.0))
       isbot:
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 5.1.28
       react:
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 19.1.0
       react-dom:
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 19.1.0(react@19.1.0)
       react-router:
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 7.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
     devDependencies:
       '@biomejs/biome':
-        specifier: 'catalog:'
+        specifier: catalog:lint
         version: 2.0.6
       '@cloudflare/workers-types':
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 4.20250525.0
       '@hono/vite-dev-server':
-        specifier: 'catalog:'
+        specifier: catalog:build
         version: 0.19.1(hono@4.7.10)(miniflare@4.20250730.0)(wrangler@4.27.0(@cloudflare/workers-types@4.20250525.0))
       '@playwright/test':
-        specifier: 'catalog:'
+        specifier: catalog:automation
         version: 1.52.0
       '@react-router/dev':
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 7.6.0(@types/node@24.1.0)(babel-plugin-macros@3.1.0)(jiti@2.5.1)(lightningcss@1.30.1)(react-router@7.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(tsx@4.19.4)(typescript@5.8.3)(vite@6.3.5(@types/node@24.1.0)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.0))(wrangler@4.27.0(@cloudflare/workers-types@4.20250525.0))(yaml@2.8.0)
       '@types/react':
-        specifier: 'catalog:'
+        specifier: catalog:types
         version: 19.1.5
       '@types/react-dom':
-        specifier: 'catalog:'
+        specifier: catalog:types
         version: 19.1.5(@types/react@19.1.5)
       dprint:
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 0.50.0
       drizzle-kit:
-        specifier: 'catalog:'
+        specifier: catalog:backend
         version: 0.31.1
       tsx:
-        specifier: 'catalog:'
+        specifier: catalog:script
         version: 4.19.4
       typescript:
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 5.8.3
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:build
         version: 6.3.5(@types/node@24.1.0)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.0)
 
   app/mcp:
     devDependencies:
       '@biomejs/biome':
-        specifier: 'catalog:'
+        specifier: catalog:lint
         version: 2.0.6
       '@cloudflare/vite-plugin':
-        specifier: 'catalog:'
+        specifier: catalog:build
         version: 1.11.0(rollup@4.46.2)(vite@6.3.5(@types/node@24.1.0)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.0))(workerd@1.20250730.0)(wrangler@4.27.0(@cloudflare/workers-types@4.20250525.0))
       '@cloudflare/workers-oauth-provider':
-        specifier: ^0.0.6
+        specifier: catalog:dev
         version: 0.0.6
       '@cloudflare/workers-types':
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 4.20250525.0
       '@formatjs/intl-durationformat':
-        specifier: ^0.7.4
+        specifier: catalog:dev
         version: 0.7.4
       '@hono/mcp':
-        specifier: 'catalog:'
-        version: 0.1.1(@modelcontextprotocol/sdk@1.17.1)(hono@4.7.10)
+        specifier: catalog:dev
+        version: 0.1.1(@modelcontextprotocol/sdk@1.17.3)(hono@4.7.10)
       '@hono/standard-validator':
-        specifier: ^0.1.4
+        specifier: catalog:dev
         version: 0.1.4(@standard-schema/spec@1.0.0)(hono@4.7.10)
       '@modelcontextprotocol/sdk':
-        specifier: 'catalog:'
-        version: 1.17.1
+        specifier: catalog:dev
+        version: 1.17.3
       '@tailwindcss/cli':
-        specifier: 'catalog:'
+        specifier: catalog:style
         version: 4.1.11
       '@totto/function':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: '@jsr/totto__function@1.4.0(@effect/cluster@0.46.2(@effect/platform@0.90.0(effect@3.17.2))(@effect/rpc@0.68.0(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/sql@0.44.0(@effect/experimental@0.54.1(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/workflow@0.8.1(@effect/platform@0.90.0(effect@3.17.2))(@effect/rpc@0.68.0(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(effect@3.17.2))(effect@3.17.2))(@effect/sql@0.44.0(@effect/experimental@0.54.1(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(vitest@3.1.4(@types/node@24.1.0)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.0))'
       agents:
-        specifier: ^0.0.113
+        specifier: catalog:dev
         version: 0.0.113(@cloudflare/workers-types@4.20250525.0)(react@19.1.0)
       daisyui:
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 5.0.50
       dprint:
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 0.50.0
       drizzle-kit:
-        specifier: 'catalog:'
+        specifier: catalog:backend
         version: 0.31.1
       drizzle-orm:
-        specifier: 'catalog:'
+        specifier: catalog:backend
         version: 0.43.1(@cloudflare/workers-types@4.20250525.0)(@libsql/client@0.15.7)(@opentelemetry/api@1.9.0)
       hono:
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 4.7.10
       tailwindcss:
-        specifier: 'catalog:'
+        specifier: catalog:style
         version: 4.1.11
       typescript:
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 5.8.3
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:build
         version: 6.3.5(@types/node@24.1.0)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.0)
       zod:
-        specifier: 'catalog:'
+        specifier: catalog:utils
         version: 3.25.76
 
   infra/aws:
     dependencies:
       '@pulumi/aws':
-        specifier: 'catalog:'
+        specifier: catalog:network
         version: 7.4.0(typescript@5.8.3)
       '@pulumi/awsx':
-        specifier: 'catalog:'
+        specifier: catalog:network
         version: 3.0.0(typescript@5.8.3)
       '@pulumi/pulumi':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 3.190.0(typescript@5.8.3)
       '@totto/function':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: '@jsr/totto__function@1.4.0(@effect/cluster@0.46.2(@effect/platform@0.90.0(effect@3.17.2))(@effect/rpc@0.68.0(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/sql@0.44.0(@effect/experimental@0.54.1(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/workflow@0.8.1(@effect/platform@0.90.0(effect@3.17.2))(@effect/rpc@0.68.0(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(effect@3.17.2))(effect@3.17.2))(@effect/sql@0.44.0(@effect/experimental@0.54.1(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(vitest@3.1.4(@types/node@24.1.0)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.0))'
     devDependencies:
       '@biomejs/biome':
-        specifier: 'catalog:'
+        specifier: catalog:lint
         version: 2.0.6
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:types
         version: 24.1.0
       dprint:
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 0.50.0
       typescript:
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 5.8.3
 
   infra/cloudflare:
     dependencies:
       '@pulumi/cloudflare':
-        specifier: ^6.5.0
+        specifier: catalog:prod
         version: 6.5.0(typescript@5.8.3)
       '@pulumi/pulumi':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: 3.190.0(typescript@5.8.3)
       '@totto/function':
-        specifier: 'catalog:'
+        specifier: catalog:prod
         version: '@jsr/totto__function@1.4.0(@effect/cluster@0.46.2(@effect/platform@0.90.0(effect@3.17.2))(@effect/rpc@0.68.0(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/sql@0.44.0(@effect/experimental@0.54.1(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/workflow@0.8.1(@effect/platform@0.90.0(effect@3.17.2))(@effect/rpc@0.68.0(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(effect@3.17.2))(effect@3.17.2))(@effect/sql@0.44.0(@effect/experimental@0.54.1(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@effect/platform@0.90.0(effect@3.17.2))(effect@3.17.2))(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(vitest@3.1.4(@types/node@24.1.0)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.0))'
     devDependencies:
       '@biomejs/biome':
-        specifier: 'catalog:'
+        specifier: catalog:lint
         version: 2.0.6
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:types
         version: 24.1.0
       dprint:
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 0.50.0
       typescript:
-        specifier: 'catalog:'
+        specifier: catalog:dev
         version: 5.8.3
 
 packages:
@@ -1740,26 +1766,12 @@ packages:
   '@jridgewell/gen-mapping@0.3.12':
     resolution: {integrity: sha512-OuLGC46TjB5BbN1dH8JULVVZY4WTdkF7tV9Ys6wLL1rubZnCMstOhNHueU5bLCrnRuDhKPDM4g6sw4Bel5Gzqg==}
 
-  '@jridgewell/gen-mapping@0.3.8':
-    resolution: {integrity: sha512-imAbBGkb+ebQyxKgzv5Hu2nmROxoDOXHh80evxdoXNOrvAnVx7zimzc1Oo5h9RlfV4vPXaE2iM5pOFbvOCClWA==}
-    engines: {node: '>=6.0.0'}
-
   '@jridgewell/resolve-uri@3.1.2':
     resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
     engines: {node: '>=6.0.0'}
 
-  '@jridgewell/set-array@1.2.1':
-    resolution: {integrity: sha512-R8gLRTZeyp03ymzP/6Lil/28tGeGEzhx1q2k703KGWRAI1VdvPIXdG70VJc2pAMw3NA6JKL5hhFu1sJX0Mnn/A==}
-    engines: {node: '>=6.0.0'}
-
-  '@jridgewell/sourcemap-codec@1.5.0':
-    resolution: {integrity: sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==}
-
   '@jridgewell/sourcemap-codec@1.5.4':
     resolution: {integrity: sha512-VT2+G1VQs/9oz078bLrYbecdZKs912zQlkelYpuf+SXF+QvZDYJlbx/LSx+meSAwdDFnF8FVXW92AVjjkVmgFw==}
-
-  '@jridgewell/trace-mapping@0.3.25':
-    resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
   '@jridgewell/trace-mapping@0.3.29':
     resolution: {integrity: sha512-uw6guiW/gcAGPDhLmd77/6lW8QLeiV5RUTsAX46Db6oLhGaVj4lhnPwb184s1bkc8kdVg/+h988dro8GRDpmYQ==}
@@ -1867,10 +1879,6 @@ packages:
 
   '@mjackson/node-fetch-server@0.6.1':
     resolution: {integrity: sha512-9ZJnk/DJjt805uv5PPv11haJIW+HHf3YEEyVXv+8iLQxLD/iXA68FH220XoiTPBC4gCg5q+IMadDw8qPqlA5wg==}
-
-  '@modelcontextprotocol/sdk@1.17.1':
-    resolution: {integrity: sha512-CPle1OQehbWqd25La9Ack5B07StKIxh4+Bf19qnpZKJC1oI22Y0czZHbifjw1UoczIfKBwBDAp/dFxvHG13B5A==}
-    engines: {node: '>=18'}
 
   '@modelcontextprotocol/sdk@1.17.3':
     resolution: {integrity: sha512-JPwUKWSsbzx+DLFznf/QZ32Qa+ptfbUlHhRLrBQBAFu9iI1iYvizM4p+zhhRDceSsPutXp4z+R/HPVphlIiclg==}
@@ -6434,8 +6442,8 @@ snapshots:
     dependencies:
       '@babel/parser': 7.27.2
       '@babel/types': 7.27.1
-      '@jridgewell/gen-mapping': 0.3.8
-      '@jridgewell/trace-mapping': 0.3.25
+      '@jridgewell/gen-mapping': 0.3.12
+      '@jridgewell/trace-mapping': 0.3.29
       jsesc: 3.0.2
 
   '@babel/helper-annotate-as-pure@7.27.1':
@@ -7280,9 +7288,9 @@ snapshots:
       '@clerk/backend': 1.33.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       hono: 4.7.10
 
-  '@hono/mcp@0.1.1(@modelcontextprotocol/sdk@1.17.1)(hono@4.7.10)':
+  '@hono/mcp@0.1.1(@modelcontextprotocol/sdk@1.17.3)(hono@4.7.10)':
     dependencies:
-      '@modelcontextprotocol/sdk': 1.17.1
+      '@modelcontextprotocol/sdk': 1.17.3
       hono: 4.7.10
 
   '@hono/node-server@1.14.2(hono@4.7.10)':
@@ -7407,24 +7415,9 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.4
       '@jridgewell/trace-mapping': 0.3.29
 
-  '@jridgewell/gen-mapping@0.3.8':
-    dependencies:
-      '@jridgewell/set-array': 1.2.1
-      '@jridgewell/sourcemap-codec': 1.5.0
-      '@jridgewell/trace-mapping': 0.3.25
-
   '@jridgewell/resolve-uri@3.1.2': {}
 
-  '@jridgewell/set-array@1.2.1': {}
-
-  '@jridgewell/sourcemap-codec@1.5.0': {}
-
   '@jridgewell/sourcemap-codec@1.5.4': {}
-
-  '@jridgewell/trace-mapping@0.3.25':
-    dependencies:
-      '@jridgewell/resolve-uri': 3.1.2
-      '@jridgewell/sourcemap-codec': 1.5.0
 
   '@jridgewell/trace-mapping@0.3.29':
     dependencies:
@@ -7585,23 +7578,6 @@ snapshots:
   '@mjackson/node-fetch-server@0.2.0': {}
 
   '@mjackson/node-fetch-server@0.6.1': {}
-
-  '@modelcontextprotocol/sdk@1.17.1':
-    dependencies:
-      ajv: 6.12.6
-      content-type: 1.0.5
-      cors: 2.8.5
-      cross-spawn: 7.0.6
-      eventsource: 3.0.7
-      eventsource-parser: 3.0.3
-      express: 5.1.0
-      express-rate-limit: 7.5.1(express@5.1.0)
-      pkce-challenge: 5.0.0
-      raw-body: 3.0.0
-      zod: 3.25.76
-      zod-to-json-schema: 3.24.6(zod@3.25.76)
-    transitivePeerDependencies:
-      - supports-color
 
   '@modelcontextprotocol/sdk@1.17.3':
     dependencies:
@@ -12320,7 +12296,7 @@ snapshots:
 
   tsx@4.19.4:
     dependencies:
-      esbuild: 0.25.4
+      esbuild: 0.25.8
       get-tsconfig: 4.10.1
     optionalDependencies:
       fsevents: 2.3.3
