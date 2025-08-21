@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm"
 import type { Database } from "#@/database.js"
 import * as Drizzle from "#@/drizzle.js"
 import * as Hono from "#@/hono.js"
+import { getDefaultLocale } from "#@/locale.js"
 import * as SimpleStatCard from "#@/ui/admin/card/simple-stat-card.js"
 import * as Input from "#@/ui/admin/input/input.js"
 import * as Textarea from "#@/ui/admin/input/textarea.js"
@@ -37,7 +38,7 @@ export const getHandler = Hono.factory.createHandlers(async (c) =>
 export const postHandler = Hono.factory.createHandlers(
   sValidator("form", mcpToolWithoutLastUsedStandardSchema),
   async (c) =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const mcpTool = yield* Option.fromIterable(
         yield* Effect.tryPromise(() =>
           c.var.db
@@ -54,7 +55,7 @@ export const postHandler = Hono.factory.createHandlers(
 export const deleteHandler = Hono.factory.createHandlers(
   sValidator("query", deleteQueryStandardSchema),
   async (c) =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const query = c.req.valid("query")
 
       yield* Effect.tryPromise(() =>
@@ -209,6 +210,9 @@ function TableItem(props: typeof mcpToolSchema.Type) {
         {Duration.formatShort(
           DateTime.unsafeFromDate(props.lastUsed),
           DateTime.unsafeNow(),
+          {
+            locale: getDefaultLocale(),
+          },
         )}
       </td>
       <td>

@@ -5,6 +5,7 @@ import { and, eq } from "drizzle-orm"
 import type { Database } from "#@/database.js"
 import * as Drizzle from "#@/drizzle.js"
 import * as Hono from "#@/hono.js"
+import { getDefaultLocale } from "#@/locale.js"
 import type * as DataSourceType from "#@/sync/type/data-source-type.js"
 import * as SimpleStatCard from "#@/ui/admin/card/simple-stat-card.js"
 import * as Input from "#@/ui/admin/input/input.js"
@@ -50,7 +51,7 @@ export const getHandler = Hono.factory.createHandlers(async (c) =>
 export const postHandler = Hono.factory.createHandlers(
   sValidator("form", dataSourceWithoutCreatedAtStandardSchema),
   async (c) =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const dataSource = yield* Option.fromIterable(
         yield* Effect.tryPromise(() =>
           c.var.db
@@ -66,7 +67,7 @@ export const postHandler = Hono.factory.createHandlers(
 export const deleteHandler = Hono.factory.createHandlers(
   sValidator("query", dataSourceWithoutCreatedAtStandardSchema),
   async (c) =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const query = c.req.valid("query")
 
       yield* Effect.tryPromise(() =>
@@ -238,6 +239,7 @@ function TableItem(props: typeof dataSourceSchema.Type) {
         {Duration.formatShort(
           DateTime.unsafeFromDate(props.createdAt),
           DateTime.unsafeNow(),
+          { locale: getDefaultLocale() },
         )}
       </td>
       <td>
