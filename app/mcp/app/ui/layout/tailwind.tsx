@@ -18,7 +18,7 @@ export function Tailwind() {
       <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
       <style
         // @ts-ignore
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: 必要なため
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: Required for this use case
         dangerouslySetInnerHTML={tailwindcss}
         // @ts-ignore
         type="text/tailwindcss"

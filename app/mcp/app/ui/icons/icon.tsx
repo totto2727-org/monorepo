@@ -13,7 +13,7 @@ const sizeClasses = {
 export function DashboardIcon({
   size = "md",
   className = "",
-  ariaLabel = "ダッシュボード",
+  ariaLabel = "Dashboard",
 }: IconProps) {
   return (
     <svg
@@ -37,7 +37,7 @@ export function DashboardIcon({
 export function ServerIcon({
   size = "md",
   className = "",
-  ariaLabel = "サーバー",
+  ariaLabel = "Server",
 }: IconProps) {
   return (
     <svg
@@ -61,7 +61,7 @@ export function ServerIcon({
 export function ToolsIcon({
   size = "md",
   className = "",
-  ariaLabel = "ツール",
+  ariaLabel = "Tools",
 }: IconProps) {
   return (
     <svg
@@ -91,7 +91,7 @@ export function ToolsIcon({
 export function SystemIcon({
   size = "md",
   className = "",
-  ariaLabel = "システム設定",
+  ariaLabel = "System Settings",
 }: IconProps) {
   return (
     <svg
@@ -115,7 +115,7 @@ export function SystemIcon({
 export function MenuIcon({
   size = "md",
   className = "",
-  ariaLabel = "メニュー",
+  ariaLabel = "Menu",
 }: IconProps) {
   return (
     <svg
@@ -138,7 +138,7 @@ export function MenuIcon({
 export function PlusIcon({
   size = "md",
   className = "",
-  ariaLabel = "追加",
+  ariaLabel = "Add",
 }: IconProps) {
   return (
     <svg
@@ -162,7 +162,7 @@ export function PlusIcon({
 export function EditIcon({
   size = "md",
   className = "",
-  ariaLabel = "編集",
+  ariaLabel = "Edit",
 }: IconProps) {
   return (
     <svg
@@ -186,7 +186,7 @@ export function EditIcon({
 export function DeleteIcon({
   size = "md",
   className = "",
-  ariaLabel = "削除",
+  ariaLabel = "Delete",
 }: IconProps) {
   return (
     <svg
@@ -210,7 +210,7 @@ export function DeleteIcon({
 export function CheckIcon({
   size = "md",
   className = "",
-  ariaLabel = "確認",
+  ariaLabel = "Confirm",
 }: IconProps) {
   return (
     <svg
@@ -234,7 +234,7 @@ export function CheckIcon({
 export function RefreshIcon({
   size = "md",
   className = "",
-  ariaLabel = "更新",
+  ariaLabel = "Refresh",
 }: IconProps) {
   return (
     <svg
@@ -258,7 +258,7 @@ export function RefreshIcon({
 export function LightningIcon({
   size = "md",
   className = "",
-  ariaLabel = "クイックアクション",
+  ariaLabel = "Quick Action",
 }: IconProps) {
   return (
     <svg
@@ -282,7 +282,7 @@ export function LightningIcon({
 export function WarningIcon({
   size = "md",
   className = "",
-  ariaLabel = "警告",
+  ariaLabel = "Warning",
 }: IconProps) {
   return (
     <svg
@@ -306,7 +306,7 @@ export function WarningIcon({
 export function InfoIcon({
   size = "md",
   className = "",
-  ariaLabel = "情報",
+  ariaLabel = "Information",
 }: IconProps) {
   return (
     <svg
