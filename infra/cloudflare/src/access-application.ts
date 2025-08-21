@@ -106,8 +106,11 @@ export const mcpOidc = new cloudflare.ZeroTrustAccessApplication(
       accessTokenLifetime: "5m",
       appLauncherUrl: "https://mcp.totto2727.workers.dev/app/admin",
       authType: "oidc",
-      grantTypes: ["authorization_code"],
-      redirectUris: ["https://mcp.totto2727.workers.dev/api/mcp/authorize"],
+      grantTypes: ["authorization_code", "refresh_tokens"],
+      redirectUris: ["https://mcp.totto2727.workers.dev/callback"],
+      refreshTokenOptions: {
+        lifetime: "90d",
+      },
       scopes: ["openid", "email", "profile", "groups"],
     },
     sessionDuration: "24h",
