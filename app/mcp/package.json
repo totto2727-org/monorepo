@@ -1,25 +1,25 @@
 {
   "devDependencies": {
-    "@biomejs/biome": "catalog:lint",
-    "@cloudflare/vite-plugin": "catalog:build",
+    "@biomejs/biome": "catalog:dev",
+    "@cloudflare/vite-plugin": "catalog:dev",
     "@cloudflare/workers-oauth-provider": "catalog:dev",
     "@cloudflare/workers-types": "catalog:dev",
     "@formatjs/intl-durationformat": "catalog:dev",
     "@hono/mcp": "catalog:dev",
     "@hono/standard-validator": "catalog:dev",
     "@modelcontextprotocol/sdk": "catalog:dev",
-    "@tailwindcss/cli": "catalog:style",
+    "@tailwindcss/cli": "catalog:dev",
     "@totto/function": "catalog:dev",
     "agents": "catalog:dev",
     "daisyui": "catalog:dev",
     "dprint": "catalog:dev",
-    "drizzle-kit": "catalog:backend",
-    "drizzle-orm": "catalog:backend",
+    "drizzle-kit": "catalog:dev",
+    "drizzle-orm": "catalog:dev",
     "hono": "catalog:dev",
-    "tailwindcss": "catalog:style",
+    "tailwindcss": "catalog:dev",
     "typescript": "catalog:dev",
-    "vite": "catalog:build",
-    "zod": "catalog:utils"
+    "vite": "catalog:dev",
+    "zod": "catalog:dev"
   },
   "engines": {
     "node": ">=24.0.0",

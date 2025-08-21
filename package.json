@@ -1,12 +1,13 @@
 {
   "devDependencies": {
-    "@biomejs/biome": "catalog:lint",
+    "@biomejs/biome": "catalog:dev",
     "@tsconfig/node24": "catalog:dev",
     "@tsconfig/remix": "catalog:dev",
     "@tsconfig/strictest": "catalog:dev",
-    "@types/node": "catalog:types",
+    "@types/node": "catalog:dev",
     "dprint": "catalog:dev",
-    "turbo": "catalog:monorepo",
+    "pncat": "catalog:dev",
+    "turbo": "catalog:dev",
     "typescript": "catalog:dev",
     "wrangler": "catalog:dev"
   },
