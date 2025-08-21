@@ -31,13 +31,13 @@
     ]
   },
   "scripts": {
-    "catalog": "nlx codemod pnpm/catalog",
     "check": "$npm_execpath run /check:.*/",
     "check:biome": "biome check",
     "check:dprint": "dprint check",
     "fix": "$npm_execpath run /fix:.*/",
     "fix:biome": "biome check --write --unsafe",
     "fix:dprint": "dprint fmt --allow-no-files",
+    "pncat": "nlx pncat",
     "precommit": "turbo fix && turbo check"
   },
   "type": "module"
