@@ -1,5 +1,5 @@
 import { sValidator } from "@hono/standard-validator"
-import { Effect, Option, Schema } from "@totto/function/effect"
+import { DateTime, Effect, Option, Schema } from "@totto/function/effect"
 import { and, eq } from "drizzle-orm"
 import type { Database } from "#@/database.js"
 import * as Drizzle from "#@/drizzle.js"
@@ -50,7 +50,7 @@ export const getHandler = Hono.factory.createHandlers(async (c) =>
 export const postHandler = Hono.factory.createHandlers(
   sValidator("form", dataSourceWithoutCreatedAtStandardSchema),
   async (c) =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const dataSource = yield* Option.fromIterable(
         yield* Effect.tryPromise(() =>
           c.var.db
@@ -66,7 +66,7 @@ export const postHandler = Hono.factory.createHandlers(
 export const deleteHandler = Hono.factory.createHandlers(
   sValidator("query", dataSourceWithoutCreatedAtStandardSchema),
   async (c) =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const query = c.req.valid("query")
 
       yield* Effect.tryPromise(() =>
@@ -234,7 +234,12 @@ function TableItem(props: typeof dataSourceSchema.Type) {
       <th>{props.mcpToolName}</th>
       <td>{props.type}</td>
       <td>{props.url}</td>
-      <td>{Duration.formatDurationFromNow(props.createdAt)}</td>
+      <td>
+        {Duration.formatShort(
+          DateTime.unsafeFromDate(props.createdAt),
+          DateTime.unsafeNow(),
+        )}
+      </td>
       <td>
         <button
           class="btn btn-error btn-sm"
