@@ -15,6 +15,9 @@
     "fix": {},
     "prebuild": {
       "outputs": ["**/worker-configuration.d.ts", "**/.react-router/**"]
+    },
+    "test": {
+      "dependsOn": ["prebuild"]
     }
   }
 }
