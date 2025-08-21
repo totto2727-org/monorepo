@@ -1,12 +1,12 @@
 {
   "devDependencies": {
-    "@biomejs/biome": "catalog:dev",
-    "@pulumi/cloudflare": "catalog:pulumi",
-    "@pulumi/pulumi": "catalog:pulumi",
-    "@totto/function": "catalog:dev",
-    "@types/node": "catalog:dev",
-    "dprint": "catalog:dev",
-    "typescript": "catalog:dev"
+    "@biomejs/biome": "2.0.6",
+    "@pulumi/cloudflare": "^6.5.0",
+    "@pulumi/pulumi": "^3.113.0",
+    "@totto/function": "jsr:^1.4.0",
+    "@types/node": "^24.1.0",
+    "dprint": "^0.50.0",
+    "typescript": "^5.8.3"
   },
   "engines": {
     "node": ">=24.0.0",
