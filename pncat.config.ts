@@ -4,8 +4,16 @@ export default defineConfig({
   allowedProtocols: ["workspace"],
   catalogRules: [
     {
+      match: [/@tsconfig/],
+      name: "tsconfig",
+    },
+    {
       match: [/@pulumi/],
       name: "pulumi",
+    },
+    {
+      match: [/@clerk/],
+      name: "clerk",
     },
   ],
   depFields: {
