@@ -1,14 +1,14 @@
 {
   "devDependencies": {
-    "@biomejs/biome": "catalog:",
-    "@tsconfig/node24": "catalog:",
-    "@tsconfig/remix": "catalog:",
-    "@tsconfig/strictest": "catalog:",
-    "@types/node": "catalog:",
-    "dprint": "catalog:",
-    "turbo": "catalog:",
-    "typescript": "catalog:",
-    "wrangler": "catalog:"
+    "@biomejs/biome": "catalog:lint",
+    "@tsconfig/node24": "catalog:dev",
+    "@tsconfig/remix": "catalog:dev",
+    "@tsconfig/strictest": "catalog:dev",
+    "@types/node": "catalog:types",
+    "dprint": "catalog:dev",
+    "turbo": "catalog:monorepo",
+    "typescript": "catalog:dev",
+    "wrangler": "catalog:dev"
   },
   "name": "monorepo",
   "packageManager": "pnpm@10.11.0",
@@ -21,6 +21,7 @@
       "@pulumi/docker-build",
       "@tailwindcss/oxide",
       "core-js",
+      "core-js-pure",
       "dprint",
       "esbuild",
       "msgpackr-extract",

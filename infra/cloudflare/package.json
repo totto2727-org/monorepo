@@ -1,14 +1,14 @@
 {
   "dependencies": {
-    "@pulumi/cloudflare": "^6.5.0",
-    "@pulumi/pulumi": "catalog:",
-    "@totto/function": "catalog:"
+    "@pulumi/cloudflare": "catalog:prod",
+    "@pulumi/pulumi": "catalog:prod",
+    "@totto/function": "catalog:prod"
   },
   "devDependencies": {
-    "@biomejs/biome": "catalog:",
-    "@types/node": "catalog:",
-    "dprint": "catalog:",
-    "typescript": "catalog:"
+    "@biomejs/biome": "catalog:lint",
+    "@types/node": "catalog:types",
+    "dprint": "catalog:dev",
+    "typescript": "catalog:dev"
   },
   "engines": {
     "node": ">=24.0.0",
