@@ -4,16 +4,53 @@ export default defineConfig({
   allowedProtocols: ["workspace"],
   catalogRules: [
     {
-      match: [/@tsconfig/],
-      name: "tsconfig",
-    },
-    {
-      match: [/@pulumi/],
+      match: [/pulumi/],
       name: "pulumi",
     },
     {
-      match: [/@clerk/],
+      match: [/clerk/],
       name: "clerk",
+    },
+    {
+      match: [/hono/],
+      name: "hono",
+    },
+    {
+      match: [/drizzle/, /libsql/],
+      name: "drizzle",
+    },
+    {
+      match: [/yamada/, /daisyui/, /tailwind/],
+      name: "ui",
+    },
+    {
+      match: [/zod/, "@totto/function"],
+      name: "util",
+    },
+    {
+      match: [/react/],
+      name: "react",
+    },
+    { match: [/cloudflare/, /wrangler/], name: "cloudflare" },
+    {
+      match: [/tsconfig/],
+      name: "tsconfig",
+    },
+    {
+      match: [/biome/, /dprint/],
+      name: "lint",
+    },
+    {
+      match: [/vitest/, /rstest/, /playwright/],
+      name: "test",
+    },
+    {
+      match: [/vite/, /rslib/, "typescript"],
+      name: "build",
+    },
+    {
+      match: [/turbo/, /tsx/, /pncat/],
+      name: "cli",
     },
   ],
   depFields: {
