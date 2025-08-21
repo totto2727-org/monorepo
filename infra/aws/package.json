@@ -1,22 +1,22 @@
 {
-  "devDependencies": {
-    "@biomejs/biome": "catalog:lint",
-    "@pulumi/aws": "catalog:network",
-    "@pulumi/awsx": "catalog:network",
-    "@pulumi/pulumi": "catalog:dev",
-    "@totto/function": "catalog:dev",
-    "@types/node": "catalog:types",
-    "dprint": "catalog:dev",
-    "typescript": "catalog:dev"
-  },
-  "engines": {
-    "node": ">=24.0.0",
-    "pnpm": ">=10.0.0"
-  },
-  "main": "index.ts",
-  "name": "aws",
-  "scripts": {
-    "check": "tsc"
-  },
-  "type": "module"
+	"devDependencies": {
+		"@biomejs/biome": "catalog:dev",
+		"@pulumi/aws": "catalog:pulumi",
+		"@pulumi/awsx": "catalog:pulumi",
+		"@pulumi/pulumi": "catalog:pulumi",
+		"@totto/function": "catalog:dev",
+		"@types/node": "catalog:dev",
+		"dprint": "catalog:dev",
+		"typescript": "catalog:dev"
+	},
+	"engines": {
+		"node": ">=24.0.0",
+		"pnpm": ">=10.0.0"
+	},
+	"main": "index.ts",
+	"name": "aws",
+	"scripts": {
+		"check": "tsc"
+	},
+	"type": "module"
 }

@@ -1,10 +1,10 @@
 {
   "devDependencies": {
-    "@biomejs/biome": "catalog:lint",
-    "@pulumi/cloudflare": "catalog:dev",
-    "@pulumi/pulumi": "catalog:dev",
+    "@biomejs/biome": "catalog:dev",
+    "@pulumi/cloudflare": "catalog:pulumi",
+    "@pulumi/pulumi": "catalog:pulumi",
     "@totto/function": "catalog:dev",
-    "@types/node": "catalog:types",
+    "@types/node": "catalog:dev",
     "dprint": "catalog:dev",
     "typescript": "catalog:dev"
   },
