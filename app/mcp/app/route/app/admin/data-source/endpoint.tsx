@@ -1,4 +1,5 @@
 import { sValidator } from "@hono/standard-validator"
+import * as Duration from "@totto/function/duration"
 import { DateTime, Effect, Option, Schema } from "@totto/function/effect"
 import { and, eq } from "drizzle-orm"
 import type { Database } from "#@/database.js"
@@ -10,7 +11,6 @@ import * as Input from "#@/ui/admin/input/input.js"
 import * as Select from "#@/ui/admin/input/select.js"
 import * as Modal from "#@/ui/admin/modal.js"
 import * as Icon from "#@/ui/icons/icon.js"
-import * as Duration from "#@/utils/duration.js"
 
 const availableDataSourceTypes = [
   { label: "Text", value: "text" },
