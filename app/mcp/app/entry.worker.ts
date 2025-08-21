@@ -8,7 +8,8 @@ const app = new OAuthProvider({
   apiHandler: {
     fetch: Hono.mcpApp.fetch as any,
   },
-  apiRoute: ["/api"],
+  // No authentication in development by default.
+  apiRoute: import.meta.env.PROD ? ["/api/mcp"] : [],
   authorizeEndpoint: "/authorize",
   clientRegistrationEndpoint: "/register",
   defaultHandler: { fetch: Hono.adminApp.fetch as any },
