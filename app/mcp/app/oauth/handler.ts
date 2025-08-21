@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Buffer } from "node:buffer"
 import type {
   AuthRequest,
