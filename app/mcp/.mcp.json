@@ -2,7 +2,7 @@
   "mcpServers": {
     "totto-doc-mcp": {
       "type": "http",
-      "url": "http://localhost:8787/api/mcp"
+      "url": "http://localhost:5173/api/mcp"
     }
   }
 }
