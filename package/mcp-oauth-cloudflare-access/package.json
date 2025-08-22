@@ -1,10 +1,10 @@
 {
-  "dependencies": {
-    "@totto/function": "catalog:util"
-  },
   "devDependencies": {
+    "@cloudflare/workers-oauth-provider": "catalog:cloudflare",
+    "@cloudflare/workers-types": "catalog:cloudflare",
     "@rslib/core": "catalog:build",
     "@rstest/core": "catalog:test",
+    "@totto/function": "catalog:util",
     "@types/node": "catalog:dev",
     "typescript": "catalog:build"
   },
@@ -18,6 +18,10 @@
     "dist"
   ],
   "name": "mcp-oauth-cloudflare-access",
+  "peerDependencies": {
+    "@cloudflare/workers-oauth-provider": "catalog:cloudflare",
+    "@totto/function": "catalog:util"
+  },
   "scripts": {
     "build": "rslib build",
     "check": "tsc",
