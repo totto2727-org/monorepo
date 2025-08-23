@@ -2,7 +2,6 @@
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
     "@cloudflare/vite-plugin": "catalog:cloudflare",
-    "@cloudflare/workers-oauth-provider": "catalog:cloudflare",
     "@cloudflare/workers-types": "catalog:cloudflare",
     "@hono/mcp": "catalog:hono",
     "@hono/standard-validator": "catalog:hono",
@@ -15,6 +14,7 @@
     "drizzle-kit": "catalog:drizzle",
     "drizzle-orm": "catalog:drizzle",
     "hono": "catalog:hono",
+    "mcp-oauth-cloudflare-access": "workspace:",
     "tailwindcss": "catalog:ui",
     "typescript": "catalog:build",
     "vite": "catalog:build",
