@@ -13,14 +13,13 @@ import {
   renderApprovalDialog,
 } from "./util.js"
 
-type Env = {
+export type Env = {
   COOKIE_ENCRYPTION_KEY: string
   ACCESS_CLIENT_ID: string
   ACCESS_CLIENT_SECRET: string
   ACCESS_TOKEN_URL: string
   ACCESS_AUTHORIZATION_URL: string
   ACCESS_JWKS_URL: string
-} & {
   OAUTH_PROVIDER: OAuthHelpers
 }
 

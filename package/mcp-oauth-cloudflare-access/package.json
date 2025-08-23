@@ -6,6 +6,7 @@
     "@rstest/core": "catalog:test",
     "@totto/function": "catalog:util",
     "@types/node": "catalog:dev",
+    "hono": "catalog:hono",
     "typescript": "catalog:build"
   },
   "exports": {
@@ -20,7 +21,8 @@
   "name": "mcp-oauth-cloudflare-access",
   "peerDependencies": {
     "@cloudflare/workers-oauth-provider": "catalog:cloudflare",
-    "@totto/function": "catalog:util"
+    "@totto/function": "catalog:util",
+    "hono": "catalog:hono"
   },
   "scripts": {
     "build": "rslib build",
