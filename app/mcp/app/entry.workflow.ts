@@ -5,10 +5,10 @@ import {
 } from "cloudflare:workers"
 import path from "node:path"
 import { Array, Effect, pipe } from "@totto/function/effect"
-import * as Database from "#@/database.js"
-import type * as DataSourceConfig from "#@/sync/type/data-source-config.js"
-import * as R2Storage from "./sync/r2-storage.js"
-import * as Retrieve from "./sync/retrieve.js"
+import * as Database from "./feature/database.js"
+import * as R2Storage from "./feature/sync/r2-storage.js"
+import * as Retrieve from "./feature/sync/retrieve.js"
+import type * as DataSourceConfig from "./feature/sync/type/data-source-config.js"
 
 export class DataSyncWorkflow extends WorkflowEntrypoint<
   Cloudflare.Env,

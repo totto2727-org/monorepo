@@ -1,6 +1,6 @@
 import { OAuthProvider } from "mcp-oauth-cloudflare-access"
-import * as Hono from "#@/entry.hono.js"
-import * as Scheduled from "#@/entry.scheduled.js"
+import * as Hono from "./entry.hono.js"
+import * as Scheduled from "./entry.scheduled.js"
 
 export { DataSyncWorkflow } from "./entry.workflow.js"
 

@@ -1,9 +1,9 @@
 import { count, sql } from "drizzle-orm"
-import * as DataBase from "#@/database.js"
-import * as Hono from "#@/hono.js"
-import * as ManagementCard from "#@/ui/admin/card/management-card.js"
-import * as StatCard from "#@/ui/admin/card/stat-card.js"
-import * as Icon from "#@/ui/icons/icon.js"
+import * as DataBase from "#@/feature/database.js"
+import * as Hono from "#@/feature/hono.js"
+import * as ManagementCard from "#@/feature/ui/admin/card/management-card.js"
+import * as StatCard from "#@/feature/ui/admin/card/stat-card.js"
+import * as Icon from "#@/feature/ui/icons/icon.js"
 
 export async function Dashboard() {
   const c = Hono.useRequestContext()

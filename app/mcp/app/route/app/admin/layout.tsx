@@ -4,7 +4,7 @@ import {
   MenuIcon,
   ServerIcon,
   ToolsIcon,
-} from "#@/ui/icons/icon.js"
+} from "#@/feature/ui/icons/icon.js"
 
 export function AdminLayout({ children }: PropsWithChildren) {
   return (
