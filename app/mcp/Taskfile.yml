@@ -1,0 +1,27 @@
+# https://taskfile.dev
+version: "3"
+
+tasks:
+  default:
+    aliases:
+      - list
+    cmd: task --list-all
+
+  prod:env:pull:
+    cmd: esc open mcp/production --format dotenv > .dev.vars
+
+  prod:env:push:
+    cmds: 
+      - esc open mcp/production -f dotenv > .env.tmp
+      - na wrangler secret bulk .env.tmp
+      - rm .env.tmp
+
+  prod:db:apply: 
+    cmd: na wrangler d1 migrations apply mcp --remote
+
+  local:db:apply: 
+    cmd: na wrangler d1 migrations apply mcp
+
+  db:generate: 
+    cmd: na drizzle-kit generate
+

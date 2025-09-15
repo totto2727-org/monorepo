@@ -11,7 +11,7 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_id": "db437e13-e164-443e-909a-46ecec24f119",
+      "database_id": "1b0e6ff7-9c6d-431d-bc90-73a7ec46ff73",
       "database_name": "mcp",
       "migrations_dir": "drizzle"
     }

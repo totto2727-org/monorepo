@@ -32,8 +32,6 @@
   "scripts": {
     "build": "vite build",
     "check": "tsc",
-    "db:apply": "wrangler d1 migrations apply mcp",
-    "db:generate": "drizzle-kit generate",
     "deploy": "wrangler deploy",
     "dev": "vite dev",
     "prebuild": "$npm_execpath run -p /prebuild:.*/",
