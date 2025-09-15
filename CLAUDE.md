@@ -17,7 +17,16 @@ This is a PNPM monorepo with Turbo for task orchestration.
 ### Applications
 
 - `app/mcp/` - MCP (Model Context Protocol) server application built on Cloudflare Workers + Hono
-- `app/lesson-sharing/` - Lesson sharing application
+- `app/lesson-sharing/` - Lesson sharing application built on React Router v7 + Cloudflare Workers
+
+### Packages
+
+- `package/mcp-oauth-cloudflare-access/` - OAuth middleware for Cloudflare Access integration
+
+### Infrastructure
+
+- `infra/aws/` - AWS Infrastructure as Code using Pulumi
+- `infra/cloudflare/` - Cloudflare Infrastructure configuration using Pulumi
 
 ### Documentation
 
