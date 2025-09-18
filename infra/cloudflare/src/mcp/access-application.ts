@@ -36,7 +36,7 @@ export const server = new cloudflare.ZeroTrustAccessApplication(
     allowedIdps: [identityCenter.awsSaml.id],
     appLauncherVisible: true,
     autoRedirectToIdentity: true,
-    name: "MCP Servre",
+    name: "MCP Server",
     policies: [
       {
         id: policy.mustBelongToMCPGroup.id,
