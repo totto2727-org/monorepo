@@ -15,7 +15,7 @@
   "main": "index.ts",
   "name": "cloudflare",
   "scripts": {
-    "check": "tsc"
+    "check": "tsgo"
   },
   "type": "module"
 }
