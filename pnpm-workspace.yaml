@@ -3,14 +3,15 @@ packages:
   - config/*
   - infra/*
   - package/*
-
-catalogMode: strict
 catalogs:
   build:
     "@rslib/core": ^0.14.0
     "@typescript/native-preview": 7.0.0-dev.20250923.1
     typescript: ^5.9.2
     vite: ^7.0.0
+  casbin:
+    "@hono/casbin": ^1.0.0
+    casbin: ^5.39.0
   clerk:
     "@clerk/backend": ^2.0.0
     "@clerk/react-router": ^1.4.7

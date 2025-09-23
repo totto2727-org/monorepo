@@ -12,6 +12,10 @@ export default defineConfig({
       name: "clerk",
     },
     {
+      match: [/casbin/],
+      name: "casbin",
+    },
+    {
       match: [/hono/],
       name: "hono",
     },
