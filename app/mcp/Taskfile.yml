@@ -11,17 +11,16 @@ tasks:
     cmd: esc open mcp/production --format dotenv > .dev.vars
 
   prod:env:push:
-    cmds: 
+    cmds:
       - esc open mcp/production -f dotenv > .env.tmp
       - na wrangler secret bulk .env.tmp
       - rm .env.tmp
 
-  prod:db:apply: 
+  prod:db:apply:
     cmd: na wrangler d1 migrations apply mcp --remote
 
-  local:db:apply: 
+  local:db:apply:
     cmd: na wrangler d1 migrations apply mcp
 
-  db:generate: 
+  db:generate:
     cmd: na drizzle-kit generate
-

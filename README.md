@@ -82,15 +82,18 @@ nr deploy
 ## Tech Stack
 
 ### Build Tools
+
 - **Turbo** - Monorepo task orchestration
 - **Vite** - Build tool
 - **TypeScript** - Type safety
 
 ### Formatters & Linters
+
 - **Biome** - Fast linting & formatting
 - **dprint** - Additional formatting
 
 ### Package Management
+
 - **PNPM** - Fast and efficient package manager
 - **Catalog Mode** - Centralized dependency version management
 
