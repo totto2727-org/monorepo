@@ -6,7 +6,7 @@ packages:
 catalogMode: strict
 catalogs:
   build:
-    "@rslib/core": ^0.12.2
+    "@rslib/core": ^0.14.0
     typescript: ^5.9.2
     vite: ^7.0.0
   clerk:
@@ -14,32 +14,32 @@ catalogs:
     "@clerk/react-router": ^1.4.7
     "@hono/clerk-auth": ^3.0.0
   cli:
-    pncat: ^0.4.2
+    pncat: ^0.5.0
     tsx: ^4.19.4
     turbo: ^2.5.3
   cloudflare:
     "@cloudflare/vite-plugin": ^1.11.0
     "@cloudflare/workers-oauth-provider": ^0.0.6
     "@cloudflare/workers-types": ^4.20250813.0
-    wrangler: 4.30.0
+    wrangler: 4.38.0
   dev:
     "@modelcontextprotocol/sdk": ^1.0.0
     "@types/node": ^24.1.0
-    agents: ^0.0.113
+    agents: ^0.1.0
     isbot: ^5.1.28
   drizzle:
     "@libsql/client": ^0.15.7
     drizzle-cuid2: ^2.1.0
     drizzle-kit: ^0.31.1
-    drizzle-orm: ^0.43.1
+    drizzle-orm: ^0.44.0
   hono:
     "@hono/mcp": ^0.1.1
     "@hono/standard-validator": ^0.1.4
-    "@hono/vite-dev-server": ^0.19.1
+    "@hono/vite-dev-server": ^0.21.0
     hono: ^4.7.10
     hono-react-router-adapter: ^0.6.5
   lint:
-    "@biomejs/biome": 2.0.6
+    "@biomejs/biome": 2.2.4
     dprint: ^0.50.0
   pulumi:
     "@pulumi/aws": ^7.0.0
@@ -57,7 +57,7 @@ catalogs:
     react-router: ^7.6.0
   test:
     "@playwright/test": ^1.52.0
-    "@rstest/core": ^0.2.1
+    "@rstest/core": ^0.4.0
   tsconfig:
     "@tsconfig/node24": ^24.0.0
     "@tsconfig/remix": ^2.0.5
