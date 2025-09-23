@@ -74,5 +74,5 @@ catalogs:
     daisyui: ^5.0.50
     tailwindcss: ^4.1.11
   util:
-    "@totto/function": jsr:^1.5.5
+    "@totto/function": jsr:^1.7.0
     zod: ^4.0.0
