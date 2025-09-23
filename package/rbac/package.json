@@ -1,0 +1,39 @@
+{
+  "dependencies": {
+    "@hono/casbin": "catalog:casbin",
+    "casbin": "catalog:casbin"
+  },
+  "devDependencies": {
+    "@rslib/core": "catalog:build",
+    "@rstest/core": "catalog:test",
+    "@totto/function": "catalog:util",
+    "@types/node": "catalog:dev",
+    "drizzle-orm": "catalog:drizzle",
+    "hono": "catalog:hono",
+    "typescript": "catalog:build"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "name": "@monorepo/rbac",
+  "peerDependencies": {
+    "@totto/function": "catalog:util",
+    "drizzle-orm": "catalog:drizzle",
+    "hono": "catalog:hono"
+  },
+  "scripts": {
+    "build": "rslib build --config-loader native",
+    "check": "tsgo",
+    "dev": "rslib build --watch --config-loader native",
+    "test": "rstest --config-loader native"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "version": "0.0.0"
+}
