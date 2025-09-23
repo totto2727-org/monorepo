@@ -11,16 +11,18 @@ import * as AdminEndpoint from "./route/app/admin/endpoint.js"
 import * as AdminLayout from "./route/app/admin/layout.js"
 import * as McpTool from "./route/app/admin/mcp-tool/endpoint.js"
 
-const baseApp = new Hono<Env>().use(logger()).use("*", (c, next) => {
-  c.set("db", DataBase.create(c.env.DB))
-  return next()
-})
+function createApp() {
+  return new Hono<Env>().use(logger()).use("*", (c, next) => {
+    c.set("db", DataBase.create(c.env.DB))
+    return next()
+  })
+}
 
-export const mcpApp = baseApp
+export const mcpApp = createApp()
   .use("*", mcpOAuthMiddleware)
   .all("/api/mcp", ...McpHandler.mcpHandler)
 
-export const adminApp = baseApp
+export const adminApp = createApp()
   .get("/app/*", jsxRenderer(Layout.Layout))
   .get(
     "/app/admin/*",

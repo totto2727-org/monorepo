@@ -9,25 +9,28 @@ import {
 export function AdminLayout({ children }: PropsWithChildren) {
   return (
     <div class="min-h-screen bg-base-200" hx-boost="true">
-      <div class="navbar bg-base-100 shadow-lg">
-        <div class="flex-1">
-          <h1 class="btn btn-ghost text-xl">MCP Admin</h1>
-        </div>
-        <div class="flex-none">
-          <button class="btn btn-square btn-ghost" type="button">
-            <MenuIcon ariaLabel="Menu Icon" />
-          </button>
-        </div>
-      </div>
-
-      <div class="drawer lg:drawer-open">
+      <div class="drawer lg:drawer-open lg:border-t">
         <input class="drawer-toggle" id="drawer-toggle" type="checkbox" />
 
         <div class="drawer-content flex flex-col">
+          <div class="navbar bg-base-100 shadow-lg">
+            <div class="flex-1">
+              <h1 class="btn btn-ghost text-xl">MCP Admin</h1>
+            </div>
+            <div class="flex-none">
+              <label
+                class="drawer-button btn btn-square btn-ghost"
+                htmlFor="drawer-toggle"
+              >
+                <MenuIcon ariaLabel="Menu Icon" />
+              </label>
+            </div>
+          </div>
+
           <main class="flex-1 p-6">{children}</main>
         </div>
 
-        <div class="drawer-side">
+        <div class="drawer-side shadow-lg">
           <label
             aria-label="Close menu"
             class="drawer-overlay"
