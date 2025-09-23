@@ -425,10 +425,11 @@ importers:
         version: 5.9.2
 
   package/mcp-oauth-cloudflare-access:
-    devDependencies:
+    dependencies:
       '@cloudflare/workers-oauth-provider':
         specifier: catalog:cloudflare
         version: 0.0.6
+    devDependencies:
       '@cloudflare/workers-types':
         specifier: catalog:cloudflare
         version: 4.20250821.0

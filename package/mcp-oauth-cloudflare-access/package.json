@@ -1,4 +1,7 @@
 {
+  "dependencies": {
+    "@cloudflare/workers-oauth-provider": "catalog:cloudflare"
+  },
   "devDependencies": {
     "@cloudflare/workers-oauth-provider": "catalog:cloudflare",
     "@cloudflare/workers-types": "catalog:cloudflare",
@@ -20,7 +23,6 @@
   ],
   "name": "mcp-oauth-cloudflare-access",
   "peerDependencies": {
-    "@cloudflare/workers-oauth-provider": "catalog:cloudflare",
     "@totto/function": "catalog:util",
     "hono": "catalog:hono"
   },
