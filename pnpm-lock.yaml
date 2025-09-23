@@ -9,6 +9,9 @@ catalogs:
     '@rslib/core':
       specifier: ^0.14.0
       version: 0.14.0
+    '@typescript/native-preview':
+      specifier: 7.0.0-dev.20250923.1
+      version: 7.0.0-dev.20250923.1
     typescript:
       specifier: ^5.9.2
       version: 5.9.2
@@ -23,38 +26,28 @@ catalogs:
       specifier: ^2.5.3
       version: 2.5.3
   cloudflare:
+    '@cloudflare/vite-plugin':
+      specifier: ^1.11.0
+      version: 1.13.3
     '@cloudflare/workers-oauth-provider':
       specifier: ^0.0.6
       version: 0.0.6
+    '@cloudflare/workers-types':
+      specifier: ^4.20250813.0
+      version: 4.20250923.0
     wrangler:
       specifier: 4.38.0
       version: 4.38.0
-  default:
-    '@cloudflare/vite-plugin':
-      specifier: 1.13.3
-      version: 1.13.3
-    '@cloudflare/workers-types':
-      specifier: 4.20250923.0
-      version: 4.20250923.0
-    '@modelcontextprotocol/sdk':
-      specifier: 1.18.1
-      version: 1.18.1
-    '@pulumi/aws':
-      specifier: 7.7.0
-      version: 7.7.0
-    '@pulumi/cloudflare':
-      specifier: 6.9.1
-      version: 6.9.1
-    '@pulumi/pulumi':
-      specifier: 3.197.0
-      version: 3.197.0
-    '@types/node':
-      specifier: 24.5.2
-      version: 24.5.2
-    daisyui:
-      specifier: 5.1.14
-      version: 5.1.14
   dev:
+    '@modelcontextprotocol/sdk':
+      specifier: ^1.0.0
+      version: 1.18.1
+    '@socotra/modelcontextprotocol-sdk':
+      specifier: ^1.18.0
+      version: 1.18.0
+    '@types/node':
+      specifier: ^24.1.0
+      version: 24.5.2
     agents:
       specifier: ^0.1.0
       version: 0.1.6
@@ -83,9 +76,18 @@ catalogs:
       specifier: ^0.50.0
       version: 0.50.0
   pulumi:
+    '@pulumi/aws':
+      specifier: ^7.0.0
+      version: 7.7.0
     '@pulumi/awsx':
       specifier: ^3.0.0
       version: 3.0.0
+    '@pulumi/cloudflare':
+      specifier: ^6.5.0
+      version: 6.9.1
+    '@pulumi/pulumi':
+      specifier: ^3.113.0
+      version: 3.197.0
   test:
     '@rstest/core':
       specifier: ^0.4.0
@@ -104,6 +106,9 @@ catalogs:
     '@tailwindcss/cli':
       specifier: ^4.1.11
       version: 4.1.11
+    daisyui:
+      specifier: ^5.0.50
+      version: 5.1.14
     tailwindcss:
       specifier: ^4.1.11
       version: 4.1.11
@@ -134,6 +139,9 @@ importers:
       '@types/node':
         specifier: catalog:dev
         version: 24.5.2
+      '@typescript/native-preview':
+        specifier: catalog:build
+        version: 7.0.0-dev.20250923.1
       dprint:
         specifier: catalog:lint
         version: 0.50.0
@@ -171,7 +179,7 @@ importers:
         specifier: catalog:dev
         version: 1.18.1
       '@socotra/modelcontextprotocol-sdk':
-        specifier: ^1.18.0
+        specifier: catalog:dev
         version: 1.18.0
       '@tailwindcss/cli':
         specifier: catalog:ui
@@ -275,7 +283,7 @@ importers:
         version: 4.20250923.0
       '@rslib/core':
         specifier: catalog:build
-        version: 0.14.0(typescript@5.9.2)
+        version: 0.14.0(@typescript/native-preview@7.0.0-dev.20250923.1)(typescript@5.9.2)
       '@rstest/core':
         specifier: catalog:test
         version: 0.4.1
@@ -3220,6 +3228,45 @@ packages:
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
+  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20250923.1':
+    resolution: {integrity: sha512-NqjRnYBT58iUyGw+NEZ6DUMmsTeObU/n/3Jck4VfYcznyMvVEGBqC6oanCjpgh0bAnZ41rizMT3eio4E5ziUHA==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@typescript/native-preview-darwin-x64@7.0.0-dev.20250923.1':
+    resolution: {integrity: sha512-4lp6ChwRyFDe1aYnrWcy6NPzmOQElHsXyAQYZQJsNdu0nkPnCPYW9CbKRdcW8QbofXH3ZNl+C40/ZiPfS9VCjg==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@typescript/native-preview-linux-arm64@7.0.0-dev.20250923.1':
+    resolution: {integrity: sha512-zRVBdVULFtilOK3iDM9q0HuH85cPlYaeqTnlfUP5e5BNOSMWteQ2BqZv+xhZdy4f10PmM6v2DVAmNVh3uHuTjw==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@typescript/native-preview-linux-arm@7.0.0-dev.20250923.1':
+    resolution: {integrity: sha512-1pF1oBDrDiJWxQoQMX9QyN4YZuBmcHP8YVADrv2AcTYnsNApaG3RzSdYSdyKw5SJL1BxCkp5tKHYG2ej3R54Jw==}
+    cpu: [arm]
+    os: [linux]
+
+  '@typescript/native-preview-linux-x64@7.0.0-dev.20250923.1':
+    resolution: {integrity: sha512-qEx3HgZY9eYbkOGrGbSi8lJ4ppWauIEI5Xgc6+/j/giGwVUQc2XRkqSvgQrJWYNNezSunt+UwA7pT000RRiL/g==}
+    cpu: [x64]
+    os: [linux]
+
+  '@typescript/native-preview-win32-arm64@7.0.0-dev.20250923.1':
+    resolution: {integrity: sha512-+kiNyrkSqTTTI7i0o3jCU0ocMDxks4QzXa1a1IWNsciURKBEZmX0UtaKNP21HVeTJtwndJvz8wTzrnSKletBzQ==}
+    cpu: [arm64]
+    os: [win32]
+
+  '@typescript/native-preview-win32-x64@7.0.0-dev.20250923.1':
+    resolution: {integrity: sha512-XGP4rh3tiPXW+lj9EjN9cdHbnn7hQW9y3JKTrFYUa9822J4YpVgAgS93wXLVBQOO+EfALkBgcCBlijKPQs16gw==}
+    cpu: [x64]
+    os: [win32]
+
+  '@typescript/native-preview@7.0.0-dev.20250923.1':
+    resolution: {integrity: sha512-srXuJDbN8gmNp10u8ue/I81gyqDkP7GMkz5LkwqXqbWko2PMyBnXyUdgGiw7FEIuc3Lu5vnYnyjlps2sEevgmg==}
+    hasBin: true
+
   '@vitest/expect@3.1.4':
     resolution: {integrity: sha512-xkD/ljeliyaClDYqHPNCiJ0plY5YIcM0OlRiZizLhlPmpXWpxnGMyTZXOHFhFeG7w9P5PBeL4IdtJ/HeQwTbQA==}
 
@@ -4078,10 +4125,6 @@ packages:
   events@3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
-
-  eventsource-parser@3.0.3:
-    resolution: {integrity: sha512-nVpZkTMM9rF6AQ9gPJpFsNAMt48wIzB5TQgiTLdHiuO8XEDhUgZEhqKlZWXbIzo9VmJ/HvysHqEaVeD5v9TPvA==}
-    engines: {node: '>=20.0.0'}
 
   eventsource-parser@3.0.6:
     resolution: {integrity: sha512-Vo1ab+QXPzZ4tCa8SwIHJFaSzy4R6SHf7BY79rFBDf0idraZWAkYrDjDj8uWaSm3S2TK+hJ7/t1CEmZ7jXw+pg==}
@@ -7893,7 +7936,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
       '@types/debug': 4.1.12
-      debug: 4.3.4
+      debug: 4.4.3
       pony-cause: 2.1.11
       semver: 7.7.2
       uuid: 9.0.1
@@ -7907,7 +7950,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
       '@types/debug': 4.1.12
-      debug: 4.3.4
+      debug: 4.4.3
       pony-cause: 2.1.11
       semver: 7.7.2
       uuid: 9.0.1
@@ -8785,10 +8828,10 @@ snapshots:
       core-js: 3.45.1
       jiti: 2.6.0
 
-  '@rslib/core@0.14.0(typescript@5.9.2)':
+  '@rslib/core@0.14.0(@typescript/native-preview@7.0.0-dev.20250923.1)(typescript@5.9.2)':
     dependencies:
       '@rsbuild/core': 1.5.11
-      rsbuild-plugin-dts: 0.14.0(@rsbuild/core@1.5.11)(typescript@5.9.2)
+      rsbuild-plugin-dts: 0.14.0(@rsbuild/core@1.5.11)(@typescript/native-preview@7.0.0-dev.20250923.1)(typescript@5.9.2)
     optionalDependencies:
       typescript: 5.9.2
     transitivePeerDependencies:
@@ -9298,11 +9341,11 @@ snapshots:
       cors: 2.8.5
       cross-spawn: 7.0.6
       eventsource: 3.0.7
-      eventsource-parser: 3.0.3
+      eventsource-parser: 3.0.6
       express: 5.1.0
       express-rate-limit: 7.5.1(express@5.1.0)
       pkce-challenge: 5.0.0
-      raw-body: 3.0.0
+      raw-body: 3.0.1
       zod: 4.1.11
     transitivePeerDependencies:
       - supports-color
@@ -9851,6 +9894,37 @@ snapshots:
     dependencies:
       '@types/node': 24.5.2
     optional: true
+
+  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20250923.1':
+    optional: true
+
+  '@typescript/native-preview-darwin-x64@7.0.0-dev.20250923.1':
+    optional: true
+
+  '@typescript/native-preview-linux-arm64@7.0.0-dev.20250923.1':
+    optional: true
+
+  '@typescript/native-preview-linux-arm@7.0.0-dev.20250923.1':
+    optional: true
+
+  '@typescript/native-preview-linux-x64@7.0.0-dev.20250923.1':
+    optional: true
+
+  '@typescript/native-preview-win32-arm64@7.0.0-dev.20250923.1':
+    optional: true
+
+  '@typescript/native-preview-win32-x64@7.0.0-dev.20250923.1':
+    optional: true
+
+  '@typescript/native-preview@7.0.0-dev.20250923.1':
+    optionalDependencies:
+      '@typescript/native-preview-darwin-arm64': 7.0.0-dev.20250923.1
+      '@typescript/native-preview-darwin-x64': 7.0.0-dev.20250923.1
+      '@typescript/native-preview-linux-arm': 7.0.0-dev.20250923.1
+      '@typescript/native-preview-linux-arm64': 7.0.0-dev.20250923.1
+      '@typescript/native-preview-linux-x64': 7.0.0-dev.20250923.1
+      '@typescript/native-preview-win32-arm64': 7.0.0-dev.20250923.1
+      '@typescript/native-preview-win32-x64': 7.0.0-dev.20250923.1
 
   '@vitest/expect@3.1.4':
     dependencies:
@@ -11213,8 +11287,6 @@ snapshots:
 
   events@3.3.0: {}
 
-  eventsource-parser@3.0.3: {}
-
   eventsource-parser@3.0.6: {}
 
   eventsource@3.0.7:
@@ -12140,10 +12212,10 @@ snapshots:
   ox@0.6.7(typescript@5.9.2)(zod@3.25.76):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
-      '@noble/curves': 1.8.1
-      '@noble/hashes': 1.7.1
-      '@scure/bip32': 1.6.2
-      '@scure/bip39': 1.5.4
+      '@noble/curves': 1.9.7
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
       abitype: 1.0.8(typescript@5.9.2)(zod@3.25.76)
       eventemitter3: 5.0.1
     optionalDependencies:
@@ -12569,11 +12641,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  rsbuild-plugin-dts@0.14.0(@rsbuild/core@1.5.11)(typescript@5.9.2):
+  rsbuild-plugin-dts@0.14.0(@rsbuild/core@1.5.11)(@typescript/native-preview@7.0.0-dev.20250923.1)(typescript@5.9.2):
     dependencies:
       '@ast-grep/napi': 0.37.0
       '@rsbuild/core': 1.5.11
     optionalDependencies:
+      '@typescript/native-preview': 7.0.0-dev.20250923.1
       typescript: 5.9.2
 
   safe-buffer@5.1.2: {}

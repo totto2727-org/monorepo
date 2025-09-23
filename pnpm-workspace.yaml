@@ -3,10 +3,12 @@ packages:
   - config/*
   - infra/*
   - package/*
+
 catalogMode: strict
 catalogs:
   build:
     "@rslib/core": ^0.14.0
+    "@typescript/native-preview": 7.0.0-dev.20250923.1
     typescript: ^5.9.2
     vite: ^7.0.0
   clerk:
@@ -24,6 +26,7 @@ catalogs:
     wrangler: 4.38.0
   dev:
     "@modelcontextprotocol/sdk": ^1.0.0
+    "@socotra/modelcontextprotocol-sdk": ^1.18.0
     "@types/node": ^24.1.0
     agents: ^0.1.0
     isbot: ^5.1.28
