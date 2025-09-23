@@ -45,7 +45,7 @@ export default defineConfig({
       name: "test",
     },
     {
-      match: [/vite/, /rslib/, "typescript"],
+      match: [/vite/, /rslib/, /typescript/],
       name: "build",
     },
     {
@@ -53,9 +53,6 @@ export default defineConfig({
       name: "cli",
     },
   ],
-  depFields: {
-    packageManager: false,
-  },
   force: false,
   ignoreOtherWorkspaces: true,
   ignorePaths: [
