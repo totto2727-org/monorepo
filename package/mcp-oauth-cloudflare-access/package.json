@@ -27,10 +27,10 @@
     "hono": "catalog:hono"
   },
   "scripts": {
-    "build": "rslib build",
-    "check": "tsc",
-    "dev": "rslib build --watch",
-    "test": "rstest"
+    "build": "rslib build --config-loader native",
+    "check": "tsgo",
+    "dev": "rslib build --watch --config-loader native",
+    "test": "rstest --config-loader native"
   },
   "type": "module",
   "types": "./dist/index.d.ts",

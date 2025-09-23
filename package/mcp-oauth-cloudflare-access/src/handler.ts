@@ -27,7 +27,7 @@ export async function handleAccessRequest(
   request: Request,
   env: Env,
   _ctx: ExecutionContext,
-) {
+): Promise<Response> {
   const { pathname, searchParams } = new URL(request.url)
 
   if (request.method === "GET" && pathname === "/authorize") {

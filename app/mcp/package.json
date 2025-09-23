@@ -6,7 +6,7 @@
     "@hono/mcp": "catalog:hono",
     "@hono/standard-validator": "catalog:hono",
     "@modelcontextprotocol/sdk": "catalog:dev",
-    "@socotra/modelcontextprotocol-sdk": "^1.18.0",
+    "@socotra/modelcontextprotocol-sdk": "catalog:dev",
     "@tailwindcss/cli": "catalog:ui",
     "@totto/function": "catalog:util",
     "agents": "catalog:dev",
@@ -32,7 +32,7 @@
   "private": true,
   "scripts": {
     "build": "vite build",
-    "check": "tsc",
+    "check": "tsgo",
     "deploy": "wrangler deploy",
     "dev": "vite dev",
     "prebuild": "$npm_execpath run -p /prebuild:.*/",

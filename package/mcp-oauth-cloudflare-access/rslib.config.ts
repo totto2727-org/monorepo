@@ -4,7 +4,9 @@ export default defineConfig({
   lib: [
     {
       bundle: false,
-      dts: true,
+      dts: {
+        tsgo: true,
+      },
       format: "esm",
       syntax: ["node 18"],
     },

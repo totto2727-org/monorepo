@@ -16,7 +16,7 @@
   "main": "index.ts",
   "name": "aws",
   "scripts": {
-    "check": "tsc"
+    "check": "tsgo"
   },
   "type": "module"
 }
