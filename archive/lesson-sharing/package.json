@@ -1,0 +1,57 @@
+{
+  "devDependencies": {
+    "@biomejs/biome": "catalog:lint",
+    "@clerk/backend": "catalog:clerk",
+    "@clerk/react-router": "catalog:clerk",
+    "@cloudflare/workers-types": "catalog:cloudflare",
+    "@hono/clerk-auth": "catalog:clerk",
+    "@hono/vite-dev-server": "catalog:hono",
+    "@libsql/client": "catalog:drizzle",
+    "@playwright/test": "catalog:test",
+    "@react-router/cloudflare": "catalog:react",
+    "@react-router/dev": "catalog:react",
+    "@react-router/fs-routes": "catalog:react",
+    "@totto/function": "catalog:util",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "@yamada-ui/calendar": "catalog:ui",
+    "@yamada-ui/charts": "catalog:ui",
+    "@yamada-ui/react": "catalog:ui",
+    "@yamada-ui/table": "catalog:ui",
+    "dprint": "catalog:lint",
+    "drizzle-cuid2": "catalog:drizzle",
+    "drizzle-kit": "catalog:drizzle",
+    "drizzle-orm": "catalog:drizzle",
+    "hono": "catalog:hono",
+    "hono-react-router-adapter": "catalog:hono",
+    "isbot": "catalog:dev",
+    "react": "catalog:react",
+    "react-dom": "catalog:react",
+    "react-router": "catalog:react",
+    "tsx": "catalog:cli",
+    "typescript": "catalog:build",
+    "vite": "catalog:build"
+  },
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "imports": {
+    "#@*": "./app*"
+  },
+  "name": "lesson-sharing",
+  "private": true,
+  "scripts": {
+    "build": "react-router build",
+    "check": "tsc",
+    "deploy": "wrangler deploy",
+    "dev": "react-router dev",
+    "prebuild": "$npm_execpath run -p /prebuild:.*/",
+    "prebuild:react-router": "react-router typegen",
+    "prebuild:wrangler": "wrangler types",
+    "preview": "wrangler dev",
+    "start": "wrangler dev"
+  },
+  "sideEffects": false,
+  "type": "module"
+}

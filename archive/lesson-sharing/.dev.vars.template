@@ -1,0 +1,4 @@
+VITE_CLERK_PUBLISHABLE_KEY="" # Prod Dev Test
+CLERK_SECRET_KEY="" # Prod Dev Test
+DATABASE_URL="" # Prod
+DATABASE_AUTH_TOKEN="" # Prod
