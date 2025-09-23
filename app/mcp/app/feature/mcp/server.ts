@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
+import { McpServer } from "@socotra/modelcontextprotocol-sdk/server/mcp.js"
 import { z } from "zod"
 import type * as McpServerConfig from "./type/mcp-server-config.js"
 
