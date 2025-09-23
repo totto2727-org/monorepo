@@ -7,6 +7,7 @@ import type { Database } from "#@/feature/database.js"
 import * as Hono from "#@/feature/hono.js"
 import { getDefaultLocale } from "#@/feature/locale.js"
 import * as SimpleStatCard from "#@/feature/ui/admin/card/simple-stat-card.js"
+import { H1Container } from "#@/feature/ui/admin/h1-container.js"
 import * as Input from "#@/feature/ui/admin/input/input.js"
 import * as Textarea from "#@/feature/ui/admin/input/textarea.js"
 import * as Modal from "#@/feature/ui/admin/modal.js"
@@ -91,13 +92,13 @@ function GetComponent(props: { mcpToolArray: typeof mcpToolArraySchema.Type }) {
 
   return (
     <div class="space-y-6">
-      <div class="flex items-center justify-between">
-        <h1 class="text-3xl font-bold">MCP Tools Management</h1>
+      <H1Container>
+        <h1 class="text-3xl font-bold">MCP Tools</h1>
         <AddNewMCPTool.OpenButton class="btn btn-primary">
           <Icon.PlusIcon ariaLabel="Add Icon" size="sm" />
           Add New MCP Tool
         </AddNewMCPTool.OpenButton>
-      </div>
+      </H1Container>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SimpleStatCard.SimpleStatCard

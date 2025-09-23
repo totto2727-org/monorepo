@@ -3,6 +3,7 @@ import * as DataBase from "#@/feature/database.js"
 import * as Hono from "#@/feature/hono.js"
 import * as ManagementCard from "#@/feature/ui/admin/card/management-card.js"
 import * as StatCard from "#@/feature/ui/admin/card/stat-card.js"
+import { H1Container } from "#@/feature/ui/admin/h1-container.js"
 import * as Icon from "#@/feature/ui/icons/icon.js"
 
 export async function Dashboard() {
@@ -25,14 +26,14 @@ export async function Dashboard() {
   const stats = {
     dataSourcesCount: dataSourcesCountResult[0]?.count ?? 0,
     mcpToolsCount: mcpToolsCountResult[0]?.count ?? 0,
-    updatedAt: lastUpdatedResult[0]?.updatedAt ?? "-",
+    updatedAt: lastUpdatedResult[0]?.updatedAt,
   }
 
   return (
     <div class="space-y-6">
-      <div class="flex items-center justify-between">
-        <h1 class="text-3xl font-bold">Admin Dashboard</h1>
-      </div>
+      <H1Container>
+        <h1 class="text-3xl font-bold">Dashboard</h1>
+      </H1Container>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard.StatCard
@@ -51,7 +52,11 @@ export async function Dashboard() {
           colorClass="text-info"
           description="System last updated"
           title="Updated"
-          value={new Date(stats.updatedAt).toLocaleDateString("en-US")}
+          value={
+            stats.updatedAt
+              ? new Date(stats.updatedAt).toLocaleDateString("en-US")
+              : "-"
+          }
         />
       </div>
 

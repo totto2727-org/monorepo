@@ -8,6 +8,7 @@ import * as Hono from "#@/feature/hono.js"
 import { getDefaultLocale } from "#@/feature/locale.js"
 import type * as DataSourceType from "#@/feature/sync/type/data-source-type.js"
 import * as SimpleStatCard from "#@/feature/ui/admin/card/simple-stat-card.js"
+import { H1Container } from "#@/feature/ui/admin/h1-container.js"
 import * as Input from "#@/feature/ui/admin/input/input.js"
 import * as Select from "#@/feature/ui/admin/input/select.js"
 import * as Modal from "#@/feature/ui/admin/modal.js"
@@ -124,13 +125,13 @@ async function GetDataSource(
 
   return (
     <div class="space-y-6">
-      <div class="flex items-center justify-between">
-        <h1 class="text-3xl font-bold">Data Sources Management</h1>
+      <H1Container>
+        <h1 class="text-3xl font-bold">Data Sources</h1>
         <AddNewDataSourceModal.OpenButton class="btn btn-primary">
           <Icon.PlusIcon ariaLabel="Add Icon" size="sm" />
           Add New Data Source
         </AddNewDataSourceModal.OpenButton>
-      </div>
+      </H1Container>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SimpleStatCard.SimpleStatCard
