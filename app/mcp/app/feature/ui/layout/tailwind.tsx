@@ -17,10 +17,10 @@ export function Tailwind() {
       />
       <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
       <style
-        // @ts-ignore
+        // @ts-expect-error
         // biome-ignore lint/security/noDangerouslySetInnerHtml: Required for this use case
         dangerouslySetInnerHTML={tailwindcss}
-        // @ts-ignore
+        // @ts-expect-error
         type="text/tailwindcss"
       ></style>
     </>
