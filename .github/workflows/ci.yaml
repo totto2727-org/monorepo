@@ -16,4 +16,4 @@ jobs:
       - run: ni
         env:
           CLOUDSMITH_TOKEN: ${{ secrets.CLOUDSMITH_TOKEN }}
-      - run: turbo check
+      - run: turbo check build test
