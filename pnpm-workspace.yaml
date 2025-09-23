@@ -8,11 +8,11 @@ catalogs:
   build:
     "@rslib/core": ^0.12.2
     typescript: ^5.9.2
-    vite: ^6.3.5
+    vite: ^7.0.0
   clerk:
-    "@clerk/backend": ^1.33.1
+    "@clerk/backend": ^2.0.0
     "@clerk/react-router": ^1.4.7
-    "@hono/clerk-auth": ^2.0.0
+    "@hono/clerk-auth": ^3.0.0
   cli:
     pncat: ^0.4.2
     tsx: ^4.19.4
@@ -72,4 +72,4 @@ catalogs:
     tailwindcss: ^4.1.11
   util:
     "@totto/function": jsr:^1.5.5
-    zod: ^3.24.1
+    zod: ^4.0.0
