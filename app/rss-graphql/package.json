@@ -1,0 +1,25 @@
+{
+  "devDependencies": {
+    "@biomejs/biome": "catalog:lint",
+    "@cloudflare/vite-plugin": "catalog:cloudflare",
+    "@cloudflare/workers-types": "catalog:cloudflare",
+    "@totto/function": "catalog:util",
+    "dprint": "catalog:lint",
+    "hono": "catalog:hono",
+    "typescript": "catalog:build",
+    "vite": "catalog:build"
+  },
+  "name": "rss-graphql",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "check": "tsgo",
+    "deploy": "wrangler deploy",
+    "dev": "vite dev",
+    "prebuild": "$npm_execpath run -p /prebuild:.*/",
+    "prebuild:wrangler": "wrangler types",
+    "preview": "wrangler dev --test-scheduled",
+    "start": "wrangler dev --test-scheduled"
+  },
+  "type": "module"
+}
