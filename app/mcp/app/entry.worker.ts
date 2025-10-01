@@ -6,12 +6,13 @@ export { DataSyncWorkflow } from "./entry.workflow.js"
 
 const app = new OAuthProvider({
   apiHandler: {
+    // biome-ignore lint/suspicious/noExplicitAny: 解消できないため
     fetch: Hono.mcpApp.fetch as any,
   },
-  // No authentication in development by default.
-  apiRoute: import.meta.env.PROD ? ["/api/mcp"] : ["/dummy"],
+  apiRoute: import.meta.env.PROD ? ["/api/mcp"] : [],
   authorizeEndpoint: "/authorize",
   clientRegistrationEndpoint: "/register",
+  // biome-ignore lint/suspicious/noExplicitAny: 解消できないため
   defaultHandler: { fetch: Hono.adminApp.fetch as any },
   tokenEndpoint: "/token",
 })
