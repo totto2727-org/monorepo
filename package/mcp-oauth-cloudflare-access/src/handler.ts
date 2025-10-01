@@ -155,7 +155,7 @@ async function fetchAccessPublicKey(env: Env, kid: string) {
   const keys = (await resp.json()) as {
     keys: (JsonWebKey & { kid: string })[]
   }
-  // biome-ignore lint/style/noNonNullAssertion: <explanation>
+  // biome-ignore lint/style/noNonNullAssertion: そのうち治す
   const jwk = keys.keys.filter((key) => key.kid === kid)[0]!
   const key = await crypto.subtle.importKey(
     "jwk",
@@ -182,9 +182,9 @@ function parseJWT(token: string) {
 
   return {
     data: `${tokenParts[0]}.${tokenParts[1]}`,
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+    // biome-ignore lint/style/noNonNullAssertion: そのうち治す
     header: JSON.parse(Buffer.from(tokenParts[0]!, "base64url").toString()),
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+    // biome-ignore lint/style/noNonNullAssertion: そのうち治す
     payload: JSON.parse(Buffer.from(tokenParts[1]!, "base64url").toString()),
     signature: tokenParts[2],
   }
@@ -200,7 +200,7 @@ async function verifyToken(env: Env, token: string) {
   const verified = await crypto.subtle.verify(
     "RSASSA-PKCS1-v1_5",
     key,
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+    // biome-ignore lint/style/noNonNullAssertion: そのうち治す
     Buffer.from(jwt.signature!, "base64url"),
     Buffer.from(jwt.data),
   )

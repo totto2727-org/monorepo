@@ -49,14 +49,14 @@ async function getApprovedClientsFromCookie(
   }
 
   const [signatureHex, base64Payload] = parts
-  // biome-ignore lint/style/noNonNullAssertion: <explanation>
+  // biome-ignore lint/style/noNonNullAssertion: そのうち治す
   const payload = Buffer.from(base64Payload!, "base64url")
 
   const key = await importKey(secret)
   const isValid = await crypto.subtle.verify(
     "HMAC",
     key,
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+    // biome-ignore lint/style/noNonNullAssertion: そのうち治す
     Buffer.from(signatureHex!, "hex"),
     payload,
   )
@@ -122,7 +122,7 @@ interface ApprovalDialogOptions {
    * Arbitrary state data to pass through the approval flow
    * Will be encoded in the form and returned when approval is complete
    */
-  state: Record<string, any>
+  state: Record<string, unknown>
   /**
    * Name of the cookie to use for storing approvals
    * @default "mcp_approved_clients"
@@ -499,7 +499,7 @@ export function renderApprovalDialog(
  */
 interface ParsedApprovalResult {
   /** The original state object passed through the form. */
-  state: any
+  state: unknown
   /** Headers to set on the redirect response, including the Set-Cookie header. */
   headers: Record<string, string>
 }
@@ -516,7 +516,7 @@ export async function parseRedirectApproval(
     throw new Error("Invalid request method. Expected POST.")
   }
 
-  let state: any
+  let state: unknown
   let clientId: string | undefined
 
   try {
@@ -530,7 +530,8 @@ export async function parseRedirectApproval(
     state = JSON.parse(Buffer.from(encodedState, "base64url").toString()) as {
       oauthReqInfo?: AuthRequest
     } // Decode the state
-    clientId = state?.oauthReqInfo?.clientId // Extract clientId from within the state
+    // biome-ignore lint/suspicious/noExplicitAny: そのうち治す
+    clientId = (state as any).oauthReqInfo?.clientId // Extract clientId from within the state
 
     if (!clientId) {
       throw new Error("Could not extract clientId from state object.")
@@ -633,14 +634,17 @@ export async function fetchUpstreamAuthToken({
       new Response(`Failed to exchange code ${resp.status}`, { status: 500 }),
     ]
   }
-  const body = (await resp.json()) as any
+  const body = (await resp.json()) as {
+    access_token?: string
+    id_token?: string
+  }
 
-  const accessToken = body.access_token as string
+  const accessToken = body.access_token
   if (!accessToken) {
     return [null, null, new Response("Missing access token", { status: 400 })]
   }
 
-  const idToken = body.id_token as string
+  const idToken = body.id_token
   if (!idToken) {
     return [null, null, new Response("Missing id token", { status: 400 })]
   }
