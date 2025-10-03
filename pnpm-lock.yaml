@@ -46,9 +46,18 @@ catalogs:
       specifier: 4.38.0
       version: 4.38.0
   dev:
+    '@mikaelporttila/rss':
+      specifier: jsr:^1.1.3
+      version: 1.1.3
     '@modelcontextprotocol/sdk':
       specifier: ^1.0.0
       version: 1.18.1
+    '@pothos/core':
+      specifier: ^4.9.1
+      version: 4.9.1
+    '@pothos/plugin-validation':
+      specifier: ^4.1.1
+      version: 4.1.1
     '@socotra/modelcontextprotocol-sdk':
       specifier: ^1.18.0
       version: 1.18.0
@@ -58,6 +67,9 @@ catalogs:
     agents:
       specifier: ^0.1.0
       version: 0.1.6
+    graphql:
+      specifier: ^16.11.0
+      version: 16.11.0
   drizzle:
     drizzle-kit:
       specifier: ^0.31.1
@@ -66,6 +78,9 @@ catalogs:
       specifier: ^0.44.0
       version: 0.44.5
   hono:
+    '@hono/graphql-server':
+      specifier: ^0.7.0
+      version: 0.7.0
     '@hono/mcp':
       specifier: ^0.1.1
       version: 0.1.4
@@ -239,12 +254,27 @@ importers:
       '@cloudflare/workers-types':
         specifier: catalog:cloudflare
         version: 4.20250923.0
+      '@hono/graphql-server':
+        specifier: catalog:hono
+        version: 0.7.0(hono@4.9.8)
+      '@mikaelporttila/rss':
+        specifier: catalog:dev
+        version: '@jsr/mikaelporttila__rss@1.1.3'
+      '@pothos/core':
+        specifier: catalog:dev
+        version: 4.9.1(graphql@16.11.0)
+      '@pothos/plugin-validation':
+        specifier: catalog:dev
+        version: 4.1.1(@pothos/core@4.9.1(graphql@16.11.0))(graphql@16.11.0)
       '@totto/function':
         specifier: catalog:util
         version: '@jsr/totto__function@1.7.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
       dprint:
         specifier: catalog:lint
         version: 0.50.2
+      graphql:
+        specifier: catalog:dev
+        version: 16.11.0
       hono:
         specifier: catalog:hono
         version: 4.9.8
@@ -1421,6 +1451,12 @@ packages:
       casbin: '>=5.30.0'
       hono: '>=4.5.11'
 
+  '@hono/graphql-server@0.7.0':
+    resolution: {integrity: sha512-TZIqVmcG/ULefzJtKNcNB9LKv3ZNfszwkrKNYjZD9ZSdhfglE3VEEYU6D0kNUlfjKmrhbksiHtp3G2mfMnUf1g==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      hono: '>=3.0.0'
+
   '@hono/mcp@0.1.4':
     resolution: {integrity: sha512-OOMZCXaCcKw6MZoXJH1caO1FAPjJoTKRVstgzRVE8GJ/LMXvm/3OTynZYex0b5NYdMQRemd+FUjdCcYkH1pxMQ==}
     peerDependencies:
@@ -1570,6 +1606,12 @@ packages:
 
   '@js-sdsl/ordered-map@4.4.2':
     resolution: {integrity: sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==}
+
+  '@jsr/maxim-mazurok__sax-ts@1.2.13':
+    resolution: {integrity: sha512-axPU3osMW2+w5vu8gXXS+HvvCfId3rsi5Fw4aMNluQDQQ8EmvckFpUaXGvUQw/9a+DrQiW5atFszMXeNblundw==, tarball: https://npm.jsr.io/~/11/@jsr/maxim-mazurok__sax-ts/1.2.13.tgz}
+
+  '@jsr/mikaelporttila__rss@1.1.3':
+    resolution: {integrity: sha512-pqFkQr+6CoaFo5QCThIjCZlhJigWiGo5RfiTz7QMgkVTwAiLmIrJP60BSnP9vdJKBU9oXCgWvRl6LYqYEYTwMA==, tarball: https://npm.jsr.io/~/11/@jsr/mikaelporttila__rss/1.1.3.tgz}
 
   '@jsr/std__assert@1.0.14':
     resolution: {integrity: sha512-BcjBimpxuy7mXjWo7sZ3TtPitx91w3UqssyY92RmJIuoMGYywZRGxaxqK9/oybljbZbZpPOSrkgQI9wKpgZ9vQ==, tarball: https://npm.jsr.io/~/11/@jsr/std__assert/1.0.14.tgz}
@@ -2089,6 +2131,17 @@ packages:
 
   '@poppinss/exception@1.2.2':
     resolution: {integrity: sha512-m7bpKCD4QMlFCjA/nKTs23fuvoVFoA83brRKmObCUNmi/9tVu8Ve3w4YQAnJu4q3Tjf5fr685HYIC/IA2zHRSg==}
+
+  '@pothos/core@4.9.1':
+    resolution: {integrity: sha512-V+s/PeimifPkUSW+fo2SHNeLDX+WcPTscPmZ0xUFsPHEpZCE/cQvOpwXYTZer+kilymOLF+jiSkr+QRIPLi3+A==}
+    peerDependencies:
+      graphql: ^16.10.0
+
+  '@pothos/plugin-validation@4.1.1':
+    resolution: {integrity: sha512-+FpxdcrFutj3B/9x1FJE1iWfT+ZE7Dr5140IfKkvyTpNsAXJ9NzzwWVNjLHsp7sFH69UXJbUKdZ+VwRy6xuKFA==}
+    peerDependencies:
+      '@pothos/core': '*'
+      graphql: ^16.10.0
 
   '@protobufjs/aspromise@1.1.2':
     resolution: {integrity: sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ==}
@@ -4254,6 +4307,10 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  graphql@16.11.0:
+    resolution: {integrity: sha512-mS1lbMsxgQj6hge1XZ6p7GPhbrtFwUFYi3wRzXAC/FmYnyXMTvvI3td3rjmQ2u8ewXueaSvRPWaEcgVVOT9Jnw==}
+    engines: {node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0}
 
   h3@1.15.4:
     resolution: {integrity: sha512-z5cFQWDffyOe4vQ9xIqNfCZdV4p//vy6fBnr8Q1AWnVZ0teurKMG66rLj++TKwKPUP3u7iMUvrvKaEUiQw2QWQ==}
@@ -7341,6 +7398,11 @@ snapshots:
       casbin: 5.39.0
       hono: 4.9.8
 
+  '@hono/graphql-server@0.7.0(hono@4.9.8)':
+    dependencies:
+      graphql: 16.11.0
+      hono: 4.9.8
+
   '@hono/mcp@0.1.4(@modelcontextprotocol/sdk@1.18.1)(hono@4.9.8)':
     dependencies:
       '@modelcontextprotocol/sdk': 1.18.1
@@ -7466,6 +7528,12 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.5
 
   '@js-sdsl/ordered-map@4.4.2': {}
+
+  '@jsr/maxim-mazurok__sax-ts@1.2.13': {}
+
+  '@jsr/mikaelporttila__rss@1.1.3':
+    dependencies:
+      '@jsr/maxim-mazurok__sax-ts': 1.2.13
 
   '@jsr/std__assert@1.0.14':
     dependencies:
@@ -8210,6 +8278,15 @@ snapshots:
       supports-color: 10.2.2
 
   '@poppinss/exception@1.2.2': {}
+
+  '@pothos/core@4.9.1(graphql@16.11.0)':
+    dependencies:
+      graphql: 16.11.0
+
+  '@pothos/plugin-validation@4.1.1(@pothos/core@4.9.1(graphql@16.11.0))(graphql@16.11.0)':
+    dependencies:
+      '@pothos/core': 4.9.1(graphql@16.11.0)
+      graphql: 16.11.0
 
   '@protobufjs/aspromise@1.1.2': {}
 
@@ -11385,6 +11462,8 @@ snapshots:
   gpt-tokenizer@2.9.0: {}
 
   graceful-fs@4.2.11: {}
+
+  graphql@16.11.0: {}
 
   h3@1.15.4:
     dependencies:
