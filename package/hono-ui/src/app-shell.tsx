@@ -18,6 +18,19 @@ export const SideMenuItem: FC<PropsWithChildren<{ href: string }>> = (
   </li>
 )
 
+export const BodyTitle: FC<{ title: string }> = (props) => (
+  <h2 class="text-3xl font-bold">{props.title}</h2>
+)
+
+export const Body: FC<PropsWithChildren<{ title: Child }>> = (props) => (
+  <div class="space-y-6">
+    <div class="flex items-center justify-between flex-col lg:flex-row gap-6 text-center lg:text-start">
+      {props.title}
+    </div>
+    {props.children}
+  </div>
+)
+
 export const AppShell: FC<
   PropsWithChildren<{ side: Child; title: string }>
 > = ({ children, side, title }) => (
