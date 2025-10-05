@@ -1,0 +1,34 @@
+{
+  "devDependencies": {
+    "@biomejs/biome": "catalog:lint",
+    "@cloudflare/vite-plugin": "catalog:cloudflare",
+    "@cloudflare/workers-types": "catalog:cloudflare",
+    "@hono/graphql-server": "catalog:hono",
+    "@hono/standard-validator": "catalog:hono",
+    "@pothos/core": "catalog:dev",
+    "@pothos/plugin-validation": "catalog:dev",
+    "@tailwindcss/cli": "catalog:ui",
+    "@totto/function": "catalog:util",
+    "daisyui": "catalog:ui",
+    "dprint": "catalog:lint",
+    "graphql": "catalog:dev",
+    "hono": "catalog:hono",
+    "tailwindcss": "catalog:ui",
+    "typescript": "catalog:build",
+    "vite": "catalog:build",
+    "vite-tsconfig-paths": "^5.1.4"
+  },
+  "name": "portal",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "check": "tsgo",
+    "deploy": "wrangler deploy",
+    "dev": "vite dev",
+    "prebuild": "$npm_execpath run -p /prebuild:.*/",
+    "prebuild:wrangler": "wrangler types",
+    "preview": "wrangler dev --test-scheduled",
+    "start": "wrangler dev --test-scheduled"
+  },
+  "type": "module"
+}
