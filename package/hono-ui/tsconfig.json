@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx"
+  },
+  "exclude": ["dist"],
+  "extends": ["@totto/function/tsconfig/node24"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}

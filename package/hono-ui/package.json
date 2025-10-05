@@ -1,0 +1,38 @@
+{
+  "devDependencies": {
+    "@rslib/core": "catalog:build",
+    "@rstest/core": "catalog:test",
+    "@totto/function": "catalog:util",
+    "@types/node": "catalog:dev",
+    "daisyui": "^5.1.27",
+    "hono": "catalog:hono",
+    "tailwind": "^4.0.0",
+    "typescript": "catalog:build"
+  },
+  "exports": {
+    "./icon": {
+      "import": "./dist/icon.js",
+      "types": "./dist/icon.d.ts"
+    },
+    "./layout": {
+      "import": "./dist/layout.js",
+      "types": "./dist/layout.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "name": "hono-ui",
+  "peerDependencies": {
+    "@totto/function": "catalog:util",
+    "hono": "catalog:hono"
+  },
+  "scripts": {
+    "build": "rslib build --config-loader native",
+    "check": "tsgo",
+    "dev": "rslib build --watch --config-loader native",
+    "test": "rstest --config-loader native"
+  },
+  "type": "module",
+  "version": "0.0.0"
+}
