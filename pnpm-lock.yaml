@@ -293,6 +293,9 @@ importers:
       hono:
         specifier: catalog:hono
         version: 4.9.8
+      hono-ui:
+        specifier: 'workspace:'
+        version: link:../../package/hono-ui
       tailwindcss:
         specifier: catalog:ui
         version: 4.1.13
