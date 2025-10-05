@@ -11,6 +11,10 @@
     "typescript": "catalog:build"
   },
   "exports": {
+    "./app-shell": {
+      "import": "./dist/app-shell.js",
+      "types": "./dist/app-shell.d.ts"
+    },
     "./icon": {
       "import": "./dist/icon.js",
       "types": "./dist/icon.d.ts"
