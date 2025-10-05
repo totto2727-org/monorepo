@@ -65,11 +65,13 @@ export async function handleAccessRequest(
       request,
       env.COOKIE_ENCRYPTION_KEY,
     )
-    if (!state.oauthReqInfo) {
+    // biome-ignore lint/suspicious/noExplicitAny: TODO
+    if (!(state as any).oauthReqInfo) {
       return new Response("Invalid request", { status: 400 })
     }
 
-    return redirectToAccess(request, env, state.oauthReqInfo, headers)
+    // biome-ignore lint/suspicious/noExplicitAny: TODO
+    return redirectToAccess(request, env, (state as any).oauthReqInfo, headers)
   }
 
   if (request.method === "GET" && pathname === "/callback") {
