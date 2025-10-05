@@ -1,7 +1,6 @@
 node_modules/
 .turbo/
 .claude/**.local.*
-app/mcp/public/asset/tailwind.css
 .serena/cache
 .serena/memories
 *.local.*
