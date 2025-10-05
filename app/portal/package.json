@@ -8,6 +8,7 @@
     "@pothos/core": "catalog:dev",
     "@pothos/plugin-validation": "catalog:dev",
     "@tailwindcss/cli": "catalog:ui",
+    "@tailwindcss/vite": "^4.1.14",
     "@totto/function": "catalog:util",
     "daisyui": "catalog:ui",
     "dprint": "catalog:lint",
