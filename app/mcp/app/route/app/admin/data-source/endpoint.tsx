@@ -2,6 +2,7 @@ import { sValidator } from "@hono/standard-validator"
 import * as Duration from "@totto/function/duration"
 import { DateTime, Effect, Option, Schema } from "@totto/function/effect"
 import { and, eq } from "drizzle-orm"
+import { Body, BodyTitle } from "hono-ui/app-shell"
 import * as Icon from "hono-ui/icon"
 import * as Drizzle from "#@/feature/database/drizzle.js"
 import type { Database } from "#@/feature/database.js"
@@ -9,7 +10,6 @@ import * as Hono from "#@/feature/hono.js"
 import { getDefaultLocale } from "#@/feature/locale.js"
 import type * as DataSourceType from "#@/feature/sync/type/data-source-type.js"
 import * as SimpleStatCard from "#@/feature/ui/admin/card/simple-stat-card.js"
-import { H1Container } from "#@/feature/ui/admin/h1-container.js"
 import * as Input from "#@/feature/ui/admin/input/input.js"
 import * as Select from "#@/feature/ui/admin/input/select.js"
 import * as Modal from "#@/feature/ui/admin/modal.js"
@@ -124,15 +124,17 @@ async function GetDataSource(
   const tableID = "mcp-tool-table"
 
   return (
-    <div class="space-y-6">
-      <H1Container>
-        <h1 class="text-3xl font-bold">Data Sources</h1>
-        <AddNewDataSourceModal.OpenButton class="btn btn-primary">
-          <Icon.Plus ariaLabel="Add" size="sm" />
-          Add New Data Source
-        </AddNewDataSourceModal.OpenButton>
-      </H1Container>
-
+    <Body
+      title={
+        <>
+          <BodyTitle title="Data Sources" />
+          <AddNewDataSourceModal.OpenButton class="btn btn-primary">
+            <Icon.Plus ariaLabel="Add" size="sm" />
+            Add New Data Source
+          </AddNewDataSourceModal.OpenButton>
+        </>
+      }
+    >
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SimpleStatCard.SimpleStatCard
           colorClass="text-primary"
@@ -222,7 +224,7 @@ async function GetDataSource(
           </AddNewDataSourceModal.Form>
         </div>
       </AddNewDataSourceModal.Modal>
-    </div>
+    </Body>
   )
 }
 

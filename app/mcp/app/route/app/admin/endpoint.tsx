@@ -1,10 +1,10 @@
 import { count, sql } from "drizzle-orm"
+import { Body } from "hono-ui/app-shell"
 import * as Icon from "hono-ui/icon"
 import * as DataBase from "#@/feature/database.js"
 import * as Hono from "#@/feature/hono.js"
 import * as ManagementCard from "#@/feature/ui/admin/card/management-card.js"
 import * as StatCard from "#@/feature/ui/admin/card/stat-card.js"
-import { H1Container } from "#@/feature/ui/admin/h1-container.js"
 
 export async function Dashboard() {
   const c = Hono.useRequestContext()
@@ -30,11 +30,7 @@ export async function Dashboard() {
   }
 
   return (
-    <div class="space-y-6">
-      <H1Container>
-        <h1 class="text-3xl font-bold">Dashboard</h1>
-      </H1Container>
-
+    <Body title="Dashboard">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard.StatCard
           colorClass="text-primary"
@@ -76,6 +72,6 @@ export async function Dashboard() {
           title="Data Sources Management"
         />
       </div>
-    </div>
+    </Body>
   )
 }
