@@ -16,6 +16,25 @@ export const app = new Hono<Env>()
     )
     return next()
   })
+  .get("/", (c) =>
+    c.html(
+      `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphQL API Information</title>
+</head>
+<body>
+    <p>Schema: /api/graphql/schema</p>
+    <p>API Endpoint: /api/graphql</p>
+    <p>GraphiQL: /api/graphql</p>
+</body>
+</html>
+`.trim(),
+    ),
+  )
   .get("/api/graphql/schema", (c) => c.text(generateSchema()))
   .use(
     "/api/graphql",
