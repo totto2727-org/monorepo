@@ -6,6 +6,7 @@ import { logger } from "hono/logger"
 import { builder, generateSchema } from "./feature/graphql.js"
 import type { Env } from "./feature/hono.js"
 import { fetch } from "./feature/rss.js"
+import * as path from "node:path"
 
 export const app = new Hono<Env>()
   .use(logger())
@@ -27,9 +28,9 @@ export const app = new Hono<Env>()
     <title>GraphQL API Information</title>
 </head>
 <body>
-    <p>Schema: /api/graphql/schema</p>
-    <p>API Endpoint: /api/graphql</p>
-    <p>GraphiQL: /api/graphql</p>
+    <p>API Endpoint: <code>${path.join(c.req.url, "/api/graphql")}</code></p>
+    <p>Schema: <a href="/api/graphql/schema">/api/graphql/schema</a></p>
+    <p>GraphiQL: <a href="/api/graphql">/api/graphql</a></p>
 </body>
 </html>
 `.trim(),
