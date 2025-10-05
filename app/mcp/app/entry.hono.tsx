@@ -24,18 +24,11 @@ export const mcpApp = createApp()
   .all("/api/mcp", ...McpHandler.mcpHandler)
 
 export const adminApp = createApp()
+  .get("/", (c) => c.redirect("/app/admin"))
   .get(
     "/app/*",
     jsxRenderer(({ children }) => (
       <Layout cssPath="../tailwind.css" isProd={import.meta.env.PROD}>
-        {children}
-      </Layout>
-    )),
-  )
-  .get(
-    "/app/admin/*",
-    jsxRenderer(({ children, Layout }) => (
-      <Layout>
         <AppShell
           side={
             <SideMenu>

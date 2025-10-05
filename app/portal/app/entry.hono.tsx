@@ -21,24 +21,16 @@ export const app = new Hono<Env>()
     "/app/*",
     jsxRenderer(({ children }) => (
       <Layout cssPath="../tailwind.css" isProd={import.meta.env.PROD}>
-        {children}
-      </Layout>
-    )),
-  )
-  .get(
-    "/app/admin/*",
-    jsxRenderer(({ children, Layout }) => (
-      <Layout>
         <AppShell
           side={
             <SideMenu>
-              <SideMenuItem href="/app/admin">
+              <SideMenuItem href="/app">
                 <Icon.Dashboard ariaLabel="Dashboard Icon" />
                 Dashboard
               </SideMenuItem>
             </SideMenu>
           }
-          title="MCP Admin"
+          title="Portal"
         >
           {children}
         </AppShell>
