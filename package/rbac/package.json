@@ -13,9 +13,13 @@
     "typescript": "catalog:build"
   },
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+    "./adaptor": {
+      "import": "./dist/adaptor.js",
+      "types": "./dist/adaptor.d.ts"
+    },
+    "./table": {
+      "import": "./dist/table.js",
+      "types": "./dist/table.d.ts"
     }
   },
   "files": [
