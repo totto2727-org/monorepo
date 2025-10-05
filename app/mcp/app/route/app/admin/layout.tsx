@@ -1,10 +1,5 @@
 import type { PropsWithChildren } from "hono/jsx"
-import {
-  DashboardIcon,
-  MenuIcon,
-  ServerIcon,
-  ToolsIcon,
-} from "#@/feature/ui/icons/icon.js"
+import * as Icon from "hono-ui/icon"
 
 export function AdminLayout({ children }: PropsWithChildren) {
   return (
@@ -22,7 +17,7 @@ export function AdminLayout({ children }: PropsWithChildren) {
                 class="drawer-button btn btn-square btn-ghost"
                 htmlFor="drawer-toggle"
               >
-                <MenuIcon ariaLabel="Menu Icon" />
+                <Icon.Menu ariaLabel="Menu Icon" />
               </label>
             </div>
           </div>
@@ -42,13 +37,13 @@ export function AdminLayout({ children }: PropsWithChildren) {
               <ul class="menu">
                 <li>
                   <a class="flex items-center gap-3" href="/app/admin">
-                    <DashboardIcon ariaLabel="Dashboard Icon" />
+                    <Icon.Dashboard ariaLabel="Dashboard Icon" />
                     Dashboard
                   </a>
                 </li>
                 <li>
                   <a class="flex items-center gap-3" href="/app/admin/mcp-tool">
-                    <ToolsIcon ariaLabel="MCP Tools Icon" />
+                    <Icon.Tools ariaLabel="MCP Tools Icon" />
                     MCP Tools
                   </a>
                 </li>
@@ -57,7 +52,7 @@ export function AdminLayout({ children }: PropsWithChildren) {
                     class="flex items-center gap-3"
                     href="/app/admin/data-source"
                   >
-                    <ServerIcon ariaLabel="Data Sources Icon" />
+                    <Icon.Server ariaLabel="Data Sources Icon" />
                     Data Sources
                   </a>
                 </li>

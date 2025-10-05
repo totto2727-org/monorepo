@@ -2,6 +2,7 @@ import { sValidator } from "@hono/standard-validator"
 import * as Duration from "@totto/function/duration"
 import { DateTime, Effect, Option, Schema } from "@totto/function/effect"
 import { and, eq } from "drizzle-orm"
+import * as Icon from "hono-ui/icon"
 import * as Drizzle from "#@/feature/database/drizzle.js"
 import type { Database } from "#@/feature/database.js"
 import * as Hono from "#@/feature/hono.js"
@@ -12,7 +13,6 @@ import { H1Container } from "#@/feature/ui/admin/h1-container.js"
 import * as Input from "#@/feature/ui/admin/input/input.js"
 import * as Select from "#@/feature/ui/admin/input/select.js"
 import * as Modal from "#@/feature/ui/admin/modal.js"
-import * as Icon from "#@/feature/ui/icons/icon.js"
 
 const availableDataSourceTypes = [
   { label: "Text", value: "text" },
@@ -128,7 +128,7 @@ async function GetDataSource(
       <H1Container>
         <h1 class="text-3xl font-bold">Data Sources</h1>
         <AddNewDataSourceModal.OpenButton class="btn btn-primary">
-          <Icon.PlusIcon ariaLabel="Add Icon" size="sm" />
+          <Icon.Plus ariaLabel="Add" size="sm" />
           Add New Data Source
         </AddNewDataSourceModal.OpenButton>
       </H1Container>
@@ -212,7 +212,7 @@ async function GetDataSource(
 
             <div class="modal-action">
               <button class="btn btn-primary" type="submit">
-                <Icon.CheckIcon ariaLabel="Save Icon" size="sm" />
+                <Icon.Check ariaLabel="Save" size="sm" />
                 Add
               </button>
               <AddNewDataSourceModal.CloseButton class="btn btn-outline">
@@ -257,7 +257,7 @@ function TableItem(props: typeof dataSourceSchema.Type) {
           hx-target="closest tr"
           type="button"
         >
-          <Icon.DeleteIcon ariaLabel="Delete" size="sm" />
+          <Icon.Delete ariaLabel="Delete" size="sm" />
         </button>
       </td>
     </tr>

@@ -1,10 +1,10 @@
 import { count, sql } from "drizzle-orm"
+import * as Icon from "hono-ui/icon"
 import * as DataBase from "#@/feature/database.js"
 import * as Hono from "#@/feature/hono.js"
 import * as ManagementCard from "#@/feature/ui/admin/card/management-card.js"
 import * as StatCard from "#@/feature/ui/admin/card/stat-card.js"
 import { H1Container } from "#@/feature/ui/admin/h1-container.js"
-import * as Icon from "#@/feature/ui/icons/icon.js"
 
 export async function Dashboard() {
   const c = Hono.useRequestContext()
@@ -64,15 +64,15 @@ export async function Dashboard() {
         <ManagementCard.ManagementCard
           description="Add, edit, and delete search tools"
           href="/app/admin/mcp-tool"
-          icon={Icon.ToolsIcon}
-          iconLabel="MCP Tools Icon"
+          icon={Icon.Tools}
+          iconLabel="MCP Tools"
           title="MCP Tools Management"
         />
         <ManagementCard.ManagementCard
           description="Configure and manage data sources"
           href="/app/admin/data-source"
-          icon={Icon.ServerIcon}
-          iconLabel="Data Sources Icon"
+          icon={Icon.Server}
+          iconLabel="Data Sources"
           title="Data Sources Management"
         />
       </div>

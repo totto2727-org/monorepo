@@ -1,11 +1,12 @@
 import { Hono } from "hono"
 import { jsxRenderer } from "hono/jsx-renderer"
 import { logger } from "hono/logger"
+import { Layout } from "hono-ui/layout"
 import { mcpOAuthMiddleware } from "mcp-oauth-cloudflare-access"
+import tailwindcss from "../tailwind.css?raw"
 import * as DataBase from "./feature/database.js"
 import type { Env } from "./feature/hono.js"
 import * as McpHandler from "./feature/mcp/handler.js"
-import * as Layout from "./feature/ui/layout.js"
 import * as DataSource from "./route/app/admin/data-source/endpoint.js"
 import * as AdminEndpoint from "./route/app/admin/endpoint.js"
 import * as AdminLayout from "./route/app/admin/layout.js"
@@ -23,7 +24,14 @@ export const mcpApp = createApp()
   .all("/api/mcp", ...McpHandler.mcpHandler)
 
 export const adminApp = createApp()
-  .get("/app/*", jsxRenderer(Layout.Layout))
+  .get(
+    "/app/*",
+    jsxRenderer(({ children }) => (
+      <Layout css={tailwindcss} isProd={import.meta.env.PROD}>
+        {children}
+      </Layout>
+    )),
+  )
   .get(
     "/app/admin/*",
     jsxRenderer(({ children, Layout }) => (
