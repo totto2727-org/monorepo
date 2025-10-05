@@ -1,12 +1,13 @@
+import * as path from "node:path"
 import { graphqlServer } from "@hono/graphql-server"
 import { Effect } from "@totto/function/effect"
 import { FetchHttpClient } from "@totto/function/effect/platform"
 import { Hono } from "hono"
+import { cors } from "hono/cors"
 import { logger } from "hono/logger"
 import { builder, generateSchema } from "./feature/graphql.js"
 import type { Env } from "./feature/hono.js"
 import { fetch } from "./feature/rss.js"
-import * as path from "node:path"
 
 export const app = new Hono<Env>()
   .use(logger())
@@ -36,6 +37,7 @@ export const app = new Hono<Env>()
 `.trim(),
     ),
   )
+  .use("*", cors())
   .get("/api/graphql/schema", (c) => c.text(generateSchema()))
   .use(
     "/api/graphql",
