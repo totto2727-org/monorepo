@@ -4,7 +4,7 @@ import * as Icon from "hono-ui/icon"
 export function AdminLayout({ children }: PropsWithChildren) {
   return (
     <div class="min-h-screen bg-base-200" hx-boost="true">
-      <div class="drawer lg:drawer-open lg:border-t">
+      <div class="drawer lg:drawer-open">
         <input class="drawer-toggle" id="drawer-toggle" type="checkbox" />
 
         <div class="drawer-content flex flex-col">
