@@ -6,5 +6,8 @@
 
 ```css
 @import "tailwindcss";
+/* biome-ignore lint/suspicious/noUnknownAtRules: required */
 @plugin "daisyui";
+/* biome-ignore lint/suspicious/noUnknownAtRules: required */
+@source "./node_modules/hono-ui";
 ```

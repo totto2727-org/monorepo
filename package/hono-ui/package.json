@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@rsbuild/plugin-react": "^1.4.1",
     "@rslib/core": "catalog:build",
     "@rstest/core": "catalog:test",
     "@totto/function": "catalog:util",

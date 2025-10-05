@@ -1,4 +1,6 @@
 /// <reference types="@rslib/core/types" />
+
+import { pluginReact } from "@rsbuild/plugin-react"
 import { defineConfig } from "@rslib/core"
 
 export default defineConfig({
@@ -11,6 +13,13 @@ export default defineConfig({
       format: "esm",
       syntax: ["node 18"],
     },
+  ],
+  plugins: [
+    pluginReact({
+      swcReactOptions: {
+        importSource: "hono/jsx",
+      },
+    }),
   ],
   source: {
     entry: {
