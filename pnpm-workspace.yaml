@@ -14,7 +14,7 @@ catalogs:
     casbin: ^5.39.0
   clerk:
     "@clerk/backend": ^2.0.0
-    "@clerk/react-router": ^1.4.7
+    "@clerk/react-router": ^2.0.0
     "@hono/clerk-auth": ^3.0.0
   cli:
     pncat: ^0.5.0
