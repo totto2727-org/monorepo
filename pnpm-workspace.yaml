@@ -6,7 +6,7 @@ packages:
 catalogs:
   build:
     "@rslib/core": ^0.14.0
-    "@typescript/native-preview": 7.0.0-dev.20250923.1
+    "@typescript/native-preview": 7.0.0-dev.20251011.1
     typescript: ^5.9.2
     vite: ^7.0.0
   casbin:
@@ -22,7 +22,7 @@ catalogs:
     turbo: ^2.5.3
   cloudflare:
     "@cloudflare/vite-plugin": ^1.11.0
-    "@cloudflare/workers-oauth-provider": ^0.0.10
+    "@cloudflare/workers-oauth-provider": ^0.0.11
     "@cloudflare/workers-types": ^4.20250813.0
     wrangler: 4.38.0
   dev:
@@ -48,7 +48,7 @@ catalogs:
     hono: ^4.7.10
     hono-react-router-adapter: ^0.6.5
   lint:
-    "@biomejs/biome": 2.2.4
+    "@biomejs/biome": 2.2.5
     dprint: ^0.50.0
   pulumi:
     "@pulumi/aws": ^7.0.0
