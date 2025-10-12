@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@hono/cloudflare-access": "catalog:hono",
     "@rslib/core": "catalog:build",
     "@rstest/core": "catalog:test",
     "@totto/function": "catalog:util",
@@ -24,6 +25,7 @@
   ],
   "name": "@monorepo/tenant",
   "peerDependencies": {
+    "@hono/cloudflare-access": "catalog:hono",
     "@totto/function": "catalog:util",
     "drizzle-cuid2": "catalog:drizzle",
     "drizzle-orm": "catalog:drizzle",

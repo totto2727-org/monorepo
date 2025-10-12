@@ -38,6 +38,7 @@ catalogs:
     graphql: ^16.11.0
     graphql-scalars: ^1.24.2
   hono:
+    "@hono/cloudflare-access": ^0.3.1
     "@hono/graphql-server": ^0.7.0
     "@hono/mcp": ^0.1.1
     "@hono/standard-validator": ^0.1.4
