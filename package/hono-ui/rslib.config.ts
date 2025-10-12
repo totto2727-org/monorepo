@@ -2,7 +2,7 @@
 
 import { pluginReact } from "@rsbuild/plugin-react"
 import { defineConfig } from "@rslib/core"
-import tscofnig from "./tsconfig.json" with { type: "json" }
+import tsconfig from "./tsconfig.json" with { type: "json" }
 
 export default defineConfig({
   lib: [
@@ -18,7 +18,7 @@ export default defineConfig({
   plugins: [
     pluginReact({
       swcReactOptions: {
-        importSource: tscofnig.compilerOptions.jsxImportSource,
+        importSource: tsconfig.compilerOptions.jsxImportSource,
       },
     }),
   ],
