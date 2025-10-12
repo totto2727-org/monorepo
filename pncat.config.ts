@@ -32,14 +32,14 @@ export default defineConfig({
       name: "util",
     },
     {
+      match: [/graphql/, /@pothos/],
+      name: "graphql",
+    },
+    {
       match: [/react/],
       name: "react",
     },
     { match: [/cloudflare/, /wrangler/], name: "cloudflare" },
-    {
-      match: [/tsconfig/],
-      name: "tsconfig",
-    },
     {
       match: [/biome/, /dprint/],
       name: "lint",
@@ -49,8 +49,12 @@ export default defineConfig({
       name: "test",
     },
     {
-      match: [/vite/, /rslib/, /typescript/],
+      match: [/vite/, /rslib/, /typescript/, /rsbuild/],
       name: "build",
+    },
+    {
+      match: [/tsconfig/],
+      name: "tsconfig",
     },
     {
       match: [/turbo/, /tsx/, /pncat/],
