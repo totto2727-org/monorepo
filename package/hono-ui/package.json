@@ -1,13 +1,13 @@
 {
   "devDependencies": {
-    "@rsbuild/plugin-react": "^1.4.1",
+    "@rsbuild/plugin-react": "catalog:build",
     "@rslib/core": "catalog:build",
     "@rstest/core": "catalog:test",
     "@totto/function": "catalog:util",
     "@types/node": "catalog:dev",
-    "daisyui": "^5.1.27",
+    "daisyui": "catalog:ui",
     "hono": "catalog:hono",
-    "tailwind": "^4.0.0",
+    "tailwind": "catalog:ui",
     "typescript": "catalog:build"
   },
   "exports": {

@@ -4,7 +4,7 @@
     "@rstest/core": "catalog:test",
     "@totto/function": "catalog:util",
     "@types/node": "catalog:dev",
-    "drizzle-cuid2": "^2.1.0",
+    "drizzle-cuid2": "catalog:drizzle",
     "drizzle-orm": "catalog:drizzle",
     "hono": "catalog:hono",
     "typescript": "catalog:build"
@@ -25,7 +25,7 @@
   "name": "@monorepo/tenant",
   "peerDependencies": {
     "@totto/function": "catalog:util",
-    "drizzle-cuid2": "^2.1.0",
+    "drizzle-cuid2": "catalog:drizzle",
     "drizzle-orm": "catalog:drizzle",
     "hono": "catalog:hono"
   },
