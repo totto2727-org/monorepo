@@ -16,6 +16,10 @@
     {
       "groupName": "Patch updates",
       "matchUpdateTypes": ["patch", "digest", "bump", "lockFileMaintenance"]
+    },
+    {
+      "groupName": "TypeScript native preview updates",
+      "matchPackageNames": ["@typescript/native-preview"]
     }
   ]
 }
