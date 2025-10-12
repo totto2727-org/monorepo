@@ -6,6 +6,12 @@ export const builder = new SchemaBuilder<{
   Context: Context
   DefaultInputFieldRequiredness: true
   DefaultFieldNullability: false
+  Scalars: {
+    NonEmptyString: {
+      Input: string
+      Output: string
+    }
+  }
 }>({
   defaultFieldNullability: false,
   defaultInputFieldRequiredness: true,

@@ -1,12 +1,17 @@
-import type { FeedType as FeedTypeEnum } from "@mikaelporttila/rss"
+import { FeedType as FeedTypeEnum } from "@mikaelporttila/rss"
 import { Effect, Predicate, Schema } from "@totto/function/effect"
+import { NonEmptyStringResolver } from "graphql-scalars"
 import { builder } from "./builder.js"
 
-type Type =
-  | FeedTypeEnum.Atom
-  | FeedTypeEnum.JsonFeed
-  | FeedTypeEnum.Rss1
-  | FeedTypeEnum.Rss2
+const feedTypeEnumToLiteral = Schema.transformLiterals(
+  [FeedTypeEnum.Atom, "ATOM"],
+  [FeedTypeEnum.JsonFeed, "JSONFeed"],
+  [FeedTypeEnum.Rss1, "RSS_1_0"],
+  [FeedTypeEnum.Rss2, "RSS_2_0"],
+)
+const decodeSyncFeedType = Schema.decodeSync(feedTypeEnumToLiteral)
+
+type Type = typeof feedTypeEnumToLiteral.Type
 
 type Size = {
   width: number
@@ -46,6 +51,14 @@ type FeedResponse = {
   feed: Feed
 }
 
+const nonEmptyStringScalar = builder.addScalarType(
+  "NonEmptyString",
+  NonEmptyStringResolver,
+)
+const feedTypeEnum = builder.enumType("FeedType", {
+  values: feedTypeEnumToLiteral.members.map((v) => v.to.literals[0]),
+})
+
 const sizeRef = builder.objectRef<Size>("Size")
 const imageRef = builder.objectRef<Image>("Image")
 const itemRef = builder.objectRef<Item>("Item")
@@ -63,7 +76,7 @@ sizeRef.implement({
 imageRef.implement({
   fields: (t) =>
     ({
-      link: t.exposeString("link"),
+      link: t.expose("link", { type: nonEmptyStringScalar }),
       size: t.expose("size", {
         nullable: true,
         type: sizeRef,
@@ -100,7 +113,9 @@ feedRef.implement({
       }),
       links: t.exposeStringList("links"),
       title: t.exposeString("title"),
-      type: t.exposeString("type"),
+      type: t.expose("type", {
+        type: feedTypeEnum,
+      }),
       updatedAt: t.exposeString("updatedAt"),
     }) satisfies Record<keyof Feed, unknown>,
 })
@@ -165,7 +180,7 @@ builder.queryType({
               })),
             links: rss.links,
             title: rss.title.value ?? "",
-            type: rss.type,
+            type: decodeSyncFeedType(rss.type),
             updatedAt:
               rss.updateDate?.toISOString() ??
               rss.created?.toISOString() ??
