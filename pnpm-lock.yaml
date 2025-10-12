@@ -158,8 +158,8 @@ catalogs:
       version: 4.1.13
   util:
     '@totto/function':
-      specifier: jsr:^1.7.0
-      version: 1.7.0
+      specifier: jsr:^1.7.1
+      version: 1.7.1
     zod:
       specifier: ^4.0.0
       version: 4.1.11
@@ -233,7 +233,7 @@ importers:
         version: 4.1.14(vite@7.1.7(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@1.7.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
+        version: '@jsr/totto__function@1.7.1(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
       agents:
         specifier: catalog:dev
         version: 0.2.12(@cloudflare/workers-types@4.20251011.0)(react@19.1.0)(typescript@5.9.2)(viem@2.37.8(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@4.1.11))
@@ -302,7 +302,7 @@ importers:
         version: 4.1.14(vite@7.1.7(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@1.7.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
+        version: '@jsr/totto__function@1.7.1(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
       daisyui:
         specifier: catalog:ui
         version: 5.2.0
@@ -359,7 +359,7 @@ importers:
         version: 4.2.0(@pothos/core@4.10.0(graphql@16.11.0))(graphql@16.11.0)
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@1.7.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
+        version: '@jsr/totto__function@1.7.1(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
       dprint:
         specifier: catalog:lint
         version: 0.50.2
@@ -395,7 +395,7 @@ importers:
         version: 3.202.0(typescript@5.9.2)
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@1.7.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
+        version: '@jsr/totto__function@1.7.1(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
       '@types/node':
         specifier: catalog:dev
         version: 24.7.1
@@ -419,7 +419,7 @@ importers:
         version: 3.202.0(typescript@5.9.2)
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@1.7.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
+        version: '@jsr/totto__function@1.7.1(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
       '@types/node':
         specifier: catalog:dev
         version: 24.7.1
@@ -443,7 +443,7 @@ importers:
         version: 0.5.1
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@1.7.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
+        version: '@jsr/totto__function@1.7.1(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
       '@types/node':
         specifier: catalog:dev
         version: 24.7.1
@@ -477,7 +477,7 @@ importers:
         version: 0.5.1
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@1.7.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
+        version: '@jsr/totto__function@1.7.1(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
       '@types/node':
         specifier: catalog:dev
         version: 24.7.1
@@ -505,7 +505,7 @@ importers:
         version: 0.5.1
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@1.7.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
+        version: '@jsr/totto__function@1.7.1(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
       '@types/node':
         specifier: catalog:dev
         version: 24.7.1
@@ -532,7 +532,7 @@ importers:
         version: 0.5.1
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@1.7.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
+        version: '@jsr/totto__function@1.7.1(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))'
       '@types/node':
         specifier: catalog:dev
         version: 24.7.1
@@ -1840,8 +1840,8 @@ packages:
   '@jsr/std__testing@1.0.15':
     resolution: {integrity: sha512-NgQuXxTEG4ecbh2fzYbkJWJoBgPXwbv6bdsrAYSOeLpX2d+TROEzpErbWQXHi/yxZy/FNn9IF548ZDAqMZxi/g==, tarball: https://npm.jsr.io/~/11/@jsr/std__testing/1.0.15.tgz}
 
-  '@jsr/totto__function@1.7.0':
-    resolution: {integrity: sha512-Ay9vsPKIa8CHITyUqKA+KeSuz2aghE3MVA9hE+Jplk46Cp+QC1zNCQCDpfvipk8qLUVDZFvpg7vPXt/ln+ixug==, tarball: https://npm.jsr.io/~/11/@jsr/totto__function/1.7.0.tgz}
+  '@jsr/totto__function@1.7.1':
+    resolution: {integrity: sha512-iILOMWWLuuHfPKuSjQl6j8o2kijhh6lSX9UwrUJwCd1SMNQj4Pn0Bc68BIJxPhAkEEWPOGnZDJpSR7GmDtzzEQ==, tarball: https://npm.jsr.io/~/11/@jsr/totto__function/1.7.1.tgz}
 
   '@libsql/client@0.15.7':
     resolution: {integrity: sha512-2rKekOBINDKXGwB0I5qeTDuom2944hEkWkjN8O41j95/HRKP+3sk/fq6/PoPJSuwY3pgWAS8vyby+FgOyPnIVQ==}
@@ -7532,7 +7532,7 @@ snapshots:
       '@jsr/std__internal': 1.0.10
       '@jsr/std__path': 1.1.1
 
-  '@jsr/totto__function@1.7.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))':
+  '@jsr/totto__function@1.7.1(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.1.4(@types/debug@4.1.12)(@types/node@24.7.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.19.4)(yaml@2.8.1))':
     dependencies:
       '@effect/ai': 0.28.0(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(effect@3.17.14)
       '@effect/ai-anthropic': 0.18.0(@effect/ai@0.28.0(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(effect@3.17.14))(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14)

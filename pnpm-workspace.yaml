@@ -64,5 +64,5 @@ catalogs:
     tailwind: ^4.0.0
     tailwindcss: ^4.1.11
   util:
-    "@totto/function": jsr:^1.7.0
+    "@totto/function": jsr:^1.7.1
     zod: ^4.0.0
