@@ -8,10 +8,6 @@ export default defineConfig({
       name: "pulumi",
     },
     {
-      match: [/clerk/],
-      name: "clerk",
-    },
-    {
       match: [/casbin/],
       name: "casbin",
     },
@@ -24,7 +20,7 @@ export default defineConfig({
       name: "drizzle",
     },
     {
-      match: [/yamada/, /daisyui/, /tailwind/],
+      match: [/daisyui/, /tailwind/],
       name: "ui",
     },
     {
@@ -34,10 +30,6 @@ export default defineConfig({
     {
       match: [/graphql/, /@pothos/],
       name: "graphql",
-    },
-    {
-      match: [/react/],
-      name: "react",
     },
     { match: [/cloudflare/, /wrangler/], name: "cloudflare" },
     {
@@ -57,7 +49,7 @@ export default defineConfig({
       name: "tsconfig",
     },
     {
-      match: [/turbo/, /tsx/, /pncat/],
+      match: [/turbo/, /pncat/],
       name: "cli",
     },
   ],
