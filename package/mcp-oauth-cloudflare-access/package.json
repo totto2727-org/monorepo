@@ -5,12 +5,12 @@
   "devDependencies": {
     "@cloudflare/workers-oauth-provider": "catalog:cloudflare",
     "@cloudflare/workers-types": "catalog:cloudflare",
-    "@rslib/core": "catalog:build",
-    "@rstest/core": "catalog:test",
     "@totto/function": "catalog:util",
     "@types/node": "catalog:dev",
     "hono": "catalog:hono",
-    "typescript": "catalog:build"
+    "tsdown": "catalog:build",
+    "typescript": "catalog:build",
+    "vitest": "catalog:test"
   },
   "exports": {
     ".": {
@@ -27,10 +27,10 @@
     "hono": "catalog:hono"
   },
   "scripts": {
-    "build": "rslib build --config-loader native",
+    "build": "tsdown",
     "check": "tsgo",
-    "dev": "rslib build --watch --config-loader native",
-    "test": "rstest --config-loader native"
+    "dev": "tsdown --watch",
+    "test": "vitest run --passWithNoTests"
   },
   "type": "module",
   "types": "./dist/index.d.ts",
