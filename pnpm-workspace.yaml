@@ -31,8 +31,8 @@ catalogs:
     tailwind: ^4.0.0
   drizzle:
     drizzle-cuid2: ^2.1.0
-    drizzle-kit: ^0.31.1
-    drizzle-orm: ^0.44.0
+    drizzle-kit: ^0.31.5
+    drizzle-orm: ^0.44.6
   graphql:
     "@pothos/core": ^4.9.1
     "@pothos/plugin-validation": ^4.1.1
