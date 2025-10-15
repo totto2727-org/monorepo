@@ -11,7 +11,11 @@ export default defineConfig({
   plugins: [
     cloudflare({ viteEnvironment: { name: "ssr" } }),
     tanstackStart({ srcDirectory: "./app" }),
-    viteReact(),
+    viteReact({
+      babel: {
+        plugins: ["babel-plugin-react-compiler"],
+      },
+    }),
     tsconfigPaths(),
     tailwindcss(),
   ],
