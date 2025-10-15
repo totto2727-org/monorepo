@@ -1,14 +1,13 @@
 {
   "devDependencies": {
-    "@rsbuild/plugin-react": "catalog:build",
-    "@rslib/core": "catalog:build",
-    "@rstest/core": "catalog:test",
     "@totto/function": "catalog:util",
     "@types/node": "catalog:dev",
     "daisyui": "catalog:ui",
     "hono": "catalog:hono",
     "tailwind": "catalog:ui",
-    "typescript": "catalog:build"
+    "tsdown": "catalog:build",
+    "typescript": "catalog:build",
+    "vitest": "catalog:test"
   },
   "exports": {
     "./app-shell": {
@@ -33,10 +32,10 @@
     "hono": "catalog:hono"
   },
   "scripts": {
-    "build": "rslib build --config-loader native",
+    "build": "tsdown",
     "check": "tsgo",
-    "dev": "rslib build --watch --config-loader native",
-    "test": "rstest --config-loader native"
+    "dev": "tsdown --watch",
+    "test": "vitest run --passWithNoTests"
   },
   "type": "module",
   "version": "0.0.0"
