@@ -1,8 +1,5 @@
-import { printSchema } from "graphql"
-import { builder } from "./graphql/builder.js"
+import type { Builder } from "./graphql/builder.js"
 
-export * from "./graphql/builder.js"
-
-export function generateSchema() {
-  return printSchema(builder.toSchema())
+export function initializeBuilder(_builder: Builder) {
+  // TODO
 }
