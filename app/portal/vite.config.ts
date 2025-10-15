@@ -10,13 +10,13 @@ import tsconfigPaths from "vite-tsconfig-paths"
 export default defineConfig({
   plugins: [
     cloudflare({ viteEnvironment: { name: "ssr" } }),
+    tsconfigPaths(),
     tanstackStart({ srcDirectory: "./app" }),
     viteReact({
       babel: {
         plugins: ["babel-plugin-react-compiler"],
       },
     }),
-    tsconfigPaths(),
     Icons({
       compiler: "jsx",
       iconCustomizer(_, __, props) {
