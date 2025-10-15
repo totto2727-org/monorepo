@@ -6,9 +6,9 @@
     "drizzle-cuid2": "catalog:drizzle",
     "drizzle-orm": "catalog:drizzle",
     "hono": "catalog:hono",
-    "tsdown": "^0.15.7",
+    "tsdown": "catalog:build",
     "typescript": "catalog:build",
-    "vitest": "^3.2.4"
+    "vitest": "catalog:test"
   },
   "exports": {
     "./adaptor": {

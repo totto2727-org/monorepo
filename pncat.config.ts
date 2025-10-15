@@ -16,6 +16,10 @@ export default defineConfig({
       name: "hono",
     },
     {
+      match: [/react/, /tanstack/],
+      name: "react",
+    },
+    {
       match: [/drizzle/, /libsql/],
       name: "drizzle",
     },
@@ -37,11 +41,11 @@ export default defineConfig({
       name: "lint",
     },
     {
-      match: [/vitest/, /rstest/, /playwright/],
+      match: [/vitest/, /playwright/],
       name: "test",
     },
     {
-      match: [/vite/, /rslib/, /typescript/, /rsbuild/],
+      match: [/vite/, /tsdown/, /typescript/],
       name: "build",
     },
     {
