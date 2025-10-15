@@ -5,7 +5,17 @@ import {
   Scripts,
 } from "@tanstack/react-router"
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
-import type * as React from "react"
+import { createServerFn } from "@tanstack/react-start"
+import { getRequest } from "@tanstack/react-start/server"
+import {
+  ColorModeScript,
+  createColorModeManager,
+  UIProvider,
+} from "@yamada-ui/react"
+
+const getCookie = createServerFn().handler(() =>
+  getRequest().headers.get("Cookie"),
+)
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -23,12 +33,27 @@ export const Route = createRootRoute({
       },
     ],
   }),
+  async loader() {
+    return {
+      cookie: await getCookie(),
+    }
+  },
 })
 
 function RootComponent() {
+  const data = Route.useLoaderData()
+  const colorModeManager = createColorModeManager("ssr", data.cookie)
+
   return (
     <RootDocument>
-      <Outlet />
+      <ColorModeScript
+        initialColorMode="dark"
+        nonce="totto2727"
+        type="cookie"
+      />
+      <UIProvider colorModeManager={colorModeManager}>
+        <Outlet />
+      </UIProvider>
       <TanStackRouterDevtools />
     </RootDocument>
   )

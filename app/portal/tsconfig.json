@@ -4,7 +4,8 @@
     "jsx": "preserve",
     "paths": {
       "@/*": ["./app/*"]
-    }
+    },
+    "types": ["unplugin-icons/types/react"]
   },
   "exclude": ["dist/"],
   "extends": ["@totto/function/tsconfig/node24"]
