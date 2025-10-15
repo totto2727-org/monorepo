@@ -16,10 +16,6 @@ export default defineConfig({
       name: "hono",
     },
     {
-      match: [/react/, /tanstack/],
-      name: "react",
-    },
-    {
       match: [/drizzle/, /libsql/],
       name: "drizzle",
     },
@@ -37,7 +33,7 @@ export default defineConfig({
     },
     { match: [/cloudflare/, /wrangler/], name: "cloudflare" },
     {
-      match: [/biome/, /dprint/],
+      match: [/biome/, /dprint/, /eslint/],
       name: "lint",
     },
     {
@@ -55,6 +51,10 @@ export default defineConfig({
     {
       match: [/turbo/, /pncat/],
       name: "cli",
+    },
+    {
+      match: [/react/, /tanstack/],
+      name: "react",
     },
   ],
   force: false,
