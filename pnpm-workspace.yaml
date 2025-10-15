@@ -8,7 +8,7 @@ catalogs:
     "@typescript/native-preview": 7.0.0-dev.20250923.1
     tsdown: ^0.15.7
     typescript: ^5.9.2
-    vite: ^7.0.0
+    vite: npm:rolldown-vite@^7.0.0
     vite-tsconfig-paths: ^5.1.4
   casbin:
     "@hono/casbin": ^1.0.0
@@ -62,8 +62,6 @@ catalogs:
   test:
     vitest: ^3.2.4
   tsconfig:
-    "@tsconfig/node24": ^24.0.0
-    "@tsconfig/remix": ^2.0.5
     "@tsconfig/strictest": ^2.0.5
   ui:
     "@tailwindcss/cli": ^4.1.11

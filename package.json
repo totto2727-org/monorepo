@@ -1,8 +1,6 @@
 {
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
-    "@tsconfig/node24": "catalog:tsconfig",
-    "@tsconfig/remix": "catalog:tsconfig",
     "@tsconfig/strictest": "catalog:tsconfig",
     "@types/node": "catalog:dev",
     "@typescript/native-preview": "catalog:build",
@@ -16,8 +14,6 @@
   "packageManager": "pnpm@10.18.2",
   "pnpm": {
     "onlyBuiltDependencies": [
-      "@biomejs/biome",
-      "@clerk/shared",
       "@parcel/watcher",
       "@pulumi/docker",
       "@pulumi/docker-build",
@@ -27,20 +23,22 @@
       "core-js-pure",
       "dprint",
       "esbuild",
-      "keccak",
       "msgpackr-extract",
       "pncat",
       "protobufjs",
       "sharp",
       "utf-8-validate",
       "workerd"
-    ]
+    ],
+    "overrides": {
+      "vite": "catalog:build"
+    }
   },
   "scripts": {
-    "check": "$npm_execpath run /check:.*/",
+    "check": "na run /check:.*/",
     "check:biome": "biome check",
     "check:dprint": "dprint check",
-    "fix": "$npm_execpath run /fix:.*/",
+    "fix": "na run /fix:.*/",
     "fix:biome": "biome check --write --unsafe",
     "fix:dprint": "dprint fmt --allow-no-files",
     "pncat": "pncat",
