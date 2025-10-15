@@ -5,3 +5,4 @@ test-results/
 worker-configuration.d.ts
 dist/
 public/asset/tailwind.css
+app/routeTree.gen.ts
