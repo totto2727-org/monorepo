@@ -6,6 +6,7 @@ packages:
 catalogs:
   build:
     "@typescript/native-preview": 7.0.0-dev.20250923.1
+    "@vitejs/plugin-react": ^5.0.4
     tsdown: ^0.15.7
     typescript: ^5.9.2
     vite: npm:rolldown-vite@^7.0.0
@@ -27,6 +28,7 @@ catalogs:
     "@socotra/modelcontextprotocol-sdk": ^1.18.0
     "@types/node": ^24.1.0
     agents: ^0.2.0
+    tailwind: ^4.0.0
   drizzle:
     drizzle-cuid2: ^2.1.0
     drizzle-kit: ^0.31.1
@@ -60,7 +62,6 @@ catalogs:
     "@tanstack/react-start": ^1.132.56
     "@types/react": ^19.2.2
     "@types/react-dom": ^19.2.2
-    "@vitejs/plugin-react": ^5.0.4
     babel-plugin-react-compiler: ^1.0.0
     react: ^19.2.0
     react-dom: ^19.2.0
@@ -69,11 +70,15 @@ catalogs:
   tsconfig:
     "@tsconfig/strictest": ^2.0.5
   ui:
+    "@iconify-json/material-symbols": ^1.2.41
+    "@svgr/core": ^8.1.0
+    "@svgr/plugin-jsx": ^8.1.0
     "@tailwindcss/cli": ^4.1.11
     "@tailwindcss/vite": ^4.1.14
+    "@yamada-ui/react": ^1.7.8
     daisyui: ^5.1.27
-    tailwind: ^4.0.0
     tailwindcss: ^4.1.11
+    unplugin-icons: ^22.4.2
   util:
     "@totto/function": jsr:^1.7.2
     zod: ^4.0.0

@@ -20,7 +20,7 @@ export default defineConfig({
       name: "drizzle",
     },
     {
-      match: [/daisyui/, /tailwind/],
+      match: [/@yamada-ui/, /icon/, /daisyui/, /tailwindcss/, /svg/],
       name: "ui",
     },
     {
