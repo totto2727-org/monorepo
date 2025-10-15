@@ -1,6 +1,8 @@
 {
+  "dependencies": {
+    "@hono/cloudflare-access": "catalog:hono"
+  },
   "devDependencies": {
-    "@hono/cloudflare-access": "catalog:hono",
     "@totto/function": "catalog:util",
     "@types/node": "catalog:dev",
     "drizzle-cuid2": "catalog:drizzle",
@@ -11,13 +13,21 @@
     "vitest": "catalog:test"
   },
   "exports": {
-    "./adaptor": {
-      "import": "./dist/adaptor.js",
-      "types": "./dist/adaptor.d.ts"
+    "./db": {
+      "import": "./dist/db.js",
+      "types": "./dist/db.d.ts"
     },
-    "./table": {
-      "import": "./dist/table.js",
-      "types": "./dist/table.d.ts"
+    "./hono": {
+      "import": "./dist/hono.js",
+      "types": "./dist/hono.d.ts"
+    },
+    "./hono/cloudflare": {
+      "import": "./dist/hono/cloudflare.js",
+      "types": "./dist/hono/cloudflare.d.ts"
+    },
+    "./schema": {
+      "import": "./dist/schema.js",
+      "types": "./dist/schema.d.ts"
     }
   },
   "files": [
@@ -25,7 +35,6 @@
   ],
   "name": "@monorepo/tenant",
   "peerDependencies": {
-    "@hono/cloudflare-access": "catalog:hono",
     "@totto/function": "catalog:util",
     "drizzle-cuid2": "catalog:drizzle",
     "drizzle-orm": "catalog:drizzle",
