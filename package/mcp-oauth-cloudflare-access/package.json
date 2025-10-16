@@ -4,7 +4,6 @@
   },
   "devDependencies": {
     "@cloudflare/workers-oauth-provider": "catalog:cloudflare",
-    "@cloudflare/workers-types": "catalog:cloudflare",
     "@totto/function": "catalog:util",
     "@types/node": "catalog:dev",
     "hono": "catalog:hono",

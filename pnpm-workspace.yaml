@@ -20,7 +20,6 @@ catalogs:
   cloudflare:
     "@cloudflare/vite-plugin": ^1.11.0
     "@cloudflare/workers-oauth-provider": ^0.0.10
-    "@cloudflare/workers-types": ^4.20250813.0
     wrangler: 4.42.2
   dev:
     "@mikaelporttila/rss": jsr:^1.1.3

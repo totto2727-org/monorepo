@@ -42,9 +42,6 @@ catalogs:
     '@cloudflare/workers-oauth-provider':
       specifier: ^0.0.10
       version: 0.0.10
-    '@cloudflare/workers-types':
-      specifier: ^4.20250813.0
-      version: 4.20251011.0
     wrangler:
       specifier: 4.42.2
       version: 4.42.2
@@ -250,9 +247,6 @@ importers:
       '@cloudflare/vite-plugin':
         specifier: catalog:cloudflare
         version: 1.13.3(bufferutil@4.0.9)(rolldown-vite@7.1.17(@types/node@24.7.1)(esbuild@0.25.10)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.1))(utf-8-validate@5.0.10)(workerd@1.20251008.0)(wrangler@4.42.2(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10))
-      '@cloudflare/workers-types':
-        specifier: catalog:cloudflare
-        version: 4.20251011.0
       '@hono/mcp':
         specifier: catalog:hono
         version: 0.1.4(@modelcontextprotocol/sdk@1.20.0)(hono@4.9.8)
@@ -433,9 +427,6 @@ importers:
       '@cloudflare/vite-plugin':
         specifier: catalog:cloudflare
         version: 1.13.3(bufferutil@4.0.9)(rolldown-vite@7.1.17(@types/node@24.7.1)(esbuild@0.25.10)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.1))(utf-8-validate@5.0.10)(workerd@1.20251008.0)(wrangler@4.42.2(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10))
-      '@cloudflare/workers-types':
-        specifier: catalog:cloudflare
-        version: 4.20251011.0
       '@hono/graphql-server':
         specifier: catalog:hono
         version: 0.7.0(hono@4.9.8)
@@ -554,9 +545,6 @@ importers:
         specifier: catalog:cloudflare
         version: 0.0.10
     devDependencies:
-      '@cloudflare/workers-types':
-        specifier: catalog:cloudflare
-        version: 4.20251011.0
       '@totto/function':
         specifier: catalog:util
         version: '@jsr/totto__function@1.7.3(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.10)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.1))'

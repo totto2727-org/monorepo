@@ -2,7 +2,6 @@
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
     "@cloudflare/vite-plugin": "catalog:cloudflare",
-    "@cloudflare/workers-types": "catalog:cloudflare",
     "@hono/mcp": "catalog:hono",
     "@hono/standard-validator": "catalog:hono",
     "@modelcontextprotocol/sdk": "catalog:dev",

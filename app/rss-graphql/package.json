@@ -2,7 +2,6 @@
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
     "@cloudflare/vite-plugin": "catalog:cloudflare",
-    "@cloudflare/workers-types": "catalog:cloudflare",
     "@hono/graphql-server": "catalog:hono",
     "@mikaelporttila/rss": "catalog:dev",
     "@pothos/core": "catalog:graphql",
