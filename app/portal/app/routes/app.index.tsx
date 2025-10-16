@@ -25,14 +25,14 @@ function RouteComponent() {
         <MaterialSymbolsKidStarOutlineSharp />
         <Text>Tanstack Start!!!</Text>
       </HStack>
-      <HStack>
+      <VStack>
         <Text>{data.id}</Text>
-        <HStack>
-          {data.organizationIDArray.map((v) => (
-            <Text>{v}</Text>
+        <VStack>
+          {data.organizationArray.map((v) => (
+            <Text>{v.id}</Text>
           ))}
-        </HStack>
-      </HStack>
+        </VStack>
+      </VStack>
     </VStack>
   )
 }
