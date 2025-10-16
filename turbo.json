@@ -3,7 +3,7 @@
     "//#check": {},
     "//#fix": {},
     "build": {
-      "dependsOn": ["^build", "prebuild"],
+      "dependsOn": ["prebuild"],
       "outputs": ["**/build/**", "**/dist/**", "**/routeTree.gen.ts"]
     },
     "check": {
@@ -14,6 +14,7 @@
     },
     "fix": {},
     "prebuild": {
+      "dependsOn": ["^build"],
       "outputs": ["**/worker-configuration.d.ts"]
     },
     "test": {
