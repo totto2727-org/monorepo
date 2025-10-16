@@ -30,7 +30,7 @@
   "imports": {
     "#@*": "./app*"
   },
-  "name": "mcp",
+  "name": "@app/mcp",
   "private": true,
   "scripts": {
     "build": "vite build",

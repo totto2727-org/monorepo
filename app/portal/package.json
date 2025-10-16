@@ -5,8 +5,8 @@
     "@hono/graphql-server": "catalog:hono",
     "@hono/standard-validator": "catalog:hono",
     "@iconify-json/material-symbols": "catalog:ui",
-    "@monorepo/rbac": "workspace:*",
-    "@monorepo/tenant": "workspace:*",
+    "@package/rbac": "workspace:*",
+    "@package/tenant": "workspace:*",
     "@pothos/core": "catalog:graphql",
     "@pothos/plugin-validation": "catalog:graphql",
     "@svgr/core": "catalog:ui",
@@ -38,7 +38,7 @@
     "vite": "catalog:build",
     "vite-tsconfig-paths": "catalog:build"
   },
-  "name": "portal",
+  "name": "@app/portal",
   "private": true,
   "scripts": {
     "build": "vite build",

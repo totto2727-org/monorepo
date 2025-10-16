@@ -15,7 +15,7 @@
     "typescript": "catalog:build",
     "vite": "catalog:build"
   },
-  "name": "rss-graphql",
+  "name": "@app/rss-graphql",
   "private": true,
   "scripts": {
     "build": "vite build",

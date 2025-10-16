@@ -13,7 +13,7 @@
     "pnpm": ">=10.0.0"
   },
   "main": "index.ts",
-  "name": "cloudflare",
+  "name": "@infra/cloudflare",
   "scripts": {
     "check": "tsgo"
   },

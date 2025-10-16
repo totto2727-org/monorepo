@@ -328,10 +328,10 @@ importers:
       '@iconify-json/material-symbols':
         specifier: catalog:ui
         version: 1.2.41
-      '@monorepo/rbac':
+      '@package/rbac':
         specifier: workspace:*
         version: link:../../package/rbac
-      '@monorepo/tenant':
+      '@package/tenant':
         specifier: workspace:*
         version: link:../../package/tenant
       '@pothos/core':

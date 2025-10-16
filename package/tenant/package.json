@@ -33,7 +33,7 @@
   "files": [
     "dist"
   ],
-  "name": "@monorepo/tenant",
+  "name": "@package/tenant",
   "peerDependencies": {
     "@totto/function": "catalog:util",
     "drizzle-cuid2": "catalog:drizzle",
