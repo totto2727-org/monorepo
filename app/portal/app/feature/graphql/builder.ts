@@ -2,7 +2,7 @@ import SchemaBuilder from "@pothos/core"
 import ValidationPlugin from "@pothos/plugin-validation"
 import type { Context } from "../hono.js"
 
-export const createBuilder = () =>
+export const create = () =>
   new SchemaBuilder<{
     Context: Context
     DefaultInputFieldRequiredness: true
@@ -13,4 +13,4 @@ export const createBuilder = () =>
     plugins: [ValidationPlugin],
   })
 
-export type Builder = ReturnType<typeof createBuilder>
+export type Builder = ReturnType<typeof create>
