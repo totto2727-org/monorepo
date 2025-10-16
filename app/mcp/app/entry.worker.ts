@@ -1,4 +1,4 @@
-import { OAuthProvider } from "mcp-oauth-cloudflare-access"
+import { OAuthProvider } from "@package/mcp-oauth-cloudflare-access"
 import * as Hono from "./entry.hono.js"
 import * as Scheduled from "./entry.scheduled.js"
 

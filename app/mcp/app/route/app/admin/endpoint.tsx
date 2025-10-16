@@ -1,6 +1,6 @@
+import { Body } from "@package/hono-ui/app-shell"
+import * as Icon from "@package/hono-ui/icon"
 import { count, sql } from "drizzle-orm"
-import { Body } from "hono-ui/app-shell"
-import * as Icon from "hono-ui/icon"
 import * as DataBase from "#@/feature/database.js"
 import * as Hono from "#@/feature/hono.js"
 import * as ManagementCard from "#@/feature/ui/admin/card/management-card.js"

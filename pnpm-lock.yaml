@@ -262,6 +262,12 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: catalog:dev
         version: 1.20.0
+      '@package/hono-ui':
+        specifier: 'workspace:'
+        version: link:../../package/hono-ui
+      '@package/mcp-oauth-cloudflare-access':
+        specifier: 'workspace:'
+        version: link:../../package/mcp-oauth-cloudflare-access
       '@socotra/modelcontextprotocol-sdk':
         specifier: catalog:dev
         version: 1.18.0
@@ -292,12 +298,6 @@ importers:
       hono:
         specifier: catalog:hono
         version: 4.9.8
-      hono-ui:
-        specifier: 'workspace:'
-        version: link:../../package/hono-ui
-      mcp-oauth-cloudflare-access:
-        specifier: 'workspace:'
-        version: link:../../package/mcp-oauth-cloudflare-access
       tailwindcss:
         specifier: catalog:ui
         version: 4.1.13

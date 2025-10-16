@@ -21,7 +21,7 @@
   "files": [
     "dist"
   ],
-  "name": "mcp-oauth-cloudflare-access",
+  "name": "@package/mcp-oauth-cloudflare-access",
   "peerDependencies": {
     "@totto/function": "catalog:util",
     "hono": "catalog:hono"
