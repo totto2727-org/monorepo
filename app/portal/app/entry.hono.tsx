@@ -8,7 +8,7 @@ import { createBuilder } from "@/feature/graphql/builder.js"
 import { initializeBuilder } from "@/feature/graphql.js"
 import type { Env } from "@/feature/hono.js"
 
-export const createApp = Effect.gen(function*() {
+export const createApp = Effect.gen(function* () {
   const builder = createBuilder()
   initializeBuilder(builder)
   const schema = builder.toSchema()
