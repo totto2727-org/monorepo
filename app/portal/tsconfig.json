@@ -4,7 +4,7 @@
     "paths": {
       "@/*": ["./app/*"]
     },
-    "types": ["unplugin-icons/types/react"]
+    "types": ["./worker-configuration.d.ts", "unplugin-icons/types/react"]
   },
   "exclude": ["dist/"],
   "extends": ["@totto/function/tsconfig/tanstack-start"]

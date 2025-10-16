@@ -3,7 +3,6 @@ import type {
   AuthRequest,
   OAuthHelpers,
 } from "@cloudflare/workers-oauth-provider"
-import type { ExecutionContext, JsonWebKey } from "@cloudflare/workers-types"
 import {
   clientIdAlreadyApproved,
   fetchUpstreamAuthToken,
@@ -26,7 +25,7 @@ export type Env = {
 export async function handleAccessRequest(
   request: Request,
   env: Env,
-  _ctx: ExecutionContext,
+  _ctx: unknown,
 ): Promise<Response> {
   const { pathname, searchParams } = new URL(request.url)
 
@@ -155,7 +154,8 @@ async function fetchAccessPublicKey(env: Env, kid: string) {
   // TODO: cache this
   const resp = await fetch(env.ACCESS_JWKS_URL)
   const keys = (await resp.json()) as {
-    keys: (JsonWebKey & { kid: string })[]
+    // biome-ignore lint/suspicious/noExplicitAny: TODO
+    keys: (any & { kid: string })[]
   }
   // biome-ignore lint/style/noNonNullAssertion: そのうち治す
   const jwk = keys.keys.filter((key) => key.kid === kid)[0]!
