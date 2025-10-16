@@ -5,6 +5,13 @@
   },
   "compatibility_date": "2025-10-14",
   "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_id": "be6fe799-2939-4424-9c55-29a96e66990b",
+      "database_name": "portal"
+    }
+  ],
   "main": "./app/entry.worker.ts",
   "name": "portal",
   "observability": {
