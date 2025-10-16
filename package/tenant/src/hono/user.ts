@@ -3,8 +3,11 @@ import { getContext } from "hono/context-storage"
 import type { schema } from "../schema/user.js"
 import type { Env } from "./env.js"
 
-const UserClass: Context.TagClass<User, "User", () => typeof schema.Type> =
-  Context.Tag("User")()
+const UserClass: Context.TagClass<
+  User,
+  "User",
+  () => Option.Option<typeof schema.Type>
+> = Context.Tag("User")()
 
 export class User extends UserClass {}
 
