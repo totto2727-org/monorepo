@@ -1,4 +1,4 @@
-import { Middleware } from "@monorepo/tenant/hono"
+import { Middleware } from "@package/tenant/hono"
 import {
   createStartHandler,
   defaultStreamHandler,

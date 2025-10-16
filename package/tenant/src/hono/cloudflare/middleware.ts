@@ -16,19 +16,19 @@ import { TenantDatabase } from "../db.js"
 import type { Env } from "../env.js"
 import { AuthHonoMiddlewares } from "../middleware.js"
 
-const decodeSyncUser = Schema.decodeSync(User.schema)
+const decodeOptionUser = Schema.decodeOption(User.schema)
 const factory = createFactory<Env>()
 
 export const d1Live = Layer.effect(
   AuthHonoMiddlewares,
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     const getDB = yield* TenantDatabase
     const cuidGenerator = yield* CUIDGenerator
 
     return {
       base: factory.createMiddleware(async (c, next) => {
         function updateUser(user: typeof User.schema.Encoded) {
-          c.set("user", decodeSyncUser(user))
+          c.set("user", decodeOptionUser(user))
         }
 
         const payload = c.var.accessPayload

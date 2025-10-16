@@ -7,6 +7,5 @@ export type Env = {
   Variables: {
     tenantDatabase: AnyDrizzleD1Database
     user: Option.Option<typeof User.schema.Type>
-    groups: string[]
   } & CloudflareAccessVariables
 }

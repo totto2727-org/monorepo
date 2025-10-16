@@ -1,13 +1,12 @@
-import type { Env } from "@monorepo/tenant/hono"
 import { createFileRoute } from "@tanstack/react-router"
 import { createServerFn } from "@tanstack/react-start"
 import { Option } from "@totto/function/effect"
 import { HStack, Text, VStack } from "@yamada-ui/react"
-import { getContext } from "hono/context-storage"
+import { getContext } from "@/feature/hono"
 import MaterialSymbolsKidStarOutlineSharp from "~icons/material-symbols/kid-star-outline-sharp"
 
 export const getUser = createServerFn().handler(() => {
-  return getContext<Env.Env>().var.user.pipe(Option.getOrThrow)
+  return getContext().var.user.pipe(Option.getOrThrow)
 })
 
 export const Route = createFileRoute("/app/")({
