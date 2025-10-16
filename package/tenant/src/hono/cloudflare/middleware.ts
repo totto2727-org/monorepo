@@ -1,29 +1,39 @@
-import { Array, Effect, Layer, Option, Schema } from "@totto/function/effect"
-import { and, eq, inArray, not } from "drizzle-orm"
+import {
+  Array,
+  Effect,
+  Layer,
+  Option,
+  Predicate,
+  Schema,
+} from "@totto/function/effect"
+import { eq, inArray } from "drizzle-orm"
 import { contextStorage } from "hono/context-storage"
 import { createFactory } from "hono/factory"
-import { HTTPException } from "hono/http-exception"
 import {
   cloudflareAccessOrganizationTable,
   cloudflareAccessUserTable,
   organizationTable,
-  parentOrganizationTable,
   userTable,
 } from "../../db/table.js"
-import * as User from "../../schema/user.js"
+import { User } from "../../schema.js"
 import { CUIDGenerator } from "../cuid.js"
 import { TenantDatabase } from "../db.js"
 import type { Env } from "../env.js"
-import { AuthHonoMiddlewares } from "../middleware.js"
+import {
+  AuthHonoMiddlewares,
+  makeRequireUserMiddleware,
+} from "../middleware.js"
 
 const decodeOptionUser = Schema.decodeOption(User.schema)
 const factory = createFactory<Env>()
 
 export const d1Live = Layer.effect(
   AuthHonoMiddlewares,
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const getDB = yield* TenantDatabase
     const cuidGenerator = yield* CUIDGenerator
+
+    const requireUser = yield* makeRequireUserMiddleware
 
     return {
       base: factory.createMiddleware(async (c, next) => {
@@ -31,27 +41,33 @@ export const d1Live = Layer.effect(
           c.set("user", decodeOptionUser(user))
         }
 
-        const payload = c.var.accessPayload
         const db = getDB()
+
+        // 認証情報がない場合、noneとなる
+        const payload = c.var.accessPayload
+        if (Predicate.isNullable(payload)) {
+          c.set("user", Option.none())
+          return
+        }
 
         // トークンのPayloadからデータを抽出
         const cloudflareUserID = payload.sub
         const cloudflareAccessOrganizationIDArray: string[] =
           // @ts-expect-error -- デフォルトのpayloadに存在しないため
           payload.groups ?? []
-        // Payloadに組織情報がない場合エラーにする
-        if (Array.isEmptyArray(cloudflareAccessOrganizationIDArray)) {
-          throw new HTTPException(403)
-        }
 
-        // ユーザーの存在チェックと追加
-        let cloudflareAccessUserOption = Option.fromIterable(
+        // ユーザーの取得
+        let userOption = Option.fromIterable(
           await db
             .select({
-              cloudflareAccessID: cloudflareAccessUserTable.cloudflareAccessID,
-              id: cloudflareAccessUserTable.id,
+              id: userTable.id,
+              name: userTable.name,
             })
             .from(cloudflareAccessUserTable)
+            .innerJoin(
+              userTable,
+              eq(cloudflareAccessUserTable.id, userTable.id),
+            )
             .where(
               eq(
                 cloudflareAccessUserTable.cloudflareAccessID,
@@ -59,168 +75,160 @@ export const d1Live = Layer.effect(
               ),
             ),
         )
-        if (Option.isNone(cloudflareAccessUserOption)) {
+
+        // ユーザーの追加
+        if (Option.isNone(userOption)) {
           const userID = cuidGenerator.pipe(Effect.runSync)
           const result = await db.batch([
-            db.insert(userTable).values({ id: userID }),
             db
-              .insert(cloudflareAccessUserTable)
+              .insert(userTable)
               .values({
-                cloudflareAccessID: payload.sub,
                 id: userID,
+                // name部分はpayloadからとっても良いかも？
+                name: userID,
               })
               .returning(),
+            db.insert(cloudflareAccessUserTable).values({
+              cloudflareAccessID: cloudflareUserID,
+              id: userID,
+            }),
+            db
+              .insert(organizationTable)
+              .values({ id: userID, isPersonal: true, name: userID }),
           ] as const)
-          cloudflareAccessUserOption = Option.fromIterable(result[1])
+          userOption = Option.fromIterable(result[0])
         }
-        const cloudflareAccessUser = Option.getOrThrow(
-          cloudflareAccessUserOption,
-        )
 
-        // IDから組織関連の情報を取得
-        // 合わせてcloudflare accessの組織IDも結合して取得
-        const existParentOrganizationArray = await db
-          .select({
-            cloudflareAccessOrganizationID:
-              cloudflareAccessOrganizationTable.cloudflareAccessID,
-            organizationID: parentOrganizationTable.organizationID,
-            userID: parentOrganizationTable.userID,
-          })
-          .from(parentOrganizationTable)
-          .innerJoin(
-            cloudflareAccessOrganizationTable,
-            eq(
-              parentOrganizationTable.organizationID,
-              cloudflareAccessOrganizationTable.id,
-            ),
-          )
-          .where(eq(parentOrganizationTable.userID, cloudflareAccessUser.id))
+        const user = Option.getOrThrow(userOption)
 
-        // トークンの組織とParentOrganizationの状態が同一であることを検証する。
-        // 一致する場合はコンテキストを更新して先に進める。
-        const existParentOrganizationIDSet = new Set(
-          existParentOrganizationArray.map(
-            (v) => v.cloudflareAccessOrganizationID,
-          ),
-        )
-        const cloudflareAccessOrganizationIDSet = new Set(
-          cloudflareAccessOrganizationIDArray,
-        )
-        if (
-          cloudflareAccessOrganizationIDSet.isSubsetOf(
-            existParentOrganizationIDSet,
-          ) &&
-          existParentOrganizationIDSet.isSubsetOf(
-            cloudflareAccessOrganizationIDSet,
-          ) &&
-          Array.isNonEmptyArray(existParentOrganizationArray)
-        ) {
+        // TODO: 取得タイミングの最適化
+        const personalOrganization = Option.fromIterable(
+          await db
+            .select({
+              id: organizationTable.id,
+              isPersonal: organizationTable.isPersonal,
+              name: organizationTable.name,
+            })
+            .from(organizationTable)
+            .where(eq(organizationTable.id, user.id)),
+        ).pipe(Option.getOrThrow)
+
+        if (Array.isEmptyArray(cloudflareAccessOrganizationIDArray)) {
           updateUser({
-            id: cloudflareAccessUser.id,
-            organizationIDArray: Array.map(
-              existParentOrganizationArray,
-              (v) => v.organizationID,
-            ),
+            id: user.id,
+            name: user.name,
+            organizationArray: Array.of(personalOrganization),
           })
           return next()
         }
 
-        // トークンの組織が全てDBに追加されていることを検証する。
-        const existCloudflareAccessOrganizationArray = await db
+        const existOrganizationArray = await db
           .select({
             cloudflareAccessID:
               cloudflareAccessOrganizationTable.cloudflareAccessID,
-            id: cloudflareAccessOrganizationTable.id,
+            id: organizationTable.id,
+            isPersonal: organizationTable.isPersonal,
+            name: organizationTable.name,
           })
           .from(cloudflareAccessOrganizationTable)
+          .innerJoin(
+            organizationTable,
+            eq(cloudflareAccessOrganizationTable.id, organizationTable.id),
+          )
           .where(
             inArray(
               cloudflareAccessOrganizationTable.cloudflareAccessID,
               cloudflareAccessOrganizationIDArray,
             ),
           )
+          .orderBy(organizationTable.createdAt)
 
-        let cloudflareAccessOrganizationArray =
-          existCloudflareAccessOrganizationArray
-
-        const existCloudflareOrganizationIDSet = new Set(
-          existCloudflareAccessOrganizationArray.map(
-            (v) => v.cloudflareAccessID,
-          ),
+        const cloudflareAccessOrganizationIDSet = new Set(
+          cloudflareAccessOrganizationIDArray,
         )
-        const setOfCloudflareAccessOrganizationThatRequireAddition =
-          cloudflareAccessOrganizationIDSet.difference(
-            existCloudflareOrganizationIDSet,
-          )
-        if (setOfCloudflareAccessOrganizationThatRequireAddition.size > 0) {
-          const newCloudflareAccessOrganizationArray = Array.fromIterable(
-            setOfCloudflareAccessOrganizationThatRequireAddition,
-          ).map((cloudflareAccessID) => ({
-            cloudflareAccessID,
-            id: cuidGenerator.pipe(Effect.runSync),
-          }))
-          const result = await db.batch([
-            db
-              .insert(organizationTable)
-              .values(
-                newCloudflareAccessOrganizationArray.map((v) => ({ id: v.id })),
-              ),
-            db
-              .insert(cloudflareAccessOrganizationTable)
-              .values(newCloudflareAccessOrganizationArray)
-              .returning(),
-          ])
-          cloudflareAccessOrganizationArray = [
-            ...existCloudflareAccessOrganizationArray,
-            ...result[1],
-          ]
+        const existCloudflareAccessOrganizationIDSet = new Set(
+          existOrganizationArray.map((v) => v.cloudflareAccessID),
+        )
+
+        if (
+          cloudflareAccessOrganizationIDSet.isSubsetOf(
+            existCloudflareAccessOrganizationIDSet,
+          ) &&
+          existCloudflareAccessOrganizationIDSet.isSubsetOf(
+            cloudflareAccessOrganizationIDSet,
+          ) &&
+          Array.isNonEmptyArray(existOrganizationArray)
+        ) {
+          updateUser({
+            id: user.id,
+            name: user.name,
+            organizationArray: [
+              personalOrganization,
+              ...existOrganizationArray,
+            ],
+          })
+          return next()
         }
 
-        // ParentOrganizationへの追加
-        const parentOrganizationArray = cloudflareAccessOrganizationArray.map(
-          (organization) => ({
-            organizationID: organization.id,
-            userID: cloudflareAccessUser.id,
+        const newCloudflareAccessOrganizationIDSet =
+          cloudflareAccessOrganizationIDSet.difference(
+            existCloudflareAccessOrganizationIDSet,
+          )
+
+        const newCloudflareAccessOrganizationArray = Array.fromIterable(
+          newCloudflareAccessOrganizationIDSet,
+        ).map((cloudflareAccessID) => ({
+          cloudflareAccessID,
+          id: cuidGenerator.pipe(Effect.runSync),
+        }))
+        const newOrganizationArray = newCloudflareAccessOrganizationArray.map(
+          (v) => ({
+            id: v.id,
+            isPersonal: false,
+            name: v.id,
           }),
         )
-        await db
-          .insert(parentOrganizationTable)
-          .values(parentOrganizationArray)
-          .onConflictDoNothing()
 
-        // 余分なParentOrganizationの削除
-        await db.delete(parentOrganizationTable).where(
-          and(
-            eq(parentOrganizationTable.userID, cloudflareAccessUser.id),
-            not(
+        const [, , organizationArray] = await db.batch([
+          db.insert(organizationTable).values(newOrganizationArray),
+          db
+            .insert(cloudflareAccessOrganizationTable)
+            .values(newCloudflareAccessOrganizationArray),
+          db
+            .select({
+              cloudflareAccessID:
+                cloudflareAccessOrganizationTable.cloudflareAccessID,
+              id: organizationTable.id,
+              isPersonal: organizationTable.isPersonal,
+              name: organizationTable.name,
+            })
+            .from(cloudflareAccessOrganizationTable)
+            .innerJoin(
+              organizationTable,
+              eq(cloudflareAccessOrganizationTable.id, organizationTable.id),
+            )
+            .where(
               inArray(
-                parentOrganizationTable.organizationID,
-                parentOrganizationArray.map((v) => v.organizationID),
+                cloudflareAccessOrganizationTable.cloudflareAccessID,
+                cloudflareAccessOrganizationIDArray,
               ),
-            ),
-          ),
-        )
+            )
+            .orderBy(organizationTable.createdAt),
+        ])
 
-        // 100%実行される想定
-        if (Array.isNonEmptyArray(parentOrganizationArray)) {
-          updateUser({
-            id: cloudflareAccessUser.id,
-            organizationIDArray: Array.map(
-              parentOrganizationArray,
-              (v) => v.organizationID,
-            ),
-          })
-        }
+        updateUser({
+          id: user.id,
+          name: user.name,
+          organizationArray: Array.make(
+            personalOrganization,
+            ...organizationArray,
+          ),
+        })
 
         return next()
       }),
       contextStorage: contextStorage(),
-      // requiredOrgID: createMiddleware((_, next) => {
-      //   return next()
-      // }),
-      // requiredUserID: createMiddleware((_, next) => {
-      //   return next()
-      // }),
+      requireUser,
     }
   }),
 )
