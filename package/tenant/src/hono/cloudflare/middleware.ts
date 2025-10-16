@@ -23,11 +23,12 @@ import {
   AuthHonoMiddlewares,
   makeRequireUserMiddleware,
 } from "../middleware.js"
+import { UserSource } from "./user-source.js"
 
 const decodeOptionUser = Schema.decodeOption(User.schema)
 const factory = createFactory<Env>()
 
-export const d1Live = Layer.effect(
+export const live = Layer.effect(
   AuthHonoMiddlewares,
   Effect.gen(function* () {
     const getDB = yield* TenantDatabase
@@ -35,26 +36,27 @@ export const d1Live = Layer.effect(
 
     const requireUser = yield* makeRequireUserMiddleware
 
+    const getUserUserSource = yield* UserSource
+
     return {
       base: factory.createMiddleware(async (c, next) => {
         function updateUser(user: typeof User.schema.Encoded) {
           c.set("user", decodeOptionUser(user))
         }
 
-        const db = getDB()
-
         // 認証情報がない場合、noneとなる
-        const payload = c.var.accessPayload
-        if (Predicate.isNullable(payload)) {
+        const userSource = getUserUserSource()
+        if (Predicate.isNullable(userSource.id)) {
           c.set("user", Option.none())
-          return
+          return next()
         }
 
         // トークンのPayloadからデータを抽出
-        const cloudflareUserID = payload.sub
+        const cloudflareAccessUserID = userSource.id
         const cloudflareAccessOrganizationIDArray: string[] =
-          // @ts-expect-error -- デフォルトのpayloadに存在しないため
-          payload.groups ?? []
+          userSource.organizationIDArray
+
+        const db = getDB()
 
         // ユーザーの取得
         let userOption = Option.fromIterable(
@@ -71,7 +73,7 @@ export const d1Live = Layer.effect(
             .where(
               eq(
                 cloudflareAccessUserTable.cloudflareAccessID,
-                cloudflareUserID,
+                cloudflareAccessUserID,
               ),
             ),
         )
@@ -89,7 +91,7 @@ export const d1Live = Layer.effect(
               })
               .returning(),
             db.insert(cloudflareAccessUserTable).values({
-              cloudflareAccessID: cloudflareUserID,
+              cloudflareAccessID: cloudflareAccessUserID,
               id: userID,
             }),
             db
