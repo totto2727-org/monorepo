@@ -12,6 +12,10 @@
     "deploy": {
       "dependsOn": ["build"]
     },
+    "dev": {
+      "dependsOn": ["prebuild"],
+      "persistent": true
+    },
     "fix": {},
     "prebuild": {
       "dependsOn": ["^build"],
