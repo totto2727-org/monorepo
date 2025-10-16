@@ -5,6 +5,7 @@ import { createFactory } from "hono/factory"
 
 export type Env = {
   Bindings: Cloudflare.Env
+  // biome-ignore lint/complexity/noBannedTypes: Required
   Variables: {}
 } & TenantEnv.Env
 
