@@ -35,7 +35,7 @@ export const Route = createRootRoute({
   }),
   async loader() {
     return {
-      cookie: await getCookie(),
+      cookie: (await getCookie()) ?? undefined,
     }
   },
 })

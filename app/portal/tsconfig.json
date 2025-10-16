@@ -1,12 +1,11 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "jsx": "preserve",
     "paths": {
       "@/*": ["./app/*"]
     },
     "types": ["unplugin-icons/types/react"]
   },
   "exclude": ["dist/"],
-  "extends": ["@totto/function/tsconfig/node24"]
+  "extends": ["@totto/function/tsconfig/tanstack-start"]
 }
