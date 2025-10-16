@@ -57,9 +57,9 @@ catalogs:
     "@pulumi/cloudflare": ^6.5.0
     "@pulumi/pulumi": ^3.113.0
   react:
-    "@tanstack/react-router": ^1.132.47
-    "@tanstack/react-router-devtools": ^1.132.51
-    "@tanstack/react-start": ^1.132.56
+    "@tanstack/react-router": ^1.133.3
+    "@tanstack/react-router-devtools": ^1.133.3
+    "@tanstack/react-start": ^1.133.3
     "@types/react": ^19.2.2
     "@types/react-dom": ^19.2.2
     babel-plugin-react-compiler: ^1.0.0
@@ -80,5 +80,5 @@ catalogs:
     tailwindcss: ^4.1.11
     unplugin-icons: ^22.4.2
   util:
-    "@totto/function": jsr:^1.7.2
+    "@totto/function": jsr:^1.7.3
     zod: ^4.0.0
