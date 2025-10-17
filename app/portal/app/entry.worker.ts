@@ -6,13 +6,12 @@ import {
   defaultStreamHandler,
 } from "@tanstack/react-start/server"
 import { Effect } from "@totto/function/effect"
-import { drizzle } from "drizzle-orm/d1"
 import { printSchema } from "graphql"
 import { Hono } from "hono"
 import { logger } from "hono/logger"
 import * as GraphQLBuilder from "@/feature/graphql/builder.js"
 import * as GraphQL from "@/feature/graphql.js"
-import type { Env } from "@/feature/hono.js"
+import { type Env, getContext, setupMiddleware } from "@/feature/hono.js"
 
 // https://github.com/TanStack/router/blob/main/packages/react-start/src/default-entry/server.ts
 const fetch = createStartHandler(defaultStreamHandler)
@@ -27,10 +26,7 @@ export const createApp = Effect.gen(function* () {
   return (
     new Hono<Env>()
       .use(logger())
-      .use((c, next) => {
-        c.set("tenantDatabase", drizzle(c.env.DB))
-        return next()
-      })
+      .use(setupMiddleware)
       .use(tenantMiddleware.contextStorage)
       .use(tenantMiddleware.base)
       .get("/api/graphql/schema", (c) => c.text(printSchema(schema)))
@@ -51,12 +47,15 @@ export const createApp = Effect.gen(function* () {
 const devApp = createApp.pipe(
   Effect.provide(Cloudflare.Middleware.live),
   Effect.provide(
+    Tenant.DB.makeTenantDatabaseInitializer(() => getContext().var.database),
+  ),
+  Effect.provide(Tenant.DB.live),
+  Effect.provide(
     Cloudflare.UserSource.devLive({
       id: "id",
       organizationIDArray: [],
     }),
   ),
-  Effect.provide(Tenant.DB.live),
   Effect.provide(Tenant.User.live),
   Effect.provide(Tenant.CUID.productionLive("dev")),
   Effect.runSync,
