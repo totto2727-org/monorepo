@@ -17,7 +17,7 @@ import {
 } from "../../db/table.js"
 import { User } from "../../schema.js"
 import { CUIDGenerator } from "../cuid.js"
-import { TenantDatabase } from "../db.js"
+import { TenantDatabase, TenantDatabaseInitializer } from "../db.js"
 import type { Env } from "../env.js"
 import {
   AuthHonoMiddlewares,
@@ -31,7 +31,8 @@ const factory = createFactory<Env>()
 export const live = Layer.effect(
   AuthHonoMiddlewares,
   Effect.gen(function* () {
-    const getDB = yield* TenantDatabase
+    const initializeDatabase = yield* TenantDatabaseInitializer
+    const getDatabase = yield* TenantDatabase
     const cuidGenerator = yield* CUIDGenerator
 
     const requireUser = yield* makeRequireUserMiddleware
@@ -43,6 +44,8 @@ export const live = Layer.effect(
         function updateUser(user: typeof User.schema.Encoded) {
           c.set("user", decodeOptionUser(user))
         }
+
+        initializeDatabase()
 
         // 認証情報がない場合、noneとなる
         const userSource = getUserUserSource()
@@ -56,7 +59,7 @@ export const live = Layer.effect(
         const cloudflareAccessOrganizationIDArray: string[] =
           userSource.organizationIDArray
 
-        const db = getDB()
+        const db = getDatabase()
 
         // ユーザーの取得
         let userOption = Option.fromIterable(

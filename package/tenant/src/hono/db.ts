@@ -11,3 +11,15 @@ export class TenantDatabase extends Context.Tag("TenantDatabase")<
 export const live = Layer.succeed(TenantDatabase, () =>
   Option.getOrThrow(Option.fromNullable(getContext<Env>().var.tenantDatabase)),
 )
+
+export class TenantDatabaseInitializer extends Context.Tag(
+  "TenantDatabaseInitializer",
+)<TenantDatabaseInitializer, () => void>() {}
+
+export function makeTenantDatabaseInitializer(
+  initializeDatabase: () => AnyDrizzleD1Database,
+) {
+  return Layer.succeed(TenantDatabaseInitializer, () => {
+    getContext<Env>().set("tenantDatabase", initializeDatabase())
+  })
+}
