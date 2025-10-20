@@ -52,12 +52,12 @@ const devApp = createApp.pipe(
   Effect.provide(Tenant.DB.live),
   Effect.provide(
     CloudflareAccess.UserSource.devLive({
-      id: "id",
-      organizationIDArray: [],
+      id: "id3",
+      organizationIDArray: ["org1", "org2", "org3", "org4", "org5", "org6"],
     }),
   ),
   Effect.provide(Tenant.User.live),
-  Effect.provide(Tenant.CUID.productionLive("dev")),
+  Effect.provide(Tenant.CUID.productionLive()),
   Effect.runSync,
 )
 

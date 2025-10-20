@@ -33,7 +33,7 @@ export const live = Layer.effect(
   Effect.gen(function* () {
     const initializeDatabase = yield* TenantDatabaseInitializer
     const getDatabase = yield* TenantDatabase
-    const cuidGenerator = yield* CUIDGenerator
+    const makeCUID = yield* CUIDGenerator
 
     const requireUser = yield* makeRequireUserMiddleware
 
@@ -83,7 +83,7 @@ export const live = Layer.effect(
 
         // ユーザーの追加
         if (Option.isNone(userOption)) {
-          const userID = cuidGenerator.pipe(Effect.runSync)
+          const userID = makeCUID()
           const result = await db.batch([
             db
               .insert(userTable)
@@ -184,7 +184,7 @@ export const live = Layer.effect(
           newCloudflareAccessOrganizationIDSet,
         ).map((cloudflareAccessID) => ({
           cloudflareAccessID,
-          id: cuidGenerator.pipe(Effect.runSync),
+          id: makeCUID(),
         }))
         const newOrganizationArray = newCloudflareAccessOrganizationArray.map(
           (v) => ({

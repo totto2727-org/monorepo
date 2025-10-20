@@ -4,29 +4,22 @@ import {
   CUIDProductionLive,
   CUIDTestLive,
   type Cuid,
-  createCUIDProductionState,
   createCUIDSeed,
 } from "@totto/function/effect/id"
 
 const CUIDGeneratorClass: Context.TagClass<
   CUIDGenerator,
   "CUIDGenerator",
-  Effect.Effect<Cuid>
+  () => Cuid
 > = Context.Tag("CUIDGenerator")()
 
 export class CUIDGenerator extends CUIDGeneratorClass {}
 
-export const productionLive = (id: string) =>
-  Layer.succeed(
-    CUIDGenerator,
-    CUID.pipe(
-      Effect.provide(CUIDProductionLive),
-      Effect.provide(createCUIDProductionState(id)),
-    ),
-  )
+export const productionLive = () =>
+  Layer.effect(CUIDGenerator, CUID.pipe(Effect.provide(CUIDProductionLive)))
 
 export const testLive = (seed: string) =>
-  Layer.succeed(
+  Layer.effect(
     CUIDGenerator,
     CUID.pipe(
       Effect.provide(CUIDTestLive),
