@@ -1,0 +1,209 @@
+{
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  },
+  "dialect": "sqlite",
+  "enums": {},
+  "id": "5f49002e-1fab-4517-9187-f906b110a5d8",
+  "internal": {
+    "indexes": {}
+  },
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "cloudflare_access_organization": {
+      "checkConstraints": {},
+      "columns": {
+        "cloudflare_access_id": {
+          "autoincrement": false,
+          "name": "cloudflare_access_id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "text"
+        },
+        "created_at": {
+          "autoincrement": false,
+          "name": "created_at",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text(24)"
+        },
+        "updated_at": {
+          "autoincrement": false,
+          "name": "updated_at",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {
+        "cloudflare_access_organization_id_organization_id_fk": {
+          "columnsFrom": ["id"],
+          "columnsTo": ["id"],
+          "name": "cloudflare_access_organization_id_organization_id_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "cloudflare_access_organization",
+          "tableTo": "organization"
+        }
+      },
+      "indexes": {
+        "cloudflare_access_organization_id_unique": {
+          "columns": ["id"],
+          "isUnique": true,
+          "name": "cloudflare_access_organization_id_unique"
+        }
+      },
+      "name": "cloudflare_access_organization",
+      "uniqueConstraints": {}
+    },
+    "cloudflare_access_user": {
+      "checkConstraints": {},
+      "columns": {
+        "cloudflare_access_id": {
+          "autoincrement": false,
+          "name": "cloudflare_access_id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "text"
+        },
+        "created_at": {
+          "autoincrement": false,
+          "name": "created_at",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text(24)"
+        },
+        "updated_at": {
+          "autoincrement": false,
+          "name": "updated_at",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {
+        "cloudflare_access_user_id_user_id_fk": {
+          "columnsFrom": ["id"],
+          "columnsTo": ["id"],
+          "name": "cloudflare_access_user_id_user_id_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "cloudflare_access_user",
+          "tableTo": "user"
+        }
+      },
+      "indexes": {
+        "cloudflare_access_user_id_unique": {
+          "columns": ["id"],
+          "isUnique": true,
+          "name": "cloudflare_access_user_id_unique"
+        }
+      },
+      "name": "cloudflare_access_user",
+      "uniqueConstraints": {}
+    },
+    "organization": {
+      "checkConstraints": {},
+      "columns": {
+        "created_at": {
+          "autoincrement": false,
+          "name": "created_at",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "text(24)"
+        },
+        "is_personal": {
+          "autoincrement": false,
+          "name": "is_personal",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "updated_at": {
+          "autoincrement": false,
+          "name": "updated_at",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {},
+      "indexes": {},
+      "name": "organization",
+      "uniqueConstraints": {}
+    },
+    "user": {
+      "checkConstraints": {},
+      "columns": {
+        "created_at": {
+          "autoincrement": false,
+          "name": "created_at",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "text(24)"
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "updated_at": {
+          "autoincrement": false,
+          "name": "updated_at",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {},
+      "indexes": {},
+      "name": "user",
+      "uniqueConstraints": {}
+    }
+  },
+  "version": "6",
+  "views": {}
+}
