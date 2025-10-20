@@ -6,3 +6,20 @@ tasks:
     aliases:
       - list
     cmd: task --list-all
+
+  prod:db:apply:
+    cmd: na wrangler d1 migrations apply portal --remote
+
+  local:db:reset:
+    cmds:
+      - rm -r .wrangler
+      - na wrangler d1 migrations apply portal
+
+  local:db:apply:
+    cmd: na wrangler d1 migrations apply portal
+
+  db:generate:
+    cmd: bun x --bun drizzle-kit generate
+
+  db:studio:
+    cmd: bun x --bun drizzle-kit studio
