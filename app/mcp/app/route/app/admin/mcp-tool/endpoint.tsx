@@ -123,7 +123,7 @@ function GetComponent(props: { mcpToolArray: typeof mcpToolArraySchema.Type }) {
           </thead>
           <tbody>
             {props.mcpToolArray.map((tool) => (
-              <TableItem {...tool} />
+              <TableItem key={tool.name} {...tool} />
             ))}
           </tbody>
         </table>

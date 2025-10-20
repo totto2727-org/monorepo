@@ -29,7 +29,7 @@ function RouteComponent() {
         <Text>{data.id}</Text>
         <VStack>
           {data.organizationArray.map((v) => (
-            <Text>{v.id}</Text>
+            <Text key={v.id}>{v.id}</Text>
           ))}
         </VStack>
       </VStack>

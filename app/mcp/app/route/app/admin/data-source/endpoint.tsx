@@ -161,7 +161,10 @@ async function GetDataSource(
           </thead>
           <tbody>
             {props.dataSourceArray.map((dataSource) => (
-              <TableItem {...dataSource} />
+              <TableItem
+                key={`${dataSource.mcpToolName}-${dataSource.type}-${dataSource.url}`}
+                {...dataSource}
+              />
             ))}
           </tbody>
         </table>
@@ -186,7 +189,9 @@ async function GetDataSource(
               }}
             >
               {props.mcpToolNameArray.map((name) => (
-                <option value={name}>{name}</option>
+                <option key={name} value={name}>
+                  {name}
+                </option>
               ))}
             </Select.Select>
             <Select.Select
@@ -198,7 +203,9 @@ async function GetDataSource(
               }}
             >
               {availableDataSourceTypes.map((type) => (
-                <option value={type.value}>{type.label}</option>
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
               ))}
             </Select.Select>
             <Input.Input
