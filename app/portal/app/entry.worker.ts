@@ -1,6 +1,6 @@
 import { graphqlServer } from "@hono/graphql-server"
 import * as Tenant from "@package/tenant/hono"
-import * as Cloudflare from "@package/tenant/hono/cloudflare"
+import * as CloudflareAccess from "@package/tenant/hono/cloudflare-access"
 import {
   createStartHandler,
   defaultStreamHandler,
@@ -45,13 +45,13 @@ export const createApp = Effect.gen(function* () {
 })
 
 const devApp = createApp.pipe(
-  Effect.provide(Cloudflare.Middleware.live),
+  Effect.provide(CloudflareAccess.Middleware.live),
   Effect.provide(
     Tenant.DB.makeTenantDatabaseInitializer(() => getContext().var.database),
   ),
   Effect.provide(Tenant.DB.live),
   Effect.provide(
-    Cloudflare.UserSource.devLive({
+    CloudflareAccess.UserSource.devLive({
       id: "id",
       organizationIDArray: [],
     }),

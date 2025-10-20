@@ -13,17 +13,17 @@
     "vitest": "catalog:test"
   },
   "exports": {
-    "./db": {
-      "import": "./dist/db.js",
-      "types": "./dist/db.d.ts"
+    "./db/cloudflare-access": {
+      "import": "./dist/db/cloudflare-access.js",
+      "types": "./dist/db/cloudflare-access.d.ts"
     },
     "./hono": {
       "import": "./dist/hono.js",
       "types": "./dist/hono.d.ts"
     },
-    "./hono/cloudflare": {
-      "import": "./dist/hono/cloudflare.js",
-      "types": "./dist/hono/cloudflare.d.ts"
+    "./hono/cloudflare-access": {
+      "import": "./dist/hono/cloudflare-access.js",
+      "types": "./dist/hono/cloudflare-access.d.ts"
     },
     "./schema": {
       "import": "./dist/schema.js",

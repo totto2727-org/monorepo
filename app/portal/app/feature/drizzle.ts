@@ -1,12 +1,10 @@
-import { Table as TenantTable } from "@package/tenant/db"
 import { Context } from "@totto/function/effect"
 import { drizzle } from "drizzle-orm/d1"
+import * as schema from "./drizzle/schema.js"
 
 export function makeClient(d1: D1Database) {
   return drizzle(d1, {
-    schema: {
-      ...TenantTable,
-    },
+    schema,
   })
 }
 

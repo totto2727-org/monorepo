@@ -14,7 +14,7 @@ import {
   cloudflareAccessUserTable,
   organizationTable,
   userTable,
-} from "../../db/table.js"
+} from "../../db/cloudflare-access.js"
 import { User } from "../../schema.js"
 import { CUIDGenerator } from "../cuid.js"
 import { TenantDatabase, TenantDatabaseInitializer } from "../db.js"
