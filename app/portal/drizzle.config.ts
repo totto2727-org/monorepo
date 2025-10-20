@@ -2,15 +2,12 @@ import { defineConfig } from "drizzle-kit"
 
 export default defineConfig({
   dbCredentials: {
-    // biome-ignore lint/style/noNonNullAssertion: required
-    accountId: process.env.CLOUDFLARE_ACCOUNT_ID!,
-    // biome-ignore lint/style/noNonNullAssertion: required
-    databaseId: process.env.CLOUDFLARE_DATABASE_ID!,
-    // biome-ignore lint/style/noNonNullAssertion: required
-    token: process.env.CLOUDFLARE_D1_TOKEN!,
+    accountId: "",
+    databaseId: "be6fe799-2939-4424-9c55-29a96e66990b",
+    token: "",
   },
   dialect: "sqlite",
   driver: "d1-http",
   out: "./migrations",
-  schema: "./src/schema.ts",
+  schema: "./app/feature/drizzle/schema.ts",
 })

@@ -41,13 +41,19 @@ export const organizationRelation = relations(organizationTable, (op) => ({
 export const cloudflareAccessUserRelation = relations(
   cloudflareAccessUserTable,
   (op) => ({
-    user: op.one(userTable),
+    user: op.one(userTable, {
+      fields: [cloudflareAccessUserTable.id],
+      references: [userTable.id],
+    }),
   }),
 )
 
 export const cloudflareAccessOrganizationRelation = relations(
   cloudflareAccessOrganizationTable,
   (op) => ({
-    organization: op.one(organizationTable),
+    organization: op.one(organizationTable, {
+      fields: [cloudflareAccessOrganizationTable.id],
+      references: [organizationTable.id],
+    }),
   }),
 )
