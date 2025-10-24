@@ -1,28 +1,88 @@
 {
+  "extensions": {
+    "recommendations": [
+      "dprint.dprint",
+      "biomejs.biome",
+      "dbaeumer.vscode-eslint"
+    ]
+  },
   "folders": [
+    {
+      "name": "app/portal",
+      "path": "./app/portal"
+    },
+    {
+      "name": "app/mcp",
+      "path": "./app/mcp"
+    },
+    {
+      "name": "app/rss-graphql",
+      "path": "./app/rss-graphql"
+    },
+    {
+      "name": "package/rbac",
+      "path": "./package/rbac"
+    },
+    {
+      "name": "package/tenant",
+      "path": "./package/tenant"
+    },
+    {
+      "name": "package/hono-ui",
+      "path": "./package/hono-ui"
+    },
+    {
+      "name": "package/mcp-oauth-cloudflare-access",
+      "path": "./package/mcp-oauth-cloudflare-access"
+    },
+    {
+      "name": "infra/cloudflare",
+      "path": "./infra/cloudflare"
+    },
+    {
+      "name": "infra/aws",
+      "path": "./infra/aws"
+    },
     {
       "name": "monorepo",
       "path": "."
-    },
-    {
-      "name": "app/lesson-sharing",
-      "path": "./app/lesson-sharing"
-    },
-    {
-      "name": "app/template",
-      "path": "./app/template"
     }
   ],
   "settings": {
+    "[css]": {
+      "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[graphql]": {
+      "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[javascriptreact]": {
+      "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[json]": {
+      "editor.defaultFormatter": "biomejs.biome"
+    },
     "[jsonc]": {
       "editor.defaultFormatter": "biomejs.biome"
     },
-    "biome.enabled": true,
-    "editor.codeActionsOnSave": {
-      "source.fixAll.biome": "explicit"
+    "[typescript]": {
+      "editor.defaultFormatter": "biomejs.biome"
     },
-    "editor.defaultFormatter": "biomejs.biome",
-    "eslint.enable": false,
-    "prettier.enable": false
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "biomejs.biome"
+    },
+    "biome.enabled": true,
+    "dprint.experimentalLsp": true,
+    "dprint.path": "node_modules/.bin/dprint",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.biome": "explicit",
+      "source.organizeImports.biome": "explicit"
+    },
+    "editor.defaultFormatter": "dprint.dprint",
+    "eslint.enable": true,
+    "prettier.enable": false,
+    "typescript.tsdk": "node_modules/typescript/lib"
   }
 }
