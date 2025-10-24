@@ -6,6 +6,7 @@ import {
   Predicate,
   Schema,
 } from "@totto/function/effect"
+import * as CUID from "@totto/function/effect/cuid"
 import { eq, inArray } from "drizzle-orm"
 import { contextStorage } from "hono/context-storage"
 import { createFactory } from "hono/factory"
@@ -16,7 +17,6 @@ import {
   userTable,
 } from "../../db/cloudflare-access.js"
 import { User } from "../../schema.js"
-import { CUIDGenerator } from "../cuid.js"
 import { TenantDatabase, TenantDatabaseInitializer } from "../db.js"
 import type { Env } from "../env.js"
 import {
@@ -33,7 +33,7 @@ export const live = Layer.effect(
   Effect.gen(function* () {
     const initializeDatabase = yield* TenantDatabaseInitializer
     const getDatabase = yield* TenantDatabase
-    const makeCUID = yield* CUIDGenerator
+    const makeCUID = yield* CUID.Generator
 
     const requireUser = yield* makeRequireUserMiddleware
 
@@ -83,7 +83,7 @@ export const live = Layer.effect(
 
         // ユーザーの追加
         if (Option.isNone(userOption)) {
-          const userID = makeCUID()
+          const userID = makeCUID.pipe(Effect.runSync)
           const result = await db.batch([
             db
               .insert(userTable)
@@ -184,7 +184,7 @@ export const live = Layer.effect(
           newCloudflareAccessOrganizationIDSet,
         ).map((cloudflareAccessID) => ({
           cloudflareAccessID,
-          id: makeCUID(),
+          id: makeCUID.pipe(Effect.runSync),
         }))
         const newOrganizationArray = newCloudflareAccessOrganizationArray.map(
           (v) => ({

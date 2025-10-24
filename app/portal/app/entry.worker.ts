@@ -6,6 +6,7 @@ import {
   defaultStreamHandler,
 } from "@tanstack/react-start/server"
 import { Effect } from "@totto/function/effect"
+import * as CUID from "@totto/function/effect/cuid"
 import { printSchema } from "graphql"
 import { Hono } from "hono"
 import { logger } from "hono/logger"
@@ -23,25 +24,22 @@ export const createApp = Effect.gen(function* () {
 
   const tenantMiddleware = yield* Tenant.Middleware.AuthHonoMiddlewares
 
-  return (
-    new Hono<Env>()
-      .use(logger())
-      .use(setupMiddleware)
-      .use(tenantMiddleware.contextStorage)
-      .use(tenantMiddleware.base)
-      .get("/api/graphql/schema", (c) => c.text(printSchema(schema)))
-      .use("*", tenantMiddleware.requireUser)
-      .use(
-        "/api/graphql",
-        graphqlServer({
-          graphiql: true,
-          schema,
-        }),
-      )
-      .get("/", (c) => c.redirect("/app"))
-      // Tanstack Startの仕様上、ルートを指定しないと常に404になる
-      .mount("/", fetch)
-  )
+  return new Hono<Env>()
+    .use(logger())
+    .use(setupMiddleware)
+    .use(tenantMiddleware.contextStorage)
+    .use(tenantMiddleware.base)
+    .get("/api/graphql/schema", (c) => c.text(printSchema(schema)))
+    .use("*", tenantMiddleware.requireUser)
+    .use(
+      "/api/graphql",
+      graphqlServer({
+        graphiql: true,
+        schema,
+      }),
+    )
+    .get("/", (c) => c.redirect("/app"))
+    .mount("/", fetch)
 })
 
 const devApp = createApp.pipe(
@@ -57,7 +55,7 @@ const devApp = createApp.pipe(
     }),
   ),
   Effect.provide(Tenant.User.live),
-  Effect.provide(Tenant.CUID.productionLive()),
+  Effect.provide(CUID.generatorProductionLive),
   Effect.runSync,
 )
 
