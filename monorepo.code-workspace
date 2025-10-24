@@ -8,6 +8,10 @@
   },
   "folders": [
     {
+      "name": "monorepo",
+      "path": "."
+    },
+    {
       "name": "app/portal",
       "path": "app/portal"
     },
@@ -46,10 +50,6 @@
     {
       "name": "infra/aws",
       "path": "infra/aws"
-    },
-    {
-      "name": "monorepo",
-      "path": "."
     }
   ],
   "settings": {
