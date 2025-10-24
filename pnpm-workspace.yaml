@@ -59,6 +59,7 @@ catalogs:
     "@tanstack/react-router": ^1.133.3
     "@tanstack/react-router-devtools": ^1.133.3
     "@tanstack/react-start": ^1.133.3
+    "@tanstack/router-cli": ^1.133.25
     "@types/react": ^19.2.2
     "@types/react-dom": ^19.2.2
     babel-plugin-react-compiler: ^1.0.0
@@ -79,5 +80,5 @@ catalogs:
     tailwindcss: ^4.1.11
     unplugin-icons: ^22.4.2
   util:
-    "@totto/function": jsr:^1.7.3
+    "@totto/function": jsr:^2.1.1
     zod: ^4.0.0
