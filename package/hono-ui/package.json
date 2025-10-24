@@ -4,7 +4,7 @@
     "@types/node": "catalog:dev",
     "daisyui": "catalog:ui",
     "hono": "catalog:hono",
-    "tailwind": "catalog:dev",
+    "tailwindcss": "catalog:ui",
     "tsdown": "catalog:build",
     "typescript": "catalog:build",
     "vitest": "catalog:test"

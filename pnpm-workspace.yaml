@@ -20,14 +20,13 @@ catalogs:
   cloudflare:
     "@cloudflare/vite-plugin": ^1.11.0
     "@cloudflare/workers-oauth-provider": ^0.0.10
-    wrangler: 4.42.2
+    wrangler: ^4.45.0
   dev:
     "@mikaelporttila/rss": jsr:^1.1.3
     "@modelcontextprotocol/sdk": ^1.0.0
     "@socotra/modelcontextprotocol-sdk": ^1.18.0
     "@types/node": ^24.1.0
     agents: ^0.2.0
-    tailwind: ^4.0.0
   drizzle:
     drizzle-cuid2: ^2.1.0
     drizzle-kit: ^0.31.5
@@ -75,10 +74,11 @@ catalogs:
     "@svgr/plugin-jsx": ^8.1.0
     "@tailwindcss/cli": ^4.1.11
     "@tailwindcss/vite": ^4.1.14
-    "@yamada-ui/react": ^1.7.8
+    "@yamada-ui/cli": ^2.0.3
+    "@yamada-ui/react": ^2.0.2
     daisyui: ^5.1.27
-    tailwindcss: ^4.1.11
+    tailwindcss: ^4.1.16
     unplugin-icons: ^22.4.2
   util:
-    "@totto/function": jsr:^2.1.1
+    "@totto/function": jsr:^2.4.0
     zod: ^4.0.0
