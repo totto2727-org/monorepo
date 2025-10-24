@@ -14,6 +14,7 @@
     "@tanstack/react-router": "catalog:react",
     "@tanstack/react-router-devtools": "catalog:react",
     "@tanstack/react-start": "catalog:react",
+    "@tanstack/router-cli": "catalog:react",
     "@totto/function": "catalog:util",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
@@ -48,7 +49,9 @@
     "deploy": "wrangler deploy",
     "dev": "vite dev",
     "fix": "eslint --fix --cache --cache-location ./node_modules/.cache",
-    "prebuild": "wrangler types",
+    "prebuild": "na run /prebuild:.*/",
+    "prebuild:tanstack": "tsr generate",
+    "prebuild:wrangler": "wrangler types",
     "preview": "wrangler dev --test-scheduled",
     "start": "wrangler dev --test-scheduled"
   },

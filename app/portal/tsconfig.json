@@ -6,6 +6,6 @@
     },
     "types": ["./worker-configuration.d.ts", "unplugin-icons/types/react"]
   },
-  "exclude": ["dist/"],
+  "exclude": ["dist"],
   "extends": ["@totto/function/tsconfig/tanstack-start"]
 }
