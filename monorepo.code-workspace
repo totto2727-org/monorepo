@@ -9,39 +9,43 @@
   "folders": [
     {
       "name": "app/portal",
-      "path": "./app/portal"
+      "path": "app/portal"
     },
     {
       "name": "app/mcp",
-      "path": "./app/mcp"
+      "path": "app/mcp"
     },
     {
       "name": "app/rss-graphql",
-      "path": "./app/rss-graphql"
+      "path": "app/rss-graphql"
     },
     {
       "name": "package/rbac",
-      "path": "./package/rbac"
+      "path": "package/rbac"
     },
     {
       "name": "package/tenant",
-      "path": "./package/tenant"
+      "path": "package/tenant"
+    },
+    {
+      "name": "package/yamada-ui",
+      "path": "package/yamada-ui"
     },
     {
       "name": "package/hono-ui",
-      "path": "./package/hono-ui"
+      "path": "package/hono-ui"
     },
     {
       "name": "package/mcp-oauth-cloudflare-access",
-      "path": "./package/mcp-oauth-cloudflare-access"
+      "path": "package/mcp-oauth-cloudflare-access"
     },
     {
       "name": "infra/cloudflare",
-      "path": "./infra/cloudflare"
+      "path": "infra/cloudflare"
     },
     {
       "name": "infra/aws",
-      "path": "./infra/aws"
+      "path": "infra/aws"
     },
     {
       "name": "monorepo",

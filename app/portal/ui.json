@@ -1,0 +1,10 @@
+{
+  "$schema": "https://yamada-ui.com/registry/v2/config.schema.json",
+  "components": { "overwrite": true },
+  "format": { "enabled": false },
+  "hooks": { "overwrite": true },
+  "lint": { "enabled": false },
+  "monorepo": true,
+  "path": "../../package/yamada-ui",
+  "providers": { "overwrite": true }
+}

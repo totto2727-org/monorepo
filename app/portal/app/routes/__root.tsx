@@ -1,4 +1,10 @@
 import {
+  ColorModeScript,
+  config,
+  ThemeSchemeScript,
+  UIProvider,
+} from "@package/yamada-ui"
+import {
   createRootRoute,
   HeadContent,
   Outlet,
@@ -7,11 +13,6 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 import { createServerFn } from "@tanstack/react-start"
 import { getRequest } from "@tanstack/react-start/server"
-import {
-  ColorModeScript,
-  createColorModeManager,
-  UIProvider,
-} from "@yamada-ui/react"
 
 const getCookie = createServerFn().handler(() =>
   getRequest().headers.get("Cookie"),
@@ -42,16 +43,15 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   const data = Route.useLoaderData()
-  const colorModeManager = createColorModeManager("ssr", data.cookie)
 
   return (
     <RootDocument>
-      <ColorModeScript
-        initialColorMode="dark"
-        nonce="totto2727"
+      <ColorModeScript defaultValue={config.defaultColorMode} type="cookie" />
+      <ThemeSchemeScript
+        defaultValue={config.defaultThemeScheme}
         type="cookie"
       />
-      <UIProvider colorModeManager={colorModeManager}>
+      <UIProvider config={config} cookie={data.cookie}>
         <Outlet />
       </UIProvider>
       <TanStackRouterDevtools />
@@ -61,11 +61,11 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {children}
         <Scripts />
       </body>

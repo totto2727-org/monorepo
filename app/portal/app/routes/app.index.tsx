@@ -1,7 +1,7 @@
+import { Button, HStack, Text, VStack } from "@package/yamada-ui"
 import { createFileRoute } from "@tanstack/react-router"
 import { createServerFn } from "@tanstack/react-start"
 import { Option } from "@totto/function/effect"
-import { HStack, Text, VStack } from "@yamada-ui/react"
 import { getContext } from "@/feature/hono"
 import MaterialSymbolsKidStarOutlineSharp from "~icons/material-symbols/kid-star-outline-sharp"
 
@@ -33,6 +33,7 @@ function RouteComponent() {
           ))}
         </VStack>
       </VStack>
+      <Button>Button</Button>
     </VStack>
   )
 }
