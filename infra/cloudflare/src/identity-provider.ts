@@ -1,5 +1,5 @@
 import * as cloudflare from "@pulumi/cloudflare"
-import * as config from "./config.ts"
+import * as config from "./config.js"
 
 export const awsSaml = new cloudflare.ZeroTrustAccessIdentityProvider(
   "aws-saml-identity-provider",

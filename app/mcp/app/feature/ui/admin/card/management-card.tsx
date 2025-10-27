@@ -23,7 +23,7 @@ export function ManagementCard({
           {title}
         </h2>
         <p class="text-base-content/70">{description}</p>
-        <div class="card-actions justify-end mt-4">
+        <div class="card-actions mt-4 justify-end">
           <a class="btn btn-primary" href={href}>
             Manage
           </a>

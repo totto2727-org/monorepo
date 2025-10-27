@@ -1,6 +1,7 @@
 import { Body } from "@package/hono-ui/app-shell"
 import * as Icon from "@package/hono-ui/icon"
 import { count, sql } from "drizzle-orm"
+import * as Table from "#@/feature/database/drizzle.js"
 import * as DataBase from "#@/feature/database.js"
 import * as Hono from "#@/feature/hono.js"
 import * as ManagementCard from "#@/feature/ui/admin/card/management-card.js"
@@ -11,16 +12,15 @@ export async function Dashboard() {
   const db = DataBase.create(c.env.DB)
   const [mcpToolsCountResult, dataSourcesCountResult, lastUpdatedResult] =
     await db.batch([
-      db.select({ count: count() }).from(DataBase.schema.mcpToolTable),
-      db.select({ count: count() }).from(DataBase.schema.dataSourceTable),
+      db.select({ count: count() }).from(Table.mcpToolTable),
+      db.select({ count: count() }).from(Table.dataSourceTable),
       db
         .select({
-          updatedAt:
-            sql<string>`MAX(${DataBase.schema.mcpToolTable.lastUsed})`.as(
-              "updatedAt",
-            ),
+          updatedAt: sql<string>`MAX(${Table.mcpToolTable.lastUsed})`.as(
+            "updatedAt",
+          ),
         })
-        .from(DataBase.schema.mcpToolTable),
+        .from(Table.mcpToolTable),
     ])
 
   const stats = {
@@ -31,7 +31,7 @@ export async function Dashboard() {
 
   return (
     <Body title="Dashboard">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
         <StatCard.StatCard
           colorClass="text-primary"
           description="Registered search tools"
@@ -56,7 +56,7 @@ export async function Dashboard() {
         />
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ManagementCard.ManagementCard
           description="Add, edit, and delete search tools"
           href="/app/admin/mcp-tool"

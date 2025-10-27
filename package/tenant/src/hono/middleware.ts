@@ -1,3 +1,4 @@
+import { STATUS_CODE } from "@package/constant"
 import { Context, Effect, Option } from "@totto/function/effect"
 import type { MiddlewareHandler } from "hono"
 import type { contextStorage } from "hono/context-storage"
@@ -17,7 +18,7 @@ export const makeRequireUserMiddleware: Effect.Effect<
   return factory.createMiddleware((_, next) => {
     const user = getUser()
     if (Option.isNone(user)) {
-      throw new HTTPException(401)
+      throw new HTTPException(STATUS_CODE.UNAUTHORIZED)
     }
     return next()
   })

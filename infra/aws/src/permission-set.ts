@@ -1,5 +1,5 @@
 import * as aws from "@pulumi/aws"
-import * as identityStore from "./identify-store.ts"
+import * as identityStore from "./identify-store.js"
 
 export const billing = new aws.ssoadmin.PermissionSet(
   "billing",

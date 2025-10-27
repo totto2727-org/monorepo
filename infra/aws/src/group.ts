@@ -1,5 +1,5 @@
 import * as aws from "@pulumi/aws"
-import * as identifyStore from "./identify-store.ts"
+import * as identifyStore from "./identify-store.js"
 
 export const admin = new aws.identitystore.Group(
   "admin",

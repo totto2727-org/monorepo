@@ -3,7 +3,7 @@ import * as Icon from "./icon.js"
 
 export const SideMenu: FC<PropsWithChildren> = (props) => (
   <div class="space-4">
-    <h2 class="text-lg font-semibold">Menu</h2>
+    <h2 class="font-semibold text-lg">Menu</h2>
     <ul class="menu">{props.children}</ul>
   </div>
 )
@@ -19,12 +19,12 @@ export const SideMenuItem: FC<PropsWithChildren<{ href: string }>> = (
 )
 
 export const BodyTitle: FC<{ title: string }> = (props) => (
-  <h2 class="text-3xl font-bold">{props.title}</h2>
+  <h2 class="font-bold text-3xl">{props.title}</h2>
 )
 
 export const Body: FC<PropsWithChildren<{ title: Child }>> = (props) => (
   <div class="space-y-6">
-    <div class="flex items-center justify-between flex-col lg:flex-row gap-6 text-center lg:text-start">
+    <div class="flex flex-col items-center justify-between gap-6 text-center lg:flex-row lg:text-start">
       {props.title}
     </div>
     {props.children}
@@ -61,8 +61,8 @@ export const AppShell: FC<
           aria-label="Close menu"
           class="drawer-overlay"
           htmlFor="drawer-toggle"
-        ></label>
-        <aside class="w-64 min-h-full bg-base-100 p-4">{side}</aside>
+        />
+        <aside class="min-h-full w-64 bg-base-100 p-4">{side}</aside>
       </div>
     </div>
   </div>

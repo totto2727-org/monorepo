@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "@hono/cloudflare-access": "catalog:hono"
+    "@hono/cloudflare-access": "catalog:hono",
+    "@package/constant": "workspace:*"
   },
   "devDependencies": {
     "@totto/function": "catalog:util",

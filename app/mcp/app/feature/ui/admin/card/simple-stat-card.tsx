@@ -10,7 +10,7 @@ export function SimpleStatCard({
   colorClass = "text-primary",
 }: SimpleStatCardProps) {
   return (
-    <div class="stat bg-base-100 rounded-lg shadow">
+    <div class="stat rounded-lg bg-base-100 shadow">
       <div class="stat-title">{title}</div>
       <div class={`stat-value ${colorClass}`}>{value}</div>
     </div>

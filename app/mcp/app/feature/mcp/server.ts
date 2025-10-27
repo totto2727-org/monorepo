@@ -36,7 +36,7 @@ export function createMcpServer(
               value: `${source.name}/`,
             },
             query,
-            rewrite_query: rewrite_query,
+            rewrite_query,
           })
 
           return {
@@ -47,8 +47,7 @@ export function createMcpServer(
               },
             ],
           }
-        } catch (error) {
-          console.error("AI search failed:", error)
+        } catch {
           return {
             content: [
               {

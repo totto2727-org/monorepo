@@ -116,7 +116,7 @@ async function fetchDataSourcesAndTools(db: Database) {
   })
 }
 
-async function GetDataSource(
+function GetDataSource(
   props: typeof dataSourceArrayAndMcpToolOptionArray.Type,
 ) {
   const AddNewDataSourceModal = Modal.createModal("add-new-data-source-modal")
@@ -135,7 +135,7 @@ async function GetDataSource(
         </>
       }
     >
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <SimpleStatCard.SimpleStatCard
           colorClass="text-primary"
           title="Total Data Sources"
@@ -172,7 +172,7 @@ async function GetDataSource(
 
       <AddNewDataSourceModal.Modal>
         <div class="modal-box w-11/12 max-w-2xl">
-          <h3 class="font-bold text-lg mb-4">Add New Data Source</h3>
+          <h3 class="mb-4 font-bold text-lg">Add New Data Source</h3>
 
           <AddNewDataSourceModal.Form
             class="space-y-4"
@@ -197,8 +197,8 @@ async function GetDataSource(
             <Select.Select
               name="Type"
               selectAttributes={{
-                id: `type`,
-                name: `type`,
+                id: "type",
+                name: "type",
                 required: true,
               }}
             >
@@ -210,14 +210,14 @@ async function GetDataSource(
             </Select.Select>
             <Input.Input
               inputAttributes={{
-                id: `url`,
-                name: `url`,
+                id: "url",
+                name: "url",
                 placeholder: "https://example.com",
                 required: true,
                 type: "url",
               }}
               name="URL"
-            ></Input.Input>
+            />
 
             <div class="modal-action">
               <button class="btn btn-primary" type="submit">

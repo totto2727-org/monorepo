@@ -2,12 +2,12 @@ import { Button, HStack, Text, VStack } from "@package/yamada-ui"
 import { createFileRoute } from "@tanstack/react-router"
 import { createServerFn } from "@tanstack/react-start"
 import { Option } from "@totto/function/effect"
-import { getContext } from "@/feature/hono"
+import { getContext } from "@/feature/hono.js"
 import MaterialSymbolsKidStarOutlineSharp from "~icons/material-symbols/kid-star-outline-sharp"
 
-export const getUser = createServerFn().handler(() => {
-  return getContext().var.user.pipe(Option.getOrThrow)
-})
+export const getUser = createServerFn().handler(() =>
+  getContext().var.user.pipe(Option.getOrThrow),
+)
 
 export const Route = createFileRoute("/app/")({
   component: RouteComponent,

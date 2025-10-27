@@ -14,6 +14,7 @@ export async function save(
 }
 
 function toMineType(type: typeof DataSourceType.schema.Type) {
+  // biome-ignore lint/style/useDefaultSwitchClause: No use default switch clause
   switch (type) {
     case "text":
       return "text/plain"
@@ -23,6 +24,7 @@ function toMineType(type: typeof DataSourceType.schema.Type) {
 }
 
 function addExtention(type: typeof DataSourceType.schema.Type, key: string) {
+  // biome-ignore lint/style/useDefaultSwitchClause: No use default switch clause
   switch (type) {
     case "text":
       return [key, "txt"].join(".")

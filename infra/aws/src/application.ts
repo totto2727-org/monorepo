@@ -1,6 +1,6 @@
 import * as aws from "@pulumi/aws"
-import * as group from "./group.ts"
-import * as identityStore from "./identify-store.ts"
+import * as group from "./group.js"
+import * as identityStore from "./identify-store.js"
 
 export const cloudflareAccess = new aws.ssoadmin.Application(
   "cloudflare-access-application",

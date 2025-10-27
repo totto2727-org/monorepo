@@ -11,6 +11,4 @@ const UserClass: Context.TagClass<
 
 export class User extends UserClass {}
 
-export const live = Layer.succeed(User, () => {
-  return getContext<Env>().var.user
-})
+export const live = Layer.succeed(User, () => getContext<Env>().var.user)

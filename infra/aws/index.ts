@@ -1,10 +1,10 @@
-import "./src/account.ts"
-import "./src/application.ts"
-import * as group from "./src/group.ts"
-import "./src/group-membership.ts"
-import "./src/organization.ts"
-import "./src/permission-set.ts"
-import "./src/provider.ts"
-import "./src/user.ts"
+import "./src/account.js"
+import "./src/application.js"
+import * as group from "./src/group.js"
+import "./src/group-membership.js"
+import "./src/organization.js"
+import "./src/permission-set.js"
+import "./src/provider.js"
+import "./src/user.js"
 
 export const mcpGroupId = group.mcp.groupId

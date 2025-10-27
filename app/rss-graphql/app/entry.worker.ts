@@ -1,3 +1,2 @@
-import { app } from "./entry.hono.js"
-
-export default app
+// biome-ignore lint/performance/noBarrelFile: worker entrypoint
+export { app as default } from "./entry.hono.js"

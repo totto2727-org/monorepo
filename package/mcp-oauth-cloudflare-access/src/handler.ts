@@ -22,6 +22,9 @@ export type Env = {
   OAUTH_PROVIDER: OAuthHelpers
 }
 
+import { DATETIME, STATUS_CODE } from "@package/constant"
+
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: TODO
 export async function handleAccessRequest(
   request: Request,
   env: Env,
@@ -117,13 +120,13 @@ export async function handleAccessRequest(
       scope: oauthReqInfo.scope,
       userId: user.sub,
     })
-    return Response.redirect(redirectTo, 303)
+    return Response.redirect(redirectTo, STATUS_CODE.SEE_OTHER)
   }
 
-  return new Response("Not Found", { status: 404 })
+  return new Response("Not Found", { status: STATUS_CODE.NOT_FOUND })
 }
 
-async function redirectToAccess(
+function redirectToAccess(
   request: Request,
   env: Env,
   oauthReqInfo: AuthRequest,
@@ -178,6 +181,7 @@ async function fetchAccessPublicKey(env: Env, kid: string) {
 function parseJWT(token: string) {
   const tokenParts = token.split(".")
 
+  // biome-ignore lint/style/noMagicNumbers: No fix
   if (tokenParts.length !== 3) {
     throw new Error("token must have 3 parts")
   }
@@ -212,7 +216,7 @@ async function verifyToken(env: Env, token: string) {
   }
 
   const claims = jwt.payload
-  const now = Math.floor(Date.now() / 1000)
+  const now = Math.floor(Date.now() / DATETIME.ONE_SECOND_IN_MILLISECONDS)
   // Validate expiration
   if (claims.exp < now) {
     throw new Error("expired token")

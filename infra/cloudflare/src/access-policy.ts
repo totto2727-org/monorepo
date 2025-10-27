@@ -1,6 +1,6 @@
 import * as cloudflare from "@pulumi/cloudflare"
-import * as group from "./access-group.ts"
-import * as config from "./config.ts"
+import * as group from "./access-group.js"
+import * as config from "./config.js"
 
 export const allowSaml = new cloudflare.ZeroTrustAccessPolicy(
   "must-authenticate-with-saml",

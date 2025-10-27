@@ -1,11 +1,12 @@
 {
   "dependencies": {
-    "@cloudflare/workers-oauth-provider": "catalog:cloudflare",
-    "@package/constant": "workspace:*"
+    "@hono/casbin": "catalog:casbin",
+    "casbin": "catalog:casbin"
   },
   "devDependencies": {
     "@totto/function": "catalog:util",
     "@types/node": "catalog:dev",
+    "drizzle-orm": "catalog:drizzle",
     "hono": "catalog:hono",
     "tsdown": "catalog:build",
     "typescript": "catalog:build",
@@ -20,9 +21,10 @@
   "files": [
     "dist"
   ],
-  "name": "@package/mcp-oauth-cloudflare-access",
+  "name": "@package/constant",
   "peerDependencies": {
     "@totto/function": "catalog:util",
+    "drizzle-orm": "catalog:drizzle",
     "hono": "catalog:hono"
   },
   "scripts": {

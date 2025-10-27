@@ -36,6 +36,10 @@
       "path": "package/yamada-ui"
     },
     {
+      "name": "package/constant",
+      "path": "package/constant"
+    },
+    {
       "name": "package/hono-ui",
       "path": "package/hono-ui"
     },

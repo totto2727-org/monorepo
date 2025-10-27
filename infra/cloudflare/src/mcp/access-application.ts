@@ -1,7 +1,7 @@
 import * as cloudflare from "@pulumi/cloudflare"
-import * as config from "../config.ts"
-import * as identityCenter from "../identity-provider.ts"
-import * as policy from "./access-policy.ts"
+import * as config from "../config.js"
+import * as identityCenter from "../identity-provider.js"
+import * as policy from "./access-policy.js"
 
 export const adminConsole = new cloudflare.ZeroTrustAccessApplication(
   "mcp-admin-console",

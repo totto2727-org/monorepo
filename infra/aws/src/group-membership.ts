@@ -1,7 +1,7 @@
 import * as aws from "@pulumi/aws"
-import * as group from "./group.ts"
-import * as identifyStore from "./identify-store.ts"
-import * as user from "./user.ts"
+import * as group from "./group.js"
+import * as identifyStore from "./identify-store.js"
+import * as user from "./user.js"
 
 export const giteaTotto2727 = new aws.identitystore.GroupMembership(
   "gitea-totto2727",

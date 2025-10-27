@@ -15,8 +15,8 @@ export function StatCard({
     <div class="card bg-base-100 shadow-lg">
       <div class="card-body">
         <h2 class={`card-title ${colorClass}`}>{title}</h2>
-        <p class="text-2xl font-bold">{value}</p>
-        <p class="text-sm text-base-content/70">{description}</p>
+        <p class="font-bold text-2xl">{value}</p>
+        <p class="text-base-content/70 text-sm">{description}</p>
       </div>
     </div>
   )

@@ -6,4 +6,3 @@ export function create(db: D1Database) {
 }
 
 export type Database = ReturnType<typeof create>
-export { schema }

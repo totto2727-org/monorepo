@@ -9,16 +9,16 @@ import { casbinRule } from "./table.js"
 export type AnyDrizzleDB = BaseSQLiteDatabase<any, any>
 
 export class DrizzleAdapter implements Adapter {
-  #db: AnyDrizzleDB
+  readonly #db: AnyDrizzleDB
 
-  filtered = false
+  #filtered = false
 
-  public isFiltered(): boolean {
-    return this.filtered
+  isFiltered(): boolean {
+    return this.#filtered
   }
 
-  public enableFiltered(enabled: boolean): void {
-    this.filtered = enabled
+  enableFiltered(enabled: boolean): void {
+    this.#filtered = enabled
   }
 
   constructor(db: AnyDrizzleDB) {
@@ -41,7 +41,7 @@ export class DrizzleAdapter implements Adapter {
     return this.#shouldFilter(value) ? eq(column, value) : undefined
   }
 
-  #generateWhere(ptype: string, ruleArray: string[], fieldIndex: number = 0) {
+  #generateWhere(ptype: string, ruleArray: string[], fieldIndex = 0) {
     return [
       eq(casbinRule.ptype, ptype),
       this.#generateNullableEqFilter(casbinRule.v0, ruleArray[0]),
@@ -79,10 +79,10 @@ export class DrizzleAdapter implements Adapter {
     this.enableFiltered(true)
   }
 
-  #modelToDTOArray = (
+  #modelToDTOArray(
     model: Model,
     ptype: string,
-  ): (typeof casbinRule.$inferInsert)[] => {
+  ): (typeof casbinRule.$inferInsert)[] {
     const astMap = model.model.get(ptype)
     if (!astMap) {
       return []
@@ -149,10 +149,7 @@ export class DrizzleAdapter implements Adapter {
       .where(or(...this.#generateWhere(ptype, fieldValues, fieldIndex)))
   }
 
-  #loadPolicyLine = (
-    line: typeof casbinRule.$inferInsert,
-    model: Model,
-  ): void => {
+  #loadPolicyLine(line: typeof casbinRule.$inferInsert, model: Model): void {
     Helper.loadPolicyLine(
       [line.ptype, line.v0, line.v1, line.v2, line.v3, line.v4, line.v5]
         .filter((n) => Predicate.isNotNullable(n))
@@ -161,18 +158,16 @@ export class DrizzleAdapter implements Adapter {
     )
   }
 
-  #arrayToDTO = (
+  readonly #arrayToDTO = (
     ptype: string,
     rule: string[],
-  ): typeof casbinRule.$inferInsert => {
-    return {
-      ptype,
-      v0: rule[0],
-      v1: rule[1],
-      v2: rule[2],
-      v3: rule[3],
-      v4: rule[4],
-      v5: rule[5],
-    }
-  }
+  ): typeof casbinRule.$inferInsert => ({
+    ptype,
+    v0: rule[0],
+    v1: rule[1],
+    v2: rule[2],
+    v3: rule[3],
+    v4: rule[4],
+    v5: rule[5],
+  })
 }

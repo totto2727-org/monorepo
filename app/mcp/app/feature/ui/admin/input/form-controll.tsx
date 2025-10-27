@@ -22,7 +22,7 @@ export function FormControl(
       </div>
 
       {Predicate.isNotNullable(props.description) ? (
-        <div class="text-sm text-base-content/70">{props.description}</div>
+        <div class="text-base-content/70 text-sm">{props.description}</div>
       ) : null}
 
       <div>{props.children}</div>

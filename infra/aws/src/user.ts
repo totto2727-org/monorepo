@@ -1,5 +1,5 @@
 import * as aws from "@pulumi/aws"
-import * as identifyStore from "./identify-store.ts"
+import * as identifyStore from "./identify-store.js"
 
 export const totto2727 = new aws.identitystore.User(
   "totto2727",

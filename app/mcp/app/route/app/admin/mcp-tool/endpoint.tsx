@@ -102,7 +102,7 @@ function GetComponent(props: { mcpToolArray: typeof mcpToolArraySchema.Type }) {
         </>
       }
     >
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <SimpleStatCard.SimpleStatCard
           colorClass="text-primary"
           title="Total MCP Tools"
@@ -131,7 +131,7 @@ function GetComponent(props: { mcpToolArray: typeof mcpToolArraySchema.Type }) {
 
       <AddNewMCPTool.Modal>
         <div class="modal-box w-11/12 max-w-2xl">
-          <h3 class="font-bold text-lg mb-4">Add New MCP Tool</h3>
+          <h3 class="mb-4 font-bold text-lg">Add New MCP Tool</h3>
 
           <AddNewMCPTool.Form
             class="space-y-4"

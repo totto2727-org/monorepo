@@ -17,15 +17,15 @@ export class DataSyncWorkflow extends WorkflowEntrypoint<
   override async run(_event: WorkflowEvent<Params>, step: WorkflowStep) {
     const db = Database.create(this.env.DB)
 
-    await step.do("sync files", async () => {
-      return pipe(
+    await step.do("sync files", async () =>
+      pipe(
         await createDataSourceConfigArray(db),
         Array.flatMap((c) => syncDataSources(this.env.DATA_SOURCE, c)),
         Effect.all,
         Effect.asVoid,
         Effect.runPromise,
-      )
-    })
+      ),
+    )
   }
 }
 
@@ -35,6 +35,7 @@ function syncDataSources(
 ) {
   return config.dataSources.map((source) =>
     Effect.gen(function* () {
+      // biome-ignore lint/style/useDefaultSwitchClause: No use default switch clause
       switch (source.type) {
         case "text": {
           const filename = path
@@ -72,9 +73,9 @@ function syncDataSources(
   )
 }
 
-async function createDataSourceConfigArray(
+function createDataSourceConfigArray(
   db: Database.Database,
-): Promise<Array<typeof DataSourceConfig.schema.Type>> {
+): Promise<(typeof DataSourceConfig.schema.Type)[]> {
   return Effect.gen(function* () {
     const dataSourceArray = yield* Effect.tryPromise(() =>
       db.query.dataSourceTable.findMany({

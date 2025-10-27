@@ -2,6 +2,7 @@ import { OAuthProvider } from "@package/mcp-oauth-cloudflare-access"
 import * as Hono from "./entry.hono.js"
 import * as Scheduled from "./entry.scheduled.js"
 
+// biome-ignore lint/performance/noBarrelFile: worker entrypoint
 export { DataSyncWorkflow } from "./entry.workflow.js"
 
 const app = new OAuthProvider({

@@ -1,7 +1,7 @@
 import * as cloudflare from "@pulumi/cloudflare"
-import * as policy from "../access-policy.ts"
-import * as config from "../config.ts"
-import * as identityCenter from "../identity-provider.ts"
+import * as policy from "../access-policy.js"
+import * as config from "../config.js"
+import * as identityCenter from "../identity-provider.js"
 
 export const oidc = new cloudflare.ZeroTrustAccessApplication(
   "gitea",

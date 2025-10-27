@@ -1,7 +1,7 @@
 import * as aws from "@pulumi/aws"
-import * as group from "./group.ts"
-import * as identityStore from "./identify-store.ts"
-import * as permissionSet from "./permission-set.ts"
+import * as group from "./group.js"
+import * as identityStore from "./identify-store.js"
+import * as permissionSet from "./permission-set.js"
 
 export const totto2727 = new aws.organizations.Account(
   "totto2727-account",

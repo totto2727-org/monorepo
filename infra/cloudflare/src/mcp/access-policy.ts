@@ -1,7 +1,7 @@
 import * as cloudflare from "@pulumi/cloudflare"
-import * as group from "../access-group.ts"
-import * as config from "../config.ts"
-import * as identityCenter from "../identity-provider.ts"
+import * as group from "../access-group.js"
+import * as config from "../config.js"
+import * as identityCenter from "../identity-provider.js"
 
 export const mustBelongToMCPGroup = new cloudflare.ZeroTrustAccessPolicy(
   "must-belong-mcp-group",

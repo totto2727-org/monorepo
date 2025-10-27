@@ -4,14 +4,13 @@ import type {
   AuthRequest,
   ClientInfo,
 } from "@cloudflare/workers-oauth-provider" // Adjust path if necessary
+import { DATETIME } from "@package/constant"
 
 const COOKIE_NAME = "mcp-approved-clients"
-const ONE_YEAR_IN_SECONDS = 31536000
-
 /**
  * Imports a secret key string for HMAC-SHA256 signing.
  */
-async function importKey(secret: string): Promise<webcrypto.CryptoKey> {
+function importKey(secret: string): Promise<webcrypto.CryptoKey> {
   if (!secret) {
     throw new Error(
       "COOKIE_ENCRYPTION_KEY is not defined. A secret key is required for signing cookies.",
@@ -33,18 +32,21 @@ async function getApprovedClientsFromCookie(
   cookieHeader: string | null,
   secret: string,
 ): Promise<string[] | null> {
-  if (!cookieHeader) return null
+  if (!cookieHeader) {
+    return null
+  }
 
   const cookies = cookieHeader.split(";").map((c) => c.trim())
   const targetCookie = cookies.find((c) => c.startsWith(`${COOKIE_NAME}=`))
 
-  if (!targetCookie) return null
+  if (!targetCookie) {
+    return null
+  }
 
   const cookieValue = targetCookie.substring(COOKIE_NAME.length + 1)
   const parts = cookieValue.split(".")
 
   if (parts.length !== 2) {
-    console.warn("Invalid cookie format received.")
     return null // Invalid format
   }
 
@@ -62,24 +64,20 @@ async function getApprovedClientsFromCookie(
   )
 
   if (!isValid) {
-    console.warn("Cookie signature verification failed.")
     return null // Signature invalid
   }
 
   try {
     const approvedClients = JSON.parse(payload.toString())
     if (!Array.isArray(approvedClients)) {
-      console.warn("Cookie payload is not an array.")
       return null // Payload isn't an array
     }
     // Ensure all elements are strings
     if (!approvedClients.every((item) => typeof item === "string")) {
-      console.warn("Cookie payload contains non-string elements.")
       return null
     }
     return approvedClients as string[]
-  } catch (e) {
-    console.error("Error parsing cookie payload:", e)
+  } catch (_e) {
     return null // JSON parsing failed
   }
 }
@@ -93,7 +91,9 @@ export async function clientIdAlreadyApproved(
   clientId: string,
   cookieSecret: string,
 ): Promise<boolean> {
-  if (!clientId) return false
+  if (!clientId) {
+    return false
+  }
   const cookieHeader = request.headers.get("cookie")
   const approvedClients = await getApprovedClientsFromCookie(
     cookieHeader,
@@ -105,7 +105,7 @@ export async function clientIdAlreadyApproved(
 /**
  * Configuration for the approval dialog
  */
-interface ApprovalDialogOptions {
+type ApprovalDialogOptions = {
   /**
    * Client information to display in the approval dialog
    */
@@ -160,6 +160,7 @@ interface ApprovalDialogOptions {
  * @param options - Configuration for the approval dialog
  * @returns A Response containing the HTML approval dialog
  */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: TODO
 export function renderApprovalDialog(
   request: Request,
   options: ApprovalDialogOptions,
@@ -497,7 +498,7 @@ export function renderApprovalDialog(
 /**
  * Result of parsing the approval form submission.
  */
-interface ParsedApprovalResult {
+type ParsedApprovalResult = {
   /** The original state object passed through the form. */
   state: unknown
   /** Headers to set on the redirect response, including the Set-Cookie header. */
@@ -537,7 +538,6 @@ export async function parseRedirectApproval(
       throw new Error("Could not extract clientId from state object.")
     }
   } catch (e) {
-    console.error("Error processing form submission:", e)
     // Rethrow or handle as appropriate, maybe return a specific error response
     throw new Error(
       `Failed to parse approval form: ${e instanceof Error ? e.message : String(e)}`,
@@ -562,7 +562,12 @@ export async function parseRedirectApproval(
 
   // Generate Set-Cookie header
   const headers: Record<string, string> = {
-    "set-cookie": `${COOKIE_NAME}=${newCookieValue}; HttpOnly; Secure; Path=/; SameSite=Lax; Max-Age=${ONE_YEAR_IN_SECONDS}`,
+    "set-cookie": `${COOKIE_NAME}=${newCookieValue}; HttpOnly; Secure; Path=/; SameSite=Lax; Max-Age=${
+      DATETIME.ONE_YEAR_IN_DAYS *
+      DATETIME.ONE_DAY_IN_HOURS *
+      DATETIME.ONE_HOUR_IN_MINUTES *
+      DATETIME.ONE_MINUTE_IN_SECONDS
+    }`,
   }
 
   return { headers, state }
@@ -588,7 +593,9 @@ export function getUpstreamAuthorizeUrl({
   upstream.searchParams.set("client_id", client_id)
   upstream.searchParams.set("redirect_uri", redirect_uri)
   upstream.searchParams.set("scope", scope)
-  if (state) upstream.searchParams.set("state", state)
+  if (state) {
+    upstream.searchParams.set("state", state)
+  }
   upstream.searchParams.set("response_type", "code")
   return upstream.href
 }
@@ -627,7 +634,6 @@ export async function fetchUpstreamAuthToken({
     method: "POST",
   })
   if (!resp.ok) {
-    console.log(await resp.text())
     return [
       null,
       null,

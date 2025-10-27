@@ -1,4 +1,5 @@
 import { StreamableHTTPTransport } from "@hono/mcp"
+import * as Table from "#@/feature/database/drizzle.js"
 import * as DataBase from "#@/feature/database.js"
 import * as Hono from "#@/feature/hono.js"
 import * as Server from "./server.js"
@@ -24,7 +25,7 @@ async function loadConfigFromDatabase(
   database: D1Database,
 ): Promise<typeof McpServerConfig.schema.Type> {
   const db = DataBase.create(database)
-  const tools = await db.select().from(DataBase.schema.mcpToolTable)
+  const tools = await db.select().from(Table.mcpToolTable)
 
   return {
     ai: env.AI,

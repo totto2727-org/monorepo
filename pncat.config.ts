@@ -33,7 +33,7 @@ export default defineConfig({
     },
     { match: [/cloudflare/, /wrangler/], name: "cloudflare" },
     {
-      match: [/biome/, /dprint/, /eslint/],
+      match: [/biome/, /dprint/, /eslint/, /ultracite/],
       name: "lint",
     },
     {

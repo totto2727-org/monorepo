@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/performance/noBarrelFile: package endpoint */
 export * from "@yamada-ui/react/components/accordion"
 export * from "@yamada-ui/react/components/airy"
 export * from "@yamada-ui/react/components/alert"

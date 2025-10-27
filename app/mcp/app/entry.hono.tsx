@@ -53,9 +53,7 @@ export const adminApp = createApp()
       </Layout>
     )),
   )
-  .get("/app/admin", async (c) => {
-    return c.render(<AdminEndpoint.Dashboard />)
-  })
+  .get("/app/admin", async (c) => c.render(<AdminEndpoint.Dashboard />))
   .get("/app/admin/mcp-tool", ...McpTool.getHandler)
   .post("/app/admin/mcp-tool", ...McpTool.postHandler)
   .delete("/app/admin/mcp-tool", ...McpTool.deleteHandler)
