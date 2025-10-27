@@ -87,13 +87,17 @@ export class DrizzleAdapter implements Adapter {
     if (!astMap) {
       return []
     }
-    return astMap
-      .entries()
-      .flatMap(([ptype, ast]) =>
-        ast.policy.map((rule) => [ptype, rule] as const),
-      )
-      .map(([ptype, rule]) => this.#arrayToDTO(ptype, rule))
-      .toArray()
+    return (
+      astMap
+        .entries()
+        // biome-ignore lint/nursery/noShadow: shadowing is intentional
+        .flatMap(([ptype, ast]) =>
+          ast.policy.map((rule) => [ptype, rule] as const),
+        )
+        // biome-ignore lint/nursery/noShadow: shadowing is intentional
+        .map(([ptype, rule]) => this.#arrayToDTO(ptype, rule))
+        .toArray()
+    )
   }
 
   async savePolicy(model: Model): Promise<boolean> {

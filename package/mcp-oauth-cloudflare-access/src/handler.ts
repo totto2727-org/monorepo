@@ -156,12 +156,12 @@ async function fetchAccessPublicKey(env: Env, kid: string) {
   }
   // TODO: cache this
   const resp = await fetch(env.ACCESS_JWKS_URL)
-  const keys = (await resp.json()) as {
+  const json = (await resp.json()) as {
     // biome-ignore lint/suspicious/noExplicitAny: TODO
     keys: (any & { kid: string })[]
   }
   // biome-ignore lint/style/noNonNullAssertion: そのうち治す
-  const jwk = keys.keys.filter((key) => key.kid === kid)[0]!
+  const jwk = json.keys.filter((v) => v.kid === kid)[0]!
   const key = await crypto.subtle.importKey(
     "jwk",
     jwk,

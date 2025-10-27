@@ -8,6 +8,7 @@ import {
 } from "@totto/function/effect"
 import * as CUID from "@totto/function/effect/cuid"
 import { eq, inArray } from "drizzle-orm"
+import type { Context } from "hono"
 import { contextStorage } from "hono/context-storage"
 import { createFactory } from "hono/factory"
 import {
@@ -28,6 +29,10 @@ import { UserSource } from "./user-source.js"
 const decodeOptionUser = Schema.decodeOption(User.schema)
 const factory = createFactory<Env>()
 
+function updateUser(c: Context<Env>, user: typeof User.schema.Encoded) {
+  c.set("user", decodeOptionUser(user))
+}
+
 export const live = Layer.effect(
   AuthHonoMiddlewares,
   Effect.gen(function* () {
@@ -41,10 +46,6 @@ export const live = Layer.effect(
 
     return {
       base: factory.createMiddleware(async (c, next) => {
-        function updateUser(user: typeof User.schema.Encoded) {
-          c.set("user", decodeOptionUser(user))
-        }
-
         initializeDatabase()
 
         // 認証情報がない場合、noneとなる
@@ -119,7 +120,7 @@ export const live = Layer.effect(
         ).pipe(Option.getOrThrow)
 
         if (Array.isEmptyArray(cloudflareAccessOrganizationIDArray)) {
-          updateUser({
+          updateUser(c, {
             id: user.id,
             name: user.name,
             organizationArray: Array.of(personalOrganization),
@@ -164,7 +165,7 @@ export const live = Layer.effect(
           ) &&
           Array.isNonEmptyArray(existOrganizationArray)
         ) {
-          updateUser({
+          updateUser(c, {
             id: user.id,
             name: user.name,
             organizationArray: [
@@ -221,7 +222,7 @@ export const live = Layer.effect(
             .orderBy(organizationTable.createdAt),
         ])
 
-        updateUser({
+        updateUser(c, {
           id: user.id,
           name: user.name,
           organizationArray: Array.make(
