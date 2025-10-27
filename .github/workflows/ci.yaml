@@ -19,5 +19,5 @@ jobs:
       - run: ni
         env:
           CLOUDSMITH_TOKEN: ${{ secrets.CLOUDSMITH_TOKEN }}
-      - run: grit init
+      - run: na grit init
       - run: turbo check build test
