@@ -1,7 +1,7 @@
 import { createRouter } from "@tanstack/react-router"
 // biome-ignore lint/suspicious/noTsIgnore: required
 // @ts-ignore
-import { routeTree } from "./routeTree.gen.ts"
+import { routeTree } from "./routeTree.gen.js"
 
 export function getRouter() {
   const router = createRouter({
