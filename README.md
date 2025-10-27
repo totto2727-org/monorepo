@@ -41,6 +41,9 @@ ni
 
 # Install Turbo (via mise)
 mise install
+
+mise use -g npm:lefthook
+lefthook uninstall && lefthook install
 ```
 
 ## Development Commands
