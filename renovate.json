@@ -7,19 +7,25 @@
   "packageRules": [
     {
       "groupName": "Major updates",
-      "matchUpdateTypes": ["major"]
+      "matchUpdateTypes": ["major"],
+      "minimumReleaseAge": "3 days"
     },
     {
       "groupName": "Minor updates",
-      "matchUpdateTypes": ["minor"]
+      "matchUpdateTypes": ["minor"],
+      "minimumReleaseAge": "3 days"
     },
     {
       "groupName": "Patch updates",
-      "matchUpdateTypes": ["patch", "digest", "bump", "lockFileMaintenance"]
+      "matchUpdateTypes": ["patch", "digest", "bump", "lockFileMaintenance"],
+      "automerge": true,
+      "minimumReleaseAge": "3 days"
     },
     {
       "groupName": "TypeScript native preview updates",
-      "matchPackageNames": ["@typescript/native-preview"]
+      "matchPackageNames": ["@typescript/native-preview"],
+      "minimumReleaseAge": "3 days",
+      "automerge": true
     }
   ]
 }
