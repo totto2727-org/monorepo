@@ -1,4 +1,4 @@
-import { Cause, Effect } from "@totto/function/effect"
+import { Cause, Effect, Match } from "@totto/function/effect"
 import { FetchHttpClient, HttpClient } from "@totto/function/effect/platform"
 import type { DataFetchResult } from "./type/data-fetch-result.js"
 import type * as DataSourceTarget from "./type/data-source-target.js"
@@ -26,16 +26,9 @@ function retrieveFirecrawl(
 export function retrieve(
   target: typeof DataSourceTarget.schema.Type,
 ): DataFetchResult {
-  switch (target.type) {
-    case "text":
-      return retrieveText(target)
-    case "firecrawl":
-      return retrieveFirecrawl(target)
-    default:
-      return Effect.fail(
-        new Cause.UnknownException(
-          `Unknown data source type: ${JSON.stringify(target.type)}`,
-        ),
-      )
-  }
+  return Match.value(target).pipe(
+    Match.when({ type: "firecrawl" }, (v) => retrieveFirecrawl(v)),
+    Match.when({ type: "text" }, (v) => retrieveText(v)),
+    Match.exhaustive,
+  )
 }

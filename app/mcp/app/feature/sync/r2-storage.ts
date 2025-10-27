@@ -1,3 +1,4 @@
+import { Match } from "@totto/function/effect"
 import type * as DataSourceType from "./type/data-source-type.js"
 
 export async function save(
@@ -14,21 +15,17 @@ export async function save(
 }
 
 function toMineType(type: typeof DataSourceType.schema.Type) {
-  // biome-ignore lint/style/useDefaultSwitchClause: No use default switch clause
-  switch (type) {
-    case "text":
-      return "text/plain"
-    case "firecrawl":
-      return "text/markdown"
-  }
+  return Match.value(type).pipe(
+    Match.when("text", () => "text/plain"),
+    Match.when("firecrawl", () => "text/markdown"),
+    Match.exhaustive,
+  )
 }
 
 function addExtention(type: typeof DataSourceType.schema.Type, key: string) {
-  // biome-ignore lint/style/useDefaultSwitchClause: No use default switch clause
-  switch (type) {
-    case "text":
-      return [key, "txt"].join(".")
-    case "firecrawl":
-      return [key, "md"].join(".")
-  }
+  return Match.value(type).pipe(
+    Match.when("text", () => [key, "txt"].join(".")),
+    Match.when("firecrawl", () => [key, "md"].join(".")),
+    Match.exhaustive,
+  )
 }

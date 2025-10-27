@@ -4,7 +4,7 @@ import {
   type WorkflowStep,
 } from "cloudflare:workers"
 import path from "node:path"
-import { Array, Effect, pipe } from "@totto/function/effect"
+import { Array, Effect, Match, pipe } from "@totto/function/effect"
 import * as Database from "./feature/database.js"
 import * as R2Storage from "./feature/sync/r2-storage.js"
 import * as Retrieve from "./feature/sync/retrieve.js"
@@ -34,42 +34,43 @@ function syncDataSources(
   config: typeof DataSourceConfig.schema.Type,
 ) {
   return config.dataSources.map((source) =>
-    Effect.gen(function* () {
-      // biome-ignore lint/style/useDefaultSwitchClause: No use default switch clause
-      switch (source.type) {
-        case "text": {
-          const filename = path
-            .join(source.url.hostname, source.url.pathname)
-            .split("/")
-            .join("-")
-            .replaceAll(".", "-")
+    Match.value(source)
+      .pipe(
+        // biome-ignore lint/nursery/noShadow: shadowing is intentional
+        Match.when({ type: "text" }, (source) =>
+          Effect.gen(function* () {
+            const filename = path
+              .join(source.url.hostname, source.url.pathname)
+              .split("/")
+              .join("-")
+              .replaceAll(".", "-")
 
-          const result = yield* Retrieve.retrieve(source)
+            const result = yield* Retrieve.retrieve(source)
 
-          yield* Effect.tryPromise(() =>
-            R2Storage.save(
-              r2,
-              path.join(config.mcpToolName, filename),
-              result.value,
-              result.source.type,
-            ),
-          )
-          yield* Effect.logInfo(filename)
+            yield* Effect.tryPromise(() =>
+              R2Storage.save(
+                r2,
+                path.join(config.mcpToolName, filename),
+                result.value,
+                source.type,
+              ),
+            )
+            yield* Effect.logInfo(filename)
 
-          return
-        }
-        case "firecrawl": {
-          return
-        }
-      }
-    }).pipe(
-      Effect.catchAll(
-        Effect.fn(function* (e) {
-          yield* Effect.logError(e)
-          return Effect.asVoid
-        }),
+            return
+          }),
+        ),
+        Match.when({ type: "firecrawl" }, () => Effect.void),
+        Match.exhaustive,
+      )
+      .pipe(
+        Effect.catchAll(
+          Effect.fn(function* (e) {
+            yield* Effect.logError(e)
+            return Effect.asVoid
+          }),
+        ),
       ),
-    ),
   )
 }
 
