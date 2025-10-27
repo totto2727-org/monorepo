@@ -8,6 +8,7 @@
     "pncat": "catalog:cli",
     "turbo": "catalog:cli",
     "typescript": "catalog:build",
+    "ultracite": "catalog:lint",
     "wrangler": "catalog:cloudflare"
   },
   "name": "monorepo",
