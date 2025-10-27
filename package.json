@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
+    "@getgrit/cli": "catalog:lint",
     "@tsconfig/strictest": "catalog:tsconfig",
     "@types/node": "catalog:dev",
     "@typescript/native-preview": "catalog:build",
@@ -15,6 +16,7 @@
   "packageManager": "pnpm@10.18.2",
   "pnpm": {
     "onlyBuiltDependencies": [
+      "@getgrit/cli",
       "@parcel/watcher",
       "@pulumi/docker",
       "@pulumi/docker-build",
@@ -39,7 +41,9 @@
     "check": "${npm_execpath} run /check:.*/",
     "check:biome": "biome check",
     "check:dprint": "dprint check",
+    "check:grit": "grit check",
     "fix": "${npm_execpath} run /fix:.*/",
+    "fix:grit": "grit check --fix",
     "fix:biome": "biome check --write --unsafe",
     "fix:dprint": "dprint fmt --allow-no-files",
     "package": "turbo --filter @package/*",

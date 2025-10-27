@@ -1,0 +1,15 @@
+version: 0.0.1
+patterns:
+  - name: force_js_extension
+    level: error
+    body: |
+      `import $specifiers from $source` where {
+      	$source <: r"\"(.*)\.(ts|tsx)\""($without_ext, $ext)
+      } => `import $specifiers from "$without_ext.js"`
+    description: |
+      Use .js extension for TypeScript imports (.ts or .tsx files).
+    samples:
+      - input: |
+          import * as Scheduled from "./entry.scheduled.ts"
+        output: |
+          import * as Scheduled from "./entry.scheduled.js"
