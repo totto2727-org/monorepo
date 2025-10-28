@@ -31,6 +31,5 @@
     "root": "."
   },
   "extends": ["ultracite/core", "ultracite/react", "ultracite/remix"],
-  "plugins": ["./.grit/force-js-extension.grit"],
   "root": true
 }
