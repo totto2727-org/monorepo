@@ -58,6 +58,9 @@ catalogs:
     '@types/node':
       specifier: ^24.1.0
       version: 24.7.1
+    agents:
+      specifier: ^0.2.0
+      version: 0.2.16
   drizzle:
     drizzle-cuid2:
       specifier: ^2.1.0
@@ -94,9 +97,6 @@ catalogs:
     '@hono/standard-validator':
       specifier: ^0.1.4
       version: 0.1.5
-    hono:
-      specifier: ^4.7.10
-      version: 4.9.8
   lint:
     '@biomejs/biome':
       specifier: ^2.3.0
@@ -113,6 +113,9 @@ catalogs:
     eslint-config-flat-gitignore:
       specifier: ^2.1.0
       version: 2.1.0
+    eslint-plugin-react-hooks:
+      specifier: ^7.0.0
+      version: 7.0.1
     typescript-eslint:
       specifier: ^8.46.1
       version: 8.46.2
@@ -126,10 +129,22 @@ catalogs:
     '@pulumi/awsx':
       specifier: ^3.0.0
       version: 3.0.1
+    '@pulumi/cloudflare':
+      specifier: ^6.5.0
+      version: 6.10.1
     '@pulumi/pulumi':
       specifier: ^3.113.0
       version: 3.202.0
   react:
+    '@tanstack/react-router':
+      specifier: ^1.133.3
+      version: 1.133.27
+    '@tanstack/react-router-devtools':
+      specifier: ^1.133.3
+      version: 1.133.27
+    '@tanstack/react-start':
+      specifier: ^1.133.3
+      version: 1.133.27
     '@tanstack/router-cli':
       specifier: ^1.133.25
       version: 1.133.27
@@ -246,10 +261,10 @@ importers:
         version: 1.13.15(bufferutil@4.0.9)(rolldown-vite@7.1.17(@types/node@24.9.1)(esbuild@0.25.10)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))(utf-8-validate@5.0.10)(workerd@1.20251011.0)(wrangler@4.45.0(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@hono/mcp':
         specifier: catalog:hono
-        version: 0.1.4(@modelcontextprotocol/sdk@1.20.2)(hono@4.9.8)
+        version: 0.1.4(@modelcontextprotocol/sdk@1.20.2)(hono@4.10.3)
       '@hono/standard-validator':
         specifier: catalog:hono
-        version: 0.1.5(@standard-schema/spec@1.0.0)(hono@4.9.8)
+        version: 0.1.5(@standard-schema/spec@1.0.0)(hono@4.10.3)
       '@modelcontextprotocol/sdk':
         specifier: catalog:dev
         version: 1.20.2
@@ -288,7 +303,7 @@ importers:
         version: 0.44.7(@cloudflare/workers-types@4.20251011.0)(@libsql/client@0.15.7(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@opentelemetry/api@1.9.0)
       hono:
         specifier: catalog:hono
-        version: 4.9.8
+        version: 4.10.3
       tailwindcss:
         specifier: catalog:ui
         version: 4.1.16
@@ -312,10 +327,10 @@ importers:
         version: 1.13.15(bufferutil@4.0.9)(rolldown-vite@7.1.17(@types/node@24.9.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))(utf-8-validate@5.0.10)(workerd@1.20251011.0)(wrangler@4.45.0(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@hono/graphql-server':
         specifier: catalog:hono
-        version: 0.7.0(hono@4.9.8)
+        version: 0.7.0(hono@4.10.3)
       '@hono/standard-validator':
         specifier: catalog:hono
-        version: 0.1.5(@standard-schema/spec@1.0.0)(hono@4.9.8)
+        version: 0.1.5(@standard-schema/spec@1.0.0)(hono@4.10.3)
       '@iconify-json/material-symbols':
         specifier: catalog:ui
         version: 1.2.42
@@ -399,7 +414,7 @@ importers:
         version: 1.24.2(graphql@16.11.0)
       hono:
         specifier: catalog:hono
-        version: 4.9.8
+        version: 4.10.3
       react:
         specifier: catalog:react
         version: 19.2.0
@@ -432,7 +447,7 @@ importers:
         version: 1.13.15(bufferutil@4.0.9)(rolldown-vite@7.1.17(@types/node@24.9.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))(utf-8-validate@5.0.10)(workerd@1.20251011.0)(wrangler@4.45.0(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@hono/graphql-server':
         specifier: catalog:hono
-        version: 0.7.0(hono@4.9.8)
+        version: 0.7.0(hono@4.10.3)
       '@mikaelporttila/rss':
         specifier: catalog:dev
         version: '@jsr/mikaelporttila__rss@1.1.3'
@@ -456,7 +471,7 @@ importers:
         version: 1.24.2(graphql@16.11.0)
       hono:
         specifier: catalog:hono
-        version: 4.9.8
+        version: 4.10.3
       typescript:
         specifier: catalog:build
         version: 5.9.3
@@ -522,7 +537,7 @@ importers:
     dependencies:
       '@hono/casbin':
         specifier: catalog:casbin
-        version: 1.0.0(casbin@5.39.0)(hono@4.9.8)
+        version: 1.0.0(casbin@5.39.0)(hono@4.10.3)
       casbin:
         specifier: catalog:casbin
         version: 5.39.0
@@ -538,7 +553,7 @@ importers:
         version: 0.44.7(@cloudflare/workers-types@4.20251011.0)(@libsql/client@0.15.7(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@opentelemetry/api@1.9.0)
       hono:
         specifier: catalog:hono
-        version: 4.9.8
+        version: 4.10.3
       tsdown:
         specifier: catalog:build
         version: 0.15.9(@typescript/native-preview@7.0.0-dev.20251024.1)(typescript@5.9.3)
@@ -562,7 +577,7 @@ importers:
         version: 5.2.0
       hono:
         specifier: catalog:hono
-        version: 4.9.8
+        version: 4.10.3
       tailwindcss:
         specifier: catalog:ui
         version: 4.1.16
@@ -593,7 +608,7 @@ importers:
         version: 24.7.1
       hono:
         specifier: catalog:hono
-        version: 4.9.8
+        version: 4.10.3
       tsdown:
         specifier: catalog:build
         version: 0.15.9(@typescript/native-preview@7.0.0-dev.20251024.1)(typescript@5.9.3)
@@ -608,7 +623,7 @@ importers:
     dependencies:
       '@hono/casbin':
         specifier: catalog:casbin
-        version: 1.0.0(casbin@5.39.0)(hono@4.9.8)
+        version: 1.0.0(casbin@5.39.0)(hono@4.10.3)
       casbin:
         specifier: catalog:casbin
         version: 5.39.0
@@ -624,7 +639,7 @@ importers:
         version: 0.44.7(@cloudflare/workers-types@4.20251011.0)(@libsql/client@0.15.7(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@opentelemetry/api@1.9.0)
       hono:
         specifier: catalog:hono
-        version: 4.9.8
+        version: 4.10.3
       tsdown:
         specifier: catalog:build
         version: 0.15.9(@typescript/native-preview@7.0.0-dev.20251024.1)(typescript@5.9.3)
@@ -639,7 +654,7 @@ importers:
     dependencies:
       '@hono/cloudflare-access':
         specifier: catalog:hono
-        version: 0.3.1(hono@4.9.8)
+        version: 0.3.1(hono@4.10.3)
       '@package/constant':
         specifier: workspace:*
         version: link:../constant
@@ -658,7 +673,7 @@ importers:
         version: 0.44.7(@cloudflare/workers-types@4.20251011.0)(@libsql/client@0.15.7(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@opentelemetry/api@1.9.0)
       hono:
         specifier: catalog:hono
-        version: 4.9.8
+        version: 4.10.3
       tsdown:
         specifier: catalog:build
         version: 0.15.9(@typescript/native-preview@7.0.0-dev.20251024.1)(typescript@5.9.3)
@@ -5307,8 +5322,8 @@ packages:
   hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
 
-  hono@4.9.8:
-    resolution: {integrity: sha512-JW8Bb4RFWD9iOKxg5PbUarBYGM99IcxFl2FPBo2gSJO11jjUDqlP1Bmfyqt8Z/dGhIQ63PMA9LdcLefXyIasyg==}
+  hono@4.10.3:
+    resolution: {integrity: sha512-2LOYWUbnhdxdL8MNbNg9XZig6k+cZXm5IjHn2Aviv7honhBMOHb+jxrKIeJRZJRmn+htUCKhaicxwXuUDlchRA==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -9042,29 +9057,29 @@ snapshots:
       protobufjs: 7.5.4
       yargs: 17.7.2
 
-  '@hono/casbin@1.0.0(casbin@5.39.0)(hono@4.9.8)':
+  '@hono/casbin@1.0.0(casbin@5.39.0)(hono@4.10.3)':
     dependencies:
       casbin: 5.39.0
-      hono: 4.9.8
+      hono: 4.10.3
 
-  '@hono/cloudflare-access@0.3.1(hono@4.9.8)':
+  '@hono/cloudflare-access@0.3.1(hono@4.10.3)':
     dependencies:
-      hono: 4.9.8
+      hono: 4.10.3
 
-  '@hono/graphql-server@0.7.0(hono@4.9.8)':
+  '@hono/graphql-server@0.7.0(hono@4.10.3)':
     dependencies:
       graphql: 16.11.0
-      hono: 4.9.8
+      hono: 4.10.3
 
-  '@hono/mcp@0.1.4(@modelcontextprotocol/sdk@1.20.2)(hono@4.9.8)':
+  '@hono/mcp@0.1.4(@modelcontextprotocol/sdk@1.20.2)(hono@4.10.3)':
     dependencies:
       '@modelcontextprotocol/sdk': 1.20.2
-      hono: 4.9.8
+      hono: 4.10.3
 
-  '@hono/standard-validator@0.1.5(@standard-schema/spec@1.0.0)(hono@4.9.8)':
+  '@hono/standard-validator@0.1.5(@standard-schema/spec@1.0.0)(hono@4.10.3)':
     dependencies:
       '@standard-schema/spec': 1.0.0
-      hono: 4.9.8
+      hono: 4.10.3
 
   '@humanfs/core@0.19.1': {}
 
@@ -12793,7 +12808,7 @@ snapshots:
     dependencies:
       react-is: 16.13.1
 
-  hono@4.9.8: {}
+  hono@4.10.3: {}
 
   hookable@5.5.3: {}
 
