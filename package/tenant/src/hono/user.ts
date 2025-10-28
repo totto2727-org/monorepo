@@ -5,9 +5,9 @@ import type { Env } from "./env.js"
 
 const UserClass: Context.TagClass<
   User,
-  "User",
+  "@package/tenant/hono/user/User",
   () => Option.Option<typeof schema.Type>
-> = Context.Tag("User")()
+> = Context.Tag("@package/tenant/hono/user/User")()
 
 export class User extends UserClass {}
 

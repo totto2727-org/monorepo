@@ -51,17 +51,15 @@ const devApp = createApp.pipe(
   Effect.provide(Tenant.DB.live),
   Effect.provide(Tenant.User.live),
   Effect.provide(
-    CloudflareAccess.JWT.devJWTUserLive({
+    CloudflareAccess.JWT.jwtUserDev({
       id: "id3",
       organizationIDArray: ["org1", "org2", "org3", "org4", "org5", "org6"],
     }),
   ),
   Effect.provide(
-    CloudflareAccess.JWT.devApplicationAudienceLive("cloudflare-access"),
+    CloudflareAccess.JWT.applicationAudienceDev("cloudflare-access"),
   ),
-  Effect.provide(
-    CloudflareAccess.JWT.devJWTAudienceLive(["cloudflare-access"]),
-  ),
+  Effect.provide(CloudflareAccess.JWT.jwtAudienceDev(["cloudflare-access"])),
   Effect.runSync,
 )
 
@@ -72,13 +70,13 @@ const _productionApp = createApp.pipe(
   ),
   Effect.provide(Tenant.DB.live),
   Effect.provide(Tenant.User.live),
-  Effect.provide(CloudflareAccess.JWT.productionJWTUserLive),
+  Effect.provide(CloudflareAccess.JWT.jwtUserLive),
   Effect.provide(
-    CloudflareAccess.JWT.productionApplicationAudienceLive(
+    CloudflareAccess.JWT.applicationAudienceLive(
       () => getContext().env.APPLICATION_AUDIENCE,
     ),
   ),
-  Effect.provide(CloudflareAccess.JWT.productionJWTAudienceLive),
+  Effect.provide(CloudflareAccess.JWT.jwtAudienceLive),
   Effect.provide(CUID.generatorProductionLive),
   Effect.runSync,
 )

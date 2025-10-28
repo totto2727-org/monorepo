@@ -4,53 +4,55 @@ import type { Env } from "../env.js"
 
 const ApplicationAudienceClass: Context.TagClass<
   ApplicationAudience,
-  "@package/tenant/hono/jwt/ApplicationAudience",
+  "@package/tenant/hono/cloudflare-access/jwt/ApplicationAudience",
   () => string
-> = Context.Tag("@package/tenant/hono/jwt/ApplicationAudience")()
+> = Context.Tag(
+  "@package/tenant/hono/cloudflare-access/jwt/ApplicationAudience",
+)()
 
 export class ApplicationAudience extends ApplicationAudienceClass {}
 
-export const productionApplicationAudienceLive = (fn: () => string) =>
+export const applicationAudienceLive = (fn: () => string) =>
   Layer.succeed(ApplicationAudience, fn)
 
-export const devApplicationAudienceLive = (aud: string) =>
+export const applicationAudienceDev = (aud: string) =>
   Layer.succeed(ApplicationAudience, () => aud)
 
 const JWTAudienceClass: Context.TagClass<
   JWTAudience,
-  "@package/tenant/hono/jwt/JWTAudience",
+  "@package/tenant/hono/cloudflare-access/jwt/JWTAudience",
   () => string[]
-> = Context.Tag("@package/tenant/hono/jwt/JWTAudience")()
+> = Context.Tag("@package/tenant/hono/cloudflare-access/jwt/JWTAudience")()
 
 export class JWTAudience extends JWTAudienceClass {}
 
-export const devJWTAudienceLive = (aud: string[]) =>
+export const jwtAudienceDev = (aud: string[]) =>
   Layer.succeed(JWTAudience, () => aud)
 
-export const productionJWTAudienceLive = Layer.succeed(
+export const jwtAudienceLive = Layer.succeed(
   JWTAudience,
   () => getContext<Env>().var.accessPayload.aud,
 )
 
 const JWTUserClass: Context.TagClass<
   JWTUser,
-  "@package/tenant/hono/jwt/JWTUser",
+  "@package/tenant/hono/cloudflare-access/jwt/JWTUser",
   () => {
     id?: string
     organizationIDArray: string[]
   }
-> = Context.Tag("@package/tenant/hono/jwt/JWTUser")()
+> = Context.Tag("@package/tenant/hono/cloudflare-access/jwt/JWTUser")()
 
 export class JWTUser extends JWTUserClass {}
 
-export function devJWTUserLive(user: {
+export function jwtUserDev(user: {
   id?: string
   organizationIDArray: string[]
 }): Layer.Layer<JWTUser, never, never> {
   return Layer.succeed(JWTUser, () => user)
 }
 
-export const productionJWTUserLive = Layer.succeed(JWTUser, () => {
+export const jwtUserLive = Layer.succeed(JWTUser, () => {
   const payload = getContext<Env>().var.accessPayload
   return {
     id: payload?.sub,
