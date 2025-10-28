@@ -1,7 +1,5 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "compilerOptions": {},
   "exclude": ["dist"],
-  "extends": ["@totto/function/tsconfig/react", "@totto/function/tsconfig/lib"],
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  "extends": ["@totto/function/tsconfig/react", "@totto/function/tsconfig/lib"]
 }

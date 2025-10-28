@@ -16,16 +16,16 @@
       "minimumReleaseAge": "3 days"
     },
     {
+      "automerge": true,
       "groupName": "Patch updates",
       "matchUpdateTypes": ["patch", "digest", "bump", "lockFileMaintenance"],
-      "automerge": true,
       "minimumReleaseAge": "3 days"
     },
     {
+      "automerge": true,
       "groupName": "TypeScript native preview updates",
       "matchPackageNames": ["@typescript/native-preview"],
-      "minimumReleaseAge": "3 days",
-      "automerge": true
+      "minimumReleaseAge": "3 days"
     }
   ]
 }
