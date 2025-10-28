@@ -20,5 +20,8 @@
   },
   "placement": {
     "mode": "smart"
+  },
+  "vars": {
+    "APPLICATION_AUDIENCE": ""
   }
 }
