@@ -1,3 +1,5 @@
+language js
+
 `import $specifiers from $source` where {
   $source <: r"\"(.*)\.(ts|tsx)\""($without_ext, $ext),
   register_diagnostic(span=$source, message="Use .js extension for TypeScript imports (.ts or .tsx files).")
