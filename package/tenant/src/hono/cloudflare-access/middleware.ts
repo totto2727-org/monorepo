@@ -1,3 +1,4 @@
+import { STATUS_CODE } from "@package/constant"
 import {
   Array,
   Effect,
@@ -11,6 +12,7 @@ import { eq, inArray } from "drizzle-orm"
 import type { Context } from "hono"
 import { contextStorage } from "hono/context-storage"
 import { createFactory } from "hono/factory"
+import { HTTPException } from "hono/http-exception"
 import {
   cloudflareAccessOrganizationTable,
   cloudflareAccessUserTable,
@@ -20,11 +22,8 @@ import {
 import { User } from "../../schema.js"
 import { TenantDatabase, TenantDatabaseInitializer } from "../db.js"
 import type { Env } from "../env.js"
-import {
-  AuthHonoMiddlewares,
-  makeRequireUserMiddleware,
-} from "../middleware.js"
-import { UserSource } from "./user-source.js"
+import * as Middleware from "../middleware.js"
+import { ApplicationAudience, JWTAudience, JWTUser } from "./jwt.js"
 
 const decodeOptionUser = Schema.decodeOption(User.schema)
 const factory = createFactory<Env>()
@@ -34,31 +33,37 @@ function updateUser(c: Context<Env>, user: typeof User.schema.Encoded) {
 }
 
 export const live = Layer.effect(
-  AuthHonoMiddlewares,
+  Middleware.AuthHonoMiddlewares,
   Effect.gen(function* () {
+    const requireUser = yield* Middleware.makeRequireUserMiddleware
+
     const initializeDatabase = yield* TenantDatabaseInitializer
     const getDatabase = yield* TenantDatabase
     const makeCUID = yield* CUID.Generator
 
-    const requireUser = yield* makeRequireUserMiddleware
-
-    const getUserUserSource = yield* UserSource
+    const getApplicationAudience = yield* ApplicationAudience
+    const getJWTAudience = yield* JWTAudience
+    const getJWTUser = yield* JWTUser
 
     return {
       base: factory.createMiddleware(async (c, next) => {
         initializeDatabase()
 
+        if (!getJWTAudience().includes(getApplicationAudience())) {
+          throw new HTTPException(STATUS_CODE.UNAUTHORIZED)
+        }
+
         // 認証情報がない場合、noneとなる
-        const userSource = getUserUserSource()
-        if (Predicate.isNullable(userSource.id)) {
+        const jwtUser = getJWTUser()
+        if (Predicate.isNullable(jwtUser.id)) {
           c.set("user", Option.none())
           return next()
         }
 
         // トークンのPayloadからデータを抽出
-        const cloudflareAccessUserID = userSource.id
+        const cloudflareAccessUserID = jwtUser.id
         const cloudflareAccessOrganizationIDArray: string[] =
-          userSource.organizationIDArray
+          jwtUser.organizationIDArray
 
         const db = getDatabase()
 

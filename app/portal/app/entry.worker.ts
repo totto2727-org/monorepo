@@ -44,17 +44,41 @@ export const createApp = Effect.gen(function* () {
 
 const devApp = createApp.pipe(
   Effect.provide(CloudflareAccess.Middleware.live),
+  Effect.provide(CUID.generatorProductionLive),
   Effect.provide(
     Tenant.DB.makeTenantDatabaseInitializer(() => getContext().var.database),
   ),
   Effect.provide(Tenant.DB.live),
+  Effect.provide(Tenant.User.live),
   Effect.provide(
-    CloudflareAccess.UserSource.devLive({
+    CloudflareAccess.JWT.devJWTUserLive({
       id: "id3",
       organizationIDArray: ["org1", "org2", "org3", "org4", "org5", "org6"],
     }),
   ),
+  Effect.provide(
+    CloudflareAccess.JWT.devApplicationAudienceLive("cloudflare-access"),
+  ),
+  Effect.provide(
+    CloudflareAccess.JWT.devJWTAudienceLive(["cloudflare-access"]),
+  ),
+  Effect.runSync,
+)
+
+const _productionApp = createApp.pipe(
+  Effect.provide(CloudflareAccess.Middleware.live),
+  Effect.provide(
+    Tenant.DB.makeTenantDatabaseInitializer(() => getContext().var.database),
+  ),
+  Effect.provide(Tenant.DB.live),
   Effect.provide(Tenant.User.live),
+  Effect.provide(CloudflareAccess.JWT.productionJWTUserLive),
+  Effect.provide(
+    CloudflareAccess.JWT.productionApplicationAudienceLive(
+      () => getContext().env.APPLICATION_AUDIENCE,
+    ),
+  ),
+  Effect.provide(CloudflareAccess.JWT.productionJWTAudienceLive),
   Effect.provide(CUID.generatorProductionLive),
   Effect.runSync,
 )
