@@ -30,5 +30,6 @@
   "vcs": {
     "root": "."
   },
-  "extends": ["ultracite/core", "ultracite/react", "ultracite/remix"]
+  "extends": ["ultracite/core", "ultracite/react", "ultracite/remix"],
+  "plugins": ["./.grit/force-js-extension.grit"]
 }
