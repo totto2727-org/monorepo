@@ -9,7 +9,6 @@ export default defineConfig([
   },
   gitignore(),
   tseslint.configs.base,
-  // @ts-expect-error
   reactHooks.configs.flat["recommended-latest"],
   {
     rules: {
