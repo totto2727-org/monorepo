@@ -6,7 +6,7 @@ export type Props = {
   ariaLabel?: string
 }
 
-const sizeClasses = {
+const sizeClassRecord = {
   lg: "w-6 h-6",
   md: "w-5 h-5",
   sm: "w-4 h-4",
@@ -19,7 +19,7 @@ export const Dashboard: FC<Props> = ({
 }) => (
   <svg
     aria-label={ariaLabel}
-    className={`${sizeClasses[size]} ${className}`}
+    className={`${sizeClassRecord[size]} ${className}`}
     fill="none"
     role="img"
     stroke="currentColor"
@@ -41,7 +41,7 @@ export const Server: FC<Props> = ({
 }) => (
   <svg
     aria-label={ariaLabel}
-    className={`${sizeClasses[size]} ${className}`}
+    className={`${sizeClassRecord[size]} ${className}`}
     fill="none"
     role="img"
     stroke="currentColor"
@@ -63,7 +63,7 @@ export const Tools: FC<Props> = ({
 }) => (
   <svg
     aria-label={ariaLabel}
-    className={`${sizeClasses[size]} ${className}`}
+    className={`${sizeClassRecord[size]} ${className}`}
     fill="none"
     role="img"
     stroke="currentColor"
@@ -91,7 +91,7 @@ export const System: FC<Props> = ({
 }) => (
   <svg
     aria-label={ariaLabel}
-    className={`${sizeClasses[size]} ${className}`}
+    className={`${sizeClassRecord[size]} ${className}`}
     fill="none"
     role="img"
     stroke="currentColor"
@@ -113,7 +113,7 @@ export const Menu: FC<Props> = ({
 }) => (
   <svg
     aria-label={ariaLabel}
-    className={`${sizeClasses[size]} ${className} inline-block stroke-current`}
+    className={`${sizeClassRecord[size]} ${className} inline-block stroke-current`}
     fill="none"
     role="img"
     viewBox="0 0 24 24"
@@ -134,7 +134,7 @@ export const Plus: FC<Props> = ({
 }) => (
   <svg
     aria-label={ariaLabel}
-    className={`${sizeClasses[size]} ${className}`}
+    className={`${sizeClassRecord[size]} ${className}`}
     fill="none"
     role="img"
     stroke="currentColor"
@@ -156,7 +156,7 @@ export const Edit: FC<Props> = ({
 }) => (
   <svg
     aria-label={ariaLabel}
-    className={`${sizeClasses[size]} ${className}`}
+    className={`${sizeClassRecord[size]} ${className}`}
     fill="none"
     role="img"
     stroke="currentColor"
@@ -178,7 +178,7 @@ export const Delete: FC<Props> = ({
 }) => (
   <svg
     aria-label={ariaLabel}
-    className={`${sizeClasses[size]} ${className}`}
+    className={`${sizeClassRecord[size]} ${className}`}
     fill="none"
     role="img"
     stroke="currentColor"
@@ -200,7 +200,7 @@ export const Check: FC<Props> = ({
 }) => (
   <svg
     aria-label={ariaLabel}
-    className={`${sizeClasses[size]} ${className}`}
+    className={`${sizeClassRecord[size]} ${className}`}
     fill="none"
     role="img"
     stroke="currentColor"
@@ -222,7 +222,7 @@ export const Refresh: FC<Props> = ({
 }) => (
   <svg
     aria-label={ariaLabel}
-    className={`${sizeClasses[size]} ${className}`}
+    className={`${sizeClassRecord[size]} ${className}`}
     fill="none"
     role="img"
     stroke="currentColor"
@@ -244,7 +244,7 @@ export const Lightning: FC<Props> = ({
 }) => (
   <svg
     aria-label={ariaLabel}
-    className={`${sizeClasses[size]} ${className}`}
+    className={`${sizeClassRecord[size]} ${className}`}
     fill="none"
     role="img"
     stroke="currentColor"
@@ -266,7 +266,7 @@ export const Warning: FC<Props> = ({
 }) => (
   <svg
     aria-label={ariaLabel}
-    className={`${sizeClasses[size]} ${className}`}
+    className={`${sizeClassRecord[size]} ${className}`}
     fill="none"
     role="img"
     stroke="currentColor"
@@ -288,7 +288,7 @@ export const Info: FC<Props> = ({
 }) => (
   <svg
     aria-label={ariaLabel}
-    className={`${sizeClasses[size]} ${className}`}
+    className={`${sizeClassRecord[size]} ${className}`}
     fill="none"
     role="img"
     stroke="currentColor"

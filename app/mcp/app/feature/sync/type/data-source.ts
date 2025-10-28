@@ -1,9 +1,10 @@
 import { Schema } from "@totto/function/effect"
-import * as DataSourceTarget from "./data-source-target.js"
 
 export const schema = Schema.Struct({
-  dataSources: Schema.Array(DataSourceTarget.schema),
+  createdAt: Schema.Union(Schema.DateFromSelf, Schema.DateFromString),
   mcpToolName: Schema.NonEmptyString,
+  type: Schema.Literal("text", "firecrawl"),
+  url: Schema.NonEmptyString,
 })
 
 export const make = Schema.decodeSync(schema)

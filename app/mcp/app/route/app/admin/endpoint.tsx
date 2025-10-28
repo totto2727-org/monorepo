@@ -23,7 +23,7 @@ export async function Dashboard() {
         .from(Table.mcpToolTable),
     ])
 
-  const stats = {
+  const statsRecord = {
     dataSourcesCount: dataSourcesCountResult[0]?.count ?? 0,
     mcpToolsCount: mcpToolsCountResult[0]?.count ?? 0,
     updatedAt: lastUpdatedResult[0]?.updatedAt,
@@ -36,21 +36,21 @@ export async function Dashboard() {
           colorClass="text-primary"
           description="Registered search tools"
           title="MCP Tools"
-          value={stats.mcpToolsCount}
+          value={statsRecord.mcpToolsCount}
         />
         <StatCard.StatCard
           colorClass="text-secondary"
           description="Configured data sources"
           title="Data Sources"
-          value={stats.dataSourcesCount}
+          value={statsRecord.dataSourcesCount}
         />
         <StatCard.StatCard
           colorClass="text-info"
           description="System last updated"
           title="Updated"
           value={
-            stats.updatedAt
-              ? new Date(stats.updatedAt).toLocaleDateString("en-US")
+            statsRecord.updatedAt
+              ? new Date(statsRecord.updatedAt).toLocaleDateString("en-US")
               : "-"
           }
         />

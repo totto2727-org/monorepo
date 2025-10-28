@@ -8,3 +8,5 @@ export const schema = Schema.Struct({
     encode: (url) => url.toString(),
   }),
 })
+
+export const make = Schema.decodeSync(schema)

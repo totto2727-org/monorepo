@@ -91,14 +91,14 @@ function createDataSourceConfigArray(
       }),
     )
 
-    const groupedDataSources = Array.groupBy(
+    const groupedDataSourceArray = Array.groupBy(
       dataSourceArray,
       (dataSource) => dataSource.mcpToolName,
     )
 
-    return Object.entries(groupedDataSources).map(
-      ([mcpToolName, dataSources]) => ({
-        dataSources: dataSources.map((ds) => ({
+    return Object.entries(groupedDataSourceArray).map(
+      ([mcpToolName, groupedDataSource]) => ({
+        dataSources: groupedDataSource.map((ds) => ({
           type: ds.type,
           url: new URL(ds.url),
         })),

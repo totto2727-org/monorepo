@@ -8,13 +8,14 @@ import * as Drizzle from "#@/feature/database/drizzle.js"
 import type { Database } from "#@/feature/database.js"
 import * as Hono from "#@/feature/hono.js"
 import { getDefaultLocale } from "#@/feature/locale.js"
+import * as DataSource from "#@/feature/sync/type/data-source.js"
 import type * as DataSourceType from "#@/feature/sync/type/data-source-type.js"
 import * as SimpleStatCard from "#@/feature/ui/admin/card/simple-stat-card.js"
 import * as Input from "#@/feature/ui/admin/input/input.js"
 import * as Select from "#@/feature/ui/admin/input/select.js"
 import * as Modal from "#@/feature/ui/admin/modal.js"
 
-const availableDataSourceTypes = [
+const availableDataSourceTypeArray = [
   { label: "Text", value: "text" },
   { label: "Firecrawl", value: "firecrawl" },
 ] as const satisfies {
@@ -22,27 +23,20 @@ const availableDataSourceTypes = [
   value: typeof DataSourceType.schema.Type
 }[]
 
-const dataSourceSchema = Schema.Struct({
-  createdAt: Schema.Union(Schema.DateFromSelf, Schema.DateFromString),
-  mcpToolName: Schema.NonEmptyString,
-  type: Schema.Literal("text", "firecrawl"),
-  url: Schema.NonEmptyString,
-})
-
-const dataSourceWithoutCreatedAtSchema = dataSourceSchema.omit("createdAt")
+const dataSourceWithoutCreatedAtSchema = DataSource.schema.omit("createdAt")
 const dataSourceWithoutCreatedAtStandardSchema = Schema.standardSchemaV1(
   dataSourceWithoutCreatedAtSchema,
 )
-const encodeDataSourceWithoutCreatedAt = Schema.encodeSync(
+const encodeSyncDataSourceWithoutCreatedAt = Schema.encodeSync(
   dataSourceWithoutCreatedAtSchema,
 )
 
-const dataSourceArrayAndMcpToolOptionArray = Schema.Struct({
-  dataSourceArray: Schema.Array(dataSourceSchema),
+const dataSourceArrayAndMcpToolOptionArraySchema = Schema.Struct({
+  dataSourceArray: Schema.Array(DataSource.schema),
   mcpToolNameArray: Schema.Array(Schema.NonEmptyString),
 })
-const decodeDataSourceArrayAndMcpToolOption = Schema.decodeSync(
-  dataSourceArrayAndMcpToolOptionArray,
+const decodeSyncDataSourceArrayAndMcpToolOptionArray = Schema.decodeSync(
+  dataSourceArrayAndMcpToolOptionArraySchema,
 )
 
 export const getHandler = Hono.factory.createHandlers(async (c) =>
@@ -110,14 +104,14 @@ async function fetchDataSourcesAndTools(db: Database) {
       },
     }),
   ])
-  return decodeDataSourceArrayAndMcpToolOption({
+  return decodeSyncDataSourceArrayAndMcpToolOptionArray({
     dataSourceArray,
     mcpToolNameArray: mcpToolOptionArray.map((v) => v.name),
   })
 }
 
 function GetDataSource(
-  props: typeof dataSourceArrayAndMcpToolOptionArray.Type,
+  props: typeof dataSourceArrayAndMcpToolOptionArraySchema.Type,
 ) {
   const AddNewDataSourceModal = Modal.createModal("add-new-data-source-modal")
 
@@ -202,7 +196,7 @@ function GetDataSource(
                 required: true,
               }}
             >
-              {availableDataSourceTypes.map((type) => (
+              {availableDataSourceTypeArray.map((type) => (
                 <option key={type.value} value={type.value}>
                   {type.label}
                 </option>
@@ -235,11 +229,11 @@ function GetDataSource(
   )
 }
 
-function PostComponent(props: typeof dataSourceSchema.Type) {
+function PostComponent(props: typeof DataSource.schema.Type) {
   return <TableItem {...props} />
 }
 
-function TableItem(props: typeof dataSourceSchema.Type) {
+function TableItem(props: typeof DataSource.schema.Type) {
   return (
     <tr>
       <th>{props.mcpToolName}</th>
@@ -256,7 +250,7 @@ function TableItem(props: typeof dataSourceSchema.Type) {
         <button
           class="btn btn-error btn-sm"
           hx-delete={`/app/admin/data-source?${new URLSearchParams(
-            encodeDataSourceWithoutCreatedAt({
+            encodeSyncDataSourceWithoutCreatedAt({
               mcpToolName: props.mcpToolName,
               type: props.type,
               url: props.url,

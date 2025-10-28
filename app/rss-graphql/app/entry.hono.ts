@@ -1,4 +1,4 @@
-import * as path from "node:path"
+import { join } from "node:path"
 import { graphqlServer } from "@hono/graphql-server"
 import { Effect } from "@totto/function/effect"
 import { FetchHttpClient } from "@totto/function/effect/platform"
@@ -30,7 +30,7 @@ export const app = new Hono<Env>()
     <title>GraphQL API Information</title>
 </head>
 <body>
-    <p>API Endpoint: <code>${path.join(c.req.url, "/api/graphql")}</code></p>
+    <p>API Endpoint: <code>${join(c.req.url, "/api/graphql")}</code></p>
     <p>Schema: <a href="/api/graphql/schema">/api/graphql/schema</a></p>
     <p>GraphiQL: <a href="/api/graphql">/api/graphql</a></p>
 </body>

@@ -68,15 +68,15 @@ async function getApprovedClientsFromCookie(
   }
 
   try {
-    const approvedClients = JSON.parse(payload.toString())
-    if (!Array.isArray(approvedClients)) {
+    const approvedClientArray = JSON.parse(payload.toString())
+    if (!Array.isArray(approvedClientArray)) {
       return null // Payload isn't an array
     }
     // Ensure all elements are strings
-    if (!approvedClients.every((item) => typeof item === "string")) {
+    if (!approvedClientArray.every((item) => typeof item === "string")) {
       return null
     }
-    return approvedClients as string[]
+    return approvedClientArray as string[]
   } catch (_e) {
     return null // JSON parsing failed
   }
@@ -95,11 +95,11 @@ export async function clientIdAlreadyApproved(
     return false
   }
   const cookieHeader = request.headers.get("cookie")
-  const approvedClients = await getApprovedClientsFromCookie(
+  const approvedClientArray = await getApprovedClientsFromCookie(
     cookieHeader,
     cookieSecret,
   )
-  return approvedClients?.includes(clientId) ?? false
+  return approvedClientArray?.includes(clientId) ?? false
 }
 
 /**
@@ -192,7 +192,7 @@ export function renderApprovalDialog(
       : ""
 
   // Get redirect URIs
-  const redirectUris =
+  const redirectUriArray =
     client?.redirectUris && client.redirectUris.length > 0
       ? client.redirectUris.map((uri) => sanitizeHtml(uri))
       : []
@@ -448,12 +448,12 @@ export function renderApprovalDialog(
               }
 
               ${
-                redirectUris.length > 0
+                redirectUriArray.length > 0
                   ? `
                 <div class="client-detail">
                   <div class="detail-label">Redirect URIs:</div>
                   <div class="detail-value small">
-                    ${redirectUris.map((uri) => `<div>${uri}</div>`).join("")}
+                    ${redirectUriArray.map((uri) => `<div>${uri}</div>`).join("")}
                   </div>
                 </div>
               `
@@ -546,16 +546,16 @@ export async function parseRedirectApproval(
 
   // Get existing approved clients
   const cookieHeader = request.headers.get("cookie")
-  const existingApprovedClients =
+  const existingApprovedClientArray =
     (await getApprovedClientsFromCookie(cookieHeader, cookieSecret)) || []
 
   // Add the newly approved client ID (avoid duplicates)
-  const updatedApprovedClients = Array.from(
-    new Set([...existingApprovedClients, clientId]),
+  const updatedApprovedClientArray = Array.from(
+    new Set([...existingApprovedClientArray, clientId]),
   )
 
   // Sign the updated list
-  const payload = Buffer.from(JSON.stringify(updatedApprovedClients))
+  const payload = Buffer.from(JSON.stringify(updatedApprovedClientArray))
   const key = await importKey(cookieSecret)
   const signature = Buffer.from(await crypto.subtle.sign("HMAC", key, payload))
   const newCookieValue = `${signature.toString("hex")}.${payload.toString("base64url")}`

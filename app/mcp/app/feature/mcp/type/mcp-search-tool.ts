@@ -5,3 +5,5 @@ export const schema = Schema.Struct({
   name: Schema.NonEmptyString,
   title: Schema.NonEmptyString,
 })
+
+export const make = Schema.decodeSync(schema)

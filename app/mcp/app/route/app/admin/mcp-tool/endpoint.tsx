@@ -8,19 +8,14 @@ import * as Drizzle from "#@/feature/database/drizzle.js"
 import type { Database } from "#@/feature/database.js"
 import * as Hono from "#@/feature/hono.js"
 import { getDefaultLocale } from "#@/feature/locale.js"
+import * as McpTool from "#@/feature/mcp/type/mcp-tool.js"
 import * as SimpleStatCard from "#@/feature/ui/admin/card/simple-stat-card.js"
 import * as Input from "#@/feature/ui/admin/input/input.js"
 import * as Textarea from "#@/feature/ui/admin/input/textarea.js"
 import * as Modal from "#@/feature/ui/admin/modal.js"
 
-const mcpToolSchema = Schema.Struct({
-  description: Schema.NonEmptyString,
-  lastUsed: Schema.Union(Schema.DateFromString, Schema.DateFromSelf),
-  name: Schema.NonEmptyString,
-  title: Schema.NonEmptyString,
-})
 const mcpToolWithoutLastUsedStandardSchema = Schema.standardSchemaV1(
-  mcpToolSchema.omit("lastUsed"),
+  McpTool.schema.omit("lastUsed"),
 )
 
 const deleteQuerySchema = Schema.Struct({
@@ -29,8 +24,8 @@ const deleteQuerySchema = Schema.Struct({
 const deleteQueryStandardSchema = Schema.standardSchemaV1(deleteQuerySchema)
 const encodeDeleteQuery = Schema.encodeSync(deleteQuerySchema)
 
-const mcpToolArraySchema = Schema.Array(mcpToolSchema)
-const decodeArray = Schema.decodeSync(mcpToolArraySchema)
+const mcpToolArraySchema = Schema.Array(McpTool.schema)
+const decodeMcpToolArray = Schema.decodeSync(mcpToolArraySchema)
 
 export const getHandler = Hono.factory.createHandlers(async (c) =>
   c.render(<GetComponent mcpToolArray={await retrieve(c.var.db)} />),
@@ -70,7 +65,7 @@ export const deleteHandler = Hono.factory.createHandlers(
 )
 
 async function retrieve(db: Database) {
-  return decodeArray(
+  return decodeMcpToolArray(
     await db.query.mcpToolTable.findMany({
       columns: {
         description: true,
@@ -85,7 +80,9 @@ async function retrieve(db: Database) {
   )
 }
 
-function GetComponent(props: { mcpToolArray: typeof mcpToolArraySchema.Type }) {
+function GetComponent(props: {
+  mcpToolArray: readonly (typeof McpTool.schema.Type)[]
+}) {
   const AddNewMCPTool = Modal.createModal("add-new-mcp-tool-modal")
 
   const tableID = "mcp-tool-table"
@@ -192,7 +189,7 @@ function GetComponent(props: { mcpToolArray: typeof mcpToolArraySchema.Type }) {
   )
 }
 
-function PostComponent(props: typeof mcpToolSchema.Type) {
+function PostComponent(props: typeof McpTool.schema.Type) {
   return (
     <TableItem
       description={props.description}
@@ -203,7 +200,7 @@ function PostComponent(props: typeof mcpToolSchema.Type) {
   )
 }
 
-function TableItem(props: typeof mcpToolSchema.Type) {
+function TableItem(props: typeof McpTool.schema.Type) {
   return (
     <tr>
       <th>{props.name}</th>

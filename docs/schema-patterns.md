@@ -7,6 +7,10 @@ This document defines patterns for Effect Schema usage.
 - One schema per file
   - Each file should define one primary schema
 - Export make function
+- **Always define decode/encode functions at top level**
+  - Never define `Schema.decodeSync`, `Schema.decode`, etc. inside functions
+  - Define them immediately after imports at module top level
+  - This ensures proper initialization and better performance
 
 **Exception**: Discriminated union variants or Enum schema in the same file (see Union Types section).
 
@@ -82,6 +86,8 @@ export const make = Schema.decodeSync(schema)
 
 ## Decoding Patterns
 
+**Good: Define at top level**
+
 ```typescript
 const decodeSync = Schema.decodeSync(schema)
 const decode = Schema.decode(schema)
@@ -90,4 +96,22 @@ const decodeOption = Schema.decodeOption(schema)
 const user = decodeSync({ id: "123", name: "test" })
 const userEffect = decode({ id: "123", name: "test" })
 const userOption = decodeOption(schema)
+```
+
+**Bad: Define inside functions**
+
+```typescript
+// ❌ Don't do this
+async function fetchUser(db: Database) {
+  return Schema.decodeSync(userSchema)(
+    await db.query.userTable.findFirst()
+  )
+}
+
+// ✅ Do this instead
+const decodeUser = Schema.decodeSync(userSchema)
+
+async function fetchUser(db: Database) {
+  return decodeUser(await db.query.userTable.findFirst())
+}
 ```

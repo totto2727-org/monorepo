@@ -1,11 +1,10 @@
 import { Schema } from "@totto/function/effect"
-import * as McpSearchTool from "./mcp-search-tool.js"
 
 export const schema = Schema.Struct({
-  ai: Schema.Any,
+  description: Schema.NonEmptyString,
+  lastUsed: Schema.Union(Schema.DateFromString, Schema.DateFromSelf),
   name: Schema.NonEmptyString,
-  sources: Schema.Array(McpSearchTool.schema),
-  version: Schema.NonEmptyString,
+  title: Schema.NonEmptyString,
 })
 
 export const make = Schema.decodeSync(schema)

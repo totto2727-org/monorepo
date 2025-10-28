@@ -25,12 +25,12 @@ async function loadConfigFromDatabase(
   database: D1Database,
 ): Promise<typeof McpServerConfig.schema.Type> {
   const db = DataBase.create(database)
-  const tools = await db.select().from(Table.mcpToolTable)
+  const toolArray = await db.select().from(Table.mcpToolTable)
 
   return {
     ai: env.AI,
     name: "totto-docs-mcp-server",
-    sources: tools.map((tool) => ({
+    sources: toolArray.map((tool) => ({
       description: tool.description,
       name: tool.name,
       title: tool.title,
