@@ -26,7 +26,7 @@ catalogs:
       specifier: ^1.0.0
       version: 1.0.0
     casbin:
-      specifier: 5.39.0
+      specifier: ^5.39.0
       version: 5.39.0
   cli:
     pncat:
