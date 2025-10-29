@@ -1,11 +1,8 @@
 {
-  "dependencies": {
-    "@hono/casbin": "catalog:casbin",
-    "casbin": "catalog:casbin"
-  },
   "devDependencies": {
     "@totto/function": "catalog:util",
     "@types/node": "catalog:dev",
+    "casbin": "catalog:casbin",
     "drizzle-orm": "catalog:drizzle",
     "hono": "catalog:hono",
     "tsdown": "catalog:build",
@@ -28,6 +25,7 @@
   "name": "@package/rbac",
   "peerDependencies": {
     "@totto/function": "catalog:util",
+    "casbin": "catalog:casbin",
     "drizzle-orm": "catalog:drizzle",
     "hono": "catalog:hono"
   },

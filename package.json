@@ -35,6 +35,9 @@
     ],
     "overrides": {
       "vite": "catalog:build"
+    },
+    "patchedDependencies": {
+      "casbin@*": "patches/casbin@5.39.0.patch"
     }
   },
   "scripts": {

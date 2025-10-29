@@ -26,7 +26,7 @@ catalogs:
       specifier: ^1.0.0
       version: 1.0.0
     casbin:
-      specifier: ^5.39.0
+      specifier: 5.39.0
       version: 5.39.0
   cli:
     pncat:
@@ -216,6 +216,11 @@ catalogs:
 overrides:
   vite: npm:rolldown-vite@^7.0.0
 
+patchedDependencies:
+  casbin@*:
+    hash: 2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e
+    path: patches/casbin@5.39.0.patch
+
 importers:
 
   .:
@@ -337,6 +342,9 @@ importers:
       '@iconify-json/material-symbols':
         specifier: catalog:ui
         version: 1.2.42
+      '@package/constant':
+        specifier: workspace:*
+        version: link:../../package/constant
       '@package/rbac':
         specifier: workspace:*
         version: link:../../package/rbac
@@ -388,6 +396,9 @@ importers:
       babel-plugin-react-compiler:
         specifier: catalog:react
         version: 1.0.0
+      casbin:
+        specifier: catalog:casbin
+        version: 5.39.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
       dprint:
         specifier: catalog:lint
         version: 0.50.2
@@ -540,10 +551,10 @@ importers:
     dependencies:
       '@hono/casbin':
         specifier: catalog:casbin
-        version: 1.0.0(casbin@5.39.0)(hono@4.10.3)
+        version: 1.0.0(casbin@5.39.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e))(hono@4.10.3)
       casbin:
         specifier: catalog:casbin
-        version: 5.39.0
+        version: 5.39.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
     devDependencies:
       '@totto/function':
         specifier: catalog:util
@@ -623,13 +634,6 @@ importers:
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
   package/rbac:
-    dependencies:
-      '@hono/casbin':
-        specifier: catalog:casbin
-        version: 1.0.0(casbin@5.39.0)(hono@4.10.3)
-      casbin:
-        specifier: catalog:casbin
-        version: 5.39.0
     devDependencies:
       '@totto/function':
         specifier: catalog:util
@@ -637,6 +641,9 @@ importers:
       '@types/node':
         specifier: catalog:dev
         version: 24.7.1
+      casbin:
+        specifier: catalog:casbin
+        version: 5.39.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
       drizzle-orm:
         specifier: catalog:drizzle
         version: 0.44.7(@cloudflare/workers-types@4.20251011.0)(@libsql/client@0.15.7(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@opentelemetry/api@1.9.0)
@@ -9063,9 +9070,9 @@ snapshots:
       protobufjs: 7.5.4
       yargs: 17.7.2
 
-  '@hono/casbin@1.0.0(casbin@5.39.0)(hono@4.10.3)':
+  '@hono/casbin@1.0.0(casbin@5.39.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e))(hono@4.10.3)':
     dependencies:
-      casbin: 5.39.0
+      casbin: 5.39.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
       hono: 4.10.3
 
   '@hono/cloudflare-access@0.3.1(hono@4.10.3)':
@@ -11699,7 +11706,7 @@ snapshots:
 
   caniuse-lite@1.0.30001750: {}
 
-  casbin@5.39.0:
+  casbin@5.39.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e):
     dependencies:
       '@casbin/expression-eval': 5.3.0
       await-lock: 2.2.2
