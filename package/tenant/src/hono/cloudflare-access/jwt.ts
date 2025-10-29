@@ -1,5 +1,6 @@
-import { Context, Layer } from "@totto/function/effect"
+import { Context, Layer, Option } from "@totto/function/effect"
 import { getContext } from "hono/context-storage"
+import * as JWTUserSchema from "../../schema/jwt-user.js"
 import type { Env } from "../env.js"
 
 const ApplicationAudienceClass: Context.TagClass<
@@ -37,26 +38,35 @@ export const jwtAudienceLive = Layer.succeed(
 const JWTUserClass: Context.TagClass<
   JWTUser,
   "@package/tenant/hono/cloudflare-access/jwt/JWTUser",
-  () => {
-    id?: string
-    organizationIDArray: string[]
-  }
+  () => Option.Option<typeof JWTUserSchema.schema.Type>
 > = Context.Tag("@package/tenant/hono/cloudflare-access/jwt/JWTUser")()
 
 export class JWTUser extends JWTUserClass {}
 
-export function jwtUserDev(user: {
-  id?: string
-  organizationIDArray: string[]
-}): Layer.Layer<JWTUser, never, never> {
+export function jwtUserDev(
+  user: Option.Option<typeof JWTUserSchema.schema.Type>,
+): Layer.Layer<JWTUser, never, never> {
   return Layer.succeed(JWTUser, () => user)
 }
 
 export const jwtUserLive = Layer.succeed(JWTUser, () => {
   const payload = getContext<Env>().var.accessPayload
-  return {
-    id: payload?.sub,
-    // @ts-expect-error -- デフォルトのpayloadに存在しないため
-    organizationIDArray: payload?.groups ?? [],
-  }
+
+  return Option.some(
+    JWTUserSchema.make({
+      email: payload?.email ?? "",
+      id: payload?.sub ?? "",
+      name:
+        // @ts-expect-error -- default payload doesn't have groups
+        payload?.name ?? //
+        payload?.email ??
+        "",
+      organizationArray:
+        // @ts-expect-error -- default payload doesn't have groups
+        payload?.groups?.map((group) => ({
+          id: group,
+          name: group,
+        })) ?? [],
+    }),
+  )
 })
