@@ -1,11 +1,12 @@
 import { graphqlServer } from "@hono/graphql-server"
 import * as Tenant from "@package/tenant/hono"
 import * as CloudflareAccess from "@package/tenant/hono/cloudflare-access"
+import type * as TenantSchema from "@package/tenant/schema"
 import {
   createStartHandler,
   defaultStreamHandler,
 } from "@tanstack/react-start/server"
-import { Effect } from "@totto/function/effect"
+import { Effect, Option } from "@totto/function/effect"
 import * as CUID from "@totto/function/effect/cuid"
 import { printSchema } from "graphql"
 import { Hono } from "hono"
@@ -51,10 +52,23 @@ const devApp = createApp.pipe(
   Effect.provide(Tenant.DB.live),
   Effect.provide(Tenant.User.live),
   Effect.provide(
-    CloudflareAccess.JWT.jwtUserDev({
-      id: "id3",
-      organizationIDArray: ["org1", "org2", "org3", "org4", "org5", "org6"],
-    }),
+    CloudflareAccess.JWT.jwtUserDev(
+      Option.some({
+        email: "example@example.com",
+        id: "1234567890",
+        name: "John Doe",
+        organizationArray: [
+          {
+            id: "org-1",
+            name: "Organization 1",
+          },
+          {
+            id: "org-2",
+            name: "Organization 2",
+          },
+        ],
+      } satisfies typeof TenantSchema.JWTUser.schema.Type),
+    ),
   ),
   Effect.provide(
     CloudflareAccess.JWT.applicationAudienceDev("cloudflare-access"),
