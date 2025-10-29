@@ -14,9 +14,9 @@
     "vitest": "catalog:test"
   },
   "exports": {
-    "./db/cloudflare-access": {
-      "import": "./dist/db/cloudflare-access.js",
-      "types": "./dist/db/cloudflare-access.d.ts"
+    "./db": {
+      "import": "./dist/db.js",
+      "types": "./dist/db.d.ts"
     },
     "./hono": {
       "import": "./dist/hono.js",
