@@ -91,7 +91,7 @@
     "editor.defaultFormatter": "dprint.dprint",
     "eslint.enable": true,
     "explorer.fileNesting.patterns": {
-      "package.json": "README.md, CLAUDE.md, .mcp.json, .gitignore, .editorconfig, mise.toml, mise.local.toml, .env, .env.local, .dev.vars, LICENSE, Taskfile.yml, biome.jsonc, dprint.json, eslint.config.ts, vite.config.ts, tsconfig.json, worker-configuration.d.ts, wrangler.jsonc, drizzle.config.ts, tsdown.config.ts, tsr.config.json"
+      "package.json": "README.md, CLAUDE.md, .mcp.json, .gitignore, .editorconfig, mise.toml, mise.local.toml, .env, .env.local, .dev.vars, LICENSE, Taskfile.yml, biome.jsonc, dprint.json, eslint.config.ts, vite.config.ts, tsconfig.json, worker-configuration.d.ts, wrangler.jsonc, drizzle.config.ts, tsdown.config.ts, tsr.config.json, ui.json"
     },
     "files.exclude": {
       "**/.tanstack": true,
