@@ -1,24 +1,12 @@
 import { STATUS_CODE } from "@package/constant"
-import {
-  Array,
-  Effect,
-  Layer,
-  Option,
-  Predicate,
-  Schema,
-} from "@totto/function/effect"
+import { Effect, Layer, Option, Schema } from "@totto/function/effect"
 import * as CUID from "@totto/function/effect/cuid"
-import { eq, inArray } from "drizzle-orm"
+import { and, eq, inArray } from "drizzle-orm"
 import type { Context } from "hono"
 import { contextStorage } from "hono/context-storage"
 import { createFactory } from "hono/factory"
 import { HTTPException } from "hono/http-exception"
-import {
-  cloudflareAccessOrganizationTable,
-  cloudflareAccessUserTable,
-  organizationTable,
-  userTable,
-} from "../../db/cloudflare-access.js"
+import * as Table from "../../db/table.js"
 import { User } from "../../schema.js"
 import { TenantDatabase, TenantDatabaseInitializer } from "../db.js"
 import type { Env } from "../env.js"
@@ -31,6 +19,8 @@ const factory = createFactory<Env>()
 function updateUser(c: Context<Env>, user: typeof User.schema.Encoded) {
   c.set("user", decodeOptionUser(user))
 }
+
+const provider = "cloudflare-access"
 
 export const live = Layer.effect(
   Middleware.AuthHonoMiddlewares,
@@ -54,186 +44,199 @@ export const live = Layer.effect(
         }
 
         // 認証情報がない場合、noneとなる
-        const jwtUser = getJWTUser()
-        if (Predicate.isNullable(jwtUser.id)) {
+        const jwtUserOption = getJWTUser()
+        if (Option.isNone(jwtUserOption)) {
           c.set("user", Option.none())
           return next()
         }
-
-        // トークンのPayloadからデータを抽出
-        const cloudflareAccessUserID = jwtUser.id
-        const cloudflareAccessOrganizationIDArray: string[] =
-          jwtUser.organizationIDArray
+        const jwtUser = Option.getOrThrow(jwtUserOption)
 
         const db = getDatabase()
 
-        // ユーザーの取得
-        let userOption = Option.fromIterable(
-          await db
-            .select({
-              id: userTable.id,
-              name: userTable.name,
-            })
-            .from(cloudflareAccessUserTable)
-            .innerJoin(
-              userTable,
-              eq(cloudflareAccessUserTable.id, userTable.id),
-            )
-            .where(
-              eq(
-                cloudflareAccessUserTable.cloudflareAccessID,
-                cloudflareAccessUserID,
-              ),
+        // userを取得する
+        const userResult = await db
+          .select({
+            id: Table.userTable.id,
+            name: Table.userTable.name,
+          })
+          .from(Table.userLinkTable)
+          .innerJoin(
+            Table.userTable,
+            eq(Table.userLinkTable.userId, Table.userTable.id),
+          )
+          .where(
+            and(
+              eq(Table.userLinkTable.providerUserId, jwtUser.id),
+              eq(Table.userLinkTable.provider, provider),
             ),
-        )
+          )
+
+        let userOption = Option.fromIterable(userResult)
 
         // ユーザーの追加
         if (Option.isNone(userOption)) {
-          const userID = makeCUID.pipe(Effect.runSync)
-          const result = await db.batch([
-            db
-              .insert(userTable)
-              .values({
-                id: userID,
-                // name部分はpayloadからとっても良いかも？
-                name: userID,
+          // user_link.providerUserEmailに一致するものが存在するか確認する
+          const userFindedByEmailOption = Option.fromIterable(
+            await db
+              .select({
+                id: Table.userTable.id,
+                name: Table.userTable.name,
               })
-              .returning(),
-            db.insert(cloudflareAccessUserTable).values({
-              cloudflareAccessID: cloudflareAccessUserID,
+              .from(Table.userLinkTable)
+              .innerJoin(
+                Table.userTable,
+                eq(Table.userLinkTable.userId, Table.userTable.id),
+              )
+              .where(eq(Table.userLinkTable.providerUserEmail, jwtUser.email)),
+          )
+
+          if (Option.isSome(userFindedByEmailOption)) {
+            // 存在する場合はuser_linkを追加するのみとする
+            userOption = userFindedByEmailOption
+
+            await db.insert(Table.userLinkTable).values({
+              provider,
+              providerUserEmail: jwtUser.email,
+              providerUserId: jwtUser.id,
+              userId: userFindedByEmailOption.value.id,
+            })
+          } else {
+            // 存在しない場合はuserとuser_linkとprimary_user_linkとorganization（個人）を追加する
+            const userID = makeCUID.pipe(Effect.runSync)
+            userOption = Option.some({
               id: userID,
-            }),
-            db
-              .insert(organizationTable)
-              .values({ id: userID, isPersonal: true, name: userID }),
-          ] as const)
-          userOption = Option.fromIterable(result[0])
+              name: jwtUser.name,
+            })
+            await db.batch([
+              db.insert(Table.userTable).values(Option.getOrThrow(userOption)),
+              db.insert(Table.userLinkTable).values({
+                provider,
+                providerUserEmail: jwtUser.email,
+                providerUserId: jwtUser.id,
+                userId: userID,
+              }),
+              db.insert(Table.primaryUserLinkTable).values({
+                provider,
+                userId: userID,
+              }),
+              db.insert(Table.organizationTable).values({
+                id: userID,
+                isPersonal: true,
+                name: jwtUser.name,
+              }),
+            ] as const)
+          }
         }
 
         const user = Option.getOrThrow(userOption)
 
-        // TODO: 取得タイミングの最適化
-        const personalOrganization = Option.fromIterable(
-          await db
-            .select({
-              id: organizationTable.id,
-              isPersonal: organizationTable.isPersonal,
-              name: organizationTable.name,
-            })
-            .from(organizationTable)
-            .where(eq(organizationTable.id, user.id)),
-        ).pipe(Option.getOrThrow)
-
-        if (Array.isEmptyArray(cloudflareAccessOrganizationIDArray)) {
-          updateUser(c, {
-            id: user.id,
-            name: user.name,
-            organizationArray: Array.of(personalOrganization),
-          })
-          return next()
-        }
-
-        const existOrganizationArray = await db
-          .select({
-            cloudflareAccessID:
-              cloudflareAccessOrganizationTable.cloudflareAccessID,
-            id: organizationTable.id,
-            isPersonal: organizationTable.isPersonal,
-            name: organizationTable.name,
-          })
-          .from(cloudflareAccessOrganizationTable)
-          .innerJoin(
-            organizationTable,
-            eq(cloudflareAccessOrganizationTable.id, organizationTable.id),
-          )
-          .where(
-            inArray(
-              cloudflareAccessOrganizationTable.cloudflareAccessID,
-              cloudflareAccessOrganizationIDArray,
-            ),
-          )
-          .orderBy(organizationTable.createdAt)
-
-        const cloudflareAccessOrganizationIDSet = new Set(
-          cloudflareAccessOrganizationIDArray,
-        )
-        const existCloudflareAccessOrganizationIDSet = new Set(
-          existOrganizationArray.map((v) => v.cloudflareAccessID),
-        )
-
-        if (
-          cloudflareAccessOrganizationIDSet.isSubsetOf(
-            existCloudflareAccessOrganizationIDSet,
-          ) &&
-          existCloudflareAccessOrganizationIDSet.isSubsetOf(
-            cloudflareAccessOrganizationIDSet,
-          ) &&
-          Array.isNonEmptyArray(existOrganizationArray)
-        ) {
-          updateUser(c, {
-            id: user.id,
-            name: user.name,
-            organizationArray: [
-              personalOrganization,
-              ...existOrganizationArray,
-            ],
-          })
-          return next()
-        }
-
-        const newCloudflareAccessOrganizationIDSet =
-          cloudflareAccessOrganizationIDSet.difference(
-            existCloudflareAccessOrganizationIDSet,
-          )
-
-        const newCloudflareAccessOrganizationArray = Array.fromIterable(
-          newCloudflareAccessOrganizationIDSet,
-        ).map((cloudflareAccessID) => ({
-          cloudflareAccessID,
-          id: makeCUID.pipe(Effect.runSync),
-        }))
-        const newOrganizationArray = newCloudflareAccessOrganizationArray.map(
-          (v) => ({
-            id: v.id,
-            isPersonal: false,
-            name: v.id,
-          }),
-        )
-
-        const [, , organizationArray] = await db.batch([
-          db.insert(organizationTable).values(newOrganizationArray),
-          db
-            .insert(cloudflareAccessOrganizationTable)
-            .values(newCloudflareAccessOrganizationArray),
+        const [
+          personalOrganizationResult,
+          userLinkResult,
+          primaryUserLinkResult,
+          existOrganizationArray,
+        ] = await db.batch([
           db
             .select({
-              cloudflareAccessID:
-                cloudflareAccessOrganizationTable.cloudflareAccessID,
-              id: organizationTable.id,
-              isPersonal: organizationTable.isPersonal,
-              name: organizationTable.name,
+              id: Table.organizationTable.id,
+              isPersonal: Table.organizationTable.isPersonal,
+              name: Table.organizationTable.name,
             })
-            .from(cloudflareAccessOrganizationTable)
-            .innerJoin(
-              organizationTable,
-              eq(cloudflareAccessOrganizationTable.id, organizationTable.id),
-            )
+            .from(Table.organizationTable)
             .where(
-              inArray(
-                cloudflareAccessOrganizationTable.cloudflareAccessID,
-                cloudflareAccessOrganizationIDArray,
+              and(
+                eq(Table.organizationTable.id, user.id),
+                eq(Table.organizationTable.isPersonal, true),
+              ),
+            ),
+          db
+            .select({
+              providerUserEmail: Table.userLinkTable.providerUserEmail,
+            })
+            .from(Table.userLinkTable)
+            .where(
+              and(
+                eq(Table.userLinkTable.userId, user.id),
+                eq(Table.userLinkTable.provider, provider),
+              ),
+            ),
+          db
+            .select({
+              provider: Table.userLinkTable.provider,
+              providerUserEmail: Table.userLinkTable.providerUserEmail,
+            })
+            .from(Table.primaryUserLinkTable)
+            .innerJoin(
+              Table.userLinkTable,
+              and(
+                eq(
+                  Table.primaryUserLinkTable.userId,
+                  Table.userLinkTable.userId,
+                ),
+                eq(
+                  Table.primaryUserLinkTable.provider,
+                  Table.userLinkTable.provider,
+                ),
               ),
             )
-            .orderBy(organizationTable.createdAt),
-        ])
+            .where(and(eq(Table.primaryUserLinkTable.userId, user.id))),
+          db
+            .select({
+              id: Table.organizationTable.id,
+              isPersonal: Table.organizationTable.isPersonal,
+              name: Table.organizationTable.name,
+              provider: Table.organizationLinkTable.provider,
+              providerOrganizationId:
+                Table.organizationLinkTable.providerOrganizationId,
+            })
+            .from(Table.organizationLinkTable)
+            .innerJoin(
+              Table.organizationTable,
+              eq(
+                Table.organizationLinkTable.organizationId,
+                Table.organizationTable.id,
+              ),
+            )
+            .where(
+              and(
+                inArray(
+                  Table.organizationLinkTable.providerOrganizationId,
+                  jwtUser.organizationArray.map((v) => v.id),
+                ),
+                eq(Table.organizationLinkTable.provider, provider),
+              ),
+            )
+            .orderBy(Table.organizationTable.createdAt),
+        ] as const)
+
+        const personalOrganization = Option.getOrThrow(
+          Option.fromIterable(personalOrganizationResult),
+        )
+        const userLink = Option.getOrThrow(Option.fromIterable(userLinkResult))
+        const primaryUserLink = Option.getOrThrow(
+          Option.fromIterable(primaryUserLinkResult),
+        )
+
+        // user_link.providerUserEmailが一致しない場合は更新する
+        if (userLink.providerUserEmail !== jwtUser.email) {
+          await db
+            .update(Table.userLinkTable)
+            .set({
+              providerUserEmail: jwtUser.email,
+            })
+            .where(
+              and(
+                eq(Table.userLinkTable.userId, user.id),
+                eq(Table.userLinkTable.provider, provider),
+              ),
+            )
+        }
 
         updateUser(c, {
           id: user.id,
           name: user.name,
-          organizationArray: Array.make(
-            personalOrganization,
-            ...organizationArray,
-          ),
+          organizationArray: [personalOrganization, ...existOrganizationArray],
+          primaryUserLink,
         })
 
         return next()
