@@ -6,7 +6,7 @@ packages:
 
 catalogs:
   build:
-    "@typescript/native-preview": 7.0.0-dev.20251026.1
+    "@typescript/native-preview": 7.0.0-dev.20251027.1
     "@vitejs/plugin-react": ^5.0.4
     tsdown: ^0.15.7
     typescript: ^5.9.2
