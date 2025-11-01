@@ -16,7 +16,7 @@ catalogs:
     "@hono/casbin": ^1.0.0
     casbin: ^5.39.0
   cli:
-    pncat: ^0.6.0
+    pncat: ^0.7.0
     turbo: ^2.5.3
   cloudflare:
     "@cloudflare/vite-plugin": ^1.11.0
