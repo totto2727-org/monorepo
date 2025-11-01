@@ -6,13 +6,104 @@
   "labels": ["renovate", "deps"],
   "packageRules": [
     {
-      "groupName": "Major updates",
-      "matchUpdateTypes": ["major"],
+      "groupName": "Updates",
+      "matchUpdateTypes": ["major", "minor"],
       "minimumReleaseAge": "3 days"
     },
     {
-      "groupName": "Minor updates",
-      "matchUpdateTypes": ["minor"],
+      "matchDepTypes": ["pnpm.catalog.default"],
+      "groupName": "pnpm.catalog.default updates",
+      "matchUpdateTypes": ["major", "minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.build"],
+      "groupName": "pnpm.catalog.build updates",
+      "matchUpdateTypes": ["major", "minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.casbin"],
+      "groupName": "pnpm.catalog.casbin updates",
+      "matchUpdateTypes": ["major", "minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.cli"],
+      "groupName": "pnpm.catalog.cli updates",
+      "matchUpdateTypes": ["major", "minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.cloudflare"],
+      "groupName": "pnpm.catalog.cloudflare updates",
+      "matchUpdateTypes": ["major", "minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.dev"],
+      "groupName": "pnpm.catalog.dev updates",
+      "matchUpdateTypes": ["major", "minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.drizzle"],
+      "groupName": "pnpm.catalog.drizzle updates",
+      "matchUpdateTypes": ["major", "minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.graphql"],
+      "groupName": "pnpm.catalog.graphql updates",
+      "matchUpdateTypes": ["major", "minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.hono"],
+      "groupName": "pnpm.catalog.hono updates",
+      "matchUpdateTypes": ["major", "minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.lint"],
+      "groupName": "pnpm.catalog.lint updates",
+      "matchUpdateTypes": ["major", "minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.pulumi"],
+      "groupName": "pnpm.catalog.pulumi updates",
+      "matchUpdateTypes": ["major", "minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.react"],
+      "groupName": "pnpm.catalog.react updates",
+      "matchUpdateTypes": ["major", "minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.test"],
+      "groupName": "pnpm.catalog.test updates",
+      "matchUpdateTypes": ["major", "minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.tsconfig"],
+      "groupName": "pnpm.catalog.tsconfig updates",
+      "matchUpdateTypes": ["major", "minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.ui"],
+      "groupName": "pnpm.catalog.ui updates",
+      "matchUpdateTypes": ["major", "minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.util"],
+      "groupName": "pnpm.catalog.util updates",
+      "matchUpdateTypes": ["major", "minor"],
       "minimumReleaseAge": "3 days"
     },
     {
