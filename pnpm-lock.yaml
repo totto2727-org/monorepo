@@ -25,9 +25,6 @@ catalogs:
     '@hono/casbin':
       specifier: ^1.0.0
       version: 1.0.0
-    casbin:
-      specifier: ^5.39.0
-      version: 5.39.0
   cli:
     pncat:
       specifier: ^0.6.0
@@ -58,10 +55,16 @@ catalogs:
     '@types/node':
       specifier: ^24.1.0
       version: 24.7.1
+    agents:
+      specifier: ^0.2.0
+      version: 0.2.19
   drizzle:
     drizzle-cuid2:
       specifier: ^2.1.0
       version: 2.1.0
+    drizzle-kit:
+      specifier: ^0.31.5
+      version: 0.31.6
     drizzle-orm:
       specifier: ^0.44.6
       version: 0.44.7
@@ -142,6 +145,9 @@ catalogs:
     '@tanstack/react-start':
       specifier: ^1.133.3
       version: 1.133.34
+    '@tanstack/router-cli':
+      specifier: ^1.133.25
+      version: 1.133.36
     '@types/react':
       specifier: ^19.2.2
       version: 19.2.2
@@ -257,7 +263,7 @@ importers:
         version: 2.3.1
       '@cloudflare/vite-plugin':
         specifier: catalog:cloudflare
-        version: 1.13.16(bufferutil@4.0.9)(rolldown-vite@7.1.17(@types/node@24.9.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))(utf-8-validate@5.0.10)(workerd@1.20251011.0)(wrangler@4.45.3(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+        version: 1.13.16(bufferutil@4.0.9)(rolldown-vite@7.1.17(@types/node@24.9.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))(utf-8-validate@5.0.10)(workerd@1.20251011.0)(wrangler@4.45.1(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@hono/mcp':
         specifier: catalog:hono
         version: 0.1.4(@modelcontextprotocol/sdk@1.20.2)(hono@4.10.3)
@@ -323,7 +329,7 @@ importers:
         version: 2.3.1
       '@cloudflare/vite-plugin':
         specifier: catalog:cloudflare
-        version: 1.13.16(bufferutil@4.0.9)(rolldown-vite@7.1.17(@types/node@24.9.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))(utf-8-validate@5.0.10)(workerd@1.20251011.0)(wrangler@4.45.3(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+        version: 1.13.16(bufferutil@4.0.9)(rolldown-vite@7.1.17(@types/node@24.9.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))(utf-8-validate@5.0.10)(workerd@1.20251011.0)(wrangler@4.45.1(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@hono/graphql-server':
         specifier: catalog:hono
         version: 0.7.0(hono@4.10.3)
@@ -389,7 +395,7 @@ importers:
         version: 1.0.0
       casbin:
         specifier: catalog:casbin
-        version: 5.39.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
+        version: 5.40.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
       dprint:
         specifier: catalog:lint
         version: 0.50.2
@@ -449,7 +455,7 @@ importers:
         version: 2.3.1
       '@cloudflare/vite-plugin':
         specifier: catalog:cloudflare
-        version: 1.13.16(bufferutil@4.0.9)(rolldown-vite@7.1.17(@types/node@24.9.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))(utf-8-validate@5.0.10)(workerd@1.20251011.0)(wrangler@4.45.3(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+        version: 1.13.16(bufferutil@4.0.9)(rolldown-vite@7.1.17(@types/node@24.9.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))(utf-8-validate@5.0.10)(workerd@1.20251011.0)(wrangler@4.45.1(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@hono/graphql-server':
         specifier: catalog:hono
         version: 0.7.0(hono@4.10.3)
@@ -542,10 +548,10 @@ importers:
     dependencies:
       '@hono/casbin':
         specifier: catalog:casbin
-        version: 1.0.0(casbin@5.39.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e))(hono@4.10.3)
+        version: 1.0.0(casbin@5.40.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e))(hono@4.10.3)
       casbin:
         specifier: catalog:casbin
-        version: 5.39.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
+        version: 5.40.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
     devDependencies:
       '@totto/function':
         specifier: catalog:util
@@ -634,7 +640,7 @@ importers:
         version: 24.7.1
       casbin:
         specifier: catalog:casbin
-        version: 5.39.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
+        version: 5.40.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
       drizzle-orm:
         specifier: catalog:drizzle
         version: 0.44.7(@cloudflare/workers-types@4.20251011.0)(@libsql/client@0.15.7(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@opentelemetry/api@1.9.0)
@@ -4150,8 +4156,8 @@ packages:
   caniuse-lite@1.0.30001750:
     resolution: {integrity: sha512-cuom0g5sdX6rw00qOoLNSFCJ9/mYIsuSOA+yzpDw8eopiFqcVwQvZHqov0vmEighRxX++cfC0Vg1G+1Iy/mSpQ==}
 
-  casbin@5.39.0:
-    resolution: {integrity: sha512-JuZ95//nm4h0zhOx9wUzaoFMCCrWB0kj5ZmoVI6I50cO5uTl/iQUl4ZBzu+0A2/vxCnUVaaqGqGYH9tnzBN63w==}
+  casbin@5.40.0:
+    resolution: {integrity: sha512-TaqKCukA7ALuB+M8iugkDpk5WpyEzxbOxQtM2r14ZVfC27kM4Ue59cE72yMYuTgUJ5UEOFy0Cl70y+HaMZzPEw==}
 
   chai@5.3.3:
     resolution: {integrity: sha512-4zNhdJD/iOjSH0A05ea+Ke6MU5mmpQcbQsSOkgdaUMJ9zTlDTD/GYlwohmIE2u0gaxHYiVHEn1Fw9mZ/ktJWgw==}
@@ -7251,16 +7257,6 @@ packages:
       '@cloudflare/workers-types':
         optional: true
 
-  wrangler@4.45.3:
-    resolution: {integrity: sha512-0ddEA9t4HeBgSVTVTcqtBHl7Z5CorWZ8tGgTQCP5XuL+9E1TJRwS6t/zzG51Ruwjb17SZYCaLchoM8V629S8cw==}
-    engines: {node: '>=18.0.0'}
-    hasBin: true
-    peerDependencies:
-      '@cloudflare/workers-types': ^4.20251011.0
-    peerDependenciesMeta:
-      '@cloudflare/workers-types':
-        optional: true
-
   wrap-ansi@7.0.0:
     resolution: {integrity: sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==}
     engines: {node: '>=10'}
@@ -8116,7 +8112,7 @@ snapshots:
     optionalDependencies:
       workerd: 1.20251011.0
 
-  '@cloudflare/vite-plugin@1.13.16(bufferutil@4.0.9)(rolldown-vite@7.1.17(@types/node@24.9.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))(utf-8-validate@5.0.10)(workerd@1.20251011.0)(wrangler@4.45.3(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+  '@cloudflare/vite-plugin@1.13.16(bufferutil@4.0.9)(rolldown-vite@7.1.17(@types/node@24.9.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))(utf-8-validate@5.0.10)(workerd@1.20251011.0)(wrangler@4.45.1(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
     dependencies:
       '@cloudflare/unenv-preset': 2.7.8(unenv@2.0.0-rc.21)(workerd@1.20251011.0)
       '@remix-run/node-fetch-server': 0.8.1
@@ -8126,7 +8122,7 @@ snapshots:
       tinyglobby: 0.2.15
       unenv: 2.0.0-rc.21
       vite: rolldown-vite@7.1.17(@types/node@24.9.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
-      wrangler: 4.45.3(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      wrangler: 4.45.1(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       ws: 8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
@@ -8852,9 +8848,9 @@ snapshots:
       protobufjs: 7.5.4
       yargs: 17.7.2
 
-  '@hono/casbin@1.0.0(casbin@5.39.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e))(hono@4.10.3)':
+  '@hono/casbin@1.0.0(casbin@5.40.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e))(hono@4.10.3)':
     dependencies:
-      casbin: 5.39.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
+      casbin: 5.40.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
       hono: 4.10.3
 
   '@hono/cloudflare-access@0.3.1(hono@4.10.3)':
@@ -11455,7 +11451,7 @@ snapshots:
 
   caniuse-lite@1.0.30001750: {}
 
-  casbin@5.39.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e):
+  casbin@5.40.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e):
     dependencies:
       '@casbin/expression-eval': 5.3.0
       await-lock: 2.2.2
@@ -14679,23 +14675,6 @@ snapshots:
       '@cloudflare/workerd-windows-64': 1.20251011.0
 
   wrangler@4.45.1(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10):
-    dependencies:
-      '@cloudflare/kv-asset-handler': 0.4.0
-      '@cloudflare/unenv-preset': 2.7.8(unenv@2.0.0-rc.21)(workerd@1.20251011.0)
-      blake3-wasm: 2.1.5
-      esbuild: 0.25.4
-      miniflare: 4.20251011.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      path-to-regexp: 6.3.0
-      unenv: 2.0.0-rc.21
-      workerd: 1.20251011.0
-    optionalDependencies:
-      '@cloudflare/workers-types': 4.20251011.0
-      fsevents: 2.3.3
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
-  wrangler@4.45.3(@cloudflare/workers-types@4.20251011.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.0
       '@cloudflare/unenv-preset': 2.7.8(unenv@2.0.0-rc.21)(workerd@1.20251011.0)
