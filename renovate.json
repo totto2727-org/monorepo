@@ -34,12 +34,14 @@
       "minimumReleaseAge": "3 days"
     },
     {
+      "automerge": true,
       "matchDepTypes": ["pnpm.catalog.cli"],
       "groupName": "pnpm.catalog.cli updates",
       "matchUpdateTypes": ["minor"],
       "minimumReleaseAge": "3 days"
     },
     {
+      "automerge": true,
       "matchDepTypes": ["pnpm.catalog.cloudflare"],
       "groupName": "pnpm.catalog.cloudflare updates",
       "matchUpdateTypes": ["minor"],
@@ -70,12 +72,14 @@
       "minimumReleaseAge": "3 days"
     },
     {
+      "automerge": true,
       "matchDepTypes": ["pnpm.catalog.lint"],
       "groupName": "pnpm.catalog.lint updates",
       "matchUpdateTypes": ["minor"],
       "minimumReleaseAge": "3 days"
     },
     {
+      "automerge": true,
       "matchDepTypes": ["pnpm.catalog.pulumi"],
       "groupName": "pnpm.catalog.pulumi updates",
       "matchUpdateTypes": ["minor"],
@@ -88,12 +92,14 @@
       "minimumReleaseAge": "3 days"
     },
     {
+      "automerge": true,
       "matchDepTypes": ["pnpm.catalog.test"],
       "groupName": "pnpm.catalog.test updates",
       "matchUpdateTypes": ["minor"],
       "minimumReleaseAge": "3 days"
     },
     {
+      "automerge": true,
       "matchDepTypes": ["pnpm.catalog.tsconfig"],
       "groupName": "pnpm.catalog.tsconfig updates",
       "matchUpdateTypes": ["minor"],
