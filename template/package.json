@@ -3,7 +3,7 @@
     "@biomejs/biome": "catalog:lint",
     "@totto/function": "catalog:util",
     "@turbo/gen": "catalog:cli",
-    "@types/node": "^24.10.0",
+    "@types/node": "catalog:dev",
     "dprint": "catalog:lint",
     "typescript": "catalog:build"
   },

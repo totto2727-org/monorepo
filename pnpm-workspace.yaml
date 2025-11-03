@@ -27,7 +27,7 @@ catalogs:
     "@mikaelporttila/rss": jsr:^1.1.3
     "@modelcontextprotocol/sdk": ^1.0.0
     "@socotra/modelcontextprotocol-sdk": ^1.18.0
-    "@types/node": ^24.1.0
+    "@types/node": ^24.10.0
     agents: ^0.2.0
   drizzle:
     drizzle-cuid2: ^2.1.0
