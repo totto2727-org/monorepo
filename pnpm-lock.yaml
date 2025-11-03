@@ -59,8 +59,8 @@ catalogs:
       specifier: ^1.18.0
       version: 1.18.0
     '@types/node':
-      specifier: ^24.1.0
-      version: 24.7.1
+      specifier: ^24.10.0
+      version: 24.10.0
     agents:
       specifier: ^0.2.0
       version: 0.2.19
@@ -239,10 +239,10 @@ importers:
         version: 2.0.6
       '@turbo/gen':
         specifier: catalog:cli
-        version: 2.6.0(@types/node@24.7.1)(typescript@5.9.3)
+        version: 2.6.0(@types/node@24.10.0)(typescript@5.9.3)
       '@types/node':
         specifier: catalog:dev
-        version: 24.7.1
+        version: 24.10.0
       '@typescript/native-preview':
         specifier: catalog:build
         version: 7.0.0-dev.20251027.1
@@ -509,19 +509,19 @@ importers:
         version: 2.3.2
       '@pulumi/aws':
         specifier: catalog:pulumi
-        version: 7.8.0(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)
+        version: 7.8.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       '@pulumi/awsx':
         specifier: catalog:pulumi
-        version: 3.0.1(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)
+        version: 3.0.1(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       '@pulumi/pulumi':
         specifier: catalog:pulumi
-        version: 3.202.0(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)
+        version: 3.202.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
+        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
       '@types/node':
         specifier: catalog:dev
-        version: 24.7.1
+        version: 24.10.0
       dprint:
         specifier: catalog:lint
         version: 0.50.2
@@ -539,16 +539,16 @@ importers:
         version: link:../../package/constant
       '@pulumi/cloudflare':
         specifier: catalog:pulumi
-        version: 6.10.1(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)
+        version: 6.10.1(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       '@pulumi/pulumi':
         specifier: catalog:pulumi
-        version: 3.202.0(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)
+        version: 3.202.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
+        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
       '@types/node':
         specifier: catalog:dev
-        version: 24.7.1
+        version: 24.10.0
       dprint:
         specifier: catalog:lint
         version: 0.50.2
@@ -567,10 +567,10 @@ importers:
     devDependencies:
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
+        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
       '@types/node':
         specifier: catalog:dev
-        version: 24.7.1
+        version: 24.10.0
       drizzle-orm:
         specifier: catalog:drizzle
         version: 0.44.7(@cloudflare/workers-types@4.20251011.0)(@libsql/client@0.15.7(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@opentelemetry/api@1.9.0)
@@ -585,16 +585,16 @@ importers:
         version: 5.9.3
       vitest:
         specifier: catalog:test
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
   package/drizzle-orm:
     devDependencies:
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
+        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
       '@types/node':
         specifier: catalog:dev
-        version: 24.7.1
+        version: 24.10.0
       drizzle-orm:
         specifier: catalog:drizzle
         version: 0.44.7(@cloudflare/workers-types@4.20251011.0)(@libsql/client@0.15.7(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@opentelemetry/api@1.9.0)
@@ -606,16 +606,16 @@ importers:
         version: 5.9.3
       vitest:
         specifier: catalog:test
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
   package/hono-ui:
     devDependencies:
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
+        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
       '@types/node':
         specifier: catalog:dev
-        version: 24.7.1
+        version: 24.10.0
       daisyui:
         specifier: catalog:ui
         version: 5.2.0
@@ -633,7 +633,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: catalog:test
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
   package/mcp-oauth-cloudflare-access:
     dependencies:
@@ -646,10 +646,10 @@ importers:
     devDependencies:
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
+        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
       '@types/node':
         specifier: catalog:dev
-        version: 24.7.1
+        version: 24.10.0
       hono:
         specifier: catalog:hono
         version: 4.10.3
@@ -661,16 +661,16 @@ importers:
         version: 5.9.3
       vitest:
         specifier: catalog:test
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
   package/rbac:
     devDependencies:
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
+        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
       '@types/node':
         specifier: catalog:dev
-        version: 24.7.1
+        version: 24.10.0
       casbin:
         specifier: catalog:casbin
         version: 5.40.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
@@ -688,7 +688,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: catalog:test
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
   package/tenant:
     dependencies:
@@ -704,10 +704,10 @@ importers:
     devDependencies:
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
+        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
       '@types/node':
         specifier: catalog:dev
-        version: 24.7.1
+        version: 24.10.0
       drizzle-cuid2:
         specifier: catalog:drizzle
         version: 2.1.0(drizzle-orm@0.44.7(@cloudflare/workers-types@4.20251011.0)(@libsql/client@0.15.7(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@opentelemetry/api@1.9.0))
@@ -725,7 +725,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: catalog:test
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
   package/yamada-ui:
     dependencies:
@@ -773,7 +773,7 @@ importers:
         specifier: catalog:cli
         version: 2.6.0(@types/node@24.10.0)(typescript@5.9.3)
       '@types/node':
-        specifier: ^24.10.0
+        specifier: catalog:dev
         version: 24.10.0
       dprint:
         specifier: catalog:lint
@@ -3787,12 +3787,6 @@ packages:
 
   '@types/node@24.10.0':
     resolution: {integrity: sha512-qzQZRBqkFsYyaSWXuEHc2WR9c0a0CXwiE5FWUvn7ZM+vdy1uZLfCunD38UzhuB7YN/J11ndbDBcTmOdxJo9Q7A==}
-
-  '@types/node@24.7.1':
-    resolution: {integrity: sha512-CmyhGZanP88uuC5GpWU9q+fI61j2SkhO3UGMUdfYRE6Bcy0ccyzn1Rqj9YAB/ZY4kOXmNf0ocah5GtphmLMP6Q==}
-
-  '@types/node@24.9.1':
-    resolution: {integrity: sha512-QoiaXANRkSXK6p0Duvt56W208du4P9Uye9hWLWgGMDTEoKPhuenzNcC4vGUmrNkiOKTlIrBoyNQYNpSwfEZXSg==}
 
   '@types/parse-json@4.0.2':
     resolution: {integrity: sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw==}
@@ -7446,9 +7440,6 @@ packages:
   undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
 
-  undici-types@7.14.0:
-    resolution: {integrity: sha512-QQiYxHuyZ9gQUIrmPo3IA+hUl4KYk8uSA7cHrcKd/l3p1OTpZcM0Tbp9x7FAtXdAYhlasd60ncPpgu6ihG6TOA==}
-
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
@@ -8789,11 +8780,6 @@ snapshots:
       effect: 3.17.14
       vitest: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
-  '@effect/vitest@0.19.0(effect@3.17.14)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))':
-    dependencies:
-      effect: 3.17.14
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
-
   '@effect/workflow@0.10.0(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(effect@3.17.14)':
     dependencies:
       '@effect/platform': 0.91.1(effect@3.17.14)
@@ -9448,13 +9434,6 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.10.0
 
-  '@inquirer/external-editor@1.0.2(@types/node@24.7.1)':
-    dependencies:
-      chardet: 2.1.1
-      iconv-lite: 0.7.0
-    optionalDependencies:
-      '@types/node': 24.7.1
-
   '@isaacs/balanced-match@4.0.1': {}
 
   '@isaacs/brace-expansion@5.0.0':
@@ -9565,60 +9544,6 @@ snapshots:
       '@effect/sql': 0.45.0(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14)
       '@effect/typeclass': 0.36.0(effect@3.17.14)
       '@effect/vitest': 0.19.0(effect@3.17.14)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))
-      '@effect/workflow': 0.10.0(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(effect@3.17.14)
-      '@formatjs/intl-durationformat': 0.7.4
-      '@jsr/std__expect': 1.0.17
-      '@jsr/std__testing': 1.0.15
-      '@noble/hashes': 2.0.1
-      '@paralleldrive/cuid2': 3.1.0
-      '@tsconfig/strictest': 2.0.5
-      '@typed/id': 0.17.2(effect@3.17.14)
-      '@types/seedrandom': 3.0.8
-      base-x: 5.0.1
-      bignumber.js: 9.3.1
-      change-case: 5.4.4
-      effect: 3.17.14
-      moize: 6.1.6
-      option-t: 55.1.0
-      seedrandom: 3.0.5
-      temporal-polyfill: 0.3.0
-      type-fest: 5.0.1
-      velona: 0.8.0
-    transitivePeerDependencies:
-      - '@opentelemetry/api'
-      - '@opentelemetry/resources'
-      - '@opentelemetry/sdk-logs'
-      - '@opentelemetry/sdk-metrics'
-      - '@opentelemetry/sdk-trace-base'
-      - '@opentelemetry/sdk-trace-node'
-      - '@opentelemetry/sdk-trace-web'
-      - '@opentelemetry/semantic-conventions'
-      - bufferutil
-      - ioredis
-      - lmdb
-      - utf-8-validate
-      - vitest
-
-  '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))':
-    dependencies:
-      '@effect/ai': 0.28.0(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(effect@3.17.14)
-      '@effect/ai-anthropic': 0.18.0(@effect/ai@0.28.0(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(effect@3.17.14))(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14)
-      '@effect/ai-openai': 0.31.0(@effect/ai@0.28.0(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(effect@3.17.14))(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14)
-      '@effect/cli': 0.70.0(@effect/platform@0.91.1(effect@3.17.14))(@effect/printer-ansi@0.45.0(@effect/typeclass@0.36.0(effect@3.17.14))(effect@3.17.14))(@effect/printer@0.45.0(@effect/typeclass@0.36.0(effect@3.17.14))(effect@3.17.14))(effect@3.17.14)
-      '@effect/cluster': 0.49.0(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/sql@0.45.0(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/workflow@0.10.0(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(effect@3.17.14))(effect@3.17.14)
-      '@effect/experimental': 0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14)
-      '@effect/opentelemetry': 0.57.0(@effect/platform@0.91.1(effect@3.17.14))(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(effect@3.17.14)
-      '@effect/platform': 0.91.1(effect@3.17.14)
-      '@effect/platform-browser': 0.71.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14)
-      '@effect/platform-bun': 0.80.0(@effect/cluster@0.49.0(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/sql@0.45.0(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/workflow@0.10.0(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/sql@0.45.0(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(bufferutil@4.0.9)(effect@3.17.14)(utf-8-validate@5.0.10)
-      '@effect/platform-node': 0.97.0(@effect/cluster@0.49.0(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/sql@0.45.0(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/workflow@0.10.0(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/sql@0.45.0(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(bufferutil@4.0.9)(effect@3.17.14)(utf-8-validate@5.0.10)
-      '@effect/platform-node-shared': 0.50.0(@effect/cluster@0.49.0(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/sql@0.45.0(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/workflow@0.10.0(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/sql@0.45.0(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(bufferutil@4.0.9)(effect@3.17.14)(utf-8-validate@5.0.10)
-      '@effect/printer': 0.45.0(@effect/typeclass@0.36.0(effect@3.17.14))(effect@3.17.14)
-      '@effect/printer-ansi': 0.45.0(@effect/typeclass@0.36.0(effect@3.17.14))(effect@3.17.14)
-      '@effect/rpc': 0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14)
-      '@effect/sql': 0.45.0(@effect/experimental@0.55.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14)
-      '@effect/typeclass': 0.36.0(effect@3.17.14)
-      '@effect/vitest': 0.19.0(effect@3.17.14)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))
       '@effect/workflow': 0.10.0(@effect/platform@0.91.1(effect@3.17.14))(@effect/rpc@0.70.0(@effect/platform@0.91.1(effect@3.17.14))(effect@3.17.14))(effect@3.17.14)
       '@formatjs/intl-durationformat': 0.7.4
       '@jsr/std__expect': 1.0.17
@@ -10178,9 +10103,9 @@ snapshots:
 
   '@protobufjs/utf8@1.1.0': {}
 
-  '@pulumi/aws@7.8.0(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)':
+  '@pulumi/aws@7.8.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       mime: 2.6.0
     transitivePeerDependencies:
       - bluebird
@@ -10188,15 +10113,15 @@ snapshots:
       - ts-node
       - typescript
 
-  '@pulumi/awsx@3.0.1(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)':
+  '@pulumi/awsx@3.0.1(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
       '@aws-sdk/client-ecs': 3.917.0
-      '@pulumi/aws': 7.8.0(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)
-      '@pulumi/docker': 4.9.0(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)
-      '@pulumi/docker-build': 0.0.14(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)
-      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/aws': 7.8.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/docker': 4.9.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/docker-build': 0.0.14(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       '@types/aws-lambda': 8.10.156
-      docker-classic: '@pulumi/docker@3.6.1(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)'
+      docker-classic: '@pulumi/docker@3.6.1(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)'
       mime: 2.6.0
     transitivePeerDependencies:
       - aws-crt
@@ -10205,27 +10130,27 @@ snapshots:
       - ts-node
       - typescript
 
-  '@pulumi/cloudflare@6.10.1(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)':
+  '@pulumi/cloudflare@6.10.1(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
     transitivePeerDependencies:
       - bluebird
       - supports-color
       - ts-node
       - typescript
 
-  '@pulumi/docker-build@0.0.14(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)':
+  '@pulumi/docker-build@0.0.14(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
     transitivePeerDependencies:
       - bluebird
       - supports-color
       - ts-node
       - typescript
 
-  '@pulumi/docker@3.6.1(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)':
+  '@pulumi/docker@3.6.1(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       semver: 5.7.2
     transitivePeerDependencies:
       - bluebird
@@ -10233,9 +10158,9 @@ snapshots:
       - ts-node
       - typescript
 
-  '@pulumi/docker@4.9.0(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)':
+  '@pulumi/docker@4.9.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       semver: 5.7.2
     transitivePeerDependencies:
       - bluebird
@@ -10243,7 +10168,7 @@ snapshots:
       - ts-node
       - typescript
 
-  '@pulumi/pulumi@3.202.0(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3))(typescript@5.9.3)':
+  '@pulumi/pulumi@3.202.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
       '@grpc/grpc-js': 1.14.0
       '@logdna/tail-file': 2.2.0
@@ -10274,7 +10199,7 @@ snapshots:
       tmp: 0.2.5
       upath: 1.2.0
     optionalDependencies:
-      ts-node: 10.9.2(@types/node@24.7.1)(typescript@5.9.3)
+      ts-node: 10.9.2(@types/node@24.10.0)(typescript@5.9.3)
       typescript: 5.9.3
     transitivePeerDependencies:
       - bluebird
@@ -11279,26 +11204,6 @@ snapshots:
       - supports-color
       - typescript
 
-  '@turbo/gen@2.6.0(@types/node@24.7.1)(typescript@5.9.3)':
-    dependencies:
-      '@turbo/workspaces': 2.6.0(@types/node@24.7.1)
-      commander: 10.0.1
-      fs-extra: 10.1.0
-      inquirer: 8.2.7(@types/node@24.7.1)
-      minimatch: 9.0.5
-      node-plop: 0.26.3
-      picocolors: 1.0.1
-      proxy-agent: 6.5.0
-      ts-node: 10.9.2(@types/node@24.7.1)(typescript@5.9.3)
-      update-check: 1.5.4
-      validate-npm-package-name: 5.0.1
-    transitivePeerDependencies:
-      - '@swc/core'
-      - '@swc/wasm'
-      - '@types/node'
-      - supports-color
-      - typescript
-
   '@turbo/workspaces@2.6.0(@types/node@24.10.0)':
     dependencies:
       commander: 10.0.1
@@ -11307,22 +11212,6 @@ snapshots:
       fs-extra: 10.1.0
       gradient-string: 2.0.2
       inquirer: 8.2.7(@types/node@24.10.0)
-      js-yaml: 4.1.0
-      ora: 4.1.1
-      picocolors: 1.0.1
-      semver: 7.6.2
-      update-check: 1.5.4
-    transitivePeerDependencies:
-      - '@types/node'
-
-  '@turbo/workspaces@2.6.0(@types/node@24.7.1)':
-    dependencies:
-      commander: 10.0.1
-      execa: 5.1.1
-      fast-glob: 3.3.3
-      fs-extra: 10.1.0
-      gradient-string: 2.0.2
-      inquirer: 8.2.7(@types/node@24.7.1)
       js-yaml: 4.1.0
       ora: 4.1.1
       picocolors: 1.0.1
@@ -11367,7 +11256,7 @@ snapshots:
     dependencies:
       '@types/http-cache-semantics': 4.0.4
       '@types/keyv': 3.1.4
-      '@types/node': 24.9.1
+      '@types/node': 24.10.0
       '@types/responselike': 1.0.3
 
   '@types/chai@5.2.2':
@@ -11401,7 +11290,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 24.9.1
+      '@types/node': 24.10.0
 
   '@types/lodash@4.17.20': {}
 
@@ -11420,14 +11309,6 @@ snapshots:
     dependencies:
       undici-types: 7.16.0
 
-  '@types/node@24.7.1':
-    dependencies:
-      undici-types: 7.14.0
-
-  '@types/node@24.9.1':
-    dependencies:
-      undici-types: 7.16.0
-
   '@types/parse-json@4.0.2': {}
 
   '@types/react-dom@19.2.2(@types/react@19.2.2)':
@@ -11440,7 +11321,7 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 24.9.1
+      '@types/node': 24.10.0
 
   '@types/seedrandom@3.0.8': {}
 
@@ -11458,7 +11339,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 24.9.1
+      '@types/node': 24.10.0
     optional: true
 
   '@typescript-eslint/eslint-plugin@8.46.2(@typescript-eslint/parser@8.46.2(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3)':
@@ -11614,14 +11495,6 @@ snapshots:
       magic-string: 0.30.21
     optionalDependencies:
       vite: rolldown-vite@7.1.17(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
-
-  '@vitest/mocker@3.2.4(rolldown-vite@7.1.17(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))':
-    dependencies:
-      '@vitest/spy': 3.2.4
-      estree-walker: 3.0.3
-      magic-string: 0.30.21
-    optionalDependencies:
-      vite: rolldown-vite@7.1.17(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
   '@vitest/pretty-format@3.2.4':
     dependencies:
@@ -13389,26 +13262,6 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  inquirer@8.2.7(@types/node@24.7.1):
-    dependencies:
-      '@inquirer/external-editor': 1.0.2(@types/node@24.7.1)
-      ansi-escapes: 4.3.2
-      chalk: 4.1.2
-      cli-cursor: 3.1.0
-      cli-width: 3.0.0
-      figures: 3.2.0
-      lodash: 4.17.21
-      mute-stream: 0.0.8
-      ora: 5.4.1
-      run-async: 2.4.1
-      rxjs: 7.8.2
-      string-width: 4.2.3
-      strip-ansi: 6.0.1
-      through: 2.3.8
-      wrap-ansi: 6.2.0
-    transitivePeerDependencies:
-      - '@types/node'
-
   intl-messageformat@10.7.18:
     dependencies:
       '@formatjs/ecma402-abstract': 2.3.6
@@ -14465,7 +14318,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 24.9.1
+      '@types/node': 24.10.0
       long: 5.3.2
 
   proxy-addr@2.0.7:
@@ -14715,23 +14568,6 @@ snapshots:
       tinyglobby: 0.2.15
     optionalDependencies:
       '@types/node': 24.10.0
-      esbuild: 0.25.11
-      fsevents: 2.3.3
-      jiti: 2.6.1
-      tsx: 4.20.6
-      yaml: 2.8.1
-
-  rolldown-vite@7.1.17(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1):
-    dependencies:
-      '@oxc-project/runtime': 0.92.0
-      fdir: 6.5.0(picomatch@4.0.3)
-      lightningcss: 1.30.2
-      picomatch: 4.0.3
-      postcss: 8.5.6
-      rolldown: 1.0.0-beta.43
-      tinyglobby: 0.2.15
-    optionalDependencies:
-      '@types/node': 24.7.1
       esbuild: 0.25.11
       fsevents: 2.3.3
       jiti: 2.6.1
@@ -15249,24 +15085,6 @@ snapshots:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
-  ts-node@10.9.2(@types/node@24.7.1)(typescript@5.9.3):
-    dependencies:
-      '@cspotcode/source-map-support': 0.8.1
-      '@tsconfig/node10': 1.0.11
-      '@tsconfig/node12': 1.0.11
-      '@tsconfig/node14': 1.0.3
-      '@tsconfig/node16': 1.0.4
-      '@types/node': 24.7.1
-      acorn: 8.15.0
-      acorn-walk: 8.3.2
-      arg: 4.1.3
-      create-require: 1.1.1
-      diff: 4.0.2
-      make-error: 1.3.6
-      typescript: 5.9.3
-      v8-compile-cache-lib: 3.0.1
-      yn: 3.1.1
-
   tsconfck@3.1.6(typescript@5.9.3):
     optionalDependencies:
       typescript: 5.9.3
@@ -15407,8 +15225,6 @@ snapshots:
       quansync: 0.2.11
 
   undici-types@5.26.5: {}
-
-  undici-types@7.14.0: {}
 
   undici-types@7.16.0: {}
 
@@ -15568,27 +15384,6 @@ snapshots:
       - tsx
       - yaml
 
-  vite-node@3.2.4(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1):
-    dependencies:
-      cac: 6.7.14
-      debug: 4.4.3
-      es-module-lexer: 1.7.0
-      pathe: 2.0.3
-      vite: rolldown-vite@7.1.17(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
-    transitivePeerDependencies:
-      - '@types/node'
-      - esbuild
-      - jiti
-      - less
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
   vite-tsconfig-paths@5.1.4(rolldown-vite@7.1.17(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))(typescript@5.9.3):
     dependencies:
       debug: 4.4.3
@@ -15632,48 +15427,6 @@ snapshots:
     optionalDependencies:
       '@types/debug': 4.1.12
       '@types/node': 24.10.0
-    transitivePeerDependencies:
-      - esbuild
-      - jiti
-      - less
-      - msw
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
-  vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1):
-    dependencies:
-      '@types/chai': 5.2.2
-      '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(rolldown-vite@7.1.17(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))
-      '@vitest/pretty-format': 3.2.4
-      '@vitest/runner': 3.2.4
-      '@vitest/snapshot': 3.2.4
-      '@vitest/spy': 3.2.4
-      '@vitest/utils': 3.2.4
-      chai: 5.3.3
-      debug: 4.4.3
-      expect-type: 1.2.2
-      magic-string: 0.30.21
-      pathe: 2.0.3
-      picomatch: 4.0.3
-      std-env: 3.9.0
-      tinybench: 2.9.0
-      tinyexec: 0.3.2
-      tinyglobby: 0.2.15
-      tinypool: 1.1.1
-      tinyrainbow: 2.0.0
-      vite: rolldown-vite@7.1.17(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
-      vite-node: 3.2.4(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@types/debug': 4.1.12
-      '@types/node': 24.7.1
     transitivePeerDependencies:
       - esbuild
       - jiti
