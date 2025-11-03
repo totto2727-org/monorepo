@@ -55,9 +55,6 @@ catalogs:
     '@modelcontextprotocol/sdk':
       specifier: ^1.0.0
       version: 1.20.2
-    '@socotra/modelcontextprotocol-sdk':
-      specifier: ^1.18.0
-      version: 1.18.0
     '@types/node':
       specifier: ^24.10.0
       version: 24.10.0
@@ -293,7 +290,7 @@ importers:
         version: link:../../package/mcp-oauth-cloudflare-access
       '@socotra/modelcontextprotocol-sdk':
         specifier: catalog:dev
-        version: 1.18.0
+        version: 1.20.1(zod@4.1.12)
       '@tailwindcss/cli':
         specifier: catalog:ui
         version: 4.1.16
@@ -3348,9 +3345,11 @@ packages:
     resolution: {integrity: sha512-4aUIteuyxtBUhVdiQqcDhKFitwfd9hqoSDYY2KRXiWtgoWJ9Bmise+KfEPDiVHWeJepvF8xJO9/9+WDIciMFFw==}
     engines: {node: '>=18.0.0'}
 
-  '@socotra/modelcontextprotocol-sdk@1.18.0':
-    resolution: {integrity: sha512-/b80qIRkUduwALDF3B75zh6EyLCfR7VcepD0x5Ac6EbGQloXfxDnaq+Btl0XP+tWwXN2ReCZ1xQ2iUcnJgXt5A==}
+  '@socotra/modelcontextprotocol-sdk@1.20.1':
+    resolution: {integrity: sha512-vSA4KJlWrFkL0k6aknIRuqjxWY3YoZDeGxUGLARwLEzlGERqDbgqPfL6nRimFV2s7N4JnT9+y2jUA++Z0HHvVQ==}
     engines: {node: '>=18'}
+    peerDependencies:
+      zod: '>=3.25.76 || ^4.0.0'
 
   '@speed-highlight/core@1.2.8':
     resolution: {integrity: sha512-IGytNtnUnPIobIbOq5Y6LIlqiHNX+vnToQIS7lj6L5819C+rA8TXRDkkG8vePsiBOGcoW9R6i+dp2YBUKdB09Q==}
@@ -10708,7 +10707,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@socotra/modelcontextprotocol-sdk@1.18.0':
+  '@socotra/modelcontextprotocol-sdk@1.20.1(zod@4.1.12)':
     dependencies:
       ajv: 6.12.6
       content-type: 1.0.5
