@@ -1,7 +1,7 @@
+import { createdAt, updatedAt } from "@package/drizzle-orm/column"
 import { cuid2 } from "drizzle-cuid2/sqlite"
 import { relations } from "drizzle-orm"
 import { foreignKey, sqliteTable, text } from "drizzle-orm/sqlite-core"
-import { createdAt, updatedAt } from "../column.js"
 import * as User from "./user.js"
 import * as UserLink from "./user-link.js"
 

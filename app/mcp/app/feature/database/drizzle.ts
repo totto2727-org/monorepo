@@ -1,10 +1,9 @@
+import { createdAt } from "@package/drizzle-orm/column"
 import { sql } from "drizzle-orm"
 import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core"
 
 export const mcpToolTable = sqliteTable("mcp_tool", {
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
+  createdAt,
   description: text("description").notNull(),
   lastUsed: integer("last_used", { mode: "timestamp" })
     .notNull()

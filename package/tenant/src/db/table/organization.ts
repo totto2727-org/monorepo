@@ -1,6 +1,6 @@
+import { createdAt, updatedAt } from "@package/drizzle-orm/column"
 import { cuid2 } from "drizzle-cuid2/sqlite"
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core"
-import { createdAt, updatedAt } from "../column.js"
 
 export const table = sqliteTable("organization", {
   createdAt,
