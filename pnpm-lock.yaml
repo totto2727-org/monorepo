@@ -101,6 +101,9 @@ catalogs:
       specifier: ^4.7.10
       version: 4.10.3
   lint:
+    '@biomejs/biome':
+      specifier: ^2.3.0
+      version: 2.3.2
     '@getgrit/cli':
       specifier: 0.1.0-alpha.1743007075
       version: 0.1.0-alpha.1743007075
@@ -119,6 +122,9 @@ catalogs:
     typescript-eslint:
       specifier: ^8.46.1
       version: 8.46.2
+    ultracite:
+      specifier: ^6.0.1
+      version: 6.0.5
   pulumi:
     '@pulumi/aws':
       specifier: ^7.0.0
@@ -133,6 +139,15 @@ catalogs:
       specifier: ^3.113.0
       version: 3.202.0
   react:
+    '@tanstack/react-router':
+      specifier: ^1.133.3
+      version: 1.133.36
+    '@tanstack/react-router-devtools':
+      specifier: ^1.133.3
+      version: 1.133.36
+    '@tanstack/react-start':
+      specifier: ^1.133.3
+      version: 1.133.37
     '@tanstack/router-cli':
       specifier: ^1.133.25
       version: 1.133.36
@@ -261,6 +276,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: catalog:dev
         version: 1.20.2
+      '@package/drizzle-orm':
+        specifier: workspace:*
+        version: link:../../package/drizzle-orm
       '@package/hono-ui':
         specifier: 'workspace:'
         version: link:../../package/hono-ui
@@ -563,6 +581,31 @@ importers:
         specifier: catalog:test
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
+  package/drizzle-orm:
+    dependencies:
+      '@package/constant':
+        specifier: workspace:*
+        version: link:../constant
+    devDependencies:
+      '@totto/function':
+        specifier: catalog:util
+        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
+      '@types/node':
+        specifier: catalog:dev
+        version: 24.7.1
+      drizzle-orm:
+        specifier: catalog:drizzle
+        version: 0.44.7(@cloudflare/workers-types@4.20251011.0)(@libsql/client@0.15.7(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@opentelemetry/api@1.9.0)
+      tsdown:
+        specifier: catalog:build
+        version: 0.15.11(@typescript/native-preview@7.0.0-dev.20251027.1)(typescript@5.9.3)
+      typescript:
+        specifier: catalog:build
+        version: 5.9.3
+      vitest:
+        specifier: catalog:test
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
+
   package/hono-ui:
     devDependencies:
       '@totto/function':
@@ -653,6 +696,9 @@ importers:
       '@package/constant':
         specifier: workspace:*
         version: link:../constant
+      '@package/drizzle-orm':
+        specifier: workspace:*
+        version: link:../drizzle-orm
     devDependencies:
       '@totto/function':
         specifier: catalog:util
@@ -5597,9 +5643,6 @@ packages:
     resolution: {integrity: sha512-Z94u6fKT43lKeYHiVyvyR8fT7pwCzDu7RyMPpTvh054+xahSgj4HFQ+NmflvzdXsoAjYGdCguGaFKYuvq0ThCQ==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
-  magic-string@0.30.19:
-    resolution: {integrity: sha512-2N21sPY9Ws53PZvsEpVtNuSW+ScYbQdp4b9qUaL+9QkHUrGFKo56Lg9Emg5s9V/qrtNBmiR01sYhUOwu3H+VOw==}
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
@@ -11000,7 +11043,7 @@ snapshots:
     dependencies:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
-      magic-string: 0.30.19
+      magic-string: 0.30.21
     optionalDependencies:
       vite: rolldown-vite@7.1.17(@types/node@24.7.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
@@ -11008,7 +11051,7 @@ snapshots:
     dependencies:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
-      magic-string: 0.30.19
+      magic-string: 0.30.21
     optionalDependencies:
       vite: rolldown-vite@7.1.17(@types/node@24.9.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
@@ -11025,7 +11068,7 @@ snapshots:
   '@vitest/snapshot@3.2.4':
     dependencies:
       '@vitest/pretty-format': 3.2.4
-      magic-string: 0.30.19
+      magic-string: 0.30.21
       pathe: 2.0.3
 
   '@vitest/spy@3.2.4':
@@ -12860,10 +12903,6 @@ snapshots:
     dependencies:
       react: 19.2.0
 
-  magic-string@0.30.19:
-    dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.5
-
   magic-string@0.30.21:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -14506,7 +14545,7 @@ snapshots:
       chai: 5.3.3
       debug: 4.4.3
       expect-type: 1.2.2
-      magic-string: 0.30.19
+      magic-string: 0.30.21
       pathe: 2.0.3
       picomatch: 4.0.3
       std-env: 3.9.0
@@ -14548,7 +14587,7 @@ snapshots:
       chai: 5.3.3
       debug: 4.4.3
       expect-type: 1.2.2
-      magic-string: 0.30.19
+      magic-string: 0.30.21
       pathe: 2.0.3
       picomatch: 4.0.3
       std-env: 3.9.0

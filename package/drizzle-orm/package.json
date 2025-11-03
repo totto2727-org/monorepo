@@ -1,0 +1,35 @@
+{
+  "dependencies": {
+    "@package/constant": "workspace:*"
+  },
+  "devDependencies": {
+    "@totto/function": "catalog:util",
+    "@types/node": "catalog:dev",
+    "drizzle-orm": "catalog:drizzle",
+    "tsdown": "catalog:build",
+    "typescript": "catalog:build",
+    "vitest": "catalog:test"
+  },
+  "exports": {
+    "./column": {
+      "import": "./dist/column.js",
+      "types": "./dist/column.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "name": "@package/drizzle-orm",
+  "peerDependencies": {
+    "@totto/function": "catalog:util",
+    "drizzle-orm": "catalog:drizzle"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "check": "tsgo",
+    "dev": "tsdown --watch",
+    "test": "vitest run --passWithNoTests"
+  },
+  "type": "module",
+  "version": "0.0.0"
+}

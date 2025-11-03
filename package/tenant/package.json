@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "@hono/cloudflare-access": "catalog:hono",
-    "@package/constant": "workspace:*"
+    "@package/constant": "workspace:*",
+    "@package/drizzle-orm": "workspace:*"
   },
   "devDependencies": {
     "@totto/function": "catalog:util",

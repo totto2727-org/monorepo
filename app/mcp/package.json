@@ -5,6 +5,7 @@
     "@hono/mcp": "catalog:hono",
     "@hono/standard-validator": "catalog:hono",
     "@modelcontextprotocol/sdk": "catalog:dev",
+    "@package/drizzle-orm": "workspace:*",
     "@package/hono-ui": "workspace:",
     "@package/mcp-oauth-cloudflare-access": "workspace:",
     "@socotra/modelcontextprotocol-sdk": "catalog:dev",
