@@ -54,6 +54,10 @@
     {
       "name": "infra/aws",
       "path": "infra/aws"
+    },
+    {
+      "name": "template/root",
+      "path": "template"
     }
   ],
   "settings": {
