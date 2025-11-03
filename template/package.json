@@ -1,0 +1,15 @@
+{
+  "devDependencies": {
+    "@biomejs/biome": "catalog:lint",
+    "dprint": "catalog:lint",
+    "typescript": "catalog:build",
+    "@turbo/gen": "catalog:cli",
+    "@totto/function": "catalog:util"
+  },
+  "name": "@template/root",
+  "private": true,
+  "scripts": {
+    "check": "tsgo"
+  },
+  "type": "module"
+}

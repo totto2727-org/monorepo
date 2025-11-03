@@ -1,0 +1,30 @@
+{
+  "devDependencies": {
+    "@totto/function": "catalog:util",
+    "@types/node": "catalog:dev",
+    "tsdown": "catalog:build",
+    "typescript": "catalog:build",
+    "vitest": "catalog:test"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "name": "@package/{{name}}",
+  "peerDependencies": {
+    "@totto/function": "catalog:util"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "check": "tsgo",
+    "dev": "tsdown --watch",
+    "test": "vitest run --passWithNoTests"
+  },
+  "type": "module",
+  "version": "0.0.0"
+}
