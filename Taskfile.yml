@@ -1,0 +1,20 @@
+# https://taskfile.dev
+version: "3"
+
+tasks:
+  default:
+    aliases:
+      - list
+    cmd: task --list-all
+
+  generate:
+    cmd: na turbo gen -c template/src/config.cts
+
+  package:
+    cmd: na turbo --filter '@package/*' {{.CLI_ARGS}}
+
+  pncat:
+    cmd: na pncat {{.CLI_ARGS}}
+
+  precommit:
+    cmd: na turbo fix check test build
