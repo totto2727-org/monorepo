@@ -1,132 +1,215 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "commitMessagePrefix": "feat(deps): ",
-  "extends": ["config:base", ":timezone(Asia/Tokyo)"],
-  "ignoreDeps": ["@totto/function"],
-  "labels": ["renovate", "deps"],
+  "extends": [
+    "config:recommended",
+    ":timezone(Asia/Tokyo)"
+  ],
+  "ignoreDeps": [
+    "@totto/function"
+  ],
+  "labels": [
+    "renovate",
+    "deps"
+  ],
   "packageRules": [
     {
       "groupName": "Updates major",
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
       "groupName": "Updates minor",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
-      "matchDepTypes": ["pnpm.catalog.default"],
+      "matchDepTypes": [
+        "pnpm.catalog.default"
+      ],
       "groupName": "pnpm.catalog.default updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
-      "matchDepTypes": ["pnpm.catalog.build"],
+      "matchDepTypes": [
+        "pnpm.catalog.build"
+      ],
       "groupName": "pnpm.catalog.build updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
-      "matchDepTypes": ["pnpm.catalog.casbin"],
+      "matchDepTypes": [
+        "pnpm.catalog.casbin"
+      ],
       "groupName": "pnpm.catalog.casbin updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
       "automerge": true,
-      "matchDepTypes": ["pnpm.catalog.cli"],
+      "matchDepTypes": [
+        "pnpm.catalog.cli"
+      ],
       "groupName": "pnpm.catalog.cli updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
       "automerge": true,
-      "matchDepTypes": ["pnpm.catalog.cloudflare"],
+      "matchDepTypes": [
+        "pnpm.catalog.cloudflare"
+      ],
       "groupName": "pnpm.catalog.cloudflare updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
-      "matchDepTypes": ["pnpm.catalog.dev"],
+      "matchDepTypes": [
+        "pnpm.catalog.dev"
+      ],
       "groupName": "pnpm.catalog.dev updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
-      "matchDepTypes": ["pnpm.catalog.drizzle"],
+      "matchDepTypes": [
+        "pnpm.catalog.drizzle"
+      ],
       "groupName": "pnpm.catalog.drizzle updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
-      "matchDepTypes": ["pnpm.catalog.graphql"],
+      "matchDepTypes": [
+        "pnpm.catalog.graphql"
+      ],
       "groupName": "pnpm.catalog.graphql updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
-      "matchDepTypes": ["pnpm.catalog.hono"],
+      "matchDepTypes": [
+        "pnpm.catalog.hono"
+      ],
       "groupName": "pnpm.catalog.hono updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
       "automerge": true,
-      "matchDepTypes": ["pnpm.catalog.lint"],
+      "matchDepTypes": [
+        "pnpm.catalog.lint"
+      ],
       "groupName": "pnpm.catalog.lint updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
       "automerge": true,
-      "matchDepTypes": ["pnpm.catalog.pulumi"],
+      "matchDepTypes": [
+        "pnpm.catalog.pulumi"
+      ],
       "groupName": "pnpm.catalog.pulumi updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
-      "matchDepTypes": ["pnpm.catalog.react"],
+      "matchDepTypes": [
+        "pnpm.catalog.react"
+      ],
       "groupName": "pnpm.catalog.react updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
       "automerge": true,
-      "matchDepTypes": ["pnpm.catalog.test"],
+      "matchDepTypes": [
+        "pnpm.catalog.test"
+      ],
       "groupName": "pnpm.catalog.test updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
       "automerge": true,
-      "matchDepTypes": ["pnpm.catalog.tsconfig"],
+      "matchDepTypes": [
+        "pnpm.catalog.tsconfig"
+      ],
       "groupName": "pnpm.catalog.tsconfig updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
-      "matchDepTypes": ["pnpm.catalog.ui"],
+      "matchDepTypes": [
+        "pnpm.catalog.ui"
+      ],
       "groupName": "pnpm.catalog.ui updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
-      "matchDepTypes": ["pnpm.catalog.util"],
+      "matchDepTypes": [
+        "pnpm.catalog.util"
+      ],
       "groupName": "pnpm.catalog.util updates",
-      "matchUpdateTypes": ["minor"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
       "automerge": true,
       "groupName": "Patch updates",
-      "matchUpdateTypes": ["patch", "digest", "bump", "lockFileMaintenance"],
+      "matchUpdateTypes": [
+        "patch",
+        "digest",
+        "bump",
+        "lockFileMaintenance"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
       "automerge": true,
       "groupName": "TypeScript native preview updates",
-      "matchPackageNames": ["@typescript/native-preview"],
+      "matchPackageNames": [
+        "@typescript/native-preview"
+      ],
       "minimumReleaseAge": "3 days"
     }
   ]
