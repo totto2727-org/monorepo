@@ -32,6 +32,10 @@
       "path": "package/tenant"
     },
     {
+      "name": "package/drizzle-orm",
+      "path": "package/drizzle-orm"
+    },
+    {
       "name": "package/yamada-ui",
       "path": "package/yamada-ui"
     },
