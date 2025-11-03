@@ -7,8 +7,8 @@ tasks:
       - list
     cmd: task --list-all
 
-  generate:
-    cmd: na turbo gen -c template/src/config.cts
+  template:
+    cmd: na turbo gen -c template/src/config.cts {{.CLI_ARGS}}
 
   package:
     cmd: na turbo --filter '@package/*' {{.CLI_ARGS}}
