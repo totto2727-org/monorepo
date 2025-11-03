@@ -1,7 +1,4 @@
 {
-  "dependencies": {
-    "@package/constant": "workspace:*"
-  },
   "devDependencies": {
     "@totto/function": "catalog:util",
     "@types/node": "catalog:dev",
