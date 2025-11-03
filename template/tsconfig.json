@@ -1,4 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": ["@totto/function/tsconfig/node24"]
+  "extends": ["@totto/function/tsconfig/node24"],
+  "compilerOptions": {
+    "verbatimModuleSyntax": false
+  }
 }

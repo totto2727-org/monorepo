@@ -1,10 +1,11 @@
 {
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
-    "dprint": "catalog:lint",
-    "typescript": "catalog:build",
+    "@totto/function": "catalog:util",
     "@turbo/gen": "catalog:cli",
-    "@totto/function": "catalog:util"
+    "@types/node": "^24.10.0",
+    "dprint": "catalog:lint",
+    "typescript": "catalog:build"
   },
   "name": "@template/root",
   "private": true,
