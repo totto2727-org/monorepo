@@ -3,7 +3,7 @@ packages:
   - config/*
   - infra/*
   - package/*
-
+  - template
 catalogs:
   build:
     "@typescript/native-preview": 7.0.0-dev.20251027.1
@@ -16,6 +16,7 @@ catalogs:
     "@hono/casbin": ^1.0.0
     casbin: ^5.39.0
   cli:
+    "@turbo/gen": ^2.6.0
     pncat: ^0.6.0
     turbo: ^2.5.3
   cloudflare:
