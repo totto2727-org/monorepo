@@ -199,15 +199,9 @@ catalogs:
     '@yamada-ui/react':
       specifier: ^2.0.2
       version: 2.0.5
-    daisyui:
-      specifier: ^5.1.27
-      version: 5.2.0
     tailwindcss:
       specifier: ^4.1.16
       version: 4.1.16
-    unplugin-icons:
-      specifier: ^22.4.2
-      version: 22.4.2
   util:
     '@totto/function':
       specifier: jsr:^2.4.0
@@ -308,7 +302,7 @@ importers:
         version: 0.2.19(@cloudflare/workers-types@4.20251011.0)(react@19.2.0)(typescript@5.9.3)(viem@2.37.8(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))
       daisyui:
         specifier: catalog:ui
-        version: 5.2.0
+        version: 5.3.10
       dprint:
         specifier: catalog:lint
         version: 0.50.2
@@ -452,7 +446,7 @@ importers:
         version: 8.46.2(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3)
       unplugin-icons:
         specifier: catalog:ui
-        version: 22.4.2(@svgr/core@8.1.0(typescript@5.9.3))
+        version: 22.5.0(@svgr/core@8.1.0(typescript@5.9.3))
       vite:
         specifier: npm:rolldown-vite@^7.0.0
         version: rolldown-vite@7.1.17(@types/node@24.10.0)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
@@ -618,7 +612,7 @@ importers:
         version: 24.10.0
       daisyui:
         specifier: catalog:ui
-        version: 5.2.0
+        version: 5.3.10
       hono:
         specifier: catalog:hono
         version: 4.10.3
@@ -4546,8 +4540,8 @@ packages:
   csv-parse@5.6.0:
     resolution: {integrity: sha512-l3nz3euub2QMg5ouu5U09Ew9Wf6/wQ8I++ch1loQ0ljmzhmfZYrH9fflS22i/PQEvsPvxCwxgz5q7UB8K1JO4Q==}
 
-  daisyui@5.2.0:
-    resolution: {integrity: sha512-/DXfgR3qI5nGEzBygK9kXsKHO+abiMyv31efTi5ezEsZcrojq9cyNrrgX3+FxHyXSorxJ+CVUG7Ho9nUrCBmfg==}
+  daisyui@5.3.10:
+    resolution: {integrity: sha512-vmjyPmm0hvFhA95KB6uiGmWakziB2pBv6CUcs5Ka/3iMBMn9S+C3SZYx9G9l2JrgTZ1EFn61F/HrPcwaUm2kLQ==}
 
   data-uri-to-buffer@4.0.1:
     resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
@@ -6337,6 +6331,9 @@ packages:
   package-manager-detector@1.4.0:
     resolution: {integrity: sha512-rRZ+pR1Usc+ND9M2NkmCvE/LYJS+8ORVV9X0KuNSY/gFsp7RBHJM/ADh9LYq4Vvfq6QkKrW6/weuh8SMEtN5gw==}
 
+  package-manager-detector@1.5.0:
+    resolution: {integrity: sha512-uBj69dVlYe/+wxj8JOpr97XfsxH/eumMt6HqjNTmJDf/6NO9s+0uxeOneIz3AsPt2m6y9PqzDzd3ATcU17MNfw==}
+
   pacote@18.0.6:
     resolution: {integrity: sha512-+eK3G27SMwsB8kLIuj4h1FUhHtwiEUo21Tw8wNjmvdlpOEr613edv+8FUsTj/4F/VN5ywGE19X18N7CC2EJk6A==}
     engines: {node: ^16.14.0 || >=18.0.0}
@@ -7474,8 +7471,8 @@ packages:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
 
-  unplugin-icons@22.4.2:
-    resolution: {integrity: sha512-Yv15405unO67Chme0Slk0JRA/H2AiAZLK5t7ebt8/ZpTDlBfM4d4En2qD3MX2rzOSkIteQ0syIm3q8MSofeoBA==}
+  unplugin-icons@22.5.0:
+    resolution: {integrity: sha512-MBlMtT5RuMYZy4TZgqUL2OTtOdTUVsS1Mhj6G1pEzMlFJlEnq6mhUfoIt45gBWxHcsOdXJDWLg3pRZ+YmvAVWQ==}
     peerDependencies:
       '@svgr/core': '>=7.0.0'
       '@svgx/core': ^1.0.1
@@ -7869,7 +7866,7 @@ snapshots:
 
   '@antfu/install-pkg@1.1.0':
     dependencies:
-      package-manager-detector: 1.4.0
+      package-manager-detector: 1.5.0
       tinyexec: 1.0.1
 
   '@antfu/utils@9.3.0': {}
@@ -12200,7 +12197,7 @@ snapshots:
 
   csv-parse@5.6.0: {}
 
-  daisyui@5.2.0: {}
+  daisyui@5.3.10: {}
 
   data-uri-to-buffer@4.0.1: {}
 
@@ -14091,6 +14088,8 @@ snapshots:
 
   package-manager-detector@1.4.0: {}
 
+  package-manager-detector@1.5.0: {}
+
   pacote@18.0.6:
     dependencies:
       '@npmcli/git': 5.0.8
@@ -15254,7 +15253,7 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-icons@22.4.2(@svgr/core@8.1.0(typescript@5.9.3)):
+  unplugin-icons@22.5.0(@svgr/core@8.1.0(typescript@5.9.3)):
     dependencies:
       '@antfu/install-pkg': 1.1.0
       '@iconify/utils': 3.0.2
