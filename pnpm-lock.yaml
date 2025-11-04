@@ -35,6 +35,9 @@ catalogs:
     pncat:
       specifier: ^0.7.0
       version: 0.7.4
+    turbo:
+      specifier: ^2.5.3
+      version: 2.6.0
   cloudflare:
     '@cloudflare/vite-plugin':
       specifier: ^1.11.0
@@ -196,9 +199,6 @@ catalogs:
     '@yamada-ui/react':
       specifier: ^2.0.2
       version: 2.0.5
-    daisyui:
-      specifier: ^5.1.27
-      version: 5.3.10
     tailwindcss:
       specifier: ^4.1.16
       version: 4.1.16
@@ -305,7 +305,7 @@ importers:
         version: 0.2.20(@cloudflare/workers-types@4.20251011.0)(react@19.2.0)(typescript@5.9.3)(viem@2.37.8(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))
       daisyui:
         specifier: catalog:ui
-        version: 5.3.10
+        version: 5.3.11
       dprint:
         specifier: catalog:lint
         version: 0.50.2
@@ -615,7 +615,7 @@ importers:
         version: 24.10.0
       daisyui:
         specifier: catalog:ui
-        version: 5.3.10
+        version: 5.3.11
       hono:
         specifier: catalog:hono
         version: 4.10.4
@@ -4716,8 +4716,8 @@ packages:
   csv-parse@5.6.0:
     resolution: {integrity: sha512-l3nz3euub2QMg5ouu5U09Ew9Wf6/wQ8I++ch1loQ0ljmzhmfZYrH9fflS22i/PQEvsPvxCwxgz5q7UB8K1JO4Q==}
 
-  daisyui@5.3.10:
-    resolution: {integrity: sha512-vmjyPmm0hvFhA95KB6uiGmWakziB2pBv6CUcs5Ka/3iMBMn9S+C3SZYx9G9l2JrgTZ1EFn61F/HrPcwaUm2kLQ==}
+  daisyui@5.3.11:
+    resolution: {integrity: sha512-+nhksucbX08o5zjS3XAaeInY0qg2VvR8FexfDaTx6CR3jo33tCHO7ab/LCyqBOfe7Ov+UjGSOy0R/TiAHWs0Vw==}
 
   data-uri-to-buffer@4.0.1:
     resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
@@ -12540,7 +12540,7 @@ snapshots:
 
   csv-parse@5.6.0: {}
 
-  daisyui@5.3.10: {}
+  daisyui@5.3.11: {}
 
   data-uri-to-buffer@4.0.1: {}
 
