@@ -142,6 +142,18 @@ catalogs:
       specifier: ^3.113.0
       version: 3.205.0
   react:
+    '@tanstack/react-router':
+      specifier: ^1.133.3
+      version: 1.134.9
+    '@tanstack/react-router-devtools':
+      specifier: ^1.133.3
+      version: 1.134.9
+    '@tanstack/react-start':
+      specifier: ^1.133.3
+      version: 1.134.9
+    '@tanstack/router-cli':
+      specifier: ^1.133.25
+      version: 1.134.9
     '@types/react':
       specifier: ^19.2.2
       version: 19.2.2
@@ -187,9 +199,6 @@ catalogs:
     '@yamada-ui/react':
       specifier: ^2.0.2
       version: 2.0.5
-    daisyui:
-      specifier: ^5.1.27
-      version: 5.3.11
     tailwindcss:
       specifier: ^4.1.16
       version: 4.1.16
@@ -296,7 +305,7 @@ importers:
         version: 0.2.20(@cloudflare/workers-types@4.20251011.0)(react@19.2.0)(typescript@5.9.3)(viem@2.37.8(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))
       daisyui:
         specifier: catalog:ui
-        version: 5.3.11
+        version: 5.4.2
       dprint:
         specifier: catalog:lint
         version: 0.50.2
@@ -606,7 +615,7 @@ importers:
         version: 24.10.0
       daisyui:
         specifier: catalog:ui
-        version: 5.3.11
+        version: 5.4.2
       hono:
         specifier: catalog:hono
         version: 4.10.4
@@ -4683,8 +4692,8 @@ packages:
   csv-parse@5.6.0:
     resolution: {integrity: sha512-l3nz3euub2QMg5ouu5U09Ew9Wf6/wQ8I++ch1loQ0ljmzhmfZYrH9fflS22i/PQEvsPvxCwxgz5q7UB8K1JO4Q==}
 
-  daisyui@5.3.11:
-    resolution: {integrity: sha512-+nhksucbX08o5zjS3XAaeInY0qg2VvR8FexfDaTx6CR3jo33tCHO7ab/LCyqBOfe7Ov+UjGSOy0R/TiAHWs0Vw==}
+  daisyui@5.4.2:
+    resolution: {integrity: sha512-yLoRFlx5hKvn5ODpT7CVb9oU/fAF2X1BGuLmVZo4LN33r7hcmO8v+gcxB6l33mcMas5jut3lZwHj9erqbMvvEA==}
 
   data-uri-to-buffer@4.0.1:
     resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
@@ -12469,7 +12478,7 @@ snapshots:
 
   csv-parse@5.6.0: {}
 
-  daisyui@5.3.11: {}
+  daisyui@5.4.2: {}
 
   data-uri-to-buffer@4.0.1: {}
 
