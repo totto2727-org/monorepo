@@ -61,6 +61,9 @@ catalogs:
     '@types/node':
       specifier: ^24.10.0
       version: 24.10.0
+    agents:
+      specifier: ^0.2.0
+      version: 0.2.21
   drizzle:
     drizzle-cuid2:
       specifier: ^2.1.0
@@ -101,6 +104,9 @@ catalogs:
       specifier: ^4.7.10
       version: 4.10.4
   lint:
+    '@biomejs/biome':
+      specifier: ^2.3.0
+      version: 2.3.4
     '@getgrit/cli':
       specifier: 0.1.0-alpha.1743007075
       version: 0.1.0-alpha.1743007075
@@ -193,9 +199,6 @@ catalogs:
     '@yamada-ui/react':
       specifier: ^2.0.2
       version: 2.0.5
-    daisyui:
-      specifier: ^5.1.27
-      version: 5.4.4
     tailwindcss:
       specifier: ^4.1.16
       version: 4.1.16
@@ -302,7 +305,7 @@ importers:
         version: 0.2.21(@cloudflare/workers-types@4.20251011.0)(react@19.2.0)(typescript@5.9.3)(viem@2.37.8(bufferutil@4.0.9)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.1.12))
       daisyui:
         specifier: catalog:ui
-        version: 5.4.4
+        version: 5.4.5
       dprint:
         specifier: catalog:lint
         version: 0.50.2
@@ -612,7 +615,7 @@ importers:
         version: 24.10.0
       daisyui:
         specifier: catalog:ui
-        version: 5.4.4
+        version: 5.4.5
       hono:
         specifier: catalog:hono
         version: 4.10.4
@@ -4694,8 +4697,8 @@ packages:
   csv-parse@5.6.0:
     resolution: {integrity: sha512-l3nz3euub2QMg5ouu5U09Ew9Wf6/wQ8I++ch1loQ0ljmzhmfZYrH9fflS22i/PQEvsPvxCwxgz5q7UB8K1JO4Q==}
 
-  daisyui@5.4.4:
-    resolution: {integrity: sha512-FEfdwmGdb3ZbtYN3OqaZn/RMarlZTPOv6mWpGUo7KX42RkcBanEZk5tgYp2ZgirKl7QvH8pCiwpuy55wi2dHyQ==}
+  daisyui@5.4.5:
+    resolution: {integrity: sha512-IPA3LESd0i1nC9/K4olTtVPf32G367MnRnd9xeekhS8SmdaXDc0o6L1eqnBGxuhSN7aQM0z7d3bJWNPdYEKMSw==}
 
   data-uri-to-buffer@4.0.1:
     resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
@@ -12496,7 +12499,7 @@ snapshots:
 
   csv-parse@5.6.0: {}
 
-  daisyui@5.4.4: {}
+  daisyui@5.4.5: {}
 
   data-uri-to-buffer@4.0.1: {}
 
