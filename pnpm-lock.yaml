@@ -125,19 +125,16 @@ catalogs:
     typescript-eslint:
       specifier: ^8.46.1
       version: 8.46.3
+    ultracite:
+      specifier: ^6.0.1
+      version: 6.3.0
   pulumi:
-    '@pulumi/aws':
-      specifier: ^7.0.0
-      version: 7.10.0
     '@pulumi/awsx':
       specifier: ^3.0.0
       version: 3.0.1
     '@pulumi/cloudflare':
       specifier: ^6.5.0
       version: 6.11.0
-    '@pulumi/pulumi':
-      specifier: ^3.113.0
-      version: 3.205.0
   react:
     '@tanstack/react-router':
       specifier: ^1.133.3
@@ -506,13 +503,13 @@ importers:
         version: 2.3.4
       '@pulumi/aws':
         specifier: catalog:pulumi
-        version: 7.10.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
+        version: 7.11.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       '@pulumi/awsx':
         specifier: catalog:pulumi
         version: 3.0.1(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       '@pulumi/pulumi':
         specifier: catalog:pulumi
-        version: 3.205.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
+        version: 3.206.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       '@totto/function':
         specifier: catalog:util
         version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
@@ -539,7 +536,7 @@ importers:
         version: 6.11.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       '@pulumi/pulumi':
         specifier: catalog:pulumi
-        version: 3.205.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
+        version: 3.206.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       '@totto/function':
         specifier: catalog:util
         version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
@@ -2222,8 +2219,8 @@ packages:
     engines: {node: '>=14', npm: '>=6'}
     hasBin: true
 
-  '@grpc/grpc-js@1.14.0':
-    resolution: {integrity: sha512-N8Jx6PaYzcTRNzirReJCtADVoq4z7+1KQ4E70jTg/koQiMoUSN1kbNjPOqpPbhMFhfU1/l7ixspPl8dNY+FoUg==}
+  '@grpc/grpc-js@1.14.1':
+    resolution: {integrity: sha512-sPxgEWtPUR3EnRJCEtbGZG2iX8LQDUls2wUS3o27jg07KqJFMq6YDeWvMo1wfpmy3rqRdS0rivpLwhqQtEyCuQ==}
     engines: {node: '>=12.10.0'}
 
   '@grpc/proto-loader@0.8.0':
@@ -2960,8 +2957,8 @@ packages:
   '@protobufjs/utf8@1.1.0':
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
 
-  '@pulumi/aws@7.10.0':
-    resolution: {integrity: sha512-1ykqa7bRcXv7iAmfBdfLckVwbaORsZbOHsqyHZk8A0gcM0RVrv38u3EagQTq13yNjZCaYdfzM2zTYpim2fDUVQ==}
+  '@pulumi/aws@7.11.0':
+    resolution: {integrity: sha512-LlK11UZRsN3vExnAAz6XRxTf6bQaeoghe9yK+U3eGUdaL7Fl5ifUBl1TvUHe7UhpGANprJHN406YH/RxKQwOQw==}
 
   '@pulumi/awsx@3.0.1':
     resolution: {integrity: sha512-f5wXbVC6FirgfWhLJx4+ePl9pYOGdp2dx+AWVg3QHRkVLMJBkzmhdcwDybgVIpRY2kty0v3p7Xe9FomOvHRJwQ==}
@@ -2978,8 +2975,8 @@ packages:
   '@pulumi/docker@4.9.0':
     resolution: {integrity: sha512-Iw5WQClre7j32oQmo3ObmHKAab0y/7Pf0hmQvcGCiBgb7X20uW3XMKV8OAFjk7/5tdyYHd1LK6s6H882IT0Bvw==}
 
-  '@pulumi/pulumi@3.205.0':
-    resolution: {integrity: sha512-AcYCPNAPYpRX9D2D6vwnEfNP+1hg1R45eQYrBTJlbGY3rcR22sHP8fYheY5nJQy1g9KPY21kkkvfBDu6Ch6UIw==}
+  '@pulumi/pulumi@3.206.0':
+    resolution: {integrity: sha512-xTiAcs7LhVOK2mUvTCUOlS7tTtzSh0T+C9pOAOkbpJuAX0GKw+wg7PZZ3qQbqW63fGfCBHs7h27e9d9iyHEC/w==}
     engines: {node: '>=20'}
     peerDependencies:
       ts-node: '>= 7.0.1 < 12'
@@ -9502,7 +9499,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@grpc/grpc-js@1.14.0':
+  '@grpc/grpc-js@1.14.1':
     dependencies:
       '@grpc/proto-loader': 0.8.0
       '@js-sdsl/ordered-map': 4.4.2
@@ -10375,9 +10372,9 @@ snapshots:
 
   '@protobufjs/utf8@1.1.0': {}
 
-  '@pulumi/aws@7.10.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
+  '@pulumi/aws@7.11.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.205.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/pulumi': 3.206.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       mime: 2.6.0
     transitivePeerDependencies:
       - bluebird
@@ -10388,10 +10385,10 @@ snapshots:
   '@pulumi/awsx@3.0.1(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
       '@aws-sdk/client-ecs': 3.917.0
-      '@pulumi/aws': 7.10.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/aws': 7.11.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       '@pulumi/docker': 4.9.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       '@pulumi/docker-build': 0.0.14(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
-      '@pulumi/pulumi': 3.205.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/pulumi': 3.206.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       '@types/aws-lambda': 8.10.156
       docker-classic: '@pulumi/docker@3.6.1(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)'
       mime: 2.6.0
@@ -10404,7 +10401,7 @@ snapshots:
 
   '@pulumi/cloudflare@6.11.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.205.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/pulumi': 3.206.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
     transitivePeerDependencies:
       - bluebird
       - supports-color
@@ -10413,7 +10410,7 @@ snapshots:
 
   '@pulumi/docker-build@0.0.14(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.205.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/pulumi': 3.206.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
     transitivePeerDependencies:
       - bluebird
       - supports-color
@@ -10422,7 +10419,7 @@ snapshots:
 
   '@pulumi/docker@3.6.1(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.205.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/pulumi': 3.206.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       semver: 5.7.2
     transitivePeerDependencies:
       - bluebird
@@ -10432,7 +10429,7 @@ snapshots:
 
   '@pulumi/docker@4.9.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.205.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/pulumi': 3.206.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)
       semver: 5.7.2
     transitivePeerDependencies:
       - bluebird
@@ -10440,9 +10437,9 @@ snapshots:
       - ts-node
       - typescript
 
-  '@pulumi/pulumi@3.205.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
+  '@pulumi/pulumi@3.206.0(ts-node@10.9.2(@types/node@24.10.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@grpc/grpc-js': 1.14.0
+      '@grpc/grpc-js': 1.14.1
       '@logdna/tail-file': 2.2.0
       '@npmcli/arborist': 7.5.4
       '@opentelemetry/api': 1.9.0
