@@ -21,7 +21,7 @@ catalogs:
     turbo: ^2.5.3
   cloudflare:
     "@cloudflare/vite-plugin": ^1.11.0
-    "@cloudflare/workers-oauth-provider": ^0.0.13
+    "@cloudflare/workers-oauth-provider": ^0.1.0
     wrangler: ^4.45.0
   dev:
     "@mikaelporttila/rss": jsr:^1.1.3

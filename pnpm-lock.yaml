@@ -43,8 +43,8 @@ catalogs:
       specifier: ^1.11.0
       version: 1.14.0
     '@cloudflare/workers-oauth-provider':
-      specifier: ^0.0.13
-      version: 0.0.13
+      specifier: ^0.1.0
+      version: 0.1.0
     wrangler:
       specifier: ^4.45.0
       version: 4.46.0
@@ -639,7 +639,7 @@ importers:
     dependencies:
       '@cloudflare/workers-oauth-provider':
         specifier: catalog:cloudflare
-        version: 0.0.13
+        version: 0.1.0
       '@package/constant':
         specifier: workspace:*
         version: link:../constant
@@ -1229,8 +1229,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@cloudflare/workers-oauth-provider@0.0.13':
-    resolution: {integrity: sha512-W9n1LHUkbEvJNsoBSVUkKUdMhGXeAfqjRoqhaKP3ky35SJ5IVRSYNV9PYff+7VxbKyX98KJjEpX0PFzLJ8ekRw==}
+  '@cloudflare/workers-oauth-provider@0.1.0':
+    resolution: {integrity: sha512-wok0RqyZlxkaKJCmGGXKyWkN0znRs9SFfTOJ1/TJxnv6N/lfXbCYr5hCbsgmOdvVi8JsKKYWj/qkqOLZybgAyQ==}
 
   '@cloudflare/workers-types@4.20251011.0':
     resolution: {integrity: sha512-gQpih+pbq3sP4uXltUeCSbPgZxTNp2gQd8639SaIbQMwgA6oJNHLhIART1fWy6DQACngiRzDVULA2x0ohmkGTQ==}
@@ -8763,7 +8763,7 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20251105.0':
     optional: true
 
-  '@cloudflare/workers-oauth-provider@0.0.13': {}
+  '@cloudflare/workers-oauth-provider@0.1.0': {}
 
   '@cloudflare/workers-types@4.20251011.0': {}
 
