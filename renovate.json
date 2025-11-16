@@ -4,6 +4,7 @@
   "extends": ["config:base", ":timezone(Asia/Tokyo)"],
   "ignoreDeps": ["@totto/function"],
   "labels": ["renovate", "deps"],
+  "schedule": ["0 0 * * 6"],
   "packageRules": [
     {
       "groupName": "Updates major",
