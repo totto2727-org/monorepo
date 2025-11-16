@@ -1,82 +1,110 @@
 import * as aws from "@pulumi/aws"
+import type * as pulumi from "@pulumi/pulumi"
 import * as group from "./group.js"
 import * as identifyStore from "./identify-store.js"
 import * as user from "./user.js"
 
-export const giteaTotto2727 = new aws.identitystore.GroupMembership(
-  "gitea-totto2727",
-  {
-    groupId: group.gitea.groupId,
-    identityStoreId: identifyStore.id,
-    memberId: user.totto2727.userId,
-    region: identifyStore.region,
-  },
-  {
-    protect: true,
-  },
-)
+function createGroupMembership({
+  // biome-ignore lint/nursery/noShadow: shadowing is intended
+  group,
+  // biome-ignore lint/nursery/noShadow: shadowing is intended
+  user,
+}: {
+  group: {
+    id: pulumi.Output<string>
+    name: string
+  }
+  user: {
+    id: pulumi.Output<string>
+    name: string
+  }
+}) {
+  return new aws.identitystore.GroupMembership(
+    `${group.name}-${user.name}`,
+    {
+      groupId: group.id,
+      identityStoreId: identifyStore.id,
+      memberId: user.id,
+      region: identifyStore.region,
+    },
+    {
+      protect: true,
+    },
+  )
+}
 
-export const adminTotto2727 = new aws.identitystore.GroupMembership(
-  "admin-totto2727",
-  {
-    groupId: group.admin.groupId,
-    identityStoreId: identifyStore.id,
-    memberId: user.totto2727.userId,
-    region: identifyStore.region,
+export const giteaTotto2727 = createGroupMembership({
+  group: {
+    id: group.gitea.groupId,
+    name: "gitea",
   },
-  {
-    protect: true,
+  user: {
+    id: user.totto2727.userId,
+    name: "totto2727",
   },
-)
+})
 
-export const argocdTotto2727 = new aws.identitystore.GroupMembership(
-  "argocd-totto2727",
-  {
-    groupId: group.argocd.groupId,
-    identityStoreId: identifyStore.id,
-    memberId: user.totto2727.userId,
-    region: identifyStore.region,
+export const adminTotto2727 = createGroupMembership({
+  group: {
+    id: group.admin.groupId,
+    name: "admin",
   },
-  {
-    protect: true,
+  user: {
+    id: user.totto2727.userId,
+    name: "totto2727",
   },
-)
+})
 
-export const cloudflareAccessTotto2727 = new aws.identitystore.GroupMembership(
-  "cloudflare-access-totto2727",
-  {
-    groupId: group.cloudflareAccess.groupId,
-    identityStoreId: identifyStore.id,
-    memberId: user.totto2727.userId,
-    region: identifyStore.region,
+export const argocdTotto2727 = createGroupMembership({
+  group: {
+    id: group.argocd.groupId,
+    name: "argocd",
   },
-  {
-    protect: true,
+  user: {
+    id: user.totto2727.userId,
+    name: "totto2727",
   },
-)
+})
+export const cloudflareAccessTotto2727 = createGroupMembership({
+  group: {
+    id: group.cloudflareAccess.groupId,
+    name: "cloudflare-access",
+  },
+  user: {
+    id: user.totto2727.userId,
+    name: "totto2727",
+  },
+})
 
-export const mcpTotto2727 = new aws.identitystore.GroupMembership(
-  "mcp-totto2727",
-  {
-    groupId: group.mcp.groupId,
-    identityStoreId: identifyStore.id,
-    memberId: user.totto2727.userId,
-    region: identifyStore.region,
+export const mcpTotto2727 = createGroupMembership({
+  group: {
+    id: group.mcp.groupId,
+    name: "mcp",
   },
-  {
-    protect: true,
+  user: {
+    id: user.totto2727.userId,
+    name: "totto2727",
   },
-)
+})
 
-export const cloudflareAccessTest = new aws.identitystore.GroupMembership(
-  "cloudflare-access-test",
-  {
-    groupId: group.cloudflareAccess.groupId,
-    identityStoreId: identifyStore.id,
-    memberId: user.test.userId,
-    region: identifyStore.region,
+export const portalTotto2727 = createGroupMembership({
+  group: {
+    id: group.portal.groupId,
+    name: "portal",
   },
-  {
-    protect: true,
+  user: {
+    id: user.totto2727.userId,
+    name: "totto2727",
   },
-)
+})
+
+export const cloudflareAccessTest = createGroupMembership({
+  group: {
+    id: group.cloudflareAccess.groupId,
+    name: "cloudflare-access",
+  },
+  user: {
+    id: user.test.userId,
+    name: "test",
+  },
+})

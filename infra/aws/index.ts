@@ -8,3 +8,4 @@ import "./src/provider.js"
 import "./src/user.js"
 
 export const mcpGroupId = group.mcp.groupId
+export const portalGroupId = group.portal.groupId

@@ -1,62 +1,31 @@
 import * as aws from "@pulumi/aws"
 import * as identifyStore from "./identify-store.js"
 
-export const admin = new aws.identitystore.Group(
-  "admin",
-  {
-    displayName: "Admin",
-    identityStoreId: identifyStore.id,
-    region: identifyStore.region,
-  },
-  {
-    protect: true,
-  },
-)
+function createGroup(name: string, displayName: string) {
+  return new aws.identitystore.Group(
+    name,
+    {
+      displayName,
+      identityStoreId: identifyStore.id,
+      region: identifyStore.region,
+    },
+    {
+      protect: true,
+    },
+  )
+}
 
-export const gitea = new aws.identitystore.Group(
-  "gitea",
-  {
-    displayName: "Gitea",
-    identityStoreId: identifyStore.id,
-    region: identifyStore.region,
-  },
-  {
-    protect: true,
-  },
-)
+export const admin = createGroup("admin", "Admin")
 
-export const argocd = new aws.identitystore.Group(
-  "argocd",
-  {
-    displayName: "Argo CD",
-    identityStoreId: identifyStore.id,
-    region: identifyStore.region,
-  },
-  {
-    protect: true,
-  },
-)
+export const gitea = createGroup("gitea", "Gitea")
 
-export const cloudflareAccess = new aws.identitystore.Group(
+export const argocd = createGroup("argocd", "Argo CD")
+
+export const cloudflareAccess = createGroup(
   "cloudflare-access",
-  {
-    displayName: "Cloudflare Access",
-    identityStoreId: identifyStore.id,
-    region: identifyStore.region,
-  },
-  {
-    protect: true,
-  },
+  "Cloudflare Access",
 )
 
-export const mcp = new aws.identitystore.Group(
-  "mcp",
-  {
-    displayName: "MCP",
-    identityStoreId: identifyStore.id,
-    region: identifyStore.region,
-  },
-  {
-    protect: true,
-  },
-)
+export const mcp = createGroup("mcp", "MCP")
+
+export const portal = createGroup("portal", "Portal")
