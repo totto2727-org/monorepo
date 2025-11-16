@@ -90,6 +90,7 @@
       "editor.defaultFormatter": "biomejs.biome"
     },
     "biome.enabled": true,
+    "cSpell.words": ["pulumi"],
     "dprint.experimentalLsp": true,
     "dprint.path": "node_modules/.bin/dprint",
     "editor.codeActionsOnSave": {
