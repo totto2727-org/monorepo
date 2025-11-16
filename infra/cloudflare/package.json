@@ -1,13 +1,14 @@
 {
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
+    "@package/constant": "workspace:*",
     "@pulumi/cloudflare": "catalog:pulumi",
     "@pulumi/pulumi": "catalog:pulumi",
     "@totto/function": "catalog:util",
     "@types/node": "catalog:dev",
     "dprint": "catalog:lint",
-    "typescript": "catalog:build",
-    "@package/constant": "workspace:*"
+    "ts-node": "^10.9.2",
+    "typescript": "catalog:build"
   },
   "engines": {
     "node": ">=24.0.0",
