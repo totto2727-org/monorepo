@@ -29,6 +29,7 @@ catalogs:
     "@socotra/modelcontextprotocol-sdk": ^1.18.0
     "@types/node": ^24.10.0
     agents: ^0.2.0
+    tsx: ^4.20.6
   drizzle:
     drizzle-cuid2: ^2.1.0
     drizzle-kit: ^0.31.5

@@ -7,7 +7,7 @@
     "@totto/function": "catalog:util",
     "@types/node": "catalog:dev",
     "dprint": "catalog:lint",
-    "ts-node": "^10.9.2",
+    "tsx": "catalog:dev",
     "typescript": "catalog:build"
   },
   "engines": {
