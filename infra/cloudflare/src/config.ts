@@ -12,3 +12,4 @@ const stack = pulumi.getStack()
 const awsStackRef = new pulumi.StackReference(`totto2727/aws/${stack}`)
 
 export const awsMcpGroupID = awsStackRef.requireOutput("mcpGroupId")
+export const awsPortalGroupID = awsStackRef.requireOutput("portalGroupId")
