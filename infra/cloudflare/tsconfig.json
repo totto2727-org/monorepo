@@ -4,6 +4,5 @@
     "allowImportingTsExtensions": true,
     "experimentalDecorators": true
   },
-  "exclude": ["./bin/"],
   "extends": ["@totto/function/tsconfig/node24"]
 }
