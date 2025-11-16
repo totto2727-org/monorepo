@@ -25,7 +25,7 @@ export const adminConsole = new cloudflare.ZeroTrustAccessApplication(
     type: "self_hosted",
   },
   {
-    protect: false,
+    protect: true,
   },
 )
 
