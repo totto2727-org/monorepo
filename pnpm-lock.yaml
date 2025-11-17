@@ -45,6 +45,9 @@ catalogs:
     '@cloudflare/workers-oauth-provider':
       specifier: ^0.1.0
       version: 0.1.0
+    wrangler:
+      specifier: ^4.45.0
+      version: 4.47.0
   dev:
     '@mikaelporttila/rss':
       specifier: jsr:^1.1.3
@@ -175,9 +178,6 @@ catalogs:
       specifier: ^2.0.5
       version: 2.0.8
   ui:
-    '@iconify-json/material-symbols':
-      specifier: ^1.2.41
-      version: 1.2.45
     '@svgr/core':
       specifier: ^8.1.0
       version: 8.1.0
@@ -347,7 +347,7 @@ importers:
         version: 0.1.5(@standard-schema/spec@1.0.0)(hono@4.10.5)
       '@iconify-json/material-symbols':
         specifier: catalog:ui
-        version: 1.2.45
+        version: 1.2.46
       '@package/constant':
         specifier: workspace:*
         version: link:../../package/constant
@@ -2278,8 +2278,8 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@iconify-json/material-symbols@1.2.45':
-    resolution: {integrity: sha512-QGt+57HpuYNYHIjmGRyaCTSStJD4AOj4C6xKFoMd1gtYPzfgK4/MOl3ar3WsgQnAmGo1QuDFOztXIIjDgDO2Kg==}
+  '@iconify-json/material-symbols@1.2.46':
+    resolution: {integrity: sha512-cNWdSAa5Z3f0TlqdCt28rmeYWGKwe68J1ORdyHyqC4D6H7CWiVKBJXV3TDTocOQVDO372bz+cmsFeo4+pbRy+A==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -9569,7 +9569,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@iconify-json/material-symbols@1.2.45':
+  '@iconify-json/material-symbols@1.2.46':
     dependencies:
       '@iconify/types': 2.0.0
 
