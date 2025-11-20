@@ -40,6 +40,10 @@
       "path": "package/yamada-ui"
     },
     {
+      "name": "package/error",
+      "path": "package/error"
+    },
+    {
       "name": "package/constant",
       "path": "package/constant"
     },

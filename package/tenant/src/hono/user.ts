@@ -1,14 +1,19 @@
-import { Context, Layer, type Option } from "@totto/function/effect"
-import { getContext } from "hono/context-storage"
-import type { schema } from "../schema/user.js"
-import type { Env } from "./env.js"
+// biome-ignore lint/correctness/noUnusedImports: required
+import type { Brand } from "@totto/function/effect"
 
-const UserClass: Context.TagClass<
+import { Context, Effect, Layer, type Option } from "@totto/function/effect"
+import type { User as UserSchema } from "../schema.js"
+import * as HonoContext from "./context.js"
+
+export class User extends Context.Tag("@package/tenant/hono/user/User")<
   User,
-  "@package/tenant/hono/user/User",
-  () => Option.Option<typeof schema.Type>
-> = Context.Tag("@package/tenant/hono/user/User")()
+  () => Option.Option<typeof UserSchema.schema.Type>
+>() {}
 
-export class User extends UserClass {}
-
-export const live = Layer.succeed(User, () => getContext<Env>().var.user)
+export const live = Layer.effect(
+  User,
+  Effect.gen(function* () {
+    const context = yield* HonoContext.Context
+    return () => context().var.user
+  }),
+)

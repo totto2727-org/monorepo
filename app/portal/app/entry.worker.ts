@@ -10,6 +10,7 @@ import { Effect, Option } from "@totto/function/effect"
 import * as CUID from "@totto/function/effect/cuid"
 import { printSchema } from "graphql"
 import { Hono } from "hono"
+import { contextStorage } from "hono/context-storage"
 import { logger } from "hono/logger"
 import * as GraphQLBuilder from "@/feature/graphql/builder.js"
 import * as GraphQL from "@/feature/graphql.js"
@@ -23,15 +24,18 @@ export const createApp = Effect.gen(function* () {
   GraphQL.initializeBuilder(builder)
   const schema = builder.toSchema()
 
-  const tenantMiddleware = yield* Tenant.Middleware.AuthHonoMiddlewares
+  const verifyUserAndOrganizationMiddleware =
+    yield* CloudflareAccess.Middleware.makeVerifyUserAndOrganizationMiddleware
+  const unauthenticatedMiddleware =
+    yield* Tenant.Middleware.makeUnauthenticatedMiddleware
 
   return new Hono<Env>()
     .use(logger())
     .use(setupMiddleware)
-    .use(tenantMiddleware.contextStorage)
-    .use(tenantMiddleware.base)
+    .use(contextStorage())
+    .use(unauthenticatedMiddleware)
     .get("/api/graphql/schema", (c) => c.text(printSchema(schema)))
-    .use("*", tenantMiddleware.requireUser)
+    .use("*", verifyUserAndOrganizationMiddleware)
     .use(
       "/api/graphql",
       graphqlServer({
@@ -44,7 +48,6 @@ export const createApp = Effect.gen(function* () {
 })
 
 const devApp = createApp.pipe(
-  Effect.provide(CloudflareAccess.Middleware.live),
   Effect.provide(CUID.generatorProductionLive),
   Effect.provide(
     Tenant.DB.makeTenantDatabaseInitializer(() => getContext().var.database),
@@ -74,11 +77,11 @@ const devApp = createApp.pipe(
     CloudflareAccess.JWT.applicationAudienceDev("cloudflare-access"),
   ),
   Effect.provide(CloudflareAccess.JWT.jwtAudienceDev(["cloudflare-access"])),
+  Effect.provide(Tenant.Context.live),
   Effect.runSync,
 )
 
 const _productionApp = createApp.pipe(
-  Effect.provide(CloudflareAccess.Middleware.live),
   Effect.provide(
     Tenant.DB.makeTenantDatabaseInitializer(() => getContext().var.database),
   ),
@@ -91,6 +94,7 @@ const _productionApp = createApp.pipe(
     ),
   ),
   Effect.provide(CloudflareAccess.JWT.jwtAudienceLive),
+  Effect.provide(Tenant.Context.live),
   Effect.provide(CUID.generatorProductionLive),
   Effect.runSync,
 )

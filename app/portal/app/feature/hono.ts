@@ -1,4 +1,4 @@
-import type { Env as TenantEnv } from "@package/tenant/hono"
+import type { Context as TenantContext } from "@package/tenant/hono"
 import { Layer, Option } from "@totto/function/effect"
 import {
   type Enforcer,
@@ -18,7 +18,7 @@ export type Env = {
     database: Drizzle.Client
     enforcer: Enforcer
   }
-} & TenantEnv.Env
+} & TenantContext.Env
 
 export type Context = HonoContext<Env>
 

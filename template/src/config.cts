@@ -2,7 +2,7 @@ import path from "node:path"
 import type { PlopTypes } from "@turbo/gen"
 
 const workspace = path.resolve(__dirname, "../..")
-const template = path.resolve(__dirname, "./template")
+const template = path.resolve(workspace, "template")
 
 function makeTargetPath(targetPath: string) {
   return path.join(workspace, targetPath)

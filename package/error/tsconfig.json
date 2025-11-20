@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "exclude": ["./dist"],
+  "extends": ["@totto/function/tsconfig/node24", "@totto/function/tsconfig/lib"]
+}

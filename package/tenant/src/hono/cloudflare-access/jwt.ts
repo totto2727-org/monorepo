@@ -1,47 +1,41 @@
-import { Context, Layer, Option } from "@totto/function/effect"
-import { getContext } from "hono/context-storage"
+import { Context, Effect, Layer, Option } from "@totto/function/effect"
 import * as JWTUserSchema from "../../schema/jwt-user.js"
-import type { Env } from "../env.js"
+import * as HonoContext from "../context.js"
 
-const ApplicationAudienceClass: Context.TagClass<
-  ApplicationAudience,
+export class ApplicationAudience extends Context.Tag(
   "@package/tenant/hono/cloudflare-access/jwt/ApplicationAudience",
-  () => string
-> = Context.Tag(
-  "@package/tenant/hono/cloudflare-access/jwt/ApplicationAudience",
-)()
-
-export class ApplicationAudience extends ApplicationAudienceClass {}
+)<ApplicationAudience, () => string>() {}
 
 export const applicationAudienceLive = (fn: () => string) =>
-  Layer.succeed(ApplicationAudience, fn)
+  Layer.effect(
+    ApplicationAudience,
+    // biome-ignore lint/correctness/useYield: required
+    Effect.gen(function* () {
+      return fn
+    }),
+  )
 
 export const applicationAudienceDev = (aud: string) =>
   Layer.succeed(ApplicationAudience, () => aud)
 
-const JWTAudienceClass: Context.TagClass<
-  JWTAudience,
+export class JWTAudience extends Context.Tag(
   "@package/tenant/hono/cloudflare-access/jwt/JWTAudience",
-  () => string[]
-> = Context.Tag("@package/tenant/hono/cloudflare-access/jwt/JWTAudience")()
-
-export class JWTAudience extends JWTAudienceClass {}
+)<JWTAudience, () => string[]>() {}
 
 export const jwtAudienceDev = (aud: string[]) =>
   Layer.succeed(JWTAudience, () => aud)
 
-export const jwtAudienceLive = Layer.succeed(
+export const jwtAudienceLive = Layer.effect(
   JWTAudience,
-  () => getContext<Env>().var.accessPayload.aud,
+  Effect.gen(function* () {
+    const context = yield* HonoContext.Context
+    return () => context().var.accessPayload.aud
+  }),
 )
 
-const JWTUserClass: Context.TagClass<
-  JWTUser,
+export class JWTUser extends Context.Tag(
   "@package/tenant/hono/cloudflare-access/jwt/JWTUser",
-  () => Option.Option<typeof JWTUserSchema.schema.Type>
-> = Context.Tag("@package/tenant/hono/cloudflare-access/jwt/JWTUser")()
-
-export class JWTUser extends JWTUserClass {}
+)<JWTUser, () => Option.Option<typeof JWTUserSchema.schema.Type>>() {}
 
 export function jwtUserDev(
   user: Option.Option<typeof JWTUserSchema.schema.Type>,
@@ -49,24 +43,28 @@ export function jwtUserDev(
   return Layer.succeed(JWTUser, () => user)
 }
 
-export const jwtUserLive = Layer.succeed(JWTUser, () => {
-  const payload = getContext<Env>().var.accessPayload
+export const jwtUserLive = Layer.effect(
+  JWTUser,
+  Effect.gen(function* () {
+    const context = yield* HonoContext.Context
 
-  return Option.some(
-    JWTUserSchema.make({
-      email: payload?.email ?? "",
-      id: payload?.sub ?? "",
-      name:
-        // @ts-expect-error -- default payload doesn't have groups
-        payload?.name ?? //
-        payload?.email ??
-        "",
-      organizationArray:
-        // @ts-expect-error -- default payload doesn't have groups
-        payload?.groups?.map((group) => ({
-          id: group,
-          name: group,
-        })) ?? [],
-    }),
-  )
-})
+    return () => {
+      const payload = context().var.accessPayload
+      return Option.some(
+        JWTUserSchema.make({
+          email: payload?.email ?? "",
+          id: payload?.sub ?? "",
+          name:
+            // @ts-expect-error -- default payload doesn't have groups
+            payload?.name ?? payload?.email ?? "",
+          organizationArray:
+            // @ts-expect-error -- default payload doesn't have groups
+            payload?.groups?.map((group) => ({
+              id: group,
+              name: group,
+            })) ?? [],
+        }),
+      )
+    }
+  }),
+)

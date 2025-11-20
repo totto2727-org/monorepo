@@ -1,34 +1,22 @@
 import { STATUS_CODE } from "@package/constant"
-import { Context, Effect, Option } from "@totto/function/effect"
-import type { MiddlewareHandler } from "hono"
-import type { contextStorage } from "hono/context-storage"
-import { createFactory } from "hono/factory"
-import { HTTPException } from "hono/http-exception"
-import type { Env } from "./env.js"
-import { User as UserLayer } from "./user.js"
+import { HTTPError, toHonoResponse } from "@package/error"
+import { Effect, Option, Runtime } from "@totto/function/effect"
+import { createMiddleware } from "hono/factory"
+import { User } from "./user.js"
 
-const factory = createFactory<Env>()
+export const makeUnauthenticatedMiddleware = Effect.gen(function* () {
+  const runtime = yield* Effect.runtime<User>()
 
-export const makeRequireUserMiddleware: Effect.Effect<
-  MiddlewareHandler,
-  never,
-  UserLayer
-> = Effect.gen(function* () {
-  const getUser = yield* UserLayer
-  return factory.createMiddleware((_, next) => {
-    const user = getUser()
-    if (Option.isNone(user)) {
-      throw new HTTPException(STATUS_CODE.UNAUTHORIZED)
-    }
-    return next()
-  })
+  return createMiddleware((c, next) =>
+    Effect.gen(function* () {
+      const user = (yield* User)()
+      if (Option.isNone(user)) {
+        return c.json(
+          ...toHonoResponse(new HTTPError(STATUS_CODE.UNAUTHORIZED)),
+        )
+      }
+      yield* Effect.tryPromise(next)
+      return
+    }).pipe(Runtime.runPromise(runtime)),
+  )
 })
-
-export class AuthHonoMiddlewares extends Context.Tag("AuthHonoMiddlewares")<
-  AuthHonoMiddlewares,
-  {
-    contextStorage: ReturnType<typeof contextStorage>
-    base: MiddlewareHandler
-    requireUser: MiddlewareHandler
-  }
->() {}

@@ -181,7 +181,6 @@ async function fetchAccessPublicKey(env: Env, kid: string) {
 function parseJWT(token: string) {
   const tokenParts = token.split(".")
 
-  // biome-ignore lint/style/noMagicNumbers: No fix
   if (tokenParts.length !== 3) {
     throw new Error("token must have 3 parts")
   }
