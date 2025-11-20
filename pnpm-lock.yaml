@@ -25,9 +25,6 @@ catalogs:
     '@hono/casbin':
       specifier: ^1.0.0
       version: 1.0.0
-    casbin:
-      specifier: ^5.39.0
-      version: 5.40.0
   cli:
     '@turbo/gen':
       specifier: ^2.6.0
@@ -104,6 +101,9 @@ catalogs:
       specifier: ^4.7.10
       version: 4.10.6
   lint:
+    '@biomejs/biome':
+      specifier: ^2.3.0
+      version: 2.3.6
     '@getgrit/cli':
       specifier: 0.1.0-alpha.1743007075
       version: 0.1.0-alpha.1743007075
@@ -404,7 +404,7 @@ importers:
         version: 1.0.0
       casbin:
         specifier: catalog:casbin
-        version: 5.40.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
+        version: 5.41.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
       dprint:
         specifier: catalog:lint
         version: 0.50.2
@@ -557,10 +557,10 @@ importers:
     dependencies:
       '@hono/casbin':
         specifier: catalog:casbin
-        version: 1.0.0(casbin@5.40.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e))(hono@4.10.6)
+        version: 1.0.0(casbin@5.41.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e))(hono@4.10.6)
       casbin:
         specifier: catalog:casbin
-        version: 5.40.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
+        version: 5.41.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
     devDependencies:
       '@totto/function':
         specifier: catalog:util
@@ -670,7 +670,7 @@ importers:
         version: 24.10.1
       casbin:
         specifier: catalog:casbin
-        version: 5.40.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
+        version: 5.41.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
       drizzle-orm:
         specifier: catalog:drizzle
         version: 0.44.7(@cloudflare/workers-types@4.20251011.0)(@libsql/client@0.15.7(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@opentelemetry/api@1.9.0)
@@ -4438,8 +4438,8 @@ packages:
   caniuse-lite@1.0.30001750:
     resolution: {integrity: sha512-cuom0g5sdX6rw00qOoLNSFCJ9/mYIsuSOA+yzpDw8eopiFqcVwQvZHqov0vmEighRxX++cfC0Vg1G+1Iy/mSpQ==}
 
-  casbin@5.40.0:
-    resolution: {integrity: sha512-TaqKCukA7ALuB+M8iugkDpk5WpyEzxbOxQtM2r14ZVfC27kM4Ue59cE72yMYuTgUJ5UEOFy0Cl70y+HaMZzPEw==}
+  casbin@5.41.0:
+    resolution: {integrity: sha512-+OJChZhRothDZ+UnnZ4QHvRfrZHQf3/QodN1lmMQ0jbE4rK6jZBuidKnzWez215xUvMeBIkkqXEnz5tZwePzhg==}
 
   chai@5.3.3:
     resolution: {integrity: sha512-4zNhdJD/iOjSH0A05ea+Ke6MU5mmpQcbQsSOkgdaUMJ9zTlDTD/GYlwohmIE2u0gaxHYiVHEn1Fw9mZ/ktJWgw==}
@@ -9544,9 +9544,9 @@ snapshots:
       protobufjs: 7.5.4
       yargs: 17.7.2
 
-  '@hono/casbin@1.0.0(casbin@5.40.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e))(hono@4.10.6)':
+  '@hono/casbin@1.0.0(casbin@5.41.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e))(hono@4.10.6)':
     dependencies:
-      casbin: 5.40.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
+      casbin: 5.41.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e)
       hono: 4.10.6
 
   '@hono/cloudflare-access@0.3.1(hono@4.10.6)':
@@ -11569,7 +11569,7 @@ snapshots:
 
   '@types/minimatch@6.0.0':
     dependencies:
-      minimatch: 10.1.1
+      minimatch: 9.0.5
 
   '@types/ms@2.1.0':
     optional: true
@@ -12202,7 +12202,7 @@ snapshots:
 
   caniuse-lite@1.0.30001750: {}
 
-  casbin@5.40.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e):
+  casbin@5.41.0(patch_hash=2dbea62fc3b330c8aeea2735e166632fac55c0338d0a62886adb949183aa4b1e):
     dependencies:
       '@casbin/expression-eval': 5.3.0
       await-lock: 2.2.2
