@@ -94,7 +94,16 @@
       "editor.defaultFormatter": "biomejs.biome"
     },
     "biome.enabled": true,
-    "cSpell.words": ["pulumi"],
+    "cSpell.words": [
+      "casbin",
+      "dbaeumer",
+      "getgrit",
+      "msgpackr",
+      "pncat",
+      "pulumi",
+      "ultracite",
+      "workerd"
+    ],
     "dprint.experimentalLsp": true,
     "dprint.path": "node_modules/.bin/dprint",
     "editor.codeActionsOnSave": {
