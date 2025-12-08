@@ -621,19 +621,19 @@ importers:
     devDependencies:
       '@totto/function':
         specifier: catalog:util
-        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
+        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
       '@types/node':
         specifier: catalog:dev
-        version: 24.10.0
+        version: 24.10.1
       tsdown:
         specifier: catalog:build
-        version: 0.15.12(@typescript/native-preview@7.0.0-dev.20251107.1)(typescript@5.9.3)(unrun@0.2.1)
+        version: 0.15.12(@typescript/native-preview@7.0.0-dev.20251117.1)(typescript@5.9.3)(unrun@0.2.1)
       typescript:
         specifier: catalog:build
         version: 5.9.3
       vitest:
         specifier: catalog:test
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.0)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
   package/hono-ui:
     devDependencies:
@@ -6074,6 +6074,7 @@ packages:
 
   moize@6.1.6:
     resolution: {integrity: sha512-vSKdIUO61iCmTqhdoIDrqyrtp87nWZUmBPniNjO0fX49wEYmyDO4lvlnFXiGcaH1JLE/s/9HbiK4LSHsbiUY6Q==}
+    deprecated: This library has been deprecated in favor of micro-memoize, which as-of version 5 incorporates most of the functionality that this library offers at nearly half the size and better speed.
 
   motion-dom@12.23.23:
     resolution: {integrity: sha512-n5yolOs0TQQBRUFImrRfs/+6X4p3Q4n1dUEqt/H58Vx7OW6RF+foWEgmTVDhIWJIMXOuNNL0apKH2S16en9eiA==}
