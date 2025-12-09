@@ -2,7 +2,7 @@ import path from "node:path"
 import type { PlopTypes } from "@turbo/gen"
 
 const workspace = path.resolve(__dirname, "../..")
-const template = path.resolve(workspace, "template")
+const template = path.resolve(__dirname, "template")
 
 function makeTargetPath(targetPath: string) {
   return path.join(workspace, targetPath)
@@ -39,7 +39,8 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
   plop.setGenerator("package", {
     actions: [
       {
-        destination: makeTargetPath("package/{{snakeCase name}}"),
+        base: makeTemplatePath("package"),
+        destination: makeTargetPath("package/{{kebabCase name}}"),
         templateFiles: makeTemplatePath("package/**/*.hbs"),
         type: "addMany",
       },
