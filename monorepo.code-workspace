@@ -61,6 +61,10 @@
       "path": "package/mcp-oauth-cloudflare-access"
     },
     {
+      "name": "package/turf-wasm",
+      "path": "package/turf-wasm"
+    },
+    {
       "name": "infra/cloudflare",
       "path": "infra/cloudflare"
     },
