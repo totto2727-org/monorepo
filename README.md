@@ -31,19 +31,23 @@ A monorepo repository using PNPM and Turbo
 
 - Node.js 24.0.0+
 - PNPM 10.0.0+
-- mise (for Turbo installation)
+- Devbox
 
 ### Installation
+
+#### tool
+
+- @antfu/ni
+- turbo
+- go-task
+- lefthook
+- moon
+
+#### npm
 
 ```bash
 # Install dependencies
 ni
-
-# Install Turbo (via mise)
-mise install
-
-mise use -g npm:lefthook
-lefthook uninstall && lefthook install
 ```
 
 ## Development Commands

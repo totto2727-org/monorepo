@@ -1,5 +1,0 @@
-[tools]
-"aqua:nodejs/node" = "24"
-"aqua:pnpm/pnpm" = "10"
-"npm:@antfu/ni" = "latest"
-"npm:turbo" = "latest"
