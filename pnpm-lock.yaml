@@ -757,6 +757,24 @@ importers:
         specifier: catalog:test
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
+  package/turf-bit:
+    devDependencies:
+      '@totto/function':
+        specifier: catalog:util
+        version: '@jsr/totto__function@2.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/semantic-conventions@1.36.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))'
+      '@types/node':
+        specifier: catalog:dev
+        version: 24.10.1
+      tsdown:
+        specifier: catalog:build
+        version: 0.15.12(@typescript/native-preview@7.0.0-dev.20251117.1)(typescript@5.9.3)(unrun@0.2.1)
+      typescript:
+        specifier: catalog:build
+        version: 5.9.3
+      vitest:
+        specifier: catalog:test
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
+
   package/yamada-ui:
     dependencies:
       '@yamada-ui/react':
