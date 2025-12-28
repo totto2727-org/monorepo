@@ -61,8 +61,8 @@
       "path": "package/mcp-oauth-cloudflare-access"
     },
     {
-      "name": "package/turf-wasm",
-      "path": "package/turf-wasm"
+      "name": "package/turf-bit",
+      "path": "package/turf-bit"
     },
     {
       "name": "infra/cloudflare",
@@ -95,6 +95,9 @@
     },
     "[jsonc]": {
       "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[moonbit]": {
+      "editor.defaultFormatter": "moonbit.moonbit-lang"
     },
     "[typescript]": {
       "editor.defaultFormatter": "biomejs.biome"
