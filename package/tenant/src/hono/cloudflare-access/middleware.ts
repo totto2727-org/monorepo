@@ -170,6 +170,8 @@ const verifyUserAndOrganization = Effect.fn(function* (
   const jwtUser = jwtUserOption.value
 
   // アプリケーションのaudienceに一致しない場合はエラーを返す
+  // TODO: 不要かも？
+  // https://github.com/honojs/hono/releases/tag/v4.10.2
   if (
     !(yield* JWT.JWTAudience)().includes((yield* JWT.ApplicationAudience)())
   ) {
