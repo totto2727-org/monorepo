@@ -1,92 +1,92 @@
 ///|
-test "GeoJsonGeometryTypes::Point to JSON" {
-  let geojson_geometry_types = GeoJsonGeometryTypes::point()
+test "GeoJSONGeometryTypes::Point to JSON" {
+  let geojson_geometry_types = GeoJSONGeometryTypes::point()
   @json.inspect(geojson_geometry_types, content="Point")
 }
 
 ///|
-test "GeoJsonGeometryTypes::MultiPoint to JSON" {
-  let geojson_geometry_types = GeoJsonGeometryTypes::multi_point()
+test "GeoJSONGeometryTypes::MultiPoint to JSON" {
+  let geojson_geometry_types = GeoJSONGeometryTypes::multi_point()
   @json.inspect(geojson_geometry_types, content="MultiPoint")
 }
 
 ///|
-test "GeoJsonGeometryTypes::LineString to JSON" {
-  let geojson_geometry_types = GeoJsonGeometryTypes::line_string()
+test "GeoJSONGeometryTypes::LineString to JSON" {
+  let geojson_geometry_types = GeoJSONGeometryTypes::line_string()
   @json.inspect(geojson_geometry_types, content="LineString")
 }
 
 ///|
-test "GeoJsonGeometryTypes::MultiLineString to JSON" {
-  let geojson_geometry_types = GeoJsonGeometryTypes::multi_line_string()
+test "GeoJSONGeometryTypes::MultiLineString to JSON" {
+  let geojson_geometry_types = GeoJSONGeometryTypes::multi_line_string()
   @json.inspect(geojson_geometry_types, content="MultiLineString")
 }
 
 ///|
-test "GeoJsonGeometryTypes::Polygon to JSON" {
-  let geojson_geometry_types = GeoJsonGeometryTypes::polygon()
+test "GeoJSONGeometryTypes::Polygon to JSON" {
+  let geojson_geometry_types = GeoJSONGeometryTypes::polygon()
   @json.inspect(geojson_geometry_types, content="Polygon")
 }
 
 ///|
-test "GeoJsonGeometryTypes::MultiPolygon to JSON" {
-  let geojson_geometry_types = GeoJsonGeometryTypes::multi_polygon()
+test "GeoJSONGeometryTypes::MultiPolygon to JSON" {
+  let geojson_geometry_types = GeoJSONGeometryTypes::multi_polygon()
   @json.inspect(geojson_geometry_types, content="MultiPolygon")
 }
 
 ///|
-test "GeoJsonGeometryTypes::GeometryCollection to JSON" {
-  let geojson_geometry_types = GeoJsonGeometryTypes::geometry_collection()
+test "GeoJSONGeometryTypes::GeometryCollection to JSON" {
+  let geojson_geometry_types = GeoJSONGeometryTypes::geometry_collection()
   @json.inspect(geojson_geometry_types, content="GeometryCollection")
 }
 
 ///|
-test "GeoJsonGeometryTypes::Point from JSON" {
-  let geojson_geometry_types : GeoJsonGeometryTypes = @json.from_json("Point")
+test "GeoJSONGeometryTypes::Point from JSON" {
+  let geojson_geometry_types : GeoJSONGeometryTypes = @json.from_json("Point")
   inspect(geojson_geometry_types, content="Point")
 }
 
 ///|
-test "GeoJsonGeometryTypes::MultiPoint from JSON" {
-  let geojson_geometry_types : GeoJsonGeometryTypes = @json.from_json(
+test "GeoJSONGeometryTypes::MultiPoint from JSON" {
+  let geojson_geometry_types : GeoJSONGeometryTypes = @json.from_json(
     "MultiPoint",
   )
   inspect(geojson_geometry_types, content="MultiPoint")
 }
 
 ///|
-test "GeoJsonGeometryTypes::LineString from JSON" {
-  let geojson_geometry_types : GeoJsonGeometryTypes = @json.from_json(
+test "GeoJSONGeometryTypes::LineString from JSON" {
+  let geojson_geometry_types : GeoJSONGeometryTypes = @json.from_json(
     "LineString",
   )
   inspect(geojson_geometry_types, content="LineString")
 }
 
 ///|
-test "GeoJsonGeometryTypes::MultiLineString from JSON" {
-  let geojson_geometry_types : GeoJsonGeometryTypes = @json.from_json(
+test "GeoJSONGeometryTypes::MultiLineString from JSON" {
+  let geojson_geometry_types : GeoJSONGeometryTypes = @json.from_json(
     "MultiLineString",
   )
   inspect(geojson_geometry_types, content="MultiLineString")
 }
 
 ///|
-test "GeoJsonGeometryTypes::Polygon from JSON" {
-  let geojson_geometry_types : GeoJsonGeometryTypes = @json.from_json("Polygon")
+test "GeoJSONGeometryTypes::Polygon from JSON" {
+  let geojson_geometry_types : GeoJSONGeometryTypes = @json.from_json("Polygon")
   inspect(geojson_geometry_types, content="Polygon")
 }
 
 ///|
-test "GeoJsonGeometryTypes::MultiPolygon from JSON" {
-  let geojson_geometry_types : GeoJsonGeometryTypes = @json.from_json(
+test "GeoJSONGeometryTypes::MultiPolygon from JSON" {
+  let geojson_geometry_types : GeoJSONGeometryTypes = @json.from_json(
     "MultiPolygon",
   )
   inspect(geojson_geometry_types, content="MultiPolygon")
 }
 
 ///|
-test "GeoJsonGeometryTypes::GeometryCollection from JSON" {
-  let geojson_geometry_types : GeoJsonGeometryTypes = @json.from_json(
+test "GeoJSONGeometryTypes::GeometryCollection from JSON" {
+  let geojson_geometry_types : GeoJSONGeometryTypes = @json.from_json(
     "GeometryCollection",
   )
   inspect(geojson_geometry_types, content="GeometryCollection")

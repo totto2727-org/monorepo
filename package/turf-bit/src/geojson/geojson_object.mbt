@@ -3,9 +3,9 @@
 /// https://tools.ietf.org/html/rfc7946#section-3
 /// The GeoJSON specification also allows foreign members
 /// (https://tools.ietf.org/html/rfc7946#section-6.1)
-pub struct GeoJsonObject {
+pub struct GeoJSONObject {
   /// Specifies the type of GeoJSON object.
-  _type : GeoJsonTypes
+  _type : GeoJSONTypes
   /// Bounding box of the coordinate range of the object's Geometries, Features, or Feature Collections.
   /// The value of the bbox member is an array of length 2*n where n is the number of dimensions
   /// represented in the contained geometries, with all axes of the most southwesterly point
@@ -16,15 +16,15 @@ pub struct GeoJsonObject {
 } derive(Show, Eq, Compare, Hash)
 
 ///|
-pub fn GeoJsonObject::new(
-  _type : GeoJsonTypes,
+pub fn GeoJSONObject::new(
+  _type : GeoJSONTypes,
   bbox? : BBox? = None,
-) -> GeoJsonObject {
-  GeoJsonObject::{ _type, bbox }
+) -> GeoJSONObject {
+  GeoJSONObject::{ _type, bbox }
 }
 
 ///|
-pub impl ToJson for GeoJsonObject with to_json(self) {
+pub impl ToJson for GeoJSONObject with to_json(self) {
   match self.bbox {
     None => { "type": self._type.to_json() }
     Some(bbox) => { "type": self._type.to_json(), "bbox": bbox.to_json() }
@@ -32,21 +32,21 @@ pub impl ToJson for GeoJsonObject with to_json(self) {
 }
 
 ///|
-pub impl FromJson for GeoJsonObject with from_json(self, path) {
-  let _type : GeoJsonTypes = match self {
+pub impl FromJson for GeoJSONObject with from_json(self, path) {
+  let _type : GeoJSONTypes = match self {
     { "type": String(_) as _type, .. } =>
-      (@json.from_json(_type, path~) : GeoJsonTypes)
-    _ => raise @json.JsonDecodeError((path, "Invalid GeoJsonObject"))
+      (@json.from_json(_type, path~) : GeoJSONTypes)
+    _ => raise @json.JsonDecodeError((path, "Invalid GeoJSONObject"))
   }
   let bbox : BBox? = match self {
     { "bbox": Array(_) as bbox, .. } =>
       Some((@json.from_json(bbox, path~) : BBox))
     _ => None
   }
-  GeoJsonObject::new(_type, bbox~)
+  GeoJSONObject::new(_type, bbox~)
 }
 
 ///|
-pub trait ToGeoJsonObject {
-  to_geojson_object(Self) -> GeoJsonObject
+pub trait ToGeoJSONObject {
+  to_geojson_object(Self) -> GeoJSONObject
 }

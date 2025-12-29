@@ -1,5 +1,5 @@
 ///|
-pub suberror GeoJsonError String derive(Show, Eq)
+pub suberror GeoJSONError String derive(Show, Eq)
 
 ///|
 /// Geometry object.
@@ -39,23 +39,23 @@ pub enum Geometry {
 } derive(Show, Eq, Compare, Hash)
 
 ///|
-pub impl ToGeoJsonGeometryTypes for Geometry with to_geojson_geometry_types(
+pub impl ToGeoJSONGeometryTypes for Geometry with to_geojson_geometry_types(
   self : Geometry,
-) -> GeoJsonGeometryTypes {
+) -> GeoJSONGeometryTypes {
   match self {
-    Geometry::Point(_) => GeoJsonGeometryTypes::Point
-    Geometry::MultiPoint(_) => GeoJsonGeometryTypes::MultiPoint
-    Geometry::LineString(_) => GeoJsonGeometryTypes::LineString
-    Geometry::MultiLineString(_) => GeoJsonGeometryTypes::MultiLineString
-    Geometry::Polygon(_) => GeoJsonGeometryTypes::Polygon
-    Geometry::MultiPolygon(_) => GeoJsonGeometryTypes::MultiPolygon
-    Geometry::GeometryCollection(_) => GeoJsonGeometryTypes::GeometryCollection
+    Geometry::Point(_) => GeoJSONGeometryTypes::Point
+    Geometry::MultiPoint(_) => GeoJSONGeometryTypes::MultiPoint
+    Geometry::LineString(_) => GeoJSONGeometryTypes::LineString
+    Geometry::MultiLineString(_) => GeoJSONGeometryTypes::MultiLineString
+    Geometry::Polygon(_) => GeoJSONGeometryTypes::Polygon
+    Geometry::MultiPolygon(_) => GeoJSONGeometryTypes::MultiPolygon
+    Geometry::GeometryCollection(_) => GeoJSONGeometryTypes::GeometryCollection
   }
 }
 
 ///|
-pub impl ToGeoJsonTypes for Geometry with to_geojson_types(self : Geometry) -> GeoJsonTypes {
-  GeoJsonTypes::Geometry(self.to_geojson_geometry_types())
+pub impl ToGeoJSONTypes for Geometry with to_geojson_types(self : Geometry) -> GeoJSONTypes {
+  GeoJSONTypes::Geometry(self.to_geojson_geometry_types())
 }
 
 ///|
@@ -72,8 +72,8 @@ pub fn Geometry::get_bbox(self : Geometry) -> BBox? {
 }
 
 ///|
-pub impl ToGeoJsonObject for Geometry with to_geojson_object(self : Geometry) -> GeoJsonObject {
-  GeoJsonObject::new(self.to_geojson_types(), bbox=self.get_bbox())
+pub impl ToGeoJSONObject for Geometry with to_geojson_object(self : Geometry) -> GeoJSONObject {
+  GeoJSONObject::new(self.to_geojson_types(), bbox=self.get_bbox())
 }
 
 ///|
@@ -113,14 +113,14 @@ pub fn Geometry::multi_line_string(
 // - Winding Order: Exterior rings CCW, Interior rings CW (Right-Hand Rule)
 // - Containment: Interior rings must be within Exterior ring, No overlapping holes
 // - Self-intersection: Individual rings must not self-intersect
-fn check_linear_ring(ring : Array[Position]) -> Unit raise GeoJsonError {
+fn check_linear_ring(ring : Array[Position]) -> Unit raise GeoJSONError {
   if ring.length() < 4 {
-    raise GeoJsonError(
+    raise GeoJSONError(
       "Each LinearRing of a Polygon must have 4 or more Positions.",
     )
   }
   if ring[0] != ring[ring.length() - 1] {
-    raise GeoJsonError("First and last Position are not equivalent.")
+    raise GeoJSONError("First and last Position are not equivalent.")
   }
 }
 
@@ -128,7 +128,7 @@ fn check_linear_ring(ring : Array[Position]) -> Unit raise GeoJsonError {
 pub fn Geometry::polygon(
   coordinates : Array[Array[Position]],
   bbox? : BBox? = None,
-) -> Geometry raise GeoJsonError {
+) -> Geometry raise GeoJSONError {
   for ring in coordinates {
     check_linear_ring(ring)
   }
@@ -139,7 +139,7 @@ pub fn Geometry::polygon(
 pub fn Geometry::multi_polygon(
   coordinates : Array[Array[Array[Position]]],
   bbox? : BBox? = None,
-) -> Geometry raise GeoJsonError {
+) -> Geometry raise GeoJSONError {
   for polygon in coordinates {
     for ring in polygon {
       check_linear_ring(ring)
@@ -188,7 +188,7 @@ pub impl FromJson for Geometry with from_json(
   json : Json,
   path : @json.JsonPath,
 ) -> Geometry {
-  let geojson_object : GeoJsonObject = @json.from_json(json, path~)
+  let geojson_object : GeoJSONObject = @json.from_json(json, path~)
   fn get_geometries_json() raise @json.JsonDecodeError {
     match json {
       { "geometries": Json::Array(_) as geometries, .. } => geometries
@@ -229,7 +229,7 @@ pub impl FromJson for Geometry with from_json(
         @json.from_json(get_coordinates_json(), path~),
         bbox=geojson_object.bbox,
       ) catch {
-        GeoJsonError(msg) =>
+        GeoJSONError(msg) =>
           raise @json.JsonDecodeError((path, "Invalid Polygon: \{msg}"))
         _ => raise @json.JsonDecodeError((path, "Invalid Polygon"))
       }
@@ -238,7 +238,7 @@ pub impl FromJson for Geometry with from_json(
         @json.from_json(get_coordinates_json(), path~),
         bbox=geojson_object.bbox,
       ) catch {
-        GeoJsonError(msg) =>
+        GeoJSONError(msg) =>
           raise @json.JsonDecodeError((path, "Invalid MultiPolygon: \{msg}"))
         _ => raise @json.JsonDecodeError((path, "Invalid MultiPolygon"))
       }

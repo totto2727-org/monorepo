@@ -340,7 +340,7 @@ test "Geometry GeometryCollection to Geometry Types" {
 // to_geojson_types
 
 ///|
-test "Geometry to GeoJsonTypes" {
+test "Geometry to GeoJSONTypes" {
   let p = Position::new2D(0.0, 0.0)
   let point = Geometry::point(p)
   inspect(point.to_geojson_types(), content="Geometry(Point)")
@@ -366,7 +366,7 @@ test "Geometry to BBox(None)" {
 // to_geojson_object
 
 ///|
-test "Geometry to GeoJsonObject" {
+test "Geometry to GeoJSONObject" {
   let p = Position::new2D(0.0, 0.0)
   let point = Geometry::point(p)
   let obj = point.to_geojson_object()

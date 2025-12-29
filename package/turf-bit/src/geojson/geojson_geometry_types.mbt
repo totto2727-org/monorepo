@@ -1,7 +1,7 @@
 ///|
 /// The valid values for the "type" property of GeoJSON geometry objects.
 /// https://tools.ietf.org/html/rfc7946#section-1.4
-pub enum GeoJsonGeometryTypes {
+pub enum GeoJSONGeometryTypes {
   Point
   MultiPoint
   LineString
@@ -12,41 +12,41 @@ pub enum GeoJsonGeometryTypes {
 } derive(Show, Eq, Compare, Hash, ToJson, FromJson)
 
 ///|
-pub fn GeoJsonGeometryTypes::point() -> GeoJsonGeometryTypes {
-  GeoJsonGeometryTypes::Point
+pub fn GeoJSONGeometryTypes::point() -> GeoJSONGeometryTypes {
+  GeoJSONGeometryTypes::Point
 }
 
 ///|
-pub fn GeoJsonGeometryTypes::multi_point() -> GeoJsonGeometryTypes {
-  GeoJsonGeometryTypes::MultiPoint
+pub fn GeoJSONGeometryTypes::multi_point() -> GeoJSONGeometryTypes {
+  GeoJSONGeometryTypes::MultiPoint
 }
 
 ///|
-pub fn GeoJsonGeometryTypes::line_string() -> GeoJsonGeometryTypes {
-  GeoJsonGeometryTypes::LineString
+pub fn GeoJSONGeometryTypes::line_string() -> GeoJSONGeometryTypes {
+  GeoJSONGeometryTypes::LineString
 }
 
 ///|
-pub fn GeoJsonGeometryTypes::multi_line_string() -> GeoJsonGeometryTypes {
-  GeoJsonGeometryTypes::MultiLineString
+pub fn GeoJSONGeometryTypes::multi_line_string() -> GeoJSONGeometryTypes {
+  GeoJSONGeometryTypes::MultiLineString
 }
 
 ///|
-pub fn GeoJsonGeometryTypes::polygon() -> GeoJsonGeometryTypes {
-  GeoJsonGeometryTypes::Polygon
+pub fn GeoJSONGeometryTypes::polygon() -> GeoJSONGeometryTypes {
+  GeoJSONGeometryTypes::Polygon
 }
 
 ///|
-pub fn GeoJsonGeometryTypes::multi_polygon() -> GeoJsonGeometryTypes {
-  GeoJsonGeometryTypes::MultiPolygon
+pub fn GeoJSONGeometryTypes::multi_polygon() -> GeoJSONGeometryTypes {
+  GeoJSONGeometryTypes::MultiPolygon
 }
 
 ///|
-pub fn GeoJsonGeometryTypes::geometry_collection() -> GeoJsonGeometryTypes {
-  GeoJsonGeometryTypes::GeometryCollection
+pub fn GeoJSONGeometryTypes::geometry_collection() -> GeoJSONGeometryTypes {
+  GeoJSONGeometryTypes::GeometryCollection
 }
 
 ///|
-pub trait ToGeoJsonGeometryTypes {
-  to_geojson_geometry_types(Self) -> GeoJsonGeometryTypes
+pub trait ToGeoJSONGeometryTypes {
+  to_geojson_geometry_types(Self) -> GeoJSONGeometryTypes
 }
