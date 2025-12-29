@@ -42,23 +42,46 @@ test "Geometry MultiLineString to JSON" {
 
 ///|
 test "Geometry Polygon to JSON" {
-  let p1 = Position::new2D(0.0, 0.0)
-  let p2 = Position::new2D(1.0, 1.0)
-  let polygon = Geometry::polygon([[p1, p2, p2, p1]])
+  let polygon = Geometry::polygon([
+    [
+      Position::new2D(0.0, 0.0),
+      Position::new2D(0.0, 1.0),
+      Position::new2D(1.0, 0.0),
+      Position::new2D(0.0, 0.0),
+    ],
+  ])
   @json.inspect(polygon, content={
     "type": "Polygon",
-    "coordinates": [[[0, 0], [1, 1], [1, 1], [0, 0]]],
+    "coordinates": [[[0, 0], [0, 1], [1, 0], [0, 0]]],
   })
 }
 
 ///|
 test "Geometry MultiPolygon to JSON" {
-  let p1 = Position::new2D(0.0, 0.0)
-  let p2 = Position::new2D(1.0, 1.0)
-  let multi_polygon = Geometry::multi_polygon([[[p1, p2, p2, p1]]])
+  let multi_polygon = Geometry::multi_polygon([
+    [
+      [
+        Position::new2D(0.0, 0.0),
+        Position::new2D(0.0, 1.0),
+        Position::new2D(1.0, 0.0),
+        Position::new2D(0.0, 0.0),
+      ],
+    ],
+    [
+      [
+        Position::new2D(0.0, 0.0),
+        Position::new2D(0.0, 1.0),
+        Position::new2D(1.0, 0.0),
+        Position::new2D(0.0, 0.0),
+      ],
+    ],
+  ])
   @json.inspect(multi_polygon, content={
     "type": "MultiPolygon",
-    "coordinates": [[[[0, 0], [1, 1], [1, 1], [0, 0]]]],
+    "coordinates": [
+      [[[0, 0], [0, 1], [1, 0], [0, 0]]],
+      [[[0, 0], [0, 1], [1, 0], [0, 0]]],
+    ],
   })
 }
 
@@ -174,6 +197,24 @@ test "MultiPolygon from Json" {
 }
 
 ///|
+test "panic_Polygon from Json with too few positions" {
+  let _ : Geometry = @json.from_json({
+    "type": "Polygon",
+    "coordinates": [[[0, 0], [1, 1], [0, 0]]],
+  })
+
+}
+
+///|
+test "panic_Polygon from Json with non-equivalent first/last" {
+  let _ : Geometry = @json.from_json({
+    "type": "Polygon",
+    "coordinates": [[[0, 0], [1, 1], [2, 2], [3, 3]]],
+  })
+
+}
+
+///|
 test "GeometryCollection from Json" {
   let decoded : Geometry = @json.from_json({
     "type": "GeometryCollection",
@@ -249,17 +290,37 @@ test "Geometry MultiLineString to Geometry Types" {
 
 ///|
 test "Geometry Polygon to Geometry Types" {
-  let p1 = Position::new2D(0.0, 0.0)
-  let p2 = Position::new2D(1.0, 1.0)
-  let polygon = Geometry::polygon([[p1, p2, p2, p1]])
+  let polygon = Geometry::polygon([
+    [
+      Position::new2D(0.0, 0.0),
+      Position::new2D(0.0, 1.0),
+      Position::new2D(1.0, 0.0),
+      Position::new2D(0.0, 0.0),
+    ],
+  ])
   inspect(polygon.to_geojson_geometry_types(), content="Polygon")
 }
 
 ///|
 test "Geometry MultiPolygon to Geometry Types" {
-  let p1 = Position::new2D(0.0, 0.0)
-  let p2 = Position::new2D(1.0, 1.0)
-  let multi_polygon = Geometry::multi_polygon([[[p1, p2, p2, p1]]])
+  let multi_polygon = Geometry::multi_polygon([
+    [
+      [
+        Position::new2D(0.0, 0.0),
+        Position::new2D(0.0, 1.0),
+        Position::new2D(1.0, 0.0),
+        Position::new2D(0.0, 0.0),
+      ],
+    ],
+    [
+      [
+        Position::new2D(0.0, 0.0),
+        Position::new2D(0.0, 1.0),
+        Position::new2D(1.0, 0.0),
+        Position::new2D(0.0, 0.0),
+      ],
+    ],
+  ])
   inspect(multi_polygon.to_geojson_geometry_types(), content="MultiPolygon")
 }
 
@@ -310,37 +371,4 @@ test "Geometry to GeoJsonObject" {
   let point = Geometry::point(p)
   let obj = point.to_geojson_object()
   inspect(obj, content="{_type: Geometry(Point), bbox: None}")
-}
-
-///|
-test "panic_Polygon from Json with too few positions" {
-  let _ : Geometry = @json.from_json({
-    "type": "Polygon",
-    "coordinates": [[[0, 0], [1, 1], [0, 0]]],
-  })
-
-}
-
-///|
-test "panic_Polygon from Json with non-equivalent first/last" {
-  let _ : Geometry = @json.from_json({
-    "type": "Polygon",
-    "coordinates": [[[0, 0], [1, 1], [2, 2], [3, 3]]],
-  })
-
-}
-
-///|
-test "Geometry::polygon with too few positions fails" {
-  let p1 = Position::new2D(0.0, 0.0)
-  try {
-    let _ = Geometry::polygon([[p1, p1, p1]])
-    fail("Should have failed")
-  } catch {
-    _ as e =>
-      inspect(
-        e,
-        content="GeoJsonError(\"Each LinearRing of a Polygon must have 4 or more Positions.\")",
-      )
-  }
 }
