@@ -49,3 +49,10 @@ This is a [MoonBit](https://docs.moonbitlang.com) project.
 
 - agent-todo.md has some small tasks that are easy for AI to pick up, agent is
   welcome to finish the tasks and check the box when you are done
+
+## GeoJSON Implementation
+
+The implementation of GeoJSON in this project follows these specifications:
+
+- [RFC 7946: The GeoJSON Format](https://www.rfc-editor.org/rfc/rfc7946.txt)
+- [GeoJSON Type Definitions (TypeScript)](https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/refs/heads/master/types/geojson/index.d.ts)
