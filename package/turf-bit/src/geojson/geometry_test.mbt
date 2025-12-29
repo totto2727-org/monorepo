@@ -44,10 +44,10 @@ test "Geometry MultiLineString to JSON" {
 test "Geometry Polygon to JSON" {
   let p1 = Position::new2D(0.0, 0.0)
   let p2 = Position::new2D(1.0, 1.0)
-  let polygon = Geometry::polygon([[p1, p2, p1]])
+  let polygon = Geometry::polygon([[p1, p2, p2, p1]])
   @json.inspect(polygon, content={
     "type": "Polygon",
-    "coordinates": [[[0, 0], [1, 1], [0, 0]]],
+    "coordinates": [[[0, 0], [1, 1], [1, 1], [0, 0]]],
   })
 }
 
@@ -55,10 +55,10 @@ test "Geometry Polygon to JSON" {
 test "Geometry MultiPolygon to JSON" {
   let p1 = Position::new2D(0.0, 0.0)
   let p2 = Position::new2D(1.0, 1.0)
-  let multi_polygon = Geometry::multi_polygon([[[p1, p2, p1]]])
+  let multi_polygon = Geometry::multi_polygon([[[p1, p2, p2, p1]]])
   @json.inspect(multi_polygon, content={
     "type": "MultiPolygon",
-    "coordinates": [[[[0, 0], [1, 1], [0, 0]]]],
+    "coordinates": [[[[0, 0], [1, 1], [1, 1], [0, 0]]]],
   })
 }
 
@@ -75,6 +75,18 @@ test "Geometry GeometryCollection to JSON" {
       { "type": "Point", "coordinates": [0, 0] },
       { "type": "LineString", "coordinates": [[0, 0], [1, 1]] },
     ],
+  })
+}
+
+///|
+test "Geometry Point with BBox to JSON" {
+  let p = Position::new2D(10.0, 20.0)
+  let bbox = BBox::new2D((10.0, 20.0, 10.0, 20.0))
+  let point = Geometry::point(p, bbox=Some(bbox))
+  @json.inspect(point, content={
+    "type": "Point",
+    "bbox": [10, 20, 10, 20],
+    "coordinates": [10, 20],
   })
 }
 
@@ -239,7 +251,7 @@ test "Geometry MultiLineString to Geometry Types" {
 test "Geometry Polygon to Geometry Types" {
   let p1 = Position::new2D(0.0, 0.0)
   let p2 = Position::new2D(1.0, 1.0)
-  let polygon = Geometry::polygon([[p1, p2, p1]])
+  let polygon = Geometry::polygon([[p1, p2, p2, p1]])
   inspect(polygon.to_geojson_geometry_types(), content="Polygon")
 }
 
@@ -247,7 +259,7 @@ test "Geometry Polygon to Geometry Types" {
 test "Geometry MultiPolygon to Geometry Types" {
   let p1 = Position::new2D(0.0, 0.0)
   let p2 = Position::new2D(1.0, 1.0)
-  let multi_polygon = Geometry::multi_polygon([[[p1, p2, p1]]])
+  let multi_polygon = Geometry::multi_polygon([[[p1, p2, p2, p1]]])
   inspect(multi_polygon.to_geojson_geometry_types(), content="MultiPolygon")
 }
 
@@ -298,4 +310,37 @@ test "Geometry to GeoJsonObject" {
   let point = Geometry::point(p)
   let obj = point.to_geojson_object()
   inspect(obj, content="{_type: Geometry(Point), bbox: None}")
+}
+
+///|
+test "panic_Polygon from Json with too few positions" {
+  let _ : Geometry = @json.from_json({
+    "type": "Polygon",
+    "coordinates": [[[0, 0], [1, 1], [0, 0]]],
+  })
+
+}
+
+///|
+test "panic_Polygon from Json with non-equivalent first/last" {
+  let _ : Geometry = @json.from_json({
+    "type": "Polygon",
+    "coordinates": [[[0, 0], [1, 1], [2, 2], [3, 3]]],
+  })
+
+}
+
+///|
+test "Geometry::polygon with too few positions fails" {
+  let p1 = Position::new2D(0.0, 0.0)
+  try {
+    let _ = Geometry::polygon([[p1, p1, p1]])
+    fail("Should have failed")
+  } catch {
+    _ as e =>
+      inspect(
+        e,
+        content="GeoJsonError(\"Each LinearRing of a Polygon must have 4 or more Positions.\")",
+      )
+  }
 }

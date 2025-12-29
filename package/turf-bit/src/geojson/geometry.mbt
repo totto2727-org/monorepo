@@ -1,4 +1,7 @@
 ///|
+pub suberror GeoJsonError String derive(Show, Eq)
+
+///|
 /// Geometry object.
 /// https://tools.ietf.org/html/rfc7946#section-3
 #alias(GeometryObject)
@@ -17,6 +20,10 @@ pub enum Geometry {
   MultiLineString(coordinates~ : Array[Array[Position]], bbox~ : BBox?)
   /// Polygon geometry object.
   /// https://tools.ietf.org/html/rfc7946#section-3.1.6
+  ///
+  /// A LinearRing is a closed LineString with four or more positions.
+  /// The first and last positions are equivalent, and they MUST contain
+  /// identical values; their representation SHOULD also be identical.
   Polygon(coordinates~ : Array[Array[Position]], bbox~ : BBox?)
   /// MultiPolygon geometry object.
   /// https://tools.ietf.org/html/rfc7946#section-3.1.7
@@ -102,10 +109,25 @@ pub fn Geometry::multi_line_string(
 }
 
 ///|
+fn check_linear_ring(ring : Array[Position]) -> Unit raise GeoJsonError {
+  if ring.length() < 4 {
+    raise GeoJsonError(
+      "Each LinearRing of a Polygon must have 4 or more Positions.",
+    )
+  }
+  if ring[0] != ring[ring.length() - 1] {
+    raise GeoJsonError("First and last Position are not equivalent.")
+  }
+}
+
+///|
 pub fn Geometry::polygon(
   coordinates : Array[Array[Position]],
   bbox? : BBox? = None,
-) -> Geometry {
+) -> Geometry raise GeoJsonError {
+  for ring in coordinates {
+    check_linear_ring(ring)
+  }
   Geometry::Polygon(coordinates~, bbox~)
 }
 
@@ -113,7 +135,12 @@ pub fn Geometry::polygon(
 pub fn Geometry::multi_polygon(
   coordinates : Array[Array[Array[Position]]],
   bbox? : BBox? = None,
-) -> Geometry {
+) -> Geometry raise GeoJsonError {
+  for polygon in coordinates {
+    for ring in polygon {
+      check_linear_ring(ring)
+    }
+  }
   Geometry::MultiPolygon(coordinates~, bbox~)
 }
 
@@ -197,12 +224,20 @@ pub impl @json.FromJson for Geometry with from_json(
       Geometry::polygon(
         @json.from_json(get_coordinates_json(), path~),
         bbox=geojson_object.bbox,
-      )
+      ) catch {
+        GeoJsonError(msg) =>
+          raise @json.JsonDecodeError((path, "Invalid Polygon: \{msg}"))
+        _ => raise @json.JsonDecodeError((path, "Invalid Polygon"))
+      }
     Geometry(MultiPolygon) =>
       Geometry::multi_polygon(
         @json.from_json(get_coordinates_json(), path~),
         bbox=geojson_object.bbox,
-      )
+      ) catch {
+        GeoJsonError(msg) =>
+          raise @json.JsonDecodeError((path, "Invalid MultiPolygon: \{msg}"))
+        _ => raise @json.JsonDecodeError((path, "Invalid MultiPolygon"))
+      }
     Geometry(GeometryCollection) =>
       Geometry::geometry_collection(
         @json.from_json(get_geometries_json(), path~),
