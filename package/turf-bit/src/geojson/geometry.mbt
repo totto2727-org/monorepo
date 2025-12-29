@@ -184,7 +184,7 @@ pub impl ToJson for Geometry with to_json(self) {
 }
 
 ///|
-pub impl @json.FromJson for Geometry with from_json(
+pub impl FromJson for Geometry with from_json(
   json : Json,
   path : @json.JsonPath,
 ) -> Geometry {

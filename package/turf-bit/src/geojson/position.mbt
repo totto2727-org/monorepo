@@ -25,7 +25,7 @@ pub impl ToJson for Position with to_json(self : Position) -> Json {
 }
 
 ///|
-pub impl @json.FromJson for Position with from_json(
+pub impl FromJson for Position with from_json(
   json : Json,
   path : @json.JsonPath,
 ) -> Position {
