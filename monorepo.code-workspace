@@ -61,8 +61,8 @@
       "path": "package/mcp-oauth-cloudflare-access"
     },
     {
-      "name": "package/turf-bit",
-      "path": "package/turf-bit"
+      "name": "package/turf-mbt",
+      "path": "package/turf-mbt"
     },
     {
       "name": "infra/cloudflare",

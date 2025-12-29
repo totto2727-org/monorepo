@@ -15,7 +15,7 @@
   "files": [
     "dist"
   ],
-  "name": "@package/turf-bit",
+  "name": "@package/turf-mbt",
   "peerDependencies": {
     "@totto/function": "catalog:util"
   },
