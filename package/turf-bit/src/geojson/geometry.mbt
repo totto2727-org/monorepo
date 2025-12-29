@@ -109,6 +109,10 @@ pub fn Geometry::multi_line_string(
 }
 
 ///|
+// TODO: Implement topological validation (RFC 7946 Section 3.1.6):
+// - Winding Order: Exterior rings CCW, Interior rings CW (Right-Hand Rule)
+// - Containment: Interior rings must be within Exterior ring, No overlapping holes
+// - Self-intersection: Individual rings must not self-intersect
 fn check_linear_ring(ring : Array[Position]) -> Unit raise GeoJsonError {
   if ring.length() < 4 {
     raise GeoJsonError(
