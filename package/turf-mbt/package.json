@@ -25,6 +25,5 @@
     "fix": "moon fmt",
     "test": "moon test"
   },
-  "type": "module",
   "version": "0.0.0"
 }
