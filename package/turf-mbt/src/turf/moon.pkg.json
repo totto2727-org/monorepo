@@ -1,0 +1,7 @@
+{
+  "import": [
+    "package/turf_mbt/geojson",
+    "package/turf_mbt/util/point_in_polygon"
+  ],
+  "test-import": ["moonbitlang/x/fs"]
+}
