@@ -10,7 +10,7 @@ pub fn point_in_polygon(
   x : Double,
   y : Double,
   polygon : Array[Array[(Double, Double)]],
-) -> PointInPolygonResult {
+) -> PointInPolygonResult raise {
   let mut k = 0
   let num_contours = polygon.length()
   for i = 0; i < num_contours; i = i + 1 {
@@ -22,7 +22,7 @@ pub fn point_in_polygon(
     let (first_x, first_y) = contour[0]
     let (last_x, last_y) = contour[contour_len]
     if first_x != last_x || first_y != last_y {
-      abort("First and last coordinates in a ring must be the same")
+      fail("First and last coordinates in a ring must be the same")
     }
     let mut current_x = first_x
     let mut current_y = first_y
