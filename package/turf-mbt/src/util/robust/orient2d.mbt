@@ -27,7 +27,7 @@ fn orient2d_adapt(
     detleft, detlefttail, detright, detrighttail,
   )
   let b : FixedArray[Double] = [b0, b1, b2, b3]
-  let mut det = estimate(b, 4)
+  let det = estimate(b, 4)
 
   // 誤差境界のチェック
   let errbound = ccw_err_bound_b * detsum
@@ -42,7 +42,9 @@ fn orient2d_adapt(
     return det
   }
   let errbound_c = ccw_err_bound_c * detsum + result_err_bound * abs(det)
-  det = det + (acx * bcytail + bcy * acxtail) - (acy * bcxtail + bcx * acytail)
+  let det = det +
+    (acx * bcytail + bcy * acxtail) -
+    (acy * bcxtail + bcx * acytail)
   if det >= errbound_c || -det >= errbound_c {
     return det
   }

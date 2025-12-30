@@ -364,7 +364,7 @@ fn insphere_adapt(
   let ablen = fast_expansion_sum_zeroelim(adet, alen, bdet, blen, abdet)
   let cdlen = fast_expansion_sum_zeroelim(cdet, clen, ddet, dlen, cddet)
   let finlen = fast_expansion_sum_zeroelim(abdet, ablen, cddet, cdlen, fin1)
-  let mut det = estimate(fin1, finlen)
+  let det = estimate(fin1, finlen)
   let mut errbound = insphere_err_bound_b * permanent
   if det >= errbound || -det >= errbound {
     return det
@@ -402,7 +402,7 @@ fn insphere_adapt(
   let da_err = dex * aeytail + aey * dextail - (dey * aextail + aex * deytail)
   let ac_err = aex * ceytail + cey * aextail - (aey * cextail + cex * aeytail)
   let bd_err = bex * deytail + dey * bextail - (bey * dextail + dex * beytail)
-  det = det +
+  let det = det +
     (
       (bex * bex + bey * bey + bez * bez) *
       (

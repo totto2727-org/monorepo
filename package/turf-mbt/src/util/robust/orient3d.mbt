@@ -51,7 +51,7 @@ fn orient3d_adapt(
   let ablen = fast_expansion_sum_zeroelim(adet, alen, bdet, blen, abdet)
   let fin1 : FixedArray[Double] = FixedArray::make(192, 0.0)
   let mut finlen = fast_expansion_sum_zeroelim(abdet, ablen, cdet, clen, fin1)
-  let mut det = estimate(fin1, finlen)
+  let det = estimate(fin1, finlen)
 
   // 誤差境界のチェック
   let errbound = orient3d_err_bound_b * permanent
@@ -80,7 +80,7 @@ fn orient3d_adapt(
   }
   let errbound_c = orient3d_err_bound_c * permanent +
     result_err_bound * abs(det)
-  det = det +
+  let det = det +
     (
       adx * (bdy * cdztail + cdz * bdytail) -
       ady * (bdx * cdztail + cdz * bdxtail) +

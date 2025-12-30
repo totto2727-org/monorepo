@@ -102,7 +102,7 @@ fn incircleadapt(
   let ablen = fast_expansion_sum_zeroelim(adet, alen, bdet, blen, abdet)
   let fin1 : FixedArray[Double] = FixedArray::make(1152, 0.0)
   let mut finlen = fast_expansion_sum_zeroelim(abdet, ablen, cdet, clen, fin1)
-  let mut det = estimate(fin1, finlen)
+  let det = estimate(fin1, finlen)
   let errbound1 = incircle_err_bound_b * permanent
   if det >= errbound1 || -det >= errbound1 {
     return det
@@ -122,7 +122,7 @@ fn incircleadapt(
     return det
   }
   let errbound2 = incircle_err_bound_c * permanent + result_err_bound * abs(det)
-  det = det +
+  let det = det +
     (adx * adx + ady * ady) *
     (bdx * cdytail + cdy * bdxtail - (bdy * cdxtail + cdx * bdytail)) +
     2.0 * (adx * adxtail + ady * adytail) * (bdx * cdy - bdy * cdx) +
