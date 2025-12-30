@@ -32,26 +32,22 @@ fn orient3d_adapt(
   let (bdxcdy1, bdxcdy0) = two_product(bdx, cdy)
   let (cdxbdy1, cdxbdy0) = two_product(cdx, bdy)
   let (bc3, bc2, bc1, bc0) = two_two_diff(bdxcdy1, bdxcdy0, cdxbdy1, cdxbdy0)
-  let bc : FixedArray[Double] = [bc0, bc1, bc2, bc3]
-  let adet : FixedArray[Double] = FixedArray::make(8, 0.0)
-  let alen = scale_expansion_zeroelim(bc, 4, adz, adet)
+  let bc = Expansion::from_fixed_array([bc0, bc1, bc2, bc3])
+  let adet = bc.scale_expansion_zeroelim(adz)
   let (cdxady1, cdxady0) = two_product(cdx, ady)
   let (adxcdy1, adxcdy0) = two_product(adx, cdy)
   let (ca3, ca2, ca1, ca0) = two_two_diff(cdxady1, cdxady0, adxcdy1, adxcdy0)
-  let ca : FixedArray[Double] = [ca0, ca1, ca2, ca3]
-  let bdet : FixedArray[Double] = FixedArray::make(8, 0.0)
-  let blen = scale_expansion_zeroelim(ca, 4, bdz, bdet)
+  let ca = Expansion::from_fixed_array([ca0, ca1, ca2, ca3])
+  let bdet = ca.scale_expansion_zeroelim(bdz)
   let (adxbdy1, adxbdy0) = two_product(adx, bdy)
   let (bdxady1, bdxady0) = two_product(bdx, ady)
   let (ab3, ab2, ab1, ab0) = two_two_diff(adxbdy1, adxbdy0, bdxady1, bdxady0)
-  let ab : FixedArray[Double] = [ab0, ab1, ab2, ab3]
-  let cdet : FixedArray[Double] = FixedArray::make(8, 0.0)
-  let clen = scale_expansion_zeroelim(ab, 4, cdz, cdet)
-  let abdet : FixedArray[Double] = FixedArray::make(16, 0.0)
-  let ablen = fast_expansion_sum_zeroelim(adet, alen, bdet, blen, abdet)
-  let fin1 : FixedArray[Double] = FixedArray::make(192, 0.0)
-  let mut finlen = fast_expansion_sum_zeroelim(abdet, ablen, cdet, clen, fin1)
-  let det = estimate(fin1, finlen)
+  let ab = Expansion::from_fixed_array([ab0, ab1, ab2, ab3])
+  let cdet = ab.scale_expansion_zeroelim(cdz)
+  let fin1 = adet
+    .fast_expansion_sum_zeroelim(bdet)
+    .fast_expansion_sum_zeroelim(cdet)
+  let det = fin1.estimate()
 
   // 誤差境界のチェック
   let errbound = orient3d_err_bound_b * permanent
@@ -99,216 +95,122 @@ fn orient3d_adapt(
   if det >= errbound_c || -det >= errbound_c {
     return det
   }
-  let fin2 : FixedArray[Double] = FixedArray::make(1152, 0.0)
-  let u : FixedArray[Double] = FixedArray::make(4, 0.0)
-  let v : FixedArray[Double] = FixedArray::make(4, 0.0)
-  let mut atblen = 0
-  let mut atclen = 0
-  let mut btclen = 0
-  let mut btalen = 0
-  let mut ctalen = 0
-  let mut ctblen = 0
-  let atb : FixedArray[Double] = FixedArray::make(4, 0.0)
-  let atc : FixedArray[Double] = FixedArray::make(4, 0.0)
-  let btc : FixedArray[Double] = FixedArray::make(4, 0.0)
-  let bta : FixedArray[Double] = FixedArray::make(4, 0.0)
-  let cta : FixedArray[Double] = FixedArray::make(4, 0.0)
-  let ctb : FixedArray[Double] = FixedArray::make(4, 0.0)
-  if adztail != 0.0 {
+  let atb = if adztail != 0.0 {
     let (t3, t2, t1, t0) = two_two_diff(bdxcdy1, bdxcdy0, cdxbdy1, cdxbdy0)
-    atb[0] = t0
-    atb[1] = t1
-    atb[2] = t2
-    atb[3] = t3
-    atblen = 4
+    Expansion::from_fixed_array([t0, t1, t2, t3])
+  } else {
+    Expansion::from_fixed_array([])
+  }
+  let atc = if adztail != 0.0 {
     let (s3, s2, s1, s0) = two_two_diff(cdxady1, cdxady0, adxcdy1, adxcdy0)
-    atc[0] = s0
-    atc[1] = s1
-    atc[2] = s2
-    atc[3] = s3
-    atclen = 4
+    Expansion::from_fixed_array([s0, s1, s2, s3])
+  } else {
+    Expansion::from_fixed_array([])
   }
-  if bdztail != 0.0 {
+  let btc = if bdztail != 0.0 {
     let (t3, t2, t1, t0) = two_two_diff(cdxady1, cdxady0, adxcdy1, adxcdy0)
-    btc[0] = t0
-    btc[1] = t1
-    btc[2] = t2
-    btc[3] = t3
-    btclen = 4
+    Expansion::from_fixed_array([t0, t1, t2, t3])
+  } else {
+    Expansion::from_fixed_array([])
+  }
+  let bta = if bdztail != 0.0 {
     let (s3, s2, s1, s0) = two_two_diff(adxbdy1, adxbdy0, bdxady1, bdxady0)
-    bta[0] = s0
-    bta[1] = s1
-    bta[2] = s2
-    bta[3] = s3
-    btalen = 4
+    Expansion::from_fixed_array([s0, s1, s2, s3])
+  } else {
+    Expansion::from_fixed_array([])
   }
-  if cdztail != 0.0 {
+  let cta = if cdztail != 0.0 {
     let (t3, t2, t1, t0) = two_two_diff(adxbdy1, adxbdy0, bdxady1, bdxady0)
-    cta[0] = t0
-    cta[1] = t1
-    cta[2] = t2
-    cta[3] = t3
-    ctalen = 4
+    Expansion::from_fixed_array([t0, t1, t2, t3])
+  } else {
+    Expansion::from_fixed_array([])
+  }
+  let ctb = if cdztail != 0.0 {
     let (s3, s2, s1, s0) = two_two_diff(bdxcdy1, bdxcdy0, cdxbdy1, cdxbdy0)
-    ctb[0] = s0
-    ctb[1] = s1
-    ctb[2] = s2
-    ctb[3] = s3
-    ctblen = 4
+    Expansion::from_fixed_array([s0, s1, s2, s3])
+  } else {
+    Expansion::from_fixed_array([])
   }
-  let w : FixedArray[Double] = FixedArray::make(16, 0.0)
   let (u3, u2, u1, u0) = two_one_product(bdy, cdztail, adx)
-  u[0] = u0
-  u[1] = u1
-  u[2] = u2
-  u[3] = u3
   let (v3, v2, v1, v0) = two_one_product(cdz, bdytail, adx)
-  v[0] = v0
-  v[1] = v1
-  v[2] = v2
-  v[3] = v3
-  let temp8a : FixedArray[Double] = FixedArray::make(8, 0.0)
-  let mut temp8len = fast_expansion_sum_zeroelim(u, 4, v, 4, temp8a)
+  let temp8a = Expansion::from_fixed_array([u0, u1, u2, u3]).fast_expansion_sum_zeroelim(
+    Expansion::from_fixed_array([v0, v1, v2, v3]),
+  )
   let (u3_1, u2_1, u1_1, u0_1) = two_one_product(bdx, cdztail, -ady)
-  u[0] = u0_1
-  u[1] = u1_1
-  u[2] = u2_1
-  u[3] = u3_1
   let (v3_1, v2_1, v1_1, v0_1) = two_one_product(cdz, bdxtail, -ady)
-  v[0] = v0_1
-  v[1] = v1_1
-  v[2] = v2_1
-  v[3] = v3_1
-  let temp8b : FixedArray[Double] = FixedArray::make(8, 0.0)
-  let mut temp8len2 = fast_expansion_sum_zeroelim(u, 4, v, 4, temp8b)
+  let temp8b = Expansion::from_fixed_array([u0_1, u1_1, u2_1, u3_1]).fast_expansion_sum_zeroelim(
+    Expansion::from_fixed_array([v0_1, v1_1, v2_1, v3_1]),
+  )
   let (u3_2, u2_2, u1_2, u0_2) = two_one_product(bdx, cdytail, adz)
-  u[0] = u0_2
-  u[1] = u1_2
-  u[2] = u2_2
-  u[3] = u3_2
   let (v3_2, v2_2, v1_2, v0_2) = two_one_product(cdy, bdxtail, adz)
-  v[0] = v0_2
-  v[1] = v1_2
-  v[2] = v2_2
-  v[3] = v3_2
-  let temp8c : FixedArray[Double] = FixedArray::make(8, 0.0)
-  let mut temp8len3 = fast_expansion_sum_zeroelim(u, 4, v, 4, temp8c)
-  let temp16a : FixedArray[Double] = FixedArray::make(16, 0.0)
-  let mut temp16len = fast_expansion_sum_zeroelim(
-    temp8a, temp8len, temp8b, temp8len2, temp16a,
+  let temp8c = Expansion::from_fixed_array([u0_2, u1_2, u2_2, u3_2]).fast_expansion_sum_zeroelim(
+    Expansion::from_fixed_array([v0_2, v1_2, v2_2, v3_2]),
   )
-  let temp24a : FixedArray[Double] = FixedArray::make(24, 0.0)
-  let temp24len = fast_expansion_sum_zeroelim(
-    temp16a, temp16len, temp8c, temp8len3, temp24a,
-  )
+  let temp24a = temp8a
+    .fast_expansion_sum_zeroelim(temp8b)
+    .fast_expansion_sum_zeroelim(temp8c)
   let (u3_3, u2_3, u1_3, u0_3) = two_one_product(ady, cdztail, -bdx)
-  u[0] = u0_3
-  u[1] = u1_3
-  u[2] = u2_3
-  u[3] = u3_3
   let (v3_3, v2_3, v1_3, v0_3) = two_one_product(cdz, adytail, -bdx)
-  v[0] = v0_3
-  v[1] = v1_3
-  v[2] = v2_3
-  v[3] = v3_3
-  temp8len = fast_expansion_sum_zeroelim(u, 4, v, 4, temp8a)
+  let temp8a_1 = Expansion::from_fixed_array([u0_3, u1_3, u2_3, u3_3]).fast_expansion_sum_zeroelim(
+    Expansion::from_fixed_array([v0_3, v1_3, v2_3, v3_3]),
+  )
   let (u3_4, u2_4, u1_4, u0_4) = two_one_product(adx, cdztail, bdy)
-  u[0] = u0_4
-  u[1] = u1_4
-  u[2] = u2_4
-  u[3] = u3_4
   let (v3_4, v2_4, v1_4, v0_4) = two_one_product(cdz, adxtail, bdy)
-  v[0] = v0_4
-  v[1] = v1_4
-  v[2] = v2_4
-  v[3] = v3_4
-  temp8len2 = fast_expansion_sum_zeroelim(u, 4, v, 4, temp8b)
+  let temp8b_1 = Expansion::from_fixed_array([u0_4, u1_4, u2_4, u3_4]).fast_expansion_sum_zeroelim(
+    Expansion::from_fixed_array([v0_4, v1_4, v2_4, v3_4]),
+  )
   let (u3_5, u2_5, u1_5, u0_5) = two_one_product(adx, cdytail, -bdz)
-  u[0] = u0_5
-  u[1] = u1_5
-  u[2] = u2_5
-  u[3] = u3_5
   let (v3_5, v2_5, v1_5, v0_5) = two_one_product(cdy, adxtail, -bdz)
-  v[0] = v0_5
-  v[1] = v1_5
-  v[2] = v2_5
-  v[3] = v3_5
-  temp8len3 = fast_expansion_sum_zeroelim(u, 4, v, 4, temp8c)
-  temp16len = fast_expansion_sum_zeroelim(
-    temp8a, temp8len, temp8b, temp8len2, temp16a,
+  let temp8c_1 = Expansion::from_fixed_array([u0_5, u1_5, u2_5, u3_5]).fast_expansion_sum_zeroelim(
+    Expansion::from_fixed_array([v0_5, v1_5, v2_5, v3_5]),
   )
-  let temp24b : FixedArray[Double] = FixedArray::make(24, 0.0)
-  let temp24len2 = fast_expansion_sum_zeroelim(
-    temp16a, temp16len, temp8c, temp8len3, temp24b,
-  )
+  let temp24b = temp8a_1
+    .fast_expansion_sum_zeroelim(temp8b_1)
+    .fast_expansion_sum_zeroelim(temp8c_1)
   let (u3_6, u2_6, u1_6, u0_6) = two_one_product(ady, bdztail, cdx)
-  u[0] = u0_6
-  u[1] = u1_6
-  u[2] = u2_6
-  u[3] = u3_6
   let (v3_6, v2_6, v1_6, v0_6) = two_one_product(bdz, adytail, cdx)
-  v[0] = v0_6
-  v[1] = v1_6
-  v[2] = v2_6
-  v[3] = v3_6
-  temp8len = fast_expansion_sum_zeroelim(u, 4, v, 4, temp8a)
+  let temp8a_2 = Expansion::from_fixed_array([u0_6, u1_6, u2_6, u3_6]).fast_expansion_sum_zeroelim(
+    Expansion::from_fixed_array([v0_6, v1_6, v2_6, v3_6]),
+  )
   let (u3_7, u2_7, u1_7, u0_7) = two_one_product(adx, bdztail, -cdy)
-  u[0] = u0_7
-  u[1] = u1_7
-  u[2] = u2_7
-  u[3] = u3_7
   let (v3_7, v2_7, v1_7, v0_7) = two_one_product(bdz, adxtail, -cdy)
-  v[0] = v0_7
-  v[1] = v1_7
-  v[2] = v2_7
-  v[3] = v3_7
-  temp8len2 = fast_expansion_sum_zeroelim(u, 4, v, 4, temp8b)
+  let temp8b_2 = Expansion::from_fixed_array([u0_7, u1_7, u2_7, u3_7]).fast_expansion_sum_zeroelim(
+    Expansion::from_fixed_array([v0_7, v1_7, v2_7, v3_7]),
+  )
   let (u3_8, u2_8, u1_8, u0_8) = two_one_product(adx, bdytail, cdz)
-  u[0] = u0_8
-  u[1] = u1_8
-  u[2] = u2_8
-  u[3] = u3_8
   let (v3_8, v2_8, v1_8, v0_8) = two_one_product(bdy, adxtail, cdz)
-  v[0] = v0_8
-  v[1] = v1_8
-  v[2] = v2_8
-  v[3] = v3_8
-  temp8len3 = fast_expansion_sum_zeroelim(u, 4, v, 4, temp8c)
-  temp16len = fast_expansion_sum_zeroelim(
-    temp8a, temp8len, temp8b, temp8len2, temp16a,
+  let temp8c_2 = Expansion::from_fixed_array([u0_8, u1_8, u2_8, u3_8]).fast_expansion_sum_zeroelim(
+    Expansion::from_fixed_array([v0_8, v1_8, v2_8, v3_8]),
   )
-  let temp24c : FixedArray[Double] = FixedArray::make(24, 0.0)
-  let temp24len3 = fast_expansion_sum_zeroelim(
-    temp16a, temp16len, temp8c, temp8len3, temp24c,
-  )
-  let temp48 : FixedArray[Double] = FixedArray::make(48, 0.0)
-  let temp48len = fast_expansion_sum_zeroelim(
-    temp24a, temp24len, temp24b, temp24len2, temp48,
-  )
-  let temp72 : FixedArray[Double] = FixedArray::make(72, 0.0)
-  let temp72len = fast_expansion_sum_zeroelim(
-    temp48, temp48len, temp24c, temp24len3, temp72,
-  )
-  finlen = fast_expansion_sum_zeroelim(fin1, finlen, temp72, temp72len, fin2)
-  if adztail != 0.0 {
-    let wlen = scale_expansion_zeroelim(atb, atblen, adztail, w)
-    let finlen2 = fast_expansion_sum_zeroelim(fin2, finlen, w, wlen, fin1)
-    let wlen2 = scale_expansion_zeroelim(atc, atclen, adztail, w)
-    finlen = fast_expansion_sum_zeroelim(fin1, finlen2, w, wlen2, fin2)
+  let temp24c = temp8a_2
+    .fast_expansion_sum_zeroelim(temp8b_2)
+    .fast_expansion_sum_zeroelim(temp8c_2)
+  let temp72 = temp24a
+    .fast_expansion_sum_zeroelim(temp24b)
+    .fast_expansion_sum_zeroelim(temp24c)
+  let fin_final = fin1.fast_expansion_sum_zeroelim(temp72)
+  let fin_final = if adztail != 0.0 {
+    let w = atb.scale_expansion_zeroelim(adztail)
+    let w2 = atc.scale_expansion_zeroelim(adztail)
+    fin_final.fast_expansion_sum_zeroelim(w).fast_expansion_sum_zeroelim(w2)
+  } else {
+    fin_final
   }
-  if bdztail != 0.0 {
-    let wlen = scale_expansion_zeroelim(btc, btclen, bdztail, w)
-    let finlen2 = fast_expansion_sum_zeroelim(fin2, finlen, w, wlen, fin1)
-    let wlen2 = scale_expansion_zeroelim(bta, btalen, bdztail, w)
-    finlen = fast_expansion_sum_zeroelim(fin1, finlen2, w, wlen2, fin2)
+  let fin_final = if bdztail != 0.0 {
+    let w = btc.scale_expansion_zeroelim(bdztail)
+    let w2 = bta.scale_expansion_zeroelim(bdztail)
+    fin_final.fast_expansion_sum_zeroelim(w).fast_expansion_sum_zeroelim(w2)
+  } else {
+    fin_final
   }
-  if cdztail != 0.0 {
-    let wlen = scale_expansion_zeroelim(cta, ctalen, cdztail, w)
-    let finlen2 = fast_expansion_sum_zeroelim(fin2, finlen, w, wlen, fin1)
-    let wlen2 = scale_expansion_zeroelim(ctb, ctblen, cdztail, w)
-    finlen = fast_expansion_sum_zeroelim(fin1, finlen2, w, wlen2, fin2)
+  let fin_final = if cdztail != 0.0 {
+    let w = cta.scale_expansion_zeroelim(cdztail)
+    let w2 = ctb.scale_expansion_zeroelim(cdztail)
+    fin_final.fast_expansion_sum_zeroelim(w).fast_expansion_sum_zeroelim(w2)
+  } else {
+    fin_final
   }
-  fin2[finlen - 1]
+  fin_final.data[fin_final.length - 1]
 }
 
 ///|

@@ -26,8 +26,8 @@ fn orient2d_adapt(
   let (b3, b2, b1, b0) = two_two_diff(
     detleft, detlefttail, detright, detrighttail,
   )
-  let b : FixedArray[Double] = [b0, b1, b2, b3]
-  let det = estimate(b, 4)
+  let b = Expansion::from_fixed_array([b0, b1, b2, b3])
+  let det = b.estimate()
 
   // 誤差境界のチェック
   let errbound = ccw_err_bound_b * detsum
@@ -51,22 +51,19 @@ fn orient2d_adapt(
   let (s1, s0) = two_product(acxtail, bcy)
   let (t1, t0) = two_product(acytail, bcx)
   let (u3, u2, u1, u0) = two_two_diff(s1, s0, t1, t0)
-  let u : FixedArray[Double] = [u0, u1, u2, u3]
-  let c1 : FixedArray[Double] = FixedArray::make(8, 0.0)
-  let c1length = fast_expansion_sum_zeroelim(b, 4, u, 4, c1)
+  let u = Expansion::from_fixed_array([u0, u1, u2, u3])
+  let c1 = b.fast_expansion_sum_zeroelim(u)
   let (s1_2, s0_2) = two_product(acx, bcytail)
   let (t1_2, t0_2) = two_product(acy, bcxtail)
   let (u3_2, u2_2, u1_2, u0_2) = two_two_diff(s1_2, s0_2, t1_2, t0_2)
-  let u2 : FixedArray[Double] = [u0_2, u1_2, u2_2, u3_2]
-  let c2 : FixedArray[Double] = FixedArray::make(12, 0.0)
-  let c2length = fast_expansion_sum_zeroelim(c1, c1length, u2, 4, c2)
+  let u2 = Expansion::from_fixed_array([u0_2, u1_2, u2_2, u3_2])
+  let c2 = c1.fast_expansion_sum_zeroelim(u2)
   let (s1_3, s0_3) = two_product(acxtail, bcytail)
   let (t1_3, t0_3) = two_product(acytail, bcxtail)
   let (u3_3, u2_3, u1_3, u0_3) = two_two_diff(s1_3, s0_3, t1_3, t0_3)
-  let u3 : FixedArray[Double] = [u0_3, u1_3, u2_3, u3_3]
-  let d : FixedArray[Double] = FixedArray::make(16, 0.0)
-  let dlength = fast_expansion_sum_zeroelim(c2, c2length, u3, 4, d)
-  d[dlength - 1]
+  let u3 = Expansion::from_fixed_array([u0_3, u1_3, u2_3, u3_3])
+  let d = c2.fast_expansion_sum_zeroelim(u3)
+  d.data[d.length - 1]
 }
 
 ///|

@@ -53,56 +53,34 @@ fn incircle_adapt(
   let (bdxcdy1, bdxcdy0) = two_product(bdx, cdy)
   let (cdxbdy1, cdxbdy0) = two_product(cdx, bdy)
   let (bc3, bc2, bc1, bc0) = two_two_diff(bdxcdy1, bdxcdy0, cdxbdy1, cdxbdy0)
-  let bc : FixedArray[Double] = [bc0, bc1, bc2, bc3]
-  let axbc : FixedArray[Double] = FixedArray::make(8, 0.0)
-  let axbc_length = scale_expansion_zeroelim(bc, 4, adx, axbc)
-  let axxbc : FixedArray[Double] = FixedArray::make(16, 0.0)
-  let axxbc_length = scale_expansion_zeroelim(axbc, axbc_length, adx, axxbc)
-  let aybc : FixedArray[Double] = FixedArray::make(8, 0.0)
-  let aybc_length = scale_expansion_zeroelim(bc, 4, ady, aybc)
-  let ayybc : FixedArray[Double] = FixedArray::make(16, 0.0)
-  let ayybc_length = scale_expansion_zeroelim(aybc, aybc_length, ady, ayybc)
-  let adet : FixedArray[Double] = FixedArray::make(32, 0.0)
-  let alen = fast_expansion_sum_zeroelim(
-    axxbc, axxbc_length, ayybc, ayybc_length, adet,
-  )
+  let bc = Expansion::from_fixed_array([bc0, bc1, bc2, bc3])
+  let axbc = bc.scale_expansion_zeroelim(adx)
+  let axxbc = axbc.scale_expansion_zeroelim(adx)
+  let aybc = bc.scale_expansion_zeroelim(ady)
+  let ayybc = aybc.scale_expansion_zeroelim(ady)
+  let adet = axxbc.fast_expansion_sum_zeroelim(ayybc)
   let (cdxady1, cdxady0) = two_product(cdx, ady)
   let (adxcdy1, adxcdy0) = two_product(adx, cdy)
   let (ca3, ca2, ca1, ca0) = two_two_diff(cdxady1, cdxady0, adxcdy1, adxcdy0)
-  let ca : FixedArray[Double] = [ca0, ca1, ca2, ca3]
-  let bxca : FixedArray[Double] = FixedArray::make(8, 0.0)
-  let bxca_length = scale_expansion_zeroelim(ca, 4, bdx, bxca)
-  let bxxca : FixedArray[Double] = FixedArray::make(16, 0.0)
-  let bxxca_length = scale_expansion_zeroelim(bxca, bxca_length, bdx, bxxca)
-  let byca : FixedArray[Double] = FixedArray::make(8, 0.0)
-  let byca_length = scale_expansion_zeroelim(ca, 4, bdy, byca)
-  let byyca : FixedArray[Double] = FixedArray::make(16, 0.0)
-  let byyca_length = scale_expansion_zeroelim(byca, byca_length, bdy, byyca)
-  let bdet : FixedArray[Double] = FixedArray::make(32, 0.0)
-  let blen = fast_expansion_sum_zeroelim(
-    bxxca, bxxca_length, byyca, byyca_length, bdet,
-  )
+  let ca = Expansion::from_fixed_array([ca0, ca1, ca2, ca3])
+  let bxca = ca.scale_expansion_zeroelim(bdx)
+  let bxxca = bxca.scale_expansion_zeroelim(bdx)
+  let byca = ca.scale_expansion_zeroelim(bdy)
+  let byyca = byca.scale_expansion_zeroelim(bdy)
+  let bdet = bxxca.fast_expansion_sum_zeroelim(byyca)
   let (adxbdy1, adxbdy0) = two_product(adx, bdy)
   let (bdxady1, bdxady0) = two_product(bdx, ady)
   let (ab3, ab2, ab1, ab0) = two_two_diff(adxbdy1, adxbdy0, bdxady1, bdxady0)
-  let ab : FixedArray[Double] = [ab0, ab1, ab2, ab3]
-  let cxab : FixedArray[Double] = FixedArray::make(8, 0.0)
-  let cxab_length = scale_expansion_zeroelim(ab, 4, cdx, cxab)
-  let cxxab : FixedArray[Double] = FixedArray::make(16, 0.0)
-  let cxxab_length = scale_expansion_zeroelim(cxab, cxab_length, cdx, cxxab)
-  let cyab : FixedArray[Double] = FixedArray::make(8, 0.0)
-  let cyab_length = scale_expansion_zeroelim(ab, 4, cdy, cyab)
-  let cyyab : FixedArray[Double] = FixedArray::make(16, 0.0)
-  let cyyab_length = scale_expansion_zeroelim(cyab, cyab_length, cdy, cyyab)
-  let cdet : FixedArray[Double] = FixedArray::make(32, 0.0)
-  let clen = fast_expansion_sum_zeroelim(
-    cxxab, cxxab_length, cyyab, cyyab_length, cdet,
-  )
-  let abdet : FixedArray[Double] = FixedArray::make(64, 0.0)
-  let ablen = fast_expansion_sum_zeroelim(adet, alen, bdet, blen, abdet)
-  let fin1 : FixedArray[Double] = FixedArray::make(1152, 0.0)
-  let mut finlen = fast_expansion_sum_zeroelim(abdet, ablen, cdet, clen, fin1)
-  let det = estimate(fin1, finlen)
+  let ab = Expansion::from_fixed_array([ab0, ab1, ab2, ab3])
+  let cxab = ab.scale_expansion_zeroelim(cdx)
+  let cxxab = cxab.scale_expansion_zeroelim(cdx)
+  let cyab = ab.scale_expansion_zeroelim(cdy)
+  let cyyab = cyab.scale_expansion_zeroelim(cdy)
+  let cdet = cxxab.fast_expansion_sum_zeroelim(cyyab)
+  let fin1 = adet
+    .fast_expansion_sum_zeroelim(bdet)
+    .fast_expansion_sum_zeroelim(cdet)
+  let det = fin1.estimate()
   let errbound1 = incircle_err_bound_b * permanent
   if det >= errbound1 || -det >= errbound1 {
     return det
@@ -135,230 +113,142 @@ fn incircle_adapt(
   if det >= errbound2 || -det >= errbound2 {
     return det
   }
-  let fin2 : FixedArray[Double] = FixedArray::make(1152, 0.0)
-  let temp16a : FixedArray[Double] = FixedArray::make(16, 0.0)
-  let temp16b : FixedArray[Double] = FixedArray::make(16, 0.0)
-  let temp16c : FixedArray[Double] = FixedArray::make(16, 0.0)
-  let temp32a : FixedArray[Double] = FixedArray::make(32, 0.0)
-  let temp48 : FixedArray[Double] = FixedArray::make(48, 0.0)
-  let aa : FixedArray[Double] = FixedArray::make(4, 0.0)
-  let bb : FixedArray[Double] = FixedArray::make(4, 0.0)
-  let cc : FixedArray[Double] = FixedArray::make(4, 0.0)
-  if bdxtail != 0.0 || bdytail != 0.0 || cdxtail != 0.0 || cdytail != 0.0 {
+  let aa = if bdxtail != 0.0 ||
+    bdytail != 0.0 ||
+    cdxtail != 0.0 ||
+    cdytail != 0.0 {
     let (adxadx1, adxadx0) = square(adx)
     let (adyady1, adyady0) = square(ady)
     let (aa3, aa2, aa1, aa0) = two_two_sum(adxadx1, adxadx0, adyady1, adyady0)
-    aa[0] = aa0
-    aa[1] = aa1
-    aa[2] = aa2
-    aa[3] = aa3
+    Expansion::from_fixed_array([aa0, aa1, aa2, aa3])
+  } else {
+    Expansion::from_fixed_array([])
   }
-  if cdxtail != 0.0 || cdytail != 0.0 || adxtail != 0.0 || adytail != 0.0 {
+  let bb = if cdxtail != 0.0 ||
+    cdytail != 0.0 ||
+    adxtail != 0.0 ||
+    adytail != 0.0 {
     let (bdxbdx1, bdxbdx0) = square(bdx)
     let (bdybdy1, bdybdy0) = square(bdy)
     let (bb3, bb2, bb1, bb0) = two_two_sum(bdxbdx1, bdxbdx0, bdybdy1, bdybdy0)
-    bb[0] = bb0
-    bb[1] = bb1
-    bb[2] = bb2
-    bb[3] = bb3
+    Expansion::from_fixed_array([bb0, bb1, bb2, bb3])
+  } else {
+    Expansion::from_fixed_array([])
   }
-  if adxtail != 0.0 || adytail != 0.0 || bdxtail != 0.0 || bdytail != 0.0 {
+  let cc = if adxtail != 0.0 ||
+    adytail != 0.0 ||
+    bdxtail != 0.0 ||
+    bdytail != 0.0 {
     let (cdxcdx1, cdxcdx0) = square(cdx)
     let (cdycdy1, cdycdy0) = square(cdy)
     let (cc3, cc2, cc1, cc0) = two_two_sum(cdxcdx1, cdxcdx0, cdycdy1, cdycdy0)
-    cc[0] = cc0
-    cc[1] = cc1
-    cc[2] = cc2
-    cc[3] = cc3
+    Expansion::from_fixed_array([cc0, cc1, cc2, cc3])
+  } else {
+    Expansion::from_fixed_array([])
   }
-  let axtbc : FixedArray[Double] = FixedArray::make(8, 0.0)
-  let mut axtbc_length = 0
-  if adxtail != 0.0 {
-    axtbc_length = scale_expansion_zeroelim(bc, 4, adxtail, axtbc)
-    let temp16alen = scale_expansion_zeroelim(
-      axtbc,
-      axtbc_length,
-      2.0 * adx,
-      temp16a,
-    )
-    let axtcc : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let axtcc_length = scale_expansion_zeroelim(cc, 4, adxtail, axtcc)
-    let temp16blen = scale_expansion_zeroelim(axtcc, axtcc_length, bdy, temp16b)
-    let axtbb : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let axtbb_length = scale_expansion_zeroelim(bb, 4, adxtail, axtbb)
-    let temp16clen = scale_expansion_zeroelim(
-      axtbb,
-      axtbb_length,
-      -cdy,
-      temp16c,
-    )
-    let temp32alen = fast_expansion_sum_zeroelim(
-      temp16a, temp16alen, temp16b, temp16blen, temp32a,
-    )
-    let temp48len = fast_expansion_sum_zeroelim(
-      temp16c, temp16clen, temp32a, temp32alen, temp48,
-    )
-    finlen = fast_expansion_sum_zeroelim(fin1, finlen, temp48, temp48len, fin2)
-    for i = 0; i < finlen; i = i + 1 {
-      fin1[i] = fin2[i]
-    }
+  let fin_final = if adxtail != 0.0 {
+    let temp16a = bc
+      .scale_expansion_zeroelim(adxtail)
+      .scale_expansion_zeroelim(2.0 * adx)
+    let temp16b = cc
+      .scale_expansion_zeroelim(adxtail)
+      .scale_expansion_zeroelim(bdy)
+    let temp16c = bb
+      .scale_expansion_zeroelim(adxtail)
+      .scale_expansion_zeroelim(-cdy)
+    fin1
+    .fast_expansion_sum_zeroelim(temp16a)
+    .fast_expansion_sum_zeroelim(temp16b)
+    .fast_expansion_sum_zeroelim(temp16c)
+  } else {
+    fin1
   }
-  if adytail != 0.0 {
-    let aytbc : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let aytbc_length = scale_expansion_zeroelim(bc, 4, adytail, aytbc)
-    let temp16alen = scale_expansion_zeroelim(
-      aytbc,
-      aytbc_length,
-      2.0 * ady,
-      temp16a,
-    )
-    let aytbb : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let aytbb_length = scale_expansion_zeroelim(bb, 4, adytail, aytbb)
-    let temp16blen = scale_expansion_zeroelim(aytbb, aytbb_length, cdx, temp16b)
-    let aytcc : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let aytcc_length = scale_expansion_zeroelim(cc, 4, adytail, aytcc)
-    let temp16clen = scale_expansion_zeroelim(
-      aytcc,
-      aytcc_length,
-      -bdx,
-      temp16c,
-    )
-    let temp32alen = fast_expansion_sum_zeroelim(
-      temp16a, temp16alen, temp16b, temp16blen, temp32a,
-    )
-    let temp48len = fast_expansion_sum_zeroelim(
-      temp16c, temp16clen, temp32a, temp32alen, temp48,
-    )
-    finlen = fast_expansion_sum_zeroelim(fin1, finlen, temp48, temp48len, fin2)
-    for i = 0; i < finlen; i = i + 1 {
-      fin1[i] = fin2[i]
-    }
+  let fin_final = if adytail != 0.0 {
+    let temp16a = bc
+      .scale_expansion_zeroelim(adytail)
+      .scale_expansion_zeroelim(2.0 * ady)
+    let temp16b = bb
+      .scale_expansion_zeroelim(adytail)
+      .scale_expansion_zeroelim(cdx)
+    let temp16c = cc
+      .scale_expansion_zeroelim(adytail)
+      .scale_expansion_zeroelim(-bdx)
+    fin_final
+    .fast_expansion_sum_zeroelim(temp16a)
+    .fast_expansion_sum_zeroelim(temp16b)
+    .fast_expansion_sum_zeroelim(temp16c)
+  } else {
+    fin_final
   }
-  if bdxtail != 0.0 {
-    let bxtca : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let bxtca_length = scale_expansion_zeroelim(ca, 4, bdxtail, bxtca)
-    let temp16alen = scale_expansion_zeroelim(
-      bxtca,
-      bxtca_length,
-      2.0 * bdx,
-      temp16a,
-    )
-    let bxtaa : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let bxtaa_length = scale_expansion_zeroelim(aa, 4, bdxtail, bxtaa)
-    let temp16blen = scale_expansion_zeroelim(bxtaa, bxtaa_length, cdy, temp16b)
-    let bxtcc : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let bxtcc_length = scale_expansion_zeroelim(cc, 4, bdxtail, bxtcc)
-    let temp16clen = scale_expansion_zeroelim(
-      bxtcc,
-      bxtcc_length,
-      -ady,
-      temp16c,
-    )
-    let temp32alen = fast_expansion_sum_zeroelim(
-      temp16a, temp16alen, temp16b, temp16blen, temp32a,
-    )
-    let temp48len = fast_expansion_sum_zeroelim(
-      temp16c, temp16clen, temp32a, temp32alen, temp48,
-    )
-    finlen = fast_expansion_sum_zeroelim(fin1, finlen, temp48, temp48len, fin2)
-    for i = 0; i < finlen; i = i + 1 {
-      fin1[i] = fin2[i]
-    }
+  let fin_final = if bdxtail != 0.0 {
+    let temp16a = ca
+      .scale_expansion_zeroelim(bdxtail)
+      .scale_expansion_zeroelim(2.0 * bdx)
+    let temp16b = aa
+      .scale_expansion_zeroelim(bdxtail)
+      .scale_expansion_zeroelim(cdy)
+    let temp16c = cc
+      .scale_expansion_zeroelim(bdxtail)
+      .scale_expansion_zeroelim(-ady)
+    fin_final
+    .fast_expansion_sum_zeroelim(temp16a)
+    .fast_expansion_sum_zeroelim(temp16b)
+    .fast_expansion_sum_zeroelim(temp16c)
+  } else {
+    fin_final
   }
-  if bdytail != 0.0 {
-    let bytca : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let bytca_length = scale_expansion_zeroelim(ca, 4, bdytail, bytca)
-    let temp16alen = scale_expansion_zeroelim(
-      bytca,
-      bytca_length,
-      2.0 * bdy,
-      temp16a,
-    )
-    let bytcc : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let bytcc_length = scale_expansion_zeroelim(cc, 4, bdytail, bytcc)
-    let temp16blen = scale_expansion_zeroelim(bytcc, bytcc_length, adx, temp16b)
-    let bytaa : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let bytaa_length = scale_expansion_zeroelim(aa, 4, bdytail, bytaa)
-    let temp16clen = scale_expansion_zeroelim(
-      bytaa,
-      bytaa_length,
-      -cdx,
-      temp16c,
-    )
-    let temp32alen = fast_expansion_sum_zeroelim(
-      temp16a, temp16alen, temp16b, temp16blen, temp32a,
-    )
-    let temp48len = fast_expansion_sum_zeroelim(
-      temp16c, temp16clen, temp32a, temp32alen, temp48,
-    )
-    finlen = fast_expansion_sum_zeroelim(fin1, finlen, temp48, temp48len, fin2)
-    for i = 0; i < finlen; i = i + 1 {
-      fin1[i] = fin2[i]
-    }
+  let fin_final = if bdytail != 0.0 {
+    let temp16a = ca
+      .scale_expansion_zeroelim(bdytail)
+      .scale_expansion_zeroelim(2.0 * bdy)
+    let temp16b = cc
+      .scale_expansion_zeroelim(bdytail)
+      .scale_expansion_zeroelim(adx)
+    let temp16c = aa
+      .scale_expansion_zeroelim(bdytail)
+      .scale_expansion_zeroelim(-cdx)
+    fin_final
+    .fast_expansion_sum_zeroelim(temp16a)
+    .fast_expansion_sum_zeroelim(temp16b)
+    .fast_expansion_sum_zeroelim(temp16c)
+  } else {
+    fin_final
   }
-  if cdxtail != 0.0 {
-    let cxtab : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let cxtab_length = scale_expansion_zeroelim(ab, 4, cdxtail, cxtab)
-    let temp16alen = scale_expansion_zeroelim(
-      cxtab,
-      cxtab_length,
-      2.0 * cdx,
-      temp16a,
-    )
-    let cxtbb : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let cxtbb_length = scale_expansion_zeroelim(bb, 4, cdxtail, cxtbb)
-    let temp16blen = scale_expansion_zeroelim(cxtbb, cxtbb_length, ady, temp16b)
-    let cxtaa : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let cxtaa_length = scale_expansion_zeroelim(aa, 4, cdxtail, cxtaa)
-    let temp16clen = scale_expansion_zeroelim(
-      cxtaa,
-      cxtaa_length,
-      -bdy,
-      temp16c,
-    )
-    let temp32alen = fast_expansion_sum_zeroelim(
-      temp16a, temp16alen, temp16b, temp16blen, temp32a,
-    )
-    let temp48len = fast_expansion_sum_zeroelim(
-      temp16c, temp16clen, temp32a, temp32alen, temp48,
-    )
-    finlen = fast_expansion_sum_zeroelim(fin1, finlen, temp48, temp48len, fin2)
-    for i = 0; i < finlen; i = i + 1 {
-      fin1[i] = fin2[i]
-    }
+  let fin_final = if cdxtail != 0.0 {
+    let temp16a = ab
+      .scale_expansion_zeroelim(cdxtail)
+      .scale_expansion_zeroelim(2.0 * cdx)
+    let temp16b = bb
+      .scale_expansion_zeroelim(cdxtail)
+      .scale_expansion_zeroelim(ady)
+    let temp16c = aa
+      .scale_expansion_zeroelim(cdxtail)
+      .scale_expansion_zeroelim(-bdy)
+    fin_final
+    .fast_expansion_sum_zeroelim(temp16a)
+    .fast_expansion_sum_zeroelim(temp16b)
+    .fast_expansion_sum_zeroelim(temp16c)
+  } else {
+    fin_final
   }
-  if cdytail != 0.0 {
-    let cytab : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let cytab_length = scale_expansion_zeroelim(ab, 4, cdytail, cytab)
-    let temp16alen = scale_expansion_zeroelim(
-      cytab,
-      cytab_length,
-      2.0 * cdy,
-      temp16a,
-    )
-    let cytaa : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let cytaa_length = scale_expansion_zeroelim(aa, 4, cdytail, cytaa)
-    let temp16blen = scale_expansion_zeroelim(cytaa, cytaa_length, bdx, temp16b)
-    let cytbb : FixedArray[Double] = FixedArray::make(8, 0.0)
-    let cytbb_length = scale_expansion_zeroelim(bb, 4, cdytail, cytbb)
-    let temp16clen = scale_expansion_zeroelim(
-      cytbb,
-      cytbb_length,
-      -adx,
-      temp16c,
-    )
-    let temp32alen = fast_expansion_sum_zeroelim(
-      temp16a, temp16alen, temp16b, temp16blen, temp32a,
-    )
-    let temp48len = fast_expansion_sum_zeroelim(
-      temp16c, temp16clen, temp32a, temp32alen, temp48,
-    )
-    finlen = fast_expansion_sum_zeroelim(fin1, finlen, temp48, temp48len, fin2)
-    for i = 0; i < finlen; i = i + 1 {
-      fin1[i] = fin2[i]
-    }
+  let fin_final = if cdytail != 0.0 {
+    let temp16a = ab
+      .scale_expansion_zeroelim(cdytail)
+      .scale_expansion_zeroelim(2.0 * cdy)
+    let temp16b = aa
+      .scale_expansion_zeroelim(cdytail)
+      .scale_expansion_zeroelim(bdx)
+    let temp16c = bb
+      .scale_expansion_zeroelim(cdytail)
+      .scale_expansion_zeroelim(-adx)
+    fin_final
+    .fast_expansion_sum_zeroelim(temp16a)
+    .fast_expansion_sum_zeroelim(temp16b)
+    .fast_expansion_sum_zeroelim(temp16c)
+  } else {
+    fin_final
   }
-  fin1[finlen - 1]
+  fin_final.data[fin_final.length - 1]
 }
 
 ///|
