@@ -37,7 +37,7 @@ fn two_two_sum(
 
 ///|
 /// incircle の適応的精度計算（内部関数）
-fn incircleadapt(
+fn incircle_adapt(
   pa : Coord,
   pb : Coord,
   pc : Coord,
@@ -403,6 +403,6 @@ pub fn incircle(
   if det > errbound || -det > errbound {
     det
   } else {
-    incircleadapt(pa, pb, pc, pd, permanent)
+    incircle_adapt(pa, pb, pc, pd, permanent)
   }
 }
