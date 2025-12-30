@@ -4,6 +4,8 @@ Jonathan Richard Shewchukの高精度浮動小数点演算アルゴリズムのM
 
 参照: <https://www.cs.cmu.edu/~quake/robust.html>
 
+元にしたRust実装：<https://github.com/georust/robust/blob/654f34cb8cdb3ae21bf59ef3472f92652942cd74/src/lib.rs>
+
 ## 概要
 
 浮動小数点演算の丸め誤差による幾何学的判定の不正確さを解決するための適応的精度アルゴリズム。
