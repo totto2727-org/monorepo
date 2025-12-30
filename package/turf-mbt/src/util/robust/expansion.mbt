@@ -1,145 +1,165 @@
 ///|
+priv struct Expansion {
+  data : FixedArray[Double]
+  length : Int
+}
+
+///|
+fn Expansion::from_fixed_array(array : FixedArray[Double]) -> Expansion {
+  { data: array, length: array.length() }
+}
+
+///|
 /// Expansion（多倍精度浮動小数点数）の値を推定する（近似値を返す）
-fn estimate(e : FixedArray[Double], len : Int) -> Double {
-  let mut q = e[0]
-  for i = 1; i < len; i = i + 1 {
-    q = q + e[i]
+fn Expansion::estimate(self : Expansion) -> Double {
+  let mut sum = 0.0
+  for i = 0; i < self.length; i = i + 1 {
+    sum += self.data[i]
   }
-  q
+  sum
+}
+
+///|
+/// Expansionの内部バッファを現在の論理的な長さ（length）に合わせて切り詰める。
+fn Expansion::truncate(self : Expansion, length : Int) -> Expansion {
+  { data: self.data, length }
 }
 
 ///|
 /// 2つのExpansionの和を計算する。ゼロ要素は除去される。
-fn fast_expansion_sum_zeroelim(
-  e : FixedArray[Double],
-  e_length : Int,
-  f : FixedArray[Double],
-  f_length : Int,
-  h : FixedArray[Double],
-) -> Int {
-  let mut e_now = e[0]
-  let mut f_now = f[0]
-  let mut e_index = 0
-  let mut f_index = 0
+fn Expansion::fast_expansion_sum_zeroelim(
+  self : Expansion,
+  other : Expansion,
+) -> Expansion {
+  // TODO: 空配列 (length == 0) への対応を検討する
+  let new_data = Expansion::from_fixed_array(
+    FixedArray::make(self.data.length() + other.data.length(), 0.0),
+  )
+  let mut self_now = self.data[0]
+  let mut other_now = other.data[0]
+  let mut self_index = 0
+  let mut other_index = 0
+  let mut new_index = 0
   let mut q = 0.0
-  if (f_now > e_now) == (f_now > -e_now) {
-    q = e_now
-    e_index = e_index + 1
+  if (other_now > self_now) == (other_now > -self_now) {
+    q = self_now
+    self_index = self_index + 1
   } else {
-    q = f_now
-    f_index = f_index + 1
+    q = other_now
+    other_index = other_index + 1
   }
-  let mut h_index = 0
-  if e_index < e_length && f_index < f_length {
-    e_now = e[e_index]
-    f_now = f[f_index]
+  if self_index < self.data.length() && other_index < other.data.length() {
+    self_now = self.data[self_index]
+    other_now = other.data[other_index]
     let mut q_new = 0.0
     let mut hh = 0.0
-    if (f_now > e_now) == (f_now > -e_now) {
-      let r = fast_two_sum(e_now, q)
+    if (other_now > self_now) == (other_now > -self_now) {
+      let r = fast_two_sum(self_now, q)
       q_new = r.0
       hh = r.1
-      e_index = e_index + 1
+      self_index = self_index + 1
     } else {
-      let r = fast_two_sum(f_now, q)
+      let r = fast_two_sum(other_now, q)
       q_new = r.0
       hh = r.1
-      f_index = f_index + 1
+      other_index = other_index + 1
     }
     q = q_new
     if hh != 0.0 {
-      h[h_index] = hh
-      h_index = h_index + 1
+      new_data.data[new_index] = hh
+      new_index = new_index + 1
     }
-    while e_index < e_length && f_index < f_length {
-      e_now = e[e_index]
-      f_now = f[f_index]
-      if (f_now > e_now) == (f_now > -e_now) {
-        let r = two_sum(q, e_now)
+    while self_index < self.data.length() && other_index < other.data.length() {
+      self_now = self.data[self_index]
+      other_now = other.data[other_index]
+      if (other_now > self_now) == (other_now > -self_now) {
+        let r = two_sum(q, self_now)
         q_new = r.0
         hh = r.1
-        e_index = e_index + 1
+        self_index = self_index + 1
       } else {
-        let r = two_sum(q, f_now)
+        let r = two_sum(q, other_now)
         q_new = r.0
         hh = r.1
-        f_index = f_index + 1
+        other_index = other_index + 1
       }
       q = q_new
       if hh != 0.0 {
-        h[h_index] = hh
-        h_index = h_index + 1
+        new_data.data[new_index] = hh
+        new_index = new_index + 1
       }
     }
   }
-  while e_index < e_length {
-    e_now = e[e_index]
-    let r = two_sum(q, e_now)
+  while self_index < self.data.length() {
+    self_now = self.data[self_index]
+    let r = two_sum(q, self_now)
     let q_new = r.0
     let hh = r.1
     q = q_new
-    e_index = e_index + 1
+    self_index = self_index + 1
     if hh != 0.0 {
-      h[h_index] = hh
-      h_index = h_index + 1
+      new_data.data[new_index] = hh
+      new_index = new_index + 1
     }
   }
-  while f_index < f_length {
-    f_now = f[f_index]
-    let r = two_sum(q, f_now)
+  while other_index < other.data.length() {
+    other_now = other.data[other_index]
+    let r = two_sum(q, other_now)
     let q_new = r.0
     let hh = r.1
     q = q_new
-    f_index = f_index + 1
+    other_index = other_index + 1
     if hh != 0.0 {
-      h[h_index] = hh
-      h_index = h_index + 1
+      new_data.data[new_index] = hh
+      new_index = new_index + 1
     }
   }
-  if q != 0.0 || h_index == 0 {
-    h[h_index] = q
-    h_index = h_index + 1
+  if q != 0.0 || new_index == 0 {
+    new_data.data[new_index] = q
+    new_index = new_index + 1
   }
-  h_index
+  new_data.truncate(new_index)
 }
 
 ///|
 /// Expansionとスカラの積を計算する。ゼロ要素は除去される。
-fn scale_expansion_zeroelim(
-  e : FixedArray[Double],
-  e_length : Int,
+fn Expansion::scale_expansion_zeroelim(
+  self : Expansion,
   b : Double,
-  h : FixedArray[Double],
-) -> Int {
+) -> Expansion {
+  // TODO: 空配列 (length == 0) への対応を検討する
+  let new_data = Expansion::from_fixed_array(
+    FixedArray::make(self.data.length() * 2, 0.0),
+  )
   let (b_hi, b_lo) = split(b)
-  let r = two_product_presplit(e[0], b, b_hi, b_lo)
+  let r = two_product_presplit(self.data[0], b, b_hi, b_lo)
   let mut q = r.0
   let hh = r.1
-  let mut h_index = 0
+  let mut new_index = 0
   if hh != 0.0 {
-    h[h_index] = hh
-    h_index = h_index + 1
+    new_data.data[new_index] = hh
+    new_index = new_index + 1
   }
-  for e_index = 1; e_index < e_length; e_index = e_index + 1 {
-    let e_now = e[e_index]
+  for e_index = 1; e_index < self.data.length(); e_index = e_index + 1 {
+    let e_now = self.data[e_index]
     let (product1, product0) = two_product_presplit(e_now, b, b_hi, b_lo)
     let (sum, hh_2) = two_sum(q, product0)
     if hh_2 != 0.0 {
-      h[h_index] = hh_2
-      h_index = h_index + 1
+      new_data.data[new_index] = hh_2
+      new_index = new_index + 1
     }
     let (new_q, hh_3) = fast_two_sum(product1, sum)
     q = new_q
     if hh_3 != 0.0 {
-      h[h_index] = hh_3
-      h_index = h_index + 1
+      new_data.data[new_index] = hh_3
+      new_index = new_index + 1
     }
   }
-  if q != 0.0 || h_index == 0 {
-    h[h_index] = q
-    h_index = h_index + 1
+  if q != 0.0 || new_index == 0 {
+    new_data.data[new_index] = q
+    new_index = new_index + 1
   }
-  h_index
+  new_data.truncate(new_index)
 }
 
 ///|
