@@ -20,18 +20,20 @@ fn Expansion::estimate(self : Expansion) -> Double {
 }
 
 ///|
-/// Expansionの内部バッファを現在の論理的な長さ（length）に合わせて切り詰める。
+/// Truncates the internal buffer of the Expansion to its current logical length.
 fn Expansion::truncate(self : Expansion, length : Int) -> Expansion {
   { data: self.data, length }
 }
 
 ///|
-/// 2つのExpansionの和を計算する。ゼロ要素は除去される。
+/// Sum of two Expansions
+///
+/// Corresponds to `Fast-Expansion-Sum` in Shewchuk's paper (variant with zero elimination).
 fn Expansion::fast_expansion_sum_zeroelim(
   self : Expansion,
   other : Expansion,
 ) -> Expansion {
-  // TODO: 空配列 (length == 0) への対応を検討する
+  // TODO: Consider handling empty arrays (length == 0)
   let new_data = Expansion::from_fixed_array(
     FixedArray::make(self.data.length() + other.data.length(), 0.0),
   )
@@ -122,12 +124,12 @@ fn Expansion::fast_expansion_sum_zeroelim(
 }
 
 ///|
-/// Expansionとスカラの積を計算する。ゼロ要素は除去される。
+/// Computes the product of an Expansion and a scalar. Zero elements are eliminated.
 fn Expansion::scale_expansion_zeroelim(
   self : Expansion,
   b : Double,
 ) -> Expansion {
-  // TODO: 空配列 (length == 0) への対応を検討する
+  // TODO: Consider handling empty arrays (length == 0)
   let new_data = Expansion::from_fixed_array(
     FixedArray::make(self.data.length() * 2, 0.0),
   )

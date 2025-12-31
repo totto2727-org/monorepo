@@ -1,17 +1,17 @@
 ///|
-/// incircle 誤差境界 A
+/// incircle error bound A
 let incircle_err_bound_a : Double = (10.0 + 96.0 * epsilon) * epsilon
 
 ///|
-/// incircle 誤差境界 B
+/// incircle error bound B
 let incircle_err_bound_b : Double = (4.0 + 48.0 * epsilon) * epsilon
 
 ///|
-/// incircle 誤差境界 C
+/// incircle error bound C
 let incircle_err_bound_c : Double = (44.0 + 576.0 * epsilon) * epsilon * epsilon
 
 ///|
-/// Expansion (a1, a0) とスカラ b の和を計算する (x2, x1, x0)
+/// Calculate sum of Expansion (a1, a0) and scalar b (x2, x1, x0)
 fn two_one_sum(
   a1 : Double,
   a0 : Double,
@@ -23,7 +23,7 @@ fn two_one_sum(
 }
 
 ///|
-/// Expansion (a1, a0) と Expansion (b1, b0) の和を計算する (x3, x2, x1, x0)
+/// Calculate sum of Expansion (a1, a0) and Expansion (b1, b0) (x3, x2, x1, x0)
 fn two_two_sum(
   a1 : Double,
   a0 : Double,
@@ -36,7 +36,7 @@ fn two_two_sum(
 }
 
 ///|
-/// incircle の適応的精度計算（内部関数）
+/// Adaptive precision calculation for incircle (internal function)
 fn incircle_adapt(
   pa : Coord,
   pb : Coord,
@@ -252,12 +252,12 @@ fn incircle_adapt(
 }
 
 ///|
-/// 2D内接円テスト
+/// 2D incircle test
 ///
-/// 3点(pa, pb, pc)が反時計回りに並んでいるとき、点pdがその外接円の内部にあるか判定する。
-/// - 正の値: pdが円の内部にある
-/// - 負の値: pdが円の外部にある
-/// - 0: pdが円周上にある
+/// Determines if point pd is inside the circumcircle of the triangle defined by three points (pa, pb, pc) arranged in counter-clockwise order.
+/// - Positive: pd is inside the circle
+/// - Negative: pd is outside the circle
+/// - 0: pd is on the circle boundary
 pub fn incircle(
   pa : @geojson.Position,
   pb : @geojson.Position,

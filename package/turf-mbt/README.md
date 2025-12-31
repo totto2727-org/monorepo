@@ -1,1 +1,3 @@
-README.mbt.md
+# @package/turf-mbt
+
+[README.md](./README.mbt.md)

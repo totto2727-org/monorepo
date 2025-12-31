@@ -1,19 +1,19 @@
 ///|
-/// insphere 誤差境界 A
+/// insphere error bound A
 let insphere_err_bound_a : Double = (16.0 + 224.0 * epsilon) * epsilon
 
 ///|
-/// insphere 誤差境界 B
+/// insphere error bound B
 let insphere_err_bound_b : Double = (5.0 + 72.0 * epsilon) * epsilon
 
 ///|
-/// insphere 誤差境界 C
+/// insphere error bound C
 let insphere_err_bound_c : Double = (71.0 + 1408.0 * epsilon) *
   epsilon *
   epsilon
 
 ///|
-/// insphere の完全精度計算（内部関数）
+/// Exact precision calculation for insphere (internal function)
 fn insphere_exact(
   pa : Coord3D,
   pb : Coord3D,
@@ -443,12 +443,12 @@ fn insphere_adapt(
 }
 
 ///|
-/// 3D内接球面テスト
+/// 3D insphere test
 ///
-/// 4点(pa, pb, pc, pd)が反時計回りに並んでいるとき、点peがその外接球の内部にあるか判定する。
-/// - 正の値: peが球の内部にある
-/// - 負の値: peが球の外部にある
-/// - 0: peが球面上にある
+/// Determines if point pe is inside the circumsphere of the tetrahedron defined by four points (pa, pb, pc, pd) arranged in counter-clockwise order.
+/// - Positive: pe is inside the sphere
+/// - Negative: pe is outside the sphere
+/// - 0: pe is on the sphere surface
 pub fn insphere(
   pa : @geojson.Position,
   pb : @geojson.Position,

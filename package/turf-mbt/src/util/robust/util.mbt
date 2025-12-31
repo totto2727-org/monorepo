@@ -28,7 +28,7 @@ fn to_coord3d(p : @geojson.Position) -> Coord3D raise {
 }
 
 ///|
-/// 絶対値を返す
+/// Returns the absolute value
 fn abs(x : Double) -> Double {
   if x < 0.0 {
     -x
@@ -38,10 +38,10 @@ fn abs(x : Double) -> Double {
 }
 
 ///|
-/// 倍精度の値を2つの部分に分割する（Veltkampのアルゴリズム）
+/// Splits a double precision value into two parts (Veltkamp's algorithm)
 ///
-/// 倍精度浮動小数点数 `a` を `a_hi` と `a_lo` に分割し、`a = a_hi + a_lo` となるようにする。
-/// 両方の値の仮数部の半分以上がゼロであることを保証し、誤差なしの乗算を可能にする。
+/// Splits double precision floating point number `a` into `a_hi` and `a_lo` such that `a = a_hi + a_lo`.
+/// Ensures that more than half of the mantissa of both values is zero, enabling error-free multiplication.
 fn split(a : Double) -> (Double, Double) {
   let c = splitter * a
   let abig = c - a
@@ -51,13 +51,13 @@ fn split(a : Double) -> (Double, Double) {
 }
 
 ///|
-/// 2つの値の積の誤差項を計算する
+/// Calculates the error term of the product of two values
 ///
-/// `x` が `a * b` の丸められた結果であるとき、`a * b = x + err` となる `err` を返す。
+/// When `x` is the rounded result of `a * b`, returns `err` such that `a * b = x + err`.
 fn two_product_tail(a : Double, b : Double, x : Double) -> Double {
   let (ahi, alo) = split(a)
   let (bhi, blo) = split(b)
-  // 部分積の計算
+  // Calculate partial products
   let err1 = x - ahi * bhi
   let err2 = err1 - alo * bhi
   let err3 = err2 - ahi * blo
@@ -65,9 +65,9 @@ fn two_product_tail(a : Double, b : Double, x : Double) -> Double {
 }
 
 ///|
-/// 誤差なしの積を計算する（Dekkerのアルゴリズム）
+/// Calculates exact product (Dekker's algorithm)
 ///
-/// `a * b = x + y` となる `(x, y)` を返す。`x` は丸められた積、`y` は誤差項。
+/// Returns `(x, y)` such that `a * b = x + y`. `x` is the rounded product, `y` is the error term.
 fn two_product(a : Double, b : Double) -> (Double, Double) {
   let x = a * b
   (x, two_product_tail(a, b, x))
@@ -90,9 +90,9 @@ fn two_product_presplit(
 }
 
 ///|
-/// 2つの値の和の誤差項を計算する（KnuthのTwoSum）
+/// Calculates the error term of the sum of two values (Knuth's TwoSum)
 ///
-/// `x` が `a + b` の丸められた結果であるとき、`a + b = x + err` となる `err` を返す。
+/// When `x` is the rounded result of `a + b`, returns `err` such that `a + b = x + err`.
 fn two_sum_tail(a : Double, b : Double, x : Double) -> Double {
   let bvirt = x - a
   let avirt = x - bvirt
@@ -102,30 +102,30 @@ fn two_sum_tail(a : Double, b : Double, x : Double) -> Double {
 }
 
 ///|
-/// 誤差なしの和を計算する（KnuthのTwoSum）
+/// Calculates exact sum (Knuth's TwoSum)
 ///
-/// `a + b = x + y` となる `(x, y)` を返す。`x` は丸められた和、`y` は誤差項。
+/// Returns `(x, y)` such that `a + b = x + y`. `x` is the rounded sum, `y` is the error term.
 fn two_sum(a : Double, b : Double) -> (Double, Double) {
   let x = a + b
   (x, two_sum_tail(a, b, x))
 }
 
 ///|
-/// |a| >= |b| の場合に有効な高速なTwoSum誤差項計算
+/// Fast TwoSum error term calculation valid when |a| >= |b|
 fn fast_two_sum_tail(a : Double, b : Double, x : Double) -> Double {
   let bvirt = x - a
   b - bvirt
 }
 
 ///|
-/// |a| >= |b| の場合に有効な高速なTwoSum
+/// Fast TwoSum valid when |a| >= |b|
 fn fast_two_sum(a : Double, b : Double) -> (Double, Double) {
   let x = a + b
   (x, fast_two_sum_tail(a, b, x))
 }
 
 ///|
-/// 誤差なしの差を計算する
+/// Calculates exact difference
 fn two_diff_tail(a : Double, b : Double, x : Double) -> Double {
   let bvirt = a - x
   let avirt = x + bvirt
@@ -135,14 +135,14 @@ fn two_diff_tail(a : Double, b : Double, x : Double) -> Double {
 }
 
 ///|
-/// 誤差なしの差を計算する
+/// Calculates exact difference
 fn two_diff(a : Double, b : Double) -> (Double, Double) {
   let x = a - b
   (x, two_diff_tail(a, b, x))
 }
 
 ///|
-/// 自乗の誤差項を計算する
+/// Calculates the error term of the square
 fn square_tail(a : Double, x : Double) -> Double {
   let (ahi, alo) = split(a)
   let err1 = x - ahi * ahi
@@ -151,7 +151,7 @@ fn square_tail(a : Double, x : Double) -> Double {
 }
 
 ///|
-/// 誤差なしの自乗を計算する
+/// Calculates exact square
 fn square(a : Double) -> (Double, Double) {
   let x = a * a
   (x, square_tail(a, x))

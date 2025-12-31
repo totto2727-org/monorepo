@@ -1,26 +1,26 @@
 ///|
-/// orient2d (CCW) 誤差境界 B
+/// orient2d (CCW) error bound B
 let ccw_err_bound_b : Double = (2.0 + 12.0 * epsilon) * epsilon
 
 ///|
-/// orient2d (CCW) 誤差境界 C
+/// orient2d (CCW) error bound C
 let ccw_err_bound_c : Double = (9.0 + 64.0 * epsilon) * epsilon * epsilon
 
 ///|
-/// orient2d の適応的精度計算（内部関数）
+/// Adaptive precision calculation for orient2d (internal function)
 fn orient2d_adapt(
   pa : Coord,
   pb : Coord,
   pc : Coord,
   detsum : Double,
 ) -> Double {
-  // 座標の差分計算
+  // Calculate coordinate differences
   let acx = pa.x - pc.x
   let bcx = pb.x - pc.x
   let acy = pa.y - pc.y
   let bcy = pb.y - pc.y
 
-  // 行列式の部分積計算（誤差なし）
+  // Calculate partial products of determinant (exact)
   let (detleft, detlefttail) = two_product(acx, bcy)
   let (detright, detrighttail) = two_product(acy, bcx)
   let (b3, b2, b1, b0) = two_two_diff(
@@ -29,7 +29,7 @@ fn orient2d_adapt(
   let b = Expansion::from_fixed_array([b0, b1, b2, b3])
   let det = b.estimate()
 
-  // 誤差境界のチェック
+  // Check error bounds
   let errbound = ccw_err_bound_b * detsum
   if det >= errbound || -det >= errbound {
     return det
@@ -67,12 +67,12 @@ fn orient2d_adapt(
 }
 
 ///|
-/// 2D向きテスト
+/// 2D orientation test
 ///
-/// 3点(pa, pb, pc)の向きを判定する。
-/// - 正の値: 反時計回り (pcはpa→pbの左側)
-/// - 負の値: 時計回り (pcはpa→pbの右側)
-/// - 0: 3点が同一直線上
+/// Determines the orientation of three points (pa, pb, pc).
+/// - Positive: Counter-clockwise (pc is to the left of pa->pb)
+/// - Negative: Clockwise (pc is to the right of pa->pb)
+/// - 0: Collinear
 pub fn orient2d(
   pa : @geojson.Position,
   pb : @geojson.Position,
@@ -82,7 +82,7 @@ pub fn orient2d(
   let pb = to_coord(pb)
   let pc = to_coord(pc)
 
-  // 近似計算
+  // Approximate calculation
   let detleft = (pa.x - pc.x) * (pb.y - pc.y)
   let detright = (pa.y - pc.y) * (pb.x - pc.x)
   let det = detleft - detright
@@ -90,11 +90,11 @@ pub fn orient2d(
   let theta : Double = 3.3306690621773722e-16
   let errbound = theta * detsum
 
-  // 誤差範囲外なら結果を返す（高速パス）
+  // Return result if outside error bound (fast path)
   if det >= errbound || -det >= errbound {
     det
   } else {
-    // 精度が必要な場合は適応的プロシージャを実行
+    // Perform adaptive procedure if precision is needed
     orient2d_adapt(pa, pb, pc, detsum)
   }
 }

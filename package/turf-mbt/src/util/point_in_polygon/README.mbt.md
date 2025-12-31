@@ -1,13 +1,19 @@
 # Point in Polygon
 
-元にしたJS実装：<https://github.com/rowanwins/point-in-polygon-hao/blob/938b2be31d326c52c8f6cffbbb1c59bae4d609bc/src/index.js>
+Based on JS implementation: <https://github.com/rowanwins/point-in-polygon-hao/blob/938b2be31d326c52c8f6cffbbb1c59bae4d609bc/src/index.js>
 
-## 元の実装との差異
+## Status
 
-元ライブラリで参照している[JS用のRobust実装](https://github.com/mourner/robust-predicates)には以下のような表記がある。
+Implemented the following function:
+
+- [x] `point_in_polygon`: Determine if a point is inside a polygon (Ray Casting algorithm with robust predicates)
+
+## Differences from Original Implementation
+
+The [Robust implementation for JS](https://github.com/mourner/robust-predicates) referenced by the original library contains the following note:
 
 ```md
 Note: unlike J. Shewchuk's original code, all the functions in this library assume y axis is oriented downwards ↓, so the semantics are different.
 ```
 
-本ライブラリのRobust実装は、通常の座標系を採用しているため、元の実装とは一部の計算の符号が逆転している。
+Since the Robust implementation in this library adopts a standard coordinate system, the signs of some calculations are reversed compared to the original implementation.

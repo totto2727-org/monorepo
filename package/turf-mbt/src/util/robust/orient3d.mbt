@@ -1,17 +1,17 @@
 ///|
-/// orient3d 誤差境界 A
+/// orient3d error bound A
 let orient3d_err_bound_a : Double = (7.0 + 56.0 * epsilon) * epsilon
 
 ///|
-/// orient3d 誤差境界 B
+/// orient3d error bound B
 let orient3d_err_bound_b : Double = (3.0 + 28.0 * epsilon) * epsilon
 
 ///|
-/// orient3d 誤差境界 C
+/// orient3d error bound C
 let orient3d_err_bound_c : Double = (26.0 + 288.0 * epsilon) * epsilon * epsilon
 
 ///|
-/// orient3d の適応的精度計算（内部関数）
+/// Adaptive precision calculation for orient3d (internal function)
 fn orient3d_adapt(
   pa : Coord3D,
   pb : Coord3D,
@@ -19,7 +19,7 @@ fn orient3d_adapt(
   pd : Coord3D,
   permanent : Double,
 ) -> Double {
-  // 座標の差分計算
+  // Calculate coordinate differences
   let adx = pa.x - pd.x
   let bdx = pb.x - pd.x
   let cdx = pc.x - pd.x
@@ -49,7 +49,7 @@ fn orient3d_adapt(
     .fast_expansion_sum_zeroelim(cdet)
   let det = fin1.estimate()
 
-  // 誤差境界のチェック
+  // Check error bounds
   let errbound = orient3d_err_bound_b * permanent
   if det >= errbound || -det >= errbound {
     return det
@@ -214,19 +214,19 @@ fn orient3d_adapt(
 }
 
 ///|
-/// 3D向きテスト
+/// 3D orientation test
 ///
-/// 4点(pa, pb, pc, pd)の向きを判定する。
-/// - 正の値: pdは面pa-pb-pcの外側
-/// - 負の値: pdは面pa-pb-pcの内側
-/// - 0: 4点が同一平面上
+/// Determines the orientation of four points (pa, pb, pc, pd).
+/// - Positive: pd is outside the plane pa-pb-pc
+/// - Negative: pd is inside the plane pa-pb-pc
+/// - 0: Coplanar
 pub fn orient3d(
   pa : @geojson.Position,
   pb : @geojson.Position,
   pc : @geojson.Position,
   pd : @geojson.Position,
 ) -> Double raise {
-  // 座標の差分計算
+  // Calculate coordinate differences
   let pa = to_coord3d(pa)
   let pb = to_coord3d(pb)
   let pc = to_coord3d(pc)
@@ -241,7 +241,7 @@ pub fn orient3d(
   let bdz = pb.z - pd.z
   let cdz = pc.z - pd.z
 
-  // 近似行列式計算
+  // Approximate determinant calculation
   let bdxcdy = bdx * cdy
   let cdxbdy = cdx * bdy
   let cdxady = cdx * ady
@@ -252,13 +252,13 @@ pub fn orient3d(
     bdz * (cdxady - adxcdy) +
     cdz * (adxbdy - bdxady)
 
-  // 誤差境界の計算
+  // Calculate error bound
   let permanent = (abs(bdxcdy) + abs(cdxbdy)) * abs(adz) +
     (abs(cdxady) + abs(adxcdy)) * abs(bdz) +
     (abs(adxbdy) + abs(bdxady)) * abs(cdz)
   let errbound = orient3d_err_bound_a * permanent
 
-  // 精度が必要か確認
+  // Check if precision is needed
   if det > errbound || -det > errbound {
     det
   } else {
