@@ -2,14 +2,14 @@
 /// Point geometry object.
 /// https://tools.ietf.org/html/rfc7946#section-3.1.2
 pub struct Point {
-  coordinates : @primary.Position
-  bbox : @primary.BBox?
+  coordinates : @position.Position
+  bbox : @bbox.BBox?
 } derive(Show, Eq, Compare, Hash)
 
 ///|
 pub fn Point::new(
-  coordinates : @primary.Position,
-  bbox? : @primary.BBox? = None,
+  coordinates : @position.Position,
+  bbox? : @bbox.BBox? = None,
 ) -> Point {
   Point::{ coordinates, bbox }
 }

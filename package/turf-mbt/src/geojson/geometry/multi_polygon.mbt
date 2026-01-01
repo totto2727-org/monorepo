@@ -3,13 +3,13 @@
 /// https://tools.ietf.org/html/rfc7946#section-3.1.7
 pub struct MultiPolygon {
   polygons : Array[Polygon]
-  bbox : @primary.BBox?
+  bbox : @bbox.BBox?
 } derive(Show, Eq, Compare, Hash)
 
 ///|
 pub fn MultiPolygon::new(
   polygons : Array[Polygon],
-  bbox? : @primary.BBox? = None,
+  bbox? : @bbox.BBox? = None,
 ) -> MultiPolygon {
   MultiPolygon::{ polygons, bbox }
 }

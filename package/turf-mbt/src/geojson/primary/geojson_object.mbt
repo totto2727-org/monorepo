@@ -12,13 +12,13 @@ pub struct GeoJSONObject {
   /// followed by all axes of the more northeasterly point.
   /// The axes order of a bbox follows the axes order of geometries.
   /// https://tools.ietf.org/html/rfc7946#section-5
-  bbox : BBox?
+  bbox : @bbox.BBox?
 } derive(Show, Eq, Compare, Hash)
 
 ///|
 pub fn GeoJSONObject::new(
   _type : GeoJSONTypes,
-  bbox? : BBox? = None,
+  bbox? : @bbox.BBox? = None,
 ) -> GeoJSONObject {
   GeoJSONObject::{ _type, bbox }
 }
@@ -47,8 +47,8 @@ pub impl FromJson for GeoJSONObject with from_json(self, path) {
     Some(_type) => GeoJSONTypes::from_json(_type, path)
     _ => raise @json.JsonDecodeError((path, "Invalid GeoJSONObject"))
   }
-  let bbox : BBox? = match @helper.get_field(self, "bbox") {
-    Some(bbox) => Some(BBox::from_json(bbox, path))
+  let bbox : @bbox.BBox? = match @helper.get_field(self, "bbox") {
+    Some(bbox) => Some(@bbox.BBox::from_json(bbox, path))
     _ => None
   }
   GeoJSONObject::new(_type, bbox~)

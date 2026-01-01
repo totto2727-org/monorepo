@@ -1,14 +1,19 @@
 ///|
 test "Point to JSON" {
-  let point = Point::new(@primary.Position::new2D((0.0, 0.0)))
+  let point = Point::new(@position.Position2D::new((0.0, 0.0)).to_position())
   @json.inspect(point, content={ "type": "Point", "coordinates": [0, 0] })
 }
 
 ///|
 test "Point with BBox to JSON" {
   let point = Point::new(
-    @primary.Position::new2D((10.0, 20.0)),
-    bbox=Some(@primary.BBox::new2D((10.0, 20.0, 10.0, 20.0))),
+    @position.Position2D::new((10.0, 20.0)).to_position(),
+    bbox=Some(
+      @bbox.BBox2D::new(
+        @position.Position2D::new((10.0, 20.0)),
+        @position.Position2D::new((10.0, 20.0)),
+      ).to_bbox(),
+    ),
   )
   @json.inspect(point, content={
     "type": "Point",

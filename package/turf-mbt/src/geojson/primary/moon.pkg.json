@@ -1,3 +1,7 @@
 {
-  "import": ["package/turf_mbt/geojson/internal/helper"]
+  "import": [
+    "package/turf_mbt/geojson/internal/helper",
+    "package/turf_mbt/geojson/bbox"
+  ],
+  "test-import": ["package/turf_mbt/geojson/position"]
 }

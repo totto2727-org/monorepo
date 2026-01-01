@@ -2,12 +2,12 @@
 test "MultiLineString to JSON" {
   let multi_line_string = MultiLineString::new([
     LineString::new([
-      @primary.Position::new2D((0.0, 0.0)),
-      @primary.Position::new2D((1.0, 1.0)),
+      @position.Position2D::new((0.0, 0.0)).to_position(),
+      @position.Position2D::new((1.0, 1.0)).to_position(),
     ]),
     LineString::new([
-      @primary.Position::new2D((1.0, 1.0)),
-      @primary.Position::new2D((0.0, 0.0)),
+      @position.Position2D::new((1.0, 1.0)).to_position(),
+      @position.Position2D::new((0.0, 0.0)).to_position(),
     ]),
   ])
   @json.inspect(multi_line_string, content={
@@ -21,15 +21,20 @@ test "MultiLineString with BBox to JSON" {
   let multi_line_string = MultiLineString::new(
     [
       LineString::new([
-        @primary.Position::new2D((0.0, 0.0)),
-        @primary.Position::new2D((1.0, 1.0)),
+        @position.Position2D::new((0.0, 0.0)).to_position(),
+        @position.Position2D::new((1.0, 1.0)).to_position(),
       ]),
       LineString::new([
-        @primary.Position::new2D((1.0, 1.0)),
-        @primary.Position::new2D((0.0, 0.0)),
+        @position.Position2D::new((1.0, 1.0)).to_position(),
+        @position.Position2D::new((0.0, 0.0)).to_position(),
       ]),
     ],
-    bbox=Some(@primary.BBox::new2D((0.0, 0.0, 1.0, 1.0))),
+    bbox=Some(
+      @bbox.BBox2D::new(
+        @position.Position2D::new((0.0, 0.0)),
+        @position.Position2D::new((1.0, 1.0)),
+      ).to_bbox(),
+    ),
   )
   @json.inspect(multi_line_string, content={
     "type": "MultiLineString",

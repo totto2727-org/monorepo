@@ -5,13 +5,13 @@ pub struct FeatureCollection {
   /// The array of features.
   features : Array[Feature]
   /// Bounding box.
-  bbox : @primary.BBox?
+  bbox : @bbox.BBox?
 } derive(Show, Eq)
 
 ///|
 pub fn FeatureCollection::new(
   features : Array[Feature],
-  bbox? : @primary.BBox? = None,
+  bbox? : @bbox.BBox? = None,
 ) -> FeatureCollection {
   FeatureCollection::{ features, bbox }
 }

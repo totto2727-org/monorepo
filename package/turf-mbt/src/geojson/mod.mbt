@@ -12,11 +12,13 @@ pub using @geometry {
 
 ///|
 pub using @primary {
-  type BBox,
-  type BBox2D,
-  type Position,
-  type Position2D,
   type GeoJSONGeometryTypes,
   type GeoJSONTypes,
   type GeoJSONObject,
 }
+
+///|
+pub using @bbox {type BBox, type BBox2D}
+
+///|
+pub using @position {type Position, type Position2D}

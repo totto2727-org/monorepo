@@ -2,14 +2,14 @@
 /// LineString geometry object.
 /// https://tools.ietf.org/html/rfc7946#section-3.1.4
 pub struct LineString {
-  coordinates : Array[@primary.Position]
-  bbox : @primary.BBox?
+  coordinates : Array[@position.Position]
+  bbox : @bbox.BBox?
 } derive(Show, Eq, Compare, Hash)
 
 ///|
 pub fn LineString::new(
-  coordinates : Array[@primary.Position],
-  bbox? : @primary.BBox? = None,
+  coordinates : Array[@position.Position],
+  bbox? : @bbox.BBox? = None,
 ) -> LineString {
   LineString::{ coordinates, bbox }
 }

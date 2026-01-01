@@ -3,18 +3,18 @@ test "MultiPolygon to JSON" {
   let multi_polygon = MultiPolygon::new([
     Polygon::new([
       [
-        @primary.Position::new2D((0.0, 0.0)),
-        @primary.Position::new2D((0.0, 1.0)),
-        @primary.Position::new2D((1.0, 0.0)),
-        @primary.Position::new2D((0.0, 0.0)),
+        @position.Position2D::new((0.0, 0.0)).to_position(),
+        @position.Position2D::new((0.0, 1.0)).to_position(),
+        @position.Position2D::new((1.0, 0.0)).to_position(),
+        @position.Position2D::new((0.0, 0.0)).to_position(),
       ],
     ]),
     Polygon::new([
       [
-        @primary.Position::new2D((0.0, 0.0)),
-        @primary.Position::new2D((0.0, 1.0)),
-        @primary.Position::new2D((1.0, 0.0)),
-        @primary.Position::new2D((0.0, 0.0)),
+        @position.Position2D::new((0.0, 0.0)).to_position(),
+        @position.Position2D::new((0.0, 1.0)).to_position(),
+        @position.Position2D::new((1.0, 0.0)).to_position(),
+        @position.Position2D::new((0.0, 0.0)).to_position(),
       ],
     ]),
   ])
@@ -33,22 +33,27 @@ test "MultiPolygon with BBox to JSON" {
     [
       Polygon::new([
         [
-          @primary.Position::new2D((0.0, 0.0)),
-          @primary.Position::new2D((0.0, 1.0)),
-          @primary.Position::new2D((1.0, 0.0)),
-          @primary.Position::new2D((0.0, 0.0)),
+          @position.Position2D::new((0.0, 0.0)).to_position(),
+          @position.Position2D::new((0.0, 1.0)).to_position(),
+          @position.Position2D::new((1.0, 0.0)).to_position(),
+          @position.Position2D::new((0.0, 0.0)).to_position(),
         ],
       ]),
       Polygon::new([
         [
-          @primary.Position::new2D((0.0, 0.0)),
-          @primary.Position::new2D((0.0, 1.0)),
-          @primary.Position::new2D((1.0, 0.0)),
-          @primary.Position::new2D((0.0, 0.0)),
+          @position.Position2D::new((0.0, 0.0)).to_position(),
+          @position.Position2D::new((0.0, 1.0)).to_position(),
+          @position.Position2D::new((1.0, 0.0)).to_position(),
+          @position.Position2D::new((0.0, 0.0)).to_position(),
         ],
       ]),
     ],
-    bbox=Some(@primary.BBox::new2D((0.0, 0.0, 1.0, 1.0))),
+    bbox=Some(
+      @bbox.BBox2D::new(
+        @position.Position2D::new((0.0, 0.0)),
+        @position.Position2D::new((1.0, 1.0)),
+      ).to_bbox(),
+    ),
   )
   @json.inspect(multi_polygon, content={
     "type": "MultiPolygon",

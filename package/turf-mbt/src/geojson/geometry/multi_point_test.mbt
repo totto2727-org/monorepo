@@ -1,8 +1,8 @@
 ///|
 test "MultiPoint to JSON" {
   let multi_point = MultiPoint::new([
-    Point::new(@primary.Position::new2D((0.0, 0.0))),
-    Point::new(@primary.Position::new2D((1.0, 1.0))),
+    Point::new(@position.Position2D::new((0.0, 0.0)).to_position()),
+    Point::new(@position.Position2D::new((1.0, 1.0)).to_position()),
   ])
   @json.inspect(multi_point, content={
     "type": "MultiPoint",
@@ -17,10 +17,15 @@ test "MultiPoint to JSON" {
 test "MultiPoint with BBox to JSON" {
   let multi_point = MultiPoint::new(
     [
-      Point::new(@primary.Position::new2D((0.0, 0.0))),
-      Point::new(@primary.Position::new2D((1.0, 1.0))),
+      Point::new(@position.Position2D::new((0.0, 0.0)).to_position()),
+      Point::new(@position.Position2D::new((1.0, 1.0)).to_position()),
     ],
-    bbox=Some(@primary.BBox::new2D((0.0, 0.0, 1.0, 1.0))),
+    bbox=Some(
+      @bbox.BBox2D::new(
+        @position.Position2D::new((0.0, 0.0)),
+        @position.Position2D::new((1.0, 1.0)),
+      ).to_bbox(),
+    ),
   )
   @json.inspect(multi_point, content={
     "type": "MultiPoint",

@@ -2,10 +2,10 @@
 test "Polygon to JSON" {
   let polygon = Polygon::new([
     [
-      @primary.Position::new2D((0.0, 0.0)),
-      @primary.Position::new2D((0.0, 1.0)),
-      @primary.Position::new2D((1.0, 0.0)),
-      @primary.Position::new2D((0.0, 0.0)),
+      @position.Position2D::new((0.0, 0.0)).to_position(),
+      @position.Position2D::new((0.0, 1.0)).to_position(),
+      @position.Position2D::new((1.0, 0.0)).to_position(),
+      @position.Position2D::new((0.0, 0.0)).to_position(),
     ],
   ])
   @json.inspect(polygon, content={
@@ -19,13 +19,18 @@ test "Polygon with BBox to JSON" {
   let polygon = Polygon::new(
     [
       [
-        @primary.Position::new2D((0.0, 0.0)),
-        @primary.Position::new2D((0.0, 1.0)),
-        @primary.Position::new2D((1.0, 0.0)),
-        @primary.Position::new2D((0.0, 0.0)),
+        @position.Position2D::new((0.0, 0.0)).to_position(),
+        @position.Position2D::new((0.0, 1.0)).to_position(),
+        @position.Position2D::new((1.0, 0.0)).to_position(),
+        @position.Position2D::new((0.0, 0.0)).to_position(),
       ],
     ],
-    bbox=Some(@primary.BBox::new2D((0.0, 0.0, 1.0, 1.0))),
+    bbox=Some(
+      @bbox.BBox2D::new(
+        @position.Position2D::new((0.0, 0.0)),
+        @position.Position2D::new((1.0, 1.0)),
+      ).to_bbox(),
+    ),
   )
   @json.inspect(polygon, content={
     "type": "Polygon",

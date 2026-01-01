@@ -1,10 +1,10 @@
 ///|
 test "GeometryCollection to JSON" {
   let geometry_collection = GeometryCollection::new([
-    Point::new(@primary.Position::new2D((0.0, 0.0))).to_geometry(),
+    Point::new(@position.Position2D::new((0.0, 0.0)).to_position()).to_geometry(),
     LineString::new([
-      @primary.Position::new2D((0.0, 0.0)),
-      @primary.Position::new2D((1.0, 1.0)),
+      @position.Position2D::new((0.0, 0.0)).to_position(),
+      @position.Position2D::new((1.0, 1.0)).to_position(),
     ]).to_geometry(),
   ])
   @json.inspect(geometry_collection, content={
@@ -20,13 +20,18 @@ test "GeometryCollection to JSON" {
 test "GeometryCollection with BBox to JSON" {
   let geometry_collection = GeometryCollection::new(
     [
-      Point::new(@primary.Position::new2D((0.0, 0.0))).to_geometry(),
+      Point::new(@position.Position2D::new((0.0, 0.0)).to_position()).to_geometry(),
       LineString::new([
-        @primary.Position::new2D((0.0, 0.0)),
-        @primary.Position::new2D((1.0, 1.0)),
+        @position.Position2D::new((0.0, 0.0)).to_position(),
+        @position.Position2D::new((1.0, 1.0)).to_position(),
       ]).to_geometry(),
     ],
-    bbox=Some(@primary.BBox::new2D((0.0, 0.0, 1.0, 1.0))),
+    bbox=Some(
+      @bbox.BBox2D::new(
+        @position.Position2D::new((0.0, 0.0)),
+        @position.Position2D::new((1.0, 1.0)),
+      ).to_bbox(),
+    ),
   )
   @json.inspect(geometry_collection, content={
     "type": "GeometryCollection",

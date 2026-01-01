@@ -10,7 +10,12 @@ test "GeoJSONObject(BBox is null) to JSON" {
 test "GeoJSONObject(BBox is not null) to JSON" {
   let geojson_object = GeoJSONObject::new(
     GeoJSONTypes::geometry(GeoJSONGeometryTypes::point()),
-    bbox=Some(BBox::new2D((1, 2, 3, 4))),
+    bbox=Some(
+      @bbox.BBox2D::new(
+        @position.Position2D::new((1, 2)),
+        @position.Position2D::new((3, 4)),
+      ).to_bbox(),
+    ),
   )
   @json.inspect(geojson_object, content={
     "type": "Point",

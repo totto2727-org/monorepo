@@ -8,13 +8,13 @@
 /// when a more specific Geometry type is available.
 pub struct GeometryCollection {
   geometries : Array[Geometry]
-  bbox : @primary.BBox?
+  bbox : @bbox.BBox?
 } derive(Show, Eq, Compare, Hash)
 
 ///|
 pub fn GeometryCollection::new(
   geometries : Array[Geometry],
-  bbox? : @primary.BBox? = None,
+  bbox? : @bbox.BBox? = None,
 ) -> GeometryCollection {
   GeometryCollection::{ geometries, bbox }
 }

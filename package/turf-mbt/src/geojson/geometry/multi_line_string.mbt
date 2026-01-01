@@ -3,13 +3,13 @@
 /// https://tools.ietf.org/html/rfc7946#section-3.1.5
 pub struct MultiLineString {
   lines : Array[LineString]
-  bbox : @primary.BBox?
+  bbox : @bbox.BBox?
 } derive(Show, Eq, Compare, Hash)
 
 ///|
 pub fn MultiLineString::new(
   lines : Array[LineString],
-  bbox? : @primary.BBox? = None,
+  bbox? : @bbox.BBox? = None,
 ) -> MultiLineString {
   MultiLineString::{ lines, bbox }
 }

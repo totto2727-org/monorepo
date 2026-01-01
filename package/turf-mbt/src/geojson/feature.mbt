@@ -9,7 +9,7 @@ pub struct Feature {
   /// The feature's ID.
   id : FeatureID?
   /// Bounding box.
-  bbox : @primary.BBox?
+  bbox : @bbox.BBox?
 } derive(Show, Eq)
 
 ///|
@@ -17,7 +17,7 @@ pub fn Feature::new(
   geometry? : @geometry.Geometry? = None,
   properties? : Map[String, Json]? = None,
   id? : FeatureID? = None,
-  bbox? : @primary.BBox? = None,
+  bbox? : @bbox.BBox? = None,
 ) -> Feature {
   Feature::{ geometry, properties, id, bbox }
 }

@@ -3,13 +3,13 @@
 /// https://tools.ietf.org/html/rfc7946#section-3.1.3
 pub struct MultiPoint {
   points : Array[Point]
-  bbox : @primary.BBox?
+  bbox : @bbox.BBox?
 } derive(Show, Eq, Compare, Hash)
 
 ///|
 pub fn MultiPoint::new(
   points : Array[Point],
-  bbox? : @primary.BBox? = None,
+  bbox? : @bbox.BBox? = None,
 ) -> MultiPoint {
   MultiPoint::{ points, bbox }
 }

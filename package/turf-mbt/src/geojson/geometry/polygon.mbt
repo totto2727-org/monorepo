@@ -7,7 +7,7 @@ pub suberror InvalidPolygonError String derive(Show, Eq, Compare, Hash)
 // - Containment: Interior rings must be within Exterior ring, No overlapping holes
 // - Self-intersection: Individual rings must not self-intersect
 fn check_linear_ring(
-  ring : Array[@primary.Position],
+  ring : Array[@position.Position],
 ) -> Unit raise InvalidPolygonError {
   if ring.length() < 4 {
     raise InvalidPolygonError(
@@ -27,14 +27,14 @@ fn check_linear_ring(
 /// The first and last positions are equivalent, and they MUST contain
 /// identical values; their representation SHOULD also be identical.
 pub struct Polygon {
-  coordinates : Array[Array[@primary.Position]]
-  bbox : @primary.BBox?
+  coordinates : Array[Array[@position.Position]]
+  bbox : @bbox.BBox?
 } derive(Show, Eq, Compare, Hash)
 
 ///|
 pub fn Polygon::new(
-  coordinates : Array[Array[@primary.Position]],
-  bbox? : @primary.BBox? = None,
+  coordinates : Array[Array[@position.Position]],
+  bbox? : @bbox.BBox? = None,
 ) -> Polygon raise InvalidPolygonError {
   for ring in coordinates {
     check_linear_ring(ring)

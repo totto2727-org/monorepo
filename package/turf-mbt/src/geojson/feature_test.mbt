@@ -2,11 +2,16 @@
 test "Feature(all non-null) to JSON" {
   let feature = Feature::new(
     geometry=Some(
-      @geometry.Point::new(@primary.Position::new2D((0, 0))).to_geometry(),
+      @geometry.Point::new(@position.Position2D::new((0, 0)).to_position()).to_geometry(),
     ),
     properties=Some({ "key": "value" }),
     id=Some(FeatureID::string("f1")),
-    bbox=Some(@primary.BBox::new2D((0, 0, 1, 1))),
+    bbox=Some(
+      @bbox.BBox2D::new(
+        @position.Position2D::new((0, 0)),
+        @position.Position2D::new((1, 1)),
+      ).to_bbox(),
+    ),
   )
   @json.inspect(feature, content={
     "type": "Feature",

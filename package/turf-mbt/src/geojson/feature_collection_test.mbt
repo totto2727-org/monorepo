@@ -4,11 +4,16 @@ test "FeatureCollection(all non-null) to JSON" {
     [
       Feature::new(
         geometry=Some(
-          @geometry.Point::new(@primary.Position::new2D((0, 0))).to_geometry(),
+          @geometry.Point::new(@position.Position2D::new((0, 0)).to_position()).to_geometry(),
         ),
       ),
     ],
-    bbox=Some(@primary.BBox::new2D((0, 0, 1, 1))),
+    bbox=Some(
+      @bbox.BBox2D::new(
+        @position.Position2D::new((0, 0)),
+        @position.Position2D::new((1, 1)),
+      ).to_bbox(),
+    ),
   )
   @json.inspect(featureCollection, content={
     "type": "FeatureCollection",
