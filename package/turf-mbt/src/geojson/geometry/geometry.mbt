@@ -13,6 +13,24 @@ pub enum Geometry {
 } derive(Show, Eq, Compare, Hash)
 
 ///|
+pub(open) trait ToBBox {
+  to_bbox(Self, re_compute? : Bool) -> @bbox.BBox raise @bbox.EmptyPositionsError
+}
+
+///|
+pub impl ToBBox for Geometry with to_bbox(self, re_compute? : Bool = false) {
+  match self {
+    Geometry::Point(p) => p.to_bbox(re_compute~)
+    Geometry::MultiPoint(p) => p.to_bbox(re_compute~)
+    Geometry::LineString(p) => p.to_bbox(re_compute~)
+    Geometry::MultiLineString(p) => p.to_bbox(re_compute~)
+    Geometry::Polygon(p) => p.to_bbox(re_compute~)
+    Geometry::MultiPolygon(p) => p.to_bbox(re_compute~)
+    Geometry::GeometryCollection(p) => p.to_bbox(re_compute~)
+  }
+}
+
+///|
 pub impl @primary.ToGeoJSONObject for Geometry with to_geojson_object(
   self : Geometry,
 ) -> @primary.GeoJSONObject {

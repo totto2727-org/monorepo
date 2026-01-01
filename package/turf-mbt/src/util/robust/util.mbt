@@ -1,33 +1,4 @@
 ///|
-priv struct Coord {
-  x : Double
-  y : Double
-}
-
-///|
-priv struct Coord3D {
-  x : Double
-  y : Double
-  z : Double
-}
-
-///|
-fn to_coord(p : @geojson.Position) -> Coord {
-  match p {
-    Position2D(x, y) => { x, y }
-    Position3D(x, y, _) => { x, y }
-  }
-}
-
-///|
-fn to_coord3d(p : @geojson.Position) -> Coord3D raise {
-  match p {
-    Position3D(x, y, z) => { x, y, z }
-    Position2D(_) => fail("orient3d/insphere requires 3D position")
-  }
-}
-
-///|
 /// Returns the absolute value
 fn abs(x : Double) -> Double {
   if x < 0.0 {

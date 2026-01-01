@@ -23,8 +23,25 @@ pub fn Feature::new(
 }
 
 ///|
+pub impl @geometry.ToBBox for Feature with to_bbox(
+  self,
+  re_compute? : Bool = false,
+) {
+  match (self.bbox, self.geometry, re_compute) {
+    (Some(bbox), _, false) => bbox
+    (_, Some(geometry), re_compute) => geometry.to_bbox(re_compute~)
+    _ => raise @bbox.EmptyPositionsError("Invalid Feature: \{self}")
+  }
+}
+
+///|
 pub impl @primary.ToGeoJSONObject for Feature with to_geojson_object(self) {
   @primary.GeoJSONObject::new(@primary.GeoJSONTypes::feature(), bbox=self.bbox)
+}
+
+///|
+pub impl ToGeoJSON for Feature with to_geojson(self) -> GeoJSON {
+  GeoJSON::Feature(self)
 }
 
 ///|

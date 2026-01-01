@@ -27,6 +27,20 @@ pub impl @primary.ToGeoJSONObject for MultiLineString with to_geojson_object(
 }
 
 ///|
+pub impl ToBBox for MultiLineString with to_bbox(self, re_compute? = false) {
+  match (self.bbox, re_compute) {
+    (Some(bbox), false) => bbox
+    _ => {
+      let position_array = self.lines
+        .map(l => l.to_bbox().to_2d())
+        .map(bbox => [bbox.min, bbox.max])
+        .flatten()
+      @bbox.BBox2D::from_positions(position_array).to_bbox()
+    }
+  }
+}
+
+///|
 pub impl ToGeometry for MultiLineString with to_geometry(self) {
   Geometry::MultiLineString(self)
 }

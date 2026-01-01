@@ -1,3 +1,7 @@
 {
-  "import": ["package/turf_mbt/util/robust", "package/turf_mbt/geojson"]
+  "import": [
+    "package/turf_mbt/util/robust",
+    "package/turf_mbt/geojson",
+    "package/turf_mbt/geojson/position"
+  ]
 }

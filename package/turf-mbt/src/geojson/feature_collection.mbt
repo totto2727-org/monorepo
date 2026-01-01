@@ -27,6 +27,30 @@ pub impl @primary.ToGeoJSONObject for FeatureCollection with to_geojson_object(
 }
 
 ///|
+pub impl @geometry.ToBBox for FeatureCollection with to_bbox(
+  self,
+  re_compute? : Bool = false,
+) {
+  match (self.bbox, re_compute) {
+    (Some(bbox), false) => bbox
+    _ =>
+      self.features
+      |> Array::map(Feature::to_bbox(_))
+      |> Array::map(@bbox.BBox::to_2d)
+      |> Array::map(x => [x.min, x.max])
+      |> Array::flatten
+      |> Array::map(@position.Position2D::to_2d)
+      |> @bbox.BBox2D::from_positions
+      |> @bbox.BBox2D::to_bbox
+  }
+}
+
+///|
+pub impl ToGeoJSON for FeatureCollection with to_geojson(self) -> GeoJSON {
+  GeoJSON::FeatureCollection(self)
+}
+
+///|
 pub impl ToJson for FeatureCollection with to_json(self) {
   let map : Map[String, Json] = {}
   map.set("type", "FeatureCollection")

@@ -5,18 +5,10 @@ test "is inside Switzerland" {
   )
   let json = @json.parse(json_string)
   let feature : @geojson.Feature = @json.from_json(json)
-  let coordinates = match feature.geometry {
-    Some(@geojson.Geometry::Polygon(coordinates~, ..)) => coordinates
-    _ => abort("Expected Polygon Feature")
-  }
+  guard feature.geometry is Some(@geojson.Geometry::Polygon(poly))
   let result = @point_in_polygon.point_in_polygon(
-    8.0,
-    46.5,
-    coordinates
-    |> Array::map(x => x.map(y => match y {
-      Position2D(x, y) => (x, y)
-      Position3D(x, y, _) => (x, y)
-    })),
+    @geojson.Position2D::new((8.0, 46.5)),
+    poly,
   )
   inspect(result, content="Inside")
 }
@@ -28,18 +20,10 @@ test "is outside Switzerland" {
   )
   let json = @json.parse(json_string)
   let feature : @geojson.Feature = @json.from_json(json)
-  let coordinates = match feature.geometry {
-    Some(@geojson.Geometry::Polygon(coordinates~, ..)) => coordinates
-    _ => abort("Expected Polygon Feature")
-  }
+  guard feature.geometry is Some(@geojson.Geometry::Polygon(poly))
   let result = @point_in_polygon.point_in_polygon(
-    8.0,
-    44.0,
-    coordinates
-    |> Array::map(x => x.map(y => match y {
-      Position2D(x, y) => (x, y)
-      Position3D(x, y, _) => (x, y)
-    })),
+    @geojson.Position2D::new((8.0, 44.0)),
+    poly,
   )
   inspect(result, content="Outside")
 }
@@ -51,18 +35,10 @@ test "is inside kinked Switzerland" {
   )
   let json = @json.parse(json_string)
   let feature : @geojson.Feature = @json.from_json(json)
-  let coordinates = match feature.geometry {
-    Some(@geojson.Geometry::Polygon(coordinates~, ..)) => coordinates
-    _ => abort("Expected Polygon Feature")
-  }
+  guard feature.geometry is Some(@geojson.Geometry::Polygon(poly))
   let result = @point_in_polygon.point_in_polygon(
-    8.0,
-    46.5,
-    coordinates
-    |> Array::map(x => x.map(y => match y {
-      Position2D(x, y) => (x, y)
-      Position3D(x, y, _) => (x, y)
-    })),
+    @geojson.Position2D::new((8.0, 46.5)),
+    poly,
   )
   inspect(result, content="Inside")
 }
@@ -74,18 +50,10 @@ test "is outside kinked Switzerland" {
   )
   let json = @json.parse(json_string)
   let feature : @geojson.Feature = @json.from_json(json)
-  let coordinates = match feature.geometry {
-    Some(@geojson.Geometry::Polygon(coordinates~, ..)) => coordinates
-    _ => abort("Expected Polygon Feature")
-  }
+  guard feature.geometry is Some(@geojson.Geometry::Polygon(poly))
   let result = @point_in_polygon.point_in_polygon(
-    8.0,
-    44.0,
-    coordinates
-    |> Array::map(x => x.map(y => match y {
-      Position2D(x, y) => (x, y)
-      Position3D(x, y, _) => (x, y)
-    })),
+    @geojson.Position2D::new((8.0, 44.0)),
+    poly,
   )
   inspect(result, content="Outside")
 }

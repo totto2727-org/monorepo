@@ -25,6 +25,17 @@ pub impl @primary.ToGeoJSONObject for LineString with to_geojson_object(self) {
 }
 
 ///|
+pub impl ToBBox for LineString with to_bbox(self, re_compute? = false) {
+  match (self.bbox, re_compute) {
+    (Some(bbox), false) => bbox
+    _ => {
+      let position_array = self.coordinates.map(p => p.to_2d())
+      @bbox.BBox2D::from_positions(position_array).to_bbox()
+    }
+  }
+}
+
+///|
 pub impl ToGeometry for LineString with to_geometry(self) {
   Geometry::LineString(self)
 }

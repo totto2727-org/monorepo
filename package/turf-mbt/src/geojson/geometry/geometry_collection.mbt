@@ -20,6 +20,20 @@ pub fn GeometryCollection::new(
 }
 
 ///|
+pub impl ToBBox for GeometryCollection with to_bbox(self, re_compute? = false) {
+  match (self.bbox, re_compute) {
+    (Some(bbox), false) => bbox
+    _ => {
+      let positions = self.geometries
+        .map(geometry => geometry.to_bbox().to_2d())
+        .map(bbox => [bbox.min, bbox.max])
+        .flatten()
+      @bbox.BBox2D::from_positions(positions).to_bbox()
+    }
+  }
+}
+
+///|
 pub impl @primary.ToGeoJSONObject for GeometryCollection with to_geojson_object(
   self : GeometryCollection,
 ) -> @primary.GeoJSONObject {

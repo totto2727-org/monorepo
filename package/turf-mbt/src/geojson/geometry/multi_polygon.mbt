@@ -25,6 +25,20 @@ pub impl @primary.ToGeoJSONObject for MultiPolygon with to_geojson_object(self) 
 }
 
 ///|
+pub impl ToBBox for MultiPolygon with to_bbox(self, re_compute? = false) {
+  match (self.bbox, re_compute) {
+    (Some(bbox), false) => bbox
+    _ => {
+      let position_array = self.polygons
+        .map(p => p.to_bbox().to_2d())
+        .map(bbox => [bbox.min, bbox.max])
+        .flatten()
+      @bbox.BBox2D::from_positions(position_array).to_bbox()
+    }
+  }
+}
+
+///|
 pub impl ToGeometry for MultiPolygon with to_geometry(self) {
   Geometry::MultiPolygon(self)
 }

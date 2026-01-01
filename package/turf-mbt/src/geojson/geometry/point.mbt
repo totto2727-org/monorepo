@@ -23,6 +23,14 @@ pub impl @primary.ToGeoJSONObject for Point with to_geojson_object(self) {
 }
 
 ///|
+pub impl ToBBox for Point with to_bbox(self, re_compute? = false) {
+  match (self.bbox, re_compute) {
+    (Some(bbox), false) => bbox
+    _ => @bbox.BBox2D::from_positions([self.coordinates.to_2d()]).to_bbox()
+  }
+}
+
+///|
 pub impl ToGeometry for Point with to_geometry(self) {
   Geometry::Point(self)
 }

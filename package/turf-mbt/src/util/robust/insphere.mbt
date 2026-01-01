@@ -15,11 +15,11 @@ let insphere_err_bound_c : Double = (71.0 + 1408.0 * epsilon) *
 ///|
 /// Exact precision calculation for insphere (internal function)
 fn insphere_exact(
-  pa : Coord3D,
-  pb : Coord3D,
-  pc : Coord3D,
-  pd : Coord3D,
-  pe : Coord3D,
+  pa : @geojson.Position3D,
+  pb : @geojson.Position3D,
+  pc : @geojson.Position3D,
+  pd : @geojson.Position3D,
+  pe : @geojson.Position3D,
 ) -> Double {
   let (axby1, axby0) = two_product(pa.x, pb.y)
   let (bxay1, bxay0) = two_product(pb.x, pa.y)
@@ -216,11 +216,11 @@ fn insphere_exact(
 
 ///|
 fn insphere_adapt(
-  pa : Coord3D,
-  pb : Coord3D,
-  pc : Coord3D,
-  pd : Coord3D,
-  pe : Coord3D,
+  pa : @geojson.Position3D,
+  pb : @geojson.Position3D,
+  pc : @geojson.Position3D,
+  pd : @geojson.Position3D,
+  pe : @geojson.Position3D,
   permanent : Double,
 ) -> Double {
   // 座標の差分計算
@@ -450,17 +450,12 @@ fn insphere_adapt(
 /// - Negative: pe is outside the sphere
 /// - 0: pe is on the sphere surface
 pub fn insphere(
-  pa : @geojson.Position,
-  pb : @geojson.Position,
-  pc : @geojson.Position,
-  pd : @geojson.Position,
-  pe : @geojson.Position,
-) -> Double raise {
-  let pa = to_coord3d(pa)
-  let pb = to_coord3d(pb)
-  let pc = to_coord3d(pc)
-  let pd = to_coord3d(pd)
-  let pe = to_coord3d(pe)
+  pa : @geojson.Position3D,
+  pb : @geojson.Position3D,
+  pc : @geojson.Position3D,
+  pd : @geojson.Position3D,
+  pe : @geojson.Position3D,
+) -> Double {
   let aex = pa.x - pe.x
   let bex = pb.x - pe.x
   let cex = pc.x - pe.x

@@ -7,53 +7,52 @@ pub enum PointInPolygonResult {
 
 ///|
 pub fn point_in_polygon(
-  x : Double,
-  y : Double,
-  polygon : Array[Array[(Double, Double)]],
+  position : @geojson.Position2D,
+  polygon : @geojson.Polygon,
 ) -> PointInPolygonResult raise {
   let mut k = 0
-  let num_contours = polygon.length()
-  for i = 0; i < num_contours; i = i + 1 {
-    let contour = polygon[i]
+  for coordinates in polygon.coordinates {
+    let contour = coordinates
     let contour_len = contour.length() - 1
     if contour_len < 1 {
       continue
     }
-    let (first_x, first_y) = contour[0]
-    let (last_x, last_y) = contour[contour_len]
-    if first_x != last_x || first_y != last_y {
+    let first = contour[0].to_2d()
+    let last = contour[contour_len].to_2d()
+    if first.x != last.x || first.y != last.y {
       fail("First and last coordinates in a ring must be the same")
     }
-    let mut current_x = first_x
-    let mut current_y = first_y
-    let mut u1 = current_x - x
-    let mut v1 = current_y - y
+    let mut current = first
+    let mut diff1 = @geojson.Position2D::new(
+      (current.x - position.x, current.y - position.y),
+    )
     for ii = 0; ii < contour_len; ii = ii + 1 {
-      let (next_x, next_y) = contour[ii + 1]
-      let u2 = next_x - x
-      let v2 = next_y - y
-      if v1 == 0.0 && v2 == 0.0 {
-        if (u2 <= 0.0 && u1 >= 0.0) || (u1 <= 0.0 && u2 >= 0.0) {
+      let next = contour[ii + 1].to_2d()
+      let diff2 = @geojson.Position2D::new(
+        (next.x - position.x, next.y - position.y),
+      )
+      if diff1.y == 0.0 && diff2.y == 0.0 {
+        if (diff2.x <= 0.0 && diff1.x >= 0.0) ||
+          (diff1.x <= 0.0 && diff2.x >= 0.0) {
           return PointInPolygonResult::Boundary
         }
-      } else if (v2 >= 0.0 && v1 <= 0.0) || (v2 <= 0.0 && v1 >= 0.0) {
+      } else if (diff2.y >= 0.0 && diff1.y <= 0.0) ||
+        (diff2.y <= 0.0 && diff1.y >= 0.0) {
         let f = @robust.orient2d(
-          @geojson.Position::new2D(u1, v1),
-          @geojson.Position::new2D(u2, v2),
-          @geojson.Position::new2D(0.0, 0.0),
+          diff1,
+          diff2,
+          @geojson.Position2D::new((0.0, 0.0)),
         )
         if f == 0.0 {
           return PointInPolygonResult::Boundary
         }
-        if (f > 0.0 && v2 > 0.0 && v1 <= 0.0) ||
-          (f < 0.0 && v2 <= 0.0 && v1 > 0.0) {
+        if (f > 0.0 && diff2.y > 0.0 && diff1.y <= 0.0) ||
+          (f < 0.0 && diff2.y <= 0.0 && diff1.y > 0.0) {
           k += 1
         }
       }
-      current_x = next_x
-      current_y = next_y
-      v1 = v2
-      u1 = u2
+      current = next
+      diff1 = diff2
     }
   }
   if k % 2 == 0 {

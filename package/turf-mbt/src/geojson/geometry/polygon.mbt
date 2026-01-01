@@ -9,12 +9,12 @@ pub suberror InvalidPolygonError String derive(Show, Eq, Compare, Hash)
 fn check_linear_ring(
   ring : Array[@position.Position],
 ) -> Unit raise InvalidPolygonError {
-  if ring.length() < 4 {
+  guard ring.length() >= 4 else {
     raise InvalidPolygonError(
       "Each LinearRing of a Polygon must have 4 or more Positions.",
     )
   }
-  if ring[0] != ring[ring.length() - 1] {
+  guard ring[0] == ring[ring.length() - 1] else {
     raise InvalidPolygonError("First and last Position are not equivalent.")
   }
 }
@@ -40,6 +40,19 @@ pub fn Polygon::new(
     check_linear_ring(ring)
   }
   Polygon::{ coordinates, bbox }
+}
+
+///|
+pub impl ToBBox for Polygon with to_bbox(self, re_compute? = false) {
+  match (self.bbox, re_compute) {
+    (Some(bbox), false) => bbox
+    _ => {
+      let position_array = self.coordinates
+        .map(ring => ring.map(pos => pos.to_2d()))
+        .flatten()
+      @bbox.BBox2D::from_positions(position_array).to_bbox()
+    }
+  }
 }
 
 ///|

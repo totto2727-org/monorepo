@@ -13,10 +13,10 @@ let orient3d_err_bound_c : Double = (26.0 + 288.0 * epsilon) * epsilon * epsilon
 ///|
 /// Adaptive precision calculation for orient3d (internal function)
 fn orient3d_adapt(
-  pa : Coord3D,
-  pb : Coord3D,
-  pc : Coord3D,
-  pd : Coord3D,
+  pa : @geojson.Position3D,
+  pb : @geojson.Position3D,
+  pc : @geojson.Position3D,
+  pd : @geojson.Position3D,
   permanent : Double,
 ) -> Double {
   // Calculate coordinate differences
@@ -221,16 +221,12 @@ fn orient3d_adapt(
 /// - Negative: pd is inside the plane pa-pb-pc
 /// - 0: Coplanar
 pub fn orient3d(
-  pa : @geojson.Position,
-  pb : @geojson.Position,
-  pc : @geojson.Position,
-  pd : @geojson.Position,
-) -> Double raise {
+  pa : @geojson.Position3D,
+  pb : @geojson.Position3D,
+  pc : @geojson.Position3D,
+  pd : @geojson.Position3D,
+) -> Double {
   // Calculate coordinate differences
-  let pa = to_coord3d(pa)
-  let pb = to_coord3d(pb)
-  let pc = to_coord3d(pc)
-  let pd = to_coord3d(pd)
   let adx = pa.x - pd.x
   let bdx = pb.x - pd.x
   let cdx = pc.x - pd.x

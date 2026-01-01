@@ -9,9 +9,9 @@ let ccw_err_bound_c : Double = (9.0 + 64.0 * epsilon) * epsilon * epsilon
 ///|
 /// Adaptive precision calculation for orient2d (internal function)
 fn orient2d_adapt(
-  pa : Coord,
-  pb : Coord,
-  pc : Coord,
+  pa : @geojson.Position2D,
+  pb : @geojson.Position2D,
+  pc : @geojson.Position2D,
   detsum : Double,
 ) -> Double {
   // Calculate coordinate differences
@@ -74,14 +74,10 @@ fn orient2d_adapt(
 /// - Negative: Clockwise (pc is to the right of pa->pb)
 /// - 0: Collinear
 pub fn orient2d(
-  pa : @geojson.Position,
-  pb : @geojson.Position,
-  pc : @geojson.Position,
+  pa : @geojson.Position2D,
+  pb : @geojson.Position2D,
+  pc : @geojson.Position2D,
 ) -> Double {
-  let pa = to_coord(pa)
-  let pb = to_coord(pb)
-  let pc = to_coord(pc)
-
   // Approximate calculation
   let detleft = (pa.x - pc.x) * (pb.y - pc.y)
   let detright = (pa.y - pc.y) * (pb.x - pc.x)

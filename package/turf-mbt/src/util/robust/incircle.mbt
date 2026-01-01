@@ -38,10 +38,10 @@ fn two_two_sum(
 ///|
 /// Adaptive precision calculation for incircle (internal function)
 fn incircle_adapt(
-  pa : Coord,
-  pb : Coord,
-  pc : Coord,
-  pd : Coord,
+  pa : @geojson.Position2D,
+  pb : @geojson.Position2D,
+  pc : @geojson.Position2D,
+  pd : @geojson.Position2D,
   permanent : Double,
 ) -> Double {
   let adx = pa.x - pd.x
@@ -259,15 +259,11 @@ fn incircle_adapt(
 /// - Negative: pd is outside the circle
 /// - 0: pd is on the circle boundary
 pub fn incircle(
-  pa : @geojson.Position,
-  pb : @geojson.Position,
-  pc : @geojson.Position,
-  pd : @geojson.Position,
+  pa : @geojson.Position2D,
+  pb : @geojson.Position2D,
+  pc : @geojson.Position2D,
+  pd : @geojson.Position2D,
 ) -> Double {
-  let pa = to_coord(pa)
-  let pb = to_coord(pb)
-  let pc = to_coord(pc)
-  let pd = to_coord(pd)
   let adx = pa.x - pd.x
   let bdx = pb.x - pd.x
   let cdx = pc.x - pd.x
