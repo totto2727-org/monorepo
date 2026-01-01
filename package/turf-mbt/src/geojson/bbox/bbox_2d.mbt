@@ -18,6 +18,43 @@ pub fn BBox2D::new(
 }
 
 ///|
+pub(all) suberror EmptyPositionsError String derive(Show, Eq, Compare, Hash)
+
+///|
+pub fn BBox2D::from_positions(
+  positions : Array[@position.Position2D],
+) -> BBox2D raise EmptyPositionsError {
+  let min_x = positions.fold(
+    init=positions
+      .get(0)
+      .unwrap_or_error(EmptyPositionsError("Positions array is empty")).x,
+    (mix, position) => @cmp.minimum(mix, position.x),
+  )
+  let min_y = positions.fold(
+    init=positions
+      .get(0)
+      .unwrap_or_error(EmptyPositionsError("Positions array is empty")).y,
+    (mix, position) => @cmp.minimum(mix, position.y),
+  )
+  let max_x = positions.fold(
+    init=positions
+      .get(0)
+      .unwrap_or_error(EmptyPositionsError("Positions array is empty")).x,
+    (mix, position) => @cmp.maximum(mix, position.x),
+  )
+  let max_y = positions.fold(
+    init=positions
+      .get(0)
+      .unwrap_or_error(EmptyPositionsError("Positions array is empty")).y,
+    (mix, position) => @cmp.maximum(mix, position.y),
+  )
+  BBox2D::new(
+    @position.Position2D::new((min_x, min_y)),
+    @position.Position2D::new((max_x, max_y)),
+  )
+}
+
+///|
 /// インターフェイスを揃えるため
 /// BBox2D 自身を返す
 pub impl ToBBox2D for BBox2D with to_2d(self) {
