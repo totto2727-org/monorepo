@@ -37,6 +37,6 @@ test "GeoJSONObject(BBox is not null) from JSON" {
   })
   inspect(
     geojson_object,
-    content="{_type: Geometry(Polygon), bbox: Some(BBox2D(0, 1, 2, 3))}",
+    content="{_type: Geometry(Polygon), bbox: Some(BBox2D({min: {x: 0, y: 1}, max: {x: 2, y: 3}}))}",
   )
 }
