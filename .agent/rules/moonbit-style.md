@@ -103,3 +103,14 @@ description: Moonbit(.mbt) Coding Standards
 - Use `assert_eq(actual, expected)` for value equality.
 - Do not ignore compilation warnings; fix them (e.g., unused variables).
 - Group related tests in the same file or dedicated `_test.mbt` files.
+- **VSCode Markers**: Add `// MARK: function_name` comments to separate tests for different functions.
+
+  ```moonbit
+  // MARK: func1
+
+  test "func1 ..."
+
+  // MARK: func2
+
+  test "func2 ..."
+  ```
