@@ -114,3 +114,15 @@ description: Moonbit(.mbt) Coding Standards
 
   test "func2 ..."
   ```
+
+- **Test Naming**: Use the pattern `test "[Target] [Method] - [Scenario]"` to ensure clarity.
+  - **Target**: The struct or function being tested.
+  - **Method**: The specific method being tested (optional for simple functions).
+  - **Scenario**: The condition or specific case being verified.
+  - **Note**: If the test expects a panic, the name **must** start with `panic_` (e.g., `test "panic_[Target] [Method] - [Scenario]"`).
+
+  ```moonbit
+  test "Point to_bbox - without bbox" { ... }
+  test "orient2d - clockwise" { ... }
+  test "panic_Polygon from_json - invalid type" { ... }
+  ```
