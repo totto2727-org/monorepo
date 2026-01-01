@@ -1,8 +1,14 @@
 ///|
 test "FeatureCollection(all non-null) to JSON" {
   let featureCollection = FeatureCollection::new(
-    [Feature::new(geometry=Some(Geometry::point(Position::new2D(0, 0))))],
-    bbox=Some(BBox::new2D((0, 0, 1, 1))),
+    [
+      Feature::new(
+        geometry=Some(
+          @geometry.Point::new(@primary.Position::new2D((0, 0))).to_geometry(),
+        ),
+      ),
+    ],
+    bbox=Some(@primary.BBox::new2D((0, 0, 1, 1))),
   )
   @json.inspect(featureCollection, content={
     "type": "FeatureCollection",
@@ -42,7 +48,7 @@ test "FeatureCollection(all non-null) from JSON" {
   let featureCollection : FeatureCollection = @json.from_json(json)
   inspect(
     featureCollection,
-    content="{features: [{geometry: Some(Point(coordinates=Position2D(0, 0), bbox=None)), properties: Some({}), id: None, bbox: None}], bbox: Some(BBox2D(0, 0, 1, 1))}",
+    content="{features: [{geometry: Some(Point({coordinates: Position2D((0, 0)), bbox: None})), properties: Some({}), id: None, bbox: None}], bbox: Some(BBox2D((0, 0, 1, 1)))}",
   )
 }
 

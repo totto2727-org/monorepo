@@ -1,53 +1,47 @@
 ///|
-fn in_bbox(
-  px : Double,
-  py : Double,
-  west : Double,
-  south : Double,
-  east : Double,
-  north : Double,
-) -> Bool {
-  west <= px && south <= py && east >= px && north >= py
+fn in_bbox(point : @geojson.Position2D, bbox : @geojson.BBox2D) -> Bool {
+  let (x, y) = point
+  let (west, south, east, north) = bbox
+  west <= x && south <= y && east >= x && north >= y
 }
 
 ///|
-fn position_to_tuple(pos : @geojson.Position) -> (Double, Double) {
-  match pos {
-    @geojson.Position::Position2D(x, y) => (x, y)
-    @geojson.Position::Position3D(x, y, _) => (x, y)
-  }
-}
-
-///|
-fn positions_to_tuples(
+fn positions_to_position_2d_array(
   positions : Array[@geojson.Position],
-) -> Array[(Double, Double)] {
-  positions.map(position_to_tuple)
+) -> Array[@geojson.Position2D] {
+  positions.map(@geojson.Position::to_2d)
 }
 
 ///|
 fn polygon_coords_to_rings(
   coords : Array[Array[@geojson.Position]],
 ) -> Array[Array[(Double, Double)]] {
-  coords.map(positions_to_tuples)
+  coords.map(positions_to_position_2d_array)
 }
 
 ///|
 pub fn boolean_point_in_polygon(
-  point : @geojson.Position,
-  polygon : @geojson.Geometry,
+  point : @geojson.Point,
+  polygon : @geojson.Polygon,
   ignore_boundary? : Bool = false,
 ) -> Bool raise {
-  let (px, py) = position_to_tuple(point)
+  let point_coordinates = point.coordinates.to_2d()
   match polygon.get_bbox() {
     Some(bbox) => {
       let (west, south, east, north) = match bbox {
         @geojson.BBox::BBox2D(west, south, east, north) =>
           (west, south, east, north)
-        @geojson.BBox::BBox3D(west, south, _, east, north, _) =>
-          (west, south, east, north)
       }
-      if not(in_bbox(px, py, west, south, east, north)) {
+      if not(
+          in_bbox(
+            point_coordinates.0,
+            point_coordinates.1,
+            west,
+            south,
+            east,
+            north,
+          ),
+        ) {
         return false
       }
     }

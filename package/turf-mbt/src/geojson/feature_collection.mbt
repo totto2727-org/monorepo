@@ -5,25 +5,25 @@ pub struct FeatureCollection {
   /// The array of features.
   features : Array[Feature]
   /// Bounding box.
-  bbox : BBox?
+  bbox : @primary.BBox?
 } derive(Show, Eq)
 
 ///|
 pub fn FeatureCollection::new(
   features : Array[Feature],
-  bbox? : BBox? = None,
+  bbox? : @primary.BBox? = None,
 ) -> FeatureCollection {
   FeatureCollection::{ features, bbox }
 }
 
 ///|
-pub impl ToGeoJSONTypes for FeatureCollection with to_geojson_types(_self) {
-  GeoJSONTypes::FeatureCollection
-}
-
-///|
-pub impl ToGeoJSONObject for FeatureCollection with to_geojson_object(self) {
-  GeoJSONObject::new(self.to_geojson_types(), bbox=self.bbox)
+pub impl @primary.ToGeoJSONObject for FeatureCollection with to_geojson_object(
+  self,
+) {
+  @primary.GeoJSONObject::new(
+    @primary.GeoJSONTypes::feature_collection(),
+    bbox=self.bbox,
+  )
 }
 
 ///|
@@ -40,21 +40,17 @@ pub impl ToJson for FeatureCollection with to_json(self) {
 
 ///|
 pub impl FromJson for FeatureCollection with from_json(json, path) {
-  let geojson_object : GeoJSONObject = @json.from_json(json, path~)
-  if geojson_object._type != GeoJSONTypes::FeatureCollection {
-    raise @json.JsonDecodeError((path, "Invalid FeatureCollection type"))
+  let geojson_object = @primary.GeoJSONObject::from_json(json, path)
+  match geojson_object._type {
+    @primary.GeoJSONTypes::FeatureCollection => ()
+    _ => raise @json.JsonDecodeError((path, "Invalid FeatureCollection type"))
   }
-  fn get_features_json() raise @json.JsonDecodeError {
-    match json {
-      Object(map) =>
-        match map.get("features") {
-          Some(Json::Array(_) as features) => features
-          _ => raise @json.JsonDecodeError((path, "Invalid features"))
-        }
-      _ => raise @json.JsonDecodeError((path, "Invalid features"))
-    }
+  let features = match @helper.get_field(json, "features") {
+    Some(features) => features
+    _ => raise @json.JsonDecodeError((path, "Invalid features"))
   }
-
-  let features : Array[Feature] = @json.from_json(get_features_json(), path~)
-  FeatureCollection::new(features, bbox=geojson_object.bbox)
+  FeatureCollection::new(
+    @json.from_json(features, path~),
+    bbox=geojson_object.bbox,
+  )
 }
