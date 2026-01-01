@@ -1,0 +1,3 @@
+{
+  "import": ["package/turf_mbt/geojson/internal/helper"]
+}

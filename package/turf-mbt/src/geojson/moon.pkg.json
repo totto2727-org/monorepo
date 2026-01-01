@@ -1,1 +1,7 @@
-{}
+{
+  "import": [
+    "package/turf_mbt/geojson/primary",
+    "package/turf_mbt/geojson/geometry",
+    "package/turf_mbt/geojson/internal/helper"
+  ]
+}
