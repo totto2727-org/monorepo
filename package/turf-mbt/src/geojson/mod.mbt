@@ -18,7 +18,7 @@ pub using @primary {
 }
 
 ///|
-pub using @bbox {type BBox, type BBox2D}
+pub using @bbox {type BBox, type BBox2D, type BBox3D}
 
 ///|
-pub using @position {type Position, type Position2D}
+pub using @position {type Position, type Position2D, type Position3D}
