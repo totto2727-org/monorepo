@@ -1,5 +1,5 @@
 ///|
-test "incircle" {
+test "incircle - basic cases" {
   let min_positive = 2.2250738585072014e-308
   let p_from = @geojson.Position2D::new((-1.0, -1.0))
   let p_to = @geojson.Position2D::new((1.0, 1.0))
@@ -11,7 +11,7 @@ test "incircle" {
 }
 
 ///|
-test "issue48_a" {
+test "incircle - issue48_a" {
   let pa = @geojson.Position2D::new(
     (2.1045541600524288e-15, -1.0000000000000016),
   )
@@ -26,7 +26,7 @@ test "issue48_a" {
 }
 
 ///|
-test "issue48_b" {
+test "incircle - issue48_b" {
   let pa = @geojson.Position2D::new(
     (9.128561612013288e-15, -1.0000000000000029),
   )
@@ -43,7 +43,7 @@ test "issue48_b" {
 }
 
 ///|
-test "incircle fixtures" {
+test "incircle - fixtures" {
   let content = @fs.read_file_to_string("src/util/robust/fixture/incircle.txt")
   let fixtures = parse_fixture_lines(content)
   for i = 0; i < fixtures.length(); i = i + 1 {

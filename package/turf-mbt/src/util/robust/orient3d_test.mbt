@@ -1,5 +1,5 @@
 ///|
-test "orient3d" {
+test "orient3d - basic cases" {
   let pa = @geojson.Position3D::new((1.0, 0.0, 1.0))
   let pb = @geojson.Position3D::new((-1.0, 0.0, -1.0))
   let pc = @geojson.Position3D::new((-1.0, 0.0, 0.0))
@@ -18,7 +18,7 @@ test "orient3d" {
 }
 
 ///|
-test "orient3d fixtures" {
+test "orient3d - fixtures" {
   let content = @fs.read_file_to_string("src/util/robust/fixture/orient3d.txt")
   let fixtures = parse_fixture_lines(content)
   for i, fixture in fixtures {

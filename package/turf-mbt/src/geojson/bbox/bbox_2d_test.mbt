@@ -1,5 +1,5 @@
 ///|
-test "BBox2D::from_positions" {
+test "BBox2D from_positions - multiple points" {
   let positions = [
     @position.Position2D::new((0, 0)),
     @position.Position2D::new((10, 10)),
@@ -10,21 +10,21 @@ test "BBox2D::from_positions" {
 }
 
 ///|
-test "BBox2D::from_positions - single point" {
+test "BBox2D from_positions - single point" {
   let positions = [@position.Position2D::new((0, 0))]
   let bbox = BBox2D::from_positions(positions)
   inspect(bbox, content="{min: {x: 0, y: 0}, max: {x: 0, y: 0}}")
 }
 
 ///|
-test "BBox2D::from_positions - empty" {
+test "BBox2D from_positions - empty" {
   try BBox2D::from_positions([]) |> ignore catch {
     EmptyPositionsError(msg) => inspect(msg, content="Positions array is empty")
   }
 }
 
 ///|
-test "BBox2D to JSON" {
+test "BBox2D to_json - simple" {
   let min = @position.Position2D::new((0, 0))
   let max = @position.Position2D::new((1, 1))
   let bbox = BBox2D::new(min, max)
@@ -32,13 +32,13 @@ test "BBox2D to JSON" {
 }
 
 ///|
-test "BBox2D from JSON" {
+test "BBox2D from_json - simple" {
   let bbox : BBox2D = @json.from_json([0, 0, 1, 1])
   inspect(bbox, content="{min: {x: 0, y: 0}, max: {x: 1, y: 1}}")
 }
 
 ///|
-test "BBox2D as BBox" {
+test "BBox2D to_bbox" {
   let min = @position.Position2D::new((0, 0))
   let max = @position.Position2D::new((1, 1))
   let bbox = BBox2D::new(min, max)

@@ -1,5 +1,5 @@
 ///|
-test "Feature(all non-null) to JSON" {
+test "Feature to_json - all non-null" {
   let feature = Feature::new(
     geometry=Some(
       @geometry.Point::new(@position.Position2D::new((0, 0)).to_position()).to_geometry(),
@@ -23,7 +23,7 @@ test "Feature(all non-null) to JSON" {
 }
 
 ///|
-test "Feature(all null) to JSON" {
+test "Feature to_json - all null" {
   let feature = Feature::new()
   @json.inspect(feature, content={
     "type": "Feature",
@@ -33,7 +33,7 @@ test "Feature(all null) to JSON" {
 }
 
 ///|
-test "Feature(all non-null) from JSON" {
+test "Feature from_json - all non-null" {
   let json : Json = {
     "type": "Feature",
     "geometry": { "type": "Point", "coordinates": [0, 1] },
@@ -51,7 +51,7 @@ test "Feature(all non-null) from JSON" {
 }
 
 ///|
-test "Feature(all null) from JSON" {
+test "Feature from_json - all null" {
   let json : Json = { "type": "Feature", "geometry": null, "properties": null }
   let feature : Feature = @json.from_json(json)
   inspect(
@@ -61,7 +61,7 @@ test "Feature(all null) from JSON" {
 }
 
 ///|
-test "Feature to_bbox without bbox" {
+test "Feature to_bbox - without bbox" {
   let feature = Feature::new(
     geometry=Some(
       @geometry.Point::new(@position.Position2D::new((0, 0)).to_position()).to_geometry(),
@@ -72,7 +72,7 @@ test "Feature to_bbox without bbox" {
 }
 
 ///|
-test "Feature to_bbox with bbox (no re-compute)" {
+test "Feature to_bbox - with bbox (no re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),
@@ -89,7 +89,7 @@ test "Feature to_bbox with bbox (no re-compute)" {
 }
 
 ///|
-test "Feature to_bbox with bbox (force re-compute)" {
+test "Feature to_bbox - with bbox (force re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),

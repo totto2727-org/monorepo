@@ -1,5 +1,5 @@
 ///|
-test "GeoJSONObject(BBox is null) to JSON" {
+test "GeoJSONObject to_json - null bbox" {
   let geojson_object = GeoJSONObject::new(
     GeoJSONTypes::geometry(GeoJSONGeometryTypes::point()),
   )
@@ -7,7 +7,7 @@ test "GeoJSONObject(BBox is null) to JSON" {
 }
 
 ///|
-test "GeoJSONObject(BBox is not null) to JSON" {
+test "GeoJSONObject to_json - with bbox" {
   let geojson_object = GeoJSONObject::new(
     GeoJSONTypes::geometry(GeoJSONGeometryTypes::point()),
     bbox=Some(
@@ -24,13 +24,13 @@ test "GeoJSONObject(BBox is not null) to JSON" {
 }
 
 ///|
-test "GeoJSONObject(BBox is null) from JSON" {
+test "GeoJSONObject from_json - null bbox" {
   let geojson_object : GeoJSONObject = @json.from_json({ "type": "Point" })
   inspect(geojson_object, content="{_type: Geometry(Point), bbox: None}")
 }
 
 ///|
-test "GeoJSONObject(BBox is not null) from JSON" {
+test "GeoJSONObject from_json - with bbox" {
   let geojson_object : GeoJSONObject = @json.from_json({
     "type": "Polygon",
     "bbox": [0, 1, 2, 3],

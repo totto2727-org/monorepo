@@ -1,11 +1,11 @@
 ///|
-test "Point to JSON" {
+test "Point to_json - simple" {
   let point = Point::new(@position.Position2D::new((0.0, 0.0)).to_position())
   @json.inspect(point, content={ "type": "Point", "coordinates": [0, 0] })
 }
 
 ///|
-test "Point with BBox to JSON" {
+test "Point to_json - with bbox" {
   let point = Point::new(
     @position.Position2D::new((10.0, 20.0)).to_position(),
     bbox=Some(
@@ -23,14 +23,14 @@ test "Point with BBox to JSON" {
 }
 
 ///|
-test "Point to_bbox without bbox" {
+test "Point to_bbox - without bbox" {
   let point = Point::new(@position.Position2D::new((10.0, 20.0)).to_position())
   let bbox = point.to_bbox()
   inspect(bbox, content="BBox2D({min: {x: 10, y: 20}, max: {x: 10, y: 20}})")
 }
 
 ///|
-test "Point to_bbox with bbox (no re-compute)" {
+test "Point to_bbox - with bbox (no re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),
@@ -45,7 +45,7 @@ test "Point to_bbox with bbox (no re-compute)" {
 }
 
 ///|
-test "Point to_bbox with bbox (force re-compute)" {
+test "Point to_bbox - with bbox (force re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),
@@ -60,7 +60,7 @@ test "Point to_bbox with bbox (force re-compute)" {
 }
 
 ///|
-test "Point from JSON" {
+test "Point from_json - simple" {
   let decoded : Point = @json.from_json({
     "type": "Point",
     "coordinates": [10, 20],
@@ -72,7 +72,7 @@ test "Point from JSON" {
 }
 
 ///|
-test "Point with BBox from JSON" {
+test "Point from_json - with bbox" {
   let decoded : Point = @json.from_json({
     "type": "Point",
     "coordinates": [10, 20],
@@ -85,7 +85,7 @@ test "Point with BBox from JSON" {
 }
 
 ///|
-test "panic_Point from JSON with invalid type" {
+test "panic_Point from_json - invalid type" {
   let _ : Point = @json.from_json({
     "type": "Point",
     "geometries": [],

@@ -1,5 +1,5 @@
 ///|
-test "Point in Polygon" {
+test "point_in_polygon - inside" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((1.0, 1.0)).to_position(),
@@ -17,7 +17,7 @@ test "Point in Polygon" {
 }
 
 ///|
-test "Point on Boundary" {
+test "point_in_polygon - boundary" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((1.0, 1.0)).to_position(),
@@ -35,7 +35,7 @@ test "Point on Boundary" {
 }
 
 ///|
-test "Point Outside" {
+test "point_in_polygon - outside" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((1.0, 1.0)).to_position(),
@@ -53,7 +53,7 @@ test "Point Outside" {
 }
 
 ///|
-test "Point with Integer Coords" {
+test "point_in_polygon - integer coords boundary" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((1.0, 1.0)).to_position(),
@@ -71,7 +71,7 @@ test "Point with Integer Coords" {
 }
 
 ///|
-test "Point with Integer Coords #2" {
+test "point_in_polygon - integer coords outside 1" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((1.0, 1.0)).to_position(),
@@ -89,7 +89,7 @@ test "Point with Integer Coords #2" {
 }
 
 ///|
-test "Point with Integer Coords #3" {
+test "point_in_polygon - integer coords outside 2" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((1.0, 1.0)).to_position(),
@@ -107,7 +107,7 @@ test "Point with Integer Coords #3" {
 }
 
 ///|
-test "Point with Integer Coords #4" {
+test "point_in_polygon - integer coords outside 3" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((1.0, 1.0)).to_position(),
@@ -125,7 +125,7 @@ test "Point with Integer Coords #4" {
 }
 
 ///|
-test "Point with Integer Coords #5" {
+test "point_in_polygon - integer coords outside 4" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((1.0, 1.0)).to_position(),
@@ -143,7 +143,7 @@ test "Point with Integer Coords #5" {
 }
 
 ///|
-test "Point wrapped around" {
+test "point_in_polygon - wrapped around" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((-180.0, -90.0)).to_position(),

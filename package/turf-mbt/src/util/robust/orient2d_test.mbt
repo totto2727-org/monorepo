@@ -29,7 +29,7 @@ test "orient2d - collinear" {
 }
 
 ///|
-test "orient2d" {
+test "orient2d - basic cases" {
   let min_positive = 2.2250738585072014e-308
   let p_from = @geojson.Position2D::new((-1.0, -1.0))
   let p_to = @geojson.Position2D::new((1.0, 1.0))
@@ -48,7 +48,7 @@ test "orient2d" {
 }
 
 ///|
-test "orient2d fixtures" {
+test "orient2d - fixtures" {
   let content = @fs.read_file_to_string("src/util/robust/fixture/orient2d.txt")
   let fixtures = parse_fixture_lines(content)
   for i = 0; i < fixtures.length(); i = i + 1 {

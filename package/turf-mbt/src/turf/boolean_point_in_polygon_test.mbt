@@ -1,5 +1,5 @@
 ///|
-test "point inside simple polygon" {
+test "boolean_point_in_polygon - inside simple" {
   let json : Json = {
     "type": "Polygon",
     "coordinates": [
@@ -14,7 +14,7 @@ test "point inside simple polygon" {
 }
 
 ///|
-test "point outside simple polygon" {
+test "boolean_point_in_polygon - outside simple" {
   let json : Json = {
     "type": "Polygon",
     "coordinates": [
@@ -29,7 +29,7 @@ test "point outside simple polygon" {
 }
 
 ///|
-test "point inside concave polygon" {
+test "boolean_point_in_polygon - inside concave" {
   let json : Json = {
     "type": "Polygon",
     "coordinates": [
@@ -51,7 +51,7 @@ test "point inside concave polygon" {
 }
 
 ///|
-test "point outside concave polygon" {
+test "boolean_point_in_polygon - outside concave" {
   let json : Json = {
     "type": "Polygon",
     "coordinates": [
@@ -73,7 +73,7 @@ test "point outside concave polygon" {
 }
 
 ///|
-test "point on boundary - default (included)" {
+test "boolean_point_in_polygon - boundary included" {
   let json : Json = {
     "type": "Polygon",
     "coordinates": [
@@ -88,7 +88,7 @@ test "point on boundary - default (included)" {
 }
 
 ///|
-test "point on boundary - ignored" {
+test "boolean_point_in_polygon - boundary ignored" {
   let json : Json = {
     "type": "Polygon",
     "coordinates": [
@@ -106,7 +106,7 @@ test "point on boundary - ignored" {
 }
 
 ///|
-test "point in polygon with hole - outside hole" {
+test "boolean_point_in_polygon - inside hole (outside)" {
   let json : Json = {
     "type": "Polygon",
     "coordinates": [
@@ -122,7 +122,7 @@ test "point in polygon with hole - outside hole" {
 }
 
 ///|
-test "point in polygon with hole - inside hole" {
+test "boolean_point_in_polygon - in hole (inside)" {
   let json : Json = {
     "type": "Polygon",
     "coordinates": [
@@ -138,7 +138,7 @@ test "point in polygon with hole - inside hole" {
 }
 
 ///|
-test "point in multipolygon - first polygon" {
+test "boolean_point_in_polygon - multipolygon first" {
   let json : Json = {
     "type": "MultiPolygon",
     "coordinates": [
@@ -154,7 +154,7 @@ test "point in multipolygon - first polygon" {
 }
 
 ///|
-test "point in multipolygon - second polygon" {
+test "boolean_point_in_polygon - multipolygon second" {
   let json : Json = {
     "type": "MultiPolygon",
     "coordinates": [
@@ -170,7 +170,7 @@ test "point in multipolygon - second polygon" {
 }
 
 ///|
-test "point in multipolygon with hole" {
+test "boolean_point_in_polygon - multipolygon with hole" {
   let ptInHole = @geojson.Point::new(
     @geojson.Position2D::new((-86.69208526611328, 36.20373274711739)).to_position(),
   )
@@ -208,7 +208,7 @@ test "point in multipolygon with hole" {
 }
 
 ///|
-test "boolean-point-in-polygon -- issue #15" {
+test "boolean_point_in_polygon - issue #15" {
   let pt1 = @geojson.Point::new(
     @geojson.Position2D::new((-9.9964077, 53.8040989)).to_position(),
   )
@@ -225,7 +225,7 @@ test "boolean-point-in-polygon -- issue #15" {
 }
 
 ///|
-test "boolean-point-in-polygon -- Boundary test" {
+test "boolean_point_in_polygon - boundary test fixtures" {
   let poly1 : @geojson.Geometry = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((10.0, 10.0)).to_position(),
@@ -516,7 +516,7 @@ test "boolean-point-in-polygon -- Boundary test" {
 }
 
 ///|
-test "boolean-point-in-polygon -- poly with hole (fixture)" {
+test "boolean_point_in_polygon - poly with hole fixture" {
   let ptInHole = @geojson.Point::new(
     @geojson.Position2D::new((-86.69208526611328, 36.20373274711739)).to_position(),
   )

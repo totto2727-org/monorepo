@@ -1,17 +1,17 @@
 ///|
-test "Position(Position2D) from JSON" {
+test "Position from_json - Position2D" {
   let position2d : Position = @json.from_json([0, 0])
   inspect(position2d, content="Position2D({x: 0, y: 0})")
 }
 
 ///|
-test "Position(Position3D) from JSON" {
+test "Position from_json - Position3D" {
   let position3d : Position = @json.from_json([0, 0, 1])
   inspect(position3d, content="Position3D({x: 0, y: 0, z: 1})")
 }
 
 ///|
-test "Position from JSON with invalid data" {
+test "Position from_json - invalid data" {
   // length: 0
   inspect(
     try? (@json.from_json([]) : Position),

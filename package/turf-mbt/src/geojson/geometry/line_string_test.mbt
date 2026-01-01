@@ -1,5 +1,5 @@
 ///|
-test "LineString to JSON" {
+test "LineString to_json - simple" {
   let line_string = LineString::new([
     @position.Position2D::new((0.0, 0.0)).to_position(),
     @position.Position2D::new((1.0, 1.0)).to_position(),
@@ -11,7 +11,7 @@ test "LineString to JSON" {
 }
 
 ///|
-test "LineString with BBox to JSON" {
+test "LineString to_json - with bbox" {
   let line_string = LineString::new(
     [
       @position.Position2D::new((0.0, 0.0)).to_position(),
@@ -32,7 +32,7 @@ test "LineString with BBox to JSON" {
 }
 
 ///|
-test "LineString from JSON" {
+test "LineString from_json - simple" {
   let decoded : LineString = @json.from_json({
     "type": "LineString",
     "coordinates": [[10, 20], [30, 40]],
@@ -44,7 +44,7 @@ test "LineString from JSON" {
 }
 
 ///|
-test "LineString with BBox from JSON" {
+test "LineString from_json - with bbox" {
   let decoded : LineString = @json.from_json({
     "type": "LineString",
     "coordinates": [[10, 20], [30, 40]],
@@ -57,7 +57,7 @@ test "LineString with BBox from JSON" {
 }
 
 ///|
-test "panic_LineString from JSON with invalid type" {
+test "panic_LineString from_json - invalid type" {
   let _ : LineString = @json.from_json({
     "type": "LineString",
     "geometries": [],
@@ -67,7 +67,7 @@ test "panic_LineString from JSON with invalid type" {
 }
 
 ///|
-test "LineString to_bbox without bbox" {
+test "LineString to_bbox - without bbox" {
   let line_string = LineString::new([
     @position.Position2D::new((0.0, 0.0)).to_position(),
     @position.Position2D::new((10.0, 10.0)).to_position(),
@@ -77,7 +77,7 @@ test "LineString to_bbox without bbox" {
 }
 
 ///|
-test "LineString to_bbox with bbox (no re-compute)" {
+test "LineString to_bbox - with bbox (no re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),
@@ -95,7 +95,7 @@ test "LineString to_bbox with bbox (no re-compute)" {
 }
 
 ///|
-test "LineString to_bbox with bbox (force re-compute)" {
+test "LineString to_bbox - with bbox (force re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),

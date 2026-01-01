@@ -1,5 +1,5 @@
 ///|
-test "Polygon to JSON" {
+test "Polygon to_json - simple" {
   let polygon = Polygon::new([
     [
       @position.Position2D::new((0.0, 0.0)).to_position(),
@@ -15,7 +15,7 @@ test "Polygon to JSON" {
 }
 
 ///|
-test "Polygon with BBox to JSON" {
+test "Polygon to_json - with bbox" {
   let polygon = Polygon::new(
     [
       [
@@ -40,7 +40,7 @@ test "Polygon with BBox to JSON" {
 }
 
 ///|
-test "Polygon from JSON" {
+test "Polygon from_json - simple" {
   let decoded : Polygon = @json.from_json({
     "type": "Polygon",
     "coordinates": [[[10, 20], [30, 40], [50, 60], [10, 20]]],
@@ -52,7 +52,7 @@ test "Polygon from JSON" {
 }
 
 ///|
-test "Polygon with BBox from JSON" {
+test "Polygon from_json - with bbox" {
   let decoded : Polygon = @json.from_json({
     "type": "Polygon",
     "coordinates": [[[10, 20], [30, 40], [50, 60], [10, 20]]],
@@ -65,7 +65,7 @@ test "Polygon with BBox from JSON" {
 }
 
 ///|
-test "panic_Polygon from Json with too few positions" {
+test "panic_Polygon from_json - too few positions" {
   let _ : Polygon = @json.from_json({
     "type": "Polygon",
     "coordinates": [[[0, 0], [1, 1], [0, 0]]],
@@ -74,7 +74,7 @@ test "panic_Polygon from Json with too few positions" {
 }
 
 ///|
-test "panic_Polygon from Json with non-equivalent first/last" {
+test "panic_Polygon from_json - non-equivalent first/last" {
   let _ : Polygon = @json.from_json({
     "type": "Polygon",
     "coordinates": [[[0, 0], [1, 1], [2, 2], [3, 3]]],
@@ -83,7 +83,7 @@ test "panic_Polygon from Json with non-equivalent first/last" {
 }
 
 ///|
-test "panic_Polygon from JSON with invalid type" {
+test "panic_Polygon from_json - invalid type" {
   let _ : Polygon = @json.from_json({
     "type": "Polygon",
     "geometries": [],
@@ -93,7 +93,7 @@ test "panic_Polygon from JSON with invalid type" {
 }
 
 ///|
-test "Polygon to_bbox without bbox" {
+test "Polygon to_bbox - without bbox" {
   let polygon = Polygon::new([
     [
       @position.Position2D::new((0.0, 0.0)).to_position(),
@@ -107,7 +107,7 @@ test "Polygon to_bbox without bbox" {
 }
 
 ///|
-test "Polygon to_bbox with bbox (no re-compute)" {
+test "Polygon to_bbox - with bbox (no re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),
@@ -129,7 +129,7 @@ test "Polygon to_bbox with bbox (no re-compute)" {
 }
 
 ///|
-test "Polygon to_bbox with bbox (force re-compute)" {
+test "Polygon to_bbox - with bbox (force re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),

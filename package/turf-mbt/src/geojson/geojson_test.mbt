@@ -1,5 +1,5 @@
 ///|
-test "GeoJSON(Geometry) to_bbox without bbox" {
+test "GeoJSON to_bbox - Geometry without bbox" {
   let point = Point::new(@position.Position2D::new((0.0, 0.0)).to_position())
   let geojson = GeoJSON::from_geometry(point.to_geometry())
   let bbox = geojson.to_bbox()
@@ -7,7 +7,7 @@ test "GeoJSON(Geometry) to_bbox without bbox" {
 }
 
 ///|
-test "GeoJSON(Feature) to_bbox with bbox (no re-compute)" {
+test "GeoJSON to_bbox - Feature with bbox (no re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),
@@ -25,7 +25,7 @@ test "GeoJSON(Feature) to_bbox with bbox (no re-compute)" {
 }
 
 ///|
-test "GeoJSON(Feature) to_bbox with bbox (force re-compute)" {
+test "GeoJSON to_bbox - Feature with bbox (force re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),
@@ -43,7 +43,7 @@ test "GeoJSON(Feature) to_bbox with bbox (force re-compute)" {
 }
 
 ///|
-test "GeoJSON::from_json - Feature" {
+test "GeoJSON from_json - Feature" {
   let json : Json = {
     "type": "Feature",
     "geometry": { "type": "Point", "coordinates": [0, 0] },
@@ -57,7 +57,7 @@ test "GeoJSON::from_json - Feature" {
 }
 
 ///|
-test "GeoJSON::from_json - FeatureCollection" {
+test "GeoJSON from_json - FeatureCollection" {
   let json : Json = {
     "type": "FeatureCollection",
     "features": [
@@ -76,7 +76,7 @@ test "GeoJSON::from_json - FeatureCollection" {
 }
 
 ///|
-test "GeoJSON::from_json - Point" {
+test "GeoJSON from_json - Point" {
   let json : Json = { "type": "Point", "coordinates": [0, 0] }
   let geojson : GeoJSON = @json.from_json(json)
   inspect(
@@ -86,7 +86,7 @@ test "GeoJSON::from_json - Point" {
 }
 
 ///|
-test "GeoJSON::from_json - MultiPoint" {
+test "GeoJSON from_json - MultiPoint" {
   let json : Json = { "type": "MultiPoint", "coordinates": [[0, 0], [1, 1]] }
   let geojson : GeoJSON = @json.from_json(json)
   inspect(
@@ -96,7 +96,7 @@ test "GeoJSON::from_json - MultiPoint" {
 }
 
 ///|
-test "GeoJSON::from_json - LineString" {
+test "GeoJSON from_json - LineString" {
   let json : Json = { "type": "LineString", "coordinates": [[0, 0], [1, 1]] }
   let geojson : GeoJSON = @json.from_json(json)
   inspect(
@@ -106,7 +106,7 @@ test "GeoJSON::from_json - LineString" {
 }
 
 ///|
-test "GeoJSON::from_json - MultiLineString" {
+test "GeoJSON from_json - MultiLineString" {
   let json : Json = {
     "type": "MultiLineString",
     "coordinates": [[[0, 0], [1, 1]], [[2, 2], [3, 3]]],
@@ -119,7 +119,7 @@ test "GeoJSON::from_json - MultiLineString" {
 }
 
 ///|
-test "GeoJSON::from_json - Polygon" {
+test "GeoJSON from_json - Polygon" {
   let json : Json = {
     "type": "Polygon",
     "coordinates": [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]],
@@ -132,7 +132,7 @@ test "GeoJSON::from_json - Polygon" {
 }
 
 ///|
-test "GeoJSON::from_json - MultiPolygon" {
+test "GeoJSON from_json - MultiPolygon" {
   let json : Json = {
     "type": "MultiPolygon",
     "coordinates": [
@@ -148,7 +148,7 @@ test "GeoJSON::from_json - MultiPolygon" {
 }
 
 ///|
-test "GeoJSON::from_json - GeometryCollection" {
+test "GeoJSON from_json - GeometryCollection" {
   let json : Json = {
     "type": "GeometryCollection",
     "geometries": [

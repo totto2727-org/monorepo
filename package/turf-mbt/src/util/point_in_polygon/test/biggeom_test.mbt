@@ -1,5 +1,5 @@
 ///|
-test "is inside Switzerland" {
+test "point_in_polygon - Switzerland inside" {
   let json_string = @fs.read_file_to_string(
     "src/util/point_in_polygon/test/fixtures/switzerland.geojson",
   )
@@ -14,7 +14,7 @@ test "is inside Switzerland" {
 }
 
 ///|
-test "is outside Switzerland" {
+test "point_in_polygon - Switzerland outside" {
   let json_string = @fs.read_file_to_string(
     "src/util/point_in_polygon/test/fixtures/switzerland.geojson",
   )
@@ -29,7 +29,7 @@ test "is outside Switzerland" {
 }
 
 ///|
-test "is inside kinked Switzerland" {
+test "point_in_polygon - kinked Switzerland inside" {
   let json_string = @fs.read_file_to_string(
     "src/util/point_in_polygon/test/fixtures/switzerlandKinked.geojson",
   )
@@ -44,7 +44,7 @@ test "is inside kinked Switzerland" {
 }
 
 ///|
-test "is outside kinked Switzerland" {
+test "point_in_polygon - kinked Switzerland outside" {
   let json_string = @fs.read_file_to_string(
     "src/util/point_in_polygon/test/fixtures/switzerlandKinked.geojson",
   )

@@ -1,5 +1,5 @@
 ///|
-test "MultiLineString to JSON" {
+test "MultiLineString to_json - simple" {
   let multi_line_string = MultiLineString::new([
     LineString::new([
       @position.Position2D::new((0.0, 0.0)).to_position(),
@@ -17,7 +17,7 @@ test "MultiLineString to JSON" {
 }
 
 ///|
-test "MultiLineString with BBox to JSON" {
+test "MultiLineString to_json - with bbox" {
   let multi_line_string = MultiLineString::new(
     [
       LineString::new([
@@ -44,7 +44,7 @@ test "MultiLineString with BBox to JSON" {
 }
 
 ///|
-test "MultiLineString from JSON" {
+test "MultiLineString from_json - simple" {
   let decoded : MultiLineString = @json.from_json({
     "type": "MultiLineString",
     "coordinates": [[[10, 20], [30, 40]], [[50, 60], [70, 80]]],
@@ -56,7 +56,7 @@ test "MultiLineString from JSON" {
 }
 
 ///|
-test "MultiLineString with BBox from JSON" {
+test "MultiLineString from_json - with bbox" {
   let decoded : MultiLineString = @json.from_json({
     "type": "MultiLineString",
     "coordinates": [[[10, 20], [30, 40]], [[50, 60], [70, 80]]],
@@ -69,7 +69,7 @@ test "MultiLineString with BBox from JSON" {
 }
 
 ///|
-test "panic_MultiLineString from JSON with invalid type" {
+test "panic_MultiLineString from_json - invalid type" {
   let _ : MultiLineString = @json.from_json({
     "type": "MultiLineString",
     "geometries": [],
@@ -79,7 +79,7 @@ test "panic_MultiLineString from JSON with invalid type" {
 }
 
 ///|
-test "MultiLineString to_bbox without bbox" {
+test "MultiLineString to_bbox - without bbox" {
   let multi_line_string = MultiLineString::new([
     LineString::new([
       @position.Position2D::new((0.0, 0.0)).to_position(),
@@ -91,7 +91,7 @@ test "MultiLineString to_bbox without bbox" {
 }
 
 ///|
-test "MultiLineString to_bbox with bbox (no re-compute)" {
+test "MultiLineString to_bbox - with bbox (no re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),
@@ -111,7 +111,7 @@ test "MultiLineString to_bbox with bbox (no re-compute)" {
 }
 
 ///|
-test "MultiLineString to_bbox with bbox (force re-compute)" {
+test "MultiLineString to_bbox - with bbox (force re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),

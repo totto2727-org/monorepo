@@ -1,5 +1,5 @@
 ///|
-test "is on edge poly" {
+test "point_in_polygon - floating point on edge" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((-115.1752628, 36.0873974)).to_position(),
@@ -17,7 +17,7 @@ test "is on edge poly" {
 }
 
 ///|
-test "is on other edge poly" {
+test "point_in_polygon - floating point on other edge" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((-115.1752628, 36.0873974)).to_position(),
@@ -35,7 +35,7 @@ test "is on other edge poly" {
 }
 
 ///|
-test "is on edge slightly tweaked poly" {
+test "point_in_polygon - floating point on tweaked edge" {
   let shiftedPoly = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((-115.1752628, 36.0873974)).to_position(),
@@ -53,7 +53,7 @@ test "is on edge slightly tweaked poly" {
 }
 
 ///|
-test "is on other edge slightly tweaked poly" {
+test "point_in_polygon - floating point on other tweaked edge" {
   let shiftedPoly = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((-115.1752628, 36.0873974)).to_position(),
@@ -71,7 +71,7 @@ test "is on other edge slightly tweaked poly" {
 }
 
 ///|
-test "complex case" {
+test "point_in_polygon - complex case 1" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((0.9500000000001119, 0.9500000000001101)).to_position(),
@@ -88,7 +88,7 @@ test "complex case" {
 }
 
 ///|
-test "complex case #2" {
+test "point_in_polygon - complex case 2" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((51.65906944711844, 32.644344469605144)).to_position(),

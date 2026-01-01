@@ -1,5 +1,5 @@
 ///|
-test "Geometry(Point) from JSON" {
+test "Geometry from_json - Point" {
   let geometry : Geometry = @json.from_json({
     "type": "Point",
     "coordinates": [10, 20],
@@ -8,7 +8,7 @@ test "Geometry(Point) from JSON" {
 }
 
 ///|
-test "Geometry(MultiPoint) from JSON" {
+test "Geometry from_json - MultiPoint" {
   let geometry : Geometry = @json.from_json({
     "type": "MultiPoint",
     "coordinates": [[10, 20], [30, 40]],
@@ -17,7 +17,7 @@ test "Geometry(MultiPoint) from JSON" {
 }
 
 ///|
-test "Geometry(LineString) from JSON" {
+test "Geometry from_json - LineString" {
   let geometry : Geometry = @json.from_json({
     "type": "LineString",
     "coordinates": [[10, 20], [30, 40]],
@@ -26,7 +26,7 @@ test "Geometry(LineString) from JSON" {
 }
 
 ///|
-test "Geometry(MultiLineString) from JSON" {
+test "Geometry from_json - MultiLineString" {
   let geometry : Geometry = @json.from_json({
     "type": "MultiLineString",
     "coordinates": [[[10, 20], [30, 40]], [[50, 60], [70, 80]]],
@@ -38,7 +38,7 @@ test "Geometry(MultiLineString) from JSON" {
 }
 
 ///|
-test "Geometry(Polygon) from JSON" {
+test "Geometry from_json - Polygon" {
   let geometry : Geometry = @json.from_json({
     "type": "Polygon",
     "coordinates": [[[10, 20], [30, 40], [50, 60], [10, 20]]],
@@ -47,7 +47,7 @@ test "Geometry(Polygon) from JSON" {
 }
 
 ///|
-test "Geometry(MultiPolygon) from JSON" {
+test "Geometry from_json - MultiPolygon" {
   let geometry : Geometry = @json.from_json({
     "type": "MultiPolygon",
     "coordinates": [
@@ -59,7 +59,7 @@ test "Geometry(MultiPolygon) from JSON" {
 }
 
 ///|
-test "Geometry(GeometryCollection) from JSON" {
+test "Geometry from_json - GeometryCollection" {
   let geometry : Geometry = @json.from_json({
     "type": "GeometryCollection",
     "geometries": [

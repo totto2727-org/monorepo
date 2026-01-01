@@ -1,11 +1,11 @@
 ///|
-test "BBox(BBox2D) from JSON" {
+test "BBox from_json - BBox2D" {
   let bbox : BBox = @json.from_json([0, 0, 1, 1])
   inspect(bbox, content="BBox2D({min: {x: 0, y: 0}, max: {x: 1, y: 1}})")
 }
 
 ///|
-test "BBox(BBox3D) from JSON" {
+test "BBox from_json - BBox3D" {
   let bbox : BBox = @json.from_json([0, 0, 1, 1, 2, 2])
   inspect(
     bbox,
@@ -14,7 +14,7 @@ test "BBox(BBox3D) from JSON" {
 }
 
 ///|
-test "BBox from JSON with invalid data" {
+test "BBox from_json - invalid data" {
   // length: 0
   inspect(
     try? (@json.from_json([]) : BBox),

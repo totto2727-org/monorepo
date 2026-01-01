@@ -1,5 +1,5 @@
 ///|
-test "MultiPolygon to JSON" {
+test "MultiPolygon to_json - simple" {
   let multi_polygon = MultiPolygon::new([
     Polygon::new([
       [
@@ -28,7 +28,7 @@ test "MultiPolygon to JSON" {
 }
 
 ///|
-test "MultiPolygon with BBox to JSON" {
+test "MultiPolygon to_json - with bbox" {
   let multi_polygon = MultiPolygon::new(
     [
       Polygon::new([
@@ -66,7 +66,7 @@ test "MultiPolygon with BBox to JSON" {
 }
 
 ///|
-test "MultiPolygon from JSON" {
+test "MultiPolygon from_json - simple" {
   let decoded : MultiPolygon = @json.from_json({
     "type": "MultiPolygon",
     "coordinates": [
@@ -81,7 +81,7 @@ test "MultiPolygon from JSON" {
 }
 
 ///|
-test "MultiPolygon with BBox from JSON" {
+test "MultiPolygon from_json - with bbox" {
   let decoded : MultiPolygon = @json.from_json({
     "type": "MultiPolygon",
     "coordinates": [
@@ -97,7 +97,7 @@ test "MultiPolygon with BBox from JSON" {
 }
 
 ///|
-test "panic_MultiPolygon from JSON with invalid type" {
+test "panic_MultiPolygon from_json - invalid type" {
   let _ : MultiPolygon = @json.from_json({
     "type": "MultiPolygon",
     "geometries": [],
@@ -107,7 +107,7 @@ test "panic_MultiPolygon from JSON with invalid type" {
 }
 
 ///|
-test "MultiPolygon to_bbox without bbox" {
+test "MultiPolygon to_bbox - without bbox" {
   let multi_polygon = MultiPolygon::new([
     Polygon::new([
       [
@@ -123,7 +123,7 @@ test "MultiPolygon to_bbox without bbox" {
 }
 
 ///|
-test "MultiPolygon to_bbox with bbox (no re-compute)" {
+test "MultiPolygon to_bbox - with bbox (no re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),
@@ -147,7 +147,7 @@ test "MultiPolygon to_bbox with bbox (no re-compute)" {
 }
 
 ///|
-test "MultiPolygon to_bbox with bbox (force re-compute)" {
+test "MultiPolygon to_bbox - with bbox (force re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),

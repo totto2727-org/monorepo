@@ -1,5 +1,5 @@
 ///|
-test "FeatureCollection(all non-null) to JSON" {
+test "FeatureCollection to_json - all non-null" {
   let featureCollection = FeatureCollection::new(
     [
       Feature::new(
@@ -29,7 +29,7 @@ test "FeatureCollection(all non-null) to JSON" {
 }
 
 ///|
-test "FeatureCollection(all empty) to JSON" {
+test "FeatureCollection to_json - all empty" {
   let featureCollection = FeatureCollection::new([])
   @json.inspect(featureCollection, content={
     "type": "FeatureCollection",
@@ -38,7 +38,7 @@ test "FeatureCollection(all empty) to JSON" {
 }
 
 ///|
-test "FeatureCollection(all non-null) from JSON" {
+test "FeatureCollection from_json - all non-null" {
   let json : Json = {
     "type": "FeatureCollection",
     "features": [
@@ -58,14 +58,14 @@ test "FeatureCollection(all non-null) from JSON" {
 }
 
 ///|
-test "FeatureCollection(all empty) from JSON" {
+test "FeatureCollection from_json - all empty" {
   let json : Json = { "type": "FeatureCollection", "features": [] }
   let featureCollection : FeatureCollection = @json.from_json(json)
   inspect(featureCollection, content="{features: [], bbox: None}")
 }
 
 ///|
-test "FeatureCollection to_bbox without bbox" {
+test "FeatureCollection to_bbox - without bbox" {
   let featureCollection = FeatureCollection::new([
     Feature::new(
       geometry=Some(
@@ -83,7 +83,7 @@ test "FeatureCollection to_bbox without bbox" {
 }
 
 ///|
-test "FeatureCollection to_bbox with bbox (no re-compute)" {
+test "FeatureCollection to_bbox - with bbox (no re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),
@@ -111,7 +111,7 @@ test "FeatureCollection to_bbox with bbox (no re-compute)" {
 }
 
 ///|
-test "FeatureCollection to_bbox with bbox (force re-compute)" {
+test "FeatureCollection to_bbox - with bbox (force re-compute)" {
   let custom_bbox = @bbox.BBox2D::new(
     @position.Position2D::new((0.0, 0.0)),
     @position.Position2D::new((0.0, 0.0)),

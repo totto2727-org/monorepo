@@ -1,5 +1,5 @@
 ///|
-test "is on bottom edge poly" {
+test "point_in_polygon - floating simple bottom edge" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((1.111111111111, 1.111111111111)).to_position(),
@@ -17,7 +17,7 @@ test "is on bottom edge poly" {
 }
 
 ///|
-test "is on top edge poly" {
+test "point_in_polygon - floating simple top edge" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((1.111111111111, 1.111111111111)).to_position(),
@@ -35,7 +35,7 @@ test "is on top edge poly" {
 }
 
 ///|
-test "is on left edge poly" {
+test "point_in_polygon - floating simple left edge" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((1.111111111111, 1.111111111111)).to_position(),
@@ -53,7 +53,7 @@ test "is on left edge poly" {
 }
 
 ///|
-test "is on right edge poly" {
+test "point_in_polygon - floating simple right edge" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((1.111111111111, 1.111111111111)).to_position(),
@@ -71,7 +71,7 @@ test "is on right edge poly" {
 }
 
 ///|
-test "is just inside left edge" {
+test "point_in_polygon - floating simple just inside left" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((1.111111111111, 1.111111111111)).to_position(),
@@ -89,7 +89,7 @@ test "is just inside left edge" {
 }
 
 ///|
-test "is just outside left edge" {
+test "point_in_polygon - floating simple just outside left" {
   let polygon = @geojson.Polygon::new([
     [
       @geojson.Position2D::new((1.111111111111, 1.111111111111)).to_position(),
