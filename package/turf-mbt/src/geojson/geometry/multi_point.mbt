@@ -25,6 +25,17 @@ pub impl @primary.ToGeoJSONObject for MultiPoint with to_geojson_object(self) {
 }
 
 ///|
+pub impl ToBBox for MultiPoint with to_bbox(self, re_compute? = false) {
+  match (self.bbox, re_compute) {
+    (Some(bbox), false) => bbox
+    _ => {
+      let position_array = self.points.map(p => p.coordinates.to_2d())
+      @bbox.BBox2D::from_positions(position_array).to_bbox()
+    }
+  }
+}
+
+///|
 pub impl ToGeometry for MultiPoint with to_geometry(self) {
   Geometry::MultiPoint(self)
 }
@@ -32,7 +43,7 @@ pub impl ToGeometry for MultiPoint with to_geometry(self) {
 ///|
 pub impl ToJson for MultiPoint with to_json(self) {
   let base = self.to_geojson_object().to_json_map()
-  let coordinates = self.points |> Array::map(p => p.to_json())
+  let coordinates = self.points |> Array::map(p => p.coordinates.to_json())
   base.set("coordinates", coordinates.to_json())
   base.to_json()
 }
