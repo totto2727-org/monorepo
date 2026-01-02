@@ -13,14 +13,8 @@ pub enum Geometry {
 } derive(Show, Eq, Compare, Hash)
 
 ///|
-pub(open) trait GeometryToBBox {
-  to_bbox(Self, re_compute? : Bool) -> BBox raise EmptyPositionsError
-  to_bbox_2d(Self, re_compute? : Bool) -> BBox2D raise EmptyPositionsError = _
-}
-
-///|
-impl GeometryToBBox with to_bbox_2d(self, re_compute? : Bool = false) {
-  self.to_bbox(re_compute~).to_bbox_2d()
+pub(open) trait ToGeometry {
+  to_geometry(Self) -> Geometry
 }
 
 ///|
@@ -82,9 +76,4 @@ pub impl FromJson for Geometry with from_json(
       GeometryCollection::from_json(json, path).to_geometry()
     _ => raise @json.JsonDecodeError((path, "Invalid geometry type"))
   }
-}
-
-///|
-pub trait ToGeometry {
-  to_geometry(Self) -> Geometry
 }
