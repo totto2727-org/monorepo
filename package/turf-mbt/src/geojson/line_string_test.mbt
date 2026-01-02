@@ -1,8 +1,8 @@
 ///|
 test "LineString to_json - simple" {
   let line_string = LineString::new([
-    @position.Position2D::new((0.0, 0.0)).to_position(),
-    @position.Position2D::new((1.0, 1.0)).to_position(),
+    Position2D::new((0.0, 0.0)).to_position(),
+    Position2D::new((1.0, 1.0)).to_position(),
   ])
   @json.inspect(line_string, content={
     "type": "LineString",
@@ -14,14 +14,11 @@ test "LineString to_json - simple" {
 test "LineString to_json - with bbox" {
   let line_string = LineString::new(
     [
-      @position.Position2D::new((0.0, 0.0)).to_position(),
-      @position.Position2D::new((1.0, 1.0)).to_position(),
+      Position2D::new((0.0, 0.0)).to_position(),
+      Position2D::new((1.0, 1.0)).to_position(),
     ],
     bbox=Some(
-      @bbox.BBox2D::new(
-        @position.Position2D::new((0.0, 0.0)),
-        @position.Position2D::new((1.0, 1.0)),
-      ).to_bbox(),
+      BBox2D::new(Position2D::new((0.0, 0.0)), Position2D::new((1.0, 1.0))).to_bbox(),
     ),
   )
   @json.inspect(line_string, content={
@@ -69,8 +66,8 @@ test "panic_LineString from_json - invalid type" {
 ///|
 test "LineString to_bbox - without bbox" {
   let line_string = LineString::new([
-    @position.Position2D::new((0.0, 0.0)).to_position(),
-    @position.Position2D::new((10.0, 10.0)).to_position(),
+    Position2D::new((0.0, 0.0)).to_position(),
+    Position2D::new((10.0, 10.0)).to_position(),
   ])
   let bbox = line_string.to_bbox()
   inspect(bbox, content="BBox2D({min: {x: 0, y: 0}, max: {x: 10, y: 10}})")
@@ -78,14 +75,14 @@ test "LineString to_bbox - without bbox" {
 
 ///|
 test "LineString to_bbox - with bbox (no re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let line_string = LineString::new(
     [
-      @position.Position2D::new((0.0, 0.0)).to_position(),
-      @position.Position2D::new((10.0, 10.0)).to_position(),
+      Position2D::new((0.0, 0.0)).to_position(),
+      Position2D::new((10.0, 10.0)).to_position(),
     ],
     bbox=Some(custom_bbox),
   )
@@ -96,14 +93,14 @@ test "LineString to_bbox - with bbox (no re-compute)" {
 
 ///|
 test "LineString to_bbox - with bbox (force re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let line_string = LineString::new(
     [
-      @position.Position2D::new((0.0, 0.0)).to_position(),
-      @position.Position2D::new((10.0, 10.0)).to_position(),
+      Position2D::new((0.0, 0.0)).to_position(),
+      Position2D::new((10.0, 10.0)).to_position(),
     ],
     bbox=Some(custom_bbox),
   )

@@ -11,10 +11,7 @@ test "GeoJSONObject to_json - with bbox" {
   let geojson_object = GeoJSONObject::new(
     GeoJSONTypes::geometry(GeoJSONGeometryTypes::point()),
     bbox=Some(
-      @bbox.BBox2D::new(
-        @position.Position2D::new((1, 2)),
-        @position.Position2D::new((3, 4)),
-      ).to_bbox(),
+      BBox2D::new(Position2D::new((1, 2)), Position2D::new((3, 4))).to_bbox(),
     ),
   )
   @json.inspect(geojson_object, content={

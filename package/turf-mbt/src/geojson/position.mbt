@@ -7,15 +7,27 @@ pub enum Position {
 } derive(Show, Eq, Compare, Hash)
 
 ///|
-pub trait ToPosition {
+pub(open) trait ToPosition {
   to_position(self : Self) -> Position
+  to_position_2d(self : Self) -> Position2D = _
 }
 
 ///|
-pub impl ToPosition2D for Position with to_2d(self : Position) -> Position2D {
+impl ToPosition with to_position_2d(self) {
+  self.to_position().to_position_2d()
+}
+
+///|
+/// Identity Implementation
+pub impl ToPosition for Position with to_position(self) {
+  self
+}
+
+///|
+pub impl ToPosition for Position with to_position_2d(self) {
   match self {
     Position::Position2D(position2D) => position2D
-    Position::Position3D(position3D) => position3D.to_2d()
+    Position::Position3D(position3D) => position3D.to_position_2d()
   }
 }
 

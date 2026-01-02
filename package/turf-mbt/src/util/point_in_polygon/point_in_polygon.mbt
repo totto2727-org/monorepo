@@ -17,8 +17,8 @@ pub fn point_in_polygon(
     if contour_len < 1 {
       continue
     }
-    let first = contour[0].to_2d()
-    let last = contour[contour_len].to_2d()
+    let first = contour[0].to_position_2d()
+    let last = contour[contour_len].to_position_2d()
     if first.x != last.x || first.y != last.y {
       fail("First and last coordinates in a ring must be the same")
     }
@@ -27,7 +27,7 @@ pub fn point_in_polygon(
       (current.x - position.x, current.y - position.y),
     )
     for ii = 0; ii < contour_len; ii = ii + 1 {
-      let next = contour[ii + 1].to_2d()
+      let next = contour[ii + 1].to_position_2d()
       let diff2 = @geojson.Position2D::new(
         (next.x - position.x, next.y - position.y),
       )

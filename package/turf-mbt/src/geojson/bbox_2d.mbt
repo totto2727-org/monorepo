@@ -1,19 +1,11 @@
 ///|
 pub struct BBox2D {
-  min : @position.Position2D
-  max : @position.Position2D
+  min : Position2D
+  max : Position2D
 } derive(Show, Eq, Compare, Hash)
 
 ///|
-pub trait ToBBox2D {
-  to_2d(Self) -> BBox2D
-}
-
-///|
-pub fn BBox2D::new(
-  min : @position.Position2D,
-  max : @position.Position2D,
-) -> BBox2D {
+pub fn BBox2D::new(min : Position2D, max : Position2D) -> BBox2D {
   BBox2D::{ min, max }
 }
 
@@ -22,7 +14,7 @@ pub(all) suberror EmptyPositionsError String derive(Show, Eq, Compare, Hash)
 
 ///|
 pub fn BBox2D::from_positions(
-  positions : Array[@position.Position2D],
+  positions : Array[Position2D],
 ) -> BBox2D raise EmptyPositionsError {
   let min_x = positions.fold(
     init=positions
@@ -48,20 +40,11 @@ pub fn BBox2D::from_positions(
       .unwrap_or_error(EmptyPositionsError("Positions array is empty")).y,
     (mix, position) => @cmp.maximum(mix, position.y),
   )
-  BBox2D::new(
-    @position.Position2D::new((min_x, min_y)),
-    @position.Position2D::new((max_x, max_y)),
-  )
+  BBox2D::new(Position2D::new((min_x, min_y)), Position2D::new((max_x, max_y)))
 }
 
 ///|
-/// インターフェイスを揃えるため
-/// BBox2D 自身を返す
-pub impl ToBBox2D for BBox2D with to_2d(self) {
-  self
-}
-
-///|
+/// Identity Implementation
 pub impl ToBBox for BBox2D with to_bbox(self) {
   BBox::BBox2D(self)
 }
@@ -83,8 +66,8 @@ pub impl FromJson for BBox2D with from_json(json, path) {
       ]
     ) =>
       BBox2D::new(
-        @position.Position2D::new((min_x, min_y)),
-        @position.Position2D::new((max_x, max_y)),
+        Position2D::new((min_x, min_y)),
+        Position2D::new((max_x, max_y)),
       )
     _ => raise @json.JsonDecodeError((path, "Invalid BBox"))
   }

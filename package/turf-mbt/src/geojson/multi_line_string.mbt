@@ -3,39 +3,38 @@
 /// https://tools.ietf.org/html/rfc7946#section-3.1.5
 pub struct MultiLineString {
   lines : Array[LineString]
-  bbox : @bbox.BBox?
+  bbox : BBox?
 } derive(Show, Eq, Compare, Hash)
 
 ///|
 pub fn MultiLineString::new(
   lines : Array[LineString],
-  bbox? : @bbox.BBox? = None,
+  bbox? : BBox? = None,
 ) -> MultiLineString {
   MultiLineString::{ lines, bbox }
 }
 
 ///|
-pub impl @primary.ToGeoJSONObject for MultiLineString with to_geojson_object(
-  self,
-) {
-  @primary.GeoJSONObject::new(
-    @primary.GeoJSONTypes::geometry(
-      @primary.GeoJSONGeometryTypes::multi_line_string(),
-    ),
+pub impl ToGeoJSONObject for MultiLineString with to_geojson_object(self) {
+  GeoJSONObject::new(
+    GeoJSONTypes::geometry(GeoJSONGeometryTypes::multi_line_string()),
     bbox=self.bbox,
   )
 }
 
 ///|
-pub impl ToBBox for MultiLineString with to_bbox(self, re_compute? = false) {
+pub impl GeometryToBBox for MultiLineString with to_bbox(
+  self,
+  re_compute? = false,
+) {
   match (self.bbox, re_compute) {
     (Some(bbox), false) => bbox
     _ => {
       let position_array = self.lines
-        .map(l => l.to_bbox().to_2d())
+        .map(l => l.to_bbox().to_bbox_2d())
         .map(bbox => [bbox.min, bbox.max])
         .flatten()
-      @bbox.BBox2D::from_positions(position_array).to_bbox()
+      BBox2D::from_positions(position_array).to_bbox()
     }
   }
 }
@@ -66,8 +65,5 @@ pub impl FromJson for MultiLineString with from_json(
         (path, "Invalid coordinates in json: \{json}"),
       )
   }
-  MultiLineString::new(
-    lines,
-    bbox=@primary.GeoJSONObject::from_json(json, path).bbox,
-  )
+  MultiLineString::new(lines, bbox=GeoJSONObject::from_json(json, path).bbox)
 }

@@ -1,8 +1,8 @@
 ///|
 test "MultiPoint to_json - simple" {
   let multi_point = MultiPoint::new([
-    Point::new(@position.Position2D::new((0.0, 0.0)).to_position()),
-    Point::new(@position.Position2D::new((1.0, 1.0)).to_position()),
+    Point::new(Position2D::new((0.0, 0.0)).to_position()),
+    Point::new(Position2D::new((1.0, 1.0)).to_position()),
   ])
   @json.inspect(multi_point, content={
     "type": "MultiPoint",
@@ -14,14 +14,11 @@ test "MultiPoint to_json - simple" {
 test "MultiPoint to_json - with bbox" {
   let multi_point = MultiPoint::new(
     [
-      Point::new(@position.Position2D::new((0.0, 0.0)).to_position()),
-      Point::new(@position.Position2D::new((1.0, 1.0)).to_position()),
+      Point::new(Position2D::new((0.0, 0.0)).to_position()),
+      Point::new(Position2D::new((1.0, 1.0)).to_position()),
     ],
     bbox=Some(
-      @bbox.BBox2D::new(
-        @position.Position2D::new((0.0, 0.0)),
-        @position.Position2D::new((1.0, 1.0)),
-      ).to_bbox(),
+      BBox2D::new(Position2D::new((0.0, 0.0)), Position2D::new((1.0, 1.0))).to_bbox(),
     ),
   )
   @json.inspect(multi_point, content={
@@ -69,8 +66,8 @@ test "panic_MultiPoint from_json - invalid type" {
 ///|
 test "MultiPoint to_bbox - without bbox" {
   let multi_point = MultiPoint::new([
-    Point::new(@position.Position2D::new((0.0, 0.0)).to_position()),
-    Point::new(@position.Position2D::new((10.0, 10.0)).to_position()),
+    Point::new(Position2D::new((0.0, 0.0)).to_position()),
+    Point::new(Position2D::new((10.0, 10.0)).to_position()),
   ])
   let bbox = multi_point.to_bbox()
   inspect(bbox, content="BBox2D({min: {x: 0, y: 0}, max: {x: 10, y: 10}})")
@@ -78,14 +75,14 @@ test "MultiPoint to_bbox - without bbox" {
 
 ///|
 test "MultiPoint to_bbox - with bbox (no re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let multi_point = MultiPoint::new(
     [
-      Point::new(@position.Position2D::new((0.0, 0.0)).to_position()),
-      Point::new(@position.Position2D::new((10.0, 10.0)).to_position()),
+      Point::new(Position2D::new((0.0, 0.0)).to_position()),
+      Point::new(Position2D::new((10.0, 10.0)).to_position()),
     ],
     bbox=Some(custom_bbox),
   )
@@ -96,14 +93,14 @@ test "MultiPoint to_bbox - with bbox (no re-compute)" {
 
 ///|
 test "MultiPoint to_bbox - with bbox (force re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let multi_point = MultiPoint::new(
     [
-      Point::new(@position.Position2D::new((0.0, 0.0)).to_position()),
-      Point::new(@position.Position2D::new((10.0, 10.0)).to_position()),
+      Point::new(Position2D::new((0.0, 0.0)).to_position()),
+      Point::new(Position2D::new((10.0, 10.0)).to_position()),
     ],
     bbox=Some(custom_bbox),
   )

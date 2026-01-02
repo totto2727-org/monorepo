@@ -1,6 +1,6 @@
 ///|
 test "GeoJSON to_bbox - Geometry without bbox" {
-  let point = Point::new(@position.Position2D::new((0.0, 0.0)).to_position())
+  let point = Point::new(Position2D::new((0.0, 0.0)).to_position())
   let geojson = GeoJSON::from_geometry(point.to_geometry())
   let bbox = geojson.to_bbox()
   inspect(bbox, content="BBox2D({min: {x: 0, y: 0}, max: {x: 0, y: 0}})")
@@ -8,13 +8,13 @@ test "GeoJSON to_bbox - Geometry without bbox" {
 
 ///|
 test "GeoJSON to_bbox - Feature with bbox (no re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let feature = Feature::new(
     geometry=Some(
-      Point::new(@position.Position2D::new((0.0, 0.0)).to_position()).to_geometry(),
+      Point::new(Position2D::new((0.0, 0.0)).to_position()).to_geometry(),
     ),
     bbox=Some(custom_bbox),
   )
@@ -26,13 +26,13 @@ test "GeoJSON to_bbox - Feature with bbox (no re-compute)" {
 
 ///|
 test "GeoJSON to_bbox - Feature with bbox (force re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let feature = Feature::new(
     geometry=Some(
-      Point::new(@position.Position2D::new((10.0, 10.0)).to_position()).to_geometry(),
+      Point::new(Position2D::new((10.0, 10.0)).to_position()).to_geometry(),
     ),
     bbox=Some(custom_bbox),
   )

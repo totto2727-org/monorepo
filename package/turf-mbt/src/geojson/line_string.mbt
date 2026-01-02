@@ -2,35 +2,33 @@
 /// LineString geometry object.
 /// https://tools.ietf.org/html/rfc7946#section-3.1.4
 pub struct LineString {
-  coordinates : Array[@position.Position]
-  bbox : @bbox.BBox?
+  coordinates : Array[Position]
+  bbox : BBox?
 } derive(Show, Eq, Compare, Hash)
 
 ///|
 pub fn LineString::new(
-  coordinates : Array[@position.Position],
-  bbox? : @bbox.BBox? = None,
+  coordinates : Array[Position],
+  bbox? : BBox? = None,
 ) -> LineString {
   LineString::{ coordinates, bbox }
 }
 
 ///|
-pub impl @primary.ToGeoJSONObject for LineString with to_geojson_object(self) {
-  @primary.GeoJSONObject::new(
-    @primary.GeoJSONTypes::geometry(
-      @primary.GeoJSONGeometryTypes::line_string(),
-    ),
+pub impl ToGeoJSONObject for LineString with to_geojson_object(self) {
+  GeoJSONObject::new(
+    GeoJSONTypes::geometry(GeoJSONGeometryTypes::line_string()),
     bbox=self.bbox,
   )
 }
 
 ///|
-pub impl ToBBox for LineString with to_bbox(self, re_compute? = false) {
+pub impl GeometryToBBox for LineString with to_bbox(self, re_compute? = false) {
   match (self.bbox, re_compute) {
     (Some(bbox), false) => bbox
     _ => {
-      let position_array = self.coordinates.map(p => p.to_2d())
-      @bbox.BBox2D::from_positions(position_array).to_bbox()
+      let position_array = self.coordinates.map(p => p.to_position_2d())
+      BBox2D::from_positions(position_array).to_bbox()
     }
   }
 }
@@ -54,6 +52,6 @@ pub impl FromJson for LineString with from_json(
 ) {
   LineString::new(
     @json.from_json(@helper.get_coordinates_field(json, path), path~),
-    bbox=@primary.GeoJSONObject::from_json(json, path).bbox,
+    bbox=GeoJSONObject::from_json(json, path).bbox,
   )
 }

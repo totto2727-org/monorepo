@@ -3,18 +3,18 @@ test "MultiPolygon to_json - simple" {
   let multi_polygon = MultiPolygon::new([
     Polygon::new([
       [
-        @position.Position2D::new((0.0, 0.0)).to_position(),
-        @position.Position2D::new((0.0, 1.0)).to_position(),
-        @position.Position2D::new((1.0, 0.0)).to_position(),
-        @position.Position2D::new((0.0, 0.0)).to_position(),
+        Position2D::new((0.0, 0.0)).to_position(),
+        Position2D::new((0.0, 1.0)).to_position(),
+        Position2D::new((1.0, 0.0)).to_position(),
+        Position2D::new((0.0, 0.0)).to_position(),
       ],
     ]),
     Polygon::new([
       [
-        @position.Position2D::new((0.0, 0.0)).to_position(),
-        @position.Position2D::new((0.0, 1.0)).to_position(),
-        @position.Position2D::new((1.0, 0.0)).to_position(),
-        @position.Position2D::new((0.0, 0.0)).to_position(),
+        Position2D::new((0.0, 0.0)).to_position(),
+        Position2D::new((0.0, 1.0)).to_position(),
+        Position2D::new((1.0, 0.0)).to_position(),
+        Position2D::new((0.0, 0.0)).to_position(),
       ],
     ]),
   ])
@@ -33,26 +33,23 @@ test "MultiPolygon to_json - with bbox" {
     [
       Polygon::new([
         [
-          @position.Position2D::new((0.0, 0.0)).to_position(),
-          @position.Position2D::new((0.0, 1.0)).to_position(),
-          @position.Position2D::new((1.0, 0.0)).to_position(),
-          @position.Position2D::new((0.0, 0.0)).to_position(),
+          Position2D::new((0.0, 0.0)).to_position(),
+          Position2D::new((0.0, 1.0)).to_position(),
+          Position2D::new((1.0, 0.0)).to_position(),
+          Position2D::new((0.0, 0.0)).to_position(),
         ],
       ]),
       Polygon::new([
         [
-          @position.Position2D::new((0.0, 0.0)).to_position(),
-          @position.Position2D::new((0.0, 1.0)).to_position(),
-          @position.Position2D::new((1.0, 0.0)).to_position(),
-          @position.Position2D::new((0.0, 0.0)).to_position(),
+          Position2D::new((0.0, 0.0)).to_position(),
+          Position2D::new((0.0, 1.0)).to_position(),
+          Position2D::new((1.0, 0.0)).to_position(),
+          Position2D::new((0.0, 0.0)).to_position(),
         ],
       ]),
     ],
     bbox=Some(
-      @bbox.BBox2D::new(
-        @position.Position2D::new((0.0, 0.0)),
-        @position.Position2D::new((1.0, 1.0)),
-      ).to_bbox(),
+      BBox2D::new(Position2D::new((0.0, 0.0)), Position2D::new((1.0, 1.0))).to_bbox(),
     ),
   )
   @json.inspect(multi_polygon, content={
@@ -111,10 +108,10 @@ test "MultiPolygon to_bbox - without bbox" {
   let multi_polygon = MultiPolygon::new([
     Polygon::new([
       [
-        @position.Position2D::new((0.0, 0.0)).to_position(),
-        @position.Position2D::new((0.0, 10.0)).to_position(),
-        @position.Position2D::new((10.0, 0.0)).to_position(),
-        @position.Position2D::new((0.0, 0.0)).to_position(),
+        Position2D::new((0.0, 0.0)).to_position(),
+        Position2D::new((0.0, 10.0)).to_position(),
+        Position2D::new((10.0, 0.0)).to_position(),
+        Position2D::new((0.0, 0.0)).to_position(),
       ],
     ]),
   ])
@@ -124,18 +121,18 @@ test "MultiPolygon to_bbox - without bbox" {
 
 ///|
 test "MultiPolygon to_bbox - with bbox (no re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let multi_polygon = MultiPolygon::new(
     [
       Polygon::new([
         [
-          @position.Position2D::new((0.0, 0.0)).to_position(),
-          @position.Position2D::new((0.0, 10.0)).to_position(),
-          @position.Position2D::new((10.0, 0.0)).to_position(),
-          @position.Position2D::new((0.0, 0.0)).to_position(),
+          Position2D::new((0.0, 0.0)).to_position(),
+          Position2D::new((0.0, 10.0)).to_position(),
+          Position2D::new((10.0, 0.0)).to_position(),
+          Position2D::new((0.0, 0.0)).to_position(),
         ],
       ]),
     ],
@@ -148,18 +145,18 @@ test "MultiPolygon to_bbox - with bbox (no re-compute)" {
 
 ///|
 test "MultiPolygon to_bbox - with bbox (force re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let multi_polygon = MultiPolygon::new(
     [
       Polygon::new([
         [
-          @position.Position2D::new((0.0, 0.0)).to_position(),
-          @position.Position2D::new((0.0, 10.0)).to_position(),
-          @position.Position2D::new((10.0, 0.0)).to_position(),
-          @position.Position2D::new((0.0, 0.0)).to_position(),
+          Position2D::new((0.0, 0.0)).to_position(),
+          Position2D::new((0.0, 10.0)).to_position(),
+          Position2D::new((10.0, 0.0)).to_position(),
+          Position2D::new((0.0, 0.0)).to_position(),
         ],
       ]),
     ],

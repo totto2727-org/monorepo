@@ -4,15 +4,12 @@ test "FeatureCollection to_json - all non-null" {
     [
       Feature::new(
         geometry=Some(
-          @geometry.Point::new(@position.Position2D::new((0, 0)).to_position()).to_geometry(),
+          Point::new(Position2D::new((0, 0)).to_position()).to_geometry(),
         ),
       ),
     ],
     bbox=Some(
-      @bbox.BBox2D::new(
-        @position.Position2D::new((0, 0)),
-        @position.Position2D::new((1, 1)),
-      ).to_bbox(),
+      BBox2D::new(Position2D::new((0, 0)), Position2D::new((1, 1))).to_bbox(),
     ),
   )
   @json.inspect(featureCollection, content={
@@ -69,12 +66,12 @@ test "FeatureCollection to_bbox - without bbox" {
   let featureCollection = FeatureCollection::new([
     Feature::new(
       geometry=Some(
-        @geometry.Point::new(@position.Position2D::new((0, 0)).to_position()).to_geometry(),
+        Point::new(Position2D::new((0, 0)).to_position()).to_geometry(),
       ),
     ),
     Feature::new(
       geometry=Some(
-        @geometry.Point::new(@position.Position2D::new((10, 10)).to_position()).to_geometry(),
+        Point::new(Position2D::new((10, 10)).to_position()).to_geometry(),
       ),
     ),
   ])
@@ -84,22 +81,20 @@ test "FeatureCollection to_bbox - without bbox" {
 
 ///|
 test "FeatureCollection to_bbox - with bbox (no re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let featureCollection = FeatureCollection::new(
     [
       Feature::new(
         geometry=Some(
-          @geometry.Point::new(@position.Position2D::new((0, 0)).to_position()).to_geometry(),
+          Point::new(Position2D::new((0, 0)).to_position()).to_geometry(),
         ),
       ),
       Feature::new(
         geometry=Some(
-          @geometry.Point::new(
-            @position.Position2D::new((10, 10)).to_position(),
-          ).to_geometry(),
+          Point::new(Position2D::new((10, 10)).to_position()).to_geometry(),
         ),
       ),
     ],
@@ -112,22 +107,20 @@ test "FeatureCollection to_bbox - with bbox (no re-compute)" {
 
 ///|
 test "FeatureCollection to_bbox - with bbox (force re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let featureCollection = FeatureCollection::new(
     [
       Feature::new(
         geometry=Some(
-          @geometry.Point::new(@position.Position2D::new((0, 0)).to_position()).to_geometry(),
+          Point::new(Position2D::new((0, 0)).to_position()).to_geometry(),
         ),
       ),
       Feature::new(
         geometry=Some(
-          @geometry.Point::new(
-            @position.Position2D::new((10, 10)).to_position(),
-          ).to_geometry(),
+          Point::new(Position2D::new((10, 10)).to_position()).to_geometry(),
         ),
       ),
     ],

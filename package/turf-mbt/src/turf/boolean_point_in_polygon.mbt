@@ -12,8 +12,8 @@ pub fn boolean_point_in_polygon(
   geometry : @geojson.Geometry,
   ignore_boundary? : Bool = false,
 ) -> Bool raise {
-  let point_coordinate = point.coordinates.to_2d()
-  let bbox = geometry.to_bbox().to_2d()
+  let point_coordinate = point.coordinates.to_position_2d()
+  let bbox = geometry.to_bbox().to_bbox_2d()
   if not(in_bbox(point_coordinate, bbox)) {
     return false
   }

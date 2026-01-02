@@ -8,39 +8,40 @@
 /// when a more specific Geometry type is available.
 pub struct GeometryCollection {
   geometries : Array[Geometry]
-  bbox : @bbox.BBox?
+  bbox : BBox?
 } derive(Show, Eq, Compare, Hash)
 
 ///|
 pub fn GeometryCollection::new(
   geometries : Array[Geometry],
-  bbox? : @bbox.BBox? = None,
+  bbox? : BBox? = None,
 ) -> GeometryCollection {
   GeometryCollection::{ geometries, bbox }
 }
 
 ///|
-pub impl ToBBox for GeometryCollection with to_bbox(self, re_compute? = false) {
+pub impl GeometryToBBox for GeometryCollection with to_bbox(
+  self,
+  re_compute? = false,
+) {
   match (self.bbox, re_compute) {
     (Some(bbox), false) => bbox
     _ => {
       let positions = self.geometries
-        .map(geometry => geometry.to_bbox().to_2d())
+        .map(geometry => geometry.to_bbox().to_bbox_2d())
         .map(bbox => [bbox.min, bbox.max])
         .flatten()
-      @bbox.BBox2D::from_positions(positions).to_bbox()
+      BBox2D::from_positions(positions).to_bbox()
     }
   }
 }
 
 ///|
-pub impl @primary.ToGeoJSONObject for GeometryCollection with to_geojson_object(
+pub impl ToGeoJSONObject for GeometryCollection with to_geojson_object(
   self : GeometryCollection,
-) -> @primary.GeoJSONObject {
-  @primary.GeoJSONObject::new(
-    @primary.GeoJSONTypes::geometry(
-      @primary.GeoJSONGeometryTypes::geometry_collection(),
-    ),
+) -> GeoJSONObject {
+  GeoJSONObject::new(
+    GeoJSONTypes::geometry(GeoJSONGeometryTypes::geometry_collection()),
     bbox=self.bbox,
   )
 }
@@ -64,6 +65,6 @@ pub impl FromJson for GeometryCollection with from_json(
 ) {
   GeometryCollection::new(
     @json.from_json(@helper.get_geometries_field(json, path), path~),
-    bbox=@primary.GeoJSONObject::from_json(json, path).bbox,
+    bbox=GeoJSONObject::from_json(json, path).bbox,
   )
 }

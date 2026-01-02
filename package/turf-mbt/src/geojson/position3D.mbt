@@ -11,11 +11,6 @@ pub fn Position3D::new(point_3d : (Double, Double, Double)) -> Position3D {
 }
 
 ///|
-pub impl ToPosition2D for Position3D with to_2d(self : Position3D) -> Position2D {
-  Position2D::new((self.x, self.y))
-}
-
-///|
 pub impl ToPosition for Position3D with to_position(self : Position3D) -> Position {
   Position::Position3D(self)
 }

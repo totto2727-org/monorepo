@@ -3,37 +3,35 @@
 /// https://tools.ietf.org/html/rfc7946#section-3.1.7
 pub struct MultiPolygon {
   polygons : Array[Polygon]
-  bbox : @bbox.BBox?
+  bbox : BBox?
 } derive(Show, Eq, Compare, Hash)
 
 ///|
 pub fn MultiPolygon::new(
   polygons : Array[Polygon],
-  bbox? : @bbox.BBox? = None,
+  bbox? : BBox? = None,
 ) -> MultiPolygon {
   MultiPolygon::{ polygons, bbox }
 }
 
 ///|
-pub impl @primary.ToGeoJSONObject for MultiPolygon with to_geojson_object(self) {
-  @primary.GeoJSONObject::new(
-    @primary.GeoJSONTypes::geometry(
-      @primary.GeoJSONGeometryTypes::multi_polygon(),
-    ),
+pub impl ToGeoJSONObject for MultiPolygon with to_geojson_object(self) {
+  GeoJSONObject::new(
+    GeoJSONTypes::geometry(GeoJSONGeometryTypes::multi_polygon()),
     bbox=self.bbox,
   )
 }
 
 ///|
-pub impl ToBBox for MultiPolygon with to_bbox(self, re_compute? = false) {
+pub impl GeometryToBBox for MultiPolygon with to_bbox(self, re_compute? = false) {
   match (self.bbox, re_compute) {
     (Some(bbox), false) => bbox
     _ => {
       let position_array = self.polygons
-        .map(p => p.to_bbox().to_2d())
+        .map(p => p.to_bbox().to_bbox_2d())
         .map(bbox => [bbox.min, bbox.max])
         .flatten()
-      @bbox.BBox2D::from_positions(position_array).to_bbox()
+      BBox2D::from_positions(position_array).to_bbox()
     }
   }
 }
@@ -69,8 +67,5 @@ pub impl FromJson for MultiPolygon with from_json(
         (path, "Invalid coordinates in json: \{json}"),
       )
   }
-  MultiPolygon::new(
-    polygons,
-    bbox=@primary.GeoJSONObject::from_json(json, path).bbox,
-  )
+  MultiPolygon::new(polygons, bbox=GeoJSONObject::from_json(json, path).bbox)
 }

@@ -2,12 +2,12 @@
 test "MultiLineString to_json - simple" {
   let multi_line_string = MultiLineString::new([
     LineString::new([
-      @position.Position2D::new((0.0, 0.0)).to_position(),
-      @position.Position2D::new((1.0, 1.0)).to_position(),
+      Position2D::new((0.0, 0.0)).to_position(),
+      Position2D::new((1.0, 1.0)).to_position(),
     ]),
     LineString::new([
-      @position.Position2D::new((1.0, 1.0)).to_position(),
-      @position.Position2D::new((0.0, 0.0)).to_position(),
+      Position2D::new((1.0, 1.0)).to_position(),
+      Position2D::new((0.0, 0.0)).to_position(),
     ]),
   ])
   @json.inspect(multi_line_string, content={
@@ -21,19 +21,16 @@ test "MultiLineString to_json - with bbox" {
   let multi_line_string = MultiLineString::new(
     [
       LineString::new([
-        @position.Position2D::new((0.0, 0.0)).to_position(),
-        @position.Position2D::new((1.0, 1.0)).to_position(),
+        Position2D::new((0.0, 0.0)).to_position(),
+        Position2D::new((1.0, 1.0)).to_position(),
       ]),
       LineString::new([
-        @position.Position2D::new((1.0, 1.0)).to_position(),
-        @position.Position2D::new((0.0, 0.0)).to_position(),
+        Position2D::new((1.0, 1.0)).to_position(),
+        Position2D::new((0.0, 0.0)).to_position(),
       ]),
     ],
     bbox=Some(
-      @bbox.BBox2D::new(
-        @position.Position2D::new((0.0, 0.0)),
-        @position.Position2D::new((1.0, 1.0)),
-      ).to_bbox(),
+      BBox2D::new(Position2D::new((0.0, 0.0)), Position2D::new((1.0, 1.0))).to_bbox(),
     ),
   )
   @json.inspect(multi_line_string, content={
@@ -82,8 +79,8 @@ test "panic_MultiLineString from_json - invalid type" {
 test "MultiLineString to_bbox - without bbox" {
   let multi_line_string = MultiLineString::new([
     LineString::new([
-      @position.Position2D::new((0.0, 0.0)).to_position(),
-      @position.Position2D::new((10.0, 10.0)).to_position(),
+      Position2D::new((0.0, 0.0)).to_position(),
+      Position2D::new((10.0, 10.0)).to_position(),
     ]),
   ])
   let bbox = multi_line_string.to_bbox()
@@ -92,15 +89,15 @@ test "MultiLineString to_bbox - without bbox" {
 
 ///|
 test "MultiLineString to_bbox - with bbox (no re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let multi_line_string = MultiLineString::new(
     [
       LineString::new([
-        @position.Position2D::new((0.0, 0.0)).to_position(),
-        @position.Position2D::new((10.0, 10.0)).to_position(),
+        Position2D::new((0.0, 0.0)).to_position(),
+        Position2D::new((10.0, 10.0)).to_position(),
       ]),
     ],
     bbox=Some(custom_bbox),
@@ -112,15 +109,15 @@ test "MultiLineString to_bbox - with bbox (no re-compute)" {
 
 ///|
 test "MultiLineString to_bbox - with bbox (force re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let multi_line_string = MultiLineString::new(
     [
       LineString::new([
-        @position.Position2D::new((0.0, 0.0)).to_position(),
-        @position.Position2D::new((10.0, 10.0)).to_position(),
+        Position2D::new((0.0, 0.0)).to_position(),
+        Position2D::new((10.0, 10.0)).to_position(),
       ]),
     ],
     bbox=Some(custom_bbox),

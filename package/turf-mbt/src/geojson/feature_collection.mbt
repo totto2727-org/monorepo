@@ -5,29 +5,24 @@ pub struct FeatureCollection {
   /// The array of features.
   features : Array[Feature]
   /// Bounding box.
-  bbox : @bbox.BBox?
+  bbox : BBox?
 } derive(Show, Eq)
 
 ///|
 pub fn FeatureCollection::new(
   features : Array[Feature],
-  bbox? : @bbox.BBox? = None,
+  bbox? : BBox? = None,
 ) -> FeatureCollection {
   FeatureCollection::{ features, bbox }
 }
 
 ///|
-pub impl @primary.ToGeoJSONObject for FeatureCollection with to_geojson_object(
-  self,
-) {
-  @primary.GeoJSONObject::new(
-    @primary.GeoJSONTypes::feature_collection(),
-    bbox=self.bbox,
-  )
+pub impl ToGeoJSONObject for FeatureCollection with to_geojson_object(self) {
+  GeoJSONObject::new(GeoJSONTypes::feature_collection(), bbox=self.bbox)
 }
 
 ///|
-pub impl @geometry.ToBBox for FeatureCollection with to_bbox(
+pub impl GeometryToBBox for FeatureCollection with to_bbox(
   self,
   re_compute? : Bool = false,
 ) {
@@ -36,12 +31,11 @@ pub impl @geometry.ToBBox for FeatureCollection with to_bbox(
     _ =>
       self.features
       |> Array::map(Feature::to_bbox(_))
-      |> Array::map(@bbox.BBox::to_2d)
+      |> Array::map(BBox::to_bbox_2d)
       |> Array::map(x => [x.min, x.max])
       |> Array::flatten
-      |> Array::map(@position.Position2D::to_2d)
-      |> @bbox.BBox2D::from_positions
-      |> @bbox.BBox2D::to_bbox
+      |> BBox2D::from_positions
+      |> BBox2D::to_bbox
   }
 }
 
@@ -64,9 +58,9 @@ pub impl ToJson for FeatureCollection with to_json(self) {
 
 ///|
 pub impl FromJson for FeatureCollection with from_json(json, path) {
-  let geojson_object = @primary.GeoJSONObject::from_json(json, path)
+  let geojson_object = GeoJSONObject::from_json(json, path)
   match geojson_object._type {
-    @primary.GeoJSONTypes::FeatureCollection => ()
+    GeoJSONTypes::FeatureCollection => ()
     _ => raise @json.JsonDecodeError((path, "Invalid FeatureCollection type"))
   }
   let features = match @helper.get_field(json, "features") {

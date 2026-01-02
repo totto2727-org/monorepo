@@ -17,7 +17,7 @@ pub fn GeoJSON::from_geometry(geometry : Geometry) -> GeoJSON {
 }
 
 ///|
-pub impl @geometry.ToBBox for GeoJSON with to_bbox(
+pub impl GeometryToBBox for GeoJSON with to_bbox(
   self,
   re_compute? : Bool = false,
 ) {
@@ -30,7 +30,7 @@ pub impl @geometry.ToBBox for GeoJSON with to_bbox(
 }
 
 ///|
-pub impl @primary.ToGeoJSONObject for GeoJSON with to_geojson_object(self) {
+pub impl ToGeoJSONObject for GeoJSON with to_geojson_object(self) {
   match self {
     GeoJSON::Feature(feature) => feature.to_geojson_object()
     GeoJSON::FeatureCollection(feature_collection) =>
@@ -51,7 +51,7 @@ pub impl ToJson for GeoJSON with to_json(self) {
 
 ///|
 pub impl FromJson for GeoJSON with from_json(json, path) {
-  match @primary.GeoJSONObject::from_json(json, path)._type {
+  match GeoJSONObject::from_json(json, path)._type {
     Feature => Feature::from_json(json, path).to_geojson()
     FeatureCollection => FeatureCollection::from_json(json, path).to_geojson()
     // TODO: from_geometry -> to_geojson

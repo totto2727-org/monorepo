@@ -2,15 +2,12 @@
 test "Feature to_json - all non-null" {
   let feature = Feature::new(
     geometry=Some(
-      @geometry.Point::new(@position.Position2D::new((0, 0)).to_position()).to_geometry(),
+      Point::new(Position2D::new((0, 0)).to_position()).to_geometry(),
     ),
     properties=Some({ "key": "value" }),
     id=Some(FeatureID::string("f1")),
     bbox=Some(
-      @bbox.BBox2D::new(
-        @position.Position2D::new((0, 0)),
-        @position.Position2D::new((1, 1)),
-      ).to_bbox(),
+      BBox2D::new(Position2D::new((0, 0)), Position2D::new((1, 1))).to_bbox(),
     ),
   )
   @json.inspect(feature, content={
@@ -64,7 +61,7 @@ test "Feature from_json - all null" {
 test "Feature to_bbox - without bbox" {
   let feature = Feature::new(
     geometry=Some(
-      @geometry.Point::new(@position.Position2D::new((0, 0)).to_position()).to_geometry(),
+      Point::new(Position2D::new((0, 0)).to_position()).to_geometry(),
     ),
   )
   let bbox = feature.to_bbox()
@@ -73,13 +70,13 @@ test "Feature to_bbox - without bbox" {
 
 ///|
 test "Feature to_bbox - with bbox (no re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let feature = Feature::new(
     geometry=Some(
-      @geometry.Point::new(@position.Position2D::new((0, 0)).to_position()).to_geometry(),
+      Point::new(Position2D::new((0, 0)).to_position()).to_geometry(),
     ),
     bbox=Some(custom_bbox),
   )
@@ -90,15 +87,13 @@ test "Feature to_bbox - with bbox (no re-compute)" {
 
 ///|
 test "Feature to_bbox - with bbox (force re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let feature = Feature::new(
     geometry=Some(
-      @geometry.Point::new(
-        @position.Position2D::new((10.0, 10.0)).to_position(),
-      ).to_geometry(),
+      Point::new(Position2D::new((10.0, 10.0)).to_position()).to_geometry(),
     ),
     bbox=Some(custom_bbox),
   )

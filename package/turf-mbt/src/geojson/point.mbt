@@ -2,31 +2,28 @@
 /// Point geometry object.
 /// https://tools.ietf.org/html/rfc7946#section-3.1.2
 pub struct Point {
-  coordinates : @position.Position
-  bbox : @bbox.BBox?
+  coordinates : Position
+  bbox : BBox?
 } derive(Show, Eq, Compare, Hash)
 
 ///|
-pub fn Point::new(
-  coordinates : @position.Position,
-  bbox? : @bbox.BBox? = None,
-) -> Point {
+pub fn Point::new(coordinates : Position, bbox? : BBox? = None) -> Point {
   Point::{ coordinates, bbox }
 }
 
 ///|
-pub impl @primary.ToGeoJSONObject for Point with to_geojson_object(self) {
-  @primary.GeoJSONObject::new(
-    @primary.GeoJSONTypes::geometry(@primary.GeoJSONGeometryTypes::point()),
+pub impl ToGeoJSONObject for Point with to_geojson_object(self) {
+  GeoJSONObject::new(
+    GeoJSONTypes::geometry(GeoJSONGeometryTypes::point()),
     bbox=self.bbox,
   )
 }
 
 ///|
-pub impl ToBBox for Point with to_bbox(self, re_compute? = false) {
+pub impl GeometryToBBox for Point with to_bbox(self, re_compute? = false) {
   match (self.bbox, re_compute) {
     (Some(bbox), false) => bbox
-    _ => @bbox.BBox2D::from_positions([self.coordinates.to_2d()]).to_bbox()
+    _ => BBox2D::from_positions([self.coordinates.to_position_2d()]).to_bbox()
   }
 }
 
@@ -46,6 +43,6 @@ pub impl ToJson for Point with to_json(self) {
 pub impl FromJson for Point with from_json(json : Json, path : @json.JsonPath) {
   Point::new(
     @json.from_json(@helper.get_coordinates_field(json, path), path~),
-    bbox=@primary.GeoJSONObject::from_json(json, path).bbox,
+    bbox=GeoJSONObject::from_json(json, path).bbox,
   )
 }

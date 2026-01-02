@@ -1,18 +1,15 @@
 ///|
 test "Point to_json - simple" {
-  let point = Point::new(@position.Position2D::new((0.0, 0.0)).to_position())
+  let point = Point::new(Position2D::new((0.0, 0.0)).to_position())
   @json.inspect(point, content={ "type": "Point", "coordinates": [0, 0] })
 }
 
 ///|
 test "Point to_json - with bbox" {
   let point = Point::new(
-    @position.Position2D::new((10.0, 20.0)).to_position(),
+    Position2D::new((10.0, 20.0)).to_position(),
     bbox=Some(
-      @bbox.BBox2D::new(
-        @position.Position2D::new((10.0, 20.0)),
-        @position.Position2D::new((10.0, 20.0)),
-      ).to_bbox(),
+      BBox2D::new(Position2D::new((10.0, 20.0)), Position2D::new((10.0, 20.0))).to_bbox(),
     ),
   )
   @json.inspect(point, content={
@@ -24,19 +21,19 @@ test "Point to_json - with bbox" {
 
 ///|
 test "Point to_bbox - without bbox" {
-  let point = Point::new(@position.Position2D::new((10.0, 20.0)).to_position())
+  let point = Point::new(Position2D::new((10.0, 20.0)).to_position())
   let bbox = point.to_bbox()
   inspect(bbox, content="BBox2D({min: {x: 10, y: 20}, max: {x: 10, y: 20}})")
 }
 
 ///|
 test "Point to_bbox - with bbox (no re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let point = Point::new(
-    @position.Position2D::new((10.0, 20.0)).to_position(),
+    Position2D::new((10.0, 20.0)).to_position(),
     bbox=Some(custom_bbox),
   )
   let result = point.to_bbox(re_compute=false)
@@ -46,12 +43,12 @@ test "Point to_bbox - with bbox (no re-compute)" {
 
 ///|
 test "Point to_bbox - with bbox (force re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let point = Point::new(
-    @position.Position2D::new((10.0, 20.0)).to_position(),
+    Position2D::new((10.0, 20.0)).to_position(),
     bbox=Some(custom_bbox),
   )
   let result = point.to_bbox(re_compute=true)

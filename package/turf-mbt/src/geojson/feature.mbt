@@ -3,40 +3,40 @@
 /// https://tools.ietf.org/html/rfc7946#section-3.2
 pub struct Feature {
   /// The feature's geometry.
-  geometry : @geometry.Geometry?
+  geometry : Geometry?
   /// The feature's properties.
   properties : Map[String, Json]?
   /// The feature's ID.
   id : FeatureID?
   /// Bounding box.
-  bbox : @bbox.BBox?
+  bbox : BBox?
 } derive(Show, Eq)
 
 ///|
 pub fn Feature::new(
-  geometry? : @geometry.Geometry? = None,
+  geometry? : Geometry? = None,
   properties? : Map[String, Json]? = None,
   id? : FeatureID? = None,
-  bbox? : @bbox.BBox? = None,
+  bbox? : BBox? = None,
 ) -> Feature {
   Feature::{ geometry, properties, id, bbox }
 }
 
 ///|
-pub impl @geometry.ToBBox for Feature with to_bbox(
+pub impl GeometryToBBox for Feature with to_bbox(
   self,
   re_compute? : Bool = false,
 ) {
   match (self.bbox, self.geometry, re_compute) {
     (Some(bbox), _, false) => bbox
     (_, Some(geometry), re_compute) => geometry.to_bbox(re_compute~)
-    _ => raise @bbox.EmptyPositionsError("Invalid Feature: \{self}")
+    _ => raise EmptyPositionsError("Invalid Feature: \{self}")
   }
 }
 
 ///|
-pub impl @primary.ToGeoJSONObject for Feature with to_geojson_object(self) {
-  @primary.GeoJSONObject::new(@primary.GeoJSONTypes::feature(), bbox=self.bbox)
+pub impl ToGeoJSONObject for Feature with to_geojson_object(self) {
+  GeoJSONObject::new(GeoJSONTypes::feature(), bbox=self.bbox)
 }
 
 ///|
@@ -70,14 +70,13 @@ pub impl ToJson for Feature with to_json(self) {
 
 ///|
 pub impl FromJson for Feature with from_json(json, path) {
-  let geojson_object = @primary.GeoJSONObject::from_json(json, path)
+  let geojson_object = GeoJSONObject::from_json(json, path)
   match geojson_object._type {
     Feature => ()
     _ as _type =>
       raise @json.JsonDecodeError((path, "Invalid Feature type: \{_type}"))
   }
-  let geometry : @geometry.Geometry? = match
-    @helper.get_field(json, "geometry") {
+  let geometry : Geometry? = match @helper.get_field(json, "geometry") {
     Some(Json::Null) | None => None
     Some(geometry_json) => Some(@json.from_json(geometry_json, path~))
   }

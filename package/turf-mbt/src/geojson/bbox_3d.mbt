@@ -1,20 +1,12 @@
 ///|
 pub struct BBox3D {
-  min : @position.Position3D
-  max : @position.Position3D
+  min : Position3D
+  max : Position3D
 } derive(Show, Eq, Compare, Hash)
 
 ///|
-pub fn BBox3D::new(
-  min : @position.Position3D,
-  max : @position.Position3D,
-) -> BBox3D {
+pub fn BBox3D::new(min : Position3D, max : Position3D) -> BBox3D {
   BBox3D::{ min, max }
-}
-
-///|
-pub impl ToBBox2D for BBox3D with to_2d(self) {
-  BBox2D::new(self.min.to_2d(), self.max.to_2d())
 }
 
 ///|
@@ -41,8 +33,8 @@ pub impl FromJson for BBox3D with from_json(json, path) {
       ]
     ) =>
       BBox3D::new(
-        @position.Position3D::new((min_x, min_y, min_z)),
-        @position.Position3D::new((max_x, max_y, max_z)),
+        Position3D::new((min_x, min_y, min_z)),
+        Position3D::new((max_x, max_y, max_z)),
       )
     _ => raise @json.JsonDecodeError((path, "Invalid BBox"))
   }

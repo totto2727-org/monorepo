@@ -1,10 +1,10 @@
 ///|
 test "GeometryCollection to_json - simple" {
   let geometry_collection = GeometryCollection::new([
-    Point::new(@position.Position2D::new((0.0, 0.0)).to_position()).to_geometry(),
+    Point::new(Position2D::new((0.0, 0.0)).to_position()).to_geometry(),
     LineString::new([
-      @position.Position2D::new((0.0, 0.0)).to_position(),
-      @position.Position2D::new((1.0, 1.0)).to_position(),
+      Position2D::new((0.0, 0.0)).to_position(),
+      Position2D::new((1.0, 1.0)).to_position(),
     ]).to_geometry(),
   ])
   @json.inspect(geometry_collection, content={
@@ -20,17 +20,14 @@ test "GeometryCollection to_json - simple" {
 test "GeometryCollection to_json - with bbox" {
   let geometry_collection = GeometryCollection::new(
     [
-      Point::new(@position.Position2D::new((0.0, 0.0)).to_position()).to_geometry(),
+      Point::new(Position2D::new((0.0, 0.0)).to_position()).to_geometry(),
       LineString::new([
-        @position.Position2D::new((0.0, 0.0)).to_position(),
-        @position.Position2D::new((1.0, 1.0)).to_position(),
+        Position2D::new((0.0, 0.0)).to_position(),
+        Position2D::new((1.0, 1.0)).to_position(),
       ]).to_geometry(),
     ],
     bbox=Some(
-      @bbox.BBox2D::new(
-        @position.Position2D::new((0.0, 0.0)),
-        @position.Position2D::new((1.0, 1.0)),
-      ).to_bbox(),
+      BBox2D::new(Position2D::new((0.0, 0.0)), Position2D::new((1.0, 1.0))).to_bbox(),
     ),
   )
   @json.inspect(geometry_collection, content={
@@ -87,8 +84,8 @@ test "panic_GeometryCollection from_json - invalid type" {
 ///|
 test "GeometryCollection to_bbox - without bbox" {
   let geometry_collection = GeometryCollection::new([
-    Point::new(@position.Position2D::new((0.0, 0.0)).to_position()).to_geometry(),
-    Point::new(@position.Position2D::new((10.0, 10.0)).to_position()).to_geometry(),
+    Point::new(Position2D::new((0.0, 0.0)).to_position()).to_geometry(),
+    Point::new(Position2D::new((10.0, 10.0)).to_position()).to_geometry(),
   ])
   let bbox = geometry_collection.to_bbox()
   inspect(bbox, content="BBox2D({min: {x: 0, y: 0}, max: {x: 10, y: 10}})")
@@ -96,14 +93,14 @@ test "GeometryCollection to_bbox - without bbox" {
 
 ///|
 test "GeometryCollection to_bbox - with bbox (no re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let geometry_collection = GeometryCollection::new(
     [
-      Point::new(@position.Position2D::new((0.0, 0.0)).to_position()).to_geometry(),
-      Point::new(@position.Position2D::new((10.0, 10.0)).to_position()).to_geometry(),
+      Point::new(Position2D::new((0.0, 0.0)).to_position()).to_geometry(),
+      Point::new(Position2D::new((10.0, 10.0)).to_position()).to_geometry(),
     ],
     bbox=Some(custom_bbox),
   )
@@ -114,14 +111,14 @@ test "GeometryCollection to_bbox - with bbox (no re-compute)" {
 
 ///|
 test "GeometryCollection to_bbox - with bbox (force re-compute)" {
-  let custom_bbox = @bbox.BBox2D::new(
-    @position.Position2D::new((0.0, 0.0)),
-    @position.Position2D::new((0.0, 0.0)),
+  let custom_bbox = BBox2D::new(
+    Position2D::new((0.0, 0.0)),
+    Position2D::new((0.0, 0.0)),
   ).to_bbox()
   let geometry_collection = GeometryCollection::new(
     [
-      Point::new(@position.Position2D::new((0.0, 0.0)).to_position()).to_geometry(),
-      Point::new(@position.Position2D::new((10.0, 10.0)).to_position()).to_geometry(),
+      Point::new(Position2D::new((0.0, 0.0)).to_position()).to_geometry(),
+      Point::new(Position2D::new((10.0, 10.0)).to_position()).to_geometry(),
     ],
     bbox=Some(custom_bbox),
   )

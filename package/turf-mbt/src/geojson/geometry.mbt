@@ -13,12 +13,21 @@ pub enum Geometry {
 } derive(Show, Eq, Compare, Hash)
 
 ///|
-pub(open) trait ToBBox {
-  to_bbox(Self, re_compute? : Bool) -> @bbox.BBox raise @bbox.EmptyPositionsError
+pub(open) trait GeometryToBBox {
+  to_bbox(Self, re_compute? : Bool) -> BBox raise EmptyPositionsError
+  to_bbox_2d(Self, re_compute? : Bool) -> BBox2D raise EmptyPositionsError = _
 }
 
 ///|
-pub impl ToBBox for Geometry with to_bbox(self, re_compute? : Bool = false) {
+impl GeometryToBBox with to_bbox_2d(self, re_compute? : Bool = false) {
+  self.to_bbox(re_compute~).to_bbox_2d()
+}
+
+///|
+pub impl GeometryToBBox for Geometry with to_bbox(
+  self,
+  re_compute? : Bool = false,
+) {
   match self {
     Geometry::Point(p) => p.to_bbox(re_compute~)
     Geometry::MultiPoint(p) => p.to_bbox(re_compute~)
@@ -31,9 +40,7 @@ pub impl ToBBox for Geometry with to_bbox(self, re_compute? : Bool = false) {
 }
 
 ///|
-pub impl @primary.ToGeoJSONObject for Geometry with to_geojson_object(
-  self : Geometry,
-) -> @primary.GeoJSONObject {
+pub impl ToGeoJSONObject for Geometry with to_geojson_object(self : Geometry) -> GeoJSONObject {
   match self {
     Geometry::Point(p) => p.to_geojson_object()
     Geometry::MultiPoint(p) => p.to_geojson_object()
@@ -63,7 +70,7 @@ pub impl FromJson for Geometry with from_json(
   json : Json,
   path : @json.JsonPath,
 ) -> Geometry {
-  match @primary.GeoJSONObject::from_json(json, path)._type {
+  match GeoJSONObject::from_json(json, path)._type {
     Geometry(Point) => Point::from_json(json, path).to_geometry()
     Geometry(MultiPoint) => MultiPoint::from_json(json, path).to_geometry()
     Geometry(LineString) => LineString::from_json(json, path).to_geometry()

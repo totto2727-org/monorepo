@@ -3,34 +3,32 @@
 /// https://tools.ietf.org/html/rfc7946#section-3.1.3
 pub struct MultiPoint {
   points : Array[Point]
-  bbox : @bbox.BBox?
+  bbox : BBox?
 } derive(Show, Eq, Compare, Hash)
 
 ///|
 pub fn MultiPoint::new(
   points : Array[Point],
-  bbox? : @bbox.BBox? = None,
+  bbox? : BBox? = None,
 ) -> MultiPoint {
   MultiPoint::{ points, bbox }
 }
 
 ///|
-pub impl @primary.ToGeoJSONObject for MultiPoint with to_geojson_object(self) {
-  @primary.GeoJSONObject::new(
-    @primary.GeoJSONTypes::geometry(
-      @primary.GeoJSONGeometryTypes::multi_point(),
-    ),
+pub impl ToGeoJSONObject for MultiPoint with to_geojson_object(self) {
+  GeoJSONObject::new(
+    GeoJSONTypes::geometry(GeoJSONGeometryTypes::multi_point()),
     bbox=self.bbox,
   )
 }
 
 ///|
-pub impl ToBBox for MultiPoint with to_bbox(self, re_compute? = false) {
+pub impl GeometryToBBox for MultiPoint with to_bbox(self, re_compute? = false) {
   match (self.bbox, re_compute) {
     (Some(bbox), false) => bbox
     _ => {
-      let position_array = self.points.map(p => p.coordinates.to_2d())
-      @bbox.BBox2D::from_positions(position_array).to_bbox()
+      let position_array = self.points.map(p => p.coordinates.to_position_2d())
+      BBox2D::from_positions(position_array).to_bbox()
     }
   }
 }
@@ -60,8 +58,5 @@ pub impl FromJson for MultiPoint with from_json(
         (path, "Invalid coordinates in json: \{json}"),
       )
   }
-  MultiPoint::new(
-    points,
-    bbox=@primary.GeoJSONObject::from_json(json, path).bbox,
-  )
+  MultiPoint::new(points, bbox=GeoJSONObject::from_json(json, path).bbox)
 }

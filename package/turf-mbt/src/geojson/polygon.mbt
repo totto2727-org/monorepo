@@ -6,9 +6,7 @@ pub suberror InvalidPolygonError String derive(Show, Eq, Compare, Hash)
 // - Winding Order: Exterior rings CCW, Interior rings CW (Right-Hand Rule)
 // - Containment: Interior rings must be within Exterior ring, No overlapping holes
 // - Self-intersection: Individual rings must not self-intersect
-fn check_linear_ring(
-  ring : Array[@position.Position],
-) -> Unit raise InvalidPolygonError {
+fn check_linear_ring(ring : Array[Position]) -> Unit raise InvalidPolygonError {
   guard ring.length() >= 4 else {
     raise InvalidPolygonError(
       "Each LinearRing of a Polygon must have 4 or more Positions.",
@@ -27,14 +25,14 @@ fn check_linear_ring(
 /// The first and last positions are equivalent, and they MUST contain
 /// identical values; their representation SHOULD also be identical.
 pub struct Polygon {
-  coordinates : Array[Array[@position.Position]]
-  bbox : @bbox.BBox?
+  coordinates : Array[Array[Position]]
+  bbox : BBox?
 } derive(Show, Eq, Compare, Hash)
 
 ///|
 pub fn Polygon::new(
-  coordinates : Array[Array[@position.Position]],
-  bbox? : @bbox.BBox? = None,
+  coordinates : Array[Array[Position]],
+  bbox? : BBox? = None,
 ) -> Polygon raise InvalidPolygonError {
   for ring in coordinates {
     check_linear_ring(ring)
@@ -43,22 +41,22 @@ pub fn Polygon::new(
 }
 
 ///|
-pub impl ToBBox for Polygon with to_bbox(self, re_compute? = false) {
+pub impl GeometryToBBox for Polygon with to_bbox(self, re_compute? = false) {
   match (self.bbox, re_compute) {
     (Some(bbox), false) => bbox
     _ => {
       let position_array = self.coordinates
-        .map(ring => ring.map(pos => pos.to_2d()))
+        .map(ring => ring.map(pos => pos.to_position_2d()))
         .flatten()
-      @bbox.BBox2D::from_positions(position_array).to_bbox()
+      BBox2D::from_positions(position_array).to_bbox()
     }
   }
 }
 
 ///|
-pub impl @primary.ToGeoJSONObject for Polygon with to_geojson_object(self) {
-  @primary.GeoJSONObject::new(
-    @primary.GeoJSONTypes::geometry(@primary.GeoJSONGeometryTypes::polygon()),
+pub impl ToGeoJSONObject for Polygon with to_geojson_object(self) {
+  GeoJSONObject::new(
+    GeoJSONTypes::geometry(GeoJSONGeometryTypes::polygon()),
     bbox=self.bbox,
   )
 }
@@ -79,7 +77,7 @@ pub impl ToJson for Polygon with to_json(self) {
 pub impl FromJson for Polygon with from_json(json : Json, path : @json.JsonPath) {
   Polygon::new(
     @json.from_json(@helper.get_coordinates_field(json, path), path~),
-    bbox=@primary.GeoJSONObject::from_json(json, path).bbox,
+    bbox=GeoJSONObject::from_json(json, path).bbox,
   ) catch {
     InvalidPolygonError(msg) =>
       raise @json.JsonDecodeError((path, "Invalid Polygon: \{msg}"))
