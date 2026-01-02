@@ -9,11 +9,24 @@ pub struct FeatureCollection {
 } derive(Show, Eq)
 
 ///|
+pub(open) trait ToFeatureCollection {
+  to_feature_collection(Self) -> FeatureCollection
+}
+
+///|
 pub fn FeatureCollection::new(
   features : Array[Feature],
   bbox? : BBox? = None,
 ) -> FeatureCollection {
   FeatureCollection::{ features, bbox }
+}
+
+///|
+/// Identity Implementation
+pub impl ToFeatureCollection for FeatureCollection with to_feature_collection(
+  self,
+) {
+  self
 }
 
 ///|

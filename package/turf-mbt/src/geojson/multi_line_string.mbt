@@ -7,11 +7,22 @@ pub struct MultiLineString {
 } derive(Show, Eq, Compare, Hash)
 
 ///|
+pub(open) trait ToMultiLineString {
+  to_multi_line_string(Self) -> MultiLineString
+}
+
+///|
 pub fn MultiLineString::new(
   lines : Array[LineString],
   bbox? : BBox? = None,
 ) -> MultiLineString {
   MultiLineString::{ lines, bbox }
+}
+
+///|
+/// Identity Implementation
+pub impl ToMultiLineString for MultiLineString with to_multi_line_string(self) {
+  self
 }
 
 ///|

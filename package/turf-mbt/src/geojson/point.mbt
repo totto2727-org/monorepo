@@ -12,6 +12,16 @@ pub fn Point::new(coordinates : Position, bbox? : BBox? = None) -> Point {
 }
 
 ///|
+pub impl ToPosition for Point with to_position(self) {
+  self.coordinates
+}
+
+///|
+pub impl ToMultiPoint for Point with to_multi_point(self) {
+  MultiPoint::new([self])
+}
+
+///|
 pub impl ToGeoJSONObject for Point with to_geojson_object(self) {
   GeoJSONObject::new(
     GeoJSONTypes::geometry(GeoJSONGeometryTypes::point()),

@@ -15,6 +15,11 @@ pub fn LineString::new(
 }
 
 ///|
+pub impl ToMultiLineString for LineString with to_multi_line_string(self) {
+  MultiLineString::new([self])
+}
+
+///|
 pub impl ToGeoJSONObject for LineString with to_geojson_object(self) {
   GeoJSONObject::new(
     GeoJSONTypes::geometry(GeoJSONGeometryTypes::line_string()),

@@ -7,11 +7,22 @@ pub struct MultiPoint {
 } derive(Show, Eq, Compare, Hash)
 
 ///|
+pub(open) trait ToMultiPoint {
+  to_multi_point(Self) -> MultiPoint
+}
+
+///|
 pub fn MultiPoint::new(
   points : Array[Point],
   bbox? : BBox? = None,
 ) -> MultiPoint {
   MultiPoint::{ points, bbox }
+}
+
+///|
+/// Identity Implementation
+pub impl ToMultiPoint for MultiPoint with to_multi_point(self) {
+  self
 }
 
 ///|

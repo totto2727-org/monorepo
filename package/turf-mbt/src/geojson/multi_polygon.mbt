@@ -7,11 +7,22 @@ pub struct MultiPolygon {
 } derive(Show, Eq, Compare, Hash)
 
 ///|
+pub(open) trait ToMultiPolygon {
+  to_multi_polygon(Self) -> MultiPolygon
+}
+
+///|
 pub fn MultiPolygon::new(
   polygons : Array[Polygon],
   bbox? : BBox? = None,
 ) -> MultiPolygon {
   MultiPolygon::{ polygons, bbox }
+}
+
+///|
+/// Identity Implementation
+pub impl ToMultiPolygon for MultiPolygon with to_multi_polygon(self) {
+  self
 }
 
 ///|

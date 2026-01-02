@@ -32,3 +32,13 @@ pub impl FromJson for Position2D with from_json(json, path) {
     _ => raise @json.JsonDecodeError((path, "Invalid Position2D"))
   }
 }
+
+///|
+pub impl Add for Position2D with add(self, other) {
+  Position2D::new((self.x + other.x, self.y + other.y))
+}
+
+///|
+pub impl Sub for Position2D with sub(self, other) {
+  Position2D::new((self.x - other.x, self.y - other.y))
+}

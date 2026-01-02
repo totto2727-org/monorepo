@@ -23,6 +23,11 @@ pub fn Feature::new(
 }
 
 ///|
+pub impl ToFeatureCollection for Feature with to_feature_collection(self) {
+  FeatureCollection::new([self])
+}
+
+///|
 pub impl GeometryToBBox for Feature with to_bbox(
   self,
   re_compute? : Bool = false,

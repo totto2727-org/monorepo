@@ -41,6 +41,11 @@ pub fn Polygon::new(
 }
 
 ///|
+pub impl ToMultiPolygon for Polygon with to_multi_polygon(self) {
+  MultiPolygon::new([self])
+}
+
+///|
 pub impl GeometryToBBox for Polygon with to_bbox(self, re_compute? = false) {
   match (self.bbox, re_compute) {
     (Some(bbox), false) => bbox

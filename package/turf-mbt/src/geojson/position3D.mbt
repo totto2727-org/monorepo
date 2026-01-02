@@ -31,3 +31,13 @@ pub impl FromJson for Position3D with from_json(
     _ => raise @json.JsonDecodeError((path, "Invalid Position3D"))
   }
 }
+
+///|
+pub impl Add for Position3D with add(self, other) {
+  Position3D::new((self.x + other.x, self.y + other.y, self.z + other.z))
+}
+
+///|
+pub impl Sub for Position3D with sub(self, other) {
+  Position3D::new((self.x - other.x, self.y - other.y, self.z - other.z))
+}
