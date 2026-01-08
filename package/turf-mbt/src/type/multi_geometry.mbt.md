@@ -17,10 +17,16 @@ Provides functionality for collections of geometries, including efficient flatte
 
 - Default implementation flattens geometry coordinates
 
-```mbt test
-let mp = MultiPoint::new([Point::new(XY::new(1.0, 1.0)), Point::new(XY::new(2.0, 2.0))])
-// MultiPoint uses &MultiGeometryTrait::coordArray implicitly
-inspect(mp.coord_array(), content="[{x: 1, y: 1}, {x: 2, y: 2}]")
+```mbt check
+///|
+test {
+  let mp = MultiPoint::new([
+    Point::new(XY::new(1.0, 1.0)),
+    Point::new(XY::new(2.0, 2.0)),
+  ])
+  // MultiPoint uses &MultiGeometryTrait::coordArray implicitly
+  inspect(mp.coord_array(), content="[{x: 1, y: 1}, {x: 2, y: 2}]")
+}
 ```
 
 ### `Show`
@@ -33,8 +39,11 @@ inspect(mp.coord_array(), content="[{x: 1, y: 1}, {x: 2, y: 2}]")
 
 - Default implementation delegates to geometry_array show
 
-```mbt test
-let mp = MultiPoint::new([Point::new(XY::new(1.0, 1.0))])
-let boxed : &MultiGeometryTrait = mp
-inspect(boxed, content="MultiPoint([Point({x: 1, y: 1})])")
+```mbt check
+///|
+test {
+  let mp = MultiPoint::new([Point::new(XY::new(1.0, 1.0))])
+  let boxed : &MultiGeometryTrait = mp
+  inspect(boxed, content="MultiPoint([Point({x: 1, y: 1})])")
+}
 ```
