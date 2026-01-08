@@ -17,13 +17,13 @@ Provides basic coordinate operations including accessors, arithmetic (negation, 
 
 - Default implementation returns `XY`
 
-  ```mbt check
-  ///|
-  test {
-    let c = XY::new(1.0, 2.0)
-    inspect(c.xy(), content="{x: 1, y: 2}")
-  }
-  ```
+```mbt check
+///|
+test {
+  let c = XY::new(1.0, 2.0)
+  inspect(c.xy(), content="{x: 1, y: 2}")
+}
+```
 
 ### `dot`
 
@@ -33,11 +33,11 @@ Provides basic coordinate operations including accessors, arithmetic (negation, 
 
 - Default implementation calculates dot product
 
-  ```mbt check
-  ///|
-  test {
-    let c1 = XY::new(1.0, 2.0)
-    let c2 = XY::new(3.0, 4.0)
-    inspect(c1.dot(c2), content="11")
-  }
-  ```
+```mbt check
+///|
+test {
+  let c1 = XY::new(1.0, 2.0)
+  let c2 = XY::new(3.0, 4.0)
+  inspect(c1.dot(c2), content="11")
+}
+```
