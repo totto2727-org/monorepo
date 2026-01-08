@@ -15,7 +15,10 @@ description: Moonbit(.mbt) Coding Standards
 - **Types (Structs, Enums) & Traits**: PascalCase (e.g., `Position`, `GeoJSONObject`, `ToBBox`).
 - **Abbreviations**: Abbreviations other than those at the beginning (such as JSON or ID) should generally be all uppercase (e.g. `FromJSON`, `JSONToMap`).
 - **Functions & Methods**: snake_case (e.g., `from_json`, `to_geometry`, `boolean_point_in_polygon`).
+- **Ignore Usage**: Use proper pipeline style when ignoring return values (e.g. `expr |> ignore`).
 - **Variables & Parameters**: snake_case (e.g., `coordinates`, `shifted_poly`).
+- **No Abbreviations**: Do not abbreviate variable names unless they are common abbreviations (e.g., `id`, `json`). Avoid `p` for `point`, `ls` for `line_string`, etc.
+- **Collections**: Use the `_array` suffix for array arguments/variables instead of plural names (e.g., `polygon_array` instead of `polygons`).
 - **Constructors**: Use `new` as a static function on the type (e.g., `pub fn Polygon::new(...)`).
 
 ## 3. Idioms & Best Practices
@@ -77,7 +80,7 @@ description: Moonbit(.mbt) Coding Standards
   pub enum Geometry {
     Point(Point)
     MultiPoint(MultiPoint)
-  } derive(Show, Eq, Compare, Hash)
+  } derive(Show, Eq)
   ```
 
 - **Delegation**: When implementing traits for such Enums, pattern match on `self` and delegate to the inner struct's method.
@@ -95,34 +98,13 @@ description: Moonbit(.mbt) Coding Standards
   }
   ```
 
+- **Performance Overrides**: When implementing a trait with default methods (e.g., `bbox` in `GeometryTrait`), always override them if a more efficient implementation is possible for the specific type (e.g., O(1) calculation instead of O(N) iteration).
+
+- **Implementation Rules**:
+  1. **Default Implementation**: If a method's return value is not `Self` and it can be implemented solely using other methods (independent of internal structure), provide a default implementation.
+  2. **Trait Object Delegation**: When implementing a super-trait (e.g., `GeometryTrait`) for a type that also implements a sub-trait (e.g., `PointTrait`), if the implementation can be derived using the sub-trait's methods, define the logic as a static function on the sub-trait's object (e.g., `&PointTrait::method`) and relay to it. This facilitates code reuse.
+  3. **Direct Implementation**: If delegation is not possible or creates circular dependencies, implement the method directly on the type.
+
 ## 4. Testing
 
-- Use `test "description" { ... }` blocks.
-- Use `inspect(value, content="expected_string")` for snapshot-style testing of complex data structures.
-  - For `ToJson` tests, use `@json.inspect` as much as possible.
-- Use `assert_eq(actual, expected)` for value equality.
-- Do not ignore compilation warnings; fix them (e.g., unused variables).
-- Group related tests in the same file or dedicated `_test.mbt` files.
-- **VSCode Markers**: Add `// MARK: function_name` comments to separate tests for different functions.
-
-  ```moonbit
-  // MARK: func1
-
-  test "func1 ..."
-
-  // MARK: func2
-
-  test "func2 ..."
-  ```
-
-- **Test Naming**: Use the pattern `test "[Target] [Method] - [Scenario]"` to ensure clarity.
-  - **Target**: The struct or function being tested.
-  - **Method**: The specific method being tested (optional for simple functions).
-  - **Scenario**: The condition or specific case being verified.
-  - **Note**: If the test expects a panic, the name **must** start with `panic_` (e.g., `test "panic_[Target] [Method] - [Scenario]"`).
-
-  ```moonbit
-  test "Point to_bbox - without bbox" { ... }
-  test "orient2d - clockwise" { ... }
-  test "panic_Polygon from_json - invalid type" { ... }
-  ```
+See [Moonbit Testing Standards](moonbit-test.md) for detailed testing guidelines.
