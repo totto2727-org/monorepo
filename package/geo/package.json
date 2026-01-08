@@ -15,7 +15,7 @@
   "files": [
     "dist"
   ],
-  "name": "@package/turf-mbt",
+  "name": "@totto2727/geo",
   "peerDependencies": {
     "@totto/function": "catalog:util"
   },

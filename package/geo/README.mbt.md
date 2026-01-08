@@ -1,4 +1,4 @@
-# @package/turf-mbt
+# @totto2727/geo
 
 A MoonBit library for geospatial analysis, primarily based on [Turf.js](https://turfjs.org/).
 It provides GeoJSON implementations and a collection of geospatial functions. The library aims to offer a comprehensive suite of tools for processing geospatial data in MoonBit, directly referencing the Turf.js implementation.

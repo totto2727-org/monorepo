@@ -1,4 +1,4 @@
 {
-  "import": ["package/turf_mbt/geojson"],
+  "import": ["totto2727/geo/geojson"],
   "test-import": ["moonbitlang/x/fs"]
 }

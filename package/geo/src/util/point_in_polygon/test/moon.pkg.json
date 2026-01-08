@@ -1,0 +1,7 @@
+{
+  "test-import": [
+    "moonbitlang/x/fs",
+    "totto2727/geo/util/point_in_polygon",
+    "totto2727/geo/geojson"
+  ]
+}
