@@ -45,6 +45,8 @@ All tests when rewritten should be drafted in `.mbt.md` files (e.g., `multi_geom
 - `mbt test`: Highlighting, checked, and wrapped in a test block (manual `test { ... }` not needed).
 - `mbt test(async)`: Wrapper for async tests.
 
+**Important**: Code blocks **must not be indented**. Even when included in a list item, the code block fence (\`\`\`) and its content must start at the beginning of the line. Code blocks with indentation may cause compilation errors.
+
 ### File Structure Definition
 
 For `.mbt.md` files, follow the structure below.
@@ -87,9 +89,9 @@ For `.mbt.md` files, follow the structure below.
 
 - Test Title 1
 
-  ```mbt test
-  inspect(func1(...), content="...")
-  ```
+```mbt test
+inspect(func1(...), content="...")
+```
 
 ### [TraitName]
 
@@ -97,8 +99,8 @@ For `.mbt.md` files, follow the structure below.
 
 - Test Title
 
-  ```mbt test
-  inspect(trait_method(...), content="...")
-  ```
+```mbt test
+inspect(trait_method(...), content="...")
+```
 
 ```
