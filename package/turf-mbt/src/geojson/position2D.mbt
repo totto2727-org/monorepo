@@ -2,7 +2,7 @@
 pub struct Position2D {
   x : Double
   y : Double
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub fn Position2D::new(point_2d : (Double, Double)) -> Position2D {

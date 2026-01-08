@@ -4,7 +4,7 @@
 pub struct LineString {
   coordinates : Array[Position]
   bbox : BBox?
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub fn LineString::new(

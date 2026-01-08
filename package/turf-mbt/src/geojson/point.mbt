@@ -4,7 +4,7 @@
 pub struct Point {
   coordinates : Position
   bbox : BBox?
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub fn Point::new(coordinates : Position, bbox? : BBox? = None) -> Point {

@@ -4,7 +4,7 @@
 pub enum Position {
   Position2D(Position2D)
   Position3D(Position3D)
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub(open) trait ToPosition {

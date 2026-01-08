@@ -42,6 +42,8 @@ test "BBox2D to_bbox" {
   let min = Position2D::new((0, 0))
   let max = Position2D::new((1, 1))
   let bbox = BBox2D::new(min, max)
-  let as_bbox = bbox.to_bbox()
-  inspect(as_bbox, content="BBox2D({min: {x: 0, y: 0}, max: {x: 1, y: 1}})")
+  inspect(
+    bbox.to_bbox(),
+    content="BBox2D({min: {x: 0, y: 0}, max: {x: 1, y: 1}})",
+  )
 }

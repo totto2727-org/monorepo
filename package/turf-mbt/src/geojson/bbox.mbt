@@ -4,7 +4,7 @@
 pub enum BBox {
   BBox2D(BBox2D)
   BBox3D(BBox3D)
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub(open) trait ToBBox {

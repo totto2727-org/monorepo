@@ -10,7 +10,7 @@ pub enum Geometry {
   Polygon(Polygon)
   MultiPolygon(MultiPolygon)
   GeometryCollection(GeometryCollection)
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub(open) trait ToGeometry {

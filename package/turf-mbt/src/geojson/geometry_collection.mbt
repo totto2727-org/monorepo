@@ -9,7 +9,7 @@
 pub struct GeometryCollection {
   geometries : Array[Geometry]
   bbox : BBox?
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub fn GeometryCollection::new(

@@ -2,7 +2,7 @@
 pub struct BBox2D {
   min : Position2D
   max : Position2D
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub fn BBox2D::new(min : Position2D, max : Position2D) -> BBox2D {
@@ -10,7 +10,7 @@ pub fn BBox2D::new(min : Position2D, max : Position2D) -> BBox2D {
 }
 
 ///|
-pub(all) suberror EmptyPositionsError String derive(Show, Eq, Compare, Hash)
+pub(all) suberror EmptyPositionsError String derive(Show, Eq)
 
 ///|
 pub fn BBox2D::from_positions(

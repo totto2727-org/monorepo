@@ -1,5 +1,5 @@
 ///|
-pub suberror InvalidPolygonError String derive(Show, Eq, Compare, Hash)
+pub suberror InvalidPolygonError String derive(Show, Eq)
 
 ///|
 // TODO: Implement topological validation (RFC 7946 Section 3.1.6):
@@ -27,7 +27,7 @@ fn check_linear_ring(ring : Array[Position]) -> Unit raise InvalidPolygonError {
 pub struct Polygon {
   coordinates : Array[Array[Position]]
   bbox : BBox?
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub fn Polygon::new(

@@ -13,7 +13,7 @@ pub struct GeoJSONObject {
   /// The axes order of a bbox follows the axes order of geometries.
   /// https://tools.ietf.org/html/rfc7946#section-5
   bbox : BBox?
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub fn GeoJSONObject::new(

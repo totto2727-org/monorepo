@@ -4,7 +4,7 @@
 pub struct MultiPoint {
   points : Array[Point]
   bbox : BBox?
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub(open) trait ToMultiPoint {

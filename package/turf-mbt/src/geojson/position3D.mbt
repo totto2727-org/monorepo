@@ -3,7 +3,7 @@ pub struct Position3D {
   x : Double
   y : Double
   z : Double
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub fn Position3D::new(point_3d : (Double, Double, Double)) -> Position3D {

@@ -4,7 +4,7 @@
 pub struct MultiLineString {
   lines : Array[LineString]
   bbox : BBox?
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub(open) trait ToMultiLineString {

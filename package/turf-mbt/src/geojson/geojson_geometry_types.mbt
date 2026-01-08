@@ -9,7 +9,7 @@ pub enum GeoJSONGeometryTypes {
   Polygon
   MultiPolygon
   GeometryCollection
-} derive(Show, Eq, Compare, Hash, ToJson, FromJson)
+} derive(Show, Eq, ToJson, FromJson)
 
 ///|
 pub fn GeoJSONGeometryTypes::point() -> GeoJSONGeometryTypes {

@@ -4,7 +4,7 @@
 pub struct MultiPolygon {
   polygons : Array[Polygon]
   bbox : BBox?
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub(open) trait ToMultiPolygon {

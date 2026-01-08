@@ -4,7 +4,7 @@
 pub enum FeatureID {
   StringID(String)
   NumberID(Double)
-} derive(Show, Eq, Hash, Compare)
+} derive(Show, Eq)
 
 ///|
 pub fn FeatureID::string(s : String) -> FeatureID {

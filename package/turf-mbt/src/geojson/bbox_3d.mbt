@@ -2,7 +2,7 @@
 pub struct BBox3D {
   min : Position3D
   max : Position3D
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub fn BBox3D::new(min : Position3D, max : Position3D) -> BBox3D {

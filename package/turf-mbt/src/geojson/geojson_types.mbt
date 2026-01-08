@@ -5,7 +5,7 @@ pub enum GeoJSONTypes {
   Geometry(GeoJSONGeometryTypes)
   Feature
   FeatureCollection
-} derive(Show, Eq, Compare, Hash)
+} derive(Show, Eq)
 
 ///|
 pub fn GeoJSONTypes::geometry(geometry : GeoJSONGeometryTypes) -> GeoJSONTypes {
