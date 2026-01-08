@@ -1,0 +1,26 @@
+///|
+pub struct MultiLineString[Coord](Array[LineString[Coord]]) derive(Show, Eq)
+
+///|
+#warnings("-unused_trait_bound")
+pub fn[Coord : CoordTrait] MultiLineString::new(
+  line_string_array : Array[LineString[Coord]],
+) -> MultiLineString[Coord] {
+  MultiLineString(line_string_array)
+}
+
+// MARK: MultiGeometryTrait
+
+///|
+pub impl[Coord : CoordTrait] MultiGeometryTrait for MultiLineString[Coord] with geometry_array(
+  self,
+) {
+  self.0.map(x => x)
+}
+
+///|
+pub impl[Coord : CoordTrait] GeometryTrait for MultiLineString[Coord] with coord_array(
+  self,
+) {
+  &MultiGeometryTrait::coord_array(self)
+}
