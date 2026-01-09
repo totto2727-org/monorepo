@@ -22,7 +22,7 @@ pub fn[Coord : Coord2DTrait] Triangle::new(
 pub impl[Coord : Coord2DTrait] PolygonTrait for Triangle[Coord] with exterior(
   self,
 ) {
-  LineString::new([self.a.xy(), self.b.xy(), self.c.xy(), self.a.xy()])
+  Ring::new([self.a.xy(), self.b.xy(), self.c.xy(), self.a.xy()])
 }
 
 ///|

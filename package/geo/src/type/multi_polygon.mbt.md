@@ -18,7 +18,7 @@ Represents a collection of polygons.
 ```mbt check
 ///|
 test {
-  let exterior = LineString::new([
+  let exterior = Ring::new([
     XY::new(0.0, 0.0),
     XY::new(10.0, 0.0),
     XY::new(0.0, 10.0),
@@ -28,7 +28,7 @@ test {
   let multi_polygon = MultiPolygon::new([polygon1])
   inspect(
     multi_polygon,
-    content="MultiPolygon([{exterior: LineString([{x: 0, y: 0}, {x: 10, y: 0}, {x: 0, y: 10}, {x: 0, y: 0}]), interior_array: []}])",
+    content="MultiPolygon([{exterior: Ring([{x: 0, y: 0}, {x: 10, y: 0}, {x: 0, y: 10}, {x: 0, y: 0}]), interior_array: []}])",
   )
 }
 ```
@@ -40,7 +40,7 @@ test {
 ```mbt check
 ///|
 test {
-  let exterior = LineString::new([
+  let exterior = Ring::new([
     XY::new(0.0, 0.0),
     XY::new(10.0, 0.0),
     XY::new(0.0, 10.0),
@@ -62,7 +62,7 @@ test {
 ```mbt check
 ///|
 test {
-  let exterior = LineString::new([
+  let exterior = Ring::new([
     XY::new(0.0, 0.0),
     XY::new(10.0, 0.0),
     XY::new(0.0, 10.0),
@@ -72,7 +72,7 @@ test {
   let multi_polygon = MultiPolygon::new([polygon1])
   inspect(
     multi_polygon.geometry_array(),
-    content="[{exterior: LineString([{x: 0, y: 0}, {x: 10, y: 0}, {x: 0, y: 10}, {x: 0, y: 0}]), interior_array: []}]",
+    content="[{exterior: Ring([{x: 0, y: 0}, {x: 10, y: 0}, {x: 0, y: 10}, {x: 0, y: 0}]), interior_array: []}]",
   )
 }
 ```
@@ -89,7 +89,7 @@ test {
 ```mbt check
 ///|
 test {
-  let exterior = LineString::new([
+  let exterior = Ring::new([
     XY::new(0.0, 0.0),
     XY::new(10.0, 0.0),
     XY::new(0.0, 10.0),

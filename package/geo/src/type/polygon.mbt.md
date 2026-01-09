@@ -25,7 +25,7 @@ Represents a closed area defined by an exterior boundary and optional interior h
 ```mbt check
 ///|
 test {
-  let exterior = LineString::new([
+  let exterior = Ring::new([
     XY::new(0.0, 0.0),
     XY::new(10.0, 0.0),
     XY::new(0.0, 10.0),
@@ -34,7 +34,7 @@ test {
   let polygon = Polygon::new(exterior)
   inspect(
     polygon,
-    content="{exterior: LineString([{x: 0, y: 0}, {x: 10, y: 0}, {x: 0, y: 10}, {x: 0, y: 0}]), interior_array: []}",
+    content="{exterior: Ring([{x: 0, y: 0}, {x: 10, y: 0}, {x: 0, y: 10}, {x: 0, y: 0}]), interior_array: []}",
   )
 }
 ```
@@ -44,14 +44,14 @@ test {
 ```mbt check
 ///|
 test {
-  let exterior = LineString::new([
+  let exterior = Ring::new([
     XY::new(0.0, 0.0),
     XY::new(10.0, 0.0),
     XY::new(10.0, 10.0),
     XY::new(0.0, 10.0),
     XY::new(0.0, 0.0),
   ])
-  let hole = LineString::new([
+  let hole = Ring::new([
     XY::new(2.0, 2.0),
     XY::new(8.0, 2.0),
     XY::new(8.0, 8.0),
@@ -61,7 +61,7 @@ test {
   let polygon = Polygon::new(exterior, interior_array=[hole])
   inspect(
     polygon,
-    content="{exterior: LineString([{x: 0, y: 0}, {x: 10, y: 0}, {x: 10, y: 10}, {x: 0, y: 10}, {x: 0, y: 0}]), interior_array: [LineString([{x: 2, y: 2}, {x: 8, y: 2}, {x: 8, y: 8}, {x: 2, y: 8}, {x: 2, y: 2}])]}",
+    content="{exterior: Ring([{x: 0, y: 0}, {x: 10, y: 0}, {x: 10, y: 10}, {x: 0, y: 10}, {x: 0, y: 0}]), interior_array: [Ring([{x: 2, y: 2}, {x: 8, y: 2}, {x: 8, y: 8}, {x: 2, y: 8}, {x: 2, y: 2}])]}",
   )
 }
 ```
@@ -73,7 +73,7 @@ test {
 ```mbt check
 ///|
 test {
-  let exterior = LineString::new([
+  let exterior = Ring::new([
     XY::new(0.0, 0.0),
     XY::new(10.0, 0.0),
     XY::new(0.0, 10.0),
@@ -82,7 +82,7 @@ test {
   let polygon = Polygon::new(exterior)
   inspect(
     polygon.exterior(),
-    content="LineString([{x: 0, y: 0}, {x: 10, y: 0}, {x: 0, y: 10}, {x: 0, y: 0}])",
+    content="Ring([{x: 0, y: 0}, {x: 10, y: 0}, {x: 0, y: 10}, {x: 0, y: 0}])",
   )
 }
 ```
@@ -99,7 +99,7 @@ test {
 ```mbt check
 ///|
 test {
-  let exterior = LineString::new([
+  let exterior = Ring::new([
     XY::new(0.0, 0.0),
     XY::new(10.0, 0.0),
     XY::new(0.0, 10.0),
@@ -115,14 +115,14 @@ test {
 ```mbt check
 ///|
 test {
-  let exterior = LineString::new([
+  let exterior = Ring::new([
     XY::new(0.0, 0.0),
     XY::new(10.0, 0.0),
     XY::new(10.0, 10.0),
     XY::new(0.0, 10.0),
     XY::new(0.0, 0.0),
   ])
-  let hole = LineString::new([
+  let hole = Ring::new([
     XY::new(2.0, 2.0),
     XY::new(8.0, 2.0),
     XY::new(8.0, 8.0),
@@ -132,7 +132,7 @@ test {
   let polygon = Polygon::new(exterior, interior_array=[hole])
   inspect(
     polygon.interior_array(),
-    content="[LineString([{x: 2, y: 2}, {x: 8, y: 2}, {x: 8, y: 8}, {x: 2, y: 8}, {x: 2, y: 2}])]",
+    content="[Ring([{x: 2, y: 2}, {x: 8, y: 2}, {x: 8, y: 8}, {x: 2, y: 8}, {x: 2, y: 2}])]",
   )
 }
 ```
@@ -144,7 +144,7 @@ test {
 ```mbt check
 ///|
 test {
-  let exterior = LineString::new([
+  let exterior = Ring::new([
     XY::new(0.0, 0.0),
     XY::new(10.0, 0.0),
     XY::new(0.0, 10.0),
@@ -169,7 +169,7 @@ test {
 ```mbt check
 ///|
 test {
-  let exterior = LineString::new([
+  let exterior = Ring::new([
     XY::new(0.0, 0.0),
     XY::new(10.0, 10.0),
     XY::new(0.0, 10.0),
@@ -184,6 +184,6 @@ test {
 ```mbt check
 ///|
 test "panic_Polygon bbox - empty coords" {
-  (Polygon::new(LineString::new([])) : Polygon[XY]).bbox() |> ignore
+  (Polygon::new(Ring::new([])) : Polygon[XY]).bbox() |> ignore
 }
 ```
