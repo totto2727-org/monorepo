@@ -16,7 +16,7 @@ pub struct LineString[Coord](Array[Coord]) derive(Show, Eq)
 
 ///|
 #warnings("-unused_trait_bound")
-pub fn[Coord : CoordTrait] LineString::new(
+pub fn[Coord : Coord2DTrait] LineString::new(
   coord_array : Array[Coord],
 ) -> LineString[Coord] {
   LineString(coord_array)
@@ -25,15 +25,15 @@ pub fn[Coord : CoordTrait] LineString::new(
 // MARK: LineStringTrait
 
 ///|
-pub impl[Coord : CoordTrait] LineStringTrait for LineString[Coord] with line_string(
+pub impl[Coord : Coord2DTrait] LineStringTrait for LineString[Coord] with line_string(
   self,
 ) {
   LineString(self.coord_array())
 }
 
 ///|
-pub impl[Coord : CoordTrait] GeometryTrait for LineString[Coord] with coord_array(
+pub impl[Coord : Coord2DTrait] GeometryTrait for LineString[Coord] with coord_array(
   self,
 ) {
-  self.0.map(CoordTrait::xy)
+  self.0.map(Coord2DTrait::xy)
 }

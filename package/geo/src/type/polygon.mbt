@@ -18,7 +18,7 @@ pub struct Polygon[Coord] {
 ///|
 /// TODO: Closeしていることの検証が必要
 #warnings("-unused_trait_bound")
-pub fn[Coord : CoordTrait] Polygon::new(
+pub fn[Coord : Coord2DTrait] Polygon::new(
   exterior : LineString[Coord],
   interior_array? : Array[LineString[Coord]] = [],
 ) -> Polygon[Coord] {
@@ -28,19 +28,21 @@ pub fn[Coord : CoordTrait] Polygon::new(
 // MARK: PolygonTrait
 
 ///|
-pub impl[Coord : CoordTrait] PolygonTrait for Polygon[Coord] with exterior(self) {
+pub impl[Coord : Coord2DTrait] PolygonTrait for Polygon[Coord] with exterior(
+  self,
+) {
   self.exterior.line_string()
 }
 
 ///|
-pub impl[Coord : CoordTrait] PolygonTrait for Polygon[Coord] with interior_array(
+pub impl[Coord : Coord2DTrait] PolygonTrait for Polygon[Coord] with interior_array(
   self,
 ) {
   self.interior_array.map(LineString::line_string)
 }
 
 ///|
-pub impl[Coord : CoordTrait] GeometryTrait for Polygon[Coord] with coord_array(
+pub impl[Coord : Coord2DTrait] GeometryTrait for Polygon[Coord] with coord_array(
   self,
 ) {
   &PolygonTrait::coordArray(self)

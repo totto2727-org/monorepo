@@ -7,7 +7,7 @@ pub struct Triangle[Coord] {
 
 ///|
 #warnings("-unused_trait_bound")
-pub fn[Coord : CoordTrait] Triangle::new(
+pub fn[Coord : Coord2DTrait] Triangle::new(
   a : Coord,
   b : Coord,
   c : Coord,
@@ -19,28 +19,28 @@ pub fn[Coord : CoordTrait] Triangle::new(
 
 ///|
 /// TODO: Closeしていることの検証が必要
-pub impl[Coord : CoordTrait] PolygonTrait for Triangle[Coord] with exterior(
+pub impl[Coord : Coord2DTrait] PolygonTrait for Triangle[Coord] with exterior(
   self,
 ) {
   LineString::new([self.a.xy(), self.b.xy(), self.c.xy(), self.a.xy()])
 }
 
 ///|
-pub impl[Coord : CoordTrait] PolygonTrait for Triangle[Coord] with interior_array(
+pub impl[Coord : Coord2DTrait] PolygonTrait for Triangle[Coord] with interior_array(
   _,
 ) {
   []
 }
 
 ///|
-pub impl[Coord : CoordTrait] GeometryTrait for Triangle[Coord] with coord_array(
+pub impl[Coord : Coord2DTrait] GeometryTrait for Triangle[Coord] with coord_array(
   self,
 ) {
   &PolygonTrait::coordArray(self)
 }
 
 ///|
-pub impl[Coord : CoordTrait] GeometryTrait for Triangle[Coord] with bbox(self) {
+pub impl[Coord : Coord2DTrait] GeometryTrait for Triangle[Coord] with bbox(self) {
   let a = self.a.xy()
   let b = self.b.xy()
   let c = self.c.xy()

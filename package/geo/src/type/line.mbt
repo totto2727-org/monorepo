@@ -18,31 +18,34 @@ pub struct Line[Coord] {
 
 ///|
 #warnings("-unused_trait_bound")
-pub fn[Coord : CoordTrait] Line::new(start : Coord, end : Coord) -> Line[Coord] {
+pub fn[Coord : Coord2DTrait] Line::new(
+  start : Coord,
+  end : Coord,
+) -> Line[Coord] {
   Line::{ start, end }
 }
 
 // MARK: LineTrait
 
 ///|
-pub impl[Coord : CoordTrait] LineTrait for Line[Coord] with start(self) {
+pub impl[Coord : Coord2DTrait] LineTrait for Line[Coord] with start(self) {
   self.start.xy()
 }
 
 ///|
-pub impl[Coord : CoordTrait] LineTrait for Line[Coord] with end(self) {
+pub impl[Coord : Coord2DTrait] LineTrait for Line[Coord] with end(self) {
   self.end.xy()
 }
 
 ///|
-pub impl[Coord : CoordTrait] GeometryTrait for Line[Coord] with coord_array(
+pub impl[Coord : Coord2DTrait] GeometryTrait for Line[Coord] with coord_array(
   self,
 ) {
   [self.start(), self.end()]
 }
 
 ///|
-pub impl[Coord : CoordTrait] GeometryTrait for Line[Coord] with bbox(self) {
+pub impl[Coord : Coord2DTrait] GeometryTrait for Line[Coord] with bbox(self) {
   let start = self.start.xy()
   let end = self.end.xy()
   let min_x = @cmp.minimum(start.x, end.x)

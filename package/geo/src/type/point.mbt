@@ -19,25 +19,25 @@ pub struct Point[Coord](Coord) derive(Show, Eq)
 
 ///|
 #warnings("-unused_trait_bound")
-pub fn[Coord : CoordTrait] Point::new(coord : Coord) -> Point[Coord] {
+pub fn[Coord : Coord2DTrait] Point::new(coord : Coord) -> Point[Coord] {
   Point(coord)
 }
 
 // MARK: PointTrait
 
 ///|
-pub impl[Coord : CoordTrait] PointTrait for Point[Coord] with coord(self) {
+pub impl[Coord : Coord2DTrait] PointTrait for Point[Coord] with coord(self) {
   self.0.xy()
 }
 
 ///|
-pub impl[Coord : CoordTrait] GeometryTrait for Point[Coord] with coord_array(
+pub impl[Coord : Coord2DTrait] GeometryTrait for Point[Coord] with coord_array(
   self,
 ) {
   &PointTrait::coordArray(self)
 }
 
 ///|
-pub impl[Coord : CoordTrait] GeometryTrait for Point[Coord] with bbox(self) {
+pub impl[Coord : Coord2DTrait] GeometryTrait for Point[Coord] with bbox(self) {
   &PointTrait::bbox(self)
 }
