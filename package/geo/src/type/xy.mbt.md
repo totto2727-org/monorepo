@@ -5,20 +5,20 @@ A 2D coordinate structure used as the fundamental building block for geometries.
 ## Public API
 
 - `XY::new`
+- `add`
+- `sub`
+- `neg`
+- `mul`
+- `div`
+- `dot`
 - `x`
 - `y`
 - `set_x`
 - `set_y`
-- `op_add`
-- `op_sub`
-- `op_neg`
-- `mul`
-- `div`
-- `dot`
 
 ## Test
 
-### `XY::new`
+### XY::new
 
 - Simple initialization
 
@@ -30,60 +30,9 @@ test {
 }
 ```
 
-### `x`
+### Add
 
-- Getter
-
-```mbt check
-///|
-test {
-  let xy = XY::new(3.0, 4.0)
-  inspect(xy.x(), content="3")
-}
-```
-
-### `y`
-
-- Getter
-
-```mbt check
-///|
-test {
-  let xy = XY::new(3.0, 4.0)
-  inspect(xy.y(), content="4")
-}
-```
-
-### `set_x`
-
-- Update value
-
-```mbt check
-///|
-test {
-  let xy = XY::new(1.0, 2.0)
-  let updated = xy.set_x(5.0)
-  inspect(updated, content="{x: 5, y: 2}")
-  // Ensure original is unchanged (immutability check implied)
-  inspect(xy, content="{x: 1, y: 2}")
-}
-```
-
-### `set_y`
-
-- Update value
-
-```mbt check
-///|
-test {
-  let xy = XY::new(1.0, 2.0)
-  let updated = xy.set_y(6.0)
-  inspect(updated, content="{x: 1, y: 6}")
-  inspect(xy, content="{x: 1, y: 2}")
-}
-```
-
-### `op_add`
+#### add
 
 - Basic addition
 
@@ -96,7 +45,9 @@ test {
 }
 ```
 
-### `op_sub`
+### Sub
+
+#### sub
 
 - Basic subtraction
 
@@ -109,7 +60,9 @@ test {
 }
 ```
 
-### `op_neg`
+### Neg
+
+#### neg
 
 - Basic negation
 
@@ -121,7 +74,9 @@ test {
 }
 ```
 
-### `mul`
+### CoordTrait
+
+#### mul
 
 - Scalar multiplication
 
@@ -133,19 +88,19 @@ test {
 }
 ```
 
-### `div`
+#### div
 
 - Scalar division
 
 ```mbt check
 ///|
 test {
-  let a = XY::new(4.0, 6.0)
-  inspect(a.div(2.0), content="{x: 2, y: 3}")
+  let b = XY::new(4.0, 6.0)
+  inspect(b.div(2.0), content="{x: 2, y: 3}")
 }
 ```
 
-### `dot`
+#### dot
 
 - Basic dot product
 
@@ -156,5 +111,61 @@ test {
   let b = XY::new(3.0, 4.0)
   // 1*3 + 2*4 = 11
   inspect(a.dot(b), content="11")
+}
+```
+
+### Coord2DTrait
+
+#### x
+
+- Getter
+
+```mbt check
+///|
+test {
+  let xy = XY::new(3.0, 4.0)
+  inspect(xy.x(), content="3")
+}
+```
+
+#### y
+
+- Getter
+
+```mbt check
+///|
+test {
+  let xy = XY::new(3.0, 4.0)
+  inspect(xy.y(), content="4")
+}
+```
+
+#### set_x
+
+- Update value
+
+```mbt check
+///|
+test {
+  let xy = XY::new(1.0, 2.0)
+  let updated_x = xy.set_x(5.0)
+  inspect(updated_x, content="{x: 5, y: 2}")
+  // Ensure original is unchanged
+  inspect(xy, content="{x: 1, y: 2}")
+}
+```
+
+#### set_y
+
+- Update value
+
+```mbt check
+///|
+test {
+  let xy = XY::new(1.0, 2.0)
+  let updated_y = xy.set_y(6.0)
+  inspect(updated_y, content="{x: 1, y: 6}")
+  // Ensure original is unchanged
+  inspect(xy, content="{x: 1, y: 2}")
 }
 ```

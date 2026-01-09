@@ -9,11 +9,9 @@ Provides basic coordinate operations including accessors, arithmetic (negation, 
 
 ## Test
 
-### `xy`
+### `Coord2DTrait`
 
-| Variable | State | Note | 1 |
-| :--- | :--- | :--- | :---: |
-| `self` | `Valid` | | ✓ |
+#### `xy`
 
 - Default implementation returns `XY`
 
@@ -25,19 +23,14 @@ test {
 }
 ```
 
-### `dot`
+#### `xyz`
 
-| Variable | State | Note | 1 |
-| :--- | :--- | :--- | :---: |
-| `self` | `Valid` | | ✓ |
-
-- Default implementation calculates dot product
+- Default implementation returns `XYZ`
 
 ```mbt check
 ///|
 test {
-  let c1 = XY::new(1.0, 2.0)
-  let c2 = XY::new(3.0, 4.0)
-  inspect(c1.dot(c2), content="11")
+  let c = XYZ::new(1.0, 2.0, 3.0)
+  inspect(c.xyz(), content="{x: 1, y: 2, z: 3}")
 }
 ```
