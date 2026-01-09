@@ -10,22 +10,22 @@ pub fn XY::new(x : Double, y : Double) -> XY {
 }
 
 ///|
-pub impl CoordTrait for XY with x(self) {
+pub impl Coord2DTrait for XY with x(self) {
   self.x
 }
 
 ///|
-pub impl CoordTrait for XY with y(self) {
+pub impl Coord2DTrait for XY with y(self) {
   self.y
 }
 
 ///|
-pub impl CoordTrait for XY with set_x(self, x) {
+pub impl Coord2DTrait for XY with set_x(self, x) {
   XY::new(x, self.y)
 }
 
 ///|
-pub impl CoordTrait for XY with set_y(self, y) {
+pub impl Coord2DTrait for XY with set_y(self, y) {
   XY::new(self.x, y)
 }
 
@@ -52,4 +52,9 @@ pub impl CoordTrait for XY with mul(self, other) {
 ///|
 pub impl CoordTrait for XY with div(self, other) {
   XY::new(self.x / other, self.y / other)
+}
+
+///|
+pub impl CoordTrait for XY with dot(self, other) {
+  self.x() * other.x() + self.y() * other.y()
 }
