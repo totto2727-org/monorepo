@@ -6,9 +6,9 @@ pub enum PointInPolygonResult {
 } derive(Show, Eq)
 
 ///|
-pub fn point_in_polygon(
-  position : @geojson.Position2D,
-  polygon : @geojson.Polygon,
+pub fn[Coord : @type.Coord2DTrait] point_in_polygon(
+  position : @type.XY,
+  polygon : @type.Polygon[Coord],
 ) -> PointInPolygonResult raise {
   let mut k = 0
   for coordinates in polygon.coordinates {
