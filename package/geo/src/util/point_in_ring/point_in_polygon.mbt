@@ -1,5 +1,5 @@
 ///|
-pub enum PointInPolygonResult {
+pub enum PointInRingResult {
   Inside
   Outside
   Boundary
@@ -9,7 +9,7 @@ pub enum PointInPolygonResult {
 pub fn[Coord : @type.Coord2DTrait, Ring : @type.RingTrait] point_in_ring(
   position : Coord,
   ring : Ring,
-) -> PointInPolygonResult {
+) -> PointInRingResult {
   let position = position.xy()
   let ring = ring.coord_array()
   let mut current = ring[0].xy()
@@ -21,13 +21,13 @@ pub fn[Coord : @type.Coord2DTrait, Ring : @type.RingTrait] point_in_ring(
     if diff1.y == 0.0 && diff2.y == 0.0 {
       if (diff2.x <= 0.0 && diff1.x >= 0.0) ||
         (diff1.x <= 0.0 && diff2.x >= 0.0) {
-        return PointInPolygonResult::Boundary
+        return PointInRingResult::Boundary
       }
     } else if (diff2.y >= 0.0 && diff1.y <= 0.0) ||
       (diff2.y <= 0.0 && diff1.y >= 0.0) {
       let f = @robust.orient2d(diff1, diff2, @type.XY::new(0.0, 0.0))
       if f == 0.0 {
-        return PointInPolygonResult::Boundary
+        return PointInRingResult::Boundary
       }
       if (f > 0.0 && diff2.y > 0.0 && diff1.y <= 0.0) ||
         (f < 0.0 && diff2.y <= 0.0 && diff1.y > 0.0) {
@@ -38,8 +38,8 @@ pub fn[Coord : @type.Coord2DTrait, Ring : @type.RingTrait] point_in_ring(
     diff1 = diff2
   }
   if k % 2 == 0 {
-    PointInPolygonResult::Outside
+    PointInRingResult::Outside
   } else {
-    PointInPolygonResult::Inside
+    PointInRingResult::Inside
   }
 }
