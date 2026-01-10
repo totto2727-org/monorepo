@@ -1,4 +1,4 @@
 {
-  "import": ["totto2727/geo/geojson", "totto2727/geo/util/point_in_polygon"],
-  "test-import": ["moonbitlang/x/fs"]
+  "import": ["totto2727/geo/type", "totto2727/geo/util/point_in_ring"],
+  "test-import": ["totto2727/geo/turf/internal/fixture"]
 }
