@@ -8,6 +8,26 @@ fn geojson_decode_error(
 }
 
 ///|
+pub(open) trait ToGeoJSON {
+  to_geojson(self : Self, with_bbox? : Bool) -> GeoJSON
+}
+
+///|
+pub suberror GeoJSONDecodeError {
+  GeoJSONDecodeError(String)
+}
+
+///|
+pub fn GeoJSONDecodeError::new(msg : String) -> GeoJSONDecodeError {
+  GeoJSONDecodeError(msg)
+}
+
+///|
+pub(open) trait FromGeoJSON {
+  from_geojson_geometry(geometry : Geometry) -> Self raise GeoJSONDecodeError
+}
+
+///|
 pub enum GeoJSON {
   FeatureCollection(FeatureCollection)
   Feature(Feature)
