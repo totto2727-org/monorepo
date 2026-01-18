@@ -4,6 +4,7 @@ pub fn[T : FromJson] from_json_property(
   json : Json,
   path : @json.JsonPath,
 ) -> T? raise @json.JsonDecodeError {
+  let path = path.add_key(key)
   guard json is Object(object) else {
     raise @json.JsonDecodeError((path, "Expected object, got \{json}"))
   }
@@ -14,17 +15,26 @@ pub fn[T : FromJson] from_json_property(
 }
 
 ///|
+pub fn[T : FromJson] from_json_property_or_throw(
+  key : String,
+  json : Json,
+  path : @json.JsonPath,
+) -> T raise @json.JsonDecodeError {
+  match from_json_property(key, json, path) {
+    None => raise @json.JsonDecodeError((path, "Missing key \{key}"))
+    Some(json) => T::from_json(json, path)
+  }
+}
+
+///|
 pub fn[T : FromJson] from_json_property_or_default(
   key : String,
   default : () -> T,
   json : Json,
   path : @json.JsonPath,
 ) -> T raise @json.JsonDecodeError {
-  guard json is Object(object) else {
-    raise @json.JsonDecodeError((path, "Expected object, got \{json}"))
-  }
-  match object.get(key) {
-    None | Some(Null) => default()
+  match from_json_property(key, json, path) {
+    None => default()
     Some(json) => T::from_json(json, path)
   }
 }

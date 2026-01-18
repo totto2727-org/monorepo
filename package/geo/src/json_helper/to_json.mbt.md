@@ -66,7 +66,7 @@ test {
   let map : Map[String, Json] = Map::new()
   let s : String? = None
   to_nullable_json(map, "key", s)
-  @json.inspect(map, content={ "key": Null })
+  @json.inspect(map, content={ "key": Json::null() })
 }
 ```
 

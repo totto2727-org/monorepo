@@ -208,7 +208,7 @@ test {
 ```mbt check
 ///|
 test {
-  let json : Json = { "key": Null }
+  let json : Json = { "key": Json::null() }
   let result : TestStruct3 = @json.from_json(json)
   inspect(result, content="{key: []}")
 }
