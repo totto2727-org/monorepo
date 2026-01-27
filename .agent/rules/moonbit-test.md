@@ -13,7 +13,7 @@ description: Moonbit Testing Standards
   - **Inspect usage**: When using `inspect`, always pass the direct return value of the function under test. Do not obscure it by inspecting derived properties like `.length()` unless absolutely necessary.
     - Bad: `inspect(array.length(), content="3")`
     - Good: `inspect(array, content="[A, B, C]")`
-  - For `ToJson` tests, use `@json.inspect` as much as possible.
+  - For `ToJson` tests, use `json_inspect` as much as possible.
 - Use `assert_eq(actual, expected)` for value equality.
 - Do not ignore compilation warnings; fix them (e.g., unused variables).
 - Group related tests in the same file or dedicated `_test.mbt` files.
