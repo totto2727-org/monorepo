@@ -1,3 +1,5 @@
+<!-- markdownlint-disable no-duplicate-heading -->
+
 # geojson.mbt
 
 GeoJSON specification implementation for MoonBit. Provides types and serialization for GeoJSON objects including Points, LineStrings, Polygons, and their Multi variants, as well as Features and FeatureCollections.
@@ -27,7 +29,7 @@ GeoJSON specification implementation for MoonBit. Provides types and serializati
 ```mbt check
 ///|
 test {
-  @json.inspect(Coordinates::XY(1.0, 2.0), content=[1, 2])
+  json_inspect(Coordinates::XY(1.0, 2.0), content=[1, 2])
 }
 ```
 
@@ -36,7 +38,7 @@ test {
 ```mbt check
 ///|
 test {
-  @json.inspect(Coordinates::XYZ_OR_XYM(1.0, 2.0, 3.0), content=[1, 2, 3])
+  json_inspect(Coordinates::XYZ_OR_XYM(1.0, 2.0, 3.0), content=[1, 2, 3])
 }
 ```
 
@@ -45,7 +47,7 @@ test {
 ```mbt check
 ///|
 test {
-  @json.inspect(Coordinates::XYZM(1.0, 2.0, 3.0, 4.0), content=[1, 2, 3, 4])
+  json_inspect(Coordinates::XYZM(1.0, 2.0, 3.0, 4.0), content=[1, 2, 3, 4])
 }
 ```
 
@@ -102,7 +104,7 @@ test "panic_Coordinates from_json" {
 ```mbt check
 ///|
 test {
-  @json.inspect(BBox::BBox2D(0.0, 1.0, 2.0, 3.0), content=[0, 1, 2, 3])
+  json_inspect(BBox::BBox2D(0.0, 1.0, 2.0, 3.0), content=[0, 1, 2, 3])
 }
 ```
 
@@ -111,7 +113,7 @@ test {
 ```mbt check
 ///|
 test {
-  @json.inspect(BBox::BBox3D(0.0, 1.0, 2.0, 3.0, 4.0, 5.0), content=[
+  json_inspect(BBox::BBox3D(0.0, 1.0, 2.0, 3.0, 4.0, 5.0), content=[
     0, 1, 2, 3, 4, 5,
   ])
 }
@@ -160,7 +162,7 @@ test "panic_BBox from_json" {
 ```mbt check
 ///|
 test {
-  @json.inspect(GeometryType::Point, content="Point")
+  json_inspect(GeometryType::Point, content="Point")
 }
 ```
 
@@ -169,7 +171,7 @@ test {
 ```mbt check
 ///|
 test {
-  @json.inspect(GeometryType::LineString, content="LineString")
+  json_inspect(GeometryType::LineString, content="LineString")
 }
 ```
 
@@ -178,7 +180,7 @@ test {
 ```mbt check
 ///|
 test {
-  @json.inspect(GeometryType::Polygon, content="Polygon")
+  json_inspect(GeometryType::Polygon, content="Polygon")
 }
 ```
 
@@ -187,7 +189,7 @@ test {
 ```mbt check
 ///|
 test {
-  @json.inspect(GeometryType::MultiPoint, content="MultiPoint")
+  json_inspect(GeometryType::MultiPoint, content="MultiPoint")
 }
 ```
 
@@ -196,7 +198,7 @@ test {
 ```mbt check
 ///|
 test {
-  @json.inspect(GeometryType::MultiLineString, content="MultiLineString")
+  json_inspect(GeometryType::MultiLineString, content="MultiLineString")
 }
 ```
 
@@ -205,7 +207,7 @@ test {
 ```mbt check
 ///|
 test {
-  @json.inspect(GeometryType::MultiPolygon, content="MultiPolygon")
+  json_inspect(GeometryType::MultiPolygon, content="MultiPolygon")
 }
 ```
 
@@ -214,7 +216,7 @@ test {
 ```mbt check
 ///|
 test {
-  @json.inspect(GeometryType::GeometryCollection, content="GeometryCollection")
+  json_inspect(GeometryType::GeometryCollection, content="GeometryCollection")
 }
 ```
 
@@ -311,7 +313,7 @@ test "panic_GeometryType from_json - invalid" {
 ```mbt check
 ///|
 test {
-  @json.inspect(GeoJSONType::FeatureCollection, content="FeatureCollection")
+  json_inspect(GeoJSONType::FeatureCollection, content="FeatureCollection")
 }
 ```
 
@@ -320,7 +322,7 @@ test {
 ```mbt check
 ///|
 test {
-  @json.inspect(GeoJSONType::Feature, content="Feature")
+  json_inspect(GeoJSONType::Feature, content="Feature")
 }
 ```
 
@@ -329,7 +331,7 @@ test {
 ```mbt check
 ///|
 test {
-  @json.inspect(GeoJSONType::Geometry(GeometryType::Point), content="Point")
+  json_inspect(GeoJSONType::Geometry(GeometryType::Point), content="Point")
 }
 ```
 
@@ -386,7 +388,7 @@ test "panic_GeoJSONType from_json - invalid" {
 ```mbt check
 ///|
 test {
-  @json.inspect(ID::String("abc"), content="abc")
+  json_inspect(ID::String("abc"), content="abc")
 }
 ```
 
@@ -395,7 +397,7 @@ test {
 ```mbt check
 ///|
 test {
-  @json.inspect(ID::Number(123.0), content=123)
+  json_inspect(ID::Number(123.0), content=123)
 }
 ```
 
@@ -444,7 +446,7 @@ test {
     "type": "Point",
     "coordinates": [1.0, 2.0],
   })
-  @json.inspect(point, content={ "type": "Point", "coordinates": [1, 2] })
+  json_inspect(point, content={ "type": "Point", "coordinates": [1, 2] })
 }
 ```
 
@@ -474,7 +476,7 @@ test {
     "type": "LineString",
     "coordinates": [[0.0, 0.0], [1.0, 1.0]],
   })
-  @json.inspect(line, content={
+  json_inspect(line, content={
     "type": "LineString",
     "coordinates": [[0, 0], [1, 1]],
   })
@@ -522,7 +524,7 @@ test {
     "type": "Polygon",
     "coordinates": [[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]]],
   })
-  @json.inspect(polygon, content={
+  json_inspect(polygon, content={
     "type": "Polygon",
     "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 0]]],
   })
@@ -596,7 +598,7 @@ test {
     "type": "MultiPoint",
     "coordinates": [[0.0, 0.0], [1.0, 1.0]],
   })
-  @json.inspect(mp, content={
+  json_inspect(mp, content={
     "type": "MultiPoint",
     "coordinates": [[0, 0], [1, 1]],
   })
@@ -644,7 +646,7 @@ test {
     "type": "MultiLineString",
     "coordinates": [[[0.0, 0.0], [1.0, 1.0]]],
   })
-  @json.inspect(mls, content={
+  json_inspect(mls, content={
     "type": "MultiLineString",
     "coordinates": [[[0, 0], [1, 1]]],
   })
@@ -688,11 +690,11 @@ test {
 ```mbt check
 ///|
 test {
-  let mpoly : MultiPolygon = @json.from_json({
+  let multi_polyfill : MultiPolygon = @json.from_json({
     "type": "MultiPolygon",
     "coordinates": [[[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]]]],
   })
-  @json.inspect(mpoly, content={
+  json_inspect(multi_polyfill, content={
     "type": "MultiPolygon",
     "coordinates": [[[[0, 0], [1, 0], [1, 1], [0, 0]]]],
   })
@@ -706,12 +708,12 @@ test {
 ```mbt check
 ///|
 test {
-  let mpoly : MultiPolygon = @json.from_json({
+  let multi_polyfill : MultiPolygon = @json.from_json({
     "type": "MultiPolygon",
     "coordinates": [[[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]]]],
   })
   inspect(
-    mpoly,
+    multi_polyfill,
     content="{coordinates: [[[XY(0, 0), XY(1, 0), XY(1, 1), XY(0, 0)]]]}",
   )
 }
@@ -722,11 +724,11 @@ test {
 ```mbt check
 ///|
 test {
-  let mpoly : MultiPolygon = @json.from_json({
+  let multi_polyfill : MultiPolygon = @json.from_json({
     "type": "MultiPolygon",
     "coordinates": [],
   })
-  inspect(mpoly, content="{coordinates: []}")
+  inspect(multi_polyfill, content="{coordinates: []}")
 }
 ```
 
@@ -743,7 +745,7 @@ test {
     "type": "GeometryCollection",
     "geometries": [{ "type": "Point", "coordinates": [0.0, 0.0] }],
   })
-  @json.inspect(gc, content={
+  json_inspect(gc, content={
     "type": "GeometryCollection",
     "geometries": [{ "type": "Point", "coordinates": [0, 0] }],
   })
@@ -793,7 +795,7 @@ test {
     "type": "Point",
     "coordinates": [1.0, 2.0],
   })
-  @json.inspect(geom, content={ "type": "Point", "coordinates": [1, 2] })
+  json_inspect(geom, content={ "type": "Point", "coordinates": [1, 2] })
 }
 ```
 
@@ -806,7 +808,7 @@ test {
     "type": "LineString",
     "coordinates": [[0.0, 0.0], [1.0, 1.0]],
   })
-  @json.inspect(geom, content={
+  json_inspect(geom, content={
     "type": "LineString",
     "coordinates": [[0, 0], [1, 1]],
   })
@@ -876,7 +878,7 @@ test {
     "properties": { "name": "test" },
     "id": "feature-1",
   })
-  @json.inspect(feature, content={
+  json_inspect(feature, content={
     "type": "Feature",
     "geometry": { "type": "Point", "coordinates": [1, 2] },
     "properties": { "name": "test" },
@@ -951,7 +953,7 @@ test {
     "type": "FeatureCollection",
     "features": [{ "type": "Feature", "geometry": null, "properties": null }],
   })
-  @json.inspect(fc, content={
+  json_inspect(fc, content={
     "type": "FeatureCollection",
     "features": [{ "type": "Feature", "geometry": null, "properties": null }],
   })
@@ -1004,7 +1006,7 @@ test {
     "type": "FeatureCollection",
     "features": [],
   })
-  @json.inspect(geojson, content={ "type": "FeatureCollection", "features": [] })
+  json_inspect(geojson, content={ "type": "FeatureCollection", "features": [] })
 }
 ```
 
@@ -1018,7 +1020,7 @@ test {
     "geometry": null,
     "properties": null,
   })
-  @json.inspect(geojson, content={
+  json_inspect(geojson, content={
     "type": "Feature",
     "geometry": null,
     "properties": null,
@@ -1035,7 +1037,7 @@ test {
     "type": "Point",
     "coordinates": [1.0, 2.0],
   })
-  @json.inspect(geojson, content={ "type": "Point", "coordinates": [1, 2] })
+  json_inspect(geojson, content={ "type": "Point", "coordinates": [1, 2] })
 }
 ```
 

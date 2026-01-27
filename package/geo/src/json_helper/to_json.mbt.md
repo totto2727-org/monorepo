@@ -24,7 +24,7 @@ Helper functions for constructing optional/nullable JSON fields.
 test {
   let map : Map[String, Json] = Map::new()
   to_optional_json(map, "key", Some("value"))
-  @json.inspect(map, content={ "key": "value" })
+  json_inspect(map, content={ "key": "value" })
 }
 ```
 
@@ -36,7 +36,7 @@ test {
   let map : Map[String, Json] = Map::new()
   let s : String? = None
   to_optional_json(map, "key", s)
-  @json.inspect(map, content={})
+  json_inspect(map, content={})
 }
 ```
 
@@ -54,7 +54,7 @@ test {
 test {
   let map : Map[String, Json] = Map::new()
   to_nullable_json(map, "key", Some("value"))
-  @json.inspect(map, content={ "key": "value" })
+  json_inspect(map, content={ "key": "value" })
 }
 ```
 
@@ -66,7 +66,7 @@ test {
   let map : Map[String, Json] = Map::new()
   let s : String? = None
   to_nullable_json(map, "key", s)
-  @json.inspect(map, content={ "key": Json::null() })
+  json_inspect(map, content={ "key": Json::null() })
 }
 ```
 
@@ -84,7 +84,7 @@ test {
 test {
   let map : Map[String, Json] = Map::new()
   to_json_or_default(map, "key", Some("value"), () => "default")
-  @json.inspect(map, content={ "key": "value" })
+  json_inspect(map, content={ "key": "value" })
 }
 ```
 
@@ -96,6 +96,6 @@ test {
   let map : Map[String, Json] = Map::new()
   let s : String? = None
   to_json_or_default(map, "key", s, () => "default")
-  @json.inspect(map, content={ "key": "default" })
+  json_inspect(map, content={ "key": "default" })
 }
 ```
