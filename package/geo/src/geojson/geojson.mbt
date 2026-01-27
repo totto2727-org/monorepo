@@ -8,11 +8,6 @@ fn geojson_decode_error(
 }
 
 ///|
-pub(open) trait ToGeoJSON {
-  to_geojson(self : Self, with_bbox? : Bool) -> GeoJSON
-}
-
-///|
 pub suberror GeoJSONDecodeError {
   GeoJSONDecodeError(String)
 }
@@ -28,14 +23,19 @@ pub(open) trait FromGeoJSON {
 }
 
 ///|
-pub enum GeoJSON {
+pub(open) trait ToGeoJSON {
+  to_geojson(self : Self, with_bbox? : Bool) -> GeoJSON
+}
+
+///|
+pub(all) enum GeoJSON {
   FeatureCollection(FeatureCollection)
   Feature(Feature)
   Geometry(Geometry)
 } derive(Eq, Show)
 
 ///|
-trait GeoJSONTrait: FromJson + ToJson {
+pub(open) trait GeoJSONTrait: FromJson + ToJson {
   to_json(self : Self, with_bbox? : Bool) -> Json
 }
 
@@ -164,7 +164,7 @@ pub impl FromJson for ID with from_json(json, path) {
 }
 
 ///|
-pub enum Geometry {
+pub(all) enum Geometry {
   Point(Point)
   LineString(LineString)
   Polygon(Polygon)
@@ -197,8 +197,7 @@ pub impl ToJson for Geometry with to_json(self) {
 
 ///|
 pub impl FromJson for Geometry with from_json(json, path) {
-  let _type = GeometryType::from_raw_geojson(json, path)
-  match _type {
+  match GeometryType::from_raw_geojson(json, path) {
     MultiPolygon => Geometry::MultiPolygon(MultiPolygon::from_json(json, path))
     MultiLineString =>
       Geometry::MultiLineString(MultiLineString::from_json(json, path))
@@ -528,6 +527,11 @@ pub impl FromJson for GeometryType with from_json(json, path) {
     Json::String("GeometryCollection") => GeometryType::GeometryCollection
     _ => raise geojson_decode_error(path, "Invalid GeoJSON type", json)
   }
+}
+
+///|
+pub(open) trait BBoxTrait {
+  bbox(Self) -> BBox
 }
 
 ///|
