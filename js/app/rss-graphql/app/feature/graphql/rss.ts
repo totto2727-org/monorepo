@@ -2,8 +2,8 @@ import { FeedType as FeedTypeEnum } from '@mikaelporttila/rss'
 import { Effect, Predicate, Runtime, Schema } from '@totto/function/effect'
 import { NonEmptyStringResolver } from 'graphql-scalars'
 
-import { fetch } from '../rss.ts'
 import { builder } from './builder.js'
+import { makeRSSFetchClient } from './rss-fetch-client.ts'
 
 const feedTypeEnumToLiteral = Schema.transformLiterals(
   [FeedTypeEnum.Atom, 'ATOM'],
@@ -64,6 +64,7 @@ const itemRef = builder.objectRef<Item>('Item')
 const feedRef = builder.objectRef<Feed>('Feed')
 const feedResponseRef = builder.objectRef<FeedResponse>('FeedResponse')
 
+// oxlint-disable-next-line jest/require-hook
 sizeRef.implement({
   fields: (t) =>
     ({
@@ -72,6 +73,7 @@ sizeRef.implement({
     }) satisfies Record<keyof Size, unknown>,
 })
 
+// oxlint-disable-next-line jest/require-hook
 imageRef.implement({
   fields: (t) =>
     ({
@@ -85,6 +87,7 @@ imageRef.implement({
     }) satisfies Record<keyof Image, unknown>,
 })
 
+// oxlint-disable-next-line jest/require-hook
 itemRef.implement({
   fields: (t) =>
     ({
@@ -98,6 +101,7 @@ itemRef.implement({
     }) satisfies Record<keyof Item, unknown>,
 })
 
+// oxlint-disable-next-line jest/require-hook
 feedRef.implement({
   fields: (t) =>
     ({
@@ -119,6 +123,7 @@ feedRef.implement({
     }) satisfies Record<keyof Feed, unknown>,
 })
 
+// oxlint-disable-next-line jest/require-hook
 feedResponseRef.implement({
   fields: (t) =>
     ({
@@ -129,6 +134,7 @@ feedResponseRef.implement({
     }) satisfies Record<keyof FeedResponse, unknown>,
 })
 
+// oxlint-disable-next-line jest/require-hook
 builder.queryType({
   fields: (t) => ({
     queryFeed: t.field({
@@ -137,9 +143,9 @@ builder.queryType({
       },
       nullable: false,
       resolve: (_, args, context) =>
-        Effect.gen(function*  resolve() {
-          const fetcher = yield* fetch
-          const rss = yield* fetcher(args.feedURL)
+        Effect.gen(function* resolve() {
+          const rssFetchClient = yield* makeRSSFetchClient
+          const rss = yield* rssFetchClient(args.feedURL)
 
           return {
             feed: {

@@ -1,19 +1,19 @@
+import type { HttpClient } from '@totto/function/effect/platform'
+import type { ElysiaAdapter } from 'elysia'
+
 import { logger } from '@bogeychan/elysia-logger'
 import { cors } from '@elysiajs/cors'
 import { yoga } from '@elysiajs/graphql-yoga'
 import { html } from '@elysiajs/html'
 import { Effect } from '@totto/function/effect'
-import { FetchHttpClient } from '@totto/function/effect/platform';
-import type { HttpClient } from '@totto/function/effect/platform';
-import { Elysia } from 'elysia';
-import type { ElysiaAdapter } from 'elysia';
-import { join } from 'node:path'
+import { FetchHttpClient } from '@totto/function/effect/platform'
+import { Elysia } from 'elysia'
 
 import { generateSchema } from './feature/graphql.ts'
 import { builder } from './feature/graphql/builder.ts'
 
 export const app = (adapter?: ElysiaAdapter) =>
-  Effect.gen(function*  app() {
+  Effect.gen(function* app() {
     const runtime = yield* Effect.runtime<HttpClient.HttpClient>()
 
     return new Elysia({
@@ -34,7 +34,7 @@ export const app = (adapter?: ElysiaAdapter) =>
     <title>GraphQL API Information</title>
 </head>
 <body>
-    <p>API Endpoint: <code>${join(c.request.url, '/api/graphql')}</code></p>
+    <p>API Endpoint: <code>${new URL('/api/graphql', c.request.url)}</code></p>
     <p>Schema: <a href="/api/graphql/schema">/api/graphql/schema</a></p>
     <p>GraphiQL: <a href="/api/graphql">/api/graphql</a></p>
 </body>
