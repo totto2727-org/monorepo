@@ -1,0 +1,9 @@
+import {
+  "totto2727/geo/type",
+  "moonbitlang/core/strconv",
+  "moonbitlang/core/cmp",
+}
+
+import "test" {
+  "moonbitlang/x/fs",
+}

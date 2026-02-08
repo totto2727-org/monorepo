@@ -1,0 +1,8 @@
+import {
+  "totto2727/geo/type",
+  "totto2727/geo/util/point_in_ring",
+}
+
+import "test" {
+  "totto2727/geo/turf/internal/fixture",
+}

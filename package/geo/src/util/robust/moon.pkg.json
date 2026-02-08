@@ -1,4 +1,0 @@
-{
-  "import": ["totto2727/geo/type"],
-  "test-import": ["moonbitlang/x/fs"]
-}

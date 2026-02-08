@@ -8,18 +8,18 @@ fn geojson_decode_error(
 }
 
 ///|
-pub suberror GeoJSONDecodeError {
-  GeoJSONDecodeError(String)
+pub suberror InvalidGeoJSONError {
+  InvalidGeoJSONError(String)
 }
 
 ///|
-pub fn GeoJSONDecodeError::new(msg : String) -> GeoJSONDecodeError {
-  GeoJSONDecodeError(msg)
+pub fn InvalidGeoJSONError::new(msg : String) -> InvalidGeoJSONError {
+  InvalidGeoJSONError(msg)
 }
 
 ///|
 pub(open) trait FromGeoJSON {
-  from_geojson_geometry(geometry : Geometry) -> Self raise GeoJSONDecodeError
+  from_geojson_geometry(geometry : Geometry) -> Self raise InvalidGeoJSONError
 }
 
 ///|
@@ -66,6 +66,15 @@ pub impl FromJson for GeoJSON with from_json(json, path) {
 }
 
 ///|
+pub impl BBoxTrait for GeoJSON with bbox(self) -> BBox {
+  match self {
+    FeatureCollection(fc) => fc.bbox()
+    Feature(f) => f.bbox()
+    Geometry(g) => g.bbox()
+  }
+}
+
+///|
 fn set_geojson_type(
   map : Map[String, Json],
   geojson_type : GeoJSONType,
@@ -74,9 +83,23 @@ fn set_geojson_type(
 }
 
 ///|
-pub(all) struct FeatureCollection {
+fn[T : BBoxTrait] set_bbox(map : Map[String, Json], bbox : T) -> Unit {
+  try bbox.bbox() catch {
+    _ => ()
+  } noraise {
+    bbox => map.set("bbox", bbox.to_json())
+  }
+}
+
+///|
+pub struct FeatureCollection {
   features : Array[Feature]
 } derive(Eq, Show)
+
+///|
+pub fn FeatureCollection::new(features : Array[Feature]) -> FeatureCollection {
+  { features, }
+}
 
 ///|
 pub impl GeoJSONTrait for FeatureCollection with to_json(
@@ -87,7 +110,7 @@ pub impl GeoJSONTrait for FeatureCollection with to_json(
   set_geojson_type(map, GeoJSONType::FeatureCollection)
   map.set("features", self.features.to_json())
   if with_bbox {
-    ...
+    set_bbox(map, self)
   }
   map.to_json()
 }
@@ -107,11 +130,35 @@ pub impl FromJson for FeatureCollection with from_json(json, path) {
 }
 
 ///|
-pub(all) struct Feature {
+pub impl BBoxTrait for FeatureCollection with bbox(self) {
+  let coords = self.features
+    .filter_map(feature => feature.geometry)
+    .map(geom => match geom.bbox() {
+      BBox2D(x1, y1, x2, y2) => [Coordinates::XY(x1, y1), XY(x2, y2)]
+      BBox3D(x1, y1, z1, x2, y2, z2) =>
+        [Coordinates::XYZ_OR_XYM(x1, y1, z1), XYZ_OR_XYM(x2, y2, z2)]
+    })
+    .flatten()
+  BBox::from_coordinate_array(coords) catch {
+    _ => BBox::new_2d(0.0, 0.0, 0.0, 0.0)
+  }
+}
+
+///|
+pub struct Feature {
   geometry : Geometry?
   properties : Map[String, Json]?
   id : ID?
 } derive(Eq, Show)
+
+///|
+pub fn Feature::new(
+  geometry? : Geometry? = None,
+  properties? : Map[String, Json]? = None,
+  id? : ID? = None,
+) -> Feature {
+  { geometry, properties, id }
+}
 
 ///|
 pub impl GeoJSONTrait for Feature with to_json(self, with_bbox? = false) {
@@ -121,7 +168,7 @@ pub impl GeoJSONTrait for Feature with to_json(self, with_bbox? = false) {
   @json_helper.to_nullable_json(map, "properties", self.properties)
   @json_helper.to_optional_json(map, "id", self.id)
   if with_bbox {
-    ...
+    set_bbox(map, self)
   }
   map.to_json()
 }
@@ -137,6 +184,14 @@ pub impl FromJson for Feature with from_json(json, path) {
     geometry: @json_helper.from_json_property("geometry", json, path),
     properties: @json_helper.from_json_property("properties", json, path),
     id: @json_helper.from_json_property("id", json, path),
+  }
+}
+
+///|
+pub impl BBoxTrait for Feature with bbox(self) {
+  match self.geometry {
+    Some(geom) => geom.bbox()
+    None => BBox::new_2d(0.0, 0.0, 0.0, 0.0)
   }
 }
 
@@ -211,6 +266,19 @@ pub impl FromJson for Geometry with from_json(json, path) {
 }
 
 ///|
+pub impl BBoxTrait for Geometry with bbox(self) {
+  match self {
+    Point(p) => p.bbox()
+    LineString(l) => l.bbox()
+    Polygon(p) => p.bbox()
+    MultiPoint(mp) => mp.bbox()
+    MultiLineString(mls) => mls.bbox()
+    MultiPolygon(mpoly) => mpoly.bbox()
+    GeometryCollection(gc) => gc.bbox()
+  }
+}
+
+///|
 fn set_geometry_type(
   map : Map[String, Json],
   geometry_type : GeometryType,
@@ -232,9 +300,14 @@ fn[T : FromJson] get_coordinates(
 }
 
 ///|
-pub(all) struct Point {
+pub struct Point {
   coordinates : Coordinates
 } derive(Eq, Show)
+
+///|
+pub fn Point::new(coordinates : Coordinates) -> Point {
+  { coordinates, }
+}
 
 ///|
 pub impl GeoJSONTrait for Point with to_json(self, with_bbox? = false) {
@@ -242,7 +315,7 @@ pub impl GeoJSONTrait for Point with to_json(self, with_bbox? = false) {
   set_geometry_type(map, GeometryType::Point)
   set_coordinates(map, self.coordinates.to_json())
   if with_bbox {
-    ...
+    set_bbox(map, self)
   }
   map.to_json()
 }
@@ -259,9 +332,24 @@ pub impl FromJson for Point with from_json(json, path) {
 }
 
 ///|
-pub(all) struct LineString {
+pub impl BBoxTrait for Point with bbox(self) {
+  BBox::from_coordinate_array([self.coordinates])
+}
+
+///|
+pub struct LineString {
   coordinates : Array[Coordinates]
 } derive(Eq, Show)
+
+///|
+pub fn LineString::new(
+  coordinates : Array[Coordinates],
+) -> LineString raise InvalidGeoJSONError {
+  if coordinates.length() < 2 {
+    raise InvalidGeoJSONError("LineString must have at least 2 coordinates")
+  }
+  { coordinates, }
+}
 
 ///|
 pub impl GeoJSONTrait for LineString with to_json(self, with_bbox? = false) {
@@ -269,7 +357,7 @@ pub impl GeoJSONTrait for LineString with to_json(self, with_bbox? = false) {
   set_geometry_type(map, GeometryType::LineString)
   set_coordinates(map, self.coordinates.to_json())
   if with_bbox {
-    ...
+    set_bbox(map, self)
   }
   map.to_json()
 }
@@ -282,18 +370,40 @@ pub impl ToJson for LineString with to_json(self) {
 ///|
 pub impl FromJson for LineString with from_json(json, path) {
   let coordinates : Array[Coordinates] = get_coordinates(json, path)
-  if coordinates.length() < 2 {
-    raise geojson_decode_error(
-      path, "LineString must have at least 2 coordinates", json,
-    )
+  LineString::new(coordinates) catch {
+    InvalidGeoJSONError(msg) => raise geojson_decode_error(path, msg, json)
   }
-  LineString::{ coordinates, }
 }
 
 ///|
-pub(all) struct Polygon {
+pub impl BBoxTrait for LineString with bbox(self) {
+  BBox::from_coordinate_array(self.coordinates)
+}
+
+///|
+pub struct Polygon {
   coordinates : Array[Array[Coordinates]]
 } derive(Eq, Show)
+
+///|
+pub fn Polygon::new(
+  coordinates : Array[Array[Coordinates]],
+) -> Polygon raise InvalidGeoJSONError {
+  if coordinates.length() < 1 {
+    raise InvalidGeoJSONError("Polygon must have at least 1 ring")
+  }
+  for ring in coordinates {
+    if ring.length() < 4 {
+      raise InvalidGeoJSONError("Polygon ring must have at least 4 coordinates")
+    }
+    if ring[0] != ring[ring.length() - 1] {
+      raise InvalidGeoJSONError(
+        "Polygon ring must have the same first and last coordinates",
+      )
+    }
+  }
+  { coordinates, }
+}
 
 ///|
 pub impl GeoJSONTrait for Polygon with to_json(self, with_bbox? = false) {
@@ -301,7 +411,7 @@ pub impl GeoJSONTrait for Polygon with to_json(self, with_bbox? = false) {
   set_geometry_type(map, GeometryType::Polygon)
   set_coordinates(map, self.coordinates.to_json())
   if with_bbox {
-    ...
+    set_bbox(map, self)
   }
   map.to_json()
 }
@@ -314,28 +424,25 @@ pub impl ToJson for Polygon with to_json(self) {
 ///|
 pub impl FromJson for Polygon with from_json(json, path) {
   let coordinates : Array[Array[Coordinates]] = get_coordinates(json, path)
-  if coordinates.length() < 1 {
-    raise geojson_decode_error(path, "Polygon must have at least 1 ring", json)
+  Polygon::new(coordinates) catch {
+    InvalidGeoJSONError(msg) => raise geojson_decode_error(path, msg, json)
   }
-  for ring in coordinates {
-    if ring.length() < 3 {
-      raise geojson_decode_error(
-        path, "Polygon ring must have at least 3 coordinates", json,
-      )
-    }
-    if ring[0] != ring[ring.length() - 1] {
-      raise geojson_decode_error(
-        path, "Polygon ring must have the same first and last coordinates", json,
-      )
-    }
-  }
-  Polygon::{ coordinates, }
 }
 
 ///|
-pub(all) struct MultiPoint {
+pub impl BBoxTrait for Polygon with bbox(self) {
+  BBox::from_coordinate_array(self.coordinates.flatten())
+}
+
+///|
+pub struct MultiPoint {
   coordinates : Array[Coordinates]
 } derive(Eq, Show)
+
+///|
+pub fn MultiPoint::new(coordinates : Array[Coordinates]) -> MultiPoint {
+  { coordinates, }
+}
 
 ///|
 pub impl GeoJSONTrait for MultiPoint with to_json(self, with_bbox? = false) {
@@ -343,7 +450,7 @@ pub impl GeoJSONTrait for MultiPoint with to_json(self, with_bbox? = false) {
   set_geometry_type(map, GeometryType::MultiPoint)
   set_coordinates(map, self.coordinates.to_json())
   if with_bbox {
-    ...
+    set_bbox(map, self)
   }
   map.to_json()
 }
@@ -360,9 +467,21 @@ pub impl FromJson for MultiPoint with from_json(json, path) {
 }
 
 ///|
-pub(all) struct MultiLineString {
+pub impl BBoxTrait for MultiPoint with bbox(self) {
+  BBox::from_coordinate_array(self.coordinates)
+}
+
+///|
+pub struct MultiLineString {
   coordinates : Array[Array[Coordinates]]
 } derive(Eq, Show)
+
+///|
+pub fn MultiLineString::new(
+  coordinates : Array[Array[Coordinates]],
+) -> MultiLineString {
+  { coordinates, }
+}
 
 ///|
 pub impl GeoJSONTrait for MultiLineString with to_json(self, with_bbox? = false) {
@@ -370,7 +489,7 @@ pub impl GeoJSONTrait for MultiLineString with to_json(self, with_bbox? = false)
   set_geometry_type(map, GeometryType::MultiLineString)
   set_coordinates(map, self.coordinates.to_json())
   if with_bbox {
-    ...
+    set_bbox(map, self)
   }
   map.to_json()
 }
@@ -387,9 +506,21 @@ pub impl FromJson for MultiLineString with from_json(json, path) {
 }
 
 ///|
-pub(all) struct MultiPolygon {
+pub impl BBoxTrait for MultiLineString with bbox(self) {
+  BBox::from_coordinate_array(self.coordinates.flatten())
+}
+
+///|
+pub struct MultiPolygon {
   coordinates : Array[Array[Array[Coordinates]]]
 } derive(Eq, Show)
+
+///|
+pub fn MultiPolygon::new(
+  coordinates : Array[Array[Array[Coordinates]]],
+) -> MultiPolygon {
+  { coordinates, }
+}
 
 ///|
 pub impl GeoJSONTrait for MultiPolygon with to_json(self, with_bbox? = false) {
@@ -397,7 +528,7 @@ pub impl GeoJSONTrait for MultiPolygon with to_json(self, with_bbox? = false) {
   set_geometry_type(map, GeometryType::MultiPolygon)
   set_coordinates(map, self.coordinates.to_json())
   if with_bbox {
-    ...
+    set_bbox(map, self)
   }
   map.to_json()
 }
@@ -416,9 +547,21 @@ pub impl FromJson for MultiPolygon with from_json(json, path) {
 }
 
 ///|
-pub(all) struct GeometryCollection {
+pub impl BBoxTrait for MultiPolygon with bbox(self) {
+  BBox::from_coordinate_array(self.coordinates.flatten().flatten())
+}
+
+///|
+pub struct GeometryCollection {
   geometries : Array[Geometry]
 } derive(Eq, Show)
+
+///|
+pub fn GeometryCollection::new(
+  geometries : Array[Geometry],
+) -> GeometryCollection {
+  { geometries, }
+}
 
 ///|
 pub impl GeoJSONTrait for GeometryCollection with to_json(
@@ -431,7 +574,9 @@ pub impl GeoJSONTrait for GeometryCollection with to_json(
     "geometries",
     self.geometries.map(GeoJSONTrait::to_json(_, with_bbox~)).to_json(),
   )
-  // TODO: set bbox
+  if with_bbox {
+    set_bbox(map, self)
+  }
   map.to_json()
 }
 
@@ -446,6 +591,18 @@ pub impl FromJson for GeometryCollection with from_json(json, path) {
     "geometries", json, path,
   )
   GeometryCollection::{ geometries, }
+}
+
+///|
+pub impl BBoxTrait for GeometryCollection with bbox(self) {
+  let coords = self.geometries
+    .map(geom => match geom.bbox() {
+      BBox2D(x1, y1, x2, y2) => [Coordinates::XY(x1, y1), XY(x2, y2)]
+      BBox3D(x1, y1, z1, x2, y2, z2) =>
+        [Coordinates::XYZ_OR_XYM(x1, y1, z1), XYZ_OR_XYM(x2, y2, z2)]
+    })
+    .flatten()
+  BBox::from_coordinate_array(coords)
 }
 
 ///|
@@ -531,7 +688,7 @@ pub impl FromJson for GeometryType with from_json(json, path) {
 
 ///|
 pub(open) trait BBoxTrait {
-  bbox(Self) -> BBox
+  bbox(Self) -> BBox raise InvalidGeoJSONError
 }
 
 ///|
@@ -574,6 +731,82 @@ pub impl FromJson for BBox with from_json(json, path) {
 }
 
 ///|
+pub fn BBox::new_2d(
+  min_x : Double,
+  min_y : Double,
+  max_x : Double,
+  max_y : Double,
+) -> BBox {
+  let x1 = @cmp.minimum(min_x, max_x)
+  let y1 = @cmp.minimum(min_y, max_y)
+  let x2 = @cmp.maximum(min_x, max_x)
+  let y2 = @cmp.maximum(min_y, max_y)
+  BBox2D(x1, y1, x2, y2)
+}
+
+///|
+pub fn BBox::new_3d(
+  min_x : Double,
+  min_y : Double,
+  min_z : Double,
+  max_x : Double,
+  max_y : Double,
+  max_z : Double,
+) -> BBox {
+  let x1 = @cmp.minimum(min_x, max_x)
+  let y1 = @cmp.minimum(min_y, max_y)
+  let z1 = @cmp.minimum(min_z, max_z)
+  let x2 = @cmp.maximum(min_x, max_x)
+  let y2 = @cmp.maximum(min_y, max_y)
+  let z2 = @cmp.maximum(min_z, max_z)
+  BBox3D(x1, y1, z1, x2, y2, z2)
+}
+
+///|
+pub fn BBox::from_coordinate_array(
+  coords : Array[Coordinates],
+) -> BBox raise InvalidGeoJSONError {
+  if coords.length() == 0 {
+    raise InvalidGeoJSONError("Coordinates array is empty")
+  }
+  let dim = coords[0].dimension()
+  for i = 1; i < coords.length(); i = i + 1 {
+    if coords[i].dimension() != dim {
+      raise InvalidGeoJSONError("Coordinates must have the same dimension")
+    }
+  }
+  match dim {
+    2 => {
+      // すでに長さの検証を行っているため、unwrapは安全
+      let min_x = coords.iter().map(_.x()).minimum().unwrap()
+      let max_x = coords.iter().map(_.x()).maximum().unwrap()
+      let min_y = coords.iter().map(_.y()).minimum().unwrap()
+      let max_y = coords.iter().map(_.y()).maximum().unwrap()
+      BBox2D(min_x, min_y, max_x, max_y)
+    }
+    _ => {
+      let min_x = coords.iter().map(_.x()).minimum().unwrap()
+      let max_x = coords.iter().map(_.x()).maximum().unwrap()
+      let min_y = coords.iter().map(_.y()).minimum().unwrap()
+      let max_y = coords.iter().map(_.y()).maximum().unwrap()
+      let min_z = coords
+        .iter()
+        // 3次元であることを保証しているため、unwrapは安全
+        .map(coords => try! coords.z())
+        .minimum()
+        .unwrap()
+      let max_z = coords
+        .iter()
+        // 3次元であることを保証しているため、unwrapは安全
+        .map(coords => try! coords.z())
+        .maximum()
+        .unwrap()
+      BBox3D(min_x, min_y, min_z, max_x, max_y, max_z)
+    }
+  }
+}
+
+///|
 pub(all) enum Coordinates {
   XY(Double, Double)
   XYZ_OR_XYM(Double, Double, Double)
@@ -605,5 +838,42 @@ pub impl FromJson for Coordinates with from_json(json, path) {
       ]
     ) => Coordinates::XYZM(x, y, z, m)
     _ => raise geojson_decode_error(path, "Invalid Coordinates", json)
+  }
+}
+
+///|
+pub fn Coordinates::dimension(self : Coordinates) -> Int {
+  match self {
+    XY(_, _) => 2
+    XYZ_OR_XYM(_, _, _) => 3
+    XYZM(_, _, _, _) => 4
+  }
+}
+
+///|
+pub fn Coordinates::x(self : Coordinates) -> Double {
+  match self {
+    XY(x, _) => x
+    XYZ_OR_XYM(x, _, _) => x
+    XYZM(x, _, _, _) => x
+  }
+}
+
+///|
+pub fn Coordinates::y(self : Coordinates) -> Double {
+  match self {
+    XY(_, y) => y
+    XYZ_OR_XYM(_, y, _) => y
+    XYZM(_, y, _, _) => y
+  }
+}
+
+///|
+pub fn Coordinates::z(self : Coordinates) -> Double raise InvalidGeoJSONError {
+  match self {
+    XY(_, _) =>
+      raise InvalidGeoJSONError("Coordinates::z called on 2D coordinates")
+    XYZ_OR_XYM(_, _, z) => z
+    XYZM(_, _, z, _) => z
   }
 }

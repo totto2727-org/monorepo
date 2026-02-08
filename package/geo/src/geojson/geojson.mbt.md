@@ -93,6 +93,48 @@ test "panic_Coordinates from_json" {
 }
 ```
 
+#### x
+
+```mbt check
+///|
+test {
+  let coord = Coordinates::XY(1, 2)
+  inspect(coord.x(), content="1")
+}
+```
+
+#### y
+
+```mbt check
+///|
+test "Coordinates y on XY" {
+  let coord = Coordinates::XY(1, 2)
+  inspect(coord.y(), content="2")
+}
+```
+
+#### z
+
+- non panic
+
+```mbt check
+///|
+test "Coordinates z on XYZ_OR_XYM" {
+  let coord = Coordinates::XYZ_OR_XYM(1, 2, 3)
+  inspect(coord.z(), content="3")
+}
+```
+
+- panic on XY
+
+```mbt check
+///|
+test "panic_Coordinates z on XY" {
+  let coord = Coordinates::XY(0.0, 0.0)
+  coord.z() |> ignore
+}
+```
+
 ---
 
 ### BBox
@@ -147,6 +189,107 @@ test {
 ///|
 test "panic_BBox from_json" {
   let _ : BBox = @json.from_json([0.0, 1.0])
+
+}
+```
+
+#### new_2d
+
+- non sorting
+
+```mbt check
+///|
+test "BBox::new_2d sorting" {
+  let bbox = BBox::new_2d(10.0, 20.0, 0.0, 5.0)
+  inspect(bbox, content="BBox2D(0, 5, 10, 20)")
+}
+```
+
+- sorting
+
+```mbt check
+///|
+test "BBox::new_2d non-sorting" {
+  let bbox = BBox::new_2d(0.0, 5.0, 10.0, 20.0)
+  inspect(bbox, content="BBox2D(0, 5, 10, 20)")
+}
+```
+
+#### new_3d
+
+- sorting
+
+```mbt check
+///|
+test "BBox::new_3d sorting" {
+  let bbox = BBox::new_3d(10.0, 20.0, 30.0, 0.0, 5.0, 10.0)
+  inspect(bbox, content="BBox3D(0, 5, 10, 10, 20, 30)")
+}
+```
+
+- non sorting
+
+```mbt check
+///|
+test "BBox::new_3d non-sorting" {
+  let bbox = BBox::new_3d(0.0, 5.0, 10.0, 20.0, 30.0, 10.0)
+  inspect(bbox, content="BBox3D(0, 5, 10, 20, 30, 10)")
+}
+```
+
+#### from_coordinate_array
+
+- 2D
+
+```mbt check
+///|
+test "BBox::from_coordinate_array 2D" {
+  let coords = [
+    Coordinates::XY(0.0, 0.0),
+    Coordinates::XY(10.0, 10.0),
+    Coordinates::XY(5.0, 5.0),
+  ]
+  inspect(coords, content="[XY(0, 0), XY(10, 10), XY(5, 5)]")
+}
+```
+
+- 3D
+
+```mbt check
+///|
+test "BBox::from_coordinate_array 3D" {
+  let coords = [
+    Coordinates::XYZ_OR_XYM(0.0, 0.0, 0.0),
+    Coordinates::XYZ_OR_XYM(10.0, 10.0, 10.0),
+    Coordinates::XYZ_OR_XYM(5.0, 5.0, 5.0),
+  ]
+  inspect(
+    coords,
+    content="[XYZ_OR_XYM(0, 0, 0), XYZ_OR_XYM(10, 10, 10), XYZ_OR_XYM(5, 5, 5)]",
+  )
+}
+```
+
+- Empty
+
+```mbt check
+///|
+test "panic_BBox from_coordinate_array empty" {
+  let _ = BBox::from_coordinate_array([])
+
+}
+```
+
+- Mixed dimensions
+
+```mbt check
+///|
+test "panic_BBox from_coordinate_array mixed dimensions" {
+  let coords = [
+    Coordinates::XY(0.0, 0.0),
+    Coordinates::XYZ_OR_XYM(0.0, 0.0, 0.0),
+  ]
+  let _ = BBox::from_coordinate_array(coords)
 
 }
 ```
@@ -869,6 +1012,8 @@ test "panic_Geometry from_json - invalid type" {
 
 #### ToJson
 
+- WithoutBBox
+
 ```mbt check
 ///|
 test {
@@ -883,6 +1028,26 @@ test {
     "geometry": { "type": "Point", "coordinates": [1, 2] },
     "properties": { "name": "test" },
     "id": "feature-1",
+  })
+}
+```
+
+- WithBBox
+
+```mbt check
+///|
+test "Feature::to_json with bbox" {
+  let feature = Feature::new(
+    geometry=Some(Geometry::Point(Point::new(Coordinates::XY(1.0, 2.0)))),
+    properties=None,
+    id=None,
+  )
+  let json = GeoJSONTrait::to_json(feature, with_bbox=true)
+  json_inspect(json, content={
+    "type": "Feature",
+    "geometry": { "type": "Point", "coordinates": [1, 2] },
+    "properties": null,
+    "bbox": [1, 2, 1, 2],
   })
 }
 ```
