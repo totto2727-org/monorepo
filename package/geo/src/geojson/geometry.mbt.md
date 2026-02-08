@@ -172,10 +172,7 @@ test "Geometry GeoJSONTrait::to_json - Point Without BBox" {
     "coordinates": [1.0, 2.0],
   })
   let json = GeoJSONTrait::to_json(geom, with_bbox=false)
-  json_inspect(json, content={
-    "type": "Point",
-    "coordinates": [1, 2],
-  })
+  json_inspect(json, content={ "type": "Point", "coordinates": [1, 2] })
 }
 ```
 
@@ -360,7 +357,10 @@ test "Geometry FromJson::from_json - MultiLineString" {
     "type": "MultiLineString",
     "coordinates": [[[0.0, 0.0], [1.0, 1.0]]],
   })
-  inspect(geom, content="MultiLineString({coordinates: [[XY(0, 0), XY(1, 1)]]})")
+  inspect(
+    geom,
+    content="MultiLineString({coordinates: [[XY(0, 0), XY(1, 1)]]})",
+  )
 }
 ```
 
@@ -373,7 +373,10 @@ test "Geometry FromJson::from_json - MultiPolygon" {
     "type": "MultiPolygon",
     "coordinates": [[[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]]]],
   })
-  inspect(geom, content="MultiPolygon({coordinates: [[[XY(0, 0), XY(1, 0), XY(1, 1), XY(0, 0)]]]})")
+  inspect(
+    geom,
+    content="MultiPolygon({coordinates: [[[XY(0, 0), XY(1, 0), XY(1, 1), XY(0, 0)]]]})",
+  )
 }
 ```
 
@@ -386,7 +389,10 @@ test "Geometry FromJson::from_json - GeometryCollection" {
     "type": "GeometryCollection",
     "geometries": [{ "type": "Point", "coordinates": [0.0, 0.0] }],
   })
-  inspect(geom, content="GeometryCollection({geometries: [Point({coordinates: XY(0, 0)})]})")
+  inspect(
+    geom,
+    content="GeometryCollection({geometries: [Point({coordinates: XY(0, 0)})]})",
+  )
 }
 ```
 
