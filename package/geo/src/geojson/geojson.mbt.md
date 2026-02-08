@@ -28,7 +28,7 @@ GeoJSON specification implementation for MoonBit. Provides types and serializati
 
 ```mbt check
 ///|
-test {
+test "Coordinates to_json - XY" {
   json_inspect(Coordinates::XY(1.0, 2.0), content=[1, 2])
 }
 ```
@@ -37,7 +37,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "Coordinates to_json - XYZ_OR_XYM" {
   json_inspect(Coordinates::XYZ_OR_XYM(1.0, 2.0, 3.0), content=[1, 2, 3])
 }
 ```
@@ -46,7 +46,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "Coordinates to_json - XYZM" {
   json_inspect(Coordinates::XYZM(1.0, 2.0, 3.0, 4.0), content=[1, 2, 3, 4])
 }
 ```
@@ -57,7 +57,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "Coordinates from_json - XY" {
   let coordinates : Coordinates = @json.from_json([1.0, 2.0])
   inspect(coordinates, content="XY(1, 2)")
 }
@@ -67,7 +67,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "Coordinates from_json - XYZ_OR_XYM" {
   let coordinates : Coordinates = @json.from_json([1.0, 2.0, 3.0])
   inspect(coordinates, content="XYZ_OR_XYM(1, 2, 3)")
 }
@@ -77,7 +77,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "Coordinates from_json - XYZM" {
   let coordinates : Coordinates = @json.from_json([1.0, 2.0, 3.0, 4.0])
   inspect(coordinates, content="XYZM(1, 2, 3, 4)")
 }
@@ -87,7 +87,7 @@ test {
 
 ```mbt check
 ///|
-test "panic_Coordinates from_json" {
+test "panic_Coordinates from_json - invalid" {
   let _ : Coordinates = @json.from_json([1.0])
 
 }
@@ -97,7 +97,7 @@ test "panic_Coordinates from_json" {
 
 ```mbt check
 ///|
-test {
+test "Coordinates x" {
   let coord = Coordinates::XY(1, 2)
   inspect(coord.x(), content="1")
 }
@@ -107,7 +107,7 @@ test {
 
 ```mbt check
 ///|
-test "Coordinates y on XY" {
+test "Coordinates y" {
   let coord = Coordinates::XY(1, 2)
   inspect(coord.y(), content="2")
 }
@@ -119,7 +119,7 @@ test "Coordinates y on XY" {
 
 ```mbt check
 ///|
-test "Coordinates z on XYZ_OR_XYM" {
+test "Coordinates z - non panic" {
   let coord = Coordinates::XYZ_OR_XYM(1, 2, 3)
   inspect(coord.z(), content="3")
 }
@@ -129,7 +129,7 @@ test "Coordinates z on XYZ_OR_XYM" {
 
 ```mbt check
 ///|
-test "panic_Coordinates z on XY" {
+test "panic_Coordinates z - on XY" {
   let coord = Coordinates::XY(0.0, 0.0)
   coord.z() |> ignore
 }
@@ -145,7 +145,7 @@ test "panic_Coordinates z on XY" {
 
 ```mbt check
 ///|
-test {
+test "BBox to_json - BBox2D" {
   json_inspect(BBox::BBox2D(0.0, 1.0, 2.0, 3.0), content=[0, 1, 2, 3])
 }
 ```
@@ -154,7 +154,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "BBox to_json - BBox3D" {
   json_inspect(BBox::BBox3D(0.0, 1.0, 2.0, 3.0, 4.0, 5.0), content=[
     0, 1, 2, 3, 4, 5,
   ])
@@ -167,7 +167,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "BBox from_json - BBox2D" {
   let bbox : BBox = @json.from_json([0.0, 1.0, 2.0, 3.0])
   inspect(bbox, content="BBox2D(0, 1, 2, 3)")
 }
@@ -177,7 +177,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "BBox from_json - BBox3D" {
   let bbox : BBox = @json.from_json([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
   inspect(bbox, content="BBox3D(0, 1, 2, 3, 4, 5)")
 }
@@ -187,7 +187,7 @@ test {
 
 ```mbt check
 ///|
-test "panic_BBox from_json" {
+test "panic_BBox from_json - invalid" {
   let _ : BBox = @json.from_json([0.0, 1.0])
 
 }
@@ -199,7 +199,7 @@ test "panic_BBox from_json" {
 
 ```mbt check
 ///|
-test "BBox::new_2d sorting" {
+test "BBox new_2d - sorting" {
   let bbox = BBox::new_2d(10.0, 20.0, 0.0, 5.0)
   inspect(bbox, content="BBox2D(0, 5, 10, 20)")
 }
@@ -209,7 +209,7 @@ test "BBox::new_2d sorting" {
 
 ```mbt check
 ///|
-test "BBox::new_2d non-sorting" {
+test "BBox new_2d - non-sorting" {
   let bbox = BBox::new_2d(0.0, 5.0, 10.0, 20.0)
   inspect(bbox, content="BBox2D(0, 5, 10, 20)")
 }
@@ -221,7 +221,7 @@ test "BBox::new_2d non-sorting" {
 
 ```mbt check
 ///|
-test "BBox::new_3d sorting" {
+test "BBox new_3d - sorting" {
   let bbox = BBox::new_3d(10.0, 20.0, 30.0, 0.0, 5.0, 10.0)
   inspect(bbox, content="BBox3D(0, 5, 10, 10, 20, 30)")
 }
@@ -231,7 +231,7 @@ test "BBox::new_3d sorting" {
 
 ```mbt check
 ///|
-test "BBox::new_3d non-sorting" {
+test "BBox new_3d - non-sorting" {
   let bbox = BBox::new_3d(0.0, 5.0, 10.0, 20.0, 30.0, 10.0)
   inspect(bbox, content="BBox3D(0, 5, 10, 20, 30, 10)")
 }
@@ -243,7 +243,7 @@ test "BBox::new_3d non-sorting" {
 
 ```mbt check
 ///|
-test "BBox::from_coordinate_array 2D" {
+test "BBox from_coordinate_array - 2D" {
   let coords = [
     Coordinates::XY(0.0, 0.0),
     Coordinates::XY(10.0, 10.0),
@@ -257,7 +257,7 @@ test "BBox::from_coordinate_array 2D" {
 
 ```mbt check
 ///|
-test "BBox::from_coordinate_array 3D" {
+test "BBox from_coordinate_array - 3D" {
   let coords = [
     Coordinates::XYZ_OR_XYM(0.0, 0.0, 0.0),
     Coordinates::XYZ_OR_XYM(10.0, 10.0, 10.0),
@@ -274,7 +274,7 @@ test "BBox::from_coordinate_array 3D" {
 
 ```mbt check
 ///|
-test "panic_BBox from_coordinate_array empty" {
+test "panic_BBox from_coordinate_array - empty" {
   let _ = BBox::from_coordinate_array([])
 
 }
@@ -284,7 +284,7 @@ test "panic_BBox from_coordinate_array empty" {
 
 ```mbt check
 ///|
-test "panic_BBox from_coordinate_array mixed dimensions" {
+test "panic_BBox from_coordinate_array - mixed dimensions" {
   let coords = [
     Coordinates::XY(0.0, 0.0),
     Coordinates::XYZ_OR_XYM(0.0, 0.0, 0.0),
@@ -304,7 +304,7 @@ test "panic_BBox from_coordinate_array mixed dimensions" {
 
 ```mbt check
 ///|
-test {
+test "GeometryType to_json - Point" {
   json_inspect(GeometryType::Point, content="Point")
 }
 ```
@@ -313,7 +313,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryType to_json - LineString" {
   json_inspect(GeometryType::LineString, content="LineString")
 }
 ```
@@ -322,7 +322,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryType to_json - Polygon" {
   json_inspect(GeometryType::Polygon, content="Polygon")
 }
 ```
@@ -331,7 +331,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryType to_json - MultiPoint" {
   json_inspect(GeometryType::MultiPoint, content="MultiPoint")
 }
 ```
@@ -340,7 +340,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryType to_json - MultiLineString" {
   json_inspect(GeometryType::MultiLineString, content="MultiLineString")
 }
 ```
@@ -349,7 +349,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryType to_json - MultiPolygon" {
   json_inspect(GeometryType::MultiPolygon, content="MultiPolygon")
 }
 ```
@@ -358,7 +358,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryType to_json - GeometryCollection" {
   json_inspect(GeometryType::GeometryCollection, content="GeometryCollection")
 }
 ```
@@ -369,7 +369,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryType from_json - Point" {
   let t : GeometryType = @json.from_json("Point")
   inspect(t, content="Point")
 }
@@ -379,7 +379,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryType from_json - LineString" {
   let t : GeometryType = @json.from_json("LineString")
   inspect(t, content="LineString")
 }
@@ -389,7 +389,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryType from_json - Polygon" {
   let t : GeometryType = @json.from_json("Polygon")
   inspect(t, content="Polygon")
 }
@@ -399,7 +399,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryType from_json - MultiPoint" {
   let t : GeometryType = @json.from_json("MultiPoint")
   inspect(t, content="MultiPoint")
 }
@@ -409,7 +409,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryType from_json - MultiLineString" {
   let t : GeometryType = @json.from_json("MultiLineString")
   inspect(t, content="MultiLineString")
 }
@@ -419,7 +419,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryType from_json - MultiPolygon" {
   let t : GeometryType = @json.from_json("MultiPolygon")
   inspect(t, content="MultiPolygon")
 }
@@ -429,7 +429,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryType from_json - GeometryCollection" {
   let t : GeometryType = @json.from_json("GeometryCollection")
   inspect(t, content="GeometryCollection")
 }
@@ -455,7 +455,7 @@ test "panic_GeometryType from_json - invalid" {
 
 ```mbt check
 ///|
-test {
+test "GeoJSONType to_json - FeatureCollection" {
   json_inspect(GeoJSONType::FeatureCollection, content="FeatureCollection")
 }
 ```
@@ -464,7 +464,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeoJSONType to_json - Feature" {
   json_inspect(GeoJSONType::Feature, content="Feature")
 }
 ```
@@ -473,7 +473,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeoJSONType to_json - Geometry" {
   json_inspect(GeoJSONType::Geometry(GeometryType::Point), content="Point")
 }
 ```
@@ -484,7 +484,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeoJSONType from_json - FeatureCollection" {
   let t : GeoJSONType = @json.from_json("FeatureCollection")
   inspect(t, content="FeatureCollection")
 }
@@ -494,7 +494,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeoJSONType from_json - Feature" {
   let t : GeoJSONType = @json.from_json("Feature")
   inspect(t, content="Feature")
 }
@@ -504,7 +504,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeoJSONType from_json - Geometry" {
   let t : GeoJSONType = @json.from_json("Point")
   inspect(t, content="Geometry(Point)")
 }
@@ -530,7 +530,7 @@ test "panic_GeoJSONType from_json - invalid" {
 
 ```mbt check
 ///|
-test {
+test "ID to_json - String" {
   json_inspect(ID::String("abc"), content="abc")
 }
 ```
@@ -539,7 +539,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "ID to_json - Number" {
   json_inspect(ID::Number(123.0), content=123)
 }
 ```
@@ -550,7 +550,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "ID from_json - String" {
   let id : ID = @json.from_json("abc")
   inspect(id, content="String(\"abc\")")
 }
@@ -560,7 +560,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "ID from_json - Number" {
   let id : ID = @json.from_json(123.0)
   inspect(id, content="Number(123)")
 }
@@ -584,7 +584,7 @@ test "panic_ID from_json - invalid" {
 
 ```mbt check
 ///|
-test {
+test "Point to_json" {
   let point : Point = @json.from_json({
     "type": "Point",
     "coordinates": [1.0, 2.0],
@@ -597,7 +597,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "Point from_json" {
   let point : Point = @json.from_json({
     "type": "Point",
     "coordinates": [1.0, 2.0],
@@ -614,7 +614,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "LineString to_json" {
   let line : LineString = @json.from_json({
     "type": "LineString",
     "coordinates": [[0.0, 0.0], [1.0, 1.0]],
@@ -632,7 +632,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "LineString from_json - valid" {
   let line : LineString = @json.from_json({
     "type": "LineString",
     "coordinates": [[0.0, 0.0], [1.0, 1.0]],
@@ -662,7 +662,7 @@ test "panic_LineString from_json - too few coordinates" {
 
 ```mbt check
 ///|
-test {
+test "Polygon to_json" {
   let polygon : Polygon = @json.from_json({
     "type": "Polygon",
     "coordinates": [[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]]],
@@ -680,7 +680,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "Polygon from_json - valid" {
   let polygon : Polygon = @json.from_json({
     "type": "Polygon",
     "coordinates": [[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]]],
@@ -736,7 +736,7 @@ test "panic_Polygon from_json - ring not closed" {
 
 ```mbt check
 ///|
-test {
+test "MultiPoint to_json" {
   let mp : MultiPoint = @json.from_json({
     "type": "MultiPoint",
     "coordinates": [[0.0, 0.0], [1.0, 1.0]],
@@ -754,7 +754,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "MultiPoint from_json - valid" {
   let mp : MultiPoint = @json.from_json({
     "type": "MultiPoint",
     "coordinates": [[0.0, 0.0]],
@@ -767,7 +767,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "MultiPoint from_json - empty" {
   let mp : MultiPoint = @json.from_json({
     "type": "MultiPoint",
     "coordinates": [],
@@ -784,7 +784,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "MultiLineString to_json" {
   let mls : MultiLineString = @json.from_json({
     "type": "MultiLineString",
     "coordinates": [[[0.0, 0.0], [1.0, 1.0]]],
@@ -802,7 +802,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "MultiLineString from_json - valid" {
   let mls : MultiLineString = @json.from_json({
     "type": "MultiLineString",
     "coordinates": [[[0.0, 0.0], [1.0, 1.0]]],
@@ -815,7 +815,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "MultiLineString from_json - empty" {
   let mls : MultiLineString = @json.from_json({
     "type": "MultiLineString",
     "coordinates": [],
@@ -832,7 +832,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "MultiPolygon to_json" {
   let multi_polyfill : MultiPolygon = @json.from_json({
     "type": "MultiPolygon",
     "coordinates": [[[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]]]],
@@ -850,7 +850,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "MultiPolygon from_json - valid" {
   let multi_polyfill : MultiPolygon = @json.from_json({
     "type": "MultiPolygon",
     "coordinates": [[[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]]]],
@@ -866,7 +866,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "MultiPolygon from_json - empty" {
   let multi_polyfill : MultiPolygon = @json.from_json({
     "type": "MultiPolygon",
     "coordinates": [],
@@ -883,7 +883,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryCollection to_json" {
   let gc : GeometryCollection = @json.from_json({
     "type": "GeometryCollection",
     "geometries": [{ "type": "Point", "coordinates": [0.0, 0.0] }],
@@ -901,7 +901,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryCollection from_json - valid" {
   let gc : GeometryCollection = @json.from_json({
     "type": "GeometryCollection",
     "geometries": [{ "type": "Point", "coordinates": [0.0, 0.0] }],
@@ -914,7 +914,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeometryCollection from_json - empty" {
   let gc : GeometryCollection = @json.from_json({
     "type": "GeometryCollection",
     "geometries": [],
@@ -933,7 +933,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "Geometry to_json - Point" {
   let geom : Geometry = @json.from_json({
     "type": "Point",
     "coordinates": [1.0, 2.0],
@@ -946,7 +946,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "Geometry to_json - LineString" {
   let geom : Geometry = @json.from_json({
     "type": "LineString",
     "coordinates": [[0.0, 0.0], [1.0, 1.0]],
@@ -964,7 +964,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "Geometry from_json - Point" {
   let geom : Geometry = @json.from_json({
     "type": "Point",
     "coordinates": [1.0, 2.0],
@@ -977,7 +977,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "Geometry from_json - Polygon" {
   let geom : Geometry = @json.from_json({
     "type": "Polygon",
     "coordinates": [[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]]],
@@ -1012,11 +1012,11 @@ test "panic_Geometry from_json - invalid type" {
 
 #### ToJson
 
-- WithoutBBox
+- without BBox
 
 ```mbt check
 ///|
-test {
+test "Feature to_json - without bbox" {
   let feature : Feature = @json.from_json({
     "type": "Feature",
     "geometry": { "type": "Point", "coordinates": [1.0, 2.0] },
@@ -1032,11 +1032,11 @@ test {
 }
 ```
 
-- WithBBox
+- with BBox
 
 ```mbt check
 ///|
-test "Feature::to_json with bbox" {
+test "Feature to_json - with bbox" {
   let feature = Feature::new(
     geometry=Some(Geometry::Point(Point::new(Coordinates::XY(1.0, 2.0)))),
     properties=None,
@@ -1054,11 +1054,11 @@ test "Feature::to_json with bbox" {
 
 #### FromJson
 
-- WithGeometryAndProperties
+- with Geometry and Properties
 
 ```mbt check
 ///|
-test {
+test "Feature from_json - with geometry and properties" {
   let feature : Feature = @json.from_json({
     "type": "Feature",
     "geometry": { "type": "Point", "coordinates": [1.0, 2.0] },
@@ -1073,11 +1073,11 @@ test {
 }
 ```
 
-- WithoutGeometryAndProperties
+- Without Geometry and Properties
 
 ```mbt check
 ///|
-test {
+test "Feature from_json - without geometry and properties" {
   let feature : Feature = @json.from_json({
     "type": "Feature",
     "geometry": null,
@@ -1087,11 +1087,11 @@ test {
 }
 ```
 
-- WithId
+- With Id
 
 ```mbt check
 ///|
-test {
+test "Feature from_json - with id" {
   let feature : Feature = @json.from_json({
     "type": "Feature",
     "geometry": null,
@@ -1113,7 +1113,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "FeatureCollection to_json" {
   let fc : FeatureCollection = @json.from_json({
     "type": "FeatureCollection",
     "features": [{ "type": "Feature", "geometry": null, "properties": null }],
@@ -1127,11 +1127,11 @@ test {
 
 #### FromJson
 
-- WithFeatures
+- With Features
 
 ```mbt check
 ///|
-test {
+test "FeatureCollection from_json - with features" {
   let fc : FeatureCollection = @json.from_json({
     "type": "FeatureCollection",
     "features": [{ "type": "Feature", "geometry": null, "properties": null }],
@@ -1147,7 +1147,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "FeatureCollection from_json - empty" {
   let fc : FeatureCollection = @json.from_json({
     "type": "FeatureCollection",
     "features": [],
@@ -1166,7 +1166,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeoJSON to_json - FeatureCollection" {
   let geojson : GeoJSON = @json.from_json({
     "type": "FeatureCollection",
     "features": [],
@@ -1179,7 +1179,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeoJSON to_json - Feature" {
   let geojson : GeoJSON = @json.from_json({
     "type": "Feature",
     "geometry": null,
@@ -1197,7 +1197,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeoJSON to_json - Geometry" {
   let geojson : GeoJSON = @json.from_json({
     "type": "Point",
     "coordinates": [1.0, 2.0],
@@ -1212,7 +1212,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeoJSON from_json - FeatureCollection" {
   let geojson : GeoJSON = @json.from_json({
     "type": "FeatureCollection",
     "features": [],
@@ -1225,7 +1225,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeoJSON from_json - Feature" {
   let geojson : GeoJSON = @json.from_json({
     "type": "Feature",
     "geometry": null,
@@ -1242,7 +1242,7 @@ test {
 
 ```mbt check
 ///|
-test {
+test "GeoJSON from_json - Geometry" {
   let geojson : GeoJSON = @json.from_json({
     "type": "Point",
     "coordinates": [1.0, 2.0],
