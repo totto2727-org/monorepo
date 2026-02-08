@@ -1,0 +1,31 @@
+{
+  "name": "@app/rss-graphql",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "#@/*": "./app/*"
+  },
+  "scripts": {
+    "check": "tsgo",
+    "deploy": "wrangler deploy",
+    "dev": "NODE_ENV=development bun run --hot app/dev.ts | bunx pino-pretty",
+    "start": "bun run app/dev.ts",
+    "start:wrangler": "wrangler dev"
+  },
+  "dependencies": {
+    "@bogeychan/elysia-logger": "^0.1.10",
+    "@elysiajs/cors": "^1.4.1",
+    "@elysiajs/graphql-yoga": "^1.4.0",
+    "@elysiajs/html": "^1.4.0",
+    "elysia": "^1.4.22"
+  },
+  "devDependencies": {
+    "@hono/graphql-server": "catalog:hono",
+    "@mikaelporttila/rss": "catalog:dev",
+    "@pothos/core": "catalog:graphql",
+    "@pothos/plugin-validation": "catalog:graphql",
+    "@totto/function": "workspace:*",
+    "graphql": "catalog:graphql",
+    "graphql-scalars": "catalog:graphql"
+  }
+}
