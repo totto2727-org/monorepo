@@ -1,0 +1,12 @@
+/**
+ * Re-exports of `effect` modules.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "@totto/function/effect";
+ * ```
+
+ * @module
+ */
+
+export * from 'effect'

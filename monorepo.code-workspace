@@ -26,7 +26,11 @@
     },
     {
       "name": "app/rss-graphql",
-      "path": "app/rss-graphql",
+      "path": "js/app/rss-graphql",
+    },
+    {
+      "name": "package/function",
+      "path": "js/package/function",
     },
     {
       "name": "package/rbac",
@@ -78,10 +82,8 @@
     },
   ],
   "settings": {
-    "biome.enabled": true,
     "cSpell.words": ["casbin", "dbaeumer", "getgrit", "msgpackr", "pncat", "pulumi", "ultracite", "workerd", "Moonbit"],
-    "dprint.experimentalLsp": true,
-    "dprint.path": "node_modules/.bin/dprint",
+    "oxc.enable": true,
     "eslint.enable": true,
     "prettier.enable": false,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
