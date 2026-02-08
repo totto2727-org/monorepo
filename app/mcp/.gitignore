@@ -1,7 +1,0 @@
-node_modules/
-test-results/
-.dev.vars
-.wrangler/
-worker-configuration.d.ts
-dist/
-public/asset/tailwind.css

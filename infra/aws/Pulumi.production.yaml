@@ -1,4 +1,0 @@
-environment:
-  - aws/production
-config:
-  aws:region: ap-northeast-1

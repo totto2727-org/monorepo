@@ -1,8 +1,0 @@
-{
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "compilerOptions": {
-    "allowImportingTsExtensions": true,
-    "experimentalDecorators": true
-  },
-  "extends": ["@totto/function/tsconfig/node24"]
-}

@@ -1,0 +1,10 @@
+{
+  "name": "@totto2727/geo",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "moon build",
+    "check": "moon check",
+    "fix": "moon fmt",
+    "test": "moon test"
+  }
+}

@@ -8,123 +8,137 @@
       "vitest.explorer",
       "jetify.devbox",
       "davidanson.vscode-markdownlint",
-      "ms-azuretools.vscode-docker"
-    ]
+      "ms-azuretools.vscode-docker",
+    ],
   },
   "folders": [
     {
       "name": "monorepo",
-      "path": "."
+      "path": ".",
     },
     {
       "name": "app/portal",
-      "path": "app/portal"
+      "path": "app/portal",
     },
     {
       "name": "app/mcp",
-      "path": "app/mcp"
+      "path": "app/mcp",
     },
     {
       "name": "app/rss-graphql",
-      "path": "app/rss-graphql"
+      "path": "app/rss-graphql",
     },
     {
       "name": "package/rbac",
-      "path": "package/rbac"
+      "path": "package/rbac",
     },
     {
       "name": "package/tenant",
-      "path": "package/tenant"
+      "path": "package/tenant",
     },
     {
       "name": "package/drizzle-orm",
-      "path": "package/drizzle-orm"
+      "path": "package/drizzle-orm",
     },
     {
       "name": "package/yamada-ui",
-      "path": "package/yamada-ui"
+      "path": "package/yamada-ui",
     },
     {
       "name": "package/error",
-      "path": "package/error"
+      "path": "package/error",
     },
     {
       "name": "package/constant",
-      "path": "package/constant"
+      "path": "package/constant",
     },
     {
       "name": "package/hono-ui",
-      "path": "package/hono-ui"
+      "path": "package/hono-ui",
     },
     {
       "name": "package/mcp-oauth-cloudflare-access",
-      "path": "package/mcp-oauth-cloudflare-access"
+      "path": "package/mcp-oauth-cloudflare-access",
     },
     {
       "name": "package/geo",
-      "path": "package/geo"
+      "path": "mbt/package/geo",
     },
     {
       "name": "infra/cloudflare",
-      "path": "infra/cloudflare"
+      "path": "infra/cloudflare",
     },
     {
       "name": "infra/aws",
-      "path": "infra/aws"
+      "path": "infra/aws",
     },
     {
       "name": "template/root",
-      "path": "template"
-    }
+      "path": "template",
+    },
   ],
   "settings": {
-    "[css]": {
-      "editor.defaultFormatter": "biomejs.biome"
-    },
-    "[graphql]": {
-      "editor.defaultFormatter": "biomejs.biome"
-    },
-    "[javascript]": {
-      "editor.defaultFormatter": "biomejs.biome"
-    },
-    "[javascriptreact]": {
-      "editor.defaultFormatter": "biomejs.biome"
-    },
-    "[json]": {
-      "editor.defaultFormatter": "biomejs.biome"
-    },
-    "[jsonc]": {
-      "editor.defaultFormatter": "biomejs.biome"
-    },
-    "[moonbit]": {
-      "editor.defaultFormatter": "moonbit.moonbit-lang"
-    },
-    "[typescript]": {
-      "editor.defaultFormatter": "biomejs.biome"
-    },
-    "[typescriptreact]": {
-      "editor.defaultFormatter": "biomejs.biome"
-    },
     "biome.enabled": true,
-    "cSpell.words": [
-      "casbin",
-      "dbaeumer",
-      "getgrit",
-      "msgpackr",
-      "pncat",
-      "pulumi",
-      "ultracite",
-      "workerd"
-    ],
+    "cSpell.words": ["casbin", "dbaeumer", "getgrit", "msgpackr", "pncat", "pulumi", "ultracite", "workerd", "Moonbit"],
     "dprint.experimentalLsp": true,
     "dprint.path": "node_modules/.bin/dprint",
-    "editor.codeActionsOnSave": {
-      "source.fixAll.biome": "explicit",
-      "source.organizeImports.biome": "explicit"
-    },
-    "editor.defaultFormatter": "dprint.dprint",
     "eslint.enable": true,
     "prettier.enable": false,
-    "typescript.tsdk": "node_modules/typescript/lib"
-  }
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "emmet.showExpandedAbbreviation": "never",
+    "[javascript]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[javascriptreact]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[json]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[jsonc]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[yaml]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[html]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[vue]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[vue-html]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[handlebars]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[css]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[scss]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[less]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[graphql]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[markdown]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "editor.codeActionsOnSave": {
+      "source.fixAll.oxc": "explicit",
+    },
+  },
 }

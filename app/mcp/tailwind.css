@@ -1,4 +1,0 @@
-@import "tailwindcss";
-@plugin "daisyui";
-@source "./app";
-@source "./node_modules/hono-ui";

@@ -68,14 +68,14 @@ For `.mbt.md` files, follow the structure below.
   - Only list traits that are explicitly implemented in the file (ignore defaults).
 - Each section should contain:
   1. **Test Case Matrix**: A table summarizing conditions and cases. **(Optional if there is only 1 test case)**
-      - **Variable**: Must use the **Argument Name** of the function (e.g., `arg1`, `arg2`). For instance methods, use `self`.
-      - **NO Method Row**: Do not include a row identifying the method itself used as a condition. The H3 header already serves this purpose.
+     - **Variable**: Must use the **Argument Name** of the function (e.g., `arg1`, `arg2`). For instance methods, use `self`.
+     - **NO Method Row**: Do not include a row identifying the method itself used as a condition. The H3 header already serves this purpose.
   2. **Implementation**: A list of test implementations, with descriptions as bullet points and code blocks.
 - **Order matching**: The order of tests in the `## Test` section must strictly follow the order of the corresponding items in the `## Public API` section.
 
 #### Template
 
-```markdown
+````markdown
 # [Implementation File Name] (e.g., xy.mbt)
 
 [Feature Summary / Documentation]
@@ -92,18 +92,19 @@ For `.mbt.md` files, follow the structure below.
 
 ### [Function Name]
 
-| Variable | State | Note | 1 | 2 | 3 |
-| :--- | :--- | :--- | :---: | :---: | :---: |
-| `arg1` | `Empty` | | ✓ | | - |
-| `arg1` | `Valid` | | | ✓ | - |
-| `arg2` | `True` | | - | - | ✓ |
-| `arg2` | `False`| | - | - | |
+| Variable | State   | Note |  1  |  2  |  3  |
+| :------- | :------ | :--- | :-: | :-: | :-: |
+| `arg1`   | `Empty` |      |  ✓  |     |  -  |
+| `arg1`   | `Valid` |      |     |  ✓  |  -  |
+| `arg2`   | `True`  |      |  -  |  -  |  ✓  |
+| `arg2`   | `False` |      |  -  |  -  |     |
 
 - Test Title 1
 
 ```mbt test
 inspect(func1(...), content="...")
 ```
+````
 
 ### [TraitName]
 
@@ -113,6 +114,8 @@ inspect(func1(...), content="...")
 
 ```mbt test
 inspect(trait_method(...), content="...")
+```
+
 ```
 
 ```
