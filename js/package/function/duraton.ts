@@ -4,7 +4,7 @@ import { Array, Data, DateTime, Duration, HashMap, Option } from './effect.ts'
 
 const shortFormatterHashMap = HashMap.empty<readonly string[], DurationFormat>()
 
-function shortFormatterFactory(option: { locale: string | string[] }): DurationFormat {
+const shortFormatterFactory = (option: { locale: string | string[] }): DurationFormat => {
   const searializable = Data.array(Array.ensure(option.locale))
   const cached = HashMap.get(shortFormatterHashMap, searializable)
   if (Option.isSome(cached)) {
@@ -24,11 +24,11 @@ function shortFormatterFactory(option: { locale: string | string[] }): DurationF
  *
  * DurationFormat instances used internally are cached with locale values as keys.
  */
-export function formatShort(
+export const formatShort = (
   from: DateTime.DateTime,
   to: DateTime.DateTime,
   option: { locale: string | string[] },
-): string {
+): string => {
   const formatter: DurationFormat = shortFormatterFactory(option)
 
   const duration = DateTime.distanceDuration(from, to)

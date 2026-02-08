@@ -1,4 +1,4 @@
-import { Exit } from '../effect.js'
+import { Exit } from '#@/effect.js'
 /**
  * Converts Option-t's `Result` to Effect's `Exit`.
  *
@@ -12,14 +12,10 @@ import { Exit } from '../effect.js'
  *
  * @module
  */
-import { Result } from '../option-t.js'
+import { Result } from '#@/option-t.js'
 
 /**
  * Converts an Option-t's `Result` object into an Effect's `Exit` object.
  */
-export function fromResult<OK, ERR>(result: Result.Result<OK, ERR>): Exit.Exit<OK, ERR> {
-  if (Result.isOk(result)) {
-    return Exit.succeed(Result.unwrapOk(result))
-  }
-  return Exit.fail(Result.unwrapErr(result))
-}
+export const fromResult = <OK, ERR>(result: Result.Result<OK, ERR>): Exit.Exit<OK, ERR> =>
+  Result.isOk(result) ? Exit.succeed(Result.unwrapOk(result)) : Exit.fail(Result.unwrapErr(result))

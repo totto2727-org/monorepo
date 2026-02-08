@@ -8,9 +8,10 @@ import type { ParseOptions } from 'effect/SchemaAST'
  */
 import { sha3_512 } from '@noble/hashes/sha3.js'
 import BaseX from 'base-x'
-import BigNumber from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 import { Array, Context, Effect, Layer, Schema } from 'effect'
-import SR from 'seedrandom'
+
+import { Seed } from './cuid/seed.ts'
 
 const defaultLength = 24
 const bigLength = 32
@@ -31,22 +32,24 @@ export const is: (value: unknown, overrideOptions?: ParseOptions | number) => va
 
 const decodeSync = Schema.decodeSync(schema)
 
-export function getDefaultConstants(): {
+export const getDefaultConstants = (): {
   defaultLength: number
   bigLength: number
-} {
-  return { bigLength, defaultLength }
-}
+} => ({ bigLength, defaultLength })
 
-function createRandom(): number {
+const createRandom = (): number => {
   // Generate a random 32-bit unsigned integer
   const buffer = new Uint32Array(1)
   globalThis.crypto.getRandomValues(buffer)
   // Convert to a float in [0, 1) by dividing by 2^32
-  return buffer[0]! / 0x1_00_00_00_00
+  const [value] = buffer
+  if (value === undefined) {
+    throw new Error('Failed to generate random value')
+  }
+  return value / 0x1_00_00_00_00
 }
 
-function createEntropy(length = 4, random = createRandom): string {
+const createEntropy = (length = 4, random = createRandom): string => {
   let entropy = ''
 
   while (entropy.length < length) {
@@ -59,7 +62,7 @@ function createEntropy(length = 4, random = createRandom): string {
  * Adapted from https://github.com/juanelas/bigint-conversion
  * MIT License Copyright (c) 2018 Juan Hernández Serrano
  */
-export function bufToBigInt(buf: Uint8Array): BigNumber {
+export const bufToBigInt = (buf: Uint8Array): BigNumber => {
   let value = new BigNumber(0)
 
   for (const i of buf.values()) {
@@ -69,7 +72,7 @@ export function bufToBigInt(buf: Uint8Array): BigNumber {
   return value
 }
 
-function hash(input: string): string {
+const hash = (input: string): string => {
   // Drop the first character because it will bias the histogram
   // to the left.
   const encoder = new TextEncoder()
@@ -80,8 +83,12 @@ function hash(input: string): string {
 
 const alphabet = [...'abcdefghijklmnopqrstuvwxyz']
 
-function randomLetter(rand: () => number): string {
-  return alphabet[Math.floor(rand() * alphabet.length)]!
+const randomLetter = (rand: () => number): string => {
+  const letter = alphabet[Math.floor(rand() * alphabet.length)]
+  if (letter === undefined) {
+    throw new Error('Failed to generate random letter')
+  }
+  return letter
 }
 /*
 This is a fingerprint of the host environment. It is used to help
@@ -89,32 +96,37 @@ prevent collisions when generating ids in a distributed system.
 If no global object is available, you can pass in your own, or fall back
 on a random string.
 */
-export function createFingerprint({
-  globalObj = typeof globalThis !== 'undefined' ? globalThis : {},
+export const createFingerprint = ({
+  globalObj = typeof globalThis === 'undefined' ? {} : globalThis,
   random = createRandom,
 }: {
   globalObj?: Record<string, unknown>
   random?: () => number
-} = {}): string {
+} = {}): string => {
   const globals = Object.keys(globalObj).toString()
   const sourceString = globals.length ? globals + createEntropy(bigLength, random) : createEntropy(bigLength, random)
 
   return hash(sourceString).slice(0, bigLength)
 }
 
-export function createCounter(count: number): () => number {
-  return () => count++
+export const createCounter = (initialCount: number): (() => number) => {
+  let count = initialCount
+  return () => {
+    const current = count
+    count += 1
+    return current
+  }
 }
 
 // ~22k hosts before 50% chance of initial counter collision
 // with a remaining counter range of 9.0e+15 in JavaScript.
 const initialCountMax = 476_782_367
 
-export function init({
+export const init = ({
   length = defaultLength,
 }: {
   length?: number
-} = {}): () => CUID {
+} = {}): (() => CUID) => {
   const random = createRandom
   const counter = createCounter(Math.floor(random() * initialCountMax))
   const fingerprint = createFingerprint({ random })
@@ -122,7 +134,7 @@ export function init({
   if (length > bigLength) {
     throw new Error(`Length must be between 2 and ${bigLength}. Received: ${length}`)
   }
-  return function cuid2() {
+  return () => {
     const firstLetter = randomLetter(random)
 
     // If we're lucky, the `.toString(36)` calls may reduce hashing rounds
@@ -140,21 +152,18 @@ export function init({
   }
 }
 
-const GeneratorClass: Context.TagClass<
+export class Generator extends Context.Tag('@totto/function/effect/cuid/Generator')<
   Generator,
-  '@totto/function/effect/cuid/Generator',
   Effect.Effect<typeof schema.Type>
-> = Context.Tag('@totto/function/effect/cuid/Generator')()
-
-export class Generator extends GeneratorClass {}
+>() {}
 
 export const generatorProductionLive: Layer.Layer<Generator, never, never> = Layer.effect(
   Generator,
   // deno-lint-ignore require-yield
-  Effect.gen(function* generatorProductionLive() {
+  Effect.gen(function* () {
     let createId: () => CUID
     // deno-lint-ignore require-yield
-    return Effect.gen(function* generatorProductionLive() {
+    return Effect.gen(function* () {
       if (!createId) {
         createId = init()
       }
@@ -163,27 +172,19 @@ export const generatorProductionLive: Layer.Layer<Generator, never, never> = Lay
   }),
 )
 
-const SeedClass: Context.TagClass<Seed, '@totto/function/effect/cuid/Seed', SR.PRNG> = Context.Tag(
-  '@totto/function/effect/cuid/Seed',
-)()
-
-export class Seed extends SeedClass {}
-
 const base26 = BaseX('abcdefghijklmnopqrstuvwxyz')
 const base36 = BaseX('0123456789abcdefghijklmnopqrstuvwxyz')
 
 export const generatorTestLive: Layer.Layer<Generator, never, Seed> = Layer.effect(
   Generator,
-  Effect.gen(function* generatorTestLive() {
+  Effect.gen(function* () {
     const seed = yield* Seed
     // deno-lint-ignore require-yield
-    return Effect.gen(function* generatorTestLive() {
+    return Effect.gen(function* () {
       const [r, ...rArray] = Array.makeBy(20, () => seed.int32())
       return decodeSync(`${base26.encode([r])}${base36.encode(rArray)}`.slice(0, 24).padEnd(24, '0'))
     })
   }),
 )
 
-export function createSeed(seed: string): Layer.Layer<Seed, never, never> {
-  return Layer.succeed(Seed, Seed.of(SR(seed)))
-}
+export { createSeed, Seed } from './cuid/seed.ts'

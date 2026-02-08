@@ -1,7 +1,7 @@
+import { Cause, Exit } from '#@/effect.js'
+import { Result } from '#@/option-t.js'
 import { describe, expect, test } from 'bun:test'
 
-import { Cause, Exit } from '../effect.js'
-import { Result } from '../option-t.js'
 import { fromExit } from './effect.js'
 
 describe('Convert Success type to Ok', () => {

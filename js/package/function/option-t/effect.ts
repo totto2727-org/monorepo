@@ -12,23 +12,18 @@
  * @module
  */
 
-import type { Cause } from '../effect.js'
+import type { Cause } from '#@/effect.js'
 
-import { Exit, Function } from '../effect.js'
-import { Result } from '../option-t.js'
+import { Exit, Function } from '#@/effect.js'
+import { Result } from '#@/option-t.js'
 
 /**
  * Converts an Effect's `Exit` object into a Option-t's `Result` object.
  */
-function fromExit_<OK, ERR_IN, ERR_OUT>(
+const fromExit_ = <OK, ERR_IN, ERR_OUT>(
   exit: Exit.Exit<OK, ERR_IN>,
   f: (value: Cause.Cause<ERR_IN>) => ERR_OUT,
-): Result.Result<OK, ERR_OUT> {
-  if (Exit.isSuccess(exit)) {
-    return Result.createOk(exit.value)
-  }
-  return Result.createErr(f(exit.cause))
-}
+): Result.Result<OK, ERR_OUT> => (Exit.isSuccess(exit) ? Result.createOk(exit.value) : Result.createErr(f(exit.cause)))
 
 /**
  * Converts an Effect's `Exit` to a Option-t's `Result`, or returns a conversion function.

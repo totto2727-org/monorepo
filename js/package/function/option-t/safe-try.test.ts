@@ -26,15 +26,15 @@
  * SOFTWARE.
  */
 
+import { Result } from '#@/option-t.js'
 import { describe, expect, test } from 'bun:test'
 
-import { Result } from '../option-t.js'
 import { safeTry, safeUnwrap } from './safe-try.js'
 
 describe('Returns what is returned from the generator function', () => {
   test('With synchronous Ok', () => {
     const actual = Result.unwrapOk(
-      safeTry(function* actual() {
+      safeTry(function* () {
         return Result.createOk('value')
       }),
     )
@@ -44,7 +44,7 @@ describe('Returns what is returned from the generator function', () => {
 
   test('With synchronous Err', () => {
     const actual = Result.unwrapErr(
-      safeTry(function* actual() {
+      safeTry(function* () {
         return Result.createErr('value')
       }),
     )
@@ -54,7 +54,7 @@ describe('Returns what is returned from the generator function', () => {
 
   test('With async Ok', async () => {
     const actual = Result.unwrapOk(
-      await safeTry(async function* actual() {
+      await safeTry(async function* () {
         return Result.createOk('value')
       }),
     )
@@ -66,7 +66,7 @@ describe('Returns what is returned from the generator function', () => {
 
   test('With async Err', async () => {
     const actual = Result.unwrapErr(
-      await safeTry(async function* actual() {
+      await safeTry(async function* () {
         return Result.createErr('value')
       }),
     )
@@ -77,9 +77,9 @@ describe('Returns what is returned from the generator function', () => {
 
 describe("Returns the first occurrence of Err instance as yield*'s operand", () => {
   describe('Only synchronous', () => {
-    const okValues = Array<string>()
+    const okValues: string[] = []
 
-    const result = safeTry(function* result() {
+    const result = safeTry(function* () {
       const okFoo = yield* safeUnwrap(Result.createOk('foo'))
       okValues.push(okFoo)
 
@@ -105,10 +105,10 @@ describe("Returns the first occurrence of Err instance as yield*'s operand", () 
   })
 
   describe('Only async', async () => {
-    const okValues = Array<string>()
+    const okValues: string[] = []
 
     const result = Result.unwrapErr(
-      await safeTry(async function* result() {
+      await safeTry(async function* () {
         const okFoo = yield* safeUnwrap(Promise.resolve(Result.createOk('foo')))
         okValues.push(okFoo)
 
@@ -135,10 +135,10 @@ describe("Returns the first occurrence of Err instance as yield*'s operand", () 
   })
 
   describe('Mix synchronous and async', async () => {
-    const okValues = Array<string>()
+    const okValues: string[] = []
 
     const result = Result.unwrapErr(
-      await safeTry(async function* result() {
+      await safeTry(async function* () {
         const okFoo = yield* safeUnwrap(Promise.resolve(Result.createOk('foo')))
         okValues.push(okFoo)
 

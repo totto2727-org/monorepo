@@ -29,7 +29,7 @@
  * @module
  */
 
-import { Result as R } from '../option-t.js'
+import { Result as R } from '#@/option-t.js'
 
 /*
  * Workaround for the problem of nullable inference results due to the implementation of option-t's Result
@@ -103,9 +103,6 @@ export function safeTry<YieldErr extends R.Err<unknown>, GeneratorReturnResult e
 
 /**
  * Implementation of `safeTry`
- *
- * @param body
- * @returns Result or Promise<Result>
  */
 export function safeTry<T, E>(
   body: (() => Generator<R.Err<E>, R.Result<T, E>>) | (() => AsyncGenerator<R.Err<E>, R.Result<T, E>>),
@@ -121,46 +118,37 @@ export function safeTry<T, E>(
  * Emulates Rust's `?` operator in `safeTry`'s body. See also `safeTry`.
  *
  * Implementation of `?` operator for Ok type
- *
- * @param result Synchronous Ok
  */
-function _safeUnwrapOk<const RESULT extends R.Result<unknown, unknown>>(
+const _safeUnwrapOk = <const RESULT extends R.Result<unknown, unknown>>(
   result: RESULT,
-): Generator<R.Err<InferErr<RESULT>>, InferOk<RESULT>> {
-  // deno-lint-ignore require-yield
-  return (function* () {
+): Generator<R.Err<InferErr<RESULT>>, InferOk<RESULT>> =>
+  (function* () {
     return R.unwrapOk(result) as InferOk<RESULT>
   })()
-}
 
 /**
  * Emulates Rust's `?` operator in `safeTry`'s body. See also `safeTry`.
  *
  * Implementation of `?` operator for Err type
- *
- * @param result Synchronous Err
  */
-function _safeUnwrapErr<const RESULT extends R.Result<unknown, unknown>>(
+const _safeUnwrapErr = <const RESULT extends R.Result<unknown, unknown>>(
   result: RESULT,
-): Generator<R.Err<InferErr<RESULT>>, InferOk<RESULT>> {
-  return (function* () {
+): Generator<R.Err<InferErr<RESULT>>, InferOk<RESULT>> =>
+  (function* () {
     R.unwrapErr(result)
     yield result as R.Err<InferErr<RESULT>>
 
     throw new Error('Do not use this generator out of `safeTry`')
   })()
-}
 
 /**
  * Emulates Rust's `?` operator in `safeTry`'s body. See also `safeTry`.
  *
  * Implementation of `?` operator for Synchronous Result type
- *
- * @param result Synchronous Result
  */
-function _safeUnwrap<const RESULT extends R.Result<unknown, unknown>>(
+const _safeUnwrap = <const RESULT extends R.Result<unknown, unknown>>(
   result: RESULT,
-): Generator<R.Err<InferErr<RESULT>>, InferOk<RESULT>> {
+): Generator<R.Err<InferErr<RESULT>>, InferOk<RESULT>> => {
   if (R.isOk(result)) {
     return _safeUnwrapOk(result)
   } else if (R.isErr(result)) {
@@ -174,13 +162,11 @@ function _safeUnwrap<const RESULT extends R.Result<unknown, unknown>>(
  * Emulates Rust's `?` operator in `safeTry`'s body. See also `safeTry`.
  *
  * Implementation of `?` operator for Asynchronous Result type
- *
- * @param result Asynchronous Result
  */
-function _safeUnwrapAsync<const RESULT extends R.Result<unknown, unknown>>(
+const _safeUnwrapAsync = <const RESULT extends R.Result<unknown, unknown>>(
   result: PromiseLike<RESULT>,
-): AsyncGenerator<R.Err<InferErr<RESULT>>, InferOk<RESULT>> {
-  return (async function* () {
+): AsyncGenerator<R.Err<InferErr<RESULT>>, InferOk<RESULT>> =>
+  (async function* () {
     const r = await result
 
     if (R.isOk(r)) {
@@ -190,12 +176,9 @@ function _safeUnwrapAsync<const RESULT extends R.Result<unknown, unknown>>(
     }
     throw new TypeError('This is not Result type')
   })()
-}
 
 /**
  * Emulates Rust's `?` operator in `safeTry`'s body. See also `safeTry`.
- *
- * @param result Synchronous Result
  */
 export function safeUnwrap<const RESULT extends R.Result<unknown, unknown>>(
   result: RESULT,
@@ -203,8 +186,6 @@ export function safeUnwrap<const RESULT extends R.Result<unknown, unknown>>(
 
 /**
  * Emulates Rust's `?` operator in `safeTry`'s body. See also `safeTry`.
- *
- * @param result Asynchronous Result
  */
 export function safeUnwrap<const RESULT extends R.Result<unknown, unknown>>(
   result: Promise<RESULT>,
@@ -212,9 +193,6 @@ export function safeUnwrap<const RESULT extends R.Result<unknown, unknown>>(
 
 /**
  * Implementation of `safeUnwrap`
- *
- * @param result
- * @returns Generator<Result> or AsyncGenerator<Result>
  */
 export function safeUnwrap<const RESULT extends R.Result<unknown, unknown>>(
   result: RESULT | PromiseLike<RESULT>,

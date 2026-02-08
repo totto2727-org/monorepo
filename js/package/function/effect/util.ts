@@ -1,6 +1,7 @@
-import type { Schema, SchemaAST } from '../effect.js'
+// oxlint-disable typescript/no-explicit-any
+import type { Schema, SchemaAST } from '#@/effect.js'
 
-import { Array, Effect, flow, Function, Option } from '../effect.js'
+import { Array, Effect, flow, Function, Option } from '#@/effect.js'
 
 export const constVoidEffect: Function.LazyArg<Effect.Effect<void, never, never>> = Function.constant(Effect.void)
 
@@ -36,13 +37,11 @@ export type EffectFn<
 export const nonEmptyArrayOrNone = <const T>(args: T[]): Option.Option<Array.NonEmptyArray<T>> =>
   Array.isNonEmptyArray(args) ? Option.some(args) : Option.none()
 
-export function tap<const T extends ReadonlyArray<unknown>>(
-  fn: (v: Array.ReadonlyArray.Infer<T>) => void,
-): (vs: T) => T {
-  return (vs) => {
+export const tap =
+  <const T extends ReadonlyArray<unknown>>(fn: (v: Array.ReadonlyArray.Infer<T>) => void): ((vs: T) => T) =>
+  (vs) => {
     for (const v of vs) {
       fn(v as Array.ReadonlyArray.Infer<T>)
     }
     return vs
   }
-}

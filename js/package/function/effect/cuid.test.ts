@@ -1,7 +1,7 @@
+import { Array, Effect } from '#@/effect.js'
 import { describe, expect, test } from 'bun:test'
 import { Schema, String } from 'effect'
 
-import { Array, Effect } from '../effect.js'
 import * as CUID from './cuid.js'
 
 const decode = Schema.decodeUnknownSync(CUID.schema)
@@ -91,7 +91,7 @@ describe('bufToBigInt', () => {
   })
 
   test('maximum value Uint8Array', () => {
-    expect(CUID.bufToBigInt(new Uint8Array([0xff, 0xff, 0xff, 0xff])).toString()).toBe('4294967295')
+    expect(CUID.bufToBigInt(new Uint8Array([0xFF, 0xFF, 0xFF, 0xFF])).toString()).toBe('4294967295')
   })
 })
 
@@ -152,6 +152,7 @@ describe('CSPRNG', () => {
     const ids = Array.makeBy(100, () => CUID.init()())
     const allValid = ids.every((id) => CUID.is(id))
     const allUnique = new Set(ids).size === ids.length
-    expect(allValid && allUnique).toBe(true)
+    expect(allValid).toBeTrue()
+    expect(allUnique).toBeTrue()
   })
 })
