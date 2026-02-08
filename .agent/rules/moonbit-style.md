@@ -70,6 +70,10 @@ description: Moonbit(.mbt) Coding Standards
   }
   ```
 
+### Functions
+
+- **Anonymous Functions**: Prefer arrow syntax `args => body` over `fn` keyword `fn(args) { body }`.
+
 ### Structs & Enums
 
 - **Enum Wrapping Structs**: When defining an Enum that aggregates multiple types (e.g., `Geometry`), define independent Structs for each variant first, then wrap them in the Enum. Use the same name for the Variant and the Struct.
@@ -105,6 +109,25 @@ description: Moonbit(.mbt) Coding Standards
   2. **Trait Object Delegation**: When implementing a super-trait (e.g., `GeometryTrait`) for a type that also implements a sub-trait (e.g., `PointTrait`), if the implementation can be derived using the sub-trait's methods, define the logic as a static function on the sub-trait's object (e.g., `&PointTrait::method`) and relay to it. This facilitates code reuse.
   3. **Direct Implementation**: If delegation is not possible or creates circular dependencies, implement the method directly on the type.
 
-## 4. Testing
+## 4. Performance Optimization
+
+- **Min/Max Calculation**: Avoid mutable loops or intermediate array allocations (via `map`) when calculating statistics like min/max. Instead, use `iter()` combined with `map(...)` and `minimum()`/`maximum()`.
+
+  ```moonbit
+  // Bad (Mutable Loop)
+  let mut min_x = coords[0].x()
+  for i = 1; i < coords.length(); i = i + 1 { ... }
+
+  // Bad (Intermediate Array Allocation)
+  let x_array = coords.map(c => c.x()) // Allocates O(N) memory
+  let min_x = x_array.fold(...)
+
+  // Good (Iterator - Zero Allocation & Readable)
+  let min_x = coords.iter().map(c => c.x()).minimum().unwrap()
+  ```
+
+- **Flattening**: Use `flatten()` instead of manual loops with `append` when merging nested collections.
+
+## 5. Testing
 
 See [Moonbit Testing Standards](moonbit-test.md) for detailed testing guidelines.

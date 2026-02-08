@@ -13,10 +13,12 @@ description: Moonbit Testing Standards
   - **Inspect usage**: When using `inspect`, always pass the direct return value of the function under test. Do not obscure it by inspecting derived properties like `.length()` unless absolutely necessary.
     - Bad: `inspect(array.length(), content="3")`
     - Good: `inspect(array, content="[A, B, C]")`
+  - **Avoid `inspect!`**: The macro version `inspect!` is deprecated. Use `inspect` instead.
   - For `ToJson` tests, use `json_inspect` as much as possible.
 - Use `assert_eq(actual, expected)` for value equality.
 - Do not ignore compilation warnings; fix them (e.g., unused variables).
 - Group related tests in the same file or dedicated `_test.mbt` files.
+- **Ambiguity Resolution**: If a method call in a test is ambiguous (e.g. `to_json` which exists in both a Trait and as a struct method), use the fully qualified Trait syntax to call it explicitly: `TraitName::method_name(object, ...)` instead of `object.method_name(...)`.
 
 ## 2. Test Naming
 
