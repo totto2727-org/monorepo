@@ -27,9 +27,13 @@ description: Moonbit Testing Standards
   - **Method**: The specific method being tested (optional for simple functions).
   - **Scenario**: The condition or specific case being verified.
   - **Note**: If the test expects a panic, the name **must** start with `panic_` (e.g., `test "panic_[Target] [Method] - [Scenario]"`).
+  - **Trait Implementation**: If the method belongs to a trait, use `TraitName::method_name` (e.g., `test "StructName TraitName::method_name - Scenario"`).
+  - **Natural English in Descriptions**: The scenario/description part of the test title should use natural English phrasing. Avoid CamelCase and ensure the text is readable and grammatically correct.
+    - Bad: `test "StructName Method - WithoutBbox"`
+    - Good: `test "StructName Method - without BBox"`
 
   ```moonbit
-  test "Point to_bbox - without bbox" { ... }
+  test "Point to_bbox - without BBox" { ... }
   test "orient2d - clockwise" { ... }
   test "panic_Polygon from_json - invalid type" { ... }
   ```
@@ -59,11 +63,15 @@ For `.mbt.md` files, follow the structure below.
 - For **Trait implementations**:
   - Use **H3** for the Trait name (if grouping by trait) or the Function Name directly.
   - Use nested **H4 headers** for methods if needed.
+- **Top-Level "Public API" Section**:
+  - Nest trait implementations under the type they belong to using a bulleted list.
+  - Only list traits that are explicitly implemented in the file (ignore defaults).
 - Each section should contain:
   1. **Test Case Matrix**: A table summarizing conditions and cases. **(Optional if there is only 1 test case)**
       - **Variable**: Must use the **Argument Name** of the function (e.g., `arg1`, `arg2`). For instance methods, use `self`.
       - **NO Method Row**: Do not include a row identifying the method itself used as a condition. The H3 header already serves this purpose.
   2. **Implementation**: A list of test implementations, with descriptions as bullet points and code blocks.
+- **Order matching**: The order of tests in the `## Test` section must strictly follow the order of the corresponding items in the `## Public API` section.
 
 #### Template
 
@@ -77,6 +85,8 @@ For `.mbt.md` files, follow the structure below.
 
 - `func1`
 - `func2`
+- `TraitName`
+  - `method_name`
 
 ## Test
 
