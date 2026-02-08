@@ -1,0 +1,3 @@
+[install.scopes]
+# as a string
+"@jsr" = "https://npm.jsr.io"
