@@ -22,7 +22,7 @@ pub fn[T : FromJson] from_json_property_or_throw(
 ) -> T raise @json.JsonDecodeError {
   match from_json_property(key, json, path) {
     None => raise @json.JsonDecodeError((path, "Missing key \{key}"))
-    Some(json) => T::from_json(json, path)
+    Some(val) => val
   }
 }
 
@@ -35,7 +35,7 @@ pub fn[T : FromJson] from_json_property_or_default(
 ) -> T raise @json.JsonDecodeError {
   match from_json_property(key, json, path) {
     None => default()
-    Some(json) => T::from_json(json, path)
+    Some(val) => val
   }
 }
 
