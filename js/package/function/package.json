@@ -30,6 +30,7 @@
     "./test": "./test.ts",
     "./tsconfig": "./tsconfig/dep.ts",
     "./tsconfig/base": "./tsconfig/base.json",
+    "./tsconfig/bun": "./tsconfig/bun.json",
     "./tsconfig/expo": "./tsconfig/expo.json",
     "./tsconfig/lib": "./tsconfig/lib.json",
     "./tsconfig/node22": "./tsconfig/node22.json",

@@ -1,15 +1,3 @@
 {
-  "compilerOptions": {
-    // Environment setup & latest features
-    "lib": ["ESNext"],
-    "target": "esnext",
-    "module": "node20",
-    "moduleResolution": "node16",
-    "jsx": "react-jsx",
-
-    // Move?
-    "moduleDetection": "force",
-    "allowImportingTsExtensions": true
-  },
-  "extends": ["./tsconfig/base.json"]
+  "extends": ["./tsconfig/bun.json"]
 }

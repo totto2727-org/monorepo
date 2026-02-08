@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "target": "esnext",
+    "module": "node20",
+    "moduleResolution": "node16",
+    "jsx": "react-jsx",
+
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": true
+  },
+  "extends": ["./base.json"]
+}
