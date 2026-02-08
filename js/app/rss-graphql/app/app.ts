@@ -13,7 +13,7 @@ import { generateSchema } from './feature/graphql.ts'
 import { builder } from './feature/graphql/builder.ts'
 
 export const app = (adapter?: ElysiaAdapter) =>
-  Effect.gen(function* app() {
+  Effect.gen(function* () {
     const runtime = yield* Effect.runtime<HttpClient.HttpClient>()
 
     return new Elysia({
