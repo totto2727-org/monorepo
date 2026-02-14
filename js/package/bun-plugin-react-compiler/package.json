@@ -1,0 +1,21 @@
+{
+  "name": "@package/bun-plugin-react-compiler",
+  "version": "2.4.0",
+  "license": "MIT",
+  "type": "module",
+  "imports": {
+    "#@/*": "./*"
+  },
+  "exports": {
+    ".": "./plugin.ts"
+  },
+  "scripts": {
+    "check": "tsgo"
+  },
+  "devDependencies": {
+    "@babel/core": "catalog:react",
+    "@package/function": "workspace:*",
+    "@types/babel__core": "catalog:react",
+    "babel-plugin-react-compiler": "catalog:react"
+  }
+}

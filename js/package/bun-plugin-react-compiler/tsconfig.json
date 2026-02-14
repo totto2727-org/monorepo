@@ -1,0 +1,3 @@
+{
+  "extends": ["@package/function/tsconfig/bun"]
+}
