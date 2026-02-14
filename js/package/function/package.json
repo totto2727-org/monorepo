@@ -55,10 +55,8 @@
     "@effect/platform-bun": "^0.87.1",
     "@effect/platform-node": "^0.104.1",
     "@effect/platform-node-shared": "^0.57.1",
-    "@effect/vitest": "^0.27.0",
     "@formatjs/intl-durationformat": "^0.10.1",
     "@noble/hashes": "^2.0.1",
-    "@tsconfig/strictest": "^2.0.8",
     "base-x": "^5.0.1",
     "bignumber.js": "^9.3.1",
     "change-case": "^5.4.4",
@@ -67,10 +65,12 @@
     "option-t": "^55.1.1",
     "seedrandom": "^3.0.5",
     "temporal-polyfill": "^0.3.0",
-    "type-fest": "^5.4.3",
     "velona": "^0.8.0"
   },
   "devDependencies": {
-    "@types/seedrandom": "^3.0.8"
+    "@effect/vitest": "^0.27.0",
+    "@tsconfig/strictest": "^2.0.8",
+    "@types/seedrandom": "^3.0.8",
+    "type-fest": "^5.4.3"
   }
 }

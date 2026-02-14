@@ -1,0 +1,10 @@
+{
+  "name": "js",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@typescript/native-preview": "catalog:build",
+    "typescript": "catalog:build",
+    "wrangler": "catalog:cloudflare"
+  }
+}
