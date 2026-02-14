@@ -1,6 +1,4 @@
 node_modules/
 .turbo/
 .claude/**.local.*
-.serena/cache
-.serena/memories
 *.local.*
