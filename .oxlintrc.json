@@ -6,6 +6,15 @@
     "./node_modules/ultracite/config/oxlint/remix/.oxlintrc.json"
   ],
   "rules": {
-    "func-names": ["error", "always", { "generators": "never" }]
+    "func-names": ["error", "always", { "generators": "never" }],
+    "number-literal-case": "allow",
+    "import/extensions": [
+      "error",
+      "always",
+      {
+        "ignorePackages": true,
+        "checkTypeImports": true
+      }
+    ]
   }
 }

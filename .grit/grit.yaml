@@ -1,39 +1,39 @@
 version: 0.0.1
 patterns:
-  - name: require_extension
+  - name: force_ts_extension
     level: error
     body: |
-      `import $specifiers from $source` where {
-      	$source <: r"^\"(.*)\.(.*)?\"$"($without_ext, $ext),
-        ! $ext <: r"^(ts|tsx|js|jsx|css|scss|json|jsonc|md|mdx|png|jpg|svg|webp)$"($ext)
-      } => `import $specifiers from "$without_ext.$ext.js"`
+      `import $specifiers from "$source"` where {
+      	$source <: r"^(\.*|#.*)(\/.*)\.js(x?)$"($start, $without_ext, $x),
+        ! $start <: r"^##.*$",
+        $source => `$start$without_ext.ts$x`
+      }
     description: |
-      Require file extensions when importing from within the project.
+      Force .ts, .tsx extension for TypeScript.
     samples:
       - input: |
+          import * as Scheduled from "ol.js"
+          import * as Scheduled from "ol.jsx"
+          import * as Scheduled from "##storybook/utils"
+          import * as Scheduled from './single-quate.js'
           import * as Scheduled from "./entry.scheduled.js"
-          import * as Scheduled from "./entry.scheduled.css"
-          import * as Scheduled from "./entry.scheduled"
-        output: |
-          import * as Scheduled from "./entry.scheduled.js"
-          import * as Scheduled from "./entry.scheduled.css"
-          import * as Scheduled from "./entry.scheduled.js"
-  - name: force_js_extension
-    level: error
-    body: |
-      `import $specifiers from $source` where {
-      	$source <: r"^\"(.*)\.(ts|tsx|jsx)\"$"($without_ext, $ext)
-      } => `import $specifiers from "$without_ext.js"`
-    description: |
-      Force .js extension for TypeScript, JavaScript imports (.ts, .tsx or .jsx files).
-    samples:
-      - input: |
-          import * as Scheduled from "./entry.scheduled.js"
-          import * as Scheduled from "./entry.scheduled.ts"
           import * as Scheduled from "./entry.scheduled.jsx"
-          import * as Scheduled from "./entry.scheduled.tsx"
+          import * as Scheduled from "../entry.scheduled.js"
+          import * as Scheduled from "../entry.scheduled.jsx"
+          import * as Scheduled from "#@/entry.scheduled.js"
+          import * as Scheduled from "#@/entry.scheduled.jsx"
+          import * as Scheduled from "#/entry.scheduled.js"
+          import * as Scheduled from "#/entry.scheduled.jsx"
         output: |
-          import * as Scheduled from "./entry.scheduled.js"
-          import * as Scheduled from "./entry.scheduled.js"
-          import * as Scheduled from "./entry.scheduled.js"
-          import * as Scheduled from "./entry.scheduled.js"
+          import * as Scheduled from "ol.js"
+          import * as Scheduled from "ol.jsx"
+          import * as Scheduled from "##storybook/utils"
+          import * as Scheduled from './single-quate.ts'
+          import * as Scheduled from "./entry.scheduled.ts"
+          import * as Scheduled from "./entry.scheduled.tsx"
+          import * as Scheduled from "../entry.scheduled.ts"
+          import * as Scheduled from "../entry.scheduled.tsx"
+          import * as Scheduled from "#@/entry.scheduled.ts"
+          import * as Scheduled from "#@/entry.scheduled.tsx"
+          import * as Scheduled from "#/entry.scheduled.ts"
+          import * as Scheduled from "#/entry.scheduled.tsx"
