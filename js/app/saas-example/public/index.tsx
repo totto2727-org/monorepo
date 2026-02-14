@@ -1,4 +1,3 @@
-// Import the generated route tree
 import { routeTree } from '#app/routeTree.gen.ts'
 import { Predicate } from '@package/function/effect'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
