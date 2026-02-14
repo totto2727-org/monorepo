@@ -1,0 +1,15 @@
+*
+!/js/**
+!/mbt/**
+!/package.json
+!/bun.lock
+!/bunfig.toml
+!/turbo.json
+!/devbox.json
+!/devbox.lock
+**/node_modules/**
+**/build/**
+**/.turbo/**
+**/.tanstack/**"
+**/routeTree.gen.ts
+**/worker-configuration.d.ts"
