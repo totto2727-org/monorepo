@@ -40,23 +40,11 @@
         "agents": "^0.2.0",
         "tsx": "^4.20.6"
       },
-      "drizzle": {
-        "drizzle-cuid2": "^2.1.0",
-        "drizzle-kit": "^0.31.5",
-        "drizzle-orm": "^0.44.6"
-      },
       "graphql": {
         "@pothos/core": "^4.9.1",
         "@pothos/plugin-validation": "^4.1.1",
         "graphql": "^16.11.0",
         "graphql-scalars": "^1.24.2"
-      },
-      "hono": {
-        "@hono/cloudflare-access": "^0.3.1",
-        "@hono/graphql-server": "^0.7.0",
-        "@hono/mcp": "^0.1.1",
-        "@hono/standard-validator": "^0.1.4",
-        "hono": "^4.7.10"
       },
       "lint": {
         "@getgrit/cli": "0.1.0-alpha.1743007075",
@@ -77,27 +65,20 @@
       "react": {
         "@tanstack/react-router": "^1.133.3",
         "@tanstack/react-router-devtools": "^1.133.3",
-        "@tanstack/react-start": "^1.133.3",
         "@tanstack/router-cli": "^1.133.25",
         "@types/react": "^19.2.2",
         "@types/react-dom": "^19.2.2",
+        "@babel/core": "^7.29.0",
         "babel-plugin-react-compiler": "^1.0.0",
         "react": "^19.2.0",
         "react-dom": "^19.2.0"
-      },
-      "test": {
-        "vitest": "^3.2.4"
       },
       "ui": {
         "@iconify-json/material-symbols": "^1.2.41",
         "@svgr/core": "^8.1.0",
         "@svgr/plugin-jsx": "^8.1.0",
-        "@tailwindcss/cli": "^4.1.11",
-        "@tailwindcss/vite": "^4.1.14",
         "@yamada-ui/cli": "^2.0.3",
         "@yamada-ui/react": "^2.0.2",
-        "daisyui": "^5.1.27",
-        "tailwindcss": "^4.1.16",
         "unplugin-icons": "^22.4.2"
       },
       "util": {
