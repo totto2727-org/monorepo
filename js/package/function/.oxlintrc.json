@@ -1,7 +1,6 @@
 {
   "extends": ["../../../.oxlintrc.json"],
   "rules": {
-    "no-barrel-file": "allow",
-    "require-yield": "allow"
+    "no-barrel-file": "allow"
   }
 }
