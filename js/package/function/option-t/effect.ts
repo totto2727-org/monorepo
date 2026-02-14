@@ -12,10 +12,10 @@
  * @module
  */
 
-import type { Cause } from '#@/effect.js'
+import type { Cause } from '#@/effect.ts'
 
-import { Exit, Function } from '#@/effect.js'
-import { Result } from '#@/option-t.js'
+import { Exit, Function } from '#@/effect.ts'
+import { Result } from '#@/option-t.ts'
 
 /**
  * Converts an Effect's `Exit` object into a Option-t's `Result` object.

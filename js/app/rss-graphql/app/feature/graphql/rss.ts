@@ -3,7 +3,7 @@ import { FeedType as FeedTypeEnum } from '@mikaelporttila/rss'
 import { Effect, Predicate, Runtime, Schema } from '@totto/function/effect'
 import { NonEmptyStringResolver } from 'graphql-scalars'
 
-import { builder } from './builder.js'
+import { builder } from './builder.ts'
 import { makeRSSFetchClient } from './rss-fetch-client.ts'
 
 const feedTypeEnumToLiteral = Schema.transformLiterals(

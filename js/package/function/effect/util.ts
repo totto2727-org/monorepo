@@ -1,7 +1,7 @@
 // oxlint-disable typescript/no-explicit-any
-import type { Schema, SchemaAST } from '#@/effect.js'
+import type { Schema, SchemaAST } from '#@/effect.ts'
 
-import { Array, Effect, flow, Function, Option } from '#@/effect.js'
+import { Array, Effect, flow, Function, Option } from '#@/effect.ts'
 
 export const constVoidEffect: Function.LazyArg<Effect.Effect<void, never, never>> = Function.constant(Effect.void)
 

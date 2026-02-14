@@ -26,14 +26,15 @@
  * SOFTWARE.
  */
 
-import { Result } from '#@/option-t.js'
+import { Result } from '#@/option-t.ts'
 import { describe, expect, test } from 'bun:test'
 
-import { safeTry, safeUnwrap } from './safe-try.js'
+import { safeTry, safeUnwrap } from './safe-try.ts'
 
 describe('Returns what is returned from the generator function', () => {
   test('With synchronous Ok', () => {
     const actual = Result.unwrapOk(
+      // oxlint-disable-next-line require-yield
       safeTry(function* () {
         return Result.createOk('value')
       }),
@@ -44,6 +45,7 @@ describe('Returns what is returned from the generator function', () => {
 
   test('With synchronous Err', () => {
     const actual = Result.unwrapErr(
+      // oxlint-disable-next-line require-yield
       safeTry(function* () {
         return Result.createErr('value')
       }),
@@ -54,6 +56,7 @@ describe('Returns what is returned from the generator function', () => {
 
   test('With async Ok', async () => {
     const actual = Result.unwrapOk(
+      // oxlint-disable-next-line require-yield
       await safeTry(async function* () {
         return Result.createOk('value')
       }),
@@ -66,6 +69,7 @@ describe('Returns what is returned from the generator function', () => {
 
   test('With async Err', async () => {
     const actual = Result.unwrapErr(
+      // oxlint-disable-next-line require-yield
       await safeTry(async function* () {
         return Result.createErr('value')
       }),

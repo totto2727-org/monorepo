@@ -1,8 +1,8 @@
-import { Cause, Exit } from '#@/effect.js'
-import { Result } from '#@/option-t.js'
+import { Cause, Exit } from '#@/effect.ts'
+import { Result } from '#@/option-t.ts'
 import { describe, expect, test } from 'bun:test'
 
-import { fromExit } from './effect.js'
+import { fromExit } from './effect.ts'
 
 describe('Convert Success type to Ok', () => {
   test('Data First', () => {

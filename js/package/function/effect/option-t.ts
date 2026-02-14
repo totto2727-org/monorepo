@@ -1,4 +1,4 @@
-import { Exit } from '#@/effect.js'
+import { Exit } from '#@/effect.ts'
 /**
  * Converts Option-t's `Result` to Effect's `Exit`.
  *
@@ -12,7 +12,7 @@ import { Exit } from '#@/effect.js'
  *
  * @module
  */
-import { Result } from '#@/option-t.js'
+import { Result } from '#@/option-t.ts'
 
 /**
  * Converts an Option-t's `Result` object into an Effect's `Exit` object.

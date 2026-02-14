@@ -29,7 +29,7 @@
  * @module
  */
 
-import { Result as R } from '#@/option-t.js'
+import { Result as R } from '#@/option-t.ts'
 
 /*
  * Workaround for the problem of nullable inference results due to the implementation of option-t's Result
@@ -122,6 +122,7 @@ export function safeTry<T, E>(
 const _safeUnwrapOk = <const RESULT extends R.Result<unknown, unknown>>(
   result: RESULT,
 ): Generator<R.Err<InferErr<RESULT>>, InferOk<RESULT>> =>
+  // oxlint-disable-next-line require-yield
   (function* () {
     return R.unwrapOk(result) as InferOk<RESULT>
   })()
@@ -145,14 +146,19 @@ const _safeUnwrapErr = <const RESULT extends R.Result<unknown, unknown>>(
  * Emulates Rust's `?` operator in `safeTry`'s body. See also `safeTry`.
  *
  * Implementation of `?` operator for Synchronous Result type
+ *
+ * @yields
  */
-const _safeUnwrap = <const RESULT extends R.Result<unknown, unknown>>(
+const _safeUnwrap = function* <const RESULT extends R.Result<unknown, unknown>>(
   result: RESULT,
-): Generator<R.Err<InferErr<RESULT>>, InferOk<RESULT>> => {
+): Generator<R.Err<InferErr<RESULT>>, InferOk<RESULT>> {
   if (R.isOk(result)) {
-    return _safeUnwrapOk(result)
+    return R.unwrapOk(result) as InferOk<RESULT>
   } else if (R.isErr(result)) {
-    return _safeUnwrapErr(result)
+    R.unwrapErr(result)
+    yield result as R.Err<InferErr<RESULT>>
+
+    throw new Error('Do not use this generator out of `safeTry`')
   }
 
   throw new TypeError('This is not Result type')
