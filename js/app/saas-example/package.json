@@ -1,0 +1,46 @@
+{
+  "name": "@app/saas-example",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#app/*": "./app/*",
+    "#api/*": "./api/*",
+    "#public": "./public/*",
+    "#bin": "./bin/*",
+    "#@/*": "./src/*"
+  },
+  "scripts": {
+    "fix": "bun run eslint --fix",
+    "check": "run-p check:*",
+    "check:tsgo": "tsgo",
+    "check:eslint": "bun run eslint",
+    "eslint": "eslint --cache --cache-location ./node_modules/.cache/eslint",
+    "dev": "tsr watch & NODE_ENV=development bun run --hot bin/dev.ts | bunx pino-pretty",
+    "prebuild": "tsr generate",
+    "build:app": "bun build --compile --minify-whitespace --minify-syntax --target bun --outfile build/server bin/main.ts",
+    "build:image": "podmanのコマンド",
+    "start": "wranglerのコマンド",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@bogeychan/elysia-logger": "catalog:elysia",
+    "@elysiajs/static": "catalog:elysia",
+    "@package/bun-plugin-react-compiler": "workspace:*",
+    "@package/function": "workspace:*",
+    "@tanstack/react-router": "catalog:react",
+    "@tanstack/react-router-devtools": "catalog:react",
+    "elysia": "catalog:elysia",
+    "react": "catalog:react",
+    "react-dom": "catalog:react"
+  },
+  "devDependencies": {
+    "@tanstack/router-cli": "catalog:react",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "eslint": "catalog:lint",
+    "eslint-config-flat-gitignore": "catalog:lint",
+    "eslint-plugin-react-hooks": "catalog:lint",
+    "jiti": "catalog:lint",
+    "typescript-eslint": "catalog:lint"
+  }
+}

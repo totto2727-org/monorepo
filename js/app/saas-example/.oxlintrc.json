@@ -1,0 +1,6 @@
+{
+  "extends": ["../../../.oxlintrc.json"],
+  "rules": {
+    "react-perf/jsx-no-new-function-as-prop": "off"
+  }
+}

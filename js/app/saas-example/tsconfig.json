@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": ["@package/function/tsconfig/bun"],
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"]
+  }
+}
