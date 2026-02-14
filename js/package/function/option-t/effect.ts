@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { fromExit } from "@totto/function/option-t/effect";
+ * import { fromExit } from "@package/function/option-t/effect";
  *
  * const result = fromExit(Exit.succeed("success"));
  * // result: Result.Ok("success")

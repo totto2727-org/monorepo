@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { Cli } from "@totto/function/effect/cli";
+ * import { Cli } from "@package/function/effect/cli";
  * ```
  *
  * @module

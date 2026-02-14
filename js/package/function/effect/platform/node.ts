@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { PlatformNode } from "@totto/function/effect/platform/node";
+ * import { PlatformNode } from "@package/function/effect/platform/node";
  * ```
  *
  * @module

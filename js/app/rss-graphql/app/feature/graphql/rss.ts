@@ -1,6 +1,6 @@
 // oxlint-disable jest/require-hook
 import { FeedType as FeedTypeEnum } from '@mikaelporttila/rss'
-import { Effect, Predicate, Runtime, Schema } from '@totto/function/effect'
+import { Effect, Predicate, Runtime, Schema } from '@package/function/effect'
 import { NonEmptyStringResolver } from 'graphql-scalars'
 
 import { builder } from './builder.ts'

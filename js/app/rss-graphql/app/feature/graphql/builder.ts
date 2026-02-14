@@ -1,5 +1,5 @@
-import type { Runtime } from '@totto/function/effect'
-import type { HttpClient } from '@totto/function/effect/platform'
+import type { Runtime } from '@package/function/effect'
+import type { HttpClient } from '@package/function/effect/platform'
 
 import SchemaBuilder from '@pothos/core'
 import ValidationPlugin from '@pothos/plugin-validation'

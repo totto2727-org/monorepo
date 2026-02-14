@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { Platform } from "@totto/function/effect/platform";
+ * import { Platform } from "@package/function/effect/platform";
  * ```
  *
  * @module

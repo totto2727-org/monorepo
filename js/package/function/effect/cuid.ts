@@ -17,12 +17,12 @@ const bigLength = 32
 
 export const schema: Schema.brand<
   Schema.filter<Schema.filter<Schema.filter<typeof Schema.String>>>,
-  '@totto/function/effect/cuid/Cuid'
+  '@package/function/effect/cuid/Cuid'
 > = Schema.String.pipe(
   Schema.pattern(/^[a-z][0-9a-z]+$/),
   Schema.minLength(2),
   Schema.maxLength(bigLength),
-  Schema.brand('@totto/function/effect/cuid/Cuid'),
+  Schema.brand('@package/function/effect/cuid/Cuid'),
 )
 
 export type CUID = typeof schema.Type
@@ -151,7 +151,7 @@ export const init = ({
   }
 }
 
-export class Generator extends Effect.Service<Generator>()('@totto/function/effect/cuid/Generator', {
+export class Generator extends Effect.Service<Generator>()('@package/function/effect/cuid/Generator', {
   sync: () => {
     let createId: () => CUID
     return () => {

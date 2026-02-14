@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { Result } from "@totto/function/option-t";
+ * import { Result } from "@package/function/option-t";
  * ```
 
  * @module

@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { PlatformBrowser } from "@totto/function/effect/platform/browser";
+ * import { PlatformBrowser } from "@package/function/effect/platform/browser";
  * ```
  *
  * @module

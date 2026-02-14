@@ -1,4 +1,4 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": ["@totto/function/tsconfig/bun"]
+  "extends": ["@package/function/tsconfig/bun"]
 }

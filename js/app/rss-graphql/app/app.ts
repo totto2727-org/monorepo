@@ -1,12 +1,12 @@
-import type { HttpClient } from '@totto/function/effect/platform'
+import type { HttpClient } from '@package/function/effect/platform'
 import type { ElysiaAdapter } from 'elysia'
 
 import { logger } from '@bogeychan/elysia-logger'
 import { cors } from '@elysiajs/cors'
 import { yoga } from '@elysiajs/graphql-yoga'
 import { html } from '@elysiajs/html'
-import { Effect } from '@totto/function/effect'
-import { FetchHttpClient } from '@totto/function/effect/platform'
+import { Effect } from '@package/function/effect'
+import { FetchHttpClient } from '@package/function/effect/platform'
 import { Elysia } from 'elysia'
 
 import { generateSchema } from './feature/graphql.ts'

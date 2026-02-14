@@ -1,4 +1,4 @@
-# @totto/function
+# @package/function
 
 A comprehensive collection of TypeScript utilities and Effect ecosystem
 integrations, optimized for modern JavaScript runtimes including Deno, Node.js,
@@ -8,11 +8,11 @@ Bun, and browsers.
 
 ```bash
 # Using JSR
-npx jsr add @totto/function
-yarn add jsr:@totto/function
-pnpm add jsr:@totto/function
-bun add @totto/function
-deno add jsr:@totto/function
+npx jsr add @package/function
+yarn add jsr:@package/function
+pnpm add jsr:@package/function
+bun add @package/function
+deno add jsr:@package/function
 ```
 
 ## Core Modules
@@ -52,8 +52,8 @@ deno add jsr:@totto/function
 ### Type-safe Option Handling
 
 ```typescript
-import { Option } from '@totto/function/option-t'
-import { pipe } from '@totto/function/effect'
+import { Option } from '@package/function/option-t'
+import { pipe } from '@package/function/effect'
 
 const result = pipe(
   Option.some(42),
