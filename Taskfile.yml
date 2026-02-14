@@ -10,11 +10,5 @@ tasks:
   template:
     cmd: na turbo gen -c template/src/config.cts {{.CLI_ARGS}}
 
-  package:
-    cmd: na turbo --filter '@package/*' {{.CLI_ARGS}}
-
-  pncat:
-    cmd: na pncat {{.CLI_ARGS}}
-
   precommit:
     cmd: na turbo fix check test build
