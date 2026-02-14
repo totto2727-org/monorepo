@@ -5,8 +5,7 @@
   "imports": {
     "#app/*": "./app/*",
     "#api/*": "./api/*",
-    "#public": "./public/*",
-    "#bin": "./bin/*",
+    "#public/*": "./public/*",
     "#@/*": "./src/*"
   },
   "scripts": {
@@ -15,10 +14,9 @@
     "check:tsgo": "tsgo",
     "check:eslint": "bun run eslint",
     "eslint": "eslint --cache --cache-location ./node_modules/.cache/eslint",
-    "dev": "tsr watch & NODE_ENV=development bun run --hot bin/dev.ts | bunx pino-pretty",
+    "dev": "tsr watch & NODE_ENV=development bun run --hot dev.ts | bunx pino-pretty",
     "prebuild": "tsr generate",
-    "build:app": "bun build --compile --minify-whitespace --minify-syntax --target bun --outfile build/server bin/main.ts",
-    "build:image": "podmanのコマンド",
+    "build": "bun build --production --target=bun --outdir=build main.ts",
     "start": "wranglerのコマンド",
     "deploy": "wrangler deploy"
   },
