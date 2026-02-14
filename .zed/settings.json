@@ -69,7 +69,7 @@
     "oxlint": {
       "initialization_options": {
         "settings": {
-          "fixKind": "dangerous_fix_or_suggestion",
+          "fixKind": "all",
           "run": "onType",
           "typeAware": true,
           "unusedDisableDirectives": "deny"
