@@ -2,7 +2,7 @@
   "name": "@app/rss-graphql",
   "private": true,
   "type": "module",
-  "exports": {
+  "imports": {
     "#@/*": "./app/*"
   },
   "scripts": {
