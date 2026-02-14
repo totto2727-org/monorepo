@@ -52,54 +52,6 @@
     "github:NixOS/nixpkgs/nixpkgs-unstable": {
       "last_modified": "2026-02-06T12:24:04Z",
       "resolved": "github:NixOS/nixpkgs/ae67888ff7ef9dff69b3cf0cc0fbfbcd3a722abe?lastModified=1770380644"
-    },
-    "ni@28": {
-      "last_modified": "2026-01-23T17:20:52Z",
-      "resolved": "github:NixOS/nixpkgs/a1bab9e494f5f4939442a57a58d0449a109593fe#ni",
-      "source": "devbox-search",
-      "version": "28.2.0",
-      "systems": {
-        "aarch64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/2xfbixfpkv1144wkjakbnzqwmwmbdr2z-ni-28.2.0",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/2xfbixfpkv1144wkjakbnzqwmwmbdr2z-ni-28.2.0"
-        },
-        "aarch64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/aiwm532fl25dbzn78048x6b8n3fdglyg-ni-28.2.0",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/aiwm532fl25dbzn78048x6b8n3fdglyg-ni-28.2.0"
-        },
-        "x86_64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/sc04sw4mg9jdpgxkdhz5jva6a0jaiwx9-ni-28.2.0",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/sc04sw4mg9jdpgxkdhz5jva6a0jaiwx9-ni-28.2.0"
-        },
-        "x86_64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/044n9nndpy8rm260j82ximjys3m9nwnn-ni-28.2.0",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/044n9nndpy8rm260j82ximjys3m9nwnn-ni-28.2.0"
-        }
-      }
     }
   }
 }
