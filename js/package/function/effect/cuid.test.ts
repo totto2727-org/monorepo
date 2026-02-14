@@ -1,32 +1,35 @@
-import { Array, Effect } from '#@/effect.js'
+import { Array, Effect } from '#@/effect.ts'
 import { describe, expect, test } from 'bun:test'
-import { Schema, String } from 'effect'
+import { pipe, Schema, String } from 'effect'
 
-import * as CUID from './cuid.js'
+import * as CUID from './cuid.ts'
 
 const decode = Schema.decodeUnknownSync(CUID.schema)
 
 test('generatorProductionLive', () => {
   Effect.gen(function* () {
-    const makeCUID = yield* CUID.Generator
+    const cuid1 = yield* CUID.makeCUID
+    const cuid2 = yield* CUID.makeCUID
 
-    expect(yield* makeCUID).not.toBe(yield* makeCUID)
-  }).pipe(Effect.provide(CUID.generatorProductionLive), Effect.runSync)
+    expect(cuid1).not.toBe(cuid2)
+  }).pipe(Effect.provide(CUID.Generator.Default), Effect.runSync)
 })
 
 describe('generatorTestLive', () => {
   test('Fixed', () => {
     Effect.gen(function* () {
-      const makeCUID = yield* CUID.Generator
+      const cuid = yield* CUID.makeCUID
 
-      expect(yield* makeCUID).toBe(decode('gk1pfmhav2vkvudlk25qrot8'))
-    }).pipe(Effect.provide(CUID.generatorTestLive), Effect.provide(CUID.createSeed('test')), Effect.runSync)
+      expect(cuid).toBe(decode('gk1pfmhav2vkvudlk25qrot8'))
+    }).pipe(Effect.provideService(CUID.Generator, CUID.makeTestGenerator('test')), Effect.runSync)
   })
 
   test('Snapshot', () => {
     Effect.gen(function* () {
-      const makeCUID = yield* CUID.Generator
-      const actual = Array.makeBy(10, () => makeCUID.pipe(Effect.runSync))
+      const actual = yield* pipe(
+        Array.makeBy(10, () => CUID.makeCUID),
+        Effect.allSuccesses,
+      )
 
       expect(actual).toEqual([
         decode('gk1pfmhav2vkvudlk25qrot8'),
@@ -40,7 +43,7 @@ describe('generatorTestLive', () => {
         decode('eh42helbpmmlw7jmco41rpcy'),
         decode('dl1dsmlxhq6tba02sofl2apd'),
       ])
-    }).pipe(Effect.provide(CUID.generatorTestLive), Effect.provide(CUID.createSeed('test')), Effect.runSync)
+    }).pipe(Effect.provideService(CUID.Generator, CUID.makeTestGenerator('test')), Effect.runSync)
   })
 })
 
@@ -91,7 +94,7 @@ describe('bufToBigInt', () => {
   })
 
   test('maximum value Uint8Array', () => {
-    expect(CUID.bufToBigInt(new Uint8Array([0xFF, 0xFF, 0xFF, 0xFF])).toString()).toBe('4294967295')
+    expect(CUID.bufToBigInt(new Uint8Array([0xff, 0xff, 0xff, 0xff])).toString()).toBe('4294967295')
   })
 })
 

@@ -1,17 +1,16 @@
-import type { ParseOptions } from 'effect/SchemaAST'
-
 /*
  * MIT License
  * Copyright (c) 2022 Eric Elliott
  * <https://github.com/paralleldrive/cuid2/blob/e2391a06836226249ed2ca1a287516d2c459dab7/LICENSE>
  * <https://github.com/paralleldrive/cuid2/blob/e2391a06836226249ed2ca1a287516d2c459dab7/src/index.js>
  */
+import type { ParseOptions } from 'effect/SchemaAST'
+
+import { Array, Effect, Schema } from '#@/effect.ts'
 import { sha3_512 } from '@noble/hashes/sha3.js'
 import BaseX from 'base-x'
 import { BigNumber } from 'bignumber.js'
-import { Array, Context, Effect, Layer, Schema } from 'effect'
-
-import { Seed } from './cuid/seed.ts'
+import SR from 'seedrandom'
 
 const defaultLength = 24
 const bigLength = 32
@@ -152,39 +151,29 @@ export const init = ({
   }
 }
 
-export class Generator extends Context.Tag('@totto/function/effect/cuid/Generator')<
-  Generator,
-  Effect.Effect<typeof schema.Type>
->() {}
-
-export const generatorProductionLive: Layer.Layer<Generator, never, never> = Layer.effect(
-  Generator,
-  // deno-lint-ignore require-yield
-  Effect.gen(function* () {
+export class Generator extends Effect.Service<Generator>()('@totto/function/effect/cuid/Generator', {
+  sync: () => {
     let createId: () => CUID
-    // deno-lint-ignore require-yield
-    return Effect.gen(function* () {
-      if (!createId) {
-        createId = init()
-      }
+    return () => {
+      createId ??= init()
       return createId()
-    })
-  }),
-)
+    }
+  },
+}) {}
 
 const base26 = BaseX('abcdefghijklmnopqrstuvwxyz')
 const base36 = BaseX('0123456789abcdefghijklmnopqrstuvwxyz')
 
-export const generatorTestLive: Layer.Layer<Generator, never, Seed> = Layer.effect(
-  Generator,
-  Effect.gen(function* () {
-    const seed = yield* Seed
-    // deno-lint-ignore require-yield
-    return Effect.gen(function* () {
-      const [r, ...rArray] = Array.makeBy(20, () => seed.int32())
-      return decodeSync(`${base26.encode([r])}${base36.encode(rArray)}`.slice(0, 24).padEnd(24, '0'))
-    })
-  }),
-)
+export const makeTestGenerator = (seedString: string) => {
+  let seed: SR.PRNG
+  return new Generator(() => {
+    seed ??= SR(seedString)
+    const [r, ...rArray] = Array.makeBy(20, () => seed.int32())
+    return decodeSync(`${base26.encode([r])}${base36.encode(rArray)}`.slice(0, 24).padEnd(24, '0'))
+  })
+}
 
-export { createSeed, Seed } from './cuid/seed.ts'
+export const makeCUID = Effect.gen(function* () {
+  const makeCUID = yield* Generator
+  return makeCUID()
+})
