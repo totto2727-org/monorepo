@@ -12,26 +12,13 @@
     "deploy": {
       "dependsOn": ["build"]
     },
-    "dev": {
-      "cache": false,
-      "dependsOn": ["prebuild"],
-      "interactive": true,
-      "persistent": true
-    },
     "fix": {},
     "prebuild": {
       "dependsOn": ["^build"],
       "outputs": ["**/worker-configuration.d.ts", "**/routeTree.gen.ts"]
     },
-    "preview": {
-      "cache": false,
-      "dependsOn": ["build"],
-      "interactive": true,
-      "persistent": true
-    },
     "test": {
       "dependsOn": ["prebuild"]
     }
-  },
-  "ui": "tui"
+  }
 }
