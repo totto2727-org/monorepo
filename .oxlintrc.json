@@ -15,6 +15,7 @@
         "ignorePackages": true,
         "checkTypeImports": true
       }
-    ]
+    ],
+    "no-nodejs-modules": "allow"
   }
 }
