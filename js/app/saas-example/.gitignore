@@ -1,3 +1,5 @@
 build/
 .tanstack/
 *.gen.ts
+worker-configuration.d.ts
+.wrangler/

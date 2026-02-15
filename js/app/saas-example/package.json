@@ -15,13 +15,16 @@
     "check:eslint": "bun run eslint",
     "eslint": "eslint --cache --cache-location ./node_modules/.cache/eslint",
     "dev": "tsr watch & NODE_ENV=development bun run --hot dev.ts | bunx pino-pretty",
-    "prebuild": "tsr generate",
-    "build": "bun build --production --target=bun --outdir=build main.ts",
+    "prebuild": "run-p prebuild:*",
+    "prebuild:wragler": "wrangler types",
+    "prebuild:tsr": "tsr generate",
+    "build": "bun build --production --target=bun --minify --splitting --outdir=build main.ts",
     "start": "wranglerのコマンド",
     "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@bogeychan/elysia-logger": "catalog:elysia",
+    "@cloudflare/containers": "^0.1.0",
     "@elysiajs/static": "catalog:elysia",
     "@package/bun-plugin-react-compiler": "workspace:*",
     "@package/function": "workspace:*",

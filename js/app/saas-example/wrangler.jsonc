@@ -1,0 +1,27 @@
+{
+  "name": "saas-example",
+  "main": "worker.ts",
+  "compatibility_date": "2026-02-13",
+  "containers": [
+    {
+      "class_name": "App",
+      "image": "Dockerfile",
+      "max_instances": 5,
+      "image_build_context": "../../..",
+    },
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "App",
+        "name": "App",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "new_sqlite_classes": ["App"],
+      "tag": "v1",
+    },
+  ],
+}
