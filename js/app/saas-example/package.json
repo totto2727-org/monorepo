@@ -20,7 +20,7 @@
     "prebuild:wragler": "wrangler types",
     "prebuild:tsr": "tsr generate",
     "build": "bun build --production --target=bun --minify --splitting --outdir=build bin/prod.ts",
-    "start": "wranglerのコマンド",
+    "start": "wrangler dev",
     "deploy": "wrangler deploy"
   },
   "dependencies": {
