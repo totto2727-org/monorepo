@@ -1,3 +1,4 @@
+import { Button } from '@package/ui/components/ui/button'
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
@@ -11,10 +12,17 @@ const Index = () => {
 
   return (
     <main>
-      <h2>{count}</h2>
-      <button type='button' onClick={increase}>
+      <h1 className='text-4xl'>{count}</h1>
+      <Button
+        render={
+          // oxlint-disable-next-line anchor-is-valid,anchor-has-content
+          <a />
+        }
+        nativeButton={false}
+        onClick={increase}
+      >
         Increase
-      </button>
+      </Button>
     </main>
   )
 }
