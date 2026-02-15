@@ -8,8 +8,8 @@ const decode = Schema.decodeUnknownSync(CUID.schema)
 
 test('generatorProductionLive', () => {
   Effect.gen(function* () {
-    const cuid1 = yield* CUID.makeCUID
-    const cuid2 = yield* CUID.makeCUID
+    const cuid1 = yield* CUID.make
+    const cuid2 = yield* CUID.make
 
     expect(cuid1).not.toBe(cuid2)
   }).pipe(Effect.provide(CUID.Generator.Default), Effect.runSync)
@@ -18,7 +18,7 @@ test('generatorProductionLive', () => {
 describe('generatorTestLive', () => {
   test('Fixed', () => {
     Effect.gen(function* () {
-      const cuid = yield* CUID.makeCUID
+      const cuid = yield* CUID.make
 
       expect(cuid).toBe(decode('gk1pfmhav2vkvudlk25qrot8'))
     }).pipe(Effect.provideService(CUID.Generator, CUID.makeTestGenerator('test')), Effect.runSync)
@@ -27,7 +27,7 @@ describe('generatorTestLive', () => {
   test('Snapshot', () => {
     Effect.gen(function* () {
       const actual = yield* pipe(
-        Array.makeBy(10, () => CUID.makeCUID),
+        Array.makeBy(10, () => CUID.make),
         Effect.allSuccesses,
       )
 

@@ -173,7 +173,7 @@ export const makeTestGenerator = (seedString: string) => {
   })
 }
 
-export const makeCUID = Effect.gen(function* () {
+export const make = Effect.gen(function* () {
   const makeCUID = yield* Generator
   return makeCUID()
 })
