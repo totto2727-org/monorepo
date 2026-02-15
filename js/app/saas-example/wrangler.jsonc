@@ -2,6 +2,10 @@
   "name": "saas-example",
   "main": "bin/worker.ts",
   "compatibility_date": "2026-02-13",
+  "minify": true,
+  "placement": {
+    "mode": "smart",
+  },
   "containers": [
     {
       "class_name": "App",
