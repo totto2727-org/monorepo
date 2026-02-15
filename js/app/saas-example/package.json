@@ -5,7 +5,8 @@
   "imports": {
     "#app/*": "./app/*",
     "#api/*": "./api/*",
-    "#public/*": "./public/*",
+    "#public/*": "./bin/public/*",
+    "#bin/*": "./bin/*",
     "#@/*": "./src/*"
   },
   "scripts": {
@@ -14,11 +15,11 @@
     "check:tsgo": "tsgo",
     "check:eslint": "bun run eslint",
     "eslint": "eslint --cache --cache-location ./node_modules/.cache/eslint",
-    "dev": "tsr watch & NODE_ENV=development bun run --hot dev.ts | bunx pino-pretty",
+    "dev": "tsr watch & NODE_ENV=development bun run --hot bin/dev.ts | bunx pino-pretty",
     "prebuild": "run-p prebuild:*",
     "prebuild:wragler": "wrangler types",
     "prebuild:tsr": "tsr generate",
-    "build": "bun build --production --target=bun --minify --splitting --outdir=build main.ts",
+    "build": "bun build --production --target=bun --minify --splitting --outdir=build bin/prod.ts",
     "start": "wranglerのコマンド",
     "deploy": "wrangler deploy"
   },

@@ -24,4 +24,4 @@ COPY --from=builder /usr/src/app/js/app/saas-example/build .
 ENV NODE_ENV=production
 
 EXPOSE 3000
-ENTRYPOINT ["bun", "run", "main.js"]
+ENTRYPOINT ["bun", "run", "prod.js"]
