@@ -9,3 +9,18 @@ tasks:
 
   build:
     cmd: docker build --progress=plain -t saas-example -f Dockerfile ../../..
+
+  local:db:apply:
+    cmd: bunx @dotenvx/dotenvx run -e .env -- atlas schema apply --env local
+
+  local:db:reset:
+    cmd: rm $(bunx @dotenvx/dotenvx get LOCAL_DATABASE_URL -e .env)
+
+  production:db:apply:
+    cmd: bunx @dotenvx/dotenvx run -e .env -- atlas migration apply --env production
+
+  production:db:diff:
+    cmd: bunx @dotenvx/dotenvx run -e .env -- atlas migration diff --env production
+
+  production:db:migrate:
+    cmd: bunx @dotenvx/dotenvx run -e .env -- atlas migration apply --env production

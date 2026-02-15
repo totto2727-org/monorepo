@@ -19,20 +19,24 @@
     "prebuild": "run-p prebuild:*",
     "prebuild:wragler": "wrangler types",
     "prebuild:tsr": "tsr generate",
+    "prebuild:kysely": "kysely-codegen --dialect libsql --url file:$(bunx @dotenvx/dotenvx get LOCAL_DATABASE_URL -e .env) --camel-case --out-file src/db/generated.ts --exclude-pattern atlas_schema_revisions",
     "build": "bun build --production --target=bun --minify --splitting --outdir=build bin/prod.ts",
     "start": "wrangler dev",
     "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@bogeychan/elysia-logger": "catalog:elysia",
-    "@cloudflare/containers": "^0.1.0",
+    "@cloudflare/containers": "catalog:cloudflare",
     "@elysiajs/static": "catalog:elysia",
+    "@libsql/kysely-libsql": "catalog:database",
     "@package/bun-plugin-react-compiler": "workspace:*",
     "@package/function": "workspace:*",
     "@package/ui": "workspace:*",
     "@tanstack/react-router": "catalog:react",
     "@tanstack/react-router-devtools": "catalog:react",
+    "better-auth": "^1.4.18",
     "elysia": "catalog:elysia",
+    "kysely": "catalog:database",
     "react": "catalog:react",
     "react-dom": "catalog:react"
   },
@@ -45,6 +49,7 @@
     "eslint-config-flat-gitignore": "catalog:lint",
     "eslint-plugin-react-hooks": "catalog:lint",
     "jiti": "catalog:lint",
+    "kysely-codegen": "catalog:database",
     "typescript-eslint": "catalog:lint"
   }
 }

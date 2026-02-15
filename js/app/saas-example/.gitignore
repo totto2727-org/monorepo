@@ -3,3 +3,5 @@ build/
 *.gen.ts
 worker-configuration.d.ts
 .wrangler/
+generated.ts
+.env

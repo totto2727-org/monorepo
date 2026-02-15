@@ -16,7 +16,7 @@
       "outputs": ["**/node_modules/.cache/eslint"]
     },
     "prebuild": {
-      "outputs": ["**/worker-configuration.d.ts", "**/routeTree.gen.ts", "**/.tanstack/**"]
+      "outputs": ["**/worker-configuration.d.ts", "**/routeTree.gen.ts", "**/.tanstack/**", "**/generated.ts"]
     },
     "test": {
       "dependsOn": ["prebuild"]
