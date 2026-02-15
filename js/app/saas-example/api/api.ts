@@ -1,3 +1,4 @@
+import { AuthMiddleware } from '#@/auth/middleware.ts'
 import { makeSPAWildcardRequestHandler } from '#@/bun/spa.ts'
 import indexHTML from '#public/index.html'
 import { logger } from '@bogeychan/elysia-logger'
@@ -9,6 +10,8 @@ const sqaOption = { isDev }
 
 export const app = Effect.gen(function* () {
   const runtime = yield* Effect.runtime()
+  const authMiddle = yield* AuthMiddleware
+
   return new Elysia({
     serve: {
       routes: {
@@ -19,5 +22,9 @@ export const app = Effect.gen(function* () {
   })
     .use(logger())
     .resolve(() => ({ runtime }))
-    .get('/', () => 'Hello Elysia!')
+    .use(authMiddle)
+    .get('/api', () => 'Hello Elysia!')
+    .get('/api/user', ({ user }) => user, {
+      requireAuthentication: true,
+    })
 })
