@@ -10,7 +10,7 @@ const plugins = [new CamelCasePlugin()]
 export const makeInMemoryDB = () =>
   new Kysely<DB>({
     dialect: new LibsqlDialect({
-      url: 'libsql://:memory:',
+      url: ':memory:',
     }),
     plugins,
   })
