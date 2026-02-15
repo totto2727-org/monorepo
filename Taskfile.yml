@@ -12,6 +12,3 @@ tasks:
 
   precommit:
     cmd: na turbo fix check test build
-
-  build:saas-example:
-    cmd: podman build -t saas-example -f docker/saas-example.Dockerfile .

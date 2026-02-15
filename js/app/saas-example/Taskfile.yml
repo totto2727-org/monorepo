@@ -1,0 +1,11 @@
+# https://taskfile.dev
+version: '3'
+
+tasks:
+  default:
+    aliases:
+      - list
+    cmd: task --list-all
+
+  build:
+    cmd: docker build --progress=plain -t saas-example -f Dockerfile ../../..
