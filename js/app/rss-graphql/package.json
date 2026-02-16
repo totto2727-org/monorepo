@@ -18,9 +18,9 @@
     "@elysiajs/graphql-yoga": "catalog:elysia",
     "@elysiajs/html": "catalog:elysia",
     "@mikaelporttila/rss": "catalog:dev",
-    "@package/function": "workspace:*",
     "@pothos/core": "catalog:graphql",
     "@pothos/plugin-validation": "catalog:graphql",
+    "@totto2727/fp": "workspace:*",
     "elysia": "catalog:elysia",
     "graphql": "catalog:graphql",
     "graphql-scalars": "catalog:graphql"

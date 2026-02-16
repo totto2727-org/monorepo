@@ -4,7 +4,7 @@ import { Exit } from '#@/effect.ts'
  *
  * @example
  * ```ts
- * import { fromResult } from "@package/function/effect/option-t";
+ * import { fromResult } from "@totto2727/fp/effect/option-t";
  *
  * const exit = fromResult(Result.createOk("success"));
  * // exit: Exit.Success("success")

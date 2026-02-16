@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { PlatformBun } from "@package/function/effect/platform/bun";
+ * import { PlatformBun } from "@totto2727/fp/effect/platform/bun";
  * ```
  *
  * @module

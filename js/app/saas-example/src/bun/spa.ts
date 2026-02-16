@@ -1,4 +1,4 @@
-import { Predicate } from '@package/function/effect'
+import { Predicate } from '@totto2727/fp/effect'
 import * as path from 'node:path'
 
 type HTMLBundleMap = Map<string, NonNullable<Bun.HTMLBundle['files']>[0]>

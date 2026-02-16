@@ -29,8 +29,8 @@
       "path": "js/app/rss-graphql",
     },
     {
-      "name": "package/function",
-      "path": "js/package/function",
+      "name": "package/fp",
+      "path": "js/package/fp",
     },
     {
       "name": "package/rbac",

@@ -31,9 +31,9 @@
         "@elysiajs/graphql-yoga": "catalog:elysia",
         "@elysiajs/html": "catalog:elysia",
         "@mikaelporttila/rss": "catalog:dev",
-        "@package/function": "workspace:*",
         "@pothos/core": "catalog:graphql",
         "@pothos/plugin-validation": "catalog:graphql",
+        "@totto2727/fp": "workspace:*",
         "elysia": "catalog:elysia",
         "graphql": "catalog:graphql",
         "graphql-scalars": "catalog:graphql",
@@ -47,10 +47,10 @@
         "@elysiajs/static": "catalog:elysia",
         "@libsql/kysely-libsql": "catalog:database",
         "@package/bun-plugin-react-compiler": "workspace:*",
-        "@package/function": "workspace:*",
         "@package/ui": "workspace:*",
         "@tanstack/react-router": "catalog:react",
         "@tanstack/react-router-devtools": "catalog:react",
+        "@totto2727/fp": "workspace:*",
         "better-auth": "^1.4.18",
         "elysia": "catalog:elysia",
         "kysely": "catalog:database",
@@ -75,14 +75,14 @@
       "version": "2.4.0",
       "devDependencies": {
         "@babel/core": "catalog:react",
-        "@package/function": "workspace:*",
+        "@totto2727/fp": "workspace:*",
         "@types/babel__core": "catalog:react",
         "babel-plugin-react-compiler": "catalog:react",
       },
     },
-    "js/package/function": {
-      "name": "@package/function",
-      "version": "2.4.0",
+    "js/package/fp": {
+      "name": "@totto2727/fp",
+      "version": "3.0.0",
       "dependencies": {
         "@effect/cli": "^0.73.2",
         "@effect/experimental": "^0.58.0",
@@ -120,7 +120,7 @@
         "tailwind-merge": "^3.4.0",
       },
       "devDependencies": {
-        "@package/function": "workspace:*",
+        "@totto2727/fp": "workspace:*",
         "@types/react": "catalog:react",
         "@types/react-dom": "catalog:react",
         "react": "catalog:react",
@@ -639,8 +639,6 @@
 
     "@package/bun-plugin-react-compiler": ["@package/bun-plugin-react-compiler@workspace:js/package/bun-plugin-react-compiler"],
 
-    "@package/function": ["@package/function@workspace:js/package/function"],
-
     "@package/ui": ["@package/ui@workspace:js/package/ui"],
 
     "@parcel/watcher": ["@parcel/watcher@2.5.6", "", { "dependencies": { "detect-libc": "^2.0.3", "is-glob": "^4.0.3", "node-addon-api": "^7.0.0", "picomatch": "^4.0.3" }, "optionalDependencies": { "@parcel/watcher-android-arm64": "2.5.6", "@parcel/watcher-darwin-arm64": "2.5.6", "@parcel/watcher-darwin-x64": "2.5.6", "@parcel/watcher-freebsd-x64": "2.5.6", "@parcel/watcher-linux-arm-glibc": "2.5.6", "@parcel/watcher-linux-arm-musl": "2.5.6", "@parcel/watcher-linux-arm64-glibc": "2.5.6", "@parcel/watcher-linux-arm64-musl": "2.5.6", "@parcel/watcher-linux-x64-glibc": "2.5.6", "@parcel/watcher-linux-x64-musl": "2.5.6", "@parcel/watcher-win32-arm64": "2.5.6", "@parcel/watcher-win32-ia32": "2.5.6", "@parcel/watcher-win32-x64": "2.5.6" } }, "sha512-tmmZ3lQxAe/k/+rNnXQRawJ4NjxO2hqiOLTHvWchtGZULp4RyFeh6aU4XdOYBFe2KE1oShQTv4AblOs2iOrNnQ=="],
@@ -778,6 +776,8 @@
     "@tokenizer/token": ["@tokenizer/token@0.3.0", "", {}, "sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A=="],
 
     "@tootallnate/quickjs-emscripten": ["@tootallnate/quickjs-emscripten@0.23.0", "", {}, "sha512-C5Mc6rdnsaJDjO3UpGW/CQTHtCKaYlScZTly4JIu97Jxo/odCiH0ITnDXSJPTOrEKk/ycSZ0AOgTmkDtkOsvIA=="],
+
+    "@totto2727/fp": ["@totto2727/fp@workspace:js/package/fp"],
 
     "@totto2727/geo": ["@totto2727/geo@workspace:mbt/package/geo"],
 

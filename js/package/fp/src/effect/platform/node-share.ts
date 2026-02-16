@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { PlatformNodeShared } from "@package/function/effect/platform/node-share";
+ * import { PlatformNodeShared } from "@totto2727/fp/effect/platform/node-share";
  * ```
  *
  * @module

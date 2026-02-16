@@ -2,7 +2,7 @@ import { AuthMiddleware } from '#@/auth/middleware.ts'
 import { makeSPAWildcardRequestHandler } from '#@/bun/spa.ts'
 import indexHTML from '#public/index.html'
 import { logger } from '@bogeychan/elysia-logger'
-import { Effect } from '@package/function/effect'
+import { Effect } from '@totto2727/fp/effect'
 import { Elysia } from 'elysia'
 
 const isDev = import.meta.env.NODE_ENV === 'development'

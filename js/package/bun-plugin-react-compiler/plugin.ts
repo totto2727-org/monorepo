@@ -1,6 +1,6 @@
 // https://github.com/oven-sh/bun/issues/24356#issuecomment-3877275486
 import * as babel from '@babel/core'
-import { Predicate } from '@package/function/effect'
+import { Predicate } from '@totto2727/fp/effect'
 import BabelPluginReactCompiler from 'babel-plugin-react-compiler'
 
 const options = {}

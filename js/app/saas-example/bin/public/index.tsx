@@ -1,6 +1,6 @@
 import { routeTree } from '#app/routeTree.gen.ts'
-import { Predicate } from '@package/function/effect'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
+import { Predicate } from '@totto2727/fp/effect'
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 

@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { Machine } from "@package/function/effect/experimental/machine";
+ * import { Machine } from "@totto2727/fp/effect/experimental/machine";
  * ```
  *
  * @module

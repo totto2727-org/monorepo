@@ -1,4 +1,4 @@
-import { Effect, Predicate } from '@package/function/effect'
+import { Effect, Predicate } from '@totto2727/fp/effect'
 import { Elysia } from 'elysia'
 
 import { BetterAuthService } from './service.ts'

@@ -20,7 +20,7 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
-    "@package/function": "workspace:*",
+    "@totto2727/fp": "workspace:*",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "react": "catalog:react",

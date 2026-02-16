@@ -1,5 +1,5 @@
 import { DatabaseService } from '#@/db/service.ts'
-import { Effect } from '@package/function/effect'
+import { Effect } from '@totto2727/fp/effect'
 
 import { makeBetterAuth } from './better-auth.ts'
 

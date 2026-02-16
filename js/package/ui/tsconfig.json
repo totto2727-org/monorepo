@@ -1,5 +1,5 @@
 {
-  "extends": ["@package/function/tsconfig/bun"],
+  "extends": ["@totto2727/fp/tsconfig/bun"],
   "compilerOptions": {
     "paths": {
       "@package/ui/*": ["./src/*"]

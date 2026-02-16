@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { Effect } from "@package/function/effect";
+ * import { Effect } from "@totto2727/fp/effect";
  * ```
 
  * @module

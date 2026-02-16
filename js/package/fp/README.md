@@ -1,4 +1,4 @@
-# @package/function
+# @totto2727/fp
 
 A comprehensive collection of TypeScript utilities and Effect ecosystem
 integrations, optimized for modern JavaScript runtimes including Deno, Node.js,
@@ -8,11 +8,11 @@ Bun, and browsers.
 
 ```bash
 # Using JSR
-npx jsr add @package/function
-yarn add jsr:@package/function
-pnpm add jsr:@package/function
-bun add @package/function
-deno add jsr:@package/function
+npx jsr add @totto2727/fp
+yarn add jsr:@totto2727/fp
+pnpm add jsr:@totto2727/fp
+bun add @totto2727/fp
+deno add jsr:@totto2727/fp
 ```
 
 ## Core Modules
@@ -52,8 +52,8 @@ deno add jsr:@package/function
 ### Type-safe Option Handling
 
 ```typescript
-import { Option } from '@package/function/option-t'
-import { pipe } from '@package/function/effect'
+import { Option } from '@totto2727/fp/option-t'
+import { pipe } from '@totto2727/fp/effect'
 
 const result = pipe(
   Option.some(42),

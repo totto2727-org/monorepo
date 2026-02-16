@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@babel/core": "catalog:react",
-    "@package/function": "workspace:*",
+    "@totto2727/fp": "workspace:*",
     "@types/babel__core": "catalog:react",
     "babel-plugin-react-compiler": "catalog:react"
   }

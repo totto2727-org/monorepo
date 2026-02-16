@@ -1,6 +1,6 @@
 import type { Kysely } from 'kysely'
 
-import { Effect } from '@package/function/effect'
+import { Effect } from '@totto2727/fp/effect'
 
 import type { DB } from './generated.ts'
 
