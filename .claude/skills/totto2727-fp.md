@@ -63,9 +63,9 @@ Paths: `./tsconfig/base`, `./tsconfig/node22`, `./tsconfig/node24`, `./tsconfig/
 ### Effect Ecosystem
 
 - **effect** — Core Effect library for typed functional programming
-  - llms.txt: https://effect.website/llms.txt
-  - llms-full.txt: https://effect.website/llms-full.txt
-  - llms-small.txt: https://effect.website/llms-small.txt
+  - [llms.txt](https://effect.website/llms.txt)
+  - [llms-full.txt](https://effect.website/llms-full.txt)
+  - [llms-small.txt](https://effect.website/llms-small.txt)
 - **@effect/cli** — CLI argument parsing for Effect
 - **@effect/platform** — Platform abstraction layer for Effect
 - **@effect/platform-browser** — Browser platform implementation
@@ -77,16 +77,16 @@ Paths: `./tsconfig/base`, `./tsconfig/node22`, `./tsconfig/node24`, `./tsconfig/
 
 ### Utility Libraries
 
-| Package                       | Description                            | GitHub                                            |
-| ----------------------------- | -------------------------------------- | ------------------------------------------------- |
-| option-t                      | Option/Result types inspired by Rust   | https://github.com/option-t/option-t              |
-| type-fest                     | TypeScript utility types collection    | https://github.com/sindresorhus/type-fest         |
-| moize                         | High-performance memoization           | https://github.com/planttheidea/moize             |
-| change-case                   | String case conversion utilities       | https://github.com/blakeembrey/change-case        |
-| velona                        | Dependency injection for TypeScript    | https://github.com/frouriojs/velona               |
-| temporal-polyfill             | TC39 Temporal API polyfill             | https://github.com/fullcalendar/temporal-polyfill |
-| @formatjs/intl-durationformat | Intl.DurationFormat polyfill           | https://github.com/formatjs/formatjs              |
-| @noble/hashes                 | Audited cryptographic hash functions   | https://github.com/paulmillr/noble-hashes         |
-| base-x                        | Base encoding/decoding                 | https://github.com/cryptocoinjs/base-x            |
-| bignumber.js                  | Arbitrary-precision decimal arithmetic | https://github.com/MikeMcl/bignumber.js           |
-| seedrandom                    | Seeded pseudo-random number generator  | https://github.com/davidbau/seedrandom            |
+| Package                                                                | Description                            | GitHub                                                      |
+| ---------------------------------------------------------------------- | -------------------------------------- | ----------------------------------------------------------- |
+| [option-t](https://github.com/option-t/option-t)                       | Option/Result types inspired by Rust   | [GitHub](https://github.com/option-t/option-t)              |
+| [type-fest](https://github.com/sindresorhus/type-fest)                 | TypeScript utility types collection    | [GitHub](https://github.com/sindresorhus/type-fest)         |
+| [moize](https://github.com/planttheidea/moize)                         | High-performance memoization           | [GitHub](https://github.com/planttheidea/moize)             |
+| [change-case](https://github.com/blakeembrey/change-case)              | String case conversion utilities       | [GitHub](https://github.com/blakeembrey/change-case)        |
+| [velona](https://github.com/frouriojs/velona)                          | Dependency injection for TypeScript    | [GitHub](https://github.com/frouriojs/velona)               |
+| [temporal-polyfill](https://github.com/fullcalendar/temporal-polyfill) | TC39 Temporal API polyfill             | [GitHub](https://github.com/fullcalendar/temporal-polyfill) |
+| [@formatjs/intl-durationformat](https://github.com/formatjs/formatjs)  | Intl.DurationFormat polyfill           | [GitHub](https://github.com/formatjs/formatjs)              |
+| [@noble/hashes](https://github.com/paulmillr/noble-hashes)             | Audited cryptographic hash functions   | [GitHub](https://github.com/paulmillr/noble-hashes)         |
+| [base-x](https://github.com/cryptocoinjs/base-x)                       | Base encoding/decoding                 | [GitHub](https://github.com/cryptocoinjs/base-x)            |
+| [bignumber.js](https://github.com/MikeMcl/bignumber.js)                | Arbitrary-precision decimal arithmetic | [GitHub](https://github.com/MikeMcl/bignumber.js)           |
+| [seedrandom](https://github.com/davidbau/seedrandom)                   | Seeded pseudo-random number generator  | [GitHub](https://github.com/davidbau/seedrandom)            |
