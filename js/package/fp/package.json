@@ -1,7 +1,11 @@
 {
   "name": "@totto2727/fp",
   "version": "3.0.0",
+  "private": false,
   "license": "MIT",
+  "files": [
+    "src/"
+  ],
   "type": "module",
   "imports": {
     "#@/*": "./src/*"
