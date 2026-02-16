@@ -1,68 +1,43 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with
-code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this package.
 
-## Development Commands
+## Architecture
 
-This project is a Deno-based TypeScript library. Use the following commands:
+### Overview
 
-```bash
-# Code quality check, format, and lint
-deno task fix
+`@totto2727/fp` is a TypeScript functional programming utility library published to NPM. It re-exports multiple FP libraries under a unified namespace and provides custom bridge modules between Effect and option-t ecosystems.
 
-# Run tests
-deno task test
+Runtime: Bun | Type checker: tsgo | Registry: NPM
 
-# Build (dry-run publish)
-deno task build
+### Module Categories
 
-# Full check (precommit)
-deno task precommit
-```
+**Core Re-exports** — Thin wrappers that re-export external libraries:
+`./effect`, `./type`, `./option-t`, `./temporal`, `./memo`, `./case`, `./di`
 
-Individual commands:
+**Custom Modules** — Original implementations:
 
-- `deno check **/*.ts` - TypeScript type checking
-- `deno fmt` - Code formatting
-- `deno lint` - Linting
-- `deno test **/*.test.ts` - Run unit test files
+- `./duration` — Locale-aware duration formatting with caching
+- `./effect/cuid` — CUID generator with Effect Schema branding
+- `./effect/util` — Effect type helpers (`EffectFn`, `nonEmptyArrayOrNone`, `tap`)
+- `./effect/option-t` — Bridge: option-t Result → Effect Exit
+- `./option-t/effect` — Bridge: Effect Exit → option-t Result (dual function)
+- `./option-t/safe-try` — Rust-like `?` operator for option-t Result using generators
+- `./effect/test/bun` — Bun test wrapper for Effect (`it.effect()`, `it.scoped()`)
 
-## Codebase Architecture
+**Effect Platform** — Runtime-specific platform modules:
+`./effect/platform`, `./effect/platform/browser`, `./effect/platform/bun`, `./effect/platform/node`, `./effect/platform/node-share`
 
-### Project Structure
+**Effect Ecosystem** — Additional Effect integrations:
+`./effect/cli`, `./effect/experimental/machine`, `./effect/test/vitest`
 
-- **Root Level**: Main export files for each functional area
-  - `effect.ts` - Effect library re-exports
-  - `type.ts` - Type-fest utilities
-  - `option-t.ts` - Option-t utilities
-  - `temporal.ts`, `memo.ts`, `case.ts`, `di.ts`, etc.
-
-- **effect/ Directory**: Effect ecosystem-related utilities
-  - `ai/` - AI integrations (Anthropic, OpenAI)
-  - `platform/` - Platform-specific implementations (Node.js, Bun, Browser)
-  - `test/` - Testing utilities (Deno, Vitest support)
-  - `rpc/`, `printer/` - Specialized features
+**TypeScript Configs** — Shared tsconfig presets:
+`./tsconfig/base`, `./tsconfig/node22`, `./tsconfig/node24`, `./tsconfig/bun`, `./tsconfig/lib`, `./tsconfig/react`, `./tsconfig/react-router`, `./tsconfig/expo`, `./tsconfig/tanstack-start`
 
 ### Key Design Patterns
 
-1. **Re-export Strategy**: Each module provides external library re-exports +
-   custom utilities
-2. **JSR Support**: Explicit module publishing via `deno.json` exports
-3. **Effect Integration**: Bridge functionality between Effect library ecosystem
-   and Option-t library
-4. **Test Isolation**: Effect-specific test utilities (including TestClock leak
-   mitigation)
-
-### Commit Conventions
-
-- Use Conventional Commits format
-- Write commit messages in English
-- Examples: `feat: add non empty array helper`, `fix: improve slow types`
-
-### Development Notes
-
-- Effect library version is pinned to 3.17.1
-- Optimized for Deno and JSR ecosystem
-- `effect/test/deno.ts` disables sanitizers for TestClock leak mitigation
-- Rich TypeScript type helpers (see `effect/util.ts`)
+1. **Re-export strategy**: Most modules are `export * from "library"`. Custom logic only exists in bridge modules, CUID, duration, and test helpers.
+2. **Effect/option-t bridge**: Bidirectional conversion between Effect `Exit` and option-t `Result`.
+3. **Platform separation**: Effect platform modules split by runtime (browser, bun, node) for tree-shaking.
+4. **Branded types**: CUID uses Effect Schema branding for type-safe ID handling.
+5. **Source publishing**: Published with raw `.ts` source files (no build step). Consumers must support TypeScript imports.
