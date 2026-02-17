@@ -30,4 +30,5 @@ jobs:
         run: devbox run -- safe-chain bun run deploy
 
       - name: Publish npm:@totto2727/fp
+        working-directory: js/packages/fp
         run: devbox run -- safe-chain bun pm publish
