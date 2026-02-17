@@ -45,7 +45,8 @@
   },
   "scripts": {
     "check": "tsgo",
-    "test": "bun test"
+    "test": "bun test",
+    "deploy": "bunx jsr publish --allow-slow-types"
   },
   "dependencies": {
     "@effect/cli": "^0.73.2",

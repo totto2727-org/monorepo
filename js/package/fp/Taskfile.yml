@@ -1,0 +1,17 @@
+# https://taskfile.dev
+version: '3'
+
+tasks:
+  default:
+    aliases:
+      - list
+    cmd: task --list-all
+
+  version-up:
+    vars:
+      BUMP:
+        sh: echo -e "patch\nminor\nmajor" | fzf --prompt="Select version bump> "
+    cmds:
+      - bun pm version {{.BUMP}}
+      - git-cliff -o CHANGELOG.md
+      - safe-chain bun run scripts/sync-jsr.ts
