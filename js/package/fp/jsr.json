@@ -1,0 +1,42 @@
+{
+  "name": "@totto/fp",
+  "version": "3.0.0",
+  "license": "MIT",
+  "publish": {
+    "include": ["src/**/*.ts", "src/**/*.json", "LICENSE", "README.md"],
+    "exclude": ["src/**/*.test.ts"]
+  },
+  "exports": {
+    "./case": "./src/case.ts",
+    "./di": "./src/di.ts",
+    "./duration": "./src/duration.ts",
+    "./effect": "./src/effect.ts",
+    "./effect/cli": "./src/effect/cli.ts",
+    "./effect/cuid": "./src/effect/cuid.ts",
+    "./effect/experimental/machine": "./src/effect/experimental/machine.ts",
+    "./effect/option-t": "./src/effect/option-t.ts",
+    "./effect/platform": "./src/effect/platform.ts",
+    "./effect/platform/browser": "./src/effect/platform/browser.ts",
+    "./effect/platform/bun": "./src/effect/platform/bun.ts",
+    "./effect/platform/node": "./src/effect/platform/node.ts",
+    "./effect/platform/node-share": "./src/effect/platform/node-share.ts",
+    "./effect/test/bun": "./src/effect/test/bun.ts",
+    "./effect/test/vitest": "./src/effect/test/vitest.ts",
+    "./effect/util": "./src/effect/util.ts",
+    "./memo": "./src/memo.ts",
+    "./option-t": "./src/option-t.ts",
+    "./option-t/effect": "./src/option-t/effect.ts",
+    "./option-t/safe-try": "./src/option-t/safe-try.ts",
+    "./temporal": "./src/temporal.ts",
+    "./tsconfig/base": "./src/tsconfig/base.json",
+    "./tsconfig/bun": "./src/tsconfig/bun.json",
+    "./tsconfig/expo": "./src/tsconfig/expo.json",
+    "./tsconfig/lib": "./src/tsconfig/lib.json",
+    "./tsconfig/node22": "./src/tsconfig/node22.json",
+    "./tsconfig/node24": "./src/tsconfig/node24.json",
+    "./tsconfig/react": "./src/tsconfig/react.json",
+    "./tsconfig/react-router": "./src/tsconfig/react-router.json",
+    "./tsconfig/tanstack-start": "./src/tsconfig/tanstack-start.json",
+    "./type": "./src/type.ts"
+  }
+}
