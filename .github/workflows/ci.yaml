@@ -15,9 +15,16 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v5
-      - uses: jdx/mise-action@v3
-      - run: ni
-        env:
-          CLOUDSMITH_TOKEN: ${{ secrets.CLOUDSMITH_TOKEN }}
-      - run: na grit init
+
+      - name: Install safe-chain
+        run: curl -fsSL https://github.com/AikidoSec/safe-chain/releases/latest/download/install-safe-chain.sh | sh -s -- --ci
+
+      - name: Install devbox
+        uses: jetify-com/devbox-install-action@v0.14.0
+        with:
+          enable-cache: true
+
+      - name: Install package
+        run: devbox run -- safe-chain bun ci
+
       - run: turbo check build test
