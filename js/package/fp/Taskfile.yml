@@ -17,3 +17,4 @@ tasks:
       - oxfmt -c ../../../.oxfmtrc.jsonc
       - git add package.json jsr.json
       - git commit -m "up @totto2727/fp $(jq -r .version package.json)"
+      - git push
