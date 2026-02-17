@@ -24,6 +24,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Update moonbit registry
+        run: moonbit update
+
       - name: Install devbox
         uses: jetify-com/devbox-install-action@v0.14.0
         with:
