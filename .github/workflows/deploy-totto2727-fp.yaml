@@ -24,9 +24,10 @@ jobs:
           enable-cache: true
 
       - name: Install package
-        run: devbox run -- safe-chain bun ci
+        run: devbox run -- safe-chain bun i
 
       - name: Publish jsr:@totto2727/fp
+        working-directory: js/packages/fp
         run: devbox run -- safe-chain bun run deploy
 
       - name: Publish npm:@totto2727/fp
