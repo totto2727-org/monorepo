@@ -18,7 +18,7 @@ Unified TypeScript functional programming utility library. Re-exports multiple F
 | `./type`     | type-fest         | TypeScript utility types                        |
 | `./option-t` | option-t          | Nullable, Maybe, Undefinable, Result namespaces |
 | `./temporal` | temporal-polyfill | Temporal API polyfill                           |
-| `./memo`     | moize             | Memoization                                     |
+| `./memo`     | micro-memoize     | Memoization                                     |
 | `./case`     | change-case       | String case conversion                          |
 | `./di`       | velona            | Dependency injection                            |
 
@@ -81,7 +81,7 @@ Paths: `./tsconfig/base`, `./tsconfig/node22`, `./tsconfig/node24`, `./tsconfig/
 | ---------------------------------------------------------------------- | -------------------------------------- | ----------------------------------------------------------- |
 | [option-t](https://github.com/option-t/option-t)                       | Option/Result types inspired by Rust   | [GitHub](https://github.com/option-t/option-t)              |
 | [type-fest](https://github.com/sindresorhus/type-fest)                 | TypeScript utility types collection    | [GitHub](https://github.com/sindresorhus/type-fest)         |
-| [moize](https://github.com/planttheidea/moize)                         | High-performance memoization           | [GitHub](https://github.com/planttheidea/moize)             |
+| [micro-memoize](https://github.com/planttheidea/micro-memoize)         | High-performance memoization           | [GitHub](https://github.com/planttheidea/micro-memoize)     |
 | [change-case](https://github.com/blakeembrey/change-case)              | String case conversion utilities       | [GitHub](https://github.com/blakeembrey/change-case)        |
 | [velona](https://github.com/frouriojs/velona)                          | Dependency injection for TypeScript    | [GitHub](https://github.com/frouriojs/velona)               |
 | [temporal-polyfill](https://github.com/fullcalendar/temporal-polyfill) | TC39 Temporal API polyfill             | [GitHub](https://github.com/fullcalendar/temporal-polyfill) |

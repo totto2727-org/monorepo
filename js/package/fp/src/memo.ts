@@ -1,1 +1,1 @@
-export * from 'moize'
+export * from 'micro-memoize'
