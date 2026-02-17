@@ -27,9 +27,9 @@ jobs:
         run: devbox run -- safe-chain bun i
 
       - name: Publish jsr:@totto2727/fp
-        working-directory: js/package/fp
+        working-directory: ./js/package/fp
         run: devbox run -- safe-chain bun run deploy
 
       - name: Publish npm:@totto2727/fp
-        working-directory: js/package/fp
+        working-directory: ./js/package/fp
         run: devbox run -- safe-chain bun pm publish
