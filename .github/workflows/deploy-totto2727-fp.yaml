@@ -1,4 +1,4 @@
-name: Publish
+name: Publish @totto2727/fp
 on:
   push:
     branches:
