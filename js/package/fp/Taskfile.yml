@@ -14,8 +14,6 @@ tasks:
     cmds:
       - bun pm version {{.BUMP}}
       - safe-chain bun run scripts/sync-jsr.ts
+      - oxfmt -c ../../../.oxfmtrc.jsonc
       - git add package.json jsr.json
       - git commit -m "up @totto2727/fp $(jq -r .version package.json)"
-      - git-cliff --include-path "js/package/fp/**/*" -o CHANGELOG.md --tag $(jq -r .version package.json)
-      - git add CHANGELOG.md
-      - git commit --amend --no-edit
