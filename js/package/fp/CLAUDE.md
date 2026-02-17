@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `@totto2727/fp` is a TypeScript functional programming utility library published to NPM. It re-exports multiple FP libraries under a unified namespace and provides custom bridge modules between Effect and option-t ecosystems.
 
-Runtime: Bun | Type checker: tsgo | Registry: NPM
+Runtime: Bun | Type checker: tsgo | Registry: NPM, JSR
 
 ### Module Categories
 
