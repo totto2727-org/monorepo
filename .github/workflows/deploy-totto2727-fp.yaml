@@ -1,0 +1,33 @@
+name: Publish
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install safe-chain
+        run: curl -fsSL https://github.com/AikidoSec/safe-chain/releases/latest/download/install-safe-chain.sh | sh -s -- --ci
+
+      - name: Install devbox
+        uses: jetify-com/devbox-install-action@v0.14.0
+        with:
+          enable-cache: true
+
+      - name: Install package
+        run: devbox run -- safe-chain bun ci
+
+      - name: Publish jsr:@totto2727/fp
+        run: devbox run -- safe-chain bun run deploy
+
+      - name: Publish npm:@totto2727/fp
+        run: devbox run -- safe-chain bun pm publish
