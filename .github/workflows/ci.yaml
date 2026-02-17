@@ -25,6 +25,7 @@ jobs:
           enable-cache: true
 
       - name: Install package
-        run: devbox run -- safe-chain bun ci
+        run: devbox run -- safe-chain bun i
 
-      - run: turbo check build test
+      - name: Run check, build, and test
+        run: devbox run -- safe-chain bun turbo check build test
