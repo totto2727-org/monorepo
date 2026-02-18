@@ -27,11 +27,7 @@ jobs:
         run: devbox run -- safe-chain bun i
 
       - name: Publish jsr:@totto2727/fp
-        run: devbox run -- safe-chain bun run deploy
-        env:
-          DEVBOX_WD: js/package/fp
+        run: DEVBOX_WD=js/package/fp devbox run -- safe-chain bun run deploy
 
       - name: Publish npm:@totto2727/fp
-        run: devbox run -- safe-chain bun pm publish
-        env:
-          DEVBOX_WD: js/package/fp
+        run: DEVBOX_WD=js/package/fp devbox run -- safe-chain bun pm publish
