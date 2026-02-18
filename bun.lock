@@ -5,7 +5,7 @@
     "": {
       "name": "monorepo",
       "devDependencies": {
-        "@getgrit/cli": "catalog:lint",
+        "@getgrit/cli": "^0.1.0-alpha.1743007075",
         "@turbo/gen": "catalog:cli",
         "npm-run-all2": "catalog:cli",
         "oxfmt": "catalog:lint",
@@ -82,7 +82,7 @@
     },
     "js/package/fp": {
       "name": "@totto2727/fp",
-      "version": "3.0.1",
+      "version": "3.0.2",
       "dependencies": {
         "@effect/cli": "^0.73.2",
         "@effect/experimental": "^0.58.0",

@@ -97,7 +97,7 @@
     "fix:ultracite": "ultracite fix --unsafe"
   },
   "devDependencies": {
-    "@getgrit/cli": "catalog:lint",
+    "@getgrit/cli": "^0.1.0-alpha.1743007075",
     "@turbo/gen": "catalog:cli",
     "npm-run-all2": "catalog:cli",
     "oxfmt": "catalog:lint",
