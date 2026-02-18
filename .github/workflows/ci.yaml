@@ -32,11 +32,11 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Init gritql
-        run: devbox run -- safe-chain bun grit init
-
       - name: Install package
         run: devbox run -- safe-chain bun i
+
+      - name: Init gritql
+        run: devbox run -- safe-chain bun grit init
 
       - name: Run check, build, and test
         run: devbox run -- safe-chain bun turbo check build test
