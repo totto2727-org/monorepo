@@ -1,6 +1,6 @@
 {
   "name": "@totto2727/fp",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "private": false,
   "license": "MIT",
   "repository": {
@@ -52,9 +52,9 @@
     "check": "bun run --parallel check:*",
     "check:tsgo": "tsgo",
     "check:doc": "bunx deno doc --lint src/**/*.ts",
-    "check:slowtype": "bunx jsr publish --dry-run",
+    "check:slowtype": "bunx jsr publish --dry-run --allow-dirty",
     "test": "bun test",
-    "deploy": "bunx jsr publish --allow-slow-types"
+    "deploy": "bunx jsr publish"
   },
   "dependencies": {
     "@effect/cli": "^0.73.2",
