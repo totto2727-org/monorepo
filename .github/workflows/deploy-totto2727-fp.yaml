@@ -31,7 +31,5 @@ jobs:
           devbox run -- 'cd js/package/fp && safe-chain bun run deploy'
 
       - name: Publish npm:@totto2727/fp
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          devbox run -e GITHUB_TOKEN -- 'cd js/package/fp && safe-chain bun publish'
+          devbox run -- 'cd js/package/fp && safe-chain npm publish'
