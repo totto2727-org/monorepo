@@ -159,8 +159,16 @@ export const init = ({
   }
 }
 
-/** Effect service that provides CUID generation. */
-export class Generator extends Effect.Service<Generator>()('@totto2727/fp/effect/cuid/Generator', {
+/**
+ * @internal
+ */
+export const GeneratorBase: Effect.Service.Class<
+  Generator,
+  '@totto2727/fp/effect/cuid/Generator',
+  {
+    sync: () => () => CUID
+  }
+> = Effect.Service<Generator>()('@totto2727/fp/effect/cuid/Generator', {
   sync: () => {
     let createId: () => CUID
     return () => {
@@ -168,13 +176,16 @@ export class Generator extends Effect.Service<Generator>()('@totto2727/fp/effect
       return createId()
     }
   },
-}) {}
+})
+
+/** Effect service that provides CUID generation. */
+export class Generator extends GeneratorBase {}
 
 const base26 = BaseX('abcdefghijklmnopqrstuvwxyz')
 const base36 = BaseX('0123456789abcdefghijklmnopqrstuvwxyz')
 
 /** Creates a deterministic CUID generator for testing. */
-export const makeTestGenerator = (seedString: string) => {
+export const makeTestGenerator: (seedString: string) => Generator = (seedString) => {
   let seed: SR.PRNG
   return new Generator(() => {
     seed ??= SR(seedString)
