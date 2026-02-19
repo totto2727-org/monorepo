@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(turbo check)",
+      "Bash(turbo fix)",
+      "Bash(turbo test)",
+      "Bash(bun run check)",
+      "Bash(bun run check:*)",
+      "Bash(bun run fix)",
+      "Bash(bun run fix:*)",
+      "Bash(bun test)",
+      "Bash(bun run test)"
+    ]
+  }
+}
