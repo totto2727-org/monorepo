@@ -3,6 +3,11 @@
   "version": "3.0.2",
   "private": false,
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/totto2727-org/monorepo",
+    "directory": "js/package/fp"
+  },
   "files": [
     "src/"
   ],
