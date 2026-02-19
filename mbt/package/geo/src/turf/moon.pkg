@@ -3,6 +3,6 @@ import {
   "totto2727/geo/util/point_in_ring",
 }
 
-import "test" {
+import {
   "totto2727/geo/turf/internal/fixture",
-}
+} for "test"

@@ -4,6 +4,6 @@ import {
   "moonbitlang/core/cmp",
 }
 
-import "test" {
+import {
   "moonbitlang/x/fs",
-}
+} for "test"
