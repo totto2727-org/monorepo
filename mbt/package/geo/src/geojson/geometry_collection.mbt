@@ -19,7 +19,7 @@ pub impl GeoJSONTrait for GeometryCollection with to_json(
   set_geometry_type(map, GeometryType::GeometryCollection)
   map.set(
     "geometries",
-    self.geometries.map(GeoJSONTrait::to_json(_, with_bbox~)).to_json(),
+    self.geometries.map(x => GeoJSONTrait::to_json(x, with_bbox~)).to_json(),
   )
   if with_bbox {
     set_bbox(map, self)
@@ -43,10 +43,12 @@ pub impl FromJson for GeometryCollection with from_json(json, path) {
 ///|
 pub impl BBoxTrait for GeometryCollection with bbox(self) {
   let coords = self.geometries
-    .map(geom => match geom.bbox() {
-      BBox2D(x1, y1, x2, y2) => [Coordinates::XY(x1, y1), XY(x2, y2)]
-      BBox3D(x1, y1, z1, x2, y2, z2) =>
-        [Coordinates::XYZ_OR_XYM(x1, y1, z1), XYZ_OR_XYM(x2, y2, z2)]
+    .map(geom => {
+      match geom.bbox() {
+        BBox2D(x1, y1, x2, y2) => [Coordinates::XY(x1, y1), XY(x2, y2)]
+        BBox3D(x1, y1, z1, x2, y2, z2) =>
+          [Coordinates::XYZ_OR_XYM(x1, y1, z1), XYZ_OR_XYM(x2, y2, z2)]
+      }
     })
     .flatten()
   BBox::from_coordinate_array(coords)

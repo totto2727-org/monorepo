@@ -40,10 +40,12 @@ pub impl FromJson for FeatureCollection with from_json(json, path) {
 pub impl BBoxTrait for FeatureCollection with bbox(self) {
   let coords = self.features
     .filter_map(feature => feature.geometry)
-    .map(geom => match geom.bbox() {
-      BBox2D(x1, y1, x2, y2) => [Coordinates::XY(x1, y1), XY(x2, y2)]
-      BBox3D(x1, y1, z1, x2, y2, z2) =>
-        [Coordinates::XYZ_OR_XYM(x1, y1, z1), XYZ_OR_XYM(x2, y2, z2)]
+    .map(geom => {
+      match geom.bbox() {
+        BBox2D(x1, y1, x2, y2) => [Coordinates::XY(x1, y1), XY(x2, y2)]
+        BBox3D(x1, y1, z1, x2, y2, z2) =>
+          [Coordinates::XYZ_OR_XYM(x1, y1, z1), XYZ_OR_XYM(x2, y2, z2)]
+      }
     })
     .flatten()
   BBox::from_coordinate_array(coords) catch {

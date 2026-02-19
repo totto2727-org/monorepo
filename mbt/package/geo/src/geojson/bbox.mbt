@@ -90,17 +90,17 @@ pub fn BBox::from_coordinate_array(
   match dim {
     2 => {
       // すでに長さの検証を行っているため、unwrapは安全
-      let min_x = coords.iter().map(_.x()).minimum().unwrap()
-      let max_x = coords.iter().map(_.x()).maximum().unwrap()
-      let min_y = coords.iter().map(_.y()).minimum().unwrap()
-      let max_y = coords.iter().map(_.y()).maximum().unwrap()
+      let min_x = coords.iter().map(c => c.x()).minimum().unwrap()
+      let max_x = coords.iter().map(c => c.x()).maximum().unwrap()
+      let min_y = coords.iter().map(c => c.y()).minimum().unwrap()
+      let max_y = coords.iter().map(c => c.y()).maximum().unwrap()
       BBox2D(min_x, min_y, max_x, max_y)
     }
     _ => {
-      let min_x = coords.iter().map(_.x()).minimum().unwrap()
-      let max_x = coords.iter().map(_.x()).maximum().unwrap()
-      let min_y = coords.iter().map(_.y()).minimum().unwrap()
-      let max_y = coords.iter().map(_.y()).maximum().unwrap()
+      let min_x = coords.iter().map(c => c.x()).minimum().unwrap()
+      let max_x = coords.iter().map(c => c.x()).maximum().unwrap()
+      let min_y = coords.iter().map(c => c.y()).minimum().unwrap()
+      let max_y = coords.iter().map(c => c.y()).maximum().unwrap()
       let min_z = coords
         .iter()
         // 3次元であることを保証しているため、unwrapは安全
