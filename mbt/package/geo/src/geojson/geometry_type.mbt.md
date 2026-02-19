@@ -154,6 +154,5 @@ test "GeometryType FromJson::from_json - geometry collection" {
 ///|
 test "panic_GeometryType FromJson::from_json - invalid" {
   let _ : GeometryType = @json.from_json("Invalid")
-
 }
 ```

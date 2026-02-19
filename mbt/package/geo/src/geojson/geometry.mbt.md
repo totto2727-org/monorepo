@@ -404,6 +404,5 @@ test "panic_Geometry FromJson::from_json - Invalid Type" {
     "type": "Invalid",
     "coordinates": [1.0, 2.0],
   })
-
 }
 ```

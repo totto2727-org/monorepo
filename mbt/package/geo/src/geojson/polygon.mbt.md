@@ -114,7 +114,6 @@ test "Polygon FromJson::from_json - valid" {
 ///|
 test "panic_Polygon FromJson::from_json - invalid ring count" {
   let _ : Polygon = @json.from_json({ "type": "Polygon", "coordinates": [] })
-
 }
 ```
 
@@ -127,7 +126,6 @@ test "panic_Polygon FromJson::from_json - invalid ring size" {
     "type": "Polygon",
     "coordinates": [[[0.0, 0.0], [1.0, 1.0]]],
   })
-
 }
 ```
 
@@ -140,6 +138,5 @@ test "panic_Polygon FromJson::from_json - open ring" {
     "type": "Polygon",
     "coordinates": [[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]]],
   })
-
 }
 ```

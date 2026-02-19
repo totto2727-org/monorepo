@@ -58,6 +58,5 @@ test "ID FromJson::from_json - number" {
 ///|
 test "panic_ID FromJson::from_json - invalid" {
   let _ : ID = @json.from_json(true)
-
 }
 ```

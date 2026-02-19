@@ -103,6 +103,5 @@ test "panic_LineString FromJson::from_json - invalid length" {
     "type": "LineString",
     "coordinates": [[0.0, 0.0]],
   })
-
 }
 ```

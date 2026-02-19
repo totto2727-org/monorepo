@@ -134,6 +134,5 @@ test "Coordinates FromJson::from_json - XYZM" {
 ///|
 test "panic_Coordinates FromJson::from_json - invalid" {
   let _ : Coordinates = @json.from_json([1.0])
-
 }
 ```

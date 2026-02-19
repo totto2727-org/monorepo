@@ -98,7 +98,6 @@ test "BBox from_coordinate_array - 3d" {
 ///|
 test "panic_BBox from_coordinate_array - empty" {
   let _ = BBox::from_coordinate_array([])
-
 }
 ```
 
@@ -112,7 +111,6 @@ test "panic_BBox from_coordinate_array - mixed dimensions" {
     Coordinates::XYZ_OR_XYM(0.0, 0.0, 0.0),
   ]
   let _ = BBox::from_coordinate_array(coords)
-
 }
 ```
 
@@ -166,6 +164,5 @@ test "BBox FromJson::from_json - bbox3d" {
 ///|
 test "panic_BBox FromJson::from_json - invalid" {
   let _ : BBox = @json.from_json([0.0, 1.0])
-
 }
 ```

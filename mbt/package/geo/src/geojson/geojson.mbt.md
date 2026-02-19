@@ -192,6 +192,5 @@ test "GeoJSON FromJson::from_json - Geometry" {
 ///|
 test "panic_GeoJSON FromJson::from_json - Invalid Type" {
   let _ : GeoJSON = @json.from_json({ "type": "Invalid" })
-
 }
 ```

@@ -82,6 +82,5 @@ test "Point FromJson::from_json - valid" {
 ///|
 test "panic_Point FromJson::from_json - invalid coordinates" {
   let _ : Point = @json.from_json({ "type": "Point", "coordinates": [1.0] })
-
 }
 ```
