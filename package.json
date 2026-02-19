@@ -20,7 +20,6 @@
       },
       "cli": {
         "@turbo/gen": "^2.6.0",
-        "npm-run-all2": "^8.0.4",
         "turbo": "^2.5.3"
       },
       "cloudflare": {
@@ -89,17 +88,16 @@
   },
   "type": "module",
   "scripts": {
-    "check": "run-p check:*",
+    "check": "bun run --parallel check:*",
     "check:grit": "grit check",
     "check:ultracite": "ultracite check",
-    "fix": "run-s fix:*",
+    "fix": "bun run --sequential fix:*",
     "fix:grit": "grit check --fix",
     "fix:ultracite": "ultracite fix --unsafe"
   },
   "devDependencies": {
     "@getgrit/cli": "^0.1.0-alpha.1743007075",
     "@turbo/gen": "catalog:cli",
-    "npm-run-all2": "catalog:cli",
     "oxfmt": "catalog:lint",
     "oxlint": "catalog:lint",
     "turbo": "catalog:cli",
