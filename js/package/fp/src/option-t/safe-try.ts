@@ -43,14 +43,14 @@ import { Result as R } from '#@/option-t.ts'
  *
  * Verifying up to the Ok type to prevent it from becoming nullable.
  */
-type InferOk<T extends R.Result<unknown, unknown>> = T extends R.Ok<infer O> ? O : never
+export type InferOk<T extends R.Result<unknown, unknown>> = T extends R.Ok<infer O> ? O : never
 
 /**
  * Infer the Err type from the Result type
  *
  * Verifying up to the Err type to prevent it from becoming nullable.
  */
-type InferErr<T extends R.Result<unknown, unknown>> = T extends R.Err<infer E> ? E : never
+export type InferErr<T extends R.Result<unknown, unknown>> = T extends R.Err<infer E> ? E : never
 
 // Original implementation
 // type InferOk<T> = T extends R.Result<infer OK, unknown> ? OK : never;

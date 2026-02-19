@@ -53,13 +53,13 @@ const runTestScoped = <E, A>(effect: Effect.Effect<A, E, TestServices.TestServic
 
 type EffectFn<A, E, R> = () => Effect.Effect<A, E, R>
 
-interface EffectTester {
+export interface EffectTester {
   <A, E>(name: string, fn: EffectFn<A, E, TestServices.TestServices>, options?: number | TestOptions): void
   skip: <A, E>(name: string, fn: EffectFn<A, E, TestServices.TestServices>, options?: number | TestOptions) => void
   only: <A, E>(name: string, fn: EffectFn<A, E, TestServices.TestServices>, options?: number | TestOptions) => void
 }
 
-interface ScopedTester {
+export interface ScopedTester {
   <A, E>(
     name: string,
     fn: EffectFn<A, E, TestServices.TestServices | Scope.Scope>,
@@ -91,14 +91,17 @@ const makeScopedTest =
     runner(name, () => runTestScoped(fn()), timeout ? { timeout } : undefined)
   }
 
+/** Runs an Effect as a Bun test case. */
 export const effect: EffectTester = Object.assign(makeEffectTest(test), {
   only: makeEffectTest(test.only),
   skip: makeEffectTest(test.skip),
 })
 
+/** Runs a scoped Effect as a Bun test case. */
 export const scoped: ScopedTester = Object.assign(makeScopedTest(test), {
   only: makeScopedTest(test.only),
   skip: makeScopedTest(test.skip),
 })
 
-export const it = Object.assign(test, { effect, scoped })
+/** Bun test runner extended with `effect` and `scoped` helpers. */
+export const it: typeof test & { effect: EffectTester; scoped: ScopedTester } = Object.assign(test, { effect, scoped })

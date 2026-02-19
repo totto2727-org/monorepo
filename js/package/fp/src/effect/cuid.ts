@@ -15,6 +15,7 @@ import SR from 'seedrandom'
 const defaultLength = 24
 const bigLength = 32
 
+/** Effect Schema for CUID branded string type. */
 export const schema: Schema.brand<
   Schema.filter<Schema.filter<Schema.filter<typeof Schema.String>>>,
   '@totto2727/fp/effect/cuid/Cuid'
@@ -25,12 +26,15 @@ export const schema: Schema.brand<
   Schema.brand('@totto2727/fp/effect/cuid/Cuid'),
 )
 
+/** Branded CUID type. */
 export type CUID = typeof schema.Type
 
+/** Type guard for CUID values. */
 export const is: (value: unknown, overrideOptions?: ParseOptions | number) => value is CUID = Schema.is(schema)
 
 const decodeSync = Schema.decodeSync(schema)
 
+/** Returns default CUID length constants. */
 export const getDefaultConstants = (): {
   defaultLength: number
   bigLength: number
@@ -61,6 +65,7 @@ const createEntropy = (length = 4, random = createRandom): string => {
  * Adapted from https://github.com/juanelas/bigint-conversion
  * MIT License Copyright (c) 2018 Juan Hernández Serrano
  */
+/** Converts a byte buffer to a BigNumber. */
 export const bufToBigInt = (buf: Uint8Array): BigNumber => {
   let value = new BigNumber(0)
 
@@ -95,6 +100,7 @@ prevent collisions when generating ids in a distributed system.
 If no global object is available, you can pass in your own, or fall back
 on a random string.
 */
+/** Creates a fingerprint of the host environment for collision prevention. */
 export const createFingerprint = ({
   globalObj = typeof globalThis === 'undefined' ? {} : globalThis,
   random = createRandom,
@@ -108,6 +114,7 @@ export const createFingerprint = ({
   return hash(sourceString).slice(0, bigLength)
 }
 
+/** Creates an incrementing counter starting from the given value. */
 export const createCounter = (initialCount: number): (() => number) => {
   let count = initialCount
   return () => {
@@ -121,6 +128,7 @@ export const createCounter = (initialCount: number): (() => number) => {
 // with a remaining counter range of 9.0e+15 in JavaScript.
 const initialCountMax = 476_782_367
 
+/** Initializes a CUID generator with the given options. */
 export const init = ({
   length = defaultLength,
 }: {
@@ -151,6 +159,7 @@ export const init = ({
   }
 }
 
+/** Effect service that provides CUID generation. */
 export class Generator extends Effect.Service<Generator>()('@totto2727/fp/effect/cuid/Generator', {
   sync: () => {
     let createId: () => CUID
@@ -164,6 +173,7 @@ export class Generator extends Effect.Service<Generator>()('@totto2727/fp/effect
 const base26 = BaseX('abcdefghijklmnopqrstuvwxyz')
 const base36 = BaseX('0123456789abcdefghijklmnopqrstuvwxyz')
 
+/** Creates a deterministic CUID generator for testing. */
 export const makeTestGenerator = (seedString: string) => {
   let seed: SR.PRNG
   return new Generator(() => {
@@ -173,7 +183,8 @@ export const makeTestGenerator = (seedString: string) => {
   })
 }
 
-export const make = Effect.gen(function* () {
+/** Generates a new CUID using the Generator service. */
+export const make: Effect.Effect<CUID, never, Generator> = Effect.gen(function* () {
   const makeCUID = yield* Generator
   return makeCUID()
 })
