@@ -51,7 +51,7 @@
   "scripts": {
     "check": "run-p check:*",
     "check:tsgo": "tsgo",
-    "check:doc": "bunx deno doc --lint src/*",
+    "check:doc": "bunx deno doc --lint src/**/*.ts",
     "check:slowtype": "bunx jsr publish --dry-run",
     "test": "bun test",
     "deploy": "bunx jsr publish --allow-slow-types"
