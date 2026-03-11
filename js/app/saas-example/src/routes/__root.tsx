@@ -12,7 +12,7 @@ import TanStackQueryProvider from '../feature/share/lib/tanstack-query/provider.
 import appCss from '../styles.css?url'
 
 const RootDocument = ({ children }: { children: React.ReactNode }) => (
-  <html lang={getLocale()} suppressHydrationWarning>
+  <html lang={getLocale()} suppressHydrationWarning data-mode='dark'>
     <head>
       <HeadContent />
     </head>
