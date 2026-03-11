@@ -175,6 +175,9 @@ export const GeneratorBase: ServiceMap.ServiceClass<
   }),
 })
 
+const base26 = BaseX('abcdefghijklmnopqrstuvwxyz')
+const base36 = BaseX('0123456789abcdefghijklmnopqrstuvwxyz')
+
 /** Effect service that provides CUID generation. */
 export class Generator extends GeneratorBase {
   /**
@@ -195,9 +198,6 @@ export class Generator extends GeneratorBase {
       }
     })
 }
-
-const base26 = BaseX('abcdefghijklmnopqrstuvwxyz')
-const base36 = BaseX('0123456789abcdefghijklmnopqrstuvwxyz')
 
 /** Generates a new CUID using the Generator service. */
 export const make: Effect.Effect<CUID, never, Generator> = Effect.gen(function* () {

@@ -1,0 +1,53 @@
+{
+  "name": "saas-example",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#@/*": "./src/*"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "storybook:dev": "storybook dev -p 6006",
+    "storybook:build": "storybook build"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@inlang/paraglide-js": "catalog:i18n",
+    "@package/ui": "workspace:*",
+    "@storybook/react-vite": "catalog:storybook",
+    "@tailwindcss/vite": "catalog:ui",
+    "@tanstack/devtools-event-client": "catalog:react",
+    "@tanstack/devtools-vite": "catalog:react",
+    "@tanstack/query-db-collection": "catalog:react",
+    "@tanstack/react-db": "catalog:react",
+    "@tanstack/react-devtools": "catalog:react",
+    "@tanstack/react-form": "catalog:react",
+    "@tanstack/react-query": "catalog:react",
+    "@tanstack/react-query-devtools": "catalog:react",
+    "@tanstack/react-router": "catalog:react",
+    "@tanstack/react-router-devtools": "catalog:react",
+    "@tanstack/react-router-ssr-query": "catalog:react",
+    "@tanstack/react-start": "catalog:react",
+    "@tanstack/react-store": "catalog:react",
+    "@tanstack/router-plugin": "catalog:react",
+    "@tanstack/store": "catalog:react",
+    "@testing-library/dom": "catalog:react",
+    "@testing-library/react": "catalog:react",
+    "@totto2727/fp": "workspace:*",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "@vitejs/plugin-react": "catalog:react",
+    "babel-plugin-react-compiler": "catalog:react",
+    "better-auth": "catalog:auth",
+    "effect": "catalog:effect",
+    "react": "catalog:react",
+    "react-dom": "catalog:react",
+    "storybook": "catalog:storybook",
+    "tailwindcss": "catalog:ui",
+    "vite": "catalog:vite",
+    "vitest": "catalog:vite"
+  }
+}

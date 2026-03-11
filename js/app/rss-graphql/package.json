@@ -12,7 +12,7 @@
     "start": "wrangler dev"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "catalog:vite",
+    "@cloudflare/vite-plugin": "catalog:cloudflare",
     "@hono/graphql-server": "catalog:hono",
     "@mikaelporttila/rss": "catalog:dev",
     "@pothos/core": "catalog:graphql",

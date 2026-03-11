@@ -16,6 +16,7 @@
         "checkTypeImports": true
       }
     ],
-    "no-nodejs-modules": "allow"
+    "no-nodejs-modules": "allow",
+    "jsx-no-new-function-as-prop": "allow"
   }
 }

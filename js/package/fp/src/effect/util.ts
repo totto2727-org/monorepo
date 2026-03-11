@@ -40,7 +40,7 @@ export const nonEmptyArrayOrNone = <const T>(args: T[]): Option.Option<Array.Non
 
 /** Applies a side-effect function to each element of an array, then returns the array unchanged. */
 export const tap =
-  <const T extends ReadonlyArray<unknown>>(fn: (v: Array.ReadonlyArray.Infer<T>) => void): ((vs: T) => T) =>
+  <const T extends readonly unknown[]>(fn: (v: Array.ReadonlyArray.Infer<T>) => void): ((vs: T) => T) =>
   (vs) => {
     for (const v of vs) {
       fn(v as Array.ReadonlyArray.Infer<T>)

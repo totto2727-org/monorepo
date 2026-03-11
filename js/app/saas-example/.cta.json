@@ -1,0 +1,16 @@
+{
+  "projectName": "saas-example",
+  "mode": "file-router",
+  "typescript": true,
+  "packageManager": "bun",
+  "includeExamples": false,
+  "tailwind": true,
+  "addOnOptions": {},
+  "envVarValues": {},
+  "git": false,
+  "routerOnly": false,
+  "version": 1,
+  "addOns": true,
+  "framework": "react",
+  "chosenAddOns": ["compiler", "paraglide", "better-auth", "storybook", "db", "form", "store", "tanstack-query"]
+}
