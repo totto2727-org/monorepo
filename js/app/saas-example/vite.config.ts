@@ -1,3 +1,4 @@
+import { cloudflare } from '@cloudflare/vite-plugin'
 import { paraglideVitePlugin } from '@inlang/paraglide-js'
 import tailwindcss from '@tailwindcss/vite'
 import { devtools } from '@tanstack/devtools-vite'
@@ -7,6 +8,7 @@ import { defineConfig } from 'vite'
 
 const config = defineConfig({
   plugins: [
+    cloudflare({ viteEnvironment: { name: 'ssr' } }),
     devtools(),
     paraglideVitePlugin({
       emitTsDeclarations: true,

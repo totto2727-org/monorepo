@@ -11,10 +11,15 @@
     "preview": "vite preview",
     "test": "vitest run",
     "storybook:dev": "storybook dev -p 6006",
-    "storybook:build": "storybook build"
+    "storybook:build": "storybook build",
+    "prebuild": "bun run --parallel prebuild:*",
+    "prebuild:cloudflare": "wrangler types",
+    "prebuild:paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/feature/i18n/paraglide --emit-ts-declarations",
+    "prebuild:tsr": "tsr generate"
   },
   "dependencies": {},
   "devDependencies": {
+    "@cloudflare/vite-plugin": "catalog:cloudflare",
     "@inlang/paraglide-js": "catalog:i18n",
     "@package/ui": "workspace:*",
     "@storybook/react-vite": "catalog:storybook",
@@ -32,6 +37,7 @@
     "@tanstack/react-router-ssr-query": "catalog:react",
     "@tanstack/react-start": "catalog:react",
     "@tanstack/react-store": "catalog:react",
+    "@tanstack/router-cli": "catalog:react",
     "@tanstack/router-plugin": "catalog:react",
     "@tanstack/store": "catalog:react",
     "@testing-library/dom": "catalog:react",
@@ -43,6 +49,7 @@
     "babel-plugin-react-compiler": "catalog:react",
     "better-auth": "catalog:auth",
     "effect": "catalog:effect",
+    "hono": "catalog:hono",
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "storybook": "catalog:storybook",

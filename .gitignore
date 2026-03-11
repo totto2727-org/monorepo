@@ -2,3 +2,4 @@ node_modules/
 .turbo/
 .claude/**.local.*
 *.local.*
+worker-configuration.d.ts
