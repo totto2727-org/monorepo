@@ -1,31 +1,32 @@
-import type { HttpClient } from '@totto2727/fp/effect/platform'
-import type { ElysiaAdapter } from 'elysia'
+import { graphqlServer } from '@hono/graphql-server'
+import { ManagedRuntime } from 'effect'
+import { FetchHttpClient } from 'effect/unstable/http'
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { logger } from 'hono/logger'
 
-import { logger } from '@bogeychan/elysia-logger'
-import { cors } from '@elysiajs/cors'
-import { yoga } from '@elysiajs/graphql-yoga'
-import { html } from '@elysiajs/html'
-import { Effect } from '@totto2727/fp/effect'
-import { FetchHttpClient } from '@totto2727/fp/effect/platform'
-import { Elysia } from 'elysia'
+import { makeSchema, toFormattedString } from './feature/graphql.ts'
 
-import { generateSchema } from './feature/graphql.ts'
-import { builder } from './feature/graphql/builder.ts'
+const schema = makeSchema()
 
-export const app = (adapter?: ElysiaAdapter) =>
-  Effect.gen(function* () {
-    const runtime = yield* Effect.runtime<HttpClient.HttpClient>()
+const runtime = ManagedRuntime.make(FetchHttpClient.layer)
 
-    return new Elysia({
-      adapter,
-    })
-      .use(logger())
-      .use(html())
-      .use(cors())
-      .resolve(() => ({ runtime }))
-      .get('/', (c) =>
-        c.html(
-          `
+interface AppEnv {
+  Variables: {
+    runtime: typeof runtime
+  }
+}
+
+const app = new Hono<AppEnv>()
+  .use(logger())
+  .use(cors())
+  .use(async (c, next) => {
+    c.set('runtime', runtime)
+    await next()
+  })
+  .get('/', (c) =>
+    c.html(
+      `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,23 +35,21 @@ export const app = (adapter?: ElysiaAdapter) =>
     <title>GraphQL API Information</title>
 </head>
 <body>
-    <p>API Endpoint: <code>${new URL('/api/graphql', c.request.url)}</code></p>
+    <p>API Endpoint: <code>${new URL('/api/graphql', c.req.url)}</code></p>
     <p>Schema: <a href="/api/graphql/schema">/api/graphql/schema</a></p>
     <p>GraphiQL: <a href="/api/graphql">/api/graphql</a></p>
 </body>
 </html>
 `.trim(),
-        ),
-      )
-      .get('/api/graphql/schema', () => generateSchema())
-      .use(
-        yoga({
-          context: {
-            runtime,
-          } satisfies typeof builder.$inferSchemaTypes.Context,
-          graphiql: true,
-          path: '/api/graphql',
-          schema: builder.toSchema(),
-        }),
-      )
-  }).pipe(Effect.provide(FetchHttpClient.layer), Effect.runSync)
+    ),
+  )
+  .get('/api/graphql/schema', (c) => c.text(toFormattedString(schema)))
+  .use(
+    '/api/graphql',
+    graphqlServer({
+      graphiql: true,
+      schema,
+    }),
+  )
+
+export default app

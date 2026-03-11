@@ -1,6 +1,12 @@
 import { printSchema } from 'graphql'
 
-import { builder } from './graphql/builder.ts'
-import './graphql/rss.ts'
+import * as RSS from './graphql/rss.ts'
+import { makeBuilder } from './graphql/schema.ts'
 
-export const generateSchema = () => printSchema(builder.toSchema())
+export const makeSchema = () => {
+  const builder = makeBuilder()
+  RSS.initGraphQL(builder)
+  return builder.toSchema()
+}
+
+export const toFormattedString = (schema: ReturnType<typeof makeSchema>) => printSchema(schema)

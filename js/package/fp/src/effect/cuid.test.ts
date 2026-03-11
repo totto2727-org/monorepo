@@ -1,6 +1,5 @@
-import { Array, Effect } from '#@/effect.ts'
 import { describe, expect, test } from 'bun:test'
-import { pipe, Schema, String } from 'effect'
+import { Array, Effect, pipe, Schema, String } from 'effect'
 
 import * as CUID from './cuid.ts'
 
@@ -12,7 +11,7 @@ test('generatorProductionLive', () => {
     const cuid2 = yield* CUID.make
 
     expect(cuid1).not.toBe(cuid2)
-  }).pipe(Effect.provide(CUID.Generator.Default), Effect.runSync)
+  }).pipe(Effect.provide(CUID.Generator.layer), Effect.runSync)
 })
 
 describe('generatorTestLive', () => {
@@ -21,14 +20,14 @@ describe('generatorTestLive', () => {
       const cuid = yield* CUID.make
 
       expect(cuid).toBe(decode('gk1pfmhav2vkvudlk25qrot8'))
-    }).pipe(Effect.provideService(CUID.Generator, CUID.makeTestGenerator('test')), Effect.runSync)
+    }).pipe(Effect.provide(CUID.Generator.makeLayerTest('test')), Effect.runSync)
   })
 
   test('Snapshot', () => {
     Effect.gen(function* () {
       const actual = yield* pipe(
         Array.makeBy(10, () => CUID.make),
-        Effect.allSuccesses,
+        Effect.all,
       )
 
       expect(actual).toEqual([
@@ -43,7 +42,7 @@ describe('generatorTestLive', () => {
         decode('eh42helbpmmlw7jmco41rpcy'),
         decode('dl1dsmlxhq6tba02sofl2apd'),
       ])
-    }).pipe(Effect.provideService(CUID.Generator, CUID.makeTestGenerator('test')), Effect.runSync)
+    }).pipe(Effect.provide(CUID.Generator.makeLayerTest('test')), Effect.runSync)
   })
 })
 

@@ -1,6 +1,6 @@
 import { parseFeed } from '@mikaelporttila/rss'
-import { Effect } from '@totto2727/fp/effect'
-import { HttpClient } from '@totto2727/fp/effect/platform'
+import { Effect } from 'effect'
+import { HttpClient } from 'effect/unstable/http'
 
 export const makeRSSFetchClient = Effect.gen(function* () {
   const client = yield* HttpClient.HttpClient

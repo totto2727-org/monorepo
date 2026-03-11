@@ -19,18 +19,8 @@
     "./case": "./src/case.ts",
     "./di": "./src/di.ts",
     "./duration": "./src/duration.ts",
-    "./effect": "./src/effect.ts",
-    "./effect/cli": "./src/effect/cli.ts",
     "./effect/cuid": "./src/effect/cuid.ts",
-    "./effect/experimental/machine": "./src/effect/experimental/machine.ts",
     "./effect/option-t": "./src/effect/option-t.ts",
-    "./effect/platform": "./src/effect/platform.ts",
-    "./effect/platform/browser": "./src/effect/platform/browser.ts",
-    "./effect/platform/bun": "./src/effect/platform/bun.ts",
-    "./effect/platform/node": "./src/effect/platform/node.ts",
-    "./effect/platform/node-share": "./src/effect/platform/node-share.ts",
-    "./effect/test/bun": "./src/effect/test/bun.ts",
-    "./effect/test/vitest": "./src/effect/test/vitest.ts",
     "./effect/util": "./src/effect/util.ts",
     "./memo": "./src/memo.ts",
     "./option-t": "./src/option-t.ts",
@@ -57,19 +47,11 @@
     "deploy": "bunx jsr publish"
   },
   "dependencies": {
-    "@effect/cli": "^0.73.2",
-    "@effect/experimental": "^0.58.0",
-    "@effect/platform": "^0.94.3",
-    "@effect/platform-browser": "^0.74.0",
-    "@effect/platform-bun": "^0.87.1",
-    "@effect/platform-node": "^0.104.1",
-    "@effect/platform-node-shared": "^0.57.1",
     "@formatjs/intl-durationformat": "^0.10.1",
     "@noble/hashes": "^2.0.1",
     "base-x": "^5.0.1",
     "bignumber.js": "^9.3.1",
     "change-case": "^5.4.4",
-    "effect": "^3.19.16",
     "micro-memoize": "^5.1.1",
     "option-t": "^55.1.1",
     "seedrandom": "^3.0.5",
@@ -77,9 +59,12 @@
     "velona": "^0.8.0"
   },
   "devDependencies": {
-    "@effect/vitest": "^0.27.0",
     "@tsconfig/strictest": "^2.0.8",
     "@types/seedrandom": "^3.0.8",
+    "effect": "catalog:effect",
     "type-fest": "^5.4.4"
+  },
+  "peerDependencies": {
+    "effect": "catalog:effect"
   }
 }

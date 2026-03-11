@@ -6,23 +6,20 @@
  */
 import type { ParseOptions } from 'effect/SchemaAST'
 
-import { Array, Effect, Schema } from '#@/effect.ts'
 import { sha3_512 } from '@noble/hashes/sha3.js'
 import BaseX from 'base-x'
 import { BigNumber } from 'bignumber.js'
+import { Array, Effect, Layer, Schema, ServiceMap } from 'effect'
 import SR from 'seedrandom'
 
 const defaultLength = 24
 const bigLength = 32
 
 /** Effect Schema for CUID branded string type. */
-export const schema: Schema.brand<
-  Schema.filter<Schema.filter<Schema.filter<typeof Schema.String>>>,
-  '@totto2727/fp/effect/cuid/Cuid'
-> = Schema.String.pipe(
-  Schema.pattern(/^[a-z][0-9a-z]+$/),
-  Schema.minLength(2),
-  Schema.maxLength(bigLength),
+export const schema: Schema.brand<Schema.String, '@totto2727/fp/effect/cuid/Cuid'> = Schema.String.pipe(
+  Schema.check(Schema.isPattern(/^[a-z][0-9a-z]+$/)),
+  Schema.check(Schema.isMinLength(2)),
+  Schema.check(Schema.isMaxLength(bigLength)),
   Schema.brand('@totto2727/fp/effect/cuid/Cuid'),
 )
 
@@ -162,37 +159,45 @@ export const init = ({
 /**
  * @internal
  */
-export const GeneratorBase: Effect.Service.Class<
+export const GeneratorBase: ServiceMap.ServiceClass<
   Generator,
   '@totto2727/fp/effect/cuid/Generator',
-  {
-    sync: () => () => CUID
-  }
-> = Effect.Service<Generator>()('@totto2727/fp/effect/cuid/Generator', {
-  sync: () => {
+  () => typeof schema.Type
+> & {
+  readonly make: Effect.Effect<() => typeof schema.Type, never, never>
+} = ServiceMap.Service<Generator>()('@totto2727/fp/effect/cuid/Generator', {
+  make: Effect.sync(() => {
     let createId: () => CUID
     return () => {
       createId ??= init()
       return createId()
     }
-  },
+  }),
 })
 
 /** Effect service that provides CUID generation. */
-export class Generator extends GeneratorBase {}
+export class Generator extends GeneratorBase {
+  /**
+   * Default layer for the Generator service.
+   */
+  static readonly layer: Layer.Layer<Generator, never, never> = Layer.effect(this, this.make)
+
+  /**
+   * Creates a test layer for the Generator service with a fixed seed.
+   */
+  static readonly makeLayerTest: (seed: string) => Layer.Layer<Generator, never, never> = (seedString) =>
+    Layer.sync(this, () => {
+      let seed: SR.PRNG
+      return () => {
+        seed ??= SR(seedString)
+        const [r, ...rArray] = Array.makeBy(20, () => seed.int32())
+        return decodeSync(`${base26.encode([r])}${base36.encode(rArray)}`.slice(0, 24).padEnd(24, '0'))
+      }
+    })
+}
 
 const base26 = BaseX('abcdefghijklmnopqrstuvwxyz')
 const base36 = BaseX('0123456789abcdefghijklmnopqrstuvwxyz')
-
-/** Creates a deterministic CUID generator for testing. */
-export const makeTestGenerator: (seedString: string) => Generator = (seedString) => {
-  let seed: SR.PRNG
-  return new Generator(() => {
-    seed ??= SR(seedString)
-    const [r, ...rArray] = Array.makeBy(20, () => seed.int32())
-    return decodeSync(`${base26.encode([r])}${base36.encode(rArray)}`.slice(0, 24).padEnd(24, '0'))
-  })
-}
 
 /** Generates a new CUID using the Generator service. */
 export const make: Effect.Effect<CUID, never, Generator> = Effect.gen(function* () {

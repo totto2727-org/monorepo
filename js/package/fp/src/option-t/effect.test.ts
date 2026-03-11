@@ -1,6 +1,6 @@
-import { Cause, Exit } from '#@/effect.ts'
 import { Result } from '#@/option-t.ts'
 import { describe, expect, test } from 'bun:test'
+import { Cause, Exit } from 'effect'
 
 import { fromExit } from './effect.ts'
 

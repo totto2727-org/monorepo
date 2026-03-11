@@ -1,8 +1,0 @@
-{
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": ["@totto2727/fp/tsconfig/bun"],
-  "compilerOptions": {
-    "lib": ["DOM", "ESNext"],
-    "types": ["./worker-configuration.d.ts"]
-  }
-}

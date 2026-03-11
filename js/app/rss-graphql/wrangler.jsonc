@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "compatibility_date": "2026-02-01",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "./app/workers.ts",
+  "main": "./app/entry.worker.ts",
   "name": "rss-graphql",
   "observability": {
     "enabled": true,

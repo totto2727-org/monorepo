@@ -8,21 +8,20 @@
   "scripts": {
     "check": "tsgo",
     "deploy": "wrangler deploy",
-    "dev": "NODE_ENV=development bun run --hot app/dev.ts | bunx pino-pretty",
-    "start": "bun run app/dev.ts",
-    "start:wrangler": "wrangler dev"
+    "dev": "vite dev",
+    "start": "wrangler dev"
   },
   "devDependencies": {
-    "@bogeychan/elysia-logger": "catalog:elysia",
-    "@elysiajs/cors": "catalog:elysia",
-    "@elysiajs/graphql-yoga": "catalog:elysia",
-    "@elysiajs/html": "catalog:elysia",
+    "@cloudflare/vite-plugin": "catalog:vite",
+    "@hono/graphql-server": "catalog:hono",
     "@mikaelporttila/rss": "catalog:dev",
     "@pothos/core": "catalog:graphql",
     "@pothos/plugin-validation": "catalog:graphql",
     "@totto2727/fp": "workspace:*",
-    "elysia": "catalog:elysia",
+    "effect": "catalog:effect",
     "graphql": "catalog:graphql",
-    "graphql-scalars": "catalog:graphql"
+    "graphql-scalars": "catalog:graphql",
+    "hono": "catalog:hono",
+    "vite": "catalog:vite"
   }
 }

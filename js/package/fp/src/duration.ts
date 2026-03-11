@@ -1,21 +1,42 @@
 import { DurationFormat } from '@formatjs/intl-durationformat'
+import { Array, DateTime, Duration, Effect, HashMap, Layer, Option, Ref, ServiceMap } from 'effect'
 
-import { Array, Data, DateTime, Duration, HashMap, Option } from './effect.ts'
+type DurationFormatterCacheRef = Ref.Ref<HashMap.HashMap<readonly string[], DurationFormat>>
 
-const shortFormatterHashMap = HashMap.empty<readonly string[], DurationFormat>()
+/**
+ * @internal
+ */
+export const DurationFormatterCacheBase: ServiceMap.ServiceClass<
+  DurationFormatterCache,
+  '@totto2727/fp/duration/DurationFormatterCache',
+  DurationFormatterCacheRef
+> & {
+  readonly make: Effect.Effect<DurationFormatterCacheRef, never, never>
+} = ServiceMap.Service<DurationFormatterCache>()('@totto2727/fp/duration/DurationFormatterCache', {
+  make: Ref.make(HashMap.empty()),
+})
 
-const shortFormatterFactory = (option: { locale: string | string[] }): DurationFormat => {
-  const searializable = Data.array(Array.ensure(option.locale))
-  const cached = HashMap.get(shortFormatterHashMap, searializable)
+/** Effect service that provides CUID generation. */
+export class DurationFormatterCache extends DurationFormatterCacheBase {
+  static readonly layer: Layer.Layer<DurationFormatterCache, never, never> = Layer.effect(this, this.make)
+}
+
+const shortFormatterFactory = Effect.fn(function* (option: { locale: string | string[] }) {
+  const durationFormatterCacheRef = yield* DurationFormatterCache
+  const durationFormatterCache = yield* Ref.get(durationFormatterCacheRef)
+
+  const keys = Array.ensure(option.locale)
+  const cached = HashMap.get(durationFormatterCache, keys)
   if (Option.isSome(cached)) {
     return cached.value
   }
+
   const formatter = new DurationFormat(option.locale, {
     style: 'narrow',
   })
-  HashMap.set(searializable, formatter)(shortFormatterHashMap)
+  Ref.set(durationFormatterCacheRef, HashMap.set(durationFormatterCache, keys, formatter))
   return formatter
-}
+})
 
 /**
  * Function that calculates the time difference between two dates and returns it as a string
@@ -24,14 +45,16 @@ const shortFormatterFactory = (option: { locale: string | string[] }): DurationF
  *
  * DurationFormat instances used internally are cached with locale values as keys.
  */
-export const formatShort = (
+export const formatShort: (
   from: DateTime.DateTime,
   to: DateTime.DateTime,
-  option: { locale: string | string[] },
-): string => {
-  const formatter: DurationFormat = shortFormatterFactory(option)
+  option: {
+    locale: string | string[]
+  },
+) => Effect.Effect<string, never, DurationFormatterCache> = Effect.fn(function* (from, to, option) {
+  const formatter = yield* shortFormatterFactory(option)
 
-  const duration = DateTime.distanceDuration(from, to)
+  const duration = DateTime.distance(from, to)
 
   const parts = Duration.parts(duration)
 
@@ -56,4 +79,4 @@ export const formatShort = (
   }
 
   return formatter.format(Duration.parts(duration))
-}
+})
