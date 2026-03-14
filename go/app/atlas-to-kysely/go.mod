@@ -1,4 +1,4 @@
-module atlas-kysely-gen
+module github.com/totto2727-org/monorepo/go/app/atlas-to-kysely
 
 go 1.24
 
