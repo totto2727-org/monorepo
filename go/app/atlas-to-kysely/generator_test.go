@@ -30,6 +30,12 @@ func TestGenerateKysely_Fixtures(t *testing.T) {
 			tsPath:  "fixture/snake/generated.ts",
 			opts:    GenerateOptions{CaseMode: "snake"},
 		},
+		{
+			name:    "camel_kysely_upper_snake",
+			hclPath: "fixture/camel_kysely/schema.hcl",
+			tsPath:  "fixture/camel_kysely/generated.ts",
+			opts:    GenerateOptions{CaseMode: "camel"},
+		},
 	}
 
 	for _, tt := range tests {
@@ -56,6 +62,47 @@ func TestGenerateKysely_Fixtures(t *testing.T) {
 
 			if got != string(expected) {
 				t.Errorf("output does not match %s\n--- got ---\n%s\n--- want ---\n%s", tt.tsPath, got, string(expected))
+			}
+		})
+	}
+}
+
+func TestKyselyCamelCase(t *testing.T) {
+	tests := []struct {
+		input string
+		want  string
+	}{
+		// Standard snake_case
+		{"access_token", "accessToken"},
+		{"user_id", "userId"},
+		{"created_at", "createdAt"},
+		{"refresh_token_expires_at", "refreshTokenExpiresAt"},
+		// UPPER_SNAKE_CASE (Kysely upperCase=true behavior)
+		{"USER_ID", "userId"},
+		{"HTTP_STATUS", "httpStatus"},
+		{"MAX_RETRY_COUNT", "maxRetryCount"},
+		{"UPDATED_AT", "updatedAt"},
+		{"ID", "id"},
+		// Already camelCase (should pass through)
+		{"userId", "userId"},
+		{"accessToken", "accessToken"},
+		{"already", "already"},
+		// Single character
+		{"a", "a"},
+		{"A", "a"},
+		// Empty string
+		{"", ""},
+		// No underscores
+		{"id", "id"},
+		// Mixed case with digits
+		{"ITEM_2_NAME", "item2Name"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			got := kyselyCamelCase(tt.input)
+			if got != tt.want {
+				t.Errorf("kyselyCamelCase(%q) = %q, want %q", tt.input, got, tt.want)
 			}
 		})
 	}

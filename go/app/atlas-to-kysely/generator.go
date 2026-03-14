@@ -87,8 +87,8 @@ func GenerateKysely(realm *schema.Realm, opts GenerateOptions) (string, error) {
 		fmt.Fprintf(&sb, "export interface %s {\n", pascal)
 		for _, col := range cols {
 			ts := columnToTsType(col)
-			colName := convertColumnName(col.Name, opts.CaseMode)
-		fmt.Fprintf(&sb, "  %s: %s;\n", colName, ts.innerType())
+				colName := convertColumnName(col.Name, opts.CaseMode)
+			fmt.Fprintf(&sb, "  %s: %s;\n", colName, ts.innerType())
 		}
 		sb.WriteString("}\n\n")
 	}
@@ -121,15 +121,62 @@ func toPascalCase(s string) string {
 func convertColumnName(name, caseMode string) string {
 	switch caseMode {
 	case "camel":
-		return toCamelCase(name)
+		return kyselyCamelCase(name)
 	case "snake", "none":
 		return name
 	default:
-		return toCamelCase(name)
+		return kyselyCamelCase(name)
 	}
 }
 
-// toCamelCase converts snake_case to camelCase.
+// kyselyCamelCase converts a string to camelCase using the same algorithm
+// as Kysely's CamelCasePlugin (with upperCase=true).
+// This handles UPPER_SNAKE_CASE by lowercasing first, then applying
+// underscore-based camelCase conversion.
+func kyselyCamelCase(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+
+	// If all non-underscore characters are uppercase, lowercase the whole string first.
+	// This matches Kysely's createCamelCaseMapper({upperCase: true}) behavior.
+	if isAllUpperCaseSnakeCase(s) {
+		s = strings.ToLower(s)
+	}
+
+	var sb strings.Builder
+	sb.Grow(len(s))
+	sb.WriteByte(s[0])
+
+	for i := 1; i < len(s); i++ {
+		ch := s[i]
+		prev := s[i-1]
+
+		if ch != '_' {
+			if prev == '_' {
+				sb.WriteByte(byte(unicode.ToUpper(rune(ch))))
+			} else {
+				sb.WriteByte(ch)
+			}
+		}
+	}
+
+	return sb.String()
+}
+
+// isAllUpperCaseSnakeCase checks if a string consists only of uppercase
+// letters and underscores (e.g. "USER_ID", "HTTP_STATUS").
+func isAllUpperCaseSnakeCase(s string) bool {
+	for i := 0; i < len(s); i++ {
+		ch := rune(s[i])
+		if ch != '_' && !unicode.IsUpper(ch) && !unicode.IsDigit(ch) {
+			return false
+		}
+	}
+	return true
+}
+
+// toCamelCase converts snake_case to camelCase (legacy, used by toPascalCase tests).
 // "access_token" → "accessToken"
 func toCamelCase(s string) string {
 	parts := strings.FieldsFunc(s, func(r rune) bool {
