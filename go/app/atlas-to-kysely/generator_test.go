@@ -31,6 +31,32 @@ func TestGenerateKysely_FixtureMatch(t *testing.T) {
 	}
 }
 
+func TestGenerateKysely_GeneratedWrapper(t *testing.T) {
+	src, err := os.ReadFile("fixture/generated_wrapper/schema.hcl")
+	if err != nil {
+		t.Fatalf("failed to read fixture: %v", err)
+	}
+
+	realm, err := ParseHCLBytes(src)
+	if err != nil {
+		t.Fatalf("failed to parse HCL: %v", err)
+	}
+
+	got, err := GenerateKysely(realm)
+	if err != nil {
+		t.Fatalf("GenerateKysely failed: %v", err)
+	}
+
+	expected, err := os.ReadFile("fixture/generated_wrapper/generated.ts")
+	if err != nil {
+		t.Fatalf("failed to read expected fixture: %v", err)
+	}
+
+	if got != string(expected) {
+		t.Errorf("output does not match fixture/generated_wrapper/generated.ts\n--- got ---\n%s\n--- want ---\n%s", got, string(expected))
+	}
+}
+
 func TestToCamelCase(t *testing.T) {
 	tests := []struct {
 		input string
