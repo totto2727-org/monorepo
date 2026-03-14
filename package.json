@@ -104,7 +104,8 @@
       "js",
       "js/app/*",
       "js/package/*",
-      "mbt/package/*"
+      "mbt/package/*",
+      "go/app/*"
     ]
   },
   "type": "module",

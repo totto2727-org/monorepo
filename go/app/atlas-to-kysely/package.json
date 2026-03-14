@@ -1,0 +1,7 @@
+{
+  "name": "@app/atlas-to-kysely",
+  "private": true,
+  "scripts": {
+    "fix": "go fmt ."
+  }
+}
