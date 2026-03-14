@@ -1,0 +1,33 @@
+# https://taskfile.dev
+version: '3'
+
+tasks:
+  default:
+    aliases:
+      - list
+    cmd: task --list-all
+
+  db:dev:
+    cmds:
+      - task: db:schema:apply
+      - turso dev -f ./node_modules/.cache/db
+
+  db:reset:
+    cmds:
+      - rm ./node_modules/.cache/db
+
+  db:schema:apply:
+    cmds:
+      - atlas schema apply --env local
+      - bun run prebuild:kysely
+      # - kysely-codegen --dialect libsql --url 'file:node_modules/.cache/db' --camel-case --out-file src/feature/db/generated.ts --exclude-pattern atlas_schema_revisions
+
+  db:migrate:apply:
+    cmds:
+      - task: db:reset
+      - atlas migrate apply --env local
+
+  db:migrate:diff:
+    cmds:
+      - task: db:migrate:apply
+      - atlas migrate diff --env local

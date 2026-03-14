@@ -15,12 +15,14 @@
     "prebuild": "bun run --parallel prebuild:*",
     "prebuild:cloudflare": "wrangler types",
     "prebuild:paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/feature/i18n/paraglide --emit-ts-declarations",
-    "prebuild:tsr": "tsr generate"
+    "prebuild:tsr": "tsr generate",
+    "prebuild:kysely": "go run github.com/totto2727-org/monorepo/go/app/atlas-to-kysely@0faf30b464eece8a80acdafad0f7ea0cec2f89e2 -i db/schema.hcl -o src/feature/db/generated.ts"
   },
   "dependencies": {},
   "devDependencies": {
     "@cloudflare/vite-plugin": "catalog:cloudflare",
     "@inlang/paraglide-js": "catalog:i18n",
+    "@libsql/kysely-libsql": "catalog:database",
     "@package/ui": "workspace:*",
     "@storybook/react-vite": "catalog:storybook",
     "@tailwindcss/vite": "catalog:ui",
@@ -50,6 +52,8 @@
     "better-auth": "catalog:auth",
     "effect": "catalog:effect",
     "hono": "catalog:hono",
+    "kysely": "catalog:database",
+    "kysely-codegen": "catalog:database",
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "storybook": "catalog:storybook",

@@ -2,13 +2,13 @@ import type { Register } from '@tanstack/react-router'
 import type { RequestHandler } from '@tanstack/react-start/server'
 
 import { createStartHandler, defaultStreamHandler } from '@tanstack/react-start/server'
-import { Effect } from 'effect'
 
-import { app } from './entry.hono.ts'
+import { makeHono } from './entry.hono.ts'
+import * as DI from './feature/di/server.ts'
 
+// 呪文
 const fetch = createStartHandler(defaultStreamHandler)
 
-// Providing `RequestHandler` from `@tanstack/react-start/server` is required so that the output types don't import it from `@tanstack/start-server-core`
 export interface ServerEntry {
   fetch: RequestHandler<Register>
 }
@@ -18,5 +18,8 @@ export const createServerEntry = (entry: ServerEntry): ServerEntry => ({
     return await entry.fetch(...args)
   },
 })
+// 呪文ここまで
 
-export default app.pipe(Effect.runSync).mount('/', fetch)
+const app = makeHono(DI.DisposableRuntime).mount('/', fetch)
+
+export default app
