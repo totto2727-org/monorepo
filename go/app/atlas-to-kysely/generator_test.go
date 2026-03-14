@@ -5,55 +5,59 @@ import (
 	"testing"
 )
 
-func TestGenerateKysely_FixtureMatch(t *testing.T) {
-	src, err := os.ReadFile("fixture/schema.hcl")
-	if err != nil {
-		t.Fatalf("failed to read fixture/schema.hcl: %v", err)
+func TestGenerateKysely_Fixtures(t *testing.T) {
+	tests := []struct {
+		name    string
+		hclPath string
+		tsPath  string
+		opts    GenerateOptions
+	}{
+		{
+			name:    "default_camel",
+			hclPath: "fixture/schema.hcl",
+			tsPath:  "fixture/generated.ts",
+			opts:    GenerateOptions{CaseMode: "camel"},
+		},
+		{
+			name:    "generated_wrapper",
+			hclPath: "fixture/generated_wrapper/schema.hcl",
+			tsPath:  "fixture/generated_wrapper/generated.ts",
+			opts:    GenerateOptions{CaseMode: "camel"},
+		},
+		{
+			name:    "snake_case",
+			hclPath: "fixture/snake/schema.hcl",
+			tsPath:  "fixture/snake/generated.ts",
+			opts:    GenerateOptions{CaseMode: "snake"},
+		},
 	}
 
-	realm, err := ParseHCLBytes(src)
-	if err != nil {
-		t.Fatalf("failed to parse HCL: %v", err)
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			src, err := os.ReadFile(tt.hclPath)
+			if err != nil {
+				t.Fatalf("failed to read %s: %v", tt.hclPath, err)
+			}
 
-	got, err := GenerateKysely(realm)
-	if err != nil {
-		t.Fatalf("GenerateKysely failed: %v", err)
-	}
+			realm, err := ParseHCLBytes(src)
+			if err != nil {
+				t.Fatalf("failed to parse HCL: %v", err)
+			}
 
-	expected, err := os.ReadFile("fixture/generated.ts")
-	if err != nil {
-		t.Fatalf("failed to read fixture/generated.ts: %v", err)
-	}
+			got, err := GenerateKysely(realm, tt.opts)
+			if err != nil {
+				t.Fatalf("GenerateKysely failed: %v", err)
+			}
 
-	if got != string(expected) {
-		t.Errorf("output does not match fixture/generated.ts\n--- got ---\n%s\n--- want ---\n%s", got, string(expected))
-	}
-}
+			expected, err := os.ReadFile(tt.tsPath)
+			if err != nil {
+				t.Fatalf("failed to read %s: %v", tt.tsPath, err)
+			}
 
-func TestGenerateKysely_GeneratedWrapper(t *testing.T) {
-	src, err := os.ReadFile("fixture/generated_wrapper/schema.hcl")
-	if err != nil {
-		t.Fatalf("failed to read fixture: %v", err)
-	}
-
-	realm, err := ParseHCLBytes(src)
-	if err != nil {
-		t.Fatalf("failed to parse HCL: %v", err)
-	}
-
-	got, err := GenerateKysely(realm)
-	if err != nil {
-		t.Fatalf("GenerateKysely failed: %v", err)
-	}
-
-	expected, err := os.ReadFile("fixture/generated_wrapper/generated.ts")
-	if err != nil {
-		t.Fatalf("failed to read expected fixture: %v", err)
-	}
-
-	if got != string(expected) {
-		t.Errorf("output does not match fixture/generated_wrapper/generated.ts\n--- got ---\n%s\n--- want ---\n%s", got, string(expected))
+			if got != string(expected) {
+				t.Errorf("output does not match %s\n--- got ---\n%s\n--- want ---\n%s", tt.tsPath, got, string(expected))
+			}
+		})
 	}
 }
 

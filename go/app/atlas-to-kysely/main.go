@@ -9,6 +9,7 @@ import (
 func main() {
 	input := flag.String("input", "", "Path to schema.hcl (required)")
 	output := flag.String("output", "", "Output .ts file path (default: stdout)")
+	caseMode := flag.String("case", "camel", "Column name case: camel, snake, none")
 	flag.StringVar(input, "i", "", "Path to schema.hcl (shorthand)")
 	flag.StringVar(output, "o", "", "Output .ts file path (shorthand)")
 	flag.Parse()
@@ -16,6 +17,13 @@ func main() {
 	if *input == "" {
 		fmt.Fprintln(os.Stderr, "Error: --input is required")
 		flag.Usage()
+		os.Exit(1)
+	}
+
+	switch *caseMode {
+	case "camel", "snake", "none":
+	default:
+		fmt.Fprintf(os.Stderr, "Error: --case must be camel, snake, or none (got %q)\n", *caseMode)
 		os.Exit(1)
 	}
 
@@ -31,7 +39,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	out, err := GenerateKysely(realm)
+	opts := GenerateOptions{CaseMode: *caseMode}
+	out, err := GenerateKysely(realm, opts)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: codegen failed: %v\n", err)
 		os.Exit(1)

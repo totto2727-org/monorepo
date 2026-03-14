@@ -11,9 +11,15 @@ import (
 	"ariga.io/atlas/sql/schema"
 )
 
+// GenerateOptions holds configuration options for the code generator.
+type GenerateOptions struct {
+	// CaseMode controls column name casing: "camel", "snake", or "none".
+	CaseMode string
+}
+
 // GenerateKysely generates a kysely-codegen compatible TypeScript string
 // from a *schema.Realm produced by the HCL loader.
-func GenerateKysely(realm *schema.Realm) (string, error) {
+func GenerateKysely(realm *schema.Realm, opts GenerateOptions) (string, error) {
 	var sb strings.Builder
 
 	// --- Collect all tables across schemas ---
@@ -81,7 +87,8 @@ func GenerateKysely(realm *schema.Realm) (string, error) {
 		fmt.Fprintf(&sb, "export interface %s {\n", pascal)
 		for _, col := range cols {
 			ts := columnToTsType(col)
-			fmt.Fprintf(&sb, "  %s: %s;\n", toCamelCase(col.Name), ts.innerType())
+			colName := convertColumnName(col.Name, opts.CaseMode)
+		fmt.Fprintf(&sb, "  %s: %s;\n", colName, ts.innerType())
 		}
 		sb.WriteString("}\n\n")
 	}
@@ -108,6 +115,18 @@ func toPascalCase(s string) string {
 		}
 	}
 	return strings.Join(parts, "")
+}
+
+// convertColumnName converts a column name according to the given case mode.
+func convertColumnName(name, caseMode string) string {
+	switch caseMode {
+	case "camel":
+		return toCamelCase(name)
+	case "snake", "none":
+		return name
+	default:
+		return toCamelCase(name)
+	}
 }
 
 // toCamelCase converts snake_case to camelCase.
