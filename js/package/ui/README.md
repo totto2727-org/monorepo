@@ -9,7 +9,7 @@ React UI component library based on Shadcn/UI with Tailwind CSS v4.
 - **Variants**: class-variance-authority (CVA)
 - **Utilities**: clsx + tailwind-merge
 - **Icons**: Lucide React
-- **Type Check**: tsgo
+- **Type Check**: vp check
 
 ## Exports
 
@@ -24,7 +24,7 @@ React UI component library based on Shadcn/UI with Tailwind CSS v4.
 
 ```bash
 # Type check
-vp run check
+vp check
 ```
 
 ## Adding Components

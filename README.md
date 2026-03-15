@@ -23,7 +23,7 @@ A multi-language monorepo (TypeScript + MoonBit) using pnpm workspaces and Vite+
 - **js/package/fp** - `@totto2727/fp` Functional Programming Utilities
   - Re-exports: Effect, option-t, Temporal, change-case, velona
   - Custom: Effect/option-t bridge, CUID generator, duration formatting
-  - Shared TypeScript configs (bun, node, react, tanstack-start, etc.)
+  - Shared TypeScript config (vite)
   - Published to NPM and JSR (raw `.ts` source files)
 
 - **js/package/ui** - `@package/ui` React UI Component Library
@@ -40,7 +40,7 @@ A multi-language monorepo (TypeScript + MoonBit) using pnpm workspaces and Vite+
 
 ### Languages & Runtimes
 
-- TypeScript (Bun, Cloudflare Workers)
+- TypeScript (Node.js, Cloudflare Workers)
 - MoonBit (geospatial processing)
 
 ### Frameworks & Libraries

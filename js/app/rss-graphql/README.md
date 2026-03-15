@@ -14,14 +14,14 @@ GraphQL API server for RSS feed processing and querying.
 ## Development
 
 ```bash
-# Start development server
-vp run dev
+# Start development server (vp built-in)
+vp dev
 
 # Start Wrangler local server
 vp run start
 
-# Type check
-vp run check
+# Lint, format, and type check (vp built-in)
+vp check
 
 # Deploy to Cloudflare
 vp run deploy

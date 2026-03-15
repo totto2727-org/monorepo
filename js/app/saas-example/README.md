@@ -18,17 +18,20 @@ Full-stack SaaS demo application showcasing modern React ecosystem with TanStack
 ## Development
 
 ```bash
+# Start local database server (required before vp dev)
+task db:dev
+
 # Start development server
-vp run dev
+vp dev
 
 # Build
-vp run build
+vp build
 
 # Preview built application
-vp run preview
+vp preview
 
 # Run tests
-vp run test
+vp test
 
 # Storybook development
 vp run storybook:dev
@@ -44,6 +47,27 @@ Prebuild runs automatically via Vite+ before build/check/test:
 - `prebuild:cloudflare` - Generate Cloudflare Worker types
 - `prebuild:paraglide` - Compile i18n messages
 - `prebuild:tsr` - Generate TanStack Router route tree
+- `prebuild:kysely` - Generate Kysely type definitions from Atlas schema
+
+### Database Operations
+
+The following commands can be run while `task db:dev` is running.
+
+```bash
+# Apply schema changes
+task db:schema:apply
+
+# Reset database and re-apply schema
+task db:reset && task db:schema:apply
+
+# Create a new migration
+task db:migrate:diff
+
+# Apply migrations
+task db:migrate:apply
+```
+
+> **Warning**: Migration commands (`db:migrate:diff`, `db:migrate:apply`) reset the database. Make sure to back up any important data before running them.
 
 ## Architecture
 
