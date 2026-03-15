@@ -34,4 +34,4 @@ jobs:
 
       - name: Publish npm:@totto2727/fp
         run: |
-          cd js/package/fp && npm publish
+          devbox run -- 'cd js/package/fp && npm publish'
