@@ -22,7 +22,7 @@ jobs:
 
       - uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: .node-version
+          node-version: '.node-version'
           cache: true
 
       - name: Install package
