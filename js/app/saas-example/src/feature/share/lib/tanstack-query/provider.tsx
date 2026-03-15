@@ -1,9 +1,8 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-
 const getContext_ = () => {
-  let context
+  let context: { queryClient: QueryClient }
   return () => {
     context ??= {
       queryClient: new QueryClient(),

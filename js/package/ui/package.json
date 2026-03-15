@@ -9,9 +9,6 @@
     "./hooks/*": "./src/hooks/*.tsx",
     "./lib/*": "./src/lib/*.ts"
   },
-  "scripts": {
-    "check": "tsgo"
-  },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
     "class-variance-authority": "^0.7.1",

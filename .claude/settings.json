@@ -1,15 +1,21 @@
 {
   "permissions": {
     "allow": [
-      "Bash(turbo check)",
-      "Bash(turbo fix)",
-      "Bash(turbo test)",
-      "Bash(bun run check)",
-      "Bash(bun run check:*)",
-      "Bash(bun run fix)",
-      "Bash(bun run fix:*)",
-      "Bash(bun test)",
-      "Bash(bun run test)"
+      "Bash(vp run check)",
+      "Bash(vp run fix)",
+      "Bash(vp run test)",
+      "Bash(vp run check build test)",
+      "Bash(vp check)",
+      "Bash(vp test)",
+      "Bash(vp install)",
+      "Bash(pnpm run --parallel /check:.*/)",
+      "Bash(pnpm run /fix:.*/)"
     ]
+  },
+  "mcpServers": {
+    "vite-plus": {
+      "command": "npx",
+      "args": ["vp", "mcp"]
+    }
   }
 }

@@ -9,12 +9,12 @@
 import { Array, Effect, flow, Function, Option } from '#@/effect.ts'
 
 /** Returns a constant void Effect. */
-export const constVoidEffect: Function.LazyArg<Effect.Effect<void, never, never>> = Function.constant(Effect.void)
+export const constVoidEffect: Function.LazyArg<Effect.Effect<void>> = Function.constant(Effect.void)
 
 /** Wraps a function to return a void Effect, discarding its return value. */
 export const asVoidEffect: <ARGS extends unknown[]>(
   fn: (...args: ARGS) => unknown,
-) => (...a: ARGS) => Effect.Effect<void, never, never> = (fn) => flow(fn, constVoidEffect)
+) => (...a: ARGS) => Effect.Effect<void> = (fn) => flow(fn, constVoidEffect)
 
 /** Extracts the success type from an Effect-returning function. */
 export type EffectFnSuccess<
@@ -43,6 +43,7 @@ export const tap =
   <const T extends readonly unknown[]>(fn: (v: Array.ReadonlyArray.Infer<T>) => void): ((vs: T) => T) =>
   (vs) => {
     for (const v of vs) {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
       fn(v as Array.ReadonlyArray.Infer<T>)
     }
     return vs

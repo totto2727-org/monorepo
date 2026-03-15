@@ -1,7 +1,8 @@
+import { Layer, ManagedRuntime } from 'effect'
+
 import * as BetterAuth from '#@/feature/auth/better-auth.ts'
 import * as DB from '#@/feature/db/kysely.ts'
 import * as Env from '#@/feature/env.ts'
-import { Layer, ManagedRuntime } from 'effect'
 
 const makeRuntime = (env: Env.Type) =>
   ManagedRuntime.make(BetterAuth.layer.pipe(Layer.provideMerge(DB.remoteLayer), Layer.provideMerge(Env.makeLayer(env))))

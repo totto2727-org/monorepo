@@ -1,5 +1,5 @@
-import { describe, expect, test } from 'bun:test'
 import { Array, Effect, pipe, Schema, String } from 'effect'
+import { describe, expect, test } from 'vite-plus/test'
 
 import * as CUID from './cuid.ts'
 
@@ -154,7 +154,7 @@ describe('CSPRNG', () => {
     const ids = Array.makeBy(100, () => CUID.init()())
     const allValid = ids.every((id) => CUID.is(id))
     const allUnique = new Set(ids).size === ids.length
-    expect(allValid).toBeTrue()
-    expect(allUnique).toBeTrue()
+    expect(allValid).toBe(true)
+    expect(allUnique).toBe(true)
   })
 })

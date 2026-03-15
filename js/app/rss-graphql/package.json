@@ -6,9 +6,8 @@
     "#@/*": "./app/*"
   },
   "scripts": {
-    "check": "tsgo",
     "deploy": "wrangler deploy",
-    "dev": "vite dev",
+    "dev": "vp dev",
     "start": "wrangler dev"
   },
   "devDependencies": {
@@ -21,7 +20,6 @@
     "effect": "catalog:effect",
     "graphql": "catalog:graphql",
     "graphql-scalars": "catalog:graphql",
-    "hono": "catalog:hono",
-    "vite": "catalog:vite"
+    "hono": "catalog:hono"
   }
 }

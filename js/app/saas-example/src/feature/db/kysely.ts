@@ -1,9 +1,9 @@
-import type { Type } from '#@/feature/env.ts'
-
-import * as Env from '#@/feature/env.ts'
 import { LibsqlDialect } from '@libsql/kysely-libsql'
 import { Effect, Layer, ServiceMap } from 'effect'
 import { CamelCasePlugin, Kysely } from 'kysely'
+
+import type { Type } from '#@/feature/env.ts'
+import * as Env from '#@/feature/env.ts'
 
 import type { DB } from './generated.ts'
 

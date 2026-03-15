@@ -1,6 +1,4 @@
 node_modules/
-.turbo/
 .claude/**.local.*
 *.local.*
 worker-configuration.d.ts
-js/app/saas-example/src/feature/db/generated.ts

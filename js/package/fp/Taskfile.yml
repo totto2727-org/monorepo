@@ -12,9 +12,9 @@ tasks:
       BUMP:
         sh: echo -e "patch\nminor\nmajor" | fzf --prompt="Select version bump> "
     cmds:
-      - bun pm version {{.BUMP}}
-      - safe-chain bun run scripts/sync-jsr.ts
-      - oxfmt -c ../../../.oxfmtrc.jsonc
+      - vp pm version {{.BUMP}}
+      - deno run --allow-read --allow-write scripts/sync-jsr.ts
+      - vp fmt
       - git add package.json jsr.json
       - git commit -m "up @totto2727/fp $(jq -r .version package.json)"
       - git push

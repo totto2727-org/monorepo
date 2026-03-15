@@ -17,6 +17,11 @@
       }
     ],
     "no-nodejs-modules": "allow",
-    "jsx-no-new-function-as-prop": "allow"
+    "jsx-no-new-function-as-prop": "allow",
+    "typescript/promise-function-async": "allow"
+  },
+  "options": {
+    "typeAware": true,
+    "typeCheck": false
   }
 }

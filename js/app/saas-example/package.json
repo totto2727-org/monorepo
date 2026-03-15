@@ -6,13 +6,11 @@
     "#@/*": "./src/*"
   },
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
+    "build": "vp build",
+    "start": "wrangler dev",
     "storybook:dev": "storybook dev -p 6006",
     "storybook:build": "storybook build",
-    "prebuild": "bun run --parallel prebuild:*",
+    "prebuild": "pnpm run --parallel /prebuild:.*/",
     "prebuild:cloudflare": "wrangler types",
     "prebuild:paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/feature/i18n/paraglide --emit-ts-declarations",
     "prebuild:tsr": "tsr generate",
@@ -57,8 +55,6 @@
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "storybook": "catalog:storybook",
-    "tailwindcss": "catalog:ui",
-    "vite": "catalog:vite",
-    "vitest": "catalog:vite"
+    "tailwindcss": "catalog:ui"
   }
 }

@@ -26,8 +26,9 @@
  * SOFTWARE.
  */
 
+import { describe, expect, test } from 'vite-plus/test'
+
 import { Result } from '#@/option-t.ts'
-import { describe, expect, test } from 'bun:test'
 
 import { safeTry, safeUnwrap } from './safe-try.ts'
 

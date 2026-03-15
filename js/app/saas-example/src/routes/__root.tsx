@@ -1,14 +1,13 @@
-// oxlint-disable import/no-relative-parent-imports
-
-import type { QueryClient } from '@tanstack/react-query'
-
-import { getLocale } from '#@/feature/i18n/share.ts'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+import type { QueryClient } from '@tanstack/react-query'
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools'
 import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 
+import { getLocale } from '#@/feature/i18n/share.ts'
+
 import TanStackQueryProvider from '../feature/share/lib/tanstack-query/provider.tsx'
+
 import appCss from '../styles.css?url'
 
 const RootDocument = ({ children }: { children: React.ReactNode }) => (

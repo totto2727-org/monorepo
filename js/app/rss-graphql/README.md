@@ -15,16 +15,16 @@ GraphQL API server for RSS feed processing and querying.
 
 ```bash
 # Start development server
-bun run dev
+vp run dev
 
 # Start Wrangler local server
-bun run start
+vp run start
 
 # Type check
-bun run check
+vp run check
 
 # Deploy to Cloudflare
-bun run deploy
+vp run deploy
 ```
 
 ## Architecture

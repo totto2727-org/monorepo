@@ -39,12 +39,9 @@
     "./type": "./src/type.ts"
   },
   "scripts": {
-    "check": "bun run --parallel check:*",
-    "check:tsgo": "tsgo",
-    "check:doc": "bunx deno doc --lint src/**/*.ts",
-    "check:slowtype": "bunx jsr publish --dry-run --allow-dirty",
-    "test": "bun test",
-    "deploy": "bunx jsr publish"
+    "check": "pnpm run --parallel /check:.*/",
+    "check:doc": "vpx deno doc --lint src/**/*.ts",
+    "check:slowtype": "vpx jsr publish --dry-run --allow-dirty"
   },
   "dependencies": {
     "@formatjs/intl-durationformat": "^0.10.1",

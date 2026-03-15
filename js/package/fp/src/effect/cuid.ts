@@ -1,3 +1,7 @@
+import { sha3_512 } from '@noble/hashes/sha3.js'
+import BaseX from 'base-x'
+import { BigNumber } from 'bignumber.js'
+import { Array, Effect, Layer, Schema, ServiceMap } from 'effect'
 /*
  * MIT License
  * Copyright (c) 2022 Eric Elliott
@@ -5,11 +9,6 @@
  * <https://github.com/paralleldrive/cuid2/blob/e2391a06836226249ed2ca1a287516d2c459dab7/src/index.js>
  */
 import type { ParseOptions } from 'effect/SchemaAST'
-
-import { sha3_512 } from '@noble/hashes/sha3.js'
-import BaseX from 'base-x'
-import { BigNumber } from 'bignumber.js'
-import { Array, Effect, Layer, Schema, ServiceMap } from 'effect'
 import SR from 'seedrandom'
 
 const defaultLength = 24
@@ -82,7 +81,34 @@ const hash = (input: string): string => {
     .slice(1)
 }
 
-const alphabet = [...'abcdefghijklmnopqrstuvwxyz']
+const alphabet = [
+  'a',
+  'b',
+  'c',
+  'd',
+  'e',
+  'f',
+  'g',
+  'h',
+  'i',
+  'j',
+  'k',
+  'l',
+  'm',
+  'n',
+  'o',
+  'p',
+  'q',
+  'r',
+  's',
+  't',
+  'u',
+  'v',
+  'w',
+  'x',
+  'y',
+  'z',
+]
 
 const randomLetter = (rand: () => number): string => {
   const letter = alphabet[Math.floor(rand() * alphabet.length)]
@@ -150,9 +176,9 @@ export const init = ({
     // length of the hash. For simplicity, we use the same length as the
     // intended id output.
     const salt = createEntropy(length, random)
-    const hashInput = `${time + salt + count + fingerprint}`
+    const hashInput = `${time}${salt}${count}${fingerprint}`
 
-    return decodeSync(`${firstLetter + hash(hashInput).slice(1, length)}`)
+    return decodeSync(`${firstLetter}${hash(hashInput).slice(1, length)}`)
   }
 }
 
@@ -164,7 +190,7 @@ export const GeneratorBase: ServiceMap.ServiceClass<
   '@totto2727/fp/effect/cuid/Generator',
   () => typeof schema.Type
 > & {
-  readonly make: Effect.Effect<() => typeof schema.Type, never, never>
+  readonly make: Effect.Effect<() => typeof schema.Type>
 } = ServiceMap.Service<Generator>()('@totto2727/fp/effect/cuid/Generator', {
   make: Effect.sync(() => {
     let createId: () => CUID
@@ -183,12 +209,12 @@ export class Generator extends GeneratorBase {
   /**
    * Default layer for the Generator service.
    */
-  static readonly layer: Layer.Layer<Generator, never, never> = Layer.effect(this, this.make)
+  static readonly layer: Layer.Layer<Generator> = Layer.effect(this, this.make)
 
   /**
    * Creates a test layer for the Generator service with a fixed seed.
    */
-  static readonly makeLayerTest: (seed: string) => Layer.Layer<Generator, never, never> = (seedString) =>
+  static readonly makeLayerTest: (seed: string) => Layer.Layer<Generator> = (seedString) =>
     Layer.sync(this, () => {
       let seed: SR.PRNG
       return () => {

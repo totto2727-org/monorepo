@@ -35,7 +35,7 @@ const app = new Hono<AppEnv>()
     <title>GraphQL API Information</title>
 </head>
 <body>
-    <p>API Endpoint: <code>${new URL('/api/graphql', c.req.url)}</code></p>
+    <p>API Endpoint: <code>${new URL('/api/graphql', c.req.url).toString()}</code></p>
     <p>Schema: <a href="/api/graphql/schema">/api/graphql/schema</a></p>
     <p>GraphiQL: <a href="/api/graphql">/api/graphql</a></p>
 </body>

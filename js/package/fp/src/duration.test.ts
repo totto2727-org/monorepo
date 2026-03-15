@@ -1,32 +1,32 @@
-import { describe, expect, test } from 'bun:test'
 import { DateTime, Effect } from 'effect'
+import { describe, expect, test } from 'vite-plus/test'
 
-import { DurationFormatterCache, formatShort } from './duration.ts'
+import { DurationFormatterCache, format } from './duration.ts'
 
 describe('formatShort', () => {
   test('EN', () => {
     Effect.gen(function* () {
-      const result = yield* formatShort(
+      const result = yield* format(
         DateTime.makeUnsafe('2023-01-01T00:00:00+00:00'),
         DateTime.makeUnsafe('2023-01-01T01:00:00+00:00'),
         {
           locale: 'en',
         },
       )
-      expect(result).toBe('1h')
+      expect(result).toBe('1 hr')
     }).pipe(Effect.provide(DurationFormatterCache.layer), Effect.runSync)
   })
 
   test('JA', () => {
     Effect.gen(function* () {
-      const result = yield* formatShort(
+      const result = yield* format(
         DateTime.makeUnsafe('2023-01-01T00:00:00+00:00'),
         DateTime.makeUnsafe('2023-01-01T01:00:00+00:00'),
         {
           locale: 'ja',
         },
       )
-      expect(result).toBe('1時間')
+      expect(result).toBe('1 時間')
     }).pipe(Effect.provide(DurationFormatterCache.layer), Effect.runSync)
   })
 })

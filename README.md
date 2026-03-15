@@ -1,6 +1,6 @@
 # Monorepo
 
-A multi-language monorepo (TypeScript + MoonBit) using Bun workspaces and Turborepo.
+A multi-language monorepo (TypeScript + MoonBit) using pnpm workspaces and Vite+.
 
 ## Project Structure
 
@@ -53,7 +53,7 @@ A multi-language monorepo (TypeScript + MoonBit) using Bun workspaces and Turbor
 
 ### Build & Quality Tools
 
-- Turborepo (task orchestration)
+- Vite+ (unified toolchain & task orchestration)
 - Ultracite (Oxlint + Oxfmt for linting/formatting)
 - Grit (code analysis)
 - Vitest (testing), Storybook (component development)
@@ -62,7 +62,7 @@ A multi-language monorepo (TypeScript + MoonBit) using Bun workspaces and Turbor
 
 ### Requirements
 
-- [Devbox](https://www.jetify.com/devbox) (provides bun and nodejs)
+- [Devbox](https://www.jetify.com/devbox) (provides nodejs)
 
 ### Installation
 
@@ -71,29 +71,47 @@ A multi-language monorepo (TypeScript + MoonBit) using Bun workspaces and Turbor
 devbox shell
 
 # Install dependencies
-bun install
+vp i
 ```
 
 ## Development Commands
 
-```bash
-# Lint and format check
-bun run check
+## Workspace Tasks
 
-# Lint and format auto-fix
-bun run fix
+```bash
+# Check all workspace projects
+vp run -r check
+
+# Fix all workspace projects
+vp run -r fix
+
+# Prepare workspace for build, dev, test
+vp run -r prebuild
 
 # Build all projects
-turbo build
-
-# Type check
-turbo check
+vp run -r build
 
 # Run tests
-turbo test
+vp run -r test
+```
 
-# Deploy
-turbo deploy
+### TypeScript
+
+```bash
+# Lint, format check, and Type check
+vp check
+
+# Lint and format auto-fix
+vp check --fix
+
+# Prepare workspace for build, dev, test
+vp run prebuild
+
+# Build all projects
+vp build
+
+# Run tests
+vp test
 ```
 
 ### MoonBit
@@ -107,6 +125,9 @@ moon test
 
 # Format
 moon fmt
+
+# Lint
+moon check
 ```
 
 ## Documentation

@@ -1,7 +1,7 @@
-import type { Context } from 'hono'
-
 import SchemaBuilder from '@pothos/core'
 import ValidationPlugin from '@pothos/plugin-validation'
+
+import type { Context } from '#@/feature/hono/context.ts'
 
 export const makeBuilder = () =>
   new SchemaBuilder<{

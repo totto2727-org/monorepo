@@ -4,9 +4,8 @@ import { Effect, Predicate, Schema } from 'effect'
 import { Literals } from 'effect/Schema'
 import { NonEmptyStringResolver } from 'graphql-scalars'
 
-import type { Builder } from './schema.ts'
-
 import { makeRSSFetchClient } from './rss-fetch-client.ts'
+import type { Builder } from './schema.ts'
 
 const feedType = Literals(['ATOM', 'JSONFeed', 'RSS_1_0', 'RSS_2_0'])
 
@@ -61,7 +60,7 @@ interface FeedResponse {
   feed: Feed
 }
 
-// oxlint-disable-next-line max-statements
+//
 export const initGraphQL = (builder: Builder) => {
   const nonEmptyStringScalar = builder.addScalarType('NonEmptyString', NonEmptyStringResolver)
   const feedTypeEnum = builder.enumType('FeedType', {

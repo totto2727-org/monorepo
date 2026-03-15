@@ -11,17 +11,17 @@ export const DurationFormatterCacheBase: ServiceMap.ServiceClass<
   '@totto2727/fp/duration/DurationFormatterCache',
   DurationFormatterCacheRef
 > & {
-  readonly make: Effect.Effect<DurationFormatterCacheRef, never, never>
+  readonly make: Effect.Effect<DurationFormatterCacheRef>
 } = ServiceMap.Service<DurationFormatterCache>()('@totto2727/fp/duration/DurationFormatterCache', {
   make: Ref.make(HashMap.empty()),
 })
 
 /** Effect service that provides CUID generation. */
 export class DurationFormatterCache extends DurationFormatterCacheBase {
-  static readonly layer: Layer.Layer<DurationFormatterCache, never, never> = Layer.effect(this, this.make)
+  static readonly layer: Layer.Layer<DurationFormatterCache> = Layer.effect(this, this.make)
 }
 
-const shortFormatterFactory = Effect.fn(function* (option: { locale: string | string[] }) {
+const defaultFormatterFactory = Effect.fn(function* (option: { locale: string | string[] }) {
   const durationFormatterCacheRef = yield* DurationFormatterCache
   const durationFormatterCache = yield* Ref.get(durationFormatterCacheRef)
 
@@ -31,9 +31,7 @@ const shortFormatterFactory = Effect.fn(function* (option: { locale: string | st
     return cached.value
   }
 
-  const formatter = new DurationFormat(option.locale, {
-    style: 'narrow',
-  })
+  const formatter = new DurationFormat(option.locale)
   Ref.set(durationFormatterCacheRef, HashMap.set(durationFormatterCache, keys, formatter))
   return formatter
 })
@@ -45,14 +43,14 @@ const shortFormatterFactory = Effect.fn(function* (option: { locale: string | st
  *
  * DurationFormat instances used internally are cached with locale values as keys.
  */
-export const formatShort: (
+export const format: (
   from: DateTime.DateTime,
   to: DateTime.DateTime,
   option: {
     locale: string | string[]
   },
 ) => Effect.Effect<string, never, DurationFormatterCache> = Effect.fn(function* (from, to, option) {
-  const formatter = yield* shortFormatterFactory(option)
+  const formatter = yield* defaultFormatterFactory(option)
 
   const duration = DateTime.distance(from, to)
 

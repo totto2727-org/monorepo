@@ -19,7 +19,7 @@ tasks:
   db:schema:apply:
     cmds:
       - atlas schema apply --env local
-      - bun run prebuild:kysely
+      - vp run prebuild:kysely
       # - kysely-codegen --dialect libsql --url 'file:node_modules/.cache/db' --camel-case --out-file src/feature/db/generated.ts --exclude-pattern atlas_schema_revisions
 
   db:migrate:apply:

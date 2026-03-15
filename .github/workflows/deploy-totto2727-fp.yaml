@@ -15,21 +15,18 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Install safe-chain
-        run: curl -fsSL https://github.com/AikidoSec/safe-chain/releases/latest/download/install-safe-chain.sh | sh -s -- --ci
-
       - name: Install devbox
         uses: jetify-com/devbox-install-action@v0.14.0
         with:
           enable-cache: true
 
       - name: Install package
-        run: devbox run -- safe-chain bun i
+        run: vp install
 
       - name: Publish jsr:@totto2727/fp
         run: |
-          devbox run -- 'cd js/package/fp && safe-chain bun run deploy'
+          cd js/package/fp && vpx jsr publish
 
       - name: Publish npm:@totto2727/fp
         run: |
-          devbox run -- 'cd js/package/fp && safe-chain npm publish'
+          cd js/package/fp && vp pm publish

@@ -1,8 +1,8 @@
-# monorepoo
+# monorepo
 
 ## Repository Structure
 
-Multi-language monorepo (TypeScript + MoonBit) using Bun workspaces and Turborepo for task orchestration.
+Multi-language monorepo (TypeScript + MoonBit) using pnpm workspaces and Vite+ for task orchestration.
 
 ### Applications
 
@@ -17,21 +17,22 @@ Multi-language monorepo (TypeScript + MoonBit) using Bun workspaces and Turborep
 
 ## Development Commands
 
-### Root Scripts
+### Workspace Tasks
 
-- `bun run check` - Run all checks in parallel (Grit + Ultracite)
-- `bun run fix` - Run all auto-fixes sequentially (Grit + Ultracite)
+- `vp run -r check` - Run format, lint, and type check across the entire workspace
+- `vp run -r fix` - Auto-fix linting and formatting issues and type check across the entire workspace
+- `vp run -r prebuild` - Prepare workspace for build (e.g., generate types)
+- `vp run -r build` - Build all workspace projects
+- `vp run -r test` - Run tests across the entire workspace
 
-### Turbo Tasks
+### TypeScript Commands
 
-Run from root to execute across the entire workspace:
+For `js/` workspace projects:
 
-- `turbo build` - Build all projects with dependency graph optimization
-- `turbo check` - Run type checks across all projects
-- `turbo fix` - Auto-fix linting and formatting issues
-- `turbo test` - Run tests across all projects
-- `turbo deploy` - Deploy projects
-- `turbo prebuild` - Generate types, routes, and configuration files
+- `vp build` - Build by Vite
+- `vp check` - Format, Lint, and type check
+- `vp check --fix` - Auto-fix linting and formatting issues and type check
+- `vp test` - Run tests by Vitest
 
 ### MoonBit Commands
 
@@ -47,8 +48,8 @@ For `mbt/` workspace projects:
 
 ### Package Management
 
-- Bun workspaces with catalog mode for centralized dependency version management
-- All dependency versions are defined in root `package.json` catalogs
+- pnpm workspaces with catalog mode for centralized dependency version management
+- All dependency versions are defined in `pnpm-workspace.yaml` catalogs
 - Workspace packages: `js`, `js/app/*`, `js/package/*`, `mbt/package/*`
 
 ### Path Aliases
@@ -59,15 +60,15 @@ For `mbt/` workspace projects:
 
 ### Type Checking
 
-- `tsgo` is used for TypeScript type checking in most projects
+- TypeScript projects use `vp check`
 - MoonBit projects use `moon check`
 
 ## Development Tools
 
-- **Devbox** - Development environment manager (bun@1, nodejs@latest)
-- **Turborepo** - Monorepo task orchestration and caching
+- **Devbox** - Development environment manager
+- **Vite+** (`vp`) - Unified toolchain wrapping Vite, Vitest, and monorepo task orchestration
 - **Ultracite** - Code quality (Oxlint + Oxfmt) — `ultracite check` / `ultracite fix`
 - **Grit** - Additional code analysis and auto-fixes
-- **Lefthook** - Git hooks (pre-commit runs `turbo fix`)
+- **Lefthook** - Git hooks (pre-commit runs `vp run fix`)
 - **Renovate** - Automated dependency updates (weekly, Saturday 00:00)
 - **Go Task** - Additional task definitions (`Taskfile.yml`)

@@ -24,7 +24,7 @@ React UI component library based on Shadcn/UI with Tailwind CSS v4.
 
 ```bash
 # Type check
-turbo check
+vp run check
 ```
 
 ## Adding Components

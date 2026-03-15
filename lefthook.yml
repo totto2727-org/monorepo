@@ -1,4 +1,0 @@
-pre-commit:
-  jobs:
-    - run: turbo fix
-      stage_fixed: true

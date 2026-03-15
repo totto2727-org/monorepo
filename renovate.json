@@ -23,21 +23,38 @@
       "minimumReleaseAge": "3 days"
     },
     {
+      "matchDepTypes": ["pnpm.catalog.storybook"],
+      "groupName": "pnpm.catalog.storybook updates",
+      "matchUpdateTypes": ["minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.effect"],
+      "groupName": "pnpm.catalog.effect updates",
+      "matchUpdateTypes": ["minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.hono"],
+      "groupName": "pnpm.catalog.hono updates",
+      "matchUpdateTypes": ["minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.vite"],
+      "groupName": "pnpm.catalog.vite updates",
+      "matchUpdateTypes": ["minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
       "matchDepTypes": ["pnpm.catalog.build"],
       "groupName": "pnpm.catalog.build updates",
       "matchUpdateTypes": ["minor"],
       "minimumReleaseAge": "3 days"
     },
     {
-      "matchDepTypes": ["pnpm.catalog.casbin"],
-      "groupName": "pnpm.catalog.casbin updates",
-      "matchUpdateTypes": ["minor"],
-      "minimumReleaseAge": "3 days"
-    },
-    {
-      "automerge": true,
-      "matchDepTypes": ["pnpm.catalog.cli"],
-      "groupName": "pnpm.catalog.cli updates",
+      "matchDepTypes": ["pnpm.catalog.auth"],
+      "groupName": "pnpm.catalog.auth updates",
       "matchUpdateTypes": ["minor"],
       "minimumReleaseAge": "3 days"
     },
@@ -55,20 +72,8 @@
       "minimumReleaseAge": "3 days"
     },
     {
-      "matchDepTypes": ["pnpm.catalog.drizzle"],
-      "groupName": "pnpm.catalog.drizzle updates",
-      "matchUpdateTypes": ["minor"],
-      "minimumReleaseAge": "3 days"
-    },
-    {
       "matchDepTypes": ["pnpm.catalog.graphql"],
       "groupName": "pnpm.catalog.graphql updates",
-      "matchUpdateTypes": ["minor"],
-      "minimumReleaseAge": "3 days"
-    },
-    {
-      "matchDepTypes": ["pnpm.catalog.hono"],
-      "groupName": "pnpm.catalog.hono updates",
       "matchUpdateTypes": ["minor"],
       "minimumReleaseAge": "3 days"
     },
@@ -93,28 +98,20 @@
       "minimumReleaseAge": "3 days"
     },
     {
-      "automerge": true,
-      "matchDepTypes": ["pnpm.catalog.test"],
-      "groupName": "pnpm.catalog.test updates",
-      "matchUpdateTypes": ["minor"],
-      "minimumReleaseAge": "3 days"
-    },
-    {
-      "automerge": true,
-      "matchDepTypes": ["pnpm.catalog.tsconfig"],
-      "groupName": "pnpm.catalog.tsconfig updates",
-      "matchUpdateTypes": ["minor"],
-      "minimumReleaseAge": "3 days"
-    },
-    {
       "matchDepTypes": ["pnpm.catalog.ui"],
       "groupName": "pnpm.catalog.ui updates",
       "matchUpdateTypes": ["minor"],
       "minimumReleaseAge": "3 days"
     },
     {
-      "matchDepTypes": ["pnpm.catalog.util"],
-      "groupName": "pnpm.catalog.util updates",
+      "matchDepTypes": ["pnpm.catalog.i18n"],
+      "groupName": "pnpm.catalog.i18n updates",
+      "matchUpdateTypes": ["minor"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchDepTypes": ["pnpm.catalog.database"],
+      "groupName": "pnpm.catalog.database updates",
       "matchUpdateTypes": ["minor"],
       "minimumReleaseAge": "3 days"
     },

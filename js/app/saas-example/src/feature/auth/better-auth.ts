@@ -1,9 +1,9 @@
+import { betterAuth } from 'better-auth'
+import { Effect, Layer, ServiceMap } from 'effect'
 import type { Kysely } from 'kysely'
 
 import * as DB from '#@/feature/db/kysely.ts'
 import * as Env from '#@/feature/env.ts'
-import { betterAuth } from 'better-auth'
-import { Effect, Layer, ServiceMap } from 'effect'
 
 const makeInstance = (db: Kysely<DB.DB>, env: { BETTER_AUTH_URL: string; BETTER_AUTH_SECRET: string }) =>
   betterAuth({

@@ -1,7 +1,6 @@
-import type { Context as HonoContext } from 'hono'
-
 import { ManagedRuntime } from 'effect'
 import { FetchHttpClient } from 'effect/unstable/http'
+import type { Context as HonoContext } from 'hono'
 
 const runtime = ManagedRuntime.make(FetchHttpClient.layer)
 

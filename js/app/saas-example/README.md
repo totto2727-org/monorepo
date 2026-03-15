@@ -19,27 +19,27 @@ Full-stack SaaS demo application showcasing modern React ecosystem with TanStack
 
 ```bash
 # Start development server
-bun run dev
+vp run dev
 
 # Build
-bun run build
+vp run build
 
 # Preview built application
-bun run preview
+vp run preview
 
 # Run tests
-bun run test
+vp run test
 
 # Storybook development
-bun run storybook:dev
+vp run storybook:dev
 
 # Storybook build
-bun run storybook:build
+vp run storybook:build
 ```
 
 ### Prebuild Steps
 
-Prebuild runs automatically via Turbo before build/check/test:
+Prebuild runs automatically via Vite+ before build/check/test:
 
 - `prebuild:cloudflare` - Generate Cloudflare Worker types
 - `prebuild:paraglide` - Compile i18n messages

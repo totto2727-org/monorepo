@@ -16,9 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Install safe-chain
-        run: curl -fsSL https://github.com/AikidoSec/safe-chain/releases/latest/download/install-safe-chain.sh | sh -s -- --ci
-
       - name: Install moonbit
         uses: hustcer/setup-moonbit@v1
         env:
@@ -33,10 +30,10 @@ jobs:
           enable-cache: true
 
       - name: Install package
-        run: devbox run -- safe-chain bun i
+        run: vp install
 
       - name: Init gritql
-        run: devbox run -- safe-chain bun grit init
+        run: vp exec grit init
 
       - name: Run check, build, and test
-        run: devbox run -- safe-chain bun turbo check build test
+        run: vp run check build test
