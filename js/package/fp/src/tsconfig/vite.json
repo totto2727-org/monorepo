@@ -2,6 +2,13 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@tsconfig/strictest",
   "compilerOptions": {
+    "lib": ["ESNext", "DOM", "DOM.Iterable", "ESNext.Array", "ESNext.Collection", "ESNext.Iterator", "ESNext.Promise"],
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
     "checkJs": false,
     "noEmit": true,
     "skipLibCheck": true,

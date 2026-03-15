@@ -27,15 +27,7 @@
     "./option-t/effect": "./src/option-t/effect.ts",
     "./option-t/safe-try": "./src/option-t/safe-try.ts",
     "./temporal": "./src/temporal.ts",
-    "./tsconfig/base": "./src/tsconfig/base.json",
-    "./tsconfig/bun": "./src/tsconfig/bun.json",
-    "./tsconfig/expo": "./src/tsconfig/expo.json",
-    "./tsconfig/lib": "./src/tsconfig/lib.json",
-    "./tsconfig/node22": "./src/tsconfig/node22.json",
-    "./tsconfig/node24": "./src/tsconfig/node24.json",
-    "./tsconfig/react": "./src/tsconfig/react.json",
-    "./tsconfig/react-router": "./src/tsconfig/react-router.json",
-    "./tsconfig/tanstack-start": "./src/tsconfig/tanstack-start.json",
+    "./tsconfig/vite": "./src/tsconfig/vite.json",
     "./type": "./src/type.ts"
   },
   "scripts": {

@@ -32,7 +32,7 @@ Runtime: Bun | Type checker: tsgo | Registry: NPM, JSR
 `./effect/cli`, `./effect/experimental/machine`, `./effect/test/vitest`
 
 **TypeScript Configs** — Shared tsconfig presets:
-`./tsconfig/base`, `./tsconfig/node22`, `./tsconfig/node24`, `./tsconfig/bun`, `./tsconfig/lib`, `./tsconfig/react`, `./tsconfig/react-router`, `./tsconfig/expo`, `./tsconfig/tanstack-start`
+`./tsconfig/base`, `./tsconfig/node22`, `./tsconfig/node24`, `./tsconfig/vite`, `./tsconfig/lib`, `./tsconfig/react`, `./tsconfig/react-router`, `./tsconfig/expo`, `./tsconfig/tanstack-start`
 
 ### Key Design Patterns
 

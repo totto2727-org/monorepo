@@ -1,4 +1,4 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": ["@totto2727/fp/tsconfig/bun"]
+  "extends": ["@totto2727/fp/tsconfig/vite"]
 }
