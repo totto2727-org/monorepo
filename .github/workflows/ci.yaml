@@ -41,4 +41,4 @@ jobs:
         run: vp exec grit init
 
       - name: Run check, build, and test
-        run: vp run -r prebuild && vp run -r check && vp run -r test && vp run -r build
+        run: devbox run -- 'vp run -r prebuild && vp run -r check && vp run -r test && vp run -r build'
