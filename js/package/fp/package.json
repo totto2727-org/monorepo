@@ -32,7 +32,7 @@
   },
   "scripts": {
     "check": "pnpm run --parallel /check:.*/",
-    "check:doc": "deno doc --lint src/**/*.ts",
+    "check:doc": "deno doc --lint 'src/**/*.ts'",
     "check:slowtype": "vpx jsr publish --dry-run --allow-dirty"
   },
   "dependencies": {
