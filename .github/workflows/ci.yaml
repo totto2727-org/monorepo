@@ -14,7 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
+
+      - name: Install devbox
+        uses: jetify-com/devbox-install-action@v0.14.0
+        with:
+          enable-cache: true
 
       - name: Install moonbit
         uses: hustcer/setup-moonbit@v1
@@ -24,10 +29,10 @@ jobs:
       - name: Update moonbit registry
         run: moon update
 
-      - name: Install devbox
-        uses: jetify-com/devbox-install-action@v0.14.0
+      - uses: voidzero-dev/setup-vp@v1
         with:
-          enable-cache: true
+          node-version: .node-version
+          cache: true
 
       - name: Install package
         run: vp install
@@ -36,4 +41,4 @@ jobs:
         run: vp exec grit init
 
       - name: Run check, build, and test
-        run: vp run check build test
+        run: vp run -r prebuild && vp run -r check && vp run -r test && vp run -r build

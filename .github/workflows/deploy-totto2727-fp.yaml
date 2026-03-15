@@ -13,12 +13,17 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install devbox
         uses: jetify-com/devbox-install-action@v0.14.0
         with:
           enable-cache: true
+
+      - uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version: .node-version
+          cache: true
 
       - name: Install package
         run: vp install
@@ -29,4 +34,4 @@ jobs:
 
       - name: Publish npm:@totto2727/fp
         run: |
-          cd js/package/fp && vp pm publish
+          cd js/package/fp && npm publish
