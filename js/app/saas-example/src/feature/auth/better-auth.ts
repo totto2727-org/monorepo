@@ -5,7 +5,7 @@ import type { Kysely } from 'kysely'
 import * as DB from '#@/feature/db/kysely.ts'
 import * as Env from '#@/feature/env.ts'
 
-const makeInstance = (db: Kysely<DB.DB>, env: { BETTER_AUTH_URL: string; BETTER_AUTH_SECRET: string }) =>
+const makeInstance = (db: Kysely<DB.DB>, env: Env.Type) =>
   betterAuth({
     account: {
       fields: {
@@ -21,7 +21,7 @@ const makeInstance = (db: Kysely<DB.DB>, env: { BETTER_AUTH_URL: string; BETTER_
       },
       modelName: 'account',
     },
-    basePath: '/api/auth',
+    basePath: '/api/v1/auth',
     baseURL: env.BETTER_AUTH_URL,
     database: { db, type: 'sqlite' },
     secret: env.BETTER_AUTH_SECRET,
