@@ -1,7 +1,10 @@
 import { DurationFormat } from '@formatjs/intl-durationformat'
 import { Array, DateTime, Duration, Effect, HashMap, Layer, Option, Ref, ServiceMap } from 'effect'
 
-type DurationFormatterCacheRef = Ref.Ref<HashMap.HashMap<readonly string[], DurationFormat>>
+/**
+ * @internal
+ */
+export type DurationFormatterCacheRef = Ref.Ref<HashMap.HashMap<readonly string[], DurationFormat>>
 
 /**
  * @internal
@@ -18,6 +21,9 @@ export const DurationFormatterCacheBase: ServiceMap.ServiceClass<
 
 /** Effect service that provides CUID generation. */
 export class DurationFormatterCache extends DurationFormatterCacheBase {
+  /**
+   * Layer that provides the DurationFormatterCache service.
+   */
   static readonly layer: Layer.Layer<DurationFormatterCache> = Layer.effect(this, this.make)
 }
 
