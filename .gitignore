@@ -1,4 +1,3 @@
 node_modules/
 .claude/**.local.*
 *.local.*
-worker-configuration.d.ts
