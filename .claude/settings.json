@@ -1,27 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "permissions": {
-    "allow": [
-      "Bash(vp run check)",
-      "Bash(vp run fix)",
-      "Bash(vp run test)",
-      "Bash(vp run check build test)",
-      "Bash(vp check)",
-      "Bash(vp test)",
-      "Bash(vp install)",
-      "Bash(pnpm run --parallel /check:.*/)",
-      "Bash(pnpm run /fix:.*/)"
-    ]
-  },
   "enabledPlugins": {
-    "moonbit@totto2727": true,
-    "totto2727-fp@totto2727": true
+    "moonbit@totto2727": true
   },
   "extraKnownMarketplaces": {
     "totto2727": {
       "source": {
         "source": "github",
-        "repo": "acme-corp/claude-plugins"
+        "repo": "totto2727-dotfiles/agents"
       }
     }
   },

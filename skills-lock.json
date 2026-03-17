@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "skills": {
+    "moonbit-bestpractice": {
+      "source": "totto2727-dotfiles/agents",
+      "sourceType": "github",
+      "computedHash": "9f0a9d7728b9e050e16caf3cf164efdcbe6db84af72215233276281929d78dd3"
+    },
+    "moonbit-docs": {
+      "source": "totto2727-dotfiles/agents",
+      "sourceType": "github",
+      "computedHash": "4ae844333697e4eedb3e636c3919697bce8c4676ee19171911bf45f52ccd905a"
+    }
+  }
+}
