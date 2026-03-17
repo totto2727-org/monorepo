@@ -2,18 +2,9 @@
 
 ## Repository Structure
 
-Multi-language monorepo (TypeScript + MoonBit) using pnpm workspaces and Vite+ for task orchestration.
-
-### Applications
-
-- `js/app/rss-graphql/` - GraphQL API server for RSS feed processing (Hono + Pothos + Cloudflare Workers)
-- `js/app/saas-example/` - SaaS demo application (React 19 + TanStack Start + Cloudflare Workers)
-
-### Packages
-
-- `js/package/fp/` - `@totto2727/fp` functional programming utility library (NPM + JSR)
-- `js/package/ui/` - `@package/ui` React UI component library (Shadcn/UI base + Tailwind CSS v4)
-- `mbt/package/geo/` - `@totto2727/geo` GeoJSON and geospatial library (MoonBit)
+```bash
+eza --tree -L 2 -D js mbt go
+```
 
 ## Development Commands
 
@@ -50,18 +41,10 @@ For `mbt/` workspace projects:
 
 - pnpm workspaces with catalog mode for centralized dependency version management
 - All dependency versions are defined in `pnpm-workspace.yaml` catalogs
-- Workspace packages: `js`, `js/app/*`, `js/package/*`, `mbt/package/*`
 
 ### Path Aliases
 
 - `#@/` - Application internal imports via Node.js imports field (configured in each `package.json`)
-- `js/app/rss-graphql`: `#@/*` maps to `./app/*`
-- `js/app/saas-example`: `#@/*` maps to `./src/*`
-
-### Type Checking
-
-- TypeScript projects use `vp check`
-- MoonBit projects use `moon check`
 
 ## Development Tools
 
@@ -69,6 +52,5 @@ For `mbt/` workspace projects:
 - **Vite+** (`vp`) - Unified toolchain wrapping Vite, Vitest, and monorepo task orchestration
 - **Ultracite** - Code quality (Oxlint + Oxfmt) — `ultracite check` / `ultracite fix`
 - **Grit** - Additional code analysis and auto-fixes
-- **Lefthook** - Git hooks (pre-commit runs `vp run fix`)
 - **Renovate** - Automated dependency updates (weekly, Saturday 00:00)
 - **Go Task** - Additional task definitions (`Taskfile.yml`)
