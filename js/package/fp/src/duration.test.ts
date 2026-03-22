@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vite-plus/test'
 
 import { DurationFormatterCache, format } from './duration.ts'
 
-describe('formatShort', () => {
+describe('format', () => {
   test('EN', () => {
     Effect.gen(function* () {
       const result = yield* format(
