@@ -13,10 +13,10 @@ apt-get update
 apt-get upgrade -y
 
 # For share
-apt-get install -y --no-install-recommends curl
+apt-get install -y curl gcc make
 
 # For sandbox
-apt-get install -y --no-install-recommends \
+apt-get install -y \
 ca-certificates \
 dnsutils \
 iproute2 \
@@ -29,7 +29,7 @@ procps \
 traceroute
 
 # For nix
-apt-get install -y --no-install-recommends xz-utils git
+apt-get install -y xz-utils git
 rm -rf /var/lib/apt/lists/*
 EOF
 
@@ -76,9 +76,14 @@ nix run home-manager/release-25.11 -- init --switch
 nix run nixpkgs#git clone https://github.com/totto2727-dotfiles/nix.git
 nix run nixpkgs#git clone https://github.com/totto2727-dotfiles/chezmoi.git
 home-manager switch --flake ~/nix/sandbox#sandbox
+EOF
 
-# additional tools
-curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+SHELL ["zsh", "-c"]
+
+RUN <<EOF
+rustup default stable
+curl -fsSL https://raw.githubusercontent.com/moonbitlang/moonbit-compiler/refs/heads/main/install.ts | node
+moon update
 curl -fsSL https://vite.plus | bash
 curl -fsSL https://claude.ai/install.sh | bash
 
