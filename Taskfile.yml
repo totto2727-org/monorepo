@@ -6,3 +6,25 @@ tasks:
     aliases:
       - list
     cmd: task --list-all
+
+  docker:build:sandbox:
+    deps:
+      - docker:build:sandbox-base
+    cmds:
+      - docker build --progress=plain -t monorepo-sandbox:latest -f ./sandbox/Dockerfile ./sandbox
+
+  docker:build:sandbox-base:
+    cmds:
+      - docker build --progress=plain -t sandbox-base:latest -f ./docker/sandbox-base.Dockerfile ./docker
+
+  docker:run:base:
+    deps:
+      - docker:build:sandbox-base
+    cmds:
+      - docker run --rm -it sandbox-base:latest
+
+  docker:run:
+    deps:
+      - docker:build:sandbox
+    cmds:
+      - docker run --rm -it monorepo-sandbox:latest
