@@ -1,4 +1,6 @@
-FROM sandbox-base
+# syntax=docker/dockerfile:1
+
+FROM ghcr.io/totto2727-org/monorepo/sandbox-base:latest
 
 SHELL ["zsh", "-c"]
 

@@ -17,14 +17,6 @@ tasks:
     cmds:
       - docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox-base:latest -f ./docker/sandbox-base.Dockerfile ./docker
 
-  docker:run:base:
-    cmds:
-      - docker run --rm -it sandbox-base:latest
-
-  docker:run:
-    cmds:
-      - docker run --rm -it monorepo-sandbox:latest
-
   docker:push:
     deps:
       - docker:build:sandbox
