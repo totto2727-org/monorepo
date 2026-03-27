@@ -10,6 +10,7 @@ filesystem_policy:
     - /app
     - /etc
     - /var/log
+    - /nix
   read_write:
     - /sandbox
     - /tmp
@@ -23,3 +24,12 @@ process:
   run_as_group: sandbox
 
 network_policies:
+  nix:
+    endpoints:
+      - { host: cache.nixos.org, port: 443, access: read-only }
+      - { host: api.github.com, port: 443, access: read-only }
+      - { host: github.com, port: 443, access: read-only }
+      - { host: codeload.github.com, port: 443, access: read-only }
+    binaries:
+      - path: '/nix/store/*/bin/nix'
+      - path: '/nix/store/*/bin/devbox'
