@@ -2,7 +2,6 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": ["@totto2727/fp/tsconfig/vite"],
   "compilerOptions": {
-    "types": ["vite-plus/client"],
-    "lib": ["ESNext", "DOM", "DOM.Iterable"]
+    "types": ["vite-plus/client"]
   }
 }
