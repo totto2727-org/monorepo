@@ -29,9 +29,19 @@ jobs:
         run: vp install
 
       - name: Publish jsr:@totto2727/fp
+        working-directory: js/package/fp
         run: |
-          cd js/package/fp && vpx jsr publish
+          vpx jsr publish
 
       - name: Publish npm:@totto2727/fp
+        working-directory: js/package/fp
         run: |
-          devbox run -- 'cd js/package/fp && npm publish'
+          ENCODED_NAME=$(node -p "encodeURIComponent(require('./package.json').name)")
+          LOCAL_VERSION=$(node -p "require('./package.json').version")
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/${ENCODED_NAME}/${LOCAL_VERSION}")
+
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "v${LOCAL_VERSION} already published. Skipping."
+          else
+            npm publish
+          fi
