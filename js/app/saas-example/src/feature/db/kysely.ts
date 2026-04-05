@@ -1,26 +1,29 @@
+import { randomUUID } from 'node:crypto'
+
 import { LibsqlDialect } from '@libsql/kysely-libsql'
 import { Effect, Layer, ServiceMap } from 'effect'
 import { CamelCasePlugin, Kysely } from 'kysely'
 
-import type { Type } from '#@/feature/env.ts'
 import * as Env from '#@/feature/env.ts'
 
-import type { DB } from './generated.ts'
+import type * as Type from './generated.ts'
 
-export type * from './generated.ts'
+export type * as Type from './generated.ts'
 
 const plugins = [new CamelCasePlugin()]
 
-export const makeInMemory = () =>
-  new Kysely<DB>({
+export type Instance = Kysely<Type.DB>
+
+export const makeInMemory = (): Instance =>
+  new Kysely({
     dialect: new LibsqlDialect({
-      url: ':memory:',
+      url: `file:${randomUUID()}?mode=memory&cache=shared`,
     }),
     plugins,
   })
 
-export const makeRemote = (env: Type) =>
-  new Kysely<DB>({
+export const makeRemote = (env: Env.Database): Instance =>
+  new Kysely({
     dialect: new LibsqlDialect({
       authToken: env.DATABASE_AUTH_TOKEN,
       url: env.DATABASE_URL,
@@ -28,7 +31,9 @@ export const makeRemote = (env: Type) =>
     plugins,
   })
 
-export const Service = ServiceMap.Service<Kysely<DB>>('@app/saas-example/feature/db/kysely/Service')
+export const Service = ServiceMap.Service<Instance>('@app/saas-example/feature/db/kysely/Service')
+
+export const localLayer = Layer.sync(Service, () => makeInMemory())
 
 export const remoteLayer = Layer.effect(
   Service,
