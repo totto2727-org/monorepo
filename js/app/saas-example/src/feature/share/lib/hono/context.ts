@@ -2,8 +2,8 @@ import type { Option } from 'effect'
 import { getContext as getContextFromALC } from 'hono/context-storage'
 
 import type * as BetterAuth from '#@/feature/auth/better-auth.ts'
-import type { Runtime } from '#@/feature/di/server.ts'
 import type { Type as Bindings } from '#@/feature/env.ts'
+import type { Runtime } from '#@/feature/runtime/server.ts'
 
 export interface Env {
   Bindings: Bindings

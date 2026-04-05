@@ -1,11 +1,10 @@
 import { betterAuth } from 'better-auth'
 import { Effect, Layer, ServiceMap } from 'effect'
-import type { Kysely } from 'kysely'
 
 import * as DB from '#@/feature/db/kysely.ts'
 import * as Env from '#@/feature/env.ts'
 
-const makeInstance = (db: Kysely<DB.DB>, env: Env.Type) =>
+const makeInstance = (db: DB.Instance, env: Env.BetterAuth) =>
   betterAuth({
     account: {
       fields: {
