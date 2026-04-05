@@ -14,18 +14,21 @@ export const prepare = factory.createMiddleware((c, next) => {
       }),
     )
 
-    if (Predicate.isNullish(session?.user) || Predicate.isNullish(session?.session)) {
+    if (Predicate.isNullish(session)) {
       c.set('auth', Option.none())
     } else {
       c.set('auth', Option.some({ session: session.session, user: session.user }))
     }
     yield* Effect.tryPromise(next)
-  }).pipe(
+  })
+
+  const programWithCatch = program.pipe(
+    Effect.tapError((e) => Effect.logError(e)),
     Effect.catchTags({
       UnknownError: () => new HttpError.InternalServerError().makeResponseEffect(),
     }),
   )
-  return c.var.runtime.runPromise(program)
+  return c.var.runtime.runPromise(programWithCatch)
 })
 
 export const unauthorized = factory.createMiddleware((c, next) => {
@@ -34,11 +37,14 @@ export const unauthorized = factory.createMiddleware((c, next) => {
       return yield* Effect.fail(new HttpError.Unauthorized())
     }
     yield* Effect.tryPromise(next)
-  }).pipe(
+  })
+
+  const programWithCatch = program.pipe(
+    Effect.tapError((e) => Effect.logError(e)),
     Effect.catchTags({
       UnknownError: () => new HttpError.InternalServerError().makeResponseEffect(),
       'http/error/Unauthorized': (e) => e.makeResponseEffect(),
     }),
   )
-  return c.var.runtime.runPromise(program)
+  return c.var.runtime.runPromise(programWithCatch)
 })
