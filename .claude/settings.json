@@ -1,17 +1,5 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "enabledPlugins": {
-    "moonbit@totto2727": true,
-    "components-build@totto2727": true
-  },
-  "extraKnownMarketplaces": {
-    "totto2727": {
-      "source": {
-        "source": "github",
-        "repo": "totto2727-dotfiles/agents"
-      }
-    }
-  },
   "mcpServers": {
     "vite-plus": {
       "command": "npx",

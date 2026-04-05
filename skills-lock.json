@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "components-build-docs": {
+      "source": "totto2727-dotfiles/agents",
+      "sourceType": "github",
+      "computedHash": "acca9c4a9781666a086eafb82489fbad5c0e11d2ec2593fe9a4b584bdac79dcb"
+    },
     "moonbit-bestpractice": {
       "source": "totto2727-dotfiles/agents",
       "sourceType": "github",
