@@ -5,13 +5,13 @@ import { Effect } from 'effect'
 
 import { getSkillsDir } from '#@/lib/paths.ts'
 
-export const createSkillLink = (agentsDir: string, skillName: string, targetPath: string): Effect.Effect<void> =>
+const createLinkInDir = (dir: string, skillName: string, targetPath: string): Effect.Effect<void> =>
   Effect.tryPromise({
     catch: (e: unknown) => e,
     try: async () => {
-      const skillsDir = getSkillsDir(agentsDir)
-      const linkPath = NodePath.join(skillsDir, skillName)
-      const relativePath = NodePath.relative(skillsDir, targetPath)
+      await Fs.mkdir(dir, { recursive: true })
+      const linkPath = NodePath.join(dir, skillName)
+      const relativePath = NodePath.relative(dir, targetPath)
       try {
         await Fs.unlink(linkPath)
       } catch {
@@ -21,14 +21,46 @@ export const createSkillLink = (agentsDir: string, skillName: string, targetPath
     },
   }).pipe(Effect.ignore)
 
-export const removeSkillLink = (agentsDir: string, skillName: string): Effect.Effect<void> =>
+const removeLinkInDir = (dir: string, skillName: string): Effect.Effect<void> =>
   Effect.tryPromise({
     catch: (e: unknown) => e,
     try: async () => {
-      const linkPath = NodePath.join(getSkillsDir(agentsDir), skillName)
+      const linkPath = NodePath.join(dir, skillName)
       await Fs.unlink(linkPath)
     },
   }).pipe(Effect.ignore)
+
+const getAllDirs = (agentsDir: string, skillDirs: readonly string[]): string[] => {
+  const primary = getSkillsDir(agentsDir)
+  return [primary, ...skillDirs]
+}
+
+export const createSkillLink = (
+  agentsDir: string,
+  skillDirs: readonly string[],
+  skillName: string,
+  targetPath: string,
+): Effect.Effect<void> =>
+  Effect.all(
+    getAllDirs(agentsDir, skillDirs).map((dir) => createLinkInDir(dir, skillName, targetPath)),
+    { concurrency: 'unbounded' },
+  ).pipe(Effect.asVoid)
+
+export const removeSkillLink = (
+  agentsDir: string,
+  skillDirs: readonly string[],
+  skillName: string,
+): Effect.Effect<void> =>
+  Effect.all(
+    getAllDirs(agentsDir, skillDirs).map((dir) => removeLinkInDir(dir, skillName)),
+    { concurrency: 'unbounded' },
+  ).pipe(Effect.asVoid)
+
+export const removeSkillLinkFromDirs = (dirs: readonly string[], skillName: string): Effect.Effect<void> =>
+  Effect.all(
+    dirs.map((dir) => removeLinkInDir(dir, skillName)),
+    { concurrency: 'unbounded' },
+  ).pipe(Effect.asVoid)
 
 export const listSkillLinks = (agentsDir: string): Effect.Effect<readonly string[]> =>
   Effect.tryPromise({

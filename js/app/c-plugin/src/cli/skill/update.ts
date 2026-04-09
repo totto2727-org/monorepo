@@ -6,8 +6,7 @@ import type { LockFile } from '#@/schema/lock-file.ts'
 import * as Cache from '#@/service/cache.ts'
 import * as Git from '#@/service/git.ts'
 import * as LockFileService from '#@/service/lock-file.ts'
-import * as SkillResolver from '#@/service/skill-resolver.ts'
-import * as Symlink from '#@/service/symlink.ts'
+import * as SyncService from '#@/service/sync.ts'
 
 export const updateCommand = Command.make(
   'update',
@@ -35,49 +34,15 @@ export const updateCommand = Command.make(
         yield* Effect.log(`Updating ${repo.source}...`)
         yield* Git.pull(repoDir)
         const newCommitHash = yield* Git.revParseHead(repoDir)
-
-        const availableSkills = yield* SkillResolver.resolveFromRepo(repoDir)
-        const availableNames = new Set(availableSkills.map((s) => s.skillName))
-
-        const removedSkills: string[] = []
-        const updatedPlugins = repo.plugins
-          .map((plugin) => {
-            const validSkills = plugin.enabledSkills.filter((s) => {
-              if (!availableNames.has(s)) {
-                removedSkills.push(`${plugin.name}/${s}`)
-                return false
-              }
-              return true
-            })
-            return { ...plugin, enabledSkills: validSkills }
-          })
-          .filter((p) => p.enabledSkills.length > 0)
-
-        for (const removed of removedSkills) {
-          yield* Effect.log(`  Removed: ${removed} (deleted upstream)`)
-        }
-
-        if (updatedPlugins.length > 0) {
-          updatedRepos.push({ ...repo, commitHash: newCommitHash, plugins: updatedPlugins })
-        } else {
-          yield* Effect.log(`  All skills removed, dropping ${repo.source}`)
-        }
-
-        const expectedSkills = new Set(updatedPlugins.flatMap((p) => p.enabledSkills))
-
-        for (const skill of availableSkills) {
-          if (expectedSkills.has(skill.skillName)) {
-            yield* Symlink.createSkillLink(agentsDir, skill.skillName, skill.skillPath)
-          }
-        }
+        updatedRepos.push({ ...repo, commitHash: newCommitHash })
       }
 
       const newLockFile: LockFile = {
+        ...lockFile,
         repositories: updatedRepos,
-        version: 1,
       }
-      yield* LockFileService.write(agentsDir, newLockFile)
 
-      yield* Effect.log('Update complete.')
+      yield* LockFileService.write(agentsDir, newLockFile)
+      yield* SyncService.run(agentsDir)
     }),
 ).pipe(Command.withDescription('Update skills to latest'))

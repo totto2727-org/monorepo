@@ -66,13 +66,13 @@ export const removeCommand = Command.make(
       )
 
       const newLockFile: LockFile = {
+        ...lockFile,
         repositories: updatedRepos,
-        version: 1,
       }
       yield* LockFileService.write(agentsDir, newLockFile)
 
       for (const skill of toRemove) {
-        yield* Symlink.removeSkillLink(agentsDir, skill.skillName)
+        yield* Symlink.removeSkillLink(agentsDir, lockFile.skillDirs, skill.skillName)
       }
 
       for (const source of removedRepoSources) {

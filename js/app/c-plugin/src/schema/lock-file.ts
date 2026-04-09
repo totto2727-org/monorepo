@@ -19,6 +19,7 @@ export type RepositoryEntry = typeof RepositoryEntry.Type
 
 export const LockFile = Schema.Struct({
   repositories: Schema.Array(RepositoryEntry),
+  skillDirs: Schema.Array(Schema.String),
   version: Schema.Literal(1),
 })
 
@@ -26,5 +27,6 @@ export type LockFile = typeof LockFile.Type
 
 export const emptyLockFile: LockFile = {
   repositories: [],
+  skillDirs: [],
   version: 1,
 }

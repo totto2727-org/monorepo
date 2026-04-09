@@ -7,7 +7,7 @@ import * as Cache from '#@/service/cache.ts'
 import * as Git from '#@/service/git.ts'
 import * as LockFileService from '#@/service/lock-file.ts'
 import * as SkillResolver from '#@/service/skill-resolver.ts'
-import * as Symlink from '#@/service/symlink.ts'
+import * as SyncService from '#@/service/sync.ts'
 
 const mergePlugins = (existing: readonly PluginEntry[], incoming: readonly PluginEntry[]): PluginEntry[] => {
   const map = new Map<string, PluginEntry>()
@@ -93,16 +93,11 @@ export const addCommand = Command.make(
       }
 
       const newLockFile: LockFile = {
+        ...lockFile,
         repositories: [...lockFile.repositories.filter((r) => r.source !== config.repo), newRepoEntry],
-        version: 1,
       }
 
       yield* LockFileService.write(agentsDir, newLockFile)
-
-      for (const skill of selected) {
-        yield* Symlink.createSkillLink(agentsDir, skill.skillName, skill.skillPath)
-      }
-
-      yield* Effect.log(`Installed ${selected.length} skill(s).`)
+      yield* SyncService.run(agentsDir)
     }),
 ).pipe(Command.withDescription('Add skills from a plugin repository'))

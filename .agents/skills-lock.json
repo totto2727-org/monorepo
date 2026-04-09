@@ -1,27 +1,23 @@
 {
-	"repositories": [
-		{
-			"commitHash": "4a56606f6da05693bb5ca4a5d3d6d086790b32f4",
-			"plugins": [
-				{
-					"enabledSkills": [
-						"moonbit-bestpractice",
-						"moonbit-docs"
-					],
-					"name": "moonbit",
-					"path": "./plugins/moonbit"
-				},
-				{
-					"enabledSkills": [
-						"components-build-docs"
-					],
-					"name": "components-build",
-					"path": "./plugins/components-build"
-				}
-			],
-			"source": "totto2727-dotfiles/agents",
-			"sourceType": "github"
-		}
-	],
-	"version": 1
+  "repositories": [
+    {
+      "commitHash": "4a56606f6da05693bb5ca4a5d3d6d086790b32f4",
+      "plugins": [
+        {
+          "enabledSkills": ["moonbit-bestpractice", "moonbit-docs"],
+          "name": "moonbit",
+          "path": "./plugins/moonbit"
+        },
+        {
+          "enabledSkills": ["components-build-docs"],
+          "name": "components-build",
+          "path": "./plugins/components-build"
+        }
+      ],
+      "source": "totto2727-dotfiles/agents",
+      "sourceType": "github"
+    }
+  ],
+  "skillDirs": [],
+  "version": 1
 }
