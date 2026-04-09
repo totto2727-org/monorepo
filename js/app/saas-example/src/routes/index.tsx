@@ -35,6 +35,7 @@ const Counter = () => {
 
 const pokemonSchema = Schema.Struct({ name: Schema.String, url: Schema.String })
 const pokeAPISchema = Schema.Struct({ results: Schema.Array(pokemonSchema) })
+// eslint-disable-next-line rules/no-sync-decode -- demo: simple PokeAPI decode in route handler
 const decodePokeAPI = Schema.decodeSync(pokeAPISchema)
 
 const pokemonCollection = createCollection(

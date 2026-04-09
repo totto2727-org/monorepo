@@ -16,6 +16,7 @@ const resolveValue = (flag: Option.Option<string>, envKey: string, label: string
     }
 
     const env = process.env[envKey]
+    // eslint-disable-next-line rules/prefer-is-nullish -- env is string | undefined, null is not a valid value
     if (!Predicate.isUndefined(env) && env !== '') {
       return env
     }

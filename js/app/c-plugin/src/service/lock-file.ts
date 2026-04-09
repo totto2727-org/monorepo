@@ -12,6 +12,7 @@ export class LockFileCorruptError extends Data.TaggedError('LockFileCorruptError
   readonly cause: unknown
 }> {}
 
+// eslint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (file content)
 const decode = Schema.decodeUnknownEffect(LockFileSchema)
 
 export const read = (agentsDir: string): Effect.Effect<LockFile, LockFileCorruptError> =>

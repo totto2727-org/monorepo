@@ -2,7 +2,8 @@ import { Data, Effect, Schema } from 'effect'
 import type { HttpClientResponse } from 'effect/unstable/http'
 import { HttpBody, HttpClient } from 'effect/unstable/http'
 
-import { CrawlStartResponse, CrawlStatusResponse, SnapshotResponse } from '#@/schema/response.ts'
+import type { CrawlStatusResult, SnapshotResult } from '#@/schema/response.ts'
+import { CrawlStartApiResponse, CrawlStatusApiResponse, SnapshotApiResponse } from '#@/schema/response.ts'
 import type { AuthConfig } from '#@/service/auth.ts'
 
 const BASE_PATH = '/client/v4/accounts'
@@ -130,9 +131,12 @@ const postBinary = (
     return new Uint8Array(buf)
   })
 
-const decodeSnapshot = Schema.decodeUnknownEffect(SnapshotResponse)
-const decodeCrawlStart = Schema.decodeUnknownEffect(CrawlStartResponse)
-const decodeCrawlStatus = Schema.decodeUnknownEffect(CrawlStatusResponse)
+// eslint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (API response JSON)
+const decodeSnapshot = Schema.decodeUnknownEffect(SnapshotApiResponse)
+// eslint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (API response JSON)
+const decodeCrawlStart = Schema.decodeUnknownEffect(CrawlStartApiResponse)
+// eslint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (API response JSON)
+const decodeCrawlStatus = Schema.decodeUnknownEffect(CrawlStatusApiResponse)
 
 export const content = (
   auth: AuthConfig,
@@ -157,10 +161,10 @@ export const markdown = (
 export const snapshot = (
   auth: AuthConfig,
   body: Record<string, unknown>,
-): Effect.Effect<SnapshotResponse, ApiError, HttpClient.HttpClient> =>
+): Effect.Effect<SnapshotResult, ApiError, HttpClient.HttpClient> =>
   Effect.gen(function* () {
     const data = yield* postJson(auth, '/snapshot', body)
-    return yield* decodeSnapshot(data).pipe(
+    const decoded = yield* decodeSnapshot(data).pipe(
       Effect.mapError(
         (e) =>
           new ApiError({
@@ -170,6 +174,7 @@ export const snapshot = (
           }),
       ),
     )
+    return decoded.result
   })
 
 export const scrape = (
@@ -199,13 +204,13 @@ export const crawlStart = (
           new ApiError({ endpoint: '/crawl', message: e instanceof Error ? e.message : JSON.stringify(e), status: 0 }),
       ),
     )
-    return parsed.id
+    return parsed.result
   })
 
 export const crawlStatus = (
   auth: AuthConfig,
   crawlId: string,
-): Effect.Effect<CrawlStatusResponse, ApiError, HttpClient.HttpClient> =>
+): Effect.Effect<CrawlStatusResult, ApiError, HttpClient.HttpClient> =>
   Effect.gen(function* () {
     const response = yield* getRequest(auth, `/crawl/${crawlId}`)
     const text: string = yield* response.text.pipe(
@@ -219,7 +224,7 @@ export const crawlStatus = (
       ),
     )
     const parsed: unknown = JSON.parse(text)
-    return yield* decodeCrawlStatus(parsed).pipe(
+    const decoded = yield* decodeCrawlStatus(parsed).pipe(
       Effect.mapError(
         (e) =>
           new ApiError({
@@ -229,6 +234,7 @@ export const crawlStatus = (
           }),
       ),
     )
+    return decoded.result
   })
 
 export const crawlResults = (

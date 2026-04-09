@@ -6,6 +6,7 @@ import { ConfigFileError } from '#@/lib/errors.ts'
 import { InputError } from '#@/lib/input-error.ts'
 import { ConfigFile } from '#@/schema/config-file.ts'
 
+// eslint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (file content)
 const decodeConfigFile = Schema.decodeUnknownEffect(ConfigFile)
 
 export const loadConfig = (

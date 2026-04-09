@@ -28,7 +28,7 @@ export type CUID = typeof schema.Type
 /** Type guard for CUID values. */
 export const is: (value: unknown, overrideOptions?: ParseOptions | number) => value is CUID = Schema.is(schema)
 
-const decodeSync = Schema.decodeSync(schema)
+const decodeSync = Schema.decodeSync(schema) // eslint-disable-line rules/no-sync-decode -- public API: input is already validated by is() guard
 
 /** Returns default CUID length constants. */
 export const getDefaultConstants = (): {
@@ -42,6 +42,7 @@ const createRandom = (): number => {
   globalThis.crypto.getRandomValues(buffer)
   // Convert to a float in [0, 1) by dividing by 2^32
   const [value] = buffer
+  // eslint-disable-next-line rules/prefer-is-nullish -- Uint32Array element: null is not a valid value
   if (Predicate.isUndefined(value)) {
     throw new TypeError('Failed to generate random value')
   }
@@ -114,6 +115,7 @@ const alphabet = [
 
 const randomLetter = (rand: () => number): string => {
   const letter = alphabet[Math.floor(rand() * alphabet.length)]
+  // eslint-disable-next-line rules/prefer-is-nullish -- array element: null is not a valid value
   if (Predicate.isUndefined(letter)) {
     throw new TypeError('Failed to generate random letter')
   }
@@ -127,6 +129,7 @@ on a random string.
 */
 /** Creates a fingerprint of the host environment for collision prevention. */
 export const createFingerprint = ({
+  // eslint-disable-next-line rules/prefer-is-nullish -- globalThis is undefined in some environments, not null
   globalObj = Predicate.isUndefined(globalThis) ? {} : globalThis,
   random = createRandom,
 }: {

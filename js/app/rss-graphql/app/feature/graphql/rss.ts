@@ -20,6 +20,7 @@ const feedTypeDTO = Literals([
 
 const feedTypeFromDTO = feedTypeDTO.transform(feedType.literals)
 
+// eslint-disable-next-line rules/no-sync-decode -- RSS feed type is already validated by DTO transform
 const decodeSyncFeedType = Schema.decodeSync(feedTypeFromDTO)
 
 interface Size {

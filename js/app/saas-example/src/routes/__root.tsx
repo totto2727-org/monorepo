@@ -3,6 +3,7 @@ import type { QueryClient } from '@tanstack/react-query'
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools'
 import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
+import { Predicate } from 'effect'
 
 import { getLocale } from '#@/feature/i18n/share.ts'
 
@@ -45,7 +46,8 @@ interface RouterContext {
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: () => {
-    if (typeof document !== 'undefined') {
+    // eslint-disable-next-line rules/prefer-is-nullish -- checking browser-only global
+    if (!Predicate.isUndefined(document)) {
       document.documentElement.setAttribute('lang', getLocale())
     }
   },
@@ -59,7 +61,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
     meta: [
       {
-        charSet: 'utf8',
+        charSet: 'utf-8',
       },
       {
         content: 'width=device-width, initial-scale=1',
