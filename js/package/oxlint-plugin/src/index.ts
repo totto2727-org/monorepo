@@ -305,7 +305,7 @@ const noSyncDecodeRule: Rule = {
         if (Predicate.isNotNull(method)) {
           const recommended = BANNED_DECODE_METHODS[method]
           context.report({
-            message: `Use Schema.${recommended} instead of Schema.${method}.`,
+            message: `Use Schema.${recommended} or Schema.decodeExit instead of Schema.${method}.`,
             node: node as never,
           })
         }
