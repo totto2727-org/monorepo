@@ -22,9 +22,8 @@ export const scrapeCommand = Command.make(
     Effect.gen(function* () {
       const auth = yield* Auth.resolve(flags)
       const config = yield* loadConfig(flags.config)
-      let body = yield* resolveInput(flags.url, flags.html, config)
-      body = applyWaitUntil(body, flags.waitUntil)
-      body = { ...body, elements: [{ selector: flags.selector }] }
+      const baseBody = yield* resolveInput(flags.url, flags.html, config)
+      const body = { ...applyWaitUntil(baseBody, flags.waitUntil), elements: [{ selector: flags.selector }] }
       const result = yield* ApiClient.scrape(auth, body)
       yield* Output.printJson(result)
     }),

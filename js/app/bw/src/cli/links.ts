@@ -23,13 +23,11 @@ export const linksCommand = Command.make(
     Effect.gen(function* () {
       const auth = yield* Auth.resolve(flags)
       const config = yield* loadConfig(flags.config)
-      let body = yield* resolveInput(flags.url, flags.html, config)
-      body = applyWaitUntil(body, flags.waitUntil)
-      if (flags.visibleOnly) {
-        body = { ...body, visibleLinksOnly: true }
-      }
-      if (flags.internalOnly) {
-        body = { ...body, excludeExternalLinks: true }
+      const baseBody = yield* resolveInput(flags.url, flags.html, config)
+      const body = {
+        ...applyWaitUntil(baseBody, flags.waitUntil),
+        ...(flags.visibleOnly ? { visibleLinksOnly: true } : {}),
+        ...(flags.internalOnly ? { excludeExternalLinks: true } : {}),
       }
       const result = yield* ApiClient.links(auth, body)
       yield* Output.printJson(result)
