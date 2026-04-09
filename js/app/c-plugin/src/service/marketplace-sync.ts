@@ -15,9 +15,9 @@ interface ParsedMarketplace {
   readonly raw: unknown
 }
 
-// eslint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (file content)
+// oxlint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (file content)
 const decodeClaudeCursor = Schema.decodeUnknownEffect(Marketplace)
-// eslint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (file content)
+// oxlint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (file content)
 const decodeCodex = Schema.decodeUnknownEffect(CodexMarketplace)
 
 const readBaseMarketplace = (repoDir: string, baseKind: MarketplaceKind): Effect.Effect<ParsedMarketplace, Error> =>

@@ -28,7 +28,7 @@ export type CUID = typeof schema.Type
 /** Type guard for CUID values. */
 export const is: (value: unknown, overrideOptions?: ParseOptions | number) => value is CUID = Schema.is(schema)
 
-const decodeSync = Schema.decodeSync(schema) // eslint-disable-line rules/no-sync-decode -- public API: input is already validated by is() guard
+const decodeSync = Schema.decodeSync(schema) // oxlint-disable-line rules/no-sync-decode -- public API: input is already validated by is() guard
 
 /** Returns default CUID length constants. */
 export const getDefaultConstants = (): {
@@ -42,15 +42,14 @@ const createRandom = (): number => {
   globalThis.crypto.getRandomValues(buffer)
   // Convert to a float in [0, 1) by dividing by 2^32
   const [value] = buffer
-  // eslint-disable-next-line rules/prefer-is-nullish -- Uint32Array element: null is not a valid value
-  if (Predicate.isUndefined(value)) {
+  if (Predicate.isNullish(value)) {
     throw new TypeError('Failed to generate random value')
   }
   return value / 0x1_00_00_00_00
 }
 
 const createEntropy = (length = 4, random = createRandom): string => {
-  // eslint-disable-next-line rules/no-let -- accumulator in while loop
+  // oxlint-disable-next-line rules/no-let -- accumulator in while loop
   let entropy = ''
 
   while (entropy.length < length) {
@@ -65,7 +64,7 @@ const createEntropy = (length = 4, random = createRandom): string => {
  */
 /** Converts a byte buffer to a BigNumber. */
 export const bufToBigInt = (buf: Uint8Array): BigNumber => {
-  // eslint-disable-next-line rules/no-let -- accumulator in for loop
+  // oxlint-disable-next-line rules/no-let -- accumulator in for loop
   let value = new BigNumber(0)
 
   for (const i of buf.values()) {
@@ -115,8 +114,7 @@ const alphabet = [
 
 const randomLetter = (rand: () => number): string => {
   const letter = alphabet[Math.floor(rand() * alphabet.length)]
-  // eslint-disable-next-line rules/prefer-is-nullish -- array element: null is not a valid value
-  if (Predicate.isUndefined(letter)) {
+  if (Predicate.isNullish(letter)) {
     throw new TypeError('Failed to generate random letter')
   }
   return letter
@@ -129,8 +127,7 @@ on a random string.
 */
 /** Creates a fingerprint of the host environment for collision prevention. */
 export const createFingerprint = ({
-  // eslint-disable-next-line rules/prefer-is-nullish -- globalThis is undefined in some environments, not null
-  globalObj = Predicate.isUndefined(globalThis) ? {} : globalThis,
+  globalObj = Predicate.isNullish(globalThis) ? {} : globalThis,
   random = createRandom,
 }: {
   globalObj?: Record<string, unknown>
@@ -144,7 +141,7 @@ export const createFingerprint = ({
 
 /** Creates an incrementing counter starting from the given value. */
 export const createCounter = (initialCount: number): (() => number) => {
-  // eslint-disable-next-line rules/no-let -- mutable counter in closure
+  // oxlint-disable-next-line rules/no-let -- mutable counter in closure
   let count = initialCount
   return () => {
     const current = count
@@ -199,7 +196,7 @@ export const GeneratorBase: ServiceMap.ServiceClass<
   readonly make: Effect.Effect<() => typeof schema.Type>
 } = ServiceMap.Service<Generator>()('@totto2727/fp/effect/cuid/Generator', {
   make: Effect.sync(() => {
-    // eslint-disable-next-line rules/no-let -- lazy initialization in closure
+    // oxlint-disable-next-line rules/no-let -- lazy initialization in closure
     let createId: () => CUID
     return () => {
       createId ??= init()
@@ -223,7 +220,7 @@ export class Generator extends GeneratorBase {
    */
   static readonly makeLayerTest: (seed: string) => Layer.Layer<Generator> = (seedString) =>
     Layer.sync(this, () => {
-      // eslint-disable-next-line rules/no-let -- lazy initialization in closure
+      // oxlint-disable-next-line rules/no-let -- lazy initialization in closure
       let seed: SR.PRNG
       return () => {
         seed ??= SR(seedString)

@@ -34,6 +34,7 @@ export default defineConfig({
       {
         files: ['**/*.test.ts', '**/*.spec.ts'],
         rules: {
+          'rules/no-let': 'allow',
           'rules/no-sync-decode': 'allow',
           'rules/prefer-is-nullish': 'allow',
           'rules/prefer-non-unknown-decode': 'allow',
@@ -48,6 +49,7 @@ export default defineConfig({
       'number-literal-case': 'allow',
       'rules/force-predicate': 'error',
       'rules/force-ts-extension': 'error',
+      'rules/no-eslint-disable-comments': 'error',
       'rules/no-let': 'error',
       'rules/no-option-tag-comparison': 'error',
       'rules/no-sync-decode': 'error',

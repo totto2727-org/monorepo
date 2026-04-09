@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 
 const getContext_ = () => {
-  // eslint-disable-next-line rules/no-let -- lazy initialization in closure
+  // oxlint-disable-next-line rules/no-let -- lazy initialization in closure
   let context: { queryClient: QueryClient }
   return () => {
     context ??= {

@@ -11,7 +11,6 @@ import type { LockFile } from '#@/schema/lock-file.ts'
 import { setupTestContext } from './_test-helper.ts'
 import { read, write } from './lock-file.ts'
 
-// eslint-disable-next-line rules/no-let -- test context reassigned in beforeEach
 let ctx: Awaited<ReturnType<typeof setupTestContext>>
 
 beforeEach(async () => {

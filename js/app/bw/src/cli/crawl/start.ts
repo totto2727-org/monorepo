@@ -44,7 +44,7 @@ export const crawlStartCommand = Command.make(
 
       yield* Effect.log('Waiting for crawl to complete...')
 
-      // eslint-disable-next-line rules/no-let -- polling loop requires reassignment
+      // oxlint-disable-next-line rules/no-let -- polling loop requires reassignment
       let status = yield* ApiClient.crawlStatus(auth, crawlId)
       while (status.status === 'running') {
         yield* Effect.sleep('3 seconds')

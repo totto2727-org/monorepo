@@ -131,11 +131,11 @@ const postBinary = (
     return new Uint8Array(buf)
   })
 
-// eslint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (API response JSON)
+// oxlint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (API response JSON)
 const decodeSnapshot = Schema.decodeUnknownEffect(SnapshotApiResponse)
-// eslint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (API response JSON)
+// oxlint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (API response JSON)
 const decodeCrawlStart = Schema.decodeUnknownEffect(CrawlStartApiResponse)
-// eslint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (API response JSON)
+// oxlint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (API response JSON)
 const decodeCrawlStatus = Schema.decodeUnknownEffect(CrawlStatusApiResponse)
 
 export const content = (

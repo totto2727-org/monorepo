@@ -7,7 +7,6 @@ import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 import { buildFakeRepoFixture, ensureAgentsDirs, setupTestContext } from './_test-helper.ts'
 import { resolveFromRepo } from './skill-resolver.ts'
 
-// eslint-disable-next-line rules/no-let -- test context reassigned in beforeEach
 let ctx: Awaited<ReturnType<typeof setupTestContext>>
 
 beforeEach(async () => {

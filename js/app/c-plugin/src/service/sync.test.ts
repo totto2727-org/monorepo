@@ -14,7 +14,6 @@ import { run } from './sync.ts'
 
 vi.mock('#@/service/git.ts', () => gitMock)
 
-// eslint-disable-next-line rules/no-let -- test context reassigned in beforeEach
 let ctx: Awaited<ReturnType<typeof setupTestContext>>
 
 beforeEach(async () => {

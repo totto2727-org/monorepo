@@ -1,5 +1,4 @@
-/* eslint-disable rules/prefer-is-nullish */
-/* eslint-disable  typescript-eslint/no-unsafe-type-assertion, typescript-eslint/ban-types, typescript-eslint/strict-boolean-expressions */
+// oxlint-disable typescript/no-unsafe-type-assertion
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
@@ -7,7 +6,7 @@ import { Predicate } from 'effect'
 // helpers
 // ---------------------------------------------------------------------------
 
-const isNotNull = <A>(value: A): value is A & {} => Predicate.isNotNull(value)
+const isNotNull = <A>(value: A): value is A & Record<string, unknown> => Predicate.isNotNull(value)
 
 const hasProperty = <K extends PropertyKey>(obj: unknown, key: K): obj is Record<K, unknown> =>
   Predicate.isObjectKeyword(obj) && key in obj
@@ -69,7 +68,7 @@ const typeofToPredicateMap: Record<string, string> = {
 }
 
 const isNullLiteral = (node: unknown): boolean =>
-  Predicate.isObject(node) && node.type === 'Literal' && Predicate.isNull(node.value)
+  Predicate.isObject(node) && node.type === 'Literal' && Predicate.isNullish(node.value)
 
 const isUndefinedIdentifier = (node: unknown): boolean =>
   Predicate.isObject(node) && node.type === 'Identifier' && node.name === 'undefined'
@@ -141,12 +140,12 @@ const forcePredicateRule: Rule = {
 
           const typeStr = resolveTypeStr(leftTypeof, rightTypeof, leftStr, rightStr)
 
-          if (Predicate.isNull(typeStr)) {
+          if (Predicate.isNullish(typeStr)) {
             return
           }
 
           const predicateFn = typeofToPredicateMap[typeStr]
-          if (Predicate.isUndefined(predicateFn)) {
+          if (Predicate.isNullish(predicateFn)) {
             return
           }
 
@@ -227,7 +226,7 @@ const noOptionTagComparisonRule: Rule = {
           const rightTag = getOptionTag(node.right)
           const tag = leftTag ?? rightTag
 
-          if (Predicate.isNull(tag)) {
+          if (Predicate.isNullish(tag)) {
             return
           }
 
@@ -275,7 +274,7 @@ const isSchemaMethodCall = (node: unknown, methodName: string): boolean => {
     node.type === 'CallExpression' &&
     Predicate.isObject(node.callee) &&
     node.callee.type === 'MemberExpression' &&
-    !node.callee.computed &&
+    !Predicate.isTruthy(node.callee.computed) &&
     Predicate.isObject(node.callee.object) &&
     node.callee.object.type === 'Identifier' &&
     node.callee.object.name === 'Schema' &&
@@ -343,7 +342,7 @@ const preferNonUnknownDecodeRule: Rule = {
         if (Predicate.isNotNull(method)) {
           const recommended = UNKNOWN_DECODE_METHODS[method]
           context.report({
-            message: `Prefer Schema.${recommended} over Schema.${method}. Use unknown variants only when input type is truly unknown. Add an eslint-disable comment if the unknown variant is required.`,
+            message: `Prefer Schema.${recommended} over Schema.${method}. Use unknown variants only when input type is truly unknown. Add an oxlint-disable comment if the unknown variant is required.`,
             node: node as never,
           })
         }
@@ -380,7 +379,7 @@ const preferIsNullishRule: Rule = {
         if (isNull || isUndefined) {
           const method = isNull ? 'isNull' : 'isUndefined'
           context.report({
-            message: `Prefer Predicate.isNullish over Predicate.${method}. Use null/undefined distinction only when necessary and disable this rule with an eslint-disable comment.`,
+            message: `Prefer Predicate.isNullish over Predicate.${method}. Use null/undefined distinction only when necessary and disable this rule with an oxlint-disable comment.`,
             node: node as never,
           })
         }
@@ -393,6 +392,43 @@ const preferIsNullishRule: Rule = {
 }
 
 // ---------------------------------------------------------------------------
+// no-eslint-disable-comments
+// ---------------------------------------------------------------------------
+
+const ESLINT_DISABLE_RE = /^\s*eslint-disable(?:-next-line|-line)?\b/gm
+
+const noEslintDisableRule: Rule = {
+  create(context: Context) {
+    return {
+      'Program:exit'() {
+        const comments = context.sourceCode.getAllComments()
+        for (const comment of comments) {
+          const { value } = comment
+          if (ESLINT_DISABLE_RE.test(value)) {
+            //
+            const fixed = value.replaceAll('eslint-disable', 'oxlint-disable')
+            context.report({
+              fix(fixer) {
+                const [start, end] = comment.range
+                const prefix = comment.type === 'Block' ? '/*' : '//'
+                const suffix = comment.type === 'Block' ? '*/' : ''
+                return fixer.replaceTextRange([start, end], `${prefix}${fixed}${suffix}`)
+              },
+              message: 'Use oxlint-disable instead of eslint-disable.',
+              node: comment as never,
+            })
+          }
+        }
+      },
+    }
+  },
+  meta: {
+    fixable: 'code',
+    type: 'problem',
+  },
+}
+
+// ---------------------------------------------------------------------------
 // Plugin
 // ---------------------------------------------------------------------------
 
@@ -401,6 +437,7 @@ const plugin = {
   rules: {
     'force-predicate': forcePredicateRule,
     'force-ts-extension': forceTsExtensionRule,
+    'no-eslint-disable-comments': noEslintDisableRule,
     'no-let': noLetRule,
     'no-option-tag-comparison': noOptionTagComparisonRule,
     'no-sync-decode': noSyncDecodeRule,

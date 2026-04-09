@@ -19,11 +19,9 @@ export const parseRepoSource = (repo: string): { owner: string; name: string } =
   const parts = repo.split('/')
   if (
     parts.length !== 2 ||
-    // eslint-disable-next-line rules/prefer-is-nullish -- distinguishing undefined from null for array elements
-    Predicate.isUndefined(parts[0]) ||
+    Predicate.isNullish(parts[0]) ||
     parts[0] === '' ||
-    // eslint-disable-next-line rules/prefer-is-nullish -- distinguishing undefined from null for array elements
-    Predicate.isUndefined(parts[1]) ||
+    Predicate.isNullish(parts[1]) ||
     parts[1] === ''
   ) {
     throw new Error(`Invalid repository format: ${repo}. Expected "owner/repo".`)

@@ -46,8 +46,7 @@ interface RouterContext {
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: () => {
-    // eslint-disable-next-line rules/prefer-is-nullish -- checking browser-only global
-    if (!Predicate.isUndefined(document)) {
+    if (Predicate.isNotNullish(document)) {
       document.documentElement.setAttribute('lang', getLocale())
     }
   },
