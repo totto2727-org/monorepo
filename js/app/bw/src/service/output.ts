@@ -16,7 +16,7 @@ export const writeFile = (path: string, data: Uint8Array): Effect.Effect<void, O
 export const writeText = (path: string, text: string): Effect.Effect<void, OutputError> =>
   Effect.tryPromise({
     catch: (error) => new OutputError({ message: error instanceof Error ? error.message : String(error), path }),
-    try: () => fsWriteFile(path, text, 'utf8'),
+    try: () => fsWriteFile(path, text, 'utf-8'),
   })
 
 export const printJson = (data: unknown): Effect.Effect<void> => Console.log(JSON.stringify(data, null, 2))

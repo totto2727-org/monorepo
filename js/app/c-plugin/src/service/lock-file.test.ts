@@ -51,7 +51,7 @@ describe('read', () => {
 
     const filePath = getLockFilePath(ctx.agentsDir)
     await Fs.mkdir(NodePath.dirname(filePath), { recursive: true })
-    await Fs.writeFile(filePath, JSON.stringify(lockFile, null, '\t'), 'utf8')
+    await Fs.writeFile(filePath, JSON.stringify(lockFile, null, '\t'), 'utf-8')
 
     const result = await Effect.runPromise(read(ctx.agentsDir))
     expect(result).toStrictEqual(lockFile)
@@ -60,7 +60,7 @@ describe('read', () => {
   test('returns emptyLockFile when file contains corrupt JSON', async () => {
     const filePath = getLockFilePath(ctx.agentsDir)
     await Fs.mkdir(NodePath.dirname(filePath), { recursive: true })
-    await Fs.writeFile(filePath, '{ invalid json }}}', 'utf8')
+    await Fs.writeFile(filePath, '{ invalid json }}}', 'utf-8')
 
     const result = await Effect.runPromise(read(ctx.agentsDir))
     expect(result).toStrictEqual(emptyLockFile)
@@ -69,7 +69,7 @@ describe('read', () => {
   test('returns emptyLockFile when file has invalid schema', async () => {
     const filePath = getLockFilePath(ctx.agentsDir)
     await Fs.mkdir(NodePath.dirname(filePath), { recursive: true })
-    await Fs.writeFile(filePath, JSON.stringify({ invalid: true, version: 99 }), 'utf8')
+    await Fs.writeFile(filePath, JSON.stringify({ invalid: true, version: 99 }), 'utf-8')
 
     const result = await Effect.runPromise(read(ctx.agentsDir))
     expect(result).toStrictEqual(emptyLockFile)

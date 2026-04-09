@@ -61,12 +61,12 @@ describe('ensureRepo', () => {
     await Fs.mkdir(repoCacheDir, { recursive: true })
 
     const markerFile = NodePath.join(repoCacheDir, 'marker.txt')
-    await Fs.writeFile(markerFile, 'exists', 'utf8')
+    await Fs.writeFile(markerFile, 'exists', 'utf-8')
 
     const repoDir = await Effect.runPromise(ensureRepo(ctx.agentsDir, 'owner/repo'))
     expect(repoDir).toBe(repoCacheDir)
 
-    const content = await Fs.readFile(markerFile, 'utf8')
+    const content = await Fs.readFile(markerFile, 'utf-8')
     expect(content).toBe('exists')
   })
 })
@@ -77,7 +77,7 @@ describe('removeRepo', () => {
 
     const repoCacheDir = getRepoCacheDir(ctx.agentsDir, 'owner/repo')
     await Fs.mkdir(repoCacheDir, { recursive: true })
-    await Fs.writeFile(NodePath.join(repoCacheDir, 'file.txt'), 'data', 'utf8')
+    await Fs.writeFile(NodePath.join(repoCacheDir, 'file.txt'), 'data', 'utf-8')
 
     await Effect.runPromise(removeRepo(ctx.agentsDir, 'owner/repo'))
     await expect(Fs.access(repoCacheDir)).rejects.toThrow()

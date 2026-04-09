@@ -22,7 +22,7 @@ export const loadConfig = (
           message: error instanceof Error ? error.message : String(error),
           path: configPath.value,
         }),
-      try: () => readFile(configPath.value, 'utf8'),
+      try: () => readFile(configPath.value, 'utf-8'),
     })
 
     const parsed: unknown = yield* Effect.try({
@@ -58,7 +58,7 @@ export const resolveInput = (
           new InputError({
             message: `Failed to read HTML file: ${error instanceof Error ? error.message : String(error)}`,
           }),
-        try: () => readFile(htmlFlag.value, 'utf8'),
+        try: () => readFile(htmlFlag.value, 'utf-8'),
       })
       return { ...config, html: htmlContent }
     }

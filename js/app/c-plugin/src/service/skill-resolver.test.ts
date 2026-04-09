@@ -104,7 +104,7 @@ describe('resolveFromRepo', () => {
     const repoDir = NodePath.join(ctx.agentsDir, '.cache', 'owner', 'bad-schema')
     const marketplaceDir = NodePath.join(repoDir, '.claude-plugin')
     await Fs.mkdir(marketplaceDir, { recursive: true })
-    await Fs.writeFile(NodePath.join(marketplaceDir, 'marketplace.json'), JSON.stringify({ invalid: true }), 'utf8')
+    await Fs.writeFile(NodePath.join(marketplaceDir, 'marketplace.json'), JSON.stringify({ invalid: true }), 'utf-8')
 
     const exit = await Effect.runPromiseExit(resolveFromRepo(repoDir, 'claude'))
     expect(Exit.isFailure(exit)).toBe(true)

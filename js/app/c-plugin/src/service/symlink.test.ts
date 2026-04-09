@@ -121,7 +121,7 @@ describe('listSkillLinks', () => {
     await Effect.runPromise(createSkillLink(ctx.agentsDir, [], 'skill-a', targetDir))
 
     const regularFile = NodePath.join(getSkillsDir(ctx.agentsDir), 'not-a-link')
-    await Fs.writeFile(regularFile, '', 'utf8')
+    await Fs.writeFile(regularFile, '', 'utf-8')
 
     const links = await Effect.runPromise(listSkillLinks(ctx.agentsDir))
     expect([...links]).toStrictEqual(['skill-a'])

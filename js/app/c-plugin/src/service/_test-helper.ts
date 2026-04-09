@@ -42,13 +42,17 @@ export const buildFakeRepoFixture = async (
 
   const marketplaceDir = NodePath.join(repoDir, '.claude-plugin')
   await Fs.mkdir(marketplaceDir, { recursive: true })
-  await Fs.writeFile(NodePath.join(marketplaceDir, 'marketplace.json'), JSON.stringify(marketplace, null, '\t'), 'utf8')
+  await Fs.writeFile(
+    NodePath.join(marketplaceDir, 'marketplace.json'),
+    JSON.stringify(marketplace, null, '\t'),
+    'utf-8',
+  )
 
   for (const plugin of options.plugins) {
     for (const skill of plugin.skills) {
       const skillDir = NodePath.join(repoDir, plugin.source, 'skills', skill)
       await Fs.mkdir(skillDir, { recursive: true })
-      await Fs.writeFile(NodePath.join(skillDir, 'SKILL.md'), `# ${skill}\n`, 'utf8')
+      await Fs.writeFile(NodePath.join(skillDir, 'SKILL.md'), `# ${skill}\n`, 'utf-8')
     }
   }
 
@@ -58,7 +62,7 @@ export const buildFakeRepoFixture = async (
 export const writeLockFile = async (agentsDir: string, lockFile: LockFile): Promise<void> => {
   const path = getLockFilePath(agentsDir)
   await Fs.mkdir(NodePath.dirname(path), { recursive: true })
-  await Fs.writeFile(path, `${JSON.stringify(lockFile, null, '\t')}\n`, 'utf8')
+  await Fs.writeFile(path, `${JSON.stringify(lockFile, null, '\t')}\n`, 'utf-8')
 }
 
 export const ensureAgentsDirs = async (agentsDir: string): Promise<void> => {

@@ -33,7 +33,7 @@ export const jsonCommand = Command.make(
         ? yield* Effect.tryPromise({
             catch: (error) =>
               new Error(`Failed to read schema file: ${error instanceof Error ? error.message : String(error)}`),
-            try: () => readFile(schemaPath.value, 'utf8'),
+            try: () => readFile(schemaPath.value, 'utf-8'),
           }).pipe(
             Effect.map((schemaText) => ({
               ...bodyWithPrompt,
