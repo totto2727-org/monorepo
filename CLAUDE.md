@@ -8,32 +8,52 @@ eza --tree -L 2 -D js mbt go
 
 ## Development Commands
 
-### Workspace Tasks
+### Execution Rules
 
-- `vp run -r check` - Run format, lint, and type check across the entire workspace
-- `vp run -r fix` - Auto-fix linting and formatting issues and type check across the entire workspace
-- `vp run -r prebuild` - Prepare workspace for build (e.g., generate types)
-- `vp run -r build` - Build all workspace projects
-- `vp run -r test` - Run tests across the entire workspace
+- **Never use `npx` or `bunx`** — always use `vp run`, `vp exec`, or `vpx` in that order
+- All commands must be run from the repository root unless noted otherwise
 
-### TypeScript Commands
+### Workspace-wide NPM Scripts
 
-For `js/` workspace projects:
+```bash
+vp run --cache -r  <script>   # e.g. check, fix, prebuild, build, test
+```
 
-- `vp build` - Build by Vite
-- `vp check` - Format, Lint, and type check
-- `vp check --fix` - Auto-fix linting and formatting issues and type check
-- `vp test` - Run tests by Vitest
+### Single Project NPM Scripts (from root)
+
+```bash
+vp run --cache --filter <project> <script>   # e.g. vp run --filter bw build
+```
+
+### Built-in Commands (from root)
+
+```bash
+vp check           # Format, lint, and type check
+vp check --fix     # Auto-fix linting and formatting issues, then type check
+vp test                   # Run all tests by Vitest
+vp test run <test-file>   # Run a specific test file
+vp test related <source>  # Run tests related to a source file
+```
+
+### Project-local Commands (requires cd)
+
+When the above methods cannot be used, cd into the project directory first:
+
+```bash
+vp run <script>    # e.g. cd js/app/bw && vp run build
+```
 
 ### MoonBit Commands
 
 For `mbt/` workspace projects:
 
-- `moon build` - Build MoonBit packages
-- `moon check` - Type check MoonBit code
-- `moon fmt` - Format MoonBit code
-- `moon test` - Run MoonBit tests
-- `moon info` - Update generated interface files (.mbti)
+```bash
+moon build         # Build MoonBit packages
+moon check         # Type check MoonBit code
+moon fmt           # Format MoonBit code
+moon test          # Run MoonBit tests
+moon info          # Update generated interface files (.mbti)
+```
 
 ## Architecture
 

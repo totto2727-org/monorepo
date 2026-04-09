@@ -2,3 +2,4 @@ node_modules/
 .claude/**.local.*
 *.local.*
 .cache
+.pnpm-store
