@@ -53,7 +53,6 @@ bw links         Retrieve all links
 bw crawl start   Start async crawl job
 bw crawl status  Check crawl job status
 bw crawl results Retrieve crawl results
-bw crawl list    List all crawl jobs
 ```
 
 ### 5. Common Flags
@@ -110,7 +109,6 @@ js/app/bw/
         start.ts
         status.ts
         results.ts
-        list.ts
     schema/
       common.ts
       config-file.ts

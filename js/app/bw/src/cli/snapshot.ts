@@ -1,3 +1,4 @@
+import { mkdir } from 'node:fs/promises'
 import { basename, join } from 'node:path'
 
 import { Effect } from 'effect'
@@ -33,6 +34,12 @@ export const snapshotCommand = Command.make(
       const base = flags.output.replace(/\/$/, '')
       const name = basename(base)
       const dir = base
+
+      yield* Effect.tryPromise({
+        catch: (error) =>
+          new Output.OutputError({ message: error instanceof Error ? error.message : String(error), path: dir }),
+        try: () => mkdir(dir, { recursive: true }),
+      })
 
       const screenshotBuf = Buffer.from(result.screenshot, 'base64')
       yield* Effect.all([

@@ -1,19 +1,25 @@
 import { Schema } from 'effect'
 
-export const SnapshotResponse = Schema.Struct({
-  content: Schema.String,
-  screenshot: Schema.String,
+export const SnapshotApiResponse = Schema.Struct({
+  result: Schema.Struct({
+    content: Schema.String,
+    screenshot: Schema.String,
+  }),
+  success: Schema.Boolean,
 })
-export type SnapshotResponse = typeof SnapshotResponse.Type
+export type SnapshotResult = (typeof SnapshotApiResponse.Type)['result']
 
-export const CrawlStartResponse = Schema.Struct({
-  id: Schema.String,
+export const CrawlStartApiResponse = Schema.Struct({
+  result: Schema.String,
+  success: Schema.Boolean,
 })
-export type CrawlStartResponse = typeof CrawlStartResponse.Type
 
-export const CrawlStatusResponse = Schema.Struct({
-  finished: Schema.optional(Schema.Number),
-  status: Schema.String,
-  total: Schema.optional(Schema.Number),
+export const CrawlStatusApiResponse = Schema.Struct({
+  result: Schema.Struct({
+    finished: Schema.optional(Schema.Number),
+    status: Schema.String,
+    total: Schema.optional(Schema.Number),
+  }),
+  success: Schema.Boolean,
 })
-export type CrawlStatusResponse = typeof CrawlStatusResponse.Type
+export type CrawlStatusResult = (typeof CrawlStatusApiResponse.Type)['result']
