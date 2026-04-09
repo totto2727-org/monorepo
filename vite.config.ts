@@ -1,3 +1,4 @@
+import { core, react, remix } from 'ultracite/oxlint'
 import { defineConfig } from 'vite-plus'
 
 export default defineConfig({
@@ -21,38 +22,28 @@ export default defineConfig({
     trailingComma: 'all',
     useTabs: false,
   },
+  lint: {
+    extends: [core, react, remix],
+    ignorePatterns: ['**/__fixtures__/**'],
+    jsPlugins: ['./js/package/oxlint-plugin/src/index.ts'],
+    options: {
+      typeAware: true,
+      typeCheck: true,
+    },
+    rules: {
+      'func-names': ['error', 'always', { generators: 'never' }],
+      'import/extensions': ['error', 'always', { checkTypeImports: true, ignorePackages: true }],
+      'jsx-no-new-function-as-prop': 'allow',
+      'no-nodejs-modules': 'allow',
+      'number-literal-case': 'allow',
+      'rules/force-predicate': 'error',
+      'rules/force-ts-extension': 'error',
+      'rules/no-let': 'error',
+      'rules/no-option-tag-comparison': 'error',
+      'typescript/promise-function-async': 'allow',
+    },
+  },
   staged: {
     '*': 'vp run fix',
   },
 })
-// lint: {
-//   extends: [
-//     "./node_modules/ultracite/config/oxlint/core/.oxlintrc.json",
-//     "./node_modules/ultracite/config/oxlint/react/.oxlintrc.json",
-//     "./node_modules/ultracite/config/oxlint/remix/.oxlintrc.json",
-//   ],
-//   rules: {
-//     "func-names": [
-//       "error",
-//       "always",
-//       {
-//         generators: "never",
-//       },
-//     ],
-//     "number-literal-case": "allow",
-//     "import/extensions": [
-//       "error",
-//       "always",
-//       {
-//         ignorePackages: true,
-//         checkTypeImports: true,
-//       },
-//     ],
-//     "no-nodejs-modules": "allow",
-//     "jsx-no-new-function-as-prop": "allow",
-//   },
-//   options: {
-//     typeAware: true,
-//     typeCheck: true,
-//   },
-// },
