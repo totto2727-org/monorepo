@@ -1,0 +1,22 @@
+{
+  "name": "bw",
+  "version": "0.1.0",
+  "bin": {
+    "bw": "./dist/bin.js"
+  },
+  "type": "module",
+  "imports": {
+    "#@/*": "./src/*"
+  },
+  "scripts": {
+    "build": "vp pack"
+  },
+  "dependencies": {
+    "@effect/platform-node": "catalog:effect",
+    "effect": "catalog:effect"
+  },
+  "devDependencies": {
+    "@totto2727/fp": "workspace:*",
+    "vite-plus": "catalog:"
+  }
+}
