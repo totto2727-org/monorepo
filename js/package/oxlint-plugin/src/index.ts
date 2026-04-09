@@ -261,31 +261,38 @@ const noOptionTagComparisonRule: Rule = {
 // no-sync-decode
 // ---------------------------------------------------------------------------
 
-const BANNED_METHODS = ['decodeSync', 'decodeUnknownSync'] as const
+const BANNED_DECODE_METHODS: Record<string, string> = {
+  decodePromise: 'decodeEffect',
+  decodeSync: 'decodeEffect',
+  decodeUnknownPromise: 'decodeUnknownEffect',
+  decodeUnknownSync: 'decodeUnknownEffect',
+}
 
-const isSchemaDecodeSyncCall = (node: unknown): boolean =>
-  Predicate.isObject(node) &&
-  node.type === 'CallExpression' &&
-  Predicate.isObject(node.callee) &&
-  node.callee.type === 'MemberExpression' &&
-  Predicate.isObject(node.callee.property) &&
-  node.callee.property.type === 'Identifier' &&
-  BANNED_METHODS.includes(node.callee.property.name as (typeof BANNED_METHODS)[number])
+const isSchemaBannedDecodeCall = (node: unknown): string | null => {
+  if (
+    Predicate.isObject(node) &&
+    node.type === 'CallExpression' &&
+    Predicate.isObject(node.callee) &&
+    node.callee.type === 'MemberExpression' &&
+    Predicate.isObject(node.callee.property) &&
+    node.callee.property.type === 'Identifier' &&
+    Predicate.isString(node.callee.property.name) &&
+    node.callee.property.name in BANNED_DECODE_METHODS
+  ) {
+    return node.callee.property.name
+  }
+  return null
+}
 
 const noSyncDecodeRule: Rule = {
   create(context: Context) {
     return {
       CallExpression(node: unknown) {
-        if (isSchemaDecodeSyncCall(node)) {
-          const method =
-            Predicate.isObject(node) &&
-            Predicate.isObject(node.callee) &&
-            Predicate.isObject(node.callee.property) &&
-            Predicate.isString(node.callee.property.name)
-              ? node.callee.property.name
-              : 'decodeSync'
+        const method = isSchemaBannedDecodeCall(node)
+        if (Predicate.isNotNull(method)) {
+          const recommended = BANNED_DECODE_METHODS[method]
           context.report({
-            message: `Use Schema.decodeEffect or Schema.decodeUnknownEffect instead of Schema.${method}. Sync decoders can cause panics without proper error handling.`,
+            message: `Use Schema.${recommended} instead of Schema.${method}.`,
             node: node as never,
           })
         }
@@ -294,6 +301,88 @@ const noSyncDecodeRule: Rule = {
   },
   meta: {
     type: 'problem',
+  },
+}
+
+// ---------------------------------------------------------------------------
+// prefer-non-unknown-decode
+// ---------------------------------------------------------------------------
+
+const UNKNOWN_DECODE_METHODS: Record<string, string> = {
+  decodeUnknownEffect: 'decodeEffect',
+  decodeUnknownExit: 'decodeExit',
+}
+
+const isSchemaUnknownDecodeCall = (node: unknown): string | null => {
+  if (
+    Predicate.isObject(node) &&
+    node.type === 'CallExpression' &&
+    Predicate.isObject(node.callee) &&
+    node.callee.type === 'MemberExpression' &&
+    Predicate.isObject(node.callee.property) &&
+    node.callee.property.type === 'Identifier' &&
+    Predicate.isString(node.callee.property.name) &&
+    node.callee.property.name in UNKNOWN_DECODE_METHODS
+  ) {
+    return node.callee.property.name
+  }
+  return null
+}
+
+const preferNonUnknownDecodeRule: Rule = {
+  create(context: Context) {
+    return {
+      CallExpression(node: unknown) {
+        const method = isSchemaUnknownDecodeCall(node)
+        if (Predicate.isNotNull(method)) {
+          const recommended = UNKNOWN_DECODE_METHODS[method]
+          context.report({
+            message: `Prefer Schema.${recommended} over Schema.${method}. Use unknown variants only when input type is truly unknown. Add an eslint-disable comment if the unknown variant is required.`,
+            node: node as never,
+          })
+        }
+      },
+    }
+  },
+  meta: {
+    type: 'suggestion',
+  },
+}
+
+// ---------------------------------------------------------------------------
+// prefer-is-nullish
+// ---------------------------------------------------------------------------
+
+const isPredicateCall = (node: unknown, methodName: string): boolean =>
+  Predicate.isObject(node) &&
+  node.type === 'CallExpression' &&
+  Predicate.isObject(node.callee) &&
+  node.callee.type === 'MemberExpression' &&
+  Predicate.isObject(node.callee.object) &&
+  node.callee.object.type === 'Identifier' &&
+  node.callee.object.name === 'Predicate' &&
+  Predicate.isObject(node.callee.property) &&
+  node.callee.property.type === 'Identifier' &&
+  node.callee.property.name === methodName
+
+const preferIsNullishRule: Rule = {
+  create(context: Context) {
+    return {
+      CallExpression(node: unknown) {
+        const isNull = isPredicateCall(node, 'isNull')
+        const isUndefined = isPredicateCall(node, 'isUndefined')
+        if (isNull || isUndefined) {
+          const method = isNull ? 'isNull' : 'isUndefined'
+          context.report({
+            message: `Prefer Predicate.isNullish over Predicate.${method}. Use null/undefined distinction only when necessary and disable this rule with an eslint-disable comment.`,
+            node: node as never,
+          })
+        }
+      },
+    }
+  },
+  meta: {
+    type: 'suggestion',
   },
 }
 
@@ -309,6 +398,8 @@ const plugin = {
     'no-let': noLetRule,
     'no-option-tag-comparison': noOptionTagComparisonRule,
     'no-sync-decode': noSyncDecodeRule,
+    'prefer-is-nullish': preferIsNullishRule,
+    'prefer-non-unknown-decode': preferNonUnknownDecodeRule,
   },
 }
 
