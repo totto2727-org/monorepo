@@ -20,13 +20,20 @@ export const read = (agentsDir: string): Effect.Effect<LockFile, LockFileCorrupt
     try: () => Fs.readFile(getLockFilePath(agentsDir), 'utf8'),
   }).pipe(
     Effect.flatMap((content) =>
-      decode(parseJson(content)).pipe(
-        Effect.mapError(
-          (cause) =>
-            new LockFileCorruptError({
-              cause,
-              path: getLockFilePath(agentsDir),
-            }),
+      Effect.try({
+        catch: (cause) => new LockFileCorruptError({ cause, path: getLockFilePath(agentsDir) }),
+        try: () => parseJson(content),
+      }).pipe(
+        Effect.flatMap((parsed) =>
+          decode(parsed).pipe(
+            Effect.mapError(
+              (cause) =>
+                new LockFileCorruptError({
+                  cause,
+                  path: getLockFilePath(agentsDir),
+                }),
+            ),
+          ),
         ),
       ),
     ),
