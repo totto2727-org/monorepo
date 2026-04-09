@@ -1,4 +1,5 @@
-/* eslint-disable  typescript-eslint/no-unsafe-type-assertion, typescript-eslint/ban-types */
+/* eslint-disable rules/prefer-is-nullish */
+/* eslint-disable  typescript-eslint/no-unsafe-type-assertion, typescript-eslint/ban-types, typescript-eslint/strict-boolean-expressions */
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
@@ -268,18 +269,30 @@ const BANNED_DECODE_METHODS: Record<string, string> = {
   decodeUnknownSync: 'decodeUnknownEffect',
 }
 
-const isSchemaBannedDecodeCall = (node: unknown): string | null => {
+const isSchemaMethodCall = (node: unknown, methodName: string): boolean => {
   if (
     Predicate.isObject(node) &&
     node.type === 'CallExpression' &&
     Predicate.isObject(node.callee) &&
     node.callee.type === 'MemberExpression' &&
+    !node.callee.computed &&
+    Predicate.isObject(node.callee.object) &&
+    node.callee.object.type === 'Identifier' &&
+    node.callee.object.name === 'Schema' &&
     Predicate.isObject(node.callee.property) &&
     node.callee.property.type === 'Identifier' &&
-    Predicate.isString(node.callee.property.name) &&
-    node.callee.property.name in BANNED_DECODE_METHODS
+    node.callee.property.name === methodName
   ) {
-    return node.callee.property.name
+    return true
+  }
+  return false
+}
+
+const isSchemaBannedDecodeCall = (node: unknown): string | null => {
+  for (const method of Object.keys(BANNED_DECODE_METHODS)) {
+    if (isSchemaMethodCall(node, method)) {
+      return method
+    }
   }
   return null
 }
@@ -314,17 +327,10 @@ const UNKNOWN_DECODE_METHODS: Record<string, string> = {
 }
 
 const isSchemaUnknownDecodeCall = (node: unknown): string | null => {
-  if (
-    Predicate.isObject(node) &&
-    node.type === 'CallExpression' &&
-    Predicate.isObject(node.callee) &&
-    node.callee.type === 'MemberExpression' &&
-    Predicate.isObject(node.callee.property) &&
-    node.callee.property.type === 'Identifier' &&
-    Predicate.isString(node.callee.property.name) &&
-    node.callee.property.name in UNKNOWN_DECODE_METHODS
-  ) {
-    return node.callee.property.name
+  for (const method of Object.keys(UNKNOWN_DECODE_METHODS)) {
+    if (isSchemaMethodCall(node, method)) {
+      return method
+    }
   }
   return null
 }
