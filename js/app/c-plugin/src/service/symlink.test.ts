@@ -9,6 +9,7 @@ import { getSkillsDir } from '#@/lib/paths.ts'
 import { ensureAgentsDirs, setupTestContext } from './_test-helper.ts'
 import { createSkillLink, listSkillLinks, removeSkillLink, removeSkillLinkFromDirs } from './symlink.ts'
 
+// eslint-disable-next-line rules/no-let -- test context reassigned in beforeEach
 let ctx: Awaited<ReturnType<typeof setupTestContext>>
 
 beforeEach(async () => {

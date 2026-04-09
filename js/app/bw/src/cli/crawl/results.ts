@@ -1,4 +1,4 @@
-import { Effect } from 'effect'
+import { Effect, Option } from 'effect'
 import { Command, Flag } from 'effect/unstable/cli'
 
 import * as Flags from '#@/lib/flags.ts'
@@ -19,7 +19,7 @@ export const crawlResultsCommand = Command.make(
       const auth = yield* Auth.resolve(flags)
       const result = yield* ApiClient.crawlResults(auth, flags.id)
 
-      if (flags.output._tag === 'Some') {
+      if (Option.isSome(flags.output)) {
         yield* Output.writeText(flags.output.value, JSON.stringify(result, null, 2))
         yield* Effect.log(`Results saved to ${flags.output.value}`)
       } else {

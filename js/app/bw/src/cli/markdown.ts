@@ -1,4 +1,4 @@
-import { Effect } from 'effect'
+import { Effect, Option } from 'effect'
 import { Command } from 'effect/unstable/cli'
 
 import { applyWaitUntil, loadConfig, resolveInput } from '#@/lib/config.ts'
@@ -25,7 +25,7 @@ export const markdownCommand = Command.make(
       const body = yield* resolveInput(flags.url, flags.html, config)
       const result = yield* ApiClient.markdown(auth, applyWaitUntil(body, flags.waitUntil))
 
-      if (flags.output._tag === 'Some') {
+      if (Option.isSome(flags.output)) {
         yield* Output.writeText(flags.output.value, result)
         yield* Effect.log(`Written to ${flags.output.value}`)
       } else {

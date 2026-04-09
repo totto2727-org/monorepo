@@ -1,4 +1,4 @@
-import { Effect } from 'effect'
+import { Effect, Option, Predicate } from 'effect'
 import { Command, Flag } from 'effect/unstable/cli'
 
 import { applyWaitUntil, loadConfig, resolveInput } from '#@/lib/config.ts'
@@ -25,23 +25,22 @@ export const screenshotCommand = Command.make(
     Effect.gen(function* () {
       const auth = yield* Auth.resolve(flags)
       const config = yield* loadConfig(flags.config)
-      let body = yield* resolveInput(flags.url, flags.html, config)
-      body = applyWaitUntil(body, flags.waitUntil)
-      if (flags.fullPage) {
-        body = { ...body, screenshotOptions: { fullPage: true } }
-      }
-      if (flags.width._tag === 'Some' || flags.height._tag === 'Some') {
-        const existing = body['viewport']
-        const viewportBase = typeof existing === 'object' && existing !== null ? existing : {}
-        body = {
-          ...body,
-          viewport: {
-            ...viewportBase,
-            ...(flags.width._tag === 'Some' ? { width: flags.width.value } : {}),
-            ...(flags.height._tag === 'Some' ? { height: flags.height.value } : {}),
-          },
-        }
-      }
+      const baseBody = yield* resolveInput(flags.url, flags.html, config)
+      const bodyWithWait = applyWaitUntil(baseBody, flags.waitUntil)
+      const bodyWithFullPage = flags.fullPage
+        ? { ...bodyWithWait, screenshotOptions: { fullPage: true } }
+        : bodyWithWait
+      const body =
+        Option.isSome(flags.width) || Option.isSome(flags.height)
+          ? {
+              ...bodyWithFullPage,
+              viewport: {
+                ...(Predicate.isObject(bodyWithFullPage['viewport']) ? bodyWithFullPage['viewport'] : {}),
+                ...(Option.isSome(flags.width) ? { width: flags.width.value } : {}),
+                ...(Option.isSome(flags.height) ? { height: flags.height.value } : {}),
+              },
+            }
+          : bodyWithFullPage
       const data = yield* ApiClient.screenshot(auth, body)
       yield* Output.writeFile(flags.output, data)
       yield* Effect.log(`Screenshot saved to ${flags.output}`)

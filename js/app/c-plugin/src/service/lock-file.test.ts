@@ -11,6 +11,7 @@ import type { LockFile } from '#@/schema/lock-file.ts'
 import { setupTestContext } from './_test-helper.ts'
 import { read, write } from './lock-file.ts'
 
+// eslint-disable-next-line rules/no-let -- test context reassigned in beforeEach
 let ctx: Awaited<ReturnType<typeof setupTestContext>>
 
 beforeEach(async () => {
@@ -32,6 +33,7 @@ describe('read', () => {
       repositories: [
         {
           commitHash: 'abc123',
+          marketplaceKind: 'claude',
           plugins: [
             {
               enabledSkills: ['skill-a'],
@@ -80,6 +82,7 @@ describe('write', () => {
       repositories: [
         {
           commitHash: 'def456',
+          marketplaceKind: 'claude',
           plugins: [
             {
               enabledSkills: ['skill-x', 'skill-y'],

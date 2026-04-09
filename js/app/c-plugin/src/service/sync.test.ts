@@ -14,6 +14,7 @@ import { run } from './sync.ts'
 
 vi.mock('#@/service/git.ts', () => gitMock)
 
+// eslint-disable-next-line rules/no-let -- test context reassigned in beforeEach
 let ctx: Awaited<ReturnType<typeof setupTestContext>>
 
 beforeEach(async () => {
@@ -52,6 +53,7 @@ describe('sync run', () => {
       repositories: [
         {
           commitHash: 'abc123',
+          marketplaceKind: 'claude',
           plugins: [
             {
               enabledSkills: ['skill-a', 'skill-b'],
@@ -92,6 +94,7 @@ describe('sync run', () => {
       repositories: [
         {
           commitHash: 'abc123',
+          marketplaceKind: 'claude',
           plugins: [
             {
               enabledSkills: ['skill-a', 'skill-removed'],
@@ -136,6 +139,7 @@ describe('sync run', () => {
       repositories: [
         {
           commitHash: 'abc123',
+          marketplaceKind: 'claude',
           plugins: [
             {
               enabledSkills: ['gone-skill'],
@@ -176,6 +180,7 @@ describe('sync run', () => {
       repositories: [
         {
           commitHash: 'abc123',
+          marketplaceKind: 'claude',
           plugins: [
             {
               enabledSkills: ['skill-a'],

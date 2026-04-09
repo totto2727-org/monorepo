@@ -1,5 +1,4 @@
-import { Data, Effect } from 'effect'
-import type { Option } from 'effect'
+import { Data, Effect, Option, Predicate } from 'effect'
 
 export class AuthError extends Data.TaggedError('AuthError')<{
   readonly message: string
@@ -12,12 +11,12 @@ export interface AuthConfig {
 
 const resolveValue = (flag: Option.Option<string>, envKey: string, label: string): Effect.Effect<string, AuthError> =>
   Effect.gen(function* () {
-    if (flag._tag === 'Some') {
+    if (Option.isSome(flag)) {
       return flag.value
     }
 
     const env = process.env[envKey]
-    if (env !== undefined && env !== '') {
+    if (!Predicate.isUndefined(env) && env !== '') {
       return env
     }
 

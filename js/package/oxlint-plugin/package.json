@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./force-ts-extension": "./src/force-ts-extension.mjs"
+    ".": "./src/index.mjs"
   }
 }

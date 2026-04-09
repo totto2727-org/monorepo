@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "jsPlugins": ["./js/package/oxlint-plugin/src/force-ts-extension.mjs"],
+  "jsPlugins": ["./js/package/oxlint-plugin/src/index.mjs"],
   "extends": [
     "./node_modules/ultracite/config/oxlint/core/.oxlintrc.json",
     "./node_modules/ultracite/config/oxlint/react/.oxlintrc.json",
@@ -20,7 +20,10 @@
     "no-nodejs-modules": "allow",
     "jsx-no-new-function-as-prop": "allow",
     "typescript/promise-function-async": "allow",
-    "force-ts-extension/force-ts-extension": "error"
+    "rules/force-ts-extension": "error",
+    "rules/force-predicate": "error",
+    "rules/no-let": "error",
+    "rules/no-option-tag-comparison": "error"
   },
   "options": {
     "typeAware": true,
@@ -36,7 +39,10 @@
         "typescript/no-unsafe-call": "allow",
         "typescript/no-unsafe-member-access": "allow",
         "typescript/no-unsafe-return": "allow",
-        "typescript/strict-boolean-expressions": "allow"
+        "typescript/strict-boolean-expressions": "allow",
+        "rules/force-predicate": "allow",
+        "rules/no-let": "allow",
+        "rules/no-option-tag-comparison": "allow"
       }
     }
   ]

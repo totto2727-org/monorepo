@@ -1,7 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
-import { Effect, Schema } from 'effect'
-import type { Option } from 'effect'
+import { Effect, Option, Predicate, Schema } from 'effect'
 
 import { ConfigFileError } from '#@/lib/errors.ts'
 import { InputError } from '#@/lib/input-error.ts'
@@ -13,7 +12,7 @@ export const loadConfig = (
   configPath: Option.Option<string>,
 ): Effect.Effect<Record<string, unknown>, ConfigFileError> =>
   Effect.gen(function* () {
-    if (configPath._tag === 'None') {
+    if (Option.isNone(configPath)) {
       return {}
     }
 
@@ -49,11 +48,11 @@ export const resolveInput = (
   config: Record<string, unknown>,
 ): Effect.Effect<Record<string, unknown>, InputError> =>
   Effect.gen(function* () {
-    if (urlFlag._tag === 'Some') {
+    if (Option.isSome(urlFlag)) {
       return { ...config, url: urlFlag.value }
     }
 
-    if (htmlFlag._tag === 'Some') {
+    if (Option.isSome(htmlFlag)) {
       const htmlContent = yield* Effect.tryPromise({
         catch: (error) =>
           new InputError({
@@ -75,11 +74,11 @@ export const applyWaitUntil = (
   body: Record<string, unknown>,
   waitUntil: Option.Option<string>,
 ): Record<string, unknown> => {
-  if (waitUntil._tag === 'None') {
+  if (Option.isNone(waitUntil)) {
     return body
   }
   const existing = body['gotoOptions']
-  const gotoBase = typeof existing === 'object' && existing !== null ? existing : {}
+  const gotoBase = Predicate.isObject(existing) ? existing : {}
   return {
     ...body,
     gotoOptions: { ...gotoBase, waitUntil: waitUntil.value },

@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 import { buildFakeRepoFixture, ensureAgentsDirs, setupTestContext } from './_test-helper.ts'
 import { resolveFromRepo } from './skill-resolver.ts'
 
+// eslint-disable-next-line rules/no-let -- test context reassigned in beforeEach
 let ctx: Awaited<ReturnType<typeof setupTestContext>>
 
 beforeEach(async () => {
@@ -30,7 +31,7 @@ describe('resolveFromRepo', () => {
       ],
     })
 
-    const skills = await Effect.runPromise(resolveFromRepo(repoDir))
+    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude'))
 
     expect(skills).toHaveLength(2)
     expect(skills.map((s) => s.skillName).toSorted()).toStrictEqual(['skill-a', 'skill-b'])
@@ -53,7 +54,7 @@ describe('resolveFromRepo', () => {
       ],
     })
 
-    const skills = await Effect.runPromise(resolveFromRepo(repoDir))
+    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude'))
     expect(skills).toHaveLength(3)
   })
 
@@ -71,7 +72,7 @@ describe('resolveFromRepo', () => {
     const noSkillMdDir = NodePath.join(repoDir, 'plugins', 'my-plugin', 'skills', 'no-skill-md')
     await Fs.mkdir(noSkillMdDir, { recursive: true })
 
-    const skills = await Effect.runPromise(resolveFromRepo(repoDir))
+    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude'))
     expect(skills).toHaveLength(1)
     expect(skills[0]?.skillName).toBe('valid-skill')
   })
@@ -87,7 +88,7 @@ describe('resolveFromRepo', () => {
       ],
     })
 
-    const skills = await Effect.runPromise(resolveFromRepo(repoDir))
+    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude'))
     expect(skills).toHaveLength(0)
   })
 
@@ -95,7 +96,7 @@ describe('resolveFromRepo', () => {
     const repoDir = NodePath.join(ctx.agentsDir, '.cache', 'owner', 'no-marketplace')
     await Fs.mkdir(repoDir, { recursive: true })
 
-    const exit = await Effect.runPromiseExit(resolveFromRepo(repoDir))
+    const exit = await Effect.runPromiseExit(resolveFromRepo(repoDir, 'claude'))
     expect(Exit.isFailure(exit)).toBe(true)
   })
 
@@ -105,7 +106,7 @@ describe('resolveFromRepo', () => {
     await Fs.mkdir(marketplaceDir, { recursive: true })
     await Fs.writeFile(NodePath.join(marketplaceDir, 'marketplace.json'), JSON.stringify({ invalid: true }), 'utf8')
 
-    const exit = await Effect.runPromiseExit(resolveFromRepo(repoDir))
+    const exit = await Effect.runPromiseExit(resolveFromRepo(repoDir, 'claude'))
     expect(Exit.isFailure(exit)).toBe(true)
   })
 })

@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
-import { Effect } from 'effect'
+import { Effect, Option } from 'effect'
 import { Command, Flag } from 'effect/unstable/cli'
 
 import { applyWaitUntil, loadConfig, resolveInput } from '#@/lib/config.ts'
@@ -25,23 +25,22 @@ export const jsonCommand = Command.make(
     Effect.gen(function* () {
       const auth = yield* Auth.resolve(flags)
       const config = yield* loadConfig(flags.config)
-      let body = yield* resolveInput(flags.url, flags.html, config)
-      body = applyWaitUntil(body, flags.waitUntil)
-      body = { ...body, prompt: flags.prompt }
+      const baseBody = yield* resolveInput(flags.url, flags.html, config)
+      const bodyWithPrompt = { ...applyWaitUntil(baseBody, flags.waitUntil), prompt: flags.prompt }
 
-      if (flags.schema._tag === 'Some') {
-        const schemaPath = flags.schema.value
-        const schemaText = yield* Effect.tryPromise({
-          catch: (error) =>
-            new Error(`Failed to read schema file: ${error instanceof Error ? error.message : String(error)}`),
-          try: () => readFile(schemaPath, 'utf8'),
-        })
-        const schemaJson: unknown = JSON.parse(schemaText)
-        body = {
-          ...body,
-          response_format: { schema: schemaJson, type: 'json_schema' },
-        }
-      }
+      const schemaPath = flags.schema
+      const body = Option.isSome(schemaPath)
+        ? yield* Effect.tryPromise({
+            catch: (error) =>
+              new Error(`Failed to read schema file: ${error instanceof Error ? error.message : String(error)}`),
+            try: () => readFile(schemaPath.value, 'utf8'),
+          }).pipe(
+            Effect.map((schemaText) => ({
+              ...bodyWithPrompt,
+              response_format: { schema: JSON.parse(schemaText) as unknown, type: 'json_schema' },
+            })),
+          )
+        : bodyWithPrompt
 
       const result = yield* ApiClient.jsonExtract(auth, body)
       yield* Output.printJson(result)

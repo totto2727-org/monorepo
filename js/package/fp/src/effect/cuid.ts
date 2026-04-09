@@ -1,7 +1,7 @@
 import { sha3_512 } from '@noble/hashes/sha3.js'
 import BaseX from 'base-x'
 import { BigNumber } from 'bignumber.js'
-import { Array, Effect, Layer, Schema, ServiceMap } from 'effect'
+import { Array, Effect, Layer, Predicate, Schema, ServiceMap } from 'effect'
 /*
  * MIT License
  * Copyright (c) 2022 Eric Elliott
@@ -42,13 +42,14 @@ const createRandom = (): number => {
   globalThis.crypto.getRandomValues(buffer)
   // Convert to a float in [0, 1) by dividing by 2^32
   const [value] = buffer
-  if (value === undefined) {
-    throw new Error('Failed to generate random value')
+  if (Predicate.isUndefined(value)) {
+    throw new TypeError('Failed to generate random value')
   }
   return value / 0x1_00_00_00_00
 }
 
 const createEntropy = (length = 4, random = createRandom): string => {
+  // eslint-disable-next-line rules/no-let -- accumulator in while loop
   let entropy = ''
 
   while (entropy.length < length) {
@@ -63,6 +64,7 @@ const createEntropy = (length = 4, random = createRandom): string => {
  */
 /** Converts a byte buffer to a BigNumber. */
 export const bufToBigInt = (buf: Uint8Array): BigNumber => {
+  // eslint-disable-next-line rules/no-let -- accumulator in for loop
   let value = new BigNumber(0)
 
   for (const i of buf.values()) {
@@ -112,8 +114,8 @@ const alphabet = [
 
 const randomLetter = (rand: () => number): string => {
   const letter = alphabet[Math.floor(rand() * alphabet.length)]
-  if (letter === undefined) {
-    throw new Error('Failed to generate random letter')
+  if (Predicate.isUndefined(letter)) {
+    throw new TypeError('Failed to generate random letter')
   }
   return letter
 }
@@ -125,7 +127,7 @@ on a random string.
 */
 /** Creates a fingerprint of the host environment for collision prevention. */
 export const createFingerprint = ({
-  globalObj = typeof globalThis === 'undefined' ? {} : globalThis,
+  globalObj = Predicate.isUndefined(globalThis) ? {} : globalThis,
   random = createRandom,
 }: {
   globalObj?: Record<string, unknown>
@@ -139,6 +141,7 @@ export const createFingerprint = ({
 
 /** Creates an incrementing counter starting from the given value. */
 export const createCounter = (initialCount: number): (() => number) => {
+  // eslint-disable-next-line rules/no-let -- mutable counter in closure
   let count = initialCount
   return () => {
     const current = count
@@ -193,6 +196,7 @@ export const GeneratorBase: ServiceMap.ServiceClass<
   readonly make: Effect.Effect<() => typeof schema.Type>
 } = ServiceMap.Service<Generator>()('@totto2727/fp/effect/cuid/Generator', {
   make: Effect.sync(() => {
+    // eslint-disable-next-line rules/no-let -- lazy initialization in closure
     let createId: () => CUID
     return () => {
       createId ??= init()
@@ -216,6 +220,7 @@ export class Generator extends GeneratorBase {
    */
   static readonly makeLayerTest: (seed: string) => Layer.Layer<Generator> = (seedString) =>
     Layer.sync(this, () => {
+      // eslint-disable-next-line rules/no-let -- lazy initialization in closure
       let seed: SR.PRNG
       return () => {
         seed ??= SR(seedString)

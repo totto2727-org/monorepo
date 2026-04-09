@@ -1,4 +1,4 @@
-import { Effect } from 'effect'
+import { Effect, Option } from 'effect'
 import { Command, Flag } from 'effect/unstable/cli'
 
 import { applyWaitUntil, loadConfig, resolveInput } from '#@/lib/config.ts'
@@ -24,17 +24,14 @@ export const pdfCommand = Command.make(
     Effect.gen(function* () {
       const auth = yield* Auth.resolve(flags)
       const config = yield* loadConfig(flags.config)
-      let body = yield* resolveInput(flags.url, flags.html, config)
-      body = applyWaitUntil(body, flags.waitUntil)
-      const pdfOptions: Record<string, unknown> = {}
-      if (flags.landscape) {
-        pdfOptions['landscape'] = true
+      const baseBody = yield* resolveInput(flags.url, flags.html, config)
+      const pdfOptions = {
+        ...(flags.landscape ? { landscape: true } : {}),
+        ...(Option.isSome(flags.format) ? { format: flags.format.value } : {}),
       }
-      if (flags.format._tag === 'Some') {
-        pdfOptions['format'] = flags.format.value
-      }
-      if (Object.keys(pdfOptions).length > 0) {
-        body = { ...body, pdfOptions }
+      const body = {
+        ...applyWaitUntil(baseBody, flags.waitUntil),
+        ...(Object.keys(pdfOptions).length > 0 ? { pdfOptions } : {}),
       }
       const data = yield* ApiClient.pdf(auth, body)
       yield* Output.writeFile(flags.output, data)
