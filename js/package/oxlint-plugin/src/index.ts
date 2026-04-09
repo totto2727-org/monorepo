@@ -1,4 +1,3 @@
-// oxlint-disable typescript/no-unsafe-type-assertion
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
@@ -11,6 +10,9 @@ const isNotNull = <A>(value: A): value is A & Record<string, unknown> => Predica
 const hasProperty = <K extends PropertyKey>(obj: unknown, key: K): obj is Record<K, unknown> =>
   Predicate.isObjectKeyword(obj) && key in obj
 
+const isReportable = (u: unknown): u is Record<string, unknown> & { range: [number, number] } =>
+  Predicate.isObject(u) && 'range' in u
+
 // ---------------------------------------------------------------------------
 // force-ts-extension
 // ---------------------------------------------------------------------------
@@ -18,9 +20,15 @@ const hasProperty = <K extends PropertyKey>(obj: unknown, key: K): obj is Record
 const forceTsExtensionRule: Rule = {
   create(context: Context) {
     const check = (node: unknown): void => {
-      if (Predicate.isObject(node) && hasProperty(node, 'source') && Predicate.isNotNull(node.source)) {
+      if (
+        Predicate.isObject(node) &&
+        hasProperty(node, 'source') &&
+        Predicate.isNotNull(node.source) &&
+        hasProperty(node.source, 'raw') &&
+        hasProperty(node.source, 'value')
+      ) {
         const { source } = node
-        const { raw, value } = source as Record<string, unknown>
+        const { raw, value } = source
         if (Predicate.isString(value) && Predicate.isString(raw)) {
           const match = value.match(/^(\.*|#(?!#).*)(\/.*)\.js(x?)$/)
           if (Predicate.isNotNull(match)) {
@@ -28,12 +36,15 @@ const forceTsExtensionRule: Rule = {
             const fixed = `${start}${path}.ts${x ?? ''}`
             const [quote] = raw
 
+            if (!isReportable(source)) {
+              return
+            }
             context.report({
               fix(fixer) {
-                return fixer.replaceText(source as never, `${quote}${fixed}${quote}`)
+                return fixer.replaceText(source, `${quote}${fixed}${quote}`)
               },
               message: `Use .ts${x ?? ''} extension instead of .js${x ?? ''}`,
-              node: source as never,
+              node: source,
             })
           }
         }
@@ -119,6 +130,9 @@ const forcePredicateRule: Rule = {
   create(context: Context) {
     return {
       BinaryExpression(node: unknown) {
+        if (!isReportable(node)) {
+          return
+        }
         if (Predicate.isObject(node) && isEqualityOperator(node.operator)) {
           const leftKind = getNullishSide(node.left)
           const rightKind = getNullishSide(node.right)
@@ -128,7 +142,7 @@ const forcePredicateRule: Rule = {
             const predicateFn = kind === 'null' ? 'Predicate.isNull' : 'Predicate.isUndefined'
             context.report({
               message: `Use ${predicateFn}() instead of direct ${kind} comparison`,
-              node: node as never,
+              node,
             })
             return
           }
@@ -151,7 +165,7 @@ const forcePredicateRule: Rule = {
 
           context.report({
             message: `Use ${predicateFn}() instead of typeof comparison`,
-            node: node as never,
+            node,
           })
         }
       },
@@ -170,10 +184,13 @@ const noLetRule: Rule = {
   create(context: Context) {
     return {
       VariableDeclaration(node: unknown) {
+        if (!isReportable(node)) {
+          return
+        }
         if (Predicate.isObject(node) && node.kind === 'let') {
           context.report({
             message: 'Use const with shadowing instead of let. Reassignment via let is prohibited.',
-            node: node as never,
+            node,
           })
         }
       },
@@ -221,6 +238,9 @@ const noOptionTagComparisonRule: Rule = {
   create(context: Context) {
     return {
       BinaryExpression(node: unknown) {
+        if (!isReportable(node)) {
+          return
+        }
         if (Predicate.isObject(node) && isEqualityOperator(node.operator)) {
           const leftTag = getOptionTag(node.left)
           const rightTag = getOptionTag(node.right)
@@ -237,14 +257,16 @@ const noOptionTagComparisonRule: Rule = {
 
             context.report({
               fix(fixer) {
-                const source = context.sourceCode.getText(
-                  (hasProperty(otherSide, 'object') ? otherSide.object : otherSide) as never,
-                )
+                const rawTarget = hasProperty(otherSide, 'object') ? otherSide.object : otherSide
+                if (!isReportable(rawTarget)) {
+                  return null
+                }
+                const sourceText = context.sourceCode.getText(rawTarget)
                 const prefix = isEquality ? '' : '!'
-                return fixer.replaceText(node as never, `${prefix}${predicateFn}(${source})`)
+                return fixer.replaceText(node, `${prefix}${predicateFn}(${sourceText})`)
               },
               message: `Use ${predicateFn}() instead of _tag === '${tag}'`,
-              node: node as never,
+              node,
             })
           }
         }
@@ -300,12 +322,15 @@ const noSyncDecodeRule: Rule = {
   create(context: Context) {
     return {
       CallExpression(node: unknown) {
+        if (!isReportable(node)) {
+          return
+        }
         const method = isSchemaBannedDecodeCall(node)
         if (Predicate.isNotNull(method)) {
           const recommended = BANNED_DECODE_METHODS[method]
           context.report({
             message: `Use Schema.${recommended} or Schema.decodeExit instead of Schema.${method}.`,
-            node: node as never,
+            node,
           })
         }
       },
@@ -338,12 +363,15 @@ const preferNonUnknownDecodeRule: Rule = {
   create(context: Context) {
     return {
       CallExpression(node: unknown) {
+        if (!isReportable(node)) {
+          return
+        }
         const method = isSchemaUnknownDecodeCall(node)
         if (Predicate.isNotNull(method)) {
           const recommended = UNKNOWN_DECODE_METHODS[method]
           context.report({
             message: `Prefer Schema.${recommended} over Schema.${method}. Use unknown variants only when input type is truly unknown. Add an oxlint-disable comment if the unknown variant is required.`,
-            node: node as never,
+            node,
           })
         }
       },
@@ -374,13 +402,16 @@ const preferIsNullishRule: Rule = {
   create(context: Context) {
     return {
       CallExpression(node: unknown) {
+        if (!isReportable(node)) {
+          return
+        }
         const isNull = isPredicateCall(node, 'isNull')
         const isUndefined = isPredicateCall(node, 'isUndefined')
         if (isNull || isUndefined) {
           const method = isNull ? 'isNull' : 'isUndefined'
           context.report({
             message: `Prefer Predicate.isNullish over Predicate.${method}. Use null/undefined distinction only when necessary and disable this rule with an oxlint-disable comment.`,
-            node: node as never,
+            node,
           })
         }
       },
@@ -405,7 +436,6 @@ const noEslintDisableRule: Rule = {
         for (const comment of comments) {
           const { value } = comment
           if (ESLINT_DISABLE_RE.test(value)) {
-            //
             const fixed = value.replaceAll('eslint-disable', 'oxlint-disable')
             context.report({
               fix(fixer) {
@@ -415,7 +445,7 @@ const noEslintDisableRule: Rule = {
                 return fixer.replaceTextRange([start, end], `${prefix}${fixed}${suffix}`)
               },
               message: 'Use oxlint-disable instead of eslint-disable.',
-              node: comment as never,
+              node: comment,
             })
           }
         }
