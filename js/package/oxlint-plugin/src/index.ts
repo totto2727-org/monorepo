@@ -258,6 +258,46 @@ const noOptionTagComparisonRule: Rule = {
 }
 
 // ---------------------------------------------------------------------------
+// no-sync-decode
+// ---------------------------------------------------------------------------
+
+const BANNED_METHODS = ['decodeSync', 'decodeUnknownSync'] as const
+
+const isSchemaDecodeSyncCall = (node: unknown): boolean =>
+  Predicate.isObject(node) &&
+  node.type === 'CallExpression' &&
+  Predicate.isObject(node.callee) &&
+  node.callee.type === 'MemberExpression' &&
+  Predicate.isObject(node.callee.property) &&
+  node.callee.property.type === 'Identifier' &&
+  BANNED_METHODS.includes(node.callee.property.name as (typeof BANNED_METHODS)[number])
+
+const noSyncDecodeRule: Rule = {
+  create(context: Context) {
+    return {
+      CallExpression(node: unknown) {
+        if (isSchemaDecodeSyncCall(node)) {
+          const method =
+            Predicate.isObject(node) &&
+            Predicate.isObject(node.callee) &&
+            Predicate.isObject(node.callee.property) &&
+            Predicate.isString(node.callee.property.name)
+              ? node.callee.property.name
+              : 'decodeSync'
+          context.report({
+            message: `Use Schema.decodeEffect or Schema.decodeUnknownEffect instead of Schema.${method}. Sync decoders can cause panics without proper error handling.`,
+            node: node as never,
+          })
+        }
+      },
+    }
+  },
+  meta: {
+    type: 'problem',
+  },
+}
+
+// ---------------------------------------------------------------------------
 // Plugin
 // ---------------------------------------------------------------------------
 
@@ -268,6 +308,7 @@ const plugin = {
     'force-ts-extension': forceTsExtensionRule,
     'no-let': noLetRule,
     'no-option-tag-comparison': noOptionTagComparisonRule,
+    'no-sync-decode': noSyncDecodeRule,
   },
 }
 

@@ -30,6 +30,14 @@ export default defineConfig({
       typeAware: true,
       typeCheck: true,
     },
+    overrides: [
+      {
+        files: ['**/*.test.ts', '**/*.spec.ts'],
+        rules: {
+          'rules/no-sync-decode': 'allow',
+        },
+      },
+    ],
     rules: {
       'func-names': ['error', 'always', { generators: 'never' }],
       'import/extensions': ['error', 'always', { checkTypeImports: true, ignorePackages: true }],
@@ -40,6 +48,7 @@ export default defineConfig({
       'rules/force-ts-extension': 'error',
       'rules/no-let': 'error',
       'rules/no-option-tag-comparison': 'error',
+      'rules/no-sync-decode': 'error',
       'typescript/promise-function-async': 'allow',
     },
   },
