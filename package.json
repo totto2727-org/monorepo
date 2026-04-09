@@ -3,16 +3,11 @@
   "private": "true",
   "type": "module",
   "scripts": {
-    "check": "pnpm run --parallel /check:.*/",
-    "check:grit": "grit check",
-    "check:vp": "vp check",
-    "fix": "pnpm run /fix:.*/",
-    "fix:grit": "grit check --fix",
-    "fix:vp": "vp check --fix",
+    "check": "vp check",
+    "fix": "vp check --fix",
     "test": "vp test"
   },
   "devDependencies": {
-    "@getgrit/cli": "^0.1.0-alpha.1743007075",
     "@types/node": "24",
     "ultracite": "catalog:lint",
     "vite-plus": "catalog:",

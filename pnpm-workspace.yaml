@@ -6,7 +6,6 @@ packages:
   - 'go/app/*'
 
 allowBuilds:
-  '@getgrit/cli': true
   esbuild: true
   msgpackr-extract: true
   sharp: true
@@ -59,7 +58,6 @@ catalogs:
   i18n:
     '@inlang/paraglide-js': ^2.13.1
   lint:
-    '@getgrit/cli': 0.1.0-alpha.1743007075
     eslint: ^9.37.0
     eslint-config-flat-gitignore: ^2.1.0
     eslint-plugin-react-hooks: ^7.0.0
