@@ -19,8 +19,7 @@ const feedTypeDTO = Literals([
 
 const feedTypeFromDTO = feedTypeDTO.transform(feedType.literals)
 
-// oxlint-disable-next-line rules/no-sync-decode -- RSS feed type is already validated by DTO transform
-const decodeSyncFeedType = Schema.decodeSync(feedTypeFromDTO)
+const decodeFeedType = Schema.decodeEffect(feedTypeFromDTO)
 
 interface Size {
   width: number
@@ -181,7 +180,7 @@ export const initGraphQL = (builder: Builder) => {
                   })),
                 links: rss.links,
                 title: rss.title.value ?? '',
-                type: decodeSyncFeedType(rss.type),
+                type: yield* decodeFeedType(rss.type),
                 updatedAt:
                   rss.updateDate?.toISOString() ??
                   rss.created?.toISOString() ??
