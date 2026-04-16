@@ -3,6 +3,7 @@ import { Effect } from 'effect'
 import type { LockFile } from '#@/schema/lock-file.ts'
 import * as Cache from '#@/service/cache.ts'
 import * as Git from '#@/service/git.ts'
+import * as GitIgnore from '#@/service/gitignore.ts'
 import * as LockFileService from '#@/service/lock-file.ts'
 import * as SkillResolver from '#@/service/skill-resolver.ts'
 import * as Symlink from '#@/service/symlink.ts'
@@ -27,7 +28,7 @@ export const run = (
       const repoDir = yield* Cache.ensureRepo(agentsDir, repo.source)
       yield* Git.checkout(repoDir, repo.commitHash)
 
-      const availableSkills = yield* SkillResolver.resolveFromRepo(repoDir)
+      const availableSkills = yield* SkillResolver.resolveFromRepo(repoDir, repo.marketplaceKind)
       const availableNames = new Set(availableSkills.map((s) => s.skillName))
 
       const removedSkills: string[] = []
@@ -73,6 +74,7 @@ export const run = (
       repositories: updatedRepos,
     }
     yield* LockFileService.write(agentsDir, newLockFile)
+    yield* GitIgnore.write(agentsDir)
 
     yield* Effect.log('Sync complete.')
   })

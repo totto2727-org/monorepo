@@ -2,6 +2,7 @@ import { Effect } from 'effect'
 import { Command, Flag } from 'effect/unstable/cli'
 
 import { getAgentsDir } from '#@/lib/paths.ts'
+import * as Discover from '#@/service/discover.ts'
 import * as SyncService from '#@/service/sync.ts'
 
 export const syncCommand = Command.make(
@@ -12,7 +13,11 @@ export const syncCommand = Command.make(
   },
   (config) =>
     Effect.gen(function* () {
-      const agentsDir = getAgentsDir(config.global)
-      yield* SyncService.run(agentsDir)
+      const agentsDirs = config.recursive
+        ? yield* Discover.collectAgentsDirs(process.cwd())
+        : [getAgentsDir(config.global)]
+      for (const agentsDir of agentsDirs) {
+        yield* SyncService.run(agentsDir)
+      }
     }),
 ).pipe(Command.withDescription('Sync skills from lock file'))

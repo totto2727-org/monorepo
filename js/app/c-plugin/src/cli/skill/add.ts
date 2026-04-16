@@ -3,6 +3,7 @@ import { Argument, Command, Flag, Prompt } from 'effect/unstable/cli'
 
 import { getAgentsDir } from '#@/lib/paths.ts'
 import type { LockFile, PluginEntry, RepositoryEntry } from '#@/schema/lock-file.ts'
+import type { MarketplaceKind } from '#@/schema/marketplace-kind.ts'
 import * as Cache from '#@/service/cache.ts'
 import * as Git from '#@/service/git.ts'
 import * as LockFileService from '#@/service/lock-file.ts'
@@ -43,7 +44,27 @@ export const addCommand = Command.make(
       const repoDir = yield* Cache.ensureRepo(agentsDir, config.repo)
       const commitHash = yield* Git.revParseHead(repoDir)
 
-      const allSkills = yield* SkillResolver.resolveFromRepo(repoDir)
+      const availableKinds = yield* SkillResolver.detectAvailableKinds(repoDir)
+      if (availableKinds.length === 0) {
+        yield* Effect.log('No marketplace found in this repository.')
+        return
+      }
+
+      const selectedKind: MarketplaceKind =
+        availableKinds.length === 1
+          ? (() => {
+              const [first] = availableKinds
+              return first ?? 'claude'
+            })()
+          : yield* Prompt.select({
+              choices: availableKinds.map((k) => ({ title: k, value: k })),
+              message: 'Multiple marketplace kinds found. Select one:',
+            })
+      if (availableKinds.length === 1) {
+        yield* Effect.log(`Using marketplace kind: ${selectedKind}`)
+      }
+
+      const allSkills = yield* SkillResolver.resolveFromRepo(repoDir, selectedKind)
       if (allSkills.length === 0) {
         yield* Effect.log('No skills found in this repository.')
         return
@@ -87,6 +108,7 @@ export const addCommand = Command.make(
       const existingRepo = lockFile.repositories.find((r) => r.source === config.repo)
       const newRepoEntry: RepositoryEntry = {
         commitHash,
+        marketplaceKind: selectedKind,
         plugins: mergePlugins(existingRepo?.plugins ?? [], [...pluginMap.values()]),
         source: config.repo,
         sourceType: 'github',
