@@ -27,7 +27,7 @@ export const run = (
       const repoDir = yield* Cache.ensureRepo(agentsDir, repo.source)
       yield* Git.checkout(repoDir, repo.commitHash)
 
-      const availableSkills = yield* SkillResolver.resolveFromRepo(repoDir)
+      const availableSkills = yield* SkillResolver.resolveFromRepo(repoDir, repo.marketplaceKind)
       const availableNames = new Set(availableSkills.map((s) => s.skillName))
 
       const removedSkills: string[] = []

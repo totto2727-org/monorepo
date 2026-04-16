@@ -8,7 +8,6 @@ export const makeRSSFetchClient = Effect.gen(function* () {
   return Effect.fn(function* (feedURL: string) {
     const response = yield* client.get(feedURL)
     const text = yield* response.text
-    // oxlint-disable-next-line typescript/promise-function-async
     return yield* Effect.tryPromise(() => parseFeed(text))
   })
 })

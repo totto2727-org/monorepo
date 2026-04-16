@@ -1,2 +1,2 @@
-// oxlint-disable-next-line force-ts-extension/force-ts-extension
+// oxlint-disable-next-line rules/force-ts-extension
 export * from './paraglide/runtime.js'

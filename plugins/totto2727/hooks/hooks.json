@@ -1,0 +1,29 @@
+{
+  "description": "Exocortex integration for persistent knowledge management",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"systemMessage\": \"Use exo_recall_memories to retrieve relevant past knowledge based on the current project context before starting work. Make 1-2 queries based on the project directory name, type, and common development topics.\"}'",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "type": "agent",
+            "prompt": "Review this session. Store all noteworthy knowledge via exo_store_memory. Run exo_sleep. APPROVE the stop.",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}

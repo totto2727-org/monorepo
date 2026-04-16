@@ -1,0 +1,49 @@
+{
+  "mcpServers": {
+    "exocortex": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "tool",
+        "run",
+        "--from",
+        "git+https://github.com/fuwasegu/exocortex",
+        "exocortex",
+        "--mode",
+        "proxy",
+        "--ensure-server"
+      ]
+    },
+    "zai-mcp-server": {
+      "type": "stdio",
+      "command": "bunx",
+      "args": ["-y", "@z_ai/mcp-server"],
+      "env": {
+        "Z_AI_API_KEY": "${Z_AI_API_KEY}",
+        "Z_AI_MODE": "ZAI"
+      }
+    },
+    "zread": {
+      "type": "http",
+      "url": "https://api.z.ai/api/mcp/zread/mcp",
+      "headers": {
+        "Authorization": "Bearer ${Z_AI_API_KEY}"
+      }
+    },
+    "brave-search": {
+      "type": "stdio",
+      "command": "bunx",
+      "args": ["-y", "@brave/brave-search-mcp-server"],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      }
+    },
+    "web-reader": {
+      "type": "http",
+      "url": "https://api.z.ai/api/mcp/web_reader/mcp",
+      "headers": {
+        "Authorization": "Bearer ${Z_AI_API_KEY}"
+      }
+    }
+  }
+}

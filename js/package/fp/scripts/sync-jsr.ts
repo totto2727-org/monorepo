@@ -1,5 +1,3 @@
-// oxlint-disable ban-ts-comment
-// @ts-nocheck
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 

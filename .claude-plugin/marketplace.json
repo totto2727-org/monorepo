@@ -1,0 +1,23 @@
+{
+  "name": "totto2727",
+  "description": "totto2727's plugins",
+  "owner": {
+    "name": "totto2727",
+    "url": "https://github.com/totto2727",
+    "email": "kaihatu.totto2727@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "totto2727",
+      "source": "./plugins/totto2727"
+    },
+    {
+      "name": "moonbit",
+      "source": "./plugins/moonbit"
+    },
+    {
+      "name": "components-build",
+      "source": "./plugins/components-build"
+    }
+  ]
+}
