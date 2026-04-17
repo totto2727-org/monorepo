@@ -47,12 +47,12 @@ For simple anonymous function, MoonBit provides a very concise syntax called arr
 ```
 
 Although local function supports type inference for types of parameters and return value,
-_effect inference_ is only supported for the arrow function syntax.
+*effect inference* is only supported for the arrow function syntax.
 If a `fn` may [raise error](error-handling.md)
 or [perform asynchronous operations](async-experimental.md),
 it must be explicitly annotated with `raise` or `async`.
 
-Functions, whether named or anonymous, are _lexical closures_: any identifiers without a local binding must refer to bindings from a surrounding lexical scope. For example:
+Functions, whether named or anonymous, are *lexical closures*: any identifiers without a local binding must refer to bindings from a surrounding lexical scope. For example:
 
 ```moonbit
 let global_y = 3
@@ -75,7 +75,7 @@ test {
 ```
 
 A local function can only refer to itself and other previously defined local functions.
-To define mutually recursive local functions, use the syntax `letrec f = .. and g = ..` instead:
+To define  mutually recursive local functions, use the syntax `letrec f = .. and g = ..` instead:
 
 ```moonbit
   fn f(x) {

@@ -80,11 +80,11 @@ match expr {
 Array patterns can be used to match on the following types to obtain their
 corresponding elements or views:
 
-| Type                                  | Element | View         |
-| ------------------------------------- | ------- | ------------ |
-| Array[T], ArrayView[T], FixedArray[T] | T       | ArrayView[T] |
-| Bytes, BytesView                      | Byte    | BytesView    |
-| String, StringView                    | Char    | StringView   |
+| Type                                  | Element   | View         |
+|---------------------------------------|-----------|--------------|
+| Array[T], ArrayView[T], FixedArray[T] | T         | ArrayView[T] |
+| Bytes, BytesView                      | Byte      | BytesView    |
+| String, StringView                    | Char      | StringView   |
 
 Array patterns have the following forms:
 
@@ -118,9 +118,11 @@ palindrome:
 ```moonbit
 test {
   fn palindrome(s : String) -> Bool {
-    loop s.view() {
-      [] | [_] => true
-      [a, .. rest, b] => if a == b { continue rest } else { false }
+    for view = s.view() {
+      match view {
+        [] | [_] => break true
+        [a, .. rest, b] => if a == b { continue rest } else { break false }
+      }
     }
   }
 
@@ -168,7 +170,8 @@ test {
   let packet : Bytes = b"\xD2\x10\x7F"
   let header : BytesView = packet[0:2]
   let (flag, kind, version, length) = match header {
-    [u1be(flag), u3be(kind), u4be(version), u8be(length)] => (flag, kind, version, length)
+    [u1be(flag), u3be(kind), u4be(version), u8be(length)] =>
+      (flag, kind, version, length)
     _ => fail("bad header")
   }
   assert_eq(flag, 1)
@@ -186,7 +189,7 @@ test {
   let data : Bytes = b"\xF1\xAA\xBB"
   let view : BytesView = data[0:]
   let tag = match view {
-    [u4be(0b1111), u4be(tag), ..rest] => {
+    [u4be(0b1111), u4be(tag), .. rest] => {
       assert_eq(rest, b"\xAA\xBB"[0:])
       tag
     }
@@ -242,7 +245,7 @@ test {
 Result types depend on width:
 
 | Width                | Result type    |
-| -------------------- | -------------- |
+|----------------------|----------------|
 | 1..32 bits (`u`/`i`) | `UInt` / `Int` |
 | 33..64 bits (`u`)    | `UInt64`       |
 | 33..64 bits (`i`)    | `Int64`        |
@@ -357,7 +360,6 @@ fn guard_check(x : Int?) -> Unit {
 ```
 
 ##### WARNING
-
 It is not encouraged to call a function that mutates a part of the value being
 matched inside a guard condition. When such case happens, the part being mutated
 will not be re-evaluated in the subsequent patterns. Use it with caution.

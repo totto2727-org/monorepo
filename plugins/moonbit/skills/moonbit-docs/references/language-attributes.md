@@ -14,13 +14,13 @@ The syntax of attributes is defined as follows:
 
 ```plaintext
 attribute ::= '#' attribute-name
-            | '#' attribute-name '(' attribute-arguments ')'
+            | '#' attribute-name '(' attribute-arguments ')' 
 
 attribute-name ::= LIDENT | LIDENT '.' LIDENT
 
 attribute-arguments ::= attribute-argument (',' attribute-argument )*
 
-attribute-argument ::= expr | LIDENT '=' expr
+attribute-argument ::= expr | LIDENT '=' expr 
 
 expr ::= LIDENT | UIDENT | STRING | 'true' | 'false'
        | LIDENT '.' LIDENT
@@ -40,7 +40,6 @@ The first attribute is a built-in attribute; it does not have a namespace prefix
 The second attribute is a user-defined attribute; it has a namespace prefix `custom.` in the attribute name. User-defined attributes are ignored by the compiler, but can be used by external tools via parsing the source code.
 
 ##### NOTE
-
 MoonBit is designed not to support runtime reflection. It's easy to abuse, making it impossible for toolchains (e.g., the compiler) to catch errors at compile time, which makes code harder to maintain. It also negatively impacts performance optimization.
 
 We perfer to use compile-time code generation, keeping the benefits of static typing and performance (should also be used judiciously to avoid unnecessary complexity).
@@ -76,11 +75,9 @@ It has three forms:
 - `#deprecated`
 
   Marks the item as deprecated with a default warning message.
-
 - `#deprecated("Use new_function instead")`
 
   Marks the item as deprecated with a custom warning message. Every time the deprecated API is used, the provided message will be displayed as a warning.
-
 - `#deprecated("Use new_function instead", skip_current_package=true)`
 
   Marks the item as deprecated with a custom warning message, but skips emitting warnings when the deprecated API is used within the same package.
@@ -100,7 +97,6 @@ Both forms allowed additional arguments:
 - `visibility="modifier"`
 
   A labeled argument, changes the visibility of the alias. The `modifier` can be `pub` or `priv`. If not specified, the alias will have the same visibility as the original function or variable.
-
 - `deprecated` or `deprecated="message"`
 
   Marks the alias as deprecated. If a message is provided, it will be displayed as a warning when the alias is used.
@@ -130,7 +126,6 @@ It has three following forms:
   remove an optional parameter.
 
   The `msg` argument is an string that provides additional information about the migration.
-
   ```moonbit
   #label_migration(x, fill=true)
   #label_migration(y, fill=false)
@@ -140,7 +135,6 @@ It has three following forms:
     f()         // warn on x not being filled
   }
   ```
-
 - `#label_migration(id, allow_positional=true, msg="message")`
 
   The `allow_positional` argument is used when you want a labelled parameter to be
@@ -149,7 +143,6 @@ It has three following forms:
   to a labelled parameter without breaking the downstream code.
 
   The `msg` argument is an string that provides additional information about the migration.
-
   ```moonbit
   #label_migration(x, allow_positional=true)
   fn f(x~: Int) -> Unit { ... }
@@ -158,7 +151,6 @@ It has three following forms:
     f(42) // warn on positional argument 42 used without label
   }
   ```
-
 - `#label_migration(id, alias=new_id, msg="message")`
 
   The alias argument allows you to provide an alternative name to a labelled
@@ -167,7 +159,6 @@ It has three following forms:
   using the alias; otherwise, the alias can be used without warnings.
 
   The `msg` argument is an string that provides additional information about the migration.
-
   ```moonbit
   #label_migration(x, alias=xx)
   #label_migration(x, alias=y, msg="warning")
@@ -182,7 +173,6 @@ It has three following forms:
 ### Visibility Attribute
 
 ##### NOTE
-
 This topic does not covered the access control. To learn more about `pub`, `pub(all)` and `priv`, see [Access Control](packages.md#access-control).
 
 The `#visibility` attribute is similar to the `#deprecated` attribute, but it is used to hint that a type will change its visibility in the future.
@@ -212,7 +202,7 @@ pub fn new_binary(bytes : Bytes) -> Resource {
 
 // in another package
 fn main {
-  let p = Point::{ x: 1, y: 2 } // warning
+  let p = Point::{ x: 1, y: 2 } // warning 
   let { x, y } = p // ok
   println(p.x) // ok
   match Resource::Text("") { // warning
@@ -227,11 +217,10 @@ The `#visibility` attribute takes two arguments: `change_to` and `message`.
 
 - The `change_to` argument is a string that indicates the new visibility of the type. It can be either `"abstract"` or `"readonly"`.
 
-  | `change_to`  | Invalidated Usages                                                                                                     |
-  | ------------ | ---------------------------------------------------------------------------------------------------------------------- |
-  | `"readonly"` | Creating an instance of the type or mutating the fields of the instance.                                               |
-  | `"abstract"` | Creating an instance of the type, mutating the fields of the instance, pattern matching, or accessing fields by label. |
-
+  | `change_to`   | Invalidated Usages                                                                                                     |
+  |---------------|------------------------------------------------------------------------------------------------------------------------|
+  | `"readonly"`  | Creating an instance of the type or mutating the fields of the instance.                                               |
+  | `"abstract"`  | Creating an instance of the type, mutating the fields of the instance, pattern matching, or accessing fields by label. |
 - The `message` argument is a string that provides additional information about the visibility change.
 
 ### Internal Attribute
@@ -249,7 +238,7 @@ fn unsafe_get[A](arr : Array[A]) -> A {
 The internal attribute takes two arguments: `category` and `message`.
 `category` is a identifier that indicates the category of the alert, and `message` is a string that provides additional message for the alert.
 
-The alert warnings can be turn off by setting the `warn-list` in `moon.pkg.json`.
+The alert warnings can be turn off by setting the `warn-list` in `moon.pkg`.
 For more detail, see [alert warning](../toolchain/moon/package.md#alert-warning).
 
 ### Warnings Attribute
@@ -264,7 +253,7 @@ warning names, each prefixed with a sign:
 ```moonbit
 ##warning("-unused_value@deprecated")
 fn f() -> Unit {
-  let x = 42
+  let x = 42 
 }
 ```
 
@@ -276,7 +265,7 @@ The prefixes have the following meanings:
 
 Currently this attribute only works with some specific warnings.
 
-To learn more about warning names, see [warning list](../toolchain/moon/package.md#warning-list).
+To learn more about warning names, see [warning list](../toolchain/moon/package.md#warnings-list).
 
 ### External Attribute
 
@@ -329,7 +318,6 @@ The `#skip` attribute is used to skip a single test block. The type checking wil
 The `#cfg` attribute is used to perform conditional compilation. Examples are:
 
 <!-- MANUAL CHECK -->
-
 ```moonbit
 ##cfg(true)
 ##cfg(false)
@@ -346,7 +334,6 @@ The `module` attribute is used to declare the module dependency for JavaScript b
 In `cjs` format, it is interpreted as `require`, and in `esm` format, it is interpreted as `import`.
 
 <!-- MANUAL CHECK -->
-
 ```moonbit
 ##module("node:fs")
 pub fn write_file_sync(file : String, data : String) = "writeFileSync"

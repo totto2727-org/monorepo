@@ -13,7 +13,6 @@ To define a method, prepend `SelfTypeName::` in front of the function name, such
 Within the signature of the method declaration, you can use `Self` to refer to `SelfTypeName`.
 
 ##### WARNING
-
 Currently, there is a shorthand syntax for defining methods.
 When the name of the first parameter is `self`, a function declaration will be considered a method for the type of `self`.
 This syntax may be deprecated in the future, and we do not recommend using it in new code.
@@ -92,7 +91,7 @@ test {
 
 To ensure single source of truth in method resolution and avoid ambiguity,
 [methods can only be defined in the same package as its type](packages.md#trait-implementations).
-However, there is one exception to this rule: MoonBit allows defining _private_ methods for foreign types locally.
+However, there is one exception to this rule: MoonBit allows defining *private* methods for foreign types locally.
 These local methods can override methods from the type's own package (MoonBit will emit a warning in this case),
 and provide extension/complementary to upstream API:
 
@@ -154,7 +153,7 @@ Other operators are overloaded via methods with annotations, for example `_[_]` 
 struct Coord {
   mut x : Int
   mut y : Int
-} derive(Show)
+}
 
 ##alias("_[_]")
 fn Coord::get(coord : Self, key : String) -> Int {
@@ -176,10 +175,10 @@ fn Coord::set(coord : Self, key : String, val : Int) -> Unit {
 ```moonbit
 fn main {
   let c = { x: 1, y: 2 }
-  println(c)
+  println("{x: \{c.x}, y: \{c.y}}")
   println(c["y"])
   c["x"] = 23
-  println(c)
+  println("{x: \{c.x}, y: \{c.y}}")
   println(c["x"])
 }
 ```
@@ -194,7 +193,7 @@ fn main {
 Currently, the following operators can be overloaded:
 
 | Operator Name         | overloading mechanism   |
-| --------------------- | ----------------------- | ------------- |
+|-----------------------|-------------------------|
 | `+`                   | trait `Add`             |
 | `-`                   | trait `Sub`             |
 | `*`                   | trait `Mul`             |
@@ -208,7 +207,7 @@ Currently, the following operators can be overloaded:
 | `_[_] = _` (set item) | method + alias `_[_]=_` |
 | `_[_:_]` (view)       | method + alias `_[_:_]` |
 | `&`                   | trait `BitAnd`          |
-| `                     | `                       | trait `BitOr` |
+| `|`                   | trait `BitOr`           |
 | `^`                   | trait `BitXOr`          |
 
 When overloading `_[_]`/`_[_] = _`/`_[_:_]`, the method must have a correcnt signature:
@@ -286,9 +285,9 @@ pub impl MyShow for MyType with to_string(self) {
 
 struct MyContainer[_] {}
 
-// trait implementation with type parameters.
-// `[X : Show]` means the type parameter `X` must implement `Show`,
-// this will be covered later.
+/// trait implementation with type parameters.
+/// `[X : Show]` means the type parameter `X` must implement `Show`,
+/// this will be covered later.
 pub impl[X : MyShow] MyShow for MyContainer[X] with to_string(self) {
   ...
 }
@@ -346,6 +345,8 @@ impl Draw for Point with draw(self, x, y) {
   ()
 }
 
+impl Object for Point
+
 pub fn[O : Object] draw_object(obj : O) -> Unit {
   let (x, y) = obj.pos()
   obj.draw(x, y)
@@ -368,7 +369,6 @@ In addition to handling traits where every methods has a default implementation,
 the `impl Trait for Type` can also serve as documentation, or a TODO mark before filling actual implementation.
 
 ##### WARNING
-
 Currently, an empty trait without any method is implemented automatically.
 
 #### Using traits
@@ -440,7 +440,6 @@ pub impl Show for MyCustomType with output(self, logger) {
 fn f() -> Unit {
   let x = MyCustomType::{  }
   let _ = x.to_string()
-
 }
 ```
 
@@ -514,7 +513,7 @@ fn[Obj : CanLog] &Logger::write_object(self : &Logger, obj : Obj) -> Unit {
   obj.log(self)
 }
 
-// use the new method to simplify code
+/// use the new method to simplify code
 pub impl[A : CanLog, B : CanLog] CanLog for (A, B) with log(self, logger) {
   let (a, b) = self
   logger
@@ -531,7 +530,6 @@ pub impl[A : CanLog, B : CanLog] CanLog for (A, B) with log(self, logger) {
 MoonBit provides the following useful builtin traits:
 
 <!-- MANUAL CHECK https://github.com/moonbitlang/core/blob/80cf250d22a5d5eff4a2a1b9a6720026f2fe8e38/builtin/traits.mbt -->
-
 ```moonbit
 trait Eq {
   op_equal(Self, Self) -> Bool
@@ -565,14 +563,14 @@ MoonBit can automatically derive implementations for some builtin traits:
 struct T {
   a : Int
   b : Int
-} derive(Eq, Compare, Show, Default)
+} derive(Eq, Compare, Debug, Default)
 
 test {
   let t1 = T::default()
   let t2 = T::{ a: 1, b: 1 }
-  inspect(t1, content="{a: 0, b: 0}")
-  inspect(t2, content="{a: 1, b: 1}")
-  assert_not_eq(t1, t2)
+  debug_inspect(t1, content="{ a: 0, b: 0 }")
+  debug_inspect(t2, content="{ a: 1, b: 1 }")
+  assert_false(t1 == t2)
   assert_true(t1 < t2)
 }
 ```

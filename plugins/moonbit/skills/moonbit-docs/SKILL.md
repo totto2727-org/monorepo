@@ -73,7 +73,7 @@ let zero = 0
 const ZERO = 0
 
 fn main {
-  //! const ZERO = 0
+  //! const ZERO = 0 
   let mut i = 10
   i = 20
   println(i + zero + ZERO)
@@ -81,7 +81,6 @@ fn main {
 ```
 
 ##### NOTE
-
 A top level variable binding
 
 - requires **explicit** type annotation (unless defined using literals such as string, byte or numbers)
@@ -101,54 +100,12 @@ The following are the keywords and should not be used:
 
 ```json
 [
-  "as",
-  "else",
-  "extern",
-  "fn",
-  "fnalias",
-  "if",
-  "let",
-  "const",
-  "match",
-  "using",
-  "mut",
-  "type",
-  "typealias",
-  "struct",
-  "enum",
-  "trait",
-  "traitalias",
-  "derive",
-  "while",
-  "break",
-  "continue",
-  "import",
-  "return",
-  "throw",
-  "raise",
-  "try",
-  "catch",
-  "pub",
-  "priv",
-  "readonly",
-  "true",
-  "false",
-  "_",
-  "test",
-  "loop",
-  "for",
-  "in",
-  "impl",
-  "with",
-  "guard",
-  "async",
-  "is",
-  "suberror",
-  "and",
-  "letrec",
-  "enumview",
-  "noraise",
-  "defer"
+  "as", "else", "extern", "fn", "fnalias", "if", "let", "const", "match", "using",
+  "mut", "type", "typealias", "struct", "enum", "trait", "traitalias", "derive",
+  "while", "break", "continue", "import", "return", "throw", "raise", "try", "catch",
+  "pub", "priv", "readonly", "true", "false", "_", "test", "loop", "for", "in", "impl",
+  "with", "guard", "async", "is", "suberror", "and", "letrec", "enumview", "noraise",
+  "defer",
 ]
 ```
 
@@ -159,68 +116,14 @@ They might be turned into keywords in the future.
 
 ```json
 [
-  "module",
-  "move",
-  "ref",
-  "static",
-  "super",
-  "unsafe",
-  "use",
-  "where",
-  "await",
-  "dyn",
-  "abstract",
-  "do",
-  "final",
-  "macro",
-  "override",
-  "typeof",
-  "virtual",
-  "yield",
-  "local",
-  "method",
-  "alias",
-  "assert",
-  "package",
-  "recur",
-  "using",
-  "enumview",
-  "isnot",
-  "define",
-  "downcast",
-  "inherit",
-  "member",
-  "namespace",
-  "static",
-  "upcast",
-  "use",
-  "void",
-  "lazy",
-  "include",
-  "mixin",
-  "protected",
-  "sealed",
-  "constructor",
-  "atomic",
-  "volatile",
-  "anyframe",
-  "anytype",
-  "asm",
-  "await",
-  "comptime",
-  "errdefer",
-  "export",
-  "opaque",
-  "orelse",
-  "resume",
-  "threadlocal",
-  "unreachable",
-  "dynclass",
-  "dynobj",
-  "dynrec",
-  "var",
-  "finally",
-  "noasync"
+  "module", "move", "ref", "static", "super", "unsafe", "use", "where", "await",
+  "dyn", "abstract", "do", "final", "macro", "override", "typeof", "virtual", "yield",
+  "local", "method", "alias", "assert", "package", "recur", "using", "enumview",
+  "isnot", "define", "downcast", "inherit", "member", "namespace", "static", "upcast",
+  "use", "void", "lazy", "include", "mixin", "protected", "sealed", "constructor",
+  "atomic", "volatile", "anyframe", "anytype", "asm", "await", "comptime", "errdefer",
+  "export", "opaque", "orelse", "resume", "threadlocal", "unreachable", "dynclass",
+  "dynobj", "dynrec", "var", "finally", "noasync",
 ]
 ```
 
@@ -260,12 +163,12 @@ The previous two code snippets will print the following at runtime:
 2
 ```
 
-Only packages that are `main` packages can define such `main` function. Check out [build system tutorial](../toolchain/moon/tutorial.md) for detail.
+Only packages that are `main` packages can define such `main` function. Check out [build system tutorial](../toolchain/moon/tutorial.md) for detail. In current projects, this is configured in `moon.pkg`:
 
-```json
-{
-  "is-main": true
-}
+```text
+options(
+  "is-main": true,
+)
 ```
 
 #### `test`
@@ -304,6 +207,7 @@ and we assume that all the `test` blocks pass unless stated otherwise.
 - [language-attributes.md](./references/language-attributes.md)
 - [language-ffi.md](./references/language-ffi.md)
 - [language-async-experimental.md](./references/language-async-experimental.md)
+- [language-verification.md](./references/language-verification.md)
 - [language-error-codes-index.md](./references/language-error-codes-index.md)
 - [toolchain-index.md](./references/toolchain-index.md)
 - [toolchain-moon-index.md](./references/toolchain-moon-index.md)

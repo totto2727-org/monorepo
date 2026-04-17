@@ -241,7 +241,7 @@ Variable initialization clauses, loop conditions, and update clauses are all opt
 for i = 1; ; i = i + 1 {
   println(i)
 }
-for {
+for ;; {
   println("loop forever")
 }
 ```
@@ -296,7 +296,7 @@ test {
   }
   assert_eq(i, 45)
   let mut k = 0
-  for l in 0..=10 {
+  for l in 0..<=10 {
     k += l
   }
   assert_eq(k, 55)
@@ -379,26 +379,7 @@ There are four kinds of range expressions available in `for .. in` loop:
 - `a..<b`: iterate from `a` to `b` in increasing order, excluding `b`
 - `a..<=b`: iterate from `a` to `b` in increasing order, including `b`
 - `a>..b`: iterate from `a` to `b` in decreasing order, excluding `a`
-- `a>=..b`: iterate from `a` to `b` in decreasing order, including `a`
-
-#### Functional loop
-
-Functional loop is a powerful feature in MoonBit that enables you to write loops in a functional style.
-
-A functional loop consumes an argument and returns a value. It is defined using the `loop` keyword, followed by its argument and the loop body. The loop body is a sequence of clauses, each of which consists of a pattern and an expression. The clause whose pattern matches the input will be executed, and the loop will return the value of the expression. If no pattern matches, the loop will panic. Use the `continue` keyword with arguments to start the next iteration of the loop. Use the `break` keyword with an argument to return a value from the loop. The `break` keyword can be omitted if the value is the last expression in the loop body.
-
-```moonbit
-test {
-  fn sum(xs : @list.List[Int]) -> Int {
-    loop (xs, 0) {
-      (Empty, acc) => break acc // <=> Nil, acc => acc
-      (More(x, tail=rest), acc) => continue (rest, x + acc)
-    }
-  }
-
-  assert_eq(sum(@list.from_array([1, 2, 3])), 6)
-}
-```
+- `a>=..b`: iterate from `a` to `b` in decreasing  order, including `a`
 
 #### Labelled Continue/Break
 
@@ -425,13 +406,14 @@ test "break label" {
 test "continue label" {
   let mut count = 0
   let init = 10
-  let res = outer~: loop init {
-    0 => 42
-    i =>
-      for {
-        count = count + 1
-        continue outer~ i - 1
-      }
+  let res = outer~: for i = init {
+    if i == 0 {
+      break outer~ 42
+    }
+    for ;; {
+      count = count + 1
+      continue outer~ i - 1
+    }
   }
   assert_eq(res, 42)
   assert_eq(count, 10)

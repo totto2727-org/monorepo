@@ -83,12 +83,11 @@ create value for the `struct` using the name of the struct,
 it can be declared as follows:
 
 ```moonbit
-struct StructWithConstr {
-  x : Int
-  y : Int
+struct IntBox {
+  value : Int
 
-  fn new(x~ : Int, y? : Int) -> StructWithConstr
-} derive(Show)
+  fn new(value : Int) -> IntBox
+} derive(Debug)
 ```
 
 Here, the return value of the constructor must be the struct itself.
@@ -96,16 +95,90 @@ The constructor should then be implemented by a `new` method (the name cannot be
 with exactly the same type:
 
 ```moonbit
-fn StructWithConstr::new(x~ : Int, y? : Int = x) -> StructWithConstr {
-  { x, y }
+fn IntBox::new(value : Int) -> IntBox {
+  { value, }
 }
 ```
 
 If a `struct` declares a constructor, it can be constructed by name directly:
 
 ```moonbit
+  let box = IntBox(10)
+  debug_inspect(box, content="{ value: 10 }")
+```
+
+The constructor call follows the declared `new` signature, so unlabeled parameters can be written in the familiar `TypeName(value)` form.
+
+Constructors may also use labeled and optional arguments, just like normal functions:
+
+```moonbit
+struct StructWithConstr {
+  x : Int
+  y : Int
+
+  fn new(x~ : Int, y? : Int) -> StructWithConstr
+} derive(Debug)
+```
+
+```moonbit
+fn StructWithConstr::new(x~ : Int, y? : Int = x) -> StructWithConstr {
+  { x, y }
+}
+```
+
+```moonbit
   let s = StructWithConstr(x=1)
-  inspect(s, content="{x: 1, y: 1}")
+  debug_inspect(s, content="{ x: 1, y: 1 }")
+```
+
+Because struct constructors are implemented by normal functions, they may raise errors:
+
+```moonbit
+suberror BuildError {
+  NegativeInput
+} derive(Debug)
+
+struct Positive {
+  value : Int
+
+  fn new(x : Int) -> Positive raise BuildError
+} derive(Debug)
+```
+
+```moonbit
+fn Positive::new(x : Int) -> Positive raise BuildError {
+  guard x >= 0 else { raise NegativeInput }
+  { value: x }
+}
+```
+
+```moonbit
+  debug_inspect(try? Positive(10), content="Ok({ value: 10 })")
+  debug_inspect(try? Positive(-1), content="Err(NegativeInput)")
+```
+
+Asynchronous constructors are declared with `async fn new` and can be used inside async code:
+
+```moonbit
+struct AsyncBox {
+  value : Int
+
+  async fn new(x : Int) -> AsyncBox
+} derive(Debug)
+```
+
+```moonbit
+async fn AsyncBox::new(x : Int) -> AsyncBox {
+  @async.sleep(0)
+  { value: x }
+}
+```
+
+```moonbit
+async test "struct constructor async" {
+  let box = AsyncBox(10)
+  debug_inspect(box, content="{ value: 10 }")
+}
 ```
 
 Creating value via `struct` constructor has exactly the same semantic as
@@ -119,10 +192,6 @@ they may [raise error](error-handling.md) or [perform asynchronous operations](a
 `struct` constructors also support [optional arguments]().
 Notice that the default value of optional arguments should be defined at the implementation of struct constructors,
 the declaration inside the `struct` should only contain a `label? : T` signature.
-
-For `struct` with type parameters, constructors may specialize the type arguments or
-require [trait bounds]() on the type parameters.
-The syntax is the same as a normal toplevel function declaration.
 
 #### Enum
 
@@ -144,7 +213,7 @@ enum Relation {
 /// compare the ordering relation between two integers
 fn compare_int(x : Int, y : Int) -> Relation {
   if x < y {
-    // when creating an enum, if the target type is known,
+    // when creating an enum, if the target type is known, 
     // you can write the constructor name directly
     Smaller
   } else if x > y {
@@ -160,10 +229,10 @@ fn compare_int(x : Int, y : Int) -> Relation {
 fn print_relation(r : Relation) -> Unit {
   // use pattern matching to decide which case `r` belongs to
   match r {
-    // during pattern matching, if the type is known,
+    // during pattern matching, if the type is known, 
     // writing the name of constructor is sufficient
     Smaller => println("smaller!")
-    // but you can use the `TypeName::Constructor` syntax
+    // but you can use the `TypeName::Constructor` syntax 
     // for pattern matching as well
     Relation::Greater => println("greater!")
     Equal => println("equal!")
@@ -202,7 +271,7 @@ enum Lst {
 // Here's a function that decides if a list contains only one element
 fn is_singleton(l : Lst) -> Bool {
   match l {
-    // This branch only matches values of shape `Cons(_, Nil)`,
+    // This branch only matches values of shape `Cons(_, Nil)`, 
     // i.e. lists of length 1
     Cons(_, Nil) => true
     // Use `_` to match everything else
@@ -216,9 +285,9 @@ fn print_list(l : Lst) -> Unit {
   // you can extract the payload data inside that case
   match l {
     Nil => println("nil")
-    // Here `x` and `xs` are defining new variables
+    // Here `x` and `xs` are defining new variables 
     // instead of referring to existing variables,
-    // if `l` is a `Cons`, then the payload of `Cons`
+    // if `l` is a `Cons`, then the payload of `Cons` 
     // (the first element and the rest of the list)
     // will be bind to `x` and `xs
     Cons(x, xs) => {
@@ -290,7 +359,7 @@ enum Object {
   Circle(x~ : Double, y~ : Double, radius~ : Double)
 }
 
-suberror NotImplementedError derive(Show)
+suberror NotImplementedError derive(Debug)
 
 fn Object::distance_with(
   self : Object,
@@ -320,7 +389,7 @@ fn main {
     println(p1.distance_with(p2))
     println(p1.distance_with(c1))
   } catch {
-    e => println(e)
+    _ => println("NotImplementedError")
   }
 }
 ```
@@ -434,7 +503,6 @@ John Doe
 MoonBit supports type alias via the syntax `type NewType = OldType`:
 
 ##### WARNING
-
 The old syntax `typealias OldType as NewType` may be removed in the future.
 
 ```moonbit
@@ -457,15 +525,15 @@ methods using derive, but no additional methods can be defined manually. For
 example:
 
 ```moonbit
-fn[T : Show] toplevel(x : T) -> Unit {
+fn[T : Debug] toplevel(x : T) -> Unit {
   enum LocalEnum {
     A(T)
     B(Int)
-  } derive(Show)
+  } derive(Debug)
   struct LocalStruct {
     a : (String, T)
-  } derive(Show)
-  struct LocalStructTuple(T) derive(Show)
+  } derive(Debug)
+  struct LocalStructTuple(T) derive(Debug)
   ...
 }
 ```

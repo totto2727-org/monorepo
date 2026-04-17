@@ -30,7 +30,7 @@ let b = false
 let c = a && b
 let d = a || b
 let e = !a
-let f = not(a)
+let f = !(a && b)
 ```
 
 #### Number
@@ -38,7 +38,7 @@ let f = not(a)
 MoonBit have integer type and floating point type:
 
 | type     | description                                       | example                    |
-| -------- | ------------------------------------------------- | -------------------------- |
+|----------|---------------------------------------------------|----------------------------|
 | `Int16`  | 16-bit signed integer                             | `(42 : Int16)`             |
 | `Int`    | 32-bit signed integer                             | `42`                       |
 | `Int64`  | 64-bit signed integer                             | `1000L`                    |
@@ -56,7 +56,6 @@ To improve readability, you may place underscores in the middle of numeric liter
 - Decimal numbers can have underscore between the numbers.
 
   By default, an int literal is signed 32-bit number. For unsigned numbers, a postfix `U` is needed; for 64-bit numbers, a postfix `L` is needed.
-
   ```moonbit
   let a = 1234
   let b : Int = 1_000_000 + a
@@ -64,7 +63,6 @@ To improve readability, you may place underscores in the middle of numeric liter
   let large_num          : Int64  = 9_223_372_036_854_775_807L
   let unsigned_large_num : UInt64 = 18_446_744_073_709_551_615UL
   ```
-
 - A binary number has a leading zero followed by a letter "B", i.e. `0b`/`0B`.
   Note that the digits after `0b`/`0B` must be `0` or `1`.
   ```moonbit
@@ -84,7 +82,6 @@ To improve readability, you may place underscores in the middle of numeric liter
   let another_hex = 0xA_B_C
   ```
 - A floating-point number literal is 64-bit floating-point number. To define a float, type annotation is needed.
-
   ```moonbit
   let double = 3.14 // Double
   let float : Float = 3.14
@@ -92,7 +89,6 @@ To improve readability, you may place underscores in the middle of numeric liter
   ```
 
   A 64-bit floating-point number can also be defined using hexadecimal format:
-
   ```moonbit
   let hex_double = 0x1.2P3 // (1.0 + 2 / 16) * 2^(+3) == 9
   ```
@@ -109,7 +105,6 @@ let bigint : BigInt = 42
 ```
 
 ##### SEE ALSO
-
 [Overloaded Literals]()
 
 #### String
@@ -138,7 +133,7 @@ Some('r')
 In double quotes string, a backslash followed by certain special characters forms an escape sequence:
 
 | escape sequences       | description                                          |
-| ---------------------- | ---------------------------------------------------- |
+|------------------------|------------------------------------------------------|
 | `\n`, `\r`, `\t`, `\b` | New line, Carriage return, Horizontal tab, Backspace |
 | `\\`                   | Backslash                                            |
 | `\u5154` , `\u{1F600}` | Unicode escape sequence                              |
@@ -151,7 +146,6 @@ println("The answer is \{x}")
 ```
 
 ##### NOTE
-
 The interpolated expression can not contain newline, `{}` or `"`.
 
 Multi-line strings can be defined using the leading `#|` or `$|`, where the former will keep the raw string and the latter will perform the escape and interpolation:
@@ -199,7 +193,6 @@ test {
 ```
 
 ##### SEE ALSO
-
 API: [https://mooncakes.io/docs/moonbitlang/core/string](https://mooncakes.io/docs/moonbitlang/core/string)
 
 [Overloaded Literals]()
@@ -229,7 +222,6 @@ test {
 ```
 
 ##### SEE ALSO
-
 API: [https://mooncakes.io/docs/moonbitlang/core/char](https://mooncakes.io/docs/moonbitlang/core/char)
 
 [Overloaded Literals]()
@@ -265,14 +257,13 @@ test {
 The byte literal and bytes literal also support escape sequences, but different from those in string literals. The following table lists the supported escape sequences for byte and bytes literals:
 
 | escape sequences       | description                                          |
-| ---------------------- | ---------------------------------------------------- |
+|------------------------|------------------------------------------------------|
 | `\n`, `\r`, `\t`, `\b` | New line, Carriage return, Horizontal tab, Backspace |
 | `\\`                   | Backslash                                            |
 | `\x41`                 | Hexadecimal escape sequence                          |
 | `\o102`                | Octal escape sequence                                |
 
 ##### NOTE
-
 You can use `@buffer.T` to construct bytes by writing various types of data. For example:
 
 ```moonbit
@@ -300,7 +291,6 @@ test {
 ```
 
 ##### SEE ALSO
-
 API for `Byte`: [https://mooncakes.io/docs/moonbitlang/core/byte](https://mooncakes.io/docs/moonbitlang/core/byte)<br />
 \\\\
 API for `Bytes`: [https://mooncakes.io/docs/moonbitlang/core/bytes](https://mooncakes.io/docs/moonbitlang/core/bytes)<br />
@@ -314,15 +304,15 @@ API for `@buffer.T`: [https://mooncakes.io/docs/moonbitlang/core/buffer](https:/
 MoonBit has several byte-oriented container types. They are related, but they
 serve different jobs:
 
-| Type                 | Ownership / mutability   | Resizable | Typical use                                                   |
-| -------------------- | ------------------------ | --------- | ------------------------------------------------------------- |
-| `Bytes`              | owned, immutable         | no        | final byte payloads, API boundaries, serialized data          |
-| `BytesView`          | borrowed, immutable view | no        | slicing or parsing existing bytes without copying             |
-| `Array[Byte]`        | owned, mutable           | yes       | general-purpose mutable byte storage                          |
-| `FixedArray[Byte]`   | owned, mutable           | no        | fixed-size working buffers                                    |
-| `ArrayView[Byte]`    | borrowed array view      | no        | passing slices of array-backed byte storage without ownership |
-| `MutArrayView[Byte]` | borrowed, mutable view   | no        | mutating borrowed array-backed byte storage in place          |
-| `@buffer.Buffer`     | owned, mutable builder   | yes       | incrementally constructing bytes, then calling `contents()`   |
+| Type                 | Ownership / mutability   | Resizable   | Typical use                                                   |
+|----------------------|--------------------------|-------------|---------------------------------------------------------------|
+| `Bytes`              | owned, immutable         | no          | final byte payloads, API boundaries, serialized data          |
+| `BytesView`          | borrowed, immutable view | no          | slicing or parsing existing bytes without copying             |
+| `Array[Byte]`        | owned, mutable           | yes         | general-purpose mutable byte storage                          |
+| `FixedArray[Byte]`   | owned, mutable           | no          | fixed-size working buffers                                    |
+| `ArrayView[Byte]`    | borrowed array view      | no          | passing slices of array-backed byte storage without ownership |
+| `MutArrayView[Byte]` | borrowed, mutable view   | no          | mutating borrowed array-backed byte storage in place          |
+| `@buffer.Buffer`     | owned, mutable builder   | yes         | incrementally constructing bytes, then calling `contents()`   |
 
 Two common distinctions matter:
 
@@ -390,7 +380,6 @@ test {
 ```
 
 ##### SEE ALSO
-
 API: [https://mooncakes.io/docs/moonbitlang/core/ref](https://mooncakes.io/docs/moonbitlang/core/ref)
 
 #### Option and Result
@@ -420,7 +409,6 @@ test {
 ```
 
 ##### SEE ALSO
-
 API for `Option`: [https://mooncakes.io/docs/moonbitlang/core/option](https://mooncakes.io/docs/moonbitlang/core/option)<br />
 \\\\
 API for `Result`: [https://mooncakes.io/docs/moonbitlang/core/result](https://mooncakes.io/docs/moonbitlang/core/result)
@@ -451,7 +439,6 @@ and `MutArrayView[T]` (see below).
 `Array[T]` can grow in size, while `FixedArray[T]` has a fixed size, thus it needs to be created with initial value.
 
 ##### WARNING
-
 A common pitfall is creating `FixedArray` with the same initial value:
 
 ```moonbit
@@ -486,7 +473,6 @@ let array_3 : Array[Int] = [1, 2, 3] // Array[Int]
 ```
 
 ##### SEE ALSO
-
 API: [https://mooncakes.io/docs/moonbitlang/core/array](https://mooncakes.io/docs/moonbitlang/core/array)
 
 [Overloaded Literals]()
@@ -499,7 +485,6 @@ view of array `data`, referencing elements from `start` to `end` (exclusive).
 Both `start` and `end` indices can be omitted.
 
 ##### NOTE
-
 `ArrayView` is an immutable data structure on its own, but the underlying
 `Array` or `FixedArray` could be modified. For a mutable view, use
 `MutArrayView[T]` via `data.mut_view(...)`.
@@ -519,7 +504,6 @@ test {
 ```
 
 ##### SEE ALSO
-
 API: [https://mooncakes.io/docs/moonbitlang/core/array](https://mooncakes.io/docs/moonbitlang/core/array)
 
 #### Map
@@ -534,7 +518,6 @@ let map : Map[String, Int] = { "x": 1, "y": 2, "z": 3 }
 Currently keys in map literal syntax must be constant. `Map`s can also be destructed elegantly with pattern matching, see [Map Pattern]().
 
 ##### SEE ALSO
-
 API: [https://mooncakes.io/docs/moonbitlang/core/builtin#Map](https://mooncakes.io/docs/moonbitlang/core/builtin#Map)
 
 [Overloaded Literals]()
@@ -554,7 +537,6 @@ let moon_pkg_json_example : Json = {
 Json values can be pattern matched too, see [Json Pattern]().
 
 ##### SEE ALSO
-
 API: [https://mooncakes.io/docs/moonbitlang/core/json](https://mooncakes.io/docs/moonbitlang/core/json)
 
 [Overloaded Literals]()
