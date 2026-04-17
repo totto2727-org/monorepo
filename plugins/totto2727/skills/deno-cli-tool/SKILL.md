@@ -83,4 +83,4 @@ cli(process.argv).pipe(Effect.provide(NodeContext.layer), NodeRuntime.runMain)
 
 ## Reference
 
-- [reference/c7.ts](./reference/c7.ts) — production example (Context7 CLI client using Effect)
+- [references/c7.ts](./references/c7.ts) — production example (Context7 CLI client using Effect)
