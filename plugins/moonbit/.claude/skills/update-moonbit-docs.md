@@ -23,4 +23,4 @@ Fetches the latest MoonBit language documentation and regenerates skill files in
 deno run --allow-net --allow-read --allow-write .script/process-moonbit-docs.ts "<language-url>" "<toolchain-url>"
 ```
 
-4. **Verify output** — Confirm files were generated in `skills/moonbit-docs/`.
+4. **Verify output** — Confirm `SKILL.md` was generated in `skills/moonbit-docs/` and reference `.md` files were generated in `skills/moonbit-docs/references/`.

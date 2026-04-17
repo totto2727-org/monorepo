@@ -20,6 +20,7 @@ if (urls.length === 0) {
 const scriptDir = import.meta.dirname
 const projectRoot = join(scriptDir, '..')
 const outputDir = join(projectRoot, 'skills', 'moonbit-docs')
+const referencesDir = join(outputDir, 'references')
 
 try {
   await Deno.remove(outputDir, { recursive: true })
@@ -28,7 +29,7 @@ try {
     throw error
   }
 }
-await Deno.mkdir(outputDir, { recursive: true })
+await Deno.mkdir(referencesDir, { recursive: true })
 
 function parseSections(text: string): { path: string; content: string }[] {
   const sectionRegex = /<!-- path: (.+?) -->/g
@@ -119,12 +120,12 @@ for (const section of sections) {
 
   for (const sub of subFiles) {
     otherFiles.push({ filename: sub.filename, title: sub.filename })
-    await Deno.writeTextFile(join(outputDir, sub.filename), licenseHeader + '\n\n' + sub.content + '\n')
+    await Deno.writeTextFile(join(referencesDir, sub.filename), licenseHeader + '\n\n' + sub.content + '\n')
   }
 }
 
 const introSection = sections.find((s) => s.path === 'language/introduction.md')
-const links = otherFiles.map((f) => `- [${f.title}](./${f.filename})`).join('\n')
+const links = otherFiles.map((f) => `- [${f.title}](./references/${f.filename})`).join('\n')
 
 const relatedSkillsBlock = `## Related Skills
 
