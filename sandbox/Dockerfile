@@ -11,6 +11,7 @@ export GIT_CONFIG_GLOBAL=/dev/null
 git clone https://github.com/totto2727-org/monorepo.git
 cd monorepo
 direnv allow
+devbox shell
 vp i
 vp run -r prebuild
 EOF
