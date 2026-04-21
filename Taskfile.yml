@@ -24,3 +24,7 @@ tasks:
     cmds:
       - docker push ghcr.io/totto2727-org/monorepo/sandbox:latest
       - docker push ghcr.io/totto2727-org/monorepo/sandbox-base:latest
+
+  sandbox:create:
+    cmds:
+      - uvx openshell sandbox create --from ghcr.io/totto2727-org/monorepo/sandbox:latest --policy sandbox/policy.yaml

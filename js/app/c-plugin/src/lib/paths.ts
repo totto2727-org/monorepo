@@ -12,6 +12,8 @@ export const getSkillsDir = (agentsDir: string): string => NodePath.join(agentsD
 
 export const getLockFilePath = (agentsDir: string): string => NodePath.join(agentsDir, 'skills-lock.json')
 
+export const getGitIgnorePath = (agentsDir: string): string => NodePath.join(agentsDir, '.gitignore')
+
 export const getRepoCacheDir = (agentsDir: string, source: string): string =>
   NodePath.join(getCacheDir(agentsDir), source)
 

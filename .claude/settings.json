@@ -5,5 +5,13 @@
       "command": "npx",
       "args": ["vp", "mcp"]
     }
+  },
+  "extraKnownMarketplaces": {
+    "totto2727": {
+      "source": {
+        "source": "directory",
+        "path": "./"
+      }
+    }
   }
 }

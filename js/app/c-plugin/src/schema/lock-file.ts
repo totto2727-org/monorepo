@@ -10,6 +10,7 @@ export type PluginEntry = typeof PluginEntry.Type
 
 export const RepositoryEntry = Schema.Struct({
   commitHash: Schema.String,
+  marketplaceKind: Schema.Literals(['claude', 'cursor', 'codex']),
   plugins: Schema.Array(PluginEntry),
   source: Schema.String,
   sourceType: Schema.Literal('github'),

@@ -24,7 +24,7 @@ export default defineConfig({
   },
   lint: {
     extends: [core, react, remix],
-    ignorePatterns: ['**/__fixtures__/**'],
+    ignorePatterns: ['**/__fixtures__/**', '**/.script/**', '**/skills/**'],
     jsPlugins: ['./js/package/oxlint-plugin/src/index.ts'],
     options: {
       typeAware: true,
