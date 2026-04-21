@@ -213,7 +213,7 @@ enum Relation {
 /// compare the ordering relation between two integers
 fn compare_int(x : Int, y : Int) -> Relation {
   if x < y {
-    // when creating an enum, if the target type is known, 
+    // when creating an enum, if the target type is known,
     // you can write the constructor name directly
     Smaller
   } else if x > y {
@@ -229,10 +229,10 @@ fn compare_int(x : Int, y : Int) -> Relation {
 fn print_relation(r : Relation) -> Unit {
   // use pattern matching to decide which case `r` belongs to
   match r {
-    // during pattern matching, if the type is known, 
+    // during pattern matching, if the type is known,
     // writing the name of constructor is sufficient
     Smaller => println("smaller!")
-    // but you can use the `TypeName::Constructor` syntax 
+    // but you can use the `TypeName::Constructor` syntax
     // for pattern matching as well
     Relation::Greater => println("greater!")
     Equal => println("equal!")
@@ -271,7 +271,7 @@ enum Lst {
 // Here's a function that decides if a list contains only one element
 fn is_singleton(l : Lst) -> Bool {
   match l {
-    // This branch only matches values of shape `Cons(_, Nil)`, 
+    // This branch only matches values of shape `Cons(_, Nil)`,
     // i.e. lists of length 1
     Cons(_, Nil) => true
     // Use `_` to match everything else
@@ -285,9 +285,9 @@ fn print_list(l : Lst) -> Unit {
   // you can extract the payload data inside that case
   match l {
     Nil => println("nil")
-    // Here `x` and `xs` are defining new variables 
+    // Here `x` and `xs` are defining new variables
     // instead of referring to existing variables,
-    // if `l` is a `Cons`, then the payload of `Cons` 
+    // if `l` is a `Cons`, then the payload of `Cons`
     // (the first element and the rest of the list)
     // will be bind to `x` and `xs
     Cons(x, xs) => {
@@ -503,6 +503,7 @@ John Doe
 MoonBit supports type alias via the syntax `type NewType = OldType`:
 
 ##### WARNING
+
 The old syntax `typealias OldType as NewType` may be removed in the future.
 
 ```moonbit

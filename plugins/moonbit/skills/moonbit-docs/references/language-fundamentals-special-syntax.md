@@ -19,7 +19,7 @@ MoonBit provides convenient pipe syntaxes `x |> f(y)` and `f <| x`, which can be
 |> ignore // <=> ignore(add(1, 5))
 ```
 
-The MoonBit code follows the *data-first* style, meaning the function places its "subject" as the first argument.
+The MoonBit code follows the _data-first_ style, meaning the function places its "subject" as the first argument.
 Thus, the pipe operator inserts the left-hand side value into the first argument of the right-hand side function call by default.
 For example, `x |> f(y)` is equivalent to `f(x, y)`.
 
@@ -326,6 +326,7 @@ matches exactly one character.
 #### Lexmatch
 
 ##### WARNING
+
 `lexmatch` and `lexmatch?` are deprecated. Prefer
 [regex match expression]() in new code.
 This section is kept as reference for existing code.

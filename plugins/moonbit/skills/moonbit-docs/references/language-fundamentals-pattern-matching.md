@@ -80,11 +80,11 @@ match expr {
 Array patterns can be used to match on the following types to obtain their
 corresponding elements or views:
 
-| Type                                  | Element   | View         |
-|---------------------------------------|-----------|--------------|
-| Array[T], ArrayView[T], FixedArray[T] | T         | ArrayView[T] |
-| Bytes, BytesView                      | Byte      | BytesView    |
-| String, StringView                    | Char      | StringView   |
+| Type                                  | Element | View         |
+| ------------------------------------- | ------- | ------------ |
+| Array[T], ArrayView[T], FixedArray[T] | T       | ArrayView[T] |
+| Bytes, BytesView                      | Byte    | BytesView    |
+| String, StringView                    | Char    | StringView   |
 
 Array patterns have the following forms:
 
@@ -245,7 +245,7 @@ test {
 Result types depend on width:
 
 | Width                | Result type    |
-|----------------------|----------------|
+| -------------------- | -------------- |
 | 1..32 bits (`u`/`i`) | `UInt` / `Int` |
 | 33..64 bits (`u`)    | `UInt64`       |
 | 33..64 bits (`i`)    | `Int64`        |
@@ -360,6 +360,7 @@ fn guard_check(x : Int?) -> Unit {
 ```
 
 ##### WARNING
+
 It is not encouraged to call a function that mutates a part of the value being
 matched inside a guard condition. When such case happens, the part being mutated
 will not be re-evaluated in the subsequent patterns. Use it with caution.

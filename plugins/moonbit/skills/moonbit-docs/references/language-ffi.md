@@ -31,6 +31,7 @@ By Wasm we refer to WebAssembly with some post-MVP proposals including:
 For better compatibility, the `init` function will be compiled as [`start` function](https://webassembly.github.io/spec/core/syntax/modules.html#start-function), and the `main` function will be exported as `_start`.
 
 ##### NOTE
+
 For Wasm backends, all functions interacting with outside world relies on the host. For example, the `println` for Wasm and Wasm GC backend relies on importing a function `spectest.print_char` that prints a UTF-16 code unit for each call. The `env` package in standard library and some packages in `moonbitlang/x` relies on specific host function defined for MoonBit runtime. Avoid using them if you want to make the generated Wasm portable.
 
 #### Wasm GC
@@ -43,6 +44,7 @@ By Wasm GC we refer to WebAssembly with Garbage Collection proposal, meaning tha
 For better compatibility, the `init` function will be compiled as [`start` function](https://webassembly.github.io/spec/core/syntax/modules.html#start-function), and the `main` function will be exported as `_start`.
 
 ##### NOTE
+
 For Wasm backends, all functions interacting with outside world relies on the host. For example, the `println` for Wasm and Wasm GC backend relies on importing a function `spectest.print_char` that prints a UTF-16 code unit for each call. The `env` package in standard library and some packages in `moonbitlang/x` relies on specific host function defined for MoonBit runtime. Avoid using them if you want to make the generated Wasm portable.
 
 #### JavaScript
@@ -83,9 +85,11 @@ This will be interpreted as `void*`.
 To interact with the outside world, you can declare foreign functions.
 
 ##### NOTE
+
 MoonBit does not support polymorphic foreign functions.
 
 ##### IMPORTANT
+
 When declaring functions, you need to make sure that the signature corresponds to the actual foreign function. **Use `-> Unit` when the foreign function returns no value. This corresponds to `void` in C and to a Wasm function with no result.**
 
 #### Wasm & Wasm GC
@@ -106,6 +110,7 @@ extern "wasm" fn identity(d : Double) -> Double =
 ```
 
 ##### NOTE
+
 When writing the inline function, do not provide a function name.
 
 #### JavaScript
@@ -151,7 +156,7 @@ To define wrapper functions, you can add a C stub file to a package, and add the
 
 ```moonbit
 options(
-  "native-stub": [ 
+  "native-stub": [
     // list of stub file names
   ],
 )
@@ -166,7 +171,7 @@ The table below shows the underlying representation of some MoonBit types:
 #### Wasm
 
 | MoonBit type                       | ABI         |
-|------------------------------------|-------------|
+| ---------------------------------- | ----------- |
 | `Bool`                             | `i32`       |
 | `Int`                              | `i32`       |
 | `UInt`                             | `i32`       |
@@ -181,7 +186,7 @@ The table below shows the underlying representation of some MoonBit types:
 #### Wasm GC
 
 | MoonBit type                       | ABI                                     |
-|------------------------------------|-----------------------------------------|
+| ---------------------------------- | --------------------------------------- |
 | `Bool`                             | `i32`                                   |
 | `Int`                              | `i32`                                   |
 | `UInt`                             | `i32`                                   |
@@ -197,7 +202,7 @@ The table below shows the underlying representation of some MoonBit types:
 #### JavaScript
 
 | MoonBit type                       | ABI          |
-|------------------------------------|--------------|
+| ---------------------------------- | ------------ |
 | `Bool`                             | `boolean`    |
 | `Int`                              | `number`     |
 | `UInt`                             | `number`     |
@@ -211,12 +216,13 @@ The table below shows the underlying representation of some MoonBit types:
 | `FuncRef[T]`                       | `Function`   |
 
 ##### NOTE
+
 The `FixedArray[T]` for numbers may migrate to `TypedArray` in the future.
 
 #### C
 
 | MoonBit type                       | ABI                                    |
-|------------------------------------|----------------------------------------|
+| ---------------------------------- | -------------------------------------- |
 | `Bool`                             | `int32_t`                              |
 | `Int`                              | `int32_t`                              |
 | `UInt`                             | `uint32_t`                             |
@@ -232,6 +238,7 @@ The `FixedArray[T]` for numbers may migrate to `TypedArray` in the future.
 | `FuncRef[T]`                       | Function pointer                       |
 
 ##### NOTE
+
 A foreign function returning `Unit` corresponds to a C function returning `void`. If the return type of `T` in `FuncRef[T]` is `Unit`, then it points to a function that returns `void`.
 
 Types not mentioned above do not have a stable ABI, so your code should not depend on their representations.
@@ -253,10 +260,10 @@ For Wasm backends, the callbacks will be passed as `externref`, which represents
 To do so, the Wasm module will import a function under the module `moonbit:ffi` and function name `make_closure`. This function takes a function and an object, where the function's first parameter should be the object, and should return a host's function. That is, the host is responsible for doing the partial application. A possible implementation would be:
 
 ```javascript
-{ 
+{
   "moonbit:ffi": {
     "make_closure": (funcref, closure) => funcref.bind(null, closure)
-  } 
+  }
 }
 ```
 
@@ -331,11 +338,13 @@ The previous example exports functions `add` and `fib`, where `fib` will be expo
 #### Wasm & Wasm GC
 
 ##### NOTE
+
 It is only effective for the package that configures it, i.e. it doesn't affect the downstream packages.
 
 #### JavaScript
 
 ##### NOTE
+
 It is only effective for the package that configures it, i.e. it doesn't affect the downstream packages.
 
 There's another `format` option to export as CommonJS module (`cjs`), ES Module (`esm`), or `iife`.
@@ -343,6 +352,7 @@ There's another `format` option to export as CommonJS module (`cjs`), ES Module 
 #### C
 
 ##### NOTE
+
 It is only effective for the package that configures it, i.e. it doesn't affect the downstream packages.
 
 Renaming the exported function is not supported for now
@@ -356,6 +366,7 @@ MoonBit is a programming language with garbage collection. Thus when handling ex
 When handling external object/resource in MoonBit, it is important to destroy object or release resource in time to prevent memory/resource leak.
 
 ##### NOTE
+
 For C backend only
 
 `moonbit.h` provides an API `moonbit_make_external_object` for handling lifetime of external object/resource using MoonBit's own automatic memory management system:
@@ -381,10 +392,11 @@ the layout of the object is as follows:
 so you can treat the object as a pointer to its payload directly. When MoonBit's automatic memory management system finds that an object created by `moonbit_make_external_object` is no longer alive, it will invoke the function `finalize` with the object itself as argument. Now, `finalize` can release external resource/memory held by the object's payload.
 
 ##### NOTE
+
 `finalize` **must not** drop the object itself, as this is handled by MoonBit runtime.
 
 On the MoonBit side, objects returned by `moonbit_make_external_object`
-should be bind to an *abstract* type, declared using `type T`,
+should be bind to an _abstract_ type, declared using `type T`,
 so that MoonBit's memory management system will not ignore the object.
 
 #### Lifetime management of MoonBit object
@@ -392,20 +404,21 @@ so that MoonBit's memory management system will not ignore the object.
 When passing MoonBit objects to the host through functions, it is essential to take care of the lifetime management of MoonBit itself. As mentioned before, MoonBit's Wasm backend and C backend uses compiler-optimized reference counting to manage lifetime of objects. To avoid memory error or leak, FFI functions must properly maintain the reference count of MoonBit objects.
 
 ##### NOTE
+
 For C backend and for Wasm backend only.
 
 ##### The calling convention of reference counting
 
 By default, MoonBit uses an owned calling convention for reference counting. That is, callee (the function being invoked) is responsible for dropping its parameters using the `moonbit_decref` / `$moonbit.decref` function. If the parameter is used more than once, the callee should increase the reference count using the `moonbit_incref` / `$moonbit.incref` function. Here are the rules for the necessary operations to perform in different circumstances:
 
-| event                            | operation   |
-|----------------------------------|-------------|
-| read field/element               | nothing     |
-| store into data structure        | `incref`    |
-| passed to MoonBit function       | `incref`    |
-| passed to other foreign function | nothing     |
-| returned                         | nothing     |
-| end of scope (not returned)      | `decref`    |
+| event                            | operation |
+| -------------------------------- | --------- |
+| read field/element               | nothing   |
+| store into data structure        | `incref`  |
+| passed to MoonBit function       | `incref`  |
+| passed to other foreign function | nothing   |
+| returned                         | nothing   |
+| end of scope (not returned)      | `decref`  |
 
 For example, here's a lifetime-correct binding to the standard `open` function for opening a file:
 
@@ -444,6 +457,7 @@ When passing a parameter through the FFI, its ownership may or may not be kept.
 The `#borrow` and `#owned` attributes can be used to specify these two conditions.
 
 ##### WARNING
+
 We are in the process of migrating the default semantics to `#borrow` instead of `#owned`
 
 The syntax of `#borrow` and `#owned` are as follows:
@@ -466,14 +480,14 @@ There is no need for a stub function anymore: we are binding to the original ver
 
 Even if a stub function is still necessary for other reasons, `#borrow` can often simplify the lifetime management. Here are the rules for the necessary operations to perform **on borrow parameters** in different circumstances:
 
-| event                                                   | operation   |
-|---------------------------------------------------------|-------------|
-| read field / element                                    | nothing     |
-| store into data structure                               | `incref`    |
-| passed to MoonBit function                              | `incref`    |
-| passed to other C function / `#borrow` MoonBit function | nothing     |
-| returned                                                | `incref`    |
-| end of scope (not returned)                             | nothing     |
+| event                                                   | operation |
+| ------------------------------------------------------- | --------- |
+| read field / element                                    | nothing   |
+| store into data structure                               | `incref`  |
+| passed to MoonBit function                              | `incref`  |
+| passed to other C function / `#borrow` MoonBit function | nothing   |
+| returned                                                | `incref`  |
+| end of scope (not returned)                             | nothing   |
 
 The opposite is the `#owned` semantic, where the parameter is stored by the FFI function, and the `decref` needs to be executed manually later.
 One use case is registering the callback where the closure would be **owned**.

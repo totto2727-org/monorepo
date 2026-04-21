@@ -11,8 +11,8 @@ to its elements. Traditional OO languages like Java's `Iterator<T>` use `next()`
 `hasNext()` to step through the iteration process, whereas functional languages
 (JavaScript's `forEach`, Lisp's `mapcar`) provides a high-order function which
 takes an operation and a sequence then consumes the sequence with that operation
-being applied to the sequence. The former is called *external iterator* (visible
-to user) and the latter is called *internal iterator* (invisible to user).
+being applied to the sequence. The former is called _external iterator_ (visible
+to user) and the latter is called _internal iterator_ (invisible to user).
 
 The built-in type `Iter[T]` is MoonBit's external iterator implementation. It
 exposes `next()` to pull the next value: it returns `Some(value)` and advances
@@ -39,13 +39,13 @@ Commonly used methods include:
 - `each`: Iterates over each element in the iterator, applying some function to each element.
 - `fold`: Folds the elements of the iterator using the given function, starting with the given initial value.
 - `collect`: Collects the elements of the iterator into an array.
-- `filter`: *lazy* Filters the elements of the iterator based on a predicate function.
-- `map`: *lazy* Transforms the elements of the iterator using a mapping function.
-- `concat`: *lazy* Combines two iterators into one by appending the elements of the second iterator to the first.
+- `filter`: _lazy_ Filters the elements of the iterator based on a predicate function.
+- `map`: _lazy_ Transforms the elements of the iterator using a mapping function.
+- `concat`: _lazy_ Combines two iterators into one by appending the elements of the second iterator to the first.
 
 Methods like `filter` and `map` are very common on a sequence object e.g. Array.
 But what makes `Iter` special is that any method that constructs a new `Iter` is
-*lazy* (i.e. iteration doesn't start on call because it's wrapped inside a
+_lazy_ (i.e. iteration doesn't start on call because it's wrapped inside a
 function), as a result of no allocation for intermediate value. That's what
 makes `Iter` superior for traversing through sequence: no extra cost. MoonBit
 encourages user to pass an `Iter` across functions instead of the sequence

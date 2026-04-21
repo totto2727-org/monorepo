@@ -39,7 +39,7 @@ document tests. `moon check` and `moon test` will automatically check and run
 these tests, so that examples in doc comments are always up-to-date.
 Wrap the snippet in `test { .. }` when you want a test block:
 
-```moonbit
+````moonbit
 /// Increment an integer by one,
 ///
 /// Example:
@@ -51,12 +51,12 @@ Wrap the snippet in `test { .. }` when you want a test block:
 pub fn incr(x : Int) -> Int {
   x + 1
 }
-```
+````
 
 If you want to prevent a code snippet from being treated as a document test,
 mark it with a language id other than `mbt check` on the markdown code block:
 
-```moonbit
+````moonbit
 /// `c_incr(x)` is the same as the following C code:
 /// ```c
 /// x++
@@ -66,7 +66,7 @@ pub fn c_incr(x : Ref[Int]) -> Int {
   x.val += 1
   old
 }
-```
+````
 
 Currently, document tests are always [blackbox tests](tests.md#blackbox-tests-and-whitebox-tests).
 So private definitions cannot have document test.
@@ -98,13 +98,14 @@ The code fence language controls how each block is handled:
 
 For example:
 
-```markdown
+````markdown
 ```mbt nocheck
 ///|
 fn helper() -> Int {
   42
 }
 ```
+````
 
 ```mbt check
 ///|
@@ -119,7 +120,8 @@ fn native_only() -> Unit {
   ...
 }
 ```
-```
+
+````
 
 Standalone `.mbt.md` files can also declare front matter to specify imports or
 the target backend:
@@ -144,9 +146,11 @@ fn answer() -> Int {
 test "answer" {
   inspect(answer(), content="42")
 }
-```
+````
+
 ```
 
 Use `moonbit.import` when you want to name the packages the file can import
 directly. Use `moonbit.deps` when you only want to declare module dependencies
 and let Moon synthesize the imports automatically.
+```

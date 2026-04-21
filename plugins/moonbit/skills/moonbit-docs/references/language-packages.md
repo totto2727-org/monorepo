@@ -105,7 +105,7 @@ The visibility modifiers apply to functions, variables, types, and traits, allow
 
 #### Functions
 
-By default, all function definitions and variable bindings are *invisible* to other packages.
+By default, all function definitions and variable bindings are _invisible_ to other packages.
 You can use the `pub` modifier before toplevel `let`/`fn` to make them public.
 
 #### Aliases
@@ -113,7 +113,7 @@ You can use the `pub` modifier before toplevel `let`/`fn` to make them public.
 By default, [function alias](fundamentals.md#function-alias) and
 [method alias](methods.md#alias-methods-as-functions) follow the
 visibility of the original definition, while
-[type alias](fundamentals.md#type-alias), [using]() are *invisible* to other
+[type alias](fundamentals.md#type-alias), [using]() are _invisible_ to other
 packages.
 
 You can add the `pub` modifier before the definition or fill in the `visibility`
@@ -129,10 +129,12 @@ There are four different kinds of visibility for types in MoonBit:
   Only the name of an abstract type is visible outside, the internal representation of the
   type is hidden. Making abstract type by default is a design choice to encourage
   encapsulation and information hiding.
+
 - Readonly types, declared with `pub`.
 
   The internal representation of readonly types are visible outside,
   but users can only read the values of these types from outside, construction and mutation are not allowed.
+
 - Fully public types, declared with `pub(all)`.
 
   The outside world can freely construct, read values of these types and modify them if possible.
@@ -147,9 +149,11 @@ In short, values of `pub` types can be destructed by pattern matching and the do
 cannot be constructed or mutated in other packages.
 
 ##### NOTE
+
 There is no restriction within the same package where `pub` types are defined.
 
 <!-- MANUAL CHECK -->
+
 ```moonbit
 // Package A
 pub struct RO {
@@ -175,6 +179,7 @@ test {
 Access control in MoonBit adheres to the principle that a `pub` type, function, or variable cannot be defined in terms of a private type. This is because the private type may not be accessible everywhere that the `pub` entity is used. MoonBit incorporates sanity checks to prevent the occurrence of use cases that violate this principle.
 
 <!-- MANUAL CHECK -->
+
 ```moonbit
 pub(all) type T1
 pub(all) type T2
@@ -216,20 +221,22 @@ To make the trait system coherent (i.e. there is a globally unique implementatio
 and prevent third-party packages from modifying behavior of existing programs by accident,
 MoonBit employs the following restrictions on who can define methods/implement traits for types:
 
-- *only the package that defines a type can define methods for it*. So one cannot define new methods or override old methods for builtin and foreign types.
+- _only the package that defines a type can define methods for it_. So one cannot define new methods or override old methods for builtin and foreign types.
   - there is an exception to this rule: [local methods](methods.md#local-method). Local methods are always private though, so they do not break coherence properties of MoonBit's type system
-- *only the package of the type or the package of the trait can define an implementation*.
+- _only the package of the type or the package of the trait can define an implementation_.
   For example, only `@pkg1` and `@pkg2` are allowed to write `impl @pkg1.Trait for @pkg2.Type`.
 
 The second rule above allows one to add new functionality to a foreign type by defining a new trait and implementing it.
 This makes MoonBit's trait & method system flexible while enjoying good coherence property.
 
 ##### WARNING
+
 Currently, an empty trait is implemented automatically.
 
 Here's an example of abstract trait:
 
 <!-- MANUAL CHECK -->
+
 ```moonbit
 trait Number {
  op_add(Self, Self) -> Self
@@ -269,6 +276,7 @@ because new implementations are not allowed outside.
 ### Virtual Packages
 
 ##### WARNING
+
 Virtual package is an experimental feature. There may be bugs and undefined behaviors.
 
 You can define virtual packages, which serves as an interface. They can be replaced by specific implementations at build time. Currently virtual packages can only contain plain functions.

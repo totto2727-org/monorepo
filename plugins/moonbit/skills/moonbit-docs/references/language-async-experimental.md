@@ -70,9 +70,9 @@ is the ability to spawn multiple tasks and let them run in parallel.
 This ability also brings the new challenge of how to manage tasks robustly,
 as the control flow of programs become much more complex due to concurrent tasks.
 
-The `moonbitlang/async` library adapts the *structured concurrency* paradigm
+The `moonbitlang/async` library adapts the _structured concurrency_ paradigm
 to solve the task management problem and improve robustness of async program.
-In `moonbitlang/async`, spawning new task can only be done inside a *task group*,
+In `moonbitlang/async`, spawning new task can only be done inside a _task group_,
 while task groups can only be created via the `@async.with_task_group` function:
 
 ```moonbit
@@ -106,7 +106,7 @@ If `with_task_group` need to terminate immediately for some reasons, such as fat
 so that no error can be silently ignored),
 it will cancel all child tasks properly, and wait for their cleanup operations to complete.
 Altogether, the rule of `with_task_group` ensures that
-*orphan tasks* (i.e. unused tasks that are still running because the program forget to cancel it)
+_orphan tasks_ (i.e. unused tasks that are still running because the program forget to cancel it)
 can never exist in `moonbitlang/async`.
 
 Here's a simple example of using `with_task_group` to create multiple tasks and let them run in parallel:

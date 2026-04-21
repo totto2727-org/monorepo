@@ -379,7 +379,7 @@ There are four kinds of range expressions available in `for .. in` loop:
 - `a..<b`: iterate from `a` to `b` in increasing order, excluding `b`
 - `a..<=b`: iterate from `a` to `b` in increasing order, including `b`
 - `a>..b`: iterate from `a` to `b` in decreasing order, excluding `a`
-- `a>=..b`: iterate from `a` to `b` in decreasing  order, including `a`
+- `a>=..b`: iterate from `a` to `b` in decreasing order, including `a`
 
 #### Labelled Continue/Break
 

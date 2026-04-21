@@ -32,6 +32,7 @@ suberror E3 { // error type E3 has three constructors like a normal enum type
 ```
 
 ##### WARNING
+
 The older `suberror A B` syntax is deprecated. Use `suberror A { A(B) }` instead.
 
 The error types can be promoted to the `Error` type automatically, and pattern
@@ -73,6 +74,7 @@ pre-defined output template for showing both the error and the source location.
 In practice, `fail` is always preferred over `Failure`.
 
 <!-- MANUAL CHECK -->
+
 ```moonbit
 ##callsite(autofill(loc))
 pub fn[T] fail(msg : String, loc~ : SourceLoc) -> T raise Failure {
