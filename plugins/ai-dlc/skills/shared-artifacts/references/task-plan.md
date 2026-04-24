@@ -9,7 +9,7 @@
 - **作成者:** `planner` Specialist（単一インスタンス）
 - **作成ステップ:** Inception Step 4 (Task Decomposition)
 - **承認:** ユーザー承認必須（実装開始の合意ゲート）
-- **変更:** 原則変更しない。Construction 中に発見された追加タスクは `TODO.md` 側に追記（`task-plan.md` 冒頭に差分理由を記録）
+- **変更:** Construction 中を通じて**常に不変**。追加タスクは `TODO.md` の「後発追加タスク」セクションにのみ追記し、差分理由も TODO.md 冒頭に記録する（`task-plan.md` 本体は書き換えない）。追加タスクが多発する場合は Inception Step 4 へのロールバックを検討
 
 ## ファイル位置
 
