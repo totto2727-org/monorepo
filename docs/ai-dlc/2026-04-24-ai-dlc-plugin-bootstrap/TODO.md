@@ -3,7 +3,7 @@
 - **Source:** `task-plan.md`
 - **Phase:** Construction
 - **Created at:** 2026-04-24T14:20:00Z
-- **Last updated:** 2026-04-24T16:45:00Z
+- **Last updated:** 2026-04-24T17:45:00Z
 
 本 TODO は Construction フェーズを逆算的に再構築したもの。実際の実装は Main が直接行ったため、`implementer` インスタンス ID は仮想的な識別子を付与している。
 
@@ -16,6 +16,20 @@
 - **T17 (M-3 修正)**: Self-Review Medium 指摘 #3（main-workflow 委譲理由の説明追加）を受けて追加
 - **T18 (M-4 修正)**: Self-Review Medium 指摘 #4（task-plan.md 不変運用の統一）を受けて追加
 - 上記は Step 6 Self-Review からの Medium 指摘対応。High 0 件のため Step 5 の再活性化ではなく、Construction Step 5 の追加作業として処理
+- **T19-T31 (External Review Major 対応)**: Step 7 External Review の Blocker 0 / Major 16 のうち 13 件を Construction Step 5 再活性化として修正。残り 3 件（performance: main-workflow サイズ、Main phase boilerplate 重複、shared-artifacts 重複）は大規模改修のため Retrospective で次サイクル改善候補として記録
+  - T19 (readability M#1): 3 specialist に ユースケース/設計パターン 見出し追加 → commit 7f1c0be
+  - T20 (readability M#2): 5 specialist に metadata 追加、作者を totto2727 に訂正 → commit 7f1c0be, 50368a9
+  - T21 (readability M#3): ファイル名 1:1 対応の例外 2 件を shared-artifacts に明記 → commit 807d2d0
+  - T22 (api-design M#1): references/review-report に api-design + プロジェクト固有観点 → commit e4b172e
+  - T23 (api-design M#2): Scope 書き方ガイド追加 → commit e4b172e
+  - T24 (api-design M#3): progress.yaml artifact 複数形化 → commit 50368a9
+  - T25 (api-design M#4): active_specialists.status 値域修正 → commit 50368a9
+  - T26 (security M#1): implementer Git guardrails → commit 06dfed2
+  - T27 (security M#2): プロンプトインジェクション耐性 → commit 06dfed2
+  - T28 (security M#3): 秘匿情報取り扱い → commit 06dfed2
+  - T29 (test-quality M#1): Triggering Test 中央定義 → commit 807d2d0
+  - T30 (test-quality M#2): validation-report 計測不能欄 → commit e4b172e
+  - T31 (test-quality M#3): review-report 矛盾記録フォーマット → commit e4b172e
 
 ## タスク
 
