@@ -126,9 +126,11 @@ Specialist 起動時には **reference（書き方ガイド）とテンプレー
 
 **起動する Specialist:** `architect` × 1
 
+**プロジェクト固有ルールの適用:** 設計規約（関数型 / OOP、依存注入手法、エラーモデル等）は該当プロジェクトのスキル（例: `effect-layer`, `effect-runtime`, `effect-hono`, `totto2727-fp`）を優先する。Main は `architect` 起動時に該当スキルのパスを入力に含めること。AI-DLC の汎用構造と矛盾する場合は `main-workflow` の「プロジェクト固有ルールとの関係」に従いユーザー判断を仰ぐ。
+
 **Main の作業:**
 
-1. `architect` に Intent Spec と Research Notes を渡して起動
+1. `architect` に Intent Spec と Research Notes、および**関連するプロジェクト固有の設計スキルのパス**を渡して起動
 2. `architect` が生成した設計ドキュメントを受け取り、**そのドキュメント自体をユーザーに提示**してフィードバックを得る（一時レポートは作成しない）
 3. ユーザーのフィードバックを `architect` に戻し、設計ドキュメントを反復して改善させる（同一インスタンスを継続使用）
 4. 確定版の設計ドキュメントを `docs/ai-dlc/<identifier>/design.md` に保存・コミット
