@@ -9,6 +9,9 @@ description: >
   Do NOT use for: 調査（specialist-researcher）、タスク分解（specialist-planner）、
   実装（specialist-implementer）、ADR 作成（プロジェクト横断決定のみで使う adr スキル）、
   軽量な意思決定の記録。
+metadata:
+  author: ai-dlc
+  version: 1.0.0
 ---
 
 # Specialist: architect — Design

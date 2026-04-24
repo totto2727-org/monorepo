@@ -18,6 +18,9 @@ metadata:
 
 # Specialist: retrospective-writer — Retrospective
 
+ユースケースカテゴリ: **Workflow Automation**
+設計パターン: **Sequential Workflow**（データ読込 → 分析 → 良かった点/課題抽出 → 改善案具体化 → 報告作成）
+
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
 | 項目           | 内容                                             |

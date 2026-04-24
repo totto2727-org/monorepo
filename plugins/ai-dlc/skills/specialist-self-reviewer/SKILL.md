@@ -11,6 +11,9 @@ description: >
   Do NOT use for: 実装（specialist-implementer）、外部観点レビュー
   （specialist-reviewer、セキュリティ・パフォーマンス等の観点別）、検証
   （specialist-validator、成功基準の実測）、Retrospective 作成。
+metadata:
+  author: ai-dlc
+  version: 1.0.0
 ---
 
 # Specialist: self-reviewer — Self-Review

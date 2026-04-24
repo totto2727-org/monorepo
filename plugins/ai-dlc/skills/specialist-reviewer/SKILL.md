@@ -12,6 +12,9 @@ description: >
   Do NOT use for: 全観点を単一 reviewer で扱う（観点ごとに別インスタンス）、自己レビュー
   （specialist-self-reviewer、全観点統合の事前レビュー）、検証（specialist-validator、
   成功基準実測）、実装（specialist-implementer）、Retrospective（specialist-retrospective-writer）。
+metadata:
+  author: ai-dlc
+  version: 1.0.0
 ---
 
 # Specialist: reviewer — External Review

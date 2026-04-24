@@ -10,9 +10,15 @@ description: >
   （specialist-planner）、実装（specialist-implementer）、レビュー（specialist-self-reviewer /
   specialist-reviewer）、検証（specialist-validator）、Retrospective（specialist-retrospective-writer）、
   ワークフロー管理（main-workflow / main-inception）、Intent Spec 以外の成果物作成、単発の要求聞き出し。
+metadata:
+  author: ai-dlc
+  version: 1.0.0
 ---
 
 # Specialist: intent-analyst — Intent Clarification
+
+ユースケースカテゴリ: **Workflow Automation**
+設計パターン: **Sequential Workflow**（対話ラウンド → 観測可能性検証 → 確定の順序実行）
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 

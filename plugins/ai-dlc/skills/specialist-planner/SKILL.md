@@ -18,6 +18,9 @@ metadata:
 
 # Specialist: planner — Task Decomposition
 
+ユースケースカテゴリ: **Workflow Automation**
+設計パターン: **Sequential Workflow**（設計読込 → 粒度決定 → 依存グラフ化 → Wave 分け → 計画確定）
+
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
 | 項目           | 内容                                     |

@@ -14,6 +14,9 @@ description: >
   / specialist-architect / specialist-planner / specialist-implementer / specialist-self-reviewer /
   specialist-reviewer / specialist-validator / specialist-retrospective-writer）、
   Specialist 以外のエージェント運用、ユーザーからの直接起動トリガーとしての使用。
+metadata:
+  author: ai-dlc
+  version: 1.0.0
 ---
 
 # Specialist Common — 共通基盤ルール
