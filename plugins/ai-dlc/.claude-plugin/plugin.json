@@ -1,0 +1,10 @@
+{
+  "name": "ai-dlc",
+  "description": "AI-DLC (AI-Driven Development Lifecycle) workflow orchestration for multi-agent teams",
+  "version": "0.1.0",
+  "author": {
+    "name": "totto2727",
+    "url": "https://github.com/totto2727",
+    "email": "kaihatu.totto2727@gmail.com"
+  }
+}
