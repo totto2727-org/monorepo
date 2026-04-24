@@ -13,7 +13,7 @@ description: >
   複数サイクル横断の分析、一般的な retrospective meeting 議事録作成、CLAUDE.md 等への
   直接書き込み（反映候補の提示に留める）。
 metadata:
-  author: ai-dlc
+  author: totto2727
 ---
 
 # Specialist: retrospective-writer — Retrospective

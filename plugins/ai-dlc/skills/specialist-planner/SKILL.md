@@ -12,7 +12,7 @@ description: >
   （specialist-researcher）、タスク実行中の状態追跡（Main が TODO.md で管理）、Construction
   中に発見された追加タスクの反映（Main の TODO.md 運用）、task-plan.md 以外の成果物作成。
 metadata:
-  author: ai-dlc
+  author: totto2727
   version: 1.0.0
 ---
 

@@ -11,7 +11,7 @@ description: >
   実装・レビュー・検証フェーズ（main-construction / main-verification スキルを使う）、
   Specialist 側の作業詳細（specialist-* スキルを使う）、フェーズを跨いだ意思決定。
 metadata:
-  author: ai-dlc
+  author: totto2727
   version: 1.0.0
 ---
 

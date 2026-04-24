@@ -8,15 +8,20 @@ current_step: {{current_step}}
 completed_steps: []
   # - step: <ステップ番号と名称>
   #   completed_at: <ISO8601>
-  #   artifact: <成果物ファイル相対パス>
+  #   artifacts:                          # 複数成果物は必ずリスト形式
+  #     - <成果物ファイル相対パス>
+  #     - <成果物ファイル相対パス>        # 例: Step 2 Research は複数、Step 7 Review は複数
 
 pending_gates: []
   # - <保留中のゲート（ユーザー承認待ち / Main 判定待ち）>
 
 active_specialists: []
+  # active_specialists には **running / blocked の Specialist のみ**を残す。
+  # completed になった Specialist は本リストから除外し、completed_steps に記録する
+  # （値域は running | blocked の 2 値のみ。completed は不採用）。
   # - name: <Specialist 種別>
   #   task: <割り当てタスク>
-  #   status: running | completed | blocked
+  #   status: running | blocked
   #   started_at: <ISO8601>
 
 blockers: []

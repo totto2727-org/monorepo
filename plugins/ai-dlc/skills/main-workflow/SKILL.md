@@ -10,7 +10,7 @@ description: >
   Do NOT use for: 単一フェーズのみの実行（該当する main-* フェーズスキルを直接使う）、
   Specialist 側の作業詳細（specialist-* スキルを使う）、単発のコード修正。
 metadata:
-  author: ai-dlc
+  author: totto2727
   version: 1.0.0
 ---
 

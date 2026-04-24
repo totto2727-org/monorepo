@@ -11,7 +11,7 @@ description: >
   外部レビュー・検証（main-verification スキルを使う）、
   Specialist 側の作業詳細（specialist-* スキルを使う）、Task Plan がない状態での実装開始。
 metadata:
-  author: ai-dlc
+  author: totto2727
   version: 1.0.0
 ---
 

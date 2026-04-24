@@ -11,7 +11,7 @@ description: >
   specialist-reviewer）、検証（specialist-validator）、Retrospective（specialist-retrospective-writer）、
   ワークフロー管理（main-workflow / main-inception）、Intent Spec 以外の成果物作成、単発の要求聞き出し。
 metadata:
-  author: ai-dlc
+  author: totto2727
   version: 1.0.0
 ---
 

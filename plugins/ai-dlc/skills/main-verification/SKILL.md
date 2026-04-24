@@ -13,7 +13,7 @@ description: >
   Specialist 側の作業詳細（specialist-* スキルを使う）、
   自己レビュー未完了の状態での外部レビュー着手。
 metadata:
-  author: ai-dlc
+  author: totto2727
   version: 1.0.0
 ---
 

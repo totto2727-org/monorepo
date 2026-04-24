@@ -10,7 +10,7 @@ description: >
   実装（specialist-implementer）、ADR 作成（プロジェクト横断決定のみで使う adr スキル）、
   軽量な意思決定の記録。
 metadata:
-  author: ai-dlc
+  author: totto2727
   version: 1.0.0
 ---
 

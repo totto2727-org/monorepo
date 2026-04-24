@@ -12,7 +12,7 @@ description: >
   （specialist-reviewer、セキュリティ・パフォーマンス等の観点別）、検証
   （specialist-validator、成功基準の実測）、Retrospective 作成。
 metadata:
-  author: ai-dlc
+  author: totto2727
   version: 1.0.0
 ---
 

@@ -10,7 +10,7 @@ description: >
   設計（specialist-architect）、レビュー（specialist-self-reviewer / specialist-reviewer）、
   検証（specialist-validator）、Task Plan の再分解（specialist-planner の領域）。
 metadata:
-  author: ai-dlc
+  author: totto2727
 ---
 
 # Specialist: implementer — Implementation

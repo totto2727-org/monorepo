@@ -15,7 +15,7 @@ description: >
   specialist-reviewer / specialist-validator / specialist-retrospective-writer）、
   Specialist 以外のエージェント運用、ユーザーからの直接起動トリガーとしての使用。
 metadata:
-  author: ai-dlc
+  author: totto2727
   version: 1.0.0
 ---
 

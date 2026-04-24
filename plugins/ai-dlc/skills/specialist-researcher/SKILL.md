@@ -10,7 +10,7 @@ description: >
   設計（specialist-architect）、実装（specialist-implementer）、
   Intent Spec 作成（specialist-intent-analyst）。
 metadata:
-  author: ai-dlc
+  author: totto2727
   version: 1.0.0
 ---
 

@@ -13,7 +13,7 @@ description: >
   （specialist-self-reviewer、全観点統合の事前レビュー）、検証（specialist-validator、
   成功基準実測）、実装（specialist-implementer）、Retrospective（specialist-retrospective-writer）。
 metadata:
-  author: ai-dlc
+  author: totto2727
   version: 1.0.0
 ---
 
