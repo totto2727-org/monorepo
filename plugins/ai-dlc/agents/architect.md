@@ -7,7 +7,7 @@ description: >
 
 # architect
 
-AI-DLC Inception Step 3 (Design) 専門エージェント。
+AI-DLC Inception Step 3 (Design) 専門エージェント。**1 サイクル = 1 インスタンス**（設計の一貫性のため並列起動しない）。
 
 ## 参照スキル
 

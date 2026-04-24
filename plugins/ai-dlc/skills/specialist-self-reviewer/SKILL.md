@@ -5,7 +5,9 @@ description: >
   self-reviewer の作業詳細。implementer が生成した全 diff を統合的にレビューし、
   外部レビュー前に明らかな問題（Design Document 違反、Intent Spec 未達見込み、明白な bug 等）
   を検出する。Self-Review Report を作成する。
-  起動トリガー: Main が self-reviewer エージェントをサブエージェントとして起動した際。
+  起動トリガー: Main が self-reviewer エージェントをサブエージェントとして起動した際、または
+  ユーザーが明示的に "Self-Review", "自己レビュー", "self-review-report 作成",
+  "Construction Step 6" を依頼した場合。
   Do NOT use for: 実装（specialist-implementer）、外部観点レビュー
   （specialist-reviewer、セキュリティ・パフォーマンス等の観点別）、検証
   （specialist-validator、成功基準の実測）、Retrospective 作成。
@@ -13,13 +15,16 @@ description: >
 
 # Specialist: self-reviewer — Self-Review
 
+ユースケースカテゴリ: **Workflow Automation**
+設計パターン: **Sequential Workflow**（全 diff 読み込み → 観点別レビュー → 深刻度分類 → 整合性確認 → レポート作成の順序実行）
+
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
 | 項目           | 内容                                              |
 | -------------- | ------------------------------------------------- |
 | 担当ステップ   | Construction Step 6 (Self-Review)                 |
 | 成果物         | `docs/ai-dlc/<identifier>/self-review-report.md`  |
-| テンプレート   | `shared-artifacts/templates/self-review-report.md`  |
+| テンプレート   | `shared-artifacts/templates/self-review-report.md` |
 | 書き方ガイド   | `shared-artifacts/references/self-review-report.md` |
 | 並列起動       | しない（全体整合性が必要なので 1 名）             |
 

@@ -8,10 +8,15 @@ description: >
   ユーザーが明示的に特定タスクの実装を依頼した場合。
   Do NOT use for: 複数タスクを単一 implementer で実装（タスクごとに別インスタンス）、
   設計（specialist-architect）、レビュー（specialist-self-reviewer / specialist-reviewer）、
-  Task Plan の再分解（specialist-planner の領域）。
+  検証（specialist-validator）、Task Plan の再分解（specialist-planner の領域）。
+metadata:
+  author: ai-dlc
 ---
 
 # Specialist: implementer — Implementation
+
+ユースケースカテゴリ: **Workflow Automation**
+設計パターン: **Sequential Workflow**（タスク読解 → 実装 → テスト → コミット → 検証）
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
@@ -51,7 +56,8 @@ description: >
 3. 実装:
    - Design Document の設計判断に従う
    - スコープ境界を厳守（担当タスク外のファイルは触らない）
-   - プロジェクトの既存パターン（効果的なフレームワーク、命名規則等）を踏襲
+   - プロジェクトの既存パターン（利用中のフレームワーク、命名規則、DI 構成等）を踏襲
+   - プロジェクト固有スキル（例: `effect-layer` / `effect-runtime` / `effect-hono` / `git-workflow` 等）があれば優先して遵守
 4. テストを追加:
    - task-plan に従ったテスト方針
    - 境界値・エラーケースを含める
@@ -66,6 +72,11 @@ description: >
 - **他 implementer が触るファイルを編集しない**（task-plan の依存グラフで直列化されているはず）
 - 直列化の違反を発見したら Main に報告
 - 他タスクの completed 成果物（先行タスクの diff）は参照してよい（取り込み依存のため）
+
+## トリガー想定例
+
+- Should trigger: Main が implementer サブエージェントを Task Plan のタスク ID 付きで起動（例: "Task T-03 を実装"）
+- Should NOT trigger: 設計変更、タスク分解、レビュー観点の指摘、成功基準の検証、複数タスクの一括実装
 
 ## 固有の失敗モード
 

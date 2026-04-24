@@ -9,6 +9,9 @@ description: >
   "AI 駆動開発ライフサイクル", "AI-DLC フローで設計から実装まで"。
   Do NOT use for: 単一フェーズのみの実行（該当する main-* フェーズスキルを直接使う）、
   Specialist 側の作業詳細（specialist-* スキルを使う）、単発のコード修正。
+metadata:
+  author: ai-dlc
+  version: 1.0.0
 ---
 
 # AI-DLC Workflow — Multi-Agent Development Lifecycle
@@ -455,3 +458,22 @@ docs(ai-dlc/<identifier>): close cycle with retrospective
 - 個別の Specialist のプロンプト詳細 → 将来的に agents/ 配下で定義
 - ツール固有のコマンド → プロジェクト固有のスキル（`effect-layer` 等）に委譲
 - ワークフロー外の単発修正 → 通常の会話で処理
+
+---
+
+## 起動テスト観点（Triggering 例）
+
+Main が本スキルを起動すべき / すべきでない典型例。description のトリガー語と対応する。
+
+**Should trigger:**
+
+- 「ai-dlc で新機能を設計から実装まで進めたい」→ 全フェーズの司令塔として起動
+- 「この要求を AI-DLC フローで回してほしい」→ Inception から開始
+- 中断済みサイクルの再開依頼（`docs/ai-dlc/<identifier>/` が既存）→ 「5. セッション再開時」プロトコルへ
+
+**Should NOT trigger:**
+
+- 「Inception フェーズだけやり直したい」→ `main-inception` を直接参照
+- 「実装タスクだけ並列で走らせたい」→ `main-construction` を直接参照
+- 「設計ドキュメントの書き方を知りたい」→ `shared-artifacts` を参照
+- 「単発のバグ修正」→ 通常の会話で処理（サイクルを起こさない）

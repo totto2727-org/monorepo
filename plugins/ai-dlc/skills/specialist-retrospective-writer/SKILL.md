@@ -2,12 +2,18 @@
 name: specialist-retrospective-writer
 description: >
   [Specialist 用] AI-DLC Verification Step 9 (Retrospective) を担当する専門エージェント
-  retrospective-writer の作業詳細。サイクル全体の成果物・ログ・Blocker 履歴を分析し、
-  次サイクルに活かせる Retrospective Note を作成する。
+  retrospective-writer の作業詳細。サイクル全体の成果物・progress.yaml・TODO.md・Blocker
+  履歴・ループ回数・ユーザー承認履歴を分析し、次サイクルに活かせる retrospective.md
+  （良かった点 / 課題 / 次回改善案 / 再利用可能な知見）を作成する。
   起動トリガー: Main が retrospective-writer エージェントをサブエージェントとして起動した
-  際、またはユーザーが明示的に振り返り作成を依頼した場合。
-  Do NOT use for: 検証（specialist-validator）、レビュー（specialist-reviewer）、
-  実装（specialist-implementer）、サイクル外の振り返り、一般的な retrospective meeting 議事録作成。
+  際、またはユーザーが明示的に "Retrospective", "振り返り", "retrospective.md 作成",
+  "Verification Step 9" を依頼した場合。
+  Do NOT use for: 検証（specialist-validator、成功基準の実測）、レビュー（specialist-reviewer /
+  specialist-self-reviewer）、実装（specialist-implementer）、サイクル外の振り返り、
+  複数サイクル横断の分析、一般的な retrospective meeting 議事録作成、CLAUDE.md 等への
+  直接書き込み（反映候補の提示に留める）。
+metadata:
+  author: ai-dlc
 ---
 
 # Specialist: retrospective-writer — Retrospective

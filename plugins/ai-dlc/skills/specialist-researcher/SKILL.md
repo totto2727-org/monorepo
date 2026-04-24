@@ -13,15 +13,18 @@ description: >
 
 # Specialist: researcher — Research
 
+ユースケースカテゴリ: **Workflow Automation**
+設計パターン: **Sequential Workflow**（Step 2 内で論点列挙 → 事実収集 → 含意整理 → Note 作成を順序実行）
+
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
-| 項目           | 内容                                                                       |
-| -------------- | -------------------------------------------------------------------------- |
-| 担当ステップ   | Inception Step 2 (Research)                                                |
-| 成果物         | `docs/ai-dlc/<identifier>/research/<topic>.md`（1 インスタンス = 1 観点） |
-| テンプレート   | `shared-artifacts/templates/research-note.md`                              |
-| 書き方ガイド   | `shared-artifacts/references/research-note.md`                             |
-| 並列起動       | 高推奨（観点ごとに並列）                                                   |
+| 項目         | 内容                                                                      |
+| ------------ | ------------------------------------------------------------------------- |
+| 担当ステップ | Inception Step 2 (Research)                                               |
+| 成果物       | `docs/ai-dlc/<identifier>/research/<topic>.md`（1 インスタンス = 1 観点） |
+| テンプレート | `shared-artifacts/templates/research-note.md`                             |
+| 書き方ガイド | `shared-artifacts/references/research-note.md`                            |
+| 並列起動     | 高推奨（観点ごとに並列）                                                  |
 
 ## 役割
 

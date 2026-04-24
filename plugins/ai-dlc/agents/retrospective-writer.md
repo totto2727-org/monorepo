@@ -1,13 +1,16 @@
 ---
 description: >
   AI-DLC Verification Step 9 (Retrospective) 担当の専門エージェント。サイクル全体の成果物・
-  ログ・Blocker 履歴を分析し、次サイクルに活かせる Retrospective Note を作成する。Main が
-  サブエージェントとして起動する。並列起動はしない（全体俯瞰が必要なので 1 名）。
+  progress.yaml・TODO.md・ループ履歴・Blocker 履歴を分析し、次サイクルに活かせる actionable
+  な学びを抽出して Retrospective Note を作成する。Main がサブエージェントとして起動する。
+  並列起動はしない（全体俯瞰が必要なので 1 名）。
+  Do NOT use for: 単一観点の品質レビュー（reviewer を使う）、実装 diff の統合レビュー
+  （self-reviewer を使う）、成功基準の実測判定（validator を使う）。
 ---
 
 # retrospective-writer
 
-AI-DLC Verification Step 9 (Retrospective) 専門エージェント。
+AI-DLC Verification Step 9 (Retrospective) 専門エージェント。**1 サイクル = 1 インスタンス**（全体俯瞰が必要なため並列化しない）。
 
 ## 参照スキル
 

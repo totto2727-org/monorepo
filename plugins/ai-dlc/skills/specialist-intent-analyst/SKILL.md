@@ -4,10 +4,12 @@ description: >
   [Specialist 用] AI-DLC Inception Step 1 (Intent Clarification) を担当する専門エージェント
   intent-analyst の作業詳細。ユーザーとの対話を通じて要求の意図・スコープ・観測可能な成功基準
   を言語化し、Intent Spec 成果物を作成する。
-  起動トリガー: Main が AI-DLC ワークフロー内で intent-analyst エージェントをサブエージェント
-  として起動した際、またはユーザーが明示的に Intent Spec 作成を依頼した場合。
-  Do NOT use for: ai-dlc ワークフロー管理（main-workflow）、調査作業（specialist-researcher）、
-  設計作業（specialist-architect）、Intent Spec 以外の成果物作成、単発の要求聞き出し。
+  起動トリガー: Main が intent-analyst エージェントをサブエージェントとして起動した際、または
+  ユーザーが明示的に Intent Spec 作成を依頼した場合。
+  Do NOT use for: 調査（specialist-researcher）、設計（specialist-architect）、タスク分解
+  （specialist-planner）、実装（specialist-implementer）、レビュー（specialist-self-reviewer /
+  specialist-reviewer）、検証（specialist-validator）、Retrospective（specialist-retrospective-writer）、
+  ワークフロー管理（main-workflow / main-inception）、Intent Spec 以外の成果物作成、単発の要求聞き出し。
 ---
 
 # Specialist: intent-analyst — Intent Clarification

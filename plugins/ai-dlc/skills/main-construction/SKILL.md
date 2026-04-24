@@ -10,6 +10,9 @@ description: >
   意図明確化・設計・タスク分解（main-inception スキルを使う）、
   外部レビュー・検証（main-verification スキルを使う）、
   Specialist 側の作業詳細（specialist-* スキルを使う）、Task Plan がない状態での実装開始。
+metadata:
+  author: ai-dlc
+  version: 1.0.0
 ---
 
 # AI-DLC Phase 2 — Construction

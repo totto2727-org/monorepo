@@ -6,12 +6,18 @@ description: >
   など）にフォーカスして、実装者と独立した視点で品質を検証し、Review Report を作成する。
   観点ごとに並列起動される前提。
   起動トリガー: Main が reviewer エージェントをサブエージェントとして起動した際、または
-  ユーザーが特定観点の外部レビューを依頼した場合。
+  ユーザーが明示的に "External Review", "外部レビュー", "観点別レビュー",
+  "セキュリティレビュー / パフォーマンスレビュー / 可読性レビュー / テスト品質レビュー / API デザインレビュー",
+  "Verification Step 7" を依頼した場合。
   Do NOT use for: 全観点を単一 reviewer で扱う（観点ごとに別インスタンス）、自己レビュー
-  （specialist-self-reviewer）、検証（specialist-validator、成功基準実測）、Retrospective。
+  （specialist-self-reviewer、全観点統合の事前レビュー）、検証（specialist-validator、
+  成功基準実測）、実装（specialist-implementer）、Retrospective（specialist-retrospective-writer）。
 ---
 
 # Specialist: reviewer — External Review
+
+ユースケースカテゴリ: **Workflow Automation**
+設計パターン: **Sequential Workflow**（担当観点整理 → 全 diff 通読 → 深刻度分類 → 観点固有評価 → Review Report 作成の順序実行）
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
@@ -95,6 +101,13 @@ description: >
 - エッジケース網羅（null、空、境界値、エラーパス）
 - mock 使用が適切か（過剰な mock による prod 乖離リスク）
 - テストの独立性（順序依存や共有状態の排除）
+
+### api-design
+
+- 後方互換性（破壊的変更の有無、バージョニング方針との整合）
+- 契約の明確さ（入出力型、例外、事前/事後条件が表現されているか）
+- エラーモデルの一貫性（エラー種別、ステータスコード、メッセージ構造）
+- 拡張性・命名の一貫性（隣接 API との整合）
 
 ## 固有の失敗モード
 

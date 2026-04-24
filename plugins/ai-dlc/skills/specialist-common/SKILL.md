@@ -1,14 +1,19 @@
 ---
 name: specialist-common
 description: >
-  [Specialist 共通基盤] AI-DLC の全 Specialist エージェント (intent-analyst, researcher, architect,
-  planner, implementer, self-reviewer, reviewer, validator, retrospective-writer) が遵守すべき
-  共通ルールを定義する。ライフサイクル・入出力契約・失敗時のプロトコル・スコープ規律・
-  Main との通信ルールを集約する。
-  起動トリガー: 任意の specialist-* スキルを使用開始する際、または Specialist として
-  サブエージェントが起動された際に並行ロード。
-  Do NOT use for: Main 側のワークフロー管理（main-* スキル）、単一 Specialist の役割詳細
-  （individual specialist-* スキル）、Specialist 以外のエージェント運用。
+  [Specialist 背景基盤 / 役割固有スキルから参照される前提ルール集] AI-DLC の全 Specialist
+  エージェント (intent-analyst, researcher, architect, planner, implementer, self-reviewer,
+  reviewer, validator, retrospective-writer) が継承する共通ルールを定義する。
+  ライフサイクル・入出力契約・失敗時の Blocker プロトコル・スコープ規律・Main との通信ルール・
+  プロジェクト固有ルール優先順位を集約する。
+  起動トリガー: 個別の specialist-* スキル本文内から明示的に参照された場合、または Specialist
+  として起動されたサブエージェント自身が共通ルール確認を必要とした場合のみ。単独での直接起動や
+  ユーザーコマンドからの起動は想定しない。
+  Do NOT use for: Main 側のワークフロー管理（main-workflow / main-inception / main-construction /
+  main-verification）、個別 Specialist の役割手順（specialist-intent-analyst / specialist-researcher
+  / specialist-architect / specialist-planner / specialist-implementer / specialist-self-reviewer /
+  specialist-reviewer / specialist-validator / specialist-retrospective-writer）、
+  Specialist 以外のエージェント運用、ユーザーからの直接起動トリガーとしての使用。
 ---
 
 # Specialist Common — 共通基盤ルール

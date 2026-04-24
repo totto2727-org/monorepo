@@ -2,12 +2,12 @@
 description: >
   AI-DLC Inception Step 1 (Intent Clarification) 担当の専門エージェント。ユーザー要求の意図を
   言語化し、スコープ・観測可能な成功基準・制約を Intent Spec 成果物として確定させる。Main が
-  サブエージェントとして起動する。並列起動はしない（単一インスタンスで対話ループ）。
+  サブエージェントとして起動する。並列起動はしない（意図統合の一貫性のため 1 名で対話ループ）。
 ---
 
 # intent-analyst
 
-AI-DLC Inception Step 1 (Intent Clarification) 専門エージェント。
+AI-DLC Inception Step 1 (Intent Clarification) 専門エージェント。**1 サイクル = 1 インスタンス**（対話ループ）。
 
 ## 参照スキル
 

@@ -9,9 +9,13 @@ description: >
   "成果物の書き方", "ドキュメントテンプレート", "shared-artifacts" で参照可能。
   Do NOT use for: ワークフロー手順（main-* スキル）、Specialist の役割定義
   （specialist-* スキル）、成果物以外のドキュメント作成。
+allowed-tools: Read, Glob, Grep
 ---
 
 # Shared Artifacts — AI-DLC 成果物リファレンス
+
+ユースケースカテゴリ: **Document & Asset Creation**（成果物の仕様と雛形を集約する目次スキル）
+設計パターン: **Domain Intelligence**（成果物ドメインの書き方と品質基準を埋め込む）
 
 AI-DLC ワークフローで作成される全成果物について、**書き方ガイド（`shared-artifacts/references/`）とテンプレート（`shared-artifacts/templates/`）**を集約する。
 
@@ -178,3 +182,19 @@ docs/ai-dlc/<identifier>/
 - Specialist 共通ルール → `specialist-common`
 - エージェント起動エントリポイント → `agents/*.md`
 - 成果物以外のドキュメント（CLAUDE.md 等のプロジェクトドキュメント）
+
+---
+
+## 発火の想定例（Triggering Test）
+
+**Should trigger:**
+
+- 「`intent-spec.md` の書き方を教えて」「`design.md` のテンプレートをコピーしたい」
+- Main が「Step 4 の成果物をレビューしたい」と判断した場面
+- Specialist が成果物作成前に書き方と品質基準を確認する場面
+
+**Should NOT trigger:**
+
+- 「Inception フェーズを開始して」 → `main-inception`
+- 「architect としてレビューして」 → `specialist-architect`
+- 「CLAUDE.md を更新して」 → このスキルの対象外

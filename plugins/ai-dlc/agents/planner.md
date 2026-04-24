@@ -7,7 +7,7 @@ description: >
 
 # planner
 
-AI-DLC Inception Step 4 (Task Decomposition) 専門エージェント。
+AI-DLC Inception Step 4 (Task Decomposition) 専門エージェント。**1 サイクル = 1 インスタンス**（全体俯瞰が必要なため並列化しない）。
 
 ## 参照スキル
 

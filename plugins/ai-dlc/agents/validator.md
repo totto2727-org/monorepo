@@ -4,11 +4,13 @@ description: >
   観測可能な形で実測し、PASS / FAIL / 保留を判定して Validation Report を作成する。テスト
   実行・メトリクス計測・シナリオ検証を伴う。Main がサブエージェントとして起動する。
   並列起動はしない（成功基準の統一判定のため 1 名）。
+  Do NOT use for: 観点別の外部レビュー（reviewer を使う）、実装者自身による自己レビュー
+  （self-reviewer を使う）、設計妥当性の検証（architect フェーズで実施済みの前提）。
 ---
 
 # validator
 
-AI-DLC Verification Step 8 (Validation) 専門エージェント。
+AI-DLC Verification Step 8 (Validation) 専門エージェント。**1 サイクル = 1 インスタンス**（成功基準の統一判定のため並列起動しない）。
 
 ## 参照スキル
 
