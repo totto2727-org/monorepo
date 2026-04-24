@@ -3,7 +3,7 @@
 - **Source:** `task-plan.md`
 - **Phase:** Construction
 - **Created at:** 2026-04-24T14:20:00Z
-- **Last updated:** 2026-04-24T16:20:00Z
+- **Last updated:** 2026-04-24T16:45:00Z
 
 本 TODO は Construction フェーズを逆算的に再構築したもの。実際の実装は Main が直接行ったため、`implementer` インスタンス ID は仮想的な識別子を付与している。
 
@@ -11,7 +11,11 @@
 
 - **T13' (T13 の派生)**: `design.md` の名称をめぐる議論で「ADR と Design Document の使い分け」セクションを shared-artifacts/references/design.md に追加。T13 完了後に発生、T13 の範疇として処理した
 - **T14' (T14 の派生)**: Clean-Transition Between Steps 原則を基本方針に新規追加。T14 の一部として処理
-- 上記はいずれも小規模で、新規 Wave を起こさず T13 / T14 内で吸収
+- **T15 (M-1 修正)**: Self-Review Medium 指摘 #1（パス表記統一）を受けて追加
+- **T16 (M-2 修正)**: Self-Review Medium 指摘 #2（TODO.md スキーマ重複除去）を受けて追加
+- **T17 (M-3 修正)**: Self-Review Medium 指摘 #3（main-workflow 委譲理由の説明追加）を受けて追加
+- **T18 (M-4 修正)**: Self-Review Medium 指摘 #4（task-plan.md 不変運用の統一）を受けて追加
+- 上記は Step 6 Self-Review からの Medium 指摘対応。High 0 件のため Step 5 の再活性化ではなく、Construction Step 5 の追加作業として処理
 
 ## タスク
 
@@ -154,6 +158,46 @@
   - implementer: main-direct
   - re_activations: 0
   - notes: "main-workflow に新セクション追加、各 Exit Criteria に commit 要件を追記"
+
+- [x] **T15** — Fix M-1: shared-artifacts SKILL.md のパス表記を shared-artifacts/ プレフィックス付きに統一
+  - status: completed
+  - dependencies: T14 + Step 6 Self-Review の Medium 指摘 #1
+  - started_at: 2026-04-24T16:35:00Z
+  - completed_at: 2026-04-24T16:37:00Z
+  - commit: 4e9aa46
+  - implementer: main-direct
+  - re_activations: 0
+  - notes: "パス表記ルールの明示文も冒頭に追加"
+
+- [x] **T16** — Fix M-2: main-construction から TODO.md スキーマの重複を除去
+  - status: completed
+  - dependencies: T14 + Step 6 Self-Review の Medium 指摘 #2
+  - started_at: 2026-04-24T16:37:00Z
+  - completed_at: 2026-04-24T16:40:00Z
+  - commit: 7ea87c1
+  - implementer: main-direct
+  - re_activations: 0
+  - notes: "運用フローのみ残し、スキーマ詳細は shared-artifacts/references/todo.md 参照に置換"
+
+- [x] **T17** — Fix M-3: main-workflow 委譲セクションに集約理由を追記
+  - status: completed
+  - dependencies: T14 + Step 6 Self-Review の Medium 指摘 #3
+  - started_at: 2026-04-24T16:40:00Z
+  - completed_at: 2026-04-24T16:42:00Z
+  - commit: 06492ce
+  - implementer: main-direct
+  - re_activations: 0
+  - notes: "1 段落で 1:1 対応と真のソース集約の意図を明示"
+
+- [x] **T18** — Fix M-4: task-plan.md 不変運用の文言統一
+  - status: completed
+  - dependencies: T14 + Step 6 Self-Review の Medium 指摘 #4
+  - started_at: 2026-04-24T16:42:00Z
+  - completed_at: 2026-04-24T16:45:00Z
+  - commit: b1a45d3
+  - implementer: main-direct
+  - re_activations: 0
+  - notes: "「task-plan.md 冒頭に差分理由を記録」との矛盾表現を references/task-plan.md から除去、main-construction 側も統一"
 
 ## 状態遷移ガイド
 
