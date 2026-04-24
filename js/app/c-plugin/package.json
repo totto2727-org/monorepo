@@ -9,7 +9,8 @@
     "#@/*": "./src/*"
   },
   "scripts": {
-    "build": "vp pack"
+    "build": "vp pack",
+    "bin": "node dist/bin.mjs"
   },
   "dependencies": {
     "@effect/platform-node": "catalog:effect",
