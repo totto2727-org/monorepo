@@ -1,0 +1,27 @@
+name: Publish @totto2727/c-plugin
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - js/app/c-plugin/**
+      - .github/workflows/deploy-c-plugin.yaml
+      - .github/actions/setup-typescript/**
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: ./.github/actions/setup-typescript
+
+      - name: Publish jsr:@totto2727/c-plugin
+        working-directory: js/app/c-plugin
+        run: |
+          vpx jsr publish
