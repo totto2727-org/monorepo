@@ -1,0 +1,10 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+
+  format:
+    cmds:
+      - nixfmt flake.nix

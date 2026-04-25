@@ -1,0 +1,3 @@
+incus-os/talos/talosconfig
+incus-os/talos/controlplane.yaml
+incus-os/talos/worker.yaml
