@@ -1,4 +1,4 @@
-import { Layer, ServiceMap as SM } from 'effect'
+import { Context, Layer } from 'effect'
 
 export interface BetterAuth {
   BETTER_AUTH_URL: string
@@ -12,6 +12,6 @@ export interface Database {
 
 export type Type = BetterAuth & Database
 
-export const Service = SM.Service<Type>('@app/saas-example/feature/env/EnvService')
+export const Service = Context.Service<Type>('@app/saas-example/feature/env/EnvService')
 
 export const makeLayer = (env: Type) => Layer.succeed(Service, env)

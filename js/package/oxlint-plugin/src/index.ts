@@ -30,7 +30,7 @@ const forceTsExtensionRule: Rule = {
         const { source } = node
         const { raw, value } = source
         if (Predicate.isString(value) && Predicate.isString(raw)) {
-          const match = value.match(/^(\.*|#(?!#).*)(\/.*)\.js(x?)$/)
+          const match = /^(\.*|#(?!#).*)(\/.*)\.js(x?)$/.exec(value)
           if (Predicate.isNotNull(match)) {
             const [, start, path, x] = match
             const fixed = `${start}${path}.ts${x ?? ''}`

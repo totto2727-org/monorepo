@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "@tsconfig/strictest": "^2.0.8",
+    "@types/node": "catalog:types",
     "@types/seedrandom": "^3.0.8",
     "effect": "catalog:effect",
     "type-fest": "^5.4.4"

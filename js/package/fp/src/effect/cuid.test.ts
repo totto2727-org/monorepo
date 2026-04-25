@@ -6,25 +6,27 @@ import * as CUID from './cuid.ts'
 const decode = Schema.decodeUnknownSync(CUID.schema)
 
 test('generatorProductionLive', () => {
-  Effect.gen(function* () {
+  const program = Effect.gen(function* () {
     const cuid1 = yield* CUID.make
     const cuid2 = yield* CUID.make
 
     expect(cuid1).not.toBe(cuid2)
-  }).pipe(Effect.provide(CUID.Generator.layer), Effect.runSync)
+  }).pipe(Effect.provide(CUID.Generator.layer))
+  Effect.runSync(program)
 })
 
 describe('generatorTestLive', () => {
   test('Fixed', () => {
-    Effect.gen(function* () {
+    const program = Effect.gen(function* () {
       const cuid = yield* CUID.make
 
       expect(cuid).toBe(decode('gk1pfmhav2vkvudlk25qrot8'))
-    }).pipe(Effect.provide(CUID.Generator.makeLayerTest('test')), Effect.runSync)
+    }).pipe(Effect.provide(CUID.Generator.makeLayerTest('test')))
+    Effect.runSync(program)
   })
 
   test('Snapshot', () => {
-    Effect.gen(function* () {
+    const program = Effect.gen(function* () {
       const actual = yield* pipe(
         Array.makeBy(10, () => CUID.make),
         Effect.all,
@@ -42,7 +44,8 @@ describe('generatorTestLive', () => {
         decode('eh42helbpmmlw7jmco41rpcy'),
         decode('dl1dsmlxhq6tba02sofl2apd'),
       ])
-    }).pipe(Effect.provide(CUID.Generator.makeLayerTest('test')), Effect.runSync)
+    }).pipe(Effect.provide(CUID.Generator.makeLayerTest('test')))
+    Effect.runSync(program)
   })
 })
 

@@ -3,3 +3,4 @@ node_modules/
 *.local.*
 .cache
 .pnpm-store
+.claude/worktrees/

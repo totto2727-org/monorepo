@@ -35,7 +35,7 @@ export const screenshotCommand = Command.make(
           ? {
               ...bodyWithFullPage,
               viewport: {
-                ...(Predicate.isObject(bodyWithFullPage['viewport']) ? bodyWithFullPage['viewport'] : {}),
+                ...(Predicate.isObject(bodyWithFullPage.viewport) ? bodyWithFullPage.viewport : {}),
                 ...(Option.isSome(flags.width) ? { width: flags.width.value } : {}),
                 ...(Option.isSome(flags.height) ? { height: flags.height.value } : {}),
               },
