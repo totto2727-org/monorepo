@@ -25,12 +25,12 @@ nixfmt: **/*.nix: openFile: does not exist (No such file or directory)
 
 Empirical verification (running `echo args: <pattern>` as a script under both runners against `nix/`):
 
-| Pattern        | `vp run` (vite-plus shell emulator) | `pnpm run` (system `/bin/sh`)                |
-| -------------- | ----------------------------------- | -------------------------------------------- |
-| `*.nix`        | literal `*.nix`                     | literal `*.nix` (no match at top level)      |
-| `*/*.nix`      | literal `*/*.nix` (**unexpanded**)  | 33 files expanded                            |
-| `**/*.nix`     | literal `**/*.nix` (**unexpanded**) | 33 files expanded (bash 3.2 has no globstar) |
-| `share/*.nix`  | literal `share/*.nix` (**unexpanded**) | 25 files expanded                          |
+| Pattern       | `vp run` (vite-plus shell emulator)    | `pnpm run` (system `/bin/sh`)                |
+| ------------- | -------------------------------------- | -------------------------------------------- |
+| `*.nix`       | literal `*.nix`                        | literal `*.nix` (no match at top level)      |
+| `*/*.nix`     | literal `*/*.nix` (**unexpanded**)     | 33 files expanded                            |
+| `**/*.nix`    | literal `**/*.nix` (**unexpanded**)    | 33 files expanded (bash 3.2 has no globstar) |
+| `share/*.nix` | literal `share/*.nix` (**unexpanded**) | 25 files expanded                            |
 
 Conclusion: vp's internal shell emulator does **not** perform pathname expansion (globbing) at all. Every wildcard is passed through as a literal argument. `pnpm run`, in contrast, delegates to `/bin/sh` (bash 3.2 on macOS) and gets standard POSIX glob expansion.
 
