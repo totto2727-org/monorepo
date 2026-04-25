@@ -78,7 +78,7 @@ export const applyWaitUntil = (
   if (Option.isNone(waitUntil)) {
     return body
   }
-  const existing = body['gotoOptions']
+  const existing = body.gotoOptions
   const gotoBase = Predicate.isObject(existing) ? existing : {}
   return {
     ...body,
