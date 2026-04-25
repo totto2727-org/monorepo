@@ -16,7 +16,7 @@
 
 **Gate 判定:** needs_fix
 
-パフォーマンス観点では **Blocker 0 件**。ただし Main フェーズで複数スキルが同時に高い確率で読み込まれる設計（main-workflow + main-<phase> + shared-artifacts + specialist-common + 役割別 specialist-*）のため、**context window 使用量の削減余地が明確に存在する**。`main-workflow` は 479 行と skill-reviewer の推奨上限 500 行の 96% に到達しており、早期の進行的開示（references/ への切り出し）を推奨する。
+パフォーマンス観点では **Blocker 0 件**。ただし Main フェーズで複数スキルが同時に高い確率で読み込まれる設計（main-workflow + main-<phase> + shared-artifacts + specialist-common + 役割別 specialist-\*）のため、**context window 使用量の削減余地が明確に存在する**。`main-workflow` は 479 行と skill-reviewer の推奨上限 500 行の 96% に到達しており、早期の進行的開示（references/ への切り出し）を推奨する。
 
 ---
 
@@ -29,7 +29,7 @@
   - Commit: HEAD (worktree)
   - File: `plugins/ai-dlc/skills/main-workflow/SKILL.md`
   - Line: 1–479 (全体。特に L329–411 "ステップ完了時のコミット規約"、L277–326 "プロジェクト固有ルールとの関係"、L414–425 "フェーズ遷移時の引き継ぎ")
-- **問題の要約:** 479 行 / 1,704 words で、skill-reviewer が推奨する上限 500 行にあと 21 行しか余裕がない。さらに main-* 系スキルは Main が Inception/Construction/Verification に入るたびに `main-workflow` と合わせて読み込まれる構造のため、このスキル単体の肥大化は context window 全体に 1:1 で効いてくる。
+- **問題の要約:** 479 行 / 1,704 words で、skill-reviewer が推奨する上限 500 行にあと 21 行しか余裕がない。さらに main-\* 系スキルは Main が Inception/Construction/Verification に入るたびに `main-workflow` と合わせて読み込まれる構造のため、このスキル単体の肥大化は context window 全体に 1:1 で効いてくる。
 - **根拠:** skill-reviewer の一般則として「SKILL.md は 500 行 / 5000 words 以内」。特に以下のセクションは運用詳細であり `main-workflow/references/` に切り出す余地がある:
   - L329–411 コミット規約の表 3 つと具体的コミット例（Main が毎ターン読む必要はない。ステップ完了時のみ参照）
   - L277–326 プロジェクト固有ルールとの関係（衝突判定の判例が 5 行あり、具体的事例は references 側で十分）
@@ -44,7 +44,7 @@
   - Commit: HEAD
   - File: `plugins/ai-dlc/skills/main-inception/SKILL.md` L26 / `main-construction/SKILL.md` L26 / `main-verification/SKILL.md` L28
   - Line: 各々の「**このスキルは `main-workflow` スキル配下で使用される。** `main-workflow` の基本方針・役割定義・調整プロトコル・ユーザー承認ゲート規則（Artifact-as-Gate-Review / Report-Based Confirmation for In-Progress Questions の区別）をすべて継承する。」
-- **問題の要約:** 3 つの main-* フェーズスキルに**完全同文**のリンク文が存在する（gfind 相当の grep で確認）。さらに `shared-artifacts/SKILL.md:152` にも類似の参照文がある。Main がフェーズ遷移で main-workflow + main-<phase> を一緒に読む典型運用では、同じ情報が 2 回入る。
+- **問題の要約:** 3 つの main-\* フェーズスキルに**完全同文**のリンク文が存在する（gfind 相当の grep で確認）。さらに `shared-artifacts/SKILL.md:152` にも類似の参照文がある。Main がフェーズ遷移で main-workflow + main-<phase> を一緒に読む典型運用では、同じ情報が 2 回入る。
 - **根拠:** プラグイン全体を通して「main-workflow に委譲する」旨を宣言している箇所が複数あり（L25 前後、L239 前後の "このスキルが扱わないこと" を含め 5+ 箇所）、重複文字数が無視できない。
 - **推奨アクション:** main-<phase> 側のヘッダは「継承元: `main-workflow`。フェーズ固有事項のみ以下に記載。」に短縮（1 行）。詳細な「どのルールを継承するか」の羅列は main-workflow 側にだけ保持し、main-<phase> 側は差分記述に徹する。
 - **設計との関連:** design.md の DRY 原則 / Main Skill Split。
@@ -73,7 +73,7 @@
 - **推奨アクション:**
   - L144–162 の「スコープ規律」は `specialist-common/references/scope-discipline.md` へ
   - L175–183 の「Git コミット」は `specialist-common/references/git-notes.md` へ（implementer からのみ参照）
-  - L186–193 の「命令形・具体性」は出力品質ルールなので、各 specialist-* 側の品質基準セクションに統合するか references 化
+  - L186–193 の「命令形・具体性」は出力品質ルールなので、各 specialist-\* 側の品質基準セクションに統合するか references 化
   - 本体は L1–143（ライフサイクル・入出力・失敗時プロトコル）に絞る
 - **設計との関連:** Progressive Disclosure。
 
@@ -82,11 +82,11 @@
 - **深刻度:** Minor
 - **該当箇所:**
   - Commit: HEAD
-  - File: `plugins/ai-dlc/skills/specialist-common/SKILL.md` L12–16、`specialist-intent-analyst/SKILL.md` L10–12、`specialist-retrospective-writer/SKILL.md` L11–14、他 specialist-*
+  - File: `plugins/ai-dlc/skills/specialist-common/SKILL.md` L12–16、`specialist-intent-analyst/SKILL.md` L10–12、`specialist-retrospective-writer/SKILL.md` L11–14、他 specialist-\*
   - Line: 各 frontmatter
-- **問題の要約:** `description` フィールドは Claude Code のスキル一覧取得時に毎回ロードされる。`specialist-common` は "Do NOT use for" に 9 つの specialist-* 名を列挙（L12–16）しており、約 480 文字。プラグイン起動時の全スキル description ロードコストが全 15 スキル分で加算される。
+- **問題の要約:** `description` フィールドは Claude Code のスキル一覧取得時に毎回ロードされる。`specialist-common` は "Do NOT use for" に 9 つの specialist-\* 名を列挙（L12–16）しており、約 480 文字。プラグイン起動時の全スキル description ロードコストが全 15 スキル分で加算される。
 - **根拠:** skill-reviewer 的には description は「トリガー判定に必要な最小限」で、否定スコープは本文に置くことが推奨される。9 名列挙するより「Main が Specialist 用に背景として参照。ユーザー直接起動禁止」程度で済む。
-- **推奨アクション:** 各 specialist-* および specialist-common の description は 200–300 文字程度に圧縮し、網羅的な除外対象（effect-layer 等含め）は本文の「このスキルが扱わないこと」セクションへ移動。
+- **推奨アクション:** 各 specialist-\* および specialist-common の description は 200–300 文字程度に圧縮し、網羅的な除外対象（effect-layer 等含め）は本文の「このスキルが扱わないこと」セクションへ移動。
 - **設計との関連:** design.md 「description 品質とトリガー精度」。
 
 ### #6 description の広範なキーワード列挙により「ai-dlc」周辺で複数スキル同時活性化の可能性
@@ -96,7 +96,7 @@
   - Commit: HEAD
   - File: `plugins/ai-dlc/skills/main-workflow/SKILL.md` L8–9、`main-inception/SKILL.md` L8–9、`main-construction/SKILL.md` L7–8、`main-verification/SKILL.md` L8–9
   - Line: 各 description の「起動トリガー」節
-- **問題の要約:** 「ai-dlc の inception」「ai-dlc の construction」「ai-dlc の verification」「ai-dlc を開始」「開発ワークフローを実行」等、"ai-dlc" キーワードで 4 つの main-* すべてが候補になる可能性がある。単純なトリガー語マッチなら `main-workflow` で十分のはずが、具体的なフェーズ語（"意図明確化", "外部レビュー" 等）がない簡易な起動指示で複数が同時に候補に上がるリスク。
+- **問題の要約:** 「ai-dlc の inception」「ai-dlc の construction」「ai-dlc の verification」「ai-dlc を開始」「開発ワークフローを実行」等、"ai-dlc" キーワードで 4 つの main-\* すべてが候補になる可能性がある。単純なトリガー語マッチなら `main-workflow` で十分のはずが、具体的なフェーズ語（"意図明確化", "外部レビュー" 等）がない簡易な起動指示で複数が同時に候補に上がるリスク。
 - **根拠:** main-inception description L8「ai-dlc の inception」、main-construction description L8「ai-dlc の construction」、main-verification L9「ai-dlc の verification」、main-workflow L9「ai-dlc を開始」。いずれも "ai-dlc" を含む。description の Do NOT 節で排他性は確保されているが、一覧上はトップにすべて現れる。
 - **推奨アクション:** main-<phase> 側のトリガー例から "ai-dlc の <phase>" は削除し、main-workflow は "ai-dlc 開始 / 全体ワークフロー" 専用、main-<phase> はフェーズ固有語（"Inception", "意図明確化"）のみに限定する。
 - **設計との関連:** skill-reviewer の description 設計原則。
@@ -153,7 +153,7 @@ markdown プラグインのパフォーマンスを、アナロジーとして 4
 
 - Main 系スキル 4 つが "ai-dlc" キーワードを共有しており、単純な起動指示で複数候補に上がるリスクあり（#6）。Do NOT 節による排他制御はあるが、**description 自体の単語マッチ精度で整理する方が軽い**。
 - Specialist 系は「Main がサブエージェント起動」か「明示的な観点指定」に限定しており衝突耐性は良好。
-- agents/*.md (35–39 行) と specialist-*/SKILL.md は役割分担が明確で重複小さい。
+- agents/_.md (35–39 行) と specialist-_/SKILL.md は役割分担が明確で重複小さい。
 
 ---
 

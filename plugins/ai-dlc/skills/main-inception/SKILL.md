@@ -27,25 +27,25 @@ Inception フェーズは、ユーザー要求を**実装可能な計画**に変
 
 ## フェーズ全体
 
-| 項目         | 内容                                                                                                |
-| ------------ | --------------------------------------------------------------------------------------------------- |
-| 入力         | ユーザー要求 / 現在のリポジトリ状態                                                                 |
+| 項目         | 内容                                                                                                                         |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| 入力         | ユーザー要求 / 現在のリポジトリ状態                                                                                          |
 | 成果物       | `intent-spec.md` / `research/<topic>.md` / `design.md` / `task-plan.md`（プロジェクト横断の意思決定があれば ADR も別途起票） |
-| 保存先       | `docs/ai-dlc/<identifier>/` 配下（`<identifier>` はサイクル開始時にユーザーと合意した命名）         |
-| 出口ゲート   | ユーザー承認（Task Plan に基づく実装開始の合意）                                                    |
-| 想定ステップ | 1. Intent Clarification → 2. Research → 3. Design → 4. Task Decomposition                           |
-| ロールバック | スコープ変更時は Step 1 へ。設計破綻時は Step 3 へ。前提不足時は Step 2 へ戻る                      |
+| 保存先       | `docs/ai-dlc/<identifier>/` 配下（`<identifier>` はサイクル開始時にユーザーと合意した命名）                                  |
+| 出口ゲート   | ユーザー承認（Task Plan に基づく実装開始の合意）                                                                             |
+| 想定ステップ | 1. Intent Clarification → 2. Research → 3. Design → 4. Task Decomposition                                                    |
+| ロールバック | スコープ変更時は Step 1 へ。設計破綻時は Step 3 へ。前提不足時は Step 2 へ戻る                                               |
 
 **コミット方針:** 各ステップ完了時に成果物と `progress.yaml` を追加／更新してコミット（詳細は `main-workflow` スキルの「成果物保存構造」参照）。
 
 **対応エージェント・スキル・成果物:**
 
-| Step                    | Agent                   | Specialist Skill               | 成果物（書き方 / テンプレート）                                                                             |
-| ----------------------- | ----------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| 1. Intent Clarification | `intent-analyst`        | `specialist-intent-analyst`    | `shared-artifacts/references/intent-spec.md` / `shared-artifacts/templates/intent-spec.md`                 |
-| 2. Research             | `researcher` (並列 N)   | `specialist-researcher`        | `shared-artifacts/references/research-note.md` / `shared-artifacts/templates/research-note.md`             |
-| 3. Design               | `architect`             | `specialist-architect`         | `shared-artifacts/references/design.md` / `shared-artifacts/templates/design.md`                           |
-| 4. Task Decomposition   | `planner`               | `specialist-planner`           | `shared-artifacts/references/task-plan.md` / `shared-artifacts/templates/task-plan.md`                     |
+| Step                    | Agent                 | Specialist Skill            | 成果物（書き方 / テンプレート）                                                                |
+| ----------------------- | --------------------- | --------------------------- | ---------------------------------------------------------------------------------------------- |
+| 1. Intent Clarification | `intent-analyst`      | `specialist-intent-analyst` | `shared-artifacts/references/intent-spec.md` / `shared-artifacts/templates/intent-spec.md`     |
+| 2. Research             | `researcher` (並列 N) | `specialist-researcher`     | `shared-artifacts/references/research-note.md` / `shared-artifacts/templates/research-note.md` |
+| 3. Design               | `architect`           | `specialist-architect`      | `shared-artifacts/references/design.md` / `shared-artifacts/templates/design.md`               |
+| 4. Task Decomposition   | `planner`             | `specialist-planner`        | `shared-artifacts/references/task-plan.md` / `shared-artifacts/templates/task-plan.md`         |
 
 Specialist 起動時には **reference（書き方ガイド）とテンプレートの両方のパス**を入力に含めること。各 Specialist は `specialist-common`（横断ルール）と上記の個別スキルを参照する。
 

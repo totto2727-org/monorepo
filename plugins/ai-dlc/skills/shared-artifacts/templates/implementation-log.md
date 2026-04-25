@@ -4,7 +4,7 @@
 - **Implementer:** {{implementer_instance_id}}
 - **Started at:** {{started_at}}
 - **Completed at:** {{completed_at}}
-- **Commits:** {{commit_shas}}  <!-- 複数ある場合はカンマ区切り -->
+- **Commits:** {{commit_shas}} <!-- 複数ある場合はカンマ区切り -->
 
 `TODO.md` の notes 欄に収まらない長大なログや、動作確認の詳細証跡を保存する。
 
@@ -34,7 +34,7 @@
 {{test_output}}
 ```
 
-- Type check: {{type_check_result}}  <!-- passed | failed -->
+- Type check: {{type_check_result}} <!-- passed | failed -->
 - Lint: {{lint_result}}
 - Existing tests: {{existing_tests_result}}
 - New tests: {{new_tests_result}}

@@ -7,11 +7,11 @@
 
 ## サマリ
 
-| 深刻度      | 件数 | 対応状況                    |
-| ----------- | ---- | --------------------------- |
-| High        | 0    | —                           |
-| Medium      | 4    | 全件 fixed（Round 2 で対応） |
-| Low         | 4    | open（Verification 持ち越し）|
+| 深刻度 | 件数 | 対応状況                      |
+| ------ | ---- | ----------------------------- |
+| High   | 0    | —                             |
+| Medium | 4    | 全件 fixed（Round 2 で対応）  |
+| Low    | 4    | open（Verification 持ち越し） |
 
 **Gate 判定:** **passed**（High 0 件、Medium は Round 2 で全件修正済み）
 
@@ -75,9 +75,9 @@
 - **該当箇所:**
   - File: `plugins/ai-dlc/skills/specialist-common/SKILL.md`（「入力契約」セクション）
   - File: `plugins/ai-dlc/agents/*.md`
-- **問題の要約:** agents/*.md の「Main への要求」セクションで必要情報を列挙しているが、specialist-common の「入力契約」と多少重複しつつも項目が微妙に違う（具体的成果物パスの有無等）。
+- **問題の要約:** agents/\*.md の「Main への要求」セクションで必要情報を列挙しているが、specialist-common の「入力契約」と多少重複しつつも項目が微妙に違う（具体的成果物パスの有無等）。
 - **根拠:** 真のソースが曖昧。どちらを読むべきか不明。
-- **推奨アクション:** specialist-common を真のソースとし、agents/*.md 側は specialist-common の入力契約表を参照させる + 役割固有の追加入力のみ列挙、の構造に揃える。
+- **推奨アクション:** specialist-common を真のソースとし、agents/\*.md 側は specialist-common の入力契約表を参照させる + 役割固有の追加入力のみ列挙、の構造に揃える。
 - **design.md との関連:** 「Specialist 起動の入力仕様」
 - **Status:** open (deferred to Verification)
 
@@ -87,7 +87,7 @@
 - **該当箇所:**
   - File: `plugins/ai-dlc/skills/specialist-common/SKILL.md`
 - **問題の要約:** `specialist-*` という命名は具体的な役割と想起させるが、`specialist-common` は「共通」を意味する。この命名はスキル探索の description マッチングで誤発火する可能性がある（例: 「specialist を呼ぶ」と書いた際、common が反応する）。
-- **根拠:** Description の最初に `[Specialist 共通基盤]` と prefix を入れて区別を試みているが、description 本文のトリガーワードに「specialist-* スキルを使用開始する際」と含まれており、すべての specialist スキル起動時に反応する設計は意図した動作か検討が必要。
+- **根拠:** Description の最初に `[Specialist 共通基盤]` と prefix を入れて区別を試みているが、description 本文のトリガーワードに「specialist-\* スキルを使用開始する際」と含まれており、すべての specialist スキル起動時に反応する設計は意図した動作か検討が必要。
 - **推奨アクション:** 現状の意図が「各 specialist 起動時に並行ロードされる」であれば問題なし。Retrospective 段階で実使用検証し、誤発火が起きないか確認する。
 - **design.md との関連:** なし（発見的指摘）
 - **Status:** open (deferred to Verification)
@@ -129,7 +129,7 @@
   - Artifact-as-Gate-Review + In-Progress Questions: ✅ 実装どおり
   - task-plan 不変 + TODO.md: ✅ 実装どおり（Round 2 で文言統一）
   - ステップ完了コミット規約: ✅ 文書化済み（Implementation のみタスク単位の区別も明示）
-  - 命名規則 (main-* / specialist-* / shared-artifacts): ✅ 全 15 スキルで統一
+  - 命名規則 (main-_ / specialist-_ / shared-artifacts): ✅ 全 15 スキルで統一
 
 ## 修正ラウンド履歴
 

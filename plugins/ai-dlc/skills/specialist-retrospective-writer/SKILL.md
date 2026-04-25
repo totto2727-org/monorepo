@@ -23,13 +23,13 @@ metadata:
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
-| 項目           | 内容                                             |
-| -------------- | ------------------------------------------------ |
-| 担当ステップ   | Verification Step 9 (Retrospective)              |
-| 成果物         | `docs/ai-dlc/<identifier>/retrospective.md`      |
-| テンプレート   | `shared-artifacts/templates/retrospective.md`    |
-| 書き方ガイド   | `shared-artifacts/references/retrospective.md`   |
-| 並列起動       | しない（全体俯瞰が必要なので 1 名）              |
+| 項目         | 内容                                           |
+| ------------ | ---------------------------------------------- |
+| 担当ステップ | Verification Step 9 (Retrospective)            |
+| 成果物       | `docs/ai-dlc/<identifier>/retrospective.md`    |
+| テンプレート | `shared-artifacts/templates/retrospective.md`  |
+| 書き方ガイド | `shared-artifacts/references/retrospective.md` |
+| 並列起動     | しない（全体俯瞰が必要なので 1 名）            |
 
 ## 役割
 
@@ -71,7 +71,7 @@ Retrospective の焦点:
    - ユーザー却下があった場合の原因
 5. **次回改善案の具体化**（抽象的な「〜を改善する」ではなく、「〜のときに〜する」形式）:
    - プロセス改善
-   - スキル改善（main-* / specialist-* スキルの具体的変更提案）
+   - スキル改善（main-_ / specialist-_ スキルの具体的変更提案）
    - Specialist プロンプト改善（各 specialist の役割定義・入力・手順への反映提案）
 6. **再利用可能な知見**（メモリや CLAUDE.md への反映候補を含む）
 7. テンプレートに沿って `retrospective.md` を作成
@@ -85,11 +85,11 @@ Retrospective の焦点:
 
 ## 固有の失敗モード
 
-| 状況                                         | 対応                                                                    |
-| -------------------------------------------- | ----------------------------------------------------------------------- |
-| Main から具体化・再生成の差し戻し            | 同インスタンスで具体的エピソードを追加                                  |
-| 改善案が実行不可能な抽象度                   | 同インスタンスでアクション粒度まで分解                                  |
-| データ（progress.yaml 等）が欠損して分析不能 | Blocker として Main に報告                                              |
+| 状況                                         | 対応                                   |
+| -------------------------------------------- | -------------------------------------- |
+| Main から具体化・再生成の差し戻し            | 同インスタンスで具体的エピソードを追加 |
+| 改善案が実行不可能な抽象度                   | 同インスタンスでアクション粒度まで分解 |
+| データ（progress.yaml 等）が欠損して分析不能 | Blocker として Main に報告             |
 
 ## スコープ外（やらないこと）
 

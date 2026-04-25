@@ -18,13 +18,13 @@
 ## タスク
 
 - [{{t1_checkbox}}] **T1** — {{t1_title}}
-  - status: {{t1_status}}  <!-- pending | in_progress | completed -->
+  - status: {{t1_status}} <!-- pending | in_progress | completed -->
   - dependencies: {{t1_dependencies}}
   - started_at: {{t1_started_at}}
   - completed_at: {{t1_completed_at}}
   - commit: {{t1_commit_sha}}
   - implementer: {{t1_implementer_id}}
-  - re_activations: {{t1_re_activations}}  <!-- Self-Review High 指摘で Step 5 に戻った回数 -->
+  - re_activations: {{t1_re_activations}} <!-- Self-Review High 指摘で Step 5 に戻った回数 -->
   - notes: {{t1_notes}}
 
 - [{{t2_checkbox}}] **T2** — {{t2_title}}

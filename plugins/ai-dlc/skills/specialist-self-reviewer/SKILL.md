@@ -23,13 +23,13 @@ metadata:
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
-| 項目           | 内容                                              |
-| -------------- | ------------------------------------------------- |
-| 担当ステップ   | Construction Step 6 (Self-Review)                 |
-| 成果物         | `docs/ai-dlc/<identifier>/self-review-report.md`  |
-| テンプレート   | `shared-artifacts/templates/self-review-report.md` |
-| 書き方ガイド   | `shared-artifacts/references/self-review-report.md` |
-| 並列起動       | しない（全体整合性が必要なので 1 名）             |
+| 項目         | 内容                                                |
+| ------------ | --------------------------------------------------- |
+| 担当ステップ | Construction Step 6 (Self-Review)                   |
+| 成果物       | `docs/ai-dlc/<identifier>/self-review-report.md`    |
+| テンプレート | `shared-artifacts/templates/self-review-report.md`  |
+| 書き方ガイド | `shared-artifacts/references/self-review-report.md` |
+| 並列起動     | しない（全体整合性が必要なので 1 名）               |
 
 ## 役割
 
@@ -82,12 +82,12 @@ Self-Review の焦点:
 
 ## 固有の失敗モード
 
-| 状況                                         | 対応                                                                    |
-| -------------------------------------------- | ----------------------------------------------------------------------- |
-| Main から追加観点の指摘依頼が来た            | 同インスタンスでレポートに追記                                          |
-| High 指摘が繰り返し検出される（ループ 3 回以上）| Main に報告（Step 3 への設計回帰を提案）                                |
-| 自分の指摘が実装意図と矛盾する疑い           | Main に報告（セカンドオピニオン用の追加 self-reviewer 起動を依頼）      |
-| Task Plan 内の未実装タスクを発見             | High 指摘として記録し Main に報告                                       |
+| 状況                                             | 対応                                                               |
+| ------------------------------------------------ | ------------------------------------------------------------------ |
+| Main から追加観点の指摘依頼が来た                | 同インスタンスでレポートに追記                                     |
+| High 指摘が繰り返し検出される（ループ 3 回以上） | Main に報告（Step 3 への設計回帰を提案）                           |
+| 自分の指摘が実装意図と矛盾する疑い               | Main に報告（セカンドオピニオン用の追加 self-reviewer 起動を依頼） |
+| Task Plan 内の未実装タスクを発見                 | High 指摘として記録し Main に報告                                  |
 
 ## スコープ外（やらないこと）
 

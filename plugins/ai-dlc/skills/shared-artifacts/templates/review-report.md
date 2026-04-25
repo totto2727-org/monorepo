@@ -1,26 +1,26 @@
 # Review Report: {{aspect}}
 
 - **Identifier:** {{identifier}}
-- **Aspect:** {{aspect}}  <!-- security | performance | readability | test-quality | api-design | etc. -->
+- **Aspect:** {{aspect}} <!-- security | performance | readability | test-quality | api-design | etc. -->
 - **Reviewer:** {{reviewer_instance_id}}
 - **Reviewed at:** {{reviewed_at}}
-- **Scope:** {{review_scope}}  <!-- 観点ごとのスコープ限定を明示 -->
+- **Scope:** {{review_scope}} <!-- 観点ごとのスコープ限定を明示 -->
 
 ## サマリ
 
-| 深刻度      | 件数              |
-| ----------- | ----------------- |
-| Blocker     | {{blocker_count}} |
-| Major       | {{major_count}}   |
-| Minor       | {{minor_count}}   |
+| 深刻度  | 件数              |
+| ------- | ----------------- |
+| Blocker | {{blocker_count}} |
+| Major   | {{major_count}}   |
+| Minor   | {{minor_count}}   |
 
-**Gate 判定:** {{gate_verdict}}  <!-- approved | needs_fix | blocked -->
+**Gate 判定:** {{gate_verdict}} <!-- approved | needs_fix | blocked -->
 
 ## 指摘事項
 
 ### #1 {{finding_1_title}}
 
-- **深刻度:** {{finding_1_severity}}  <!-- Blocker | Major | Minor -->
+- **深刻度:** {{finding_1_severity}} <!-- Blocker | Major | Minor -->
 - **該当箇所:**
   - Commit: {{finding_1_commit}}
   - File: {{finding_1_file}}
@@ -49,12 +49,14 @@
 {{aspect_specific_evaluation}}
 
 例（aspect が security の場合）:
+
 - 認証認可の網羅性: {{auth_coverage}}
 - 入力検証の強度: {{input_validation}}
 - 秘匿情報の取り扱い: {{secrets_handling}}
 - 依存ライブラリの脆弱性: {{dep_vulnerabilities}}
 
 例（aspect が performance の場合）:
+
 - 計算量評価: {{complexity_assessment}}
 - I/O 効率: {{io_efficiency}}
 - メモリ使用量: {{memory_usage}}

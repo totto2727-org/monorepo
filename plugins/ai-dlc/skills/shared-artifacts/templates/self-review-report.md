@@ -7,19 +7,19 @@
 
 ## サマリ
 
-| 深刻度      | 件数      |
-| ----------- | --------- |
-| High        | {{high_count}}   |
-| Medium      | {{medium_count}} |
-| Low         | {{low_count}}    |
+| 深刻度 | 件数             |
+| ------ | ---------------- |
+| High   | {{high_count}}   |
+| Medium | {{medium_count}} |
+| Low    | {{low_count}}    |
 
-**Gate 判定:** {{gate_verdict}}  <!-- passed | failed (High 残あり) -->
+**Gate 判定:** {{gate_verdict}} <!-- passed | failed (High 残あり) -->
 
 ## 指摘事項
 
 ### #1 {{finding_1_title}}
 
-- **深刻度:** {{finding_1_severity}}  <!-- High | Medium | Low -->
+- **深刻度:** {{finding_1_severity}} <!-- High | Medium | Low -->
 - **該当箇所:**
   - Commit: {{finding_1_commit}}
   - File: {{finding_1_file}}
@@ -29,7 +29,7 @@
 - **根拠:** {{finding_1_reasoning}}
 - **推奨アクション:** {{finding_1_recommended_action}}
 - **design.md との関連:** {{finding_1_design_ref}}
-- **Status:** {{finding_1_status}}  <!-- open | fixed | wontfix_with_reason -->
+- **Status:** {{finding_1_status}} <!-- open | fixed | wontfix_with_reason -->
 
 ### #2 {{finding_2_title}}
 
@@ -49,13 +49,13 @@
 
 ## ADR / Intent Spec との整合性チェック
 
-- **Intent Spec 成功基準:** {{success_criteria_alignment}}  <!-- 満たす見込みあり / 懸念あり / 未達の恐れあり -->
-- **Design Document との整合:** {{design_alignment}}  <!-- 準拠 / 部分的に逸脱 / 大きく逸脱 -->
+- **Intent Spec 成功基準:** {{success_criteria_alignment}} <!-- 満たす見込みあり / 懸念あり / 未達の恐れあり -->
+- **Design Document との整合:** {{design_alignment}} <!-- 準拠 / 部分的に逸脱 / 大きく逸脱 -->
 - **詳細:** {{alignment_details}}
 
 ## 修正ラウンド履歴
 
 {{revision_history}}
 
-- Round 1: {{round_1_summary}}  <!-- 例: 「High 3 件検出、Step 5 に差し戻し」 -->
+- Round 1: {{round_1_summary}} <!-- 例: 「High 3 件検出、Step 5 に差し戻し」 -->
 - Round 2: {{round_2_summary}}

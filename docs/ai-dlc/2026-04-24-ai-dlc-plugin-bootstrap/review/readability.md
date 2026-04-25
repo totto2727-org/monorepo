@@ -18,20 +18,20 @@
 
 ## 指摘事項
 
-### #1 specialist-* スキルのセクション構造が不統一（"ユースケースカテゴリ / 設計パターン" 行の欠落）
+### #1 specialist-\* スキルのセクション構造が不統一（"ユースケースカテゴリ / 設計パターン" 行の欠落）
 
 - **深刻度:** Major
 - **該当箇所:**
   - Commit: 本サイクル現在の HEAD
   - File: `plugins/ai-dlc/skills/specialist-intent-analyst/SKILL.md` / `plugins/ai-dlc/skills/specialist-planner/SKILL.md` / `plugins/ai-dlc/skills/specialist-retrospective-writer/SKILL.md`
   - Line: H1 直下（各ファイルの 15–21 行目付近）
-- **問題の要約:** 他の 6 個の specialist-* スキル（common / researcher / architect / implementer / self-reviewer / reviewer / validator）は H1 直後に「ユースケースカテゴリ: **Workflow Automation**」「設計パターン: **Sequential Workflow**（…）」の 2 行を置いてから「**継承:** `specialist-common`」に入るが、上記 3 ファイルだけはこの 2 行が欠落しており、いきなり「**継承:** `specialist-common`」で始まる。
-- **根拠:** スキル群の section 構造は「役割位置づけの一瞥性」の基盤であり、同じ specialist-* 系列でフォーマットがブレると、新規利用者が「この specialist は他と違う種類のものか？」と誤解する。`main-*` スキルは全 4 ファイルで揃っており、specialist 系列だけが不揃い（9 ファイル中 3 ファイル欠落）。
-- **推奨アクション:** 欠落している 3 ファイルの H1 直後に以下 2 行を挿入し、他の specialist-* と完全一致させる。
+- **問題の要約:** 他の 6 個の specialist-\* スキル（common / researcher / architect / implementer / self-reviewer / reviewer / validator）は H1 直後に「ユースケースカテゴリ: **Workflow Automation**」「設計パターン: **Sequential Workflow**（…）」の 2 行を置いてから「**継承:** `specialist-common`」に入るが、上記 3 ファイルだけはこの 2 行が欠落しており、いきなり「**継承:** `specialist-common`」で始まる。
+- **根拠:** スキル群の section 構造は「役割位置づけの一瞥性」の基盤であり、同じ specialist-_ 系列でフォーマットがブレると、新規利用者が「この specialist は他と違う種類のものか？」と誤解する。`main-_` スキルは全 4 ファイルで揃っており、specialist 系列だけが不揃い（9 ファイル中 3 ファイル欠落）。
+- **推奨アクション:** 欠落している 3 ファイルの H1 直後に以下 2 行を挿入し、他の specialist-\* と完全一致させる。
   - specialist-intent-analyst: `ユースケースカテゴリ: **Workflow Automation**` / `設計パターン: **Sequential Workflow**（対話ループで Intent Spec を精緻化）`
   - specialist-planner: 同上カテゴリ行 / `設計パターン: **Sequential Workflow**（設計読解 → 粒度分解 → 依存グラフ → Wave 識別）`
   - specialist-retrospective-writer: 同上カテゴリ行 / `設計パターン: **Sequential Workflow**（成果物・履歴収集 → 分析 → 改善案抽出）`
-- **設計との関連:** `shared-artifacts` SKILL.md の「1:1 対応」「真のソース集約」方針と整合するため、specialist-* 群のフォーマット統一も同じ原則の適用対象。
+- **設計との関連:** `shared-artifacts` SKILL.md の「1:1 対応」「真のソース集約」方針と整合するため、specialist-\* 群のフォーマット統一も同じ原則の適用対象。
 
 ### #2 frontmatter の `metadata:` フィールドが一部スキルでのみ存在
 
@@ -84,7 +84,7 @@
 
 - **深刻度:** Minor
 - **該当箇所:**
-  - File: `main-workflow` SKILL.md line 277–325（「プロジェクト固有ルールとの関係」全節）, `main-inception` SKILL.md line 132 の Step 3 内, `main-construction` SKILL.md line 121, `main-construction` line 180, `main-verification` line 74, `specialist-common` SKILL.md line 31–40（「0. プロジェクト固有ルール優先」）, 各 specialist-* の冒頭「継承:」行
+  - File: `main-workflow` SKILL.md line 277–325（「プロジェクト固有ルールとの関係」全節）, `main-inception` SKILL.md line 132 の Step 3 内, `main-construction` SKILL.md line 121, `main-construction` line 180, `main-verification` line 74, `specialist-common` SKILL.md line 31–40（「0. プロジェクト固有ルール優先」）, 各 specialist-\* の冒頭「継承:」行
 - **問題の要約:** 「プロジェクト固有ルール優先」メッセージが少なくとも 6 箇所で類似の内容を再掲。変更時の更新漏れリスク（Single-Source 原則への違反）と、読者の読み流し発生リスクが高い。
 - **根拠:** `shared-artifacts` が「真のソース集約」を標榜するのに対し、Project-Rule Precedence は同原則から逸脱している。`main-workflow` 本文が真のソースならば、他所は「詳細は main-workflow 参照」で十分。
 - **推奨アクション:** 真のソースは `main-workflow` の「プロジェクト固有ルールとの関係」とし、他ファイルでは以下を 1 行で記すに留める:
@@ -107,9 +107,9 @@
 - **深刻度:** Minor
 - **該当箇所:**
   - File: `plugins/ai-dlc/agents/reviewer.md` / `agents/retrospective-writer.md` / `agents/validator.md` は `Do NOT use for:` を含む。一方 `agents/intent-analyst.md` / `researcher.md` / `architect.md` / `planner.md` / `implementer.md` / `self-reviewer.md` は欠落。
-- **問題の要約:** SKILL.md と違って agents/*.md は短い紹介カードだが、「誤起動防止のネガティブケース」を明示する agent と明示しない agent が混在するのは一貫性を欠く。
-- **根拠:** Claude Code のエージェント自動選択に影響する。`specialist-*` SKILL.md では全員 `Do NOT use for:` を記載しているのに、agents/*.md でだけ漏れがあるのは転記漏れの可能性が高い。
-- **推奨アクション:** 全 agents/*.md に `Do NOT use for:` を追加し、対応する specialist-* SKILL.md の `description` と平仄を揃える。
+- **問題の要約:** SKILL.md と違って agents/\*.md は短い紹介カードだが、「誤起動防止のネガティブケース」を明示する agent と明示しない agent が混在するのは一貫性を欠く。
+- **根拠:** Claude Code のエージェント自動選択に影響する。`specialist-*` SKILL.md では全員 `Do NOT use for:` を記載しているのに、agents/\*.md でだけ漏れがあるのは転記漏れの可能性が高い。
+- **推奨アクション:** 全 agents/_.md に `Do NOT use for:` を追加し、対応する specialist-_ SKILL.md の `description` と平仄を揃える。
 - **設計との関連:** `specialist-*` SKILL.md と `agents/*.md` の 1:1 対応を強化する。
 
 ### #9 「スコープ規律」節の見出しゆれ（「スコープ外（やらないこと）」 vs 「やってはいけないこと」）
@@ -117,9 +117,9 @@
 - **深刻度:** Minor
 - **該当箇所:**
   - File: 多数の `specialist-*/SKILL.md`（`スコープ外（やらないこと）` 見出し）vs `specialist-common/SKILL.md` line 155（`### やってはいけないこと`）
-- **問題の要約:** `specialist-common` では「やってよいこと / やってはいけないこと」、他 specialist-* では「スコープ外（やらないこと）」と見出しが揺れる。新規利用者が両方を読んだとき「これらは同じ概念の別表現か？」と迷う。
+- **問題の要約:** `specialist-common` では「やってよいこと / やってはいけないこと」、他 specialist-\* では「スコープ外（やらないこと）」と見出しが揺れる。新規利用者が両方を読んだとき「これらは同じ概念の別表現か？」と迷う。
 - **根拠:** 一貫性のために見出しを揃えるのが望ましい。
-- **推奨アクション:** `specialist-common` 5 節の見出しを「やってよいこと / **スコープ外（やってはいけないこと）**」に変更するか、逆に specialist-* を「やってはいけないこと」へ統一する。
+- **推奨アクション:** `specialist-common` 5 節の見出しを「やってよいこと / **スコープ外（やってはいけないこと）**」に変更するか、逆に specialist-\* を「やってはいけないこと」へ統一する。
 - **設計との関連:** なし（純粋な表記統一）。
 
 ### #10 `shared-artifacts` SKILL.md の目次表で `progress-yaml.md` と `progress.yaml` がカラム間で対応しない
@@ -172,6 +172,6 @@
 
 - 本サイクルは Verification Step 7 の観点並列レビュー（readability / security / performance / test-quality / api-design 等）として構成される想定。本レポートは **readability 単独** の視点であり、以下の観点との相互影響が想定される:
   - **test-quality 観点**: プラグイン自体に自動テストが存在しないが、「スキルの triggering テスト」節（`main-workflow` line 464–479、`specialist-implementer` line 76–79、`shared-artifacts` line 187–201）の一貫性は test-quality の範疇とも解釈可能。指摘 #1 / #8 は両観点にまたがる。
-  - **api-design 観点**: Specialist 起動時の入力契約（`specialist-common` line 60–76、各 agents/*.md「Main への要求」）は API デザインに相当する。指摘 #8（Do NOT use for の欠落）は api-design 観点からは Major 相当になる可能性。
+  - **api-design 観点**: Specialist 起動時の入力契約（`specialist-common` line 60–76、各 agents/\*.md「Main への要求」）は API デザインに相当する。指摘 #8（Do NOT use for の欠落）は api-design 観点からは Major 相当になる可能性。
   - **security 観点**: 本レビューでは security 固有の指摘は検出せず。ただし `$TMPDIR` 配下の一時レポートの扱い（`main-workflow` line 408–412）に「機密情報を含むなら削除」と記述があるのみで、誰がその判定を下すかの責任者記述が弱い点は security レビューが別途検出する可能性あり。
 - 他レビューの結果との **矛盾する指摘は検出していない**（本レビュー単独実施時点）。Main が他観点レビューの結果と付き合わせ、必要なら本レポートに追記する。

@@ -7,11 +7,11 @@
 
 ## サマリ
 
-| 判定        | 件数 |
-| ----------- | ---- |
-| PASS        | 7    |
-| FAIL        | 0    |
-| 保留（明示）| 0    |
+| 判定         | 件数 |
+| ------------ | ---- |
+| PASS         | 7    |
+| FAIL         | 0    |
+| 保留（明示） | 0    |
 
 **全体判定:** passed
 
@@ -21,7 +21,7 @@
 
 - **観測値:**
   - `plugins/ai-dlc/.claude-plugin/plugin.json` 存在（281 bytes、`name=ai-dlc` / `version=0.1.0` を含む有効 JSON）
-  - `plugins/ai-dlc/skills/` 配下に 15 ディレクトリ（main-* 4 / specialist-* 10 / shared-artifacts 1）
+  - `plugins/ai-dlc/skills/` 配下に 15 ディレクトリ（main-_ 4 / specialist-_ 10 / shared-artifacts 1）
   - 各スキルディレクトリに `SKILL.md` が存在（`ls plugins/ai-dlc/skills/{main-*,specialist-*,shared-artifacts}/SKILL.md` が 15 行を返却）
   - `plugins/ai-dlc/agents/` 配下に 9 ファイル
 - **判定:** PASS
@@ -113,7 +113,7 @@
 ### 成功基準 #7: 全スキルが相互参照を通じて一貫した世界観を提示している（旧パスの残存がない）
 
 - **観測値:**
-  - main-* 3 スキル（inception / construction / verification）は共通して `main-workflow` を基盤として参照し、`specialist-common` と各 `specialist-*` を specialist 起動時の入力として指定
+  - main-_ 3 スキル（inception / construction / verification）は共通して `main-workflow` を基盤として参照し、`specialist-common` と各 `specialist-_` を specialist 起動時の入力として指定
   - 各 main スキルの step テーブルで `shared-artifacts/references/<name>.md` / `shared-artifacts/templates/<name>.md` をペアで引用
   - `orchestrator` という旧語の出現は 0 件（`grep -rn "orchestrator" plugins/ai-dlc/` が空）
   - 「旧パス」「legacy」系の残存参照も 0 件
@@ -141,16 +141,16 @@
 
 本サイクルの成功基準はすべて定性的（存在 / 数 / 構造 / 内容）であり、定量メトリクスは以下のカウント系のみ。
 
-| メトリクス                          | 目標値 | 観測値 | 判定 |
-| ----------------------------------- | ------ | ------ | ---- |
-| `.claude-plugin/plugin.json` 存在数 | 1      | 1      | PASS |
-| main-* スキル数                     | 4      | 4      | PASS |
-| specialist-* スキル数（common 含む）| 10     | 10     | PASS |
-| shared-artifacts スキル数           | 1      | 1      | PASS |
-| agents/*.md 数                      | 9      | 9      | PASS |
-| shared-artifacts/templates/ ファイル数 | 11  | 11     | PASS |
-| shared-artifacts/references/ ファイル数 | 11 | 11     | PASS |
-| `orchestrator` 旧語の残存数         | 0      | 0      | PASS |
+| メトリクス                              | 目標値 | 観測値 | 判定 |
+| --------------------------------------- | ------ | ------ | ---- |
+| `.claude-plugin/plugin.json` 存在数     | 1      | 1      | PASS |
+| main-\* スキル数                        | 4      | 4      | PASS |
+| specialist-\* スキル数（common 含む）   | 10     | 10     | PASS |
+| shared-artifacts スキル数               | 1      | 1      | PASS |
+| agents/\*.md 数                         | 9      | 9      | PASS |
+| shared-artifacts/templates/ ファイル数  | 11     | 11     | PASS |
+| shared-artifacts/references/ ファイル数 | 11     | 11     | PASS |
+| `orchestrator` 旧語の残存数             | 0      | 0      | PASS |
 
 ## 計測不能 / 前提崩壊の記録
 

@@ -4,15 +4,15 @@
 - **Aspect:** test-quality
 - **Reviewer:** reviewer（Verification Step 7、test-quality 観点）
 - **Reviewed at:** 2026-04-24T17:10:00Z
-- **Scope:** `plugins/ai-dlc/` 配下の全プラグイン成果物（SKILL.md、agents/*.md、shared-artifacts references/templates、.claude-plugin/plugin.json）。Markdown-only プラグインのため、test-quality を以下に適応して評価する: (1) Triggering test（Should / Should NOT）の網羅性、(2) Exit Criteria / Gate の観測可能性、(3) 失敗モード / エッジケースの手順化、(4) Verifiability（第三者が動作確認できるか）、(5) Skill-reviewer G6（test strategy）観点。
+- **Scope:** `plugins/ai-dlc/` 配下の全プラグイン成果物（SKILL.md、agents/\*.md、shared-artifacts references/templates、.claude-plugin/plugin.json）。Markdown-only プラグインのため、test-quality を以下に適応して評価する: (1) Triggering test（Should / Should NOT）の網羅性、(2) Exit Criteria / Gate の観測可能性、(3) 失敗モード / エッジケースの手順化、(4) Verifiability（第三者が動作確認できるか）、(5) Skill-reviewer G6（test strategy）観点。
 
 ## サマリ
 
-| 深刻度      | 件数 |
-| ----------- | ---- |
-| Blocker     | 0    |
-| Major       | 3    |
-| Minor       | 5    |
+| 深刻度  | 件数 |
+| ------- | ---- |
+| Blocker | 0    |
+| Major   | 3    |
+| Minor   | 5    |
 
 **Gate 判定:** needs_fix（Blocker 0 件だが、Major 3 件はテスト観測点の欠落に関するもので、Verification 中に補強すべき）
 
@@ -30,10 +30,10 @@
   - File: `plugins/ai-dlc/skills/specialist-reviewer/SKILL.md`
   - File: `plugins/ai-dlc/skills/specialist-validator/SKILL.md`
   - File: `plugins/ai-dlc/skills/specialist-retrospective-writer/SKILL.md`
-- **問題の要約:** `specialist-implementer` のみ「トリガー想定例」セクションで Should trigger / Should NOT trigger の例を列挙しているが、他の 8 本の specialist-* スキルは description の Trigger 記述のみで、本文にテスト可能な形式（具体例列挙）が存在しない。Skill-reviewer の G6（test strategy）評価では「発火/非発火の観測点がセットで明記されているか」が基準となるため、再現性のある発火テストができない。
+- **問題の要約:** `specialist-implementer` のみ「トリガー想定例」セクションで Should trigger / Should NOT trigger の例を列挙しているが、他の 8 本の specialist-\* スキルは description の Trigger 記述のみで、本文にテスト可能な形式（具体例列挙）が存在しない。Skill-reviewer の G6（test strategy）評価では「発火/非発火の観測点がセットで明記されているか」が基準となるため、再現性のある発火テストができない。
 - **根拠:** `specialist-implementer` L76-79 には `Should trigger / Should NOT trigger` 例があるのに対し、他の 8 本は description の `起動トリガー:` / `Do NOT use for:` 記述のみ。スキル名 + 本文の具体例がないと、Claude Code の Skill マッチング挙動を第三者が検証できない。
-- **推奨アクション:** 各 specialist-* スキルに `## トリガー想定例` セクションを追加し、description の Trigger ワードを本文内で 2–3 件ずつ具体例化する（`specialist-implementer` L76-79 の形式を踏襲）。
-- **設計との関連:** Design Document「スキル命名規則」および `main-workflow` L464-479 の「起動テスト観点（Triggering 例）」の基本構造。main-* 側には類似セクションがあるが specialist-* 側は `specialist-implementer` のみ。
+- **推奨アクション:** 各 specialist-\* スキルに `## トリガー想定例` セクションを追加し、description の Trigger ワードを本文内で 2–3 件ずつ具体例化する（`specialist-implementer` L76-79 の形式を踏襲）。
+- **設計との関連:** Design Document「スキル命名規則」および `main-workflow` L464-479 の「起動テスト観点（Triggering 例）」の基本構造。main-_ 側には類似セクションがあるが specialist-_ 側は `specialist-implementer` のみ。
 
 ### #2 Validation Report テンプレートに「計測手段の前提が崩れた場合の記録欄」が欠如（エッジケース未対応）
 
@@ -108,7 +108,7 @@
 - **該当箇所:**
   - File: `plugins/ai-dlc/skills/shared-artifacts/SKILL.md` L12
   - 他 14 スキルの frontmatter
-- **問題の要約:** `shared-artifacts` のみ `allowed-tools: Read, Glob, Grep` が明示されているが、main-* / specialist-* の他 14 スキルには記載がない。意図として「読み取り専用スキル」は `shared-artifacts` のみで、他は Write / Bash 等を許可したい可能性があるが、明示されていないと発火時の権限境界が観測不能。
+- **問題の要約:** `shared-artifacts` のみ `allowed-tools: Read, Glob, Grep` が明示されているが、main-_ / specialist-_ の他 14 スキルには記載がない。意図として「読み取り専用スキル」は `shared-artifacts` のみで、他は Write / Bash 等を許可したい可能性があるが、明示されていないと発火時の権限境界が観測不能。
 - **根拠:** Skill-reviewer G6（test strategy）の副次観点として、許可ツール制約は発火テストの境界条件になる。
 - **推奨アクション:** 各スキルに `allowed-tools` を明示する（少なくとも Main 側は `Read, Write, Edit, Bash, Task` が想定）。または Design Document に「allowed-tools を明示しないことの意図」を一文記録。
 - **設計との関連:** Design Document「スキル構造」。
@@ -117,7 +117,7 @@
 
 ### エッジケース網羅
 
-- ✅ 各 specialist-* の「固有の失敗モード」表は網羅的（4–5 ケース以上記載）
+- ✅ 各 specialist-\* の「固有の失敗モード」表は網羅的（4–5 ケース以上記載）
 - ✅ `main-*` の「失敗時の挙動」セクションは差し戻し / 追加起動 / ロールバック の 3 軸で定義
 - ⚠️ エッジケースの一部（計測不能 / task-plan 改変検出 / 並列 reviewer 矛盾）がテンプレート／reference 側の記録欄に反映されていない（#2 / #3 / #6）
 - ⚠️ `$TMPDIR` アクセス前提が別セッション再開時に崩れる懸念（self-review #8 と整合）は test-quality 観点でも観測手段が欠落
@@ -143,7 +143,7 @@
 ### Skill-reviewer G6（test strategy）適合度
 
 - 8/15 スキル（main-inception / main-construction / main-verification / main-workflow / shared-artifacts / specialist-common / specialist-implementer ほか）に Triggering 例または Should/Should NOT 記述あり
-- **8 本の specialist-* に Triggering 具体例が欠落**（#1）→ G6 部分適合にとどまる
+- **8 本の specialist-\* に Triggering 具体例が欠落**（#1）→ G6 部分適合にとどまる
 - 全スキル共通で description の Trigger ワード / Do NOT use for は記載済み（最低限の条件は満たす）
 
 ## 他レビューとの整合性

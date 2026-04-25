@@ -4,7 +4,7 @@
 - **Author:** {{architect_instance_id}}
 - **Created at:** {{created_at}}
 - **Last updated:** {{updated_at}}
-- **Status:** {{status}}  <!-- draft | approved -->
+- **Status:** {{status}} <!-- draft | approved -->
 
 ## 設計目標と制約
 
@@ -37,7 +37,11 @@ Intent Spec の目的・成功基準・制約をここに取り込み、設計�
 {{key_types}}
 
 ```typescript
-{{type_definitions_example}}
+{
+  {
+    type_definitions_example
+  }
+}
 ```
 
 ## データフロー / API 設計
@@ -48,9 +52,9 @@ Intent Spec の目的・成功基準・制約をここに取り込み、設計�
 
 ### API エンドポイント
 
-| Method | Path           | Description       | Request                  | Response                 |
-| ------ | -------------- | ----------------- | ------------------------ | ------------------------ |
-| {{m}}  | {{path}}       | {{desc}}          | {{req}}                  | {{resp}}                 |
+| Method | Path     | Description | Request | Response |
+| ------ | -------- | ----------- | ------- | -------- |
+| {{m}}  | {{path}} | {{desc}}    | {{req}} | {{resp}} |
 
 ## 代替案と採用理由
 
@@ -58,11 +62,11 @@ Intent Spec の目的・成功基準・制約をここに取り込み、設計�
 
 検討した代替案と却下理由を表で明示する。
 
-| 案            | 概要                     | 採用 / 却下 | 理由                   |
-| ------------- | ------------------------ | ----------- | ---------------------- |
-| {{option_a}}  | {{option_a_summary}}     | 採用        | {{option_a_rationale}} |
-| {{option_b}}  | {{option_b_summary}}     | 却下        | {{option_b_rationale}} |
-| {{option_c}}  | {{option_c_summary}}     | 却下        | {{option_c_rationale}} |
+| 案           | 概要                 | 採用 / 却下 | 理由                   |
+| ------------ | -------------------- | ----------- | ---------------------- |
+| {{option_a}} | {{option_a_summary}} | 採用        | {{option_a_rationale}} |
+| {{option_b}} | {{option_b_summary}} | 却下        | {{option_b_rationale}} |
+| {{option_c}} | {{option_c_summary}} | 却下        | {{option_c_rationale}} |
 
 ## 想定される拡張ポイント
 

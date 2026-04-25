@@ -8,11 +8,11 @@
 
 ## サマリ
 
-| 深刻度      | 件数 |
-| ----------- | ---- |
-| Blocker     | 0    |
-| Major       | 4    |
-| Minor       | 7    |
+| 深刻度  | 件数 |
+| ------- | ---- |
+| Blocker | 0    |
+| Major   | 4    |
+| Minor   | 7    |
 
 **Gate 判定:** needs_fix
 
@@ -73,6 +73,7 @@
   - validation-report: `全体判定` / `passed | failed | partially_passed`
 
   同じ「ゲート通過判断」を表す語なのに、フィールド名（Gate 判定 vs 全体判定）と値の命名法（動詞過去分詞 vs 形容詞）が混在している。Main が横断的に進捗集計する際に揺れる。
+
 - **根拠:** `main-workflow/SKILL.md:217–229`（ゲート通過時プロトコル）では 3 種のゲート（ユーザー承認 / In-Progress / Main 判定）しか区別しておらず、成果物内の verdict は統一語彙が期待される。
 - **推奨アクション:** 全成果物で `Gate 判定` に統一し、値域も `approved | needs_fix | blocked`（または `passed | failed | partial`）のいずれかに収斂させる。Validation の `partially_passed` は特殊なので例外として許容しつつ、命名は `partial` に縮約。
 - **設計との関連:** `shared-artifacts/SKILL.md:90`（1:1 対応と仕様統一）
@@ -108,7 +109,7 @@
   - File: `plugins/ai-dlc/skills/shared-artifacts/SKILL.md:22`（「プラグインルートからの相対パス `shared-artifacts/references/<name>.md`」と宣言）
   - 対比: `main-workflow/SKILL.md:264–273`（同形式で `shared-artifacts/...` を利用、OK）
   - 対比: `main-inception/SKILL.md:45–48` 等（`shared-artifacts/references/...` 同形式、OK）
-- **問題の要約:** 本件は**致命的ではない**が、`agents/reviewer.md:26–27` および各 agents/*.md では `shared-artifacts/references/...` を採用する一方、SKILL 本体で `references/<name>.md`（`shared-artifacts/` 省略）と呼ぶ箇所が散見される（例: `shared-artifacts/SKILL.md:77, 79, 82, 84` 内）。シンプルにするか、常にプラグインルート起点で書くかを統一すべき。
+- **問題の要約:** 本件は**致命的ではない**が、`agents/reviewer.md:26–27` および各 agents/\*.md では `shared-artifacts/references/...` を採用する一方、SKILL 本体で `references/<name>.md`（`shared-artifacts/` 省略）と呼ぶ箇所が散見される（例: `shared-artifacts/SKILL.md:77, 79, 82, 84` 内）。シンプルにするか、常にプラグインルート起点で書くかを統一すべき。
 - **根拠:** SKILL.md:22 の規約宣言と、同 SKILL.md 本文の記述（L77–86 等）に齟齬がある。
 - **推奨アクション:** `shared-artifacts/SKILL.md` 本文をすべて `shared-artifacts/references/<name>.md` / `shared-artifacts/templates/<name>.md` に統一。相対・フルパスのどちらかに決める。
 - **設計との関連:** `shared-artifacts/SKILL.md:22`
@@ -121,7 +122,7 @@
   - File: `plugins/ai-dlc/skills/specialist-validator/SKILL.md:73–79`
 - **問題の要約:** `specialist-reviewer` は「固有の失敗モード」を 4 行の表形式で提示、`specialist-validator` は 4 行で同形式。`specialist-common/SKILL.md:105–141` はケース A–D を詳述し一貫。しかし役割別 specialist で表にまとめた失敗モードと common のケース A–D の対応関係が**明示されていない**（どの行が Case A に属するか、など）。
 - **根拠:** `specialist-common` の「4. 失敗時 / Blocker 発生時のプロトコル」が親契約で、役割別は子契約のはず。親子の写像が不在なので、specialist は両者を独立に読むことになる。
-- **推奨アクション:** 各 specialist-* の失敗モード表に `| 状況 | common ケース | 対応 |` の 3 列目を追加し A/B/C/D にマップ、または common 側で「役割別表は common ケースのインスタンスである」旨を明記。
+- **推奨アクション:** 各 specialist-\* の失敗モード表に `| 状況 | common ケース | 対応 |` の 3 列目を追加し A/B/C/D にマップ、または common 側で「役割別表は common ケースのインスタンスである」旨を明記。
 - **設計との関連:** `specialist-common/SKILL.md:105–141`
 
 ### #10 Backward compatibility: `docs/ai-dlc/<id>/` レイアウトが暗黙に複数フィールドを前提
@@ -155,7 +156,7 @@
 
 ### 契約の明確さ（Contract Clarity）
 
-- **Main ↔ Specialist 入力契約:** `specialist-common/SKILL.md:62–74` で 7 項目が表で明示され、役割別 specialist-* でも「固有の入力」セクションが共通形式。**基本は明確**。ただし:
+- **Main ↔ Specialist 入力契約:** `specialist-common/SKILL.md:62–74` で 7 項目が表で明示され、役割別 specialist-\* でも「固有の入力」セクションが共通形式。**基本は明確**。ただし:
   - `review_scope` のような一部プレースホルダに対し、書き方指針が reference 側に不在（#2）
   - プロジェクト固有スキルのパスを入力に含める指示 (`main-workflow/SKILL.md:323–325`) はあるが、入力契約表に明示列がない（`specialist-common/SKILL.md:62–74`）
 - **Agent (`agents/*.md`) vs Skill (`specialist-*`) の責務分離:** agents は「Main への要求」リストが簡潔で、`specialist-common` と `specialist-*` を参照する明確な 2 段構成。良好
@@ -177,4 +178,5 @@
 - #11 のゲート契約の永続化対称性は test-quality 観点（検証可能性）からも支持される
 
 矛盾する可能性がある指摘:
+
 - #5 のゲート語彙統一は readability からは賛成されるが、Validation Report の `partially_passed` を例外維持すべきという反論が来る可能性あり → Main が両レビューの根拠を比較して判断する題材。

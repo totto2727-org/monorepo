@@ -74,7 +74,7 @@
 - **テスト追加方針:** なし
 - **設計ドキュメント参照箇所:** "コンポーネント構成" Specialist Agents
 
-### T7: specialist-* 9 スキルを作成
+### T7: specialist-\* 9 スキルを作成
 
 - **概要:** intent-analyst, researcher, architect, planner, implementer, self-reviewer, reviewer, validator, retrospective-writer の各スキル
 - **成果物:** `plugins/ai-dlc/skills/specialist-{role}/SKILL.md` × 9
@@ -84,7 +84,7 @@
 - **テスト追加方針:** なし
 - **設計ドキュメント参照箇所:** "コンポーネント構成" Specialist Agents
 
-### T8: agents/*.md を作成
+### T8: agents/\*.md を作成
 
 - **概要:** 各 specialist 用のサブエージェント起動エントリポイント
 - **成果物:** `plugins/ai-dlc/agents/{role}.md` × 9
@@ -136,7 +136,7 @@
 
 ### T13: 相互参照を shared-artifacts に統一
 
-- **概要:** main-* / specialist-* / agents/*.md のテンプレート・reference パス参照を shared-artifacts/ 配下に統一
+- **概要:** main-_ / specialist-_ / agents/\*.md のテンプレート・reference パス参照を shared-artifacts/ 配下に統一
 - **成果物:** 影響各ファイル
 - **依存タスク:** T10, T11
 - **並列可否:** no（T2-T8 の内容を書き換える）
@@ -146,7 +146,7 @@
 
 ### T14: ステップ完了コミット規約を追記
 
-- **概要:** main-workflow に「ステップ完了時のコミット規約」セクションを追加、各 main-* の Exit Criteria にコミット要件を明記
+- **概要:** main-workflow に「ステップ完了時のコミット規約」セクションを追加、各 main-\* の Exit Criteria にコミット要件を明記
 - **成果物:** `plugins/ai-dlc/skills/main-workflow/SKILL.md`, `main-inception/SKILL.md`, `main-construction/SKILL.md`, `main-verification/SKILL.md`
 - **依存タスク:** T13
 - **並列可否:** no

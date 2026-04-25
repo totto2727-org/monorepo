@@ -93,7 +93,7 @@
   - re_activations: 0
   - notes: "ユーザーから「共通項は独立スキルに」との指示を受けて新規追加"
 
-- [x] **T7** — specialist-* 9 スキルを作成
+- [x] **T7** — specialist-\* 9 スキルを作成
   - status: completed
   - dependencies: T6
   - started_at: 2026-04-24T15:15:00Z
@@ -103,7 +103,7 @@
   - re_activations: 0
   - notes: "9 ファイルまとめて作成。各々が specialist-common を継承する構造"
 
-- [x] **T8** — agents/*.md を作成
+- [x] **T8** — agents/\*.md を作成
   - status: completed
   - dependencies: T7
   - started_at: 2026-04-24T15:35:00Z

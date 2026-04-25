@@ -7,23 +7,23 @@
 
 ## サマリ
 
-| 判定        | 件数                 |
-| ----------- | -------------------- |
-| PASS        | {{pass_count}}       |
-| FAIL        | {{fail_count}}       |
-| 保留（明示）| {{deferred_count}}   |
+| 判定         | 件数               |
+| ------------ | ------------------ |
+| PASS         | {{pass_count}}     |
+| FAIL         | {{fail_count}}     |
+| 保留（明示） | {{deferred_count}} |
 
-**全体判定:** {{overall_verdict}}  <!-- passed | failed | partially_passed -->
+**全体判定:** {{overall_verdict}} <!-- passed | failed | partially_passed -->
 
 ## 成功基準ごとの判定
 
 ### 成功基準 #1: {{criterion_1_statement}}
 
 - **観測値:** {{criterion_1_observed}}
-- **判定:** {{criterion_1_verdict}}  <!-- PASS | FAIL | 保留 -->
-- **証拠:** {{criterion_1_evidence}}  <!-- ログ / スクリーンショット / メトリクスへのリンク -->
+- **判定:** {{criterion_1_verdict}} <!-- PASS | FAIL | 保留 -->
+- **証拠:** {{criterion_1_evidence}} <!-- ログ / スクリーンショット / メトリクスへのリンク -->
 - **計測手段:** {{criterion_1_method}}
-- **計測条件:** {{criterion_1_conditions}}  <!-- 環境、データ量、負荷等 -->
+- **計測条件:** {{criterion_1_conditions}} <!-- 環境、データ量、負荷等 -->
 - **備考:** {{criterion_1_notes}}
 
 ### 成功基準 #2: {{criterion_2_statement}}
@@ -53,10 +53,10 @@
 
 定量的な成功基準に対応する計測結果をまとめる。大きなデータは `docs/ai-dlc/<identifier>/validation-evidence/` に保存してリンクする。
 
-| メトリクス       | 目標値       | 観測値       | 判定   |
-| ---------------- | ------------ | ------------ | ------ |
-| {{metric_1}}     | {{target_1}} | {{actual_1}} | {{v_1}} |
-| {{metric_2}}     | {{target_2}} | {{actual_2}} | {{v_2}} |
+| メトリクス   | 目標値       | 観測値       | 判定    |
+| ------------ | ------------ | ------------ | ------- |
+| {{metric_1}} | {{target_1}} | {{actual_1}} | {{v_1}} |
+| {{metric_2}} | {{target_2}} | {{actual_2}} | {{v_2}} |
 
 ## 計測不能 / 前提崩壊の記録
 

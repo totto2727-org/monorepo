@@ -9,7 +9,7 @@
 
 ## サイクル概要
 
-本サイクルは **AI-DLC プラグイン自体を AI-DLC のワークフローで構築する**という meta-reflexive（再帰的）な試みだった。Intent Spec の目的「1 Main + N Specialist の 2 層構成で、全ステップ・成果物・コミット規約・中断再開プロトコルを文書化した claude-plugin を提供する」に対し、`plugins/ai-dlc/` 配下に 15 スキル（main-* 4 / specialist-* 10 / shared-artifacts 1）、9 agents、11 reference + 11 template の成果物仕様を整備して完了した。
+本サイクルは **AI-DLC プラグイン自体を AI-DLC のワークフローで構築する**という meta-reflexive（再帰的）な試みだった。Intent Spec の目的「1 Main + N Specialist の 2 層構成で、全ステップ・成果物・コミット規約・中断再開プロトコルを文書化した claude-plugin を提供する」に対し、`plugins/ai-dlc/` 配下に 15 スキル（main-_ 4 / specialist-_ 10 / shared-artifacts 1）、9 agents、11 reference + 11 template の成果物仕様を整備して完了した。
 
 Validation では 7/7 成功基準 PASS、External Review では Blocker 0 / Major 16（13 件 Construction 再活性化で修正、3 件 Retrospective に繰越）、Self-Review では Medium 4 件を Round 2 で全件修正。Claude Code の「Subagents cannot spawn other subagents」制約を Research 段階で特定できたことで、当初の 3 層（Main → Orchestrator → Specialist）案を早期に 2 層構成へ転換でき、設計の手戻りを最小化した。
 
@@ -29,14 +29,14 @@ Validation では 7/7 成功基準 PASS、External Review では Blocker 0 / Maj
 
 ### ループ回数の分析
 
-| ステップ間ループ                     | 回数 | 根本原因                                                                                                                   |
-| ------------------------------------ | ---- | -------------------------------------------------------------------------------------------------------------------------- |
-| Step 5 ↔ Step 6 (Self-Review)        | 1 (Round 2) | Medium 4 件はすべて「shared-artifacts 抽出時の参照先・真のソース確定漏れ」。設計時に「委譲する側（main-*）の情報を必ず真のソース側（shared-artifacts）にだけ残す」チェックリストがなかった。 |
-| Step 5 ↔ Step 7 (External Review)    | 1 (Round 3, 13/16 件) | Major 指摘の 13 件は readability / api-design / security / test-quality の観点別に存在し、Self-Review の 1 観点的視点では検出困難だった。観点別 reviewer を事前並列投入すべきタイミングが Step 6 と Step 7 の 2 回に分散。 |
-| Construction → Inception Step 3      | 2    | (1) Orchestrator を独立させる 3 層設計が Claude Code 仕様違反と判明（13:50Z）、(2) ADR を主要成果物にした設計が ADR スキルの粒度と合わず Design Document へ再定義（14:10Z）。 |
-| Verification → Construction          | 0    | Validation で FAIL が出なかったため巻き戻しなし。ただし Major 3 件（performance）は次サイクル送りで deferred 扱い。 |
-| T2 (main-workflow) の再活性化        | 2    | 3→2 層変更と Artifact-as-Gate-Review 原則導入の 2 度の書き直し。                                                             |
-| T4 (main-construction) の再活性化    | 2    | TaskCreate と TODO.md 同期ルールの事後追加。タスク分解時に「Claude Code の内部 todo API との同期契約」が漏れていた。         |
+| ステップ間ループ                  | 回数                  | 根本原因                                                                                                                                                                                                                   |
+| --------------------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Step 5 ↔ Step 6 (Self-Review)     | 1 (Round 2)           | Medium 4 件はすべて「shared-artifacts 抽出時の参照先・真のソース確定漏れ」。設計時に「委譲する側（main-\*）の情報を必ず真のソース側（shared-artifacts）にだけ残す」チェックリストがなかった。                              |
+| Step 5 ↔ Step 7 (External Review) | 1 (Round 3, 13/16 件) | Major 指摘の 13 件は readability / api-design / security / test-quality の観点別に存在し、Self-Review の 1 観点的視点では検出困難だった。観点別 reviewer を事前並列投入すべきタイミングが Step 6 と Step 7 の 2 回に分散。 |
+| Construction → Inception Step 3   | 2                     | (1) Orchestrator を独立させる 3 層設計が Claude Code 仕様違反と判明（13:50Z）、(2) ADR を主要成果物にした設計が ADR スキルの粒度と合わず Design Document へ再定義（14:10Z）。                                              |
+| Verification → Construction       | 0                     | Validation で FAIL が出なかったため巻き戻しなし。ただし Major 3 件（performance）は次サイクル送りで deferred 扱い。                                                                                                        |
+| T2 (main-workflow) の再活性化     | 2                     | 3→2 層変更と Artifact-as-Gate-Review 原則導入の 2 度の書き直し。                                                                                                                                                           |
+| T4 (main-construction) の再活性化 | 2                     | TaskCreate と TODO.md 同期ルールの事後追加。タスク分解時に「Claude Code の内部 todo API との同期契約」が漏れていた。                                                                                                       |
 
 ### Blocker 履歴
 
@@ -72,7 +72,7 @@ AI-DLC プラグインのスキル（workflow / inception / construction / verif
 - **対象: `specialist-common/SKILL.md`**: L144–162 スコープ規律 / L175–183 Git コミット / L186–193 命令形・具体性の 3 セクションを `specialist-common/references/` に切り出し、本体は L1–143 のライフサイクル・入出力・失敗プロトコルに絞る。implementer 以外は Git セクションを読み込まない構造にする。
 - **対象: `shared-artifacts/SKILL.md`**: L96–123 の保存構造 ASCII 図を真のソースとして確定し、main-workflow 側の重複記述を削除。
 - **対象: `main-construction/SKILL.md` + `shared-artifacts/references/task-plan.md`**: Self-Review #4 で統一済みの「task-plan.md 不変運用」をレビュワーチェック項目として再確認する仕組み（Artifact-as-Gate-Review の標準チェック）を追加。
-- **対象: specialist-* の description**: 200–300 文字に圧縮し、網羅的な Do NOT 列挙は本文の「このスキルが扱わないこと」セクションに移す。ai-dlc キーワードの衝突（main-workflow / main-<phase> 4 スキル同時活性化リスク）も description から "ai-dlc の <phase>" を削除して解消。
+- **対象: specialist-\* の description**: 200–300 文字に圧縮し、網羅的な Do NOT 列挙は本文の「このスキルが扱わないこと」セクションに移す。ai-dlc キーワードの衝突（main-workflow / main-<phase> 4 スキル同時活性化リスク）も description から "ai-dlc の <phase>" を削除して解消。
 
 ### Specialist プロンプト改善
 

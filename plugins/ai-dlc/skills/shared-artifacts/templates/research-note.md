@@ -1,7 +1,7 @@
 # Research Note: {{topic}}
 
 - **Identifier:** {{identifier}}
-- **Topic:** {{topic}}  <!-- existing-impl | dependencies | similar-cases | external-spec | etc. -->
+- **Topic:** {{topic}} <!-- existing-impl | dependencies | similar-cases | external-spec | etc. -->
 - **Researcher:** {{researcher_instance_id}}
 - **Created at:** {{created_at}}
 - **Scope:** {{scope}}
