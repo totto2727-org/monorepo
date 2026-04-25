@@ -1,6 +1,18 @@
 {
-  "description": "Exocortex integration for persistent knowledge management",
+  "description": "Exocortex integration for persistent knowledge management, plus Bash command guardrails",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "deno run --no-prompt ${CLAUDE_PLUGIN_ROOT}/hooks/script/bash-guard/main.ts",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "matcher": "*",
