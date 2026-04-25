@@ -1,5 +1,5 @@
 ---
-confirmed: false
+confirmed: true
 ---
 
 # ADR: vp run scripts use `$(find ...)` instead of shell globs
