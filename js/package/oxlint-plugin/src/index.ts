@@ -17,6 +17,17 @@ const isReportable = (u: unknown): u is Record<string, unknown> & { range: [numb
 // force-ts-extension
 // ---------------------------------------------------------------------------
 
+const JS_IMPORT_RE = /^(\.+|#(?!#)[^/]*)(\/.*)\.js(x?)$/
+
+export const matchJsImport = (value: string): { start: string; path: string; x: string } | null => {
+  const match = JS_IMPORT_RE.exec(value)
+  if (Predicate.isNotNull(match)) {
+    const [, start, path, x] = match
+    return { path: path ?? '', start: start ?? '', x: x ?? '' }
+  }
+  return null
+}
+
 const forceTsExtensionRule: Rule = {
   create(context: Context) {
     const check = (node: unknown): void => {
@@ -30,10 +41,10 @@ const forceTsExtensionRule: Rule = {
         const { source } = node
         const { raw, value } = source
         if (Predicate.isString(value) && Predicate.isString(raw)) {
-          const match = /^(\.*|#(?!#).*)(\/.*)\.js(x?)$/.exec(value)
-          if (Predicate.isNotNull(match)) {
-            const [, start, path, x] = match
-            const fixed = `${start}${path}.ts${x ?? ''}`
+          const matched = matchJsImport(value)
+          if (Predicate.isNotNull(matched)) {
+            const { path, start, x } = matched
+            const fixed = `${start}${path}.ts${x}`
             const [quote] = raw
 
             if (!isReportable(source)) {
@@ -43,7 +54,7 @@ const forceTsExtensionRule: Rule = {
               fix(fixer) {
                 return fixer.replaceText(source, `${quote}${fixed}${quote}`)
               },
-              message: `Use .ts${x ?? ''} extension instead of .js${x ?? ''}`,
+              message: `Use .ts${x} extension instead of .js${x}`,
               node: source,
             })
           }
