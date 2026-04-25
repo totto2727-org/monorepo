@@ -1,0 +1,12 @@
+{
+  "name": "@totto2727/c-plugin",
+  "version": "0.1.0",
+  "license": "MIT",
+  "publish": {
+    "include": ["src/**/*.ts", "package.json", "LICENSE", "README.md"],
+    "exclude": ["src/**/*.test.ts"]
+  },
+  "exports": {
+    ".": "./src/bin.ts"
+  }
+}
