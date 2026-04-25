@@ -33,7 +33,7 @@ catalogs:
     better-auth: ^1.5.3
     casbin: ^5.39.0
   build:
-    '@typescript/native-preview': 7.0.0-dev.20251117.1
+    '@typescript/native-preview': 7.0.0-dev.20260421.2
     typescript: ^5.9.2
   cloudflare:
     '@cloudflare/vite-plugin': ^1.26.1
