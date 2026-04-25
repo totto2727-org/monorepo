@@ -1,0 +1,28 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+
+  format:
+    cmds:
+      - nixfmt *.nix
+
+  init:
+    cmds:
+      - |
+        sudo nixos-rebuild switch \
+        --flake .#nixos
+        --experimental-features 'nix-command flakes'
+        --option extra-substituters https://install.determinate.systems \
+        --option extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM=
+      - chezmoi init https://github.com/totto2727-dotfiles/chezmoi
+      - chezmoi apply
+
+  rebuild:
+    deps:
+      - format
+    cmds:
+      - sudo nix flake update
+      - sudo nixos-rebuild switch --flake .#nixos

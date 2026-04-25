@@ -1,0 +1,39 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+
+  lang:fix:
+    cmds:
+      - LANG=C xdg-user-dirs-update --force
+
+  format:
+    cmds:
+      - nixfmt *.nix
+
+  init:
+    cmds:
+      - |
+        sudo nixos-rebuild switch \
+        --flake .#nixos
+        --option extra-substituters https://install.determinate.systems \
+        --option extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM=
+
+  flatpak:install:
+    cmds:
+      - |
+        flatpak install app.zen_browser.zen
+        flatpak install flathub com.github.tchx84.Flatseal
+
+  rebuild:
+    deps:
+      - format
+    cmds:
+      - sudo nix flake update
+      - sudo nixos-rebuild switch --flake .#nixos
+      - mkdir -p $HOME/.local/share/fonts && cp -f -L /run/current-system/sw/share/X11/fonts/* $HOME/.local/share/fonts/
+      - flatpak --user override --filesystem=$HOME/.local/share/fonts:ro
+      - flatpak --user override --filesystem=$HOME/.icons:ro
+      - flatpak update -y

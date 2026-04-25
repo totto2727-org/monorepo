@@ -4,6 +4,7 @@ packages:
   - 'js/package/*'
   - 'mbt/package/*'
   - 'go/app/*'
+  - 'nix'
 
 allowBuilds:
   esbuild: true

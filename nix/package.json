@@ -1,0 +1,8 @@
+{
+  "name": "@app/nix",
+  "private": true,
+  "scripts": {
+    "check": "nixfmt --check $(find . -name '*.nix')",
+    "fix": "nixfmt $(find . -name '*.nix')"
+  }
+}
