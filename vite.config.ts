@@ -16,6 +16,7 @@ export default defineConfig({
     },
     experimentalSortPackageJson: true,
     extends: [core, react, remix],
+    ignorePatterns: ['**/__fixtures__/**', '**/.script/**', '**/skills/**', '**/hooks/script/**'],
     jsxSingleQuote: true,
     printWidth: 120,
     quoteProps: 'as-needed',
@@ -27,7 +28,7 @@ export default defineConfig({
   },
   lint: {
     extends: [core, react, remix],
-    ignorePatterns: ['**/__fixtures__/**', '**/.script/**', '**/skills/**'],
+    ignorePatterns: ['**/__fixtures__/**', '**/.script/**', '**/skills/**', '**/hooks/script/**'],
     jsPlugins: ['./js/package/oxlint-plugin/src/index.ts'],
     options: {
       typeAware: true,
