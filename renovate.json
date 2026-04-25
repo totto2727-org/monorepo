@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "commitMessagePrefix": "feat(deps): ",
-  "extends": ["config:base", ":timezone(Asia/Tokyo)"],
+  "extends": ["config:recommended", ":timezone(Asia/Tokyo)"],
   "ignoreDeps": ["@totto2727/fp"],
   "labels": ["renovate", "deps"],
   "schedule": ["0 0 * * 6"],
