@@ -1,6 +1,12 @@
 {
   "name": "bw",
   "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/totto2727-org/monorepo",
+    "directory": "js/app/bw"
+  },
   "bin": {
     "bw": "./dist/bin.js"
   },
@@ -9,7 +15,9 @@
     "#@/*": "./src/*"
   },
   "scripts": {
-    "build": "vp pack"
+    "build": "vp pack",
+    "check": "pnpm run --parallel /check:.*/",
+    "check:slowtype": "vpx jsr publish --dry-run --allow-dirty"
   },
   "dependencies": {
     "@effect/platform-node": "catalog:effect",
