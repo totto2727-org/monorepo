@@ -218,28 +218,7 @@ Specialist が生成する成果物（`research/*.md`, `implementation-logs/*.md
 
 **誤って含めた場合**: 作業を中断し Blocker として Main に報告（コミットされていればユーザーに履歴書き換え可否を確認）。
 
-## 10. Triggering Test（発火判定の観測点、全 Specialist 共通）
-
-本スキルおよび個別 `specialist-*` スキルが**期待通りに発火するかを検証する観点**。新規 Specialist を追加した際、または description を変更した際のテストチェックリストとして使用する。
-
-### Should trigger（期待通り発火すべき場面）
-
-- Main が対応する `<role>` エージェント（例: `intent-analyst`）をサブエージェントとして起動した瞬間
-- 対応する main-\* スキル（例: `dev-workflow`）が該当ステップに入り、明示的に当該 Specialist 起動を指示した場面
-- ユーザーが該当 Specialist のトリガーワード（description に列挙されたもの）を明示的に使った場面
-
-### Should NOT trigger（発火してはならない場面）
-
-- 他 Specialist の役割が対象になっている場面（例: Intent Clarification 作業中に `specialist-researcher` が発火してはならない）
-- dev-workflow / dev-workflow / dev-workflow / dev-workflow のいずれかが進行中で、かつ Specialist 起動指示がない場面
-- ユーザーが単発の質問をしているだけで、dev-workflow ワークフロー外の場面
-- Specialist の description に含まれるキーワードが**異なる文脈**で登場した場面（例: "タスク分解" が一般会話で出ても planner は発火しない）
-
-### 個別 Specialist の Triggering Test
-
-個別 `specialist-*` スキルが固有のトリガーワード／ネガティブトリガーを持つ場合、**当該スキルの description に**明示的に Should / Should NOT の具体例を入れる（この中央定義の上書き）。
-
-## 11. 命令形・具体性の原則
+## 10. 命令形・具体性の原則
 
 Main への報告・問い合わせ・成果物のいずれも:
 

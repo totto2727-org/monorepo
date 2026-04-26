@@ -22,14 +22,6 @@ metadata:
 
 このスキルはマルチエージェント前提の開発ワークフロー全体を司る。人間との対話・進捗管理・エージェント起動を担う **Main** と、各ステップを実行する **Specialist** の 2 層構成で、9 ステップをゲート式で進行させる。各 Specialist の作業詳細・成果物仕様は個別スキルに委譲する。
 
-> **歴史的経緯**: 本ワークフローは AWS Raja SP の AI-Driven Development Lifecycle (AI-DLC) を含む複数のマルチエージェント開発手法から着想を得ているが、独立した手法として設計されている。フェーズ概念・Mob 儀式・Operations フェーズなど原典の主要要素を採用しないなど、構造的に大きく異なる。詳細は `doc/adr/2026-04-26-dev-workflow-rename-and-flatten.md` を参照。
-
-## Main と Orchestrator を分離しない理由
-
-Claude Code の仕様により、**サブエージェントは別のサブエージェントを起動できない** ("Subagents cannot spawn other subagents." / "No nested teams: teammates cannot spawn their own teams or teammates. Only the lead can manage the team.")。Orchestrator を独立したサブエージェントとして切り出しても、Specialist を起動するために結局 Main に指示を戻す必要があり、1 往復分のオーバーヘッドが増えるだけで実質的な分離にならない。
-
-本スキルでは **Orchestrator の責務 (進捗管理・ゲート判定・Specialist への指示起案) を Main に統合**し、役割は 2 層 (Main / Specialist) のみとする。
-
 ## 基本方針
 
 - **Main-Centric Orchestration**: Main が人間との対話・進捗管理・Specialist 起動・ゲート判定を全て担う。Specialist はステップ実行のみに専念する
@@ -803,21 +795,3 @@ docs(dev-workflow/<identifier>): close cycle with retrospective
 - ツール固有のコマンド → プロジェクト固有のスキル (`effect-layer` 等) に委譲
 - ワークフロー外の単発修正 → 通常の会話で処理
 - デプロイ・観測・SLA 監視 → 本ワークフロー外 (CI/CD パイプライン等)
-
----
-
-## 起動テスト観点 (Triggering 例)
-
-Main が本スキルを起動すべき / すべきでない典型例。description のトリガー語と対応する。
-
-**Should trigger:**
-
-- 「dev-workflow で新機能を設計から実装まで進めたい」→ Step 1 から開始
-- 「この要求をワークフローで回してほしい」→ Step 1 から開始
-- 中断済みサイクルの再開依頼 (`docs/dev-workflow/<identifier>/` が既存) → 「5. セッション再開時」プロトコルへ
-
-**Should NOT trigger:**
-
-- 「設計ドキュメントの書き方を知りたい」→ `shared-artifacts` を参照
-- 「単発のバグ修正」→ 通常の会話で処理 (サイクルを起こさない)
-- 「特定 Specialist の使い方を知りたい」→ 該当 `specialist-*` スキルを参照
