@@ -45,15 +45,15 @@
   - re_activations: 0
   - notes: gsed 逆順番号シフト (placeholder で複合表現保護) + Step 4 QA Design 詳細セクション新規追加 + ステップ一覧 10 行化 + ASCII 図 10 ノード化 + コミット規約/並列起動/ロールバック早見表に Step 4 関連追加 + 9→10 ステップ表記更新
 
-- [ ] **T4** — specialist-planner / implementer / validator の入出力契約変更
-  - status: pending
+- [x] **T4** — specialist-planner / implementer / validator の入出力契約変更
+  - status: completed
   - dependencies: T1
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-04-26T17:15:00Z
+  - completed_at: 2026-04-26T17:45:00Z
+  - commit: (this commit)
+  - implementer: Main (兼任)
   - re_activations: 0
-  - notes: 3 ファイル修正 (入出力欄 + Step 番号リナンバー + planner はテスト方針削除 / implementer はカバレッジ追記責任 / validator はカバレッジ検証責任)
+  - notes: 3 ファイル修正完了 (gsed で Step 番号リナンバー + Edit で I/O 変更)。planner: テスト方針削除/qa-design 任意参照/qa-analyst 領域明記、implementer: qa-design+qa-flow 入力/TC-NNN+TC-IMPL 追記責任/判断フロー、validator: qa-design+qa-flow 入力/カバレッジ実測手順/qa-flow 葉カバレッジ検証
 
 - [ ] **T5** — 機械的番号シフト (specialist-self-reviewer / reviewer / retrospective-writer + agents 6 件)
   - status: pending

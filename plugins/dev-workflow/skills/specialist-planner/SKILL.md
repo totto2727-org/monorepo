@@ -1,16 +1,18 @@
 ---
 name: specialist-planner
 description: >
-  [Specialist 用] dev-workflow Step 4 (Task Decomposition) を担当する専門エージェント
+  [Specialist 用] dev-workflow Step 5 (Task Decomposition) を担当する専門エージェント
   planner の作業詳細。Design Document を 1 implementer が数時間〜1 日で完遂可能な粒度の
-  タスクに分解し、依存グラフ・並列 Wave・見積り規模・テスト方針を明示した不変の Task Plan
-  (task-plan.md) を作成する。
+  タスクに分解し、依存グラフ・並列 Wave・見積り規模を明示した不変の Task Plan
+  (task-plan.md) を作成する。テスト設計は Step 4 (QA Design) の qa-analyst が担当するため
+  planner はテスト方針を持たない (任意で qa-design.md の TC-ID 紐付けのみ参照可)。
   起動トリガー: Main が planner エージェントをサブエージェントとして起動した際、または
-  ユーザーが "タスク分解", "Task Decomposition", "task-plan 作成", "Step 4",
+  ユーザーが "タスク分解", "Task Decomposition", "task-plan 作成", "Step 5",
   "Wave 分け" を明示的に依頼した場合。
   Do NOT use for: 実装（specialist-implementer）、設計（specialist-architect）、調査
-  （specialist-researcher）、タスク実行中の状態追跡（Main が TODO.md で管理）、Step 5〜6
-  中に発見された追加タスクの反映（Main の TODO.md 運用）、task-plan.md 以外の成果物作成。
+  （specialist-researcher）、テスト設計（specialist-qa-analyst）、タスク実行中の状態追跡
+  （Main が TODO.md で管理）、Step 6〜7 中に発見された追加タスクの反映（Main の TODO.md
+  運用）、task-plan.md 以外の成果物作成。
 metadata:
   author: totto2727
   version: 1.0.0
@@ -25,7 +27,7 @@ metadata:
 
 | 項目         | 内容                                          |
 | ------------ | --------------------------------------------- |
-| 担当ステップ | Step 4 (Task Decomposition)                   |
+| 担当ステップ | Step 5 (Task Decomposition)                   |
 | 成果物       | `docs/dev-workflow/<identifier>/task-plan.md` |
 | テンプレート | `shared-artifacts/templates/task-plan.md`     |
 | 書き方ガイド | `shared-artifacts/references/task-plan.md`    |
@@ -39,9 +41,10 @@ Design Document を受けて、**実装可能な粒度のタスクに分解**し
 - タスク間の依存関係（グラフ）
 - 並列実行可能なタスク群（Wave 単位）
 - 見積り規模
-- テスト追加方針
 
-`task-plan.md` は**不変な計画書**として運用される（Step 5〜6 中のタスク状態追跡は Main が `TODO.md` で行う）。
+**テスト設計は planner の責務外** (Step 4 qa-analyst の領域)。任意で qa-design.md の TC-ID をタスクに紐付けることはあるが、planner は qa-design.md / qa-flow.md を**変更しない** (読み取り参照のみ)。
+
+`task-plan.md` は**不変な計画書**として運用される（Step 6〜7 中のタスク状態追跡は Main が `TODO.md` で行う）。
 
 ## 固有の入力
 
@@ -49,6 +52,7 @@ Design Document を受けて、**実装可能な粒度のタスクに分解**し
 
 - `design.md`（タスク分解の元）
 - `intent-spec.md`（スコープ境界の確認用）
+- `qa-design.md`（任意、TC-ID をタスクに紐付ける場合のみ参照。読み取り専用）
 
 ## 作業手順
 
@@ -58,16 +62,16 @@ Design Document を受けて、**実装可能な粒度のタスクに分解**し
    - 小さすぎる → 統合
 3. タスク間の依存関係を特定し、Mermaid グラフを作成
 4. 並列実行可能なタスク群を Wave として識別
-5. 各タスクに見積り規模（S/M/L 等、プロジェクト規約に従う）とテスト方針を付与
-6. 想定される Blocker・リスクを列挙
-7. テンプレートに沿って `task-plan.md` を作成
-8. Main に提出。粒度検証で不十分と判定されたら同インスタンス内で再分解
+5. 各タスクに見積り規模（S/M/L 等、プロジェクト規約に従う）を付与
+6. 任意: qa-design.md の TC-ID をタスクに紐付け (大規模タスクで「このタスクが何のテストをカバーするか」を明示したい場合のみ。必須ではない)
+7. 想定される Blocker・リスクを列挙
+8. テンプレートに沿って `task-plan.md` を作成
+9. Main に提出。粒度検証で不十分と判定されたら同インスタンス内で再分解
 
 ## タスク粒度のガイド
 
 - ✅ 1 タスク = 1 implementer で完遂可能（数時間〜1 日程度が目安）
 - ✅ 成果物が明確（どのファイルに何が追加・変更されるか）
-- ✅ テスト追加方針が決められる粒度
 - ❌ 複数機能にまたがる巨大タスク
 - ❌ 1 行修正レベルの微細タスク（他タスクに統合すべき）
 - ❌ 「〜を改善する」のような抽象的タスク
@@ -85,5 +89,6 @@ Design Document を受けて、**実装可能な粒度のタスクに分解**し
 
 - 実装そのもの（specialist-implementer の領域）
 - 設計変更（specialist-architect の領域）
+- **テスト設計** (specialist-qa-analyst の領域。qa-design.md / qa-flow.md は planner が書き換えない、読み取り参照のみ)
 - タスク実行中の状態追跡（Main が `TODO.md` で管理）
 - 実装中に発見された追加タスクの反映（それは Main が `TODO.md` に追記する運用）
