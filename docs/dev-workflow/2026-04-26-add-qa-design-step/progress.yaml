@@ -3,7 +3,7 @@ started_at: 2026-04-26T13:00:00Z
 updated_at: 2026-04-26T18:45:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 5: Implementation (完了、Step 6 Self-Review への遷移はユーザー判断待ち)'
+current_step: 'Step 7: External Review'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification'
@@ -32,10 +32,18 @@ completed_steps:
     artifacts:
       - 'plugins/dev-workflow/* (8 tasks T1-T8 across multiple commits: da99b6f, 9587d56, b1a7b46, a0e22c2, e9d4f64, 55b4bb2)'
       - TODO.md (all 8 tasks completed)
+  - step: 'Step 6: Self-Review'
+    completed_at: 2026-04-26T19:00:00Z
+    artifacts:
+      - self-review-report.md
 
 pending_gates: []
 
-active_specialists: []
+active_specialists:
+  - name: reviewer
+    task: 'Step 7: External Review (Main が兼任、観点ごとに順次)'
+    status: running
+    started_at: 2026-04-26T19:00:00Z
 
 blockers: []
 
@@ -50,8 +58,8 @@ artifacts:
   design: design.md
   external_adrs: []
   task_plan: task-plan.md
-  todo: null
-  self_review: null
+  todo: TODO.md
+  self_review: self-review-report.md
   review: []
   validation: null
   retrospective: null
