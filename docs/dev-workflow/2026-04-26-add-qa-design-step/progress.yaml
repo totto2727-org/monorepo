@@ -1,9 +1,9 @@
 identifier: 2026-04-26-add-qa-design-step
 started_at: 2026-04-26T13:00:00Z
-updated_at: 2026-04-26T15:00:00Z
+updated_at: 2026-04-26T15:30:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 4: Task Decomposition'
+current_step: 'Step 4: Task Decomposition (awaiting user approval)'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification'
@@ -23,11 +23,12 @@ completed_steps:
     artifacts:
       - design.md
 
-pending_gates: []
+pending_gates:
+  - 'Step 4 user approval (task-plan.md, status: draft, 実装開始の合意)'
 
 active_specialists:
   - name: planner
-    task: 'Step 4: Task Decomposition (Main が兼任、design.md の handoff hints を task-plan.md に落とし込む)'
+    task: 'Step 4: Task Decomposition (Main が兼任、task-plan.md draft を提出済み、ユーザー承認待ち)'
     status: running
     started_at: 2026-04-26T15:00:00Z
 
@@ -43,7 +44,7 @@ artifacts:
     - research/column-and-tcid-policy.md
   design: design.md
   external_adrs: []
-  task_plan: null
+  task_plan: task-plan.md
   todo: null
   self_review: null
   review: []
