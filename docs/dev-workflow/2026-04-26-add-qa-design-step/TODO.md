@@ -35,15 +35,15 @@
   - re_activations: 0
   - notes: 2 ファイル新規 (specialist-qa-analyst/SKILL.md, agents/qa-analyst.md)
 
-- [ ] **T3** — dev-workflow/SKILL.md の大規模更新
-  - status: pending
+- [x] **T3** — dev-workflow/SKILL.md の大規模更新
+  - status: completed
   - dependencies: なし (Wave 1 起点、T1 と並列可)
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-04-26T16:30:00Z
+  - completed_at: 2026-04-26T17:00:00Z
+  - commit: (this commit)
+  - implementer: Main (兼任)
   - re_activations: 0
-  - notes: 1 ファイル大規模修正 (ステップ一覧 / 全体図 / Step 4 詳細追加 / 番号シフト 5→6, 6→7, 7→8, 8→9, 9→10 / Step 5↔6 ループ → 6↔7 / コミット規約 / 並列起動ガイド / ロールバック早見表)
+  - notes: gsed 逆順番号シフト (placeholder で複合表現保護) + Step 4 QA Design 詳細セクション新規追加 + ステップ一覧 10 行化 + ASCII 図 10 ノード化 + コミット規約/並列起動/ロールバック早見表に Step 4 関連追加 + 9→10 ステップ表記更新
 
 - [ ] **T4** — specialist-planner / implementer / validator の入出力契約変更
   - status: pending
