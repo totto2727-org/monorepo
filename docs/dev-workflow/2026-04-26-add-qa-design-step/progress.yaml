@@ -1,9 +1,9 @@
 identifier: 2026-04-26-add-qa-design-step
 started_at: 2026-04-26T13:00:00Z
-updated_at: 2026-04-26T18:45:00Z
+updated_at: 2026-04-26T19:50:00Z
 
-status: active # active | completed | blocked
-current_step: 'Step 8: Validation'
+status: completed # active | completed | blocked
+current_step: 'completed (Step 9 Retrospective 完了)'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification'
@@ -42,14 +42,18 @@ completed_steps:
       - review/consistency.md
       - review/documentation-quality.md
       - review/backward-compatibility.md
+  - step: 'Step 8: Validation'
+    completed_at: 2026-04-26T19:35:00Z
+    artifacts:
+      - validation-report.md
+  - step: 'Step 9: Retrospective'
+    completed_at: 2026-04-26T19:50:00Z
+    artifacts:
+      - retrospective.md
 
 pending_gates: []
 
-active_specialists:
-  - name: validator
-    task: 'Step 8: Validation (Main が兼任、Intent Spec 14 成功基準を実測)'
-    status: running
-    started_at: 2026-04-26T19:30:00Z
+active_specialists: []
 
 blockers: []
 
@@ -70,8 +74,8 @@ artifacts:
     - review/consistency.md
     - review/documentation-quality.md
     - review/backward-compatibility.md
-  validation: null
-  retrospective: null
+  validation: validation-report.md
+  retrospective: retrospective.md
 
 user_approvals:
   - gate: 'Step 1 user approval'
