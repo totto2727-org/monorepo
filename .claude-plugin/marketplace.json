@@ -18,6 +18,10 @@
     {
       "name": "components-build",
       "source": "./plugins/components-build"
+    },
+    {
+      "name": "ai-dlc",
+      "source": "./plugins/ai-dlc"
     }
   ]
 }
