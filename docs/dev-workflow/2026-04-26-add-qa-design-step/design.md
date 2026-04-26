@@ -88,8 +88,8 @@ flowchart LR
   QAF --> IMPL
   TP --> IMPL
   IMPL -.append TC-NNN essential.-> QAD
-  IMPL -.append TC-NNN flowchart blocks.-> QAF
-  IMPL -.append TC-IMPL impl-side only.-> QAD
+  IMPL -.append TC-IMPL impl-side.-> QAD
+  IMPL -.append flowchart blocks for both TC-NNN and TC-IMPL.-> QAF
   IMPL --> SR[self-reviewer]
   SR --> RV[reviewer]
   QAD --> VAL[validator]
@@ -135,18 +135,22 @@ flowchart LR
 6. ## 実装都合テストケース (TC-IMPL-NNN: 具体実装でのみ発生する防御的分岐を検証)
    - Step 4 では空 (qa-analyst は本質テストのみ設計、実装都合は予見しない)
    - Step 6 で implementer が「ライブラリ制約由来の防御的分岐」を発見した場合のみ追記
-   - **qa-flow.md には反映しない** (本質ロジックではないため、Mermaid 図を肥大化させない)
+   - **qa-flow.md にも必ず反映** (テスト網羅性確認は人間にとって認知負荷が高いため、原則すべての TC を図示する)
+   - 本質テストとの区別は **ID prefix (`TC-` vs `TC-IMPL-`)** で十分なので、qa-flow.md 上では混在可
 7. ## カバレッジ表 (成功基準 → TC-ID の逆引き、Validation で使用)
-   - 本質テスト (TC-NNN) のみが対象。TC-IMPL-NNN はカバレッジ表には現れない
+   - 本質テスト (TC-NNN) のみが対象 (成功基準と紐付くのは本質テストのみ)
+   - TC-IMPL-NNN はカバレッジ表には現れない (成功基準対応がないため)
 ```
 
 ### 本質テスト vs 実装都合テストの判断基準
 
-| 区分                                 | ID 形式             | 起点               | qa-flow.md 反映 | 性質                                                                  |
-| ------------------------------------ | ------------------- | ------------------ | --------------- | --------------------------------------------------------------------- |
-| **本質テスト (Step 4 設計)**         | `TC-NNN`            | Step 4 qa-analyst  | ✓               | 仕様レベル (intent-spec.md) で表現可能な振る舞い                      |
-| **本質テスト (Step 6 振る舞い追加)** | `TC-NNN` (継続採番) | Step 6 implementer | ✓ (分岐追加)    | Step 4 で予見できなかった本質ロジック分岐                             |
-| **実装都合テスト**                   | `TC-IMPL-NNN`       | Step 6 implementer | ✗               | ライブラリ / フレームワーク / OS 等の具体実装でのみ発生する防御的分岐 |
+| 区分                                 | ID 形式             | 起点               | qa-flow.md 反映   | 性質                                                                  |
+| ------------------------------------ | ------------------- | ------------------ | ----------------- | --------------------------------------------------------------------- |
+| **本質テスト (Step 4 設計)**         | `TC-NNN`            | Step 4 qa-analyst  | ✓                 | 仕様レベル (intent-spec.md) で表現可能な振る舞い                      |
+| **本質テスト (Step 6 振る舞い追加)** | `TC-NNN` (継続採番) | Step 6 implementer | ✓ (分岐追加)      | Step 4 で予見できなかった本質ロジック分岐                             |
+| **実装都合テスト**                   | `TC-IMPL-NNN`       | Step 6 implementer | ✓ (prefix で区別) | ライブラリ / フレームワーク / OS 等の具体実装でのみ発生する防御的分岐 |
+
+**重要:** 3 区分の判別は **ID prefix (`TC-` vs `TC-IMPL-`)** で十分。qa-flow.md にはすべての TC を図示する (本質テストと実装都合テストを混在可)。区別が必要な場合は ID を見れば判断できる。
 
 **判断フロー (Step 6 implementer 用):**
 
@@ -155,7 +159,7 @@ flowchart TD
   Start([新しいテストが必要と判断]) --> Q1{intent-spec.md or design.md の<br/>仕様レベルで表現できる分岐か?}
   Q1 -->|YES| Essential[本質テスト → TC-NNN を継続採番<br/>qa-design.md 本質セクション に追記<br/>qa-flow.md にも該当分岐ブロック追加]
   Q1 -->|NO| Q2{特定ライブラリ・<br/>フレームワーク・OS の<br/>具体実装でのみ発生する分岐か?}
-  Q2 -->|YES| Impl[実装都合テスト → TC-IMPL-NNN を採番<br/>qa-design.md 実装都合セクション に追記<br/>qa-flow.md には反映しない]
+  Q2 -->|YES| Impl[実装都合テスト → TC-IMPL-NNN を採番<br/>qa-design.md 実装都合セクション に追記<br/>qa-flow.md にも図示 既存 flowchart に組み込み可なら追加 不可なら独自セクション]
   Q2 -->|NO| Block[Blocker として Main に報告<br/>判断基準が曖昧]
 ```
 
@@ -163,15 +167,24 @@ flowchart TD
 
 ````text
 1. # qa-flow (タイトル)
-2. ## (関心領域 1)
+2. ## (関心領域 1) — 本質テスト中心、必要なら関連 TC-IMPL も組み込み
    - カバーする成功基準: SC-X, SC-Y
-   - ​```mermaid flowchart TD ... ​```
+   - ​```mermaid flowchart TD ... ​``` (TC-NNN を主軸、関連する TC-IMPL-NNN があれば同 flowchart の葉に追加)
 3. ## (関心領域 2)
    - カバーする成功基準: SC-Z
    - ​```mermaid flowchart TD ... ​```
 4. ## 横断的処理 (任意、エラーハンドリング等)
    - ​```mermaid flowchart TD ... ​```
+5. ## 実装都合分岐 (任意、独立した TC-IMPL を一括表示)
+   - 既存 flowchart に組み込めない TC-IMPL-NNN をここに集約
+   - ​```mermaid flowchart TD ... ​```
 ````
+
+**実装都合テストの qa-flow.md への組み込み方針:**
+
+- **Step 6 implementer が判断**: 既存の本質テスト flowchart の分岐構造に自然に組み込める TC-IMPL があれば、同じ flowchart に葉として追加 (例: 認証 flowchart の中で「ライブラリの仕様で `null` を返すケース」を分岐として追加)
+- **組み込めない場合**: 「実装都合分岐」セクションを新設 (or 既存) して、そこに集約
+- **テスト網羅性確認の認知負荷軽減**: qa-design.md のテーブルだけでは「漏れに気づきにくい」ため、qa-flow.md で図示することで人間レビュアーの認知負荷を下げる。これは設計判断の根本理由
 
 ### 2 軸の値域 (enum)
 
@@ -207,11 +220,11 @@ VerificationStyle: "assertion" | "scenario" | "observation" | "inspection"
 | `templates/qa-flow.md`     | 出力フォーマット雛形                                              |
 | プロジェクト言語固有スキル | 自動テスト基盤の選択肢 (具体ツール名は qa-design.md には書かない) |
 
-| 流出先                 | qa-analyst 出力の利用                                                                                                            |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `planner` (Step 5)     | qa-design.md を任意参照、TC-ID をタスクに任意紐付け                                                                              |
-| `implementer` (Step 6) | qa-design.md / qa-flow.md を必須参照。本質追加 (TC-NNN 継続採番) は両方へ追記、実装都合 (TC-IMPL-NNN) は qa-design.md のみへ追記 |
-| `validator` (Step 9)   | qa-design.md / qa-flow.md のカバレッジを実測                                                                                     |
+| 流出先                 | qa-analyst 出力の利用                                                                                                                                                                                     |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `planner` (Step 5)     | qa-design.md を任意参照、TC-ID をタスクに任意紐付け                                                                                                                                                       |
+| `implementer` (Step 6) | qa-design.md / qa-flow.md を必須参照。本質追加 (TC-NNN 継続採番) も実装都合 (TC-IMPL-NNN) も**両方へ追記**。区別は ID prefix で十分。網羅性確認の認知負荷軽減のため、すべての TC を qa-flow.md に図示する |
+| `validator` (Step 9)   | qa-design.md / qa-flow.md のカバレッジを実測                                                                                                                                                              |
 
 ## 代替案と採用理由
 
