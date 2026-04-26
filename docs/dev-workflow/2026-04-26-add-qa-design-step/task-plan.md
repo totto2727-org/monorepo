@@ -4,7 +4,7 @@
 - **Author:** Main (planner 役を兼任)
 - **Source:** `design.md`
 - **Created at:** 2026-04-26T15:00:00Z
-- **Status:** draft
+- **Status:** approved
 
 このドキュメントは **Step 4 で確定する不変な計画書**。Step 5〜6 中のタスク状態追跡は `TODO.md` で行う。
 

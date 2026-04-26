@@ -1,9 +1,9 @@
 identifier: 2026-04-26-add-qa-design-step
 started_at: 2026-04-26T13:00:00Z
-updated_at: 2026-04-26T15:30:00Z
+updated_at: 2026-04-26T16:00:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 4: Task Decomposition (awaiting user approval)'
+current_step: 'Step 5: Implementation (Wave 1: T1, T3 起動準備)'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification'
@@ -22,15 +22,19 @@ completed_steps:
     completed_at: 2026-04-26T15:00:00Z
     artifacts:
       - design.md
+  - step: 'Step 4: Task Decomposition'
+    completed_at: 2026-04-26T16:00:00Z
+    artifacts:
+      - task-plan.md
+      - TODO.md
 
-pending_gates:
-  - 'Step 4 user approval (task-plan.md, status: draft, 実装開始の合意)'
+pending_gates: []
 
 active_specialists:
-  - name: planner
-    task: 'Step 4: Task Decomposition (Main が兼任、task-plan.md draft を提出済み、ユーザー承認待ち)'
+  - name: implementer
+    task: 'Step 5: Implementation (Main が兼任、Wave 1: T1, T3 を順次起動予定)'
     status: running
-    started_at: 2026-04-26T15:00:00Z
+    started_at: 2026-04-26T16:00:00Z
 
 blockers: []
 
@@ -60,5 +64,9 @@ user_approvals:
     approved_at: 2026-04-26T15:00:00Z
     approved_by: user
     notes: 'design.md 承認 (TC-NNN/TC-IMPL-NNN 区別、ID prefix 判別、実装都合テストも qa-flow.md に反映、認知負荷軽減のため網羅図示を含む最終版)'
+  - gate: 'Step 4 user approval'
+    approved_at: 2026-04-26T16:00:00Z
+    approved_by: user
+    notes: 'task-plan.md 承認 (8 tasks, 4 waves, R1-R5 リスクカタログ、実装開始合意)'
 
 rollbacks: []
