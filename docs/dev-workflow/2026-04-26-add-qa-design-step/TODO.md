@@ -3,7 +3,7 @@
 - **Source:** `task-plan.md`
 - **Active Steps:** Step 5〜6 (Implementation / Self-Review)
 - **Created at:** 2026-04-26T16:00:00Z
-- **Last updated:** 2026-04-26T16:00:00Z
+- **Last updated:** 2026-04-26T16:30:00Z
 
 このファイルは**永続化されたタスク状態**。Main 内部の `TaskCreate` タスクリストと同期するが、**こちらが真のソース**。状態変化時は TODO.md 更新 → コミット → TaskUpdate の順で実行する。
 
@@ -15,15 +15,15 @@
 
 ## タスク
 
-- [ ] **T1** — shared-artifacts に qa-design / qa-flow の reference + template を追加
-  - status: pending
+- [x] **T1** — shared-artifacts に qa-design / qa-flow の reference + template を追加
+  - status: completed
   - dependencies: なし (Wave 1 起点)
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-04-26T16:05:00Z
+  - completed_at: 2026-04-26T16:30:00Z
+  - commit: (this commit)
+  - implementer: Main (兼任)
   - re_activations: 0
-  - notes: 4 ファイル新規 (references/qa-design.md, references/qa-flow.md, templates/qa-design.md, templates/qa-flow.md)
+  - notes: 4 ファイル新規完成 (references/qa-design.md 列定義+2軸enum+業界taxonomy対応、references/qa-flow.md 分割指針+skip規約、templates/qa-design.md プレースホルダ表+enum早見表、templates/qa-flow.md 関心領域+横断+実装都合分岐セクション)
 
 - [ ] **T2** — specialist-qa-analyst skill + agent を新規作成
   - status: pending
