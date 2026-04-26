@@ -3,7 +3,7 @@ started_at: 2026-04-26T13:00:00Z
 updated_at: 2026-04-26T18:45:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 7: External Review'
+current_step: 'Step 8: Validation'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification'
@@ -36,14 +36,20 @@ completed_steps:
     completed_at: 2026-04-26T19:00:00Z
     artifacts:
       - self-review-report.md
+  - step: 'Step 7: External Review'
+    completed_at: 2026-04-26T19:30:00Z
+    artifacts:
+      - review/consistency.md
+      - review/documentation-quality.md
+      - review/backward-compatibility.md
 
 pending_gates: []
 
 active_specialists:
-  - name: reviewer
-    task: 'Step 7: External Review (Main が兼任、観点ごとに順次)'
+  - name: validator
+    task: 'Step 8: Validation (Main が兼任、Intent Spec 14 成功基準を実測)'
     status: running
-    started_at: 2026-04-26T19:00:00Z
+    started_at: 2026-04-26T19:30:00Z
 
 blockers: []
 
@@ -60,7 +66,10 @@ artifacts:
   task_plan: task-plan.md
   todo: TODO.md
   self_review: self-review-report.md
-  review: []
+  review:
+    - review/consistency.md
+    - review/documentation-quality.md
+    - review/backward-compatibility.md
   validation: null
   retrospective: null
 
