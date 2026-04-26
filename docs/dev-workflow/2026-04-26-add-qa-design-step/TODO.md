@@ -25,15 +25,15 @@
   - re_activations: 0
   - notes: 4 ファイル新規完成 (references/qa-design.md 列定義+2軸enum+業界taxonomy対応、references/qa-flow.md 分割指針+skip規約、templates/qa-design.md プレースホルダ表+enum早見表、templates/qa-flow.md 関心領域+横断+実装都合分岐セクション)
 
-- [ ] **T2** — specialist-qa-analyst skill + agent を新規作成
-  - status: pending
+- [x] **T2** — specialist-qa-analyst skill + agent を新規作成
+  - status: completed
   - dependencies: T1
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-04-26T17:00:00Z
+  - completed_at: 2026-04-26T17:15:00Z
+  - commit: (this commit)
+  - implementer: Main (兼任)
   - re_activations: 0
-  - notes: 2 ファイル新規 (specialist-qa-analyst/SKILL.md, agents/qa-analyst.md)
+  - notes: 2 ファイル新規完成 (specialist-qa-analyst/SKILL.md: 役割/2軸選定ガイド/業界taxonomy対応/失敗モード/スコープ外、agents/qa-analyst.md: description+参照スキル+Main要求)
 
 - [x] **T3** — dev-workflow/SKILL.md の大規模更新
   - status: completed
