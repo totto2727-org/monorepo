@@ -1,0 +1,42 @@
+identifier: 2026-04-26-add-qa-design-step
+started_at: 2026-04-26T13:00:00Z
+updated_at: 2026-04-26T13:30:00Z
+
+status: active # active | completed | blocked
+current_step: 'Step 2: Research'
+
+completed_steps:
+  - step: 'Step 1: Intent Clarification'
+    completed_at: 2026-04-26T13:30:00Z
+    artifacts:
+      - intent-spec.md
+
+pending_gates: []
+
+active_specialists:
+  - name: researcher
+    task: 'Step 2: Research (Main が兼任、観点ごとに順次調査)'
+    status: running
+    started_at: 2026-04-26T13:30:00Z
+
+blockers: []
+
+artifacts:
+  intent_spec: intent-spec.md
+  research: []
+  design: null
+  external_adrs: []
+  task_plan: null
+  todo: null
+  self_review: null
+  review: []
+  validation: null
+  retrospective: null
+
+user_approvals:
+  - gate: 'Step 1 user approval'
+    approved_at: 2026-04-26T13:30:00Z
+    approved_by: user
+    notes: 'intent-spec.md 承認 (qa-flow.md 拡張子化、ADR 不要化、Claude Code subagent 制約削除を含む最終版)'
+
+rollbacks: []
