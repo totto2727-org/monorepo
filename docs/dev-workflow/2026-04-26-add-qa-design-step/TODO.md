@@ -65,15 +65,15 @@
   - re_activations: 0
   - notes: 9 ファイル機械置換 (gsed 逆順 9→10 から実行)
 
-- [ ] **T6** — shared-artifacts/SKILL.md + progress.yaml + task-plan の template/reference 更新
-  - status: pending
+- [x] **T6** — shared-artifacts/SKILL.md + progress.yaml + task-plan の template/reference 更新
+  - status: completed
   - dependencies: T1
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-04-26T17:45:00Z
+  - completed_at: 2026-04-26T18:15:00Z
+  - commit: (this commit)
+  - implementer: Main (兼任)
   - re_activations: 0
-  - notes: 5 ファイル修正 (成果物テーブルに qa-design/qa-flow / artifacts に qa_design/qa_flow / task-plan の test_strategy 削除 + TC-ID 任意追加)
+  - notes: 5 ファイル修正完了 (gsed 番号シフト + qa-design/qa-flow 追加 + 重複 dev-workflow 整理 + Step 6〜6 → 6〜7 修正)。task-plan の test_strategy → covered_test_cases 任意化、progress.yaml の artifacts に qa_design/qa_flow フィールド追加
 
 - [ ] **T7** — その他 templates の Step 番号シフト + README 更新
   - status: pending
