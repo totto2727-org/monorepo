@@ -207,11 +207,11 @@ VerificationStyle: "assertion" | "scenario" | "observation" | "inspection"
 | `templates/qa-flow.md`     | 出力フォーマット雛形                                              |
 | プロジェクト言語固有スキル | 自動テスト基盤の選択肢 (具体ツール名は qa-design.md には書かない) |
 
-| 流出先                 | qa-analyst 出力の利用                                  |
-| ---------------------- | ------------------------------------------------------ |
-| `planner` (Step 5)     | qa-design.md を任意参照、TC-ID をタスクに任意紐付け    |
-| `implementer` (Step 6) | qa-design.md / qa-flow.md を必須参照、両方への追記責任 |
-| `validator` (Step 9)   | qa-design.md / qa-flow.md のカバレッジを実測           |
+| 流出先                 | qa-analyst 出力の利用                                                                                                            |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `planner` (Step 5)     | qa-design.md を任意参照、TC-ID をタスクに任意紐付け                                                                              |
+| `implementer` (Step 6) | qa-design.md / qa-flow.md を必須参照。本質追加 (TC-NNN 継続採番) は両方へ追記、実装都合 (TC-IMPL-NNN) は qa-design.md のみへ追記 |
+| `validator` (Step 9)   | qa-design.md / qa-flow.md のカバレッジを実測                                                                                     |
 
 ## 代替案と採用理由
 
