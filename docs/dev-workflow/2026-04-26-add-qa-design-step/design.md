@@ -87,8 +87,9 @@ flowchart LR
   QAD --> IMPL[implementer]
   QAF --> IMPL
   TP --> IMPL
-  IMPL -.append TC-IMPL.-> QAD
-  IMPL -.append flowchart blocks.-> QAF
+  IMPL -.append TC-NNN essential.-> QAD
+  IMPL -.append TC-NNN flowchart blocks.-> QAF
+  IMPL -.append TC-IMPL impl-side only.-> QAD
   IMPL --> SR[self-reviewer]
   SR --> RV[reviewer]
   QAD --> VAL[validator]
@@ -127,9 +128,35 @@ flowchart LR
 2. ## 概要 (intent-spec.md の成功基準を深掘りした観測可能な形)
 3. ## 自動 vs 手動の判断方針 (アーキテクチャと design.md からの根拠)
 4. ## テストファイル配置ポリシー (カテゴリ別の配置方針、具体パスは task-plan)
-5. ## 本質テストケース (上記列構造のテーブル、TC-NNN)
-6. ## カバレッジ表 (成功基準 → TC-ID の逆引き、Validation で使用)
-7. ## 実装段階で追加されたテスト (Step 6 で implementer が追記、TC-IMPL-NNN、初期は空 or プレースホルダ)
+5. ## 本質テストケース (TC-NNN: 仕様レベルで表現可能な振る舞いを検証)
+   - Step 4 で qa-analyst が設計したケースが起点
+   - Step 6 で implementer が「振る舞いの追加パターン」を発見した場合は **TC-NNN を継続採番**してこのセクションに追記
+   - qa-flow.md の Mermaid 葉として参照される
+6. ## 実装都合テストケース (TC-IMPL-NNN: 具体実装でのみ発生する防御的分岐を検証)
+   - Step 4 では空 (qa-analyst は本質テストのみ設計、実装都合は予見しない)
+   - Step 6 で implementer が「ライブラリ制約由来の防御的分岐」を発見した場合のみ追記
+   - **qa-flow.md には反映しない** (本質ロジックではないため、Mermaid 図を肥大化させない)
+7. ## カバレッジ表 (成功基準 → TC-ID の逆引き、Validation で使用)
+   - 本質テスト (TC-NNN) のみが対象。TC-IMPL-NNN はカバレッジ表には現れない
+```
+
+### 本質テスト vs 実装都合テストの判断基準
+
+| 区分                                 | ID 形式             | 起点               | qa-flow.md 反映 | 性質                                                                  |
+| ------------------------------------ | ------------------- | ------------------ | --------------- | --------------------------------------------------------------------- |
+| **本質テスト (Step 4 設計)**         | `TC-NNN`            | Step 4 qa-analyst  | ✓               | 仕様レベル (intent-spec.md) で表現可能な振る舞い                      |
+| **本質テスト (Step 6 振る舞い追加)** | `TC-NNN` (継続採番) | Step 6 implementer | ✓ (分岐追加)    | Step 4 で予見できなかった本質ロジック分岐                             |
+| **実装都合テスト**                   | `TC-IMPL-NNN`       | Step 6 implementer | ✗               | ライブラリ / フレームワーク / OS 等の具体実装でのみ発生する防御的分岐 |
+
+**判断フロー (Step 6 implementer 用):**
+
+```mermaid
+flowchart TD
+  Start([新しいテストが必要と判断]) --> Q1{intent-spec.md or design.md の<br/>仕様レベルで表現できる分岐か?}
+  Q1 -->|YES| Essential[本質テスト → TC-NNN を継続採番<br/>qa-design.md 本質セクション に追記<br/>qa-flow.md にも該当分岐ブロック追加]
+  Q1 -->|NO| Q2{特定ライブラリ・<br/>フレームワーク・OS の<br/>具体実装でのみ発生する分岐か?}
+  Q2 -->|YES| Impl[実装都合テスト → TC-IMPL-NNN を採番<br/>qa-design.md 実装都合セクション に追記<br/>qa-flow.md には反映しない]
+  Q2 -->|NO| Block[Blocker として Main に報告<br/>判断基準が曖昧]
 ```
 
 ### qa-flow.md の構造
