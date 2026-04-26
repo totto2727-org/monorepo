@@ -3,7 +3,8 @@ import * as Fs from 'node:fs/promises'
 import { Effect } from 'effect'
 
 class GitError extends Error {
-  _tag = 'GitError'
+  override name = 'GitError'
+  _tag = 'GitError' as const
 }
 
 const mockClone = (_url: string, dest: string) =>

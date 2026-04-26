@@ -2,7 +2,7 @@ import { Button } from '@package/ui/components/ui/button'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { createCollection, useLiveQuery } from '@tanstack/react-db'
 import { ClientOnly, createFileRoute, Link } from '@tanstack/react-router'
-import { createStore, useStore } from '@tanstack/react-store'
+import { createStore, useSelector } from '@tanstack/react-store'
 import { Function, Schema } from 'effect'
 
 import { getContext } from '#@/feature/share/lib/tanstack-query/provider.tsx'
@@ -10,7 +10,7 @@ import { getContext } from '#@/feature/share/lib/tanstack-query/provider.tsx'
 const countStore = createStore(0)
 
 const Counter = () => {
-  const count = useStore(countStore, Function.identity)
+  const count = useSelector(countStore, Function.identity)
   return (
     <div>
       <div>{count}</div>
@@ -79,10 +79,9 @@ const PokemonList = () => {
         ))}
       </ul>
       <Button
-        onClick={
-          // oxlint-disable-next-line typescript/no-misused-promises
-          () => loadMoreButton(pokemon.length)
-        }
+        onClick={() => {
+          void loadMoreButton(pokemon.length)
+        }}
       >
         Load More
       </Button>

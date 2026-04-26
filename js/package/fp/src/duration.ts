@@ -1,5 +1,5 @@
 import { DurationFormat } from '@formatjs/intl-durationformat'
-import { Array, DateTime, Duration, Effect, HashMap, Layer, Option, Ref, ServiceMap } from 'effect'
+import { Array, Context, DateTime, Duration, Effect, HashMap, Layer, Option, Ref } from 'effect'
 
 /**
  * @internal
@@ -9,13 +9,13 @@ export type DurationFormatterCacheRef = Ref.Ref<HashMap.HashMap<readonly string[
 /**
  * @internal
  */
-export const DurationFormatterCacheBase: ServiceMap.ServiceClass<
+export const DurationFormatterCacheBase: Context.ServiceClass<
   DurationFormatterCache,
   '@totto2727/fp/duration/DurationFormatterCache',
   DurationFormatterCacheRef
 > & {
   readonly make: Effect.Effect<DurationFormatterCacheRef>
-} = ServiceMap.Service<DurationFormatterCache>()('@totto2727/fp/duration/DurationFormatterCache', {
+} = Context.Service<DurationFormatterCache>()('@totto2727/fp/duration/DurationFormatterCache', {
   make: Ref.make(HashMap.empty()),
 })
 

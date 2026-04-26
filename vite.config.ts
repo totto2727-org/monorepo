@@ -1,4 +1,6 @@
-import { core, react, remix } from 'ultracite/oxlint'
+import core from 'ultracite/oxlint/core'
+import react from 'ultracite/oxlint/react'
+import remix from 'ultracite/oxlint/remix'
 import { defineConfig } from 'vite-plus'
 
 export default defineConfig({
@@ -13,6 +15,7 @@ export default defineConfig({
       order: 'asc',
     },
     experimentalSortPackageJson: true,
+    extends: [core, react, remix],
     jsxSingleQuote: true,
     printWidth: 120,
     quoteProps: 'as-needed',

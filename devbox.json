@@ -1,4 +1,12 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
-  "packages": ["go@latest", "deno@latest", "pnpm@latest", "go-task@latest", "turso-cli@latest", "sqld@latest"]
+  "packages": [
+    "go@latest",
+    "deno@latest",
+    "pnpm@latest",
+    "go-task@latest",
+    "turso-cli@latest",
+    "sqld@latest",
+    "nixfmt@latest"
+  ]
 }

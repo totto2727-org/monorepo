@@ -1,5 +1,5 @@
 import { betterAuth } from 'better-auth'
-import { Effect, Layer, ServiceMap } from 'effect'
+import { Context, Effect, Layer } from 'effect'
 
 import * as DB from '#@/feature/db/kysely.ts'
 import * as Env from '#@/feature/env.ts'
@@ -55,7 +55,7 @@ const makeInstance = (db: DB.Instance, env: Env.BetterAuth) =>
 
 export type Instance = ReturnType<typeof makeInstance>
 
-export const Service = ServiceMap.Service<Instance>('@app/saas-example/feature/auth/better-auth/Service')
+export const Service = Context.Service<Instance>('@app/saas-example/feature/auth/better-auth/Service')
 
 export const layer = Layer.effect(
   Service,

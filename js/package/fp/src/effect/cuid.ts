@@ -1,7 +1,7 @@
 import { sha3_512 } from '@noble/hashes/sha3.js'
 import BaseX from 'base-x'
 import { BigNumber } from 'bignumber.js'
-import { Array, Effect, Layer, Predicate, Schema, ServiceMap } from 'effect'
+import { Array, Context, Effect, Layer, Predicate, Schema } from 'effect'
 /*
  * MIT License
  * Copyright (c) 2022 Eric Elliott
@@ -188,13 +188,13 @@ export const init = ({
 /**
  * @internal
  */
-export const GeneratorBase: ServiceMap.ServiceClass<
+export const GeneratorBase: Context.ServiceClass<
   Generator,
   '@totto2727/fp/effect/cuid/Generator',
   () => typeof schema.Type
 > & {
   readonly make: Effect.Effect<() => typeof schema.Type>
-} = ServiceMap.Service<Generator>()('@totto2727/fp/effect/cuid/Generator', {
+} = Context.Service<Generator>()('@totto2727/fp/effect/cuid/Generator', {
   make: Effect.sync(() => {
     // oxlint-disable-next-line rules/no-let -- lazy initialization in closure
     let createId: () => CUID

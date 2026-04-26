@@ -4,6 +4,7 @@ packages:
   - 'js/package/*'
   - 'mbt/package/*'
   - 'go/app/*'
+  - 'nix'
 
 allowBuilds:
   esbuild: true
@@ -11,21 +12,9 @@ allowBuilds:
   sharp: true
   workerd: true
 
-overrides:
-  vite: 'catalog:'
-  vitest: 'catalog:'
-
-peerDependencyRules:
-  allowAny:
-    - vite
-    - vitest
-  allowedVersions:
-    vite: '*'
-    vitest: '*'
-
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@latest
-  vite-plus: latest
+  vite-plus: ^0.1.19
   vitest: npm:@voidzero-dev/vite-plus-test@latest
 
 catalogs:
@@ -63,7 +52,7 @@ catalogs:
     eslint-plugin-react-hooks: ^7.0.0
     jiti: ^2.6.1
     typescript-eslint: ^8.46.1
-    ultracite: ^7.0.0
+    ultracite: ^7.6.1
   pulumi:
     '@pulumi/aws': ^7.0.0
     '@pulumi/awsx': ^3.0.0
@@ -97,9 +86,23 @@ catalogs:
   storybook:
     '@storybook/react-vite': ^10.2.15
     storybook: ^10.2.15
+  types:
+    '@types/node': ^24.12.2
   ui:
     '@tailwindcss/vite': ^4.1.18
     tailwindcss: ^4.1.18
   vite:
     vite: 8.0.0-beta.18
     vitest: 4.0.18
+
+overrides:
+  vite: 'catalog:'
+  vitest: 'catalog:'
+
+peerDependencyRules:
+  allowAny:
+    - vite
+    - vitest
+  allowedVersions:
+    vite: '*'
+    vitest: '*'

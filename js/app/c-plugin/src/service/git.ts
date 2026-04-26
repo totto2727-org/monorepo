@@ -3,6 +3,7 @@ import { promisify } from 'node:util'
 
 import { Data, Effect } from 'effect'
 
+// oxlint-disable-next-line typescript/strict-void-return -- node の execFile 型定義由来の偽陽性
 const execFile = promisify(execFileCb)
 
 export class GitError extends Data.TaggedError('GitError')<{

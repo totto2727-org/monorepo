@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 
 import { LibsqlDialect } from '@libsql/kysely-libsql'
-import { Effect, Layer, ServiceMap } from 'effect'
+import { Context, Effect, Layer } from 'effect'
 import { CamelCasePlugin, Kysely } from 'kysely'
 
 import * as Env from '#@/feature/env.ts'
@@ -31,7 +31,7 @@ export const makeRemote = (env: Env.Database): Instance =>
     plugins,
   })
 
-export const Service = ServiceMap.Service<Instance>('@app/saas-example/feature/db/kysely/Service')
+export const Service = Context.Service<Instance>('@app/saas-example/feature/db/kysely/Service')
 
 export const localLayer = Layer.sync(Service, () => makeInMemory())
 

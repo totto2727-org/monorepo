@@ -3,5 +3,6 @@
   "extends": ["@totto2727/fp/tsconfig/vite"],
   "compilerOptions": {
     "types": ["vite-plus/client"]
-  }
+  },
+  "include": ["**/*", ".storybook/**/*"]
 }

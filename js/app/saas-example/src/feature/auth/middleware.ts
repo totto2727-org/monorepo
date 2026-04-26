@@ -36,7 +36,7 @@ export const unauthorized = factory.createMiddleware((c, next) => {
     if (Option.isNone(c.var.auth)) {
       return yield* Effect.fail(new HttpError.Unauthorized())
     }
-    yield* Effect.tryPromise(next)
+    return yield* Effect.tryPromise(next)
   })
 
   const programWithCatch = program.pipe(
