@@ -85,15 +85,15 @@
   - re_activations: 0
   - notes: T5 と同一コミット内で処理 (templates/TODO.md, templates/self-review-report.md, templates/retrospective.md は gsed バッチに含めた)。README.md は 10 specialist + 10-step lifecycle に更新
 
-- [ ] **T8** — 最終 grep verification
-  - status: pending
+- [x] **T8** — 最終 grep verification
+  - status: completed
   - dependencies: T1, T2, T3, T4, T5, T6, T7
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-04-26T18:30:00Z
+  - completed_at: 2026-04-26T18:45:00Z
+  - commit: (this commit)
+  - implementer: Main (兼任)
   - re_activations: 0
-  - notes: Intent Spec 14 成功基準を機械的に検証、不一致あれば該当タスクに差し戻し
+  - notes: 全 14 成功基準 PASS (SC1-13 機械検証、SC14 Mermaid 手動目視 OK)。SC11 の reference 残存は「テスト追加方針は task-plan には書かない」という否定形説明で意図的に残置、test_strategy 列自体は templates から削除済み。差し戻しなし。
 
 ## 状態遷移ガイド
 

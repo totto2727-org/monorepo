@@ -1,9 +1,9 @@
 identifier: 2026-04-26-add-qa-design-step
 started_at: 2026-04-26T13:00:00Z
-updated_at: 2026-04-26T16:00:00Z
+updated_at: 2026-04-26T18:45:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 5: Implementation (Wave 1: T1, T3 起動準備)'
+current_step: 'Step 5: Implementation (完了、Step 6 Self-Review への遷移はユーザー判断待ち)'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification'
@@ -27,14 +27,15 @@ completed_steps:
     artifacts:
       - task-plan.md
       - TODO.md
+  - step: 'Step 5: Implementation'
+    completed_at: 2026-04-26T18:45:00Z
+    artifacts:
+      - 'plugins/dev-workflow/* (8 tasks T1-T8 across multiple commits: da99b6f, 9587d56, b1a7b46, a0e22c2, e9d4f64, 55b4bb2)'
+      - TODO.md (all 8 tasks completed)
 
 pending_gates: []
 
-active_specialists:
-  - name: implementer
-    task: 'Step 5: Implementation (Main が兼任、Wave 1: T1, T3 を順次起動予定)'
-    status: running
-    started_at: 2026-04-26T16:00:00Z
+active_specialists: []
 
 blockers: []
 
