@@ -4,7 +4,7 @@
 - **Author:** Main (architect 役を兼任)
 - **Created at:** 2026-04-26T14:00:00Z
 - **Last updated:** 2026-04-26T14:30:00Z
-- **Status:** draft
+- **Status:** approved
 
 ## 設計目標と制約
 
