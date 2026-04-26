@@ -1,14 +1,17 @@
 {
-  "name": "c-plugin",
-  "version": "0.1.0",
+  "name": "@totto2727/c-plugin",
+  "version": "0.1.1",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/totto2727-org/monorepo",
     "directory": "js/app/c-plugin"
   },
+  "files": [
+    "dist/"
+  ],
   "bin": {
-    "c-plugin": "./dist/bin.js"
+    "c-plugin": "./dist/bin.mjs"
   },
   "type": "module",
   "imports": {
@@ -17,8 +20,7 @@
   "scripts": {
     "build": "vp pack",
     "bin": "node dist/bin.mjs",
-    "check": "pnpm run --parallel /check:.*/",
-    "check:slowtype": "vpx jsr publish --dry-run --allow-dirty"
+    "check": "pnpm run --parallel /check:.*/"
   },
   "dependencies": {
     "@effect/platform-node": "catalog:effect",
