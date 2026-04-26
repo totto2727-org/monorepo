@@ -1,13 +1,13 @@
 ---
 name: specialist-self-reviewer
 description: >
-  [Specialist 用] dev-workflow Step 6 (Self-Review) を担当する専門エージェント
+  [Specialist 用] dev-workflow Step 7 (Self-Review) を担当する専門エージェント
   self-reviewer の作業詳細。implementer が生成した全 diff を統合的にレビューし、
   外部レビュー前に明らかな問題（Design Document 違反、Intent Spec 未達見込み、明白な bug 等）
   を検出する。Self-Review Report を作成する。
   起動トリガー: Main が self-reviewer エージェントをサブエージェントとして起動した際、または
   ユーザーが明示的に "Self-Review", "自己レビュー", "self-review-report 作成",
-  "Step 6" を依頼した場合。
+  "Step 7" を依頼した場合。
   Do NOT use for: 実装（specialist-implementer）、外部観点レビュー
   （specialist-reviewer、セキュリティ・パフォーマンス等の観点別）、検証
   （specialist-validator、成功基準の実測）、Retrospective 作成。
@@ -25,7 +25,7 @@ metadata:
 
 | 項目         | 内容                                                   |
 | ------------ | ------------------------------------------------------ |
-| 担当ステップ | Step 6 (Self-Review)                                   |
+| 担当ステップ | Step 7 (Self-Review)                                   |
 | 成果物       | `docs/dev-workflow/<identifier>/self-review-report.md` |
 | テンプレート | `shared-artifacts/templates/self-review-report.md`     |
 | 書き方ガイド | `shared-artifacts/references/self-review-report.md`    |
@@ -44,7 +44,7 @@ Self-Review の焦点:
 - テスト網羅性の明らかな不足
 - 型安全性・エラーハンドリングの実装品質
 
-**外部観点（セキュリティ / パフォーマンス / 可読性 / etc.）は Step 7 の `specialist-reviewer` の領域**。Self-Review はあくまで「実装チーム内の最終チェック」として全体整合性を見る。
+**外部観点（セキュリティ / パフォーマンス / 可読性 / etc.）は Step 8 の `specialist-reviewer` の領域**。Self-Review はあくまで「実装チーム内の最終チェック」として全体整合性を見る。
 
 ## 固有の入力
 
@@ -65,8 +65,8 @@ Self-Review の焦点:
    - テスト網羅性
    - 型安全性・エラーハンドリング
 3. 指摘事項を**深刻度別（High / Medium / Low）**に分類:
-   - **High**: 修正必須。これを残したまま Step 7 に進めない
-   - **Medium**: 修正推奨。Retrospective で扱うか、Step 7 で判断
+   - **High**: 修正必須。これを残したまま Step 8 に進めない
+   - **Medium**: 修正推奨。Retrospective で扱うか、Step 8 で判断
    - **Low**: 記録のみ（提案レベル）
 4. 各指摘に以下を付記:
    - 該当コミット SHA + ファイル + 行番号
@@ -92,7 +92,7 @@ Self-Review の焦点:
 ## スコープ外（やらないこと）
 
 - 実装そのもの（specialist-implementer の領域）
-- 外部観点レビュー（specialist-reviewer の領域。セキュリティ / パフォーマンス等は Step 7）
-- 成功基準の実測（specialist-validator の領域、Step 8）
+- 外部観点レビュー（specialist-reviewer の領域。セキュリティ / パフォーマンス等は Step 8）
+- 成功基準の実測（specialist-validator の領域、Step 9）
 - Design Document の変更（specialist-architect の領域）
 - Task Plan の変更（specialist-planner の領域）

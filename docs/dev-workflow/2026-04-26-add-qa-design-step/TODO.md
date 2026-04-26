@@ -55,15 +55,15 @@
   - re_activations: 0
   - notes: 3 ファイル修正完了 (gsed で Step 番号リナンバー + Edit で I/O 変更)。planner: テスト方針削除/qa-design 任意参照/qa-analyst 領域明記、implementer: qa-design+qa-flow 入力/TC-NNN+TC-IMPL 追記責任/判断フロー、validator: qa-design+qa-flow 入力/カバレッジ実測手順/qa-flow 葉カバレッジ検証
 
-- [ ] **T5** — 機械的番号シフト (specialist-self-reviewer / reviewer / retrospective-writer + agents 6 件)
-  - status: pending
+- [x] **T5** — 機械的番号シフト (specialist-self-reviewer / reviewer / retrospective-writer + agents 6 件)
+  - status: completed
   - dependencies: T3
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-04-26T18:15:00Z
+  - completed_at: 2026-04-26T18:30:00Z
+  - commit: (this commit)
+  - implementer: Main (兼任)
   - re_activations: 0
-  - notes: 9 ファイル機械置換 (gsed 逆順 9→10 から実行)
+  - notes: 9 ファイル機械置換完了 (gsed 逆順 + placeholder で複合表現保護)。残存 references の追加 gsed も実施 (design.md / retrospective.md / todo.md / self-review-report.md / その他、計 13 ファイル)
 
 - [x] **T6** — shared-artifacts/SKILL.md + progress.yaml + task-plan の template/reference 更新
   - status: completed
@@ -75,15 +75,15 @@
   - re_activations: 0
   - notes: 5 ファイル修正完了 (gsed 番号シフト + qa-design/qa-flow 追加 + 重複 dev-workflow 整理 + Step 6〜6 → 6〜7 修正)。task-plan の test_strategy → covered_test_cases 任意化、progress.yaml の artifacts に qa_design/qa_flow フィールド追加
 
-- [ ] **T7** — その他 templates の Step 番号シフト + README 更新
-  - status: pending
+- [x] **T7** — その他 templates の Step 番号シフト + README 更新
+  - status: completed
   - dependencies: T3
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-04-26T18:15:00Z
+  - completed_at: 2026-04-26T18:30:00Z
+  - commit: (this commit)
+  - implementer: Main (兼任)
   - re_activations: 0
-  - notes: 4 ファイル (TODO/self-review-report/retrospective テンプレートの番号シフト + README.md の 9→10 ステップ反映)
+  - notes: T5 と同一コミット内で処理 (templates/TODO.md, templates/self-review-report.md, templates/retrospective.md は gsed バッチに含めた)。README.md は 10 specialist + 10-step lifecycle に更新
 
 - [ ] **T8** — 最終 grep verification
   - status: pending

@@ -1,6 +1,6 @@
 ---
 description: >
-  dev-workflow Step 9 (Retrospective) 担当の専門エージェント。サイクル全体の成果物・
+  dev-workflow Step 10 (Retrospective) 担当の専門エージェント。サイクル全体の成果物・
   progress.yaml・TODO.md・ループ履歴・Blocker 履歴を分析し、次サイクルに活かせる actionable
   な学びを抽出して Retrospective Note を作成する。Main がサブエージェントとして起動する。
   並列起動はしない（全体俯瞰が必要なので 1 名）。
@@ -10,7 +10,7 @@ description: >
 
 # retrospective-writer
 
-dev-workflow Step 9 (Retrospective) 専門エージェント。**1 サイクル = 1 インスタンス**（全体俯瞰が必要なため並列化しない）。
+dev-workflow Step 10 (Retrospective) 専門エージェント。**1 サイクル = 1 インスタンス**（全体俯瞰が必要なため並列化しない）。
 
 ## 参照スキル
 
@@ -21,7 +21,7 @@ dev-workflow Step 9 (Retrospective) 専門エージェント。**1 サイクル 
 
 ## 概要
 
-- **担当ステップ:** Step 9
+- **担当ステップ:** Step 10
 - **成果物:** `docs/dev-workflow/<identifier>/retrospective.md`
 - **書き方ガイド:** `shared-artifacts/references/retrospective.md`
 - **テンプレート:** `shared-artifacts/templates/retrospective.md`

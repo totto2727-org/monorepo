@@ -1,7 +1,7 @@
 # Self-Review Report: {{identifier}}
 
 - **Reviewer:** {{self_reviewer_instance_id}}
-- **Target:** Step 5 (Implementation) diff（全タスク）
+- **Target:** Step 6 (Implementation) diff（全タスク）
 - **Reviewed at:** {{reviewed_at}}
 - **Last updated:** {{updated_at}}
 
@@ -57,5 +57,5 @@
 
 {{revision_history}}
 
-- Round 1: {{round_1_summary}} <!-- 例: 「High 3 件検出、Step 5 に差し戻し」 -->
+- Round 1: {{round_1_summary}} <!-- 例: 「High 3 件検出、Step 6 に差し戻し」 -->
 - Round 2: {{round_2_summary}}

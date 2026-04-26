@@ -1,13 +1,13 @@
 ---
 name: specialist-retrospective-writer
 description: >
-  [Specialist 用] dev-workflow Step 9 (Retrospective) を担当する専門エージェント
+  [Specialist 用] dev-workflow Step 10 (Retrospective) を担当する専門エージェント
   retrospective-writer の作業詳細。サイクル全体の成果物・progress.yaml・TODO.md・Blocker
   履歴・ループ回数・ユーザー承認履歴を分析し、次サイクルに活かせる retrospective.md
   （良かった点 / 課題 / 次回改善案 / 再利用可能な知見）を作成する。
   起動トリガー: Main が retrospective-writer エージェントをサブエージェントとして起動した
   際、またはユーザーが明示的に "Retrospective", "振り返り", "retrospective.md 作成",
-  "Step 9" を依頼した場合。
+  "Step 10" を依頼した場合。
   Do NOT use for: 検証（specialist-validator、成功基準の実測）、レビュー（specialist-reviewer /
   specialist-self-reviewer）、実装（specialist-implementer）、サイクル外の振り返り、
   複数サイクル横断の分析、一般的な retrospective meeting 議事録作成、CLAUDE.md 等への
@@ -25,7 +25,7 @@ metadata:
 
 | 項目         | 内容                                              |
 | ------------ | ------------------------------------------------- |
-| 担当ステップ | Step 9 (Retrospective)                            |
+| 担当ステップ | Step 10 (Retrospective)                           |
 | 成果物       | `docs/dev-workflow/<identifier>/retrospective.md` |
 | テンプレート | `shared-artifacts/templates/retrospective.md`     |
 | 書き方ガイド | `shared-artifacts/references/retrospective.md`    |
@@ -56,7 +56,7 @@ Retrospective の焦点:
 
 1. 全入力を読み込み、サイクル全体のタイムラインを再構築
 2. **データ分析**:
-   - ループ回数（Step 5 ↔ Step 6 の往復、ロールバック発生ステップと回数）
+   - ループ回数（Step 6 ↔ Step 7 の往復、ロールバック発生ステップと回数）
    - Blocker 発生と解消の経緯
    - ユーザー承認ゲートの承認 / 却下履歴
    - In-Progress ユーザー問い合わせの件数（多ければ Intent Spec 段階の明確化不足を示唆）
@@ -79,7 +79,7 @@ Retrospective の焦点:
 
 ## 出力の品質基準
 
-- ✅ 「Step 5 → 6 ループが 3 回発生。原因は Intent Spec 成功基準 #3 の観測手段曖昧さ。→ 次回は Step 1 で `validator` から計測可能性を仮レビューする」（具体的な因果 + 改善案）
+- ✅ 「Step 6 → 6 ループが 3 回発生。原因は Intent Spec 成功基準 #3 の観測手段曖昧さ。→ 次回は Step 1 で `validator` から計測可能性を仮レビューする」（具体的な因果 + 改善案）
 - ❌ 「実装に時間がかかった」（観測不能、改善不可）
 - ❌ 「コミュニケーションが不足していた」（抽象的、アクション不可）
 

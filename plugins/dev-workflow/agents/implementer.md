@@ -1,13 +1,13 @@
 ---
 description: >
-  dev-workflow Step 5 (Implementation) 担当の専門エージェント。Task Plan の 1 タスクを
+  dev-workflow Step 6 (Implementation) 担当の専門エージェント。Task Plan の 1 タスクを
   担当してコードを実装し、タスク単位で Git コミットを作成する。Main がサブエージェントとして
   起動する。タスクごとに並列起動される前提（1 インスタンス = 1 タスク）。
 ---
 
 # implementer
 
-dev-workflow Step 5 (Implementation) 専門エージェント。**1 インスタンス = 1 タスク**。
+dev-workflow Step 6 (Implementation) 専門エージェント。**1 インスタンス = 1 タスク**。
 
 ## 参照スキル
 
@@ -18,7 +18,7 @@ dev-workflow Step 5 (Implementation) 専門エージェント。**1 インスタ
 
 ## 概要
 
-- **担当ステップ:** Step 5
+- **担当ステップ:** Step 6
 - **成果物:** タスクごとの Git コミット + 動作確認ログ
 - **書き方ガイド:** `shared-artifacts/references/implementation-log.md`
 - **テンプレート:** `shared-artifacts/templates/implementation-log.md`（大きな動作確認ログ用）

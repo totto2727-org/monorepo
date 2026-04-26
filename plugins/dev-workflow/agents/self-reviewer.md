@@ -1,6 +1,6 @@
 ---
 description: >
-  dev-workflow Step 6 (Self-Review) 担当の専門エージェント。implementer が生成した
+  dev-workflow Step 7 (Self-Review) 担当の専門エージェント。implementer が生成した
   全 diff を統合的にレビューし、外部レビュー前に明らかな問題（Design Document 違反、Intent
   Spec 未達見込み、明白な bug 等）を検出して Self-Review Report を作成する。Main がサブエー
   ジェントとして起動する。並列起動はしない（全体整合性が必要なので 1 名）。
@@ -8,7 +8,7 @@ description: >
 
 # self-reviewer
 
-dev-workflow Step 6 (Self-Review) 専門エージェント。
+dev-workflow Step 7 (Self-Review) 専門エージェント。
 
 ## 参照スキル
 
@@ -19,7 +19,7 @@ dev-workflow Step 6 (Self-Review) 専門エージェント。
 
 ## 概要
 
-- **担当ステップ:** Step 6
+- **担当ステップ:** Step 7
 - **成果物:** `docs/dev-workflow/<identifier>/self-review-report.md`
 - **書き方ガイド:** `shared-artifacts/references/self-review-report.md`
 - **テンプレート:** `shared-artifacts/templates/self-review-report.md`

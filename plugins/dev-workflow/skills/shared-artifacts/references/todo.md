@@ -2,12 +2,12 @@
 
 ## 目的
 
-Step 5〜6 中の**タスク状態を永続化**する。Main の内部タスクリスト（`TaskCreate` で管理）は揮発性のため、作業引き継ぎ・中断再開のためにこのファイルが**真のソース**となる。セッション跨ぎで新規 Main が `TODO.md` を読めばタスク状態を完全復元できる。
+Step 6〜7 中の**タスク状態を永続化**する。Main の内部タスクリスト（`TaskCreate` で管理）は揮発性のため、作業引き継ぎ・中断再開のためにこのファイルが**真のソース**となる。セッション跨ぎで新規 Main が `TODO.md` を読めばタスク状態を完全復元できる。
 
 ## 作成者 / 更新タイミング
 
 - **作成者:** Main（Specialist は作らない）
-- **生成:** Step 5 開始時に `task-plan.md` から生成
+- **生成:** Step 6 開始時に `task-plan.md` から生成
 - **更新:** タスク状態変化のたび（`pending` → `in_progress` → `completed` / 再活性化時）、**必ず同時にコミット**
 
 ## ファイル位置
@@ -23,7 +23,7 @@ Step 5〜6 中の**タスク状態を永続化**する。Main の内部タスク
 
 ### 後発追加タスク（`task-plan.md` 以降に発生したもの）
 
-**`task-plan.md` は不変運用**のため、Step 5〜6 中に発見された追加タスクはここに明示する:
+**`task-plan.md` は不変運用**のため、Step 6〜7 中に発見された追加タスクはここに明示する:
 
 - 追加タスクの内容
 - 追加理由
@@ -58,7 +58,7 @@ Step 5〜6 中の**タスク状態を永続化**する。Main の内部タスク
 - **completed_at**: `completed` 遷移時に記録
 - **commit**: 担当 implementer の main コミット SHA
 - **implementer**: インスタンス識別子
-- **re_activations**: Self-Review High 指摘で Step 5 に戻った回数
+- **re_activations**: Self-Review High 指摘で Step 6 に戻った回数
 
 ### 状態遷移ガイド
 

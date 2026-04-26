@@ -1,7 +1,7 @@
 # Task List: {{identifier}}
 
 - **Source:** `task-plan.md`
-- **Active Steps:** Step 5〜6 (Implementation / Self-Review)
+- **Active Steps:** Step 6〜7 (Implementation / Self-Review)
 - **Created at:** {{created_at}}
 - **Last updated:** {{updated_at}}
 
@@ -11,7 +11,7 @@
 
 {{appended_tasks_note}}
 
-`task-plan.md` 不変運用の原則に従い、Step 5〜6 中に発見された追加タスクはここに記録する。追加理由を明記すること。
+`task-plan.md` 不変運用の原則に従い、Step 6〜7 中に発見された追加タスクはここに記録する。追加理由を明記すること。
 
 - なし（デフォルト）
 
@@ -24,7 +24,7 @@
   - completed_at: {{t1_completed_at}}
   - commit: {{t1_commit_sha}}
   - implementer: {{t1_implementer_id}}
-  - re_activations: {{t1_re_activations}} <!-- Self-Review High 指摘で Step 5 に戻った回数 -->
+  - re_activations: {{t1_re_activations}} <!-- Self-Review High 指摘で Step 6 に戻った回数 -->
   - notes: {{t1_notes}}
 
 - [{{t2_checkbox}}] **T2** — {{t2_title}}
