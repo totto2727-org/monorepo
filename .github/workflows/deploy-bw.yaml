@@ -21,7 +21,18 @@ jobs:
 
       - uses: ./.github/actions/setup-typescript
 
-      - name: Publish jsr:@totto2727/bw
+      - name: Build @totto2727/bw
+        run: vp run --filter @totto2727/bw build
+
+      - name: Publish npm:@totto2727/bw
         working-directory: js/app/bw
         run: |
-          vpx jsr publish
+          ENCODED_NAME=$(node -p "encodeURIComponent(require('./package.json').name)")
+          LOCAL_VERSION=$(node -p "require('./package.json').version")
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/${ENCODED_NAME}/${LOCAL_VERSION}")
+
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "v${LOCAL_VERSION} already published. Skipping."
+          else
+            npm publish
+          fi

@@ -1,6 +1,6 @@
 {
-  "name": "bw",
-  "version": "0.1.0",
+  "name": "@totto2727/bw",
+  "version": "0.1.1",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -8,16 +8,19 @@
     "directory": "js/app/bw"
   },
   "bin": {
-    "bw": "./dist/bin.js"
+    "bw": "./dist/bin.mjs"
   },
+  "files": [
+    "dist/"
+  ],
   "type": "module",
   "imports": {
     "#@/*": "./src/*"
   },
   "scripts": {
     "build": "vp pack",
-    "check": "pnpm run --parallel /check:.*/",
-    "check:slowtype": "vpx jsr publish --dry-run --allow-dirty"
+    "bin": "node dist/bin.mjs",
+    "check": "pnpm run --parallel /check:.*/"
   },
   "dependencies": {
     "@effect/platform-node": "catalog:effect",
