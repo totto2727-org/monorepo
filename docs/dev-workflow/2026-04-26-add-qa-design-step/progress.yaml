@@ -1,9 +1,9 @@
 identifier: 2026-04-26-add-qa-design-step
 started_at: 2026-04-26T13:00:00Z
-updated_at: 2026-04-26T14:00:00Z
+updated_at: 2026-04-26T14:30:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 3: Design'
+current_step: 'Step 3: Design (awaiting user approval)'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification'
@@ -19,11 +19,12 @@ completed_steps:
       - research/verification-axes.md
       - research/column-and-tcid-policy.md
 
-pending_gates: []
+pending_gates:
+  - 'Step 3 user approval (design.md, status: draft)'
 
 active_specialists:
   - name: architect
-    task: 'Step 3: Design (Main が兼任、5 research note を統合して design.md を作成)'
+    task: 'Step 3: Design (Main が兼任、design.md draft を提出済み、ユーザー承認待ち)'
     status: running
     started_at: 2026-04-26T14:00:00Z
 
@@ -37,7 +38,7 @@ artifacts:
     - research/mermaid-syntax.md
     - research/verification-axes.md
     - research/column-and-tcid-policy.md
-  design: null
+  design: design.md
   external_adrs: []
   task_plan: null
   todo: null
