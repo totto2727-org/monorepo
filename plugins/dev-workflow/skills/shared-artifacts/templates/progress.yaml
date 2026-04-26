@@ -1,0 +1,52 @@
+identifier: { { identifier } }
+started_at: { { started_at } }
+updated_at: { { updated_at } }
+
+status: { { status } } # active | completed | blocked
+current_step: { { current_step } }
+
+completed_steps: []
+  # - step: <ステップ番号と名称>
+  #   completed_at: <ISO8601>
+  #   artifacts:                          # 複数成果物は必ずリスト形式
+  #     - <成果物ファイル相対パス>
+  #     - <成果物ファイル相対パス>        # 例: Step 2 Research は複数、Step 7 Review は複数
+
+pending_gates: []
+  # - <保留中のゲート（ユーザー承認待ち / Main 判定待ち）>
+
+active_specialists: []
+  # active_specialists には **running / blocked の Specialist のみ**を残す。
+  # completed になった Specialist は本リストから除外し、completed_steps に記録する
+  # （値域は running | blocked の 2 値のみ。completed は不採用）。
+  # - name: <Specialist 種別>
+  #   task: <割り当てタスク>
+  #   status: running | blocked
+  #   started_at: <ISO8601>
+
+blockers: []
+  # - <未解決の Blocker>
+
+artifacts:
+  intent_spec: null # intent-spec.md
+  research: [] # research/<topic>.md のリスト
+  design: null # design.md
+  external_adrs: [] # サイクル外に起票したプロジェクト横断 ADR
+  task_plan: null # task-plan.md
+  todo: null # TODO.md
+  self_review: null # self-review-report.md
+  review: [] # review/<aspect>.md のリスト
+  validation: null # validation-report.md
+  retrospective: null # retrospective.md
+
+user_approvals: []
+  # - gate: <ゲート名>
+  #   approved_at: <ISO8601>
+  #   approved_by: <ユーザー識別子 or "user">
+  #   notes: <メモ>
+
+rollbacks: []
+  # - from: <戻す前のステップ>
+  #   to: <戻した先のステップ>
+  #   reason: <理由>
+  #   at: <ISO8601>
