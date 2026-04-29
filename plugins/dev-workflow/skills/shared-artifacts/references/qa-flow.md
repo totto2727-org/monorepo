@@ -215,5 +215,5 @@ flowchart TD
 ## 関連成果物
 
 - **入力:** `qa-design.md` (テストケース ID の真のソース)
-- **出力先:** `validation-report.md` (Step 9 validator が葉カバレッジを実測)
+- **出力先:** `validation-report.md` (Step 8 validator が葉カバレッジを実測)
 - **連携:** `qa-design.md` と相互参照 (qa-design に存在しない TC-ID を qa-flow に書いてはいけない、逆も同じ)

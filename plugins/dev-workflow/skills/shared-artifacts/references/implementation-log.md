@@ -48,11 +48,11 @@
 
 ### 発生した問題とその対処
 
-実装中に想定外の事象があった場合、事象と対処を記録する。Self-Review や Retrospective の材料となる。
+実装中に想定外の事象があった場合、事象と対処を記録する。External Review (`holistic` 観点を含む 6 観点並列) や Retrospective の材料となる。
 
 ### 設計ドキュメントからの逸脱
 
-**理想的にはゼロ**。逸脱がある場合は理由と Self-Review への引き継ぎを明記する。
+**理想的にはゼロ**。逸脱がある場合は理由と External Review (`holistic` 観点) への引き継ぎを明記する。
 
 ## 品質基準
 
@@ -66,5 +66,5 @@
 ## 関連成果物
 
 - **入力:** 担当タスク、`design.md` / `task-plan.md` の該当箇所
-- **出力先:** `self-review-report.md`（self-reviewer が参照）、`retrospective.md`（学びの抽出）
+- **出力先:** `review/<aspect>.md`（reviewer が参照、特に `holistic` 観点）、`retrospective.md`（学びの抽出）
 - **親成果物:** `TODO.md`（該当タスクから `implementation-logs/<task-id>.md` へリンクを張る）

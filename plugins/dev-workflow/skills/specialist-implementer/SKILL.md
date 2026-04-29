@@ -7,7 +7,7 @@ description: >
   起動トリガー: Main が implementer エージェントをサブエージェントとして起動した際、または
   ユーザーが明示的に特定タスクの実装を依頼した場合。
   Do NOT use for: 複数タスクを単一 implementer で実装（タスクごとに別インスタンス）、
-  設計（specialist-architect）、レビュー（specialist-self-reviewer / specialist-reviewer）、
+  設計（specialist-architect）、レビュー（specialist-reviewer）、
   検証（specialist-validator）、Task Plan の再分解（specialist-planner の領域）。
 metadata:
   author: totto2727
@@ -101,6 +101,5 @@ metadata:
 - 他タスクの実装（別インスタンスの implementer が担当）
 - task-plan / design.md の変更（specialist-planner / architect の領域）
 - **qa-design.md / qa-flow.md の構造変更** (新規 SC-ID 追加、列構造変更、関心領域分割の見直し等は specialist-qa-analyst の領域。implementer は本質テスト追加 / 実装都合テスト追加の**追記のみ**可)
-- 自己レビュー（specialist-self-reviewer の領域）
-- 外部レビュー観点のコメント（specialist-reviewer の領域）
+- 外部レビュー観点のコメント（specialist-reviewer の領域。holistic 観点を含む 6 並列レビューに委ねる）
 - 担当タスクのスコープ外のリファクタリング（Main に相談してから）

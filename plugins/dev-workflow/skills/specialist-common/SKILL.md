@@ -2,18 +2,18 @@
 name: specialist-common
 description: >
   [Specialist 背景基盤 / 役割固有スキルから参照される前提ルール集] dev-workflow の全 Specialist
-  エージェント (intent-analyst, researcher, architect, planner, implementer, self-reviewer,
+  エージェント (intent-analyst, researcher, architect, qa-analyst, planner, implementer,
   reviewer, validator, retrospective-writer) が継承する共通ルールを定義する。
   ライフサイクル・入出力契約・失敗時の Blocker プロトコル・スコープ規律・Main との通信ルール・
   プロジェクト固有ルール優先順位を集約する。
   起動トリガー: 個別の specialist-* スキル本文内から明示的に参照された場合、または Specialist
   として起動されたサブエージェント自身が共通ルール確認を必要とした場合のみ。単独での直接起動や
   ユーザーコマンドからの起動は想定しない。
-  Do NOT use for: Main 側のワークフロー管理（dev-workflow / dev-workflow / dev-workflow /
-  dev-workflow）、個別 Specialist の役割手順（specialist-intent-analyst / specialist-researcher
-  / specialist-architect / specialist-planner / specialist-implementer / specialist-self-reviewer /
-  specialist-reviewer / specialist-validator / specialist-retrospective-writer）、
-  Specialist 以外のエージェント運用、ユーザーからの直接起動トリガーとしての使用。
+  Do NOT use for: Main 側のワークフロー管理（dev-workflow）、個別 Specialist の役割手順
+  （specialist-intent-analyst / specialist-researcher / specialist-architect / specialist-qa-analyst /
+  specialist-planner / specialist-implementer / specialist-reviewer / specialist-validator /
+  specialist-retrospective-writer）、Specialist 以外のエージェント運用、ユーザーからの直接起動
+  トリガーとしての使用。
 metadata:
   author: totto2727
   version: 1.0.0

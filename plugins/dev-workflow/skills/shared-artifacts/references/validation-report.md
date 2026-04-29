@@ -7,7 +7,7 @@
 ## 作成者 / 作成タイミング
 
 - **作成者:** `validator` Specialist（単一インスタンス）
-- **作成ステップ:** Step 9 (Validation)
+- **作成ステップ:** Step 8 (Validation)
 - **承認:** ユーザー承認必須
 
 ## ファイル位置

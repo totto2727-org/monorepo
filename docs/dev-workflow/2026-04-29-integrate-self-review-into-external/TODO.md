@@ -1,0 +1,189 @@
+# Task List: 2026-04-29-integrate-self-review-into-external
+
+- **Source:** `task-plan.md`
+- **Active Steps:** Step 6〜7 (Implementation / External Review)
+- **Created at:** 2026-04-29T05:00:00Z
+- **Last updated:** 2026-04-29T05:00:00Z
+
+このファイルは**永続化されたタスク状態**。Main 内部の `TaskCreate` タスクリストと同期するが、**こちらが真のソース**。状態変化時は TODO.md 更新 → コミット → TaskUpdate の順で実行する。
+
+## 後発追加タスク（`task-plan.md` 以降に発生したもの）
+
+`task-plan.md` 不変運用の原則に従い、Step 6〜7 中に発見された追加タスクはここに記録する。追加理由を明記すること。
+
+- なし（デフォルト）
+
+## タスク
+
+### Wave 1 — 削除タスク（並列可）
+
+- [x] **T1a** — `specialist-self-reviewer/` ディレクトリの削除
+  - status: completed
+  - dependencies: []
+  - started_at: 2026-04-29T05:10:00Z
+  - completed_at: 2026-04-29T05:10:30Z
+  - commit: ed9629c
+  - implementer: main
+  - re_activations: 0
+  - notes: Wave 1 起点。grep ヒット約 38% を即時消滅
+
+- [x] **T1b** — `agents/self-reviewer.md` の削除
+  - status: completed
+  - dependencies: []
+  - started_at: 2026-04-29T05:11:00Z
+  - completed_at: 2026-04-29T05:11:30Z
+  - commit: 89a09e7
+  - implementer: main
+  - re_activations: 0
+  - notes: agents/ 配下を 9 ファイル構成に
+
+- [x] **T1c** — `shared-artifacts/templates/self-review-report.md` の削除
+  - status: completed
+  - dependencies: []
+  - started_at: 2026-04-29T05:12:00Z
+  - completed_at: 2026-04-29T05:12:30Z
+  - commit: 5e8a8ed
+  - implementer: main
+  - re_activations: 0
+  - notes:
+
+- [x] **T1d** — `shared-artifacts/references/self-review-report.md` の削除
+  - status: completed
+  - dependencies: []
+  - started_at: 2026-04-29T05:13:00Z
+  - completed_at: 2026-04-29T05:13:30Z
+  - commit: 1f4c2fe
+  - implementer: main
+  - re_activations: 0
+  - notes: 削除前に運用知見が design.md と T3b/T4 で吸収済みであることが前提
+
+### Wave 2 — ステップ番号機械置換（直列）
+
+- [x] **T2** — ステップ番号機械置換 (placeholder + gsed 降順)
+  - status: completed
+  - dependencies: [T1a, T1b, T1c, T1d]
+  - started_at: 2026-04-29T05:14:00Z
+  - completed_at: 2026-04-29T05:30:00Z
+  - commit: 9125656 (chain bug) → 修正コミットは T3 と統合
+  - implementer: main
+  - re_activations: 1
+  - notes: 初回 `gsed -e 連鎖` でチェイン置換が発生 (Step 8/9/10 が全て Step 7 に圧縮された)。pre-T2 状態に復元したうえで 2-phase placeholder アプローチ (`__SRK_NEW7__/8__/9__`) で正しい降順置換を再適用。修正は T3a-T3d と同じコミットにまとめる
+
+### Wave 3 — 観点統合 / Edit ハイブリッド
+
+- [x] **T3a** — `dev-workflow/SKILL.md` ステップ表系の 9-step 化
+  - status: completed
+  - dependencies: [T2]
+  - started_at: 2026-04-29T05:20:00Z
+  - completed_at: 2026-04-29T05:31:00Z
+  - commit: (T2 修正と統合)
+  - implementer: main
+  - re_activations: 1
+  - notes: 初回 770907b は T2 chain bug のうえに乗っていたため再適用。ステップ一覧テーブル / フロー ASCII / 並列度ガイドライン表 / コミット規約表を 9-step 構成に更新
+
+- [x] **T3b** — `dev-workflow/SKILL.md` Step 7 Self-Review セクションの物理削除と新 Step 7 統合
+  - status: completed
+  - dependencies: [T3a]
+  - started_at: 2026-04-29T05:31:00Z
+  - completed_at: 2026-04-29T05:32:00Z
+  - commit: (T2 修正と統合)
+  - implementer: main
+  - re_activations: 0
+  - notes: Self-Review セクション (旧 L398-L461) を物理削除し、新 Step 7 (External Review) に holistic 観点 / Blocker/Major/Minor 統一 / 6 並列 reviewer / 3 周ロールバック知見を統合
+
+- [x] **T3c** — `dev-workflow/SKILL.md` ロールバック早見表の 9-step 化
+  - status: completed
+  - dependencies: [T3b]
+  - started_at: 2026-04-29T05:32:00Z
+  - completed_at: 2026-04-29T05:32:30Z
+  - commit: (T2 修正と統合)
+  - implementer: main
+  - re_activations: 0
+  - notes: 旧 Self-Review エントリ (High 指摘 / 設計レベル) を Blocker 指摘 (観点別 / holistic 共通) と 3 周以上ループ条件に統合
+
+- [x] **T3d** — `dev-workflow/SKILL.md` その他 Self-Review 言及の文脈書き換え
+  - status: completed
+  - dependencies: [T3c]
+  - started_at: 2026-04-29T05:32:30Z
+  - completed_at: 2026-04-29T05:33:00Z
+  - commit: (T2 修正と統合)
+  - implementer: main
+  - re_activations: 0
+  - notes: TODO.md 再活性化文言 / Specialist 衝突表 / holistic 説明の 3 件をリワード。`grep -niE 'self[-_]review' plugins/dev-workflow/skills/dev-workflow/SKILL.md` 0 件確認
+
+- [x] **T4** — `specialist-reviewer/SKILL.md` の責務拡張 (holistic 観点 / Self-Review 言及削除 / 全体整合性追記)
+  - status: completed
+  - dependencies: [T2]
+  - started_at: 2026-04-29T05:40:00Z
+  - completed_at: 2026-04-29T05:40:30Z
+  - commit: (T4-T7 統合 commit)
+  - implementer: main
+  - re_activations: 0
+  - notes: holistic 観点を 6 番目として追加、Round 1 / Round 2 運用、Blocker/Major/Minor 統一、3 周ロールバック規則、description 更新
+
+- [x] **T5** — 他 specialist スキル / agents の Self-Review 言及削除 + Step 番号整合性確認
+  - status: completed
+  - dependencies: [T2]
+  - started_at: 2026-04-29T05:41:00Z
+  - completed_at: 2026-04-29T05:42:00Z
+  - commit: (T4-T7 統合 commit)
+  - implementer: main
+  - re_activations: 0
+  - notes: specialist-common / specialist-intent-analyst / specialist-implementer / specialist-validator / specialist-retrospective-writer / agents/reviewer.md / agents/validator.md / agents/retrospective-writer.md を更新
+
+- [x] **T6** — `shared-artifacts/SKILL.md` 成果物一覧 + 保存構造 ASCII の連番再付番
+  - status: completed
+  - dependencies: [T1c, T1d, T2]
+  - started_at: 2026-04-29T05:42:00Z
+  - completed_at: 2026-04-29T05:42:30Z
+  - commit: (T4-T7 統合 commit)
+  - implementer: main
+  - re_activations: 0
+  - notes: self-review-report.md 行を削除し連番を 12 行構成に再付番、ASCII 図から self-review-report.md を除去し review/ 配下の 6 観点を明示
+
+- [x] **T7** — `progress.yaml` / `TODO.md` / `retrospective.md` template と reference の刷新
+  - status: completed
+  - dependencies: [T2]
+  - started_at: 2026-04-29T05:43:00Z
+  - completed_at: 2026-04-29T05:44:00Z
+  - commit: (T4-T7 統合 commit)
+  - implementer: main
+  - re_activations: 0
+  - notes: progress.yaml `self_review:` 削除、TODO.md/todo.md の Active Steps と re_activations 文言を External Review Blocker に刷新、retrospective.md の self_reviewer プレースホルダ削除、review-report.md と implementation-log.md を 6 観点 (holistic 含む) で書き直し
+
+- [x] **T8** — README + plugin.json の 9-step 化
+  - status: completed
+  - dependencies: [T2]
+  - started_at: 2026-04-29T05:00:00Z
+  - completed_at: 2026-04-29T05:05:00Z
+  - commit: 6a1c5b9 (+ 文言精査は本 commit)
+  - implementer: main
+  - re_activations: 0
+  - notes: 6a1c5b9 で初回更新済み。本コミットで Self-Review 比較段落を整理し、holistic 観点の説明を簡潔化
+
+### Wave 4 — 機械検証
+
+- [x] **T9** — 機械検証 (TC-001 〜 TC-018 のうち事前実行可能な分)
+  - status: completed
+  - dependencies: [T1a, T1b, T1c, T1d, T2, T3a, T3b, T3c, T3d, T4, T5, T6, T7, T8]
+  - started_at: 2026-04-29T05:50:00Z
+  - completed_at: 2026-04-29T05:51:00Z
+  - commit: (本commit)
+  - implementer: main
+  - re_activations: 0
+  - notes: TC-001..017 全 17 成功基準 PASS。 TC-001..004 削除確認、TC-005..008 grep 0 件、TC-009 ステップ表 9 行、TC-011 holistic/全体整合性 5 件、TC-013 self_review キー 0 件、TC-014 README 9-step 1 件、TC-015 plugin.json 9-step 1 件 + Self-Review 言及 0 件、TC-016 agents 9 ファイル。
+
+## 状態遷移ガイド
+
+- `pending`: 未着手。`[ ]` 表示
+- `in_progress`: `implementer` 起動中。`[ ]` 表示、`started_at` と `implementer` を記録
+- `completed`: 完了。`[x]` 表示、`completed_at` と `commit` SHA を記録
+- External Review High/Blocker 指摘で戻す場合: `completed` → `in_progress` に戻し、`re_activations` をインクリメント
+
+## コミット規約
+
+- 各タスク完了ごとに 1 コミット
+- 状態変化のメタコミットは progress.yaml と一括にする方針 (キー重複防止のため)
+- コミットメッセージ例:
+  - `feat(dev-workflow): <task summary>` (実装本体)
+  - `docs(dev-workflow/<identifier>): re-activate task Tx (external-review feedback)`

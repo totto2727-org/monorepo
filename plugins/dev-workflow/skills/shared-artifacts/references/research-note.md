@@ -33,7 +33,7 @@
 | ✅ よい                                | ❌ 悪い           |
 | -------------------------------------- | ----------------- |
 | `src/auth/login.ts:L42-L58`            | auth 周りのコード |
-| ADR `doc/adr/2025-10-01-grpc.md`       | 過去の ADR        |
+| ADR `docs/adr/2025-10-01-grpc.md`      | 過去の ADR        |
 | [External Spec RFC 7519](https://...)  | JWT の仕様        |
 | `pnpm-workspace.yaml` の catalog `api` | 依存関係          |
 

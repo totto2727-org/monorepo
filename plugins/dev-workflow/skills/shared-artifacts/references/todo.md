@@ -58,14 +58,14 @@ Step 6〜7 中の**タスク状態を永続化**する。Main の内部タスク
 - **completed_at**: `completed` 遷移時に記録
 - **commit**: 担当 implementer の main コミット SHA
 - **implementer**: インスタンス識別子
-- **re_activations**: Self-Review High 指摘で Step 6 に戻った回数
+- **re_activations**: External Review Blocker 指摘で Step 6 に戻った回数
 
 ### 状態遷移ガイド
 
 - `pending`: 未着手。`[ ]` 表示
 - `in_progress`: `implementer` 起動中。`[ ]` 表示、`started_at` と `implementer` を記録
 - `completed`: 完了。`[x]` 表示、`completed_at` と `commit` SHA を記録
-- Self-Review High 指摘で戻す場合: `completed` → `in_progress` に戻し、`re_activations` をインクリメント
+- External Review Blocker 指摘で戻す場合: `completed` → `in_progress` に戻し、`re_activations` をインクリメント
 
 ## TaskCreate との同期ルール
 
@@ -88,5 +88,5 @@ Step 6〜7 中の**タスク状態を永続化**する。Main の内部タスク
 
 - **入力:** `task-plan.md`（初期状態の元）
 - **連携:** `progress.yaml`（フェーズ全体の進捗。TODO.md はタスクレベル、yaml はフェーズレベル）
-- **参照:** Self-Review での High 指摘 → 該当タスクを `re_activations` カウントアップして `in_progress` に戻す
+- **参照:** External Review での Blocker 指摘 → 該当タスクを `re_activations` カウントアップして `in_progress` に戻す
 - **引き継ぎ:** `retrospective.md` が TODO.md のループ履歴を分析して学びを抽出

@@ -1,0 +1,118 @@
+identifier: 2026-04-29-retro-cleanup
+started_at: 2026-04-29T10:00:00Z
+updated_at: 2026-04-29T15:00:00Z
+
+status: completed # active | completed | blocked
+current_step: 'completed (Step 9 Retrospective 完了)'
+
+completed_steps:
+  - step: 'Step 1 (Intent Clarification)'
+    completed_at: 2026-04-29T11:00:00Z
+    artifacts:
+      - intent-spec.md
+    notes: |
+      Step 1 ユーザー承認ゲートを通過。複数ラウンドの対話で scope を大幅に縮小:
+      A-1 / A-3 / A-6 / A-7 / B 全項目を削除、A-2 を dev-workflow の Report-Based
+      Confirmation に集約、retrospective 保存場所変更 (C) と削除ポリシーを追加。
+      最終スコープ = A-2 + A-5 + A-8 + ADR (A-4) + C の 5 項目。
+  - step: 'Step 2 (Research)'
+    completed_at: 2026-04-29T12:00:00Z
+    artifacts:
+      - research/skill-md-extraction-map.md
+      - research/description-compression.md
+      - research/operational-rules-mapping.md
+    notes: |
+      3 並列 researcher で実施。最終 scope では skill-md-extraction-map と
+      description-compression は使用しない (圧縮スコープ削除のため)、
+      operational-rules-mapping の R10 (代替案 3-5) / R14 (holistic 小節欠落) /
+      R8/R12 (retrospective-writer 改善) のみ採用。C (retrospective 構造変更)
+      の調査は Step 3 architect に inline で委ねる (現状の retrospective 参照
+      箇所を grep する程度の軽作業のため)。
+  - step: 'Step 3 (Design)'
+    completed_at: 2026-04-29T13:00:00Z
+    artifacts:
+      - design.md
+    notes: |
+      軽量スコープ (5 項目) のため architect サブエージェント起動せず Main 直接
+      で design.md を作成。各項目の追記位置・追記文言・代替案・拡張ポイントを
+      明示。Step 5 task-plan で T1-T5 の 5 タスク並列 Wave 配置可能。
+  - step: 'Step 4 (QA Design)'
+    completed_at: 2026-04-29T13:30:00Z
+    artifacts:
+      - qa-design.md
+      - qa-flow.md
+    notes: |
+      Main 直接で qa-design + qa-flow 作成。20 SC を 20 TC に 1:1 マッピング、
+      automated 19 件 (95%) / manual 1 件 (TC-019)。TC-012 は Step 9 完了後検証。
+  - step: 'Step 5 (Task Decomposition)'
+    completed_at: 2026-04-29T14:00:00Z
+    artifacts:
+      - task-plan.md
+      - TODO.md
+    notes: |
+      Main 直接で task-plan + TODO 作成。T1-T5 が Wave 1 並列、T6 が Wave 2
+      検証。各タスク = 1 commit、合計 6 commits 想定。
+  - step: 'Step 6 (Implementation)'
+    completed_at: 2026-04-29T14:30:00Z
+    artifacts:
+      - TODO.md
+    notes: |
+      T1-T5 の 5 タスクを Main 直接実装、各 1 commit (30e0584 / 326ff1c /
+      b011001 / f7cd3a4 / ce78492)。re_activations 全件 0、Round 1 完結。
+  - step: 'Step 7 (External Review)'
+    completed_at: 2026-04-29T14:35:00Z
+    artifacts:
+      - review/holistic.md
+    notes: |
+      holistic 観点を Main 直接でレビュー (軽量スコープのため reviewer
+      subagent 起動せず)。Blocker / Major / Minor 0 件、approved。
+  - step: 'Step 8 (Validation)'
+    completed_at: 2026-04-29T14:40:00Z
+    artifacts:
+      - validation-report.md
+    notes: |
+      19/20 PASS (TC-011 docs/retrospective/ 存在 / TC-012 本サイクル
+      retrospective 新パス保存 は Step 9 完了後検証のため保留)。
+      実質全件 PASS。
+  - step: 'Step 9 (Retrospective)'
+    completed_at: 2026-04-29T15:00:00Z
+    artifacts:
+      - docs/retrospective/2026-04-29-retro-cleanup.md
+    notes: |
+      新パス (docs/retrospective/) で保存、本サイクル C-1 / C-5 を実証。
+      docs/retrospective/ ディレクトリは本ファイル作成時に自動生成。
+      TC-011 / TC-012 を Step 9 完了時点で最終 PASS 確認。
+
+pending_gates: []
+
+active_specialists: []
+
+blockers: []
+
+artifacts:
+  intent_spec: intent-spec.md
+  research:
+    - research/skill-md-extraction-map.md
+    - research/description-compression.md
+    - research/operational-rules-mapping.md
+  design: design.md
+  qa_design: qa-design.md
+  qa_flow: qa-flow.md
+  external_adrs: []
+  task_plan: task-plan.md
+  todo: TODO.md
+  review:
+    - review/holistic.md
+  validation: validation-report.md
+  retrospective: docs/retrospective/2026-04-29-retro-cleanup.md
+
+user_approvals:
+  - gate: 'Step 1 (Intent Clarification) ユーザー承認'
+    approved_at: 2026-04-29T12:00:00Z
+    approved_by: user
+    notes: |
+      最終 scope (A-2 dev-workflow / A-5 reviewer / A-8 retrospective-writer /
+      ADR for A-4 / C retrospective 構造変更) で承認。Step 1 内で複数ラウンドの
+      scope 縮小 (A-1/A-3/A-6/A-7/B 全削除) を経て確定。
+
+rollbacks: []
