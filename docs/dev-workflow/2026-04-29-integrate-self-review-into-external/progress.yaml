@@ -1,11 +1,15 @@
 identifier: 2026-04-29-integrate-self-review-into-external
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-04-29T00:00:00Z
+updated_at: 2026-04-29T01:00:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 1 (Intent Clarification)'
+current_step: 'Step 2 (Research)'
 
-completed_steps: []
+completed_steps:
+  - step: 'Step 1 (Intent Clarification)'
+    completed_at: 2026-04-29T01:00:00Z
+    artifacts:
+      - intent-spec.md
 
 pending_gates: []
 
@@ -14,7 +18,7 @@ active_specialists: []
 blockers: []
 
 artifacts:
-  intent_spec: null
+  intent_spec: intent-spec.md
   research: []
   design: null
   qa_design: null
