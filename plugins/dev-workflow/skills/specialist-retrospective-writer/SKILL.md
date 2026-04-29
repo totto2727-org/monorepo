@@ -26,10 +26,11 @@ metadata:
 | 項目         | 内容                                              |
 | ------------ | ------------------------------------------------- |
 | 担当ステップ | Step 9 (Retrospective)                            |
-| 成果物       | `docs/dev-workflow/<identifier>/retrospective.md` |
+| 成果物       | `docs/retrospective/<identifier>.md` (集約ディレクトリ、`docs/adr/` 同パターン) |
 | テンプレート | `shared-artifacts/templates/retrospective.md`     |
 | 書き方ガイド | `shared-artifacts/references/retrospective.md`    |
 | 並列起動     | しない（全体俯瞰が必要なので 1 名）               |
+| ライフサイクル | 揮発 (次サイクルが消化したら削除)。永続記録すべき判断は ADR に切り出す |
 
 ## 役割
 
@@ -61,6 +62,7 @@ Retrospective の焦点:
    - ユーザー承認ゲートの承認 / 却下履歴
    - In-Progress ユーザー問い合わせの件数（多ければ Intent Spec 段階の明確化不足を示唆）
    - Specialist 起動回数と並列度の実効
+   - **再活性化タスクの SHA 列挙**: `TODO.md` で `re_activations >= 1` のタスクについて、再活性化を引き起こした修正コミット SHA を列挙する (retrospective.md の「課題」セクションで参照)
 3. **良かった点の抽出**:
    - ループなしで進んだステップ
    - 一発でユーザー承認を得られた成果物

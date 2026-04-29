@@ -33,15 +33,15 @@
   - re_activations: 0
   - notes: 既存 5 観点と同階層 `### holistic` (3 hash) で追加。qa-design TC-002 の grep パターンも `^### holistic` に修正
 
-- [ ] **T3** — A-8 + C-3 specialist-retrospective-writer 修正
-  - status: pending
+- [x] **T3** — A-8 + C-3 specialist-retrospective-writer 修正
+  - status: completed
   - dependencies: []
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T14:15:00Z
+  - completed_at: 2026-04-29T14:15:30Z
+  - commit: (本commit)
+  - implementer: main
   - re_activations: 0
-  - notes: 再活性化 SHA 列挙手順 + パス更新
+  - notes: 成果物パス → docs/retrospective/<id>.md、ライフサイクル行追加、データ分析に再活性化 SHA 列挙項目追加
 
 - [ ] **T4** — ADR 新規作成 (A-4 保留記録)
   - status: pending
