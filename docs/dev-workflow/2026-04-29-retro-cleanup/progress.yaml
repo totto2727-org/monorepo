@@ -1,15 +1,33 @@
 identifier: 2026-04-29-retro-cleanup
 started_at: 2026-04-29T10:00:00Z
-updated_at: 2026-04-29T11:00:00Z
+updated_at: 2026-04-29T12:00:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 2 (Research)'
+current_step: 'Step 3 (Design)'
 
 completed_steps:
   - step: 'Step 1 (Intent Clarification)'
     completed_at: 2026-04-29T11:00:00Z
     artifacts:
       - intent-spec.md
+    notes: |
+      Step 1 ユーザー承認ゲートを通過。複数ラウンドの対話で scope を大幅に縮小:
+      A-1 / A-3 / A-6 / A-7 / B 全項目を削除、A-2 を dev-workflow の Report-Based
+      Confirmation に集約、retrospective 保存場所変更 (C) と削除ポリシーを追加。
+      最終スコープ = A-2 + A-5 + A-8 + ADR (A-4) + C の 5 項目。
+  - step: 'Step 2 (Research)'
+    completed_at: 2026-04-29T12:00:00Z
+    artifacts:
+      - research/skill-md-extraction-map.md
+      - research/description-compression.md
+      - research/operational-rules-mapping.md
+    notes: |
+      3 並列 researcher で実施。最終 scope では skill-md-extraction-map と
+      description-compression は使用しない (圧縮スコープ削除のため)、
+      operational-rules-mapping の R10 (代替案 3-5) / R14 (holistic 小節欠落) /
+      R8/R12 (retrospective-writer 改善) のみ採用。C (retrospective 構造変更)
+      の調査は Step 3 architect に inline で委ねる (現状の retrospective 参照
+      箇所を grep する程度の軽作業のため)。
 
 pending_gates: []
 
@@ -19,7 +37,10 @@ blockers: []
 
 artifacts:
   intent_spec: intent-spec.md
-  research: []
+  research:
+    - research/skill-md-extraction-map.md
+    - research/description-compression.md
+    - research/operational-rules-mapping.md
   design: null
   qa_design: null
   qa_flow: null
@@ -30,6 +51,13 @@ artifacts:
   validation: null
   retrospective: null
 
-user_approvals: []
+user_approvals:
+  - gate: 'Step 1 (Intent Clarification) ユーザー承認'
+    approved_at: 2026-04-29T12:00:00Z
+    approved_by: user
+    notes: |
+      最終 scope (A-2 dev-workflow / A-5 reviewer / A-8 retrospective-writer /
+      ADR for A-4 / C retrospective 構造変更) で承認。Step 1 内で複数ラウンドの
+      scope 縮小 (A-1/A-3/A-6/A-7/B 全削除) を経て確定。
 
 rollbacks: []
