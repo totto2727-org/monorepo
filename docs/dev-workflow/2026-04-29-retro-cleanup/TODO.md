@@ -72,15 +72,19 @@
 
 ### Wave 2 (Wave 1 完了後、1 タスク)
 
-- [ ] **T6** — Step 8 Validation 一括検証
-  - status: pending
+- [x] **T6** — Step 8 Validation 一括検証
+  - status: completed
   - dependencies: [T1, T2, T3, T4, T5]
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T14:35:00Z
+  - completed_at: 2026-04-29T14:40:00Z
+  - commit: (本commit)
+  - implementer: main
   - re_activations: 0
-  - notes: TC-001..TC-020 のうち TC-012 は Step 9 完了後
+  - notes: |
+      Step 7 holistic レビュー (Blocker/Major/Minor 0 件、approved) →
+      Step 8 Validation 19 PASS / 1 保留 (TC-011 docs/retrospective/ ディレクトリ
+      は Step 9 で自動生成、TC-012 は Step 9 完了後最終確認)。
+      実質全 SC PASS、サイクル completed 直前まで進行
 
 ## 状態遷移ガイド
 

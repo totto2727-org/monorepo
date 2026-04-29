@@ -1,9 +1,9 @@
 identifier: 2026-04-29-retro-cleanup
 started_at: 2026-04-29T10:00:00Z
-updated_at: 2026-04-29T14:00:00Z
+updated_at: 2026-04-29T15:00:00Z
 
-status: active # active | completed | blocked
-current_step: 'Step 6 (Implementation)'
+status: completed # active | completed | blocked
+current_step: 'completed (Step 9 Retrospective 完了)'
 
 completed_steps:
   - step: 'Step 1 (Intent Clarification)'
@@ -52,6 +52,36 @@ completed_steps:
     notes: |
       Main 直接で task-plan + TODO 作成。T1-T5 が Wave 1 並列、T6 が Wave 2
       検証。各タスク = 1 commit、合計 6 commits 想定。
+  - step: 'Step 6 (Implementation)'
+    completed_at: 2026-04-29T14:30:00Z
+    artifacts:
+      - TODO.md
+    notes: |
+      T1-T5 の 5 タスクを Main 直接実装、各 1 commit (30e0584 / 326ff1c /
+      b011001 / f7cd3a4 / ce78492)。re_activations 全件 0、Round 1 完結。
+  - step: 'Step 7 (External Review)'
+    completed_at: 2026-04-29T14:35:00Z
+    artifacts:
+      - review/holistic.md
+    notes: |
+      holistic 観点を Main 直接でレビュー (軽量スコープのため reviewer
+      subagent 起動せず)。Blocker / Major / Minor 0 件、approved。
+  - step: 'Step 8 (Validation)'
+    completed_at: 2026-04-29T14:40:00Z
+    artifacts:
+      - validation-report.md
+    notes: |
+      19/20 PASS (TC-011 docs/retrospective/ 存在 / TC-012 本サイクル
+      retrospective 新パス保存 は Step 9 完了後検証のため保留)。
+      実質全件 PASS。
+  - step: 'Step 9 (Retrospective)'
+    completed_at: 2026-04-29T15:00:00Z
+    artifacts:
+      - docs/retrospective/2026-04-29-retro-cleanup.md
+    notes: |
+      新パス (docs/retrospective/) で保存、本サイクル C-1 / C-5 を実証。
+      docs/retrospective/ ディレクトリは本ファイル作成時に自動生成。
+      TC-011 / TC-012 を Step 9 完了時点で最終 PASS 確認。
 
 pending_gates: []
 
@@ -71,9 +101,10 @@ artifacts:
   external_adrs: []
   task_plan: task-plan.md
   todo: TODO.md
-  review: []
-  validation: null
-  retrospective: null
+  review:
+    - review/holistic.md
+  validation: validation-report.md
+  retrospective: docs/retrospective/2026-04-29-retro-cleanup.md
 
 user_approvals:
   - gate: 'Step 1 (Intent Clarification) ユーザー承認'
