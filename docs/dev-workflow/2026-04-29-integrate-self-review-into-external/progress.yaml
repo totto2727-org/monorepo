@@ -1,0 +1,32 @@
+identifier: 2026-04-29-integrate-self-review-into-external
+started_at: 2026-04-29T00:00:00Z
+updated_at: 2026-04-29T00:00:00Z
+
+status: active # active | completed | blocked
+current_step: 'Step 1 (Intent Clarification)'
+
+completed_steps: []
+
+pending_gates: []
+
+active_specialists: []
+
+blockers: []
+
+artifacts:
+  intent_spec: null
+  research: []
+  design: null
+  qa_design: null
+  qa_flow: null
+  external_adrs: []
+  task_plan: null
+  todo: null
+  self_review: null
+  review: []
+  validation: null
+  retrospective: null
+
+user_approvals: []
+
+rollbacks: []
