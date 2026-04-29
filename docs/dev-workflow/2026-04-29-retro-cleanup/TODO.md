@@ -43,15 +43,15 @@
   - re_activations: 0
   - notes: 成果物パス → docs/retrospective/<id>.md、ライフサイクル行追加、データ分析に再活性化 SHA 列挙項目追加
 
-- [ ] **T4** — ADR 新規作成 (A-4 保留記録)
-  - status: pending
+- [x] **T4** — ADR 新規作成 (A-4 保留記録)
+  - status: completed
   - dependencies: []
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T14:20:00Z
+  - completed_at: 2026-04-29T14:20:30Z
+  - commit: (本commit)
+  - implementer: main
   - re_activations: 0
-  - notes: docs/adr/2026-04-29-researcher-project-skill-inventory-deferral.md
+  - notes: docs/adr/2026-04-29-researcher-project-skill-inventory-deferral.md 作成。confirmed: false、Decision/Impact/再検討トリガー/関連サイクル の 4 セクション
 
 - [ ] **T5** — C 構造変更 (新規 + 削除 3 件 + パス更新 + 削除ポリシー)
   - status: pending
