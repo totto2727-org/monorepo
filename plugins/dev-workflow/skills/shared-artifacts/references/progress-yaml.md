@@ -73,9 +73,9 @@ active_specialists:
 - `task_plan` (Step 5) — `task-plan.md`
 - `todo` (Step 6 開始時に生成) — `TODO.md`
 - `self_review` (Step 7) — `self-review-report.md`
-- `review` (Step 8) — リスト
-- `validation` (Step 9) — `validation-report.md`
-- `retrospective` (Step 10) — `retrospective.md`
+- `review` (Step 7) — リスト
+- `validation` (Step 7) — `validation-report.md`
+- `retrospective` (Step 7) — `retrospective.md`
 
 ### `user_approvals`
 

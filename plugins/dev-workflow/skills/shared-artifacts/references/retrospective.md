@@ -7,7 +7,7 @@
 ## 作成者 / 作成タイミング
 
 - **作成者:** `retrospective-writer` Specialist（単一インスタンス）
-- **作成ステップ:** Step 10 (Retrospective)
+- **作成ステップ:** Step 7 (Retrospective)
 - **承認:** Main 判定（ユーザーには情報共有のみ）
 
 ## ファイル位置

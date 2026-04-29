@@ -1,7 +1,7 @@
 ---
 name: specialist-validator
 description: >
-  [Specialist 用] dev-workflow Step 9 (Validation) を担当する専門エージェント validator
+  [Specialist 用] dev-workflow Step 7 (Validation) を担当する専門エージェント validator
   の作業詳細。Intent Spec の成功基準を観測可能な形で実測し、Validation Report を作成する。
   テスト実行・メトリクス計測・シナリオ検証を行う。
   起動トリガー: Main が validator エージェントをサブエージェントとして起動した際、または
@@ -22,7 +22,7 @@ metadata:
 
 | 項目         | 内容                                                  |
 | ------------ | ----------------------------------------------------- |
-| 担当ステップ | Step 9 (Validation)                                   |
+| 担当ステップ | Step 7 (Validation)                                   |
 | 成果物       | `docs/dev-workflow/<identifier>/validation-report.md` |
 | テンプレート | `shared-artifacts/templates/validation-report.md`     |
 | 書き方ガイド | `shared-artifacts/references/validation-report.md`    |

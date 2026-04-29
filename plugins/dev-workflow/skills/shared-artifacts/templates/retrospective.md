@@ -35,7 +35,7 @@
 | ----------------- | ----------------- | ------------------- |
 | Step 6 ↔ Step 7   | {{loop_5_6}}      | {{root_cause_5_6}}  |
 | Step 6/7 → Step 3 | {{rollback_c_i3}} | {{root_cause_c_i3}} |
-| Step 8 → Step 6   | {{rollback_v_c}}  | {{root_cause_v_c}}  |
+| Step 7 → Step 6   | {{rollback_v_c}}  | {{root_cause_v_c}}  |
 
 ### Blocker 履歴
 
@@ -91,8 +91,8 @@ Specialist の役割定義・入力仕様・期待成果物の改善提案。
 - Step 1 (Intent Clarification): {{gate_1_summary}}
 - Step 3 (Design): {{gate_3_summary}}
 - Step 5 (Task Decomposition): {{gate_4_summary}}
-- Step 8 (External Review): {{gate_7_summary}}
-- Step 9 (Validation): {{gate_8_summary}}
+- Step 7 (External Review): {{gate_7_summary}}
+- Step 7 (Validation): {{gate_8_summary}}
 
 ## In-Progress ユーザー問い合わせの振り返り
 

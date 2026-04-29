@@ -7,7 +7,7 @@
 ## 作成者 / 作成タイミング
 
 - **作成者:** `reviewer` Specialist（観点ごとに別インスタンスで並列）
-- **作成ステップ:** Step 8 (External Review)
+- **作成ステップ:** Step 7 (External Review)
 - **承認:** ユーザー承認必須（Blocker 0 件の確認と Minor 扱い方針）
 
 ## ファイル位置

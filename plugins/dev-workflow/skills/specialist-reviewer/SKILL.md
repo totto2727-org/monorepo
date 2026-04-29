@@ -1,14 +1,14 @@
 ---
 name: specialist-reviewer
 description: >
-  [Specialist 用] dev-workflow Step 8 (External Review) を担当する専門エージェント
+  [Specialist 用] dev-workflow Step 7 (External Review) を担当する専門エージェント
   reviewer の作業詳細。1 つのレビュー観点（セキュリティ / パフォーマンス / 可読性 / テスト品質
   など）にフォーカスして、実装者と独立した視点で品質を検証し、Review Report を作成する。
   観点ごとに並列起動される前提。
   起動トリガー: Main が reviewer エージェントをサブエージェントとして起動した際、または
   ユーザーが明示的に "External Review", "外部レビュー", "観点別レビュー",
   "セキュリティレビュー / パフォーマンスレビュー / 可読性レビュー / テスト品質レビュー / API デザインレビュー",
-  "Step 8" を依頼した場合。
+  "Step 7" を依頼した場合。
   Do NOT use for: 全観点を単一 reviewer で扱う（観点ごとに別インスタンス）、自己レビュー
   （specialist-self-reviewer、全観点統合の事前レビュー）、検証（specialist-validator、
   成功基準実測）、実装（specialist-implementer）、Retrospective（specialist-retrospective-writer）。
@@ -26,7 +26,7 @@ metadata:
 
 | 項目         | 内容                                                                       |
 | ------------ | -------------------------------------------------------------------------- |
-| 担当ステップ | Step 8 (External Review)                                                   |
+| 担当ステップ | Step 7 (External Review)                                                   |
 | 成果物       | `docs/dev-workflow/<identifier>/review/<aspect>.md`（1 観点 = 1 ファイル） |
 | テンプレート | `shared-artifacts/templates/review-report.md`                              |
 | 書き方ガイド | `shared-artifacts/references/review-report.md`                             |
@@ -125,6 +125,6 @@ metadata:
 
 - 他観点のレビュー（別インスタンスの reviewer が担当）
 - 実装の修正（specialist-implementer の領域）
-- 成功基準の実測（specialist-validator の領域、Step 9）
+- 成功基準の実測（specialist-validator の領域、Step 7）
 - Design Document の変更（specialist-architect の領域）
 - 複数観点を単一ファイルに混ぜる（必ず 1 観点 = 1 ファイル）

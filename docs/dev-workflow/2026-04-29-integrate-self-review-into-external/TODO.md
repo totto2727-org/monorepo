@@ -52,20 +52,20 @@
   - dependencies: []
   - started_at: 2026-04-29T05:13:00Z
   - completed_at: 2026-04-29T05:13:30Z
-  - commit: (本commit)
+  - commit: 1f4c2fe
   - implementer: main
   - re_activations: 0
   - notes: 削除前に運用知見が design.md と T3b/T4 で吸収済みであることが前提
 
 ### Wave 2 — ステップ番号機械置換（直列）
 
-- [ ] **T2** — ステップ番号機械置換 (placeholder + gsed 降順)
-  - status: pending
+- [x] **T2** — ステップ番号機械置換 (placeholder + gsed 降順)
+  - status: completed
   - dependencies: [T1a, T1b, T1c, T1d]
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T05:14:00Z
+  - completed_at: 2026-04-29T05:14:30Z
+  - commit: (本commit)
+  - implementer: main
   - re_activations: 0
   - notes: `__SRK_*__` placeholder 命名。降順 (Step 10→9→8→7) で連鎖二重置換回避。事前 `ggrep -rn -F '__SRK_'` で 0 件確認
 
