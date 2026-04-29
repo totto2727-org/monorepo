@@ -32,18 +32,18 @@
   - dependencies: []
   - started_at: 2026-04-29T05:11:00Z
   - completed_at: 2026-04-29T05:11:30Z
-  - commit: (本commit)
+  - commit: 89a09e7
   - implementer: main
   - re_activations: 0
   - notes: agents/ 配下を 9 ファイル構成に
 
-- [ ] **T1c** — `shared-artifacts/templates/self-review-report.md` の削除
-  - status: pending
+- [x] **T1c** — `shared-artifacts/templates/self-review-report.md` の削除
+  - status: completed
   - dependencies: []
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T05:12:00Z
+  - completed_at: 2026-04-29T05:12:30Z
+  - commit: (本commit)
+  - implementer: main
   - re_activations: 0
   - notes:
 
