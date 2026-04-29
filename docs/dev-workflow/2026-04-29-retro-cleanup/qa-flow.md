@@ -72,12 +72,12 @@ flowchart LR
 
 ## 各葉の TC-ID 対応
 
-| 分岐結果 | TC-ID または skip 理由 |
-|---|---|
-| 全 TC PASS | Step 8 完了 |
-| 1 つでも FAIL | Step 6 に差し戻し (該当タスクの再活性化) |
-| TC-012 (Step 8 時点) | skip [Step 9 完了後に検証可、Step 8 では未検証で OK] |
-| TC-IMPL-NNN | skip [Step 6 implementer が必要時に追記、現時点で予測なし] |
+| 分岐結果             | TC-ID または skip 理由                                     |
+| -------------------- | ---------------------------------------------------------- |
+| 全 TC PASS           | Step 8 完了                                                |
+| 1 つでも FAIL        | Step 6 に差し戻し (該当タスクの再活性化)                   |
+| TC-012 (Step 8 時点) | skip [Step 9 完了後に検証可、Step 8 では未検証で OK]       |
+| TC-IMPL-NNN          | skip [Step 6 implementer が必要時に追記、現時点で予測なし] |
 
 ## 補足
 

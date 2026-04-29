@@ -144,7 +144,7 @@
 - **判定基準:** `gwc -w plugins/dev-workflow/skills/dev-workflow/SKILL.md` が 5000 以下 (現状 3733)
 - **手順:** wc -w 実行
 
-#### TC-016: 全 specialist-* SKILL.md の語数が 5,000 語以下
+#### TC-016: 全 specialist-\* SKILL.md の語数が 5,000 語以下
 
 - **対象成功基準:** SC-16
 - **軸 A:** automated
@@ -194,28 +194,28 @@ Step 6 implementer が必要に応じて追記する。本サイクルは追記�
 
 ## カバレッジ表
 
-| Intent Spec SC | 対応 TC | 軸 A | 軸 B |
-|---|---|---|---|
-| SC-1 | TC-001 | automated | count |
-| SC-2 | TC-002 | automated | count |
-| SC-3 | TC-003 | automated | count |
-| SC-4 | TC-004 | automated | count |
-| SC-5 | TC-005 | automated | existence |
-| SC-6 | TC-006 | automated | count |
-| SC-7 | TC-007 | automated | structural |
-| SC-8 | TC-008 | automated | existence |
-| SC-9 | TC-009 | automated | existence |
-| SC-10 | TC-010 | automated | existence |
-| SC-11 | TC-011 | automated | existence |
-| SC-12 | TC-012 | automated | existence |
-| SC-13 | TC-013 | automated | count |
-| SC-14 | TC-014 | automated | count |
-| SC-15 | TC-015 | automated | structural |
-| SC-16 | TC-016 | automated | structural |
-| SC-17 | TC-017 | automated | structural |
-| SC-18 | TC-018 | automated | structural |
-| SC-19 | TC-019 | manual | inspection |
-| SC-20 | TC-020 | automated | count |
+| Intent Spec SC | 対応 TC | 軸 A      | 軸 B       |
+| -------------- | ------- | --------- | ---------- |
+| SC-1           | TC-001  | automated | count      |
+| SC-2           | TC-002  | automated | count      |
+| SC-3           | TC-003  | automated | count      |
+| SC-4           | TC-004  | automated | count      |
+| SC-5           | TC-005  | automated | existence  |
+| SC-6           | TC-006  | automated | count      |
+| SC-7           | TC-007  | automated | structural |
+| SC-8           | TC-008  | automated | existence  |
+| SC-9           | TC-009  | automated | existence  |
+| SC-10          | TC-010  | automated | existence  |
+| SC-11          | TC-011  | automated | existence  |
+| SC-12          | TC-012  | automated | existence  |
+| SC-13          | TC-013  | automated | count      |
+| SC-14          | TC-014  | automated | count      |
+| SC-15          | TC-015  | automated | structural |
+| SC-16          | TC-016  | automated | structural |
+| SC-17          | TC-017  | automated | structural |
+| SC-18          | TC-018  | automated | structural |
+| SC-19          | TC-019  | manual    | inspection |
+| SC-20          | TC-020  | automated | count      |
 
 **検証主体分布**: automated 19 件 (95%) / manual 1 件 (5%)
 

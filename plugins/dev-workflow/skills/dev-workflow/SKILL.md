@@ -133,7 +133,7 @@ metadata:
 | 6    | Implementation       | `implementer` × N (タスク並列) | Main | コード diff + `TODO.md` + qa-design.md/qa-flow.md 追記 | `specialist-implementer`          |
 | 7    | External Review      | `reviewer` × N (6 観点並列)    | User | `review/<aspect>.md`                                   | `specialist-reviewer`             |
 | 8    | Validation           | `validator` × 1                | User | `validation-report.md` + `validation-evidence/*`       | `specialist-validator`            |
-| 9    | Retrospective        | `retrospective-writer` × 1     | Main | `docs/retrospective/<id>.md` (集約)                     | `specialist-retrospective-writer` |
+| 9    | Retrospective        | `retrospective-writer` × 1     | Main | `docs/retrospective/<id>.md` (集約)                    | `specialist-retrospective-writer` |
 
 各 Specialist 起動時には **reference (書き方ガイド) とテンプレートの両方のパス**を入力に含めること。各 Specialist は `specialist-common` (横断ルール) と上記の個別スキルを参照する。
 

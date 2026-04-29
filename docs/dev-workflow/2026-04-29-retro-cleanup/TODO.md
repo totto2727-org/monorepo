@@ -62,8 +62,8 @@
   - implementer: main
   - re_activations: 0
   - notes: |
-      過去 3 retrospective を git rm。dev-workflow/SKILL.md (Step 9 セクション
-      + Step 一覧テーブル + コミット規約表)、shared-artifacts/SKILL.md (成果物
+    過去 3 retrospective を git rm。dev-workflow/SKILL.md (Step 9 セクション
+    - Step 一覧テーブル + コミット規約表)、shared-artifacts/SKILL.md (成果物
       一覧テーブル + 保存構造 ASCII + サイクル外成果物セクション)、references/
       retrospective.md (ファイル位置 + ライフサイクル)、agents/retrospective-
       writer.md (概要パス) の 4 ファイルでパス更新 + 削除ポリシー追記。docs/
@@ -81,10 +81,10 @@
   - implementer: main
   - re_activations: 0
   - notes: |
-      Step 7 holistic レビュー (Blocker/Major/Minor 0 件、approved) →
-      Step 8 Validation 19 PASS / 1 保留 (TC-011 docs/retrospective/ ディレクトリ
-      は Step 9 で自動生成、TC-012 は Step 9 完了後最終確認)。
-      実質全 SC PASS、サイクル completed 直前まで進行
+    Step 7 holistic レビュー (Blocker/Major/Minor 0 件、approved) →
+    Step 8 Validation 19 PASS / 1 保留 (TC-011 docs/retrospective/ ディレクトリ
+    は Step 9 で自動生成、TC-012 は Step 9 完了後最終確認)。
+    実質全 SC PASS、サイクル completed 直前まで進行
 
 ## 状態遷移ガイド
 

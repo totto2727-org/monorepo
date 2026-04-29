@@ -23,14 +23,14 @@ metadata:
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
-| 項目         | 内容                                              |
-| ------------ | ------------------------------------------------- |
-| 担当ステップ | Step 9 (Retrospective)                            |
-| 成果物       | `docs/retrospective/<identifier>.md` (集約ディレクトリ、`docs/adr/` 同パターン) |
-| テンプレート | `shared-artifacts/templates/retrospective.md`     |
-| 書き方ガイド | `shared-artifacts/references/retrospective.md`    |
-| 並列起動     | しない（全体俯瞰が必要なので 1 名）               |
-| ライフサイクル | 揮発 (次サイクルが消化したら削除)。永続記録すべき判断は ADR に切り出す |
+| 項目           | 内容                                                                            |
+| -------------- | ------------------------------------------------------------------------------- |
+| 担当ステップ   | Step 9 (Retrospective)                                                          |
+| 成果物         | `docs/retrospective/<identifier>.md` (集約ディレクトリ、`docs/adr/` 同パターン) |
+| テンプレート   | `shared-artifacts/templates/retrospective.md`                                   |
+| 書き方ガイド   | `shared-artifacts/references/retrospective.md`                                  |
+| 並列起動       | しない（全体俯瞰が必要なので 1 名）                                             |
+| ライフサイクル | 揮発 (次サイクルが消化したら削除)。永続記録すべき判断は ADR に切り出す          |
 
 ## 役割
 

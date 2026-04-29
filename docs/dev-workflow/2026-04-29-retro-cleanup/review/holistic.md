@@ -4,15 +4,15 @@
 - **Aspect:** holistic
 - **Reviewer:** Main 兼任 (軽量スコープのため reviewer subagent 起動せず)
 - **Reviewed at:** 2026-04-29T14:35:00Z
-- **Scope:** plugins/dev-workflow/ + docs/adr/ + docs/retrospective/ + docs/dev-workflow/2026-04-*/ の retrospective 削除確認
+- **Scope:** plugins/dev-workflow/ + docs/adr/ + docs/retrospective/ + docs/dev-workflow/2026-04-\*/ の retrospective 削除確認
 
 ## サマリ
 
-| 深刻度 | 件数 |
-|---|---|
-| Blocker | 0 |
-| Major | 0 |
-| Minor | 0 |
+| 深刻度  | 件数 |
+| ------- | ---- |
+| Blocker | 0    |
+| Major   | 0    |
+| Minor   | 0    |
 
 **Gate 判定:** approved
 
@@ -22,13 +22,13 @@
 
 design.md の「5 項目の詳細設計」と実装 commit の対応:
 
-| design 項目 | 実装 commit | 整合性 |
-|---|---|---|
-| A-2 dev-workflow に 3-5 案推奨 (1 行追記) | 30e0584 | ✅ Report-Based Confirmation 内、L52 直後に 1 行追加。文言は design.md 通り |
-| A-5 specialist-reviewer に holistic 小節 (4 項目チェックリスト) | 326ff1c | ✅ `### holistic` 小節新設、4 項目すべて含む。design.md 通り (heading depth は既存 5 観点と統一する微調整あり、qa-design TC-002 も同期) |
-| A-8 retrospective-writer + C-3 (path 更新) | b011001 | ✅ データ分析に再活性化 SHA 列挙追加 + 成果物パス更新 + ライフサイクル行追加 |
-| ADR for A-4 | f7cd3a4 | ✅ Decision / Impact / 再検討トリガー / 関連サイクル の 4 セクション、frontmatter `confirmed: false` |
-| C 構造変更 (削除 + パス更新 + ポリシー) | ce78492 | ✅ 過去 3 件削除、4 ファイルでパス更新、削除ポリシー dev-workflow + reference の 2 箇所に記述 |
+| design 項目                                                     | 実装 commit | 整合性                                                                                                                                  |
+| --------------------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| A-2 dev-workflow に 3-5 案推奨 (1 行追記)                       | 30e0584     | ✅ Report-Based Confirmation 内、L52 直後に 1 行追加。文言は design.md 通り                                                             |
+| A-5 specialist-reviewer に holistic 小節 (4 項目チェックリスト) | 326ff1c     | ✅ `### holistic` 小節新設、4 項目すべて含む。design.md 通り (heading depth は既存 5 観点と統一する微調整あり、qa-design TC-002 も同期) |
+| A-8 retrospective-writer + C-3 (path 更新)                      | b011001     | ✅ データ分析に再活性化 SHA 列挙追加 + 成果物パス更新 + ライフサイクル行追加                                                            |
+| ADR for A-4                                                     | f7cd3a4     | ✅ Decision / Impact / 再検討トリガー / 関連サイクル の 4 セクション、frontmatter `confirmed: false`                                    |
+| C 構造変更 (削除 + パス更新 + ポリシー)                         | ce78492     | ✅ 過去 3 件削除、4 ファイルでパス更新、削除ポリシー dev-workflow + reference の 2 箇所に記述                                           |
 
 **結論:** design.md の各約束事項はすべて実装に反映済み。乖離なし。
 

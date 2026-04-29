@@ -111,24 +111,29 @@ confirmed: false
 # ADR: researcher Specialist の言語固有スキル棚卸し提案を保留
 
 ## Context
+
 2026-04-26 サイクル (qa-design-step 追加) で researcher が言語固有スキルを能動的に
 棚卸しした観点が高品質だったことから、改善提案として「researcher 本文にデフォルト
 調査項目化」が出された。
 
 ## Decision
+
 本提案を **対応せず保留**。Claude Code の自動ロード機構 (skill discovery) に期待し、
 Specialist 起動コンテキストに必要な言語固有スキルが含まれることを前提とする。
 
 ## Impact
+
 - researcher が言語固有スキルを能動的に棚卸しせず、自動ロードで暗黙利用
 - サイクル間で必要なスキル取りこぼしが発生する可能性は残る
 
 ## 再検討トリガー
+
 - Claude Code の skill discovery 挙動変更 (動的ロード廃止 / トリガー精度低下等)
 - dev-workflow サイクルで「言語固有スキル取りこぼし」起因の Blocker / Major 発生
 - dev-workflow CLI 化で Specialist 起動コンテキストを明示制御する設計が固まったとき
 
 ## 関連サイクル
+
 - `docs/dev-workflow/2026-04-26-add-qa-design-step/`
 ```
 
@@ -148,6 +153,7 @@ Specialist 起動コンテキストに必要な言語固有スキルが含まれ
 #### C-2. 過去 retrospective 3 件の削除
 
 `git rm` で削除:
+
 - `docs/dev-workflow/2026-04-24-ai-dlc-plugin-bootstrap/retrospective.md`
 - `docs/dev-workflow/2026-04-26-add-qa-design-step/retrospective.md`
 - `docs/dev-workflow/2026-04-29-integrate-self-review-into-external/retrospective.md`
@@ -158,15 +164,15 @@ Specialist 起動コンテキストに必要な言語固有スキルが含まれ
 
 以下 6 箇所を新パス `docs/retrospective/<cycle-id>.md` に更新:
 
-| ファイル | 行 | 現在 | 更新後 |
-|---|---|---|---|
-| `dev-workflow/SKILL.md` | L135 (Step 一覧テーブル) | `retrospective.md` | `retrospective.md (集約: docs/retrospective/<id>.md)` |
-| `dev-workflow/SKILL.md` | L529 (成果物パス) | `docs/dev-workflow/<identifier>/retrospective.md` | `docs/retrospective/<identifier>.md` |
-| `shared-artifacts/SKILL.md` | L54 (成果物一覧テーブル) | (Phase/Step 列のみ) | パス参照を新形式に更新 |
-| `shared-artifacts/SKILL.md` | L134 (ASCII 図) | `└── retrospective.md` | ASCII 図から削除 (集約ディレクトリへ移動) |
-| `shared-artifacts/references/retrospective.md` | L15 (ファイル位置) | `docs/dev-workflow/<identifier>/retrospective.md` | `docs/retrospective/<identifier>.md` |
-| `specialist-retrospective-writer/SKILL.md` | L29 (成果物テーブル) | `docs/dev-workflow/<identifier>/retrospective.md` | `docs/retrospective/<identifier>.md` |
-| `agents/retrospective-writer.md` | L25 (概要) | `docs/dev-workflow/<identifier>/retrospective.md` | `docs/retrospective/<identifier>.md` |
+| ファイル                                       | 行                       | 現在                                              | 更新後                                                |
+| ---------------------------------------------- | ------------------------ | ------------------------------------------------- | ----------------------------------------------------- |
+| `dev-workflow/SKILL.md`                        | L135 (Step 一覧テーブル) | `retrospective.md`                                | `retrospective.md (集約: docs/retrospective/<id>.md)` |
+| `dev-workflow/SKILL.md`                        | L529 (成果物パス)        | `docs/dev-workflow/<identifier>/retrospective.md` | `docs/retrospective/<identifier>.md`                  |
+| `shared-artifacts/SKILL.md`                    | L54 (成果物一覧テーブル) | (Phase/Step 列のみ)                               | パス参照を新形式に更新                                |
+| `shared-artifacts/SKILL.md`                    | L134 (ASCII 図)          | `└── retrospective.md`                            | ASCII 図から削除 (集約ディレクトリへ移動)             |
+| `shared-artifacts/references/retrospective.md` | L15 (ファイル位置)       | `docs/dev-workflow/<identifier>/retrospective.md` | `docs/retrospective/<identifier>.md`                  |
+| `specialist-retrospective-writer/SKILL.md`     | L29 (成果物テーブル)     | `docs/dev-workflow/<identifier>/retrospective.md` | `docs/retrospective/<identifier>.md`                  |
+| `agents/retrospective-writer.md`               | L25 (概要)               | `docs/dev-workflow/<identifier>/retrospective.md` | `docs/retrospective/<identifier>.md`                  |
 
 `<identifier>` はサイクル ID (`2026-04-29-retro-cleanup` 等)。
 
@@ -227,26 +233,26 @@ flowchart TD
 
 ### A-2 配置先
 
-| 案 | 内容 | 採用 |
-|---|---|---|
-| 案 1: specialist-architect 本文 | retrospective 出典どおりに architect に追記 | ❌ Specialist 個別本文への重複追記 |
-| 案 2: shared-artifacts/references/design.md 更新 (2-3 → 3-5) | 設計書品質要件を直接更新 | ❌ 本サイクル外の概念 (設計書品質 vs 質問プロトコル) を混同 |
-| 案 3: dev-workflow Report-Based Confirmation セクション | 質問プロトコルとして集約 | ✅ 採用 (ユーザー判断) |
+| 案                                                           | 内容                                        | 採用                                                        |
+| ------------------------------------------------------------ | ------------------------------------------- | ----------------------------------------------------------- |
+| 案 1: specialist-architect 本文                              | retrospective 出典どおりに architect に追記 | ❌ Specialist 個別本文への重複追記                          |
+| 案 2: shared-artifacts/references/design.md 更新 (2-3 → 3-5) | 設計書品質要件を直接更新                    | ❌ 本サイクル外の概念 (設計書品質 vs 質問プロトコル) を混同 |
+| 案 3: dev-workflow Report-Based Confirmation セクション      | 質問プロトコルとして集約                    | ✅ 採用 (ユーザー判断)                                      |
 
 ### C 保存先構造
 
-| 案 | 内容 | 採用 |
-|---|---|---|
-| 案 1: 現状維持 (`docs/dev-workflow/<id>/retrospective.md`) | 変更なし | ❌ 「対応済みかどうか判別困難」を解決しない |
-| 案 2: `docs/retrospective/<id>.md` (ADR と同パターン) | 集約 | ✅ 採用 (ユーザー判断) |
+| 案                                                                  | 内容             | 採用                                                             |
+| ------------------------------------------------------------------- | ---------------- | ---------------------------------------------------------------- |
+| 案 1: 現状維持 (`docs/dev-workflow/<id>/retrospective.md`)          | 変更なし         | ❌ 「対応済みかどうか判別困難」を解決しない                      |
+| 案 2: `docs/retrospective/<id>.md` (ADR と同パターン)               | 集約             | ✅ 採用 (ユーザー判断)                                           |
 | 案 3: `docs/dev-workflow/retrospective/<id>.md` (dev-workflow 配下) | プラグイン専属化 | ❌ 他プラグインの retrospective も将来同居する場合に拡張性が低い |
 
 ### C 過去ファイルの扱い
 
-| 案 | 内容 | 採用 |
-|---|---|---|
-| 案 1: 移動 (`git mv` で旧パス → 新パス) | 履歴保持 | ❌ ユーザー判断で削除指示 |
-| 案 2: 削除 (`git rm`) | git 履歴のみで参照可能 | ✅ 採用 (ユーザー判断、移動不要明示) |
+| 案                                      | 内容                   | 採用                                 |
+| --------------------------------------- | ---------------------- | ------------------------------------ |
+| 案 1: 移動 (`git mv` で旧パス → 新パス) | 履歴保持               | ❌ ユーザー判断で削除指示            |
+| 案 2: 削除 (`git rm`)                   | git 履歴のみで参照可能 | ✅ 採用 (ユーザー判断、移動不要明示) |
 
 ## 拡張ポイント
 

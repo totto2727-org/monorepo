@@ -42,13 +42,13 @@
 
 ### ループ回数の分析
 
-| ステップ間ループ | 回数 | 根本原因 |
-|---|---|---|
-| Step 1 内ユーザー対話 | 6-7 ラウンド | retrospective 改善案の採用判定基準が初回提示されず、scope 縮小の往復が発生 |
-| Step 6 ↔ Step 7 (Blocker 戻し) | 0 | Round 1 holistic レビューで Blocker / Major / Minor すべて 0 件 |
-| Step 7 → Step 3 ロールバック | 0 | 設計レベルロールバック不要 |
-| Step 8 → Step 6 (実装バグ) | 0 | Validation 19 PASS、実装バグなし |
-| 同一タスク再活性化 (re_activations >= 1) | 0 | 全タスクが Round 1 で完了 |
+| ステップ間ループ                         | 回数         | 根本原因                                                                   |
+| ---------------------------------------- | ------------ | -------------------------------------------------------------------------- |
+| Step 1 内ユーザー対話                    | 6-7 ラウンド | retrospective 改善案の採用判定基準が初回提示されず、scope 縮小の往復が発生 |
+| Step 6 ↔ Step 7 (Blocker 戻し)           | 0            | Round 1 holistic レビューで Blocker / Major / Minor すべて 0 件            |
+| Step 7 → Step 3 ロールバック             | 0            | 設計レベルロールバック不要                                                 |
+| Step 8 → Step 6 (実装バグ)               | 0            | Validation 19 PASS、実装バグなし                                           |
+| 同一タスク再活性化 (re_activations >= 1) | 0            | 全タスクが Round 1 で完了                                                  |
 
 ### Blocker 履歴
 
