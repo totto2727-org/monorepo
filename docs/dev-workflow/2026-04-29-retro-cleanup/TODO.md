@@ -13,15 +13,15 @@
 
 ### Wave 1 (並列、5 タスク)
 
-- [ ] **T1** — A-2 dev-workflow/SKILL.md に 3-5 案推奨を追記
-  - status: pending
+- [x] **T1** — A-2 dev-workflow/SKILL.md に 3-5 案推奨を追記
+  - status: completed
   - dependencies: []
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T14:05:00Z
+  - completed_at: 2026-04-29T14:05:30Z
+  - commit: (本commit)
+  - implementer: main
   - re_activations: 0
-  - notes: Report-Based Confirmation セクション
+  - notes: Report-Based Confirmation セクション L52 直後に 1 行追加
 
 - [ ] **T2** — A-5 specialist-reviewer に holistic 小節を新設
   - status: pending
