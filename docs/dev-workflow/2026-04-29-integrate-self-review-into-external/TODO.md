@@ -64,22 +64,22 @@
   - dependencies: [T1a, T1b, T1c, T1d]
   - started_at: 2026-04-29T05:14:00Z
   - completed_at: 2026-04-29T05:14:30Z
-  - commit: (本commit)
+  - commit: 9125656
   - implementer: main
   - re_activations: 0
   - notes: `__SRK_*__` placeholder 命名。降順 (Step 10→9→8→7) で連鎖二重置換回避。事前 `ggrep -rn -F '__SRK_'` で 0 件確認
 
 ### Wave 3 — 観点統合 / Edit ハイブリッド
 
-- [ ] **T3a** — `dev-workflow/SKILL.md` ステップ表系の 9-step 化
-  - status: pending
+- [x] **T3a** — `dev-workflow/SKILL.md` ステップ表系の 9-step 化
+  - status: completed
   - dependencies: [T2]
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T05:20:00Z
+  - completed_at: 2026-04-29T05:20:30Z
+  - commit: (本commit)
+  - implementer: main
   - re_activations: 0
-  - notes: ステップ一覧テーブル / フロー ASCII / 並列度ガイドライン表
+  - notes: ステップ一覧テーブル / フロー ASCII / 並列度ガイドライン表 / コミット規約表
 
 - [ ] **T3b** — `dev-workflow/SKILL.md` Step 7 Self-Review セクションの物理削除と新 Step 7 統合
   - status: pending
