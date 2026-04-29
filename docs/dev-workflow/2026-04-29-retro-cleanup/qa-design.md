@@ -31,7 +31,7 @@
 - **対象成功基準:** SC-2
 - **軸 A:** automated
 - **軸 B:** count
-- **判定基準:** `ggrep -nE '^#### holistic' plugins/dev-workflow/skills/specialist-reviewer/SKILL.md` が **1 件以上**
+- **判定基準:** `ggrep -nE '^### holistic' plugins/dev-workflow/skills/specialist-reviewer/SKILL.md` が **1 件以上** (既存 5 観点が `###` 3 hash のため holistic も同レベルで統一)
 - **手順:** grep 実行
 
 #### TC-003: A-5 — holistic 小節に design ↔ 実装整合性チェック記述がある

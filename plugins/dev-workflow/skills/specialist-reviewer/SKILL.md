@@ -121,6 +121,13 @@ metadata:
 - エラーモデルの一貫性（エラー種別、ステータスコード、メッセージ構造）
 - 拡張性・命名の一貫性（隣接 API との整合）
 
+### holistic
+
+- `design.md` と実装の整合性チェック（Round 1 必須項目）
+- Task Plan 完了判定（`TODO.md` の全タスクが `[x]` 完了状態か、`re_activations` を伴う未消化指摘が残っていないか）
+- Intent Spec 成功基準充足見込み（各 SC が観測可能な形で達成されているか、検証コマンド案が validation 段階で機械実行可能か）
+- 明白な bug の早期検出（リンク切れ / frontmatter スキーマ違反 / yaml syntax error / Mermaid 図の構文崩れ / 削除済みファイルへの dangling reference）
+
 ## 固有の失敗モード
 
 | 状況                                       | 対応                                                  |

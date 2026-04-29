@@ -23,15 +23,15 @@
   - re_activations: 0
   - notes: Report-Based Confirmation セクション L52 直後に 1 行追加
 
-- [ ] **T2** — A-5 specialist-reviewer に holistic 小節を新設
-  - status: pending
+- [x] **T2** — A-5 specialist-reviewer に holistic 小節を新設
+  - status: completed
   - dependencies: []
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T14:10:00Z
+  - completed_at: 2026-04-29T14:10:30Z
+  - commit: (本commit)
+  - implementer: main
   - re_activations: 0
-  - notes: 「観点別のレビュー指針」セクション末尾
+  - notes: 既存 5 観点と同階層 `### holistic` (3 hash) で追加。qa-design TC-002 の grep パターンも `^### holistic` に修正
 
 - [ ] **T3** — A-8 + C-3 specialist-retrospective-writer 修正
   - status: pending
