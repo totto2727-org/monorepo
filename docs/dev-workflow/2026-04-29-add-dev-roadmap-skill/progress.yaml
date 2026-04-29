@@ -1,15 +1,22 @@
 identifier: 2026-04-29-add-dev-roadmap-skill
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-04-29T02:30:00Z
+updated_at: 2026-04-29T03:30:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 2: Research'
+current_step: 'Step 3: Design'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification'
     completed_at: 2026-04-29T02:30:00Z
     artifacts:
       - intent-spec.md
+  - step: 'Step 2: Research'
+    completed_at: 2026-04-29T03:30:00Z
+    artifacts:
+      - research/existing-skill-structure.md
+      - research/retrospective-writer-reusability.md
+      - research/resumption-protocol-adaptation.md
+      - research/progress-yaml-concurrency.md
 
 pending_gates: []
 
@@ -19,7 +26,11 @@ blockers: []
 
 artifacts:
   intent_spec: intent-spec.md
-  research: []
+  research:
+    - research/existing-skill-structure.md
+    - research/retrospective-writer-reusability.md
+    - research/resumption-protocol-adaptation.md
+    - research/progress-yaml-concurrency.md
   design: null
   qa_design: null
   qa_flow: null
