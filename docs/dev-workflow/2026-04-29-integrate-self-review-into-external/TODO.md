@@ -17,13 +17,13 @@
 
 ### Wave 1 — 削除タスク（並列可）
 
-- [ ] **T1a** — `specialist-self-reviewer/` ディレクトリの削除
-  - status: pending
+- [x] **T1a** — `specialist-self-reviewer/` ディレクトリの削除
+  - status: completed
   - dependencies: []
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T05:10:00Z
+  - completed_at: 2026-04-29T05:10:30Z
+  - commit: (本commit)
+  - implementer: main
   - re_activations: 0
   - notes: Wave 1 起点。grep ヒット約 38% を即時消滅
 
