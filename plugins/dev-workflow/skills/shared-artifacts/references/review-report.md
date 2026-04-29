@@ -118,7 +118,7 @@ Main が Specialist 起動時に Scope 文言を明示しない場合、Speciali
 ## スコープ規律
 
 - **1 Reviewer = 1 観点**。他観点には踏み込まない
-- Self-Review レポート（Step 7）とは**別層**。内容が重複することはあるが独立して作成
+- Self-Review レポート（Step 6）とは**別層**。内容が重複することはあるが独立して作成
 - 実装の修正は reviewer の役割ではない（Main が implementer に差し戻す）
 
 ## 品質基準
@@ -133,5 +133,5 @@ Main が Specialist 起動時に Scope 文言を明示しない場合、Speciali
 ## 関連成果物
 
 - **入力:** 全 Git コミット diff、`design.md` の関連部分、`intent-spec.md`
-- **出力先:** Blocker があれば Step 6 へ差し戻し
+- **出力先:** Blocker があれば Step 5 へ差し戻し
 - **並列性:** 観点ごとに独立。他 reviewer との直接通信は Main 経由

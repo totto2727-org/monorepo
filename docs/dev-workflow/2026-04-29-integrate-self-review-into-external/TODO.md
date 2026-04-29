@@ -63,11 +63,11 @@
   - status: completed
   - dependencies: [T1a, T1b, T1c, T1d]
   - started_at: 2026-04-29T05:14:00Z
-  - completed_at: 2026-04-29T05:14:30Z
-  - commit: 9125656
+  - completed_at: 2026-04-29T05:30:00Z
+  - commit: 9125656 (chain bug) → 修正コミットは T3 と統合
   - implementer: main
-  - re_activations: 0
-  - notes: `__SRK_*__` placeholder 命名。降順 (Step 10→9→8→7) で連鎖二重置換回避。事前 `ggrep -rn -F '__SRK_'` で 0 件確認
+  - re_activations: 1
+  - notes: 初回 `gsed -e 連鎖` でチェイン置換が発生 (Step 8/9/10 が全て Step 7 に圧縮された)。pre-T2 状態に復元したうえで 2-phase placeholder アプローチ (`__SRK_NEW7__/8__/9__`) で正しい降順置換を再適用。修正は T3a-T3d と同じコミットにまとめる
 
 ### Wave 3 — 観点統合 / Edit ハイブリッド
 
@@ -75,41 +75,41 @@
   - status: completed
   - dependencies: [T2]
   - started_at: 2026-04-29T05:20:00Z
-  - completed_at: 2026-04-29T05:20:30Z
-  - commit: (本commit)
+  - completed_at: 2026-04-29T05:31:00Z
+  - commit: (T2 修正と統合)
+  - implementer: main
+  - re_activations: 1
+  - notes: 初回 770907b は T2 chain bug のうえに乗っていたため再適用。ステップ一覧テーブル / フロー ASCII / 並列度ガイドライン表 / コミット規約表を 9-step 構成に更新
+
+- [x] **T3b** — `dev-workflow/SKILL.md` Step 7 Self-Review セクションの物理削除と新 Step 7 統合
+  - status: completed
+  - dependencies: [T3a]
+  - started_at: 2026-04-29T05:31:00Z
+  - completed_at: 2026-04-29T05:32:00Z
+  - commit: (T2 修正と統合)
   - implementer: main
   - re_activations: 0
-  - notes: ステップ一覧テーブル / フロー ASCII / 並列度ガイドライン表 / コミット規約表
+  - notes: Self-Review セクション (旧 L398-L461) を物理削除し、新 Step 7 (External Review) に holistic 観点 / Blocker/Major/Minor 統一 / 6 並列 reviewer / 3 周ロールバック知見を統合
 
-- [ ] **T3b** — `dev-workflow/SKILL.md` Step 7 Self-Review セクションの物理削除と新 Step 7 統合
-  - status: pending
-  - dependencies: [T3a]
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
-  - re_activations: 0
-  - notes: 同一ファイルのため T3a→T3b→T3c→T3d は直列。新 Step 7 に holistic 観点と「全体整合性」記述を統合
-
-- [ ] **T3c** — `dev-workflow/SKILL.md` ロールバック早見表の 9-step 化
-  - status: pending
+- [x] **T3c** — `dev-workflow/SKILL.md` ロールバック早見表の 9-step 化
+  - status: completed
   - dependencies: [T3b]
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T05:32:00Z
+  - completed_at: 2026-04-29T05:32:30Z
+  - commit: (T2 修正と統合)
+  - implementer: main
   - re_activations: 0
-  - notes:
+  - notes: 旧 Self-Review エントリ (High 指摘 / 設計レベル) を Blocker 指摘 (観点別 / holistic 共通) と 3 周以上ループ条件に統合
 
-- [ ] **T3d** — `dev-workflow/SKILL.md` その他 Self-Review 言及の文脈書き換え
-  - status: pending
+- [x] **T3d** — `dev-workflow/SKILL.md` その他 Self-Review 言及の文脈書き換え
+  - status: completed
   - dependencies: [T3c]
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T05:32:30Z
+  - completed_at: 2026-04-29T05:33:00Z
+  - commit: (T2 修正と統合)
+  - implementer: main
   - re_activations: 0
-  - notes:
+  - notes: TODO.md 再活性化文言 / Specialist 衝突表 / holistic 説明の 3 件をリワード。`grep -niE 'self[-_]review' plugins/dev-workflow/skills/dev-workflow/SKILL.md` 0 件確認
 
 - [ ] **T4** — `specialist-reviewer/SKILL.md` の責務拡張 (holistic 観点 / Self-Review 言及削除 / 全体整合性追記)
   - status: pending
