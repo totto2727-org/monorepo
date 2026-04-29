@@ -51,7 +51,7 @@ skill-reviewer ルールへの照合結果、現状の dev-workflow プラグイ
 
 そのため本サイクルは **構造的圧縮 (行数 / description) を含めず**、Step 1 ユーザーゲートでの個別評価を経て**3 件の Specialist 本文修正 + 1 件の ADR 起票 (A-4 のみ) + retrospective 保存場所と削除ポリシーの workflow 構造変更**に絞る:
 
-1. **A-2 (specialist-architect)**: 代替案 3-5 案推奨ルールの追記
+1. **A-2 (dev-workflow/SKILL.md)**: 「Report-Based Confirmation for In-Progress Questions」セクションのレポート最小構成記述に「**選択肢と根拠は 3-5 案推奨**」を追記 (計画段階の全 Specialist が参照可能な共通プロトコルとして 1 箇所に集約)
 2. **A-5 (specialist-reviewer)**: 「観点別のレビュー指針」に欠落していた `holistic` 小節の新設
 3. **A-8 (specialist-retrospective-writer)**: 再活性化タスクの SHA 列挙手順の追加
 4. **ADR の起票 (A-4 のみ)**: researcher のプロジェクト固有スキル棚卸し提案を「自動ロードに期待し将来再検討」と判断した経緯を `docs/adr/` 配下に新規 ADR として記録
@@ -68,13 +68,16 @@ skill-reviewer ルールへの照合結果、現状の dev-workflow プラグイ
 
 ユーザー判断 (Step 1 ゲートでの個別評価) を経て、本サイクルは以下の **3 つの Specialist 本文修正 + 1 つの ADR 起票** に絞られた。各項目に「なぜ必要か」と「出典 retrospective」を併記する。
 
-### A-2. specialist-architect
+### A-2. dev-workflow/SKILL.md (Report-Based Confirmation セクションに 3-5 案推奨を追記)
 
-`plugins/dev-workflow/skills/specialist-architect/SKILL.md` 本体の代替案分析手順を更新:
+`plugins/dev-workflow/skills/dev-workflow/SKILL.md` の **「Report-Based Confirmation for In-Progress Questions」セクション** (現状 L41-L52 付近) のレポート最小構成記述に追記:
 
-- **代替案分析は 3-5 案を推奨**（現行 2-3 案 → 3-5 案）に更新
+- 既存の最小構成: `# 目的` / `# これまでの経緯` / `# 選択肢と根拠` / `# 推奨案` / `# 確認したい事項`
+- 追記内容: 「**選択肢と根拠は 3-5 案を推奨**。2-3 案では選択肢を絞りすぎて事後修正が必要になる傾向があるため、複数アプローチを比較する場面では原則 3-5 案を提示する」
   - **なぜ必要か**: `2026-04-26-add-qa-design-step` サイクルで「5 トピック × 各 2-4 案」の代替案分析を実施したところ、後段でのユーザー指摘 (qa-flow.md は実装都合テストも図示) のような方針変更が発生しても影響範囲が局所的だった (=代替案数が増えるほど方針変更耐性が高まる)。2-3 案では選択肢を絞りすぎて事後修正が必要になる傾向があった
-  - **出典**: `docs/dev-workflow/2026-04-26-add-qa-design-step/retrospective.md` L21 (良かった点 / 代替案 5 トピック) / L72 (改善案 / 「2-3 案」から「3-5 案」へ)
+  - **なぜ dev-workflow 1 箇所か**: `Report-Based Confirmation for In-Progress Questions` は計画段階 Specialist (intent-analyst / architect / qa-analyst / planner) 全てが共通参照する**質問プロトコル**であり、ここに集約することで Specialist 個別本文への重複追記を回避できる (bootstrap retrospective M#3 の「真のソース重複」アンチパターン回避)
+  - **設計書の代替案と採用理由 (`shared-artifacts/references/design.md` L48 の「2-3 個」) は別概念 (設計書品質の要件) のため本サイクルでは触らない**。ユーザー判断で集約位置は Report-Based Confirmation 1 箇所のみ
+  - **出典**: `docs/dev-workflow/2026-04-26-add-qa-design-step/retrospective.md` L21 (良かった点 / 代替案 5 トピック) / L72 (改善案 / 「2-3 案」から「3-5 案」へ、原文では architect 対象だが集約位置は本サイクル Step 1 ゲートでのユーザー判断により dev-workflow に変更)
 
 ### A-5. specialist-reviewer
 
@@ -209,7 +212,7 @@ retrospective の運用方針を **「永続記録」から「一時的な報告
 
 ### A. 本文への運用ルール追記の検証
 
-1. `ggrep -nE '3-5|3〜5|3 から 5|3.{0,3}案.{0,3}5' plugins/dev-workflow/skills/specialist-architect/SKILL.md` の結果が **1 件以上**（A-2: 代替案 3-5 案推奨が architect 本文に記載されている）
+1. `ggrep -nE '3-5|3〜5|3 から 5|3.{0,3}案.{0,3}5' plugins/dev-workflow/skills/dev-workflow/SKILL.md` の結果が **1 件以上**、かつ `Report-Based Confirmation` セクション内 (L41-L52 付近) であること（A-2: 3-5 案推奨が Report-Based Confirmation セクションに追記されている）
 2. `ggrep -nE '#### holistic|^#### *holistic' plugins/dev-workflow/skills/specialist-reviewer/SKILL.md` の結果が **1 件以上**、または「観点別のレビュー指針」セクション内に `holistic` を独立小節として持つ（A-5: holistic 小節が本文に新設されている）
 3. `ggrep -nE 'design\.md と実装|design\.md.*整合|整合性チェック' plugins/dev-workflow/skills/specialist-reviewer/SKILL.md` の結果が **1 件以上**（A-5: holistic 観点に design.md ↔ 実装整合性チェックが記載されている）
 4. `ggrep -nE 're_activations|再活性化.*SHA|SHA.*列挙' plugins/dev-workflow/skills/specialist-retrospective-writer/SKILL.md` の結果が **1 件以上**（A-8: 再活性化タスクの SHA 列挙手順が本文に追記されている）
