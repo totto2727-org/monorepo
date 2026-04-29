@@ -49,19 +49,20 @@ skill-reviewer ルールへの照合結果、現状の dev-workflow プラグイ
 - **G2 #5 (description ≤ 1024 文字)**: 全 9 specialist + specialist-common が 410-775 文字で違反なし
 - **G3 / G7 (SKILL.md 5,000 語以下)**: 最長の `dev-workflow/SKILL.md` でも 820 行 / 3,733 語で違反なし。他全ファイルも違反なし
 
-そのため本サイクルは **構造的圧縮 (行数 / description) を含めず**、Step 1 ユーザーゲートでの個別評価を経て**3 件の Specialist 本文修正 + 1 件の ADR 起票 (A-4 のみ)**に絞る:
+そのため本サイクルは **構造的圧縮 (行数 / description) を含めず**、Step 1 ユーザーゲートでの個別評価を経て**3 件の Specialist 本文修正 + 1 件の ADR 起票 (A-4 のみ) + retrospective 保存場所と削除ポリシーの workflow 構造変更**に絞る:
 
 1. **A-2 (specialist-architect)**: 代替案 3-5 案推奨ルールの追記
 2. **A-5 (specialist-reviewer)**: 「観点別のレビュー指針」に欠落していた `holistic` 小節の新設
 3. **A-8 (specialist-retrospective-writer)**: 再活性化タスクの SHA 列挙手順の追加
 4. **ADR の起票 (A-4 のみ)**: researcher のプロジェクト固有スキル棚卸し提案を「自動ロードに期待し将来再検討」と判断した経緯を `docs/adr/` 配下に新規 ADR として記録
+5. **C. retrospective の保存場所変更 + 削除ポリシー導入** (workflow 構造変更): 各サイクルディレクトリに retrospective.md が散在すると「対応済みかどうか」が判別困難なため、`docs/adr/` 同様の集約構造 `docs/retrospective/<cycle-id>.md` に変更し、改善対応済み retrospective は削除する運用 (一時的な報告ボックス扱い) を導入する。本サイクルで対応済みの 3 件 (`2026-04-24-ai-dlc-plugin-bootstrap` / `2026-04-26-add-qa-design-step` / `2026-04-29-integrate-self-review-into-external`) は移動せず削除。本サイクル自身の retrospective は Step 9 で新パスに保存
 
 ユーザー判断で対応見送りとなった項目は次のとおり (ADR には記録しない):
 
 - **A-1 implementer / A-3 planner の 3 ルール / B 全項目**: 「当たり前 / 局所的すぎてスキルに加えるのは不適」「別 PR で対応中」「現状でも検出可能」のいずれか。ADR に残す価値もないため不要マーク
 - **A-6 / A-7 deprecation 言い換えパターン**: 不要。直前サイクルで 1 件発生したのみで再現性が弱く、ADR に残す価値もない (CLI 化時に必要なら新規判断)
 
-成功条件は「3 件の運用ルールが各 Specialist 本文に grep で検出できる、ADR ファイルが新規 1 件起票され保留事項が記録されている、既存の skill-reviewer ルール違反を新たに発生させない」状態に到達すること。
+成功条件は「3 件の運用ルールが各 Specialist 本文に grep で検出できる、A-4 用 ADR ファイルが新規 1 件起票され保留事項が記録されている、retrospective が `docs/retrospective/` 集約構造へ移行し過去 3 件が削除され削除ポリシーが workflow 文書に明記されている、既存の skill-reviewer ルール違反を新たに発生させない」状態に到達すること。
 
 ## スコープ
 
@@ -92,6 +93,59 @@ skill-reviewer ルールへの照合結果、現状の dev-workflow プラグイ
   - **なぜ必要か**: 直前サイクル T2 chain bug → T3a 復元やり直し で `re_activations: 1` が記録されたが、retrospective.md にはこのカウンタの根拠 (どの commit で再活性化が発生したか) が散発的にしか記載されなかった。次サイクルで「同種事故が起きた commit を grep で発見する」フックがないため、Specialist 段階で SHA 列挙を標準化する
   - **出典**: `docs/dev-workflow/2026-04-29-integrate-self-review-into-external/retrospective.md` L27 (TODO.md re_activations 動作実証) / L70 (Blocker 化閾値の議論) / L91 (改善案)
 
+### C. Retrospective の保存場所変更 + 削除ポリシー導入 (workflow 構造変更)
+
+retrospective の運用方針を **「永続記録」から「一時的な報告ボックス」** に変更し、`docs/adr/` と同じパターンの集約ディレクトリに保存先を移す。
+
+#### C-1. 保存場所の集約
+
+- **新パス**: `docs/retrospective/<cycle-id>.md` (例: `docs/retrospective/2026-04-29-retro-cleanup.md`)
+- **<cycle-id>**: サイクル ID (日時 + slug、`docs/dev-workflow/<id>/` で使う ID と完全同一)
+- **新規ディレクトリ作成**: `docs/retrospective/` (gitkeep 等は不要、ファイル作成時に自動的に作られる)
+- **ADR との対比**: `docs/adr/` は意思決定の永続記録 (`confirmed: true` にして不変)、`docs/retrospective/` は次サイクルでの改善検討材料となる**揮発性レポート**
+
+#### C-2. 削除ポリシーの導入
+
+- 改善対応 / 確認済みの retrospective は **削除** する運用を Specialist スキル / dev-workflow skill 本文に明記
+- 削除タイミング: 後続サイクルが当該 retrospective の改善案項目を Intent Spec で検討し、対応 / 不要 / 保留 (ADR 化) のいずれかに判断した時点
+- 削除されない retrospective: 直近 1〜2 サイクル分 (まだ改善検討対象になっていないもの)
+- ADR との対比: 「永続記録すべき判断」は ADR に切り出し、retrospective 自体は削除して構わない
+
+#### C-3. 影響を受けるスキル / ファイルの更新
+
+- `plugins/dev-workflow/skills/dev-workflow/SKILL.md`:
+  - Step 9 (Retrospective) セクションの保存先記述を `docs/dev-workflow/<id>/retrospective.md` → `docs/retrospective/<cycle-id>.md` に更新
+  - 「成果物保存構造」ASCII から `retrospective.md` 行を削除 (集約ディレクトリへ移動したため)
+  - 「サイクル外の成果物」相当のセクション (ADR と並列) に retrospective を追記
+  - 削除ポリシーの記述追加
+- `plugins/dev-workflow/skills/shared-artifacts/SKILL.md`:
+  - 成果物一覧テーブルの retrospective 行で保存先パスを更新
+  - 保存構造 ASCII から retrospective を除外 (集約ディレクトリ側に置く)
+  - 「サイクル外の成果物」セクションに retrospective を追記 (ADR / In-Progress 一時レポートと並列)
+- `plugins/dev-workflow/skills/shared-artifacts/references/retrospective.md`:
+  - 「ファイル位置」記述を新パスに更新
+  - 削除ポリシーを記載 (一時的な報告ボックス扱い)
+- `plugins/dev-workflow/skills/shared-artifacts/templates/retrospective.md`:
+  - ヘッダコメントの保存先注記を更新 (テンプレ自体の構造は維持)
+- `plugins/dev-workflow/skills/specialist-retrospective-writer/SKILL.md`:
+  - 出力先パスを新パスに更新 (A-8 の SHA 列挙ルール追記と同一コミットでまとめる)
+
+#### C-4. 過去 retrospective ファイルの削除 (本サイクルで対応済み 3 件)
+
+ユーザー判断で「移動不要、そのまま削除」:
+
+- `docs/dev-workflow/2026-04-24-ai-dlc-plugin-bootstrap/retrospective.md` を `git rm`
+- `docs/dev-workflow/2026-04-26-add-qa-design-step/retrospective.md` を `git rm`
+- `docs/dev-workflow/2026-04-29-integrate-self-review-into-external/retrospective.md` を `git rm`
+
+これら retrospective から導出した改善提案は本サイクルおよび直前サイクルですべて消化済み。残しておく価値がないためファイル自体を削除する (Git 履歴では参照可能なので情報は失われない)。
+
+#### C-5. 本サイクル自身の retrospective (Step 9 で生成)
+
+本サイクル `2026-04-29-retro-cleanup` の Step 9 で生成される retrospective は、**新パス** `docs/retrospective/2026-04-29-retro-cleanup.md` に保存する。`docs/dev-workflow/2026-04-29-retro-cleanup/` ディレクトリ内には `retrospective.md` を作らない。
+
+なぜ必要か: ユーザー判断 (本対話)。「対応済みかどうかの判別が難しい」「一度対応すれば残す価値が薄い (修正サイクルの Intent Spec で十分)」という運用課題の解決。`docs/adr/` の集約構造が安定運用されていることから類推して同パターンを採用。
+
 ### ADR. A-4 (researcher のプロジェクト固有スキル棚卸し) の保留記録
 
 `docs/adr/YYYY-MM-DD-researcher-project-skill-inventory-deferral.md` を新規起票し、A-4 を「対応せず」と判断した経緯と将来再検討の条件を記録する。他の見送り項目 (A-1 / A-3 / A-6 / A-7 / B) は ADR に残す価値がないと判断したため記録しない。
@@ -109,8 +163,8 @@ skill-reviewer ルールへの照合結果、現状の dev-workflow プラグイ
 
 ### スコープ運用
 
-- 影響範囲は `plugins/dev-workflow/` 配下と `docs/adr/` の新規 ADR ファイル 1 件のみ
-- 過去サイクル成果物 (`docs/dev-workflow/2026-04-*/`) は遡及修正禁止（完了済み履歴として保持）
+- 影響範囲は `plugins/dev-workflow/` 配下、`docs/adr/` の新規 ADR ファイル 1 件、`docs/retrospective/` の新規ディレクトリ + 1 ファイル (本サイクルの retrospective)、過去 3 サイクルの retrospective 削除のみ
+- 過去サイクル成果物 (`docs/dev-workflow/2026-04-*/`) のうち retrospective.md 以外は遡及修正禁止 (完了済み履歴として保持)。retrospective.md は C-4 で 3 件削除
 - 各 Specialist 本文への追記は既存 SKILL.md の構造を維持し、新規セクションを作る場合でも 30 行以内に収める
 - `references/` の新規ディレクトリは作成しない
 
@@ -166,14 +220,24 @@ skill-reviewer ルールへの照合結果、現状の dev-workflow プラグイ
 6. 新 ADR に **A-4 の決定 / 影響 / 再検討トリガー / 関連 retrospective 出典** が記録されている（`Decision` / `Impact` / `再検討トリガー` / `2026-04-26-add-qa-design-step/retrospective.md` の各キーワードが本文に存在）
 7. 新 ADR の frontmatter `confirmed: false`（adr スキル準拠、初期はレビュー前ステータス）
 
-### C. 既存機能の維持 (skill-reviewer ルール非違反の維持)
+### C. retrospective 保存場所変更 + 削除ポリシー (workflow 構造変更)
 
-8. `gwc -w plugins/dev-workflow/skills/dev-workflow/SKILL.md` の結果が **5,000 語以下**（skill-reviewer G3 / G7 違反を新たに発生させない、現状 3,733 語）
-9. `gwc -w plugins/dev-workflow/skills/specialist-*/SKILL.md` 各ファイルが **5,000 語以下**
-10. `gwc -l plugins/dev-workflow/skills/specialist-*/SKILL.md` で本サイクルが触る 3 specialist の本体行数が **既存比 +30% 以内** に収まる（追記による肥大化を抑制、現状 architect 100 行 / reviewer 139 行 / retrospective-writer 99 行）
-11. **3 specialist の description が skill-reviewer G2 #5 の上限 1024 文字以内を維持**
-12. 既存 ADR `docs/adr/2026-04-26-dev-workflow-rename-and-flatten.md` のフラット構造方針に違反しない
-13. 既存の grep ベース成功基準パターン (`grep -rnE -i 'self[-_]review|Self-Review' plugins/dev-workflow/` が 0 件等) を破壊しない
+8. `test ! -f docs/dev-workflow/2026-04-24-ai-dlc-plugin-bootstrap/retrospective.md` が真 (削除完了)
+9. `test ! -f docs/dev-workflow/2026-04-26-add-qa-design-step/retrospective.md` が真
+10. `test ! -f docs/dev-workflow/2026-04-29-integrate-self-review-into-external/retrospective.md` が真
+11. `test -d docs/retrospective` が真 (Step 9 で本サイクル分の retrospective ファイル作成時に自動生成、または明示的に作成)
+12. **Step 9 完了後**: `test -f docs/retrospective/2026-04-29-retro-cleanup.md` が真 (本サイクル自身の retrospective が新パスに保存されている)
+13. `ggrep -nF 'docs/retrospective/' plugins/dev-workflow/skills/dev-workflow/SKILL.md plugins/dev-workflow/skills/shared-artifacts/SKILL.md plugins/dev-workflow/skills/shared-artifacts/references/retrospective.md plugins/dev-workflow/skills/specialist-retrospective-writer/SKILL.md` の結果が **各 1 件以上**（保存先記述が新パスに更新されている）
+14. `ggrep -nE '削除|揮発|報告ボックス|temporary' plugins/dev-workflow/skills/shared-artifacts/references/retrospective.md plugins/dev-workflow/skills/dev-workflow/SKILL.md` の結果が **1 件以上**（削除ポリシーが reference または skill 本文に記載されている）
+
+### D. 既存機能の維持 (skill-reviewer ルール非違反の維持)
+
+15. `gwc -w plugins/dev-workflow/skills/dev-workflow/SKILL.md` の結果が **5,000 語以下**（skill-reviewer G3 / G7 違反を新たに発生させない、現状 3,733 語）
+16. `gwc -w plugins/dev-workflow/skills/specialist-*/SKILL.md` 各ファイルが **5,000 語以下**
+17. `gwc -l plugins/dev-workflow/skills/specialist-*/SKILL.md` で本サイクルが触る 3 specialist の本体行数が **既存比 +30% 以内** に収まる（追記による肥大化を抑制、現状 architect 100 行 / reviewer 139 行 / retrospective-writer 99 行）
+18. **3 specialist の description が skill-reviewer G2 #5 の上限 1024 文字以内を維持**
+19. 既存 ADR `docs/adr/2026-04-26-dev-workflow-rename-and-flatten.md` のフラット構造方針に違反しない
+20. 既存の grep ベース成功基準パターン (`grep -rnE -i 'self[-_]review|Self-Review' plugins/dev-workflow/` が 0 件等) を破壊しない
 
 ## 制約
 
