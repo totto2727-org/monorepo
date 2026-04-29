@@ -1,9 +1,9 @@
 identifier: 2026-04-29-integrate-self-review-into-external
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-04-29T02:00:00Z
+updated_at: 2026-04-29T03:00:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 3 (Design)'
+current_step: 'Step 4 (QA Design)'
 
 completed_steps:
   - step: 'Step 1 (Intent Clarification)'
@@ -17,6 +17,10 @@ completed_steps:
       - research/step-renumber-map.md
       - research/reviewer-scope-merge.md
       - research/previous-cycle-precedent.md
+  - step: 'Step 3 (Design)'
+    completed_at: 2026-04-29T03:00:00Z
+    artifacts:
+      - design.md
 
 pending_gates: []
 
@@ -31,7 +35,7 @@ artifacts:
     - research/step-renumber-map.md
     - research/reviewer-scope-merge.md
     - research/previous-cycle-precedent.md
-  design: null
+  design: design.md
   qa_design: null
   qa_flow: null
   external_adrs: []
