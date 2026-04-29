@@ -72,8 +72,7 @@ active_specialists:
 - `external_adrs` — サイクル外に起票したプロジェクト横断 ADR (リスト)
 - `task_plan` (Step 5) — `task-plan.md`
 - `todo` (Step 6 開始時に生成) — `TODO.md`
-- `self_review` (Step 7) — `self-review-report.md`
-- `review` (Step 7) — リスト
+- `review` (Step 7) — リスト (`review/<aspect>.md`、6 観点)
 - `validation` (Step 8) — `validation-report.md`
 - `retrospective` (Step 9) — `retrospective.md`
 

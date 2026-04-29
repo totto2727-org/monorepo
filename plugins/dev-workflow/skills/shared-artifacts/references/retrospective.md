@@ -94,9 +94,8 @@ dev-workflow プラグインのスキル（`main-*` / `specialist-*` / `shared-a
 
 - サイクルの全成果物
 - `progress.yaml`（タイムスタンプ、completed_steps、user_approvals、rollbacks）
-- `TODO.md`（re_activations、started_at / completed_at）
-- `self-review-report.md` の修正ラウンド履歴
-- `review/*.md` 全件
+- `TODO.md`（re_activations、started_at / completed_at、External Review Round 履歴）
+- `review/*.md` 全件 (6 観点 + プロジェクト固有追加観点)
 - `validation-report.md`
 - `$TMPDIR/dev-workflow/*.md` 一時レポート一覧
 

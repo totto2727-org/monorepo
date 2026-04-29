@@ -69,7 +69,6 @@ Specialist の役割定義・入力仕様・期待成果物の改善提案。
 - `architect`: {{architect_improvement}}
 - `planner`: {{planner_improvement}}
 - `implementer`: {{implementer_improvement}}
-- `self-reviewer`: {{self_reviewer_improvement}}
 - `reviewer`: {{reviewer_improvement}}
 - `validator`: {{validator_improvement}}
 

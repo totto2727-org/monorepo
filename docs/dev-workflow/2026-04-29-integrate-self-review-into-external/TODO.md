@@ -111,55 +111,55 @@
   - re_activations: 0
   - notes: TODO.md 再活性化文言 / Specialist 衝突表 / holistic 説明の 3 件をリワード。`grep -niE 'self[-_]review' plugins/dev-workflow/skills/dev-workflow/SKILL.md` 0 件確認
 
-- [ ] **T4** — `specialist-reviewer/SKILL.md` の責務拡張 (holistic 観点 / Self-Review 言及削除 / 全体整合性追記)
-  - status: pending
+- [x] **T4** — `specialist-reviewer/SKILL.md` の責務拡張 (holistic 観点 / Self-Review 言及削除 / 全体整合性追記)
+  - status: completed
   - dependencies: [T2]
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T05:40:00Z
+  - completed_at: 2026-04-29T05:40:30Z
+  - commit: (T4-T7 統合 commit)
+  - implementer: main
   - re_activations: 0
-  - notes: T3 系と並列可。description 250 文字制約に注意
+  - notes: holistic 観点を 6 番目として追加、Round 1 / Round 2 運用、Blocker/Major/Minor 統一、3 周ロールバック規則、description 更新
 
-- [ ] **T5** — 他 specialist スキル / agents の Self-Review 言及削除 + Step 番号整合性確認
-  - status: pending
+- [x] **T5** — 他 specialist スキル / agents の Self-Review 言及削除 + Step 番号整合性確認
+  - status: completed
   - dependencies: [T2]
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T05:41:00Z
+  - completed_at: 2026-04-29T05:42:00Z
+  - commit: (T4-T7 統合 commit)
+  - implementer: main
   - re_activations: 0
-  - notes: T3/T4 と並列可。複数ファイルを 1 commit にまとめる
+  - notes: specialist-common / specialist-intent-analyst / specialist-implementer / specialist-validator / specialist-retrospective-writer / agents/reviewer.md / agents/validator.md / agents/retrospective-writer.md を更新
 
-- [ ] **T6** — `shared-artifacts/SKILL.md` 成果物一覧 + 保存構造 ASCII の連番再付番
-  - status: pending
+- [x] **T6** — `shared-artifacts/SKILL.md` 成果物一覧 + 保存構造 ASCII の連番再付番
+  - status: completed
   - dependencies: [T1c, T1d, T2]
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T05:42:00Z
+  - completed_at: 2026-04-29T05:42:30Z
+  - commit: (T4-T7 統合 commit)
+  - implementer: main
   - re_activations: 0
-  - notes: T3/T4/T5 と並列可
+  - notes: self-review-report.md 行を削除し連番を 12 行構成に再付番、ASCII 図から self-review-report.md を除去し review/ 配下の 6 観点を明示
 
-- [ ] **T7** — `progress.yaml` / `TODO.md` / `retrospective.md` template と reference の刷新
-  - status: pending
+- [x] **T7** — `progress.yaml` / `TODO.md` / `retrospective.md` template と reference の刷新
+  - status: completed
   - dependencies: [T2]
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T05:43:00Z
+  - completed_at: 2026-04-29T05:44:00Z
+  - commit: (T4-T7 統合 commit)
+  - implementer: main
   - re_activations: 0
-  - notes: B-3/B-4 リスク。`self_review:` 削除と TODO.md 文言刷新を 1 Edit にまとめる。`references/*.md` を全件 grep 確認
+  - notes: progress.yaml `self_review:` 削除、TODO.md/todo.md の Active Steps と re_activations 文言を External Review Blocker に刷新、retrospective.md の self_reviewer プレースホルダ削除、review-report.md と implementation-log.md を 6 観点 (holistic 含む) で書き直し
 
-- [ ] **T8** — README + plugin.json の 9-step 化
-  - status: pending
+- [x] **T8** — README + plugin.json の 9-step 化
+  - status: completed
   - dependencies: [T2]
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T05:00:00Z
+  - completed_at: 2026-04-29T05:05:00Z
+  - commit: 6a1c5b9 (+ 文言精査は本 commit)
+  - implementer: main
   - re_activations: 0
-  - notes: T3/T4/T5/T6/T7 と並列可
+  - notes: 6a1c5b9 で初回更新済み。本コミットで Self-Review 比較段落を整理し、holistic 観点の説明を簡潔化
 
 ### Wave 4 — 機械検証
 

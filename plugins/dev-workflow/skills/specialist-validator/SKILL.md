@@ -6,9 +6,9 @@ description: >
   テスト実行・メトリクス計測・シナリオ検証を行う。
   起動トリガー: Main が validator エージェントをサブエージェントとして起動した際、または
   ユーザーが明示的に成功基準の検証を依頼した場合。
-  Do NOT use for: レビュー（specialist-reviewer）、自己レビュー（specialist-self-reviewer）、
-  実装（specialist-implementer）、Retrospective（specialist-retrospective-writer）、
-  成功基準の主観的な判断（観測値に基づかない評価）。
+  Do NOT use for: レビュー（specialist-reviewer）、実装（specialist-implementer）、
+  Retrospective（specialist-retrospective-writer）、成功基準の主観的な判断
+  （観測値に基づかない評価）。
 metadata:
   author: totto2727
 ---

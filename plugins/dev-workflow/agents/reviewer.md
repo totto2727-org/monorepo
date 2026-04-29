@@ -1,11 +1,13 @@
 ---
 description: >
   dev-workflow Step 7 (External Review) 担当の専門エージェント。1 つのレビュー観点
-  （セキュリティ / パフォーマンス / 可読性 / テスト品質 / API 設計 のいずれか 1 つ）に特化
-  して、実装者と独立した視点で品質を検証し、Review Report を作成する。観点ごとに並列起動
-  される前提（1 インスタンス = 1 観点）。Main がサブエージェントとして起動する。
-  Do NOT use for: 複数観点の統合レビュー（self-reviewer を使う）、成功基準の実測判定
-  （validator を使う）、設計そのものの妥当性検証（architect フェーズで実施済みの前提）。
+  （security / performance / readability / test-quality / api-design / holistic の 6 観点が起点）
+  に特化して、実装者と独立した視点で品質を検証し、Review Report を作成する。観点ごとに 6 並列
+  起動される前提（1 インスタンス = 1 観点）。holistic 観点は全体整合性 / Task Plan 完了判定 /
+  design.md 整合性 / Intent Spec 成功基準充足見込み / 明白な bug の早期検出を専任。Main が
+  サブエージェントとして起動する。
+  Do NOT use for: 複数観点の単一インスタンス処理、成功基準の実測判定（validator を使う）、
+  設計そのものの妥当性検証（architect フェーズで実施済みの前提）。
 ---
 
 # reviewer

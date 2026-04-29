@@ -53,7 +53,7 @@
 
 {{issues_and_resolutions}}
 
-実装中に遭遇した想定外の事象と、どう解決したかを記録する。Self-Review および Retrospective の材料となる。
+実装中に遭遇した想定外の事象と、どう解決したかを記録する。External Review (`holistic` 観点を含む 6 観点並列) および Retrospective の材料となる。
 
 - {{issue_1}} → {{resolution_1}}
 
@@ -61,6 +61,6 @@
 
 {{design_deviations}}
 
-あれば記録する（理想的にはゼロ）。逸脱がある場合は Self-Review で確認され、必要なら Design への差し戻し判断材料となる。
+あれば記録する（理想的にはゼロ）。逸脱がある場合は External Review (`holistic` 観点) で確認され、必要なら Design への差し戻し判断材料となる。
 
 - なし（デフォルト）

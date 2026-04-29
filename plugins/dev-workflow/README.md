@@ -6,7 +6,7 @@ A Main coordinator orchestrates nine specialist subagents (`intent-analyst`, `re
 
 1. Intent Clarification → 2. Research → 3. Design → 4. QA Design → 5. Task Decomposition → 6. Implementation → 7. External Review → 8. Validation → 9. Retrospective
 
-External Review runs the `reviewer` specialist in parallel across six aspects (`security`, `performance`, `readability`, `test-quality`, `api-design`, `holistic`). The `holistic` aspect carries the whole-cycle integrity check that older workflow drafts split into a separate Self-Review step.
+External Review runs the `reviewer` specialist in parallel across six aspects (`security`, `performance`, `readability`, `test-quality`, `api-design`, `holistic`). The `holistic` aspect carries the whole-cycle integrity check (Task Plan completion, design alignment, intent satisfiability, obvious bugs).
 
 Each step has its own approval gate, exit criteria, and explicit rollback rules. There is no "phase" abstraction above steps.
 

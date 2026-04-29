@@ -2,7 +2,7 @@
 
 ## 目的
 
-**実装者と独立した視点**で、1 つのレビュー観点（security / performance / readability / test-quality / api-design 等）に特化して品質を検証する。Self-Review（全体整合性）とは別層で、観点固有の深い検査を行う。
+**実装者と独立した視点**で、1 つのレビュー観点（`security` / `performance` / `readability` / `test-quality` / `api-design` / `holistic` の 6 観点）に特化して品質を検証する。`holistic` 観点は全体整合性チェック (Task Plan 完了判定 / `design.md` 整合性 / Intent Spec 成功基準充足見込み / 明白な bug の早期検出) を専任で担い、他観点は固有の深い検査を行う。
 
 ## 作成者 / 作成タイミング
 
@@ -14,7 +14,7 @@
 
 `docs/dev-workflow/<identifier>/review/<aspect>.md`
 
-`<aspect>` 例: `security` / `performance` / `readability` / `test-quality` / `api-design` / プロジェクト固有
+`<aspect>` ∈ {`security`, `performance`, `readability`, `test-quality`, `api-design`, `holistic`} (+ プロジェクト固有追加観点)
 
 ## 各セクションの書き方
 
@@ -117,8 +117,7 @@ Main が Specialist 起動時に Scope 文言を明示しない場合、Speciali
 
 ## スコープ規律
 
-- **1 Reviewer = 1 観点**。他観点には踏み込まない
-- Self-Review レポート（Step 7）とは**別層**。内容が重複することはあるが独立して作成
+- **1 Reviewer = 1 観点**。他観点には踏み込まない（`holistic` 観点は Round 2 以降のみクロスリファレンス参照可、Round 1 では独立並列）
 - 実装の修正は reviewer の役割ではない（Main が implementer に差し戻す）
 
 ## 品質基準

@@ -4,8 +4,8 @@ description: >
   progress.yaml・TODO.md・ループ履歴・Blocker 履歴を分析し、次サイクルに活かせる actionable
   な学びを抽出して Retrospective Note を作成する。Main がサブエージェントとして起動する。
   並列起動はしない（全体俯瞰が必要なので 1 名）。
-  Do NOT use for: 単一観点の品質レビュー（reviewer を使う）、実装 diff の統合レビュー
-  （self-reviewer を使う）、成功基準の実測判定（validator を使う）。
+  Do NOT use for: 単一観点の品質レビュー（reviewer を使う）、成功基準の実測判定
+  （validator を使う）。
 ---
 
 # retrospective-writer
@@ -31,7 +31,7 @@ dev-workflow Step 9 (Retrospective) 専門エージェント。**1 サイクル 
 
 起動時、Main から以下を受け取ること（不足があれば問い合わせ）:
 
-1. サイクルの全成果物（Intent Spec / Research Notes / Design Document / Task Plan / diff / Self-Review Report / Review Reports / Validation Report）
+1. サイクルの全成果物（Intent Spec / Research Notes / Design Document / Task Plan / diff / Review Reports / Validation Report）
 2. `progress.yaml` のパス
 3. `TODO.md` のパス
 4. In-Progress ユーザー問い合わせで作成された一時レポート（`$TMPDIR/dev-workflow/*.md`）の一覧

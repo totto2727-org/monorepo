@@ -8,8 +8,8 @@ description: >
   起動トリガー: Main が retrospective-writer エージェントをサブエージェントとして起動した
   際、またはユーザーが明示的に "Retrospective", "振り返り", "retrospective.md 作成",
   "Step 9" を依頼した場合。
-  Do NOT use for: 検証（specialist-validator、成功基準の実測）、レビュー（specialist-reviewer /
-  specialist-self-reviewer）、実装（specialist-implementer）、サイクル外の振り返り、
+  Do NOT use for: 検証（specialist-validator、成功基準の実測）、レビュー
+  （specialist-reviewer）、実装（specialist-implementer）、サイクル外の振り返り、
   複数サイクル横断の分析、一般的な retrospective meeting 議事録作成、CLAUDE.md 等への
   直接書き込み（反映候補の提示に留める）。
 metadata:
@@ -46,9 +46,9 @@ Retrospective の焦点:
 
 `specialist-common` の基本入力に加えて:
 
-- サイクルの全成果物（Intent Spec / Research Notes / Design Document / Task Plan / diff / Self-Review / Review Reports / Validation Report）
+- サイクルの全成果物（Intent Spec / Research Notes / Design Document / Task Plan / diff / Review Reports / Validation Report）
 - `progress.yaml`（全フェーズのタイムスタンプ、完了ステップ、ユーザー承認履歴、ロールバック履歴）
-- `TODO.md`（re_activations カウンタ、タスク完了時間、Self-Review ループ履歴）
+- `TODO.md`（re_activations カウンタ、タスク完了時間、External Review Round ループ履歴）
 - Blocker 履歴（progress.yaml の blockers フィールド）
 - In-Progress ユーザー問い合わせで作成された一時レポート（`$TMPDIR/dev-workflow/*.md`）の件数と概要
 
@@ -94,6 +94,6 @@ Retrospective の焦点:
 ## スコープ外（やらないこと）
 
 - 検証・レビュー（specialist-validator / reviewer の領域）
-- 実装の評価（Self-Review / External Review で既に完了済み）
+- 実装の評価（External Review で既に完了済み）
 - プロジェクト全体のプロセス改善（サイクル単位の振り返りに留める）
 - 他サイクルとの比較（本サイクルの振り返りに集中）
