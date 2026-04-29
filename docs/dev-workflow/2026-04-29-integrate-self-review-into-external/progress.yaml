@@ -1,9 +1,9 @@
 identifier: 2026-04-29-integrate-self-review-into-external
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-04-29T04:00:00Z
+updated_at: 2026-04-29T05:00:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 5 (Task Decomposition)'
+current_step: 'Step 6 (Implementation)'
 
 completed_steps:
   - step: 'Step 1 (Intent Clarification)'
@@ -26,6 +26,11 @@ completed_steps:
     artifacts:
       - qa-design.md
       - qa-flow.md
+  - step: 'Step 5 (Task Decomposition)'
+    completed_at: 2026-04-29T05:00:00Z
+    artifacts:
+      - task-plan.md
+      - TODO.md
 
 pending_gates: []
 
@@ -44,8 +49,8 @@ artifacts:
   qa_design: qa-design.md
   qa_flow: qa-flow.md
   external_adrs: []
-  task_plan: null
-  todo: null
+  task_plan: task-plan.md
+  todo: TODO.md
   self_review: null
   review: []
   validation: null
