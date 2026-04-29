@@ -125,6 +125,6 @@ metadata:
 
 - 他観点のレビュー（別インスタンスの reviewer が担当）
 - 実装の修正（specialist-implementer の領域）
-- 成功基準の実測（specialist-validator の領域、Step 7）
+- 成功基準の実測（specialist-validator の領域、Step 8）
 - Design Document の変更（specialist-architect の領域）
 - 複数観点を単一ファイルに混ぜる（必ず 1 観点 = 1 ファイル）

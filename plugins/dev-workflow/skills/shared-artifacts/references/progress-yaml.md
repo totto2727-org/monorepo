@@ -62,6 +62,21 @@ active_specialists:
 
 全成果物の相対パス。`null` のまま未生成のフィールドを残してよい。複数作成される成果物（research, review）はリスト形式。
 
+フィールド一覧:
+
+- `intent_spec` (Step 1) — `intent-spec.md`
+- `research` (Step 2) — リスト
+- `design` (Step 3) — `design.md`
+- `qa_design` (Step 4) — `qa-design.md`
+- `qa_flow` (Step 4) — `qa-flow.md`
+- `external_adrs` — サイクル外に起票したプロジェクト横断 ADR (リスト)
+- `task_plan` (Step 5) — `task-plan.md`
+- `todo` (Step 6 開始時に生成) — `TODO.md`
+- `self_review` (Step 7) — `self-review-report.md`
+- `review` (Step 7) — リスト
+- `validation` (Step 8) — `validation-report.md`
+- `retrospective` (Step 9) — `retrospective.md`
+
 ### `user_approvals`
 
 ユーザー承認の履歴。承認 / 却下の区別を `notes` に書く。
@@ -82,4 +97,4 @@ active_specialists:
 ## 関連成果物
 
 - このファイルは**全成果物への索引**。`artifacts` フィールドが成果物ディレクトリの目次として機能する
-- `TODO.md` と連携（Step 5〜6 中のタスク状態は TODO.md が真のソース、YAML 側はサイクルレベルのサマリ）
+- `TODO.md` と連携（Step 6〜7 中のタスク状態は TODO.md が真のソース、YAML 側はサイクルレベルのサマリ）
