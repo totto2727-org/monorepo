@@ -1,43 +1,29 @@
 identifier: 2026-04-29-add-dev-roadmap-skill
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-04-29T06:30:00Z
+updated_at: 2026-04-29T07:00:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 4: QA Design'
+current_step: 'Step 1: Intent Clarification (rolled back from Step 4)'
 
-completed_steps:
-  - step: 'Step 1: Intent Clarification'
-    completed_at: 2026-04-29T02:30:00Z
-    artifacts:
-      - intent-spec.md
-  - step: 'Step 2: Research'
-    completed_at: 2026-04-29T03:30:00Z
-    artifacts:
-      - research/existing-skill-structure.md
-      - research/retrospective-writer-reusability.md
-      - research/resumption-protocol-adaptation.md
-      - research/progress-yaml-concurrency.md
-  - step: 'Step 3: Design'
-    completed_at: 2026-04-29T06:30:00Z
-    artifacts:
-      - design.md
+completed_steps: []
 
-pending_gates: []
+pending_gates:
+  - 'Step 1 user approval (intent-spec.md, post-rollback)'
 
 active_specialists: []
 
 blockers: []
 
 artifacts:
-  intent_spec: intent-spec.md
+  intent_spec: intent-spec.md # to be revised by new intent-analyst instance
   research:
-    - research/existing-skill-structure.md
+    - research/existing-skill-structure.md # retained, may need supplementation
     - research/retrospective-writer-reusability.md
     - research/resumption-protocol-adaptation.md
     - research/progress-yaml-concurrency.md
-  design: design.md
-  qa_design: null
-  qa_flow: null
+  design: design.md # to be revised by new architect instance
+  qa_design: null # to be re-created
+  qa_flow: null # to be re-created
   external_adrs: []
   task_plan: null
   todo: null
@@ -47,13 +33,31 @@ artifacts:
   retrospective: null
 
 user_approvals:
-  - gate: 'Step 1: Intent Clarification'
+  - gate: 'Step 1: Intent Clarification (initial)'
     approved_at: 2026-04-29T02:30:00Z
     approved_by: user
     notes: 'Approved after schema correction (flat → nested roadmap block).'
-  - gate: 'Step 3: Design'
+  - gate: 'Step 3: Design (initial)'
     approved_at: 2026-04-29T06:30:00Z
     approved_by: user
     notes: 'Approved after schema simplification (events struct → bare linkage + coarse status).'
 
-rollbacks: []
+rollbacks:
+  - from: 'Step 4: QA Design (in_progress)'
+    to: 'Step 1: Intent Clarification'
+    reason: |
+      Main merge of origin/main introduced 4 breaking changes to cycle preconditions:
+      (1) dev-workflow reduced from 10 → 9 steps (Self-Review absorbed into External Review,
+          specialist-self-reviewer / agents/self-reviewer.md / shared-artifacts self-review-*
+          all deleted in companion cycle 2026-04-29-integrate-self-review-into-external).
+      (2) Retrospective storage relocated: docs/dev-workflow/<id>/retrospective.md →
+          docs/retrospective/<id>.md (aggregated).
+      (3) Success criterion #12 baseline broken: target sibling cycle's retrospective.md
+          already deleted by main merge (no longer "diff 0" feasible against original baseline).
+      (4) User instruction (post-merge): rename storage directories
+          docs/dev-workflow/ → docs/workflow/ and docs/dev-roadmap/ → docs/roadmap/
+          (skill names dev-workflow / dev-roadmap retained, only storage path renamed).
+      Selected recovery: Plan D (pinpoint specialist re-engagement) — rollback Step 1, 3, 4
+      sequentially with new specialist instances scoped to mechanical edits
+      (path replacement, step renumber, retrospective storage update).
+    at: 2026-04-29T07:00:00Z
