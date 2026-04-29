@@ -1,9 +1,9 @@
 identifier: 2026-04-29-integrate-self-review-into-external
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-04-29T05:00:00Z
+updated_at: 2026-04-29T06:00:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 6 (Implementation)'
+current_step: 'Step 7 (External Review)'
 
 completed_steps:
   - step: 'Step 1 (Intent Clarification)'
@@ -31,6 +31,14 @@ completed_steps:
     artifacts:
       - task-plan.md
       - TODO.md
+  - step: 'Step 6 (Implementation)'
+    completed_at: 2026-04-29T06:00:00Z
+    artifacts:
+      - TODO.md
+    notes: |
+      14 タスク (T1a-T1d / T2 / T3a-T3d / T4 / T5 / T6 / T7 / T8 / T9) 完了。
+      T2 で gsed -e 連鎖による chain bug が発生し、再復元 + 2-phase placeholder 戦略
+      で再実行。全 17 成功基準 (TC-001..TC-017) を T9 で確認し PASS。
 
 pending_gates: []
 

@@ -163,15 +163,15 @@
 
 ### Wave 4 — 機械検証
 
-- [ ] **T9** — 機械検証 (TC-001 〜 TC-018 のうち事前実行可能な分)
-  - status: pending
+- [x] **T9** — 機械検証 (TC-001 〜 TC-018 のうち事前実行可能な分)
+  - status: completed
   - dependencies: [T1a, T1b, T1c, T1d, T2, T3a, T3b, T3c, T3d, T4, T5, T6, T7, T8]
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T05:50:00Z
+  - completed_at: 2026-04-29T05:51:00Z
+  - commit: (本commit)
+  - implementer: main
   - re_activations: 0
-  - notes: 委譲チェックリスト (holistic 単一ソース / 3 周ルール書き分け) を grep で機械確認
+  - notes: TC-001..017 全 17 成功基準 PASS。 TC-001..004 削除確認、TC-005..008 grep 0 件、TC-009 ステップ表 9 行、TC-011 holistic/全体整合性 5 件、TC-013 self_review キー 0 件、TC-014 README 9-step 1 件、TC-015 plugin.json 9-step 1 件 + Self-Review 言及 0 件、TC-016 agents 9 ファイル。
 
 ## 状態遷移ガイド
 
