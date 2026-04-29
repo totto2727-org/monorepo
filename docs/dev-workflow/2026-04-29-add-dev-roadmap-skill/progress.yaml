@@ -1,9 +1,9 @@
 identifier: 2026-04-29-add-dev-roadmap-skill
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-04-29T03:30:00Z
+updated_at: 2026-04-29T06:30:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 3: Design'
+current_step: 'Step 4: QA Design'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification'
@@ -17,6 +17,10 @@ completed_steps:
       - research/retrospective-writer-reusability.md
       - research/resumption-protocol-adaptation.md
       - research/progress-yaml-concurrency.md
+  - step: 'Step 3: Design'
+    completed_at: 2026-04-29T06:30:00Z
+    artifacts:
+      - design.md
 
 pending_gates: []
 
@@ -31,7 +35,7 @@ artifacts:
     - research/retrospective-writer-reusability.md
     - research/resumption-protocol-adaptation.md
     - research/progress-yaml-concurrency.md
-  design: null
+  design: design.md
   qa_design: null
   qa_flow: null
   external_adrs: []
@@ -47,5 +51,9 @@ user_approvals:
     approved_at: 2026-04-29T02:30:00Z
     approved_by: user
     notes: 'Approved after schema correction (flat → nested roadmap block).'
+  - gate: 'Step 3: Design'
+    approved_at: 2026-04-29T06:30:00Z
+    approved_by: user
+    notes: 'Approved after schema simplification (events struct → bare linkage + coarse status).'
 
 rollbacks: []
