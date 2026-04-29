@@ -25,7 +25,7 @@ metadata:
 
 | 項目         | 内容                                              |
 | ------------ | ------------------------------------------------- |
-| 担当ステップ | Step 9 (Retrospective)                           |
+| 担当ステップ | Step 9 (Retrospective)                            |
 | 成果物       | `docs/dev-workflow/<identifier>/retrospective.md` |
 | テンプレート | `shared-artifacts/templates/retrospective.md`     |
 | 書き方ガイド | `shared-artifacts/references/retrospective.md`    |

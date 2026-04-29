@@ -172,7 +172,10 @@ flowchart TD
 ```mermaid
 flowchart TD
   Start([番号繰り上げ後の Markdown 整合性]) --> Q1{複合表現 Step 6 ↔ Step 7 の 7 が 旧 / 新 どちらの 番号体系か}
-  Q1 -->|placeholder で 保護済み 文脈で意味 整合| TC_impl1[TC-IMPL-001: PASS]
-  Q1 -->|意味 不整合 検出| NG_impl1[skip: implementer 再修正]
+
+Q1 -->|placeholder で 保護済み 文脈で意味 整合| TC_impl1[TC-IMPL-001: PASS]
+Q1 -->|意味 不整合 検出| NG_impl1[skip: implementer 再修正]
+
 ```
 -->
+```

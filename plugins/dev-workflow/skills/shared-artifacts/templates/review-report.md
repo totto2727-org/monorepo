@@ -68,10 +68,10 @@
 
 Step 6 ↔ Step 7 のループで Round 2 以降を行った場合、Round 単位の Blocker / Major / Minor 件数推移を記録する。Round 1 のみで完了した場合は Round 1 行のみ記入。3 周以上ループした場合は Step 3 ロールバック判断材料となる (`dev-workflow/SKILL.md` の「ループ上限の目安」参照)。
 
-| Round | Blocker         | Major         | Minor         | 主要指摘 (要約)         | 修正コミット SHA          |
-| ----- | --------------- | ------------- | ------------- | ----------------------- | ------------------------- |
-| 1     | {{r1_blocker}}  | {{r1_major}}  | {{r1_minor}}  | {{r1_summary}}          | {{r1_commits}}            |
-| 2     | {{r2_blocker}}  | {{r2_major}}  | {{r2_minor}}  | {{r2_summary}}          | {{r2_commits}}            |
+| Round | Blocker        | Major        | Minor        | 主要指摘 (要約) | 修正コミット SHA |
+| ----- | -------------- | ------------ | ------------ | --------------- | ---------------- |
+| 1     | {{r1_blocker}} | {{r1_major}} | {{r1_minor}} | {{r1_summary}}  | {{r1_commits}}   |
+| 2     | {{r2_blocker}} | {{r2_major}} | {{r2_minor}} | {{r2_summary}}  | {{r2_commits}}   |
 
 <!-- Round 3 以降が発生した場合は行を追加 -->
 

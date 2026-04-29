@@ -31,11 +31,11 @@
 
 ### ループ回数の分析
 
-| ステップ間ループ  | 回数              | 根本原因            |
-| ----------------- | ----------------- | ------------------- |
-| Step 6 ↔ Step 7   | {{loop_6_7}}      | {{root_cause_6_7}}  |
-| Step 7 → Step 3   | {{rollback_7_3}}  | {{root_cause_7_3}}  |
-| Step 8 → Step 6   | {{rollback_8_6}}  | {{root_cause_8_6}}  |
+| ステップ間ループ | 回数             | 根本原因           |
+| ---------------- | ---------------- | ------------------ |
+| Step 6 ↔ Step 7  | {{loop_6_7}}     | {{root_cause_6_7}} |
+| Step 7 → Step 3  | {{rollback_7_3}} | {{root_cause_7_3}} |
+| Step 8 → Step 6  | {{rollback_8_6}} | {{root_cause_8_6}} |
 
 ### Blocker 履歴
 

@@ -76,7 +76,7 @@
 - **問題の要約:** Specialist 改善プレースホルダリストに `intent-analyst` / `researcher` / `architect` / `planner` / `implementer` / `reviewer` / `validator` の 7 件が並ぶが、`qa-analyst` (Step 4) と `retrospective-writer` (Step 9) の欄が欠落。dev-workflow が 9 specialist 構成であることと不整合。本サイクルで導入された欠落ではなく、`f61494d` 時点でも同様の欠落が確認され、既存負債である (旧 `self-reviewer` のプレースホルダ削除と整合させて整理する機会だった)。
 - **根拠:** 旧版 (`git show f61494d:plugins/dev-workflow/skills/shared-artifacts/templates/retrospective.md`) でも `qa-analyst` / `retrospective-writer` のプレースホルダは無し。本サイクルでは `self-reviewer` のプレースホルダのみ削除され、欠落が継承されている。
 - **推奨アクション:**
-  - 本サイクル中に修正するならば 1 行追加で完了 (`- \`qa-analyst\`: {{qa_analyst_improvement}}` と `- \`retrospective-writer\`: {{retrospective_writer_improvement}}` を追記)
+  - 本サイクル中に修正するならば 1 行追加で完了 (`- \`qa-analyst\`: {{qa_analyst_improvement}}`と`- \`retrospective-writer\`: {{retrospective_writer_improvement}}` を追記)
   - 既存負債のため、Retrospective に「次サイクルで対応 (テンプレートの specialist 列挙 9 件化)」として繰越するのも選択肢
 - **設計との関連:** Intent Spec の本サイクル目的では Specialist 数 9 件への正規化を全体テーマとしているため、当該テンプレートの specialist 列挙も 9 件に揃えるのが整合的。design.md には直接の言及なし。
 
@@ -133,25 +133,25 @@
 
 機械再実行による検証 (本 reviewer 実行):
 
-| SC | TC      | 機械検証コマンド                                                                                                                  | 期待値                | 実測値                          | 判定 |
-| -- | ------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------- | ------------------------------- | ---- |
-| 1  | TC-001  | `test ! -d plugins/dev-workflow/skills/specialist-self-reviewer`                                                                  | 終了 0                | 終了 0                          | PASS |
-| 2  | TC-002  | `test ! -f plugins/dev-workflow/agents/self-reviewer.md`                                                                          | 終了 0                | 終了 0                          | PASS |
-| 3  | TC-003  | `test ! -f plugins/dev-workflow/skills/shared-artifacts/templates/self-review-report.md`                                          | 終了 0                | 終了 0                          | PASS |
-| 4  | TC-004  | `test ! -f plugins/dev-workflow/skills/shared-artifacts/references/self-review-report.md`                                         | 終了 0                | 終了 0                          | PASS |
-| 5  | TC-005  | `ggrep -rnE -i 'self[-_]review\|Self-Review' plugins/dev-workflow/`                                                               | 0 件                  | 0 件                            | PASS |
-| 6  | TC-006  | `ggrep -rnE 'self-reviewer\|specialist-self-reviewer' plugins/dev-workflow/`                                                     | 0 件                  | 0 件                            | PASS |
-| 7  | TC-007  | `ggrep -rnF 'Step 10' plugins/dev-workflow/`                                                                                      | 0 件                  | 0 件                            | PASS |
-| 8  | TC-008  | `ggrep -rnE 'Step 9 \(Validation\)\|Step 10 \(Retrospective\)' plugins/dev-workflow/`                                            | 0 件                  | 0 件                            | PASS |
-| 9  | TC-009  | qa-design grep 式は不整合 (指摘 #3)。実装は `\| 1 \|` 形式の 9 行で正しい                                                          | 9                     | 9 (修正版 grep で確認)          | PASS (grep 式自体は Minor) |
-| 10 | TC-010  | ロールバック早見表に Step 7 (External Review) 2 行 (Blocker / 設計レベル)、Step 8 (Validation) 4 行を含む                         | 旧 Self-Review 由来吸収 | L803-L804 で吸収済み           | PASS |
-| 11 | TC-011  | `ggrep -cE '全体整合性\|整合性\|holistic' plugins/dev-workflow/skills/specialist-reviewer/SKILL.md`                              | 5 以上                | 16 件                           | PASS |
-| 12 | TC-012  | `ggrep -nF 'self-review-report' plugins/dev-workflow/skills/shared-artifacts/SKILL.md` + 連番欠番なし                              | 0 件 + 1-12 連番      | 0 件 + 12 行連番                | PASS |
-| 13 | TC-013  | `ggrep -nE '^\s*self_review:' plugins/dev-workflow/skills/shared-artifacts/templates/progress.yaml`                              | 0 件                  | 0 件                            | PASS |
-| 14 | TC-014  | README に `nine specialist\|9-step\|9 specialist` ヒット 1+ 件、`ten specialist\|10-step\|10 specialist` ヒット 0 件 + 列挙意味整合 | 1+ 件 / 0 件          | 1 件 / 0 件                     | PASS |
-| 15 | TC-015  | plugin.json に Self-Review 0 件 + `9-step\|9 step` 1+ 件                                                                          | 0 件 / 1+ 件          | 0 件 / 1 件                     | PASS |
-| 16 | TC-016  | `gls plugins/dev-workflow/agents/ \| gwc -l` = 9 + agents/ 配下 self-review 0 件                                                  | 9 / 0 件              | 9 / 0 件                        | PASS |
-| 17 | TC-017  | クロスリファレンス: 全 specialist-* 言及が現存 10 スキル内、self-review-report.md / specialist-self-reviewer 残骸 0 件             | リンク切れなし        | 残骸 0 件、全参照が現存に解決   | PASS |
+| SC  | TC     | 機械検証コマンド                                                                                                                    | 期待値                  | 実測値                        | 判定                       |
+| --- | ------ | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ----------------------------- | -------------------------- |
+| 1   | TC-001 | `test ! -d plugins/dev-workflow/skills/specialist-self-reviewer`                                                                    | 終了 0                  | 終了 0                        | PASS                       |
+| 2   | TC-002 | `test ! -f plugins/dev-workflow/agents/self-reviewer.md`                                                                            | 終了 0                  | 終了 0                        | PASS                       |
+| 3   | TC-003 | `test ! -f plugins/dev-workflow/skills/shared-artifacts/templates/self-review-report.md`                                            | 終了 0                  | 終了 0                        | PASS                       |
+| 4   | TC-004 | `test ! -f plugins/dev-workflow/skills/shared-artifacts/references/self-review-report.md`                                           | 終了 0                  | 終了 0                        | PASS                       |
+| 5   | TC-005 | `ggrep -rnE -i 'self[-_]review\|Self-Review' plugins/dev-workflow/`                                                                 | 0 件                    | 0 件                          | PASS                       |
+| 6   | TC-006 | `ggrep -rnE 'self-reviewer\|specialist-self-reviewer' plugins/dev-workflow/`                                                        | 0 件                    | 0 件                          | PASS                       |
+| 7   | TC-007 | `ggrep -rnF 'Step 10' plugins/dev-workflow/`                                                                                        | 0 件                    | 0 件                          | PASS                       |
+| 8   | TC-008 | `ggrep -rnE 'Step 9 \(Validation\)\|Step 10 \(Retrospective\)' plugins/dev-workflow/`                                               | 0 件                    | 0 件                          | PASS                       |
+| 9   | TC-009 | qa-design grep 式は不整合 (指摘 #3)。実装は `\| 1 \|` 形式の 9 行で正しい                                                           | 9                       | 9 (修正版 grep で確認)        | PASS (grep 式自体は Minor) |
+| 10  | TC-010 | ロールバック早見表に Step 7 (External Review) 2 行 (Blocker / 設計レベル)、Step 8 (Validation) 4 行を含む                           | 旧 Self-Review 由来吸収 | L803-L804 で吸収済み          | PASS                       |
+| 11  | TC-011 | `ggrep -cE '全体整合性\|整合性\|holistic' plugins/dev-workflow/skills/specialist-reviewer/SKILL.md`                                 | 5 以上                  | 16 件                         | PASS                       |
+| 12  | TC-012 | `ggrep -nF 'self-review-report' plugins/dev-workflow/skills/shared-artifacts/SKILL.md` + 連番欠番なし                               | 0 件 + 1-12 連番        | 0 件 + 12 行連番              | PASS                       |
+| 13  | TC-013 | `ggrep -nE '^\s*self_review:' plugins/dev-workflow/skills/shared-artifacts/templates/progress.yaml`                                 | 0 件                    | 0 件                          | PASS                       |
+| 14  | TC-014 | README に `nine specialist\|9-step\|9 specialist` ヒット 1+ 件、`ten specialist\|10-step\|10 specialist` ヒット 0 件 + 列挙意味整合 | 1+ 件 / 0 件            | 1 件 / 0 件                   | PASS                       |
+| 15  | TC-015 | plugin.json に Self-Review 0 件 + `9-step\|9 step` 1+ 件                                                                            | 0 件 / 1+ 件            | 0 件 / 1 件                   | PASS                       |
+| 16  | TC-016 | `gls plugins/dev-workflow/agents/ \| gwc -l` = 9 + agents/ 配下 self-review 0 件                                                    | 9 / 0 件                | 9 / 0 件                      | PASS                       |
+| 17  | TC-017 | クロスリファレンス: 全 specialist-\* 言及が現存 10 スキル内、self-review-report.md / specialist-self-reviewer 残骸 0 件             | リンク切れなし          | 残骸 0 件、全参照が現存に解決 | PASS                       |
 
 - **充足判定:** 17/17 成功基準が充足見込み (Step 8 validator が再実行する TC-018 で連続実行性を最終保証)
 

@@ -22,7 +22,7 @@
 2. **shared-artifacts の reference / template の 1:1 対応** — PASS
 3. **`progress.yaml` スキーマ後方互換性** — Major #2
 4. **`plugin.json` description の 9-step 表記** — PASS
-5. **公開 agent 一覧 (agents/*.md) の整合性** — PASS (Minor #4)
+5. **公開 agent 一覧 (agents/\*.md) の整合性** — PASS (Minor #4)
 6. **shared-artifacts/SKILL.md の成果物一覧テーブルの番号連続性** — PASS (Minor #6)
 7. **`<aspect>` enum 拡張 (5 → 6 観点) の影響範囲** — Major #1
 8. **旧 `self-review-report.md` 参照残存** — PASS (grep 0 件)

@@ -26,59 +26,59 @@ Intent Spec の制約「ステップ番号置換は順序依存」「`Step 6 ↔
 
 ### 2. ファイル別ヒット分布 (Step 7-10 単独参照)
 
-| ファイル                                                                     | 行番号                                                                                                          | 件数 |
-| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ---- |
-| `plugins/dev-workflow/agents/reviewer.md`                                    | L3, L13, L24                                                                                                    | 3    |
-| `plugins/dev-workflow/agents/self-reviewer.md`                               | L3, L11, L22                                                                                                    | 3    |
-| `plugins/dev-workflow/agents/retrospective-writer.md`                        | L3, L13, L24                                                                                                    | 3    |
-| `plugins/dev-workflow/agents/validator.md`                                   | L3, L13, L24                                                                                                    | 3    |
-| `plugins/dev-workflow/skills/shared-artifacts/SKILL.md`                      | L52, L53, L54, L55, L125, L126, L130, L131, L133                                                                | 9    |
-| `plugins/dev-workflow/skills/shared-artifacts/references/progress-yaml.md`   | L75, L76, L77, L78                                                                                              | 4    |
-| `plugins/dev-workflow/skills/shared-artifacts/references/review-report.md`   | L10, L121                                                                                                       | 2    |
-| `plugins/dev-workflow/skills/shared-artifacts/references/intent-spec.md`     | L36                                                                                                             | 1    |
-| `plugins/dev-workflow/skills/shared-artifacts/references/qa-design.md`       | L5, L90, L119, L193                                                                                             | 4    |
-| `plugins/dev-workflow/skills/shared-artifacts/references/qa-flow.md`         | L218                                                                                                            | 1    |
-| `plugins/dev-workflow/skills/shared-artifacts/references/self-review-report.md` | L5, L10, L47, L48, L66                                                                                          | 5    |
-| `plugins/dev-workflow/skills/shared-artifacts/references/validation-report.md`  | L10                                                                                                             | 1    |
-| `plugins/dev-workflow/skills/shared-artifacts/references/retrospective.md`      | L10, L38                                                                                                        | 2    |
-| `plugins/dev-workflow/skills/shared-artifacts/templates/qa-design.md`           | L73                                                                                                             | 1    |
-| `plugins/dev-workflow/skills/shared-artifacts/templates/progress.yaml`          | L13                                                                                                             | 1    |
-| `plugins/dev-workflow/skills/shared-artifacts/templates/validation-report.md`   | L78                                                                                                             | 1    |
-| `plugins/dev-workflow/skills/shared-artifacts/templates/retrospective.md`       | L36, L38, L94, L95                                                                                              | 4    |
-| `plugins/dev-workflow/skills/specialist-reviewer/SKILL.md`                      | L4, L11, L29, L128                                                                                              | 4    |
-| `plugins/dev-workflow/skills/specialist-self-reviewer/SKILL.md`                 | L4, L10, L28, L47, L68, L69, L95, L96                                                                           | 8    |
-| `plugins/dev-workflow/skills/specialist-validator/SKILL.md`                     | L4, L25                                                                                                         | 2    |
-| `plugins/dev-workflow/skills/specialist-retrospective-writer/SKILL.md`          | L4, L10, L28, L59                                                                                               | 4    |
-| `plugins/dev-workflow/skills/specialist-qa-analyst/SKILL.md`                    | L124                                                                                                            | 1    |
+| ファイル                                                                        | 行番号                                                                                                              | 件数 |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ---- |
+| `plugins/dev-workflow/agents/reviewer.md`                                       | L3, L13, L24                                                                                                        | 3    |
+| `plugins/dev-workflow/agents/self-reviewer.md`                                  | L3, L11, L22                                                                                                        | 3    |
+| `plugins/dev-workflow/agents/retrospective-writer.md`                           | L3, L13, L24                                                                                                        | 3    |
+| `plugins/dev-workflow/agents/validator.md`                                      | L3, L13, L24                                                                                                        | 3    |
+| `plugins/dev-workflow/skills/shared-artifacts/SKILL.md`                         | L52, L53, L54, L55, L125, L126, L130, L131, L133                                                                    | 9    |
+| `plugins/dev-workflow/skills/shared-artifacts/references/progress-yaml.md`      | L75, L76, L77, L78                                                                                                  | 4    |
+| `plugins/dev-workflow/skills/shared-artifacts/references/review-report.md`      | L10, L121                                                                                                           | 2    |
+| `plugins/dev-workflow/skills/shared-artifacts/references/intent-spec.md`        | L36                                                                                                                 | 1    |
+| `plugins/dev-workflow/skills/shared-artifacts/references/qa-design.md`          | L5, L90, L119, L193                                                                                                 | 4    |
+| `plugins/dev-workflow/skills/shared-artifacts/references/qa-flow.md`            | L218                                                                                                                | 1    |
+| `plugins/dev-workflow/skills/shared-artifacts/references/self-review-report.md` | L5, L10, L47, L48, L66                                                                                              | 5    |
+| `plugins/dev-workflow/skills/shared-artifacts/references/validation-report.md`  | L10                                                                                                                 | 1    |
+| `plugins/dev-workflow/skills/shared-artifacts/references/retrospective.md`      | L10, L38                                                                                                            | 2    |
+| `plugins/dev-workflow/skills/shared-artifacts/templates/qa-design.md`           | L73                                                                                                                 | 1    |
+| `plugins/dev-workflow/skills/shared-artifacts/templates/progress.yaml`          | L13                                                                                                                 | 1    |
+| `plugins/dev-workflow/skills/shared-artifacts/templates/validation-report.md`   | L78                                                                                                                 | 1    |
+| `plugins/dev-workflow/skills/shared-artifacts/templates/retrospective.md`       | L36, L38, L94, L95                                                                                                  | 4    |
+| `plugins/dev-workflow/skills/specialist-reviewer/SKILL.md`                      | L4, L11, L29, L128                                                                                                  | 4    |
+| `plugins/dev-workflow/skills/specialist-self-reviewer/SKILL.md`                 | L4, L10, L28, L47, L68, L69, L95, L96                                                                               | 8    |
+| `plugins/dev-workflow/skills/specialist-validator/SKILL.md`                     | L4, L25                                                                                                             | 2    |
+| `plugins/dev-workflow/skills/specialist-retrospective-writer/SKILL.md`          | L4, L10, L28, L59                                                                                                   | 4    |
+| `plugins/dev-workflow/skills/specialist-qa-analyst/SKILL.md`                    | L124                                                                                                                | 1    |
 | `plugins/dev-workflow/skills/dev-workflow/SKILL.md`                             | L6, L398, L411, L412, L423, L434, L435, L437, L446, L452, L454, L461, L466, L488, L502, L507, L541, L549, L829-L835 | 22   |
 
 ### 3. 複合表現 (placeholder 化必須) の全件
 
-| ファイル                                                                       | 行   | 表現                          | 新表現 (置換後)                                                       |
-| ------------------------------------------------------------------------------ | ---- | ----------------------------- | --------------------------------------------------------------------- |
-| `skills/shared-artifacts/SKILL.md`                                             | L50  | `Step 6〜7 全体`              | `Step 6〜7 全体` (変化なし: 旧 Implementation/Self-Review → 新 Implementation/External Review、Step 6〜7 区間自体は維持) |
-| `skills/shared-artifacts/SKILL.md`                                             | L209 | `Step 1〜5`                   | `Step 1〜5` (変化なし)                                                |
-| `skills/shared-artifacts/references/progress-yaml.md`                          | L100 | `Step 6〜7 中`                | `Step 6〜7 中`                                                        |
-| `skills/shared-artifacts/references/task-plan.md`                              | L12  | `Step 6〜7 中` / `Step 5`     | `Step 6〜7 中` / `Step 5` (`Step 5` はそのまま)                       |
-| `skills/shared-artifacts/references/task-plan.md`                              | L82  | `Step 6〜7 中`                | `Step 6〜7 中`                                                        |
-| `skills/shared-artifacts/references/todo.md`                                   | L5   | `Step 6〜7 中`                | `Step 6〜7 中`                                                        |
-| `skills/shared-artifacts/references/todo.md`                                   | L26  | `Step 6〜7 中`                | `Step 6〜7 中`                                                        |
-| `skills/shared-artifacts/references/self-review-report.md`                     | L88  | `Step 1〜3 への回帰`          | (ファイルごと削除のため不要)                                          |
-| `skills/shared-artifacts/templates/task-plan.md`                               | L9   | `Step 5 で確定...Step 6〜7 中` | 同上                                                                  |
-| `skills/shared-artifacts/templates/TODO.md`                                    | L4   | `Step 6〜7 (Implementation / Self-Review)` | `Step 6〜7 (Implementation / External Review)` ★ Self-Review 文字列削除を伴う |
-| `skills/shared-artifacts/templates/TODO.md`                                    | L14  | `Step 6〜7 中`                | `Step 6〜7 中`                                                        |
-| `skills/shared-artifacts/references/retrospective.md`                          | L38  | `Step 6 ↔ Step 7`             | `Step 6 ↔ Step 7` (Implementation/External Review 間ループ意味は維持) |
-| `skills/shared-artifacts/references/retrospective.md`                          | L39  | `Step 6/7 → Step 3`           | `Step 6/7 → Step 3`                                                   |
-| `skills/shared-artifacts/references/design.md`                                 | L5   | `Step 6〜7 中`                | `Step 6〜7 中`                                                        |
-| `skills/shared-artifacts/templates/retrospective.md`                           | L36  | `Step 6 ↔ Step 7`             | `Step 6 ↔ Step 7` (意味再解釈: Self-Review→External Review)           |
-| `skills/shared-artifacts/templates/retrospective.md`                           | L37  | `Step 6/7 → Step 3`           | `Step 6/7 → Step 3`                                                   |
-| `skills/shared-artifacts/templates/retrospective.md`                           | L38  | `Step 8 → Step 6`             | `Step 7 → Step 6` ★ 数字シフト                                        |
-| `skills/dev-workflow/SKILL.md`                                                 | L437 | `#### Step 6 ↔ Step 7 ループ` | (意味再解釈で Edit、文字列としては維持)                               |
-| `skills/dev-workflow/SKILL.md`                                                 | L502 | `Step 7 → Step 8`             | (Self-Review 削除に伴いセクション再構築。文字列維持なし)              |
-| `skills/dev-workflow/SKILL.md`                                                 | L549 | `Step 6 ↔ Step 7 の往復`      | `Step 6 ↔ Step 7 の往復` (意味再解釈)                                 |
-| `skills/specialist-retrospective-writer/SKILL.md`                              | L59  | `Step 6 ↔ Step 7 の往復`      | `Step 6 ↔ Step 7 の往復` (意味再解釈)                                 |
-| `skills/specialist-planner/SKILL.md`                                           | L14  | `Step 6〜7 中`                | `Step 6〜7 中`                                                        |
-| `skills/specialist-planner/SKILL.md`                                           | L47  | `Step 6〜7 中`                | `Step 6〜7 中`                                                        |
+| ファイル                                                   | 行   | 表現                                       | 新表現 (置換後)                                                                                                          |
+| ---------------------------------------------------------- | ---- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `skills/shared-artifacts/SKILL.md`                         | L50  | `Step 6〜7 全体`                           | `Step 6〜7 全体` (変化なし: 旧 Implementation/Self-Review → 新 Implementation/External Review、Step 6〜7 区間自体は維持) |
+| `skills/shared-artifacts/SKILL.md`                         | L209 | `Step 1〜5`                                | `Step 1〜5` (変化なし)                                                                                                   |
+| `skills/shared-artifacts/references/progress-yaml.md`      | L100 | `Step 6〜7 中`                             | `Step 6〜7 中`                                                                                                           |
+| `skills/shared-artifacts/references/task-plan.md`          | L12  | `Step 6〜7 中` / `Step 5`                  | `Step 6〜7 中` / `Step 5` (`Step 5` はそのまま)                                                                          |
+| `skills/shared-artifacts/references/task-plan.md`          | L82  | `Step 6〜7 中`                             | `Step 6〜7 中`                                                                                                           |
+| `skills/shared-artifacts/references/todo.md`               | L5   | `Step 6〜7 中`                             | `Step 6〜7 中`                                                                                                           |
+| `skills/shared-artifacts/references/todo.md`               | L26  | `Step 6〜7 中`                             | `Step 6〜7 中`                                                                                                           |
+| `skills/shared-artifacts/references/self-review-report.md` | L88  | `Step 1〜3 への回帰`                       | (ファイルごと削除のため不要)                                                                                             |
+| `skills/shared-artifacts/templates/task-plan.md`           | L9   | `Step 5 で確定...Step 6〜7 中`             | 同上                                                                                                                     |
+| `skills/shared-artifacts/templates/TODO.md`                | L4   | `Step 6〜7 (Implementation / Self-Review)` | `Step 6〜7 (Implementation / External Review)` ★ Self-Review 文字列削除を伴う                                            |
+| `skills/shared-artifacts/templates/TODO.md`                | L14  | `Step 6〜7 中`                             | `Step 6〜7 中`                                                                                                           |
+| `skills/shared-artifacts/references/retrospective.md`      | L38  | `Step 6 ↔ Step 7`                          | `Step 6 ↔ Step 7` (Implementation/External Review 間ループ意味は維持)                                                    |
+| `skills/shared-artifacts/references/retrospective.md`      | L39  | `Step 6/7 → Step 3`                        | `Step 6/7 → Step 3`                                                                                                      |
+| `skills/shared-artifacts/references/design.md`             | L5   | `Step 6〜7 中`                             | `Step 6〜7 中`                                                                                                           |
+| `skills/shared-artifacts/templates/retrospective.md`       | L36  | `Step 6 ↔ Step 7`                          | `Step 6 ↔ Step 7` (意味再解釈: Self-Review→External Review)                                                              |
+| `skills/shared-artifacts/templates/retrospective.md`       | L37  | `Step 6/7 → Step 3`                        | `Step 6/7 → Step 3`                                                                                                      |
+| `skills/shared-artifacts/templates/retrospective.md`       | L38  | `Step 8 → Step 6`                          | `Step 7 → Step 6` ★ 数字シフト                                                                                           |
+| `skills/dev-workflow/SKILL.md`                             | L437 | `#### Step 6 ↔ Step 7 ループ`              | (意味再解釈で Edit、文字列としては維持)                                                                                  |
+| `skills/dev-workflow/SKILL.md`                             | L502 | `Step 7 → Step 8`                          | (Self-Review 削除に伴いセクション再構築。文字列維持なし)                                                                 |
+| `skills/dev-workflow/SKILL.md`                             | L549 | `Step 6 ↔ Step 7 の往復`                   | `Step 6 ↔ Step 7 の往復` (意味再解釈)                                                                                    |
+| `skills/specialist-retrospective-writer/SKILL.md`          | L59  | `Step 6 ↔ Step 7 の往復`                   | `Step 6 ↔ Step 7 の往復` (意味再解釈)                                                                                    |
+| `skills/specialist-planner/SKILL.md`                       | L14  | `Step 6〜7 中`                             | `Step 6〜7 中`                                                                                                           |
+| `skills/specialist-planner/SKILL.md`                       | L47  | `Step 6〜7 中`                             | `Step 6〜7 中`                                                                                                           |
 
 **重要な観察:**
 
@@ -99,33 +99,33 @@ Intent Spec の制約「ステップ番号置換は順序依存」「`Step 6 ↔
 
 ### 5. 単純 gsed 置換 OK の Step 8 → 7 / Step 9 → 8 / Step 10 → 9
 
-| 旧 → 新     | 該当ファイル / 行 (Self-Review 関連除く)                                                                                                                                                                                                       |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Step 8 → 7  | agents/reviewer.md L3, L13, L24 / shared-artifacts/SKILL.md L53 (テーブル列), L126 (ASCII 図), templates/progress.yaml L13 (`Step 8 Review`), templates/validation-report.md L78 (`Step 8 失敗時`) / specialist-reviewer/SKILL.md L4, L11, L29 / dev-workflow/SKILL.md L466 (見出し), L488, L502, L831 (ロールバック表) / shared-artifacts/references/review-report.md L10, references/qa-flow.md (なし) / templates/retrospective.md L94 |
+| 旧 → 新     | 該当ファイル / 行 (Self-Review 関連除く)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Step 8 → 7  | agents/reviewer.md L3, L13, L24 / shared-artifacts/SKILL.md L53 (テーブル列), L126 (ASCII 図), templates/progress.yaml L13 (`Step 8 Review`), templates/validation-report.md L78 (`Step 8 失敗時`) / specialist-reviewer/SKILL.md L4, L11, L29 / dev-workflow/SKILL.md L466 (見出し), L488, L502, L831 (ロールバック表) / shared-artifacts/references/review-report.md L10, references/qa-flow.md (なし) / templates/retrospective.md L94                                                                                                                                                         |
 | Step 9 → 8  | agents/validator.md L3, L13, L24 / shared-artifacts/SKILL.md L54, L130, L131 (ASCII 図 2 行) / references/progress-yaml.md L77 / references/qa-design.md L5, L90, L119, L193 (`Step 9 validator`/`Step 9 で実測`) / references/qa-flow.md L218 / references/validation-report.md L10 / references/intent-spec.md L36 (`Validation Step 9`) / specialist-validator/SKILL.md L4, L25 / specialist-reviewer/SKILL.md L128 / specialist-qa-analyst/SKILL.md L124 / dev-workflow/SKILL.md L507 (見出し), L832-L835 (ロールバック表 4 行) / templates/qa-design.md L73 / templates/retrospective.md L95 |
-| Step 10 → 9 | agents/retrospective-writer.md L3, L13, L24 / shared-artifacts/SKILL.md L55, L133 / references/progress-yaml.md L78 / references/retrospective.md L10 / specialist-retrospective-writer/SKILL.md L4, L10, L28 / dev-workflow/SKILL.md L541 (見出し)              |
+| Step 10 → 9 | agents/retrospective-writer.md L3, L13, L24 / shared-artifacts/SKILL.md L55, L133 / references/progress-yaml.md L78 / references/retrospective.md L10 / specialist-retrospective-writer/SKILL.md L4, L10, L28 / dev-workflow/SKILL.md L541 (見出し)                                                                                                                                                                                                                                                                                                                                               |
 
 ### 6. 文脈考慮で Edit 必須 (gsed では危険)
 
-| 該当箇所                                                                  | 理由                                                                                                                                          |
-| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `dev-workflow/SKILL.md` L100-L121 (ASCII フロー図)                        | 旧 7. Self-Review ノードを削除し、後続を再配置。`7. Self-Review` 行削除 → 旧 8/9/10 を 7/8/9 に番号変更。**全体構造変更を伴うため Edit 必須** |
-| `dev-workflow/SKILL.md` L125-L138 (ステップ一覧テーブル)                  | 9 行 → 9 行 (Self-Review 行削除 + 後続行の Step 番号繰り上げ)。テーブル末尾整列の都合上、Edit で行ごと書き換え                                |
-| `dev-workflow/SKILL.md` L437-L464 (`Step 6 ↔ Step 7` ループ図)            | Self-Review 役割を External Review に移すため、本文と ASCII 図を全面再構築。「self-reviewer B1 起動」「Step 7 継続のため維持」等の文章を書き換え |
-| `dev-workflow/SKILL.md` L466-L505 (External Review セクション)            | Step 番号 8 → 7、本文に「Self-Review が担っていた『全体整合性チェック』『implementer 直後の手戻り抑止』を本ステップで吸収する」追記           |
-| `dev-workflow/SKILL.md` L720-L734 (コミット規約テーブル)                  | 行ごとの Step 番号を 7/8/9/10 → 7/8/9 に再番号化、Self-Review 行 (L731) を削除                                                                |
-| `dev-workflow/SKILL.md` L781-L792 (並列起動ガイドライン)                  | 同上 (Self-Review 行 L789 削除 + 後続再番号化)                                                                                                |
-| `dev-workflow/SKILL.md` L819-L835 (ロールバック早見表)                    | 行 L829-L830 (Step 7 = Self-Review 由来) を削除 OR 「External Review High 指摘」「設計レベル」のエントリに統合し、Step 8/9 は Step 7/8 に番号変更。`Step 9 → Step 4` (qa-flow カバレッジ不足) は Step 8 → Step 4 に |
-| `shared-artifacts/SKILL.md` L48-L56 (成果物一覧テーブル)                  | self-review-report.md 行を削除し、行番号 (L52 の `10`) を再付番、Step 7→7 (review)/Step 8→8/Step 9→9 と列再付番                                |
-| `shared-artifacts/SKILL.md` L117-L133 (保存構造 ASCII)                    | self-review-report.md 行 L125 を削除、L126 のコメント `# Step 8 成果物` を `# Step 7 成果物` に                                                |
-| `templates/progress.yaml` L39                                             | `self_review: null` 行を削除                                                                                                                  |
-| `references/progress-yaml.md` L75-L78                                     | `self_review` 行 (L75) を削除し、後続 `review (Step 8)`/`validation (Step 9)`/`retrospective (Step 10)` を Step 7/8/9 に再番号                |
-| `templates/TODO.md` L4                                                    | `Step 6〜7 (Implementation / Self-Review)` の `Self-Review` を `External Review` に書き換え                                                   |
-| `templates/retrospective.md` L36-L38, L94-L95                             | ループ表とゲート列のステップ意味再解釈 (Self-Review 言及を External Review に) + `Step 8 → Step 6` を `Step 7 → Step 6` に                    |
-| `references/retrospective.md` L38                                         | 同上 (意味再解釈)                                                                                                                             |
-| `references/review-report.md` L121                                        | `Self-Review レポート（Step 7）とは別層` を Self-Review 廃止文脈に書き換え (Self-Review 削除観点で別途扱う)                                   |
-| `README.md` L5, L19                                                       | `ten specialist subagents` / `flat 10-step lifecycle` / `Self-Review, External Review` を 9-step / 9 specialist / External Review (吸収表現) に |
-| `.claude-plugin/plugin.json` L3                                           | `flat 9-step lifecycle (... → Self-Review → External Review → ...)` を正しい 9-step (Self-Review なし) に置換                                  |
+| 該当箇所                                                       | 理由                                                                                                                                                                                                                |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dev-workflow/SKILL.md` L100-L121 (ASCII フロー図)             | 旧 7. Self-Review ノードを削除し、後続を再配置。`7. Self-Review` 行削除 → 旧 8/9/10 を 7/8/9 に番号変更。**全体構造変更を伴うため Edit 必須**                                                                       |
+| `dev-workflow/SKILL.md` L125-L138 (ステップ一覧テーブル)       | 9 行 → 9 行 (Self-Review 行削除 + 後続行の Step 番号繰り上げ)。テーブル末尾整列の都合上、Edit で行ごと書き換え                                                                                                      |
+| `dev-workflow/SKILL.md` L437-L464 (`Step 6 ↔ Step 7` ループ図) | Self-Review 役割を External Review に移すため、本文と ASCII 図を全面再構築。「self-reviewer B1 起動」「Step 7 継続のため維持」等の文章を書き換え                                                                    |
+| `dev-workflow/SKILL.md` L466-L505 (External Review セクション) | Step 番号 8 → 7、本文に「Self-Review が担っていた『全体整合性チェック』『implementer 直後の手戻り抑止』を本ステップで吸収する」追記                                                                                 |
+| `dev-workflow/SKILL.md` L720-L734 (コミット規約テーブル)       | 行ごとの Step 番号を 7/8/9/10 → 7/8/9 に再番号化、Self-Review 行 (L731) を削除                                                                                                                                      |
+| `dev-workflow/SKILL.md` L781-L792 (並列起動ガイドライン)       | 同上 (Self-Review 行 L789 削除 + 後続再番号化)                                                                                                                                                                      |
+| `dev-workflow/SKILL.md` L819-L835 (ロールバック早見表)         | 行 L829-L830 (Step 7 = Self-Review 由来) を削除 OR 「External Review High 指摘」「設計レベル」のエントリに統合し、Step 8/9 は Step 7/8 に番号変更。`Step 9 → Step 4` (qa-flow カバレッジ不足) は Step 8 → Step 4 に |
+| `shared-artifacts/SKILL.md` L48-L56 (成果物一覧テーブル)       | self-review-report.md 行を削除し、行番号 (L52 の `10`) を再付番、Step 7→7 (review)/Step 8→8/Step 9→9 と列再付番                                                                                                     |
+| `shared-artifacts/SKILL.md` L117-L133 (保存構造 ASCII)         | self-review-report.md 行 L125 を削除、L126 のコメント `# Step 8 成果物` を `# Step 7 成果物` に                                                                                                                     |
+| `templates/progress.yaml` L39                                  | `self_review: null` 行を削除                                                                                                                                                                                        |
+| `references/progress-yaml.md` L75-L78                          | `self_review` 行 (L75) を削除し、後続 `review (Step 8)`/`validation (Step 9)`/`retrospective (Step 10)` を Step 7/8/9 に再番号                                                                                      |
+| `templates/TODO.md` L4                                         | `Step 6〜7 (Implementation / Self-Review)` の `Self-Review` を `External Review` に書き換え                                                                                                                         |
+| `templates/retrospective.md` L36-L38, L94-L95                  | ループ表とゲート列のステップ意味再解釈 (Self-Review 言及を External Review に) + `Step 8 → Step 6` を `Step 7 → Step 6` に                                                                                          |
+| `references/retrospective.md` L38                              | 同上 (意味再解釈)                                                                                                                                                                                                   |
+| `references/review-report.md` L121                             | `Self-Review レポート（Step 7）とは別層` を Self-Review 廃止文脈に書き換え (Self-Review 削除観点で別途扱う)                                                                                                         |
+| `README.md` L5, L19                                            | `ten specialist subagents` / `flat 10-step lifecycle` / `Self-Review, External Review` を 9-step / 9 specialist / External Review (吸収表現) に                                                                     |
+| `.claude-plugin/plugin.json` L3                                | `flat 9-step lifecycle (... → Self-Review → External Review → ...)` を正しい 9-step (Self-Review なし) に置換                                                                                                       |
 
 ### 7. 連鎖二重置換のリスク特定
 
@@ -256,24 +256,24 @@ grep -rnE 'Step (8|9|10)\b' plugins/dev-workflow/ || echo "all renumbered"
 
 機械置換後も以下は Edit で個別対応する (Step 6 タスク分解の独立サブタスクにする):
 
-| 項目                          | ファイル                                      | 行         | 作業内容                                                                                          |
-| ----------------------------- | --------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------- |
-| ASCII フロー図                | `dev-workflow/SKILL.md`                       | L100-L121  | `7. Self-Review` ノード行削除 + ループ矢印再配置 + 後続番号繰り上げ (gsed が誤爆する `7` を回避)  |
-| ステップ一覧テーブル          | `dev-workflow/SKILL.md`                       | L125-L138  | Self-Review 行削除 + 「主要成果物」列の `self-review-report.md` 削除                              |
-| Step 6 ↔ Step 7 ループ図      | `dev-workflow/SKILL.md`                       | L437-L464  | self-reviewer 言及を reviewer に書き換え + ループ意味再解釈                                       |
-| External Review 本文          | `dev-workflow/SKILL.md`                       | L466-L505  | Self-Review 役割吸収を追記 + Step 8 → Step 7 セクション番号変更 (gsed 適用後の最終確認 Edit)      |
-| コミット規約テーブル          | `dev-workflow/SKILL.md`                       | L720-L734  | Self-Review 行 (L731) 削除 + 後続行 Step 番号は gsed で済むがテーブル整列の調整 Edit              |
-| 並列起動ガイド                | `dev-workflow/SKILL.md`                       | L781-L792  | Self-Review 行 (L789) 削除                                                                        |
-| ロールバック早見表            | `dev-workflow/SKILL.md`                       | L819-L835  | L829-L830 (Step 7 = Self-Review) 削除 or External Review に統合、`Step 9 → Step 4` を `Step 8 → Step 4` に gsed 後の最終確認 |
-| 成果物一覧テーブル            | `shared-artifacts/SKILL.md`                   | L48-L56    | L52 (`self-review-report.md`) 削除 + 番号列 (`10`,`11`,`12`,`13`) 再付番                          |
-| 保存構造 ASCII                | `shared-artifacts/SKILL.md`                   | L117-L133  | L125 (`self-review-report.md` コメント行) 削除                                                    |
-| progress.yaml                 | `shared-artifacts/templates/progress.yaml`    | L39        | `self_review: null` 行削除                                                                        |
-| progress-yaml reference       | `shared-artifacts/references/progress-yaml.md` | L75-L78    | L75 (`self_review (Step 7)`) 削除 + 後続行 Step 番号は gsed で済む                                |
-| TODO テンプレ                 | `shared-artifacts/templates/TODO.md`          | L4         | `Self-Review` → `External Review` 文字列置換                                                      |
-| retrospective テンプレ        | `shared-artifacts/templates/retrospective.md` | L36-L38, L94-L95 | gsed 後の意味整合性確認 + Self-Review 廃止に伴うループ意味のコメント追記                          |
-| review-report reference       | `shared-artifacts/references/review-report.md` | L121       | `Self-Review レポート (Step 7) とは別層` を Self-Review 吸収文脈に書き換え                        |
-| README                        | `plugins/dev-workflow/README.md`              | L5, L19    | `ten specialist subagents`/`10-step lifecycle`/`Self-Review, External Review` を一斉書き換え      |
-| plugin.json                   | `plugins/dev-workflow/.claude-plugin/plugin.json` | L3      | description 文字列の `Self-Review` 削除 + 9-step 列挙                                             |
+| 項目                     | ファイル                                          | 行               | 作業内容                                                                                                                     |
+| ------------------------ | ------------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| ASCII フロー図           | `dev-workflow/SKILL.md`                           | L100-L121        | `7. Self-Review` ノード行削除 + ループ矢印再配置 + 後続番号繰り上げ (gsed が誤爆する `7` を回避)                             |
+| ステップ一覧テーブル     | `dev-workflow/SKILL.md`                           | L125-L138        | Self-Review 行削除 + 「主要成果物」列の `self-review-report.md` 削除                                                         |
+| Step 6 ↔ Step 7 ループ図 | `dev-workflow/SKILL.md`                           | L437-L464        | self-reviewer 言及を reviewer に書き換え + ループ意味再解釈                                                                  |
+| External Review 本文     | `dev-workflow/SKILL.md`                           | L466-L505        | Self-Review 役割吸収を追記 + Step 8 → Step 7 セクション番号変更 (gsed 適用後の最終確認 Edit)                                 |
+| コミット規約テーブル     | `dev-workflow/SKILL.md`                           | L720-L734        | Self-Review 行 (L731) 削除 + 後続行 Step 番号は gsed で済むがテーブル整列の調整 Edit                                         |
+| 並列起動ガイド           | `dev-workflow/SKILL.md`                           | L781-L792        | Self-Review 行 (L789) 削除                                                                                                   |
+| ロールバック早見表       | `dev-workflow/SKILL.md`                           | L819-L835        | L829-L830 (Step 7 = Self-Review) 削除 or External Review に統合、`Step 9 → Step 4` を `Step 8 → Step 4` に gsed 後の最終確認 |
+| 成果物一覧テーブル       | `shared-artifacts/SKILL.md`                       | L48-L56          | L52 (`self-review-report.md`) 削除 + 番号列 (`10`,`11`,`12`,`13`) 再付番                                                     |
+| 保存構造 ASCII           | `shared-artifacts/SKILL.md`                       | L117-L133        | L125 (`self-review-report.md` コメント行) 削除                                                                               |
+| progress.yaml            | `shared-artifacts/templates/progress.yaml`        | L39              | `self_review: null` 行削除                                                                                                   |
+| progress-yaml reference  | `shared-artifacts/references/progress-yaml.md`    | L75-L78          | L75 (`self_review (Step 7)`) 削除 + 後続行 Step 番号は gsed で済む                                                           |
+| TODO テンプレ            | `shared-artifacts/templates/TODO.md`              | L4               | `Self-Review` → `External Review` 文字列置換                                                                                 |
+| retrospective テンプレ   | `shared-artifacts/templates/retrospective.md`     | L36-L38, L94-L95 | gsed 後の意味整合性確認 + Self-Review 廃止に伴うループ意味のコメント追記                                                     |
+| review-report reference  | `shared-artifacts/references/review-report.md`    | L121             | `Self-Review レポート (Step 7) とは別層` を Self-Review 吸収文脈に書き換え                                                   |
+| README                   | `plugins/dev-workflow/README.md`                  | L5, L19          | `ten specialist subagents`/`10-step lifecycle`/`Self-Review, External Review` を一斉書き換え                                 |
+| plugin.json              | `plugins/dev-workflow/.claude-plugin/plugin.json` | L3               | description 文字列の `Self-Review` 削除 + 9-step 列挙                                                                        |
 
 ### 含意 4: 数字以外の表記揺れにも注意
 
@@ -295,15 +295,15 @@ grep -rnE '10[ -]?step|ten specialist|10 ステップ' plugins/dev-workflow/
 
 現状 L829-L835 の以下のエントリは数字シフト + ロジック再解釈が必要:
 
-| 旧                                                       | 新 (推奨)                                                              |
-| -------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `Step 7 / High 指摘 / Step 6` (L829)                     | (Self-Review 削除に伴い行ごと削除 OR External Review に統合)           |
-| `Step 7 / 設計レベルの問題 / Step 3` (L830)              | (同上、削除または External Review High 指摘 → Step 3 に統合)           |
-| `Step 8 / Blocker 指摘 / Step 6` (L831)                  | `Step 7 / High/Blocker 指摘 / Step 6` (旧 Self-Review High と統合)     |
-| `Step 9 / 実装バグ / Step 6` (L832)                      | `Step 8 / 実装バグ / Step 6`                                           |
-| `Step 9 / 設計ミス / Step 3` (L833)                      | `Step 8 / 設計ミス / Step 3`                                           |
-| `Step 9 / 成功基準が不適切 / Step 1` (L834)              | `Step 8 / 成功基準が不適切 / Step 1`                                   |
-| `Step 9 / テスト設計漏れ (qa-flow カバレッジ不足) / Step 4` (L835) | `Step 8 / テスト設計漏れ (qa-flow カバレッジ不足) / Step 4`     |
+| 旧                                                                 | 新 (推奨)                                                          |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| `Step 7 / High 指摘 / Step 6` (L829)                               | (Self-Review 削除に伴い行ごと削除 OR External Review に統合)       |
+| `Step 7 / 設計レベルの問題 / Step 3` (L830)                        | (同上、削除または External Review High 指摘 → Step 3 に統合)       |
+| `Step 8 / Blocker 指摘 / Step 6` (L831)                            | `Step 7 / High/Blocker 指摘 / Step 6` (旧 Self-Review High と統合) |
+| `Step 9 / 実装バグ / Step 6` (L832)                                | `Step 8 / 実装バグ / Step 6`                                       |
+| `Step 9 / 設計ミス / Step 3` (L833)                                | `Step 8 / 設計ミス / Step 3`                                       |
+| `Step 9 / 成功基準が不適切 / Step 1` (L834)                        | `Step 8 / 成功基準が不適切 / Step 1`                               |
+| `Step 9 / テスト設計漏れ (qa-flow カバレッジ不足) / Step 4` (L835) | `Step 8 / テスト設計漏れ (qa-flow カバレッジ不足) / Step 4`        |
 
 **ロジック再解釈の論点** (Self-Review 廃止観点別 Research Note と Step 3 Design で詰めるべき): 旧 Self-Review の「High 指摘 → Step 6」と「設計レベル問題 → Step 3」のロールバック条件を、新 Step 7 (External Review) のロールバック表現にどう統合するか。Intent Spec 未解決事項にも記載あり (L193, L194)。
 

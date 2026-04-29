@@ -149,7 +149,7 @@
 14. `plugins/dev-workflow/README.md` が 9-step 構成と 9 specialist subagents を反映（specialist 数の数値・ステップ列挙が一貫）
 15. `plugins/dev-workflow/.claude-plugin/plugin.json` の description が 9-step 構成かつ Self-Review 言及なし
 16. `plugins/dev-workflow/agents/` 配下に 9 ファイル存在し（self-reviewer.md 削除後）、各 description / 本文に Self-Review 言及がない（成功基準 5 でカバー）
-17. dev-workflow / specialist-* スキル内のクロスリファレンス（`specialist-self-reviewer` / `self-review-report.md` 等）が他の現存スキル名 (`specialist-reviewer` / `review/<aspect>.md`) で正しく置換されており、リンク切れ（存在しないスキル名・存在しないパスへの参照）が新規発生していない（手動目視確認）
+17. dev-workflow / specialist-\* スキル内のクロスリファレンス（`specialist-self-reviewer` / `self-review-report.md` 等）が他の現存スキル名 (`specialist-reviewer` / `review/<aspect>.md`) で正しく置換されており、リンク切れ（存在しないスキル名・存在しないパスへの参照）が新規発生していない（手動目視確認）
 
 ## 制約
 

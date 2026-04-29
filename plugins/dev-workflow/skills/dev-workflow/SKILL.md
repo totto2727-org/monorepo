@@ -122,17 +122,17 @@ metadata:
 
 ## ステップ一覧
 
-| Step | 名称                 | Specialist (起動形態)              | Gate | 主要成果物                                             | 詳細スキル                        |
-| ---- | -------------------- | ---------------------------------- | ---- | ------------------------------------------------------ | --------------------------------- |
-| 1    | Intent Clarification | `intent-analyst` × 1               | User | `intent-spec.md`                                       | `specialist-intent-analyst`       |
-| 2    | Research             | `researcher` × N (並列)            | Main | `research/<topic>.md`                                  | `specialist-researcher`           |
-| 3    | Design               | `architect` × 1                    | User | `design.md` (+ 横断 ADR)                               | `specialist-architect`            |
-| 4    | QA Design            | `qa-analyst` × 1                   | User | `qa-design.md` + `qa-flow.md`                          | `specialist-qa-analyst`           |
-| 5    | Task Decomposition   | `planner` × 1                      | User | `task-plan.md`                                         | `specialist-planner`              |
-| 6    | Implementation       | `implementer` × N (タスク並列)     | Main | コード diff + `TODO.md` + qa-design.md/qa-flow.md 追記 | `specialist-implementer`          |
-| 7    | External Review      | `reviewer` × N (6 観点並列)        | User | `review/<aspect>.md`                                   | `specialist-reviewer`             |
-| 8    | Validation           | `validator` × 1                    | User | `validation-report.md` + `validation-evidence/*`       | `specialist-validator`            |
-| 9    | Retrospective        | `retrospective-writer` × 1         | Main | `retrospective.md`                                     | `specialist-retrospective-writer` |
+| Step | 名称                 | Specialist (起動形態)          | Gate | 主要成果物                                             | 詳細スキル                        |
+| ---- | -------------------- | ------------------------------ | ---- | ------------------------------------------------------ | --------------------------------- |
+| 1    | Intent Clarification | `intent-analyst` × 1           | User | `intent-spec.md`                                       | `specialist-intent-analyst`       |
+| 2    | Research             | `researcher` × N (並列)        | Main | `research/<topic>.md`                                  | `specialist-researcher`           |
+| 3    | Design               | `architect` × 1                | User | `design.md` (+ 横断 ADR)                               | `specialist-architect`            |
+| 4    | QA Design            | `qa-analyst` × 1               | User | `qa-design.md` + `qa-flow.md`                          | `specialist-qa-analyst`           |
+| 5    | Task Decomposition   | `planner` × 1                  | User | `task-plan.md`                                         | `specialist-planner`              |
+| 6    | Implementation       | `implementer` × N (タスク並列) | Main | コード diff + `TODO.md` + qa-design.md/qa-flow.md 追記 | `specialist-implementer`          |
+| 7    | External Review      | `reviewer` × N (6 観点並列)    | User | `review/<aspect>.md`                                   | `specialist-reviewer`             |
+| 8    | Validation           | `validator` × 1                | User | `validation-report.md` + `validation-evidence/*`       | `specialist-validator`            |
+| 9    | Retrospective        | `retrospective-writer` × 1     | Main | `retrospective.md`                                     | `specialist-retrospective-writer` |
 
 各 Specialist 起動時には **reference (書き方ガイド) とテンプレートの両方のパス**を入力に含めること。各 Specialist は `specialist-common` (横断ルール) と上記の個別スキルを参照する。
 
@@ -753,17 +753,17 @@ docs(dev-workflow/<identifier>): close cycle with retrospective
 
 ## 並列起動のガイドライン
 
-| Step                    | 並列起動推奨度 | 並列軸                                                                                            |
-| ----------------------- | -------------- | ------------------------------------------------------------------------------------------------- |
-| 1. Intent Clarification | 低             | 単一 Specialist で対話ループ                                                                      |
-| 2. Research             | 高             | 調査観点ごと (既存実装 / 依存 / 事例)                                                             |
-| 3. Design               | 低             | 設計は一貫性が重要なので原則 1 名                                                                 |
-| 4. QA Design            | 低             | テスト戦略の一貫性のため 1 名                                                                     |
-| 5. Task Decomposition   | 低             | 全体俯瞰が必要なので 1 名                                                                         |
-| 6. Implementation       | 高             | Task Plan の独立タスクごと                                                                        |
+| Step                    | 並列起動推奨度 | 並列軸                                                                                                     |
+| ----------------------- | -------------- | ---------------------------------------------------------------------------------------------------------- |
+| 1. Intent Clarification | 低             | 単一 Specialist で対話ループ                                                                               |
+| 2. Research             | 高             | 調査観点ごと (既存実装 / 依存 / 事例)                                                                      |
+| 3. Design               | 低             | 設計は一貫性が重要なので原則 1 名                                                                          |
+| 4. QA Design            | 低             | テスト戦略の一貫性のため 1 名                                                                              |
+| 5. Task Decomposition   | 低             | 全体俯瞰が必要なので 1 名                                                                                  |
+| 6. Implementation       | 高             | Task Plan の独立タスクごと                                                                                 |
 | 7. External Review      | 高             | レビュー観点ごと (security / performance / readability / test-quality / api-design / holistic、6 観点並列) |
-| 8. Validation           | 低             | 成功基準の統一判定が必要なので 1 名                                                               |
-| 9. Retrospective        | 低             | 全体俯瞰が必要なので 1 名                                                                         |
+| 8. Validation           | 低             | 成功基準の統一判定が必要なので 1 名                                                                        |
+| 9. Retrospective        | 低             | 全体俯瞰が必要なので 1 名                                                                                  |
 
 ---
 
