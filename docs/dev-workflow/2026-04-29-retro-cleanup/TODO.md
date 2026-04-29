@@ -53,15 +53,22 @@
   - re_activations: 0
   - notes: docs/adr/2026-04-29-researcher-project-skill-inventory-deferral.md 作成。confirmed: false、Decision/Impact/再検討トリガー/関連サイクル の 4 セクション
 
-- [ ] **T5** — C 構造変更 (新規 + 削除 3 件 + パス更新 + 削除ポリシー)
-  - status: pending
+- [x] **T5** — C 構造変更 (新規 + 削除 3 件 + パス更新 + 削除ポリシー)
+  - status: completed
   - dependencies: []
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T14:25:00Z
+  - completed_at: 2026-04-29T14:30:00Z
+  - commit: (本commit)
+  - implementer: main
   - re_activations: 0
-  - notes: 過去 3 retrospective 削除 + 4 ファイルでパス更新 + 削除ポリシー追記
+  - notes: |
+      過去 3 retrospective を git rm。dev-workflow/SKILL.md (Step 9 セクション
+      + Step 一覧テーブル + コミット規約表)、shared-artifacts/SKILL.md (成果物
+      一覧テーブル + 保存構造 ASCII + サイクル外成果物セクション)、references/
+      retrospective.md (ファイル位置 + ライフサイクル)、agents/retrospective-
+      writer.md (概要パス) の 4 ファイルでパス更新 + 削除ポリシー追記。docs/
+      retrospective/ ディレクトリは Step 9 (本サイクル retrospective 作成時)
+      に自動生成
 
 ### Wave 2 (Wave 1 完了後、1 タスク)
 

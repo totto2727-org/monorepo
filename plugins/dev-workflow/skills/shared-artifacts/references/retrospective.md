@@ -12,7 +12,18 @@
 
 ## ファイル位置
 
-`docs/dev-workflow/<identifier>/retrospective.md`
+`docs/retrospective/<identifier>.md` (`docs/adr/` 同パターンの集約ディレクトリ)。`<identifier>` はサイクル作業ディレクトリ `docs/dev-workflow/<identifier>/` と完全同一。
+
+## ライフサイクル
+
+retrospective.md は **次サイクルが改善案項目を消化した時点で削除する** 揮発的な報告ボックス。永続記録すべき判断は ADR (`docs/adr/`) に切り出してから retrospective を削除する。
+
+| 種別 | 保存先 | ライフサイクル |
+|---|---|---|
+| ADR | `docs/adr/` | 永続。`confirmed: true` 化後は不変 |
+| Retrospective | `docs/retrospective/` | 揮発。次サイクルで消化されたら削除 |
+
+削除タイミング: 次サイクルの Intent Spec で改善案項目を「対応 / 不要 / ADR 化」のいずれかで判断した時点。直近 1〜2 サイクル分は (まだ改善検討対象になっていないので) 残す。
 
 ## 各セクションの書き方
 
