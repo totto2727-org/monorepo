@@ -7,9 +7,9 @@ description: >
   起動トリガー: Main が intent-analyst エージェントをサブエージェントとして起動した際、または
   ユーザーが明示的に Intent Spec 作成を依頼した場合。
   Do NOT use for: 調査（specialist-researcher）、設計（specialist-architect）、タスク分解
-  （specialist-planner）、実装（specialist-implementer）、レビュー（specialist-self-reviewer /
-  specialist-reviewer）、検証（specialist-validator）、Retrospective（specialist-retrospective-writer）、
-  ワークフロー管理（dev-workflow / dev-workflow）、Intent Spec 以外の成果物作成、単発の要求聞き出し。
+  （specialist-planner）、実装（specialist-implementer）、レビュー（specialist-reviewer）、
+  検証（specialist-validator）、Retrospective（specialist-retrospective-writer）、
+  ワークフロー管理（dev-workflow）、Intent Spec 以外の成果物作成、単発の要求聞き出し。
 metadata:
   author: totto2727
   version: 1.0.0

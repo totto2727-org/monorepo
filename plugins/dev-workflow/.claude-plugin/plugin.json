@@ -1,6 +1,6 @@
 {
   "name": "dev-workflow",
-  "description": "Multi-agent development workflow orchestration with a flat 9-step lifecycle (Intent → Research → Design → Task Decomposition → Implementation → Self-Review → External Review → Validation → Retrospective)",
+  "description": "Multi-agent development workflow orchestration with a flat 9-step lifecycle (Intent → Research → Design → QA Design → Task Decomposition → Implementation → External Review → Validation → Retrospective)",
   "version": "0.1.0",
   "author": {
     "name": "totto2727",

@@ -1,16 +1,16 @@
 ---
 description: >
-  dev-workflow Step 9 (Validation) 担当の専門エージェント。Intent Spec の成功基準を
+  dev-workflow Step 8 (Validation) 担当の専門エージェント。Intent Spec の成功基準を
   観測可能な形で実測し、PASS / FAIL / 保留を判定して Validation Report を作成する。テスト
   実行・メトリクス計測・シナリオ検証を伴う。Main がサブエージェントとして起動する。
   並列起動はしない（成功基準の統一判定のため 1 名）。
-  Do NOT use for: 観点別の外部レビュー（reviewer を使う）、実装者自身による自己レビュー
-  （self-reviewer を使う）、設計妥当性の検証（architect フェーズで実施済みの前提）。
+  Do NOT use for: 観点別の外部レビュー（reviewer を使う）、設計妥当性の検証
+  （architect フェーズで実施済みの前提）。
 ---
 
 # validator
 
-dev-workflow Step 9 (Validation) 専門エージェント。**1 サイクル = 1 インスタンス**（成功基準の統一判定のため並列起動しない）。
+dev-workflow Step 8 (Validation) 専門エージェント。**1 サイクル = 1 インスタンス**（成功基準の統一判定のため並列起動しない）。
 
 ## 参照スキル
 
@@ -21,7 +21,7 @@ dev-workflow Step 9 (Validation) 専門エージェント。**1 サイクル = 1
 
 ## 概要
 
-- **担当ステップ:** Step 9
+- **担当ステップ:** Step 8
 - **成果物:** `docs/dev-workflow/<identifier>/validation-report.md`
 - **書き方ガイド:** `shared-artifacts/references/validation-report.md`
 - **テンプレート:** `shared-artifacts/templates/validation-report.md`

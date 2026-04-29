@@ -1,15 +1,15 @@
 ---
 name: specialist-retrospective-writer
 description: >
-  [Specialist 用] dev-workflow Step 10 (Retrospective) を担当する専門エージェント
+  [Specialist 用] dev-workflow Step 9 (Retrospective) を担当する専門エージェント
   retrospective-writer の作業詳細。サイクル全体の成果物・progress.yaml・TODO.md・Blocker
   履歴・ループ回数・ユーザー承認履歴を分析し、次サイクルに活かせる retrospective.md
   （良かった点 / 課題 / 次回改善案 / 再利用可能な知見）を作成する。
   起動トリガー: Main が retrospective-writer エージェントをサブエージェントとして起動した
   際、またはユーザーが明示的に "Retrospective", "振り返り", "retrospective.md 作成",
-  "Step 10" を依頼した場合。
-  Do NOT use for: 検証（specialist-validator、成功基準の実測）、レビュー（specialist-reviewer /
-  specialist-self-reviewer）、実装（specialist-implementer）、サイクル外の振り返り、
+  "Step 9" を依頼した場合。
+  Do NOT use for: 検証（specialist-validator、成功基準の実測）、レビュー
+  （specialist-reviewer）、実装（specialist-implementer）、サイクル外の振り返り、
   複数サイクル横断の分析、一般的な retrospective meeting 議事録作成、CLAUDE.md 等への
   直接書き込み（反映候補の提示に留める）。
 metadata:
@@ -23,13 +23,14 @@ metadata:
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
-| 項目         | 内容                                              |
-| ------------ | ------------------------------------------------- |
-| 担当ステップ | Step 10 (Retrospective)                           |
-| 成果物       | `docs/dev-workflow/<identifier>/retrospective.md` |
-| テンプレート | `shared-artifacts/templates/retrospective.md`     |
-| 書き方ガイド | `shared-artifacts/references/retrospective.md`    |
-| 並列起動     | しない（全体俯瞰が必要なので 1 名）               |
+| 項目           | 内容                                                                            |
+| -------------- | ------------------------------------------------------------------------------- |
+| 担当ステップ   | Step 9 (Retrospective)                                                          |
+| 成果物         | `docs/retrospective/<identifier>.md` (集約ディレクトリ、`docs/adr/` 同パターン) |
+| テンプレート   | `shared-artifacts/templates/retrospective.md`                                   |
+| 書き方ガイド   | `shared-artifacts/references/retrospective.md`                                  |
+| 並列起動       | しない（全体俯瞰が必要なので 1 名）                                             |
+| ライフサイクル | 揮発 (次サイクルが消化したら削除)。永続記録すべき判断は ADR に切り出す          |
 
 ## 役割
 
@@ -46,9 +47,9 @@ Retrospective の焦点:
 
 `specialist-common` の基本入力に加えて:
 
-- サイクルの全成果物（Intent Spec / Research Notes / Design Document / Task Plan / diff / Self-Review / Review Reports / Validation Report）
+- サイクルの全成果物（Intent Spec / Research Notes / Design Document / Task Plan / diff / Review Reports / Validation Report）
 - `progress.yaml`（全フェーズのタイムスタンプ、完了ステップ、ユーザー承認履歴、ロールバック履歴）
-- `TODO.md`（re_activations カウンタ、タスク完了時間、Self-Review ループ履歴）
+- `TODO.md`（re_activations カウンタ、タスク完了時間、External Review Round ループ履歴）
 - Blocker 履歴（progress.yaml の blockers フィールド）
 - In-Progress ユーザー問い合わせで作成された一時レポート（`$TMPDIR/dev-workflow/*.md`）の件数と概要
 
@@ -61,6 +62,7 @@ Retrospective の焦点:
    - ユーザー承認ゲートの承認 / 却下履歴
    - In-Progress ユーザー問い合わせの件数（多ければ Intent Spec 段階の明確化不足を示唆）
    - Specialist 起動回数と並列度の実効
+   - **再活性化タスクの SHA 列挙**: `TODO.md` で `re_activations >= 1` のタスクについて、再活性化を引き起こした修正コミット SHA を列挙する (retrospective.md の「課題」セクションで参照)
 3. **良かった点の抽出**:
    - ループなしで進んだステップ
    - 一発でユーザー承認を得られた成果物
@@ -71,7 +73,7 @@ Retrospective の焦点:
    - ユーザー却下があった場合の原因
 5. **次回改善案の具体化**（抽象的な「〜を改善する」ではなく、「〜のときに〜する」形式）:
    - プロセス改善
-   - スキル改善（main-_ / specialist-_ スキルの具体的変更提案）
+   - スキル改善（`dev-workflow` / `specialist-*` スキルの具体的変更提案）
    - Specialist プロンプト改善（各 specialist の役割定義・入力・手順への反映提案）
 6. **再利用可能な知見**（メモリや CLAUDE.md への反映候補を含む）
 7. テンプレートに沿って `retrospective.md` を作成
@@ -94,6 +96,6 @@ Retrospective の焦点:
 ## スコープ外（やらないこと）
 
 - 検証・レビュー（specialist-validator / reviewer の領域）
-- 実装の評価（Self-Review / External Review で既に完了済み）
+- 実装の評価（External Review で既に完了済み）
 - プロジェクト全体のプロセス改善（サイクル単位の振り返りに留める）
 - 他サイクルとの比較（本サイクルの振り返りに集中）

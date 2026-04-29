@@ -10,7 +10,7 @@ completed_steps: []
   #   completed_at: <ISO8601>
   #   artifacts:                          # 複数成果物は必ずリスト形式
   #     - <成果物ファイル相対パス>
-  #     - <成果物ファイル相対パス>        # 例: Step 2 Research は複数、Step 8 Review は複数
+  #     - <成果物ファイル相対パス>        # 例: Step 2 Research は複数、Step 7 Review は複数
 
 pending_gates: []
   # - <保留中のゲート（ユーザー承認待ち / Main 判定待ち）>
@@ -36,8 +36,7 @@ artifacts:
   external_adrs: [] # サイクル外に起票したプロジェクト横断 ADR
   task_plan: null # task-plan.md
   todo: null # TODO.md
-  self_review: null # self-review-report.md
-  review: [] # review/<aspect>.md のリスト
+  review: [] # review/<aspect>.md のリスト (Step 7)
   validation: null # validation-report.md
   retrospective: null # retrospective.md
 
