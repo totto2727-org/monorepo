@@ -49,18 +49,17 @@ skill-reviewer ルールへの照合結果、現状の dev-workflow プラグイ
 - **G2 #5 (description ≤ 1024 文字)**: 全 9 specialist + specialist-common が 410-775 文字で違反なし
 - **G3 / G7 (SKILL.md 5,000 語以下)**: 最長の `dev-workflow/SKILL.md` でも 820 行 / 3,733 語で違反なし。他全ファイルも違反なし
 
-そのため本サイクルは **構造的圧縮 (行数 / description) を含めず**、Step 1 ユーザーゲートでの個別評価を経て**3 件の Specialist 本文修正 + 1 件の ADR 起票**に絞る:
+そのため本サイクルは **構造的圧縮 (行数 / description) を含めず**、Step 1 ユーザーゲートでの個別評価を経て**3 件の Specialist 本文修正 + 1 件の ADR 起票 (A-4 のみ)**に絞る:
 
 1. **A-2 (specialist-architect)**: 代替案 3-5 案推奨ルールの追記
 2. **A-5 (specialist-reviewer)**: 「観点別のレビュー指針」に欠落していた `holistic` 小節の新設
 3. **A-8 (specialist-retrospective-writer)**: 再活性化タスクの SHA 列挙手順の追加
-4. **ADR の起票**: 本サイクルで「対応せず」と判断した項目 (A-1 / A-3 / A-4 / A-6 / A-7 / B) の保留理由と再検討トリガーを `docs/adr/` 配下に新規 ADR として記録
+4. **ADR の起票 (A-4 のみ)**: researcher のプロジェクト固有スキル棚卸し提案を「自動ロードに期待し将来再検討」と判断した経緯を `docs/adr/` 配下に新規 ADR として記録
 
-ユーザー判断で対応見送りとなった項目は次のとおり:
+ユーザー判断で対応見送りとなった項目は次のとおり (ADR には記録しない):
 
-- **A-1 implementer / A-3 planner の 3 ルール / B 全項目**: 「当たり前 / 局所的すぎてスキルに加えるのは不適」「別 PR で対応中」「現状でも検出可能」のいずれかで本サイクル外
-- **A-4 researcher のプロジェクト固有スキル棚卸し**: 自動ロードに期待、将来再検討
-- **A-6 / A-7 deprecation 言い換えパターン**: 将来 dev-workflow CLI 化のタイミングでまとめて対応
+- **A-1 implementer / A-3 planner の 3 ルール / B 全項目**: 「当たり前 / 局所的すぎてスキルに加えるのは不適」「別 PR で対応中」「現状でも検出可能」のいずれか。ADR に残す価値もないため不要マーク
+- **A-6 / A-7 deprecation 言い換えパターン**: 不要。直前サイクルで 1 件発生したのみで再現性が弱く、ADR に残す価値もない (CLI 化時に必要なら新規判断)
 
 成功条件は「3 件の運用ルールが各 Specialist 本文に grep で検出できる、ADR ファイルが新規 1 件起票され保留事項が記録されている、既存の skill-reviewer ルール違反を新たに発生させない」状態に到達すること。
 
@@ -93,17 +92,20 @@ skill-reviewer ルールへの照合結果、現状の dev-workflow プラグイ
   - **なぜ必要か**: 直前サイクル T2 chain bug → T3a 復元やり直し で `re_activations: 1` が記録されたが、retrospective.md にはこのカウンタの根拠 (どの commit で再活性化が発生したか) が散発的にしか記載されなかった。次サイクルで「同種事故が起きた commit を grep で発見する」フックがないため、Specialist 段階で SHA 列挙を標準化する
   - **出典**: `docs/dev-workflow/2026-04-29-integrate-self-review-into-external/retrospective.md` L27 (TODO.md re_activations 動作実証) / L70 (Blocker 化閾値の議論) / L91 (改善案)
 
-### ADR. 保留事項の記録 (将来 CLI 化で対応予定の項目)
+### ADR. A-4 (researcher のプロジェクト固有スキル棚卸し) の保留記録
 
-`docs/adr/YYYY-MM-DD-dev-workflow-deferred-improvements.md` を新規起票し、本サイクルで **「対応せず」と判断した項目** とその **判断理由 / 将来再検討トリガー** を記録する:
+`docs/adr/YYYY-MM-DD-researcher-project-skill-inventory-deferral.md` を新規起票し、A-4 を「対応せず」と判断した経緯と将来再検討の条件を記録する。他の見送り項目 (A-1 / A-3 / A-6 / A-7 / B) は ADR に残す価値がないと判断したため記録しない。
 
-- **記録対象**:
-  - **A-4 (researcher のプロジェクト固有スキル棚卸し)**: 現状は Claude Code の自動ロードに期待し対応保留。将来的に skill discovery の挙動が変わるか、棚卸しを Specialist 起動時に明示する必要が出た時点で再検討
-  - **A-6 / A-7 (validator / intent-analyst の deprecation 言い換えパターン)**: 現状は dev-workflow 用 CLI 化のタイミングでまとめて対応予定。CLI が `progress.yaml` 編集や validation grep 実行を抽象化することで、言い換え許容の判定をプログラム的に処理できる見込み
-  - **A-1 / A-3 (implementer の gsed 規約 / planner の 3 ルール) / B (shared-artifacts/references/* 追記)**: 「skill に書くには局所的すぎる」「別 PR で対応中」「現状でも検出可能」「CLI 化で解決予定」等の理由で本サイクル対象外と判定
-  - **`progress.yaml` の null フィールド上書きルール**: 将来 dev-workflow CLI が yaml 編集を担当することで自動化される見込み。現状は pre-commit hook で検出できているため運用ルール追記は不要
-- **なぜ ADR にするか**: これらは「次サイクルで対応する」という単純な遅延ではなく、「dev-workflow CLI 化や Claude Code の自動機能改善を待ってまとめて対応する」という意思決定。将来サイクルで retrospective を読み返した際に「なぜこの提案が反映されていないか」を再判断できるよう、判断理由を ADR として残す
-- **記録粒度**: 各項目に「対応保留理由」「再検討トリガー (CLI 化完了 / 同種事故再発 / 月日経過 等)」「関連 retrospective 出典」を併記
+- **記録内容**:
+  - **背景**: `2026-04-26-add-qa-design-step` retrospective L71 の改善提案「researcher の T2 (project-skills) 観点が高品質だった、デフォルト調査項目化推奨」
+  - **決定**: 本サイクルでは researcher 本文への明示追記を **対応しない**。Claude Code の自動ロード機構 (skill discovery) に期待し、サイクル開始時点で利用可能な言語固有スキルが Specialist 起動コンテキストに含まれることを前提とする
+  - **影響**: researcher が言語固有スキルを能動的に棚卸しせず、自動ロードで暗黙に利用される構造を維持。サイクル間で Specialist が必要なスキルにアクセスできない事象が再発する可能性は残る
+  - **再検討トリガー**:
+    - Claude Code の skill discovery の挙動変更 (動的ロードが廃止される、トリガー精度が低下する等)
+    - dev-workflow サイクル中に「言語固有スキルの取りこぼし」起因の Blocker / Major が発生
+    - dev-workflow CLI 化で Specialist 起動コンテキストを明示制御する設計が固まったとき
+  - **関連 retrospective**: `docs/dev-workflow/2026-04-26-add-qa-design-step/retrospective.md` L71
+- **なぜ ADR にするか**: 「自動ロードに期待」という判断は将来の Claude Code 仕様変更で前提が崩れる可能性があり、その時点で再判断するための根拠を残す必要があるため
 
 ### スコープ運用
 
@@ -128,15 +130,16 @@ skill-reviewer ルールへの照合結果、現状の dev-workflow プラグイ
 - specialist-* description 圧縮（G2 #5 の 1024 文字以内に全件収まっており、Do NOT use for を本文に移すと負のトリガー機能を失うため逆効果）
 - `references/` 新規ディレクトリ作成
 
-### 本サイクルで「対応せず」と判断、ADR で記録 (将来再検討)
+### 本サイクルで「対応せず」と判断 (ADR に残す価値なし、不要マーク)
 
-下記項目は「ADR. 保留事項の記録」セクションで詳細を ADR に記録する。Intent Spec 上は対応せず:
+- **A-1 implementer (gsed 2-phase placeholder / git revert ルール)**: 「当たり前 / 局所的すぎてスキルに加えるのは不適」とユーザー判断。ADR にも残さない
+- **A-3 planner の 3 ルール**: (1) 全 reference スキャン、(3) design.md 章節紐付けは A-1 と同じく局所的すぎる、(2) サブタスク分解は別 PR で対応中。ADR にも残さない
+- **A-6 / A-7 validator / intent-analyst の deprecation 言い換えパターン**: **不要**。直前サイクルで 1 件発生したのみで再現性が弱く ADR に残す価値もない (CLI 化時に必要なら新規判断)
+- **B 全項目 (shared-artifacts/references/* 追記)**: progress-yaml は CLI で対応予定、他は A-1 / A-3 と同じ理由で局所的、または現状で検出可能。ADR にも残さない
 
-- **A-1 implementer (gsed 2-phase placeholder / git revert ルール)**: 「当たり前 / 局所的すぎてスキルに加えるのは不適」とユーザー判断
-- **A-3 planner の 3 ルール**: (1) 全 reference スキャン、(3) design.md 章節紐付けは A-1 と同じく局所的すぎる、(2) サブタスク分解は別 PR で対応中
-- **A-4 researcher のプロジェクト固有スキル棚卸し**: 自動ロードに期待、将来再検討
-- **A-6 / A-7 validator / intent-analyst の deprecation 言い換えパターン**: 将来 dev-workflow CLI 化のタイミングでまとめて対応
-- **B 全項目 (shared-artifacts/references/* 追記)**: progress-yaml は CLI で対応予定、他は A-1 / A-3 と同じ理由で局所的、または現状で検出可能
+### 本サイクルで「対応せず」と判断、ADR で記録 (将来再検討の根拠を残す)
+
+- **A-4 researcher のプロジェクト固有スキル棚卸し**: 自動ロードに期待、将来再検討。詳細は「ADR. A-4 の保留記録」セクション参照
 
 ### その他の非スコープ
 
@@ -157,10 +160,10 @@ skill-reviewer ルールへの照合結果、現状の dev-workflow プラグイ
 3. `ggrep -nE 'design\.md と実装|design\.md.*整合|整合性チェック' plugins/dev-workflow/skills/specialist-reviewer/SKILL.md` の結果が **1 件以上**（A-5: holistic 観点に design.md ↔ 実装整合性チェックが記載されている）
 4. `ggrep -nE 're_activations|再活性化.*SHA|SHA.*列挙' plugins/dev-workflow/skills/specialist-retrospective-writer/SKILL.md` の結果が **1 件以上**（A-8: 再活性化タスクの SHA 列挙手順が本文に追記されている）
 
-### B. ADR の起票
+### B. ADR の起票 (A-4 のみ)
 
-5. `docs/adr/` 配下に **新規 ADR ファイルが 1 件追加** されている（filename pattern `YYYY-MM-DD-dev-workflow-deferred-improvements.md` 等）
-6. 新 ADR に **A-1 / A-3 / A-4 / A-6 / A-7 / B 各項目の保留理由と再検討トリガー** が記録されている（grep で「A-1」「A-3」「A-4」等のラベルが各 1 件以上検出）
+5. `docs/adr/` 配下に **新規 ADR ファイルが 1 件追加** されている（filename pattern `YYYY-MM-DD-researcher-project-skill-inventory-deferral.md` 等、内容が A-4 関連であれば名前の細部は不問）
+6. 新 ADR に **A-4 の決定 / 影響 / 再検討トリガー / 関連 retrospective 出典** が記録されている（`Decision` / `Impact` / `再検討トリガー` / `2026-04-26-add-qa-design-step/retrospective.md` の各キーワードが本文に存在）
 7. 新 ADR の frontmatter `confirmed: false`（adr スキル準拠、初期はレビュー前ステータス）
 
 ### C. 既存機能の維持 (skill-reviewer ルール非違反の維持)
