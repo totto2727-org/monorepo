@@ -1,9 +1,9 @@
 identifier: 2026-04-29-integrate-self-review-into-external
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-04-29T08:00:00Z
+updated_at: 2026-04-29T09:00:00Z
 
-status: active # active | completed | blocked
-current_step: 'Step 9 (Retrospective)'
+status: completed # active | completed | blocked
+current_step: 'completed (Step 9 Retrospective 完了)'
 
 completed_steps:
   - step: 'Step 1 (Intent Clarification)'
@@ -56,6 +56,15 @@ completed_steps:
     notes: |
       全 17 成功基準 (SC-1..SC-17) PASS。Markdown のみのため検証は静的観測 (file
       existence + grep + 行数) で機械実行可能。FAIL / 保留なし。証拠アーカイブ不要。
+  - step: 'Step 9 (Retrospective)'
+    completed_at: 2026-04-29T09:00:00Z
+    artifacts:
+      - retrospective.md
+    notes: |
+      サイクル全体の振り返り完了。主要学び: (1) gsed -e 連鎖の禁止 + 2-phase
+      placeholder ルール、(2) メタサイクル baseline commit の明示特定、(3)
+      design.md 章節と template/reference の機械的紐付け、(4) holistic 観点導入で
+      Step 6 戻しゼロ達成、(5) deprecation 文書化と grep 検出の両立 (言い換え)。
 
 pending_gates: []
 
@@ -81,7 +90,7 @@ artifacts:
     - review/readability.md
     - review/api-design.md
   validation: validation-report.md
-  retrospective: null
+  retrospective: retrospective.md
 
 user_approvals: []
 
