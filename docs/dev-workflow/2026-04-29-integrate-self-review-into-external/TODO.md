@@ -42,18 +42,18 @@
   - dependencies: []
   - started_at: 2026-04-29T05:12:00Z
   - completed_at: 2026-04-29T05:12:30Z
-  - commit: (本commit)
+  - commit: 5e8a8ed
   - implementer: main
   - re_activations: 0
   - notes:
 
-- [ ] **T1d** — `shared-artifacts/references/self-review-report.md` の削除
-  - status: pending
+- [x] **T1d** — `shared-artifacts/references/self-review-report.md` の削除
+  - status: completed
   - dependencies: []
-  - started_at:
-  - completed_at:
-  - commit:
-  - implementer:
+  - started_at: 2026-04-29T05:13:00Z
+  - completed_at: 2026-04-29T05:13:30Z
+  - commit: (本commit)
+  - implementer: main
   - re_activations: 0
   - notes: 削除前に運用知見が design.md と T3b/T4 で吸収済みであることが前提
 
