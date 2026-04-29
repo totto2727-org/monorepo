@@ -1,0 +1,94 @@
+identifier: 2026-04-26-add-qa-design-step
+started_at: 2026-04-26T13:00:00Z
+updated_at: 2026-04-26T19:50:00Z
+
+status: completed # active | completed | blocked
+current_step: 'completed (Step 9 Retrospective 完了)'
+
+completed_steps:
+  - step: 'Step 1: Intent Clarification'
+    completed_at: 2026-04-26T13:30:00Z
+    artifacts:
+      - intent-spec.md
+  - step: 'Step 2: Research'
+    completed_at: 2026-04-26T14:00:00Z
+    artifacts:
+      - research/existing-structure.md
+      - research/project-skills.md
+      - research/mermaid-syntax.md
+      - research/verification-axes.md
+      - research/column-and-tcid-policy.md
+  - step: 'Step 3: Design'
+    completed_at: 2026-04-26T15:00:00Z
+    artifacts:
+      - design.md
+  - step: 'Step 4: Task Decomposition'
+    completed_at: 2026-04-26T16:00:00Z
+    artifacts:
+      - task-plan.md
+      - TODO.md
+  - step: 'Step 5: Implementation'
+    completed_at: 2026-04-26T18:45:00Z
+    artifacts:
+      - 'plugins/dev-workflow/* (8 tasks T1-T8 across multiple commits: da99b6f, 9587d56, b1a7b46, a0e22c2, e9d4f64, 55b4bb2)'
+      - TODO.md (all 8 tasks completed)
+  - step: 'Step 6: Self-Review'
+    completed_at: 2026-04-26T19:00:00Z
+    artifacts:
+      - self-review-report.md
+  - step: 'Step 7: External Review'
+    completed_at: 2026-04-26T19:30:00Z
+    artifacts:
+      - review/consistency.md
+      - review/documentation-quality.md
+      - review/backward-compatibility.md
+  - step: 'Step 8: Validation'
+    completed_at: 2026-04-26T19:35:00Z
+    artifacts:
+      - validation-report.md
+  - step: 'Step 9: Retrospective'
+    completed_at: 2026-04-26T19:50:00Z
+    artifacts:
+      - retrospective.md
+
+pending_gates: []
+
+active_specialists: []
+
+blockers: []
+
+artifacts:
+  intent_spec: intent-spec.md
+  research:
+    - research/existing-structure.md
+    - research/project-skills.md
+    - research/mermaid-syntax.md
+    - research/verification-axes.md
+    - research/column-and-tcid-policy.md
+  design: design.md
+  external_adrs: []
+  task_plan: task-plan.md
+  todo: TODO.md
+  self_review: self-review-report.md
+  review:
+    - review/consistency.md
+    - review/documentation-quality.md
+    - review/backward-compatibility.md
+  validation: validation-report.md
+  retrospective: retrospective.md
+
+user_approvals:
+  - gate: 'Step 1 user approval'
+    approved_at: 2026-04-26T13:30:00Z
+    approved_by: user
+    notes: 'intent-spec.md 承認 (qa-flow.md 拡張子化、ADR 不要化、Claude Code subagent 制約削除を含む最終版)'
+  - gate: 'Step 3 user approval'
+    approved_at: 2026-04-26T15:00:00Z
+    approved_by: user
+    notes: 'design.md 承認 (TC-NNN/TC-IMPL-NNN 区別、ID prefix 判別、実装都合テストも qa-flow.md に反映、認知負荷軽減のため網羅図示を含む最終版)'
+  - gate: 'Step 4 user approval'
+    approved_at: 2026-04-26T16:00:00Z
+    approved_by: user
+    notes: 'task-plan.md 承認 (8 tasks, 4 waves, R1-R5 リスクカタログ、実装開始合意)'
+
+rollbacks: []

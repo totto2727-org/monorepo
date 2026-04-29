@@ -18,6 +18,10 @@
     {
       "name": "components-build",
       "source": "./plugins/components-build"
+    },
+    {
+      "name": "dev-workflow",
+      "source": "./plugins/dev-workflow"
     }
   ]
 }

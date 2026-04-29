@@ -7,12 +7,12 @@
     "url": "git+https://github.com/totto2727-org/monorepo",
     "directory": "js/app/c-plugin"
   },
-  "files": [
-    "dist/"
-  ],
   "bin": {
     "c-plugin": "./dist/bin.mjs"
   },
+  "files": [
+    "dist/"
+  ],
   "type": "module",
   "imports": {
     "#@/*": "./src/*"
