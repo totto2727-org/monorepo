@@ -1,9 +1,9 @@
 identifier: 2026-04-29-retro-cleanup
 started_at: 2026-04-29T10:00:00Z
-updated_at: 2026-04-29T12:00:00Z
+updated_at: 2026-04-29T13:00:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 3 (Design)'
+current_step: 'Step 4 (QA Design) — User Gate (Design)待ち'
 
 completed_steps:
   - step: 'Step 1 (Intent Clarification)'
@@ -28,6 +28,14 @@ completed_steps:
       R8/R12 (retrospective-writer 改善) のみ採用。C (retrospective 構造変更)
       の調査は Step 3 architect に inline で委ねる (現状の retrospective 参照
       箇所を grep する程度の軽作業のため)。
+  - step: 'Step 3 (Design)'
+    completed_at: 2026-04-29T13:00:00Z
+    artifacts:
+      - design.md
+    notes: |
+      軽量スコープ (5 項目) のため architect サブエージェント起動せず Main 直接
+      で design.md を作成。各項目の追記位置・追記文言・代替案・拡張ポイントを
+      明示。Step 5 task-plan で T1-T5 の 5 タスク並列 Wave 配置可能。
 
 pending_gates: []
 
@@ -41,7 +49,7 @@ artifacts:
     - research/skill-md-extraction-map.md
     - research/description-compression.md
     - research/operational-rules-mapping.md
-  design: null
+  design: design.md
   qa_design: null
   qa_flow: null
   external_adrs: []
