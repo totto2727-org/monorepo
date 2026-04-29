@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"ariga.io/atlas/sql/schema"
+	"ariga.io/atlas/sql/sqlite"
 )
 
 // tsType holds the TypeScript type representation for a single column.
@@ -13,21 +14,42 @@ type tsType struct {
 	base string
 	// nullable wraps base as `base | null`
 	nullable bool
+	// generated wraps the type as `Generated<T>` for auto_increment/default columns
+	generated bool
 }
 
 func (t tsType) innerType() string {
+	inner := t.base
 	if t.nullable {
-		return fmt.Sprintf("%s | null", t.base)
+		inner = fmt.Sprintf("%s | null", inner)
 	}
-	return t.base
+	if t.generated {
+		return fmt.Sprintf("Generated<%s>", inner)
+	}
+	return inner
 }
 
 // columnToTsType converts an Atlas schema.Column to a tsType.
 func columnToTsType(col *schema.Column) tsType {
 	base := schemaTypeToBase(col.Type.Type)
 	nullable := col.Type.Null
+	generated := isGenerated(col)
 
-	return tsType{base: base, nullable: nullable}
+	return tsType{base: base, nullable: nullable, generated: generated}
+}
+
+// isGenerated returns true if the column has a default value or auto_increment,
+// indicating it should be wrapped with Generated<T> in the output.
+func isGenerated(col *schema.Column) bool {
+	if col.Default != nil {
+		return true
+	}
+	for _, attr := range col.Attrs {
+		if _, ok := attr.(*sqlite.AutoIncrement); ok {
+			return true
+		}
+	}
+	return false
 }
 
 // schemaTypeToBase maps an Atlas schema.Type to a TypeScript base type string.
