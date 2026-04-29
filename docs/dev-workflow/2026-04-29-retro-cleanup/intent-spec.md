@@ -73,11 +73,12 @@ skill-reviewer ルールへの照合結果、現状の dev-workflow プラグイ
 `plugins/dev-workflow/skills/dev-workflow/SKILL.md` の **「Report-Based Confirmation for In-Progress Questions」セクション** (現状 L41-L52 付近) のレポート最小構成記述に追記:
 
 - 既存の最小構成: `# 目的` / `# これまでの経緯` / `# 選択肢と根拠` / `# 推奨案` / `# 確認したい事項`
-- 追記内容: 「**選択肢と根拠は 3-5 案を推奨**。2-3 案では選択肢を絞りすぎて事後修正が必要になる傾向があるため、複数アプローチを比較する場面では原則 3-5 案を提示する」
-  - **なぜ必要か**: `2026-04-26-add-qa-design-step` サイクルで「5 トピック × 各 2-4 案」の代替案分析を実施したところ、後段でのユーザー指摘 (qa-flow.md は実装都合テストも図示) のような方針変更が発生しても影響範囲が局所的だった (=代替案数が増えるほど方針変更耐性が高まる)。2-3 案では選択肢を絞りすぎて事後修正が必要になる傾向があった
-  - **なぜ dev-workflow 1 箇所か**: `Report-Based Confirmation for In-Progress Questions` は計画段階 Specialist (intent-analyst / architect / qa-analyst / planner) 全てが共通参照する**質問プロトコル**であり、ここに集約することで Specialist 個別本文への重複追記を回避できる (bootstrap retrospective M#3 の「真のソース重複」アンチパターン回避)
-  - **設計書の代替案と採用理由 (`shared-artifacts/references/design.md` L48 の「2-3 個」) は別概念 (設計書品質の要件) のため本サイクルでは触らない**。ユーザー判断で集約位置は Report-Based Confirmation 1 箇所のみ
-  - **出典**: `docs/dev-workflow/2026-04-26-add-qa-design-step/retrospective.md` L21 (良かった点 / 代替案 5 トピック) / L72 (改善案 / 「2-3 案」から「3-5 案」へ、原文では architect 対象だが集約位置は本サイクル Step 1 ゲートでのユーザー判断により dev-workflow に変更)
+- 追記内容 (スキル本体に書く文言は実証引用なしで簡潔に): 「**選択肢と根拠は 3-5 案を推奨。** 2-3 案では選択肢を絞りすぎて事後修正が必要になりやすい」
+  - **なぜ必要か (本 Intent Spec のみに記載、スキル本体には書かない)**: `2026-04-26-add-qa-design-step` サイクルで「5 トピック × 各 2-4 案」の代替案分析を実施したところ、後段でのユーザー指摘のような方針変更が発生しても影響範囲が局所的だった
+  - **なぜ dev-workflow 1 箇所か**: `Report-Based Confirmation for In-Progress Questions` は計画段階 Specialist (intent-analyst / architect / qa-analyst / planner) 全てが共通参照する**質問プロトコル**であり、ここに集約することで Specialist 個別本文への重複追記を回避できる
+  - **なぜスキル本体に出典引用を含めないか**: retrospective ファイル自体が C 項目で削除される上、スキル本体に過去サイクル番号のような実証引用を残すのはスキルのコンテキストを無駄に増やすだけ。出典は Intent Spec / commit message に残せば十分
+  - **設計書の代替案と採用理由 (`shared-artifacts/references/design.md` L48 の「2-3 個」) は別概念 (設計書品質の要件) のため本サイクルでは触らない**
+  - **出典 (Intent Spec のみ、スキル本体には書かない)**: `docs/dev-workflow/2026-04-26-add-qa-design-step/retrospective.md` L21, L72
 
 ### A-5. specialist-reviewer
 
@@ -153,15 +154,17 @@ retrospective の運用方針を **「永続記録」から「一時的な報告
 
 `docs/adr/YYYY-MM-DD-researcher-project-skill-inventory-deferral.md` を新規起票し、A-4 を「対応せず」と判断した経緯と将来再検討の条件を記録する。他の見送り項目 (A-1 / A-3 / A-6 / A-7 / B) は ADR に残す価値がないと判断したため記録しない。
 
+ADR 本文に retrospective ファイルパスは記載しない (C-4 で削除されるため)。代わりに**サイクルディレクトリ**を参照する。retrospective の中身は git 履歴に残る。
+
 - **記録内容**:
-  - **背景**: `2026-04-26-add-qa-design-step` retrospective L71 の改善提案「researcher の T2 (project-skills) 観点が高品質だった、デフォルト調査項目化推奨」
+  - **背景**: `2026-04-26-add-qa-design-step` サイクルで researcher の言語固有スキル調査観点が高品質だったことを踏まえた改善提案
   - **決定**: 本サイクルでは researcher 本文への明示追記を **対応しない**。Claude Code の自動ロード機構 (skill discovery) に期待し、サイクル開始時点で利用可能な言語固有スキルが Specialist 起動コンテキストに含まれることを前提とする
   - **影響**: researcher が言語固有スキルを能動的に棚卸しせず、自動ロードで暗黙に利用される構造を維持。サイクル間で Specialist が必要なスキルにアクセスできない事象が再発する可能性は残る
   - **再検討トリガー**:
     - Claude Code の skill discovery の挙動変更 (動的ロードが廃止される、トリガー精度が低下する等)
     - dev-workflow サイクル中に「言語固有スキルの取りこぼし」起因の Blocker / Major が発生
     - dev-workflow CLI 化で Specialist 起動コンテキストを明示制御する設計が固まったとき
-  - **関連 retrospective**: `docs/dev-workflow/2026-04-26-add-qa-design-step/retrospective.md` L71
+  - **関連サイクル**: `docs/dev-workflow/2026-04-26-add-qa-design-step/` (サイクルディレクトリ全体、retrospective.md は本サイクル C-4 で削除済み — git 履歴から参照可)
 - **なぜ ADR にするか**: 「自動ロードに期待」という判断は将来の Claude Code 仕様変更で前提が崩れる可能性があり、その時点で再判断するための根拠を残す必要があるため
 
 ### スコープ運用
@@ -219,8 +222,8 @@ retrospective の運用方針を **「永続記録」から「一時的な報告
 
 ### B. ADR の起票 (A-4 のみ)
 
-5. `docs/adr/` 配下に **新規 ADR ファイルが 1 件追加** されている（filename pattern `YYYY-MM-DD-researcher-project-skill-inventory-deferral.md` 等、内容が A-4 関連であれば名前の細部は不問）
-6. 新 ADR に **A-4 の決定 / 影響 / 再検討トリガー / 関連 retrospective 出典** が記録されている（`Decision` / `Impact` / `再検討トリガー` / `2026-04-26-add-qa-design-step/retrospective.md` の各キーワードが本文に存在）
+5. `docs/adr/` 配下に **新規 ADR ファイルが 1 件追加** されている（内容が A-4 関連であれば名前の細部は不問）
+6. 新 ADR に **A-4 の決定 / 影響 / 再検討トリガー / 関連サイクル参照** が記録されている（`Decision` / `Impact` / `再検討トリガー` / `2026-04-26-add-qa-design-step` の各キーワードが本文に存在。retrospective.md ファイル自体は C-4 で削除されるため参照は cycle ディレクトリのみとする）
 7. 新 ADR の frontmatter `confirmed: false`（adr スキル準拠、初期はレビュー前ステータス）
 
 ### C. retrospective 保存場所変更 + 削除ポリシー (workflow 構造変更)
