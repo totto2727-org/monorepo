@@ -151,7 +151,7 @@ docs/dev-workflow/<identifier>/
 
 #### プロジェクト横断 ADR
 
-- **保存場所:** プロジェクト既存の ADR 格納場所（例: `doc/adr/YYYY-MM-DD-title.md`）
+- **保存場所:** プロジェクト既存の ADR 格納場所（例: `docs/adr/YYYY-MM-DD-title.md`）
 - **起票条件:** サイクル内で発生した判断が**プロジェクト全体に及ぶ**場合のみ（詳細は `shared-artifacts/references/design.md` の「ADR 起票の判定基準」参照）
 - **サイクルからの参照:** `progress.yaml.artifacts.external_adrs` にパスを記録、`design.md` からリンクを張る
 

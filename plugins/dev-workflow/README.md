@@ -18,7 +18,7 @@ Workflow execution rules live in `skills/dev-workflow/SKILL.md`. Specialist beha
 
 This plugin draws inspiration from several multi-agent development methodologies, most notably AWS Raja SP's _AI-Driven Development Lifecycle (AI-DLC)_. It is **not** an implementation, derivative, or variant of AI-DLC. The plugin omits AI-DLC's central elements — Mob Elaboration / Mob Construction rituals, the Bolt iteration concept, the Domain Design / Logical Design split, the DDD / BDD / TDD flavor selection, role consolidation under principle 8, and the Operations phase. It also adds steps with no AI-DLC counterpart: Research, QA Design, Self-Review, External Review, and Retrospective.
 
-The rationale for positioning the plugin as an independent method (rather than an AI-DLC derivative) is recorded in `doc/adr/2026-04-26-dev-workflow-rename-and-flatten.md`.
+The rationale for positioning the plugin as an independent method (rather than an AI-DLC derivative) is recorded in `docs/adr/2026-04-26-dev-workflow-rename-and-flatten.md`.
 
 ## Non-goals
 
