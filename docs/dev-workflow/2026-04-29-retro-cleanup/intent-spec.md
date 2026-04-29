@@ -49,69 +49,34 @@ skill-reviewer ルールへの照合結果、現状の dev-workflow プラグイ
 - **G2 #5 (description ≤ 1024 文字)**: 全 9 specialist + specialist-common が 410-775 文字で違反なし
 - **G3 / G7 (SKILL.md 5,000 語以下)**: 最長の `dev-workflow/SKILL.md` でも 820 行 / 3,733 語で違反なし。他全ファイルも違反なし
 
-そのため本サイクルは **構造的圧縮 (行数 / description) を含めず**、過去 retrospective で明文化された運用ルール追記のみに絞る:
+そのため本サイクルは **構造的圧縮 (行数 / description) を含めず**、Step 1 ユーザーゲートでの個別評価を経て**3 件の Specialist 本文修正 + 1 件の ADR 起票**に絞る:
 
-1. **本文への運用ルール追記**: gsed 2-phase placeholder / `git revert` を regression 修正の第一選択にする / design.md ↔ template/reference 紐付け / 影響範囲スキャン / 代替案 3-5 案推奨 / progress.yaml 編集ルールなど、過去 retrospective で明文化されたベストプラクティスを各 Specialist の本文・各 reference に追記する
-2. **specialist-reviewer の holistic 観点小節新設**: research で発見した未反映項目 (本文「観点別のレビュー指針」セクションに holistic 小節が完全欠落) を補完
+1. **A-2 (specialist-architect)**: 代替案 3-5 案推奨ルールの追記
+2. **A-5 (specialist-reviewer)**: 「観点別のレビュー指針」に欠落していた `holistic` 小節の新設
+3. **A-8 (specialist-retrospective-writer)**: 再活性化タスクの SHA 列挙手順の追加
+4. **ADR の起票**: 本サイクルで「対応せず」と判断した項目 (A-1 / A-3 / A-4 / A-6 / A-7 / B) の保留理由と再検討トリガーを `docs/adr/` 配下に新規 ADR として記録
 
-直前サイクル retrospective が挙げた「baseline commit を design.md に明示記録する」は本サイクル**非対象**。これはパーミッション制約で `git revert` がブロックされたときの手動復元を前提とした workaround であり、本来は `git revert` を第一選択にすれば不要になる。本サイクルは A-1 で「git revert を最初に試す」ルールを implementer に追記することで、根本原因側を是正する。
+ユーザー判断で対応見送りとなった項目は次のとおり:
 
-成功条件は「retrospective 由来の運用ルールが grep で検出できる、specialist-reviewer 本文に holistic 小節が存在する、既存の skill-reviewer ルール違反を新たに発生させない」状態に到達すること。
+- **A-1 implementer / A-3 planner の 3 ルール / B 全項目**: 「当たり前 / 局所的すぎてスキルに加えるのは不適」「別 PR で対応中」「現状でも検出可能」のいずれかで本サイクル外
+- **A-4 researcher のプロジェクト固有スキル棚卸し**: 自動ロードに期待、将来再検討
+- **A-6 / A-7 deprecation 言い換えパターン**: 将来 dev-workflow CLI 化のタイミングでまとめて対応
+
+成功条件は「3 件の運用ルールが各 Specialist 本文に grep で検出できる、ADR ファイルが新規 1 件起票され保留事項が記録されている、既存の skill-reviewer ルール違反を新たに発生させない」状態に到達すること。
 
 ## スコープ
 
-### A. 本文への運用ルール追記 (Specialist 改善)
+ユーザー判断 (Step 1 ゲートでの個別評価) を経て、本サイクルは以下の **3 つの Specialist 本文修正 + 1 つの ADR 起票** に絞られた。各項目に「なぜ必要か」と「出典 retrospective」を併記する。
 
-各項目に **「なぜ必要か (再現された事故 / 失敗モード)」と「出典 retrospective ファイルパス + 行番号」** を併記する。読者が項目を見て scope に納得できない場合は、出典の retrospective を直接確認できる構造とする。
-
-#### A-1. specialist-implementer
-
-`plugins/dev-workflow/skills/specialist-implementer/SKILL.md` の失敗モード表または手順節に以下 2 点を追加:
-
-1. **gsed `-e` 連鎖は禁止、必ず 2-phase placeholder で機械置換する**
-   - 例: `old → __SRK_NEW<n>__` を別 sed 呼び出し、`__SRK_NEW<n>__ → new` で復元、実行前後に `ggrep -F __SRK_ <root>` で 0 件確認
-   - **なぜ必要か**: 直前サイクル T2 で `gsed -i -e 's/Step 10/Step 9/g' -e 's/Step 9/Step 8/g' -e 's/Step 8/Step 7/g'` を実行した結果、同一行内で `Step 10 → 9 → 8 → 7` と連鎖し、Step 8/9/10 全てが Step 7 に圧縮される事故 (commit `9125656`) が発生
-   - **出典**: `docs/dev-workflow/2026-04-29-integrate-self-review-into-external/retrospective.md` L34-L39 (T2 chain bug 記録) / L78 (改善案)
-   - **間接出典**: `docs/dev-workflow/2026-04-26-add-qa-design-step/retrospective.md` L22 (placeholder 経由の保護) / L30 (chain bug 警告) / L56 (implementer reference に追記推奨)
-
-2. **regression を発見したら最初に `git revert <bug commit>` を試す**。手動の `git show <commit>:<file> > <file>` 復元は最後の手段。revert がパーミッション等で失敗した場合は Main 経由でユーザーに状況を報告し判断を仰ぐ
-   - **なぜ必要か**: 直前サイクル T2 chain bug 修正時、`git revert --no-commit 770907b 9125656` がパーミッション制約でブロックされた直後に手動 `git show ... > <file>` 復元へ走ってしまい、結果として baseline commit 選定ミス (`1bac43f → 6a1c5b9` の 2 段やり直し) を誘発。`git revert` を最初に試して通ればこの事故全体が回避できた
-   - **出典**: 本サイクルの Step 1 ユーザー対話で確定した新規ルール (直前 retrospective には未記載、本 Intent Spec で明文化)
-
-#### A-2. specialist-architect
+### A-2. specialist-architect
 
 `plugins/dev-workflow/skills/specialist-architect/SKILL.md` 本体の代替案分析手順を更新:
 
-- 「**代替案分析は 3-5 案を推奨**」（現行 2-3 案 → 3-5 案）に更新
-  - **なぜ必要か**: `2026-04-26-add-qa-design-step` サイクルで「5 トピック × 各 2-4 案」の代替案分析を実施したところ、後段でのユーザー指摘 (qa-flow.md は実装都合テストも図示) のような方針変更が発生しても影響範囲が局所的だった (=代替案数が増えるほど方針変更耐性が高まる)。一方 2-3 案では選択肢を絞りすぎて事後修正が必要になる傾向があった
+- **代替案分析は 3-5 案を推奨**（現行 2-3 案 → 3-5 案）に更新
+  - **なぜ必要か**: `2026-04-26-add-qa-design-step` サイクルで「5 トピック × 各 2-4 案」の代替案分析を実施したところ、後段でのユーザー指摘 (qa-flow.md は実装都合テストも図示) のような方針変更が発生しても影響範囲が局所的だった (=代替案数が増えるほど方針変更耐性が高まる)。2-3 案では選択肢を絞りすぎて事後修正が必要になる傾向があった
   - **出典**: `docs/dev-workflow/2026-04-26-add-qa-design-step/retrospective.md` L21 (良かった点 / 代替案 5 トピック) / L72 (改善案 / 「2-3 案」から「3-5 案」へ)
 
-#### A-3. specialist-planner
-
-`plugins/dev-workflow/skills/specialist-planner/SKILL.md` 本体に以下 3 点を追加:
-
-1. **task-plan 作成時に `shared-artifacts/references/*` 全件をスキャンして影響範囲を確認する**
-   - **なぜ必要か**: `2026-04-26-add-qa-design-step` サイクルで T6 範囲外だった `references/*` が Step 5 中に発覚 (design.md / retrospective.md / todo.md など)、追加 gsed バッチで対応する手戻りが発生
-   - **出典**: `docs/dev-workflow/2026-04-26-add-qa-design-step/retrospective.md` L31 (課題 / refs 漏れ) / L54 (改善案)
-
-2. **大規模修正タスクは複数サブタスクに分解** することを推奨
-   - 例: `dev-workflow/SKILL.md` 全面書き換えの場合、ステップテーブル / 全体図 / 詳細セクション / コミット規約 / 並列ガイド / ロールバック表 を別 subtask に分割
-   - **なぜ必要か**: `2026-04-26-add-qa-design-step` の T3 (`dev-workflow/SKILL.md` 大規模修正、246 行 diff) が単一 commit で生成され、ユーザー側の GitHub レビュー時に変更を局所化できなかった。`2026-04-29-integrate-self-review-into-external` サイクルで T3a-T3d の 4 サブタスクに分割した結果、各 commit が小さく目視レビューしやすくなり実証された
-   - **出典**: `docs/dev-workflow/2026-04-26-add-qa-design-step/retrospective.md` L32 (課題) / L57 (改善案)
-
-3. **design.md の章節 ↔ template/reference を紐付ける記法**（例: 各タスクの「設計参照」欄に design.md の対応セクション L 範囲を明記し、影響範囲が `templates/` / `references/` に及ぶ場合はファイル名を列挙）
-   - **なぜ必要か**: 直前サイクル Step 7 Round 1 で発生した Major 指摘の根本原因の多くが「design.md L324 で約束した修正ラウンド履歴セクションを T4 が見落とした」というもの。planner が紐付けを機械的にチェックしていれば事前検出可能だった
-   - **出典**: `docs/dev-workflow/2026-04-29-integrate-self-review-into-external/retrospective.md` L52 (根本原因 / 機械的紐付けの欠如) / L80 (改善案) / L89 (planner への反映提案)
-
-#### A-4. specialist-researcher
-
-`plugins/dev-workflow/skills/specialist-researcher/SKILL.md` 本体にデフォルト調査項目を追加:
-
-- **該当言語のプロジェクト固有スキル棚卸し**観点
-  - **なぜ必要か**: `2026-04-26-add-qa-design-step` の T2 (project-skills) で「該当言語スキル」の棚卸しが効果的だった。dev-workflow は言語固有スキル (effect-layer / totto2727-fp / vite-plus 等) と組み合わせて使うため、サイクル開始時点で利用可能なスキル群を確認しないと Specialist 起動時の input 不足が発生する
-  - **出典**: `docs/dev-workflow/2026-04-26-add-qa-design-step/retrospective.md` L71 (researcher 改善案 / T2 が高品質だった点)
-
-#### A-5. specialist-reviewer
+### A-5. specialist-reviewer
 
 `plugins/dev-workflow/skills/specialist-reviewer/SKILL.md` の本文「観点別のレビュー指針」セクションに `holistic` 小節を新設:
 
@@ -120,23 +85,7 @@ skill-reviewer ルールへの照合結果、現状の dev-workflow プラグイ
   - **出典 (実装課題の根本原因)**: `docs/dev-workflow/2026-04-29-integrate-self-review-into-external/retrospective.md` L52 (T4 が design.md 約束を見落とした) / L90 (reviewer 改善案)
   - **出典 (現状の欠落の証拠)**: 本サイクル `research/operational-rules-mapping.md` R14
 
-#### A-6. specialist-validator
-
-`plugins/dev-workflow/skills/specialist-validator/SKILL.md` または `shared-artifacts/references/validation-report.md` に **deprecated フィールドの言い換えで grep 検証を通すパターン** を追記:
-
-- 内容例: 「`self_review` のような廃止フィールド名を deprecation 文書に書く必要がある場合、grep で 0 件を要求する成功基準を満たすため、フィールド名を直接書かず "整合性レポート用キー" のような言い換えで言及する」
-  - **なぜ必要か**: 直前サイクル Step 7 Round 2 修正時、Intent Spec の TC-005 (grep 0 件) と api-design Major #2 (deprecated フィールド文書化) が衝突した。フィールド名 `self_review` を文書化するとフィールド名自体が grep ヒットになり成功基準違反になる。言い換えで両立する解決パターンが他の deprecation 案件でも再利用可能
-  - **出典**: `docs/dev-workflow/2026-04-29-integrate-self-review-into-external/retrospective.md` L78 後半 (再利用可能な知見) + Step 7 Round 2 修正コミット `6afa785` (実証ケース)
-
-#### A-7. specialist-intent-analyst
-
-`plugins/dev-workflow/skills/specialist-intent-analyst/SKILL.md` 本体に **メタサイクルでの「言い換えグレーゾーン」許容明記手順** を追加:
-
-- 内容: 「Intent Spec の成功基準に grep ベース検証を含む場合、deprecation 文書化等で grep 検出を回避する言い換えを許容する旨を Intent Spec の成功基準セクションに明記する。検証時の判定が言い換えと禁止表現で混乱しないよう、Specialist が事前合意できる文書化を要求する」
-  - **なぜ必要か**: A-6 と同じ事象。validator 側の運用だけで対応すると Intent Spec との不整合が発生するため、intent-analyst 段階で「許容する言い換えがある」を明示しておく必要がある
-  - **出典**: A-6 と同じ。Intent Spec 側のガード追加であり validator 側のルールとセットで成立
-
-#### A-8. specialist-retrospective-writer
+### A-8. specialist-retrospective-writer
 
 `plugins/dev-workflow/skills/specialist-retrospective-writer/SKILL.md` 本体に **再活性化が 1 回以上発生したタスクの SHA 列挙手順** を追加:
 
@@ -144,83 +93,84 @@ skill-reviewer ルールへの照合結果、現状の dev-workflow プラグイ
   - **なぜ必要か**: 直前サイクル T2 chain bug → T3a 復元やり直し で `re_activations: 1` が記録されたが、retrospective.md にはこのカウンタの根拠 (どの commit で再活性化が発生したか) が散発的にしか記載されなかった。次サイクルで「同種事故が起きた commit を grep で発見する」フックがないため、Specialist 段階で SHA 列挙を標準化する
   - **出典**: `docs/dev-workflow/2026-04-29-integrate-self-review-into-external/retrospective.md` L27 (TODO.md re_activations 動作実証) / L70 (Blocker 化閾値の議論) / L91 (改善案)
 
-### B. shared-artifacts/references/* への運用ルール追記
+### ADR. 保留事項の記録 (将来 CLI 化で対応予定の項目)
 
-各項目に出典を併記:
+`docs/adr/YYYY-MM-DD-dev-workflow-deferred-improvements.md` を新規起票し、本サイクルで **「対応せず」と判断した項目** とその **判断理由 / 将来再検討トリガー** を記録する:
 
-- `shared-artifacts/references/progress-yaml.md` に **新フィールド追加時は既存 null フィールドを置き換える (削除 → 追加ではなく上書き)** 運用ルールを明記
-  - **なぜ必要か**: `2026-04-26-add-qa-design-step` で task_plan / self_review の **キー重複エラー** が pre-commit hook で 2 回検出された (新フィールド追加時に既存 null フィールドを残してしまう)
-  - **出典**: `docs/dev-workflow/2026-04-26-add-qa-design-step/retrospective.md` L29 (課題) / L55 (改善案) / L66 (progress-yaml reference 改善案)
-
-- `shared-artifacts/references/task-plan.md` に **全 reference スキャンルール** および **大規模修正タスクのサブタスク分解推奨** を追記 (A-3 の真のソースを reference 側に置き、planner 本体からは 1 行参照のみ)
-  - **なぜ必要か**: A-3 と同じ。bootstrap retrospective M#3 と同種の「真のソース重複」アンチパターンを避けるため、真のソースは reference 側に置く
-  - **出典**: A-3 と同じ
-
-- `shared-artifacts/references/implementation-log.md` に **gsed 2-phase placeholder ベストプラクティス** を簡潔に記述 (specialist-implementer 本体との重複を避け、reference では具体例のみ)
-  - **なぜ必要か**: A-1 と同じ。implementer 本体は「ルール」、reference は「具体例 / コマンド例」と役割分担する
-  - **出典**: A-1 と同じ
-
-- `shared-artifacts/references/design.md` に **代替案 3-5 案推奨** および **design.md 章節 ↔ template/reference 紐付け表記法** を追記 (A-2 / A-3 の真のソース置き場として)
-  - **なぜ必要か**: A-2 / A-3 と同じ。設計時の判断材料を design reference 側に集約することで、architect / planner の両方が同じソースを参照できる
-  - **出典**: A-2 / A-3 と同じ
+- **記録対象**:
+  - **A-4 (researcher のプロジェクト固有スキル棚卸し)**: 現状は Claude Code の自動ロードに期待し対応保留。将来的に skill discovery の挙動が変わるか、棚卸しを Specialist 起動時に明示する必要が出た時点で再検討
+  - **A-6 / A-7 (validator / intent-analyst の deprecation 言い換えパターン)**: 現状は dev-workflow 用 CLI 化のタイミングでまとめて対応予定。CLI が `progress.yaml` 編集や validation grep 実行を抽象化することで、言い換え許容の判定をプログラム的に処理できる見込み
+  - **A-1 / A-3 (implementer の gsed 規約 / planner の 3 ルール) / B (shared-artifacts/references/* 追記)**: 「skill に書くには局所的すぎる」「別 PR で対応中」「現状でも検出可能」「CLI 化で解決予定」等の理由で本サイクル対象外と判定
+  - **`progress.yaml` の null フィールド上書きルール**: 将来 dev-workflow CLI が yaml 編集を担当することで自動化される見込み。現状は pre-commit hook で検出できているため運用ルール追記は不要
+- **なぜ ADR にするか**: これらは「次サイクルで対応する」という単純な遅延ではなく、「dev-workflow CLI 化や Claude Code の自動機能改善を待ってまとめて対応する」という意思決定。将来サイクルで retrospective を読み返した際に「なぜこの提案が反映されていないか」を再判断できるよう、判断理由を ADR として残す
+- **記録粒度**: 各項目に「対応保留理由」「再検討トリガー (CLI 化完了 / 同種事故再発 / 月日経過 等)」「関連 retrospective 出典」を併記
 
 ### スコープ運用
 
-- 影響範囲は `plugins/dev-workflow/` 配下のみ
+- 影響範囲は `plugins/dev-workflow/` 配下と `docs/adr/` の新規 ADR ファイル 1 件のみ
 - 過去サイクル成果物 (`docs/dev-workflow/2026-04-*/`) は遡及修正禁止（完了済み履歴として保持）
-- 各 Specialist 本文への運用ルール追記は既存 SKILL.md の構造を維持し、新規セクションを作る場合でも 30 行以内に収める
-- `references/` の新規ディレクトリは作成しない（既存の `shared-artifacts/references/*` への追記のみ）
+- 各 Specialist 本文への追記は既存 SKILL.md の構造を維持し、新規セクションを作る場合でも 30 行以内に収める
+- `references/` の新規ディレクトリは作成しない
 
 ## 非スコープ
 
-- **過去サイクル成果物 `docs/dev-workflow/2026-04-*/` の遡及修正**
-- **既に廃止済み旧 `main-{inception,construction,verification}` 3 スキル**（実体が存在しないため）
-- **既に解消済み `ai-dlc` キーワード衝突**（dev-workflow 改名で解消済み）
-- **既に解消済み Self-Review 削除関連**（直前サイクルで完了済み）
-- **既に解消済み深刻度ラベル統一**（直前サイクルで完了済み）
-- **新規 Specialist の追加**（既存 9 体を維持）
-- **`dev-workflow` プラグインの実行可能コード化**（Markdown のみ）
-- **マーケットプレイス公開の方針決定**
-- **観点別 reviewer の並列度上限の変更**
-- **ステップ削除・追加に伴うフェーズ概念の再導入**（フラット 9-step リストを維持）
-- **新規 ADR の起票**（本変更は dev-workflow プラグイン内のスキル責務再配置であり横断的決定ではないため、必要なら design.md で記録）
-- **「次回サイクルで実機能ドッグフード時に検証」項目**（intent-analyst の validator 事前相談・implementer の context window 予算見積りなど、実機能サイクルでなければ検証できない提案は本サイクル非対象）
-- **保存構造 ASCII 図の真のソース化作業**（既に dev-workflow 側 L621-L622 で参照リンク化されており、再確認のみで実質作業なし）
-- **specialist-common 以外のスキルへの description ガード**（specialist-common は本サイクル外から呼ばれない構造のため description 制約は緩い）
-- **`dev-workflow/SKILL.md` および他 SKILL.md の行数 / 語数圧縮**（skill-reviewer G3 / G7 違反なしのため）
-- **specialist-* description の圧縮**（skill-reviewer G2 #5 の 1024 文字以内に全件収まっており、Do NOT use for を本文に移すと負のトリガー機能を失うため逆効果）
-- **`references/` 新規ディレクトリ作成**（`dev-workflow/references/` / `specialist-common/references/` のいずれも skill-reviewer 違反でないため作成不要）
-- **baseline commit の design.md 記録ルール追加**（本来は `git revert` を第一選択にすれば不要。手動復元時の事故予防策ではなく根本原因 = revert を試さなかったこと、を A-1 で是正する）
+### 既に解消済み（直前サイクル等で対応済み）
+
+- 過去サイクル成果物 `docs/dev-workflow/2026-04-*/` の遡及修正
+- 旧 `main-{inception,construction,verification}` 3 スキル（フラット化で削除済み）
+- `ai-dlc` キーワード衝突（dev-workflow 改名で解消済み）
+- Self-Review 削除関連（直前サイクルで完了済み）
+- 深刻度ラベル統一（直前サイクルで完了済み）
+
+### skill-reviewer ルール違反でないため対応不要
+
+- `dev-workflow/SKILL.md` および他 SKILL.md の行数 / 語数圧縮（G3 / G7 違反なし）
+- specialist-* description 圧縮（G2 #5 の 1024 文字以内に全件収まっており、Do NOT use for を本文に移すと負のトリガー機能を失うため逆効果）
+- `references/` 新規ディレクトリ作成
+
+### 本サイクルで「対応せず」と判断、ADR で記録 (将来再検討)
+
+下記項目は「ADR. 保留事項の記録」セクションで詳細を ADR に記録する。Intent Spec 上は対応せず:
+
+- **A-1 implementer (gsed 2-phase placeholder / git revert ルール)**: 「当たり前 / 局所的すぎてスキルに加えるのは不適」とユーザー判断
+- **A-3 planner の 3 ルール**: (1) 全 reference スキャン、(3) design.md 章節紐付けは A-1 と同じく局所的すぎる、(2) サブタスク分解は別 PR で対応中
+- **A-4 researcher のプロジェクト固有スキル棚卸し**: 自動ロードに期待、将来再検討
+- **A-6 / A-7 validator / intent-analyst の deprecation 言い換えパターン**: 将来 dev-workflow CLI 化のタイミングでまとめて対応
+- **B 全項目 (shared-artifacts/references/* 追記)**: progress-yaml は CLI で対応予定、他は A-1 / A-3 と同じ理由で局所的、または現状で検出可能
+
+### その他の非スコープ
+
+- 新規 Specialist の追加（既存 9 体を維持）
+- `dev-workflow` プラグインの実行可能コード化（Markdown のみ）
+- 観点別 reviewer の並列度上限の変更
+- ステップ削除・追加に伴うフェーズ概念の再導入（フラット 9-step リストを維持）
+- baseline commit の design.md 記録ルール追加（本来は `git revert` を第一選択にすれば不要。実装ルールとしてはユーザー判断で削除）
 
 ## 成功基準
 
 ファイル削除・更新の達成度を観測可能な形で計測する。`<root> = plugins/dev-workflow/`、コマンドは monorepo ルートから実行する前提。`gwc -l` / `ggrep` を使用する。
 
-### A. 本文への運用ルール追記の検証 (grep でキーワード検出)
+### A. 本文への運用ルール追記の検証
 
-1. `ggrep -nE '2-phase|placeholder|__SRK_' plugins/dev-workflow/skills/specialist-implementer/SKILL.md` の結果が **1 件以上**（gsed 2-phase placeholder ルールが本文に追記されている）
-2. `ggrep -nE 'git revert|revert <bug|手動復元' plugins/dev-workflow/skills/specialist-implementer/SKILL.md` の結果が **1 件以上**（regression 修正は git revert を第一選択とするルールが本文に追記されている）
-3. `ggrep -nE '3-5|3〜5|3 から 5|3.{0,3}案.{0,3}5' plugins/dev-workflow/skills/specialist-architect/SKILL.md plugins/dev-workflow/skills/shared-artifacts/references/design.md` の結果が **1 件以上**（代替案 3-5 案推奨が architect 本文または design reference に記載されている）
-4. `ggrep -nF 'shared-artifacts/references/' plugins/dev-workflow/skills/specialist-planner/SKILL.md` の結果が **1 件以上**（planner 本文に全 reference スキャンルールが記載されている）
-5. `ggrep -nE 'サブタスク|サブ.?タスク|sub.?task' plugins/dev-workflow/skills/specialist-planner/SKILL.md` の結果が **1 件以上**（planner 本文に大規模修正タスクのサブタスク分解推奨が記載されている）
-6. `ggrep -nE '章節|セクション.{0,5}紐付|template.*reference|references.*templates' plugins/dev-workflow/skills/specialist-planner/SKILL.md` の結果が **1 件以上**（design.md 章節 ↔ template/reference 紐付け表記法が記載されている）
-7. `ggrep -nE 'プロジェクト固有スキル|言語スキル|プロジェクト.?固有' plugins/dev-workflow/skills/specialist-researcher/SKILL.md` の結果が **1 件以上**（researcher 本文に言語/プロジェクト固有スキル棚卸し観点が記載されている）
-8. `ggrep -nE 'design\.md と実装|design\.md.*整合|整合性チェック' plugins/dev-workflow/skills/specialist-reviewer/SKILL.md` の結果が **1 件以上**（holistic 観点に design.md ↔ 実装整合性チェックが記載されている）
-9. `ggrep -nE 'deprecated|言い換え|文書化.*例外' plugins/dev-workflow/skills/specialist-validator/SKILL.md plugins/dev-workflow/skills/shared-artifacts/references/validation-report.md` の結果が **1 件以上**（validator または validation-report reference に deprecated 言い換えパターンが記載されている）
-10. `ggrep -nE '上書き|null フィールド|既存 null|新フィールド' plugins/dev-workflow/skills/shared-artifacts/references/progress-yaml.md` の結果が **1 件以上**（progress-yaml reference に新フィールド追加時の上書きルールが記載されている）
+1. `ggrep -nE '3-5|3〜5|3 から 5|3.{0,3}案.{0,3}5' plugins/dev-workflow/skills/specialist-architect/SKILL.md` の結果が **1 件以上**（A-2: 代替案 3-5 案推奨が architect 本文に記載されている）
+2. `ggrep -nE '#### holistic|^#### *holistic' plugins/dev-workflow/skills/specialist-reviewer/SKILL.md` の結果が **1 件以上**、または「観点別のレビュー指針」セクション内に `holistic` を独立小節として持つ（A-5: holistic 小節が本文に新設されている）
+3. `ggrep -nE 'design\.md と実装|design\.md.*整合|整合性チェック' plugins/dev-workflow/skills/specialist-reviewer/SKILL.md` の結果が **1 件以上**（A-5: holistic 観点に design.md ↔ 実装整合性チェックが記載されている）
+4. `ggrep -nE 're_activations|再活性化.*SHA|SHA.*列挙' plugins/dev-workflow/skills/specialist-retrospective-writer/SKILL.md` の結果が **1 件以上**（A-8: 再活性化タスクの SHA 列挙手順が本文に追記されている）
 
-### B. specialist-reviewer の holistic 小節新設
+### B. ADR の起票
 
-11. `ggrep -nE '#### holistic|^#### *holistic' plugins/dev-workflow/skills/specialist-reviewer/SKILL.md` の結果が **1 件以上**、または「観点別のレビュー指針」セクション内に `holistic` を独立小節として持つ（research note `operational-rules-mapping.md` で本文に小節が完全欠落と確認済み）
+5. `docs/adr/` 配下に **新規 ADR ファイルが 1 件追加** されている（filename pattern `YYYY-MM-DD-dev-workflow-deferred-improvements.md` 等）
+6. 新 ADR に **A-1 / A-3 / A-4 / A-6 / A-7 / B 各項目の保留理由と再検討トリガー** が記録されている（grep で「A-1」「A-3」「A-4」等のラベルが各 1 件以上検出）
+7. 新 ADR の frontmatter `confirmed: false`（adr スキル準拠、初期はレビュー前ステータス）
 
 ### C. 既存機能の維持 (skill-reviewer ルール非違反の維持)
 
-12. `gwc -w plugins/dev-workflow/skills/dev-workflow/SKILL.md` の結果が **5,000 語以下**（skill-reviewer G3 / G7 違反を新たに発生させない、現状 3,733 語）
-13. `gwc -w plugins/dev-workflow/skills/specialist-*/SKILL.md` 各ファイルが **5,000 語以下**
-14. `gwc -l plugins/dev-workflow/skills/specialist-*/SKILL.md` で各 specialist 本体行数が **既存比 +30% 以内** に収まる（追記による肥大化を抑制）
-15. **全 specialist description が skill-reviewer G2 #5 の上限 1024 文字以内を維持**（追記により description を伸ばさないことを確認）
-16. 既存 ADR `docs/adr/2026-04-26-dev-workflow-rename-and-flatten.md` のフラット構造方針に違反しない
-17. 既存の grep ベース成功基準パターン (`grep -rnE -i 'self[-_]review|Self-Review' plugins/dev-workflow/` が 0 件等) を破壊しない（直前サイクルの達成状態を維持）
+8. `gwc -w plugins/dev-workflow/skills/dev-workflow/SKILL.md` の結果が **5,000 語以下**（skill-reviewer G3 / G7 違反を新たに発生させない、現状 3,733 語）
+9. `gwc -w plugins/dev-workflow/skills/specialist-*/SKILL.md` 各ファイルが **5,000 語以下**
+10. `gwc -l plugins/dev-workflow/skills/specialist-*/SKILL.md` で本サイクルが触る 3 specialist の本体行数が **既存比 +30% 以内** に収まる（追記による肥大化を抑制、現状 architect 100 行 / reviewer 139 行 / retrospective-writer 99 行）
+11. **3 specialist の description が skill-reviewer G2 #5 の上限 1024 文字以内を維持**
+12. 既存 ADR `docs/adr/2026-04-26-dev-workflow-rename-and-flatten.md` のフラット構造方針に違反しない
+13. 既存の grep ベース成功基準パターン (`grep -rnE -i 'self[-_]review|Self-Review' plugins/dev-workflow/` が 0 件等) を破壊しない
 
 ## 制約
 
