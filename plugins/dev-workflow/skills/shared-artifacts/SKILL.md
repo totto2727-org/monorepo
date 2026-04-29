@@ -7,7 +7,7 @@ description: >
   参照して統一された形式で成果物を作成・評価できるようにする。
   起動トリガー: 成果物の作成・レビュー・参照を行うすべての場面。Main / Specialist 共通。
   "成果物の書き方", "ドキュメントテンプレート", "shared-artifacts" で参照可能。
-  Do NOT use for: ワークフロー手順（main-* スキル）、Specialist の役割定義
+  Do NOT use for: ワークフロー手順（dev-workflow スキル）、Specialist の役割定義
   （specialist-* スキル）、成果物以外のドキュメント作成。
 allowed-tools: Read, Glob, Grep
 ---
@@ -128,7 +128,6 @@ docs/dev-workflow/<identifier>/
 │   ├── test-quality.md
 │   ├── api-design.md
 │   └── holistic.md
-
 ├── validation-report.md       # Step 8 成果物
 ├── validation-evidence/       # Step 8 の大きな証跡（必要な場合のみ）
 │   └── <evidence-file>

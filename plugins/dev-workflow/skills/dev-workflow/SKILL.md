@@ -753,17 +753,17 @@ docs(dev-workflow/<identifier>): close cycle with retrospective
 
 ## 並列起動のガイドライン
 
-| Step                    | 並列起動推奨度 | 並列軸                                   |
-| ----------------------- | -------------- | ---------------------------------------- |
-| 1. Intent Clarification | 低             | 単一 Specialist で対話ループ             |
-| 2. Research             | 高             | 調査観点ごと (既存実装 / 依存 / 事例)    |
-| 3. Design               | 低             | 設計は一貫性が重要なので原則 1 名        |
-| 4. QA Design            | 低             | テスト戦略の一貫性のため 1 名            |
-| 5. Task Decomposition   | 低             | 全体俯瞰が必要なので 1 名                |
-| 6. Implementation       | 高             | Task Plan の独立タスクごと                                          |
-| 7. External Review      | 高             | レビュー観点ごと (security/performance/readability/test-quality/api-design/holistic、6 観点並列) |
-| 8. Validation           | 低             | 成功基準の統一判定が必要なので 1 名                                 |
-| 9. Retrospective        | 低             | 全体俯瞰が必要なので 1 名                                           |
+| Step                    | 並列起動推奨度 | 並列軸                                                                                            |
+| ----------------------- | -------------- | ------------------------------------------------------------------------------------------------- |
+| 1. Intent Clarification | 低             | 単一 Specialist で対話ループ                                                                      |
+| 2. Research             | 高             | 調査観点ごと (既存実装 / 依存 / 事例)                                                             |
+| 3. Design               | 低             | 設計は一貫性が重要なので原則 1 名                                                                 |
+| 4. QA Design            | 低             | テスト戦略の一貫性のため 1 名                                                                     |
+| 5. Task Decomposition   | 低             | 全体俯瞰が必要なので 1 名                                                                         |
+| 6. Implementation       | 高             | Task Plan の独立タスクごと                                                                        |
+| 7. External Review      | 高             | レビュー観点ごと (security / performance / readability / test-quality / api-design / holistic、6 観点並列) |
+| 8. Validation           | 低             | 成功基準の統一判定が必要なので 1 名                                                               |
+| 9. Retrospective        | 低             | 全体俯瞰が必要なので 1 名                                                                         |
 
 ---
 

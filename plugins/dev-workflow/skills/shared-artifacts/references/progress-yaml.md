@@ -76,6 +76,10 @@ active_specialists:
 - `validation` (Step 8) — `validation-report.md`
 - `retrospective` (Step 9) — `retrospective.md`
 
+### 廃止フィールド (deprecated)
+
+- 旧 Step 7 (廃止済み) で生成されていた整合性レポート用キー — 2026-04 のスキーマ刷新で除去。過去サイクル (2026-04 以前) の `progress.yaml` には旧キーが残存している場合があるが、現スキーマでは読み捨て対象であり、新規追加は禁止。Specialist が再開時に旧サイクルの yaml を読む際は当該キーを無視すること。整合性チェックの責務は Step 7 External Review の `holistic` 観点 (`review/holistic.md`) に統合されている。
+
 ### `user_approvals`
 
 ユーザー承認の履歴。承認 / 却下の区別を `notes` に書く。
