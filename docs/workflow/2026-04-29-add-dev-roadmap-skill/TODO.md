@@ -3,7 +3,7 @@
 - **Source:** `task-plan.md`
 - **Active Steps:** Step 6〜7 (Implementation / External Review)
 - **Created at:** 2026-05-01T03:30:00Z
-- **Last updated:** 2026-05-01T05:30:00Z
+- **Last updated:** 2026-05-01T06:30:00Z
 
 > **Path 注記**: T0 (storage rename) は完了済。本ファイルは現在 `docs/workflow/2026-04-29-add-dev-roadmap-skill/TODO.md` に位置している。
 
@@ -65,15 +65,15 @@
   - re_activations: 0
   - notes: 140 行、TC-005/006/033 PASS
 
-- [ ] **T5** — roadmap 系 Agent 定義 3 個の新規作成
-  - status: in_progress
+- [x] **T5** — roadmap 系 Agent 定義 3 個の新規作成
+  - status: completed
   - dependencies: T2, T3, T4
   - started_at: 2026-05-01T05:30:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-01T05:55:00Z
+  - commit: 4f00400
   - implementer: implementer-T5
   - re_activations: 0
-  - notes: -
+  - notes: TC-007/008 PASS
 
 - [x] **T6** — `progress.yaml` テンプレート + reference 拡張 (`roadmap` ネストブロック)
   - status: completed
@@ -95,53 +95,53 @@
   - re_activations: 0
   - notes: 8 ファイル新規。TC-009/010/011/023/024/033 PASS
 
-- [ ] **T8** — `shared-artifacts/SKILL.md` 追記 (成果物一覧 + 1:1 例外 + 保存構造 + path 置換)
-  - status: in_progress
+- [x] **T8** — `shared-artifacts/SKILL.md` 追記 (成果物一覧 + 1:1 例外 + 保存構造 + path 置換)
+  - status: completed
   - dependencies: T7
   - started_at: 2026-05-01T05:30:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-01T06:00:00Z
+  - commit: 4244cb2
   - implementer: implementer-T8
   - re_activations: 0
-  - notes: -
+  - notes: 7 箇所 path 置換、TC-012/013/031/032 PASS
 
-- [ ] **T9** — `dev-workflow/SKILL.md` 追記 (起動時連携 + roadmap-progress.yaml 更新プロトコル + path 置換)
-  - status: in_progress
+- [x] **T9** — `dev-workflow/SKILL.md` 追記 (起動時連携 + roadmap-progress.yaml 更新プロトコル + path 置換)
+  - status: completed
   - dependencies: T6
   - started_at: 2026-05-01T05:30:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-01T06:15:00Z
+  - commit: 6b6206b
   - implementer: implementer-T9
   - re_activations: 0
-  - notes: -
+  - notes: 21 箇所 path 置換、`roadmap-progress.yaml` 言及 11 件、TC-018/019/020/021 PASS
 
-- [ ] **T10** — `specialist-common/SKILL.md` 追記 (Specialist 列挙 9 → 12 + Do NOT use for + path 置換)
-  - status: in_progress
+- [x] **T10** — `specialist-common/SKILL.md` 追記 (Specialist 列挙 9 → 12 + Do NOT use for + path 置換)
+  - status: completed
   - dependencies: T2, T3, T4
   - started_at: 2026-05-01T05:30:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-01T05:50:00Z
+  - commit: eac161d
   - implementer: implementer-T10
   - re_activations: 0
-  - notes: -
+  - notes: 12 specialists 列挙、Do NOT use for 拡張、TC-029/030 PASS
 
 - [ ] **T11** — `plugins/dev-workflow/README.md` 追記 (dev-roadmap の位置づけ)
-  - status: pending
+  - status: in_progress
   - dependencies: T5, T8, T9, T10
-  - started_at: -
+  - started_at: 2026-05-01T06:30:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T11
   - re_activations: 0
   - notes: 収束タスク
 
 - [ ] **T12** — 検証用 manual-tests 手順書 (TC-025 / TC-032)
-  - status: pending
+  - status: in_progress
   - dependencies: T1, T7, T8
-  - started_at: -
+  - started_at: 2026-05-01T06:30:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T12
   - re_activations: 0
   - notes: -
 
