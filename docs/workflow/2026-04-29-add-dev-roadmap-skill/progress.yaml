@@ -1,9 +1,9 @@
 identifier: 2026-04-29-add-dev-roadmap-skill
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-05-01T10:00:00Z
+updated_at: 2026-05-01T11:00:00Z
 
-status: active # active | completed | blocked
-current_step: 'Step 9: Retrospective'
+status: completed # active | completed | blocked
+current_step: 'Step 9: Retrospective (completed)'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification (initial)'
@@ -63,6 +63,10 @@ completed_steps:
       - validation-evidence/sc13-specialist-enumeration.txt
       - validation-evidence/sc7-8-9-grep-counts.txt
       - validation-evidence/tc015-yaml-parse-after-substitution.txt
+  - step: 'Step 9: Retrospective'
+    completed_at: 2026-05-01T11:00:00Z
+    artifacts:
+      - docs/retrospective/2026-04-29-add-dev-roadmap-skill.md
 
 pending_gates: []
 
@@ -90,7 +94,7 @@ artifacts:
     - review/backward-compatibility.md
     - review/holistic.md
   validation: validation-report.md
-  retrospective: null
+  retrospective: docs/retrospective/2026-04-29-add-dev-roadmap-skill.md
 
 user_approvals:
   - gate: 'Step 1: Intent Clarification (initial)'
