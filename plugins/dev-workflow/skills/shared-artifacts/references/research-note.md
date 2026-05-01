@@ -12,7 +12,7 @@
 
 ## ファイル位置
 
-`docs/dev-workflow/<identifier>/research/<topic>.md`
+`docs/workflow/<identifier>/research/<topic>.md`
 
 `<topic>` 例: `existing-impl` / `dependencies` / `similar-cases` / `external-spec` / `existing-adr` / プロジェクト固有
 

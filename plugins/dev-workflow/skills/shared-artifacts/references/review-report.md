@@ -12,7 +12,7 @@
 
 ## ファイル位置
 
-`docs/dev-workflow/<identifier>/review/<aspect>.md`
+`docs/workflow/<identifier>/review/<aspect>.md`
 
 `<aspect>` ∈ {`security`, `performance`, `readability`, `test-quality`, `api-design`, `holistic`} (+ プロジェクト固有追加観点)
 

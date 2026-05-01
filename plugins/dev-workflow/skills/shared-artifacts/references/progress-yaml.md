@@ -12,7 +12,7 @@
 
 ## ファイル位置
 
-`docs/dev-workflow/<identifier>/progress.yaml`
+`docs/workflow/<identifier>/progress.yaml`
 
 ## 各フィールドの書き方
 

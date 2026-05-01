@@ -28,7 +28,7 @@ metadata:
 | 項目         | 内容                                          |
 | ------------ | --------------------------------------------- |
 | 担当ステップ | Step 5 (Task Decomposition)                   |
-| 成果物       | `docs/dev-workflow/<identifier>/task-plan.md` |
+| 成果物       | `docs/workflow/<identifier>/task-plan.md` |
 | テンプレート | `shared-artifacts/templates/task-plan.md`     |
 | 書き方ガイド | `shared-artifacts/references/task-plan.md`    |
 | 並列起動     | しない（全体俯瞰が必要なので 1 名）           |

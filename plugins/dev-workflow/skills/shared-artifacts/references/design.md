@@ -12,7 +12,7 @@
 
 ## ファイル位置
 
-`docs/dev-workflow/<identifier>/design.md`
+`docs/workflow/<identifier>/design.md`
 
 ## 各セクションの書き方
 

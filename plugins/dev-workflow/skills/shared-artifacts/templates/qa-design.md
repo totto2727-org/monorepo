@@ -37,7 +37,7 @@
 
 - `automated × assertion`: ソースファイルと co-located (例: `foo.ts` と `foo.test.ts` を同ディレクトリ)
 - `automated × scenario`: `e2e/` 直下
-- `manual × inspection`: 手順書を `docs/dev-workflow/{{identifier}}/manual-tests/<TC-ID>.md` に配置
+- `manual × inspection`: 手順書を `docs/workflow/{{identifier}}/manual-tests/<TC-ID>.md` に配置
 
 ## 本質テストケース (TC-NNN)
 

@@ -24,7 +24,7 @@ metadata:
 | 項目         | 内容                                       |
 | ------------ | ------------------------------------------ |
 | 担当ステップ | Step 3 (Design)                            |
-| 成果物       | `docs/dev-workflow/<identifier>/design.md` |
+| 成果物       | `docs/workflow/<identifier>/design.md` |
 | テンプレート | `shared-artifacts/templates/design.md`     |
 | 書き方ガイド | `shared-artifacts/references/design.md`    |
 | 並列起動     | しない（設計は一貫性が重要なので 1 名）    |

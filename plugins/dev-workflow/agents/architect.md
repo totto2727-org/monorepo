@@ -19,7 +19,7 @@ dev-workflow Step 3 (Design) 専門エージェント。**1 サイクル = 1 イ
 ## 概要
 
 - **担当ステップ:** Step 3
-- **成果物:** `docs/dev-workflow/<identifier>/design.md`
+- **成果物:** `docs/workflow/<identifier>/design.md`
 - **書き方ガイド:** `shared-artifacts/references/design.md`
 - **テンプレート:** `shared-artifacts/templates/design.md`
 - **並列起動:** しない

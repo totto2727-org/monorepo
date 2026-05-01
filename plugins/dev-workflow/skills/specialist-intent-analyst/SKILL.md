@@ -25,7 +25,7 @@ metadata:
 | 項目         | 内容                                            |
 | ------------ | ----------------------------------------------- |
 | 担当ステップ | Step 1 (Intent Clarification)                   |
-| 成果物       | `docs/dev-workflow/<identifier>/intent-spec.md` |
+| 成果物       | `docs/workflow/<identifier>/intent-spec.md` |
 | テンプレート | `shared-artifacts/templates/intent-spec.md`     |
 | 書き方ガイド | `shared-artifacts/references/intent-spec.md`    |
 | 並列起動     | しない（単一インスタンスで対話ループ）          |

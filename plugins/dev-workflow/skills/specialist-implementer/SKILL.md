@@ -72,7 +72,7 @@ metadata:
 6. 型チェック・リント・既存テスト・新規テストが**全て**通過することを確認
 7. 動作確認結果と qa-design.md / qa-flow.md への追記内容を Main に報告:
    - 通常は 1–3 行の要約で十分
-   - ログが長大な場合は `docs/dev-workflow/<identifier>/implementation-logs/<task-id>.md` に保存（テンプレートに従う）
+   - ログが長大な場合は `docs/workflow/<identifier>/implementation-logs/<task-id>.md` に保存（テンプレートに従う）
    - qa-design.md / qa-flow.md への追記がある場合は追記 TC-ID を報告に含める
 
 ## 並列実行時の注意

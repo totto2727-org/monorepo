@@ -29,7 +29,7 @@ metadata:
 | 項目         | 内容                                                                       |
 | ------------ | -------------------------------------------------------------------------- |
 | 担当ステップ | Step 7 (External Review)                                                   |
-| 成果物       | `docs/dev-workflow/<identifier>/review/<aspect>.md`（1 観点 = 1 ファイル） |
+| 成果物       | `docs/workflow/<identifier>/review/<aspect>.md`（1 観点 = 1 ファイル） |
 | テンプレート | `shared-artifacts/templates/review-report.md`                              |
 | 書き方ガイド | `shared-artifacts/references/review-report.md`                             |
 | 並列起動     | 高推奨（観点ごとに並列）                                                   |

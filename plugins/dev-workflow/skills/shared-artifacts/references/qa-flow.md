@@ -12,7 +12,7 @@
 
 ## ファイル位置
 
-`docs/dev-workflow/<identifier>/qa-flow.md`
+`docs/workflow/<identifier>/qa-flow.md`
 
 ## ファイル形式
 

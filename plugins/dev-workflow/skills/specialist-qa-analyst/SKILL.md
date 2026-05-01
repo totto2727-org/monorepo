@@ -28,7 +28,7 @@ metadata:
 | 項目         | 内容                                                                                        |
 | ------------ | ------------------------------------------------------------------------------------------- |
 | 担当ステップ | Step 4 (QA Design)                                                                          |
-| 成果物       | `docs/dev-workflow/<identifier>/qa-design.md` + `docs/dev-workflow/<identifier>/qa-flow.md` |
+| 成果物       | `docs/workflow/<identifier>/qa-design.md` + `docs/workflow/<identifier>/qa-flow.md` |
 | テンプレート | `shared-artifacts/templates/qa-design.md`, `shared-artifacts/templates/qa-flow.md`          |
 | 書き方ガイド | `shared-artifacts/references/qa-design.md`, `shared-artifacts/references/qa-flow.md`        |
 | 並列起動     | しない (テスト戦略の一貫性のため 1 名)                                                      |

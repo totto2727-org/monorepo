@@ -12,7 +12,7 @@
 
 ## ファイル位置
 
-`docs/retrospective/<identifier>.md` (`docs/adr/` 同パターンの集約ディレクトリ)。`<identifier>` はサイクル作業ディレクトリ `docs/dev-workflow/<identifier>/` と完全同一。
+`docs/retrospective/<identifier>.md` (`docs/adr/` 同パターンの集約ディレクトリ)。`<identifier>` はサイクル作業ディレクトリ `docs/workflow/<identifier>/` と完全同一。
 
 ## ライフサイクル
 

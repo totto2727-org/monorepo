@@ -51,7 +51,7 @@
 
 {{metrics_summary}}
 
-定量的な成功基準に対応する計測結果をまとめる。大きなデータは `docs/dev-workflow/<identifier>/validation-evidence/` に保存してリンクする。
+定量的な成功基準に対応する計測結果をまとめる。大きなデータは `docs/workflow/<identifier>/validation-evidence/` に保存してリンクする。
 
 | メトリクス   | 目標値       | 観測値       | 判定    |
 | ------------ | ------------ | ------------ | ------- |
