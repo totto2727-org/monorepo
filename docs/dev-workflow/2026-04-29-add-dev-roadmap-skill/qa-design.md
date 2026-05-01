@@ -1,0 +1,173 @@
+# QA Design: dev-roadmap スキル新設による戦略層の整備
+
+- **Identifier:** 2026-04-29-add-dev-roadmap-skill
+- **Author:** qa-analyst (single instance, post-rollback re-creation)
+- **Source:** `intent-spec.md` (revised, 14 success criteria), `design.md` (revised, 9-step system + Open Questions #1 prefix decision)
+- **Created at:** 2026-05-01T20:40:00Z
+- **Last updated:** 2026-05-01T20:40:00Z
+- **Status:** draft
+
+このドキュメントは **Step 4 で確定する本質テスト設計**。Step 6 (Implementation) で implementer が「実装段階で発見されたテスト」を追記する。書き方の詳細は `shared-artifacts/references/qa-design.md` を参照。
+
+本サイクルは Markdown / YAML 成果物のみを生み出す**ドキュメント生成サイクル**であり、実行可能コードを伴わない。よって全テストケースは**ファイル存在検査・本文の構造的検査・パス整合性検査・git 差分検査・手動目視レビュー**のいずれかに帰着する。テストフレームワーク選定は不要 (Bash / git / 目視で完結)。
+
+なお本ファイル自身は本サイクル Step 6 G0 (`git mv docs/dev-workflow/ docs/workflow/`) 実施前に作成されるため、現時点パスは `docs/dev-workflow/2026-04-29-add-dev-roadmap-skill/qa-design.md`。Step 6 G0 のリネームコミット後は `docs/workflow/2026-04-29-add-dev-roadmap-skill/qa-design.md` に位置する。判定基準内の path 表記は**リネーム後 (= Step 8 Validation 実行時点) の path**で記述する。
+
+## 概要
+
+`intent-spec.md` の 14 成功基準を観測可能な形まで深掘りした要約。すべての成功基準は機械的または手動目視で合否を一意に判定可能であることを Step 1 ユーザー承認時点で確認済み (intent-spec.md L105 制約)。Step 4 (本ドキュメント) では各成功基準に対し最低 1 件の TC を割り当てる。
+
+- **SC-1**: 新規スキル本体 `plugins/dev-workflow/skills/dev-roadmap/SKILL.md` が存在し、frontmatter (`name: dev-roadmap` / description / metadata) と本文 (役割定義 / 4 ステップ構造 / ゲート判定 / `dev-workflow` 接続プロトコル / 進捗管理プロトコル) を含む
+- **SC-2**: 新規 Specialist スキル 2 個 (`specialist-roadmap-analyst` / `specialist-roadmap-planner`) の存在 — design 確定 1 で `specialist-roadmap-retrospective-writer` を**追加新設**する方針となったため、本サイクル実装は **3 個** (intent-spec.md L108 の「2 個」は流用前提の暫定値で、design.md 確定 1 (L75) により案 C を採用、retrospective-writer は流用しない)
+- **SC-3**: 新規エージェント定義の存在 — 同様に design 確定 1 により **3 個** (`roadmap-analyst.md` / `roadmap-planner.md` / `roadmap-retrospective-writer.md`)
+- **SC-4**: 新規テンプレート/書き方ガイドの存在 — design 確定 1 により **4 対** (`roadmap.md` / `milestone.md` / `roadmap-progress.yaml` / `roadmap-retrospective.md` の各テンプレート + 対応 reference)
+- **SC-5**: `shared-artifacts/SKILL.md` 成果物一覧テーブルに 4 行追加 + 1:1 対応例外リストに `roadmap-progress.yaml` ↔ `roadmap-progress-yaml.md` を 3 件目として追記
+- **SC-6**: `templates/progress.yaml` に `roadmap: null` ネストブロックフィールド追加、`references/progress-yaml.md` に 3 観点 ((a) null = 独立サイクル / (b) non-null では `roadmap.id` および `roadmap.milestone.id` 必須 / (c) `roadmap == null` で `milestone` 単独は不正) 明記
+- **SC-7**: `dev-workflow/SKILL.md` 「ワークフロー開始時」セクションに roadmap 配下サイクル初期化段落を 1 段落以上追加
+- **SC-8**: `dev-workflow/SKILL.md` 新規セクション「`roadmap-progress.yaml` 更新プロトコル」が独立トップレベル `##` 見出しで存在し、(a) サイクル開始時 `in_progress` 遷移、(b) 各ステップ完了時の進捗サマリ反映 (本バージョンでは scope out 明記)、(c) サイクル完了時 (= **Step 9 Retrospective 完了時**) `completed` 遷移、(d) 更新時のコミット粒度、(e) `roadmap == null` のスキップ規則の 5 点が明文化されている。観測判定: `grep -nF "roadmap-progress.yaml" plugins/dev-workflow/skills/dev-workflow/SKILL.md` ≥ 3 件
+- **SC-9**: `plugins/dev-workflow/README.md` に `dev-roadmap` の存在と「1 サイクル超の大規模開発を束ねる戦略層」位置づけを 1 段落以上で記述
+- **SC-10**: `references/roadmap-progress-yaml.md` に「`dev-workflow` 側からの更新プロトコル」セクション存在、何を (フィールド) / いつ (タイミング) / どう書くか (遷移ルール・コミット粒度・並行サイクル時の競合回避) の 3 観点全て含む
+- **SC-11**: 完成した `dev-roadmap/SKILL.md` および `references/roadmap.md` / `milestone.md` を読んだ Main / ユーザーが、任意の 1 つの仮想ゴール (例: "OAuth 認証導入") を入力として 3 つ以上のマイルストーン分解とそれぞれの定性的到達点・依存関係を抽出する手順を、追加情報なしに説明できる (Validation で 1 例を作成し手順が一意に決まることを目視確認)
+- **SC-12**: 本サイクル開始基準点 (= main マージ直後の `HEAD`、`progress.yaml.rollbacks[0].at = 2026-04-29T07:00:00Z` 時点に対応) を baseline として、本サイクル全 diff 適用後に**リネーム後パス `docs/workflow/2026-04-26-add-qa-design-step/`** の各成果物について `git diff --find-renames <baseline>..HEAD -- docs/workflow/2026-04-26-add-qa-design-step/` の結果に**内容差分 (リネーム以外の変更行) が 0** であること。リネーム自体 (`docs/dev-workflow/` → `docs/workflow/`) は本サイクル Step 6 G0 で実施されるため、`--find-renames` でパス変更のみ検出される状態を許容
+- **SC-13**: main マージ後の `specialist-common/SKILL.md` の Specialist 列挙 (`intent-analyst, researcher, architect, qa-analyst, planner, implementer, reviewer, validator, retrospective-writer` の 9 specialists) に roadmap 系 3 名 (`roadmap-analyst, roadmap-planner, roadmap-retrospective-writer`) が追加されて計 **12 specialists** となる、または別系統明示分離方針が `specialist-common` に明文化されている (design 確定 2 改訂版で案 A を採用、自動的に前者となる)
+- **SC-14**: `docs/roadmap/<roadmap-id>/` の構造が `dev-roadmap/SKILL.md` および `shared-artifacts/SKILL.md` の保存構造セクションで明記、`docs/workflow/<identifier>/` と並列配置である旨が図示または説明されている。あわせて roadmap retrospective が `docs/retrospective/<roadmap-id>.md` (集約形式、design Open Questions #1 確定により実際は `roadmap-` prefix 付き = `docs/retrospective/roadmap-<roadmap-id>.md`) に保存される旨も明記
+
+## 自動 vs 手動の判断方針
+
+本サイクルは Markdown / YAML のみを生み出すドキュメント生成サイクルである。design.md L9-L21 の制約に従い、テスト対象に build 成果物は存在しない。よって判定方針は以下に大別する:
+
+**1. 機械的に自動判定可能なもの (`automated`)**
+
+- ファイル/ディレクトリの存在検査 (Bash + `test -f` / `test -d` / `gls`)
+- frontmatter のキー存在 (Bash + `ggrep` / `gsed`)
+- 本文中の特定文字列の存在件数 (Bash + `ggrep -c` / `grep -nF`)
+- 行数や差分行数の閾値判定 (Bash + `gwc -l` / `git diff --find-renames`)
+- YAML スキーマ妥当性 (Bash + `yq` または `python -c "import yaml"` で parseable 確認)
+
+これらは CI で 1 コマンドで完全再現可能なため、`automated × assertion` または `automated × structural` を選定する。検証スタイルは reference enum に従い `assertion` (単一状態の等価判定) / `scenario` (複数ステップの順次実行) を使い分ける。
+
+**2. 半構造的・意味的だが grep / 簡易パターンで近似自動化可能なもの (`automated × structural`)**
+
+- セクション見出し (`##` `###`) の存在順序検査
+- テーブル列構成の検査 (パイプ区切りの header 行)
+- 1:1 対応例外リストの件数検査
+
+これらは正規表現や行レベル検査で機械化できるため `automated × assertion` 範囲。**`structural` は本ドキュメントでは `assertion` または `scenario` の細分類として `備考` 列で述べる程度に留める** (qa-design reference の enum 4 値は `assertion` / `scenario` / `observation` / `inspection` のみ)。
+
+**3. 人間の理解可能性・説明性に依存するもの (`manual × inspection`)**
+
+- 成功基準 #11 (仮想マイルストーン分解の説明性) は「読んだ人が追加情報なしに 3 件以上のマイルストーンを抽出できるか」という主観的説明性検証。これは `inspection` 領域であり、`automated × inspection` は本 reference で禁止組み合わせのため、`manual × inspection` を採用する
+- design.md ファイル数 / コンポーネント関係図 / mermaid 構文の妥当性のうち「読み手が一意に解釈できるか」の側面
+
+**4. 半自動化できる目視検査 (`hybrid` 相当 → 本 reference では `manual × inspection` または `automated × assertion` の使い分け)**
+
+- ディレクトリ構造の図示 (mermaid) 妥当性: 構文 parseable は `automated × assertion`、人間に解釈一意か / 並列配置の意図が伝わるかは `manual × inspection`
+- retrospective prefix 命名規則の明文化: 文字列存在は `automated × assertion`、roadmap retrospective ファイル命名規則の運用適合性は `manual × inspection`
+
+**禁止組み合わせ `automated × inspection` の回避**: 本サイクルでは「本文の意図を読み解く」必要があるテストは全て `manual × inspection` に分類し、自動化可能な部分はそれと別の TC として `automated × assertion` で立てる二段構成を採用する。
+
+**`ai-driven` の不採用理由**: 本サイクルはブラウザ操作 / 動的 UI が登場せず、AI 介在によるシナリオ判断も不要。よって `ai-driven` は採用しない。
+
+## テストファイル配置ポリシー
+
+カテゴリ別の配置方針を記述。具体的なファイルパスは Step 5 (task-plan) / Step 6 (implementer) で確定する。
+
+- **`automated × assertion` のテスト**: 本サイクルは実行可能コードを生み出さないため、ソース co-located テストファイルは作成しない。代わりに **Step 8 Validation で実行する Bash コマンド集**として `docs/workflow/2026-04-29-add-dev-roadmap-skill/validation-evidence/` 配下に検査スクリプト (例: `check-files-exist.sh`、`check-frontmatter.sh`、`check-grep-counts.sh`) を作成することを推奨。Step 6 implementer は Bash コマンドの再現可能性 (引数なしで完走、終了ステータス 0 = pass) を担保する
+- **`automated × scenario` のテスト**: 同上、Step 8 で実行する複数コマンドのシーケンス。`docs/workflow/<identifier>/validation-evidence/` 配下にスクリプト化、または `validation-report.md` 内に手順 + 期待出力を記載
+- **`manual × inspection` の手順書**: `docs/workflow/2026-04-29-add-dev-roadmap-skill/manual-tests/<TC-ID>.md` に配置 (例: `manual-tests/TC-029.md`)。Step 6 implementer は `manual-tests/` を作成し、各 TC ごとに目視検査手順 (どのファイルのどのセクションを読み、どの観点で評価するか) を 1 ファイルずつ記述する
+- **`automated × observation` のテスト**: 本サイクルでは性能計測等の必要性がないため使用しない (採用 0 件想定)
+
+具体パスはあくまで上記カテゴリ規約に従う方針提示で、Step 5 planner が `task-plan.md` 内で具体ファイルを確定し、Step 6 implementer がスクリプトを実装する。Step 4 (qa-analyst) は方針のみで具体ファイル名を決めない。
+
+## 本質テストケース (TC-NNN)
+
+仕様レベルで表現可能な振る舞いを検証するケース。Step 4 で qa-analyst が起点を設計、Step 6 で implementer が「振る舞いの追加パターン」を継続採番で追記する。
+
+### 表記規約
+
+- **`実行主体`** enum: `automated` | `ai-driven` | `manual`
+- **`検証スタイル`** enum: `assertion` | `scenario` | `observation` | `inspection`
+- **禁止組み合わせ**: `automated × inspection` (本表内では使用しない)
+- **要備考組み合わせ (△)**: `ai-driven × assertion`, `manual × assertion`, `manual × observation` — 採用時は `備考` 列に理由必須 (本表内は採用なし)
+- **`<baseline>`** = `progress.yaml.rollbacks[0].at = 2026-04-29T07:00:00Z` 時点の HEAD コミット (main マージ直後)。Step 8 Validation で `git rev-parse` により機械的に特定可能
+- **`<roadmap-id>`** = roadmap 単位識別子 (本サイクルでは「dev-roadmap スキル新設」自体の検証であり、実際の roadmap 利用は本サイクル外で開始される。テストは「テンプレート/スキルの構造」を検査する)
+- 全 path 表記は **Step 6 G0 完了後 (= Step 8 Validation 実行時点) の リネーム後パス**で記述
+
+### TC 一覧 (32 件)
+
+| ID     | 対象成功基準 | 期待される振る舞い | 実行主体    | 検証スタイル | 判定基準 | 必要理由 (条件付き) | 備考 |
+| ------ | ------------ | ------------------ | ----------- | ------------ | -------- | ------------------- | ---- |
+| TC-001 | SC-1         | `dev-roadmap/SKILL.md` がリポジトリ内に存在する | automated | assertion | `test -f plugins/dev-workflow/skills/dev-roadmap/SKILL.md` が exit 0 | - | - |
+| TC-002 | SC-1         | `dev-roadmap/SKILL.md` が必要な frontmatter キーを保持する (name / description / metadata.author / metadata.version) | automated | assertion | `ggrep -nE "^name: dev-roadmap$" plugins/dev-workflow/skills/dev-roadmap/SKILL.md` ≥ 1 件、かつ `ggrep -nE "^(description|metadata):" plugins/dev-workflow/skills/dev-roadmap/SKILL.md` で `description` および `metadata` が各 1 件以上 | - | name は完全一致で `dev-roadmap` であること |
+| TC-003 | SC-1         | `dev-roadmap/SKILL.md` 本文に必須セクション 5 種 (役割定義 / 4 ステップ構造 / ゲート判定 / `dev-workflow` 接続プロトコル / 進捗管理プロトコル) が見出しレベル `##` または `###` で存在する | automated | scenario | 5 セクション分の見出し文字列を `ggrep -nE "^#+\s+(役割\|4\s*ステップ\|ゲート判定\|接続プロトコル\|進捗管理)"` 等で検出し、いずれも 1 件以上 | - | 見出しの正確な文言は実装時に決まるため、シナリオ実行時に複数候補語を OR で照合する |
+| TC-004 | SC-2         | `specialist-roadmap-analyst` および `specialist-roadmap-planner` の SKILL.md が両方存在する | automated | assertion | `test -f plugins/dev-workflow/skills/specialist-roadmap-analyst/SKILL.md && test -f plugins/dev-workflow/skills/specialist-roadmap-planner/SKILL.md` が exit 0 | - | - |
+| TC-005 | SC-2         | `specialist-roadmap-retrospective-writer/SKILL.md` が存在する (design 確定 1 で新設、SC-2 の「2 個」を超えるが design 改訂で 3 個方針に変更済) | automated | assertion | `test -f plugins/dev-workflow/skills/specialist-roadmap-retrospective-writer/SKILL.md` が exit 0 | - | intent-spec.md SC-2 の文言 (「2 個」) は流用前提の暫定値、design.md 確定 1 (案 C 採用) で 3 個方針に確定。本 TC は SC-2 の上位互換 (3 個目の追加) を検証 |
+| TC-006 | SC-2         | 3 つの新規 Specialist スキル本文に必須セクション 4 種 (役割 / 入力 / 手順 / 失敗モード / スコープ外) が見出しレベル `##` または `###` で存在する | automated | scenario | 各ファイル別に `ggrep -nE "^#+\s+(役割\|入力\|手順\|失敗モード\|スコープ外)"` を実行、各見出しの該当語が 1 件以上 (5 観点中いずれか派生語を含めて 4 観点以上見出しに登場すれば pass) | - | 「失敗モード」は「固有の失敗モード」、「スコープ外」は「やらないこと」等の派生語を許容 |
+| TC-007 | SC-3         | `agents/roadmap-analyst.md` / `agents/roadmap-planner.md` / `agents/roadmap-retrospective-writer.md` の 3 ファイルが存在する | automated | assertion | 3 ファイルそれぞれ `test -f plugins/dev-workflow/agents/roadmap-{analyst,planner,retrospective-writer}.md` が exit 0 | - | design 確定 1 により 3 個 |
+| TC-008 | SC-3         | 3 つのエージェントファイルがそれぞれ description フィールドと「参照スキル」セクションを含む | automated | scenario | 各ファイルで `ggrep -nE "^description:" agents/roadmap-*.md` および `ggrep -nE "参照スキル"` がいずれも 1 件以上 | - | 既存 `agents/qa-analyst.md` (companion 完了済) のパターンを踏襲 |
+| TC-009 | SC-4         | 新規テンプレート 4 個 (`roadmap.md` / `milestone.md` / `roadmap-progress.yaml` / `roadmap-retrospective.md`) が `shared-artifacts/templates/` に存在する | automated | assertion | 4 ファイルそれぞれ `test -f plugins/dev-workflow/skills/shared-artifacts/templates/{roadmap.md,milestone.md,roadmap-progress.yaml,roadmap-retrospective.md}` が exit 0 | - | intent-spec.md SC-4 の「3 個」は暫定、design.md 確定 1 で 4 個に拡張 |
+| TC-010 | SC-4         | 新規 reference 4 個 (`roadmap.md` / `milestone.md` / `roadmap-progress-yaml.md` / `roadmap-retrospective.md`) が `shared-artifacts/references/` に存在する | automated | assertion | 4 ファイルそれぞれ `test -f plugins/dev-workflow/skills/shared-artifacts/references/{roadmap.md,milestone.md,roadmap-progress-yaml.md,roadmap-retrospective.md}` が exit 0 | - | `roadmap-progress-yaml.md` は 1:1 対応の 3 件目例外 |
+| TC-011 | SC-4         | テンプレートとリファレンスの 1:1 対応が成立 (3 件の例外を除く) | automated | scenario | `ls plugins/dev-workflow/skills/shared-artifacts/templates/` と `ls .../references/` をそれぞれ取得、basename を比較。差分は **3 件のみ** (`progress.yaml`/`progress-yaml.md`、`task-plan.md` 関連、`roadmap-progress.yaml`/`roadmap-progress-yaml.md`) であること | - | 既存 2 件 + 本サイクル追加 1 件で計 3 件の 1:1 対応例外 |
+| TC-012 | SC-5         | `shared-artifacts/SKILL.md` の成果物一覧テーブルに 4 行 (`roadmap.md` / `milestone.md` / `roadmap-progress.yaml` / `roadmap-retrospective.md`) が追加されている | automated | scenario | `ggrep -nE "^\|\s*roadmap\.md\s*\|\|^\|\s*milestone\.md\s*\|\|^\|\s*roadmap-progress\.yaml\s*\|\|^\|\s*roadmap-retrospective\.md\s*\|" plugins/dev-workflow/skills/shared-artifacts/SKILL.md` が 4 件以上 | - | テーブルセル内表記の差異を許容するため OR 検索 |
+| TC-013 | SC-5         | `shared-artifacts/SKILL.md` の 1:1 対応例外リストに `roadmap-progress.yaml` ↔ `roadmap-progress-yaml.md` が 3 件目として明記され、文言が「3 件」または「3 つ」に更新されている | automated | scenario | `ggrep -nF "roadmap-progress-yaml.md" plugins/dev-workflow/skills/shared-artifacts/SKILL.md` ≥ 1 件、かつ `ggrep -nE "(これら|以下の)?\s*3\s*(件\|つ)" .../shared-artifacts/SKILL.md` ≥ 1 件 (例外件数の表現更新) | - | 文言の正確な箇所は design.md L323 で「これら 2 件以外で...」を「これら 3 件以外で...」に変更と指定 |
+| TC-014 | SC-6         | `shared-artifacts/templates/progress.yaml` のトップレベルに `roadmap: null` フィールドが追加されている | automated | assertion | `ggrep -nE "^roadmap:\s*null" plugins/dev-workflow/skills/shared-artifacts/templates/progress.yaml` ≥ 1 件 | - | デフォルト値は null、コメントで `{id, milestone: {id}}` 形式を案内 |
+| TC-015 | SC-6         | `templates/progress.yaml` を YAML として parse 可能、かつ `.roadmap` キーが存在し値が null である | automated | assertion | `yq '.roadmap' plugins/dev-workflow/skills/shared-artifacts/templates/progress.yaml` の出力が `null` (または `~`) | - | yq がない環境では `python3 -c "import yaml; d=yaml.safe_load(open('...')); assert 'roadmap' in d and d['roadmap'] is None"` で代替 |
+| TC-016 | SC-6         | `references/progress-yaml.md` に `roadmap` ネストブロック説明が 3 観点全て (a/b/c) 含む | automated | scenario | `ggrep -nE "(独立サイクル\|null)" plugins/dev-workflow/skills/shared-artifacts/references/progress-yaml.md` ≥ 1 件、`ggrep -nF "roadmap.id" .../references/progress-yaml.md` ≥ 1 件、`ggrep -nF "roadmap.milestone.id" .../references/progress-yaml.md` ≥ 1 件、`ggrep -nE "(不正\|矛盾\|許容しない)" .../references/progress-yaml.md` ≥ 1 件 | - | 3 観点 (a) null = 独立サイクル / (b) non-null では `roadmap.id` および `roadmap.milestone.id` 必須 / (c) `roadmap == null` で `milestone` 単独は不正 |
+| TC-017 | SC-6, SC-12  | 既存サイクル `docs/workflow/2026-04-26-add-qa-design-step/progress.yaml` の `<baseline>..HEAD` 内容差分が 0 (リネームのみ検出) | automated | assertion | `git diff --find-renames <baseline>..HEAD -- docs/workflow/2026-04-26-add-qa-design-step/progress.yaml` の出力が「rename: docs/dev-workflow/... → docs/workflow/...」のみで、`+` / `-` の内容変更行が 0 行 | - | `<baseline>` は `progress.yaml.rollbacks[0].at = 2026-04-29T07:00:00Z` 時点の HEAD コミット (main マージ直後)。Step 8 で `git log --before='2026-04-29T07:01Z' --first-parent main -1 --format=%H` 等で機械的に特定 |
+| TC-018 | SC-7         | `dev-workflow/SKILL.md` の「ワークフロー開始時」セクションに roadmap 配下サイクル初期化段落が 1 段落以上追加されている | automated | scenario | `ggrep -nE "ワークフロー開始時" plugins/dev-workflow/skills/dev-workflow/SKILL.md` で見出しを特定、その配下 (次の同レベル見出しまで) に `progress.yaml` の `roadmap` ブロック初期化に関する記述 (`{id` and `milestone` を含む段落) が 1 件以上 | - | design.md L243-249 の挿入位置 (ステップ 4 と 5 の間、ステップ 4'として) に対応 |
+| TC-019 | SC-8         | `dev-workflow/SKILL.md` に新規セクション「`roadmap-progress.yaml` 更新プロトコル」が独立トップレベル `##` 見出しで存在する | automated | assertion | `ggrep -nE "^##\s.*roadmap-progress\.yaml.*更新プロトコル" plugins/dev-workflow/skills/dev-workflow/SKILL.md` ≥ 1 件 | - | design.md L253 で挿入位置「コミット規約と並列起動のガイドラインの間」、独立トップレベル `##` 配置と確定 |
+| TC-020 | SC-8         | `dev-workflow/SKILL.md` の新規セクション本文に 5 観点 (a/b/c/d/e) が全て言及されている | automated | scenario | (a) `ggrep -nE "(サイクル開始時\|active.*遷移\|planned.*active)"` ≥ 1 件 / (b) `ggrep -nE "(scope\s*out\|将来拡張\|本バージョンでは.*scope)"` ≥ 1 件 (本バージョンで scope out 明示) / (c) `ggrep -nE "(Step\s*9\|Retrospective\s*完了時\|完了時.*completed)"` ≥ 1 件 / (d) `ggrep -nE "(コミット粒度\|同梱\|別コミットを切らない)"` ≥ 1 件 / (e) `ggrep -nE "(roadmap\s*==\s*null\|スキップ規則\|スキップ)"` ≥ 1 件 — 全て on-target file. 5 観点全て pass で TC pass | - | (b) は本バージョン scope out として形式的に維持される旨を明記、これにより 5 観点が全て言及される |
+| TC-021 | SC-8         | `grep -nF "roadmap-progress.yaml" plugins/dev-workflow/skills/dev-workflow/SKILL.md` の結果が 3 件以上 | automated | observation | コマンド出力行数が 3 以上 (design.md L309 では 7 件以上を見込み) | - | intent-spec.md L114 の観測判定そのまま。`-c` ではなく `-n` で行番号付き出力をカウント |
+| TC-022 | SC-9         | `plugins/dev-workflow/README.md` に `dev-roadmap` の存在と「1 サイクル超の大規模開発を束ねる戦略層」位置づけが 1 段落以上記述されている | automated | scenario | `ggrep -nE "dev-roadmap" plugins/dev-workflow/README.md` ≥ 1 件、かつ `ggrep -nE "(戦略層\|大規模\|複数の.*サイクル\|束ねる)" plugins/dev-workflow/README.md` ≥ 1 件、両条件 pass で記述存在判定 | - | 文言の完全一致は要求しない、語彙パターンで判定 |
+| TC-023 | SC-10        | `references/roadmap-progress-yaml.md` に「`dev-workflow` 側からの更新プロトコル」セクションが存在する | automated | assertion | `ggrep -nE "^#+\s.*dev-workflow.*側.*更新プロトコル" plugins/dev-workflow/skills/shared-artifacts/references/roadmap-progress-yaml.md` ≥ 1 件 | - | - |
+| TC-024 | SC-10        | 同セクション内に 3 観点 (何を / いつ / どう書くか) 全て含む | automated | scenario | (1) フィールド言及: `ggrep -nE "(milestones.*status\|workflow_identifiers)" .../roadmap-progress-yaml.md` ≥ 1 件 / (2) タイミング言及: `ggrep -nE "(サイクル開始時\|サイクル完了時\|Step\s*9)" .../roadmap-progress-yaml.md` ≥ 1 件 / (3) 遷移ルール+コミット粒度+並行サイクル競合回避: `ggrep -nE "(active\|completed\|コミット\|3-way\s*merge\|set\s*union)" .../roadmap-progress-yaml.md` ≥ 1 件 ([3 つ] 全て pass で TC pass) | - | design.md L213-221 のリカバリ手順を `references/roadmap-progress-yaml.md` に明記する責務 |
+| TC-025 | SC-11        | 完成した `dev-roadmap/SKILL.md` および `references/roadmap.md` / `milestone.md` を読んだ第三者が、任意の仮想ゴール (例: "OAuth 認証導入") を入力として 3 つ以上のマイルストーン分解と各マイルストーンの定性的到達点・依存関係を抽出する手順を**追加情報なしに**説明できる | manual | inspection | Validation 担当者が 1 つの仮想ゴールを選び、対象 3 ファイルのみを参照して `manual-tests/TC-025.md` の手順 (a)-(d) に従いマイルストーン候補リスト (≥ 3 件) と依存関係を 30 分以内に紙に書き出せる。書き出された分解が原文と齟齬なく、Main / 別の検証者が同じ手順を踏んだ場合に**実質的に同等のマイルストーンセット** (個数 ≥ 3、定性的到達点が同種、依存関係の DAG 構造が一致) を導出できることをレビュアー 1 名が確認 | - | 「実質的に同等」とは個別文言の完全一致ではなく、抽出されるマイルストーン群の粒度・カバー領域・依存方向が一致すること。intent-spec.md L117 の「手順が一意に決まる」を担保するための説明性検査 |
+| TC-026 | SC-12        | リネーム後 `docs/workflow/` 直下に既存全 5 サイクル (`2026-04-24-ai-dlc-plugin-bootstrap` / `2026-04-26-add-qa-design-step` / `2026-04-29-add-dev-roadmap-skill` / `2026-04-29-integrate-self-review-into-external` / `2026-04-29-retro-cleanup`) が移動済 | automated | scenario | `for d in 2026-04-24-ai-dlc-plugin-bootstrap 2026-04-26-add-qa-design-step 2026-04-29-add-dev-roadmap-skill 2026-04-29-integrate-self-review-into-external 2026-04-29-retro-cleanup; do test -d "docs/workflow/$d" || exit 1; done` が exit 0 | - | Step 6 G0 完了確認。本サイクル開始時に存在する 5 サイクルが移動先に揃っていること |
+| TC-027 | SC-12        | 旧 `docs/dev-workflow/` ディレクトリが存在しない (G0 実施後) | automated | assertion | `! test -e docs/dev-workflow` が exit 0 (= ディレクトリ不存在) | - | mv による移動の完全性確認。残骸 (空ディレクトリ含む) があれば fail |
+| TC-028 | SC-12        | 既存全 5 サイクルの `git diff --find-renames <baseline>..HEAD` がリネームのみ検出、内容差分 0 | automated | scenario | 各サイクルで `git diff --find-renames -M50% --stat <baseline>..HEAD -- docs/workflow/<cycle>/` を実行、出力に `rename` 行のみで `+ / -` 数値カラムの total が `0 insertions(+), 0 deletions(-)` であること (本サイクル `2026-04-29-add-dev-roadmap-skill` を除く既存 4 サイクル分が対象、本サイクルは新規追加 diff があるため除外) | - | intent-spec.md L118 の検査をリネーム + 内容差分 0 の 2 段で確認。ロールバック以前の本サイクル成果物は破棄済のため `--find-renames` で複雑化しない |
+| TC-029 | SC-13        | `specialist-common/SKILL.md` frontmatter description および本文の Specialist 列挙に roadmap 系 3 名 (`roadmap-analyst`, `roadmap-planner`, `roadmap-retrospective-writer`) が追加され、計 12 specialists となる | automated | scenario | (1) `ggrep -nE "(roadmap-analyst.*roadmap-planner.*roadmap-retrospective-writer\|roadmap-retrospective-writer.*roadmap-planner.*roadmap-analyst)" plugins/dev-workflow/skills/specialist-common/SKILL.md` ≥ 1 件 (順不同で 3 名同行に列挙) / (2) `ggrep -nE "(12\s*(specialists\|専門エージェント)\|12\s*(個\|名))" .../specialist-common/SKILL.md` ≥ 1 件、または列挙数を別途カウントして 12 個 | - | design.md L320 の「9 specialists → 12 specialists」更新と整合。`self-reviewer` は main マージで削除済のため復元しない |
+| TC-030 | SC-13        | `specialist-common/SKILL.md` の `Do NOT use for` 内 specialist-* スキル列挙にも roadmap 系 3 個が追加されている | automated | scenario | `ggrep -nE "(specialist-roadmap-analyst.*specialist-roadmap-planner.*specialist-roadmap-retrospective-writer\|specialist-roadmap-retrospective-writer.*specialist-roadmap-planner.*specialist-roadmap-analyst)" plugins/dev-workflow/skills/specialist-common/SKILL.md` ≥ 1 件 | - | design.md L321 の更新指示と整合 |
+| TC-031 | SC-14        | `dev-roadmap/SKILL.md` および `shared-artifacts/SKILL.md` の保存構造セクションに `docs/roadmap/<roadmap-id>/` の構造記述 (roadmap.md / milestones/<milestone-id>.md / roadmap-progress.yaml の 3 ファイル) が含まれている | automated | scenario | (1) `ggrep -nE "docs/roadmap/<roadmap-id>" plugins/dev-workflow/skills/dev-roadmap/SKILL.md` ≥ 1 件 / (2) `ggrep -nE "(milestones/<milestone-id>\|milestones/.+\.md)" .../dev-roadmap/SKILL.md` ≥ 1 件 / (3) `ggrep -nE "roadmap-progress\.yaml" .../dev-roadmap/SKILL.md` ≥ 1 件 / (4) `shared-artifacts/SKILL.md` でも同様の 3 件すべて存在 | - | design.md L325 の保存構造図追加と整合 |
+| TC-032 | SC-14        | `dev-roadmap/SKILL.md` または `shared-artifacts/SKILL.md` に `docs/workflow/<identifier>/` と `docs/roadmap/<roadmap-id>/` が**並列配置**である旨の図示または説明、および roadmap retrospective が `docs/retrospective/` 集約に保存される旨が明記されている | manual | inspection | Validation 担当者が 2 ファイルを通読し、(a) 並列配置の旨が図示 (mermaid) または説明文で明示されている、(b) `docs/retrospective/<集約名>` に保存される旨が明記されている、(c) roadmap retrospective の prefix 命名規則 (= design Open Questions #1 確定の `roadmap-<roadmap-id>.md`) が `dev-roadmap/SKILL.md` または `references/roadmap-retrospective.md` に明記されている、の 3 点を `manual-tests/TC-032.md` に従い目視判定 | - | 単純文字列検索では「並列配置」の意図表現が文言依存で揺れるため目視判定。SC-14 の本質 (構造的独立性 + 集約 retrospective 言及) を満たす |
+| TC-033 | (なし)       | retrospective 集約形式における prefix 命名規則 (`docs/retrospective/roadmap-<roadmap-id>.md`) が `dev-roadmap/SKILL.md` または `references/roadmap-retrospective.md` のいずれかに明記されている | automated | scenario | (1) `ggrep -nE "roadmap-<roadmap-id>\.md" plugins/dev-workflow/skills/dev-roadmap/SKILL.md plugins/dev-workflow/skills/shared-artifacts/references/roadmap-retrospective.md` ≥ 1 件、または (2) `ggrep -nE "(prefix\|プレフィックス).*roadmap" 同上ファイル群` ≥ 1 件 | design.md Open Questions #1 で確定した prefix 命名規則の運用ルール明文化検証。SC-14 と関連するが「prefix の具体形が明記されているか」は SC-14 だけでは保証されないため独立 TC として配置。ファイル名衝突回避が機能するためには prefix 規則が成果物本文に書かれている必要がある (将来 roadmap が初めて使われた時に implementer が同じ命名を選ぶことを保証) | - |
+
+### enum 値の早見表
+
+- **実行主体 (`実行主体` 列):** `automated` | `ai-driven` | `manual`
+- **検証スタイル (`検証スタイル` 列):** `assertion` | `scenario` | `observation` | `inspection`
+- **禁止組み合わせ:** `automated × inspection` (本表内では使用なし)
+- **要備考組み合わせ (△):** `ai-driven × assertion`, `manual × assertion`, `manual × observation` — 本表内は採用 0 件
+
+## 実装都合テストケース (TC-IMPL-NNN)
+
+ライブラリ / フレームワーク / OS など、具体実装でのみ発生する防御的分岐を検証するケース。Step 4 では空、Step 6 で implementer が発見した場合のみ追記する。
+
+| ID          | 対象成功基準 | 期待される振る舞い  | 実行主体         | 検証スタイル     | 判定基準             | 必要理由 (必須)   | 備考 |
+| ----------- | ------------ | ------------------- | ---------------- | ---------------- | -------------------- | ----------------- | ---- |
+
+<!-- Step 6 で implementer が必要に応じて追記。Step 4 では空欄。本サイクルは Markdown / YAML 生成のみで実行可能コードを伴わないため、TC-IMPL-NNN が発生する典型的な状況 (ライブラリ仕様で null が返る等) は理論的に発生しにくい。ただし `ggrep` / `gsed` / `yq` 等のコマンド差異で macOS / Linux 動作に違いが出る可能性があり、そのような実装都合の発見があれば本セクションに追記する。 -->
+
+## カバレッジ表
+
+成功基準 → TC-ID の逆引き。Step 8 validator がカバレッジ確認に使用する。本質テスト (TC-NNN) のみが対象。
+
+| 成功基準 ID | 対応する TC-ID | 注記 |
+| ----------- | -------------- | ---- |
+| SC-1        | TC-001, TC-002, TC-003 | スキル本体存在 + frontmatter + 必須セクション 5 種 |
+| SC-2        | TC-004, TC-005, TC-006 | Specialist スキル 3 個存在 + 必須セクション 4 種 (intent-spec の「2 個」は design 確定 1 で 3 個に拡張) |
+| SC-3        | TC-007, TC-008 | エージェント 3 個存在 + description / 参照スキルセクション (intent-spec の「2 個」は design 確定 1 で 3 個に拡張) |
+| SC-4        | TC-009, TC-010, TC-011 | テンプレート 4 + reference 4 + 1:1 対応例外 3 件 (intent-spec の「3 個」は design 確定 1 で 4 個に拡張) |
+| SC-5        | TC-012, TC-013 | 成果物一覧テーブル 4 行追加 + 1:1 例外リスト 3 件目追記 |
+| SC-6        | TC-014, TC-015, TC-016, TC-017 | progress.yaml フィールド追加 + YAML parseable + reference 3 観点 + 既存サイクル diff 0 |
+| SC-7        | TC-018 | ワークフロー開始時セクション追記 |
+| SC-8        | TC-019, TC-020, TC-021 | 新規セクション存在 + 5 観点 (a/b/c/d/e) + grep ≥ 3 件 |
+| SC-9        | TC-022 | README dev-roadmap 段落 |
+| SC-10       | TC-023, TC-024 | references/roadmap-progress-yaml.md 必須セクション + 3 観点 |
+| SC-11       | TC-025 | 仮想マイルストーン分解の説明性 (manual × inspection) |
+| SC-12       | TC-017, TC-026, TC-027, TC-028 | mv 完了 + 旧パス不存在 + 既存サイクル 内容差分 0 (TC-017 は SC-6 と SC-12 にまたがるため 2 重カバー) |
+| SC-13       | TC-029, TC-030 | Specialist 列挙 12 名 + Do NOT use for 列挙更新 |
+| SC-14       | TC-031, TC-032 | docs/roadmap/ 構造記述 + 並列配置説明 + retrospective 集約言及 |
+
+**カバレッジ確認**: 全 14 成功基準が少なくとも 1 つの TC でカバーされている。空行なし。
+
+**「対象成功基準 = (なし)」の TC**: TC-033 (retrospective prefix 命名規則の明記) のみ。Intent Spec L154-164 の未解決事項 #7 が design.md Open Questions #1 で「roadmap-` prefix 案」として確定したが、SC-14 は「保存先言及」までを問うため prefix 具体形の明記は SC-14 単独では保証されない。Step 6 で implementer が SKILL.md / reference を実装する際に prefix 規則を確実に書き込むことを保証するため、独立 TC として配置 (リグレッション防止)。
