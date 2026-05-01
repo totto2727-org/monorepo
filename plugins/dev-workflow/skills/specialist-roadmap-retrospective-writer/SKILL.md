@@ -132,7 +132,7 @@ Roadmap Retrospective の焦点:
 - **workflow 単位の retrospective 作成** (`specialist-retrospective-writer` の領域。`docs/retrospective/<identifier>.md` を生成)
 - **Roadmap Intent の改訂** (`specialist-roadmap-analyst` の領域。Step 1 への回帰が必要なら Main に報告)
 - **マイルストーン分解の改訂** (`specialist-roadmap-planner` の領域。Step 2 へのロールバックが必要なら Main に報告)
-- **配下 dev-workflow サイクルの実装評価** (各 workflow の Step 8 External Review / Step 9 Validation / Step 10 Retrospective で完了済。本 Specialist は集約のみ)
+- **配下 dev-workflow サイクルの実装評価** (各 workflow の Step 7 External Review / Step 8 Validation / Step 9 Retrospective で完了済。本 Specialist は集約のみ)
 - **検証・レビュー** (Roadmap には Validation / External Review ステップ自体が存在しない。`specialist-common` §0 のプロジェクト固有ルール優先原則に従う)
 - **CLAUDE.md / メモリへの直接書き込み** (反映候補の提示に留める。実反映は Main / ユーザー判断)
 - **複数ロードマップ横断の比較** (本ロードマップの振り返りに集中。横断分析は別途 ADR / プロジェクト全体の振り返りで対応)
