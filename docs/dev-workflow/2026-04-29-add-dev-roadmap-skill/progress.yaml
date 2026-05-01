@@ -1,9 +1,9 @@
 identifier: 2026-04-29-add-dev-roadmap-skill
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-05-01T00:00:00Z
+updated_at: 2026-05-01T01:30:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 3: Design (post-rollback revision)'
+current_step: 'Step 4: QA Design (post-rollback revision)'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification (initial)'
@@ -25,6 +25,10 @@ completed_steps:
     completed_at: 2026-05-01T00:00:00Z
     artifacts:
       - intent-spec.md
+  - step: 'Step 3: Design (post-rollback revision)'
+    completed_at: 2026-05-01T01:30:00Z
+    artifacts:
+      - design.md
 
 pending_gates: []
 
@@ -39,9 +43,9 @@ artifacts:
     - research/retrospective-writer-reusability.md
     - research/resumption-protocol-adaptation.md
     - research/progress-yaml-concurrency.md
-  design: design.md # to be revised by new architect instance
-  qa_design: null # to be re-created
-  qa_flow: null # to be re-created
+  design: design.md
+  qa_design: null
+  qa_flow: null
   external_adrs: []
   task_plan: null
   todo: null
@@ -63,6 +67,10 @@ user_approvals:
     approved_at: 2026-05-01T00:00:00Z
     approved_by: user
     notes: 'Approved post-merge revision (9-step system, docs/workflow + docs/roadmap renames, retrospective aggregated path, success criterion #12 redefined).'
+  - gate: 'Step 3: Design (post-rollback revision)'
+    approved_at: 2026-05-01T01:30:00Z
+    approved_by: user
+    notes: 'Auto-approved during user absence; user will batch-review at end. Mechanical rewrites only (paths, step numbers, retrospective aggregation, baseline references).'
 
 rollbacks:
   - from: 'Step 4: QA Design (in_progress)'
