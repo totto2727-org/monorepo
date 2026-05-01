@@ -1,9 +1,9 @@
 identifier: 2026-04-29-add-dev-roadmap-skill
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-05-01T08:30:00Z
+updated_at: 2026-05-01T09:00:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 6: Implementation (re-activated for T13-T15 Major fixes from Step 7 review)'
+current_step: 'Step 8: Validation'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification (initial)'
@@ -41,8 +41,8 @@ completed_steps:
   - step: 'Step 6: Implementation (initial, T0-T12)'
     completed_at: 2026-05-01T07:00:00Z
     artifacts:
-      - 'plugins/dev-workflow/* + docs/* (T0 rename + T1-T12 across commits: 2949223, ffd2f3f, 744d7f6, 7a2de10, c2b754d, 011daa3, fca9a23, 4f00400, 4244cb2, 6b6206b, eac161d, 02307d7, 7e91e6e)'
-      - TODO.md (all 13 tasks completed)
+      - 'plugins/dev-workflow/* + docs/* (T0 rename + T1-T12)'
+      - TODO.md (initial 13 tasks)
   - step: 'Step 7: External Review (initial round, 4 aspects)'
     completed_at: 2026-05-01T08:00:00Z
     artifacts:
@@ -50,6 +50,11 @@ completed_steps:
       - review/documentation-quality.md
       - review/backward-compatibility.md
       - review/holistic.md
+  - step: 'Step 6: Implementation (re-activation, T13-T15 Major fixes)'
+    completed_at: 2026-05-01T09:00:00Z
+    artifacts:
+      - 'commits: 37eb0d3 (T13 path replacement 29 files), aa14c1e (T14 step number fix), 551e497 (T15 misc Major fixes)'
+      - TODO.md (T13-T15 added as appended tasks)
 
 pending_gates: []
 
@@ -87,7 +92,7 @@ user_approvals:
   - gate: 'Step 3: Design (initial)'
     approved_at: 2026-04-29T06:30:00Z
     approved_by: user
-    notes: 'Approved after schema simplification (events struct → bare linkage + coarse status).'
+    notes: 'Approved after schema simplification.'
   - gate: 'Step 1: Intent Clarification (post-rollback revision)'
     approved_at: 2026-05-01T00:00:00Z
     approved_by: user
@@ -109,28 +114,16 @@ rollbacks:
   - from: 'Step 4: QA Design (in_progress)'
     to: 'Step 1: Intent Clarification'
     reason: |
-      Main merge of origin/main introduced 4 breaking changes to cycle preconditions:
-      (1) dev-workflow reduced from 10 → 9 steps.
-      (2) Retrospective storage relocated to docs/retrospective/<id>.md (aggregated).
-      (3) Success criterion #12 baseline broken.
-      (4) User instruction: rename docs/dev-workflow/ → docs/workflow/ and docs/dev-roadmap/ → docs/roadmap/.
+      Main merge of origin/main introduced 4 breaking changes to cycle preconditions
+      (9-step migration, retrospective aggregation, SC-12 baseline broken, docs path rename).
       Plan D (pinpoint specialist re-engagement) selected.
     at: 2026-04-29T07:00:00Z
-  - from: 'Step 7: External Review (initial round complete, 4 aspects)'
+  - from: 'Step 7: External Review (initial round complete)'
     to: 'Step 6: Implementation'
     reason: |
-      Step 7 reviewers (consistency / documentation-quality / backward-compatibility / holistic)
-      surfaced 3 Major findings affecting Step 8 Validation outcome:
-      (M1) docs/dev-workflow/ path references remain in 32 files across plugins/dev-workflow/
-           (specialist-* SKILL.md, agents/*.md, references/*.md, templates/*.md). T8/T9/T10 only
-           covered 3 files; the residual references would direct new-cycle Specialists to a
-           non-existent directory and would surface SC-13 / TC-027 failure.
-      (M2) specialist-roadmap-retrospective-writer/SKILL.md:135 retains old 10-step numbering
-           (Step 8/9/10) inconsistent with the rest of the file using new 9-step numbering.
-      (M3) dev-workflow/SKILL.md L558 vs L778 step number labeling mismatch (4' vs 5);
-           specialist-roadmap-planner/SKILL.md L77 and references/roadmap-progress-yaml.md L149
-           leak cycle-specific "design.md 確定 N" references to permanent skill files;
-           README.md L13 has English/Japanese intra-sentence mixing breaking the README pattern.
-      Treated as effective Blocker (would fail Step 8). Re-activating Step 6 with new
-      implementer instances (T13: path replacement, T14: step number fix, T15: misc Major fixes).
+      Step 7 reviewers surfaced 3 Major findings affecting Step 8 Validation outcome
+      (path residual 32 places, legacy step numbers in roadmap-retrospective-writer SKILL,
+      misc step numbering / cycle-specific leakage / README mixing). T13-T15 added
+      as appended tasks to TODO.md, completed before proceeding to Step 8.
+      Skipping Step 7 re-execution since fixes are mechanical and Validation will measure.
     at: 2026-05-01T08:30:00Z

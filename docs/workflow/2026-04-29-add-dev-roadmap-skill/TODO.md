@@ -3,7 +3,7 @@
 - **Source:** `task-plan.md`
 - **Active Steps:** Step 6〜7 (Implementation / External Review)
 - **Created at:** 2026-05-01T03:30:00Z
-- **Last updated:** 2026-05-01T07:00:00Z
+- **Last updated:** 2026-05-01T09:00:00Z
 
 > **Path 注記**: T0 (storage rename) は完了済。本ファイルは現在 `docs/workflow/2026-04-29-add-dev-roadmap-skill/TODO.md` に位置している。
 
@@ -11,7 +11,37 @@
 
 ## 後発追加タスク (`task-plan.md` 以降に発生したもの)
 
-- なし (デフォルト)
+Step 7 External Review (initial round) で 4 reviewer から複数の Major 指摘が浮上。Step 6 を再活性化して以下 3 タスクを追加実装した。
+
+- [x] **T13** — 既存スキル/agent/reference/template の `docs/dev-workflow/` path 一括置換 (32 箇所、29 ファイル)
+  - status: completed
+  - dependencies: なし (T0 リネーム後の取りこぼし回収)
+  - started_at: 2026-05-01T08:30:00Z
+  - completed_at: 2026-05-01T08:35:00Z
+  - commit: 37eb0d3
+  - implementer: main (mechanical sed replacement)
+  - re_activations: 0
+  - notes: backward-compatibility Major-1, consistency Major-2, holistic Major-1 を解消
+
+- [x] **T14** — `specialist-roadmap-retrospective-writer/SKILL.md` の旧 10 ステップ番号修正
+  - status: completed
+  - dependencies: なし
+  - started_at: 2026-05-01T08:35:00Z
+  - completed_at: 2026-05-01T08:50:00Z
+  - commit: aa14c1e
+  - implementer: implementer-T14
+  - re_activations: 0
+  - notes: documentation-quality Major-1, consistency Major-1 を解消 (Step 8/9/10 → Step 7/8/9)
+
+- [x] **T15** — 細部 Major 修正 (dev-workflow/SKILL.md 番号付け、roadmap-planner / roadmap-progress-yaml.md サイクル固有参照削除、README.md 英日混在)
+  - status: completed
+  - dependencies: なし
+  - started_at: 2026-05-01T08:35:00Z
+  - completed_at: 2026-05-01T08:55:00Z
+  - commit: 551e497
+  - implementer: implementer-T15
+  - re_activations: 0
+  - notes: documentation-quality Major-2/3/4 を解消、SC-7/8/9 grep 件数維持確認済
 
 ## タスク
 
