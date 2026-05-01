@@ -3,7 +3,7 @@
 - **Source:** `task-plan.md`
 - **Active Steps:** Step 6〜7 (Implementation / External Review)
 - **Created at:** 2026-05-01T03:30:00Z
-- **Last updated:** 2026-05-01T04:30:00Z
+- **Last updated:** 2026-05-01T05:30:00Z
 
 > **Path 注記**: T0 (storage rename) は完了済。本ファイルは現在 `docs/workflow/2026-04-29-add-dev-roadmap-skill/TODO.md` に位置している。
 
@@ -35,43 +35,43 @@
   - re_activations: 0
   - notes: 572 lines, all TC-001/002/003/031/032/033 self-checked PASS.
 
-- [ ] **T2** — `specialist-roadmap-analyst/SKILL.md` 新規作成
-  - status: in_progress
+- [x] **T2** — `specialist-roadmap-analyst/SKILL.md` 新規作成
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-01T04:30:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-01T05:00:00Z
+  - commit: 7a2de10
   - implementer: implementer-T2
   - re_activations: 0
-  - notes: -
+  - notes: 113 行、TC-004/006 PASS
 
-- [ ] **T3** — `specialist-roadmap-planner/SKILL.md` 新規作成
-  - status: in_progress
+- [x] **T3** — `specialist-roadmap-planner/SKILL.md` 新規作成
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-01T04:30:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-01T05:05:00Z
+  - commit: c2b754d
   - implementer: implementer-T3
   - re_activations: 0
-  - notes: -
+  - notes: 136 行、TC-004/006 PASS
 
-- [ ] **T4** — `specialist-roadmap-retrospective-writer/SKILL.md` 新規作成
-  - status: in_progress
+- [x] **T4** — `specialist-roadmap-retrospective-writer/SKILL.md` 新規作成
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-01T04:30:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-01T05:10:00Z
+  - commit: 011daa3
   - implementer: implementer-T4
   - re_activations: 0
-  - notes: -
+  - notes: 140 行、TC-005/006/033 PASS
 
 - [ ] **T5** — roadmap 系 Agent 定義 3 個の新規作成
-  - status: pending
+  - status: in_progress
   - dependencies: T2, T3, T4
-  - started_at: -
+  - started_at: 2026-05-01T05:30:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T5
   - re_activations: 0
   - notes: -
 
@@ -85,43 +85,43 @@
   - re_activations: 0
   - notes: TC-014/015/016 PASS. Formatter quirk noted (comment placed before key not after).
 
-- [ ] **T7** — 新規テンプレート/リファレンス 4 セット (roadmap.md / milestone.md / roadmap-progress.yaml / roadmap-retrospective.md)
-  - status: in_progress
+- [x] **T7** — 新規テンプレート/リファレンス 4 セット (roadmap.md / milestone.md / roadmap-progress.yaml / roadmap-retrospective.md)
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-01T04:30:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-01T05:25:00Z
+  - commit: fca9a23
   - implementer: implementer-T7
   - re_activations: 0
-  - notes: 8 ファイル一括、必要なら T7a〜T7d に分割可能 (R6)
+  - notes: 8 ファイル新規。TC-009/010/011/023/024/033 PASS
 
 - [ ] **T8** — `shared-artifacts/SKILL.md` 追記 (成果物一覧 + 1:1 例外 + 保存構造 + path 置換)
-  - status: pending
+  - status: in_progress
   - dependencies: T7
-  - started_at: -
+  - started_at: 2026-05-01T05:30:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T8
   - re_activations: 0
   - notes: -
 
 - [ ] **T9** — `dev-workflow/SKILL.md` 追記 (起動時連携 + roadmap-progress.yaml 更新プロトコル + path 置換)
-  - status: pending
+  - status: in_progress
   - dependencies: T6
-  - started_at: -
+  - started_at: 2026-05-01T05:30:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T9
   - re_activations: 0
   - notes: -
 
 - [ ] **T10** — `specialist-common/SKILL.md` 追記 (Specialist 列挙 9 → 12 + Do NOT use for + path 置換)
-  - status: pending
+  - status: in_progress
   - dependencies: T2, T3, T4
-  - started_at: -
+  - started_at: 2026-05-01T05:30:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T10
   - re_activations: 0
   - notes: -
 
