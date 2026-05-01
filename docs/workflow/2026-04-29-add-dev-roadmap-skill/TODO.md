@@ -3,7 +3,7 @@
 - **Source:** `task-plan.md`
 - **Active Steps:** Step 6〜7 (Implementation / External Review)
 - **Created at:** 2026-05-01T03:30:00Z
-- **Last updated:** 2026-05-01T06:30:00Z
+- **Last updated:** 2026-05-01T07:00:00Z
 
 > **Path 注記**: T0 (storage rename) は完了済。本ファイルは現在 `docs/workflow/2026-04-29-add-dev-roadmap-skill/TODO.md` に位置している。
 
@@ -125,25 +125,25 @@
   - re_activations: 0
   - notes: 12 specialists 列挙、Do NOT use for 拡張、TC-029/030 PASS
 
-- [ ] **T11** — `plugins/dev-workflow/README.md` 追記 (dev-roadmap の位置づけ)
-  - status: in_progress
+- [x] **T11** — `plugins/dev-workflow/README.md` 追記 (dev-roadmap の位置づけ)
+  - status: completed
   - dependencies: T5, T8, T9, T10
   - started_at: 2026-05-01T06:30:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-01T06:50:00Z
+  - commit: 02307d7
   - implementer: implementer-T11
   - re_activations: 0
-  - notes: 収束タスク
+  - notes: TC-022 PASS
 
-- [ ] **T12** — 検証用 manual-tests 手順書 (TC-025 / TC-032)
-  - status: in_progress
+- [x] **T12** — 検証用 manual-tests 手順書 (TC-025 / TC-032)
+  - status: completed
   - dependencies: T1, T7, T8
   - started_at: 2026-05-01T06:30:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-01T06:55:00Z
+  - commit: 7e91e6e
   - implementer: implementer-T12
   - re_activations: 0
-  - notes: -
+  - notes: TC-025 (133 行) / TC-032 (122 行) 手順書
 
 ## 状態遷移ガイド
 

@@ -1,9 +1,9 @@
 identifier: 2026-04-29-add-dev-roadmap-skill
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-05-01T03:00:00Z
+updated_at: 2026-05-01T07:00:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 6: Implementation'
+current_step: 'Step 7: External Review'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification (initial)'
@@ -38,6 +38,11 @@ completed_steps:
     completed_at: 2026-05-01T03:00:00Z
     artifacts:
       - task-plan.md
+  - step: 'Step 6: Implementation'
+    completed_at: 2026-05-01T07:00:00Z
+    artifacts:
+      - 'plugins/dev-workflow/* + docs/* (T0 rename + T1-T12 across commits: 2949223, ffd2f3f, 744d7f6, 7a2de10, c2b754d, 011daa3, fca9a23, 4f00400, 4244cb2, 6b6206b, eac161d, 02307d7, 7e91e6e)'
+      - TODO.md (all 13 tasks completed)
 
 pending_gates: []
 
@@ -57,7 +62,7 @@ artifacts:
   qa_flow: qa-flow.md
   external_adrs: []
   task_plan: task-plan.md
-  todo: null # to be generated at Step 6 start
+  todo: TODO.md
   self_review: null # ステップ廃止 (9 ステップ体系)
   review: []
   validation: null
