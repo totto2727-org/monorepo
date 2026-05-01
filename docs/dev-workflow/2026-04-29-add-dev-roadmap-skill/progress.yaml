@@ -1,23 +1,41 @@
 identifier: 2026-04-29-add-dev-roadmap-skill
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-04-29T07:00:00Z
+updated_at: 2026-05-01T00:00:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 1: Intent Clarification (rolled back from Step 4)'
+current_step: 'Step 3: Design (post-rollback revision)'
 
-completed_steps: []
+completed_steps:
+  - step: 'Step 1: Intent Clarification (initial)'
+    completed_at: 2026-04-29T02:30:00Z
+    artifacts:
+      - intent-spec.md
+  - step: 'Step 2: Research'
+    completed_at: 2026-04-29T03:30:00Z
+    artifacts:
+      - research/existing-skill-structure.md
+      - research/retrospective-writer-reusability.md
+      - research/resumption-protocol-adaptation.md
+      - research/progress-yaml-concurrency.md
+  - step: 'Step 3: Design (initial)'
+    completed_at: 2026-04-29T06:30:00Z
+    artifacts:
+      - design.md
+  - step: 'Step 1: Intent Clarification (post-rollback revision)'
+    completed_at: 2026-05-01T00:00:00Z
+    artifacts:
+      - intent-spec.md
 
-pending_gates:
-  - 'Step 1 user approval (intent-spec.md, post-rollback)'
+pending_gates: []
 
 active_specialists: []
 
 blockers: []
 
 artifacts:
-  intent_spec: intent-spec.md # to be revised by new intent-analyst instance
+  intent_spec: intent-spec.md
   research:
-    - research/existing-skill-structure.md # retained, may need supplementation
+    - research/existing-skill-structure.md
     - research/retrospective-writer-reusability.md
     - research/resumption-protocol-adaptation.md
     - research/progress-yaml-concurrency.md
@@ -27,7 +45,7 @@ artifacts:
   external_adrs: []
   task_plan: null
   todo: null
-  self_review: null
+  self_review: null # ステップ廃止 (9 ステップ体系)
   review: []
   validation: null
   retrospective: null
@@ -41,6 +59,10 @@ user_approvals:
     approved_at: 2026-04-29T06:30:00Z
     approved_by: user
     notes: 'Approved after schema simplification (events struct → bare linkage + coarse status).'
+  - gate: 'Step 1: Intent Clarification (post-rollback revision)'
+    approved_at: 2026-05-01T00:00:00Z
+    approved_by: user
+    notes: 'Approved post-merge revision (9-step system, docs/workflow + docs/roadmap renames, retrospective aggregated path, success criterion #12 redefined).'
 
 rollbacks:
   - from: 'Step 4: QA Design (in_progress)'
