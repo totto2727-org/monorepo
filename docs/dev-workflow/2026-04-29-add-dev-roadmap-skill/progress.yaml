@@ -1,9 +1,9 @@
 identifier: 2026-04-29-add-dev-roadmap-skill
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-05-01T02:30:00Z
+updated_at: 2026-05-01T03:00:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 5: Task Decomposition'
+current_step: 'Step 6: Implementation'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification (initial)'
@@ -34,6 +34,10 @@ completed_steps:
     artifacts:
       - qa-design.md
       - qa-flow.md
+  - step: 'Step 5: Task Decomposition'
+    completed_at: 2026-05-01T03:00:00Z
+    artifacts:
+      - task-plan.md
 
 pending_gates: []
 
@@ -52,8 +56,8 @@ artifacts:
   qa_design: qa-design.md
   qa_flow: qa-flow.md
   external_adrs: []
-  task_plan: null
-  todo: null
+  task_plan: task-plan.md
+  todo: null # to be generated at Step 6 start
   self_review: null # ステップ廃止 (9 ステップ体系)
   review: []
   validation: null
@@ -80,6 +84,10 @@ user_approvals:
     approved_at: 2026-05-01T02:30:00Z
     approved_by: user
     notes: 'Auto-approved during user absence; user will batch-review at end. 33 TCs covering all 14 success criteria.'
+  - gate: 'Step 5: Task Decomposition'
+    approved_at: 2026-05-01T03:00:00Z
+    approved_by: user
+    notes: 'Auto-approved during user absence; user will batch-review at end. 13 tasks, 5 waves, max parallel 4. T0 (git mv rename) is mandatory first task.'
 
 rollbacks:
   - from: 'Step 4: QA Design (in_progress)'
