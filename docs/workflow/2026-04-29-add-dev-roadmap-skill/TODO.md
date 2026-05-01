@@ -3,7 +3,7 @@
 - **Source:** `task-plan.md`
 - **Active Steps:** Step 6〜7 (Implementation / External Review)
 - **Created at:** 2026-05-01T03:30:00Z
-- **Last updated:** 2026-05-01T04:00:00Z
+- **Last updated:** 2026-05-01T04:30:00Z
 
 > **Path 注記**: T0 (storage rename) は完了済。本ファイルは現在 `docs/workflow/2026-04-29-add-dev-roadmap-skill/TODO.md` に位置している。
 
@@ -25,43 +25,43 @@
   - re_activations: 0
   - notes: 70 files renamed at 100% similarity, .gitkeep added.
 
-- [ ] **T1** — `dev-roadmap/SKILL.md` 新規作成
-  - status: in_progress
+- [x] **T1** — `dev-roadmap/SKILL.md` 新規作成
+  - status: completed
   - dependencies: T0
   - started_at: 2026-05-01T04:00:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-01T04:25:00Z
+  - commit: ffd2f3f
   - implementer: implementer-T1
   - re_activations: 0
-  - notes: -
+  - notes: 572 lines, all TC-001/002/003/031/032/033 self-checked PASS.
 
 - [ ] **T2** — `specialist-roadmap-analyst/SKILL.md` 新規作成
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-01T04:30:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T2
   - re_activations: 0
   - notes: -
 
 - [ ] **T3** — `specialist-roadmap-planner/SKILL.md` 新規作成
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-01T04:30:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T3
   - re_activations: 0
   - notes: -
 
 - [ ] **T4** — `specialist-roadmap-retrospective-writer/SKILL.md` 新規作成
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-01T04:30:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T4
   - re_activations: 0
   - notes: -
 
@@ -75,23 +75,23 @@
   - re_activations: 0
   - notes: -
 
-- [ ] **T6** — `progress.yaml` テンプレート + reference 拡張 (`roadmap` ネストブロック)
-  - status: in_progress
+- [x] **T6** — `progress.yaml` テンプレート + reference 拡張 (`roadmap` ネストブロック)
+  - status: completed
   - dependencies: T0
   - started_at: 2026-05-01T04:00:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-01T04:25:00Z
+  - commit: 744d7f6
   - implementer: implementer-T6
   - re_activations: 0
-  - notes: -
+  - notes: TC-014/015/016 PASS. Formatter quirk noted (comment placed before key not after).
 
 - [ ] **T7** — 新規テンプレート/リファレンス 4 セット (roadmap.md / milestone.md / roadmap-progress.yaml / roadmap-retrospective.md)
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-01T04:30:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T7
   - re_activations: 0
   - notes: 8 ファイル一括、必要なら T7a〜T7d に分割可能 (R6)
 
