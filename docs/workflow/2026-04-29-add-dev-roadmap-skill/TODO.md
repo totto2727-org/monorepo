@@ -3,9 +3,9 @@
 - **Source:** `task-plan.md`
 - **Active Steps:** Step 6〜7 (Implementation / External Review)
 - **Created at:** 2026-05-01T03:30:00Z
-- **Last updated:** 2026-05-01T03:30:00Z
+- **Last updated:** 2026-05-01T04:00:00Z
 
-> **Path 注記**: T0 (storage rename) 完了後、本ファイル自身が `docs/workflow/2026-04-29-add-dev-roadmap-skill/TODO.md` に移動する。Step 6 implementer は移動後パスで作業を継続。
+> **Path 注記**: T0 (storage rename) は完了済。本ファイルは現在 `docs/workflow/2026-04-29-add-dev-roadmap-skill/TODO.md` に位置している。
 
 このファイルは**永続化されたタスク状態**。Main 内部の `TaskCreate` タスクリストと同期するが、**こちらが真のソース**。状態変化時は TODO.md 更新 → コミット → TaskUpdate の順で実行する。
 
@@ -15,23 +15,23 @@
 
 ## タスク
 
-- [ ] **T0** — 保存先ディレクトリの一括リネーム (`docs/dev-workflow/` → `docs/workflow/`、`docs/roadmap/` 新規作成)
-  - status: pending
+- [x] **T0** — 保存先ディレクトリの一括リネーム (`docs/dev-workflow/` → `docs/workflow/`、`docs/roadmap/` 新規作成)
+  - status: completed
   - dependencies: なし
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-01T03:35:00Z
+  - completed_at: 2026-05-01T03:50:00Z
+  - commit: 2949223
+  - implementer: main (mechanical git mv only)
   - re_activations: 0
-  - notes: 必須先行・単独コミット。`git mv` のみで内容変更なし。
+  - notes: 70 files renamed at 100% similarity, .gitkeep added.
 
 - [ ] **T1** — `dev-roadmap/SKILL.md` 新規作成
-  - status: pending
+  - status: in_progress
   - dependencies: T0
-  - started_at: -
+  - started_at: 2026-05-01T04:00:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T1
   - re_activations: 0
   - notes: -
 
@@ -76,12 +76,12 @@
   - notes: -
 
 - [ ] **T6** — `progress.yaml` テンプレート + reference 拡張 (`roadmap` ネストブロック)
-  - status: pending
+  - status: in_progress
   - dependencies: T0
-  - started_at: -
+  - started_at: 2026-05-01T04:00:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T6
   - re_activations: 0
   - notes: -
 
