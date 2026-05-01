@@ -775,7 +775,7 @@ docs(dev-workflow/<identifier>): close cycle with retrospective
 
 | タイミング | 更新内容 |
 | ---------- | -------- |
-| **(a) サイクル開始時** (「ワークフロー開始時」のステップ 5「roadmap 配下サイクルの追加初期化」と同タイミング、`progress.yaml` 初期化と一体) | 該当 `milestones[].status` を `planned → active` に遷移、`milestones[].workflow_identifiers[]` に自身の `<identifier>` を append、`roadmap-progress.yaml.updated_at` を更新 |
+| **(a) サイクル開始時** (「ワークフロー開始時」のステップ 4'「roadmap 配下サイクルの追加初期化」と同タイミング、`progress.yaml` 初期化と一体) | 該当 `milestones[].status` を `planned → active` に遷移、`milestones[].workflow_identifiers[]` に自身の `<identifier>` を append、`roadmap-progress.yaml.updated_at` を更新 |
 | **(c) サイクル完了時** (= **Step 9 Retrospective** 完了時、9 ステップ体系) | 該当 `milestones[].status` を `active → completed` に遷移、`roadmap-progress.yaml.updated_at` を更新。並行サイクルが残っている場合 (= `workflow_identifiers[]` の他のサイクルがまだ `active`) は、当該マイルストーンの最終状態判定 (例:「全 N サイクル完了で `completed`」「最初の 1 サイクル完了で `completed`」のいずれを採るか) をユーザー判断に委ね、`dev-roadmap` 側の手順で確定させる |
 
 ### (b) 各ステップ完了時の進捗サマリ反映 — 本バージョンでは scope out

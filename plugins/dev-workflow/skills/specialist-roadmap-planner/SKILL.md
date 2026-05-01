@@ -74,7 +74,7 @@ metadata:
    - マイルストーン間の前後関係 (技術的前提 / 検証順序 / リリース順序) を整理
    - サイクル (循環依存) が発生していないか確認 (DAG 性検証)
    - 並列実行可能なマイルストーン群を識別
-   - **記法は `graph LR` で統一** (既存 `task-plan.md` / `qa-flow.md` のパターンと整合、本ロードマップ確定 4)
+   - **記法は `graph LR` で統一** (既存 `task-plan.md` / `qa-flow.md` のパターンと整合、`shared-artifacts/references/qa-flow.md` 等で標準採用)
 4. **マイルストーン単票生成**: 各マイルストーンについて `templates/milestone.md` をコピーして `milestones/<milestone-id>.md` を作成し、以下を埋める:
    - 目的・到達点 (定性、ただし観測可能な完了条件)
    - 依存マイルストーン (前段に完了している必要があるもの)
