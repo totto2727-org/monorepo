@@ -1,9 +1,9 @@
 identifier: 2026-04-29-add-dev-roadmap-skill
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-05-01T09:00:00Z
+updated_at: 2026-05-01T10:00:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 8: Validation'
+current_step: 'Step 9: Retrospective'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification (initial)'
@@ -41,7 +41,7 @@ completed_steps:
   - step: 'Step 6: Implementation (initial, T0-T12)'
     completed_at: 2026-05-01T07:00:00Z
     artifacts:
-      - 'plugins/dev-workflow/* + docs/* (T0 rename + T1-T12)'
+      - 'plugins/dev-workflow/* + docs/* (T0-T12 commits)'
       - TODO.md (initial 13 tasks)
   - step: 'Step 7: External Review (initial round, 4 aspects)'
     completed_at: 2026-05-01T08:00:00Z
@@ -53,8 +53,16 @@ completed_steps:
   - step: 'Step 6: Implementation (re-activation, T13-T15 Major fixes)'
     completed_at: 2026-05-01T09:00:00Z
     artifacts:
-      - 'commits: 37eb0d3 (T13 path replacement 29 files), aa14c1e (T14 step number fix), 551e497 (T15 misc Major fixes)'
-      - TODO.md (T13-T15 added as appended tasks)
+      - 'commits: 37eb0d3, aa14c1e, 551e497'
+      - TODO.md (T13-T15 added)
+  - step: 'Step 8: Validation'
+    completed_at: 2026-05-01T10:00:00Z
+    artifacts:
+      - validation-report.md
+      - validation-evidence/sc12-baseline-diff.txt
+      - validation-evidence/sc13-specialist-enumeration.txt
+      - validation-evidence/sc7-8-9-grep-counts.txt
+      - validation-evidence/tc015-yaml-parse-after-substitution.txt
 
 pending_gates: []
 
@@ -81,14 +89,14 @@ artifacts:
     - review/documentation-quality.md
     - review/backward-compatibility.md
     - review/holistic.md
-  validation: null
+  validation: validation-report.md
   retrospective: null
 
 user_approvals:
   - gate: 'Step 1: Intent Clarification (initial)'
     approved_at: 2026-04-29T02:30:00Z
     approved_by: user
-    notes: 'Approved after schema correction (flat → nested roadmap block).'
+    notes: 'Approved after schema correction.'
   - gate: 'Step 3: Design (initial)'
     approved_at: 2026-04-29T06:30:00Z
     approved_by: user
@@ -109,21 +117,22 @@ user_approvals:
     approved_at: 2026-05-01T03:00:00Z
     approved_by: user
     notes: 'Auto-approved during user absence.'
+  - gate: 'Step 8: Validation'
+    approved_at: 2026-05-01T10:00:00Z
+    approved_by: user
+    notes: 'Auto-approved during user absence; all 14 success criteria PASS.'
 
 rollbacks:
   - from: 'Step 4: QA Design (in_progress)'
     to: 'Step 1: Intent Clarification'
     reason: |
-      Main merge of origin/main introduced 4 breaking changes to cycle preconditions
-      (9-step migration, retrospective aggregation, SC-12 baseline broken, docs path rename).
+      Main merge of origin/main introduced 4 breaking changes to cycle preconditions.
       Plan D (pinpoint specialist re-engagement) selected.
     at: 2026-04-29T07:00:00Z
   - from: 'Step 7: External Review (initial round complete)'
     to: 'Step 6: Implementation'
     reason: |
-      Step 7 reviewers surfaced 3 Major findings affecting Step 8 Validation outcome
-      (path residual 32 places, legacy step numbers in roadmap-retrospective-writer SKILL,
-      misc step numbering / cycle-specific leakage / README mixing). T13-T15 added
-      as appended tasks to TODO.md, completed before proceeding to Step 8.
-      Skipping Step 7 re-execution since fixes are mechanical and Validation will measure.
+      3 Major findings affecting Step 8 outcome (path residual, legacy step numbers,
+      misc cycle-specific leakage). T13-T15 added; Step 7 re-execution skipped since
+      fixes were mechanical.
     at: 2026-05-01T08:30:00Z

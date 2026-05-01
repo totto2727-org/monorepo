@@ -1,0 +1,13 @@
+# Grep counts evidence (SC-7 / SC-8 / SC-9)
+
+## SC-7: roadmap word count in plugins/dev-workflow/skills/dev-workflow/SKILL.md (target ≥ 1)
+17
+
+## SC-8: roadmap-progress.yaml count (target ≥ 3)
+11
+
+## SC-9: README dev-roadmap line count (target ≥ 1)
+1
+
+## SC-9: README strategic-layer keyword line count (target ≥ 1)
+1
