@@ -1,0 +1,18 @@
+# `dev-roadmap` のロードマップ進捗管理 yaml。
+# `docs/roadmap/feed-platform/roadmap-progress.yaml` に配置。
+# 書き方の詳細は `shared-artifacts/references/roadmap-progress-yaml.md` を参照。
+#
+# 設計方針 (最小限の責務): 「マイルストーン ↔ workflow identifier の紐付け」と粗粒度ステータス
+# (planned / active / completed / blocked / cancelled) のみを保持する。細かい進捗 (現在ステップ
+# 名、ゲート状況、詳細イベント履歴) は持たず、必要時は `milestones[].workflow_identifiers[]`
+# 経由で `docs/workflow/<identifier>/progress.yaml` を辿って取得する。
+
+roadmap_id: feed-platform
+title: Pluggable Multi-Source Feed Platform
+status: planned
+created_at: 2026-05-02T13:29:59Z
+updated_at: 2026-05-02T13:29:59Z
+
+# マイルストーン一覧。Step 2 (Milestone Decomposition) で `roadmap-planner` が確定する。
+# Step 1 段階では空配列で固定 (本ステップではマイルストーンを確定しない)。
+milestones: []
