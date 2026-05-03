@@ -1,0 +1,123 @@
+# QA Design: dev-workflow への Draft PR / PR 概要更新 / バックグラウンド CI 連携の統合
+
+- **Identifier:** 2026-05-03-pr-ci-integration
+- **Author:** qa-analyst (Step 4 専任、単一インスタンス)
+- **Source:** `docs/workflow/2026-05-03-pr-ci-integration/intent-spec.md`, `docs/workflow/2026-05-03-pr-ci-integration/design.md`
+- **Created at:** 2026-05-03
+- **Last updated:** 2026-05-03
+- **Status:** draft
+
+このドキュメントは **Step 4 で確定する本質テスト設計**。Step 6 (Implementation) で implementer が「実装段階で発見されたテスト」を継続採番で TC-IMPL-NNN セクションに追記する。書き方の詳細は `plugins/dev-workflow/skills/shared-artifacts/references/qa-design.md` を参照。
+
+## 概要
+
+`intent-spec.md` の SC-1〜SC-8 を観測可能なテストケースに分解する。SC-1〜SC-4 は **SKILL.md ファイル群へのドキュメント追記** (静的検証 = grep)、SC-5〜SC-8 は **本サイクル PR #95 自身のドッグフード** (動的検証 = gh CLI で GitHub の実状態を読む) に分かれる。テストフレームワーク (Vitest / Playwright 等) には依存せず、bash + `grep` + `gh` CLI の抽象レベルで判定基準を記述する。
+
+成功基準の再掲 (深掘り後):
+
+- **SC-1**: `plugins/dev-workflow/skills/dev-workflow/SKILL.md` に「Draft PR」関連語が 1 件以上存在し、かつ「`initialize cycle` コミットと同時に作成」相当の文言が含まれる
+- **SC-2**: 同 SKILL.md に「PR 概要 / description / overview / プルリクエスト概要 / pull request description」関連語が 2 件以上存在し、かつ「各ステップ完了時に必ず」「適宜」相当のタイミング表現が含まれる
+- **SC-3**: 同 SKILL.md に「CI / continuous integration / gh run」が 3 件以上、「2 回 / 二回 / retry / リトライ」が 1 件以上存在し、Blocker / In-Progress ユーザー問い合わせとの接続が文中で示される
+- **SC-4**: 同 SKILL.md の Step 9 セクション (または直近セクション) に「Ready (for review|化) / ready_for_review / undraft」関連語が 1 件以上存在
+- **SC-5**: 本サイクルブランチに対応する PR が GitHub 上で `isDraft: true` で作成され、`initialize cycle` 相当のコミットが PR に含まれる
+- **SC-6**: 本サイクル PR の description が初期作成時から複数回更新されたトレースが GitHub timeline で読み取れる
+- **SC-7**: 本サイクル中の各 Step 完了コミット (Step 6 はタスク単位コミット) に紐付く CI run の最終 conclusion が `success` (リトライ後の最終結果でよい)
+- **SC-8**: Step 9 完了コミット以降に本サイクル PR が `isDraft: false` (Ready) になっており、`ready_for_review` イベントが Step 9 コミット時刻以降である
+
+## 自動 vs 手動の判断方針
+
+本サイクルの観測対象は **(a) リポジトリ内のテキストファイル** と **(b) GitHub 上の PR / Workflow Run の状態** の 2 種に集約され、両者とも CLI で機械的に再現可能な観測値を持つ。したがって本サイクルでは原則として `automated × assertion` (静的 grep) と `automated × scenario` (動的 gh CLI シナリオ) を主軸に据え、`manual` / `inspection` は採用しない。
+
+具体的判断:
+
+- **SC-1〜SC-4 (SKILL.md 改修)**: 改修後ファイルに対する `grep -c` / `grep -nE` の件数判定で完結する。`automated × assertion`。プロジェクト固有の言語スキルやテストランナーを使う必要はなく、bash + GNU grep のみで再現可能 (本リポは macOS のため `grep` ではなく `grep` (BSD) も使えるが、互換性のため拡張正規表現は `-E` で明示)。
+- **SC-5 / SC-8 (PR の Draft / Ready 状態)**: `gh pr list --json` / `gh pr view --json isDraft` の単一クエリで `isDraft: true` / `false` を判定。`automated × assertion` (単一状態の等価判定)。
+- **SC-6 (PR description 更新トレース)**: PR タイムラインを `gh api .../timeline` で取得し、`event: "renamed"` または `event` が description 編集を示すイベント (REST API では `event: "edited"` ではなく PullRequestReview や IssueComment と区別) を集計する必要があり、複数ステップのフローを伴う。`automated × scenario`。
+- **SC-7 (各ステップ完了コミット CI が最終 PASS)**: ブランチ上の各完了コミット SHA を `git log --grep` で抽出 → 各 SHA に対し `gh run list --branch <branch> --commit <sha> --workflow CI --json conclusion,status,attempt` を発行 → 全件で最新 attempt の `conclusion == success` を確認。`automated × scenario` (順次実行を伴う)。
+- **CI 実行時間 (オーバーヘッド観測)**: design.md 「パフォーマンス予測」で約 18〜25 分と見積もり済みだが、SC として明示されていないため本サイクルのテストケースには含めない (`observation` カテゴリは未使用)。
+- **`automated × inspection` (禁止組み合わせ)** は本サイクルでは発生しない。すべて grep / gh CLI で機械的に判定可能。
+- **`manual × *`** は本サイクルでは発生しない (人間目視判定対象がない)。`ai-driven × *` も同様で、AI エージェントによる動的判断は不要。
+
+ドッグフード性の観測点: SC-5〜SC-8 はいずれも本サイクル PR (`gh pr list --head <本サイクルブランチ>` で取得される PR、design.md L286 想定では PR #95) を観測対象とする。Step 8 Validator は本サイクル PR が GitHub 上で実体を持っていることを前提に検証する (Step 8 実行時点で PR 番号が確定している必要があるため、Step 8 の入力にブランチ名 / PR 番号を含める想定)。
+
+## テストファイル配置ポリシー
+
+本サイクルの成果物は **ドキュメント (SKILL.md / progress-yaml.md)** と **GitHub 上の PR 状態** であり、コード単体テストの配置先 (例: `foo.test.ts`) は存在しない。配置ポリシーは以下のカテゴリに集約する:
+
+- **`automated × assertion` (SC-1〜SC-4 grep 検証)**: テスト本体は Step 8 Validator が `validation-report.md` 内で実行する shell コマンドとして記述する。リポジトリ内には独立したテストファイルを配置しない (コマンド再現可能性は `validation-report.md` の手順記述でのみ担保)。具体パスは Step 5 Task Decomposition / Step 8 で確定する。
+- **`automated × scenario` (SC-5〜SC-8 gh CLI 検証)**: 同上、Step 8 Validator が `validation-report.md` に検証コマンド + 期待出力を記述する形式で実装する。永続化されたシェルスクリプトファイル (`scripts/validate-sc-5.sh` 等) は本サイクルでは作成しない (Intent Spec L36 「成果物として永続化する仕組みは作らない」と整合し、検証用の永続ファイルも最小化する方針)。
+- **手順書 / 補助メモ**: 本サイクルでは不要 (`manual × inspection` を使わないため)。
+
+具体的なファイルパスは Step 5 (planner) で `task-plan.md` にて、Step 6 (implementer) でコミット時に確定する。
+
+## 本質テストケース (TC-NNN)
+
+仕様レベル (intent-spec.md / design.md) で表現可能な振る舞いを検証するケース。コマンド例の `<branch>` は本サイクルブランチ (現状 `main` を base として作業中だが、Step 8 実行時に確定したブランチ名を Validator が代入)、`<num>` は本サイクル PR 番号、`<sha>` は対象コミット SHA、`<id>` は `2026-05-03-pr-ci-integration` を指す。
+
+| ID     | 対象成功基準 | 期待される振る舞い | 実行主体  | 検証スタイル | 判定基準 | 必要理由 (条件付き) | 備考 |
+| ------ | ------------ | ----------------- | --------- | ------------ | -------- | ------------------- | ---- |
+| TC-001 | SC-1 | `dev-workflow/SKILL.md` に「Draft PR」関連語が 1 件以上存在する | automated | assertion | `grep -cE "(Draft PR\|draft pull request\|Draft Pull Request)" plugins/dev-workflow/skills/dev-workflow/SKILL.md` の出力が `1` 以上 | - | - |
+| TC-002 | SC-1 | 「Draft PR」関連箇所に「`initialize cycle` コミットと同時に作成」相当の文言が含まれる | automated | assertion | `grep -nE "initialize cycle" plugins/dev-workflow/skills/dev-workflow/SKILL.md` で 1 件以上ヒットし、かつヒット行の前後 5 行以内に「Draft PR」言及がある (コンテキスト確認は `grep -B5 -A5 "initialize cycle"` で行間の関連を目視/正規表現で確定) | - | grep の前後コンテキスト判定は `grep -B5 -A5` の出力に「Draft PR」が含まれることで代替判定 |
+| TC-003 | SC-2 | `dev-workflow/SKILL.md` に「PR 概要 / description / overview / プルリクエスト概要 / pull request description」が合計 2 件以上存在する | automated | assertion | `grep -cE "(PR (概要\|description\|overview)\|プルリクエスト概要\|pull request description)" plugins/dev-workflow/skills/dev-workflow/SKILL.md` の出力が `2` 以上 | - | - |
+| TC-004 | SC-2 | PR 概要更新タイミングとして「各ステップ完了時に必ず」と「適宜 (内容変化時)」の両方が記述される | automated | assertion | `grep -E "(各ステップ完了時\|各 Step 完了時\|ステップ完了時に必ず)" SKILL.md` が 1 件以上 **かつ** `grep -E "(適宜\|随時\|内容変化)" SKILL.md` が 1 件以上 (両条件 AND) | - | - |
+| TC-005 | SC-3 | `dev-workflow/SKILL.md` に「CI / continuous integration / gh run」関連語が 3 件以上存在する | automated | assertion | `grep -cE "(CI\|continuous integration\|gh run)" plugins/dev-workflow/skills/dev-workflow/SKILL.md` の出力が `3` 以上 | - | - |
+| TC-006 | SC-3 | 「2 回 / 二回 / retry / リトライ」が 1 件以上存在する | automated | assertion | `grep -cE "(2 回\|二回\|retry\|リトライ)" plugins/dev-workflow/skills/dev-workflow/SKILL.md` の出力が `1` 以上 | - | - |
+| TC-007 | SC-3 | CI 失敗 → 2 回リトライ → Blocker 化 → ユーザー判断の連鎖が文中で接続されている | automated | assertion | `grep -E "(Blocker\|In-Progress)" SKILL.md` が 1 件以上ヒットし、かつ「リトライ」/「2 回」のいずれかと同一セクション内 (新セクション「サイクル PR と CI 連携プロトコル」配下) に存在する。`awk` で見出し範囲を切り出した部分文字列に対し両語が共存することを確認 | - | 「同一セクション」判定は新セクション開始 (`^## サイクル PR と CI 連携プロトコル`) から次の `^## ` までの範囲を `awk '/^## サイクル PR と CI 連携プロトコル/,/^## /'` で抽出し、その中で 2 件 grep する |
+| TC-008 | SC-4 | `dev-workflow/SKILL.md` の Step 9 セクション (または直近セクション) に「Ready (for review\|化) / ready_for_review / undraft」関連語が 1 件以上存在する | automated | assertion | Step 9 セクション (`^### Step 9` または `^## .*Retrospective` から次の同階層見出しまで) を `awk` で抽出し、`grep -cE "(Ready (for review\|化)\|ready_for_review\|undraft)"` の出力が `1` 以上 | - | Step 9 セクションの正確な見出しは Step 6 で確定するため、Validator は実装後に見出しを特定する |
+| TC-009 | (なし) | 改修対象 SKILL.md 改修後に既存セクションが破壊されていない (`## サイクル全体の流れ` / `## 各ステップの責務` / `## ステップ完了時のコミット規約` 等の主要見出しが存続する) | automated | assertion | `grep -cE "^## (サイクル全体の流れ\|各ステップの責務\|ステップ完了時のコミット規約)" plugins/dev-workflow/skills/dev-workflow/SKILL.md` の出力が `3` 以上 (3 つの主要見出しがすべて存続) | リグレッション防止: design.md L41 で「既存『コミット規約』セクションは維持したまま、その直後に新セクションを独立させる」と明記されている。改修時の見出し誤削除 / 誤改名を検知する | - |
+| TC-010 | (なし) | `specialist-common/SKILL.md` §7 に PR 操作 = Main 専属の 1 行が追記されている | automated | assertion | `grep -cE "(PR 操作.*Main\|gh pr (create\|edit\|ready).*Main)" plugins/dev-workflow/skills/specialist-common/SKILL.md` の出力が `1` 以上 (パターンは Step 6 文言確定に応じて Validator が調整) | 設計上必要な前提条件 (design.md コンポーネント B / 代替案 5 案 A): `specialist-common §7` への 1 行追記がないと「Specialist が PR 操作してよいか」が不明確のまま残り、Single-Source 原則違反の余地が残る。本サイクルの SC には明示されていないが design.md で実施が確定しているため独立 TC として観測する | - |
+| TC-011 | (なし) | `progress-yaml.md` `### blockers` セクションに CI failure 記録例が追記されている | automated | assertion | `awk '/^### blockers/,/^### /' plugins/dev-workflow/skills/shared-artifacts/references/progress-yaml.md` で `### blockers` セクションを抽出し、その中で `grep -cE "(CI .*失敗\|CI failure\|oxfmt)"` の出力が `1` 以上 | 設計上必要な前提条件 (design.md コンポーネント C / 代替案 7 案 A): CI failure を `blockers[]` の自由テキストで記録するスタイル例がないと、Step 6 implementer や将来サイクルの Main がスタイルを推測する必要が残る。本サイクルの SC には明示されていないが design.md で「最小・任意」として実施が見込まれているため観測する | design.md L92 で「任意・推奨」とされているため、未追記でも本サイクル成功は崩れない。Step 8 で「未追記」が判明した場合は Validator が `pending` として記録 |
+| TC-012 | SC-5 | 本サイクルブランチに対応する PR が GitHub 上に存在し、作成時点で `isDraft: true` である | automated | assertion | `gh pr list --state all --search "2026-05-03-pr-ci-integration" --json number,isDraft,createdAt` の出力が JSON 配列で 1 件以上、その PR の作成時点 (= 1 件目の commit による create event) において `isDraft: true` であった証拠を `gh api repos/<owner>/<repo>/pulls/<num>/timeline` の `convert_to_draft` イベント不在 + 作成直後の状態で判定 | - | 「作成時点で Draft」の証拠は (a) PR 作成 commit 直後の `gh pr view <num> --json isDraft` の値が `true` であった事実、または (b) `convert_to_draft` イベントが存在しないこと、のいずれかで判定する。Step 8 実施時点では作成済みのため、Validator は当該 PR の timeline を取得して判定する |
+| TC-013 | SC-5 | 本サイクル PR に `docs(dev-workflow/2026-05-03-pr-ci-integration): initialize cycle` 相当のコミットが含まれる | automated | assertion | `gh pr view <num> --json commits --jq '.commits[].messageHeadline'` を取得し、`grep -cE "docs\(dev-workflow/2026-05-03-pr-ci-integration\): initialize cycle"` の出力が `1` 以上 | - | 「相当」の許容: メッセージプレフィックスが `docs(dev-workflow/<id>):` で本文に `initialize cycle` を含む形式であれば合格 |
+| TC-014 | SC-5 | 本サイクル PR の本文 (description) に最低限「サイクル概要 / Step 進捗 / 関連 issue (あれば)」相当が含まれる | automated | assertion | `gh pr view <num> --json body --jq '.body'` を取得し、以下 3 パターンが順に存在: (1) `## Summary` 見出し、(2) `## Cycle artefacts` 見出し、(3) `## Progress checklist` 見出し。各見出しで `grep -cE "^## (Summary\|Cycle artefacts\|Progress checklist)"` の合計が `3` 以上 | - | design.md L102-L153 のテンプレートに沿う。Step 1 完了時点では Cycle artefacts に intent-spec のみ、Progress checklist は Step 1 のみ `[x]` が想定 |
+| TC-015 | SC-6 | 本サイクル PR の description が初期作成時から複数回更新されている | automated | scenario | (1) `gh api repos/<owner>/<repo>/issues/<num>/timeline --paginate` で全イベントを取得 → (2) `event` フィールドのうち PR 本文編集に対応するイベント (実際の event 名は GitHub API 仕様に従い `renamed` / `edited` / `body_changed` 等を Validator が確定) を `jq` で抽出 → (3) 件数が **2 件以上** (= 初期作成 + 1 回以上の更新) | - | GitHub Issue/PR の timeline で description 編集イベントの正式名は API 仕様に依存するため、Validator は実機で `gh api .../timeline --paginate \| jq '.[] \| .event'` を一度実行して該当 event 名を特定してから集計する |
+| TC-016 | SC-6 | 各 Step 完了タイミング (= ステップ完了コミットの author date) と description 更新タイミングが整合する (各 Step 完了コミット時刻以降に少なくとも 1 件の description 更新イベントが存在) | automated | scenario | (1) `git log --oneline --grep="^docs(dev-workflow/<id>):"` で各 Step 完了コミット SHA と committer date を取得 → (2) 各 SHA の date の後に発生した timeline 編集イベントの created_at が 1 件以上存在することを `jq` で確認 → (3) Step 1〜9 のうち実施済みの全ステップで条件成立 | - | 「実施済みの全ステップ」は Step 8 実施時点で確定している Step 集合 (Step 1〜Step 8 終了時点なら Step 1〜7 が対象、Step 9 で本 TC を再実行する場合は Step 1〜8 が対象) を指す |
+| TC-017 | SC-7 | 本サイクル中の各ステップ完了コミット (Step 6 はタスク単位コミット) の CI が最終的に `success` である | automated | scenario | (1) `git log --oneline <branch>` でブランチ全コミット SHA リストを取得 → (2) 各 SHA に対し `gh run list --branch <branch> --commit <sha> --workflow CI --json conclusion,status,attempt,databaseId --jq '.[0]'` で最新試行を取得 → (3) すべての SHA で `.conclusion == "success"` (リトライ後の最新 attempt が success ならよい) | - | `gh run list` のデフォルトは最新 attempt を返す (`gh-cli.md` F-5)。失敗 → 修正 push → success のケースでは古い failure run record は別 SHA (修正コミット) に紐付くため、対象 SHA 列の最新試行が success であれば合格。Step 6 タスクごとの個別コミット SHA も漏れなく検証 |
+| TC-018 | SC-7 | CI 失敗 → リトライ (新規コミット push) のケースが発生した場合、リトライ回数が 2 回以下である | automated | scenario | (1) ブランチの全 CI run を `gh run list --branch <branch> --workflow CI --limit 100 --json conclusion,headSha,createdAt` で取得 → (2) `conclusion == "failure"` の run を Step 単位にグルーピング (= 同一 Step 完了の前段で失敗した run の連続) → (3) 各 Step グループの failure 連続数が **2 以下** (3 回目の失敗が出ていれば違反) | - | design.md 代替案 3 案 A 採用案: 「新規コミット push を 1 リトライとカウント、最大 2 回」。3 回目失敗 = Blocker 化のため、3 回連続 failure が観測されればリトライ規律違反 (= TC 失敗ではなく、Blocker フローへの遷移を観測) |
+| TC-019 | SC-7 | CI 失敗が 2 回続いた Step については、`progress.yaml.blockers[]` に該当エントリが記録される | automated | scenario | (1) Step 単位で CI 失敗 2 回連続が観測された Step を TC-018 の手順 (2) で特定 → (2) `docs/workflow/<id>/progress.yaml` の `blockers` フィールドを `yq '.blockers[]'` で抽出 → (3) 該当 Step を含む `blockers` エントリが 1 件以上存在し、かつ「CI」「失敗」「リトライ」相当語を含む | - | 該当ケースが発生しなかった場合 (= 全 Step が 1 回目またはリトライ 1 回で PASS) は本 TC は `skip [該当ケースなし]` として扱う。Step 8 Validator は該当ケース発生有無を先に判定する |
+| TC-020 | SC-8 | Step 9 完了後、本サイクル PR が `isDraft: false` (Ready) になっている | automated | assertion | `gh pr view <num> --json isDraft --jq '.isDraft'` の出力が `false` | - | - |
+| TC-021 | SC-8 | `ready_for_review` イベントの created_at が Step 9 完了コミットの committer date 以降である | automated | scenario | (1) `git log -1 --format=%cI <step9_sha>` で Step 9 完了コミット時刻を取得 → (2) `gh api repos/<owner>/<repo>/issues/<num>/timeline --paginate --jq '.[] \| select(.event == "ready_for_review") \| .created_at'` で Ready 化イベントの ISO8601 タイムスタンプを取得 → (3) (2) > (1) (= Ready 化が Step 9 commit 以降) | - | `gh-cli.md` F-4 で `readyForReviewAt` フィールドが `gh pr view --json` のフィールド一覧にないため、timeline イベントから確定する代替手順 |
+| TC-022 | (なし) | Ready 化操作が冪等に実行できる (既に Ready の PR に `gh pr ready` を再実行しても破壊的にならない) | automated | scenario | (1) `gh pr view <num> --json isDraft` で `false` を確認 → (2) design.md L257 のシェルブロック擬似コードに従って `if [ "$IS_DRAFT" = "true" ]` 分岐により `gh pr ready` がスキップされる挙動を確認 (= 実際の `gh pr ready` 呼び出しが発生しないこと) → (3) Step 8 Validator がこの分岐ロジックの存在を SKILL.md 内のシェルブロック内で grep 確認 (`grep -cE 'if \[ "\$IS_DRAFT" = "true" \]' SKILL.md` が 1 以上) | リグレッション防止 / セキュリティ要件: design.md L257 / `gh-cli.md` F-2 で「既に Ready の PR への `gh pr ready` 再実行は未保証」と判明しており、冪等性ガードが SKILL.md に書かれていることを観測する。SC-8 の単純な `isDraft: false` 確認だけでは冪等性ガードの存在は保証されない | 動的に二度叩く検証は本サイクル外 (PR を Draft に戻して再 Ready 化するテスト操作は副作用が大きい)。SKILL.md 内の擬似コードに冪等性ガードが含まれているかの静的確認で代替 |
+
+### enum 値の早見表
+
+- **実行主体 (`実行主体` 列):** `automated` | `ai-driven` | `manual`
+- **検証スタイル (`検証スタイル` 列):** `assertion` | `scenario` | `observation` | `inspection`
+- **禁止組み合わせ:** `automated × inspection` (使用不可) — 本サイクルで採用なし
+- **要備考組み合わせ (△):** `ai-driven × assertion`, `manual × assertion`, `manual × observation` — 本サイクルで採用なし
+
+### 採番状況
+
+- **本質テスト (TC-NNN):** TC-001〜TC-022 を Step 4 で確定 (計 22 件)
+- 本サイクルでは Step 6 implementer の追加余地として TC-023 以降を予約
+
+## 実装都合テストケース (TC-IMPL-NNN)
+
+ライブラリ / フレームワーク / OS など、具体実装でのみ発生する防御的分岐を検証するケース。Step 4 では空、Step 6 で implementer が発見した場合のみ追記する。
+
+| ID          | 対象成功基準 | 期待される振る舞い | 実行主体 | 検証スタイル | 判定基準 | 必要理由 (必須) | 備考 |
+| ----------- | ------------ | ------------------ | -------- | ------------ | -------- | --------------- | ---- |
+| _(Step 4 では空。Step 6 implementer が発見した場合に TC-IMPL-001 から継続採番で追記する)_ | | | | | | | |
+
+## カバレッジ表
+
+成功基準 → TC-ID の逆引き。Step 8 Validator がカバレッジ確認に使用する。本質テスト (TC-NNN) のみが対象。「対象成功基準 = (なし)」の TC-009 / TC-010 / TC-011 / TC-022 は本表に現れない。
+
+| 成功基準 ID | 対応する TC-ID                  | 注記 |
+| ----------- | ------------------------------- | ---- |
+| SC-1        | TC-001, TC-002                  | 「Draft PR」言及 + initialize cycle 文言の 2 段階で検証 |
+| SC-2        | TC-003, TC-004                  | 件数 (2+) と「各ステップ完了時 + 適宜」両タイミング表現の 2 段階で検証 |
+| SC-3        | TC-005, TC-006, TC-007          | 「CI / gh run」3+、「リトライ」1+、Blocker 接続の 3 段階で検証 |
+| SC-4        | TC-008                          | Step 9 セクション内に Ready 化言及 1+ |
+| SC-5        | TC-012, TC-013, TC-014          | Draft 状態 + initialize cycle コミット + 本文構造の 3 段階で検証 |
+| SC-6        | TC-015, TC-016                  | description 更新回数 + 各 Step 完了との時系列整合 |
+| SC-7        | TC-017, TC-018, TC-019          | 全コミット最終 success + リトライ 2 回以下 + Blocker 記録 (該当時) |
+| SC-8        | TC-020, TC-021                  | `isDraft: false` + Ready 化タイミングが Step 9 以降 |
+
+すべての SC-1〜SC-8 が少なくとも 1 件以上の TC でカバーされている。1 件でも未カバーがあれば Step 4 ロールバック判断が必要だが、本表では該当なし。
+
+### Step 8 Validator が実行する SC 検証コマンド数の見立て
+
+- 静的検証 (grep): TC-001〜TC-011 / TC-022 → 12 ケース、計 **12 個前後の grep / awk コマンド** (TC-007 / TC-008 / TC-011 は awk セクション抽出を伴うため複合コマンド扱い)
+- 動的検証 (gh CLI / git log): TC-012〜TC-021 → 10 ケース、計 **15〜20 個の gh / git / jq コマンド** (TC-015 / TC-016 / TC-017 / TC-018 で複数コマンドのパイプライン or ループを伴う)
+- 合計: 約 **27〜32 個の検証コマンド** を Step 8 Validator が `validation-report.md` に列挙する見込み

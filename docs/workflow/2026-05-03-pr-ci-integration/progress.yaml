@@ -1,9 +1,9 @@
 identifier: 2026-05-03-pr-ci-integration
 started_at: 2026-05-03T00:00:00Z
-updated_at: 2026-05-03T04:50:00Z
+updated_at: 2026-05-03T04:58:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 4 (QA Design)'
+current_step: 'Step 5 (Task Decomposition)'
 
 completed_steps:
   - step: 'Step 1 (Intent Clarification)'
@@ -63,6 +63,22 @@ completed_steps:
       段階)。プロジェクト横断 ADR 起票は不要 (サイクル内完結)。
       ユーザー事前一括承認のため Step 3 Gate も即時通過。
 
+  - step: 'Step 4 (QA Design)'
+    completed_at: 2026-05-03T04:58:00Z
+    artifacts:
+      - qa-design.md
+      - qa-flow.md
+    notes: |
+      qa-analyst 1 名で本質テスト 22 件 (TC-001〜TC-022) を確定。SC-1〜SC-8
+      すべてが 1 件以上の TC でカバー (合計 18 件 + 前提/リグレッション 4 件)。
+      2 軸付与: 全 TC が automated × assertion または automated × scenario。
+      禁止組み合わせ (automated × inspection) なし。qa-flow.md は 6 セクション
+      (関心領域 5 + 横断的処理 1) で本質ロジック分岐図を構成し、各葉に TC-ID 付与。
+      Step 8 Validator 実行コマンド見積り: 静的検証 ~12、動的検証 ~15-20、合計
+      ~27-32。実装都合テスト (TC-IMPL-NNN) は空セクションのみ用意し Step 6
+      implementer 追記対象。
+      ユーザー事前一括承認のため Step 4 Gate も即時通過。
+
 pending_gates: []
 
 active_specialists: []
@@ -77,8 +93,8 @@ artifacts:
     - docs/workflow/2026-05-03-pr-ci-integration/research/integration-points.md
     - docs/workflow/2026-05-03-pr-ci-integration/research/past-cycles.md
   design: docs/workflow/2026-05-03-pr-ci-integration/design.md
-  qa_design: null
-  qa_flow: null
+  qa_design: docs/workflow/2026-05-03-pr-ci-integration/qa-design.md
+  qa_flow: docs/workflow/2026-05-03-pr-ci-integration/qa-flow.md
   external_adrs: []
   task_plan: null
   todo: null
@@ -95,6 +111,10 @@ user_approvals:
       Step 2 以降のユーザー承認ゲートも事前一括承認として扱う。
   - gate: 'Step 3 user approval (design.md)'
     approved_at: 2026-05-03T04:50:00Z
+    approved_by: user (blanket pre-approval)
+    notes: Step 1 で取得した事前一括承認で通過。
+  - gate: 'Step 4 user approval (qa-design.md / qa-flow.md)'
+    approved_at: 2026-05-03T04:58:00Z
     approved_by: user (blanket pre-approval)
     notes: Step 1 で取得した事前一括承認で通過。
 
