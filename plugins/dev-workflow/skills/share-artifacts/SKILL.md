@@ -113,30 +113,38 @@ The artifacts and progress records of dev-workflow are **aggregated under a dire
 
 ### Directory structure
 
-```
-docs/workflow/<identifier>/
-├── progress.yaml              # Progress record (Main updates each turn)
-├── intent-spec.md             # Step 1 artifact
-├── research/                  # Step 2 artifacts (split into one file per aspect)
-│   ├── <topic-1>.md
-│   └── ...
-├── design.md                  # Step 3 artifact (the design document itself)
-├── qa-design.md               # Step 4 artifact (test case set + coverage table)
-├── qa-flow.md                 # Step 4 artifact (Mermaid flowchart of the essential logic branches)
-├── task-plan.md               # Step 5 artifact (immutable task decomposition produced by planner)
-├── TODO.md                    # Step 6 in-progress task state (maintained by Main)
-├── implementation-logs/       # Long execution-confirmation logs from Step 6 (only when needed)
-│   └── <task-id>.md
-├── review/                    # Step 7 artifacts (split into one file per aspect, 6 aspects)
-│   ├── security.md
-│   ├── performance.md
-│   ├── readability.md
-│   ├── test-quality.md
-│   ├── api-design.md
-│   └── holistic.md
-├── validation-report.md       # Step 8 artifact
-└── validation-evidence/       # Large evidence files for Step 8 (only when needed)
-    └── <evidence-file>
+```mermaid
+graph LR
+    Root["docs/workflow/&lt;identifier&gt;/"]
+    PY["progress.yaml<br/>(Main updates each turn)"]
+    IS["intent-spec.md<br/>(Step 1)"]
+    RD["research/<br/>(Step 2, one file per aspect)"]
+    RD1["&lt;topic-N&gt;.md"]
+    DM["design.md<br/>(Step 3)"]
+    QD["qa-design.md<br/>(Step 4)"]
+    QF["qa-flow.md<br/>(Step 4, mermaid flowchart)"]
+    TP["task-plan.md<br/>(Step 5, immutable)"]
+    TD["TODO.md<br/>(Step 6 in-progress task state)"]
+    IL["implementation-logs/<br/>(Step 6, optional)"]
+    IL1["&lt;task-id&gt;.md"]
+    RV["review/<br/>(Step 7, one file per aspect, 6 aspects)"]
+    RV1["security.md / performance.md / readability.md /<br/>test-quality.md / api-design.md / holistic.md"]
+    VR["validation-report.md<br/>(Step 8)"]
+    VE["validation-evidence/<br/>(Step 8, optional)"]
+    VE1["&lt;evidence-file&gt;"]
+
+    Root --> PY
+    Root --> IS
+    Root --> RD --> RD1
+    Root --> DM
+    Root --> QD
+    Root --> QF
+    Root --> TP
+    Root --> TD
+    Root --> IL --> IL1
+    Root --> RV --> RV1
+    Root --> VR
+    Root --> VE --> VE1
 ```
 
 The Step 9 (Retrospective) artifact `<identifier>.md` is aggregated outside the cycle working directory under `docs/retrospective/` (see "Artifacts outside the cycle" below for details).
@@ -147,13 +155,17 @@ For details on how to write each file, refer to `share-artifacts/references/<nam
 
 The roadmap artifacts under the `dev-roadmap` skill are aggregated in an independent directory `docs/roadmap/<roadmap-id>/` placed **in parallel with** the cycle working directory (`docs/workflow/<identifier>/`). By being physically separated from the underlying `dev-workflow` cycles, the strategic layer (roadmap) and the tactical layer (workflow cycles) can run in parallel without polluting each other's working directory.
 
-```
-docs/roadmap/<roadmap-id>/
-├── roadmap.md                  # dev-roadmap Step 1 artifact (overall roadmap picture)
-├── milestones/                 # dev-roadmap Step 2 artifacts (one file per milestone)
-│   ├── <milestone-id-1>.md
-│   └── ...
-└── roadmap-progress.yaml       # Progress record continuously updated through dev-roadmap Steps 1-4
+```mermaid
+graph LR
+    RRoot["docs/roadmap/&lt;roadmap-id&gt;/"]
+    RM["roadmap.md<br/>(dev-roadmap Step 1, overall roadmap picture)"]
+    MS["milestones/<br/>(dev-roadmap Step 2, one file per milestone)"]
+    MS1["&lt;milestone-id-N&gt;.md"]
+    RP["roadmap-progress.yaml<br/>(updated continuously through Steps 1-4)"]
+
+    RRoot --> RM
+    RRoot --> MS --> MS1
+    RRoot --> RP
 ```
 
 The Step 4 (Roadmap Retrospective) artifact `roadmap-<roadmap-id>.md` is aggregated outside the roadmap working directory under `docs/retrospective/` (see "Artifacts outside the cycle" below for details). The artifacts of the underlying `dev-workflow` cycles (`docs/workflow/<identifier>/`) are not included in this directory; instead they are linked bidirectionally through `roadmap-progress.yaml.milestones[].workflow_identifiers[]`.

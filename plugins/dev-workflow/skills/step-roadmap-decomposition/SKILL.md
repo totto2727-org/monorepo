@@ -8,8 +8,8 @@ description: >
   Activation triggers: "Milestone Decomposition", "milestone decomposition", "create milestones/*.md",
   "finalise roadmap-progress.yaml.milestones[]", "dev-roadmap Step 2".
   Do NOT use for: roadmap intent (`step-roadmap-intent`), roadmap retrospective
-  (`step-roadmap-retrospective`), in-cycle task decomposition (`step-task-decomposition` /
-  `specialist-planner`), `dev-workflow` cycle invocation (asymmetric coupling rule),
+  (`step-roadmap-retrospective`), in-cycle task decomposition (`step-task-decomposition`),
+  `dev-workflow` cycle invocation (asymmetric coupling rule),
   roadmap-of-roadmaps (out of scope), CI / external system integration.
 ---
 

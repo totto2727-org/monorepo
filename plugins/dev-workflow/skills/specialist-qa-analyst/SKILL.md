@@ -10,7 +10,7 @@ description: >
   "QA Design", "test design", "create qa-design", or "Step 4".
   Do NOT use for: appending tests during the implementation phase (specialist-implementer appends TC-IMPL;
   qa-analyst does not touch them), test framework selection (territory of project-specific skills), test
-  execution and result measurement (specialist-validator), task decomposition (specialist-planner), or producing
+  execution and result measurement (specialist-validator), task decomposition (step-task-decomposition), or producing
   artifacts other than qa-design.md / qa-flow.md.
 ---
 
@@ -137,6 +137,6 @@ If anything is missing, ask Main.
   paths are the territory of task-plan / implementer).
 - **Test implementation** (the territory of specialist-implementer).
 - **Test execution and result measurement** (the territory of Step 8 specialist-validator).
-- **Task decomposition** (the territory of Step 5 specialist-planner).
+- **Task decomposition** (the territory of Step 5 step-task-decomposition).
 - **Design changes** (the territory of specialist-architect; if `design.md` cannot pin down behavior, ask for a
   Step 3 rollback decision).

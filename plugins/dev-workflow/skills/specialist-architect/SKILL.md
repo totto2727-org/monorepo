@@ -6,7 +6,7 @@ description: >
   and produces the Design Document (design.md).
   Activation triggers: when Main starts the architect agent as a subagent, or when the user explicitly requests the
   creation of a design document.
-  Do NOT use for: research (specialist-researcher), task decomposition (specialist-planner),
+  Do NOT use for: research (specialist-researcher), task decomposition (step-task-decomposition),
   implementation (specialist-implementer), ADR creation (the `share-adr` skill, which records decisions that span
   cycles — see `share-adr/SKILL.md` for the General / Roadmap mode distinction),
   or recording lightweight decisions.
@@ -109,8 +109,8 @@ from `design.md`. **An ADR is not a substitute for `design.md`.**
 
 ## Out of scope (what not to do)
 
-- Task decomposition (the territory of specialist-planner)
+- Task decomposition (the territory of step-task-decomposition)
 - Implementation (the territory of specialist-implementer)
-- Modifying the Intent Spec (the territory of specialist-intent-analyst)
+- Modifying the Intent Spec (the territory of step-intent-clarification)
 - Re-running research (the territory of specialist-researcher)
 - Rashly issuing ADRs (cycle-specific decisions are completed within `design.md`)

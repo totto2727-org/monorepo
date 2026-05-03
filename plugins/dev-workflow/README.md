@@ -97,7 +97,7 @@ Each `step-*/SKILL.md` is self-sufficient: a Main entering that step should be a
 - step purpose and the **invocation form**: either a specialist (with count and parallelism) or "Main only"
 - Main's procedure as a numbered list
 - expected artifacts with paths into `share-artifacts`
-- **exit criteria including the CI PASS line** (`該当ステップ完了コミットに紐付く CI が PASS している`)
+- **exit criteria including the CI PASS line** (`The CI run linked to this step's completion commit has passed (with up to 2 retry attempts; otherwise escalated to a Blocker per share-ci-monitoring)`)
 - gate type (User approval / Main judgment)
 - failure modes and rollback targets (only the rollbacks rooted at this step; the cross-step overview lives in the top tier as a brief pointer table)
 - commit message examples for this step

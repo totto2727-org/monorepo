@@ -2,27 +2,27 @@
 name: specialist-common
 description: >
   [Specialist background foundation / referenced from role-specific skills as a prerequisite rule set] Defines the
-  common rules inherited by all dev-workflow Specialist agents (intent-analyst, researcher, architect, qa-analyst,
-  planner, implementer, reviewer, validator, retrospective-writer, roadmap-analyst, roadmap-planner,
-  roadmap-retrospective-writer).
+  common rules inherited by every dev-workflow Specialist subagent (researcher, architect, qa-analyst, implementer,
+  reviewer, validator).
   Aggregates lifecycle, input/output contracts, the Blocker protocol on failure, scope discipline, communication
   rules with Main, and the precedence of project-specific rules.
   Activation triggers: only when explicitly referenced from the body of an individual specialist-* skill, or when a
   Specialist subagent itself needs to confirm the common rules. Direct standalone activation or activation from a
   user command is not assumed.
   Do NOT use for: Main-side workflow management (dev-workflow); the role procedures of an individual Specialist
-  (specialist-intent-analyst / specialist-researcher / specialist-architect / specialist-qa-analyst /
-  specialist-planner / specialist-implementer / specialist-reviewer / specialist-validator /
-  specialist-retrospective-writer / specialist-roadmap-analyst / specialist-roadmap-planner /
-  specialist-roadmap-retrospective-writer); operating non-Specialist agents; use as a direct activation trigger
-  from the user.
+  (specialist-researcher / specialist-architect / specialist-qa-analyst / specialist-implementer /
+  specialist-reviewer / specialist-validator); the procedures of Main-only steps (step-intent-clarification /
+  step-task-decomposition / step-retrospective / step-roadmap-intent / step-roadmap-decomposition /
+  step-roadmap-retrospective — these have no specialist subagent); operating non-Specialist agents; use as a
+  direct activation trigger from the user.
 ---
 
 # Specialist Common — Common Foundation Rules
 
 This skill consolidates the cross-cutting rules that every Specialist must inherit. Individual roles
-(`specialist-intent-analyst` etc.) take this as a precondition and **describe only their role-specific inputs,
-procedures, failure modes, and out-of-scope items**.
+(`specialist-architect` etc.) take this as a precondition and **describe only their role-specific inputs,
+procedures, failure modes, and out-of-scope items**. Steps that Main completes alone (no specialist subagent) live
+under `step-*` SKILLs and do not consult this file.
 
 ## Prerequisite upstream skills
 

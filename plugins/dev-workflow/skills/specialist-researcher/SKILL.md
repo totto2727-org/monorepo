@@ -8,7 +8,7 @@ description: >
   research for a specific perspective.
   Do NOT use for: handling all perspectives in a single researcher (start a separate instance per perspective);
   design (specialist-architect), implementation (specialist-implementer),
-  Intent Spec creation (specialist-intent-analyst).
+  Intent Spec creation (step-intent-clarification).
 ---
 
 # Specialist: researcher — Research
@@ -86,6 +86,6 @@ In addition to the basic inputs from `specialist-common`:
 
 - Research for other perspectives (handled by another researcher instance)
 - Design / implementation (the territory of specialist-architect / implementer)
-- Modifying the Intent Spec (the territory of specialist-intent-analyst)
+- Modifying the Intent Spec (the territory of step-intent-clarification)
 - Decision-making from research results (Main does it from Step 3 onward)
 - Mixing multiple perspectives in a single file (always 1 perspective = 1 file)

@@ -7,7 +7,7 @@ description: >
   Activation triggers: when Main starts the validator agent as a subagent, or when the user explicitly requests
   verification of the success criteria.
   Do NOT use for: review (specialist-reviewer), implementation (specialist-implementer),
-  Retrospective (specialist-retrospective-writer), subjective judgment of the success criteria
+  Retrospective (step-retrospective), subjective judgment of the success criteria
   (evaluation not based on observed values).
 ---
 
@@ -109,7 +109,7 @@ In addition to the basic inputs from `specialist-common`:
 - Subjective judgment without observed values
 - Raising review-perspective concerns (the territory of specialist-reviewer)
 - Implementation fixes (the territory of specialist-implementer)
-- Modifying the Intent Spec (the territory of specialist-intent-analyst)
+- Modifying the Intent Spec (the territory of step-intent-clarification)
 - Newly adding success criteria (that is the role of Step 1)
 - **Structural changes to qa-design.md / qa-flow.md** (the territory of specialist-qa-analyst; the validator may
   only update the `Implementation status` column, and must not perform column-structure changes or TC additions)

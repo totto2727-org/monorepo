@@ -8,7 +8,7 @@ description: >
   implementation of a specific task.
   Do NOT use for: implementing multiple tasks in a single implementer (start a separate instance per task);
   design (specialist-architect), review (specialist-reviewer),
-  validation (specialist-validator), re-decomposition of the Task Plan (the territory of specialist-planner).
+  validation (specialist-validator), re-decomposition of the Task Plan (the territory of step-task-decomposition).
 ---
 
 # Specialist: implementer — Implementation
@@ -108,7 +108,7 @@ In addition to the basic inputs from `specialist-common`:
 ## Out of scope (what not to do)
 
 - Implementation of other tasks (handled by other implementer instances)
-- Changes to task-plan / design.md (the territory of specialist-planner / architect)
+- Changes to task-plan / design.md (the territory of step-task-decomposition / architect)
 - **Structural changes to qa-design.md / qa-flow.md** (adding new SC-IDs, changing column structure, revising
   concern-area splits, etc., are the territory of specialist-qa-analyst; the implementer may **only append**
   essential tests / implementation-incidental tests).

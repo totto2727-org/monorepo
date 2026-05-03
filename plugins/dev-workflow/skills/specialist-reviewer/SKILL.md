@@ -13,7 +13,7 @@ description: >
   or "Step 7".
   Do NOT use for: handling all perspectives in a single reviewer (start a separate instance per perspective);
   validation (specialist-validator, success-criterion measurement), implementation (specialist-implementer),
-  Retrospective (specialist-retrospective-writer).
+  Retrospective (step-retrospective).
 ---
 
 # Specialist: reviewer — External Review

@@ -9,8 +9,8 @@ description: >
   invoked.
   Activation triggers: "Roadmap Retrospective", "roadmap retrospective", "create
   roadmap-<roadmap-id>.md", "close the roadmap", "dev-roadmap Step 4".
-  Do NOT use for: per-cycle retrospective (`step-retrospective` /
-  `specialist-retrospective-writer`, generates `docs/retrospective/<identifier>.md`),
+  Do NOT use for: per-cycle retrospective (`step-retrospective`,
+  generates `docs/retrospective/<identifier>.md`),
   roadmap intent (`step-roadmap-intent`), milestone decomposition
   (`step-roadmap-decomposition`), implementation/validation of downstream cycles (each cycle
   owns its own steps), CLAUDE.md updates (only proposed candidates, never written from this
