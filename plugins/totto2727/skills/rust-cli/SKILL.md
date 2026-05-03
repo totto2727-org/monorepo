@@ -43,19 +43,19 @@ metadata:
 
 ## レイヤ別早見表（必須カテゴリのみ）
 
-| カテゴリ | 推奨クレート | 補足 |
-| --- | --- | --- |
-| ランタイム | `tokio` (`full`) | `#[tokio::main]` |
-| 引数解析 | `clap` (`derive`) | env フォールバック・サブコマンドを宣言的に |
-| HTTP | `reqwest` (`json`, `rustls-tls`) | `Arc<Client>` を共有 |
-| シリアライズ | `serde` + `serde_json` | derive |
-| スキーマ検証 | `garde` (任意) | serde で型一致は保証、値域は garde |
-| エラー型 | `thiserror` | サービスごとに enum |
-| エラー表示 | `miette` | CLI の診断表示 |
-| ファイル I/O | `tokio::fs` | mkdir/read/write/symlink 等 |
-| 子プロセス | `tokio::process::Command` | git CLI 駆動などはこれが最短 |
-| 日付 | `jiff` | TZ-aware/DST 安全（chrono は legacy） |
-| ログ | `tracing` + `tracing-subscriber` | 単発 println で済むなら不要 |
+| カテゴリ     | 推奨クレート                     | 補足                                       |
+| ------------ | -------------------------------- | ------------------------------------------ |
+| ランタイム   | `tokio` (`full`)                 | `#[tokio::main]`                           |
+| 引数解析     | `clap` (`derive`)                | env フォールバック・サブコマンドを宣言的に |
+| HTTP         | `reqwest` (`json`, `rustls-tls`) | `Arc<Client>` を共有                       |
+| シリアライズ | `serde` + `serde_json`           | derive                                     |
+| スキーマ検証 | `garde` (任意)                   | serde で型一致は保証、値域は garde         |
+| エラー型     | `thiserror`                      | サービスごとに enum                        |
+| エラー表示   | `miette`                         | CLI の診断表示                             |
+| ファイル I/O | `tokio::fs`                      | mkdir/read/write/symlink 等                |
+| 子プロセス   | `tokio::process::Command`        | git CLI 駆動などはこれが最短               |
+| 日付         | `jiff`                           | TZ-aware/DST 安全（chrono は legacy）      |
+| ログ         | `tracing` + `tracing-subscriber` | 単発 println で済むなら不要                |
 
 詳細は [references/libraries.md](./references/libraries.md) — JS/Effect 側との **完全対応表**（FS/Path/並行/テスト/git/glob まで）。
 
@@ -63,11 +63,11 @@ metadata:
 
 要件に応じて 3 レイヤから選ぶ。**フル TUI が要らないなら 1 で止める**。
 
-| レイヤ | 用途 | 推奨 |
-| --- | --- | --- |
-| L1: 単発プロンプト＋スピナー | y/n 確認・選択肢・進捗 | `inquire` + `indicatif` |
-| L2: 宣言的（React-like） | Ink 風コンポーネント／フォーム | `iocraft` |
-| L3: フル画面 Elm Architecture | ダッシュボード | `tui-realm` on `ratatui` |
+| レイヤ                        | 用途                           | 推奨                     |
+| ----------------------------- | ------------------------------ | ------------------------ |
+| L1: 単発プロンプト＋スピナー  | y/n 確認・選択肢・進捗         | `inquire` + `indicatif`  |
+| L2: 宣言的（React-like）      | Ink 風コンポーネント／フォーム | `iocraft`                |
+| L3: フル画面 Elm Architecture | ダッシュボード                 | `tui-realm` on `ratatui` |
 
 iocraft はランタイム非依存（依存は `crossterm` + `futures` + `taffy`）で **tokio と直接組み合わせ可能**。
 スピナーはビルトイン非対応だが `use_state` + `use_future` で 10 行で書ける。

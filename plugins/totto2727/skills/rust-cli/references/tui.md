@@ -4,11 +4,11 @@
 
 ## レイヤ早見
 
-| レイヤ | 用途 | 推奨 | 特徴 |
-| --- | --- | --- | --- |
-| L1 | 単発プロンプト + スピナー | `inquire` + `indicatif` | 既存 CLI に最小コストで追加可能 |
-| L2 | 宣言的フォーム / React-like | `iocraft` | Ink 直系、props/state、tokio 互換 |
-| L3 | フル画面 Elm Architecture | `tui-realm` on `ratatui` | Component + Message/Update |
+| レイヤ | 用途                        | 推奨                     | 特徴                              |
+| ------ | --------------------------- | ------------------------ | --------------------------------- |
+| L1     | 単発プロンプト + スピナー   | `inquire` + `indicatif`  | 既存 CLI に最小コストで追加可能   |
+| L2     | 宣言的フォーム / React-like | `iocraft`                | Ink 直系、props/state、tokio 互換 |
+| L3     | フル画面 Elm Architecture   | `tui-realm` on `ratatui` | Component + Message/Update        |
 
 「どれを選ぶか」の判断基準は **画面遷移と状態管理の複雑性**。
 スピナー＋プロンプトを入れたいだけなら L1 で止めるのが最短。
@@ -39,16 +39,16 @@ Ink (Node) 直系の React 風 TUI。`#[component]` + `element!` マクロで JS
 
 ### 主要 API
 
-| API | 役割 |
-| --- | --- |
-| `#[component] fn Foo(...)` | 関数コンポーネント定義（React 風） |
-| `element! { ... }` | RSX 風 UI 記述マクロ |
-| `View`, `Text`, `TextInput` | ビルトインコンポーネント（少数） |
-| `hooks.use_state(\|\| ...)` | ローカル状態 |
-| `hooks.use_future(async move { ... })` | 非同期駆動（タイマー / API 呼び出し） |
-| `hooks.use_context_mut::<SystemContext>()` | exit 等のシステム操作 |
-| `element!(App).render_loop().await` | 描画ループ（Future） |
-| `element!(App).print()` | 単発出力（インライン） |
+| API                                        | 役割                                  |
+| ------------------------------------------ | ------------------------------------- |
+| `#[component] fn Foo(...)`                 | 関数コンポーネント定義（React 風）    |
+| `element! { ... }`                         | RSX 風 UI 記述マクロ                  |
+| `View`, `Text`, `TextInput`                | ビルトインコンポーネント（少数）      |
+| `hooks.use_state(\|\| ...)`                | ローカル状態                          |
+| `hooks.use_future(async move { ... })`     | 非同期駆動（タイマー / API 呼び出し） |
+| `hooks.use_context_mut::<SystemContext>()` | exit 等のシステム操作                 |
+| `element!(App).render_loop().await`        | 描画ループ（Future）                  |
+| `element!(App).print()`                    | 単発出力（インライン）                |
 
 ### スピナーは自作（10 行）
 
@@ -68,17 +68,17 @@ Ink (Node) 直系の React 風 TUI。`#[component]` + `element!` マクロで JS
 
 ### できること / 注意点
 
-| 項目 | 対応 |
-| --- | --- |
-| 単一スピナー | ◯ 10 行で実装 |
-| プログレスバー | ◯ 公式 example あり |
-| 複数スピナー並走 | ◯ 各 `use_future` が独立 |
-| 完了で色変更 / アイコン切替 | ◯ props / state で制御 |
-| tokio + reqwest と併用 | ◯ ランタイム非依存 |
-| インライン出力 | ◯ `.print()` |
+| 項目                                     | 対応                                      |
+| ---------------------------------------- | ----------------------------------------- |
+| 単一スピナー                             | ◯ 10 行で実装                             |
+| プログレスバー                           | ◯ 公式 example あり                       |
+| 複数スピナー並走                         | ◯ 各 `use_future` が独立                  |
+| 完了で色変更 / アイコン切替              | ◯ props / state で制御                    |
+| tokio + reqwest と併用                   | ◯ ランタイム非依存                        |
+| インライン出力                           | ◯ `.print()`                              |
 | プリセット（フレーム集・テンプレ文字列） | ✗ 自作。`spinners` クレートの定数借用が楽 |
-| ETA / 速度計測 | ✗ 必要なら自前 or `indicatif` 並用 |
-| ターミナル幅追従 / リサイズ | ◯ crossterm + taffy 処理 |
+| ETA / 速度計測                           | ✗ 必要なら自前 or `indicatif` 並用        |
+| ターミナル幅追従 / リサイズ              | ◯ crossterm + taffy 処理                  |
 
 ## L3: `tui-realm` on `ratatui`
 
