@@ -61,8 +61,8 @@
 - 起票時 (Step 2): 空 `[]` または将来予定の `<identifier>` を仮置き
 - 配下サイクル開始時: 各 `dev-workflow` サイクルが `progress.yaml.roadmap` ブロックを初期化するタイミングで、自身の `<identifier>` を `roadmap-progress.yaml.milestones[].workflow_identifiers[]` に追記する (本ファイルへの追記は任意、`roadmap-progress.yaml` が一次ソース)
 
-| サイクル `<identifier>` | 状態 (`active` / `completed` / `blocked` / `cancelled`) | コメント |
-| ----------------------- | ------------------------------------------------------- | -------- |
+| サイクル `<identifier>`   | 状態 (`active` / `completed` / `blocked` / `cancelled`) | コメント            |
+| ------------------------- | ------------------------------------------------------- | ------------------- |
 | {{workflow_identifier_1}} | {{workflow_status_1}}                                   | {{workflow_note_1}} |
 | {{workflow_identifier_2}} | {{workflow_status_2}}                                   | {{workflow_note_2}} |
 

@@ -231,7 +231,7 @@ Step 6 で Main が並列起動単位として参照する Wave。**最大並列
 - **Wave 1 (T0 完了後、並列 2):** T1, T6
   - T1 (dev-roadmap SKILL) と T6 (progress.yaml ext) は互いに独立し、ともに T0 のみに依存する。
 - **Wave 2 (T1 完了後、並列 4):** T2, T3, T4, T7
-  - 3 つの specialist-roadmap-* と templates/references 4 セットは互いに独立した別ファイル群を編集するため並列実装可能。T7 内 4 セットのスタイル統一を意識する場合は 1 implementer で逐次実装、細粒度化したい場合は T7a〜T7d に分割可能 (本計画では 1 タスクで保持)。
+  - 3 つの specialist-roadmap-\* と templates/references 4 セットは互いに独立した別ファイル群を編集するため並列実装可能。T7 内 4 セットのスタイル統一を意識する場合は 1 implementer で逐次実装、細粒度化したい場合は T7a〜T7d に分割可能 (本計画では 1 タスクで保持)。
 - **Wave 3 (Wave 2 完了後、並列 4):** T5, T8, T9, T10
   - T5 は T2/T3/T4 完了を待つ、T8 は T7 完了、T9 は T6 完了 (Wave 1 で完了済)、T10 は T2/T3/T4 完了を待つ。本 Wave で並列実行可能。
 - **Wave 4 (Wave 3 完了後、並列 2):** T11, T12
@@ -239,13 +239,13 @@ Step 6 で Main が並列起動単位として参照する Wave。**最大並列
 
 ### Wave 別の見積り規模 (S=Small / M=Medium / L=Large の合算)
 
-| Wave   | タスク             | 規模合計      | 想定並列効果 |
-| ------ | ------------------ | ------------- | ------------ |
-| Wave 0 | T0 (S)             | S             | -            |
-| Wave 1 | T1 (L), T6 (S)     | L+S           | 並列 2       |
-| Wave 2 | T2-T4 (3M), T7 (L) | 3M+L          | 並列 4       |
-| Wave 3 | T5 (S), T8 (M), T9 (L), T10 (S) | 2S+M+L | 並列 4       |
-| Wave 4 | T11 (S), T12 (S)   | 2S            | 並列 2       |
+| Wave   | タスク                          | 規模合計 | 想定並列効果 |
+| ------ | ------------------------------- | -------- | ------------ |
+| Wave 0 | T0 (S)                          | S        | -            |
+| Wave 1 | T1 (L), T6 (S)                  | L+S      | 並列 2       |
+| Wave 2 | T2-T4 (3M), T7 (L)              | 3M+L     | 並列 4       |
+| Wave 3 | T5 (S), T8 (M), T9 (L), T10 (S) | 2S+M+L   | 並列 4       |
+| Wave 4 | T11 (S), T12 (S)                | 2S       | 並列 2       |
 
 ## リスク / 想定される Blocker
 
@@ -258,7 +258,7 @@ Step 6 で Main が並列起動単位として参照する Wave。**最大並列
 - **R7 (T12 手順書の検証対象未確定):** T12 は T1 / T7 / T8 完了を前提とするが、これらの実装途中で SKILL.md / reference のセクション名が変動する可能性。緩和策: T12 は Wave 4 配置として最終段階で着手し、確定済みセクション名に基づいて手順を記述する。
 - **R8 (T0 と本サイクル成果物の path 移動による作業中断):** T0 リネーム実行時、本サイクル成果物 (本 task-plan.md 含む) も `docs/dev-workflow/2026-04-29-add-dev-roadmap-skill/` → `docs/workflow/2026-04-29-add-dev-roadmap-skill/` に移動する。Step 6 implementer は移動後のパスで以降の作業を継続する旨を Main の TODO.md 冒頭で明記する (Step 5 完了報告にも残す)。
 - **R9 (Self-Review 統合済みに対する旧情報残存):** main マージで Self-Review が External Review に統合されたが、過去版の design / qa-design / 本 task-plan が誤って Self-Review 関連タスクを含む場合のリスク。緩和策: 本 task-plan は Self-Review 関連タスクを含まないことを明示 (本注記)。Step 6 implementer も Self-Review 関連の追加タスクを発生させない。
-- **R10 (T11 README の位置づけ表現が SC-9 grep に引っかからない):** TC-022 が要求する「(戦略層|大規模|複数の.*サイクル|束ねる)」のいずれかを含む文言が記述から欠落するリスク。緩和策: T11 implementer は intent-spec.md L21 の目的引用文 (戦略層 / 複数の dev-workflow サイクル / 束ねる) を README 内でほぼそのまま参照する。
+- **R10 (T11 README の位置づけ表現が SC-9 grep に引っかからない):** TC-022 が要求する「(戦略層|大規模|複数の.\*サイクル|束ねる)」のいずれかを含む文言が記述から欠落するリスク。緩和策: T11 implementer は intent-spec.md L21 の目的引用文 (戦略層 / 複数の dev-workflow サイクル / 束ねる) を README 内でほぼそのまま参照する。
 
 ## 留意事項 (Step 6 実行時の前提)
 
@@ -271,40 +271,40 @@ Step 6 で Main が並列起動単位として参照する Wave。**最大並列
 
 ## カバレッジ確認 (qa-design.md TC-001〜TC-033)
 
-| TC-ID  | カバータスク | 備考                                          |
-| ------ | ------------ | --------------------------------------------- |
-| TC-001 | T1           | dev-roadmap SKILL 存在                        |
-| TC-002 | T1           | frontmatter キー                              |
-| TC-003 | T1           | 必須セクション 5 種                           |
-| TC-004 | T2, T3       | specialist 2 個存在                           |
-| TC-005 | T4           | specialist-roadmap-retrospective-writer 存在  |
-| TC-006 | T2, T3, T4   | 必須セクション 4 種                           |
-| TC-007 | T5           | agents 3 個存在                               |
-| TC-008 | T5           | description / 参照スキル                      |
-| TC-009 | T7           | templates 4 個存在                            |
-| TC-010 | T7           | references 4 個存在                           |
-| TC-011 | T7           | 1:1 対応 + 例外 3 件                          |
-| TC-012 | T8           | 成果物一覧 4 行追加                           |
-| TC-013 | T8           | 1:1 例外リスト 3 件目                         |
-| TC-014 | T6           | `roadmap: null` フィールド                    |
-| TC-015 | T6           | YAML parseable                                |
-| TC-016 | T6           | reference 3 観点                              |
-| TC-017 | T0           | 既存 progress.yaml diff 0                     |
-| TC-018 | T9           | ワークフロー開始時段落                        |
-| TC-019 | T9           | 新規セクション存在                            |
-| TC-020 | T9           | 5 観点 (a/b/c/d/e)                            |
-| TC-021 | T9           | grep ≥ 3 件                                   |
-| TC-022 | T11          | README 段落                                   |
-| TC-023 | T7           | references 必須セクション                     |
-| TC-024 | T7           | references 3 観点                             |
-| TC-025 | T12          | 仮想マイルストーン分解 (手順書)               |
-| TC-026 | T0           | 既存 5 サイクル mv 完了                       |
-| TC-027 | T0           | 旧 docs/dev-workflow/ 不存在                  |
-| TC-028 | T0           | 既存サイクル diff 0                           |
-| TC-029 | T10          | Specialist 列挙 12 名                         |
-| TC-030 | T10          | Do NOT use for 列挙更新                       |
-| TC-031 | T1, T8       | docs/roadmap/ 構造記述                        |
-| TC-032 | T1, T8, T12  | 並列配置 + 集約言及 (手順書)                  |
-| TC-033 | T1, T7       | prefix 命名規則明記                           |
+| TC-ID  | カバータスク | 備考                                         |
+| ------ | ------------ | -------------------------------------------- |
+| TC-001 | T1           | dev-roadmap SKILL 存在                       |
+| TC-002 | T1           | frontmatter キー                             |
+| TC-003 | T1           | 必須セクション 5 種                          |
+| TC-004 | T2, T3       | specialist 2 個存在                          |
+| TC-005 | T4           | specialist-roadmap-retrospective-writer 存在 |
+| TC-006 | T2, T3, T4   | 必須セクション 4 種                          |
+| TC-007 | T5           | agents 3 個存在                              |
+| TC-008 | T5           | description / 参照スキル                     |
+| TC-009 | T7           | templates 4 個存在                           |
+| TC-010 | T7           | references 4 個存在                          |
+| TC-011 | T7           | 1:1 対応 + 例外 3 件                         |
+| TC-012 | T8           | 成果物一覧 4 行追加                          |
+| TC-013 | T8           | 1:1 例外リスト 3 件目                        |
+| TC-014 | T6           | `roadmap: null` フィールド                   |
+| TC-015 | T6           | YAML parseable                               |
+| TC-016 | T6           | reference 3 観点                             |
+| TC-017 | T0           | 既存 progress.yaml diff 0                    |
+| TC-018 | T9           | ワークフロー開始時段落                       |
+| TC-019 | T9           | 新規セクション存在                           |
+| TC-020 | T9           | 5 観点 (a/b/c/d/e)                           |
+| TC-021 | T9           | grep ≥ 3 件                                  |
+| TC-022 | T11          | README 段落                                  |
+| TC-023 | T7           | references 必須セクション                    |
+| TC-024 | T7           | references 3 観点                            |
+| TC-025 | T12          | 仮想マイルストーン分解 (手順書)              |
+| TC-026 | T0           | 既存 5 サイクル mv 完了                      |
+| TC-027 | T0           | 旧 docs/dev-workflow/ 不存在                 |
+| TC-028 | T0           | 既存サイクル diff 0                          |
+| TC-029 | T10          | Specialist 列挙 12 名                        |
+| TC-030 | T10          | Do NOT use for 列挙更新                      |
+| TC-031 | T1, T8       | docs/roadmap/ 構造記述                       |
+| TC-032 | T1, T8, T12  | 並列配置 + 集約言及 (手順書)                 |
+| TC-033 | T1, T7       | prefix 命名規則明記                          |
 
 全 33 TC が少なくとも 1 つのタスクでカバーされていることを確認。

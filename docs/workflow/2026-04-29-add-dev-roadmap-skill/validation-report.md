@@ -182,8 +182,8 @@ graph LR
   ms-04 --> ms-05
 ```
 
-  - **PASS 5 条件 (TC-025 手順書):** ① 件数 5 ≥ 3 ✅、② 各マイルストーンに定性的到達点記述あり ✅、③ 依存グラフ描画済 ✅、④ DAG (循環なし、ms-01 起点 → ms-05 最終) ✅、⑤ 30 分以内に完了 ✅
-  - **再現性レビュー:** 単一 Validator のため独立レビュアーによる「実質的に同等」判定は本サイクル内では実施不能だが、`references/roadmap.md` L98-107 の説明性指針 4 観点 (目的 = 定性的到達点 / スコープ排他網羅 / DAG / 一覧 ≥ 3 行) が分解手順を直接導いており、手順 (a)-(d) が一意に決まることを確認
+- **PASS 5 条件 (TC-025 手順書):** ① 件数 5 ≥ 3 ✅、② 各マイルストーンに定性的到達点記述あり ✅、③ 依存グラフ描画済 ✅、④ DAG (循環なし、ms-01 起点 → ms-05 最終) ✅、⑤ 30 分以内に完了 ✅
+- **再現性レビュー:** 単一 Validator のため独立レビュアーによる「実質的に同等」判定は本サイクル内では実施不能だが、`references/roadmap.md` L98-107 の説明性指針 4 観点 (目的 = 定性的到達点 / スコープ排他網羅 / DAG / 一覧 ≥ 3 行) が分解手順を直接導いており、手順 (a)-(d) が一意に決まることを確認
 - **判定:** PASS
 - **証拠:** 本セクション内に書き出し全文を記載、補助証跡なし
 - **計測手段:** manual × inspection (`manual-tests/TC-025.md` 手順 a/b/c/d 順次実行)
@@ -197,14 +197,14 @@ graph LR
   - 旧 `docs/dev-workflow/` ディレクトリ不存在 (TC-027 = exit 0)
   - 既存 4 サイクル (本サイクル `2026-04-29-add-dev-roadmap-skill` を除く) について `git diff --find-renames -M50% --shortstat 8444fb4..HEAD -- docs/dev-workflow/<cycle>/ docs/workflow/<cycle>/` の結果 (TC-028):
 
-| サイクル | files changed | insertions | deletions |
-| -------- | ------------- | ---------- | --------- |
-| 2026-04-24-ai-dlc-plugin-bootstrap | 16 | 0 | 0 |
-| 2026-04-26-add-qa-design-step | 15 | 0 | 0 |
-| 2026-04-29-integrate-self-review-into-external | 15 | 0 | 0 |
-| 2026-04-29-retro-cleanup | 12 | 0 | 0 |
+| サイクル                                       | files changed | insertions | deletions |
+| ---------------------------------------------- | ------------- | ---------- | --------- |
+| 2026-04-24-ai-dlc-plugin-bootstrap             | 16            | 0          | 0         |
+| 2026-04-26-add-qa-design-step                  | 15            | 0          | 0         |
+| 2026-04-29-integrate-self-review-into-external | 15            | 0          | 0         |
+| 2026-04-29-retro-cleanup                       | 12            | 0          | 0         |
 
-  - 全サイクル `0 insertions(+), 0 deletions(-)` (rename 100% similarity のみ検出、内容差分 0)
+- 全サイクル `0 insertions(+), 0 deletions(-)` (rename 100% similarity のみ検出、内容差分 0)
 - **判定:** PASS
 - **証拠:** `validation-evidence/sc12-baseline-diff.txt`
 - **計測手段:** automated × assertion + scenario (git diff --find-renames --shortstat)
@@ -244,41 +244,41 @@ graph LR
 
 ## テスト実行結果
 
-| TC ID | 対象 SC | 判定 | 補足 |
-| ----- | ------- | ---- | ---- |
-| TC-001 | SC-1 | PASS | `dev-roadmap/SKILL.md` exists |
-| TC-002 | SC-1 | PASS | frontmatter `name: dev-roadmap` / description / metadata 検出 |
-| TC-003 | SC-1 | PASS | 5 セクション (役割定義 / ステップ一覧 / ゲート判定 / 接続プロトコル / 進捗管理) 確認 |
-| TC-004 | SC-2 | PASS | analyst + planner SKILL.md 存在 |
-| TC-005 | SC-2 | PASS | retrospective-writer SKILL.md 存在 (design 確定 1 で 3 個に拡張) |
-| TC-006 | SC-2 | PASS | 各 SKILL.md に役割 / 入力 / 手順 / 失敗モード / スコープ外の 5 見出し全て存在 |
-| TC-007 | SC-3 | PASS | 3 agents/*.md 全て存在 |
-| TC-008 | SC-3 | PASS | description + 参照スキル両方検出 |
-| TC-009 | SC-4 | PASS | templates 4 個全て存在 |
-| TC-010 | SC-4 | PASS | references 4 個全て存在 |
-| TC-011 | SC-4 | PASS | 1:1 例外差分は 3 件のみ (拡張子・大小の既知例外) |
-| TC-012 | SC-5 | PASS | shared-artifacts/SKILL.md L56-59 に 4 行追加 |
-| TC-013 | SC-5 | PASS | 1:1 例外リストに `roadmap-progress-yaml.md` ↔ `roadmap-progress.yaml` 追記 + 件数文言「3 件」更新 |
-| TC-014 | SC-6 | PASS | `templates/progress.yaml` L65 `roadmap: null` 確認 |
-| TC-015 | SC-6 | PASS | テンプレート placeholder 展開後の YAML が parseable で `roadmap` キーが top-level に存在 |
-| TC-016 | SC-6 | PASS | `references/progress-yaml.md` に 3 観点 a/b/c 全て記述 |
-| TC-017 | SC-6/SC-12 | PASS | 既存サイクル `progress.yaml` の baseline 差分は rename のみ |
-| TC-018 | SC-7 | PASS | 「ワークフロー開始時」セクション L558 に roadmap 配下初期化段落追加 |
-| TC-019 | SC-8 | PASS | 「## `roadmap-progress.yaml` 更新プロトコル」L758 に独立 ## 見出し配置 |
-| TC-020 | SC-8 | PASS | 5 観点 (a/b/c/d/e) 全て検出 |
-| TC-021 | SC-8 | PASS | `grep -nF "roadmap-progress.yaml"` カウント 11 ≥ 3 |
-| TC-022 | SC-9 | PASS | README L13 に dev-roadmap 段落 (戦略層 / 大規模 / 束ねる キーワード含む) |
-| TC-023 | SC-10 | PASS | `references/roadmap-progress-yaml.md` L94 に「dev-workflow 側からの更新プロトコル」セクション |
-| TC-024 | SC-10 | PASS | 3 観点 (フィールド / タイミング / コミット粒度・並行回避) 全て検出 |
-| TC-025 | SC-11 | PASS | 仮想ゴール「OAuth 認証導入」で 5 マイルストーン + DAG 30 分以内に書き出し成功 |
-| TC-026 | SC-12 | PASS | docs/workflow/ 直下に既存全 5 サイクル存在 |
-| TC-027 | SC-12 | PASS | docs/dev-workflow/ 不存在 |
-| TC-028 | SC-12 | PASS | 既存 4 サイクル全て `0 insertions, 0 deletions` |
-| TC-029 | SC-13 | PASS | 12 specialists 全列挙 (distinct count = 12) |
-| TC-030 | SC-13 | PASS | `Do NOT use for` 内 specialist-* 列挙にも roadmap 系 3 個追加 |
-| TC-031 | SC-14 | PASS | dev-roadmap/SKILL.md + shared-artifacts/SKILL.md 双方に docs/roadmap/ 構造記述 |
-| TC-032 | SC-14 | PASS | manual × inspection 3 観点 a/b/c 全 YES |
-| TC-033 | (補完) | PASS | retrospective prefix 命名規則 (`roadmap-<roadmap-id>.md`) 多重明記 |
+| TC ID  | 対象 SC    | 判定 | 補足                                                                                              |
+| ------ | ---------- | ---- | ------------------------------------------------------------------------------------------------- |
+| TC-001 | SC-1       | PASS | `dev-roadmap/SKILL.md` exists                                                                     |
+| TC-002 | SC-1       | PASS | frontmatter `name: dev-roadmap` / description / metadata 検出                                     |
+| TC-003 | SC-1       | PASS | 5 セクション (役割定義 / ステップ一覧 / ゲート判定 / 接続プロトコル / 進捗管理) 確認              |
+| TC-004 | SC-2       | PASS | analyst + planner SKILL.md 存在                                                                   |
+| TC-005 | SC-2       | PASS | retrospective-writer SKILL.md 存在 (design 確定 1 で 3 個に拡張)                                  |
+| TC-006 | SC-2       | PASS | 各 SKILL.md に役割 / 入力 / 手順 / 失敗モード / スコープ外の 5 見出し全て存在                     |
+| TC-007 | SC-3       | PASS | 3 agents/\*.md 全て存在                                                                           |
+| TC-008 | SC-3       | PASS | description + 参照スキル両方検出                                                                  |
+| TC-009 | SC-4       | PASS | templates 4 個全て存在                                                                            |
+| TC-010 | SC-4       | PASS | references 4 個全て存在                                                                           |
+| TC-011 | SC-4       | PASS | 1:1 例外差分は 3 件のみ (拡張子・大小の既知例外)                                                  |
+| TC-012 | SC-5       | PASS | shared-artifacts/SKILL.md L56-59 に 4 行追加                                                      |
+| TC-013 | SC-5       | PASS | 1:1 例外リストに `roadmap-progress-yaml.md` ↔ `roadmap-progress.yaml` 追記 + 件数文言「3 件」更新 |
+| TC-014 | SC-6       | PASS | `templates/progress.yaml` L65 `roadmap: null` 確認                                                |
+| TC-015 | SC-6       | PASS | テンプレート placeholder 展開後の YAML が parseable で `roadmap` キーが top-level に存在          |
+| TC-016 | SC-6       | PASS | `references/progress-yaml.md` に 3 観点 a/b/c 全て記述                                            |
+| TC-017 | SC-6/SC-12 | PASS | 既存サイクル `progress.yaml` の baseline 差分は rename のみ                                       |
+| TC-018 | SC-7       | PASS | 「ワークフロー開始時」セクション L558 に roadmap 配下初期化段落追加                               |
+| TC-019 | SC-8       | PASS | 「## `roadmap-progress.yaml` 更新プロトコル」L758 に独立 ## 見出し配置                            |
+| TC-020 | SC-8       | PASS | 5 観点 (a/b/c/d/e) 全て検出                                                                       |
+| TC-021 | SC-8       | PASS | `grep -nF "roadmap-progress.yaml"` カウント 11 ≥ 3                                                |
+| TC-022 | SC-9       | PASS | README L13 に dev-roadmap 段落 (戦略層 / 大規模 / 束ねる キーワード含む)                          |
+| TC-023 | SC-10      | PASS | `references/roadmap-progress-yaml.md` L94 に「dev-workflow 側からの更新プロトコル」セクション     |
+| TC-024 | SC-10      | PASS | 3 観点 (フィールド / タイミング / コミット粒度・並行回避) 全て検出                                |
+| TC-025 | SC-11      | PASS | 仮想ゴール「OAuth 認証導入」で 5 マイルストーン + DAG 30 分以内に書き出し成功                     |
+| TC-026 | SC-12      | PASS | docs/workflow/ 直下に既存全 5 サイクル存在                                                        |
+| TC-027 | SC-12      | PASS | docs/dev-workflow/ 不存在                                                                         |
+| TC-028 | SC-12      | PASS | 既存 4 サイクル全て `0 insertions, 0 deletions`                                                   |
+| TC-029 | SC-13      | PASS | 12 specialists 全列挙 (distinct count = 12)                                                       |
+| TC-030 | SC-13      | PASS | `Do NOT use for` 内 specialist-\* 列挙にも roadmap 系 3 個追加                                    |
+| TC-031 | SC-14      | PASS | dev-roadmap/SKILL.md + shared-artifacts/SKILL.md 双方に docs/roadmap/ 構造記述                    |
+| TC-032 | SC-14      | PASS | manual × inspection 3 観点 a/b/c 全 YES                                                           |
+| TC-033 | (補完)     | PASS | retrospective prefix 命名規則 (`roadmap-<roadmap-id>.md`) 多重明記                                |
 
 - 自動テスト: 30 / 30 passed (TC-001 〜 TC-024, TC-026 〜 TC-031, TC-033)
 - 手動テスト (manual × inspection): 2 / 2 passed (TC-025, TC-032)
@@ -290,14 +290,14 @@ graph LR
 
 ## メトリクス
 
-| メトリクス | 目標値 | 観測値 | 判定 |
-| ---------- | ------ | ------ | ---- |
-| `dev-roadmap/SKILL.md` 内の `roadmap` 文字列出現行 | ≥ 1 (SC-7) | 17 | PASS |
-| `dev-workflow/SKILL.md` 内の `roadmap-progress.yaml` 出現行 | ≥ 3 (SC-8) | 11 | PASS |
-| `README.md` 内の `dev-roadmap` 出現行 | ≥ 1 (SC-9) | 1 | PASS |
-| 既存サイクル baseline diff (insertions+deletions) | 0 (SC-12) | 0 (4 サイクル全て) | PASS |
-| `specialist-common/SKILL.md` 内 distinct specialists count | 12 (SC-13) | 12 | PASS |
-| `roadmap-<roadmap-id>.md` の prefix 命名出現行 (`dev-roadmap/SKILL.md` + `references/roadmap-retrospective.md`) | ≥ 1 (TC-033) | 9 + 6 = 15 | PASS |
+| メトリクス                                                                                                      | 目標値       | 観測値             | 判定 |
+| --------------------------------------------------------------------------------------------------------------- | ------------ | ------------------ | ---- |
+| `dev-roadmap/SKILL.md` 内の `roadmap` 文字列出現行                                                              | ≥ 1 (SC-7)   | 17                 | PASS |
+| `dev-workflow/SKILL.md` 内の `roadmap-progress.yaml` 出現行                                                     | ≥ 3 (SC-8)   | 11                 | PASS |
+| `README.md` 内の `dev-roadmap` 出現行                                                                           | ≥ 1 (SC-9)   | 1                  | PASS |
+| 既存サイクル baseline diff (insertions+deletions)                                                               | 0 (SC-12)    | 0 (4 サイクル全て) | PASS |
+| `specialist-common/SKILL.md` 内 distinct specialists count                                                      | 12 (SC-13)   | 12                 | PASS |
+| `roadmap-<roadmap-id>.md` の prefix 命名出現行 (`dev-roadmap/SKILL.md` + `references/roadmap-retrospective.md`) | ≥ 1 (TC-033) | 9 + 6 = 15         | PASS |
 
 ## 計測不能 / 前提崩壊の記録
 

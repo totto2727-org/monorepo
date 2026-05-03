@@ -47,19 +47,19 @@ Intent Spec 「未解決事項 #2」(`docs/dev-workflow/2026-04-29-add-dev-roadm
 
 `shared-artifacts/templates/progress.yaml` および `shared-artifacts/references/progress-yaml.md` から、再開時に参照されるフィールドは以下 (`progress-yaml.md` L18-L86):
 
-| フィールド | 役割 (再開時) | 必須性 |
-| --- | --- | --- |
-| `identifier` | サイクル一意識別子 (固定) | 必須 |
-| `started_at` / `updated_at` | 開始時刻 (固定) / 最終更新時刻 (再開マーカー) | 必須 |
-| `status` (`active` / `completed` / `blocked`) | サイクル全体状態 — 再開要否の一次判定 | 必須 |
-| `current_step` | 「Step N: 名称」形式で再開地点を一意特定 | 必須 |
-| `completed_steps` (時系列リスト) | 既完了ステップ + 成果物 — 文脈復元の索引 | 必須 |
-| `pending_gates` | ユーザー承認 / Main 判定待ち項目 — 再開時の真っ先のアクション | 必須 |
-| `active_specialists` (`running` / `blocked` のみ) | 役割終了扱いに変換する対象 | 必須 (空でも) |
-| `blockers` | 未解決阻害要因 — 再開時にユーザー再提示 | 必須 (空でも) |
-| `artifacts` (各成果物パスへの索引) | 既存成果物全読み込みの起点 | 必須 |
-| `user_approvals` (履歴) | ゲート通過履歴の確認 | 必須 (履歴なら空可) |
-| `rollbacks` (履歴) | ロールバック履歴 | 必須 (履歴なら空可) |
+| フィールド                                        | 役割 (再開時)                                                 | 必須性              |
+| ------------------------------------------------- | ------------------------------------------------------------- | ------------------- |
+| `identifier`                                      | サイクル一意識別子 (固定)                                     | 必須                |
+| `started_at` / `updated_at`                       | 開始時刻 (固定) / 最終更新時刻 (再開マーカー)                 | 必須                |
+| `status` (`active` / `completed` / `blocked`)     | サイクル全体状態 — 再開要否の一次判定                         | 必須                |
+| `current_step`                                    | 「Step N: 名称」形式で再開地点を一意特定                      | 必須                |
+| `completed_steps` (時系列リスト)                  | 既完了ステップ + 成果物 — 文脈復元の索引                      | 必須                |
+| `pending_gates`                                   | ユーザー承認 / Main 判定待ち項目 — 再開時の真っ先のアクション | 必須                |
+| `active_specialists` (`running` / `blocked` のみ) | 役割終了扱いに変換する対象                                    | 必須 (空でも)       |
+| `blockers`                                        | 未解決阻害要因 — 再開時にユーザー再提示                       | 必須 (空でも)       |
+| `artifacts` (各成果物パスへの索引)                | 既存成果物全読み込みの起点                                    | 必須                |
+| `user_approvals` (履歴)                           | ゲート通過履歴の確認                                          | 必須 (履歴なら空可) |
+| `rollbacks` (履歴)                                | ロールバック履歴                                              | 必須 (履歴なら空可) |
 
 加えて Intent Spec L59 / L62 の決定により、本サイクルで `progress.yaml` に新設される **`roadmap` ネストブロック** (`{id, milestone: {id}}` または `null`) が再開時に「上位 roadmap 文脈の有無」を一意判定する鍵となる。
 
@@ -78,12 +78,12 @@ Intent Spec 「未解決事項 #2」(`docs/dev-workflow/2026-04-29-add-dev-roadm
 
 Intent Spec L72-L80 の「ステップ構造 (`dev-roadmap` ワークフロー)」より、roadmap は dev-workflow 10 ステップに対して以下 **4 ステップ**で構成される:
 
-| Step | 名称 | Specialist | Gate | 主要成果物 |
-| ---- | ---- | --------- | ---- | --------- |
-| 1 | Roadmap Intent | `roadmap-analyst` × 1 | User | `roadmap.md` (Intent セクション初稿) |
-| 2 | Milestone Decomposition | `roadmap-planner` × 1 | User | `milestones/<milestone-id>.md` 群 + 依存グラフ |
-| 3 | Execution | (新規 Specialist 起動なし。ユーザーが個別 dev-workflow サイクルを手動起動) | Main | `roadmap-progress.yaml` の状態追跡 |
-| 4 | Roadmap Retrospective | `retrospective-writer` × 1 (流用) | Main | `retrospective.md` (roadmap 単位) |
+| Step | 名称                    | Specialist                                                                 | Gate | 主要成果物                                     |
+| ---- | ----------------------- | -------------------------------------------------------------------------- | ---- | ---------------------------------------------- |
+| 1    | Roadmap Intent          | `roadmap-analyst` × 1                                                      | User | `roadmap.md` (Intent セクション初稿)           |
+| 2    | Milestone Decomposition | `roadmap-planner` × 1                                                      | User | `milestones/<milestone-id>.md` 群 + 依存グラフ |
+| 3    | Execution               | (新規 Specialist 起動なし。ユーザーが個別 dev-workflow サイクルを手動起動) | Main | `roadmap-progress.yaml` の状態追跡             |
+| 4    | Roadmap Retrospective   | `retrospective-writer` × 1 (流用)                                          | Main | `retrospective.md` (roadmap 単位)              |
 
 特徴 (Intent Spec L81 から):
 
@@ -185,11 +185,11 @@ Intent Spec の 4 ステップ構造 (F5)、`roadmap-progress.yaml` の自律更
 
 ### I3. 修正が必要な部分 (3 項目)
 
-| dev-workflow 側 (F1) | roadmap 側で必要な修正 | 理由 |
-| --- | --- | --- |
-| `progress.yaml` を読み込む (F1 #1) | **`roadmap-progress.yaml` を読み込む** | ファイル名 / スキーマが別物 (F6) |
-| `current_step` / `completed_steps` 等を確認 (F1 #2) | **「ロードマップ全体状態 (active/completed/blocked) + 各マイルストーン状態 (planned/in_progress/completed 等) + 対応 dev-workflow `<identifier>` 群」を確認** | roadmap は単一 `current_step` でなく**マイルストーン群の進行状態の集合**で進捗を表現する (F5, F6)。roadmap 自身の `current_step` (= roadmap の Step 1〜4) と、Step 3 内のマイルストーン進行状態が**二段構造**になる |
-| 新規 Specialist 起動による再活性化 (F1 #6) | **roadmap の Step (1/2/4) 再開なら新規 Specialist 起動。Step 3 (Execution) 再開時は Specialist 起動せず、進行中 dev-workflow サイクルの存在確認とユーザー再提示に分岐** | roadmap Step 3 は Specialist 不在 (F5)。再活性化対象が「次に起動すべき dev-workflow サイクル」であり Specialist ではない |
+| dev-workflow 側 (F1)                                | roadmap 側で必要な修正                                                                                                                                                  | 理由                                                                                                                                                                                                                |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `progress.yaml` を読み込む (F1 #1)                  | **`roadmap-progress.yaml` を読み込む**                                                                                                                                  | ファイル名 / スキーマが別物 (F6)                                                                                                                                                                                    |
+| `current_step` / `completed_steps` 等を確認 (F1 #2) | **「ロードマップ全体状態 (active/completed/blocked) + 各マイルストーン状態 (planned/in_progress/completed 等) + 対応 dev-workflow `<identifier>` 群」を確認**           | roadmap は単一 `current_step` でなく**マイルストーン群の進行状態の集合**で進捗を表現する (F5, F6)。roadmap 自身の `current_step` (= roadmap の Step 1〜4) と、Step 3 内のマイルストーン進行状態が**二段構造**になる |
+| 新規 Specialist 起動による再活性化 (F1 #6)          | **roadmap の Step (1/2/4) 再開なら新規 Specialist 起動。Step 3 (Execution) 再開時は Specialist 起動せず、進行中 dev-workflow サイクルの存在確認とユーザー再提示に分岐** | roadmap Step 3 は Specialist 不在 (F5)。再活性化対象が「次に起動すべき dev-workflow サイクル」であり Specialist ではない                                                                                            |
 
 ### I4. 新規追加が必要な部分 (4 項目、Step 3 Execution の特殊性に対応)
 

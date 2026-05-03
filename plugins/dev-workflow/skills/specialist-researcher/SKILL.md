@@ -21,13 +21,13 @@ metadata:
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
-| 項目         | 内容                                                                            |
-| ------------ | ------------------------------------------------------------------------------- |
-| 担当ステップ | Step 2 (Research)                                                               |
+| 項目         | 内容                                                                        |
+| ------------ | --------------------------------------------------------------------------- |
+| 担当ステップ | Step 2 (Research)                                                           |
 | 成果物       | `docs/workflow/<identifier>/research/<topic>.md`（1 インスタンス = 1 観点） |
-| テンプレート | `shared-artifacts/templates/research-note.md`                                   |
-| 書き方ガイド | `shared-artifacts/references/research-note.md`                                  |
-| 並列起動     | 高推奨（観点ごとに並列）                                                        |
+| テンプレート | `shared-artifacts/templates/research-note.md`                               |
+| 書き方ガイド | `shared-artifacts/references/research-note.md`                              |
+| 並列起動     | 高推奨（観点ごとに並列）                                                    |
 
 ## 役割
 

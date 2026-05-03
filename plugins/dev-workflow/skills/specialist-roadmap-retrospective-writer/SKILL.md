@@ -26,14 +26,14 @@ metadata:
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
-| 項目           | 内容                                                                                                  |
-| -------------- | ----------------------------------------------------------------------------------------------------- |
-| 担当ステップ   | dev-roadmap Step 4 (Roadmap Retrospective)                                                            |
-| 成果物         | `docs/retrospective/roadmap-<roadmap-id>.md` (集約ディレクトリ + `roadmap-` prefix で命名衝突回避)    |
-| テンプレート   | `shared-artifacts/templates/roadmap-retrospective.md`                                                 |
-| 書き方ガイド   | `shared-artifacts/references/roadmap-retrospective.md`                                                |
-| 並列起動       | しない（ロードマップ全体俯瞰が必要なので 1 名）                                                       |
-| ライフサイクル | 揮発 (次ロードマップが消化したら削除)。永続記録すべき判断は ADR に切り出す                            |
+| 項目           | 内容                                                                                               |
+| -------------- | -------------------------------------------------------------------------------------------------- |
+| 担当ステップ   | dev-roadmap Step 4 (Roadmap Retrospective)                                                         |
+| 成果物         | `docs/retrospective/roadmap-<roadmap-id>.md` (集約ディレクトリ + `roadmap-` prefix で命名衝突回避) |
+| テンプレート   | `shared-artifacts/templates/roadmap-retrospective.md`                                              |
+| 書き方ガイド   | `shared-artifacts/references/roadmap-retrospective.md`                                             |
+| 並列起動       | しない（ロードマップ全体俯瞰が必要なので 1 名）                                                    |
+| ライフサイクル | 揮発 (次ロードマップが消化したら削除)。永続記録すべき判断は ADR に切り出す                         |
 
 ## 役割
 
@@ -118,14 +118,14 @@ Roadmap Retrospective の焦点:
 
 ## 固有の失敗モード
 
-| 状況                                                                  | 対応                                                                                                                         |
-| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Main から具体化・再生成の差し戻し                                     | 同インスタンスで具体的エピソード (マイルストーン状態遷移、配下サイクルの数値) を追加して再生成                               |
-| 改善案が実行不可能な抽象度                                            | 同インスタンスでアクション粒度 (誰が / いつ / どのファイルを変更するか) まで分解                                             |
-| 配下 dev-workflow サイクルの retrospective が未完成のサイクルがある   | 作業を中断し Blocker として Main に報告 (Step 3 にロールバックして当該サイクルの完了を待つ判断を仰ぐ)                        |
-| `roadmap-progress.yaml` のデータが欠損 / マイルストーン状態に矛盾あり | Blocker として Main に報告 (`specialist-common` ケース B、独断で書き換えない)                                                |
-| `roadmap-` prefix を付け忘れて workflow retrospective と命名衝突      | 同インスタンスで出力パスを修正 (`docs/retrospective/<roadmap-id>.md` ではなく `docs/retrospective/roadmap-<roadmap-id>.md`)  |
-| 集約対象の workflow retrospective が大量で 1 段落集約が困難           | 同インスタンスで「サイクル横断パターン」セクションに移し、個別サイクルは要点のみ列挙する形に再構成                           |
+| 状況                                                                  | 対応                                                                                                                        |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Main から具体化・再生成の差し戻し                                     | 同インスタンスで具体的エピソード (マイルストーン状態遷移、配下サイクルの数値) を追加して再生成                              |
+| 改善案が実行不可能な抽象度                                            | 同インスタンスでアクション粒度 (誰が / いつ / どのファイルを変更するか) まで分解                                            |
+| 配下 dev-workflow サイクルの retrospective が未完成のサイクルがある   | 作業を中断し Blocker として Main に報告 (Step 3 にロールバックして当該サイクルの完了を待つ判断を仰ぐ)                       |
+| `roadmap-progress.yaml` のデータが欠損 / マイルストーン状態に矛盾あり | Blocker として Main に報告 (`specialist-common` ケース B、独断で書き換えない)                                               |
+| `roadmap-` prefix を付け忘れて workflow retrospective と命名衝突      | 同インスタンスで出力パスを修正 (`docs/retrospective/<roadmap-id>.md` ではなく `docs/retrospective/roadmap-<roadmap-id>.md`) |
+| 集約対象の workflow retrospective が大量で 1 段落集約が困難           | 同インスタンスで「サイクル横断パターン」セクションに移し、個別サイクルは要点のみ列挙する形に再構成                          |
 
 ## スコープ外（やらないこと）
 

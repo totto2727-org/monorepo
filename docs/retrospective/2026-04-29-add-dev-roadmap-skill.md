@@ -28,13 +28,13 @@
 
 ### ループ回数の分析
 
-| ステップ間ループ | 回数 | 根本原因 |
-| ---------------- | ---- | -------- |
-| Step 4 → Step 1 (Plan D ロールバック) | 1 | main マージで 4 前提崩壊 (9 ステップ移行 / docs path rename / retrospective 集約 / SC-12 baseline)。サイクル進行中に companion ブランチ 2 件が main にマージされた |
-| Step 7 → Step 6 (Major 戻し) | 1 | task-plan の path 置換対象スコープ過小 (3 ファイル指定 → 32 箇所取りこぼし) と sub-Specialist の旧ステップ番号混入。Step 6 再実装は機械的修正のため Step 7 再実行はスキップ |
-| Step 6 ↔ Step 7 (Blocker 戻し) | 0 | Step 7 Round 1 で Major 3 件 (path 残存 / TC-029-030 観測手段 / SC-12 観測手段) 検出。Blocker は 0 件 |
-| Step 8 → Step 6 / Step 4 | 0 | Step 8 Validation で 14 SC 全件 PASS (TC-015 はテンプレート Mustache 由来の擬似 fail、置換後 parseable で代替確認済) |
-| 同一タスク再活性化 (re_activations >= 1) | 0 | T0-T15 全 16 タスクすべて Round 1 で完了、再活性化発生なし |
+| ステップ間ループ                         | 回数 | 根本原因                                                                                                                                                                    |
+| ---------------------------------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Step 4 → Step 1 (Plan D ロールバック)    | 1    | main マージで 4 前提崩壊 (9 ステップ移行 / docs path rename / retrospective 集約 / SC-12 baseline)。サイクル進行中に companion ブランチ 2 件が main にマージされた          |
+| Step 7 → Step 6 (Major 戻し)             | 1    | task-plan の path 置換対象スコープ過小 (3 ファイル指定 → 32 箇所取りこぼし) と sub-Specialist の旧ステップ番号混入。Step 6 再実装は機械的修正のため Step 7 再実行はスキップ |
+| Step 6 ↔ Step 7 (Blocker 戻し)           | 0    | Step 7 Round 1 で Major 3 件 (path 残存 / TC-029-030 観測手段 / SC-12 観測手段) 検出。Blocker は 0 件                                                                       |
+| Step 8 → Step 6 / Step 4                 | 0    | Step 8 Validation で 14 SC 全件 PASS (TC-015 はテンプレート Mustache 由来の擬似 fail、置換後 parseable で代替確認済)                                                        |
+| 同一タスク再活性化 (re_activations >= 1) | 0    | T0-T15 全 16 タスクすべて Round 1 で完了、再活性化発生なし                                                                                                                  |
 
 **T13-T15 タスクの後発追加コミット**: 37eb0d3 (T13: path 一括置換 32 箇所 / 29 ファイル)、aa14c1e (T14: 旧 10 ステップ番号修正 Step 8/9/10 → Step 7/8/9)、551e497 (T15: dev-workflow/SKILL.md 番号付け修正 + サイクル固有参照削除 + README 英日混在修正)。
 

@@ -24,17 +24,17 @@
 
 ## チェックリスト別検証結果
 
-| # | 項目 | 結果 |
-| --- | ---- | ---- |
-| 1 | 既存サイクル成果物の内容差分 (SC-12) | PASS |
-| 2 | `progress.yaml` 既存フィールドの変更 | PASS (末尾追記のみ) |
-| 3 | `progress.yaml.roadmap == null` (デフォルト) でのスキップ規則 | PASS (`dev-workflow/SKILL.md` 766-768 で fail-open 明記) |
-| 4 | `dev-workflow/SKILL.md` 追記の独立サイクルへの非影響 | PASS (両セクションでスキップ規則一貫、`grep -nF "roadmap-progress.yaml"` = 11 件) |
-| 5 | `specialist-common/SKILL.md` の Specialist 列挙拡張 | PASS (12 specialists 列挙、Do NOT use for 拡張、qa-analyst 重複追加なし、self-reviewer 復元なし) |
-| 6 | `shared-artifacts/SKILL.md` の成果物一覧追加 | PASS (既存テーブル行不変、新規 4 行追加、1:1 例外 3 件目追記) |
-| 7 | 既存テンプレート互換性 | PASS (`templates/progress.yaml:65` の `roadmap: null` 末尾追加で fail-open) |
-| 8a | 物理ディレクトリリネーム | PASS (内容差分 0 リネームのみ) |
-| 8b | スキル/agent/reference/template 内のパス参照表記 | **Major 指摘あり** (32 箇所残存) |
+| #   | 項目                                                          | 結果                                                                                             |
+| --- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| 1   | 既存サイクル成果物の内容差分 (SC-12)                          | PASS                                                                                             |
+| 2   | `progress.yaml` 既存フィールドの変更                          | PASS (末尾追記のみ)                                                                              |
+| 3   | `progress.yaml.roadmap == null` (デフォルト) でのスキップ規則 | PASS (`dev-workflow/SKILL.md` 766-768 で fail-open 明記)                                         |
+| 4   | `dev-workflow/SKILL.md` 追記の独立サイクルへの非影響          | PASS (両セクションでスキップ規則一貫、`grep -nF "roadmap-progress.yaml"` = 11 件)                |
+| 5   | `specialist-common/SKILL.md` の Specialist 列挙拡張           | PASS (12 specialists 列挙、Do NOT use for 拡張、qa-analyst 重複追加なし、self-reviewer 復元なし) |
+| 6   | `shared-artifacts/SKILL.md` の成果物一覧追加                  | PASS (既存テーブル行不変、新規 4 行追加、1:1 例外 3 件目追記)                                    |
+| 7   | 既存テンプレート互換性                                        | PASS (`templates/progress.yaml:65` の `roadmap: null` 末尾追加で fail-open)                      |
+| 8a  | 物理ディレクトリリネーム                                      | PASS (内容差分 0 リネームのみ)                                                                   |
+| 8b  | スキル/agent/reference/template 内のパス参照表記              | **Major 指摘あり** (32 箇所残存)                                                                 |
 
 ## 指摘事項
 
@@ -80,12 +80,12 @@
 
 ## 深刻度別件数
 
-| 深刻度 | 件数 |
-| ------ | ---- |
-| Blocker | 0 |
-| Major | 1 |
-| Minor | 0 |
-| Info | 1 |
+| 深刻度  | 件数 |
+| ------- | ---- |
+| Blocker | 0    |
+| Major   | 1    |
+| Minor   | 0    |
+| Info    | 1    |
 
 ## 総合判定
 

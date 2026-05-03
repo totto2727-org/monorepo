@@ -77,12 +77,12 @@
 
 ### ステップ構造 (`dev-roadmap` ワークフロー)
 
-| Step | 名称                    | Specialist                              | Gate | 主要成果物                                |
-| ---- | ----------------------- | --------------------------------------- | ---- | ----------------------------------------- |
-| 1    | Roadmap Intent          | `roadmap-analyst` × 1                   | User | `roadmap.md` (Intent セクションのみ初稿)  |
-| 2    | Milestone Decomposition | `roadmap-planner` × 1                   | User | `milestones/<milestone-id>.md` 群 + 依存グラフ |
+| Step | 名称                    | Specialist                                                                                        | Gate | 主要成果物                                                                       |
+| ---- | ----------------------- | ------------------------------------------------------------------------------------------------- | ---- | -------------------------------------------------------------------------------- |
+| 1    | Roadmap Intent          | `roadmap-analyst` × 1                                                                             | User | `roadmap.md` (Intent セクションのみ初稿)                                         |
+| 2    | Milestone Decomposition | `roadmap-planner` × 1                                                                             | User | `milestones/<milestone-id>.md` 群 + 依存グラフ                                   |
 | 3    | Execution               | (ユーザーが手動で個別 `dev-workflow` サイクルを起動。各サイクルが `roadmap-progress.yaml` を更新) | Main | `roadmap-progress.yaml` の状態追跡 (dev-workflow 側の自動更新 + Main の補完更新) |
-| 4    | Roadmap Retrospective   | `retrospective-writer` × 1 (流用)        | Main | `docs/retrospective/<roadmap-id>.md` (集約形式) |
+| 4    | Roadmap Retrospective   | `retrospective-writer` × 1 (流用)                                                                 | Main | `docs/retrospective/<roadmap-id>.md` (集約形式)                                  |
 
 Step 3 では `dev-roadmap` 自身は新たな Specialist を起動しない。**`dev-roadmap` が能動的に `dev-workflow` サイクルを起動することはない**: ユーザーがマイルストーン定義を入力源として、必要なタイミングで個別の `dev-workflow` サイクルを手動で起動する。起動された各 `dev-workflow` サイクルは `roadmap != null` (= `progress.yaml` トップの `roadmap` ブロックが non-null) を検知すると、自身の進行 (サイクル開始 / 各ステップ完了 / サイクル完了) に応じて `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` の該当マイルストーン状態を**自律的に更新**する (詳細プロトコルは `dev-workflow/SKILL.md` 内の新規セクションに記載)。Main は対応表 (どのマイルストーンが pending / in_progress / completed か、対応する dev-workflow `<identifier>` は何か) を `roadmap-progress.yaml` で俯瞰し、必要に応じて補完的に更新する。
 

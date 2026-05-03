@@ -29,13 +29,13 @@ metadata:
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
-| 項目         | 内容                                                                                                                |
-| ------------ | ------------------------------------------------------------------------------------------------------------------- |
-| 担当ステップ | Step 2 (Milestone Decomposition)                                                                                    |
+| 項目         | 内容                                                                                                                                                                                                           |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 担当ステップ | Step 2 (Milestone Decomposition)                                                                                                                                                                               |
 | 成果物       | `docs/roadmap/<roadmap-id>/milestones/<milestone-id>.md` 群 + `docs/roadmap/<roadmap-id>/roadmap.md` 内のマイルストーン一覧 / 依存グラフ + `docs/roadmap/<roadmap-id>/roadmap-progress.yaml.milestones[]` 確定 |
-| テンプレート | `shared-artifacts/templates/milestone.md` / `shared-artifacts/templates/roadmap.md` (マイルストーン分解後の追記) / `shared-artifacts/templates/roadmap-progress.yaml` |
-| 書き方ガイド | `shared-artifacts/references/milestone.md` / `shared-artifacts/references/roadmap.md` / `shared-artifacts/references/roadmap-progress-yaml.md`               |
-| 並列起動     | しない（全体俯瞰が必要なので 1 名）                                                                                 |
+| テンプレート | `shared-artifacts/templates/milestone.md` / `shared-artifacts/templates/roadmap.md` (マイルストーン分解後の追記) / `shared-artifacts/templates/roadmap-progress.yaml`                                          |
+| 書き方ガイド | `shared-artifacts/references/milestone.md` / `shared-artifacts/references/roadmap.md` / `shared-artifacts/references/roadmap-progress-yaml.md`                                                                 |
+| 並列起動     | しない（全体俯瞰が必要なので 1 名）                                                                                                                                                                            |
 
 ## 役割
 
@@ -112,15 +112,15 @@ metadata:
 
 ## 固有の失敗モード
 
-| 状況                                                       | 対応                                                                                            |
-| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Main からの粒度差し戻し (粗すぎ / 細かすぎ)                | 同インスタンスで粒度基準を明示して再分解 (`specialist-common` §4 ケース A)                       |
-| 依存サイクル (循環依存) の発生                             | 該当箇所を可視化して Main に Blocker 報告。Step 1 (Intent) のスコープ見直しを推奨                |
-| Intent セクションの情報不足でマイルストーン化不能          | 作業を中断し Main に報告。Step 1 への回帰判断を仰ぐ                                              |
-| マイルストーン総数が 1〜2 個に収束 (ロードマップ採否疑義)  | Main に報告。`dev-workflow` 単独サイクルへの切替提案を含めて Step 1 ロールバック判断を仰ぐ       |
-| 並列実行を強制する依存グラフが構造的に作れない             | Main に報告。Intent の制約 / 非スコープ見直し (Step 1 回帰) を相談                               |
-| `roadmap-progress.yaml` 既存値との整合性破綻 (例: `status: completed` のマイルストーンが既存) | 作業を中断し Main に Blocker 報告 (`specialist-common` §4 ケース B)。独断で書き換えない |
-| YAML が parse 不能な状態でコミット候補となる               | コミット前に自己検証 (`yq` / `python -c "import yaml"` 等)、不正なら同インスタンスで修正         |
+| 状況                                                                                          | 対応                                                                                       |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Main からの粒度差し戻し (粗すぎ / 細かすぎ)                                                   | 同インスタンスで粒度基準を明示して再分解 (`specialist-common` §4 ケース A)                 |
+| 依存サイクル (循環依存) の発生                                                                | 該当箇所を可視化して Main に Blocker 報告。Step 1 (Intent) のスコープ見直しを推奨          |
+| Intent セクションの情報不足でマイルストーン化不能                                             | 作業を中断し Main に報告。Step 1 への回帰判断を仰ぐ                                        |
+| マイルストーン総数が 1〜2 個に収束 (ロードマップ採否疑義)                                     | Main に報告。`dev-workflow` 単独サイクルへの切替提案を含めて Step 1 ロールバック判断を仰ぐ |
+| 並列実行を強制する依存グラフが構造的に作れない                                                | Main に報告。Intent の制約 / 非スコープ見直し (Step 1 回帰) を相談                         |
+| `roadmap-progress.yaml` 既存値との整合性破綻 (例: `status: completed` のマイルストーンが既存) | 作業を中断し Main に Blocker 報告 (`specialist-common` §4 ケース B)。独断で書き換えない    |
+| YAML が parse 不能な状態でコミット候補となる                                                  | コミット前に自己検証 (`yq` / `python -c "import yaml"` 等)、不正なら同インスタンスで修正   |
 
 ## スコープ外（やらないこと）
 

@@ -24,7 +24,7 @@
 ```yaml
 roadmap_id: <roadmap-id>
 title: <短い説明>
-status: planned | active | completed   # ロードマップ全体
+status: planned | active | completed # ロードマップ全体
 created_at: <ISO8601 秒精度>
 updated_at: <ISO8601 秒精度>
 
@@ -32,9 +32,9 @@ milestones:
   - id: <milestone-id>
     title: <短い説明>
     status: planned | active | completed | blocked | cancelled
-    depends_on: []                       # マイルストーン依存 (id 配列、DAG)
-    workflow_identifiers: []             # 紐付き dev-workflow サイクル (1:N 許容)
-    notes: null                          # 任意の補足 (default null)
+    depends_on: [] # マイルストーン依存 (id 配列、DAG)
+    workflow_identifiers: [] # 紐付き dev-workflow サイクル (1:N 許容)
+    notes: null # 任意の補足 (default null)
 ```
 
 ## 各フィールドの書き方
@@ -61,14 +61,14 @@ milestones:
 
 ### `milestones[]`
 
-| サブフィールド                         | 書き方                                                                                                                                                                                                                                  |
-| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                                   | kebab-case 推奨 (例: `ms-01-foundation`)。`milestones/<id>.md` ファイル名 basename と一致させる。**Step 2 確定後は immutable**                                                                                                            |
-| `title`                                | 短い説明 (1 行)。`milestones/<id>.md` のタイトルと一致させる                                                                                                                                                                            |
-| `status`                               | 5 値: `planned` / `active` / `completed` / `blocked` / `cancelled`。サイクル開始時 `planned → active`、完了時 `active → completed` のスカラ書き換え                                                                                     |
-| `depends_on`                           | 先行完了が必要なマイルストーン id の配列。DAG 維持。Step 2 確定後は immutable                                                                                                                                                            |
-| `workflow_identifiers`                 | 紐付き `dev-workflow` サイクル `<identifier>` の配列 (1:N 許容)。**append-only 運用** (削除しない、不要になった場合は `notes` 等で説明)                                                                                                  |
-| `notes`                                | 任意の補足 (default `null`)。スキーマを将来拡張する自由領域。PII / トークン / 内部 URL を入れない (`specialist-common` §9 と整合)                                                                                                       |
+| サブフィールド         | 書き方                                                                                                                                              |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                   | kebab-case 推奨 (例: `ms-01-foundation`)。`milestones/<id>.md` ファイル名 basename と一致させる。**Step 2 確定後は immutable**                      |
+| `title`                | 短い説明 (1 行)。`milestones/<id>.md` のタイトルと一致させる                                                                                        |
+| `status`               | 5 値: `planned` / `active` / `completed` / `blocked` / `cancelled`。サイクル開始時 `planned → active`、完了時 `active → completed` のスカラ書き換え |
+| `depends_on`           | 先行完了が必要なマイルストーン id の配列。DAG 維持。Step 2 確定後は immutable                                                                       |
+| `workflow_identifiers` | 紐付き `dev-workflow` サイクル `<identifier>` の配列 (1:N 許容)。**append-only 運用** (削除しない、不要になった場合は `notes` 等で説明)             |
+| `notes`                | 任意の補足 (default `null`)。スキーマを将来拡張する自由領域。PII / トークン / 内部 URL を入れない (`specialist-common` §9 と整合)                   |
 
 #### `id` 命名規則の推奨例
 
@@ -78,12 +78,12 @@ milestones:
 
 #### `status` 遷移ルール
 
-| 遷移                  | タイミング                                                                                                              |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `planned → active`    | 配下 `dev-workflow` サイクル開始時 (Main が `progress.yaml` 初期化と同タイミングで遷移、本ドキュメント「更新プロトコル」参照)     |
-| `active → completed`  | 配下 `dev-workflow` サイクル完了時 (= `dev-workflow` Step 9 Retrospective 完了時)。1:N の場合は最終状態判定をユーザーに委ねる |
-| `* → blocked`         | 配下サイクルが解消困難な Blocker に遭遇した際、Main 判断で遷移                                                          |
-| `* → cancelled`       | ロードマップ Step 2 / Step 3 中にユーザー判断でマイルストーンを取消した場合                                             |
+| 遷移                 | タイミング                                                                                                                    |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `planned → active`   | 配下 `dev-workflow` サイクル開始時 (Main が `progress.yaml` 初期化と同タイミングで遷移、本ドキュメント「更新プロトコル」参照) |
+| `active → completed` | 配下 `dev-workflow` サイクル完了時 (= `dev-workflow` Step 9 Retrospective 完了時)。1:N の場合は最終状態判定をユーザーに委ねる |
+| `* → blocked`        | 配下サイクルが解消困難な Blocker に遭遇した際、Main 判断で遷移                                                                |
+| `* → cancelled`      | ロードマップ Step 2 / Step 3 中にユーザー判断でマイルストーンを取消した場合                                                   |
 
 #### `workflow_identifiers[]` の追記/削除規則
 
@@ -97,11 +97,11 @@ milestones:
 
 ### 何を — 更新対象フィールド
 
-| 更新対象                                               | 性質                                                                                                                          |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| `milestones[].status`                                  | スカラ書き換え。`planned → active` (サイクル開始時) / `active → completed` (サイクル完了時) の 2 遷移のみ                      |
-| `milestones[].workflow_identifiers[]`                  | append-only。サイクル開始時に自身の `<identifier>` を 1 回だけ追記                                                            |
-| `updated_at`                                           | 任意の更新と同時に最新 ISO8601 (秒精度) に書き換え                                                                            |
+| 更新対象                              | 性質                                                                                                      |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `milestones[].status`                 | スカラ書き換え。`planned → active` (サイクル開始時) / `active → completed` (サイクル完了時) の 2 遷移のみ |
+| `milestones[].workflow_identifiers[]` | append-only。サイクル開始時に自身の `<identifier>` を 1 回だけ追記                                        |
+| `updated_at`                          | 任意の更新と同時に最新 ISO8601 (秒精度) に書き換え                                                        |
 
 更新**しない**フィールド (immutable または 他 Specialist の責務):
 
@@ -114,10 +114,10 @@ milestones:
 
 ユーザー単純化方針 (「紐付けだけできれば良い」) に基づき、本バージョンでは以下 **2 タイミングのみ**で更新する:
 
-| タイミング                              | 詳細                                                                                                                                                                                                                                                          |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **(a) サイクル開始時**                  | `progress.yaml` 初期化と同タイミング (`dev-workflow/SKILL.md` 「ワークフロー開始時」ステップ 4')。該当 `milestones[].status` を `planned → active` に遷移、`milestones[].workflow_identifiers[]` に自身の `<identifier>` を append、`updated_at` を更新       |
-| **(c) サイクル完了時**                  | **`dev-workflow` Step 9 Retrospective 完了時** (9 ステップ体系)。該当 `milestones[].status` を `active → completed` に遷移、`updated_at` を更新                                                                                                                |
+| タイミング             | 詳細                                                                                                                                                                                                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **(a) サイクル開始時** | `progress.yaml` 初期化と同タイミング (`dev-workflow/SKILL.md` 「ワークフロー開始時」ステップ 4')。該当 `milestones[].status` を `planned → active` に遷移、`milestones[].workflow_identifiers[]` に自身の `<identifier>` を append、`updated_at` を更新 |
+| **(c) サイクル完了時** | **`dev-workflow` Step 9 Retrospective 完了時** (9 ステップ体系)。該当 `milestones[].status` を `active → completed` に遷移、`updated_at` を更新                                                                                                         |
 
 #### 本バージョンで scope out するタイミング: (b) 各ステップ完了時の進捗サマリ反映
 
@@ -148,11 +148,11 @@ milestones:
 
 並行する複数の `dev-workflow` サイクルが同一 `roadmap-progress.yaml` を更新しうる構造のため、衝突対策が必要。本バージョンは **git 3-way merge 任せ** (最小スキーマ採用 + 単純マージ方針: `status` のスカラ書き換えと `workflow_identifiers[]` の append-only に限定し、衝突耐性をスキーマレベルで確保する):
 
-| 競合シナリオ                                                                | 発生確率 | 対策                                                                                                                                          |
-| --------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| 別ブランチで同一マイルストーンの `status` を別の値 (例: `completed` vs `blocked`) に書き換え | 低 (2 サイクル完了が同時刻 + 別ブランチで起こるケースのみ)        | `pre-commit` hook の YAML syntax 検査で衝突マーカ残存を阻止。Specialist は独断で解消せず Main に Blocker 報告                                              |
-| `workflow_identifiers[]` への追記が両ブランチで同位置に発生                 | 極低 (append であり通常は異なる行)                                | git 3-way merge で自動マージ。「両方追加」競合になった場合のみ手動で**両者を残す形 (set union)** でマージ                                                                |
-| `notes` の同時書き換え                                                      | 極低 (本バージョンでは更新責務がほぼない)                          | 通常の 3-way merge                                                                                                                            |
+| 競合シナリオ                                                                                 | 発生確率                                                   | 対策                                                                                                          |
+| -------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| 別ブランチで同一マイルストーンの `status` を別の値 (例: `completed` vs `blocked`) に書き換え | 低 (2 サイクル完了が同時刻 + 別ブランチで起こるケースのみ) | `pre-commit` hook の YAML syntax 検査で衝突マーカ残存を阻止。Specialist は独断で解消せず Main に Blocker 報告 |
+| `workflow_identifiers[]` への追記が両ブランチで同位置に発生                                  | 極低 (append であり通常は異なる行)                         | git 3-way merge で自動マージ。「両方追加」競合になった場合のみ手動で**両者を残す形 (set union)** でマージ     |
+| `notes` の同時書き換え                                                                       | 極低 (本バージョンでは更新責務がほぼない)                  | 通常の 3-way merge                                                                                            |
 
 #### マージ衝突発生時のリカバリ手順
 
@@ -174,15 +174,15 @@ milestones:
 
 ## 品質基準
 
-| ✅ よい                                                  | ❌ 悪い                                                       |
-| -------------------------------------------------------- | ------------------------------------------------------------- |
-| `yq` / 任意の YAML パーサで syntax error なく parse 可能 | インデント不整合・タブ混在・コロン後スペース欠落              |
-| 必須フィールド (`roadmap_id` / `title` / `status` / `created_at` / `updated_at` / `milestones`) が全て存在 | 必須フィールドが欠損 |
-| `status` 値が enum に収まっている (`planned` / `active` / `completed` / `blocked` / `cancelled`) | enum 外の値 (`done` / `progress` 等) が混入 |
-| `milestones[].depends_on[]` が DAG (循環なし)            | 循環依存が混入 (Mermaid 依存グラフでも検出可能)               |
-| `workflow_identifiers[]` が set semantics を保っている (重複なし) | 同一 `<identifier>` が複数回現れる                       |
-| `updated_at` が更新のたびに書き換えられている            | 古いまま放置されている                                        |
-| `roadmap_id` / マイルストーン `id` が `roadmap.md` / `milestones/<id>.md` と完全一致 | 表記揺れ (例: `ms-01_foundation` vs `ms-01-foundation`) |
+| ✅ よい                                                                                                    | ❌ 悪い                                                 |
+| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `yq` / 任意の YAML パーサで syntax error なく parse 可能                                                   | インデント不整合・タブ混在・コロン後スペース欠落        |
+| 必須フィールド (`roadmap_id` / `title` / `status` / `created_at` / `updated_at` / `milestones`) が全て存在 | 必須フィールドが欠損                                    |
+| `status` 値が enum に収まっている (`planned` / `active` / `completed` / `blocked` / `cancelled`)           | enum 外の値 (`done` / `progress` 等) が混入             |
+| `milestones[].depends_on[]` が DAG (循環なし)                                                              | 循環依存が混入 (Mermaid 依存グラフでも検出可能)         |
+| `workflow_identifiers[]` が set semantics を保っている (重複なし)                                          | 同一 `<identifier>` が複数回現れる                      |
+| `updated_at` が更新のたびに書き換えられている                                                              | 古いまま放置されている                                  |
+| `roadmap_id` / マイルストーン `id` が `roadmap.md` / `milestones/<id>.md` と完全一致                       | 表記揺れ (例: `ms-01_foundation` vs `ms-01-foundation`) |
 
 ## 関連成果物
 

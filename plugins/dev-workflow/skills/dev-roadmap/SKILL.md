@@ -39,7 +39,7 @@ metadata:
 - **Project-Rule Precedence for Details**: 実装パターン・テストルール・コミット規約等はプロジェクト固有スキルを優先
 - **Commit-Based Resumability**: 成果物と進捗記録は `docs/roadmap/<roadmap-id>/` に集約し、各ステップ完了時に必ずコミット
 - **Clean-Transition Between Steps**: 次ステップ着手時には一時ファイル以外は差分がない状態とする
-- **Artifact-as-Gate-Review**: ユーザー承認ゲートでは成果物 (roadmap.md / milestones/*.md / roadmap-retrospective.md) そのものをレビュー対象とする
+- **Artifact-as-Gate-Review**: ユーザー承認ゲートでは成果物 (roadmap.md / milestones/\*.md / roadmap-retrospective.md) そのものをレビュー対象とする
 - **Report-Based Confirmation for In-Progress Questions**: 作業途中の判断要請時は一時レポートを `$TMPDIR/dev-roadmap/step<N>-<purpose>.md` に書き出してから確認
 
 加えて、本スキル固有の方針として以下を持つ:
@@ -72,11 +72,11 @@ metadata:
 
 ### Roadmap Specialist (ロードマップ専門エージェント、3 種)
 
-| Specialist | 担当ステップ | 主な成果物 | 起動形態 |
-| ---------- | ------------ | ---------- | -------- |
-| `roadmap-analyst` | Step 1: Roadmap Intent | `roadmap.md` (Intent セクション) + `roadmap-progress.yaml` 初期化 | × 1 |
-| `roadmap-planner` | Step 2: Milestone Decomposition | `milestones/<milestone-id>.md` 群 + `roadmap.md` の依存グラフ + `roadmap-progress.yaml.milestones[]` 確定 | × 1 |
-| `roadmap-retrospective-writer` | Step 4: Roadmap Retrospective | `docs/retrospective/roadmap-<roadmap-id>.md` (集約形式) | × 1 |
+| Specialist                     | 担当ステップ                    | 主な成果物                                                                                                | 起動形態 |
+| ------------------------------ | ------------------------------- | --------------------------------------------------------------------------------------------------------- | -------- |
+| `roadmap-analyst`              | Step 1: Roadmap Intent          | `roadmap.md` (Intent セクション) + `roadmap-progress.yaml` 初期化                                         | × 1      |
+| `roadmap-planner`              | Step 2: Milestone Decomposition | `milestones/<milestone-id>.md` 群 + `roadmap.md` の依存グラフ + `roadmap-progress.yaml.milestones[]` 確定 | × 1      |
+| `roadmap-retrospective-writer` | Step 4: Roadmap Retrospective   | `docs/retrospective/roadmap-<roadmap-id>.md` (集約形式)                                                   | × 1      |
 
 3 種の Specialist は `specialist-common` を継承し、各々の作業詳細は `specialist-roadmap-analyst` / `specialist-roadmap-planner` / `specialist-roadmap-retrospective-writer` に委譲する。Specialist は自分のスコープ外を触らず、次ステップを勝手に開始せず、Blocker は独断で回避せず Main に報告する (`specialist-common` §4)。
 
@@ -103,12 +103,12 @@ metadata:
 
 ## ステップ一覧
 
-| Step | 名称 | Specialist (起動形態) | Gate | 主要成果物 | 詳細スキル |
-| ---- | ---- | --------------------- | ---- | ---------- | ---------- |
-| 1 | Roadmap Intent | `roadmap-analyst` × 1 | User | `roadmap.md` (Intent セクション) + `roadmap-progress.yaml` 初期化 | `specialist-roadmap-analyst` |
-| 2 | Milestone Decomposition | `roadmap-planner` × 1 | User | `milestones/<milestone-id>.md` 群 + `roadmap.md` 依存グラフ + `roadmap-progress.yaml.milestones[]` | `specialist-roadmap-planner` |
-| 3 | Execution | (起動なし) | Main | (進捗観察のみ、実成果物は配下 `dev-workflow` サイクルが生成) | (該当なし) |
-| 4 | Roadmap Retrospective | `roadmap-retrospective-writer` × 1 | Main | `docs/retrospective/roadmap-<roadmap-id>.md` (集約形式) | `specialist-roadmap-retrospective-writer` |
+| Step | 名称                    | Specialist (起動形態)              | Gate | 主要成果物                                                                                         | 詳細スキル                                |
+| ---- | ----------------------- | ---------------------------------- | ---- | -------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| 1    | Roadmap Intent          | `roadmap-analyst` × 1              | User | `roadmap.md` (Intent セクション) + `roadmap-progress.yaml` 初期化                                  | `specialist-roadmap-analyst`              |
+| 2    | Milestone Decomposition | `roadmap-planner` × 1              | User | `milestones/<milestone-id>.md` 群 + `roadmap.md` 依存グラフ + `roadmap-progress.yaml.milestones[]` | `specialist-roadmap-planner`              |
+| 3    | Execution               | (起動なし)                         | Main | (進捗観察のみ、実成果物は配下 `dev-workflow` サイクルが生成)                                       | (該当なし)                                |
+| 4    | Roadmap Retrospective   | `roadmap-retrospective-writer` × 1 | Main | `docs/retrospective/roadmap-<roadmap-id>.md` (集約形式)                                            | `specialist-roadmap-retrospective-writer` |
 
 各 Specialist 起動時には**reference (書き方ガイド) とテンプレートの両方のパス**を入力に含めること。各 Specialist は `specialist-common` (横断ルール) と上記の個別スキルを参照する。
 
@@ -301,13 +301,13 @@ metadata:
 
 ### マイルストーン状態の遷移ルール
 
-| タイミング | 担当 | `roadmap-progress.yaml` への変化 |
-| ---------- | ---- | -------------------------------- |
-| `dev-roadmap` Step 1 完了時 | `roadmap-analyst` | `roadmap_id` / `title` / `status: planned` / 空 `milestones: []` を初期化 |
-| `dev-roadmap` Step 2 完了時 | `roadmap-planner` | `milestones[]` を確定 (`planned`)、ロードマップ全体 `status: active` に遷移 |
-| `dev-workflow` サイクル開始時 (= roadmap Step 3 中) | `dev-workflow` Main | 該当 `milestones[].status` を `planned → active`、`workflow_identifiers[]` に append |
-| `dev-workflow` サイクル完了時 (= `dev-workflow` Step 9 Retrospective 完了時) | `dev-workflow` Main | 該当 `milestones[].status` を `active → completed` |
-| `dev-roadmap` Step 4 完了時 | `roadmap-retrospective-writer` | ロードマップ全体 `status: completed` に遷移 |
+| タイミング                                                                   | 担当                           | `roadmap-progress.yaml` への変化                                                     |
+| ---------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------ |
+| `dev-roadmap` Step 1 完了時                                                  | `roadmap-analyst`              | `roadmap_id` / `title` / `status: planned` / 空 `milestones: []` を初期化            |
+| `dev-roadmap` Step 2 完了時                                                  | `roadmap-planner`              | `milestones[]` を確定 (`planned`)、ロードマップ全体 `status: active` に遷移          |
+| `dev-workflow` サイクル開始時 (= roadmap Step 3 中)                          | `dev-workflow` Main            | 該当 `milestones[].status` を `planned → active`、`workflow_identifiers[]` に append |
+| `dev-workflow` サイクル完了時 (= `dev-workflow` Step 9 Retrospective 完了時) | `dev-workflow` Main            | 該当 `milestones[].status` を `active → completed`                                   |
+| `dev-roadmap` Step 4 完了時                                                  | `roadmap-retrospective-writer` | ロードマップ全体 `status: completed` に遷移                                          |
 
 並行サイクル (1 マイルストーンに複数 `<identifier>` が紐付く場合) の最終状態判定はユーザー判断に委ねる (例: 「全 N サイクル完了で `completed`」「最初の 1 サイクル完了で `completed`」のいずれを採るかは Step 4 で確定)。
 
@@ -322,7 +322,7 @@ metadata:
 ```yaml
 roadmap_id: <roadmap-id>
 title: <短い説明>
-status: planned | active | completed   # ロードマップ全体
+status: planned | active | completed # ロードマップ全体
 created_at: <ISO8601 秒精度>
 updated_at: <ISO8601 秒精度>
 
@@ -330,9 +330,9 @@ milestones:
   - id: <milestone-id>
     title: <短い説明>
     status: planned | active | completed | blocked | cancelled
-    depends_on: []                       # マイルストーン依存 (id 配列、DAG)
-    workflow_identifiers: []             # 紐付き dev-workflow サイクル (1:N 許容)
-    notes: null                          # 任意の補足 (default null)
+    depends_on: [] # マイルストーン依存 (id 配列、DAG)
+    workflow_identifiers: [] # 紐付き dev-workflow サイクル (1:N 許容)
+    notes: null # 任意の補足 (default null)
 ```
 
 ### 設計方針: 最小限の責務
@@ -399,10 +399,10 @@ graph LR
 
 `docs/retrospective/` 配下は `dev-workflow` retrospective と `dev-roadmap` retrospective が**フラット集約**で共存する (`docs/adr/` と同パターン)。両者の名前空間衝突は **roadmap 側に `roadmap-` prefix を付与**することで回避する:
 
-| 種別 | 保存先パス | 例 |
-| ---- | ---------- | -- |
-| `dev-workflow` サイクル retrospective | `docs/retrospective/<identifier>.md` | `docs/retrospective/2026-04-29-add-dev-roadmap-skill.md` |
-| `dev-roadmap` retrospective | `docs/retrospective/roadmap-<roadmap-id>.md` | `docs/retrospective/roadmap-oauth-rollout.md` |
+| 種別                                  | 保存先パス                                   | 例                                                       |
+| ------------------------------------- | -------------------------------------------- | -------------------------------------------------------- |
+| `dev-workflow` サイクル retrospective | `docs/retrospective/<identifier>.md`         | `docs/retrospective/2026-04-29-add-dev-roadmap-skill.md` |
+| `dev-roadmap` retrospective           | `docs/retrospective/roadmap-<roadmap-id>.md` | `docs/retrospective/roadmap-oauth-rollout.md`            |
 
 この prefix 命名規則は `shared-artifacts/references/roadmap-retrospective.md` にも明記する。`gls docs/retrospective/roadmap-*.md` で roadmap retrospective を一括抽出可能。
 
@@ -419,12 +419,12 @@ graph LR
 
 ### ゲート判定 (ステップ別)
 
-| Step | Gate 種別 | 判定者 | 承認材料 |
-| ---- | --------- | ------ | -------- |
-| 1. Roadmap Intent | User | ユーザー | `roadmap.md` (Intent セクション) + `roadmap-progress.yaml` |
-| 2. Milestone Decomposition | User | ユーザー (実行開始合意) | `roadmap.md` + `milestones/*.md` 群 + `roadmap-progress.yaml` |
-| 3. Execution | Main 判定 | Main | `roadmap-progress.yaml.milestones[]` 全件 `completed` または `cancelled` |
-| 4. Roadmap Retrospective | Main 判定 | Main | `docs/retrospective/roadmap-<roadmap-id>.md` |
+| Step                       | Gate 種別 | 判定者                  | 承認材料                                                                 |
+| -------------------------- | --------- | ----------------------- | ------------------------------------------------------------------------ |
+| 1. Roadmap Intent          | User      | ユーザー                | `roadmap.md` (Intent セクション) + `roadmap-progress.yaml`               |
+| 2. Milestone Decomposition | User      | ユーザー (実行開始合意) | `roadmap.md` + `milestones/*.md` 群 + `roadmap-progress.yaml`            |
+| 3. Execution               | Main 判定 | Main                    | `roadmap-progress.yaml.milestones[]` 全件 `completed` または `cancelled` |
+| 4. Roadmap Retrospective   | Main 判定 | Main                    | `docs/retrospective/roadmap-<roadmap-id>.md`                             |
 
 ユーザー承認ゲート (Step 1 / 2) では一時レポートを作成せず、**成果物そのものをユーザーに提示**する (Artifact-as-Gate-Review 原則)。Main は Exit Criteria 充足状況を口頭で要約して補足する。
 
@@ -432,13 +432,13 @@ graph LR
 
 各ステップが完了した時点で、生成・更新された成果物を**必ずリポジトリにコミット**する。次ステップ開始時には一時ファイル (`$TMPDIR/dev-roadmap/*.md`) 以外は差分がない状態が期待される。
 
-| Step | コミット内容 |
-| ---- | ------------ |
-| サイクル開始時 | `docs/roadmap/<roadmap-id>/` ディレクトリ作成 + `roadmap-progress.yaml` 初期化 (Step 1 と同コミットでも可) |
-| 1. Roadmap Intent | `roadmap.md` (Intent セクション) + `roadmap-progress.yaml` |
-| 2. Milestone Decomposition | `roadmap.md` (マイルストーン追記版) + `milestones/*.md` (全マイルストーンまとめて) + `roadmap-progress.yaml` |
-| 3. Execution | (本ステップ自身のコミットなし。配下 `dev-workflow` サイクルが各々の規約でコミット) |
-| 4. Roadmap Retrospective | `docs/retrospective/roadmap-<roadmap-id>.md` + `roadmap-progress.yaml` (`status: completed`、ロードマップ最終コミット) |
+| Step                       | コミット内容                                                                                                           |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| サイクル開始時             | `docs/roadmap/<roadmap-id>/` ディレクトリ作成 + `roadmap-progress.yaml` 初期化 (Step 1 と同コミットでも可)             |
+| 1. Roadmap Intent          | `roadmap.md` (Intent セクション) + `roadmap-progress.yaml`                                                             |
+| 2. Milestone Decomposition | `roadmap.md` (マイルストーン追記版) + `milestones/*.md` (全マイルストーンまとめて) + `roadmap-progress.yaml`           |
+| 3. Execution               | (本ステップ自身のコミットなし。配下 `dev-workflow` サイクルが各々の規約でコミット)                                     |
+| 4. Roadmap Retrospective   | `docs/retrospective/roadmap-<roadmap-id>.md` + `roadmap-progress.yaml` (`status: completed`、ロードマップ最終コミット) |
 
 #### コミットメッセージ規約
 
@@ -491,11 +491,11 @@ docs(dev-roadmap/<roadmap-id>): close roadmap with retrospective
 
 ### シナリオ別動線
 
-| シナリオ | 状態 | 動線 |
-| -------- | ---- | ---- |
-| **A: roadmap Step 1-2 完了、Step 3 着手前** | ロードマップ全体 `status: active` / 全 `milestones[].status: planned` / `workflow_identifiers[]` 全て空 | ユーザーに次マイルストーンを提示 → ユーザー手動で `dev-workflow` 起動を案内 (項目 11: N3) |
-| **B: roadmap Step 3 進行中** | ロードマップ全体 `status: active` / 一部 `milestones[].status: active` / `workflow_identifiers[]` に進行中 `<identifier>` あり | 項目 9-10 (N1-N2) に従い進行中 `dev-workflow` 側のセッション再開を優先実行。完了済みマイルストーンの集計をユーザーに提示。次マイルストーン起動可否を確認 (項目 11: N3) |
-| **C: roadmap Step 4 進行中** | ロードマップ全体 `status: active` / 全 `milestones[].status: completed` または `cancelled` / Step 4 着手済み | `roadmap-retrospective-writer` を新規起動して Step 4 完了まで継続 |
+| シナリオ                                    | 状態                                                                                                                           | 動線                                                                                                                                                                   |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **A: roadmap Step 1-2 完了、Step 3 着手前** | ロードマップ全体 `status: active` / 全 `milestones[].status: planned` / `workflow_identifiers[]` 全て空                        | ユーザーに次マイルストーンを提示 → ユーザー手動で `dev-workflow` 起動を案内 (項目 11: N3)                                                                              |
+| **B: roadmap Step 3 進行中**                | ロードマップ全体 `status: active` / 一部 `milestones[].status: active` / `workflow_identifiers[]` に進行中 `<identifier>` あり | 項目 9-10 (N1-N2) に従い進行中 `dev-workflow` 側のセッション再開を優先実行。完了済みマイルストーンの集計をユーザーに提示。次マイルストーン起動可否を確認 (項目 11: N3) |
+| **C: roadmap Step 4 進行中**                | ロードマップ全体 `status: active` / 全 `milestones[].status: completed` または `cancelled` / Step 4 着手済み                   | `roadmap-retrospective-writer` を新規起動して Step 4 完了まで継続                                                                                                      |
 
 ### `docs/roadmap/` 配下の再開可能 roadmap 検出
 
@@ -512,15 +512,15 @@ docs(dev-roadmap/<roadmap-id>): close roadmap with retrospective
 
 ステップ間で整合性が崩れた場合のロールバック先を早見表として整理する。詳細は各ステップの「失敗時 / ロールバック」セクション参照。
 
-| 発見ステップ | 問題 | ロールバック先 |
-| ------------ | ---- | -------------- |
-| Step 2 | マイルストーン分解が単一サイクルで足りる規模 | Step 1 (roadmap 採否を再評価、`dev-workflow` 単独サイクルへの切替を検討) |
-| Step 2 | 依存関係が解決不能 | Step 1 (Intent セクションのスコープ見直し) |
-| Step 3 | 特定マイルストーンが長期 `blocked` | (Step 内対応: cancel / 再分解) または Step 2 (再分解) または Step 1 (上位戦略再定義) |
-| Step 3 | マイルストーン分解の前提崩壊 | Step 2 (再分解) |
-| Step 3 | ロードマップ自体の意図崩壊 (上位戦略変更) | Step 1 (Intent セクション再定義) |
-| Step 4 | 配下 `dev-workflow` retrospective 未完成 | Step 3 (該当サイクルの完了を待つ) |
-| Step 4 | 振り返り内容が抽象的 | (同一インスタンスに具体化指示、ステップ内対応) |
+| 発見ステップ | 問題                                         | ロールバック先                                                                       |
+| ------------ | -------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Step 2       | マイルストーン分解が単一サイクルで足りる規模 | Step 1 (roadmap 採否を再評価、`dev-workflow` 単独サイクルへの切替を検討)             |
+| Step 2       | 依存関係が解決不能                           | Step 1 (Intent セクションのスコープ見直し)                                           |
+| Step 3       | 特定マイルストーンが長期 `blocked`           | (Step 内対応: cancel / 再分解) または Step 2 (再分解) または Step 1 (上位戦略再定義) |
+| Step 3       | マイルストーン分解の前提崩壊                 | Step 2 (再分解)                                                                      |
+| Step 3       | ロードマップ自体の意図崩壊 (上位戦略変更)    | Step 1 (Intent セクション再定義)                                                     |
+| Step 4       | 配下 `dev-workflow` retrospective 未完成     | Step 3 (該当サイクルの完了を待つ)                                                    |
+| Step 4       | 振り返り内容が抽象的                         | (同一インスタンスに具体化指示、ステップ内対応)                                       |
 
 ロールバック範囲と再実行計画はユーザーに **In-Progress ユーザー問い合わせ**形式 (一時レポート) で提示して判断を仰ぐ。
 

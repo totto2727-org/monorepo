@@ -25,13 +25,13 @@ metadata:
 
 **継承:** `specialist-common` (ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律)
 
-| 項目         | 内容                                                                                        |
-| ------------ | ------------------------------------------------------------------------------------------- |
-| 担当ステップ | Step 4 (QA Design)                                                                          |
-| 成果物       | `docs/workflow/<identifier>/qa-design.md` + `docs/workflow/<identifier>/qa-flow.md` |
-| テンプレート | `shared-artifacts/templates/qa-design.md`, `shared-artifacts/templates/qa-flow.md`          |
-| 書き方ガイド | `shared-artifacts/references/qa-design.md`, `shared-artifacts/references/qa-flow.md`        |
-| 並列起動     | しない (テスト戦略の一貫性のため 1 名)                                                      |
+| 項目         | 内容                                                                                 |
+| ------------ | ------------------------------------------------------------------------------------ |
+| 担当ステップ | Step 4 (QA Design)                                                                   |
+| 成果物       | `docs/workflow/<identifier>/qa-design.md` + `docs/workflow/<identifier>/qa-flow.md`  |
+| テンプレート | `shared-artifacts/templates/qa-design.md`, `shared-artifacts/templates/qa-flow.md`   |
+| 書き方ガイド | `shared-artifacts/references/qa-design.md`, `shared-artifacts/references/qa-flow.md` |
+| 並列起動     | しない (テスト戦略の一貫性のため 1 名)                                               |
 
 ## 役割
 

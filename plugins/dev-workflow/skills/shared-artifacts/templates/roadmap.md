@@ -50,8 +50,8 @@
 
 Step 2 (Milestone Decomposition) で `roadmap-planner` が確定するセクション。1 行 1 マイルストーンで概要を列挙し、詳細は `milestones/<milestone-id>.md` (1 ファイル / マイルストーン) に切り出す。
 
-| ID                | タイトル          | 想定 dev-workflow サイクル数 | 依存マイルストーン        | 詳細                              |
-| ----------------- | ----------------- | ---------------------------- | ------------------------- | --------------------------------- |
+| ID                 | タイトル              | 想定 dev-workflow サイクル数 | 依存マイルストーン         | 詳細                               |
+| ------------------ | --------------------- | ---------------------------- | -------------------------- | ---------------------------------- |
 | {{milestone_1_id}} | {{milestone_1_title}} | {{milestone_1_cycle_count}}  | {{milestone_1_depends_on}} | `milestones/{{milestone_1_id}}.md` |
 | {{milestone_2_id}} | {{milestone_2_title}} | {{milestone_2_cycle_count}}  | {{milestone_2_depends_on}} | `milestones/{{milestone_2_id}}.md` |
 | {{milestone_3_id}} | {{milestone_3_title}} | {{milestone_3_cycle_count}}  | {{milestone_3_depends_on}} | `milestones/{{milestone_3_id}}.md` |

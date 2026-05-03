@@ -20,13 +20,13 @@ metadata:
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
-| 項目         | 内容                                                  |
-| ------------ | ----------------------------------------------------- |
-| 担当ステップ | Step 8 (Validation)                                   |
-| 成果物       | `docs/workflow/<identifier>/validation-report.md` |
-| テンプレート | `shared-artifacts/templates/validation-report.md`     |
-| 書き方ガイド | `shared-artifacts/references/validation-report.md`    |
-| 並列起動     | しない（成功基準の統一判定が必要なので 1 名）         |
+| 項目         | 内容                                               |
+| ------------ | -------------------------------------------------- |
+| 担当ステップ | Step 8 (Validation)                                |
+| 成果物       | `docs/workflow/<identifier>/validation-report.md`  |
+| テンプレート | `shared-artifacts/templates/validation-report.md`  |
+| 書き方ガイド | `shared-artifacts/references/validation-report.md` |
+| 並列起動     | しない（成功基準の統一判定が必要なので 1 名）      |
 
 ## 役割
 

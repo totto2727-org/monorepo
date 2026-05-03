@@ -21,11 +21,11 @@
 
 `roadmap-progress.yaml.milestones[]` の最終状態を一覧化し、各マイルストーンの達成 / 未達 / blocked / cancelled の判定根拠を記述する。
 
-| Milestone ID         | Title                  | Final Status        | 達成判定の根拠                              | 関連 dev-workflow `<identifier>`             |
-| -------------------- | ---------------------- | ------------------- | ------------------------------------------- | -------------------------------------------- |
-| {{milestone_1_id}}   | {{milestone_1_title}}  | {{milestone_1_status}} | {{milestone_1_completion_rationale}}        | {{milestone_1_workflow_identifiers}}         |
-| {{milestone_2_id}}   | {{milestone_2_title}}  | {{milestone_2_status}} | {{milestone_2_completion_rationale}}        | {{milestone_2_workflow_identifiers}}         |
-| {{milestone_3_id}}   | {{milestone_3_title}}  | {{milestone_3_status}} | {{milestone_3_completion_rationale}}        | {{milestone_3_workflow_identifiers}}         |
+| Milestone ID       | Title                 | Final Status           | 達成判定の根拠                       | 関連 dev-workflow `<identifier>`     |
+| ------------------ | --------------------- | ---------------------- | ------------------------------------ | ------------------------------------ |
+| {{milestone_1_id}} | {{milestone_1_title}} | {{milestone_1_status}} | {{milestone_1_completion_rationale}} | {{milestone_1_workflow_identifiers}} |
+| {{milestone_2_id}} | {{milestone_2_title}} | {{milestone_2_status}} | {{milestone_2_completion_rationale}} | {{milestone_2_workflow_identifiers}} |
+| {{milestone_3_id}} | {{milestone_3_title}} | {{milestone_3_status}} | {{milestone_3_completion_rationale}} | {{milestone_3_workflow_identifiers}} |
 
 <!-- 必要な数だけ行を追加。`milestones/<milestone-id>.md` の「到達点 (定性)」と照らし合わせて判定する -->
 

@@ -19,18 +19,18 @@
 
 ## チェックリスト 10 項目の判定サマリ
 
-| # | チェック項目 | 判定 | 関連 Finding |
-| - | ------------ | ---- | ------------ |
-| 1 | Intent Spec ↔ design (14 SC マッピング) | PASS | — |
-| 2 | Design ↔ QA (確定 1〜6 全 TC カバー) | PASS | — |
-| 3 | QA ↔ Task Plan (TC-001〜TC-033 全カバー) | PASS | Info-1 |
-| 4 | Task Plan ↔ 実装 (T0〜T12 完了 + ファイル整合) | 部分的 PASS | Major-1, Minor-1 |
-| 5 | ロールバック追従 (4 起因の Intent → design → 実装伝播) | 部分的 PASS | Major-1 |
-| 6 | 未解決事項 6 件の design / 実装での確定 | PASS | — |
-| 7 | Open Questions #1 / #2 の実装具体化 | PASS | — |
-| 8 | ユーザー指示「dev-workflow → workflow mv を T0」 | PASS | — |
-| 9 | Specialist 数 = 3 / agent 数 = 3 / template 4 セット (案 C 確定) | PASS | Minor-3 |
-| 10 | 9 ステップ体系: Self-Review 言及の完全除去 | PASS | Info-2 |
+| #   | チェック項目                                                     | 判定        | 関連 Finding     |
+| --- | ---------------------------------------------------------------- | ----------- | ---------------- |
+| 1   | Intent Spec ↔ design (14 SC マッピング)                          | PASS        | —                |
+| 2   | Design ↔ QA (確定 1〜6 全 TC カバー)                             | PASS        | —                |
+| 3   | QA ↔ Task Plan (TC-001〜TC-033 全カバー)                         | PASS        | Info-1           |
+| 4   | Task Plan ↔ 実装 (T0〜T12 完了 + ファイル整合)                   | 部分的 PASS | Major-1, Minor-1 |
+| 5   | ロールバック追従 (4 起因の Intent → design → 実装伝播)           | 部分的 PASS | Major-1          |
+| 6   | 未解決事項 6 件の design / 実装での確定                          | PASS        | —                |
+| 7   | Open Questions #1 / #2 の実装具体化                              | PASS        | —                |
+| 8   | ユーザー指示「dev-workflow → workflow mv を T0」                 | PASS        | —                |
+| 9   | Specialist 数 = 3 / agent 数 = 3 / template 4 セット (案 C 確定) | PASS        | Minor-3          |
+| 10  | 9 ステップ体系: Self-Review 言及の完全除去                       | PASS        | Info-2           |
 
 ## 指摘事項
 
@@ -41,13 +41,13 @@
   - Commit: 5fda5a5 (実態は T0=2949223 リネーム時点から付随)
   - File: 29 ファイル (内訳: `plugins/dev-workflow/agents/{architect,intent-analyst,planner,qa-analyst,researcher,reviewer,validator}.md` の 7 ファイル / `plugins/dev-workflow/skills/specialist-{architect,implementer,intent-analyst,planner,qa-analyst,researcher,reviewer,validator}/SKILL.md` の 8 ファイル / `plugins/dev-workflow/skills/shared-artifacts/references/{design,implementation-log,intent-spec,progress-yaml,qa-design,qa-flow,research-note,retrospective,review-report,task-plan,todo,validation-report}.md` の 12 ファイル / `plugins/dev-workflow/skills/shared-artifacts/templates/{qa-design,validation-report}.md` の 2 ファイル)
   - Line: 各ファイルで `docs/dev-workflow/<identifier>/...` 表記 (合計 33 箇所、`ggrep -rn "docs/dev-workflow" plugins/dev-workflow/` で観測可能)
-- **問題の要約:** Intent Spec L23 (「path 表記は全てリネーム後の新パスを前提とする」) に対し、design.md「既存スキルへの最小変更影響表」(L313-330) と task-plan.md (T8/T9/T10) で path 置換対象を `dev-workflow/SKILL.md` / `specialist-common/SKILL.md` / `shared-artifacts/SKILL.md` の 3 ファイルに限定して計画したため、その他 29 ファイル (agents、特に他 specialist-* SKILL、shared-artifacts/references・templates) の path 表記が `docs/dev-workflow/` のまま放置された。Step 6 implementer はタスク仕様に忠実に動いており、task-plan のスコープ過小が真因。
+- **問題の要約:** Intent Spec L23 (「path 表記は全てリネーム後の新パスを前提とする」) に対し、design.md「既存スキルへの最小変更影響表」(L313-330) と task-plan.md (T8/T9/T10) で path 置換対象を `dev-workflow/SKILL.md` / `specialist-common/SKILL.md` / `shared-artifacts/SKILL.md` の 3 ファイルに限定して計画したため、その他 29 ファイル (agents、特に他 specialist-\* SKILL、shared-artifacts/references・templates) の path 表記が `docs/dev-workflow/` のまま放置された。Step 6 implementer はタスク仕様に忠実に動いており、task-plan のスコープ過小が真因。
 - **根拠:**
   - 実測: `ggrep -rn "docs/dev-workflow" plugins/dev-workflow/` で 33 件 (3 件の置換対象ファイルではすべて 0 件、置換自体は計画通り実施済)。
   - intent-spec.md:23 「本 Intent Spec 内の path 表記は**全てリネーム後の新パス**を前提とする」と書いてあり、本文中の言及範囲は本サイクルの Intent Spec に閉じるが、design.md L390 では「リネーム後パス基準で diff 0」を成功基準に紐付けて運用上の整合を担保する記述がある。整合のためには references / agents / 他 specialist にも置換が必要。
   - task-plan.md L252 R1 「Step 8 Validation で `ggrep -rn "docs/dev-workflow" plugins/dev-workflow/` を実行して残存箇所が 0 件 (もしくは意図的歴史的記述のみ) であることを確認する」と明文化されているが、これは Validation 段階での観測であり、現状の実装はこの確認を pass しない。
 - **推奨アクション:** ユーザー判断で以下のいずれかを選択:
-  - (A) **Step 3 設計戻し + 後続伝播** — design.md「既存スキルへの最小変更影響表」に「`agents/*.md` (7 ファイル) / 他 specialist-*/SKILL.md (8 ファイル) / shared-artifacts/{references,templates}/*.md (14 ファイル) の path 一括置換」タスクを追加し、task-plan に T13 (path 機械置換、依存 = T0) を追記、Step 6 implementer に新規インスタンスで T13 のみを担当させる。所要は機械的 sed 置換で S 規模。
+  - (A) **Step 3 設計戻し + 後続伝播** — design.md「既存スキルへの最小変更影響表」に「`agents/*.md` (7 ファイル) / 他 specialist-_/SKILL.md (8 ファイル) / shared-artifacts/{references,templates}/_.md (14 ファイル) の path 一括置換」タスクを追加し、task-plan に T13 (path 機械置換、依存 = T0) を追記、Step 6 implementer に新規インスタンスで T13 のみを担当させる。所要は機械的 sed 置換で S 規模。
   - (B) **本サイクル内で Implementer に追加指示** — Round 2 Step 6 として Main から implementer に「`docs/dev-workflow/` → `docs/workflow/` を `plugins/dev-workflow/` 配下全ファイルで一括置換、historical reference 記述は除外」の追加タスクを発行。task-plan は immutable のため `TODO.md` 後発タスクで管理。
   - (C) **Retrospective 繰越** — 「path 整合性は将来サイクルで一括クリーンアップ」と記録して本サイクルでは触らない。ただし他 SKILL の読者が古いパスを真と誤認するリスクが残る。
 - **設計との関連:** design.md「既存スキルへの最小変更影響表」(L313-330) のスコープ過小 / task-plan.md R1 (L252) の Validation チェックが現状未充足 / Intent Spec L23 「path 表記は全てリネーム後の新パスを前提とする」の不完全な実装反映
@@ -61,7 +61,7 @@
   - Line: L5-7 (frontmatter description 列挙が 3 行に分かれて改行) / L14-17 (Do NOT use for 列挙が 4 行に分かれて改行)
 - **問題の要約:** qa-design.md TC-029 / TC-030 の判定基準は `ggrep -nE "(roadmap-analyst.*roadmap-planner.*roadmap-retrospective-writer|roadmap-retrospective-writer.*roadmap-planner.*roadmap-analyst)"` のように **行内マッチ** を要求しているが、実装は YAML 多行 frontmatter の慣例に沿って 3〜4 行に分かれて記述されているため、`ggrep` (デフォルト行内検索) では fail する。実態としては 12 名の列挙は揃っているが、TC が想定する観測手段で pass しない。
 - **根拠:**
-  - 実測: `ggrep -nE "(roadmap-analyst.*roadmap-planner.*roadmap-retrospective-writer|...)" plugins/dev-workflow/skills/specialist-common/SKILL.md` exit code 1 (no match)。同じく TC-030 の specialist-roadmap-* 同行マッチも exit 1。
+  - 実測: `ggrep -nE "(roadmap-analyst.*roadmap-planner.*roadmap-retrospective-writer|...)" plugins/dev-workflow/skills/specialist-common/SKILL.md` exit code 1 (no match)。同じく TC-030 の specialist-roadmap-\* 同行マッチも exit 1。
   - 実体観測: L5-7 で `intent-analyst, researcher, architect, qa-analyst, planner, implementer,\n  reviewer, validator, retrospective-writer, roadmap-analyst, roadmap-planner,\n  roadmap-retrospective-writer` と 12 名が連続列挙されており、SC-13 自体は満たしている。
   - TC-029 (2) には「または列挙数を別途カウントして 12 個」の OR 条件が書かれているため、Validation 担当者の解釈次第で pass にできるが、`ggrep` 一発判定では検査できない。
 - **推奨アクション:** いずれかを採用:
@@ -163,8 +163,8 @@
 
 ## 修正ラウンド履歴
 
-| Round | Blocker | Major | Minor | 主要指摘 (要約) | 修正コミット SHA |
-| ----- | ------- | ----- | ----- | --------------- | ---------------- |
+| Round | Blocker | Major | Minor | 主要指摘 (要約)                                                                                        | 修正コミット SHA      |
+| ----- | ------- | ----- | ----- | ------------------------------------------------------------------------------------------------------ | --------------------- |
 | 1     | 0       | 3     | 4     | path 置換スコープ過小 (Major-1) / TC-029-030 観測手段不整合 (Major-2) / SC-12 観測手段不整合 (Major-3) | (Round 1、修正未着手) |
 
 Round 2 以降が必要かどうかはユーザー判断。Major 3 件のうち Major-1 のみ実装変更を伴う、Major-2 / Major-3 は判定基準補正で対応可能。

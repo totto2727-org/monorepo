@@ -21,13 +21,13 @@ metadata:
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律 / プロジェクト固有ルール優先順位）
 
-| 項目         | 内容                                       |
-| ------------ | ------------------------------------------ |
-| 担当ステップ | Step 3 (Design)                            |
-| 成果物       | `docs/workflow/<identifier>/design.md` |
-| テンプレート | `shared-artifacts/templates/design.md`     |
-| 書き方ガイド | `shared-artifacts/references/design.md`    |
-| 並列起動     | しない（設計は一貫性が重要なので 1 名）    |
+| 項目         | 内容                                    |
+| ------------ | --------------------------------------- |
+| 担当ステップ | Step 3 (Design)                         |
+| 成果物       | `docs/workflow/<identifier>/design.md`  |
+| テンプレート | `shared-artifacts/templates/design.md`  |
+| 書き方ガイド | `shared-artifacts/references/design.md` |
+| 並列起動     | しない（設計は一貫性が重要なので 1 名） |
 
 ## 役割
 
