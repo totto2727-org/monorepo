@@ -12,7 +12,7 @@ CLI に組み込む UI を 2 レイヤに整理する:
 | レイヤ          | 用途                                                | 推奨                                                  | 特徴                                                                                 |
 | --------------- | --------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | 軽量 CLI        | 引数解析・プロンプト・進捗バー / スピナー・ログ出力 | `clap` + `tracing` + `inquire` + `indicatif` の組合せ | 各クレートが独立した薄い責務を持ち、必要なものだけを直接呼ぶ。フレームワーク化しない |
-| 高度な宣言的 UI | フル画面ダッシュボード・複数画面遷移                | `tui-realm` on `ratatui`                              | Component + Message/Update の Elm Architecture                                       |
+| 高度な宣言的 UI | フル画面ダッシュボード・複数画面遷移                | `tui-realm`                                           | Component + Message/Update の Elm Architecture                                       |
 
 「どちらを選ぶか」の判断基準は **UI 自体が状態機械として複雑になるか**。
 入力 + ログを流すだけなら軽量 CLI で止める (シンプルな入出力に `tui-realm` は過剰)。
@@ -62,9 +62,9 @@ clap で引数を受ける
 
 このレイヤで完結するなら `tui-realm` を持ち込まない。
 
-## 高度な宣言的 UI: `tui-realm` on `ratatui`
+## 高度な宣言的 UI: `tui-realm`
 
-`ratatui` は immediate-mode の低レベル描画ライブラリ。これに React + Elm 折衷の状態管理を被せたのが `tui-realm` ("Realm" = **R**eact + **E**lm)。
+React + Elm 折衷の状態管理を備えた TUI フレームワーク ("Realm" = **R**eact + **E**lm)。下層の描画ライブラリとして `ratatui` を内部利用するが、本スキルでは**原則として `tui-realm` の API のみを使う** (`ratatui` を直接叩く設計は採用しない)。
 
 ### 構成要素
 
@@ -88,7 +88,7 @@ clap で引数を受ける
 1. 引数受付 + ログ流し + 単発プロンプト + 進捗バー / スピナーで足りる？
    → **軽量 CLI** (`clap` + `tracing` + `inquire` + `indicatif`)
 2. フル画面 / 多画面遷移 / 大規模状態管理が必要？
-   → **高度な宣言的 UI** (`tui-realm` on `ratatui`)
+   → **高度な宣言的 UI** (`tui-realm`)
 
 迷ったら軽量 CLI から始め、UI の状態管理が肥大化してから `tui-realm` に切り替える。
 
@@ -99,4 +99,3 @@ clap で引数を受ける
 - [inquire](https://github.com/mikaelmello/inquire)
 - [indicatif](https://github.com/console-rs/indicatif)
 - [tui-realm](https://github.com/veeso/tui-realm)
-- [ratatui](https://ratatui.rs/)

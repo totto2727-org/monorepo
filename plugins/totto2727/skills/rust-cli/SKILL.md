@@ -5,7 +5,7 @@ description: >-
   selecting Rust crates for CLI work (argument parsing, HTTP, JSON/Schema, error handling,
   filesystem, dates, logging, TUI/spinner/prompt), or porting existing Effect-based / Node CLIs to Rust.
   Common triggers: "Rust CLI", "RustでCLI", "clap", "tokio", "reqwest", "tui-realm",
-  "ratatui", "inquire", "indicatif", "ライブラリ選定", "技術選定 Rust", "Effect から Rust 移植".
+  "inquire", "indicatif", "ライブラリ選定", "技術選定 Rust", "Effect から Rust 移植".
   Do NOT use for: production-grade architecture review (use code-reviewer),
   generic Rust questions unrelated to CLI scope, or non-async sync-only CLI design.
 metadata:
@@ -40,7 +40,7 @@ metadata:
 - **CLI フラグ**: `clap` derive。`#[arg(env = "...")]` で env フォールバックを宣言的に表現する
 - **UI レイヤ選定 (二択)**:
   - **軽量 CLI** (入力受付 + ログ出力 + 進捗表示が中心): `clap` + `tracing` + `inquire` + `indicatif` の単体機能クレートを組み合わせる。これで足りるなら `tui-realm` を持ち込まない (過剰)
-  - **高度な宣言的 UI** (複数画面・大規模状態・ダッシュボード等): `tui-realm` (`ratatui` 上の Elm Architecture) に統一
+  - **高度な宣言的 UI** (複数画面・大規模状態・ダッシュボード等): `tui-realm` (Elm Architecture) に統一。下層描画ライブラリ (`ratatui`) は transitive dep として入るが、原則として `tui-realm` の API のみで実装する
 - **コードは決定的、言語の解釈は非決定的** — バリデーション・スキーマ検査は serde/garde に任せる
 
 ## レイヤ別早見表（必須カテゴリのみ）
@@ -68,7 +68,7 @@ metadata:
 | レイヤ          | 用途                                                    | 推奨スタック                                                                                                   |
 | --------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | 軽量 CLI        | 引数解析・単発プロンプト・進捗バー / スピナー・ログ出力 | `clap` + `tracing` + `inquire` + `indicatif` を**単体機能クレートとして組み合わせる** (フレームワーク化しない) |
-| 高度な宣言的 UI | フル画面ダッシュボード・複数画面遷移・大規模状態管理    | `tui-realm` on `ratatui` (Elm Architecture)                                                                    |
+| 高度な宣言的 UI | フル画面ダッシュボード・複数画面遷移・大規模状態管理    | `tui-realm` (Elm Architecture)                                                                                 |
 
 軽量 CLI 側は責務ごとに独立した薄いクレートを直接呼ぶ設計。`tui-realm` を持ち込むのは UI 自体が状態機械として複雑になるケースに限定する。
 

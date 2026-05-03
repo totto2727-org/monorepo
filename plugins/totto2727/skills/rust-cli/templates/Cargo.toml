@@ -36,9 +36,9 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 inquire = "0.7"
 indicatif = "0.17"
 
-# Advanced declarative UI (uncomment only when full-screen TUI is required)
+# Advanced declarative UI (uncomment only when full-screen TUI is required;
+# ratatui is pulled in transitively — do not depend on it directly)
 # tui-realm = "2"
-# ratatui = "0.29"
 
 # Filesystem helpers
 camino = { version = "1", features = ["serde1"] }
