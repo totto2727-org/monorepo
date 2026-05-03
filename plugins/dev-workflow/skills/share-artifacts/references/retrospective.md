@@ -1,117 +1,117 @@
-# Reference: `retrospective.md` の書き方
+# Reference: How to write `retrospective.md`
 
-## 目的
+## Purpose
 
-サイクル全体を振り返り、**次サイクル以降に活かせる知見**を抽出する。単なる感想ではなく、観測データ（ループ回数、Blocker 履歴、承認ゲート履歴、一時レポート件数）に基づく因果分析と、**アクション可能な改善案**を残す。
+Reflect on the entire cycle and extract **knowledge usable in subsequent cycles**. Not mere impressions, but causal analysis based on observed data (number of loops, Blocker history, approval gate history, count of temporary reports), and **actionable improvement proposals** are kept.
 
-## 作成者 / 作成タイミング
+## Author / creation timing
 
-- **作成者:** `retrospective-writer` Specialist（単一インスタンス）
-- **作成ステップ:** Step 9 (Retrospective)
-- **承認:** Main 判定（ユーザーには情報共有のみ）
+- **Author:** `retrospective-writer` Specialist (single instance)
+- **Step:** Step 9 (Retrospective)
+- **Approval:** Main verdict (information sharing only with the user)
 
-## ファイル位置
+## File location
 
-`docs/retrospective/<identifier>.md` (`docs/adr/` 同パターンの集約ディレクトリ)。`<identifier>` はサイクル作業ディレクトリ `docs/workflow/<identifier>/` と完全同一。
+`docs/retrospective/<identifier>.md` (an aggregated directory in the same pattern as `docs/adr/`). The `<identifier>` is exactly the same as the cycle working directory `docs/workflow/<identifier>/`.
 
-## ライフサイクル
+## Lifecycle
 
-retrospective.md は **次サイクルが改善案項目を消化した時点で削除する** 揮発的な報告ボックス。永続記録すべき判断は ADR (`docs/adr/` または `docs/roadmap/<roadmap-id>/adr/`、モード判定は `share-adr/SKILL.md`) に切り出してから retrospective を削除する。
+`retrospective.md` is **a volatile report box that is deleted once the next cycle has consumed its improvement items**. Decisions that should be persistently recorded are extracted into ADRs (`docs/adr/` or `docs/roadmap/<roadmap-id>/adr/`; mode determination in `share-adr/SKILL.md`) before deleting the retrospective.
 
-| 種別          | 保存先                                              | ライフサイクル                     |
-| ------------- | --------------------------------------------------- | ---------------------------------- |
-| ADR           | `docs/adr/` または `docs/roadmap/<roadmap-id>/adr/` | 永続。`confirmed: true` 化後は不変 |
-| Retrospective | `docs/retrospective/`                               | 揮発。次サイクルで消化されたら削除 |
+| Kind          | Storage location                                      | Lifecycle                                            |
+| ------------- | ----------------------------------------------------- | ---------------------------------------------------- |
+| ADR           | `docs/adr/` or `docs/roadmap/<roadmap-id>/adr/`       | Persistent. Immutable once `confirmed: true`         |
+| Retrospective | `docs/retrospective/`                                 | Volatile. Deleted once consumed by the next cycle    |
 
-削除タイミング: 次サイクルの Intent Spec で改善案項目を「対応 / 不要 / ADR 化」のいずれかで判断した時点。直近 1〜2 サイクル分は (まだ改善検討対象になっていないので) 残す。
+Deletion timing: at the point in the next cycle's Intent Spec when each improvement item is judged as "addressed / not needed / converted to ADR". The most recent 1-2 cycles' worth is left (since they have not yet become improvement candidates).
 
-## 各セクションの書き方
+## How to write each section
 
-### サイクル概要
+### Cycle overview
 
-Intent Spec の目的に対して何を達成したサイクルかを 1–3 段落で。
+In 1-3 paragraphs, what the cycle achieved against the purpose of the Intent Spec.
 
-### 良かった点
+### What went well
 
-次サイクル以降にも**意図的に再現すべきアプローチ**を具体的に記述。
+Concretely describe **approaches that should be intentionally reproduced** in subsequent cycles.
 
-- ✅ 「Research Step で security 観点を先に並列起動したおかげで、Design 段階で認可モデルの選定がスムーズだった」
-- ❌ 「順調だった」
+- Good: "Launching the security aspect in parallel first in the Research Step made selecting the authorization model in the Design phase smoother"
+- Bad: "Things went well"
 
-### 課題
+### Issues
 
-観測データに基づく因果分析:
+Causal analysis based on observed data:
 
-#### ループ回数の分析
+#### Loop-count analysis
 
-| ステップ間ループ  | 回数  | 根本原因     |
-| ----------------- | ----- | ------------ |
-| Step 6 ↔ Step 7   | {{n}} | {{原因分析}} |
-| Step 6/7 → Step 3 | {{n}} | {{原因}}     |
+| Loop between steps | Count | Root cause          |
+| ------------------ | ----- | ------------------- |
+| Step 6 ↔ Step 7    | {{n}} | {{cause analysis}}  |
+| Step 6/7 → Step 3  | {{n}} | {{cause}}           |
 
-#### Blocker 履歴
+#### Blocker history
 
-各 Blocker について発生 / 解消タイムスタンプと対応を記録。
+For each Blocker, record the occurrence / resolution timestamps and the response.
 
-### 次回改善案
+### Improvement proposals for next time
 
-**具体的なアクション粒度**まで分解する。「〜を改善する」ではなく「〜のときに〜する」形式。
+Decompose to **concrete action granularity**. Not "improve X" but in the form "when X happens, do Y".
 
-#### プロセス改善
+#### Process improvements
 
-- ✅ 「Intent Clarification で成功基準が観測不能だと判明した段階で、`validator` を事前相談起動する」
-- ❌ 「コミュニケーションを改善する」
+- Good: "When Intent Clarification reveals that a success criterion is unobservable, launch `validator` in advance for consultation"
+- Bad: "Improve communication"
 
-#### スキル改善
+#### Skill improvements
 
-dev-workflow プラグインのスキル（`dev-workflow` / `specialist-*` / `share-artifacts`）への具体的な改善提案。
+Concrete improvement proposals for the dev-workflow plugin's skills (`dev-workflow` / `specialist-*` / `share-artifacts`).
 
-- 対象スキル名
-- 該当セクション
-- 変更内容の具体案
+- Target skill name
+- Relevant section
+- Concrete proposed change
 
-#### Specialist プロンプト改善
+#### Specialist prompt improvements
 
-各 Specialist の役割定義・入力・手順への反映提案。
+Proposals to be reflected in each Specialist's role definition / inputs / procedures.
 
-### 再利用可能な知見
+### Reusable knowledge
 
-他のサイクル・他のプロジェクトでも役立ちそうな学び。メモリや CLAUDE.md への反映候補。
+Learnings that may help other cycles or other projects. Candidates to reflect into memory or CLAUDE.md.
 
-### ユーザー承認ゲートの振り返り
+### Reflection on user approval gates
 
-各承認ゲートでの承認 / 却下の記録。却下があった場合は原因を振り返る。
+A record of approvals / rejections at each approval gate. If there were rejections, reflect on the cause.
 
-### In-Progress ユーザー問い合わせの振り返り
+### Reflection on in-progress user inquiries
 
-`$TMPDIR/dev-workflow/*.md` 一時レポートの件数と主要トピック。件数が多ければ Intent Spec 段階の明確化不足を示唆している可能性あり。
+The count and main topics of `$TMPDIR/dev-workflow/*.md` temporary reports. A high count may indicate insufficient clarification at the Intent Spec stage.
 
-### コスト / 時間
+### Cost / time
 
-- 各フェーズの実時間
-- Specialist 起動回数
-- 並列度の実効
+- Wall-clock time per phase
+- Specialist launch counts
+- Effective parallelism
 
-## 品質基準
+## Quality criteria
 
-| ✅ よい                                                | ❌ 悪い                  |
-| ------------------------------------------------------ | ------------------------ |
-| 観測データ（ループ回数・タイムスタンプ）から因果を分析 | 印象論・感想             |
-| 改善案がアクション粒度（誰が / いつ / 何をする）       | 「〜を改善する」で止まる |
-| 良かった点が具体的で再現可能                           | 「良かった」だけ         |
-| ユーザー承認で却下があった場合に原因が書かれている     | 却下を記録していない     |
+| Good                                                                | Bad                            |
+| ------------------------------------------------------------------- | ------------------------------ |
+| Causal analysis from observed data (loop counts / timestamps)       | Impressions / opinions         |
+| Improvement proposals at action granularity (who / when / what does what) | Stops at "improve X"           |
+| What went well is concrete and reproducible                         | Just "it was good"             |
+| If a user approval was rejected, the cause is written               | Rejections are not recorded    |
 
-## データソース（入力として必要）
+## Data sources (required as input)
 
-- サイクルの全成果物
-- `progress.yaml`（タイムスタンプ、completed_steps、user_approvals、rollbacks）
-- `TODO.md`（re_activations、started_at / completed_at、External Review Round 履歴）
-- `review/*.md` 全件 (6 観点 + プロジェクト固有追加観点)
+- All artifacts of the cycle
+- `progress.yaml` (timestamps, completed_steps, user_approvals, rollbacks)
+- `TODO.md` (re_activations, started_at / completed_at, External Review Round history)
+- All `review/*.md` (6 aspects + project-specific additional aspects)
 - `validation-report.md`
-- `$TMPDIR/dev-workflow/*.md` 一時レポート一覧
+- List of `$TMPDIR/dev-workflow/*.md` temporary reports
 
-## 関連成果物
+## Related artifacts
 
-- **入力:** サイクル全成果物 + progress.yaml + TODO.md
-- **出力先:** リポジトリに永続保存。次サイクル開始時・他プロジェクトで参照可能
-- **反映先:** 改善案は次サイクルの Intent Spec / プラグインの更新に直接つながる
+- **Inputs:** all artifacts of the cycle + progress.yaml + TODO.md
+- **Output destination:** persisted in the repository. Referenceable when the next cycle starts and from other projects
+- **Reflection destinations:** improvement proposals directly feed the next cycle's Intent Spec / plugin updates

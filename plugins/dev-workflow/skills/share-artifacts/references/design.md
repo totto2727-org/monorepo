@@ -1,112 +1,112 @@
-# Reference: `design.md` の書き方
+# Reference: How to write `design.md`
 
-## 目的
+## Purpose
 
-実装前に、**アーキテクチャ・コンポーネント構成・API 設計・データフロー・代替案**を体系化する。Step 6〜7 中の implementer がこのドキュメントだけで実装判断できる詳細度まで書く。サイクル固有の判断はここで完結させる（プロジェクト横断の意思決定のみ別途 ADR を起票）。
+Before implementation, organize the **architecture, component composition, API design, data flow, and alternatives**. Write to a level of detail at which the implementer during Steps 6-7 can make implementation decisions from this document alone. Cycle-specific decisions are concluded here (only project-wide decisions are filed separately as ADRs).
 
-## 作成者 / 作成タイミング
+## Author / creation timing
 
-- **作成者:** `architect` Specialist（単一インスタンス、反復改善）
-- **作成ステップ:** Step 3 (Design)
-- **承認:** ユーザー承認必須（Artifact-as-Gate-Review）
+- **Author:** `architect` Specialist (single instance, iterative refinement)
+- **Step:** Step 3 (Design)
+- **Approval:** user approval required (Artifact-as-Gate-Review)
 
-## ファイル位置
+## File location
 
 `docs/workflow/<identifier>/design.md`
 
-## 各セクションの書き方
+## How to write each section
 
-### 設計目標と制約
+### Design goals and constraints
 
-`intent-spec.md` からの**引用**で冒頭を固める。目的・成功基準・主要制約を設計判断の起点として明示。
+Begin the document with a **quotation** from `intent-spec.md`. Make the purpose, success criteria, and main constraints explicit as the starting point for design decisions.
 
-### アプローチの概要
+### Approach overview
 
-**1–3 段落**で全体像を述べる。詳細はコンポーネント構成以降で展開する。「なぜこのアプローチか」の中核理由を必ず含める。
+State the overall picture in **1-3 paragraphs**. Details are expanded in the component composition and later sections. Always include the central reason "why this approach".
 
-### コンポーネント構成
+### Component composition
 
-- 主要コンポーネント / モジュール / 層の一覧と役割
-- 関係性を Mermaid 図で可視化することを推奨
-- 既存コンポーネントとの境界・接続点を明示
+- A list of the main components / modules / layers and their roles
+- Visualizing relationships with a Mermaid diagram is recommended
+- Make the boundaries and connection points with existing components explicit
 
-### 主要な型・インターフェース
+### Main types and interfaces
 
-**実装可能な具体レベル**まで書く。TypeScript / Rust / Go などの型定義で示す。API の契約を型で表現できるなら積極的に使う。
+Write to the **concrete level that is implementable**. Express them with type definitions in TypeScript / Rust / Go etc. If the API contract can be expressed with types, do so actively.
 
-### データフロー / API 設計
+### Data flow / API design
 
-API エンドポイント表を記述:
+Describe an API endpoint table:
 
 | Method | Path | Description | Request | Response |
 | ------ | ---- | ----------- | ------- | -------- |
 
-データフローは図（シーケンス図等）で表現する。
+Express the data flow with a diagram (sequence diagram, etc.).
 
-### 代替案と採用理由
+### Alternatives and rationale
 
-**必ず 2–3 個の代替案を比較**する。1 案しか書かれていない設計書は検討が浅い。
+**Always compare 2-3 alternatives.** A design document with only one option indicates shallow consideration.
 
-| 案  | 概要 | 採用 / 却下 | 理由 |
-| --- | ---- | ----------- | ---- |
-| A   | ...  | 採用        | ...  |
-| B   | ...  | 却下        | ...  |
+| Option | Overview | Adopted / Rejected | Reason |
+| ------ | -------- | ------------------ | ------ |
+| A      | ...      | Adopted            | ...    |
+| B      | ...      | Rejected           | ...    |
 
-### 想定される拡張ポイント
+### Anticipated extension points
 
-将来の拡張のために今回の設計で確保している余地を明示。YAGNI 原則に反しない範囲で。
+Make explicit the extension room reserved by this design for future expansion. Within reason of the YAGNI principle.
 
-### 運用上の考慮事項
+### Operational considerations
 
-以下を全て記述（該当なしは「N/A」と明示）:
+Describe all of the following (mark "N/A" explicitly if not applicable):
 
-- 監視 / 観測
-- 移行 / 切替
-- ロールアウト
-- ロールバック
-- セキュリティ
-- パフォーマンス予測
+- Monitoring / observation
+- Migration / cutover
+- Rollout
+- Rollback
+- Security
+- Performance projection
 
-### サイクル境界を越える ADR への参照
+### References to ADRs that cross cycle boundaries
 
-サイクル中に**現サイクルを越えて影響する**判断が発生した場合のみ、ADR へのリンクを張る。`share-adr` skillは保存先の異なる 2 モードを持つ:
+Only when a decision **with effect beyond the current cycle** occurs in this cycle, link to the ADR. The `share-adr` skill has 2 modes with different storage destinations:
 
-- **General mode (`docs/adr/`)**: 複数 roadmap / 独立した複数 dev-workflow サイクル / プロジェクト全体に効く判断
-- **Roadmap mode (`docs/roadmap/<roadmap-id>/adr/`)**: 単一 roadmap 配下の複数サイクルが共有する判断 (現サイクルが roadmap 配下で起動された場合のみ選択肢になる)
+- **General mode (`docs/adr/`)**: decisions affecting multiple roadmaps / multiple independent dev-workflow cycles / the whole project
+- **Roadmap mode (`docs/roadmap/<roadmap-id>/adr/`)**: decisions shared by multiple cycles under a single roadmap (only an option when the current cycle is launched under a roadmap)
 
-モード判定の詳細は `share-adr/SKILL.md` の「モード判定フロー」参照。
+For details of mode determination, see "Mode determination flow" in `share-adr/SKILL.md`.
 
-### Task Decomposition への引き継ぎポイント
+### Hand-off points to Task Decomposition
 
-Step 5 の `planner` が使うヒント。タスク分割の粒度目安・並列性の手掛かりを明示。
+Hints used by Step 5's `planner`. Make explicit the granularity targets for task splitting and clues for parallelism.
 
-## 品質基準
+## Quality criteria
 
-| ✅ よい                                         | ❌ 悪い                                  |
-| ----------------------------------------------- | ---------------------------------------- |
-| implementer がこの設計書だけで実装判断できる    | 抽象的で実装に落とせない                 |
-| 代替案の比較が 2–3 個ある                       | 採用案のみ記述                           |
-| 運用上の考慮事項が全カテゴリ埋まっている        | セキュリティ・パフォーマンスが抜けている |
-| Research Notes の含意が設計判断に反映されている | 調査を無視した設計                       |
+| Good                                                     | Bad                                       |
+| -------------------------------------------------------- | ----------------------------------------- |
+| The implementer can make implementation decisions from this design alone | Abstract and not actionable for implementation |
+| 2-3 alternatives are compared                            | Only the adopted option is described      |
+| All categories of operational considerations are filled  | Security and performance are missing      |
+| Implications of Research Notes are reflected in design decisions | The investigation is ignored in the design |
 
-## ADR 起票の判定基準
+## ADR filing decision criteria
 
-`design.md` 内で完結させるか、別途 ADR を起票するかの判定:
+Determining whether to conclude inside `design.md` or file an ADR separately:
 
-| ADR 対象 (`share-adr` skillで起票)                                                         | ADR 対象外 (`design.md` 内で完結)       |
-| ------------------------------------------------------------------------------------- | --------------------------------------- |
-| プロジェクト全体で Effect を採用 (General)                                            | この機能のキャッシュ戦略を LRU に       |
-| 全サービスで gRPC を使う (General)                                                    | この API のページネーションは cursor 型 |
-| 認可レイヤを OpenFGA に統一 (General)                                                 | この画面のバリデーションは zod で書く   |
-| 独立した複数 dev-workflow サイクルが共有する規約 (General)                            | このサイクルでの一時 KV キーの命名規則  |
-| `oauth-rollout` ロードマップ配下の全サイクルが共有する `AuthSession` 型定義 (Roadmap) | このサイクルでの Session ガード文言     |
+| Subject of an ADR (filed via the `share-adr` skill)                                          | Not subject to an ADR (concluded inside `design.md`) |
+| --------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Adopting Effect across the entire project (General)                                           | The cache strategy of this feature is LRU            |
+| Using gRPC across all services (General)                                                      | Pagination of this API is cursor-based               |
+| Unifying the authorization layer with OpenFGA (General)                                       | Validation of this screen is written with zod        |
+| Conventions shared by multiple independent dev-workflow cycles (General)                      | Naming rules for temporary KV keys in this cycle     |
+| `AuthSession` type definition shared by all cycles under the `oauth-rollout` roadmap (Roadmap)| Wording of the Session guard in this cycle           |
 
-- 他の機能・他のチーム・将来のサイクルにも影響する → ADR
-- 本サイクル内で完結する判断 → `design.md` 内にとどめる
-- ADR 起票時はさらに**モード判定**: 単一 roadmap 内に閉じるか / 跨ぐかで `share-adr/SKILL.md` の「モード判定フロー」に従って General / Roadmap を選ぶ
+- Affects other features / other teams / future cycles → ADR
+- Concluded within this cycle → keep inside `design.md`
+- When filing an ADR, additionally perform **mode determination**: choose General / Roadmap depending on whether it is closed inside a single roadmap or spans multiple, following "Mode determination flow" in `share-adr/SKILL.md`
 
-## 関連成果物
+## Related artifacts
 
-- **入力:** `intent-spec.md` / `research/*.md` 全件
-- **出力先:** `task-plan.md`（planner）、Step 6 以降の全成果物
-- **ADR 連携:** 起票した場合 `progress.yaml.artifacts.external_adrs` に記録 (General / Roadmap mode 両方とも同列に列挙)、`design.md` からリンク
+- **Inputs:** `intent-spec.md` and all `research/*.md`
+- **Output destinations:** `task-plan.md` (planner) and all artifacts from Step 6 onward
+- **ADR linkage:** if filed, recorded in `progress.yaml.artifacts.external_adrs` (both General / Roadmap mode listed at the same level), with a link from `design.md`

@@ -1,141 +1,141 @@
-# Reference: `roadmap-retrospective.md` の書き方
+# Reference: How to write `roadmap-retrospective.md`
 
-## 目的
+## Purpose
 
-`dev-roadmap` の Step 4 (Roadmap Retrospective) で**ロードマップ全体を振り返り**、配下の各 `dev-workflow` サイクルの `retrospective.md` を集約しつつ、roadmap 固有の論点 (マイルストーン達成度総括 / 依存グラフ妥当性 / roadmap 固有改善案) を統合する。次に類似ロードマップを起こす際に活かせる**戦略レベルの知見**を抽出することがゴール。
+In `dev-roadmap` Step 4 (Roadmap Retrospective), **reflect on the entire roadmap** by aggregating the `retrospective.md` of each underlying `dev-workflow` cycle while integrating roadmap-specific points (overview of milestone achievement / dependency graph validity / roadmap-specific improvement proposals). The goal is to extract **strategic-level knowledge** that can be applied when starting the next similar roadmap.
 
-`references/retrospective.md` (workflow 用) を**参考リファレンス**としつつ、roadmap 文脈固有の以下セクションを必ず含める:
+While taking `references/retrospective.md` (the workflow version) as **a reference**, this document must include the following sections specific to the roadmap context:
 
-- マイルストーン達成度の総括 (`roadmap-progress.yaml.milestones[]` の最終状態を一覧化)
-- 依存グラフ妥当性の振り返り (Step 2 で確定した DAG が実運用上妥当だったか)
-- 配下 `dev-workflow` retrospective の集約 (1 段落 / 各サイクル)
-- roadmap 固有の改善案 (`roadmap-progress.yaml` スキーマ拡張提案、ステップ単位反映の scope out 方針再評価、マイルストーン分割粒度等)
+- Overview of milestone achievement (list of the final states of `roadmap-progress.yaml.milestones[]`)
+- Reflection on dependency graph validity (whether the DAG confirmed in Step 2 was actually valid in operation)
+- Aggregation of underlying `dev-workflow` retrospectives (one paragraph per cycle)
+- Roadmap-specific improvement proposals (`roadmap-progress.yaml` schema extension proposals, re-evaluation of the per-step reflection scope-out, milestone splitting granularity, etc.)
 
-## 作成者 / 作成タイミング
+## Author / creation timing
 
-- **作成者:** `roadmap-retrospective-writer` Specialist (単一インスタンス)
-- **作成ステップ:** `dev-roadmap` Step 4 (Roadmap Retrospective)
-- **承認:** Main 判定 (ユーザーには情報共有のみ。`references/retrospective.md` (workflow 用) と同方針)
+- **Author:** `roadmap-retrospective-writer` Specialist (single instance)
+- **Step:** `dev-roadmap` Step 4 (Roadmap Retrospective)
+- **Approval:** Main verdict (information sharing only with the user. Same policy as `references/retrospective.md` (workflow version))
 
-## ファイル位置 (集約形式 + `roadmap-` prefix 命名規則)
+## File location (aggregated form + `roadmap-` prefix naming rule)
 
 `docs/retrospective/roadmap-<roadmap-id>.md`
 
-`docs/retrospective/` 配下は `dev-workflow` retrospective と `dev-roadmap` retrospective が**フラット集約**で共存する (`docs/adr/` と同パターン)。両者の名前空間衝突は **roadmap 側に `roadmap-` prefix を付与**することで回避する:
+Under `docs/retrospective/`, `dev-workflow` retrospectives and `dev-roadmap` retrospectives coexist in **a flat aggregation** (same pattern as `docs/adr/`). Name-space collisions between the two are avoided by **prefixing the roadmap side with `roadmap-`**:
 
-| 種別                        | 保存先                                       | 例                                            |
-| --------------------------- | -------------------------------------------- | --------------------------------------------- |
-| `dev-workflow` 個別サイクル | `docs/retrospective/<identifier>.md`         | `docs/retrospective/auth-foundation.md`       |
-| `dev-roadmap` ロードマップ  | `docs/retrospective/roadmap-<roadmap-id>.md` | `docs/retrospective/roadmap-oauth-rollout.md` |
+| Kind                              | Storage location                                  | Example                                       |
+| --------------------------------- | ------------------------------------------------- | --------------------------------------------- |
+| `dev-workflow` individual cycle   | `docs/retrospective/<identifier>.md`              | `docs/retrospective/auth-foundation.md`       |
+| `dev-roadmap` roadmap             | `docs/retrospective/roadmap-<roadmap-id>.md`      | `docs/retrospective/roadmap-oauth-rollout.md` |
 
-この `roadmap-` prefix 命名規則は本ドキュメントおよび `dev-roadmap/SKILL.md` で重複明記する (集約形式で workflow と roadmap が同居するディレクトリでの命名衝突回避)。
+This `roadmap-` prefix naming rule is duplicated in this document and in `dev-roadmap/SKILL.md` (avoiding name collisions in a directory where the aggregated form has workflow and roadmap coexisting).
 
-`gls docs/retrospective/roadmap-*.md` で roadmap retrospective を一括抽出可能。将来ファイル数が増えて検索性が劣化した時点で `docs/retrospective/roadmap/<roadmap-id>.md` のサブディレクトリ分離方式へ機械的に移行できる余地を残す (本バージョンでは prefix 案を採用)。
+`gls docs/retrospective/roadmap-*.md` can extract roadmap retrospectives in bulk. When the file count grows in the future and search-ability degrades, there is room to mechanically migrate to a sub-directory separation scheme `docs/retrospective/roadmap/<roadmap-id>.md` (the prefix scheme is adopted in this version).
 
-## ライフサイクル
+## Lifecycle
 
-`references/retrospective.md` (workflow 用) と同様、roadmap retrospective も**揮発的な報告ボックス**として運用する。永続記録すべき判断は ADR (General mode `docs/adr/` / Roadmap mode `docs/roadmap/<roadmap-id>/adr/`、モード判定は `share-adr/SKILL.md`) に切り出してから retrospective を削除する。
+Like `references/retrospective.md` (workflow version), the roadmap retrospective is also operated as **a volatile report box**. Decisions to be persistently recorded are extracted into ADRs (General mode `docs/adr/` / Roadmap mode `docs/roadmap/<roadmap-id>/adr/`; mode determination in `share-adr/SKILL.md`) before the retrospective is deleted.
 
-| 種別                  | 保存先                                              | ライフサイクル                                             |
-| --------------------- | --------------------------------------------------- | ---------------------------------------------------------- |
-| ADR                   | `docs/adr/` または `docs/roadmap/<roadmap-id>/adr/` | 永続。`confirmed: true` 化後は不変                         |
-| Roadmap Retrospective | `docs/retrospective/roadmap-<roadmap-id>.md`        | 揮発。次ロードマップ起票時に改善案項目が消化されたら削除可 |
+| Kind                  | Storage location                                  | Lifecycle                                                         |
+| --------------------- | ------------------------------------------------- | ----------------------------------------------------------------- |
+| ADR                   | `docs/adr/` or `docs/roadmap/<roadmap-id>/adr/`   | Persistent. Immutable once `confirmed: true`                      |
+| Roadmap Retrospective | `docs/retrospective/roadmap-<roadmap-id>.md`      | Volatile. Deletable when its improvement items are consumed at the start of the next roadmap |
 
-ただし `dev-roadmap` は `dev-workflow` よりも長期スパンで起票されるため、削除頻度は workflow より低い。直近 1〜2 ロードマップ分は残しておくことを推奨する。
+However, since `dev-roadmap` is filed over a longer span than `dev-workflow`, deletion frequency is lower than for workflow. Keeping the most recent 1-2 roadmaps' worth is recommended.
 
-## 各セクションの書き方
+## How to write each section
 
-### ロードマップ概要
+### Roadmap overview
 
-`roadmap.md` の目的に対してロードマップ全体として何を達成したかを 1〜3 段落で。配下サイクル数と総経過期間を冒頭に示すと俯瞰しやすい。
+In 1-3 paragraphs, what was achieved by the roadmap as a whole against the purpose of `roadmap.md`. Showing the number of underlying cycles and the total elapsed period at the top makes it easier to survey.
 
-### マイルストーン達成度の総括
+### Overview of milestone achievement
 
-`roadmap-progress.yaml.milestones[]` の最終状態を一覧化する。テーブル列例:
+List the final states of `roadmap-progress.yaml.milestones[]`. Example table columns:
 
 - `Milestone ID`
 - `Title`
 - `Final Status` (`completed` / `blocked` / `cancelled` / etc.)
-- `達成判定の根拠` (`milestones/<milestone-id>.md` の「到達点 (定性)」と照らし合わせて記述)
-- `関連 dev-workflow <identifier>` (`workflow_identifiers[]` から転記)
+- `Basis for completion judgment` (described against the "Goals (qualitative)" of `milestones/<milestone-id>.md`)
+- `Linked dev-workflow <identifier>` (transcribed from `workflow_identifiers[]`)
 
-`completed` 以外のマイルストーン (例: `blocked` のまま終了、`cancelled`) については、判定の経緯と次ロードマップへの引き継ぎ事項を **本セクションまたは「次サイクルへの引き継ぎ」** に明記する。
+For milestones other than `completed` (e.g. ended in `blocked`, `cancelled`), state the rationale of the judgment and hand-off items to the next roadmap clearly in **this section or in "Hand-off to the next cycle"**.
 
-### 依存グラフ妥当性の振り返り
+### Reflection on dependency graph validity
 
-Step 2 で確定したマイルストーン依存 DAG が、実運用を経てなお妥当であったかを振り返る。観点:
+Reflect on whether the milestone dependency DAG confirmed in Step 2 remained valid through actual operation. Aspects:
 
-- **想定どおり機能した依存**: 起点・収束点が適切だった、並列実行が想定どおりに運用できた
-- **不要だった依存**: 後から見ると A → B が無くても進んでいた、不必要に直列化していた
-- **不足していた依存**: 暗黙に依存していたが DAG に無かったため後続サイクルで手戻りが発生
-- **並列度の実効**: 理論並列度 (DAG の幅) vs 実際の並列起動サイクル数 (= ユーザーが手動起動した同時並行数)
+- **Dependencies that worked as intended**: starting / converging points were appropriate, parallel execution was operated as expected
+- **Unnecessary dependencies**: in hindsight, A → B was not needed and progress could have been made without it; serialization was unnecessary
+- **Missing dependencies**: there was an implicit dependency not in the DAG, causing rework in subsequent cycles
+- **Effective parallelism**: theoretical parallelism (DAG width) vs. actual number of concurrently launched cycles (= the number of concurrent launches the user did manually)
 
-ここで指摘された妥当性の課題は、次ロードマップ起票時の `roadmap-planner` への申し送り事項となる。
+The validity issues raised here become hand-off items to the `roadmap-planner` of the next roadmap.
 
-### 配下 dev-workflow retrospective の集約
+### Aggregation of underlying dev-workflow retrospectives
 
-配下の各 `dev-workflow` サイクルの `docs/retrospective/<identifier>.md` を **1 段落 / 各サイクル** で要約する。各段落には以下を含める:
+Summarize the `docs/retrospective/<identifier>.md` of each underlying `dev-workflow` cycle in **one paragraph per cycle**. Each paragraph should include:
 
-- サイクル `<identifier>`
-- 紐付くマイルストーン id (`progress.yaml.roadmap.milestone.id` から特定)
-- そのサイクル単独で目立った良かった点 / 課題 (1〜2 件まで、詳細は元 retrospective を参照させる)
-- 当該サイクルの retrospective へのリンク (相対パス)
+- Cycle `<identifier>`
+- Linked milestone id (identified from `progress.yaml.roadmap.milestone.id`)
+- Outstanding good points / issues for that cycle alone (up to 1-2 each, with details referred from the original retrospective)
+- A link (relative path) to that cycle's retrospective
 
-**目的は集約による俯瞰**であり、配下 retrospective を逐字転記しないこと (元 retrospective が一次ソース)。集約段落は「ロードマップ全体の流れの中でこのサイクルがどう機能したか」を読者に伝える視点で書く。
+**The purpose is overview by aggregation**; do not transcribe the underlying retrospective verbatim (the original retrospective is the primary source). Write the aggregation paragraphs from the perspective of communicating to the reader "how this cycle functioned within the overall flow of the roadmap".
 
-### roadmap 固有の改善案
+### Roadmap-specific improvement proposals
 
-ロードマップ層への改善案のみを書く。配下サイクル内で完結する改善案 (例: `dev-workflow` Step 6 のテスト戦略改善) は当該サイクルの retrospective に既に書かれているため、ここでは戦略レベルに統合・抽象化したもののみを書く。
+Write only improvement proposals at the roadmap layer. Improvement proposals concluded inside the underlying cycles (e.g. test strategy improvement in `dev-workflow` Step 6) are already written in that cycle's retrospective, so write here only what is integrated/abstracted to the strategic level.
 
-#### 含めるべき観点
+#### Aspects that should be included
 
-- **`roadmap-progress.yaml` スキーマ拡張提案**: 本バージョンで scope out している `events` 配列 / `last_step` フィールド / status_view 派生ビュー / ms 精度タイムスタンプ等の追加が必要か (`references/roadmap-progress-yaml.md` 「拡張ポイント」と整合)
-- **マイルストーン分割粒度の振り返り**: 1:N サイクルの妥当性、想定サイクル数の見積り精度、再分割が必要だったマイルストーン
-- **ステップ単位反映の必要性 ((b) scope out 方針の再評価)**: 実運用を経て workflow 側の各ステップ完了時に `roadmap-progress.yaml` を更新する必要が判明したか
-- **`dev-roadmap` ↔ `dev-workflow` 連携プロトコル**: 双方向 ID 参照、`progress.yaml.roadmap` ネスト構造、書き手の非対称性 (workflow → roadmap が常態) が運用上の問題なく機能したか
+- **`roadmap-progress.yaml` schema extension proposals**: whether additions are needed for the `events` array / `last_step` field / status_view derived view / ms-precision timestamps that are scoped out in this version (consistent with "Extension points" in `references/roadmap-progress-yaml.md`)
+- **Reflection on milestone splitting granularity**: validity of 1:N cycles, accuracy of anticipated cycle count estimates, milestones that needed re-decomposition
+- **Necessity of per-step reflection (re-evaluation of (b) scope-out policy)**: through actual operation, whether it has become apparent that `roadmap-progress.yaml` should be updated at each step completion on the workflow side
+- **`dev-roadmap` ↔ `dev-workflow` integration protocol**: whether bidirectional ID references, the `progress.yaml.roadmap` nested structure, and the writer asymmetry (workflow → roadmap is the norm) functioned operationally without issue
 
-各改善案はアクション粒度まで分解する (`references/retrospective.md` (workflow 用) の品質基準を踏襲: 「〜を改善する」ではなく「〜のときに〜する」)。
+Each improvement proposal is decomposed to action granularity (following the quality criteria of `references/retrospective.md` (workflow version): not "improve X" but "when X happens, do Y").
 
-### 次サイクルへの引き継ぎ
+### Hand-off to the next cycle
 
-次に類似のロードマップを起こす場合に活かせる知見、再利用可能なマイルストーンパターン、避けるべき落とし穴を記述する。本セクションが**他ロードマップへの最大の伝達経路**になるため、汎用化された記述にする (本ロードマップ固有の固有名詞をなるべく避ける、または抽象化する)。
+Describe knowledge usable when starting the next similar roadmap, reusable milestone patterns, and pitfalls to avoid. Since this section becomes **the largest transmission channel to other roadmaps**, write it in a generalized form (avoid or abstract proper nouns specific to this roadmap).
 
-### ユーザー承認ゲートの振り返り
+### Reflection on user approval gates
 
-`dev-roadmap` のユーザー承認ゲートは 3 つ (Step 1: Roadmap Intent / Step 2: Milestone Decomposition / Step 4: Roadmap Retrospective)。各ゲートで承認 / 却下 / 修正要求の履歴を記録し、却下があった場合は原因を振り返る。
+`dev-roadmap` has 3 user approval gates (Step 1: Roadmap Intent / Step 2: Milestone Decomposition / Step 4: Roadmap Retrospective). Record the history of approvals / rejections / change requests at each gate, and reflect on the cause of any rejections.
 
-### コスト / 時間
+### Cost / time
 
-- ロードマップ全体の経過日数 (Step 1 開始 〜 Step 4 完了)
-- 配下 `dev-workflow` サイクル数 (`workflow_identifiers[]` の総数)
-- 並列度の実効 (同時に進行していた配下サイクル数のピーク値)
-- roadmap 系 Specialist の起動回数 (`roadmap-analyst` / `roadmap-planner` / `roadmap-retrospective-writer`)
+- Days elapsed across the entire roadmap (Step 1 start through Step 4 completion)
+- Number of underlying `dev-workflow` cycles (total of `workflow_identifiers[]`)
+- Effective parallelism (peak number of concurrently in-progress underlying cycles)
+- Launch counts of roadmap-system Specialists (`roadmap-analyst` / `roadmap-planner` / `roadmap-retrospective-writer`)
 
-## 品質基準
+## Quality criteria
 
-`references/retrospective.md` (workflow 用) の品質基準を継承しつつ、roadmap 固有の追加基準:
+Inheriting the quality criteria of `references/retrospective.md` (workflow version), with roadmap-specific additional criteria:
 
-| ✅ よい                                                                                          | ❌ 悪い                                                    |
-| ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
-| 配下 `dev-workflow` retrospective が**全件**集約段落として要約されている                         | 一部サイクルの retrospective が言及されていない            |
-| マイルストーン達成度の総括テーブルが `roadmap-progress.yaml.milestones[]` と一致                 | テーブルが古い状態のまま、または yaml と表記揺れ           |
-| 依存グラフ妥当性が「想定どおり」「不要」「不足」「並列度実効」の 4 観点で書かれている            | 「依存グラフは概ね機能した」など抽象的な感想で終わっている |
-| 改善案がロードマップ層に純化されている (戦略レベル)                                              | 配下サイクル内の戦術的改善案を重複転記している             |
-| `cancelled` / `blocked` で終わったマイルストーンの判定経緯が明記されている                       | 未達マイルストーンが言及されていない、または判定根拠が不明 |
-| ファイル位置が `docs/retrospective/roadmap-<roadmap-id>.md` に従っている                         | prefix `roadmap-` が抜けている、ディレクトリが間違っている |
-| 観測データ (`roadmap-progress.yaml` のタイムスタンプ・workflow_identifiers) から因果分析している | 印象論・感想で終わっている                                 |
+| Good                                                                                                | Bad                                                              |
+| --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| **All** underlying `dev-workflow` retrospectives are summarized as aggregation paragraphs           | Some cycle's retrospective is not mentioned                      |
+| The milestone achievement overview table matches `roadmap-progress.yaml.milestones[]`               | The table is stale, or has notation drift from the yaml          |
+| Dependency graph validity is written from the 4 aspects "as intended" / "unnecessary" / "missing" / "effective parallelism" | Ends with abstract impressions like "the dependency graph generally functioned" |
+| Improvement proposals are purified to the roadmap layer (strategic level)                           | Tactically duplicates improvement proposals from inside underlying cycles |
+| The judgment process is written for milestones ending in `cancelled` / `blocked`                    | Unmet milestones are not mentioned, or the basis is unclear      |
+| The file location follows `docs/retrospective/roadmap-<roadmap-id>.md`                              | The `roadmap-` prefix is missing, or the directory is wrong      |
+| Causal analysis is done from observed data (`roadmap-progress.yaml` timestamps and workflow_identifiers) | Ends with impressions / opinions                                |
 
-## データソース (入力として必要)
+## Data sources (required as input)
 
-- `docs/roadmap/<roadmap-id>/roadmap.md` (目的・スコープ・依存グラフ)
-- `docs/roadmap/<roadmap-id>/milestones/<milestone-id>.md` 全件 (各マイルストーン定義 / 到達点)
-- `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` (最終状態、タイムスタンプ、workflow_identifiers 一覧)
-- 配下の各 `dev-workflow` サイクルの `docs/retrospective/<identifier>.md` 全件 (集約対象)
-- 配下の各 `dev-workflow` サイクルの `docs/workflow/<identifier>/progress.yaml` (詳細進捗を辿る場合)
+- `docs/roadmap/<roadmap-id>/roadmap.md` (purpose / scope / dependency graph)
+- All `docs/roadmap/<roadmap-id>/milestones/<milestone-id>.md` (each milestone definition / goals)
+- `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` (final state, timestamps, list of workflow_identifiers)
+- All `docs/retrospective/<identifier>.md` of each underlying `dev-workflow` cycle (aggregation target)
+- All `docs/workflow/<identifier>/progress.yaml` of each underlying `dev-workflow` cycle (when tracing detailed progress)
 
-## 関連成果物
+## Related artifacts
 
-- **入力:** ロードマップ全成果物 (`roadmap.md` / `milestones/*.md` / `roadmap-progress.yaml`) + 配下 `dev-workflow` サイクルの全 retrospective
-- **出力先:** `docs/retrospective/roadmap-<roadmap-id>.md` (リポジトリに永続保存。次ロードマップ起票時に改善案を消化したら削除可)
-- **反映先:** 改善案は次ロードマップの `roadmap.md` / `dev-roadmap` プラグインの更新 / `roadmap-progress.yaml` スキーマ拡張に直接つながる
-- **関連:** `references/retrospective.md` (workflow 用、本ドキュメントの参考リファレンス)、`references/roadmap.md`、`references/milestone.md`、`references/roadmap-progress-yaml.md`
+- **Inputs:** all roadmap artifacts (`roadmap.md` / `milestones/*.md` / `roadmap-progress.yaml`) + all retrospectives of the underlying `dev-workflow` cycles
+- **Output destination:** `docs/retrospective/roadmap-<roadmap-id>.md` (persisted in the repository. Deletable once improvement items are consumed at the start of the next roadmap)
+- **Reflection destinations:** improvement proposals directly feed into the next roadmap's `roadmap.md` / updates to the `dev-roadmap` plugin / `roadmap-progress.yaml` schema extensions
+- **Related:** `references/retrospective.md` (workflow version, the reference of this document), `references/roadmap.md`, `references/milestone.md`, `references/roadmap-progress-yaml.md`

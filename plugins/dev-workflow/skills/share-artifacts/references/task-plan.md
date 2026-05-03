@@ -1,43 +1,43 @@
-# Reference: `task-plan.md` の書き方
+# Reference: How to write `task-plan.md`
 
-## 目的
+## Purpose
 
-`design.md` を**実装可能な粒度のタスク**に分解し、依存関係・並列性・見積りを明示する。Step 6 開始後は**不変な計画書**として扱い、実行中の状態追跡は `TODO.md` で行う。
+Decompose `design.md` into **tasks at an implementable granularity**, and make explicit the dependency relationships, parallelism, and estimates. After the start of Step 6, treat it as **an immutable plan**, and track in-flight state in `TODO.md`.
 
-## 作成者 / 作成タイミング
+## Author / creation timing
 
-- **作成者:** `planner` Specialist（単一インスタンス）
-- **作成ステップ:** Step 5 (Task Decomposition)
-- **承認:** ユーザー承認必須（実装開始の合意ゲート）
-- **変更:** Step 6〜7 中を通じて**常に不変**。追加タスクは `TODO.md` の「後発追加タスク」セクションにのみ追記し、差分理由も TODO.md 冒頭に記録する（`task-plan.md` 本体は書き換えない）。追加タスクが多発する場合は Step 5 へのロールバックを検討
+- **Author:** `planner` Specialist (single instance)
+- **Step:** Step 5 (Task Decomposition)
+- **Approval:** user approval required (the agreement gate to begin implementation)
+- **Changes:** **always immutable** through Steps 6-7. Additional tasks are appended only to the "Subsequently added tasks" section of `TODO.md`, with the diff rationale also recorded at the top of TODO.md (the body of `task-plan.md` is not rewritten). If many additional tasks occur, consider rolling back to Step 5
 
-## ファイル位置
+## File location
 
 `docs/workflow/<identifier>/task-plan.md`
 
-## 各セクションの書き方
+## How to write each section
 
-### 前提
+### Premise
 
-Intent Spec と Design Document の前提を簡潔に再掲する（読み手が他ドキュメントを開かなくても大筋を把握できるように）。
+Briefly restate the premise of the Intent Spec and Design Document (so the reader can grasp the gist without opening other documents).
 
-### タスク一覧
+### Task list
 
-各タスクに以下を明示:
+Make explicit for each task:
 
-- **概要:** 1–2 文で何をするか
-- **成果物:** どのファイルが追加・変更されるか（具体的にパス）
-- **依存タスク:** 先行して完了すべきタスク ID（なければ「なし」と書く）
-- **並列可否:** yes / no。他タスクと同時実行できるか
-- **見積り規模:** プロジェクト規約に従う（S/M/L 等）
-- **カバーするテストケース ID (任意):** `qa-design.md` の TC-NNN リスト（例: `TC-001, TC-005`）。空欄可。Step 6 で implementer が `qa-design.md` を直接参照するため、planner レベルでの紐付けは必須ではない。大規模タスクで「このタスクが何のテストをカバーするか」を明示したい場合のみ記述
-- **設計ドキュメント参照箇所:** `design.md` の該当章節
+- **Overview:** in 1-2 sentences, what to do
+- **Artifacts:** which files are added or changed (specifically by path)
+- **Dependent tasks:** task IDs that must be completed first (write "none" if none)
+- **Parallel-able:** yes / no. Whether it can run concurrently with other tasks
+- **Estimated size:** following project conventions (S/M/L, etc.)
+- **Covered test case IDs (optional):** list of TC-NNN from `qa-design.md` (e.g. `TC-001, TC-005`). May be empty. Since the implementer in Step 6 references `qa-design.md` directly, linking at the planner level is not required. Describe only when, for a large task, you want to make explicit "what tests this task covers"
+- **Design document reference points:** the relevant chapters and sections of `design.md`
 
-**テスト追加方針は task-plan には書かない** (Step 4 の `qa-design.md` / `qa-flow.md` が真のソース)。planner はテスト戦略を発明せず、qa-design.md を引用するのみ。
+**Test addition policy is not written in task-plan** (the true source is Step 4's `qa-design.md` / `qa-flow.md`). The planner does not invent test strategy; it only cites qa-design.md.
 
-### 依存グラフ
+### Dependency graph
 
-Mermaid 図で依存関係を可視化:
+Visualize dependencies with a Mermaid diagram:
 
 ```mermaid
 graph LR
@@ -46,37 +46,37 @@ graph LR
   T3 --> T4
 ```
 
-### 並列実行可能グループ (Wave)
+### Parallel-executable groups (Wave)
 
-Step 6 で Main が並列起動単位として参照:
+Referenced by Main as a parallel launch unit in Step 6:
 
-- Wave 1（起点）: T1, T2
-- Wave 2: T3（T1, T2 完了後）
-- Wave 3: T4, T5（T3 完了後、並列実行可）
+- Wave 1 (start): T1, T2
+- Wave 2: T3 (after T1, T2 complete)
+- Wave 3: T4, T5 (after T3 completes, parallel-executable)
 
-### リスク / 想定される Blocker
+### Risks / anticipated Blockers
 
-想定外の事象が起きそうな箇所を予測し、対応方針のヒントを残す。
+Predict places where unforeseen events might occur, and leave hints on response policy.
 
-## タスク粒度のガイド
+## Task granularity guide
 
-| ✅ よい                              | ❌ 悪い                              |
-| ------------------------------------ | ------------------------------------ |
-| 1 implementer で数時間〜1 日で完遂可 | 複数日規模の巨大タスク               |
-| 成果物ファイルが特定可能             | 「〜周りを整える」のような曖昧タスク |
-| 依存関係が非循環                     | タスク間の依存がループしている       |
+| Good                                                  | Bad                                                  |
+| ----------------------------------------------------- | ---------------------------------------------------- |
+| One implementer can complete in several hours to 1 day | Huge tasks of multi-day scale                        |
+| The artifact files can be identified                  | Vague tasks like "tidy up around X"                  |
+| Dependencies are acyclic                              | Inter-task dependencies form a loop                  |
 
-## 品質基準
+## Quality criteria
 
-| ✅ よい                                            | ❌ 悪い                                |
-| -------------------------------------------------- | -------------------------------------- |
-| タスクが完全に互いに排他的（責任範囲が重ならない） | タスク間で同じファイルを編集する       |
-| 並列起動可能な Wave が識別されている               | すべて直列で並列機会が活用されていない |
-| 設計ドキュメント参照が章節レベルで具体的           | 「`design.md` を見よ」のような粗い参照 |
-| リスクを事前に列挙している                         | リスク欄が空白                         |
+| Good                                                              | Bad                                                |
+| ----------------------------------------------------------------- | -------------------------------------------------- |
+| Tasks are perfectly mutually exclusive (responsibility ranges do not overlap) | Multiple tasks edit the same file                  |
+| Parallel-launchable Waves are identified                          | All serial; parallel opportunities are not exploited |
+| Design document references are concrete down to the section level | Coarse references like "see `design.md`"           |
+| Risks are listed in advance                                       | The risks field is blank                           |
 
-## 関連成果物
+## Related artifacts
 
-- **入力:** `design.md` / `intent-spec.md`
-- **出力先:** `TODO.md`（Main が開始時に生成）、`implementer` 起動時の入力
-- **不変性:** 確定後は書き換えない。Step 6〜7 中の追加タスクは `TODO.md` 側で管理
+- **Inputs:** `design.md` / `intent-spec.md`
+- **Output destinations:** `TODO.md` (Main generates at start), input when launching `implementer`
+- **Immutability:** not rewritten after confirmation. Additional tasks during Steps 6-7 are managed in `TODO.md`

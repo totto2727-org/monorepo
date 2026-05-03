@@ -1,21 +1,21 @@
 # Task List: {{identifier}}
 
 - **Source:** `task-plan.md`
-- **Active Steps:** Step 6〜7 (Implementation / External Review)
+- **Active Steps:** Step 6-7 (Implementation / External Review)
 - **Created at:** {{created_at}}
 - **Last updated:** {{updated_at}}
 
-このファイルは**永続化されたタスク状態**。Main 内部の `TaskCreate` タスクリストと同期するが、**こちらが真のソース**。状態変化時は TODO.md 更新 → コミット → TaskUpdate の順で実行する。
+This file holds the **persisted task state**. It is kept in sync with the `TaskCreate` task list inside Main, but **this file is the source of truth**. On every state change, update TODO.md first, then commit, then run `TaskUpdate` (in that order).
 
-## 後発追加タスク（`task-plan.md` 以降に発生したもの）
+## Tasks added later (after `task-plan.md` was finalized)
 
 {{appended_tasks_note}}
 
-`task-plan.md` 不変運用の原則に従い、Step 6〜7 中に発見された追加タスクはここに記録する。追加理由を明記すること。
+Following the rule that `task-plan.md` is immutable, any additional tasks discovered during Steps 6-7 are recorded here. Always state the reason the task was added.
 
-- なし（デフォルト）
+- None (default)
 
-## タスク
+## Tasks
 
 - [{{t1_checkbox}}] **T1** — {{t1_title}}
   - status: {{t1_status}} <!-- pending | in_progress | completed -->
@@ -24,7 +24,7 @@
   - completed_at: {{t1_completed_at}}
   - commit: {{t1_commit_sha}}
   - implementer: {{t1_implementer_id}}
-  - re_activations: {{t1_re_activations}} <!-- External Review Blocker 指摘で Step 6 に戻った回数 -->
+  - re_activations: {{t1_re_activations}} <!-- Number of times the task was returned to Step 6 due to External Review Blocker findings -->
   - notes: {{t1_notes}}
 
 - [{{t2_checkbox}}] **T2** — {{t2_title}}
@@ -37,19 +37,19 @@
   - re_activations: {{t2_re_activations}}
   - notes: {{t2_notes}}
 
-<!-- 必要な数だけ T3, T4, ... を追加 -->
+<!-- Add T3, T4, ... as needed -->
 
-## 状態遷移ガイド
+## State transition guide
 
-- `pending`: 未着手。`[ ]` 表示
-- `in_progress`: `implementer` 起動中。`[ ]` 表示、`started_at` と `implementer` を記録
-- `completed`: 完了。`[x]` 表示、`completed_at` と `commit` SHA を記録
-- External Review Blocker 指摘で戻す場合: `completed` → `in_progress` に戻し、`re_activations` をインクリメント
+- `pending`: Not started. Rendered as `[ ]`.
+- `in_progress`: An `implementer` is running. Rendered as `[ ]`; record `started_at` and `implementer`.
+- `completed`: Finished. Rendered as `[x]`; record `completed_at` and the `commit` SHA.
+- When an External Review Blocker forces a rollback: change `completed` back to `in_progress` and increment `re_activations`.
 
-## コミット規約
+## Commit conventions
 
-- 各タスク状態変化ごとに 1 コミット（頻繁）
-- コミットメッセージ例:
+- One commit per task state change (commit frequently).
+- Example commit messages:
   - `docs(dev-workflow/{{identifier}}): start task T1`
   - `docs(dev-workflow/{{identifier}}): complete task T1`
   - `docs(dev-workflow/{{identifier}}): re-activate task T1 (external-review feedback)`

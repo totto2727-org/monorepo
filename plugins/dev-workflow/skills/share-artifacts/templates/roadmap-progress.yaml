@@ -1,24 +1,25 @@
-# `dev-roadmap` のロードマップ進捗管理 yaml。
-# `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` に配置する。
-# 書き方の詳細は `share-artifacts/references/roadmap-progress-yaml.md` を参照。
+# Roadmap progress tracking yaml for `dev-roadmap`.
+# Place this file at `docs/roadmap/<roadmap-id>/roadmap-progress.yaml`.
+# See `share-artifacts/references/roadmap-progress-yaml.md` for authoring details.
 #
-# 設計方針 (最小限の責務): 「マイルストーン ↔ workflow identifier の紐付け」と粗粒度ステータス
-# (planned / active / completed / blocked / cancelled) のみを保持する。細かい進捗 (現在ステップ
-# 名、ゲート状況、詳細イベント履歴) は持たず、必要時は `milestones[].workflow_identifiers[]`
-# 経由で `docs/workflow/<identifier>/progress.yaml` を辿って取得する。
+# Design policy (minimal responsibility): only track "the link between milestones and workflow
+# identifiers" along with coarse-grained statuses (planned / active / completed / blocked /
+# cancelled). Do not hold finer-grained progress (current step name, gate state, detailed event
+# history); when needed, traverse via `milestones[].workflow_identifiers[]` into each
+# `docs/workflow/<identifier>/progress.yaml`.
 
-roadmap_id: <roadmap-id> # docs/roadmap/<roadmap-id>/ ディレクトリ名と一致 (必須)
-title: <短い説明> # roadmap.md のタイトルと一致 (必須)
-status: planned # planned | active | completed (ロードマップ全体)
-created_at: <ISO8601> # 例: 2026-04-29T00:00:00Z (秒精度)
-updated_at: <ISO8601> # 更新するたびに最新の ISO8601 に書き換え (秒精度)
+roadmap_id: <roadmap-id> # Must match the docs/roadmap/<roadmap-id>/ directory name (required)
+title: <short description> # Must match the title in roadmap.md (required)
+status: planned # planned | active | completed (entire roadmap)
+created_at: <ISO8601> # e.g. 2026-04-29T00:00:00Z (second precision)
+updated_at: <ISO8601> # Rewrite to the latest ISO8601 on every update (second precision)
 
-# マイルストーン一覧。Step 2 (Milestone Decomposition) で `roadmap-planner` が確定する。
-# 確定後の `id` / `title` / `depends_on` は immutable (Step 3 中の並行 workflow サイクルは触らない)。
+# List of milestones. Finalized by `roadmap-planner` in Step 2 (Milestone Decomposition).
+# After finalization, `id` / `title` / `depends_on` are immutable (parallel workflow cycles during Step 3 must not touch them).
 milestones:
-  - id: <milestone-id> # kebab-case 推奨 (例: ms-01-foundation)
-    title: <短い説明>
+  - id: <milestone-id> # kebab-case recommended (e.g. ms-01-foundation)
+    title: <short description>
     status: planned # planned | active | completed | blocked | cancelled
-    depends_on: [] # 先行完了が必要なマイルストーン id の配列 (DAG)
-    workflow_identifiers: [] # 紐付き dev-workflow サイクルの <identifier> 一覧 (1:N 許容、append-only 運用)
-    notes: null # 任意の補足 (default null)
+    depends_on: [] # Array of milestone ids that must complete first (DAG)
+    workflow_identifiers: [] # List of <identifier> values for linked dev-workflow cycles (1:N allowed, append-only)
+    notes: null # Optional notes (default null)

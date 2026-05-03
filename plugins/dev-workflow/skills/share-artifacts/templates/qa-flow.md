@@ -7,25 +7,25 @@
 - **Last updated:** {{updated_at}}
 - **Status:** {{status}} <!-- draft | approved -->
 
-このドキュメントは `qa-design.md` のテストケースを **Mermaid flowchart で可視化**した網羅性確認用の図集。テストの分岐構造をレビュアーが俯瞰できる形で図示することで、認知負荷を下げる。書き方の詳細は `share-artifacts/references/qa-flow.md` を参照。
+This document is a collection of figures that **visualize the test cases in `qa-design.md` as Mermaid flowcharts** so coverage can be confirmed at a glance. Drawing the branching structure of the tests in a form reviewers can survey at a glance reduces cognitive load. See `share-artifacts/references/qa-flow.md` for authoring details.
 
-## 概要
+## Overview
 
 {{overview}}
 
-qa-flow.md の構成を 2〜5 行で案内する。
+Introduce the structure of qa-flow.md in 2-5 lines.
 
-例:
+Examples:
 
-- 認証・認可 / 注文処理 / 通知 の 3 関心領域に分割
-- エラーハンドリングは「横断的処理」セクションに集約
-- ライブラリ仕様由来の防御的分岐は「実装都合分岐」セクションに別途記載
+- Split into three concerns: authentication / authorization / order processing / notifications
+- Error handling is consolidated into the "cross-cutting concerns" section
+- Defensive branches that come from library specifications are listed separately under "implementation-driven branches"
 
 ---
 
 ## {{concern_1_title}}
 
-このセクションがカバーする成功基準: {{concern_1_sc_ids}}
+Success criteria covered by this section: {{concern_1_sc_ids}}
 
 ```mermaid
 flowchart TD
@@ -38,7 +38,7 @@ flowchart TD
 
 ## {{concern_2_title}}
 
-このセクションがカバーする成功基準: {{concern_2_sc_ids}}
+Success criteria covered by this section: {{concern_2_sc_ids}}
 
 ```mermaid
 flowchart TD
@@ -48,13 +48,13 @@ flowchart TD
   Q1 -->|guest| Skip[skip: {{concern_2_skip_reason}}]
 ```
 
-<!-- 必要な数だけ concern_3, concern_4, ... を追加 -->
+<!-- Add concern_3, concern_4, ... as needed -->
 
 ---
 
-## 横断的処理 (任意)
+## Cross-cutting concerns (optional)
 
-エラーハンドリング、ロギング、リトライ等の横断的関心を別図にまとめる場合のセクション。不要なら削除可。
+A section for cross-cutting concerns (error handling, logging, retries, etc.) drawn as a separate diagram. Delete if not needed.
 
 ```mermaid
 flowchart TD
@@ -64,9 +64,9 @@ flowchart TD
 
 ---
 
-## 実装都合分岐 (任意)
+## Implementation-driven branches (optional)
 
-既存セクションの flowchart に組み込めない `TC-IMPL-NNN` をここに集約する。Step 6 で implementer が発見した分岐のうち、独立性が高く既存図に自然に入らないものを追記する。Step 4 時点では空でよい。
+Consolidate `TC-IMPL-NNN` cases that do not fit naturally into the existing flowcharts in this section. Use it for branches discovered by the implementer in Step 6 that are independent enough that they cannot be folded into existing diagrams. May remain empty at the end of Step 4.
 
 ```mermaid
 flowchart TD

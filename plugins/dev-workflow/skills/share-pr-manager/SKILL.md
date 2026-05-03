@@ -1,54 +1,58 @@
 ---
 name: pr-manager
 description: >
-  [Main 専属の write 系 / Specialist read 系] GitHub Pull Request の Draft 作成・概要更新・
-  Draft → Ready 化・state 読取を集約するユーティリティスキル。冪等性ガード (`gh pr list --head`
-  事前確認、`gh pr view --json isDraft` 事前確認) を必須化し、`--body-file` 経由送信で
-  shell quoting 事故を防ぐ。CI 監視は `share-ci-monitoring`、テンプレート本体は
-  `share-artifacts/{templates,references}/pr-body.md` に委譲する純粋な PR 操作レイヤー。
-  起動トリガー: サイクル初期化時の Draft PR 作成、各ステップ完了時の PR 概要更新、
-  Step 9 完了後の Ready 化、Specialist が PR 状態を read で参照したい場面。
-  "Draft PR 作成", "PR 概要更新", "gh pr ready", "Ready 化", "pr-manager" で参照可能。
-  Do NOT use for: ワークフロー手順の規定（dev-workflow）、PR description 本文の中身仕様
-  （`share-artifacts/references/pr-body.md`）、CI 監視・リトライ・Blocker 化（`share-ci-monitoring`）、
-  GitHub Issue / Discussion 管理（本ワークフロー外）。
+  [Main-only write operations / Specialist read operations] A utility skill that consolidates
+  GitHub Pull Request operations: Draft creation, summary updates, Draft -> Ready transitions,
+  and state reads. It mandates idempotency guards (pre-checks via `gh pr list --head` and
+  `gh pr view --json isDraft`), and uses `--body-file` for transmission to prevent
+  shell quoting accidents. CI monitoring is delegated to `share-ci-monitoring`, and the
+  template body itself is delegated to `share-artifacts/{templates,references}/pr-body.md`,
+  making this a pure PR operation layer.
+  Trigger conditions: Draft PR creation at cycle initialization, PR summary updates upon each
+  step completion, Ready transition after Step 9 completion, situations where a Specialist needs
+  to read PR state.
+  Referenced via "create Draft PR", "update PR summary", "gh pr ready", "Ready transition", "pr-manager".
+  Do NOT use for: workflow procedure definitions (dev-workflow), PR description body content
+  specifications (`share-artifacts/references/pr-body.md`), CI monitoring / retry / Blocker
+  handling (`share-ci-monitoring`), GitHub Issue / Discussion management (out of scope for
+  this workflow).
 allowed-tools: Bash, Read, Glob, Grep
 ---
 
-# PR Manager — GitHub Pull Request 操作の集約スキル
+# PR Manager — A Skill Consolidating GitHub Pull Request Operations
 
-ユースケースカテゴリ: **Workflow Automation**（PR ライフサイクル操作を 1 箇所に集約し、冪等性とパーミッション境界を担保する）
-設計パターン: **Domain Intelligence**（gh CLI の PR 関連コマンドのドメイン知識と本ワークフロー固有の冪等性要件を集約）
+Use case category: **Workflow Automation** (consolidates PR lifecycle operations into a single place, ensuring idempotency and permission boundaries)
+Design pattern: **Domain Intelligence** (consolidates domain knowledge of gh CLI's PR-related commands and the idempotency requirements specific to this workflow)
 
-dev-workflow サイクルでは、サイクルごとに 1 つの GitHub Pull Request を **Draft で作成 → 各ステップ完了時に概要更新 → Step 9 完了後に Ready 化** する。本スキルはこれら **PR 操作 (write 系) の手順** と **PR 状態の読取 (read 系)** を集約し、関連スキル (`dev-workflow` / `specialist-common` / `specialist-validator` / `share-artifacts`) からの呼び出しに応える。
+In a dev-workflow cycle, each cycle has one GitHub Pull Request that is **created as Draft -> updated on each step completion -> transitioned to Ready after Step 9 completion**. This skill consolidates **the procedures for these PR operations (write side)** and **PR state reads (read side)**, responding to invocations from related skills (`dev-workflow` / `specialist-common` / `specialist-validator` / `share-artifacts`).
 
-## 基本方針
+## Basic Policy
 
-- **write 系は Main 専属**: `gh pr create` / `gh pr edit` / `gh pr ready` / `gh pr close` / `gh pr reopen` 等は **Main が単独で実行する**。Specialist は read 系のみ使用してよい (`specialist-common` §7 と整合)
-- **冪等性ガード必須**: 「既に作成された PR を二重作成しない」「既に Ready の PR を再 Ready 化しない」など、状態を変える操作は **事前 read で現状確認 → 必要な場合のみ write** の 2 段構えで実装する
-- **`--body-file` で送信**: PR description は HEREDOC ではなく `gh pr edit --body-file <path>` 形式で送信する。Markdown 内の引用符・バックティック等が shell quoting で破損する事故を恒久回避する
-- **テンプレートは share-artifacts**: PR description の中身 (各セクションの埋め方) は本スキルでは定義せず、`share-artifacts/{templates,references}/pr-body.md` に委譲する
-- **CI は ci-monitoring**: PR の CI 状態確認・watch・リトライ・Blocker は本スキルでは扱わず、`share-ci-monitoring` スキルに委譲する。本スキルは「PR メタ情報 (number, isDraft, body, state, mergedAt 等)」の読取のみ
-- **Single-Source-of-Progress 整合**: PR description は `progress.yaml` / `TODO.md` から派生する **ビュー** であり、PR description が真のソースになってはいけない
+- **Write operations are Main-only**: `gh pr create` / `gh pr edit` / `gh pr ready` / `gh pr close` / `gh pr reopen`, etc., are **executed solely by Main**. Specialists may use only read operations (consistent with `specialist-common` §7)
+- **Idempotency guards are mandatory**: For state-changing operations such as "do not double-create an already created PR" or "do not re-Ready an already Ready PR", implement them as a two-stage process: **pre-read to verify current state -> only write if necessary**
+- **Send via `--body-file`**: Send PR descriptions in the form `gh pr edit --body-file <path>` rather than HEREDOC. This permanently avoids accidents where quotes, backticks, etc. inside Markdown get corrupted by shell quoting
+- **Templates live in share-artifacts**: The body of the PR description (how each section is filled in) is not defined in this skill; it is delegated to `share-artifacts/{templates,references}/pr-body.md`
+- **CI lives in ci-monitoring**: Confirmation, watching, retrying, and Blocker handling of PR CI status are not handled by this skill; they are delegated to the `share-ci-monitoring` skill. This skill only reads "PR meta information (number, isDraft, body, state, mergedAt, etc.)"
+- **Single-Source-of-Progress consistency**: The PR description is a **view** derived from `progress.yaml` / `TODO.md`; the PR description must not become the source of truth
 
-## 前提
+## Prerequisites
 
-- 本ワークフローは GitHub Actions 上で `gh` CLI を使用する前提 (本リポの運用と整合)
-- 1 サイクル = 1 PR (本サイクルブランチに対して 1 件の open PR が紐付く)
-- ブランチ命名は `feat/<id>` 系 (プロジェクト固有 `git-workflow` スキルに従う)
-- `BRANCH` 環境変数または `git rev-parse --abbrev-ref HEAD` で現在のブランチ名を取得済とする
+- This workflow assumes the use of the `gh` CLI on GitHub Actions (consistent with this repository's operations)
+- 1 cycle = 1 PR (one open PR is associated with the current cycle branch)
+- Branch naming follows the `feat/<id>` pattern (per the project-specific `git-workflow` skill)
+- The current branch name is assumed to be already obtained via the `BRANCH` environment variable or `git rev-parse --abbrev-ref HEAD`
 
-## 1. Draft PR 初期化 (サイクル開始時、冪等)
+## 1. Draft PR Initialization (At Cycle Start, Idempotent)
 
-サイクル初期化コミット `docs(dev-workflow/<identifier>): initialize cycle` と同時に、対応する **Draft PR** を 1 件作成する。Draft PR の作成タイミングはサイクル開始時の 1 回のみで、Step 1 完了直後に Main が冪等に実行する (既存 PR があれば再利用)。
+Simultaneously with the cycle initialization commit `docs(dev-workflow/<identifier>): initialize cycle`, create one corresponding **Draft PR**. The Draft PR is created only once at cycle start, executed idempotently by Main immediately after Step 1 completion (reusing an existing PR if any).
 
-PR description は `$TMPDIR/dev-workflow/<identifier>-pr-body.md` に揮発ファイルとして生成し、`gh pr create --draft --body-file` で送信する (テンプレート: `share-artifacts/templates/pr-body.md`)。
+The PR description is generated as a volatile file at `$TMPDIR/dev-workflow/<identifier>-pr-body.md` and sent via `gh pr create --draft --body-file` (template: `share-artifacts/templates/pr-body.md`).
 
 ```bash
-# 冪等性ガード: 既存 open PR があれば再利用
+# Idempotency guard: reuse existing open PR if one exists
 existing_pr=$(gh pr list --head "$BRANCH" --state open --json number,isDraft --jq '.[0]')
 if [ -z "$existing_pr" ] || [ "$existing_pr" = "null" ]; then
-  # 未作成 → Draft PR を新規作成
+  # Not yet created -> create new Draft PR
   gh pr create \
     --draft \
     --base main \
@@ -56,35 +60,35 @@ if [ -z "$existing_pr" ] || [ "$existing_pr" = "null" ]; then
     --title "feat(dev-workflow/<identifier>): <one-line summary>" \
     --body-file "$TMPDIR/dev-workflow/<identifier>-pr-body.md"
 else
-  # 既存 PR 再利用 (Step 1 再実行 / 手動作成済み等のケース)
+  # Reuse existing PR (cases such as Step 1 re-execution or manually pre-created PR)
   echo "Reusing existing PR: $existing_pr"
 fi
 ```
 
-**注意:** 既存 PR が `isDraft: false` (= 既に Ready) の場合でも本スキルでは Draft 化に **戻さない** (破壊的操作)。サイクル再開時に Draft 化が必要なケースは Main が `gh pr edit --draft` を明示的に呼び出すか、In-Progress ユーザー問い合わせ形式で確認する。
+**Note:** Even if an existing PR has `isDraft: false` (= already Ready), this skill does **not revert** it to Draft (a destructive operation). For cases where the cycle resumes and Drafting is needed, Main must explicitly invoke `gh pr edit --draft`, or confirm via the In-Progress user query format.
 
-## 2. PR 概要更新 (各ステップ完了時 + 適宜)
+## 2. PR Summary Update (At Each Step Completion + As Needed)
 
-PR 概要 (PR description) は **各ステップ完了コミット直後に必ず更新する** (9 回)。さらに、ステップ途中であっても内容に変化があれば**適宜**更新してよい (例: Research Note の追加、Blocker 発生時のステータス反映など)。
+The PR summary (PR description) **must be updated immediately after each step's completion commit** (9 times). Furthermore, even mid-step, it may be updated **as needed** when content changes (e.g., adding a Research Note, reflecting status when a Blocker occurs).
 
-更新手順:
+Update procedure:
 
-1. Main が `$TMPDIR/dev-workflow/<identifier>-pr-body.md` をテンプレート (`share-artifacts/templates/pr-body.md`) に従って再生成する (累積状態を反映)
-2. `gh pr edit <num> --body-file <path>` で送信する
+1. Main regenerates `$TMPDIR/dev-workflow/<identifier>-pr-body.md` according to the template (`share-artifacts/templates/pr-body.md`) (reflecting cumulative state)
+2. Send via `gh pr edit <num> --body-file <path>`
 
 ```bash
-# Main がテンプレートから $TMPDIR/dev-workflow/<id>-pr-body.md を再生成した後
+# After Main regenerates $TMPDIR/dev-workflow/<id>-pr-body.md from the template
 PR_NUMBER=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
 gh pr edit "$PR_NUMBER" --body-file "$TMPDIR/dev-workflow/<identifier>-pr-body.md"
 ```
 
-**`--body-file` 必須化の理由:** HEREDOC 経由の `--body "..."` は Markdown 内の `` ` `` / `"` / `$` / `\` 等が shell quoting で破損するリスクが恒常的にある (過去の手作業 PR で発生実績あり)。`--body-file` 経由ならファイル内容がそのまま送信される。
+**Reason for mandating `--body-file`:** The HEREDOC-based `--body "..."` carries an ongoing risk that `` ` `` / `"` / `$` / `\`, etc. inside Markdown get corrupted by shell quoting (this has actually occurred in past manually-crafted PRs). With `--body-file`, the file content is sent verbatim.
 
-**各セクションの埋め方:** `share-artifacts/references/pr-body.md` の「セクション仕様」を参照。CI status セクションは `share-ci-monitoring` §5 を参照。
+**How to fill each section:** See "Section specifications" in `share-artifacts/references/pr-body.md`. For the CI status section, see `share-ci-monitoring` §5.
 
-## 3. Draft → Ready 化 (Step 9 完了後、冪等)
+## 3. Draft -> Ready Transition (After Step 9 Completion, Idempotent)
 
-Step 9 (Retrospective) 完了コミットの CI が PASS したことを確認した後 (`share-ci-monitoring` §3 の二重チェック)、Main はサイクル PR を **Draft → Ready 化** する。Ready 化はサイクル完了の最終アクションの一つ。
+After confirming that the CI for the Step 9 (Retrospective) completion commit has passed (the double-check in `share-ci-monitoring` §3), Main transitions the cycle PR **from Draft to Ready**. The Ready transition is one of the final actions of cycle completion.
 
 ```bash
 PR_NUMBER=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
@@ -92,7 +96,7 @@ IS_DRAFT=$(gh pr view "$PR_NUMBER" --json isDraft --jq '.isDraft')
 
 if [ "$IS_DRAFT" = "true" ]; then
   gh pr ready "$PR_NUMBER"
-  echo "PR #$PR_NUMBER: Draft → Ready"
+  echo "PR #$PR_NUMBER: Draft -> Ready"
 elif [ "$IS_DRAFT" = "false" ]; then
   echo "PR #$PR_NUMBER: already Ready (no-op)"
 else
@@ -101,93 +105,93 @@ else
 fi
 ```
 
-**冪等性ガードの理由:** `gh pr ready` の挙動は CLI バージョンや GitHub 側の状態に依存する可能性があり、既に Ready の PR への再実行が破壊的になりうる (公式ドキュメント上は明記なし、`docs/workflow/2026-05-03-pr-ci-integration/research/gh-cli.md` D-2 参照)。設計側で `isDraft` 事前確認を必須化することで CLI 仕様変化に対するリグレッションを防ぐ。
+**Reason for the idempotency guard:** The behavior of `gh pr ready` may depend on the CLI version and GitHub-side state, and re-execution against an already-Ready PR could be destructive (not explicitly stated in official documentation; see `docs/workflow/2026-05-03-pr-ci-integration/research/gh-cli.md` D-2). Mandating an `isDraft` pre-check at the design level prevents regressions due to CLI specification changes.
 
-**Ready 化の検証:** `gh pr view --json isDraft` の出力が `false` であることを確認 (テストフレームワーク非依存の機械的判定)。`readyForReviewAt` フィールドが `gh pr view --json` のフィールド一覧にない場合は、`gh api repos/<owner>/<repo>/issues/<num>/timeline` の `event: "ready_for_review"` イベントで Step 9 コミット時刻以降であることを確認する。
+**Verifying the Ready transition:** Confirm that the output of `gh pr view --json isDraft` is `false` (a mechanical determination independent of any test framework). If the `readyForReviewAt` field is not in the field list of `gh pr view --json`, confirm that the `event: "ready_for_review"` event in `gh api repos/<owner>/<repo>/issues/<num>/timeline` occurs at or after the Step 9 commit time.
 
-## 4. PR state 読取 (Specialist も使用可、read 系)
+## 4. PR State Reads (Specialists May Also Use, Read Operations)
 
-read 系コマンドは Main / Specialist 共通で使用してよい。代表的なクエリ:
+Read operations may be used by both Main and Specialists. Representative queries:
 
 ```bash
-# 基本メタ情報 (number / isDraft / state / mergedAt)
+# Basic meta information (number / isDraft / state / mergedAt)
 gh pr view <num> --json number,isDraft,state,mergedAt --jq '.'
 
-# PR body (description) を取得 (validator が SC-2 等の検証で使用)
+# Get PR body (description) (used by validator for SC-2 etc. validation)
 gh pr view <num> --json body --jq '.body'
 
-# PR に紐付くコミット一覧 (validator が SC-5 で initialize cycle コミット存在確認)
+# List of commits associated with PR (used by validator at SC-5 to confirm initialize cycle commit existence)
 gh pr view <num> --json commits --jq '.commits[].messageHeadline'
 
-# branch / commit 一覧で PR を検索 (サイクルブランチ → PR 番号解決)
+# Search PR by branch / commit list (resolve cycle branch -> PR number)
 gh pr list --head "$BRANCH" --state all --json number,isDraft,createdAt --jq '.[0]'
 
-# PR タイムライン (description 編集イベント・convert_to_draft 等の取得)
+# PR timeline (retrieve description edit events, convert_to_draft, etc.)
 gh api repos/<owner>/<repo>/issues/<num>/timeline --paginate \
   --jq '.[] | {event, created_at, actor: .actor.login}'
 
-# created_at vs updated_at (description 編集の実行可否観測。timeline には description 編集が現れない仕様)
+# created_at vs updated_at (observe whether description edits occurred. By spec, description edits do not appear in timeline)
 gh api repos/<owner>/<repo>/issues/<num> --jq '{created: .created_at, updated: .updated_at}'
 ```
 
-**Specialist の使用範囲:** `validator` が SC-5/6/8 の動的検証で本スキルの read 系を呼び出す。`reviewer` (holistic 観点) も PR コミット粒度確認等で読取する場合がある。**ただし `--jq` のフィルタや結果の判定は Specialist 側で完結させ、本スキルは observation primitives を提供するに留める。**
+**Specialist usage scope:** The `validator` invokes this skill's read operations during dynamic validation of SC-5/6/8. The `reviewer` (holistic perspective) may also read for things like PR commit granularity confirmation. **However, `--jq` filtering and result evaluation must be completed on the Specialist side; this skill only provides observation primitives.**
 
-## 5. パーミッション境界 (Main vs Specialist)
+## 5. Permission Boundaries (Main vs Specialist)
 
-| 操作種別        | コマンド例                                              | Main | Specialist |
-| --------------- | ------------------------------------------------------- | ---- | ---------- |
-| Draft 作成      | `gh pr create --draft`                                  | ✅   | ❌         |
-| 概要更新        | `gh pr edit <num> --body-file`                          | ✅   | ❌         |
-| Ready 化        | `gh pr ready <num>`                                     | ✅   | ❌         |
-| Draft 化 (戻し) | `gh pr edit <num> --draft`                              | ✅\* | ❌         |
-| close / reopen  | `gh pr close <num>` / `gh pr reopen <num>`              | ✅\* | ❌         |
-| state 読取      | `gh pr view <num> --json ...` / `gh pr list --json ...` | ✅   | ✅         |
-| timeline 読取   | `gh api .../timeline`                                   | ✅   | ✅         |
+| Operation type      | Example command                                          | Main | Specialist |
+| ------------------- | -------------------------------------------------------- | ---- | ---------- |
+| Draft creation      | `gh pr create --draft`                                   | Yes  | No         |
+| Summary update      | `gh pr edit <num> --body-file`                           | Yes  | No         |
+| Ready transition    | `gh pr ready <num>`                                      | Yes  | No         |
+| Draft revert        | `gh pr edit <num> --draft`                               | Yes\* | No        |
+| close / reopen      | `gh pr close <num>` / `gh pr reopen <num>`               | Yes\* | No        |
+| State read          | `gh pr view <num> --json ...` / `gh pr list --json ...`  | Yes  | Yes        |
+| Timeline read       | `gh api .../timeline`                                    | Yes  | Yes        |
 
-\* Draft 化戻し / close / reopen は破壊的・準破壊的操作のため、ユーザー判断 (In-Progress 一時レポート) を経て Main が実行する。
+\* Draft revert / close / reopen are destructive or semi-destructive operations and are executed by Main only after user judgment (an In-Progress temporary report).
 
-詳細は `specialist-common` §7「PR / CI 操作の権限境界 (全 Specialist 共通)」と整合する。
+For details, this is consistent with `specialist-common` §7 "Permission Boundaries for PR / CI Operations (Common Across All Specialists)".
 
-## 6. テンプレート連携 (share-artifacts/pr-body.md)
+## 6. Template Integration (share-artifacts/pr-body.md)
 
-PR description の **構造と各セクションの仕様** は本スキルでは定義しない。以下を参照:
+The **structure and section specifications** of the PR description are not defined in this skill. See:
 
-- **テンプレート本体**: `share-artifacts/templates/pr-body.md` (Main がコピーして `$TMPDIR/dev-workflow/<id>-pr-body.md` に配置)
-- **書き方ガイド**: `share-artifacts/references/pr-body.md` (各セクションの埋め方、品質基準、良例 / 悪例)
-- **CI status セクションの埋め方**: `share-ci-monitoring` スキル §5
+- **Template body**: `share-artifacts/templates/pr-body.md` (Main copies it to `$TMPDIR/dev-workflow/<id>-pr-body.md`)
+- **Authoring guide**: `share-artifacts/references/pr-body.md` (how to fill each section, quality criteria, good / bad examples)
+- **How to fill the CI status section**: `share-ci-monitoring` skill §5
 
-更新タイミングだけが本スキルの責務:
+Only the timing of updates is this skill's responsibility:
 
-- 初回送信: §1 Draft PR 初期化と同時 (`gh pr create --body-file`)
-- 以降: §2 各ステップ完了コミット直後 + 適宜 (`gh pr edit --body-file`)
+- Initial send: simultaneous with §1 Draft PR initialization (`gh pr create --body-file`)
+- Subsequent: §2 immediately after each step completion commit + as needed (`gh pr edit --body-file`)
 
-## 7. 関連スキル / 委譲先
+## 7. Related Skills / Delegation Targets
 
-| 関心事                                                 | 担当スキル                                             | 本スキルとの関係                      |
-| ------------------------------------------------------ | ------------------------------------------------------ | ------------------------------------- |
-| PR 操作のいつ (タイミング・トリガー)                   | `dev-workflow` 「## サイクル PR と CI 連携プロトコル」 | dev-workflow が pr-manager を呼び出す |
-| PR 操作のどう (コマンド・冪等性)                       | **`share-pr-manager`** (本スキル)                            | -                                     |
-| CI watch / 二重チェック / リトライ / Blocker 化        | `share-ci-monitoring`                                        | 並列の関心事 (PR 操作には含めない)    |
-| PR description テンプレート / 各セクション仕様         | `share-artifacts/{templates,references}/pr-body.md`   | 本スキル §2 / §6 から参照             |
-| Specialist 共通の権限境界                              | `specialist-common` §7                                 | 本スキル §5 と一致                    |
-| Specialist 個別の PR 関連責務 (validator が SC で使用) | `specialist-validator` 等                              | 本スキル §4 read 系のみ呼び出す       |
-| プロジェクト固有 Git/PR 規約 (Conventional Commits)    | `git-workflow` (totto2727 プロジェクト)                | 本スキル §1 の `--title` 規約に従う   |
+| Concern                                                          | Owning skill                                                | Relationship to this skill                  |
+| ---------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------- |
+| When to perform PR operations (timing / triggers)                | `dev-workflow` "## Cycle PR and CI Integration Protocol"    | dev-workflow invokes pr-manager             |
+| How to perform PR operations (commands / idempotency)            | **`share-pr-manager`** (this skill)                         | -                                           |
+| CI watch / double-check / retry / Blocker                        | `share-ci-monitoring`                                       | Parallel concern (not included in PR ops)   |
+| PR description template / each section spec                      | `share-artifacts/{templates,references}/pr-body.md`         | Referenced from §2 / §6 of this skill       |
+| Common Specialist permission boundaries                           | `specialist-common` §7                                      | Aligned with §5 of this skill               |
+| Specialist-specific PR responsibilities (validator's SC use)      | `specialist-validator` etc.                                 | Invokes only §4 read operations of this skill |
+| Project-specific Git/PR conventions (Conventional Commits)        | `git-workflow` (totto2727 project)                          | Follow §1 `--title` convention of this skill |
 
-## このスキルが扱わないこと
+## What This Skill Does NOT Cover
 
-- **PR description の中身 (各セクションの埋め方)** → `share-artifacts/references/pr-body.md` に委譲
-- **CI run の確認・監視・リトライ・Blocker 化** → `share-ci-monitoring` スキルに委譲
-- **PR を「いつ」操作するか (各ステップでのトリガー)** → `dev-workflow` 「## サイクル PR と CI 連携プロトコル」に委譲
-- **GitHub Issue / Discussion / Project の操作** → 本ワークフロー外
-- **複数リポジトリ間の PR 同期** → 本ワークフロー外
-- **PR レビューコメントの書き込み** (`gh pr review` / `gh pr comment`) → 本サイクルでは扱わない (将来の別サイクルで検討、Retrospective 拡張ポイント)
-- **マージ操作** (`gh pr merge`) → 人間レビュアーの責務、本ワークフロー外
-- **CI ワークフロー定義の改修** (`.github/workflows/*.yaml`) → CI/CD パイプライン設計の領域、本ワークフロー外
+- **PR description content (how to fill each section)** -> delegated to `share-artifacts/references/pr-body.md`
+- **CI run confirmation / monitoring / retry / Blocker handling** -> delegated to `share-ci-monitoring` skill
+- **When to perform PR operations (triggers per step)** -> delegated to `dev-workflow` "## Cycle PR and CI Integration Protocol"
+- **GitHub Issue / Discussion / Project operations** -> out of scope for this workflow
+- **PR synchronization across multiple repositories** -> out of scope for this workflow
+- **Writing PR review comments** (`gh pr review` / `gh pr comment`) -> not handled in this cycle (to be considered in a future separate cycle, Retrospective extension point)
+- **Merge operations** (`gh pr merge`) -> human reviewer responsibility, out of scope for this workflow
+- **CI workflow definition modifications** (`.github/workflows/*.yaml`) -> domain of CI/CD pipeline design, out of scope for this workflow
 
-## 発火の想定例 (Triggering Test)
+## Triggering Test (Examples)
 
-- 「Step 1 完了コミットを push したので Draft PR を作りたい」 → §1 (冪等チェック → `gh pr create --draft --body-file`)
-- 「Step 5 完了コミット直後に PR description を更新したい」 → §2 (`$TMPDIR/<id>-pr-body.md` 再生成 → `gh pr edit --body-file`)
-- 「Step 9 完了コミットの CI が PASS したので PR を Ready にしたい」 → §3 (`isDraft` 事前確認 → `gh pr ready`)
-- 「Validator として SC-5 のため PR が Draft で作られたか確認したい」 → §4 read 系 (`gh pr view --json isDraft,createdAt`)
-- 「PR description が更新された痕跡を timeline で確認したい」 → §4 read 系 (`gh api .../timeline`)
+- "I just pushed the Step 1 completion commit and want to create a Draft PR" -> §1 (idempotency check -> `gh pr create --draft --body-file`)
+- "I want to update the PR description right after the Step 5 completion commit" -> §2 (regenerate `$TMPDIR/<id>-pr-body.md` -> `gh pr edit --body-file`)
+- "The CI for the Step 9 completion commit passed and I want to make the PR Ready" -> §3 (`isDraft` pre-check -> `gh pr ready`)
+- "As a Validator, I want to confirm that the PR was created as Draft for SC-5" -> §4 read operations (`gh pr view --json isDraft,createdAt`)
+- "I want to confirm in the timeline that the PR description was updated" -> §4 read operations (`gh api .../timeline`)

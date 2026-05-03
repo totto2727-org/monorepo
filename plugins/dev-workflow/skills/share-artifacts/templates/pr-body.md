@@ -1,17 +1,17 @@
 ## Summary
 
-- (1〜3 bullet で目的・主要変更を要約 — Intent Spec の「目的」セクションから派生)
+- (1-3 bullets summarizing the purpose and key changes — derived from the Intent Spec's "Purpose" section)
 
 ## Cycle artefacts
 
 - intent-spec: docs/workflow/{{identifier}}/intent-spec.md
-- research: docs/workflow/{{identifier}}/research/<topic>.md (各観点)
+- research: docs/workflow/{{identifier}}/research/<topic>.md (one per topic)
 - design: docs/workflow/{{identifier}}/design.md
 - qa-design: docs/workflow/{{identifier}}/qa-design.md
 - qa-flow: docs/workflow/{{identifier}}/qa-flow.md
 - task-plan: docs/workflow/{{identifier}}/task-plan.md
 - TODO: docs/workflow/{{identifier}}/TODO.md
-- review: docs/workflow/{{identifier}}/review/<aspect>.md (6 観点)
+- review: docs/workflow/{{identifier}}/review/<aspect>.md (six aspects)
 - validation: docs/workflow/{{identifier}}/validation-report.md
 - retrospective: docs/retrospective/{{identifier}}.md
 
@@ -29,17 +29,17 @@
 
 ## CI status
 
-- 最新コミット SHA: <abbrev-sha>
-- 最新 `check` job: <conclusion> (run id: <run-id>, attempt: <n>)
-- リトライ履歴: (失敗があった場合のみ列挙、Step ごとにブロック)
+- Latest commit SHA: <abbrev-sha>
+- Latest `check` job: <conclusion> (run id: <run-id>, attempt: <n>)
+- Retry history: (list only when there were failures, grouped by Step)
 
-## Test plan (Step 8 で完成)
+## Test plan (finalized in Step 8)
 
-- [ ] SC-N (criteria): <観測値 / 検証コマンド>
+- [ ] SC-N (criteria): <observed value / verification command>
 
-## Notable incidents (該当があった場合のみ)
+## Notable incidents (only when applicable)
 
-- ロールバック・前提崩壊履歴
+- Rollback / premise-collapse history
 
 ---
 

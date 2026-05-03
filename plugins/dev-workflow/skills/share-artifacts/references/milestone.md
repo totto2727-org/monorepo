@@ -1,98 +1,98 @@
-# Reference: `milestone.md` の書き方
+# Reference: How to write `milestone.md`
 
-## 目的
+## Purpose
 
-ロードマップ配下の**1 マイルストーン定義**を作成する。`roadmap.md` のマイルストーン一覧テーブルを補強する詳細書き起こしであり、配下の `dev-workflow` サイクルが `intent-spec.md` を起草する際の主要入力となる。1 マイルストーン = 1 ファイル原則を守ることで、依存追加・分割・削除時の差分を局所化できる。
+Create the **definition of one milestone** under a roadmap. It is a detailed write-up that supplements the milestone list table in `roadmap.md`, and the primary input when the underlying `dev-workflow` cycles draft their `intent-spec.md`. By following the principle of one milestone = one file, diffs when adding, splitting, or deleting dependencies remain localized.
 
-`milestone.md` は**戦略層と戦術層の橋渡し**を担う。ここで合意された定性的到達点・スコープ境界・依存関係が、配下の `dev-workflow` サイクル Intent Spec で観測可能な成功基準へと展開される。
+`milestone.md` plays the role of a **bridge between the strategic and tactical layers**. The qualitative goals, scope boundaries, and dependency relationships agreed upon here are expanded into observable success criteria in the Intent Spec of the underlying `dev-workflow` cycle.
 
-## 作成者 / 作成タイミング
+## Author / creation timing
 
-- **作成者:** `roadmap-planner` Specialist
-- **作成ステップ:** `dev-roadmap` Step 2 (Milestone Decomposition)
-- **承認:** Step 2 完了時にユーザー承認必須 (Artifact-as-Gate-Review)
+- **Author:** `roadmap-planner` Specialist
+- **Step:** `dev-roadmap` Step 2 (Milestone Decomposition)
+- **Approval:** user approval required at Step 2 completion (Artifact-as-Gate-Review)
 
-## ファイル位置
+## File location
 
 `docs/roadmap/<roadmap-id>/milestones/<milestone-id>.md`
 
-- `<milestone-id>` は kebab-case を推奨 (例: `ms-01-foundation`)
-- `roadmap-progress.yaml.milestones[].id` および `roadmap.md` のマイルストーン一覧 ID と完全一致させる
+- kebab-case is recommended for `<milestone-id>` (e.g. `ms-01-foundation`)
+- Make it perfectly match `roadmap-progress.yaml.milestones[].id` and the milestone list ID in `roadmap.md`
 
-## 各セクションの書き方
+## How to write each section
 
-### 目的
+### Purpose
 
-1〜2 文で**定性的到達点**を記述する。`roadmap.md` の「目的」と同様、**観測可能な成功基準は持たない**。観測可能基準が必要な場合は、配下の `dev-workflow` サイクルの `intent-spec.md` で展開する。
+Describe the **qualitative goal** in 1-2 sentences. As with the "Purpose" of `roadmap.md`, **it does not carry observable success criteria**. When observable criteria are needed, they are expanded in the `intent-spec.md` of the underlying `dev-workflow` cycle.
 
-| ✅ よい (定性的到達点)                             | ❌ 悪い (観測手段が必要)                  |
-| -------------------------------------------------- | ----------------------------------------- |
-| OAuth クライアント登録機能が動作している           | OAuth クライアント登録 API が p95 < 200ms |
-| 決済 API の先頭 1/3 のエンドポイントが新基盤で稼働 | 移行後の API 全体で 99.9% の可用性        |
+| Good (qualitative goal)                                    | Bad (requires a measurement method)              |
+| ---------------------------------------------------------- | ------------------------------------------------ |
+| OAuth client registration is functioning                   | OAuth client registration API has p95 < 200ms    |
+| The first 1/3 of the payment API endpoints run on the new platform | 99.9% availability across the entire API after migration |
 
-### 到達点 (定性)
+### Goals (qualitative)
 
-完了判定の根拠となる**定性的な観測ポイント**。Step 4 (Roadmap Retrospective) の `roadmap-retrospective-writer` がマイルストーン達成度を総括する際の主要参照源となる。`roadmap-progress.yaml.milestones[].status` を `completed` に遷移する判断材料にもなる。
+**Qualitative observation points** that serve as the basis for the completion judgment. The primary reference for `roadmap-retrospective-writer` in Step 4 (Roadmap Retrospective) when summarizing milestone achievement, and also a basis for transitioning `roadmap-progress.yaml.milestones[].status` to `completed`.
 
-- 「ユーザーが新フローで実際にログインできる」
-- 「既存テストが全件 green を維持している」
-- 「移行ドキュメントが他チームに共有されている」
+- "The user can actually log in via the new flow"
+- "All existing tests remain green"
+- "The migration document has been shared with other teams"
 
-### スコープ / 非スコープ
+### Scope / non-scope
 
-- スコープ: 配下の `dev-workflow` サイクルが**最大でどこまで触ってよいか**の境界。対象モジュール / 機能 / ユーザー / 環境を具体的に
-- 非スコープ: 他マイルストーンの責務 / 後続マイルストーンに送る / 別ロードマップで扱う 等
+- Scope: the boundary of **the maximum extent the underlying `dev-workflow` cycles may touch**. Specify target modules / features / users / environments
+- Non-scope: responsibilities of other milestones / sent to subsequent milestones / handled in another roadmap, etc.
 
-非スコープを書かないと、配下サイクルが進むうちにマイルストーン境界が暗黙に広がり、依存マイルストーンとの重複が発生する。**必ず書く**。
+If non-scope is not written, milestone boundaries silently expand as the underlying cycles progress, causing overlap with dependent milestones. **Always write it.**
 
-### 依存マイルストーン
+### Dependent milestones
 
-このマイルストーンが**先行完了を要求する**他のマイルストーン ID を列挙する。
+List the IDs of other milestones that **must be completed first**.
 
-- `roadmap-progress.yaml.milestones[].depends_on[]` の配列と完全一致させる (列挙順は問わない)
-- 起点マイルストーン (依存なし) の場合は明示的に `(なし)` と書く (空欄での暗黙化を避ける)
-- 各依存にはなぜ依存するかの 1 行理由を併記する (循環依存検知の手掛かりになる)
+- Make it match the `roadmap-progress.yaml.milestones[].depends_on[]` array exactly (the order does not matter)
+- For starting milestones (no dependencies), write `(none)` explicitly (avoid implicit empty fields)
+- Add a one-line rationale per dependency (clue for circular-dependency detection)
 
-### 関連 dev-workflow サイクル (workflow_identifiers)
+### Linked dev-workflow cycles (workflow_identifiers)
 
-このマイルストーンに紐付く `dev-workflow` サイクルの `<identifier>` 一覧。1:1 推奨、1:N 許容 (Intent Spec で確定済み)。
+List of `<identifier>` values of `dev-workflow` cycles linked to this milestone. 1:1 recommended, 1:N allowed (confirmed in the Intent Spec).
 
-**一次ソースは `roadmap-progress.yaml`**: 配下サイクルが起動されるたびに `roadmap-progress.yaml.milestones[].workflow_identifiers[]` へ自身の `<identifier>` を append する (`dev-workflow/SKILL.md` の「`roadmap-progress.yaml` 更新プロトコル」セクション参照)。本 `milestone.md` 上の表は補足的なメモとして任意更新する (二重管理に陥らないよう、矛盾時は `roadmap-progress.yaml` を優先する)。
+**The primary source is `roadmap-progress.yaml`**: each time an underlying cycle is launched, it appends its own `<identifier>` to `roadmap-progress.yaml.milestones[].workflow_identifiers[]` (see "`roadmap-progress.yaml` update protocol" in `dev-workflow/SKILL.md`). The table in this `milestone.md` is updated optionally as a supplemental memo (to avoid double management, in case of conflict prefer `roadmap-progress.yaml`).
 
-### 想定 dev-workflow サイクル数
+### Anticipated number of dev-workflow cycles
 
-このマイルストーン達成に必要と見込むサイクル数。1 が標準。1:N (= 複数サイクル) を採用する場合は理由を併記する。
+The expected number of cycles needed to achieve this milestone. 1 is standard. When adopting 1:N (= multiple cycles), include the rationale.
 
-| サイクル数 | 想定ケース                                                                  |
-| ---------- | --------------------------------------------------------------------------- |
-| 1 (推奨)   | マイルストーンが 1 つの dev-workflow Intent Spec で扱える規模               |
-| 2-3        | 設計・実装・検証で意図的にサイクルを分けたい / 複数チーム並行のため         |
-| 4 以上     | マイルストーン分解の見直しを推奨 (より小さいマイルストーンへの再分割を検討) |
+| Number of cycles | Anticipated case                                                      |
+| ---------------- | --------------------------------------------------------------------- |
+| 1 (recommended)  | The milestone fits within a single dev-workflow Intent Spec scale     |
+| 2-3              | Intentional split across design / implementation / verification, or parallel multi-team |
+| 4 or more        | Recommend re-examining milestone decomposition (consider further splitting into smaller milestones) |
 
-### 補足 / 留意事項
+### Supplementary notes / things to keep in mind
 
-`roadmap-progress.yaml.milestones[].notes` に書ききれない補足や、配下 `dev-workflow` サイクル起動時の引き継ぎメモ。任意 (空で可)。
+Supplementary notes that do not fit in `roadmap-progress.yaml.milestones[].notes`, or hand-off memos for the launch of an underlying `dev-workflow` cycle. Optional (may be empty).
 
-## 配置パターン例: 統合検証マイルストーン
+## Layout pattern example: integration verification milestone
 
-`roadmap-planner` がマイルストーンを切り出す際の**任意の配置パターン例**として、ロードマップの最終マイルストーンを「統合検証マイルストーン」として配置する形がある。これは「**最終マイルストーン = 統合検証マイルストーン**」というパターン**例**であり、ユーザー検討案にあった「テスト専用 `dev-workflow` サイクル」概念は導入せず、**通常のマイルストーン (本テンプレート) で表現する**方針 (`intent-spec.md` 非スコープ事項を参照)。例えば、配下マイルストーン群が個別にユニット/結合テストを完備したうえで、最終マイルストーンが「全マイルストーン横断のシナリオテスト」「本番想定の負荷試験」「ユーザー受け入れテスト」を実施する `dev-workflow` サイクルを抱える、といった形をとる。本セクションはあくまで配置パターン**例**であり、必須ではない。
+As **an optional layout pattern example** when the `roadmap-planner` carves out milestones, there is a pattern of placing the final milestone of a roadmap as an "integration verification milestone". This is a pattern **example** of "**final milestone = integration verification milestone**", and the "test-only `dev-workflow` cycle" concept that was in the user proposal is not introduced; it is **expressed as a normal milestone (this template)** (see the non-scope items in `intent-spec.md`). For example, after the underlying milestones individually complete unit/integration testing, the final milestone holds a `dev-workflow` cycle that runs "scenario tests across all milestones", "production-equivalent load testing", and "user acceptance testing". This section is purely a layout pattern **example** and is not mandatory.
 
-## 品質基準
+## Quality criteria
 
-| ✅ よい                                                 | ❌ 悪い                                            |
-| ------------------------------------------------------- | -------------------------------------------------- |
-| 目的が定性的到達点として書かれている                    | 観測可能基準が混入している (workflow の責務を侵食) |
-| 依存マイルストーン ID が `roadmap-progress.yaml` と一致 | 表記揺れ・列挙漏れがある                           |
-| 起点マイルストーンに `(なし)` が明示されている          | 依存セクションが空欄のまま                         |
-| 1 ファイル = 1 マイルストーン原則を守っている           | 複数マイルストーンを 1 ファイルにまとめている      |
-| 想定サイクル数が 1〜3 に収まっている                    | サイクル数が 4 以上で再分割が検討されていない      |
-| 非スコープが明示されている                              | スコープのみで境界が曖昧                           |
+| Good                                                                    | Bad                                                              |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Purpose is written as a qualitative goal                                | Observable criteria are mixed in (encroaching on workflow's responsibility) |
+| Dependent milestone IDs match `roadmap-progress.yaml`                   | Notation drift or missing entries                                |
+| Starting milestones explicitly list `(none)`                            | The dependency section is left blank                             |
+| The principle of 1 file = 1 milestone is followed                       | Multiple milestones bundled into one file                        |
+| Anticipated cycle count stays within 1-3                                | Cycle count is 4 or more without considering re-decomposition    |
+| Non-scope is explicit                                                   | Only scope, with ambiguous boundaries                            |
 
-## 関連成果物
+## Related artifacts
 
-- **入力:** `roadmap.md` (上位ロードマップの目的・スコープ境界・大局的制約)
-- **後続成果物の前提:**
-  - `roadmap-progress.yaml.milestones[]` (Step 2 で `roadmap-planner` が `id` / `title` / `status: planned` / `depends_on` / 空の `workflow_identifiers: []` / `notes: null` で初期化)
-  - 配下の各 `dev-workflow` サイクルの `intent-spec.md` (本ファイルを入力として観測可能な成功基準を起草)
-- **変更時の影響:** Step 2 で確定後は immutable を原則とする。配下サイクル進行中の変更は roadmap Step 2 への回帰と等価。
-- **関連:** `references/roadmap.md`、`references/roadmap-progress-yaml.md`、`references/roadmap-retrospective.md`
+- **Inputs:** `roadmap.md` (purpose, scope boundaries, and macro constraints of the parent roadmap)
+- **Premise for downstream artifacts:**
+  - `roadmap-progress.yaml.milestones[]` (initialized at Step 2 by `roadmap-planner` with `id` / `title` / `status: planned` / `depends_on` / empty `workflow_identifiers: []` / `notes: null`)
+  - The `intent-spec.md` of each underlying `dev-workflow` cycle (this file is used as input to draft observable success criteria)
+- **Impact when changed:** in principle immutable after confirmation in Step 2. Changes during the underlying cycle are equivalent to regressing back to roadmap Step 2.
+- **Related:** `references/roadmap.md`, `references/roadmap-progress-yaml.md`, `references/roadmap-retrospective.md`

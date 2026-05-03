@@ -7,75 +7,75 @@
 - **Last updated:** {{updated_at}}
 - **Status:** {{status}} <!-- draft | approved -->
 
-このドキュメントは **Step 4 で確定する本質テスト設計**。Step 6 (Implementation) で implementer が「実装段階で発見されたテスト」を追記する。書き方の詳細は `share-artifacts/references/qa-design.md` を参照。
+This document is the **essential test design finalized in Step 4**. During Step 6 (Implementation) the implementer appends "tests discovered during implementation". See `share-artifacts/references/qa-design.md` for authoring details.
 
-## 概要
+## Overview
 
 {{overview}}
 
-`intent-spec.md` の成功基準を観測可能な形まで深掘りした要約。
+A summary that drills the success criteria from `intent-spec.md` down to an observable form.
 
-例:
+Examples:
 
-- SC-1: User がログインフォームに正しい認証情報を送信すると、JWT を含む 200 レスポンスを 500ms 以内に受け取る
-- SC-2: 不正な認証情報の場合、401 を返す
-- SC-3: ログイン試行 5 回失敗で IP ベースの一時ブロック (15 分)
+- SC-1: When the user submits valid credentials to the login form, they receive a 200 response containing a JWT within 500 ms
+- SC-2: When credentials are invalid, the system returns 401
+- SC-3: After 5 failed login attempts, the IP is temporarily blocked for 15 minutes
 
-## 自動 vs 手動の判断方針
+## Rationale for automated vs. manual
 
 {{automation_rationale}}
 
-`design.md` のアーキテクチャ判断を踏まえ、各テストの実行主体 (automated / ai-driven / manual) 選定根拠を 1〜3 段落で記述する。
+Building on the architectural decisions in `design.md`, write 1-3 paragraphs explaining the rationale for the choice of execution actor (automated / ai-driven / manual) for each test.
 
-## テストファイル配置ポリシー
+## Test file placement policy
 
 {{file_placement_policy}}
 
-カテゴリ別の配置方針を記述。具体的なファイルパスは Step 5 (task-plan) / Step 6 (implementer) で確定する。
+Describe placement policy by category. Concrete file paths are finalized in Step 5 (task-plan) / Step 6 (implementer).
 
-例:
+Examples:
 
-- `automated × assertion`: ソースファイルと co-located (例: `foo.ts` と `foo.test.ts` を同ディレクトリ)
-- `automated × scenario`: `e2e/` 直下
-- `manual × inspection`: 手順書を `docs/workflow/{{identifier}}/manual-tests/<TC-ID>.md` に配置
+- `automated × assertion`: co-located with the source file (e.g. place `foo.test.ts` next to `foo.ts` in the same directory)
+- `automated × scenario`: directly under `e2e/`
+- `manual × inspection`: place the procedure document at `docs/workflow/{{identifier}}/manual-tests/<TC-ID>.md`
 
-## 本質テストケース (TC-NNN)
+## Essential test cases (TC-NNN)
 
-仕様レベルで表現可能な振る舞いを検証するケース。Step 4 で qa-analyst が起点を設計、Step 6 で implementer が「振る舞いの追加パターン」を継続採番で追記する。
+Cases that verify behaviors expressible at the specification level. The qa-analyst designs the initial set in Step 4; in Step 6 the implementer appends "additional behavioral patterns" with continuing numbering.
 
-| ID     | 対象成功基準 | 期待される振る舞い | 実行主体    | 検証スタイル | 判定基準        | 必要理由 (条件付き) | 備考 (任意) |
-| ------ | ------------ | ------------------ | ----------- | ------------ | --------------- | ------------------- | ----------- |
-| TC-001 | {{sc_id_1}}  | {{behavior_1}}     | {{actor_1}} | {{style_1}}  | {{criterion_1}} | -                   | -           |
-| TC-002 | {{sc_id_2}}  | {{behavior_2}}     | {{actor_2}} | {{style_2}}  | {{criterion_2}} | -                   | -           |
-| TC-003 | (なし)       | {{behavior_3}}     | {{actor_3}} | {{style_3}}  | {{criterion_3}} | {{reason_3}}        | -           |
+| ID     | Target SC    | Expected behavior  | Actor       | Style        | Pass criterion  | Why required (conditional) | Notes (optional) |
+| ------ | ------------ | ------------------ | ----------- | ------------ | --------------- | -------------------------- | ---------------- |
+| TC-001 | {{sc_id_1}}  | {{behavior_1}}     | {{actor_1}} | {{style_1}}  | {{criterion_1}} | -                          | -                |
+| TC-002 | {{sc_id_2}}  | {{behavior_2}}     | {{actor_2}} | {{style_2}}  | {{criterion_2}} | -                          | -                |
+| TC-003 | (none)       | {{behavior_3}}     | {{actor_3}} | {{style_3}}  | {{criterion_3}} | {{reason_3}}               | -                |
 
-<!-- 必要な数だけ TC-004, TC-005, ... を追加 -->
+<!-- Add TC-004, TC-005, ... as needed -->
 
-### enum 値の早見表
+### Enum value quick reference
 
-- **実行主体 (`実行主体` 列):** `automated` | `ai-driven` | `manual`
-- **検証スタイル (`検証スタイル` 列):** `assertion` | `scenario` | `observation` | `inspection`
-- **禁止組み合わせ:** `automated × inspection` (使用不可)
-- **要備考組み合わせ (△):** `ai-driven × assertion`, `manual × assertion`, `manual × observation` — 採用時は `備考` 列に理由必須
+- **Actor (`Actor` column):** `automated` | `ai-driven` | `manual`
+- **Style (`Style` column):** `assertion` | `scenario` | `observation` | `inspection`
+- **Forbidden combination:** `automated × inspection` (not allowed)
+- **Combinations requiring notes (△):** `ai-driven × assertion`, `manual × assertion`, `manual × observation` — when used, the `Notes` column must contain the rationale
 
-## 実装都合テストケース (TC-IMPL-NNN)
+## Implementation-driven test cases (TC-IMPL-NNN)
 
-ライブラリ / フレームワーク / OS など、具体実装でのみ発生する防御的分岐を検証するケース。Step 4 では空、Step 6 で implementer が発見した場合のみ追記する。
+Cases verifying defensive branches that arise only in the concrete implementation (libraries / frameworks / OS, etc.). Empty during Step 4; added by the implementer in Step 6 only when discovered.
 
-| ID          | 対象成功基準 | 期待される振る舞い  | 実行主体         | 検証スタイル     | 判定基準             | 必要理由 (必須)   | 備考 (任意) |
-| ----------- | ------------ | ------------------- | ---------------- | ---------------- | -------------------- | ----------------- | ----------- |
-| TC-IMPL-001 | (なし)       | {{impl_behavior_1}} | {{impl_actor_1}} | {{impl_style_1}} | {{impl_criterion_1}} | {{impl_reason_1}} | -           |
+| ID          | Target SC    | Expected behavior   | Actor            | Style            | Pass criterion       | Why required (mandatory) | Notes (optional) |
+| ----------- | ------------ | ------------------- | ---------------- | ---------------- | -------------------- | ------------------------ | ---------------- |
+| TC-IMPL-001 | (none)       | {{impl_behavior_1}} | {{impl_actor_1}} | {{impl_style_1}} | {{impl_criterion_1}} | {{impl_reason_1}}        | -                |
 
-<!-- Step 6 で implementer が必要に応じて追記。Step 4 では空欄でよい -->
+<!-- The implementer appends rows in Step 6 as needed. May remain empty in Step 4. -->
 
-## カバレッジ表
+## Coverage table
 
-成功基準 → TC-ID の逆引き。Step 8 validator がカバレッジ確認に使用する。本質テスト (TC-NNN) のみが対象。
+A reverse lookup from success criterion to TC-ID. The Step 8 validator uses it to confirm coverage. Only essential test cases (TC-NNN) are in scope.
 
-| 成功基準 ID | 対応する TC-ID  | 注記 |
-| ----------- | --------------- | ---- |
-| SC-1        | {{tc_for_sc_1}} | -    |
-| SC-2        | {{tc_for_sc_2}} | -    |
-| SC-3        | {{tc_for_sc_3}} | -    |
+| SC ID | Corresponding TC-IDs | Notes |
+| ----- | -------------------- | ----- |
+| SC-1  | {{tc_for_sc_1}}      | -     |
+| SC-2  | {{tc_for_sc_2}}      | -     |
+| SC-3  | {{tc_for_sc_3}}      | -     |
 
-<!-- intent-spec.md の全成功基準について 1 行ずつ記述。対応 TC が 0 件なら Step 4 ロールバック -->
+<!-- Write one row per success criterion in intent-spec.md. If any criterion has zero matching TCs, roll back to Step 4. -->

@@ -1,35 +1,35 @@
-# Reference: `progress.yaml` の書き方
+# Reference: How to write `progress.yaml`
 
-## 目的
+## Purpose
 
-サイクル全体の**進捗を機械可読な形で永続化**する。Main が唯一の書き手となる真のソース。中断・再開時はこのファイルを読むだけで状態を復元できる。
+**Persist the progress of the entire cycle in a machine-readable form**. Main is the sole writer and this is the true source. On interruption / resumption, state can be restored simply by reading this file.
 
-## 作成者 / 更新タイミング
+## Author / update timing
 
-- **作成者:** Main
-- **初期化:** サイクル開始時（Step 1 に着手する直前）
-- **更新:** 各ステップ完了時 / ユーザー承認時 / Blocker 発生時 / ロールバック時 / セッション再開時
+- **Author:** Main
+- **Initialization:** at cycle start (immediately before starting Step 1)
+- **Updates:** at each step completion / on user approval / on Blocker occurrence / on rollback / on session resumption
 
-## ファイル位置
+## File location
 
 `docs/workflow/<identifier>/progress.yaml`
 
-## 各フィールドの書き方
+## How to write each field
 
 ### `identifier` / `started_at` / `updated_at`
 
-- `identifier`: サイクル開始時にユーザーと合意した識別子（機能名 / チケット ID 等）
-- `started_at`: サイクル開始の ISO8601 タイムスタンプ（固定、以降変更しない）
-- `updated_at`: YAML を更新するたびに最新の ISO8601 に書き換え
+- `identifier`: the identifier agreed with the user at cycle start (feature name / ticket ID, etc.)
+- `started_at`: ISO8601 timestamp of cycle start (fixed, not changed afterwards)
+- `updated_at`: rewritten to the latest ISO8601 each time the YAML is updated
 
 ### `status` / `current_step`
 
-- `status`: `active` / `completed` / `blocked` のいずれか (サイクル全体の状態。フェーズ概念は持たない)
-- `current_step`: 「Step 3: Design」のようにステップ番号と名称を併記
+- `status`: one of `active` / `completed` / `blocked` (the state of the entire cycle. There is no phase concept.)
+- `current_step`: write both the step number and name, e.g. "Step 3: Design"
 
 ### `completed_steps`
 
-完了したステップを時系列で記録。
+Record completed steps in chronological order.
 
 ```yaml
 completed_steps:
@@ -40,75 +40,75 @@ completed_steps:
 
 ### `pending_gates`
 
-ユーザー承認・Main 判定待ちの項目を列挙。ゲートが解消されたら削除してリストから除外。
+List items awaiting user approval / Main verdict. When a gate is resolved, remove it from the list.
 
 ### `active_specialists`
 
-**現在走っている Specialist のみ**を記録。完了したら `completed_steps` 側に吸収され、このリストから削除される。
+Record **only Specialists currently running**. When completed, they are absorbed into `completed_steps` and removed from this list.
 
 ```yaml
 active_specialists:
   - name: researcher
-    task: existing-impl 観点の調査
+    task: investigation of the existing-impl aspect
     status: running
     started_at: 2026-04-24T10:30:00Z
 ```
 
 ### `blockers`
 
-未解決の Blocker。解消されたら削除。文言は「事象 + 影響 + 対応方針」を含める。
+Unresolved Blockers. Remove when resolved. The wording should include "event + impact + response policy".
 
-- CI failure を記録する例: `Step 6 task-T1 commit abc1234 の CI が 2 回連続失敗 (run id 25270xxxx) → リトライ上限到達のため Blocker 化`。新フィールドは追加せず自由テキスト形式で attempts / run id / 該当コミットを書く。
+- Example for recording a CI failure: `Step 6 task-T1 commit abc1234 had CI fail twice in a row (run id 25270xxxx) → reached retry limit, marked as Blocker`. Do not add new fields; write attempts / run id / corresponding commit in free-form text.
 
 ### `artifacts`
 
-全成果物の相対パス。`null` のまま未生成のフィールドを残してよい。複数作成される成果物（research, review）はリスト形式。
+Relative paths of all artifacts. Fields not yet generated may remain `null`. Artifacts that may be created multiple times (research, review) are in list form.
 
-フィールド一覧:
+Field list:
 
 - `intent_spec` (Step 1) — `intent-spec.md`
-- `research` (Step 2) — リスト
+- `research` (Step 2) — list
 - `design` (Step 3) — `design.md`
 - `qa_design` (Step 4) — `qa-design.md`
 - `qa_flow` (Step 4) — `qa-flow.md`
-- `external_adrs` — サイクル外に起票した ADR のパス (リスト)。General mode (`docs/adr/<file>.md`) と Roadmap mode (`docs/roadmap/<roadmap-id>/adr/<file>.md`) を同列に列挙する。scope の識別は ADR 本体 frontmatter `scope: general` / `scope: roadmap:<roadmap-id>` で行う (詳細: `share-adr/SKILL.md`)
+- `external_adrs` — paths of ADRs filed outside the cycle (list). General mode (`docs/adr/<file>.md`) and Roadmap mode (`docs/roadmap/<roadmap-id>/adr/<file>.md`) are listed at the same level. Scope is identified by the `scope: general` / `scope: roadmap:<roadmap-id>` frontmatter in the ADR itself (details: `share-adr/SKILL.md`)
 - `task_plan` (Step 5) — `task-plan.md`
-- `todo` (Step 6 開始時に生成) — `TODO.md`
-- `review` (Step 7) — リスト (`review/<aspect>.md`、6 観点)
+- `todo` (generated at Step 6 start) — `TODO.md`
+- `review` (Step 7) — list (`review/<aspect>.md`, 6 aspects)
 - `validation` (Step 8) — `validation-report.md`
 - `retrospective` (Step 9) — `retrospective.md`
 
-### `roadmap` (任意のネストブロック、roadmap 配下サイクル判定)
+### `roadmap` (optional nested block, determining whether the cycle is under a roadmap)
 
-サイクルが `dev-roadmap` の配下マイルストーンから起動されたかを示すフィールド。デフォルトは `null` (= 独立サイクル)。`dev-roadmap` の上位ロードマップ ID およびマイルストーン ID を双方向参照のソースとして埋め込むためのネストブロックを保持する。
+A field indicating whether the cycle was launched from a milestone under `dev-roadmap`. Default is `null` (= independent cycle). Holds a nested block embedding the parent roadmap ID and milestone ID as the source for bidirectional reference with `dev-roadmap`.
 
-#### フィールド意味
+#### Field meaning
 
-- `roadmap.id`: 上位 `dev-roadmap` の `roadmap-id` (`docs/roadmap/<roadmap-id>/` ディレクトリ名と一致)。non-null 時に必須。
-- `roadmap.milestone.id`: 紐付くマイルストーン id (`docs/roadmap/<roadmap-id>/milestones/<milestone-id>.md` の basename と一致)。non-null 時に必須。
-- それ以外のサブフィールドは本バージョンでは持たない (将来拡張余地として scope out)。
+- `roadmap.id`: the `roadmap-id` of the parent `dev-roadmap` (matches the `docs/roadmap/<roadmap-id>/` directory name). Required when non-null.
+- `roadmap.milestone.id`: the linked milestone id (matches the basename of `docs/roadmap/<roadmap-id>/milestones/<milestone-id>.md`). Required when non-null.
+- No other subfields exist in this version (scoped out as future extension room).
 
-#### 設定タイミング
+#### Setting timing
 
-roadmap 配下サイクル開始時、Main が `progress.yaml` 初期化と同じステップ (`dev-workflow/SKILL.md` 「ワークフロー開始時」セクションのステップ 4') で `roadmap` ブロックを初期化する。同時に上位 `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` の該当 `milestones[].status` を `planned → active` に遷移させ、`milestones[].workflow_identifiers[]` に自身の `<identifier>` を追記する。詳細は `dev-workflow/SKILL.md` の「`roadmap-progress.yaml` 更新プロトコル」セクションに従うこと。
+When a cycle under a roadmap starts, Main initializes the `roadmap` block in the same step as `progress.yaml` initialization (step 4' in "When the workflow starts" of `dev-workflow/SKILL.md`). At the same time, transition the corresponding `milestones[].status` of the parent `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` from `planned → active`, and append its own `<identifier>` to `milestones[].workflow_identifiers[]`. For details, follow "`roadmap-progress.yaml` update protocol" in `dev-workflow/SKILL.md`.
 
-独立サイクルでは `roadmap` ブロックは `null` のまま (デフォルト) とし、初期化処理をスキップする。
+For independent cycles, leave the `roadmap` block as `null` (default) and skip the initialization process.
 
-#### 使用ルール (3 観点)
+#### Usage rules (3 viewpoints)
 
-1. **(a) `roadmap == null`**: 独立サイクル (デフォルト)。`dev-roadmap` 配下ではない通常のサイクルを意味する。
-2. **(b) `roadmap` non-null**: roadmap 配下サイクル。`{id: <roadmap-id>, milestone: {id: <milestone-id>}}` のネストオブジェクト形式で記述し、`roadmap.id` および `roadmap.milestone.id` の両方が必須となる。どちらか一方の欠落はスキーマ違反として扱う。
-3. **(c) `roadmap == null` のまま `milestone` 相当を単独で書く形は不正**: 「roadmap.id を書かずに milestone だけ書く」「`roadmap: null` のまま別のトップレベルキーで milestone を表現する」等は許容しない (スキーマ違反)。`milestone` の表現は必ず `roadmap.milestone` として `roadmap` ネスト配下に置く。
+1. **(a) `roadmap == null`**: an independent cycle (default). Indicates a normal cycle that is not under `dev-roadmap`.
+2. **(b) `roadmap` non-null**: a cycle under a roadmap. Written in the nested object form `{id: <roadmap-id>, milestone: {id: <milestone-id>}}`, where both `roadmap.id` and `roadmap.milestone.id` are required. Missing either is treated as a schema violation.
+3. **(c) Writing the equivalent of `milestone` alone with `roadmap == null` is invalid**: forms such as "writing milestone without writing roadmap.id" or "expressing milestone in another top-level key while `roadmap: null`" are not allowed (schema violation). The expression of `milestone` must always be placed under the `roadmap` nest as `roadmap.milestone`.
 
-#### 例 YAML
+#### Example YAML
 
-独立サイクル (デフォルト):
+Independent cycle (default):
 
 ```yaml
 roadmap: null
 ```
 
-roadmap 配下サイクル:
+Cycle under a roadmap:
 
 ```yaml
 roadmap:
@@ -117,28 +117,28 @@ roadmap:
     id: ms-02-token-refresh
 ```
 
-### 廃止フィールド (deprecated)
+### Deprecated fields
 
-- 旧 Step 7 (廃止済み) で生成されていた整合性レポート用キー — 2026-04 のスキーマ刷新で除去。過去サイクル (2026-04 以前) の `progress.yaml` には旧キーが残存している場合があるが、現スキーマでは読み捨て対象であり、新規追加は禁止。Specialist が再開時に旧サイクルの yaml を読む際は当該キーを無視すること。整合性チェックの責務は Step 7 External Review の `holistic` 観点 (`review/holistic.md`) に統合されている。
+- Keys for the integrity report generated in the old Step 7 (now removed) — removed in the 2026-04 schema overhaul. The old keys may remain in `progress.yaml` of past cycles (before 2026-04), but they are read-and-discard targets in the current schema, and adding new ones is forbidden. When a Specialist reads an old cycle's yaml on resumption, it must ignore those keys. The integrity check responsibility is unified into the `holistic` aspect of Step 7 External Review (`review/holistic.md`).
 
 ### `user_approvals`
 
-ユーザー承認の履歴。承認 / 却下の区別を `notes` に書く。
+History of user approvals. Distinguish approval / rejection in `notes`.
 
 ### `rollbacks`
 
-ステップ間ロールバックの履歴。原因と移動先を明示。
+History of rollbacks between steps. Make the cause and the destination explicit.
 
-## 品質基準
+## Quality criteria
 
-| ✅ よい                              | ❌ 悪い                                    |
-| ------------------------------------ | ------------------------------------------ |
-| 各イベントを発生時に即反映           | 後からまとめて書こうとして漏れる           |
-| タイムスタンプに UTC + ISO8601 使用  | ローカル時刻・自然言語表記                 |
-| Blocker が具体的（事象・影響・方針） | 「問題が発生」のような抽象的記述           |
-| 活性 Specialist が現実と一致         | running 状態が放置されセッション跨ぎで残る |
+| Good                                                          | Bad                                                                |
+| ------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Each event is reflected immediately when it occurs            | Trying to write everything later, leading to omissions             |
+| Timestamps use UTC + ISO8601                                  | Local time / natural-language notation                             |
+| Blockers are concrete (event, impact, policy)                 | Abstract descriptions like "a problem occurred"                    |
+| Active Specialists match reality                              | A `running` state is left over and persists across sessions        |
 
-## 関連成果物
+## Related artifacts
 
-- このファイルは**全成果物への索引**。`artifacts` フィールドが成果物ディレクトリの目次として機能する
-- `TODO.md` と連携（Step 6〜7 中のタスク状態は TODO.md が真のソース、YAML 側はサイクルレベルのサマリ）
+- This file is **the index for all artifacts**. The `artifacts` field functions as the table of contents for the artifacts directory
+- Linked to `TODO.md` (the true source of task state during Steps 6-7 is TODO.md; the YAML side is a cycle-level summary)

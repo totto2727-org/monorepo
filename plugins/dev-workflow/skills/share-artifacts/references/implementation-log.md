@@ -1,70 +1,70 @@
-# Reference: `implementation-logs/<task-id>.md` の書き方
+# Reference: How to write `implementation-logs/<task-id>.md`
 
-## 目的
+## Purpose
 
-`TODO.md` の `notes` 欄に収まらない**長大な動作確認ログや実装詳細証跡**を保存する。通常は TODO.md の 1 行記録で十分で、このファイルは必要な場合のみ作成する。
+Store **long execution-confirmation logs and detailed implementation evidence** that do not fit in the `notes` field of `TODO.md`. Normally a single-line entry in TODO.md is sufficient, and this file is created only when needed.
 
-## 作成者 / 作成タイミング
+## Author / creation timing
 
-- **作成者:** `implementer` Specialist（担当タスクごと）
-- **作成ステップ:** Step 6 (Implementation)
-- **作成判断:** 以下のいずれかに該当する場合のみ作成
-  - テスト実行ログが長い（数十行以上）
-  - 複数のシナリオを手動確認した
-  - 実装中に発生した想定外事象の記録が必要
-  - 設計ドキュメントから逸脱した判断が発生した
-- **作成不要:** シンプルなタスクで TODO.md の `notes` 欄に収まるなら作らない
+- **Author:** `implementer` Specialist (per assigned task)
+- **Step:** Step 6 (Implementation)
+- **Creation criteria:** create only when one of the following applies
+  - The test execution log is long (more than several dozen lines)
+  - Multiple scenarios were manually verified
+  - Records of unforeseen events that occurred during implementation are needed
+  - A decision deviating from the design document occurred
+- **No need to create:** if the task is simple and fits in the `notes` field of TODO.md, do not create one
 
-## ファイル位置
+## File location
 
 `docs/workflow/<identifier>/implementation-logs/<task-id>.md`
 
-## 各セクションの書き方
+## How to write each section
 
-### ヘッダ
+### Header
 
-- Task: ID + タイトル
-- Implementer: インスタンス識別子
-- Started at / Completed at: タイムスタンプ
-- Commits: 1 タスクで複数コミットした場合すべて列挙
+- Task: ID + title
+- Implementer: instance identifier
+- Started at / Completed at: timestamps
+- Commits: list all commits if multiple were made for one task
 
-### 実装サマリ
+### Implementation summary
 
-**1–2 段落**で何をしたか。diff を読まなくても概要を掴める粒度で書く。
+State what was done in **1-2 paragraphs**. At a granularity where the overview can be grasped without reading the diff.
 
-### 変更ファイル
+### Changed files
 
-ファイルごとに変更内容を要約。
+Summarize the changes per file.
 
-### テスト
+### Tests
 
-- 追加したテストの一覧
-- テスト実行出力（長い場合はこのログに含める）
-- 型チェック・リント・既存テスト・新規テストの合否
+- List of tests added
+- Test execution output (include in this log if long)
+- Pass/fail results of type checking, linting, existing tests, and new tests
 
-### 手動確認ログ
+### Manual verification log
 
-該当する場合のみ。手動確認したシナリオごとに手順と結果を記録。
+Only when applicable. Record steps and results for each scenario manually verified.
 
-### 発生した問題とその対処
+### Issues encountered and how they were addressed
 
-実装中に想定外の事象があった場合、事象と対処を記録する。External Review (`holistic` 観点を含む 6 観点並列) や Retrospective の材料となる。
+If unforeseen events occur during implementation, record the event and the response. Used as material for External Review (6-aspect parallel including the `holistic` aspect) and the Retrospective.
 
-### 設計ドキュメントからの逸脱
+### Deviations from the design document
 
-**理想的にはゼロ**。逸脱がある場合は理由と External Review (`holistic` 観点) への引き継ぎを明記する。
+**Ideally zero.** When deviations exist, clearly state the reason and the hand-off to External Review (`holistic` aspect).
 
-## 品質基準
+## Quality criteria
 
-| ✅ よい                                        | ❌ 悪い                                             |
-| ---------------------------------------------- | --------------------------------------------------- |
-| 作成判断が妥当（短く済むタスクで作っていない） | すべてのタスクで定型的に作成（本来 TODO.md で十分） |
-| テスト実行ログが実物で貼られている             | 「テストが通った」だけの抽象記述                    |
-| 設計逸脱が明示されている                       | 逸脱を隠して実装している                            |
-| 手動確認の手順が再現可能                       | 確認した事実のみで再現不能                          |
+| Good                                                              | Bad                                                          |
+| ----------------------------------------------------------------- | ------------------------------------------------------------ |
+| Creation decision is appropriate (not created for short tasks)    | Created routinely for every task (when TODO.md alone is enough) |
+| Test execution log is pasted as-is                                | Abstract description like "the tests passed"                 |
+| Design deviations are explicit                                    | Implementing while hiding the deviation                      |
+| Manual verification steps are reproducible                        | Only the verified facts, with no reproducibility             |
 
-## 関連成果物
+## Related artifacts
 
-- **入力:** 担当タスク、`design.md` / `task-plan.md` の該当箇所
-- **出力先:** `review/<aspect>.md`（reviewer が参照、特に `holistic` 観点）、`retrospective.md`（学びの抽出）
-- **親成果物:** `TODO.md`（該当タスクから `implementation-logs/<task-id>.md` へリンクを張る）
+- **Inputs:** the assigned task, relevant sections of `design.md` / `task-plan.md`
+- **Output destinations:** `review/<aspect>.md` (referenced by reviewer, especially the `holistic` aspect), `retrospective.md` (extraction of learnings)
+- **Parent artifact:** `TODO.md` (link from the relevant task to `implementation-logs/<task-id>.md`)

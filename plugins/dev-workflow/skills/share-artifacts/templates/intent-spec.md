@@ -5,61 +5,61 @@
 - **Created at:** {{created_at}}
 - **Last updated:** {{updated_at}}
 
-## 背景
+## Background
 
 {{background}}
 
-なぜ今この問題に取り組むのか、どのような状況から来ているのかを記述する。
+Describe why this problem is being tackled now and what situation it has emerged from.
 
-## 目的
+## Purpose
 
 {{purpose}}
 
-このサイクルで達成したい目的を 1–3 文で記述する。
+State the goal that this cycle should achieve, in 1-3 sentences.
 
-## スコープ
+## Scope
 
 {{scope}}
 
-- サイクル内で扱う対象の具体的な範囲
-- 対象ユーザー / システム境界
-- 対象機能・領域
+- Concrete range that this cycle will address
+- Target users / system boundary
+- Target features and areas
 
-## 非スコープ
+## Out of scope
 
 {{out_of_scope}}
 
-- 意図的に扱わない範囲
-- 将来扱う可能性はあるが今サイクルでは除外するもの
+- Areas that are intentionally excluded
+- Items that may be addressed later but are excluded from this cycle
 
-## 成功基準
+## Success criteria
 
 {{success_criteria}}
 
-観測可能な形式で記述する（定量・定性を混在可。ただし「速くなる」ではなく「p95 < 200ms」のように観測手段が一意に定まるもの）。
+State the criteria in observable terms (qualitative and quantitative may be mixed, but every criterion must have a uniquely defined way to observe it — write "p95 < 200ms" rather than "it becomes faster").
 
 - {{criterion_1}}
 - {{criterion_2}}
 - {{criterion_3}}
 
-## 制約
+## Constraints
 
 {{constraints}}
 
-- 技術的制約（使用可能技術、互換性、パフォーマンス等）
-- 組織的制約（期限、人員、予算等）
-- 規範的制約（セキュリティ、コンプライアンス、既存 ADR 等）
+- Technical constraints (allowed technologies, compatibility, performance, etc.)
+- Organizational constraints (deadlines, staffing, budget, etc.)
+- Normative constraints (security, compliance, existing ADRs, etc.)
 
-## 関連リンク
+## Related links
 
 {{references}}
 
-- 関連 Issue / チケット
-- 既存 ADR / 設計書
-- 外部仕様書
+- Related issues / tickets
+- Existing ADRs / design documents
+- External specifications
 
-## 未解決事項
+## Open questions
 
 {{open_questions}}
 
-Intent Clarification 段階で解消しきれなかった論点。Research ステップでの調査対象として Research Note に引き継がれる。
+Issues that could not be resolved during Intent Clarification. They are carried into the Research Notes as topics to investigate during the Research step.

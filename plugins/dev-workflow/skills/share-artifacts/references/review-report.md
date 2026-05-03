@@ -1,127 +1,128 @@
-# Reference: `review/<aspect>.md` の書き方
+# Reference: How to write `review/<aspect>.md`
 
-## 目的
+## Purpose
 
-**実装者と独立した視点**で、1 つのレビュー観点 (`security` / `performance` / `readability` / `test-quality` / `api-design` / `holistic` の 6 観点) に特化して品質を検証する。`holistic` 観点は全体整合性チェック (Task Plan 完了判定 / `design.md` 整合性 / Intent Spec 成功基準充足見込み / 明白な bug の早期検出) を専任で担い、他観点は固有の深い検査を行う。
+From a **viewpoint independent of the implementer**, focus on a single review aspect (one of the 6 aspects: `security` / `performance` / `readability` / `test-quality` / `api-design` / `holistic`) and verify quality. The `holistic` aspect exclusively covers overall consistency checks (Task Plan completion judgment / `design.md` consistency / outlook for fulfilling Intent Spec success criteria / early detection of obvious bugs), and the other aspects perform their own deep inspections.
 
-**最優先設計原則 (一覧性):** Round の有無に関わらず、ファイルを開いた読者が**最初に「何が指摘され、何を修正し、何を受容したか」を一覧で把握できる**ようにする。Round 構造で章節分割すると一覧性が損なわれるため、Round はメタデータ (テーブル列および末尾の付帯情報) として記録するのみで、章節の主軸にしない。同じ指摘が複数 Round で再評価された場合は 1 行に統合し、最新状態のみを残す (別ファイルや別セクションで重複させない)。
+**Top-priority design principle (overview-ability):** regardless of the presence of Rounds, ensure that a reader who opens the file **first sees, at a glance, "what was raised, what was fixed, and what was accepted"**. Splitting into chapters/sections by Round structure damages overview-ability, so Rounds are recorded only as metadata (table columns and trailing supplementary information) and not made the primary axis of chapter/section structure. When the same finding is re-evaluated across multiple Rounds, consolidate into a single row and leave only the latest state (do not duplicate it in another file or another section).
 
-## 作成者 / 作成タイミング
+## Author / creation timing
 
-- **作成者:** `reviewer` Specialist (観点ごとに別インスタンスで並列起動)
-- **作成ステップ:** Step 7 (External Review)
-- **承認:** ユーザー承認必須 (Blocker 0 件 / Major 全件解消 / Minor 扱い方針)
+- **Author:** `reviewer` Specialist (separate instances launched in parallel per aspect)
+- **Step:** Step 7 (External Review)
+- **Approval:** user approval required (0 Blockers / all Major resolved / Minor handling policy)
 
-## ファイル位置
+## File location
 
 `docs/workflow/<identifier>/review/<aspect>.md`
 
-`<aspect>` ∈ {`security`, `performance`, `readability`, `test-quality`, `api-design`, `holistic`} (+ プロジェクト固有追加観点)
+`<aspect>` ∈ {`security`, `performance`, `readability`, `test-quality`, `api-design`, `holistic`} (+ project-specific additional aspects)
 
-**1 観点 = 1 ファイル**を厳守。Round が増えても別ファイル (例: `review/round2-<aspect>.md`) を作らない (一覧性が損なわれるため)。
+Strictly **1 aspect = 1 file**. Even if Rounds increase, do not create a separate file (e.g. `review/round2-<aspect>.md`) (it harms overview-ability).
 
-## ファイル構造
+## File structure
 
-各 `review/<aspect>.md` は以下 4 つのセクションで構成する:
+Each `review/<aspect>.md` consists of the following 4 sections:
 
-1. **メタヘッダー** (必須)
-2. **指摘一覧テーブル** (必須、本ファイルの中核)
-3. **詳細セクション** (任意、必要な指摘のみ)
-4. **Round 履歴メタ** (任意、ファイル末尾の付帯情報)
+1. **Meta header** (required)
+2. **Findings list table** (required, the core of this file)
+3. **Detail sections** (optional, only for findings that need them)
+4. **Round history meta** (optional, supplementary information at the end of the file)
 
-### 1. メタヘッダー
+### 1. Meta header
 
-ファイル冒頭に以下を箇条書きで配置:
+Place the following as a bullet list at the top of the file:
 
-- **Cycle:** サイクル `<identifier>`
-- **Aspect:** 観点名と短い説明
-- **First reviewed:** Round 1 の実行日 (YYYY-MM-DD)
-- **Last updated:** 最終 Round の実行日
-- **Final Gate:** 現時点の Gate 判定 (`approved` / `needs_fix` / `blocked`)
-- **Round count:** 実行された Round 数
+- **Cycle:** the cycle `<identifier>`
+- **Aspect:** aspect name and a short description
+- **First reviewed:** date Round 1 was executed (YYYY-MM-DD)
+- **Last updated:** date of the latest Round
+- **Final Gate:** the current Gate verdict (`approved` / `needs_fix` / `blocked`)
+- **Round count:** number of Rounds executed
 
-`backward-compatibility` 観点では追加で `SC-12 baseline:` (検証用 commit hash) を記録する。
+For the `backward-compatibility` aspect, additionally record `SC-12 baseline:` (commit hash for verification).
 
-### 2. 指摘一覧テーブル (本ファイルの中核)
+### 2. Findings list table (the core of this file)
 
-1 行 = 1 指摘の表。**ファイル冒頭近くに配置**し、読者がスクロール最小で全体を見渡せる位置を維持する。
+A table with 1 row = 1 finding. **Place near the top of the file** so the reader can survey the whole at minimal scrolling.
 
-最低限の列構成:
+Minimum column structure:
 
-| 列            | 内容                                                                                                                                                      |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ID`          | 指摘 ID。Major は大文字 `M-1` / `M-2` …、Minor は小文字 `m-1` / `m-2` …、Info は `i-1` / `i-2` …、Blocker は `B-1` … (深刻度を ID 接頭辞で識別可能にする) |
-| `深刻度`      | `Blocker` / `Major` / `Minor` / `Info`                                                                                                                    |
-| `指摘内容`    | 1〜2 文の要約 (詳細は「詳細セクション」へ任意で逃がす)                                                                                                    |
-| `状態`        | 後述の「状態ラベル」から 1 つ                                                                                                                             |
-| `検出 Round`  | 1, 2, ... — 同じ指摘が複数 Round で再検出された場合は **最初の Round のみ**記録 (重複行を作らない)                                                        |
-| `解消 commit` | `fixed` / `partial` の場合は対応コミット SHA (短縮可)、それ以外は `-`                                                                                     |
-| `Notes`       | 補足、対応コミットメッセージ抜粋、無効化理由、Retrospective 繰越合意の根拠等                                                                              |
+| Column         | Content                                                                                                                                                  |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ID`           | Finding ID. Major as uppercase `M-1` / `M-2` …, Minor as lowercase `m-1` / `m-2` …, Info as `i-1` / `i-2` …, Blocker as `B-1` … (severity identifiable by ID prefix) |
+| `Severity`     | `Blocker` / `Major` / `Minor` / `Info`                                                                                                                   |
+| `Finding`      | A 1-2 sentence summary (details optionally moved to "Detail sections")                                                                                   |
+| `Status`       | One of the "Status labels" below                                                                                                                         |
+| `Detected Round` | 1, 2, ... — when the same finding is re-detected in multiple Rounds, record **only the first Round** (do not create duplicate rows)                     |
+| `Resolved commit` | For `fixed` / `partial`, the corresponding commit SHA (may be shortened); otherwise `-`                                                               |
+| `Notes`        | Supplementary information, excerpt of the corresponding commit message, reason for invalidation, basis for Retrospective carryover agreement, etc.        |
 
-#### 状態ラベル
+#### Status labels
 
-| ラベル           | 意味                                                                       | 使用条件                                                                |
-| ---------------- | -------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `fixed`          | 修正済                                                                     | 対応 commit が存在し、再 Round で再検出されない (commit SHA を必ず併記) |
-| `partial`        | 一部解消、残課題あり                                                       | 残課題内容と次 Round への持ち越し可否を `Notes` に記述                  |
-| `pending`        | 未解消で次 Round で対応予定                                                | 担当タスク / 追加タスク ID を `Notes` に記述                            |
-| `accepted-as-is` | 「無視 / 受容」 (= ユーザー承認で Retrospective 繰越合意 / 対応不要と確定) | 合意日付・承認者を `Notes` に記述                                       |
-| `obsolete`       | 設計変更や前提変更で当該指摘が無効化                                       | 無効化理由を `Notes` に記述                                             |
+| Label            | Meaning                                                                       | Conditions for use                                                       |
+| ---------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `fixed`          | Fixed                                                                         | A corresponding commit exists, and is not re-detected in re-Rounds (commit SHA must be included) |
+| `partial`        | Partially resolved, with remaining issues                                     | Describe remaining issues and whether they carry over to the next Round in `Notes` |
+| `pending`        | Unresolved, scheduled to be addressed in the next Round                       | Record the responsible task / additional task ID in `Notes`              |
+| `accepted-as-is` | "Ignored / accepted" (= confirmed via user approval as Retrospective carryover agreement / no action needed) | Record the agreement date and approver in `Notes`         |
+| `obsolete`       | Invalidated by a design change or premise change                              | Record the reason for invalidation in `Notes`                            |
 
-これらのラベルにより、ファイルを開いた読者は「対応した指摘」「無視 (受容) した指摘」「未解消で持ち越し中の指摘」を時系列を意識せず一覧把握できる。
+With these labels, a reader who opens the file can grasp at a glance which findings were "addressed", "ignored (accepted)", and "carried over unresolved" without being conscious of the timeline.
 
-### 3. 詳細セクション (任意)
+### 3. Detail sections (optional)
 
-テーブル要約だけでは伝わらない指摘について、根拠コード抜粋・推奨アクションの詳細を `### M-1 詳細: <短い見出し>` の形で個別記述する。テーブルの `Notes` 列から `[詳細](#m-1-詳細-...)` のリンクを貼っても良い。
+For findings whose meaning is not conveyed by the table summary alone, individually describe code excerpts as evidence and details of recommended actions in the form `### M-1 detail: <short heading>`. You may place a `[detail](#m-1-detail-...)` link from the `Notes` column of the table.
 
-詳細を書く必要がない指摘 (テーブルの 1〜2 文要約で十分なもの) には詳細セクションを作らない。
+For findings that do not need details (those for which the 1-2 sentence summary in the table is sufficient), do not create a detail section.
 
-### 4. Round 履歴メタ (任意、ファイル末尾)
+### 4. Round history meta (optional, end of file)
 
-各 Round の監査用情報を表形式で残す。本ファイルの「読み手の本筋」ではなく、必要時に参照する付帯情報として末尾に置く。
+Leave the audit information of each Round in a table form. Place this at the end of the file as supplementary information referenced when needed, not in the "main flow" of the file.
 
-| 列                  | 内容                                                                                     |
+| Column              | Content                                                                                  |
 | ------------------- | ---------------------------------------------------------------------------------------- |
 | `Round`             | 1, 2, ...                                                                                |
-| `実行日`            | YYYY-MM-DD                                                                               |
-| `reviewer instance` | 起動した reviewer インスタンス ID または簡易識別 (例: `reviewer (consistency, initial)`) |
-| `単独 Gate`         | その Round 単独の Gate 判定 (`approved` / `needs_fix` / `blocked`)                       |
+| `Date`              | YYYY-MM-DD                                                                               |
+| `reviewer instance` | Reviewer instance ID launched or simple identifier (e.g. `reviewer (consistency, initial)`) |
+| `Single-Round Gate` | The Round-only Gate verdict (`approved` / `needs_fix` / `blocked`)                       |
 
-ファイル末尾に「最終 Gate: `approved`。Major / Blocker 0 件、`accepted-as-is` N 件」のような 1 行サマリを残す。
+At the end of the file, leave a one-line summary like "Final Gate: `approved`. 0 Major / Blocker, N `accepted-as-is`".
 
-## 深刻度の判定基準
+## Severity decision criteria
 
-| 深刻度      | 対応                                                                                                                                                        |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Blocker** | Step 6 への差し戻し必須 (Task Plan 未実装 / Intent Spec 成功基準未達 / 明白な bug)。Step 7 進行不可                                                         |
-| **Major**   | 修正方針 (Step 6 戻し / Retrospective 繰越) をユーザー判断で確定。Step 7 を抜けるには全 Major が `fixed` または `accepted-as-is` で解消されている必要がある |
-| **Minor**   | 記録のみで進行可 (Retrospective の材料として残す)                                                                                                           |
-| **Info**    | 観点上の注意点 / 整合確認結果 / 監査メモ。状態は通常 `(整合確認のみ)` などの非ラベル形式                                                                    |
+| Severity    | Response                                                                                                                                                                                  |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Blocker** | Mandatory return to Step 6 (Task Plan unimplemented / Intent Spec success criterion unmet / obvious bug). Step 7 cannot proceed                                                          |
+| **Major**   | Confirm the resolution policy (return to Step 6 / Retrospective carryover) by user judgment. To pass through Step 7, all Majors must be resolved as `fixed` or `accepted-as-is`           |
+| **Minor**   | Recordable for progress (kept as material for the Retrospective)                                                                                                                          |
+| **Info**    | Notes / consistency check results / audit memos on the aspect. Status is usually a non-label form like `(consistency check only)`                                                         |
 
-旧文書で使われていた `High / Medium / Low` ラベルは廃止。再開する過渡期サイクルで旧ラベルを見かけた場合は、内容に応じて以下のマッピングで読み替える:
+The `High / Medium / Low` labels used in old documents are deprecated. If you see old labels in transitional cycles being resumed, read them according to the following mapping based on content:
 
-- `High` → `Blocker` または `Major` (リリース阻害レベルなら Blocker)
+- `High` → `Blocker` or `Major` (Blocker if release-blocking)
 - `Medium` → `Major`
 - `Low` → `Minor`
 
-## 観点別の評価項目
+## Per-aspect evaluation items
 
-各観点の重点項目は `specialist-reviewer/SKILL.md` の「観点別のレビュー指針」セクションに記載。本書 (reference) では本ファイルの**構造仕様**のみを定義し、観点ごとの**評価指針**は specialist 側に委譲する。
+The focus items per aspect are described in the "Per-aspect review guidelines" section of `specialist-reviewer/SKILL.md`. This document (reference) defines only the **structural specification** of this file; the **evaluation guidelines per aspect** are delegated to the specialist side.
 
-## 品質基準
+## Quality criteria
 
-| ✅ よい                                                                   | ❌ 悪い                                                            |
-| ------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| ファイル冒頭近くに指摘一覧テーブルがあり、開いて 1 画面で全体を把握できる | テーブルがファイル末尾にあり、長い前文を読まないと一覧に到達しない |
-| 同じ指摘が 1 行に統合され、複数 Round の最終状態のみが反映されている      | Round 1 / Round 2 セクションに同じ指摘が分かれて重複記載されている |
-| `accepted-as-is` の Notes に合意日付・承認者・根拠が記述                  | 「Retrospective 繰越」とだけ書かれており経緯が不明                 |
-| `fixed` の解消 commit 列に SHA がある                                     | `fixed` だが対応コミットが特定できない                             |
-| 観点固有の指摘のみで構成 (他観点はリンク参照)                             | 複数観点の指摘を 1 ファイルに混ぜている                            |
+| Good                                                                                          | Bad                                                                       |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| The findings list table is near the top of the file, and the whole can be grasped in 1 screen on opening | The table is at the end of the file, and a long preface must be read to reach the list |
+| The same finding is consolidated in 1 row, reflecting only the final state across multiple Rounds | The same finding is duplicated in separate Round 1 / Round 2 sections    |
+| `Notes` for `accepted-as-is` records the agreement date / approver / basis                    | Just "Retrospective carryover" with unclear background                    |
+| `fixed` rows have a SHA in the resolved commit column                                         | `fixed` but no corresponding commit can be identified                     |
+| Composed only of findings specific to the aspect (others linked by reference)                 | Mixes findings from multiple aspects in one file                          |
 
-## 関連成果物
+## Related artifacts
 
-- **入力:** Step 6 の全 diff、`design.md`、`intent-spec.md`、`task-plan.md`、`TODO.md`
-- **テンプレート:** `share-artifacts/templates/review-report.md`
-- **連携:** Blocker / 未解消 Major で Step 6 を再活性化、`re_activations` カウンタを `TODO.md` に記録
-- **Retrospective 連携:** Minor 指摘および `accepted-as-is` の指摘は Retrospective の材料となる
-- **並列性:** 観点ごとに独立。他 reviewer との直接通信は Main 経由
+- **Inputs:** all diffs from Step 6, `design.md`, `intent-spec.md`, `task-plan.md`, `TODO.md`
+- **Template:** `share-artifacts/templates/review-report.md`
+- **Linkage:** Blocker / unresolved Major reactivates Step 6, with the `re_activations` counter recorded in `TODO.md`
+- **Linkage to Retrospective:** Minor findings and `accepted-as-is` findings become material for the Retrospective
+- **Parallelism:** independent per aspect. Direct communication with other reviewers happens through Main
+

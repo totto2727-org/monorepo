@@ -1,194 +1,194 @@
-# Reference: `qa-design.md` の書き方
+# Reference: How to write `qa-design.md`
 
-## 目的
+## Purpose
 
-Intent Spec の成功基準を**観測可能なテストケース集合**へと展開する。各テストケースには「実行主体」「検証スタイル」の 2 軸を独立に付与し、特定のテストフレームワーク (Vitest / Playwright / pytest 等) に依存しない抽象レベルで記述する。Step 6 (Implementation) の `implementer` がこのドキュメントを参照してテストを実装し、Step 8 (Validation) の `validator` がカバレッジを実測する。
+Expand the success criteria of the Intent Spec into **a set of observable test cases**. Each test case is independently tagged with the two axes "execution agent" and "verification style", and written at an abstraction level that does not depend on a specific test framework (Vitest / Playwright / pytest etc.). The `implementer` in Step 6 (Implementation) refers to this document to implement tests, and the `validator` in Step 8 (Validation) measures the actual coverage.
 
-## 作成者 / 作成タイミング
+## Author / creation timing
 
-- **作成者:** `qa-analyst` Specialist (Step 4 で初期作成)
-- **更新者:** `implementer` Specialist (Step 6 で「実装段階で発見されたテスト」を追記)
-- **承認:** Step 4 完了時にユーザー承認必須 (Artifact-as-Gate-Review)
+- **Author:** `qa-analyst` Specialist (initial creation in Step 4)
+- **Updater:** `implementer` Specialist (in Step 6, appends "tests discovered during implementation")
+- **Approval:** user approval required at Step 4 completion (Artifact-as-Gate-Review)
 
-## ファイル位置
+## File location
 
 `docs/workflow/<identifier>/qa-design.md`
 
-## セクション構成
+## Section structure
 
 ```text
-1. # qa-design (タイトル)
-2. ## 概要 (intent-spec.md の成功基準を深掘りした観測可能な形)
-3. ## 自動 vs 手動の判断方針 (アーキテクチャと design.md からの根拠)
-4. ## テストファイル配置ポリシー (カテゴリ別の配置方針、具体パスは task-plan で確定)
-5. ## 本質テストケース (TC-NNN: 仕様レベルで表現可能な振る舞いを検証)
-6. ## 実装都合テストケース (TC-IMPL-NNN: 具体実装でのみ発生する防御的分岐を検証)
-7. ## カバレッジ表 (成功基準 → TC-ID の逆引き、Validation で使用)
+1. # qa-design (title)
+2. ## Overview (deepens the success criteria of intent-spec.md into observable form)
+3. ## Auto vs. manual decision policy (rationale from architecture and design.md)
+4. ## Test file placement policy (placement policy per category; concrete paths are confirmed in task-plan)
+5. ## Essential test cases (TC-NNN: verifies behaviors expressible at the spec level)
+6. ## Implementation-detail test cases (TC-IMPL-NNN: verifies defensive branches that arise only with concrete implementation)
+7. ## Coverage table (success criteria → TC-ID reverse lookup, used in Validation)
 ```
 
-## 各セクションの書き方
+## How to write each section
 
-### 1. 概要
+### 1. Overview
 
-Intent Spec の成功基準を**そのまま転記しつつ深掘り**する。「速い」のような定性的な記述は「特定シナリオで p95 < 200ms」のような観測可能な形に書き換える。書き換えた結果は qa-analyst が確定し、Step 4 のユーザー承認ゲートで合意される。
+**Transcribe and deepen** the success criteria of the Intent Spec as-is. Rewrite qualitative descriptions like "fast" into observable forms like "p95 < 200ms in a specific scenario". The rewritten result is finalized by qa-analyst and agreed upon at the Step 4 user approval gate.
 
-成功基準は ID (例: `SC-1`, `SC-2`) を付与し、後続のテストケース表で参照可能にする。
+Assign IDs to success criteria (e.g. `SC-1`, `SC-2`) so they can be referenced in the subsequent test case tables.
 
-### 2. 自動 vs 手動の判断方針
+### 2. Auto vs. manual decision policy
 
-`design.md` のアーキテクチャ判断を踏まえ、各テストの「実行主体」(automated / ai-driven / manual) を選定した根拠を 1〜3 段落で記述する。例:
+Based on the architectural decisions in `design.md`, describe in 1-3 paragraphs the rationale for selecting the "execution agent" (automated / ai-driven / manual) for each test. Examples:
 
-- 「フロントエンド UI の見た目確認は人間の目視判定が信頼性高いため `manual × inspection`」
-- 「バックエンド API のレスポンス検証は自動テストランナーで再現可能なため `automated × assertion`」
-- 「複雑なユーザーシナリオの再現は AI エージェントによるブラウザ操作で代替可能 `ai-driven × scenario`」
+- "Visual confirmation of the front-end UI is more reliably judged by the human eye, so `manual × inspection`"
+- "Backend API response verification is reproducible by an automated test runner, so `automated × assertion`"
+- "Reproducing complex user scenarios can be substituted by an AI agent's browser operations: `ai-driven × scenario`"
 
-### 3. テストファイル配置ポリシー
+### 3. Test file placement policy
 
-**カテゴリ別の配置方針のみ**を記述する。具体的なファイルパスは Step 5 (Task Decomposition) で planner / Step 6 で implementer が決める領域。
+Describe **only the placement policy per category**. Concrete file paths are decided by planner in Step 5 (Task Decomposition) / by implementer in Step 6.
 
-例:
+Examples:
 
-- `automated × assertion` のテスト → ソースファイルと co-located (例: `foo.ts` と `foo.test.ts` を同ディレクトリ)
-- `automated × scenario` のテスト → `e2e/` 直下
-- `manual × inspection` の手順書 → `docs/workflow/<id>/manual-tests/<TC-ID>.md`
+- `automated × assertion` tests → co-located with the source file (e.g. `foo.ts` and `foo.test.ts` in the same directory)
+- `automated × scenario` tests → directly under `e2e/`
+- `manual × inspection` instruction documents → `docs/workflow/<id>/manual-tests/<TC-ID>.md`
 
-### 4. 本質テストケース (TC-NNN)
+### 4. Essential test cases (TC-NNN)
 
-仕様レベル (intent-spec.md / design.md) で表現可能な振る舞いを検証するケース。**Markdown テーブル**で記述する。
+Cases that verify behaviors expressible at the spec level (intent-spec.md / design.md). Describe in **a Markdown table**.
 
-#### 必須列 (6 列)
+#### Required columns (6 columns)
 
-| 列名                 | 内容                                                            | 値例                                                             |
-| -------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `ID`                 | テストケース識別子 (3 桁ゼロ埋め)                               | `TC-001`                                                         |
-| `対象成功基準`       | intent-spec.md の成功基準 ID または `(なし)`                    | `SC-1` / `(なし)`                                                |
-| `期待される振る舞い` | 観察可能な事象として記述 (コードがない時点なので振る舞いベース) | `User がログインフォームに正しい認証情報を送信すると 200 を返す` |
-| `実行主体`           | 軸 A: enum                                                      | `automated` / `ai-driven` / `manual`                             |
-| `検証スタイル`       | 軸 B: enum                                                      | `assertion` / `scenario` / `observation` / `inspection`          |
-| `判定基準`           | 合格条件の具体的記述                                            | `HTTP ステータスが 200 かつ JWT が Set-Cookie で返却される`      |
+| Column                | Content                                                         | Example values                                                 |
+| --------------------- | --------------------------------------------------------------- | -------------------------------------------------------------- |
+| `ID`                  | Test case identifier (3-digit zero-padded)                      | `TC-001`                                                       |
+| `Target SC`           | Success criterion ID from intent-spec.md or `(none)`            | `SC-1` / `(none)`                                              |
+| `Expected behavior`   | Stated as an observable event (no code yet, so behavior-based)  | `When a User submits valid credentials to the login form, returns 200` |
+| `Execution agent`     | Axis A: enum                                                    | `automated` / `ai-driven` / `manual`                           |
+| `Verification style`  | Axis B: enum                                                    | `assertion` / `scenario` / `observation` / `inspection`        |
+| `Pass criteria`       | Concrete description of pass conditions                         | `HTTP status is 200 and JWT is returned via Set-Cookie`        |
 
-#### 条件付き必須列 (1 列)
+#### Conditionally required column (1 column)
 
-| 列名       | 内容                         | 適用条件                             |
-| ---------- | ---------------------------- | ------------------------------------ |
-| `必要理由` | なぜこのテストが必要かを記述 | `対象成功基準 = (なし)` の場合に必須 |
+| Column                | Content                                  | When applicable                          |
+| --------------------- | ---------------------------------------- | ---------------------------------------- |
+| `Reason it is needed` | Why this test is necessary               | Required when `Target SC = (none)`       |
 
-「対象成功基準 = (なし)」の典型例:
+Typical examples of "Target SC = (none)":
 
-- 防御的プログラミング (不正引数で例外を投げる)
-- 内部不変条件の検証 (キャッシュ整合性)
-- リグレッション防止 (過去バグの再発防止)
-- セキュリティ要件 (Intent Spec で明示されないが必要)
+- Defensive programming (throwing on invalid arguments)
+- Verifying internal invariants (cache integrity)
+- Regression prevention (preventing recurrence of past bugs)
+- Security requirements (necessary but not explicit in the Intent Spec)
 
-→ 必要理由が空欄なら **Step 4 レビューで差し戻し**
+→ If "Reason it is needed" is empty, **send back at the Step 4 review**.
 
-#### 任意列
+#### Optional columns
 
-- `備考` (△組み合わせ採用理由 / 配置ポリシー逸脱の説明 / その他)
-- `配置候補` (テストファイル配置の hint、具体パスは task-plan で確定)
-- `担当 implementer` (Step 6 で埋まる、Step 4 では空欄)
-- `実装状況` (Step 8 で埋まる: `pending` / `implemented` / `passed` / `failed`)
+- `Notes` (rationale for adopting △ combinations / explanation of placement-policy deviations / others)
+- `Placement candidate` (placement hint; concrete paths confirmed in task-plan)
+- `Assigned implementer` (filled in Step 6, empty in Step 4)
+- `Implementation status` (filled in Step 8: `pending` / `implemented` / `passed` / `failed`)
 
-#### 採番ルール
+#### Numbering rules
 
-- Step 4 で qa-analyst が `TC-001` から連番採番
-- Step 6 で implementer が「振る舞いの追加パターン」を発見した場合、**`TC-NNN` を継続採番** (本セクションに追記)。例: Step 4 で TC-001〜TC-020 までなら、Step 6 追加は TC-021 から
-- 削除した場合も**ID は再利用しない** (混乱回避)
+- In Step 4, qa-analyst assigns sequential numbers from `TC-001`
+- If implementer discovers "additional behavior patterns" in Step 6, **continue sequential numbering of `TC-NNN`** (append in this section). For example, if Step 4 ended at TC-001 to TC-020, Step 6 additions start from TC-021
+- **Do not reuse IDs** even after deletion (to avoid confusion)
 
-### 5. 実装都合テストケース (TC-IMPL-NNN)
+### 5. Implementation-detail test cases (TC-IMPL-NNN)
 
-ライブラリ / フレームワーク / OS など、**具体実装でのみ発生する防御的分岐**を検証するケース。
+Cases that verify **defensive branches that arise only with concrete implementation** (libraries / frameworks / OS, etc.).
 
-- Step 4 では空 (qa-analyst は本質テストのみ設計、実装都合は予見しない)
-- Step 6 で implementer が発見した場合のみ追記
-- 列構造は本質テストと同じ (ただし `対象成功基準` は通常 `(なし)`、`必要理由` 必須)
-- **採番:** `TC-IMPL-001` から連番。本質テストの番号と独立 (混在しない)
+- Empty in Step 4 (qa-analyst designs only essential tests; does not foresee implementation details)
+- Append only when discovered by implementer in Step 6
+- Column structure is the same as essential tests (but `Target SC` is usually `(none)` and `Reason it is needed` is required)
+- **Numbering:** sequential from `TC-IMPL-001`. Independent from essential test numbering (do not mix)
 
-#### 本質テストとの判別基準
+#### Distinguishing from essential tests
 
-| 本質テスト (TC-NNN)                                 | 実装都合テスト (TC-IMPL-NNN)                                   |
-| --------------------------------------------------- | -------------------------------------------------------------- |
-| 仕様レベル (intent-spec.md / design.md) で表現可能  | 特定ライブラリ / フレームワーク / OS の挙動でのみ発生          |
-| 別言語 / 別ライブラリで再実装しても同じテストが必要 | 別言語 / 別ライブラリでは不要 or 別の防御的テストになる        |
-| 例: 「未認証ユーザーは 401 を返す」                 | 例: 「使用しているライブラリが `null` を返すケースで例外処理」 |
+| Essential test (TC-NNN)                                  | Implementation-detail test (TC-IMPL-NNN)                                |
+| --------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Expressible at the spec level (intent-spec.md / design.md) | Arises only with the behavior of a specific library / framework / OS   |
+| Same test required even if reimplemented in another language / library | Not needed in another language / library, or becomes a different defensive test |
+| Example: "Unauthenticated User returns 401"               | Example: "Defensive handling for the case where the library used returns `null`" |
 
-判断に迷う場合は Blocker として Main に報告 (qa-analyst / implementer 共通)。
+When in doubt, report to Main as a Blocker (common to qa-analyst / implementer).
 
-### 6. カバレッジ表
+### 6. Coverage table
 
-成功基準 → TC-ID の逆引き表。Step 8 validator がカバレッジ確認に使用する。
+A reverse-lookup table from success criteria → TC-ID. Used by the Step 8 validator to confirm coverage.
 
-例:
+Example:
 
-| 成功基準 ID | テストケース ID        | 注記 |
-| ----------- | ---------------------- | ---- |
-| SC-1        | TC-001, TC-005         |      |
-| SC-2        | TC-002, TC-003, TC-008 |      |
-| SC-3        | TC-010                 |      |
-| ...         | ...                    |      |
+| SC ID | Test case IDs           | Notes |
+| ----- | ----------------------- | ----- |
+| SC-1  | TC-001, TC-005          |       |
+| SC-2  | TC-002, TC-003, TC-008  |       |
+| SC-3  | TC-010                  |       |
+| ...   | ...                     |       |
 
-- **本質テスト (TC-NNN) のみが対象**。TC-IMPL-NNN は成功基準対応がないため現れない
-- 1 成功基準に対応する TC が 0 件なら **Step 4 ロールバック** (テスト設計漏れ)
+- **Only essential tests (TC-NNN) are subject**. TC-IMPL-NNN does not appear since they have no SC mapping
+- If the count of TCs corresponding to an SC is 0, **roll back to Step 4** (test design omission)
 
-## 検証手段の 2 軸 enum
+## The 2-axis enum of verification means
 
-### 軸 A: 実行主体 (3 値)
+### Axis A: Execution agent (3 values)
 
-| 値          | 意味                                      | 想定具体ツール (qa-design.md には書かない) |
-| ----------- | ----------------------------------------- | ------------------------------------------ |
-| `automated` | テストランナー / スクリプトが完全自動実行 | Vitest, Jest, pytest, go test 等           |
-| `ai-driven` | AI エージェントが対話的に実行             | Claude のブラウザ操作、AI による CLI 実行  |
-| `manual`    | 人間が手動で操作・確認                    | 手順書ベースの目視確認、UAT 等             |
+| Value       | Meaning                                                  | Anticipated concrete tools (not written in qa-design.md) |
+| ----------- | -------------------------------------------------------- | -------------------------------------------------------- |
+| `automated` | Test runner / script executes fully automatically        | Vitest, Jest, pytest, go test, etc.                       |
+| `ai-driven` | An AI agent executes interactively                       | Claude's browser operations, AI-driven CLI execution     |
+| `manual`    | A human operates and confirms manually                   | Manual visual confirmation based on instructions, UAT, etc. |
 
-### 軸 B: 検証スタイル (4 値)
+### Axis B: Verification style (4 values)
 
-| 値            | 意味                                   | 業界対応                                   |
-| ------------- | -------------------------------------- | ------------------------------------------ |
-| `assertion`   | 期待値と実測値の等価判定               | TDD, Property-based testing, snapshot 等   |
-| `scenario`    | 一連の操作フローの結果検証             | BDD, E2E testing, smoke test 等            |
-| `observation` | 数値・ログ・メトリクスの観測と閾値判定 | Performance testing, observability test 等 |
-| `inspection`  | 主観・定性的な確認                     | Exploratory testing, manual UX testing 等  |
+| Value         | Meaning                                       | Industry mapping                            |
+| ------------- | --------------------------------------------- | ------------------------------------------- |
+| `assertion`   | Equality judgment of expected and actual values | TDD, Property-based testing, snapshot, etc. |
+| `scenario`    | Verification of the result of a sequence of operations | BDD, E2E testing, smoke test, etc.          |
+| `observation` | Observation of values / logs / metrics with threshold judgment | Performance testing, observability test, etc. |
+| `inspection`  | Subjective / qualitative confirmation         | Exploratory testing, manual UX testing, etc.|
 
-### 組み合わせの妥当性 (12 通り)
+### Validity of combinations (12 cells)
 
-| 実行主体 \ 検証スタイル | `assertion`               | `scenario`        | `observation`                 | `inspection`                    |
-| ----------------------- | ------------------------- | ----------------- | ----------------------------- | ------------------------------- |
-| `automated`             | ✓ 単体テスト等 (最も典型) | ✓ E2E スクリプト  | ✓ メトリクス計測 + 閾値       | ✗ **禁止組み合わせ** (本質矛盾) |
-| `ai-driven`             | △ 過剰 (理由必須)         | ✓ AI ブラウザ操作 | ✓ AI ログ解析                 | ✓ AI による UX 評価             |
-| `manual`                | △ 非効率 (理由必須)       | ✓ 手動シナリオ    | △ 計測は自動化推奨 (理由必須) | ✓ 目視確認                      |
+| Execution agent \ Verification style | `assertion`               | `scenario`        | `observation`                 | `inspection`                    |
+| ------------------------------------ | ------------------------- | ----------------- | ----------------------------- | ------------------------------- |
+| `automated`                          | ✓ Unit tests etc. (most typical) | ✓ E2E scripts     | ✓ Metric measurement + threshold | ✗ **Forbidden combination** (essential contradiction) |
+| `ai-driven`                          | △ Excessive (rationale required) | ✓ AI browser operations | ✓ AI log analysis             | ✓ AI-based UX evaluation        |
+| `manual`                             | △ Inefficient (rationale required) | ✓ Manual scenarios | △ Measurement is recommended to be automated (rationale required) | ✓ Visual confirmation           |
 
-- **✓**: 推奨組み合わせ
-- **△**: 条件付きで採用可、`備考` 列に理由必須
-- **✗**: 禁止組み合わせ (`automated × inspection`)。主観判定の自動化が可能なら `observation` (定量化) として扱うべき
+- **✓**: Recommended combination
+- **△**: Conditionally adoptable, rationale required in `Notes` column
+- **✗**: Forbidden combination (`automated × inspection`). If automation of subjective judgment is possible, treat it as `observation` (quantification)
 
-### 業界 taxonomy との対応
+### Mapping to industry taxonomy
 
-| 業界カテゴリ              | 本 2 軸での表現                                       |
-| ------------------------- | ----------------------------------------------------- |
-| Unit test (TDD)           | `automated × assertion`                               |
-| Integration test          | `automated × assertion` または `automated × scenario` |
-| E2E test (Selenium 等)    | `automated × scenario`                                |
-| BDD (Cucumber 等)         | `automated × scenario`                                |
-| Performance test          | `automated × observation`                             |
-| Security scan (SAST/DAST) | `automated × observation`                             |
-| Manual UX test            | `manual × inspection`                                 |
-| AI-assisted browser test  | `ai-driven × scenario`                                |
-| AI による code review     | `ai-driven × inspection`                              |
-| Smoke test                | `automated × scenario` (軽量版)                       |
+| Industry category         | Expression in this 2-axis system                       |
+| ------------------------- | ------------------------------------------------------ |
+| Unit test (TDD)           | `automated × assertion`                                |
+| Integration test          | `automated × assertion` or `automated × scenario`     |
+| E2E test (Selenium etc.)  | `automated × scenario`                                 |
+| BDD (Cucumber etc.)       | `automated × scenario`                                 |
+| Performance test          | `automated × observation`                              |
+| Security scan (SAST/DAST) | `automated × observation`                              |
+| Manual UX test            | `manual × inspection`                                  |
+| AI-assisted browser test  | `ai-driven × scenario`                                 |
+| AI-driven code review     | `ai-driven × inspection`                               |
+| Smoke test                | `automated × scenario` (lightweight)                   |
 
-## 品質基準
+## Quality criteria
 
-| ✅ よい                                                     | ❌ 悪い                                                       |
-| ----------------------------------------------------------- | ------------------------------------------------------------- |
-| 全成功基準が少なくとも 1 つの TC でカバー                   | カバレッジ表に空行 (成功基準対応 TC 0 件)                     |
-| 「対象成功基準 = (なし)」のケースに必要理由が記載されている | 必要理由が空欄                                                |
-| 各 TC の判定基準が観測可能 (HTTP 200 / p95 < 200ms など)    | 「正しく動く」のような曖昧表現                                |
-| `automated × inspection` の組み合わせがない                 | 禁止組み合わせを採用                                          |
-| △ 組み合わせには `備考` で理由が記載                        | △ 採用したのに理由なし                                        |
-| TC-NNN と TC-IMPL-NNN が独立採番されている                  | 番号が混在 (例: TC-001 と TC-IMPL-001 を併用しているのに別物) |
+| Good                                                                  | Bad                                                                  |
+| --------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Every success criterion is covered by at least one TC                 | Empty rows in the coverage table (0 TCs for an SC)                   |
+| "Reason it is needed" is filled in for cases with Target SC = (none)  | "Reason it is needed" is empty                                       |
+| Every TC has observable pass criteria (HTTP 200 / p95 < 200ms etc.)   | Vague expressions like "works correctly"                             |
+| No `automated × inspection` combinations                              | Forbidden combinations are used                                      |
+| △ combinations have the rationale recorded in `Notes`                 | △ adopted without rationale                                          |
+| TC-NNN and TC-IMPL-NNN are numbered independently                     | Numbers are mixed (e.g. TC-001 and TC-IMPL-001 used as if different despite usage) |
 
-## 関連成果物
+## Related artifacts
 
-- **入力:** `intent-spec.md` (成功基準), `design.md` (アーキテクチャ判断 = 自動/手動の根拠)
-- **出力先:** `task-plan.md` (任意で TC-ID 紐付け), `code` (Step 6 implementer がテスト実装), `validation-report.md` (Step 8 validator がカバレッジ実測)
-- **連携:** `qa-flow.md` (本テーブルの TC-ID を Mermaid flowchart の葉として参照、すべての TC-NNN / TC-IMPL-NNN を図示)
+- **Inputs:** `intent-spec.md` (success criteria), `design.md` (architectural decisions = basis for auto/manual)
+- **Output destinations:** `task-plan.md` (optional TC-ID linkage), `code` (implementer in Step 6 implements tests), `validation-report.md` (validator in Step 8 measures actual coverage)
+- **Linkage:** `qa-flow.md` (references TC-IDs of this table as leaves of the Mermaid flowchart, illustrating all TC-NNN / TC-IMPL-NNN)

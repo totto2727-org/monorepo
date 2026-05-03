@@ -6,45 +6,45 @@
 - **Created at:** {{created_at}}
 - **Status:** {{status}} <!-- draft | approved -->
 
-このドキュメントは **Step 5 で確定する不変な計画書**。Step 6〜7 中のタスク状態追跡は `TODO.md` で行う。
+This document is the **immutable plan finalized in Step 5**. Task state tracking during Steps 6-7 happens in `TODO.md`.
 
-## 前提
+## Premises
 
-- Design Document のコンポーネント構成・主要型・API 設計に基づいてタスクを分解している
-- 1 タスク = 1 人の `implementer` が完遂可能な粒度
-- 並列実行可能なタスクは明示されている
+- Tasks are decomposed based on the component breakdown, key types, and API design from the Design Document
+- One task = one `implementer` can complete it
+- Tasks that can be executed in parallel are made explicit
 
-## タスク一覧
+## Task list
 
 ### T1: {{task_1_title}}
 
-- **概要:** {{task_1_summary}}
-- **成果物:** {{task_1_artifact}} <!-- 追加されるファイル / 変更されるファイル / コミット対象 -->
-- **依存タスク:** {{task_1_dependencies}} <!-- なし または T<n>, T<m> -->
-- **並列可否:** {{task_1_parallelizable}} <!-- yes | no（他タスクと同時起動可か） -->
-- **見積り規模:** {{task_1_estimate}} <!-- S | M | L など、プロジェクト規約に従う -->
-- **カバーするテストケース ID:** {{task_1_covered_test_cases}} <!-- 任意。qa-design.md の TC-NNN リスト (例: TC-001, TC-005)。空欄可、Step 6 で implementer が qa-design.md を直接参照する運用 -->
-- **設計ドキュメント参照箇所:** {{task_1_design_ref}}
+- **Summary:** {{task_1_summary}}
+- **Artifact:** {{task_1_artifact}} <!-- files to be added / modified / committed -->
+- **Dependencies:** {{task_1_dependencies}} <!-- none, or T<n>, T<m> -->
+- **Parallelizable:** {{task_1_parallelizable}} <!-- yes | no (whether it can be launched concurrently with other tasks) -->
+- **Estimated size:** {{task_1_estimate}} <!-- S | M | L, etc., per project convention -->
+- **Test cases covered:** {{task_1_covered_test_cases}} <!-- Optional. List of TC-NNN from qa-design.md (e.g. TC-001, TC-005). May be left blank; in Step 6 the implementer references qa-design.md directly. -->
+- **Design document references:** {{task_1_design_ref}}
 
 ### T2: {{task_2_title}}
 
-- **概要:** {{task_2_summary}}
-- **成果物:** {{task_2_artifact}}
-- **依存タスク:** {{task_2_dependencies}}
-- **並列可否:** {{task_2_parallelizable}}
-- **見積り規模:** {{task_2_estimate}}
-- **カバーするテストケース ID:** {{task_2_covered_test_cases}}
-- **設計ドキュメント参照箇所:** {{task_2_design_ref}}
+- **Summary:** {{task_2_summary}}
+- **Artifact:** {{task_2_artifact}}
+- **Dependencies:** {{task_2_dependencies}}
+- **Parallelizable:** {{task_2_parallelizable}}
+- **Estimated size:** {{task_2_estimate}}
+- **Test cases covered:** {{task_2_covered_test_cases}}
+- **Design document references:** {{task_2_design_ref}}
 
-<!-- 必要な数だけ T3, T4, ... を追加 -->
+<!-- Add T3, T4, ... as needed -->
 
-## 依存グラフ
+## Dependency graph
 
 ```mermaid
 {{dependency_graph}}
 ```
 
-例:
+Example:
 
 ```
 graph LR
@@ -54,15 +54,15 @@ graph LR
   T3 --> T5
 ```
 
-## 並列実行可能グループ
+## Parallelizable groups
 
-Step 6 で Main が参照する並列起動単位。
+The unit of parallel launching that Main consults during Step 6.
 
-- **Wave 1（起点）:** {{wave_1}} <!-- 例: T1, T2 -->
-- **Wave 2:** {{wave_2}} <!-- 例: T3（T1, T2 完了後）-->
-- **Wave 3:** {{wave_3}} <!-- 例: T4, T5（T3 完了後、並列実行可）-->
+- **Wave 1 (root):** {{wave_1}} <!-- e.g. T1, T2 -->
+- **Wave 2:** {{wave_2}} <!-- e.g. T3 (after T1 and T2 complete) -->
+- **Wave 3:** {{wave_3}} <!-- e.g. T4, T5 (after T3 completes; can run in parallel) -->
 
-## リスク / 想定される Blocker
+## Risks / anticipated Blockers
 
 {{risks}}
 

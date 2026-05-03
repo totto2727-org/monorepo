@@ -1,66 +1,66 @@
-# Reference: `research/<topic>.md` の書き方
+# Reference: How to write `research/<topic>.md`
 
-## 目的
+## Purpose
 
-**1 つの調査観点**に特化して、既存コード・依存・外部仕様・類似事例などの**事実と設計への含意**を Step 3 の `architect` が利用できる形で整理する。事実の羅列で終わらず「この調査結果が設計にどう効くか」を示すことが本質。
+Focused on **a single research aspect**, organize **facts and design implications** of existing code, dependencies, external specifications, similar examples, etc., in a form usable by Step 3's `architect`. Do not stop at listing facts; the essence is showing "how this research result affects the design".
 
-## 作成者 / 作成タイミング
+## Author / creation timing
 
-- **作成者:** `researcher` Specialist（観点ごとに別インスタンスで並列起動）
-- **作成ステップ:** Step 2 (Research)
-- **承認:** Main 判定（ユーザー承認は任意。重大な Blocker がある場合のみ In-Progress 問い合わせ）
+- **Author:** `researcher` Specialist (launched in parallel as separate instances per aspect)
+- **Step:** Step 2 (Research)
+- **Approval:** Main verdict (user approval optional. In-progress inquiry only when there is a serious Blocker)
 
-## ファイル位置
+## File location
 
 `docs/workflow/<identifier>/research/<topic>.md`
 
-`<topic>` 例: `existing-impl` / `dependencies` / `similar-cases` / `external-spec` / `existing-adr` / プロジェクト固有
+Examples of `<topic>`: `existing-impl` / `dependencies` / `similar-cases` / `external-spec` / `existing-adr` / project-specific
 
-## 各セクションの書き方
+## How to write each section
 
-### 調査対象
+### Subject of investigation
 
-**この Research Note が扱う範囲**を明示する。他の Research Note と重複しないよう境界をはっきりさせる。
+Make explicit **the scope this Research Note covers**. Clarify the boundary so it does not overlap with other Research Notes.
 
-### 発見事項
+### Findings
 
-ファクトの箇条書き。**観測可能な表現**で書く。
+Bullet list of facts. Write in **observable expressions**.
 
-### 引用元
+### Sources
 
-**必ずソース参照を添える**。これがないと単なる憶測になる。
+**Always attach source references**. Without these, this becomes mere speculation.
 
-| ✅ よい                                | ❌ 悪い           |
-| -------------------------------------- | ----------------- |
-| `src/auth/login.ts:L42-L58`            | auth 周りのコード |
-| ADR `docs/adr/2025-10-01-grpc.md`      | 過去の ADR        |
-| [External Spec RFC 7519](https://...)  | JWT の仕様        |
-| `pnpm-workspace.yaml` の catalog `api` | 依存関係          |
+| Good                                    | Bad                |
+| --------------------------------------- | ------------------ |
+| `src/auth/login.ts:L42-L58`             | the auth code     |
+| ADR `docs/adr/2025-10-01-grpc.md`       | a past ADR        |
+| [External Spec RFC 7519](https://...)   | the JWT spec      |
+| catalog `api` in `pnpm-workspace.yaml`  | dependencies      |
 
-### 設計への含意
+### Design implications
 
-**Research Note の核心**。事実が設計判断にどう影響するかを書く。
+**The core of the Research Note.** Write how the facts affect design decisions.
 
-- ✅ 「既存 `User` エンティティは `email` を nullable にしているため、今回の認証追加時は nullable 前提のバリデーション設計が必要」
-- ❌ 「`User` エンティティがあった」（事実のみ、含意なし）
+- Good: "The existing `User` entity has `email` as nullable, so when adding authentication this time, validation design must assume nullable"
+- Bad: "There was a `User` entity" (facts only, no implication)
 
-Step 3 の `architect` がこれを読めば設計判断に直接使える粒度まで掘り下げる。
+Drill down to a granularity at which Step 3's `architect` can read this and use it directly for design decisions.
 
-### 残存する不明点
+### Remaining unknowns
 
-調査で解けなかった論点。追加 researcher 起動 / Design で仮定を置いて進める / Blocker として報告、のいずれを推奨するか Main への判断材料として書く。
+Points that could not be resolved by this investigation. Write as material for Main's judgment of which to recommend among launching an additional researcher / making an assumption in Design and proceeding / reporting as a Blocker.
 
-## 品質基準
+## Quality criteria
 
-| ✅ よい                                                      | ❌ 悪い                              |
-| ------------------------------------------------------------ | ------------------------------------ |
-| 全発見事項に引用元（file:line / URL / ADR 番号）が付いている | 「〜と思われる」「〜らしい」の伝聞調 |
-| 設計への含意が具体的アクション推奨まで降りている             | ファクト列挙で終わっている           |
-| 単一観点のみを扱う                                           | 複数観点を 1 ファイルに混在          |
-| 不明点を正直に書く                                           | 調査不足を曖昧に濁す                 |
+| Good                                                                   | Bad                                                |
+| ---------------------------------------------------------------------- | -------------------------------------------------- |
+| All findings have a source (file:line / URL / ADR number)              | Hearsay style like "seems to be" or "appears to be" |
+| Design implications descend to concrete recommended actions            | Stops at listing facts                             |
+| Covers only a single aspect                                            | Mixes multiple aspects in one file                 |
+| Honestly states unknowns                                               | Vaguely glosses over insufficient research         |
 
-## 関連成果物
+## Related artifacts
 
-- **入力:** `intent-spec.md`（調査の前提と優先度）
-- **出力先:** `design.md`（architect が全 Research Notes を統合して設計判断に使う）
-- **並列性:** 観点ごとに別 researcher インスタンス。他観点への侵食禁止
+- **Input:** `intent-spec.md` (premise and priority of investigation)
+- **Output destination:** `design.md` (the architect integrates all Research Notes for design decisions)
+- **Parallelism:** a separate researcher instance per aspect. Encroaching on other aspects is forbidden

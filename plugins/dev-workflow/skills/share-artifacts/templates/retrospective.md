@@ -7,62 +7,62 @@
 - **Cycle completed at:** {{cycle_completed_at}}
 - **Duration:** {{duration}}
 
-## サイクル概要
+## Cycle overview
 
 {{cycle_summary}}
 
-何を達成したサイクルか、Intent Spec の目的に対してどう応えたかを 1–3 段落で記述する。
+Describe in 1-3 paragraphs what this cycle achieved and how it answered the purpose stated in the Intent Spec.
 
-## 良かった点（うまく機能したパターン）
+## What went well (patterns that worked)
 
 {{what_went_well}}
 
-次サイクル以降にも意図的に再現すべきアプローチを記録する。
+Record approaches that should be deliberately reproduced in future cycles.
 
 - {{good_point_1}}
 - {{good_point_2}}
 - {{good_point_3}}
 
-## 課題（うまくいかなかった箇所）
+## Issues (what did not work well)
 
 {{issues}}
 
-ループ回数が多かった箇所、Blocker の根本原因、想定外のコストが発生した箇所を記録する。
+Record places where the loop count was high, the root causes of Blockers, and places where unexpected costs occurred.
 
-### ループ回数の分析
+### Loop count analysis
 
-| ステップ間ループ | 回数             | 根本原因           |
-| ---------------- | ---------------- | ------------------ |
-| Step 6 ↔ Step 7  | {{loop_6_7}}     | {{root_cause_6_7}} |
-| Step 7 → Step 3  | {{rollback_7_3}} | {{root_cause_7_3}} |
-| Step 8 → Step 6  | {{rollback_8_6}} | {{root_cause_8_6}} |
+| Loop between steps | Count            | Root cause         |
+| ------------------ | ---------------- | ------------------ |
+| Step 6 ↔ Step 7    | {{loop_6_7}}     | {{root_cause_6_7}} |
+| Step 7 → Step 3    | {{rollback_7_3}} | {{root_cause_7_3}} |
+| Step 8 → Step 6    | {{rollback_8_6}} | {{root_cause_8_6}} |
 
-### Blocker 履歴
+### Blocker history
 
-- {{blocker_1}}（発生: {{blocker_1_at}}、解消: {{blocker_1_resolved_at}}、対応: {{blocker_1_resolution}}）
-- {{blocker_2}}（発生: {{blocker_2_at}}、解消: {{blocker_2_resolved_at}}、対応: {{blocker_2_resolution}}）
+- {{blocker_1}} (raised: {{blocker_1_at}}, resolved: {{blocker_1_resolved_at}}, response: {{blocker_1_resolution}})
+- {{blocker_2}} (raised: {{blocker_2_at}}, resolved: {{blocker_2_resolved_at}}, response: {{blocker_2_resolution}})
 
-## 次回改善案
+## Improvements for the next cycle
 
 {{improvements}}
 
-具体的なアクション粒度まで分解する（「〜を改善する」ではなく「〜のときに〜する」）。
+Decompose down to a concrete action grain (write "do X when Y" rather than "improve X").
 
-### プロセス改善
+### Process improvements
 
 - {{process_improvement_1}}
 - {{process_improvement_2}}
 
-### スキル改善
+### Skill improvements
 
-dev-workflow プラグインのスキル（`dev-workflow` / `specialist-*` / `share-artifacts`）への具体的な改善提案。
+Concrete improvement proposals for the dev-workflow plugin's skills (`dev-workflow` / `specialist-*` / `share-artifacts`).
 
 - {{skill_improvement_1}}
 - {{skill_improvement_2}}
 
-### Specialist プロンプト改善
+### Specialist prompt improvements
 
-Specialist の役割定義・入力仕様・期待成果物の改善提案。
+Improvement proposals for the role definitions, input specifications, and expected outputs of the Specialists.
 
 - `intent-analyst`: {{intent_analyst_improvement}}
 - `researcher`: {{researcher_improvement}}
@@ -74,20 +74,20 @@ Specialist の役割定義・入力仕様・期待成果物の改善提案。
 - `validator`: {{validator_improvement}}
 - `retrospective-writer`: {{retrospective_writer_improvement}}
 
-## 再利用可能な知見
+## Reusable insights
 
 {{reusable_insights}}
 
-他のサイクル・他のプロジェクトでも役立ちそうな学び。メモリや CLAUDE.md への反映候補を含む。
+Lessons that may also help in other cycles or projects. Include candidates for memory or CLAUDE.md.
 
 - {{insight_1}}
 - {{insight_2}}
 
-## ユーザー承認ゲートの振り返り
+## Retrospective on user approval gates
 
 {{gate_retrospective}}
 
-各承認ゲートでの承認 / 却下の記録、却下があった場合の原因を振り返る。
+Look back at the approve / reject record for each approval gate, and the cause of any rejections.
 
 - Step 1 (Intent Clarification): {{gate_1_summary}}
 - Step 3 (Design): {{gate_3_summary}}
@@ -96,19 +96,19 @@ Specialist の役割定義・入力仕様・期待成果物の改善提案。
 - Step 7 (External Review): {{gate_7_summary}}
 - Step 8 (Validation): {{gate_8_summary}}
 
-## In-Progress ユーザー問い合わせの振り返り
+## Retrospective on in-progress user inquiries
 
 {{in_progress_question_summary}}
 
-サイクル中に作成した `$TMPDIR/dev-workflow/*.md` 一時レポート（作業途中の判断要請）の件数と主要トピックを要約する。件数が多ければ Intent Spec 段階での明確化不足を示唆している可能性がある。
+Summarize the count and main topics of `$TMPDIR/dev-workflow/*.md` temporary reports (mid-flight requests for judgment) created during the cycle. A high count may indicate insufficient clarification at the Intent Spec stage.
 
-- 件数: {{in_progress_question_count}}
-- 主要トピック: {{in_progress_question_topics}}
+- Count: {{in_progress_question_count}}
+- Main topics: {{in_progress_question_topics}}
 
-## コスト / 時間
+## Cost / time
 
 {{cost_time}}
 
-- 各フェーズの実時間: {{phase_durations}}
-- Specialist 起動回数: {{specialist_launch_count}}
-- 並列度の実効: {{effective_parallelism}}
+- Wall-clock time per phase: {{phase_durations}}
+- Number of Specialist launches: {{specialist_launch_count}}
+- Effective parallelism: {{effective_parallelism}}

@@ -1,219 +1,219 @@
-# Reference: `qa-flow.md` の書き方
+# Reference: How to write `qa-flow.md`
 
-## 目的
+## Purpose
 
-`qa-design.md` のテストケース表を**Mermaid flowchart で可視化**する。テストの分岐構造をレビュアーが俯瞰できる形で図示することで、テスト網羅性確認の認知負荷を下げる (これが本ファイル存在の根本理由)。各分岐の葉には `qa-design.md` の TC-ID または `skip` (理由付き) を配置する。
+**Visualize** the test case table of `qa-design.md` **as Mermaid flowcharts**. By depicting the branching structure of tests in a form reviewers can survey at a glance, this lowers the cognitive load of confirming test coverage (this is the fundamental reason this file exists). The leaves of each branch hold the TC-ID from `qa-design.md` or `skip` (with reason).
 
-## 作成者 / 作成タイミング
+## Author / creation timing
 
-- **作成者:** `qa-analyst` Specialist (Step 4 で初期作成)
-- **更新者:** `implementer` Specialist (Step 6 で発見した分岐を追記)
-- **承認:** Step 4 完了時にユーザー承認必須 (qa-design.md と同じレビューゲート)
+- **Author:** `qa-analyst` Specialist (initial creation in Step 4)
+- **Updater:** `implementer` Specialist (appends branches discovered in Step 6)
+- **Approval:** user approval required at Step 4 completion (same review gate as qa-design.md)
 
-## ファイル位置
+## File location
 
 `docs/workflow/<identifier>/qa-flow.md`
 
-## ファイル形式
+## File format
 
-**Markdown ファイル**に **1 つ以上の Mermaid コードブロック**を含む形式。複雑な場合は関心領域 (concern) ごとに**複数のコードブロックに分割可**。GitHub のネイティブ Markdown レンダラが Mermaid を自動描画する。
+A **Markdown file** containing **one or more Mermaid code blocks**. For complex cases, **multiple code blocks may be split** by concern. GitHub's native Markdown renderer auto-renders Mermaid.
 
-## セクション構成
+## Section structure
 
 ```text
-1. # qa-flow (タイトル)
-2. ## 概要 (qa-flow.md 全体の構成と読み方の案内)
-3. ## (関心領域 1)
-   - カバーする成功基準 (1 行)
-   - mermaid コードブロック (flowchart TD)
-4. ## (関心領域 2)
-   - 同上
-5. ## 横断的処理 (任意、エラーハンドリング等)
-   - 同上
-6. ## 実装都合分岐 (任意、独立した TC-IMPL を一括表示)
-   - 同上
+1. # qa-flow (title)
+2. ## Overview (guide on the structure of qa-flow.md and how to read it)
+3. ## (concern 1)
+   - SCs covered (1 line)
+   - mermaid code block (flowchart TD)
+4. ## (concern 2)
+   - same as above
+5. ## Cross-cutting processes (optional, error handling etc.)
+   - same as above
+6. ## Implementation-detail branches (optional, displaying independent TC-IMPLs together)
+   - same as above
 ```
 
-### 各セクションの書き方
+### How to write each section
 
-#### 概要
+#### Overview
 
-qa-flow.md の構成 (関心領域の分割方針 / 横断的処理の有無 / 実装都合分岐セクションの有無) を 2〜5 行で案内。レビュアーがどのセクションから読めばよいかの目次的役割。
+A 2-5 line guide on the structure of qa-flow.md (the splitting policy by concern / whether cross-cutting processes exist / whether the implementation-detail branches section exists). Functions as a table of contents telling the reviewer which section to read first.
 
-#### 関心領域別セクション
+#### Per-concern sections
 
-各セクションは:
+Each section consists of:
 
-1. `##` (h2) 見出しで関心領域名 (例: `## 認証・認可`, `## 注文処理`)
-2. 「カバーする成功基準: SC-X, SC-Y」を 1 行で明示
-3. Mermaid コードブロック (flowchart TD)
+1. `##` (h2) heading with the concern name (e.g. `## Authentication and authorization`, `## Order processing`)
+2. One line stating "SCs covered: SC-X, SC-Y"
+3. A Mermaid code block (flowchart TD)
 
-例:
+Example:
 
 ````markdown
-## 認証・認可
+## Authentication and authorization
 
-このセクションがカバーする成功基準: SC-1, SC-2, SC-5
+SCs covered by this section: SC-1, SC-2, SC-5
 
 ```mermaid
 flowchart TD
-  Start([User リクエスト]) --> Auth{User 認証済み?}
-  Auth -->|true| AccessOK[TC-001: リソースを返す]
-  Auth -->|false| AccessNG[TC-002: 401 を返す]
+  Start([User request]) --> Auth{User authenticated?}
+  Auth -->|true| AccessOK[TC-001: returns the resource]
+  Auth -->|false| AccessNG[TC-002: returns 401]
 ```
 ````
 
-#### 横断的処理 (任意)
+#### Cross-cutting processes (optional)
 
-エラーハンドリング、ロギング、リトライ等の**横断的関心**を 1 つのフロー図にまとめる。関心領域 1〜N に分散させると見通しが悪い場合に使う。
+Bundle **cross-cutting concerns** such as error handling, logging, retries into a single flow diagram. Use this when distributing them across concerns 1-N would obscure the picture.
 
-#### 実装都合分岐 (任意)
+#### Implementation-detail branches (optional)
 
-既存 flowchart に組み込めない `TC-IMPL-NNN` をここに集約する。Step 6 implementer が「ライブラリ制約由来の分岐が独立しすぎていて既存フローに自然に入らない」と判断した場合に使う。
+Aggregate `TC-IMPL-NNN` that cannot be incorporated into existing flowcharts. Used when the implementer in Step 6 judges that "library-driven branches are too independent to fit naturally into existing flows".
 
-## Mermaid `flowchart TD` の主要構文
+## Main syntax of Mermaid `flowchart TD`
 
-### ノード形状
+### Node shapes
 
-| 構文         | 意味         | 用途                      |
-| ------------ | ------------ | ------------------------- |
-| `A[Label]`   | 四角         | 通常ノード / テストケース |
-| `A([Label])` | スタジアム   | start / end               |
-| `A{Label}`   | 菱形         | 判断 (if 条件 / switch)   |
-| `A((Label))` | 円           | 副次的ステップ            |
-| `A[[Label]]` | サブルーチン | 別 flowchart への参照     |
+| Syntax        | Meaning      | Use                          |
+| ------------- | ------------ | ---------------------------- |
+| `A[Label]`    | Rectangle    | Normal node / test case      |
+| `A([Label])`  | Stadium      | start / end                  |
+| `A{Label}`    | Diamond      | Decision (if condition / switch) |
+| `A((Label))`  | Circle       | Sub-step                     |
+| `A[[Label]]`  | Subroutine   | Reference to another flowchart |
 
-### 矢印 (エッジ)
+### Arrows (edges)
 
-| 構文       | 意味                |
-| ---------- | ------------------- | --- | ----------------------------------- |
-| `A --> B`  | 通常の遷移          |
-| `A -->     | label               | B`  | ラベル付き遷移 (条件分岐の値を記述) |
-| `A -.-> B` | 点線 (オプショナル) |
-| `A ==> B`  | 太線 (主要パス強調) |
+| Syntax     | Meaning                |
+| ---------- | ---------------------- | --- | ----------------------------------- |
+| `A --> B`  | Normal transition      |
+| `A -->     | label                  | B`  | Labeled transition (writes the value of a conditional branch) |
+| `A -.-> B` | Dotted (optional)      |
+| `A ==> B`  | Thick (emphasizing the main path) |
 
-## 分岐の書き分け (if vs switch)
+## Distinguishing branches (if vs switch)
 
-### if 分岐 (true/false)
+### if branch (true/false)
 
-シンプルな二択は `{Cond?}` 菱形 + `-->|true|` `-->|false|` ラベル。
-
-```mermaid
-flowchart TD
-  Start([リクエスト受信]) --> Q{User 認証済み?}
-  Q -->|true| TC1[TC-001: リソース返却]
-  Q -->|false| TC2[TC-002: 401 返却]
-```
-
-### switch 分岐 (多択)
-
-enum 値・ロール・ステータスのような多択は `{State}` 菱形 + 多ラベル矢印。
+For simple binary choices, use a `{Cond?}` diamond + `-->|true|` `-->|false|` labels.
 
 ```mermaid
 flowchart TD
-  Start([リクエスト受信]) --> R{User 権限}
-  R -->|admin| TC10[TC-010: 全機能アクセス可]
-  R -->|member| TC11[TC-011: 読み書き可]
-  R -->|viewer| TC12[TC-012: 読み取りのみ]
-  R -->|guest| Skip[skip: ゲストはこのエンドポイントに到達不可]
+  Start([receive request]) --> Q{User authenticated?}
+  Q -->|true| TC1[TC-001: returns the resource]
+  Q -->|false| TC2[TC-002: returns 401]
 ```
 
-### 境界値分岐 (数値範囲)
+### switch branch (multi-way)
 
-数値の閾値判定は switch 形式で各範囲をラベルに。
+For multi-way choices like enum values / roles / statuses, use a `{State}` diamond + multiple labeled arrows.
 
 ```mermaid
 flowchart TD
-  Start([価格入力]) --> R{価格 X 範囲?}
-  R -->|X 小なり 0| TC20[TC-020: ValidationError]
-  R -->|X = 0| TC21[TC-021: 無料注文]
-  R -->|0 小なり X 小なりイコール 1000| TC22[TC-022: 通常処理]
-  R -->|X 大なり 1000| TC23[TC-023: 高額確認フロー]
+  Start([receive request]) --> R{User permission}
+  R -->|admin| TC10[TC-010: full feature access]
+  R -->|member| TC11[TC-011: read-write]
+  R -->|viewer| TC12[TC-012: read-only]
+  R -->|guest| Skip[skip: guests cannot reach this endpoint]
 ```
 
-注: Mermaid のラベル内では `<` `>` がパース失敗する場合あり。日本語表記 (`小なり` `大なり`) や `lt` `gt` で代替。
+### Boundary-value branches (numeric ranges)
 
-## 葉ノードの規約
-
-### TC-ID 葉 (テストケース)
-
-各葉は `qa-design.md` のテストケース ID を指す:
-
-- `TC-NNN` (本質テスト) と `TC-IMPL-NNN` (実装都合テスト) を**同じ flowchart に混在可能** (区別は ID prefix で十分)
-- ノードのラベルは `[TC-001: 簡潔な振る舞い説明]` の形式 (Mermaid の表示文字数を考慮して 30 文字以内推奨、詳細は qa-design.md を参照)
-
-### skip 葉
-
-到達不能 / 別 flowchart で扱う / Validation 不要 (Spec 上保証済み) などの理由で**意図的にテストを置かない**場合:
-
-- 形状: `[skip: 理由]` の四角形ノード
-- **理由必須**: なぜスキップするのかを葉のラベルに記述
-- 理由がない skip は禁止 (テスト漏れを隠蔽するアンチパターン)
-
-例:
+For numeric threshold judgments, label each range in switch form.
 
 ```mermaid
 flowchart TD
-  Start([アクセス]) --> Q{User 状態}
-  Q -->|ログイン済| TC1[TC-001: ダッシュボード表示]
-  Q -->|未ログイン| TC2[TC-002: ログイン画面へリダイレクト]
-  Q -->|アカウント停止| Skip[skip: ガード条件で到達不能 (login.ts:L42)]
+  Start([price input]) --> R{price X range?}
+  R -->|X less than 0| TC20[TC-020: ValidationError]
+  R -->|X = 0| TC21[TC-021: free order]
+  R -->|0 less than X less than or equal 1000| TC22[TC-022: normal processing]
+  R -->|X greater than 1000| TC23[TC-023: high-value confirmation flow]
 ```
 
-## 分割の指針
+Note: `<` `>` may fail to parse inside Mermaid labels. Substitute with English notation (`less than`, `greater than`) or `lt` / `gt`.
 
-### なぜ分割するか
+## Conventions for leaf nodes
 
-1 つの flowchart で **15〜20 ノードを超える**と視覚的に追いにくい。レビュアーの認知負荷を下げる目的を逸脱するため、適切に分割する。
+### TC-ID leaf (test case)
 
-### 分割単位の優先順位
+Each leaf points to a test case ID in `qa-design.md`:
 
-1. **関心領域 (concern)** ← 主軸 (機能ドメイン: 認証 / 注文 / 通知 等)
-2. **サブシステム** (フロントエンド / バックエンド / DB) — UI〜DB 横断する分岐は無理に分けない
-3. **成功基準グループ** (SC-1〜SC-3 を 1 セクション、SC-4〜SC-6 を別セクション) — Intent Spec とのトレーサビリティ重視時
+- `TC-NNN` (essential test) and `TC-IMPL-NNN` (implementation-detail test) **may coexist in the same flowchart** (the ID prefix is enough to distinguish them)
+- The node label is in the form `[TC-001: brief behavior description]` (recommend within 30 characters considering Mermaid display width; details in qa-design.md)
 
-主軸は**関心領域**だが、qa-analyst が design.md の構造に応じて選定可。
+### skip leaf
 
-### 分割の具体ルール
+When you **intentionally do not place a test** because it is unreachable / handled in another flowchart / Validation is unnecessary (already guaranteed by the spec), etc.:
 
-- 1 セクション = 1 Mermaid コードブロック
-- セクション見出しは `##` で揃える (目次から飛べる)
-- 各セクションの直前に「カバーする成功基準: SC-X, SC-Y」を 1 行で明示
-- 横断的処理 (エラーハンドリング等) は専用セクションで別図として記述
+- Shape: a rectangle node `[skip: reason]`
+- **Reason required**: write in the leaf label why it is being skipped
+- Skips without a reason are forbidden (anti-pattern that hides test omissions)
 
-## 実装都合テストの組み込み方針
-
-`TC-IMPL-NNN` (実装都合テスト) も **必ず qa-flow.md に図示する** (テスト網羅性確認の認知負荷軽減のため、本ファイルの根本目的)。
-
-### 組み込みパターン
-
-- **既存 flowchart に組み込み可**: 関連する本質テストの分岐の枝として TC-IMPL-NNN を追加。例: 認証 flowchart の中で「ライブラリ仕様で `null` が返るケース」を分岐として追加
-- **組み込み困難**: 「実装都合分岐」セクションを新設して集約
-
-### 組み込み例 (混在可)
+Example:
 
 ```mermaid
 flowchart TD
-  Start([リクエスト]) --> Auth{User 認証済み?}
-  Auth -->|true| TC1[TC-001: リソース返却]
-  Auth -->|false| Q2{認証 lib 戻り値}
-  Q2 -->|null 正常未ログイン| TC2[TC-002: 401 返却]
-  Q2 -->|undefined ライブラリ仕様| TCimpl1[TC-IMPL-001: 防御的に 500 返却 + ログ]
+  Start([access]) --> Q{User state}
+  Q -->|logged in| TC1[TC-001: dashboard display]
+  Q -->|not logged in| TC2[TC-002: redirect to login screen]
+  Q -->|account suspended| Skip[skip: unreachable due to guard condition (login.ts:L42)]
 ```
 
-## 品質基準
+## Splitting guidelines
 
-| ✅ よい                                              | ❌ 悪い                                       |
-| ---------------------------------------------------- | --------------------------------------------- |
-| 各 flowchart が 15〜20 ノード以下                    | 30 ノード超で読みにくい                       |
-| すべての葉が TC-ID または `skip [理由]`              | 葉が空ノード or 「TODO」                      |
-| `skip` 葉に必ず理由が付与                            | 理由なしの skip                               |
-| 各セクションに「カバーする成功基準」が 1 行で明示    | カバー基準が不明                              |
-| すべての TC-NNN / TC-IMPL-NNN が qa-design.md と整合 | qa-flow.md にあって qa-design.md にない TC-ID |
-| 関心領域別に分割されている                           | 全機能を 1 つの巨大 flowchart に詰め込み      |
+### Why split
 
-## 関連成果物
+When a single flowchart exceeds **15-20 nodes**, it becomes hard to follow visually. This deviates from the goal of lowering the reviewer's cognitive load, so split appropriately.
 
-- **入力:** `qa-design.md` (テストケース ID の真のソース)
-- **出力先:** `validation-report.md` (Step 8 validator が葉カバレッジを実測)
-- **連携:** `qa-design.md` と相互参照 (qa-design に存在しない TC-ID を qa-flow に書いてはいけない、逆も同じ)
+### Priority of splitting units
+
+1. **Concerns (concern)** ← primary axis (functional domains: authentication / orders / notifications, etc.)
+2. **Subsystems** (frontend / backend / DB) — do not forcibly split branches that span UI to DB
+3. **Success criteria groups** (one section for SC-1 to SC-3, another for SC-4 to SC-6) — when prioritizing traceability with the Intent Spec
+
+The primary axis is **concerns**, but qa-analyst can choose depending on the structure of design.md.
+
+### Concrete rules for splitting
+
+- 1 section = 1 Mermaid code block
+- Section headings aligned at `##` (so the table of contents can jump)
+- Immediately before each section, declare "SCs covered: SC-X, SC-Y" on a single line
+- Cross-cutting processes (error handling, etc.) are described as a separate diagram in a dedicated section
+
+## Policy for incorporating implementation-detail tests
+
+`TC-IMPL-NNN` (implementation-detail tests) **must always be illustrated in qa-flow.md** (to lower the cognitive load of confirming test coverage, this file's fundamental purpose).
+
+### Incorporation patterns
+
+- **Can be incorporated into the existing flowchart**: add TC-IMPL-NNN as a branch off the relevant essential test branch. Example: in the authentication flowchart, add a "case where library specification returns `null`" as a branch
+- **Difficult to incorporate**: create a new "Implementation-detail branches" section to aggregate them
+
+### Incorporation example (mixed)
+
+```mermaid
+flowchart TD
+  Start([request]) --> Auth{User authenticated?}
+  Auth -->|true| TC1[TC-001: returns the resource]
+  Auth -->|false| Q2{auth lib return value}
+  Q2 -->|null normal not-logged-in| TC2[TC-002: returns 401]
+  Q2 -->|undefined library spec| TCimpl1[TC-IMPL-001: defensively returns 500 + logs]
+```
+
+## Quality criteria
+
+| Good                                                                  | Bad                                                  |
+| --------------------------------------------------------------------- | ---------------------------------------------------- |
+| Each flowchart has 15-20 nodes or fewer                               | Hard to read with 30+ nodes                          |
+| Every leaf is a TC-ID or `skip [reason]`                              | Empty nodes or "TODO" leaves                         |
+| `skip` leaves always have a reason                                    | skip without a reason                                |
+| Each section explicitly states "SCs covered" on a single line         | Coverage SC unclear                                  |
+| All TC-NNN / TC-IMPL-NNN are consistent with qa-design.md             | TC-IDs in qa-flow.md missing from qa-design.md       |
+| Split by concerns                                                     | All features crammed into a single huge flowchart    |
+
+## Related artifacts
+
+- **Input:** `qa-design.md` (the true source of test case IDs)
+- **Output destination:** `validation-report.md` (the validator in Step 8 measures leaf coverage)
+- **Linkage:** mutual reference with `qa-design.md` (you must not write a TC-ID in qa-flow that does not exist in qa-design, and vice versa)

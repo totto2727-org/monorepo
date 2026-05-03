@@ -1,73 +1,73 @@
-# Reference: `intent-spec.md` の書き方
+# Reference: How to write `intent-spec.md`
 
-## 目的
+## Purpose
 
-ユーザーの要求を**言語化された合意文書**に変換する。サイクル全体の出発点となり、以降の全ステップ（調査・設計・タスク分解・実装・検証）がこれを参照する。「何を解決するサイクルか」が曖昧なら全てが曖昧になるため、Intent Spec の質がサイクル全体の質を決める。
+Convert the user's request into a **verbalized agreement document**. It becomes the starting point for the entire cycle, and every subsequent step (research, design, task decomposition, implementation, validation) refers to it. If "what problem this cycle solves" is ambiguous, everything becomes ambiguous, so the quality of the Intent Spec determines the quality of the entire cycle.
 
-## 作成者 / 作成タイミング
+## Author / creation timing
 
-- **作成者:** `intent-analyst` Specialist
-- **作成ステップ:** Step 1 (Intent Clarification)
-- **承認:** ユーザー承認必須（Artifact-as-Gate-Review、成果物そのものをレビュー対象として提示）
+- **Author:** `intent-analyst` Specialist
+- **Step:** Step 1 (Intent Clarification)
+- **Approval:** user approval required (Artifact-as-Gate-Review, the artifact itself is presented as the review target)
 
-## ファイル位置
+## File location
 
 `docs/workflow/<identifier>/intent-spec.md`
 
-## 各セクションの書き方
+## How to write each section
 
-### 背景
+### Background
 
-なぜ今この問題に取り組むのか。現状の課題、きっかけ、先行事象などを文章で記述する。
+Why are we tackling this problem now? Describe the current issues, triggers, and prior events as prose.
 
-### 目的
+### Purpose
 
-**1–3 文**でサイクルのゴールを述べる。「〜ができるようにする」「〜を可能にする」のような達成状態として書く。
+State the goal of the cycle in **1-3 sentences**. Write it as an achievement state such as "be able to do X" or "make X possible".
 
-### スコープ / 非スコープ
+### Scope / non-scope
 
-- スコープ: サイクルで扱う機能・領域を具体的に
-- 非スコープ: 扱わない範囲を明示。「今サイクルでは触らない」「将来別サイクルで扱う」ものを列挙
+- Scope: concretely the features / areas the cycle covers
+- Non-scope: explicitly state what is not covered. List items "not touched in this cycle" or "to be handled in a future separate cycle"
 
-**非スコープを書かないと、実装中にスコープが暗黙に広がる。必ず書く。**
+**If you do not write the non-scope, the scope will silently expand during implementation. Always write it.**
 
-### 成功基準
+### Success criteria
 
-**観測可能な形式**で記述する。これが Validation Step 8 で実測される。
+Describe in **observable form**. This is what is measured in Validation Step 8.
 
-| ✅ よい（観測可能）                | ❌ 悪い（観測不能）                    |
-| ---------------------------------- | -------------------------------------- |
-| API の p95 レイテンシが 200ms 未満 | パフォーマンスが改善する               |
-| 認証失敗時に 401 を返す            | 正しく動く                             |
-| 既存の統合テストがすべて通過する   | 既存機能を壊さない（壊れ方の定義なし） |
-| 新規ユーザー 100 名を登録できる    | 使いやすい                             |
+| Good (observable)                            | Bad (not observable)                                |
+| -------------------------------------------- | --------------------------------------------------- |
+| The p95 latency of the API is below 200ms    | Performance improves                                |
+| Returns 401 on authentication failure        | It works correctly                                  |
+| All existing integration tests pass          | Existing functionality is not broken (no definition of "broken") |
+| 100 new users can register                   | It is easy to use                                   |
 
-### 制約
+### Constraints
 
-3 種類を意識する:
+Be aware of three kinds:
 
-- **技術的制約**: 使用言語・フレームワーク、互換性、パフォーマンス上限
-- **組織的制約**: 期限、人員、予算
-- **規範的制約**: セキュリティ、コンプライアンス、既存 ADR、コーディング規約
+- **Technical constraints**: language / framework used, compatibility, performance limits
+- **Organizational constraints**: deadlines, headcount, budget
+- **Normative constraints**: security, compliance, existing ADRs, coding conventions
 
-### 関連リンク
+### Related links
 
-Issue、チケット、既存 ADR、外部仕様書など、後から文脈を再構築するのに必要な参照を列挙。
+List references needed to reconstruct the context later, such as Issues, tickets, existing ADRs, and external specifications.
 
-### 未解決事項
+### Open questions
 
-**Step 2 (Research) への引き継ぎ**。Intent Clarification 段階で解消しきれなかった論点を明示的に残す。空なら空と書く。
+**Hand-off to Step 2 (Research).** Explicitly leave any points that could not be resolved during Intent Clarification. If empty, write that it is empty.
 
-## 品質基準
+## Quality criteria
 
-| ✅ よい                                          | ❌ 悪い                              |
-| ------------------------------------------------ | ------------------------------------ |
-| 全成功基準に計測手段が付いている                 | 「改善する」「速くなる」など主観表現 |
-| 非スコープが明示されている                       | スコープのみで境界が曖昧             |
-| 制約が 3 カテゴリで網羅されている                | 制約セクションが空 or 技術のみ       |
-| ユーザーが読んで「そう、これをやりたい」と言える | 抽象的すぎてどうとでも解釈できる     |
+| Good                                                              | Bad                                                       |
+| ----------------------------------------------------------------- | --------------------------------------------------------- |
+| Every success criterion has a measurement method                  | Subjective expressions like "improves" or "becomes faster" |
+| Non-scope is explicit                                             | Only scope, with ambiguous boundaries                     |
+| Constraints are covered across all 3 categories                   | Constraints section is empty or technical-only            |
+| The user reads it and says "yes, that's what I want to do"        | Too abstract; can be interpreted any way                  |
 
-## 関連成果物
+## Related artifacts
 
-- **後続成果物の前提:** `research/*.md` / `design.md` / `task-plan.md` / `validation-report.md` / `retrospective.md` がこれを参照する
-- **変更時の影響:** Intent Spec を書き換えると後続成果物との整合性チェックが必要（大きな変更は Step 1 への回帰と等価）
+- **Premise for downstream artifacts:** `research/*.md` / `design.md` / `task-plan.md` / `validation-report.md` / `retrospective.md` reference this
+- **Impact when changed:** rewriting the Intent Spec requires consistency checks against downstream artifacts (a large change is equivalent to regressing back to Step 1)

@@ -6,60 +6,60 @@ status: { { status } } # active | completed | blocked
 current_step: { { current_step } }
 
 completed_steps: []
-  # - step: <ステップ番号と名称>
+  # - step: <step number and name>
   #   completed_at: <ISO8601>
-  #   artifacts:                          # 複数成果物は必ずリスト形式
-  #     - <成果物ファイル相対パス>
-  #     - <成果物ファイル相対パス>        # 例: Step 2 Research は複数、Step 7 Review は複数
+  #   artifacts:                          # Always use a list when there are multiple artifacts
+  #     - <artifact file relative path>
+  #     - <artifact file relative path>   # e.g. Step 2 Research yields multiple, Step 7 Review yields multiple
 
 pending_gates: []
-  # - <保留中のゲート（ユーザー承認待ち / Main 判定待ち）>
+  # - <gate currently on hold (waiting for user approval / waiting for Main decision)>
 
 active_specialists: []
-  # active_specialists には **running / blocked の Specialist のみ**を残す。
-  # completed になった Specialist は本リストから除外し、completed_steps に記録する
-  # （値域は running | blocked の 2 値のみ。completed は不採用）。
-  # - name: <Specialist 種別>
-  #   task: <割り当てタスク>
+  # active_specialists must contain **only Specialists in the running / blocked state**.
+  # Once a Specialist becomes completed, remove it from this list and record it in completed_steps
+  # (the value domain is exactly running | blocked; completed is not used).
+  # - name: <Specialist kind>
+  #   task: <assigned task>
   #   status: running | blocked
   #   started_at: <ISO8601>
 
 blockers: []
-  # - <未解決の Blocker>
+  # - <unresolved Blocker>
 
 artifacts:
   intent_spec: null # intent-spec.md
-  research: [] # research/<topic>.md のリスト
+  research: [] # list of research/<topic>.md files
   design: null # design.md
   qa_design: null # qa-design.md (Step 4)
   qa_flow: null # qa-flow.md (Step 4)
-  external_adrs: [] # サイクル外に起票した ADR (General mode `docs/adr/<file>.md` と Roadmap mode `docs/roadmap/<roadmap-id>/adr/<file>.md` を同列に列挙)
+  external_adrs: [] # ADRs filed outside the cycle (list General mode `docs/adr/<file>.md` and Roadmap mode `docs/roadmap/<roadmap-id>/adr/<file>.md` together)
   task_plan: null # task-plan.md
   todo: null # TODO.md
-  review: [] # review/<aspect>.md のリスト (Step 7)
+  review: [] # list of review/<aspect>.md files (Step 7)
   validation: null # validation-report.md
   retrospective: null # retrospective.md
 
 user_approvals: []
-  # - gate: <ゲート名>
+  # - gate: <gate name>
   #   approved_at: <ISO8601>
-  #   approved_by: <ユーザー識別子 or "user">
-  #   notes: <メモ>
+  #   approved_by: <user identifier or "user">
+  #   notes: <memo>
 
 rollbacks: []
-  # - from: <戻す前のステップ>
-  #   to: <戻した先のステップ>
-  #   reason: <理由>
+  # - from: <step rolled back from>
+  #   to: <step rolled back to>
+  #   reason: <reason>
   #   at: <ISO8601>
 
-# roadmap 配下サイクルかどうかの分岐フラグ。3 つの観点で記述する:
-#   (a) `roadmap == null` (デフォルト): 独立サイクル。dev-roadmap 配下ではない通常のサイクル
-#   (b) `roadmap` non-null: roadmap 配下サイクル。下記ネストオブジェクト形式で記述する
+# Branch flag indicating whether this is a cycle running under a roadmap. Written from three angles:
+#   (a) `roadmap == null` (default): standalone cycle. A normal cycle that is not under dev-roadmap.
+#   (b) `roadmap` non-null: a cycle running under a roadmap. Written using the nested object form below.
 #         roadmap:
-#           id: <roadmap-id>            # 上位 dev-roadmap の roadmap-id (必須)
+#           id: <roadmap-id>            # The roadmap-id of the parent dev-roadmap (required)
 #           milestone:
-#             id: <milestone-id>        # 紐付くマイルストーン id (必須)
-#   (c) `roadmap == null` のまま `milestone` 相当を単独で書く形は不正 (スキーマ違反)
-# 詳細は references/progress-yaml.md の「roadmap」セクション、および
-# dev-workflow/SKILL.md の「roadmap-progress.yaml 更新プロトコル」セクション参照
+#             id: <milestone-id>        # The id of the milestone this cycle is attached to (required)
+#   (c) Writing a `milestone`-like field on its own while leaving `roadmap == null` is invalid (schema violation).
+# See the "roadmap" section in references/progress-yaml.md and the "roadmap-progress.yaml update protocol"
+# section in dev-workflow/SKILL.md for details.
 roadmap: null

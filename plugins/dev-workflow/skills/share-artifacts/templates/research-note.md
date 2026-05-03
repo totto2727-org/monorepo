@@ -6,42 +6,42 @@
 - **Created at:** {{created_at}}
 - **Scope:** {{scope}}
 
-## 調査対象
+## Subject of investigation
 
 {{target}}
 
-この Research Note が扱う範囲を明示する。Intent Spec のどの制約・どの未解決事項に対応するかを示す。
+State the scope this Research Note covers. Indicate which constraints or open questions in the Intent Spec it is responding to.
 
-## 発見事項
+## Findings
 
 {{findings}}
 
-調査で判明したファクト。箇条書きで簡潔に。
+Facts established by the investigation. Keep them concise as a bulleted list.
 
 - {{finding_1}}
 - {{finding_2}}
 - {{finding_3}}
 
-## 引用元
+## Sources
 
 {{sources}}
 
-- コードへの参照（`path/to/file.ts:L42` 形式）
-- ドキュメントへの参照
-- 外部仕様へのリンク
-- 関連 ADR
+- References to code (using the `path/to/file.ts:L42` form)
+- References to documentation
+- Links to external specifications
+- Related ADRs
 
-## 設計への含意
+## Implications for design
 
 {{design_implications}}
 
-発見事項が Design ステップの判断にどう影響するかを明示する。ここが Research Note の価値の中核。
+Make explicit how the findings affect the decisions to be made during the Design step. This is the core of a Research Note's value.
 
 - {{implication_1}}
 - {{implication_2}}
 
-## 残存する不明点
+## Remaining unknowns
 
 {{remaining_questions}}
 
-調査の結果、依然として不明な点があれば Blocker 候補として記録する。追加 Researcher を起動するか、Design で仮定を置いて進めるかを Main が判断する材料となる。
+If anything remains unclear after the investigation, record it here as a Blocker candidate. It serves as material for Main to decide whether to launch an additional Researcher or to proceed to Design under an assumption.

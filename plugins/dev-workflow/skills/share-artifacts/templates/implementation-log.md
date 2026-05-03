@@ -4,31 +4,31 @@
 - **Implementer:** {{implementer_instance_id}}
 - **Started at:** {{started_at}}
 - **Completed at:** {{completed_at}}
-- **Commits:** {{commit_shas}} <!-- 複数ある場合はカンマ区切り -->
+- **Commits:** {{commit_shas}} <!-- Comma-separated when there are several -->
 
-`TODO.md` の notes 欄に収まらない長大なログや、動作確認の詳細証跡を保存する。
+Capture long-form logs and detailed verification evidence that do not fit in the `notes` column of `TODO.md`.
 
-## 実装サマリ
+## Implementation summary
 
 {{summary}}
 
-このタスクで何をしたかを 1–2 段落で記述する。
+Describe what was done in this task in 1-2 paragraphs.
 
-## 変更ファイル
+## Changed files
 
 {{changed_files}}
 
 - `{{file_1}}`: {{file_1_change_summary}}
 - `{{file_2}}`: {{file_2_change_summary}}
 
-## テスト
+## Tests
 
-### 追加したテスト
+### Tests that were added
 
 - {{added_test_1}}
 - {{added_test_2}}
 
-### テスト実行結果
+### Test execution results
 
 ```
 {{test_output}}
@@ -39,28 +39,28 @@
 - Existing tests: {{existing_tests_result}}
 - New tests: {{new_tests_result}}
 
-## 手動確認ログ
+## Manual verification log
 
 {{manual_verification}}
 
-該当する場合、手動で確認したシナリオと結果を記録する。
+When applicable, record the scenarios that were verified manually and their results.
 
-- シナリオ: {{scenario_1}}
-  - 手順: {{scenario_1_steps}}
-  - 結果: {{scenario_1_result}}
+- Scenario: {{scenario_1}}
+  - Steps: {{scenario_1_steps}}
+  - Result: {{scenario_1_result}}
 
-## 発生した問題とその対処
+## Issues encountered and how they were resolved
 
 {{issues_and_resolutions}}
 
-実装中に遭遇した想定外の事象と、どう解決したかを記録する。External Review (`holistic` 観点を含む 6 観点並列) および Retrospective の材料となる。
+Record unexpected events that occurred during implementation and how they were resolved. This material feeds External Review (six aspects in parallel, including the `holistic` aspect) and Retrospective.
 
 - {{issue_1}} → {{resolution_1}}
 
-## 設計ドキュメントからの逸脱
+## Deviations from the design document
 
 {{design_deviations}}
 
-あれば記録する（理想的にはゼロ）。逸脱がある場合は External Review (`holistic` 観点) で確認され、必要なら Design への差し戻し判断材料となる。
+Record any deviations (ideally none). When a deviation exists, External Review (the `holistic` aspect) examines it and uses the result as input for deciding whether to send the work back to Design.
 
-- なし（デフォルト）
+- None (default)

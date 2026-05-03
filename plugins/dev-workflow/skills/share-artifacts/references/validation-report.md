@@ -1,90 +1,90 @@
-# Reference: `validation-report.md` の書き方
+# Reference: How to write `validation-report.md`
 
-## 目的
+## Purpose
 
-`intent-spec.md` の**成功基準を観測可能な形で実測**し、PASS / FAIL / 保留を判定する。主観判断ではなく**観測値と目標値の比較**。常に証拠（ログ / メトリクス / スクリーンショット / テスト結果）を添える。
+**Measure the success criteria of `intent-spec.md` in observable form** and judge PASS / FAIL / pending. Not subjective judgment but **comparison of observed values with target values**. Always attach evidence (logs / metrics / screenshots / test results).
 
-## 作成者 / 作成タイミング
+## Author / creation timing
 
-- **作成者:** `validator` Specialist（単一インスタンス）
-- **作成ステップ:** Step 8 (Validation)
-- **承認:** ユーザー承認必須
+- **Author:** `validator` Specialist (single instance)
+- **Step:** Step 8 (Validation)
+- **Approval:** user approval required
 
-## ファイル位置
+## File location
 
 `docs/workflow/<identifier>/validation-report.md`
 
-大きな証拠データは `docs/workflow/<identifier>/validation-evidence/` 配下に保存してリンク。
+Large evidence data is stored under `docs/workflow/<identifier>/validation-evidence/` and linked.
 
-## 各セクションの書き方
+## How to write each section
 
-### サマリ
+### Summary
 
-| 判定         | 件数  |
-| ------------ | ----- |
-| PASS         | {{n}} |
-| FAIL         | {{n}} |
-| 保留（明示） | {{n}} |
+| Verdict          | Count |
+| ---------------- | ----- |
+| PASS             | {{n}} |
+| FAIL             | {{n}} |
+| Pending (explicit)| {{n}} |
 
-**全体判定:** `passed` / `failed` / `partially_passed`
+**Overall verdict:** `passed` / `failed` / `partially_passed`
 
-### 成功基準ごとの判定
+### Verdict per success criterion
 
-各成功基準に以下を付記:
+For each success criterion, append:
 
-- **観測値:** 実測された値
-- **判定:** PASS / FAIL / 保留
-- **証拠:** ログ / スクリーンショット / メトリクスへのリンク（パス）
-- **計測手段:** どう計測したか（自動テスト / メトリクス収集 / シナリオ実行）
-- **計測条件:** 環境（本番相当 / staging / ローカル）、データ量、負荷
-- **備考:** 留意事項
+- **Observed value:** the actually measured value
+- **Verdict:** PASS / FAIL / pending
+- **Evidence:** link (path) to logs / screenshots / metrics
+- **Measurement means:** how it was measured (automated test / metric collection / scenario execution)
+- **Measurement conditions:** environment (production-equivalent / staging / local), data volume, load
+- **Notes:** caveats
 
-### テスト実行結果
+### Test execution results
 
-実際のテスト実行ログを貼る（長い場合は冒頭と末尾のみ抜粋し全体は `validation-evidence/` に保存）。
+Paste actual test execution logs (if long, excerpt only the head and tail and store the whole under `validation-evidence/`).
 
-- 自動テスト件数 / 成否
-- 統合テスト件数 / 成否
-- E2E テスト件数 / 成否
+- Number of automated tests / pass-fail
+- Number of integration tests / pass-fail
+- Number of E2E tests / pass-fail
 
-### メトリクス
+### Metrics
 
-定量的な成功基準に対応する計測結果:
+Measurement results corresponding to quantitative success criteria:
 
-| メトリクス     | 目標値  | 観測値 | 判定 |
-| -------------- | ------- | ------ | ---- |
-| p95 レイテンシ | < 200ms | 175ms  | PASS |
+| Metric          | Target   | Observed | Verdict |
+| --------------- | -------- | -------- | ------- |
+| p95 latency     | < 200ms  | 175ms    | PASS    |
 
-### 未達基準への対応方針
+### Response policy for unmet criteria
 
-FAIL や保留があれば:
+If there are FAILs or pendings:
 
-- 原因分類（実装バグ / 設計ミス / 基準設定不適切）
-- 推奨ロールバック先
-- ユーザー判断への引き継ぎ要否
+- Cause classification (implementation bug / design mistake / inappropriate criterion setting)
+- Recommended rollback target
+- Whether to hand off to user judgment
 
-### 証拠アーカイブ
+### Evidence archive
 
-`validation-evidence/` 配下のファイル一覧と説明。
+List of files under `validation-evidence/` and explanations.
 
-## 観測の品質基準
+## Observation quality criteria
 
-| ✅ よい                                                                | ❌ 悪い                        |
-| ---------------------------------------------------------------------- | ------------------------------ |
-| 「p95 175ms（目標 200ms 未満）→ PASS」                                 | 「体感的に速い」               |
-| 「統合テスト 42/42 passed（証拠 `validation-evidence/test-log.txt`）」 | 「動いていそう」               |
-| 計測条件（環境・データ量・負荷）が明示されている                       | 「ローカルで確認」だけで終わる |
-| 保留がある場合、保留理由と計測不能な技術的背景が明示                   | 保留の理由が「とりあえず」     |
+| Good                                                                          | Bad                                          |
+| ----------------------------------------------------------------------------- | -------------------------------------------- |
+| "p95 175ms (target < 200ms) → PASS"                                           | "Feels fast"                                 |
+| "Integration tests 42/42 passed (evidence `validation-evidence/test-log.txt`)" | "Looks like it works"                       |
+| Measurement conditions (environment / data volume / load) are explicit        | Just "confirmed locally" with nothing more   |
+| If pending, the reason for pending and the technical background that prevents measurement are explicit | Pending reason is "for now"                 |
 
-## Validation の原則
+## Validation principles
 
-- **主観判断禁止**: 「多分大丈夫」「おそらく問題ない」は Validation Report に書かない
-- **証拠添付必須**: 観測値にはソース（ログファイル・メトリクスダッシュボードへのリンク・スクリーンショット）を必ず添える
-- **計測条件の明示**: 本番相当 / staging / ローカル、データ量、負荷条件を書かないと再現性がない
-- **目標値の引用**: `intent-spec.md` の成功基準を引用して並べる（目標値と観測値が一目でわかるように）
+- **No subjective judgment**: do not write "probably fine" or "likely no problem" in the Validation Report
+- **Evidence attachment required**: always attach a source (log file / metric dashboard link / screenshot) to observed values
+- **Make measurement conditions explicit**: without writing production-equivalent / staging / local, data volume, and load conditions, there is no reproducibility
+- **Cite the target values**: cite the success criteria of `intent-spec.md` and place them side by side (so target and observed values are visible at a glance)
 
-## 関連成果物
+## Related artifacts
 
-- **入力:** `intent-spec.md` の成功基準、実装済み diff と実行環境情報、テスト実行手順
-- **出力先:** 成功基準未達 → ロールバック先決定（実装バグ: Step 6 / 設計ミス: Step 3 / 基準不適切: Step 1）
-- **後続:** `retrospective.md` に Validation 結果が反映される
+- **Inputs:** the success criteria of `intent-spec.md`, the implemented diff and execution environment information, test execution procedure
+- **Output destination:** unmet success criterion → determination of rollback target (implementation bug: Step 6 / design mistake: Step 3 / inappropriate criterion: Step 1)
+- **Subsequent:** Validation results are reflected in `retrospective.md`

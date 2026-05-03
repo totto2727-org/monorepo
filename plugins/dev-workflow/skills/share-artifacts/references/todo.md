@@ -1,37 +1,37 @@
-# Reference: `TODO.md` の書き方
+# Reference: How to write `TODO.md`
 
-## 目的
+## Purpose
 
-Step 6〜7 中の**タスク状態を永続化**する。Main の内部タスクリスト（`TaskCreate` で管理）は揮発性のため、作業引き継ぎ・中断再開のためにこのファイルが**真のソース**となる。セッション跨ぎで新規 Main が `TODO.md` を読めばタスク状態を完全復元できる。
+**Persist task state during Steps 6-7**. Since Main's internal task list (managed via `TaskCreate`) is volatile, this file becomes the **true source** for work hand-off and interruption / resumption. Across sessions, a new Main can fully restore task state by reading `TODO.md`.
 
-## 作成者 / 更新タイミング
+## Author / update timing
 
-- **作成者:** Main（Specialist は作らない）
-- **生成:** Step 6 開始時に `task-plan.md` から生成
-- **更新:** タスク状態変化のたび（`pending` → `in_progress` → `completed` / 再活性化時）、**必ず同時にコミット**
+- **Author:** Main (Specialists do not create it)
+- **Generation:** generated from `task-plan.md` at the start of Step 6
+- **Updates:** every time a task state changes (`pending` → `in_progress` → `completed` / on reactivation), **always commit at the same time**
 
-## ファイル位置
+## File location
 
 `docs/workflow/<identifier>/TODO.md`
 
-## 各セクションの書き方
+## How to write each section
 
-### ヘッダ
+### Header
 
 - Source: `task-plan.md`
-- Created at / Last updated: タイムスタンプ
+- Created at / Last updated: timestamps
 
-### 後発追加タスク（`task-plan.md` 以降に発生したもの）
+### Subsequently added tasks (those occurring after `task-plan.md`)
 
-**`task-plan.md` は不変運用**のため、Step 6〜7 中に発見された追加タスクはここに明示する:
+Since **`task-plan.md` is operated immutably**, additional tasks discovered during Steps 6-7 are made explicit here:
 
-- 追加タスクの内容
-- 追加理由
-- どのタスクと依存関係があるか
+- The contents of the additional task
+- Reason for addition
+- Which task it has dependencies with
 
-### タスク
+### Tasks
 
-チェックボックス形式:
+Checkbox form:
 
 ```markdown
 - [x] **T1** — Setup database schema
@@ -50,43 +50,43 @@ Step 6〜7 中の**タスク状態を永続化**する。Main の内部タスク
   - implementer: impl-3
 ```
 
-各タスクに必ず記録する項目:
+Items always recorded for each task:
 
 - **status**: `pending` / `in_progress` / `completed`
-- **dependencies**: 先行タスク ID
-- **started_at**: `in_progress` 遷移時に記録
-- **completed_at**: `completed` 遷移時に記録
-- **commit**: 担当 implementer の main コミット SHA
-- **implementer**: インスタンス識別子
-- **re_activations**: External Review Blocker 指摘で Step 6 に戻った回数
+- **dependencies**: predecessor task IDs
+- **started_at**: recorded at transition to `in_progress`
+- **completed_at**: recorded at transition to `completed`
+- **commit**: the main commit SHA of the responsible implementer
+- **implementer**: instance identifier
+- **re_activations**: number of times reverted to Step 6 due to External Review Blocker findings
 
-### 状態遷移ガイド
+### State transition guide
 
-- `pending`: 未着手。`[ ]` 表示
-- `in_progress`: `implementer` 起動中。`[ ]` 表示、`started_at` と `implementer` を記録
-- `completed`: 完了。`[x]` 表示、`completed_at` と `commit` SHA を記録
-- External Review Blocker 指摘で戻す場合: `completed` → `in_progress` に戻し、`re_activations` をインクリメント
+- `pending`: not yet started. Displayed `[ ]`
+- `in_progress`: `implementer` is running. Displayed `[ ]`, recording `started_at` and `implementer`
+- `completed`: done. Displayed `[x]`, recording `completed_at` and `commit` SHA
+- When reverting due to External Review Blocker findings: change `completed` → `in_progress` and increment `re_activations`
 
-## TaskCreate との同期ルール
+## Synchronization rules with TaskCreate
 
-**TODO.md が真のソース、TaskCreate はそのビュー**。
+**TODO.md is the true source; TaskCreate is its view.**
 
-1. 状態変化時: **TODO.md 更新 → コミット → TaskUpdate** の順で実行（永続側を先に確定）
-2. セッション再開時: `TODO.md` を読み、`TaskCreate` で内部タスクリストを完全復元
-3. 齟齬が発生した場合: TODO.md を正として TaskCreate を修正
+1. On state change: execute in the order **update TODO.md → commit → TaskUpdate** (confirm the persistent side first)
+2. On session resumption: read `TODO.md` and fully restore the internal task list with `TaskCreate`
+3. If a discrepancy occurs: take TODO.md as the truth and fix TaskCreate
 
-## 品質基準
+## Quality criteria
 
-| ✅ よい                              | ❌ 悪い                            |
-| ------------------------------------ | ---------------------------------- |
-| 全タスク状態変化が即反映・即コミット | まとめて更新して粒度の細かさを失う |
-| commit SHA が具体的に埋まっている    | commit 欄が空                      |
-| re_activations カウンタを正確に追記  | ループ履歴が失われている           |
-| 追加タスクの理由が書かれている       | 唐突に新タスクが現れる             |
+| Good                                                          | Bad                                                |
+| ------------------------------------------------------------- | -------------------------------------------------- |
+| All task state changes are immediately reflected and committed | Updates are batched, losing fine-grained granularity |
+| commit SHAs are concretely filled in                          | The commit field is empty                          |
+| The re_activations counter is accurately recorded             | Loop history is lost                               |
+| The reason for additional tasks is written                    | New tasks appear out of nowhere                    |
 
-## 関連成果物
+## Related artifacts
 
-- **入力:** `task-plan.md`（初期状態の元）
-- **連携:** `progress.yaml`（フェーズ全体の進捗。TODO.md はタスクレベル、yaml はフェーズレベル）
-- **参照:** External Review での Blocker 指摘 → 該当タスクを `re_activations` カウントアップして `in_progress` に戻す
-- **引き継ぎ:** `retrospective.md` が TODO.md のループ履歴を分析して学びを抽出
+- **Input:** `task-plan.md` (source of initial state)
+- **Linkage:** `progress.yaml` (overall phase progress. TODO.md is at the task level, the yaml at the phase level)
+- **Reference:** Blocker findings during External Review → increment the `re_activations` of the relevant task and revert to `in_progress`
+- **Hand-off:** `retrospective.md` analyzes the loop history of TODO.md to extract learnings

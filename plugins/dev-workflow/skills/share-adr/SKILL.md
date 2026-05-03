@@ -1,98 +1,96 @@
 ---
 name: adr
 description: >
-  [Main / Specialist 共通] dev-workflow / dev-roadmap で**サイクルや単一ロードマップを跨いで影響する意思決定**を Architecture Decision Record (ADR) として恒久記録するためのスキル。
-  General mode (`docs/adr/<YYYY-MM-DD-title>.md`) は「複数 roadmap を跨ぐ決定」「独立した複数 dev-workflow サイクルを跨ぐ決定」「プロジェクト全体に及ぶ規範」、Roadmap mode (`docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md`) は「単一 roadmap 配下の複数サイクルが共有する文脈」を担う。
-  起動トリガー: "ADR を起票", "横断 ADR", "アーキテクチャ判断を記録", "roadmap 共通の前提を残したい", "サイクルを跨ぐ規範を残したい", "create ADR", "record design decision", "check ADR", "architecture decision", "design rationale".
-  Do NOT use for: 単一サイクル内で完結する設計判断 (`design.md` 内に書く)、議事録 / メモ書き、コードコメント、Retrospective (`docs/retrospective/`)、Roadmap Intent そのもの (`roadmap.md`)、Milestone 単位の方針 (`milestones/<id>.md`)、CHANGELOG エントリ。
+  [Common to Main / Specialist] A skill for permanently recording, in dev-workflow / dev-roadmap, decisions whose impact **spans multiple cycles or a single roadmap** as Architecture Decision Records (ADR).
+  General mode (`docs/adr/<YYYY-MM-DD-title>.md`) covers "decisions spanning multiple roadmaps", "decisions spanning multiple independent dev-workflow cycles", and "norms applying to the entire project". Roadmap mode (`docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md`) covers "context shared by multiple cycles under a single roadmap".
+  Trigger conditions: "create ADR", "cross-cutting ADR", "record an architectural decision", "preserve a roadmap-shared premise", "preserve a norm spanning cycles", "create ADR", "record design decision", "check ADR", "architecture decision", "design rationale".
+  Do NOT use for: design decisions that are completed within a single cycle (write inside `design.md`), meeting notes / memos, code comments, Retrospective (`docs/retrospective/`), Roadmap Intent itself (`roadmap.md`), Milestone-level direction (`milestones/<id>.md`), CHANGELOG entries.
 ---
 
-# ADR (Architecture Decision Record) — dev-workflow / dev-roadmap 共通スキル
+# ADR (Architecture Decision Record) — Common Skill for dev-workflow / dev-roadmap
 
-ユースケースカテゴリ: **Document & Asset Creation**
-設計パターン: **Domain Intelligence** (ADR ドメインの書き方・運用ルールを埋め込む)
+Use case category: **Document & Asset Creation**
+Design pattern: **Domain Intelligence** (embeds the writing style and operating rules of the ADR domain)
 
-このスキルは、**個別の dev-workflow サイクルを越えて影響が及ぶ意思決定**を恒久記録として残すためのフォーマットと運用ルールを提供する。`design.md` (サイクル固有の設計判断) や Retrospective (揮発的な振り返り) とは役割を分担し、**サイクル / ロードマップ完了後も参照され続ける長寿命の判断記録**を担う。
+This skill provides the format and operating rules for permanently recording **decisions whose impact extends beyond an individual dev-workflow cycle**. It divides responsibility with `design.md` (cycle-specific design decisions) and Retrospective (volatile reflections), serving as **long-lived decision records that continue to be referenced after a cycle / roadmap is completed**.
 
-## 適用モードと保存場所 (核心ルール)
+## Application Modes and Storage Locations (Core Rules)
 
-ADR は**起票元の文脈**に応じて 2 つのモードを使い分ける。判定は起票時に Main がスコープを評価して決定し、ADR 本体に明記する。
+ADRs use one of two modes depending on **the context in which they are filed**. The determination is made at filing time by Main evaluating the scope, and is explicitly stated in the ADR body.
 
-| モード                  | 保存場所                                              | 起票判定の核                                                                                      | 主な起票元                                                                                   |
-| ----------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| **General mode** (汎用) | `docs/adr/<YYYY-MM-DD-title>.md`                      | 「**複数 roadmap / 独立した複数 workflow を跨ぐ**」または「**プロジェクト全体の規範**」となる判断 | dev-workflow Step 3 (横断判断発生時) / dev-roadmap Step 1〜4 / 単発の利用                    |
-| **Roadmap mode**        | `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md` | 「**単一 roadmap 配下の複数 dev-workflow サイクルが共有**」する文脈・前提・規範                   | dev-roadmap Step 1〜4 / 配下の dev-workflow サイクル Step 3 (roadmap 文脈下で起動された場合) |
+| Mode                    | Storage location                                       | Filing decision essence                                                                                          | Main filing origins                                                                                                    |
+| ----------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **General mode**        | `docs/adr/<YYYY-MM-DD-title>.md`                       | A decision that "**spans multiple roadmaps / multiple independent workflows**" or becomes a "**project-wide norm**" | dev-workflow Step 3 (when a cross-cutting decision occurs) / dev-roadmap Step 1 to 4 / one-off use                     |
+| **Roadmap mode**        | `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md`  | Context, premises, or norms "**shared by multiple dev-workflow cycles under a single roadmap**"                  | dev-roadmap Step 1 to 4 / dev-workflow cycles under it Step 3 (when invoked under a roadmap context)                    |
 
-### モード判定フロー
+### Mode decision flow
 
-起票判定の早見表:
+A quick reference for the filing decision:
 
-```
-意思決定がサイクル内で完結するか?
-│
-├── Yes → ADR 不要 (`design.md` 内に書く / `milestones/<id>.md` 内に書く)
-│
-└── No (複数サイクル / 複数機能 / 他チームに影響) → ADR 起票
-    │
-    ├── 影響範囲が単一 roadmap 配下に閉じるか?
-    │   │
-    │   ├── Yes → **Roadmap mode** (`docs/roadmap/<roadmap-id>/adr/`)
-    │   │
-    │   └── No (複数 roadmap / roadmap 外 / プロジェクト全体)
-    │        → **General mode** (`docs/adr/`)
-    │
-    └── roadmap 文脈が存在しない (単発 dev-workflow サイクル) で
-         他の独立 workflow / プロジェクト全体に影響
-        → **General mode** (`docs/adr/`)
+```mermaid
+flowchart TD
+    Q1{"Is the decision<br/>completed within a cycle?"}
+    NoADR["ADR not needed<br/>(write inside design.md or<br/>milestones/&lt;id&gt;.md)"]
+    Q2{"Does the impact close<br/>within a single roadmap?"}
+    Q3{"Roadmap context exists?"}
+    Roadmap["**Roadmap mode**<br/>docs/roadmap/&lt;roadmap-id&gt;/adr/"]
+    General["**General mode**<br/>docs/adr/"]
+
+    Q1 -->|Yes| NoADR
+    Q1 -->|No: impacts multiple cycles<br/>or features or teams| Q3
+    Q3 -->|Yes| Q2
+    Q3 -->|No: one-off cycle,<br/>impact spans other<br/>workflows or project-wide| General
+    Q2 -->|Yes| Roadmap
+    Q2 -->|No: multiple roadmaps<br/>or outside roadmap<br/>or project-wide| General
 ```
 
-### モード別の起票対象例
+### Filing target examples per mode
 
 #### General mode (`docs/adr/`)
 
-- 「プロジェクト全体で Effect を採用する」
-- 「全サービスで gRPC をデフォルト通信規約にする」
-- 「認可レイヤを OpenFGA に統一する」
-- 「`oauth-rollout` ロードマップと `notification-platform` ロードマップで共通利用するイベントバスの規約」(複数 roadmap 跨ぎ)
-- 「dev-workflow サイクル A (検索基盤刷新) と独立して走った dev-workflow サイクル B (CDN 設定刷新) の両方が依拠するキャッシュ層分離方針」(独立サイクル跨ぎ)
-- 「pnpm workspace catalog の運用方針」「monorepo の lint / format ルールの統一」
+- "Adopt Effect across the entire project"
+- "Make gRPC the default communication convention for all services"
+- "Unify the authorization layer on OpenFGA"
+- "Convention for an event bus shared across the `oauth-rollout` roadmap and `notification-platform` roadmap" (spanning multiple roadmaps)
+- "Cache layer separation policy that both dev-workflow cycle A (search platform overhaul) and the independently-running dev-workflow cycle B (CDN configuration overhaul) rely on" (spanning independent cycles)
+- "Operating policy of pnpm workspace catalog", "Unification of monorepo lint / format rules"
 
 #### Roadmap mode (`docs/roadmap/<roadmap-id>/adr/`)
 
-- 「`oauth-rollout` 配下の全 dev-workflow サイクルが共通利用する `AuthSession` 型定義」(roadmap 内で複数サイクル跨ぎ)
-- 「`payment-modernization` ロードマップ全体で 3D Secure 2 を必須とする方針」(roadmap 共有制約)
-- 「`notification-platform` ロードマップ内で配信エラー時はリトライキューに投入する規約」(roadmap 内サイクル間共有)
-- 「`feed-platform` で feed の正準スキーマを v2 に固定し、配下の取り込み / 配信 / 検索の各サイクルが共通参照する」
+- "`AuthSession` type definition shared across all dev-workflow cycles under `oauth-rollout`" (spanning cycles within a roadmap)
+- "Policy of requiring 3D Secure 2 across the entire `payment-modernization` roadmap" (roadmap-shared constraint)
+- "Within the `notification-platform` roadmap, on delivery error enqueue to the retry queue" (shared between cycles within a roadmap)
+- "In `feed-platform`, fix the canonical schema for feeds at v2, with ingest / delivery / search cycles under it referring to it commonly"
 
-#### ADR 不要 (`design.md` 内 / `milestones/<id>.md` 内に書く)
+#### ADR not needed (write inside `design.md` / inside `milestones/<id>.md`)
 
-- 「この機能のキャッシュ戦略を LRU にする」
-- 「この API のページネーションは cursor 型」
-- 「この画面のバリデーションは zod で書く」
-- 「このマイルストーン内のリトライ間隔は exponential backoff」(マイルストーン内完結 → `milestones/<id>.md` 内に書く)
+- "Use LRU as the cache strategy for this feature"
+- "Pagination for this API is cursor-based"
+- "Write validation for this screen with zod"
+- "Retry interval inside this milestone is exponential backoff" (closes within a milestone -> write inside `milestones/<id>.md`)
 
-### Roadmap mode と General mode の昇格・降格
+### Promotion / demotion between Roadmap mode and General mode
 
-- **昇格 (Roadmap → General)**: Roadmap mode で書いた ADR が、別 roadmap や独立 workflow にも影響を波及させると判明した場合は、新規 General mode ADR を起票し、旧 Roadmap mode ADR の本文に「`Superseded by docs/adr/<新 ADR>.md`」と追記して `confirmed: true` のまま保存する (immutability principle のため、ファイル内容は書き換えず prefix 追記のみ)
-- **降格は原則不可**: General mode ADR を Roadmap mode に降格させない (適用範囲を狭めると過去参照を破壊する)
+- **Promotion (Roadmap -> General)**: If an ADR written in Roadmap mode is found to also impact other roadmaps or independent workflows, file a new General mode ADR and append "`Superseded by docs/adr/<new-ADR>.md`" to the body of the old Roadmap mode ADR while keeping `confirmed: true` (per the immutability principle, do not rewrite the file content; only prepend an addendum)
+- **Demotion is, in principle, prohibited**: Do not demote a General mode ADR to Roadmap mode (narrowing the scope of application would break past references)
 
 ---
 
-## ファイル仕様
+## File Specification
 
-### ファイル名
+### File name
 
-すべてのモードで共通:
+Common across all modes:
 
 !`echo "$(date +%Y-%m-%d)-title.md"`
 
-- 日付プレフィックス必須 (`YYYY-MM-DD`)
-- title はドメインを表す短い英数ハイフン (kebab-case 推奨)
-- 例: `2026-04-26-dev-workflow-rename-and-flatten.md` / `2026-04-29-feed-platform-canonical-schema-v2.md`
+- Date prefix is mandatory (`YYYY-MM-DD`)
+- title is a short alphanumeric hyphenated string representing the domain (kebab-case recommended)
+- Examples: `2026-04-26-dev-workflow-rename-and-flatten.md` / `2026-04-29-feed-platform-canonical-schema-v2.md`
 
 ### Frontmatter
 
-すべての ADR は以下の YAML frontmatter を持つ:
+All ADRs have the following YAML frontmatter:
 
 ```yaml
 ---
@@ -103,12 +101,12 @@ scope: general | roadmap:<roadmap-id>
 
 | Field       | Type    | Description                                                                                            |
 | ----------- | ------- | ------------------------------------------------------------------------------------------------------ |
-| `confirmed` | boolean | `true`: 確定 (原則不変) / `false`: 提案 (レビュー待ち)                                                 |
-| `scope`     | string  | `general` (= `docs/adr/` 配下) または `roadmap:<roadmap-id>` (= `docs/roadmap/<roadmap-id>/adr/` 配下) |
+| `confirmed` | boolean | `true`: confirmed (in principle immutable) / `false`: proposal (awaiting review)                        |
+| `scope`     | string  | `general` (= under `docs/adr/`) or `roadmap:<roadmap-id>` (= under `docs/roadmap/<roadmap-id>/adr/`)    |
 
-`scope` フィールドは保存場所と一致する必要があり、grep / プログラム的フィルタリングで両モードを区別するためのインデックスとして機能する。`scope` が `roadmap:<roadmap-id>` の ADR は当該 roadmap 配下の任意の dev-workflow サイクルから参照可能、`scope: general` の ADR はリポジトリ全体から参照可能。
+The `scope` field must match the storage location and serves as an index for distinguishing the two modes via grep / programmatic filtering. ADRs with `scope: roadmap:<roadmap-id>` are referenceable from any dev-workflow cycle under that roadmap, and ADRs with `scope: general` are referenceable from the entire repository.
 
-### Body 構造
+### Body structure
 
 ```markdown
 ---
@@ -116,113 +114,113 @@ confirmed: false
 scope: general
 ---
 
-# ADR: タイトル
+# ADR: Title
 
 ## Context
 
-なぜこの判断が必要かの背景。**スコープ範囲** (どの roadmap / どの workflow / どのプロジェクト規範に効くか) を明示する。
+Background of why this decision is necessary. Explicitly state the **scope range** (which roadmap / which workflow / which project-wide norm it applies to).
 
 ## Decision
 
-具体的な設計判断。テーブル設計 / API 設計 / ルート設計 / ライブラリ採否 / 方針宣言などを記述する。判断の根拠となる比較材料 (代替案 2-3 個) も簡潔に並べる。
+The specific design decision. Describe table design / API design / route design / library adoption / policy declarations, etc. Briefly list 2-3 alternatives that serve as comparative material backing the decision.
 
 ## Consequences
 
-この判断によって生じる影響範囲。
+The scope of impact arising from this decision.
 
-- 新規追加: 新しいテーブル / モジュール / ルート / 規約等
-- 既存影響: 変更が必要となる既存コード / 既存運用
-- 制約: 今後この判断を前提にすると守るべき制約
+- Newly added: new tables / modules / routes / conventions, etc.
+- Existing impact: existing code / existing operations that need to change
+- Constraints: constraints that must be observed when this decision is taken as a premise going forward
 
 ## Related
 
-関連する既存 ADR / `roadmap.md` / `milestones/<id>.md` / `design.md` などへのリンクを箇条書きで列挙 (該当なしは省略可)。
+Bullet list of links to related existing ADRs / `roadmap.md` / `milestones/<id>.md` / `design.md`, etc. (may be omitted if not applicable).
 ```
 
 ---
 
-## 運用ルール
+## Operating Rules
 
-### 1. 起票プロセス
+### 1. Filing process
 
-1. ADR の起票判定を行う (上記「モード判定フロー」)。判定が曖昧な場合は In-Progress ユーザー問い合わせ形式で確認 (一時レポート: `$TMPDIR/dev-workflow/adr-scope-decision.md` または `$TMPDIR/dev-roadmap/adr-scope-decision.md`)
-2. 保存先ディレクトリの存在確認 (なければ作成):
+1. Make the ADR filing decision (the "Mode decision flow" above). If the decision is ambiguous, confirm via the In-Progress user query format (temporary report: `$TMPDIR/dev-workflow/adr-scope-decision.md` or `$TMPDIR/dev-roadmap/adr-scope-decision.md`)
+2. Confirm the storage directory's existence (create if missing):
    - General mode: `docs/adr/`
    - Roadmap mode: `docs/roadmap/<roadmap-id>/adr/`
-3. ファイル名 `<YYYY-MM-DD>-<title>.md` を決定 (上記「ファイル名」ルール参照)
-4. 上記の Frontmatter + Body 構造に従って記述。`confirmed: false` で起票
-5. ユーザーレビューに提出 (起票元の dev-workflow / dev-roadmap ステップのゲート判定に乗せる)
-6. 承認後、`confirmed: true` に更新して同コミットで保存
+3. Determine the file name `<YYYY-MM-DD>-<title>.md` (see the "File name" rule above)
+4. Author according to the Frontmatter + Body structure above. File with `confirmed: false`
+5. Submit for user review (place it on the gate determination of the originating dev-workflow / dev-roadmap step)
+6. After approval, update to `confirmed: true` and save in the same commit
 
-### 2. 不変性の原則 (Immutability Principle)
+### 2. Immutability Principle
 
-- `confirmed: true` の ADR は原則として本文を変更しない
-- 状況変化により以前の判断を改める場合は **新規 ADR を起票し旧 ADR を Superseded として参照する** (旧 ADR 本文の変更は禁止)
-- 旧 ADR の本文末尾に `> Superseded by [新 ADR](パス)` の 1 行追記のみ容認 (`confirmed: true` のまま、scope 変更不可)
+- The body of `confirmed: true` ADRs is, in principle, not modified
+- When circumstances change and a previous decision needs to be revised, **file a new ADR and reference the old one as Superseded** (modifying the old ADR's body is prohibited)
+- Only a single-line addendum `> Superseded by [new ADR](path)` to the end of the old ADR's body is permitted (keeping `confirmed: true`, scope changes are not allowed)
 
-### 3. ADR の参照ルール
+### 3. ADR reference rules
 
-- 実装着手前に**該当する範囲の既存 ADR**を確認する:
-  - 単発 dev-workflow サイクル: `docs/adr/` 全件
-  - dev-workflow サイクル (roadmap 配下): `docs/adr/` + `docs/roadmap/<roadmap-id>/adr/` の両方
-  - dev-roadmap サイクル: `docs/adr/` + `docs/roadmap/<roadmap-id>/adr/` の両方
-- `confirmed: true` の ADR と矛盾する実装 / 設計を行わない
-- ADR を踏まえないと矛盾する判断が必要になる場合、**先に新規 ADR (または supersede ADR) を起票してから**実装に進む
+- Before starting implementation, check **existing ADRs in the relevant scope**:
+  - One-off dev-workflow cycle: all of `docs/adr/`
+  - dev-workflow cycle (under a roadmap): both `docs/adr/` + `docs/roadmap/<roadmap-id>/adr/`
+  - dev-roadmap cycle: both `docs/adr/` + `docs/roadmap/<roadmap-id>/adr/`
+- Do not perform implementation / design that contradicts a `confirmed: true` ADR
+- If a decision that contradicts an ADR becomes necessary unless that ADR is taken into account, **file a new ADR (or supersede ADR) first** before proceeding to implementation
 
-### 4. 起票元との連携
+### 4. Coordination with filing origins
 
-- **dev-workflow Step 3 (Design)**: `architect` Specialist が「サイクルを跨ぐ判断」を発見した場合、Main に報告。Main がモード判定し、`architect` (または別途 Main 判断で) が ADR を起票する。`design.md` から該当 ADR にリンク
-- **dev-workflow `progress.yaml`**: 起票した ADR のパスを `progress.yaml.artifacts.external_adrs` に記録 (General / Roadmap mode どちらも)
-- **dev-roadmap Step 1〜2 (Roadmap Intent / Milestone Decomposition)**: `roadmap-analyst` / `roadmap-planner` が roadmap 共有規範を発見した場合、Main 判断で Roadmap mode ADR を起票。`roadmap.md` / `milestones/<id>.md` から該当 ADR にリンク
-- **dev-roadmap Step 4 (Roadmap Retrospective)**: 振り返りで導出された roadmap 共有の知見が長寿命前提なら、`roadmap-retrospective-writer` が Roadmap mode ADR を提案 (Main が起票判断)
+- **dev-workflow Step 3 (Design)**: When the `architect` Specialist discovers a "decision spanning cycles", report to Main. Main makes the mode determination, and `architect` (or, separately, by Main's judgment) files the ADR. Link from `design.md` to that ADR
+- **dev-workflow `progress.yaml`**: Record the path of the filed ADR in `progress.yaml.artifacts.external_adrs` (for both General / Roadmap mode)
+- **dev-roadmap Step 1 to 2 (Roadmap Intent / Milestone Decomposition)**: When `roadmap-analyst` / `roadmap-planner` discovers a roadmap-shared norm, file a Roadmap mode ADR per Main's judgment. Link from `roadmap.md` / `milestones/<id>.md` to that ADR
+- **dev-roadmap Step 4 (Roadmap Retrospective)**: If a roadmap-shared insight derived in the retrospective is a long-lived premise, `roadmap-retrospective-writer` proposes a Roadmap mode ADR (Main makes the filing decision)
 
-### 5. retrospective との役割分担
+### 5. Division of role with retrospective
 
-|          | ADR                                                 | retrospective.md / roadmap-retrospective.md |
-| -------- | --------------------------------------------------- | ------------------------------------------- |
-| 永続性   | 永続 (`confirmed: true` で不変)                     | 揮発 (次サイクルが改善案を消化したら削除)   |
-| 内容     | 判断と帰結 (Decision + Consequences)                | 振り返り (良かった点 / 課題 / 次回改善案)   |
-| スコープ | 複数サイクル / roadmap / プロジェクト全体に効く規範 | 1 サイクル / 1 roadmap の自己評価           |
-| 保存場所 | `docs/adr/` または `docs/roadmap/<roadmap-id>/adr/` | `docs/retrospective/` (集約)                |
+|              | ADR                                                  | retrospective.md / roadmap-retrospective.md         |
+| ------------ | ---------------------------------------------------- | --------------------------------------------------- |
+| Persistence  | Persistent (immutable when `confirmed: true`)        | Volatile (deleted once the next cycle digests it)   |
+| Content      | Decisions and consequences (Decision + Consequences) | Reflection (good points / issues / next improvements) |
+| Scope        | Norms affecting multiple cycles / roadmap / project-wide | Self-evaluation of 1 cycle / 1 roadmap          |
+| Storage      | `docs/adr/` or `docs/roadmap/<roadmap-id>/adr/`      | `docs/retrospective/` (aggregated)                  |
 
-retrospective で導出された改善案のうち**永続記録すべき判断**は、retrospective を消化する際に ADR に切り出す。
+Among the improvement proposals derived in retrospective, **decisions that should be permanently recorded** are extracted into ADRs when the retrospective is digested.
 
 ---
 
-## ディレクトリレイアウト
+## Directory Layout
 
 ```
 docs/
-├── adr/                                       # General mode (cross-roadmap / cross-workflow / project-wide)
-│   ├── <YYYY-MM-DD>-<title>.md
-│   └── ...
-├── roadmap/
-│   └── <roadmap-id>/
-│       ├── roadmap.md
-│       ├── milestones/<milestone-id>.md
-│       ├── roadmap-progress.yaml
-│       └── adr/                               # Roadmap mode (within single roadmap, across cycles)
-│           ├── <YYYY-MM-DD>-<title>.md
-│           └── ...
-├── workflow/
-│   └── <identifier>/
-│       └── ...                                # dev-workflow cycle artifacts (does NOT host ADRs directly)
-└── retrospective/
-    ├── <identifier>.md                        # dev-workflow retrospective (volatile)
-    └── roadmap-<roadmap-id>.md                # dev-roadmap retrospective (volatile, prefix 衝突回避)
+|-- adr/                                       # General mode (cross-roadmap / cross-workflow / project-wide)
+|   |-- <YYYY-MM-DD>-<title>.md
+|   |-- ...
+|-- roadmap/
+|   |-- <roadmap-id>/
+|       |-- roadmap.md
+|       |-- milestones/<milestone-id>.md
+|       |-- roadmap-progress.yaml
+|       |-- adr/                               # Roadmap mode (within single roadmap, across cycles)
+|           |-- <YYYY-MM-DD>-<title>.md
+|           |-- ...
+|-- workflow/
+|   |-- <identifier>/
+|       |-- ...                                # dev-workflow cycle artifacts (does NOT host ADRs directly)
+|-- retrospective/
+    |-- <identifier>.md                        # dev-workflow retrospective (volatile)
+    |-- roadmap-<roadmap-id>.md                # dev-roadmap retrospective (volatile, prefix avoids collision)
 ```
 
-- `docs/workflow/<identifier>/` 配下には ADR を置かない (サイクル固有の判断は `design.md` 内に書く)
-- `docs/roadmap/<roadmap-id>/` 配下に `adr/` サブディレクトリを置くのは Roadmap mode のため。Step 1 / 2 着手時に必要に応じて作成 (起票発生時に都度作成可、空でコミットしない)
+- Do not place ADRs under `docs/workflow/<identifier>/` (cycle-specific decisions are written inside `design.md`)
+- Placing an `adr/` subdirectory under `docs/roadmap/<roadmap-id>/` is for Roadmap mode. Create as needed when starting Step 1 / 2 (may be created on demand at filing time; do not commit empty directories)
 
 ---
 
-## このスキルが扱わないこと
+## What This Skill Does NOT Cover
 
-- 単一サイクル内で完結する設計判断 → `design.md` 内に書く (`share-artifacts/references/design.md`)
-- マイルストーン内で完結する方針 → `milestones/<id>.md` 内に書く
-- 議事録・メモ書き → 該当スキルなし (本リポジトリの慣行に従う)
-- Retrospective (揮発レポート) → `docs/retrospective/<identifier>.md` または `docs/retrospective/roadmap-<roadmap-id>.md` (`share-artifacts/references/retrospective.md` / `roadmap-retrospective.md`)
-- Roadmap Intent そのもの → `roadmap.md` (`share-artifacts/references/roadmap.md`)
-- CHANGELOG / リリースノート → 該当スキルなし
-- ADR を「設計ドキュメントの代替」として乱発すること (1 サイクル内で 5 個以上書きそうなら粒度が間違っている可能性が高く、`design.md` への統合を検討する)
+- Design decisions completed within a single cycle -> write inside `design.md` (`share-artifacts/references/design.md`)
+- Direction completed within a milestone -> write inside `milestones/<id>.md`
+- Meeting notes / memos -> no corresponding skill (follow this repository's conventions)
+- Retrospective (volatile report) -> `docs/retrospective/<identifier>.md` or `docs/retrospective/roadmap-<roadmap-id>.md` (`share-artifacts/references/retrospective.md` / `roadmap-retrospective.md`)
+- Roadmap Intent itself -> `roadmap.md` (`share-artifacts/references/roadmap.md`)
+- CHANGELOG / release notes -> no corresponding skill
+- Overusing ADR as a "substitute for design documents" (if it looks like 5 or more ADRs would be written within a single cycle, the granularity is likely wrong; consider integrating into `design.md`)

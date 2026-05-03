@@ -1,80 +1,80 @@
-# Reference: `roadmap.md` の書き方
+# Reference: How to write `roadmap.md`
 
-## 目的
+## Purpose
 
-複数の `dev-workflow` サイクルにまたがる**戦略層の合意文書**を作成する。1 サイクルの `dev-workflow` では収まらない大規模開発に対し、(i) ロードマップ全体の世界観・スコープ境界、(ii) 観測可能なマイルストーンへの分解、(iii) マイルストーン間の依存関係、を一元的に記録する。配下の各 `dev-workflow` サイクルはこの文書を入力として、自身の Intent Spec を起草する。
+Create **a strategic-layer agreement document spanning multiple `dev-workflow` cycles**. For large-scale development that does not fit in a single `dev-workflow` cycle, record in one place: (i) the worldview and scope boundary of the entire roadmap, (ii) decomposition into observable milestones, and (iii) the dependency relationships between milestones. Each underlying `dev-workflow` cycle drafts its own Intent Spec using this document as input.
 
-`roadmap.md` の品質がロードマップ全体の認知負荷を決めるため、戦略 (何を / どの順で / なぜ) と戦術 (どう作る / どう検証する) の責務分離を明示することが本ドキュメントの最大の役割である。
+The quality of `roadmap.md` determines the cognitive load on the entire roadmap, so making explicit the responsibility separation between strategy (what / in what order / why) and tactics (how to build / how to verify) is the largest role of this document.
 
-## 作成者 / 作成タイミング
+## Author / creation timing
 
-- **作成者:**
-  - Step 1 (Roadmap Intent): `roadmap-analyst` Specialist が背景・目的・スコープ境界・大局的制約・関連リンク・未解決事項のセクションを起草
-  - Step 2 (Milestone Decomposition): `roadmap-planner` Specialist が「マイルストーン一覧」テーブルと「依存グラフ」Mermaid を追記
-- **承認:** Step 1 / Step 2 それぞれの完了時にユーザー承認必須 (Artifact-as-Gate-Review)
+- **Author:**
+  - Step 1 (Roadmap Intent): the `roadmap-analyst` Specialist drafts the background, purpose, scope boundary, macro constraints, related links, and open questions sections
+  - Step 2 (Milestone Decomposition): the `roadmap-planner` Specialist appends the "Milestone list" table and the "Dependency graph" Mermaid
+- **Approval:** user approval is required at the completion of each of Step 1 / Step 2 (Artifact-as-Gate-Review)
 
-## ファイル位置
+## File location
 
 `docs/roadmap/<roadmap-id>/roadmap.md`
 
-`docs/workflow/<identifier>/` (= `dev-workflow` 作業ディレクトリ) と**並列配置**。両者は ID 文字列 (`<roadmap-id>` と `<identifier>`) のみで疎結合に接続する。
+Placed **in parallel** with `docs/workflow/<identifier>/` (= the `dev-workflow` working directory). The two are loosely coupled solely via the ID strings (`<roadmap-id>` and `<identifier>`).
 
-## 各セクションの書き方
+## How to write each section
 
-### 背景
+### Background
 
-なぜ今このロードマップが必要か。**「単一の `dev-workflow` サイクルでは収まらない理由」を必ず示す**こと。例: 「対象モジュールが 5 つあり、各々独立して設計・実装・検証が必要」「3 ヶ月にわたる段階的リプレースのため」「複数の能力獲得を順序立てて積み上げる必要があるため」。単一サイクルで完結する規模であれば `dev-workflow` を直接使うべきであり、そもそも roadmap は不要。
+Why this roadmap is necessary now. **Always state the reason "why a single `dev-workflow` cycle does not suffice"**. Examples: "There are 5 target modules, each requiring independent design / implementation / verification", "Because of a phased replacement spanning 3 months", "Because multiple capabilities must be built up in order". If the scale is contained in a single cycle, `dev-workflow` should be used directly, and a roadmap is unnecessary in the first place.
 
-### 目的
+### Purpose
 
-1〜3 文で**定性的な到達点**を記述する。**観測可能な成功基準は roadmap 自身が持たない** (`dev-roadmap` スキル全体の非スコープ): 計測手段の特定は配下の各 `dev-workflow` サイクルの `intent-spec.md` の責務である。
+Describe **the qualitative goal** in 1-3 sentences. **The roadmap itself does not carry observable success criteria** (the non-scope of the entire `dev-roadmap` skill): identifying measurement methods is the responsibility of the `intent-spec.md` of each underlying `dev-workflow` cycle.
 
-| ✅ よい (定性的到達点)                               | ❌ 悪い (観測手段が必要な記述)                     |
-| ---------------------------------------------------- | -------------------------------------------------- |
-| OAuth 認証が本番運用可能な状態になっている           | OAuth 認証で 95% のユーザーが 200ms 以内にログイン |
-| 決済基盤の段階的リプレースが完了している             | 決済 API の p99 が 100ms 未満になっている          |
-| 新規データ基盤上で全分析クエリが実行可能になっている | クエリの平均実行時間が現行比 50% 短縮              |
+| Good (qualitative goal)                                  | Bad (description requiring measurement)                 |
+| -------------------------------------------------------- | ------------------------------------------------------- |
+| OAuth authentication is in production-ready state        | 95% of users log in within 200ms via OAuth authentication |
+| The phased replacement of the payment platform is complete | The payment API p99 is below 100ms                     |
+| All analytics queries can run on the new data platform   | The average query execution time is reduced by 50% from current |
 
-右列に書きたい内容がある場合は、それを実現する個別マイルストーンの `dev-workflow` サイクルが起動された段階でその Intent Spec に記述する。
+If you have something to write in the right column, it should be described in the Intent Spec of the individual milestone's `dev-workflow` cycle once that cycle is launched.
 
-### スコープ境界 / 非スコープ
+### Scope boundary / non-scope
 
-- スコープ境界: ロードマップ全体で扱う領域 (モジュール群、機能群、対象ユーザー、対象環境)
-- 非スコープ: 意図的に扱わない領域
+- Scope boundary: the area covered by the entire roadmap (set of modules, set of features, target users, target environments)
+- Non-scope: areas intentionally not handled
 
-**非スコープを書かないと、配下サイクル群を追加する過程でスコープが暗黙に広がる。必ず書く。** ただし、`dev-roadmap` スキル全体の非スコープ事項 (roadmap-of-roadmaps、観測可能な成功基準を roadmap に持たせること等) は dev-roadmap/SKILL.md 側に書かれているため、本文書では再掲不要。
+**If you do not write the non-scope, the scope will silently expand as you add underlying cycles. Always write it.** However, items that are non-scope of the entire `dev-roadmap` skill (roadmap-of-roadmaps, having observable success criteria on the roadmap, etc.) are written in dev-roadmap/SKILL.md, so do not restate them in this document.
 
-### 大局的制約
+### Macro constraints
 
-**複数サイクルを横断して効く制約のみ**を書く。個別サイクル内で完結する制約は配下サイクルの Intent Spec の責務。3 カテゴリ (技術 / 組織 / 規範) を意識する。
+Write **only constraints that apply across multiple cycles**. Constraints concluded within an individual cycle are the responsibility of that cycle's Intent Spec. Be aware of the 3 categories (technical / organizational / normative).
 
-- 技術的制約: 共有インフラ、横断的に使う言語・フレームワーク、互換性要件
-- 組織的制約: ロードマップ完了期限、サイクル並行起動数の上限、人員配分の前提
-- 規範的制約: セキュリティ・コンプライアンス・既存 ADR (`docs/adr/` の General mode、また本 roadmap 配下に既に Roadmap mode ADR がある場合は `docs/roadmap/<roadmap-id>/adr/`)・上位プロダクト方針
+- Technical constraints: shared infrastructure, languages / frameworks used cross-cuttingly, compatibility requirements
+- Organizational constraints: roadmap completion deadline, upper limit on concurrent cycle launches, premise of resource allocation
+- Normative constraints: security, compliance, existing ADRs (General mode in `docs/adr/`, or `docs/roadmap/<roadmap-id>/adr/` if Roadmap mode ADRs already exist under this roadmap), upper-product policies
 
-### マイルストーン一覧
+### Milestone list
 
-**Step 2 で `roadmap-planner` が確定するセクション**。Step 1 では空テーブルまたは `{{プレースホルダ}}` のままでよい。
+**The section confirmed by `roadmap-planner` in Step 2.** In Step 1, an empty table or `{{placeholder}}` is fine.
 
-各行は 1 マイルストーンを表し、列は最低でも以下を含む:
+Each row represents one milestone and columns include at minimum:
 
-- `ID`: `<milestone-id>` (kebab-case 推奨、例: `ms-01-foundation`)
-- `タイトル`: 短い説明 (1 行)
-- `想定 dev-workflow サイクル数`: 1:1 が推奨だが 1:N も許容する (1:N の根拠は当該マイルストーンの `milestones/<milestone-id>.md` に書く)
-- `依存マイルストーン`: 依存先 ID のカンマ区切り、起点なら空
-- `詳細`: 対応する `milestones/<milestone-id>.md` への相対リンク
+- `ID`: `<milestone-id>` (kebab-case recommended, e.g. `ms-01-foundation`)
+- `Title`: short description (1 line)
+- `Anticipated dev-workflow cycle count`: 1:1 recommended, 1:N also allowed (the rationale for 1:N is written in the corresponding `milestones/<milestone-id>.md`)
+- `Dependent milestones`: comma-separated dependency IDs, empty if a starting milestone
+- `Details`: a relative link to the corresponding `milestones/<milestone-id>.md`
 
-詳細は 1 マイルストーン = 1 ファイルの形で `milestones/<milestone-id>.md` に切り出すこと。詳細を `roadmap.md` に直接書かないことで、依存追加・分割・削除時の差分を局所化できる。
+Carve out details in the form of 1 milestone = 1 file under `milestones/<milestone-id>.md`. By not writing details directly in `roadmap.md`, diffs when adding / splitting / deleting dependencies remain localized.
 
-### 依存グラフ
+### Dependency graph
 
-Mermaid **`graph LR`** を採用する。
+Adopt the Mermaid **`graph LR`**.
 
-- `task-plan.md` 等の既存パターンと表記を揃える (`flowchart LR` ではなく `graph LR`)
-- 追加レンダラに依存しない (GitHub 標準レンダラで完結)
-- ノード数は **15〜20 を推奨上限**とする。それを超える場合はフェーズや責務領域でグラフを分割する
+- Aligned with existing patterns such as `task-plan.md` (`graph LR` rather than `flowchart LR`)
+- Does not depend on additional renderers (works with the standard GitHub renderer)
+- The recommended upper limit for nodes is **15-20**. If exceeded, split the graph by phase or area of responsibility
 
-例:
+Example:
 
 ```mermaid
 graph LR
@@ -88,41 +88,41 @@ graph LR
   ms-03 --> ms-04
 ```
 
-DAG (有向非巡回グラフ) を保つこと。サイクル検知の Lint ツールは導入しないが、起票時に `roadmap-planner` および承認時にユーザーが目視で確認する。
+Maintain a DAG (directed acyclic graph). No cycle-detection lint tool is introduced, but `roadmap-planner` at filing time and the user at approval time confirm visually.
 
-### 関連リンク / 未解決事項
+### Related links / open questions
 
-- 関連リンク: 関連 ADR、Issue、上位プロダクト計画書、関係する既存サイクル (`docs/workflow/<identifier>/`)
-- 未解決事項: 戦略レベルで残った論点。**配下の `dev-workflow` サイクルが Step 1〜2 で扱う論点はここに書かない** (それは戦術層の責務)。
+- Related links: related ADRs, Issues, upper-product plans, related existing cycles (`docs/workflow/<identifier>/`)
+- Open questions: strategic-level points left open. **Do not write here points to be handled by the underlying `dev-workflow` cycles in Steps 1-2** (those are the responsibility of the tactical layer).
 
-## 説明性の確保
+## Ensuring explanatory power
 
-本ドキュメントを読んだ Main / ユーザーが、任意のゴールを入力としてマイルストーン分解と各マイルストーンの定性的到達点・依存関係を抽出する手順を、追加情報なしに再現できる必要がある。`roadmap.md` を書くときは以下を満たすことで説明性を確保する:
+Anyone (Main / user) reading this document must be able to take any goal as input and reproduce, without additional information, the procedure for decomposing into milestones and extracting the qualitative goals and dependency relationships of each milestone. When writing `roadmap.md`, ensure explanatory power by satisfying:
 
-1. **目的セクションが定性的到達点として書かれている**: そこから逆算してマイルストーンを切り出せる
-2. **スコープ境界 / 非スコープが排他的かつ網羅的**: マイルストーン候補集合の境界が一意に決まる
-3. **依存グラフが DAG**: 起点候補と最終マイルストーン候補が一目で分かる
-4. **マイルストーン一覧の粒度**: 単一サイクルでは扱えない規模を意図して roadmap を起こしている前提なので、複数のマイルストーンに分解できることを示す
+1. **Purpose section is written as a qualitative goal**: milestones can be carved out by reasoning backward from it
+2. **Scope boundary / non-scope is exclusive and exhaustive**: the boundary of the milestone candidate set is uniquely determined
+3. **The dependency graph is a DAG**: starting candidates and final milestone candidates can be seen at a glance
+4. **Granularity of the milestone list**: since the premise is that the roadmap is started for a scale that cannot be handled in a single cycle, show that decomposition into multiple milestones is possible
 
-これらを満たさない `roadmap.md` は Step 2 ユーザー承認ゲートで差し戻される可能性がある。
+A `roadmap.md` not satisfying these may be sent back at the Step 2 user approval gate.
 
-## 品質基準
+## Quality criteria
 
-| ✅ よい                                          | ❌ 悪い                                              |
-| ------------------------------------------------ | ---------------------------------------------------- |
-| 目的が定性的到達点として書かれている             | 目的に観測可能基準が混入している (workflow の責務)   |
-| 単一サイクルで収まらない理由が背景に書かれている | 単一サイクルで収まる規模なのに roadmap を作っている  |
-| マイルストーン一覧と依存グラフが一致している     | 一覧にあるのに依存グラフに無い、またはその逆         |
-| Mermaid が `graph LR` で書かれ、ノード数 ≤ 20    | `flowchart LR` 表記、または巨大グラフを 1 枚に詰込み |
-| 大局的制約が「複数サイクル横断のもの」だけ       | 個別サイクルの制約まで書き込んで戦術層に侵食している |
-| 非スコープが明示されている                       | スコープのみで境界が曖昧                             |
+| Good                                              | Bad                                                       |
+| ------------------------------------------------- | --------------------------------------------------------- |
+| Purpose is written as a qualitative goal          | Observable criteria are mixed into the purpose (workflow's responsibility) |
+| The reason it does not fit a single cycle is in the background | A roadmap is created for a scale that fits a single cycle |
+| The milestone list and the dependency graph match | An entry is in the list but not in the graph, or vice versa |
+| Mermaid is `graph LR` with ≤ 20 nodes             | `flowchart LR` notation, or a giant graph crammed into one |
+| Macro constraints are only "cross-cycle"          | Includes individual cycle constraints, encroaching on the tactical layer |
+| Non-scope is explicit                             | Only scope, with ambiguous boundary                       |
 
-## 関連成果物
+## Related artifacts
 
-- **入力なし** (Step 1 はユーザー対話から起票)
-- **後続成果物の前提:**
-  - `milestones/<milestone-id>.md` (Step 2 で `roadmap-planner` が分解)
-  - `roadmap-progress.yaml` (Step 1 で初期化、Step 2 で `milestones[]` 確定、Step 3 で配下 `dev-workflow` サイクルが自律更新)
-  - 配下の各 `dev-workflow` サイクルの `intent-spec.md` (本文書を入力として起草される)
-- **変更時の影響:** 一旦確定したマイルストーン依存は配下サイクル進行中に変更しないことを推奨。変更が必要な場合は roadmap Step 2 への回帰と等価。
-- **関連:** `references/milestone.md` (1 マイルストーン定義の書き方)、`references/roadmap-progress-yaml.md` (進捗管理 yaml の書き方)、`references/roadmap-retrospective.md` (ロードマップ全体の振り返りの書き方)
+- **No input** (Step 1 starts from user dialogue)
+- **Premise for downstream artifacts:**
+  - `milestones/<milestone-id>.md` (decomposed by `roadmap-planner` in Step 2)
+  - `roadmap-progress.yaml` (initialized in Step 1, `milestones[]` confirmed in Step 2, autonomously updated by underlying `dev-workflow` cycles in Step 3)
+  - The `intent-spec.md` of each underlying `dev-workflow` cycle (drafted with this document as input)
+- **Impact when changed:** confirmed milestone dependencies are recommended not to be changed during underlying cycle progression. If a change is necessary, this is equivalent to regressing back to roadmap Step 2.
+- **Related:** `references/milestone.md` (how to write a single milestone definition), `references/roadmap-progress-yaml.md` (how to write the progress management yaml), `references/roadmap-retrospective.md` (how to write the reflection on the entire roadmap)
