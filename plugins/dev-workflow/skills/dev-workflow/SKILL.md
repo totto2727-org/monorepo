@@ -777,7 +777,7 @@ docs(dev-workflow/<identifier>): close cycle with retrospective
 
 ### PR 概要更新と CI 確認への参照
 
-PR 概要更新および CI 確認 (各ステップ完了コミットの最終 CI が PASS している旨は各 Step Exit Criteria 参照、リトライ規律と Blocker 化は本セクションの後に続く) の運用は「## サイクル PR と CI 連携プロトコル」を参照。
+PR 概要更新および CI 確認 (リトライ規律・Blocker 化を含む) の運用ルールは「## サイクル PR と CI 連携プロトコル」を参照。各ステップ完了コミットの最終 CI が PASS している旨は各 Step Exit Criteria にも明記されている。
 
 ---
 
@@ -785,9 +785,11 @@ PR 概要更新および CI 確認 (各ステップ完了コミットの最終 C
 
 各サイクルは **GitHub 上のサイクル PR (Draft → Ready)** と **バックグラウンド CI 確認** を伴う。本セクションはその運用規約を 5 ルールに分けて定義する。Single-Source-of-Progress 原則に従い、進捗の真のソースは引き続き `progress.yaml` / `TODO.md` であり、**PR 概要 (PR description) はそれらから派生する外部公開ビュー**として位置づける。
 
-**責任所在:** PR / CI に関する write 系 `gh` コマンド (`gh pr create` / `gh pr edit` / `gh pr ready` / `gh run rerun` など) は **Main が単独で実行する**。Specialist は read 系 (`gh pr view --json` / `gh pr list --json` / `gh run list --json` など) のみ使用してよい。詳細は `specialist-common` §7 参照。
+**責任所在:** PR / CI に関する write 系 `gh` コマンド (`gh pr create` / `gh pr edit` / `gh pr ready` / `gh run rerun` など) は **Main が単独で実行する**。Specialist は read 系 (`gh pr view --json` / `gh pr list --json` / `gh run list --json` / `gh run view --json` など) のみ使用してよい。詳細は `specialist-common` §7 参照。
 
 **スコープ住み分け:** 本プロトコルは「既存の CI ワークフロー (`.github/workflows/*.yaml`) の **結果を読んで完了基準に組み込む**」ことのみを規定する。CI ワークフロー定義そのものの設計・改修は本ワークフロー外 (CI/CD パイプライン設計の領域)。
+
+**適用範囲:** 本プロトコルは**新規サイクル**(本プロトコル成立後に開始されるサイクル)に対して適用する。既に進行中・完了済みのサイクルへの遡及適用は行わない (過去サイクルの Exit Criteria に CI PASS 行が無いことは違反扱いとしない)。
 
 ### Draft PR 初期化 (サイクル開始時)
 
@@ -964,7 +966,7 @@ fi
 
 Ready 化のタイミングは Step 9 (Retrospective) コミット以降であることが必須 (`gh pr view --json` の `readyForReviewAt` 不在の場合は timeline の `event: ready_for_review` で確認)。
 
-### PR description は GitHub のみで永続化 (リポジトリ内に置かない)
+### PR description の永続化先 (GitHub のみ・リポジトリ内非永続)
 
 PR 概要 (PR description) は **GitHub の PR body にのみ永続化**し、リポジトリ内には **永続ファイルを作らない**。これは Single-Source-of-Progress 原則 (進捗の真のソースは `progress.yaml` / `TODO.md`) と整合する設計判断であり、`docs/workflow/<identifier>/pr-overview.md` のような派生表現の永続ファイルは禁止。
 

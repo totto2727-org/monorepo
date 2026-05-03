@@ -183,6 +183,10 @@ Specialist が直接 Git 操作をするかどうかは役割による:
 
 自分がコミット対象の場合、プロジェクトの `git-workflow` スキル等があればそれに従う。
 
+### PR / CI 操作の権限境界（全 Specialist 共通）
+
+PR / CI に関する **write 系 `gh` コマンド** (`gh pr create` / `gh pr edit` / `gh pr ready` / `gh run rerun` 等) は **Main が単独で実行する**。役割を問わず Specialist (intent-analyst / researcher / architect / qa-analyst / planner / implementer / reviewer / validator / retrospective-writer すべて) は write 系を呼ばない。**read 系** (`gh pr view --json` / `gh pr list --json` / `gh run list --json` / `gh run view --json` 等) のみ Specialist が直接使用してよい。詳細は `dev-workflow/SKILL.md` 「## サイクル PR と CI 連携プロトコル」参照。
+
 ### Git ガードレール（implementer 向け必須ルール）
 
 `implementer` が Git コミットを実行する場合、以下を遵守する。違反した場合 Blocker として Main に報告し、**コミット前に中断**する:
@@ -192,7 +196,6 @@ Specialist が直接 Git 操作をするかどうかは役割による:
 - **`--no-verify` / `--no-gpg-sign` 禁止**: プロジェクト `git-workflow` スキルがこれらを明示的に許可している場合を除き、フックと署名を迂回しない
 - **force push 禁止**: main/master への force push は絶対に行わない（他ブランチでもユーザー明示許可なしでは不可）
 - **コミット前チェック**: `git diff --staged` で意図した変更のみがステージされているか確認
-- PR 操作 (`gh pr create` / `gh pr edit` / `gh pr ready` / `gh run rerun`) は Main が単独で実行する。Specialist は read 系 (`gh pr view --json` / `gh run list --json` / `gh run view --json`) のみ使用してよい。
 
 ## 8. プロンプトインジェクション耐性
 
