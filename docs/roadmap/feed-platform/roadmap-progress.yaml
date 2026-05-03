@@ -9,10 +9,85 @@
 
 roadmap_id: feed-platform
 title: Pluggable Multi-Source Feed Platform
-status: planned
+status: active
 created_at: 2026-05-02T13:29:59Z
-updated_at: 2026-05-03T04:00:00Z
+updated_at: 2026-05-04T00:00:00Z
 
-# マイルストーン一覧。Step 2 (Milestone Decomposition) で `roadmap-planner` が確定する。
-# Step 1 段階では空配列で固定 (本ステップではマイルストーンを確定しない)。
-milestones: []
+# マイルストーン一覧。Step 2 (Milestone Decomposition) で `roadmap-planner` が確定。
+# 確定後の `id` / `title` / `depends_on` は immutable (Step 3 中の並行 workflow サイクルは触らない)。
+milestones:
+  - id: ms-01-workspace-foundation
+    title: Workspace Foundation
+    status: planned
+    depends_on: []
+    workflow_identifiers: []
+    notes: null
+  - id: ms-02-auth-passkey-magiclink
+    title: Auth — Passkey + Magic Link 認証
+    status: planned
+    depends_on:
+      - ms-01-workspace-foundation
+    workflow_identifiers: []
+    notes: null
+  - id: ms-03-auth-rbac-organization
+    title: Auth — RBAC + Organization
+    status: planned
+    depends_on:
+      - ms-02-auth-passkey-magiclink
+    workflow_identifiers: []
+    notes: null
+  - id: ms-04-auth-shared-access
+    title: Auth — 期間限定共有
+    status: planned
+    depends_on:
+      - ms-03-auth-rbac-organization
+    workflow_identifiers: []
+    notes: null
+  - id: ms-05-persistence-event-store
+    title: Persistence — Event Store + CQRS Skeleton + Plugin Contracts
+    status: planned
+    depends_on:
+      - ms-01-workspace-foundation
+    workflow_identifiers: []
+    notes: null
+  - id: ms-06-input-plugin-platform
+    title: Input Plugin Platform
+    status: planned
+    depends_on:
+      - ms-03-auth-rbac-organization
+      - ms-05-persistence-event-store
+    workflow_identifiers: []
+    notes: null
+  - id: ms-07-output-plugin-platform
+    title: Output Plugin Platform
+    status: planned
+    depends_on:
+      - ms-03-auth-rbac-organization
+      - ms-05-persistence-event-store
+    workflow_identifiers: []
+    notes: null
+  - id: ms-08-scheduler-platform
+    title: Scheduler Platform
+    status: planned
+    depends_on:
+      - ms-06-input-plugin-platform
+    workflow_identifiers: []
+    notes: null
+  - id: ms-09-ai-summary
+    title: AI Summary
+    status: planned
+    depends_on:
+      - ms-05-persistence-event-store
+      - ms-07-output-plugin-platform
+      - ms-08-scheduler-platform
+    workflow_identifiers: []
+    notes: null
+  - id: ms-10-integration-verification
+    title: Integration Verification (最終統合検証)
+    status: planned
+    depends_on:
+      - ms-04-auth-shared-access
+      - ms-08-scheduler-platform
+      - ms-09-ai-summary
+    workflow_identifiers: []
+    notes: null

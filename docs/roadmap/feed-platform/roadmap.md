@@ -3,8 +3,8 @@
 - **Roadmap ID:** feed-platform
 - **Author:** totto2727 (roadmap-analyst 役割を Main が代行)
 - **Created at:** 2026-05-02T13:29:59Z
-- **Last updated:** 2026-05-03T01:00:00Z
-- **Status:** planned <!-- planned | active | completed (`roadmap-progress.yaml.status` と一致させる) -->
+- **Last updated:** 2026-05-04T00:00:00Z
+- **Status:** active <!-- planned | active | completed (`roadmap-progress.yaml.status` と一致させる) -->
 
 このドキュメントは `dev-roadmap` の **Step 1 (Roadmap Intent)** で起草され、**Step 2 (Milestone Decomposition)** でマイルストーン一覧と依存グラフが追記されて確定する**戦略層の不変な計画書**。1 サイクルの `dev-workflow` では収まらない複数サイクル規模の開発を束ねる。書き方の詳細は `shared-artifacts/references/roadmap.md` を参照。
 
@@ -81,26 +81,74 @@
 
 ## マイルストーン一覧
 
-<!-- Step 2 (Milestone Decomposition) で `roadmap-planner` が確定するセクション。Step 1 段階では未確定 placeholder。 -->
+`dev-roadmap` Step 2 (Milestone Decomposition) にて `roadmap-planner` が確定。各マイルストーンの詳細は `milestones/<milestone-id>.md` を参照。粒度判断の根拠は本セクション末尾の「分解粒度の根拠」を参照。
 
-| ID                 | タイトル              | 想定 dev-workflow サイクル数 | 依存マイルストーン         | 詳細                               |
-| ------------------ | --------------------- | ---------------------------- | -------------------------- | ---------------------------------- |
-| {{milestone_1_id}} | {{milestone_1_title}} | {{milestone_1_cycle_count}}  | {{milestone_1_depends_on}} | `milestones/{{milestone_1_id}}.md` |
-| {{milestone_2_id}} | {{milestone_2_title}} | {{milestone_2_cycle_count}}  | {{milestone_2_depends_on}} | `milestones/{{milestone_2_id}}.md` |
-| {{milestone_3_id}} | {{milestone_3_title}} | {{milestone_3_cycle_count}}  | {{milestone_3_depends_on}} | `milestones/{{milestone_3_id}}.md` |
+| ID                            | タイトル                                            | 想定 dev-workflow サイクル数 | 依存マイルストーン              | 詳細                                            |
+| ----------------------------- | --------------------------------------------------- | ---------------------------- | ------------------------------- | ----------------------------------------------- |
+| ms-01-workspace-foundation    | Workspace Foundation                                | 1                            | (なし)                          | `milestones/ms-01-workspace-foundation.md`      |
+| ms-02-auth-passkey-magiclink  | Auth — Passkey + Magic Link 認証                    | 1                            | ms-01                           | `milestones/ms-02-auth-passkey-magiclink.md`    |
+| ms-03-auth-rbac-organization  | Auth — RBAC + Organization                          | 1                            | ms-02                           | `milestones/ms-03-auth-rbac-organization.md`    |
+| ms-04-auth-shared-access      | Auth — 期間限定共有                                 | 1                            | ms-03                           | `milestones/ms-04-auth-shared-access.md`        |
+| ms-05-persistence-event-store | Persistence — Event Store + CQRS + Plugin Contracts | 1〜2                         | ms-01                           | `milestones/ms-05-persistence-event-store.md`   |
+| ms-06-input-plugin-platform   | Input Plugin Platform                               | 1                            | ms-03, ms-05                    | `milestones/ms-06-input-plugin-platform.md`     |
+| ms-07-output-plugin-platform  | Output Plugin Platform                              | 1                            | ms-03, ms-05                    | `milestones/ms-07-output-plugin-platform.md`    |
+| ms-08-scheduler-platform      | Scheduler Platform                                  | 1                            | ms-06                           | `milestones/ms-08-scheduler-platform.md`        |
+| ms-09-ai-summary              | AI Summary                                          | 1                            | ms-05, ms-07, ms-08             | `milestones/ms-09-ai-summary.md`                |
+| ms-10-integration-verification| Integration Verification (最終統合検証)             | 1                            | ms-04, ms-08, ms-09             | `milestones/ms-10-integration-verification.md`  |
 
-(Step 2 完了時に上記表が確定する。スコープ境界に列挙した 6 領域がマイルストーン候補として展開される予定だが、領域内分割や複数領域統合の判断は `roadmap-planner` の責務)
+### 分解粒度の根拠
+
+- **6 領域 → 10 マイルストーン**: Intent スコープ境界の 6 領域 (認証認可 / 永続化 / 入力プラグイン / 出力プラグイン / 定期実行 / AI 要約) のうち、認証認可は単一サイクルでは過大 (Intent 未解決事項記載) のため 3 マイルストーンに分割 (Passkey + Magic Link / RBAC + Organization / 期間限定共有)。永続化を 1 マイルストーン、入出力プラグインを各 1 マイルストーンずつ、定期実行と AI 要約を各 1 マイルストーンとし、最後にロードマップ全体の統合検証マイルストーンを配置 (合計 10)
+- **永続化と入出力プラグイン契約の境界面 (Intent 未解決事項)**: 永続化マイルストーン (`ms-05`) 内で入出力プラグイン契約スケルトン (interface のみ) を先行確定する方針を採用。これにより `ms-06` / `ms-07` は「契約準拠 + 1 つの参照アダプタ実装」に専念可能となり単一サイクル粒度に収まる
+- **採用ワークスペース確定 (Intent 未解決事項)**: 全領域共通の前提のため、最初の独立マイルストーン `ms-01-workspace-foundation` として切り出し。配下 `dev-workflow` サイクル Step 1〜2 で確定する
+- **最終統合検証マイルストーン**: `shared-artifacts/references/milestone.md` の「最終マイルストーン = 統合検証マイルストーン」配置パターンに従い、6 領域横断の End-to-End シナリオ動作確認とコードレベル契約による拡張可能性の実証を目的として `ms-10-integration-verification` を配置
 
 ## 依存グラフ
 
-<!-- Step 2 (Milestone Decomposition) で `roadmap-planner` が確定するセクション。Step 1 段階では未確定 placeholder。 -->
+マイルストーン間の依存関係を Mermaid `graph LR` で図示。DAG 性 (循環依存なし) を `roadmap-planner` が目視確認済み。
 
 ```mermaid
 graph LR
-  TBD[Step 2 で確定]
+  ms01[ms-01 workspace]
+  ms02[ms-02 passkey + magic link]
+  ms03[ms-03 rbac + org]
+  ms04[ms-04 shared access]
+  ms05[ms-05 event store + cqrs]
+  ms06[ms-06 input plugin]
+  ms07[ms-07 output plugin]
+  ms08[ms-08 scheduler]
+  ms09[ms-09 ai summary]
+  ms10[ms-10 integration verify]
+  ms01 --> ms02
+  ms02 --> ms03
+  ms03 --> ms04
+  ms01 --> ms05
+  ms03 --> ms06
+  ms05 --> ms06
+  ms03 --> ms07
+  ms05 --> ms07
+  ms06 --> ms08
+  ms05 --> ms09
+  ms07 --> ms09
+  ms08 --> ms09
+  ms04 --> ms10
+  ms08 --> ms10
+  ms09 --> ms10
 ```
 
-(マイルストーン間の依存関係は Step 2 で Mermaid `graph LR` として確定する。前提共有 (認証認可 → 全領域 / 永続化 → 入出力 / AI 要約) は本 Intent の「大局的制約 / 規範的制約」に列挙済みであり、`roadmap-planner` はこの順序依存を入力として依存グラフを構築する)
+### 並列実行可能なマイルストーン群
+
+依存グラフ上で同じ前提を満たし互いに依存しないマイルストーン群を Wave 形式で識別する。Intent「組織的制約: 並行 dev-workflow サイクル数の上限は 2」のため、識別された並列群でも実行段階では 2 並行までに留める。
+
+- **Wave 0 (起点)**: `ms-01-workspace-foundation`
+- **Wave 1 (ms-01 完了後)**: `ms-02-auth-passkey-magiclink` と `ms-05-persistence-event-store` が並列可能 (前提が ms-01 のみで共通)
+- **Wave 2 (ms-02 完了後)**: `ms-03-auth-rbac-organization`
+- **Wave 3 (ms-03 + ms-05 完了後)**: `ms-04-auth-shared-access` / `ms-06-input-plugin-platform` / `ms-07-output-plugin-platform` の 3 つが並列可能 (`ms-04` は ms-03 のみ依存、`ms-06` / `ms-07` は ms-03 + ms-05 共通)
+- **Wave 4 (ms-06 完了後)**: `ms-08-scheduler-platform`
+- **Wave 5 (ms-05 + ms-07 + ms-08 完了後)**: `ms-09-ai-summary`
+- **Wave 6 (最終)**: `ms-10-integration-verification` (ms-04 + ms-08 + ms-09 を要求)
+
+実行順の参考例 (2 並行上限を考慮): Wave 1 で ms-02 と ms-05 を並走、Wave 3 で ms-04 と ms-06 を並走 (ms-07 は ms-06 完了後に着手)、というように 2 並行を埋めながら左から右へ進める運用が想定される。実際の着手順は Step 3 (Execution) でユーザーが判断する。
 
 ## 関連リンク
 
