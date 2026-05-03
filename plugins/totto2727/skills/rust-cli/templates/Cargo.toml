@@ -33,8 +33,11 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Lightweight CLI UI (single-purpose crates; combine as needed)
+# Output responsibility split: tracing = structured logs,
+# std `println!`/`eprintln!` = plain stdout/stderr, owo-colors = colorization
 inquire = "0.7"
 indicatif = "0.17"
+owo-colors = "4"
 
 # Advanced declarative UI (uncomment only when full-screen TUI is required;
 # ratatui is pulled in transitively — do not depend on it directly)

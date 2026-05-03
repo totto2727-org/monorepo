@@ -9,34 +9,50 @@ CLI に組み込む UI を 2 レイヤに整理する:
 
 ## レイヤ早見
 
-| レイヤ          | 用途                                                | 推奨                                                  | 特徴                                                                                 |
-| --------------- | --------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| 軽量 CLI        | 引数解析・プロンプト・進捗バー / スピナー・ログ出力 | `clap` + `tracing` + `inquire` + `indicatif` の組合せ | 各クレートが独立した薄い責務を持ち、必要なものだけを直接呼ぶ。フレームワーク化しない |
-| 高度な宣言的 UI | フル画面ダッシュボード・複数画面遷移                | `tui-realm`                                           | Component + Message/Update の Elm Architecture                                       |
+| レイヤ          | 用途                                                        | 推奨                                                                                   | 特徴                                                                                 |
+| --------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 軽量 CLI        | 引数解析・プロンプト・進捗バー / スピナー・ログ出力・色付け | `clap` + `tracing` + `inquire` + `indicatif` + `owo-colors` + 標準 `println!` の組合せ | 各クレートが独立した薄い責務を持ち、必要なものだけを直接呼ぶ。フレームワーク化しない |
+| 高度な宣言的 UI | フル画面ダッシュボード・複数画面遷移                        | `tui-realm`                                                                            | Component + Message/Update の Elm Architecture                                       |
 
 「どちらを選ぶか」の判断基準は **UI 自体が状態機械として複雑になるか**。
 入力 + ログを流すだけなら軽量 CLI で止める (シンプルな入出力に `tui-realm` は過剰)。
 
-## 軽量 CLI: `clap` + `tracing` + `inquire` + `indicatif`
+## 軽量 CLI: `clap` + `tracing` + `inquire` + `indicatif` + `owo-colors` + 標準 `println!`
 
 それぞれが単一責務の小さなクレートで、CLI の必要なところに直接呼び出す形で組み合わせる。「TUI フレームワーク」ではない。
 
 ### 役割分担
 
-| クレート    | 役割                      | 典型呼び出し例                                               |
-| ----------- | ------------------------- | ------------------------------------------------------------ |
-| `clap`      | 引数 / サブコマンド / env | `Cli::parse()` (`derive` でフラグを宣言的に)                 |
-| `tracing`   | 構造化ログ出力            | `tracing::info!(...)` + `tracing_subscriber::fmt()` 初期化   |
-| `inquire`   | 単発プロンプト            | `Select::new(...).prompt()?` / `Confirm::new(...).prompt()?` |
-| `indicatif` | プログレスバー / スピナー | `ProgressBar::new(n)` / `ProgressBar::new_spinner()`         |
+| クレート / 機能               | 役割                                                    | 典型呼び出し例                                               |
+| ----------------------------- | ------------------------------------------------------- | ------------------------------------------------------------ |
+| `clap`                        | 引数 / サブコマンド / env                               | `Cli::parse()` (`derive` でフラグを宣言的に)                 |
+| `tracing`                     | **構造化ログ** (機械可読)                               | `tracing::info!(...)` + `tracing_subscriber::fmt()` 初期化   |
+| 標準 `println!` / `eprintln!` | **単純 stdout / stderr** (人間向け / プログラム間 pipe) | `println!("...")` / `eprintln!("...")`                       |
+| `owo-colors`                  | **色付け** (装飾出力)                                   | `"warning".yellow()` / `"ok".green()` (`OwoColorize` trait)  |
+| `inquire`                     | 単発プロンプト                                          | `Select::new(...).prompt()?` / `Confirm::new(...).prompt()?` |
+| `indicatif`                   | プログレスバー / スピナー                               | `ProgressBar::new(n)` / `ProgressBar::new_spinner()`         |
+
+#### 出力責務の分担原則
+
+- **構造化ログ (`tracing`)**: 機械可読 / 監視 / 後追い解析が必要なイベント。`tracing_subscriber` で出力先・フォーマット・filter を一元設定する
+- **単純 stdout / stderr (標準機能)**: コマンドの主出力 (パイプの上流として後段に流すデータ) や、ユーザー向けの 1 回限りのテキスト
+- **色付け (`owo-colors`)**: 上記の出力に視覚的強調を加える専用レイヤ。`tracing` の filter / `println!` の使い分けとは独立した責務
 
 ### `clap` (引数解析)
 
 `derive` マクロで `struct` / `enum` ベースに宣言する。`#[arg(env = "...")]` で env フォールバックを表現できる。サブコマンドは `#[derive(Subcommand)]` enum で分割する。雛形は [../templates/main.rs](../templates/main.rs)。
 
-### `tracing` (ログ)
+### `tracing` (構造化ログ)
 
-`tracing::info!` / `warn!` / `error!` を埋めて、`main` 起動時に `tracing_subscriber::fmt()` (もしくは `tracing_subscriber::registry()` で複合 layer) を初期化する。フォーマット切り替えは `with_env_filter(EnvFilter::try_from_default_env()...)` 経由で `RUST_LOG` から制御する。
+`tracing::info!` / `warn!` / `error!` を埋めて、`main` 起動時に `tracing_subscriber::fmt()` (もしくは `tracing_subscriber::registry()` で複合 layer) を初期化する。フォーマット切り替えは `with_env_filter(EnvFilter::try_from_default_env()...)` 経由で `RUST_LOG` から制御する。**機械可読な構造化ログ専用** で使う (人間向けの単純な stdout 出力や CLI 主出力は標準 `println!` を使う)。
+
+### 標準 `println!` / `eprintln!` (stdout / stderr)
+
+CLI の主出力 (コマンド実行結果) や 1 回限りのテキスト出力には外部クレートを介さず標準機能を直接使う。stderr へは `eprintln!`。pipeline で後段に流すデータは `println!` で stdout、進捗 / メッセージは `eprintln!` で stderr に出すのが原則。
+
+### `owo-colors` (色付け)
+
+`OwoColorize` trait を `use` するだけで、任意の `Display` 実装に `.green()` / `.yellow()` / `.bold()` 等のメソッドが生える。`tracing` のフォーマッタ や `println!` の出力に色を被せる装飾専用レイヤ。色の有効化判定 (`atty` / NO_COLOR 環境変数) は `if_supports_color()` で抑制可能。
 
 ### `inquire` (プロンプト)
 
@@ -85,8 +101,8 @@ React + Elm 折衷の状態管理を備えた TUI フレームワーク ("Realm"
 
 ## 選択指針 (フローチャート的)
 
-1. 引数受付 + ログ流し + 単発プロンプト + 進捗バー / スピナーで足りる？
-   → **軽量 CLI** (`clap` + `tracing` + `inquire` + `indicatif`)
+1. 引数受付 + ログ流し + 単発プロンプト + 進捗バー / スピナー + 色付き出力で足りる？
+   → **軽量 CLI** (`clap` + `tracing` + `inquire` + `indicatif` + `owo-colors` + 標準 `println!`)
 2. フル画面 / 多画面遷移 / 大規模状態管理が必要？
    → **高度な宣言的 UI** (`tui-realm`)
 
@@ -96,6 +112,7 @@ React + Elm 折衷の状態管理を備えた TUI フレームワーク ("Realm"
 
 - [clap](https://github.com/clap-rs/clap)
 - [tracing](https://github.com/tokio-rs/tracing)
+- [owo-colors](https://github.com/jam1garner/owo-colors)
 - [inquire](https://github.com/mikaelmello/inquire)
 - [indicatif](https://github.com/console-rs/indicatif)
 - [tui-realm](https://github.com/veeso/tui-realm)
