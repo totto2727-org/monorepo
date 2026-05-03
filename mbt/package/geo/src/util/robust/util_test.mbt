@@ -13,7 +13,7 @@ fn parse_fixture_lines(content : String) -> Array[Array[Double]] {
     }
     let values : Array[Double] = []
     for i = 1; i < parts.length(); i = i + 1 {
-      values.push(@strconv.parse_double(parts[i])) catch {
+      values.push(@string.parse_double(parts[i])) catch {
         _ => break
       }
     }

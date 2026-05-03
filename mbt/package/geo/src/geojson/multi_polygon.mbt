@@ -1,7 +1,7 @@
 ///|
 pub struct MultiPolygon {
   coordinates : Array[Array[Array[Coordinates]]]
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn MultiPolygon::new(

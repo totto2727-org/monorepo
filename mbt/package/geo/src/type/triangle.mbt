@@ -3,7 +3,7 @@ pub struct Triangle[Coord] {
   a : Coord
   b : Coord
   c : Coord
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 #warnings("-unused_trait_bound")

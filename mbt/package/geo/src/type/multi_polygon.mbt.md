@@ -26,9 +26,18 @@ test {
   ])
   let polygon1 = Polygon::new(exterior)
   let multi_polygon = MultiPolygon::new([polygon1])
-  inspect(
+  debug_inspect(
     multi_polygon,
-    content="MultiPolygon([{exterior: Ring([{x: 0, y: 0}, {x: 10, y: 0}, {x: 0, y: 10}, {x: 0, y: 0}]), interior_array: []}])",
+    content=(
+      #|MultiPolygon(
+      #|  [
+      #|    {
+      #|      exterior: Ring([{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 0, y: 10 }, { x: 0, y: 0 }]),
+      #|      interior_array: [],
+      #|    },
+      #|  ],
+      #|)
+    ),
   )
 }
 ```
@@ -48,9 +57,11 @@ test {
   ])
   let polygon1 = Polygon::new(exterior)
   let multi_polygon = MultiPolygon::new([polygon1])
-  inspect(
+  debug_inspect(
     multi_polygon.coord_array(),
-    content="[{x: 0, y: 0}, {x: 10, y: 0}, {x: 0, y: 10}, {x: 0, y: 0}]",
+    content=(
+      #|[{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 0, y: 10 }, { x: 0, y: 0 }]
+    ),
   )
 }
 ```
@@ -70,9 +81,16 @@ test {
   ])
   let polygon1 = Polygon::new(exterior)
   let multi_polygon = MultiPolygon::new([polygon1])
-  inspect(
+  debug_inspect(
     multi_polygon.geometry_array(),
-    content="[{exterior: Ring([{x: 0, y: 0}, {x: 10, y: 0}, {x: 0, y: 10}, {x: 0, y: 0}]), interior_array: []}]",
+    content=(
+      #|[
+      #|  {
+      #|    exterior: Ring([{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 0, y: 10 }, { x: 0, y: 0 }]),
+      #|    interior_array: [],
+      #|  },
+      #|]
+    ),
   )
 }
 ```
@@ -97,9 +115,11 @@ test {
   ])
   let polygon1 = Polygon::new(exterior)
   let multi_polygon = MultiPolygon::new([polygon1])
-  inspect(
+  debug_inspect(
     multi_polygon.bbox(),
-    content="{min: {x: 0, y: 0}, max: {x: 10, y: 10}}",
+    content=(
+      #|{ min: { x: 0, y: 0 }, max: { x: 10, y: 10 } }
+    ),
   )
 }
 ```

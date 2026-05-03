@@ -20,7 +20,9 @@ Provides a 3D coordinate structure `XYZ` and implements associated traits for ar
 ///|
 test {
   let p = XYZ::new(1.0, 2.0, 3.0)
-  inspect(p, content="{x: 1, y: 2, z: 3}")
+  debug_inspect(p, content=(
+    #|{ x: 1, y: 2, z: 3 }
+  ))
 }
 ```
 
@@ -33,7 +35,9 @@ test {
 test {
   let p1 = XYZ::new(1.0, 2.0, 3.0)
   let p2 = XYZ::new(4.0, 5.0, 6.0)
-  inspect(p1 + p2, content="{x: 5, y: 7, z: 9}")
+  debug_inspect(p1 + p2, content=(
+    #|{ x: 5, y: 7, z: 9 }
+  ))
 }
 ```
 
@@ -46,7 +50,9 @@ test {
 test {
   let p1 = XYZ::new(4.0, 5.0, 6.0)
   let p2 = XYZ::new(1.0, 2.0, 3.0)
-  inspect(p1 - p2, content="{x: 3, y: 3, z: 3}")
+  debug_inspect(p1 - p2, content=(
+    #|{ x: 3, y: 3, z: 3 }
+  ))
 }
 ```
 
@@ -58,7 +64,9 @@ test {
 ///|
 test {
   let p = XYZ::new(1.0, -2.0, 3.0)
-  inspect(-p, content="{x: -1, y: 2, z: -3}")
+  debug_inspect(-p, content=(
+    #|{ x: -1, y: 2, z: -3 }
+  ))
 }
 ```
 
@@ -72,7 +80,9 @@ test {
 ///|
 test {
   let p = XYZ::new(2.0, 4.0, 6.0)
-  inspect(p.mul(2.0), content="{x: 4, y: 8, z: 12}")
+  debug_inspect(p.mul(2.0), content=(
+    #|{ x: 4, y: 8, z: 12 }
+  ))
 }
 ```
 
@@ -84,7 +94,9 @@ test {
 ///|
 test {
   let p = XYZ::new(2.0, 4.0, 6.0)
-  inspect(p.div(2.0), content="{x: 1, y: 2, z: 3}")
+  debug_inspect(p.div(2.0), content=(
+    #|{ x: 1, y: 2, z: 3 }
+  ))
 }
 ```
 
@@ -98,7 +110,7 @@ test {
   let p1 = XYZ::new(1.0, 2.0, 3.0)
   let p2 = XYZ::new(4.0, 5.0, 6.0)
   // 1*4 + 2*5 + 3*6 = 4 + 10 + 18 = 32
-  inspect(p1.dot(p2), content="32")
+  debug_inspect(p1.dot(p2), content="32")
 }
 ```
 
@@ -112,7 +124,7 @@ test {
 ///|
 test {
   let p = XYZ::new(1.0, 2.0, 3.0)
-  inspect(p.x(), content="1")
+  debug_inspect(p.x(), content="1")
 }
 ```
 
@@ -124,7 +136,7 @@ test {
 ///|
 test {
   let p = XYZ::new(1.0, 2.0, 3.0)
-  inspect(p.y(), content="2")
+  debug_inspect(p.y(), content="2")
 }
 ```
 
@@ -136,7 +148,9 @@ test {
 ///|
 test {
   let p = XYZ::new(1.0, 2.0, 3.0)
-  inspect(p.set_x(4.0), content="{x: 4, y: 2, z: 3}")
+  debug_inspect(p.set_x(4.0), content=(
+    #|{ x: 4, y: 2, z: 3 }
+  ))
 }
 ```
 
@@ -148,7 +162,9 @@ test {
 ///|
 test {
   let p = XYZ::new(1.0, 2.0, 3.0)
-  inspect(p.set_y(5.0), content="{x: 1, y: 5, z: 3}")
+  debug_inspect(p.set_y(5.0), content=(
+    #|{ x: 1, y: 5, z: 3 }
+  ))
 }
 ```
 
@@ -162,7 +178,7 @@ test {
 ///|
 test {
   let p = XYZ::new(1.0, 2.0, 3.0)
-  inspect(p.z(), content="3")
+  debug_inspect(p.z(), content="3")
 }
 ```
 
@@ -174,6 +190,8 @@ test {
 ///|
 test {
   let p = XYZ::new(1.0, 2.0, 3.0)
-  inspect(p.set_z(4.0), content="{x: 1, y: 2, z: 4}")
+  debug_inspect(p.set_z(4.0), content=(
+    #|{ x: 1, y: 2, z: 4 }
+  ))
 }
 ```

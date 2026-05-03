@@ -15,7 +15,7 @@ pub fn &PointTrait::bbox(self : &PointTrait) -> BBox[XY] {
 }
 
 ///|
-pub struct Point[Coord](Coord) derive(Show, Eq)
+pub struct Point[Coord](Coord) derive(Debug, Eq)
 
 ///|
 #warnings("-unused_trait_bound")

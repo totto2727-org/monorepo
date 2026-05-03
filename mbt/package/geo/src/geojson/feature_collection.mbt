@@ -1,7 +1,7 @@
 ///|
 pub struct FeatureCollection {
   features : Array[Feature]
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn FeatureCollection::new(features : Array[Feature]) -> FeatureCollection {

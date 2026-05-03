@@ -17,7 +17,7 @@ pub fn[Point : @type.PointTrait, Polygon : @type.PolygonTrait] boolean_point_in_
 ) -> Bool raise {
   let coord = point.coord()
   let bbox = polygon.bbox()
-  if not(in_bbox(coord, bbox)) {
+  if !in_bbox(coord, bbox) {
     return false
   }
   match @point_in_ring.point_in_ring(coord, polygon.exterior()) {

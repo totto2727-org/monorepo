@@ -1,7 +1,7 @@
 ///|
 pub struct GeometryCollection {
   geometries : Array[Geometry]
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn GeometryCollection::new(

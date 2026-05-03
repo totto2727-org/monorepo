@@ -1,7 +1,7 @@
 ///|
 pub struct LineString {
   coordinates : Array[Coordinates]
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn LineString::new(

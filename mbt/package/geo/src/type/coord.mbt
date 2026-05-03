@@ -1,5 +1,5 @@
 ///|
-pub(open) trait CoordTrait: Add + Sub + Neg + Show {
+pub(open) trait CoordTrait: Add + Sub + Neg + Debug {
   /// Due to Moonbit's current specification, implementing multiplication and division across different types is impossible.
   /// Therefore, we will not use the Mul trait or Div trait, but instead define our own functions.
   mul(Self, Double) -> Self

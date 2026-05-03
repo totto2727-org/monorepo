@@ -1,7 +1,7 @@
 ///|
 pub struct MultiLineString {
   coordinates : Array[Array[Coordinates]]
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn MultiLineString::new(

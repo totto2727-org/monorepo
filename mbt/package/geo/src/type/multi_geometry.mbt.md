@@ -5,7 +5,7 @@ Provides functionality for collections of geometries, including efficient flatte
 ## Public API
 
 - `coord_array` (default implementation via `&MultiGeometryTrait`)
-- `Show` (default implementation for `&MultiGeometryTrait`)
+- `Debug` (default implementation for `&MultiGeometryTrait`)
 
 ## Test
 
@@ -25,25 +25,29 @@ test {
     Point::new(XY::new(2.0, 2.0)),
   ])
   // MultiPoint uses &MultiGeometryTrait::coordArray implicitly
-  inspect(mp.coord_array(), content="[{x: 1, y: 1}, {x: 2, y: 2}]")
+  debug_inspect(mp.coord_array(), content=(
+    #|[{ x: 1, y: 1 }, { x: 2, y: 2 }]
+  ))
 }
 ```
 
-### `Show`
+### `Debug`
 
-#### `output`
+#### `to_repr`
 
 | Variable | State   | Note |  1  |
 | :------- | :------ | :--- | :-: |
 | `self`   | `Valid` |      |  ✓  |
 
-- Default implementation delegates to geometry_array show
+- Default implementation delegates to geometry_array debug
 
 ```mbt check
 ///|
 test {
   let mp = MultiPoint::new([Point::new(XY::new(1.0, 1.0))])
   let boxed : &MultiGeometryTrait = mp
-  inspect(boxed, content="MultiPoint([Point({x: 1, y: 1})])")
+  debug_inspect(boxed, content=(
+    #|MultiPoint([Point({ x: 1, y: 1 })])
+  ))
 }
 ```

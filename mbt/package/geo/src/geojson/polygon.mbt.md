@@ -28,9 +28,11 @@ test "Polygon new" {
       Coordinates::XY(0.0, 0.0),
     ],
   ])
-  inspect(
+  debug_inspect(
     p,
-    content="{coordinates: [[XY(0, 0), XY(1, 0), XY(1, 1), XY(0, 0)]]}",
+    content=(
+      #|{ coordinates: [[XY(0, 0), XY(1, 0), XY(1, 1), XY(0, 0)]] }
+    ),
   )
 }
 ```
@@ -50,7 +52,7 @@ test "Polygon BBoxTrait::bbox" {
       Coordinates::XY(0.0, 0.0),
     ],
   ])
-  inspect(p.bbox(), content="BBox2D(0, 0, 1, 1)")
+  debug_inspect(p.bbox(), content="BBox2D(0, 0, 1, 1)")
 }
 ```
 
@@ -101,9 +103,11 @@ test "Polygon FromJson::from_json - valid" {
     "type": "Polygon",
     "coordinates": [[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]]],
   })
-  inspect(
+  debug_inspect(
     poly,
-    content="{coordinates: [[XY(0, 0), XY(1, 0), XY(1, 1), XY(0, 0)]]}",
+    content=(
+      #|{ coordinates: [[XY(0, 0), XY(1, 0), XY(1, 1), XY(0, 0)]] }
+    ),
   )
 }
 ```

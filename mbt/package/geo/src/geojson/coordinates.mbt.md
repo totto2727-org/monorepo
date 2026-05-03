@@ -20,7 +20,7 @@
 ///|
 test "Coordinates x" {
   let coord = Coordinates::XY(1, 2)
-  inspect(coord.x(), content="1")
+  debug_inspect(coord.x(), content="1")
 }
 ```
 
@@ -30,7 +30,7 @@ test "Coordinates x" {
 ///|
 test "Coordinates y" {
   let coord = Coordinates::XY(1, 2)
-  inspect(coord.y(), content="2")
+  debug_inspect(coord.y(), content="2")
 }
 ```
 
@@ -42,7 +42,7 @@ test "Coordinates y" {
 ///|
 test "Coordinates z - non panic" {
   let coord = Coordinates::XYZ_OR_XYM(1, 2, 3)
-  inspect(coord.z(), content="3")
+  debug_inspect(coord.z(), content="3")
 }
 ```
 
@@ -61,9 +61,9 @@ test "panic_Coordinates z - on XY" {
 ```mbt check
 ///|
 test "Coordinates dimension" {
-  inspect(Coordinates::XY(1.0, 2.0).dimension(), content="2")
-  inspect(Coordinates::XYZ_OR_XYM(1.0, 2.0, 3.0).dimension(), content="3")
-  inspect(Coordinates::XYZM(1.0, 2.0, 3.0, 4.0).dimension(), content="4")
+  debug_inspect(Coordinates::XY(1.0, 2.0).dimension(), content="2")
+  debug_inspect(Coordinates::XYZ_OR_XYM(1.0, 2.0, 3.0).dimension(), content="3")
+  debug_inspect(Coordinates::XYZM(1.0, 2.0, 3.0, 4.0).dimension(), content="4")
 }
 ```
 
@@ -104,7 +104,7 @@ test "Coordinates ToJson::to_json - XYZM" {
 ///|
 test "Coordinates FromJson::from_json - XY" {
   let coordinates : Coordinates = @json.from_json([1.0, 2.0])
-  inspect(coordinates, content="XY(1, 2)")
+  debug_inspect(coordinates, content="XY(1, 2)")
 }
 ```
 
@@ -114,7 +114,7 @@ test "Coordinates FromJson::from_json - XY" {
 ///|
 test "Coordinates FromJson::from_json - XYZ_OR_XYM" {
   let coordinates : Coordinates = @json.from_json([1.0, 2.0, 3.0])
-  inspect(coordinates, content="XYZ_OR_XYM(1, 2, 3)")
+  debug_inspect(coordinates, content="XYZ_OR_XYM(1, 2, 3)")
 }
 ```
 
@@ -124,7 +124,7 @@ test "Coordinates FromJson::from_json - XYZ_OR_XYM" {
 ///|
 test "Coordinates FromJson::from_json - XYZM" {
   let coordinates : Coordinates = @json.from_json([1.0, 2.0, 3.0, 4.0])
-  inspect(coordinates, content="XYZM(1, 2, 3, 4)")
+  debug_inspect(coordinates, content="XYZM(1, 2, 3, 4)")
 }
 ```
 

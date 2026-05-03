@@ -18,7 +18,9 @@ Represents a single point in space.
 ```mbt check
 ///|
 test {
-  inspect(Point::new(XY::new(1.0, 2.0)), content="Point({x: 1, y: 2})")
+  debug_inspect(Point::new(XY::new(1.0, 2.0)), content=(
+    #|Point({ x: 1, y: 2 })
+  ))
 }
 ```
 
@@ -29,7 +31,9 @@ test {
 ```mbt check
 ///|
 test {
-  inspect(Point::new(XY::new(3.0, 4.0)).coord(), content="{x: 3, y: 4}")
+  debug_inspect(Point::new(XY::new(3.0, 4.0)).coord(), content=(
+    #|{ x: 3, y: 4 }
+  ))
 }
 ```
 
@@ -41,7 +45,12 @@ test {
 ///|
 test {
   // let _xy =
-  inspect(Point::new(XY::new(1.0, 2.0)).coord_array(), content="[{x: 1, y: 2}]")
+  debug_inspect(
+    Point::new(XY::new(1.0, 2.0)).coord_array(),
+    content=(
+      #|[{ x: 1, y: 2 }]
+    ),
+  )
 }
 ```
 
@@ -52,9 +61,11 @@ test {
 ```mbt check
 ///|
 test {
-  inspect(
+  debug_inspect(
     Point::new(XY::new(1.0, 2.0)).bbox(),
-    content="{min: {x: 1, y: 2}, max: {x: 1, y: 2}}",
+    content=(
+      #|{ min: { x: 1, y: 2 }, max: { x: 1, y: 2 } }
+    ),
   )
 }
 ```

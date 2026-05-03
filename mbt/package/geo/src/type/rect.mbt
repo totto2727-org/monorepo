@@ -3,7 +3,7 @@
 pub struct Rect[Coord] {
   min : Coord
   max : Coord
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 #warnings("-unused_trait_bound")

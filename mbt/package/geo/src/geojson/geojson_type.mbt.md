@@ -52,7 +52,7 @@ test "GeoJSONType ToJson::to_json - Geometry" {
 ///|
 test "GeoJSONType FromJson::from_json - Feature" {
   let t : GeoJSONType = @json.from_json("Feature")
-  inspect(t, content="Feature")
+  debug_inspect(t, content="Feature")
 }
 ```
 
@@ -62,7 +62,7 @@ test "GeoJSONType FromJson::from_json - Feature" {
 ///|
 test "GeoJSONType FromJson::from_json - FeatureCollection" {
   let t : GeoJSONType = @json.from_json("FeatureCollection")
-  inspect(t, content="FeatureCollection")
+  debug_inspect(t, content="FeatureCollection")
 }
 ```
 
@@ -72,6 +72,6 @@ test "GeoJSONType FromJson::from_json - FeatureCollection" {
 ///|
 test "GeoJSONType FromJson::from_json - Geometry" {
   let t : GeoJSONType = @json.from_json("Point")
-  inspect(t, content="Geometry(Point)")
+  debug_inspect(t, content="Geometry(Point)")
 }
 ```

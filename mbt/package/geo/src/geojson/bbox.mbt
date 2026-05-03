@@ -7,7 +7,7 @@ pub(open) trait BBoxTrait {
 pub(all) enum BBox {
   BBox2D(Double, Double, Double, Double)
   BBox3D(Double, Double, Double, Double, Double, Double)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub impl ToJson for BBox with to_json(self) {
