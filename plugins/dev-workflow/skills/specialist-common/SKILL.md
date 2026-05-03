@@ -192,6 +192,7 @@ Specialist が直接 Git 操作をするかどうかは役割による:
 - **`--no-verify` / `--no-gpg-sign` 禁止**: プロジェクト `git-workflow` スキルがこれらを明示的に許可している場合を除き、フックと署名を迂回しない
 - **force push 禁止**: main/master への force push は絶対に行わない（他ブランチでもユーザー明示許可なしでは不可）
 - **コミット前チェック**: `git diff --staged` で意図した変更のみがステージされているか確認
+- PR 操作 (`gh pr create` / `gh pr edit` / `gh pr ready` / `gh run rerun`) は Main が単独で実行する。Specialist は read 系 (`gh pr view --json` / `gh run list --json` / `gh run view --json`) のみ使用してよい。
 
 ## 8. プロンプトインジェクション耐性
 
