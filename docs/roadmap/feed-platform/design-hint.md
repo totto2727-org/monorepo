@@ -18,43 +18,49 @@
 
 ## 全体フロー素案 (CQRS パターン)
 
-書き込み側 (Command 軸) と読み出し側 (Query 軸) を責務分離する。両軸はイベントストアを介して結合する。
+CQRS の本質は **「書き込み (Command) 軸と読み出し (Query) 軸の責務分離」**。両軸はイベントストア (Event Source of Truth) を介して結合する。
+
+### 構造図
+
+左端の `Command 入力源` には**システム外部から mutation を発火するすべての主体** (取得システム = 自動トリガー / Web UI = ユーザー手動トリガー) を集約した。両者とも本質的には同じ役割 (= 新しいイベントを発生させる側) なので同一カラムに配置する。
 
 ```mermaid
 flowchart LR
-  subgraph 取得層 ["取得層 (入力プラグイン基盤、Command 軸入力)"]
+  subgraph CMDIN ["Command 入力源 (mutation トリガー: 自動 + 手動)"]
+    direction TB
     A1["取得システム 1<br/>サーバレス関数<br/>(必要に応じ取得情報 DB)"]
     A2["取得システム 2<br/>サーバレス関数<br/>(必要に応じ取得情報 DB)"]
     AN["取得システム N<br/>..."]
+    UI_CMD["Web UI<br/>(Command 発行 = 手動 mutation)"]
   end
 
-  UI_CMD["Web UI<br/>(Command 発行)"]
-  CMDAPI["Command API<br/>サーバレス関数<br/>UI からの mutation 受付"]
+  CMDAPI["Command API<br/>サーバレス関数<br/>UI mutation 受付 (CQRS の書き込みエンドポイント)"]
 
   IQ{"インプット Queue<br/>(粒度未確定:<br/>システム単位 / 全体統一)"}
 
-  subgraph 記録層 ["記録層 (永続化基盤、Command/Query 境界)"]
+  subgraph REC ["記録層 (永続化基盤、Command/Query 境界)"]
+    direction TB
     ER["イベント記録システム<br/>サーバレス関数<br/>イベント検証 + 追記専用 DB 追加"]
     ES[("イベント追記専用ストア<br/>(Event Source of Truth)")]
   end
 
   OQ{"出力 Queue<br/>(粒度未確定:<br/>更新 / 通知で分離?)"}
 
-  subgraph ビュー出力層 ["ビュー / 出力層 (出力プラグイン基盤、Query 軸)"]
-    direction LR
+  subgraph OUT ["ビュー / 出力層 (出力プラグイン基盤、Query 軸)"]
+    direction TB
     VU["ビュー更新システム<br/>サーバレス関数<br/>キャッシュ DB 更新"]
+    NT["通知システム<br/>サーバレス関数<br/>Slack 等メッセージング専用"]
     VC[("キャッシュ DB<br/>(Projection)")]
-    QUERYAPI["Query API<br/>サーバレス関数<br/>キャッシュ DB 読み出し提供"]
+    QUERYAPI["Query API<br/>サーバレス関数<br/>キャッシュ DB 読み出し提供 (CQRS の読み出しエンドポイント)"]
     UI_QRY["Web UI<br/>(Query 結果表示)"]
-    NT["通知システム<br/>サーバレス関数<br/>Slack 等メッセージングサービス専用"]
   end
 
   A1 --> IQ
   A2 --> IQ
   AN --> IQ
-  IQ --> ER
   UI_CMD --> CMDAPI
-  CMDAPI --> ER
+  CMDAPI --> IQ
+  IQ --> ER
   ER --> ES
   ER --> OQ
   OQ --> VU
@@ -64,15 +70,32 @@ flowchart LR
   QUERYAPI --> UI_QRY
 ```
 
-**注:** 図中の `UI_CMD` と `UI_QRY` は同一の Web UI クライアントの 2 つの責務面 (mutation 発行と query 結果受信) を分けて描いたもの。実装上は同一プロセス。
+**図中の Web UI が左右に 2 つある件:** `UI_CMD` (Command 発行) と `UI_QRY` (Query 結果表示) は**同一 Web UI クライアントの 2 つの責務面**を分けて描いたもの。実装上は同一プロセスだが、CQRS では mutation と query が異なる API エンドポイントに行くため、図上では別ノードとして表記する。
 
-**並列性の原則 (図中の構造的制約):**
+### 流れの読み方 (2 軸 × 2 段階)
 
-- **`VU` (ビュー更新) と並列に走れるのは `NT` (通知システム = Slack 等メッセージング) のみ**
-- **`Web UI` の Query 経路は必ず `VC` → `Query API` → `Web UI` の直列ルート**を経由する。Web UI は通知の並列ノードにはならない (push 型クライアントとしては扱わない、SSE / WebSocket 採用は L7 で別途検討)
-- 「通知」は **Slack 等のメッセージング型サービス**に限定される。ブラウザ向け配信は `Query API` 経由の pull 型に統一
-- **Web UI の Command 経路は `Web UI → Command API → イベント記録システム` を経由**し、取得システムからの経路と同じく `IQ` を経由するか `Command API → ER` 直結かは未確定 (L8)
-- **Command と Query の責務は API レイヤで明確に分離** (CQRS): 同一 API エンドポイント上で mutation と query を混在させない
+#### Command 軸 (書き込みフロー、左 → 中央)
+
+1. **`Command 入力源`** が mutation を発火
+   - **自動トリガー**: 取得システム (RSS / HTML 解析 / X リスト等) が定期実行基盤に呼ばれ、外部から取得したフィードを新規イベント候補として発行
+   - **手動トリガー**: ユーザーが Web UI 上で操作 (例: 既読化 / お気に入り登録) し、`Command API` に mutation request を送信
+2. `Command API` は受け取った mutation を**インプット Queue に投入**して即座に応答 (取得システムは直接 IQ に投入)
+3. `イベント記録システム`が IQ からイベントを取り出し、検証後に**`イベント追記専用ストア`に追記** (UPDATE は使わない、INSERT 専用)
+4. 同時に `出力 Queue` に「このイベントが起きた」というシグナルを投入 (Query 軸への引き渡し)
+
+#### Query 軸 (読み出しフロー、中央 → 右)
+
+1. `出力 Queue` を購読する 2 系統が**並列に走る**:
+   - `ビュー更新システム` が `キャッシュ DB (Projection)` を更新 (= Query API が見るデータを最新化)
+   - `通知システム` が Slack 等のメッセージングサービスに通知を送信 (CQRS の Query 軸とは独立した副作用)
+2. ユーザーが Web UI で画面を表示 / リロードすると、`Query API` が `キャッシュ DB` を読み出して Web UI に返却
+
+### 構造的制約 (図示済み方針)
+
+- **Command 入力源と Query 出力先が両方 Web UI**: 実装は同一プロセスだが、CQRS により mutation と query が**異なる API エンドポイント** (Command API / Query API) に分かれる
+- **`ビュー更新` と並列に走れるのは `通知` (Slack 等メッセージング) のみ**: Web UI への配信は必ず `キャッシュ DB → Query API → Web UI` の直列 pull 型ルート (push 型は採らない、SSE/WebSocket 採否は L7 で検討)
+- **書き込みと読み出しの間に必ず非同期遅延が入る** (Eventual Consistency): Read-Your-Write 戦略は L7 で確定 (個人開発スコープでは「楽観的更新」が default 候補)
+- **本図は L8 で言及する「Command API → IQ 経由」案を default として描画**: もう一方の選択肢「Command API → ER 直結」も実装上は妥当だが、図のシンプル化のため IQ 経由ルートを描き、論点として L8 に残している
 
 ## 採用方針 (ロードマップ「アーキテクチャ的制約」の具現化)
 
