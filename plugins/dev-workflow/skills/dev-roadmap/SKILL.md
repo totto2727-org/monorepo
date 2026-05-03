@@ -40,8 +40,13 @@ are **siblings**, connected by the bidirectional ID reference between
 (Main-Centric Orchestration, Single-Source-of-Progress, Artifact-Driven Handoff,
 Gate-Based Progression, Commit-Based Resumability, Clean-Transition Between Steps,
 Artifact-as-Gate-Review, Report-Based Confirmation for In-Progress Questions,
-Project-Rule Precedence). See `dev-workflow/SKILL.md` "Basic policies" for the
-canonical statements.
+**Fresh PR + CI before any user-facing checkpoint**, Project-Rule Precedence). See
+`dev-workflow/SKILL.md` "Whole-workflow principles" and "PR / CI integration trigger
+table" for the canonical statements. The user-facing-checkpoint rule applies to every
+roadmap step that exposes an artifact to the user (Step 1 user gate, Step 2 user gate,
+Step 4 information share, and any In-Progress user inquiry raised during Step 3
+observation): Main regenerates the cycle PR description and confirms the matching CI
+PASS before showing the artifact.
 
 In addition, the roadmap layer adds three principles of its own:
 
