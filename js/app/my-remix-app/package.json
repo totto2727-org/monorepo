@@ -1,0 +1,24 @@
+{
+  "name": "my-remix-app",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#@/*": "./app/*"
+  },
+  "scripts": {
+    "build": "vite build",
+    "deploy": "wrangler deploy",
+    "dev": "vp dev",
+    "start": "wrangler dev",
+    "typecheck": "tsgo --noEmit"
+  },
+  "dependencies": {
+    "hono": "catalog:hono",
+    "remix": "^3.0.0-beta.0"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "catalog:cloudflare",
+    "@totto2727/fp": "workspace:*",
+    "wrangler": "catalog:cloudflare"
+  }
+}
