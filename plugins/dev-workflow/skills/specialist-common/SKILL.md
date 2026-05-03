@@ -185,7 +185,9 @@ Specialist が直接 Git 操作をするかどうかは役割による:
 
 ### PR / CI 操作の権限境界（全 Specialist 共通）
 
-PR / CI に関する **write 系 `gh` コマンド** (`gh pr create` / `gh pr edit` / `gh pr ready` / `gh run rerun` 等) は **Main が単独で実行する**。役割を問わず Specialist (intent-analyst / researcher / architect / qa-analyst / planner / implementer / reviewer / validator / retrospective-writer すべて) は write 系を呼ばない。**read 系** (`gh pr view --json` / `gh pr list --json` / `gh run list --json` / `gh run view --json` 等) のみ Specialist が直接使用してよい。詳細は `dev-workflow/SKILL.md` 「## サイクル PR と CI 連携プロトコル」参照。
+PR / CI に関する **write 系 `gh` コマンド** (`gh pr create` / `gh pr edit` / `gh pr ready` / `gh pr close` / `gh run rerun` 等) は **Main が単独で実行する**。役割を問わず Specialist (intent-analyst / researcher / architect / qa-analyst / planner / implementer / reviewer / validator / retrospective-writer すべて) は write 系を呼ばない。**read 系** (`gh pr view --json` / `gh pr list --json` / `gh run list --json` / `gh run view --json` 等) のみ Specialist が直接使用してよい。
+
+具体的な PR 操作手順は **`pr-manager`** スキルに、CI watch / リトライ / Blocker 化は **`ci-monitoring`** スキルにそれぞれ集約されている。本ガードレールは `dev-workflow/SKILL.md` 「## サイクル PR と CI 連携プロトコル」と同義の規定で、Specialist は「いつ呼ぶか」を `dev-workflow`、「どう呼ぶか」を `pr-manager` / `ci-monitoring` の read 系から参照する。
 
 ### Git ガードレール（implementer 向け必須ルール）
 

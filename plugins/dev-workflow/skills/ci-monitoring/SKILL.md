@@ -145,7 +145,7 @@ fi
 
 ## 5. PR description の `## CI status` セクションの埋め方
 
-各ステップ完了コミット直後に PR description を `gh pr edit --body-file` で更新する際、テンプレート (`shared-artifacts/templates/pr-body.md`) の CI status セクションには上記手順で取得した値を反映する:
+各ステップ完了コミット直後に PR description を更新する際 (送信手順は **`pr-manager` スキル §2** 参照)、テンプレート (`shared-artifacts/templates/pr-body.md`) の CI status セクションには上記手順で取得した値を反映する:
 
 ```markdown
 ## CI status
@@ -185,7 +185,7 @@ done
 
 - **CI ワークフロー自体の改修** (`.github/workflows/*.yaml` の編集) → 本ワークフロー外。CI/CD パイプライン設計の領域
 - **テスト設計** (qa-design.md / qa-flow.md の作成) → `specialist-qa-analyst`
-- **PR write 系操作** (`gh pr create` / `gh pr edit` / `gh pr ready`) → Main 専属、`specialist-common §7` 参照
+- **PR write 系操作** (`gh pr create` / `gh pr edit` / `gh pr ready` 等) → **`pr-manager`** スキルに委譲。`specialist-common §7` で Main 専属の権限境界が規定されている
 - **`gh run rerun` の積極的利用** → 本リポは flaky なし、再実行は基本不要 (Step 7 reviewer が必要に応じて単発で利用するのみ)
 - **CI 結果の長期統計** (週次・月次トレンド) → 本ワークフロー外、別スキルや観測ダッシュボードで扱う
 - **複数 workflow / matrix CI の統合監視** → 本リポでは単一 `check` job のみ、将来の matrix 化は Retrospective マターとして繰越
