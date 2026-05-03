@@ -20,7 +20,7 @@ JS で言う `inquirer` / `prompts` + `ora` 相当。
 ### `inquire`（プロンプト）
 
 提供されるウィジェット: `Select`, `MultiSelect`, `Text`, `Password`, `Confirm`, `Editor`, `DateSelect`, `CustomType`, autocomplete 付き Select。
-バリデーション・ページング・タブ補完が組み込み。`dialoguer` より UI 体験が一段良い。
+バリデーション・ページング・タブ補完が組み込みで提供される。
 
 ### `indicatif`（進捗 / スピナー）
 
@@ -68,17 +68,17 @@ Ink (Node) 直系の React 風 TUI。`#[component]` + `element!` マクロで JS
 
 ### できること / 注意点
 
-| 項目                                     | 対応                                      |
-| ---------------------------------------- | ----------------------------------------- |
-| 単一スピナー                             | ◯ 10 行で実装                             |
-| プログレスバー                           | ◯ 公式 example あり                       |
-| 複数スピナー並走                         | ◯ 各 `use_future` が独立                  |
-| 完了で色変更 / アイコン切替              | ◯ props / state で制御                    |
-| tokio + reqwest と併用                   | ◯ ランタイム非依存                        |
-| インライン出力                           | ◯ `.print()`                              |
-| プリセット（フレーム集・テンプレ文字列） | ✗ 自作。`spinners` クレートの定数借用が楽 |
-| ETA / 速度計測                           | ✗ 必要なら自前 or `indicatif` 並用        |
-| ターミナル幅追従 / リサイズ              | ◯ crossterm + taffy 処理                  |
+| 項目                                     | 対応                          |
+| ---------------------------------------- | ----------------------------- |
+| 単一スピナー                             | ◯ 10 行で実装                 |
+| プログレスバー                           | ◯ 公式 example あり           |
+| 複数スピナー並走                         | ◯ 各 `use_future` が独立      |
+| 完了で色変更 / アイコン切替              | ◯ props / state で制御        |
+| tokio + reqwest と併用                   | ◯ ランタイム非依存            |
+| インライン出力                           | ◯ `.print()`                  |
+| プリセット（フレーム集・テンプレ文字列） | ✗ 自作する                    |
+| ETA / 速度計測                           | ✗ 必要なら `indicatif` を併用 |
+| ターミナル幅追従 / リサイズ              | ◯ crossterm + taffy 処理      |
 
 ## L3: `tui-realm` on `ratatui`
 
@@ -92,11 +92,6 @@ ratatui は immediate-mode の低レベル描画ライブラリ。これに Reac
 - **Event**: 入力イベント
 
 ダッシュボード・ウィザード等の **複数画面・大規模状態** が必要な場合に検討する。
-
-### 代替
-
-- `teatui` — BubbleTea 直系、純 Elm（実験段階）
-- `ratatui` 直叩き + 自作 Elm ループ — 公式に "The Elm Architecture" のチュートリアルあり
 
 ## 選択指針（フローチャート的）
 
