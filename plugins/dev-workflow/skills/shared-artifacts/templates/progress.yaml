@@ -33,7 +33,7 @@ artifacts:
   design: null # design.md
   qa_design: null # qa-design.md (Step 4)
   qa_flow: null # qa-flow.md (Step 4)
-  external_adrs: [] # サイクル外に起票したプロジェクト横断 ADR
+  external_adrs: [] # サイクル外に起票した ADR (General mode `docs/adr/<file>.md` と Roadmap mode `docs/roadmap/<roadmap-id>/adr/<file>.md` を同列に列挙)
   task_plan: null # task-plan.md
   todo: null # TODO.md
   review: [] # review/<aspect>.md のリスト (Step 7)

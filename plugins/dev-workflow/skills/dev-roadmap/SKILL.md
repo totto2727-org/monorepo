@@ -131,6 +131,7 @@ graph LR
 3. ユーザー回答を `roadmap-analyst` に戻し、`roadmap.md` Intent セクションを確定させる
 4. `roadmap-analyst` は同時に `roadmap-progress.yaml` を初期化する (`roadmap_id` / `title` / `status: planned` / `created_at` / `updated_at` / 空 `milestones: []`)
 5. **確定した `roadmap.md` Intent セクションそのものをユーザーに提示**して承認を得る (一時レポートは作成しない)
+6. ロードマップ全体に効く長寿命の前提・制約 (= 配下の複数 `dev-workflow` サイクルが共有する判断) が Intent 明確化中に発見された場合、**Roadmap mode ADR (`docs/roadmap/<roadmap-id>/adr/`)** として別途起票することを Main 判断で行う (詳細: `adr/SKILL.md` の「モード判定フロー」)。`roadmap.md` から該当 ADR にリンクする
 
 **成果物:**
 
@@ -165,6 +166,7 @@ graph LR
 3. 不十分なら**同じ `roadmap-planner` インスタンス**に不足点を差し戻して再分解
 4. `roadmap-planner` は `roadmap.md` にマイルストーン一覧と依存グラフ (Mermaid `graph LR`) を追記、`milestones/<milestone-id>.md` 群を生成、`roadmap-progress.yaml.milestones[]` を確定 (`id` / `title` / `status: planned` / `depends_on` / 空 `workflow_identifiers: []` / `notes: null`)、ロードマップ全体 `status: active` に遷移
 5. **確定版 `roadmap.md` + `milestones/<milestone-id>.md` 群そのものをユーザーに提示**して実行開始の承認を得る
+6. マイルストーン分解中に**ロードマップ配下の複数サイクルが共有する規範**が明確化された場合 (例: 共通 API 契約、共通データモデル、共通エラーハンドリング方針)、**Roadmap mode ADR (`docs/roadmap/<roadmap-id>/adr/`)** として別途起票することを Main 判断で行う。`milestones/<id>.md` から該当 ADR へリンクする
 
 **成果物:**
 
@@ -242,6 +244,7 @@ graph LR
    - テンプレート (`shared-artifacts/templates/roadmap-retrospective.md`) と reference (`shared-artifacts/references/roadmap-retrospective.md`)
 2. `roadmap-retrospective-writer` が `docs/retrospective/roadmap-<roadmap-id>.md` (集約形式 + `roadmap-` prefix) を生成し、ロードマップ全体 `status: completed` に遷移
 3. 生成された Retrospective Note をユーザーに提示 (情報共有のみ、Gate は Main 判定)
+4. 振り返り中に**永続記録すべき roadmap 共有の判断**が抽出された場合、Roadmap mode ADR (`docs/roadmap/<roadmap-id>/adr/`) として切り出すことを Main 判断で行う。**roadmap 完了後に他 roadmap や独立 workflow にも波及する**と判明した場合は General mode (`docs/adr/`) で起票し、retrospective から該当 ADR にリンク
 
 **成果物:**
 
@@ -355,14 +358,19 @@ milestones:
 ```mermaid
 graph LR
     subgraph docs[docs/]
+        subgraph adr_global[docs/adr/]
+            AG1[General mode ADR]
+        end
         subgraph roadmap_dir[docs/roadmap/]
             R1[roadmap-id-A/]
             R1F1[roadmap.md]
             R1F2[milestones/&lt;milestone-id&gt;.md]
             R1F3[roadmap-progress.yaml]
+            R1F4[adr/ &mdash; Roadmap mode ADR]
             R1 --> R1F1
             R1 --> R1F2
             R1 --> R1F3
+            R1 --> R1F4
         end
         subgraph workflow_dir[docs/workflow/]
             W1[identifier-A/]
@@ -402,6 +410,15 @@ graph LR
 
 この prefix 命名規則は `shared-artifacts/references/roadmap-retrospective.md` にも明記する。`gls docs/retrospective/roadmap-*.md` で roadmap retrospective を一括抽出可能。
 
+### Roadmap mode ADR の保存先
+
+ロードマップ配下の複数 `dev-workflow` サイクルが共有する判断は、**Roadmap mode ADR** として `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD>-<title>.md` に保存する。詳細フォーマットと運用ルール (`scope: roadmap:<roadmap-id>` の frontmatter / 不変性原則 / supersede 規則) は `adr/SKILL.md` に集約。
+
+- 起票発生時に都度 `docs/roadmap/<roadmap-id>/adr/` ディレクトリを作成 (空ディレクトリは作らない)
+- ファイル名は `<YYYY-MM-DD>-<title>.md` 形式 (`adr/SKILL.md` の「ファイル名」ルール)
+- 起票元: `roadmap-analyst` (Step 1 で意図起源の規範を発見) / `roadmap-planner` (Step 2 で共有契約を発見) / `roadmap-retrospective-writer` (Step 4 で永続記録すべき判断を抽出) / 配下 `dev-workflow` サイクルの `architect` (サイクル横断判断のうち roadmap 内に閉じるもの) いずれも Main 判断で起票
+- 起票したら `roadmap.md` / `milestones/<id>.md` / `design.md` (該当サイクル内) から該当 ADR にリンク
+
 ### `<roadmap-id>` の命名ルール
 
 - `<roadmap-id>` は人間可読でドメインを表す短い英数ハイフン名 (例: `oauth-rollout`, `notification-platform`, `payment-modernization`)
@@ -431,10 +448,10 @@ graph LR
 | Step                       | コミット内容                                                                                                           |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | サイクル開始時             | `docs/roadmap/<roadmap-id>/` ディレクトリ作成 + `roadmap-progress.yaml` 初期化 (Step 1 と同コミットでも可)             |
-| 1. Roadmap Intent          | `roadmap.md` (Intent セクション) + `roadmap-progress.yaml`                                                             |
-| 2. Milestone Decomposition | `roadmap.md` (マイルストーン追記版) + `milestones/*.md` (全マイルストーンまとめて) + `roadmap-progress.yaml`           |
-| 3. Execution               | (本ステップ自身のコミットなし。配下 `dev-workflow` サイクルが各々の規約でコミット)                                     |
-| 4. Roadmap Retrospective   | `docs/retrospective/roadmap-<roadmap-id>.md` + `roadmap-progress.yaml` (`status: completed`、ロードマップ最終コミット) |
+| 1. Roadmap Intent          | `roadmap.md` (Intent セクション) + `roadmap-progress.yaml` (+ Roadmap mode ADR があれば `docs/roadmap/<roadmap-id>/adr/<file>.md`) |
+| 2. Milestone Decomposition | `roadmap.md` (マイルストーン追記版) + `milestones/*.md` (全マイルストーンまとめて) + `roadmap-progress.yaml` (+ Roadmap mode ADR があれば追加) |
+| 3. Execution               | (本ステップ自身のコミットなし。配下 `dev-workflow` サイクルが各々の規約でコミット。配下サイクルが Roadmap / General mode ADR を起票する場合も配下サイクルのコミットに含める) |
+| 4. Roadmap Retrospective   | `docs/retrospective/roadmap-<roadmap-id>.md` + `roadmap-progress.yaml` (`status: completed`、ロードマップ最終コミット) (+ retrospective から切り出した ADR があれば追加) |
 
 #### コミットメッセージ規約
 
@@ -564,5 +581,8 @@ Specialist 起動時、Main はテンプレートパスと reference パスの**
 - **個別 Specialist の作業詳細**: `specialist-roadmap-analyst` / `specialist-roadmap-planner` / `specialist-roadmap-retrospective-writer` および `specialist-common` (横断ルール) に委譲
 - **Specialist をサブエージェントとして起動するエントリポイント定義**: `agents/roadmap-analyst.md` / `agents/roadmap-planner.md` / `agents/roadmap-retrospective-writer.md` に委譲
 - **成果物の書き方とテンプレート仕様**: `shared-artifacts` スキルに委譲 (`references/roadmap*.md` および `templates/roadmap*.md` / `templates/milestone.md`)
-- **プロジェクト全体に及ぶ横断的な意思決定の記録**: `adr` スキルに委譲 (本スキル内のサイクル固有判断は `roadmap.md` で完結する)
+- **意思決定の恒久記録 (ADR)**: `adr` スキルに委譲。`adr` スキルは 2 モードを持ち、本ロードマップが扱う対象は次のように分かれる:
+  - **General mode (`docs/adr/`)**: 複数 roadmap を跨ぐ判断 / 当 roadmap 外の独立した dev-workflow サイクルとも共有される判断 / プロジェクト全体に及ぶ判断
+  - **Roadmap mode (`docs/roadmap/<roadmap-id>/adr/`)**: **当ロードマップ配下の複数 dev-workflow サイクルが共有する文脈・前提・規範** (= 本スキルが特に重視する用途。roadmap 文脈に閉じる共有事項は `roadmap.md` の Intent / `milestones/<id>.md` には書ききれない長寿命の判断記録としてここに残す)
+  - 詳細: `adr/SKILL.md` の「モード判定フロー」「適用モードと保存場所」参照
 - **単一サイクルで完結する開発**: `dev-workflow` を直接使う (本スキルは複数サイクル規模の戦略層が必要な場面のみ起動)

@@ -55,7 +55,7 @@ description: >
 
 - `docs/roadmap/<roadmap-id>/roadmap.md` (Intent セクション; 既に Step 1 で確定済み)
 - `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` (Step 1 で初期化済み、`milestones: []` 状態)
-- 既存の `docs/adr/` 配下 ADR 群 (本ロードマップが踏まえるべき横断規範)
+- 既存の ADR 群 (本ロードマップが踏まえるべき横断規範): `docs/adr/` (General mode) および当該 roadmap 配下 `docs/roadmap/<roadmap-id>/adr/` (Roadmap mode、Step 1 で起票していれば)
 - 関連プロジェクト固有スキル (`effect-layer` / `git-workflow` / `vite-plus` 等のパス) — マイルストーン粒度の判断に必要
 - テンプレート / reference のパス: `templates/milestone.md` / `templates/roadmap.md` / `templates/roadmap-progress.yaml` および対応する `references/*.md`
 
