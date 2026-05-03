@@ -34,12 +34,12 @@
 
 ## ライフサイクル
 
-`references/retrospective.md` (workflow 用) と同様、roadmap retrospective も**揮発的な報告ボックス**として運用する。永続記録すべき判断は ADR (`docs/adr/`) に切り出してから retrospective を削除する。
+`references/retrospective.md` (workflow 用) と同様、roadmap retrospective も**揮発的な報告ボックス**として運用する。永続記録すべき判断は ADR (General mode `docs/adr/` / Roadmap mode `docs/roadmap/<roadmap-id>/adr/`、モード判定は `adr/SKILL.md`) に切り出してから retrospective を削除する。
 
-| 種別                  | 保存先                                       | ライフサイクル                                             |
-| --------------------- | -------------------------------------------- | ---------------------------------------------------------- |
-| ADR                   | `docs/adr/`                                  | 永続。`confirmed: true` 化後は不変                         |
-| Roadmap Retrospective | `docs/retrospective/roadmap-<roadmap-id>.md` | 揮発。次ロードマップ起票時に改善案項目が消化されたら削除可 |
+| 種別                  | 保存先                                              | ライフサイクル                                             |
+| --------------------- | --------------------------------------------------- | ---------------------------------------------------------- |
+| ADR                   | `docs/adr/` または `docs/roadmap/<roadmap-id>/adr/` | 永続。`confirmed: true` 化後は不変                         |
+| Roadmap Retrospective | `docs/retrospective/roadmap-<roadmap-id>.md`        | 揮発。次ロードマップ起票時に改善案項目が消化されたら削除可 |
 
 ただし `dev-roadmap` は `dev-workflow` よりも長期スパンで起票されるため、削除頻度は workflow より低い。直近 1〜2 ロードマップ分は残しておくことを推奨する。
 

@@ -79,7 +79,7 @@ graph LR
 
 {{references}}
 
-- 関連 ADR (`docs/adr/`)
+- 関連 ADR: General mode `docs/adr/` および本ロードマップ配下の Roadmap mode `docs/roadmap/<roadmap-id>/adr/` (起票している場合)
 - 関連 Issue / チケット
 - 上位プロダクト計画書 / OKR
 - 関連既存サイクル (`docs/workflow/<identifier>/`、関係する完了サイクルの `intent-spec.md` 等)
