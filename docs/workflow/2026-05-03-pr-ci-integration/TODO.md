@@ -26,12 +26,12 @@
   - notes: design.md の「コンポーネント構成 § A」「主要な型・インターフェース § シェル擬似コード」「PR description テンプレート」を SKILL.md L767 直後にコピーペースト。約 110 行。Wave 1 で T4 / T5 と並列起動可。
 
 - [ ] **T2** — dev-workflow/SKILL.md の各 Step Exit Criteria に CI PASS 条件を追記
-  - status: pending
+  - status: in_progress
   - dependencies: T1 (同一ファイル編集のため Wave 跨ぎで直列化)
-  - started_at: -
+  - started_at: 2026-05-03T05:35:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T2
   - re_activations: 0
   - notes: Step 1〜9 の Exit Criteria 末尾に統一文言で 1 行追加 (9 箇所)。Step 6 のみ「全タスク単位コミット」に微修正。Wave 2 で単独実行。実装前に動的行番号取得必須 (T1 でファイルが伸びているため)。
 
