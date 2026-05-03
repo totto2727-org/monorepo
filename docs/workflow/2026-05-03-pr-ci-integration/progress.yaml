@@ -1,9 +1,9 @@
 identifier: 2026-05-03-pr-ci-integration
 started_at: 2026-05-03T00:00:00Z
-updated_at: 2026-05-03T05:10:00Z
+updated_at: 2026-05-03T06:05:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 6 (Implementation)'
+current_step: 'Step 7 (External Review)'
 
 completed_steps:
   - step: 'Step 1 (Intent Clarification)'
@@ -97,6 +97,23 @@ completed_steps:
       TODO.md 側で管理。Step 6 全体所要見積り: ~2.5-3.5 時間 (CI 待機含む)。
       ユーザー事前一括承認のため Step 5 Gate も即時通過。
       TODO.md を生成し全タスク `status: pending` で初期化。
+
+  - step: 'Step 6 (Implementation)'
+    completed_at: 2026-05-03T06:05:00Z
+    artifacts:
+      - dev-workflow/SKILL.md (改修, +204 行)
+      - specialist-common/SKILL.md (改修, +1 行)
+      - shared-artifacts/references/progress-yaml.md (改修, +2 行)
+      - qa-design.md (TC-009 補正)
+      - 全 cycle artefacts (oxfmt formatting 適用)
+    notes: |
+      5 implementer 並列で T1-T5 を 3 Wave で完了 (T1/T4/T5 並列、T2 単独、T3 単独)。
+      Wave 1 並列効果で実所要 ~25 分 (見積り ~120 分の 1/4 強)。
+      コミット: T4=bc1a84d, T5=8a2aff6, T1=45dff2b, T2=1509c57, T3=0001ed9。
+      後発追加タスク T6 (oxfmt cleanup, commit d0250d1), T7 (qa-design TC-009
+      補正, commit 80ce71a) を Step 7 進入前に処理済。
+      vp check 全 457 ファイル PASS 確認済。各タスクコミットの CI も全 PASS。
+      ユーザー事前一括承認のため Step 6 Gate も即時通過。
 
 pending_gates: []
 
