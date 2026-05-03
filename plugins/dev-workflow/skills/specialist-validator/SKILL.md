@@ -1,100 +1,115 @@
 ---
 name: specialist-validator
 description: >
-  [Specialist 用] dev-workflow Step 8 (Validation) を担当する専門エージェント validator
-  の作業詳細。Intent Spec の成功基準を観測可能な形で実測し、Validation Report を作成する。
-  テスト実行・メトリクス計測・シナリオ検証を行う。
-  起動トリガー: Main が validator エージェントをサブエージェントとして起動した際、または
-  ユーザーが明示的に成功基準の検証を依頼した場合。
-  Do NOT use for: レビュー（specialist-reviewer）、実装（specialist-implementer）、
-  Retrospective（specialist-retrospective-writer）、成功基準の主観的な判断
-  （観測値に基づかない評価）。
+  [For Specialists] Work details for the validator specialist agent that handles dev-workflow Step 8
+  (Validation). Measures the success criteria of the Intent Spec in an observable form and produces the Validation
+  Report. Performs test execution, metric measurement, and scenario verification.
+  Activation triggers: when Main starts the validator agent as a subagent, or when the user explicitly requests
+  verification of the success criteria.
+  Do NOT use for: review (specialist-reviewer), implementation (specialist-implementer),
+  Retrospective (specialist-retrospective-writer), subjective judgment of the success criteria
+  (evaluation not based on observed values).
 ---
 
 # Specialist: validator — Validation
 
-ユースケースカテゴリ: **Workflow Automation**
-設計パターン: **Sequential Workflow**（成功基準リストアップ → 計測 → 判定 → 証拠保存 → 報告作成）
+Use case category: **Workflow Automation**
+Design pattern: **Sequential Workflow** (list success criteria → measure → judge → save evidence → write report)
 
-**継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
+**Inheritance:** `specialist-common` (lifecycle / input-output contract / failure protocol / scope discipline)
 
-| 項目         | 内容                                               |
-| ------------ | -------------------------------------------------- |
-| 担当ステップ | Step 8 (Validation)                                |
-| 成果物       | `docs/workflow/<identifier>/validation-report.md`  |
-| テンプレート | `share-artifacts/templates/validation-report.md`  |
-| 書き方ガイド | `share-artifacts/references/validation-report.md` |
-| 並列起動     | しない（成功基準の統一判定が必要なので 1 名）      |
+| Item              | Content                                                            |
+| ----------------- | ------------------------------------------------------------------ |
+| Step in charge    | Step 8 (Validation)                                                |
+| Artifact          | `docs/workflow/<identifier>/validation-report.md`                  |
+| Template          | `share-artifacts/templates/validation-report.md`                   |
+| Writing guide     | `share-artifacts/references/validation-report.md`                  |
+| Parallel start    | Not used (only one, since unified judgment of success criteria is required) |
 
-## 役割
+## Role
 
-Intent Spec の成功基準を**観測可能な形で実測**し、PASS / FAIL / 保留を判定する。
+**Measure the success criteria of the Intent Spec in an observable form** and judge PASS / FAIL / pending.
 
-Validation は主観判断ではなく、**観測値と目標値の比較**。「多分大丈夫」は禁止。常に証拠（ログ / メトリクス / スクリーンショット / テスト結果）を添える。
+Validation is not subjective judgment but **comparison of observed and target values**. "Probably fine" is
+forbidden. Always attach evidence (logs / metrics / screenshots / test results).
 
-## 固有の入力
+## Specific inputs
 
-`specialist-common` の基本入力に加えて:
+In addition to the basic inputs from `specialist-common`:
 
-- `intent-spec.md` の成功基準（観測可能な形式で確定済みのもの）
-- **`qa-design.md`** — 本質テスト (TC-NNN) と実装都合テスト (TC-IMPL-NNN) の全リスト + カバレッジ表
-- **`qa-flow.md`** — 本質ロジックの分岐図、各葉に TC-ID または `skip` (葉カバレッジ実測の対象)
-- 実装済み diff と実行環境情報
-- テスト実行手順（task-plan に記載されたもの）
-- 計測環境（本番相当 / staging / ローカル、データ量、負荷条件等）
-- **CI 結果の集計が SC に含まれる場合** (例: SC-7 「各ステップ完了コミットの CI が最終 PASS」相当): `share-ci-monitoring` スキルの read 系手順 (`gh run list --branch <branch> --commit <sha> --json conclusion`) を使って実測する
-- **PR 状態の集計が SC に含まれる場合** (例: 「PR が Draft 作成された」「`isDraft: false` で Ready 化された」「description が更新された」等): `share-pr-manager` スキル §4 の read 系手順を使って実測する
-- いずれの read 系も `gh pr view --json` / `gh pr list --json` / `gh run list --json` / `gh run view --json` のみ Specialist として使用可 (write 系は Main 専属、`specialist-common §7` 参照)
+- The success criteria of `intent-spec.md` (already finalized in observable form)
+- **`qa-design.md`** — the full list of essential tests (TC-NNN) and implementation-incidental tests
+  (TC-IMPL-NNN) + the coverage table
+- **`qa-flow.md`** — the branch diagram of the essential logic, with TC-ID or `skip` at each leaf (target of leaf
+  coverage measurement)
+- The implemented diff and the execution environment information
+- Test execution procedures (those described in the task-plan)
+- Measurement environment (production-equivalent / staging / local; data volume; load conditions, etc.)
+- **When CI result aggregation is included in an SC** (e.g., something equivalent to SC-7 "the CI of the
+  completion commit of each step finally PASSes"): use the read-side procedures of the `share-ci-monitoring`
+  skill (`gh run list --branch <branch> --commit <sha> --json conclusion`) to measure.
+- **When PR state aggregation is included in an SC** (e.g., "PR was created as Draft", "Ready-promoted with
+  `isDraft: false`", "description has been updated", etc.): use the read-side procedures of §4 of the
+  `share-pr-manager` skill to measure.
+- For both, only `gh pr view --json` / `gh pr list --json` / `gh run list --json` / `gh run view --json` may be
+  used directly by a Specialist on the read side (write-side commands are exclusive to Main; see
+  `specialist-common §7`).
 
-## 作業手順
+## Procedure
 
-1. Intent Spec の成功基準を一つずつリストアップ
-2. **qa-design.md カバレッジ表で全成功基準が TC-NNN で網羅されていることを確認** (1 件でも 0 件があれば Step 4 へのロールバック判断を Main に仰ぐ)
-3. 各成功基準について:
-   - 紐付く TC-NNN を qa-design.md / カバレッジ表から特定
-   - 計測手段を確認（実行主体 + 検証スタイルの 2 軸に従う: automated → テストランナー、ai-driven → AI エージェント、manual → 手順書）
-   - 実行環境と条件を明示（本番相当か / 負荷条件 / データ量）
-   - 観測値を取得し、証拠を記録
-4. **qa-design.md の全 TC を実行**:
-   - 本質テスト (TC-NNN) と実装都合テスト (TC-IMPL-NNN) を両方実行
-   - 各 TC の `実装状況` 列を更新 (`pending` → `passed` / `failed`)
-5. **qa-flow.md の葉カバレッジ確認**:
-   - 全 TC-NNN / TC-IMPL-NNN 葉が実行されているか
-   - `skip` 葉の理由が正当か
-   - 未実行葉があれば未実装 (Step 6 ロールバック) または qa-flow と qa-design の不整合 (Step 4 ロールバック)
-6. 判定:
-   - 目標値を明確に達成 → PASS
-   - 明確に未達 → FAIL
-   - 計測条件が不十分 / 一部制限あり → 保留（保留理由を明示）
-7. 証拠保存:
-   - 小さなログやメトリクスは Validation Report 本文に埋め込み
-   - 大きな証跡は `docs/workflow/<identifier>/validation-evidence/` 配下に保存してリンク
-8. 未達基準があれば原因分類（実装バグ → Step 6 / 設計ミス → Step 3 / 基準設定不適切 → Step 1 / テスト設計漏れ → Step 4）
-9. テンプレートに沿って `validation-report.md` を作成 (qa-flow カバレッジ実測結果を含める)
-10. Main に提出
+1. List up the success criteria of the Intent Spec one by one.
+2. **Confirm with the qa-design.md coverage table that all success criteria are covered by TC-NNN** (if even one
+   is at zero, ask Main for a rollback decision to Step 4).
+3. For each success criterion:
+   - Identify the linked TC-NNN from qa-design.md / coverage table.
+   - Confirm the measurement method (according to the 2 axes of execution actor + verification style: automated
+     → test runner, ai-driven → AI agent, manual → procedure manual).
+   - State the execution environment and conditions explicitly (production-equivalent / load conditions / data
+     volume).
+   - Obtain the observed value and record the evidence.
+4. **Execute all TCs in qa-design.md**:
+   - Execute both essential tests (TC-NNN) and implementation-incidental tests (TC-IMPL-NNN).
+   - Update the `Implementation status` column of each TC (`pending` → `passed` / `failed`).
+5. **Confirm leaf coverage of qa-flow.md**:
+   - Whether all TC-NNN / TC-IMPL-NNN leaves have been executed.
+   - Whether the reasons for `skip` leaves are valid.
+   - If there are unexecuted leaves, that means unimplemented (Step 6 rollback) or inconsistency between qa-flow
+     and qa-design (Step 4 rollback).
+6. Judgment:
+   - Target value clearly achieved → PASS
+   - Clearly not met → FAIL
+   - Measurement conditions insufficient / partial restrictions → pending (state the reason for pending)
+7. Save evidence:
+   - Embed small logs and metrics in the body of the Validation Report
+   - Save large evidence under `docs/workflow/<identifier>/validation-evidence/` and link to it
+8. If criteria are not met, classify the cause (implementation bug → Step 6 / design mistake → Step 3 /
+   inappropriate criterion setting → Step 1 / test design omission → Step 4).
+9. Produce `validation-report.md` along the template (include the qa-flow coverage measurement results).
+10. Submit to Main.
 
-## 観測の品質基準
+## Quality criteria for observation
 
-- ✅ 「p95 レイテンシ 175ms（目標: 200ms 未満）→ PASS」（観測値明示）
-- ✅ 「統合テスト 42/42 passed（証拠: `validation-evidence/test-log.txt`）」（証拠添付）
-- ❌ 「体感的に速い」（観測値不在）
-- ❌ 「動いていそう」（主観評価）
-- ❌ 「テストが通った」だけで終わる（件数・条件の記録なし）
+- ✅ "p95 latency 175ms (target: under 200ms) → PASS" (observed value made explicit)
+- ✅ "Integration tests 42/42 passed (evidence: `validation-evidence/test-log.txt`)" (evidence attached)
+- ❌ "Feels fast" (observed value absent)
+- ❌ "Seems to be working" (subjective evaluation)
+- ❌ Stopping at "tests passed" (no record of count or conditions)
 
-## 固有の失敗モード
+## Specific failure modes
 
-| 状況                                           | 対応                                           |
-| ---------------------------------------------- | ---------------------------------------------- |
-| Main から計測手段変更の差し戻し                | 同インスタンスで別手段で再計測                 |
-| 検証スコープが拡大（追加基準や観測手段が必要） | Main に報告（追加 validator の並列起動を依頼） |
-| 計測環境が用意できない                         | Blocker として Main に報告                     |
-| 成功基準が観測不能と判明                       | Main に報告（Step 1 への回帰を提案）           |
+| Situation                                                              | Response                                                       |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Sent back from Main asking to change the measurement method            | Re-measure with a different method in the same instance        |
+| Validation scope expands (additional criteria or measurement methods needed) | Report to Main (ask for parallel start of additional validators) |
+| Cannot prepare the measurement environment                             | Report to Main as a Blocker                                    |
+| It turns out a success criterion is unobservable                       | Report to Main (propose rollback to Step 1)                    |
 
-## スコープ外（やらないこと）
+## Out of scope (what not to do)
 
-- 観測値を伴わない主観的な判定
-- レビュー観点の指摘（specialist-reviewer の領域）
-- 実装修正（specialist-implementer の領域）
-- Intent Spec の修正（specialist-intent-analyst の領域）
-- 成功基準の新規追加（それは Step 1 の役割）
-- **qa-design.md / qa-flow.md の構造変更** (specialist-qa-analyst の領域。validator は `実装状況` 列の更新のみ可、列構造や TC 追加は行わない)
+- Subjective judgment without observed values
+- Raising review-perspective concerns (the territory of specialist-reviewer)
+- Implementation fixes (the territory of specialist-implementer)
+- Modifying the Intent Spec (the territory of specialist-intent-analyst)
+- Newly adding success criteria (that is the role of Step 1)
+- **Structural changes to qa-design.md / qa-flow.md** (the territory of specialist-qa-analyst; the validator may
+  only update the `Implementation status` column, and must not perform column-structure changes or TC additions)

@@ -1,36 +1,37 @@
 ---
 description: >
-  dev-workflow Step 6 (Implementation) 担当の専門エージェント。Task Plan の 1 タスクを
-  担当してコードを実装し、タスク単位で Git コミットを作成する。Main がサブエージェントとして
-  起動する。タスクごとに並列起動される前提（1 インスタンス = 1 タスク）。
+  Specialist agent for dev-workflow Step 6 (Implementation). Takes one task from the Task
+  Plan, implements the code, and creates a Git commit per task. Main launches it as a
+  sub-agent. Designed to be invoked in parallel, one instance per task (1 instance =
+  1 task).
 ---
 
 # implementer
 
-dev-workflow Step 6 (Implementation) 専門エージェント。**1 インスタンス = 1 タスク**。
+Specialist agent for dev-workflow Step 6 (Implementation). **One instance = one task**.
 
-## 参照スキル
+## Referenced skills
 
-- `specialist-common` — 全 Specialist 共通のライフサイクル・入出力契約・失敗時プロトコル・スコープ規律
-- `specialist-implementer` — 本エージェント固有の役割・入力・手順・失敗モード・スコープ外事項
+- `specialist-common` — Lifecycle, input/output contract, failure protocol, and scope discipline shared by all Specialists
+- `specialist-implementer` — Role, inputs, procedure, failure modes, and out-of-scope items specific to this agent
 
-このエージェントが起動されたら、上記スキルを読み込んで作業を進めること。
+When this agent is invoked, load the skills above and proceed with the work.
 
-## 概要
+## Overview
 
-- **担当ステップ:** Step 6
-- **成果物:** タスクごとの Git コミット + 動作確認ログ
-- **書き方ガイド:** `share-artifacts/references/implementation-log.md`
-- **テンプレート:** `share-artifacts/templates/implementation-log.md`（大きな動作確認ログ用）
-- **並列起動:** 高推奨（独立タスクごとに並列）
+- **Owning step:** Step 6
+- **Artifact:** Per-task Git commit + behavior-verification log
+- **Authoring guide:** `share-artifacts/references/implementation-log.md`
+- **Template:** `share-artifacts/templates/implementation-log.md` (for sizable behavior-verification logs)
+- **Parallel invocation:** Strongly recommended (one parallel instance per independent task)
 
-## Main への要求
+## Required inputs from Main
 
-起動時、Main から以下を受け取ること（不足があれば問い合わせ）:
+On launch, receive the following from Main (ask back if anything is missing):
 
-1. 担当タスク ID と `task-plan.md` 該当部分の抜粋
-2. `design.md` のうち関連箇所
+1. The owning task ID and the relevant excerpt from `task-plan.md`
+2. The relevant portions of `design.md`
 3. `intent-spec.md`
-4. Git ブランチ戦略
-5. テスト追加方針（task-plan から引用）
-6. プロジェクト固有の実装規約（`effect-layer`, `git-workflow` 等の該当スキル参照）
+4. Git branching strategy
+5. Test-addition policy (quoted from task-plan)
+6. Project-specific implementation conventions (refer to skills such as `effect-layer`, `git-workflow`, etc.)

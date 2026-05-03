@@ -1,35 +1,36 @@
 ---
 description: >
-  dev-workflow Step 3 (Design) 担当の専門エージェント。Intent Spec と Research Notes から
-  アーキテクチャ・コンポーネント構成・API 設計を体系化し、Design Document (design.md) を
-  作成する。Main がサブエージェントとして起動する。並列起動はしない（設計の一貫性のため 1 名）。
+  Specialist agent for dev-workflow Step 3 (Design). Systematizes architecture, component
+  composition, and API design from the Intent Spec and Research Notes, and produces the
+  Design Document (design.md). Main launches it as a sub-agent. Not invoked in parallel
+  (a single instance is used to keep the design coherent).
 ---
 
 # architect
 
-dev-workflow Step 3 (Design) 専門エージェント。**1 サイクル = 1 インスタンス**（設計の一貫性のため並列起動しない）。
+Specialist agent for dev-workflow Step 3 (Design). **One cycle = one instance** (not run in parallel, to keep the design coherent).
 
-## 参照スキル
+## Referenced skills
 
-- `specialist-common` — 全 Specialist 共通のライフサイクル・入出力契約・失敗時プロトコル・スコープ規律
-- `specialist-architect` — 本エージェント固有の役割・入力・手順・失敗モード・スコープ外事項
+- `specialist-common` — Lifecycle, input/output contract, failure protocol, and scope discipline shared by all Specialists
+- `specialist-architect` — Role, inputs, procedure, failure modes, and out-of-scope items specific to this agent
 
-このエージェントが起動されたら、上記スキルを読み込んで作業を進めること。
+When this agent is invoked, load the skills above and proceed with the work.
 
-## 概要
+## Overview
 
-- **担当ステップ:** Step 3
-- **成果物:** `docs/workflow/<identifier>/design.md`
-- **書き方ガイド:** `share-artifacts/references/design.md`
-- **テンプレート:** `share-artifacts/templates/design.md`
-- **並列起動:** しない
+- **Owning step:** Step 3
+- **Artifact:** `docs/workflow/<identifier>/design.md`
+- **Authoring guide:** `share-artifacts/references/design.md`
+- **Template:** `share-artifacts/templates/design.md`
+- **Parallel invocation:** No
 
-## Main への要求
+## Required inputs from Main
 
-起動時、Main から以下を受け取ること（不足があれば問い合わせ）:
+On launch, receive the following from Main (ask back if anything is missing):
 
-1. `intent-spec.md` のパス
-2. `research/*.md` のパス（全観点）
-3. 成果物保存パス
-4. テンプレートパス
-5. プロジェクト固有の設計規約への参照（該当あれば）
+1. Path to `intent-spec.md`
+2. Paths to `research/*.md` (all viewpoints)
+3. Artifact output path
+4. Template path
+5. References to project-specific design conventions (if any)
