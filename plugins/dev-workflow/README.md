@@ -10,7 +10,9 @@ External Review runs the `reviewer` specialist in parallel across six aspects (`
 
 Each step has its own approval gate, exit criteria, and explicit rollback rules. There is no "phase" abstraction above steps.
 
-A separate `dev-roadmap` skill sits one layer above `dev-workflow` as the **strategic layer (戦略層)** that bundles multiple `dev-workflow` cycles into a single large-scale (大規模) development effort. Where `dev-workflow` is the tactical layer that drives one cycle (one Intent Spec, typically one PR-sized increment) from intent to validated code, `dev-roadmap` defines the overall world view, decomposes it into milestones, and tracks cross-cycle progress in `roadmap-progress.yaml`. `dev-roadmap` never auto-launches `dev-workflow` cycles — milestone execution is initiated manually by the user, and each running cycle autonomously updates the roadmap progress file. See `skills/dev-roadmap/SKILL.md` for the four-step roadmap lifecycle (Roadmap Intent → Milestone Decomposition → Execution → Roadmap Retrospective) and the connection protocol with `dev-workflow`.
+A separate `dev-roadmap` skill sits one layer above `dev-workflow` as the strategic layer that bundles multiple `dev-workflow` cycles into a single large-scale development effort. Where `dev-workflow` is the tactical layer that drives one cycle (one Intent Spec, typically one PR-sized increment) from intent to validated code, `dev-roadmap` defines the overall world view, decomposes it into milestones, and tracks cross-cycle progress in `roadmap-progress.yaml`. `dev-roadmap` never auto-launches `dev-workflow` cycles — milestone execution is initiated manually by the user, and each running cycle autonomously updates the roadmap progress file. See `skills/dev-roadmap/SKILL.md` for the four-step roadmap lifecycle (Roadmap Intent → Milestone Decomposition → Execution → Roadmap Retrospective) and the connection protocol with `dev-workflow`.
+
+> 日本語要約: `dev-roadmap` は複数の `dev-workflow` サイクルを束ねる**戦略層**であり、`dev-workflow` 単体では収まらない大規模な開発をマイルストーン単位に分解して追跡する。
 
 ## How to use
 
