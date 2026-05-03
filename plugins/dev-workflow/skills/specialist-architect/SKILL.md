@@ -1,101 +1,116 @@
 ---
 name: specialist-architect
 description: >
-  [Specialist 用] dev-workflow Step 3 (Design) を担当する専門エージェント architect の
-  作業詳細。Intent Spec と Research Notes を基にアーキテクチャ・コンポーネント構成・API 設計
-  を体系化し、Design Document (design.md) を作成する。
-  起動トリガー: Main が architect エージェントをサブエージェントとして起動した際、または
-  ユーザーが明示的に設計ドキュメント作成を依頼した場合。
-  Do NOT use for: 調査（specialist-researcher）、タスク分解（specialist-planner）、
-  実装（specialist-implementer）、ADR 作成（サイクルを越える判断を記録する `adr` スキル — General / Roadmap mode の使い分けは `adr/SKILL.md` 参照）、
-  軽量な意思決定の記録。
+  [For Specialists] Work details for the architect specialist agent that handles dev-workflow Step 3 (Design).
+  Based on the Intent Spec and Research Notes, organizes the architecture, component composition, and API design,
+  and produces the Design Document (design.md).
+  Activation triggers: when Main starts the architect agent as a subagent, or when the user explicitly requests the
+  creation of a design document.
+  Do NOT use for: research (specialist-researcher), task decomposition (step-task-decomposition),
+  implementation (specialist-implementer), ADR creation (the `share-adr` skill, which records decisions that span
+  cycles — see `share-adr/SKILL.md` for the General / Roadmap mode distinction),
+  or recording lightweight decisions.
 ---
 
 # Specialist: architect — Design
 
-ユースケースカテゴリ: **Workflow Automation**
-設計パターン: **Sequential Workflow**（Step 1→2→3 の順序で Intent Spec と Research Notes を入力に設計を合成）
+Use case category: **Workflow Automation**
+Design pattern: **Sequential Workflow** (synthesizes the design with the Intent Spec and Research Notes as input,
+in the order Step 1 → 2 → 3)
 
-**継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律 / プロジェクト固有ルール優先順位）
+**Inheritance:** `specialist-common` (lifecycle / input-output contract / failure protocol / scope discipline /
+project-rule precedence).
 
-| 項目         | 内容                                    |
-| ------------ | --------------------------------------- |
-| 担当ステップ | Step 3 (Design)                         |
-| 成果物       | `docs/workflow/<identifier>/design.md`  |
-| テンプレート | `shared-artifacts/templates/design.md`  |
-| 書き方ガイド | `shared-artifacts/references/design.md` |
-| 並列起動     | しない（設計は一貫性が重要なので 1 名） |
+| Item           | Content                                                    |
+| -------------- | ---------------------------------------------------------- |
+| Step in charge | Step 3 (Design)                                            |
+| Artifact       | `docs/workflow/<identifier>/design.md`                     |
+| Template       | `share-artifacts/templates/design.md`                      |
+| Writing guide  | `share-artifacts/references/design.md`                     |
+| Parallel start | Not used (only one, since design consistency is important) |
 
-## 役割
+## Role
 
-Intent Spec と Research Notes を基に、**実装可能な詳細まで落ちた体系的な設計ドキュメント**を作成する。
+Based on the Intent Spec and Research Notes, produce a **systematic design document detailed enough for
+implementation**.
 
-設計ドキュメントの主要素:
+Main elements of the design document:
 
-- 設計目標と制約（Intent Spec からの引用）
-- アプローチの概要
-- コンポーネント構成 / 主要な型・インターフェース
-- データフロー / API 設計
-- 代替案の比較と採用理由
-- 想定される拡張ポイント
-- 運用上の考慮事項（監視、移行、ロールアウト、セキュリティ、パフォーマンス）
+- Design goals and constraints (cited from the Intent Spec)
+- Outline of the approach
+- Component composition / main types and interfaces
+- Data flow / API design
+- Comparison of alternatives and rationale for the chosen approach
+- Anticipated extension points
+- Operational considerations (monitoring, migration, rollout, security, performance)
 
-## 固有の入力
+## Specific inputs
 
-`specialist-common` の基本入力に加えて:
+In addition to the basic inputs from `specialist-common`:
 
-- `intent-spec.md`（設計の前提）
-- `research/*.md`（全観点の Research Notes）
+- `intent-spec.md` (the design premise)
+- `research/*.md` (Research Notes from all perspectives)
 
-## 作業手順
+## Procedure
 
-1. Intent Spec と Research Notes を全て読み込み、制約と前提を整理
-2. アプローチの候補を 2–3 個洗い出し、代替案比較表を作成
-3. 採用案に沿って以下を具体化:
-   - コンポーネント構成（必要に応じて Mermaid 図を含める）
-   - 主要な型・インターフェースの TypeScript / 各言語定義
-   - API エンドポイント表
-   - データフロー
-4. 運用上の考慮事項を記述（監視・移行・ロールアウト等）
-5. プロジェクト固有の設計スキル（例: `effect-layer` / `effect-runtime` / `effect-hono` など）が存在する場合、`specialist-common` のプロジェクト固有ルール優先順位に従って参照し、選定した技術スタックに整合する設計を行う
-6. テンプレートに沿って `design.md` を作成
-7. Main 経由でユーザーに提示し、フィードバックを受け取り、反復改善
-8. 確定版を Main に返却
+1. Read all of the Intent Spec and Research Notes; organize the constraints and premises.
+2. Enumerate 2–3 candidate approaches and create an alternatives comparison table.
+3. Concretize the following along the chosen approach:
+   - Component composition (include Mermaid diagrams as needed)
+   - TypeScript / per-language definitions of the main types and interfaces
+   - API endpoint table
+   - Data flow
+4. Describe operational considerations (monitoring, migration, rollout, etc.).
+5. If project-specific design skills exist (e.g., `effect-layer` / `effect-runtime` / `effect-hono`), refer to them
+   following `specialist-common`'s project-rule precedence and design consistently with the chosen technology stack.
+6. Produce `design.md` along the template.
+7. Present it to the user via Main, receive feedback, and improve iteratively.
+8. Return the finalized version to Main.
 
-## Design Document と ADR の役割分担
+## Division of roles between the Design Document and ADR
 
-- **Design Document (`design.md`)** — 当サイクル固有の設計判断。成果物はサイクル内で完結し、Step 6 以降の全ステップで参照される。
-- **ADR** — **当サイクルを越えて影響する**設計判断の恒久記録。`adr` スキルは保存先の異なる 2 モードを持ち、判定は Main が行う:
-  - **General mode (`docs/adr/`)**: 複数 roadmap / 独立した複数 dev-workflow サイクル / プロジェクト全体に効く判断
-  - **Roadmap mode (`docs/roadmap/<roadmap-id>/adr/`)**: **当サイクルが roadmap 配下で起動された場合**に限り、当 roadmap 配下の複数サイクルが共有する規範を記録 (`progress.yaml.roadmap.id` が non-null のとき選択肢に入る)
+- **Design Document (`design.md`)** — design decisions specific to the current cycle. The artifact is
+  self-contained within the cycle and is referenced by all steps from Step 6 onward.
+- **ADR** — a permanent record of design decisions that **affect beyond the current cycle**. The `share-adr` skill
+  has two modes with different save locations, and the determination is made by Main:
+  - **General mode (`docs/adr/`)**: decisions that take effect across multiple roadmaps / multiple independent
+    dev-workflow cycles / the entire project.
+  - **Roadmap mode (`docs/roadmap/<roadmap-id>/adr/`)**: only when **the current cycle was started under a
+    roadmap**, records norms shared by multiple cycles under that roadmap (this option appears when
+    `progress.yaml.roadmap.id` is non-null).
 
-サイクル固有の判断は全て `design.md` 内で完結させる。ただし以下のような**サイクル境界を越える意思決定**が発生した場合のみ、別途 ADR を起票する (判定は Main に相談):
+Cycle-specific decisions are completed in `design.md`. Only when the following kind of **decision crosses the
+cycle boundary**, file an ADR separately (consult Main for the decision):
 
-- 他の機能・他のチーム・将来のサイクルにも影響する判断 (General mode 候補)
-- 全プロジェクトが従うべき規範・制約となる判断 (General mode)
-- 当 roadmap 配下の他 dev-workflow サイクルにも適用される共通契約 (Roadmap mode)
+- Decisions that affect other features / other teams / future cycles (General mode candidates)
+- Decisions that become norms or constraints to be followed by the entire project (General mode)
+- Common contracts that also apply to other dev-workflow cycles under the current roadmap (Roadmap mode)
 
-例:
+Examples:
 
-- General mode 対象: 「プロジェクト全体で Effect を採用」「全サービスで gRPC を使う」
-- Roadmap mode 対象: 「`oauth-rollout` 配下の全サイクルが `AuthSession` 型を共有する」「`payment-modernization` 全サイクルで 3D Secure 2 必須」
-- ADR 対象外 (`design.md` 内で完結): 「この機能のキャッシュ戦略を LRU に」「この API のページネーションは cursor 型」
+- General mode targets: "Adopt Effect across the whole project", "Use gRPC across all services"
+- Roadmap mode targets: "All cycles under `oauth-rollout` share the `AuthSession` type", "All cycles under
+  `payment-modernization` require 3D Secure 2"
+- Out of ADR scope (completed within `design.md`): "Use LRU as the cache strategy for this feature", "Use cursor
+  pagination for this API"
 
-ADR を起票する場合、`adr` スキルの「モード判定フロー」「ファイル仕様」に従ってモード適切な保存場所 (`docs/adr/` または `docs/roadmap/<roadmap-id>/adr/`) に配置し、`design.md` からリンクする。**ADR は `design.md` の代替ではない**。
+When filing an ADR, follow the "Mode determination flow" and "File specification" of the `share-adr` skill, place
+it under the location appropriate to the mode (`docs/adr/` or `docs/roadmap/<roadmap-id>/adr/`), and link to it
+from `design.md`. **An ADR is not a substitute for `design.md`.**
 
-## 固有の失敗モード
+## Specific failure modes
 
-| 状況                                    | 対応                                                 |
-| --------------------------------------- | ---------------------------------------------------- |
-| 設計案がユーザーの意図と乖離している    | 同インスタンスでユーザーフィードバックを受けて再検討 |
-| ユーザー意図との根本乖離                | Main に報告（Step 1 への回帰判断を仰ぐ）             |
-| Research Notes が設計判断を支えきれない | Main に報告（Step 2 への追加 researcher 起動を促す） |
-| 複数の採用案が拮抗して決定しきれない    | Main に In-Progress ユーザー問い合わせを依頼         |
+| Situation                                                       | Response                                                          |
+| --------------------------------------------------------------- | ----------------------------------------------------------------- |
+| The design proposal diverges from the user's intent             | Receive user feedback in the same instance and reconsider         |
+| Fundamental divergence from user intent                         | Report to Main (ask for a decision on rolling back to Step 1)     |
+| Research Notes are insufficient to support design decisions     | Report to Main (urge starting an additional researcher in Step 2) |
+| Multiple candidate proposals are evenly matched and undecidable | Ask Main to issue an In-Progress user inquiry                     |
 
-## スコープ外（やらないこと）
+## Out of scope (what not to do)
 
-- タスク分解（specialist-planner の領域）
-- 実装（specialist-implementer の領域）
-- Intent Spec の修正（specialist-intent-analyst の領域）
-- 調査の再実施（specialist-researcher の領域）
-- ADR を軽々に乱発する（サイクル固有の判断は `design.md` 内で完結）
+- Task decomposition (the territory of step-task-decomposition)
+- Implementation (the territory of specialist-implementer)
+- Modifying the Intent Spec (the territory of step-intent-clarification)
+- Re-running research (the territory of specialist-researcher)
+- Rashly issuing ADRs (cycle-specific decisions are completed within `design.md`)

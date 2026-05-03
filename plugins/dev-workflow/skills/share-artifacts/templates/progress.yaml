@@ -1,0 +1,65 @@
+identifier: { { identifier } }
+started_at: { { started_at } }
+updated_at: { { updated_at } }
+
+status: { { status } } # active | completed | blocked
+current_step: { { current_step } }
+
+completed_steps: []
+  # - step: <step number and name>
+  #   completed_at: <ISO8601>
+  #   artifacts:                          # Always use a list when there are multiple artifacts
+  #     - <artifact file relative path>
+  #     - <artifact file relative path>   # e.g. Step 2 Research yields multiple, Step 7 Review yields multiple
+
+pending_gates: []
+  # - <gate currently on hold (waiting for user approval / waiting for Main decision)>
+
+active_specialists: []
+  # active_specialists must contain **only Specialists in the running / blocked state**.
+  # Once a Specialist becomes completed, remove it from this list and record it in completed_steps
+  # (the value domain is exactly running | blocked; completed is not used).
+  # - name: <Specialist kind>
+  #   task: <assigned task>
+  #   status: running | blocked
+  #   started_at: <ISO8601>
+
+blockers: []
+  # - <unresolved Blocker>
+
+artifacts:
+  intent_spec: null # intent-spec.md
+  research: [] # list of research/<topic>.md files
+  design: null # design.md
+  qa_design: null # qa-design.md (Step 4)
+  qa_flow: null # qa-flow.md (Step 4)
+  external_adrs: [] # ADRs filed outside the cycle (list General mode `docs/adr/<file>.md` and Roadmap mode `docs/roadmap/<roadmap-id>/adr/<file>.md` together)
+  task_plan: null # task-plan.md
+  todo: null # TODO.md
+  review: [] # list of review/<aspect>.md files (Step 7)
+  validation: null # validation-report.md
+  retrospective: null # retrospective.md
+
+user_approvals: []
+  # - gate: <gate name>
+  #   approved_at: <ISO8601>
+  #   approved_by: <user identifier or "user">
+  #   notes: <memo>
+
+rollbacks: []
+  # - from: <step rolled back from>
+  #   to: <step rolled back to>
+  #   reason: <reason>
+  #   at: <ISO8601>
+
+# Branch flag indicating whether this is a cycle running under a roadmap. Written from three angles:
+#   (a) `roadmap == null` (default): standalone cycle. A normal cycle that is not under dev-roadmap.
+#   (b) `roadmap` non-null: a cycle running under a roadmap. Written using the nested object form below.
+#         roadmap:
+#           id: <roadmap-id>            # The roadmap-id of the parent dev-roadmap (required)
+#           milestone:
+#             id: <milestone-id>        # The id of the milestone this cycle is attached to (required)
+#   (c) Writing a `milestone`-like field on its own while leaving `roadmap == null` is invalid (schema violation).
+# See the "roadmap" section in references/progress-yaml.md and the "roadmap-progress.yaml update protocol"
+# section in dev-workflow/SKILL.md for details.
+roadmap: null
