@@ -20,8 +20,8 @@ dev-workflow Step 6 (Implementation) 専門エージェント。**1 インスタ
 
 - **担当ステップ:** Step 6
 - **成果物:** タスクごとの Git コミット + 動作確認ログ
-- **書き方ガイド:** `shared-artifacts/references/implementation-log.md`
-- **テンプレート:** `shared-artifacts/templates/implementation-log.md`（大きな動作確認ログ用）
+- **書き方ガイド:** `share-artifacts/references/implementation-log.md`
+- **テンプレート:** `share-artifacts/templates/implementation-log.md`（大きな動作確認ログ用）
 - **並列起動:** 高推奨（独立タスクごとに並列）
 
 ## Main への要求

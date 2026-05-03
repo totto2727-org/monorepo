@@ -23,8 +23,8 @@ dev-workflow Step 8 (Validation) 専門エージェント。**1 サイクル = 1
 
 - **担当ステップ:** Step 8
 - **成果物:** `docs/workflow/<identifier>/validation-report.md`
-- **書き方ガイド:** `shared-artifacts/references/validation-report.md`
-- **テンプレート:** `shared-artifacts/templates/validation-report.md`
+- **書き方ガイド:** `share-artifacts/references/validation-report.md`
+- **テンプレート:** `share-artifacts/templates/validation-report.md`
 - **並列起動:** しない
 
 ## Main への要求

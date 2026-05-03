@@ -7,7 +7,7 @@
 - **Last updated:** {{updated_at}}
 - **Status:** {{status}} <!-- draft | approved -->
 
-このドキュメントは **Step 4 で確定する本質テスト設計**。Step 6 (Implementation) で implementer が「実装段階で発見されたテスト」を追記する。書き方の詳細は `shared-artifacts/references/qa-design.md` を参照。
+このドキュメントは **Step 4 で確定する本質テスト設計**。Step 6 (Implementation) で implementer が「実装段階で発見されたテスト」を追記する。書き方の詳細は `share-artifacts/references/qa-design.md` を参照。
 
 ## 概要
 

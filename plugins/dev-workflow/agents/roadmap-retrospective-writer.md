@@ -27,8 +27,8 @@ dev-roadmap Step 4 (Roadmap Retrospective) 専門エージェント。**1 ロー
 
 - **担当ステップ:** dev-roadmap Step 4 (Roadmap Retrospective)
 - **成果物:** `docs/retrospective/roadmap-<roadmap-id>.md` (集約ディレクトリ + `roadmap-` prefix で命名衝突回避)
-- **書き方ガイド:** `shared-artifacts/references/roadmap-retrospective.md` (workflow 用 `references/retrospective.md` を参考リファレンスに指定)
-- **テンプレート:** `shared-artifacts/templates/roadmap-retrospective.md`
+- **書き方ガイド:** `share-artifacts/references/roadmap-retrospective.md` (workflow 用 `references/retrospective.md` を参考リファレンスに指定)
+- **テンプレート:** `share-artifacts/templates/roadmap-retrospective.md`
 - **並列起動:** しない
 - **ライフサイクル:** 揮発（次ロードマップが消化したら削除、永続記録すべき判断は ADR に切り出す）
 

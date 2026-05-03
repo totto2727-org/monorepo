@@ -7,7 +7,7 @@
 - **Roadmap completed at:** {{roadmap_completed_at}}
 - **Duration:** {{duration}}
 
-このドキュメントは `dev-roadmap` の **Step 4 (Roadmap Retrospective)** で `roadmap-retrospective-writer` Specialist が起草する**ロードマップ全体の振り返り**。配下の各 `dev-workflow` サイクルの `retrospective.md` を集約し、roadmap 固有の論点 (マイルストーン達成度総括 / 依存グラフ妥当性 / roadmap 固有改善案) を加えて統合する。`docs/retrospective/roadmap-<roadmap-id>.md` (集約形式 + `roadmap-` prefix) に配置する。書き方の詳細は `shared-artifacts/references/roadmap-retrospective.md` を参照。
+このドキュメントは `dev-roadmap` の **Step 4 (Roadmap Retrospective)** で `roadmap-retrospective-writer` Specialist が起草する**ロードマップ全体の振り返り**。配下の各 `dev-workflow` サイクルの `retrospective.md` を集約し、roadmap 固有の論点 (マイルストーン達成度総括 / 依存グラフ妥当性 / roadmap 固有改善案) を加えて統合する。`docs/retrospective/roadmap-<roadmap-id>.md` (集約形式 + `roadmap-` prefix) に配置する。書き方の詳細は `share-artifacts/references/roadmap-retrospective.md` を参照。
 
 ## ロードマップ概要
 

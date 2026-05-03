@@ -6,7 +6,7 @@
 - **Last updated:** {{updated_at}}
 - **Status:** {{status}} <!-- planned | active | completed (`roadmap-progress.yaml.status` と一致させる) -->
 
-このドキュメントは `dev-roadmap` の **Step 1 (Roadmap Intent)** で起草され、**Step 2 (Milestone Decomposition)** でマイルストーン一覧と依存グラフが追記されて確定する**戦略層の不変な計画書**。1 サイクルの `dev-workflow` では収まらない複数サイクル規模の開発を束ねる。書き方の詳細は `shared-artifacts/references/roadmap.md` を参照。
+このドキュメントは `dev-roadmap` の **Step 1 (Roadmap Intent)** で起草され、**Step 2 (Milestone Decomposition)** でマイルストーン一覧と依存グラフが追記されて確定する**戦略層の不変な計画書**。1 サイクルの `dev-workflow` では収まらない複数サイクル規模の開発を束ねる。書き方の詳細は `share-artifacts/references/roadmap.md` を参照。
 
 ## 背景
 

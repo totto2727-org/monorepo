@@ -10,7 +10,7 @@
 
 `docs/roadmap/<roadmap-id>/roadmap-progress.yaml`
 
-`templates/roadmap-progress.yaml` (拡張子 `.yaml`) と本 reference (`references/roadmap-progress-yaml.md`、拡張子 `.md`) は **1:1 対応の例外 3 件目**。既存例外 (`templates/progress.yaml` ↔ `references/progress-yaml.md`) と同じ命名パターンに従う。詳細は `shared-artifacts/SKILL.md` の 1:1 例外リストを参照。
+`templates/roadmap-progress.yaml` (拡張子 `.yaml`) と本 reference (`references/roadmap-progress-yaml.md`、拡張子 `.md`) は **1:1 対応の例外 3 件目**。既存例外 (`templates/progress.yaml` ↔ `references/progress-yaml.md`) と同じ命名パターンに従う。詳細は `share-artifacts/SKILL.md` の 1:1 例外リストを参照。
 
 ## 作成者 / 更新者
 

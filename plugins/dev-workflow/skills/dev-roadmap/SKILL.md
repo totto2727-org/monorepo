@@ -12,7 +12,7 @@ description: >
   "戦略層から段取りしたい", "dev-roadmap を開始", "マイルストーン分割"。
   Do NOT use for: 単一サイクル内で完結する開発 (`dev-workflow` を直接使う)、
   個別 Specialist の作業詳細 (`specialist-roadmap-*` を参照)、成果物仕様のみの参照
-  (`shared-artifacts` を参照)、`dev-workflow` の能動起動・実行制御
+  (`share-artifacts` を参照)、`dev-workflow` の能動起動・実行制御
   (本スキルは観察役で起動責務を持たない)、roadmap-of-roadmaps (1 階層を超える入れ子は
   本バージョン非スコープ)、CI / 外部システム連携、ステップ単位の進捗反映 (将来拡張)。
 ---
@@ -131,7 +131,7 @@ graph LR
 3. ユーザー回答を `roadmap-analyst` に戻し、`roadmap.md` Intent セクションを確定させる
 4. `roadmap-analyst` は同時に `roadmap-progress.yaml` を初期化する (`roadmap_id` / `title` / `status: planned` / `created_at` / `updated_at` / 空 `milestones: []`)
 5. **確定した `roadmap.md` Intent セクションそのものをユーザーに提示**して承認を得る (一時レポートは作成しない)
-6. ロードマップ全体に効く長寿命の前提・制約 (= 配下の複数 `dev-workflow` サイクルが共有する判断) が Intent 明確化中に発見された場合、**Roadmap mode ADR (`docs/roadmap/<roadmap-id>/adr/`)** として別途起票することを Main 判断で行う (詳細: `adr/SKILL.md` の「モード判定フロー」)。`roadmap.md` から該当 ADR にリンクする
+6. ロードマップ全体に効く長寿命の前提・制約 (= 配下の複数 `dev-workflow` サイクルが共有する判断) が Intent 明確化中に発見された場合、**Roadmap mode ADR (`docs/roadmap/<roadmap-id>/adr/`)** として別途起票することを Main 判断で行う (詳細: `share-adr/SKILL.md` の「モード判定フロー」)。`roadmap.md` から該当 ADR にリンクする
 
 **成果物:**
 
@@ -241,7 +241,7 @@ graph LR
    - `roadmap.md` (Intent セクション + マイルストーン分解)
    - `roadmap-progress.yaml` (全マイルストーンの最終状態 + `workflow_identifiers[]`)
    - 配下 `dev-workflow` サイクルの成果物 (`docs/workflow/<identifier>/` 一式) および `docs/retrospective/<identifier>.md`
-   - テンプレート (`shared-artifacts/templates/roadmap-retrospective.md`) と reference (`shared-artifacts/references/roadmap-retrospective.md`)
+   - テンプレート (`share-artifacts/templates/roadmap-retrospective.md`) と reference (`share-artifacts/references/roadmap-retrospective.md`)
 2. `roadmap-retrospective-writer` が `docs/retrospective/roadmap-<roadmap-id>.md` (集約形式 + `roadmap-` prefix) を生成し、ロードマップ全体 `status: completed` に遷移
 3. 生成された Retrospective Note をユーザーに提示 (情報共有のみ、Gate は Main 判定)
 4. 振り返り中に**永続記録すべき roadmap 共有の判断**が抽出された場合、Roadmap mode ADR (`docs/roadmap/<roadmap-id>/adr/`) として切り出すことを Main 判断で行う。**roadmap 完了後に他 roadmap や独立 workflow にも波及する**と判明した場合は General mode (`docs/adr/`) で起票し、retrospective から該当 ADR にリンク
@@ -314,7 +314,7 @@ graph LR
 
 ## 進捗管理 (`roadmap-progress.yaml`)
 
-ロードマップ全体の進捗は `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` が真のソース。本セクションはスキーマの簡易説明と運用方針を提示する。**詳細スキーマ・フィールド定義・並行更新の競合回避手順は `shared-artifacts/references/roadmap-progress-yaml.md` を参照する**。
+ロードマップ全体の進捗は `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` が真のソース。本セクションはスキーマの簡易説明と運用方針を提示する。**詳細スキーマ・フィールド定義・並行更新の競合回避手順は `share-artifacts/references/roadmap-progress-yaml.md` を参照する**。
 
 ### 簡易スキーマ
 
@@ -345,7 +345,7 @@ milestones:
 - 更新タイミングは「サイクル開始時」「サイクル完了時」の 2 点に絞られているため衝突可能性は低い
 - 残存する稀な衝突は `pre-commit` hook の YAML syntax 検査で阻止
 - 衝突時は Specialist / `dev-workflow` Main は独断で解消せず、Main に Blocker として報告 (`specialist-common` §4 ケース B)
-- 詳細リカバリ手順は `shared-artifacts/references/roadmap-progress-yaml.md` の「`dev-workflow` 側からの更新プロトコル」セクション参照
+- 詳細リカバリ手順は `share-artifacts/references/roadmap-progress-yaml.md` の「`dev-workflow` 側からの更新プロトコル」セクション参照
 
 ---
 
@@ -408,14 +408,14 @@ graph LR
 | `dev-workflow` サイクル retrospective | `docs/retrospective/<identifier>.md`         | `docs/retrospective/auth-foundation.md`       |
 | `dev-roadmap` retrospective           | `docs/retrospective/roadmap-<roadmap-id>.md` | `docs/retrospective/roadmap-oauth-rollout.md` |
 
-この prefix 命名規則は `shared-artifacts/references/roadmap-retrospective.md` にも明記する。`gls docs/retrospective/roadmap-*.md` で roadmap retrospective を一括抽出可能。
+この prefix 命名規則は `share-artifacts/references/roadmap-retrospective.md` にも明記する。`gls docs/retrospective/roadmap-*.md` で roadmap retrospective を一括抽出可能。
 
 ### Roadmap mode ADR の保存先
 
-ロードマップ配下の複数 `dev-workflow` サイクルが共有する判断は、**Roadmap mode ADR** として `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD>-<title>.md` に保存する。詳細フォーマットと運用ルール (`scope: roadmap:<roadmap-id>` の frontmatter / 不変性原則 / supersede 規則) は `adr/SKILL.md` に集約。
+ロードマップ配下の複数 `dev-workflow` サイクルが共有する判断は、**Roadmap mode ADR** として `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD>-<title>.md` に保存する。詳細フォーマットと運用ルール (`scope: roadmap:<roadmap-id>` の frontmatter / 不変性原則 / supersede 規則) は `share-adr/SKILL.md` に集約。
 
 - 起票発生時に都度 `docs/roadmap/<roadmap-id>/adr/` ディレクトリを作成 (空ディレクトリは作らない)
-- ファイル名は `<YYYY-MM-DD>-<title>.md` 形式 (`adr/SKILL.md` の「ファイル名」ルール)
+- ファイル名は `<YYYY-MM-DD>-<title>.md` 形式 (`share-adr/SKILL.md` の「ファイル名」ルール)
 - 起票元: `roadmap-analyst` (Step 1 で意図起源の規範を発見) / `roadmap-planner` (Step 2 で共有契約を発見) / `roadmap-retrospective-writer` (Step 4 で永続記録すべき判断を抽出) / 配下 `dev-workflow` サイクルの `architect` (サイクル横断判断のうち roadmap 内に閉じるもの) いずれも Main 判断で起票
 - 起票したら `roadmap.md` / `milestones/<id>.md` / `design.md` (該当サイクル内) から該当 ADR にリンク
 
@@ -541,17 +541,17 @@ docs(dev-roadmap/<roadmap-id>): close roadmap with retrospective
 
 ## 成果物テンプレート・進捗記録フォーマット
 
-本スキルが扱う成果物の仕様は **`shared-artifacts` スキルに集約**されている。Main / Specialist / ユーザーの全ステークホルダーが同じ真のソースを参照できるよう、テンプレートと書き方ガイドが 1:1 対応で配置される。
+本スキルが扱う成果物の仕様は **`share-artifacts` スキルに集約**されている。Main / Specialist / ユーザーの全ステークホルダーが同じ真のソースを参照できるよう、テンプレートと書き方ガイドが 1:1 対応で配置される。
 
 Main は以下を参照する:
 
-- **成果物一覧とテンプレートパス**: `shared-artifacts/SKILL.md` の「成果物一覧 (目次)」(roadmap 系 4 行を含む)
+- **成果物一覧とテンプレートパス**: `share-artifacts/SKILL.md` の「成果物一覧 (目次)」(roadmap 系 4 行を含む)
 - **`<roadmap-id>` の命名ルール**: 上記「保存構造 → `<roadmap-id>` の命名ルール」セクション
 - **各成果物の書き方**:
-  - `shared-artifacts/references/roadmap.md` ↔ `shared-artifacts/templates/roadmap.md`
-  - `shared-artifacts/references/milestone.md` ↔ `shared-artifacts/templates/milestone.md`
-  - `shared-artifacts/references/roadmap-progress-yaml.md` ↔ `shared-artifacts/templates/roadmap-progress.yaml` (1:1 対応の例外、3 件目)
-  - `shared-artifacts/references/roadmap-retrospective.md` ↔ `shared-artifacts/templates/roadmap-retrospective.md`
+  - `share-artifacts/references/roadmap.md` ↔ `share-artifacts/templates/roadmap.md`
+  - `share-artifacts/references/milestone.md` ↔ `share-artifacts/templates/milestone.md`
+  - `share-artifacts/references/roadmap-progress-yaml.md` ↔ `share-artifacts/templates/roadmap-progress.yaml` (1:1 対応の例外、3 件目)
+  - `share-artifacts/references/roadmap-retrospective.md` ↔ `share-artifacts/templates/roadmap-retrospective.md`
 
 Specialist 起動時、Main はテンプレートパスと reference パスの**両方を入力に含める**こと。Specialist はテンプレートを埋める際、必ず対応する reference を参照する。
 
@@ -580,9 +580,9 @@ Specialist 起動時、Main はテンプレートパスと reference パスの**
 - **events 配列 / status_view 派生ビュー / ms 精度タイムスタンプ**: 本バージョン非スコープ (将来拡張)。`milestones[].status` の粗粒度遷移で代替する
 - **個別 Specialist の作業詳細**: `specialist-roadmap-analyst` / `specialist-roadmap-planner` / `specialist-roadmap-retrospective-writer` および `specialist-common` (横断ルール) に委譲
 - **Specialist をサブエージェントとして起動するエントリポイント定義**: `agents/roadmap-analyst.md` / `agents/roadmap-planner.md` / `agents/roadmap-retrospective-writer.md` に委譲
-- **成果物の書き方とテンプレート仕様**: `shared-artifacts` スキルに委譲 (`references/roadmap*.md` および `templates/roadmap*.md` / `templates/milestone.md`)
-- **意思決定の恒久記録 (ADR)**: `adr` スキルに委譲。`adr` スキルは 2 モードを持ち、本ロードマップが扱う対象は次のように分かれる:
+- **成果物の書き方とテンプレート仕様**: `share-artifacts` スキルに委譲 (`references/roadmap*.md` および `templates/roadmap*.md` / `templates/milestone.md`)
+- **意思決定の恒久記録 (ADR)**: `share-adr` skillに委譲。`share-adr` skillは 2 モードを持ち、本ロードマップが扱う対象は次のように分かれる:
   - **General mode (`docs/adr/`)**: 複数 roadmap を跨ぐ判断 / 当 roadmap 外の独立した dev-workflow サイクルとも共有される判断 / プロジェクト全体に及ぶ判断
   - **Roadmap mode (`docs/roadmap/<roadmap-id>/adr/`)**: **当ロードマップ配下の複数 dev-workflow サイクルが共有する文脈・前提・規範** (= 本スキルが特に重視する用途。roadmap 文脈に閉じる共有事項は `roadmap.md` の Intent / `milestones/<id>.md` には書ききれない長寿命の判断記録としてここに残す)
-  - 詳細: `adr/SKILL.md` の「モード判定フロー」「適用モードと保存場所」参照
+  - 詳細: `share-adr/SKILL.md` の「モード判定フロー」「適用モードと保存場所」参照
 - **単一サイクルで完結する開発**: `dev-workflow` を直接使う (本スキルは複数サイクル規模の戦略層が必要な場面のみ起動)

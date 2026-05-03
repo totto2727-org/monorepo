@@ -55,6 +55,6 @@ ID 接頭辞: B-N (Blocker) / M-N (Major) / m-N (Minor) / i-N (Info)
 最終 Gate: `{{final_gate}}`。Major / Blocker {{open_critical_count}} 件、`accepted-as-is` {{accepted_count}} 件。
 
 <!--
-書き方ガイド: shared-artifacts/references/review-report.md
+書き方ガイド: share-artifacts/references/review-report.md
 状態ラベル詳細・観点別の重点項目は specialist-reviewer/SKILL.md に委譲。
 -->

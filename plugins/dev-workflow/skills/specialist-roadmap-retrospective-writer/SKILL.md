@@ -28,8 +28,8 @@ description: >
 | -------------- | -------------------------------------------------------------------------------------------------- |
 | 担当ステップ   | dev-roadmap Step 4 (Roadmap Retrospective)                                                         |
 | 成果物         | `docs/retrospective/roadmap-<roadmap-id>.md` (集約ディレクトリ + `roadmap-` prefix で命名衝突回避) |
-| テンプレート   | `shared-artifacts/templates/roadmap-retrospective.md`                                              |
-| 書き方ガイド   | `shared-artifacts/references/roadmap-retrospective.md`                                             |
+| テンプレート   | `share-artifacts/templates/roadmap-retrospective.md`                                              |
+| 書き方ガイド   | `share-artifacts/references/roadmap-retrospective.md`                                             |
 | 並列起動       | しない（ロードマップ全体俯瞰が必要なので 1 名）                                                    |
 | ライフサイクル | 揮発 (次ロードマップが消化したら削除)。永続記録すべき判断は ADR に切り出す                         |
 
@@ -61,8 +61,8 @@ Roadmap Retrospective の焦点:
   - 各 `milestones[].workflow_identifiers[]` に紐付く `docs/retrospective/<identifier>.md` (workflow 単位の振り返り、集約形式)
   - 必要に応じて `docs/workflow/<identifier>/` 配下の付随成果物 (Intent Spec / Design Document / Validation Report 等を読んで横断パターンを補強)
 - **テンプレート / 書き方ガイド**:
-  - `shared-artifacts/templates/roadmap-retrospective.md`
-  - `shared-artifacts/references/roadmap-retrospective.md` (workflow 用 `references/retrospective.md` の参考リファレンス指定あり)
+  - `share-artifacts/templates/roadmap-retrospective.md`
+  - `share-artifacts/references/roadmap-retrospective.md` (workflow 用 `references/retrospective.md` の参考リファレンス指定あり)
 
 > **命名規則の確認**: 出力先は必ず `docs/retrospective/roadmap-<roadmap-id>.md` (例: `docs/retrospective/roadmap-oauth-rollout.md`)。`roadmap-` prefix を欠落させると workflow 単位の `docs/retrospective/<identifier>.md` と命名衝突する。本 prefix は Open Questions #1 で確定済 (`dev-roadmap/SKILL.md` 「保存構造 → 命名規則と prefix による衝突回避」セクション)。
 
@@ -95,7 +95,7 @@ Roadmap Retrospective の焦点:
    - 並行サイクル運用の知見
 7. **テンプレートに沿って `docs/retrospective/roadmap-<roadmap-id>.md` を作成**:
    - `roadmap-` prefix 命名規則を出力パスで遵守
-   - reference (`shared-artifacts/references/roadmap-retrospective.md`) で指定された必須セクション (マイルストーン達成度総括 / 依存グラフ妥当性 / 配下 dev-workflow retrospective 集約 / roadmap 固有改善案) を全て含める
+   - reference (`share-artifacts/references/roadmap-retrospective.md`) で指定された必須セクション (マイルストーン達成度総括 / 依存グラフ妥当性 / 配下 dev-workflow retrospective 集約 / roadmap 固有改善案) を全て含める
    - 配下 retrospective の集約段落は最低でも各 `<identifier>` ごとに 1 段落以上
 8. **`roadmap-progress.yaml` をロードマップ全体 `status: completed` に遷移**:
    - `status: active → completed` を更新

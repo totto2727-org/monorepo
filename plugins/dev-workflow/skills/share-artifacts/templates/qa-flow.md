@@ -7,7 +7,7 @@
 - **Last updated:** {{updated_at}}
 - **Status:** {{status}} <!-- draft | approved -->
 
-このドキュメントは `qa-design.md` のテストケースを **Mermaid flowchart で可視化**した網羅性確認用の図集。テストの分岐構造をレビュアーが俯瞰できる形で図示することで、認知負荷を下げる。書き方の詳細は `shared-artifacts/references/qa-flow.md` を参照。
+このドキュメントは `qa-design.md` のテストケースを **Mermaid flowchart で可視化**した網羅性確認用の図集。テストの分岐構造をレビュアーが俯瞰できる形で図示することで、認知負荷を下げる。書き方の詳細は `share-artifacts/references/qa-flow.md` を参照。
 
 ## 概要
 

@@ -55,7 +55,7 @@
 
 ### スキル改善
 
-dev-workflow プラグインのスキル（`dev-workflow` / `specialist-*` / `shared-artifacts`）への具体的な改善提案。
+dev-workflow プラグインのスキル（`dev-workflow` / `specialist-*` / `share-artifacts`）への具体的な改善提案。
 
 - {{skill_improvement_1}}
 - {{skill_improvement_2}}

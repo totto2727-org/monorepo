@@ -34,7 +34,7 @@
 
 ## ライフサイクル
 
-`references/retrospective.md` (workflow 用) と同様、roadmap retrospective も**揮発的な報告ボックス**として運用する。永続記録すべき判断は ADR (General mode `docs/adr/` / Roadmap mode `docs/roadmap/<roadmap-id>/adr/`、モード判定は `adr/SKILL.md`) に切り出してから retrospective を削除する。
+`references/retrospective.md` (workflow 用) と同様、roadmap retrospective も**揮発的な報告ボックス**として運用する。永続記録すべき判断は ADR (General mode `docs/adr/` / Roadmap mode `docs/roadmap/<roadmap-id>/adr/`、モード判定は `share-adr/SKILL.md`) に切り出してから retrospective を削除する。
 
 | 種別                  | 保存先                                              | ライフサイクル                                             |
 | --------------------- | --------------------------------------------------- | ---------------------------------------------------------- |

@@ -121,7 +121,7 @@
 ## 関連成果物
 
 - **入力:** Step 6 の全 diff、`design.md`、`intent-spec.md`、`task-plan.md`、`TODO.md`
-- **テンプレート:** `shared-artifacts/templates/review-report.md`
+- **テンプレート:** `share-artifacts/templates/review-report.md`
 - **連携:** Blocker / 未解消 Major で Step 6 を再活性化、`re_activations` カウンタを `TODO.md` に記録
 - **Retrospective 連携:** Minor 指摘および `accepted-as-is` の指摘は Retrospective の材料となる
 - **並列性:** 観点ごとに独立。他 reviewer との直接通信は Main 経由

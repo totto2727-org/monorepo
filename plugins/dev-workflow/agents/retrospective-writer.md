@@ -23,8 +23,8 @@ dev-workflow Step 9 (Retrospective) 専門エージェント。**1 サイクル 
 
 - **担当ステップ:** Step 9
 - **成果物:** `docs/retrospective/<identifier>.md` (集約ディレクトリ、`docs/adr/` 同パターン)
-- **書き方ガイド:** `shared-artifacts/references/retrospective.md`
-- **テンプレート:** `shared-artifacts/templates/retrospective.md`
+- **書き方ガイド:** `share-artifacts/references/retrospective.md`
+- **テンプレート:** `share-artifacts/templates/retrospective.md`
 - **並列起動:** しない
 - **ライフサイクル:** 揮発 (次サイクルが消化したら削除、永続判断は ADR へ切り出し)
 

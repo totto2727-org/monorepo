@@ -28,8 +28,8 @@ description: >
 | ------------ | --------------------------------------------------------------------------------------------------------------------------- |
 | 担当ステップ | Step 1 (Roadmap Intent)                                                                                                     |
 | 成果物       | `docs/roadmap/<roadmap-id>/roadmap.md` (Intent セクション初稿) + `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` (初期化) |
-| テンプレート | `shared-artifacts/templates/roadmap.md` / `shared-artifacts/templates/roadmap-progress.yaml`                                |
-| 書き方ガイド | `shared-artifacts/references/roadmap.md` / `shared-artifacts/references/roadmap-progress-yaml.md`                           |
+| テンプレート | `share-artifacts/templates/roadmap.md` / `share-artifacts/templates/roadmap-progress.yaml`                                |
+| 書き方ガイド | `share-artifacts/references/roadmap.md` / `share-artifacts/references/roadmap-progress-yaml.md`                           |
 | 並列起動     | しない（単一インスタンスで対話ループ）                                                                                      |
 
 ## 役割
@@ -60,12 +60,12 @@ description: >
    - 質問は一度に 3–5 個にまとめる（質問攻めにしない）
    - 各質問に対して「こう解釈してよいか」の推奨回答を添える（ユーザーの認知負荷を下げる）
    - ロードマップ層では特に「単一 `dev-workflow` サイクルで完結しない理由」「マイルストーン分解の方向性 (時系列分割 / 関心領域分割 / レイヤ分割)」を確認する
-3. ユーザー回答を反映して `roadmap.md` の Intent セクションを初稿として更新（テンプレート `shared-artifacts/templates/roadmap.md` を起点とする）
+3. ユーザー回答を反映して `roadmap.md` の Intent セクションを初稿として更新（テンプレート `share-artifacts/templates/roadmap.md` を起点とする）
 4. スコープ境界が**マイルストーン分解可能な粒度**で言語化されているか自分で検証:
    - スコープ内の項目が複数サイクルに分割可能か（単一サイクルで収まるなら `dev-workflow` を直接使うべき。Blocker として Main に報告）
    - スコープ外の項目が「除外する根拠」とともに明示されているか
    - 大局制約がマイルストーン分解時に守るべきレベルで書かれているか（細部の制約は scope out）
-5. `roadmap-progress.yaml` を初期化（`shared-artifacts/templates/roadmap-progress.yaml` から起点）:
+5. `roadmap-progress.yaml` を初期化（`share-artifacts/templates/roadmap-progress.yaml` から起点）:
    - `roadmap_id`: Main から指定された `<roadmap-id>`
    - `title`: ロードマップの短い説明（`roadmap.md` のタイトルと整合）
    - `status: planned` （Step 2 完了で `active` に遷移するため、Step 1 段階は `planned`）
@@ -96,7 +96,7 @@ description: >
 | ユーザーが途中で大きくスコープを変更                 | Main に報告（「Step 1 を最初からやり直す必要がある可能性」）                                              |
 | リポジトリ状態とロードマップ要求が根本的に矛盾       | Blocker として Main に報告                                                                                |
 | `<roadmap-id>` が Main から渡されていない            | 作業開始前に Main に問い合わせる（独断で命名しない）                                                      |
-| `roadmap-progress.yaml` の初期化フィールドが揃わない | reference (`shared-artifacts/references/roadmap-progress-yaml.md`) を再読し、不足項目を埋めた上で再初期化 |
+| `roadmap-progress.yaml` の初期化フィールドが揃わない | reference (`share-artifacts/references/roadmap-progress-yaml.md`) を再読し、不足項目を埋めた上で再初期化 |
 | 定性的到達点がマイルストーン分解不能なほど抽象的     | 同インスタンス内で「3 件のマイルストーン候補を挙げ得るレベルか」を自己検証し、満たさなければ再質問        |
 
 ## スコープ外（やらないこと）

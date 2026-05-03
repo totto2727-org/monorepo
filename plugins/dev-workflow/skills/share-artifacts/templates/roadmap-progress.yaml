@@ -1,6 +1,6 @@
 # `dev-roadmap` のロードマップ進捗管理 yaml。
 # `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` に配置する。
-# 書き方の詳細は `shared-artifacts/references/roadmap-progress-yaml.md` を参照。
+# 書き方の詳細は `share-artifacts/references/roadmap-progress-yaml.md` を参照。
 #
 # 設計方針 (最小限の責務): 「マイルストーン ↔ workflow identifier の紐付け」と粗粒度ステータス
 # (planned / active / completed / blocked / cancelled) のみを保持する。細かい進捗 (現在ステップ

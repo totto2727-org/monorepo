@@ -25,8 +25,8 @@ description: >
 | -------------- | ------------------------------------------------------------------------------- |
 | 担当ステップ   | Step 9 (Retrospective)                                                          |
 | 成果物         | `docs/retrospective/<identifier>.md` (集約ディレクトリ、`docs/adr/` 同パターン) |
-| テンプレート   | `shared-artifacts/templates/retrospective.md`                                   |
-| 書き方ガイド   | `shared-artifacts/references/retrospective.md`                                  |
+| テンプレート   | `share-artifacts/templates/retrospective.md`                                   |
+| 書き方ガイド   | `share-artifacts/references/retrospective.md`                                  |
 | 並列起動       | しない（全体俯瞰が必要なので 1 名）                                             |
 | ライフサイクル | 揮発 (次サイクルが消化したら削除)。永続記録すべき判断は ADR に切り出す          |
 

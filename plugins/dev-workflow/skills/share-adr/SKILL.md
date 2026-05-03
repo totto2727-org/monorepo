@@ -219,10 +219,10 @@ docs/
 
 ## このスキルが扱わないこと
 
-- 単一サイクル内で完結する設計判断 → `design.md` 内に書く (`shared-artifacts/references/design.md`)
+- 単一サイクル内で完結する設計判断 → `design.md` 内に書く (`share-artifacts/references/design.md`)
 - マイルストーン内で完結する方針 → `milestones/<id>.md` 内に書く
 - 議事録・メモ書き → 該当スキルなし (本リポジトリの慣行に従う)
-- Retrospective (揮発レポート) → `docs/retrospective/<identifier>.md` または `docs/retrospective/roadmap-<roadmap-id>.md` (`shared-artifacts/references/retrospective.md` / `roadmap-retrospective.md`)
-- Roadmap Intent そのもの → `roadmap.md` (`shared-artifacts/references/roadmap.md`)
+- Retrospective (揮発レポート) → `docs/retrospective/<identifier>.md` または `docs/retrospective/roadmap-<roadmap-id>.md` (`share-artifacts/references/retrospective.md` / `roadmap-retrospective.md`)
+- Roadmap Intent そのもの → `roadmap.md` (`share-artifacts/references/roadmap.md`)
 - CHANGELOG / リリースノート → 該当スキルなし
 - ADR を「設計ドキュメントの代替」として乱発すること (1 サイクル内で 5 個以上書きそうなら粒度が間違っている可能性が高く、`design.md` への統合を検討する)

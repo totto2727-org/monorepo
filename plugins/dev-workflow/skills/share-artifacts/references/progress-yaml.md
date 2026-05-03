@@ -71,7 +71,7 @@ active_specialists:
 - `design` (Step 3) — `design.md`
 - `qa_design` (Step 4) — `qa-design.md`
 - `qa_flow` (Step 4) — `qa-flow.md`
-- `external_adrs` — サイクル外に起票した ADR のパス (リスト)。General mode (`docs/adr/<file>.md`) と Roadmap mode (`docs/roadmap/<roadmap-id>/adr/<file>.md`) を同列に列挙する。scope の識別は ADR 本体 frontmatter `scope: general` / `scope: roadmap:<roadmap-id>` で行う (詳細: `adr/SKILL.md`)
+- `external_adrs` — サイクル外に起票した ADR のパス (リスト)。General mode (`docs/adr/<file>.md`) と Roadmap mode (`docs/roadmap/<roadmap-id>/adr/<file>.md`) を同列に列挙する。scope の識別は ADR 本体 frontmatter `scope: general` / `scope: roadmap:<roadmap-id>` で行う (詳細: `share-adr/SKILL.md`)
 - `task_plan` (Step 5) — `task-plan.md`
 - `todo` (Step 6 開始時に生成) — `TODO.md`
 - `review` (Step 7) — リスト (`review/<aspect>.md`、6 観点)

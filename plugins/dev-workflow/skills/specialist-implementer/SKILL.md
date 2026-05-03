@@ -22,8 +22,8 @@ description: >
 | ------------ | -------------------------------------------------------------------------- |
 | 担当ステップ | Step 6 (Implementation)                                                    |
 | 成果物       | タスクごとの Git コミット（diff）+ 動作確認ログ                            |
-| テンプレート | `shared-artifacts/templates/implementation-log.md`（大きな動作確認ログ用） |
-| 書き方ガイド | `shared-artifacts/references/implementation-log.md`                        |
+| テンプレート | `share-artifacts/templates/implementation-log.md`（大きな動作確認ログ用） |
+| 書き方ガイド | `share-artifacts/references/implementation-log.md`                        |
 | 並列起動     | 高推奨（Task Plan の独立タスクごとに並列）                                 |
 
 ## 役割

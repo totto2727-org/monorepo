@@ -25,11 +25,11 @@ dev-workflow Step 4 (QA Design) 専門エージェント。**1 サイクル = 1 
   - `docs/workflow/<identifier>/qa-design.md`
   - `docs/workflow/<identifier>/qa-flow.md`
 - **書き方ガイド:**
-  - `shared-artifacts/references/qa-design.md`
-  - `shared-artifacts/references/qa-flow.md`
+  - `share-artifacts/references/qa-design.md`
+  - `share-artifacts/references/qa-flow.md`
 - **テンプレート:**
-  - `shared-artifacts/templates/qa-design.md`
-  - `shared-artifacts/templates/qa-flow.md`
+  - `share-artifacts/templates/qa-design.md`
+  - `share-artifacts/templates/qa-flow.md`
 - **並列起動:** しない
 
 ## Main への要求
