@@ -28,14 +28,14 @@ Intent Spec「未解決事項」のうち以下 2 点に対し、本リポ固有
 
 リポジトリ内 `.github/workflows/` には 4 ファイルのみ。CodeQL / Dependency Graph は GitHub の "default setup" によるリポ内ファイル無しの dynamic workflow。
 
-| Workflow            | File                          | Trigger                                                                  | Job                              | Concurrency                                                  |
-| ------------------- | ----------------------------- | ------------------------------------------------------------------------ | -------------------------------- | ------------------------------------------------------------ |
-| `CI`                | `.github/workflows/ci.yaml`   | `push` (main のみ) / `pull_request` (全ブランチ)                         | `check` (`runs-on: ubuntu-latest`, `timeout-minutes: 5`) | `group: ${{ github.workflow }}-${{ github.ref }}` のみ。`cancel-in-progress` 未指定 (= デフォルト false) |
-| `Publish @totto2727/bw`        | `deploy-bw.yaml`              | `push` to main + paths filter (`js/app/bw/**`, `.github/workflows/deploy-bw.yaml`, `.github/actions/setup-typescript/**`) | `publish`                        | なし                                                          |
-| `Publish @totto2727/c-plugin`  | `deploy-c-plugin.yaml`        | `push` to main + paths filter (`js/app/c-plugin/**`, 同 yaml, setup-typescript) | `publish`                        | なし                                                          |
-| `Publish @totto2727/fp`        | `deploy-totto2727-fp.yaml`    | `push` to main (paths filter なし)                                        | `publish`                        | なし                                                          |
-| (CodeQL)            | `dynamic/github-code-scanning/codeql` (default setup)            | `push` / scheduled / dynamic                                             | `Code Quality: ...` / `Push on main` 等 | デフォルト                                                    |
-| (Dependency Graph)  | `dynamic/dependabot/update-graph` (default setup)                | dependabot push                                                          | (内部)                            | デフォルト                                                    |
+| Workflow                      | File                                                  | Trigger                                                                                                                   | Job                                                      | Concurrency                                                                                              |
+| ----------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `CI`                          | `.github/workflows/ci.yaml`                           | `push` (main のみ) / `pull_request` (全ブランチ)                                                                          | `check` (`runs-on: ubuntu-latest`, `timeout-minutes: 5`) | `group: ${{ github.workflow }}-${{ github.ref }}` のみ。`cancel-in-progress` 未指定 (= デフォルト false) |
+| `Publish @totto2727/bw`       | `deploy-bw.yaml`                                      | `push` to main + paths filter (`js/app/bw/**`, `.github/workflows/deploy-bw.yaml`, `.github/actions/setup-typescript/**`) | `publish`                                                | なし                                                                                                     |
+| `Publish @totto2727/c-plugin` | `deploy-c-plugin.yaml`                                | `push` to main + paths filter (`js/app/c-plugin/**`, 同 yaml, setup-typescript)                                           | `publish`                                                | なし                                                                                                     |
+| `Publish @totto2727/fp`       | `deploy-totto2727-fp.yaml`                            | `push` to main (paths filter なし)                                                                                        | `publish`                                                | なし                                                                                                     |
+| (CodeQL)                      | `dynamic/github-code-scanning/codeql` (default setup) | `push` / scheduled / dynamic                                                                                              | `Code Quality: ...` / `Push on main` 等                  | デフォルト                                                                                               |
+| (Dependency Graph)            | `dynamic/dependabot/update-graph` (default setup)     | dependabot push                                                                                                           | (内部)                                                   | デフォルト                                                                                               |
 
 `needs:` を用いたジョブ依存は全ワークフローで未使用 (各 workflow が単一ジョブ)。
 
@@ -43,10 +43,10 @@ Intent Spec「未解決事項」のうち以下 2 点に対し、本リポ固有
 
 リポジトリは旧来の "Branch protection rules" を持たない (`gh api .../branches/main/protection` は 404 "Branch not protected") が、`Repository rulesets` を 2 件持つ:
 
-| Ruleset (id)        | Target / scope          | Required status checks                              | その他主要 rule                                                                   |
-| ------------------- | ----------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `All` (9367580)     | `~ALL` (全ブランチ)     | `[{ context: "check", integration_id: 15368 }]`     | `pull_request` (approving review 0)、`required_status_checks` (strict=true)            |
-| `Default` (14454858)| `~DEFAULT_BRANCH` (main)| `[{ context: "check", integration_id: 15368 }]`     | `pull_request` (approving review 1, dismiss_stale=true)、`merge_queue` (ALLGREEN)、`non_fast_forward`、`creation`/`update`/`deletion` |
+| Ruleset (id)         | Target / scope           | Required status checks                          | その他主要 rule                                                                                                                       |
+| -------------------- | ------------------------ | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `All` (9367580)      | `~ALL` (全ブランチ)      | `[{ context: "check", integration_id: 15368 }]` | `pull_request` (approving review 0)、`required_status_checks` (strict=true)                                                           |
+| `Default` (14454858) | `~DEFAULT_BRANCH` (main) | `[{ context: "check", integration_id: 15368 }]` | `pull_request` (approving review 1, dismiss_stale=true)、`merge_queue` (ALLGREEN)、`non_fast_forward`、`creation`/`update`/`deletion` |
 
 両 ruleset とも required は `check` 1 個のみ。`integration_id: 15368` は GitHub Actions 自身の id。CodeQL / Dependency Graph / Publish 系は **必須ではない**。
 
@@ -74,12 +74,12 @@ Intent Spec「未解決事項」のうち以下 2 点に対し、本リポ固有
 
 直近 30 件中 failure は PR 3 件 + main 1 件 = 計 4 件。全件 `check` ジョブ内の `Run check, build, and test` ステップで失敗:
 
-| run id          | branch                                  | 失敗箇所                              | 所要時間 (createdAt→completedAt) |
-| --------------- | --------------------------------------- | ------------------------------------- | -------------------------------- |
-| `24951883867`   | main (push, merge of #90)               | `error: Formatting issues found` (oxfmt) | 81s                              |
-| `25212480243`   | `worktree-elegant-doodling-stearns`     | `error: Formatting issues found` (oxfmt) | 132s                             |
-| `25241951988`   | `worktree-dazzling-meandering-pudding`  | `error: Formatting issues found` (oxfmt) | 110s (run_attempt=2 の rerun)    |
-| `25267108217`   | `worktree-clever-moseying-fiddle`       | `error: Formatting issues found` (oxfmt) | 128s                             |
+| run id        | branch                                 | 失敗箇所                                 | 所要時間 (createdAt→completedAt) |
+| ------------- | -------------------------------------- | ---------------------------------------- | -------------------------------- |
+| `24951883867` | main (push, merge of #90)              | `error: Formatting issues found` (oxfmt) | 81s                              |
+| `25212480243` | `worktree-elegant-doodling-stearns`    | `error: Formatting issues found` (oxfmt) | 132s                             |
+| `25241951988` | `worktree-dazzling-meandering-pudding` | `error: Formatting issues found` (oxfmt) | 110s (run_attempt=2 の rerun)    |
+| `25267108217` | `worktree-clever-moseying-fiddle`      | `error: Formatting issues found` (oxfmt) | 128s                             |
 
 すべて `vp run -r check` 内の oxfmt が "Formatting issues found" を出して exit 1 → `devbox run` exit status 1 → step failure。型エラー / テスト失敗 / build 失敗による失敗例は直近 30 件には**観測されなかった** (調査範囲内)。
 
@@ -158,11 +158,11 @@ Intent Spec「未解決事項」のうち以下 2 点に対し、本リポ固有
 
 ## 残存する不明点
 
-| # | 不明点                                                                                                       | 推奨対応                                                                                          |
-| - | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| 1 | `gh run rerun` / `gh run rerun --failed` の挙動詳細 (新規 run id を作るか、`run_attempt` のみ増やすか、ログに残るか) | researcher#1 (gh CLI 一般仕様) の担当範囲。本観点では「flaky 想定が不要なので rerun 自体ほぼ使わない」結論で十分 |
-| 2 | `merge_queue` (Default ruleset の ALLGREEN) を使った場合の CI 走り方                                          | Intent 非スコープ (本サイクルは通常 PR merge を想定)。Step 3 Design で「merge_queue は使わない」と明示するだけで足りる |
-| 3 | CodeQL / Dependency Graph の失敗が将来必須化された場合の影響                                                | 現状非必須なので Intent スコープ外。Design で「CI PASS = 必須チェック (`check`) のみ」と固定すれば将来変更時も Design 修正で対応可 |
-| 4 | `concurrency.cancel-in-progress` を有効化すべきかの議論                                                       | Intent 非スコープ (CI ワークフロー自体の改修)。本 Note では「未設定なので最新 SHA で run を判定する」運用前提を提示 |
-| 5 | Publish 系 workflow が main push で失敗した場合の扱い                                                          | 本サイクルは PR 中心の運用ルール定義。main push 後の Publish 失敗対応は本サイクル非スコープ。Design で「対象は `check` のみ」と限定 |
-| 6 | 全 30 件サンプルでの failure 比率の母集団代表性                                                                | サンプル数 30 で OS / 月の偏りはあるが、傾向 (Formatting 100%) は十分有意。Design で「失敗パターンの第一候補は Formatting」とガイダンスする程度に留めて良い |
+| #   | 不明点                                                                                                               | 推奨対応                                                                                                                                                    |
+| --- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `gh run rerun` / `gh run rerun --failed` の挙動詳細 (新規 run id を作るか、`run_attempt` のみ増やすか、ログに残るか) | researcher#1 (gh CLI 一般仕様) の担当範囲。本観点では「flaky 想定が不要なので rerun 自体ほぼ使わない」結論で十分                                            |
+| 2   | `merge_queue` (Default ruleset の ALLGREEN) を使った場合の CI 走り方                                                 | Intent 非スコープ (本サイクルは通常 PR merge を想定)。Step 3 Design で「merge_queue は使わない」と明示するだけで足りる                                      |
+| 3   | CodeQL / Dependency Graph の失敗が将来必須化された場合の影響                                                         | 現状非必須なので Intent スコープ外。Design で「CI PASS = 必須チェック (`check`) のみ」と固定すれば将来変更時も Design 修正で対応可                          |
+| 4   | `concurrency.cancel-in-progress` を有効化すべきかの議論                                                              | Intent 非スコープ (CI ワークフロー自体の改修)。本 Note では「未設定なので最新 SHA で run を判定する」運用前提を提示                                         |
+| 5   | Publish 系 workflow が main push で失敗した場合の扱い                                                                | 本サイクルは PR 中心の運用ルール定義。main push 後の Publish 失敗対応は本サイクル非スコープ。Design で「対象は `check` のみ」と限定                         |
+| 6   | 全 30 件サンプルでの failure 比率の母集団代表性                                                                      | サンプル数 30 で OS / 月の偏りはあるが、傾向 (Formatting 100%) は十分有意。Design で「失敗パターンの第一候補は Formatting」とガイダンスする程度に留めて良い |

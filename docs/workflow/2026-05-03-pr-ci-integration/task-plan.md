@@ -23,11 +23,11 @@ architect 暫定案 (Wave 1: T1+T2+T4+T5 / Wave 2: T3) は **`dev-workflow/SKILL
 
 3 案を比較した結論 (採用: **案 A**):
 
-| 案 | 構成 | タスク数 | Wave 数 | 採否 | 主な根拠 |
-| --- | --- | --- | --- | --- | --- |
-| **案 A (採用)** | T1 / T2 / T3 を独立タスクとして直列化、T4 / T5 を T1 と並列実行 | 5 | 3 | **採用** | コミット粒度が明確 (新セクション / Exit Criteria 9 箇所 / 参照リンクを別コミット化)、SC-TC 対応追跡性が高い、Step 7 での部分 revert が容易 |
-| 案 B | T1+T2+T3 を 1 タスクに統合 | 3 | 1 | 却下 | 性質の異なる変更が混在しレビュー粒度が荒くなる、SC ごとの寄与追跡が困難、ロールバック単位が大きすぎる |
-| 案 C | T1+T3 統合、T2 独立 | 4 | 2 | 却下 | T13 統合と T2 は依然 SKILL.md 衝突、案 A 比でメリットが小さく粒度判断が曖昧 |
+| 案              | 構成                                                            | タスク数 | Wave 数 | 採否     | 主な根拠                                                                                                                                   |
+| --------------- | --------------------------------------------------------------- | -------- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **案 A (採用)** | T1 / T2 / T3 を独立タスクとして直列化、T4 / T5 を T1 と並列実行 | 5        | 3       | **採用** | コミット粒度が明確 (新セクション / Exit Criteria 9 箇所 / 参照リンクを別コミット化)、SC-TC 対応追跡性が高い、Step 7 での部分 revert が容易 |
+| 案 B            | T1+T2+T3 を 1 タスクに統合                                      | 3        | 1       | 却下     | 性質の異なる変更が混在しレビュー粒度が荒くなる、SC ごとの寄与追跡が困難、ロールバック単位が大きすぎる                                      |
+| 案 C            | T1+T3 統合、T2 独立                                             | 4        | 2       | 却下     | T13 統合と T2 は依然 SKILL.md 衝突、案 A 比でメリットが小さく粒度判断が曖昧                                                                |
 
 採用案 A の Wave 構成:
 
@@ -119,9 +119,9 @@ T1 / T2 / T3 はいずれも `plugins/dev-workflow/skills/dev-workflow/SKILL.md`
     - L512 Step 8 Exit Criteria
     - L547 Step 9 Exit Criteria
   - 各箇所に追加する文言例 (Step 6 以外):
-    - `- 該当ステップ完了コミットに紐付く CI (`check` job) の最終 conclusion が `success` である (詳細は「## サイクル PR と CI 連携プロトコル」を参照)`
+    - `- 該当ステップ完了コミットに紐付く CI (`check`job) の最終 conclusion が`success` である (詳細は「## サイクル PR と CI 連携プロトコル」を参照)`
   - Step 6 用の文言例:
-    - `- 各タスク完了コミットに紐付く CI (`check` job) の最終 conclusion がすべて `success` である (詳細は「## サイクル PR と CI 連携プロトコル」を参照)`
+    - `- 各タスク完了コミットに紐付く CI (`check`job) の最終 conclusion がすべて`success` である (詳細は「## サイクル PR と CI 連携プロトコル」を参照)`
 - **依存タスク:** T1 (新セクション「## サイクル PR と CI 連携プロトコル」が SKILL.md に存在することが Exit Criteria の参照リンクとして必要、かつ同一ファイル編集のためコンフリクト回避)
 - **並列可否:** no (T1 完了後の Wave 2 単独タスク。T3 とも直列)
 - **見積り規模:** **S** (約 30 分 — 9 箇所への機械的な 1 行追記、Step 6 のみ微修正)
@@ -186,7 +186,7 @@ T1 / T2 / T3 はいずれも `plugins/dev-workflow/skills/dev-workflow/SKILL.md`
 - **Step 6 implementer 入力契約:**
   - 必読: design.md (代替案 5 採用案 + gh CLI コマンド一覧)、Research Note `integration-points.md` I4 採用案 (該当行は Researcher 成果物にあり、design.md L44 で B+C 併用方針として要約済)
   - 改修対象行: `specialist-common/SKILL.md` §7「Git コミットに関する注意」(L177-L194) のリスト末尾 (L184 の `- **コミット前チェック**` 行の直後)
-  - **追記は 1 行に厳密に絞る** (Intent Spec L34「specialist-* スキルへの大規模変更は行わない」と整合)
+  - **追記は 1 行に厳密に絞る** (Intent Spec L34「specialist-\* スキルへの大規模変更は行わない」と整合)
   - 既存 §7 の冒頭文・Git ガードレール小見出し・他のリスト項目は変更しない
 - **動作確認手順 (implementer がコミット前に実施):**
   - `ggrep -cE "(PR 操作.*Main|gh pr (create|edit|ready).*Main)" plugins/dev-workflow/skills/specialist-common/SKILL.md` が `1` 以上 (TC-010 仮検証)
@@ -201,14 +201,19 @@ T1 / T2 / T3 はいずれも `plugins/dev-workflow/skills/dev-workflow/SKILL.md`
   - 変更ファイル: `plugins/dev-workflow/skills/shared-artifacts/references/progress-yaml.md` (1 ファイル)
   - 追加内容 (design.md L436-L443 に提示済の例文を採用):
 
-    ```markdown
+    ````markdown
     CI 失敗を Blocker 化した場合の例 (本リポでは 2 回リトライ後の失敗継続時):
 
     ```yaml
     blockers:
       - 'Step 3 完了コミット <abbrev-sha> の CI が 3 回連続失敗 (oxfmt Formatting)。Step 3 を完了と認められない。対応方針: ユーザー判断仰ぎ中 (run URL: https://github.com/<owner>/<repo>/actions/runs/<id>)'
     ```
+    ````
+
     ```
+
+    ```
+
 - **依存タスク:** なし (Wave 1 並列可)
 - **並列可否:** yes (T1, T4 と別ファイル編集のため完全並列可)
 - **見積り規模:** **S** (約 10 分 — 例文追記、design.md にコピー元あり)

@@ -27,10 +27,10 @@
 
 `gh pr list --state merged --limit 30 --json ...` の結果から、dev-workflow サイクルに対応する PR は以下:
 
-| PR # | branch | createdAt | mergedAt | additions / deletions | commit 数 | createdAt 時の `isDraft` |
-|---|---|---|---|---|---|---|
-| #92 | `feat/dev-workflow-retro-followup` | 2026-04-29T04:18:54Z | 2026-04-29T13:24:38Z (~9h) | +6979 / -801 | 42 | **`false`** |
-| #94 | `worktree-dazzling-meandering-pudding` | 2026-05-02T02:49:51Z | 2026-05-03T03:56:03Z (~25h) | +6216 / -386 | 45 | **`false`** |
+| PR # | branch                                 | createdAt            | mergedAt                    | additions / deletions | commit 数 | createdAt 時の `isDraft` |
+| ---- | -------------------------------------- | -------------------- | --------------------------- | --------------------- | --------- | ------------------------ |
+| #92  | `feat/dev-workflow-retro-followup`     | 2026-04-29T04:18:54Z | 2026-04-29T13:24:38Z (~9h)  | +6979 / -801          | 42        | **`false`**              |
+| #94  | `worktree-dazzling-meandering-pudding` | 2026-05-02T02:49:51Z | 2026-05-03T03:56:03Z (~25h) | +6216 / -386          | 45        | **`false`**              |
 
 その他の merged PR は Renovate (`renovate/*`) や非 dev-workflow 系 (`feat/add-nix-workspace` 等) で本観点の対象外。
 
@@ -57,6 +57,7 @@
 両 PR とも以下の章立てを共有 (順序は若干異なる):
 
 PR #92 (`/tmp/claude/pr-92-body.md` L1-50):
+
 1. `## Summary` — 目的の 1-3 文 + bullet list (Layout migration / Cycle: ... / Cycle: ... deferred)
 2. `## Cycle artefacts` — `docs/dev-workflow/<id>/` 配下成果物の bullet 列挙 (intent-spec / research/ / design / qa-design / qa-flow / task-plan / TODO / review/ / validation-report / retrospective)
 3. `## Verification` — 観測コマンド (`test ! -d ...`, `ggrep -rnE ... | wc -l`) のコードブロック
@@ -65,6 +66,7 @@ PR #92 (`/tmp/claude/pr-92-body.md` L1-50):
 6. 末尾: `🤖 Generated with [Claude Code](https://claude.com/claude-code)` フッター
 
 PR #94 (`/tmp/claude/pr-94-body.md` L1-48):
+
 1. `## Summary` — 主要追加・変更 (bullet) + サブセクション `### 主な追加・変更`
 2. `## 設計判断 (確定済)` — design.md からの確定事項
 3. `## Cycle Documentation` — `docs/workflow/<id>/` の成果物 + retrospective へのリンク
@@ -121,14 +123,14 @@ PR #94 (`/tmp/claude/pr-94-body.md` L1-48):
 
 `docs/workflow/*/progress.yaml` を grep (`/tmp/claude/blockers-rollbacks.txt`):
 
-| サイクル | `blockers:` |
-|---|---|
-| `2026-04-24-ai-dlc-plugin-bootstrap` | `[]` |
-| `2026-04-26-add-qa-design-step` | `[]` |
-| `2026-04-29-add-dev-roadmap-skill` | `[]` |
-| `2026-04-29-integrate-self-review-into-external` | `[]` |
-| `2026-04-29-retro-cleanup` | `[]` |
-| `2026-05-03-pr-ci-integration` (本サイクル) | `[]` |
+| サイクル                                         | `blockers:` |
+| ------------------------------------------------ | ----------- |
+| `2026-04-24-ai-dlc-plugin-bootstrap`             | `[]`        |
+| `2026-04-26-add-qa-design-step`                  | `[]`        |
+| `2026-04-29-add-dev-roadmap-skill`               | `[]`        |
+| `2026-04-29-integrate-self-review-into-external` | `[]`        |
+| `2026-04-29-retro-cleanup`                       | `[]`        |
+| `2026-05-03-pr-ci-integration` (本サイクル)      | `[]`        |
 
 → **CI 失敗が `blockers` に記録された前例はゼロ**。F-6 で観測した CI fix commit (chain-substitution bug、format 違反) はすべて `rollbacks` または retrospective の「課題」セクションに吸収され、`blockers` には登っていない。
 
