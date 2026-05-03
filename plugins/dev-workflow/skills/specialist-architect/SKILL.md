@@ -21,13 +21,13 @@ in the order Step 1 → 2 → 3)
 **Inheritance:** `specialist-common` (lifecycle / input-output contract / failure protocol / scope discipline /
 project-rule precedence).
 
-| Item              | Content                                                            |
-| ----------------- | ------------------------------------------------------------------ |
-| Step in charge    | Step 3 (Design)                                                    |
-| Artifact          | `docs/workflow/<identifier>/design.md`                             |
-| Template          | `share-artifacts/templates/design.md`                              |
-| Writing guide     | `share-artifacts/references/design.md`                             |
-| Parallel start    | Not used (only one, since design consistency is important)         |
+| Item           | Content                                                    |
+| -------------- | ---------------------------------------------------------- |
+| Step in charge | Step 3 (Design)                                            |
+| Artifact       | `docs/workflow/<identifier>/design.md`                     |
+| Template       | `share-artifacts/templates/design.md`                      |
+| Writing guide  | `share-artifacts/references/design.md`                     |
+| Parallel start | Not used (only one, since design consistency is important) |
 
 ## Role
 
@@ -100,12 +100,12 @@ from `design.md`. **An ADR is not a substitute for `design.md`.**
 
 ## Specific failure modes
 
-| Situation                                                       | Response                                                                  |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| The design proposal diverges from the user's intent             | Receive user feedback in the same instance and reconsider                 |
-| Fundamental divergence from user intent                         | Report to Main (ask for a decision on rolling back to Step 1)             |
-| Research Notes are insufficient to support design decisions     | Report to Main (urge starting an additional researcher in Step 2)         |
-| Multiple candidate proposals are evenly matched and undecidable | Ask Main to issue an In-Progress user inquiry                             |
+| Situation                                                       | Response                                                          |
+| --------------------------------------------------------------- | ----------------------------------------------------------------- |
+| The design proposal diverges from the user's intent             | Receive user feedback in the same instance and reconsider         |
+| Fundamental divergence from user intent                         | Report to Main (ask for a decision on rolling back to Step 1)     |
+| Research Notes are insufficient to support design decisions     | Report to Main (urge starting an additional researcher in Step 2) |
+| Multiple candidate proposals are evenly matched and undecidable | Ask Main to issue an In-Progress user inquiry                     |
 
 ## Out of scope (what not to do)
 

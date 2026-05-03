@@ -58,20 +58,20 @@ Cases that verify behaviors expressible at the spec level (intent-spec.md / desi
 
 #### Required columns (6 columns)
 
-| Column                | Content                                                         | Example values                                                 |
-| --------------------- | --------------------------------------------------------------- | -------------------------------------------------------------- |
-| `ID`                  | Test case identifier (3-digit zero-padded)                      | `TC-001`                                                       |
-| `Target SC`           | Success criterion ID from intent-spec.md or `(none)`            | `SC-1` / `(none)`                                              |
-| `Expected behavior`   | Stated as an observable event (no code yet, so behavior-based)  | `When a User submits valid credentials to the login form, returns 200` |
-| `Execution agent`     | Axis A: enum                                                    | `automated` / `ai-driven` / `manual`                           |
-| `Verification style`  | Axis B: enum                                                    | `assertion` / `scenario` / `observation` / `inspection`        |
-| `Pass criteria`       | Concrete description of pass conditions                         | `HTTP status is 200 and JWT is returned via Set-Cookie`        |
+| Column               | Content                                                        | Example values                                                         |
+| -------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `ID`                 | Test case identifier (3-digit zero-padded)                     | `TC-001`                                                               |
+| `Target SC`          | Success criterion ID from intent-spec.md or `(none)`           | `SC-1` / `(none)`                                                      |
+| `Expected behavior`  | Stated as an observable event (no code yet, so behavior-based) | `When a User submits valid credentials to the login form, returns 200` |
+| `Execution agent`    | Axis A: enum                                                   | `automated` / `ai-driven` / `manual`                                   |
+| `Verification style` | Axis B: enum                                                   | `assertion` / `scenario` / `observation` / `inspection`                |
+| `Pass criteria`      | Concrete description of pass conditions                        | `HTTP status is 200 and JWT is returned via Set-Cookie`                |
 
 #### Conditionally required column (1 column)
 
-| Column                | Content                                  | When applicable                          |
-| --------------------- | ---------------------------------------- | ---------------------------------------- |
-| `Reason it is needed` | Why this test is necessary               | Required when `Target SC = (none)`       |
+| Column                | Content                    | When applicable                    |
+| --------------------- | -------------------------- | ---------------------------------- |
+| `Reason it is needed` | Why this test is necessary | Required when `Target SC = (none)` |
 
 Typical examples of "Target SC = (none)":
 
@@ -106,11 +106,11 @@ Cases that verify **defensive branches that arise only with concrete implementat
 
 #### Distinguishing from essential tests
 
-| Essential test (TC-NNN)                                  | Implementation-detail test (TC-IMPL-NNN)                                |
-| --------------------------------------------------------- | ---------------------------------------------------------------------- |
-| Expressible at the spec level (intent-spec.md / design.md) | Arises only with the behavior of a specific library / framework / OS   |
-| Same test required even if reimplemented in another language / library | Not needed in another language / library, or becomes a different defensive test |
-| Example: "Unauthenticated User returns 401"               | Example: "Defensive handling for the case where the library used returns `null`" |
+| Essential test (TC-NNN)                                                | Implementation-detail test (TC-IMPL-NNN)                                         |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Expressible at the spec level (intent-spec.md / design.md)             | Arises only with the behavior of a specific library / framework / OS             |
+| Same test required even if reimplemented in another language / library | Not needed in another language / library, or becomes a different defensive test  |
+| Example: "Unauthenticated User returns 401"                            | Example: "Defensive handling for the case where the library used returns `null`" |
 
 When in doubt, report to Main as a Blocker (common to qa-analyst / implementer).
 
@@ -120,12 +120,12 @@ A reverse-lookup table from success criteria → TC-ID. Used by the Step 8 valid
 
 Example:
 
-| SC ID | Test case IDs           | Notes |
-| ----- | ----------------------- | ----- |
-| SC-1  | TC-001, TC-005          |       |
-| SC-2  | TC-002, TC-003, TC-008  |       |
-| SC-3  | TC-010                  |       |
-| ...   | ...                     |       |
+| SC ID | Test case IDs          | Notes |
+| ----- | ---------------------- | ----- |
+| SC-1  | TC-001, TC-005         |       |
+| SC-2  | TC-002, TC-003, TC-008 |       |
+| SC-3  | TC-010                 |       |
+| ...   | ...                    |       |
 
 - **Only essential tests (TC-NNN) are subject**. TC-IMPL-NNN does not appear since they have no SC mapping
 - If the count of TCs corresponding to an SC is 0, **roll back to Step 4** (test design omission)
@@ -134,28 +134,28 @@ Example:
 
 ### Axis A: Execution agent (3 values)
 
-| Value       | Meaning                                                  | Anticipated concrete tools (not written in qa-design.md) |
-| ----------- | -------------------------------------------------------- | -------------------------------------------------------- |
-| `automated` | Test runner / script executes fully automatically        | Vitest, Jest, pytest, go test, etc.                       |
-| `ai-driven` | An AI agent executes interactively                       | Claude's browser operations, AI-driven CLI execution     |
-| `manual`    | A human operates and confirms manually                   | Manual visual confirmation based on instructions, UAT, etc. |
+| Value       | Meaning                                           | Anticipated concrete tools (not written in qa-design.md)    |
+| ----------- | ------------------------------------------------- | ----------------------------------------------------------- |
+| `automated` | Test runner / script executes fully automatically | Vitest, Jest, pytest, go test, etc.                         |
+| `ai-driven` | An AI agent executes interactively                | Claude's browser operations, AI-driven CLI execution        |
+| `manual`    | A human operates and confirms manually            | Manual visual confirmation based on instructions, UAT, etc. |
 
 ### Axis B: Verification style (4 values)
 
-| Value         | Meaning                                       | Industry mapping                            |
-| ------------- | --------------------------------------------- | ------------------------------------------- |
-| `assertion`   | Equality judgment of expected and actual values | TDD, Property-based testing, snapshot, etc. |
-| `scenario`    | Verification of the result of a sequence of operations | BDD, E2E testing, smoke test, etc.          |
+| Value         | Meaning                                                        | Industry mapping                              |
+| ------------- | -------------------------------------------------------------- | --------------------------------------------- |
+| `assertion`   | Equality judgment of expected and actual values                | TDD, Property-based testing, snapshot, etc.   |
+| `scenario`    | Verification of the result of a sequence of operations         | BDD, E2E testing, smoke test, etc.            |
 | `observation` | Observation of values / logs / metrics with threshold judgment | Performance testing, observability test, etc. |
-| `inspection`  | Subjective / qualitative confirmation         | Exploratory testing, manual UX testing, etc.|
+| `inspection`  | Subjective / qualitative confirmation                          | Exploratory testing, manual UX testing, etc.  |
 
 ### Validity of combinations (12 cells)
 
-| Execution agent \ Verification style | `assertion`               | `scenario`        | `observation`                 | `inspection`                    |
-| ------------------------------------ | ------------------------- | ----------------- | ----------------------------- | ------------------------------- |
-| `automated`                          | ✓ Unit tests etc. (most typical) | ✓ E2E scripts     | ✓ Metric measurement + threshold | ✗ **Forbidden combination** (essential contradiction) |
-| `ai-driven`                          | △ Excessive (rationale required) | ✓ AI browser operations | ✓ AI log analysis             | ✓ AI-based UX evaluation        |
-| `manual`                             | △ Inefficient (rationale required) | ✓ Manual scenarios | △ Measurement is recommended to be automated (rationale required) | ✓ Visual confirmation           |
+| Execution agent \ Verification style | `assertion`                        | `scenario`              | `observation`                                                     | `inspection`                                          |
+| ------------------------------------ | ---------------------------------- | ----------------------- | ----------------------------------------------------------------- | ----------------------------------------------------- |
+| `automated`                          | ✓ Unit tests etc. (most typical)   | ✓ E2E scripts           | ✓ Metric measurement + threshold                                  | ✗ **Forbidden combination** (essential contradiction) |
+| `ai-driven`                          | △ Excessive (rationale required)   | ✓ AI browser operations | ✓ AI log analysis                                                 | ✓ AI-based UX evaluation                              |
+| `manual`                             | △ Inefficient (rationale required) | ✓ Manual scenarios      | △ Measurement is recommended to be automated (rationale required) | ✓ Visual confirmation                                 |
 
 - **✓**: Recommended combination
 - **△**: Conditionally adoptable, rationale required in `Notes` column
@@ -163,29 +163,29 @@ Example:
 
 ### Mapping to industry taxonomy
 
-| Industry category         | Expression in this 2-axis system                       |
-| ------------------------- | ------------------------------------------------------ |
-| Unit test (TDD)           | `automated × assertion`                                |
-| Integration test          | `automated × assertion` or `automated × scenario`     |
-| E2E test (Selenium etc.)  | `automated × scenario`                                 |
-| BDD (Cucumber etc.)       | `automated × scenario`                                 |
-| Performance test          | `automated × observation`                              |
-| Security scan (SAST/DAST) | `automated × observation`                              |
-| Manual UX test            | `manual × inspection`                                  |
-| AI-assisted browser test  | `ai-driven × scenario`                                 |
-| AI-driven code review     | `ai-driven × inspection`                               |
-| Smoke test                | `automated × scenario` (lightweight)                   |
+| Industry category         | Expression in this 2-axis system                  |
+| ------------------------- | ------------------------------------------------- |
+| Unit test (TDD)           | `automated × assertion`                           |
+| Integration test          | `automated × assertion` or `automated × scenario` |
+| E2E test (Selenium etc.)  | `automated × scenario`                            |
+| BDD (Cucumber etc.)       | `automated × scenario`                            |
+| Performance test          | `automated × observation`                         |
+| Security scan (SAST/DAST) | `automated × observation`                         |
+| Manual UX test            | `manual × inspection`                             |
+| AI-assisted browser test  | `ai-driven × scenario`                            |
+| AI-driven code review     | `ai-driven × inspection`                          |
+| Smoke test                | `automated × scenario` (lightweight)              |
 
 ## Quality criteria
 
-| Good                                                                  | Bad                                                                  |
-| --------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Every success criterion is covered by at least one TC                 | Empty rows in the coverage table (0 TCs for an SC)                   |
-| "Reason it is needed" is filled in for cases with Target SC = (none)  | "Reason it is needed" is empty                                       |
-| Every TC has observable pass criteria (HTTP 200 / p95 < 200ms etc.)   | Vague expressions like "works correctly"                             |
-| No `automated × inspection` combinations                              | Forbidden combinations are used                                      |
-| △ combinations have the rationale recorded in `Notes`                 | △ adopted without rationale                                          |
-| TC-NNN and TC-IMPL-NNN are numbered independently                     | Numbers are mixed (e.g. TC-001 and TC-IMPL-001 used as if different despite usage) |
+| Good                                                                 | Bad                                                                                |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Every success criterion is covered by at least one TC                | Empty rows in the coverage table (0 TCs for an SC)                                 |
+| "Reason it is needed" is filled in for cases with Target SC = (none) | "Reason it is needed" is empty                                                     |
+| Every TC has observable pass criteria (HTTP 200 / p95 < 200ms etc.)  | Vague expressions like "works correctly"                                           |
+| No `automated × inspection` combinations                             | Forbidden combinations are used                                                    |
+| △ combinations have the rationale recorded in `Notes`                | △ adopted without rationale                                                        |
+| TC-NNN and TC-IMPL-NNN are numbered independently                    | Numbers are mixed (e.g. TC-001 and TC-IMPL-001 used as if different despite usage) |
 
 ## Related artifacts
 

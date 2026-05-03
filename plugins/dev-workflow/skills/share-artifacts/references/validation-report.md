@@ -20,11 +20,11 @@ Large evidence data is stored under `docs/workflow/<identifier>/validation-evide
 
 ### Summary
 
-| Verdict          | Count |
-| ---------------- | ----- |
-| PASS             | {{n}} |
-| FAIL             | {{n}} |
-| Pending (explicit)| {{n}} |
+| Verdict            | Count |
+| ------------------ | ----- |
+| PASS               | {{n}} |
+| FAIL               | {{n}} |
+| Pending (explicit) | {{n}} |
 
 **Overall verdict:** `passed` / `failed` / `partially_passed`
 
@@ -51,9 +51,9 @@ Paste actual test execution logs (if long, excerpt only the head and tail and st
 
 Measurement results corresponding to quantitative success criteria:
 
-| Metric          | Target   | Observed | Verdict |
-| --------------- | -------- | -------- | ------- |
-| p95 latency     | < 200ms  | 175ms    | PASS    |
+| Metric      | Target  | Observed | Verdict |
+| ----------- | ------- | -------- | ------- |
+| p95 latency | < 200ms | 175ms    | PASS    |
 
 ### Response policy for unmet criteria
 
@@ -69,12 +69,12 @@ List of files under `validation-evidence/` and explanations.
 
 ## Observation quality criteria
 
-| Good                                                                          | Bad                                          |
-| ----------------------------------------------------------------------------- | -------------------------------------------- |
-| "p95 175ms (target < 200ms) → PASS"                                           | "Feels fast"                                 |
-| "Integration tests 42/42 passed (evidence `validation-evidence/test-log.txt`)" | "Looks like it works"                       |
-| Measurement conditions (environment / data volume / load) are explicit        | Just "confirmed locally" with nothing more   |
-| If pending, the reason for pending and the technical background that prevents measurement are explicit | Pending reason is "for now"                 |
+| Good                                                                                                   | Bad                                        |
+| ------------------------------------------------------------------------------------------------------ | ------------------------------------------ |
+| "p95 175ms (target < 200ms) → PASS"                                                                    | "Feels fast"                               |
+| "Integration tests 42/42 passed (evidence `validation-evidence/test-log.txt`)"                         | "Looks like it works"                      |
+| Measurement conditions (environment / data volume / load) are explicit                                 | Just "confirmed locally" with nothing more |
+| If pending, the reason for pending and the technical background that prevents measurement are explicit | Pending reason is "for now"                |
 
 ## Validation principles
 

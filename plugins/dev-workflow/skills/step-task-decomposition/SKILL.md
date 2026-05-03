@@ -64,10 +64,10 @@ User approval (mandatory) — this gate is the explicit "go-ahead to start imple
 
 ## Failure modes / Rollback
 
-| Cause | Action / Target step |
-| ----- | -------------------- |
-| Task granularity is wrong | Re-decompose inside Step 5 (Main only — no specialist to feed back to). |
-| Dependencies are unresolvable | Roll back to Step 3 (Design) for design adjustment. |
+| Cause                                  | Action / Target step                                                                                                               |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Task granularity is wrong              | Re-decompose inside Step 5 (Main only — no specialist to feed back to).                                                            |
+| Dependencies are unresolvable          | Roll back to Step 3 (Design) for design adjustment.                                                                                |
 | Test design and task list cannot align | Roll back to Step 4 (QA Design) only if QA cannot be salvaged; otherwise note the cross-references in `task-plan.md` and continue. |
 
 ## Commit conventions

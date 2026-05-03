@@ -18,10 +18,10 @@ Reflect on the entire cycle and extract **knowledge usable in subsequent cycles*
 
 `retrospective.md` is **a volatile report box that is deleted once the next cycle has consumed its improvement items**. Decisions that should be persistently recorded are extracted into ADRs (`docs/adr/` or `docs/roadmap/<roadmap-id>/adr/`; mode determination in `share-adr/SKILL.md`) before deleting the retrospective.
 
-| Kind          | Storage location                                      | Lifecycle                                            |
-| ------------- | ----------------------------------------------------- | ---------------------------------------------------- |
-| ADR           | `docs/adr/` or `docs/roadmap/<roadmap-id>/adr/`       | Persistent. Immutable once `confirmed: true`         |
-| Retrospective | `docs/retrospective/`                                 | Volatile. Deleted once consumed by the next cycle    |
+| Kind          | Storage location                                | Lifecycle                                         |
+| ------------- | ----------------------------------------------- | ------------------------------------------------- |
+| ADR           | `docs/adr/` or `docs/roadmap/<roadmap-id>/adr/` | Persistent. Immutable once `confirmed: true`      |
+| Retrospective | `docs/retrospective/`                           | Volatile. Deleted once consumed by the next cycle |
 
 Deletion timing: at the point in the next cycle's Intent Spec when each improvement item is judged as "addressed / not needed / converted to ADR". The most recent 1-2 cycles' worth is left (since they have not yet become improvement candidates).
 
@@ -44,10 +44,10 @@ Causal analysis based on observed data:
 
 #### Loop-count analysis
 
-| Loop between steps | Count | Root cause          |
-| ------------------ | ----- | ------------------- |
-| Step 6 ↔ Step 7    | {{n}} | {{cause analysis}}  |
-| Step 6/7 → Step 3  | {{n}} | {{cause}}           |
+| Loop between steps | Count | Root cause         |
+| ------------------ | ----- | ------------------ |
+| Step 6 ↔ Step 7    | {{n}} | {{cause analysis}} |
+| Step 6/7 → Step 3  | {{n}} | {{cause}}          |
 
 #### Blocker history
 
@@ -94,12 +94,12 @@ The count and main topics of `$TMPDIR/dev-workflow/*.md` temporary reports. A hi
 
 ## Quality criteria
 
-| Good                                                                | Bad                            |
-| ------------------------------------------------------------------- | ------------------------------ |
-| Causal analysis from observed data (loop counts / timestamps)       | Impressions / opinions         |
-| Improvement proposals at action granularity (who / when / what does what) | Stops at "improve X"           |
-| What went well is concrete and reproducible                         | Just "it was good"             |
-| If a user approval was rejected, the cause is written               | Rejections are not recorded    |
+| Good                                                                      | Bad                         |
+| ------------------------------------------------------------------------- | --------------------------- |
+| Causal analysis from observed data (loop counts / timestamps)             | Impressions / opinions      |
+| Improvement proposals at action granularity (who / when / what does what) | Stops at "improve X"        |
+| What went well is concrete and reproducible                               | Just "it was good"          |
+| If a user approval was rejected, the cause is written                     | Rejections are not recorded |
 
 ## Data sources (required as input)
 

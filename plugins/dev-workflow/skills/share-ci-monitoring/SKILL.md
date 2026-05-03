@@ -1,5 +1,5 @@
 ---
-name: ci-monitoring
+name: share-ci-monitoring
 description: >
   [Common to Main / Specialist] A utility skill that consolidates GitHub Actions CI run
   confirmation, background monitoring, and retry discipline on failure. After a push, it

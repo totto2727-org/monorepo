@@ -75,15 +75,15 @@ See the "Relationship with project-specific rules" section of `dev-workflow` for
 At startup, Main is expected to hand over the following. **If any item is missing, ask Main for supplementation**
 (do not assume on your own).
 
-| Item                              | Content                                                                                                                       |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `<identifier>`                    | The cycle identifier (e.g. `2026-04-24-oauth-support`). Used as the directory name where artifacts are saved.                 |
-| Role / scope boundary             | Explicitly states what is in and out of scope for this Specialist.                                                            |
-| Input artifacts                   | Paths to artifact files from prior steps (Intent Spec, Research Notes, Design Document, Task Plan, etc., depending on role).  |
-| Artifact save path                | Concrete path of `docs/workflow/<identifier>/<artifact>.md`.                                                                  |
-| Template path                     | Path of `share-artifacts/templates/<name>.md`.                                                                                |
-| Writing guide (reference) path    | Path of `share-artifacts/references/<name>.md` (1:1 correspondence; same name as the template).                               |
-| Expected artifact format          | Conform to the template, fill in all placeholders. Refer to the reference for guidance on how to write.                       |
+| Item                           | Content                                                                                                                      |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `<identifier>`                 | The cycle identifier (e.g. `2026-04-24-oauth-support`). Used as the directory name where artifacts are saved.                |
+| Role / scope boundary          | Explicitly states what is in and out of scope for this Specialist.                                                           |
+| Input artifacts                | Paths to artifact files from prior steps (Intent Spec, Research Notes, Design Document, Task Plan, etc., depending on role). |
+| Artifact save path             | Concrete path of `docs/workflow/<identifier>/<artifact>.md`.                                                                 |
+| Template path                  | Path of `share-artifacts/templates/<name>.md`.                                                                               |
+| Writing guide (reference) path | Path of `share-artifacts/references/<name>.md` (1:1 correspondence; same name as the template).                              |
+| Expected artifact format       | Conform to the template, fill in all placeholders. Refer to the reference for guidance on how to write.                      |
 
 If anything is missing, do not begin work and ask Main. (If discovered after starting, pause and confirm.)
 

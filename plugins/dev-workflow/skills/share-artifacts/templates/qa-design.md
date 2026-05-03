@@ -43,11 +43,11 @@ Examples:
 
 Cases that verify behaviors expressible at the specification level. The qa-analyst designs the initial set in Step 4; in Step 6 the implementer appends "additional behavioral patterns" with continuing numbering.
 
-| ID     | Target SC    | Expected behavior  | Actor       | Style        | Pass criterion  | Why required (conditional) | Notes (optional) |
-| ------ | ------------ | ------------------ | ----------- | ------------ | --------------- | -------------------------- | ---------------- |
-| TC-001 | {{sc_id_1}}  | {{behavior_1}}     | {{actor_1}} | {{style_1}}  | {{criterion_1}} | -                          | -                |
-| TC-002 | {{sc_id_2}}  | {{behavior_2}}     | {{actor_2}} | {{style_2}}  | {{criterion_2}} | -                          | -                |
-| TC-003 | (none)       | {{behavior_3}}     | {{actor_3}} | {{style_3}}  | {{criterion_3}} | {{reason_3}}               | -                |
+| ID     | Target SC   | Expected behavior | Actor       | Style       | Pass criterion  | Why required (conditional) | Notes (optional) |
+| ------ | ----------- | ----------------- | ----------- | ----------- | --------------- | -------------------------- | ---------------- |
+| TC-001 | {{sc_id_1}} | {{behavior_1}}    | {{actor_1}} | {{style_1}} | {{criterion_1}} | -                          | -                |
+| TC-002 | {{sc_id_2}} | {{behavior_2}}    | {{actor_2}} | {{style_2}} | {{criterion_2}} | -                          | -                |
+| TC-003 | (none)      | {{behavior_3}}    | {{actor_3}} | {{style_3}} | {{criterion_3}} | {{reason_3}}               | -                |
 
 <!-- Add TC-004, TC-005, ... as needed -->
 
@@ -62,9 +62,9 @@ Cases that verify behaviors expressible at the specification level. The qa-analy
 
 Cases verifying defensive branches that arise only in the concrete implementation (libraries / frameworks / OS, etc.). Empty during Step 4; added by the implementer in Step 6 only when discovered.
 
-| ID          | Target SC    | Expected behavior   | Actor            | Style            | Pass criterion       | Why required (mandatory) | Notes (optional) |
-| ----------- | ------------ | ------------------- | ---------------- | ---------------- | -------------------- | ------------------------ | ---------------- |
-| TC-IMPL-001 | (none)       | {{impl_behavior_1}} | {{impl_actor_1}} | {{impl_style_1}} | {{impl_criterion_1}} | {{impl_reason_1}}        | -                |
+| ID          | Target SC | Expected behavior   | Actor            | Style            | Pass criterion       | Why required (mandatory) | Notes (optional) |
+| ----------- | --------- | ------------------- | ---------------- | ---------------- | -------------------- | ------------------------ | ---------------- |
+| TC-IMPL-001 | (none)    | {{impl_behavior_1}} | {{impl_actor_1}} | {{impl_style_1}} | {{impl_criterion_1}} | {{impl_reason_1}}        | -                |
 
 <!-- The implementer appends rows in Step 6 as needed. May remain empty in Step 4. -->
 

@@ -64,14 +64,14 @@ User approval (mandatory).
 
 ## Failure modes / Rollback
 
-| Cause | Action / Target step |
-| ----- | -------------------- |
-| Implementation bug surfaces in measurement | Roll back to Step 6 (Implementation). |
-| Design error surfaces (the design cannot satisfy the criterion) | Roll back to Step 3 (Design). |
-| Success criterion itself is unfit | Roll back to Step 1 (Intent Clarification). |
-| QA design gap (missing TC for a failing criterion) | Roll back to Step 4 (QA Design). |
-| Measurement procedure is inappropriate | Send feedback to the **same** `validator` instance to revise the procedure. |
-| Validation scope expands | Launch an additional `validator` in parallel (existing instance stays alive). |
+| Cause                                                           | Action / Target step                                                          |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Implementation bug surfaces in measurement                      | Roll back to Step 6 (Implementation).                                         |
+| Design error surfaces (the design cannot satisfy the criterion) | Roll back to Step 3 (Design).                                                 |
+| Success criterion itself is unfit                               | Roll back to Step 1 (Intent Clarification).                                   |
+| QA design gap (missing TC for a failing criterion)              | Roll back to Step 4 (QA Design).                                              |
+| Measurement procedure is inappropriate                          | Send feedback to the **same** `validator` instance to revise the procedure.   |
+| Validation scope expands                                        | Launch an additional `validator` in parallel (existing instance stays alive). |
 
 ## Commit conventions
 

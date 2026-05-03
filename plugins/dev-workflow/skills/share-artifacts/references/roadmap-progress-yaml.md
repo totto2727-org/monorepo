@@ -41,11 +41,11 @@ milestones:
 
 ### `roadmap_id` / `title` / `status` (roadmap-wide)
 
-| Field        | How to write                                                                                          |
-| ------------ | ----------------------------------------------------------------------------------------------------- |
+| Field        | How to write                                                                                                 |
+| ------------ | ------------------------------------------------------------------------------------------------------------ |
 | `roadmap_id` | Match the `docs/roadmap/<roadmap-id>/` directory name. kebab-case recommended (e.g. `2026-q2-oauth-rollout`) |
-| `title`      | Match the title (1 line) of `roadmap.md`                                                              |
-| `status`     | 3 values: `planned` (during Steps 1-2) / `active` (during Step 3) / `completed` (Step 4 completed)    |
+| `title`      | Match the title (1 line) of `roadmap.md`                                                                     |
+| `status`     | 3 values: `planned` (during Steps 1-2) / `active` (during Step 3) / `completed` (Step 4 completed)           |
 
 Transition timing of roadmap-wide `status`:
 
@@ -61,12 +61,12 @@ Transition timing of roadmap-wide `status`:
 
 ### `milestones[]`
 
-| Sub-field              | How to write                                                                                                                                          |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                   | kebab-case recommended (e.g. `ms-01-foundation`). Match the `milestones/<id>.md` file basename. **Immutable after Step 2 confirmation**               |
-| `title`                | Short description (1 line). Match the title of `milestones/<id>.md`                                                                                   |
+| Sub-field              | How to write                                                                                                                                                      |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                   | kebab-case recommended (e.g. `ms-01-foundation`). Match the `milestones/<id>.md` file basename. **Immutable after Step 2 confirmation**                           |
+| `title`                | Short description (1 line). Match the title of `milestones/<id>.md`                                                                                               |
 | `status`               | 5 values: `planned` / `active` / `completed` / `blocked` / `cancelled`. Scalar rewrite from `planned → active` at cycle start, `active → completed` at completion |
-| `depends_on`           | Array of milestone IDs that must be completed first. Maintain DAG. Immutable after Step 2 confirmation                                                |
+| `depends_on`           | Array of milestone IDs that must be completed first. Maintain DAG. Immutable after Step 2 confirmation                                                            |
 | `workflow_identifiers` | Array of linked `dev-workflow` cycle `<identifier>` values (1:N allowed). **Append-only operation** (do not delete; if no longer needed, explain in `notes` etc.) |
 | `notes`                | Optional supplement (default `null`). Free area for future schema extension. Do not include PII / tokens / internal URLs (consistent with `specialist-common` §9) |
 
@@ -78,12 +78,12 @@ Transition timing of roadmap-wide `status`:
 
 #### `status` transition rules
 
-| Transition           | Timing                                                                                                                                  |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `planned → active`   | At underlying `dev-workflow` cycle start (Main transitions at the same time as `progress.yaml` initialization; see "Update protocol" of this document) |
+| Transition           | Timing                                                                                                                                                  |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `planned → active`   | At underlying `dev-workflow` cycle start (Main transitions at the same time as `progress.yaml` initialization; see "Update protocol" of this document)  |
 | `active → completed` | At underlying `dev-workflow` cycle completion (= `dev-workflow` Step 9 Retrospective completion). For 1:N, the final state judgment is left to the user |
-| `* → blocked`        | When an underlying cycle hits a hard-to-resolve Blocker, transitioned by Main's judgment                                                |
-| `* → cancelled`      | When the user judges to cancel a milestone during roadmap Step 2 / Step 3                                                               |
+| `* → blocked`        | When an underlying cycle hits a hard-to-resolve Blocker, transitioned by Main's judgment                                                                |
+| `* → cancelled`      | When the user judges to cancel a milestone during roadmap Step 2 / Step 3                                                                               |
 
 #### Append/delete rules for `workflow_identifiers[]`
 
@@ -97,11 +97,11 @@ This section is the core operating rule of `roadmap-progress.yaml`. A cycle whos
 
 ### What — fields to update
 
-| Update target                          | Nature                                                                                                       |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `milestones[].status`                  | Scalar rewrite. Only the 2 transitions `planned → active` (at cycle start) / `active → completed` (at cycle completion) |
-| `milestones[].workflow_identifiers[]`  | append-only. Append its own `<identifier>` exactly once at cycle start                                        |
-| `updated_at`                           | Rewritten to the latest ISO8601 (second precision) simultaneously with any update                            |
+| Update target                         | Nature                                                                                                                  |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `milestones[].status`                 | Scalar rewrite. Only the 2 transitions `planned → active` (at cycle start) / `active → completed` (at cycle completion) |
+| `milestones[].workflow_identifiers[]` | append-only. Append its own `<identifier>` exactly once at cycle start                                                  |
+| `updated_at`                          | Rewritten to the latest ISO8601 (second precision) simultaneously with any update                                       |
 
 Fields **not** to update (immutable or other Specialist's responsibility):
 
@@ -114,10 +114,10 @@ Fields **not** to update (immutable or other Specialist's responsibility):
 
 Following the user-simplification policy ("only the linkage is needed"), this version updates only at the following **2 timings**:
 
-| Timing                       | Details                                                                                                                                                                                                                                                                |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **(a) At cycle start**       | Same timing as `progress.yaml` initialization (`dev-workflow/SKILL.md` "When the workflow starts" step 5). Transition the relevant `milestones[].status` from `planned → active`, append the cycle's `<identifier>` to `milestones[].workflow_identifiers[]`, update `updated_at` |
-| **(c) At cycle completion**  | **At `dev-workflow` Step 9 Retrospective completion** (the 9-step system). Transition the relevant `milestones[].status` from `active → completed`, update `updated_at`                                                                                                |
+| Timing                      | Details                                                                                                                                                                                                                                                                           |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **(a) At cycle start**      | Same timing as `progress.yaml` initialization (`dev-workflow/SKILL.md` "When the workflow starts" step 5). Transition the relevant `milestones[].status` from `planned → active`, append the cycle's `<identifier>` to `milestones[].workflow_identifiers[]`, update `updated_at` |
+| **(c) At cycle completion** | **At `dev-workflow` Step 9 Retrospective completion** (the 9-step system). Transition the relevant `milestones[].status` from `active → completed`, update `updated_at`                                                                                                           |
 
 #### Timing scoped out in this version: (b) Per-step progress summary reflection
 
@@ -148,11 +148,11 @@ Updating `roadmap-progress.yaml` at each `dev-workflow` step completion is **not
 
 Because parallel `dev-workflow` cycles may update the same `roadmap-progress.yaml`, conflict mitigation is needed. This version **delegates to git 3-way merge** (adopting a minimal schema + simple merge policy: limit `status` scalar rewrites and `workflow_identifiers[]` to append-only, ensuring conflict resilience at the schema level):
 
-| Conflict scenario                                                                                          | Probability                                                  | Mitigation                                                                                                                       |
-| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| Conflict scenario                                                                                                    | Probability                                                                   | Mitigation                                                                                                                                        |
+| -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | The same milestone's `status` is rewritten to different values (e.g. `completed` vs `blocked`) on different branches | Low (only when two cycles complete at the same instant on different branches) | The `pre-commit` hook's YAML syntax check blocks leftover conflict markers. Specialist must not resolve unilaterally; report to Main as a Blocker |
-| Appends to `workflow_identifiers[]` happen at the same position on both branches                           | Very low (appends usually go to different lines)             | git 3-way merge auto-merges. If a "both-add" conflict occurs, manually merge by **keeping both (set union)**                     |
-| Simultaneous rewrite of `notes`                                                                            | Very low (essentially no update responsibility in this version) | Normal 3-way merge                                                                                                              |
+| Appends to `workflow_identifiers[]` happen at the same position on both branches                                     | Very low (appends usually go to different lines)                              | git 3-way merge auto-merges. If a "both-add" conflict occurs, manually merge by **keeping both (set union)**                                      |
+| Simultaneous rewrite of `notes`                                                                                      | Very low (essentially no update responsibility in this version)               | Normal 3-way merge                                                                                                                                |
 
 #### Recovery procedure on merge conflict
 
@@ -174,15 +174,15 @@ For details, also refer to the `roadmap` section of `references/progress-yaml.md
 
 ## Quality criteria
 
-| Good                                                                                                       | Bad                                                                |
-| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| Parses without syntax error in `yq` / any YAML parser                                                      | Mixed indentation / mixed tabs / missing space after colon         |
-| All required fields (`roadmap_id` / `title` / `status` / `created_at` / `updated_at` / `milestones`) present | Missing required fields                                            |
-| `status` values are within the enum (`planned` / `active` / `completed` / `blocked` / `cancelled`)         | Non-enum values (`done` / `progress`, etc.) mixed in               |
-| `milestones[].depends_on[]` is a DAG (no cycles)                                                           | Circular dependencies present (also detectable via the Mermaid dependency graph) |
-| `workflow_identifiers[]` keeps set semantics (no duplicates)                                               | The same `<identifier>` appears multiple times                     |
-| `updated_at` is rewritten on every update                                                                  | Left stale                                                         |
-| `roadmap_id` / milestone `id` exactly match `roadmap.md` / `milestones/<id>.md`                            | Notation drift (e.g. `ms-01_foundation` vs `ms-01-foundation`)     |
+| Good                                                                                                         | Bad                                                                              |
+| ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| Parses without syntax error in `yq` / any YAML parser                                                        | Mixed indentation / mixed tabs / missing space after colon                       |
+| All required fields (`roadmap_id` / `title` / `status` / `created_at` / `updated_at` / `milestones`) present | Missing required fields                                                          |
+| `status` values are within the enum (`planned` / `active` / `completed` / `blocked` / `cancelled`)           | Non-enum values (`done` / `progress`, etc.) mixed in                             |
+| `milestones[].depends_on[]` is a DAG (no cycles)                                                             | Circular dependencies present (also detectable via the Mermaid dependency graph) |
+| `workflow_identifiers[]` keeps set semantics (no duplicates)                                                 | The same `<identifier>` appears multiple times                                   |
+| `updated_at` is rewritten on every update                                                                    | Left stale                                                                       |
+| `roadmap_id` / milestone `id` exactly match `roadmap.md` / `milestones/<id>.md`                              | Notation drift (e.g. `ms-01_foundation` vs `ms-01-foundation`)                   |
 
 ## Related artifacts
 

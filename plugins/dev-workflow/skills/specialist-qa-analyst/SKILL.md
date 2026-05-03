@@ -22,13 +22,13 @@ branch diagram → coverage check → finalize)
 
 **Inheritance:** `specialist-common` (lifecycle / input-output contract / failure protocol / scope discipline)
 
-| Item              | Content                                                                                |
-| ----------------- | -------------------------------------------------------------------------------------- |
-| Step in charge    | Step 4 (QA Design)                                                                     |
-| Artifact          | `docs/workflow/<identifier>/qa-design.md` + `docs/workflow/<identifier>/qa-flow.md`    |
-| Template          | `share-artifacts/templates/qa-design.md`, `share-artifacts/templates/qa-flow.md`       |
-| Writing guide     | `share-artifacts/references/qa-design.md`, `share-artifacts/references/qa-flow.md`     |
-| Parallel start    | Not used (only one, for the consistency of test strategy)                              |
+| Item           | Content                                                                             |
+| -------------- | ----------------------------------------------------------------------------------- |
+| Step in charge | Step 4 (QA Design)                                                                  |
+| Artifact       | `docs/workflow/<identifier>/qa-design.md` + `docs/workflow/<identifier>/qa-flow.md` |
+| Template       | `share-artifacts/templates/qa-design.md`, `share-artifacts/templates/qa-flow.md`    |
+| Writing guide  | `share-artifacts/references/qa-design.md`, `share-artifacts/references/qa-flow.md`  |
+| Parallel start | Not used (only one, for the consistency of test strategy)                           |
 
 ## Role
 
@@ -117,15 +117,15 @@ If anything is missing, ask Main.
 
 ## Specific failure modes
 
-| Situation                                                                         | Response                                                                                          |
-| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Discovered an unobservable success criterion in the Intent Spec                   | Report to Main as a Blocker (ask for a Step 1 rollback decision)                                  |
-| `design.md` cannot pin down the behavior (cannot be tested)                       | Report to Main as a Blocker (ask for a Step 3 rollback decision)                                  |
-| Insufficient material for the automated / manual decision (architect intent unclear) | Inquire with Main (ask Main to relay an additional question to the architect)                |
-| Zero TCs correspond to one success criterion                                      | Report to Main as a Blocker (Step 1 rollback: success criterion may be unclear)                   |
-| Feel the necessity of the prohibited combination (`automated × inspection`)       | Always reassign to a different combination (`observation` if quantifiable, `manual` if subjective) |
-| Mermaid flowchart exceeds 30 nodes and needs to be split                          | Split into multiple sections per concern (see `share-artifacts/references/qa-flow.md`)            |
-| Sent back from Main due to insufficient granularity                               | Re-design in the same instance with explicit granularity criteria                                  |
+| Situation                                                                            | Response                                                                                           |
+| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| Discovered an unobservable success criterion in the Intent Spec                      | Report to Main as a Blocker (ask for a Step 1 rollback decision)                                   |
+| `design.md` cannot pin down the behavior (cannot be tested)                          | Report to Main as a Blocker (ask for a Step 3 rollback decision)                                   |
+| Insufficient material for the automated / manual decision (architect intent unclear) | Inquire with Main (ask Main to relay an additional question to the architect)                      |
+| Zero TCs correspond to one success criterion                                         | Report to Main as a Blocker (Step 1 rollback: success criterion may be unclear)                    |
+| Feel the necessity of the prohibited combination (`automated × inspection`)          | Always reassign to a different combination (`observation` if quantifiable, `manual` if subjective) |
+| Mermaid flowchart exceeds 30 nodes and needs to be split                             | Split into multiple sections per concern (see `share-artifacts/references/qa-flow.md`)             |
+| Sent back from Main due to insufficient granularity                                  | Re-design in the same instance with explicit granularity criteria                                  |
 
 ## Out of scope (what not to do)
 

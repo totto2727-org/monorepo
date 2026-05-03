@@ -131,12 +131,12 @@ History of rollbacks between steps. Make the cause and the destination explicit.
 
 ## Quality criteria
 
-| Good                                                          | Bad                                                                |
-| ------------------------------------------------------------- | ------------------------------------------------------------------ |
-| Each event is reflected immediately when it occurs            | Trying to write everything later, leading to omissions             |
-| Timestamps use UTC + ISO8601                                  | Local time / natural-language notation                             |
-| Blockers are concrete (event, impact, policy)                 | Abstract descriptions like "a problem occurred"                    |
-| Active Specialists match reality                              | A `running` state is left over and persists across sessions        |
+| Good                                               | Bad                                                         |
+| -------------------------------------------------- | ----------------------------------------------------------- |
+| Each event is reflected immediately when it occurs | Trying to write everything later, leading to omissions      |
+| Timestamps use UTC + ISO8601                       | Local time / natural-language notation                      |
+| Blockers are concrete (event, impact, policy)      | Abstract descriptions like "a problem occurred"             |
+| Active Specialists match reality                   | A `running` state is left over and persists across sessions |
 
 ## Related artifacts
 

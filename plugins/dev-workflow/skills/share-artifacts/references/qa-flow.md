@@ -75,21 +75,21 @@ Aggregate `TC-IMPL-NNN` that cannot be incorporated into existing flowcharts. Us
 
 ### Node shapes
 
-| Syntax        | Meaning      | Use                          |
-| ------------- | ------------ | ---------------------------- |
-| `A[Label]`    | Rectangle    | Normal node / test case      |
-| `A([Label])`  | Stadium      | start / end                  |
-| `A{Label}`    | Diamond      | Decision (if condition / switch) |
-| `A((Label))`  | Circle       | Sub-step                     |
-| `A[[Label]]`  | Subroutine   | Reference to another flowchart |
+| Syntax       | Meaning    | Use                              |
+| ------------ | ---------- | -------------------------------- |
+| `A[Label]`   | Rectangle  | Normal node / test case          |
+| `A([Label])` | Stadium    | start / end                      |
+| `A{Label}`   | Diamond    | Decision (if condition / switch) |
+| `A((Label))` | Circle     | Sub-step                         |
+| `A[[Label]]` | Subroutine | Reference to another flowchart   |
 
 ### Arrows (edges)
 
-| Syntax     | Meaning                |
-| ---------- | ---------------------- | --- | ----------------------------------- |
-| `A --> B`  | Normal transition      |
-| `A -->     | label                  | B`  | Labeled transition (writes the value of a conditional branch) |
-| `A -.-> B` | Dotted (optional)      |
+| Syntax     | Meaning                           |
+| ---------- | --------------------------------- | --- | ------------------------------------------------------------- |
+| `A --> B`  | Normal transition                 |
+| `A -->     | label                             | B`  | Labeled transition (writes the value of a conditional branch) |
+| `A -.-> B` | Dotted (optional)                 |
 | `A ==> B`  | Thick (emphasizing the main path) |
 
 ## Distinguishing branches (if vs switch)
@@ -203,14 +203,14 @@ flowchart TD
 
 ## Quality criteria
 
-| Good                                                                  | Bad                                                  |
-| --------------------------------------------------------------------- | ---------------------------------------------------- |
-| Each flowchart has 15-20 nodes or fewer                               | Hard to read with 30+ nodes                          |
-| Every leaf is a TC-ID or `skip [reason]`                              | Empty nodes or "TODO" leaves                         |
-| `skip` leaves always have a reason                                    | skip without a reason                                |
-| Each section explicitly states "SCs covered" on a single line         | Coverage SC unclear                                  |
-| All TC-NNN / TC-IMPL-NNN are consistent with qa-design.md             | TC-IDs in qa-flow.md missing from qa-design.md       |
-| Split by concerns                                                     | All features crammed into a single huge flowchart    |
+| Good                                                          | Bad                                               |
+| ------------------------------------------------------------- | ------------------------------------------------- |
+| Each flowchart has 15-20 nodes or fewer                       | Hard to read with 30+ nodes                       |
+| Every leaf is a TC-ID or `skip [reason]`                      | Empty nodes or "TODO" leaves                      |
+| `skip` leaves always have a reason                            | skip without a reason                             |
+| Each section explicitly states "SCs covered" on a single line | Coverage SC unclear                               |
+| All TC-NNN / TC-IMPL-NNN are consistent with qa-design.md     | TC-IDs in qa-flow.md missing from qa-design.md    |
+| Split by concerns                                             | All features crammed into a single huge flowchart |
 
 ## Related artifacts
 

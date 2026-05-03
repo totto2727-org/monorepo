@@ -35,12 +35,12 @@ State the goal of the cycle in **1-3 sentences**. Write it as an achievement sta
 
 Describe in **observable form**. This is what is measured in Validation Step 8.
 
-| Good (observable)                            | Bad (not observable)                                |
-| -------------------------------------------- | --------------------------------------------------- |
-| The p95 latency of the API is below 200ms    | Performance improves                                |
-| Returns 401 on authentication failure        | It works correctly                                  |
-| All existing integration tests pass          | Existing functionality is not broken (no definition of "broken") |
-| 100 new users can register                   | It is easy to use                                   |
+| Good (observable)                         | Bad (not observable)                                             |
+| ----------------------------------------- | ---------------------------------------------------------------- |
+| The p95 latency of the API is below 200ms | Performance improves                                             |
+| Returns 401 on authentication failure     | It works correctly                                               |
+| All existing integration tests pass       | Existing functionality is not broken (no definition of "broken") |
+| 100 new users can register                | It is easy to use                                                |
 
 ### Constraints
 
@@ -60,12 +60,12 @@ List references needed to reconstruct the context later, such as Issues, tickets
 
 ## Quality criteria
 
-| Good                                                              | Bad                                                       |
-| ----------------------------------------------------------------- | --------------------------------------------------------- |
-| Every success criterion has a measurement method                  | Subjective expressions like "improves" or "becomes faster" |
-| Non-scope is explicit                                             | Only scope, with ambiguous boundaries                     |
-| Constraints are covered across all 3 categories                   | Constraints section is empty or technical-only            |
-| The user reads it and says "yes, that's what I want to do"        | Too abstract; can be interpreted any way                  |
+| Good                                                       | Bad                                                        |
+| ---------------------------------------------------------- | ---------------------------------------------------------- |
+| Every success criterion has a measurement method           | Subjective expressions like "improves" or "becomes faster" |
+| Non-scope is explicit                                      | Only scope, with ambiguous boundaries                      |
+| Constraints are covered across all 3 categories            | Constraints section is empty or technical-only             |
+| The user reads it and says "yes, that's what I want to do" | Too abstract; can be interpreted any way                   |
 
 ## Related artifacts
 

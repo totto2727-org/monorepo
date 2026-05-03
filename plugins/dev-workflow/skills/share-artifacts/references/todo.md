@@ -77,12 +77,12 @@ Items always recorded for each task:
 
 ## Quality criteria
 
-| Good                                                          | Bad                                                |
-| ------------------------------------------------------------- | -------------------------------------------------- |
+| Good                                                           | Bad                                                  |
+| -------------------------------------------------------------- | ---------------------------------------------------- |
 | All task state changes are immediately reflected and committed | Updates are batched, losing fine-grained granularity |
-| commit SHAs are concretely filled in                          | The commit field is empty                          |
-| The re_activations counter is accurately recorded             | Loop history is lost                               |
-| The reason for additional tasks is written                    | New tasks appear out of nowhere                    |
+| commit SHAs are concretely filled in                           | The commit field is empty                            |
+| The re_activations counter is accurately recorded              | Loop history is lost                                 |
+| The reason for additional tasks is written                     | New tasks appear out of nowhere                      |
 
 ## Related artifacts
 

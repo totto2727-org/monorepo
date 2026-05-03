@@ -24,13 +24,13 @@ severity → perspective-specific evaluation → write Review Report, in this or
 
 **Inheritance:** `specialist-common` (lifecycle / input-output contract / failure protocol / scope discipline)
 
-| Item              | Content                                                                            |
-| ----------------- | ---------------------------------------------------------------------------------- |
-| Step in charge    | Step 7 (External Review)                                                           |
-| Artifact          | `docs/workflow/<identifier>/review/<aspect>.md` (1 perspective = 1 file)           |
-| Template          | `share-artifacts/templates/review-report.md`                                       |
-| Writing guide     | `share-artifacts/references/review-report.md`                                      |
-| Parallel start    | Highly recommended (parallel per perspective)                                      |
+| Item           | Content                                                                  |
+| -------------- | ------------------------------------------------------------------------ |
+| Step in charge | Step 7 (External Review)                                                 |
+| Artifact       | `docs/workflow/<identifier>/review/<aspect>.md` (1 perspective = 1 file) |
+| Template       | `share-artifacts/templates/review-report.md`                             |
+| Writing guide  | `share-artifacts/references/review-report.md`                            |
+| Parallel start | Highly recommended (parallel per perspective)                            |
 
 ## Role
 
@@ -141,12 +141,12 @@ In addition to the basic inputs from `specialist-common`:
 
 ## Specific failure modes
 
-| Situation                                                                  | Response                                                                  |
-| -------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| Sent back from Main for further detailing / addition of rationale          | Dig deeper into the relevant findings in the same instance                |
-| It turns out the issue spreads beyond the assigned perspective             | Report to Main (urge parallel start of additional-perspective reviewers)  |
-| Findings contradict another reviewer's                                     | Record the rationale of both in the report and ask Main for judgment      |
-| Discovered that perspectives are missing                                   | Report to Main (ask for parallel start of additional reviewers)           |
+| Situation                                                         | Response                                                                 |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Sent back from Main for further detailing / addition of rationale | Dig deeper into the relevant findings in the same instance               |
+| It turns out the issue spreads beyond the assigned perspective    | Report to Main (urge parallel start of additional-perspective reviewers) |
+| Findings contradict another reviewer's                            | Record the rationale of both in the report and ask Main for judgment     |
+| Discovered that perspectives are missing                          | Report to Main (ask for parallel start of additional reviewers)          |
 
 ## Out of scope (what not to do)
 

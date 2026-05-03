@@ -118,14 +118,14 @@ User approval (mandatory) — confirms Blocker = 0, all Majors resolved, and Min
 
 ## Failure modes / Rollback
 
-| Cause | Action / Target step |
-| ----- | -------------------- |
-| Blocker or Major found | Re-activate Step 6 (round trip above), then re-run Step 7 with a fresh `reviewer` cohort. Each new round appends `## Round N+1` to `review/<aspect>.md`. |
-| Major to be carried over to Retrospective | Obtain explicit user approval at the gate, downgrade Major to Minor in the report (note "Round N — agreed Retrospective carry-over"). No Step 6 round-trip. |
-| Aspect missing from the fixed 6 | Main launches an additional aspect-scoped `reviewer` in parallel (existing instances stay alive). |
-| Existing reviewer's report is unclear | Send feedback to the **same** running instance (within the round) for elaboration. |
-| Multiple reviewers contradict each other | Raise an In-Progress user inquiry with both rationales for a judgment call. |
-| Blocker / Major recur across rounds | Suspect a design-level issue. Raise an In-Progress inquiry to the user proposing rollback to Step 3. As a guideline, ≥ 3 rounds with Blocker / Major aggregated across aspects warrants the rollback consideration; record each round in `progress.yaml.rollbacks[]`. |
+| Cause                                     | Action / Target step                                                                                                                                                                                                                                                  |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Blocker or Major found                    | Re-activate Step 6 (round trip above), then re-run Step 7 with a fresh `reviewer` cohort. Each new round appends `## Round N+1` to `review/<aspect>.md`.                                                                                                              |
+| Major to be carried over to Retrospective | Obtain explicit user approval at the gate, downgrade Major to Minor in the report (note "Round N — agreed Retrospective carry-over"). No Step 6 round-trip.                                                                                                           |
+| Aspect missing from the fixed 6           | Main launches an additional aspect-scoped `reviewer` in parallel (existing instances stay alive).                                                                                                                                                                     |
+| Existing reviewer's report is unclear     | Send feedback to the **same** running instance (within the round) for elaboration.                                                                                                                                                                                    |
+| Multiple reviewers contradict each other  | Raise an In-Progress user inquiry with both rationales for a judgment call.                                                                                                                                                                                           |
+| Blocker / Major recur across rounds       | Suspect a design-level issue. Raise an In-Progress inquiry to the user proposing rollback to Step 3. As a guideline, ≥ 3 rounds with Blocker / Major aggregated across aspects warrants the rollback consideration; record each round in `progress.yaml.rollbacks[]`. |
 
 ## Commit conventions
 

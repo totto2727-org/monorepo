@@ -1,5 +1,5 @@
 ---
-name: adr
+name: share-adr
 description: >
   [Common to Main / Specialist] A skill for permanently recording, in dev-workflow / dev-roadmap, decisions whose impact **spans multiple cycles or a single roadmap** as Architecture Decision Records (ADR).
   General mode (`docs/adr/<YYYY-MM-DD-title>.md`) covers "decisions spanning multiple roadmaps", "decisions spanning multiple independent dev-workflow cycles", and "norms applying to the entire project". Roadmap mode (`docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md`) covers "context shared by multiple cycles under a single roadmap".
@@ -18,10 +18,10 @@ This skill provides the format and operating rules for permanently recording **d
 
 ADRs use one of two modes depending on **the context in which they are filed**. The determination is made at filing time by Main evaluating the scope, and is explicitly stated in the ADR body.
 
-| Mode                    | Storage location                                       | Filing decision essence                                                                                          | Main filing origins                                                                                                    |
-| ----------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| **General mode**        | `docs/adr/<YYYY-MM-DD-title>.md`                       | A decision that "**spans multiple roadmaps / multiple independent workflows**" or becomes a "**project-wide norm**" | dev-workflow Step 3 (when a cross-cutting decision occurs) / dev-roadmap Step 1 to 4 / one-off use                     |
-| **Roadmap mode**        | `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md`  | Context, premises, or norms "**shared by multiple dev-workflow cycles under a single roadmap**"                  | dev-roadmap Step 1 to 4 / dev-workflow cycles under it Step 3 (when invoked under a roadmap context)                    |
+| Mode             | Storage location                                      | Filing decision essence                                                                                             | Main filing origins                                                                                  |
+| ---------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **General mode** | `docs/adr/<YYYY-MM-DD-title>.md`                      | A decision that "**spans multiple roadmaps / multiple independent workflows**" or becomes a "**project-wide norm**" | dev-workflow Step 3 (when a cross-cutting decision occurs) / dev-roadmap Step 1 to 4 / one-off use   |
+| **Roadmap mode** | `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md` | Context, premises, or norms "**shared by multiple dev-workflow cycles under a single roadmap**"                     | dev-roadmap Step 1 to 4 / dev-workflow cycles under it Step 3 (when invoked under a roadmap context) |
 
 ### Mode decision flow
 
@@ -99,10 +99,10 @@ scope: general | roadmap:<roadmap-id>
 ---
 ```
 
-| Field       | Type    | Description                                                                                            |
-| ----------- | ------- | ------------------------------------------------------------------------------------------------------ |
-| `confirmed` | boolean | `true`: confirmed (in principle immutable) / `false`: proposal (awaiting review)                        |
-| `scope`     | string  | `general` (= under `docs/adr/`) or `roadmap:<roadmap-id>` (= under `docs/roadmap/<roadmap-id>/adr/`)    |
+| Field       | Type    | Description                                                                                          |
+| ----------- | ------- | ---------------------------------------------------------------------------------------------------- |
+| `confirmed` | boolean | `true`: confirmed (in principle immutable) / `false`: proposal (awaiting review)                     |
+| `scope`     | string  | `general` (= under `docs/adr/`) or `roadmap:<roadmap-id>` (= under `docs/roadmap/<roadmap-id>/adr/`) |
 
 The `scope` field must match the storage location and serves as an index for distinguishing the two modes via grep / programmatic filtering. ADRs with `scope: roadmap:<roadmap-id>` are referenceable from any dev-workflow cycle under that roadmap, and ADRs with `scope: general` are referenceable from the entire repository.
 
@@ -176,12 +176,12 @@ Bullet list of links to related existing ADRs / `roadmap.md` / `milestones/<id>.
 
 ### 5. Division of role with retrospective
 
-|              | ADR                                                  | retrospective.md / roadmap-retrospective.md         |
-| ------------ | ---------------------------------------------------- | --------------------------------------------------- |
-| Persistence  | Persistent (immutable when `confirmed: true`)        | Volatile (deleted once the next cycle digests it)   |
-| Content      | Decisions and consequences (Decision + Consequences) | Reflection (good points / issues / next improvements) |
-| Scope        | Norms affecting multiple cycles / roadmap / project-wide | Self-evaluation of 1 cycle / 1 roadmap          |
-| Storage      | `docs/adr/` or `docs/roadmap/<roadmap-id>/adr/`      | `docs/retrospective/` (aggregated)                  |
+|             | ADR                                                      | retrospective.md / roadmap-retrospective.md           |
+| ----------- | -------------------------------------------------------- | ----------------------------------------------------- |
+| Persistence | Persistent (immutable when `confirmed: true`)            | Volatile (deleted once the next cycle digests it)     |
+| Content     | Decisions and consequences (Decision + Consequences)     | Reflection (good points / issues / next improvements) |
+| Scope       | Norms affecting multiple cycles / roadmap / project-wide | Self-evaluation of 1 cycle / 1 roadmap                |
+| Storage     | `docs/adr/` or `docs/roadmap/<roadmap-id>/adr/`          | `docs/retrospective/` (aggregated)                    |
 
 Among the improvement proposals derived in retrospective, **decisions that should be permanently recorded** are extracted into ADRs when the retrospective is digested.
 

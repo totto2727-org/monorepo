@@ -77,10 +77,10 @@ Main judgment (the user is informed but no explicit approval is required).
 
 ## Failure modes / Rollback
 
-| Cause | Action / Target step |
-| ----- | -------------------- |
-| The retrospective is too abstract | Re-author inside Step 9 (Main only — no specialist to feed back to); demand concrete episodes (file path, commit SHA, round number). |
-| Next-cycle improvements are not actionable | Decompose to action-level bullet points and rewrite. |
+| Cause                                             | Action / Target step                                                                                                                                                                      |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The retrospective is too abstract                 | Re-author inside Step 9 (Main only — no specialist to feed back to); demand concrete episodes (file path, commit SHA, round number).                                                      |
+| Next-cycle improvements are not actionable        | Decompose to action-level bullet points and rewrite.                                                                                                                                      |
 | A retrospective insight clearly merits permanence | File an ADR (General or Roadmap mode per `share-adr/SKILL.md`) and reference the ADR from the retrospective note; the note still gets deleted on next-cycle digest, but the ADR persists. |
 
 ## Commit conventions

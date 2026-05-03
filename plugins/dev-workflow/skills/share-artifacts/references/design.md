@@ -82,24 +82,24 @@ Hints used by Step 5's `planner`. Make explicit the granularity targets for task
 
 ## Quality criteria
 
-| Good                                                     | Bad                                       |
-| -------------------------------------------------------- | ----------------------------------------- |
+| Good                                                                     | Bad                                            |
+| ------------------------------------------------------------------------ | ---------------------------------------------- |
 | The implementer can make implementation decisions from this design alone | Abstract and not actionable for implementation |
-| 2-3 alternatives are compared                            | Only the adopted option is described      |
-| All categories of operational considerations are filled  | Security and performance are missing      |
-| Implications of Research Notes are reflected in design decisions | The investigation is ignored in the design |
+| 2-3 alternatives are compared                                            | Only the adopted option is described           |
+| All categories of operational considerations are filled                  | Security and performance are missing           |
+| Implications of Research Notes are reflected in design decisions         | The investigation is ignored in the design     |
 
 ## ADR filing decision criteria
 
 Determining whether to conclude inside `design.md` or file an ADR separately:
 
-| Subject of an ADR (filed via the `share-adr` skill)                                          | Not subject to an ADR (concluded inside `design.md`) |
-| --------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| Adopting Effect across the entire project (General)                                           | The cache strategy of this feature is LRU            |
-| Using gRPC across all services (General)                                                      | Pagination of this API is cursor-based               |
-| Unifying the authorization layer with OpenFGA (General)                                       | Validation of this screen is written with zod        |
-| Conventions shared by multiple independent dev-workflow cycles (General)                      | Naming rules for temporary KV keys in this cycle     |
-| `AuthSession` type definition shared by all cycles under the `oauth-rollout` roadmap (Roadmap)| Wording of the Session guard in this cycle           |
+| Subject of an ADR (filed via the `share-adr` skill)                                            | Not subject to an ADR (concluded inside `design.md`) |
+| ---------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Adopting Effect across the entire project (General)                                            | The cache strategy of this feature is LRU            |
+| Using gRPC across all services (General)                                                       | Pagination of this API is cursor-based               |
+| Unifying the authorization layer with OpenFGA (General)                                        | Validation of this screen is written with zod        |
+| Conventions shared by multiple independent dev-workflow cycles (General)                       | Naming rules for temporary KV keys in this cycle     |
+| `AuthSession` type definition shared by all cycles under the `oauth-rollout` roadmap (Roadmap) | Wording of the Session guard in this cycle           |
 
 - Affects other features / other teams / future cycles → ADR
 - Concluded within this cycle → keep inside `design.md`

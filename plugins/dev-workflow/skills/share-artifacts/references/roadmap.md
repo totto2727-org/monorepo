@@ -29,11 +29,11 @@ Why this roadmap is necessary now. **Always state the reason "why a single `dev-
 
 Describe **the qualitative goal** in 1-3 sentences. **The roadmap itself does not carry observable success criteria** (the non-scope of the entire `dev-roadmap` skill): identifying measurement methods is the responsibility of the `intent-spec.md` of each underlying `dev-workflow` cycle.
 
-| Good (qualitative goal)                                  | Bad (description requiring measurement)                 |
-| -------------------------------------------------------- | ------------------------------------------------------- |
-| OAuth authentication is in production-ready state        | 95% of users log in within 200ms via OAuth authentication |
-| The phased replacement of the payment platform is complete | The payment API p99 is below 100ms                     |
-| All analytics queries can run on the new data platform   | The average query execution time is reduced by 50% from current |
+| Good (qualitative goal)                                    | Bad (description requiring measurement)                         |
+| ---------------------------------------------------------- | --------------------------------------------------------------- |
+| OAuth authentication is in production-ready state          | 95% of users log in within 200ms via OAuth authentication       |
+| The phased replacement of the payment platform is complete | The payment API p99 is below 100ms                              |
+| All analytics queries can run on the new data platform     | The average query execution time is reduced by 50% from current |
 
 If you have something to write in the right column, it should be described in the Intent Spec of the individual milestone's `dev-workflow` cycle once that cycle is launched.
 
@@ -108,14 +108,14 @@ A `roadmap.md` not satisfying these may be sent back at the Step 2 user approval
 
 ## Quality criteria
 
-| Good                                              | Bad                                                       |
-| ------------------------------------------------- | --------------------------------------------------------- |
-| Purpose is written as a qualitative goal          | Observable criteria are mixed into the purpose (workflow's responsibility) |
-| The reason it does not fit a single cycle is in the background | A roadmap is created for a scale that fits a single cycle |
-| The milestone list and the dependency graph match | An entry is in the list but not in the graph, or vice versa |
-| Mermaid is `graph LR` with ≤ 20 nodes             | `flowchart LR` notation, or a giant graph crammed into one |
-| Macro constraints are only "cross-cycle"          | Includes individual cycle constraints, encroaching on the tactical layer |
-| Non-scope is explicit                             | Only scope, with ambiguous boundary                       |
+| Good                                                           | Bad                                                                        |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Purpose is written as a qualitative goal                       | Observable criteria are mixed into the purpose (workflow's responsibility) |
+| The reason it does not fit a single cycle is in the background | A roadmap is created for a scale that fits a single cycle                  |
+| The milestone list and the dependency graph match              | An entry is in the list but not in the graph, or vice versa                |
+| Mermaid is `graph LR` with ≤ 20 nodes                          | `flowchart LR` notation, or a giant graph crammed into one                 |
+| Macro constraints are only "cross-cycle"                       | Includes individual cycle constraints, encroaching on the tactical layer   |
+| Non-scope is explicit                                          | Only scope, with ambiguous boundary                                        |
 
 ## Related artifacts
 

@@ -66,11 +66,11 @@ Main judgment. User confirmation is optional and is requested only when a Blocke
 
 ## Failure modes / Rollback
 
-| Cause | Action / Target step |
-| ----- | -------------------- |
-| Granularity insufficient on a single angle | Send feedback to the same `researcher` instance for deeper investigation (no replacement). |
-| A research angle is missing | Main launches an additional `researcher` in parallel; existing instances stay alive until Step 2 exits. |
-| Findings contradict the Intent Spec at the root | Roll back to Step 1 (Intent Clarification). All `researcher` instances retire at the step exit. |
+| Cause                                           | Action / Target step                                                                                    |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Granularity insufficient on a single angle      | Send feedback to the same `researcher` instance for deeper investigation (no replacement).              |
+| A research angle is missing                     | Main launches an additional `researcher` in parallel; existing instances stay alive until Step 2 exits. |
+| Findings contradict the Intent Spec at the root | Roll back to Step 1 (Intent Clarification). All `researcher` instances retire at the step exit.         |
 
 ## Commit conventions
 

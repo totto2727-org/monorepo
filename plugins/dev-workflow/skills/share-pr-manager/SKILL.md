@@ -1,5 +1,5 @@
 ---
-name: pr-manager
+name: share-pr-manager
 description: >
   [Main-only write operations / Specialist read operations] A utility skill that consolidates
   GitHub Pull Request operations: Draft creation, summary updates, Draft -> Ready transitions,
@@ -138,15 +138,15 @@ gh api repos/<owner>/<repo>/issues/<num> --jq '{created: .created_at, updated: .
 
 ## 5. Permission Boundaries (Main vs Specialist)
 
-| Operation type      | Example command                                          | Main | Specialist |
-| ------------------- | -------------------------------------------------------- | ---- | ---------- |
-| Draft creation      | `gh pr create --draft`                                   | Yes  | No         |
-| Summary update      | `gh pr edit <num> --body-file`                           | Yes  | No         |
-| Ready transition    | `gh pr ready <num>`                                      | Yes  | No         |
-| Draft revert        | `gh pr edit <num> --draft`                               | Yes\* | No        |
-| close / reopen      | `gh pr close <num>` / `gh pr reopen <num>`               | Yes\* | No        |
-| State read          | `gh pr view <num> --json ...` / `gh pr list --json ...`  | Yes  | Yes        |
-| Timeline read       | `gh api .../timeline`                                    | Yes  | Yes        |
+| Operation type   | Example command                                         | Main  | Specialist |
+| ---------------- | ------------------------------------------------------- | ----- | ---------- |
+| Draft creation   | `gh pr create --draft`                                  | Yes   | No         |
+| Summary update   | `gh pr edit <num> --body-file`                          | Yes   | No         |
+| Ready transition | `gh pr ready <num>`                                     | Yes   | No         |
+| Draft revert     | `gh pr edit <num> --draft`                              | Yes\* | No         |
+| close / reopen   | `gh pr close <num>` / `gh pr reopen <num>`              | Yes\* | No         |
+| State read       | `gh pr view <num> --json ...` / `gh pr list --json ...` | Yes   | Yes        |
+| Timeline read    | `gh api .../timeline`                                   | Yes   | Yes        |
 
 \* Draft revert / close / reopen are destructive or semi-destructive operations and are executed by Main only after user judgment (an In-Progress temporary report).
 
@@ -167,15 +167,15 @@ Only the timing of updates is this skill's responsibility:
 
 ## 7. Related Skills / Delegation Targets
 
-| Concern                                                          | Owning skill                                                | Relationship to this skill                  |
-| ---------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------- |
-| When to perform PR operations (timing / triggers)                | `dev-workflow` "## Cycle PR and CI Integration Protocol"    | dev-workflow invokes pr-manager             |
-| How to perform PR operations (commands / idempotency)            | **`share-pr-manager`** (this skill)                         | -                                           |
-| CI watch / double-check / retry / Blocker                        | `share-ci-monitoring`                                       | Parallel concern (not included in PR ops)   |
-| PR description template / each section spec                      | `share-artifacts/{templates,references}/pr-body.md`         | Referenced from §2 / §6 of this skill       |
-| Common Specialist permission boundaries                           | `specialist-common` §7                                      | Aligned with §5 of this skill               |
-| Specialist-specific PR responsibilities (validator's SC use)      | `specialist-validator` etc.                                 | Invokes only §4 read operations of this skill |
-| Project-specific Git/PR conventions (Conventional Commits)        | `git-workflow` (totto2727 project)                          | Follow §1 `--title` convention of this skill |
+| Concern                                                      | Owning skill                                             | Relationship to this skill                    |
+| ------------------------------------------------------------ | -------------------------------------------------------- | --------------------------------------------- |
+| When to perform PR operations (timing / triggers)            | `dev-workflow` "## Cycle PR and CI Integration Protocol" | dev-workflow invokes pr-manager               |
+| How to perform PR operations (commands / idempotency)        | **`share-pr-manager`** (this skill)                      | -                                             |
+| CI watch / double-check / retry / Blocker                    | `share-ci-monitoring`                                    | Parallel concern (not included in PR ops)     |
+| PR description template / each section spec                  | `share-artifacts/{templates,references}/pr-body.md`      | Referenced from §2 / §6 of this skill         |
+| Common Specialist permission boundaries                      | `specialist-common` §7                                   | Aligned with §5 of this skill                 |
+| Specialist-specific PR responsibilities (validator's SC use) | `specialist-validator` etc.                              | Invokes only §4 read operations of this skill |
+| Project-specific Git/PR conventions (Conventional Commits)   | `git-workflow` (totto2727 project)                       | Follow §1 `--title` convention of this skill  |
 
 ## What This Skill Does NOT Cover
 

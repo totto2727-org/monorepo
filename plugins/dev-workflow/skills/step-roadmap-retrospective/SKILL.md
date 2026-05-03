@@ -81,7 +81,7 @@ If any item is missing, Main confirms with the user before starting work.
      this roadmap.
    - **General mode** (`docs/adr/`) when the insight will impact other roadmaps or
      independent workflows. Link from the retrospective to the new ADR.
-   See `share-adr/SKILL.md`.
+     See `share-adr/SKILL.md`.
 6. Present the finished `docs/retrospective/roadmap-<roadmap-id>.md` to the user (for
    information only — the gate is Main judgment, not user approval).
 7. Commit the artifacts as the roadmap's final commit.

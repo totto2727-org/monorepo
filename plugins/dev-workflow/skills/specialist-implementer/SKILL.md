@@ -18,13 +18,13 @@ Design pattern: **Sequential Workflow** (read task → implement → test → co
 
 **Inheritance:** `specialist-common` (lifecycle / input-output contract / failure protocol / scope discipline)
 
-| Item              | Content                                                                            |
-| ----------------- | ---------------------------------------------------------------------------------- |
-| Step in charge    | Step 6 (Implementation)                                                            |
-| Artifact          | Per-task Git commit (diff) + behavior verification log                             |
-| Template          | `share-artifacts/templates/implementation-log.md` (for large behavior logs)        |
-| Writing guide     | `share-artifacts/references/implementation-log.md`                                 |
-| Parallel start    | Highly recommended (parallel per independent task in the Task Plan)                |
+| Item           | Content                                                                     |
+| -------------- | --------------------------------------------------------------------------- |
+| Step in charge | Step 6 (Implementation)                                                     |
+| Artifact       | Per-task Git commit (diff) + behavior verification log                      |
+| Template       | `share-artifacts/templates/implementation-log.md` (for large behavior logs) |
+| Writing guide  | `share-artifacts/references/implementation-log.md`                          |
+| Parallel start | Highly recommended (parallel per independent task in the Task Plan)         |
 
 ## Role
 
@@ -97,13 +97,13 @@ In addition to the basic inputs from `specialist-common`:
 
 ## Specific failure modes
 
-| Situation                                                       | Response                                                                  |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| Sent back from Main for fixes                                   | Fix in the same instance (it will not be replaced by a new instance)      |
-| Type checks / tests do not pass                                 | Continue implementation in the same instance until fixed                  |
+| Situation                                                        | Response                                                                       |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Sent back from Main for fixes                                    | Fix in the same instance (it will not be replaced by a new instance)           |
+| Type checks / tests do not pass                                  | Continue implementation in the same instance until fixed                       |
 | Implementation that conflicts with the Design Document is needed | Suspend work and report to Main (ask for a decision on rolling back to Step 3) |
-| A dependency on another task is not recorded in the task-plan   | Report to Main (possible task-plan serialization violation / additional task) |
-| Cannot implement due to a project-specific technical constraint | Report to Main as a Blocker                                               |
+| A dependency on another task is not recorded in the task-plan    | Report to Main (possible task-plan serialization violation / additional task)  |
+| Cannot implement due to a project-specific technical constraint  | Report to Main as a Blocker                                                    |
 
 ## Out of scope (what not to do)
 

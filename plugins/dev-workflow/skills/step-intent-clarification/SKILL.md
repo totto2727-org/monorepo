@@ -61,11 +61,11 @@ User approval (mandatory). Approval is given against the Intent Spec artifact it
 
 ## Failure modes / Rollback
 
-| Cause | Action / Target step |
-| ----- | -------------------- |
-| User answers remain ambiguous | Continue dialogue inside Step 1 (no rollback). |
+| Cause                                       | Action / Target step                                                                                                  |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| User answers remain ambiguous               | Continue dialogue inside Step 1 (no rollback).                                                                        |
 | Success criterion cannot be made observable | Negotiate measurement strategy with the user via In-Progress inquiry; remain in Step 1 until criteria are observable. |
-| User rejects the Intent Spec at the gate | Capture the rejection reason in `progress.yaml`, refine the artifact, re-present. |
+| User rejects the Intent Spec at the gate    | Capture the rejection reason in `progress.yaml`, refine the artifact, re-present.                                     |
 
 This step is the root of the workflow; it has no upstream rollback target.
 

@@ -61,17 +61,17 @@ flowchart LR
 
 Each row links to the step's detail skill. Per-step procedure, exit criteria, rollback specifics, and commit examples live there.
 
-| Step | Title | Invocation | Gate | Detail skill |
-| ---- | ----- | ---------- | ---- | ------------ |
-| 1 | Intent Clarification | Main only | User | [`step-intent-clarification`](../step-intent-clarification/SKILL.md) |
-| 2 | Research | `researcher` × N (parallel per angle) | Main | [`step-research`](../step-research/SKILL.md) |
-| 3 | Design | `architect` × 1 | User | [`step-design`](../step-design/SKILL.md) |
-| 4 | QA Design | `qa-analyst` × 1 | User | [`step-qa-design`](../step-qa-design/SKILL.md) |
-| 5 | Task Decomposition | Main only | User | [`step-task-decomposition`](../step-task-decomposition/SKILL.md) |
-| 6 | Implementation | `implementer` × N (parallel per task) | Main | [`step-implementation`](../step-implementation/SKILL.md) |
-| 7 | External Review | `reviewer` × 6 (parallel per aspect) | User | [`step-external-review`](../step-external-review/SKILL.md) |
-| 8 | Validation | `validator` × 1 | User | [`step-validation`](../step-validation/SKILL.md) |
-| 9 | Retrospective | Main only | Main | [`step-retrospective`](../step-retrospective/SKILL.md) |
+| Step | Title                | Invocation                            | Gate | Detail skill                                                         |
+| ---- | -------------------- | ------------------------------------- | ---- | -------------------------------------------------------------------- |
+| 1    | Intent Clarification | Main only                             | User | [`step-intent-clarification`](../step-intent-clarification/SKILL.md) |
+| 2    | Research             | `researcher` × N (parallel per angle) | Main | [`step-research`](../step-research/SKILL.md)                         |
+| 3    | Design               | `architect` × 1                       | User | [`step-design`](../step-design/SKILL.md)                             |
+| 4    | QA Design            | `qa-analyst` × 1                      | User | [`step-qa-design`](../step-qa-design/SKILL.md)                       |
+| 5    | Task Decomposition   | Main only                             | User | [`step-task-decomposition`](../step-task-decomposition/SKILL.md)     |
+| 6    | Implementation       | `implementer` × N (parallel per task) | Main | [`step-implementation`](../step-implementation/SKILL.md)             |
+| 7    | External Review      | `reviewer` × 6 (parallel per aspect)  | User | [`step-external-review`](../step-external-review/SKILL.md)           |
+| 8    | Validation           | `validator` × 1                       | User | [`step-validation`](../step-validation/SKILL.md)                     |
+| 9    | Retrospective        | Main only                             | Main | [`step-retrospective`](../step-retrospective/SKILL.md)               |
 
 `step-intent-clarification`, `step-task-decomposition`, and `step-retrospective` are Main-only steps (no specialist is launched). The remaining steps invoke a specialist for parallelism, context isolation, or independent viewpoint per `specialist-common` §6.
 
@@ -90,17 +90,17 @@ Each row links to the step's detail skill. Per-step procedure, exit criteria, ro
 
 ## Parallelism guideline
 
-| Step | Parallelism | Axis |
-| ---- | ----------- | ---- |
-| 1. Intent Clarification | Low | Single-Main dialogue. |
-| 2. Research | High | One `researcher` per angle (existing implementation, dependencies, prior art, ADRs, external specs). |
-| 3. Design | Low | Coherence demands a single `architect`. |
-| 4. QA Design | Low | Coverage consistency demands a single `qa-analyst`. |
-| 5. Task Decomposition | Low | Whole-system perspective; Main-only single pass. |
-| 6. Implementation | High | One `implementer` per independent task in `task-plan.md`. |
-| 7. External Review | High | One `reviewer` per aspect (security / performance / readability / test-quality / api-design / holistic — 6 parallel). |
-| 8. Validation | Low | Single `validator` for unified judgment. |
-| 9. Retrospective | Low | Whole-cycle aggregation; Main-only. |
+| Step                    | Parallelism | Axis                                                                                                                  |
+| ----------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------- |
+| 1. Intent Clarification | Low         | Single-Main dialogue.                                                                                                 |
+| 2. Research             | High        | One `researcher` per angle (existing implementation, dependencies, prior art, ADRs, external specs).                  |
+| 3. Design               | Low         | Coherence demands a single `architect`.                                                                               |
+| 4. QA Design            | Low         | Coverage consistency demands a single `qa-analyst`.                                                                   |
+| 5. Task Decomposition   | Low         | Whole-system perspective; Main-only single pass.                                                                      |
+| 6. Implementation       | High        | One `implementer` per independent task in `task-plan.md`.                                                             |
+| 7. External Review      | High        | One `reviewer` per aspect (security / performance / readability / test-quality / api-design / holistic — 6 parallel). |
+| 8. Validation           | Low         | Single `validator` for unified judgment.                                                                              |
+| 9. Retrospective        | Low         | Whole-cycle aggregation; Main-only.                                                                                   |
 
 ## `roadmap-progress.yaml` update protocol
 
@@ -114,10 +114,10 @@ A cycle whose `progress.yaml.roadmap` is non-null (= launched from a roadmap mil
 
 ### Update points
 
-| Trigger | Update | Commit |
-| ------- | ------ | ------ |
-| **(a) Cycle start** — same moment as `progress.yaml` initialization for roadmap-linked cycles | `milestones[].status: planned → active`; append `<identifier>` to `milestones[].workflow_identifiers[]`; refresh `roadmap-progress.yaml.updated_at`. | Bundled into the cycle's `initialize cycle` commit (no separate commit). |
-| **(c) Cycle completion** — same moment as Step 9 Retrospective completion | `milestones[].status: active → completed`; refresh `roadmap-progress.yaml.updated_at`. If concurrent cycles still hold the milestone `active`, the final-state policy is decided by user judgment via the `dev-roadmap` side. | Bundled into the Step 9 Retrospective final commit. |
+| Trigger                                                                                       | Update                                                                                                                                                                                                                        | Commit                                                                   |
+| --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| **(a) Cycle start** — same moment as `progress.yaml` initialization for roadmap-linked cycles | `milestones[].status: planned → active`; append `<identifier>` to `milestones[].workflow_identifiers[]`; refresh `roadmap-progress.yaml.updated_at`.                                                                          | Bundled into the cycle's `initialize cycle` commit (no separate commit). |
+| **(c) Cycle completion** — same moment as Step 9 Retrospective completion                     | `milestones[].status: active → completed`; refresh `roadmap-progress.yaml.updated_at`. If concurrent cycles still hold the milestone `active`, the final-state policy is decided by user judgment via the `dev-roadmap` side. | Bundled into the Step 9 Retrospective final commit.                      |
 
 Per-step intermediate updates (point "b") are intentionally out of scope in this version: detailed progress is reachable via the linked `progress.yaml`, and reducing the update points to two minimizes parallel-cycle merge conflicts.
 
@@ -138,13 +138,13 @@ Per-step intermediate updates (point "b") are intentionally out of scope in this
 
 This table is the **trigger contract only** — when each PR/CI action fires. The exact commands, idempotency guards, and content templates are owned by the linked shared / step skills.
 
-| Trigger | Action | Delegated to |
-| ------- | ------ | ------------ |
-| `docs(dev-workflow/<id>): initialize cycle` commit | Open one Draft PR (reuse if one already exists; idempotent). | `share-pr-manager` §1 |
-| Each step-completion commit + content change | Regenerate the PR description from the template and push. | `share-pr-manager` §2; template at `share-artifacts/{templates,references}/pr-body.md` |
-| Each step-completion commit pushed (per-task commits in Step 6) | Wait for the matching CI run to PASS before treating the step as complete. | `share-ci-monitoring` §2-3; surfaced as the "CI PASS" line in every `step-*/SKILL.md` Exit Criteria |
-| CI failure | Push a fix-commit retry, up to 2 attempts; otherwise escalate to a Blocker. | `share-ci-monitoring` §4 |
-| Step 9 completion + matching CI PASS | Flip Draft → Ready (`isDraft` pre-check; idempotent). | `share-pr-manager` §3 |
+| Trigger                                                         | Action                                                                      | Delegated to                                                                                        |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `docs(dev-workflow/<id>): initialize cycle` commit              | Open one Draft PR (reuse if one already exists; idempotent).                | `share-pr-manager` §1                                                                               |
+| Each step-completion commit + content change                    | Regenerate the PR description from the template and push.                   | `share-pr-manager` §2; template at `share-artifacts/{templates,references}/pr-body.md`              |
+| Each step-completion commit pushed (per-task commits in Step 6) | Wait for the matching CI run to PASS before treating the step as complete.  | `share-ci-monitoring` §2-3; surfaced as the "CI PASS" line in every `step-*/SKILL.md` Exit Criteria |
+| CI failure                                                      | Push a fix-commit retry, up to 2 attempts; otherwise escalate to a Blocker. | `share-ci-monitoring` §4                                                                            |
+| Step 9 completion + matching CI PASS                            | Flip Draft → Ready (`isDraft` pre-check; idempotent).                       | `share-pr-manager` §3                                                                               |
 
 Workflow-side judgment baselines (kept here because they cross step boundaries):
 

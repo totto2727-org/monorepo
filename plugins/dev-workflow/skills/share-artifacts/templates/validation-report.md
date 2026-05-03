@@ -7,10 +7,10 @@
 
 ## Summary
 
-| Verdict           | Count              |
-| ----------------- | ------------------ |
-| PASS              | {{pass_count}}     |
-| FAIL              | {{fail_count}}     |
+| Verdict             | Count              |
+| ------------------- | ------------------ |
+| PASS                | {{pass_count}}     |
+| FAIL                | {{fail_count}}     |
 | Deferred (explicit) | {{deferred_count}} |
 
 **Overall verdict:** {{overall_verdict}} <!-- passed | failed | partially_passed -->

@@ -60,20 +60,20 @@ Predict places where unforeseen events might occur, and leave hints on response 
 
 ## Task granularity guide
 
-| Good                                                  | Bad                                                  |
-| ----------------------------------------------------- | ---------------------------------------------------- |
-| One implementer can complete in several hours to 1 day | Huge tasks of multi-day scale                        |
-| The artifact files can be identified                  | Vague tasks like "tidy up around X"                  |
-| Dependencies are acyclic                              | Inter-task dependencies form a loop                  |
+| Good                                                   | Bad                                 |
+| ------------------------------------------------------ | ----------------------------------- |
+| One implementer can complete in several hours to 1 day | Huge tasks of multi-day scale       |
+| The artifact files can be identified                   | Vague tasks like "tidy up around X" |
+| Dependencies are acyclic                               | Inter-task dependencies form a loop |
 
 ## Quality criteria
 
-| Good                                                              | Bad                                                |
-| ----------------------------------------------------------------- | -------------------------------------------------- |
-| Tasks are perfectly mutually exclusive (responsibility ranges do not overlap) | Multiple tasks edit the same file                  |
-| Parallel-launchable Waves are identified                          | All serial; parallel opportunities are not exploited |
-| Design document references are concrete down to the section level | Coarse references like "see `design.md`"           |
-| Risks are listed in advance                                       | The risks field is blank                           |
+| Good                                                                          | Bad                                                  |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Tasks are perfectly mutually exclusive (responsibility ranges do not overlap) | Multiple tasks edit the same file                    |
+| Parallel-launchable Waves are identified                                      | All serial; parallel opportunities are not exploited |
+| Design document references are concrete down to the section level             | Coarse references like "see `design.md`"             |
+| Risks are listed in advance                                                   | The risks field is blank                             |
 
 ## Related artifacts
 

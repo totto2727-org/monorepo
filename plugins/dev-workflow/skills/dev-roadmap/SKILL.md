@@ -118,12 +118,12 @@ graph LR
 
 ## Step list
 
-| Step | Title                   | Invocation | Gate              | Detail SKILL                  |
-| ---- | ----------------------- | ---------- | ----------------- | ----------------------------- |
-| 1    | Roadmap Intent          | Main only  | User approval     | `step-roadmap-intent`         |
-| 2    | Milestone Decomposition | Main only  | User approval     | `step-roadmap-decomposition`  |
-| 3    | Execution               | Main only (observer) | Main judgment | inline (this SKILL, below) |
-| 4    | Roadmap Retrospective   | Main only  | Main judgment     | `step-roadmap-retrospective`  |
+| Step | Title                   | Invocation           | Gate          | Detail SKILL                 |
+| ---- | ----------------------- | -------------------- | ------------- | ---------------------------- |
+| 1    | Roadmap Intent          | Main only            | User approval | `step-roadmap-intent`        |
+| 2    | Milestone Decomposition | Main only            | User approval | `step-roadmap-decomposition` |
+| 3    | Execution               | Main only (observer) | Main judgment | inline (this SKILL, below)   |
+| 4    | Roadmap Retrospective   | Main only            | Main judgment | `step-roadmap-retrospective` |
 
 Per-step exit criteria, rollback specifics, and commit examples live in the corresponding
 `step-roadmap-*/SKILL.md` (or, for Step 3, in the inline section below).
@@ -214,18 +214,18 @@ graph LR
   holds attached `<identifier>` values (1:N). Detailed progress is fetched from the
   workflow side on demand (minimal-scope principle).
 - **workflow → roadmap**: `progress.yaml.roadmap = {id: <roadmap-id>, milestone: {id:
-  <milestone-id>}}` or `null`. Non-null means the cycle must update the corresponding
+<milestone-id>}}` or `null`. Non-null means the cycle must update the corresponding
   `milestones[]` entry on cycle start and on cycle end.
 
 ### Who writes what, when (summary)
 
-| Trigger                                                                 | Owner                          | Effect on `roadmap-progress.yaml`                                                       |
-| ----------------------------------------------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------- |
-| `dev-roadmap` Step 1 completes                                          | `step-roadmap-intent` (Main)   | Initialise `roadmap_id` / `title` / `status: planned` / empty `milestones: []`.         |
-| `dev-roadmap` Step 2 completes                                          | `step-roadmap-decomposition` (Main) | Finalise `milestones[]` (`planned`); transition roadmap `status` to `active`.            |
-| `dev-workflow` cycle starts (during Roadmap Step 3)                     | `dev-workflow` Main            | `milestones[].status: planned → active`; append to `workflow_identifiers[]`.            |
-| `dev-workflow` cycle completes (= cycle's Step 9 Retrospective commit)  | `dev-workflow` Main            | `milestones[].status: active → completed`.                                              |
-| `dev-roadmap` Step 4 completes                                          | `step-roadmap-retrospective` (Main) | Roadmap `status: active → completed`.                                                    |
+| Trigger                                                                | Owner                               | Effect on `roadmap-progress.yaml`                                               |
+| ---------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------- |
+| `dev-roadmap` Step 1 completes                                         | `step-roadmap-intent` (Main)        | Initialise `roadmap_id` / `title` / `status: planned` / empty `milestones: []`. |
+| `dev-roadmap` Step 2 completes                                         | `step-roadmap-decomposition` (Main) | Finalise `milestones[]` (`planned`); transition roadmap `status` to `active`.   |
+| `dev-workflow` cycle starts (during Roadmap Step 3)                    | `dev-workflow` Main                 | `milestones[].status: planned → active`; append to `workflow_identifiers[]`.    |
+| `dev-workflow` cycle completes (= cycle's Step 9 Retrospective commit) | `dev-workflow` Main                 | `milestones[].status: active → completed`.                                      |
+| `dev-roadmap` Step 4 completes                                         | `step-roadmap-retrospective` (Main) | Roadmap `status: active → completed`.                                           |
 
 ### Concurrency notes
 
@@ -264,11 +264,11 @@ artifact-based context restoration) are inherited. Roadmap-specific additions:
 
 ### Resume scenarios
 
-| Scenario | State | Path forward |
-| -------- | ----- | ------------ |
-| **A: Step 1–2 done, Step 3 not started** | Roadmap `status: active` / all `milestones[].status: planned` / `workflow_identifiers[]` empty | Present the next milestone to the user; invite the user to launch the corresponding `dev-workflow` cycle. (See "Step 3: Execution" above.) |
-| **B: Step 3 in progress** | Roadmap `status: active` / one or more `milestones[].status: active` with running `<identifier>`s | Run workflow-side session resume first (preamble item 4). Present a milestone-progress summary and confirm next-launch agreement with the user. |
-| **C: Step 4 in progress** | Roadmap `status: active` / all `milestones[]` are `completed` or `cancelled` / Step 4 already started | Continue per `step-roadmap-retrospective`. |
+| Scenario                                 | State                                                                                                 | Path forward                                                                                                                                    |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **A: Step 1–2 done, Step 3 not started** | Roadmap `status: active` / all `milestones[].status: planned` / `workflow_identifiers[]` empty        | Present the next milestone to the user; invite the user to launch the corresponding `dev-workflow` cycle. (See "Step 3: Execution" above.)      |
+| **B: Step 3 in progress**                | Roadmap `status: active` / one or more `milestones[].status: active` with running `<identifier>`s     | Run workflow-side session resume first (preamble item 4). Present a milestone-progress summary and confirm next-launch agreement with the user. |
+| **C: Step 4 in progress**                | Roadmap `status: active` / all `milestones[]` are `completed` or `cancelled` / Step 4 already started | Continue per `step-roadmap-retrospective`.                                                                                                      |
 
 ### Detecting resumable roadmaps
 
@@ -276,7 +276,7 @@ When the user activates `dev-roadmap`, before starting a new roadmap Main scans
 `docs/roadmap/` for resumable roadmaps:
 
 1. Detect `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` files where `status !=
-   completed`.
+completed`.
 2. If any are found, ask the user whether to resume one or to start fresh.
 3. On resume, follow the preamble above and the relevant scenario.
 4. On a fresh start, agree on a new `<roadmap-id>` and proceed to

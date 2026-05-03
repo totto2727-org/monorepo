@@ -19,13 +19,13 @@ organize implications → write the Note)
 
 **Inheritance:** `specialist-common` (lifecycle / input-output contract / failure protocol / scope discipline)
 
-| Item              | Content                                                                                  |
-| ----------------- | ---------------------------------------------------------------------------------------- |
-| Step in charge    | Step 2 (Research)                                                                        |
-| Artifact          | `docs/workflow/<identifier>/research/<topic>.md` (1 instance = 1 perspective)            |
-| Template          | `share-artifacts/templates/research-note.md`                                             |
-| Writing guide     | `share-artifacts/references/research-note.md`                                            |
-| Parallel start    | Highly recommended (parallel per perspective)                                            |
+| Item           | Content                                                                       |
+| -------------- | ----------------------------------------------------------------------------- |
+| Step in charge | Step 2 (Research)                                                             |
+| Artifact       | `docs/workflow/<identifier>/research/<topic>.md` (1 instance = 1 perspective) |
+| Template       | `share-artifacts/templates/research-note.md`                                  |
+| Writing guide  | `share-artifacts/references/research-note.md`                                 |
+| Parallel start | Highly recommended (parallel per perspective)                                 |
 
 ## Role
 
@@ -75,12 +75,12 @@ In addition to the basic inputs from `specialist-common`:
 
 ## Specific failure modes
 
-| Situation                                                                       | Response                                                                  |
-| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| Sent back from Main with instructions to dig deeper                             | Conduct additional research in the same instance and update the Note     |
-| It turns out the issue spreads beyond the assigned perspective                  | Report to Main (urge parallel start of additional researchers)            |
-| Cannot access required information sources (no response from external API etc.) | Report to Main as a Blocker                                               |
-| Discovered a fundamental contradiction between Intent Spec and existing impl    | Report to Main (ask for a decision on rolling back to Step 1)             |
+| Situation                                                                       | Response                                                             |
+| ------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Sent back from Main with instructions to dig deeper                             | Conduct additional research in the same instance and update the Note |
+| It turns out the issue spreads beyond the assigned perspective                  | Report to Main (urge parallel start of additional researchers)       |
+| Cannot access required information sources (no response from external API etc.) | Report to Main as a Blocker                                          |
+| Discovered a fundamental contradiction between Intent Spec and existing impl    | Report to Main (ask for a decision on rolling back to Step 1)        |
 
 ## Out of scope (what not to do)
 

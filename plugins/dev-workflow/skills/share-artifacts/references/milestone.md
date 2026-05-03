@@ -25,9 +25,9 @@ Create the **definition of one milestone** under a roadmap. It is a detailed wri
 
 Describe the **qualitative goal** in 1-2 sentences. As with the "Purpose" of `roadmap.md`, **it does not carry observable success criteria**. When observable criteria are needed, they are expanded in the `intent-spec.md` of the underlying `dev-workflow` cycle.
 
-| Good (qualitative goal)                                    | Bad (requires a measurement method)              |
-| ---------------------------------------------------------- | ------------------------------------------------ |
-| OAuth client registration is functioning                   | OAuth client registration API has p95 < 200ms    |
+| Good (qualitative goal)                                            | Bad (requires a measurement method)                      |
+| ------------------------------------------------------------------ | -------------------------------------------------------- |
+| OAuth client registration is functioning                           | OAuth client registration API has p95 < 200ms            |
 | The first 1/3 of the payment API endpoints run on the new platform | 99.9% availability across the entire API after migration |
 
 ### Goals (qualitative)
@@ -63,10 +63,10 @@ List of `<identifier>` values of `dev-workflow` cycles linked to this milestone.
 
 The expected number of cycles needed to achieve this milestone. 1 is standard. When adopting 1:N (= multiple cycles), include the rationale.
 
-| Number of cycles | Anticipated case                                                      |
-| ---------------- | --------------------------------------------------------------------- |
-| 1 (recommended)  | The milestone fits within a single dev-workflow Intent Spec scale     |
-| 2-3              | Intentional split across design / implementation / verification, or parallel multi-team |
+| Number of cycles | Anticipated case                                                                                    |
+| ---------------- | --------------------------------------------------------------------------------------------------- |
+| 1 (recommended)  | The milestone fits within a single dev-workflow Intent Spec scale                                   |
+| 2-3              | Intentional split across design / implementation / verification, or parallel multi-team             |
 | 4 or more        | Recommend re-examining milestone decomposition (consider further splitting into smaller milestones) |
 
 ### Supplementary notes / things to keep in mind
@@ -79,14 +79,14 @@ As **an optional layout pattern example** when the `roadmap-planner` carves out 
 
 ## Quality criteria
 
-| Good                                                                    | Bad                                                              |
-| ----------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Purpose is written as a qualitative goal                                | Observable criteria are mixed in (encroaching on workflow's responsibility) |
-| Dependent milestone IDs match `roadmap-progress.yaml`                   | Notation drift or missing entries                                |
-| Starting milestones explicitly list `(none)`                            | The dependency section is left blank                             |
-| The principle of 1 file = 1 milestone is followed                       | Multiple milestones bundled into one file                        |
-| Anticipated cycle count stays within 1-3                                | Cycle count is 4 or more without considering re-decomposition    |
-| Non-scope is explicit                                                   | Only scope, with ambiguous boundaries                            |
+| Good                                                  | Bad                                                                         |
+| ----------------------------------------------------- | --------------------------------------------------------------------------- |
+| Purpose is written as a qualitative goal              | Observable criteria are mixed in (encroaching on workflow's responsibility) |
+| Dependent milestone IDs match `roadmap-progress.yaml` | Notation drift or missing entries                                           |
+| Starting milestones explicitly list `(none)`          | The dependency section is left blank                                        |
+| The principle of 1 file = 1 milestone is followed     | Multiple milestones bundled into one file                                   |
+| Anticipated cycle count stays within 1-3              | Cycle count is 4 or more without considering re-decomposition               |
+| Non-scope is explicit                                 | Only scope, with ambiguous boundaries                                       |
 
 ## Related artifacts
 

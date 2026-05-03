@@ -67,12 +67,12 @@ User approval (mandatory).
 
 ## Failure modes / Rollback
 
-| Cause | Action / Target step |
-| ----- | -------------------- |
-| Discovered an unobservable success criterion | Roll back to Step 1 (Intent Clarification). |
-| `design.md` cannot pin down the behavior enough to write tests | Roll back to Step 3 (Design). |
-| Insufficient material to choose automated vs manual | Consult Main / `architect`; remain in Step 4. |
-| A success criterion has zero corresponding TCs | Roll back to Step 1 (likely combination of test-design gap and unclear success criterion). |
+| Cause                                                          | Action / Target step                                                                       |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Discovered an unobservable success criterion                   | Roll back to Step 1 (Intent Clarification).                                                |
+| `design.md` cannot pin down the behavior enough to write tests | Roll back to Step 3 (Design).                                                              |
+| Insufficient material to choose automated vs manual            | Consult Main / `architect`; remain in Step 4.                                              |
+| A success criterion has zero corresponding TCs                 | Roll back to Step 1 (likely combination of test-design gap and unclear success criterion). |
 
 ## Notes
 

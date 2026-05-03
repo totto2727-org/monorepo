@@ -56,12 +56,12 @@ If unforeseen events occur during implementation, record the event and the respo
 
 ## Quality criteria
 
-| Good                                                              | Bad                                                          |
-| ----------------------------------------------------------------- | ------------------------------------------------------------ |
-| Creation decision is appropriate (not created for short tasks)    | Created routinely for every task (when TODO.md alone is enough) |
-| Test execution log is pasted as-is                                | Abstract description like "the tests passed"                 |
-| Design deviations are explicit                                    | Implementing while hiding the deviation                      |
-| Manual verification steps are reproducible                        | Only the verified facts, with no reproducibility             |
+| Good                                                           | Bad                                                             |
+| -------------------------------------------------------------- | --------------------------------------------------------------- |
+| Creation decision is appropriate (not created for short tasks) | Created routinely for every task (when TODO.md alone is enough) |
+| Test execution log is pasted as-is                             | Abstract description like "the tests passed"                    |
+| Design deviations are explicit                                 | Implementing while hiding the deviation                         |
+| Manual verification steps are reproducible                     | Only the verified facts, with no reproducibility                |
 
 ## Related artifacts
 

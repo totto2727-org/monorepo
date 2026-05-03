@@ -10,11 +10,11 @@
 
 ## Findings list
 
-| ID  | Severity | Finding             | State                | First Round       | Resolution commit | Notes       |
-| --- | -------- | ------------------- | -------------------- | ----------------- | ----------------- | ----------- |
-| M-1 | Major    | {{finding_1_brief}} | {{state_1}}          | {{first_round_1}} | {{commit_1}}      | {{notes_1}} |
-| m-2 | Minor    | {{finding_2_brief}} | {{state_2}}          | {{first_round_2}} | {{commit_2}}      | {{notes_2}} |
-| i-3 | Info     | {{finding_3_brief}} | (consistency check)  | {{first_round_3}} | -                 | {{notes_3}} |
+| ID  | Severity | Finding             | State               | First Round       | Resolution commit | Notes       |
+| --- | -------- | ------------------- | ------------------- | ----------------- | ----------------- | ----------- |
+| M-1 | Major    | {{finding_1_brief}} | {{state_1}}         | {{first_round_1}} | {{commit_1}}      | {{notes_1}} |
+| m-2 | Minor    | {{finding_2_brief}} | {{state_2}}         | {{first_round_2}} | {{commit_2}}      | {{notes_2}} |
+| i-3 | Info     | {{finding_3_brief}} | (consistency check) | {{first_round_3}} | -                 | {{notes_3}} |
 
 <!--
 State labels (pick one):

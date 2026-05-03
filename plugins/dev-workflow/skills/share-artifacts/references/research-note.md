@@ -30,12 +30,12 @@ Bullet list of facts. Write in **observable expressions**.
 
 **Always attach source references**. Without these, this becomes mere speculation.
 
-| Good                                    | Bad                |
-| --------------------------------------- | ------------------ |
-| `src/auth/login.ts:L42-L58`             | the auth code     |
-| ADR `docs/adr/2025-10-01-grpc.md`       | a past ADR        |
-| [External Spec RFC 7519](https://...)   | the JWT spec      |
-| catalog `api` in `pnpm-workspace.yaml`  | dependencies      |
+| Good                                   | Bad           |
+| -------------------------------------- | ------------- |
+| `src/auth/login.ts:L42-L58`            | the auth code |
+| ADR `docs/adr/2025-10-01-grpc.md`      | a past ADR    |
+| [External Spec RFC 7519](https://...)  | the JWT spec  |
+| catalog `api` in `pnpm-workspace.yaml` | dependencies  |
 
 ### Design implications
 
@@ -52,12 +52,12 @@ Points that could not be resolved by this investigation. Write as material for M
 
 ## Quality criteria
 
-| Good                                                                   | Bad                                                |
-| ---------------------------------------------------------------------- | -------------------------------------------------- |
-| All findings have a source (file:line / URL / ADR number)              | Hearsay style like "seems to be" or "appears to be" |
-| Design implications descend to concrete recommended actions            | Stops at listing facts                             |
-| Covers only a single aspect                                            | Mixes multiple aspects in one file                 |
-| Honestly states unknowns                                               | Vaguely glosses over insufficient research         |
+| Good                                                        | Bad                                                 |
+| ----------------------------------------------------------- | --------------------------------------------------- |
+| All findings have a source (file:line / URL / ADR number)   | Hearsay style like "seems to be" or "appears to be" |
+| Design implications descend to concrete recommended actions | Stops at listing facts                              |
+| Covers only a single aspect                                 | Mixes multiple aspects in one file                  |
+| Honestly states unknowns                                    | Vaguely glosses over insufficient research          |
 
 ## Related artifacts
 

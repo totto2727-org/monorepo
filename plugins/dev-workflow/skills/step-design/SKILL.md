@@ -55,13 +55,13 @@ Translate the Intent Spec and Research Notes into a coherent architecture, compo
 
 File an ADR only for decisions that **do not complete inside this cycle** — that is, decisions affecting other cycles, other roadmaps, or the project as a whole, or shared norms across cycles inside one roadmap.
 
-| File an ADR (cycle-crossing) | Do not file (cycle-internal) |
-| ---------------------------- | ---------------------------- |
-| "Adopt Effect for the whole project" (General) | "Use LRU as the cache strategy for this feature" |
-| "Use gRPC across all services" (General) | "Use cursor-based pagination for this API" |
-| "Standardize authorization on OpenFGA" (General) | "Use zod for validation on this screen" |
+| File an ADR (cycle-crossing)                                                        | Do not file (cycle-internal)                             |
+| ----------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| "Adopt Effect for the whole project" (General)                                      | "Use LRU as the cache strategy for this feature"         |
+| "Use gRPC across all services" (General)                                            | "Use cursor-based pagination for this API"               |
+| "Standardize authorization on OpenFGA" (General)                                    | "Use zod for validation on this screen"                  |
 | "Cache-layer separation policy shared by independent dev-workflow cycles" (General) | "Naming convention for transient keys inside this cycle" |
-| "`AuthSession` type definition shared across the `oauth-rollout` roadmap" (Roadmap) | "Wording of the session guard message for this cycle" |
+| "`AuthSession` type definition shared across the `oauth-rollout` roadmap" (Roadmap) | "Wording of the session guard message for this cycle"    |
 
 Mode quick reference:
 
@@ -83,11 +83,11 @@ User approval (mandatory). The user reviews `design.md` directly.
 
 ## Failure modes / Rollback
 
-| Cause | Action / Target step |
-| ----- | -------------------- |
-| Design diverges from intent | Send feedback to the same `architect` instance to revise. If divergence is fundamental, roll back to Step 1. |
-| Research Notes cannot support the design | Roll back to Step 2; keep the current `architect` instance alive while additional Research returns. |
-| Project-specific rule conflicts with workflow defaults | Halt and raise an In-Progress user inquiry — never resolve unilaterally. |
+| Cause                                                  | Action / Target step                                                                                         |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Design diverges from intent                            | Send feedback to the same `architect` instance to revise. If divergence is fundamental, roll back to Step 1. |
+| Research Notes cannot support the design               | Roll back to Step 2; keep the current `architect` instance alive while additional Research returns.          |
+| Project-specific rule conflicts with workflow defaults | Halt and raise an In-Progress user inquiry — never resolve unilaterally.                                     |
 
 ## Commit conventions
 

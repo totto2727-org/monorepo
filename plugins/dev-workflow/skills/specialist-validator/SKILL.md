@@ -18,13 +18,13 @@ Design pattern: **Sequential Workflow** (list success criteria → measure → j
 
 **Inheritance:** `specialist-common` (lifecycle / input-output contract / failure protocol / scope discipline)
 
-| Item              | Content                                                            |
-| ----------------- | ------------------------------------------------------------------ |
-| Step in charge    | Step 8 (Validation)                                                |
-| Artifact          | `docs/workflow/<identifier>/validation-report.md`                  |
-| Template          | `share-artifacts/templates/validation-report.md`                   |
-| Writing guide     | `share-artifacts/references/validation-report.md`                  |
-| Parallel start    | Not used (only one, since unified judgment of success criteria is required) |
+| Item           | Content                                                                     |
+| -------------- | --------------------------------------------------------------------------- |
+| Step in charge | Step 8 (Validation)                                                         |
+| Artifact       | `docs/workflow/<identifier>/validation-report.md`                           |
+| Template       | `share-artifacts/templates/validation-report.md`                            |
+| Writing guide  | `share-artifacts/references/validation-report.md`                           |
+| Parallel start | Not used (only one, since unified judgment of success criteria is required) |
 
 ## Role
 
@@ -97,12 +97,12 @@ In addition to the basic inputs from `specialist-common`:
 
 ## Specific failure modes
 
-| Situation                                                              | Response                                                       |
-| ---------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Sent back from Main asking to change the measurement method            | Re-measure with a different method in the same instance        |
+| Situation                                                                    | Response                                                         |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Sent back from Main asking to change the measurement method                  | Re-measure with a different method in the same instance          |
 | Validation scope expands (additional criteria or measurement methods needed) | Report to Main (ask for parallel start of additional validators) |
-| Cannot prepare the measurement environment                             | Report to Main as a Blocker                                    |
-| It turns out a success criterion is unobservable                       | Report to Main (propose rollback to Step 1)                    |
+| Cannot prepare the measurement environment                                   | Report to Main as a Blocker                                      |
+| It turns out a success criterion is unobservable                             | Report to Main (propose rollback to Step 1)                      |
 
 ## Out of scope (what not to do)
 

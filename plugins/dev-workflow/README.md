@@ -69,12 +69,12 @@ graph LR
 
 ### Tier definitions
 
-| Tier | Prefix | Audience | What lives here | What does NOT live here |
-| ---- | ------ | -------- | --------------- | ----------------------- |
-| **Top** | `dev-*` | User (invocation entry) | Trigger keywords, role definitions, workflow diagram, step ordering, the basic principles that apply across the whole workflow, session resume preamble | Step exit criteria, rollback details, specialist input contracts, PR/CI command details, artifact templates |
-| **Step** | `step-*` | Main coordinator | Step purpose, Main's procedure, expected artifacts, **exit criteria (including CI PASS lines)**, gate type, failure modes / rollback targets, commit conventions for this step, parallelism notes | Specialist role internals, PR/CI command syntax, artifact format specifications, cross-step rollback overview |
-| **Specialist** | `specialist-*` | Subagent / teammate | Role-specific input contract, work procedure, failure modes, scope boundaries. `specialist-common` carries cross-cutting rules (lifecycle, blocker protocol, git guardrails, project-rule precedence) | Step orchestration, artifact write decisions outside scope |
-| **Shared** | `share-*` | All tiers | Cross-cutting assets that multiple steps and specialists reference: artifact templates and references, PR command conventions, CI monitoring protocol, ADR conventions | Step-specific procedure, specialist role detail |
+| Tier           | Prefix         | Audience                | What lives here                                                                                                                                                                                       | What does NOT live here                                                                                       |
+| -------------- | -------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Top**        | `dev-*`        | User (invocation entry) | Trigger keywords, role definitions, workflow diagram, step ordering, the basic principles that apply across the whole workflow, session resume preamble                                               | Step exit criteria, rollback details, specialist input contracts, PR/CI command details, artifact templates   |
+| **Step**       | `step-*`       | Main coordinator        | Step purpose, Main's procedure, expected artifacts, **exit criteria (including CI PASS lines)**, gate type, failure modes / rollback targets, commit conventions for this step, parallelism notes     | Specialist role internals, PR/CI command syntax, artifact format specifications, cross-step rollback overview |
+| **Specialist** | `specialist-*` | Subagent / teammate     | Role-specific input contract, work procedure, failure modes, scope boundaries. `specialist-common` carries cross-cutting rules (lifecycle, blocker protocol, git guardrails, project-rule precedence) | Step orchestration, artifact write decisions outside scope                                                    |
+| **Shared**     | `share-*`      | All tiers               | Cross-cutting assets that multiple steps and specialists reference: artifact templates and references, PR command conventions, CI monitoring protocol, ADR conventions                                | Step-specific procedure, specialist role detail                                                               |
 
 ### Top tier content discipline
 
@@ -127,12 +127,12 @@ Each role-specific `specialist-*` SKILL inherits the above and adds only what is
 
 `share-*` skills carry assets that would otherwise be duplicated across steps or specialists.
 
-| Skill | Responsibility | Notable content |
-| ----- | -------------- | --------------- |
-| `share-artifacts` | The 17 artifact specifications: `references/<name>.md` (how to write) and `templates/<name>.md` (skeleton). 1:1 pairing, three documented exceptions (`progress-yaml.md` ↔ `progress.yaml`, `todo.md` ↔ `TODO.md`, `roadmap-progress-yaml.md` ↔ `roadmap-progress.yaml`). Includes `pr-body.md` (PR description spec). | Naming conventions for `<identifier>` / `<roadmap-id>` / `<aspect>` / `<task-id>` / `<milestone-id>`. Storage layout under `docs/workflow/<identifier>/` and `docs/roadmap/<roadmap-id>/`. |
-| `share-pr-manager` | `gh pr` write/read commands, idempotency guards, permission boundary (Main vs Specialist), `--body-file` mandate. | `gh pr create` / `gh pr edit` / `gh pr ready` patterns with `--head` / `isDraft` pre-checks. Read-side query catalogue used by `validator`. Defers PR description content to `share-artifacts/{templates,references}/pr-body.md`. |
-| `share-ci-monitoring` | `gh run watch` double-check protocol, retry discipline (2 attempts → blocker), CI status emission for the PR description. | Step exit criteria reference this for the CI PASS line. |
-| `share-adr` | Architecture Decision Record format and dual-mode placement: General mode (`docs/adr/`) for cross-roadmap or project-wide decisions, Roadmap mode (`docs/roadmap/<roadmap-id>/adr/`) for decisions shared across cycles inside one roadmap. | Mode decision flow, immutability principle (no rewrites; supersession via prefix linkage). Invoked by `step-design` and the `dev-roadmap` steps when applicable. |
+| Skill                 | Responsibility                                                                                                                                                                                                                                                                                                         | Notable content                                                                                                                                                                                                                   |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `share-artifacts`     | The 17 artifact specifications: `references/<name>.md` (how to write) and `templates/<name>.md` (skeleton). 1:1 pairing, three documented exceptions (`progress-yaml.md` ↔ `progress.yaml`, `todo.md` ↔ `TODO.md`, `roadmap-progress-yaml.md` ↔ `roadmap-progress.yaml`). Includes `pr-body.md` (PR description spec). | Naming conventions for `<identifier>` / `<roadmap-id>` / `<aspect>` / `<task-id>` / `<milestone-id>`. Storage layout under `docs/workflow/<identifier>/` and `docs/roadmap/<roadmap-id>/`.                                        |
+| `share-pr-manager`    | `gh pr` write/read commands, idempotency guards, permission boundary (Main vs Specialist), `--body-file` mandate.                                                                                                                                                                                                      | `gh pr create` / `gh pr edit` / `gh pr ready` patterns with `--head` / `isDraft` pre-checks. Read-side query catalogue used by `validator`. Defers PR description content to `share-artifacts/{templates,references}/pr-body.md`. |
+| `share-ci-monitoring` | `gh run watch` double-check protocol, retry discipline (2 attempts → blocker), CI status emission for the PR description.                                                                                                                                                                                              | Step exit criteria reference this for the CI PASS line.                                                                                                                                                                           |
+| `share-adr`           | Architecture Decision Record format and dual-mode placement: General mode (`docs/adr/`) for cross-roadmap or project-wide decisions, Roadmap mode (`docs/roadmap/<roadmap-id>/adr/`) for decisions shared across cycles inside one roadmap.                                                                            | Mode decision flow, immutability principle (no rewrites; supersession via prefix linkage). Invoked by `step-design` and the `dev-roadmap` steps when applicable.                                                                  |
 
 ### Cross-tier reference rules
 
@@ -182,12 +182,12 @@ graph LR
 
 Steps that specifically rely on this rule (and the failure mode if violated):
 
-| Step | Cross-specialist work | Main's mediation point |
-| ---- | --------------------- | ---------------------- |
-| Step 6 ↔ Step 7 round-trip | reviewer flags Blocker → implementer fixes | Main re-activates Step 6, launches new `implementer`; reviewer never launches implementer directly |
-| Step 7 across aspects | 6 reviewers run in parallel and may cross-reference each other's reports | Round 2+ reviewers read `review/<aspect>.md` files (artifact reads), not other reviewer instances |
-| Step 8 validation referencing implementation logs and reviews | validator reads prior artifacts | validator never launches implementer / reviewer to re-run; missing evidence is reported as Blocker to Main |
-| Step 2 / Step 6 / Step 7 added scope | additional researcher / implementer / reviewer needed mid-step | Specialist reports a Blocker; Main launches the additional instance |
+| Step                                                          | Cross-specialist work                                                    | Main's mediation point                                                                                     |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| Step 6 ↔ Step 7 round-trip                                    | reviewer flags Blocker → implementer fixes                               | Main re-activates Step 6, launches new `implementer`; reviewer never launches implementer directly         |
+| Step 7 across aspects                                         | 6 reviewers run in parallel and may cross-reference each other's reports | Round 2+ reviewers read `review/<aspect>.md` files (artifact reads), not other reviewer instances          |
+| Step 8 validation referencing implementation logs and reviews | validator reads prior artifacts                                          | validator never launches implementer / reviewer to re-run; missing evidence is reported as Blocker to Main |
+| Step 2 / Step 6 / Step 7 added scope                          | additional researcher / implementer / reviewer needed mid-step           | Specialist reports a Blocker; Main launches the additional instance                                        |
 
 ### Diagrams
 
@@ -199,77 +199,77 @@ Internal documentation uses Mermaid for diagrams. ASCII art diagrams are avoided
 
 Top-level layout under `plugins/dev-workflow/`:
 
-| Path | Purpose |
-| ---- | ------- |
-| `.claude-plugin/plugin.json` | Plugin manifest |
-| `README.md` | This file (skill tier model, conventions) |
-| `agents/` | Thin subagent wrappers (one file per role specialist; each points at the matching `specialist-*` SKILL) |
-| `skills/` | All skill directories grouped by tier prefix |
+| Path                         | Purpose                                                                                                 |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `.claude-plugin/plugin.json` | Plugin manifest                                                                                         |
+| `README.md`                  | This file (skill tier model, conventions)                                                               |
+| `agents/`                    | Thin subagent wrappers (one file per role specialist; each points at the matching `specialist-*` SKILL) |
+| `skills/`                    | All skill directories grouped by tier prefix                                                            |
 
 ### Skill inventory
 
 Top tier (`dev-*`):
 
-| Skill | Purpose |
-| ----- | ------- |
-| `dev-workflow` | Tactical entry point. Lists the 9 workflow steps and invokes them in order. |
-| `dev-roadmap` | Strategic entry point. Lists the 4 roadmap steps; Execution is described inline because it has no specialist. |
+| Skill          | Purpose                                                                                                       |
+| -------------- | ------------------------------------------------------------------------------------------------------------- |
+| `dev-workflow` | Tactical entry point. Lists the 9 workflow steps and invokes them in order.                                   |
+| `dev-roadmap`  | Strategic entry point. Lists the 4 roadmap steps; Execution is described inline because it has no specialist. |
 
 Step tier — workflow (`step-*`, 9 skills). The `Invocation` column shows whether Main runs the step alone or invokes a specialist, plus the justification (`P` = parallelism, `C` = context isolation, `V` = independent viewpoint):
 
-| Skill | Invocation | Justification |
-| ----- | ---------- | ------------- |
-| `step-intent-clarification` | Main only | — (dialogue with user; no specialist justification) |
-| `step-research` | `researcher` × N | P, C |
-| `step-design` | `architect` × 1 | C |
-| `step-qa-design` | `qa-analyst` × 1 | C |
-| `step-task-decomposition` | Main only | — (small input, single instance) |
-| `step-implementation` | `implementer` × N | P, C |
-| `step-external-review` | `reviewer` × 6 | P, V |
-| `step-validation` | `validator` × 1 | C, V |
-| `step-retrospective` | Main only | — (aggregation work) |
+| Skill                       | Invocation        | Justification                                       |
+| --------------------------- | ----------------- | --------------------------------------------------- |
+| `step-intent-clarification` | Main only         | — (dialogue with user; no specialist justification) |
+| `step-research`             | `researcher` × N  | P, C                                                |
+| `step-design`               | `architect` × 1   | C                                                   |
+| `step-qa-design`            | `qa-analyst` × 1  | C                                                   |
+| `step-task-decomposition`   | Main only         | — (small input, single instance)                    |
+| `step-implementation`       | `implementer` × N | P, C                                                |
+| `step-external-review`      | `reviewer` × 6    | P, V                                                |
+| `step-validation`           | `validator` × 1   | C, V                                                |
+| `step-retrospective`        | Main only         | — (aggregation work)                                |
 
 Step tier — roadmap (`step-roadmap-*`, 3 skills). All three are Main-only:
 
-| Skill | Invocation |
-| ----- | ---------- |
-| `step-roadmap-intent` | Main only |
-| `step-roadmap-decomposition` | Main only |
-| `step-roadmap-retrospective` | Main only |
+| Skill                        | Invocation |
+| ---------------------------- | ---------- |
+| `step-roadmap-intent`        | Main only  |
+| `step-roadmap-decomposition` | Main only  |
+| `step-roadmap-retrospective` | Main only  |
 
 Roadmap Execution has no `step-*` skill: the user manually launches `dev-workflow` cycles, and the observer behavior is captured inline in `dev-roadmap/SKILL.md`.
 
 Specialist tier (`specialist-*`, 7 skills):
 
-| Skill | Role | Step |
-| ----- | ---- | ---- |
-| `specialist-common` | Shared base for all specialists; not exposed as an agent | (cross-cutting) |
-| `specialist-researcher` | Parallel research across multiple angles | Workflow Step 2 |
-| `specialist-architect` | Design document authoring | Workflow Step 3 |
-| `specialist-qa-analyst` | QA design and flow authoring | Workflow Step 4 |
-| `specialist-implementer` | Per-task implementation in parallel | Workflow Step 6 |
-| `specialist-reviewer` | External review across six aspects | Workflow Step 7 |
-| `specialist-validator` | Independent validation against intent | Workflow Step 8 |
+| Skill                    | Role                                                     | Step            |
+| ------------------------ | -------------------------------------------------------- | --------------- |
+| `specialist-common`      | Shared base for all specialists; not exposed as an agent | (cross-cutting) |
+| `specialist-researcher`  | Parallel research across multiple angles                 | Workflow Step 2 |
+| `specialist-architect`   | Design document authoring                                | Workflow Step 3 |
+| `specialist-qa-analyst`  | QA design and flow authoring                             | Workflow Step 4 |
+| `specialist-implementer` | Per-task implementation in parallel                      | Workflow Step 6 |
+| `specialist-reviewer`    | External review across six aspects                       | Workflow Step 7 |
+| `specialist-validator`   | Independent validation against intent                    | Workflow Step 8 |
 
 Shared tier (`share-*`, 4 skills):
 
-| Skill | Purpose |
-| ----- | ------- |
-| `share-artifacts` | 17 artifact specifications; references and templates with 1:1 pairing (three documented exceptions) |
-| `share-pr-manager` | `gh pr` write/read commands, idempotency guards, Main/Specialist permission boundary |
-| `share-ci-monitoring` | `gh run watch` double-check protocol, retry discipline, CI status emission for the PR description |
-| `share-adr` | ADR format with dual-mode placement (General mode: `docs/adr/`; Roadmap mode: `docs/roadmap/<roadmap-id>/adr/`) |
+| Skill                 | Purpose                                                                                                         |
+| --------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `share-artifacts`     | 17 artifact specifications; references and templates with 1:1 pairing (three documented exceptions)             |
+| `share-pr-manager`    | `gh pr` write/read commands, idempotency guards, Main/Specialist permission boundary                            |
+| `share-ci-monitoring` | `gh run watch` double-check protocol, retry discipline, CI status emission for the PR description               |
+| `share-adr`           | ADR format with dual-mode placement (General mode: `docs/adr/`; Roadmap mode: `docs/roadmap/<roadmap-id>/adr/`) |
 
 `agents/` (6 wrappers, one per role specialist; `specialist-common` is not exposed as an agent, and Main-only steps have no wrapper):
 
-| File | Wraps |
-| ---- | ----- |
-| `agents/researcher.md` | `specialist-researcher` |
-| `agents/architect.md` | `specialist-architect` |
-| `agents/qa-analyst.md` | `specialist-qa-analyst` |
+| File                    | Wraps                    |
+| ----------------------- | ------------------------ |
+| `agents/researcher.md`  | `specialist-researcher`  |
+| `agents/architect.md`   | `specialist-architect`   |
+| `agents/qa-analyst.md`  | `specialist-qa-analyst`  |
 | `agents/implementer.md` | `specialist-implementer` |
-| `agents/reviewer.md` | `specialist-reviewer` |
-| `agents/validator.md` | `specialist-validator` |
+| `agents/reviewer.md`    | `specialist-reviewer`    |
+| `agents/validator.md`   | `specialist-validator`   |
 
 ### Naming rules
 

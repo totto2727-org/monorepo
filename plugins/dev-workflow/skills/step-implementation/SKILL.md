@@ -91,13 +91,13 @@ Main judgment.
 
 ## Failure modes / Rollback
 
-| Cause | Action / Target step |
-| ----- | -------------------- |
-| A specific task's `implementer` returns an unexpected result | Send feedback to that **same** `implementer` instance (no replacement until Step 6 exits). Keep the `TODO.md` row at `in_progress`. |
-| Insufficient task count for the work that turned up | Launch additional `implementer` instances in parallel (existing instances stay alive). New tasks go in `TODO.md`'s late-added section; `task-plan.md` stays immutable. Frequent occurrences suggest rolling back to Step 5. |
-| Task definition is fundamentally wrong | Roll back to Step 5. All Step 6 `implementer` instances retire at the step exit. After re-decomposition, regenerate `TODO.md` (rename the previous one to `TODO.md.pre-rollback-<timestamp>`). New `implementer` instances are launched on re-entry. |
-| Diff conflicts with `design.md` | Main decides whether to roll back to Step 3. |
-| Review-driven Blocker / Major (Step 7 → Step 6) | Re-activate the affected task in `TODO.md` (`[x]` → `[ ]`, `status: in_progress`, `re_activations++`), commit, launch a new `implementer` for the fix. |
+| Cause                                                        | Action / Target step                                                                                                                                                                                                                                 |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A specific task's `implementer` returns an unexpected result | Send feedback to that **same** `implementer` instance (no replacement until Step 6 exits). Keep the `TODO.md` row at `in_progress`.                                                                                                                  |
+| Insufficient task count for the work that turned up          | Launch additional `implementer` instances in parallel (existing instances stay alive). New tasks go in `TODO.md`'s late-added section; `task-plan.md` stays immutable. Frequent occurrences suggest rolling back to Step 5.                          |
+| Task definition is fundamentally wrong                       | Roll back to Step 5. All Step 6 `implementer` instances retire at the step exit. After re-decomposition, regenerate `TODO.md` (rename the previous one to `TODO.md.pre-rollback-<timestamp>`). New `implementer` instances are launched on re-entry. |
+| Diff conflicts with `design.md`                              | Main decides whether to roll back to Step 3.                                                                                                                                                                                                         |
+| Review-driven Blocker / Major (Step 7 → Step 6)              | Re-activate the affected task in `TODO.md` (`[x]` → `[ ]`, `status: in_progress`, `re_activations++`), commit, launch a new `implementer` for the fix.                                                                                               |
 
 ## Parallelism notes
 
