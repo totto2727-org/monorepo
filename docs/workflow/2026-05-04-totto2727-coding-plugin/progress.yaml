@@ -1,0 +1,38 @@
+identifier: 2026-05-04-totto2727-coding-plugin
+title: "Create totto2727-coding plugin (consolidate moonbit + effect skills)"
+status: in_progress
+created_at: 2026-05-04
+updated_at: 2026-05-04
+roadmap: null
+
+current_step: "Step 1: Intent Clarification"
+completed_steps: []
+pending_gates:
+  - step: "Step 1"
+    type: user_approval
+
+active_specialists: []
+
+artifacts:
+  intent_spec: null
+  research: []
+  design: null
+  qa_design: null
+  qa_flow: null
+  task_plan: null
+  todo: null
+  reviews: []
+  validation_report: null
+  retrospective: null
+  external_adrs: []
+
+blockers: []
+
+user_approvals: []
+
+rollbacks: []
+
+notes:
+  - "サイクル目的: moonbit プラグイン + .agents/skills/effect-* + totto2727-fp を totto2727-coding プラグインに統合"
+  - "提案構造: skills/coding/ + skills/test/ + references/{js-,mbt-}*.md"
+  - "moonbit-docs (生成スクリプト含む) の扱いは Step 1 で確定"
