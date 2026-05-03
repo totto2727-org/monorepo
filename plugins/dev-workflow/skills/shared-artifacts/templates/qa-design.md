@@ -37,7 +37,7 @@
 
 - `automated × assertion`: ソースファイルと co-located (例: `foo.ts` と `foo.test.ts` を同ディレクトリ)
 - `automated × scenario`: `e2e/` 直下
-- `manual × inspection`: 手順書を `docs/dev-workflow/{{identifier}}/manual-tests/<TC-ID>.md` に配置
+- `manual × inspection`: 手順書を `docs/workflow/{{identifier}}/manual-tests/<TC-ID>.md` に配置
 
 ## 本質テストケース (TC-NNN)
 
@@ -70,7 +70,7 @@
 
 ## カバレッジ表
 
-成功基準 → TC-ID の逆引き。Step 9 validator がカバレッジ確認に使用する。本質テスト (TC-NNN) のみが対象。
+成功基準 → TC-ID の逆引き。Step 8 validator がカバレッジ確認に使用する。本質テスト (TC-NNN) のみが対象。
 
 | 成功基準 ID | 対応する TC-ID  | 注記 |
 | ----------- | --------------- | ---- |

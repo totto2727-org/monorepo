@@ -1,7 +1,7 @@
 # Task List: {{identifier}}
 
 - **Source:** `task-plan.md`
-- **Active Steps:** Step 6〜7 (Implementation / Self-Review)
+- **Active Steps:** Step 6〜7 (Implementation / External Review)
 - **Created at:** {{created_at}}
 - **Last updated:** {{updated_at}}
 
@@ -24,7 +24,7 @@
   - completed_at: {{t1_completed_at}}
   - commit: {{t1_commit_sha}}
   - implementer: {{t1_implementer_id}}
-  - re_activations: {{t1_re_activations}} <!-- Self-Review High 指摘で Step 6 に戻った回数 -->
+  - re_activations: {{t1_re_activations}} <!-- External Review Blocker 指摘で Step 6 に戻った回数 -->
   - notes: {{t1_notes}}
 
 - [{{t2_checkbox}}] **T2** — {{t2_title}}
@@ -44,7 +44,7 @@
 - `pending`: 未着手。`[ ]` 表示
 - `in_progress`: `implementer` 起動中。`[ ]` 表示、`started_at` と `implementer` を記録
 - `completed`: 完了。`[x]` 表示、`completed_at` と `commit` SHA を記録
-- Self-Review High 指摘で戻す場合: `completed` → `in_progress` に戻し、`re_activations` をインクリメント
+- External Review Blocker 指摘で戻す場合: `completed` → `in_progress` に戻し、`re_activations` をインクリメント
 
 ## コミット規約
 
@@ -52,4 +52,4 @@
 - コミットメッセージ例:
   - `docs(dev-workflow/{{identifier}}): start task T1`
   - `docs(dev-workflow/{{identifier}}): complete task T1`
-  - `docs(dev-workflow/{{identifier}}): re-activate task T1 (self-review feedback)`
+  - `docs(dev-workflow/{{identifier}}): re-activate task T1 (external-review feedback)`

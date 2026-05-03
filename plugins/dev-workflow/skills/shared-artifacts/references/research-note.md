@@ -12,7 +12,7 @@
 
 ## ファイル位置
 
-`docs/dev-workflow/<identifier>/research/<topic>.md`
+`docs/workflow/<identifier>/research/<topic>.md`
 
 `<topic>` 例: `existing-impl` / `dependencies` / `similar-cases` / `external-spec` / `existing-adr` / プロジェクト固有
 
@@ -33,7 +33,7 @@
 | ✅ よい                                | ❌ 悪い           |
 | -------------------------------------- | ----------------- |
 | `src/auth/login.ts:L42-L58`            | auth 周りのコード |
-| ADR `doc/adr/2025-10-01-grpc.md`       | 過去の ADR        |
+| ADR `docs/adr/2025-10-01-grpc.md`      | 過去の ADR        |
 | [External Spec RFC 7519](https://...)  | JWT の仕様        |
 | `pnpm-workspace.yaml` の catalog `api` | 依存関係          |
 

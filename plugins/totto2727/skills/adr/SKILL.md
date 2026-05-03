@@ -14,8 +14,8 @@ description: >
 
 ## Overview
 
-Important architectural decisions are recorded as ADRs in `doc/adr/`.
-If the `doc/adr/` directory does not exist, create it before writing the first ADR.
+Important architectural decisions are recorded as ADRs in `docs/adr/`.
+If the `docs/adr/` directory does not exist, create it before writing the first ADR.
 
 ## File Format
 
@@ -67,8 +67,8 @@ The scope of impact from this decision. New tables, changes to existing code, ne
 
 ## ADR Creation Procedure
 
-1. Ensure `doc/adr/` directory exists (create if missing)
-2. Create a `YYYY-MM-DD-title.md` file in `doc/adr/`
+1. Ensure `docs/adr/` directory exists (create if missing)
+2. Create a `YYYY-MM-DD-title.md` file in `docs/adr/`
 3. Set `confirmed: false` in the frontmatter
 4. Describe the context, decision, and impact
 5. Commit and submit for review

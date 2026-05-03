@@ -51,7 +51,7 @@
 
 {{metrics_summary}}
 
-定量的な成功基準に対応する計測結果をまとめる。大きなデータは `docs/dev-workflow/<identifier>/validation-evidence/` に保存してリンクする。
+定量的な成功基準に対応する計測結果をまとめる。大きなデータは `docs/workflow/<identifier>/validation-evidence/` に保存してリンクする。
 
 | メトリクス   | 目標値       | 観測値       | 判定    |
 | ------------ | ------------ | ------------ | ------- |
@@ -75,7 +75,7 @@
 
 {{remediation_plan}}
 
-FAIL や保留があれば、原因・対応方針・ロールバック先候補を Main が記録する。Step 8 失敗時の挙動に従う。
+FAIL や保留があれば、原因・対応方針・ロールバック先候補を Main が記録する。Step 7 失敗時の挙動に従う。
 
 - なし（デフォルト）
 

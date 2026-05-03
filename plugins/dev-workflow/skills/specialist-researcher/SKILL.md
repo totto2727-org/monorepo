@@ -9,9 +9,6 @@ description: >
   Do NOT use for: 全観点を単一 researcher で扱う（観点ごとに別インスタンスで起動）、
   設計（specialist-architect）、実装（specialist-implementer）、
   Intent Spec 作成（specialist-intent-analyst）。
-metadata:
-  author: totto2727
-  version: 1.0.0
 ---
 
 # Specialist: researcher — Research
@@ -21,13 +18,13 @@ metadata:
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
-| 項目         | 内容                                                                            |
-| ------------ | ------------------------------------------------------------------------------- |
-| 担当ステップ | Step 2 (Research)                                                               |
-| 成果物       | `docs/dev-workflow/<identifier>/research/<topic>.md`（1 インスタンス = 1 観点） |
-| テンプレート | `shared-artifacts/templates/research-note.md`                                   |
-| 書き方ガイド | `shared-artifacts/references/research-note.md`                                  |
-| 並列起動     | 高推奨（観点ごとに並列）                                                        |
+| 項目         | 内容                                                                        |
+| ------------ | --------------------------------------------------------------------------- |
+| 担当ステップ | Step 2 (Research)                                                           |
+| 成果物       | `docs/workflow/<identifier>/research/<topic>.md`（1 インスタンス = 1 観点） |
+| テンプレート | `shared-artifacts/templates/research-note.md`                               |
+| 書き方ガイド | `shared-artifacts/references/research-note.md`                              |
+| 並列起動     | 高推奨（観点ごとに並列）                                                    |
 
 ## 役割
 

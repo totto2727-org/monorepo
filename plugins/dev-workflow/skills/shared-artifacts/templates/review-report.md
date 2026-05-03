@@ -1,73 +1,60 @@
-# Review Report: {{aspect}}
+# Review Report: {{aspect_title}}
 
-- **Identifier:** {{identifier}}
-- **Aspect:** {{aspect}} <!-- security | performance | readability | test-quality | api-design | etc. -->
-- **Reviewer:** {{reviewer_instance_id}}
-- **Reviewed at:** {{reviewed_at}}
-- **Scope:** {{review_scope}} <!-- 観点ごとのスコープ限定を明示 -->
+- **Cycle:** {{identifier}}
+- **Aspect:** {{aspect}} <!-- security | performance | readability | test-quality | api-design | holistic | etc. -->
+- **First reviewed:** {{first_reviewed_date}} <!-- YYYY-MM-DD (Round 1) -->
+- **Last updated:** {{last_updated_date}} <!-- YYYY-MM-DD (最終 Round) -->
+- **Final Gate:** {{final_gate}} <!-- approved | needs_fix | blocked -->
+- **Round count:** {{round_count}}
+<!-- backward-compatibility 観点では追加: - **SC-12 baseline:** {{baseline_commit}} -->
 
-## サマリ
+## 指摘一覧
 
-| 深刻度  | 件数              |
-| ------- | ----------------- |
-| Blocker | {{blocker_count}} |
-| Major   | {{major_count}}   |
-| Minor   | {{minor_count}}   |
+| ID  | 深刻度 | 指摘内容            | 状態           | 検出 Round        | 解消 commit  | Notes       |
+| --- | ------ | ------------------- | -------------- | ----------------- | ------------ | ----------- |
+| M-1 | Major  | {{finding_1_brief}} | {{state_1}}    | {{first_round_1}} | {{commit_1}} | {{notes_1}} |
+| m-2 | Minor  | {{finding_2_brief}} | {{state_2}}    | {{first_round_2}} | {{commit_2}} | {{notes_2}} |
+| i-3 | Info   | {{finding_3_brief}} | (整合確認のみ) | {{first_round_3}} | -            | {{notes_3}} |
 
-**Gate 判定:** {{gate_verdict}} <!-- approved | needs_fix | blocked -->
+<!--
+状態ラベル (1 つを選ぶ):
+  fixed         : 修正済 (commit SHA を必ず併記)
+  partial       : 一部解消、残課題あり (Notes に詳細)
+  pending       : 未解消で次 Round で対応予定 (担当タスクを Notes に)
+  accepted-as-is: ユーザー承認による Retrospective 繰越合意 / 対応不要 (合意日付を Notes に)
+  obsolete      : 設計変更 / 前提変更で無効化 (理由を Notes に)
 
-## 指摘事項
+ID 接頭辞: B-N (Blocker) / M-N (Major) / m-N (Minor) / i-N (Info)
+重複指摘 (複数 Round で再検出) は 1 行に統合し、検出 Round は最初の Round のみ記録する。
+-->
 
-### #1 {{finding_1_title}}
+## 詳細セクション
 
-- **深刻度:** {{finding_1_severity}} <!-- Blocker | Major | Minor -->
-- **該当箇所:**
-  - Commit: {{finding_1_commit}}
-  - File: {{finding_1_file}}
-  - Line: {{finding_1_line}}
-- **問題の要約:** {{finding_1_summary}}
-- **根拠:** {{finding_1_reasoning}}
-- **推奨アクション:** {{finding_1_recommended_action}}
-- **設計との関連:** {{finding_1_design_ref}}
+<!--
+テーブル要約 (1〜2 文) では伝わらない指摘のみ、ここに個別記述する。
+詳細不要な指摘 (テーブル行の Notes 列で済むもの) はここに書かない。
+リンク方式: テーブルの Notes 列から `[詳細](#m-1-詳細-...)` を貼っても良い。
+-->
 
-### #2 {{finding_2_title}}
+### M-1 詳細: {{detail_1_heading}}
 
-- **深刻度:** {{finding_2_severity}}
-- **該当箇所:**
-  - Commit: {{finding_2_commit}}
-  - File: {{finding_2_file}}
-  - Line: {{finding_2_line}}
-- **問題の要約:** {{finding_2_summary}}
-- **根拠:** {{finding_2_reasoning}}
-- **推奨アクション:** {{finding_2_recommended_action}}
-- **設計との関連:** {{finding_2_design_ref}}
+{{detail_1_body}}
 
-<!-- 必要な数だけ追加 -->
+## Round 履歴メタ
 
-## 観点固有の評価項目
+<!--
+監査用の付帯情報。本ファイルの本筋ではないため末尾に置く。
+読み手が「いつ誰が何を判定したか」を確認したいときのみ参照する。
+-->
 
-{{aspect_specific_evaluation}}
+| Round | 実行日           | reviewer instance    | 単独 Gate        |
+| ----- | ---------------- | -------------------- | ---------------- |
+| 1     | {{round_1_date}} | {{round_1_reviewer}} | {{round_1_gate}} |
+| 2     | {{round_2_date}} | {{round_2_reviewer}} | {{round_2_gate}} |
 
-例（aspect が security の場合）:
+最終 Gate: `{{final_gate}}`。Major / Blocker {{open_critical_count}} 件、`accepted-as-is` {{accepted_count}} 件。
 
-- 認証認可の網羅性: {{auth_coverage}}
-- 入力検証の強度: {{input_validation}}
-- 秘匿情報の取り扱い: {{secrets_handling}}
-- 依存ライブラリの脆弱性: {{dep_vulnerabilities}}
-
-例（aspect が performance の場合）:
-
-- 計算量評価: {{complexity_assessment}}
-- I/O 効率: {{io_efficiency}}
-- メモリ使用量: {{memory_usage}}
-- 並行性の正当性: {{concurrency_correctness}}
-
-観点ごとにテンプレート利用時に書き替えること。
-
-## 他レビューとの整合性
-
-{{cross_review_consistency}}
-
-他の Review Report と矛盾する指摘がある場合はここに記録する。Main が両者の根拠を比較して判断する材料となる。
-
-- なし（デフォルト）
+<!--
+書き方ガイド: shared-artifacts/references/review-report.md
+状態ラベル詳細・観点別の重点項目は specialist-reviewer/SKILL.md に委譲。
+-->
