@@ -12,7 +12,6 @@ description: >
   (specialist-* スキルを参照)、成果物仕様の参照のみ (shared-artifacts スキル)。
 metadata:
   author: totto2727
-  version: 2.0.0
 ---
 
 # dev-workflow — Multi-Agent Development Workflow

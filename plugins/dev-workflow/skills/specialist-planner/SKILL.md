@@ -15,7 +15,6 @@ description: >
   運用）、task-plan.md 以外の成果物作成。
 metadata:
   author: totto2727
-  version: 1.0.0
 ---
 
 # Specialist: planner — Task Decomposition

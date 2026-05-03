@@ -17,7 +17,6 @@ description: >
   本バージョン非スコープ)、CI / 外部システム連携、ステップ単位の進捗反映 (将来拡張)。
 metadata:
   author: totto2727
-  version: 1.0.0
 ---
 
 # dev-roadmap — Multi-Cycle Strategic Roadmap Layer
@@ -86,17 +85,20 @@ metadata:
 
 ## ワークフロー全体図
 
-```
-1. Roadmap Intent ────────┐
-                          │ (Gate: ユーザー承認)
-2. Milestone Decomposition┤
-                          │ (Gate: ユーザー承認 = 実行開始合意)
-3. Execution ─────────────┤◄─── ユーザー手動 dev-workflow サイクル群
-   (Specialist 起動なし)  │      (各サイクルが roadmap-progress.yaml を自律更新)
-                          │ (Gate: Main 判定、全マイルストーン completed)
-4. Roadmap Retrospective ─┘ (Gate: Main 判定)
-                          │
-                          ▼ ロードマップ完了
+```mermaid
+graph LR
+    S1[1. Roadmap Intent]
+    S2[2. Milestone Decomposition]
+    S3[3. Execution<br/>Specialist 起動なし]
+    S4[4. Roadmap Retrospective]
+    DONE([ロードマップ完了])
+    DW{{ユーザー手動 dev-workflow サイクル群<br/>各サイクルが roadmap-progress.yaml を自律更新}}
+
+    S1 -->|Gate: ユーザー承認| S2
+    S2 -->|Gate: ユーザー承認 = 実行開始合意| S3
+    S3 -->|Gate: Main 判定<br/>全マイルストーン completed| S4
+    S4 -->|Gate: Main 判定| DONE
+    DW -.->|状態を更新| S3
 ```
 
 ---
@@ -271,23 +273,19 @@ metadata:
 
 ### 双方向参照の構造
 
-```
-┌─────────────────────────────────────────────────────┐
-│ docs/roadmap/<roadmap-id>/roadmap-progress.yaml     │
-│   milestones[].id                                    │
-│   milestones[].workflow_identifiers[]  ───────────┐  │
-│     [<identifier-A>, <identifier-B>, ...]         │  │
-└────────────────────────────────────────────────────│──┘
-                                                    │
-                ┌───────────────────────────────────┘
-                ▼
-┌─────────────────────────────────────────────────────┐
-│ docs/workflow/<identifier>/progress.yaml             │
-│   roadmap:                                            │
-│     id: <roadmap-id>                                  │
-│     milestone:                                        │
-│       id: <milestone-id>                              │
-└─────────────────────────────────────────────────────┘
+```mermaid
+graph LR
+    subgraph RP[docs/roadmap/&lt;roadmap-id&gt;/roadmap-progress.yaml]
+        M1[milestones&#91;&#93;.id]
+        M2["milestones&#91;&#93;.workflow_identifiers&#91;&#93;<br/>&#91;identifier-A, identifier-B, ...&#93;"]
+    end
+    subgraph PG[docs/workflow/&lt;identifier&gt;/progress.yaml]
+        R1[roadmap.id = &lt;roadmap-id&gt;]
+        R2[roadmap.milestone.id = &lt;milestone-id&gt;]
+    end
+
+    M2 -->|forward reference| PG
+    R1 -.->|back reference| RP
 ```
 
 - **roadmap → workflow**: `roadmap-progress.yaml.milestones[].workflow_identifiers[]` に紐付き済み `<identifier>` を保持。1:N 許容のため配列。詳細進捗は `docs/workflow/<identifier>/progress.yaml` を辿って取得する (本バージョンでは `roadmap-progress.yaml` に詳細を持たない、最小責務原則)
@@ -561,7 +559,7 @@ Specialist 起動時、Main はテンプレートパスと reference パスの**
 
 - **個別マイルストーン内の設計・実装・検証**: 配下の `dev-workflow` サイクルに完全委譲する。本スキルは戦略層に純化し、戦術層を持たない
 - **`dev-workflow` サイクルの能動起動・実行制御**: 非対称接続の核心ルール。本スキルは観察役で、サイクル起動はユーザー手動に委ねる
-- **roadmap-of-roadmaps (1 階層を超える入れ子)**: 本バージョン非スコープ (Intent Spec L41 / 制約)。将来必要になれば `progress.yaml.roadmap` ネストブロックに `parent_roadmap_id` 等を足す形で拡張可能
+- **roadmap-of-roadmaps (1 階層を超える入れ子)**: 本バージョン非スコープ (Intent Spec の非スコープ「`roadmap` を入れ子にすること」)。将来必要になれば `progress.yaml.roadmap` ネストブロックに `parent_roadmap_id` 等を足す形で拡張可能
 - **CI / 外部システム連携**: 本バージョン非スコープ。最小スキーマは機械可読な YAML だが、GitHub Actions / webhook 等から `roadmap-progress.yaml` を更新する機構は本サイクルでは導入しない
 - **ステップ単位の進捗反映 (細粒度進捗)**: 本バージョン非スコープ (将来拡張)。配下 `dev-workflow` サイクルの各ステップ完了時に `roadmap-progress.yaml` を更新する責務は持たない (二重管理回避、最小責務原則)。必要時は `workflow_identifiers[]` 経由で `docs/workflow/<identifier>/progress.yaml` を辿る
 - **events 配列 / status_view 派生ビュー / ms 精度タイムスタンプ**: 本バージョン非スコープ (将来拡張)。`milestones[].status` の粗粒度遷移で代替する

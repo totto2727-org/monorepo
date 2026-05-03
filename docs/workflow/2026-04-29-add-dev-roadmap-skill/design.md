@@ -242,7 +242,7 @@ main マージ後の `dev-workflow/SKILL.md` の現状セクション構造 (確
 
 ### 追記 1: 「ワークフロー開始時」段落追加 (intent-spec.md:64 / 成功基準 #7)
 
-挿入位置: `## 調整プロトコル (Main ↔ Specialist)` 配下の `### 1. ワークフロー開始時` の **ステップ 4 「`progress.yaml` 初期化」と既存ステップ 5 「Step 1 から着手」の間**。Research existing-skill-structure F2-2 の指針 (「`progress.yaml` 初期化の中、または直後」が論理的に最も自然) に従う。
+挿入位置: `## 調整プロトコル (Main ↔ Specialist)` 配下の `### 1. ワークフロー開始時` の **ステップ 4 「`progress.yaml` 初期化」直後 (= 新ステップ 4'「roadmap 配下サイクルの追加初期化」として挿入)、既存ステップ 5 「Step 1 から着手」の前**。Research existing-skill-structure F2-2 の指針 (「`progress.yaml` 初期化の中、または直後」が論理的に最も自然) に従う。実装後の構造は「ステップ 4 → ステップ 4' (新規、roadmap 配下サイクルでのみ実行) → ステップ 5」となる (実装は dev-workflow/SKILL.md L558 で確定済)。
 
 > 4'. **roadmap 配下サイクルの場合の追加初期化**: ユーザーから `<roadmap-id>` および `<milestone-id>` の指定がある場合 (= 上位 roadmap のマイルストーンから起動された場合)、`progress.yaml` のトップレベル `roadmap` ブロックを `{id: <roadmap-id>, milestone: {id: <milestone-id>}}` で初期化する。同時に `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` の該当 `milestones[].status` を `planned → active` に遷移、`milestones[].workflow_identifiers[]` に自身の `<identifier>` を追記する (詳細は本ファイル末尾の「`roadmap-progress.yaml` 更新プロトコル」セクション参照)。roadmap 配下でない独立サイクルでは `roadmap` ブロックは `null` のまま (デフォルト) とし、本ステップはスキップする。
 

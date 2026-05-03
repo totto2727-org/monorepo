@@ -17,7 +17,6 @@ description: >
   の確定、`dev-workflow` サイクルの能動起動。
 metadata:
   author: totto2727
-  version: 1.0.0
 ---
 
 # Specialist: roadmap-analyst — Roadmap Intent

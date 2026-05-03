@@ -16,7 +16,6 @@ description: >
   Retrospective（specialist-retrospective-writer）。
 metadata:
   author: totto2727
-  version: 1.0.0
 ---
 
 # Specialist: reviewer — External Review

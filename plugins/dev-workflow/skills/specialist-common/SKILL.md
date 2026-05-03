@@ -18,7 +18,6 @@ description: >
   トリガーとしての使用。
 metadata:
   author: totto2727
-  version: 1.0.0
 ---
 
 # Specialist Common — 共通基盤ルール

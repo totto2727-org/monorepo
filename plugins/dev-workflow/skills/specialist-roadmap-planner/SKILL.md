@@ -19,7 +19,6 @@ description: >
   成果物作成。
 metadata:
   author: totto2727
-  version: 1.0.0
 ---
 
 # Specialist: roadmap-planner — Milestone Decomposition

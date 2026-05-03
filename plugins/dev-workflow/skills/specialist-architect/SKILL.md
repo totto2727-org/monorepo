@@ -11,7 +11,6 @@ description: >
   軽量な意思決定の記録。
 metadata:
   author: totto2727
-  version: 1.0.0
 ---
 
 # Specialist: architect — Design

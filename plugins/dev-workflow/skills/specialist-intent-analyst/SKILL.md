@@ -12,7 +12,6 @@ description: >
   ワークフロー管理（dev-workflow）、Intent Spec 以外の成果物作成、単発の要求聞き出し。
 metadata:
   author: totto2727
-  version: 1.0.0
 ---
 
 # Specialist: intent-analyst — Intent Clarification

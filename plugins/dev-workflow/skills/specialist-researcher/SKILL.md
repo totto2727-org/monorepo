@@ -11,7 +11,6 @@ description: >
   Intent Spec 作成（specialist-intent-analyst）。
 metadata:
   author: totto2727
-  version: 1.0.0
 ---
 
 # Specialist: researcher — Research

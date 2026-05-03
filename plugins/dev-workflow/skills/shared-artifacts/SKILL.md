@@ -53,10 +53,10 @@ dev-workflow ワークフローで作成される全成果物について、**�
 | 10  | `review/<aspect>.md`                         | Step 7                | `reviewer` (6 観点並列)                | `shared-artifacts/references/review-report.md`         | `shared-artifacts/templates/review-report.md`         |
 | 11  | `validation-report.md`                       | Step 8                | `validator`                            | `shared-artifacts/references/validation-report.md`     | `shared-artifacts/templates/validation-report.md`     |
 | 12  | `docs/retrospective/<id>.md`                 | Step 9 (集約)         | `retrospective-writer`                 | `shared-artifacts/references/retrospective.md`         | `shared-artifacts/templates/retrospective.md`         |
-| -   | `roadmap.md`                                 | dev-roadmap Step 1    | `roadmap-analyst`                      | `shared-artifacts/references/roadmap.md`               | `shared-artifacts/templates/roadmap.md`               |
-| -   | `milestones/<milestone-id>.md`               | dev-roadmap Step 2    | `roadmap-planner`                      | `shared-artifacts/references/milestone.md`             | `shared-artifacts/templates/milestone.md`             |
-| -   | `roadmap-progress.yaml`                      | dev-roadmap Step 1〜4 | (Main / dev-workflow 自律更新)         | `shared-artifacts/references/roadmap-progress-yaml.md` | `shared-artifacts/templates/roadmap-progress.yaml`    |
-| -   | `docs/retrospective/roadmap-<roadmap-id>.md` | dev-roadmap Step 4    | `roadmap-retrospective-writer`         | `shared-artifacts/references/roadmap-retrospective.md` | `shared-artifacts/templates/roadmap-retrospective.md` |
+| 13  | `roadmap.md`                                 | dev-roadmap Step 1    | `roadmap-analyst`                      | `shared-artifacts/references/roadmap.md`               | `shared-artifacts/templates/roadmap.md`               |
+| 14  | `milestones/<milestone-id>.md`               | dev-roadmap Step 2    | `roadmap-planner`                      | `shared-artifacts/references/milestone.md`             | `shared-artifacts/templates/milestone.md`             |
+| 15  | `roadmap-progress.yaml`                      | dev-roadmap Step 1〜4 | (Main / dev-workflow 自律更新)         | `shared-artifacts/references/roadmap-progress-yaml.md` | `shared-artifacts/templates/roadmap-progress.yaml`    |
+| 16  | `docs/retrospective/roadmap-<roadmap-id>.md` | dev-roadmap Step 4    | `roadmap-retrospective-writer`         | `shared-artifacts/references/roadmap-retrospective.md` | `shared-artifacts/templates/roadmap-retrospective.md` |
 
 ## Reference と Template の使い分け
 

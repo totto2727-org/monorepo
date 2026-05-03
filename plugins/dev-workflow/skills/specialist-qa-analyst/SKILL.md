@@ -15,7 +15,6 @@ description: >
   (specialist-planner)、qa-design.md / qa-flow.md 以外の成果物作成。
 metadata:
   author: totto2727
-  version: 1.0.0
 ---
 
 # Specialist: qa-analyst — QA Design
