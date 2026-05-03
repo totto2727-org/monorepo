@@ -83,18 +83,18 @@
 
 `dev-roadmap` Step 2 (Milestone Decomposition) にて `roadmap-planner` が確定。各マイルストーンの詳細は `milestones/<milestone-id>.md` を参照。粒度判断の根拠は本セクション末尾の「分解粒度の根拠」を参照。
 
-| ID                            | タイトル                                            | 想定 dev-workflow サイクル数 | 依存マイルストーン              | 詳細                                            |
-| ----------------------------- | --------------------------------------------------- | ---------------------------- | ------------------------------- | ----------------------------------------------- |
-| ms-01-workspace-foundation    | Workspace Foundation                                | 1                            | (なし)                          | `milestones/ms-01-workspace-foundation.md`      |
-| ms-02-auth-passkey-magiclink  | Auth — Passkey + Magic Link 認証                    | 1                            | ms-01                           | `milestones/ms-02-auth-passkey-magiclink.md`    |
-| ms-03-auth-rbac-organization  | Auth — RBAC + Organization                          | 1                            | ms-02                           | `milestones/ms-03-auth-rbac-organization.md`    |
-| ms-04-auth-shared-access      | Auth — 期間限定共有                                 | 1                            | ms-03                           | `milestones/ms-04-auth-shared-access.md`        |
-| ms-05-persistence-event-store | Persistence — Event Store + CQRS + Plugin Contracts | 1〜2                         | ms-01                           | `milestones/ms-05-persistence-event-store.md`   |
-| ms-06-input-plugin-platform   | Input Plugin Platform                               | 1                            | ms-03, ms-05                    | `milestones/ms-06-input-plugin-platform.md`     |
-| ms-07-output-plugin-platform  | Output Plugin Platform                              | 1                            | ms-03, ms-05                    | `milestones/ms-07-output-plugin-platform.md`    |
-| ms-08-scheduler-platform      | Scheduler Platform                                  | 1                            | ms-06                           | `milestones/ms-08-scheduler-platform.md`        |
-| ms-09-ai-summary              | AI Summary                                          | 1                            | ms-05, ms-07, ms-08             | `milestones/ms-09-ai-summary.md`                |
-| ms-10-integration-verification| Integration Verification (最終統合検証)             | 1                            | ms-04, ms-08, ms-09             | `milestones/ms-10-integration-verification.md`  |
+| ID                             | タイトル                                            | 想定 dev-workflow サイクル数 | 依存マイルストーン  | 詳細                                           |
+| ------------------------------ | --------------------------------------------------- | ---------------------------- | ------------------- | ---------------------------------------------- |
+| ms-01-workspace-foundation     | Workspace Foundation                                | 1                            | (なし)              | `milestones/ms-01-workspace-foundation.md`     |
+| ms-02-auth-passkey-magiclink   | Auth — Passkey + Magic Link 認証                    | 1                            | ms-01               | `milestones/ms-02-auth-passkey-magiclink.md`   |
+| ms-03-auth-rbac-organization   | Auth — RBAC + Organization                          | 1                            | ms-02               | `milestones/ms-03-auth-rbac-organization.md`   |
+| ms-04-auth-shared-access       | Auth — 期間限定共有                                 | 1                            | ms-03               | `milestones/ms-04-auth-shared-access.md`       |
+| ms-05-persistence-event-store  | Persistence — Event Store + CQRS + Plugin Contracts | 1〜2                         | ms-01               | `milestones/ms-05-persistence-event-store.md`  |
+| ms-06-input-plugin-platform    | Input Plugin Platform                               | 1                            | ms-03, ms-05        | `milestones/ms-06-input-plugin-platform.md`    |
+| ms-07-output-plugin-platform   | Output Plugin Platform                              | 1                            | ms-03, ms-05        | `milestones/ms-07-output-plugin-platform.md`   |
+| ms-08-scheduler-platform       | Scheduler Platform                                  | 1                            | ms-06               | `milestones/ms-08-scheduler-platform.md`       |
+| ms-09-ai-summary               | AI Summary                                          | 1                            | ms-05, ms-07, ms-08 | `milestones/ms-09-ai-summary.md`               |
+| ms-10-integration-verification | Integration Verification (最終統合検証)             | 1                            | ms-04, ms-08, ms-09 | `milestones/ms-10-integration-verification.md` |
 
 ### 分解粒度の根拠
 
