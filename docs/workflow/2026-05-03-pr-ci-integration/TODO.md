@@ -37,12 +37,12 @@
   - notes: Step 1〜9 の Exit Criteria 末尾に統一文言で 1 行追加 (9 箇所)。Step 6 のみ「全タスク単位コミット」に微修正。Wave 2 で単独実行。実装前に動的行番号取得必須 (T1 でファイルが伸びているため)。
 
 - [ ] **T3** — dev-workflow/SKILL.md コミット規約セクション末尾に PR-CI プロトコルへの参照リンクを追加
-  - status: pending
+  - status: in_progress
   - dependencies: T1, T2 (同一ファイル編集のため Wave 跨ぎで直列化)
-  - started_at: -
+  - started_at: 2026-05-03T05:42:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T3
   - re_activations: 0
   - notes: 「コミット規約」末尾 (T1 が追加した新セクション直前) に「PR 概要更新および CI 確認の運用は『## サイクル PR と CI 連携プロトコル』を参照」1 行追加。Wave 3 で単独実行。
 
