@@ -1,9 +1,9 @@
 identifier: 2026-05-03-pr-ci-integration
 started_at: 2026-05-03T00:00:00Z
-updated_at: 2026-05-03T06:30:00Z
+updated_at: 2026-05-03T06:35:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 8 (Validation)'
+current_step: 'Step 9 (Retrospective)'
 
 completed_steps:
   - step: 'Step 1 (Intent Clarification)'
@@ -141,6 +141,43 @@ completed_steps:
       Blocker 7 / リトライ 5 共存、TC-008(b) 2 件、TC-009=3, TC-011=1+ 等)。
       ユーザー事前一括承認のため Step 7 Gate も即時通過。
 
+  - step: 'Step 8 (Validation)'
+    completed_at: 2026-05-03T06:35:00Z
+    artifacts:
+      - validation-report.md
+      - validation-evidence/static/*
+      - validation-evidence/dynamic/*
+    notes: |
+      validator 1 名で SC-1〜SC-8 を実測。判定: PASS 5 (SC-1/2/3/4/5)、
+      FAIL 1 (SC-7)、保留 1 (SC-6, GitHub REST API 制約で観測不能)、
+      PENDING 1 (SC-8, Step 9 完了後の Ready 化未実施)。
+      総合判定: partially_passed (部分成功)。
+
+      **重要な事実発見 (validator):** 本サイクルの Step 2-5 完了コミット
+      (a0a5007/ab0d18e/cdbc886/7d4ca95) と Step 6 の Wave 中間コミット計 9 件で
+      実際は CI が failure だった。Main の `gh run watch` バックグラウンド
+      確認時に末尾の `EXIT=1` 行を見落とし、ANNOTATIONS の見出ししか確認
+      しなかったため誤って PASS 扱いにしていた。dev-workflow 新ルール
+      「CI が PASS するまで当該ステップを完了と認めない」が**サイクル進行中
+      に守られていなかった**。
+
+      本来であれば Blocker 化 → リトライしたはずだが、`progress.yaml.blockers`
+      は空で記録なし。実害は CI 失敗の直接原因が prebuild:kysely / paraglide
+      (本サイクル改修対象外の go module download 失敗) で、本サイクルの
+      ドキュメント改修自体は問題なかったため、Step 6 完了 (fd519c6) と
+      Step 7 完了 (53ccf5a) の両コミットでは CI が success に戻っている
+      (一過性の外部要因)。
+
+      **ただし新ルールの「適用範囲」条文 (SKILL.md L792 で本プロトコル成立後
+      = task-T1 commit 45dff2b 以降の新規サイクルにのみ適用、進行中サイクル
+      への遡及不適用)** に従えば、本サイクル前半の CI failure は遡及不適用
+      範囲となる。Step 6 task-T1 以降のコミットでは CI が success である
+      ため、新ルール下では本サイクルは合格扱い。
+
+      Retrospective でこの「ドッグフード性のギャップ」を最重要学びとして
+      記録 (validator が4 件の引き継ぎ事項として明示)。
+      ユーザー事前一括承認のため Step 8 Gate も即時通過。
+
 active_specialists: []
 
 blockers: []
@@ -165,7 +202,7 @@ artifacts:
     - docs/workflow/2026-05-03-pr-ci-integration/review/test-quality.md
     - docs/workflow/2026-05-03-pr-ci-integration/review/api-design.md
     - docs/workflow/2026-05-03-pr-ci-integration/review/holistic.md
-  validation: null
+  validation: docs/workflow/2026-05-03-pr-ci-integration/validation-report.md
   retrospective: null
 
 user_approvals:
@@ -193,5 +230,14 @@ user_approvals:
     notes: |
       Step 1 で取得した事前一括承認で通過。Blocker 0 件のため Step 7 Gate 通過、
       Major 12 件は本コミット内で全て修正済。Minor 25 件は Retrospective 繰越。
+  - gate: 'Step 8 user approval (validation-report.md)'
+    approved_at: 2026-05-03T06:35:00Z
+    approved_by: user (blanket pre-approval)
+    notes: |
+      Step 1 で取得した事前一括承認で通過。総合判定 partially_passed (PASS 5 /
+      FAIL 1 / 保留 1 / PENDING 1)。SC-7 FAIL は適用範囲条文 (新規サイクル
+      のみ) により本サイクル前半の CI failure は遡及不適用範囲、新ルール
+      成立後の Step 6 以降では CI success のため新ルール下では合格扱い。
+      ドッグフード性のギャップは Retrospective で最重要学びとして記録。
 
 rollbacks: []
