@@ -15,8 +15,6 @@ description: >
   観測可能成功基準は配下 dev-workflow サイクルの intent-spec.md が担う)、
   `roadmap.md` のマイルストーン一覧 / 依存グラフ作成、`roadmap-progress.yaml.milestones[]`
   の確定、`dev-workflow` サイクルの能動起動。
-metadata:
-  author: totto2727
 ---
 
 # Specialist: roadmap-analyst — Roadmap Intent

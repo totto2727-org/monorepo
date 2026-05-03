@@ -17,8 +17,6 @@ description: >
   dev-workflow のタスク分解 (specialist-planner)、roadmap-of-roadmaps (本バージョン非スコープ)、
   CI / 外部システム連携、`roadmap.md` / `milestones/*.md` / `roadmap-progress.yaml` 以外の
   成果物作成。
-metadata:
-  author: totto2727
 ---
 
 # Specialist: roadmap-planner — Milestone Decomposition

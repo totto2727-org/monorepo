@@ -10,8 +10,6 @@ description: >
   "意図から実装まで通したい", "dev-workflow で設計から実装まで"。
   Do NOT use for: 単発のコード修正、特定 Specialist のみの直接利用
   (specialist-* スキルを参照)、成果物仕様の参照のみ (shared-artifacts スキル)。
-metadata:
-  author: totto2727
 ---
 
 # dev-workflow — Multi-Agent Development Workflow

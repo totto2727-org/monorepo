@@ -16,8 +16,6 @@ description: >
   specialist-retrospective-writer / specialist-roadmap-analyst / specialist-roadmap-planner /
   specialist-roadmap-retrospective-writer）、Specialist 以外のエージェント運用、ユーザーからの直接起動
   トリガーとしての使用。
-metadata:
-  author: totto2727
 ---
 
 # Specialist Common — 共通基盤ルール

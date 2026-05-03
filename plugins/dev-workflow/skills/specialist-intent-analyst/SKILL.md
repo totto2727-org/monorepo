@@ -10,8 +10,6 @@ description: >
   （specialist-planner）、実装（specialist-implementer）、レビュー（specialist-reviewer）、
   検証（specialist-validator）、Retrospective（specialist-retrospective-writer）、
   ワークフロー管理（dev-workflow）、Intent Spec 以外の成果物作成、単発の要求聞き出し。
-metadata:
-  author: totto2727
 ---
 
 # Specialist: intent-analyst — Intent Clarification

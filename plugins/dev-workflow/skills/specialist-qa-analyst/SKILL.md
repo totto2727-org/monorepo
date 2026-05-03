@@ -13,8 +13,6 @@ description: >
   追記、qa-analyst は触らない)、テストフレームワーク選定 (プロジェクト固有スキル
   の領域)、テスト実行・結果計測 (specialist-validator)、タスク分解
   (specialist-planner)、qa-design.md / qa-flow.md 以外の成果物作成。
-metadata:
-  author: totto2727
 ---
 
 # Specialist: qa-analyst — QA Design

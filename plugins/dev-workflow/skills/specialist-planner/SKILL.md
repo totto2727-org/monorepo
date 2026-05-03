@@ -13,8 +13,6 @@ description: >
   （specialist-researcher）、テスト設計（specialist-qa-analyst）、タスク実行中の状態追跡
   （Main が TODO.md で管理）、Step 6〜7 中に発見された追加タスクの反映（Main の TODO.md
   運用）、task-plan.md 以外の成果物作成。
-metadata:
-  author: totto2727
 ---
 
 # Specialist: planner — Task Decomposition

@@ -15,8 +15,6 @@ description: >
   (`shared-artifacts` を参照)、`dev-workflow` の能動起動・実行制御
   (本スキルは観察役で起動責務を持たない)、roadmap-of-roadmaps (1 階層を超える入れ子は
   本バージョン非スコープ)、CI / 外部システム連携、ステップ単位の進捗反映 (将来拡張)。
-metadata:
-  author: totto2727
 ---
 
 # dev-roadmap — Multi-Cycle Strategic Roadmap Layer

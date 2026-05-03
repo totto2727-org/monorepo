@@ -9,8 +9,6 @@ description: >
   Do NOT use for: 全観点を単一 researcher で扱う（観点ごとに別インスタンスで起動）、
   設計（specialist-architect）、実装（specialist-implementer）、
   Intent Spec 作成（specialist-intent-analyst）。
-metadata:
-  author: totto2727
 ---
 
 # Specialist: researcher — Research

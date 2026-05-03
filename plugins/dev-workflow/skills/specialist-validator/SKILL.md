@@ -9,8 +9,6 @@ description: >
   Do NOT use for: レビュー（specialist-reviewer）、実装（specialist-implementer）、
   Retrospective（specialist-retrospective-writer）、成功基準の主観的な判断
   （観測値に基づかない評価）。
-metadata:
-  author: totto2727
 ---
 
 # Specialist: validator — Validation

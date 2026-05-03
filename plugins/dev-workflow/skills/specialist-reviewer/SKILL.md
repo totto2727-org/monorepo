@@ -14,8 +14,6 @@ description: >
   Do NOT use for: 全観点を単一 reviewer で扱う（観点ごとに別インスタンス）、検証
   （specialist-validator、成功基準実測）、実装（specialist-implementer）、
   Retrospective（specialist-retrospective-writer）。
-metadata:
-  author: totto2727
 ---
 
 # Specialist: reviewer — External Review

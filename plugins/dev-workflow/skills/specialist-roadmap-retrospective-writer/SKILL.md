@@ -15,8 +15,6 @@ description: >
   Milestone Decomposition (specialist-roadmap-planner)、配下 dev-workflow サイクルの実装/
   検証 (各 specialist の領域)、ロードマップ外の振り返り、複数ロードマップ横断の分析、
   CLAUDE.md 等への直接書き込み (反映候補の提示に留める)。
-metadata:
-  author: totto2727
 ---
 
 # Specialist: roadmap-retrospective-writer — Roadmap Retrospective

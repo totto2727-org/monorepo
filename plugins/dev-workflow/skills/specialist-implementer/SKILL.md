@@ -9,8 +9,6 @@ description: >
   Do NOT use for: 複数タスクを単一 implementer で実装（タスクごとに別インスタンス）、
   設計（specialist-architect）、レビュー（specialist-reviewer）、
   検証（specialist-validator）、Task Plan の再分解（specialist-planner の領域）。
-metadata:
-  author: totto2727
 ---
 
 # Specialist: implementer — Implementation
