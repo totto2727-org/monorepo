@@ -20,9 +20,11 @@ Represents a collection of line strings.
 test {
   let line_string1 = LineString::new([XY::new(0.0, 0.0), XY::new(1.0, 1.0)])
   let multi_line_string = MultiLineString::new([line_string1])
-  inspect(
+  debug_inspect(
     multi_line_string,
-    content="MultiLineString([LineString([{x: 0, y: 0}, {x: 1, y: 1}])])",
+    content=(
+      #|MultiLineString([LineString([{ x: 0, y: 0 }, { x: 1, y: 1 }])])
+    ),
   )
 }
 ```
@@ -37,9 +39,11 @@ test {
   let line_string1 = LineString::new([XY::new(0.0, 0.0), XY::new(1.0, 1.0)])
   let line_string2 = LineString::new([XY::new(2.0, 2.0), XY::new(3.0, 3.0)])
   let multi_line_string = MultiLineString::new([line_string1, line_string2])
-  inspect(
+  debug_inspect(
     multi_line_string.coord_array(),
-    content="[{x: 0, y: 0}, {x: 1, y: 1}, {x: 2, y: 2}, {x: 3, y: 3}]",
+    content=(
+      #|[{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 2, y: 2 }, { x: 3, y: 3 }]
+    ),
   )
 }
 ```
@@ -53,9 +57,11 @@ test {
 test {
   let line_string1 = LineString::new([XY::new(0.0, 0.0), XY::new(1.0, 1.0)])
   let multi_line_string = MultiLineString::new([line_string1])
-  inspect(
+  debug_inspect(
     multi_line_string.geometry_array(),
-    content="[LineString([{x: 0, y: 0}, {x: 1, y: 1}])]",
+    content=(
+      #|[LineString([{ x: 0, y: 0 }, { x: 1, y: 1 }])]
+    ),
   )
 }
 ```
@@ -75,9 +81,11 @@ test {
   let line_string1 = LineString::new([XY::new(0.0, 0.0), XY::new(1.0, 1.0)])
   let line_string2 = LineString::new([XY::new(2.0, 2.0), XY::new(3.0, 3.0)])
   let multi_line_string = MultiLineString::new([line_string1, line_string2])
-  inspect(
+  debug_inspect(
     multi_line_string.bbox(),
-    content="{min: {x: 0, y: 0}, max: {x: 3, y: 3}}",
+    content=(
+      #|{ min: { x: 0, y: 0 }, max: { x: 3, y: 3 } }
+    ),
   )
 }
 ```

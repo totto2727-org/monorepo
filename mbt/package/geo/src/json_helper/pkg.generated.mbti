@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "totto2727/geo/json_helper"
+
+import {
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn[T : @json.FromJson] from_json_property(String, Json, @json.JsonPath) -> T? raise @json.JsonDecodeError
+
+pub fn[T : @json.FromJson] from_json_property_or_array_or_empty(String, Json, @json.JsonPath) -> Array[T] raise @json.JsonDecodeError
+
+pub fn[T : @json.FromJson] from_json_property_or_default(String, () -> T, Json, @json.JsonPath) -> T raise @json.JsonDecodeError
+
+pub fn[T : @json.FromJson] from_json_property_or_throw(String, Json, @json.JsonPath) -> T raise @json.JsonDecodeError
+
+pub fn[T : ToJson, U : ToJson] to_json_or_default(Map[String, Json], String, T?, () -> U) -> Unit
+
+pub fn[T : ToJson] to_nullable_json(Map[String, Json], String, T?) -> Unit
+
+pub fn[T : ToJson] to_optional_json(Map[String, Json], String, T?) -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

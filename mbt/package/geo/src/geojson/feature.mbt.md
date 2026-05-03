@@ -23,9 +23,15 @@ test "Feature new" {
   let feature = Feature::new(
     geometry=Some(Geometry::Point(Point::new(Coordinates::XY(1.0, 2.0)))),
   )
-  inspect(
+  debug_inspect(
     feature,
-    content="{geometry: Some(Point({coordinates: XY(1, 2)})), properties: None, id: None}",
+    content=(
+      #|{
+      #|  geometry: Some(Point({ coordinates: XY(1, 2) })),
+      #|  properties: None,
+      #|  id: None,
+      #|}
+    ),
   )
 }
 ```
@@ -40,7 +46,7 @@ test "Feature BBoxTrait::bbox" {
   let feature = Feature::new(
     geometry=Some(Geometry::Point(Point::new(Coordinates::XY(1.0, 2.0)))),
   )
-  inspect(feature.bbox(), content="BBox2D(1, 2, 1, 2)")
+  debug_inspect(feature.bbox(), content="BBox2D(1, 2, 1, 2)")
 }
 ```
 
@@ -102,10 +108,15 @@ test "Feature FromJson::from_json - With Geometry and Properties" {
     "geometry": { "type": "Point", "coordinates": [1.0, 2.0] },
     "properties": { "name": "test" },
   })
-  inspect(
+  debug_inspect(
     feature,
     content=(
-      #|{geometry: Some(Point({coordinates: XY(1, 2)})), properties: Some({"name": String("test")}), id: None}
+      #|{
+      #|  geometry: Some(Point({ coordinates: XY(1, 2) })),
+      #|  properties: Some({ "name": String("test") }),
+      #|  id: None,
+      #|}
+
     ),
   )
 }
@@ -121,7 +132,9 @@ test "Feature FromJson::from_json - Without Geometry and Properties" {
     "geometry": null,
     "properties": null,
   })
-  inspect(feature, content="{geometry: None, properties: None, id: None}")
+  debug_inspect(feature, content=(
+    #|{ geometry: None, properties: None, id: None }
+  ))
 }
 ```
 
@@ -136,9 +149,11 @@ test "Feature FromJson::from_json - With ID" {
     "properties": null,
     "id": "abc",
   })
-  inspect(
+  debug_inspect(
     feature,
-    content="{geometry: None, properties: None, id: Some(String(\"abc\"))}",
+    content=(
+      #|{ geometry: None, properties: None, id: Some(String("abc")) }
+    ),
   )
 }
 ```

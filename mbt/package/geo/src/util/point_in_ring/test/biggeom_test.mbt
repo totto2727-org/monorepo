@@ -4,7 +4,7 @@ test "point_in_ring - Switzerland inside" {
     @type.XY::new(8.0, 46.5),
     @fixture.switzerland,
   )
-  inspect(result, content="Inside")
+  debug_inspect(result, content="Inside")
 }
 
 ///|
@@ -13,7 +13,7 @@ test "point_in_ring - Switzerland outside" {
     @type.XY::new(8.0, 44.0),
     @fixture.switzerland,
   )
-  inspect(result, content="Outside")
+  debug_inspect(result, content="Outside")
 }
 
 ///|
@@ -22,7 +22,7 @@ test "point_in_ring - kinked Switzerland inside" {
     @type.XY::new(8.0, 46.5),
     @fixture.switzerlandKinked,
   )
-  inspect(result, content="Inside")
+  debug_inspect(result, content="Inside")
 }
 
 ///|
@@ -31,5 +31,5 @@ test "point_in_ring - kinked Switzerland outside" {
     @type.XY::new(8.0, 44.0),
     @fixture.switzerlandKinked,
   )
-  inspect(result, content="Outside")
+  debug_inspect(result, content="Outside")
 }

@@ -7,12 +7,12 @@ pub trait LineStringTrait: GeometryTrait {
 ///|
 impl LineStringTrait with line_array(self) {
   let coord_array = self.coord_array()
-  let zipped_coord_array = Array::zip(coord_array, coord_array[1:].to_array())
+  let zipped_coord_array = Array::zip(coord_array, coord_array[1:].to_owned())
   zipped_coord_array.map(coord_tuple => Line::new(coord_tuple.0, coord_tuple.1))
 }
 
 ///|
-pub struct LineString[Coord](Array[Coord]) derive(Show, Eq)
+pub struct LineString[Coord](Array[Coord]) derive(Debug, Eq)
 
 ///|
 #warnings("-unused_trait_bound")

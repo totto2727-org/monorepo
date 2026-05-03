@@ -13,7 +13,7 @@ pub(all) enum GeoJSON {
   FeatureCollection(FeatureCollection)
   Feature(Feature)
   Geometry(Geometry)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(open) trait GeoJSONTrait: FromJson + ToJson {

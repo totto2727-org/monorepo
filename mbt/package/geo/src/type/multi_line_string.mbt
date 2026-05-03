@@ -1,5 +1,5 @@
 ///|
-pub struct MultiLineString[Coord](Array[LineString[Coord]]) derive(Show, Eq)
+pub struct MultiLineString[Coord](Array[LineString[Coord]]) derive(Debug, Eq)
 
 ///|
 #warnings("-unused_trait_bound")

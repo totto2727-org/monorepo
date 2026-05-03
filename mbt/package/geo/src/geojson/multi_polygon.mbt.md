@@ -29,7 +29,9 @@ test "MultiPolygon new" {
       ],
     ],
   ])
-  inspect(mp, content="{coordinates: [[[XY(0, 0), XY(1, 1), XY(0, 0)]]]}")
+  debug_inspect(mp, content=(
+    #|{ coordinates: [[[XY(0, 0), XY(1, 1), XY(0, 0)]]] }
+  ))
 }
 ```
 
@@ -49,7 +51,7 @@ test "MultiPolygon BBoxTrait::bbox" {
       ],
     ],
   ])
-  inspect(mp.bbox(), content="BBox2D(0, 0, 1, 1)")
+  debug_inspect(mp.bbox(), content="BBox2D(0, 0, 1, 1)")
 }
 ```
 
@@ -100,9 +102,11 @@ test "MultiPolygon FromJson::from_json - valid" {
     "type": "MultiPolygon",
     "coordinates": [[[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]]]],
   })
-  inspect(
+  debug_inspect(
     multi_polyfill,
-    content="{coordinates: [[[XY(0, 0), XY(1, 0), XY(1, 1), XY(0, 0)]]]}",
+    content=(
+      #|{ coordinates: [[[XY(0, 0), XY(1, 0), XY(1, 1), XY(0, 0)]]] }
+    ),
   )
 }
 ```
@@ -116,6 +120,8 @@ test "MultiPolygon FromJson::from_json - empty" {
     "type": "MultiPolygon",
     "coordinates": [],
   })
-  inspect(multi_polyfill, content="{coordinates: []}")
+  debug_inspect(multi_polyfill, content=(
+    #|{ coordinates: [] }
+  ))
 }
 ```

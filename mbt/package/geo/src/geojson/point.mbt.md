@@ -21,7 +21,9 @@
 ///|
 test "Point new" {
   let p = Point::new(Coordinates::XY(1.0, 2.0))
-  inspect(p, content="{coordinates: XY(1, 2)}")
+  debug_inspect(p, content=(
+    #|{ coordinates: XY(1, 2) }
+  ))
 }
 ```
 
@@ -33,7 +35,7 @@ test "Point new" {
 ///|
 test "Point BBoxTrait::bbox" {
   let p = Point::new(Coordinates::XY(1.0, 2.0))
-  inspect(p.bbox(), content="BBox2D(1, 2, 1, 2)")
+  debug_inspect(p.bbox(), content="BBox2D(1, 2, 1, 2)")
 }
 ```
 
@@ -72,7 +74,9 @@ test "Point ToJson::to_json" {
 ///|
 test "Point FromJson::from_json - valid" {
   let p : Point = @json.from_json({ "type": "Point", "coordinates": [1.0, 2.0] })
-  inspect(p, content="{coordinates: XY(1, 2)}")
+  debug_inspect(p, content=(
+    #|{ coordinates: XY(1, 2) }
+  ))
 }
 ```
 

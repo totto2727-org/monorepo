@@ -1,0 +1,194 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "totto2727/geo/geojson"
+
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+}
+
+// Values
+
+// Errors
+pub suberror InvalidGeoJSONError {
+  InvalidGeoJSONError(String)
+}
+pub fn InvalidGeoJSONError::new(String) -> Self
+
+// Types and methods
+pub(all) enum BBox {
+  BBox2D(Double, Double, Double, Double)
+  BBox3D(Double, Double, Double, Double, Double, Double)
+} derive(Eq, @debug.Debug)
+pub fn BBox::from_coordinate_array(Array[Coordinates]) -> Self raise InvalidGeoJSONError
+pub fn BBox::new_2d(Double, Double, Double, Double) -> Self
+pub fn BBox::new_3d(Double, Double, Double, Double, Double, Double) -> Self
+pub impl ToJson for BBox
+pub impl @json.FromJson for BBox
+
+pub(all) enum Coordinates {
+  XY(Double, Double)
+  XYZ_OR_XYM(Double, Double, Double)
+  XYZM(Double, Double, Double, Double)
+} derive(Eq, @debug.Debug)
+pub fn Coordinates::dimension(Self) -> Int
+pub fn Coordinates::x(Self) -> Double
+pub fn Coordinates::y(Self) -> Double
+pub fn Coordinates::z(Self) -> Double raise InvalidGeoJSONError
+pub impl ToJson for Coordinates
+pub impl @json.FromJson for Coordinates
+
+pub struct Feature {
+  geometry : Geometry?
+  properties : Map[String, Json]?
+  id : ID?
+} derive(Eq, @debug.Debug)
+pub fn Feature::new(geometry? : Geometry?, properties? : Map[String, Json]?, id? : ID?) -> Self
+pub impl ToJson for Feature
+pub impl @json.FromJson for Feature
+pub impl BBoxTrait for Feature
+pub impl GeoJSONTrait for Feature
+
+pub struct FeatureCollection {
+  features : Array[Feature]
+} derive(Eq, @debug.Debug)
+pub fn FeatureCollection::new(Array[Feature]) -> Self
+pub impl ToJson for FeatureCollection
+pub impl @json.FromJson for FeatureCollection
+pub impl BBoxTrait for FeatureCollection
+pub impl GeoJSONTrait for FeatureCollection
+
+pub(all) enum GeoJSON {
+  FeatureCollection(FeatureCollection)
+  Feature(Feature)
+  Geometry(Geometry)
+} derive(Eq, @debug.Debug)
+pub impl ToJson for GeoJSON
+pub impl @json.FromJson for GeoJSON
+pub impl BBoxTrait for GeoJSON
+pub impl GeoJSONTrait for GeoJSON
+
+pub(all) enum GeoJSONType {
+  FeatureCollection
+  Feature
+  Geometry(GeometryType)
+} derive(Eq, @debug.Debug)
+pub fn GeoJSONType::from_raw_geojson(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub impl ToJson for GeoJSONType
+pub impl @json.FromJson for GeoJSONType
+
+pub(all) enum Geometry {
+  Point(Point)
+  LineString(LineString)
+  Polygon(Polygon)
+  MultiPoint(MultiPoint)
+  MultiLineString(MultiLineString)
+  MultiPolygon(MultiPolygon)
+  GeometryCollection(GeometryCollection)
+} derive(Eq, @debug.Debug)
+pub impl ToJson for Geometry
+pub impl @json.FromJson for Geometry
+pub impl BBoxTrait for Geometry
+pub impl GeoJSONTrait for Geometry
+
+pub struct GeometryCollection {
+  geometries : Array[Geometry]
+} derive(Eq, @debug.Debug)
+pub fn GeometryCollection::new(Array[Geometry]) -> Self
+pub impl ToJson for GeometryCollection
+pub impl @json.FromJson for GeometryCollection
+pub impl BBoxTrait for GeometryCollection
+pub impl GeoJSONTrait for GeometryCollection
+
+pub(all) enum GeometryType {
+  Point
+  LineString
+  Polygon
+  MultiPoint
+  MultiLineString
+  MultiPolygon
+  GeometryCollection
+} derive(Eq, @debug.Debug)
+pub fn GeometryType::from_raw_geojson(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub impl ToJson for GeometryType
+pub impl @json.FromJson for GeometryType
+
+pub(all) enum ID {
+  String(String)
+  Number(Double)
+} derive(Eq, @debug.Debug)
+pub impl ToJson for ID
+pub impl @json.FromJson for ID
+
+pub struct LineString {
+  coordinates : Array[Coordinates]
+} derive(Eq, @debug.Debug)
+pub fn LineString::new(Array[Coordinates]) -> Self raise InvalidGeoJSONError
+pub impl ToJson for LineString
+pub impl @json.FromJson for LineString
+pub impl BBoxTrait for LineString
+pub impl GeoJSONTrait for LineString
+
+pub struct MultiLineString {
+  coordinates : Array[Array[Coordinates]]
+} derive(Eq, @debug.Debug)
+pub fn MultiLineString::new(Array[Array[Coordinates]]) -> Self
+pub impl ToJson for MultiLineString
+pub impl @json.FromJson for MultiLineString
+pub impl BBoxTrait for MultiLineString
+pub impl GeoJSONTrait for MultiLineString
+
+pub struct MultiPoint {
+  coordinates : Array[Coordinates]
+} derive(Eq, @debug.Debug)
+pub fn MultiPoint::new(Array[Coordinates]) -> Self
+pub impl ToJson for MultiPoint
+pub impl @json.FromJson for MultiPoint
+pub impl BBoxTrait for MultiPoint
+pub impl GeoJSONTrait for MultiPoint
+
+pub struct MultiPolygon {
+  coordinates : Array[Array[Array[Coordinates]]]
+} derive(Eq, @debug.Debug)
+pub fn MultiPolygon::new(Array[Array[Array[Coordinates]]]) -> Self
+pub impl ToJson for MultiPolygon
+pub impl @json.FromJson for MultiPolygon
+pub impl BBoxTrait for MultiPolygon
+pub impl GeoJSONTrait for MultiPolygon
+
+pub struct Point {
+  coordinates : Coordinates
+} derive(Eq, @debug.Debug)
+pub fn Point::new(Coordinates) -> Self
+pub impl ToJson for Point
+pub impl @json.FromJson for Point
+pub impl BBoxTrait for Point
+pub impl GeoJSONTrait for Point
+
+pub struct Polygon {
+  coordinates : Array[Array[Coordinates]]
+} derive(Eq, @debug.Debug)
+pub fn Polygon::new(Array[Array[Coordinates]]) -> Self raise InvalidGeoJSONError
+pub impl ToJson for Polygon
+pub impl @json.FromJson for Polygon
+pub impl BBoxTrait for Polygon
+pub impl GeoJSONTrait for Polygon
+
+// Type aliases
+
+// Traits
+pub(open) trait BBoxTrait {
+  bbox(Self) -> BBox raise InvalidGeoJSONError
+}
+
+pub(open) trait FromGeoJSON {
+  from_geojson_geometry(Geometry) -> Self raise InvalidGeoJSONError
+}
+
+pub(open) trait GeoJSONTrait : @json.FromJson + ToJson {
+  to_json(Self, with_bbox? : Bool) -> Json
+}
+
+pub(open) trait ToGeoJSON {
+  to_geojson(Self, with_bbox? : Bool) -> GeoJSON
+}
+

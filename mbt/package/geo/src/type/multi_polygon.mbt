@@ -1,5 +1,5 @@
 ///|
-pub struct MultiPolygon[Coord](Array[Polygon[Coord]]) derive(Show, Eq)
+pub struct MultiPolygon[Coord](Array[Polygon[Coord]]) derive(Debug, Eq)
 
 ///|
 #warnings("-unused_trait_bound")

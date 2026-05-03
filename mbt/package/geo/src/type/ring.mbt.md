@@ -23,9 +23,11 @@ test {
   let c3 = XY::new(1.0, 1.0)
   let c4 = XY::new(0.0, 0.0)
   let ring = Ring::new([c1, c2, c3, c4])
-  inspect(
+  debug_inspect(
     ring,
-    content="Ring([{x: 0, y: 0}, {x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 0}])",
+    content=(
+      #|Ring([{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 1, y: 1 }, { x: 0, y: 0 }])
+    ),
   )
 }
 ```
@@ -45,9 +47,11 @@ test {
   let c4 = XY::new(0.0, 0.0)
   let ring = Ring::new([c1, c2, c3, c4])
   let ls = ring.line_string()
-  inspect(
+  debug_inspect(
     ls,
-    content="LineString([{x: 0, y: 0}, {x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 0}])",
+    content=(
+      #|LineString([{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 1, y: 1 }, { x: 0, y: 0 }])
+    ),
   )
 }
 ```
@@ -66,9 +70,11 @@ test {
   let c3 = XY::new(1.0, 1.0)
   let c4 = XY::new(0.0, 0.0)
   let ring = Ring::new([c1, c2, c3, c4])
-  inspect(
+  debug_inspect(
     ring.coord_array(),
-    content="[{x: 0, y: 0}, {x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 0}]",
+    content=(
+      #|[{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 1, y: 1 }, { x: 0, y: 0 }]
+    ),
   )
 }
 ```
@@ -87,9 +93,11 @@ test {
   let c3 = XY::new(1.0, 1.0)
   let c4 = XY::new(0.0, 0.0)
   let r = Ring::new([c1, c2, c3, c4])
-  inspect(
+  debug_inspect(
     r.ring(),
-    content="Ring([{x: 0, y: 0}, {x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 0}])",
+    content=(
+      #|Ring([{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 1, y: 1 }, { x: 0, y: 0 }])
+    ),
   )
 }
 ```

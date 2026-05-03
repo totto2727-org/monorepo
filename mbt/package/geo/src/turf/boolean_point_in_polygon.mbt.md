@@ -25,7 +25,7 @@ test {
     ]),
   )
   let point = @type.Point::new(@type.XY::new(50.0, 50.0))
-  inspect(@turf.boolean_point_in_polygon(point, polygon), content="true")
+  debug_inspect(@turf.boolean_point_in_polygon(point, polygon), content="true")
 }
 ```
 
@@ -44,7 +44,7 @@ test {
     ]),
   )
   let point = @type.Point::new(@type.XY::new(140.0, 150.0))
-  inspect(@turf.boolean_point_in_polygon(point, polygon), content="false")
+  debug_inspect(@turf.boolean_point_in_polygon(point, polygon), content="false")
 }
 ```
 
@@ -64,7 +64,7 @@ test {
       @type.XY::new(0.0, 0.0),
     ]),
   )
-  inspect(@turf.boolean_point_in_polygon(point, polygon), content="true")
+  debug_inspect(@turf.boolean_point_in_polygon(point, polygon), content="true")
 }
 ```
 
@@ -84,7 +84,7 @@ test {
       @type.XY::new(0.0, 0.0),
     ]),
   )
-  inspect(@turf.boolean_point_in_polygon(point, polygon), content="false")
+  debug_inspect(@turf.boolean_point_in_polygon(point, polygon), content="false")
 }
 ```
 
@@ -103,7 +103,7 @@ test {
       @type.XY::new(10.0, 10.0),
     ]),
   )
-  inspect(@turf.boolean_point_in_polygon(point, polygon), content="true")
+  debug_inspect(@turf.boolean_point_in_polygon(point, polygon), content="true")
 }
 ```
 
@@ -122,7 +122,7 @@ test {
       @type.XY::new(10.0, 10.0),
     ]),
   )
-  inspect(
+  debug_inspect(
     @turf.boolean_point_in_polygon(point, polygon, ignore_boundary=true),
     content="false",
   )
@@ -153,7 +153,7 @@ test {
     ],
   )
   let point = @type.Point::new(@type.XY::new(10.0, 10.0))
-  inspect(@turf.boolean_point_in_polygon(point, polygon), content="true")
+  debug_inspect(@turf.boolean_point_in_polygon(point, polygon), content="true")
 }
 ```
 
@@ -181,7 +181,7 @@ test {
     ],
   )
   let point = @type.Point::new(@type.XY::new(50.0, 50.0))
-  inspect(@turf.boolean_point_in_polygon(point, polygon), content="false")
+  debug_inspect(@turf.boolean_point_in_polygon(point, polygon), content="false")
 }
 ```
 
@@ -200,7 +200,7 @@ test {
     ]),
   )
   let point = @type.Point::new(@type.XY::new(-9.9964077, 53.8040989))
-  inspect(@turf.boolean_point_in_polygon(point, polygon), content="true")
+  debug_inspect(@turf.boolean_point_in_polygon(point, polygon), content="true")
 }
 ```
 
@@ -338,15 +338,15 @@ test {
   let pt_outside_poly = @type.Point::new(
     @type.XY::new(-86.75079345703125, 36.18527313913089),
   )
-  inspect(
+  debug_inspect(
     @turf.boolean_point_in_polygon(pt_in_hole, @fixture.poly_with_hole),
     content="false",
   )
-  inspect(
+  debug_inspect(
     @turf.boolean_point_in_polygon(pt_in_poly, @fixture.poly_with_hole),
     content="true",
   )
-  inspect(
+  debug_inspect(
     @turf.boolean_point_in_polygon(pt_outside_poly, @fixture.poly_with_hole),
     content="false",
   )

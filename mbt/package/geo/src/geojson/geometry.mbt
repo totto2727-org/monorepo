@@ -7,7 +7,7 @@ pub(all) enum Geometry {
   MultiLineString(MultiLineString)
   MultiPolygon(MultiPolygon)
   GeometryCollection(GeometryCollection)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub impl GeoJSONTrait for Geometry with to_json(self, with_bbox? = false) {
