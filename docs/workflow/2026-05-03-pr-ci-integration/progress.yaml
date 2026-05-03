@@ -1,9 +1,9 @@
 identifier: 2026-05-03-pr-ci-integration
 started_at: 2026-05-03T00:00:00Z
-updated_at: 2026-05-03T06:05:00Z
+updated_at: 2026-05-03T06:30:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 7 (External Review)'
+current_step: 'Step 8 (Validation)'
 
 completed_steps:
   - step: 'Step 1 (Intent Clarification)'
@@ -115,7 +115,31 @@ completed_steps:
       vp check 全 457 ファイル PASS 確認済。各タスクコミットの CI も全 PASS。
       ユーザー事前一括承認のため Step 6 Gate も即時通過。
 
-pending_gates: []
+  - step: 'Step 7 (External Review)'
+    completed_at: 2026-05-03T06:30:00Z
+    artifacts:
+      - review/security.md
+      - review/performance.md
+      - review/readability.md
+      - review/test-quality.md
+      - review/api-design.md
+      - review/holistic.md
+    notes: |
+      6 reviewer 並列起動 (security / performance / readability / test-quality /
+      api-design / holistic)。集計結果: Blocker 0、Major 12、Minor 25、Info 24。
+      Round 1 Gate: security / performance / holistic = approved、
+      readability / test-quality / api-design = needs_fix。
+      Major 12 件すべてを同コミットで修正:
+      - readability M-1/M-2: SKILL.md L780 文体改善 + L967 見出し統一
+      - api-design M-1/M-2: SKILL.md に「適用範囲」追加 + specialist-common §7
+        を「PR / CI 操作の権限境界 (全 Specialist 共通)」に分離
+      - test-quality M-1〜M-8: qa-design.md TC-007/008/011/014/015/018/022 を
+        flag sentinel awk + コードフェンス追跡形式に修正、`progress-yaml.md` の
+        実見出しがバッククォート付きである件を反映
+      Minor 25 件は Retrospective 繰越。実機検証で Major 修正後の各 TC 検証
+      コマンドが期待通り動作することを確認 (TC-001=3, TC-005=31, TC-007 で
+      Blocker 7 / リトライ 5 共存、TC-008(b) 2 件、TC-009=3, TC-011=1+ 等)。
+      ユーザー事前一括承認のため Step 7 Gate も即時通過。
 
 active_specialists: []
 
@@ -134,7 +158,13 @@ artifacts:
   external_adrs: []
   task_plan: docs/workflow/2026-05-03-pr-ci-integration/task-plan.md
   todo: docs/workflow/2026-05-03-pr-ci-integration/TODO.md
-  review: []
+  review:
+    - docs/workflow/2026-05-03-pr-ci-integration/review/security.md
+    - docs/workflow/2026-05-03-pr-ci-integration/review/performance.md
+    - docs/workflow/2026-05-03-pr-ci-integration/review/readability.md
+    - docs/workflow/2026-05-03-pr-ci-integration/review/test-quality.md
+    - docs/workflow/2026-05-03-pr-ci-integration/review/api-design.md
+    - docs/workflow/2026-05-03-pr-ci-integration/review/holistic.md
   validation: null
   retrospective: null
 
@@ -157,5 +187,11 @@ user_approvals:
     approved_at: 2026-05-03T05:10:00Z
     approved_by: user (blanket pre-approval)
     notes: Step 1 で取得した事前一括承認で通過。Step 6 実装開始合意。
+  - gate: 'Step 7 user approval (review/*.md)'
+    approved_at: 2026-05-03T06:30:00Z
+    approved_by: user (blanket pre-approval)
+    notes: |
+      Step 1 で取得した事前一括承認で通過。Blocker 0 件のため Step 7 Gate 通過、
+      Major 12 件は本コミット内で全て修正済。Minor 25 件は Retrospective 繰越。
 
 rollbacks: []
