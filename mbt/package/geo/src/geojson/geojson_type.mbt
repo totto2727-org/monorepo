@@ -3,7 +3,7 @@ pub(all) enum GeoJSONType {
   FeatureCollection
   Feature
   Geometry(GeometryType)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn GeoJSONType::from_raw_geojson(

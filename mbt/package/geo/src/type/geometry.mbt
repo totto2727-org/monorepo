@@ -2,7 +2,7 @@
 pub suberror NonExistCoordError
 
 ///|
-pub trait GeometryTrait: Show {
+pub trait GeometryTrait: Debug {
   coord_array(Self) -> Array[XY]
   point_array(Self) -> Array[Point[XY]] = _
   bbox(Self) -> BBox[XY] raise NonExistCoordError = _

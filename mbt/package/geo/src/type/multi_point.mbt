@@ -1,5 +1,5 @@
 ///|
-pub struct MultiPoint[Coord](Array[Point[Coord]]) derive(Show, Eq)
+pub struct MultiPoint[Coord](Array[Point[Coord]]) derive(Debug, Eq)
 
 ///|
 #warnings("-unused_trait_bound")

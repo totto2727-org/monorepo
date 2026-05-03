@@ -25,7 +25,7 @@ Helper functions for extracting values from JSON objects.
 ///|
 struct TestStruct {
   key : String?
-} derive(Show)
+} derive(Debug)
 
 ///|
 impl FromJson for TestStruct with from_json(json, path) {
@@ -36,10 +36,11 @@ impl FromJson for TestStruct with from_json(json, path) {
 test {
   let json : Json = { "key": "value" }
   let result : TestStruct = @json.from_json(json)
-  inspect(
+  debug_inspect(
     result,
     content=(
-      #|{key: Some("value")}
+      #|{ key: Some("value") }
+
     ),
   )
 }
@@ -52,7 +53,9 @@ test {
 test {
   let json : Json = {}
   let result : TestStruct = @json.from_json(json)
-  inspect(result, content="{key: None}")
+  debug_inspect(result, content=(
+    #|{ key: None }
+  ))
 }
 ```
 
@@ -63,7 +66,9 @@ test {
 test {
   let json : Json = { "key": Json::null() }
   let result : TestStruct = @json.from_json(json)
-  inspect(result, content="{key: None}")
+  debug_inspect(result, content=(
+    #|{ key: None }
+  ))
 }
 ```
 
@@ -93,7 +98,7 @@ test "panic_from_json_property - on non-object JSON" {
 ///|
 struct TestStruct2 {
   key : String
-} derive(Show)
+} derive(Debug)
 
 ///|
 impl FromJson for TestStruct2 with from_json(json, path) {
@@ -106,10 +111,11 @@ impl FromJson for TestStruct2 with from_json(json, path) {
 test {
   let json : Json = { "key": "value" }
   let result : TestStruct2 = @json.from_json(json)
-  inspect(
+  debug_inspect(
     result,
     content=(
-      #|{key: "value"}
+      #|{ key: "value" }
+
     ),
   )
 }
@@ -122,10 +128,11 @@ test {
 test {
   let json : Json = {}
   let result : TestStruct2 = @json.from_json(json)
-  inspect(
+  debug_inspect(
     result,
     content=(
-      #|{key: "default"}
+      #|{ key: "default" }
+
     ),
   )
 }
@@ -138,10 +145,11 @@ test {
 test {
   let json : Json = { "key": Json::null() }
   let result : TestStruct2 = @json.from_json(json)
-  inspect(
+  debug_inspect(
     result,
     content=(
-      #|{key: "default"}
+      #|{ key: "default" }
+
     ),
   )
 }
@@ -172,7 +180,7 @@ test "panic_from_json_property_or_default - on non-object JSON" {
 ///|
 struct TestStruct3 {
   key : Array[String]
-} derive(Show)
+} derive(Debug)
 
 ///|
 impl FromJson for TestStruct3 with from_json(json, path) {
@@ -183,10 +191,11 @@ impl FromJson for TestStruct3 with from_json(json, path) {
 test {
   let json : Json = { "key": ["value"] }
   let result : TestStruct3 = @json.from_json(json)
-  inspect(
+  debug_inspect(
     result,
     content=(
-      #|{key: ["value"]}
+      #|{ key: ["value"] }
+
     ),
   )
 }
@@ -199,7 +208,9 @@ test {
 test {
   let json : Json = {}
   let result : TestStruct3 = @json.from_json(json)
-  inspect(result, content="{key: []}")
+  debug_inspect(result, content=(
+    #|{ key: [] }
+  ))
 }
 ```
 
@@ -210,6 +221,8 @@ test {
 test {
   let json : Json = { "key": Json::null() }
   let result : TestStruct3 = @json.from_json(json)
-  inspect(result, content="{key: []}")
+  debug_inspect(result, content=(
+    #|{ key: [] }
+  ))
 }
 ```

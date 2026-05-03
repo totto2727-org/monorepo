@@ -14,7 +14,7 @@ impl LineTrait with line(self) {
 pub struct Line[Coord] {
   start : Coord
   end : Coord
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 #warnings("-unused_trait_bound")

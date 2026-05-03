@@ -1,5 +1,5 @@
 ///|
-pub struct GeometryCollection(Array[&GeometryTrait]) derive(Show)
+pub struct GeometryCollection(Array[&GeometryTrait]) derive(Debug)
 
 ///|
 #warnings("-unused_trait_bound")

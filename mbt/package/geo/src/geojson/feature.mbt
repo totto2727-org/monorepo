@@ -3,7 +3,7 @@ pub struct Feature {
   geometry : Geometry?
   properties : Map[String, Json]?
   id : ID?
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn Feature::new(

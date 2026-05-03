@@ -22,9 +22,11 @@ Defines the core behavior for all geometry types, including bounding box calcula
 ///|
 test {
   let ls = LineString::new([XY::new(1.0, 1.0), XY::new(2.0, 2.0)])
-  inspect(
+  debug_inspect(
     ls.point_array(),
-    content="[Point({x: 1, y: 1}), Point({x: 2, y: 2})]",
+    content=(
+      #|[Point({ x: 1, y: 1 }), Point({ x: 2, y: 2 })]
+    ),
   )
 }
 ```
@@ -42,7 +44,9 @@ test {
 ///|
 test {
   let ls = LineString::new([XY::new(1.0, 1.0), XY::new(2.0, 2.0)])
-  inspect(ls.bbox(), content="{min: {x: 1, y: 1}, max: {x: 2, y: 2}}")
+  debug_inspect(ls.bbox(), content=(
+    #|{ min: { x: 1, y: 1 }, max: { x: 2, y: 2 } }
+  ))
 }
 ```
 
