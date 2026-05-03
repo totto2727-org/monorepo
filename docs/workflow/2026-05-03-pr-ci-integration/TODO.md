@@ -16,12 +16,12 @@
 ## タスク
 
 - [ ] **T1** — dev-workflow/SKILL.md に新セクション「## サイクル PR と CI 連携プロトコル」を追加
-  - status: pending
+  - status: in_progress
   - dependencies: なし (Wave 1 起点)
-  - started_at: -
+  - started_at: 2026-05-03T05:15:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T1
   - re_activations: 0
   - notes: design.md の「コンポーネント構成 § A」「主要な型・インターフェース § シェル擬似コード」「PR description テンプレート」を SKILL.md L767 直後にコピーペースト。約 110 行。Wave 1 で T4 / T5 と並列起動可。
 
@@ -46,22 +46,22 @@
   - notes: 「コミット規約」末尾 (T1 が追加した新セクション直前) に「PR 概要更新および CI 確認の運用は『## サイクル PR と CI 連携プロトコル』を参照」1 行追加。Wave 3 で単独実行。
 
 - [ ] **T4** — specialist-common/SKILL.md §7 に PR 操作 = Main 専属の 1 行を追記
-  - status: pending
+  - status: in_progress
   - dependencies: なし (T1 と並列可)
-  - started_at: -
+  - started_at: 2026-05-03T05:15:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T4
   - re_activations: 0
   - notes: §7「Git コミットに関する注意」(L177-L194) リスト末尾 (L184 直後) に 1 行追加。Wave 1 で T1 / T5 と並列起動可。
 
 - [ ] **T5** — progress-yaml.md `### blockers` セクションに CI failure 記録例を追記
-  - status: pending
+  - status: in_progress
   - dependencies: なし (T1 と並列可)
-  - started_at: -
+  - started_at: 2026-05-03T05:15:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-T5
   - re_activations: 0
   - notes: `### blockers` セクション (L57-L60) 末尾に CI 失敗を自由テキスト形式で記録する例を 1〜2 行追記。schema 拡張なし。Wave 1 で T1 / T4 と並列起動可。
 
