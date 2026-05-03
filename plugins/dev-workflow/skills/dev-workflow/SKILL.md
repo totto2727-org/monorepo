@@ -775,6 +775,10 @@ docs(dev-workflow/<identifier>): close cycle with retrospective
 - `.gitignore` で `$TMPDIR` 配下を明示する必要はない (絶対パスで分離されているため)
 - サイクル完了時に `$TMPDIR/dev-workflow/<cycle>-*.md` を残す / 削除するかはプロジェクト方針に従う (Retrospective 分析に使うなら残す、機密情報を含むなら削除)
 
+### PR 概要更新と CI 確認への参照
+
+PR 概要更新および CI 確認 (各ステップ完了コミットの最終 CI が PASS している旨は各 Step Exit Criteria 参照、リトライ規律と Blocker 化は本セクションの後に続く) の運用は「## サイクル PR と CI 連携プロトコル」を参照。
+
 ---
 
 ## サイクル PR と CI 連携プロトコル
