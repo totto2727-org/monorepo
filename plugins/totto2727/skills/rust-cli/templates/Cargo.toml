@@ -42,6 +42,12 @@ miette = { version = "7", features = ["fancy"] }
 # I/O・OS (std / tokio で完結しないもののみ)
 # ============================================================
 
+# UTF-8 限定パス (Utf8Path / Utf8PathBuf)
+# - .as_str() が Option を返さない (std::path::Path は Option<&str>)
+# - serde シリアライズが常に plain JSON / TOML 文字列
+# - HashMap<Utf8PathBuf, T> がそのまま JSON object キーになる
+camino = { version = "1", features = ["serde1"] }
+
 # クロスプラットフォーム ファイル排他 (lock-file 同時書き込み防止)
 fd-lock = "4"
 
@@ -124,5 +130,7 @@ insta = "1"
 # HTTP モック (reqwest 系の API テスト)
 mockito = "1"
 
-# 一時ファイル / 一時ディレクトリ (RAII で自動削除)
-tempfile = "3"
+# 一時ファイル / 一時ディレクトリ (RAII で自動削除、UTF-8 パス)
+# tempfile の UTF-8 ラッパー (NamedUtf8TempFile / Utf8TempDir / Utf8Builder)。
+# 標準 tempfile は transitive dep として入る — 直接依存しない
+camino-tempfile = "1"
