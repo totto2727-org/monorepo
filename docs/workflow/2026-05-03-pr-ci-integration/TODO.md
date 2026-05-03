@@ -45,12 +45,12 @@
   - re_activations: 0
   - notes: 「コミット規約」末尾 (T1 が追加した新セクション直前) に「PR 概要更新および CI 確認の運用は『## サイクル PR と CI 連携プロトコル』を参照」1 行追加。Wave 3 で単独実行。
 
-- [ ] **T4** — specialist-common/SKILL.md §7 に PR 操作 = Main 専属の 1 行を追記
-  - status: in_progress
+- [x] **T4** — specialist-common/SKILL.md §7 に PR 操作 = Main 専属の 1 行を追記
+  - status: completed
   - dependencies: なし (T1 と並列可)
   - started_at: 2026-05-03T05:15:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-03T05:25:00Z
+  - commit: bc1a84d6f93bbb7573b257f8999f7cf3c3149068
   - implementer: implementer-T4
   - re_activations: 0
   - notes: §7「Git コミットに関する注意」(L177-L194) リスト末尾 (L184 直後) に 1 行追加。Wave 1 で T1 / T5 と並列起動可。
