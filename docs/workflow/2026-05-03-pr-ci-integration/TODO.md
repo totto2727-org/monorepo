@@ -11,7 +11,8 @@
 
 `task-plan.md` 不変運用の原則に従い、Step 6〜7 中に発見された追加タスクはここに記録する。追加理由を明記すること。
 
-- なし（デフォルト）
+- **T6 (post-Wave-3, pre-Step-7)** — `vp check --fix` で cycle artefacts (design.md / qa-design.md / research/*.md / task-plan.md) の oxfmt formatting 違反を修正し `style(dev-workflow/2026-05-03-pr-ci-integration): apply oxfmt formatting to cycle artefacts` でコミット。前例: `9597ecd style(dev-workflow/2026-04-29-retro-cleanup): apply oxfmt formatting to cycle artefacts`。実装者: T1/T2/T5 implementer 全員から既存 issue として独立して報告された (本サイクル PR #95 の CI は通っているので緊急ではないが、Step 7 reviewer が触れる前に整理推奨)。
+- **T7 (post-Wave-3, pre-Step-8)** — qa-design.md TC-009 のパターン不整合を修正。TC-009 は `^## (サイクル全体の流れ|各ステップの責務|ステップ完了時のコミット規約)` の 3 件以上を期待するが、現行 SKILL.md には `## ステップ完了時のコミット規約` のみ存在 (他は `## ワークフロー全体図` `## ステップ一覧` `## ステップ詳細` `## 役割定義` 等)。Step 8 Validator 実行前に正しい見出し名へ補正必要。実装者: T2 implementer から報告。
 
 ## タスク
 
@@ -25,12 +26,12 @@
   - re_activations: 0
   - notes: design.md の「コンポーネント構成 § A」「主要な型・インターフェース § シェル擬似コード」「PR description テンプレート」を SKILL.md L767 直後にコピーペースト。約 110 行。Wave 1 で T4 / T5 と並列起動可。
 
-- [ ] **T2** — dev-workflow/SKILL.md の各 Step Exit Criteria に CI PASS 条件を追記
-  - status: in_progress
+- [x] **T2** — dev-workflow/SKILL.md の各 Step Exit Criteria に CI PASS 条件を追記
+  - status: completed
   - dependencies: T1 (同一ファイル編集のため Wave 跨ぎで直列化)
   - started_at: 2026-05-03T05:35:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-03T05:40:00Z
+  - commit: 1509c57bbd0a2a2e0b609aa1f08b591e44d81b38
   - implementer: implementer-T2
   - re_activations: 0
   - notes: Step 1〜9 の Exit Criteria 末尾に統一文言で 1 行追加 (9 箇所)。Step 6 のみ「全タスク単位コミット」に微修正。Wave 2 で単独実行。実装前に動的行番号取得必須 (T1 でファイルが伸びているため)。
