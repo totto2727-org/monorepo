@@ -445,13 +445,13 @@ graph LR
 
 各ステップが完了した時点で、生成・更新された成果物を**必ずリポジトリにコミット**する。次ステップ開始時には一時ファイル (`$TMPDIR/dev-roadmap/*.md`) 以外は差分がない状態が期待される。
 
-| Step                       | コミット内容                                                                                                           |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| サイクル開始時             | `docs/roadmap/<roadmap-id>/` ディレクトリ作成 + `roadmap-progress.yaml` 初期化 (Step 1 と同コミットでも可)             |
-| 1. Roadmap Intent          | `roadmap.md` (Intent セクション) + `roadmap-progress.yaml` (+ Roadmap mode ADR があれば `docs/roadmap/<roadmap-id>/adr/<file>.md`) |
-| 2. Milestone Decomposition | `roadmap.md` (マイルストーン追記版) + `milestones/*.md` (全マイルストーンまとめて) + `roadmap-progress.yaml` (+ Roadmap mode ADR があれば追加) |
+| Step                       | コミット内容                                                                                                                                                                 |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| サイクル開始時             | `docs/roadmap/<roadmap-id>/` ディレクトリ作成 + `roadmap-progress.yaml` 初期化 (Step 1 と同コミットでも可)                                                                   |
+| 1. Roadmap Intent          | `roadmap.md` (Intent セクション) + `roadmap-progress.yaml` (+ Roadmap mode ADR があれば `docs/roadmap/<roadmap-id>/adr/<file>.md`)                                           |
+| 2. Milestone Decomposition | `roadmap.md` (マイルストーン追記版) + `milestones/*.md` (全マイルストーンまとめて) + `roadmap-progress.yaml` (+ Roadmap mode ADR があれば追加)                               |
 | 3. Execution               | (本ステップ自身のコミットなし。配下 `dev-workflow` サイクルが各々の規約でコミット。配下サイクルが Roadmap / General mode ADR を起票する場合も配下サイクルのコミットに含める) |
-| 4. Roadmap Retrospective   | `docs/retrospective/roadmap-<roadmap-id>.md` + `roadmap-progress.yaml` (`status: completed`、ロードマップ最終コミット) (+ retrospective から切り出した ADR があれば追加) |
+| 4. Roadmap Retrospective   | `docs/retrospective/roadmap-<roadmap-id>.md` + `roadmap-progress.yaml` (`status: completed`、ロードマップ最終コミット) (+ retrospective から切り出した ADR があれば追加)     |
 
 #### コミットメッセージ規約
 

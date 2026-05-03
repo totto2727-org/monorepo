@@ -18,10 +18,10 @@ description: >
 
 ADR は**起票元の文脈**に応じて 2 つのモードを使い分ける。判定は起票時に Main がスコープを評価して決定し、ADR 本体に明記する。
 
-| モード | 保存場所 | 起票判定の核 | 主な起票元 |
-| ---- | -------- | ------------ | ---------- |
-| **General mode** (汎用) | `docs/adr/<YYYY-MM-DD-title>.md` | 「**複数 roadmap / 独立した複数 workflow を跨ぐ**」または「**プロジェクト全体の規範**」となる判断 | dev-workflow Step 3 (横断判断発生時) / dev-roadmap Step 1〜4 / 単発の利用 |
-| **Roadmap mode** | `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md` | 「**単一 roadmap 配下の複数 dev-workflow サイクルが共有**」する文脈・前提・規範 | dev-roadmap Step 1〜4 / 配下の dev-workflow サイクル Step 3 (roadmap 文脈下で起動された場合) |
+| モード                  | 保存場所                                              | 起票判定の核                                                                                      | 主な起票元                                                                                   |
+| ----------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| **General mode** (汎用) | `docs/adr/<YYYY-MM-DD-title>.md`                      | 「**複数 roadmap / 独立した複数 workflow を跨ぐ**」または「**プロジェクト全体の規範**」となる判断 | dev-workflow Step 3 (横断判断発生時) / dev-roadmap Step 1〜4 / 単発の利用                    |
+| **Roadmap mode**        | `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md` | 「**単一 roadmap 配下の複数 dev-workflow サイクルが共有**」する文脈・前提・規範                   | dev-roadmap Step 1〜4 / 配下の dev-workflow サイクル Step 3 (roadmap 文脈下で起動された場合) |
 
 ### モード判定フロー
 
@@ -101,10 +101,10 @@ scope: general | roadmap:<roadmap-id>
 ---
 ```
 
-| Field       | Type    | Description                                                                                                  |
-| ----------- | ------- | ------------------------------------------------------------------------------------------------------------ |
-| `confirmed` | boolean | `true`: 確定 (原則不変) / `false`: 提案 (レビュー待ち)                                                       |
-| `scope`     | string  | `general` (= `docs/adr/` 配下) または `roadmap:<roadmap-id>` (= `docs/roadmap/<roadmap-id>/adr/` 配下)        |
+| Field       | Type    | Description                                                                                            |
+| ----------- | ------- | ------------------------------------------------------------------------------------------------------ |
+| `confirmed` | boolean | `true`: 確定 (原則不変) / `false`: 提案 (レビュー待ち)                                                 |
+| `scope`     | string  | `general` (= `docs/adr/` 配下) または `roadmap:<roadmap-id>` (= `docs/roadmap/<roadmap-id>/adr/` 配下) |
 
 `scope` フィールドは保存場所と一致する必要があり、grep / プログラム的フィルタリングで両モードを区別するためのインデックスとして機能する。`scope` が `roadmap:<roadmap-id>` の ADR は当該 roadmap 配下の任意の dev-workflow サイクルから参照可能、`scope: general` の ADR はリポジトリ全体から参照可能。
 
@@ -178,12 +178,12 @@ scope: general
 
 ### 5. retrospective との役割分担
 
-| | ADR | retrospective.md / roadmap-retrospective.md |
-| - | - | - |
-| 永続性 | 永続 (`confirmed: true` で不変) | 揮発 (次サイクルが改善案を消化したら削除) |
-| 内容 | 判断と帰結 (Decision + Consequences) | 振り返り (良かった点 / 課題 / 次回改善案) |
-| スコープ | 複数サイクル / roadmap / プロジェクト全体に効く規範 | 1 サイクル / 1 roadmap の自己評価 |
-| 保存場所 | `docs/adr/` または `docs/roadmap/<roadmap-id>/adr/` | `docs/retrospective/` (集約) |
+|          | ADR                                                 | retrospective.md / roadmap-retrospective.md |
+| -------- | --------------------------------------------------- | ------------------------------------------- |
+| 永続性   | 永続 (`confirmed: true` で不変)                     | 揮発 (次サイクルが改善案を消化したら削除)   |
+| 内容     | 判断と帰結 (Decision + Consequences)                | 振り返り (良かった点 / 課題 / 次回改善案)   |
+| スコープ | 複数サイクル / roadmap / プロジェクト全体に効く規範 | 1 サイクル / 1 roadmap の自己評価           |
+| 保存場所 | `docs/adr/` または `docs/roadmap/<roadmap-id>/adr/` | `docs/retrospective/` (集約)                |
 
 retrospective で導出された改善案のうち**永続記録すべき判断**は、retrospective を消化する際に ADR に切り出す。
 
