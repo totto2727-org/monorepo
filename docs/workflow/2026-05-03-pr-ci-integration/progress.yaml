@@ -1,9 +1,9 @@
 identifier: 2026-05-03-pr-ci-integration
 started_at: 2026-05-03T00:00:00Z
-updated_at: 2026-05-03T04:10:00Z
+updated_at: 2026-05-03T04:36:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 2 (Research)'
+current_step: 'Step 3 (Design)'
 
 completed_steps:
   - step: 'Step 1 (Intent Clarification)'
@@ -21,6 +21,31 @@ completed_steps:
       + roadmap 概念追加) を rebase で取り込み、サイクル作業ディレクトリを
       docs/workflow/2026-05-03-pr-ci-integration/ に移行済み。
 
+  - step: 'Step 2 (Research)'
+    completed_at: 2026-05-03T04:36:00Z
+    artifacts:
+      - research/gh-cli.md
+      - research/ci-structure.md
+      - research/integration-points.md
+      - research/past-cycles.md
+    notes: |
+      4 並列 researcher 起動。Intent Spec の未解決 8 項目を全て解消できる範囲で
+      事実関係を確定:
+      - gh-cli: 推奨 CLI パターン (`gh pr edit --body-file`、`gh run rerun --failed`、
+        `gh run watch --exit-status --interval 10 --compact`) と Specialist 権限境界
+        (write 系は Main 専属、read 系は許容) を提示。
+      - ci-structure: 必須 check は `check` ジョブ 1 つのみ、中央値 109s / p90 120s /
+        最大 140s、flaky ゼロ。失敗の 100% は oxfmt Formatting。`gh pr checks --required`
+        または「最新 SHA で実行された check の conclusion」が PASS 定義として最小。
+      - integration-points: dev-workflow/SKILL.md (888 行) で PR/CI 既存言及はほぼゼロ。
+        新セクション「サイクル PR と CI 連携プロトコル」を「ステップ完了時のコミット規約」
+        直後に独立追加し、各 Step Exit Criteria に CI PASS 1 行追記する案を推奨。
+        specialist-common §7 直後に Main 専属 1 行追加。
+      - past-cycles: 過去 PR は Ready 即時作成 / description 編集 0 回 / blockers 未使用 /
+        CI fix は新規 commit push が常套。git-workflow は触らず dev-workflow に閉じて
+        書ける (改修不要)。PR description テンプレ骨子 (Summary / Cycle / Test plan /
+        Notable / フッター) を抽出済み。
+
 pending_gates: []
 
 active_specialists: []
@@ -29,7 +54,11 @@ blockers: []
 
 artifacts:
   intent_spec: docs/workflow/2026-05-03-pr-ci-integration/intent-spec.md
-  research: []
+  research:
+    - docs/workflow/2026-05-03-pr-ci-integration/research/gh-cli.md
+    - docs/workflow/2026-05-03-pr-ci-integration/research/ci-structure.md
+    - docs/workflow/2026-05-03-pr-ci-integration/research/integration-points.md
+    - docs/workflow/2026-05-03-pr-ci-integration/research/past-cycles.md
   design: null
   qa_design: null
   qa_flow: null
