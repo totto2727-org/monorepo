@@ -768,6 +768,201 @@ docs(dev-workflow/<identifier>): close cycle with retrospective
 
 ---
 
+## サイクル PR と CI 連携プロトコル
+
+各サイクルは **GitHub 上のサイクル PR (Draft → Ready)** と **バックグラウンド CI 確認** を伴う。本セクションはその運用規約を 5 ルールに分けて定義する。Single-Source-of-Progress 原則に従い、進捗の真のソースは引き続き `progress.yaml` / `TODO.md` であり、**PR 概要 (PR description) はそれらから派生する外部公開ビュー**として位置づける。
+
+**責任所在:** PR / CI に関する write 系 `gh` コマンド (`gh pr create` / `gh pr edit` / `gh pr ready` / `gh run rerun` など) は **Main が単独で実行する**。Specialist は read 系 (`gh pr view --json` / `gh pr list --json` / `gh run list --json` など) のみ使用してよい。詳細は `specialist-common` §7 参照。
+
+**スコープ住み分け:** 本プロトコルは「既存の CI ワークフロー (`.github/workflows/*.yaml`) の **結果を読んで完了基準に組み込む**」ことのみを規定する。CI ワークフロー定義そのものの設計・改修は本ワークフロー外 (CI/CD パイプライン設計の領域)。
+
+### Draft PR 初期化 (サイクル開始時)
+
+サイクル初期化コミット `docs(dev-workflow/<identifier>): initialize cycle` と同時に、対応する **Draft PR** を 1 件作成する。Draft PR の作成タイミングはサイクル開始時の 1 回のみで、Step 1 完了直後に Main が冪等に実行する (既存 PR があれば再利用)。
+
+PR description は `$TMPDIR/dev-workflow/<identifier>-pr-body.md` に揮発ファイルとして生成し、`gh pr create --draft --body-file` で送信する。リポジトリ内に `pr-overview.md` のような永続ファイルは作らない (詳細は最終サブセクション参照)。
+
+```bash
+# 既存 PR の存在確認 (冪等性ガード)
+existing_pr=$(gh pr list --head "$BRANCH" --state open --json number,isDraft --jq '.[0]')
+if [ -z "$existing_pr" ] || [ "$existing_pr" = "null" ]; then
+  # 未作成 → Draft PR を新規作成
+  gh pr create \
+    --draft \
+    --base main \
+    --head "$BRANCH" \
+    --title "feat(dev-workflow/<identifier>): <one-line summary>" \
+    --body-file "$TMPDIR/dev-workflow/<identifier>-pr-body.md"
+else
+  # 既存 PR 再利用 — Step 1 再実行や手動作成済みケース
+  echo "Reusing existing PR: $existing_pr"
+fi
+```
+
+### PR 概要更新 (各ステップ完了時)
+
+PR 概要 (PR description) は **各ステップ完了時に必ず更新する**。さらに、ステップ途中であっても内容に変化があれば**適宜**更新してよい (例: Research Note の追加、Blocker 発生時のステータス反映など)。
+
+更新手順:
+
+1. Main が `$TMPDIR/dev-workflow/<identifier>-pr-body.md` をテンプレート (下記) に従って再生成する (累積状態を反映)
+2. `gh pr edit <num> --body-file <path>` で送信する (`--body-file` を必須化、HEREDOC は shell quoting 事故防止のため不採用)
+
+```bash
+# Main がテンプレートから $TMPDIR/dev-workflow/<id>-pr-body.md を再生成した後
+PR_NUMBER=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
+gh pr edit "$PR_NUMBER" --body-file "$TMPDIR/dev-workflow/<identifier>-pr-body.md"
+```
+
+#### PR description テンプレート
+
+サイクル進行に応じて段階的に埋まる構造。Step 1 完了時には Summary + Cycle artefacts (intent-spec のみ) + Progress checklist (Step 1 のみ `[x]`) + CI status (初回コミットの結果) で初期化し、以降のステップ完了ごとに該当セクションを更新する。
+
+```markdown
+## Summary
+
+- (1〜3 bullet で目的・主要変更を要約 — Intent Spec の「目的」セクションから派生)
+
+## Cycle artefacts
+
+- intent-spec: docs/workflow/<identifier>/intent-spec.md
+- research: docs/workflow/<identifier>/research/<topic>.md (各観点)
+- design: docs/workflow/<identifier>/design.md
+- qa-design: docs/workflow/<identifier>/qa-design.md
+- qa-flow: docs/workflow/<identifier>/qa-flow.md
+- task-plan: docs/workflow/<identifier>/task-plan.md
+- TODO: docs/workflow/<identifier>/TODO.md
+- review: docs/workflow/<identifier>/review/<aspect>.md (6 観点)
+- validation: docs/workflow/<identifier>/validation-report.md
+- retrospective: docs/retrospective/<identifier>.md
+
+## Progress checklist
+
+- [x] Step 1: Intent Clarification
+- [ ] Step 2: Research
+- [ ] Step 3: Design
+- [ ] Step 4: QA Design
+- [ ] Step 5: Task Decomposition
+- [ ] Step 6: Implementation
+- [ ] Step 7: External Review
+- [ ] Step 8: Validation
+- [ ] Step 9: Retrospective
+
+## CI status
+
+- 最新コミット SHA: <abbrev-sha>
+- 最新 `check` job: <conclusion> (run id: <run-id>, attempt: <n>)
+- リトライ履歴: (失敗があった場合のみ列挙、Step ごとにブロック)
+
+## Test plan (Step 8 で完成)
+
+- [ ] SC-N (criteria): <観測値 / 検証コマンド>
+
+## Notable incidents (該当があった場合のみ)
+
+- ロールバック・前提崩壊履歴
+
+---
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+```
+
+### バックグラウンド CI watch + 結果取得 (各ステップ完了コミット直後)
+
+各ステップ完了コミット (Step 6 はタスク単位コミット) を push した直後、当該コミットに紐付く CI run が **PASS するまで当該ステップを完了と認めない**。Main は **バックグラウンドで `gh run watch`** を起動して結果を待ち、完了後に exit code から PASS / FAIL を判定する。CI 待機中も Main は次の準備作業 (例: 次ステップ Specialist の起動準備) を並行して進めてよい。
+
+```bash
+# コミット push 直後に最新 SHA で実行された run id を取得
+SHA=$(git rev-parse HEAD)
+
+# run id 出現を待つループ (race 回避、最大 30 秒)
+for i in 1 2 3 4 5 6; do
+  RUN_ID=$(gh run list --branch "$BRANCH" --workflow CI --commit "$SHA" \
+    --json databaseId --jq '.[0].databaseId')
+  if [ -n "$RUN_ID" ] && [ "$RUN_ID" != "null" ]; then break; fi
+  sleep 5
+done
+
+# バックグラウンドで watch (3 オプション必須: --exit-status / --interval 10 / --compact)
+gh run watch "$RUN_ID" --exit-status --interval 10 --compact \
+  > "$TMPDIR/dev-workflow/ci-watch-$RUN_ID.log" 2>&1 &
+WATCH_PID=$!
+
+# (他作業を進めても良い)
+# 完了待ち + exit code 回収
+wait $WATCH_PID
+RC=$?
+
+if [ $RC -eq 0 ]; then
+  echo "CI PASS"
+else
+  # 失敗内容を確認
+  gh run view "$RUN_ID" --log-failed > "$TMPDIR/dev-workflow/ci-fail-$RUN_ID.log"
+  # → CI 失敗時のリトライフローへ (下記参照)
+fi
+```
+
+#### CI 失敗時のリトライフロー (最大 2 回 → Blocker 化)
+
+CI が失敗した場合、Main は最大 **2 回までリトライ**する。本リポの直近 CI 失敗事例は決定的な問題 (oxfmt Formatting / typecheck) が大半であり、`gh run rerun` ではなく **修正コミットを新規 push する方式**を 1 リトライとカウントする。3 回目の失敗で **Blocker** 化し、In-Progress ユーザー問い合わせ形式でユーザー判断を仰ぐ (作業中断)。
+
+```bash
+# attempt は「失敗 → 修正 → 再 push」のサイクル数を Main が手動でカウント
+ATTEMPT=1   # 1, 2 まで許容、3 で Blocker 化
+
+while [ $ATTEMPT -le 2 ]; do
+  # 1. 失敗内容を Main が解析 (本リポでは過去 100% が oxfmt Formatting)
+  #    対応: vp check --fix && vp check && vp test をローカルで通す
+  # 2. 修正 diff をパス指定で git add → 新規コミット (例: style(...): apply oxfmt)
+  # 3. git push origin "$BRANCH"
+  # 4. 上記の watch ブロックを再実行して新規 RUN_ID を取得
+  # 5. 結果が PASS → ループを抜けてステップ完了確定
+
+  ATTEMPT=$((ATTEMPT + 1))
+done
+
+# 2 回再 push しても失敗継続 → Blocker 化
+# progress.yaml.blockers[] に CI failure エントリを追記してコミット
+# In-Progress ユーザー問い合わせ形式で $TMPDIR/dev-workflow/step<N>-ci-blocker.md を作成
+# ユーザー判断 (Step 3 ロールバック / 設計再検討 / 別アプローチ) を仰ぐ
+```
+
+Blocker 化時の `progress.yaml.blockers[]` 記録様式は `shared-artifacts/references/progress-yaml.md` 参照 (CI failure 用の自由テキスト例が定義されている)。
+
+### Step 9 完了後の Ready 化
+
+Step 9 (Retrospective) 完了コミットの CI が PASS したことを確認した後、Main はサイクル PR を **Draft → Ready 化**する。Ready 化はサイクル完了の最終アクションの一つで、`gh pr ready` を冪等に実行する (既に Ready の PR には実行をスキップ)。
+
+```bash
+# Retrospective コミット直後
+PR_NUMBER=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
+IS_DRAFT=$(gh pr view "$PR_NUMBER" --json isDraft --jq '.isDraft')
+
+if [ "$IS_DRAFT" = "true" ]; then
+  gh pr ready "$PR_NUMBER"
+  echo "PR #$PR_NUMBER: Draft → Ready"
+elif [ "$IS_DRAFT" = "false" ]; then
+  echo "PR #$PR_NUMBER: already Ready (no-op)"
+else
+  echo "Unexpected isDraft value: $IS_DRAFT" >&2
+  exit 1
+fi
+```
+
+Ready 化のタイミングは Step 9 (Retrospective) コミット以降であることが必須 (`gh pr view --json` の `readyForReviewAt` 不在の場合は timeline の `event: ready_for_review` で確認)。
+
+### PR description は GitHub のみで永続化 (リポジトリ内に置かない)
+
+PR 概要 (PR description) は **GitHub の PR body にのみ永続化**し、リポジトリ内には **永続ファイルを作らない**。これは Single-Source-of-Progress 原則 (進捗の真のソースは `progress.yaml` / `TODO.md`) と整合する設計判断であり、`docs/workflow/<identifier>/pr-overview.md` のような派生表現の永続ファイルは禁止。
+
+- 揮発ファイル: `$TMPDIR/dev-workflow/<identifier>-pr-body.md` (各ステップ完了時に Main が再生成 → `gh pr edit --body-file` で送信)
+- 永続先: GitHub PR body のみ
+- 検証: `gh pr view <num> --json body` で取得して内容確認、更新トレースは `gh api repos/<owner>/<repo>/issues/<num>/timeline` で確認
+
+ゲートレビュー (ユーザー承認) では引き続き**成果物そのもの** (`intent-spec.md` / `design.md` 等) をレビュー対象とする。PR description はゲートレビューの一次資料ではなく、外部観測可能性のための公開ビューと位置づける (Artifact-as-Gate-Review 原則)。
+
+---
+
 ## `roadmap-progress.yaml` 更新プロトコル
 
 `progress.yaml.roadmap` が non-null のサイクル (= 上位 roadmap のマイルストーンに紐付いた dev-workflow サイクル) は、自身の進行に応じて `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` の該当マイルストーン状態を**自律的に更新**する責務を持つ。
