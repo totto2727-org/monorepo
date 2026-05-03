@@ -77,10 +77,10 @@ metadata:
 
 ## スターター・テンプレート
 
-最小プロジェクトをテンプレートから始める:
+プロジェクトはテンプレートから開始する:
 
-- [templates/Cargo.toml](./templates/Cargo.toml) — 推奨依存セット
-- [templates/main.rs](./templates/main.rs) — `clap` + `tokio` + `reqwest` + `thiserror` + `miette` の最小例
+- [templates/Cargo.toml](./templates/Cargo.toml) — `references/libraries.md` に登場する **全推奨クレートを含む包括的依存セット (kitchen-sink 方式)**。プロジェクト初期に**不要なクレートを削除して使う**運用とする。理由: 「途中で必要になって追加し忘れる」より「最初から全部入りで不要分を削る」方が選択肢を見落とさない
+- [templates/main.rs](./templates/main.rs) — `clap` + `tokio` + `reqwest` + `thiserror` + `miette` の最小起動例 (Cargo.toml に並ぶ他クレートの利用例ではない、エントリポイントの骨格のみ)
 
 ## 選定の判断手順
 

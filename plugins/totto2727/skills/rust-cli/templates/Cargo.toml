@@ -4,50 +4,125 @@ version = "0.1.0"
 edition = "2021"
 rust-version = "1.88"
 
+# このテンプレートは `references/libraries.md` に列挙された推奨クレートを
+# **すべて含む包括的依存セット** (kitchen-sink 方式)。
+# プロジェクト初期に**不要なものを削除して使う**運用とする。
+# (libraries.md の「Rust 推奨」列に登場するクレートのみを記載。
+#  std で完結する項目 (`std::path`, `std::env`, `println!` 等) や
+#  tokio に内包される項目 (`tokio::fs`, `tokio::process` 等) は
+#  個別エントリを持たない。)
+
 [dependencies]
-# Async runtime
+
+# ============================================================
+# コア (必須カテゴリ)
+# ============================================================
+
+# Async runtime — 非同期 I/O / 並行タスク (`tokio::fs` / `tokio::process` / `tokio::task` を含む)
 tokio = { version = "1", features = ["full"] }
 
-# CLI
+# CLI 引数解析 — サブコマンド / フラグ / env フォールバック
 clap = { version = "4", features = ["derive", "env"] }
 
-# HTTP
+# HTTP クライアント — REST API 呼び出し
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 
-# Serialization
+# シリアライズ
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
-# Validation (optional, for value-range constraints)
+# スキーマ検証 (値域制約; 型整合は serde derive が担う)
 garde = { version = "0.20", features = ["derive"] }
 
-# Errors (single stack: thiserror for enum definition + miette for diagnostics)
+# エラー: thiserror で enum 型エラー定義、miette で診断レポート (`fancy` で色付き出力)
 thiserror = "1"
 miette = { version = "7", features = ["fancy"] }
 
-# Date / time
+# ============================================================
+# I/O・OS (std / tokio で完結しないもののみ)
+# ============================================================
+
+# クロスプラットフォーム ファイル排他 (lock-file 同時書き込み防止)
+fd-lock = "4"
+
+# ============================================================
+# 並行・並列
+# ============================================================
+
+# Future ユーティリティ (`join_all` / `stream::iter` / `buffer_unordered` 等)
+futures = "0.3"
+
+# ============================================================
+# データ・フォーマット
+# ============================================================
+
+# YAML
+serde_yml = "0.0.12"
+
+# TOML
+toml = "0.8"
+
+# 複数ソース統合設定 (env + file + CLI)
+figment = { version = "0.10", features = ["toml", "env"] }
+
+# 日付・時刻 (TZ-aware / DST 安全)
 jiff = { version = "0.1", features = ["serde"] }
 
-# Logging
+# Glob パターンマッチ
+globset = "0.4"
+
+# gitignore 尊重ディレクトリ走査
+ignore = "0.4"
+
+# Diff (text / binary, dry-run プレビュー用)
+similar = "2"
+
+# ============================================================
+# 観測・出力
+# ============================================================
+
+# 構造化ログ (単純 stdout は標準 `println!` / `eprintln!` を直接使う)
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
-# Lightweight CLI UI (single-purpose crates; combine as needed)
-# Output responsibility split: tracing = structured logs,
-# std `println!`/`eprintln!` = plain stdout/stderr, owo-colors = colorization
-inquire = "0.7"
-indicatif = "0.17"
+# 色付け (装飾専用、NO_COLOR 環境変数を尊重する `if_supports_color()` あり)
 owo-colors = "4"
 
-# Advanced declarative UI (uncomment only when full-screen TUI is required;
-# ratatui is pulled in transitively — do not depend on it directly)
-# tui-realm = "2"
+# ============================================================
+# UI: 軽量 CLI (単発プロンプト / 進捗表示)
+# ============================================================
 
-# Filesystem helpers
-camino = { version = "1", features = ["serde1"] }
+# 単発プロンプト (Select / MultiSelect / Text / Password / Confirm 等)
+inquire = "0.7"
+
+# プログレスバー / スピナー
+indicatif = "0.17"
+
+# ============================================================
+# UI: 高度な宣言的 UI
+# ============================================================
+
+# フル画面 TUI (Elm Architecture)
+# - 軽量 CLI で完結するなら削除して良い
+# - 表 / 多列リスト等の複雑出力を部分採用するだけでも残置価値あり
+# - `ratatui` は transitive dep として入る — 直接依存しない
+tui-realm = "2"
 
 [dev-dependencies]
+
+# ============================================================
+# テスト
+# ============================================================
+# (単体テストは std `#[test]` / `#[tokio::test]` で完結 — 追加クレート不要)
+
+# アサーション diff (失敗時に視覚的差分)
 pretty_assertions = "1"
+
+# Snapshot テスト (構造化出力比較)
 insta = "1"
+
+# HTTP モック (reqwest 系の API テスト)
 mockito = "1"
+
+# 一時ファイル / 一時ディレクトリ (RAII で自動削除)
 tempfile = "3"
