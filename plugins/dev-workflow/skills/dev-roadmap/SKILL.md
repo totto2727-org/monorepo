@@ -397,10 +397,10 @@ graph LR
 
 `docs/retrospective/` 配下は `dev-workflow` retrospective と `dev-roadmap` retrospective が**フラット集約**で共存する (`docs/adr/` と同パターン)。両者の名前空間衝突は **roadmap 側に `roadmap-` prefix を付与**することで回避する:
 
-| 種別                                  | 保存先パス                                   | 例                                                       |
-| ------------------------------------- | -------------------------------------------- | -------------------------------------------------------- |
-| `dev-workflow` サイクル retrospective | `docs/retrospective/<identifier>.md`         | `docs/retrospective/2026-04-29-add-dev-roadmap-skill.md` |
-| `dev-roadmap` retrospective           | `docs/retrospective/roadmap-<roadmap-id>.md` | `docs/retrospective/roadmap-oauth-rollout.md`            |
+| 種別                                  | 保存先パス                                   | 例                                            |
+| ------------------------------------- | -------------------------------------------- | --------------------------------------------- |
+| `dev-workflow` サイクル retrospective | `docs/retrospective/<identifier>.md`         | `docs/retrospective/auth-foundation.md`       |
+| `dev-roadmap` retrospective           | `docs/retrospective/roadmap-<roadmap-id>.md` | `docs/retrospective/roadmap-oauth-rollout.md` |
 
 この prefix 命名規則は `shared-artifacts/references/roadmap-retrospective.md` にも明記する。`gls docs/retrospective/roadmap-*.md` で roadmap retrospective を一括抽出可能。
 

@@ -15,7 +15,7 @@
 - **主要制約 (intent-spec.md:122-136):**
   - 全成果物は Markdown / YAML 形式に限定 (build ツール非依存)
   - Mermaid コードブロックで図示可、追加レンダラ不要
-  - スキル frontmatter スキーマは既存 `dev-workflow` 系と同一 (`name` / `description` / `metadata: {author, version}`)
+  - スキル frontmatter スキーマは既存 `dev-workflow` 系と同一 (`name` / `description` / `metadata: {author}`)
   - `dev-workflow` の 9 つの基本方針 (Main-Centric Orchestration / Single-Source-of-Progress / One-Shot Specialist & Within-Step Persistence / Gate-Based Progression / Artifact-Driven Handoff / Project-Rule Precedence / Commit-Based Resumability / Clean-Transition / Artifact-as-Gate-Review / Report-Based Confirmation) を `dev-roadmap` も全継承
   - 既存サイクル `2026-04-26-add-qa-design-step/` の内容差分は 0 (後方互換厳守、リネーム後パス基準、成功基準 #12)
   - ドキュメント言語は Intent Spec と既存 SKILL の本文に倣い**日本語**で記述 (intent-spec.md:136 の制約に従い、本文は日本語、見出しキーワード・コードブロックは英語混在を許容)

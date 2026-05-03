@@ -554,7 +554,7 @@ Blocker 指摘があった場合のループ構造。Step 6 と Step 7 は別ス
    - 存在しない、または新規サイクル: 3 へ進む
 3. Main はユーザーと `<identifier>` の命名を合意し、`docs/workflow/<identifier>/` を作成
 4. `progress.yaml` を初期化 (`current_step: Step 1`, 空の `completed_steps` 等) してコミット
-5. **roadmap 配下サイクルの場合の追加初期化** (ステップ 4'): ユーザーから `<roadmap-id>` および `<milestone-id>` の指定がある場合 (= 上位 roadmap のマイルストーンから起動された場合)、`progress.yaml` のトップレベル `roadmap` ブロックを `{id: <roadmap-id>, milestone: {id: <milestone-id>}}` で初期化する。同時に `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` の該当 `milestones[].status` を `planned → active` に遷移させ、`milestones[].workflow_identifiers[]` に自身の `<identifier>` を append し、`updated_at` を更新する (詳細は本ファイルの「`roadmap-progress.yaml` 更新プロトコル」セクション参照)。roadmap 配下でない独立サイクル (= `<roadmap-id>` 未指定) では `progress.yaml.roadmap` は `null` のまま (デフォルト) とし、本ステップ全体をスキップする。
+5. **roadmap 配下サイクルの場合の追加初期化**: ユーザーから `<roadmap-id>` および `<milestone-id>` の指定がある場合 (= 上位 roadmap のマイルストーンから起動された場合)、`progress.yaml` のトップレベル `roadmap` ブロックを `{id: <roadmap-id>, milestone: {id: <milestone-id>}}` で初期化する。同時に `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` の該当 `milestones[].status` を `planned → active` に遷移させ、`milestones[].workflow_identifiers[]` に自身の `<identifier>` を append し、`updated_at` を更新する (詳細は本ファイルの「`roadmap-progress.yaml` 更新プロトコル」セクション参照)。roadmap 配下でない独立サイクル (= `<roadmap-id>` 未指定) では `progress.yaml.roadmap` は `null` のまま (デフォルト) とし、本ステップ全体をスキップする。
 6. Step 1 から着手する
 
 ### 2. ステップ実行ループ (全ステップ共通)
@@ -772,10 +772,10 @@ docs(dev-workflow/<identifier>): close cycle with retrospective
 
 本バージョンでは以下 2 タイミングでのみ `roadmap-progress.yaml` を更新する。
 
-| タイミング                                                                                                                                   | 更新内容                                                                                                                                                                                                                                                                                                                                                                                    |
-| -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **(a) サイクル開始時** (「ワークフロー開始時」のステップ 4'「roadmap 配下サイクルの追加初期化」と同タイミング、`progress.yaml` 初期化と一体) | 該当 `milestones[].status` を `planned → active` に遷移、`milestones[].workflow_identifiers[]` に自身の `<identifier>` を append、`roadmap-progress.yaml.updated_at` を更新                                                                                                                                                                                                                 |
-| **(c) サイクル完了時** (= **Step 9 Retrospective** 完了時、9 ステップ体系)                                                                   | 該当 `milestones[].status` を `active → completed` に遷移、`roadmap-progress.yaml.updated_at` を更新。並行サイクルが残っている場合 (= `workflow_identifiers[]` の他のサイクルがまだ `active`) は、当該マイルストーンの最終状態判定 (例:「全 N サイクル完了で `completed`」「最初の 1 サイクル完了で `completed`」のいずれを採るか) をユーザー判断に委ね、`dev-roadmap` 側の手順で確定させる |
+| タイミング                                                                                                                                  | 更新内容                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **(a) サイクル開始時** (「ワークフロー開始時」のステップ 5「roadmap 配下サイクルの追加初期化」と同タイミング、`progress.yaml` 初期化と一体) | 該当 `milestones[].status` を `planned → active` に遷移、`milestones[].workflow_identifiers[]` に自身の `<identifier>` を append、`roadmap-progress.yaml.updated_at` を更新                                                                                                                                                                                                                 |
+| **(c) サイクル完了時** (= **Step 9 Retrospective** 完了時、9 ステップ体系)                                                                  | 該当 `milestones[].status` を `active → completed` に遷移、`roadmap-progress.yaml.updated_at` を更新。並行サイクルが残っている場合 (= `workflow_identifiers[]` の他のサイクルがまだ `active`) は、当該マイルストーンの最終状態判定 (例:「全 N サイクル完了で `completed`」「最初の 1 サイクル完了で `completed`」のいずれを採るか) をユーザー判断に委ね、`dev-roadmap` 側の手順で確定させる |
 
 ### (b) 各ステップ完了時の進捗サマリ反映 — 本バージョンでは scope out
 
@@ -789,7 +789,10 @@ docs(dev-workflow/<identifier>): close cycle with retrospective
 
 - (a) サイクル開始時の `roadmap-progress.yaml` 更新は **`progress.yaml` 初期化コミットに同梱**する (別コミットを切らない)
 - (c) サイクル完了時の `roadmap-progress.yaml` 更新は **Step 9 Retrospective 完了コミットに同梱**する
-- コミットメッセージ例: `docs(dev-workflow/<identifier>): link milestone <milestone-id> in roadmap <roadmap-id>` (a) サイクル開始時 / `docs(dev-workflow/<identifier>): complete milestone <milestone-id> in roadmap <roadmap-id>` (c) サイクル完了時。`workflow_identifiers[]` は append-only で削除しない (= unlink 操作は存在しない、`complete` は `status: active → completed` 遷移を表す)。path 表記ではなくスキル名スコープ `dev-workflow/<identifier>` を維持
+- コミットメッセージ例 (同梱形式、括弧で roadmap 情報を補記):
+  - (a) サイクル開始時: `docs(dev-workflow/<identifier>): initialize cycle (linked to roadmap <roadmap-id> milestone <milestone-id>)`
+  - (c) サイクル完了時: `docs(dev-workflow/<identifier>): close cycle with retrospective (completed milestone <milestone-id> in roadmap <roadmap-id>)`
+  - `workflow_identifiers[]` は append-only で削除しない (= unlink 操作は存在しない、`completed` は `status: active → completed` 遷移を表す)。スキル名スコープ `dev-workflow/<identifier>` を維持
 - ファイル指定: `git add` は明示的にパス指定 (`-A` / `.` 禁止、`specialist-common` の Git ガードレールと整合)
 
 ### 並行サイクル時の競合回避

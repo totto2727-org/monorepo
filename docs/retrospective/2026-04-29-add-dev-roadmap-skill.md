@@ -57,7 +57,7 @@
 - **観測**: holistic reviewer が指摘した 2 件 — (a) TC-029 / TC-030 が `ggrep` 行内マッチを要求するが、specialist-common/SKILL.md frontmatter の Specialist 列挙は YAML 多行形式で改行を含むため fail、(b) TC-017 / TC-026 / TC-028 が `git diff --find-renames <baseline>..HEAD -- docs/workflow/<cycle>/` 単一パス指定で rename detection を機能させられず誤陽性 (`+1893 insertions` 等)
 - **発見ステップ**: Step 7 (`holistic` Major-2 / Major-3)
 - **根本原因**: qa-design.md 作成時に grep ベース TC を実際の対象ファイル状態 (frontmatter 多行 description の構造、git rename detection の pathspec 要件) で動作確認せず、想定で書いた。前提崩壊リカバリで qa-design を再実行した際も再検証されなかった
-- **解消経路**: Step 8 Validator が代替手段で実測 — TC-029 は `gawk \| gtr ',' '\n' \| ggrep -oE ... \| gsort -u \| gwc -l = 12` のカウント方式に変更、TC-028 は `--find-renames -M50% docs/workflow/<cycle>/ docs/dev-workflow/<cycle>/` で双方 pathspec 指定。qa-design.md 自体は immutable 原則で修正せず、validation-evidence/ の補助スクリプトで観測手段を補正
+- **解消経路**: Step 8 Validator が代替手段で実測 — TC-029 は `gawk \| gtr ',' '\n' \| ggrep -oE ... \| gsort -u \| gwc -l = 12` のカウント方式に変更、TC-028 は `--find-renames -M50% docs/workflow/<cycle>/ docs/dev-workflow/<cycle>/` で双方 pathspec 指定。qa-design.md 自体は immutable 原則で修正せず、`validation-report.md` のインライン記録で観測手段を補正 (Round 2 で補助ディレクトリ `validation-evidence/` は廃止し、検証ログを直接 validation-report に埋め込み)
 
 ### 課題 3: 旧 10 ステップ番号 (Step 8 / 9 / 10) が `specialist-roadmap-retrospective-writer/SKILL.md` に混入
 
@@ -104,7 +104,7 @@
 - **`planner`**: 「対象ファイル範囲が機械的に列挙できるタスクは `grep` / `find` で事前網羅し、対象数を task-plan に明記する」を作業手順に追加
 - **`implementer`**: 該当なし (本サイクル T0-T15 全 16 タスクは仕様通り完遂)
 - **`reviewer`**: 起動時に「成果物パス必須」を Main から再強調する運用ルール (本サイクルで `backward-compatibility` reviewer がチャット返却のみだった件への対処)
-- **`validator`**: 該当なし (TC-029 / TC-028 の観測手段補正を validation-evidence/ で適切にカバー)
+- **`validator`**: 該当なし (TC-029 / TC-028 の観測手段補正は `validation-report.md` のインライン記録でカバー、補助ディレクトリは Round 2 で廃止)
 - **`retrospective-writer`**: 該当なし (本サイクルで再活性化なし、品質基準遵守)
 
 ## 再利用可能な知見

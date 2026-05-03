@@ -23,12 +23,12 @@
 
 `docs/retrospective/` 配下は `dev-workflow` retrospective と `dev-roadmap` retrospective が**フラット集約**で共存する (`docs/adr/` と同パターン)。両者の名前空間衝突は **roadmap 側に `roadmap-` prefix を付与**することで回避する:
 
-| 種別                        | 保存先                                       | 例                                                       |
-| --------------------------- | -------------------------------------------- | -------------------------------------------------------- |
-| `dev-workflow` 個別サイクル | `docs/retrospective/<identifier>.md`         | `docs/retrospective/2026-04-29-add-dev-roadmap-skill.md` |
-| `dev-roadmap` ロードマップ  | `docs/retrospective/roadmap-<roadmap-id>.md` | `docs/retrospective/roadmap-oauth-rollout.md`            |
+| 種別                        | 保存先                                       | 例                                            |
+| --------------------------- | -------------------------------------------- | --------------------------------------------- |
+| `dev-workflow` 個別サイクル | `docs/retrospective/<identifier>.md`         | `docs/retrospective/auth-foundation.md`       |
+| `dev-roadmap` ロードマップ  | `docs/retrospective/roadmap-<roadmap-id>.md` | `docs/retrospective/roadmap-oauth-rollout.md` |
 
-この `roadmap-` prefix 命名規則は本ドキュメントおよび `dev-roadmap/SKILL.md` で重複明記する (Validation TC-033 の検証対象、`grep` 検索で `roadmap-<roadmap-id>.md` または `prefix.*roadmap` 等のいずれかが ≥ 1 件検出される必要がある)。
+この `roadmap-` prefix 命名規則は本ドキュメントおよび `dev-roadmap/SKILL.md` で重複明記する (集約形式で workflow と roadmap が同居するディレクトリでの命名衝突回避)。
 
 `gls docs/retrospective/roadmap-*.md` で roadmap retrospective を一括抽出可能。将来ファイル数が増えて検索性が劣化した時点で `docs/retrospective/roadmap/<roadmap-id>.md` のサブディレクトリ分離方式へ機械的に移行できる余地を残す (本バージョンでは prefix 案を採用)。
 

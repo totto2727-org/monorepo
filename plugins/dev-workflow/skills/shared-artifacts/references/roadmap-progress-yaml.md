@@ -114,10 +114,10 @@ milestones:
 
 ユーザー単純化方針 (「紐付けだけできれば良い」) に基づき、本バージョンでは以下 **2 タイミングのみ**で更新する:
 
-| タイミング             | 詳細                                                                                                                                                                                                                                                    |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **(a) サイクル開始時** | `progress.yaml` 初期化と同タイミング (`dev-workflow/SKILL.md` 「ワークフロー開始時」ステップ 4')。該当 `milestones[].status` を `planned → active` に遷移、`milestones[].workflow_identifiers[]` に自身の `<identifier>` を append、`updated_at` を更新 |
-| **(c) サイクル完了時** | **`dev-workflow` Step 9 Retrospective 完了時** (9 ステップ体系)。該当 `milestones[].status` を `active → completed` に遷移、`updated_at` を更新                                                                                                         |
+| タイミング             | 詳細                                                                                                                                                                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **(a) サイクル開始時** | `progress.yaml` 初期化と同タイミング (`dev-workflow/SKILL.md` 「ワークフロー開始時」ステップ 5)。該当 `milestones[].status` を `planned → active` に遷移、`milestones[].workflow_identifiers[]` に自身の `<identifier>` を append、`updated_at` を更新 |
+| **(c) サイクル完了時** | **`dev-workflow` Step 9 Retrospective 完了時** (9 ステップ体系)。該当 `milestones[].status` を `active → completed` に遷移、`updated_at` を更新                                                                                                        |
 
 #### 本バージョンで scope out するタイミング: (b) 各ステップ完了時の進捗サマリ反映
 
@@ -141,7 +141,7 @@ milestones:
 - **(c) サイクル完了時** の `roadmap-progress.yaml` 更新: `dev-workflow` Step 9 Retrospective 完了コミットに**同梱**
 - コミットメッセージ例:
   - 開始時: `docs(dev-workflow/<identifier>): initialize cycle (linked to roadmap <roadmap-id> milestone <milestone-id>)`
-  - 完了時: `docs(dev-workflow/<identifier>): close cycle with retrospective (roadmap milestone <milestone-id> completed)`
+  - 完了時: `docs(dev-workflow/<identifier>): close cycle with retrospective (completed milestone <milestone-id> in roadmap <roadmap-id>)`
 - **`git add` は明示的にパス指定** (`-A` / `.` 禁止、`specialist-common` Git ガードレールと整合)
 
 #### 並行サイクル時の競合回避

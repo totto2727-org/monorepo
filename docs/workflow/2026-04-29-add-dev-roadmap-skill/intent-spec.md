@@ -125,7 +125,7 @@ Step 3 では `dev-roadmap` 自身は新たな Specialist を起動しない。*
 
 - 全成果物は Markdown / YAML 形式とし、追加の build ツールやレンダラを要求しない
 - ロードマップ依存グラフは Mermaid コードブロックで表現可 (GitHub 標準レンダラに依存、追加ツール不可)
-- スキル frontmatter のスキーマは既存 `dev-workflow` 系スキルと同一 (name / description / metadata: { author, version })
+- スキル frontmatter のスキーマは既存 `dev-workflow` 系スキルと同一 (name / description / metadata: { author })
 
 ### 規範的制約
 
