@@ -11,7 +11,7 @@ test "point_in_ring - floating point on edge" {
     @type.XY::new(-115.1752799, 36.0874526),
     ring,
   )
-  inspect(result, content="Boundary")
+  debug_inspect(result, content="Boundary")
 }
 
 ///|
@@ -27,7 +27,7 @@ test "point_in_ring - floating point on other edge" {
     @type.XY::new(-115.1752799, 36.0873974),
     ring,
   )
-  inspect(result, content="Boundary")
+  debug_inspect(result, content="Boundary")
 }
 
 ///|
@@ -43,7 +43,7 @@ test "point_in_ring - floating point on tweaked edge" {
     @type.XY::new(-115.1752799, 36.0874528),
     ring,
   )
-  inspect(result, content="Boundary")
+  debug_inspect(result, content="Boundary")
 }
 
 ///|
@@ -59,7 +59,7 @@ test "point_in_ring - floating point on other tweaked edge" {
     @type.XY::new(-115.1752799, 36.0873974),
     ring,
   )
-  inspect(result, content="Boundary")
+  debug_inspect(result, content="Boundary")
 }
 
 ///|
@@ -71,7 +71,7 @@ test "point_in_ring - complex case 1" {
     @type.XY::new(0.9500000000001119, 0.9500000000001101),
   ])
   let result = @point_in_ring.point_in_ring(@type.XY::new(16.8, 16.8), ring)
-  inspect(result, content="Outside")
+  debug_inspect(result, content="Outside")
 }
 
 ///|
@@ -85,5 +85,5 @@ test "point_in_ring - complex case 2" {
   ])
   let point = @type.XY::new(51.6476999685446, 32.65383784687809)
   let result = @point_in_ring.point_in_ring(point, ring)
-  inspect(result, content="Outside")
+  debug_inspect(result, content="Outside")
 }

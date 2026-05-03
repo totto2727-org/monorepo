@@ -11,7 +11,7 @@ test "point_in_ring - floating simple bottom edge" {
     @type.XY::new(1.511111111111, 1.111111111111),
     ring,
   )
-  inspect(result, content="Boundary")
+  debug_inspect(result, content="Boundary")
 }
 
 ///|
@@ -27,7 +27,7 @@ test "point_in_ring - floating simple top edge" {
     @type.XY::new(1.511111111111, 2.111111111111),
     ring,
   )
-  inspect(result, content="Boundary")
+  debug_inspect(result, content="Boundary")
 }
 
 ///|
@@ -43,7 +43,7 @@ test "point_in_ring - floating simple left edge" {
     @type.XY::new(1.111111111111, 1.511111111111),
     ring,
   )
-  inspect(result, content="Boundary")
+  debug_inspect(result, content="Boundary")
 }
 
 ///|
@@ -59,7 +59,7 @@ test "point_in_ring - floating simple right edge" {
     @type.XY::new(2.111111111111, 1.511111111111),
     ring,
   )
-  inspect(result, content="Boundary")
+  debug_inspect(result, content="Boundary")
 }
 
 ///|
@@ -75,7 +75,7 @@ test "point_in_ring - floating simple just inside left" {
     @type.XY::new(1.1111111111111, 1.511111111111),
     ring,
   )
-  inspect(result, content="Inside")
+  debug_inspect(result, content="Inside")
 }
 
 ///|
@@ -91,5 +91,5 @@ test "point_in_ring - floating simple just outside left" {
     @type.XY::new(1.111111111110, 1.511111111111),
     ring,
   )
-  inspect(result, content="Outside")
+  debug_inspect(result, content="Outside")
 }

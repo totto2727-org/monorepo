@@ -1,0 +1,20 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "totto2727/geo/util/point_in_ring/test/internal/fixture"
+
+import {
+  "totto2727/geo/type",
+}
+
+// Values
+pub let switzerland : @type.Ring[@type.XY]
+
+pub let switzerlandKinked : @type.Ring[@type.XY]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

@@ -3,7 +3,7 @@ pub(all) enum Coordinates {
   XY(Double, Double)
   XYZ_OR_XYM(Double, Double, Double)
   XYZM(Double, Double, Double, Double)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub impl ToJson for Coordinates with to_json(self) {

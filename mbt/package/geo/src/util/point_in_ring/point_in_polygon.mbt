@@ -3,7 +3,7 @@ pub enum PointInRingResult {
   Inside
   Outside
   Boundary
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 pub fn[Coord : @type.Coord2DTrait, Ring : @type.RingTrait] point_in_ring(

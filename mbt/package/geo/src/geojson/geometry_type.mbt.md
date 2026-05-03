@@ -84,7 +84,7 @@ test "GeometryType ToJson::to_json - geometry collection" {
 ///|
 test "GeometryType FromJson::from_json - point" {
   let t : GeometryType = @json.from_json("Point")
-  inspect(t, content="Point")
+  debug_inspect(t, content="Point")
 }
 ```
 
@@ -94,7 +94,7 @@ test "GeometryType FromJson::from_json - point" {
 ///|
 test "GeometryType FromJson::from_json - line string" {
   let t : GeometryType = @json.from_json("LineString")
-  inspect(t, content="LineString")
+  debug_inspect(t, content="LineString")
 }
 ```
 
@@ -104,7 +104,7 @@ test "GeometryType FromJson::from_json - line string" {
 ///|
 test "GeometryType FromJson::from_json - polygon" {
   let t : GeometryType = @json.from_json("Polygon")
-  inspect(t, content="Polygon")
+  debug_inspect(t, content="Polygon")
 }
 ```
 
@@ -114,7 +114,7 @@ test "GeometryType FromJson::from_json - polygon" {
 ///|
 test "GeometryType FromJson::from_json - multi point" {
   let t : GeometryType = @json.from_json("MultiPoint")
-  inspect(t, content="MultiPoint")
+  debug_inspect(t, content="MultiPoint")
 }
 ```
 
@@ -124,7 +124,7 @@ test "GeometryType FromJson::from_json - multi point" {
 ///|
 test "GeometryType FromJson::from_json - multi line string" {
   let t : GeometryType = @json.from_json("MultiLineString")
-  inspect(t, content="MultiLineString")
+  debug_inspect(t, content="MultiLineString")
 }
 ```
 
@@ -134,7 +134,7 @@ test "GeometryType FromJson::from_json - multi line string" {
 ///|
 test "GeometryType FromJson::from_json - multi polygon" {
   let t : GeometryType = @json.from_json("MultiPolygon")
-  inspect(t, content="MultiPolygon")
+  debug_inspect(t, content="MultiPolygon")
 }
 ```
 
@@ -144,7 +144,7 @@ test "GeometryType FromJson::from_json - multi polygon" {
 ///|
 test "GeometryType FromJson::from_json - geometry collection" {
   let t : GeometryType = @json.from_json("GeometryCollection")
-  inspect(t, content="GeometryCollection")
+  debug_inspect(t, content="GeometryCollection")
 }
 ```
 

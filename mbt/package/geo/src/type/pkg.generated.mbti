@@ -1,0 +1,173 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "totto2727/geo/type"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+
+// Errors
+pub suberror NonExistCoordError
+
+// Types and methods
+pub struct GeometryCollection(Array[&GeometryTrait]) derive(@debug.Debug)
+pub fn GeometryCollection::new(Array[&GeometryTrait]) -> Self
+pub impl GeometryTrait for GeometryCollection
+pub impl MultiGeometryTrait for GeometryCollection
+
+pub struct Line[Coord] {
+  start : Coord
+  end : Coord
+} derive(Eq, @debug.Debug)
+pub fn[Coord : Coord2DTrait] Line::new(Coord, Coord) -> Self[Coord]
+pub impl[Coord : Coord2DTrait] GeometryTrait for Line[Coord]
+pub impl[Coord : Coord2DTrait] LineTrait for Line[Coord]
+
+pub struct LineString[Coord](Array[Coord]) derive(Eq, @debug.Debug)
+pub fn[Coord : Coord2DTrait] LineString::new(Array[Coord]) -> Self[Coord]
+pub impl[Coord : Coord2DTrait] GeometryTrait for LineString[Coord]
+pub impl[Coord : Coord2DTrait] LineStringTrait for LineString[Coord]
+
+pub struct MultiLineString[Coord](Array[LineString[Coord]]) derive(Eq, @debug.Debug)
+pub fn[Coord : Coord2DTrait] MultiLineString::new(Array[LineString[Coord]]) -> Self[Coord]
+pub impl[Coord : Coord2DTrait] GeometryTrait for MultiLineString[Coord]
+pub impl[Coord : Coord2DTrait] MultiGeometryTrait for MultiLineString[Coord]
+
+pub struct MultiPoint[Coord](Array[Point[Coord]]) derive(Eq, @debug.Debug)
+pub fn[Coord : Coord2DTrait] MultiPoint::new(Array[Point[Coord]]) -> Self[Coord]
+pub impl[Coord : Coord2DTrait] GeometryTrait for MultiPoint[Coord]
+pub impl[Coord : Coord2DTrait] MultiGeometryTrait for MultiPoint[Coord]
+
+pub struct MultiPolygon[Coord](Array[Polygon[Coord]]) derive(Eq, @debug.Debug)
+pub fn[Coord : Coord2DTrait] MultiPolygon::new(Array[Polygon[Coord]]) -> Self[Coord]
+pub impl[Coord : Coord2DTrait] GeometryTrait for MultiPolygon[Coord]
+pub impl[Coord : Coord2DTrait] MultiGeometryTrait for MultiPolygon[Coord]
+
+pub struct Point[Coord](Coord) derive(Eq, @debug.Debug)
+pub fn[Coord : Coord2DTrait] Point::new(Coord) -> Self[Coord]
+pub impl[Coord : Coord2DTrait] GeometryTrait for Point[Coord]
+pub impl[Coord : Coord2DTrait] PointTrait for Point[Coord]
+
+pub struct Polygon[Coord] {
+  exterior : Ring[Coord]
+  interior_array : Array[Ring[Coord]]
+} derive(Eq, @debug.Debug)
+pub fn[Coord : Coord2DTrait] Polygon::new(Ring[Coord], interior_array? : Array[Ring[Coord]]) -> Self[Coord]
+pub impl[Coord : Coord2DTrait] GeometryTrait for Polygon[Coord]
+pub impl[Coord : Coord2DTrait] PolygonTrait for Polygon[Coord]
+
+#alias(BBox)
+pub struct Rect[Coord] {
+  min : Coord
+  max : Coord
+} derive(Eq, @debug.Debug)
+pub fn[Coord : Coord2DTrait] Rect::new(Coord, Coord) -> Self[Coord]
+pub impl[Coord : Coord2DTrait] GeometryTrait for Rect[Coord]
+pub impl[Coord : Coord2DTrait] PolygonTrait for Rect[Coord]
+
+pub struct Ring[Coord](Array[Coord]) derive(Eq, @debug.Debug)
+pub fn[Coord : Coord2DTrait] Ring::new(Array[Coord]) -> Self[Coord]
+pub impl[Coord : Coord2DTrait] GeometryTrait for Ring[Coord]
+pub impl[Coord : Coord2DTrait] LineStringTrait for Ring[Coord]
+pub impl[Coord : Coord2DTrait] RingTrait for Ring[Coord]
+
+pub struct Triangle[Coord] {
+  a : Coord
+  b : Coord
+  c : Coord
+} derive(Eq, @debug.Debug)
+pub fn[Coord : Coord2DTrait] Triangle::new(Coord, Coord, Coord) -> Self[Coord]
+pub impl[Coord : Coord2DTrait] GeometryTrait for Triangle[Coord]
+pub impl[Coord : Coord2DTrait] PolygonTrait for Triangle[Coord]
+
+pub struct XY {
+  x : Double
+  y : Double
+} derive(Eq, @debug.Debug)
+pub fn XY::new(Double, Double) -> Self
+pub impl Add for XY
+pub impl Neg for XY
+pub impl Sub for XY
+pub impl Coord2DTrait for XY
+pub impl CoordTrait for XY
+
+pub struct XYZ {
+  x : Double
+  y : Double
+  z : Double
+} derive(Eq, @debug.Debug)
+pub fn XYZ::new(Double, Double, Double) -> Self
+pub impl Add for XYZ
+pub impl Neg for XYZ
+pub impl Sub for XYZ
+pub impl Coord2DTrait for XYZ
+pub impl Coord3DTrait for XYZ
+pub impl CoordTrait for XYZ
+
+// Type aliases
+
+// Traits
+pub(open) trait Coord2DTrait : CoordTrait {
+  x(Self) -> Double
+  y(Self) -> Double
+  xy(Self) -> XY = _
+  set_x(Self, Double) -> Self
+  set_y(Self, Double) -> Self
+}
+
+pub(open) trait Coord3DTrait : Coord2DTrait {
+  z(Self) -> Double
+  xyz(Self) -> XYZ = _
+  set_z(Self, Double) -> Self
+}
+
+pub(open) trait CoordTrait : Add + Sub + Neg + @debug.Debug {
+  mul(Self, Double) -> Self
+  div(Self, Double) -> Self
+  dot(Self, Self) -> Double
+}
+
+pub trait GeometryTrait : @debug.Debug {
+  coord_array(Self) -> Array[XY]
+  point_array(Self) -> Array[Point[XY]]
+  bbox(Self) -> Rect[XY] raise NonExistCoordError
+}
+
+pub trait LineStringTrait : GeometryTrait {
+  line_string(Self) -> LineString[XY]
+  line_array(Self) -> Array[Line[XY]]
+}
+
+pub trait LineTrait : GeometryTrait {
+  line(Self) -> Line[XY]
+  start(Self) -> XY
+  end(Self) -> XY
+}
+
+pub trait LngLatTrait : Coord2DTrait {
+  to_degrees(Self) -> Self
+  to_radians(Self) -> Self
+}
+
+pub trait MultiGeometryTrait : GeometryTrait {
+  geometry_array(Self) -> Array[&GeometryTrait]
+}
+pub fn &MultiGeometryTrait::coord_array(Self) -> Array[XY]
+
+pub trait PointTrait : GeometryTrait {
+  coord(Self) -> XY
+}
+pub fn &PointTrait::bbox(Self) -> Rect[XY]
+pub fn &PointTrait::coordArray(Self) -> Array[XY]
+
+pub trait PolygonTrait : GeometryTrait {
+  exterior(Self) -> Ring[XY]
+  interior_array(Self) -> Array[Ring[XY]]
+}
+pub fn &PolygonTrait::coordArray(Self) -> Array[XY]
+
+pub trait RingTrait : LineStringTrait {
+  ring(Self) -> Ring[XY]
+}
+

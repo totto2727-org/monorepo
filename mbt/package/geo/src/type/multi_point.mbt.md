@@ -20,7 +20,9 @@ Represents a collection of points.
 test {
   let point1 = Point::new(XY::new(1.0, 1.0))
   let multi_point = MultiPoint::new([point1])
-  inspect(multi_point, content="MultiPoint([Point({x: 1, y: 1})])")
+  debug_inspect(multi_point, content=(
+    #|MultiPoint([Point({ x: 1, y: 1 })])
+  ))
 }
 ```
 
@@ -34,7 +36,12 @@ test {
   let point1 = Point::new(XY::new(1.0, 1.0))
   let point2 = Point::new(XY::new(2.0, 2.0))
   let multi_point = MultiPoint::new([point1, point2])
-  inspect(multi_point.coord_array(), content="[{x: 1, y: 1}, {x: 2, y: 2}]")
+  debug_inspect(
+    multi_point.coord_array(),
+    content=(
+      #|[{ x: 1, y: 1 }, { x: 2, y: 2 }]
+    ),
+  )
 }
 ```
 
@@ -47,7 +54,9 @@ test {
 test {
   let point1 = Point::new(XY::new(1.0, 1.0))
   let multi_point = MultiPoint::new([point1])
-  inspect(multi_point.geometry_array(), content="[Point({x: 1, y: 1})]")
+  debug_inspect(multi_point.geometry_array(), content=(
+    #|[Point({ x: 1, y: 1 })]
+  ))
 }
 ```
 
@@ -66,7 +75,12 @@ test {
   let point1 = Point::new(XY::new(1.0, 1.0))
   let point2 = Point::new(XY::new(2.0, 2.0))
   let multi_point = MultiPoint::new([point1, point2])
-  inspect(multi_point.bbox(), content="{min: {x: 1, y: 1}, max: {x: 2, y: 2}}")
+  debug_inspect(
+    multi_point.bbox(),
+    content=(
+      #|{ min: { x: 1, y: 1 }, max: { x: 2, y: 2 } }
+    ),
+  )
 }
 ```
 

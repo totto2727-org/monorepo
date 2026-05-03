@@ -2,7 +2,7 @@
 pub struct XY {
   x : Double
   y : Double
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 pub fn XY::new(x : Double, y : Double) -> XY {

@@ -2,7 +2,7 @@
 pub(all) enum ID {
   String(String)
   Number(Double)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub impl ToJson for ID with to_json(self) {

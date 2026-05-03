@@ -21,7 +21,9 @@
 ///|
 test "FeatureCollection new" {
   let fc = FeatureCollection::new([])
-  inspect(fc, content="{features: []}")
+  debug_inspect(fc, content=(
+    #|{ features: [] }
+  ))
 }
 ```
 
@@ -40,7 +42,7 @@ test "FeatureCollection BBoxTrait::bbox" {
       geometry=Some(Geometry::Point(Point::new(Coordinates::XY(10.0, 10.0)))),
     ),
   ])
-  inspect(fc.bbox(), content="BBox2D(0, 0, 10, 10)")
+  debug_inspect(fc.bbox(), content="BBox2D(0, 0, 10, 10)")
 }
 ```
 
@@ -93,9 +95,11 @@ test "FeatureCollection FromJson::from_json - With Features" {
     "type": "FeatureCollection",
     "features": [{ "type": "Feature", "geometry": null, "properties": null }],
   })
-  inspect(
+  debug_inspect(
     fc,
-    content="{features: [{geometry: None, properties: None, id: None}]}",
+    content=(
+      #|{ features: [{ geometry: None, properties: None, id: None }] }
+    ),
   )
 }
 ```
@@ -109,6 +113,8 @@ test "FeatureCollection FromJson::from_json - Empty" {
     "type": "FeatureCollection",
     "features": [],
   })
-  inspect(fc, content="{features: []}")
+  debug_inspect(fc, content=(
+    #|{ features: [] }
+  ))
 }
 ```

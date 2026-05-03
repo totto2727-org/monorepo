@@ -1,0 +1,25 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "totto2727/geo/util/robust"
+
+import {
+  "moonbitlang/core/debug",
+  "totto2727/geo/type",
+}
+
+// Values
+pub fn[C : @type.Coord2DTrait] incircle(C, C, C, C) -> Double
+
+pub fn[C : @type.Coord3DTrait] insphere(C, C, C, C, C) -> Double
+
+pub fn[C : @type.Coord2DTrait] orient2d(C, C, C) -> Double
+
+pub fn[Coord3D : @type.Coord3DTrait] orient3d(Coord3D, Coord3D, Coord3D, Coord3D) -> Double
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

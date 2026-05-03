@@ -7,7 +7,7 @@ pub(all) enum GeometryType {
   MultiLineString
   MultiPolygon
   GeometryCollection
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn GeometryType::from_raw_geojson(

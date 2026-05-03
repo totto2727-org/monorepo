@@ -1,0 +1,24 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "totto2727/geo/util/point_in_ring"
+
+import {
+  "moonbitlang/core/debug",
+  "totto2727/geo/type",
+}
+
+// Values
+pub fn[Coord : @type.Coord2DTrait, Ring : @type.RingTrait] point_in_ring(Coord, Ring) -> PointInRingResult
+
+// Errors
+
+// Types and methods
+pub enum PointInRingResult {
+  Inside
+  Outside
+  Boundary
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+
