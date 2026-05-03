@@ -789,7 +789,7 @@ docs(dev-workflow/<identifier>): close cycle with retrospective
 
 - (a) サイクル開始時の `roadmap-progress.yaml` 更新は **`progress.yaml` 初期化コミットに同梱**する (別コミットを切らない)
 - (c) サイクル完了時の `roadmap-progress.yaml` 更新は **Step 9 Retrospective 完了コミットに同梱**する
-- コミットメッセージ例: `docs(dev-workflow/<identifier>): link milestone <milestone-id> in roadmap <roadmap-id>` / `docs(dev-workflow/<identifier>): unlink milestone <milestone-id> in roadmap <roadmap-id>` (path 表記ではなくスキル名スコープ `dev-workflow/<identifier>` を維持)
+- コミットメッセージ例: `docs(dev-workflow/<identifier>): link milestone <milestone-id> in roadmap <roadmap-id>` (a) サイクル開始時 / `docs(dev-workflow/<identifier>): complete milestone <milestone-id> in roadmap <roadmap-id>` (c) サイクル完了時。`workflow_identifiers[]` は append-only で削除しない (= unlink 操作は存在しない、`complete` は `status: active → completed` 遷移を表す)。path 表記ではなくスキル名スコープ `dev-workflow/<identifier>` を維持
 - ファイル指定: `git add` は明示的にパス指定 (`-A` / `.` 禁止、`specialist-common` の Git ガードレールと整合)
 
 ### 並行サイクル時の競合回避

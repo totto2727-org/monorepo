@@ -16,7 +16,7 @@
 
 **全体判定:** `passed`
 
-参考: 14 成功基準を 33 個の TC (TC-001 〜 TC-033) で観測。**全 TC が PASS**。TC-015 (YAML 厳密 parse) はテンプレートが Mustache `{{...}}` を含む構造上のため一旦 parse エラーとなったが、プレースホルダ展開後の YAML が parseable であることを代替手段で確認済み (証拠: `validation-evidence/tc015-yaml-parse-after-substitution.txt`)。
+参考: 14 成功基準を 33 個の TC (TC-001 〜 TC-033) で観測。**全 TC が PASS**。TC-015 (YAML 厳密 parse) はテンプレートが Mustache `{{...}}` を含む構造上のため一旦 parse エラーとなったが、プレースホルダ展開後の YAML が parseable であることを代替手段で確認済み (証拠: 後述「検証ログ (インライン)」セクション参照)。
 
 ## 成功基準ごとの判定
 
@@ -45,7 +45,7 @@
   - `specialist-roadmap-retrospective-writer/SKILL.md` 存在 (TC-005、design 確定 1 で「retrospective-writer 流用」案を破棄し新設)
   - 3 ファイル全てに「役割」「固有の入力」「作業手順」「固有の失敗モード」「スコープ外（やらないこと）」の 5 観点見出しが存在 (各ファイル `^#+` count=5、TC-006)
 - **判定:** PASS (intent-spec.md SC-2 の「2 個」は流用前提の暫定値で、design.md L75 確定 1 案 C により 3 個に拡張済。3 個 ≥ 2 個で SC-2 の上位互換)
-- **証拠:** `validation-evidence/sc1-2-3-file-existence.txt` (省略可、上記 TC 結果で完結)
+- **証拠:** 後述「検証ログ (インライン)」セクション参照
 - **計測手段:** automated × assertion + scenario (Bash test -f + ggrep セクション検出)
 - **計測条件:** リポジトリ HEAD ローカル
 - **備考:** design.md L75 確定 1 で `retrospective-writer` 流用案を破棄し、新規 `specialist-roadmap-retrospective-writer` を採用済 (Research の流用可能性検証で品質基準不適合と判定)
@@ -90,14 +90,14 @@
 
 - **観測値:**
   - `templates/progress.yaml` L65 で `roadmap: null` のトップレベルフィールド追加 (TC-014)
-  - YAML parse 確認 (TC-015): テンプレート自体は Mustache `{ { identifier } }` 等のプレースホルダを含むため厳密 parse 不可だが、プレースホルダを `PLACEHOLDER` 文字列に置換した状態で `python3 -c "import yaml; ..."` により `roadmap` キーが top-level に存在し値が `None` (= null) であることを確認 (証拠: `validation-evidence/tc015-yaml-parse-after-substitution.txt`)
+  - YAML parse 確認 (TC-015): テンプレート自体は Mustache `{ { identifier } }` 等のプレースホルダを含むため厳密 parse 不可だが、プレースホルダを `PLACEHOLDER` 文字列に置換した状態で `python3 -c "import yaml; ..."` により `roadmap` キーが top-level に存在し値が `None` (= null) であることを確認 (証拠: 後述「検証ログ (インライン)」セクション参照)
   - `references/progress-yaml.md` に 3 観点 a/b/c 全て明記 (TC-016):
     - (a) L93/L97 「`roadmap == null`」(独立サイクル)
     - (b) L85/L86/L98 「`roadmap.id`」「`roadmap.milestone.id`」必須
     - (c) L99 「不正」「許容しない」「スキーマ違反」明記
   - 既存サイクル `docs/workflow/2026-04-26-add-qa-design-step/progress.yaml` の baseline `8444fb4..HEAD` 差分: rename 100% similarity、内容差分 `+0/-0` (TC-017)
 - **判定:** PASS
-- **証拠:** `validation-evidence/tc015-yaml-parse-after-substitution.txt` / `validation-evidence/sc12-baseline-diff.txt`
+- **証拠:** 後述「検証ログ (インライン)」セクション参照
 - **計測手段:** automated × assertion (ggrep + git diff --shortstat)
 - **計測条件:** リポジトリ HEAD ローカル + baseline `8444fb4`
 - **備考:** TC-015 はテンプレート構造上 strict YAML としては parse 不可、ただし展開後 (= 実用シナリオ) では parseable で `roadmap` キー存在を確認済
@@ -109,7 +109,7 @@
     - 「**roadmap 配下サイクルの場合の追加初期化** (ステップ 4'): … `progress.yaml` のトップレベル `roadmap` ブロックを `{id: <roadmap-id>, milestone: {id: <milestone-id>}}` で初期化する。…」
   - `dev-workflow/SKILL.md` 内の `roadmap` 文字列出現行数: 17 件 ≥ 1
 - **判定:** PASS
-- **証拠:** `validation-evidence/sc7-8-9-grep-counts.txt`
+- **証拠:** 後述「検証ログ (インライン)」セクション参照
 - **計測手段:** automated × scenario
 - **計測条件:** リポジトリ HEAD ローカル
 - **備考:** -
@@ -126,7 +126,7 @@
     - (e) `roadmap == null` のスキップ規則: L766-770
   - `grep -nF "roadmap-progress.yaml" plugins/dev-workflow/skills/dev-workflow/SKILL.md | wc -l` = 11 件 ≥ 3 (TC-021、intent-spec.md L114 観測判定そのまま)
 - **判定:** PASS
-- **証拠:** `validation-evidence/sc7-8-9-grep-counts.txt`
+- **証拠:** 後述「検証ログ (インライン)」セクション参照
 - **計測手段:** automated × scenario + observation
 - **計測条件:** リポジトリ HEAD ローカル
 - **備考:** -
@@ -138,7 +138,7 @@
     - "A separate `dev-roadmap` skill sits one layer above `dev-workflow` as the **strategic layer (戦略層)** that bundles multiple `dev-workflow` cycles into a single large-scale (大規模) development effort. …"
   - `dev-roadmap` 出現行 1 件 ≥ 1、戦略層 / 大規模 / 束ねる キーワード 1 件 ≥ 1 (両条件 PASS)
 - **判定:** PASS
-- **証拠:** `validation-evidence/sc7-8-9-grep-counts.txt`
+- **証拠:** 後述「検証ログ (インライン)」セクション参照
 - **計測手段:** automated × scenario
 - **計測条件:** リポジトリ HEAD ローカル
 - **備考:** README は英語本文だが intent-spec.md の制約 (ドキュメント言語: 英語) と整合
@@ -206,7 +206,7 @@ graph LR
 
 - 全サイクル `0 insertions(+), 0 deletions(-)` (rename 100% similarity のみ検出、内容差分 0)
 - **判定:** PASS
-- **証拠:** `validation-evidence/sc12-baseline-diff.txt`
+- **証拠:** 後述「検証ログ (インライン)」セクション参照
 - **計測手段:** automated × assertion + scenario (git diff --find-renames --shortstat)
 - **計測条件:** baseline = `8444fb4` (`progress.yaml.rollbacks[0].at = 2026-04-29T07:00:00Z` 時点 HEAD)、HEAD = `7b9b802`
 - **備考:** intent-spec.md L118 / qa-design.md L31 の判定基準そのまま
@@ -220,7 +220,7 @@ graph LR
   - `Do NOT use for` ブロック (L13-18) にも `specialist-roadmap-analyst` / `specialist-roadmap-planner` / `specialist-roadmap-retrospective-writer` が併記済 (TC-030)
   - main マージで削除済の `self-reviewer` は復元なし (現状 9 → 12 specialists の追加更新のみ)
 - **判定:** PASS
-- **証拠:** `validation-evidence/sc13-specialist-enumeration.txt`
+- **証拠:** 後述「検証ログ (インライン)」セクション参照
 - **計測手段:** automated × scenario (gawk + gtr + ggrep + gsort -u | gwc -l)
 - **計測条件:** リポジトリ HEAD ローカル
 - **備考:** intent-spec.md L119 の「(列挙統合) もしくは (別系統明示分離)」のうち統合方針 (案 A) が design.md L320 で確定済み → SC-13 PASS
@@ -309,13 +309,77 @@ graph LR
 
 なし (全 14 SC PASS)
 
-## 証拠アーカイブ
+## 検証ログ (インライン)
 
-`docs/workflow/2026-04-29-add-dev-roadmap-skill/validation-evidence/` 配下:
+補助ディレクトリ (`validation-evidence/`) は Step 7 再レビュー時の方針 (「想定していないディレクトリは残さない、本サイクルではインライン化で完結」) に従い廃止し、各証拠ログを以下に直接埋め込む。
 
-- `sc12-baseline-diff.txt`: SC-12 (TC-027 / TC-028) の baseline `8444fb4..HEAD` での既存 4 サイクル diff `0 insertions / 0 deletions` の git 出力
-- `sc13-specialist-enumeration.txt`: SC-13 (TC-029) の 12 specialists frontmatter 列挙抽出と distinct count = 12 の検証出力
-- `sc7-8-9-grep-counts.txt`: SC-7 / SC-8 / SC-9 / TC-021 の grep カウント観測値ログ
-- `tc015-yaml-parse-after-substitution.txt`: TC-015 の placeholder 展開後 YAML parse 確認ログ (ファイル内容は次セクション参照)
+### SC-12 baseline diff (TC-027 / TC-028)
 
-各 TC の手動目視結果 (TC-025 / TC-032) は本ファイル内 §「成功基準ごとの判定」内に書き出し済 (補助ファイル不使用)。`manual-tests/TC-025.md` / `manual-tests/TC-032.md` は手順書として参照。
+baseline = `8444fb4` (rollback 直前の HEAD)、対象 = 既存 4 サイクル `docs/workflow/<existing>`。
+
+```
+## TC-027: docs/dev-workflow not exists
+NOT EXISTS (PASS)
+
+## TC-028: 4 existing cycles diff content 0
+### 2026-04-24-ai-dlc-plugin-bootstrap
+ 16 files changed, 0 insertions(+), 0 deletions(-)
+### 2026-04-26-add-qa-design-step
+ 15 files changed, 0 insertions(+), 0 deletions(-)
+### 2026-04-29-integrate-self-review-into-external
+ 15 files changed, 0 insertions(+), 0 deletions(-)
+### 2026-04-29-retro-cleanup
+ 12 files changed, 0 insertions(+), 0 deletions(-)
+```
+
+### SC-13 specialist enumeration (TC-029 / TC-030)
+
+`specialist-common/SKILL.md` frontmatter description から抽出した distinct specialists。
+
+```
+architect
+implementer
+intent-analyst
+planner
+qa-analyst
+researcher
+retrospective-writer
+reviewer
+roadmap-analyst
+roadmap-planner
+roadmap-retrospective-writer
+validator
+
+Count: 12
+```
+
+### SC-7 / SC-8 / SC-9 grep counts (TC-021)
+
+```
+SC-7  (roadmap word count in dev-workflow/SKILL.md, target ≥ 1):  17
+SC-8  (roadmap-progress.yaml count, target ≥ 3):                  11
+SC-9  (README dev-roadmap line count, target ≥ 1):                 1
+SC-9  (README strategic-layer keyword line count, target ≥ 1):     1
+```
+
+### TC-015 YAML parse after placeholder substitution
+
+テンプレートは Mustache `{{...}}` プレースホルダを含むため strict YAML として直接 parse 不可。プレースホルダを `PLACEHOLDER` 文字列に置換すると parse 可能になり、`roadmap` キーが top-level に存在し値が `None` (= null) であることを確認。
+
+```
+## After placeholder substitution
+identifier: PLACEHOLDER
+started_at: PLACEHOLDER
+...
+roadmap: null
+
+## YAML parse result
+roadmap key exists: True
+roadmap value: None
+```
+
+検証コマンド: `uvx --from pyyaml python3 -c "import yaml; d=yaml.safe_load(open('progress-substituted.yaml')); print('roadmap key exists:', 'roadmap' in d); print('roadmap value:', d.get('roadmap'))"`
+
+### 手動目視 (TC-025 / TC-032)
+
+各 TC の手動目視結果は本ファイル内 §「成功基準ごとの判定」内に書き出し済 (補助ファイル不使用)。手順書は `manual-tests/TC-025.md` / `manual-tests/TC-032.md` を参照。

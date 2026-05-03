@@ -1,9 +1,9 @@
 identifier: 2026-04-29-add-dev-roadmap-skill
 started_at: 2026-04-29T00:00:00Z
-updated_at: 2026-05-01T11:00:00Z
+updated_at: 2026-05-03T11:00:00Z
 
-status: completed # active | completed | blocked
-current_step: 'Step 9: Retrospective (completed)'
+status: active # active | completed | blocked
+current_step: 'Step 7: External Review (Round 2, post-cycle review of Minor fixes + validation-evidence inlining)'
 
 completed_steps:
   - step: 'Step 1: Intent Clarification (initial)'
@@ -58,11 +58,7 @@ completed_steps:
   - step: 'Step 8: Validation'
     completed_at: 2026-05-01T10:00:00Z
     artifacts:
-      - validation-report.md
-      - validation-evidence/sc12-baseline-diff.txt
-      - validation-evidence/sc13-specialist-enumeration.txt
-      - validation-evidence/sc7-8-9-grep-counts.txt
-      - validation-evidence/tc015-yaml-parse-after-substitution.txt
+      - validation-report.md (validation-evidence/ は Step 7 再レビュー時の方針でインライン化、ディレクトリは廃止)
   - step: 'Step 9: Retrospective'
     completed_at: 2026-05-01T11:00:00Z
     artifacts:
@@ -140,3 +136,17 @@ rollbacks:
       misc cycle-specific leakage). T13-T15 added; Step 7 re-execution skipped since
       fixes were mechanical.
     at: 2026-05-01T08:30:00Z
+  - from: 'Step 9: Retrospective (completed)'
+    to: 'Step 6: Implementation (Round 2)'
+    reason: |
+      Post-cycle Minor fix round triggered by user review:
+      (M-1) drop metadata.version from all SKILL.md (no longer needed, cleanup)
+      (M-2) intent-spec SC-2/3/4/5 文言更新 (Specialist/agent 数 2→3、template 数 3→4)
+      (M-3) dev-roadmap/SKILL.md の旧 Intent Spec L41 誤参照を実際の文脈に置換
+      (M-4) shared-artifacts/SKILL.md 成果物一覧テーブル `#` 列を `-` から連番 (13-16) に
+      (M-5) design.md L317 のステップ番号挿入位置記述を実装 (L558) と整合
+      (M-6) dev-roadmap/SKILL.md L89-100 (ワークフロー全体図) と L274-291 (双方向参照図) を ASCII art から Mermaid `graph LR` に変換
+      (M-7) dev-workflow/SKILL.md L792 のコミットメッセージ例 `unlink milestone` を `complete milestone` に変更 (append-only スキーマと整合、ユーザー指摘 #3 案 A)
+      (M-8) validation-evidence/ ディレクトリ廃止: 4 ファイル合計 104 行を validation-report.md にインライン化 (shared-artifacts では「大きな証跡 (必要な場合のみ)」と規定済だが本サイクルは小規模のため不要)
+      User instruction: "Step 7 → Step 6 で修正後、再度 Step 7 を実行する必要があります" に従い、Round 2 として Step 7 再実行へ進む。
+    at: 2026-05-03T11:00:00Z
