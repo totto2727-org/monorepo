@@ -17,7 +17,7 @@ export function Document() {
       </head>
       <body>
         {children}
-        <script type='module' src='/app/assets/entry.ts'></script>
+        <script type='module' src={import.meta.env.DEV ? '/app/assets/entry.ts' : '/assets/entry.js'}></script>
       </body>
     </html>
   )
