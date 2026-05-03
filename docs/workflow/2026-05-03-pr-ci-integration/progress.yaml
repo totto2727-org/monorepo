@@ -1,9 +1,9 @@
 identifier: 2026-05-03-pr-ci-integration
 started_at: 2026-05-03T00:00:00Z
-updated_at: 2026-05-03T04:36:00Z
+updated_at: 2026-05-03T04:50:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 3 (Design)'
+current_step: 'Step 4 (QA Design)'
 
 completed_steps:
   - step: 'Step 1 (Intent Clarification)'
@@ -46,6 +46,23 @@ completed_steps:
         書ける (改修不要)。PR description テンプレ骨子 (Summary / Cycle / Test plan /
         Notable / フッター) を抽出済み。
 
+  - step: 'Step 3 (Design)'
+    completed_at: 2026-05-03T04:50:00Z
+    artifacts:
+      - design.md
+    notes: |
+      architect 1 名で設計確定。新セクション「サイクル PR と CI 連携プロトコル」を
+      dev-workflow/SKILL.md の「ステップ完了時のコミット規約」直後に独立追加する案を
+      採用。各 Step Exit Criteria 末尾に統一文言で CI PASS 1 行追加 (9 箇所、Step 6 のみ
+      タスク単位に微修正)。specialist-common §7 直後に「PR 操作は Main 専属」1 行追加。
+      progress-yaml.md には schema 変更なしで blockers の CI failure 例 1〜2 行追記。
+      CI リトライ手段は新規コミット push (本リポ flaky ゼロ + 失敗 100% が決定的事象の
+      ため `gh run rerun` 不採用)。Ready 化は `gh pr view --json isDraft` 事前確認 →
+      `gh pr ready` の二段構えで冪等。PR description は $TMPDIR で揮発管理し
+      `gh pr edit --body-file` 経由で送信。Step 6 タスク数の見立て: 5 タスク (Wave 2
+      段階)。プロジェクト横断 ADR 起票は不要 (サイクル内完結)。
+      ユーザー事前一括承認のため Step 3 Gate も即時通過。
+
 pending_gates: []
 
 active_specialists: []
@@ -59,7 +76,7 @@ artifacts:
     - docs/workflow/2026-05-03-pr-ci-integration/research/ci-structure.md
     - docs/workflow/2026-05-03-pr-ci-integration/research/integration-points.md
     - docs/workflow/2026-05-03-pr-ci-integration/research/past-cycles.md
-  design: null
+  design: docs/workflow/2026-05-03-pr-ci-integration/design.md
   qa_design: null
   qa_flow: null
   external_adrs: []
@@ -76,5 +93,9 @@ user_approvals:
     notes: |
       ユーザーから「ok、小規模なためこの後、最後まで確認なしで進めて良い」と回答。
       Step 2 以降のユーザー承認ゲートも事前一括承認として扱う。
+  - gate: 'Step 3 user approval (design.md)'
+    approved_at: 2026-05-03T04:50:00Z
+    approved_by: user (blanket pre-approval)
+    notes: Step 1 で取得した事前一括承認で通過。
 
 rollbacks: []
