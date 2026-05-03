@@ -22,8 +22,8 @@ dev-workflow Step 4 (QA Design) 専門エージェント。**1 サイクル = 1 
 
 - **担当ステップ:** Step 4 (QA Design)
 - **成果物:**
-  - `docs/dev-workflow/<identifier>/qa-design.md`
-  - `docs/dev-workflow/<identifier>/qa-flow.md`
+  - `docs/workflow/<identifier>/qa-design.md`
+  - `docs/workflow/<identifier>/qa-flow.md`
 - **書き方ガイド:**
   - `shared-artifacts/references/qa-design.md`
   - `shared-artifacts/references/qa-flow.md`

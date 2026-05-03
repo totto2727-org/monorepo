@@ -12,7 +12,7 @@
 
 ## ファイル位置
 
-`docs/dev-workflow/<identifier>/intent-spec.md`
+`docs/workflow/<identifier>/intent-spec.md`
 
 ## 各セクションの書き方
 

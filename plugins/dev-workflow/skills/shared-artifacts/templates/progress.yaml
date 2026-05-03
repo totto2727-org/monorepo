@@ -51,3 +51,15 @@ rollbacks: []
   #   to: <戻した先のステップ>
   #   reason: <理由>
   #   at: <ISO8601>
+
+# roadmap 配下サイクルかどうかの分岐フラグ。3 つの観点で記述する:
+#   (a) `roadmap == null` (デフォルト): 独立サイクル。dev-roadmap 配下ではない通常のサイクル
+#   (b) `roadmap` non-null: roadmap 配下サイクル。下記ネストオブジェクト形式で記述する
+#         roadmap:
+#           id: <roadmap-id>            # 上位 dev-roadmap の roadmap-id (必須)
+#           milestone:
+#             id: <milestone-id>        # 紐付くマイルストーン id (必須)
+#   (c) `roadmap == null` のまま `milestone` 相当を単独で書く形は不正 (スキーマ違反)
+# 詳細は references/progress-yaml.md の「roadmap」セクション、および
+# dev-workflow/SKILL.md の「roadmap-progress.yaml 更新プロトコル」セクション参照
+roadmap: null

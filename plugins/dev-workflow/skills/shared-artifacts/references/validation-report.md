@@ -12,9 +12,9 @@
 
 ## ファイル位置
 
-`docs/dev-workflow/<identifier>/validation-report.md`
+`docs/workflow/<identifier>/validation-report.md`
 
-大きな証拠データは `docs/dev-workflow/<identifier>/validation-evidence/` 配下に保存してリンク。
+大きな証拠データは `docs/workflow/<identifier>/validation-evidence/` 配下に保存してリンク。
 
 ## 各セクションの書き方
 

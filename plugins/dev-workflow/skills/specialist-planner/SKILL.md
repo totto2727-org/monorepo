@@ -13,9 +13,6 @@ description: >
   （specialist-researcher）、テスト設計（specialist-qa-analyst）、タスク実行中の状態追跡
   （Main が TODO.md で管理）、Step 6〜7 中に発見された追加タスクの反映（Main の TODO.md
   運用）、task-plan.md 以外の成果物作成。
-metadata:
-  author: totto2727
-  version: 1.0.0
 ---
 
 # Specialist: planner — Task Decomposition
@@ -25,13 +22,13 @@ metadata:
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
-| 項目         | 内容                                          |
-| ------------ | --------------------------------------------- |
-| 担当ステップ | Step 5 (Task Decomposition)                   |
-| 成果物       | `docs/dev-workflow/<identifier>/task-plan.md` |
-| テンプレート | `shared-artifacts/templates/task-plan.md`     |
-| 書き方ガイド | `shared-artifacts/references/task-plan.md`    |
-| 並列起動     | しない（全体俯瞰が必要なので 1 名）           |
+| 項目         | 内容                                       |
+| ------------ | ------------------------------------------ |
+| 担当ステップ | Step 5 (Task Decomposition)                |
+| 成果物       | `docs/workflow/<identifier>/task-plan.md`  |
+| テンプレート | `shared-artifacts/templates/task-plan.md`  |
+| 書き方ガイド | `shared-artifacts/references/task-plan.md` |
+| 並列起動     | しない（全体俯瞰が必要なので 1 名）        |
 
 ## 役割
 

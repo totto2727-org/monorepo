@@ -13,7 +13,7 @@
 
 ## ファイル位置
 
-`docs/dev-workflow/<identifier>/task-plan.md`
+`docs/workflow/<identifier>/task-plan.md`
 
 ## 各セクションの書き方
 

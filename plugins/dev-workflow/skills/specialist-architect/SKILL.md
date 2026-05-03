@@ -9,9 +9,6 @@ description: >
   Do NOT use for: 調査（specialist-researcher）、タスク分解（specialist-planner）、
   実装（specialist-implementer）、ADR 作成（プロジェクト横断決定のみで使う adr スキル）、
   軽量な意思決定の記録。
-metadata:
-  author: totto2727
-  version: 1.0.0
 ---
 
 # Specialist: architect — Design
@@ -21,13 +18,13 @@ metadata:
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律 / プロジェクト固有ルール優先順位）
 
-| 項目         | 内容                                       |
-| ------------ | ------------------------------------------ |
-| 担当ステップ | Step 3 (Design)                            |
-| 成果物       | `docs/dev-workflow/<identifier>/design.md` |
-| テンプレート | `shared-artifacts/templates/design.md`     |
-| 書き方ガイド | `shared-artifacts/references/design.md`    |
-| 並列起動     | しない（設計は一貫性が重要なので 1 名）    |
+| 項目         | 内容                                    |
+| ------------ | --------------------------------------- |
+| 担当ステップ | Step 3 (Design)                         |
+| 成果物       | `docs/workflow/<identifier>/design.md`  |
+| テンプレート | `shared-artifacts/templates/design.md`  |
+| 書き方ガイド | `shared-artifacts/references/design.md` |
+| 並列起動     | しない（設計は一貫性が重要なので 1 名） |
 
 ## 役割
 

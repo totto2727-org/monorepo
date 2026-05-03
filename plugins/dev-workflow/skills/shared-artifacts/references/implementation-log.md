@@ -17,7 +17,7 @@
 
 ## ファイル位置
 
-`docs/dev-workflow/<identifier>/implementation-logs/<task-id>.md`
+`docs/workflow/<identifier>/implementation-logs/<task-id>.md`
 
 ## 各セクションの書き方
 

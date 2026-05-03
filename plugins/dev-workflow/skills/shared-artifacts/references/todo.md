@@ -12,7 +12,7 @@ Step 6〜7 中の**タスク状態を永続化**する。Main の内部タスク
 
 ## ファイル位置
 
-`docs/dev-workflow/<identifier>/TODO.md`
+`docs/workflow/<identifier>/TODO.md`
 
 ## 各セクションの書き方
 

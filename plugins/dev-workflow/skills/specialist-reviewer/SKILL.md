@@ -14,9 +14,6 @@ description: >
   Do NOT use for: 全観点を単一 reviewer で扱う（観点ごとに別インスタンス）、検証
   （specialist-validator、成功基準実測）、実装（specialist-implementer）、
   Retrospective（specialist-retrospective-writer）。
-metadata:
-  author: totto2727
-  version: 1.0.0
 ---
 
 # Specialist: reviewer — External Review
@@ -26,13 +23,13 @@ metadata:
 
 **継承:** `specialist-common`（ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律）
 
-| 項目         | 内容                                                                       |
-| ------------ | -------------------------------------------------------------------------- |
-| 担当ステップ | Step 7 (External Review)                                                   |
-| 成果物       | `docs/dev-workflow/<identifier>/review/<aspect>.md`（1 観点 = 1 ファイル） |
-| テンプレート | `shared-artifacts/templates/review-report.md`                              |
-| 書き方ガイド | `shared-artifacts/references/review-report.md`                             |
-| 並列起動     | 高推奨（観点ごとに並列）                                                   |
+| 項目         | 内容                                                                   |
+| ------------ | ---------------------------------------------------------------------- |
+| 担当ステップ | Step 7 (External Review)                                               |
+| 成果物       | `docs/workflow/<identifier>/review/<aspect>.md`（1 観点 = 1 ファイル） |
+| テンプレート | `shared-artifacts/templates/review-report.md`                          |
+| 書き方ガイド | `shared-artifacts/references/review-report.md`                         |
+| 並列起動     | 高推奨（観点ごとに並列）                                               |
 
 ## 役割
 
@@ -52,9 +49,9 @@ metadata:
 
 **`holistic` 観点の特性:** Round 1 では他観点と独立並列で動く。Round 2 以降のみ、他 reviewer の出力をクロスリファレンス目的で任意参照可。観点別 reviewer の指摘と重複する Blocker / Major を検出した場合は責務範囲を超えたマージは行わず、Main にユーザー判断を仰ぐ。
 
-**深刻度ラベル:** `Blocker` / `Major` / `Minor` の 3 段階を全観点で統一して使用する。Blocker は Step 6 への差し戻しトリガー、Major はユーザー判断（Step 6 戻し / Retrospective 繰越）、Minor は Retrospective の材料。
+**深刻度ラベル / 状態ラベル / レポート書式:** 詳細仕様は **`shared-artifacts/references/review-report.md`** を真のソースとする。本ファイルには重複させない。
 
-**ループ運用:** Round 1 で全 6 観点並列起動 → Blocker 集計 → Step 6 差し戻し（あれば）→ Round 2 で既存 reviewer インスタンスに差し戻して再レビュー。同一 Round 系列で 3 周以上 Blocker が継続する場合、Main を経由して Step 3 ロールバック判断を仰ぐ。
+**ループ運用:** Step 6 ↔ Step 7 の Round 反復 (Blocker / 未解消 Major で Step 6 を再活性化 → 修正後 Step 7 を新規 reviewer 群で再実行 → Round 2 / 3 / ...) は `dev-workflow/SKILL.md` の「Step 6 ↔ Step 7 ループ (Round 反復)」セクションが規範。同一サイクルで 3 Round 以上継続する場合、Main を経由して Step 3 ロールバック判断を仰ぐ。
 
 ## 固有の入力
 
@@ -71,18 +68,15 @@ metadata:
 2. 全 diff を担当観点で通読:
    - 問題が潜みそうな箇所を重点的に検査
    - 必要なら既存コード・類似実装と比較
-3. 指摘事項を**深刻度別（Blocker / Major / Minor）**に分類:
-   - **Blocker**: これを残したまま完了にできない（リリース阻害レベル）
-   - **Major**: 修正すべき。ユーザー承認前に議論が必要
-   - **Minor**: 記録のみ（改善提案レベル）
+3. 指摘事項を**深刻度別 (Blocker / Major / Minor / Info)** に分類 (各深刻度の判定基準は `shared-artifacts/references/review-report.md` の「深刻度の判定基準」を参照)
 4. 各指摘に以下を付記:
    - 該当コミット SHA + ファイル + 行番号
    - 問題の要約と根拠
    - 推奨アクション
    - 設計との関連
-5. 観点固有の評価項目にも評価を付与（テンプレート参照、例: security なら「認証認可の網羅性」等）
-6. 他 reviewer との指摘矛盾を検出したら記録（Main が調整）
-7. テンプレートに沿って `review/<aspect>.md` を作成
+5. 観点固有の評価項目に評価を付与 (本ファイル「観点別のレビュー指針」セクション参照)
+6. 他 reviewer との指摘矛盾を検出したら記録 (Main が調整)
+7. **`shared-artifacts/templates/review-report.md` をテンプレートとして** `review/<aspect>.md` を作成 (指摘一覧テーブル形式、状態ラベル付き、Round 履歴メタは末尾に置く構造)
 8. Main に提出
 
 ## 観点別のレビュー指針

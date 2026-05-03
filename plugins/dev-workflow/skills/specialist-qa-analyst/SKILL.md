@@ -13,9 +13,6 @@ description: >
   追記、qa-analyst は触らない)、テストフレームワーク選定 (プロジェクト固有スキル
   の領域)、テスト実行・結果計測 (specialist-validator)、タスク分解
   (specialist-planner)、qa-design.md / qa-flow.md 以外の成果物作成。
-metadata:
-  author: totto2727
-  version: 1.0.0
 ---
 
 # Specialist: qa-analyst — QA Design
@@ -25,13 +22,13 @@ metadata:
 
 **継承:** `specialist-common` (ライフサイクル / 入出力契約 / 失敗時プロトコル / スコープ規律)
 
-| 項目         | 内容                                                                                        |
-| ------------ | ------------------------------------------------------------------------------------------- |
-| 担当ステップ | Step 4 (QA Design)                                                                          |
-| 成果物       | `docs/dev-workflow/<identifier>/qa-design.md` + `docs/dev-workflow/<identifier>/qa-flow.md` |
-| テンプレート | `shared-artifacts/templates/qa-design.md`, `shared-artifacts/templates/qa-flow.md`          |
-| 書き方ガイド | `shared-artifacts/references/qa-design.md`, `shared-artifacts/references/qa-flow.md`        |
-| 並列起動     | しない (テスト戦略の一貫性のため 1 名)                                                      |
+| 項目         | 内容                                                                                 |
+| ------------ | ------------------------------------------------------------------------------------ |
+| 担当ステップ | Step 4 (QA Design)                                                                   |
+| 成果物       | `docs/workflow/<identifier>/qa-design.md` + `docs/workflow/<identifier>/qa-flow.md`  |
+| テンプレート | `shared-artifacts/templates/qa-design.md`, `shared-artifacts/templates/qa-flow.md`   |
+| 書き方ガイド | `shared-artifacts/references/qa-design.md`, `shared-artifacts/references/qa-flow.md` |
+| 並列起動     | しない (テスト戦略の一貫性のため 1 名)                                               |
 
 ## 役割
 

@@ -12,7 +12,7 @@
 
 ## ファイル位置
 
-`docs/dev-workflow/<identifier>/progress.yaml`
+`docs/workflow/<identifier>/progress.yaml`
 
 ## 各フィールドの書き方
 
@@ -75,6 +75,45 @@ active_specialists:
 - `review` (Step 7) — リスト (`review/<aspect>.md`、6 観点)
 - `validation` (Step 8) — `validation-report.md`
 - `retrospective` (Step 9) — `retrospective.md`
+
+### `roadmap` (任意のネストブロック、roadmap 配下サイクル判定)
+
+サイクルが `dev-roadmap` の配下マイルストーンから起動されたかを示すフィールド。デフォルトは `null` (= 独立サイクル)。`dev-roadmap` の上位ロードマップ ID およびマイルストーン ID を双方向参照のソースとして埋め込むためのネストブロックを保持する。
+
+#### フィールド意味
+
+- `roadmap.id`: 上位 `dev-roadmap` の `roadmap-id` (`docs/roadmap/<roadmap-id>/` ディレクトリ名と一致)。non-null 時に必須。
+- `roadmap.milestone.id`: 紐付くマイルストーン id (`docs/roadmap/<roadmap-id>/milestones/<milestone-id>.md` の basename と一致)。non-null 時に必須。
+- それ以外のサブフィールドは本バージョンでは持たない (将来拡張余地として scope out)。
+
+#### 設定タイミング
+
+roadmap 配下サイクル開始時、Main が `progress.yaml` 初期化と同じステップ (`dev-workflow/SKILL.md` 「ワークフロー開始時」セクションのステップ 4') で `roadmap` ブロックを初期化する。同時に上位 `docs/roadmap/<roadmap-id>/roadmap-progress.yaml` の該当 `milestones[].status` を `planned → active` に遷移させ、`milestones[].workflow_identifiers[]` に自身の `<identifier>` を追記する。詳細は `dev-workflow/SKILL.md` の「`roadmap-progress.yaml` 更新プロトコル」セクションに従うこと。
+
+独立サイクルでは `roadmap` ブロックは `null` のまま (デフォルト) とし、初期化処理をスキップする。
+
+#### 使用ルール (3 観点)
+
+1. **(a) `roadmap == null`**: 独立サイクル (デフォルト)。`dev-roadmap` 配下ではない通常のサイクルを意味する。
+2. **(b) `roadmap` non-null**: roadmap 配下サイクル。`{id: <roadmap-id>, milestone: {id: <milestone-id>}}` のネストオブジェクト形式で記述し、`roadmap.id` および `roadmap.milestone.id` の両方が必須となる。どちらか一方の欠落はスキーマ違反として扱う。
+3. **(c) `roadmap == null` のまま `milestone` 相当を単独で書く形は不正**: 「roadmap.id を書かずに milestone だけ書く」「`roadmap: null` のまま別のトップレベルキーで milestone を表現する」等は許容しない (スキーマ違反)。`milestone` の表現は必ず `roadmap.milestone` として `roadmap` ネスト配下に置く。
+
+#### 例 YAML
+
+独立サイクル (デフォルト):
+
+```yaml
+roadmap: null
+```
+
+roadmap 配下サイクル:
+
+```yaml
+roadmap:
+  id: 2026-q2-oauth-rollout
+  milestone:
+    id: ms-02-token-refresh
+```
 
 ### 廃止フィールド (deprecated)
 

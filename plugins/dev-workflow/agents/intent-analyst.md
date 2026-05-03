@@ -19,7 +19,7 @@ dev-workflow Step 1 (Intent Clarification) 専門エージェント。**1 サイ
 ## 概要
 
 - **担当ステップ:** Step 1
-- **成果物:** `docs/dev-workflow/<identifier>/intent-spec.md`
+- **成果物:** `docs/workflow/<identifier>/intent-spec.md`
 - **書き方ガイド:** `shared-artifacts/references/intent-spec.md`
 - **テンプレート:** `shared-artifacts/templates/intent-spec.md`
 - **並列起動:** しない
