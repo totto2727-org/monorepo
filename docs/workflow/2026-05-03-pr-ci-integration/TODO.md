@@ -55,12 +55,12 @@
   - re_activations: 0
   - notes: §7「Git コミットに関する注意」(L177-L194) リスト末尾 (L184 直後) に 1 行追加。Wave 1 で T1 / T5 と並列起動可。
 
-- [ ] **T5** — progress-yaml.md `### blockers` セクションに CI failure 記録例を追記
-  - status: in_progress
+- [x] **T5** — progress-yaml.md `### blockers` セクションに CI failure 記録例を追記
+  - status: completed
   - dependencies: なし (T1 と並列可)
   - started_at: 2026-05-03T05:15:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-03T05:25:00Z
+  - commit: 8a2aff6
   - implementer: implementer-T5
   - re_activations: 0
   - notes: `### blockers` セクション (L57-L60) 末尾に CI 失敗を自由テキスト形式で記録する例を 1〜2 行追記。schema 拡張なし。Wave 1 で T1 / T4 と並列起動可。
