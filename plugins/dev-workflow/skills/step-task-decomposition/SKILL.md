@@ -18,7 +18,7 @@ description: >
 
 ## Purpose
 
-Decompose `design.md` into tasks small enough for a single `implementer` to complete (typically a few hours up to one day), record them in an immutable `task-plan.md` together with a dependency graph and parallel waves, and obtain user approval to start implementation.
+Decompose `design.md` into tasks small enough for a single `implementer` to complete (typically a few hours up to one day), record them in an immutable `task-plan.md` together with a dependency graph and parallel waves, and proceed to Step 6 once Main confirms the decomposition meets the exit criteria.
 
 ## Invocation
 
@@ -42,8 +42,8 @@ Decompose `design.md` into tasks small enough for a single `implementer` to comp
 3. Build the dependency graph and group independent tasks into parallel waves.
 4. Verify that each task is completable by a single `implementer` in hours to one day. Re-decompose anything that exceeds this budget.
 5. Save as `docs/workflow/<identifier>/task-plan.md`. **Treat this file as immutable from this point forward** — Step 6 must add new tasks only via the `TODO.md` "late-added" section, never by editing `task-plan.md`.
-6. Present `task-plan.md` directly to the user (Artifact-as-Gate-Review) and request approval to start implementation.
-7. On approval, commit `task-plan.md` + `progress.yaml` in one commit.
+6. Verify the exit criteria below. Optionally show `task-plan.md` to the user for awareness, but do not block on user approval — Main owns this gate.
+7. Commit `task-plan.md` + `progress.yaml` in one commit, then proceed to Step 6.
 
 ## Expected artifacts
 
@@ -60,7 +60,7 @@ Decompose `design.md` into tasks small enough for a single `implementer` to comp
 
 ## Gate
 
-User approval (mandatory) — this gate is the explicit "go-ahead to start implementation".
+**Main judgment.** User approval is not required because the user has already endorsed the design itself in Step 3 and the test surface in Step 4; the task split is a mechanical refinement of the approved design and rarely warrants a separate user decision. Main checks the exit criteria above and advances to Step 6. If a Blocker surfaces during decomposition, Main raises an In-Progress user inquiry rather than freezing on a per-step approval gate.
 
 ## Failure modes / Rollback
 

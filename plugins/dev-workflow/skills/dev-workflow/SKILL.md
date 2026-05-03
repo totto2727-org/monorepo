@@ -49,7 +49,7 @@ flowchart LR
     S2 -->|Main gate| S3[Step 3: Design]
     S3 -->|User gate| S4[Step 4: QA Design]
     S4 -->|User gate| S5[Step 5: Task Decomposition]
-    S5 -->|User gate| S6[Step 6: Implementation]
+    S5 -->|Main gate| S6[Step 6: Implementation]
     S6 -->|Main gate| S7[Step 7: External Review]
     S7 -->|Blocker / Major| S6
     S7 -->|User gate| S8[Step 8: Validation]
@@ -67,7 +67,7 @@ Each row links to the step's detail skill. Per-step procedure, exit criteria, ro
 | 2    | Research             | `researcher` × N (parallel per angle) | Main | [`step-research`](../step-research/SKILL.md)                         |
 | 3    | Design               | `architect` × 1                       | User | [`step-design`](../step-design/SKILL.md)                             |
 | 4    | QA Design            | `qa-analyst` × 1                      | User | [`step-qa-design`](../step-qa-design/SKILL.md)                       |
-| 5    | Task Decomposition   | Main only                             | User | [`step-task-decomposition`](../step-task-decomposition/SKILL.md)     |
+| 5    | Task Decomposition   | Main only                             | Main | [`step-task-decomposition`](../step-task-decomposition/SKILL.md)     |
 | 6    | Implementation       | `implementer` × N (parallel per task) | Main | [`step-implementation`](../step-implementation/SKILL.md)             |
 | 7    | External Review      | `reviewer` × 6 (parallel per aspect)  | User | [`step-external-review`](../step-external-review/SKILL.md)           |
 | 8    | Validation           | `validator` × 1                       | User | [`step-validation`](../step-validation/SKILL.md)                     |
