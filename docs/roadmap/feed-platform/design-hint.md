@@ -46,7 +46,8 @@ flowchart LR
 **図の補足:**
 
 - 左端の入力源 (`A1` / `A2` / `AN` / `UI_CMD` 経由の `CMDAPI`) はすべて `IQ` に合流する。**入力 → Queue が必ず一方向**で、戻るエッジはない
-- 図上で `Web UI` が 2 箇所 (`UI_CMD` と `UI_QRY`) に出るのは、CQRS で **mutation と query が別 API エンドポイント** (Command API / Query API) に分かれるため。実装上は同一クライアントプロセス
+- 図上で `Web UI` が 2 箇所 (`UI_CMD` と `UI_QRY`) に出るのは、CQRS で **mutation と query が別 API エンドポイント** (HTTP 動詞ベース) に分かれるため。実装上は同一クライアントプロセス
+- 図中の `Command API` / `Query API` ノードは**リソース単位 BFF 内部の Command Handler 経路 / Query Handler 経路**を表す論理表現 (= 物理的には同一 BFF 関数内のコードパス)。物理デプロイ単位の方針は L9 (リソース単位 BFF + 内部 CQRS) を参照
 - `ES` (イベント追記専用ストア) は終端ノード (Source of Truth として保存されるのみ、本フローでは下流に流れない。再構築時のみ `VU` から参照される)
 - `VU` と `NT` は `OQ` を購読する**並列分岐**。それ以降は完全に独立 (Web UI は `VC → QUERYAPI` のルート、通知は Slack 等の外部サービス)
 
@@ -147,22 +148,59 @@ flowchart LR
 
 CQRS + イベントソーシングを採用する以上、**書き込み (Command 発行) から読み出し (Query 反映) までに必ず非同期遅延 (Eventual Consistency) が発生**する。Web UI から Command を発行したユーザーが直後に Query を行ったとき、自分の書き込みが反映されていない状態を見せてしまう問題への対処戦略を選定する必要がある。
 
-| 戦略 | 概要 | メリット | デメリット |
-| --- | --- | --- | --- |
-| **A. 楽観的更新 (Optimistic UI)** | Command 発行と同時に Web UI が結果を予測表示。Query API から確定データが届いたら整合 (差分があれば修正・ロールバック) | サーバ実装シンプル / UX 滑らか / サーバレス関数の冷起動レイテンシを隠せる | クライアント実装が複雑 (予測ロジック / 整合判定 / ロールバック UI) / 失敗時の UX 設計が必要 |
-| **B. 同期プロジェクション (Read-Your-Write 保証)** | Command API がイベント記録**と当該 Aggregate のプロジェクション更新を同一トランザクション**で完了させ、応答時には最新ビューも更新済みであることを保証 | クライアント実装シンプル / 認知負荷低 | Command レイテンシが伸びる / イベント記録とビュー更新の atomic 性確保が困難 (異種ストレージ間 transaction) / サーバレスとの相性悪 |
-| **C. WebSocket / SSE による push** | Web UI が Query 側からの subscription を持ち、ビュー更新完了時にサーバから push を受信して画面を更新 | リアルタイム性 / 他ユーザーの変更も反映 / Web UI 側ロジック比較的シンプル | 接続維持コスト (サーバレスとの相性悪) / fanout 機構必要 / オフライン復帰時の差分同期が別途必要 |
-| **D. Command 応答にイベント結果を含める** | Command API が応答ボディに「発行したイベント」を含めて返す。Web UI は予測ではなく確定情報で UI を更新 (ただしビューはまだ古い可能性あり) | 楽観的更新より確実 / クライアントロジック軽量 | ビュー (集計結果) は別途 Query で取り直し必要 / 楽観的更新と本質的に大差ない場面が多い |
-| **E. Polling** | Web UI が Command 後に Query API を短い間隔で polling して更新を取得 | 実装極めてシンプル | サーバ負荷高 / レイテンシ目に見える / UX 劣化 |
+#### 個別戦略の評価
 
-**個人開発スコープでの推奨初期戦略:**
+| 戦略 | 概要 | 評価 |
+| --- | --- | --- |
+| **A. 楽観的更新 (Optimistic UI)** | Command 発行と同時に Web UI が結果を予測表示。Query API から確定データが届いたら整合 (差分があれば修正・ロールバック) | **採用**。サーバレスの cold start を隠せる。Web UI 側の予測ロジックが必要 |
+| **B. 同期プロジェクション (Aggregate 単位部分採用)** | Command API がイベント記録と**当該 Aggregate のキャッシュ DB エントリ更新**を同一トランザクションで完了させ、確定断面を返す | **部分採用 (Aggregate 単位限定)**。同一 DB / DynamoDB TransactWriteItems 等で実装可能。全プロジェクション (集計値含む) の同期は不可 |
+| **C. WebSocket / SSE による push** | Web UI が Query 側からの subscription を持ち、ビュー更新完了時にサーバから push を受信して画面を更新 | **限定採用**。リアルタイム要件の機能 (集計バッジ / 他ユーザー変更反映等) のみ |
+| **D. Command 応答にイベント情報を返す** | Command API が応答ボディに「発行したイベント」を含めて返す | **採らない** — Web UI 側にバックエンド `VU` と同じプロジェクションロジック (イベント → ビュー差分) を複製する必要があり DRY 違反。A と組み合わせるとロジック二重化 (予測ロジック + イベント適用ロジック) |
+| **E. Polling** | Web UI が Command 後に Query API を短い間隔で polling して更新を取得 | **限定用途のみ**。長時間処理の進捗監視等 (例: AI 要約完了待ち) |
 
-- **A (楽観的更新) + D (Command 応答にイベント結果) の組み合わせ**を Web UI のデフォルト戦略として採る。サーバレス前提と整合し、実装複雑性も許容範囲
-- リアルタイム性が要件化された機能 (例: 取得結果の即時通知) のみ C (SSE) を選択的に採用
-- B (同期プロジェクション) は採らない (サーバレス関数 + 異種ストレージ間 atomic transaction が困難なため)
-- **「楽観的更新は必須か」への回答:** **必須ではないが、CQRS + サーバレス + 個人開発の組み合わせでは事実上の最有力候補**。代替戦略 (B/C/D/E) はそれぞれ明確なトレードオフを持ち、個人開発スコープでは A が最もコスト効率が良い
+#### Tier 階層推奨 (Web UI 実装パターン)
 
-→ **委譲先:** 出力プラグイン基盤マイルストーン Step 1 (Intent Spec で UX 期待を成功基準化) + Step 3 (Design で戦略確定)
+mutation の性質に応じて 3 階層で使い分ける:
+
+##### Tier 1 (default): 純粋な楽観的更新 (戦略 A のみ)
+
+```
+[t=0]    Web UI: 予測ロジックでローカル state 即時更新
+[t=0]    POST /feeds/123/mark-as-read
+[t=0.3s] 200 OK (空ボディ)
+[t=0.3s] Web UI: 何もしない (予測値が正解とみなす)
+         4xx/5xx → ローカル state を rollback + エラー表示
+```
+
+- 単純な mutation (toggle 既読 / 削除 / お気に入り) はこれで十分
+- Web UI 側のロジックは「予測」だけ
+- 集計値や関連エンティティの更新は次回 Query で取得 (Eventual Consistency 受容)
+
+##### Tier 2 (複雑な mutation): 楽観的更新 + Aggregate 断面返却 (戦略 A + B 部分採用)
+
+```
+[t=0]    Web UI: 予測ロジックで暫定 state 更新
+[t=0]    POST /feeds/123/add-tag
+[t=0.3s] 200 OK + { feed: { id: 123, tags: [...], updatedAt: "..." } }  # 当該 Aggregate の確定断面
+[t=0.3s] Web UI: レスポンスのデータで state を**上書き** (差分計算ロジック不要)
+         エラーなら rollback
+```
+
+- 複数フィールドが連動して更新される mutation (例: タグ追加で関連集計も変わる)
+- Command API は当該 Aggregate のキャッシュ DB エントリを同期更新し、確定断面を返す (戦略 B の Aggregate 単位部分採用)
+- Web UI 側のロジックは「予測」のみ。受信時は単純な上書きで済む (戦略 D の二重ロジック問題を回避)
+- 全プロジェクション (集計値 / 関連エンティティ含む) の同期は不可なので、それらは Eventual Consistency 領域に残る
+
+##### Tier 3 (集計値 / リアルタイム): SSE / Polling 補強
+
+- 集計値の即時反映 (例: 「未読数バッジ」) — `C (SSE)` を選択追加
+- 長時間処理の完了監視 (例: AI 要約生成) — `E (Polling)` で割り切る
+
+#### 「楽観的更新は必須か」への回答
+
+**必須ではないが、CQRS + サーバレス + 個人開発の組み合わせでは事実上の最有力候補**。Tier 1 / Tier 2 はいずれも基盤に楽観的更新 (戦略 A) を据えており、Web UI の即時反応性を確保する。戦略 D (イベント情報返却) は「楽観的更新の代替」になりそうに見えて実は Web UI 側ロジックを増やす罠なので採用しない。
+
+→ **委譲先:** 出力プラグイン基盤マイルストーン Step 1 (Intent Spec で UX 期待を成功基準化) + Step 3 (Design で Tier 1/2/3 の適用ルール確定)
 
 ### L8: Web UI からの Command 経路における Queue 経由可否
 
@@ -170,11 +208,70 @@ Web UI が Command を発行する際、以下のいずれを採用するか:
 
 | 選択肢 | 概要 |
 | --- | --- |
-| **Command API → ER 直結 (同期)** | Command API が直接 ER (イベント記録システム) を呼び、応答までユーザーを待たせる |
-| **Command API → IQ 経由 (取得システムと同じ Queue 共用)** | Command を入力イベントとして取得システムからの経路と同じ Queue に流す。応答は acceptance のみ |
-| **Command API → 専用 Queue 経由** | Web UI 由来の Command 専用 Queue を分け、ER に流す |
+| **Command Handler → ER 直結 (同期)** | Command Handler が直接 ER (イベント記録システム) を呼び、応答までユーザーを待たせる |
+| **Command Handler → IQ 経由 (取得システムと同じ Queue 共用)** | Command を入力イベントとして取得システムからの経路と同じ Queue に流す。応答は acceptance のみ |
+| **Command Handler → 専用 Queue 経由** | Web UI 由来の Command 専用 Queue を分け、ER に流す |
+
+注: Tier 2 (Aggregate 断面返却) を採る場合は Command Handler 内で Cache DB の同期更新が必要なので、**ER 直結 (同期)** が事実上の必然。Tier 1 (純粋な楽観的更新) なら Queue 経由でも成立。
 
 → **委譲先:** 永続化基盤マイルストーン Step 3 (Design) + 出力プラグイン基盤マイルストーン Step 3 (Design) の調整 (L7 の戦略選択と一体)
+
+### L9: Command API / Query API の物理デプロイ単位 (リソース単位 BFF + 内部 CQRS)
+
+#### 論点の本質
+
+CQRS の責務分離 (Command と Query の分離) を**物理デプロイ単位でも分離するか**、それとも**論理分離だけ守って物理は統合するか**。design-hint.md 初版では Mermaid 図上に `Command API` と `Query API` を別ノードとして描いたが、これは**物理分離を default にしてしまっている**ため再検討が必要。
+
+#### 一般論的なコンセンサス
+
+業界の現代的な合意 (Martin Fowler "MonolithFirst", Sam Newman "Building Microservices" 第 2 版):
+
+- **「最初から物理分離するのは過剰」** — 物理分離は段階的に必要時に切り出す
+- 物理分離が必要となる「明確な閾値」 — Read/Write のスループット差が桁違い / Query 側の独立 fan-out 処理 / 別チーム所有 / 障害分離が SLA 必須
+- 個人開発スコープではこれらの閾値はほぼ現れない
+
+#### 採用方針: **Resource-Oriented BFF + Internal CQRS** パターン
+
+**フロントエンドから見えるリソース単位で BFF を集約し、各 BFF 内部で Command Handler / Query Handler を論理分離する**:
+
+```
+Web UI ──┬─→ Feed BFF       (POST/PUT/DELETE → Cmd Handler / GET → Query Handler)
+         ├─→ Tag BFF        (同上)
+         ├─→ Summary BFF    (AI 要約リソース)
+         └─→ User BFF       (認証認可)
+
+各 BFF 内部:
+  - Command Handler 経路: → IQ → ER → ES (Event Store) → (Tier 2 なら) Cache DB の Aggregate エントリ同期更新
+  - Query Handler 経路:   → Cache DB の対応リソースエントリ読み出し
+```
+
+リソース境界の指針は **DDD の Aggregate**。BFF の責務は「単一リソースに対する全操作 (Command + Query) を集約」。
+
+#### 採用根拠
+
+| 観点 | Resource-Oriented BFF (採用) | Command/Query 物理分離 |
+| --- | --- | --- |
+| コロケーション原則 | **★★★** リソース単位で全コードが集約、変更が局所化 | ★ Command/Query が分散 |
+| マイクロサービス境界の自然性 | **★★★** リソース境界 = ビジネス境界 = Aggregate 境界 | ★ Read/Write 軸は技術的境界、ビジネス的意味薄 |
+| Tier 2 (Aggregate 断面返却) 実装容易性 | **★★★** 1 関数内で完結 | ★ ネットワーク hop + 認証情報持ち越し必要 |
+| 独立スケーリング | ★★ リソース別 (例: AI 要約と認証は別最適化) | ★★★ Read/Write 別 (個人開発では効きにくい) |
+| 段階的移行容易性 | **★★★** 内部分離維持で物理分離に切替容易 | — (既に分離済) |
+| 個人開発スコープ適合度 | **★★★** | ★★ |
+
+リソース境界の分離は **「Read/Write 軸の分離」より個人開発における実用上重要な軸での分離**。AI 要約 BFF (重く頻度低) と認証 BFF (軽く頻度高) は明らかに別最適化の対象だが、両者の中の Read/Write 軸は本質的にスケーリング特性が同じ。
+
+#### 注意点
+
+- **リソース境界の決め方**: DDD の Aggregate を境界指針にする。細かすぎると依存スパゲティ、大きすぎるとモノリス化
+- **クロス-リソース操作 (例: 「既読化 + AI 要約トリガー」)**: 既存の Event Sourcing + 出力 Queue 構造で対応 (Saga / イベント駆動)。BFF 統合してもこの仕組みは変わらない
+- **共通横断関心事 (認証 / Rate Limit / Logging)**: Edge Layer (Cloudflare Workers の middleware 等) や Sidecar / Layer で実装し、各リソース BFF は本質ロジックに専念
+- **将来の物理分離移行**: BFF 内で Command Handler / Query Handler のコード分離を厳守しておけば、必要になった時点でリソース内 Read/Write 物理分割も容易
+
+#### Mermaid 図への影響
+
+本論点は **API レイヤの内部実装に閉じる**ため、`design-hint.md` の構造図 (取得 → IQ → ER → ES → OQ → VU/NT → VC) は変更不要。図中の `Command API` / `Query API` ノードは「リソース単位 BFF 内の Command Handler 経路 / Query Handler 経路」と読み替える (= 物理的には同一 BFF 関数内のコードパス)。図の補足にこの注釈を追加することで二重表現を保つ。
+
+→ **委譲先:** 各リソース系マイルストーン (永続化基盤 / 出力プラグイン基盤 / AI 要約 / 認証認可) の Step 3 (Design) で BFF 単位の確定。Edge Layer の共通横断関心事は別マイルストーンとして切り出す可能性あり (Step 2 Milestone Decomposition で判断)
 
 ## 関連
 
