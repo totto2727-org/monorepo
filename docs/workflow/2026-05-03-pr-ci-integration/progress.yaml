@@ -1,21 +1,34 @@
 identifier: 2026-05-03-pr-ci-integration
 started_at: 2026-05-03T00:00:00Z
-updated_at: 2026-05-03T00:00:00Z
+updated_at: 2026-05-03T04:10:00Z
 
 status: active # active | completed | blocked
-current_step: 'Step 1 (Intent Clarification)'
+current_step: 'Step 2 (Research)'
 
-completed_steps: []
+completed_steps:
+  - step: 'Step 1 (Intent Clarification)'
+    completed_at: 2026-05-03T04:10:00Z
+    artifacts:
+      - intent-spec.md
+    notes: |
+      Intent Spec を確定。スコープは dev-workflow/SKILL.md への 5 ルール追加
+      (Draft PR / PR 概要更新 / バックグラウンド CI 確認 / 2 回リトライ → Blocker 化 /
+      Step 9 完了後 Ready 化) + 本サイクル自身でのドッグフード実証。
+      ユーザー承認時の補足: 「小規模なためこの後、最後まで確認なしで進めて良いです」
+      → Step 2〜9 のユーザー承認ゲートは事前一括承認として扱う (Main 判定で進行)。
+      Blocker / 重大なスコープ変更時のみ In-Progress 一時レポートで再確認。
+      origin/main の大規模変更 (PR #94 = docs/dev-workflow/ → docs/workflow/ rename
+      + roadmap 概念追加) を rebase で取り込み、サイクル作業ディレクトリを
+      docs/workflow/2026-05-03-pr-ci-integration/ に移行済み。
 
-pending_gates:
-  - 'Step 1 user approval (intent-spec.md)'
+pending_gates: []
 
 active_specialists: []
 
 blockers: []
 
 artifacts:
-  intent_spec: null
+  intent_spec: docs/workflow/2026-05-03-pr-ci-integration/intent-spec.md
   research: []
   design: null
   qa_design: null
@@ -27,6 +40,12 @@ artifacts:
   validation: null
   retrospective: null
 
-user_approvals: []
+user_approvals:
+  - gate: 'Step 1 user approval (intent-spec.md)'
+    approved_at: 2026-05-03T04:10:00Z
+    approved_by: user
+    notes: |
+      ユーザーから「ok、小規模なためこの後、最後まで確認なしで進めて良い」と回答。
+      Step 2 以降のユーザー承認ゲートも事前一括承認として扱う。
 
 rollbacks: []
