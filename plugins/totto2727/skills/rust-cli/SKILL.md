@@ -39,8 +39,9 @@ metadata:
 - **HTTP**: `reqwest::Client` をプロセス全体で `Arc` 共有してコネクションを再利用する
 - **CLI フラグ**: `clap` derive。`#[arg(env = "...")]` で env フォールバックを宣言的に表現する
 - **UI レイヤ選定 (二択)**:
-  - **軽量 CLI** (入力受付 + ログ出力 + 進捗表示が中心): `clap` + `tracing` + `inquire` + `indicatif` + `owo-colors` の単体機能クレートを組み合わせる。出力責務は明確に分ける — **構造化ログは `tracing`、単純 stdout は標準機能 (`println!` / `eprintln!`)、色付けは `owo-colors`**。これで足りるなら `tui-realm` を持ち込まない (過剰)
+  - **軽量 CLI** (入力受付 + ログ出力 + 進捗表示が中心): `clap` + `tracing` + `inquire` + `indicatif` + `owo-colors` の単体機能クレートを組み合わせる。出力責務は明確に分ける — 構造化ログは `tracing`、単純 stdout は標準機能 (`println!` / `eprintln!`)、色付けは `owo-colors`。これで足りるなら `tui-realm` を持ち込まない (過剰)
   - **高度な宣言的 UI** (複数画面・大規模状態・ダッシュボード等): `tui-realm` (Elm Architecture) に統一。下層描画ライブラリ (`ratatui`) は transitive dep として入るが、原則として `tui-realm` の API のみで実装する
+  - **例外 (部分採用)**: 軽量 CLI モードのまま、最終アウトプットだけが複雑 (表 / 多列リスト / 構造化ビュー) な場合は、その出力箇所のみ `tui-realm` を呼び出す部分採用を許容する。UI 全体の切り替えは不要
 - **コードは決定的、言語の解釈は非決定的** — バリデーション・スキーマ検査は serde/garde に任せる
 
 ## レイヤ別早見表（必須カテゴリのみ）
