@@ -2,6 +2,7 @@
 name = "my-cli"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.88"
 
 [dependencies]
 # Async runtime
@@ -22,7 +23,8 @@ garde = { version = "0.20", features = ["derive"] }
 
 # Errors
 thiserror = "1"
-miette = { version = "7", features = ["fancy"] }
+anyhow = "1"
+hooq = "0.4"
 
 # Date / time
 jiff = { version = "0.1", features = ["serde"] }
