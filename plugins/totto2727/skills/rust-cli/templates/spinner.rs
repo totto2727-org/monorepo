@@ -39,9 +39,12 @@ pub fn Spinner(props: &SpinnerProps, mut hooks: Hooks) -> impl Into<AnyElement<'
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> miette::Result<()> {
+    use miette::IntoDiagnostic;
+
     element!(Spinner(label: "Loading...".to_string(), done: false))
         .render_loop()
-        .await?;
+        .await
+        .into_diagnostic()?;
     Ok(())
 }

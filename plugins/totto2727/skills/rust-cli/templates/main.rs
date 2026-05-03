@@ -1,8 +1,7 @@
 use std::sync::Arc;
 
-use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
-use hooq::hooq;
+use miette::{IntoDiagnostic, Result, WrapErr};
 use reqwest::Client;
 use serde::Deserialize;
 
@@ -30,16 +29,24 @@ struct ApiResponse {
     ok: bool,
 }
 
-#[derive(thiserror::Error, Debug)]
+#[derive(thiserror::Error, miette::Diagnostic, Debug)]
 enum FetchError {
     #[error("HTTP request failed")]
+    #[diagnostic(
+        code(my_cli::fetch::http),
+        help("check the URL is reachable and the bearer token is valid")
+    )]
     Http(#[from] reqwest::Error),
+
     #[error("invalid JSON response")]
+    #[diagnostic(
+        code(my_cli::fetch::json),
+        help("the upstream response did not match the expected schema")
+    )]
     Json(#[from] serde_json::Error),
 }
 
 #[tokio::main]
-#[hooq(anyhow)]
 async fn main() -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
@@ -58,7 +65,6 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-#[hooq(anyhow)]
 async fn fetch(client: Arc<Client>, url: &str, token: Option<&str>) -> Result<()> {
     let mut req = client.get(url);
     if let Some(t) = token {
@@ -69,14 +75,14 @@ async fn fetch(client: Arc<Client>, url: &str, token: Option<&str>) -> Result<()
         .send()
         .await
         .map_err(FetchError::from)
-        .with_context(|| format!("requesting {url}"))?
+        .wrap_err_with(|| format!("requesting {url}"))?
         .text()
         .await
         .map_err(FetchError::from)?;
 
     let parsed: ApiResponse = serde_json::from_str(&body)
         .map_err(FetchError::from)
-        .with_context(|| "parsing response body")?;
+        .wrap_err("parsing response body")?;
 
     println!("{:?}", parsed);
     Ok(())
