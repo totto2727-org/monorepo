@@ -15,12 +15,12 @@
 
 ## タスク
 
-- [ ] **T1** — dev-workflow/SKILL.md に新セクション「## サイクル PR と CI 連携プロトコル」を追加
-  - status: in_progress
+- [x] **T1** — dev-workflow/SKILL.md に新セクション「## サイクル PR と CI 連携プロトコル」を追加
+  - status: completed
   - dependencies: なし (Wave 1 起点)
   - started_at: 2026-05-03T05:15:00Z
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-03T05:30:00Z
+  - commit: 45dff2bd044e1e38d076b92c7bded167b9986f9e
   - implementer: implementer-T1
   - re_activations: 0
   - notes: design.md の「コンポーネント構成 § A」「主要な型・インターフェース § シェル擬似コード」「PR description テンプレート」を SKILL.md L767 直後にコピーペースト。約 110 行。Wave 1 で T4 / T5 と並列起動可。
