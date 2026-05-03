@@ -1,9 +1,9 @@
 identifier: 2026-05-03-pr-ci-integration
 started_at: 2026-05-03T00:00:00Z
-updated_at: 2026-05-03T06:35:00Z
+updated_at: 2026-05-03T06:45:00Z
 
-status: active # active | completed | blocked
-current_step: 'Step 9 (Retrospective)'
+status: completed # active | completed | blocked
+current_step: 'completed (Step 9 Retrospective 完了)'
 
 completed_steps:
   - step: 'Step 1 (Intent Clarification)'
@@ -178,6 +178,20 @@ completed_steps:
       記録 (validator が4 件の引き継ぎ事項として明示)。
       ユーザー事前一括承認のため Step 8 Gate も即時通過。
 
+  - step: 'Step 9 (Retrospective)'
+    completed_at: 2026-05-03T06:45:00Z
+    artifacts:
+      - docs/retrospective/2026-05-03-pr-ci-integration.md
+    notes: |
+      retrospective-writer 1 名で本サイクルの学びを集約。良かった点 / 課題 /
+      次回改善案 / 再利用可能な知見の 4 軸で 241 行に整理。最重要学びは
+      「ドッグフード性のギャップ」(gh run watch のバックグラウンド完了 = exit
+      code 0 を CI PASS と短絡解釈、log 末尾の EXIT 行を見落とした) で、
+      次サイクルへの改善案として「EXIT 行確認 + gh run view --json conclusion
+      の二重チェック」を SKILL.md に追記する案を提示。適用範囲条文 (L792)
+      の遡及不適用が本サイクル前半の救済となった構造的セーフティネットを
+      再利用可能知見として記録。
+
 active_specialists: []
 
 blockers: []
@@ -203,7 +217,7 @@ artifacts:
     - docs/workflow/2026-05-03-pr-ci-integration/review/api-design.md
     - docs/workflow/2026-05-03-pr-ci-integration/review/holistic.md
   validation: docs/workflow/2026-05-03-pr-ci-integration/validation-report.md
-  retrospective: null
+  retrospective: docs/retrospective/2026-05-03-pr-ci-integration.md
 
 user_approvals:
   - gate: 'Step 1 user approval (intent-spec.md)'
