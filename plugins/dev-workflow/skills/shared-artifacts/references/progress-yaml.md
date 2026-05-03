@@ -58,6 +58,8 @@ active_specialists:
 
 未解決の Blocker。解消されたら削除。文言は「事象 + 影響 + 対応方針」を含める。
 
+- CI failure を記録する例: `Step 6 task-T1 commit abc1234 の CI が 2 回連続失敗 (run id 25270xxxx) → リトライ上限到達のため Blocker 化`。新フィールドは追加せず自由テキスト形式で attempts / run id / 該当コミットを書く。
+
 ### `artifacts`
 
 全成果物の相対パス。`null` のまま未生成のフィールドを残してよい。複数作成される成果物（research, review）はリスト形式。

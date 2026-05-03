@@ -1,0 +1,25 @@
+53ccf5a 2026-05-03 15:10:19 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): record Step 7 completion in progress.yaml
+1989e19 2026-05-03 15:09:23 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): complete Step 7 (External Review) with Major fixes
+fd519c6 2026-05-03 14:43:19 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): complete Step 6 (Implementation)
+80ce71a 2026-05-03 14:42:42 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): fix qa-design TC-009 (T7) and mark T6/T7 done
+d0250d1 2026-05-03 14:40:03 +0900 style(dev-workflow/2026-05-03-pr-ci-integration): apply oxfmt formatting to cycle artefacts
+b4e64a4 2026-05-03 14:39:01 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): complete task T3
+0001ed9 2026-05-03 14:37:22 +0900 feat(dev-workflow/2026-05-03-pr-ci-integration/task-T3): cross-link commit-rules section to PR-CI protocol
+92ae7a2 2026-05-03 14:33:02 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): start task T3 (Wave 3)
+7c06bfd 2026-05-03 14:32:15 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): complete task T2 and log T6/T7 follow-ups
+1509c57 2026-05-03 14:30:20 +0900 feat(dev-workflow/2026-05-03-pr-ci-integration/task-T2): append CI-PASS criterion to all nine Step Exit Criteria
+ec9f809 2026-05-03 14:25:19 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): start task T2 (Wave 2)
+6223937 2026-05-03 14:24:27 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): complete task T1
+03473b6 2026-05-03 14:22:18 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): complete task T5
+45dff2b 2026-05-03 14:21:52 +0900 feat(dev-workflow/2026-05-03-pr-ci-integration/task-T1): add cycle PR-CI protocol section to dev-workflow/SKILL.md
+bfb9c92 2026-05-03 14:20:58 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): complete task T4
+8a2aff6 2026-05-03 14:20:05 +0900 feat(dev-workflow/2026-05-03-pr-ci-integration/task-T5): document CI-failure blocker example in progress-yaml.md
+bc1a84d 2026-05-03 14:18:14 +0900 feat(dev-workflow/2026-05-03-pr-ci-integration/task-T4): reserve PR/CI write operations to Main in specialist-common
+c75818a 2026-05-03 14:14:46 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): start Wave 1 (T1, T4, T5)
+7d4ca95 2026-05-03 14:12:41 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): complete Step 5 (Task Decomposition)
+cdbc886 2026-05-03 14:00:48 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): complete Step 4 (QA Design)
+ab0d18e 2026-05-03 13:48:05 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): complete Step 3 (Design)
+a0a5007 2026-05-03 13:38:00 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): complete Step 2 (Research)
+1cb5743 2026-05-03 13:26:50 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): complete Step 1 (Intent Clarification)
+9a6a537 2026-05-03 13:03:20 +0900 chore(dev-workflow/2026-05-03-pr-ci-integration): align cycle dir with docs/workflow/ rename from main
+1ac3b5f 2026-05-03 13:01:47 +0900 docs(dev-workflow/2026-05-03-pr-ci-integration): initialize cycle

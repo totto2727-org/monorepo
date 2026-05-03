@@ -1,0 +1,21 @@
+
+Step 9 (Retrospective) 完了コミットの CI が PASS したことを確認した後、Main はサイクル PR を **Draft → Ready 化**する。Ready 化はサイクル完了の最終アクションの一つで、`gh pr ready` を冪等に実行する (既に Ready の PR には実行をスキップ)。
+
+```bash
+# Retrospective コミット直後
+PR_NUMBER=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
+IS_DRAFT=$(gh pr view "$PR_NUMBER" --json isDraft --jq '.isDraft')
+
+if [ "$IS_DRAFT" = "true" ]; then
+  gh pr ready "$PR_NUMBER"
+  echo "PR #$PR_NUMBER: Draft → Ready"
+elif [ "$IS_DRAFT" = "false" ]; then
+  echo "PR #$PR_NUMBER: already Ready (no-op)"
+else
+  echo "Unexpected isDraft value: $IS_DRAFT" >&2
+  exit 1
+fi
+```
+
+Ready 化のタイミングは Step 9 (Retrospective) コミット以降であることが必須 (`gh pr view --json` の `readyForReviewAt` 不在の場合は timeline の `event: ready_for_review` で確認)。
+
