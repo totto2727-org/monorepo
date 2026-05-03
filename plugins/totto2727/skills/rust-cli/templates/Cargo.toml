@@ -32,10 +32,13 @@ jiff = { version = "0.1", features = ["serde"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
-# TUI / Prompt
-iocraft = "0.8"
+# Lightweight CLI UI (single-purpose crates; combine as needed)
 inquire = "0.7"
 indicatif = "0.17"
+
+# Advanced declarative UI (uncomment only when full-screen TUI is required)
+# tui-realm = "2"
+# ratatui = "0.29"
 
 # Filesystem helpers
 camino = { version = "1", features = ["serde1"] }

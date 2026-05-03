@@ -4,8 +4,8 @@ description: >-
   This skill should be used when designing or implementing async CLI tools in Rust,
   selecting Rust crates for CLI work (argument parsing, HTTP, JSON/Schema, error handling,
   filesystem, dates, logging, TUI/spinner/prompt), or porting existing Effect-based / Node CLIs to Rust.
-  Common triggers: "Rust CLI", "RustでCLI", "clap", "tokio", "reqwest", "iocraft",
-  "ratatui", "ライブラリ選定", "技術選定 Rust", "Effect から Rust 移植".
+  Common triggers: "Rust CLI", "RustでCLI", "clap", "tokio", "reqwest", "tui-realm",
+  "ratatui", "inquire", "indicatif", "ライブラリ選定", "技術選定 Rust", "Effect から Rust 移植".
   Do NOT use for: production-grade architecture review (use code-reviewer),
   generic Rust questions unrelated to CLI scope, or non-async sync-only CLI design.
 metadata:
@@ -25,7 +25,7 @@ metadata:
 
 ユーザーの要件を聞き取った上で、以下のいずれか or 組み合わせを返す:
 
-1. **「レイヤ別早見表」と「TUI レイヤ選択」の表を提示**（迷っている場合の最初のレスポンス）
+1. **「レイヤ別早見表」と「UI レイヤ選択 (軽量 CLI / 高度な宣言的 UI の二択)」の表を提示**（迷っている場合の最初のレスポンス）
 2. **`references/libraries.md` の該当カテゴリを引用**（特定機能のクレート比較を求められた場合）
 3. **`templates/` のスターターを案内**（プロジェクト雛形が欲しい場合）
 4. **JS/Effect ↔ Rust の置換早見**（移植作業の場合、`references/libraries.md` 末尾参照）
@@ -38,7 +38,9 @@ metadata:
 - **エラー戦略**: ライブラリ層 / アプリ層ともに `thiserror` + `miette` の単一スタックで設計する。各エラー型に `#[derive(thiserror::Error, miette::Diagnostic)]` を併用し、`#[diagnostic(code(...), help(...))]` でリッチな診断レポートを付与する。アプリ層は `miette::Result<T>` を返し、外部クレートの `Result` は `.into_diagnostic()` で取り込み、`.wrap_err(...)` で意味的 context を積む
 - **HTTP**: `reqwest::Client` をプロセス全体で `Arc` 共有してコネクションを再利用する
 - **CLI フラグ**: `clap` derive。`#[arg(env = "...")]` で env フォールバックを宣言的に表現する
-- **TUI**: 単発プロンプト/スピナー止まりなら `inquire` + `indicatif`、宣言的 UI なら `iocraft`、フル画面 Elm なら `tui-realm` + `ratatui`
+- **UI レイヤ選定 (二択)**:
+  - **軽量 CLI** (入力受付 + ログ出力 + 進捗表示が中心): `clap` + `tracing` + `inquire` + `indicatif` の単体機能クレートを組み合わせる。これで足りるなら `tui-realm` を持ち込まない (過剰)
+  - **高度な宣言的 UI** (複数画面・大規模状態・ダッシュボード等): `tui-realm` (`ratatui` 上の Elm Architecture) に統一
 - **コードは決定的、言語の解釈は非決定的** — バリデーション・スキーマ検査は serde/garde に任せる
 
 ## レイヤ別早見表（必須カテゴリのみ）
@@ -59,18 +61,16 @@ metadata:
 
 詳細は [references/libraries.md](./references/libraries.md) — JS/Effect 側との **完全対応表**（FS/Path/並行/テスト/git/glob まで）。
 
-## TUI / 対話 UI のレイヤ選択
+## UI レイヤ選択 (軽量 CLI / 高度な宣言的 UI の二択)
 
-要件に応じて 3 レイヤから選ぶ。**フル TUI が要らないなら 1 で止める**。
+要件に応じて 2 レイヤから選ぶ。**入力 + ログ + 進捗で済むなら軽量 CLI で止める** (`tui-realm` は過剰)。
 
-| レイヤ                        | 用途                           | 推奨                     |
-| ----------------------------- | ------------------------------ | ------------------------ |
-| L1: 単発プロンプト＋スピナー  | y/n 確認・選択肢・進捗         | `inquire` + `indicatif`  |
-| L2: 宣言的（React-like）      | Ink 風コンポーネント／フォーム | `iocraft`                |
-| L3: フル画面 Elm Architecture | ダッシュボード                 | `tui-realm` on `ratatui` |
+| レイヤ          | 用途                                                    | 推奨スタック                                                                                                   |
+| --------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| 軽量 CLI        | 引数解析・単発プロンプト・進捗バー / スピナー・ログ出力 | `clap` + `tracing` + `inquire` + `indicatif` を**単体機能クレートとして組み合わせる** (フレームワーク化しない) |
+| 高度な宣言的 UI | フル画面ダッシュボード・複数画面遷移・大規模状態管理    | `tui-realm` on `ratatui` (Elm Architecture)                                                                    |
 
-iocraft はランタイム非依存（依存は `crossterm` + `futures` + `taffy`）で **tokio と直接組み合わせ可能**。
-スピナーはビルトイン非対応だが `use_state` + `use_future` で 10 行で書ける。
+軽量 CLI 側は責務ごとに独立した薄いクレートを直接呼ぶ設計。`tui-realm` を持ち込むのは UI 自体が状態機械として複雑になるケースに限定する。
 
 詳細・コード例は [references/tui.md](./references/tui.md)。
 
@@ -80,21 +80,15 @@ iocraft はランタイム非依存（依存は `crossterm` + `futures` + `taffy
 
 - [templates/Cargo.toml](./templates/Cargo.toml) — 推奨依存セット
 - [templates/main.rs](./templates/main.rs) — `clap` + `tokio` + `reqwest` + `thiserror` + `miette` の最小例
-- [templates/spinner.rs](./templates/spinner.rs) — iocraft で書く再利用 Spinner コンポーネント
 
 ## 選定の判断手順
 
 1. **同期で済むか確認** — 並行 I/O が無いなら blocking 版（`reqwest::blocking`）で十分
-2. **TUI のレイヤを決める** — L1 で足りるか／L2 で宣言的に書きたいか／L3 でフル画面か
+2. **UI レイヤを決める** — 軽量 CLI (clap + tracing + inquire + indicatif) で足りるか、それとも高度な宣言的 UI (tui-realm) が要るか
 3. **エラー設計を決める** — ライブラリ・アプリ層共通で `thiserror` + `miette::Diagnostic` derive を使い、アプリ層は `miette::Result<T>` で `?` 伝播。外部クレートの `Result` は `.into_diagnostic().wrap_err(...)` で取り込む
 4. **既存 Effect/Node CLI 移植の場合** — まず引数解析の `Option<T>` フラグと env フォールバックを `clap` の derive で書き直すと、`auth.ts` 的な手書き分岐が消える
 
 ## トラブルシューティング
-
-### `iocraft` と `reqwest` でランタイム競合する
-
-iocraft の examples は `smol::block_on` を使うが、`render_loop()` は単なる `Future` のため
-`#[tokio::main]` 配下で `.await` してよい。`use_future` 内も `tokio::time::sleep` で問題ない。
 
 ### サブコマンドが多すぎて `clap` 定義が肥大化する
 
@@ -116,9 +110,9 @@ derive の `#[derive(Subcommand)]` を enum で分割し、サブモジュール
 
 - 「Rust で非同期 CLI を作りたい。clap と tokio と reqwest の組み合わせで雛形が欲しい」
 - 「Effect で書いた CLI を Rust に移植したい。Schema の置き換えはどうすれば？」
-- 「Rust CLI でスピナーを出したい。indicatif と iocraft どっちがいい？」
-- 「ratatui と tui-realm の違いは？ Elm Architecture で書きたい」
-- 「Rust の HTTP クライアントクレート、reqwest 以外の選択肢は？」
+- 「Rust CLI でスピナー / 進捗バーを出したい。indicatif の使い方を教えて」
+- 「Rust CLI でフル画面ダッシュボードを書きたい。tui-realm の構成は？」
+- 「Rust CLI のエラー設計を miette + thiserror で組みたい」
 
 ### Should NOT trigger（発火させない）
 
