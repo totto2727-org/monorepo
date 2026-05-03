@@ -76,66 +76,14 @@ flowchart TD
 
 ---
 
-## File Specification
+## File specification
 
-### File name
+The full per-section authoring guide and the file template live under `share-artifacts`, in the same `references/` ↔ `templates/` 1:1 pattern as every other artifact:
 
-Common across all modes:
+- **Authoring guide:** `share-artifacts/references/adr.md` — file-name convention, frontmatter fields, how to write each section (Context / Decision / Consequences / Related), quality criteria, lifecycle diagram, and supersession addendum format.
+- **Template:** `share-artifacts/templates/adr.md` — placeholder skeleton to copy when filing a new ADR.
 
-!`echo "$(date +%Y-%m-%d)-title.md"`
-
-- Date prefix is mandatory (`YYYY-MM-DD`)
-- title is a short alphanumeric hyphenated string representing the domain (kebab-case recommended)
-- Examples: `2026-04-26-dev-workflow-rename-and-flatten.md` / `2026-04-29-feed-platform-canonical-schema-v2.md`
-
-### Frontmatter
-
-All ADRs have the following YAML frontmatter:
-
-```yaml
----
-confirmed: false
-scope: general | roadmap:<roadmap-id>
----
-```
-
-| Field       | Type    | Description                                                                                          |
-| ----------- | ------- | ---------------------------------------------------------------------------------------------------- |
-| `confirmed` | boolean | `true`: confirmed (in principle immutable) / `false`: proposal (awaiting review)                     |
-| `scope`     | string  | `general` (= under `docs/adr/`) or `roadmap:<roadmap-id>` (= under `docs/roadmap/<roadmap-id>/adr/`) |
-
-The `scope` field must match the storage location and serves as an index for distinguishing the two modes via grep / programmatic filtering. ADRs with `scope: roadmap:<roadmap-id>` are referenceable from any dev-workflow cycle under that roadmap, and ADRs with `scope: general` are referenceable from the entire repository.
-
-### Body structure
-
-```markdown
----
-confirmed: false
-scope: general
----
-
-# ADR: Title
-
-## Context
-
-Background of why this decision is necessary. Explicitly state the **scope range** (which roadmap / which workflow / which project-wide norm it applies to).
-
-## Decision
-
-The specific design decision. Describe table design / API design / route design / library adoption / policy declarations, etc. Briefly list 2-3 alternatives that serve as comparative material backing the decision.
-
-## Consequences
-
-The scope of impact arising from this decision.
-
-- Newly added: new tables / modules / routes / conventions, etc.
-- Existing impact: existing code / existing operations that need to change
-- Constraints: constraints that must be observed when this decision is taken as a premise going forward
-
-## Related
-
-Bullet list of links to related existing ADRs / `roadmap.md` / `milestones/<id>.md` / `design.md`, etc. (may be omitted if not applicable).
-```
+This skill (`share-adr`) deliberately keeps only the **policy** layer (mode decision flow, operating rules, filing-origin coordination). The **format** layer (frontmatter spec, body structure, prose style) is owned by `share-artifacts/references/adr.md`.
 
 ---
 

@@ -172,7 +172,7 @@ When a cycle is resumed in a new session:
 - **Specialist internals** — `specialist-common` for cross-cutting rules; `specialist-researcher` / `specialist-architect` / `specialist-qa-analyst` / `specialist-implementer` / `specialist-reviewer` / `specialist-validator` for role specifics.
 - **Sub-agent entry points** — `agents/<role>.md` thin wrappers (one per role specialist; Main-only steps have no wrapper).
 - **Cross-cycle decisions** (project-wide / multi-roadmap / shared norms across cycles inside one roadmap) — recorded as ADRs via `share-adr` (General mode `docs/adr/` or Roadmap mode `docs/roadmap/<roadmap-id>/adr/`). Not a substitute for `design.md`.
-- **Artifact templates and write-up references** — `share-artifacts/{templates,references}/<name>.md`. The 17 artifacts and their 1:1 template ↔ reference pairing live there.
+- **Artifact templates and write-up references** — `share-artifacts/{templates,references}/<name>.md`. The 18 artifacts and their 1:1 template ↔ reference pairing live there.
 - **PR and CI command details** — `share-pr-manager` (write/read `gh pr` commands, idempotency guards, permission boundary) and `share-ci-monitoring` (`gh run watch` double-check protocol, retry discipline, PR `## CI status` section).
 - **PR description body** — `share-artifacts/{templates,references}/pr-body.md`.
 - **Tool-specific commands** — project-specific skills (e.g. `effect-layer`, `git-workflow`, `macos-cli-rules`).
