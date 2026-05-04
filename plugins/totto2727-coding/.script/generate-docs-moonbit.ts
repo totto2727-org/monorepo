@@ -5,7 +5,7 @@
 //   - Toolchain: https://docs.moonbitlang.com/en/latest/toolchain/index.html
 //
 // Download links (pass these as arguments):
-//   sfw deno run --allow-net --allow-read --allow-write .script/process-moonbit-docs.ts \
+//   sfw deno run --allow-net --allow-read --allow-write .script/generate-docs-moonbit.ts \
 //     https://docs.moonbitlang.com/en/latest/_downloads/78d8998d78e60fd7b1b2f4c9bb2819fb/summary.md \
 //     https://docs.moonbitlang.com/en/latest/_downloads/7e67a7065021137fc80a2750bac9ee32/summary.md
 
@@ -13,7 +13,9 @@ import { join } from 'jsr:@std/path@1.1.4'
 
 const urls = Deno.args
 if (urls.length === 0) {
-  console.error('Usage: deno run --allow-net --allow-read --allow-write .script/process-moonbit-docs.ts <URL> [URL...]')
+  console.error(
+    'Usage: deno run --allow-net --allow-read --allow-write .script/generate-docs-moonbit.ts <URL> [URL...]',
+  )
   Deno.exit(1)
 }
 
