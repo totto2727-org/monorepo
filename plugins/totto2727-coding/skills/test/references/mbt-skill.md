@@ -1,6 +1,6 @@
 # MoonBit Test Conventions Index
 
-このファイルは test スキルの MoonBit 中間目次です。
+Tier-2 index for MoonBit test conventions in the `test` skill.
 
 ## In-plugin detail files
 
@@ -8,7 +8,7 @@
 
 ## External skill references
 
-(本サイクル時点では MoonBit テスト関連の外部スキルなし。)
+(None at this time. Future MoonBit-test-related external skills will be listed here by name only.)
 
 ## Related references
 

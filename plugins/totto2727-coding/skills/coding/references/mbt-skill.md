@@ -1,6 +1,6 @@
 # MoonBit Conventions Index
 
-このファイルは coding スキルの MoonBit 中間目次です。
+Tier-2 index for MoonBit conventions in the `coding` skill.
 
 ## In-plugin detail files
 
@@ -8,7 +8,7 @@
 
 ## External skill references
 
-(本サイクル時点では MoonBit 関連の外部スキルなし。将来追加余地。)
+(None at this time. Future MoonBit-related external skills will be listed here by name only, per the external-reference policy.)
 
 ## Related references
 

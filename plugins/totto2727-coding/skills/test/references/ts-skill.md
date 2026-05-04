@@ -1,10 +1,10 @@
 # TypeScript Test Conventions Index
 
-このファイルは test スキルの TypeScript 中間目次です。本サイクル時点では外部スキル参照のみを持ち、in-plugin の TS テスト規約は将来追加されます。
+Tier-2 index for TypeScript test conventions in the `test` skill. This index currently holds only external skill references; in-plugin TS test conventions will be added in a future cycle.
 
 ## In-plugin detail files
 
-(本サイクル時点では未整備。将来 `ts-*.md` を追加した際にここに索引を記載。)
+(None yet. Add `ts-<topic>.md` files here when TS test conventions are introduced.)
 
 ## External skill references
 
