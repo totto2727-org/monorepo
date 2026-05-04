@@ -32,5 +32,5 @@ jobs:
           if [ "$HTTP_STATUS" = "200" ]; then
             echo "v${LOCAL_VERSION} already published. Skipping."
           else
-            npm publish
+            pnpm publish --registry https://registry.npmjs.org
           fi
