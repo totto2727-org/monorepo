@@ -48,11 +48,27 @@ export default defineConfig({
       check: {
         command: 'vp check',
       },
+      ci: {
+        command: '',
+        dependsOn: ['workspace:check', 'workspace:test', 'workspace:build'],
+      },
       fix: {
         command: 'vp check --fix',
       },
       test: {
         command: 'vp test',
+      },
+      'workspace:build': {
+        command: 'vp run -r build',
+      },
+      'workspace:check': {
+        command: 'vp run -r check',
+      },
+      'workspace:fix': {
+        command: 'vp run -r fix',
+      },
+      'workspace:test': {
+        command: 'vp run -r test',
       },
     },
   },
