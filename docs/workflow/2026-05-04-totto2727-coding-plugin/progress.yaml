@@ -1,11 +1,11 @@
 identifier: 2026-05-04-totto2727-coding-plugin
 title: 'Create totto2727-coding plugin (consolidate moonbit + effect skills)'
-status: in_progress
+status: completed
 created_at: 2026-05-04
 updated_at: 2026-05-04
 roadmap: null
 
-current_step: 'Step 9: Retrospective'
+current_step: 'completed'
 completed_steps:
   - step: 'Step 1: Intent Clarification'
     completed_at: 2026-05-04
@@ -65,7 +65,7 @@ artifacts:
     - docs/workflow/2026-05-04-totto2727-coding-plugin/review/api-design.md
     - docs/workflow/2026-05-04-totto2727-coding-plugin/review/test-quality.md
   validation_report: null
-  retrospective: null
+  retrospective: docs/retrospective/2026-05-04-totto2727-coding-plugin.md
   external_adrs: []
 
 blockers: []
@@ -120,6 +120,14 @@ user_approvals:
       本サイクル内で対応 (commits cea1f2b / e776623 + Main の sandbox 外 prebuild)。
       さらに R4 (vp check inline-code 分断) + Related references 統一 + 未実装記述削除
       も追加対応 (commits a2f69b6 / 5552425)。Step 9 (Retrospective) に進む。
+  - step: 'Step 9: Retrospective'
+    approved_at: 2026-05-04
+    note: |
+      Main 判定ゲート。retrospective-writer が docs/retrospective/2026-05-04-totto2727-coding-plugin.md
+      (340 行) を作成。Continue 6 / Improve 5 / Action Items 5 (PR-1〜PR-5) / User Policies 2 (U-A: review
+      response policy / U-B: retrospective scoping) / R1〜R16 横断項目 / ADR migration 候補 3 を整理。
+      ユーザー方針 (汎用性最優先・「汎用性に欠けるため不採用」明記) を 4 件適用。
+      サイクル最終化、status: completed 遷移。
 
 rollbacks: []
 
