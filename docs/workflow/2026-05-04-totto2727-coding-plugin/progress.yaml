@@ -5,7 +5,7 @@ created_at: 2026-05-04
 updated_at: 2026-05-04
 roadmap: null
 
-current_step: 'Step 4: QA Design (awaiting user approval)'
+current_step: 'Step 5: Task Decomposition'
 completed_steps:
   - step: 'Step 1: Intent Clarification'
     completed_at: 2026-05-04
@@ -32,6 +32,15 @@ completed_steps:
       に名前のみ参照 (A10 追加)、(2) docs-* 命名規則統一 (moonbit-docs → docs-moonbit
       / components-build-docs → docs-components-build) でスクリプト名・slash command 名・
       内部テンプレート文字列も全て連動更新 (A8 拡充、W2 タスク詳細化)。
+  - step: 'Step 4: QA Design'
+    completed_at: 2026-05-04
+    artifacts:
+      - docs/workflow/2026-05-04-totto2727-coding-plugin/qa-design.md
+      - docs/workflow/2026-05-04-totto2727-coding-plugin/qa-flow.md
+    note: |
+      qa-analyst が TC-001〜TC-027 (27 件) を作成。SC-1〜SC-10 を観測可能形式でカバー。
+      A10 (外部スキル参照除外) と A8 (docs-* リネーム連動) を専用 TC で保護。
+      qa-flow.md は 6 セクションの Mermaid flowchart TD。TC-IMPL-NNN は空セクション。
 pending_gates: []
 active_specialists: []
 
@@ -69,6 +78,9 @@ user_approvals:
     approved_at: 2026-05-04
     note: |
       ユーザー「ok」で承認。事前に外部依存スキル参照 + docs-* 命名規則の 2 件を取り込み。
+  - step: 'Step 4: QA Design'
+    approved_at: 2026-05-04
+    note: 'ユーザー「ok」で承認。Step 5 (Task Decomposition) に着手する。'
 
 rollbacks: []
 
