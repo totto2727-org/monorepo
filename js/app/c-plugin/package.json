@@ -1,6 +1,6 @@
 {
   "name": "@totto2727/c-plugin",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -18,9 +18,7 @@
     "#@/*": "./src/*"
   },
   "scripts": {
-    "build": "vp pack",
-    "bin": "node dist/bin.mjs",
-    "check": "pnpm run --parallel /check:.*/"
+    "bin": "node dist/bin.mjs"
   },
   "dependencies": {
     "@effect/platform-node": "catalog:effect",

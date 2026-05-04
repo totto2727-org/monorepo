@@ -1,6 +1,6 @@
 {
   "name": "@totto2727/bw",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -18,9 +18,7 @@
     "#@/*": "./src/*"
   },
   "scripts": {
-    "build": "vp pack",
-    "bin": "node dist/bin.mjs",
-    "check": "pnpm run --parallel /check:.*/"
+    "bin": "node dist/bin.mjs"
   },
   "dependencies": {
     "@effect/platform-node": "catalog:effect",

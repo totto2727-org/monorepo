@@ -28,13 +28,10 @@
     "./option-t/safe-try": "./src/option-t/safe-try.ts",
     "./temporal": "./src/temporal.ts",
     "./tsconfig/vite": "./src/tsconfig/vite.json",
-    "./type": "./src/type.ts"
+    "./type": "./src/type.ts",
+    "./vite": "./src/vite.ts"
   },
-  "scripts": {
-    "check": "pnpm run --parallel /check:.*/",
-    "check:doc": "deno doc --lint 'src/**/*.ts'",
-    "check:slowtype": "vpx jsr publish --dry-run --allow-dirty"
-  },
+  "scripts": {},
   "dependencies": {
     "@formatjs/intl-durationformat": "^0.10.1",
     "@noble/hashes": "^2.0.1",
