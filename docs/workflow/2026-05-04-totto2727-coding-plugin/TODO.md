@@ -105,125 +105,125 @@ Following the rule that `task-plan.md` is immutable, any additional tasks discov
   - re_activations: 0
   - notes: -
 
-- [ ] **T10** — Migrate `effect-layer/SKILL.md` → `coding/references/ts-effect-layer.md`
-  - status: in_progress
+- [x] **T10** — Migrate `effect-layer/SKILL.md` → `coding/references/ts-effect-layer.md`
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: 35e307c
   - implementer: W3-implementer-T10
   - re_activations: 0
-  - notes: Strip frontmatter (A5); R-1 link rewrites
+  - notes: 'Race condition: original 6a2a2bb (T10 message) actually contained T13 file (ts-totto2727-fp.md). T10 file (ts-effect-layer.md) committed in follow-up 35e307c.'
 
-- [ ] **T11** — Migrate `effect-runtime/SKILL.md` → `coding/references/ts-effect-runtime.md`
-  - status: in_progress
+- [x] **T11** — Migrate `effect-runtime/SKILL.md` → `coding/references/ts-effect-runtime.md`
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: 9c6c4be
   - implementer: W3-implementer-T11
   - re_activations: 0
-  - notes: Strip frontmatter; R-2 link rewrites
+  - notes: 'Race condition: T11 file (ts-effect-runtime.md) was swept into 9c6c4be (T12 message). Content correct per R-2.'
 
-- [ ] **T12** — Migrate `effect-hono/SKILL.md` → `coding/references/ts-effect-hono.md`
-  - status: in_progress
+- [x] **T12** — Migrate `effect-hono/SKILL.md` → `coding/references/ts-effect-hono.md`
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: 9c6c4be
   - implementer: W3-implementer-T12
   - re_activations: 0
-  - notes: Strip frontmatter; R-3 link rewrites
+  - notes: 'Commit 9c6c4be also contains T11 file due to race condition.'
 
-- [ ] **T13** — Migrate `totto2727-fp/SKILL.md` → `coding/references/ts-totto2727-fp.md`
-  - status: in_progress
+- [x] **T13** — Migrate `totto2727-fp/SKILL.md` → `coding/references/ts-totto2727-fp.md`
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: 6a2a2bb
   - implementer: W3-implementer-T13
   - re_activations: 0
-  - notes: Strip frontmatter; R-4 (1 external URL only)
+  - notes: 'Race condition: T13 file got committed under "T10" commit message (6a2a2bb). Content correct per R-4.'
 
-- [ ] **T14** — Migrate `moonbit-bestpractice/SKILL.md` → `coding/references/mbt-bestpractice.md`
-  - status: in_progress
+- [x] **T14** — Migrate `moonbit-bestpractice/SKILL.md` → `coding/references/mbt-bestpractice.md`
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: df9931f
   - implementer: W3-implementer-T14
   - re_activations: 0
-  - notes: Strip frontmatter; rewrite L311 cross-skill link per A7(a); R-5 link rewrites
+  - notes: 'A7(a) cross-skill link applied; R-5 references skill-content-migration.md is stale re docs-* rename, implementer correctly applied design A8 instead.'
 
-- [ ] **T15** — Migrate `moonbit-bestpractice/references/moonbit-test.md` → `test/references/mbt-bestpractice.md`
+- [x] **T15** — Migrate `moonbit-bestpractice/references/moonbit-test.md` → `test/references/mbt-bestpractice.md`
+  - status: completed
+  - dependencies: T1
+  - started_at: 2026-05-04
+  - completed_at: 2026-05-04
+  - commit: 6ce3ba4
+  - implementer: W3-implementer-T15
+  - re_activations: 0
+  - notes: -
+
+- [ ] **T16** — Author `coding/SKILL.md` (≤300 lines, language-agnostic + language index + external spec section)
+  - status: in_progress
+  - dependencies: T10, T11, T12, T13, T14, T15, T1
+  - started_at: 2026-05-04
+  - completed_at: -
+  - commit: -
+  - implementer: W4-implementer-T16
+  - re_activations: 0
+  - notes: 'Author file only; Main commits sequentially to avoid W2/W3 race condition. SC-3 hard cap.'
+
+- [ ] **T17** — Author `coding/references/ts-skill.md` (in-plugin TS detail + external skill refs vite-plus / remix per A10)
+  - status: in_progress
+  - dependencies: T10, T11, T12, T13, T1
+  - started_at: 2026-05-04
+  - completed_at: -
+  - commit: -
+  - implementer: W4-implementer-T17
+  - re_activations: 0
+  - notes: 'Author file only; Main commits sequentially. A10 external skill refs.'
+
+- [ ] **T18** — Author `coding/references/mbt-skill.md`
+  - status: in_progress
+  - dependencies: T14, T1
+  - started_at: 2026-05-04
+  - completed_at: -
+  - commit: -
+  - implementer: W4-implementer-T18
+  - re_activations: 0
+  - notes: 'Author file only; Main commits sequentially.'
+
+- [ ] **T19** — Author `test/SKILL.md` (≤300 lines, TS + MoonBit indexes per Q4 revised)
+  - status: in_progress
+  - dependencies: T15, T1
+  - started_at: 2026-05-04
+  - completed_at: -
+  - commit: -
+  - implementer: W4-implementer-T19
+  - re_activations: 0
+  - notes: 'Author file only; Main commits sequentially. SC-3 hard cap.'
+
+- [ ] **T20** — Author `test/references/ts-skill.md` (external skill ref vite-plus only per A10)
   - status: in_progress
   - dependencies: T1
   - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: W3-implementer-T15
+  - implementer: W4-implementer-T20
   - re_activations: 0
-  - notes: No frontmatter to strip (already none per R-6)
-
-- [ ] **T16** — Author `coding/SKILL.md` (≤300 lines, language-agnostic + language index + external spec section)
-  - status: pending
-  - dependencies: T10, T11, T12, T13, T14, T15, T1
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
-  - re_activations: 0
-  - notes: 300-line hard cap (SC-3); external spec links to ../docs-moonbit/SKILL.md and ../docs-components-build/SKILL.md
-
-- [ ] **T17** — Author `coding/references/ts-skill.md` (in-plugin TS detail + external skill refs vite-plus / remix per A10)
-  - status: pending
-  - dependencies: T10, T11, T12, T13, T1
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
-  - re_activations: 0
-  - notes: A10 — `## External skill references` section, name-only no Markdown link
-
-- [ ] **T18** — Author `coding/references/mbt-skill.md`
-  - status: pending
-  - dependencies: T14, T1
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
-  - re_activations: 0
-  - notes: -
-
-- [ ] **T19** — Author `test/SKILL.md` (≤300 lines, TS + MoonBit indexes per Q4 revised)
-  - status: pending
-  - dependencies: T15, T1
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
-  - re_activations: 0
-  - notes: 300-line hard cap (SC-3)
-
-- [ ] **T20** — Author `test/references/ts-skill.md` (external skill ref vite-plus only per A10)
-  - status: pending
-  - dependencies: T1
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
-  - re_activations: 0
-  - notes: A10 — `## External skill references` section, no in-plugin detail files
+  - notes: 'Author file only; Main commits sequentially. A10 external skill refs.'
 
 - [ ] **T21** — Author `test/references/mbt-skill.md`
-  - status: pending
+  - status: in_progress
   - dependencies: T15
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W4-implementer-T21
   - re_activations: 0
-  - notes: -
+  - notes: 'Author file only; Main commits sequentially.'
 
 - [ ] **T22** — Delete `plugins/moonbit/` (entire directory)
   - status: pending
