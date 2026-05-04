@@ -57,7 +57,7 @@ In addition to the basic inputs from `specialist-common`:
 - `share-artifacts/references/qa-flow.md` (Mermaid flowchart syntax / split guidelines / skip-leaf rules)
 - `share-artifacts/templates/qa-design.md` (output format template)
 - `share-artifacts/templates/qa-flow.md` (output format template)
-- Related project-specific test skills (`vite-plus` for TS, `moonbit-bestpractice` for MoonBit, the appropriate
+- Related project-specific test skills (`vite-plus` for TS, `test` for project-wide test conventions, the appropriate
   skill for other languages) — referenced as choices for the automated test foundation, but do not write specific
   tool names in qa-design.md.
 

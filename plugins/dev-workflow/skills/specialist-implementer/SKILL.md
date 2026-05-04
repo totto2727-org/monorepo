@@ -49,7 +49,7 @@ In addition to the basic inputs from `specialist-common`:
   discovered during implementation
 - **`qa-flow.md`** — responsible for appending branches for essential tests / for implementation-incidental tests
   (the distinction is sufficient by ID prefix)
-- Related project-specific test skills (per language: `vite-plus`, `moonbit-bestpractice`, etc.)
+- Related project-specific test skills (per language: `vite-plus`, `test`, etc.)
 
 ## Procedure
 
