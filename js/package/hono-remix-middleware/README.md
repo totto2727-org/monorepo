@@ -2,29 +2,30 @@
 
 Hono の組み込み [`jsxRenderer`](https://hono.dev/docs/middleware/builtin/jsx-renderer) と同じ作法で **Remix v3 の `remix/ui` SSR** を呼び出すための middleware。
 
-ランタイム / バンドラ非依存で、Cloudflare Workers / Node / Bun / Deno のいずれでも動きます。
+ランタイム / バンドラ非依存で、Cloudflare Workers / Node / Bun / Deno のいずれでも動作。
 
 ## インストール
 
 ```sh
 pnpm add hono-remix-middleware
-# peer: hono, remix
 ```
 
 ## API
 
 ### `remixRenderer(options)`
 
-Hono の `c.render()` をひっかけて `remix/ui/server` の `renderToStream` を呼び、`text/html` の Response を返す middleware を生成。
+Hono の `c.render()` を拡張するミドルウェア生成関数。 
 
 ```ts
+import 'hono-remix-middleware/types'
+
 import { remixRenderer } from 'hono-remix-middleware'
 
 app.use(
   '*',
   remixRenderer<{ title?: string }>({
     fetcher: (request) => app.fetch(request),
-    wrap: (content, { title }) => <Layout title={title}>{content}</Layout>,
+    wrap: (content, props) => <Layout {...props}>{content}</Layout>,
   }),
 )
 ```
@@ -35,7 +36,7 @@ app.use(
 | `wrap` | `(content, props) => RemixNode` | 任意。`c.render(content, props)` の content を Layout / Document で包む関数。省略時は content をそのまま SSR。 |
 | `resolveClientEntry` | `(entryId, component) => { exportName, href }` | 任意。clientEntry の ID から `moduleUrl`/`exportName` を計算するフック。デフォルトは `/assets/` プレフィックスを剥がすだけ。 |
 
-`c.render()` の型は consumer 側で `declare module 'hono'` して augmentation する形を想定:
+Propsの型を指定する場合は以下の様に拡張。
 
 ```ts
 import type { RemixNode } from 'remix/ui'
@@ -47,17 +48,15 @@ declare module 'hono' {
 }
 ```
 
-`title` 等を持たない最小形でよければ `import 'hono-remix-middleware/types'` で props なしのデフォルト augmentation が読み込まれる。
+### `remixAssetServer(assetServer)`
 
-### `remixAssetServer(assets)`
-
-`hono-remix-middleware/asset-server` から import。`remix/assets#createAssetServer` で作った `AssetServer` インスタンスを Hono middleware にラップ。Native パターン（バンドラなし）専用。
+Remix v3のアセットサーバ機能を統合するmiddleware生成関数。
 
 ```ts
 import { createAssetServer } from 'remix/assets'
 import { remixAssetServer } from 'hono-remix-middleware/asset-server'
 
-const assets = createAssetServer({
+const assetServer = createAssetServer({
   basePath: '/assets',
   rootDir: process.cwd(),
   fileMap: {
@@ -68,10 +67,10 @@ const assets = createAssetServer({
   deny: ['app/**/*.server.*'],
 })
 
-app.use('/assets/*', remixAssetServer(assets))
+app.use('/assets/*', remixAssetServer(assetServer))
 ```
 
-`remix/assets` は Node の `fs` / `path` に依存するため、Cloudflare Workers では使えません。Workers 用には Workers Assets binding を使ってください（後述パターン 1）。
+注意：`remixAssetServer` はバンドルせずTSXやBun、Denoで直接実行される環境での利用を想定している。ファイルを操作する都合上Worker上では動作しないため、必要に応じてViteプラグインでアセットを準備する必要がある。
 
 ---
 
@@ -84,12 +83,13 @@ app.use('/assets/*', remixAssetServer(assets))
 | アセット配信 (dev) | Vite dev server | Vite dev server | `remixAssetServer` |
 | SSR 実行先 | Workers | `@hono/node-server` 等 | tsx / bun / deno |
 
+[`vite-plugin-remix` の README](../vite-plugin-remix/README.md)
+
 ### パターン 1: Vite + Cloudflare Workers
 
-`vite-plugin-remix` でクライアントバンドル、`wrangler.jsonc` の `assets` binding で配信。本リポジトリの `js/app/my-remix-app` がこの構成。
+`vite-plugin-remix` でクライアントバンドル、`wrangler.jsonc` の `assets` binding で配信。
 
-```ts
-// vite.config.ts
+```ts:vite.config.ts
 import { cloudflare } from '@cloudflare/vite-plugin'
 import { remix } from 'vite-plugin-remix'
 import { defineConfig } from 'vite'
@@ -102,8 +102,7 @@ export default defineConfig({
 })
 ```
 
-```jsonc
-// wrangler.jsonc
+```jsonc:wrangler.jsonc
 {
   "compatibility_date": "2026-02-01",
   "compatibility_flags": ["nodejs_compat"],
@@ -116,49 +115,61 @@ export default defineConfig({
 }
 ```
 
-```tsx
-// app/app.tsx
+```tsx:app/app.tsx
 import { Hono } from 'hono'
 import { remixRenderer } from 'hono-remix-middleware'
+import type { RemixNode } from 'remix/ui'
+import { Script } from 'vite-plugin-remix/client'
+
+declare module 'hono' {
+  interface ContextRenderer {
+    (content: RemixNode, props?: { title?: string }): Response
+  }
+}
+
+function Layout() {
+  return ({ title, children }: { title?: string; children?: RemixNode }) => (
+    <html lang='en'>
+      <head>
+        <meta charSet='utf-8' />
+        <meta name='viewport' content='width=device-width, initial-scale=1' />
+        <title>{title}</title>
+      </head>
+      <body>
+        {children}
+        <Script devSrc='/app/assets/entry.ts' prodSrc='/assets/entry.js' />
+      </body>
+    </html>
+  )
+}
 
 const app = new Hono()
 
 app
-  .use('*', remixRenderer<{ title?: string }>({
-    fetcher: (req) => app.fetch(req),
-    wrap: (content, { title }) => <Layout title={title}>{content}</Layout>,
-  }))
-  .get('/', (c) => c.render(<HomePage />, { title: 'Home' }))
+  .use(
+    '*',
+    remixRenderer<{ title?: string }>({
+      fetcher: (req) => app.fetch(req),
+      wrap: (content, { title }) => <Layout title={title}>{content}</Layout>,
+    }),
+  )
+  .get('/', (c) => c.render(<h1>Home</h1>, { title: 'Home' }))
 
 export default app
 ```
 
-```ts
-// app/entry.worker.ts
+```ts:app/entry.worker.ts
 import app from './app.tsx'
 export default app
 ```
 
-クライアントエントリは `vite-plugin-remix` の `boot()` ヘルパで:
-
-```ts
-// app/assets/entry.ts
+```ts:app/assets/entry.ts
 import { boot } from 'vite-plugin-remix/client'
 
 boot({
   components: import.meta.glob('/app/**/*.client.tsx'),
 })
 ```
-
-`Document` の `<script>` は `vite-plugin-remix/client` の `<Script>` を使い、`vite.config.ts` の `clientEntry` / `entryFileNames` と URL を一致させる:
-
-```tsx
-import { Script } from 'vite-plugin-remix/client'
-
-// <Script devSrc='/app/assets/entry.ts' prodSrc='/assets/entry.js' />
-```
-
-詳細は [`vite-plugin-remix` の README](../vite-plugin-remix/README.md) 参照。
 
 ### パターン 2: Vite + Node / Bun / Deno
 
