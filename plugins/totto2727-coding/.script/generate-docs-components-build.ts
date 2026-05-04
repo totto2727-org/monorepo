@@ -183,16 +183,16 @@ ${rows}
 ## Triggering Examples
 
 Should trigger:
-- "components.build の composition パターンについて教えて"
-- "コンポーネントの asChild の使い方"
-- "design tokens の設計方法"
-- "compound components の命名規約"
-- "component registry の作り方"
+- "Tell me about components.build composition patterns"
+- "How to use asChild on a component"
+- "How to design design tokens"
+- "Naming conventions for compound components"
+- "How to create a component registry"
 
 Should NOT trigger:
-- "React の useState の使い方" (general React question)
-- "shadcn/ui のインストール方法" (specific library setup)
-- "Radix UI の Dialog API" (specific library API)
+- "How to use React's useState" (general React question)
+- "How to install shadcn/ui" (specific library setup)
+- "Radix UI Dialog API" (specific library API)
 `
 
 await Deno.writeTextFile(join(outputDir, 'SKILL.md'), skillContent)
