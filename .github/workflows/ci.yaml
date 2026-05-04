@@ -26,4 +26,6 @@ jobs:
         shell: bash
         run: |
           eval "$(devbox shellenv)"
-          vp run --concurrency-limit 0 ci
+          vp run -r --concurrency-limit 0 build
+          vp run -r --concurrency-limit 0 check
+          vp run -r --concurrency-limit 0 test
