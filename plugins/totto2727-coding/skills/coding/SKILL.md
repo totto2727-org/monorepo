@@ -160,8 +160,8 @@ points.
   files). Always pair `coding` with `test` when writing real code.
 - **`vite-plus`** (external skill, npm-package-bundled) — the project's
   unified toolchain (Vite / Vitest / monorepo orchestration). Referenced
-  from `references/ts-skill.md` for concrete `vp run` / `vp test` / `vp
-check` usage.
+  from `references/ts-skill.md` for concrete `vp run`, `vp test`, and
+  `vp check` usage.
 - **`git-workflow`** (external skill) — Conventional Commits, GPG signing,
   staging discipline, multi-branch PR splitting. Apply to every commit
   produced while implementing the conventions documented here.

@@ -13,4 +13,4 @@ Tier-2 index for MoonBit conventions in the `coding` skill.
 ## Related references
 
 - For MoonBit language reference (syntax / types / functions / methods), see [docs-moonbit](../../docs-moonbit/SKILL.md).
-- For MoonBit testing standards, see [`test`](../../test/SKILL.md) skill ([mbt-bestpractice](../../test/references/mbt-bestpractice.md)).
+- For MoonBit testing standards, see [test](../../test/SKILL.md) (sibling skill in this plugin).
