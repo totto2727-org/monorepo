@@ -22,7 +22,7 @@ jobs:
           install-args: --filter @totto2727/c-plugin...
 
       - name: Build @totto2727/c-plugin
-        run: vp run --filter @totto2727/c-plugin build
+        run: vp run -t @totto2727/c-plugin#build
 
       - name: Publish npm:@totto2727/c-plugin
         uses: ./.github/actions/publish-npm
