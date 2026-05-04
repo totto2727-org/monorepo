@@ -6,7 +6,7 @@ interface CounterProps extends SerializableProps {
 }
 
 export const Counter = clientEntry(
-  '/assets/app/ui/counter.tsx#Counter',
+  '/assets/app/ui/counter.client.tsx#Counter',
   function Counter(handle: Handle<CounterProps>) {
     let count = handle.props.initial ?? 0
 

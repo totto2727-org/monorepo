@@ -10,7 +10,7 @@ interface Item {
 }
 
 export const Todo = clientEntry(
-  '/assets/app/ui/todo.tsx#Todo',
+  '/assets/app/ui/todo.client.tsx#Todo',
   function Todo(handle: Handle<TodoProps>) {
     let items: Item[] = []
 

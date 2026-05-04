@@ -2,8 +2,8 @@ import { Hono } from 'hono'
 import { logger } from 'hono/logger'
 
 import { remixRenderer } from './middleware/renderer.tsx'
-import { Counter } from './ui/counter.tsx'
-import { Todo } from './ui/todo.tsx'
+import { Counter } from './ui/counter.client.tsx'
+import { Todo } from './ui/todo.client.tsx'
 
 const app = new Hono()
 

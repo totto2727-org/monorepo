@@ -1,17 +1,11 @@
 import { run } from 'remix/ui'
 
-// Per-component code splitting:
-// - dev: each loader is `() => import('../ui/<file>.tsx')`, Vite serves the
-//        source on demand from its dev server.
-// - prod: vite build emits one chunk per glob match (assets/<name>-<hash>.js)
-//        and rewrites the loader to import that chunk URL.
-// In both cases the SSR's `moduleUrl` (`/app/ui/<file>.tsx`) only acts as a
-// lookup key — the actual fetch URL lives inside the loader closure.
-const loaders = import.meta.glob<Record<string, unknown>>('../ui/*.tsx')
-
-const components = Object.fromEntries(
-  Object.entries(loaders).map(([rel, loader]) => [rel.replace(/^\.\.\//, '/app/'), loader]),
-)
+// Project-wide convention: any *.client.tsx is a clientEntry-bearing module.
+// Vite expands the glob to one chunk per file at build time; the SSR's
+// moduleUrl ("/assets/app/ui/counter.client.tsx#Counter" → after stripping
+// "/assets/" → "/app/ui/counter.client.tsx") matches the glob keys directly,
+// so no extra normalisation is needed.
+const components = import.meta.glob<Record<string, unknown>>('/app/**/*.client.tsx')
 
 run({
   async loadModule(moduleUrl, exportName) {
