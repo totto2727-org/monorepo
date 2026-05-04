@@ -2,16 +2,14 @@
 
 Remix v3 のクライアントバンドル + ハイドレーションを Vite で扱うための minimal プラグイン。
 
-## 何をしてくれるか
+参考：任意のフレームワークにおけるSSRについては [`hono-remix-middleware`](../hono-remix-middleware/README.md) を参照。
+
+## 何をするか？
 
 - Vite の `client` environment を登録し、クライアントエントリを 1 ファイルから build
 - 各 `*.client.tsx` を rollup に **個別 chunk** として吐かせる（Remix の asset server と同等の per-component lazy loading）
 - dev / prod でスクリプト URL を切替える `<Script>` コンポーネント
 - `import.meta.glob` の loader を `remix/ui#run` に渡すための `boot()` ヘルパ
-
-ここで言う「クライアント」は user agent 上で実行される側（典型的にはブラウザだが Tauri / Electron の WebView も含む）を指し、SSR が走る Worker / Node 側と区別しています。
-
-`renderToStream` 側 (SSR) の差し替えは [`hono-remix-middleware`](../hono-remix-middleware/README.md) を参照。
 
 ## インストール
 
@@ -49,24 +47,7 @@ boot({
 
 ### `<Script>` コンポーネント (SSR HTML 内に挿入)
 
-```tsx
-import { Script } from 'vite-plugin-remix/client'
-
-export function Document() {
-  return ({ children }) => (
-    <html>
-      <head>...</head>
-      <body>
-        {children}
-        {/* devSrc は vite.config.ts の clientEntry に対応する project-relative URL */}
-        {/* prodSrc は entryFileNames（既定 'assets/entry.js'）に対応する公開 URL */}
-        <Script devSrc='/app/assets/entry.ts' prodSrc='/assets/entry.js' />
-      </body>
-    </html>
-  )
-}
-```
-
+- プロジェクトによってURLが変わるため、明示的に設定する必要がある
 - `devSrc` = Vite dev server が `clientEntry` を解決する project-relative URL
 - `prodSrc` = ビルド済みエントリの公開 URL（プラグインの `entryFileNames` に対応）
 
@@ -77,7 +58,22 @@ export function Document() {
 | dev (`vite dev`) | `<script type="module" src={devSrc}></script>` — Vite dev server が source TS を変換配信 |
 | prod (`vite build`) | `<script type="module" src={prodSrc}></script>` — ビルド済み chunk を静的配信 |
 
-両 URL は **必須**。デフォルトを持たず、プラグインの `clientEntry` / `entryFileNames` 設定との対応関係を呼び出し-site で明示させます。
+```tsx
+import { Script } from 'vite-plugin-remix/client'
+
+export function Document() {
+  return ({ children }) => (
+    <html>
+      <head>...</head>
+      <body>
+        {children}
+        <Script devSrc='/app/assets/entry.ts' prodSrc='/assets/entry.js' />
+      </body>
+    </html>
+  )
+}
+```
+
 
 ## オプション
 
@@ -108,47 +104,6 @@ dist/client/
 │   ├── todo.client-XXX.js
 │   └── css-mixin-XXX.js                # 共通 chunk
 ```
-
-## クライアントエントリの URL とクライアント側の動作
-
-SSR (`hono-remix-middleware` の `resolveClientEntry`) が HTML に書き込む `moduleUrl` は **lookup key** です。実際のネットワーク URL は `import.meta.glob` の loader closure 内に隠蔽され、Vite が build 時に書き換えています:
-
-```text
-SSR HTML moduleUrl                    →  components map key
-  /app/ui/counter.client.tsx          →  /app/ui/counter.client.tsx
-                                              ↓ (loader closure 内)
-                                         Vite が build 時に書換
-                                              ↓
-                                         /assets/counter.client-XXX.js
-                                              ↓
-                                         静的配信
-```
-
-そのため SSR 側は manifest を読む必要がありません。manifest が要るのは `entryFileNames` をハッシュ付きにする等、URL を build 後に解決したい場合だけ。
-
-## Vite environment の build 順
-
-`builder.buildApp` は触っていません。Vite のデフォルト builder が全 environment を build しますが順序は保証されません。現アーキテクチャでは他 environment が client manifest を読まないので順序非依存。
-
-manifest を読む構成にする場合は consumer 側 (`vite.config.ts`) で `builder.buildApp` を上書きして `client` を先に build してください:
-
-```ts
-defineConfig({
-  plugins: [remix({ clientEntry: 'app/assets/entry.ts' })],
-  builder: {
-    async buildApp(builder) {
-      const client = builder.environments.client
-      if (client) await builder.build(client)
-      for (const [name, env] of Object.entries(builder.environments)) {
-        if (name === 'client') continue
-        await builder.build(env)
-      }
-    },
-  },
-})
-```
-
-`buildApp` は singleton hook（後勝ち）なので、library plugin 側からは触らない方針にしています。
 
 ## ライセンス
 
