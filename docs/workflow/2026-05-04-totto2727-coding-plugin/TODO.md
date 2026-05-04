@@ -153,7 +153,7 @@ Following the rule that `task-plan.md` is immutable, any additional tasks discov
   - commit: df9931f
   - implementer: W3-implementer-T14
   - re_activations: 0
-  - notes: 'A7(a) cross-skill link applied; R-5 references skill-content-migration.md is stale re docs-* rename, implementer correctly applied design A8 instead.'
+  - notes: 'A7(a) cross-skill link applied; R-5 references skill-content-migration.md is stale re docs-\* rename, implementer correctly applied design A8 instead.'
 
 - [x] **T15** — Migrate `moonbit-bestpractice/references/moonbit-test.md` → `test/references/mbt-bestpractice.md`
   - status: completed
