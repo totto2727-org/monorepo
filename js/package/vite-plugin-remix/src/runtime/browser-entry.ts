@@ -1,0 +1,53 @@
+import { run } from 'remix/ui'
+
+export interface BootOptions {
+  /**
+   * Map of `moduleUrl` → loader. Keys must match what
+   * `resolveClientEntry`'s `href` produces during SSR (typically
+   * `/app/<path>/<file>.client.tsx`).
+   *
+   * The recommended way to populate this is from a project-wide glob:
+   *
+   * ```ts
+   * import.meta.glob('/app/<<asterisk>><<asterisk>>/<<asterisk>>.client.tsx')
+   * ```
+   *
+   * The pattern is left to the consumer because `import.meta.glob` is a
+   * compile-time syntax — the bundler must see the literal string in the
+   * caller's source to expand it.
+   */
+  components: Record<string, () => Promise<Record<string, unknown>>>
+}
+
+/**
+ * Boot the Remix client runtime against a static map of clientEntry loaders.
+ *
+ * Keeps `loadModule` purely lookup-based — no per-component dynamic
+ * `import(moduleUrl)` happens at runtime, so the SSR's `moduleUrl` only
+ * acts as a key. Vite resolves the real fetch URL inside each loader
+ * closure (Vite source path in dev, hashed chunk path in prod).
+ */
+export function boot({ components }: BootOptions): ReturnType<typeof run> {
+  return run({
+    async loadModule(moduleUrl, exportName) {
+      const loader = components[moduleUrl]
+      if (!loader) {
+        throw new Error(`No client entry registered for ${moduleUrl}`)
+      }
+      const mod = await loader()
+      return mod[exportName]
+    },
+    async resolveFrame(src, signal, target) {
+      const headers = new Headers({ accept: 'text/html' })
+      if (target) {
+        headers.set('x-remix-target', target)
+      }
+      const response = await fetch(src, {
+        credentials: 'same-origin',
+        headers,
+        signal,
+      })
+      return response.body ?? response.text()
+    },
+  })
+}

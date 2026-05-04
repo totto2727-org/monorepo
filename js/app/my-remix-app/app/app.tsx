@@ -1,15 +1,33 @@
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
+import { remixRenderer } from 'hono-remix-middleware'
+import type { RemixNode } from 'remix/ui'
 
-import { remixRenderer } from './middleware/renderer.tsx'
 import { Counter } from './ui/counter.client.tsx'
+import { Layout } from './ui/layout.tsx'
 import { Todo } from './ui/todo.client.tsx'
+
+interface RenderProps {
+  title?: string
+}
+
+declare module 'hono' {
+  interface ContextRenderer {
+    (content: RemixNode, props?: RenderProps): Response
+  }
+}
 
 const app = new Hono()
 
 app
   .use(logger())
-  .use('*', remixRenderer((request) => app.fetch(request)))
+  .use(
+    '*',
+    remixRenderer<RenderProps>({
+      fetcher: (request) => app.fetch(request),
+      wrap: (content, { title }) => <Layout title={title}>{content}</Layout>,
+    }),
+  )
   .get('/', (c) =>
     c.render(
       <>

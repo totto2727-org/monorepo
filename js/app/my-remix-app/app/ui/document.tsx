@@ -1,6 +1,5 @@
+import { Script } from 'vite-plugin-remix/ui'
 import type { RemixNode } from 'remix/ui'
-
-import { Script } from './script.tsx'
 
 export interface DocumentProps {
   children?: RemixNode

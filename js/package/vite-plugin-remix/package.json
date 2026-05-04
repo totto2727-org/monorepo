@@ -1,0 +1,18 @@
+{
+  "name": "vite-plugin-remix",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/plugin.ts",
+    "./runtime": "./src/runtime/browser-entry.ts",
+    "./ui": "./src/ui/script.tsx"
+  },
+  "peerDependencies": {
+    "remix": "catalog:remix",
+    "vite": "catalog:vite"
+  },
+  "devDependencies": {
+    "@totto2727/fp": "workspace:*"
+  }
+}

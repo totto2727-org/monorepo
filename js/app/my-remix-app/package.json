@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "hono": "catalog:hono",
-    "remix": "^3.0.0-beta.0"
+    "hono-remix-middleware": "workspace:*",
+    "vite-plugin-remix": "workspace:*",
+    "remix": "catalog:remix"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "catalog:cloudflare",
