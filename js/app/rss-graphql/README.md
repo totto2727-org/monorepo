@@ -14,18 +14,20 @@ GraphQL API server for RSS feed processing and querying.
 ## Development
 
 ```bash
-# Start development server (vp built-in)
+# Start development server (run from this directory; vp built-in)
 vp dev
 
-# Start Wrangler local server
-vp run start
+# Start Wrangler local server (still a package.json script)
+vp run --filter @app/rss-graphql start
 
-# Lint, format, and type check (vp built-in)
-vp check
+# Lint, format, and type check — root `check` task (workspace-wide)
+vp run check
 
-# Deploy to Cloudflare
-vp run deploy
+# Deploy to Cloudflare (still a package.json script)
+vp run --filter @app/rss-graphql deploy
 ```
+
+This package has no `build` / `setup` task: deploy is wrangler-driven directly.
 
 ## Architecture
 

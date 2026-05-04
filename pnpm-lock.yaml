@@ -186,7 +186,11 @@ importers:
         specifier: latest
         version: 4.85.0
 
-  go/app/atlas-to-kysely: {}
+  go/app/atlas-to-kysely:
+    devDependencies:
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.1.19(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.0(@emnapi/core@1.9.0)(@emnapi/runtime@1.9.0)(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)
 
   js/app/bw:
     dependencies:
@@ -518,9 +522,17 @@ importers:
         specifier: catalog:remix
         version: 3.0.0-beta.0(@emnapi/core@1.9.0)(@emnapi/runtime@1.9.0)
 
-  mbt/package/geo: {}
+  mbt/package/geo:
+    devDependencies:
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.1.19(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.0(@emnapi/core@1.9.0)(@emnapi/runtime@1.9.0)(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)
 
-  nix: {}
+  nix:
+    devDependencies:
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.1.19(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.0(@emnapi/core@1.9.0)(@emnapi/runtime@1.9.0)(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)
 
 packages:
 

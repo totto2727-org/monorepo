@@ -6,15 +6,9 @@
     "#@/*": "./src/*"
   },
   "scripts": {
-    "build": "vp build",
     "start": "wrangler dev",
     "storybook:dev": "storybook dev -p 6006",
-    "storybook:build": "storybook build",
-    "prebuild": "pnpm run --parallel /prebuild:.*/",
-    "prebuild:cloudflare": "wrangler types",
-    "prebuild:paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/feature/i18n/paraglide --emit-ts-declarations",
-    "prebuild:tsr": "tsr generate",
-    "prebuild:kysely": "go run github.com/totto2727-org/monorepo/go/app/atlas-to-kysely@0faf30b464eece8a80acdafad0f7ea0cec2f89e2 -i db/schema.hcl -o src/feature/db/generated.ts"
+    "storybook:build": "storybook build"
   },
   "dependencies": {},
   "devDependencies": {

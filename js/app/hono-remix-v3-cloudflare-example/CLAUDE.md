@@ -6,17 +6,17 @@ Package management is pnpm (via `vp`). Do not introduce Bun.
 
 ## Commands
 
-Run from this app directory:
+`build` is a Vite+ task in `vite.config.ts`; `dev` / `start` / `deploy` / `typecheck` remain `package.json` scripts. From the repo root:
 
 ```sh
-vp run dev         # vite dev (vp dev) — Workers run inside Vite, with HMR for client entry
-vp run start       # wrangler dev — Workers run on workerd against built output
-vp run build       # vite build — emit Worker + client bundles
-vp run deploy      # wrangler deploy
-vp run typecheck   # tsgo --noEmit
+vp run --filter hono-remix-v3-cloudflare-example dev        # vp dev — Workers run inside Vite, HMR for client entry
+vp run --filter hono-remix-v3-cloudflare-example start      # wrangler dev — Workers run on workerd against built output
+vp run --filter hono-remix-v3-cloudflare-example build      # vp build — emit Worker + client bundles (cached)
+vp run --filter hono-remix-v3-cloudflare-example deploy     # wrangler deploy
+vp run --filter hono-remix-v3-cloudflare-example typecheck  # tsgo --noEmit
 ```
 
-Install dependencies from the repo root with `pnpm install`.
+Run-from-app-dir works too (`cd js/app/hono-remix-v3-cloudflare-example && vp run build`). Install dependencies from the repo root with `pnpm install`.
 
 ## Building Features
 
