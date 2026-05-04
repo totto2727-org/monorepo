@@ -15,20 +15,16 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
+      - uses: ./.github/actions/setup-devbox
+
       - uses: ./.github/actions/setup-typescript
+        with:
+          install-args: --filter @totto2727/bw...
 
       - name: Build @totto2727/bw
         run: vp run --filter @totto2727/bw build
 
       - name: Publish npm:@totto2727/bw
-        working-directory: js/app/bw
-        run: |
-          ENCODED_NAME=$(node -p "encodeURIComponent(require('./package.json').name)")
-          LOCAL_VERSION=$(node -p "require('./package.json').version")
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/${ENCODED_NAME}/${LOCAL_VERSION}")
-
-          if [ "$HTTP_STATUS" = "200" ]; then
-            echo "v${LOCAL_VERSION} already published. Skipping."
-          else
-            pnpm publish --registry https://registry.npmjs.org
-          fi
+        uses: ./.github/actions/publish-npm
+        with:
+          working-directory: js/app/bw

@@ -1,0 +1,10 @@
+name: Setup devbox
+description: Install devbox with cache enabled. Subsequent steps can activate the devbox environment via `eval "$(devbox shellenv)"` and then run the provided tools directly.
+
+runs:
+  using: composite
+  steps:
+    - name: Install devbox
+      uses: jetify-com/devbox-install-action@a0d2d53632934ae004f878c840055956d9f741b0 # v0.14.0
+      with:
+        enable-cache: true
