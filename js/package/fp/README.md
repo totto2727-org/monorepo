@@ -2,7 +2,7 @@
 
 ## Usage
 
-[SKILL.md](https://github.com/totto2727-org/monorepo/blob/main/.claude/skills/totto2727-fp/SKILL.md)
+[ts-totto2727-fp.md](https://github.com/totto2727-org/monorepo/blob/main/plugins/totto2727-coding/skills/coding/references/ts-totto2727-fp.md)
 
 ## License
 
