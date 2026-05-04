@@ -1,0 +1,36 @@
+identifier: feed-platform-ms-01-workspace-foundation
+started_at: 2026-05-04T12:55:38Z
+updated_at: 2026-05-04T12:55:38Z
+
+status: active
+current_step: 1
+
+completed_steps: []
+
+pending_gates: []
+
+active_specialists: []
+
+blockers: []
+
+artifacts:
+  intent_spec: intent-spec.md
+  research: []
+  design: null
+  qa_design: null
+  qa_flow: null
+  external_adrs: []
+  task_plan: null
+  todo: null
+  review: []
+  validation: null
+  retrospective: null
+
+user_approvals: []
+
+rollbacks: []
+
+roadmap:
+  id: feed-platform
+  milestone:
+    id: ms-01-workspace-foundation
