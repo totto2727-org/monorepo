@@ -1,4 +1,7 @@
+/* oxlint-disable rules/force-predicate -- this package is consumer-runtime only and avoids depending on `effect` */
 import { run } from 'remix/ui'
+
+type ClientExport = (...args: never[]) => unknown
 
 export interface BootOptions {
   /**
@@ -16,7 +19,7 @@ export interface BootOptions {
    * compile-time syntax — the bundler must see the literal string in the
    * caller's source to expand it.
    */
-  components: Record<string, () => Promise<Record<string, unknown>>>
+  components: Record<string, () => Promise<Record<string, ClientExport>>>
 }
 
 /**
@@ -27,19 +30,23 @@ export interface BootOptions {
  * acts as a key. Vite resolves the real fetch URL inside each loader
  * closure (Vite source path in dev, hashed chunk path in prod).
  */
-export function boot({ components }: BootOptions): ReturnType<typeof run> {
-  return run({
-    async loadModule(moduleUrl, exportName) {
+export const boot = ({ components }: BootOptions): ReturnType<typeof run> =>
+  run({
+    async loadModule(moduleUrl: string, exportName: string) {
       const loader = components[moduleUrl]
-      if (!loader) {
+      if (loader === undefined) {
         throw new Error(`No client entry registered for ${moduleUrl}`)
       }
       const mod = await loader()
-      return mod[exportName]
+      const exported = mod[exportName]
+      if (exported === undefined) {
+        throw new Error(`Module ${moduleUrl} has no export named "${exportName}"`)
+      }
+      return exported
     },
-    async resolveFrame(src, signal, target) {
+    async resolveFrame(src: string, signal?: AbortSignal, target?: string) {
       const headers = new Headers({ accept: 'text/html' })
-      if (target) {
+      if (target !== undefined && target !== '') {
         headers.set('x-remix-target', target)
       }
       const response = await fetch(src, {
@@ -50,4 +57,3 @@ export function boot({ components }: BootOptions): ReturnType<typeof run> {
       return response.body ?? response.text()
     },
   })
-}

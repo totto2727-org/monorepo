@@ -34,13 +34,12 @@ export interface RemixPluginOptions {
  * downstream environment ever needs the manifest, supply your own
  * `builder.buildApp` to enforce client-first ordering.
  */
-export function remix(options: RemixPluginOptions): Plugin {
+export const remix = (options: RemixPluginOptions): Plugin => {
   const { clientEntry } = options
   const clientOutDir = options.clientOutDir ?? 'dist/client'
   const entryFileNames = options.entryFileNames ?? 'assets/entry.js'
 
   return {
-    name: 'plugin-remix',
     config() {
       return {
         environments: {
@@ -51,9 +50,9 @@ export function remix(options: RemixPluginOptions): Plugin {
               rollupOptions: {
                 input: clientEntry,
                 output: {
-                  entryFileNames,
-                  chunkFileNames: 'assets/[name]-[hash].js',
                   assetFileNames: 'assets/[name]-[hash][extname]',
+                  chunkFileNames: 'assets/[name]-[hash].js',
+                  entryFileNames,
                 },
               },
             },
@@ -61,5 +60,6 @@ export function remix(options: RemixPluginOptions): Plugin {
         },
       }
     },
+    name: 'plugin-remix',
   }
 }

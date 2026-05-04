@@ -1,4 +1,4 @@
-# My Remix App
+# hono-remix-v3-cloudflare-example
 
 **Remix v3 の UI / SSR** を **Cloudflare Workers** 上で **Hono** をリクエストルーターとして動かす検証用アプリ。ローカル開発とバンドルは Vite (`@cloudflare/vite-plugin` 経由) が担当します。
 
@@ -9,12 +9,12 @@
 
 ## 技術スタック
 
-| レイヤー                 | 採用                                                                       |
-| ------------------------ | -------------------------------------------------------------------------- |
-| HTTP ルーター            | **Hono**（`remix/fetch-router` の代替）                                    |
-| SSR / UI                 | **Remix v3 `remix/ui` + `remix/ui/server`**（そのまま流用）                |
-| クライアントバンドル / dev   | **Vite** + `@cloudflare/vite-plugin`（`remix/assets` ランタイムの代替）    |
-| ランタイム               | **Cloudflare Workers**（dev は Vite plugin 経由の workerd、prod も Workers） |
+| レイヤー                   | 採用                                                                         |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| HTTP ルーター              | **Hono**（`remix/fetch-router` の代替）                                      |
+| SSR / UI                   | **Remix v3 `remix/ui` + `remix/ui/server`**（そのまま流用）                  |
+| クライアントバンドル / dev | **Vite** + `@cloudflare/vite-plugin`（`remix/assets` ランタイムの代替）      |
+| ランタイム                 | **Cloudflare Workers**（dev は Vite plugin 経由の workerd、prod も Workers） |
 
 ポイントは、Remix v3 のうち Node 専用 API（`remix/node-serve`、`remix/assets` など）を全て排除し、残った Web API ベースの部分だけ Workers 上でそのまま動かしている点です。
 
@@ -129,7 +129,7 @@ declare module 'hono' {
   }
 }
 
-export const remixRenderer = (fetcher: Fetcher): MiddlewareHandler => async (c, next) => {
+export const remixRenderer = (fetcher: typeof fetch): MiddlewareHandler => async (c, next) => {
   c.setRenderer((content, props = {}) => {
     const stream = renderToStream(<Layout title={props.title}>{content}</Layout>, {
       frameSrc: c.req.url,
@@ -157,7 +157,7 @@ export const remixRenderer = (fetcher: Fetcher): MiddlewareHandler => async (c, 
 
 設計の要点:
 
-- **`Fetcher` 型で依存を切る** — middleware は `Hono` を import しないし、`app` モジュールも知らない。受け取るのは抽象的な `(req: Request) => Promise<Response>` だけで、テストもしやすい。`app.fetch` を読む責務は登録側（`app.tsx`）に閉じている。
+- **`typeof fetch` 型で依存を切る** — middleware は `Hono` を import しないし、`app` モジュールも知らない。受け取るのは Web 標準の `fetch` シグネチャだけで、テストもしやすい。`app.fetch` を読む責務は登録側（`app.tsx`）に閉じている。
 - **`Layout` の組み付けは middleware の中** — controller には JSX の中身しか書かれず、レイアウト切替が必要なら別の middleware を別ルートに `app.use('/admin/*', remixRenderer2(...))` の形で当てる。
 - **`resolveClientEntry`** — `clientEntry('/assets/app/ui/counter.tsx#Counter', …)` の `/assets/` プレフィックスを剥がし、Vite のソースパス（`/app/ui/counter.tsx`）に揃える。書き換え後の `href` が SSR HTML 内の `moduleUrl` になる。
 - **`resolveFrame`** — frame の入れ子 SSR でも同じ Hono アプリに再投入。依存は `fetcher` クロージャだけなので循環 import が起こらない。
@@ -170,8 +170,7 @@ export const remixRenderer = (fetcher: Fetcher): MiddlewareHandler => async (c, 
 <!-- rmx:h:hb1975a2c -->
 <button type="button">…</button>
 <!-- /rmx:h -->
-…
-{"moduleUrl":"/app/ui/counter.tsx","exportName":"Counter","props":{"initial":0}}
+… {"moduleUrl":"/app/ui/counter.tsx","exportName":"Counter","props":{"initial":0}}
 ```
 
 ステートを持たない `Layout` / `Document` はマーカーを残しません — サーバ出力のみで再レンダーされません。

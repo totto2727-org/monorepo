@@ -34,8 +34,12 @@ export interface AssetServer {
  * built `dist/client/` instead (Workers Assets binding or
  * `serveStatic`).
  */
-export const remixAssetServer = (assetServer: AssetServer): MiddlewareHandler => async (c, next) => {
-  const response = await assetServer.fetch(c.req.raw)
-  if (response) return response
-  await next()
-}
+export const remixAssetServer =
+  (assetServer: AssetServer): MiddlewareHandler =>
+  async (c, next) => {
+    const response = await assetServer.fetch(c.req.raw)
+    if (response) {
+      return response
+    }
+    return next()
+  }

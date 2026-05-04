@@ -3,6 +3,7 @@
   "extends": "@tsconfig/strictest",
   "compilerOptions": {
     "lib": ["ESNext", "DOM", "DOM.Iterable", "ESNext.Array", "ESNext.Collection", "ESNext.Iterator", "ESNext.Promise"],
+    "types": ["vite-plus/client"],
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "bundler",

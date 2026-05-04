@@ -5,15 +5,14 @@
   "type": "module",
   "exports": {
     ".": "./src/index.tsx",
-    "./asset-server": "./src/asset-server.ts",
-    "./types": "./src/types.d.ts"
-  },
-  "peerDependencies": {
-    "hono": "catalog:hono",
-    "remix": "catalog:remix"
+    "./asset-server": "./src/asset-server.ts"
   },
   "devDependencies": {
     "@totto2727/fp": "workspace:*",
+    "hono": "catalog:hono",
+    "remix": "catalog:remix"
+  },
+  "peerDependencies": {
     "hono": "catalog:hono",
     "remix": "catalog:remix"
   }

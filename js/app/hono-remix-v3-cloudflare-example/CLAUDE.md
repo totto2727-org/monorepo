@@ -1,4 +1,4 @@
-# My Remix App Guide
+# hono-remix-v3-cloudflare-example Guide
 
 This app uses **Cloudflare Workers + Hono + Remix v3 (UI / SSR)**. Vite (`vp dev`) drives local development via `@cloudflare/vite-plugin`; Wrangler runs the Worker locally and deploys it.
 

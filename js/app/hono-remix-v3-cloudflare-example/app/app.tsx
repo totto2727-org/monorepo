@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
-import { logger } from 'hono/logger'
 import { remixRenderer } from 'hono-remix-middleware'
+import { logger } from 'hono/logger'
 import type { RemixNode } from 'remix/ui'
 
 import { Counter } from './ui/counter.client.tsx'
@@ -12,8 +12,13 @@ interface RenderProps {
 }
 
 declare module 'hono' {
+  // Interface (not type alias) is required so this augmentation merges
+  // with hono's own `ContextRenderer`. A `marker` member keeps the
+  // "prefer-function-type" lint rule from collapsing the call signature
+  // into a type alias — the marker is never read.
   interface ContextRenderer {
     (content: RemixNode, props?: RenderProps): Response
+    readonly marker?: never
   }
 }
 
@@ -24,7 +29,7 @@ app
   .use(
     '*',
     remixRenderer<RenderProps>({
-      fetcher: (request) => app.fetch(request),
+      fetcher: (input) => Promise.resolve(app.fetch(input instanceof Request ? input : new Request(input))),
       wrap: (content, { title }) => <Layout title={title}>{content}</Layout>,
     }),
   )

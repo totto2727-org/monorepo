@@ -1,5 +1,5 @@
-import { Script } from 'vite-plugin-remix/client'
 import type { RemixNode } from 'remix/ui'
+import { Script } from 'vite-plugin-remix/client'
 
 export interface DocumentProps {
   children?: RemixNode
@@ -8,8 +8,9 @@ export interface DocumentProps {
 
 const DEFAULT_TITLE = decodeURIComponent('My%20Remix%20App')
 
-export function Document() {
-  return ({ title = DEFAULT_TITLE, children }: DocumentProps) => (
+export const Document =
+  () =>
+  ({ title = DEFAULT_TITLE, children }: DocumentProps) => (
     <html lang='en'>
       <head>
         <meta charSet='utf-8' />
@@ -22,4 +23,3 @@ export function Document() {
       </body>
     </html>
   )
-}

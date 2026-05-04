@@ -14,11 +14,9 @@ pnpm add hono-remix-middleware
 
 ### `remixRenderer(options)`
 
-Hono の `c.render()` を拡張するミドルウェア生成関数。 
+Hono の `c.render()` を拡張するミドルウェア生成関数。
 
 ```ts
-import 'hono-remix-middleware/types'
-
 import { remixRenderer } from 'hono-remix-middleware'
 
 app.use(
@@ -30,11 +28,11 @@ app.use(
 )
 ```
 
-| Option | 型 | 説明 |
-| -- | -- | -- |
-| `fetcher` | `(req: Request) => Promise<Response>` | 入れ子 SSR (`remix/ui/server` の `resolveFrame`) で frame を再取得するときに呼ばれる。通常 `(req) => app.fetch(req)` を closure で渡す。 |
-| `wrap` | `(content, props) => RemixNode` | 任意。`c.render(content, props)` の content を Layout / Document で包む関数。省略時は content をそのまま SSR。 |
-| `resolveClientEntry` | `(entryId, component) => { exportName, href }` | 任意。clientEntry の ID から `moduleUrl`/`exportName` を計算するフック。デフォルトは `/assets/` プレフィックスを剥がすだけ。 |
+| Option               | 型                                             | 説明                                                                                                                                     |
+| -------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `fetcher`            | `typeof fetch`                                 | 入れ子 SSR (`remix/ui/server` の `resolveFrame`) で frame を再取得するときに呼ばれる。通常 `(req) => app.fetch(req)` を closure で渡す。 |
+| `wrap`               | `(content, props) => RemixNode`                | 任意。`c.render(content, props)` の content を Layout / Document で包む関数。省略時は content をそのまま SSR。                           |
+| `resolveClientEntry` | `(entryId, component) => { exportName, href }` | 任意。clientEntry の ID から `moduleUrl`/`exportName` を計算するフック。デフォルトは `/assets/` プレフィックスを剥がすだけ。             |
 
 Propsの型を指定する場合は以下の様に拡張。
 
@@ -76,12 +74,12 @@ app.use('/assets/*', remixAssetServer(assetServer))
 
 ## 構成パターン
 
-| | Vite + Cloudflare | Vite + Node/Bun/Deno | Native (no bundler) |
-| -- | -- | -- | -- |
-| クライアントバンドル | `vite-plugin-remix` | `vite-plugin-remix` | なし — runtime 直実行 |
-| アセット配信 (prod) | wrangler `assets` binding | Hono `serveStatic` | `remixAssetServer` |
-| アセット配信 (dev) | Vite dev server | Vite dev server | `remixAssetServer` |
-| SSR 実行先 | Workers | `@hono/node-server` 等 | tsx / bun / deno |
+|                      | Vite + Cloudflare         | Vite + Node/Bun/Deno   | Native (no bundler)   |
+| -------------------- | ------------------------- | ---------------------- | --------------------- |
+| クライアントバンドル | `vite-plugin-remix`       | `vite-plugin-remix`    | なし — runtime 直実行 |
+| アセット配信 (prod)  | wrangler `assets` binding | Hono `serveStatic`     | `remixAssetServer`    |
+| アセット配信 (dev)   | Vite dev server           | Vite dev server        | `remixAssetServer`    |
+| SSR 実行先           | Workers                   | `@hono/node-server` 等 | tsx / bun / deno      |
 
 [`vite-plugin-remix` の README](../vite-plugin-remix/README.md)
 

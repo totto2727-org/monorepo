@@ -1,6 +1,3 @@
-/** @jsxRuntime automatic */
-/** @jsxImportSource remix/ui */
-
 export interface ScriptProps {
   /**
    * URL served by Vite in dev. Should match the project-relative path
@@ -24,14 +21,12 @@ export interface ScriptProps {
  * Both URLs are required so the relationship to the plugin's
  * `clientEntry` / `entryFileNames` settings stays explicit at the call
  * site — the component makes no assumption about your project layout.
+ *
+ * Intended for SSR that itself runs through Vite (so `import.meta.env`
+ * gets replaced). When SSR runs outside Vite (e.g. tsx loading the
+ * source directly), emit a plain `<script>` pointing at the built
+ * entry instead.
  */
-export function Script() {
-  // `import.meta.env` is injected by Vite. When SSR runs outside Vite
-  // (e.g. tsx loading the source directly), it stays undefined and we
-  // fall through to the prod URL — which is the correct branch for a
-  // built deployment.
-  const isDev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true
-  return ({ devSrc, prodSrc }: ScriptProps) => (
-    <script type='module' src={isDev ? devSrc : prodSrc}></script>
-  )
-}
+export const Script =
+  () =>
+  ({ devSrc, prodSrc }: ScriptProps) => <script type='module' src={import.meta.env.DEV ? devSrc : prodSrc}></script>

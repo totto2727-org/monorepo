@@ -8,24 +8,6 @@ export interface LayoutProps {
   title?: string
 }
 
-export function Layout() {
-  return ({ title, children }: LayoutProps) => (
-    <Document title={title}>
-      <header mix={headerStyle}>
-        <nav mix={navStyle}>
-          <a href='/' mix={linkStyle}>
-            Counter
-          </a>
-          <a href='/todo' mix={linkStyle}>
-            TODO
-          </a>
-        </nav>
-      </header>
-      <main mix={mainStyle}>{children}</main>
-    </Document>
-  )
-}
-
 const headerStyle = css({
   borderBottom: '1px solid #e5e7eb',
   padding: '12px 16px',
@@ -54,3 +36,21 @@ const mainStyle = css({
   maxWidth: '720px',
   padding: '24px 16px',
 })
+
+export const Layout =
+  () =>
+  ({ title, children }: LayoutProps) => (
+    <Document title={title}>
+      <header mix={headerStyle}>
+        <nav mix={navStyle}>
+          <a href='/' mix={linkStyle}>
+            Counter
+          </a>
+          <a href='/todo' mix={linkStyle}>
+            TODO
+          </a>
+        </nav>
+      </header>
+      <main mix={mainStyle}>{children}</main>
+    </Document>
+  )

@@ -7,12 +7,12 @@
     ".": "./src/plugin.ts",
     "./client": "./src/client/index.tsx"
   },
-  "peerDependencies": {
+  "devDependencies": {
+    "@totto2727/fp": "workspace:*",
     "remix": "catalog:remix",
     "vite": "catalog:vite"
   },
-  "devDependencies": {
-    "@totto2727/fp": "workspace:*",
+  "peerDependencies": {
     "remix": "catalog:remix",
     "vite": "catalog:vite"
   }

@@ -3,7 +3,7 @@
   "compatibility_date": "2026-02-01",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./app/entry.worker.ts",
-  "name": "my-remix-app",
+  "name": "hono-remix-v3-cloudflare-example",
   "assets": {
     "directory": "./dist/client",
     "binding": "ASSETS",
