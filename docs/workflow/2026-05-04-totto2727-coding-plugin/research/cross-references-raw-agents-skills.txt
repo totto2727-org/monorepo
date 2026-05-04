@@ -1,0 +1,10 @@
+js/app/c-plugin/src/cli/skill/target/remove.ts:40:      // Remove symlinks only from the selected directories (not .agents/skills/)
+docs/adr/2026-04-06-c-plugin-command-sync-strategy.md:21:This ensures all symlinks (`.agents/skills/` + all `skillDirs`) are always consistent with the lock file state.
+docs/adr/2026-04-06-c-plugin-skill-target.md:9:Skills managed by c-plugin are symlinked into `.agents/skills/`. However, tools like Claude Code read skills from `.claude/skills/`. Users need a way to configure additional directories where symlinks are placed, so that skills are available to multiple tools simultaneously.
+docs/adr/2026-04-06-c-plugin-skill-target.md:27:The primary `.agents/skills/` directory is always used implicitly. `skillDirs` lists **additional** directories.
+docs/adr/2026-04-06-c-plugin-skill-target.md:45:1. `.agents/skills/` (always, implicit)
+docs/adr/2026-04-06-c-plugin-skill-target.md:48:Symlinks in additional directories point to the same cache path as `.agents/skills/` symlinks.
+docs/adr/2026-04-06-c-plugin-cli-tool.md:86:- Project: `.agents/skills-lock.json`
+docs/adr/2026-04-06-c-plugin-cli-tool.md:87:- Global: `~/.agents/skills-lock.json`
+docs/adr/2026-04-06-c-plugin-cli-tool.md:155:6. Create symlinks in `.agents/skills/`
+docs/adr/2026-04-06-c-plugin-cli-tool.md:193:.agents/skills/

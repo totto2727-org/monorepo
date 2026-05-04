@@ -1,22 +1,39 @@
 identifier: 2026-05-04-totto2727-coding-plugin
-title: "Create totto2727-coding plugin (consolidate moonbit + effect skills)"
+title: 'Create totto2727-coding plugin (consolidate moonbit + effect skills)'
 status: in_progress
 created_at: 2026-05-04
 updated_at: 2026-05-04
 roadmap: null
 
-current_step: "Step 2: Research"
+current_step: 'Step 3: Design'
 completed_steps:
-  - step: "Step 1: Intent Clarification"
+  - step: 'Step 1: Intent Clarification'
     completed_at: 2026-05-04
     artifact: docs/workflow/2026-05-04-totto2727-coding-plugin/intent-spec.md
+  - step: 'Step 2: Research'
+    completed_at: 2026-05-04
+    artifacts:
+      - docs/workflow/2026-05-04-totto2727-coding-plugin/research/skills-lock-registry.md
+      - docs/workflow/2026-05-04-totto2727-coding-plugin/research/plugin-discovery-mechanism.md
+      - docs/workflow/2026-05-04-totto2727-coding-plugin/research/cross-references.md
+      - docs/workflow/2026-05-04-totto2727-coding-plugin/research/skill-content-migration.md
+      - docs/workflow/2026-05-04-totto2727-coding-plugin/research/scripts-and-slash-commands.md
+    note: |
+      5 件の researcher を並列実行。plugin-discovery-mechanism で核心仮説を実証し、
+      Claude Code は本リポジトリ marketplace.json を直読みする (dotfiles 側更新不要) と確定。
+      rebase で取り込まれた `5e92483` (.agents/skills-lock.json 削除 + 3 種 manifest 追加)
+      を反映し、Intent Spec を increment 修正 (Scope.4/5 改訂、SC-5 改訂、SC-8/9/10 追加、Open Questions 整理)。
 pending_gates: []
-
 active_specialists: []
 
 artifacts:
   intent_spec: docs/workflow/2026-05-04-totto2727-coding-plugin/intent-spec.md
-  research: []
+  research:
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/research/skills-lock-registry.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/research/plugin-discovery-mechanism.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/research/cross-references.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/research/skill-content-migration.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/research/scripts-and-slash-commands.md
   design: null
   qa_design: null
   qa_flow: null
@@ -30,13 +47,20 @@ artifacts:
 blockers: []
 
 user_approvals:
-  - step: "Step 1: Intent Clarification"
+  - step: 'Step 1: Intent Clarification'
     approved_at: 2026-05-04
-    note: "ユーザー指示『PR作成』を Intent Spec 承認 + 進捗 PR 作成依頼として解釈"
+    note: 'ユーザー指示『PR作成』を Intent Spec 承認 + 進捗 PR 作成依頼として解釈'
+  - step: 'Step 2: Research'
+    approved_at: 2026-05-04
+    note: |
+      Main 判定ゲート。ユーザー追加情報「c-plugin dev marketplace sync で同期可能」
+      を反映して Intent Spec の Scope.1 を「.claude-plugin のみ編集 + sync で派生」に簡略化。
+      ユーザー指示「CIエラーを解決して」に応えて vp check --fix で formatting 修正済。
 
 rollbacks: []
 
 notes:
-  - "サイクル目的: moonbit プラグイン + .agents/skills/effect-* + totto2727-fp を totto2727-coding プラグインに統合"
-  - "提案構造: skills/coding/ + skills/test/ + references/{js-,mbt-}*.md"
-  - "moonbit-docs (生成スクリプト含む) の扱いは Step 1 で確定"
+  - 'サイクル目的: moonbit プラグイン + .agents/skills/effect-* + totto2727-fp を totto2727-coding プラグインに統合'
+  - '提案構造: skills/coding/ + skills/test/ + references/{js-,mbt-}*.md'
+  - 'moonbit-docs (生成スクリプト含む) の扱いは Step 1 で確定'
+  - 'Step 2 で rebase 取り込み (5e92483) により .agents/skills-lock.json 議論が moot 化、3 種 manifest + c-plugin sync に方針更新'
