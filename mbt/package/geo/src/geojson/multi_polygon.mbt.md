@@ -29,9 +29,12 @@ test "MultiPolygon new" {
       ],
     ],
   ])
-  debug_inspect(mp, content=(
-    #|{ coordinates: [[[XY(0, 0), XY(1, 1), XY(0, 0)]]] }
-  ))
+  debug_inspect(
+    mp,
+    content=(
+      #|{ coordinates: [[[XY(0, 0), XY(1, 1), XY(0, 0)]]] }
+    ),
+  )
 }
 ```
 
@@ -120,8 +123,11 @@ test "MultiPolygon FromJson::from_json - empty" {
     "type": "MultiPolygon",
     "coordinates": [],
   })
-  debug_inspect(multi_polyfill, content=(
-    #|{ coordinates: [] }
-  ))
+  debug_inspect(
+    multi_polyfill,
+    content=(
+      #|{ coordinates: [] }
+    ),
+  )
 }
 ```

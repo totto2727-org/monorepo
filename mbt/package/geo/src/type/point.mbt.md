@@ -18,9 +18,12 @@ Represents a single point in space.
 ```mbt check
 ///|
 test {
-  debug_inspect(Point::new(XY::new(1.0, 2.0)), content=(
-    #|Point({ x: 1, y: 2 })
-  ))
+  debug_inspect(
+    Point::new(XY::new(1.0, 2.0)),
+    content=(
+      #|Point({ x: 1, y: 2 })
+    ),
+  )
 }
 ```
 
@@ -31,9 +34,12 @@ test {
 ```mbt check
 ///|
 test {
-  debug_inspect(Point::new(XY::new(3.0, 4.0)).coord(), content=(
-    #|{ x: 3, y: 4 }
-  ))
+  debug_inspect(
+    Point::new(XY::new(3.0, 4.0)).coord(),
+    content=(
+      #|{ x: 3, y: 4 }
+    ),
+  )
 }
 ```
 

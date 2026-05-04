@@ -40,7 +40,6 @@ test {
     result,
     content=(
       #|{ key: Some("value") }
-
     ),
   )
 }
@@ -53,9 +52,12 @@ test {
 test {
   let json : Json = {}
   let result : TestStruct = @json.from_json(json)
-  debug_inspect(result, content=(
-    #|{ key: None }
-  ))
+  debug_inspect(
+    result,
+    content=(
+      #|{ key: None }
+    ),
+  )
 }
 ```
 
@@ -66,9 +68,12 @@ test {
 test {
   let json : Json = { "key": Json::null() }
   let result : TestStruct = @json.from_json(json)
-  debug_inspect(result, content=(
-    #|{ key: None }
-  ))
+  debug_inspect(
+    result,
+    content=(
+      #|{ key: None }
+    ),
+  )
 }
 ```
 
@@ -115,7 +120,6 @@ test {
     result,
     content=(
       #|{ key: "value" }
-
     ),
   )
 }
@@ -132,7 +136,6 @@ test {
     result,
     content=(
       #|{ key: "default" }
-
     ),
   )
 }
@@ -149,7 +152,6 @@ test {
     result,
     content=(
       #|{ key: "default" }
-
     ),
   )
 }
@@ -195,7 +197,6 @@ test {
     result,
     content=(
       #|{ key: ["value"] }
-
     ),
   )
 }
@@ -208,9 +209,12 @@ test {
 test {
   let json : Json = {}
   let result : TestStruct3 = @json.from_json(json)
-  debug_inspect(result, content=(
-    #|{ key: [] }
-  ))
+  debug_inspect(
+    result,
+    content=(
+      #|{ key: [] }
+    ),
+  )
 }
 ```
 
@@ -221,8 +225,11 @@ test {
 test {
   let json : Json = { "key": Json::null() }
   let result : TestStruct3 = @json.from_json(json)
-  debug_inspect(result, content=(
-    #|{ key: [] }
-  ))
+  debug_inspect(
+    result,
+    content=(
+      #|{ key: [] }
+    ),
+  )
 }
 ```

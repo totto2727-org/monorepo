@@ -21,9 +21,12 @@ test {
   let point1 = XY::new(0.0, 0.0)
   let point2 = XY::new(1.0, 1.0)
   let line_string = LineString::new([point1, point2])
-  debug_inspect(line_string, content=(
-    #|LineString([{ x: 0, y: 0 }, { x: 1, y: 1 }])
-  ))
+  debug_inspect(
+    line_string,
+    content=(
+      #|LineString([{ x: 0, y: 0 }, { x: 1, y: 1 }])
+    ),
+  )
 }
 ```
 

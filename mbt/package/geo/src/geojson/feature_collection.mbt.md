@@ -21,9 +21,12 @@
 ///|
 test "FeatureCollection new" {
   let fc = FeatureCollection::new([])
-  debug_inspect(fc, content=(
-    #|{ features: [] }
-  ))
+  debug_inspect(
+    fc,
+    content=(
+      #|{ features: [] }
+    ),
+  )
 }
 ```
 
@@ -113,8 +116,11 @@ test "FeatureCollection FromJson::from_json - Empty" {
     "type": "FeatureCollection",
     "features": [],
   })
-  debug_inspect(fc, content=(
-    #|{ features: [] }
-  ))
+  debug_inspect(
+    fc,
+    content=(
+      #|{ features: [] }
+    ),
+  )
 }
 ```

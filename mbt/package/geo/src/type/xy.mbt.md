@@ -26,9 +26,12 @@ A 2D coordinate structure used as the fundamental building block for geometries.
 ///|
 test {
   let xy = XY::new(1.0, 2.0)
-  debug_inspect(xy, content=(
-    #|{ x: 1, y: 2 }
-  ))
+  debug_inspect(
+    xy,
+    content=(
+      #|{ x: 1, y: 2 }
+    ),
+  )
 }
 ```
 
@@ -43,9 +46,12 @@ test {
 test {
   let a = XY::new(1.0, 2.0)
   let b = XY::new(3.0, 4.0)
-  debug_inspect(a + b, content=(
-    #|{ x: 4, y: 6 }
-  ))
+  debug_inspect(
+    a + b,
+    content=(
+      #|{ x: 4, y: 6 }
+    ),
+  )
 }
 ```
 
@@ -60,9 +66,12 @@ test {
 test {
   let a = XY::new(3.0, 5.0)
   let b = XY::new(1.0, 2.0)
-  debug_inspect(a - b, content=(
-    #|{ x: 2, y: 3 }
-  ))
+  debug_inspect(
+    a - b,
+    content=(
+      #|{ x: 2, y: 3 }
+    ),
+  )
 }
 ```
 
@@ -76,9 +85,12 @@ test {
 ///|
 test {
   let a = XY::new(1.0, -2.0)
-  debug_inspect(-a, content=(
-    #|{ x: -1, y: 2 }
-  ))
+  debug_inspect(
+    -a,
+    content=(
+      #|{ x: -1, y: 2 }
+    ),
+  )
 }
 ```
 
@@ -92,9 +104,12 @@ test {
 ///|
 test {
   let a = XY::new(2.0, 3.0)
-  debug_inspect(a.mul(2.0), content=(
-    #|{ x: 4, y: 6 }
-  ))
+  debug_inspect(
+    a.mul(2.0),
+    content=(
+      #|{ x: 4, y: 6 }
+    ),
+  )
 }
 ```
 
@@ -106,9 +121,12 @@ test {
 ///|
 test {
   let b = XY::new(4.0, 6.0)
-  debug_inspect(b.div(2.0), content=(
-    #|{ x: 2, y: 3 }
-  ))
+  debug_inspect(
+    b.div(2.0),
+    content=(
+      #|{ x: 2, y: 3 }
+    ),
+  )
 }
 ```
 
@@ -161,13 +179,19 @@ test {
 test {
   let xy = XY::new(1.0, 2.0)
   let updated_x = xy.set_x(5.0)
-  debug_inspect(updated_x, content=(
-    #|{ x: 5, y: 2 }
-  ))
+  debug_inspect(
+    updated_x,
+    content=(
+      #|{ x: 5, y: 2 }
+    ),
+  )
   // Ensure original is unchanged
-  debug_inspect(xy, content=(
-    #|{ x: 1, y: 2 }
-  ))
+  debug_inspect(
+    xy,
+    content=(
+      #|{ x: 1, y: 2 }
+    ),
+  )
 }
 ```
 
@@ -180,12 +204,18 @@ test {
 test {
   let xy = XY::new(1.0, 2.0)
   let updated_y = xy.set_y(6.0)
-  debug_inspect(updated_y, content=(
-    #|{ x: 1, y: 6 }
-  ))
+  debug_inspect(
+    updated_y,
+    content=(
+      #|{ x: 1, y: 6 }
+    ),
+  )
   // Ensure original is unchanged
-  debug_inspect(xy, content=(
-    #|{ x: 1, y: 2 }
-  ))
+  debug_inspect(
+    xy,
+    content=(
+      #|{ x: 1, y: 2 }
+    ),
+  )
 }
 ```

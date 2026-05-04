@@ -297,9 +297,12 @@ test "Geometry FromJson::from_json - Point" {
     "type": "Point",
     "coordinates": [1.0, 2.0],
   })
-  debug_inspect(geom, content=(
-    #|Point({ coordinates: XY(1, 2) })
-  ))
+  debug_inspect(
+    geom,
+    content=(
+      #|Point({ coordinates: XY(1, 2) })
+    ),
+  )
 }
 ```
 
@@ -312,9 +315,12 @@ test "Geometry FromJson::from_json - LineString" {
     "type": "LineString",
     "coordinates": [[0.0, 0.0], [1.0, 1.0]],
   })
-  debug_inspect(geom, content=(
-    #|LineString({ coordinates: [XY(0, 0), XY(1, 1)] })
-  ))
+  debug_inspect(
+    geom,
+    content=(
+      #|LineString({ coordinates: [XY(0, 0), XY(1, 1)] })
+    ),
+  )
 }
 ```
 
@@ -349,9 +355,12 @@ test "Geometry FromJson::from_json - MultiPoint" {
     "type": "MultiPoint",
     "coordinates": [[0.0, 0.0], [1.0, 1.0]],
   })
-  debug_inspect(geom, content=(
-    #|MultiPoint({ coordinates: [XY(0, 0), XY(1, 1)] })
-  ))
+  debug_inspect(
+    geom,
+    content=(
+      #|MultiPoint({ coordinates: [XY(0, 0), XY(1, 1)] })
+    ),
+  )
 }
 ```
 

@@ -25,9 +25,12 @@ test {
     Point::new(XY::new(2.0, 2.0)),
   ])
   // MultiPoint uses &MultiGeometryTrait::coordArray implicitly
-  debug_inspect(mp.coord_array(), content=(
-    #|[{ x: 1, y: 1 }, { x: 2, y: 2 }]
-  ))
+  debug_inspect(
+    mp.coord_array(),
+    content=(
+      #|[{ x: 1, y: 1 }, { x: 2, y: 2 }]
+    ),
+  )
 }
 ```
 
@@ -46,8 +49,11 @@ test {
 test {
   let mp = MultiPoint::new([Point::new(XY::new(1.0, 1.0))])
   let boxed : &MultiGeometryTrait = mp
-  debug_inspect(boxed, content=(
-    #|MultiPoint([Point({ x: 1, y: 1 })])
-  ))
+  debug_inspect(
+    boxed,
+    content=(
+      #|MultiPoint([Point({ x: 1, y: 1 })])
+    ),
+  )
 }
 ```

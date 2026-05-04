@@ -44,9 +44,12 @@ test {
 ///|
 test {
   let ls = LineString::new([XY::new(1.0, 1.0), XY::new(2.0, 2.0)])
-  debug_inspect(ls.bbox(), content=(
-    #|{ min: { x: 1, y: 1 }, max: { x: 2, y: 2 } }
-  ))
+  debug_inspect(
+    ls.bbox(),
+    content=(
+      #|{ min: { x: 1, y: 1 }, max: { x: 2, y: 2 } }
+    ),
+  )
 }
 ```
 
