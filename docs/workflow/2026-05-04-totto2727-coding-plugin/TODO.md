@@ -16,32 +16,32 @@ Following the rule that `task-plan.md` is immutable, any additional tasks discov
 ## Tasks
 
 - [ ] **T1** — Create new plugin manifest `plugins/totto2727-coding/.claude-plugin/plugin.json`
-  - status: pending
+  - status: in_progress
   - dependencies: none
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W1-implementer-T1
   - re_activations: 0
   - notes: -
 
 - [ ] **T2** — Edit `.claude-plugin/marketplace.json` — add `totto2727-coding`, drop `moonbit` and `components-build`
-  - status: pending
+  - status: in_progress
   - dependencies: none
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W1-implementer-T2
   - re_activations: 0
   - notes: -
 
 - [ ] **T3** — Update `.claude/settings.json` `enabledPlugins`
-  - status: pending
+  - status: in_progress
   - dependencies: none
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W1-implementer-T3
   - re_activations: 0
   - notes: -
 
