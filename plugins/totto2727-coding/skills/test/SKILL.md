@@ -113,10 +113,8 @@ Pick the language you are writing tests in. Each Tier-2 index file lists in-plug
 (language-specific test patterns) and external skill references (test runners / frameworks owned
 outside this plugin).
 
-- **TypeScript** — see [ts-skill.md](references/ts-skill.md). Currently lists external skill
-  references only (test runner via `vite-plus` / Vitest); no in-plugin TS test detail files yet.
-  Future TS test conventions will be added as `ts-<topic>.md` files alongside this index without
-  any retroactive cleanup.
+- **TypeScript** — see [ts-skill.md](references/ts-skill.md). Routes to the `vite-plus` skill
+  for the test runner (Vitest).
 - **MoonBit** — see [mbt-skill.md](references/mbt-skill.md). Use when writing MoonBit unit tests
   (`test "..."` / `debug_inspect` / `.mbt.md` test files); routes to `mbt-bestpractice.md` for
   full conventions including naming, file format, and trait-method ambiguity resolution.
