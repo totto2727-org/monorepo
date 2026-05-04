@@ -5,7 +5,7 @@ created_at: 2026-05-04
 updated_at: 2026-05-04
 roadmap: null
 
-current_step: 'Step 7: External Review (awaiting user approval)'
+current_step: 'Step 8: Validation'
 completed_steps:
   - step: 'Step 1: Intent Clarification'
     completed_at: 2026-05-04
@@ -102,6 +102,16 @@ user_approvals:
       運用変更し、race condition 解消、クリーンに完了。
       T30 sync で 3 marketplace + 3 plugin manifest 全て同期、moonbit / components-build
       entry も自動削除。
+  - step: 'Step 7: External Review'
+    approved_at: 2026-05-04
+    note: |
+      ユーザー承認: 全 6 観点 approved (security R1 / performance R1 / holistic R2 /
+      readability R2 / api-design R2 / test-quality R3)。Round 2-3 で発生した
+      Major 5 件 (重複排除 4 グループ) を全て修正済 (commits 70e19f7 / 309a84c /
+      1cbdd8f / 784324d / 18187bf)。
+      ユーザー追加方針 4 件 (sibling-skill 参照ポリシー、英語統一、race condition、
+      @SKILL.md) は全て retrospective 送り (本サイクル内追加実装なし)。
+      Step 8 (Validation) に進む。
 
 rollbacks: []
 
