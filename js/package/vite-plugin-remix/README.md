@@ -33,7 +33,7 @@ export default defineConfig({
 })
 ```
 
-`browserEntry` はプロジェクトのディレクトリ構成依存なので **必須**。`app/...` を仮定するデフォルトは持っていません。
+`browserEntry` はプロジェクトのディレクトリ構成依存なので **必須**。
 
 ### `app/assets/entry.ts`（ブラウザエントリ）
 
@@ -89,7 +89,7 @@ remix({
 
 | オプション | デフォルト | 用途 |
 | -- | -- | -- |
-| `browserEntry` | `app/assets/entry.ts` | rollup の input。`boot()` を呼ぶファイル。 |
+| `browserEntry` | **必須** | rollup の input。`boot()` を呼ぶファイル。 |
 | `clientOutDir` | `dist/client` | client environment の build 出力先。静的ホスト（`serveStatic` 等）の root に向ける場所。 |
 | `entryFileNames` | `assets/entry.js` | メインエントリの出力ファイル名。デフォルトはハッシュなし固定で、SSR HTML から manifest なしで参照可能。cache busting したい場合は `assets/entry.[hash].js` 等に変更し、Vite manifest を SSR から読む経路を別途用意する。 |
 
@@ -132,7 +132,7 @@ manifest を読む構成にする場合は consumer 側 (`vite.config.ts`) で `
 
 ```ts
 defineConfig({
-  plugins: [remix()],
+  plugins: [remix({ browserEntry: 'app/assets/entry.ts' })],
   builder: {
     async buildApp(builder) {
       const client = builder.environments.client
