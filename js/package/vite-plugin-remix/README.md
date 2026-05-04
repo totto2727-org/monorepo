@@ -1,13 +1,15 @@
 # vite-plugin-remix
 
-Remix v3 のブラウザバンドル + ハイドレーションを Vite で扱うための minimal プラグイン。
+Remix v3 のクライアントバンドル + ハイドレーションを Vite で扱うための minimal プラグイン。
 
 ## 何をしてくれるか
 
-- Vite の `client` environment を登録し、ブラウザエントリを 1 ファイルから build
+- Vite の `client` environment を登録し、クライアントエントリを 1 ファイルから build
 - 各 `*.client.tsx` を rollup に **個別 chunk** として吐かせる（Remix の asset server と同等の per-component lazy loading）
 - dev / prod でスクリプト URL を切替える `<Script>` コンポーネント
 - `import.meta.glob` の loader を `remix/ui#run` に渡すための `boot()` ヘルパ
+
+ここで言う「クライアント」は user agent 上で実行される側（典型的にはブラウザだが Tauri / Electron の WebView も含む）を指し、SSR が走る Worker / Node 側と区別しています。
 
 `renderToStream` 側 (SSR) の差し替えは [`hono-remix-middleware`](../hono-remix-middleware/README.md) を参照。
 
@@ -20,6 +22,8 @@ pnpm add -D vite-plugin-remix
 
 ## クイックスタート
 
+以下で `app` と指定している箇所は `src` を含め任意のディレクトリで設定可能。
+
 ### `vite.config.ts`
 
 ```ts
@@ -28,14 +32,12 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [
-    remix({ browserEntry: 'app/assets/entry.ts' }),
+    remix({ clientEntry: 'app/assets/entry.ts' }),
   ],
 })
 ```
 
-`browserEntry` はプロジェクトのディレクトリ構成依存なので **必須**。
-
-### `app/assets/entry.ts`（ブラウザエントリ）
+### `app/assets/entry.ts`（クライアントエントリ）
 
 ```ts
 import { boot } from 'vite-plugin-remix/client'
@@ -44,8 +46,6 @@ boot({
   components: import.meta.glob('/app/**/*.client.tsx'),
 })
 ```
-
-`import.meta.glob` は Vite のコンパイル時 syntax で、consumer 側のソース内で literal 文字列として書く必要があるため `boot()` の引数として渡す形にしています。
 
 ### `<Script>` コンポーネント (SSR HTML 内に挿入)
 
@@ -58,6 +58,8 @@ export function Document() {
       <head>...</head>
       <body>
         {children}
+        {/* devSrc は vite.config.ts の clientEntry に対応する project-relative URL */}
+        {/* prodSrc は entryFileNames（既定 'assets/entry.js'）に対応する公開 URL */}
         <Script devSrc='/app/assets/entry.ts' prodSrc='/assets/entry.js' />
       </body>
     </html>
@@ -65,7 +67,7 @@ export function Document() {
 }
 ```
 
-- `devSrc` = Vite dev server が `browserEntry` を解決する project-relative URL
+- `devSrc` = Vite dev server が `clientEntry` を解決する project-relative URL
 - `prodSrc` = ビルド済みエントリの公開 URL（プラグインの `entryFileNames` に対応）
 
 `<Script>` は `import.meta.env.DEV` で両者を切替:
@@ -75,13 +77,13 @@ export function Document() {
 | dev (`vite dev`) | `<script type="module" src={devSrc}></script>` — Vite dev server が source TS を変換配信 |
 | prod (`vite build`) | `<script type="module" src={prodSrc}></script>` — ビルド済み chunk を静的配信 |
 
-両 URL は **必須**。デフォルトを持たず、プラグインの `browserEntry` / `entryFileNames` 設定との対応関係を呼び出し-site で明示させます。
+両 URL は **必須**。デフォルトを持たず、プラグインの `clientEntry` / `entryFileNames` 設定との対応関係を呼び出し-site で明示させます。
 
 ## オプション
 
 ```ts
 remix({
-  browserEntry: 'app/assets/entry.ts',     // ブラウザエントリの相対パス
+  clientEntry: 'app/assets/entry.ts',      // クライアントエントリの相対パス
   clientOutDir: 'dist/client',             // build 出力先
   entryFileNames: 'assets/entry.js',       // エントリ chunk のファイル名 (no hash by default)
 })
@@ -89,7 +91,7 @@ remix({
 
 | オプション | デフォルト | 用途 |
 | -- | -- | -- |
-| `browserEntry` | **必須** | rollup の input。`boot()` を呼ぶファイル。 |
+| `clientEntry` | **必須** | rollup の input。`boot()` を呼ぶファイル。 |
 | `clientOutDir` | `dist/client` | client environment の build 出力先。静的ホスト（`serveStatic` 等）の root に向ける場所。 |
 | `entryFileNames` | `assets/entry.js` | メインエントリの出力ファイル名。デフォルトはハッシュなし固定で、SSR HTML から manifest なしで参照可能。cache busting したい場合は `assets/entry.[hash].js` 等に変更し、Vite manifest を SSR から読む経路を別途用意する。 |
 
@@ -107,7 +109,7 @@ dist/client/
 │   └── css-mixin-XXX.js                # 共通 chunk
 ```
 
-## クライアントエントリの URL とブラウザの動作
+## クライアントエントリの URL とクライアント側の動作
 
 SSR (`hono-remix-middleware` の `resolveClientEntry`) が HTML に書き込む `moduleUrl` は **lookup key** です。実際のネットワーク URL は `import.meta.glob` の loader closure 内に隠蔽され、Vite が build 時に書き換えています:
 
@@ -132,7 +134,7 @@ manifest を読む構成にする場合は consumer 側 (`vite.config.ts`) で `
 
 ```ts
 defineConfig({
-  plugins: [remix({ browserEntry: 'app/assets/entry.ts' })],
+  plugins: [remix({ clientEntry: 'app/assets/entry.ts' })],
   builder: {
     async buildApp(builder) {
       const client = builder.environments.client

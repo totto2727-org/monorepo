@@ -13,7 +13,7 @@
 | ------------------------ | -------------------------------------------------------------------------- |
 | HTTP ルーター            | **Hono**（`remix/fetch-router` の代替）                                    |
 | SSR / UI                 | **Remix v3 `remix/ui` + `remix/ui/server`**（そのまま流用）                |
-| ブラウザバンドル / dev   | **Vite** + `@cloudflare/vite-plugin`（`remix/assets` ランタイムの代替）    |
+| クライアントバンドル / dev   | **Vite** + `@cloudflare/vite-plugin`（`remix/assets` ランタイムの代替）    |
 | ランタイム               | **Cloudflare Workers**（dev は Vite plugin 経由の workerd、prod も Workers） |
 
 ポイントは、Remix v3 のうち Node 専用 API（`remix/node-serve`、`remix/assets` など）を全て排除し、残った Web API ベースの部分だけ Workers 上でそのまま動かしている点です。
@@ -25,7 +25,7 @@
 ```sh
 vp run dev         # vite dev — Worker は Vite 内で動作、HMR あり
 vp run start       # wrangler dev — ビルド済み出力を workerd で実行
-vp run build       # vite build — Worker / ブラウザ両方のバンドルを生成
+vp run build       # vite build — Worker / クライアント両方のバンドルを生成
 vp run deploy      # wrangler deploy
 vp run typecheck   # tsgo --noEmit
 ```
@@ -46,7 +46,7 @@ app/
 │   ├── counter.tsx       # clientEntry — インタラクティブなカウンター
 │   └── todo.tsx          # clientEntry — インタラクティブな TODO
 └── assets/
-    └── entry.ts          # ブラウザエントリ — remix/ui の run() を呼び出す
+    └── entry.ts          # クライアントエントリ — remix/ui の run() を呼び出す
 ```
 
 `app.tsx` 1 ファイルにルーティング・middleware・ハンドラ本体まで集約しています。controller / utils レイヤーは持っていません。
@@ -57,14 +57,14 @@ app/
 
 ```mermaid
 sequenceDiagram
-    participant Browser
+    participant Client
     participant Vite as Vite + @cloudflare/vite-plugin
     participant Worker as Cloudflare Worker (workerd)
     participant Hono
     participant MW as remixRenderer middleware
     participant RemixSSR as remix/ui/server renderToStream
 
-    Browser->>Vite: GET /
+    Client->>Vite: GET /
     Note over Vite: Vite のアセットパスではない → Worker へ転送
     Vite->>Worker: Request
     Worker->>Hono: app.fetch(request)
@@ -76,17 +76,17 @@ sequenceDiagram
     MW-->>Hono: new Response(stream, {Content-Type: text/html})
     Hono-->>Worker: Response
     Worker-->>Vite: Response
-    Vite-->>Browser: HTML ストリーム
+    Vite-->>Client: HTML ストリーム
 
-    Note over Browser: HTML 内に <script src="/app/assets/entry.ts"> が含まれる
-    Browser->>Vite: GET /app/assets/entry.ts
+    Note over Client: HTML 内に <script src="/app/assets/entry.ts"> が含まれる
+    Client->>Vite: GET /app/assets/entry.ts
     Note over Vite: Vite ソースパス → 変換して配信
-    Vite-->>Browser: entry.ts（JSX→JS、依存 pre-bundle、HMR 注入済み）
+    Vite-->>Client: entry.ts（JSX→JS、依存 pre-bundle、HMR 注入済み）
 
-    Browser->>Browser: import('remix/ui').run({loadModule, resolveFrame})
-    Note over Browser: run() が DOM を走査してハイドレーションマーカーを探す
-    Browser->>Browser: loadModule で in-memory components map から解決
-    Browser->>Browser: Counter コンポーネントをハイドレート
+    Client->>Client: import('remix/ui').run({loadModule, resolveFrame})
+    Note over Client: run() が DOM を走査してハイドレーションマーカーを探す
+    Client->>Client: loadModule で in-memory components map から解決
+    Client->>Client: Counter コンポーネントをハイドレート
 ```
 
 ### ステップごとの解説
@@ -179,7 +179,7 @@ export const remixRenderer = (fetcher: Fetcher): MiddlewareHandler => async (c, 
 
 ステートを持たない `Layout` / `Document` はマーカーを残しません — サーバ出力のみで再レンダーされません。
 
-#### 5. ブラウザが entry を実行
+#### 5. クライアントが entry を実行
 
 `Document` 内で挿入されるスクリプトは dev / prod で URL が切り替わります:
 
@@ -233,7 +233,7 @@ run({
 上流のテンプレート（[remix-run/remix `template/`](https://github.com/remix-run/remix/blob/main/template/README.md)）は:
 
 - `remix/fetch-router` でルーティング → 本構成は **Hono** + jsxRenderer 風 middleware
-- `remix/assets` の `createAssetServer` で Node ランタイムにブラウザモジュールをコンパイル＆配信 → 本構成は dev で **Vite**、本番も Vite ビルドで `@cloudflare/vite-plugin` が Worker と Vite を接続
+- `remix/assets` の `createAssetServer` で Node ランタイムにクライアントモジュールをコンパイル＆配信 → 本構成は dev で **Vite**、本番も Vite ビルドで `@cloudflare/vite-plugin` が Worker と Vite を接続
 - `remix/node-serve` で Node の HTTP エントリ → 本構成は Cloudflare Worker の default export (`fetch`)
 - `app/routes.ts` + `app/router.ts` + 各 controller でルート契約・配線・ハンドラを分割 → `app/app.tsx` に inline 集約
 - `utils/render.tsx` でレンダリング関数を export → Hono の `c.render` に置換、Layout は `remixRenderer` middleware で適用
@@ -259,4 +259,4 @@ vp run deploy      # wrangler deploy
 ### 既知のトレードオフ
 
 - メインの `entry.js` は固定ファイル名（`entryFileNames: 'assets/entry.js'`）で出力しているため、cache busting が効きません。component chunk 側は `[name]-[hash].js` でハッシュ付き。リリースごとに `entry.js` も変える場合は `entry.[hash].js` に切り替え、Vite manifest を Worker から読む経路（仮想モジュール経由など）を別途実装してください。
-- `import.meta.glob('../ui/*.tsx')` は `*.tsx` を全て対象にするため、`document.tsx` / `layout.tsx` のような **clientEntry を持たない** モジュールも chunk として `dist/client/assets/` に出力されます。SSR の `moduleUrl` がこれらを指さないので**ブラウザは fetch しない**（無駄な network 往復は発生しない）ものの、ディスク上は残ります。完全に除外したいなら命名規約（`*.client.tsx` など）に切り替えて glob を絞ってください。
+- `import.meta.glob('../ui/*.tsx')` は `*.tsx` を全て対象にするため、`document.tsx` / `layout.tsx` のような **clientEntry を持たない** モジュールも chunk として `dist/client/assets/` に出力されます。SSR の `moduleUrl` がこれらを指さないので**クライアントは fetch しない**（無駄な network 往復は発生しない）ものの、ディスク上は残ります。完全に除外したいなら命名規約（`*.client.tsx` など）に切り替えて glob を絞ってください。

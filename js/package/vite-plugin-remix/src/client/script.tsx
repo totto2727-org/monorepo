@@ -1,7 +1,7 @@
 export interface ScriptProps {
   /**
    * URL served by Vite in dev. Should match the project-relative path
-   * Vite resolves to your `browserEntry` source file
+   * Vite resolves to your `clientEntry` source file
    * (e.g. `/app/assets/entry.ts`).
    */
   devSrc: string
@@ -14,12 +14,12 @@ export interface ScriptProps {
 }
 
 /**
- * Browser entry `<script>` tag. Picks between the Vite-served source path
+ * Client entry `<script>` tag. Picks between the Vite-served source path
  * (dev) and the built chunk path (prod) using Vite's `import.meta.env.DEV`,
  * which is replaced at build time per environment.
  *
  * Both URLs are required so the relationship to the plugin's
- * `browserEntry` / `entryFileNames` settings stays explicit at the call
+ * `clientEntry` / `entryFileNames` settings stays explicit at the call
  * site — the component makes no assumption about your project layout.
  */
 export function Script() {

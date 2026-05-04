@@ -79,14 +79,14 @@ app.use('/assets/*', remixAssetServer(assets))
 
 | | Vite + Cloudflare | Vite + Node/Bun/Deno | Native (no bundler) |
 | -- | -- | -- | -- |
-| ブラウザバンドル | `vite-plugin-remix` | `vite-plugin-remix` | なし — runtime 直実行 |
+| クライアントバンドル | `vite-plugin-remix` | `vite-plugin-remix` | なし — runtime 直実行 |
 | アセット配信 (prod) | wrangler `assets` binding | Hono `serveStatic` | `remixAssetServer` |
 | アセット配信 (dev) | Vite dev server | Vite dev server | `remixAssetServer` |
 | SSR 実行先 | Workers | `@hono/node-server` 等 | tsx / bun / deno |
 
 ### パターン 1: Vite + Cloudflare Workers
 
-`vite-plugin-remix` でブラウザバンドル、`wrangler.jsonc` の `assets` binding で配信。本リポジトリの `js/app/my-remix-app` がこの構成。
+`vite-plugin-remix` でクライアントバンドル、`wrangler.jsonc` の `assets` binding で配信。本リポジトリの `js/app/my-remix-app` がこの構成。
 
 ```ts
 // vite.config.ts
@@ -95,7 +95,10 @@ import { remix } from 'vite-plugin-remix'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [remix(), cloudflare()],
+  plugins: [
+    remix({ clientEntry: 'app/assets/entry.ts' }),
+    cloudflare(),
+  ],
 })
 ```
 
@@ -136,7 +139,7 @@ import app from './app.tsx'
 export default app
 ```
 
-ブラウザエントリは `vite-plugin-remix` の `boot()` ヘルパで:
+クライアントエントリは `vite-plugin-remix` の `boot()` ヘルパで:
 
 ```ts
 // app/assets/entry.ts
@@ -147,10 +150,12 @@ boot({
 })
 ```
 
-`Document` の `<script>` も `vite-plugin-remix/client` から:
+`Document` の `<script>` は `vite-plugin-remix/client` の `<Script>` を使い、`vite.config.ts` の `clientEntry` / `entryFileNames` と URL を一致させる:
 
 ```tsx
 import { Script } from 'vite-plugin-remix/client'
+
+// <Script devSrc='/app/assets/entry.ts' prodSrc='/assets/entry.js' />
 ```
 
 詳細は [`vite-plugin-remix` の README](../vite-plugin-remix/README.md) 参照。
@@ -165,7 +170,7 @@ import { remix } from 'vite-plugin-remix'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [remix()],
+  plugins: [remix({ clientEntry: 'app/assets/entry.ts' })],
 })
 ```
 
@@ -234,7 +239,7 @@ app
 export default app
 ```
 
-ブラウザエントリは素朴な `import()`:
+クライアントエントリは素朴な `import()`:
 
 ```ts
 // app/assets/entry.ts
@@ -254,7 +259,7 @@ run({
 })
 ```
 
-`/assets/app/ui/counter.tsx` のような URL を asset server がランタイム コンパイルして配信するので、ブラウザの動的 `import()` がそのまま通る。pnpm の hoist 構造に合わせて `fileMap` / `allow` を調整する点だけ注意。
+`/assets/app/ui/counter.tsx` のような URL を asset server がランタイム コンパイルして配信するので、クライアントの動的 `import()` がそのまま通る。pnpm の hoist 構造に合わせて `fileMap` / `allow` を調整する点だけ注意。
 
 実装サンプル: `js/app/my-remix-app2/app/assets.ts` 参照。
 

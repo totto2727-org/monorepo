@@ -2,18 +2,18 @@ import type { Plugin } from 'vite'
 
 export interface RemixPluginOptions {
   /**
-   * Path to the browser entry that calls `run()` from `remix/ui`,
+   * Path to the client entry that calls `run()` from `remix/ui`,
    * relative to the project root. Required — the plugin makes no
    * assumption about your directory layout.
    */
-  browserEntry: string
+  clientEntry: string
   /**
    * Output directory for the client build.
    * Default: `dist/client`.
    */
   clientOutDir?: string
   /**
-   * Filename for the main browser entry chunk (no hash by default so the
+   * Filename for the main client entry chunk (no hash by default so the
    * SSR HTML can reference a stable URL without consulting a manifest).
    * Default: `assets/entry.js`.
    */
@@ -21,9 +21,9 @@ export interface RemixPluginOptions {
 }
 
 /**
- * Minimal Vite plugin that wires up the remix browser bundle:
+ * Minimal Vite plugin that wires up the remix client bundle:
  *
- * - registers a `client` Vite environment whose input is the browser entry
+ * - registers a `client` Vite environment whose input is the client entry
  * - emits one chunk per glob match (e.g. *.client.tsx) so each clientEntry
  *   becomes an independently fetchable script — matching how Remix's asset
  *   server serves component modules
@@ -35,7 +35,7 @@ export interface RemixPluginOptions {
  * `builder.buildApp` to enforce client-first ordering.
  */
 export function remix(options: RemixPluginOptions): Plugin {
-  const { browserEntry } = options
+  const { clientEntry } = options
   const clientOutDir = options.clientOutDir ?? 'dist/client'
   const entryFileNames = options.entryFileNames ?? 'assets/entry.js'
 
@@ -49,7 +49,7 @@ export function remix(options: RemixPluginOptions): Plugin {
               manifest: true,
               outDir: clientOutDir,
               rollupOptions: {
-                input: browserEntry,
+                input: clientEntry,
                 output: {
                   entryFileNames,
                   chunkFileNames: 'assets/[name]-[hash].js',

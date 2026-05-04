@@ -9,9 +9,9 @@ Package management is pnpm (via `vp`). Do not introduce Bun.
 Run from this app directory:
 
 ```sh
-vp run dev         # vite dev (vp dev) — Workers run inside Vite, with HMR for browser entry
+vp run dev         # vite dev (vp dev) — Workers run inside Vite, with HMR for client entry
 vp run start       # wrangler dev — Workers run on workerd against built output
-vp run build       # vite build — emit Worker + browser bundles
+vp run build       # vite build — emit Worker + client bundles
 vp run deploy      # wrangler deploy
 vp run typecheck   # tsgo --noEmit
 ```
@@ -30,7 +30,7 @@ Refer to `.claude/skills/remix/SKILL.md` for Remix UI / SSR guidance. Note that 
 - `app/controllers/auth.tsx` owns the auth page
 - `app/ui/` holds the shared document and layout wrappers
 - `app/utils/render.tsx` wraps `remix/ui/server` `renderToStream` for HTML responses
-- `app/assets/entry.ts` is the browser entry served by Vite (referenced from `<script>` in the Document)
+- `app/assets/entry.ts` is the client entry served by Vite (referenced from `<script>` in the Document)
 
 ## Route Ownership
 
@@ -42,7 +42,7 @@ Refer to `.claude/skills/remix/SKILL.md` for Remix UI / SSR guidance. Note that 
 
 ## Build-Out Notes
 
-- The browser entry is served by Vite during `vp dev`; for production, `vite build` emits both the Worker and the browser bundle, and Wrangler ships them.
+- The client entry is served by Vite during `vp dev`; for production, `vite build` emits both the Worker and the client bundle, and Wrangler ships them.
 - Add `public/` (Cloudflare Workers Assets) only when you need to ship static files.
 - Prefer putting code in the narrowest owner before introducing shared modules.
 - Avoid generic dumping-ground directories like `app/lib/` or `app/components/`.

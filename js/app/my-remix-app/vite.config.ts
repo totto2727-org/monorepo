@@ -4,7 +4,7 @@ import { defineConfig } from 'vite-plus'
 
 export default defineConfig({
   plugins: [
-    remix({ browserEntry: 'app/assets/entry.ts' }),
+    remix({ clientEntry: 'app/assets/entry.ts' }),
     cloudflare(),
   ],
 })
