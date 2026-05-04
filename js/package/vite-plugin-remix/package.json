@@ -13,6 +13,8 @@
     "vite": "catalog:vite"
   },
   "devDependencies": {
-    "@totto2727/fp": "workspace:*"
+    "@totto2727/fp": "workspace:*",
+    "remix": "catalog:remix",
+    "vite": "catalog:vite"
   }
 }

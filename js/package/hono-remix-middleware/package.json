@@ -12,6 +12,8 @@
     "remix": "catalog:remix"
   },
   "devDependencies": {
-    "@totto2727/fp": "workspace:*"
+    "@totto2727/fp": "workspace:*",
+    "hono": "catalog:hono",
+    "remix": "catalog:remix"
   }
 }

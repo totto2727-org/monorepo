@@ -26,12 +26,16 @@ export interface RemixPluginOptions {
  * - emits one chunk per glob match (e.g. *.client.tsx) so each clientEntry
  *   becomes an independently fetchable script — matching how Remix's asset
  *   server serves component modules
- * - forces `client` to build before any other environment so downstream
- *   server/worker builds can rely on the client manifest existing
  *
  * The plugin intentionally stays Cloudflare-agnostic: pair it with
  * `@cloudflare/vite-plugin` (or any other server-side environment plugin)
  * by listing both in `plugins`.
+ *
+ * Build ordering is left to Vite's default `builder` — the worker bundle
+ * does not consume the client manifest in the current architecture
+ * (clientEntry hrefs work as in-memory lookup keys, not real fetch URLs).
+ * If a downstream environment ever needs the manifest, supply your own
+ * `builder.buildApp` to enforce client-first ordering.
  */
 export function remix(options: RemixPluginOptions = {}): Plugin {
   const browserEntry = options.browserEntry ?? 'app/assets/entry.ts'
@@ -56,16 +60,6 @@ export function remix(options: RemixPluginOptions = {}): Plugin {
                 },
               },
             },
-          },
-        },
-        builder: {
-          async buildApp(builder) {
-            const client = builder.environments.client
-            if (client) await builder.build(client)
-            for (const [name, env] of Object.entries(builder.environments)) {
-              if (name === 'client') continue
-              await builder.build(env)
-            }
           },
         },
       }
