@@ -95,16 +95,14 @@ sequenceDiagram
 
 `vite dev` が dev サーバ。Vite が認識できるパス（`/@vite/...`、`/node_modules/.vite/...` など）は Vite が直接さばき、それ以外は `@cloudflare/vite-plugin` の workerd shim 経由で Worker に転送されます。Worker のエントリは `app/entry.worker.ts` で、Hono アプリを再 export しているだけです。
 
-```ts
-// app/entry.worker.ts
+```ts:app/entry.worker.ts
 import app from './app.tsx'
 export default app
 ```
 
 #### 2. Hono が middleware 経由で SSR を組み立てる
 
-```tsx
-// app/app.tsx
+```tsx:app/app.tsx
 const app = new Hono()
 
 app
@@ -124,8 +122,7 @@ app
 
 #### 3. middleware が `renderToStream` を呼ぶ
 
-```tsx
-// app/middleware/renderer.tsx
+```tsx:app/middleware/renderer.tsx
 declare module 'hono' {
   interface ContextRenderer {
     (content: RemixNode, props?: { title?: string }): Response
@@ -192,8 +189,7 @@ export const remixRenderer = (fetcher: Fetcher): MiddlewareHandler => async (c, 
 
 `entry.ts` は `import.meta.glob` の **lazy** 形式で `app/ui/*.tsx` をローダ群として登録し、`loadModule` で per-component に動的 import を発火します。Vite が dev / prod の両方で URL 解決を担うので、SSR の `moduleUrl` (`/app/ui/<file>.tsx`) は単なる Map のキーになります:
 
-```ts
-// app/assets/entry.ts
+```ts:app/assets/entry.ts
 import { run } from 'remix/ui'
 
 const loaders = import.meta.glob<Record<string, unknown>>('../ui/*.tsx')
