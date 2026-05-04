@@ -1,0 +1,13 @@
+VITE+ - The Unified Toolchain for the Web
+
+[34m~/js/app/saas-example$ pnpm run --parallel /prebuild:.*/[0m [30m⊘[0m [90mcache disabled[0m
+Scope: 13 of 14 workspace projects
+. prebuild:cloudflare$ wrangler types
+. prebuild:paraglide$ paraglide-js compile --project ./project.inlang --outdir ./src/feature/i18n/paraglide --emit-ts-declarations
+. prebuild:tsr$ tsr generate
+. prebuild:kysely$ go run github.com/totto2727-org/monorepo/go/app/atlas-to-kysely@0faf30b464eece8a80acdafad0f7ea0cec2f89e2 -i db/schema.hcl -o src/feature/db/generated.ts
+. prebuild:kysely: go: github.com/totto2727-org/monorepo/go/app/atlas-to-kysely@0faf30b464eece8a80acdafad0f7ea0cec2f89e2: github.com/totto2727-org/monorepo/go/app/atlas-to-kysely@0faf30b464eece8a80acdafad0f7ea0cec2f89e2: invalid version: Get "https://proxy.golang.org/github.com/totto2727-org/monorepo/go/app/atlas-to-kysely/@v/0faf30b464eece8a80acdafad0f7ea0cec2f89e2.info": tls: failed to verify certificate: x509: OSStatus -26276
+. prebuild:kysely: Failed
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  saas-example@ prebuild:kysely: `go run github.com/totto2727-org/monorepo/go/app/atlas-to-kysely@0faf30b464eece8a80acdafad0f7ea0cec2f89e2 -i db/schema.hcl -o src/feature/db/generated.ts`
+Exit status 1
+
