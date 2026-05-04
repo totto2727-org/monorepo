@@ -22,29 +22,9 @@
  * @module
  */
 
-import { Record as Rec } from 'effect'
+import { Record } from 'effect'
 
-/** Marker emitted by Vite+ to enable automatic input tracking. */
-export interface AutoInput {
-  readonly auto: true
-}
-
-/** Prefix a glob with `!` so Vite+ treats it as an exclusion. */
-export type NegatedPath<P extends string> = `!${P}`
-
-/** A single Vite+ `input` array element. */
-export type TaskInputElement<P extends string> = AutoInput | NegatedPath<P>
-
-/**
- * A single Vite+ `input` array: `[{ auto: true }, ...!negated paths]`.
- *
- * Mutable so it satisfies Vite+'s `Task.input` type.
- */
-export type TaskInputArray<P extends string> = TaskInputElement<P>[]
-
-const AUTO_INPUT: AutoInput = { auto: true }
-
-const negatePath = <const P extends string>(path: P): NegatedPath<P> => `!${path}`
+export type TaskInputWithAuto = [{ auto: true }, ...string[]]
 
 /**
  * Build Vite+ task `input` arrays from a per-task list of generated outputs.
@@ -61,17 +41,19 @@ const negatePath = <const P extends string>(path: P): NegatedPath<P> => `!${path
  * - `build`: `[{ auto: true }, ...all negated paths across every setup]`
  *   — wire this into the consuming `build` task's `input`.
  */
-export const defineTaskInputFromOutput = <const S extends Record<string, readonly string[]>>(args: {
-  readonly setup: S
+export const defineTaskInputFromOutput = <
+  const T extends Record<PropertyKey, string[]>,
+  // oxlint-disable-next-line no-unnecessary-type-parameters -- use parameter and type assertion
+  U extends Record<keyof T, [{ auto: true }, ...string[]]>,
+>(args: {
+  setup: T
 }): {
-  readonly build: TaskInputArray<S[keyof S][number]>
-  readonly setup: Record<keyof S & string, TaskInputArray<S[keyof S][number]>>
+  build: TaskInputWithAuto
+  setup: U
 } => {
-  const toTaskInput = <P extends string>(paths: readonly P[]): TaskInputArray<P> => [
-    AUTO_INPUT,
-    ...paths.map(negatePath),
-  ]
-  const setup = Rec.map(toTaskInput)(args.setup)
-  const build = toTaskInput(Rec.values(args.setup).flat())
+  const toTaskInput = (paths: string[]) => [{ auto: true }, ...paths.map((v) => `!${v}`)] satisfies TaskInputWithAuto
+  // oxlint-disable-next-line no-unsafe-type-assertion -- type assertion is necessary to satisfy the return type
+  const setup = Record.map(toTaskInput)(args.setup) as U
+  const build = toTaskInput(Record.values(args.setup).flat())
   return { build, setup }
 }
