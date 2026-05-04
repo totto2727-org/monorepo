@@ -6,7 +6,6 @@
     "#@/*": "./app/*"
   },
   "scripts": {
-    "build": "vp build",
     "deploy": "wrangler deploy",
     "dev": "vp dev",
     "start": "wrangler dev",

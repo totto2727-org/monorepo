@@ -18,7 +18,6 @@
     "#@/*": "./src/*"
   },
   "scripts": {
-    "build": "vp pack",
     "bin": "node dist/bin.mjs",
     "check": "pnpm run --parallel /check:.*/"
   },
