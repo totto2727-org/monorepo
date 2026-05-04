@@ -18,8 +18,7 @@
     "#@/*": "./src/*"
   },
   "scripts": {
-    "bin": "node dist/bin.mjs",
-    "check": "pnpm run --parallel /check:.*/"
+    "bin": "node dist/bin.mjs"
   },
   "dependencies": {
     "@effect/platform-node": "catalog:effect",

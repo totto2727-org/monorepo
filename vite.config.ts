@@ -43,6 +43,19 @@ export default defineConfig({
       'typescript/promise-function-async': 'allow',
     },
   },
+  run: {
+    tasks: {
+      check: {
+        command: 'vp check',
+      },
+      fix: {
+        command: 'vp check --fix',
+      },
+      test: {
+        command: 'vp test',
+      },
+    },
+  },
   staged: {
     '*': 'vp run fix',
   },
