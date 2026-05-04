@@ -27,9 +27,13 @@ import { remix } from 'vite-plugin-remix'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [remix()],
+  plugins: [
+    remix({ browserEntry: 'app/assets/entry.ts' }),
+  ],
 })
 ```
+
+`browserEntry` はプロジェクトのディレクトリ構成依存なので **必須**。`app/...` を仮定するデフォルトは持っていません。
 
 ### `app/assets/entry.ts`（ブラウザエントリ）
 
@@ -54,21 +58,24 @@ export function Document() {
       <head>...</head>
       <body>
         {children}
-        <Script />
+        <Script devSrc='/app/assets/entry.ts' prodSrc='/assets/entry.js' />
       </body>
     </html>
   )
 }
 ```
 
-`<Script>` は `import.meta.env.DEV` で URL を自動切替:
+- `devSrc` = Vite dev server が `browserEntry` を解決する project-relative URL
+- `prodSrc` = ビルド済みエントリの公開 URL（プラグインの `entryFileNames` に対応）
+
+`<Script>` は `import.meta.env.DEV` で両者を切替:
 
 | 環境 | 出力 |
 | -- | -- |
-| dev (`vite dev`) | `<script type="module" src="/app/assets/entry.ts"></script>` |
-| prod (`vite build`) | `<script type="module" src="/assets/entry.js"></script>` |
+| dev (`vite dev`) | `<script type="module" src={devSrc}></script>` — Vite dev server が source TS を変換配信 |
+| prod (`vite build`) | `<script type="module" src={prodSrc}></script>` — ビルド済み chunk を静的配信 |
 
-dev は Vite dev server が source TS をその場で変換配信、prod はビルド済み chunk を静的配信。
+両 URL は **必須**。デフォルトを持たず、プラグインの `browserEntry` / `entryFileNames` 設定との対応関係を呼び出し-site で明示させます。
 
 ## オプション
 

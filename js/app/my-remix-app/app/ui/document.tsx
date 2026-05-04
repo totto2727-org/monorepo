@@ -18,7 +18,7 @@ export function Document() {
       </head>
       <body>
         {children}
-        <Script />
+        <Script devSrc='/app/assets/entry.ts' prodSrc='/assets/entry.js' />
       </body>
     </html>
   )

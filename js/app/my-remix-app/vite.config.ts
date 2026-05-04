@@ -3,5 +3,8 @@ import { remix } from 'vite-plugin-remix'
 import { defineConfig } from 'vite-plus'
 
 export default defineConfig({
-  plugins: [remix(), cloudflare()],
+  plugins: [
+    remix({ browserEntry: 'app/assets/entry.ts' }),
+    cloudflare(),
+  ],
 })

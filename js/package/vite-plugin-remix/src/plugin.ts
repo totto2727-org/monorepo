@@ -2,10 +2,11 @@ import type { Plugin } from 'vite'
 
 export interface RemixPluginOptions {
   /**
-   * Path to the browser entry that calls `run()` from `remix/ui`.
-   * Default: `app/assets/entry.ts` relative to the project root.
+   * Path to the browser entry that calls `run()` from `remix/ui`,
+   * relative to the project root. Required — the plugin makes no
+   * assumption about your directory layout.
    */
-  browserEntry?: string
+  browserEntry: string
   /**
    * Output directory for the client build.
    * Default: `dist/client`.
@@ -33,8 +34,8 @@ export interface RemixPluginOptions {
  * downstream environment ever needs the manifest, supply your own
  * `builder.buildApp` to enforce client-first ordering.
  */
-export function remix(options: RemixPluginOptions = {}): Plugin {
-  const browserEntry = options.browserEntry ?? 'app/assets/entry.ts'
+export function remix(options: RemixPluginOptions): Plugin {
+  const { browserEntry } = options
   const clientOutDir = options.clientOutDir ?? 'dist/client'
   const entryFileNames = options.entryFileNames ?? 'assets/entry.js'
 
