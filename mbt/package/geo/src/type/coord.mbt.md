@@ -19,9 +19,12 @@ Provides basic coordinate operations including accessors, arithmetic (negation, 
 ///|
 test {
   let c = XY::new(1.0, 2.0)
-  debug_inspect(c.xy(), content=(
-    #|{ x: 1, y: 2 }
-  ))
+  debug_inspect(
+    c.xy(),
+    content=(
+      #|{ x: 1, y: 2 }
+    ),
+  )
 }
 ```
 
@@ -33,8 +36,11 @@ test {
 ///|
 test {
   let c = XYZ::new(1.0, 2.0, 3.0)
-  debug_inspect(c.xyz(), content=(
-    #|{ x: 1, y: 2, z: 3 }
-  ))
+  debug_inspect(
+    c.xyz(),
+    content=(
+      #|{ x: 1, y: 2, z: 3 }
+    ),
+  )
 }
 ```

@@ -20,9 +20,12 @@ Provides a 3D coordinate structure `XYZ` and implements associated traits for ar
 ///|
 test {
   let p = XYZ::new(1.0, 2.0, 3.0)
-  debug_inspect(p, content=(
-    #|{ x: 1, y: 2, z: 3 }
-  ))
+  debug_inspect(
+    p,
+    content=(
+      #|{ x: 1, y: 2, z: 3 }
+    ),
+  )
 }
 ```
 
@@ -35,9 +38,12 @@ test {
 test {
   let p1 = XYZ::new(1.0, 2.0, 3.0)
   let p2 = XYZ::new(4.0, 5.0, 6.0)
-  debug_inspect(p1 + p2, content=(
-    #|{ x: 5, y: 7, z: 9 }
-  ))
+  debug_inspect(
+    p1 + p2,
+    content=(
+      #|{ x: 5, y: 7, z: 9 }
+    ),
+  )
 }
 ```
 
@@ -50,9 +56,12 @@ test {
 test {
   let p1 = XYZ::new(4.0, 5.0, 6.0)
   let p2 = XYZ::new(1.0, 2.0, 3.0)
-  debug_inspect(p1 - p2, content=(
-    #|{ x: 3, y: 3, z: 3 }
-  ))
+  debug_inspect(
+    p1 - p2,
+    content=(
+      #|{ x: 3, y: 3, z: 3 }
+    ),
+  )
 }
 ```
 
@@ -64,9 +73,12 @@ test {
 ///|
 test {
   let p = XYZ::new(1.0, -2.0, 3.0)
-  debug_inspect(-p, content=(
-    #|{ x: -1, y: 2, z: -3 }
-  ))
+  debug_inspect(
+    -p,
+    content=(
+      #|{ x: -1, y: 2, z: -3 }
+    ),
+  )
 }
 ```
 
@@ -80,9 +92,12 @@ test {
 ///|
 test {
   let p = XYZ::new(2.0, 4.0, 6.0)
-  debug_inspect(p.mul(2.0), content=(
-    #|{ x: 4, y: 8, z: 12 }
-  ))
+  debug_inspect(
+    p.mul(2.0),
+    content=(
+      #|{ x: 4, y: 8, z: 12 }
+    ),
+  )
 }
 ```
 
@@ -94,9 +109,12 @@ test {
 ///|
 test {
   let p = XYZ::new(2.0, 4.0, 6.0)
-  debug_inspect(p.div(2.0), content=(
-    #|{ x: 1, y: 2, z: 3 }
-  ))
+  debug_inspect(
+    p.div(2.0),
+    content=(
+      #|{ x: 1, y: 2, z: 3 }
+    ),
+  )
 }
 ```
 
@@ -148,9 +166,12 @@ test {
 ///|
 test {
   let p = XYZ::new(1.0, 2.0, 3.0)
-  debug_inspect(p.set_x(4.0), content=(
-    #|{ x: 4, y: 2, z: 3 }
-  ))
+  debug_inspect(
+    p.set_x(4.0),
+    content=(
+      #|{ x: 4, y: 2, z: 3 }
+    ),
+  )
 }
 ```
 
@@ -162,9 +183,12 @@ test {
 ///|
 test {
   let p = XYZ::new(1.0, 2.0, 3.0)
-  debug_inspect(p.set_y(5.0), content=(
-    #|{ x: 1, y: 5, z: 3 }
-  ))
+  debug_inspect(
+    p.set_y(5.0),
+    content=(
+      #|{ x: 1, y: 5, z: 3 }
+    ),
+  )
 }
 ```
 
@@ -190,8 +214,11 @@ test {
 ///|
 test {
   let p = XYZ::new(1.0, 2.0, 3.0)
-  debug_inspect(p.set_z(4.0), content=(
-    #|{ x: 1, y: 2, z: 4 }
-  ))
+  debug_inspect(
+    p.set_z(4.0),
+    content=(
+      #|{ x: 1, y: 2, z: 4 }
+    ),
+  )
 }
 ```

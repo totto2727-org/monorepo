@@ -23,9 +23,12 @@ test "MultiLineString new" {
   let mls = MultiLineString::new([
     [Coordinates::XY(0.0, 0.0), Coordinates::XY(1.0, 1.0)],
   ])
-  debug_inspect(mls, content=(
-    #|{ coordinates: [[XY(0, 0), XY(1, 1)]] }
-  ))
+  debug_inspect(
+    mls,
+    content=(
+      #|{ coordinates: [[XY(0, 0), XY(1, 1)]] }
+    ),
+  )
 }
 ```
 
@@ -90,9 +93,12 @@ test "MultiLineString FromJson::from_json - valid" {
     "type": "MultiLineString",
     "coordinates": [[[0.0, 0.0], [1.0, 1.0]]],
   })
-  debug_inspect(mls, content=(
-    #|{ coordinates: [[XY(0, 0), XY(1, 1)]] }
-  ))
+  debug_inspect(
+    mls,
+    content=(
+      #|{ coordinates: [[XY(0, 0), XY(1, 1)]] }
+    ),
+  )
 }
 ```
 
@@ -105,8 +111,11 @@ test "MultiLineString FromJson::from_json - empty" {
     "type": "MultiLineString",
     "coordinates": [],
   })
-  debug_inspect(mls, content=(
-    #|{ coordinates: [] }
-  ))
+  debug_inspect(
+    mls,
+    content=(
+      #|{ coordinates: [] }
+    ),
+  )
 }
 ```

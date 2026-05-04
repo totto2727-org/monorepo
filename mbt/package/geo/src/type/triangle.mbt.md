@@ -61,8 +61,11 @@ test {
   let b = XY::new(2.0, 1.0)
   let c = XY::new(1.0, 3.0)
   let tri = Triangle::new(a, b, c)
-  debug_inspect(tri.bbox(), content=(
-    #|{ min: { x: 0, y: 0 }, max: { x: 2, y: 3 } }
-  ))
+  debug_inspect(
+    tri.bbox(),
+    content=(
+      #|{ min: { x: 0, y: 0 }, max: { x: 2, y: 3 } }
+    ),
+  )
 }
 ```

@@ -1,0 +1,53 @@
+{
+  "name": "totto2727",
+  "plugins": [
+    {
+      "category": "Productivity",
+      "name": "totto2727",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "././plugins/totto2727",
+        "source": "local"
+      }
+    },
+    {
+      "category": "Productivity",
+      "name": "moonbit",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "././plugins/moonbit",
+        "source": "local"
+      }
+    },
+    {
+      "category": "Productivity",
+      "name": "components-build",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "././plugins/components-build",
+        "source": "local"
+      }
+    },
+    {
+      "category": "Productivity",
+      "name": "dev-workflow",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "././plugins/dev-workflow",
+        "source": "local"
+      }
+    }
+  ]
+}

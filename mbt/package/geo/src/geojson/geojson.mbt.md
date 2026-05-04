@@ -152,9 +152,12 @@ test "GeoJSON FromJson::from_json - FeatureCollection" {
     "type": "FeatureCollection",
     "features": [],
   })
-  debug_inspect(geojson, content=(
-    #|FeatureCollection({ features: [] })
-  ))
+  debug_inspect(
+    geojson,
+    content=(
+      #|FeatureCollection({ features: [] })
+    ),
+  )
 }
 ```
 
@@ -186,9 +189,12 @@ test "GeoJSON FromJson::from_json - Geometry" {
     "type": "Point",
     "coordinates": [1.0, 2.0],
   })
-  debug_inspect(geojson, content=(
-    #|Geometry(Point({ coordinates: XY(1, 2) }))
-  ))
+  debug_inspect(
+    geojson,
+    content=(
+      #|Geometry(Point({ coordinates: XY(1, 2) }))
+    ),
+  )
 }
 ```
 

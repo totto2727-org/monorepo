@@ -116,7 +116,6 @@ test "Feature FromJson::from_json - With Geometry and Properties" {
       #|  properties: Some({ "name": String("test") }),
       #|  id: None,
       #|}
-
     ),
   )
 }
@@ -132,9 +131,12 @@ test "Feature FromJson::from_json - Without Geometry and Properties" {
     "geometry": null,
     "properties": null,
   })
-  debug_inspect(feature, content=(
-    #|{ geometry: None, properties: None, id: None }
-  ))
+  debug_inspect(
+    feature,
+    content=(
+      #|{ geometry: None, properties: None, id: None }
+    ),
+  )
 }
 ```
 

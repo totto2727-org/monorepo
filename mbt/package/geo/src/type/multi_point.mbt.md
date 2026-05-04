@@ -20,9 +20,12 @@ Represents a collection of points.
 test {
   let point1 = Point::new(XY::new(1.0, 1.0))
   let multi_point = MultiPoint::new([point1])
-  debug_inspect(multi_point, content=(
-    #|MultiPoint([Point({ x: 1, y: 1 })])
-  ))
+  debug_inspect(
+    multi_point,
+    content=(
+      #|MultiPoint([Point({ x: 1, y: 1 })])
+    ),
+  )
 }
 ```
 
@@ -54,9 +57,12 @@ test {
 test {
   let point1 = Point::new(XY::new(1.0, 1.0))
   let multi_point = MultiPoint::new([point1])
-  debug_inspect(multi_point.geometry_array(), content=(
-    #|[Point({ x: 1, y: 1 })]
-  ))
+  debug_inspect(
+    multi_point.geometry_array(),
+    content=(
+      #|[Point({ x: 1, y: 1 })]
+    ),
+  )
 }
 ```
 

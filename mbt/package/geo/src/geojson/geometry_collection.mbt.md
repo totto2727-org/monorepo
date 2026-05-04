@@ -21,9 +21,12 @@
 ///|
 test "GeometryCollection new" {
   let gc = GeometryCollection::new([])
-  debug_inspect(gc, content=(
-    #|{ geometries: [] }
-  ))
+  debug_inspect(
+    gc,
+    content=(
+      #|{ geometries: [] }
+    ),
+  )
 }
 ```
 
@@ -91,9 +94,12 @@ test "GeometryCollection FromJson::from_json - Valid" {
     "type": "GeometryCollection",
     "geometries": [{ "type": "Point", "coordinates": [0.0, 0.0] }],
   })
-  debug_inspect(gc, content=(
-    #|{ geometries: [Point({ coordinates: XY(0, 0) })] }
-  ))
+  debug_inspect(
+    gc,
+    content=(
+      #|{ geometries: [Point({ coordinates: XY(0, 0) })] }
+    ),
+  )
 }
 ```
 
@@ -106,8 +112,11 @@ test "GeometryCollection FromJson::from_json - Empty" {
     "type": "GeometryCollection",
     "geometries": [],
   })
-  debug_inspect(gc, content=(
-    #|{ geometries: [] }
-  ))
+  debug_inspect(
+    gc,
+    content=(
+      #|{ geometries: [] }
+    ),
+  )
 }
 ```
