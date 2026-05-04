@@ -5,7 +5,7 @@ created_at: 2026-05-04
 updated_at: 2026-05-04
 roadmap: null
 
-current_step: 'Step 5: Task Decomposition'
+current_step: 'Step 5: Task Decomposition (awaiting user approval)'
 completed_steps:
   - step: 'Step 1: Intent Clarification'
     completed_at: 2026-05-04
@@ -55,7 +55,7 @@ artifacts:
   design: docs/workflow/2026-05-04-totto2727-coding-plugin/design.md
   qa_design: docs/workflow/2026-05-04-totto2727-coding-plugin/qa-design.md
   qa_flow: docs/workflow/2026-05-04-totto2727-coding-plugin/qa-flow.md
-  task_plan: null
+  task_plan: docs/workflow/2026-05-04-totto2727-coding-plugin/task-plan.md
   todo: null
   reviews: []
   validation_report: null
