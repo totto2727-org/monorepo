@@ -15,93 +15,93 @@ Following the rule that `task-plan.md` is immutable, any additional tasks discov
 
 ## Tasks
 
-- [ ] **T1** — Create new plugin manifest `plugins/totto2727-coding/.claude-plugin/plugin.json`
-  - status: in_progress
+- [x] **T1** — Create new plugin manifest `plugins/totto2727-coding/.claude-plugin/plugin.json`
+  - status: completed
   - dependencies: none
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: 233ebea
   - implementer: W1-implementer-T1
   - re_activations: 0
   - notes: -
 
-- [ ] **T2** — Edit `.claude-plugin/marketplace.json` — add `totto2727-coding`, drop `moonbit` and `components-build`
-  - status: in_progress
+- [x] **T2** — Edit `.claude-plugin/marketplace.json` — add `totto2727-coding`, drop `moonbit` and `components-build`
+  - status: completed
   - dependencies: none
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: f937572
   - implementer: W1-implementer-T2
   - re_activations: 0
   - notes: -
 
-- [ ] **T3** — Update `.claude/settings.json` `enabledPlugins`
-  - status: in_progress
+- [x] **T3** — Update `.claude/settings.json` `enabledPlugins`
+  - status: completed
   - dependencies: none
+  - started_at: 2026-05-04
+  - completed_at: 2026-05-04
+  - commit: 66183be
+  - implementer: W1-implementer-T3
+  - re_activations: 0
+  - notes: 'Pre-existing vp check 14 errors in saas-example (codegen files unrelated to this cycle); SC-10 may need vp run --filter saas-example prebuild before Step 8 validation.'
+
+- [ ] **T4** — Move + rename `moonbit-docs/` SKILL.md and references → `docs-moonbit/`
+  - status: in_progress
+  - dependencies: T1
   - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: W1-implementer-T3
-  - re_activations: 0
-  - notes: -
-
-- [ ] **T4** — Move + rename `moonbit-docs/` SKILL.md and references → `docs-moonbit/`
-  - status: pending
-  - dependencies: T1
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - implementer: W2-implementer-T4
   - re_activations: 0
   - notes: A8 lockstep with T5
 
 - [ ] **T5** — Move + rename + edit `process-moonbit-docs.ts` → `generate-docs-moonbit.ts`
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W2-implementer-T5
   - re_activations: 0
   - notes: A8 lockstep with T4 (script template + null guard + output dir)
 
 - [ ] **T6** — Move + rename slash command `update-moonbit-docs.md` → `update-docs-moonbit.md`
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W2-implementer-T6
   - re_activations: 0
   - notes: -
 
 - [ ] **T7** — Move + rename `components-build-docs/` SKILL.md → `docs-components-build/`
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W2-implementer-T7
   - re_activations: 0
   - notes: A8 lockstep with T8
 
 - [ ] **T8** — Move + rename + edit `generate-skill.ts` → `generate-docs-components-build.ts`
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W2-implementer-T8
   - re_activations: 0
   - notes: A8 lockstep with T7
 
 - [ ] **T9** — Move + rename slash command `update-components-build-docs.md` → `update-docs-components-build.md`
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W2-implementer-T9
   - re_activations: 0
   - notes: -
 
