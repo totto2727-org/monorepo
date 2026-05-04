@@ -140,11 +140,17 @@ export default app
 
 ```ts
 // app/assets/entry.ts
-import { boot } from 'vite-plugin-remix/runtime'
+import { boot } from 'vite-plugin-remix/client'
 
 boot({
   components: import.meta.glob('/app/**/*.client.tsx'),
 })
+```
+
+`Document` の `<script>` も `vite-plugin-remix/client` から:
+
+```tsx
+import { Script } from 'vite-plugin-remix/client'
 ```
 
 詳細は [`vite-plugin-remix` の README](../vite-plugin-remix/README.md) 参照。

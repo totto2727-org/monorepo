@@ -1,4 +1,4 @@
-import { boot } from 'vite-plugin-remix/runtime'
+import { boot } from 'vite-plugin-remix/client'
 
 // Project-wide convention: any *.client.tsx is a clientEntry-bearing module.
 // import.meta.glob is a compile-time syntax — the bundler must see this

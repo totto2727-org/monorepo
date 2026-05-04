@@ -1,4 +1,4 @@
-import { Script } from 'vite-plugin-remix/ui'
+import { Script } from 'vite-plugin-remix/client'
 import type { RemixNode } from 'remix/ui'
 
 export interface DocumentProps {

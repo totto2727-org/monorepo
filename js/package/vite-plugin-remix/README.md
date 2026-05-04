@@ -46,7 +46,7 @@ export default defineConfig({
 ### `app/assets/entry.ts`（ブラウザエントリ）
 
 ```ts
-import { boot } from 'vite-plugin-remix/runtime'
+import { boot } from 'vite-plugin-remix/client'
 
 boot({
   components: import.meta.glob('/app/**/*.client.tsx'),
@@ -58,7 +58,7 @@ boot({
 ### `<Script>` コンポーネント (SSR HTML 内に挿入)
 
 ```tsx
-import { Script } from 'vite-plugin-remix/ui'
+import { Script } from 'vite-plugin-remix/client'
 
 export function Document() {
   return ({ children }) => (

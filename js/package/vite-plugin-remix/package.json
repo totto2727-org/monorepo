@@ -5,8 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/plugin.ts",
-    "./runtime": "./src/runtime/browser-entry.ts",
-    "./ui": "./src/ui/script.tsx"
+    "./client": "./src/client/index.tsx"
   },
   "peerDependencies": {
     "remix": "catalog:remix",
