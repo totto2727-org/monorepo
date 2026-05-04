@@ -5,7 +5,7 @@ created_at: 2026-05-04
 updated_at: 2026-05-04
 roadmap: null
 
-current_step: 'Step 3: Design'
+current_step: 'Step 3: Design (awaiting user approval)'
 completed_steps:
   - step: 'Step 1: Intent Clarification'
     completed_at: 2026-05-04
@@ -34,7 +34,7 @@ artifacts:
     - docs/workflow/2026-05-04-totto2727-coding-plugin/research/cross-references.md
     - docs/workflow/2026-05-04-totto2727-coding-plugin/research/skill-content-migration.md
     - docs/workflow/2026-05-04-totto2727-coding-plugin/research/scripts-and-slash-commands.md
-  design: null
+  design: docs/workflow/2026-05-04-totto2727-coding-plugin/design.md
   qa_design: null
   qa_flow: null
   task_plan: null
