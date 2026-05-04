@@ -37,19 +37,19 @@ vp run typecheck   # tsgo --noEmit
 ```text
 app/
 ├── entry.worker.ts       # Cloudflare Worker のエントリ — Hono アプリを再 export
-├── app.ts                # Hono ルーティング: GET / → counter, GET /todo → todo
-├── controllers/
-│   ├── counter.tsx       # <Layout><Counter/></Layout> をレンダー
-│   └── todo.tsx          # <Layout><Todo/></Layout> をレンダー
+├── app.tsx               # Hono ルーティング + ハンドラ inline + middleware 登録
+├── middleware/
+│   └── renderer.tsx      # Hono の jsxRenderer 風 middleware — c.render を SSR に差し替え
 ├── ui/
-│   ├── document.tsx      # <html><head><body>... + <script src=/app/assets/entry.ts>
+│   ├── document.tsx      # <html><head><body>... + dev/prod 切替の <script src=>
 │   ├── layout.tsx        # ナビ + <main> ラッパ
 │   ├── counter.tsx       # clientEntry — インタラクティブなカウンター
 │   └── todo.tsx          # clientEntry — インタラクティブな TODO
-├── utils/render.tsx      # 全 controller が使う renderToStream ラッパ
 └── assets/
     └── entry.ts          # ブラウザエントリ — remix/ui の run() を呼び出す
 ```
+
+`app.tsx` 1 ファイルにルーティング・middleware・ハンドラ本体まで集約しています。controller / utils レイヤーは持っていません。
 
 ## SSR の流れ
 
@@ -61,17 +61,19 @@ sequenceDiagram
     participant Vite as Vite + @cloudflare/vite-plugin
     participant Worker as Cloudflare Worker (workerd)
     participant Hono
-    participant Render as render() (utils/render.tsx)
+    participant MW as remixRenderer middleware
     participant RemixSSR as remix/ui/server renderToStream
 
     Browser->>Vite: GET /
     Note over Vite: Vite のアセットパスではない → Worker へ転送
     Vite->>Worker: Request
     Worker->>Hono: app.fetch(request)
-    Hono->>Render: counter(c)
-    Render->>RemixSSR: renderToStream(<Layout><Counter/></Layout>, options)
-    RemixSSR-->>Render: ReadableStream<Uint8Array>（HTML）
-    Render-->>Hono: new Response(stream, {Content-Type: text/html})
+    Hono->>MW: c.setRenderer(...)（'*' で先に通る）
+    Hono->>Hono: ルートマッチ → ハンドラ
+    Hono->>MW: c.render(<><h1/><Counter/></>, { title })
+    MW->>RemixSSR: renderToStream(<Layout title>{content}</Layout>, options)
+    RemixSSR-->>MW: ReadableStream<Uint8Array>（HTML）
+    MW-->>Hono: new Response(stream, {Content-Type: text/html})
     Hono-->>Worker: Response
     Worker-->>Vite: Response
     Vite-->>Browser: HTML ストリーム
@@ -83,8 +85,7 @@ sequenceDiagram
 
     Browser->>Browser: import('remix/ui').run({loadModule, resolveFrame})
     Note over Browser: run() が DOM を走査してハイドレーションマーカーを探す
-    Browser->>Vite: GET /app/ui/counter.tsx（loadModule 経由の動的 import）
-    Vite-->>Browser: counter.tsx（変換済み）
+    Browser->>Browser: loadModule で in-memory components map から解決
     Browser->>Browser: Counter コンポーネントをハイドレート
 ```
 
@@ -92,70 +93,79 @@ sequenceDiagram
 
 #### 1. Worker にリクエストが届くまで
 
-dev サーバは `vite dev`。Vite が認識できるパス（`/@vite/...`、`/node_modules/.vite/...` など）は Vite が直接さばき、それ以外は `@cloudflare/vite-plugin` の workerd shim 経由で Worker に転送されます。Worker のエントリは `app/entry.worker.ts` で、Hono アプリを再 export しているだけです。
+`vite dev` が dev サーバ。Vite が認識できるパス（`/@vite/...`、`/node_modules/.vite/...` など）は Vite が直接さばき、それ以外は `@cloudflare/vite-plugin` の workerd shim 経由で Worker に転送されます。Worker のエントリは `app/entry.worker.ts` で、Hono アプリを再 export しているだけです。
 
 ```ts
 // app/entry.worker.ts
-import app from './app.ts'
+import app from './app.tsx'
 export default app
 ```
 
-#### 2. Hono がコントローラを選ぶ
+#### 2. Hono が middleware 経由で SSR を組み立てる
 
-```ts
-// app/app.ts
-const app = new Hono().use(logger()).get('/', counter).get('/todo', todo)
+```tsx
+// app/app.tsx
+const app = new Hono()
+
+app
+  .use(logger())
+  .use('*', remixRenderer((request) => app.fetch(request)))   // ← jsxRenderer 風
+  .get('/', (c) =>
+    c.render(<><h1>Counter</h1><Counter initial={0} /></>, { title: 'Counter' }),
+  )
+  .get('/todo', (c) =>
+    c.render(<><h1>TODO</h1><Todo /></>, { title: 'TODO' }),
+  )
 ```
 
-Hono は `(request, env, ctx) => Response` の素朴なルーターです。プロジェクト内のルート定義はここだけで、`app/routes.ts` も `remix/fetch-router` も残っていません。
+- `remixRenderer(fetcher)` が middleware として登録され、各リクエストの `c` に `c.render(content, { title })` を仕込みます。Hono の組み込み [`jsxRenderer`](https://hono.dev/docs/middleware/builtin/jsx-renderer) と同じ作法。
+- ハンドラは「中身の JSX を `c.render` に渡すだけ」の 1 行になります。`<Layout>` を巻く責務は middleware に集約。
+- `app.fetch` 依存は **`app.ts` 内のクロージャ 1 箇所** に閉じます（middleware ファクトリの引数として `fetcher` を受け取るので、middleware 自体は `app` を import しません）。
 
-#### 3. コントローラが `render()` を呼ぶ
+#### 3. middleware が `renderToStream` を呼ぶ
 
-各コントローラは Hono ハンドラで、JSX ツリーを `render()` に渡すだけ:
+```tsx
+// app/middleware/renderer.tsx
+declare module 'hono' {
+  interface ContextRenderer {
+    (content: RemixNode, props?: { title?: string }): Response
+  }
+}
 
-```ts
-// app/controllers/counter.tsx
-export const counter = (c: Context) =>
-  render(<Layout title='Counter'><Counter initial={0} /></Layout>, c.req.raw)
-```
-
-`c.req.raw` は元の Web `Request` で、Remix の SSR はこれをそのまま受け付けます。
-
-#### 4. `render()` が `renderToStream` をラップ
-
-```ts
-// app/utils/render.tsx
-import { renderToStream } from 'remix/ui/server'
-
-export function render(node, request, init?) {
-  const stream = renderToStream(node, {
-    frameSrc: request.url,
-    resolveClientEntry(entryId, component) {
-      // 旧来の "/assets/" プレフィックスを剥がして Vite のソースパスに合わせる
-      const [rawHref, hash] = entryId.split('#')
-      const href = rawHref.startsWith('/assets/') ? rawHref.slice('/assets'.length) : rawHref
-      return { exportName: hash || component.name, href }
-    },
-    async resolveFrame(src, target) {
-      // 入れ子 SSR（frame）— 同じ Hono アプリに再投入
-      const headers = new Headers({ accept: 'text/html' })
-      if (target) headers.set('x-remix-target', target)
-      const response = await app.fetch(new Request(new URL(src, request.url), { headers }))
-      return response.body ?? response.text()
-    },
+export const remixRenderer = (fetcher: Fetcher): MiddlewareHandler => async (c, next) => {
+  c.setRenderer((content, props = {}) => {
+    const stream = renderToStream(<Layout title={props.title}>{content}</Layout>, {
+      frameSrc: c.req.url,
+      resolveClientEntry(entryId, component) {
+        // 旧来の "/assets/" プレフィックスを剥がして Vite のソースパスに合わせる
+        const [rawHref, hash] = entryId.split('#')
+        const href = rawHref.startsWith('/assets/') ? rawHref.slice('/assets'.length) : rawHref
+        return { exportName: hash || (component.name ?? ''), href }
+      },
+      async resolveFrame(src, target) {
+        // 入れ子 SSR（frame）— closure で渡された fetcher 経由
+        const headers = new Headers({ accept: 'text/html' })
+        const cookie = c.req.header('cookie')
+        if (cookie) headers.set('cookie', cookie)
+        if (target) headers.set('x-remix-target', target)
+        const response = await fetcher(new Request(new URL(src, c.req.url), { headers }))
+        return response.body ?? response.text()
+      },
+    })
+    return new Response(stream, { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
   })
-  return new Response(stream, { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
+  return next()
 }
 ```
 
-統合の要は次の 2 つのフック:
+設計の要点:
 
-- **`resolveClientEntry`** — インタラクティブなコンポーネントは `clientEntry('/assets/app/ui/counter.tsx#Counter', …)` のように登録されています。リテラルの `/assets/...` プレフィックスは Remix の asset server 規約由来です。asset server を持たない本構成では Vite が `/app/ui/counter.tsx` で配信するため、ここでプレフィックスを剥がします。書き換え後の `href` が SSR HTML 内のハイドレーション情報 `moduleUrl` として埋め込まれます。
-- **`resolveFrame`** — SSR が外部 `<frame>` を見つけたとき、内側の HTML を取得する必要があります。`app.fetch(...)` を呼ぶことで同じ Hono アプリに再投入され、frame もトップレベルリクエストとまったく同じルーティング・ミドルウェアを通ります。
+- **`Fetcher` 型で依存を切る** — middleware は `Hono` を import しないし、`app` モジュールも知らない。受け取るのは抽象的な `(req: Request) => Promise<Response>` だけで、テストもしやすい。`app.fetch` を読む責務は登録側（`app.tsx`）に閉じている。
+- **`Layout` の組み付けは middleware の中** — controller には JSX の中身しか書かれず、レイアウト切替が必要なら別の middleware を別ルートに `app.use('/admin/*', remixRenderer2(...))` の形で当てる。
+- **`resolveClientEntry`** — `clientEntry('/assets/app/ui/counter.tsx#Counter', …)` の `/assets/` プレフィックスを剥がし、Vite のソースパス（`/app/ui/counter.tsx`）に揃える。書き換え後の `href` が SSR HTML 内の `moduleUrl` になる。
+- **`resolveFrame`** — frame の入れ子 SSR でも同じ Hono アプリに再投入。依存は `fetcher` クロージャだけなので循環 import が起こらない。
 
-返り値の `stream` は Web `ReadableStream<Uint8Array>` で、HTML を逐次出力します。静的部分から先に流れ、入れ子コンテンツは解決した順に追記されます。
-
-#### 5. SSR HTML がハイドレーションマーカーを含む
+#### 4. SSR HTML がハイドレーションマーカーを含む
 
 `clientEntry` のコンポーネントごとに、`renderToStream` がコメントマーカーとハイドレーション用の JSON レコードを書き込みます:
 
@@ -169,7 +179,7 @@ export function render(node, request, init?) {
 
 ステートを持たない `Layout` / `Document` はマーカーを残しません — サーバ出力のみで再レンダーされません。
 
-#### 6. ブラウザが entry を実行
+#### 5. ブラウザが entry を実行
 
 `Document` 内で挿入されるスクリプトは dev / prod で URL が切り替わります:
 
@@ -208,23 +218,24 @@ run({
 })
 ```
 
-`run()` は DOM を走査し、`<!-- rmx:h:hXXX -->` マーカーを全て見つけ、対応する `{moduleUrl, exportName, props}` レコードを引き、各々について `loadModule` を呼びます。動的 `import('/app/ui/counter.tsx')` は Vite が解決し（通常のソースパス）、pre-bundle 済み依存を再利用、JSX をコンパイルしてコンポーネントをマウントします。あとは普通のインタラクティブコンポーネント — クロージャ変数が状態を保持し、`handle.update()` で再レンダーします。
+`run()` は DOM を走査し、`<!-- rmx:h:hXXX -->` マーカーを全て見つけ、対応する `{moduleUrl, exportName, props}` レコードを引き、各々について `loadModule` を呼びます。プレビルド済みの `components` map から該当エントリを返すだけなので、ブラウザは追加のネットワーク往復なしにハイドレートできます。あとは普通のインタラクティブコンポーネント — クロージャ変数が状態を保持し、`handle.update()` で再レンダーします。
 
 ### `clientEntry` の ID が `/assets/` で始まる理由
 
-`clientEntry('/assets/app/ui/counter.tsx#Counter', …)` は `remix new` scaffold が生成するそのままの形式です。Remix のテンプレートは `createAssetServer` が `/assets` にマウントされている前提だからです。本構成では asset server を取り除いているため、`resolveClientEntry` でプレフィックスを書き換えて Vite のソースパスに合わせます。コンポーネント側のコードは Remix scaffold 規約のまま、書き換えロジックは 1 箇所に集約されます。
+`clientEntry('/assets/app/ui/counter.tsx#Counter', …)` は `remix new` scaffold が生成するそのままの形式です。Remix のテンプレートは `createAssetServer` が `/assets` にマウントされている前提だからです。本構成では asset server を取り除いているため、`resolveClientEntry` でプレフィックスを書き換えて Vite のソースパスに合わせます。コンポーネント側のコードは Remix scaffold 規約のまま、書き換えロジックは middleware 1 箇所に集約されます。
 
 ## オリジナルの Remix テンプレートとの違い
 
 上流のテンプレート（[remix-run/remix `template/`](https://github.com/remix-run/remix/blob/main/template/README.md)）は:
 
-- `remix/fetch-router` でルーティング → 本構成は **Hono**
+- `remix/fetch-router` でルーティング → 本構成は **Hono** + jsxRenderer 風 middleware
 - `remix/assets` の `createAssetServer` で Node ランタイムにブラウザモジュールをコンパイル＆配信 → 本構成は dev で **Vite**、本番も Vite ビルドで `@cloudflare/vite-plugin` が Worker と Vite を接続
 - `remix/node-serve` で Node の HTTP エントリ → 本構成は Cloudflare Worker の default export (`fetch`)
-- `app/routes.ts` + `app/router.ts` でルート契約を宣言 → `app/app.ts` に集約
+- `app/routes.ts` + `app/router.ts` + 各 controller でルート契約・配線・ハンドラを分割 → `app/app.tsx` に inline 集約
+- `utils/render.tsx` でレンダリング関数を export → Hono の `c.render` に置換、Layout は `remixRenderer` middleware で適用
 - scaffold ホームページは `/assets/...` 配下の `clientEntry` URL を使用 → `clientEntry` API はそのままで `resolveClientEntry` で URL を書き換え
 
-SSR パイプライン本体（`renderToStream`、`clientEntry`、`run()`、ハイドレーションマーカー）は **テンプレートと同一**です。差し替えたのはルーティング層と asset / runtime 層のみです。
+SSR パイプライン本体（`renderToStream`、`clientEntry`、`run()`、ハイドレーションマーカー）は **テンプレートと同一**です。差し替えたのはルーティング層と asset / runtime 層、それと「レンダリングの呼び出し口」だけです。
 
 ## ビルド / デプロイ
 

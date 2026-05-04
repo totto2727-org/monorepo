@@ -1,3 +1,3 @@
-import app from './app.ts'
+import app from './app.tsx'
 
 export default app
