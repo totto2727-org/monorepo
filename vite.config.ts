@@ -46,7 +46,6 @@ export default defineConfig({
   run: {
     cache: {
       scripts: true,
-      tasks: true,
     },
     tasks: {
       ci: {
