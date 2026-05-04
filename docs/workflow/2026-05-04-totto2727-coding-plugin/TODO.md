@@ -165,145 +165,145 @@ Following the rule that `task-plan.md` is immutable, any additional tasks discov
   - re_activations: 0
   - notes: -
 
-- [ ] **T16** — Author `coding/SKILL.md` (≤300 lines, language-agnostic + language index + external spec section)
-  - status: in_progress
+- [x] **T16** — Author `coding/SKILL.md` (≤300 lines, language-agnostic + language index + external spec section)
+  - status: completed
   - dependencies: T10, T11, T12, T13, T14, T15, T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: b5db262
   - implementer: W4-implementer-T16
   - re_activations: 0
-  - notes: 'Author file only; Main commits sequentially to avoid W2/W3 race condition. SC-3 hard cap.'
+  - notes: '181 lines (≤300, SC-3 OK)'
 
-- [ ] **T17** — Author `coding/references/ts-skill.md` (in-plugin TS detail + external skill refs vite-plus / remix per A10)
-  - status: in_progress
+- [x] **T17** — Author `coding/references/ts-skill.md`
+  - status: completed
   - dependencies: T10, T11, T12, T13, T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: a0a6614
   - implementer: W4-implementer-T17
   - re_activations: 0
-  - notes: 'Author file only; Main commits sequentially. A10 external skill refs.'
+  - notes: 'A10 applied: vite-plus / remix as name-only external refs.'
 
-- [ ] **T18** — Author `coding/references/mbt-skill.md`
-  - status: in_progress
+- [x] **T18** — Author `coding/references/mbt-skill.md`
+  - status: completed
   - dependencies: T14, T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: 3c1d714
   - implementer: W4-implementer-T18
   - re_activations: 0
-  - notes: 'Author file only; Main commits sequentially.'
+  - notes: -
 
-- [ ] **T19** — Author `test/SKILL.md` (≤300 lines, TS + MoonBit indexes per Q4 revised)
-  - status: in_progress
+- [x] **T19** — Author `test/SKILL.md` (≤300 lines, TS + MoonBit indexes per Q4 revised)
+  - status: completed
   - dependencies: T15, T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: 9399b15
   - implementer: W4-implementer-T19
   - re_activations: 0
-  - notes: 'Author file only; Main commits sequentially. SC-3 hard cap.'
+  - notes: '128 lines (≤300, SC-3 OK)'
 
-- [ ] **T20** — Author `test/references/ts-skill.md` (external skill ref vite-plus only per A10)
-  - status: in_progress
+- [x] **T20** — Author `test/references/ts-skill.md`
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: 2baf1b8
   - implementer: W4-implementer-T20
   - re_activations: 0
-  - notes: 'Author file only; Main commits sequentially. A10 external skill refs.'
+  - notes: 'A10 applied: vite-plus only as name-only external ref.'
 
-- [ ] **T21** — Author `test/references/mbt-skill.md`
-  - status: in_progress
+- [x] **T21** — Author `test/references/mbt-skill.md`
+  - status: completed
   - dependencies: T15
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: 447b630
   - implementer: W4-implementer-T21
   - re_activations: 0
-  - notes: 'Author file only; Main commits sequentially.'
+  - notes: -
 
-- [ ] **T22** — Delete `plugins/moonbit/` (entire directory)
-  - status: pending
+- [x] **T22** — Delete `plugins/moonbit/` (entire directory)
+  - status: completed
   - dependencies: T4, T5, T6, T14, T15
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-04
+  - completed_at: 2026-05-04
+  - commit: 8719621
+  - implementer: Main (sequential to avoid race)
   - re_activations: 0
-  - notes: Move-and-rename ordering rule: only run after all source-file migrations are committed
+  - notes: 'git rm -r executed by Main (delete is destructive but authorized via task-plan).'
 
-- [ ] **T23** — Delete `plugins/components-build/` (entire directory)
-  - status: pending
+- [x] **T23** — Delete `plugins/components-build/` (entire directory)
+  - status: completed
   - dependencies: T7, T8, T9
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-04
+  - completed_at: 2026-05-04
+  - commit: 2e9229a
+  - implementer: Main
   - re_activations: 0
-  - notes: Move-and-rename ordering rule
+  - notes: -
 
-- [ ] **T24** — Delete `.agents/skills/effect-layer/`
-  - status: pending
+- [x] **T24** — Delete `.agents/skills/effect-layer/`
+  - status: completed
   - dependencies: T10
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-04
+  - completed_at: 2026-05-04
+  - commit: 41520f3
+  - implementer: Main
   - re_activations: 0
   - notes: -
 
-- [ ] **T25** — Delete `.agents/skills/effect-runtime/`
-  - status: pending
+- [x] **T25** — Delete `.agents/skills/effect-runtime/`
+  - status: completed
   - dependencies: T11
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-04
+  - completed_at: 2026-05-04
+  - commit: 7550a55
+  - implementer: Main
   - re_activations: 0
   - notes: -
 
-- [ ] **T26** — Delete `.agents/skills/effect-hono/`
-  - status: pending
+- [x] **T26** — Delete `.agents/skills/effect-hono/`
+  - status: completed
   - dependencies: T12
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-04
+  - completed_at: 2026-05-04
+  - commit: 800d85d
+  - implementer: Main
   - re_activations: 0
   - notes: -
 
-- [ ] **T27** — Delete `.agents/skills/totto2727-fp/`
-  - status: pending
+- [x] **T27** — Delete `.agents/skills/totto2727-fp/`
+  - status: completed
   - dependencies: T13
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-04
+  - completed_at: 2026-05-04
+  - commit: ff446c7
+  - implementer: Main
   - re_activations: 0
   - notes: -
 
 - [ ] **T28** — Rewrite 12 dev-workflow placeholder occurrences (per cross-references UQ-1 / A4)
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W5-implementer-T28
   - re_activations: 0
-  - notes: 12 sites enumerated in design.md A4 paragraph
+  - notes: 'Author file edits only; Main commits sequentially. 12 sites in design.md A4 paragraph.'
 
 - [ ] **T29** — Update `js/package/fp/README.md:5` and `js/package/fp/CLAUDE.md:3` cross-references
-  - status: pending
+  - status: in_progress
   - dependencies: T13
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W5-implementer-T29
   - re_activations: 0
-  - notes: -
+  - notes: 'Author file edits only; Main commits sequentially.'
 
 - [ ] **T30** — Run `c-plugin dev marketplace sync` and commit derivatives
   - status: pending
