@@ -285,35 +285,35 @@ Following the rule that `task-plan.md` is immutable, any additional tasks discov
   - re_activations: 0
   - notes: -
 
-- [ ] **T28** — Rewrite 12 dev-workflow placeholder occurrences (per cross-references UQ-1 / A4)
-  - status: in_progress
+- [x] **T28** — Rewrite 12 dev-workflow placeholder occurrences (per cross-references UQ-1 / A4)
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: aba9281
   - implementer: W5-implementer-T28
   - re_activations: 0
-  - notes: 'Author file edits only; Main commits sequentially. 12 sites in design.md A4 paragraph.'
+  - notes: '11 files / 12 occurrences updated. grep result: 0 hits.'
 
-- [ ] **T29** — Update `js/package/fp/README.md:5` and `js/package/fp/CLAUDE.md:3` cross-references
-  - status: in_progress
+- [x] **T29** — Update `js/package/fp/README.md:5` and `js/package/fp/CLAUDE.md:3` cross-references
+  - status: completed
   - dependencies: T13
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: d2a891c
   - implementer: W5-implementer-T29
   - re_activations: 0
-  - notes: 'Author file edits only; Main commits sequentially.'
+  - notes: 'README.md: GitHub absolute URL updated. CLAUDE.md: relative path updated to ../../../plugins/totto2727-coding/...'
 
-- [ ] **T30** — Run `c-plugin dev marketplace sync` and commit derivatives
-  - status: pending
+- [x] **T30** — Run `c-plugin dev marketplace sync` and commit derivatives
+  - status: completed
   - dependencies: T1-T29 (every other task)
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-04
+  - completed_at: 2026-05-04
+  - commit: (to be filled)
+  - implementer: Main (executes c-plugin dev marketplace sync directly)
   - re_activations: 0
-  - notes: HARD SERIALIZATION POINT — must run last; produces `.codex-plugin/plugin.json`, `.cursor-plugin/plugin.json`, `.cursor-plugin/marketplace.json`, `.agents/plugins/marketplace.json`
+  - notes: 'Generated .cursor-plugin/marketplace.json + .agents/plugins/marketplace.json (Codex format) + plugins/totto2727-coding/.codex-plugin/plugin.json + .cursor-plugin/plugin.json. moonbit / components-build entries automatically removed via base sync.'
 
 ## State transition guide
 
