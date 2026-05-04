@@ -154,7 +154,7 @@ points.
 
 ## Related skills
 
-- **`test`** (sibling skill in this plugin) — test-specific conventions
+- **[`test`](../test/SKILL.md)** (sibling skill in this plugin) — test-specific conventions
   (test independence, observable assertions, fixture hygiene), with the
   same 3-tier shape (entry SKILL.md → `<lang>-skill.md` index → detail
   files). Always pair `coding` with `test` when writing real code.
