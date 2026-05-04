@@ -1,5 +1,7 @@
 import type { RemixNode } from 'remix/ui'
 
+import { Script } from './script.tsx'
+
 export interface DocumentProps {
   children?: RemixNode
   title?: string
@@ -17,7 +19,7 @@ export function Document() {
       </head>
       <body>
         {children}
-        <script type='module' src={import.meta.env.DEV ? '/app/assets/entry.ts' : '/assets/entry.js'}></script>
+        <Script />
       </body>
     </html>
   )
