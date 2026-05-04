@@ -21,7 +21,12 @@
 ///|
 test "GeometryCollection new" {
   let gc = GeometryCollection::new([])
-  inspect(gc, content="{geometries: []}")
+  debug_inspect(
+    gc,
+    content=(
+      #|{ geometries: [] }
+    ),
+  )
 }
 ```
 
@@ -36,7 +41,7 @@ test "GeometryCollection BBoxTrait::bbox" {
     Geometry::Point(Point::new(Coordinates::XY(0.0, 0.0))),
     Geometry::Point(Point::new(Coordinates::XY(10.0, 10.0))),
   ])
-  inspect(gc.bbox(), content="BBox2D(0, 0, 10, 10)")
+  debug_inspect(gc.bbox(), content="BBox2D(0, 0, 10, 10)")
 }
 ```
 
@@ -89,7 +94,12 @@ test "GeometryCollection FromJson::from_json - Valid" {
     "type": "GeometryCollection",
     "geometries": [{ "type": "Point", "coordinates": [0.0, 0.0] }],
   })
-  inspect(gc, content="{geometries: [Point({coordinates: XY(0, 0)})]}")
+  debug_inspect(
+    gc,
+    content=(
+      #|{ geometries: [Point({ coordinates: XY(0, 0) })] }
+    ),
+  )
 }
 ```
 
@@ -102,6 +112,11 @@ test "GeometryCollection FromJson::from_json - Empty" {
     "type": "GeometryCollection",
     "geometries": [],
   })
-  inspect(gc, content="{geometries: []}")
+  debug_inspect(
+    gc,
+    content=(
+      #|{ geometries: [] }
+    ),
+  )
 }
 ```

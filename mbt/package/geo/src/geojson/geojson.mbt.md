@@ -31,7 +31,7 @@ test "GeoJSON BBoxTrait::bbox" {
     "type": "Point",
     "coordinates": [1.0, 2.0],
   })
-  inspect(geojson.bbox(), content="BBox2D(1, 2, 1, 2)")
+  debug_inspect(geojson.bbox(), content="BBox2D(1, 2, 1, 2)")
 }
 ```
 
@@ -152,7 +152,12 @@ test "GeoJSON FromJson::from_json - FeatureCollection" {
     "type": "FeatureCollection",
     "features": [],
   })
-  inspect(geojson, content="FeatureCollection({features: []})")
+  debug_inspect(
+    geojson,
+    content=(
+      #|FeatureCollection({ features: [] })
+    ),
+  )
 }
 ```
 
@@ -166,9 +171,11 @@ test "GeoJSON FromJson::from_json - Feature" {
     "geometry": null,
     "properties": null,
   })
-  inspect(
+  debug_inspect(
     geojson,
-    content="Feature({geometry: None, properties: None, id: None})",
+    content=(
+      #|Feature({ geometry: None, properties: None, id: None })
+    ),
   )
 }
 ```
@@ -182,7 +189,12 @@ test "GeoJSON FromJson::from_json - Geometry" {
     "type": "Point",
     "coordinates": [1.0, 2.0],
   })
-  inspect(geojson, content="Geometry(Point({coordinates: XY(1, 2)}))")
+  debug_inspect(
+    geojson,
+    content=(
+      #|Geometry(Point({ coordinates: XY(1, 2) }))
+    ),
+  )
 }
 ```
 

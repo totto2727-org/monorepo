@@ -20,7 +20,12 @@ Represents a heterogeneous collection of geometries.
 test {
   let point = Point::new(XY::new(1.0, 1.0))
   let geometry_collection = GeometryCollection::new([point])
-  inspect(geometry_collection.geometry_array(), content="[Point({x: 1, y: 1})]")
+  debug_inspect(
+    geometry_collection.geometry_array(),
+    content=(
+      #|[Point({ x: 1, y: 1 })]
+    ),
+  )
 }
 ```
 
@@ -34,9 +39,11 @@ test {
   let point = Point::new(XY::new(1.0, 1.0))
   let line_string = LineString::new([XY::new(2.0, 2.0), XY::new(3.0, 3.0)])
   let geometry_collection = GeometryCollection::new([point, line_string])
-  inspect(
+  debug_inspect(
     geometry_collection.coord_array(),
-    content="[{x: 1, y: 1}, {x: 2, y: 2}, {x: 3, y: 3}]",
+    content=(
+      #|[{ x: 1, y: 1 }, { x: 2, y: 2 }, { x: 3, y: 3 }]
+    ),
   )
 }
 ```
@@ -51,9 +58,11 @@ test {
   let point = Point::new(XY::new(1.0, 1.0))
   let line_string = LineString::new([XY::new(2.0, 2.0), XY::new(3.0, 3.0)])
   let geometry_collection = GeometryCollection::new([point, line_string])
-  inspect(
+  debug_inspect(
     geometry_collection.geometry_array(),
-    content="[Point({x: 1, y: 1}), LineString([{x: 2, y: 2}, {x: 3, y: 3}])]",
+    content=(
+      #|[Point({ x: 1, y: 1 }), LineString([{ x: 2, y: 2 }, { x: 3, y: 3 }])]
+    ),
   )
 }
 ```
@@ -73,9 +82,11 @@ test {
   let point = Point::new(XY::new(1.0, 1.0))
   let line_string = LineString::new([XY::new(2.0, 2.0), XY::new(3.0, 3.0)])
   let geometry_collection = GeometryCollection::new([point, line_string])
-  inspect(
+  debug_inspect(
     geometry_collection.bbox(),
-    content="{min: {x: 1, y: 1}, max: {x: 3, y: 3}}",
+    content=(
+      #|{ min: { x: 1, y: 1 }, max: { x: 3, y: 3 } }
+    ),
   )
 }
 ```

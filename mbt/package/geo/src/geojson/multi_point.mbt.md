@@ -24,7 +24,12 @@ test "MultiPoint new" {
     Coordinates::XY(0.0, 0.0),
     Coordinates::XY(1.0, 1.0),
   ])
-  inspect(mp, content="{coordinates: [XY(0, 0), XY(1, 1)]}")
+  debug_inspect(
+    mp,
+    content=(
+      #|{ coordinates: [XY(0, 0), XY(1, 1)] }
+    ),
+  )
 }
 ```
 
@@ -39,7 +44,7 @@ test "MultiPoint BBoxTrait::bbox" {
     Coordinates::XY(0.0, 0.0),
     Coordinates::XY(1.0, 1.0),
   ])
-  inspect(mp.bbox(), content="BBox2D(0, 0, 1, 1)")
+  debug_inspect(mp.bbox(), content="BBox2D(0, 0, 1, 1)")
 }
 ```
 
@@ -90,7 +95,12 @@ test "MultiPoint FromJson::from_json - valid" {
     "type": "MultiPoint",
     "coordinates": [[0.0, 0.0]],
   })
-  inspect(mp, content="{coordinates: [XY(0, 0)]}")
+  debug_inspect(
+    mp,
+    content=(
+      #|{ coordinates: [XY(0, 0)] }
+    ),
+  )
 }
 ```
 
@@ -103,6 +113,11 @@ test "MultiPoint FromJson::from_json - empty" {
     "type": "MultiPoint",
     "coordinates": [],
   })
-  inspect(mp, content="{coordinates: []}")
+  debug_inspect(
+    mp,
+    content=(
+      #|{ coordinates: [] }
+    ),
+  )
 }
 ```

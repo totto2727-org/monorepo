@@ -1,7 +1,7 @@
 ///|
 pub struct Polygon {
   coordinates : Array[Array[Coordinates]]
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn Polygon::new(

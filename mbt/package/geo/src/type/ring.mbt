@@ -4,7 +4,7 @@ pub trait RingTrait: LineStringTrait {
 }
 
 ///|
-pub struct Ring[Coord](Array[Coord]) derive(Show, Eq)
+pub struct Ring[Coord](Array[Coord]) derive(Debug, Eq)
 
 ///|
 #warnings("-unused_trait_bound")

@@ -25,7 +25,7 @@ test "Geometry BBoxTrait::bbox" {
     "type": "Point",
     "coordinates": [1.0, 2.0],
   })
-  inspect(geom.bbox(), content="BBox2D(1, 2, 1, 2)")
+  debug_inspect(geom.bbox(), content="BBox2D(1, 2, 1, 2)")
 }
 ```
 
@@ -297,7 +297,12 @@ test "Geometry FromJson::from_json - Point" {
     "type": "Point",
     "coordinates": [1.0, 2.0],
   })
-  inspect(geom, content="Point({coordinates: XY(1, 2)})")
+  debug_inspect(
+    geom,
+    content=(
+      #|Point({ coordinates: XY(1, 2) })
+    ),
+  )
 }
 ```
 
@@ -310,7 +315,12 @@ test "Geometry FromJson::from_json - LineString" {
     "type": "LineString",
     "coordinates": [[0.0, 0.0], [1.0, 1.0]],
   })
-  inspect(geom, content="LineString({coordinates: [XY(0, 0), XY(1, 1)]})")
+  debug_inspect(
+    geom,
+    content=(
+      #|LineString({ coordinates: [XY(0, 0), XY(1, 1)] })
+    ),
+  )
 }
 ```
 
@@ -325,9 +335,11 @@ test "Geometry FromJson::from_json - Polygon" {
   })
   match geom {
     Polygon(p) =>
-      inspect(
+      debug_inspect(
         p,
-        content="{coordinates: [[XY(0, 0), XY(1, 0), XY(1, 1), XY(0, 0)]]}",
+        content=(
+          #|{ coordinates: [[XY(0, 0), XY(1, 0), XY(1, 1), XY(0, 0)]] }
+        ),
       )
     _ => fail("Expected Polygon")
   }
@@ -343,7 +355,12 @@ test "Geometry FromJson::from_json - MultiPoint" {
     "type": "MultiPoint",
     "coordinates": [[0.0, 0.0], [1.0, 1.0]],
   })
-  inspect(geom, content="MultiPoint({coordinates: [XY(0, 0), XY(1, 1)]})")
+  debug_inspect(
+    geom,
+    content=(
+      #|MultiPoint({ coordinates: [XY(0, 0), XY(1, 1)] })
+    ),
+  )
 }
 ```
 
@@ -356,9 +373,11 @@ test "Geometry FromJson::from_json - MultiLineString" {
     "type": "MultiLineString",
     "coordinates": [[[0.0, 0.0], [1.0, 1.0]]],
   })
-  inspect(
+  debug_inspect(
     geom,
-    content="MultiLineString({coordinates: [[XY(0, 0), XY(1, 1)]]})",
+    content=(
+      #|MultiLineString({ coordinates: [[XY(0, 0), XY(1, 1)]] })
+    ),
   )
 }
 ```
@@ -372,9 +391,11 @@ test "Geometry FromJson::from_json - MultiPolygon" {
     "type": "MultiPolygon",
     "coordinates": [[[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]]]],
   })
-  inspect(
+  debug_inspect(
     geom,
-    content="MultiPolygon({coordinates: [[[XY(0, 0), XY(1, 0), XY(1, 1), XY(0, 0)]]]})",
+    content=(
+      #|MultiPolygon({ coordinates: [[[XY(0, 0), XY(1, 0), XY(1, 1), XY(0, 0)]]] })
+    ),
   )
 }
 ```
@@ -388,9 +409,11 @@ test "Geometry FromJson::from_json - GeometryCollection" {
     "type": "GeometryCollection",
     "geometries": [{ "type": "Point", "coordinates": [0.0, 0.0] }],
   })
-  inspect(
+  debug_inspect(
     geom,
-    content="GeometryCollection({geometries: [Point({coordinates: XY(0, 0)})]})",
+    content=(
+      #|GeometryCollection({ geometries: [Point({ coordinates: XY(0, 0) })] })
+    ),
   )
 }
 ```

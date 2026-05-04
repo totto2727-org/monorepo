@@ -1,7 +1,7 @@
 ///|
 pub struct MultiPoint {
   coordinates : Array[Coordinates]
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn MultiPoint::new(coordinates : Array[Coordinates]) -> MultiPoint {

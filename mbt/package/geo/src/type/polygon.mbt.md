@@ -32,9 +32,14 @@ test {
     XY::new(0.0, 0.0),
   ])
   let polygon = Polygon::new(exterior)
-  inspect(
+  debug_inspect(
     polygon,
-    content="{exterior: Ring([{x: 0, y: 0}, {x: 10, y: 0}, {x: 0, y: 10}, {x: 0, y: 0}]), interior_array: []}",
+    content=(
+      #|{
+      #|  exterior: Ring([{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 0, y: 10 }, { x: 0, y: 0 }]),
+      #|  interior_array: [],
+      #|}
+    ),
   )
 }
 ```
@@ -59,9 +64,32 @@ test {
     XY::new(2.0, 2.0),
   ])
   let polygon = Polygon::new(exterior, interior_array=[hole])
-  inspect(
+  debug_inspect(
     polygon,
-    content="{exterior: Ring([{x: 0, y: 0}, {x: 10, y: 0}, {x: 10, y: 10}, {x: 0, y: 10}, {x: 0, y: 0}]), interior_array: [Ring([{x: 2, y: 2}, {x: 8, y: 2}, {x: 8, y: 8}, {x: 2, y: 8}, {x: 2, y: 2}])]}",
+    content=(
+      #|{
+      #|  exterior: Ring(
+      #|    [
+      #|      { x: 0, y: 0 },
+      #|      { x: 10, y: 0 },
+      #|      { x: 10, y: 10 },
+      #|      { x: 0, y: 10 },
+      #|      { x: 0, y: 0 },
+      #|    ],
+      #|  ),
+      #|  interior_array: [
+      #|    Ring(
+      #|      [
+      #|        { x: 2, y: 2 },
+      #|        { x: 8, y: 2 },
+      #|        { x: 8, y: 8 },
+      #|        { x: 2, y: 8 },
+      #|        { x: 2, y: 2 },
+      #|      ],
+      #|    ),
+      #|  ],
+      #|}
+    ),
   )
 }
 ```
@@ -80,9 +108,11 @@ test {
     XY::new(0.0, 0.0),
   ])
   let polygon = Polygon::new(exterior)
-  inspect(
+  debug_inspect(
     polygon.exterior(),
-    content="Ring([{x: 0, y: 0}, {x: 10, y: 0}, {x: 0, y: 10}, {x: 0, y: 0}])",
+    content=(
+      #|Ring([{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 0, y: 10 }, { x: 0, y: 0 }])
+    ),
   )
 }
 ```
@@ -106,7 +136,7 @@ test {
     XY::new(0.0, 0.0),
   ])
   let polygon = Polygon::new(exterior)
-  inspect(polygon.interior_array(), content="[]")
+  debug_inspect(polygon.interior_array(), content="[]")
 }
 ```
 
@@ -130,9 +160,21 @@ test {
     XY::new(2.0, 2.0),
   ])
   let polygon = Polygon::new(exterior, interior_array=[hole])
-  inspect(
+  debug_inspect(
     polygon.interior_array(),
-    content="[Ring([{x: 2, y: 2}, {x: 8, y: 2}, {x: 8, y: 8}, {x: 2, y: 8}, {x: 2, y: 2}])]",
+    content=(
+      #|[
+      #|  Ring(
+      #|    [
+      #|      { x: 2, y: 2 },
+      #|      { x: 8, y: 2 },
+      #|      { x: 8, y: 8 },
+      #|      { x: 2, y: 8 },
+      #|      { x: 2, y: 2 },
+      #|    ],
+      #|  ),
+      #|]
+    ),
   )
 }
 ```
@@ -150,9 +192,11 @@ test {
     XY::new(0.0, 10.0),
   ])
   let polygon = Polygon::new(exterior)
-  inspect(
+  debug_inspect(
     polygon.coord_array(),
-    content="[{x: 0, y: 0}, {x: 10, y: 0}, {x: 0, y: 10}]",
+    content=(
+      #|[{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 0, y: 10 }]
+    ),
   )
 }
 ```
@@ -175,7 +219,12 @@ test {
     XY::new(0.0, 10.0),
   ])
   let polygon = Polygon::new(exterior)
-  inspect(polygon.bbox(), content="{min: {x: 0, y: 0}, max: {x: 10, y: 10}}")
+  debug_inspect(
+    polygon.bbox(),
+    content=(
+      #|{ min: { x: 0, y: 0 }, max: { x: 10, y: 10 } }
+    ),
+  )
 }
 ```
 

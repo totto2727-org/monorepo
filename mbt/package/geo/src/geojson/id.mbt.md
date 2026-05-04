@@ -38,7 +38,7 @@ test "ID ToJson::to_json - number" {
 ///|
 test "ID FromJson::from_json - string" {
   let id : ID = @json.from_json("test")
-  inspect(id, content="String(\"test\")")
+  debug_inspect(id, content="String(\"test\")")
 }
 ```
 
@@ -48,7 +48,7 @@ test "ID FromJson::from_json - string" {
 ///|
 test "ID FromJson::from_json - number" {
   let id : ID = @json.from_json(123.0)
-  inspect(id, content="Number(123)")
+  debug_inspect(id, content="Number(123)")
 }
 ```
 

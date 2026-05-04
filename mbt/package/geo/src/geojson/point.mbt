@@ -1,7 +1,7 @@
 ///|
 pub struct Point {
   coordinates : Coordinates
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn Point::new(coordinates : Coordinates) -> Point {

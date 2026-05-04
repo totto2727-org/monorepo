@@ -24,7 +24,12 @@ test "LineString new" {
     Coordinates::XY(0.0, 0.0),
     Coordinates::XY(1.0, 1.0),
   ])
-  inspect(ls, content="{coordinates: [XY(0, 0), XY(1, 1)]}")
+  debug_inspect(
+    ls,
+    content=(
+      #|{ coordinates: [XY(0, 0), XY(1, 1)] }
+    ),
+  )
 }
 ```
 
@@ -39,7 +44,7 @@ test "LineString BBoxTrait::bbox" {
     Coordinates::XY(0.0, 0.0),
     Coordinates::XY(1.0, 1.0),
   ])
-  inspect(ls.bbox(), content="BBox2D(0, 0, 1, 1)")
+  debug_inspect(ls.bbox(), content="BBox2D(0, 0, 1, 1)")
 }
 ```
 
@@ -90,7 +95,12 @@ test "LineString FromJson::from_json - valid" {
     "type": "LineString",
     "coordinates": [[0.0, 0.0], [1.0, 1.0]],
   })
-  inspect(ls, content="{coordinates: [XY(0, 0), XY(1, 1)]}")
+  debug_inspect(
+    ls,
+    content=(
+      #|{ coordinates: [XY(0, 0), XY(1, 1)] }
+    ),
+  )
 }
 ```
 

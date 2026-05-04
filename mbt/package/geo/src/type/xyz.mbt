@@ -3,7 +3,7 @@ pub struct XYZ {
   x : Double
   y : Double
   z : Double
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 pub fn XYZ::new(x : Double, y : Double, z : Double) -> XYZ {

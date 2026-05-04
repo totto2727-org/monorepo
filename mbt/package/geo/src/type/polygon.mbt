@@ -13,7 +13,7 @@ pub fn &PolygonTrait::coordArray(self : &PolygonTrait) -> Array[XY] {
 pub struct Polygon[Coord] {
   exterior : Ring[Coord]
   interior_array : Array[Ring[Coord]]
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 /// TODO: Closeしていることの検証が必要
