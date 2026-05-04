@@ -42,8 +42,8 @@ exists for this step.
 
 - `<roadmap-id>` and `roadmap.md` Intent section (output of Step 1).
 - `roadmap-progress.yaml` initialised by Step 1 (`status: planned`, `milestones: []`).
-- Paths of relevant project-specific skills (e.g. `effect-layer`, `git-workflow`,
-  `vite-plus`, etc.) so milestone granularity respects project implementation and test
+- Paths of relevant project-specific skills (e.g. `coding`, `git-workflow`,
+  etc.) so milestone granularity respects project implementation and test
   conventions (`specialist-common §0`: project-rule precedence).
 - Path of `share-artifacts/templates/milestone.md` and
   `share-artifacts/references/milestone.md` (writing guide).
