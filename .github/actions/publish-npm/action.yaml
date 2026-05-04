@@ -19,6 +19,7 @@ runs:
       env:
         NPM_REGISTRY: ${{ inputs.registry }}
       run: |
+        eval "$(devbox shellenv)"
         ENCODED_NAME=$(node -p "encodeURIComponent(require('./package.json').name)")
         LOCAL_VERSION=$(node -p "require('./package.json').version")
         HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${NPM_REGISTRY}/${ENCODED_NAME}/${LOCAL_VERSION}")

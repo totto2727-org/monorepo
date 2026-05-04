@@ -30,4 +30,6 @@ runs:
       shell: bash
       env:
         VP_INSTALL_ARGS: ${{ inputs.install-args }}
-      run: vp install $VP_INSTALL_ARGS
+      run: |
+        eval "$(devbox shellenv)"
+        vp install $VP_INSTALL_ARGS
