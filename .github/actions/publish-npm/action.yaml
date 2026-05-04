@@ -1,0 +1,31 @@
+name: Publish to npm
+description: Publish the package in working-directory to npm via pnpm, skipping if the version is already published.
+
+inputs:
+  working-directory:
+    description: Directory containing the package.json to publish.
+    required: true
+  registry:
+    description: npm registry URL.
+    required: false
+    default: https://registry.npmjs.org
+
+runs:
+  using: composite
+  steps:
+    - name: Publish npm package
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        NPM_REGISTRY: ${{ inputs.registry }}
+      run: |
+        eval "$(devbox shellenv)"
+        ENCODED_NAME=$(node -p "encodeURIComponent(require('./package.json').name)")
+        LOCAL_VERSION=$(node -p "require('./package.json').version")
+        HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${NPM_REGISTRY}/${ENCODED_NAME}/${LOCAL_VERSION}")
+
+        if [ "$HTTP_STATUS" = "200" ]; then
+          echo "v${LOCAL_VERSION} already published. Skipping."
+        else
+          pnpm publish --registry "${NPM_REGISTRY}"
+        fi
