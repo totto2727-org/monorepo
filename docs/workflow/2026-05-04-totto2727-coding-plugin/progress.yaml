@@ -5,7 +5,7 @@ created_at: 2026-05-04
 updated_at: 2026-05-04
 roadmap: null
 
-current_step: 'Step 7: External Review'
+current_step: 'Step 7: External Review (awaiting user approval)'
 completed_steps:
   - step: 'Step 1: Intent Clarification'
     completed_at: 2026-05-04
@@ -57,7 +57,13 @@ artifacts:
   qa_flow: docs/workflow/2026-05-04-totto2727-coding-plugin/qa-flow.md
   task_plan: docs/workflow/2026-05-04-totto2727-coding-plugin/task-plan.md
   todo: docs/workflow/2026-05-04-totto2727-coding-plugin/TODO.md
-  reviews: []
+  reviews:
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/review/security.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/review/performance.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/review/holistic.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/review/readability.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/review/api-design.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/review/test-quality.md
   validation_report: null
   retrospective: null
   external_adrs: []
