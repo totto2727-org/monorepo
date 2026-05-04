@@ -5,7 +5,7 @@ created_at: 2026-05-04
 updated_at: 2026-05-04
 roadmap: null
 
-current_step: 'Step 3: Design (awaiting user approval)'
+current_step: 'Step 4: QA Design'
 completed_steps:
   - step: 'Step 1: Intent Clarification'
     completed_at: 2026-05-04
@@ -23,6 +23,15 @@ completed_steps:
       Claude Code は本リポジトリ marketplace.json を直読みする (dotfiles 側更新不要) と確定。
       rebase で取り込まれた `5e92483` (.agents/skills-lock.json 削除 + 3 種 manifest 追加)
       を反映し、Intent Spec を increment 修正 (Scope.4/5 改訂、SC-5 改訂、SC-8/9/10 追加、Open Questions 整理)。
+  - step: 'Step 3: Design'
+    completed_at: 2026-05-04
+    artifact: docs/workflow/2026-05-04-totto2727-coding-plugin/design.md
+    note: |
+      architect が 467 行の design.md を作成。Q3-Q7 を Main 推奨採用、Step 5 向け 6 wave 構成 hand-off。
+      ユーザー追加指示 2 件を反映: (1) 外部依存スキル参照 (vite-plus / remix) を <lang>-skill.md
+      に名前のみ参照 (A10 追加)、(2) docs-* 命名規則統一 (moonbit-docs → docs-moonbit
+      / components-build-docs → docs-components-build) でスクリプト名・slash command 名・
+      内部テンプレート文字列も全て連動更新 (A8 拡充、W2 タスク詳細化)。
 pending_gates: []
 active_specialists: []
 
@@ -56,6 +65,10 @@ user_approvals:
       Main 判定ゲート。ユーザー追加情報「c-plugin dev marketplace sync で同期可能」
       を反映して Intent Spec の Scope.1 を「.claude-plugin のみ編集 + sync で派生」に簡略化。
       ユーザー指示「CIエラーを解決して」に応えて vp check --fix で formatting 修正済。
+  - step: 'Step 3: Design'
+    approved_at: 2026-05-04
+    note: |
+      ユーザー「ok」で承認。事前に外部依存スキル参照 + docs-* 命名規則の 2 件を取り込み。
 
 rollbacks: []
 
