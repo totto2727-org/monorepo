@@ -92,3 +92,6 @@ notes:
   - '提案構造: skills/coding/ + skills/test/ + references/{js-,mbt-}*.md'
   - 'moonbit-docs (生成スクリプト含む) の扱いは Step 1 で確定'
   - 'Step 2 で rebase 取り込み (5e92483) により .agents/skills-lock.json 議論が moot 化、3 種 manifest + c-plugin sync に方針更新'
+  - 'W1 完了申し送り (T3 implementer): saas-example の codegen ファイル不在で vp check 14 件エラー (本サイクル外、SC-10 検証時に prebuild 要)'
+  - 'W2 race condition: T6 ファイル (update-docs-moonbit.md) が T7 commit (635ac14) に取り込まれた。並列 implementer 同 worktree git index 共有が原因。retrospective 候補。'
+  - 'LSP diagnostic (TS lib mismatch): generate-docs-moonbit.ts と generate-docs-components-build.ts に Deno global / replaceAll / toSorted / @std/path 解決エラー。Deno check は両者 exit 0 (実行時 OK)。IDE level の lib 設定問題、SC-7 充足には影響なし。SC-10 (vp check) 検証時に Deno スクリプトが tsc 対象外であることを確認する必要。'

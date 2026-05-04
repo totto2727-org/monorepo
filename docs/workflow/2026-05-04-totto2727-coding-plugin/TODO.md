@@ -45,123 +45,123 @@ Following the rule that `task-plan.md` is immutable, any additional tasks discov
   - re_activations: 0
   - notes: 'Pre-existing vp check 14 errors in saas-example (codegen files unrelated to this cycle); SC-10 may need vp run --filter saas-example prebuild before Step 8 validation.'
 
-- [ ] **T4** — Move + rename `moonbit-docs/` SKILL.md and references → `docs-moonbit/`
-  - status: in_progress
+- [x] **T4** — Move + rename `moonbit-docs/` SKILL.md and references → `docs-moonbit/`
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: 0131355
   - implementer: W2-implementer-T4
   - re_activations: 0
-  - notes: A8 lockstep with T5
+  - notes: A8 lockstep with T5; 27 files copied verbatim
 
-- [ ] **T5** — Move + rename + edit `process-moonbit-docs.ts` → `generate-docs-moonbit.ts`
-  - status: in_progress
+- [x] **T5** — Move + rename + edit `process-moonbit-docs.ts` → `generate-docs-moonbit.ts`
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: fc13858
   - implementer: W2-implementer-T5
   - re_activations: 0
-  - notes: A8 lockstep with T4 (script template + null guard + output dir)
+  - notes: A8 lockstep with T4; 4 edits applied (output dir + name template + Related Skills template + null guard); deno check exit 0
 
-- [ ] **T6** — Move + rename slash command `update-moonbit-docs.md` → `update-docs-moonbit.md`
-  - status: in_progress
+- [x] **T6** — Move + rename slash command `update-moonbit-docs.md` → `update-docs-moonbit.md`
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: 635ac14
   - implementer: W2-implementer-T6
   - re_activations: 0
-  - notes: -
+  - notes: 'Race condition: T6 file got merged into T7 commit (635ac14, T7 主題). File content correct, deno run path updated. See progress.yaml.notes for retrospective candidate.'
 
-- [ ] **T7** — Move + rename `components-build-docs/` SKILL.md → `docs-components-build/`
-  - status: in_progress
+- [x] **T7** — Move + rename `components-build-docs/` SKILL.md → `docs-components-build/`
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: 635ac14
   - implementer: W2-implementer-T7
   - re_activations: 0
-  - notes: A8 lockstep with T8
+  - notes: 'A8 lockstep with T8; commit 635ac14 also contains T6 file due to race condition.'
 
-- [ ] **T8** — Move + rename + edit `generate-skill.ts` → `generate-docs-components-build.ts`
-  - status: in_progress
+- [x] **T8** — Move + rename + edit `generate-skill.ts` → `generate-docs-components-build.ts`
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: 347d5c6
   - implementer: W2-implementer-T8
   - re_activations: 0
-  - notes: A8 lockstep with T7
+  - notes: A8 lockstep with T7; 4 edits applied; deno check exit 0
 
-- [ ] **T9** — Move + rename slash command `update-components-build-docs.md` → `update-docs-components-build.md`
-  - status: in_progress
+- [x] **T9** — Move + rename slash command `update-components-build-docs.md` → `update-docs-components-build.md`
+  - status: completed
   - dependencies: T1
   - started_at: 2026-05-04
-  - completed_at: -
-  - commit: -
+  - completed_at: 2026-05-04
+  - commit: e73bd57
   - implementer: W2-implementer-T9
   - re_activations: 0
   - notes: -
 
 - [ ] **T10** — Migrate `effect-layer/SKILL.md` → `coding/references/ts-effect-layer.md`
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W3-implementer-T10
   - re_activations: 0
-  - notes: Strip frontmatter (A5)
+  - notes: Strip frontmatter (A5); R-1 link rewrites
 
 - [ ] **T11** — Migrate `effect-runtime/SKILL.md` → `coding/references/ts-effect-runtime.md`
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W3-implementer-T11
   - re_activations: 0
-  - notes: Strip frontmatter
+  - notes: Strip frontmatter; R-2 link rewrites
 
 - [ ] **T12** — Migrate `effect-hono/SKILL.md` → `coding/references/ts-effect-hono.md`
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W3-implementer-T12
   - re_activations: 0
-  - notes: Strip frontmatter
+  - notes: Strip frontmatter; R-3 link rewrites
 
 - [ ] **T13** — Migrate `totto2727-fp/SKILL.md` → `coding/references/ts-totto2727-fp.md`
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W3-implementer-T13
   - re_activations: 0
-  - notes: Strip frontmatter
+  - notes: Strip frontmatter; R-4 (1 external URL only)
 
 - [ ] **T14** — Migrate `moonbit-bestpractice/SKILL.md` → `coding/references/mbt-bestpractice.md`
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W3-implementer-T14
   - re_activations: 0
-  - notes: Strip frontmatter; rewrite L311 cross-skill link per A7(a)
+  - notes: Strip frontmatter; rewrite L311 cross-skill link per A7(a); R-5 link rewrites
 
 - [ ] **T15** — Migrate `moonbit-bestpractice/references/moonbit-test.md` → `test/references/mbt-bestpractice.md`
-  - status: pending
+  - status: in_progress
   - dependencies: T1
-  - started_at: -
+  - started_at: 2026-05-04
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: W3-implementer-T15
   - re_activations: 0
   - notes: No frontmatter to strip (already none per R-6)
 
