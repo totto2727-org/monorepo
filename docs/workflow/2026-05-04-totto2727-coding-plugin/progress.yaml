@@ -5,7 +5,7 @@ created_at: 2026-05-04
 updated_at: 2026-05-04
 roadmap: null
 
-current_step: 'Step 6: Implementation (W1)'
+current_step: 'Step 7: External Review'
 completed_steps:
   - step: 'Step 1: Intent Clarification'
     completed_at: 2026-05-04
@@ -84,6 +84,18 @@ user_approvals:
   - step: 'Step 5: Task Decomposition'
     approved_at: 2026-05-04
     note: 'ユーザー「go」で実装開始合意。Step 6 (Implementation) W1 着手する。TODO.md を生成。'
+  - step: 'Step 6: Implementation'
+    approved_at: 2026-05-04
+    note: |
+      Main 判定ゲート。30 タスク全完遂。Step 7 (External Review) に進む。
+      W1: T1, T2, T3 並列 OK。
+      W2 / W3: implementer 並列実行で git index race condition 発生 (T6/T7 と T10-T13 が
+      commit 内容が交錯)。最終的にディスク上のファイルは全て正しく揃ったが、commit
+      message と内容が一部 mismatch。retrospective で改善案検討。
+      W4 / W5 / W6: 教訓を踏まえ implementer はファイル作成のみ + Main 順次 commit に
+      運用変更し、race condition 解消、クリーンに完了。
+      T30 sync で 3 marketplace + 3 plugin manifest 全て同期、moonbit / components-build
+      entry も自動削除。
 
 rollbacks: []
 
