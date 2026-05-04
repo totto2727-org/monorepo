@@ -1,0 +1,26 @@
+{
+  "name": "my-remix-app2",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vp build",
+    "start": "tsx server.ts",
+    "test": "tsx --test",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=24.3.0"
+  },
+  "dependencies": {
+    "@hono/node-server": "catalog:hono",
+    "hono": "catalog:hono",
+    "hono-remix-middleware": "workspace:*",
+    "remix": "catalog:remix",
+    "tsx": "latest",
+    "vite-plugin-remix": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "typescript": "latest"
+  }
+}

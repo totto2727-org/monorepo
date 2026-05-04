@@ -43,6 +43,7 @@ catalogs:
     graphql-scalars: ^1.24.2
   hono:
     '@hono/graphql-server': ^0.7.0
+    '@hono/node-server': ^1.19.5
     hono: ^4.12.6
   i18n:
     '@inlang/paraglide-js': ^2.13.1

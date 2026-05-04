@@ -1,0 +1,39 @@
+{
+  "_css-mixin-mYR2MdjZ.js": {
+    "file": "assets/css-mixin-mYR2MdjZ.js",
+    "name": "css-mixin",
+    "imports": [
+      "app/assets/entry.ts"
+    ]
+  },
+  "app/assets/entry.ts": {
+    "file": "assets/entry.js",
+    "name": "entry",
+    "src": "app/assets/entry.ts",
+    "isEntry": true,
+    "dynamicImports": [
+      "app/ui/counter.client.tsx",
+      "app/ui/todo.client.tsx"
+    ]
+  },
+  "app/ui/counter.client.tsx": {
+    "file": "assets/counter.client-CBaNLy5u.js",
+    "name": "counter.client",
+    "src": "app/ui/counter.client.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "app/assets/entry.ts",
+      "_css-mixin-mYR2MdjZ.js"
+    ]
+  },
+  "app/ui/todo.client.tsx": {
+    "file": "assets/todo.client-BsTHrKQM.js",
+    "name": "todo.client",
+    "src": "app/ui/todo.client.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "app/assets/entry.ts",
+      "_css-mixin-mYR2MdjZ.js"
+    ]
+  }
+}
