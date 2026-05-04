@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { NodeServices } from '@effect/platform-node'
 import { Effect } from 'effect'
 import { Command } from 'effect/unstable/cli'
