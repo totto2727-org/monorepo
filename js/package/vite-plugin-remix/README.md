@@ -1,6 +1,6 @@
 # vite-plugin-remix
 
-Remix v3 のブラウザバンドル + ハイドレーションを Vite で扱うための minimal プラグイン。Cloudflare 非依存で、`@cloudflare/vite-plugin` でも Node/Bun/Deno でも組み合わせ可能。
+Remix v3 のブラウザバンドル + ハイドレーションを Vite で扱うための minimal プラグイン。
 
 ## 何をしてくれるか
 
@@ -28,18 +28,6 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [remix()],
-})
-```
-
-Cloudflare と組み合わせる場合:
-
-```ts
-import { cloudflare } from '@cloudflare/vite-plugin'
-import { remix } from 'vite-plugin-remix'
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  plugins: [remix(), cloudflare()],
 })
 ```
 
@@ -95,7 +83,7 @@ remix({
 | オプション | デフォルト | 用途 |
 | -- | -- | -- |
 | `browserEntry` | `app/assets/entry.ts` | rollup の input。`boot()` を呼ぶファイル。 |
-| `clientOutDir` | `dist/client` | client environment の build 出力先。Workers Assets binding / `serveStatic` の root に向ける場所。 |
+| `clientOutDir` | `dist/client` | client environment の build 出力先。静的ホスト（`serveStatic` 等）の root に向ける場所。 |
 | `entryFileNames` | `assets/entry.js` | メインエントリの出力ファイル名。デフォルトはハッシュなし固定で、SSR HTML から manifest なしで参照可能。cache busting したい場合は `assets/entry.[hash].js` 等に変更し、Vite manifest を SSR から読む経路を別途用意する。 |
 
 `chunkFileNames` / `assetFileNames` はハッシュ付きで固定（component chunk 等）。
@@ -127,11 +115,11 @@ SSR HTML moduleUrl                    →  components map key
                                          静的配信
 ```
 
-そのため SSR 側 (worker / Node) は manifest を読む必要がありません。manifest が要るのは `entryFileNames` をハッシュ付きにする等、URL を build 後に解決したい場合だけ。
+そのため SSR 側は manifest を読む必要がありません。manifest が要るのは `entryFileNames` をハッシュ付きにする等、URL を build 後に解決したい場合だけ。
 
 ## Vite environment の build 順
 
-`builder.buildApp` は触っていません。Vite のデフォルト builder が全 environment を build しますが順序は保証されません。現アーキテクチャでは worker など他 environment が client manifest を読まないので順序非依存。
+`builder.buildApp` は触っていません。Vite のデフォルト builder が全 environment を build しますが順序は保証されません。現アーキテクチャでは他 environment が client manifest を読まないので順序非依存。
 
 manifest を読む構成にする場合は consumer 側 (`vite.config.ts`) で `builder.buildApp` を上書きして `client` を先に build してください:
 

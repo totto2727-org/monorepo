@@ -27,14 +27,10 @@ export interface RemixPluginOptions {
  *   becomes an independently fetchable script — matching how Remix's asset
  *   server serves component modules
  *
- * The plugin intentionally stays Cloudflare-agnostic: pair it with
- * `@cloudflare/vite-plugin` (or any other server-side environment plugin)
- * by listing both in `plugins`.
- *
- * Build ordering is left to Vite's default `builder` — the worker bundle
- * does not consume the client manifest in the current architecture
- * (clientEntry hrefs work as in-memory lookup keys, not real fetch URLs).
- * If a downstream environment ever needs the manifest, supply your own
+ * Build ordering is left to Vite's default `builder` — no environment
+ * consumes the client manifest in the current architecture (clientEntry
+ * hrefs work as in-memory lookup keys, not real fetch URLs). If a
+ * downstream environment ever needs the manifest, supply your own
  * `builder.buildApp` to enforce client-first ordering.
  */
 export function remix(options: RemixPluginOptions = {}): Plugin {
