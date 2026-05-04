@@ -43,25 +43,6 @@ export default defineConfig({
       'typescript/promise-function-async': 'allow',
     },
   },
-  run: {
-    cache: {
-      scripts: true,
-    },
-    tasks: {
-      ci: {
-        command: 'echo CI complete',
-        dependsOn: [
-          'check',
-          'test',
-          'saas-example#build',
-          'hono-remix-v3-cloudflare-example#build',
-          '@totto2727/bw#build',
-          '@totto2727/c-plugin#build',
-          '@totto2727/geo#build',
-        ],
-      },
-    },
-  },
   staged: {
     '*': 'vp run fix',
   },

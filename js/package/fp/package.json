@@ -28,7 +28,8 @@
     "./option-t/safe-try": "./src/option-t/safe-try.ts",
     "./temporal": "./src/temporal.ts",
     "./tsconfig/vite": "./src/tsconfig/vite.json",
-    "./type": "./src/type.ts"
+    "./type": "./src/type.ts",
+    "./vite": "./src/vite.ts"
   },
   "scripts": {
     "check": "pnpm run --parallel /check:.*/",
