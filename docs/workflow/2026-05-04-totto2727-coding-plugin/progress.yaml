@@ -5,7 +5,7 @@ created_at: 2026-05-04
 updated_at: 2026-05-04
 roadmap: null
 
-current_step: 'Step 8: Validation'
+current_step: 'Step 9: Retrospective'
 completed_steps:
   - step: 'Step 1: Intent Clarification'
     completed_at: 2026-05-04
@@ -112,6 +112,14 @@ user_approvals:
       ユーザー追加方針 4 件 (sibling-skill 参照ポリシー、英語統一、race condition、
       @SKILL.md) は全て retrospective 送り (本サイクル内追加実装なし)。
       Step 8 (Validation) に進む。
+  - step: 'Step 8: Validation'
+    approved_at: 2026-05-04
+    note: |
+      ユーザー承認: SC-1〜SC-10 全 PASS (`passed`)。Validation 段階でユーザーから
+      U1 (sibling-skill link) / U2 (英語統一) / SC-10 prebuild の追加実装指示があり、
+      本サイクル内で対応 (commits cea1f2b / e776623 + Main の sandbox 外 prebuild)。
+      さらに R4 (vp check inline-code 分断) + Related references 統一 + 未実装記述削除
+      も追加対応 (commits a2f69b6 / 5552425)。Step 9 (Retrospective) に進む。
 
 rollbacks: []
 
