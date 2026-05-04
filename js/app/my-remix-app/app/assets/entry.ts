@@ -1,23 +1,26 @@
 import { run } from 'remix/ui'
 
-// Eagerly bundle every clientEntry-bearing module under app/ui so production
-// hydration can resolve them by URL without depending on Remix's asset server.
-// Keys come back as paths relative to this file ("../ui/counter.tsx"); we
-// normalise them to the URLs Remix uses ("/app/ui/counter.tsx" — the value of
-// resolveClientEntry's `href` after the legacy "/assets/" prefix is stripped).
-const rawModules = import.meta.glob<Record<string, unknown>>('../ui/*.tsx', { eager: true })
+// Per-component code splitting:
+// - dev: each loader is `() => import('../ui/<file>.tsx')`, Vite serves the
+//        source on demand from its dev server.
+// - prod: vite build emits one chunk per glob match (assets/<name>-<hash>.js)
+//        and rewrites the loader to import that chunk URL.
+// In both cases the SSR's `moduleUrl` (`/app/ui/<file>.tsx`) only acts as a
+// lookup key — the actual fetch URL lives inside the loader closure.
+const loaders = import.meta.glob<Record<string, unknown>>('../ui/*.tsx')
 
 const components = Object.fromEntries(
-  Object.entries(rawModules).map(([relativePath, mod]) => [relativePath.replace(/^\.\.\//, '/app/'), mod]),
+  Object.entries(loaders).map(([rel, loader]) => [rel.replace(/^\.\.\//, '/app/'), loader]),
 )
 
 run({
   async loadModule(moduleUrl, exportName) {
-    const mod = components[moduleUrl]
-    if (mod) return mod[exportName]
-    // Fallback for any URL not pre-bundled at build time.
-    const dynamic = await import(/* @vite-ignore */ moduleUrl)
-    return dynamic[exportName]
+    const loader = components[moduleUrl]
+    if (!loader) {
+      throw new Error(`No client entry registered for ${moduleUrl}`)
+    }
+    const mod = await loader()
+    return mod[exportName]
   },
   async resolveFrame(src, signal, target) {
     const headers = new Headers({ accept: 'text/html' })
