@@ -24,6 +24,9 @@
 
 import { Record } from 'effect'
 
+/**
+ * Task Input of vite-plus with auto mode
+ */
 export type TaskInputWithAuto = [{ auto: true }, ...string[]]
 
 /**
