@@ -1,15 +1,16 @@
 import { Hono } from 'hono'
 import { remixRenderer } from 'hono-remix-middleware'
+import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
 
-import { Document } from './ui/document.tsx'
-import { Layout } from './ui/layout.tsx'
+import { PageOrFrame } from './ui/content-layout.tsx'
 import { Todo } from './ui/todo.client.tsx'
 
 const app = new Hono()
 
 app
   .use(logger())
+  .use(contextStorage())
   .use(
     '*',
     remixRenderer({
@@ -18,21 +19,17 @@ app
   )
   .get('/', (c) =>
     c.render(
-      <Document title='Counter'>
-        <Layout>
-          <h1>Counter</h1>
-        </Layout>
-      </Document>,
+      <PageOrFrame title='Counter'>
+        <h1>Counter</h1>
+      </PageOrFrame>,
     ),
   )
   .get('/todo', (c) =>
     c.render(
-      <Document title='TODO'>
-        <Layout>
-          <h1>TODO</h1>
-          <Todo />
-        </Layout>
-      </Document>,
+      <PageOrFrame title='TODO'>
+        <h1>TODO</h1>
+        <Todo />
+      </PageOrFrame>,
     ),
   )
 
