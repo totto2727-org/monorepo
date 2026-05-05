@@ -1,5 +1,5 @@
 import type { Context, Rule } from '@oxlint/plugins'
-import { Predicate } from 'effect'
+import { Predicate, String as Str } from 'effect'
 
 // ---------------------------------------------------------------------------
 // helpers
@@ -179,6 +179,201 @@ const forcePredicateRule: Rule = {
             node,
           })
         }
+      },
+    }
+  },
+  meta: {
+    type: 'problem',
+  },
+}
+
+// ---------------------------------------------------------------------------
+// force-string-empty
+// ---------------------------------------------------------------------------
+
+const isEmptyStringLiteral = (node: unknown): boolean =>
+  Predicate.isObject(node) && node.type === 'Literal' && Predicate.isString(node.value) && Str.isEmpty(node.value)
+
+const forceStringEmptyRule: Rule = {
+  create(context: Context) {
+    return {
+      BinaryExpression(node: unknown) {
+        if (!isReportable(node)) {
+          return
+        }
+        if (Predicate.isObject(node) && isEqualityOperator(node.operator)) {
+          const leftEmpty = isEmptyStringLiteral(node.left)
+          const rightEmpty = isEmptyStringLiteral(node.right)
+          if (!leftEmpty && !rightEmpty) {
+            return
+          }
+          const isEquality = node.operator === '==' || node.operator === '==='
+          const predicateFn = isEquality ? 'String.isEmpty' : 'String.isNonEmpty'
+          context.report({
+            message: `Use ${predicateFn}() instead of direct empty string comparison`,
+            node,
+          })
+        }
+      },
+    }
+  },
+  meta: {
+    type: 'problem',
+  },
+}
+
+// ---------------------------------------------------------------------------
+// force-array-empty
+// ---------------------------------------------------------------------------
+
+const isLengthMember = (node: unknown): boolean =>
+  Predicate.isObject(node) &&
+  node.type === 'MemberExpression' &&
+  node.computed !== true &&
+  Predicate.isObject(node.property) &&
+  node.property.type === 'Identifier' &&
+  node.property.name === 'length'
+
+export type EmptyKind = 'empty' | 'non-empty'
+
+export const classifyLengthComparison = (
+  operator: string,
+  lengthOnLeft: boolean,
+  literal: number,
+): EmptyKind | null => {
+  if (literal === 0) {
+    if (operator === '===' || operator === '==') {
+      return 'empty'
+    }
+    if (operator === '!==' || operator === '!=') {
+      return 'non-empty'
+    }
+    if (operator === '>') {
+      return lengthOnLeft ? 'non-empty' : 'empty'
+    }
+    if (operator === '<') {
+      return lengthOnLeft ? 'empty' : 'non-empty'
+    }
+    if (operator === '>=') {
+      return lengthOnLeft ? null : 'empty'
+    }
+    if (operator === '<=') {
+      return lengthOnLeft ? 'empty' : null
+    }
+  }
+  if (literal === 1) {
+    if (operator === '<') {
+      return lengthOnLeft ? 'empty' : 'non-empty'
+    }
+    if (operator === '>=') {
+      return lengthOnLeft ? 'non-empty' : 'empty'
+    }
+  }
+  return null
+}
+
+const getLiteralNumber = (node: unknown): number | null => {
+  if (Predicate.isObject(node) && node.type === 'Literal' && Predicate.isNumber(node.value)) {
+    return node.value
+  }
+  return null
+}
+
+const forceArrayEmptyRule: Rule = {
+  create(context: Context) {
+    return {
+      BinaryExpression(node: unknown) {
+        if (!isReportable(node)) {
+          return
+        }
+        if (!Predicate.isObject(node)) {
+          return
+        }
+        if (!Predicate.isString(node.operator)) {
+          return
+        }
+        const leftIsLength = isLengthMember(node.left)
+        const rightIsLength = isLengthMember(node.right)
+        if (!leftIsLength && !rightIsLength) {
+          return
+        }
+        const literalSide = leftIsLength ? node.right : node.left
+        const literal = getLiteralNumber(literalSide)
+        if (Predicate.isNullish(literal)) {
+          return
+        }
+        const kind = classifyLengthComparison(node.operator, leftIsLength, literal)
+        if (Predicate.isNullish(kind)) {
+          return
+        }
+        const message =
+          kind === 'empty'
+            ? 'Use Array.isArrayEmpty()/Array.isReadonlyArrayEmpty() instead of .length comparison'
+            : 'Use Array.isArrayNonEmpty()/Array.isReadonlyArrayNonEmpty() instead of .length comparison'
+        context.report({
+          message,
+          node,
+        })
+      },
+    }
+  },
+  meta: {
+    type: 'problem',
+  },
+}
+
+// ---------------------------------------------------------------------------
+// force-iterable-empty
+// ---------------------------------------------------------------------------
+
+const isIterableSizeCall = (node: unknown): boolean =>
+  Predicate.isObject(node) &&
+  node.type === 'CallExpression' &&
+  Predicate.isObject(node.callee) &&
+  node.callee.type === 'MemberExpression' &&
+  node.callee.computed !== true &&
+  Predicate.isObject(node.callee.object) &&
+  node.callee.object.type === 'Identifier' &&
+  node.callee.object.name === 'Iterable' &&
+  Predicate.isObject(node.callee.property) &&
+  node.callee.property.type === 'Identifier' &&
+  node.callee.property.name === 'size'
+
+const forceIterableEmptyRule: Rule = {
+  create(context: Context) {
+    return {
+      BinaryExpression(node: unknown) {
+        if (!isReportable(node)) {
+          return
+        }
+        if (!Predicate.isObject(node)) {
+          return
+        }
+        if (!Predicate.isString(node.operator)) {
+          return
+        }
+        const leftIsSize = isIterableSizeCall(node.left)
+        const rightIsSize = isIterableSizeCall(node.right)
+        if (!leftIsSize && !rightIsSize) {
+          return
+        }
+        const literalSide = leftIsSize ? node.right : node.left
+        const literal = getLiteralNumber(literalSide)
+        if (Predicate.isNullish(literal)) {
+          return
+        }
+        const kind = classifyLengthComparison(node.operator, leftIsSize, literal)
+        if (Predicate.isNullish(kind)) {
+          return
+        }
+        const message =
+          kind === 'empty'
+            ? 'Use Iterable.isEmpty() instead of Iterable.size() === 0 comparison'
+            : 'Use !Iterable.isEmpty() instead of Iterable.size() comparison'
+        context.report({
+          message,
+          node,
+        })
       },
     }
   },
@@ -476,7 +671,10 @@ const noEslintDisableRule: Rule = {
 const plugin = {
   meta: { name: 'rules' },
   rules: {
+    'force-array-empty': forceArrayEmptyRule,
+    'force-iterable-empty': forceIterableEmptyRule,
     'force-predicate': forcePredicateRule,
+    'force-string-empty': forceStringEmptyRule,
     'force-ts-extension': forceTsExtensionRule,
     'no-eslint-disable-comments': noEslintDisableRule,
     'no-let': noLetRule,
