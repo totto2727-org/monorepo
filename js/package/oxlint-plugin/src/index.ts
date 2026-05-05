@@ -236,7 +236,9 @@ const isLengthMember = (node: unknown): boolean =>
 
 export type EmptyKind = 'empty' | 'non-empty'
 
-const classifyAgainstZero = (operator: string, lengthOnLeft: boolean): EmptyKind | null => {
+export type LiteralPosition = 'left' | 'right'
+
+const classifyAgainstZero = (operator: string, literalPosition: LiteralPosition): EmptyKind | null => {
   if (operator === '===' || operator === '==') {
     return 'empty'
   }
@@ -244,46 +246,46 @@ const classifyAgainstZero = (operator: string, lengthOnLeft: boolean): EmptyKind
     return 'non-empty'
   }
   if (operator === '>') {
-    return lengthOnLeft ? 'non-empty' : 'empty'
+    return literalPosition === 'right' ? 'non-empty' : 'empty'
   }
   if (operator === '<') {
-    return lengthOnLeft ? 'empty' : 'non-empty'
+    return literalPosition === 'right' ? 'empty' : 'non-empty'
   }
   if (operator === '>=') {
-    return lengthOnLeft ? null : 'empty'
+    return literalPosition === 'right' ? null : 'empty'
   }
   if (operator === '<=') {
-    return lengthOnLeft ? 'empty' : null
+    return literalPosition === 'right' ? 'empty' : null
   }
   return null
 }
 
-const classifyAgainstOne = (operator: string, lengthOnLeft: boolean): EmptyKind | null => {
+const classifyAgainstOne = (operator: string, literalPosition: LiteralPosition): EmptyKind | null => {
   if (operator === '<') {
-    return lengthOnLeft ? 'empty' : 'non-empty'
+    return literalPosition === 'right' ? 'empty' : 'non-empty'
   }
   if (operator === '>=') {
-    return lengthOnLeft ? 'non-empty' : 'empty'
+    return literalPosition === 'right' ? 'non-empty' : 'empty'
   }
   if (operator === '>') {
-    return lengthOnLeft ? null : 'empty'
+    return literalPosition === 'right' ? null : 'empty'
   }
   if (operator === '<=') {
-    return lengthOnLeft ? null : 'non-empty'
+    return literalPosition === 'right' ? null : 'non-empty'
   }
   return null
 }
 
 export const classifyLengthComparison = (
   operator: string,
-  lengthOnLeft: boolean,
+  literalPosition: LiteralPosition,
   literal: number,
 ): EmptyKind | null => {
   if (literal === 0) {
-    return classifyAgainstZero(operator, lengthOnLeft)
+    return classifyAgainstZero(operator, literalPosition)
   }
   if (literal === 1) {
-    return classifyAgainstOne(operator, lengthOnLeft)
+    return classifyAgainstOne(operator, literalPosition)
   }
   return null
 }
@@ -313,12 +315,13 @@ const forceArrayEmptyRule: Rule = {
         if (!leftIsLength && !rightIsLength) {
           return
         }
-        const literalSide = leftIsLength ? node.right : node.left
+        const literalPosition: LiteralPosition = leftIsLength ? 'right' : 'left'
+        const literalSide = literalPosition === 'right' ? node.right : node.left
         const literal = getLiteralNumber(literalSide)
         if (Predicate.isNullish(literal)) {
           return
         }
-        const kind = classifyLengthComparison(node.operator, leftIsLength, literal)
+        const kind = classifyLengthComparison(node.operator, literalPosition, literal)
         if (Predicate.isNullish(kind)) {
           return
         }
@@ -373,12 +376,13 @@ const forceIterableEmptyRule: Rule = {
         if (!leftIsSize && !rightIsSize) {
           return
         }
-        const literalSide = leftIsSize ? node.right : node.left
+        const literalPosition: LiteralPosition = leftIsSize ? 'right' : 'left'
+        const literalSide = literalPosition === 'right' ? node.right : node.left
         const literal = getLiteralNumber(literalSide)
         if (Predicate.isNullish(literal)) {
           return
         }
-        const kind = classifyLengthComparison(node.operator, leftIsSize, literal)
+        const kind = classifyLengthComparison(node.operator, literalPosition, literal)
         if (Predicate.isNullish(kind)) {
           return
         }
