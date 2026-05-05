@@ -273,6 +273,161 @@ Web UI ──┬─→ Feed BFF       (POST/PUT/DELETE → Cmd Handler / GET →
 
 → **委譲先:** 各リソース系マイルストーン (永続化基盤 / 出力プラグイン基盤 / AI 要約 / 認証認可) の Step 3 (Design) で BFF 単位の確定。Edge Layer の共通横断関心事は別マイルストーンとして切り出す可能性あり (Step 2 Milestone Decomposition で判断)
 
+## 認証認可アーキテクチャの素案
+
+> 出典: 2026-05-05 に提供された外部メモ (architecture.md / architecture-diagrams.md) を本ファイルに統合。ms-01 サイクルで「アーキテクチャ大枠」は intent-spec.md に確定済 (Q2.7) だが、**具体技術選定は本セクションに素案として留め、配下マイルストーン (主に ms-02 / ms-03 / ms-04) の Step 3 (Design) で確定 / ADR 化する**。本セクションは ADR ではない。
+>
+> 本素案は OAuth 2.1 + JWT + 共有静的ポリシー という前提を採る。これは「リクエスト処理経路に認可サーバー問い合わせを発生させない」「ポリシーを Git 管理可能とする」「認可判定をローカルで完結させる」目的のもと、個人開発スコープに過剰でない最小構成として選定。
+
+### A. 構成要素の役割と責務
+
+| 構成要素 | 役割 | DB 所有 | 認証認可ロジック |
+| --- | --- | --- | --- |
+| **クライアント** (Web フロント / 将来 mobile / CLI) | OAuth 2.1 クライアントとして JWT を取得 / `Authorization: Bearer <JWT>` 送信 | × | なし (トークン保持のみ) |
+| **基幹サーバー** (Authorization Server) | 認証 + 組織 / メンバー / ロール管理 + OAuth 2.1 認可フロー + JWT 発行 + JWKS 公開 | **○** (users / sessions / orgs / members) | あり (ロール割当の唯一の真実) |
+| **リソースサーバー** (バックエンド側 BFF / API) | JWT 検証 (JWKS キャッシュ) + 認可判定 (in-memory) + ビジネスロジック | × (基幹 DB は共有しない / 業務 DB は別個) | あり (リクエスト時判定) |
+| **共有 authz パッケージ** | ロール定義 (`owner` / `admin` / `member` 等) + ポリシー (`policy.csv` 相当) + `can(jwt, resource, action)` 関数 | — | ポリシー定義のソース |
+
+### B. 全体構成図
+
+```mermaid
+graph TB
+    Client["クライアント<br/>(Browser / Mobile / CLI)"]
+
+    subgraph Core["基幹サーバー (Authorization Server)"]
+        BetterAuth["認証認可フレームワーク<br/>(候補: Better Auth oauthProvider + jwt + organization)"]
+        DB[("Database<br/>users / sessions / orgs / members")]
+        BetterAuth --- DB
+    end
+
+    subgraph SharedPkg["共有 authz パッケージ"]
+        Model["ポリシーモデル定義 (model.conf 相当)"]
+        Policy["ポリシー (policy.csv 相当)"]
+        CanFn["can(jwt, resource, action)"]
+    end
+
+    subgraph ResourceA["リソースサーバー A (Hono)"]
+        JoseA["JWT 検証 (候補: jose)"]
+        CasbinA["認可エンジン (候補: Casbin in-memory)"]
+        BizA["ビジネスロジック"]
+        JoseA --> CasbinA --> BizA
+    end
+
+    subgraph ResourceB["リソースサーバー B (Hono)"]
+        JoseB["JWT 検証 (候補: jose)"]
+        CasbinB["認可エンジン (候補: Casbin in-memory)"]
+        BizB["ビジネスロジック"]
+        JoseB --> CasbinB --> BizB
+    end
+
+    Client -- "OAuth 2.1 認可コードフロー + PKCE" --> BetterAuth
+    BetterAuth -- "JWT 発行" --> Client
+    Client -- "Bearer JWT" --> JoseA
+    Client -- "Bearer JWT" --> JoseB
+
+    BetterAuth -. "JWKS 公開" .-> JoseA
+    BetterAuth -. "JWKS 公開" .-> JoseB
+
+    SharedPkg -. "import" .-> CasbinA
+    SharedPkg -. "import" .-> CasbinB
+```
+
+### C. 認証認可シーケンス
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as ユーザー
+    participant Client as クライアント
+    participant Core as 基幹サーバー
+    participant Resource as リソースサーバー
+
+    Note over User,Resource: ログイン (初回のみ)
+    User->>Client: ログイン操作
+    Client->>Core: OAuth 2.1 認可リクエスト + PKCE
+    Core->>User: ログイン画面表示
+    User->>Core: 認証情報入力
+    Core->>Client: 認可コード
+    Client->>Core: トークン交換
+    Core->>Client: JWT (access + refresh)
+
+    Note over User,Resource: API 呼び出し (毎回)
+    Client->>Resource: GET /api/* + Bearer JWT
+    Resource->>Resource: JWT 検証 (JWKS キャッシュ利用)
+    Resource->>Resource: 認可判定 in-memory<br/>can(jwt, resource, action)
+    alt 許可
+        Resource->>Client: 200 OK + データ
+    else 拒否
+        Resource->>Client: 403 Forbidden
+    end
+
+    Note over User,Resource: トークン期限切れ時
+    Client->>Core: refresh token で更新
+    Core->>Client: 新しい JWT
+```
+
+### D. 具体技術選定 (素案 / 配下マイルストーンで確定 or 差し替え)
+
+| レイヤー | 候補ツール | 役割 | 委譲先マイルストーン |
+| --- | --- | --- | --- |
+| 基幹サーバー実装 | Better Auth (`oauthProvider` + `jwt` + `organization` プラグイン) | OAuth 2.1 認可サーバー / JWT 発行 / 組織管理 | ms-02 (Passkey + Magic Link) / ms-03 (RBAC + Organization) |
+| JWT 検証 | `jose` (`createRemoteJWKSet` + `jwtVerify`) | JWKS キャッシュ + 署名 / クレーム検証 | ms-02 / 各リソースサーバー導入時 |
+| 認可エンジン | Casbin (in-memory) | ロールベースのポリシー判定 | ms-03 (RBAC) |
+| 共有 authz パッケージ | `@<scope>/authz` 形式の monorepo パッケージ (`model.conf` + `policy.csv` + `can()` 関数を内包) | ポリシー定義の Git 管理配布 | ms-03 (作成) / ms-04 (期間限定共有で拡張) |
+
+### E. JWT ペイロード設計 (素案)
+
+```typescript
+type AppJWTPayload = {
+  sub: string                                 // user id
+  org_id: string                              // active organization id
+  org_role: 'owner' | 'admin' | 'member'      // 組織内のロール
+}
+```
+
+JWT 発行時に `definePayload` 等の機構で active organization のロールを展開して埋め込む方式を素案とする。ロード時のクレーム形状は ms-03 で確定。
+
+### F. 認可判定の実装イメージ (リソースサーバー側、素案)
+
+```typescript
+app.delete('/projects/:id', authMiddleware, async (c) => {
+  const jwt = c.get('user')
+  const project = await db.projects.findById(c.req.param('id'))
+
+  if (!await can(jwt, { type: 'project', org_id: project.orgId }, 'delete')) {
+    return c.json({ error: 'Forbidden' }, 403)
+  }
+  // ビジネスロジック
+})
+```
+
+### G. DB 所有方針
+
+- **基幹サーバーのみ**が認証認可 DB を所有 (users / sessions / orgs / members 等)
+- **リソースサーバー**は基幹 DB を共有しない。業務 DB (フィードイベントストア / プロジェクション等) は別個に管理
+- **共有 DB は採用しない**: 複数サービスが同一 DB を共有する設計上のリスク (スキーマ結合 / 障害伝播 / 認可境界の曖昧化) を回避
+
+### H. 拡張パス (`can()` インターフェース不変原則)
+
+認可判定インターフェース (`can(jwt, resource, action)`) を不変に保ったまま内部実装を段階的に差し替え可能な構造を採用する:
+
+| Phase | 移行のトリガー | 内部実装変更 |
+| --- | --- | --- |
+| Phase 1 (現行素案) | — | Casbin in-memory + 静的ポリシー |
+| Phase 2 | permission 単位の判定が必要 | JWT に permissions 配列を展開、policy も permission ベースに変更 |
+| Phase 3 | テナント独自ロールが必要 | 基幹サーバーで動的アクセス制御を有効化 |
+| Phase 4 | 動的ポリシー管理が必要 | 認可サービスを分離し `can()` を HTTP 呼び出しに差し替え |
+| Phase 5 | 言語混在や大規模化 | OPA 等の独立 PDP に移行 |
+
+各 Phase でリソースサーバー側のコードはほぼ変更不要 (= 共有 authz パッケージの内部実装のみが進化)。
+
+### I. 委譲先 / 配下マイルストーンへの引き継ぎ事項
+
+- **ms-02 (Passkey + Magic Link)**: 基幹サーバー実装の選定 (Better Auth 採用判定 / 代替候補比較 / Passkey + Magic Link の組合せ実装) + JWT 発行設計確定
+- **ms-03 (RBAC + Organization)**: ロール定義 (`owner` / `admin` / `member` または ロードマップ通り `Admin` / `Member` / `Guest`) + 共有 authz パッケージ作成 + 個人 / 汎用 Organization 切替
+- **ms-04 (期間限定共有)**: ロードマップ Intent「できればこれも RBAC で関してみたい」を、本素案の Phase 拡張 (例: 期限フィールド付き role / 動的ポリシー) のどこに位置付けるか確定
+- **ms-05 (永続化)**: 業務 DB (イベントストア + プロジェクション) は基幹 DB と分離する前提で設計
+
 ## 関連
 
 - ロードマップ本体: [`./roadmap.md`](./roadmap.md)
