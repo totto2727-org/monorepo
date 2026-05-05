@@ -1,0 +1,170 @@
+# Roadmap: georust/geo Library Port to MoonBit (geo-mbt)
+
+- **Roadmap ID:** geo-mbt
+- **Author:** totto2727 (roadmap-analyst 役割を Main が代行)
+- **Created at:** 2026-05-05T00:00:00Z
+- **Last updated:** 2026-05-05T00:00:00Z
+- **Status:** active <!-- planned | active | completed (`roadmap-progress.yaml.status` と一致) -->
+
+このドキュメントは `dev-roadmap` の **Step 1 (Roadmap Intent)** で起草され、**Step 2 (Milestone Decomposition)** でマイルストーン一覧と依存グラフが追記されて確定する**戦略層の不変な計画書**。1 サイクルの `dev-workflow` では収まらない複数サイクル規模の開発を束ねる。書き方の詳細は `share-artifacts/references/roadmap.md` を参照。
+
+## 背景
+
+[georust](https://georust.org/) の `geo` クレートは Rust 製の地理空間プリミティブ・アルゴリズム集合で、85 以上のアルゴリズムモジュールと 11 種のジオメトリ型を有する成熟した OSS である。一方で MoonBit エコシステムには現状、同等の汎用地理空間ライブラリが存在しない。既存の `mbt/package/geo` (`@totto2727/geo`) は GeoJSON 中心で Turf.js 風の API を志向しており、georust/geo の網羅的アルゴリズム群とは設計思想が異なる。
+
+この移植を 1 サイクルの `dev-workflow` に収められない理由は次のとおり:
+
+1. **対象規模が単一 PR を遥かに超える** — `geo-types` のジオメトリ 11 種 + `geo` の 85 アルゴリズムモジュールに加え、`robust` (堅牢述語) など外部依存も移植対象になる。1 PR 単位の Intent Spec では観測可能性が成立しない
+2. **アルゴリズム間に強い順序依存がある** — Coord/Point などのプリミティブは全アルゴリズムの前提、CoordsIter/LinesIter/MapCoords は多数のアルゴリズムが内部で利用、Kernel (orient2d 等の堅牢述語) は ConvexHull/Contains/Relate などの述語系の前提、AffineTransform は Translate/Rotate/Scale の前提というレイヤ構造を持つ
+3. **テストの完全移植が必須** — ユーザー要件として「必ず同等のテストを移植する」が指定されているため、単に API を写すだけでなく Rust 製 `#[cfg(test)]` ブロックを MoonBit blackbox/whitebox テストに置き換える作業が各アルゴリズムごとに発生する
+4. **MoonBit の言語特性差を体系的に吸収する必要がある** — Rust の `T: CoordNum` ジェネリクスを `f64` 固定化、`Mul<T>`/`Div<T>` の代わりに `mul`/`div` 関数化、トレイト境界の制限など、設計指針をロードマップ層で確定する必要がある (個別サイクルで再発見すると一貫性を失う)
+
+ユーザー意図として「2D 限定 / `f64` 固定 / トレイト化は後回し」が明示されており、Rust 版の汎用ジェネリクス設計を簡素化しつつコア機能を網羅する移植戦略が必要。本ロードマップは対象範囲の合意・移植順序の確定・MoonBit 固有の設計方針の確立をその責務とし、配下 `dev-workflow` サイクルが各機能群の Intent / Design / 実装 / 検証を実行する。
+
+## 目的
+
+`geo-mbt` を、`geo-types` 由来のジオメトリ型と `geo` 由来の 2D 平面アルゴリズム群を含む MoonBit 製地理空間ライブラリとして稼働状態に到達させる。`vp run --filter @totto2727/geo-mbt check` および `vp run --filter @totto2727/geo-mbt test` が PASS し、Rust 版で網羅されている主要 2D 平面アルゴリズム (面積 / 重心 / 境界 / 包含 / 交差 / 距離 / 単純化 / アフィン変換 / 凸包等) が同等テストとともに利用可能な状態を到達点とする。
+
+## スコープ境界
+
+- **対象パッケージ**: `mbt/package/geo-mbt/` (新規作成)
+- **対象ソース構造**:
+  - `src/geo/2d/` — `geo` 本体由来のアルゴリズム群 (2D 限定)
+  - `src/geo/2d/type/` — `geo-types` 由来のジオメトリ型
+  - `src/robust/` — `robust` クレート由来の堅牢述語 (`orient2d`, `incircle` 等; 既存 `mbt/package/geo/src/util/robust/` を参考にしつつ独立実装)
+  - 必要に応じて他の周辺パッケージを `src/<name>/` として移植
+- **対象 georust リポジトリ** (参照ソース): `~/proj/geo/` 配下にクローン済み (`georust-geo`, `robust`, `rstar`, `earcutr`, `i_overlay`, `spade`, `geographiclib-rs`, `num-traits`)
+- **対象アルゴリズム種別**: 平面 (Euclidean) アルゴリズム全般、堅牢述語ベースの述語演算、アフィン変換、単純化、凸包、距離・長さ、面積、境界、包含・交差、座標位置、座標反復
+- **対象テスト**: Rust 版に存在する unit test / doctest 相当のテスト (移植時には MoonBit blackbox `*_test.mbt` および whitebox `*_wbtest.mbt` の慣例に従う)
+- **数値型**: `Coord` の x/y は `Double` (= `f64`) 固定。`T: CoordNum` 汎用ジェネリクスは展開しない
+
+## 非スコープ
+
+- **3D ジオメトリ** — `Coord3DTrait` 相当 / Z 座標 / 体積計算等は本ロードマップでは扱わない (将来ロードマップ候補)
+- **球面・測地距離 (Geodesic / Haversine / Rhumb / Vincenty)** — `geographiclib-rs` 依存の地球楕円体計算は別ロードマップに延期 (本ロードマップは平面 Euclidean に集中)
+- **Boolean Operations (Union / Intersection / Difference / XOR)** — `i_overlay` 依存。実装規模が極めて大きく、独立ロードマップとして扱う
+- **三角形分割 (Earcut / Delaunay / Spade) / Voronoi 図** — `earcut` / `spade` 依存。独立ロードマップに延期
+- **空間索引 (R*-tree / BallTree / 区間木)** — `rstar` / `sif-itree` 依存。独立ロードマップに延期
+- **Buffer (オフセット) 演算** — `i_overlay` ベースで提供されており Boolean Ops と一括延期
+- **PROJ ベースの投影変換 (`Transform` / `proj` モジュール)** — Rust 版でも `feature = "proj"` フラグ。本ロードマップでは扱わない
+- **Relate (DE-9IM) / Bentley-Ottmann スイープ / 単調分割 (Monotone / MonotoneChain)** — 実装規模が大きく、堅牢述語と空間索引の整備後に別ロードマップで扱う
+- **トレイト化 / Generic 化** — ユーザー意図に基づき初期は具体型 (`Coord` = `(f64, f64)` 固定) に対する関数群として実装。トレイト抽象化は将来ロードマップ
+- **既存 `mbt/package/geo` (`@totto2727/geo`) の置換 / 統合** — `geo-mbt` は独立パッケージとして並走し、`@totto2727/geo` は GeoJSON / Turf.js 系として残す。統合方針は将来検討
+- **Rust 版 fuzz テスト / benchmark の移植** — テストは unit/doctest 相当のみ移植
+
+## 大局的制約
+
+複数サイクルを横断して効く制約のみを列挙する。個別サイクル内で完結する制約は配下サイクルの Intent Spec の責務。
+
+### 技術的制約
+
+- パッケージ配置は `mbt/package/geo-mbt/` 固定。プロジェクト名 `@totto2727/geo-mbt`、moon module 名 `totto2727/geo-mbt`
+- ソース構造は `src/geo/2d/` を本体とし、関連モジュールは `src/<name>/` として配置 (例: `src/robust/`)
+- 数値型は `f64` (MoonBit `Double`) 固定。`Int` / `Float` (32bit) サポートは行わない
+- 2D に限定し、3D の `Coord3D` 系および Z 座標は扱わない (型シグネチャから Z を排除)
+- Rust の `T: CoordNum` ジェネリクスは `Double` に具体化。`Mul<T>` / `Div<T>` は MoonBit のトレイト制約上 `mul(Self, Double) -> Self` / `div(Self, Double) -> Self` メソッドとして実装
+- トレイト化は当面行わず、特定型 (`Coord`, `Point`, `LineString` 等) に対する関数群として実装する。将来トレイト化する余地を残しつつ、現時点では単純な関数 / メソッド形式
+- 同等テストの完全移植が必須 — Rust 版の `#[cfg(test)]` ブロックおよび doctest 相当を MoonBit blackbox `*_test.mbt` に移植
+- `vp run --filter @totto2727/geo-mbt check` および `vp run --filter @totto2727/geo-mbt test` の PASS が各サイクルの完了条件
+
+### アーキテクチャ的制約
+
+- **レイヤ依存方向の固定** — `src/robust/` (堅牢述語) は最下層、`src/geo/2d/type/` (ジオメトリ型) はその上、`src/geo/2d/algorithm/` 系 (各アルゴリズム) は型レイヤに依存。逆方向の依存は許可しない
+- **モジュール境界 = ファイル粒度** — Rust 版の 1 ファイル ≒ 1 モジュールの粒度を MoonBit でも踏襲する。`src/geo/2d/area.mbt` のように `<algorithm>.mbt` を基本単位とする (やむを得ず分割する場合のみサブディレクトリ化)
+- **API 命名規則** — Rust 版の trait 名 (`Area`, `Centroid`, `BoundingRect` 等) を関数名 (`area_of`, `centroid_of`, `bounding_rect_of`) または型固有メソッド (`Polygon::area`) として MoonBit 慣習に合わせて再命名する。命名規則の確定は ms-01 で行う
+- **外部依存の最小化** — `moonbitlang/x` を除く外部 MoonBit 依存は原則追加しない (移植元 Rust が依存する `num-traits` 等は MoonBit 標準で代替)
+
+### 規範的制約
+
+- 既存リポジトリのコーディング規約 (`CLAUDE.md` / 既存 `mbt/package/geo/CLAUDE.md` / `mbt/package/geo` のスタイル) に従う
+- Apache-2.0 ライセンスを継承 (`geo-types` / `geo` は MIT OR Apache-2.0、`robust` は Apache-2.0)。各移植ファイルの先頭に上流ファイルへの参照コメントを残す慣例とする
+- すべてのサイクルが `dev-workflow` の 9 ステップ体系および本スキル (`dev-roadmap`) の 4 ステップ体系に準拠する
+
+### 組織的制約
+
+- 個人 (totto2727 単独) 開発を想定。レビュー観点は `specialist-reviewer` の観点別並列起動で代替
+- 並行 `dev-workflow` サイクル数の上限は **2** (実装中サイクル + ドキュメント / レビュー作業の並走を許容)
+- 期間目標は本ロードマップでは設定しない。配下サイクル単位で柔軟に進める
+- 本ロードマップは離席中の自律実行を許容する。マイルストーン間の実行順序は依存グラフに従い、ユーザー判断を要する Blocker は In-Progress Report を作成して翌日のレビューに委ねる
+
+## マイルストーン一覧
+
+`dev-roadmap` の Step 2 で確定した本節以降は immutable。`milestones/<milestone-id>.md` に各マイルストーンの詳細を記載。
+
+| ID                          | Title                                              | Estimated dev-workflow cycle count | Milestone dependencies                | Detail                                       |
+| --------------------------- | -------------------------------------------------- | ---------------------------------- | ------------------------------------- | -------------------------------------------- |
+| ms-01-foundation            | Foundation: Package Skeleton + Coord Type          | 1                                  | (none)                                | `milestones/ms-01-foundation.md`             |
+| ms-02-primitives            | Geometry Primitives (Point/Line/LineString/etc.)   | 1                                  | ms-01-foundation                      | `milestones/ms-02-primitives.md`             |
+| ms-03-iteration             | Iteration & Traversal (CoordsIter/LinesIter/Map)   | 1                                  | ms-02-primitives                      | `milestones/ms-03-iteration.md`              |
+| ms-04-bounding-area         | Bounding & Area (BoundingRect/Area/Dimensions)     | 1                                  | ms-03-iteration                       | `milestones/ms-04-bounding-area.md`          |
+| ms-05-robust-kernels        | Robust Predicates (orient2d/incircle) + Kernel     | 1                                  | ms-02-primitives                      | `milestones/ms-05-robust-kernels.md`         |
+| ms-06-vector-distance       | Vector Ops + Euclidean Distance/Length/Bearing     | 1                                  | ms-03-iteration                       | `milestones/ms-06-vector-distance.md`        |
+| ms-07-topology-basics       | Topology Basics (CoordinatePosition/Intersects)    | 1                                  | ms-05-robust-kernels                  | `milestones/ms-07-topology-basics.md`        |
+| ms-08-containment           | Containment (Contains/Within/Covers)               | 1                                  | ms-07-topology-basics                 | `milestones/ms-08-containment.md`            |
+| ms-09-centroid-extremes     | Centroid / Extremes / Winding / IsConvex / Orient  | 1                                  | ms-04-bounding-area, ms-07-topology-basics | `milestones/ms-09-centroid-extremes.md` |
+| ms-10-affine                | Affine Ops (Translate/Rotate/Scale/Skew)           | 1                                  | ms-04-bounding-area                   | `milestones/ms-10-affine.md`                 |
+| ms-11-hulls                 | Convex Hull / Concave Hull                         | 1                                  | ms-05-robust-kernels                  | `milestones/ms-11-hulls.md`                  |
+| ms-12-closest-intersection  | Closest Point / Line Intersection / Locate / Interp | 1                                  | ms-06-vector-distance                 | `milestones/ms-12-closest-intersection.md`   |
+| ms-13-simplify              | Simplify (RDP/VW) / Chaikin / RemoveRepeated       | 1                                  | ms-06-vector-distance                 | `milestones/ms-13-simplify.md`               |
+| ms-14-distance-metrics      | Frechet / Hausdorff Distance / Densify             | 1                                  | ms-06-vector-distance                 | `milestones/ms-14-distance-metrics.md`       |
+| ms-15-validation-finalize   | Validation + API Surface Review + Release Prep     | 1                                  | ms-08-containment, ms-09-centroid-extremes, ms-10-affine, ms-11-hulls, ms-12-closest-intersection, ms-13-simplify, ms-14-distance-metrics | `milestones/ms-15-validation-finalize.md` |
+
+## 依存グラフ
+
+```mermaid
+graph LR
+  ms01[ms-01 Foundation]
+  ms02[ms-02 Primitives]
+  ms03[ms-03 Iteration]
+  ms04[ms-04 Bounding/Area]
+  ms05[ms-05 Robust Kernels]
+  ms06[ms-06 Vector/Distance]
+  ms07[ms-07 Topology Basics]
+  ms08[ms-08 Containment]
+  ms09[ms-09 Centroid/Extremes]
+  ms10[ms-10 Affine]
+  ms11[ms-11 Hulls]
+  ms12[ms-12 Closest/Intersection]
+  ms13[ms-13 Simplify]
+  ms14[ms-14 Distance Metrics]
+  ms15[ms-15 Validation/Finalize]
+
+  ms01 --> ms02
+  ms02 --> ms03
+  ms02 --> ms05
+  ms03 --> ms04
+  ms03 --> ms06
+  ms04 --> ms09
+  ms04 --> ms10
+  ms05 --> ms07
+  ms05 --> ms11
+  ms06 --> ms12
+  ms06 --> ms13
+  ms06 --> ms14
+  ms07 --> ms08
+  ms07 --> ms09
+  ms08 --> ms15
+  ms09 --> ms15
+  ms10 --> ms15
+  ms11 --> ms15
+  ms12 --> ms15
+  ms13 --> ms15
+  ms14 --> ms15
+```
+
+## 関連リンク
+
+- georust 公式: https://georust.org/
+- georust/geo 監修リポジトリ (本ロードマップ用にクローン済み): `~/proj/geo/georust-geo/`
+- 関連外部依存クレート (本ロードマップ用にクローン済み): `~/proj/geo/{robust,rstar,earcutr,i_overlay,spade,geographiclib-rs,num-traits}/`
+- 既存類似パッケージ: `mbt/package/geo/` (`@totto2727/geo` — GeoJSON / Turf.js 系)
+- 既存 `mbt/package/geo` の robust 実装: `mbt/package/geo/src/util/robust/`
+- 移植元の主要モジュール一覧: `~/proj/geo/georust-geo/geo/src/algorithm/mod.rs` (85 モジュール)、`~/proj/geo/georust-geo/geo-types/src/geometry/` (11 ファイル)
+- 関連 ADR: `docs/adr/` (本ロードマップ実行中に発生する横断的決定は General mode ADR としてここに追加)
+
+## オープン質問
+
+- **`sif-itree` および `float_next_after` の代替** — ユーザー要件により全依存を `~/proj/geo/` にクローンする方針だったが、これら 2 件は GitHub 検索で公式リポジトリが特定できなかった。本ロードマップでは sif-itree (区間木) と float_next_after (浮動小数点 next-after) を非依存とし、必要時に MoonBit 標準ライブラリで代替実装する方針で進める。配下サイクルで影響が顕在化した場合は追加クローンを検討
+- **API 命名規則の最終確定** — Rust trait 名 (`Area`, `Centroid` 等) を MoonBit でどう表現するか (`area_of(geometry)` 関数 vs `Polygon::area` メソッド vs 両方提供) は ms-01 配下サイクルの Step 3 (Design) で決定し、以降のマイルストーン全体の前提とする
+- **既存 `@totto2727/geo` の `src/util/robust/` 流用範囲** — `geo-mbt` の `src/robust/` として独立実装するか、共通パッケージとして抽出するかは ms-05 配下サイクルの Step 3 で決定。当面は独立実装を前提
+- **テスト fixture 共有** — Rust 版が参照する `geo-test-fixtures` (WKT 形式) の MoonBit への取り込み方針 (WKT パーサ移植 / JSON 変換 / 直書き) は配下サイクルで個別判断
