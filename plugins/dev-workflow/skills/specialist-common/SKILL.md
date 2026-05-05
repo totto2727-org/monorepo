@@ -38,8 +38,8 @@ there**. If a discrepancy is found, the upstream skill takes precedence.
 When dev-workflow's general procedures conflict with project-specific rules in **concrete work content**:
 
 - **Implementation patterns / test rules / commit conventions / design conventions / naming conventions /
-  platform-specific commands give precedence to project-specific rules** (relevant skills: `effect-layer`,
-  `effect-hono`, `effect-runtime`, `totto2727-fp`, `git-workflow`, `macos-cli-rules`, etc.; varies by project)
+  platform-specific commands give precedence to project-specific rules** (relevant skills: `coding`,
+  `test`, `git-workflow`, `macos-cli-rules`, etc.; varies by project)
 - **The overall process structure (phases, steps, artifact format, gate decisions) follows dev-workflow**
 - When Main starts a Specialist, it should include the paths to the relevant project-specific skills in the input.
   **If they are missing from the input, ask Main before starting work** (do not proceed on dev-workflow defaults

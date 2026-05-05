@@ -82,7 +82,7 @@ Each row links to the step's detail skill. Per-step procedure, exit criteria, ro
 - **One-Shot Specialist & Within-Step Persistence** — each specialist is bound to one step. Within that step, the same instance is **never terminated**: feedback is sent to it; additional instances may be added; retirement happens only at step exit.
 - **Gate-Based Progression** — every step has explicit Exit Criteria. The next step does not begin until they are satisfied.
 - **Artifact-Driven Handoff** — step-to-step handoff is via human-readable artifacts (Intent Spec, Design Document, Task Plan, diffs, reports). No oral or implicit transfer.
-- **Project-Rule Precedence** — this workflow defines process structure (steps, artifact formats, gates). Implementation patterns, testing rules, commit / branch conventions, design conventions, code-review baselines, and naming conventions are **owned by project-specific skills** (e.g. `effect-layer`, `git-workflow`, project CLAUDE.md). Conflicts are resolved by user inquiry, not by Main's unilateral choice.
+- **Project-Rule Precedence** — this workflow defines process structure (steps, artifact formats, gates). Implementation patterns, testing rules, commit / branch conventions, design conventions, code-review baselines, and naming conventions are **owned by project-specific skills** (e.g. `coding`, `git-workflow`, project CLAUDE.md). Conflicts are resolved by user inquiry, not by Main's unilateral choice.
 - **Commit-Based Resumability** — per-cycle artifacts and progress live under `docs/workflow/<identifier>/`. Every step completion is committed so any session / user can resume by checking out the commit.
 - **Clean-Transition Between Steps** — when the next step starts, the working tree must be clean except for `$TMPDIR/dev-workflow/*.md` temporary reports. Prior step artifacts must already be committed.
 - **Artifact-as-Gate-Review** — at end-of-step user-approval gates, the artifact itself is the review material. Main presents the path and adds verbal context; no temporary summary report is produced.
@@ -178,7 +178,7 @@ When a cycle is resumed in a new session:
 - **Artifact templates and write-up references** — `share-artifacts/{templates,references}/<name>.md`. The 18 artifacts and their 1:1 template ↔ reference pairing live there.
 - **PR and CI command details** — `share-pr-manager` (write/read `gh pr` commands, idempotency guards, permission boundary) and `share-ci-monitoring` (`gh run watch` double-check protocol, retry discipline, PR `## CI status` section).
 - **PR description body** — `share-artifacts/{templates,references}/pr-body.md`.
-- **Tool-specific commands** — project-specific skills (e.g. `effect-layer`, `git-workflow`, `macos-cli-rules`).
+- **Tool-specific commands** — project-specific skills (e.g. `coding`, `git-workflow`, `macos-cli-rules`).
 - **One-shot edits not part of a cycle** — handle as ordinary conversation, no workflow.
 - **Deployment, observability, SLA monitoring** — outside the workflow scope (CI/CD pipelines, etc.).
 - **Roadmap-level coordination** — `dev-roadmap` and `step-roadmap-*`.

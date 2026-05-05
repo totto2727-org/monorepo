@@ -1,0 +1,57 @@
+plugins/dev-workflow/agents/qa-analyst.md:46:6. Project-specific language testing skills (e.g. `vite-plus` for TS, `moonbit-bestpractice` for MoonBit, etc., as appropriate for the language)
+plugins/dev-workflow/skills/specialist-implementer/SKILL.md:52:- Related project-specific test skills (per language: `vite-plus`, `moonbit-bestpractice`, etc.)
+plugins/dev-workflow/skills/specialist-qa-analyst/SKILL.md:60:- Related project-specific test skills (`vite-plus` for TS, `moonbit-bestpractice` for MoonBit, the appropriate
+plugins/dev-workflow/skills/step-qa-design/SKILL.md:29:- **Context isolation (C):** the analyst absorbs Intent Spec, design, and project-specific testing skills (e.g. `vite-plus`, `effect-*`, `moonbit-bestpractice`) — a substantial input set best held in a dedicated context. A single instance preserves coverage consistency.
+plugins/moonbit/.script/process-moonbit-docs.ts:8://   sfw deno run --allow-net --allow-read --allow-write .script/process-moonbit-docs.ts \
+plugins/moonbit/.script/process-moonbit-docs.ts:16:  console.error('Usage: deno run --allow-net --allow-read --allow-write .script/process-moonbit-docs.ts <URL> [URL...]')
+plugins/moonbit/.script/process-moonbit-docs.ts:22:const outputDir = join(projectRoot, 'skills', 'moonbit-docs')
+plugins/moonbit/.script/process-moonbit-docs.ts:68:  '<!-- https://github.com/moonbitlang/moonbit-docs -->',
+plugins/moonbit/.script/process-moonbit-docs.ts:132:- [moonbit-bestpractice](../moonbit-bestpractice/SKILL.md) — MoonBit coding standards and best practices. Use when writing, reviewing, or refactoring MoonBit code.`
+plugins/moonbit/.script/process-moonbit-docs.ts:135:name: moonbit-docs
+plugins/moonbit/.claude/skills/update-moonbit-docs.md:2:name: update-moonbit-docs
+plugins/moonbit/.claude/skills/update-moonbit-docs.md:3:description: Use when updating MoonBit language documentation skills, refreshing moonbit-docs skill files, or when the user asks to sync MoonBit docs.
+plugins/moonbit/.claude/skills/update-moonbit-docs.md:10:Fetches the latest MoonBit language documentation and regenerates skill files in `skills/moonbit-docs/`.
+plugins/moonbit/.claude/skills/update-moonbit-docs.md:23:deno run --allow-net --allow-read --allow-write .script/process-moonbit-docs.ts "<language-url>" "<toolchain-url>"
+plugins/moonbit/.claude/skills/update-moonbit-docs.md:26:4. **Verify output** — Confirm `SKILL.md` was generated in `skills/moonbit-docs/` and reference `.md` files were generated in `skills/moonbit-docs/references/`.
+plugins/moonbit/skills/moonbit-docs/SKILL.md:2:name: moonbit-docs
+plugins/moonbit/skills/moonbit-docs/SKILL.md:10:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/SKILL.md:17:- [moonbit-bestpractice](../moonbit-bestpractice/SKILL.md) — MoonBit coding standards and best practices. Use when writing, reviewing, or refactoring MoonBit code.
+plugins/moonbit/skills/moonbit-docs/references/language-fundamentals-iterator.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/toolchain-vscode-index.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-attributes.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-fundamentals-control-structures.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-fundamentals-functions.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-verification.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-fundamentals-built-in-data-structures.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/toolchain-wasm-index.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-tests.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-fundamentals-generics.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-fundamentals-custom-data-types.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-docs.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-ffi.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/toolchain-moon-index.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-packages.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-error-handling.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/toolchain-moonide-index.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-benchmarks.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-fundamentals-special-syntax.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-derive.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-methods.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-fundamentals-overloaded-literals.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-fundamentals-pattern-matching.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-async-experimental.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-error-codes-index.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/moonbit/skills/moonbit-docs/references/language-error-codes-index.md:15:[moonbitlang/moonbit-docs](https://github.com/moonbitlang/moonbit-docs).
+plugins/moonbit/skills/moonbit-docs/references/toolchain-index.md:2:<!-- https://github.com/moonbitlang/moonbit-docs -->
+plugins/components-build/.script/generate-skill.ts:14:const outputDir = join(projectRoot, 'skills', 'components-build-docs')
+plugins/components-build/.script/generate-skill.ts:115:name: components-build-docs
+plugins/moonbit/skills/moonbit-bestpractice/SKILL.md:2:name: moonbit-bestpractice
+plugins/moonbit/skills/moonbit-bestpractice/SKILL.md:12:- [moonbit-docs](../moonbit-docs/SKILL.md) — MoonBit language reference (syntax, types, functions, methods, deriving). Use for language questions and debugging.
+plugins/components-build/.claude/skills/update-components-build-docs.md:2:name: update-components-build-docs
+plugins/components-build/.claude/skills/update-components-build-docs.md:3:description: Use when updating components.build documentation links, refreshing the components-build-docs skill, or when the user asks to sync components.build docs.
+plugins/components-build/.claude/skills/update-components-build-docs.md:10:Fetches the latest sitemap from components.build and regenerates the SKILL.md link index in `skills/components-build-docs/`.
+plugins/components-build/.claude/skills/update-components-build-docs.md:20:2. **Verify output** — Confirm `skills/components-build-docs/SKILL.md` was generated with the expected number of links.
+plugins/components-build/skills/components-build-docs/SKILL.md:2:name: components-build-docs
+.agents/skills-lock.json:7:          "enabledSkills": ["moonbit-bestpractice", "moonbit-docs"],
+.agents/skills-lock.json:12:          "enabledSkills": ["components-build-docs"],
+docs/adr/2026-04-06-c-plugin-cli-tool.md:106:          "enabledSkills": ["moonbit-docs"]
