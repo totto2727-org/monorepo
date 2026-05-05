@@ -21,33 +21,29 @@ Full-stack SaaS demo application showcasing modern React ecosystem with TanStack
 # Start local database server (required before vp dev)
 task db:dev
 
-# Start development server
+# Start development server (run from this directory)
 vp dev
 
-# Build
-vp build
+# Run a Vite+ task — `setup` and `build` are tasks defined in vite.config.ts
+vp run --filter saas-example setup    # Run every setup:* in parallel and cache the outputs
+vp run --filter saas-example build    # vp build — depends on setup, exclusion globs preserve cache
 
-# Preview built application
-vp preview
-
-# Run tests
-vp test
-
-# Storybook development
-vp run storybook:dev
-
-# Storybook build
-vp run storybook:build
+# Other commands
+vp preview                            # Preview built application (run from this directory)
+vp run --filter saas-example storybook:dev    # Storybook development (still a script)
+vp run --filter saas-example storybook:build  # Storybook build (still a script)
 ```
 
-### Prebuild Steps
+### Setup Tasks
 
-Prebuild runs automatically via Vite+ before build/check/test:
+`setup` is a Vite+ task that fans out to four sub-tasks via `dependsOn`. `build` depends on `setup`, so `vp run build` (or `vp run -r build`) automatically refreshes the generated files when their inputs change. With proper input exclusions, repeated runs hit the cache:
 
-- `prebuild:cloudflare` - Generate Cloudflare Worker types
-- `prebuild:paraglide` - Compile i18n messages
-- `prebuild:tsr` - Generate TanStack Router route tree
-- `prebuild:kysely` - Generate Kysely type definitions from Atlas schema
+- `setup:cloudflare` — `wrangler types` (Cloudflare Worker bindings)
+- `setup:paraglide` — `paraglide-js compile` (i18n message types)
+- `setup:tsr` — `tsr generate` (TanStack Router tree)
+- `setup:kysely` — `atlas-to-kysely` (Kysely type definitions from Atlas schema)
+
+`check` / `fix` / `test` are root-level tasks (`vp check` / `vp check --fix` / `vp test`) and cover this app via Vite+'s workspace lint / type-check pass — there is no per-app `check` task.
 
 ### Database Operations
 

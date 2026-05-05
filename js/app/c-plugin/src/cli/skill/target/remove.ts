@@ -1,4 +1,4 @@
-import { Effect } from 'effect'
+import { Array, Effect } from 'effect'
 import { Command, Flag, Prompt } from 'effect/unstable/cli'
 
 import { getAgentsDir } from '#@/lib/paths.ts'
@@ -15,7 +15,7 @@ export const targetRemoveCommand = Command.make(
       const agentsDir = getAgentsDir(config.global)
       const lockFile = yield* LockFileService.read(agentsDir)
 
-      if (lockFile.skillDirs.length === 0) {
+      if (Array.isReadonlyArrayEmpty(lockFile.skillDirs)) {
         yield* Effect.log('No target directories registered.')
         return
       }
@@ -30,7 +30,7 @@ export const targetRemoveCommand = Command.make(
         message: 'Select target directories to remove:',
       })
 
-      if (toRemove.length === 0) {
+      if (Array.isReadonlyArrayEmpty(toRemove)) {
         yield* Effect.log('No directories selected.')
         return
       }

@@ -40,7 +40,7 @@ catalogs:
       version: 4.0.0-beta.57
     effect:
       specifier: beta
-      version: 4.0.0-beta.57
+      version: 4.0.0-beta.60
   graphql:
     '@pothos/core':
       specifier: ^4.9.1
@@ -186,7 +186,11 @@ importers:
         specifier: latest
         version: 4.85.0
 
-  go/app/atlas-to-kysely: {}
+  go/app/atlas-to-kysely:
+    devDependencies:
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.1.19(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.0(@emnapi/core@1.9.0)(@emnapi/runtime@1.9.0)(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)
 
   js/app/bw:
     dependencies:
@@ -222,6 +226,9 @@ importers:
 
   js/app/hono-remix-v3-cloudflare-example:
     dependencies:
+      effect:
+        specifier: catalog:effect
+        version: 4.0.0-beta.60
       hono:
         specifier: catalog:hono
         version: 4.12.8
@@ -445,6 +452,10 @@ importers:
         version: 5.4.4
 
   js/package/hono-remix-middleware:
+    dependencies:
+      effect:
+        specifier: catalog:effect
+        version: 4.0.0-beta.60
     devDependencies:
       '@totto2727/fp':
         specifier: workspace:*
@@ -507,6 +518,9 @@ importers:
 
   js/package/vite-plugin-remix:
     dependencies:
+      effect:
+        specifier: catalog:effect
+        version: 4.0.0-beta.60
       vite:
         specifier: npm:@voidzero-dev/vite-plus-core@latest
         version: '@voidzero-dev/vite-plus-core@0.1.20(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(yaml@2.8.3)'
@@ -518,9 +532,17 @@ importers:
         specifier: catalog:remix
         version: 3.0.0-beta.0(@emnapi/core@1.9.0)(@emnapi/runtime@1.9.0)
 
-  mbt/package/geo: {}
+  mbt/package/geo:
+    devDependencies:
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.1.19(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.0(@emnapi/core@1.9.0)(@emnapi/runtime@1.9.0)(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)
 
-  nix: {}
+  nix:
+    devDependencies:
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.1.19(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.0(@emnapi/core@1.9.0)(@emnapi/runtime@1.9.0)(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)
 
 packages:
 
@@ -4055,6 +4077,9 @@ packages:
 
   effect@4.0.0-beta.57:
     resolution: {integrity: sha512-rg32VgXnLKaPRs9tbRDaZ5jxmzNY7ojXt85gSHGUTwdlbWH5Ik+OCUY2q14TXliygPGoHwCAvNWS4bQJOqf00g==, tarball: https://registry.npmjs.org/effect/-/effect-4.0.0-beta.57.tgz}
+
+  effect@4.0.0-beta.60:
+    resolution: {integrity: sha512-OkrCKT+aBFIti4ryuxKfIozNx2SMxmFZ8uWB53gGzdjQzaJ7RVf0s6nJQ4JubJM//R24DtSYNOdmPRSK+qoRww==, tarball: https://registry.npmjs.org/effect/-/effect-4.0.0-beta.60.tgz}
 
   electron-to-chromium@1.5.313:
     resolution: {integrity: sha512-QBMrTWEf00GXZmJyx2lbYD45jpI3TUFnNIzJ5BBc8piGUDwMPa1GV6HJWTZVvY/eiN3fSopl7NRbgGp9sZ9LTA==, tarball: https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.5.313.tgz}
@@ -8415,6 +8440,19 @@ snapshots:
   dotenv@17.3.1: {}
 
   effect@4.0.0-beta.57:
+    dependencies:
+      '@standard-schema/spec': 1.1.0
+      fast-check: 4.6.0
+      find-my-way-ts: 0.1.6
+      ini: 6.0.0
+      kubernetes-types: 1.30.0
+      msgpackr: 1.11.9
+      multipasta: 0.2.7
+      toml: 4.1.1
+      uuid: 13.0.0
+      yaml: 2.8.3
+
+  effect@4.0.0-beta.60:
     dependencies:
       '@standard-schema/spec': 1.1.0
       fast-check: 4.6.0

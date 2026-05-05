@@ -302,6 +302,6 @@ The rationale for positioning the plugin as an independent method (rather than a
 
 - Implementing AI-DLC compatibility or parity.
 - Covering deployment, observability, SLA prediction, or runbook execution (workflow scope ends at code completion + reviewed + validated against the intent).
-- Selecting design flavors at the framework level (project-specific design conventions live in skills like `effect-layer`, `effect-runtime`, `effect-hono`, `totto2727-fp`).
+- Selecting design flavors at the framework level (project-specific design conventions live in skills like `coding`, `test`).
 - Roadmap-of-roadmaps (more than one nesting level).
 - CI workflow definition changes (`.github/workflows/*.yaml` is out of scope; `share-ci-monitoring` only orchestrates `gh` CLI usage).

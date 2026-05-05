@@ -12,47 +12,77 @@ eza --tree -L 2 -D js mbt go
 
 - **Never use `npx` or `bunx`** — always use `vp run`, `vp exec`, or `vpx` in that order
 - All commands must be run from the repository root unless noted otherwise
+- All `check` / `fix` / `test` / `setup` / `build` are Vite+ tasks defined in `vite.config.ts`. The `--cache` flag is no longer required — caching is on by default
 
-### Workspace-wide NPM Scripts
+### Standard Tasks
 
-```bash
-vp run --cache -r  <script>   # e.g. check, fix, prebuild, build, test
-```
-
-### Single Project NPM Scripts (from root)
+`vp run <task>` runs the task in the current package; `-r` fans it out across the workspace.
 
 ```bash
-vp run --cache --filter <project> <script>   # e.g. vp run --filter bw build
+vp run check                  # Format / lint / type check (root task: vp check)
+vp run fix                    # Auto-fix lint / format, then type check (root task: vp check --fix)
+vp run test                   # Run Vitest (root task: vp test)
+vp run -r setup               # Run every package's setup task (e.g. wrangler types,
+                              # paraglide-js compile, tsr generate, atlas-to-kysely)
+vp run -r build               # Build every package; per-package build dependsOn its setup
+vp run --parallel ci          # Run check / test / build across the workspace ignoring
+                              # task ordering. Run `vp run -r setup` first to warm the
+                              # cache so generated outputs already exist
 ```
 
-### Built-in Commands (from root)
+### Targeting a single package
 
 ```bash
-vp check           # Format, lint, and type check
-vp check --fix     # Auto-fix linting and formatting issues, then type check
-vp test                   # Run all tests by Vitest
-vp test run <test-file>   # Run a specific test file
-vp test related <source>  # Run tests related to a source file
+vp run --filter <project> <task>     # e.g. vp run --filter saas-example build
+vp run <project>#<task>              # e.g. vp run saas-example#setup:tsr
 ```
 
-### Project-local Commands (requires cd)
+When the above is impractical, `cd` into the package first and run `vp run <task>`.
 
-When the above methods cannot be used, cd into the project directory first:
+### Adjusting cache and concurrency
 
 ```bash
-vp run <script>    # e.g. cd js/app/bw && vp run build
+vp run --no-cache <task>             # Skip the cache for this invocation
+vp run --concurrency-limit 0 <task>  # Unlimited concurrency (default: 4)
+vp run -v <task>                     # Show the per-task cache hit / miss summary
 ```
+
+### Per-test commands
+
+```bash
+vp test run <test-file>              # Run a specific test file
+vp test related <source>             # Run tests related to a source file
+```
+
+### Defining new tasks
+
+Tasks are declared inside each package's `vite.config.ts` under `run.tasks`:
+
+```ts
+run: {
+  tasks: {
+    setup: { command: '', dependsOn: ['setup:foo', 'setup:bar'] },
+    'setup:foo': { command: 'tool generate', input: [{ auto: true }, '!output/**'] },
+    build: { command: 'vp build', dependsOn: ['setup'] },
+  },
+}
+```
+
+`@totto2727/fp/vite`'s `defineTaskInputFromOutput` centralises the
+self-output exclusion globs across `setup:*` and `build`. Vite+ rejects
+a task and a `package.json` script that share a name — when promoting
+a script to a task, drop the script.
 
 ### MoonBit Commands
 
-For `mbt/` workspace projects:
+`mbt/` packages expose `build` / `check` / `fix` / `test` as Vite+
+tasks, so use `vp run --filter @totto2727/geo <task>` from the repo
+root. Drop down to `moon` directly only for non-task subcommands:
 
 ```bash
-moon build         # Build MoonBit packages
-moon check         # Type check MoonBit code
-moon fmt           # Format MoonBit code
-moon test          # Run MoonBit tests
 moon info          # Update generated interface files (.mbti)
+moon test --update # Update snapshot tests
+moon coverage analyze > uncovered.log
 ```
 
 ## Architecture

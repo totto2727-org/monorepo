@@ -1,4 +1,4 @@
-import { Data, Effect, Option, Predicate } from 'effect'
+import { Data, Effect, Option, Predicate, String } from 'effect'
 
 export class AuthError extends Data.TaggedError('AuthError')<{
   readonly message: string
@@ -16,7 +16,7 @@ const resolveValue = (flag: Option.Option<string>, envKey: string, label: string
     }
 
     const env = process.env[envKey]
-    if (Predicate.isNotNullish(env) && env !== '') {
+    if (Predicate.isNotNullish(env) && String.isNonEmpty(env)) {
       return env
     }
 

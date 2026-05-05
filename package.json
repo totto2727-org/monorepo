@@ -2,11 +2,7 @@
   "name": "monorepo",
   "private": "true",
   "type": "module",
-  "scripts": {
-    "check": "vp check",
-    "fix": "vp check --fix",
-    "test": "vp test"
-  },
+  "scripts": {},
   "devDependencies": {
     "@types/node": "catalog:types",
     "ultracite": "catalog:lint",

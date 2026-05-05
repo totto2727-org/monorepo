@@ -1,7 +1,8 @@
 {
   "name": "@app/atlas-to-kysely",
   "private": true,
-  "scripts": {
-    "fix": "go fmt ."
+  "scripts": {},
+  "devDependencies": {
+    "vite-plus": "catalog:"
   }
 }

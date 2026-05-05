@@ -43,7 +43,7 @@ On launch, receive the following from Main (ask back if anything is missing):
 3. Artifact output paths (qa-design.md / qa-flow.md)
 4. Paths of the two templates
 5. Paths of the two authoring guides
-6. Project-specific language testing skills (e.g. `vite-plus` for TS, `moonbit-bestpractice` for MoonBit, etc., as appropriate for the language)
+6. Project-specific language testing skills (e.g. `vite-plus` for TS, `test` for project-wide test conventions, etc., as appropriate for the language)
 7. Relevant past ADRs (e.g. test-strategy precedents such as `2026-04-09-c-plugin-test-strategy.md`, if any)
 
 ## Primary responsibilities

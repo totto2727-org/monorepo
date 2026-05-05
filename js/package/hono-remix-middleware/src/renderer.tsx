@@ -1,7 +1,15 @@
-/* oxlint-disable rules/force-predicate, typescript-eslint/no-unsafe-type-assertion -- this package is consumer-runtime only and avoids depending on `effect`; the type assertions below bridge between remix/ui's internal types and our public API. */
+import { Predicate, String } from 'effect'
 import type { MiddlewareHandler } from 'hono'
 import type { RemixNode } from 'remix/ui'
 import { renderToStream } from 'remix/ui/server'
+import type { RenderToStreamOptions } from 'remix/ui/server'
+
+declare module 'hono' {
+  interface ContextRenderer {
+    (content: RemixNode): Response
+    readonly marker?: never
+  }
+}
 
 export interface ResolvedClientEntry {
   exportName: string
@@ -19,15 +27,14 @@ export interface ResolvedClientEntry {
  */
 export type ResolveClientEntry = (entryId: string, component: { name?: string }) => ResolvedClientEntry
 
-export interface RemixRendererOptions<TProps extends object> {
+export interface RemixRendererOptions {
   fetcher: typeof fetch
-  wrap?: (content: RemixNode, props: TProps) => RemixNode
-  resolveClientEntry?: ResolveClientEntry
+  resolveClientEntry?: RenderToStreamOptions['resolveClientEntry']
 }
 
 const DEFAULT_ASSET_PREFIX = '/assets/'
 
-const defaultResolveClientEntry: ResolveClientEntry = (entryId, component) => {
+const defaultResolveClientEntry: NonNullable<RenderToStreamOptions['resolveClientEntry']> = (entryId, component) => {
   const hashIndex = entryId.lastIndexOf('#')
   const rawHref = hashIndex === -1 ? entryId : entryId.slice(0, hashIndex)
   const fallbackName = component.name ?? ''
@@ -36,24 +43,21 @@ const defaultResolveClientEntry: ResolveClientEntry = (entryId, component) => {
   return { exportName, href }
 }
 
-export const remixRenderer = <TProps extends object = Record<string, never>>(
-  options: RemixRendererOptions<TProps>,
-): MiddlewareHandler => {
-  const wrap = options.wrap ?? ((content) => content)
+export const remixRenderer = (options: RemixRendererOptions): MiddlewareHandler => {
   const resolveClientEntry = options.resolveClientEntry ?? defaultResolveClientEntry
 
   return (c, next) => {
-    c.setRenderer(((content: RemixNode, props?: TProps) => {
-      const stream = renderToStream(wrap(content, props ?? ({} as TProps)), {
+    c.setRenderer((content) => {
+      const stream = renderToStream(content, {
         frameSrc: c.req.url,
-        resolveClientEntry: resolveClientEntry as never,
+        resolveClientEntry,
         async resolveFrame(src, target) {
           const headers = new Headers({ accept: 'text/html' })
           const cookie = c.req.header('cookie')
-          if (cookie !== undefined && cookie !== '') {
+          if (Predicate.isNotNullish(cookie) && String.isNonEmpty(cookie)) {
             headers.set('cookie', cookie)
           }
-          if (target !== undefined && target !== '') {
+          if (Predicate.isString(target) && String.isNonEmpty(target)) {
             headers.set('x-remix-target', target)
           }
           const response = await options.fetcher(new Request(new URL(src, c.req.url), { headers }))
@@ -64,7 +68,7 @@ export const remixRenderer = <TProps extends object = Record<string, never>>(
       return new Response(stream, {
         headers: { 'Content-Type': 'text/html; charset=utf-8' },
       })
-    }) as never)
+    })
 
     return next()
   }

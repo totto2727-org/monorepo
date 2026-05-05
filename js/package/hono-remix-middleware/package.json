@@ -7,6 +7,9 @@
     ".": "./src/index.tsx",
     "./asset-server": "./src/asset-server.ts"
   },
+  "dependencies": {
+    "effect": "catalog:effect"
+  },
   "devDependencies": {
     "@totto2727/fp": "workspace:*",
     "hono": "catalog:hono",

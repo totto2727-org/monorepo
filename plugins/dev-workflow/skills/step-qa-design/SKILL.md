@@ -26,7 +26,7 @@ Convert each Intent Spec success criterion into an observable test case (TC-NNN)
 
 **Justification:**
 
-- **Context isolation (C):** the analyst absorbs Intent Spec, design, and project-specific testing skills (e.g. `vite-plus`, `effect-*`, `moonbit-bestpractice`) — a substantial input set best held in a dedicated context. A single instance preserves coverage consistency.
+- **Context isolation (C):** the analyst absorbs Intent Spec, design, and project-specific testing skills (e.g. `vite-plus`, `coding`, `test`) — a substantial input set best held in a dedicated context. A single instance preserves coverage consistency.
 
 ## Required inputs from Main
 

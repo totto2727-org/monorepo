@@ -5,7 +5,7 @@ description: >
   when starting Step 3 of dev-workflow, when the user asks to "produce a design
   document", or when Main needs to launch the `architect` specialist. Defines
   how Main launches `architect` × 1 and integrates project-specific design
-  skills (e.g. `effect-layer`, `effect-runtime`, `effect-hono`, `totto2727-fp`)
+  skills (e.g. `coding`, `test`)
   into the design output. Includes the ADR escalation rule for decisions that
   cross the cycle boundary. Trigger phrases: "starting Step 3 of dev-workflow",
   "design step", "produce design.md".
@@ -32,7 +32,7 @@ Translate the Intent Spec and Research Notes into a coherent architecture, compo
 
 - `docs/workflow/<identifier>/intent-spec.md`.
 - All `docs/workflow/<identifier>/research/*.md` from Step 2.
-- Paths of relevant project-specific design skills (e.g. `effect-layer`, `effect-runtime`, `effect-hono`, `totto2727-fp`) — passed by Main as inputs to the specialist.
+- Paths of relevant project-specific design skills (e.g. `coding`, `test`) — passed by Main as inputs to the specialist.
 - `share-artifacts/references/design.md` and `share-artifacts/templates/design.md`.
 - `share-adr/SKILL.md` (for cycle-crossing decisions).
 

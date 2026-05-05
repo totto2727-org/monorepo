@@ -61,7 +61,7 @@ In addition to the basic inputs from `specialist-common`:
    - API endpoint table
    - Data flow
 4. Describe operational considerations (monitoring, migration, rollout, etc.).
-5. If project-specific design skills exist (e.g., `effect-layer` / `effect-runtime` / `effect-hono`), refer to them
+5. If project-specific design skills exist (e.g., `coding`), refer to them
    following `specialist-common`'s project-rule precedence and design consistently with the chosen technology stack.
 6. Produce `design.md` along the template.
 7. Present it to the user via Main, receive feedback, and improve iteratively.

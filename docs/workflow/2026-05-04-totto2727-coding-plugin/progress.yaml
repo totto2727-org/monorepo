@@ -1,0 +1,141 @@
+identifier: 2026-05-04-totto2727-coding-plugin
+title: 'Create totto2727-coding plugin (consolidate moonbit + effect skills)'
+status: completed
+created_at: 2026-05-04
+updated_at: 2026-05-04
+roadmap: null
+
+current_step: 'completed'
+completed_steps:
+  - step: 'Step 1: Intent Clarification'
+    completed_at: 2026-05-04
+    artifact: docs/workflow/2026-05-04-totto2727-coding-plugin/intent-spec.md
+  - step: 'Step 2: Research'
+    completed_at: 2026-05-04
+    artifacts:
+      - docs/workflow/2026-05-04-totto2727-coding-plugin/research/skills-lock-registry.md
+      - docs/workflow/2026-05-04-totto2727-coding-plugin/research/plugin-discovery-mechanism.md
+      - docs/workflow/2026-05-04-totto2727-coding-plugin/research/cross-references.md
+      - docs/workflow/2026-05-04-totto2727-coding-plugin/research/skill-content-migration.md
+      - docs/workflow/2026-05-04-totto2727-coding-plugin/research/scripts-and-slash-commands.md
+    note: |
+      5 件の researcher を並列実行。plugin-discovery-mechanism で核心仮説を実証し、
+      Claude Code は本リポジトリ marketplace.json を直読みする (dotfiles 側更新不要) と確定。
+      rebase で取り込まれた `5e92483` (.agents/skills-lock.json 削除 + 3 種 manifest 追加)
+      を反映し、Intent Spec を increment 修正 (Scope.4/5 改訂、SC-5 改訂、SC-8/9/10 追加、Open Questions 整理)。
+  - step: 'Step 3: Design'
+    completed_at: 2026-05-04
+    artifact: docs/workflow/2026-05-04-totto2727-coding-plugin/design.md
+    note: |
+      architect が 467 行の design.md を作成。Q3-Q7 を Main 推奨採用、Step 5 向け 6 wave 構成 hand-off。
+      ユーザー追加指示 2 件を反映: (1) 外部依存スキル参照 (vite-plus / remix) を <lang>-skill.md
+      に名前のみ参照 (A10 追加)、(2) docs-* 命名規則統一 (moonbit-docs → docs-moonbit
+      / components-build-docs → docs-components-build) でスクリプト名・slash command 名・
+      内部テンプレート文字列も全て連動更新 (A8 拡充、W2 タスク詳細化)。
+  - step: 'Step 4: QA Design'
+    completed_at: 2026-05-04
+    artifacts:
+      - docs/workflow/2026-05-04-totto2727-coding-plugin/qa-design.md
+      - docs/workflow/2026-05-04-totto2727-coding-plugin/qa-flow.md
+    note: |
+      qa-analyst が TC-001〜TC-027 (27 件) を作成。SC-1〜SC-10 を観測可能形式でカバー。
+      A10 (外部スキル参照除外) と A8 (docs-* リネーム連動) を専用 TC で保護。
+      qa-flow.md は 6 セクションの Mermaid flowchart TD。TC-IMPL-NNN は空セクション。
+pending_gates: []
+active_specialists: []
+
+artifacts:
+  intent_spec: docs/workflow/2026-05-04-totto2727-coding-plugin/intent-spec.md
+  research:
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/research/skills-lock-registry.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/research/plugin-discovery-mechanism.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/research/cross-references.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/research/skill-content-migration.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/research/scripts-and-slash-commands.md
+  design: docs/workflow/2026-05-04-totto2727-coding-plugin/design.md
+  qa_design: docs/workflow/2026-05-04-totto2727-coding-plugin/qa-design.md
+  qa_flow: docs/workflow/2026-05-04-totto2727-coding-plugin/qa-flow.md
+  task_plan: docs/workflow/2026-05-04-totto2727-coding-plugin/task-plan.md
+  todo: docs/workflow/2026-05-04-totto2727-coding-plugin/TODO.md
+  reviews:
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/review/security.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/review/performance.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/review/holistic.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/review/readability.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/review/api-design.md
+    - docs/workflow/2026-05-04-totto2727-coding-plugin/review/test-quality.md
+  validation_report: null
+  retrospective: docs/retrospective/2026-05-04-totto2727-coding-plugin.md
+  external_adrs: []
+
+blockers: []
+
+user_approvals:
+  - step: 'Step 1: Intent Clarification'
+    approved_at: 2026-05-04
+    note: 'ユーザー指示『PR作成』を Intent Spec 承認 + 進捗 PR 作成依頼として解釈'
+  - step: 'Step 2: Research'
+    approved_at: 2026-05-04
+    note: |
+      Main 判定ゲート。ユーザー追加情報「c-plugin dev marketplace sync で同期可能」
+      を反映して Intent Spec の Scope.1 を「.claude-plugin のみ編集 + sync で派生」に簡略化。
+      ユーザー指示「CIエラーを解決して」に応えて vp check --fix で formatting 修正済。
+  - step: 'Step 3: Design'
+    approved_at: 2026-05-04
+    note: |
+      ユーザー「ok」で承認。事前に外部依存スキル参照 + docs-* 命名規則の 2 件を取り込み。
+  - step: 'Step 4: QA Design'
+    approved_at: 2026-05-04
+    note: 'ユーザー「ok」で承認。Step 5 (Task Decomposition) に着手する。'
+  - step: 'Step 5: Task Decomposition'
+    approved_at: 2026-05-04
+    note: 'ユーザー「go」で実装開始合意。Step 6 (Implementation) W1 着手する。TODO.md を生成。'
+  - step: 'Step 6: Implementation'
+    approved_at: 2026-05-04
+    note: |
+      Main 判定ゲート。30 タスク全完遂。Step 7 (External Review) に進む。
+      W1: T1, T2, T3 並列 OK。
+      W2 / W3: implementer 並列実行で git index race condition 発生 (T6/T7 と T10-T13 が
+      commit 内容が交錯)。最終的にディスク上のファイルは全て正しく揃ったが、commit
+      message と内容が一部 mismatch。retrospective で改善案検討。
+      W4 / W5 / W6: 教訓を踏まえ implementer はファイル作成のみ + Main 順次 commit に
+      運用変更し、race condition 解消、クリーンに完了。
+      T30 sync で 3 marketplace + 3 plugin manifest 全て同期、moonbit / components-build
+      entry も自動削除。
+  - step: 'Step 7: External Review'
+    approved_at: 2026-05-04
+    note: |
+      ユーザー承認: 全 6 観点 approved (security R1 / performance R1 / holistic R2 /
+      readability R2 / api-design R2 / test-quality R3)。Round 2-3 で発生した
+      Major 5 件 (重複排除 4 グループ) を全て修正済 (commits 70e19f7 / 309a84c /
+      1cbdd8f / 784324d / 18187bf)。
+      ユーザー追加方針 4 件 (sibling-skill 参照ポリシー、英語統一、race condition、
+      @SKILL.md) は全て retrospective 送り (本サイクル内追加実装なし)。
+      Step 8 (Validation) に進む。
+  - step: 'Step 8: Validation'
+    approved_at: 2026-05-04
+    note: |
+      ユーザー承認: SC-1〜SC-10 全 PASS (`passed`)。Validation 段階でユーザーから
+      U1 (sibling-skill link) / U2 (英語統一) / SC-10 prebuild の追加実装指示があり、
+      本サイクル内で対応 (commits cea1f2b / e776623 + Main の sandbox 外 prebuild)。
+      さらに R4 (vp check inline-code 分断) + Related references 統一 + 未実装記述削除
+      も追加対応 (commits a2f69b6 / 5552425)。Step 9 (Retrospective) に進む。
+  - step: 'Step 9: Retrospective'
+    approved_at: 2026-05-04
+    note: |
+      Main 判定ゲート。retrospective-writer が docs/retrospective/2026-05-04-totto2727-coding-plugin.md
+      (340 行) を作成。Continue 6 / Improve 5 / Action Items 5 (PR-1〜PR-5) / User Policies 2 (U-A: review
+      response policy / U-B: retrospective scoping) / R1〜R16 横断項目 / ADR migration 候補 3 を整理。
+      ユーザー方針 (汎用性最優先・「汎用性に欠けるため不採用」明記) を 4 件適用。
+      サイクル最終化、status: completed 遷移。
+
+rollbacks: []
+
+notes:
+  - 'サイクル目的: moonbit プラグイン + .agents/skills/effect-* + totto2727-fp を totto2727-coding プラグインに統合'
+  - '提案構造: skills/coding/ + skills/test/ + references/{js-,mbt-}*.md'
+  - 'moonbit-docs (生成スクリプト含む) の扱いは Step 1 で確定'
+  - 'Step 2 で rebase 取り込み (5e92483) により .agents/skills-lock.json 議論が moot 化、3 種 manifest + c-plugin sync に方針更新'
+  - 'W1 完了申し送り (T3 implementer): saas-example の codegen ファイル不在で vp check 14 件エラー (本サイクル外、SC-10 検証時に prebuild 要)'
+  - 'W2 race condition: T6 ファイル (update-docs-moonbit.md) が T7 commit (635ac14) に取り込まれた。並列 implementer 同 worktree git index 共有が原因。retrospective 候補。'
+  - 'LSP diagnostic (TS lib mismatch): generate-docs-moonbit.ts と generate-docs-components-build.ts に Deno global / replaceAll / toSorted / @std/path 解決エラー。Deno check は両者 exit 0 (実行時 OK)。IDE level の lib 設定問題、SC-7 充足には影響なし。SC-10 (vp check) 検証時に Deno スクリプトが tsc 対象外であることを確認する必要。'

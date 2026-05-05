@@ -1,4 +1,4 @@
-import { Effect } from 'effect'
+import { Array, Effect } from 'effect'
 import { Argument, Command, Flag, Prompt } from 'effect/unstable/cli'
 
 import { getAgentsDir } from '#@/lib/paths.ts'
@@ -45,7 +45,7 @@ export const addCommand = Command.make(
       const commitHash = yield* Git.revParseHead(repoDir)
 
       const availableKinds = yield* SkillResolver.detectAvailableKinds(repoDir)
-      if (availableKinds.length === 0) {
+      if (Array.isReadonlyArrayEmpty(availableKinds)) {
         yield* Effect.log('No marketplace found in this repository.')
         return
       }
@@ -65,7 +65,7 @@ export const addCommand = Command.make(
       }
 
       const allSkills = yield* SkillResolver.resolveFromRepo(repoDir, selectedKind)
-      if (allSkills.length === 0) {
+      if (Array.isReadonlyArrayEmpty(allSkills)) {
         yield* Effect.log('No skills found in this repository.')
         return
       }
@@ -80,7 +80,7 @@ export const addCommand = Command.make(
         message: 'Select skills to install:',
       })
 
-      if (selected.length === 0) {
+      if (Array.isReadonlyArrayEmpty(selected)) {
         yield* Effect.log('No skills selected.')
         return
       }
