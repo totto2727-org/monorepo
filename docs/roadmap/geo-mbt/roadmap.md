@@ -40,17 +40,28 @@
 
 ## 非スコープ
 
-- **3D ジオメトリ** — `Coord3DTrait` 相当 / Z 座標 / 体積計算等は本ロードマップでは扱わない (将来ロードマップ候補)
-- **球面・測地距離 (Geodesic / Haversine / Rhumb / Vincenty)** — `geographiclib-rs` 依存の地球楕円体計算は別ロードマップに延期 (本ロードマップは平面 Euclidean に集中)
+平面座標系を前提とし、以下は本ロードマップでは扱わない (本ロードマップ完了後の作業順序は「非スコープ後続作業の優先順位」節を参照):
+
+- **3D ジオメトリ** — `Coord3DTrait` 相当 / Z 座標 / 体積計算等は本ロードマップでは扱わない。Generic / 3D 対応は MoonBit のトレイト制約上無理があることが `mbt/package/geo` 側で検証済みであり、**今後も実装しない方針が確定**
+- **緯度経度 / 球面・測地距離 (Geodesic / Haversine / Rhumb / Vincenty)** — `geographiclib-rs` 依存の地球楕円体計算は別ロードマップに延期 (本ロードマップは平面 Euclidean に集中)
 - **Boolean Operations (Union / Intersection / Difference / XOR)** — `i_overlay` 依存。実装規模が極めて大きく、独立ロードマップとして扱う
 - **三角形分割 (Earcut / Delaunay / Spade) / Voronoi 図** — `earcut` / `spade` 依存。独立ロードマップに延期
 - **空間索引 (R*-tree / BallTree / 区間木)** — `rstar` / `sif-itree` 依存。独立ロードマップに延期
 - **Buffer (オフセット) 演算** — `i_overlay` ベースで提供されており Boolean Ops と一括延期
 - **PROJ ベースの投影変換 (`Transform` / `proj` モジュール)** — Rust 版でも `feature = "proj"` フラグ。本ロードマップでは扱わない
 - **Relate (DE-9IM) / Bentley-Ottmann スイープ / 単調分割 (Monotone / MonotoneChain)** — 実装規模が大きく、堅牢述語と空間索引の整備後に別ロードマップで扱う
-- **トレイト化 / Generic 化** — ユーザー意図に基づき初期は具体型 (`Coord` = `(f64, f64)` 固定) に対する関数群として実装。トレイト抽象化は将来ロードマップ
+- **トレイト化** — ユーザー意図に基づき初期は具体型 (`Coord` = `(Double, Double)` 固定) に対する関数群として実装。**ただしトレイトによる制約は今後必要になる可能性が高いため将来対応する**。Generic / 3D 対応は対象外とし、共通の振る舞い (例: `coords_iter`, `bounding_rect`, `area` 等の関数群を統一インターフェイス化) を抽出する目的に限定する
 - **既存 `mbt/package/geo` (`@totto2727/geo`) の置換 / 統合** — `geo-mbt` は独立パッケージとして並走し、`@totto2727/geo` は GeoJSON / Turf.js 系として残す。統合方針は将来検討
 - **Rust 版 fuzz テスト / benchmark の移植** — テストは unit/doctest 相当のみ移植
+
+## 非スコープ後続作業の優先順位
+
+本ロードマップ (ms-01〜ms-15) 完了後、以下の順序で別ロードマップを起こして対応する:
+
+1. **空間索引 (Spatial Index)** — R*-tree / BallTree / 区間木の MoonBit 実装。`indexed` / `PreparedGeometry` / 大規模ジオメトリ集合に対する高速化系アルゴリズムが利用可能になる
+2. **トレイト化 (制約用途のみ)** — 共通の振る舞い (CoordsIter / BoundingRect / Area / Distance 等) を統一インターフェイスとしてトレイト化する。**Generic な数値型対応 (`f32` / 整数等) や 3D は MoonBit のトレイト制約上不可能であることが検証済みのため絶対に行わない**。あくまで「特定の関数群を満たす型」という制約用途に限定
+3. **Boolean Operations** — Union / Intersection / Difference / XOR / Buffer。`i_overlay` 相当のスイープラインベース実装を MoonBit に移植
+4. **Rust 版 fuzz テスト / benchmark の移植** — `geo-benches` / `fuzz` 配下のテスト群を MoonBit のベンチマーク・プロパティテストに移植
 
 ## 大局的制約
 
@@ -168,3 +179,7 @@ graph LR
 - **API 命名規則の最終確定** — Rust trait 名 (`Area`, `Centroid` 等) を MoonBit でどう表現するか (`area_of(geometry)` 関数 vs `Polygon::area` メソッド vs 両方提供) は ms-01 配下サイクルの Step 3 (Design) で決定し、以降のマイルストーン全体の前提とする
 - **既存 `@totto2727/geo` の `src/util/robust/` 流用範囲** — `geo-mbt` の `src/robust/` として独立実装するか、共通パッケージとして抽出するかは ms-05 配下サイクルの Step 3 で決定。当面は独立実装を前提
 - **テスト fixture 共有** — Rust 版が参照する `geo-test-fixtures` (WKT 形式) の MoonBit への取り込み方針 (WKT パーサ移植 / JSON 変換 / 直書き) は配下サイクルで個別判断
+
+## ブランチ運用ポリシー
+
+本ロードマップ実行中は **単一ブランチ (`cobalt-ocotillo`) ですべてのマイルストーンを実装する**。複数 PR への分割は本ロードマップ完了後 (またはユーザー判断のタイミング) に別途実施する。各マイルストーンは独立コミットとして履歴に積み、後からチェリーピックや分割 PR 化が可能な単位粒度を保つ。
