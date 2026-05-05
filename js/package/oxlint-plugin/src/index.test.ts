@@ -95,10 +95,12 @@ describe('classifyLengthComparison', () => {
 
     test('== 0 is empty', () => {
       expect(classifyLengthComparison('==', 'right', 0)).toBe('empty')
+      expect(classifyLengthComparison('==', 'left', 0)).toBe('empty')
     })
 
     test('!= 0 is non-empty', () => {
       expect(classifyLengthComparison('!=', 'right', 0)).toBe('non-empty')
+      expect(classifyLengthComparison('!=', 'left', 0)).toBe('non-empty')
     })
 
     test('length > 0 is non-empty (literal on right)', () => {
