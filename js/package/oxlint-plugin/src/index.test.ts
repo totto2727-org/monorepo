@@ -103,78 +103,56 @@ describe('classifyLengthComparison', () => {
       expect(classifyLengthComparison('!=', 'left', 0)).toBe('non-empty')
     })
 
-    test('length > 0 is non-empty (literal on right)', () => {
+    test('length > 0 / 0 < length is non-empty', () => {
       expect(classifyLengthComparison('>', 'right', 0)).toBe('non-empty')
-    })
-
-    test('0 > length is impossible (length is always >= 0) and not classified', () => {
-      expect(classifyLengthComparison('>', 'left', 0)).toBeNull()
-    })
-
-    test('length < 0 is impossible and not classified', () => {
-      expect(classifyLengthComparison('<', 'right', 0)).toBeNull()
-    })
-
-    test('0 < length is non-empty', () => {
       expect(classifyLengthComparison('<', 'left', 0)).toBe('non-empty')
     })
 
-    test('length >= 0 is meaningless and not classified', () => {
+    test('length < 0 / 0 > length is impossible (length is always >= 0) and not classified', () => {
+      expect(classifyLengthComparison('<', 'right', 0)).toBeNull()
+      expect(classifyLengthComparison('>', 'left', 0)).toBeNull()
+    })
+
+    test('length >= 0 / 0 <= length is a tautology and not classified', () => {
       expect(classifyLengthComparison('>=', 'right', 0)).toBeNull()
-    })
-
-    test('0 >= length is empty', () => {
-      expect(classifyLengthComparison('>=', 'left', 0)).toBe('empty')
-    })
-
-    test('length <= 0 is empty', () => {
-      expect(classifyLengthComparison('<=', 'right', 0)).toBe('empty')
-    })
-
-    test('0 <= length is meaningless and not classified', () => {
       expect(classifyLengthComparison('<=', 'left', 0)).toBeNull()
+    })
+
+    test('length <= 0 / 0 >= length is empty', () => {
+      expect(classifyLengthComparison('<=', 'right', 0)).toBe('empty')
+      expect(classifyLengthComparison('>=', 'left', 0)).toBe('empty')
     })
   })
 
   describe('literal === 1', () => {
-    test('length < 1 is empty', () => {
-      expect(classifyLengthComparison('<', 'right', 1)).toBe('empty')
-    })
-
-    test('1 < length is length >= 2 and not classified', () => {
-      expect(classifyLengthComparison('<', 'left', 1)).toBeNull()
-    })
-
-    test('length >= 1 is non-empty', () => {
-      expect(classifyLengthComparison('>=', 'right', 1)).toBe('non-empty')
-    })
-
-    test('1 >= length is length is 0 or 1 and not classified', () => {
-      expect(classifyLengthComparison('>=', 'left', 1)).toBeNull()
-    })
-
     test('=== 1 is not classified (not an empty-check pattern)', () => {
       expect(classifyLengthComparison('===', 'right', 1)).toBeNull()
+      expect(classifyLengthComparison('===', 'left', 1)).toBeNull()
     })
 
     test('!== 1 is not classified (not an empty-check pattern)', () => {
       expect(classifyLengthComparison('!==', 'right', 1)).toBeNull()
+      expect(classifyLengthComparison('!==', 'left', 1)).toBeNull()
     })
 
-    test('1 > length is empty', () => {
+    test('length < 1 / 1 > length is empty', () => {
+      expect(classifyLengthComparison('<', 'right', 1)).toBe('empty')
       expect(classifyLengthComparison('>', 'left', 1)).toBe('empty')
     })
 
-    test('length > 1 is not classified (means length >= 2)', () => {
-      expect(classifyLengthComparison('>', 'right', 1)).toBeNull()
-    })
-
-    test('1 <= length is non-empty', () => {
+    test('length >= 1 / 1 <= length is non-empty', () => {
+      expect(classifyLengthComparison('>=', 'right', 1)).toBe('non-empty')
       expect(classifyLengthComparison('<=', 'left', 1)).toBe('non-empty')
     })
 
-    test('length <= 1 is not classified (means 0 or 1)', () => {
+    test('length > 1 / 1 < length means length >= 2 and not classified', () => {
+      expect(classifyLengthComparison('>', 'right', 1)).toBeNull()
+      expect(classifyLengthComparison('<', 'left', 1)).toBeNull()
+    })
+
+    test('length <= 1 / 1 >= length means length is 0 or 1 and not classified', () => {
       expect(classifyLengthComparison('<=', 'right', 1)).toBeNull()
+      expect(classifyLengthComparison('>=', 'left', 1)).toBeNull()
     })
   })
 
