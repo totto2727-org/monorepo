@@ -67,4 +67,9 @@ EOF
 
 ENV PATH="/sandbox/.nix-profile/bin:$PATH"
 
+## Install home-manager
+RUN <<EOF
+nix run home-manager/release-25.11 -- init --switch
+EOF
+
 ENTRYPOINT [ "/bin/bash" ]
