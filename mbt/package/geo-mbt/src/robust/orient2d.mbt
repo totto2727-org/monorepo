@@ -10,11 +10,7 @@
 ///
 /// This is Shewchuk's adaptive precision predicate, robust against
 /// floating-point error.
-pub fn orient2d(
-  pa : @type.Coord,
-  pb : @type.Coord,
-  pc : @type.Coord,
-) -> Double {
+pub fn orient2d(pa : @type.Coord, pb : @type.Coord, pc : @type.Coord) -> Double {
   let pa_x = pa.x()
   let pa_y = pa.y()
   let pb_x = pb.x()

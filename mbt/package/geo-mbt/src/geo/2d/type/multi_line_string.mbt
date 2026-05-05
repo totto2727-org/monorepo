@@ -8,12 +8,16 @@ pub struct MultiLineString {
 } derive(Eq, Debug)
 
 ///|
-pub fn MultiLineString::new(line_strings : Array[LineString]) -> MultiLineString {
+pub fn MultiLineString::new(
+  line_strings : Array[LineString],
+) -> MultiLineString {
   MultiLineString::{ line_strings, }
 }
 
 ///|
-pub fn MultiLineString::line_strings(self : MultiLineString) -> Array[LineString] {
+pub fn MultiLineString::line_strings(
+  self : MultiLineString,
+) -> Array[LineString] {
   self.line_strings
 }
 

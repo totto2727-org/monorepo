@@ -2,11 +2,7 @@
 
 ///|
 test "convex hull of triangle is itself" {
-  let mp = @type.MultiPoint::from_tuples([
-    (0.0, 0.0),
-    (1.0, 0.0),
-    (0.0, 1.0),
-  ])
+  let mp = @type.MultiPoint::from_tuples([(0.0, 0.0), (1.0, 0.0), (0.0, 1.0)])
   let hull = convex_hull_of_multi_point(mp)
   let coords = hull.exterior().coords()
   // Hull should have 4 coords (3 unique + closing)

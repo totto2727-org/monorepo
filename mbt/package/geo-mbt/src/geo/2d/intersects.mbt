@@ -91,10 +91,7 @@ pub fn intersects_line_string_line_string(
 }
 
 ///|
-pub fn intersects_coord_polygon(
-  coord : @type.Coord,
-  p : @type.Polygon,
-) -> Bool {
+pub fn intersects_coord_polygon(coord : @type.Coord, p : @type.Polygon) -> Bool {
   match coord_position_for_polygon(coord, p) {
     Outside => false
     _ => true
@@ -126,10 +123,7 @@ pub fn intersects_line_polygon(l : @type.Line, p : @type.Polygon) -> Bool {
 }
 
 ///|
-pub fn intersects_polygon_polygon(
-  a : @type.Polygon,
-  b : @type.Polygon,
-) -> Bool {
+pub fn intersects_polygon_polygon(a : @type.Polygon, b : @type.Polygon) -> Bool {
   // Check if any vertex of a is inside or on boundary of b, or vice versa
   for c in a.exterior().coords() {
     if intersects_coord_polygon(c, b) {
@@ -179,15 +173,18 @@ pub fn intersects_geometry(a : @type.Geometry, b : @type.Geometry) -> Bool {
       intersects_coord_polygon(p.coord(), poly)
     (@type.Geometry::Polygon(poly), @type.Geometry::Point(p)) =>
       intersects_coord_polygon(p.coord(), poly)
-    (@type.Geometry::Line(l1), @type.Geometry::Line(l2)) => intersects_line_line(l1, l2)
+    (@type.Geometry::Line(l1), @type.Geometry::Line(l2)) =>
+      intersects_line_line(l1, l2)
     (@type.Geometry::Line(l), @type.Geometry::LineString(ls)) =>
       intersects_line_line_string(l, ls)
     (@type.Geometry::LineString(ls), @type.Geometry::Line(l)) =>
       intersects_line_line_string(l, ls)
     (@type.Geometry::LineString(ls1), @type.Geometry::LineString(ls2)) =>
       intersects_line_string_line_string(ls1, ls2)
-    (@type.Geometry::Line(l), @type.Geometry::Polygon(p)) => intersects_line_polygon(l, p)
-    (@type.Geometry::Polygon(p), @type.Geometry::Line(l)) => intersects_line_polygon(l, p)
+    (@type.Geometry::Line(l), @type.Geometry::Polygon(p)) =>
+      intersects_line_polygon(l, p)
+    (@type.Geometry::Polygon(p), @type.Geometry::Line(l)) =>
+      intersects_line_polygon(l, p)
     (@type.Geometry::Polygon(p1), @type.Geometry::Polygon(p2)) =>
       intersects_polygon_polygon(p1, p2)
     (@type.Geometry::GeometryCollection(gc), other) => {
@@ -211,12 +208,10 @@ pub fn intersects_geometry(a : @type.Geometry, b : @type.Geometry) -> Bool {
       match (bounding_rect_of_geometry(g1), bounding_rect_of_geometry(g2)) {
         (Some(r1), Some(r2)) =>
           // Rect intersection test
-          !(
-            r1.max().x() < r2.min().x() ||
-            r2.max().x() < r1.min().x() ||
-            r1.max().y() < r2.min().y() ||
-            r2.max().y() < r1.min().y()
-          )
+          !(r1.max().x() < r2.min().x() ||
+          r2.max().x() < r1.min().x() ||
+          r1.max().y() < r2.min().y() ||
+          r2.max().y() < r1.min().y())
         _ => false
       }
   }

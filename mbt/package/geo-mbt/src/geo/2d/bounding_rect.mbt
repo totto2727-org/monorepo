@@ -117,7 +117,8 @@ pub fn bounding_rect_of_geometry(g : @type.Geometry) -> @type.Rect? {
     @type.Geometry::Rect(r) => Some(bounding_rect_of_rect(r))
     @type.Geometry::LineString(ls) => bounding_rect_of_line_string(ls)
     @type.Geometry::MultiPoint(mp) => bounding_rect_of_multi_point(mp)
-    @type.Geometry::MultiLineString(mls) => bounding_rect_of_multi_line_string(mls)
+    @type.Geometry::MultiLineString(mls) =>
+      bounding_rect_of_multi_line_string(mls)
     @type.Geometry::Polygon(p) => bounding_rect_of_polygon(p)
     @type.Geometry::MultiPolygon(mp) => bounding_rect_of_multi_polygon(mp)
     @type.Geometry::GeometryCollection(gc) =>

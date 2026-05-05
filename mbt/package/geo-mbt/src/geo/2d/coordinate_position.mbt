@@ -50,11 +50,7 @@ pub fn coord_position_for_line(
   line : @type.Line,
 ) -> CoordPos {
   if line.start() == line.end() {
-    return if coord == line.start() {
-      Inside
-    } else {
-      Outside
-    }
+    return if coord == line.start() { Inside } else { Outside }
   }
   if coord == line.start() || coord == line.end() {
     return OnBoundary
@@ -240,7 +236,8 @@ pub fn coord_position_for_geometry(
         Outside
       }
     }
-    @type.Geometry::MultiPolygon(mp) => coord_position_for_multi_polygon(coord, mp)
+    @type.Geometry::MultiPolygon(mp) =>
+      coord_position_for_multi_polygon(coord, mp)
     @type.Geometry::Rect(r) => coord_position_for_rect(coord, r)
     @type.Geometry::Triangle(t) => coord_position_for_triangle(coord, t)
     @type.Geometry::GeometryCollection(gc) => {

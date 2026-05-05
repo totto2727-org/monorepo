@@ -21,7 +21,10 @@ pub fn Line::new(start : Coord, end : Coord) -> Line {
 
 ///|
 /// Creates a new line segment from `(x, y)` tuples.
-pub fn Line::from_tuples(start : (Double, Double), end : (Double, Double)) -> Line {
+pub fn Line::from_tuples(
+  start : (Double, Double),
+  end : (Double, Double),
+) -> Line {
   Line::{ start: Coord::from_tuple(start), end: Coord::from_tuple(end) }
 }
 

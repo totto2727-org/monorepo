@@ -15,10 +15,7 @@ pub(all) enum LineIntersection {
 
 ///|
 /// Returns the intersection of two line segments, if any.
-pub fn line_intersection(
-  l1 : @type.Line,
-  l2 : @type.Line,
-) -> LineIntersection? {
+pub fn line_intersection(l1 : @type.Line, l2 : @type.Line) -> LineIntersection? {
   let p1 = l1.start()
   let p2 = l1.end()
   let q1 = l2.start()

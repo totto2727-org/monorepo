@@ -41,13 +41,7 @@ pub fn euclidean_distance_coord_to_line(
     return euclidean_distance_coords(p, l.start())
   }
   let t = w.dot(v) / v_dot_v
-  let clamped = if t < 0.0 {
-    0.0
-  } else if t > 1.0 {
-    1.0
-  } else {
-    t
-  }
+  let clamped = if t < 0.0 { 0.0 } else if t > 1.0 { 1.0 } else { t }
   let projection = l.start() + v.mul(clamped)
   euclidean_distance_coords(p, projection)
 }

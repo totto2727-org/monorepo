@@ -29,7 +29,10 @@ test "centroid of triangle is (avg, avg)" {
 
 ///|
 test "centroid of rect is rect.center" {
-  let r = @type.Rect::new(@type.Coord::new(0.0, 0.0), @type.Coord::new(10.0, 20.0))
+  let r = @type.Rect::new(
+    @type.Coord::new(0.0, 0.0),
+    @type.Coord::new(10.0, 20.0),
+  )
   let c = centroid_geometry(@type.Geometry::Rect(r)).unwrap()
   assert_eq(c.x(), 5.0)
   assert_eq(c.y(), 10.0)

@@ -26,7 +26,10 @@ pub fn contains_polygon_point(
 ///|
 /// Returns whether `polygon` strictly contains `line` — both endpoints inside
 /// and the line does not cross any ring edge.
-pub fn contains_polygon_line(polygon : @type.Polygon, line : @type.Line) -> Bool {
+pub fn contains_polygon_line(
+  polygon : @type.Polygon,
+  line : @type.Line,
+) -> Bool {
   if !contains_polygon_coord(polygon, line.start()) ||
     !contains_polygon_coord(polygon, line.end()) {
     return false
@@ -37,9 +40,9 @@ pub fn contains_polygon_line(polygon : @type.Polygon, line : @type.Line) -> Bool
       // Touching at an endpoint is allowed if the touching coord equals
       // start/end of `line`. Otherwise it's a crossing.
       if !(line.start() == edge.start() ||
-      line.start() == edge.end() ||
-      line.end() == edge.start() ||
-      line.end() == edge.end()) {
+        line.start() == edge.end() ||
+        line.end() == edge.start() ||
+        line.end() == edge.end()) {
         return false
       }
     }
@@ -48,9 +51,9 @@ pub fn contains_polygon_line(polygon : @type.Polygon, line : @type.Line) -> Bool
     for edge in interior.lines() {
       if intersects_line_line(line, edge) {
         if !(line.start() == edge.start() ||
-        line.start() == edge.end() ||
-        line.end() == edge.start() ||
-        line.end() == edge.end()) {
+          line.start() == edge.end() ||
+          line.end() == edge.start() ||
+          line.end() == edge.end()) {
           return false
         }
       }
@@ -157,7 +160,8 @@ pub fn contains_geometry(
       contains_polygon_polygon(o, i)
     (@type.Geometry::Rect(r), @type.Geometry::Point(pt)) =>
       contains_rect_coord(r, pt.coord())
-    (@type.Geometry::Rect(o), @type.Geometry::Rect(i)) => contains_rect_rect(o, i)
+    (@type.Geometry::Rect(o), @type.Geometry::Rect(i)) =>
+      contains_rect_rect(o, i)
     (@type.Geometry::MultiPolygon(mp), @type.Geometry::Point(pt)) =>
       contains_multi_polygon_coord(mp, pt.coord())
     (@type.Geometry::Point(p1), @type.Geometry::Point(p2)) => p1 == p2
@@ -167,9 +171,6 @@ pub fn contains_geometry(
 
 ///|
 /// `within(a, b)` is the inverse of `contains(b, a)`.
-pub fn within_geometry(
-  inner : @type.Geometry,
-  outer : @type.Geometry,
-) -> Bool {
+pub fn within_geometry(inner : @type.Geometry, outer : @type.Geometry) -> Bool {
   contains_geometry(outer, inner)
 }

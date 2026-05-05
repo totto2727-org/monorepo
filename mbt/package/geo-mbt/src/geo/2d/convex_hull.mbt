@@ -36,7 +36,6 @@ fn convex_hull_of_coords(coords : Array[@type.Coord]) -> @type.LineString {
       let det = @robust.orient2d(lower[n - 2], lower[n - 1], c)
       if det <= 0.0 {
         let _ = lower.pop()
-
       } else {
         break
       }
@@ -53,7 +52,6 @@ fn convex_hull_of_coords(coords : Array[@type.Coord]) -> @type.LineString {
       let det = @robust.orient2d(upper[n - 2], upper[n - 1], c)
       if det <= 0.0 {
         let _ = upper.pop()
-
       } else {
         break
       }

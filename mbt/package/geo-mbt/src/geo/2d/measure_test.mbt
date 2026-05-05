@@ -81,7 +81,10 @@ test "signed_area_of_polygon with hole" {
 
 ///|
 test "signed_area_of_rect is width * height" {
-  let r = @type.Rect::new(@type.Coord::new(0.0, 0.0), @type.Coord::new(3.0, 4.0))
+  let r = @type.Rect::new(
+    @type.Coord::new(0.0, 0.0),
+    @type.Coord::new(3.0, 4.0),
+  )
   assert_eq(signed_area_of_rect(r), 12.0)
 }
 
@@ -117,7 +120,10 @@ test "dimensions of basic geometries" {
     dimensions_of_geometry(@type.Geometry::LineString(ls)) ==
     Dimensions::OneDimensional,
   )
-  let r = @type.Rect::new(@type.Coord::new(0.0, 0.0), @type.Coord::new(10.0, 10.0))
+  let r = @type.Rect::new(
+    @type.Coord::new(0.0, 0.0),
+    @type.Coord::new(10.0, 10.0),
+  )
   assert_true(
     dimensions_of_geometry(@type.Geometry::Rect(r)) ==
     Dimensions::TwoDimensional,

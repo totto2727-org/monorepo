@@ -14,11 +14,7 @@ pub(all) enum Orientation {
 /// Returns the `Orientation` of three coordinates using a robust predicate
 /// (`@robust.orient2d`). This corresponds to `RobustKernel::orient2d` in the
 /// Rust geo crate.
-pub fn orient(
-  p : @type.Coord,
-  q : @type.Coord,
-  r : @type.Coord,
-) -> Orientation {
+pub fn orient(p : @type.Coord, q : @type.Coord, r : @type.Coord) -> Orientation {
   let det = @robust.orient2d(p, q, r)
   if det > 0.0 {
     CounterClockwise

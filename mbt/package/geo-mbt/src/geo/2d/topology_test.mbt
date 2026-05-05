@@ -75,7 +75,10 @@ test "coord_position polygon with hole: inside hole" {
 
 ///|
 test "coord_position rect" {
-  let r = @type.Rect::new(@type.Coord::new(0.0, 0.0), @type.Coord::new(10.0, 10.0))
+  let r = @type.Rect::new(
+    @type.Coord::new(0.0, 0.0),
+    @type.Coord::new(10.0, 10.0),
+  )
   assert_true(
     coord_position_for_rect(@type.Coord::new(5.0, 5.0), r) == CoordPos::Inside,
   )

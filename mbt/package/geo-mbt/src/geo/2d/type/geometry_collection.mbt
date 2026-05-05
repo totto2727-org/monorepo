@@ -9,12 +9,16 @@ pub struct GeometryCollection {
 } derive(Eq, Debug)
 
 ///|
-pub fn GeometryCollection::new(geometries : Array[Geometry]) -> GeometryCollection {
+pub fn GeometryCollection::new(
+  geometries : Array[Geometry],
+) -> GeometryCollection {
   GeometryCollection::{ geometries, }
 }
 
 ///|
-pub fn GeometryCollection::geometries(self : GeometryCollection) -> Array[Geometry] {
+pub fn GeometryCollection::geometries(
+  self : GeometryCollection,
+) -> Array[Geometry] {
   self.geometries
 }
 

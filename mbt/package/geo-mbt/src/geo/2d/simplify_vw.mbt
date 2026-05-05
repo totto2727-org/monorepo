@@ -5,9 +5,13 @@
 // area, then re-evaluates neighbouring triangles. Continues until the
 // smallest remaining triangle exceeds `epsilon` (treated as an area).
 
-fn triangle_area_2x(a : @type.Coord, b : @type.Coord, c : @type.Coord) -> Double {
-  ((b.x() - a.x()) * (c.y() - a.y()) -
-  (b.y() - a.y()) * (c.x() - a.x())).abs()
+///|
+fn triangle_area_2x(
+  a : @type.Coord,
+  b : @type.Coord,
+  c : @type.Coord,
+) -> Double {
+  ((b.x() - a.x()) * (c.y() - a.y()) - (b.y() - a.y()) * (c.x() - a.x())).abs()
 }
 
 ///|

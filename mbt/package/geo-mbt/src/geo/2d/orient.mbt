@@ -18,12 +18,7 @@ fn ensure_winding(
   desired : WindingOrder,
 ) -> @type.LineString {
   match winding_order(ls) {
-    Some(actual) =>
-      if actual == desired {
-        ls
-      } else {
-        reverse_line_string(ls)
-      }
+    Some(actual) => if actual == desired { ls } else { reverse_line_string(ls) }
     None => ls
   }
 }
@@ -39,9 +34,9 @@ pub fn orient_polygon(
     Reversed => (WindingOrder::Clockwise, WindingOrder::CounterClockwise)
   }
   let exterior = ensure_winding(polygon.exterior(), exterior_winding)
-  let interiors = polygon.interiors().map(fn(i) {
-    ensure_winding(i, interior_winding)
-  })
+  let interiors = polygon
+    .interiors()
+    .map(fn(i) { ensure_winding(i, interior_winding) })
   @type.Polygon::new(exterior, interiors)
 }
 

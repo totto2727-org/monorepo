@@ -18,9 +18,6 @@ pub fn scale_geometry_around(
 
 ///|
 /// Uniform scale around the origin.
-pub fn scale_geometry(
-  g : @type.Geometry,
-  factor : Double,
-) -> @type.Geometry {
+pub fn scale_geometry(g : @type.Geometry, factor : Double) -> @type.Geometry {
   affine_transform_geometry(g, AffineTransform::scale_xy(factor, factor))
 }

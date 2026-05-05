@@ -46,8 +46,8 @@ pub fn densify_polygon(
   max_segment_length : Double,
 ) -> @type.Polygon {
   let exterior = densify_line_string(polygon.exterior(), max_segment_length)
-  let interiors = polygon.interiors().map(fn(ls) {
-    densify_line_string(ls, max_segment_length)
-  })
+  let interiors = polygon
+    .interiors()
+    .map(fn(ls) { densify_line_string(ls, max_segment_length) })
   @type.Polygon::new(exterior, interiors)
 }

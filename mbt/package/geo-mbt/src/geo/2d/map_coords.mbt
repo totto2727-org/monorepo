@@ -109,7 +109,9 @@ pub fn map_coords_in_geometry(
     @type.Geometry::MultiPolygon(mp) =>
       @type.Geometry::MultiPolygon(map_coords_in_multi_polygon(mp, f))
     @type.Geometry::GeometryCollection(gc) =>
-      @type.Geometry::GeometryCollection(map_coords_in_geometry_collection(gc, f))
+      @type.Geometry::GeometryCollection(
+        map_coords_in_geometry_collection(gc, f),
+      )
     @type.Geometry::Rect(r) => @type.Geometry::Rect(map_coords_in_rect(r, f))
     @type.Geometry::Triangle(t) =>
       @type.Geometry::Triangle(map_coords_in_triangle(t, f))

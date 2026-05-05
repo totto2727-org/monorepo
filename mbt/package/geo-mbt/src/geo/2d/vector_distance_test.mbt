@@ -59,11 +59,7 @@ test "euclidean_length_line" {
 
 ///|
 test "euclidean_length_line_string" {
-  let ls = @type.LineString::from_tuples([
-    (0.0, 0.0),
-    (3.0, 0.0),
-    (3.0, 4.0),
-  ])
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (3.0, 0.0), (3.0, 4.0)])
   // 3 + 4 = 7
   assert_eq(euclidean_length_line_string(ls), 7.0)
 }

@@ -80,8 +80,8 @@ pub fn simplify_polygon(
   epsilon : Double,
 ) -> @type.Polygon {
   let exterior = simplify_line_string(polygon.exterior(), epsilon)
-  let interiors = polygon.interiors().map(fn(ls) {
-    simplify_line_string(ls, epsilon)
-  })
+  let interiors = polygon
+    .interiors()
+    .map(fn(ls) { simplify_line_string(ls, epsilon) })
   @type.Polygon::new(exterior, interiors)
 }

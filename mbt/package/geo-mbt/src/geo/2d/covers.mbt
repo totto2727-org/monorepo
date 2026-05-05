@@ -60,10 +60,7 @@ pub fn covers_rect_coord(rect : @type.Rect, coord : @type.Coord) -> Bool {
 
 ///|
 /// Generic geometry-based covers.
-pub fn covers_geometry(
-  a : @type.Geometry,
-  b : @type.Geometry,
-) -> Bool {
+pub fn covers_geometry(a : @type.Geometry, b : @type.Geometry) -> Bool {
   match (a, b) {
     (@type.Geometry::Polygon(p), @type.Geometry::Point(pt)) =>
       covers_polygon_point(p, pt)

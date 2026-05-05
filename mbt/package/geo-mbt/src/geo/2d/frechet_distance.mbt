@@ -4,10 +4,7 @@
 ///|
 /// Discrete Fréchet distance between two `LineString`s. Returns 0 for two
 /// empty linestrings; returns `infinity` if exactly one is empty.
-pub fn frechet_distance(
-  a : @type.LineString,
-  b : @type.LineString,
-) -> Double {
+pub fn frechet_distance(a : @type.LineString, b : @type.LineString) -> Double {
   let coords_a = a.coords()
   let coords_b = b.coords()
   if coords_a.length() == 0 && coords_b.length() == 0 {

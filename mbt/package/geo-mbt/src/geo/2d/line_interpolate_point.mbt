@@ -4,7 +4,10 @@
 ///|
 /// Returns the point along `line` at the given `fraction` of its length
 /// (0.0 = start, 1.0 = end). Values outside [0, 1] are clamped.
-pub fn line_interpolate_point(line : @type.Line, fraction : Double) -> @type.Point {
+pub fn line_interpolate_point(
+  line : @type.Line,
+  fraction : Double,
+) -> @type.Point {
   let f = if fraction < 0.0 {
     0.0
   } else if fraction > 1.0 {

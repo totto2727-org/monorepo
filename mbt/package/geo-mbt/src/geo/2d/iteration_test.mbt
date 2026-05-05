@@ -61,7 +61,10 @@ test "lines_of_line_string yields n-1 segments" {
 
 ///|
 test "lines_of_rect yields 4 edges" {
-  let r = @type.Rect::new(@type.Coord::new(0.0, 0.0), @type.Coord::new(1.0, 1.0))
+  let r = @type.Rect::new(
+    @type.Coord::new(0.0, 0.0),
+    @type.Coord::new(1.0, 1.0),
+  )
   let lines = lines_of_rect(r)
   assert_eq(lines.length(), 4)
 }

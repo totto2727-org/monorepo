@@ -13,13 +13,7 @@ pub fn line_locate_point(line : @type.Line, target : @type.Coord) -> Double? {
     return None
   }
   let t = w.dot(v) / v_dot_v
-  let clamped = if t < 0.0 {
-    0.0
-  } else if t > 1.0 {
-    1.0
-  } else {
-    t
-  }
+  let clamped = if t < 0.0 { 0.0 } else if t > 1.0 { 1.0 } else { t }
   Some(clamped)
 }
 
