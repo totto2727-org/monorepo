@@ -61,10 +61,12 @@ ENV USER=sandbox
 ENV PATH="/sandbox/.nix-profile/bin:/sandbox/.moon/bin:$PATH"
 
 ## Install the sandbox-user toolchain (nix + home-manager + moonbit + vp + claude).
-## MoonBit's installer requires a node runtime and a rustup-managed Rust toolchain,
-## but the resulting `moon` is a self-contained native binary, so we activate
-## rustup/nodejs ephemerally via `nix shell` and reclaim the temporary store
-## paths and Rust toolchain afterwards via `nix-collect-garbage -d`.
+## MoonBit's installer needs a node runtime and a rustup-managed Rust toolchain,
+## but `moon` itself ships as a self-contained native binary. We activate
+## rustup/nodejs ephemerally via `nix shell`, run the installer, drop the Rust
+## state, GC the temporary store paths, and only then run `moon update` /
+## `moon upgrade` — that doubles as a smoke test that moon is fully
+## bootstrap-capable without rust/node.
 RUN <<EOF
 curl -fsSL https://nixos.org/nix/install | sh -s -- --no-daemon
 . ~/.nix-profile/etc/profile.d/nix.sh
@@ -74,7 +76,6 @@ nix run home-manager/release-25.11 -- init --switch
 nix shell nixpkgs#rustup nixpkgs#nodejs --command bash -c '
 rustup default stable
 curl -fsSL https://raw.githubusercontent.com/moonbitlang/moonbit-compiler/refs/heads/main/install.ts | node
-moon update
 '
 rm -rf ~/.rustup ~/.cargo
 
@@ -82,6 +83,9 @@ curl -fsSL https://vite.plus | bash
 curl -fsSL https://claude.ai/install.sh | bash
 
 nix-collect-garbage -d
+
+moon update
+moon upgrade
 EOF
 
 ENTRYPOINT [ "/bin/bash" ]
