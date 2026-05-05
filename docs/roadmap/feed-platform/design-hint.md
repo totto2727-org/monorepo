@@ -407,7 +407,58 @@ app.delete('/projects/:id', authMiddleware, async (c) => {
 - **リソースサーバー**は基幹 DB を共有しない。業務 DB (フィードイベントストア / プロジェクション等) は別個に管理
 - **共有 DB は採用しない**: 複数サービスが同一 DB を共有する設計上のリスク (スキーマ結合 / 障害伝播 / 認可境界の曖昧化) を回避
 
-### H. 拡張パス (`can()` インターフェース不変原則)
+### H. JWT 送信方法と Cookie 設定 (素案)
+
+JWT の送信方法はクライアント種別と通信先により使い分ける。Web フロントエンド側は Cookie ベース、リソースサーバー側は Authorization ヘッダーベースに統一。
+
+| 通信経路 | 送信方法 | 備考 |
+| --- | --- | --- |
+| ブラウザ ↔ Web フロントエンドサーバー (SSR + 軽量 BFF) | **Cookie** | リンク遷移 / form submission で自然に認証情報伝搬。属性は下記参照 |
+| Web フロントエンドサーバー → リソースサーバー (バックエンド) | **`Authorization: Bearer`** | Cookie から JWT を抽出し Bearer ヘッダーに付け替え (BFF パターン) |
+| Mobile / CLI / ブラウザ JS から直接 → リソースサーバー | **`Authorization: Bearer`** | OAuth 2.1 標準の Bearer 送信 |
+| クライアント ↔ 基幹サーバー (ログイン / トークン更新) | OAuth 2.1 標準フロー (PKCE 使用) | 認可コードフロー / トークンエンドポイントは OAuth 2.1 仕様準拠 |
+
+**信頼境界**: リソースサーバーは Cookie を一切受理せず、Authorization ヘッダー由来の JWT のみを認証情報として扱う。Cookie は Web フロントエンドサーバーの責任範囲に閉じる。
+
+#### H-1. Cookie 属性方針 (素案)
+
+| 属性 | 採用方針 | 根拠 |
+| --- | --- | --- |
+| `Secure` | **本番必須** | 中間者攻撃で JWT を盗まれない |
+| `SameSite` | `Lax` 推奨 | CSRF 対策 + リンク遷移を維持 (`Strict` は外部リンクからの遷移時に Cookie 失効、UX 悪化) |
+| `Path=/` | 採用 | Web フロントエンドサーバー全パスで利用 |
+| `Domain` | 暗黙設定 (= サーバードメイン) | cross-domain 共有しない |
+| `httponly` | **要検討事項として保留** | 後述 H-2 |
+
+#### H-2. `httponly` 採用判断 (要検討、ms-02 で確定)
+
+| 観点 | `httponly` 採用 | `httponly` 非採用 |
+| --- | --- | --- |
+| XSS 起因の JWT 漏洩抑止 | **★★** クライアント JS から触れず水際対策として有効 | ★ JS から読み取り可能、XSS 経由で漏洩リスク |
+| クライアント JS からの JWT 操作 | 不可 (= サーバー経由でのみ更新 / クリア / 期限検知) | 可 (= JWT 期限のクライアント側検知 / 手動クリア等が容易) |
+| 既存事例 | — | Cognito 等は非 `httponly` (クライアントから扱う前提) |
+| サーバーサイドレンダリング (SSR) との相性 | ★★ サーバー側でしか JWT に触れないため SSR 中心の設計とよく合う | ★ JS でも触れるが、SSR で完結する設計なら不要 |
+
+**前提とするセキュリティモデル**: Cookie の盗難可能性 (XSS 以外、デバイス侵害等) は SessionStorage / メモリ / LocalStorage 含めて他保存先と同等と判断する。「JWT を Cookie に入れるのは危険、Session/メモリの方が安全」という議論は、デバイスを物理的に / マルウェア経由で侵害された場合いずれの保存先も漏洩する前提で**等価**。`httponly` は **XSS 起因の漏洩への水際対策**としてのみ位置付ける。
+
+**素案**: `httponly` **採用**を default とし、クライアント JS から JWT に触れる具体ニーズが発生した場合のみ非 `httponly` に切り替える。BFF パターンによる Cookie ↔ Bearer 翻訳が成立すれば、クライアント JS が JWT を直接扱う必要はないため `httponly` 採用が自然。
+
+#### H-3. BFF パターン (Web フロントエンドサーバー) の翻訳責務
+
+Web フロントエンドサーバーは以下を担う:
+
+1. **下り (Cookie → Bearer)**: 受信リクエストの Cookie から JWT を抽出し、リソースサーバー呼び出し時に `Authorization: Bearer <JWT>` ヘッダーに付け替える
+2. **上り (基幹サーバーレスポンス → Cookie)**: ログイン完了時に基幹サーバーから受け取った JWT を `Set-Cookie` ヘッダーでブラウザに返却する (`Secure` / `SameSite=Lax` / `httponly` 等の属性付与)
+3. **更新 (refresh token フロー)**: refresh token 期限切れ時の再発行を Web フロントエンドサーバー側で透過的に処理し、ブラウザには新しい Cookie のみを返す
+
+これにより **ブラウザは JWT の存在を意識せず、Cookie のみで認証下にあるかのように振る舞える** (= 通常の Web アプリと同じ UX)。
+
+#### H-4. 委譲先
+
+- ms-02 (Passkey + Magic Link): `httponly` 採用判断、Cookie 属性確定、refresh token フロー実装
+- ms-07 (出力プラグイン基盤 = Web UI): BFF パターンの Cookie ↔ Bearer 翻訳ミドルウェア実装
+
+### I. 拡張パス (`can()` インターフェース不変原則)
 
 認可判定インターフェース (`can(jwt, resource, action)`) を不変に保ったまま内部実装を段階的に差し替え可能な構造を採用する:
 
@@ -421,7 +472,7 @@ app.delete('/projects/:id', authMiddleware, async (c) => {
 
 各 Phase でリソースサーバー側のコードはほぼ変更不要 (= 共有 authz パッケージの内部実装のみが進化)。
 
-### I. 委譲先 / 配下マイルストーンへの引き継ぎ事項
+### J. 委譲先 / 配下マイルストーンへの引き継ぎ事項
 
 - **ms-02 (Passkey + Magic Link)**: 基幹サーバー実装の選定 (Better Auth 採用判定 / 代替候補比較 / Passkey + Magic Link の組合せ実装) + JWT 発行設計確定
 - **ms-03 (RBAC + Organization)**: ロール定義 (`owner` / `admin` / `member` または ロードマップ通り `Admin` / `Member` / `Guest`) + 共有 authz パッケージ作成 + 個人 / 汎用 Organization 切替
