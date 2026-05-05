@@ -4,7 +4,7 @@
 # https://github.com/jetify-com/devbox/blob/3ec20383af8deeb46c94972996d275b1593e63e2/internal/devbox/generate/tmpl/DevboxImageDockerfile
 # https://github.com/NVIDIA/OpenShell-Community/blob/6daeacdf199afdd49753ddd149a9c259921ab1a8/sandboxes/base/Dockerfile
 
-FROM ubuntu:26.04 AS base
+FROM ubuntu:26.04
 
 # Setup Nix
 ## Install dependencies
@@ -68,26 +68,3 @@ EOF
 ENV PATH="/sandbox/.nix-profile/bin:$PATH"
 
 ENTRYPOINT [ "/bin/bash" ]
-
-FROM base
-
-RUN <<EOF
-nix run home-manager/release-25.11 -- init --switch
-nix run nixpkgs#git clone https://github.com/totto2727-dotfiles/nix.git
-nix run nixpkgs#git clone https://github.com/totto2727-dotfiles/chezmoi.git
-home-manager switch --flake ~/nix/sandbox#sandbox
-EOF
-
-SHELL ["zsh", "-c"]
-
-RUN <<EOF
-rustup default stable
-curl -fsSL https://raw.githubusercontent.com/moonbitlang/moonbit-compiler/refs/heads/main/install.ts | node
-moon update
-curl -fsSL https://vite.plus | bash
-curl -fsSL https://claude.ai/install.sh | bash
-
-chezmoi apply --source ~/chezmoi
-EOF
-
-ENTRYPOINT [ "zsh" ]
