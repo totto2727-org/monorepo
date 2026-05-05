@@ -1,4 +1,6 @@
 import {
   "totto2727/geo-mbt/geo/2d/type",
   "totto2727/geo-mbt/robust",
+  "moonbitlang/core/double",
+  "moonbitlang/core/math",
 }
