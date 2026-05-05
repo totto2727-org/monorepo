@@ -12,9 +12,6 @@ SHELL ["zsh", "-c"]
 
 RUN <<EOF
 rustup default stable
-curl -fsSL https://raw.githubusercontent.com/moonbitlang/moonbit-compiler/refs/heads/main/install.ts | node
-moon update
-
 chezmoi apply --source ~/chezmoi
 EOF
 
