@@ -7,6 +7,9 @@
     ".": "./src/plugin.ts",
     "./client": "./src/client/index.tsx"
   },
+  "dependencies": {
+    "effect": "catalog:effect"
+  },
   "devDependencies": {
     "@totto2727/fp": "workspace:*",
     "remix": "catalog:remix",
