@@ -279,6 +279,15 @@ Web UI ──┬─→ Feed BFF       (POST/PUT/DELETE → Cmd Handler / GET →
 >
 > 本素案は OAuth 2.1 + JWT + 共有静的ポリシー という前提を採る。これは「リクエスト処理経路に認可サーバー問い合わせを発生させない」「ポリシーを Git 管理可能とする」「認可判定をローカルで完結させる」目的のもと、個人開発スコープに過剰でない最小構成として選定。
 
+### A-0. 用語と命名 (本素案内)
+
+本素案で「基幹サーバー」と呼ぶ要素は、コードレベルの命名として **`identity-provider`** (= OIDC / OAuth 2.1 における Identity Provider) を採用する。OAuth 2.1 仕様用語の「Authorization Server」は本書中で同義として登場することがあるが、命名の一貫性は `identity-provider` を優先する。
+
+認証 (authn) と認可 (authz) を命名レベルで区別する原則を採用 (intent-spec Q2.11-extension):
+
+- **認証 (authn) 担当** = `identity-provider`
+- **認可 (authz) 担当** = リソースサーバー内 + 共有 authz パッケージ + (将来) 独立 PDP
+
 ### A. 構成要素の役割と責務
 
 | 構成要素 | 役割 | DB 所有 | 認証認可ロジック |
@@ -474,10 +483,16 @@ Web フロントエンドサーバーは以下を担う:
 
 ### J. 委譲先 / 配下マイルストーンへの引き継ぎ事項
 
-- **ms-02 (Passkey + Magic Link)**: 基幹サーバー実装の選定 (Better Auth 採用判定 / 代替候補比較 / Passkey + Magic Link の組合せ実装) + JWT 発行設計確定
+- **ms-02 (Passkey + Magic Link)**: `identity-provider` 実装の選定 (Better Auth 採用判定 / 代替候補比較 / Passkey + Magic Link の組合せ実装) + JWT 発行設計確定 + Cookie の `httponly` 採用判断
 - **ms-03 (RBAC + Organization)**: ロール定義 (`owner` / `admin` / `member` または ロードマップ通り `Admin` / `Member` / `Guest`) + 共有 authz パッケージ作成 + 個人 / 汎用 Organization 切替
+  - **共有 authz パッケージの配置先 (素案)**: 以下から ms-03 で 1 つを選定:
+    - `js/package/authz/` (汎用名前空間。`identity-provider` の汎用性と整合し、他システムからの再利用視野)
+    - `js/package/feed-platform-authz/` (feed-platform 専用扱い。ロール / ポリシー定義が feed-platform 固有要件に寄っている場合)
+  - 判断基準: ms-03 で確定するロール定義 / ポリシー内容が他システム再利用前提か否か
 - **ms-04 (期間限定共有)**: ロードマップ Intent「できればこれも RBAC で関してみたい」を、本素案の Phase 拡張 (例: 期限フィールド付き role / 動的ポリシー) のどこに位置付けるか確定
-- **ms-05 (永続化)**: 業務 DB (イベントストア + プロジェクション) は基幹 DB と分離する前提で設計
+- **ms-05 (永続化)**: 業務 DB (イベントストア + プロジェクション) は `identity-provider` の認証認可 DB と分離する前提で設計
+- **ms-07 (出力プラグイン基盤 = Web UI)**: BFF パターンの Cookie ↔ Bearer 翻訳ミドルウェア実装、`feed-platform-web` プロジェクト内で展開
+- **将来 (Phase 4 認可サービス分離発生時)**: 独立した `authz-server` (or `policy-server`) プロジェクトを起こし、`identity-provider` と分離。命名は `identity-provider` (authn) ↔ `authz-server` (authz) の対比を保つ
 
 ## 関連
 
