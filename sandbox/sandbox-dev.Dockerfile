@@ -14,8 +14,6 @@ RUN <<EOF
 rustup default stable
 curl -fsSL https://raw.githubusercontent.com/moonbitlang/moonbit-compiler/refs/heads/main/install.ts | node
 moon update
-curl -fsSL https://vite.plus | bash
-curl -fsSL https://claude.ai/install.sh | bash
 
 chezmoi apply --source ~/chezmoi
 EOF
