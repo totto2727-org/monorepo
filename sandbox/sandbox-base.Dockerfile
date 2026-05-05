@@ -58,22 +58,15 @@ EOF
 USER sandbox
 WORKDIR /sandbox
 ENV USER=sandbox
+ENV PATH="/sandbox/.nix-profile/bin:$PATH"
 
-## Install Nix
+## Install Nix toolchain (nix + home-manager) and standalone CLIs (vp, claude)
 RUN <<EOF
 curl -fsSL https://nixos.org/nix/install | sh -s -- --no-daemon
 . ~/.nix-profile/etc/profile.d/nix.sh
-EOF
 
-ENV PATH="/sandbox/.nix-profile/bin:$PATH"
-
-## Install home-manager
-RUN <<EOF
 nix run home-manager/release-25.11 -- init --switch
-EOF
 
-## Install vp / claude
-RUN <<EOF
 curl -fsSL https://vite.plus | bash
 curl -fsSL https://claude.ai/install.sh | bash
 EOF
