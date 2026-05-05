@@ -107,12 +107,12 @@ describe('classifyLengthComparison', () => {
       expect(classifyLengthComparison('>', 'right', 0)).toBe('non-empty')
     })
 
-    test('0 > length is empty (literal on left) — captures "0 > arr.length" as a no-op empty check', () => {
-      expect(classifyLengthComparison('>', 'left', 0)).toBe('empty')
+    test('0 > length is impossible (length is always >= 0) and not classified', () => {
+      expect(classifyLengthComparison('>', 'left', 0)).toBeNull()
     })
 
-    test('length < 0 is empty', () => {
-      expect(classifyLengthComparison('<', 'right', 0)).toBe('empty')
+    test('length < 0 is impossible and not classified', () => {
+      expect(classifyLengthComparison('<', 'right', 0)).toBeNull()
     })
 
     test('0 < length is non-empty', () => {
@@ -141,16 +141,16 @@ describe('classifyLengthComparison', () => {
       expect(classifyLengthComparison('<', 'right', 1)).toBe('empty')
     })
 
-    test('1 < length is non-empty', () => {
-      expect(classifyLengthComparison('<', 'left', 1)).toBe('non-empty')
+    test('1 < length is length >= 2 and not classified', () => {
+      expect(classifyLengthComparison('<', 'left', 1)).toBeNull()
     })
 
     test('length >= 1 is non-empty', () => {
       expect(classifyLengthComparison('>=', 'right', 1)).toBe('non-empty')
     })
 
-    test('1 >= length is empty', () => {
-      expect(classifyLengthComparison('>=', 'left', 1)).toBe('empty')
+    test('1 >= length is length is 0 or 1 and not classified', () => {
+      expect(classifyLengthComparison('>=', 'left', 1)).toBeNull()
     })
 
     test('=== 1 is not classified (not an empty-check pattern)', () => {

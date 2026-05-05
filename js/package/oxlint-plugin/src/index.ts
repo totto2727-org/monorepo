@@ -246,15 +246,19 @@ const classifyAgainstZero = (operator: string, literalPosition: LiteralPosition)
     return 'non-empty'
   }
   if (operator === '>') {
-    return literalPosition === 'right' ? 'non-empty' : 'empty'
+    // length > 0 -> non-empty; 0 > length -> impossible (length is always >= 0)
+    return literalPosition === 'right' ? 'non-empty' : null
   }
   if (operator === '<') {
-    return literalPosition === 'right' ? 'empty' : 'non-empty'
+    // length < 0 -> impossible; 0 < length -> non-empty
+    return literalPosition === 'right' ? null : 'non-empty'
   }
   if (operator === '>=') {
+    // length >= 0 -> tautology; 0 >= length -> length === 0 -> empty
     return literalPosition === 'right' ? null : 'empty'
   }
   if (operator === '<=') {
+    // length <= 0 -> length === 0 -> empty; 0 <= length -> tautology
     return literalPosition === 'right' ? 'empty' : null
   }
   return null
@@ -262,15 +266,19 @@ const classifyAgainstZero = (operator: string, literalPosition: LiteralPosition)
 
 const classifyAgainstOne = (operator: string, literalPosition: LiteralPosition): EmptyKind | null => {
   if (operator === '<') {
-    return literalPosition === 'right' ? 'empty' : 'non-empty'
+    // length < 1 -> length === 0 -> empty; 1 < length -> length >= 2, not a clean empty/non-empty check
+    return literalPosition === 'right' ? 'empty' : null
   }
   if (operator === '>=') {
-    return literalPosition === 'right' ? 'non-empty' : 'empty'
+    // length >= 1 -> non-empty; 1 >= length -> length is 0 or 1, not a clean empty/non-empty check
+    return literalPosition === 'right' ? 'non-empty' : null
   }
   if (operator === '>') {
+    // length > 1 -> length >= 2, not a clean empty/non-empty check; 1 > length -> length === 0 -> empty
     return literalPosition === 'right' ? null : 'empty'
   }
   if (operator === '<=') {
+    // length <= 1 -> length is 0 or 1, not a clean empty/non-empty check; 1 <= length -> non-empty
     return literalPosition === 'right' ? null : 'non-empty'
   }
   return null
