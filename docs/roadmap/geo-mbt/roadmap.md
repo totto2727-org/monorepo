@@ -56,12 +56,12 @@
 
 ## 非スコープ後続作業の優先順位
 
-本ロードマップ (ms-01〜ms-15) 完了後、以下の順序で別ロードマップを起こして対応する:
+本ロードマップ (ms-01〜ms-15) 完了後、以下の順序で進めた (2026-05-06 同一ブランチ上で完了):
 
-1. **空間索引 (Spatial Index)** — R*-tree / BallTree / 区間木の MoonBit 実装。`indexed` / `PreparedGeometry` / 大規模ジオメトリ集合に対する高速化系アルゴリズムが利用可能になる
-2. **トレイト化 (制約用途のみ)** — 共通の振る舞い (CoordsIter / BoundingRect / Area / Distance 等) を統一インターフェイスとしてトレイト化する。**Generic な数値型対応 (`f32` / 整数等) や 3D は MoonBit のトレイト制約上不可能であることが検証済みのため絶対に行わない**。あくまで「特定の関数群を満たす型」という制約用途に限定
-3. **Boolean Operations** — Union / Intersection / Difference / XOR / Buffer。`i_overlay` 相当のスイープラインベース実装を MoonBit に移植
-4. **Rust 版 fuzz テスト / benchmark の移植** — `geo-benches` / `fuzz` 配下のテスト群を MoonBit のベンチマーク・プロパティテストに移植
+1. **空間索引 (Spatial Index)** ✅ — `src/rtree/` に bulk-loaded R-tree (Sort-Tile-Recursive packing) を実装。`query_rect_intersection` / `query_nearest` を提供。完全な R*-tree ではなく読み取り専用版だが、`indexed` 系ユースケースに十分。詳細はコミット `bdce595`
+2. **トレイト化 (制約用途のみ)** ✅ — `src/geo/2d/traits.mbt` に `CoordsCarrier`, `Bounded`, `HasArea`, `HasCentroid`, `HasLength` を定義。Generic な数値型対応 / 3D 対応は方針通り行わず、各既存ジオメトリ型への impl のみで構成。詳細はコミット `125eb71`
+3. **Boolean Operations (部分実装)** ⚠️ — `src/geo/2d/bool_ops.mbt` に Sutherland-Hodgman アルゴリズムを実装。**凸クリップ多角形による任意多角形のクリッピング限定**。`i_overlay` 相当の任意の多角形 (穴付き / 非凸) 同士の Union / Intersection / Difference / XOR は今後の作業として残る。詳細はコミット `c182ff5`
+4. **Rust 版 fuzz テスト / benchmark の移植** ✅ (プロパティテスト部分) — `src/geo/2d/property_test.mbt` に 11 個の不変性テストを追加。signed_area の符号反転、centroid が凸 polygon に含まれること、convex hull の凸性、translate の可逆性等。`moon bench` 移植は `moonbitlang/x/benchmark` が deprecated のため将来作業として保留。詳細はコミット `4acaccf`
 
 ## 大局的制約
 
