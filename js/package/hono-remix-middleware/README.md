@@ -16,35 +16,31 @@ pnpm add hono-remix-middleware
 
 Hono の `c.render()` を拡張するミドルウェア生成関数。
 
-```ts
+```tsx
 import { remixRenderer } from 'hono-remix-middleware'
 
 app.use(
   '*',
-  remixRenderer<{ title?: string }>({
+  remixRenderer({
     fetcher: (request) => app.fetch(request),
-    wrap: (content, props) => <Layout {...props}>{content}</Layout>,
   }),
+)
+
+app.get('/', (c) =>
+  c.render(
+    <Document title='Home'>
+      <h1>Home</h1>
+    </Document>,
+  ),
 )
 ```
 
 | Option               | 型                                             | 説明                                                                                                                                     |
 | -------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | `fetcher`            | `typeof fetch`                                 | 入れ子 SSR (`remix/ui/server` の `resolveFrame`) で frame を再取得するときに呼ばれる。通常 `(req) => app.fetch(req)` を closure で渡す。 |
-| `wrap`               | `(content, props) => RemixNode`                | 任意。`c.render(content, props)` の content を Layout / Document で包む関数。省略時は content をそのまま SSR。                           |
 | `resolveClientEntry` | `(entryId, component) => { exportName, href }` | 任意。clientEntry の ID から `moduleUrl`/`exportName` を計算するフック。デフォルトは `/assets/` プレフィックスを剥がすだけ。             |
 
-Propsの型を指定する場合は以下の様に拡張。
-
-```ts
-import type { RemixNode } from 'remix/ui'
-
-declare module 'hono' {
-  interface ContextRenderer {
-    (content: RemixNode, props?: { title?: string }): Response
-  }
-}
-```
+`c.render(content)` の `content` をそのまま `renderToStream` に渡す素朴な実装で、Layout / Document の組み付けはハンドラ側の責務になる。
 
 ### `remixAssetServer(assetServer)`
 
@@ -119,39 +115,36 @@ import { remixRenderer } from 'hono-remix-middleware'
 import type { RemixNode } from 'remix/ui'
 import { Script } from 'vite-plugin-remix/client'
 
-declare module 'hono' {
-  interface ContextRenderer {
-    (content: RemixNode, props?: { title?: string }): Response
-  }
-}
-
-function Layout() {
-  return ({ title, children }: { title?: string; children?: RemixNode }) => (
-    <html lang='en'>
-      <head>
-        <meta charSet='utf-8' />
-        <meta name='viewport' content='width=device-width, initial-scale=1' />
-        <title>{title}</title>
-      </head>
-      <body>
-        {children}
-        <Script devSrc='/app/assets/entry.ts' prodSrc='/assets/entry.js' />
-      </body>
-    </html>
-  )
-}
+const Document = () => ({ title, children }: { title?: string; children?: RemixNode }) => (
+  <html lang='en'>
+    <head>
+      <meta charSet='utf-8' />
+      <meta name='viewport' content='width=device-width, initial-scale=1' />
+      <title>{title}</title>
+    </head>
+    <body>
+      {children}
+      <Script devSrc='/app/assets/entry.ts' prodSrc='/assets/entry.js' />
+    </body>
+  </html>
+)
 
 const app = new Hono()
 
 app
   .use(
     '*',
-    remixRenderer<{ title?: string }>({
+    remixRenderer({
       fetcher: (req) => app.fetch(req),
-      wrap: (content, { title }) => <Layout title={title}>{content}</Layout>,
     }),
   )
-  .get('/', (c) => c.render(<h1>Home</h1>, { title: 'Home' }))
+  .get('/', (c) =>
+    c.render(
+      <Document title='Home'>
+        <h1>Home</h1>
+      </Document>,
+    ),
+  )
 
 export default app
 ```
@@ -192,11 +185,16 @@ const app = new Hono()
 
 app
   .use('/assets/*', serveStatic({ root: './dist/client' }))   // ← prod 用
-  .use('*', remixRenderer<{ title?: string }>({
+  .use('*', remixRenderer({
     fetcher: (req) => app.fetch(req),
-    wrap: (content, { title }) => <Layout title={title}>{content}</Layout>,
   }))
-  .get('/', (c) => c.render(<HomePage />, { title: 'Home' }))
+  .get('/', (c) =>
+    c.render(
+      <Document title='Home'>
+        <HomePage />
+      </Document>,
+    ),
+  )
 
 export default app
 ```
@@ -236,11 +234,16 @@ const app = new Hono()
 
 app
   .use('/assets/*', remixAssetServer(assets))                  // ← Remix asset server
-  .use('*', remixRenderer<{ title?: string }>({
+  .use('*', remixRenderer({
     fetcher: (req) => app.fetch(req),
-    wrap: (content, { title }) => <Layout title={title}>{content}</Layout>,
   }))
-  .get('/', (c) => c.render(<HomePage />, { title: 'Home' }))
+  .get('/', (c) =>
+    c.render(
+      <Document title='Home'>
+        <HomePage />
+      </Document>,
+    ),
+  )
 
 export default app
 ```

@@ -1,7 +1,6 @@
-/* oxlint-disable rules/force-predicate, rules/force-string-empty -- this package is consumer-runtime only and avoids depending on `effect` */
+import { Predicate, String } from 'effect'
 import { run } from 'remix/ui'
-
-type ClientExport = (...args: never[]) => unknown
+import type { ImportGlobFunction } from 'vite'
 
 export interface BootOptions {
   /**
@@ -19,7 +18,7 @@ export interface BootOptions {
    * compile-time syntax — the bundler must see the literal string in the
    * caller's source to expand it.
    */
-  components: Record<string, () => Promise<Record<string, ClientExport>>>
+  components: ReturnType<ImportGlobFunction>
 }
 
 /**
@@ -34,19 +33,20 @@ export const boot = ({ components }: BootOptions): ReturnType<typeof run> =>
   run({
     async loadModule(moduleUrl: string, exportName: string) {
       const loader = components[moduleUrl]
-      if (loader === undefined) {
+      if (Predicate.isNullish(loader) || !Predicate.isFunction(loader)) {
         throw new Error(`No client entry registered for ${moduleUrl}`)
       }
-      const mod = await loader()
+      // oxlint-disable-next-line typescript/no-unsafe-call,typescript/no-unsafe-assignment,typescript/ban-types,typescript/no-unsafe-function-type
+      const mod: Record<string, Function | Promise<Function>> = await loader()
       const exported = mod[exportName]
-      if (exported === undefined) {
+      if (Predicate.isNullish(exported)) {
         throw new Error(`Module ${moduleUrl} has no export named "${exportName}"`)
       }
       return exported
     },
     async resolveFrame(src: string, signal?: AbortSignal, target?: string) {
       const headers = new Headers({ accept: 'text/html' })
-      if (target !== undefined && target !== '') {
+      if (Predicate.isNotNullish(target) && String.isNonEmpty(target)) {
         headers.set('x-remix-target', target)
       }
       const response = await fetch(src, {

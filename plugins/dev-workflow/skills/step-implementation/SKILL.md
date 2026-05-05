@@ -37,7 +37,7 @@ Implement the approved Task Plan as commit-sized diffs, one task per `implemente
 - `intent-spec.md` (scope and non-scope).
 - Output paths and commit conventions.
 - Test additions policy (link to `qa-design.md` and `qa-flow.md`; `implementer` populates TC-IMPL-NNN).
-- Project-specific skills paths (e.g. `effect-layer`, `effect-hono`, `effect-runtime`, `totto2727-fp`, `git-workflow`, `macos-cli-rules`) — these dominate over workflow defaults for implementation pattern, naming, and commit conventions.
+- Project-specific skills paths (e.g. `coding`, `test`, `git-workflow`, `macos-cli-rules`) — these dominate over workflow defaults for implementation pattern, naming, and commit conventions.
 
 ## Prerequisites
 

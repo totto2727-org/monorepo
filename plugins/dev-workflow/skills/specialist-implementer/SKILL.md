@@ -49,7 +49,7 @@ In addition to the basic inputs from `specialist-common`:
   discovered during implementation
 - **`qa-flow.md`** — responsible for appending branches for essential tests / for implementation-incidental tests
   (the distinction is sufficient by ID prefix)
-- Related project-specific test skills (per language: `vite-plus`, `moonbit-bestpractice`, etc.)
+- Related project-specific test skills (per language: `vite-plus`, `test`, etc.)
 
 ## Procedure
 
@@ -59,7 +59,7 @@ In addition to the basic inputs from `specialist-common`:
    - Follow the design decisions in the Design Document
    - Strictly observe the scope boundary (do not touch files outside the assigned task)
    - Follow the project's existing patterns (frameworks in use, naming conventions, DI configuration, etc.)
-   - If project-specific skills (e.g., `effect-layer` / `effect-runtime` / `effect-hono` / `git-workflow`) exist,
+   - If project-specific skills (e.g., `coding` / `test` / `git-workflow`) exist,
      follow them with priority.
 4. Add tests (based on qa-design.md / qa-flow.md):
    - Implement the **essential tests (TC-NNN) tied to the assigned task** (already present in the essential tests

@@ -294,7 +294,7 @@ completed`.
 `dev-roadmap` inherits the `dev-workflow` policy: **the overall process structure
 (steps, artifact formats, gate decisions) follows this skill, while implementation
 patterns / test rules / commit conventions / naming conventions / platform-specific
-commands defer to project-specific skills** (`effect-layer`, `git-workflow`,
+commands defer to project-specific skills** (`coding`, `git-workflow`,
 `macos-cli-rules`, etc.). See `dev-workflow/SKILL.md` "Relationship with project-specific
 rules" for the canonical statement.
 

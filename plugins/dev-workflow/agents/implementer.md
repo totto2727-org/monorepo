@@ -34,4 +34,4 @@ On launch, receive the following from Main (ask back if anything is missing):
 3. `intent-spec.md`
 4. Git branching strategy
 5. Test-addition policy (quoted from task-plan)
-6. Project-specific implementation conventions (refer to skills such as `effect-layer`, `git-workflow`, etc.)
+6. Project-specific implementation conventions (refer to skills such as `coding`, `git-workflow`, etc.)

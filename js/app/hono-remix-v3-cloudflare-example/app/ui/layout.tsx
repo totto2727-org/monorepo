@@ -1,11 +1,8 @@
 import type { RemixNode } from 'remix/ui'
 import { css } from 'remix/ui'
 
-import { Document } from './document.tsx'
-
 export interface LayoutProps {
   children?: RemixNode
-  title?: string
 }
 
 const headerStyle = css({
@@ -39,8 +36,8 @@ const mainStyle = css({
 
 export const Layout =
   () =>
-  ({ title, children }: LayoutProps) => (
-    <Document title={title}>
+  ({ children }: LayoutProps) => (
+    <>
       <header mix={headerStyle}>
         <nav mix={navStyle}>
           <a href='/' mix={linkStyle}>
@@ -52,5 +49,5 @@ export const Layout =
         </nav>
       </header>
       <main mix={mainStyle}>{children}</main>
-    </Document>
+    </>
   )
