@@ -58,7 +58,7 @@ EOF
 USER sandbox
 WORKDIR /sandbox
 ENV USER=sandbox
-ENV PATH="/sandbox/.nix-profile/bin:/sandbox/.moon/bin:$PATH"
+ENV PATH="/sandbox/.nix-profile/bin:/sandbox/.moon/bin:/sandbox/.vite-plus/bin:/sandbox/.local/bin:$PATH"
 
 ## Install the sandbox-user toolchain (nix + home-manager + moonbit + vp + claude).
 ## MoonBit's installer needs a node runtime and a rustup-managed Rust toolchain,
