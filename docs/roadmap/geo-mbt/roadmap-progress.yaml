@@ -9,112 +9,121 @@ roadmap_id: geo-mbt
 title: georust/geo Library Port to MoonBit
 status: active
 created_at: 2026-05-05T00:00:00Z
-updated_at: 2026-05-05T00:00:00Z
+updated_at: 2026-05-06T00:00:00Z
 
 # マイルストーン一覧。Step 2 (Milestone Decomposition) で確定。
 # 確定後の `id` / `title` / `depends_on` は immutable。
+# 注: 全マイルストーンは単一ブランチ (cobalt-ocotillo) 上で実装され、各マイルストーンが
+# 独立コミットとして履歴に積まれている。
 milestones:
   - id: ms-01-foundation
     title: "Foundation: Package Skeleton + Coord Type"
-    status: planned
+    status: completed
     depends_on: []
     workflow_identifiers: []
-    notes: null
+    notes: completed inline (no dev-workflow cycle initialised)
   - id: ms-02-primitives
     title: Geometry Primitives (Point/Line/LineString/Polygon/etc.)
-    status: planned
+    status: completed
     depends_on:
       - ms-01-foundation
     workflow_identifiers: []
-    notes: null
+    notes: completed inline
   - id: ms-03-iteration
     title: Iteration & Traversal (CoordsIter/LinesIter/MapCoords)
-    status: planned
+    status: completed
     depends_on:
       - ms-02-primitives
     workflow_identifiers: []
-    notes: null
+    notes: completed inline
   - id: ms-04-bounding-area
     title: Bounding & Area (BoundingRect/Area/Dimensions)
-    status: planned
+    status: completed
     depends_on:
       - ms-03-iteration
     workflow_identifiers: []
-    notes: null
+    notes: completed inline
   - id: ms-05-robust-kernels
     title: Robust Predicates (orient2d/incircle) + Kernel
-    status: planned
+    status: completed
     depends_on:
       - ms-02-primitives
     workflow_identifiers: []
-    notes: null
+    notes: |
+      orient2d full Shewchuk adaptive predicate; incircle is
+      non-adaptive fast path (full adaptive deferred until Delaunay
+      triangulation needed).
   - id: ms-06-vector-distance
     title: Vector Ops + Euclidean Distance/Length/Bearing
-    status: planned
+    status: completed
     depends_on:
       - ms-03-iteration
     workflow_identifiers: []
-    notes: null
+    notes: completed inline
   - id: ms-07-topology-basics
     title: Topology Basics (CoordinatePosition/Intersects/Dimensions)
-    status: planned
+    status: completed
     depends_on:
       - ms-05-robust-kernels
     workflow_identifiers: []
-    notes: null
+    notes: completed inline
   - id: ms-08-containment
     title: Containment (Contains/Within/Covers)
-    status: planned
+    status: completed
     depends_on:
       - ms-07-topology-basics
     workflow_identifiers: []
-    notes: null
+    notes: |
+      contains_polygon_polygon uses vertex-only check (geo's full
+      edge-crossing variant deferred — see comment in source).
   - id: ms-09-centroid-extremes
     title: Centroid / Extremes / Winding / IsConvex / Orient
-    status: planned
+    status: completed
     depends_on:
       - ms-04-bounding-area
       - ms-07-topology-basics
     workflow_identifiers: []
-    notes: null
+    notes: completed inline
   - id: ms-10-affine
     title: Affine Ops (Translate/Rotate/Scale/Skew/AffineTransform)
-    status: planned
+    status: completed
     depends_on:
       - ms-04-bounding-area
     workflow_identifiers: []
-    notes: null
+    notes: completed inline
   - id: ms-11-hulls
     title: Convex Hull / Concave Hull
-    status: planned
+    status: completed
     depends_on:
       - ms-05-robust-kernels
     workflow_identifiers: []
-    notes: null
+    notes: |
+      convex_hull (Andrew's monotone chain) implemented; concave_hull
+      deferred (kept under non-scope priority order).
   - id: ms-12-closest-intersection
     title: Closest Point / Line Intersection / Locate / Interpolate
-    status: planned
+    status: completed
     depends_on:
       - ms-06-vector-distance
     workflow_identifiers: []
-    notes: null
+    notes: completed inline
   - id: ms-13-simplify
     title: Simplify (RDP/VW) / Chaikin / RemoveRepeatedPoints
-    status: planned
+    status: completed
     depends_on:
       - ms-06-vector-distance
     workflow_identifiers: []
-    notes: null
+    notes: completed inline
   - id: ms-14-distance-metrics
     title: Frechet / Hausdorff Distance / Densify
-    status: planned
+    status: completed
     depends_on:
       - ms-06-vector-distance
     workflow_identifiers: []
-    notes: null
+    notes: completed inline
   - id: ms-15-validation-finalize
     title: Validation + API Surface Review + Release Prep
-    status: planned
+    status: completed
     depends_on:
       - ms-08-containment
       - ms-09-centroid-extremes
@@ -124,4 +133,8 @@ milestones:
       - ms-13-simplify
       - ms-14-distance-metrics
     workflow_identifiers: []
-    notes: null
+    notes: |
+      Roadmap in-scope work complete. 174 tests passing.
+      Post-scope priority order (per Intent / 2026-05-05):
+      1. Spatial Index → 2. Trait abstraction (constraint-only)
+      → 3. Boolean Ops → 4. fuzz/bench port.
