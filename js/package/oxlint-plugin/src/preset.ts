@@ -26,7 +26,10 @@ const preset: Preset = {
     },
   ],
   rules: {
+    'rules/force-array-empty': 'error',
+    'rules/force-iterable-empty': 'error',
     'rules/force-predicate': 'error',
+    'rules/force-string-empty': 'error',
     'rules/force-ts-extension': 'error',
     'rules/no-eslint-disable-comments': 'error',
     'rules/no-let': 'error',

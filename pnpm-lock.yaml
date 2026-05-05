@@ -226,6 +226,9 @@ importers:
 
   js/app/hono-remix-v3-cloudflare-example:
     dependencies:
+      effect:
+        specifier: catalog:effect
+        version: 4.0.0-beta.60
       hono:
         specifier: catalog:hono
         version: 4.12.8

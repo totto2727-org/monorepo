@@ -1,3 +1,4 @@
+import { Array, Predicate, String } from 'effect'
 import { clientEntry, css, on } from 'remix/ui'
 import type { Handle, SerializableProps } from 'remix/ui'
 
@@ -120,9 +121,8 @@ export const Todo = clientEntry('/assets/app/ui/todo.client.tsx#Todo', (handle: 
               const form = event.currentTarget
               const data = new FormData(form)
               const raw = data.get('todo')
-              // oxlint-disable-next-line rules/force-predicate -- avoid pulling effect into the example app
-              const text = (typeof raw === 'string' ? raw : '').trim()
-              if (text === '') {
+              const text = (Predicate.isString(raw) ? raw : '').trim()
+              if (String.isEmpty(text)) {
                 return
               }
               state.items = [...state.items, { done: false, id: crypto.randomUUID(), text }]
@@ -137,7 +137,7 @@ export const Todo = clientEntry('/assets/app/ui/todo.client.tsx#Todo', (handle: 
           </button>
         </form>
         <p mix={summaryStyle}>
-          {state.items.length === 0 ? 'No items yet.' : `${remaining} of ${state.items.length} remaining`}
+          {Array.isArrayEmpty(state.items) ? 'No items yet.' : `${remaining} of ${state.items.length} remaining`}
         </p>
         <ul mix={listStyle}>
           {state.items.map((item) => (

@@ -12,6 +12,7 @@
     "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
+    "effect": "catalog:effect",
     "hono": "catalog:hono",
     "hono-remix-middleware": "workspace:*",
     "remix": "catalog:remix",

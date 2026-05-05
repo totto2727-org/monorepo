@@ -1,7 +1,7 @@
 import * as Os from 'node:os'
 import * as NodePath from 'node:path'
 
-import { Predicate } from 'effect'
+import { Predicate, String } from 'effect'
 
 export const getAgentsDir = (global: boolean): string =>
   global ? NodePath.join(Os.homedir(), '.agents') : NodePath.join(process.cwd(), '.agents')
@@ -22,9 +22,9 @@ export const parseRepoSource = (repo: string): { owner: string; name: string } =
   if (
     parts.length !== 2 ||
     Predicate.isNullish(parts[0]) ||
-    parts[0] === '' ||
+    String.isEmpty(parts[0]) ||
     Predicate.isNullish(parts[1]) ||
-    parts[1] === ''
+    String.isEmpty(parts[1])
   ) {
     throw new Error(`Invalid repository format: ${repo}. Expected "owner/repo".`)
   }
