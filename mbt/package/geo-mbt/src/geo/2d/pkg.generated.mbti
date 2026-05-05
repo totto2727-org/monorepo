@@ -1,0 +1,485 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "totto2727/geo-mbt/geo/2d"
+
+import {
+  "moonbitlang/core/debug",
+  "totto2727/geo-mbt/geo/2d/type",
+}
+
+// Values
+pub fn affine_transform_geometry(@type.Geometry, AffineTransform) -> @type.Geometry
+
+pub fn affine_transform_line_string(@type.LineString, AffineTransform) -> @type.LineString
+
+pub fn affine_transform_point(@type.Point, AffineTransform) -> @type.Point
+
+pub fn affine_transform_polygon(@type.Polygon, AffineTransform) -> @type.Polygon
+
+pub fn bounding_rect_of_coord(@type.Coord) -> @type.Rect
+
+pub fn bounding_rect_of_geometry(@type.Geometry) -> @type.Rect?
+
+pub fn bounding_rect_of_geometry_collection(@type.GeometryCollection) -> @type.Rect?
+
+pub fn bounding_rect_of_line(@type.Line) -> @type.Rect
+
+pub fn bounding_rect_of_line_string(@type.LineString) -> @type.Rect?
+
+pub fn bounding_rect_of_multi_line_string(@type.MultiLineString) -> @type.Rect?
+
+pub fn bounding_rect_of_multi_point(@type.MultiPoint) -> @type.Rect?
+
+pub fn bounding_rect_of_multi_polygon(@type.MultiPolygon) -> @type.Rect?
+
+pub fn bounding_rect_of_point(@type.Point) -> @type.Rect
+
+pub fn bounding_rect_of_polygon(@type.Polygon) -> @type.Rect?
+
+pub fn bounding_rect_of_rect(@type.Rect) -> @type.Rect
+
+pub fn bounding_rect_of_triangle(@type.Triangle) -> @type.Rect
+
+pub fn centroid_geometry(@type.Geometry) -> @type.Point?
+
+pub fn centroid_line_string(@type.LineString) -> @type.Point?
+
+pub fn centroid_multi_polygon(@type.MultiPolygon) -> @type.Point?
+
+pub fn centroid_polygon(@type.Polygon) -> @type.Point?
+
+pub fn chaikin_smoothing(@type.LineString, Int) -> @type.LineString
+
+pub fn closest_point_on_line(@type.Line, @type.Coord) -> Closest
+
+pub fn closest_point_on_line_string(@type.LineString, @type.Coord) -> Closest
+
+pub fn contains_geometry(@type.Geometry, @type.Geometry) -> Bool
+
+pub fn contains_multi_polygon_coord(@type.MultiPolygon, @type.Coord) -> Bool
+
+pub fn contains_polygon_coord(@type.Polygon, @type.Coord) -> Bool
+
+pub fn contains_polygon_line(@type.Polygon, @type.Line) -> Bool
+
+pub fn contains_polygon_line_string(@type.Polygon, @type.LineString) -> Bool
+
+pub fn contains_polygon_point(@type.Polygon, @type.Point) -> Bool
+
+pub fn contains_polygon_polygon(@type.Polygon, @type.Polygon) -> Bool
+
+pub fn contains_rect_coord(@type.Rect, @type.Coord) -> Bool
+
+pub fn contains_rect_rect(@type.Rect, @type.Rect) -> Bool
+
+pub fn convex_hull_of_geometry(@type.Geometry) -> @type.Polygon
+
+pub fn convex_hull_of_line_string(@type.LineString) -> @type.Polygon
+
+pub fn convex_hull_of_multi_point(@type.MultiPoint) -> @type.Polygon
+
+pub fn convex_hull_of_polygon(@type.Polygon) -> @type.Polygon
+
+pub fn coord_on_line(@type.Coord, @type.Line) -> Bool
+
+pub fn coord_position_for_geometry(@type.Coord, @type.Geometry) -> CoordPos
+
+pub fn coord_position_for_line(@type.Coord, @type.Line) -> CoordPos
+
+pub fn coord_position_for_line_string(@type.Coord, @type.LineString) -> CoordPos
+
+pub fn coord_position_for_multi_polygon(@type.Coord, @type.MultiPolygon) -> CoordPos
+
+pub fn coord_position_for_polygon(@type.Coord, @type.Polygon) -> CoordPos
+
+pub fn coord_position_for_rect(@type.Coord, @type.Rect) -> CoordPos
+
+pub fn coord_position_for_triangle(@type.Coord, @type.Triangle) -> CoordPos
+
+pub fn coords_count(@type.Geometry) -> Int
+
+pub fn coords_of_geometry(@type.Geometry) -> Array[@type.Coord]
+
+pub fn coords_of_geometry_collection(@type.GeometryCollection) -> Array[@type.Coord]
+
+pub fn coords_of_line(@type.Line) -> Array[@type.Coord]
+
+pub fn coords_of_line_string(@type.LineString) -> Array[@type.Coord]
+
+pub fn coords_of_multi_line_string(@type.MultiLineString) -> Array[@type.Coord]
+
+pub fn coords_of_multi_point(@type.MultiPoint) -> Array[@type.Coord]
+
+pub fn coords_of_multi_polygon(@type.MultiPolygon) -> Array[@type.Coord]
+
+pub fn coords_of_point(@type.Point) -> Array[@type.Coord]
+
+pub fn coords_of_polygon(@type.Polygon) -> Array[@type.Coord]
+
+pub fn coords_of_rect(@type.Rect) -> Array[@type.Coord]
+
+pub fn coords_of_triangle(@type.Triangle) -> Array[@type.Coord]
+
+pub fn covers_geometry(@type.Geometry, @type.Geometry) -> Bool
+
+pub fn covers_polygon_coord(@type.Polygon, @type.Coord) -> Bool
+
+pub fn covers_polygon_line_string(@type.Polygon, @type.LineString) -> Bool
+
+pub fn covers_polygon_point(@type.Polygon, @type.Point) -> Bool
+
+pub fn covers_polygon_polygon(@type.Polygon, @type.Polygon) -> Bool
+
+pub fn covers_rect_coord(@type.Rect, @type.Coord) -> Bool
+
+pub fn densify_line_string(@type.LineString, Double) -> @type.LineString
+
+pub fn densify_polygon(@type.Polygon, Double) -> @type.Polygon
+
+pub fn dimensions_less(Dimensions, Dimensions) -> Bool
+
+pub fn dimensions_of_geometry(@type.Geometry) -> Dimensions
+
+pub fn dimensions_of_line_string(@type.LineString) -> Dimensions
+
+pub fn dimensions_of_rect(@type.Rect) -> Dimensions
+
+pub fn dot_product(@type.Coord, @type.Coord) -> Double
+
+pub fn euclidean_bearing(@type.Coord, @type.Coord) -> Double
+
+pub fn euclidean_destination(@type.Coord, Double, Double) -> @type.Coord
+
+pub fn euclidean_distance_coord_to_line(@type.Coord, @type.Line) -> Double
+
+pub fn euclidean_distance_coord_to_line_string(@type.Coord, @type.LineString) -> Double
+
+pub fn euclidean_distance_coords(@type.Coord, @type.Coord) -> Double
+
+pub fn euclidean_distance_point_to_line(@type.Point, @type.Line) -> Double
+
+pub fn euclidean_distance_points(@type.Point, @type.Point) -> Double
+
+pub fn euclidean_distance_squared_coords(@type.Coord, @type.Coord) -> Double
+
+pub fn euclidean_length_line(@type.Line) -> Double
+
+pub fn euclidean_length_line_string(@type.LineString) -> Double
+
+pub fn euclidean_length_multi_line_string(@type.MultiLineString) -> Double
+
+pub fn exterior_coords_of_geometry(@type.Geometry) -> Array[@type.Coord]
+
+pub fn exterior_coords_of_multi_polygon(@type.MultiPolygon) -> Array[@type.Coord]
+
+pub fn exterior_coords_of_polygon(@type.Polygon) -> Array[@type.Coord]
+
+pub fn extremes_of_coords(Array[@type.Coord]) -> Outcome?
+
+pub fn extremes_of_geometry(@type.Geometry) -> Outcome?
+
+pub fn frechet_distance(@type.LineString, @type.LineString) -> Double
+
+pub fn hausdorff_distance_coords(Array[@type.Coord], Array[@type.Coord]) -> Double
+
+pub fn hausdorff_distance_geometry(@type.Geometry, @type.Geometry) -> Double
+
+pub fn intersection_polygon_rect(@type.Polygon, @type.Rect) -> @type.Polygon
+
+pub fn intersection_sutherland_hodgman(@type.Polygon, @type.Polygon) -> @type.Polygon
+
+pub fn intersects_coord_coord(@type.Coord, @type.Coord) -> Bool
+
+pub fn intersects_coord_line(@type.Coord, @type.Line) -> Bool
+
+pub fn intersects_coord_line_string(@type.Coord, @type.LineString) -> Bool
+
+pub fn intersects_coord_polygon(@type.Coord, @type.Polygon) -> Bool
+
+pub fn intersects_geometry(@type.Geometry, @type.Geometry) -> Bool
+
+pub fn intersects_line_line(@type.Line, @type.Line) -> Bool
+
+pub fn intersects_line_line_string(@type.Line, @type.LineString) -> Bool
+
+pub fn intersects_line_polygon(@type.Line, @type.Polygon) -> Bool
+
+pub fn intersects_line_string_line_string(@type.LineString, @type.LineString) -> Bool
+
+pub fn intersects_polygon_polygon(@type.Polygon, @type.Polygon) -> Bool
+
+pub fn intersects_rect_coord(@type.Rect, @type.Coord) -> Bool
+
+pub fn is_convex(@type.LineString) -> Bool
+
+pub fn is_empty_of_geometry(@type.Geometry) -> Bool
+
+pub fn is_finite(@type.Coord) -> Bool
+
+pub fn is_strictly_convex(@type.LineString) -> Bool
+
+pub fn is_valid(@type.Geometry) -> Bool
+
+pub fn left(@type.Coord) -> @type.Coord
+
+pub fn line_interpolate_point(@type.Line, Double) -> @type.Point
+
+pub fn line_intersection(@type.Line, @type.Line) -> LineIntersection?
+
+pub fn line_locate_point(@type.Line, @type.Coord) -> Double?
+
+pub fn line_string_interpolate_point(@type.LineString, Double) -> @type.Point?
+
+pub fn line_string_locate_point(@type.LineString, @type.Coord) -> Double?
+
+pub fn lines_of_geometry(@type.Geometry) -> Array[@type.Line]
+
+pub fn lines_of_geometry_collection(@type.GeometryCollection) -> Array[@type.Line]
+
+pub fn lines_of_line(@type.Line) -> Array[@type.Line]
+
+pub fn lines_of_line_string(@type.LineString) -> Array[@type.Line]
+
+pub fn lines_of_multi_line_string(@type.MultiLineString) -> Array[@type.Line]
+
+pub fn lines_of_multi_polygon(@type.MultiPolygon) -> Array[@type.Line]
+
+pub fn lines_of_polygon(@type.Polygon) -> Array[@type.Line]
+
+pub fn lines_of_rect(@type.Rect) -> Array[@type.Line]
+
+pub fn lines_of_triangle(@type.Triangle) -> Array[@type.Line]
+
+pub fn magnitude(@type.Coord) -> Double
+
+pub fn magnitude_squared(@type.Coord) -> Double
+
+pub fn map_coords_in_geometry(@type.Geometry, (@type.Coord) -> @type.Coord) -> @type.Geometry
+
+pub fn map_coords_in_geometry_collection(@type.GeometryCollection, (@type.Coord) -> @type.Coord) -> @type.GeometryCollection
+
+pub fn map_coords_in_line(@type.Line, (@type.Coord) -> @type.Coord) -> @type.Line
+
+pub fn map_coords_in_line_string(@type.LineString, (@type.Coord) -> @type.Coord) -> @type.LineString
+
+pub fn map_coords_in_multi_line_string(@type.MultiLineString, (@type.Coord) -> @type.Coord) -> @type.MultiLineString
+
+pub fn map_coords_in_multi_point(@type.MultiPoint, (@type.Coord) -> @type.Coord) -> @type.MultiPoint
+
+pub fn map_coords_in_multi_polygon(@type.MultiPolygon, (@type.Coord) -> @type.Coord) -> @type.MultiPolygon
+
+pub fn map_coords_in_point(@type.Point, (@type.Coord) -> @type.Coord) -> @type.Point
+
+pub fn map_coords_in_polygon(@type.Polygon, (@type.Coord) -> @type.Coord) -> @type.Polygon
+
+pub fn map_coords_in_rect(@type.Rect, (@type.Coord) -> @type.Coord) -> @type.Rect
+
+pub fn map_coords_in_triangle(@type.Triangle, (@type.Coord) -> @type.Coord) -> @type.Triangle
+
+pub fn orient(@type.Coord, @type.Coord, @type.Coord) -> Orientation
+
+pub fn orient_multi_polygon(@type.MultiPolygon, OrientDirection) -> @type.MultiPolygon
+
+pub fn orient_polygon(@type.Polygon, OrientDirection) -> @type.Polygon
+
+pub fn remove_repeated_points_line_string(@type.LineString) -> @type.LineString
+
+pub fn remove_repeated_points_polygon(@type.Polygon) -> @type.Polygon
+
+pub fn reverse_line_string(@type.LineString) -> @type.LineString
+
+pub fn right(@type.Coord) -> @type.Coord
+
+pub fn rotate_geometry_around(@type.Geometry, Double, @type.Coord) -> @type.Geometry
+
+pub fn rotate_geometry_around_centroid(@type.Geometry, Double) -> @type.Geometry
+
+pub fn scale_geometry(@type.Geometry, Double) -> @type.Geometry
+
+pub fn scale_geometry_around(@type.Geometry, Double, Double, @type.Coord) -> @type.Geometry
+
+pub fn signed_area_of_geometry(@type.Geometry) -> Double
+
+pub fn signed_area_of_multi_polygon(@type.MultiPolygon) -> Double
+
+pub fn signed_area_of_polygon(@type.Polygon) -> Double
+
+pub fn signed_area_of_rect(@type.Rect) -> Double
+
+pub fn signed_area_of_triangle(@type.Triangle) -> Double
+
+pub fn signed_area_of_triangle_robust(@type.Coord, @type.Coord, @type.Coord) -> Double
+
+pub fn simplify_line_string(@type.LineString, Double) -> @type.LineString
+
+pub fn simplify_line_string_indices(@type.LineString, Double) -> Array[Int]
+
+pub fn simplify_polygon(@type.Polygon, Double) -> @type.Polygon
+
+pub fn simplify_vw_line_string(@type.LineString, Double) -> @type.LineString
+
+pub fn skew_geometry(@type.Geometry, Double, Double) -> @type.Geometry
+
+pub fn skew_geometry_around(@type.Geometry, Double, Double, @type.Coord) -> @type.Geometry
+
+pub fn translate_geometry(@type.Geometry, Double, Double) -> @type.Geometry
+
+pub fn translate_point(@type.Point, Double, Double) -> @type.Point
+
+pub fn translate_polygon(@type.Polygon, Double, Double) -> @type.Polygon
+
+pub fn try_normalize(@type.Coord) -> @type.Coord?
+
+pub fn twice_signed_ring_area(@type.LineString) -> Double
+
+pub fn unsigned_area_of_geometry(@type.Geometry) -> Double
+
+pub fn unsigned_area_of_multi_polygon(@type.MultiPolygon) -> Double
+
+pub fn unsigned_area_of_polygon(@type.Polygon) -> Double
+
+pub fn unsigned_area_of_rect(@type.Rect) -> Double
+
+pub fn unsigned_area_of_triangle(@type.Triangle) -> Double
+
+pub fn validation_problems(@type.Geometry) -> Array[ValidationProblem]
+
+pub fn wedge_product(@type.Coord, @type.Coord) -> Double
+
+pub fn winding_order(@type.LineString) -> WindingOrder?
+
+pub fn within_geometry(@type.Geometry, @type.Geometry) -> Bool
+
+// Errors
+
+// Types and methods
+pub struct AffineTransform {
+  a : Double
+  b : Double
+  xoff : Double
+  d : Double
+  e : Double
+  yoff : Double
+} derive(Eq, @debug.Debug)
+pub fn AffineTransform::apply(Self, @type.Coord) -> @type.Coord
+pub fn AffineTransform::compose(Self, Self) -> Self
+pub fn AffineTransform::identity() -> Self
+pub fn AffineTransform::new(Double, Double, Double, Double, Double, Double) -> Self
+pub fn AffineTransform::rotate_origin(Double) -> Self
+pub fn AffineTransform::scale_xy(Double, Double) -> Self
+pub fn AffineTransform::skew_origin(Double, Double) -> Self
+pub fn AffineTransform::translate_xy(Double, Double) -> Self
+
+pub(all) enum Closest {
+  Intersection(@type.Coord)
+  SinglePoint(@type.Coord)
+  Indeterminate
+} derive(Eq, @debug.Debug)
+
+pub(all) enum CoordPos {
+  OnBoundary
+  Inside
+  Outside
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Dimensions {
+  Empty
+  ZeroDimensional
+  OneDimensional
+  TwoDimensional
+} derive(Eq, @debug.Debug)
+pub fn Dimensions::rank(Self) -> Int
+
+pub(all) enum LineIntersection {
+  SinglePoint(@type.Coord, Bool)
+  Collinear(@type.Line)
+} derive(Eq, @debug.Debug)
+
+pub(all) enum OrientDirection {
+  Default
+  Reversed
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Orientation {
+  CounterClockwise
+  Clockwise
+  Collinear
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Outcome {
+  x_min : @type.Coord
+  x_max : @type.Coord
+  y_min : @type.Coord
+  y_max : @type.Coord
+} derive(Eq, @debug.Debug)
+
+pub(all) enum ValidationProblem {
+  TooFewPoints
+  RingNotClosed
+  RingTooFewPoints
+  SelfIntersection
+  NonFiniteCoord
+} derive(Eq, @debug.Debug)
+
+pub(all) enum WindingOrder {
+  Clockwise
+  CounterClockwise
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+pub(open) trait Bounded {
+  bbox(Self) -> @type.Rect?
+}
+pub impl Bounded for @type.Geometry
+pub impl Bounded for @type.GeometryCollection
+pub impl Bounded for @type.Line
+pub impl Bounded for @type.LineString
+pub impl Bounded for @type.MultiLineString
+pub impl Bounded for @type.MultiPoint
+pub impl Bounded for @type.MultiPolygon
+pub impl Bounded for @type.Point
+pub impl Bounded for @type.Polygon
+pub impl Bounded for @type.Rect
+pub impl Bounded for @type.Triangle
+
+pub(open) trait CoordsCarrier {
+  coords(Self) -> Array[@type.Coord]
+}
+pub impl CoordsCarrier for @type.Geometry
+pub impl CoordsCarrier for @type.GeometryCollection
+pub impl CoordsCarrier for @type.Line
+pub impl CoordsCarrier for @type.LineString
+pub impl CoordsCarrier for @type.MultiLineString
+pub impl CoordsCarrier for @type.MultiPoint
+pub impl CoordsCarrier for @type.MultiPolygon
+pub impl CoordsCarrier for @type.Point
+pub impl CoordsCarrier for @type.Polygon
+pub impl CoordsCarrier for @type.Rect
+pub impl CoordsCarrier for @type.Triangle
+
+pub(open) trait HasArea {
+  signed_area(Self) -> Double
+  unsigned_area(Self) -> Double
+}
+pub impl HasArea for @type.Geometry
+pub impl HasArea for @type.MultiPolygon
+pub impl HasArea for @type.Polygon
+pub impl HasArea for @type.Rect
+pub impl HasArea for @type.Triangle
+
+pub(open) trait HasCentroid {
+  centroid(Self) -> @type.Point?
+}
+pub impl HasCentroid for @type.Geometry
+pub impl HasCentroid for @type.LineString
+pub impl HasCentroid for @type.MultiPolygon
+pub impl HasCentroid for @type.Polygon
+
+pub(open) trait HasLength {
+  euclidean_length(Self) -> Double
+}
+pub impl HasLength for @type.Line
+pub impl HasLength for @type.LineString
+pub impl HasLength for @type.MultiLineString
+

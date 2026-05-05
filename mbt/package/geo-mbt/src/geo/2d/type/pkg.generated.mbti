@@ -1,0 +1,166 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "totto2727/geo-mbt/geo/2d/type"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct Coord {
+  x : Double
+  y : Double
+} derive(Default, Eq, Hash, @debug.Debug)
+pub fn Coord::cross(Self, Self) -> Double
+pub fn Coord::div(Self, Double) -> Self
+pub fn Coord::dot(Self, Self) -> Double
+pub fn Coord::from_array(Array[Double]) -> Self
+pub fn Coord::from_tuple((Double, Double)) -> Self
+pub fn Coord::is_zero(Self) -> Bool
+pub fn Coord::mul(Self, Double) -> Self
+pub fn Coord::new(Double, Double) -> Self
+pub fn Coord::to_array(Self) -> Array[Double]
+pub fn Coord::x(Self) -> Double
+pub fn Coord::x_y(Self) -> (Double, Double)
+pub fn Coord::y(Self) -> Double
+pub fn Coord::zero() -> Self
+pub impl Add for Coord
+pub impl Neg for Coord
+pub impl Sub for Coord
+
+pub(all) enum Geometry {
+  Point(Point)
+  Line(Line)
+  LineString(LineString)
+  Polygon(Polygon)
+  MultiPoint(MultiPoint)
+  MultiLineString(MultiLineString)
+  MultiPolygon(MultiPolygon)
+  GeometryCollection(GeometryCollection)
+  Rect(Rect)
+  Triangle(Triangle)
+} derive(Eq, @debug.Debug)
+
+pub struct GeometryCollection {
+  geometries : Array[Geometry]
+} derive(Eq, @debug.Debug)
+pub fn GeometryCollection::geometries(Self) -> Array[Geometry]
+pub fn GeometryCollection::is_empty(Self) -> Bool
+pub fn GeometryCollection::length(Self) -> Int
+pub fn GeometryCollection::new(Array[Geometry]) -> Self
+
+pub struct Line {
+  start : Coord
+  end : Coord
+} derive(Eq, Hash, @debug.Debug)
+pub fn Line::delta(Self) -> Coord
+pub fn Line::determinant(Self) -> Double
+pub fn Line::dx(Self) -> Double
+pub fn Line::dy(Self) -> Double
+pub fn Line::end(Self) -> Coord
+pub fn Line::end_point(Self) -> Point
+pub fn Line::from_tuples((Double, Double), (Double, Double)) -> Self
+pub fn Line::new(Coord, Coord) -> Self
+pub fn Line::points(Self) -> (Point, Point)
+pub fn Line::slope(Self) -> Double
+pub fn Line::start(Self) -> Coord
+pub fn Line::start_point(Self) -> Point
+
+pub struct LineString {
+  coords : Array[Coord]
+} derive(Eq, @debug.Debug)
+pub fn LineString::close(Self) -> Unit
+pub fn LineString::coords(Self) -> Array[Coord]
+pub fn LineString::from_tuples(Array[(Double, Double)]) -> Self
+pub fn LineString::is_closed(Self) -> Bool
+pub fn LineString::is_empty(Self) -> Bool
+pub fn LineString::length(Self) -> Int
+pub fn LineString::lines(Self) -> Array[Line]
+pub fn LineString::new(Array[Coord]) -> Self
+
+pub struct MultiLineString {
+  line_strings : Array[LineString]
+} derive(Eq, @debug.Debug)
+pub fn MultiLineString::is_closed(Self) -> Bool
+pub fn MultiLineString::is_empty(Self) -> Bool
+pub fn MultiLineString::length(Self) -> Int
+pub fn MultiLineString::line_strings(Self) -> Array[LineString]
+pub fn MultiLineString::new(Array[LineString]) -> Self
+
+pub struct MultiPoint {
+  points : Array[Point]
+} derive(Eq, @debug.Debug)
+pub fn MultiPoint::from_tuples(Array[(Double, Double)]) -> Self
+pub fn MultiPoint::is_empty(Self) -> Bool
+pub fn MultiPoint::length(Self) -> Int
+pub fn MultiPoint::new(Array[Point]) -> Self
+pub fn MultiPoint::points(Self) -> Array[Point]
+
+pub struct MultiPolygon {
+  polygons : Array[Polygon]
+} derive(Eq, @debug.Debug)
+pub fn MultiPolygon::is_empty(Self) -> Bool
+pub fn MultiPolygon::length(Self) -> Int
+pub fn MultiPolygon::new(Array[Polygon]) -> Self
+pub fn MultiPolygon::polygons(Self) -> Array[Polygon]
+
+pub struct Point(Coord) derive(Default, Eq, Hash, @debug.Debug)
+pub fn Point::coord(Self) -> Coord
+pub fn Point::cross_prod(Self, Self, Self) -> Double
+pub fn Point::div(Self, Double) -> Self
+pub fn Point::dot(Self, Self) -> Double
+pub fn Point::from_coord(Coord) -> Self
+pub fn Point::from_tuple((Double, Double)) -> Self
+pub fn Point::mul(Self, Double) -> Self
+pub fn Point::new(Double, Double) -> Self
+pub fn Point::with_x(Self, Double) -> Self
+pub fn Point::with_y(Self, Double) -> Self
+pub fn Point::x(Self) -> Double
+pub fn Point::x_y(Self) -> (Double, Double)
+pub fn Point::y(Self) -> Double
+pub impl Add for Point
+pub impl Neg for Point
+pub impl Sub for Point
+
+pub struct Polygon {
+  exterior : LineString
+  interiors : Array[LineString]
+} derive(Eq, @debug.Debug)
+pub fn Polygon::exterior(Self) -> LineString
+pub fn Polygon::interiors(Self) -> Array[LineString]
+pub fn Polygon::new(LineString, Array[LineString]) -> Self
+pub fn Polygon::num_interiors(Self) -> Int
+
+pub struct Rect {
+  min : Coord
+  max : Coord
+} derive(Eq, Hash, @debug.Debug)
+pub fn Rect::area(Self) -> Double
+pub fn Rect::center(Self) -> Coord
+pub fn Rect::height(Self) -> Double
+pub fn Rect::max(Self) -> Coord
+pub fn Rect::min(Self) -> Coord
+pub fn Rect::new(Coord, Coord) -> Self
+pub fn Rect::to_polygon(Self) -> Polygon
+pub fn Rect::width(Self) -> Double
+
+pub struct Triangle {
+  v0 : Coord
+  v1 : Coord
+  v2 : Coord
+} derive(Eq, Hash, @debug.Debug)
+pub fn Triangle::new(Coord, Coord, Coord) -> Self
+pub fn Triangle::to_array(Self) -> Array[Coord]
+pub fn Triangle::to_lines(Self) -> Array[Line]
+pub fn Triangle::to_polygon(Self) -> Polygon
+pub fn Triangle::v0(Self) -> Coord
+pub fn Triangle::v1(Self) -> Coord
+pub fn Triangle::v2(Self) -> Coord
+
+// Type aliases
+
+// Traits
+
