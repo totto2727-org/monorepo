@@ -1,4 +1,4 @@
-import { Effect } from 'effect'
+import { Array, Effect } from 'effect'
 import { Command, Flag, Prompt } from 'effect/unstable/cli'
 
 import { getAgentsDir } from '#@/lib/paths.ts'
@@ -27,7 +27,7 @@ export const removeCommand = Command.make(
         ),
       )
 
-      if (allSkills.length === 0) {
+      if (Array.isArrayEmpty(allSkills)) {
         yield* Effect.log('No skills installed.')
         return
       }
@@ -42,7 +42,7 @@ export const removeCommand = Command.make(
         message: 'Select skills to remove:',
       })
 
-      if (toRemove.length === 0) {
+      if (Array.isReadonlyArrayEmpty(toRemove)) {
         yield* Effect.log('No skills selected for removal.')
         return
       }
@@ -57,9 +57,9 @@ export const removeCommand = Command.make(
               ...plugin,
               enabledSkills: plugin.enabledSkills.filter((s) => !removeSet.has(`${repo.source}/${plugin.name}/${s}`)),
             }))
-            .filter((p) => p.enabledSkills.length > 0),
+            .filter((p) => Array.isArrayNonEmpty(p.enabledSkills)),
         }))
-        .filter((r) => r.plugins.length > 0)
+        .filter((r) => Array.isArrayNonEmpty(r.plugins))
 
       const removedRepoSources = new Set(
         lockFile.repositories.filter((r) => !updatedRepos.some((ur) => ur.source === r.source)).map((r) => r.source),

@@ -1,7 +1,7 @@
 import * as Fs from 'node:fs/promises'
 import * as NodePath from 'node:path'
 
-import { Effect, Schema } from 'effect'
+import { Effect, Schema, String } from 'effect'
 
 import { parseJson } from '#@/lib/json.ts'
 import type { MarketplaceKind } from '#@/schema/marketplace-kind.ts'
@@ -107,7 +107,7 @@ const syncPluginJson = (
       try: () => Fs.readFile(basePluginJsonPath, 'utf-8'),
     }).pipe(Effect.orElseSucceed(() => ''))
 
-    if (raw.length > 0) {
+    if (String.isNonEmpty(raw)) {
       const parsed = parseJson(raw)
       yield* writeJson(targetPluginJsonPath, parsed)
     }

@@ -1,4 +1,4 @@
-import { Effect } from 'effect'
+import { Array, Effect } from 'effect'
 
 import { getRepoCacheDir } from '#@/lib/paths.ts'
 import type { LockFile } from '#@/schema/lock-file.ts'
@@ -14,7 +14,7 @@ export const run = (
     yield* Cache.ensureDirs(agentsDir)
 
     const lockFile = yield* LockFileService.read(agentsDir)
-    if (lockFile.repositories.length === 0) {
+    if (Array.isReadonlyArrayEmpty(lockFile.repositories)) {
       yield* Effect.log('No repositories in lock file.')
       return
     }

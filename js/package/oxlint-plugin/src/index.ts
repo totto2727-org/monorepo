@@ -1,5 +1,5 @@
 import type { Context, Rule } from '@oxlint/plugins'
-import { Predicate, String as Str } from 'effect'
+import { Predicate, String } from 'effect'
 
 // ---------------------------------------------------------------------------
 // helpers
@@ -192,7 +192,7 @@ const forcePredicateRule: Rule = {
 // ---------------------------------------------------------------------------
 
 const isEmptyStringLiteral = (node: unknown): boolean =>
-  Predicate.isObject(node) && node.type === 'Literal' && Predicate.isString(node.value) && Str.isEmpty(node.value)
+  Predicate.isObject(node) && node.type === 'Literal' && Predicate.isString(node.value) && String.isEmpty(node.value)
 
 const forceStringEmptyRule: Rule = {
   create(context: Context) {
@@ -236,38 +236,54 @@ const isLengthMember = (node: unknown): boolean =>
 
 export type EmptyKind = 'empty' | 'non-empty'
 
+const classifyAgainstZero = (operator: string, lengthOnLeft: boolean): EmptyKind | null => {
+  if (operator === '===' || operator === '==') {
+    return 'empty'
+  }
+  if (operator === '!==' || operator === '!=') {
+    return 'non-empty'
+  }
+  if (operator === '>') {
+    return lengthOnLeft ? 'non-empty' : 'empty'
+  }
+  if (operator === '<') {
+    return lengthOnLeft ? 'empty' : 'non-empty'
+  }
+  if (operator === '>=') {
+    return lengthOnLeft ? null : 'empty'
+  }
+  if (operator === '<=') {
+    return lengthOnLeft ? 'empty' : null
+  }
+  return null
+}
+
+const classifyAgainstOne = (operator: string, lengthOnLeft: boolean): EmptyKind | null => {
+  if (operator === '<') {
+    return lengthOnLeft ? 'empty' : 'non-empty'
+  }
+  if (operator === '>=') {
+    return lengthOnLeft ? 'non-empty' : 'empty'
+  }
+  if (operator === '>') {
+    return lengthOnLeft ? null : 'empty'
+  }
+  if (operator === '<=') {
+    return lengthOnLeft ? null : 'non-empty'
+  }
+  return null
+}
+
 export const classifyLengthComparison = (
   operator: string,
   lengthOnLeft: boolean,
   literal: number,
 ): EmptyKind | null => {
   if (literal === 0) {
-    if (operator === '===' || operator === '==') {
-      return 'empty'
-    }
-    if (operator === '!==' || operator === '!=') {
-      return 'non-empty'
-    }
-    if (operator === '>') {
-      return lengthOnLeft ? 'non-empty' : 'empty'
-    }
-    if (operator === '<') {
-      return lengthOnLeft ? 'empty' : 'non-empty'
-    }
-    if (operator === '>=') {
-      return lengthOnLeft ? null : 'empty'
-    }
-    if (operator === '<=') {
-      return lengthOnLeft ? 'empty' : null
-    }
+    return classifyAgainstZero(operator, lengthOnLeft)
   }
   if (literal === 1) {
-    if (operator === '<') {
-      return lengthOnLeft ? 'empty' : 'non-empty'
-    }
-    if (operator === '>=') {
-      return lengthOnLeft ? 'non-empty' : 'empty'
-    }
+    return classifyAgainstOne(operator, lengthOnLeft)
   }
   return null
 }

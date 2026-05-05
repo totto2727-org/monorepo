@@ -122,6 +122,7 @@ export const Todo = clientEntry('/assets/app/ui/todo.client.tsx#Todo', (handle: 
               const raw = data.get('todo')
               // oxlint-disable-next-line rules/force-predicate -- avoid pulling effect into the example app
               const text = (typeof raw === 'string' ? raw : '').trim()
+              // oxlint-disable-next-line rules/force-string-empty -- avoid pulling effect into the example app
               if (text === '') {
                 return
               }
@@ -137,6 +138,7 @@ export const Todo = clientEntry('/assets/app/ui/todo.client.tsx#Todo', (handle: 
           </button>
         </form>
         <p mix={summaryStyle}>
+          {/* oxlint-disable-next-line rules/force-array-empty -- avoid pulling effect into the example app */}
           {state.items.length === 0 ? 'No items yet.' : `${remaining} of ${state.items.length} remaining`}
         </p>
         <ul mix={listStyle}>

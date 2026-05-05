@@ -1,4 +1,4 @@
-import { Effect } from 'effect'
+import { Array, Effect } from 'effect'
 
 import type { LockFile } from '#@/schema/lock-file.ts'
 import * as Cache from '#@/service/cache.ts'
@@ -16,7 +16,7 @@ export const run = (
     yield* Cache.ensureDirs(agentsDir)
 
     const lockFile = yield* LockFileService.read(agentsDir)
-    if (lockFile.repositories.length === 0) {
+    if (Array.isReadonlyArrayEmpty(lockFile.repositories)) {
       yield* Effect.log('No repositories in lock file.')
       return
     }
@@ -43,13 +43,13 @@ export const run = (
           })
           return { ...plugin, enabledSkills: validSkills }
         })
-        .filter((p) => p.enabledSkills.length > 0)
+        .filter((p) => Array.isReadonlyArrayNonEmpty(p.enabledSkills))
 
       for (const removed of removedSkills) {
         yield* Effect.log(`  Removed: ${removed} (no longer exists)`)
       }
 
-      if (updatedPlugins.length > 0) {
+      if (Array.isArrayNonEmpty(updatedPlugins)) {
         updatedRepos.push({ ...repo, plugins: updatedPlugins })
       }
 

@@ -1,4 +1,4 @@
-/* oxlint-disable rules/force-predicate -- this package is consumer-runtime only and avoids depending on `effect` */
+/* oxlint-disable rules/force-predicate, rules/force-string-empty -- this package is consumer-runtime only and avoids depending on `effect` */
 import { run } from 'remix/ui'
 
 type ClientExport = (...args: never[]) => unknown

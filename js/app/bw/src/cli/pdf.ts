@@ -1,4 +1,4 @@
-import { Effect, Option } from 'effect'
+import { Array, Effect, Option } from 'effect'
 import { Command, Flag } from 'effect/unstable/cli'
 
 import { applyWaitUntil, loadConfig, resolveInput } from '#@/lib/config.ts'
@@ -31,7 +31,7 @@ export const pdfCommand = Command.make(
       }
       const body = {
         ...applyWaitUntil(baseBody, flags.waitUntil),
-        ...(Object.keys(pdfOptions).length > 0 ? { pdfOptions } : {}),
+        ...(Array.isArrayNonEmpty(Object.keys(pdfOptions)) ? { pdfOptions } : {}),
       }
       const data = yield* ApiClient.pdf(auth, body)
       yield* Output.writeFile(flags.output, data)

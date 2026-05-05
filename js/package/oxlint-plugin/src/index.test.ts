@@ -158,6 +158,22 @@ describe('classifyLengthComparison', () => {
     test('!== 1 is not classified (not an empty-check pattern)', () => {
       expect(classifyLengthComparison('!==', true, 1)).toBeNull()
     })
+
+    test('1 > length is empty', () => {
+      expect(classifyLengthComparison('>', false, 1)).toBe('empty')
+    })
+
+    test('length > 1 is not classified (means length >= 2)', () => {
+      expect(classifyLengthComparison('>', true, 1)).toBeNull()
+    })
+
+    test('1 <= length is non-empty', () => {
+      expect(classifyLengthComparison('<=', false, 1)).toBe('non-empty')
+    })
+
+    test('length <= 1 is not classified (means 0 or 1)', () => {
+      expect(classifyLengthComparison('<=', true, 1)).toBeNull()
+    })
   })
 
   describe('other literals', () => {
@@ -165,8 +181,8 @@ describe('classifyLengthComparison', () => {
       expect(classifyLengthComparison('===', true, 2)).toBeNull()
     })
 
-    test('> 1 is not classified (would mean length >= 2)', () => {
-      expect(classifyLengthComparison('>', true, 1)).toBeNull()
+    test('> 2 is not classified', () => {
+      expect(classifyLengthComparison('>', true, 2)).toBeNull()
     })
   })
 })

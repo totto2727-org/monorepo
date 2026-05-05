@@ -1,4 +1,4 @@
-/* oxlint-disable rules/force-predicate, typescript-eslint/no-unsafe-type-assertion -- this package is consumer-runtime only and avoids depending on `effect`; the type assertions below bridge between remix/ui's internal types and our public API. */
+/* oxlint-disable rules/force-predicate, rules/force-string-empty, typescript-eslint/no-unsafe-type-assertion -- this package is consumer-runtime only and avoids depending on `effect`; the type assertions below bridge between remix/ui's internal types and our public API. */
 import type { MiddlewareHandler } from 'hono'
 import type { RemixNode } from 'remix/ui'
 import { renderToStream } from 'remix/ui/server'
