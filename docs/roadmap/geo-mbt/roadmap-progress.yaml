@@ -7,9 +7,15 @@
 
 roadmap_id: geo-mbt
 title: georust/geo Library Port to MoonBit
-status: active
+status: completed
 created_at: 2026-05-05T00:00:00Z
 updated_at: 2026-05-06T00:00:00Z
+notes: |
+  ms-01 to ms-15 (in-scope) all completed inline on branch cobalt-ocotillo.
+  Post-scope priority items (spatial index / traits / boolean ops /
+  property-style fuzz tests) also completed on the same branch — see
+  roadmap.md "非スコープ後続作業の優先順位" section. 202 tests passing
+  across the full geo-mbt package.
 
 # マイルストーン一覧。Step 2 (Milestone Decomposition) で確定。
 # 確定後の `id` / `title` / `depends_on` は immutable。
