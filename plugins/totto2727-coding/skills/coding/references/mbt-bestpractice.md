@@ -84,8 +84,40 @@
   ```
 
 - **Initialization**: Struct literal syntax (`TypeName::{...}`) should ONLY be used strictly within the canonical `TypeName::TypeName(...)` constructor. All other code (including factory functions and tests) must use the constructor short form (`TypeName(...)`).
-- **Updating**: Use dedicated update functions/methods to modify values.
-- **Struct Update Syntax**: Avoid using Struct Update Syntax (e.g., `{ ..base, field: value }`) whenever possible, as it may bypass validation logic or constraints.
+- **Updating**: Use dedicated update functions/methods to modify values. Pick the naming based on whether the type is **immutable (value object)** or **mutable**:
+  - **Immutable update — wither pattern (`with_hoge`)**: For value types (`derive(Eq, Hash)`, no externally observable identity), define `with_<field>` methods that return a **new instance** with one or more fields swapped. The receiver is never mutated. This composes well with `let`-binding and pipe-style code, and keeps `Eq`/`Hash` invariants intact.
+
+    ```mbt check
+    pub fn Point::with_x(self : Point, x : Double) -> Point {
+      Point::new(x, self.y())
+    }
+
+    pub fn Point::with_y(self : Point, y : Double) -> Point {
+      Point::new(self.x(), y)
+    }
+
+    // Usage: chains naturally; original `p` is unchanged.
+    let q = p.with_x(5.0).with_y(3.0)
+    ```
+
+    Use the wither pattern as the default whenever possible. It is the only safe shape for types that derive `Hash` (or are otherwise stored in keyed collections) — a setter would silently corrupt the hash.
+
+  - **Mutable update — setter pattern (`set_hoge`)**: For genuinely mutable types (builders, in-place collection wrappers, types with externally observable identity), define `set_<field>` methods that mutate `self` in place and return `Unit`. The setter pattern is reserved for cases where allocation cost or in-place semantics are part of the intended contract.
+
+    ```mbt check
+    pub fn Builder::set_capacity(self : Builder, capacity : Int) -> Unit {
+      self.capacity = capacity
+    }
+
+    // Usage: receiver is mutated; chain via the cascade operator (..) when needed.
+    let b = Builder::Builder()..set_capacity(64)..set_label("foo")
+    ```
+
+    Setters MUST NOT be defined on a type that derives `Hash` or is otherwise compared structurally for keying purposes — mutating a keyed value is undefined behaviour at the data-structure level.
+
+  - **Mixing the two on the same type is forbidden.** A type is either an immutable value object (only withers) or a mutable type (only setters). If both kinds of updates are conceptually needed, split the type into two — typically a `Builder` (mutable, setters) that produces a finalised value object (immutable, withers).
+
+- **Struct Update Syntax**: Avoid using Struct Update Syntax (e.g., `{ ..base, field: value }`) whenever possible, as it may bypass validation logic or constraints. Withers should always go through the canonical constructor.
 - **Ignore Usage**: Use proper pipeline style when ignoring return values: `expr |> ignore`.
 
 ### 3.2 Sequence-returning functions (Array vs Iter)

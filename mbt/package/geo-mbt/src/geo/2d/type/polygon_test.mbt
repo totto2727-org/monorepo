@@ -46,3 +46,105 @@ test "Polygon already-closed exterior is preserved" {
   let polygon = @type.Polygon::Polygon(exterior, [])
   assert_eq(polygon.exterior().length(), 5)
 }
+
+///|
+test "with_pushed_interior: appends and auto-closes the new interior" {
+  let exterior = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (10.0, 0.0),
+    (10.0, 10.0),
+    (0.0, 10.0),
+  ])
+  let original = @type.Polygon::Polygon(exterior, [])
+  let new_interior = @type.LineString::from_tuples([
+    (3.0, 3.0),
+    (7.0, 3.0),
+    (7.0, 7.0),
+    (3.0, 7.0),
+  ])
+  let updated = original.with_pushed_interior(new_interior)
+  assert_eq(updated.num_interiors(), 1)
+  // The appended ring is auto-closed (5 coords = 4 unique + closing).
+  assert_true(updated.interiors()[0].is_closed())
+  assert_eq(updated.interiors()[0].length(), 5)
+}
+
+///|
+test "with_pushed_interior: original polygon is not modified" {
+  let exterior = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (10.0, 0.0),
+    (10.0, 10.0),
+    (0.0, 10.0),
+  ])
+  let original = @type.Polygon::Polygon(exterior, [])
+  let _ = original.with_pushed_interior(
+    @type.LineString::from_tuples([
+      (3.0, 3.0),
+      (7.0, 3.0),
+      (7.0, 7.0),
+      (3.0, 7.0),
+    ]),
+  )
+  // Original still has 0 interiors.
+  assert_eq(original.num_interiors(), 0)
+}
+
+///|
+test "with_pushed_interior: input LineString is not mutated" {
+  let exterior = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (10.0, 0.0),
+    (10.0, 10.0),
+    (0.0, 10.0),
+  ])
+  let polygon = @type.Polygon::Polygon(exterior, [])
+  let user_interior = @type.LineString::from_tuples([
+    (3.0, 3.0),
+    (7.0, 3.0),
+    (7.0, 7.0),
+    (3.0, 7.0),
+  ])
+  let len_before = user_interior.length()
+  let was_closed_before = user_interior.is_closed()
+  let _ = polygon.with_pushed_interior(user_interior)
+  // Caller's reference must remain in its original (open, unclosed) state.
+  assert_eq(user_interior.length(), len_before)
+  assert_eq(user_interior.is_closed(), was_closed_before)
+}
+
+///|
+test "with_pushed_interior: existing interiors are preserved in order" {
+  let exterior = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (20.0, 0.0),
+    (20.0, 20.0),
+    (0.0, 20.0),
+  ])
+  let interior_a = @type.LineString::from_tuples([
+    (3.0, 3.0),
+    (5.0, 3.0),
+    (5.0, 5.0),
+    (3.0, 5.0),
+  ])
+  let interior_b = @type.LineString::from_tuples([
+    (10.0, 10.0),
+    (12.0, 10.0),
+    (12.0, 12.0),
+    (10.0, 12.0),
+  ])
+  let polygon = @type.Polygon::Polygon(exterior, [interior_a, interior_b])
+  let extra = @type.LineString::from_tuples([
+    (15.0, 15.0),
+    (17.0, 15.0),
+    (17.0, 17.0),
+    (15.0, 17.0),
+  ])
+  let extended = polygon.with_pushed_interior(extra)
+  assert_eq(extended.num_interiors(), 3)
+  // Existing interiors keep their order; new one is at index = old_n.
+  assert_true(extended.interiors()[0] == polygon.interiors()[0])
+  assert_true(extended.interiors()[1] == polygon.interiors()[1])
+  // The appended ring (index 2) is auto-closed.
+  assert_true(extended.interiors()[2].is_closed())
+}

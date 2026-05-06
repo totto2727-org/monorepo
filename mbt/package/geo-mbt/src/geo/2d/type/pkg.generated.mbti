@@ -146,6 +146,7 @@ pub fn Polygon::Polygon(LineString, Array[LineString]) -> Self
 pub fn Polygon::exterior(Self) -> LineString
 pub fn Polygon::interiors(Self) -> Array[LineString]
 pub fn Polygon::num_interiors(Self) -> Int
+pub fn Polygon::with_pushed_interior(Self, LineString) -> Self
 
 pub struct Rect {
   min : Coord
