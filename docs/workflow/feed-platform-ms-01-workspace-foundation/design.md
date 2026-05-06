@@ -417,7 +417,6 @@ js/app/feed-platform-backend/
     "dev:bff": "wrangler dev --config src/worker/bff/wrangler.jsonc",
     "deploy:health": "wrangler deploy --config src/worker/health/wrangler.jsonc",
     "deploy:bff": "wrangler deploy --config src/worker/bff/wrangler.jsonc",
-    "typecheck": "tsgo --noEmit",
   },
   "dependencies": {
     "effect": "catalog:effect",
@@ -615,7 +614,6 @@ js/app/feed-platform-web/
     "deploy": "wrangler deploy",
     "dev": "vp dev",
     "start": "wrangler dev",
-    "typecheck": "tsgo --noEmit",
   },
   "dependencies": {
     "effect": "catalog:effect",
@@ -780,7 +778,6 @@ js/app/identity-provider/
     "deploy": "wrangler deploy",
     "dev": "vp dev",
     "start": "wrangler dev",
-    "typecheck": "tsgo --noEmit",
   },
   "dependencies": {
     "effect": "catalog:effect",

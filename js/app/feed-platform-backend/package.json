@@ -9,8 +9,7 @@
     "deploy:bff": "wrangler deploy --config src/worker/bff/wrangler.jsonc",
     "deploy:health": "wrangler deploy --config src/worker/health/wrangler.jsonc",
     "dev:bff": "wrangler dev --config src/worker/bff/wrangler.jsonc",
-    "dev:health": "wrangler dev --config src/worker/health/wrangler.jsonc",
-    "typecheck": "tsgo --noEmit"
+    "dev:health": "wrangler dev --config src/worker/health/wrangler.jsonc"
   },
   "dependencies": {
     "effect": "catalog:effect",
