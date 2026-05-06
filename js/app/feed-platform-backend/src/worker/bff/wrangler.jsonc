@@ -11,7 +11,4 @@
   "placement": {
     "mode": "smart",
   },
-  "vars": {
-    "ENV": "development",
-  },
 }

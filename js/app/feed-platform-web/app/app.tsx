@@ -4,14 +4,16 @@ import { remixRenderer } from 'hono-remix-middleware'
 import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
 
-import type { Type as EnvType } from '#@/feature/env.ts'
 import * as Greeting from '#@/feature/greeting.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 import type { Variables } from '#@/feature/runtime/hono.ts'
 import { Document } from '#@/ui/document.tsx'
 
+// Bindings は明示しない: ENV は process.env.NODE_ENV (wrangler / vite 自動設定) を
+// 単一ソースとし、Effect Service (`Env.Service`) 経由で読み取るため、
+// Hono の `c.env` 経路を経由しない。Cloudflare 側 binding を後で追加する場合は
+// worker-configuration.d.ts の自動生成 `Env` interface を `Bindings` に渡す形で拡張する。
 interface AppEnv {
-  Bindings: EnvType
   Variables: Variables
 }
 

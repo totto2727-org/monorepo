@@ -7,28 +7,25 @@ import * as Health from '../health.ts'
 // Env Service から `ENV` を取得して Logger 形式 (consoleJson / consolePretty) を選択する Layer。
 // `Layer.unwrap` で `Effect<Layer<...>, ...>` を `Layer` に flatten する。
 // 内部で `yield* Env.Service` するため、unwrap 後の Layer は Env を依存として要求する。
-// 後段で `Layer.provideMerge(Env.makeLayer(env))` を合成すれば dependency が閉じる。
+// ここでは `Layer.provide(Env.layer)` で Env 依存を閉じてしまい、Logger 専用の独立 Layer に整える。
 const dynamicLoggerLayer = Layer.unwrap(
   Effect.gen(function* () {
     const env = yield* Env.Service
     return Logger.layer([env.ENV === 'production' ? Logger.consoleJson : Logger.consolePretty()])
   }),
-)
+).pipe(Layer.provide(Env.layer))
 
-const makeRuntime = (env: Env.Type) => {
-  // Env Layer を共有して Health (yield* Env) と dynamicLoggerLayer (yield* Env)
-  // 双方の Env 依存を閉じる。`provide(dynamicLoggerLayer)` の dynamicLoggerLayer 側にも
-  // Env が必要なため、unwrap 後の dynamicLoggerLayer に対して Env を `provide` してから
-  // 全体に Layer.provide で重ねる。
-  const envLayer = Env.makeLayer(env)
-  return ManagedRuntime.make(
+const makeRuntime = () =>
+  // Env.layer (process.env.NODE_ENV 由来) を `provideMerge` で合成し、
+  // Health (yield* Env) の依存を閉じる。Logger 用 Env 依存は dynamicLoggerLayer 側で
+  // 既に `Layer.provide(Env.layer)` 済みのため、追加 provide は不要。
+  ManagedRuntime.make(
     Health.layer.pipe(
       Layer.provideMerge(Greeting.layer),
-      Layer.provideMerge(envLayer),
-      Layer.provide(dynamicLoggerLayer.pipe(Layer.provide(envLayer))),
+      Layer.provideMerge(Env.layer),
+      Layer.provide(dynamicLoggerLayer),
     ),
   )
-}
 
 export type Runtime = ReturnType<typeof makeRuntime>
 
@@ -43,8 +40,8 @@ const makeDisposableRuntime = (make: typeof makeRuntime) =>
   class DisposableRuntime implements DisposableRuntimeInterface {
     readonly instance: Runtime
 
-    constructor(env: Env.Type) {
-      this.instance = make(env)
+    constructor() {
+      this.instance = make()
     }
 
     async [Symbol.asyncDispose](): Promise<void> {
@@ -54,8 +51,9 @@ const makeDisposableRuntime = (make: typeof makeRuntime) =>
 
 export const DisposableRuntime = makeDisposableRuntime(makeRuntime)
 
-// 公開 entry: Hono middleware から `await using runtime = Runtime.make(c.env)` 形で利用される。
+// 公開 entry: Hono middleware から `await using runtime = Runtime.make()` 形で利用される。
+// ENV 取得は Env.layer (process.env.NODE_ENV 由来) に内部化したため引数は不要。
 // saas-example が PROD/DEV/TEST 別の DisposableRuntime バリアントを返すのに対し、
 // ms-01 雛形では Logger 切替を `dynamicLoggerLayer` (Env.Service 経由) に内部化したため、
 // 公開 `make` は単一 Disposable バリアントを返すだけで足りる。
-export const make = (env: Env.Type) => new DisposableRuntime(env)
+export const make = () => new DisposableRuntime()

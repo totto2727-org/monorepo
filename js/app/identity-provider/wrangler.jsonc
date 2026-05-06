@@ -17,13 +17,16 @@
   "placement": {
     "mode": "smart",
   },
-  "vars": {
-    "ENV": "development",
-    // ms-02 (Passkey + Magic Link) 以降で Better Auth を導入する際、認証関連の
-    // 環境変数を以下に追加する。実体は ms-02 の実装者が wrangler secret 等で注入予定。
-    // "BETTER_AUTH_URL": "...",
-    // "BETTER_AUTH_SECRET": "[REDACTED — wrangler secret 経由で注入]",
-  },
+  // ms-02 (Passkey + Magic Link) 以降で Better Auth を導入する際、認証関連の
+  // 環境変数 / secret を `vars` block に追加するか `wrangler secret` 経由で注入する。
+  // ENV (development / production) 自体は process.env.NODE_ENV (wrangler / vite 自動設定)
+  // を単一ソースとし、`feature/env.ts` の `Env.layer` 経由で参照するため、
+  // ここで明示的に `vars.ENV` を持たない方針 (本番 deploy で dev 値が焼き込まれるバグの根本予防)。
+  // ref: https://developers.cloudflare.com/workers/wrangler/bundling/#node_env
+  // "vars": {
+  //   "BETTER_AUTH_URL": "...",
+  //   "BETTER_AUTH_SECRET": "[REDACTED — wrangler secret 経由で注入]",
+  // },
   // ms-02 (Passkey + Magic Link) 以降で D1 / KV binding を有効化する。
   // 実際の database_id / namespace id は秘密情報相当のため ms-02 の実装者が確定する。
   // "d1_databases": [
