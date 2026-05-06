@@ -3,7 +3,7 @@
 - **Source:** `task-plan.md`
 - **Active Steps:** Step 6-7 (Implementation / External Review)
 - **Created at:** 2026-05-06T10:25:00Z
-- **Last updated:** 2026-05-06T10:25:00Z
+- **Last updated:** 2026-05-06T11:07:11Z
 
 本ファイルは Step 6-7 中の **persisted task state**。Main の `TaskCreate` task list と同期するが、**こちらが source of truth**。状態変更時は TODO.md → commit → `TaskUpdate` の順で更新する。
 
@@ -64,12 +64,12 @@
   - notes: `vp test run src/smoke.test.ts` PASS 確認。vite-plus/test 暗黙 config 利用、vitest.config 新設なし
 
 - [ ] **T-F** — feed-platform-web プロジェクト初期化
-  - status: pending
+  - status: in_progress
   - dependencies: なし (Wave 2 ルート)
-  - started_at: -
+  - started_at: 2026-05-06T10:59:00Z
   - completed_at: -
   - commit: -
-  - implementer: -
+  - implementer: implementer-B (Phase 2a web chain)
   - re_activations: 0
   - notes: hono-remix-v3-cloudflare-example 1:1 コピーベース、Counter / TODO / Frame サンプル削除
 
@@ -93,15 +93,15 @@
   - re_activations: 0
   - notes: T-B と同形
 
-- [ ] **T-I** — identity-provider プロジェクト全体 (T-F〜T-H 同形コピー)
-  - status: pending
+- [x] **T-I** — identity-provider プロジェクト全体 (T-F〜T-H 同形コピー)
+  - status: completed
   - dependencies: なし (Wave 2 ルート、T-F と完全並列可)
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-06T10:59:28Z
+  - completed_at: 2026-05-06T11:07:11Z
+  - commit: da5dfaf
+  - implementer: implementer-C (Phase 2b identity-provider chain)
   - re_activations: 0
-  - notes: Better Auth 等は ms-02 委譲
+  - notes: hono-remix-v3-cloudflare-example 構成踏襲、Counter / TODO / Frame サンプル削除、PageOrFrame 不採用 (TC-022)。Phase 1 deviation (Context.Service + dynamicLoggerLayer の Env closure) を踏襲。`Hono<AppEnv>` chain 中 `app` 自己参照の TS7022/TS7023 を `const app: Hono<AppEnv>` 明示 + `fetcher` 戻り値型明示で解消。`vp test run js/app/identity-provider/app/smoke.test.ts` は 2 件 PASS。`vp check` は識別子のエラー 0 件 (rss-graphql の既存 86 件は既存問題で本タスク責任外)。OAuth 2.1 / Better Auth は ms-02 委譲
 
 - [ ] **T-J** — identity-provider DB binding コメント予約
   - status: pending
