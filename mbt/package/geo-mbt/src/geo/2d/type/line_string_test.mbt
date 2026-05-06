@@ -47,14 +47,38 @@ test "LineString lines (segments)" {
 }
 
 ///|
-test "LineString close in place" {
+test "LineString closed: returns a closed copy without mutating self" {
   let ls = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0), (2.0, 0.0)])
-  ls.close()
-  assert_true(ls.is_closed())
-  assert_eq(ls.length(), 4)
-  // Idempotent: closing again is a no-op
-  ls.close()
-  assert_eq(ls.length(), 4)
+  let len_before = ls.length()
+  let was_closed_before = ls.is_closed()
+  let c = ls.closed()
+  assert_true(c.is_closed())
+  assert_eq(c.length(), 4)
+  // Original is untouched (immutable semantics).
+  assert_eq(ls.length(), len_before)
+  assert_eq(ls.is_closed(), was_closed_before)
+}
+
+///|
+test "LineString closed: already-closed input returns self (no copy)" {
+  let already_closed = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (1.0, 1.0),
+    (2.0, 0.0),
+    (0.0, 0.0),
+  ])
+  let c = already_closed.closed()
+  // No allocation expected; we observe via structural equality + same length.
+  assert_eq(c.length(), already_closed.length())
+  assert_true(c == already_closed)
+}
+
+///|
+test "LineString closed: empty input returns self" {
+  let empty = @type.LineString::empty()
+  let c = empty.closed()
+  assert_eq(c.length(), 0)
+  assert_true(c == empty)
 }
 
 ///|

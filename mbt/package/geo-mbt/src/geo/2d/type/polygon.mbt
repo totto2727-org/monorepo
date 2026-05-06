@@ -26,17 +26,19 @@ pub struct Polygon {
 ///|
 /// Creates a new `Polygon`.
 ///
-/// The exterior and each interior ring are closed in place if not already
-/// closed (matching the Rust geo-types semantics).
+/// The exterior and each interior ring are closed (auto-closure matches the
+/// Rust geo-types semantics). The closure is **immutable**: each input
+/// `LineString` is replaced via `LineString::closed`, which returns either
+/// `self` (if already closed) or a fresh closed copy. The caller's
+/// references are never mutated as a side effect of constructing a
+/// `Polygon`.
 pub fn Polygon::Polygon(
   exterior : LineString,
   interiors : Array[LineString],
 ) -> Polygon {
-  exterior.close()
-  for interior in interiors {
-    interior.close()
-  }
-  Polygon::{ exterior, interiors }
+  let closed_exterior = exterior.closed()
+  let closed_interiors = interiors.map(LineString::closed)
+  Polygon::{ exterior: closed_exterior, interiors: closed_interiors }
 }
 
 ///|
@@ -52,9 +54,24 @@ pub fn Polygon::interiors(self : Polygon) -> Array[LineString] {
 }
 
 ///|
-/// Returns the number of interior rings.
+/// Returns the number of interior rings (holes).
 pub fn Polygon::num_interiors(self : Polygon) -> Int {
   self.interiors.length()
+}
+
+///|
+/// Returns the total number of rings: exterior (1) plus interiors. Mirrors
+/// Rust upstream `Polygon::num_rings`.
+pub fn Polygon::num_rings(self : Polygon) -> Int {
+  self.interiors.length() + 1
+}
+
+///|
+/// Returns whether this polygon has no coordinates at all — i.e. its
+/// exterior ring is empty. (Interior rings without an exterior are
+/// nonsensical and not produced by the canonical constructor.)
+pub fn Polygon::is_empty(self : Polygon) -> Bool {
+  self.exterior.is_empty()
 }
 
 ///|
@@ -63,30 +80,27 @@ pub fn Polygon::num_interiors(self : Polygon) -> Int {
 /// (immutable counterpart of Rust upstream `Polygon::interiors_push`, which
 /// mutates `&mut self`).
 ///
-/// `new_interior` itself is also left untouched — it is cloned before being
-/// auto-closed by the canonical `Polygon` constructor, so a caller passing
-/// in their own `LineString` reference does not see it mutated as a side
-/// effect.
+/// `new_interior` itself is also left untouched — `LineString::closed` is
+/// used to obtain a closed view without mutating the caller's value (and
+/// returns `self` when already closed, so no allocation occurs in that
+/// case).
 ///
 /// **Performance**: the destination interiors `Array` is sized to its final
-/// length (`n + 1`) in a single `Array::makei` allocation; existing interiors
-/// are not re-cloned (each `LineString` reference is copied, not its coords).
-/// No `push` loop is involved.
+/// length (`n + 1`) in a single `Array::makei` allocation. The canonical
+/// `Polygon` constructor then re-runs `LineString::closed` on every entry,
+/// but since the existing interiors and `closed_new` are already closed,
+/// every per-element call returns `self` without copying.
 pub fn Polygon::with_pushed_interior(
   self : Polygon,
   new_interior : LineString,
 ) -> Polygon {
   let n = self.interiors.length()
-  // Clone the input's coords array so closing the resulting LineString does
-  // not mutate the caller's value. The canonical Polygon constructor below
-  // will close it idempotently.
-  let cloned_new = LineString::LineString(new_interior.coords().copy())
-  // Single allocation sized to the final length; no incremental growth.
+  let closed_new = new_interior.closed()
   let next_interiors = Array::makei(n + 1, fn(i) {
     if i < n {
       self.interiors[i]
     } else {
-      cloned_new
+      closed_new
     }
   })
   Polygon(self.exterior, next_interiors)
