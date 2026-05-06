@@ -35,8 +35,9 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     }),
   )
   .get('/', (c) =>
-    // ms-01 段階では PageOrFrame は採用せず、素朴な c.render(<Document>...) で Hello World を出す
-    // (TC-022 観測対象)。ms-04 / ms-07 で UI を強化する際に PageOrFrame の採用可否を再検討する。
+    // ms-01 段階では Frame ベースのレイアウト (hono-remix-v3-cloudflare-example の
+    // content-layout 系) は採用せず、素朴な c.render(<Document>...) で Hello World を出す。
+    // ms-04 / ms-07 で UI を強化する際に Frame レイアウトの採用可否を再検討する。
     c.render(
       <Document>
         <h1>Hello, identity-provider</h1>

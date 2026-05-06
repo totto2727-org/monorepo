@@ -19,5 +19,17 @@
   },
   "vars": {
     "ENV": "development",
+    // ms-02 (Passkey + Magic Link) 以降で Better Auth を導入する際、認証関連の
+    // 環境変数を以下に追加する。実体は ms-02 の実装者が wrangler secret 等で注入予定。
+    // "BETTER_AUTH_URL": "...",
+    // "BETTER_AUTH_SECRET": "[REDACTED — wrangler secret 経由で注入]",
   },
+  // ms-02 (Passkey + Magic Link) 以降で D1 / KV binding を有効化する。
+  // 実際の database_id / namespace id は秘密情報相当のため ms-02 の実装者が確定する。
+  // "d1_databases": [
+  //   { "binding": "DB", "database_name": "identity-provider", "database_id": "..." },
+  // ],
+  // "kv_namespaces": [
+  //   { "binding": "KV_SESSIONS", "id": "..." },
+  // ],
 }
