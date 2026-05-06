@@ -3,7 +3,7 @@
 - **Source:** `task-plan.md`
 - **Active Steps:** Step 6-7 (Implementation / External Review)
 - **Created at:** 2026-05-06T10:25:00Z
-- **Last updated:** 2026-05-06T11:11:30Z
+- **Last updated:** 2026-05-06T11:13:30Z
 
 本ファイルは Step 6-7 中の **persisted task state**。Main の `TaskCreate` task list と同期するが、**こちらが source of truth**。状態変更時は TODO.md → commit → `TaskUpdate` の順で更新する。
 
@@ -124,25 +124,27 @@
   - status: completed
   - dependencies: T-I
   - started_at: 2026-05-06T11:07:50Z
-  - completed_at: 2026-05-06T11:09:55Z
-  - commit: a089283
+  - completed_at: 2026-05-06T11:13:30Z
+  - commit: 80f3ca8
   - implementer: implementer-C (Phase 2b identity-provider chain)
   - re_activations: 0
   - notes: |
       TC-023 観測仕様達成: `wrangler.jsonc` に `BETTER_AUTH_URL` / `BETTER_AUTH_SECRET` /
       `d1_databases` / `kv_namespaces` の 4 種類のコメント予約を追加。
-      また T-I commit に紛れ込んだ `app/app.tsx` の "PageOrFrame" コメント文字列を
-      "Frame ベースのレイアウト" に書き換えて TC-022 の grep `PageOrFrame|createPageOrFrame`
-      が 0 件 hit になることを確実化。
-      
-      **Cross-implementer concern**: 私 (implementer-C) が T-J の `wrangler.jsonc` /
-      `app.tsx` 編集を staged 状態で持っていたタイミングで、implementer-B が並列で
-      `git add -A` (or 同等) で T-F を commit したため、私の T-J 編集が
-      a089283 (T-F commit) に巻き込まれてしまった。実体としては
-      `js/app/identity-provider/wrangler.jsonc` と `js/app/identity-provider/app/app.tsx`
-      の T-J 内容は a089283 に含まれているため、機能的な実装結果は task-plan.md の
-      意図通りに完成しているが、commit 単位の論理分離が崩れた状態。
-      最終報告で Main に詳細を共有する。
+      副次変更で `app/app.tsx` のコメントから "PageOrFrame" 文字列を削除し、
+      TC-022 観測仕様 (`grep -E 'PageOrFrame|createPageOrFrame'` 0 hit) を
+      コメントレベルでも完全に満たす状態に整理。
+
+      **Cross-implementer concern (記録 / Main 確認推奨)**:
+      当初 T-J 用に staged していた `identity-provider/wrangler.jsonc` /
+      `app/app.tsx` の編集が、implementer-B の並列 T-F commit に巻き込まれて
+      orphan commit (a089283) として作成され、その後 reflog で巻き戻されて
+      実体は worktree 上にのみ残存 → 改めて私が `80f3ca8` として T-J commit を
+      作成した経緯がある (詳細は最終報告)。最終的なリポジトリ状態は task-plan.md
+      の意図通り (T-F = 8fa4df2 / T-I = da5dfaf / T-J = 80f3ca8 が独立 commit)
+      で完成しており、機能的な乖離はなし。implementer-B 側 (T-F notes) の
+      cross-implementer concern 記述と合わせて Main 側で判断を確認することを
+      推奨する。
 
 - [ ] **T-K** — ADR-01 起票 (Roadmap mode)
   - status: pending
