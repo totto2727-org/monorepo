@@ -43,15 +43,15 @@
   - re_activations: 0
   - notes: `vp run setup:cloudflare:health` で worker-configuration.d.ts 生成確認済
 
-- [ ] **T-D** — feed-platform-backend bff entry
-  - status: pending
+- [x] **T-D** — feed-platform-backend bff entry
+  - status: completed
   - dependencies: T-A, T-B
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-06T11:02:00Z
+  - completed_at: 2026-05-06T11:06:00Z
+  - commit: 2460fe9
+  - implementer: implementer-A (Phase 1 backend chain)
   - re_activations: 0
-  - notes: SC-5 (≥ 2 entry) の構造的担保完成
+  - notes: SC-5 (≥ 2 entry) の構造的担保完成。`find src -name worker.ts | wc -l = 2`
 
 - [ ] **T-E** — feed-platform-backend smoke test
   - status: pending
