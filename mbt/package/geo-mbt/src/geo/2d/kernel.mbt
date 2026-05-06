@@ -24,13 +24,3 @@ pub fn orient(p : @type.Coord, q : @type.Coord, r : @type.Coord) -> Orientation 
     Collinear
   }
 }
-
-///|
-/// Convenience wrapper returning the raw signed area as `Double`.
-pub fn signed_area_of_triangle_robust(
-  p : @type.Coord,
-  q : @type.Coord,
-  r : @type.Coord,
-) -> Double {
-  @robust.orient2d(p, q, r)
-}

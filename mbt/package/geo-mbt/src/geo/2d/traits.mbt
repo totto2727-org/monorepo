@@ -70,6 +70,21 @@ pub(open) trait HasDimensions {
 }
 
 ///|
+/// Anything whose extreme coordinates (xmin / xmax / ymin / ymax) can be
+/// taken. Returns `None` when there are no coordinates at all.
+pub(open) trait HasExtremes {
+  extremes(Self) -> Outcome?
+}
+
+///|
+/// Anything whose **exterior** coordinates can be enumerated. For shapes
+/// without interior rings this is identical to `CoordsCarrier::coords`; for
+/// `Polygon` / `MultiPolygon` / `Geometry` it excludes interior rings.
+pub(open) trait ExteriorCoordsCarrier {
+  exterior_coords(Self) -> Array[@type.Coord]
+}
+
+///|
 /// Anything whose convex hull can be taken. The result is always a `Polygon`.
 pub(open) trait HasConvexHull {
   convex_hull(Self) -> @type.Polygon
@@ -219,6 +234,87 @@ pub impl Bounded for @type.GeometryCollection with bbox(self) {
 ///|
 pub impl Bounded for @type.Geometry with bbox(self) {
   bounding_rect_of_geometry(self)
+}
+
+///|
+/// `Coord`'s bounding rectangle is the degenerate rectangle whose `min` and
+/// `max` are both `self`.
+pub impl Bounded for @type.Coord with bbox(self) {
+  Some(@type.Rect::Rect(self, self))
+}
+
+// MARK: HasExtremes impls (delegated via CoordsCarrier) ----------------------
+
+///|
+pub impl HasExtremes for @type.Point with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.Line with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.LineString with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.MultiPoint with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.MultiLineString with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.Polygon with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.MultiPolygon with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.Rect with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.Triangle with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.GeometryCollection with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.Geometry with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+// MARK: ExteriorCoordsCarrier impls ------------------------------------------
+
+///|
+pub impl ExteriorCoordsCarrier for @type.Polygon with exterior_coords(self) {
+  exterior_coords_of_polygon(self)
+}
+
+///|
+pub impl ExteriorCoordsCarrier for @type.MultiPolygon with exterior_coords(self) {
+  exterior_coords_of_multi_polygon(self)
+}
+
+///|
+pub impl ExteriorCoordsCarrier for @type.Geometry with exterior_coords(self) {
+  exterior_coords_of_geometry(self)
 }
 
 ///|

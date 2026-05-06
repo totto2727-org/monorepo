@@ -42,8 +42,3 @@ pub fn extremes_of_coords(coords : Array[@type.Coord]) -> Outcome? {
   let (x_min, x_max, y_min, y_max) = acc
   Some(Outcome(x_min, x_max, y_min, y_max))
 }
-
-///|
-pub fn extremes_of_geometry(g : @type.Geometry) -> Outcome? {
-  extremes_of_coords(coords_of_geometry(g))
-}

@@ -111,12 +111,12 @@ pub fn coords_count(g : @type.Geometry) -> Int {
 /// Returns only the exterior coordinates of the geometry. For `Polygon` /
 /// `MultiPolygon` this excludes interior rings; for other geometries this
 /// is identical to `coords_of_geometry`.
-pub fn exterior_coords_of_polygon(p : @type.Polygon) -> Array[@type.Coord] {
+fn exterior_coords_of_polygon(p : @type.Polygon) -> Array[@type.Coord] {
   [..p.exterior().coords()]
 }
 
 ///|
-pub fn exterior_coords_of_multi_polygon(
+fn exterior_coords_of_multi_polygon(
   mp : @type.MultiPolygon,
 ) -> Array[@type.Coord] {
   mp
@@ -127,7 +127,7 @@ pub fn exterior_coords_of_multi_polygon(
 }
 
 ///|
-pub fn exterior_coords_of_geometry(g : @type.Geometry) -> Array[@type.Coord] {
+fn exterior_coords_of_geometry(g : @type.Geometry) -> Array[@type.Coord] {
   match g {
     @type.Geometry::Polygon(p) => exterior_coords_of_polygon(p)
     @type.Geometry::MultiPolygon(mp) => exterior_coords_of_multi_polygon(mp)

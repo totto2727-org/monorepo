@@ -23,12 +23,6 @@ fn bounding_rect_of_coords(coords : Array[@type.Coord]) -> @type.Rect? {
 }
 
 ///|
-/// Bounding rect of a `Coord` is a degenerate `Rect` of zero size.
-pub fn bounding_rect_of_coord(c : @type.Coord) -> @type.Rect {
-  @type.Rect::Rect(c, c)
-}
-
-///|
 /// Bounding rect of a `Point` is a degenerate `Rect` of zero size.
 fn bounding_rect_of_point(p : @type.Point) -> @type.Rect {
   @type.Rect::Rect(p.coord(), p.coord())

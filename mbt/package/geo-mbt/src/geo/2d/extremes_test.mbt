@@ -8,7 +8,7 @@ test "extremes_of_geometry" {
     (-1.0, 7.0),
     (4.0, 0.0),
   ])
-  let outcome = extremes_of_geometry(@type.Geometry::LineString(ls)).unwrap()
+  let outcome = HasExtremes::extremes(@type.Geometry::LineString(ls)).unwrap()
   assert_eq(outcome.x_min.x(), -1.0)
   assert_eq(outcome.x_max.x(), 4.0)
   assert_eq(outcome.y_min.y(), 0.0)

@@ -37,7 +37,7 @@ test "coords_of_polygon walks exterior then interiors" {
   ])
   let polygon = @type.Polygon::Polygon(exterior, [interior])
   let all_coords = CoordsCarrier::coords(polygon)
-  let exterior_coords = exterior_coords_of_polygon(polygon)
+  let exterior_coords = ExteriorCoordsCarrier::exterior_coords(polygon)
   assert_true(all_coords.length() > exterior_coords.length())
   // Exterior alone has 5 coords (auto-closed).
   assert_eq(exterior_coords.length(), 5)
