@@ -70,13 +70,8 @@ pub fn Polygon::num_rings(self : Polygon) -> Int {
 /// Returns whether this polygon has no coordinates at all — i.e. its
 /// exterior ring is empty. (Interior rings without an exterior are
 /// nonsensical and not produced by the canonical constructor.)
-pub fn Polygon::is_empty(self : Polygon) -> Bool {
-  self.exterior.is_empty()
-}
-
-///|
 pub impl IsEmpty for Polygon with is_empty(self) {
-  self.is_empty()
+  self.exterior.is_empty()
 }
 
 ///|

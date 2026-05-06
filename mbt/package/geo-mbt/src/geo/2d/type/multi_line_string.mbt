@@ -29,33 +29,18 @@ pub fn MultiLineString::line_strings(
 }
 
 ///|
-pub fn MultiLineString::length(self : MultiLineString) -> Int {
+pub impl HasLength for MultiLineString with length(self) {
   self.line_strings.length()
 }
 
 ///|
-pub fn MultiLineString::is_empty(self : MultiLineString) -> Bool {
+pub impl IsEmpty for MultiLineString with is_empty(self) {
   self.line_strings.length() == 0
 }
 
 ///|
 /// Returns whether **all** line strings inside are closed. An empty multi line
 /// string is considered closed.
-pub fn MultiLineString::is_closed(self : MultiLineString) -> Bool {
-  self.line_strings.iter().all(LineString::is_closed)
-}
-
-///|
-pub impl HasLength for MultiLineString with length(self) {
-  self.length()
-}
-
-///|
-pub impl IsEmpty for MultiLineString with is_empty(self) {
-  self.is_empty()
-}
-
-///|
 pub impl IsClosed for MultiLineString with is_closed(self) {
-  self.is_closed()
+  self.line_strings.iter().all(IsClosed::is_closed)
 }

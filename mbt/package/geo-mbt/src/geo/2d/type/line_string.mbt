@@ -60,40 +60,25 @@ pub fn LineString::points_iter(self : LineString) -> Iter[Point] {
 
 ///|
 /// Returns the number of coordinates in the line string.
-pub fn LineString::length(self : LineString) -> Int {
+pub impl HasLength for LineString with length(self) {
   self.coords.length()
 }
 
 ///|
 /// Returns whether the line string has no coordinates.
-pub fn LineString::is_empty(self : LineString) -> Bool {
+pub impl IsEmpty for LineString with is_empty(self) {
   self.coords.length() == 0
 }
 
 ///|
 /// Returns whether the line string is closed: the first and last coordinates
 /// are equal. An empty line string is **not** closed.
-pub fn LineString::is_closed(self : LineString) -> Bool {
+pub impl IsClosed for LineString with is_closed(self) {
   let n = self.coords.length()
   if n < 2 {
     return false
   }
   self.coords[0] == self.coords[n - 1]
-}
-
-///|
-pub impl HasLength for LineString with length(self) {
-  self.length()
-}
-
-///|
-pub impl IsEmpty for LineString with is_empty(self) {
-  self.is_empty()
-}
-
-///|
-pub impl IsClosed for LineString with is_closed(self) {
-  self.is_closed()
 }
 
 ///|

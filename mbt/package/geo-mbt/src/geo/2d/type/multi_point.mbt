@@ -30,21 +30,11 @@ pub fn MultiPoint::points(self : MultiPoint) -> Array[Point] {
 }
 
 ///|
-pub fn MultiPoint::length(self : MultiPoint) -> Int {
+pub impl HasLength for MultiPoint with length(self) {
   self.points.length()
 }
 
 ///|
-pub fn MultiPoint::is_empty(self : MultiPoint) -> Bool {
-  self.points.length() == 0
-}
-
-///|
-pub impl HasLength for MultiPoint with length(self) {
-  self.length()
-}
-
-///|
 pub impl IsEmpty for MultiPoint with is_empty(self) {
-  self.is_empty()
+  self.points.length() == 0
 }
