@@ -23,16 +23,6 @@ tasks:
     cmds:
       - docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox-monorepo:latest -f ./sandbox/sandbox-monorepo.Dockerfile ./sandbox
 
-  docker:push:
-    deps:
-      - docker:build:sandbox-base
-      - docker:build:sandbox-dev
-      - docker:build:sandbox-monorepo
-    cmds:
-      - docker push ghcr.io/totto2727-org/monorepo/sandbox-base:latest
-      - docker push ghcr.io/totto2727-org/monorepo/sandbox-dev:latest
-      - docker push ghcr.io/totto2727-org/monorepo/sandbox-monorepo:latest
-
   sandbox:create:
     cmds:
       - uvx openshell sandbox create --from ghcr.io/totto2727-org/monorepo/sandbox-monorepo:latest --policy sandbox/policy.yaml
