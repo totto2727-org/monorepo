@@ -418,12 +418,10 @@ js/app/feed-platform-backend/
     "deploy:health": "wrangler deploy --config src/worker/health/wrangler.jsonc",
     "deploy:bff": "wrangler deploy --config src/worker/bff/wrangler.jsonc",
   },
-  "dependencies": {
-    "effect": "catalog:effect",
-    "hono": "catalog:hono",
-  },
   "devDependencies": {
     "@totto2727/fp": "workspace:*",
+    "effect": "catalog:effect",
+    "hono": "catalog:hono",
     "wrangler": "catalog:cloudflare",
   },
 }
@@ -615,22 +613,20 @@ js/app/feed-platform-web/
     "dev": "vp dev",
     "start": "wrangler dev",
   },
-  "dependencies": {
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "catalog:cloudflare",
+    "@totto2727/fp": "workspace:*",
     "effect": "catalog:effect",
     "hono": "catalog:hono",
     "hono-remix-middleware": "workspace:*",
     "remix": "catalog:remix",
     "vite-plugin-remix": "workspace:*",
-  },
-  "devDependencies": {
-    "@cloudflare/vite-plugin": "catalog:cloudflare",
-    "@totto2727/fp": "workspace:*",
     "wrangler": "catalog:cloudflare",
   },
 }
 ```
 
-`hono-remix-v3-cloudflare-example/package.json:1-26` をベースに `name` のみ差し替え。catalog 利用 / workspace 依存 / `imports.#@/*` 全て踏襲。
+`hono-remix-v3-cloudflare-example/package.json:1-26` をベースに `name` のみ差し替え。catalog 利用 / workspace 依存 / `imports.#@/*` 全て踏襲。**ただし全依存は `devDependencies` に集約** — `wrangler deploy` がフルバンドルするため runtime npm install されず、`dependencies` の意味は薄い。`saas-example/package.json` / `rss-graphql/package.json` の現行慣行に整合。
 
 #### B-3. `tsconfig.json` 雛形
 
@@ -779,20 +775,20 @@ js/app/identity-provider/
     "dev": "vp dev",
     "start": "wrangler dev",
   },
-  "dependencies": {
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "catalog:cloudflare",
+    "@totto2727/fp": "workspace:*",
     "effect": "catalog:effect",
     "hono": "catalog:hono",
     "hono-remix-middleware": "workspace:*",
     "remix": "catalog:remix",
     "vite-plugin-remix": "workspace:*",
-  },
-  "devDependencies": {
-    "@cloudflare/vite-plugin": "catalog:cloudflare",
-    "@totto2727/fp": "workspace:*",
     "wrangler": "catalog:cloudflare",
   },
 }
 ```
+
+`feed-platform-web` と同じく **全依存は `devDependencies`** (フルバンドル運用整合)。
 
 #### C-3. `tsconfig.json` 雛形
 

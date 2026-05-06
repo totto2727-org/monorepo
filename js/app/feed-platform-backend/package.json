@@ -11,12 +11,10 @@
     "dev:bff": "wrangler dev --config src/worker/bff/wrangler.jsonc",
     "dev:health": "wrangler dev --config src/worker/health/wrangler.jsonc"
   },
-  "dependencies": {
-    "effect": "catalog:effect",
-    "hono": "catalog:hono"
-  },
   "devDependencies": {
     "@totto2727/fp": "workspace:*",
+    "effect": "catalog:effect",
+    "hono": "catalog:hono",
     "wrangler": "catalog:cloudflare"
   }
 }
