@@ -85,7 +85,7 @@ A degenerate ring (zero signed area) has no winding direction — assigning a de
 
 ## Caveats
 
-- Inputs that are **not closed** (`coords[0] ≠ coords[-1]`) are treated as if they were — the formula still works algorithmically, but the result is the winding of the *implicit* closure. If your input might be open and you want to reject that, check `ls.is_closed()` first.
+- Inputs that are **not closed** (`coords[0] ≠ coords[-1]`) are treated as if they were — the formula still works algorithmically, but the result is the winding of the _implicit_ closure. If your input might be open and you want to reject that, check `ls.is_closed()` first.
 - **Self-intersecting rings** ("bowtie") have a well-defined signed area (half the difference of the lobe areas) but no meaningful winding — the value reflects a net signed area, not a topological winding direction. `validation.mbt`'s `SelfIntersection` problem catches these.
 
 ## Related

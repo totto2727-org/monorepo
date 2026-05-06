@@ -34,18 +34,18 @@ pub fn is_empty_of_geometry(g)       -> Bool        // shortcut for `dim == Empt
 
 The dimension depends on **what's actually present**, not just the static type:
 
-| Static type        | Dimension when…                        |
-| ------------------ | -------------------------------------- |
-| `Point`            | Always `ZeroDimensional`               |
-| `MultiPoint`       | `Empty` if no points; else `ZeroDimensional` |
-| `Line`             | Always `OneDimensional`                |
-| `LineString`       | `Empty` if 0 coords; `ZeroDimensional` if all coords identical (degenerate); else `OneDimensional` |
-| `MultiLineString`  | `Empty` if no members or all empty; max of components otherwise |
-| `Polygon`          | `Empty` if exterior is empty; `OneDimensional` if `area == 0` (degenerate but shape exists); else `TwoDimensional` |
-| `MultiPolygon`     | `Empty` / max of components            |
-| `GeometryCollection` | max of all members; `Empty` if all members are empty |
-| `Rect`             | `Empty` if `min == max` and degenerate; `OneDimensional` if width or height is 0 (a vertical or horizontal line); else `TwoDimensional` |
-| `Triangle`         | Always `TwoDimensional` (the canonical constructor stores three coords; degenerate = collinear = `OneDimensional`) |
+| Static type          | Dimension when…                                                                                                                         |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `Point`              | Always `ZeroDimensional`                                                                                                                |
+| `MultiPoint`         | `Empty` if no points; else `ZeroDimensional`                                                                                            |
+| `Line`               | Always `OneDimensional`                                                                                                                 |
+| `LineString`         | `Empty` if 0 coords; `ZeroDimensional` if all coords identical (degenerate); else `OneDimensional`                                      |
+| `MultiLineString`    | `Empty` if no members or all empty; max of components otherwise                                                                         |
+| `Polygon`            | `Empty` if exterior is empty; `OneDimensional` if `area == 0` (degenerate but shape exists); else `TwoDimensional`                      |
+| `MultiPolygon`       | `Empty` / max of components                                                                                                             |
+| `GeometryCollection` | max of all members; `Empty` if all members are empty                                                                                    |
+| `Rect`               | `Empty` if `min == max` and degenerate; `OneDimensional` if width or height is 0 (a vertical or horizontal line); else `TwoDimensional` |
+| `Triangle`           | Always `TwoDimensional` (the canonical constructor stores three coords; degenerate = collinear = `OneDimensional`)                      |
 
 The "max of components" rule means a `GeometryCollection` containing both points and a polygon has dimension `TwoDimensional` overall.
 
@@ -106,7 +106,7 @@ Tests in `dimensions_test.mbt`:
 
 ## Why this matters
 
-The DE-9IM relate model (used to formalise spatial relations like *touches*, *crosses*, *covers*, *equals*, etc.) compares the dimensions of three sets per pair of geometries: interior-interior, interior-boundary, boundary-boundary. The `Dimensions` enum is the alphabet that machine reads.
+The DE-9IM relate model (used to formalise spatial relations like _touches_, _crosses_, _covers_, _equals_, etc.) compares the dimensions of three sets per pair of geometries: interior-interior, interior-boundary, boundary-boundary. The `Dimensions` enum is the alphabet that machine reads.
 
 This port doesn't implement DE-9IM yet (deferred), but `dimensions.mbt` is the building block — a future `relate` implementation can be layered on top without changing the type surface.
 

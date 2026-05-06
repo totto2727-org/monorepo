@@ -8,7 +8,7 @@ For a polygon, these are the leftmost, rightmost, topmost, and bottommost vertic
 
 This is what you want when you're asking "give me a representative landmark on each side of this shape". It's distinct from:
 
-- `bounding_rect_of_*` — gives you four `Coord`s computed by `min` / `max` aggregation; those *are not* vertices of the input.
+- `bounding_rect_of_*` — gives you four `Coord`s computed by `min` / `max` aggregation; those _are not_ vertices of the input.
 - `convex_hull_of_*` — gives you the full hull polygon (more vertices, more cost).
 
 ## API surface
@@ -95,4 +95,4 @@ Tests in `extremes_test.mbt`:
 
 ## Upstream parity
 
-In Rust upstream `geo`, `extremes::Extreme<T>` carries both the index *and* the coord; the port keeps only the coord because indexing into a heterogeneous `Geometry` tree isn't useful when the input may be a `MultiPolygon`. If you need the index for a flat input, walk `coords` yourself with `Array::iter().enumerate()`.
+In Rust upstream `geo`, `extremes::Extreme<T>` carries both the index _and_ the coord; the port keeps only the coord because indexing into a heterogeneous `Geometry` tree isn't useful when the input may be a `MultiPolygon`. If you need the index for a flat input, walk `coords` yourself with `Array::iter().enumerate()`.

@@ -110,12 +110,12 @@
 
     **`with_*` is reserved strictly for pure field replacement.** If the operation transforms an existing field rather than overwriting it (e.g. "append one element to an array field", "remove an entry by predicate", "increment a counter"), do NOT name it `with_*`. Use the past-participle naming rule above instead — the operation is still immutable, but it is _not_ a wither.
 
-    | Operation                                                  | Naming                             | Why                                                                                                             |
-    | ---------------------------------------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-    | Replace the entire `x` field                               | `point.with_x(5.0)`                | Pure replacement — wither                                                                                       |
-    | Replace the entire `interiors` array                       | `polygon.with_interiors([r1, r2])` | Pure replacement — wither                                                                                       |
-    | Append one ring to `interiors` (returning a new `Polygon`) | `polygon.pushed_interior(r)`       | Not pure replacement — past-participle verb at the front, noun at the back                                      |
-    | Remove an interior matching a predicate                    | `polygon.filtered_interiors(pred)` | Not pure replacement                                                                                            |
+    | Operation                                                  | Naming                             | Why                                                                                                                 |
+    | ---------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+    | Replace the entire `x` field                               | `point.with_x(5.0)`                | Pure replacement — wither                                                                                           |
+    | Replace the entire `interiors` array                       | `polygon.with_interiors([r1, r2])` | Pure replacement — wither                                                                                           |
+    | Append one ring to `interiors` (returning a new `Polygon`) | `polygon.pushed_interior(r)`       | Not pure replacement — past-participle verb at the front, noun at the back                                          |
+    | Remove an interior matching a predicate                    | `polygon.filtered_interiors(pred)` | Not pure replacement                                                                                                |
     | Mutating counterpart on a genuinely mutable type           | `builder.push_interior(r)`         | Bare verb at the front. Only acceptable on a mutable type; on an immutable type, use the past-participle form above |
 
   - **Mutable update — setter pattern (`set_hoge`)**: For genuinely mutable types (builders, in-place collection wrappers, types with externally observable identity), define `set_<field>` methods that mutate `self` in place and return `Unit`. The setter pattern is reserved for cases where allocation cost or in-place semantics are part of the intended contract.

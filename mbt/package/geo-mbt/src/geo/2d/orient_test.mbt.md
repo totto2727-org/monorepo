@@ -1,6 +1,6 @@
 # orient.mbt
 
-Re-orient the rings of a `Polygon` (or every polygon in a `MultiPolygon`) into the requested winding convention. The `OrientDirection::Default` convention is *CCW exterior, CW interiors* (the OGC SFA / GeoJSON canonical orientation); `OrientDirection::Reversed` flips both.
+Re-orient the rings of a `Polygon` (or every polygon in a `MultiPolygon`) into the requested winding convention. The `OrientDirection::Default` convention is _CCW exterior, CW interiors_ (the OGC SFA / GeoJSON canonical orientation); `OrientDirection::Reversed` flips both.
 
 ## Public API
 

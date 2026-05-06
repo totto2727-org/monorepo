@@ -11,11 +11,11 @@ Project a `target` coord onto a `Line` (or `LineString`) and return the fraction
 
 ### `line_locate_point`
 
-| Variable | State                          | Note                          |  1  |  2  |  3  |
-| :------- | :----------------------------- | :---------------------------- | :-: | :-: | :-: |
-| `target` | `Above midpoint`               | fraction 0.5                  |  ✓  |     |     |
-| `target` | `Beyond end`                   | clamped to 1.0                |     |  ✓  |     |
-| `line`   | `Degenerate (start == end)`    | returns `None`                |     |     |  ✓  |
+| Variable | State                       | Note           |  1  |  2  |  3  |
+| :------- | :-------------------------- | :------------- | :-: | :-: | :-: |
+| `target` | `Above midpoint`            | fraction 0.5   |  ✓  |     |     |
+| `target` | `Beyond end`                | clamped to 1.0 |     |  ✓  |     |
+| `line`   | `Degenerate (start == end)` | returns `None` |     |     |  ✓  |
 
 - Midpoint projects to 0.5
 

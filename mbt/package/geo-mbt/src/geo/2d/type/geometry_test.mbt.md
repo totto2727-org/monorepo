@@ -45,10 +45,10 @@ test "Geometry::Point - simple initialization" {
 
 ### `Geometry::try_into_point`
 
-| Variable | State                | Note                                |  1  |  2  |
-| :------- | :------------------- | :---------------------------------- | :-: | :-: |
-| `self`   | `Point variant`      | happy path                          |  ✓  |     |
-| `self`   | `Other variant`      | raises `MismatchedGeometry`         |     |  ✓  |
+| Variable | State           | Note                        |  1  |  2  |
+| :------- | :-------------- | :-------------------------- | :-: | :-: |
+| `self`   | `Point variant` | happy path                  |  ✓  |     |
+| `self`   | `Other variant` | raises `MismatchedGeometry` |     |  ✓  |
 
 - Happy path: returns the inner `Point`
 
@@ -319,15 +319,15 @@ test "Geometry try_into_* - exhaustive mismatch sweep across all 10 variants" {
 
 ### `IsEmpty`
 
-| Variable | State                                  | Note                                     |  1  |  2  |  3  |  4  |  5  |  6  |  7  |
-| :------- | :------------------------------------- | :--------------------------------------- | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
-| `self`   | `Point / Line / Rect / Triangle`       | always false                             |  ✓  |     |     |     |     |     |     |
-| `self`   | `LineString` (empty / non-empty)       | delegates to `LineString::is_empty`      |     |  ✓  |     |     |     |     |     |
-| `self`   | `MultiPoint` (empty / non-empty)       | delegates to `MultiPoint::is_empty`      |     |     |  ✓  |     |     |     |     |
-| `self`   | `MultiLineString` (all components)     | true iff every component is empty        |     |     |     |  ✓  |     |     |     |
-| `self`   | `Polygon` (exterior empty)             | true iff exterior is empty               |     |     |     |     |  ✓  |     |     |
-| `self`   | `MultiPolygon` (all exteriors empty)   | true iff every polygon's exterior empty  |     |     |     |     |     |  ✓  |     |
-| `self`   | `GeometryCollection` (all empty)       | true iff every geometry is empty         |     |     |     |     |     |     |  ✓  |
+| Variable | State                                | Note                                    |  1  |  2  |  3  |  4  |  5  |  6  |  7  |
+| :------- | :----------------------------------- | :-------------------------------------- | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| `self`   | `Point / Line / Rect / Triangle`     | always false                            |  ✓  |     |     |     |     |     |     |
+| `self`   | `LineString` (empty / non-empty)     | delegates to `LineString::is_empty`     |     |  ✓  |     |     |     |     |     |
+| `self`   | `MultiPoint` (empty / non-empty)     | delegates to `MultiPoint::is_empty`     |     |     |  ✓  |     |     |     |     |
+| `self`   | `MultiLineString` (all components)   | true iff every component is empty       |     |     |     |  ✓  |     |     |     |
+| `self`   | `Polygon` (exterior empty)           | true iff exterior is empty              |     |     |     |     |  ✓  |     |     |
+| `self`   | `MultiPolygon` (all exteriors empty) | true iff every polygon's exterior empty |     |     |     |     |     |  ✓  |     |
+| `self`   | `GeometryCollection` (all empty)     | true iff every geometry is empty        |     |     |     |     |     |     |  ✓  |
 
 #### `is_empty`
 

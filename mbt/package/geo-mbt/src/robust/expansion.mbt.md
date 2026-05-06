@@ -4,7 +4,7 @@
 
 Provide the **building blocks for exact (or controllably-precise) arithmetic on `f64`s**, used by `orient2d.mbt` and `incircle.mbt` when their fast non-adaptive paths can't trust the sign.
 
-The functions in this file are a faithful port of the C reference implementation in Jonathan Shewchuk's 1997 paper *Adaptive Precision Floating-Point Arithmetic and Fast Robust Geometric Predicates*. They let you represent a value as an **expansion** — a sum of `f64`s with non-overlapping bit ranges — and perform arithmetic on expansions exactly.
+The functions in this file are a faithful port of the C reference implementation in Jonathan Shewchuk's 1997 paper _Adaptive Precision Floating-Point Arithmetic and Fast Robust Geometric Predicates_. They let you represent a value as an **expansion** — a sum of `f64`s with non-overlapping bit ranges — and perform arithmetic on expansions exactly.
 
 You probably don't need to call these directly; they're tooling for `orient2d` and `incircle`. The port keeps them `pub` so future predicates (e.g. `orient3d`, `insphere`, custom domain-specific robust tests) can be built without forking the file.
 
@@ -18,26 +18,26 @@ The primitives are organised by what they compute. Each comes in two flavours:
 
 Listing:
 
-| Function                           | Purpose                                                                         |
-| ---------------------------------- | ------------------------------------------------------------------------------- |
-| `two_sum(a, b)`                    | Return `(s, e)` such that `s = round(a + b)` and `e = (a + b) − s` exactly       |
-| `two_sum_tail(a, b, x)`            | Just the round-off `(a + b) − x` given precomputed `x`                           |
-| `fast_two_sum(a, b)`               | Like `two_sum`, faster when `|a| ≥ |b|`                                          |
-| `fast_two_sum_tail(a, b, x)`       | Just the round-off                                                              |
-| `two_diff(a, b)`                   | `(s, e)` such that `s = round(a − b)`, `e = (a − b) − s`                         |
-| `two_diff_tail(a, b, x)`           | Round-off                                                                       |
-| `split(a)`                         | Split `a` into high and low halves of equal bit-width (used for two_product)    |
-| `two_product(a, b)`                | `(p, e)` such that `p = round(a · b)`, `e = (a · b) − p`                         |
-| `two_product_presplit(a, b, hi, lo)` | Same, but with `b` already split — saves one `split` call when reusing `b`     |
-| `square(a)`                        | Specialised `(p, e) = (a², round-off)`                                          |
-| `square_tail(a, x)`                | Round-off only                                                                  |
-| `two_one_sum(a1, a0, b)`           | Sum a 2-component expansion `[a1, a0]` with a single `f64` `b`, returns 3 components |
-| `two_one_diff(...)`, `two_one_product(...)` | Same shape, for diff and product                                       |
-| `two_two_sum(a1, a0, b1, b0)`      | Sum two 2-component expansions, returns 4 components                            |
-| `two_two_diff(...)`                | Diff of two 2-component expansions                                              |
-| `estimate(e, n)`                   | Single-`f64` estimate of an expansion's value (for early-out checks)             |
-| `fast_expansion_sum_zeroelim(e, ne, f, nf, h)` | Sum two expansions, write to `h`, return result length              |
-| `scale_expansion_zeroelim(e, ne, b, h)`        | Multiply an expansion by an `f64`, write to `h`                       |
+| Function                                       | Purpose                                                                              |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------ | --- | --- | --- | --- |
+| `two_sum(a, b)`                                | Return `(s, e)` such that `s = round(a + b)` and `e = (a + b) − s` exactly           |
+| `two_sum_tail(a, b, x)`                        | Just the round-off `(a + b) − x` given precomputed `x`                               |
+| `fast_two_sum(a, b)`                           | Like `two_sum`, faster when `                                                        | a   | ≥   | b   | `   |
+| `fast_two_sum_tail(a, b, x)`                   | Just the round-off                                                                   |
+| `two_diff(a, b)`                               | `(s, e)` such that `s = round(a − b)`, `e = (a − b) − s`                             |
+| `two_diff_tail(a, b, x)`                       | Round-off                                                                            |
+| `split(a)`                                     | Split `a` into high and low halves of equal bit-width (used for two_product)         |
+| `two_product(a, b)`                            | `(p, e)` such that `p = round(a · b)`, `e = (a · b) − p`                             |
+| `two_product_presplit(a, b, hi, lo)`           | Same, but with `b` already split — saves one `split` call when reusing `b`           |
+| `square(a)`                                    | Specialised `(p, e) = (a², round-off)`                                               |
+| `square_tail(a, x)`                            | Round-off only                                                                       |
+| `two_one_sum(a1, a0, b)`                       | Sum a 2-component expansion `[a1, a0]` with a single `f64` `b`, returns 3 components |
+| `two_one_diff(...)`, `two_one_product(...)`    | Same shape, for diff and product                                                     |
+| `two_two_sum(a1, a0, b1, b0)`                  | Sum two 2-component expansions, returns 4 components                                 |
+| `two_two_diff(...)`                            | Diff of two 2-component expansions                                                   |
+| `estimate(e, n)`                               | Single-`f64` estimate of an expansion's value (for early-out checks)                 |
+| `fast_expansion_sum_zeroelim(e, ne, f, nf, h)` | Sum two expansions, write to `h`, return result length                               |
+| `scale_expansion_zeroelim(e, ne, b, h)`        | Multiply an expansion by an `f64`, write to `h`                                      |
 
 Plus the constants `EPSILON`, `SPLITTER`, `RESULTERRBOUND`, `CCWERRBOUND_*`, `ICCERRBOUND_*` — error bounds derived from machine epsilon, used to decide when Stage 1 is reliable.
 
@@ -60,7 +60,7 @@ Two operations form the basis of every other primitive:
 
 ### `two_sum(a, b)` — error-free transformation of addition
 
-Returns `(x, y)` with `x = round(a + b)` and `x + y = a + b` *exactly*. The `y` is the round-off error captured as a separate `f64`.
+Returns `(x, y)` with `x = round(a + b)` and `x + y = a + b` _exactly_. The `y` is the round-off error captured as a separate `f64`.
 
 ```
 a = 1e16
@@ -94,8 +94,8 @@ The constants like `CCWERRBOUND_A` are derived in the Shewchuk paper. They answe
 
 ## When to read this file vs. `orient2d.mbt`
 
-- **`orient2d.mbt` / `incircle.mbt`**: how robust geometric predicates are *used*. This is what algorithm code calls.
-- **`expansion.mbt`**: how robust arithmetic *works underneath*. Read this when extending the port with new robust predicates, or debugging a precision issue.
+- **`orient2d.mbt` / `incircle.mbt`**: how robust geometric predicates are _used_. This is what algorithm code calls.
+- **`expansion.mbt`**: how robust arithmetic _works underneath_. Read this when extending the port with new robust predicates, or debugging a precision issue.
 
 ## Testing
 
@@ -105,7 +105,7 @@ The expansion primitives don't have dedicated unit tests in the port — they're
 
 ## Performance
 
-Each primitive is a few `f64` operations. Per-operation latency is in the low nanoseconds; the cost of robust predicates comes mostly from the *number* of operations needed in Stage 2, not from any single primitive's slowness.
+Each primitive is a few `f64` operations. Per-operation latency is in the low nanoseconds; the cost of robust predicates comes mostly from the _number_ of operations needed in Stage 2, not from any single primitive's slowness.
 
 ## Related
 

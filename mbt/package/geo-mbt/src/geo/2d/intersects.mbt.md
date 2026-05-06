@@ -4,7 +4,7 @@
 
 Decide whether two geometries have **at least one point in common** — without computing the actual intersection. The output is just `Bool`. This is the cheaper, decision-only sibling of `bool_ops.mbt` (which would compute the intersection geometry).
 
-`intersects(a, b)` is the symmetric companion of `contains` — `a` intersects `b` iff `a` and `b` share *any* point (interior, boundary, anywhere).
+`intersects(a, b)` is the symmetric companion of `contains` — `a` intersects `b` iff `a` and `b` share _any_ point (interior, boundary, anywhere).
 
 ## API surface
 
@@ -61,7 +61,7 @@ Walk each segment of the line string, run `intersects_line_line` against the inp
 
 ### Polygon vs anything
 
-A polygon is a 2-D region, so "intersection" includes all of: *touching at the boundary*, *one shape inside the other*, *boundaries crossing*. The implementation handles each:
+A polygon is a 2-D region, so "intersection" includes all of: _touching at the boundary_, _one shape inside the other_, _boundaries crossing_. The implementation handles each:
 
 ```
 intersects_polygon_X(p, x):

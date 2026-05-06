@@ -8,7 +8,7 @@ Measure how **far apart two sets of points are** by asking:
 
 This is the **Hausdorff distance**. It's a metric on point sets — symmetric, non-negative, zero iff the sets are equal.
 
-Hausdorff is order-insensitive (it cares about *what points are present*, not the order). It's stricter than "average distance" but more lenient than Fréchet: two polylines with the same points in different orders have **zero** Hausdorff distance but **large** Fréchet distance.
+Hausdorff is order-insensitive (it cares about _what points are present_, not the order). It's stricter than "average distance" but more lenient than Fréchet: two polylines with the same points in different orders have **zero** Hausdorff distance but **large** Fréchet distance.
 
 ## API surface
 
@@ -62,7 +62,7 @@ d(B, A):  point (0, 0) ∈ B → NN in A is (0, 0) → 0.
 H(A, B) = max(0, 10) = 10.
 ```
 
-The asymmetry: every point of `A` is *near* `B`, but `B` has a stray point that's nowhere near `A`. The Hausdorff distance reflects that worst-case mismatch.
+The asymmetry: every point of `A` is _near_ `B`, but `B` has a stray point that's nowhere near `A`. The Hausdorff distance reflects that worst-case mismatch.
 
 ## Examples
 

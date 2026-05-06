@@ -19,11 +19,11 @@ Strict (OGC) `contains` predicates: every point of the inner geometry must lie i
 
 ### `contains_polygon_point`
 
-| Variable | State                | Note                          |  1  |  2  |  3  |
-| :------- | :------------------- | :---------------------------- | :-: | :-: | :-: |
-| `point`  | `Strictly inside`    | true                          |  ✓  |     |     |
-| `point`  | `On boundary`        | false (boundary excluded)     |     |  ✓  |     |
-| `point`  | `Outside`            | false                         |     |     |  ✓  |
+| Variable | State             | Note                      |  1  |  2  |  3  |
+| :------- | :---------------- | :------------------------ | :-: | :-: | :-: |
+| `point`  | `Strictly inside` | true                      |  ✓  |     |     |
+| `point`  | `On boundary`     | false (boundary excluded) |     |  ✓  |     |
+| `point`  | `Outside`         | false                     |     |     |  ✓  |
 
 - Inside, boundary, outside
 
@@ -46,10 +46,10 @@ test "contains_polygon_point - inside, boundary excluded, outside" {
 
 ### `contains_polygon_polygon`
 
-| Variable          | State        | Note                          |  1  |  2  |
-| :---------------- | :----------- | :---------------------------- | :-: | :-: |
-| `inner` vs `outer` | `Nested`    | true                          |  ✓  |     |
-| `inner` vs `outer` | `Crossing`  | false                         |     |  ✓  |
+| Variable           | State      | Note  |  1  |  2  |
+| :----------------- | :--------- | :---- | :-: | :-: |
+| `inner` vs `outer` | `Nested`   | true  |  ✓  |     |
+| `inner` vs `outer` | `Crossing` | false |     |  ✓  |
 
 - Nested polygon is contained
 
@@ -111,10 +111,10 @@ test "contains_polygon_polygon - crossing inner is not contained" {
 
 ### `contains_rect_rect`
 
-| Variable          | State        | Note                          |  1  |  2  |
-| :---------------- | :----------- | :---------------------------- | :-: | :-: |
-| `inner` vs `outer` | `Nested`    | true                          |  ✓  |     |
-| `inner` vs `outer` | `Crossing`  | false                         |     |  ✓  |
+| Variable           | State      | Note  |  1  |  2  |
+| :----------------- | :--------- | :---- | :-: | :-: |
+| `inner` vs `outer` | `Nested`   | true  |  ✓  |     |
+| `inner` vs `outer` | `Crossing` | false |     |  ✓  |
 
 - Nested then crossing rectangles
 

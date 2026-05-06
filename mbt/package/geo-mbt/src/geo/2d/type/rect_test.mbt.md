@@ -21,10 +21,10 @@ An axis-aligned bounded 2D rectangle defined by `min` / `max` `Coord`s. The cons
 
 ### `Rect::Rect`
 
-| Variable | State                       | Note                                |  1  |  2  |
-| :------- | :-------------------------- | :---------------------------------- | :-: | :-: |
-| `c1`/`c2` | `min < max (canonical)`    | basic shape                         |  ✓  |     |
-| `c1`/`c2` | `swapped (max, min order)` | constructor normalises to min/max   |     |  ✓  |
+| Variable  | State                      | Note                              |  1  |  2  |
+| :-------- | :------------------------- | :-------------------------------- | :-: | :-: |
+| `c1`/`c2` | `min < max (canonical)`    | basic shape                       |  ✓  |     |
+| `c1`/`c2` | `swapped (max, min order)` | constructor normalises to min/max |     |  ✓  |
 
 - Simple initialization
 
@@ -147,10 +147,10 @@ test "Rect to_lines - 4 edges in CCW order from min corner" {
 
 ### `Rect::to_polygon`
 
-| Variable | State            | Note                                                        |  1  |  2  |
-| :------- | :--------------- | :---------------------------------------------------------- | :-: | :-: |
-| `self`   | `Any rectangle`  | five-coord closed exterior ring                             |  ✓  |     |
-| `self`   | `vs to_lines`    | first 4 polygon coords match `to_lines` starts; ring closes |     |  ✓  |
+| Variable | State           | Note                                                        |  1  |  2  |
+| :------- | :-------------- | :---------------------------------------------------------- | :-: | :-: |
+| `self`   | `Any rectangle` | five-coord closed exterior ring                             |  ✓  |     |
+| `self`   | `vs to_lines`   | first 4 polygon coords match `to_lines` starts; ring closes |     |  ✓  |
 
 - Closed five-coord exterior ring
 
@@ -181,11 +181,11 @@ test "Rect to_polygon - corners agree with to_lines starts" {
 
 ### `Rect::split_x`
 
-| Variable | State           | Note                                                       |  1  |  2  |  3  |
-| :------- | :-------------- | :--------------------------------------------------------- | :-: | :-: | :-: |
-| `self`   | `Any rectangle` | equal-width halves at midpoint                             |  ✓  |     |     |
-| `self`   | `Any rectangle` | shared mid-X is bit-identical on the seam                  |     |  ✓  |     |
-| `self`   | `Any rectangle` | total width preserved; full height preserved on each half  |     |     |  ✓  |
+| Variable | State           | Note                                                      |  1  |  2  |  3  |
+| :------- | :-------------- | :-------------------------------------------------------- | :-: | :-: | :-: |
+| `self`   | `Any rectangle` | equal-width halves at midpoint                            |  ✓  |     |     |
+| `self`   | `Any rectangle` | shared mid-X is bit-identical on the seam                 |     |  ✓  |     |
+| `self`   | `Any rectangle` | total width preserved; full height preserved on each half |     |     |  ✓  |
 
 - Equal-width halves at the midpoint
 
@@ -229,12 +229,12 @@ test "Rect split_x - total width preserved and full height on each half" {
 
 ### `Rect::split_y`
 
-| Variable | State           | Note                                                        |  1  |  2  |  3  |  4  |
-| :------- | :-------------- | :---------------------------------------------------------- | :-: | :-: | :-: | :-: |
-| `self`   | `Any rectangle` | equal-height halves at midpoint                             |  ✓  |     |     |     |
-| `self`   | `Any rectangle` | shared mid-Y is bit-identical on the seam                   |     |  ✓  |     |     |
-| `self`   | `Any rectangle` | total height preserved; full width preserved on each half   |     |     |  ✓  |     |
-| `self`   | `Any rectangle` | split_x then split_y produces 4 quadrants of equal area     |     |     |     |  ✓  |
+| Variable | State           | Note                                                      |  1  |  2  |  3  |  4  |
+| :------- | :-------------- | :-------------------------------------------------------- | :-: | :-: | :-: | :-: |
+| `self`   | `Any rectangle` | equal-height halves at midpoint                           |  ✓  |     |     |     |
+| `self`   | `Any rectangle` | shared mid-Y is bit-identical on the seam                 |     |  ✓  |     |     |
+| `self`   | `Any rectangle` | total height preserved; full width preserved on each half |     |     |  ✓  |     |
+| `self`   | `Any rectangle` | split_x then split_y produces 4 quadrants of equal area   |     |     |     |  ✓  |
 
 - Equal-height halves at the midpoint
 

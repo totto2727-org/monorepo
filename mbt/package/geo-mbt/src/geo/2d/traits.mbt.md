@@ -8,13 +8,13 @@ The free functions in the algorithm layer (`coords_of_*`, `bounding_rect_of_*`, 
 
 ## Traits defined
 
-| Trait              | Method                                | Implementing types                                                                                     |
-| ------------------ | ------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `Bounded`          | `bbox(self) -> Rect?`                 | every type variant (`Geometry`, `GeometryCollection`, `Line`, `LineString`, `MultiLineString`, `MultiPoint`, `MultiPolygon`, `Point`, `Polygon`, `Rect`, `Triangle`) |
-| `CoordsCarrier`    | `coords(self) -> Array[Coord]`        | every type variant (same set as `Bounded`)                                                            |
-| `HasArea`          | `signed_area(self), unsigned_area(self) -> Double` | `Geometry`, `MultiPolygon`, `Polygon`, `Rect`, `Triangle`                                              |
-| `HasCentroid`      | `centroid(self) -> Point?`            | `Geometry`, `LineString`, `MultiPolygon`, `Polygon`                                                    |
-| `HasLength`        | `euclidean_length(self) -> Double`    | `Line`, `LineString`, `MultiLineString`                                                                |
+| Trait           | Method                                             | Implementing types                                                                                                                                                   |
+| --------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Bounded`       | `bbox(self) -> Rect?`                              | every type variant (`Geometry`, `GeometryCollection`, `Line`, `LineString`, `MultiLineString`, `MultiPoint`, `MultiPolygon`, `Point`, `Polygon`, `Rect`, `Triangle`) |
+| `CoordsCarrier` | `coords(self) -> Array[Coord]`                     | every type variant (same set as `Bounded`)                                                                                                                           |
+| `HasArea`       | `signed_area(self), unsigned_area(self) -> Double` | `Geometry`, `MultiPolygon`, `Polygon`, `Rect`, `Triangle`                                                                                                            |
+| `HasCentroid`   | `centroid(self) -> Point?`                         | `Geometry`, `LineString`, `MultiPolygon`, `Polygon`                                                                                                                  |
+| `HasLength`     | `euclidean_length(self) -> Double`                 | `Line`, `LineString`, `MultiLineString`                                                                                                                              |
 
 The trait-method bodies are one-liners that delegate to the matching free function. For example:
 
@@ -34,7 +34,7 @@ pub impl HasArea for @type.Polygon with signed_area(self) {
 Two reasons:
 
 1. **Generic algorithms**: a function that takes "anything with a bounding box" can be written as `fn[T : Bounded] f(x : T) -> ...` and called on any of the 11 geometry types without dispatching. This is exactly how a future spatial-index API would consume geometries.
-2. **Documentation / discoverability**: the trait list in this file *is* the catalogue of "what every geometry can do". A reader can scan five lines and know the abstraction surface.
+2. **Documentation / discoverability**: the trait list in this file _is_ the catalogue of "what every geometry can do". A reader can scan five lines and know the abstraction surface.
 
 ## Why some types are missing from `HasArea` etc.
 

@@ -10,10 +10,10 @@ Chaikin's corner-cutting smoothing of a `LineString`. Each segment `(p_i, p_{i+1
 
 ### `chaikin_smoothing`
 
-| Variable        | State              | Note                                              |  1  |  2  |
-| :-------------- | :----------------- | :------------------------------------------------ | :-: | :-: |
-| `n_iterations`  | `0`                | identity (input returned as-is)                   |  ✓  |     |
-| `n_iterations`  | `1` (open input)   | open: `n` coords → 2*(n-1) cuts + 2 endpoints     |     |  ✓  |
+| Variable       | State            | Note                                           |  1  |  2  |
+| :------------- | :--------------- | :--------------------------------------------- | :-: | :-: |
+| `n_iterations` | `0`              | identity (input returned as-is)                |  ✓  |     |
+| `n_iterations` | `1` (open input) | open: `n` coords → 2\*(n-1) cuts + 2 endpoints |     |  ✓  |
 
 - 0 iterations is the identity
 

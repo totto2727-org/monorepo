@@ -36,11 +36,11 @@ test "simplify_line_string_indices - drops nearly collinear interior" {
 
 #### `simplify`
 
-| Variable | State                          | Note                                        |  1  |  2  |  3  |
-| :------- | :----------------------------- | :------------------------------------------ | :-: | :-: | :-: |
-| `self`   | `eps = 0`, interior above line | keep all (only strict-collinear dropped)    |  ✓  |     |     |
-| `self`   | `eps > distance`               | drop nearly-collinear interior              |     |  ✓  |     |
-| `self`   | `< 3 coords`                   | unchanged                                   |     |     |  ✓  |
+| Variable | State                          | Note                                     |  1  |  2  |  3  |
+| :------- | :----------------------------- | :--------------------------------------- | :-: | :-: | :-: |
+| `self`   | `eps = 0`, interior above line | keep all (only strict-collinear dropped) |  ✓  |     |     |
+| `self`   | `eps > distance`               | drop nearly-collinear interior           |     |  ✓  |     |
+| `self`   | `< 3 coords`                   | unchanged                                |     |     |  ✓  |
 
 - `eps = 0`: above-line interior is kept
 

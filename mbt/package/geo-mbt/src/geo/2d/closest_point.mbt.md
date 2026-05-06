@@ -4,7 +4,7 @@
 
 Given a target `Coord` and a line / line string, find the point on the line **nearest to the target**. The result is a `Closest` enum that distinguishes:
 
-- **`Intersection(coord)`** — the target lies *exactly* on the line (zero distance).
+- **`Intersection(coord)`** — the target lies _exactly_ on the line (zero distance).
 - **`SinglePoint(coord)`** — the target is off the line; this is the nearest point on the line.
 - **`Indeterminate`** — the input is degenerate (e.g. an empty line string).
 
@@ -36,7 +36,7 @@ Given segment `(a, b)` and target `c`:
 
    This is the **dot-product projection** of the offset `(c − a)` onto the direction `(b − a)`, normalised by the squared segment length.
 
-3. **Clamp** `t = clamp(t*, 0, 1)`. Without the clamp, the answer would be the foot of the perpendicular on the *infinite line* — but we want the closest point on the *segment*, so we project to the nearer endpoint when `t* < 0` or `t* > 1`.
+3. **Clamp** `t = clamp(t*, 0, 1)`. Without the clamp, the answer would be the foot of the perpendicular on the _infinite line_ — but we want the closest point on the _segment_, so we project to the nearer endpoint when `t* < 0` or `t* > 1`.
 
 4. The closest point is `a + t · (b − a)`.
 
@@ -97,7 +97,7 @@ Tests in `closest_point_test.mbt`:
 The distinction between `SinglePoint` and `Intersection` matters for:
 
 - **Distance computations**: when distance is exactly zero, callers may want to short-circuit.
-- **Snapping editors**: a "snap to vertex" UI behaves differently when the cursor is *on* a vertex vs. *near* one.
+- **Snapping editors**: a "snap to vertex" UI behaves differently when the cursor is _on_ a vertex vs. _near_ one.
 - **Symbolic algorithms**: 0 distance means the target was already on the geometry; positive distance means it wasn't.
 
 `Indeterminate` is reserved for inputs where no answer is meaningful (empty line string).

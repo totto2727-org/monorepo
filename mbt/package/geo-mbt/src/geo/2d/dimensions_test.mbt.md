@@ -49,13 +49,13 @@ test "dimensions_less - strict less by rank" {
 
 #### `dimensions`
 
-| Variable | State                                         | Note                |  1  |  2  |  3  |  4  |  5  |
-| :------- | :-------------------------------------------- | :------------------ | :-: | :-: | :-: | :-: | :-: |
-| `self`   | `Point`                                       | `ZeroDimensional`   |  ✓  |     |     |     |     |
-| `self`   | `LineString (≥ 2 distinct coords)`            | `OneDimensional`    |     |  ✓  |     |     |     |
-| `self`   | `Rect (positive width and height)`            | `TwoDimensional`    |     |     |  ✓  |     |     |
-| `self`   | `Rect (zero height) / Rect (zero size)`       | degenerate ranks    |     |     |     |  ✓  |     |
-| `self`   | `Empty MultiPoint`                            | `Empty`             |     |     |     |     |  ✓  |
+| Variable | State                                   | Note              |  1  |  2  |  3  |  4  |  5  |
+| :------- | :-------------------------------------- | :---------------- | :-: | :-: | :-: | :-: | :-: |
+| `self`   | `Point`                                 | `ZeroDimensional` |  ✓  |     |     |     |     |
+| `self`   | `LineString (≥ 2 distinct coords)`      | `OneDimensional`  |     |  ✓  |     |     |     |
+| `self`   | `Rect (positive width and height)`      | `TwoDimensional`  |     |     |  ✓  |     |     |
+| `self`   | `Rect (zero height) / Rect (zero size)` | degenerate ranks  |     |     |     |  ✓  |     |
+| `self`   | `Empty MultiPoint`                      | `Empty`           |     |     |     |     |  ✓  |
 
 - `Point` has zero dimension
 

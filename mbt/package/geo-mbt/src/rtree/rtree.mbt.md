@@ -7,7 +7,7 @@ Provide a **read-only spatial index** over a fixed set of items, each tagged wit
 - "Which items intersect this query rect?" — `O(log n + k)` where `k` is the result size.
 - "Which item is closest to this point?" — `O(log n)` average.
 
-This is **not** a fully-featured R*-tree (no insertions, no deletions, no rebalancing on edits). It's a static spatial structure built once and queried many times — the typical use case for "I have N polygons and I want to find which ones contain a click position".
+This is **not** a fully-featured R\*-tree (no insertions, no deletions, no rebalancing on edits). It's a static spatial structure built once and queried many times — the typical use case for "I have N polygons and I want to find which ones contain a click position".
 
 ## API surface
 
@@ -157,15 +157,15 @@ Plus benches in `rtree/bench_test.mbt`:
 
 ## Trade-offs vs. a more sophisticated R-tree
 
-| Feature                              | This port                  | rstar (upstream Rust)            |
-| ------------------------------------ | -------------------------- | -------------------------------- |
-| Insertion / deletion / mutation       | No                         | Yes (with rebalancing)           |
-| Bulk-load algorithm                  | STR (Sort-Tile-Recursive)  | STR + alternative strategies     |
-| Tunable leaf capacity / fanout       | No (hard-coded)            | Via `RTreeParams`                |
-| Tunable insertion strategy           | No                         | `RStarInsertionStrategy` etc.    |
-| Generic over point type              | No (2D `Rect` / `Coord` only) | Yes                            |
-| `intersection_candidates_with_other_tree`, `nearest_neighbors` (k-NN) | No | Yes |
-| Lines as primitives                  | No (only bbox-tagged values) | Yes (`primitives::Line` etc.)  |
+| Feature                                                               | This port                     | rstar (upstream Rust)         |
+| --------------------------------------------------------------------- | ----------------------------- | ----------------------------- |
+| Insertion / deletion / mutation                                       | No                            | Yes (with rebalancing)        |
+| Bulk-load algorithm                                                   | STR (Sort-Tile-Recursive)     | STR + alternative strategies  |
+| Tunable leaf capacity / fanout                                        | No (hard-coded)               | Via `RTreeParams`             |
+| Tunable insertion strategy                                            | No                            | `RStarInsertionStrategy` etc. |
+| Generic over point type                                               | No (2D `Rect` / `Coord` only) | Yes                           |
+| `intersection_candidates_with_other_tree`, `nearest_neighbors` (k-NN) | No                            | Yes                           |
+| Lines as primitives                                                   | No (only bbox-tagged values)  | Yes (`primitives::Line` etc.) |
 
 For static workloads with bounding-box-tagged values, the port's subset is sufficient. If your workload involves frequent inserts / deletes or needs k-nearest-neighbor (top-k) queries, you'd need to extend the port (deferred work).
 

@@ -25,14 +25,14 @@ pub fn coord_on_line(c, l)                      -> Bool       // shortcut: c is 
 
 ## What "boundary" / "inside" / "outside" mean per shape
 
-| Shape         | Boundary                                              | Inside                                                                    | Outside                                |
-| ------------- | ----------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------- |
-| `Line`        | The two endpoints                                     | The open segment between them                                             | Anywhere else                          |
-| `LineString`  | The two extreme endpoints (or empty if closed ring)   | Any other point that lies on a segment                                    | Anywhere else                          |
-| `Polygon`     | Every coord that lies on the exterior or any interior ring | Coord strictly inside exterior **and** outside every interior ring         | Outside exterior, or inside any hole   |
-| `MultiPolygon`| Boundary of any member                                | Inside any member's interior                                              | Outside every member                   |
-| `Rect`        | The 4 edges                                           | Strictly inside the rect                                                  | Outside                                |
-| `Triangle`    | The 3 edges                                           | Strictly inside                                                           | Outside                                |
+| Shape          | Boundary                                                   | Inside                                                             | Outside                              |
+| -------------- | ---------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------ |
+| `Line`         | The two endpoints                                          | The open segment between them                                      | Anywhere else                        |
+| `LineString`   | The two extreme endpoints (or empty if closed ring)        | Any other point that lies on a segment                             | Anywhere else                        |
+| `Polygon`      | Every coord that lies on the exterior or any interior ring | Coord strictly inside exterior **and** outside every interior ring | Outside exterior, or inside any hole |
+| `MultiPolygon` | Boundary of any member                                     | Inside any member's interior                                       | Outside every member                 |
+| `Rect`         | The 4 edges                                                | Strictly inside the rect                                           | Outside                              |
+| `Triangle`     | The 3 edges                                                | Strictly inside                                                    | Outside                              |
 
 OGC SFA terms: the "interior" is the open set; the "boundary" is the topological boundary; the "exterior" of a geometry is the complement of (interior ∪ boundary).
 
@@ -108,7 +108,7 @@ Tests in `coordinate_position_test.mbt`:
 
 ## Why robust matters here
 
-A coord that's mathematically *exactly* on an edge can fail the boundary check under naive `f64` arithmetic (the orient determinant rounds to a non-zero value), and the ray-casting fallback can then misclassify it. The port uses the robust `orient` everywhere boundary detection happens, which keeps OnBoundary correctly distinguished from the two halfplanes.
+A coord that's mathematically _exactly_ on an edge can fail the boundary check under naive `f64` arithmetic (the orient determinant rounds to a non-zero value), and the ray-casting fallback can then misclassify it. The port uses the robust `orient` everywhere boundary detection happens, which keeps OnBoundary correctly distinguished from the two halfplanes.
 
 ## Performance
 

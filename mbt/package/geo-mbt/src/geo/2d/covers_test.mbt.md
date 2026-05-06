@@ -15,11 +15,11 @@ Boundary-inclusive containment. `covers(a, b)` is `true` whenever every point of
 
 ### `covers_polygon_point`
 
-| Variable | State                | Note                          |  1  |  2  |  3  |
-| :------- | :------------------- | :---------------------------- | :-: | :-: | :-: |
-| `point`  | `On boundary`        | true (boundary included)      |  ✓  |     |     |
-| `point`  | `Strictly inside`    | true                          |     |  ✓  |     |
-| `point`  | `Outside`            | false                         |     |     |  ✓  |
+| Variable | State             | Note                     |  1  |  2  |  3  |
+| :------- | :---------------- | :----------------------- | :-: | :-: | :-: |
+| `point`  | `On boundary`     | true (boundary included) |  ✓  |     |     |
+| `point`  | `Strictly inside` | true                     |     |  ✓  |     |
+| `point`  | `Outside`         | false                    |     |     |  ✓  |
 
 - Boundary, interior, and outside points
 

@@ -95,11 +95,11 @@ test "wedge_product - basic" {
 
 ### `is_finite`
 
-| Variable | State           | Note    |  1  |  2  |  3  |
-| :------- | :-------------- | :------ | :-: | :-: | :-: |
-| `c`      | `(0, 0)`        | true    |  ✓  |     |     |
-| `c`      | `Has NaN`       | false   |     |  ✓  |     |
-| `c`      | `Has infinity`  | false   |     |     |  ✓  |
+| Variable | State          | Note  |  1  |  2  |  3  |
+| :------- | :------------- | :---- | :-: | :-: | :-: |
+| `c`      | `(0, 0)`       | true  |  ✓  |     |     |
+| `c`      | `Has NaN`      | false |     |  ✓  |     |
+| `c`      | `Has infinity` | false |     |     |  ✓  |
 
 - All-finite is true
 
@@ -130,10 +130,10 @@ test "is_finite - infinity is false" {
 
 ### `try_normalize`
 
-| Variable | State                 | Note                                     |  1  |  2  |
-| :------- | :-------------------- | :--------------------------------------- | :-: | :-: |
-| `c`      | `Non-zero (3,4)`      | unit vector `(0.6, 0.8)`                 |  ✓  |     |
-| `c`      | `Zero vector`         | `None` (division produces non-finite)    |     |  ✓  |
+| Variable | State            | Note                                  |  1  |  2  |
+| :------- | :--------------- | :------------------------------------ | :-: | :-: |
+| `c`      | `Non-zero (3,4)` | unit vector `(0.6, 0.8)`              |  ✓  |     |
+| `c`      | `Zero vector`    | `None` (division produces non-finite) |     |  ✓  |
 
 - Non-zero vector normalises to its unit vector
 

@@ -93,7 +93,7 @@ Tests in `densify_test.mbt`:
 
 ## Caveats
 
-- The densification is **uniform along each segment**. If you need uniform spacing along the *entire line string* (so the gap between vertex 5 and 6 equals the gap between vertex 17 and 18), use `line_string_interpolate_point` in a loop instead — `densify_line_string` aligns each segment's vertices to its own endpoints, which can produce slightly uneven spacing across segment boundaries.
+- The densification is **uniform along each segment**. If you need uniform spacing along the _entire line string_ (so the gap between vertex 5 and 6 equals the gap between vertex 17 and 18), use `line_string_interpolate_point` in a loop instead — `densify_line_string` aligns each segment's vertices to its own endpoints, which can produce slightly uneven spacing across segment boundaries.
 - For very sharp corners, densification doesn't smooth — the corner remains exactly at the original vertex. To smooth corners, use `chaikin_smoothing.mbt` (orthogonal operation).
 - For projecting a geometry across CRSs, run densify first **then** project — projecting first leaves long edges that may bow under the projection.
 

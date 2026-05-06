@@ -12,11 +12,11 @@ Winding-order predicate for a closed `LineString` ring (the sign of the signed a
 
 ### `winding_order`
 
-| Variable | State                | Note                       |  1  |  2  |  3  |
-| :------- | :------------------- | :------------------------- | :-: | :-: | :-: |
-| `ls`     | `Closed CCW square`  | `CounterClockwise`         |  ✓  |     |     |
-| `ls`     | `Closed CW square`   | `Clockwise`                |     |  ✓  |     |
-| `ls`     | `Open ring`          | `None` (signed area is 0)  |     |     |  ✓  |
+| Variable | State               | Note                      |  1  |  2  |  3  |
+| :------- | :------------------ | :------------------------ | :-: | :-: | :-: |
+| `ls`     | `Closed CCW square` | `CounterClockwise`        |  ✓  |     |     |
+| `ls`     | `Closed CW square`  | `Clockwise`               |     |  ✓  |     |
+| `ls`     | `Open ring`         | `None` (signed area is 0) |     |     |  ✓  |
 
 - CCW closed square has positive area
 

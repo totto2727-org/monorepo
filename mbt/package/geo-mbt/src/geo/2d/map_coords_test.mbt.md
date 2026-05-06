@@ -12,11 +12,11 @@ Per-`Coord` transformation lifted over every geometry shape via the `MapCoords::
 
 #### `map_coords`
 
-| Variable | State                       | Note                                          |  1  |  2  |  3  |
-| :------- | :-------------------------- | :-------------------------------------------- | :-: | :-: | :-: |
-| `self`   | `Point` + shift `f`         | applies `f` to the single coord               |  ✓  |     |     |
-| `self`   | `Polygon` + scale `f`       | applies `f` to every ring's coords            |     |  ✓  |     |
-| `self`   | `Geometry::Point` + identity| round-trip (`map_coords(g, id) == g`)         |     |     |  ✓  |
+| Variable | State                        | Note                                  |  1  |  2  |  3  |
+| :------- | :--------------------------- | :------------------------------------ | :-: | :-: | :-: |
+| `self`   | `Point` + shift `f`          | applies `f` to the single coord       |  ✓  |     |     |
+| `self`   | `Polygon` + scale `f`        | applies `f` to every ring's coords    |     |  ✓  |     |
+| `self`   | `Geometry::Point` + identity | round-trip (`map_coords(g, id) == g`) |     |     |  ✓  |
 
 - `Point` shifts the underlying coord
 

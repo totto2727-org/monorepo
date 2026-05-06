@@ -41,11 +41,11 @@ test "coords_count - MultiPoint counts inner points" {
 
 #### `coords`
 
-| Variable | State              | Note                                  |  1  |  2  |  3  |
-| :------- | :----------------- | :------------------------------------ | :-: | :-: | :-: |
-| `self`   | `Point`            | `[coord]`                             |  ✓  |     |     |
-| `self`   | `MultiPoint`       | preserves order                       |     |  ✓  |     |
-| `self`   | `Polygon`          | walks exterior then every interior    |     |     |  ✓  |
+| Variable | State        | Note                               |  1  |  2  |  3  |
+| :------- | :----------- | :--------------------------------- | :-: | :-: | :-: |
+| `self`   | `Point`      | `[coord]`                          |  ✓  |     |     |
+| `self`   | `MultiPoint` | preserves order                    |     |  ✓  |     |
+| `self`   | `Polygon`    | walks exterior then every interior |     |     |  ✓  |
 
 - Point yields its single coord
 

@@ -11,11 +11,11 @@ Returns the `Point` at a fractional position `0..=1` along a `Line` (or `LineStr
 
 ### `line_interpolate_point`
 
-| Variable    | State        | Note         |  1  |  2  |  3  |
-| :---------- | :----------- | :----------- | :-: | :-: | :-: |
-| `fraction`  | `0`          | start        |  ✓  |     |     |
-| `fraction`  | `1`          | end          |     |  ✓  |     |
-| `fraction`  | `0.5`        | midpoint     |     |     |  ✓  |
+| Variable   | State | Note     |  1  |  2  |  3  |
+| :--------- | :---- | :------- | :-: | :-: | :-: |
+| `fraction` | `0`   | start    |  ✓  |     |     |
+| `fraction` | `1`   | end      |     |  ✓  |     |
+| `fraction` | `0.5` | midpoint |     |     |  ✓  |
 
 - `f = 0` returns the start
 

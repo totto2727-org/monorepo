@@ -8,7 +8,7 @@ Measure how **similar two polylines are as continuous curves**, by asking the qu
 
 The answer is the **discrete Fréchet distance**, a single `Double`. Smaller = the curves are more similar.
 
-Unlike Hausdorff distance (which only checks "every point of A is close to *some* point of B"), Fréchet distance respects the **order** of the points along each curve. Two polylines that pass through the same set of points but in opposite orders have a small Hausdorff distance but a large Fréchet distance.
+Unlike Hausdorff distance (which only checks "every point of A is close to _some_ point of B"), Fréchet distance respects the **order** of the points along each curve. Two polylines that pass through the same set of points but in opposite orders have a small Hausdorff distance but a large Fréchet distance.
 
 ## API surface
 
@@ -41,7 +41,7 @@ dp[i][j] = max(
 
 The result is `dp[n−1][m−1]` — the minimum leash that gets both walkers all the way to the end.
 
-The intuition: at each cell, you choose the best move (advance A only, advance B only, or advance both) and combine that "running max" with the leash you'd need *right now* between the current pair of vertices. The `max` captures "the leash must be long enough for every moment, not just the final one"; the `min` captures "you can pick whichever previous state is best".
+The intuition: at each cell, you choose the best move (advance A only, advance B only, or advance both) and combine that "running max" with the leash you'd need _right now_ between the current pair of vertices. The `max` captures "the leash must be long enough for every moment, not just the final one"; the `min` captures "you can pick whichever previous state is best".
 
 ## Step-by-step (a 3-vertex line vs. a 4-vertex line)
 
@@ -64,7 +64,7 @@ The answer is `dp[2][3]`.
 
 ## Why max-of-running-max?
 
-Fréchet distance is fundamentally a **min-over-paths-of-max-along-path** problem. The walker pair traces some path through the matrix from `(0, 0)` to `(n−1, m−1)`; the "leash needed" is the *maximum distance* over all cells on the path. We want to **minimise that maximum**, so the DP recurrence is:
+Fréchet distance is fundamentally a **min-over-paths-of-max-along-path** problem. The walker pair traces some path through the matrix from `(0, 0)` to `(n−1, m−1)`; the "leash needed" is the _maximum distance_ over all cells on the path. We want to **minimise that maximum**, so the DP recurrence is:
 
 - `min` over the three previous cells (best path so far).
 - `max` against the current cell's distance (the leash can only get longer, not shorter, as we advance).
@@ -105,13 +105,13 @@ There exist `O(n · m)`-time-but-`O(min(n, m))`-space implementations using roll
 
 ## Comparison with Hausdorff
 
-| Property                           | Fréchet                       | Hausdorff                            |
-| ---------------------------------- | ----------------------------- | ------------------------------------ |
-| Respects order along the curve     | Yes                           | No                                   |
-| Symmetric                          | Yes                           | Yes                                  |
-| Triangle inequality                | Yes (it's a metric)           | Yes                                  |
-| Result for two reversed polylines  | Large (curves disagree)       | Same as forward (Hausdorff is unordered) |
-| Cost                               | `O(n · m)`                    | `O(n · m)` naive, `O((n + m) log)`-able |
+| Property                          | Fréchet                 | Hausdorff                                |
+| --------------------------------- | ----------------------- | ---------------------------------------- |
+| Respects order along the curve    | Yes                     | No                                       |
+| Symmetric                         | Yes                     | Yes                                      |
+| Triangle inequality               | Yes (it's a metric)     | Yes                                      |
+| Result for two reversed polylines | Large (curves disagree) | Same as forward (Hausdorff is unordered) |
+| Cost                              | `O(n · m)`              | `O(n · m)` naive, `O((n + m) log)`-able  |
 
 Use **Fréchet** when "did this GPS track follow this road?" — order matters.
 

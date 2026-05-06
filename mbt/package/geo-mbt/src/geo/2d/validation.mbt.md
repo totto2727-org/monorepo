@@ -27,18 +27,18 @@ pub fn validation_problems(g : Geometry) -> Array[ValidationProblem]
 
 ## What's checked
 
-| Type            | Validity criteria                                                                                                                        |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `Coord`         | both `x` and `y` are finite (not NaN / Inf)                                                                                              |
-| `Point`         | wraps a valid `Coord`                                                                                                                    |
-| `Line`          | both endpoints valid                                                                                                                     |
-| `LineString`    | every coord finite. `≥ 2` coords (a 0- or 1-coord LineString reports `TooFewPoints`)                                                     |
-| `Polygon`       | exterior + each interior ring: each is a valid LineString, has `≥ 4` coords (3 unique + 1 closing repeat), is closed, doesn't self-cross |
-| `MultiPolygon`  | every member polygon is valid                                                                                                            |
-| `Rect`          | `min` and `max` are finite                                                                                                               |
-| `Triangle`      | all 3 vertices finite                                                                                                                    |
-| `GeometryCollection` | every member is valid                                                                                                              |
-| `Geometry`      | dispatch                                                                                                                                 |
+| Type                 | Validity criteria                                                                                                                        |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `Coord`              | both `x` and `y` are finite (not NaN / Inf)                                                                                              |
+| `Point`              | wraps a valid `Coord`                                                                                                                    |
+| `Line`               | both endpoints valid                                                                                                                     |
+| `LineString`         | every coord finite. `≥ 2` coords (a 0- or 1-coord LineString reports `TooFewPoints`)                                                     |
+| `Polygon`            | exterior + each interior ring: each is a valid LineString, has `≥ 4` coords (3 unique + 1 closing repeat), is closed, doesn't self-cross |
+| `MultiPolygon`       | every member polygon is valid                                                                                                            |
+| `Rect`               | `min` and `max` are finite                                                                                                               |
+| `Triangle`           | all 3 vertices finite                                                                                                                    |
+| `GeometryCollection` | every member is valid                                                                                                                    |
+| `Geometry`           | dispatch                                                                                                                                 |
 
 ## What's NOT checked
 

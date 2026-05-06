@@ -124,6 +124,6 @@ Constant time. Five orientation checks plus one solve. No allocation.
 ## Related
 
 - `intersects.mbt` — `intersects_line_line` returns `Bool` only, ~25 % faster.
-- `closest_point.mbt` — for the *closest* point on a single segment to a target (not for two-segment crossing).
+- `closest_point.mbt` — for the _closest_ point on a single segment to a target (not for two-segment crossing).
 - `kernel.mbt` — the robust orientation predicate that powers the sign tests.
 - `bool_ops.mbt` (Sutherland–Hodgman) — uses `line_intersection` to compute clipped polygon edges.

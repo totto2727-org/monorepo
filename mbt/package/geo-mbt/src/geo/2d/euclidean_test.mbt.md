@@ -88,10 +88,10 @@ test "euclidean_distance_coords - 3-4-5 triangle" {
 
 ### `euclidean_distance_coord_to_line`
 
-| Variable | State                          | Note                                    |  1  |  2  |
-| :------- | :----------------------------- | :-------------------------------------- | :-: | :-: |
-| `p`      | `Above midpoint`               | perpendicular distance                  |  ✓  |     |
-| `p`      | `Off the segment past start`   | clamped to start                        |     |  ✓  |
+| Variable | State                        | Note                   |  1  |  2  |
+| :------- | :--------------------------- | :--------------------- | :-: | :-: |
+| `p`      | `Above midpoint`             | perpendicular distance |  ✓  |     |
+| `p`      | `Off the segment past start` | clamped to start       |     |  ✓  |
 
 - Point above the midpoint: perpendicular distance
 
@@ -122,10 +122,10 @@ test "euclidean_distance_coord_to_line - past start clamps to start distance" {
 
 #### `euclidean_length`
 
-| Variable | State                  | Note         |  1  |  2  |
-| :------- | :--------------------- | :----------- | :-: | :-: |
-| `self`   | `Line` (length 5)      | 5            |  ✓  |     |
-| `self`   | `LineString` (3 + 4)   | 7            |     |  ✓  |
+| Variable | State                | Note |  1  |  2  |
+| :------- | :------------------- | :--- | :-: | :-: |
+| `self`   | `Line` (length 5)    | 5    |  ✓  |     |
+| `self`   | `LineString` (3 + 4) | 7    |     |  ✓  |
 
 - Line of length 5 reports 5
 

@@ -11,10 +11,10 @@ pub fn is_convex(ls : LineString) -> Bool
 pub fn is_strictly_convex(ls : LineString) -> Bool
 ```
 
-| Function              | Allows three consecutive collinear points? |
-| --------------------- | ------------------------------------------ |
-| `is_convex`           | Yes — collinear triples don't affect the result |
-| `is_strictly_convex`  | No — any collinear triple ⇒ false              |
+| Function             | Allows three consecutive collinear points?      |
+| -------------------- | ----------------------------------------------- |
+| `is_convex`          | Yes — collinear triples don't affect the result |
+| `is_strictly_convex` | No — any collinear triple ⇒ false               |
 
 `is_convex` is the OGC-style notion (a convex polygon may have redundant collinear vertices and still count). `is_strictly_convex` is the "strict math" notion (all interior angles < 180°, no degenerate vertices).
 
@@ -94,6 +94,6 @@ To test a polygon's exterior, write `is_convex(polygon.exterior())`. Interior ri
 
 ## Related
 
-- `convex_hull.mbt` — for *computing* the hull when a polygon isn't convex.
+- `convex_hull.mbt` — for _computing_ the hull when a polygon isn't convex.
 - `kernel.mbt` — the robust orient predicate.
 - `winding_order.mbt` — orthogonal property: a polygon's winding (CCW vs CW) is independent of whether it's convex.

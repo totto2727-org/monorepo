@@ -42,10 +42,10 @@ return new Polygon(reoriented_exterior, reoriented_interiors)
 
 The "opposite target" rule is what enforces the **always-opposite** convention between exterior and interior rings:
 
-| `dir`              | Exterior target | Interior target |
-| ------------------ | --------------- | --------------- |
-| `Default`          | CCW             | CW              |
-| `Reversed`         | CW              | CCW             |
+| `dir`      | Exterior target | Interior target |
+| ---------- | --------------- | --------------- |
+| `Default`  | CCW             | CW              |
+| `Reversed` | CW              | CCW             |
 
 ## Why ring orientation matters
 

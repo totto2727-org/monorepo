@@ -15,10 +15,10 @@ pub fn scale_geometry(g : Geometry, factor : Double) -> Geometry
 pub fn scale_geometry_around(g : Geometry, sx : Double, sy : Double, pivot : Coord) -> Geometry
 ```
 
-| Function                       | Pivot                       | Factor      |
-| ------------------------------ | --------------------------- | ----------- |
-| `scale_geometry`               | The geometry's centroid      | Uniform `factor` for both axes |
-| `scale_geometry_around`        | User-provided                | Per-axis `(sx, sy)` |
+| Function                | Pivot                   | Factor                         |
+| ----------------------- | ----------------------- | ------------------------------ |
+| `scale_geometry`        | The geometry's centroid | Uniform `factor` for both axes |
+| `scale_geometry_around` | User-provided           | Per-axis `(sx, sy)`            |
 
 ## How it works
 

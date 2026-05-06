@@ -8,12 +8,12 @@ The centroid coincides with the **average of the vertices** only for triangles. 
 
 ## API surface
 
-| Function                              | Returns        | Empty input |
-| ------------------------------------- | -------------- | ----------- |
-| `centroid_polygon(p)`                 | `Point?`       | `None` when exterior is empty / has no area |
-| `centroid_multi_polygon(mp)`          | `Point?`       | `None` when no member contributes any area  |
-| `centroid_line_string(ls)`            | `Point?`       | `None` when `ls` has 0 coords; uses arc-length weighting otherwise |
-| `centroid_geometry(g)`                | `Point?`       | Dispatch — picks the right per-shape formula |
+| Function                     | Returns  | Empty input                                                        |
+| ---------------------------- | -------- | ------------------------------------------------------------------ |
+| `centroid_polygon(p)`        | `Point?` | `None` when exterior is empty / has no area                        |
+| `centroid_multi_polygon(mp)` | `Point?` | `None` when no member contributes any area                         |
+| `centroid_line_string(ls)`   | `Point?` | `None` when `ls` has 0 coords; uses arc-length weighting otherwise |
+| `centroid_geometry(g)`       | `Point?` | Dispatch — picks the right per-shape formula                       |
 
 There's also a port-side trait `HasCentroid { centroid(self) -> Point? }` with impls for `Geometry`, `LineString`, `Polygon`, `MultiPolygon` so callers can write generic code.
 
@@ -118,4 +118,4 @@ Property test (`property_test.mbt`):
 
 - `extremes.mbt` — for "the four corner-most points" rather than a single centre point.
 - `area.mbt` — `signed_area_of_polygon` is the denominator of the centroid formula.
-- `bounding_rect.mbt` — `Rect::center()` gives the **bounding box centre** which is *not* the centroid of an irregular polygon.
+- `bounding_rect.mbt` — `Rect::center()` gives the **bounding box centre** which is _not_ the centroid of an irregular polygon.

@@ -25,10 +25,10 @@ pub fn within_geometry(a, b)                    -> Bool   // == contains_geometr
 
 Two pairs of definitions differ **only at the boundary**:
 
-| Predicate     | A point of `B` on `A`'s boundary | A point of `B` inside `A`'s interior | At least one interior-interior overlap required? |
-| ------------- | -------------------------------- | ------------------------------------- | ----------------------------------------------- |
-| `contains`    | Allowed only if other points are inside; **boundary alone is not enough** | Required (at least one such point)     | Yes |
-| `covers`      | Allowed                          | Not required                           | No                                              |
+| Predicate  | A point of `B` on `A`'s boundary                                          | A point of `B` inside `A`'s interior | At least one interior-interior overlap required? |
+| ---------- | ------------------------------------------------------------------------- | ------------------------------------ | ------------------------------------------------ |
+| `contains` | Allowed only if other points are inside; **boundary alone is not enough** | Required (at least one such point)   | Yes                                              |
+| `covers`   | Allowed                                                                   | Not required                         | No                                               |
 
 In particular:
 

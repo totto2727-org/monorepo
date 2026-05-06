@@ -14,16 +14,16 @@ Pick assertion APIs deliberately. Mixing styles without a rule produces tests th
 
 ### 2.1 Decision table
 
-| Use case                                                            | API                                              | Notes                                                                                          |
-| :------------------------------------------------------------------ | :----------------------------------------------- | :--------------------------------------------------------------------------------------------- |
-| Primary constructor — verify struct layout at a glance              | `debug_inspect(value, content="...")`            | Snapshot the literal struct so the field order and types are visible without leaving the test |
-| Large / complex object — happy-path verification                    | `debug_inspect(value, content="...")`            | Use when the type has many properties, changes often, or individual asserts would miss fields  |
-| `ToJson` derive — snapshot the serialized form                      | `json_inspect(value, content=...)`               | Preferred over manual string comparison                                                        |
-| Equality of two values where the type derives `Eq + Debug`          | `@test.assert_eq(actual, expected)`              | Failure message prints both sides                                                              |
-| Inequality of two values where the type derives `Eq + Debug`        | `@test.assert_not_eq(actual, expected)`          | Same diagnostics as `assert_eq`                                                                |
-| Bool predicate (`is_X`, `has_X`, `contains_X`, derived `==` / `!=`) | `assert_true(predicate)` / `assert_false(...)`   | Reads as "the predicate holds"                                                                 |
-| Equality of a value whose type lacks `Show` and `Debug` derives     | `assert_true(actual == expected)`                | Last resort; prefer adding `Debug` to the type if you control it                               |
-| Function intended to panic / abort                                  | `panic_` test prefix + `expr \|> ignore`         | The runner only passes if the panic actually fires                                             |
+| Use case                                                            | API                                            | Notes                                                                                         |
+| :------------------------------------------------------------------ | :--------------------------------------------- | :-------------------------------------------------------------------------------------------- |
+| Primary constructor — verify struct layout at a glance              | `debug_inspect(value, content="...")`          | Snapshot the literal struct so the field order and types are visible without leaving the test |
+| Large / complex object — happy-path verification                    | `debug_inspect(value, content="...")`          | Use when the type has many properties, changes often, or individual asserts would miss fields |
+| `ToJson` derive — snapshot the serialized form                      | `json_inspect(value, content=...)`             | Preferred over manual string comparison                                                       |
+| Equality of two values where the type derives `Eq + Debug`          | `@test.assert_eq(actual, expected)`            | Failure message prints both sides                                                             |
+| Inequality of two values where the type derives `Eq + Debug`        | `@test.assert_not_eq(actual, expected)`        | Same diagnostics as `assert_eq`                                                               |
+| Bool predicate (`is_X`, `has_X`, `contains_X`, derived `==` / `!=`) | `assert_true(predicate)` / `assert_false(...)` | Reads as "the predicate holds"                                                                |
+| Equality of a value whose type lacks `Show` and `Debug` derives     | `assert_true(actual == expected)`              | Last resort; prefer adding `Debug` to the type if you control it                              |
+| Function intended to panic / abort                                  | `panic_` test prefix + `expr \|> ignore`       | The runner only passes if the panic actually fires                                            |
 
 ### 2.2 Deprecation: prelude `assert_eq` / `assert_not_eq`
 
@@ -41,7 +41,7 @@ Use `@test.assert_eq` / `@test.assert_not_eq` (`Eq + Debug` constraint) instead.
 - Always pass the **direct return value** of the function under test. Do not obscure it via derived properties.
   - Bad: `debug_inspect(array.length(), content="3")`
   - Good: `debug_inspect(array, content="[A, B, C]")`
-- For the *primary constructor* test, snapshot the constructed value so the struct shape is visible inline. This is the one place where snapshotting beats `@test.assert_eq` on readability.
+- For the _primary constructor_ test, snapshot the constructed value so the struct shape is visible inline. This is the one place where snapshotting beats `@test.assert_eq` on readability.
 - For large objects (many fields, frequently mutated, easy to forget asserts), prefer one snapshot over many separate `assert_eq`s — the snapshot guarantees no field is silently dropped from the test, and `moon test --update` keeps it in sync.
 
 ### 2.4 Required `moon.pkg` setup for `@test`

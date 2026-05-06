@@ -18,13 +18,13 @@ A bounded two-dimensional area defined by an `exterior` ring (`LineString`) and 
 
 ### `Polygon::Polygon`
 
-| Variable    | State                            | Note                                       |  1  |  2  |  3  |  4  |
-| :---------- | :------------------------------- | :----------------------------------------- | :-: | :-: | :-: | :-: |
-| `exterior`  | `Open`                           | auto-closes (length grows by 1)            |  ✓  |     |  -  |     |
-| `exterior`  | `Already closed`                 | preserved verbatim                         |     |     |  ✓  |     |
-| `interiors` | `Empty`                          | basic shape                                |  ✓  |     |  ✓  |     |
-| `interiors` | `Open ring`                      | auto-closes each interior                  |     |  ✓  |     |     |
-| (caller)    | `Holds open exterior + interior` | constructor must not mutate input rings    |     |     |     |  ✓  |
+| Variable    | State                            | Note                                    |  1  |  2  |  3  |  4  |
+| :---------- | :------------------------------- | :-------------------------------------- | :-: | :-: | :-: | :-: |
+| `exterior`  | `Open`                           | auto-closes (length grows by 1)         |  ✓  |     |  -  |     |
+| `exterior`  | `Already closed`                 | preserved verbatim                      |     |     |  ✓  |     |
+| `interiors` | `Empty`                          | basic shape                             |  ✓  |     |  ✓  |     |
+| `interiors` | `Open ring`                      | auto-closes each interior               |     |  ✓  |     |     |
+| (caller)    | `Holds open exterior + interior` | constructor must not mutate input rings |     |     |     |  ✓  |
 
 - Simple initialization
 
@@ -187,10 +187,10 @@ test "Polygon interiors - returns array of closed interior rings" {
 
 ### `Polygon::num_interiors`
 
-| Variable | State        | Note            |  1  |  2  |
-| :------- | :----------- | :-------------- | :-: | :-: |
-| `self`   | `No holes`   | zero interiors  |  ✓  |     |
-| `self`   | `One hole`   | one interior    |     |  ✓  |
+| Variable | State      | Note           |  1  |  2  |
+| :------- | :--------- | :------------- | :-: | :-: |
+| `self`   | `No holes` | zero interiors |  ✓  |     |
+| `self`   | `One hole` | one interior   |     |  ✓  |
 
 - Zero when no holes
 
@@ -256,10 +256,10 @@ test "Polygon num_rings - equals num_interiors + 1" {
 
 ### `IsEmpty`
 
-| Variable | State                | Note                          |  1  |  2  |
-| :------- | :------------------- | :---------------------------- | :-: | :-: |
-| `self`   | `Non-empty exterior` | false                         |  ✓  |     |
-| `self`   | `Empty exterior`     | true                          |     |  ✓  |
+| Variable | State                | Note  |  1  |  2  |
+| :------- | :------------------- | :---- | :-: | :-: |
+| `self`   | `Non-empty exterior` | false |  ✓  |     |
+| `self`   | `Empty exterior`     | true  |     |  ✓  |
 
 #### `is_empty`
 
@@ -292,13 +292,13 @@ test "Polygon IsEmpty::is_empty - true when exterior is empty" {
 
 ### `Polygon::pushed_interior`
 
-| Variable        | State                                      | Note                                         |  1  |  2  |  3  |  4  |
-| :-------------- | :----------------------------------------- | :------------------------------------------- | :-: | :-: | :-: | :-: |
-| `self`          | `No interiors`                             | append produces a single closed interior     |  ✓  |     |     |     |
-| `self`          | `Has interiors`                            | preserved in order, new at the end           |     |     |     |  ✓  |
-| `new_interior`  | `Open`                                     | auto-closed inside the result                |  ✓  |     |     |     |
-| `(immutability)` | `caller's polygon`                        | original is not modified                     |     |  ✓  |     |     |
-| `(immutability)` | `caller's LineString`                     | input ring is not mutated                    |     |     |  ✓  |     |
+| Variable         | State                 | Note                                     |  1  |  2  |  3  |  4  |
+| :--------------- | :-------------------- | :--------------------------------------- | :-: | :-: | :-: | :-: |
+| `self`           | `No interiors`        | append produces a single closed interior |  ✓  |     |     |     |
+| `self`           | `Has interiors`       | preserved in order, new at the end       |     |     |     |  ✓  |
+| `new_interior`   | `Open`                | auto-closed inside the result            |  ✓  |     |     |     |
+| `(immutability)` | `caller's polygon`    | original is not modified                 |     |  ✓  |     |     |
+| `(immutability)` | `caller's LineString` | input ring is not mutated                |     |     |  ✓  |     |
 
 - Appends and auto-closes the new interior
 

@@ -12,10 +12,10 @@ Inserts intermediate coordinates along each segment of a `LineString` (or each r
 
 #### `densify`
 
-| Variable | State                                          | Note                                |  1  |  2  |
-| :------- | :--------------------------------------------- | :---------------------------------- | :-: | :-: |
-| `self`   | `Long segment (length > max)`                  | gets subdivided                     |  ✓  |     |
-| `self`   | `Short segment (length ≤ max)`                 | unchanged                           |     |  ✓  |
+| Variable | State                          | Note            |  1  |  2  |
+| :------- | :----------------------------- | :-------------- | :-: | :-: |
+| `self`   | `Long segment (length > max)`  | gets subdivided |  ✓  |     |
+| `self`   | `Short segment (length ≤ max)` | unchanged       |     |  ✓  |
 
 - Long segment splits into equal-length sub-segments
 

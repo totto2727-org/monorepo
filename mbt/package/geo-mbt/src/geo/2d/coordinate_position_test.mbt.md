@@ -12,13 +12,13 @@ Classifies a `Coord` relative to a geometry as `CoordPos` — `Inside`, `OnBound
 
 ### `coord_on_line`
 
-| Variable | State                  | Note     |  1  |  2  |  3  |  4  |  5  |
-| :------- | :--------------------- | :------- | :-: | :-: | :-: | :-: | :-: |
-| `coord`  | `Start endpoint`       | true     |  ✓  |     |     |     |     |
-| `coord`  | `End endpoint`         | true     |     |  ✓  |     |     |     |
-| `coord`  | `Strict midpoint`      | true     |     |     |  ✓  |     |     |
-| `coord`  | `Off the line`         | false    |     |     |     |  ✓  |     |
-| `coord`  | `Beyond end`           | false    |     |     |     |     |  ✓  |
+| Variable | State             | Note  |  1  |  2  |  3  |  4  |  5  |
+| :------- | :---------------- | :---- | :-: | :-: | :-: | :-: | :-: |
+| `coord`  | `Start endpoint`  | true  |  ✓  |     |     |     |     |
+| `coord`  | `End endpoint`    | true  |     |  ✓  |     |     |     |
+| `coord`  | `Strict midpoint` | true  |     |     |  ✓  |     |     |
+| `coord`  | `Off the line`    | false |     |     |     |  ✓  |     |
+| `coord`  | `Beyond end`      | false |     |     |     |     |  ✓  |
 
 - Endpoints, midpoint, off-line, beyond-end
 
@@ -38,16 +38,16 @@ test "coord_on_line - endpoints, midpoint, off-line, beyond-end" {
 
 #### `coord_position`
 
-| Variable        | State                                              | Note          |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |
-| :-------------- | :------------------------------------------------- | :------------ | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
-| `self`/`coord`  | `Polygon, coord inside`                            | `Inside`      |  ✓  |     |     |     |     |     |     |     |
-| `self`/`coord`  | `Polygon, coord on edge`                           | `OnBoundary`  |     |  ✓  |     |     |     |     |     |     |
-| `self`/`coord`  | `Polygon, coord outside`                           | `Outside`     |     |     |  ✓  |     |     |     |     |     |
-| `self`/`coord`  | `Polygon with hole, coord inside hole`             | `Outside`     |     |     |     |  ✓  |     |     |     |     |
-| `self`/`coord`  | `Polygon with hole, coord on hole boundary`        | `OnBoundary`  |     |     |     |     |  ✓  |     |     |     |
-| `self`/`coord`  | `Rect, coord inside`                               | `Inside`      |     |     |     |     |     |  ✓  |     |     |
-| `self`/`coord`  | `Rect, coord on edge`                              | `OnBoundary`  |     |     |     |     |     |     |  ✓  |     |
-| `self`/`coord`  | `Rect, coord outside`                              | `Outside`     |     |     |     |     |     |     |     |  ✓  |
+| Variable       | State                                       | Note         |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |
+| :------------- | :------------------------------------------ | :----------- | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| `self`/`coord` | `Polygon, coord inside`                     | `Inside`     |  ✓  |     |     |     |     |     |     |     |
+| `self`/`coord` | `Polygon, coord on edge`                    | `OnBoundary` |     |  ✓  |     |     |     |     |     |     |
+| `self`/`coord` | `Polygon, coord outside`                    | `Outside`    |     |     |  ✓  |     |     |     |     |     |
+| `self`/`coord` | `Polygon with hole, coord inside hole`      | `Outside`    |     |     |     |  ✓  |     |     |     |     |
+| `self`/`coord` | `Polygon with hole, coord on hole boundary` | `OnBoundary` |     |     |     |     |  ✓  |     |     |     |
+| `self`/`coord` | `Rect, coord inside`                        | `Inside`     |     |     |     |     |     |  ✓  |     |     |
+| `self`/`coord` | `Rect, coord on edge`                       | `OnBoundary` |     |     |     |     |     |     |  ✓  |     |
+| `self`/`coord` | `Rect, coord outside`                       | `Outside`    |     |     |     |     |     |     |     |  ✓  |
 
 - Polygon: inside, boundary, outside
 

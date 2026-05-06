@@ -81,7 +81,7 @@ Property test (`property_test.mbt`):
 
 ## Why a `Point` not a `Coord` for the single-line case
 
-The single-segment `Line` case takes a `Line` (which uses `Coord`s internally) but returns a `Point`. The reason: the result is **conceptually** an interpolated *location*, which the port models as `Point`. For the `LineString` case the result is `Point?` because the input might be empty.
+The single-segment `Line` case takes a `Line` (which uses `Coord`s internally) but returns a `Point`. The reason: the result is **conceptually** an interpolated _location_, which the port models as `Point`. For the `LineString` case the result is `Point?` because the input might be empty.
 
 If you want a `Coord` directly, use `result.coord()` to extract.
 

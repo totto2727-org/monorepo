@@ -19,13 +19,13 @@ pub fn covers_geometry(a, b)              -> Bool   // dispatch
 
 ## How `covers` differs from `contains`
 
-| Pair                                                | `contains` | `covers`  |
-| --------------------------------------------------- | ---------- | --------- |
-| Polygon / point strictly inside polygon             | true       | true      |
-| Polygon / point exactly on polygon's boundary       | **false**  | **true**  |
-| Polygon / smaller polygon strictly inside           | true       | true      |
-| Polygon / smaller polygon sharing one boundary edge | **false**  | **true**  |
-| Polygon / coincident polygon                        | false      | true      |
+| Pair                                                | `contains` | `covers` |
+| --------------------------------------------------- | ---------- | -------- |
+| Polygon / point strictly inside polygon             | true       | true     |
+| Polygon / point exactly on polygon's boundary       | **false**  | **true** |
+| Polygon / smaller polygon strictly inside           | true       | true     |
+| Polygon / smaller polygon sharing one boundary edge | **false**  | **true** |
+| Polygon / coincident polygon                        | false      | true     |
 
 The rule:
 
@@ -34,7 +34,7 @@ A covers B  ⇔  no point of B lies outside A.
 A contains B  ⇔  A covers B  AND  at least one point of B is in A's interior.
 ```
 
-`covers` is the predicate you almost always want for *spatial filtering* ("is this feature inside the query rectangle, including features on the boundary?"). `contains` is the predicate you want for *strict topological reasoning* (DE-9IM, OGC compliance).
+`covers` is the predicate you almost always want for _spatial filtering_ ("is this feature inside the query rectangle, including features on the boundary?"). `contains` is the predicate you want for _strict topological reasoning_ (DE-9IM, OGC compliance).
 
 ## Algorithm
 

@@ -1,6 +1,6 @@
 # affine_transform.mbt
 
-A 2D affine transform stored as a pair of `AffineRow`s (`row_x` / `row_y`) representing the upper two rows of a 3×3 row-major matrix. Provides factory constructors (`identity` / `translate_xy` / `scale_xy` / `rotate_origin` / `skew_origin`), pointwise `apply`, `compose` (matrix multiplication in the order *first self, then other*), and a generic `transform` over any `MapCoords` instance.
+A 2D affine transform stored as a pair of `AffineRow`s (`row_x` / `row_y`) representing the upper two rows of a 3×3 row-major matrix. Provides factory constructors (`identity` / `translate_xy` / `scale_xy` / `rotate_origin` / `skew_origin`), pointwise `apply`, `compose` (matrix multiplication in the order _first self, then other_), and a generic `transform` over any `MapCoords` instance.
 
 ## Public API
 

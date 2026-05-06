@@ -85,7 +85,7 @@ Tests in `affine_transform_test.mbt`:
 
 ## Properties
 
-- **Shape preserved**: distances and angles within the geometry stay the same. Rotation is a *rigid motion*.
+- **Shape preserved**: distances and angles within the geometry stay the same. Rotation is a _rigid motion_.
 - **Area preserved**.
 - **Winding preserved**: a CCW polygon stays CCW.
 - **Bounding rect**: generally **does not** preserve. The bbox after rotation is at least as large as the original (and exactly as large iff θ is a multiple of 90°).

@@ -90,10 +90,10 @@ test "LineString coords - returns underlying coord array" {
 
 ### `LineString::points`
 
-| Variable | State           | Note  |  1  |  2  |
-| :------- | :-------------- | :---- | :-: | :-: |
-| `self`   | `Non-empty`     |       |  ✓  |     |
-| `self`   | `Empty`         |       |     |  ✓  |
+| Variable | State       | Note |  1  |  2  |
+| :------- | :---------- | :--- | :-: | :-: |
+| `self`   | `Non-empty` |      |  ✓  |     |
+| `self`   | `Empty`     |      |     |  ✓  |
 
 - Maps each coord to a `Point`
 
@@ -143,11 +143,11 @@ test "LineString points_iter - take short-circuits" {
 
 ### `LineString::lines`
 
-| Variable | State         | Note               |  1  |  2  |  3  |
-| :------- | :------------ | :----------------- | :-: | :-: | :-: |
-| `self`   | `Non-empty`   | basic segments     |  ✓  |     |     |
-| `self`   | `Empty`       | n < 2 guard        |     |  ✓  |     |
-| `self`   | `Single`      | n < 2 guard        |     |     |  ✓  |
+| Variable | State       | Note           |  1  |  2  |  3  |
+| :------- | :---------- | :------------- | :-: | :-: | :-: |
+| `self`   | `Non-empty` | basic segments |  ✓  |     |     |
+| `self`   | `Empty`     | n < 2 guard    |     |  ✓  |     |
+| `self`   | `Single`    | n < 2 guard    |     |     |  ✓  |
 
 - Yields each consecutive pair as a `Line`
 
@@ -224,11 +224,11 @@ test "LineString lines_iter - take short-circuits" {
 
 ### `LineString::rev_lines`
 
-| Variable | State         | Note                                              |  1  |  2  |  3  |
-| :------- | :------------ | :------------------------------------------------ | :-: | :-: | :-: |
-| `self`   | `Non-empty`   | reversed order with swapped endpoints             |  ✓  |     |     |
-| `self`   | `Empty`       | n < 2 guard                                       |     |  ✓  |     |
-| `self`   | `Single`      | n < 2 guard                                       |     |     |  ✓  |
+| Variable | State       | Note                                  |  1  |  2  |  3  |
+| :------- | :---------- | :------------------------------------ | :-: | :-: | :-: |
+| `self`   | `Non-empty` | reversed order with swapped endpoints |  ✓  |     |     |
+| `self`   | `Empty`     | n < 2 guard                           |     |  ✓  |     |
+| `self`   | `Single`    | n < 2 guard                           |     |     |  ✓  |
 
 - Reversed order with each segment's endpoints swapped
 
@@ -319,11 +319,11 @@ test "LineString rev_lines_iter - take short-circuits" {
 
 ### `LineString::closed`
 
-| Variable | State              | Note                                          |  1  |  2  |  3  |
-| :------- | :----------------- | :-------------------------------------------- | :-: | :-: | :-: |
-| `self`   | `Open`             | returns a closed copy without mutating self   |  ✓  |     |     |
-| `self`   | `Already closed`   | returns `self` directly (no allocation)       |     |  ✓  |     |
-| `self`   | `Empty`            | returns `self` directly                       |     |     |  ✓  |
+| Variable | State            | Note                                        |  1  |  2  |  3  |
+| :------- | :--------------- | :------------------------------------------ | :-: | :-: | :-: |
+| `self`   | `Open`           | returns a closed copy without mutating self |  ✓  |     |     |
+| `self`   | `Already closed` | returns `self` directly (no allocation)     |     |  ✓  |     |
+| `self`   | `Empty`          | returns `self` directly                     |     |     |  ✓  |
 
 - Open input → closed copy, original untouched
 
@@ -412,12 +412,12 @@ test "LineString IsEmpty::is_empty - true when empty" {
 
 ### `IsClosed`
 
-| Variable | State                          | Note                          |  1  |  2  |  3  |  4  |
-| :------- | :----------------------------- | :---------------------------- | :-: | :-: | :-: | :-: |
-| `self`   | `Open` (≥ 2 coords, ends ≠)    | basic open                    |  ✓  |     |     |     |
-| `self`   | `Closed` (≥ 2 coords, ends =)  | basic closed                  |     |  ✓  |     |     |
-| `self`   | `Empty`                        | n < 2 guard                   |     |     |  ✓  |     |
-| `self`   | `Single coord`                 | n < 2 guard                   |     |     |     |  ✓  |
+| Variable | State                         | Note         |  1  |  2  |  3  |  4  |
+| :------- | :---------------------------- | :----------- | :-: | :-: | :-: | :-: |
+| `self`   | `Open` (≥ 2 coords, ends ≠)   | basic open   |  ✓  |     |     |     |
+| `self`   | `Closed` (≥ 2 coords, ends =) | basic closed |     |  ✓  |     |     |
+| `self`   | `Empty`                       | n < 2 guard  |     |     |  ✓  |     |
+| `self`   | `Single coord`                | n < 2 guard  |     |     |     |  ✓  |
 
 #### `is_closed`
 

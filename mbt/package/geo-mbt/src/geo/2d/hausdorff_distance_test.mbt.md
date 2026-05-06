@@ -11,10 +11,10 @@ Hausdorff distance between two coordinate sets, lifted to whole geometries via t
 
 ### `hausdorff_distance_coords`
 
-| Variable | State                  | Note                              |  1  |  2  |
-| :------- | :--------------------- | :-------------------------------- | :-: | :-: |
-| `a`/`b`  | `Identical`            | distance is 0                     |  ✓  |     |
-| `a`/`b`  | `Disjoint, both finite`| max(min) in either direction      |     |  ✓  |
+| Variable | State                   | Note                         |  1  |  2  |
+| :------- | :---------------------- | :--------------------------- | :-: | :-: |
+| `a`/`b`  | `Identical`             | distance is 0                |  ✓  |     |
+| `a`/`b`  | `Disjoint, both finite` | max(min) in either direction |     |  ✓  |
 
 - Identical sets give distance 0
 

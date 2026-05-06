@@ -13,19 +13,19 @@ This is the **planar / Cartesian** family. The geographic / spherical / geodesic
 
 ## API surface
 
-| Function                                                | Returns      | What it does                                                                |
-| ------------------------------------------------------- | ------------ | --------------------------------------------------------------------------- |
-| `euclidean_distance_coords(a, b)`                       | `Double`     | `sqrt((a.x − b.x)² + (a.y − b.y)²)`                                         |
-| `euclidean_distance_squared_coords(a, b)`               | `Double`     | Skips the `sqrt` — useful when you only need to compare distances           |
-| `euclidean_distance_points(a, b)`                       | `Double`     | Same, but takes `Point`                                                     |
-| `euclidean_distance_coord_to_line(c, l)`                | `Double`     | Shortest distance from `c` to the segment `l` (perpendicular if foot lies on the segment, otherwise nearer endpoint) |
-| `euclidean_distance_point_to_line(p, l)`                | `Double`     | Same, with `Point` input                                                    |
-| `euclidean_distance_coord_to_line_string(c, ls)`        | `Double`     | Min over all segments                                                       |
-| `euclidean_length_line(l)`                              | `Double`     | `magnitude(l.delta())`                                                      |
-| `euclidean_length_line_string(ls)`                      | `Double`     | Sum of segment lengths (0 for `< 2` coords)                                 |
-| `euclidean_length_multi_line_string(mls)`               | `Double`     | Sum across all member line strings                                          |
-| `euclidean_bearing(from, to)`                           | `Double`     | Angle in radians from `+x` axis, `atan2(Δy, Δx)`                            |
-| `euclidean_destination(from, distance, bearing)`        | `Coord`      | `from + distance · (cos(bearing), sin(bearing))`                            |
+| Function                                         | Returns  | What it does                                                                                                         |
+| ------------------------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------- |
+| `euclidean_distance_coords(a, b)`                | `Double` | `sqrt((a.x − b.x)² + (a.y − b.y)²)`                                                                                  |
+| `euclidean_distance_squared_coords(a, b)`        | `Double` | Skips the `sqrt` — useful when you only need to compare distances                                                    |
+| `euclidean_distance_points(a, b)`                | `Double` | Same, but takes `Point`                                                                                              |
+| `euclidean_distance_coord_to_line(c, l)`         | `Double` | Shortest distance from `c` to the segment `l` (perpendicular if foot lies on the segment, otherwise nearer endpoint) |
+| `euclidean_distance_point_to_line(p, l)`         | `Double` | Same, with `Point` input                                                                                             |
+| `euclidean_distance_coord_to_line_string(c, ls)` | `Double` | Min over all segments                                                                                                |
+| `euclidean_length_line(l)`                       | `Double` | `magnitude(l.delta())`                                                                                               |
+| `euclidean_length_line_string(ls)`               | `Double` | Sum of segment lengths (0 for `< 2` coords)                                                                          |
+| `euclidean_length_multi_line_string(mls)`        | `Double` | Sum across all member line strings                                                                                   |
+| `euclidean_bearing(from, to)`                    | `Double` | Angle in radians from `+x` axis, `atan2(Δy, Δx)`                                                                     |
+| `euclidean_destination(from, distance, bearing)` | `Coord`  | `from + distance · (cos(bearing), sin(bearing))`                                                                     |
 
 ## Distance — point to point
 

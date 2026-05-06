@@ -13,11 +13,11 @@ Defines the `Closest` enum (the result of a closest-point query): `Intersection`
 
 #### `closest_point`
 
-| Variable | State                                | Note                                    |  1  |  2  |  3  |
-| :------- | :----------------------------------- | :-------------------------------------- | :-: | :-: | :-: |
-| `target` | `Above midpoint of horizontal Line`  | `SinglePoint` at the foot of the normal |  ✓  |     |     |
-| `target` | `Beyond start of Line`               | clamped to start (`SinglePoint`)        |     |  ✓  |     |
-| `target` | `On the Line`                        | `Intersection`                          |     |     |  ✓  |
+| Variable | State                               | Note                                    |  1  |  2  |  3  |
+| :------- | :---------------------------------- | :-------------------------------------- | :-: | :-: | :-: |
+| `target` | `Above midpoint of horizontal Line` | `SinglePoint` at the foot of the normal |  ✓  |     |     |
+| `target` | `Beyond start of Line`              | clamped to start (`SinglePoint`)        |     |  ✓  |     |
+| `target` | `On the Line`                       | `Intersection`                          |     |     |  ✓  |
 
 - Foot of normal at midpoint: `SinglePoint`
 

@@ -51,13 +51,13 @@ The implementation stores only the top 6 numbers (the bottom row `[0 0 1]` is im
 
 ## Pre-built transformations
 
-| Constructor                              | Matrix                                          | Effect                                                  |
-| ---------------------------------------- | ----------------------------------------------- | ------------------------------------------------------- |
-| `identity()`                             | `[1 0 0; 0 1 0]`                                | Coord ↦ coord (no change)                               |
-| `translate_xy(dx, dy)`                   | `[1 0 dx; 0 1 dy]`                              | Shift everything by `(dx, dy)`                          |
-| `scale_xy(sx, sy)`                       | `[sx 0 0; 0 sy 0]`                              | Stretch / shrink. Negative values flip                   |
-| `rotate_origin(θ)`                       | `[cos θ −sin θ 0; sin θ cos θ 0]`               | Rotate `θ` radians CCW around the origin                 |
-| `skew_origin(α, β)`                      | `[1 tan α 0; tan β 1 0]`                        | Shear along x by α, along y by β                         |
+| Constructor            | Matrix                            | Effect                                   |
+| ---------------------- | --------------------------------- | ---------------------------------------- |
+| `identity()`           | `[1 0 0; 0 1 0]`                  | Coord ↦ coord (no change)                |
+| `translate_xy(dx, dy)` | `[1 0 dx; 0 1 dy]`                | Shift everything by `(dx, dy)`           |
+| `scale_xy(sx, sy)`     | `[sx 0 0; 0 sy 0]`                | Stretch / shrink. Negative values flip   |
+| `rotate_origin(θ)`     | `[cos θ −sin θ 0; sin θ cos θ 0]` | Rotate `θ` radians CCW around the origin |
+| `skew_origin(α, β)`    | `[1 tan α 0; tan β 1 0]`          | Shear along x by α, along y by β         |
 
 ## Composing transformations
 

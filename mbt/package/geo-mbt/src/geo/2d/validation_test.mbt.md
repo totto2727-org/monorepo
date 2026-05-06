@@ -12,13 +12,13 @@ Reports `ValidationProblem`s detected on a `Geometry` (e.g. fewer-than-2 coords 
 
 ### `validation_problems` / `is_valid`
 
-| Variable | State                                              | Note                       |  1  |  2  |  3  |  4  |  5  |
-| :------- | :------------------------------------------------- | :------------------------- | :-: | :-: | :-: | :-: | :-: |
-| `g`      | `Polygon (4-coord exterior, auto-closed)`          | valid                      |  ✓  |     |     |     |     |
-| `g`      | `LineString with 1 coord`                          | invalid (too few)          |     |  ✓  |     |     |     |
-| `g`      | `LineString with 2 coords`                         | valid                      |     |     |  ✓  |     |     |
-| `g`      | `Point with NaN coord`                             | invalid (non-finite)       |     |     |     |  ✓  |     |
-| `g`      | `Polygon with 2-coord exterior`                    | invalid (ring too few)     |     |     |     |     |  ✓  |
+| Variable | State                                     | Note                   |  1  |  2  |  3  |  4  |  5  |
+| :------- | :---------------------------------------- | :--------------------- | :-: | :-: | :-: | :-: | :-: |
+| `g`      | `Polygon (4-coord exterior, auto-closed)` | valid                  |  ✓  |     |     |     |     |
+| `g`      | `LineString with 1 coord`                 | invalid (too few)      |     |  ✓  |     |     |     |
+| `g`      | `LineString with 2 coords`                | valid                  |     |     |  ✓  |     |     |
+| `g`      | `Point with NaN coord`                    | invalid (non-finite)   |     |     |     |  ✓  |     |
+| `g`      | `Polygon with 2-coord exterior`           | invalid (ring too few) |     |     |     |     |  ✓  |
 
 - A 4-coord exterior auto-closes to 5 coords and validates
 

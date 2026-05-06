@@ -8,22 +8,22 @@ These are the building blocks for distance, projection, bearing, orientation tes
 
 ## API surface
 
-| Function                       | Returns        | Description                                                                |
-| ------------------------------ | -------------- | -------------------------------------------------------------------------- |
-| `magnitude(c)`                 | `Double`       | `sqrt(x² + y²)` — the Euclidean length / norm of `c`                       |
-| `magnitude_squared(c)`         | `Double`       | `x² + y²` — skips the `sqrt`. Use this when you only need to compare lengths |
-| `dot_product(a, b)`            | `Double`       | `a.x*b.x + a.y*b.y`                                                        |
-| `wedge_product(a, b)`          | `Double`       | `a.x*b.y − a.y*b.x` — the 2D cross product (a scalar in 2D)                |
-| `try_normalize(c)`             | `Coord?`       | `c / magnitude(c)`. `None` when `magnitude` is 0 or non-finite             |
-| `is_finite(c)`                 | `Bool`         | Both `x` and `y` are finite (rejects `NaN` / `±Inf`)                       |
-| `left(c)`                      | `Coord`        | 90° CCW rotation: `Coord(-c.y, c.x)`                                       |
-| `right(c)`                     | `Coord`        | 90° CW rotation: `Coord(c.y, -c.x)`                                        |
+| Function               | Returns  | Description                                                                  |
+| ---------------------- | -------- | ---------------------------------------------------------------------------- |
+| `magnitude(c)`         | `Double` | `sqrt(x² + y²)` — the Euclidean length / norm of `c`                         |
+| `magnitude_squared(c)` | `Double` | `x² + y²` — skips the `sqrt`. Use this when you only need to compare lengths |
+| `dot_product(a, b)`    | `Double` | `a.x*b.x + a.y*b.y`                                                          |
+| `wedge_product(a, b)`  | `Double` | `a.x*b.y − a.y*b.x` — the 2D cross product (a scalar in 2D)                  |
+| `try_normalize(c)`     | `Coord?` | `c / magnitude(c)`. `None` when `magnitude` is 0 or non-finite               |
+| `is_finite(c)`         | `Bool`   | Both `x` and `y` are finite (rejects `NaN` / `±Inf`)                         |
+| `left(c)`              | `Coord`  | 90° CCW rotation: `Coord(-c.y, c.x)`                                         |
+| `right(c)`             | `Coord`  | 90° CW rotation: `Coord(c.y, -c.x)`                                          |
 
 `Coord::dot` and `Coord::cross` are method aliases of `dot_product` and `wedge_product` respectively, sitting on the type itself for ergonomic `.dot()` / `.cross()` chaining.
 
 ## Why "wedge product" not "cross product"
 
-In 3D, the cross product `a × b` returns a vector perpendicular to both inputs. In 2D you only have one degree of freedom for that perpendicular direction — by convention the z-component of the embedded 3D cross — so the 2D analogue is a *scalar*: `a.x*b.y − a.y*b.x`.
+In 3D, the cross product `a × b` returns a vector perpendicular to both inputs. In 2D you only have one degree of freedom for that perpendicular direction — by convention the z-component of the embedded 3D cross — so the 2D analogue is a _scalar_: `a.x*b.y − a.y*b.x`.
 
 This scalar is also called the **wedge product** (`a ∧ b`) or the **2D cross product**. Its sign and magnitude carry geometric meaning:
 

@@ -20,12 +20,12 @@ Boundary-inclusive intersection predicates: `intersects(a, b)` is true if `a` an
 
 ### `intersects_line_line`
 
-| Variable    | State                          | Note                       |  1  |  2  |  3  |  4  |
-| :---------- | :----------------------------- | :------------------------- | :-: | :-: | :-: | :-: |
-| `a`/`b`     | `Touching endpoints`           | true                       |  ✓  |     |     |     |
-| `a`/`b`     | `Classic crossing`             | true                       |     |  ✓  |     |     |
-| `a`/`b`     | `Parallel non-overlapping`     | false                      |     |     |  ✓  |     |
-| `a`/`b`     | `Collinear overlapping`        | true                       |     |     |     |  ✓  |
+| Variable | State                      | Note  |  1  |  2  |  3  |  4  |
+| :------- | :------------------------- | :---- | :-: | :-: | :-: | :-: |
+| `a`/`b`  | `Touching endpoints`       | true  |  ✓  |     |     |     |
+| `a`/`b`  | `Classic crossing`         | true  |     |  ✓  |     |     |
+| `a`/`b`  | `Parallel non-overlapping` | false |     |     |  ✓  |     |
+| `a`/`b`  | `Collinear overlapping`    | true  |     |     |     |  ✓  |
 
 - Touching endpoints
 
@@ -73,10 +73,10 @@ test "intersects_line_line - collinear overlapping" {
 
 ### `intersects_polygon_polygon`
 
-| Variable    | State        | Note    |  1  |  2  |
-| :---------- | :----------- | :------ | :-: | :-: |
-| `a`/`b`     | `Overlap`    | true    |  ✓  |     |
-| `a`/`b`     | `Disjoint`   | false   |     |  ✓  |
+| Variable | State      | Note  |  1  |  2  |
+| :------- | :--------- | :---- | :-: | :-: |
+| `a`/`b`  | `Overlap`  | true  |  ✓  |     |
+| `a`/`b`  | `Disjoint` | false |     |  ✓  |
 
 - Overlap
 

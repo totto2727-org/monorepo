@@ -32,7 +32,7 @@ The mathematically pure formula is
 det = (q.x − p.x) · (r.y − q.y)  −  (q.y − p.y) · (r.x − q.x)
 ```
 
-The sign of `det` tells you the orientation. The problem is that `det` is the difference of two products of differences — when `(p, q, r)` are *almost* collinear, `det` is the difference of two very-close-to-equal numbers, and IEEE-754 double-precision rounding can flip its sign. A flipped sign means an algorithm that depends on it (e.g. convex hull) can output a structurally wrong result.
+The sign of `det` tells you the orientation. The problem is that `det` is the difference of two products of differences — when `(p, q, r)` are _almost_ collinear, `det` is the difference of two very-close-to-equal numbers, and IEEE-754 double-precision rounding can flip its sign. A flipped sign means an algorithm that depends on it (e.g. convex hull) can output a structurally wrong result.
 
 `@robust.orient2d` solves this by using **Shewchuk's adaptive precision arithmetic** — it computes the determinant in extended precision only when the result is too close to zero to trust the simple formula. The result has the **mathematically correct sign** in all cases, with negligible cost in the common (non-collinear) case.
 

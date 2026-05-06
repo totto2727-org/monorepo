@@ -11,10 +11,10 @@ Convexity predicate for a `LineString` (treated as a closed ring when first ≡ 
 
 ### `is_convex`
 
-| Variable | State              | Note    |  1  |  2  |
-| :------- | :----------------- | :------ | :-: | :-: |
-| `ls`     | `Closed square`    | true    |  ✓  |     |
-| `ls`     | `Concave 'L' ring` | false   |     |  ✓  |
+| Variable | State              | Note  |  1  |  2  |
+| :------- | :----------------- | :---- | :-: | :-: |
+| `ls`     | `Closed square`    | true  |  ✓  |     |
+| `ls`     | `Concave 'L' ring` | false |     |  ✓  |
 
 - Closed unit square is convex
 
@@ -52,10 +52,10 @@ test "is_convex - L-shape is not convex" {
 
 ### `is_strictly_convex`
 
-| Variable | State                              | Note                                |  1  |  2  |
-| :------- | :--------------------------------- | :---------------------------------- | :-: | :-: |
-| `ls`     | `Closed square (no collinearity)`  | true                                |  ✓  |     |
-| `ls`     | `Closed ring with collinear edge`  | false (strict mode rejects it)      |     |  ✓  |
+| Variable | State                             | Note                           |  1  |  2  |
+| :------- | :-------------------------------- | :----------------------------- | :-: | :-: |
+| `ls`     | `Closed square (no collinearity)` | true                           |  ✓  |     |
+| `ls`     | `Closed ring with collinear edge` | false (strict mode rejects it) |     |  ✓  |
 
 - Closed unit square is strictly convex
 

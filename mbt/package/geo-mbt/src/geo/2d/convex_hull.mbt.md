@@ -41,7 +41,7 @@ The port uses **Andrew's monotone chain**, which is essentially the upper-and-lo
    the ring by repeating the first coord at the end.
 ```
 
-Why "left turn"? A convex polygon traversed CCW makes left turns at every vertex. If three consecutive hull candidates make a right turn or are collinear, the middle one is *not* on the hull and gets popped.
+Why "left turn"? A convex polygon traversed CCW makes left turns at every vertex. If three consecutive hull candidates make a right turn or are collinear, the middle one is _not_ on the hull and gets popped.
 
 The orientation test uses **`kernel.mbt`'s robust `orient`** — this is critical. With naive `f64` arithmetic, a right turn that's mathematically barely-a-right-turn can be classified as a left turn (or collinear), and the resulting "hull" can have concavities or extra collinear points.
 
@@ -161,7 +161,7 @@ Upstream `geo` also offers a **qhull-based** implementation (`convex_hull/qhull.
 
 ## Related
 
-- `is_convex.mbt` — for *checking* convexity rather than computing the hull.
+- `is_convex.mbt` — for _checking_ convexity rather than computing the hull.
 - `extremes.mbt` — three of the four extreme points are guaranteed on the hull (good warm-start for incremental hulls).
 - `concave_hull` (upstream-only, ⛔ in this port) — relaxes convexity for tighter wrapping; more parameters.
 - `bool_ops.mbt` — `intersection_sutherland_hodgman` requires a convex clip polygon, often produced by this hull algorithm.

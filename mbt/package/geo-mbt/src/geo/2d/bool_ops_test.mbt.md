@@ -11,12 +11,12 @@ Polygon clipping via Sutherland-Hodgman. The clip polygon must be **convex and C
 
 ### `intersection_polygon_rect`
 
-| Variable    | State                              | Note                                    |  1  |  2  |  3  |  4  |
-| :---------- | :--------------------------------- | :-------------------------------------- | :-: | :-: | :-: | :-: |
-| `subject`/`clip` | `Subject ⊆ clip`              | result equals subject area              |  ✓  |     |     |     |
-| `subject`/`clip` | `Clip ⊆ subject`              | result equals clip area                 |     |  ✓  |     |     |
-| `subject`/`clip` | `Half overlap`                | half of subject area                    |     |     |  ✓  |     |
-| `subject`/`clip` | `Disjoint`                    | zero area                               |     |     |     |  ✓  |
+| Variable         | State            | Note                       |  1  |  2  |  3  |  4  |
+| :--------------- | :--------------- | :------------------------- | :-: | :-: | :-: | :-: |
+| `subject`/`clip` | `Subject ⊆ clip` | result equals subject area |  ✓  |     |     |     |
+| `subject`/`clip` | `Clip ⊆ subject` | result equals clip area    |     |  ✓  |     |     |
+| `subject`/`clip` | `Half overlap`   | half of subject area       |     |     |  ✓  |     |
+| `subject`/`clip` | `Disjoint`       | zero area                  |     |     |     |  ✓  |
 
 - Subject fully inside clip: result equals subject area
 

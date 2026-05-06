@@ -2,23 +2,23 @@
 
 ## Goal
 
-The edge analogue of `coords_iter.mbt`. Where `coords_*` yields *vertices*, `lines_*` yields the **`Line` segments** that connect consecutive vertices — the geometry's "skeleton".
+The edge analogue of `coords_iter.mbt`. Where `coords_*` yields _vertices_, `lines_*` yields the **`Line` segments** that connect consecutive vertices — the geometry's "skeleton".
 
 Used by anything that needs to process geometry **edge-by-edge**: distance from a point to a polygon, segment intersection, ray casting for point-in-polygon, line-clipping, sweep algorithms, etc.
 
 ## API surface
 
-| Function                                | Returns         | Description                                                                  |
-| --------------------------------------- | --------------- | ---------------------------------------------------------------------------- |
-| `lines_of_geometry(g)`                  | `Array[Line]`   | Dispatch over the `Geometry` enum                                            |
-| `lines_of_line(l)`                      | `Array[Line]`   | `[l]` — a single-element array (a `Line` is its own only edge)               |
-| `lines_of_line_string(ls)`              | `Array[Line]`   | `n−1` segments connecting consecutive coords (delegates to `LineString::lines`) |
-| `lines_of_multi_line_string(mls)`       | `Array[Line]`   | All members' lines concatenated, in member order                             |
-| `lines_of_polygon(p)`                   | `Array[Line]`   | Exterior ring's edges, then each interior ring's edges                       |
-| `lines_of_multi_polygon(mp)`            | `Array[Line]`   | All polygon edges, in member order                                           |
-| `lines_of_geometry_collection(gc)`      | `Array[Line]`   | Recurses into each member                                                    |
-| `lines_of_rect(r)`                      | `Array[Line]`   | Thin wrapper around `Rect::to_lines` — 4 edges CCW from `min` corner          |
-| `lines_of_triangle(t)`                  | `Array[Line]`   | Thin wrapper around `Triangle::to_lines` — 3 edges                           |
+| Function                           | Returns       | Description                                                                     |
+| ---------------------------------- | ------------- | ------------------------------------------------------------------------------- |
+| `lines_of_geometry(g)`             | `Array[Line]` | Dispatch over the `Geometry` enum                                               |
+| `lines_of_line(l)`                 | `Array[Line]` | `[l]` — a single-element array (a `Line` is its own only edge)                  |
+| `lines_of_line_string(ls)`         | `Array[Line]` | `n−1` segments connecting consecutive coords (delegates to `LineString::lines`) |
+| `lines_of_multi_line_string(mls)`  | `Array[Line]` | All members' lines concatenated, in member order                                |
+| `lines_of_polygon(p)`              | `Array[Line]` | Exterior ring's edges, then each interior ring's edges                          |
+| `lines_of_multi_polygon(mp)`       | `Array[Line]` | All polygon edges, in member order                                              |
+| `lines_of_geometry_collection(gc)` | `Array[Line]` | Recurses into each member                                                       |
+| `lines_of_rect(r)`                 | `Array[Line]` | Thin wrapper around `Rect::to_lines` — 4 edges CCW from `min` corner            |
+| `lines_of_triangle(t)`             | `Array[Line]` | Thin wrapper around `Triangle::to_lines` — 3 edges                              |
 
 For shapes without edges (`Point`, `MultiPoint`, `Coord`), `lines_of_geometry` returns an **empty array** — there are no segments between zero coords.
 

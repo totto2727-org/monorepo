@@ -36,10 +36,10 @@ test "CoordsCarrier - dispatches to per-type coords()" {
 
 ### `Bounded`
 
-| Variable | State              | Note                        |  1  |  2  |
-| :------- | :----------------- | :-------------------------- | :-: | :-: |
+| Variable | State              | Note                          |  1  |  2  |
+| :------- | :----------------- | :---------------------------- | :-: | :-: |
 | `self`   | `Point`            | `Some(...)` (degenerate rect) |  ✓  |     |
-| `self`   | `Empty MultiPoint` | `None`                      |     |  ✓  |
+| `self`   | `Empty MultiPoint` | `None`                        |     |  ✓  |
 
 - Per-variant dispatch
 
@@ -139,11 +139,11 @@ test "HasEuclideanLength - dispatches to LineString length sum" {
 
 ### `LinesCarrier`
 
-| Variable | State                | Note               |  1  |  2  |  3  |
-| :------- | :------------------- | :----------------- | :-: | :-: | :-: |
-| `self`   | `LineString`         | `n - 1` segments   |  ✓  |     |     |
-| `self`   | `Rect`               | 4 edges            |     |  ✓  |     |
-| `self`   | `Geometry::Point`    | empty              |     |     |  ✓  |
+| Variable | State             | Note             |  1  |  2  |  3  |
+| :------- | :---------------- | :--------------- | :-: | :-: | :-: |
+| `self`   | `LineString`      | `n - 1` segments |  ✓  |     |     |
+| `self`   | `Rect`            | 4 edges          |     |  ✓  |     |
+| `self`   | `Geometry::Point` | empty            |     |     |  ✓  |
 
 - LineString of `n` coords yields `n - 1` segments
 

@@ -12,12 +12,12 @@ Andrew's monotone-chain convex hull. Exposed via `HasConvexHull::convex_hull` (i
 
 #### `convex_hull`
 
-| Variable | State                                       | Note                                          |  1  |  2  |  3  |  4  |
-| :------- | :------------------------------------------ | :-------------------------------------------- | :-: | :-: | :-: | :-: |
-| `self`   | `Triangle MultiPoint`                       | hull is the triangle itself (4 closed coords) |  ✓  |     |     |     |
-| `self`   | `Square + interior point`                   | hull picks the 4 corners (5 closed coords)    |     |  ✓  |     |     |
-| `self`   | `Square MultiPoint`                         | hull is closed and CCW                        |     |     |  ✓  |     |
-| `self`   | `Single-point MultiPoint`                   | degenerate output (≥ 2 coords, no crash)      |     |     |     |  ✓  |
+| Variable | State                     | Note                                          |  1  |  2  |  3  |  4  |
+| :------- | :------------------------ | :-------------------------------------------- | :-: | :-: | :-: | :-: |
+| `self`   | `Triangle MultiPoint`     | hull is the triangle itself (4 closed coords) |  ✓  |     |     |     |
+| `self`   | `Square + interior point` | hull picks the 4 corners (5 closed coords)    |     |  ✓  |     |     |
+| `self`   | `Square MultiPoint`       | hull is closed and CCW                        |     |     |  ✓  |     |
+| `self`   | `Single-point MultiPoint` | degenerate output (≥ 2 coords, no crash)      |     |     |     |  ✓  |
 
 - Triangle's convex hull is itself
 

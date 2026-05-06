@@ -83,14 +83,14 @@ Tests in `simplify_test.mbt`:
 
 ## Comparison with RDP
 
-| Property                         | RDP                        | VW (this file)            |
-| -------------------------------- | -------------------------- | ------------------------- |
-| Cost metric                      | Perpendicular distance     | Triangle area             |
-| Output proximity to input        | Bounded by `epsilon` (Hausdorff) | Bounded by cumulative dropped area |
-| Sensitivity to small wiggles     | Sharp threshold            | Gradual                   |
-| Sensitivity to spikes            | Spikes survive if > `epsilon` | Tall thin spikes survive (large area) |
-| Topology preservation            | No                         | No (simple form)          |
-| Speed                            | `O(n log n)` avg           | `O(n log n)` with heap    |
+| Property                     | RDP                              | VW (this file)                        |
+| ---------------------------- | -------------------------------- | ------------------------------------- |
+| Cost metric                  | Perpendicular distance           | Triangle area                         |
+| Output proximity to input    | Bounded by `epsilon` (Hausdorff) | Bounded by cumulative dropped area    |
+| Sensitivity to small wiggles | Sharp threshold                  | Gradual                               |
+| Sensitivity to spikes        | Spikes survive if > `epsilon`    | Tall thin spikes survive (large area) |
+| Topology preservation        | No                               | No (simple form)                      |
+| Speed                        | `O(n log n)` avg                 | `O(n log n)` with heap                |
 
 The choice depends on what "similar to the original" means in your application:
 

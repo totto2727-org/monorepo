@@ -10,11 +10,11 @@ Discrete Fréchet distance between two `LineString`s. Two empty inputs give 0; a
 
 ### `frechet_distance`
 
-| Variable | State                          | Note            |  1  |  2  |  3  |
-| :------- | :----------------------------- | :-------------- | :-: | :-: | :-: |
-| `a`/`b`  | `Identical`                    | distance 0      |  ✓  |     |     |
-| `a`/`b`  | `Parallel translated by Δy=5`  | distance 5      |     |  ✓  |     |
-| `a`/`b`  | `Both empty`                   | distance 0      |     |     |  ✓  |
+| Variable | State                         | Note       |  1  |  2  |  3  |
+| :------- | :---------------------------- | :--------- | :-: | :-: | :-: |
+| `a`/`b`  | `Identical`                   | distance 0 |  ✓  |     |     |
+| `a`/`b`  | `Parallel translated by Δy=5` | distance 5 |     |  ✓  |     |
+| `a`/`b`  | `Both empty`                  | distance 0 |     |     |  ✓  |
 
 - Identical line strings give 0
 

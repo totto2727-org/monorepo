@@ -154,10 +154,10 @@ test "Line dy - difference in y" {
 
 ### `Line::slope`
 
-| Variable | State                | Note                                |  1  |  2  |
-| :------- | :------------------- | :---------------------------------- | :-: | :-: |
-| `self`   | `Forward (a, b)`     | basic Δy / Δx                       |  ✓  |     |
-| `self`   | `Reversed (b, a)`    | direction-independent (same slope)  |     |  ✓  |
+| Variable | State             | Note                               |  1  |  2  |
+| :------- | :---------------- | :--------------------------------- | :-: | :-: |
+| `self`   | `Forward (a, b)`  | basic Δy / Δx                      |  ✓  |     |
+| `self`   | `Reversed (b, a)` | direction-independent (same slope) |     |  ✓  |
 
 - Basic Δy / Δx
 
@@ -182,10 +182,10 @@ test "Line slope - direction-independent" {
 
 ### `Line::determinant`
 
-| Variable | State              | Note                          |  1  |  2  |
-| :------- | :----------------- | :---------------------------- | :-: | :-: |
-| `self`   | `Forward (a, b)`   | basic value                   |  ✓  |     |
-| `self`   | `Reversed (b, a)`  | sign flips                    |     |  ✓  |
+| Variable | State             | Note        |  1  |  2  |
+| :------- | :---------------- | :---------- | :-: | :-: |
+| `self`   | `Forward (a, b)`  | basic value |  ✓  |     |
+| `self`   | `Reversed (b, a)` | sign flips  |     |  ✓  |
 
 - Basic `start.x * end.y − start.y * end.x`
 
@@ -213,11 +213,11 @@ test "Line determinant - flips sign on reversal" {
 
 ### `Line::reverse`
 
-| Variable | State          | Note                                                     |  1  |  2  |  3  |
-| :------- | :------------- | :------------------------------------------------------- | :-: | :-: | :-: |
-| `self`   | `Once`         | swaps start and end                                      |  ✓  |     |     |
-| `self`   | `Twice`        | involutive (`reverse().reverse() == self`)               |     |  ✓  |     |
-| `self`   | `vs swap`      | matches `Line::Line(b, a)` and flips determinant sign    |     |     |  ✓  |
+| Variable | State     | Note                                                  |  1  |  2  |  3  |
+| :------- | :-------- | :---------------------------------------------------- | :-: | :-: | :-: |
+| `self`   | `Once`    | swaps start and end                                   |  ✓  |     |     |
+| `self`   | `Twice`   | involutive (`reverse().reverse() == self`)            |     |  ✓  |     |
+| `self`   | `vs swap` | matches `Line::Line(b, a)` and flips determinant sign |     |     |  ✓  |
 
 - Swaps start and end
 

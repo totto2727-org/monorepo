@@ -142,13 +142,13 @@ Average case: `O(n log n)` from the divide-and-conquer split. Worst case: `O(n²
 
 ## Comparison with VW
 
-| Property                         | RDP                        | Visvalingam–Whyatt        |
-| -------------------------------- | -------------------------- | ------------------------- |
-| Cost metric                      | Perpendicular distance     | Triangle area             |
-| Output proximity to input        | Bounded by `epsilon` (Hausdorff) | Bounded by area cumulatively |
-| Sensitivity to spikes            | High — keeps spikes that exceed `epsilon` | Lower — small-area spikes drop early |
-| Topology preservation            | No                         | No (simple form)          |
-| Speed                            | `O(n log n)` avg           | `O(n log n)` with heap    |
+| Property                  | RDP                                       | Visvalingam–Whyatt                   |
+| ------------------------- | ----------------------------------------- | ------------------------------------ |
+| Cost metric               | Perpendicular distance                    | Triangle area                        |
+| Output proximity to input | Bounded by `epsilon` (Hausdorff)          | Bounded by area cumulatively         |
+| Sensitivity to spikes     | High — keeps spikes that exceed `epsilon` | Lower — small-area spikes drop early |
+| Topology preservation     | No                                        | No (simple form)                     |
+| Speed                     | `O(n log n)` avg                          | `O(n log n)` with heap               |
 
 RDP is the **default** choice when you want metric proximity guarantees. VW is a better choice when you want **smooth visual decimation** (small features fade out gradually as `epsilon` grows).
 

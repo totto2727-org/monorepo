@@ -2,7 +2,7 @@
 
 ## Goal
 
-Compute the **intersection** of one polygon (the *subject*) with another, simpler polygon (the *clip*). The output is a new polygon containing only the parts of the subject that lie inside the clip.
+Compute the **intersection** of one polygon (the _subject_) with another, simpler polygon (the _clip_). The output is a new polygon containing only the parts of the subject that lie inside the clip.
 
 This is a **convex-clip-only** subset of polygon boolean operations. Full boolean ops (union / difference / xor / arbitrary subject vs. clip) are explicitly **out of scope** for this port — see `mbt/package/geo-mbt/CLAUDE.md`. Use this when you need:
 

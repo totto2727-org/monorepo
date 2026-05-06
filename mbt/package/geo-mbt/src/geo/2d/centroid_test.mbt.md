@@ -12,11 +12,11 @@ Geometric centroid (centre of mass) of every geometry. Polygon centroids weight 
 
 #### `centroid`
 
-| Variable | State                  | Note                                  |  1  |  2  |  3  |
-| :------- | :--------------------- | :------------------------------------ | :-: | :-: | :-: |
-| `self`   | `Polygon (unit square)` | centre at `(0.5, 0.5)`               |  ✓  |     |     |
-| `self`   | `Triangle (right)`     | centre at average of three vertices   |     |  ✓  |     |
-| `self`   | `Rect`                 | matches `Rect::center`                |     |     |  ✓  |
+| Variable | State                   | Note                                |  1  |  2  |  3  |
+| :------- | :---------------------- | :---------------------------------- | :-: | :-: | :-: |
+| `self`   | `Polygon (unit square)` | centre at `(0.5, 0.5)`              |  ✓  |     |     |
+| `self`   | `Triangle (right)`      | centre at average of three vertices |     |  ✓  |     |
+| `self`   | `Rect`                  | matches `Rect::center`              |     |     |  ✓  |
 
 - Polygon: unit square centroid is at `(0.5, 0.5)`
 

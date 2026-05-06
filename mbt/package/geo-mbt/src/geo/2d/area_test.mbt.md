@@ -13,12 +13,12 @@ Planar (signed and unsigned) area helpers for `Polygon`, `MultiPolygon`, `Rect`,
 
 ### `twice_signed_ring_area`
 
-| Variable | State                          | Note                                |  1  |  2  |  3  |  4  |
-| :------- | :----------------------------- | :---------------------------------- | :-: | :-: | :-: | :-: |
-| `ls`     | `Closed CCW square`            | positive, equals `2 * signed area`  |  ✓  |     |     |     |
-| `ls`     | `Closed CW square`             | negative                            |     |  ✓  |     |     |
-| `ls`     | `Open ring (first ≠ last)`     | returns 0                           |     |     |  ✓  |     |
-| `ls`     | `Fewer than 3 coords`          | returns 0                           |     |     |     |  ✓  |
+| Variable | State                      | Note                               |  1  |  2  |  3  |  4  |
+| :------- | :------------------------- | :--------------------------------- | :-: | :-: | :-: | :-: |
+| `ls`     | `Closed CCW square`        | positive, equals `2 * signed area` |  ✓  |     |     |     |
+| `ls`     | `Closed CW square`         | negative                           |     |  ✓  |     |     |
+| `ls`     | `Open ring (first ≠ last)` | returns 0                          |     |     |  ✓  |     |
+| `ls`     | `Fewer than 3 coords`      | returns 0                          |     |     |     |  ✓  |
 
 - Closed CCW square gives `2 * area`
 
@@ -81,13 +81,13 @@ test "twice_signed_ring_area - fewer than 3 coords returns zero" {
 
 #### `signed_area`
 
-| Variable | State                                  | Note                                          |  1  |  2  |  3  |  4  |  5  |
-| :------- | :------------------------------------- | :-------------------------------------------- | :-: | :-: | :-: | :-: | :-: |
-| `self`   | `Polygon (CCW)`                        | positive                                      |  ✓  |     |     |     |     |
-| `self`   | `Polygon (CW)`                         | negative                                      |     |  ✓  |     |     |     |
-| `self`   | `Polygon with hole`                    | exterior area minus interior                  |     |     |  ✓  |     |     |
-| `self`   | `Rect`                                 | `width * height`                              |     |     |     |  ✓  |     |
-| `self`   | `Geometry::Point/Line/LineString`      | zero-dimensional / one-dimensional → 0        |     |     |     |     |  ✓  |
+| Variable | State                             | Note                                   |  1  |  2  |  3  |  4  |  5  |
+| :------- | :-------------------------------- | :------------------------------------- | :-: | :-: | :-: | :-: | :-: |
+| `self`   | `Polygon (CCW)`                   | positive                               |  ✓  |     |     |     |     |
+| `self`   | `Polygon (CW)`                    | negative                               |     |  ✓  |     |     |     |
+| `self`   | `Polygon with hole`               | exterior area minus interior           |     |     |  ✓  |     |     |
+| `self`   | `Rect`                            | `width * height`                       |     |     |     |  ✓  |     |
+| `self`   | `Geometry::Point/Line/LineString` | zero-dimensional / one-dimensional → 0 |     |     |     |     |  ✓  |
 
 - Polygon (CCW exterior): positive
 
@@ -184,10 +184,10 @@ test "HasArea::signed_area - sub-2D Geometry variants have area zero" {
 
 #### `unsigned_area`
 
-| Variable | State                  | Note                          |  1  |  2  |
-| :------- | :--------------------- | :---------------------------- | :-: | :-: |
-| `self`   | `Polygon (any winding)` | `\|signed_area\|`             |  ✓  |     |
-| `self`   | `Right Triangle`       | `\|signed_area\|`             |     |  ✓  |
+| Variable | State                   | Note              |  1  |  2  |
+| :------- | :---------------------- | :---------------- | :-: | :-: |
+| `self`   | `Polygon (any winding)` | `\|signed_area\|` |  ✓  |     |
+| `self`   | `Right Triangle`        | `\|signed_area\|` |     |  ✓  |
 
 - Polygon: `|signed_area|` regardless of winding
 

@@ -115,13 +115,13 @@ test "MultiLineString IsEmpty::is_empty - true when empty" {
 
 ### `IsClosed`
 
-| Variable | State                          | Note                                       |  1  |  2  |  3  |  4  |  5  |
-| :------- | :----------------------------- | :----------------------------------------- | :-: | :-: | :-: | :-: | :-: |
-| `self`   | `Empty`                        | vacuously closed                           |  ✓  |     |     |     |     |
-| `self`   | `All closed`                   | true                                       |     |  ✓  |     |     |     |
-| `self`   | `Single closed`                | true                                       |     |     |  ✓  |     |     |
-| `self`   | `Mixed (closed first, open)`   | false (any open ⇒ false)                   |     |     |     |  ✓  |     |
-| `self`   | `Single open`                  | false                                      |     |     |     |     |  ✓  |
+| Variable | State                        | Note                     |  1  |  2  |  3  |  4  |  5  |
+| :------- | :--------------------------- | :----------------------- | :-: | :-: | :-: | :-: | :-: |
+| `self`   | `Empty`                      | vacuously closed         |  ✓  |     |     |     |     |
+| `self`   | `All closed`                 | true                     |     |  ✓  |     |     |     |
+| `self`   | `Single closed`              | true                     |     |     |  ✓  |     |     |
+| `self`   | `Mixed (closed first, open)` | false (any open ⇒ false) |     |     |     |  ✓  |     |
+| `self`   | `Single open`                | false                    |     |     |     |     |  ✓  |
 
 #### `is_closed`
 

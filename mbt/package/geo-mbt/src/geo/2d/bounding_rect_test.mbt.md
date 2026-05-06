@@ -12,11 +12,11 @@ Axis-aligned bounding rectangle of a coordinate set or geometry. Exposed via the
 
 #### `bbox`
 
-| Variable | State                  | Note                                  |  1  |  2  |  3  |
-| :------- | :--------------------- | :------------------------------------ | :-: | :-: | :-: |
-| `self`   | `LineString (3 coords)` | tight rect over (min, max) corners   |  ✓  |     |     |
-| `self`   | `Point`                | degenerate zero-size rect at coord    |     |  ✓  |     |
-| `self`   | `Empty LineString`     | `None`                                |     |     |  ✓  |
+| Variable | State                   | Note                               |  1  |  2  |  3  |
+| :------- | :---------------------- | :--------------------------------- | :-: | :-: | :-: |
+| `self`   | `LineString (3 coords)` | tight rect over (min, max) corners |  ✓  |     |     |
+| `self`   | `Point`                 | degenerate zero-size rect at coord |     |  ✓  |     |
+| `self`   | `Empty LineString`      | `None`                             |     |     |  ✓  |
 
 - LineString: tight rect over its coords
 

@@ -11,11 +11,11 @@ Computes the intersection of two `Line` segments. The result is a `LineIntersect
 
 ### `line_intersection`
 
-| Variable | State                         | Note                                    |  1  |  2  |  3  |
-| :------- | :---------------------------- | :-------------------------------------- | :-: | :-: | :-: |
-| `l1`/`l2` | `Classic crossing (X shape)` | `SinglePoint` at center, `proper=true`  |  ✓  |     |     |
-| `l1`/`l2` | `Parallel non-overlapping`   | `None`                                  |     |  ✓  |     |
-| `l1`/`l2` | `Collinear overlapping`      | `Collinear` over the overlap            |     |     |  ✓  |
+| Variable  | State                        | Note                                   |  1  |  2  |  3  |
+| :-------- | :--------------------------- | :------------------------------------- | :-: | :-: | :-: |
+| `l1`/`l2` | `Classic crossing (X shape)` | `SinglePoint` at center, `proper=true` |  ✓  |     |     |
+| `l1`/`l2` | `Parallel non-overlapping`   | `None`                                 |     |  ✓  |     |
+| `l1`/`l2` | `Collinear overlapping`      | `Collinear` over the overlap           |     |     |  ✓  |
 
 - Classic crossing intersects at the center proper
 

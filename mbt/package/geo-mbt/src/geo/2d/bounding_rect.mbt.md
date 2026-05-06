@@ -6,18 +6,18 @@ Find the **smallest axis-aligned rectangle** that fully contains a geometry. Use
 
 ## API surface
 
-| Function                                       | Result        | Empty input                                   |
-| ---------------------------------------------- | ------------- | --------------------------------------------- |
-| `bounding_rect_of_coord(c)`                    | `Rect`        | n/a (a coord is never empty)                  |
-| `bounding_rect_of_point(p)`                    | `Rect`        | n/a — degenerate `Rect` with `min == max`      |
-| `bounding_rect_of_line(l)`                     | `Rect`        | n/a                                           |
-| `bounding_rect_of_line_string(ls)`             | `Rect?`       | `None` when `ls` has 0 coords                 |
-| `bounding_rect_of_polygon(p)`                  | `Rect?`       | `None` when exterior is empty                 |
-| `bounding_rect_of_multi_*`                     | `Rect?`       | `None` when no member contributes any point   |
-| `bounding_rect_of_geometry(g)`                 | `Rect?`       | Dispatch over `Geometry` enum                 |
-| `bounding_rect_of_geometry_collection(gc)`     | `Rect?`       | `None` when collection is empty               |
-| `bounding_rect_of_rect(r)`                     | `Rect`        | The rect itself (identity)                    |
-| `bounding_rect_of_triangle(t)`                 | `Rect`        | Always defined (3 finite vertices)            |
+| Function                                   | Result  | Empty input                                 |
+| ------------------------------------------ | ------- | ------------------------------------------- |
+| `bounding_rect_of_coord(c)`                | `Rect`  | n/a (a coord is never empty)                |
+| `bounding_rect_of_point(p)`                | `Rect`  | n/a — degenerate `Rect` with `min == max`   |
+| `bounding_rect_of_line(l)`                 | `Rect`  | n/a                                         |
+| `bounding_rect_of_line_string(ls)`         | `Rect?` | `None` when `ls` has 0 coords               |
+| `bounding_rect_of_polygon(p)`              | `Rect?` | `None` when exterior is empty               |
+| `bounding_rect_of_multi_*`                 | `Rect?` | `None` when no member contributes any point |
+| `bounding_rect_of_geometry(g)`             | `Rect?` | Dispatch over `Geometry` enum               |
+| `bounding_rect_of_geometry_collection(gc)` | `Rect?` | `None` when collection is empty             |
+| `bounding_rect_of_rect(r)`                 | `Rect`  | The rect itself (identity)                  |
+| `bounding_rect_of_triangle(t)`             | `Rect`  | Always defined (3 finite vertices)          |
 
 The `Rect?` return form (instead of `Rect`) is the port's way of signalling "the geometry contributed no points, so the bounding rectangle is undefined". This is structurally cleaner than upstream's "empty" sentinel `Rect`.
 

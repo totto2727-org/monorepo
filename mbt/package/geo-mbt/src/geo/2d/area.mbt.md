@@ -11,16 +11,16 @@ The signed form is what most algorithms want internally (it implicitly carries o
 
 ## API surface
 
-| Function                           | Result            | Notes                                                                     |
-| ---------------------------------- | ----------------- | ------------------------------------------------------------------------- |
-| `signed_area_of_polygon(p)`        | `Double`          | Exterior contributes positive area, interior rings (holes) subtract       |
-| `signed_area_of_multi_polygon(mp)` | `Double`          | Sum of each polygon's signed area                                         |
-| `signed_area_of_rect(r)`           | `Double`          | `width * height`. Always non-negative because `Rect` normalises corners   |
-| `signed_area_of_triangle(t)`       | `Double`          | Non-robust; uses simple `cross` product                                   |
-| `signed_area_of_triangle_robust`   | `Double`          | Same shape, but uses `@robust.orient2d` so the sign is correct near zero  |
-| `signed_area_of_geometry(g)`       | `Double`          | Dispatch over the `Geometry` enum                                         |
-| `unsigned_area_of_*`               | `Double` (`≥ 0`)  | `abs(signed_area_of_*)`                                                   |
-| `twice_signed_ring_area(ls)`       | `Double`          | Helper: returns `2 × signedArea` for a single closed ring                 |
+| Function                           | Result           | Notes                                                                    |
+| ---------------------------------- | ---------------- | ------------------------------------------------------------------------ |
+| `signed_area_of_polygon(p)`        | `Double`         | Exterior contributes positive area, interior rings (holes) subtract      |
+| `signed_area_of_multi_polygon(mp)` | `Double`         | Sum of each polygon's signed area                                        |
+| `signed_area_of_rect(r)`           | `Double`         | `width * height`. Always non-negative because `Rect` normalises corners  |
+| `signed_area_of_triangle(t)`       | `Double`         | Non-robust; uses simple `cross` product                                  |
+| `signed_area_of_triangle_robust`   | `Double`         | Same shape, but uses `@robust.orient2d` so the sign is correct near zero |
+| `signed_area_of_geometry(g)`       | `Double`         | Dispatch over the `Geometry` enum                                        |
+| `unsigned_area_of_*`               | `Double` (`≥ 0`) | `abs(signed_area_of_*)`                                                  |
+| `twice_signed_ring_area(ls)`       | `Double`         | Helper: returns `2 × signedArea` for a single closed ring                |
 
 `Point`, `Line`, `LineString`, `MultiLineString`, `MultiPoint` always have area `0` (their dimension is 0 or 1, not 2). The free functions just return `0` for those without dispatching.
 
@@ -33,7 +33,7 @@ signed_area = ½ · Σᵢ (xᵢ · yᵢ₊₁  −  xᵢ₊₁ · yᵢ)
             (indices wrap, so xₙ ≡ x₀)
 ```
 
-The geometric intuition: each segment `(pᵢ → pᵢ₊₁)` contributes a *trapezoid* between itself and the x-axis, with sign equal to the segment's left-to-right direction. When you sum over a closed ring, the trapezoids that are "outside" the polygon cancel, leaving exactly the polygon's signed area.
+The geometric intuition: each segment `(pᵢ → pᵢ₊₁)` contributes a _trapezoid_ between itself and the x-axis, with sign equal to the segment's left-to-right direction. When you sum over a closed ring, the trapezoids that are "outside" the polygon cancel, leaving exactly the polygon's signed area.
 
 The port computes `2 × signed_area` (`twice_signed_ring_area`) and then divides by 2 only at the outermost call. This avoids one floating-point division per ring and is a common implementation trick in geometry libraries.
 
@@ -78,7 +78,7 @@ interior:   2×2 square (CW)          →   −4
 signed_area_of_polygon              =  +96
 ```
 
-For `Triangle`: the simple version uses one cross product. The `_robust` version routes through `@robust.orient2d`, which is essential when three vertices are *almost* collinear — without it, the sign can flip due to floating-point rounding.
+For `Triangle`: the simple version uses one cross product. The `_robust` version routes through `@robust.orient2d`, which is essential when three vertices are _almost_ collinear — without it, the sign can flip due to floating-point rounding.
 
 See `area_test.mbt` for executable cases:
 
@@ -99,7 +99,7 @@ And `kernel_test.mbt` for the robust variant: `signed_area_of_triangle_robust`.
 
 - **Empty geometries** return `0`.
 - **Self-intersecting polygons** (the "bowtie" shape) — the formula still produces a value, but it has no useful geometric meaning. The validation layer (`validation.mbt`) is responsible for catching these before they reach `signed_area_of_polygon`.
-- **Degenerate triangles** (3 collinear points) → `signed_area = 0` from the simple formula. The robust variant returns `0` too, but importantly it returns *exactly* `0` rather than a tiny non-zero rounding artefact.
+- **Degenerate triangles** (3 collinear points) → `signed_area = 0` from the simple formula. The robust variant returns `0` too, but importantly it returns _exactly_ `0` rather than a tiny non-zero rounding artefact.
 
 ## Performance
 

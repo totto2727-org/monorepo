@@ -16,7 +16,7 @@ orient2d(p, q, r) = (q.x − p.x) · (r.y − q.y)  −  (q.y − p.y) · (r.x �
 
 The sign is what we care about: `> 0` ⇒ CCW, `< 0` ⇒ CW, `0` ⇒ collinear.
 
-The problem is that this expression is the difference of two products of differences. When `p`, `q`, `r` are *almost* collinear, the two products are very close in magnitude, their difference is close to zero, and IEEE-754 double-precision rounding can flip the sign.
+The problem is that this expression is the difference of two products of differences. When `p`, `q`, `r` are _almost_ collinear, the two products are very close in magnitude, their difference is close to zero, and IEEE-754 double-precision rounding can flip the sign.
 
 **Why a flipped sign matters**: many algorithms — convex hull, point-in-polygon, line-segment intersection, Delaunay triangulation — branch on this sign. A flipped sign means the algorithm produces a topologically wrong answer. Examples:
 
@@ -42,7 +42,7 @@ Returning the magnitude as well gives `signed_area_of_triangle_robust` for free.
 
 ## Algorithm — Shewchuk's adaptive precision
 
-The implementation follows Jonathan Shewchuk's classic 1997 paper *Adaptive Precision Floating-Point Arithmetic and Fast Robust Geometric Predicates*. Stages:
+The implementation follows Jonathan Shewchuk's classic 1997 paper _Adaptive Precision Floating-Point Arithmetic and Fast Robust Geometric Predicates_. Stages:
 
 ```
 Stage 1 — fast non-adaptive estimate:
