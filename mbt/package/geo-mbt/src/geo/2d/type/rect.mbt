@@ -87,13 +87,14 @@ pub fn Rect::to_lines(self : Rect) -> Array[Line] {
 
 ///|
 /// Converts the rectangle into a `Polygon` with the four corners (CCW from
-/// `min`). Reuses `to_lines` so the corner walk is defined in exactly one
-/// place: each line's `start` contributes one corner, and the first
-/// corner is repeated at the end to close the ring.
+/// `min`).
 pub fn Rect::to_polygon(self : Rect) -> Polygon {
-  let lines = self.to_lines()
-  let exterior = LineString::LineString(
-    [..lines.map(Line::start), lines[0].start()],
-  )
+  let exterior = LineString::LineString([
+    Coord(self.min.x(), self.min.y()),
+    Coord(self.max.x(), self.min.y()),
+    Coord(self.max.x(), self.max.y()),
+    Coord(self.min.x(), self.max.y()),
+    Coord(self.min.x(), self.min.y()),
+  ])
   Polygon::Polygon(exterior, [])
 }
