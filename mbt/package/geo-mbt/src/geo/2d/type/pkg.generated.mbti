@@ -80,6 +80,9 @@ pub fn LineString::is_closed(Self) -> Bool
 pub fn LineString::is_empty(Self) -> Bool
 pub fn LineString::length(Self) -> Int
 pub fn LineString::lines(Self) -> Array[Line]
+pub fn LineString::points(Self) -> Array[Point]
+pub fn LineString::points_iter(Self) -> Iter[Point]
+pub fn LineString::rev_lines(Self) -> Array[Line]
 
 pub struct MultiLineString {
   line_strings : Array[LineString]

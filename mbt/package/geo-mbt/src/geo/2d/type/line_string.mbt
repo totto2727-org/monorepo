@@ -33,6 +33,25 @@ pub fn LineString::coords(self : LineString) -> Array[Coord] {
 }
 
 ///|
+/// Returns each coordinate wrapped as a `Point`, eagerly. Equivalent to
+/// `coords().map(Point::from_coord)` but more readable at call sites and
+/// matches the Rust `geo_types::LineString::points` API. For pipelines that
+/// already process the result as an iterator, prefer `points_iter` to skip
+/// the intermediate array allocation.
+pub fn LineString::points(self : LineString) -> Array[Point] {
+  self.coords.map(Point::from_coord)
+}
+
+///|
+/// Returns a lazy iterator yielding each coordinate wrapped as a `Point`.
+/// Mirrors Rust `geo_types::LineString::points_iter`. Prefer this over
+/// `points` when the consumer is itself iterator-based; the conversion
+/// happens on demand without allocating a new array.
+pub fn LineString::points_iter(self : LineString) -> Iter[Point] {
+  self.coords.iter().map(Point::from_coord)
+}
+
+///|
 /// Returns the number of coordinates in the line string.
 pub fn LineString::length(self : LineString) -> Int {
   self.coords.length()
@@ -68,6 +87,27 @@ pub fn LineString::lines(self : LineString) -> Array[Line] {
   let result = Array::new(capacity=n - 1)
   for i = 0; i < n - 1; i = i + 1 {
     result.push(Line::Line(self.coords[i], self.coords[i + 1]))
+  }
+  result
+}
+
+///|
+/// Returns the line segments in reverse order, with each segment's
+/// `start` / `end` swapped. Mirrors Rust `geo_types::LineString::rev_lines`.
+///
+/// For a line string `[a, b, c, d]`, `lines()` yields `[a→b, b→c, c→d]`
+/// while `rev_lines()` yields `[d→c, c→b, b→a]`.
+///
+/// An empty line string and a single-coordinate line string yield an empty
+/// segment array.
+pub fn LineString::rev_lines(self : LineString) -> Array[Line] {
+  let n = self.coords.length()
+  if n < 2 {
+    return []
+  }
+  let result = Array::new(capacity=n - 1)
+  for i = n - 1; i > 0; i = i - 1 {
+    result.push(Line::Line(self.coords[i], self.coords[i - 1]))
   }
   result
 }

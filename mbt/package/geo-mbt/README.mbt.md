@@ -53,6 +53,10 @@ fn example() -> Unit {
 }
 ```
 
+## API correspondence
+
+See [`api-correspondence.md`](./api-correspondence.md) for a per-item table mapping every type, trait, function, test, and benchmark in this port back to its upstream Rust counterpart in `geo` / `geo-types` / `robust` / `rstar`, including the exact upstream commit hash referenced for each library.
+
 ## Roadmap
 
 See `docs/roadmap/geo-mbt/` for the multi-cycle porting plan (15 milestones). Out-of-scope items follow this priority order:
