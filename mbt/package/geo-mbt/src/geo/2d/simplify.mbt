@@ -48,11 +48,7 @@ pub fn simplify_line_string(
   kept_indices.push(0)
   rdp_recurse(coords, 0, coords.length() - 1, epsilon, kept_indices)
   kept_indices.push(coords.length() - 1)
-  let result = Array::new(capacity=kept_indices.length())
-  for idx in kept_indices {
-    result.push(coords[idx])
-  }
-  @type.LineString::LineString(result)
+  @type.LineString::LineString(kept_indices.map(fn(idx) { coords[idx] }))
 }
 
 ///|

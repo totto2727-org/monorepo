@@ -52,9 +52,5 @@ pub fn simplify_vw_line_string(
       continue_loop = true
     }
   }
-  let result = Array::new(capacity=kept.length())
-  for idx in kept {
-    result.push(coords[idx])
-  }
-  @type.LineString::LineString(result)
+  @type.LineString::LineString(kept.map(fn(idx) { coords[idx] }))
 }

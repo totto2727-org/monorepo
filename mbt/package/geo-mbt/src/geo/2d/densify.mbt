@@ -2,6 +2,32 @@
 // https://github.com/georust/geo/blob/main/geo/src/algorithm/line_measures/densify.rs
 
 ///|
+/// For one segment `start -> end`, returns the coordinates that should
+/// follow `start` in the densified output: zero or more interpolated
+/// coords (when the segment exceeds `max_segment_length`) followed by
+/// `end`. The number of output coords is `ceil(length / max) + 1` minus
+/// the leading `start` (which the caller has already emitted).
+fn densify_one_segment(
+  start : @type.Coord,
+  end : @type.Coord,
+  max_segment_length : Double,
+) -> Array[@type.Coord] {
+  let length = euclidean_distance_coords(start, end)
+  if length <= max_segment_length {
+    return [end]
+  }
+  let n_segments = (length / max_segment_length).ceil().to_int()
+  // Yield n coords: k = 1..n where k = n is `end` itself (f = 1.0).
+  Array::makei(n_segments, fn(k) {
+    let f = (k + 1).to_double() / n_segments.to_double()
+    @type.Coord(
+      start.x() + (end.x() - start.x()) * f,
+      start.y() + (end.y() - start.y()) * f,
+    )
+  })
+}
+
+///|
 /// Inserts intermediate coordinates along a `LineString` so that no segment
 /// is longer than `max_segment_length`. Endpoints are preserved.
 pub fn densify_line_string(
@@ -12,31 +38,18 @@ pub fn densify_line_string(
     return ls
   }
   let coords = ls.coords()
-  if coords.length() < 2 {
+  let n = coords.length()
+  if n < 2 {
     return ls
   }
-  let result : Array[@type.Coord] = []
-  result.push(coords[0])
-  for i = 1; i < coords.length(); i = i + 1 {
-    let start = coords[i - 1]
-    let end = coords[i]
-    let length = euclidean_distance_coords(start, end)
-    if length > max_segment_length {
-      let n_segments = (length / max_segment_length).ceil()
-      let n = n_segments.to_int()
-      for k = 1; k < n; k = k + 1 {
-        let f = k.to_double() / n.to_double()
-        result.push(
-          @type.Coord(
-            start.x() + (end.x() - start.x()) * f,
-            start.y() + (end.y() - start.y()) * f,
-          ),
-        )
-      }
-    }
-    result.push(end)
-  }
-  @type.LineString::LineString(result)
+  // First coord is preserved as-is, then each segment's contribution
+  // (interpolated coords + end) follows.
+  let tail = (1).until(n)
+    .flat_map(fn(i) {
+      densify_one_segment(coords[i - 1], coords[i], max_segment_length).iter()
+    })
+    .collect()
+  @type.LineString::LineString([coords[0], ..tail])
 }
 
 ///|

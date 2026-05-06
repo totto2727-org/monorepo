@@ -18,6 +18,12 @@
 - **No Abbreviations**: Do not abbreviate variable names unless they are common abbreviations (e.g., `id`, `json`). Avoid `p` for `point`, `ls` for `line_string`, etc.
 - **Collections**: Use the `_array` suffix for array arguments/variables instead of plural names (e.g., `polygon_array` instead of `polygons`).
 - **Constructors**: Always define the default constructor as a toplevel `fn TypeName::TypeName(...)` (the constructor's own name is the type name itself). The deprecated `fn new(..)` declaration inside the struct body must not be used. Factory functions use `new_hoge`/`from_hoge` naming — never `::new`.
+- **Immutable operations use the past-participle form** (mirroring TypeScript Array's `toSorted`/`toReversed`, Swift's `sorted`/`reversed`/`appended`). The bare verb (`sort`, `reverse`, `push`, `append`) denotes the **mutating** form; the past participle (`sorted`, `reversed`, `pushed`, `appended`) denotes the **non-mutating** form that returns a new value and leaves the receiver untouched. This rule applies to every method that has a mutable / immutable pair — array helpers, collection wrappers, in-place vs. value-object updates. Examples:
+  - `array.sort()` (mutates) ↔ `array.sorted()` (returns sorted copy)
+  - `array.push(x)` (mutates) ↔ `array.pushed(x)` (returns extended copy)
+  - `polygon.interiors_push(ring)` (mutating, upstream Rust idiom) ↔ port-side `polygon.interior_appended(ring)` (returns new `Polygon`)
+
+  Do NOT name an immutable operation with the bare verb. Do NOT name a mutating operation with the past participle.
 
 ## 3. Idioms & Best Practices
 
@@ -85,7 +91,7 @@
 
 - **Initialization**: Struct literal syntax (`TypeName::{...}`) should ONLY be used strictly within the canonical `TypeName::TypeName(...)` constructor. All other code (including factory functions and tests) must use the constructor short form (`TypeName(...)`).
 - **Updating**: Use dedicated update functions/methods to modify values. Pick the naming based on whether the type is **immutable (value object)** or **mutable**:
-  - **Immutable update — wither pattern (`with_hoge`)**: For value types (`derive(Eq, Hash)`, no externally observable identity), define `with_<field>` methods that return a **new instance** with one or more fields swapped. The receiver is never mutated. This composes well with `let`-binding and pipe-style code, and keeps `Eq`/`Hash` invariants intact.
+  - **Immutable update — wither pattern (`with_hoge`)**: For value types (`derive(Eq, Hash)`, no externally observable identity), define `with_<field>` methods that return a **new instance** with the named field **wholly replaced** by the argument. The receiver is never mutated. This composes well with `let`-binding and pipe-style code, and keeps `Eq`/`Hash` invariants intact.
 
     ```mbt check
     pub fn Point::with_x(self : Point, x : Double) -> Point {
@@ -101,6 +107,16 @@
     ```
 
     Use the wither pattern as the default whenever possible. It is the only safe shape for types that derive `Hash` (or are otherwise stored in keyed collections) — a setter would silently corrupt the hash.
+
+    **`with_*` is reserved strictly for pure field replacement.** If the operation transforms an existing field rather than overwriting it (e.g. "append one element to an array field", "remove an entry by predicate", "increment a counter"), do NOT name it `with_*`. Use the past-participle naming rule above instead — the operation is still immutable, but it is _not_ a wither.
+
+    | Operation                                                  | Naming                              | Why                                                                                                             |
+    | ---------------------------------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+    | Replace the entire `x` field                               | `point.with_x(5.0)`                 | Pure replacement — wither                                                                                       |
+    | Replace the entire `interiors` array                       | `polygon.with_interiors([r1, r2])`  | Pure replacement — wither                                                                                       |
+    | Append one ring to `interiors` (returning a new `Polygon`) | `polygon.interior_appended(r)`      | Not pure replacement — past-participle non-mutating verb                                                        |
+    | Remove an interior matching a predicate                    | `polygon.interiors_filtered(pred)`  | Not pure replacement                                                                                            |
+    | Pre-existing mutating Rust idiom (`interiors_push`)        | `polygon.interiors_push(r)` (avoid) | Mutating bare verb — only acceptable on a genuinely mutable type; on an immutable port, use the past participle |
 
   - **Mutable update — setter pattern (`set_hoge`)**: For genuinely mutable types (builders, in-place collection wrappers, types with externally observable identity), define `set_<field>` methods that mutate `self` in place and return `Unit`. The setter pattern is reserved for cases where allocation cost or in-place semantics are part of the intended contract.
 
@@ -138,20 +154,19 @@ A library function that returns a sequence of transformed elements should choose
   **Example** (LineString):
 
   ```mbt check
-  // Eager: builds Array directly
+  // Eager: builds Array immutably via Array::makei (size known up-front).
+  // Avoid `for + push` — see §3.12 for the immutable-array rule.
   pub fn LineString::lines(self : LineString) -> Array[Line] {
     let n = self.coords.length()
     if n < 2 {
       return []
     }
-    let result = Array::new(capacity=n - 1)
-    for i = 0; i < n - 1; i = i + 1 {
-      result.push(Line::Line(self.coords[i], self.coords[i + 1]))
-    }
-    result
+    Array::makei(n - 1, i => Line::Line(self.coords[i], self.coords[i + 1]))
   }
 
-  // Lazy: independent Iter; no Array allocated
+  // Lazy: independent Iter; no Array allocated.
+  // Iter naturally requires a captured cursor (`mut i`), which is acceptable
+  // because the mutation is encapsulated inside the closure and never escapes.
   pub fn LineString::lines_iter(self : LineString) -> Iter[Line] {
     let n = self.coords.length()
     let mut i = 0
@@ -166,6 +181,8 @@ A library function that returns a sequence of transformed elements should choose
     })
   }
   ```
+
+  Note: the eager form intentionally uses `Array::makei` — never `Array::new(capacity=…)` followed by a `for` + `push` loop. When the output length is known ahead of time, `makei` is both shorter and the immutable canonical form (see §3.12). The lazy form is the only place where local mutation (the `mut i` cursor) is appropriate, because that mutation is encapsulated inside the iterator closure and cannot be observed from outside.
 
 ### 3.3 Error Handling
 
@@ -378,6 +395,106 @@ Similar to Rust's `todo!` macro. Use `declare` before function definitions to in
 ```mbt check
 declare fn add(x : Int, y : Int) -> Int
 ```
+
+### 3.12 Array & Collection Operations
+
+`Array[T]` in MoonBit is a growable, mutable buffer (Rust `Vec` equivalent). Its API exposes both mutating helpers (`push`, `append`, `sort`, `reverse`, `clear`, ...) and non-mutating helpers (`map`, `filter`, `iter()`, `Array::makei`, spread literals `[..a, x]`, etc.). **Default to the immutable form everywhere.** Mutation is a last-resort optimisation, not a default mode.
+
+#### Build new arrays without mutation
+
+Pick the right immutable constructor for the situation. There is essentially always one — `for` + `push` is almost never the right answer.
+
+- **Spread / concatenation literals** for combining existing arrays:
+
+  ```mbt check
+  let extended = [..a, 1]            // append-one
+  let prepended = [0, ..a]           // prepend-one
+  let merged = [..a, ..b]            // concat
+  let with_sentinel = [..a, a[0]]    // close-ring style
+  ```
+
+- **`Array::makei(n, i => …)`** for building an array of known length from per-index logic. This replaces every `Array::new(capacity=n)` + `for i { push(...) }` loop:
+
+  ```mbt check
+  // Replacement for the classic windows(2) loop.
+  let lines = Array::makei(coords.length() - 1, i =>
+    Line::Line(coords[i], coords[i + 1])
+  )
+  ```
+
+- **Iterator chains** (`iter().map().filter()...`) when length is unknown or the per-element logic chains:
+
+  ```mbt check
+  let positives = coords.iter().filter(c => c.x() > 0.0).collect()
+  ```
+
+  These are immutable by construction: `.collect()` allocates exactly once at the end and never touches the source.
+
+- **Pair-wise / index-shifted iteration via `iter().zip(iter().drop(k))`** when the size-1 helpers above don't fit:
+
+  ```mbt check
+  let edges = coords.iter()
+    .zip(coords.iter().drop(1))
+    .map(p => Line::Line(p.0, p.1))
+    .collect()
+  ```
+
+  Use this only when `Array::makei` is awkward (e.g. operating on two different source arrays). For the simple "adjacent pair from one array" case, `Array::makei` is shorter and avoids intermediate iterators.
+
+#### Never mutate arrays that crossed a function boundary
+
+MoonBit shares array references, so any caller still holding the reference will observe your mutation. This is a silent correctness bug, not a style preference.
+
+```mbt check
+// BAD — `coords` may be aliased by callers; appending corrupts their view.
+fn add_origin(coords : Array[Coord]) -> Unit {
+  coords.push(Coord::new(0.0, 0.0))
+}
+
+// GOOD — return a new array via spread; original `coords` stays untouched.
+fn coords_with_origin(coords : Array[Coord]) -> Array[Coord] {
+  [..coords, Coord::new(0.0, 0.0)]
+}
+```
+
+The same rule covers `append` / `sort` / `reverse` / `clear` / `swap` / `remove*` / etc. Treat any array reaching your function as **read-only** unless the function is documented to mutate it (and the caller has clearly opted in by ownership transfer).
+
+#### Avoid mutation even on local copies
+
+If you find yourself reaching for `let result = arr.copy()` followed by `result.push(...)` or `result.sort()`, look for the immutable form first. The two examples below produce the same final array:
+
+```mbt check
+// Don't — uses a mutating push even after copying.
+fn close_ring_v1(coords : Array[Coord]) -> Array[Coord] {
+  let result = coords.copy()
+  if result.length() > 0 && result[0] != result[result.length() - 1] {
+    result.push(result[0])
+  }
+  result
+}
+
+// Prefer — single immutable expression; no copy + mutate dance.
+fn close_ring(coords : Array[Coord]) -> Array[Coord] {
+  let n = coords.length()
+  if n == 0 || coords[0] == coords[n - 1] {
+    coords
+  } else {
+    [..coords, coords[0]]
+  }
+}
+```
+
+For sorting, prefer `array.sorted()` (or `iter().collect()` + a sorted-by combinator) over `let result = array.copy(); result.sort()`. The past-participle form (§2) is always available somewhere in the standard library; if it isn't, define one — `fn[T : Compare] Array::sorted(self : Array[T]) -> Array[T]` is one line.
+
+#### When mutation is genuinely necessary
+
+Mutation is only legitimate inside **encapsulated, single-owner** contexts where it cannot escape:
+
+- **Iterator cursors** (e.g. `let mut i = 0` captured by a closure inside `Iter::new`). The mutation lives entirely inside the closure and is invisible to callers.
+- **Builder types** with mutable internals that only expose `set_*` (per §3.1) and a finalising `build()`. The mutable buffer is owned by the builder and never leaks.
+- **Measured hot paths** where profiling has shown that `Array::makei` + spread literals are too slow for the workload. Document the reason in a one-line comment, copy the input, mutate the copy, return the result — and never let the mutable buffer cross another function boundary.
+
+Outside these three cases, default to the immutable construction patterns above. **`for i = 0; i < n; i = i + 1 { result.push(...) }` is almost always rewritable with `Array::makei`** — reach for `makei` first and only fall back to a loop when the per-step logic genuinely cannot be expressed as a function of the index.
 
 ## 4. Performance Optimization
 

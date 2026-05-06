@@ -71,12 +71,11 @@ pub fn bounding_rect_of_polygon(p : @type.Polygon) -> @type.Rect? {
 
 ///|
 pub fn bounding_rect_of_multi_polygon(mp : @type.MultiPolygon) -> @type.Rect? {
-  let coords = []
-  for poly in mp.polygons() {
-    for c in poly.exterior().coords() {
-      coords.push(c)
-    }
-  }
+  let coords = mp
+    .polygons()
+    .iter()
+    .flat_map(fn(poly) { poly.exterior().coords().iter() })
+    .collect()
   bounding_rect_of_coords(coords)
 }
 

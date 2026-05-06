@@ -19,107 +19,103 @@ pub(all) enum ValidationProblem {
 ///|
 /// Returns whether all coords in the geometry are finite (no NaN / Inf).
 fn all_finite(coords : Array[@type.Coord]) -> Bool {
-  for c in coords {
-    if !is_finite(c) {
-      return false
-    }
+  coords.iter().all(is_finite)
+}
+
+///|
+/// Helper: optional-singleton — returns `[problem]` when `flag` holds, `[]`
+/// otherwise. Used to express a per-rule contribution without mutation.
+fn problem_if(flag : Bool, problem : ValidationProblem) -> Array[ValidationProblem] {
+  if flag {
+    [problem]
+  } else {
+    []
   }
-  true
 }
 
 ///|
 fn validate_ring(ring : @type.LineString) -> Array[ValidationProblem] {
-  let problems : Array[ValidationProblem] = []
   let coords = ring.coords()
   if coords.length() < 4 {
-    // A valid ring needs at least 3 unique + 1 closing = 4 coords
-    problems.push(RingTooFewPoints)
-    return problems
+    // A valid ring needs at least 3 unique + 1 closing = 4 coords; once
+    // that fails, the other ring checks are not meaningful.
+    return [RingTooFewPoints]
   }
-  if coords[0] != coords[coords.length() - 1] {
-    problems.push(RingNotClosed)
-  }
-  if !all_finite(coords) {
-    problems.push(NonFiniteCoord)
-  }
-  problems
+  let not_closed = problem_if(
+    coords[0] != coords[coords.length() - 1],
+    RingNotClosed,
+  )
+  let non_finite = problem_if(!all_finite(coords), NonFiniteCoord)
+  [..not_closed, ..non_finite]
 }
 
 ///|
-fn validate_line_string(ls : @type.LineString) -> Array[ValidationProblem] {
-  let problems : Array[ValidationProblem] = []
-  if ls.coords().length() < 2 {
-    problems.push(TooFewPoints)
-  }
-  if !all_finite(ls.coords()) {
-    problems.push(NonFiniteCoord)
-  }
-  problems
+fn validate_line_string(
+  ls : @type.LineString,
+) -> Array[ValidationProblem] {
+  let coords = ls.coords()
+  let too_few = problem_if(coords.length() < 2, TooFewPoints)
+  let non_finite = problem_if(!all_finite(coords), NonFiniteCoord)
+  [..too_few, ..non_finite]
 }
 
 ///|
 /// Returns the validation problems detected on a geometry. An empty array
 /// indicates the geometry is valid (within the simplified port's checks).
 pub fn validation_problems(g : @type.Geometry) -> Array[ValidationProblem] {
-  let problems : Array[ValidationProblem] = []
   match g {
-    @type.Geometry::Point(p) =>
-      if !is_finite(p.coord()) {
-        problems.push(NonFiniteCoord)
-      }
+    @type.Geometry::Point(p) => problem_if(!is_finite(p.coord()), NonFiniteCoord)
     @type.Geometry::Line(l) =>
-      if !is_finite(l.start()) || !is_finite(l.end()) {
-        problems.push(NonFiniteCoord)
-      }
-    @type.Geometry::LineString(ls) =>
-      for problem in validate_line_string(ls) {
-        problems.push(problem)
-      }
+      problem_if(
+        !is_finite(l.start()) || !is_finite(l.end()),
+        NonFiniteCoord,
+      )
+    @type.Geometry::LineString(ls) => validate_line_string(ls)
     @type.Geometry::Polygon(p) => {
-      for problem in validate_ring(p.exterior()) {
-        problems.push(problem)
-      }
-      for interior in p.interiors() {
-        for problem in validate_ring(interior) {
-          problems.push(problem)
-        }
-      }
+      let exterior_problems = validate_ring(p.exterior())
+      let interior_problems = p
+        .interiors()
+        .iter()
+        .flat_map(fn(r) { validate_ring(r).iter() })
+        .collect()
+      [..exterior_problems, ..interior_problems]
     }
     @type.Geometry::MultiPoint(mp) =>
-      for pt in mp.points() {
-        if !is_finite(pt.coord()) {
-          problems.push(NonFiniteCoord)
-          break
-        }
-      }
+      problem_if(
+        !mp.points().iter().all(fn(pt) { is_finite(pt.coord()) }),
+        NonFiniteCoord,
+      )
     @type.Geometry::MultiLineString(mls) =>
-      for ls in mls.line_strings() {
-        for problem in validate_line_string(ls) {
-          problems.push(problem)
-        }
-      }
+      mls
+      .line_strings()
+      .iter()
+      .flat_map(fn(ls) { validate_line_string(ls).iter() })
+      .collect()
     @type.Geometry::MultiPolygon(mp) =>
-      for poly in mp.polygons() {
-        for problem in validation_problems(@type.Geometry::Polygon(poly)) {
-          problems.push(problem)
-        }
-      }
+      mp
+      .polygons()
+      .iter()
+      .flat_map(fn(poly) {
+        validation_problems(@type.Geometry::Polygon(poly)).iter()
+      })
+      .collect()
     @type.Geometry::Rect(r) =>
-      if !is_finite(r.min()) || !is_finite(r.max()) {
-        problems.push(NonFiniteCoord)
-      }
+      problem_if(
+        !is_finite(r.min()) || !is_finite(r.max()),
+        NonFiniteCoord,
+      )
     @type.Geometry::Triangle(t) =>
-      if !is_finite(t.v0()) || !is_finite(t.v1()) || !is_finite(t.v2()) {
-        problems.push(NonFiniteCoord)
-      }
+      problem_if(
+        !is_finite(t.v0()) || !is_finite(t.v1()) || !is_finite(t.v2()),
+        NonFiniteCoord,
+      )
     @type.Geometry::GeometryCollection(gc) =>
-      for g2 in gc.geometries() {
-        for problem in validation_problems(g2) {
-          problems.push(problem)
-        }
-      }
+      gc
+      .geometries()
+      .iter()
+      .flat_map(fn(g2) { validation_problems(g2).iter() })
+      .collect()
   }
-  problems
 }
 
 ///|

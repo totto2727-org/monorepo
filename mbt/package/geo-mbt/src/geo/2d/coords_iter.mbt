@@ -17,59 +17,37 @@ pub fn coords_of_line(l : @type.Line) -> Array[@type.Coord] {
 
 ///|
 pub fn coords_of_line_string(ls : @type.LineString) -> Array[@type.Coord] {
-  let coords = ls.coords()
-  let result = Array::new(capacity=coords.length())
-  for c in coords {
-    result.push(c)
-  }
-  result
+  // Defensive copy so the caller cannot mutate the line string's backing
+  // array via the returned reference.
+  [..ls.coords()]
 }
 
 ///|
 pub fn coords_of_multi_point(mp : @type.MultiPoint) -> Array[@type.Coord] {
-  let result = Array::new(capacity=mp.length())
-  for p in mp.points() {
-    result.push(p.coord())
-  }
-  result
+  mp.points().map(@type.Point::coord)
 }
 
 ///|
 pub fn coords_of_multi_line_string(
   mls : @type.MultiLineString,
 ) -> Array[@type.Coord] {
-  let result = []
-  for ls in mls.line_strings() {
-    for c in ls.coords() {
-      result.push(c)
-    }
-  }
-  result
+  mls.line_strings().iter().flat_map(fn(ls) { ls.coords().iter() }).collect()
 }
 
 ///|
 pub fn coords_of_polygon(p : @type.Polygon) -> Array[@type.Coord] {
-  let result = []
-  for c in p.exterior().coords() {
-    result.push(c)
-  }
-  for interior in p.interiors() {
-    for c in interior.coords() {
-      result.push(c)
-    }
-  }
-  result
+  p.exterior()
+  .coords()
+  .iter()
+  .concat(
+    p.interiors().iter().flat_map(fn(interior) { interior.coords().iter() }),
+  )
+  .collect()
 }
 
 ///|
 pub fn coords_of_multi_polygon(mp : @type.MultiPolygon) -> Array[@type.Coord] {
-  let result = []
-  for poly in mp.polygons() {
-    for c in coords_of_polygon(poly) {
-      result.push(c)
-    }
-  }
-  result
+  mp.polygons().iter().flat_map(fn(poly) { coords_of_polygon(poly).iter() }).collect()
 }
 
 ///|
@@ -93,13 +71,7 @@ pub fn coords_of_triangle(t : @type.Triangle) -> Array[@type.Coord] {
 pub fn coords_of_geometry_collection(
   gc : @type.GeometryCollection,
 ) -> Array[@type.Coord] {
-  let result = []
-  for g in gc.geometries() {
-    for c in coords_of_geometry(g) {
-      result.push(c)
-    }
-  }
-  result
+  gc.geometries().iter().flat_map(fn(g) { coords_of_geometry(g).iter() }).collect()
 }
 
 ///|
@@ -131,24 +103,17 @@ pub fn coords_count(g : @type.Geometry) -> Int {
 /// `MultiPolygon` this excludes interior rings; for other geometries this
 /// is identical to `coords_of_geometry`.
 pub fn exterior_coords_of_polygon(p : @type.Polygon) -> Array[@type.Coord] {
-  let result = []
-  for c in p.exterior().coords() {
-    result.push(c)
-  }
-  result
+  [..p.exterior().coords()]
 }
 
 ///|
 pub fn exterior_coords_of_multi_polygon(
   mp : @type.MultiPolygon,
 ) -> Array[@type.Coord] {
-  let result = []
-  for poly in mp.polygons() {
-    for c in exterior_coords_of_polygon(poly) {
-      result.push(c)
-    }
-  }
-  result
+  mp.polygons()
+  .iter()
+  .flat_map(fn(poly) { exterior_coords_of_polygon(poly).iter() })
+  .collect()
 }
 
 ///|

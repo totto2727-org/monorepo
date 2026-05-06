@@ -25,29 +25,26 @@ fn chaikin_step(ls : @type.LineString) -> @type.LineString {
     return ls
   }
   let is_closed = coords[0] == coords[n - 1]
-  let result : Array[@type.Coord] = []
-  if !is_closed {
-    result.push(coords[0])
-  }
-  for i = 0; i < n - 1; i = i + 1 {
+  // Each of the (n-1) segments contributes 2 cut-points (q1 at 1/4, q2 at
+  // 3/4). Build them all in one Array::makei pass: index j ∈ [0, 2(n-1))
+  // maps to segment i = j / 2 and side k = j % 2.
+  let cuts = Array::makei(2 * (n - 1), fn(j) {
+    let i = j / 2
     let p = coords[i]
     let q = coords[i + 1]
-    let q1 = @type.Coord(
-      0.75 * p.x() + 0.25 * q.x(),
-      0.75 * p.y() + 0.25 * q.y(),
-    )
-    let q2 = @type.Coord(
-      0.25 * p.x() + 0.75 * q.x(),
-      0.25 * p.y() + 0.75 * q.y(),
-    )
-    result.push(q1)
-    result.push(q2)
-  }
-  if !is_closed {
-    result.push(coords[n - 1])
+    if j % 2 == 0 {
+      @type.Coord(0.75 * p.x() + 0.25 * q.x(), 0.75 * p.y() + 0.25 * q.y())
+    } else {
+      @type.Coord(0.25 * p.x() + 0.75 * q.x(), 0.25 * p.y() + 0.75 * q.y())
+    }
+  })
+  let result = if is_closed {
+    // Closed ring: smooth uniformly + repeat the first cut as the closing
+    // coord (so first == last).
+    [..cuts, cuts[0]]
   } else {
-    // Close the smoothed ring
-    result.push(result[0])
+    // Open: prepend original first coord, append original last coord.
+    [coords[0], ..cuts, coords[n - 1]]
   }
   @type.LineString::LineString(result)
 }

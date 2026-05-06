@@ -19,40 +19,25 @@ pub fn lines_of_line_string(ls : @type.LineString) -> Array[@type.Line] {
 pub fn lines_of_multi_line_string(
   mls : @type.MultiLineString,
 ) -> Array[@type.Line] {
-  let result = []
-  for ls in mls.line_strings() {
-    for line in ls.lines() {
-      result.push(line)
-    }
-  }
-  result
+  mls.line_strings().iter().flat_map(fn(ls) { ls.lines().iter() }).collect()
 }
 
 ///|
 /// Returns the line segments of the polygon's exterior ring followed by
 /// each interior ring's segments.
 pub fn lines_of_polygon(p : @type.Polygon) -> Array[@type.Line] {
-  let result = []
-  for line in p.exterior().lines() {
-    result.push(line)
-  }
-  for interior in p.interiors() {
-    for line in interior.lines() {
-      result.push(line)
-    }
-  }
-  result
+  p.exterior()
+  .lines()
+  .iter()
+  .concat(
+    p.interiors().iter().flat_map(fn(interior) { interior.lines().iter() }),
+  )
+  .collect()
 }
 
 ///|
 pub fn lines_of_multi_polygon(mp : @type.MultiPolygon) -> Array[@type.Line] {
-  let result = []
-  for poly in mp.polygons() {
-    for line in lines_of_polygon(poly) {
-      result.push(line)
-    }
-  }
-  result
+  mp.polygons().iter().flat_map(fn(poly) { lines_of_polygon(poly).iter() }).collect()
 }
 
 ///|
@@ -82,13 +67,7 @@ pub fn lines_of_triangle(t : @type.Triangle) -> Array[@type.Line] {
 pub fn lines_of_geometry_collection(
   gc : @type.GeometryCollection,
 ) -> Array[@type.Line] {
-  let result = []
-  for g in gc.geometries() {
-    for line in lines_of_geometry(g) {
-      result.push(line)
-    }
-  }
-  result
+  gc.geometries().iter().flat_map(fn(g) { lines_of_geometry(g).iter() }).collect()
 }
 
 ///|

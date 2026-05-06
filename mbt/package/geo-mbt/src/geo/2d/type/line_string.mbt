@@ -95,11 +95,9 @@ pub fn LineString::lines(self : LineString) -> Array[Line] {
   if n < 2 {
     return []
   }
-  let result = Array::new(capacity=n - 1)
-  for i = 0; i < n - 1; i = i + 1 {
-    result.push(Line::Line(self.coords[i], self.coords[i + 1]))
-  }
-  result
+  Array::makei(n - 1, fn(i) {
+    Line::Line(self.coords[i], self.coords[i + 1])
+  })
 }
 
 ///|
@@ -140,11 +138,10 @@ pub fn LineString::rev_lines(self : LineString) -> Array[Line] {
   if n < 2 {
     return []
   }
-  let result = Array::new(capacity=n - 1)
-  for i = n - 1; i > 0; i = i - 1 {
-    result.push(Line::Line(self.coords[i], self.coords[i - 1]))
-  }
-  result
+  // i goes 0..n-2; map to reversed pair coords[n-1-i] -> coords[n-2-i].
+  Array::makei(n - 1, fn(i) {
+    Line::Line(self.coords[n - 1 - i], self.coords[n - 2 - i])
+  })
 }
 
 ///|

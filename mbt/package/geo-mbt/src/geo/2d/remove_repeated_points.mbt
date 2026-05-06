@@ -7,16 +7,18 @@ pub fn remove_repeated_points_line_string(
   ls : @type.LineString,
 ) -> @type.LineString {
   let coords = ls.coords()
-  if coords.length() == 0 {
+  let n = coords.length()
+  if n == 0 {
     return ls
   }
-  let result : Array[@type.Coord] = [coords[0]]
-  for i = 1; i < coords.length(); i = i + 1 {
-    if coords[i] != result[result.length() - 1] {
-      result.push(coords[i])
-    }
-  }
-  @type.LineString::LineString(result)
+  // Index-based filter chain: keep index 0 unconditionally, then keep
+  // every other index iff its coord differs from the previous one.
+  // Output length is variable, so iterator-collect is the immutable form.
+  let kept = (0).until(n)
+    .filter(fn(i) { i == 0 || coords[i] != coords[i - 1] })
+    .map(fn(i) { coords[i] })
+    .collect()
+  @type.LineString::LineString(kept)
 }
 
 ///|
