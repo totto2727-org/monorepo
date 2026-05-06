@@ -232,6 +232,30 @@ Step 6 で Main が implementer を起動する際の並列単位。
 2. Phase 2: implementer-B が T-F → T-G → T-H を実行、**並列に** implementer-C が T-I → T-J を実行
 3. Phase 3: implementer-D が T-K、implementer-E が T-L を並列実行
 
+## Path restructure deviation note (Step 7 → Step 8 user-gate-driven)
+
+Step 7 (External Review) 完了後、Step 8 (Validation) 前の user gate で User からの構造改善要望に基づき、T-C / T-D の出力 path が変更された。元の T-C / T-D セクションは **immutable として残す**が、最終リポジトリ状態は本 deviation note の内容を反映する。
+
+**変更内容**:
+
+- T-C 出力: `src/health/{worker.ts,wrangler.jsonc}` → `src/worker/health/{worker.ts,wrangler.jsonc}`
+- T-D 出力: `src/bff/{worker.ts,wrangler.jsonc}` → `src/worker/bff/{worker.ts,wrangler.jsonc}`
+- T-A の出力 (`vite.config.ts` / `.gitignore` / `package.json`) も path 参照を新構造に追従させる
+
+**変更理由**:
+
+backend が「複数サーバレス関数 (worker)」を持つ性格をディレクトリ構造で明示するため (`worker/` 親ディレクトリで一覧性 + 将来 entry 追加時のスケーラビリティ + `feature/` との責務分離)。`src/feature/` は src 直下を維持。
+
+**SC への影響なし**: SC-5 観測仕様 `find js/app/feed-platform-backend/src -name 'worker.ts' | wc -l ≥ 2` は src 配下から再帰検索のため、新パス (`src/worker/health/worker.ts` + `src/worker/bff/worker.ts`) でも 2 件をカウントする。
+
+**実装 commits** (本 task-plan の T-C / T-D / T-A の re_activation 扱いではなく、structural-only refactor として扱う):
+
+- `refactor(.../T-CD/r2): restructure backend entries under src/worker/`
+- `feat(.../T-A/r1): align vite.config setup task paths to src/worker/`
+- `docs(.../...): document backend src/worker/ restructure across artifacts`
+
+詳細は design.md "Deviation note (Step 7 → Step 8 user-gate-driven path restructure)" セクション参照。
+
 ## Risks / anticipated Blockers
 
 - **TypeScript `using` / `await using` 構文サポート**: `tsconfig.json` の `extends: ['@totto2727/fp/tsconfig/vite']` で `target: esnext` が継承されているはずだが、Vite バージョンや TypeScript バージョンによっては transpile エラーの可能性。Blocker 発生時は `@totto2727/fp` の tsconfig を確認 / 必要なら `Symbol.asyncDispose` polyfill 検討

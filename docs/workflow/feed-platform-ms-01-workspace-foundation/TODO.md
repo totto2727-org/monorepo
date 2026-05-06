@@ -41,7 +41,11 @@
   - commit: 7812ba6
   - implementer: implementer-A (Phase 1 backend chain)
   - re_activations: 0
-  - notes: `vp run setup:cloudflare:health` で worker-configuration.d.ts 生成確認済
+  - notes: |
+    `vp run setup:cloudflare:health` で worker-configuration.d.ts 生成確認済。
+    Step 7 → Step 8 user-gate-driven path change: `src/health/` → `src/worker/health/`
+    (commit: 3654122 — structural-only refactor、re_activations は加算しない)。
+    詳細は task-plan.md "Path restructure deviation note" 参照。
 
 - [x] **T-D** — feed-platform-backend bff entry
   - status: completed
@@ -51,7 +55,12 @@
   - commit: 2460fe9
   - implementer: implementer-A (Phase 1 backend chain)
   - re_activations: 0
-  - notes: SC-5 (≥ 2 entry) の構造的担保完成。`find src -name worker.ts | wc -l = 2`
+  - notes: |
+    SC-5 (≥ 2 entry) の構造的担保完成。`find src -name worker.ts | wc -l = 2`
+    (新構造でも変わらず 2 件)。
+    Step 7 → Step 8 user-gate-driven path change: `src/bff/` → `src/worker/bff/`
+    (commit: 3654122 — structural-only refactor、re_activations は加算しない)。
+    詳細は task-plan.md "Path restructure deviation note" 参照。
 
 - [x] **T-E** — feed-platform-backend smoke test
   - status: completed
