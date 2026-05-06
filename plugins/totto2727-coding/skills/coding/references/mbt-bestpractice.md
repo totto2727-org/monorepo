@@ -96,7 +96,6 @@ A library function that returns a sequence of transformed elements should choose
 - **Variable, or predictable but large**, element count (e.g. `LineString::lines`, `LineString::points`, anything walking a polygon's coords): **provide both an `Array[T]` form and an `Iter[T]` form**, where the `Iter[T]` form is named with an `_iter` suffix.
 
   The two forms must be **independent implementations**. Do NOT implement one in terms of the other:
-
   - The eager form must build the `Array` directly (e.g. `Array::new(capacity=n)` + `push` in a loop).
   - The lazy form must construct an `Iter` directly (e.g. `Iter::new(fn() -> T?)` with a captured cursor).
 
