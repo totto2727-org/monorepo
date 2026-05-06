@@ -26,3 +26,7 @@ tasks:
     cmds:
       - sudo nix flake update
       - sudo nixos-rebuild switch --flake .#nixos
+
+  tailscale:
+    cmds:
+      - sudo tailscale up --ssh --advertise-routes 172.32.0.0/12
