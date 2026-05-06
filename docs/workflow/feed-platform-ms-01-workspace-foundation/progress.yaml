@@ -1,6 +1,6 @@
 identifier: feed-platform-ms-01-workspace-foundation
 started_at: 2026-05-04T12:55:38Z
-updated_at: 2026-05-06T11:35:03Z
+updated_at: 2026-05-06T12:02:04Z
 
 status: active
 current_step: 7
@@ -31,42 +31,29 @@ completed_steps:
     artifacts:
       - task-plan.md
       - TODO.md
-  - step: Step 6 Implementation
+  - step: Step 6 Implementation (Round 1 + Round 1 Major fixes)
     completed_at: 2026-05-06T11:35:03Z
     artifacts:
       - js/app/feed-platform-backend/* (T-A〜T-E)
-      - js/app/feed-platform-web/* (T-F〜T-H)
-      - js/app/identity-provider/* (T-I〜T-J)
-      - docs/roadmap/feed-platform/adr/2026-05-05-project-structure-and-runtime.md (T-K, ADR-01 Roadmap mode)
-      - docs/adr/2026-05-05-identity-provider-and-authn-authz-architecture.md (T-L, ADR-02 General mode)
+      - js/app/feed-platform-web/* (T-F〜T-H, T-H r1 で Round 1 Major 修正)
+      - js/app/identity-provider/* (T-I〜T-J, T-I r1 で Round 1 Major 修正)
+      - docs/roadmap/feed-platform/adr/2026-05-05-project-structure-and-runtime.md (T-K)
+      - docs/adr/2026-05-05-identity-provider-and-authn-authz-architecture.md (T-L)
+      - design.md correction (Round 1 Major M-1/M-2 解消で Context.Service rename + Layer 合成形修正)
+  - step: Step 7 External Review (Round 1 + Round 2 完了、User gate 待ち)
+    completed_at: 2026-05-06T12:02:04Z
+    artifacts:
+      - review/security.md (Round 1 approved)
+      - review/performance.md (Round 1 approved)
+      - review/readability.md (Round 1 needs_fix → Round 2 approved)
+      - review/test-quality.md (Round 1 needs_fix → Round 2 approved)
+      - review/api-design.md (Round 1 needs_fix → Round 2 approved)
+      - review/holistic.md (Round 1 needs_fix → Round 2 approved)
 
-pending_gates: []
+pending_gates:
+  - User gate (Step 7 → Step 8): External review 全 6 観点 approved、Validation 開始判断待ち
 
-active_specialists:
-  - name: reviewer
-    task: security 観点レビュー
-    status: running
-    started_at: 2026-05-06T11:35:03Z
-  - name: reviewer
-    task: performance 観点レビュー
-    status: running
-    started_at: 2026-05-06T11:35:03Z
-  - name: reviewer
-    task: readability 観点レビュー
-    status: running
-    started_at: 2026-05-06T11:35:03Z
-  - name: reviewer
-    task: test-quality 観点レビュー
-    status: running
-    started_at: 2026-05-06T11:35:03Z
-  - name: reviewer
-    task: api-design 観点レビュー
-    status: running
-    started_at: 2026-05-06T11:35:03Z
-  - name: reviewer
-    task: holistic 観点レビュー (整合性 / Task Plan 完了判断 / SC 充足見通し)
-    status: running
-    started_at: 2026-05-06T11:35:03Z
+active_specialists: []
 
 blockers: []
 
@@ -85,7 +72,13 @@ artifacts:
     - docs/adr/2026-05-05-identity-provider-and-authn-authz-architecture.md
   task_plan: task-plan.md
   todo: TODO.md
-  review: []
+  review:
+    - review/security.md
+    - review/performance.md
+    - review/readability.md
+    - review/test-quality.md
+    - review/api-design.md
+    - review/holistic.md
   validation: null
   retrospective: null
 
@@ -93,7 +86,7 @@ user_approvals:
   - gate: User gate (Step 1 → Step 2)
     approved_at: 2026-05-06T04:19:42Z
     approved_by: user
-    notes: intent-spec.md (304a9f7) の内容を承認、CI PASS 確認済 (run 25409935548)
+    notes: intent-spec.md (304a9f7) を承認、CI PASS 確認済 (run 25409935548)
   - gate: User gate (Step 3 → Step 4)
     approved_at: 2026-05-06T10:12:37Z
     approved_by: user
@@ -103,7 +96,11 @@ user_approvals:
     approved_by: user
     notes: qa-design.md / qa-flow.md (4ebdbdb) を承認、CI PASS 確認済 (run 25429582530)
 
-rollbacks: []
+rollbacks:
+  - from: Step 7 (External Review Round 1)
+    to: Step 6 (Implementation re-activated)
+    reason: Round 1 で Major 12 件 (重複統合 5 件) flagged。implementer 1 instance で全修正、Round 2 reviewer × 4 で再 review、Final Gate 6/6 approved に到達
+    at: 2026-05-06T11:42:00Z
 
 roadmap:
   id: feed-platform
