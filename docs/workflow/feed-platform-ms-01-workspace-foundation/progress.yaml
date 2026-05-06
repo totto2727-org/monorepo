@@ -1,6 +1,6 @@
 identifier: feed-platform-ms-01-workspace-foundation
 started_at: 2026-05-04T12:55:38Z
-updated_at: 2026-05-06T10:12:37Z
+updated_at: 2026-05-06T10:19:40Z
 
 status: active
 current_step: 4
@@ -21,14 +21,16 @@ completed_steps:
     completed_at: 2026-05-06T10:12:37Z
     artifacts:
       - design.md
+  - step: Step 4 QA Design (候補、User gate 待ち)
+    completed_at: 2026-05-06T10:19:40Z
+    artifacts:
+      - qa-design.md
+      - qa-flow.md
 
-pending_gates: []
+pending_gates:
+  - User gate (Step 4 → Step 5): qa-design.md / qa-flow.md レビューと承認待ち
 
-active_specialists:
-  - name: qa-analyst
-    task: SC-1〜SC-11 を観測可能な test cases に展開、qa-design.md + qa-flow.md を作成
-    status: running
-    started_at: 2026-05-06T10:12:37Z
+active_specialists: []
 
 blockers: []
 
@@ -40,8 +42,8 @@ artifacts:
     - research/vite-plus-task-system-and-existing-packages.md
     - research/effect-cloudflare-hono-integration.md
   design: design.md
-  qa_design: null
-  qa_flow: null
+  qa_design: qa-design.md
+  qa_flow: qa-flow.md
   external_adrs: []
   task_plan: null
   todo: null
