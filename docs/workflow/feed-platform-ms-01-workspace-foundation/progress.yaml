@@ -1,6 +1,6 @@
 identifier: feed-platform-ms-01-workspace-foundation
 started_at: 2026-05-04T12:55:38Z
-updated_at: 2026-05-06T04:29:16Z
+updated_at: 2026-05-06T04:41:34Z
 
 status: active
 current_step: 3
@@ -17,8 +17,13 @@ completed_steps:
       - research/wrangler-multi-entry-monorepo.md
       - research/vite-plus-task-system-and-existing-packages.md
       - research/effect-cloudflare-hono-integration.md
+  - step: Step 3 Design (候補、User gate 待ち)
+    completed_at: 2026-05-06T04:41:34Z
+    artifacts:
+      - design.md
 
-pending_gates: []
+pending_gates:
+  - User gate (Step 3 → Step 4): design.md レビューと承認待ち
 
 active_specialists: []
 
@@ -31,7 +36,7 @@ artifacts:
     - research/wrangler-multi-entry-monorepo.md
     - research/vite-plus-task-system-and-existing-packages.md
     - research/effect-cloudflare-hono-integration.md
-  design: null
+  design: design.md
   qa_design: null
   qa_flow: null
   external_adrs: []
