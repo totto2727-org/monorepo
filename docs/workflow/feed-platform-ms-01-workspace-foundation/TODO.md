@@ -3,7 +3,7 @@
 - **Source:** `task-plan.md`
 - **Active Steps:** Step 6-7 (Implementation / External Review)
 - **Created at:** 2026-05-06T10:25:00Z
-- **Last updated:** 2026-05-06T11:21:30Z
+- **Last updated:** 2026-05-06T11:29:20Z
 
 本ファイルは Step 6-7 中の **persisted task state**。Main の `TaskCreate` task list と同期するが、**こちらが source of truth**。状態変更時は TODO.md → commit → `TaskUpdate` の順で更新する。
 
@@ -163,15 +163,22 @@
     cross-implementer concern 記述と合わせて Main 側で判断を確認することを
     推奨する。
 
-- [ ] **T-K** — ADR-01 起票 (Roadmap mode)
-  - status: pending
+- [x] **T-K** — ADR-01 起票 (Roadmap mode)
+  - status: completed
   - dependencies: T-A〜T-J
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-06T11:26:30Z
+  - completed_at: 2026-05-06T11:29:20Z
+  - commit: de6928f
+  - implementer: implementer-D (Phase 3 ADR pair, sequential)
   - re_activations: 0
-  - notes: share-adr Roadmap mode 経由
+  - notes: |
+    `docs/roadmap/feed-platform/adr/2026-05-05-project-structure-and-runtime.md` を
+    Roadmap mode (scope: roadmap:feed-platform) で起票。Status / Context / Decision /
+    Consequences / References の 5 セクションを満たし (TC-016 観測仕様充足)、
+    Decision 内に Q2 / Q2.5 / Q2.6 / Q2.9 / Q2.10 / Q2.11 / Q2.12 の 7 確定事項を
+    すべて参照 (TC-017 観測仕様充足)。`vp check --fix` で oxfmt が table padding を
+    整形 (ADR-01 ファイルのみが整形対象、rss-graphql の既存 86 errors は本サイクル
+    責任外で継続)。
 
 - [ ] **T-L** — ADR-02 起票 (General mode)
   - status: pending
