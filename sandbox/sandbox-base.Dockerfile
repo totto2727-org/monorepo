@@ -33,7 +33,6 @@ apt-get install -y xz-utils git
 rm -rf /var/lib/apt/lists/*
 EOF
 
-ARG TARGETPLATFORM
 RUN <<EOF
 # For sandbox
 groupadd -r supervisor
@@ -44,11 +43,6 @@ useradd -r -g sandbox -d /sandbox -s /bin/bash sandbox
 
 # For nix
 mkdir -p /etc/nix/
-
-if [ "$TARGETPLATFORM" = "linux/arm64" ] || [ "$TARGETPLATFORM" = "linux/arm64/v8" ]; then
-    echo "filter-syscalls = false" >> /etc/nix/nix.conf;
-fi
-
 echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf
 
 mkdir /nix

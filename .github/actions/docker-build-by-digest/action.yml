@@ -1,0 +1,55 @@
+name: Build and push Docker image by digest
+description: Build a single-platform image, push by digest to a registry, and upload the digest as an artifact for later manifest list assembly.
+
+inputs:
+  context:
+    required: true
+  file:
+    required: true
+  image:
+    required: true
+    description: Image repository (without tag), e.g. ghcr.io/owner/repo/name
+  platform:
+    required: true
+  artifact-name:
+    required: true
+  registry:
+    required: true
+  registry-username:
+    required: true
+  registry-password:
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
+    - uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.registry-username }}
+        password: ${{ inputs.registry-password }}
+
+    - id: build
+      uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+      with:
+        context: ${{ inputs.context }}
+        file: ${{ inputs.file }}
+        platforms: ${{ inputs.platform }}
+        outputs: type=image,name=${{ inputs.image }},push-by-digest=true,name-canonical=true,push=true
+
+    - name: Export digest
+      shell: bash
+      env:
+        DIGEST: ${{ steps.build.outputs.digest }}
+      run: |
+        mkdir -p /tmp/digests
+        touch "/tmp/digests/${DIGEST#sha256:}"
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: /tmp/digests/*
+        if-no-files-found: error
+        retention-days: 1
