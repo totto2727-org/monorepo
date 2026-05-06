@@ -26,7 +26,11 @@ fn sum_line_determinants(points : Array[@type.Coord]) -> Double {
 ///|
 /// Twice the signed area of a closed ring (`twice_signed_ring_area` in geo).
 /// Returns `0.0` if the ring is open or has fewer than 3 coordinates.
-pub fn twice_signed_ring_area(ls : @type.LineString) -> Double {
+///
+/// Internal helper. Used by `linestring_signed_area` (private, this file)
+/// and `winding_order` (`winding_order.mbt`, same package). Tested in
+/// `area_wbtest.mbt` so the function need not be public.
+fn twice_signed_ring_area(ls : @type.LineString) -> Double {
   let coords = ls.coords()
   if coords.length() < 3 {
     return 0.0

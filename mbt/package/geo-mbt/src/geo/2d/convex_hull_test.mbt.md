@@ -60,8 +60,7 @@ test "HasConvexHull::convex_hull - hull is closed and CCW" {
   ])
   let exterior = HasConvexHull::convex_hull(mp).exterior()
   assert_true(exterior.is_closed())
-  // CCW orientation → positive signed area.
-  assert_true(twice_signed_ring_area(exterior) > 0.0)
+  @test.assert_eq(winding_order(exterior), Some(WindingOrder::CounterClockwise))
 }
 ```
 

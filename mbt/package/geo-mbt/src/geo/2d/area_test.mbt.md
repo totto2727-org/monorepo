@@ -1,81 +1,16 @@
 # area.mbt
 
-Planar (signed and unsigned) area helpers for `Polygon`, `MultiPolygon`, `Rect`, `Triangle`, and `Geometry`. The single public free function `twice_signed_ring_area` returns 2× the signed area of a closed `LineString` ring (the shoelace value before halving). All other area entry points are exposed via the `HasArea` trait whose impls live in `traits.mbt` but are algorithmically defined here.
+Planar (signed and unsigned) area for `Polygon`, `MultiPolygon`, `Rect`, `Triangle`, and `Geometry`, exposed via the `HasArea` trait whose impls live in `traits.mbt` but are algorithmically defined here.
+
+The internal `twice_signed_ring_area` helper (private — used by `linestring_signed_area` here and `winding_order` in `winding_order.mbt`) is exercised in `area_wbtest.mbt`.
 
 ## Public API
 
-- `twice_signed_ring_area`
 - `HasArea` — impls on `Polygon` / `MultiPolygon` / `Rect` / `Triangle` / `Geometry`
   - `signed_area`
   - `unsigned_area`
 
 ## Test
-
-### `twice_signed_ring_area`
-
-| Variable | State                      | Note                               |  1  |  2  |  3  |  4  |
-| :------- | :------------------------- | :--------------------------------- | :-: | :-: | :-: | :-: |
-| `ls`     | `Closed CCW square`        | positive, equals `2 * signed area` |  ✓  |     |     |     |
-| `ls`     | `Closed CW square`         | negative                           |     |  ✓  |     |     |
-| `ls`     | `Open ring (first ≠ last)` | returns 0                          |     |     |  ✓  |     |
-| `ls`     | `Fewer than 3 coords`      | returns 0                          |     |     |     |  ✓  |
-
-- Closed CCW square gives `2 * area`
-
-```mbt check
-///|
-test "twice_signed_ring_area - closed CCW square" {
-  let ls = @type.LineString::from_tuples([
-    (0.0, 0.0),
-    (5.0, 0.0),
-    (5.0, 6.0),
-    (0.0, 6.0),
-    (0.0, 0.0),
-  ])
-  @test.assert_eq(twice_signed_ring_area(ls), 60.0)
-}
-```
-
-- Closed CW square gives a negative value
-
-```mbt check
-///|
-test "twice_signed_ring_area - closed CW square is negative" {
-  let ls = @type.LineString::from_tuples([
-    (0.0, 0.0),
-    (0.0, 6.0),
-    (5.0, 6.0),
-    (5.0, 0.0),
-    (0.0, 0.0),
-  ])
-  @test.assert_eq(twice_signed_ring_area(ls), -60.0)
-}
-```
-
-- Open ring returns 0
-
-```mbt check
-///|
-test "twice_signed_ring_area - open ring returns zero" {
-  let ls = @type.LineString::from_tuples([
-    (0.0, 0.0),
-    (5.0, 0.0),
-    (5.0, 6.0),
-    (0.0, 6.0),
-  ])
-  @test.assert_eq(twice_signed_ring_area(ls), 0.0)
-}
-```
-
-- Fewer than 3 coords returns 0
-
-```mbt check
-///|
-test "twice_signed_ring_area - fewer than 3 coords returns zero" {
-  let ls = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0)])
-  @test.assert_eq(twice_signed_ring_area(ls), 0.0)
-}
-```
 
 ### `HasArea`
 
