@@ -16,6 +16,13 @@ pub fn GeometryCollection::GeometryCollection(
 }
 
 ///|
+/// Creates an empty `GeometryCollection`. Mirrors Rust
+/// `geo_types::GeometryCollection::empty`.
+pub fn GeometryCollection::empty() -> GeometryCollection {
+  GeometryCollection::GeometryCollection([])
+}
+
+///|
 pub fn GeometryCollection::geometries(
   self : GeometryCollection,
 ) -> Array[Geometry] {

@@ -116,7 +116,7 @@ direction-independence, `determinant` sign flip on reversal,
 | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pub struct LineString<T>(pub Vec<Coord<T>>)`                                                                   | `pub struct LineString { coords: Array[Coord] }`  | ✅     |                                                                                                                                                                                                                                         |
 | `LineString::new(Vec<Coord<T>>)`                                                                                | `LineString::new(Array[Coord])`                   | ✅     |                                                                                                                                                                                                                                         |
-| `LineString::empty()`                                                                                           | (constructor taking `[]`)                         | 🟡     | No dedicated `empty`; users pass `[]`                                                                                                                                                                                                   |
+| `LineString::empty()`                                                                                           | `LineString::empty`                               | ✅     | Equivalent to `LineString([])`. Mirrors Rust upstream as a named factory.                                                                                                                                                               |
 | `coords()`                                                                                                      | `LineString::coords`                              | ✅     | Returns the backing `Array[Coord]` (eager). MoonBit `Array` is itself iterable via `.iter()`.                                                                                                                                           |
 | `coords_mut()`                                                                                                  | —                                                 | 🟡     | Mutable accessor intentionally dropped — MoonBit values are treated as immutable.                                                                                                                                                       |
 | `points()`                                                                                                      | `LineString::points`                              | ✅     | Returns `Array[Point]` (eager); each `Coord` wrapped via `Point::from_coord`.                                                                                                                                                           |
@@ -129,11 +129,12 @@ direction-independence, `determinant` sign flip on reversal,
 | `is_closed()`, `num_coords()`                                                                                   | `LineString::is_closed`, `LineString::length`     | ✅     |                                                                                                                                                                                                                                         |
 | —                                                                                                               | `LineString::is_empty`, `LineString::from_tuples` | ✅     |                                                                                                                                                                                                                                         |
 
-Tests: `type/line_string_test.mbt` — 12 cases (`from_tuples` / length,
-empty, `is_closed`, `lines`, in-place `close`, `points` eager, `points`
-empty, `points_iter` collected = `points()`, `points_iter` short-circuit
-with `take`, `rev_lines` reversed order with swapped endpoints,
-`rev_lines` empty / single-coord, `rev_lines` ↔ `lines` mirror).
+Tests: `type/line_string_test.mbt` — 13 cases (`from_tuples` / length,
+empty, `LineString::empty` ↔ `LineString([])` parity, `is_closed`,
+`lines`, in-place `close`, `points` eager, `points` empty, `points_iter`
+collected = `points()`, `points_iter` short-circuit with `take`,
+`rev_lines` reversed order with swapped endpoints, `rev_lines` empty /
+single-coord, `rev_lines` ↔ `lines` mirror).
 
 ### 1.5 `Polygon<T>` ↔ `type/polygon.mbt`
 
@@ -182,17 +183,19 @@ Tests: `type/triangle_test.mbt` — 4 cases (ctor + accessors, `to_array`,
 
 ### 1.8 `MultiPoint`, `MultiLineString`, `MultiPolygon`, `GeometryCollection`
 
-| Rust upstream item                                                         | MoonBit port                                                                              | Status | Notes                              |
-| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------ | ---------------------------------- |
-| `MultiPoint<T>(pub Vec<Point<T>>)` + `new`/`empty`/`len`/`is_empty`/`iter` | `MultiPoint { points }` + `new`/`length`/`is_empty`/`points`/`from_tuples`                | ✅     | Iterator helpers omitted           |
-| `MultiLineString<T>` + `new`/`empty`/`is_closed`/`iter`                    | `MultiLineString { line_strings }` + `new`/`length`/`is_empty`/`is_closed`/`line_strings` | ✅     |                                    |
-| `MultiPolygon<T>` + `new`/`empty`/`iter`                                   | `MultiPolygon { polygons }` + `new`/`length`/`is_empty`/`polygons`                        | ✅     |                                    |
-| `GeometryCollection<T>` + `new`/`new_from`/`empty`/`len`/`is_empty`/`iter` | `GeometryCollection { geometries }` + `new`/`length`/`is_empty`/`geometries`              | ✅     |                                    |
-| `iter_mut`, custom helper structs (`IntoIteratorHelper`, …)                | —                                                                                         | —      | Rust-specific iterator scaffolding |
+| Rust upstream item                                                         | MoonBit port                                                                                      | Status | Notes                              |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------ | ---------------------------------- |
+| `MultiPoint<T>(pub Vec<Point<T>>)` + `new`/`empty`/`len`/`is_empty`/`iter` | `MultiPoint { points }` + `new`/`empty`/`length`/`is_empty`/`points`/`from_tuples`                | ✅     | Iterator helpers omitted           |
+| `MultiLineString<T>` + `new`/`empty`/`is_closed`/`iter`                    | `MultiLineString { line_strings }` + `new`/`empty`/`length`/`is_empty`/`is_closed`/`line_strings` | ✅     |                                    |
+| `MultiPolygon<T>` + `new`/`empty`/`iter`                                   | `MultiPolygon { polygons }` + `new`/`empty`/`length`/`is_empty`/`polygons`                        | ✅     |                                    |
+| `GeometryCollection<T>` + `new`/`new_from`/`empty`/`len`/`is_empty`/`iter` | `GeometryCollection { geometries }` + `new`/`empty`/`length`/`is_empty`/`geometries`              | ✅     |                                    |
+| `iter_mut`, custom helper structs (`IntoIteratorHelper`, …)                | —                                                                                                 | —      | Rust-specific iterator scaffolding |
 
-Tests: `type/multi_test.mbt` — 6 cases covering `MultiPoint::from_tuples`,
+Tests: `type/multi_test.mbt` — 10 cases covering `MultiPoint::from_tuples`,
 empty multi-point, `MultiLineString::length`, empty multi-line-string is
-closed, `MultiPolygon` basic, `GeometryCollection` heterogeneous storage.
+closed, `MultiPolygon` basic, `GeometryCollection` heterogeneous storage,
+plus parity tests for `MultiPoint::empty` / `MultiLineString::empty` /
+`MultiPolygon::empty` / `GeometryCollection::empty`.
 
 ### 1.9 `Geometry<T>` enum ↔ `type/geometry.mbt` (+ `geometry_collection.mbt`)
 

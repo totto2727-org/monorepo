@@ -13,6 +13,13 @@ pub fn MultiPolygon::MultiPolygon(polygons : Array[Polygon]) -> MultiPolygon {
 }
 
 ///|
+/// Creates an empty `MultiPolygon`. Mirrors Rust
+/// `geo_types::MultiPolygon::empty`.
+pub fn MultiPolygon::empty() -> MultiPolygon {
+  MultiPolygon::MultiPolygon([])
+}
+
+///|
 pub fn MultiPolygon::polygons(self : MultiPolygon) -> Array[Polygon] {
   self.polygons
 }

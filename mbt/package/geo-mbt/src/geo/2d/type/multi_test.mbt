@@ -51,3 +51,36 @@ test "GeometryCollection holds heterogeneous geometries" {
   assert_eq(gc.length(), 2)
   assert_true(!gc.is_empty())
 }
+
+///|
+test "MultiPoint::empty" {
+  let a = @type.MultiPoint::empty()
+  let b = @type.MultiPoint::MultiPoint([])
+  assert_true(a == b)
+  assert_true(a.is_empty())
+}
+
+///|
+test "MultiLineString::empty" {
+  let a = @type.MultiLineString::empty()
+  let b = @type.MultiLineString::MultiLineString([])
+  assert_true(a == b)
+  assert_true(a.is_empty())
+  assert_true(a.is_closed()) // empty multi-line-string is vacuously closed
+}
+
+///|
+test "MultiPolygon::empty" {
+  let a = @type.MultiPolygon::empty()
+  let b = @type.MultiPolygon::MultiPolygon([])
+  assert_true(a == b)
+  assert_true(a.is_empty())
+}
+
+///|
+test "GeometryCollection::empty" {
+  let a = @type.GeometryCollection::empty()
+  let b = @type.GeometryCollection::GeometryCollection([])
+  assert_true(a == b)
+  assert_true(a.is_empty())
+}

@@ -48,6 +48,7 @@ pub struct GeometryCollection {
   geometries : Array[Geometry]
 } derive(Eq, @debug.Debug)
 pub fn GeometryCollection::GeometryCollection(Array[Geometry]) -> Self
+pub fn GeometryCollection::empty() -> Self
 pub fn GeometryCollection::geometries(Self) -> Array[Geometry]
 pub fn GeometryCollection::is_empty(Self) -> Bool
 pub fn GeometryCollection::length(Self) -> Int
@@ -75,6 +76,7 @@ pub struct LineString {
 pub fn LineString::LineString(Array[Coord]) -> Self
 pub fn LineString::close(Self) -> Unit
 pub fn LineString::coords(Self) -> Array[Coord]
+pub fn LineString::empty() -> Self
 pub fn LineString::from_tuples(Array[(Double, Double)]) -> Self
 pub fn LineString::is_closed(Self) -> Bool
 pub fn LineString::is_empty(Self) -> Bool
@@ -88,6 +90,7 @@ pub struct MultiLineString {
   line_strings : Array[LineString]
 } derive(Eq, @debug.Debug)
 pub fn MultiLineString::MultiLineString(Array[LineString]) -> Self
+pub fn MultiLineString::empty() -> Self
 pub fn MultiLineString::is_closed(Self) -> Bool
 pub fn MultiLineString::is_empty(Self) -> Bool
 pub fn MultiLineString::length(Self) -> Int
@@ -97,6 +100,7 @@ pub struct MultiPoint {
   points : Array[Point]
 } derive(Eq, @debug.Debug)
 pub fn MultiPoint::MultiPoint(Array[Point]) -> Self
+pub fn MultiPoint::empty() -> Self
 pub fn MultiPoint::from_tuples(Array[(Double, Double)]) -> Self
 pub fn MultiPoint::is_empty(Self) -> Bool
 pub fn MultiPoint::length(Self) -> Int
@@ -106,6 +110,7 @@ pub struct MultiPolygon {
   polygons : Array[Polygon]
 } derive(Eq, @debug.Debug)
 pub fn MultiPolygon::MultiPolygon(Array[Polygon]) -> Self
+pub fn MultiPolygon::empty() -> Self
 pub fn MultiPolygon::is_empty(Self) -> Bool
 pub fn MultiPolygon::length(Self) -> Int
 pub fn MultiPolygon::polygons(Self) -> Array[Polygon]

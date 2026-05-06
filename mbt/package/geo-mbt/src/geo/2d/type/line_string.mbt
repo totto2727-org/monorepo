@@ -27,6 +27,13 @@ pub fn LineString::from_tuples(tuples : Array[(Double, Double)]) -> LineString {
 }
 
 ///|
+/// Creates an empty `LineString` (no coordinates). Equivalent to
+/// `LineString::LineString([])` and mirrors Rust `geo_types::LineString::empty`.
+pub fn LineString::empty() -> LineString {
+  LineString::LineString([])
+}
+
+///|
 /// Returns the underlying coordinate array.
 pub fn LineString::coords(self : LineString) -> Array[Coord] {
   self.coords

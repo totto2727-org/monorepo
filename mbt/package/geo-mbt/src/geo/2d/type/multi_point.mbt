@@ -19,6 +19,12 @@ pub fn MultiPoint::from_tuples(tuples : Array[(Double, Double)]) -> MultiPoint {
 }
 
 ///|
+/// Creates an empty `MultiPoint`. Mirrors Rust `geo_types::MultiPoint::empty`.
+pub fn MultiPoint::empty() -> MultiPoint {
+  MultiPoint::MultiPoint([])
+}
+
+///|
 pub fn MultiPoint::points(self : MultiPoint) -> Array[Point] {
   self.points
 }

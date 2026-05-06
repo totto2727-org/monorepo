@@ -16,6 +16,15 @@ test "LineString empty" {
 }
 
 ///|
+test "LineString::empty equivalent to LineString([])" {
+  let a = @type.LineString::empty()
+  let b = @type.LineString::LineString([])
+  assert_true(a == b)
+  assert_true(a.is_empty())
+  assert_eq(a.length(), 0)
+}
+
+///|
 test "LineString is_closed" {
   let open = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0), (2.0, 2.0)])
   assert_true(!open.is_closed())

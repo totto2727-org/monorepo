@@ -15,6 +15,13 @@ pub fn MultiLineString::MultiLineString(
 }
 
 ///|
+/// Creates an empty `MultiLineString`. Mirrors Rust
+/// `geo_types::MultiLineString::empty`.
+pub fn MultiLineString::empty() -> MultiLineString {
+  MultiLineString::MultiLineString([])
+}
+
+///|
 pub fn MultiLineString::line_strings(
   self : MultiLineString,
 ) -> Array[LineString] {
