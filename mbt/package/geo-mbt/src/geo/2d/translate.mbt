@@ -8,7 +8,7 @@ pub fn translate_geometry(
   xoff : Double,
   yoff : Double,
 ) -> @type.Geometry {
-  AffineTransform::translate_xy(xoff, yoff).transform_geometry(g)
+  AffineTransform::translate_xy(xoff, yoff).transform(g)
 }
 
 ///|
@@ -17,7 +17,7 @@ pub fn translate_polygon(
   xoff : Double,
   yoff : Double,
 ) -> @type.Polygon {
-  AffineTransform::translate_xy(xoff, yoff).transform_polygon(p)
+  AffineTransform::translate_xy(xoff, yoff).transform(p)
 }
 
 ///|
@@ -26,5 +26,5 @@ pub fn translate_point(
   xoff : Double,
   yoff : Double,
 ) -> @type.Point {
-  AffineTransform::translate_xy(xoff, yoff).transform_point(p)
+  AffineTransform::translate_xy(xoff, yoff).transform(p)
 }

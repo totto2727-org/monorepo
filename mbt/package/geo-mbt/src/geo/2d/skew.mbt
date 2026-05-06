@@ -8,7 +8,7 @@ pub fn skew_geometry(
   xs_degrees : Double,
   ys_degrees : Double,
 ) -> @type.Geometry {
-  AffineTransform::skew_origin(xs_degrees, ys_degrees).transform_geometry(g)
+  AffineTransform::skew_origin(xs_degrees, ys_degrees).transform(g)
 }
 
 ///|
@@ -22,5 +22,5 @@ pub fn skew_geometry_around(
   let to_origin = AffineTransform::translate_xy(-pivot.x(), -pivot.y())
   let skew = AffineTransform::skew_origin(xs_degrees, ys_degrees)
   let from_origin = AffineTransform::translate_xy(pivot.x(), pivot.y())
-  to_origin.compose(skew).compose(from_origin).transform_geometry(g)
+  to_origin.compose(skew).compose(from_origin).transform(g)
 }

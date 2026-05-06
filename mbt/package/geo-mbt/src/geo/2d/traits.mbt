@@ -53,6 +53,14 @@ pub(open) trait HasLength {
   euclidean_length(Self) -> Double
 }
 
+///|
+/// Anything whose coordinates can be transformed pointwise by a function
+/// `Coord -> Coord`, returning a value of the same type. Mirrors upstream
+/// Rust `geo::algorithm::map_coords::MapCoords`.
+pub(open) trait MapCoords {
+  map_coords(Self, (@type.Coord) -> @type.Coord) -> Self
+}
+
 // MARK: trait implementations for concrete @type.* values --------------------
 
 ///|
@@ -248,4 +256,91 @@ pub impl HasLength for @type.LineString with euclidean_length(self) {
 ///|
 pub impl HasLength for @type.MultiLineString with euclidean_length(self) {
   euclidean_length_multi_line_string(self)
+}
+
+///|
+pub impl MapCoords for @type.Point with map_coords(self, f) {
+  @type.Point::from_coord(f(self.coord()))
+}
+
+///|
+pub impl MapCoords for @type.Line with map_coords(self, f) {
+  @type.Line::Line(f(self.start()), f(self.end()))
+}
+
+///|
+pub impl MapCoords for @type.LineString with map_coords(self, f) {
+  @type.LineString::LineString(self.coords().map(f))
+}
+
+///|
+pub impl MapCoords for @type.MultiPoint with map_coords(self, f) {
+  @type.MultiPoint::MultiPoint(
+    self.points().map(fn(p) { MapCoords::map_coords(p, f) }),
+  )
+}
+
+///|
+pub impl MapCoords for @type.MultiLineString with map_coords(self, f) {
+  @type.MultiLineString::MultiLineString(
+    self.line_strings().map(fn(ls) { MapCoords::map_coords(ls, f) }),
+  )
+}
+
+///|
+pub impl MapCoords for @type.Polygon with map_coords(self, f) {
+  @type.Polygon::Polygon(
+    MapCoords::map_coords(self.exterior(), f),
+    self.interiors().map(fn(ls) { MapCoords::map_coords(ls, f) }),
+  )
+}
+
+///|
+pub impl MapCoords for @type.MultiPolygon with map_coords(self, f) {
+  @type.MultiPolygon::MultiPolygon(
+    self.polygons().map(fn(p) { MapCoords::map_coords(p, f) }),
+  )
+}
+
+///|
+pub impl MapCoords for @type.Rect with map_coords(self, f) {
+  @type.Rect::Rect(f(self.min()), f(self.max()))
+}
+
+///|
+pub impl MapCoords for @type.Triangle with map_coords(self, f) {
+  @type.Triangle::Triangle(f(self.v0()), f(self.v1()), f(self.v2()))
+}
+
+///|
+pub impl MapCoords for @type.GeometryCollection with map_coords(self, f) {
+  @type.GeometryCollection::GeometryCollection(
+    self.geometries().map(fn(g) { MapCoords::map_coords(g, f) }),
+  )
+}
+
+///|
+pub impl MapCoords for @type.Geometry with map_coords(self, f) {
+  match self {
+    @type.Geometry::Point(p) =>
+      @type.Geometry::Point(MapCoords::map_coords(p, f))
+    @type.Geometry::Line(l) =>
+      @type.Geometry::Line(MapCoords::map_coords(l, f))
+    @type.Geometry::LineString(ls) =>
+      @type.Geometry::LineString(MapCoords::map_coords(ls, f))
+    @type.Geometry::Polygon(p) =>
+      @type.Geometry::Polygon(MapCoords::map_coords(p, f))
+    @type.Geometry::MultiPoint(mp) =>
+      @type.Geometry::MultiPoint(MapCoords::map_coords(mp, f))
+    @type.Geometry::MultiLineString(mls) =>
+      @type.Geometry::MultiLineString(MapCoords::map_coords(mls, f))
+    @type.Geometry::MultiPolygon(mp) =>
+      @type.Geometry::MultiPolygon(MapCoords::map_coords(mp, f))
+    @type.Geometry::GeometryCollection(gc) =>
+      @type.Geometry::GeometryCollection(MapCoords::map_coords(gc, f))
+    @type.Geometry::Rect(r) =>
+      @type.Geometry::Rect(MapCoords::map_coords(r, f))
+    @type.Geometry::Triangle(t) =>
+      @type.Geometry::Triangle(MapCoords::map_coords(t, f))
+  }
 }

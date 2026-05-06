@@ -144,37 +144,12 @@ pub fn AffineTransform::compose(
 }
 
 ///|
-/// Apply this transform to a geometry.
-pub fn AffineTransform::transform_geometry(
+/// Apply this transform to any value that supports per-coordinate mapping
+/// (`MapCoords`). Works on every concrete geometry (`Point`, `Polygon`, …)
+/// as well as the dispatch-on-enum `Geometry`.
+pub fn[T : MapCoords] AffineTransform::transform(
   self : AffineTransform,
-  g : @type.Geometry,
-) -> @type.Geometry {
-  map_coords_in_geometry(g, fn(c) { self.apply(c) })
-}
-
-///|
-/// Apply this transform to a polygon.
-pub fn AffineTransform::transform_polygon(
-  self : AffineTransform,
-  p : @type.Polygon,
-) -> @type.Polygon {
-  map_coords_in_polygon(p, fn(c) { self.apply(c) })
-}
-
-///|
-/// Apply this transform to a line string.
-pub fn AffineTransform::transform_line_string(
-  self : AffineTransform,
-  ls : @type.LineString,
-) -> @type.LineString {
-  map_coords_in_line_string(ls, fn(c) { self.apply(c) })
-}
-
-///|
-/// Apply this transform to a point.
-pub fn AffineTransform::transform_point(
-  self : AffineTransform,
-  p : @type.Point,
-) -> @type.Point {
-  map_coords_in_point(p, fn(c) { self.apply(c) })
+  x : T,
+) -> T {
+  x.map_coords(fn(c) { self.apply(c) })
 }

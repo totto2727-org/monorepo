@@ -11,7 +11,7 @@ pub fn rotate_geometry_around(
   let to_origin = AffineTransform::translate_xy(-pivot.x(), -pivot.y())
   let rotation = AffineTransform::rotate_origin(degrees)
   let from_origin = AffineTransform::translate_xy(pivot.x(), pivot.y())
-  to_origin.compose(rotation).compose(from_origin).transform_geometry(g)
+  to_origin.compose(rotation).compose(from_origin).transform(g)
 }
 
 ///|

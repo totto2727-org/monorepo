@@ -12,11 +12,11 @@ pub fn scale_geometry_around(
   let to_origin = AffineTransform::translate_xy(-origin.x(), -origin.y())
   let scaling = AffineTransform::scale_xy(xfact, yfact)
   let from_origin = AffineTransform::translate_xy(origin.x(), origin.y())
-  to_origin.compose(scaling).compose(from_origin).transform_geometry(g)
+  to_origin.compose(scaling).compose(from_origin).transform(g)
 }
 
 ///|
 /// Uniform scale around the origin.
 pub fn scale_geometry(g : @type.Geometry, factor : Double) -> @type.Geometry {
-  AffineTransform::scale_xy(factor, factor).transform_geometry(g)
+  AffineTransform::scale_xy(factor, factor).transform(g)
 }
