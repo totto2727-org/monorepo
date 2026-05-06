@@ -219,7 +219,7 @@ A collection of `LineString`s. Considered _simple_ when all elements are simple 
 | `IntoIterator` / `FromIterator` / `From<LineString>`    | —                                                                | —      | Rust trait scaffolding                                                    |
 | `Index<I>` / `IndexMut<I>`                              | —                                                                | —      |                                                                           |
 
-Tests (in `type/multi_line_string_test.mbt`): `MultiLineString length`, `MultiLineString empty is closed`, `MultiLineString::empty`.
+Tests (in `type/multi_line_string_test.mbt`): `MultiLineString length`, `is_closed: empty is vacuously closed`, `is_closed: all components closed -> true`, `is_closed: any open component -> false`, `is_closed: single closed / single open`, `MultiLineString::empty`.
 
 ### 1.10 `MultiPolygon<T>` ↔ `type/multi_polygon.mbt`
 
