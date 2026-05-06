@@ -1,0 +1,15 @@
+$ grep -rln 'Layer\.unwrap' js/app/feed-platform-backend/src/feature/runtime/server.ts js/app/feed-platform-web/app/feature/runtime/server.ts js/app/identity-provider/app/feature/runtime/server.ts
+js/app/feed-platform-backend/src/feature/runtime/server.ts
+js/app/feed-platform-web/app/feature/runtime/server.ts
+js/app/identity-provider/app/feature/runtime/server.ts
+
+期待: 3 ファイルすべてで Layer.unwrap が hit
+実際: 3 ファイル hit ✓
+
+$ grep -rln 'import\.meta\.env\.PROD' js/app/feed-platform-backend js/app/feed-platform-web js/app/identity-provider
+(no match → 0 hit)
+
+期待: import.meta.env.PROD = 0 hit
+実際: 0 hit ✓
+
+PASS (Layer.unwrap + Env.Service 経由の Logger 形式判定 = Option P 採用、Option Q 不採用が確認)

@@ -1,0 +1,13 @@
+$ for q in Q2 Q2.5 Q2.6 Q2.9 Q2.10 Q2.11 Q2.12; do c=$(grep -cF "$q" docs/roadmap/feed-platform/adr/2026-05-05-project-structure-and-runtime.md); echo "$q: $c hits"; done
+Q2: 8 hits
+Q2.5: 3 hits
+Q2.6: 3 hits
+Q2.9: 3 hits
+Q2.10: 2 hits
+Q2.11: 3 hits
+Q2.12: 3 hits
+
+期待: 7 確定事項 (Q2 / Q2.5 / Q2.6 / Q2.9 / Q2.10 / Q2.11 / Q2.12) のすべてが ≥ 1 hit
+実際: すべて ≥ 1 hit ✓
+
+PASS

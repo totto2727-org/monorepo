@@ -1,6 +1,6 @@
 identifier: feed-platform-ms-01-workspace-foundation
 started_at: 2026-05-04T12:55:38Z
-updated_at: 2026-05-06T14:40:53Z
+updated_at: 2026-05-06T14:53:35Z
 
 status: active
 current_step: 8
@@ -40,7 +40,7 @@ completed_steps:
       - docs/roadmap/feed-platform/adr/2026-05-05-project-structure-and-runtime.md (T-K)
       - docs/adr/2026-05-05-identity-provider-and-authn-authz-architecture.md (T-L)
       - design.md correction (Round 1 Major M-1/M-2 解消で Context.Service rename + Layer 合成形修正)
-  - step: Step 7 External Review (Round 1 + Round 2 完了、User gate 待ち)
+  - step: Step 7 External Review (Round 1 + Round 2 完了)
     completed_at: 2026-05-06T12:02:04Z
     artifacts:
       - review/security.md (Round 1 approved)
@@ -49,14 +49,16 @@ completed_steps:
       - review/test-quality.md (Round 1 needs_fix → Round 2 approved)
       - review/api-design.md (Round 1 needs_fix → Round 2 approved)
       - review/holistic.md (Round 1 needs_fix → Round 2 approved)
+  - step: Step 8 Validation (候補、User gate 待ち)
+    completed_at: 2026-05-06T14:53:35Z
+    artifacts:
+      - validation-report.md
+      - validation-evidence/TC-001.log 〜 TC-026.log (26 ファイル)
 
-pending_gates: []
+pending_gates:
+  - User gate (Step 8 → Step 9): validation-report.md レビューと承認待ち、SC-1〜SC-11 全 PASS / TC-001〜TC-026 全 PASS / Blocker 0
 
-active_specialists:
-  - name: validator
-    task: SC-1〜SC-11 を qa-design.md TC-001〜TC-026 経由で実走、PASS / FAIL / pending を確定し validation-report.md を作成
-    status: running
-    started_at: 2026-05-06T14:40:53Z
+active_specialists: []
 
 blockers: []
 
@@ -82,7 +84,7 @@ artifacts:
     - review/test-quality.md
     - review/api-design.md
     - review/holistic.md
-  validation: null
+  validation: validation-report.md
   retrospective: null
 
 user_approvals:

@@ -1,0 +1,16 @@
+$ for p in feed-platform-web identity-provider; do echo "=== $p ==="; for f in app/entry.worker.ts app/app.tsx app/assets/entry.ts app/ui/document.tsx; do test -f "js/app/$p/$f" && echo "OK: $f" || echo "MISSING: $f"; done; done
+=== feed-platform-web ===
+OK: app/entry.worker.ts
+OK: app/app.tsx
+OK: app/assets/entry.ts
+OK: app/ui/document.tsx
+=== identity-provider ===
+OK: app/entry.worker.ts
+OK: app/app.tsx
+OK: app/assets/entry.ts
+OK: app/ui/document.tsx
+
+期待: 各プロジェクトの app/ 配下に 4 ファイル
+実際: 全 8 ファイル OK ✓
+
+PASS

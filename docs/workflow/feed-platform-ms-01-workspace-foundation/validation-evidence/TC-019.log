@@ -1,0 +1,10 @@
+$ for q in Q2.7 "Q2.7-extension" Q2.8 "Q2.11-extension"; do c=$(grep -cF "$q" docs/adr/2026-05-05-identity-provider-and-authn-authz-architecture.md); echo "$q: $c hits"; done
+Q2.7: 6 hits
+Q2.7-extension: 4 hits
+Q2.8: 3 hits
+Q2.11-extension: 3 hits
+
+期待: 4 確定事項のすべてが ≥ 1 hit
+実際: すべて ≥ 1 hit ✓
+
+PASS
