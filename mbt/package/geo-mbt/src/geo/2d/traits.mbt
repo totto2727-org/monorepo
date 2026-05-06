@@ -48,9 +48,78 @@ pub(open) trait HasCentroid {
 }
 
 ///|
-/// Anything that has a Euclidean length (segments, line strings, etc.).
-pub(open) trait HasLength {
+/// Anything that has a planar Euclidean length (the physical "how long is
+/// this thing in coordinate units"): segment length, line string length,
+/// multi line string total length. Distinct from `HasLength`, which is the
+/// **collection cardinality** (how many components / coords).
+pub(open) trait HasEuclideanLength {
   euclidean_length(Self) -> Double
+}
+
+///|
+/// Collection-style cardinality (number of components or coords). Mirrors
+/// `Vec::len()` in Rust / `Array::length()` in MoonBit. Distinct from
+/// `HasEuclideanLength` which is the physical length.
+pub(open) trait HasLength {
+  length(Self) -> Int
+}
+
+///|
+/// Anything that can be empty (zero coords / zero components). Provided so
+/// generic algorithms can short-circuit before computing.
+pub(open) trait IsEmpty {
+  is_empty(Self) -> Bool
+}
+
+///|
+/// Anything that can be a closed ring (first and last coord equal).
+pub(open) trait IsClosed {
+  is_closed(Self) -> Bool
+}
+
+///|
+/// Anything that produces the line segments composing the geometry. Mirrors
+/// upstream Rust `geo::algorithm::lines_iter::LinesIter` (eager form).
+pub(open) trait LinesCarrier {
+  lines(Self) -> Array[@type.Line]
+}
+
+///|
+/// Anything whose dimensionality (Empty / 0D / 1D / 2D) can be computed.
+pub(open) trait HasDimensions {
+  dimensions(Self) -> Dimensions
+}
+
+///|
+/// Anything whose convex hull can be taken. The result is always a `Polygon`.
+pub(open) trait HasConvexHull {
+  convex_hull(Self) -> @type.Polygon
+}
+
+///|
+/// Computes the closest point on `self` to a target coordinate.
+pub(open) trait ClosestPoint {
+  closest_point(Self, @type.Coord) -> Closest
+}
+
+///|
+/// Determines whether a coord is inside / on boundary / outside a geometry.
+pub(open) trait CoordPositionFor {
+  coord_position(Self, @type.Coord) -> CoordPos
+}
+
+///|
+/// RDP simplification with `epsilon`. Returns a value of the same type with
+/// near-collinear coords removed.
+pub(open) trait Simplify {
+  simplify(Self, Double) -> Self
+}
+
+///|
+/// Densification with a maximum segment length. Returns a value of the same
+/// type with extra coords inserted along long segments.
+pub(open) trait Densify {
+  densify(Self, Double) -> Self
 }
 
 ///|
@@ -244,18 +313,238 @@ pub impl HasCentroid for @type.Geometry with centroid(self) {
 }
 
 ///|
-pub impl HasLength for @type.Line with euclidean_length(self) {
+pub impl HasEuclideanLength for @type.Line with euclidean_length(self) {
   euclidean_length_line(self)
 }
 
 ///|
-pub impl HasLength for @type.LineString with euclidean_length(self) {
+pub impl HasEuclideanLength for @type.LineString with euclidean_length(self) {
   euclidean_length_line_string(self)
 }
 
 ///|
-pub impl HasLength for @type.MultiLineString with euclidean_length(self) {
+pub impl HasEuclideanLength for @type.MultiLineString with euclidean_length(
+  self,
+) {
   euclidean_length_multi_line_string(self)
+}
+
+///|
+pub impl HasLength for @type.LineString with length(self) {
+  self.coords().length()
+}
+
+///|
+pub impl HasLength for @type.MultiPoint with length(self) {
+  self.points().length()
+}
+
+///|
+pub impl HasLength for @type.MultiLineString with length(self) {
+  self.line_strings().length()
+}
+
+///|
+pub impl HasLength for @type.MultiPolygon with length(self) {
+  self.polygons().length()
+}
+
+///|
+pub impl HasLength for @type.GeometryCollection with length(self) {
+  self.geometries().length()
+}
+
+///|
+pub impl IsEmpty for @type.LineString with is_empty(self) {
+  self.is_empty()
+}
+
+///|
+pub impl IsEmpty for @type.MultiPoint with is_empty(self) {
+  self.is_empty()
+}
+
+///|
+pub impl IsEmpty for @type.MultiLineString with is_empty(self) {
+  self.is_empty()
+}
+
+///|
+pub impl IsEmpty for @type.MultiPolygon with is_empty(self) {
+  self.is_empty()
+}
+
+///|
+pub impl IsEmpty for @type.GeometryCollection with is_empty(self) {
+  self.is_empty()
+}
+
+///|
+pub impl IsEmpty for @type.Polygon with is_empty(self) {
+  self.is_empty()
+}
+
+///|
+pub impl IsEmpty for @type.Geometry with is_empty(self) {
+  is_empty_of_geometry(self)
+}
+
+///|
+pub impl IsClosed for @type.LineString with is_closed(self) {
+  self.is_closed()
+}
+
+///|
+pub impl IsClosed for @type.MultiLineString with is_closed(self) {
+  self.is_closed()
+}
+
+///|
+pub impl LinesCarrier for @type.Line with lines(self) {
+  lines_of_line(self)
+}
+
+///|
+pub impl LinesCarrier for @type.LineString with lines(self) {
+  lines_of_line_string(self)
+}
+
+///|
+pub impl LinesCarrier for @type.MultiLineString with lines(self) {
+  lines_of_multi_line_string(self)
+}
+
+///|
+pub impl LinesCarrier for @type.Polygon with lines(self) {
+  lines_of_polygon(self)
+}
+
+///|
+pub impl LinesCarrier for @type.MultiPolygon with lines(self) {
+  lines_of_multi_polygon(self)
+}
+
+///|
+pub impl LinesCarrier for @type.Rect with lines(self) {
+  lines_of_rect(self)
+}
+
+///|
+pub impl LinesCarrier for @type.Triangle with lines(self) {
+  lines_of_triangle(self)
+}
+
+///|
+pub impl LinesCarrier for @type.GeometryCollection with lines(self) {
+  lines_of_geometry_collection(self)
+}
+
+///|
+pub impl LinesCarrier for @type.Geometry with lines(self) {
+  lines_of_geometry(self)
+}
+
+///|
+pub impl HasDimensions for @type.Rect with dimensions(self) {
+  dimensions_of_rect(self)
+}
+
+///|
+pub impl HasDimensions for @type.LineString with dimensions(self) {
+  dimensions_of_line_string(self)
+}
+
+///|
+pub impl HasDimensions for @type.Geometry with dimensions(self) {
+  dimensions_of_geometry(self)
+}
+
+///|
+pub impl HasConvexHull for @type.MultiPoint with convex_hull(self) {
+  convex_hull_of_multi_point(self)
+}
+
+///|
+pub impl HasConvexHull for @type.LineString with convex_hull(self) {
+  convex_hull_of_line_string(self)
+}
+
+///|
+pub impl HasConvexHull for @type.Polygon with convex_hull(self) {
+  convex_hull_of_polygon(self)
+}
+
+///|
+pub impl HasConvexHull for @type.Geometry with convex_hull(self) {
+  convex_hull_of_geometry(self)
+}
+
+///|
+pub impl ClosestPoint for @type.Line with closest_point(self, target) {
+  closest_point_on_line(self, target)
+}
+
+///|
+pub impl ClosestPoint for @type.LineString with closest_point(self, target) {
+  closest_point_on_line_string(self, target)
+}
+
+///|
+pub impl CoordPositionFor for @type.Line with coord_position(self, coord) {
+  coord_position_for_line(coord, self)
+}
+
+///|
+pub impl CoordPositionFor for @type.LineString with coord_position(self, coord) {
+  coord_position_for_line_string(coord, self)
+}
+
+///|
+pub impl CoordPositionFor for @type.Polygon with coord_position(self, coord) {
+  coord_position_for_polygon(coord, self)
+}
+
+///|
+pub impl CoordPositionFor for @type.MultiPolygon with coord_position(
+  self,
+  coord,
+) {
+  coord_position_for_multi_polygon(coord, self)
+}
+
+///|
+pub impl CoordPositionFor for @type.Rect with coord_position(self, coord) {
+  coord_position_for_rect(coord, self)
+}
+
+///|
+pub impl CoordPositionFor for @type.Triangle with coord_position(self, coord) {
+  coord_position_for_triangle(coord, self)
+}
+
+///|
+pub impl CoordPositionFor for @type.Geometry with coord_position(self, coord) {
+  coord_position_for_geometry(coord, self)
+}
+
+///|
+pub impl Simplify for @type.LineString with simplify(self, epsilon) {
+  simplify_line_string(self, epsilon)
+}
+
+///|
+pub impl Simplify for @type.Polygon with simplify(self, epsilon) {
+  simplify_polygon(self, epsilon)
+}
+
+///|
+pub impl Densify for @type.LineString with densify(self, max_segment_length) {
+  densify_line_string(self, max_segment_length)
+}
+
+///|
+pub impl Densify for @type.Polygon with densify(self, max_segment_length) {
+  densify_polygon(self, max_segment_length)
 }
 
 ///|
@@ -324,8 +613,7 @@ pub impl MapCoords for @type.Geometry with map_coords(self, f) {
   match self {
     @type.Geometry::Point(p) =>
       @type.Geometry::Point(MapCoords::map_coords(p, f))
-    @type.Geometry::Line(l) =>
-      @type.Geometry::Line(MapCoords::map_coords(l, f))
+    @type.Geometry::Line(l) => @type.Geometry::Line(MapCoords::map_coords(l, f))
     @type.Geometry::LineString(ls) =>
       @type.Geometry::LineString(MapCoords::map_coords(ls, f))
     @type.Geometry::Polygon(p) =>
@@ -338,8 +626,7 @@ pub impl MapCoords for @type.Geometry with map_coords(self, f) {
       @type.Geometry::MultiPolygon(MapCoords::map_coords(mp, f))
     @type.Geometry::GeometryCollection(gc) =>
       @type.Geometry::GeometryCollection(MapCoords::map_coords(gc, f))
-    @type.Geometry::Rect(r) =>
-      @type.Geometry::Rect(MapCoords::map_coords(r, f))
+    @type.Geometry::Rect(r) => @type.Geometry::Rect(MapCoords::map_coords(r, f))
     @type.Geometry::Triangle(t) =>
       @type.Geometry::Triangle(MapCoords::map_coords(t, f))
   }

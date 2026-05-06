@@ -73,7 +73,7 @@ pub fn bounding_rect_of_multi_polygon(mp : @type.MultiPolygon) -> @type.Rect? {
 
 ///|
 pub fn bounding_rect_of_triangle(t : @type.Triangle) -> @type.Rect {
-  match bounding_rect_of_coords(t.to_array()) {
+  match bounding_rect_of_coords(coords_of_triangle(t)) {
     Some(r) => r
     None => abort("triangle should always have a bounding rect")
   }

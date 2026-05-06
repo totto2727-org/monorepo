@@ -6,7 +6,7 @@
 /// tuples / coords via the helper constructors.
 pub struct MultiPoint {
   points : Array[Point]
-} derive(Eq, Debug)
+} derive(Eq, Debug, Default)
 
 ///|
 pub fn MultiPoint::MultiPoint(points : Array[Point]) -> MultiPoint {

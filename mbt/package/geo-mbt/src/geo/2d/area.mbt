@@ -95,7 +95,7 @@ pub fn unsigned_area_of_rect(r : @type.Rect) -> Double {
 
 ///|
 pub fn signed_area_of_triangle(t : @type.Triangle) -> Double {
-  sum_line_determinants(t.to_array()) / 2.0
+  sum_line_determinants(coords_of_triangle(t)) / 2.0
 }
 
 ///|

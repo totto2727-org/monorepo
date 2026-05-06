@@ -13,17 +13,6 @@ test "Triangle and accessors" {
 }
 
 ///|
-test "Triangle to_array" {
-  let t = @type.Triangle::Triangle(
-    @type.Coord(0.0, 0.0),
-    @type.Coord(10.0, 0.0),
-    @type.Coord(0.0, 10.0),
-  )
-  let arr = t.to_array()
-  assert_eq(arr.length(), 3)
-}
-
-///|
 test "Triangle to_lines yields 3 segments" {
   let t = @type.Triangle::Triangle(
     @type.Coord(0.0, 0.0),

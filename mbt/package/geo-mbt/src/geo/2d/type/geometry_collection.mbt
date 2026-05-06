@@ -6,7 +6,7 @@
 /// collections (the GeoJSON `GeometryCollection`).
 pub struct GeometryCollection {
   geometries : Array[Geometry]
-} derive(Eq, Debug)
+} derive(Eq, Debug, Default)
 
 ///|
 pub fn GeometryCollection::GeometryCollection(

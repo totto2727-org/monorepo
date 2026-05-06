@@ -37,9 +37,9 @@ test "HasCentroid trait on polygon" {
 }
 
 ///|
-test "HasLength trait on line string" {
+test "HasEuclideanLength trait on line string" {
   let ls = @type.LineString::from_tuples([(0.0, 0.0), (3.0, 0.0), (3.0, 4.0)])
-  assert_eq(HasLength::euclidean_length(ls), 7.0)
+  assert_eq(HasEuclideanLength::euclidean_length(ls), 7.0)
 }
 
 ///|

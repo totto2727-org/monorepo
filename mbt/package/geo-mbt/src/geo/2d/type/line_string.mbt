@@ -12,7 +12,7 @@
 ///   the start and end coordinate (open) or empty (closed, i.e. start == end).
 pub struct LineString {
   coords : Array[Coord]
-} derive(Eq, Debug)
+} derive(Eq, Debug, Default)
 
 ///|
 /// Creates a new `LineString` from an array of `Coord`s.

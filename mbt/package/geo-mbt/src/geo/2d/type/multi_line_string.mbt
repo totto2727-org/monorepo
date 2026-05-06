@@ -5,7 +5,7 @@
 /// A collection of `LineString`s.
 pub struct MultiLineString {
   line_strings : Array[LineString]
-} derive(Eq, Debug)
+} derive(Eq, Debug, Default)
 
 ///|
 pub fn MultiLineString::MultiLineString(

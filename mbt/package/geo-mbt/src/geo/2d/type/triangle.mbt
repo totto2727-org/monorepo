@@ -30,11 +30,6 @@ pub fn Triangle::v2(self : Triangle) -> Coord {
 }
 
 ///|
-pub fn Triangle::to_array(self : Triangle) -> Array[Coord] {
-  [self.v0, self.v1, self.v2]
-}
-
-///|
 /// Returns the three line segments that make up this triangle in `(v0->v1,
 /// v1->v2, v2->v0)` order.
 pub fn Triangle::to_lines(self : Triangle) -> Array[Line] {
