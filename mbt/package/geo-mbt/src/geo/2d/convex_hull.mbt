@@ -103,3 +103,31 @@ fn convex_hull_of_geometry(g : @type.Geometry) -> @type.Polygon {
   let coords = coords_of_geometry(g)
   @type.Polygon::Polygon(convex_hull_of_coords(coords), [])
 }
+
+// MARK: trait HasConvexHull + impls -----------------------------------------
+
+///|
+/// Anything whose convex hull can be taken. The result is always a `Polygon`.
+pub(open) trait HasConvexHull {
+  convex_hull(Self) -> @type.Polygon
+}
+
+///|
+pub impl HasConvexHull for @type.MultiPoint with convex_hull(self) {
+  convex_hull_of_multi_point(self)
+}
+
+///|
+pub impl HasConvexHull for @type.LineString with convex_hull(self) {
+  convex_hull_of_line_string(self)
+}
+
+///|
+pub impl HasConvexHull for @type.Polygon with convex_hull(self) {
+  convex_hull_of_polygon(self)
+}
+
+///|
+pub impl HasConvexHull for @type.Geometry with convex_hull(self) {
+  convex_hull_of_geometry(self)
+}

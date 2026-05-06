@@ -4,7 +4,7 @@ Geometric centroid (centre of mass) of every geometry. Polygon centroids weight 
 
 ## Public API
 
-- `HasCentroid` — `centroid` (impls in traits.mbt for `Polygon` / `MultiPolygon` / `LineString` / `Geometry`)
+- `HasCentroid` — `centroid` (impls in this file)
 
 ## Test
 
@@ -37,6 +37,27 @@ test "HasCentroid::centroid - unit square Polygon centroid is (0.5, 0.5)" {
   }
   assert_true((c.x() - 0.5).abs() < TOLERANCE)
   assert_true((c.y() - 0.5).abs() < TOLERANCE)
+}
+```
+
+- LineString and MultiPolygon: direct trait dispatch
+
+```mbt check
+///|
+test "HasCentroid::centroid - LineString and MultiPolygon direct dispatch" {
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (10.0, 0.0)])
+  @test.assert_eq(HasCentroid::centroid(ls), Some(@type.Point::Point(5.0, 0.0)))
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (4.0, 0.0),
+      (4.0, 4.0),
+      (0.0, 4.0),
+    ]),
+    [],
+  )
+  let mp = @type.MultiPolygon::MultiPolygon([polygon])
+  @test.assert_eq(HasCentroid::centroid(mp), Some(@type.Point::Point(2.0, 2.0)))
 }
 ```
 

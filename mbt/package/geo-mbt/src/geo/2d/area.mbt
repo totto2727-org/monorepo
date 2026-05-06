@@ -26,11 +26,7 @@ fn sum_line_determinants(points : Array[@type.Coord]) -> Double {
 ///|
 /// Twice the signed area of a closed ring (`twice_signed_ring_area` in geo).
 /// Returns `0.0` if the ring is open or has fewer than 3 coordinates.
-///
-/// Internal helper. Used by `linestring_signed_area` (private, this file)
-/// and `winding_order` (`winding_order.mbt`, same package). Tested in
-/// `area_wbtest.mbt` so the function need not be public.
-fn twice_signed_ring_area(ls : @type.LineString) -> Double {
+pub fn twice_signed_ring_area(ls : @type.LineString) -> Double {
   let coords = ls.coords()
   if coords.length() < 3 {
     return 0.0
@@ -143,4 +139,63 @@ fn unsigned_area_of_geometry(g : @type.Geometry) -> Double {
       .fold(init=0.0, fn(acc, g2) { acc + unsigned_area_of_geometry(g2) })
     _ => 0.0
   }
+}
+
+// MARK: trait HasArea + impls -----------------------------------------------
+
+///|
+/// Anything that has a planar area (including signed area for orientation).
+pub(open) trait HasArea {
+  signed_area(Self) -> Double
+  unsigned_area(Self) -> Double
+}
+
+///|
+pub impl HasArea for @type.Polygon with signed_area(self) {
+  signed_area_of_polygon(self)
+}
+
+///|
+pub impl HasArea for @type.Polygon with unsigned_area(self) {
+  unsigned_area_of_polygon(self)
+}
+
+///|
+pub impl HasArea for @type.MultiPolygon with signed_area(self) {
+  signed_area_of_multi_polygon(self)
+}
+
+///|
+pub impl HasArea for @type.MultiPolygon with unsigned_area(self) {
+  unsigned_area_of_multi_polygon(self)
+}
+
+///|
+pub impl HasArea for @type.Rect with signed_area(self) {
+  signed_area_of_rect(self)
+}
+
+///|
+pub impl HasArea for @type.Rect with unsigned_area(self) {
+  unsigned_area_of_rect(self)
+}
+
+///|
+pub impl HasArea for @type.Triangle with signed_area(self) {
+  signed_area_of_triangle(self)
+}
+
+///|
+pub impl HasArea for @type.Triangle with unsigned_area(self) {
+  unsigned_area_of_triangle(self)
+}
+
+///|
+pub impl HasArea for @type.Geometry with signed_area(self) {
+  signed_area_of_geometry(self)
+}
+
+///|
+pub impl HasArea for @type.Geometry with unsigned_area(self) {
+  unsigned_area_of_geometry(self)
 }

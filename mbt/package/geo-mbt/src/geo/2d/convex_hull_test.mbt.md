@@ -1,10 +1,10 @@
 # convex_hull.mbt
 
-Andrew's monotone-chain convex hull. Exposed via `HasConvexHull::convex_hull` (impls in `traits.mbt` for `MultiPoint` / `LineString` / `Polygon` / `Geometry`); the result is a closed CCW `Polygon`.
+Andrew's monotone-chain convex hull. Exposed via `HasConvexHull::convex_hull` (impls in this file for `MultiPoint` / `LineString` / `Polygon` / `Geometry`); the result is a closed CCW `Polygon`.
 
 ## Public API
 
-- `HasConvexHull` — `convex_hull` (impls in traits.mbt for `MultiPoint` / `LineString` / `Polygon` / `Geometry`)
+- `HasConvexHull` — `convex_hull` (impls in this file)
 
 ## Test
 
@@ -60,7 +60,26 @@ test "HasConvexHull::convex_hull - hull is closed and CCW" {
   ])
   let exterior = HasConvexHull::convex_hull(mp).exterior()
   assert_true(exterior.is_closed())
-  @test.assert_eq(winding_order(exterior), Some(WindingOrder::CounterClockwise))
+  // CCW orientation → positive signed area.
+  assert_true(twice_signed_ring_area(exterior) > 0.0)
+}
+```
+
+- LineString and Polygon: direct trait dispatch
+
+```mbt check
+///|
+test "HasConvexHull::convex_hull - LineString and Polygon direct dispatch" {
+  let ls = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (10.0, 0.0),
+    (10.0, 10.0),
+    (0.0, 10.0),
+  ])
+  // Hull of an open square outline has 5 coords (4 corners + closing).
+  @test.assert_eq(HasConvexHull::convex_hull(ls).exterior().length(), 5)
+  let polygon = @type.Polygon::Polygon(ls, [])
+  @test.assert_eq(HasConvexHull::convex_hull(polygon).exterior().length(), 5)
 }
 ```
 

@@ -77,3 +77,22 @@ fn simplify_polygon(polygon : @type.Polygon, epsilon : Double) -> @type.Polygon 
     .map(fn(ls) { simplify_line_string(ls, epsilon) })
   @type.Polygon::Polygon(exterior, interiors)
 }
+
+// MARK: trait Simplify + impls ----------------------------------------------
+
+///|
+/// RDP simplification with `epsilon`. Returns a value of the same type with
+/// near-collinear coords removed.
+pub(open) trait Simplify {
+  simplify(Self, Double) -> Self
+}
+
+///|
+pub impl Simplify for @type.LineString with simplify(self, epsilon) {
+  simplify_line_string(self, epsilon)
+}
+
+///|
+pub impl Simplify for @type.Polygon with simplify(self, epsilon) {
+  simplify_polygon(self, epsilon)
+}

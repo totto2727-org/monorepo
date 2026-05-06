@@ -1,13 +1,13 @@
 # dimensions.mbt
 
-The `Dimensions` enum — `Empty`, `ZeroDimensional`, `OneDimensional`, `TwoDimensional` — and helpers (`rank`, `dimensions_less`) for comparing them. The `HasDimensions::dimensions` trait (in `traits.mbt`) lifts this to whole `Geometry` values.
+The `Dimensions` enum — `Empty`, `ZeroDimensional`, `OneDimensional`, `TwoDimensional` — and helpers (`rank`, `dimensions_less`) for comparing them. The `HasDimensions::dimensions` trait lifts this to whole `Geometry` values.
 
 ## Public API
 
 - `Dimensions`
 - `Dimensions::rank`
 - `dimensions_less`
-- `HasDimensions` — `dimensions` (impls in traits.mbt)
+- `HasDimensions` — `dimensions` (impls in this file)
 
 ## Test
 

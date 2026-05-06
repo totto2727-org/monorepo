@@ -5,8 +5,8 @@ Iterates the coordinates of every concrete geometry plus the dispatch over `Geom
 ## Public API
 
 - `coords_count`
-- `CoordsCarrier` — `coords` (impls in traits.mbt for every geometry type)
-- `ExteriorCoordsCarrier` — `exterior_coords` (impls in traits.mbt)
+- `CoordsCarrier` — `coords` (impls in this file)
+- `ExteriorCoordsCarrier` — `exterior_coords` (impls in this file)
 
 ## Test
 
@@ -184,6 +184,31 @@ test "CoordsCarrier::coords - dispatch covers every variant cardinality" {
 ### `ExteriorCoordsCarrier`
 
 #### `exterior_coords`
+
+- MultiPolygon and Geometry: direct dispatch
+
+```mbt check
+///|
+test "ExteriorCoordsCarrier::exterior_coords - MultiPolygon and Geometry" {
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (10.0, 0.0),
+      (10.0, 10.0),
+      (0.0, 10.0),
+    ]),
+    [],
+  )
+  let mp = @type.MultiPolygon::MultiPolygon([polygon])
+  // 5 coords per polygon (auto-closed).
+  @test.assert_eq(ExteriorCoordsCarrier::exterior_coords(mp).length(), 5)
+  // Geometry::Polygon dispatches via exterior_coords_of_geometry.
+  @test.assert_eq(
+    ExteriorCoordsCarrier::exterior_coords(@type.Geometry::Polygon(polygon)).length(),
+    5,
+  )
+}
+```
 
 - Polygon's exterior alone is the auto-closed exterior ring (5 coords for a 4-coord input)
 

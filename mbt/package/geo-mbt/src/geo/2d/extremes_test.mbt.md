@@ -7,7 +7,7 @@ Cardinal-direction extremes (`x_min` / `x_max` / `y_min` / `y_max`) of a coordin
 - `Outcome`
 - `Outcome::Outcome`
 - `extremes_of_coords`
-- `HasExtremes` — `extremes` (impls in traits.mbt)
+- `HasExtremes` — `extremes` (impls in this file)
 
 ## Test
 
@@ -82,6 +82,51 @@ test "extremes_of_coords - returns x_min, x_max, y_min, y_max" {
 ### `HasExtremes`
 
 #### `extremes`
+
+- Direct dispatch on every concrete type
+
+```mbt check
+///|
+test "HasExtremes::extremes - direct dispatch on every concrete type" {
+  let pt = @type.Point::Point(0.0, 0.0)
+  let l = @type.Line::from_tuples((0.0, 0.0), (1.0, 1.0))
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0)])
+  let mp = @type.MultiPoint::from_tuples([(0.0, 0.0), (3.0, 4.0)])
+  let mls = @type.MultiLineString::MultiLineString([ls])
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (4.0, 0.0),
+      (4.0, 4.0),
+      (0.0, 4.0),
+    ]),
+    [],
+  )
+  let mpoly = @type.MultiPolygon::MultiPolygon([polygon])
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(1.0, 1.0),
+  )
+  let tri = @type.Triangle::Triangle(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(1.0, 0.0),
+    @type.Coord::Coord(0.0, 1.0),
+  )
+  let gc = @type.GeometryCollection::GeometryCollection([
+    @type.Geometry::Point(pt),
+  ])
+  assert_true(HasExtremes::extremes(pt) is Some(_))
+  assert_true(HasExtremes::extremes(l) is Some(_))
+  assert_true(HasExtremes::extremes(ls) is Some(_))
+  assert_true(HasExtremes::extremes(mp) is Some(_))
+  assert_true(HasExtremes::extremes(mls) is Some(_))
+  assert_true(HasExtremes::extremes(polygon) is Some(_))
+  assert_true(HasExtremes::extremes(mpoly) is Some(_))
+  assert_true(HasExtremes::extremes(r) is Some(_))
+  assert_true(HasExtremes::extremes(tri) is Some(_))
+  assert_true(HasExtremes::extremes(gc) is Some(_))
+}
+```
 
 - Lifts `extremes_of_coords` to a `Geometry::LineString`
 

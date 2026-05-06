@@ -4,7 +4,7 @@ Inserts intermediate coordinates along each segment of a `LineString` (or each r
 
 ## Public API
 
-- `Densify` — `densify` (impls in traits.mbt for `LineString` / `Polygon`)
+- `Densify` — `densify` (impls in this file)
 
 ## Test
 
@@ -27,6 +27,30 @@ test "Densify::densify - long segment gets subdivided" {
   @test.assert_eq(
     Densify::densify(ls, 5.0),
     @type.LineString::from_tuples([(0.0, 0.0), (5.0, 0.0), (10.0, 0.0)]),
+  )
+}
+```
+
+- Polygon direct dispatch: every ring densified
+
+```mbt check
+///|
+test "Densify::densify - Polygon direct dispatch" {
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (10.0, 0.0),
+      (10.0, 10.0),
+      (0.0, 10.0),
+    ]),
+    [],
+  )
+  let densified = Densify::densify(polygon, 5.0)
+  // Each 10-length edge becomes two 5-length sub-edges, so the exterior coord
+  // count grows after densification.
+  assert_true(
+    densified.exterior().coords().length() >
+    polygon.exterior().coords().length(),
   )
 }
 ```

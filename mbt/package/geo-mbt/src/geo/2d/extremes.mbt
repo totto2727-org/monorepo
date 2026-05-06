@@ -42,3 +42,67 @@ pub fn extremes_of_coords(coords : Array[@type.Coord]) -> Outcome? {
   let (x_min, x_max, y_min, y_max) = acc
   Some(Outcome(x_min, x_max, y_min, y_max))
 }
+
+// MARK: trait HasExtremes + impls -------------------------------------------
+
+///|
+/// Anything whose extreme coordinates (xmin / xmax / ymin / ymax) can be
+/// taken. Returns `None` when there are no coordinates at all.
+pub(open) trait HasExtremes {
+  extremes(Self) -> Outcome?
+}
+
+///|
+pub impl HasExtremes for @type.Point with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.Line with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.LineString with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.MultiPoint with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.MultiLineString with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.Polygon with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.MultiPolygon with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.Rect with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.Triangle with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.GeometryCollection with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}
+
+///|
+pub impl HasExtremes for @type.Geometry with extremes(self) {
+  extremes_of_coords(CoordsCarrier::coords(self))
+}

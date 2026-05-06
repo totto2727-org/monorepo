@@ -5,7 +5,7 @@ Ramer-Douglas-Peucker simplification of a `LineString` (and each ring of a `Poly
 ## Public API
 
 - `simplify_line_string_indices`
-- `Simplify` — `simplify` (impls in traits.mbt for `LineString` / `Polygon`)
+- `Simplify` — `simplify` (impls in this file)
 
 ## Test
 
@@ -59,6 +59,31 @@ test "Simplify::simplify - eps 0 keeps non-collinear interior" {
 test "Simplify::simplify - drops nearly collinear interior" {
   let ls = @type.LineString::from_tuples([(0.0, 0.0), (5.0, 0.001), (10.0, 0.0)])
   @test.assert_eq(Simplify::simplify(ls, 0.01).coords().length(), 2)
+}
+```
+
+- Polygon direct dispatch: rings are simplified independently
+
+```mbt check
+///|
+test "Simplify::simplify - Polygon direct dispatch" {
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (5.0, 0.001),
+      (10.0, 0.0),
+      (10.0, 5.0),
+      (0.0, 5.0),
+    ]),
+    [],
+  )
+  // The (5, 0.001) interior coord is dropped by eps = 0.01 simplification of
+  // the exterior ring.
+  let simplified = Simplify::simplify(polygon, 0.01)
+  assert_true(
+    simplified.exterior().coords().length() <
+    polygon.exterior().coords().length(),
+  )
 }
 ```
 

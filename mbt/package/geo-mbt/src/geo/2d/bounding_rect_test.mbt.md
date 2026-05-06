@@ -1,10 +1,10 @@
 # bounding_rect.mbt
 
-Axis-aligned bounding rectangle of a coordinate set or geometry. Exposed via the `Bounded::bbox` trait whose impls live in `traits.mbt` (and which is the canonical entry point — `bounding_rect.mbt`'s helpers are private).
+Axis-aligned bounding rectangle of a coordinate set or geometry. Exposed via the `Bounded::bbox` trait alongside its impls (the per-type `bounding_rect_of_*` helpers are private).
 
 ## Public API
 
-- `Bounded` — `bbox` (impls in traits.mbt for `Point` / `Line` / `LineString` / `MultiPoint` / `MultiLineString` / `Polygon` / `MultiPolygon` / `Triangle` / `Rect` / `Geometry` / `GeometryCollection`)
+- `Bounded` — `bbox` (impls in this file)
 
 ## Test
 
@@ -161,6 +161,51 @@ test "Bounded::bbox - dispatch covers every Geometry variant" {
       ),
     ),
   )
+}
+```
+
+- Direct dispatch on every concrete type
+
+```mbt check
+///|
+test "Bounded::bbox - direct dispatch on every concrete type" {
+  let pt = @type.Point::Point(0.0, 0.0)
+  let l = @type.Line::from_tuples((0.0, 0.0), (1.0, 1.0))
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0)])
+  let mp = @type.MultiPoint::from_tuples([(0.0, 0.0), (3.0, 4.0)])
+  let mls = @type.MultiLineString::MultiLineString([ls])
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (4.0, 0.0),
+      (4.0, 4.0),
+      (0.0, 4.0),
+    ]),
+    [],
+  )
+  let mpoly = @type.MultiPolygon::MultiPolygon([polygon])
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(1.0, 1.0),
+  )
+  let tri = @type.Triangle::Triangle(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(1.0, 0.0),
+    @type.Coord::Coord(0.0, 1.0),
+  )
+  let gc = @type.GeometryCollection::GeometryCollection([
+    @type.Geometry::Point(pt),
+  ])
+  assert_true(Bounded::bbox(pt) is Some(_))
+  assert_true(Bounded::bbox(l) is Some(_))
+  assert_true(Bounded::bbox(ls) is Some(_))
+  assert_true(Bounded::bbox(mp) is Some(_))
+  assert_true(Bounded::bbox(mls) is Some(_))
+  assert_true(Bounded::bbox(polygon) is Some(_))
+  assert_true(Bounded::bbox(mpoly) is Some(_))
+  assert_true(Bounded::bbox(r) is Some(_))
+  assert_true(Bounded::bbox(tri) is Some(_))
+  assert_true(Bounded::bbox(gc) is Some(_))
 }
 ```
 

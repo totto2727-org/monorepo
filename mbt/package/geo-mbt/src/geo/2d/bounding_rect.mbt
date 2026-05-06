@@ -105,3 +105,74 @@ fn bounding_rect_of_geometry(g : @type.Geometry) -> @type.Rect? {
       bounding_rect_of_geometry_collection(gc)
   }
 }
+
+// MARK: trait Bounded + impls -----------------------------------------------
+
+///|
+/// Anything that has a bounding rectangle. Geometries which can be empty
+/// return `None`.
+pub(open) trait Bounded {
+  bbox(Self) -> @type.Rect?
+}
+
+///|
+pub impl Bounded for @type.Point with bbox(self) {
+  Some(bounding_rect_of_point(self))
+}
+
+///|
+pub impl Bounded for @type.Line with bbox(self) {
+  Some(bounding_rect_of_line(self))
+}
+
+///|
+pub impl Bounded for @type.LineString with bbox(self) {
+  bounding_rect_of_line_string(self)
+}
+
+///|
+pub impl Bounded for @type.MultiPoint with bbox(self) {
+  bounding_rect_of_multi_point(self)
+}
+
+///|
+pub impl Bounded for @type.MultiLineString with bbox(self) {
+  bounding_rect_of_multi_line_string(self)
+}
+
+///|
+pub impl Bounded for @type.Polygon with bbox(self) {
+  bounding_rect_of_polygon(self)
+}
+
+///|
+pub impl Bounded for @type.MultiPolygon with bbox(self) {
+  bounding_rect_of_multi_polygon(self)
+}
+
+///|
+pub impl Bounded for @type.Rect with bbox(self) {
+  Some(self)
+}
+
+///|
+pub impl Bounded for @type.Triangle with bbox(self) {
+  Some(bounding_rect_of_triangle(self))
+}
+
+///|
+pub impl Bounded for @type.GeometryCollection with bbox(self) {
+  bounding_rect_of_geometry_collection(self)
+}
+
+///|
+pub impl Bounded for @type.Geometry with bbox(self) {
+  bounding_rect_of_geometry(self)
+}
+
+///|
+/// `Coord`'s bounding rectangle is the degenerate rectangle whose `min` and
+/// `max` are both `self`.
+pub impl Bounded for @type.Coord with bbox(self) {
+  Some(@type.Rect::Rect(self, self))
+}

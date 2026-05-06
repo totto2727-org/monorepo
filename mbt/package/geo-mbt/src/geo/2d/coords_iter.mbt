@@ -134,3 +134,92 @@ fn exterior_coords_of_geometry(g : @type.Geometry) -> Array[@type.Coord] {
     _ => coords_of_geometry(g)
   }
 }
+
+// MARK: trait CoordsCarrier + impls -----------------------------------------
+
+///|
+/// Anything that produces a sequence of `Coord`s (lossless representation
+/// of all the geometry's coordinates, including interior rings).
+pub(open) trait CoordsCarrier {
+  coords(Self) -> Array[@type.Coord]
+}
+
+///|
+pub impl CoordsCarrier for @type.Point with coords(self) {
+  coords_of_point(self)
+}
+
+///|
+pub impl CoordsCarrier for @type.MultiPoint with coords(self) {
+  coords_of_multi_point(self)
+}
+
+///|
+pub impl CoordsCarrier for @type.Line with coords(self) {
+  coords_of_line(self)
+}
+
+///|
+pub impl CoordsCarrier for @type.LineString with coords(self) {
+  coords_of_line_string(self)
+}
+
+///|
+pub impl CoordsCarrier for @type.MultiLineString with coords(self) {
+  coords_of_multi_line_string(self)
+}
+
+///|
+pub impl CoordsCarrier for @type.Polygon with coords(self) {
+  coords_of_polygon(self)
+}
+
+///|
+pub impl CoordsCarrier for @type.MultiPolygon with coords(self) {
+  coords_of_multi_polygon(self)
+}
+
+///|
+pub impl CoordsCarrier for @type.Rect with coords(self) {
+  coords_of_rect(self)
+}
+
+///|
+pub impl CoordsCarrier for @type.Triangle with coords(self) {
+  coords_of_triangle(self)
+}
+
+///|
+pub impl CoordsCarrier for @type.GeometryCollection with coords(self) {
+  coords_of_geometry_collection(self)
+}
+
+///|
+pub impl CoordsCarrier for @type.Geometry with coords(self) {
+  coords_of_geometry(self)
+}
+
+// MARK: trait ExteriorCoordsCarrier + impls ---------------------------------
+
+///|
+/// Anything whose **exterior** coordinates can be enumerated. For shapes
+/// without interior rings this is identical to `CoordsCarrier::coords`; for
+/// `Polygon` / `MultiPolygon` / `Geometry` it excludes interior rings.
+pub(open) trait ExteriorCoordsCarrier {
+  exterior_coords(Self) -> Array[@type.Coord]
+}
+
+///|
+pub impl ExteriorCoordsCarrier for @type.Polygon with exterior_coords(self) {
+  exterior_coords_of_polygon(self)
+}
+
+///|
+pub impl ExteriorCoordsCarrier for @type.MultiPolygon with exterior_coords(self) {
+  exterior_coords_of_multi_polygon(self)
+}
+
+///|
+pub impl ExteriorCoordsCarrier for @type.Geometry with exterior_coords(self) {
+  exterior_coords_of_geometry(self)
+}

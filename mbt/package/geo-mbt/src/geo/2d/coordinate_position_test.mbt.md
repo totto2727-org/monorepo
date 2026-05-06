@@ -1,12 +1,12 @@
 # coordinate_position.mbt
 
-Classifies a `Coord` relative to a geometry as `CoordPos` — `Inside`, `OnBoundary`, or `Outside`. Exposed via the `CoordPositionFor::coord_position` trait whose impls live in `traits.mbt`. Also exposes the public free predicate `coord_on_line`.
+Classifies a `Coord` relative to a geometry as `CoordPos` — `Inside`, `OnBoundary`, or `Outside`. Exposed via the `CoordPositionFor::coord_position` trait alongside its impls Also exposes the public free predicate `coord_on_line`.
 
 ## Public API
 
 - `CoordPos`
 - `coord_on_line`
-- `CoordPositionFor` — `coord_position` (impls in traits.mbt for `Polygon` / `Rect` / etc.)
+- `CoordPositionFor` — `coord_position` (impls in this file)
 
 ## Test
 

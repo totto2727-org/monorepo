@@ -1,6 +1,6 @@
 # euclidean.mbt
 
-Planar Euclidean distance, squared distance, distance-to-segment, length, bearing, and destination helpers. The `HasEuclideanLength::euclidean_length` trait (in `traits.mbt`) lifts the line / line-string length functions to a uniform interface.
+Planar Euclidean distance, squared distance, distance-to-segment, length, bearing, and destination helpers. The `HasEuclideanLength::euclidean_length` trait lifts the line / line-string length functions to a uniform interface.
 
 ## Public API
 
@@ -12,7 +12,7 @@ Planar Euclidean distance, squared distance, distance-to-segment, length, bearin
 - `euclidean_distance_coord_to_line_string`
 - `euclidean_bearing`
 - `euclidean_destination`
-- `HasEuclideanLength` — `euclidean_length` (impls in traits.mbt)
+- `HasEuclideanLength` — `euclidean_length` (impls in this file)
 
 ## Test
 

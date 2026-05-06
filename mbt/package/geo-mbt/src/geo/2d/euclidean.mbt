@@ -137,3 +137,31 @@ pub fn euclidean_destination(
     origin.y() + distance * @math.sin(radians),
   )
 }
+
+// MARK: trait HasEuclideanLength + impls ------------------------------------
+
+///|
+/// Anything that has a planar Euclidean length (the physical "how long is
+/// this thing in coordinate units"): segment length, line string length,
+/// multi line string total length. Distinct from `HasLength`, which is the
+/// **collection cardinality** (how many components / coords).
+pub(open) trait HasEuclideanLength {
+  euclidean_length(Self) -> Double
+}
+
+///|
+pub impl HasEuclideanLength for @type.Line with euclidean_length(self) {
+  euclidean_length_line(self)
+}
+
+///|
+pub impl HasEuclideanLength for @type.LineString with euclidean_length(self) {
+  euclidean_length_line_string(self)
+}
+
+///|
+pub impl HasEuclideanLength for @type.MultiLineString with euclidean_length(
+  self,
+) {
+  euclidean_length_multi_line_string(self)
+}
