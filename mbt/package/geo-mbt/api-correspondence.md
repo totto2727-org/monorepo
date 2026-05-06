@@ -50,56 +50,70 @@ Scope reminders (from `./CLAUDE.md`):
 
 ## 1. `geo-types` ↔ `src/geo/2d/type/`
 
-Port package: `totto2727/geo-mbt/geo/2d/type` (`src/geo/2d/type/pkg.generated.mbti`).
+Port package: `totto2727/geo-mbt/geo/2d/type` (interface generated to
+`_build/wasm-gc/debug/check/geo/2d/type/type.mbti` — run `moon info` to
+refresh).
 
 Upstream Rust types are generic over `T: CoordNum`; the port collapses
 the parameter to `Double`. Mutable Rust accessors (`set_x`, `coords_mut`,
-`exterior_mut`, etc.) are intentionally dropped — MoonBit values are
-treated as immutable.
+`exterior_mut`, `close(&mut self)`, `interiors_push(&mut self, …)`,
+etc.) are intentionally dropped or rewritten as their immutable past-
+participle counterparts (`closed`, `pushed_interior`, ...) — the port
+treats every value as immutable.
+
+**Canonical constructor naming (post-review)**: every type defines its
+canonical constructor as `TypeName::TypeName(...)` (the constructor's
+own name is the type's name). Call sites use either `TypeName(...)`
+(short form) or `TypeName::TypeName(...)` (qualified form). The
+deprecated `::new` style has been removed across the package. This
+matches the project-wide MoonBit best-practice rule.
 
 ### 1.1 `Coord<T>` ↔ `type/coord.mbt`
 
-| Rust upstream item                       | MoonBit port                                                   | Status | Notes                                          |
-| ---------------------------------------- | -------------------------------------------------------------- | ------ | ---------------------------------------------- |
-| `pub struct Coord<T> { x, y }`           | `pub struct Coord { x: Double, y: Double }`                    | ✅     | Derives `Default`, `Eq`, `Hash`, `Debug`       |
-| `Coord::zero() -> Self`                  | `Coord::zero() -> Self`                                        | ✅     |                                                |
-| `Coord::x_y(&self) -> (T, T)`            | `Coord::x_y(Self) -> (Double, Double)`                         | ✅     |                                                |
-| `From<(T, T)>`, `From<[T; 2]>`           | `Coord::from_tuple`, `Coord::from_array`                       | ✅     | Rust uses traits, port uses named ctors        |
-| `coord! { x, y }` macro                  | `Coord(x, y)`                                                  | ✅     | Port's positional ctor                         |
-| `impl Add/Sub/Neg/Mul<T>/Div<T>`         | `impl Add for Coord`, `Sub`, `Neg`; `Coord::mul`, `Coord::div` | ✅     | Scalar ops as methods, vector ops as traits    |
-| `Coord::dot/cross_prod` (via algorithms) | `Coord::dot`, `Coord::cross`                                   | ✅     | `cross` = wedge product (2D)                   |
-| —                                        | `Coord::is_zero`, `Coord::x`, `Coord::y`                       | ✅     | Accessors added for ergonomic field-less style |
-| `set_x`, `set_y`, `x_mut`, `y_mut`       | —                                                              | ⛔     | Immutable port                                 |
+| Rust upstream item                       | MoonBit port                                                            | Status | Notes                                                         |
+| ---------------------------------------- | ----------------------------------------------------------------------- | ------ | ------------------------------------------------------------- |
+| `pub struct Coord<T> { x, y }`           | `pub struct Coord { x: Double, y: Double }`                             | ✅     | Derives `Default`, `Eq`, `Hash`, `Debug`                      |
+| `Coord::new` / `coord! { x, y }` macro   | `Coord::Coord(Double, Double)` (canonical) / `Coord(x, y)` (short form) | ✅     | Type::Type canonical form; short form used at call sites      |
+| `Coord::zero() -> Self`                  | `Coord::zero() -> Self`                                                 | ✅     |                                                               |
+| `Coord::x_y(&self) -> (T, T)`            | `Coord::x_y(Self) -> (Double, Double)`                                  | ✅     |                                                               |
+| `From<(T, T)>`, `From<[T; 2]>`           | `Coord::from_tuple`, `Coord::from_array`                                | ✅     | Rust trait-based conversion, port uses named factories        |
+| —                                        | `Coord::to_array(Self) -> Array[Double]`                                | ✅     | Inverse of `from_array` (no upstream counterpart)             |
+| `impl Add/Sub/Neg`                       | `impl Add/Sub/Neg for Coord`                                            | ✅     | Vector-space ops as traits                                    |
+| `impl Mul<T>/Div<T>` (scalar)            | `Coord::mul(Self, Double)`, `Coord::div(Self, Double)`                  | ✅     | Scalar ops kept as methods (no operator overload for scalars) |
+| `Coord::dot/cross_prod` (via algorithms) | `Coord::dot`, `Coord::cross`                                            | ✅     | `cross` = wedge product (2D)                                  |
+| —                                        | `Coord::is_zero`, `Coord::x`, `Coord::y`                                | ✅     | Accessors added for ergonomic field-less style                |
+| `set_x`, `set_y`, `x_mut`, `y_mut`       | —                                                                       | ⛔     | Immutable port                                                |
 
-Tests: `type/coord_test.mbt` — 13 cases covering ctors, accessors,
-`zero`, `from_tuple`/`from_array` round-trips, `Neg`/`Add`/`Sub`,
-scalar `mul`/`div`, `dot`, `cross`, equality, and `Default`.
+Tests: `type/coord_test.mbt` — 13 cases (ctor + accessors, `zero`,
+`from_tuple` / `from_array` round-trips, `Neg`, `Add`, `Sub`, scalar
+`mul` / `div`, `dot`, `cross` / wedge product, equality, default).
 
 ### 1.2 `Point<T>` ↔ `type/point.mbt`
 
-| Rust upstream item                                             | MoonBit port                                    | Status | Notes                                    |
-| -------------------------------------------------------------- | ----------------------------------------------- | ------ | ---------------------------------------- |
-| `pub struct Point<T>(pub Coord<T>)`                            | `pub struct Point(Coord)`                       | ✅     |                                          |
-| `Point::new(x, y)`                                             | `Point::new(Double, Double)`                    | ✅     |                                          |
-| `Point::x()`, `y()`, `x_y()`                                   | `Point::x`, `y`, `x_y`                          | ✅     |                                          |
-| `Point::dot(self, Self) -> T`                                  | `Point::dot(Self, Self) -> Double`              | ✅     |                                          |
-| `Point::cross_prod(self, Self, Self) -> T`                     | `Point::cross_prod(Self, Self, Self) -> Double` | ✅     |                                          |
-| `From<Coord<T>>`, `From<(T, T)>`                               | `Point::from_coord`, `Point::from_tuple`        | ✅     |                                          |
-| `set_x`, `set_y`, `x_mut`, `y_mut`                             | `Point::with_x`, `Point::with_y`                | ✅     | Replaced with immutable "wither" pattern |
-| `lng`, `lat`, `set_lng`, `set_lat`, `to_degrees`, `to_radians` | —                                               | ⛔     | Geographic — out of scope                |
-| `impl Add/Sub/Neg/Mul/Div`                                     | `impl Add/Sub/Neg`, `Point::mul`, `Point::div`  | ✅     |                                          |
-| —                                                              | `Point::coord(Self) -> Coord`                   | ✅     | Inverse of `from_coord`                  |
+| Rust upstream item                                             | MoonBit port                                           | Status | Notes                                                                                                                    |
+| -------------------------------------------------------------- | ------------------------------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `pub struct Point<T>(pub Coord<T>)`                            | `pub struct Point { coord: Coord }`                    | ✅     | Port uses a **named-field** struct rather than a newtype tuple, so the inner `Coord` is reachable as `p.coord` not `p.0` |
+| `Point::new(x, y)`                                             | `Point::Point(Double, Double)` (canonical)             | ✅     | Canonical Type::Type constructor takes `x` and `y` directly and builds the inner `Coord`                                 |
+| `Point::x()`, `y()`, `x_y()`                                   | `Point::x`, `Point::y`, `Point::x_y`                   | ✅     |                                                                                                                          |
+| `Point::dot(self, Self) -> T`                                  | `Point::dot(Self, Self) -> Double`                     | ✅     | Delegates to `Coord::dot`                                                                                                |
+| `Point::cross_prod(self, Self, Self) -> T`                     | `Point::cross_prod(Self, Self, Self) -> Double`        | ✅     | Non-robust — see `src/robust/orient2d.mbt` for the robust version                                                        |
+| `From<Coord<T>>`, `From<(T, T)>`                               | `Point::from_coord`, `Point::from_tuple`               | ✅     | Both go through the canonical constructor                                                                                |
+| `set_x`, `set_y`, `x_mut`, `y_mut`                             | `Point::with_x`, `Point::with_y`                       | ✅     | Replaced by the immutable wither pattern (see `coding/mbt-bestpractice.md` §3.1)                                         |
+| `lng`, `lat`, `set_lng`, `set_lat`, `to_degrees`, `to_radians` | —                                                      | ⛔     | Geographic — out of scope                                                                                                |
+| `impl Add/Sub/Neg`                                             | `impl Add/Sub/Neg for Point`                           | ✅     | Delegates to the corresponding `Coord` impls                                                                             |
+| `impl Mul<T>/Div<T>` (scalar)                                  | `Point::mul(Self, Double)`, `Point::div(Self, Double)` | ✅     | Scalar ops as methods, mirroring `Coord`                                                                                 |
+| —                                                              | `Point::coord(Self) -> Coord`                          | ✅     | Inverse of `from_coord` — extracts the inner `Coord`                                                                     |
 
-Tests: `type/point_test.mbt` — 10 cases including ctor, `from_coord`
-round-trip, `with_x`/`with_y`, `dot`, `cross_prod`, `Neg`, `Add`,
-`Sub`, scalar `mul`/`div`.
+Tests: `type/point_test.mbt` — 10 cases (ctor + accessors, `from_coord`
+round-trip, `with_x` / `with_y`, `dot`, `cross_prod`, `Neg`, `Add`,
+`Sub`, scalar `mul` / `div`).
 
 ### 1.3 `Line<T>` ↔ `type/line.mbt`
 
 | Rust upstream item                               | MoonBit port                                            | Status | Notes                                                                                                                                                                                                                                |
 | ------------------------------------------------ | ------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `pub struct Line<T> { start, end }`              | `pub struct Line { start: Coord, end: Coord }`          | ✅     |                                                                                                                                                                                                                                      |
-| `Line::new<C: Into<Coord<T>>>(start, end)`       | `Line::new(Coord, Coord) -> Self`                       | ✅     |                                                                                                                                                                                                                                      |
+| `pub struct Line<T> { start, end }`              | `pub struct Line { start: Coord, end: Coord }`          | ✅     | Derives `Eq`, `Hash`, `Debug`                                                                                                                                                                                                        |
+| `Line::new<C: Into<Coord<T>>>(start, end)`       | `Line::Line(Coord, Coord) -> Self` (canonical)          | ✅     | Canonical Type::Type constructor                                                                                                                                                                                                     |
 | `Line::delta()`, `dx()`, `dy()`                  | `Line::delta`, `dx`, `dy`                               | ✅     |                                                                                                                                                                                                                                      |
 | `Line::slope()`, `determinant()`                 | `Line::slope`, `determinant`                            | ✅     |                                                                                                                                                                                                                                      |
 | `Line::start_point()`, `end_point()`, `points()` | `Line::start_point`, `end_point`, `points`              | ✅     |                                                                                                                                                                                                                                      |
@@ -116,8 +130,8 @@ involutive, `reverse` flips determinant sign).
 
 | Rust upstream item                                                                                              | MoonBit port                                                                            | Status | Notes                                                                                                                                                                                                                                   |
 | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pub struct LineString<T>(pub Vec<Coord<T>>)`                                                                   | `pub struct LineString { coords: Array[Coord] }`                                        | ✅     |                                                                                                                                                                                                                                         |
-| `LineString::new(Vec<Coord<T>>)`                                                                                | `LineString::new(Array[Coord])`                                                         | ✅     |                                                                                                                                                                                                                                         |
+| `pub struct LineString<T>(pub Vec<Coord<T>>)`                                                                   | `pub struct LineString { coords: Array[Coord] }`                                        | ✅     | Newtype-`Vec` collapsed into named field                                                                                                                                                                                                |
+| `LineString::new(Vec<Coord<T>>)`                                                                                | `LineString::LineString(Array[Coord])` (canonical)                                      | ✅     | Canonical Type::Type constructor                                                                                                                                                                                                        |
 | `LineString::empty()`                                                                                           | `LineString::empty`                                                                     | ✅     | Equivalent to `LineString([])`. Mirrors Rust upstream as a named factory.                                                                                                                                                               |
 | `coords()`                                                                                                      | `LineString::coords`                                                                    | ✅     | Returns the backing `Array[Coord]` (eager). MoonBit `Array` is itself iterable via `.iter()`.                                                                                                                                           |
 | `coords_mut()`                                                                                                  | —                                                                                       | 🟡     | Mutable accessor intentionally dropped — MoonBit values are treated as immutable.                                                                                                                                                       |
@@ -147,8 +161,8 @@ empty / single-coord, `rev_lines_iter` short-circuit with `take`).
 
 | Rust upstream item                                               | MoonBit port                                                                | Status | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | ---------------------------------------------------------------- | --------------------------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pub struct Polygon<T> { exterior, interiors }`                  | `pub struct Polygon { exterior: LineString, interiors: Array[LineString] }` | ✅     | Auto-closes rings                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `Polygon::new(exterior, interiors)`                              | `Polygon::new(LineString, Array[LineString])`                               | ✅     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `pub struct Polygon<T> { exterior, interiors }`                  | `pub struct Polygon { exterior: LineString, interiors: Array[LineString] }` | ✅     | Auto-closes rings via the canonical constructor                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `Polygon::new(exterior, interiors)`                              | `Polygon::Polygon(LineString, Array[LineString])` (canonical)               | ✅     | Canonical Type::Type constructor; auto-closes via `LineString::closed` so inputs are NOT mutated (immutable counterpart of upstream `new`'s in-place `.close()` calls)                                                                                                                                                                                                                                                                                            |
 | `exterior()`, `interiors()`, `into_inner()`                      | `Polygon::exterior`, `Polygon::interiors`                                   | ✅     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `exterior_mut`, `try_exterior_mut`, `interiors_mut`, `try_*_mut` | —                                                                           | ⛔     | Immutable port                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | `interiors_push` (`&mut self`)                                   | `Polygon::pushed_interior(Self, LineString) -> Self`                        | ✅     | Immutable counterpart: returns a new `Polygon` with the additional interior appended; does not mutate `self` and does not mutate the input `LineString` (the input is run through `LineString::closed`, which only allocates if not already closed). Implementation builds the destination interiors via the array-spread literal `[..self.interiors, new_interior.closed()]` — pre-sized to its final length in a single allocation, no incremental `push` loop. |
@@ -167,16 +181,16 @@ appends + auto-closes new ring, original polygon untouched, input
 
 ### 1.6 `Rect<T>` ↔ `type/rect.mbt`
 
-| Rust upstream item                              | MoonBit port                          | Status | Notes                                                                                                                                                                                                                                                                                                    |
-| ----------------------------------------------- | ------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pub struct Rect<T> { min, max }`               | `pub struct Rect { min, max: Coord }` | ✅     |                                                                                                                                                                                                                                                                                                          |
-| `Rect::new(c1, c2)` (normalises corners)        | `Rect::new(Coord, Coord)`             | ✅     | Same normalisation                                                                                                                                                                                                                                                                                       |
-| `Rect::try_new` + `InvalidRectCoordinatesError` | —                                     | ⛔     | Validation handled at higher layer                                                                                                                                                                                                                                                                       |
-| `min()`, `max()`, `set_min`, `set_max`          | `Rect::min`, `Rect::max`              | 🟡     | Setters dropped                                                                                                                                                                                                                                                                                          |
-| `width`, `height`, `center`                     | `Rect::width`, `height`, `center`     | ✅     |                                                                                                                                                                                                                                                                                                          |
-| `to_polygon`, `to_lines`                        | `Rect::to_polygon`, `Rect::to_lines`  | ✅     | `Rect::to_lines` is the canonical implementation; the algorithm-layer free fn `lines_of_rect` is a thin wrapper. `Rect::to_polygon` constructs its closed exterior independently (separate corner walk) — kept stand-alone for a flatter call graph. Symmetric with `Triangle::to_lines` / `to_polygon`. |
-| `split_x`, `split_y`                            | —                                     | ⏳     |                                                                                                                                                                                                                                                                                                          |
-| —                                               | `Rect::area`                          | ✅     | Convenience wrapper around `width*height`                                                                                                                                                                                                                                                                |
+| Rust upstream item                              | MoonBit port                           | Status | Notes                                                                                                                                                                                                                                                                                                    |
+| ----------------------------------------------- | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pub struct Rect<T> { min, max }`               | `pub struct Rect { min, max: Coord }`  | ✅     | Derives `Eq`, `Hash`, `Debug`                                                                                                                                                                                                                                                                            |
+| `Rect::new(c1, c2)` (normalises corners)        | `Rect::Rect(Coord, Coord)` (canonical) | ✅     | Canonical Type::Type constructor; same component-wise min/max normalisation as upstream                                                                                                                                                                                                                  |
+| `Rect::try_new` + `InvalidRectCoordinatesError` | —                                      | ⛔     | Validation handled at higher layer                                                                                                                                                                                                                                                                       |
+| `min()`, `max()`, `set_min`, `set_max`          | `Rect::min`, `Rect::max`               | 🟡     | Setters dropped                                                                                                                                                                                                                                                                                          |
+| `width`, `height`, `center`                     | `Rect::width`, `height`, `center`      | ✅     |                                                                                                                                                                                                                                                                                                          |
+| `to_polygon`, `to_lines`                        | `Rect::to_polygon`, `Rect::to_lines`   | ✅     | `Rect::to_lines` is the canonical implementation; the algorithm-layer free fn `lines_of_rect` is a thin wrapper. `Rect::to_polygon` constructs its closed exterior independently (separate corner walk) — kept stand-alone for a flatter call graph. Symmetric with `Triangle::to_lines` / `to_polygon`. |
+| `split_x`, `split_y`                            | —                                      | ⏳     |                                                                                                                                                                                                                                                                                                          |
+| —                                               | `Rect::area`                           | ✅     | Convenience wrapper around `width*height`                                                                                                                                                                                                                                                                |
 
 Tests: `type/rect_test.mbt` — 7 cases (corner normalisation, width/height,
 center, area, `to_polygon` closed-ring shape, `to_lines` 4-edge CCW
@@ -184,13 +198,13 @@ order, `to_polygon` corners agree with `to_lines` starts).
 
 ### 1.7 `Triangle<T>` ↔ `type/triangle.mbt`
 
-| Rust upstream item                   | MoonBit port                                   | Status | Notes                                |
-| ------------------------------------ | ---------------------------------------------- | ------ | ------------------------------------ |
-| `pub struct Triangle<T>(C, C, C)`    | `pub struct Triangle { v0, v1, v2 }`           | ✅     | Named instead of tuple struct        |
-| `Triangle::new(v1, v2, v3)`          | `Triangle::new(Coord, Coord, Coord)`           | ✅     | Port indexes from 0 (`v0`/`v1`/`v2`) |
-| `unchecked_winding`                  | —                                              | ⏳     |                                      |
-| `v1`, `v2`, `v3`                     | `v0`, `v1`, `v2`                               | ✅     | Different naming                     |
-| `to_array`, `to_lines`, `to_polygon` | `Triangle::to_array`, `to_lines`, `to_polygon` | ✅     |                                      |
+| Rust upstream item                   | MoonBit port                                          | Status | Notes                                                                   |
+| ------------------------------------ | ----------------------------------------------------- | ------ | ----------------------------------------------------------------------- |
+| `pub struct Triangle<T>(C, C, C)`    | `pub struct Triangle { v0, v1, v2 }`                  | ✅     | Named-field struct instead of tuple struct; derives `Eq`/`Hash`/`Debug` |
+| `Triangle::new(v1, v2, v3)`          | `Triangle::Triangle(Coord, Coord, Coord)` (canonical) | ✅     | Canonical Type::Type constructor; port indexes from 0 (`v0`/`v1`/`v2`)  |
+| `unchecked_winding`                  | —                                                     | ⏳     |                                                                         |
+| `v1`, `v2`, `v3`                     | `v0`, `v1`, `v2`                                      | ✅     | 0-indexed naming                                                        |
+| `to_array`, `to_lines`, `to_polygon` | `Triangle::to_array`, `to_lines`, `to_polygon`        | ✅     | All three present (the same trio is now mirrored on `Rect` — see §1.6)  |
 
 Tests: `type/triangle_test.mbt` — 4 cases (ctor + accessors, `to_array`,
 `to_lines` returns 3 segments, `to_polygon` is closed 4-coord ring).
@@ -199,17 +213,17 @@ Tests: `type/triangle_test.mbt` — 4 cases (ctor + accessors, `to_array`,
 
 A heterogeneous collection (newtype-`Vec`) of `Point`s. WKT-equivalent of `MULTIPOINT`.
 
-| Rust upstream item                                       | MoonBit port                                       | Status | Notes                                                             |
-| -------------------------------------------------------- | -------------------------------------------------- | ------ | ----------------------------------------------------------------- |
-| `pub struct MultiPoint<T>(pub Vec<Point<T>>)`            | `pub struct MultiPoint { points: Array[Point] }`   | ✅     | Newtype-`Vec` collapsed into named field                          |
-| `MultiPoint::new(value: Vec<Point<T>>)`                  | `MultiPoint::new(Array[Point]) -> Self`            | ✅     |                                                                   |
-| `MultiPoint::empty()`                                    | `MultiPoint::empty() -> Self`                      | ✅     |                                                                   |
-| `len()` / `is_empty()`                                   | `MultiPoint::length`, `MultiPoint::is_empty`       | ✅     | Renamed `len` → `length` to match other port collections          |
-| `iter()` / `iter_mut()`                                  | `MultiPoint::points(Self) -> Array[Point]`         | 🟡     | Returns the backing array directly — no separate iterator types   |
-| `IntoIterator` / `FromIterator` / `IntoParallelIterator` | —                                                  | —      | Rust trait scaffolding; users iterate the returned `Array[Point]` |
-| `Index<I>` / `IndexMut<I>`                               | —                                                  | —      | Use `mp.points()[i]` instead                                      |
-| `From<Point<T>>` / `From<Vec<Point<T>>>`                 | —                                                  | ⏳     | Could add as ergonomic helpers                                    |
-| —                                                        | `MultiPoint::from_tuples(Array[(Double, Double)])` | ✅     | Port-only convenience matching `LineString::from_tuples`          |
+| Rust upstream item                                       | MoonBit port                                               | Status | Notes                                                             |
+| -------------------------------------------------------- | ---------------------------------------------------------- | ------ | ----------------------------------------------------------------- |
+| `pub struct MultiPoint<T>(pub Vec<Point<T>>)`            | `pub struct MultiPoint { points: Array[Point] }`           | ✅     | Newtype-`Vec` collapsed into named field                          |
+| `MultiPoint::new(value: Vec<Point<T>>)`                  | `MultiPoint::MultiPoint(Array[Point]) -> Self` (canonical) | ✅     | Canonical Type::Type constructor                                  |
+| `MultiPoint::empty()`                                    | `MultiPoint::empty() -> Self`                              | ✅     |                                                                   |
+| `len()` / `is_empty()`                                   | `MultiPoint::length`, `MultiPoint::is_empty`               | ✅     | Renamed `len` → `length` to match other port collections          |
+| `iter()` / `iter_mut()`                                  | `MultiPoint::points(Self) -> Array[Point]`                 | 🟡     | Returns the backing array directly — no separate iterator types   |
+| `IntoIterator` / `FromIterator` / `IntoParallelIterator` | —                                                          | —      | Rust trait scaffolding; users iterate the returned `Array[Point]` |
+| `Index<I>` / `IndexMut<I>`                               | —                                                          | —      | Use `mp.points()[i]` instead                                      |
+| `From<Point<T>>` / `From<Vec<Point<T>>>`                 | —                                                          | ⏳     | Could add as ergonomic helpers                                    |
+| —                                                        | `MultiPoint::from_tuples(Array[(Double, Double)])`         | ✅     | Port-only convenience matching `LineString::from_tuples`          |
 
 Tests (in `type/multi_point_test.mbt`): `MultiPoint::from_tuples`, `MultiPoint empty`, `MultiPoint::empty`.
 
@@ -217,16 +231,16 @@ Tests (in `type/multi_point_test.mbt`): `MultiPoint::from_tuples`, `MultiPoint e
 
 A collection of `LineString`s. Considered _simple_ when all elements are simple and only intersect at endpoints (port doesn't enforce simplicity at construction).
 
-| Rust upstream item                                      | MoonBit port                                                     | Status | Notes                                                                     |
-| ------------------------------------------------------- | ---------------------------------------------------------------- | ------ | ------------------------------------------------------------------------- |
-| `pub struct MultiLineString<T>(pub Vec<LineString<T>>)` | `pub struct MultiLineString { line_strings: Array[LineString] }` | ✅     |                                                                           |
-| `MultiLineString::new(value: Vec<LineString<T>>)`       | `MultiLineString::new(Array[LineString]) -> Self`                | ✅     |                                                                           |
-| `MultiLineString::empty()`                              | `MultiLineString::empty() -> Self`                               | ✅     |                                                                           |
-| `is_closed(&self) -> bool`                              | `MultiLineString::is_closed(Self) -> Bool`                       | ✅     | Empty collection counts as closed (matches upstream)                      |
-| `iter()` / `iter_mut()`                                 | `MultiLineString::line_strings(Self) -> Array[LineString]`       | 🟡     | Direct backing array; `is_empty` and `length` exposed as separate methods |
-| (no upstream equivalent)                                | `MultiLineString::length`, `MultiLineString::is_empty`           | ✅     | Convenience accessors                                                     |
-| `IntoIterator` / `FromIterator` / `From<LineString>`    | —                                                                | —      | Rust trait scaffolding                                                    |
-| `Index<I>` / `IndexMut<I>`                              | —                                                                | —      |                                                                           |
+| Rust upstream item                                      | MoonBit port                                                              | Status | Notes                                                                     |
+| ------------------------------------------------------- | ------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------- |
+| `pub struct MultiLineString<T>(pub Vec<LineString<T>>)` | `pub struct MultiLineString { line_strings: Array[LineString] }`          | ✅     |                                                                           |
+| `MultiLineString::new(value: Vec<LineString<T>>)`       | `MultiLineString::MultiLineString(Array[LineString]) -> Self` (canonical) | ✅     | Canonical Type::Type constructor                                          |
+| `MultiLineString::empty()`                              | `MultiLineString::empty() -> Self`                                        | ✅     |                                                                           |
+| `is_closed(&self) -> bool`                              | `MultiLineString::is_closed(Self) -> Bool`                                | ✅     | Empty collection counts as closed (matches upstream)                      |
+| `iter()` / `iter_mut()`                                 | `MultiLineString::line_strings(Self) -> Array[LineString]`                | 🟡     | Direct backing array; `is_empty` and `length` exposed as separate methods |
+| (no upstream equivalent)                                | `MultiLineString::length`, `MultiLineString::is_empty`                    | ✅     | Convenience accessors                                                     |
+| `IntoIterator` / `FromIterator` / `From<LineString>`    | —                                                                         | —      | Rust trait scaffolding                                                    |
+| `Index<I>` / `IndexMut<I>`                              | —                                                                         | —      |                                                                           |
 
 Tests (in `type/multi_line_string_test.mbt`): `MultiLineString length`, `is_closed: empty is vacuously closed`, `is_closed: all components closed -> true`, `is_closed: any open component -> false`, `is_closed: single closed / single open`, `MultiLineString::empty`.
 
@@ -234,16 +248,16 @@ Tests (in `type/multi_line_string_test.mbt`): `MultiLineString length`, `is_clos
 
 A collection of `Polygon`s.
 
-| Rust upstream item                                   | MoonBit port                                           | Status | Notes                                          |
-| ---------------------------------------------------- | ------------------------------------------------------ | ------ | ---------------------------------------------- |
-| `pub struct MultiPolygon<T>(pub Vec<Polygon<T>>)`    | `pub struct MultiPolygon { polygons: Array[Polygon] }` | ✅     |                                                |
-| `MultiPolygon::new(value: Vec<Polygon<T>>)`          | `MultiPolygon::new(Array[Polygon]) -> Self`            | ✅     |                                                |
-| `MultiPolygon::empty()`                              | `MultiPolygon::empty() -> Self`                        | ✅     |                                                |
-| `iter()` / `iter_mut()`                              | `MultiPolygon::polygons(Self) -> Array[Polygon]`       | 🟡     | Direct backing array                           |
-| (no upstream equivalent)                             | `MultiPolygon::length`, `MultiPolygon::is_empty`       | ✅     |                                                |
-| `IntoIterator` / `FromIterator` / `From<Polygon>`    | —                                                      | —      |                                                |
-| `Index<I>` / `IndexMut<I>`                           | —                                                      | —      |                                                |
-| `impl RTreeObject` (via `impl_rstar_multi_polygon!`) | —                                                      | ⛔     | Spatial-index integration is out of port scope |
+| Rust upstream item                                   | MoonBit port                                                     | Status | Notes                                          |
+| ---------------------------------------------------- | ---------------------------------------------------------------- | ------ | ---------------------------------------------- |
+| `pub struct MultiPolygon<T>(pub Vec<Polygon<T>>)`    | `pub struct MultiPolygon { polygons: Array[Polygon] }`           | ✅     |                                                |
+| `MultiPolygon::new(value: Vec<Polygon<T>>)`          | `MultiPolygon::MultiPolygon(Array[Polygon]) -> Self` (canonical) | ✅     | Canonical Type::Type constructor               |
+| `MultiPolygon::empty()`                              | `MultiPolygon::empty() -> Self`                                  | ✅     |                                                |
+| `iter()` / `iter_mut()`                              | `MultiPolygon::polygons(Self) -> Array[Polygon]`                 | 🟡     | Direct backing array                           |
+| (no upstream equivalent)                             | `MultiPolygon::length`, `MultiPolygon::is_empty`                 | ✅     |                                                |
+| `IntoIterator` / `FromIterator` / `From<Polygon>`    | —                                                                | —      |                                                |
+| `Index<I>` / `IndexMut<I>`                           | —                                                                | —      |                                                |
+| `impl RTreeObject` (via `impl_rstar_multi_polygon!`) | —                                                                | ⛔     | Spatial-index integration is out of port scope |
 
 Tests (in `type/multi_polygon_test.mbt`): `MultiPolygon basic`, `MultiPolygon::empty`.
 
@@ -251,17 +265,17 @@ Tests (in `type/multi_polygon_test.mbt`): `MultiPolygon basic`, `MultiPolygon::e
 
 A heterogeneous collection of `Geometry` values (the WKT/GeoJSON `GEOMETRYCOLLECTION`).
 
-| Rust upstream item                                                      | MoonBit port                                                    | Status | Notes                                                          |
-| ----------------------------------------------------------------------- | --------------------------------------------------------------- | ------ | -------------------------------------------------------------- |
-| `pub struct GeometryCollection<T>(pub Vec<Geometry<T>>)`                | `pub struct GeometryCollection { geometries: Array[Geometry] }` | ✅     |                                                                |
-| `GeometryCollection::new() -> Self` (no-arg, returns empty)             | `GeometryCollection::empty()`                                   | 🟡     | Port uses `empty()` to avoid `new()` ambiguity with array-form |
-| `GeometryCollection::new_from(value: Vec<Geometry<T>>)`                 | `GeometryCollection::new(Array[Geometry]) -> Self`              | ✅     | Port consolidates `new_from` under the canonical `new(_)` name |
-| `GeometryCollection::empty()`                                           | `GeometryCollection::empty()`                                   | ✅     |                                                                |
-| `len()` / `is_empty()`                                                  | `GeometryCollection::length`, `GeometryCollection::is_empty`    | ✅     |                                                                |
-| `iter()` / `iter_mut()`                                                 | `GeometryCollection::geometries(Self) -> Array[Geometry]`       | 🟡     |                                                                |
-| `IntoIteratorHelper`, `IterHelper`, `IterMutHelper` (custom iter types) | —                                                               | —      | Rust-specific iterator scaffolding, not needed in MoonBit      |
-| `IntoIterator` / `FromIterator`                                         | —                                                               | —      |                                                                |
-| `Default::default() == empty()`                                         | (port `derive(Eq, Debug)` only)                                 | ⏳     | `Default` derive not enabled                                   |
+| Rust upstream item                                                      | MoonBit port                                                                  | Status | Notes                                                                             |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------- |
+| `pub struct GeometryCollection<T>(pub Vec<Geometry<T>>)`                | `pub struct GeometryCollection { geometries: Array[Geometry] }`               | ✅     |                                                                                   |
+| `GeometryCollection::new() -> Self` (no-arg, returns empty)             | `GeometryCollection::empty()`                                                 | 🟡     | Port uses `empty()` to avoid clashing with the array-taking canonical constructor |
+| `GeometryCollection::new_from(value: Vec<Geometry<T>>)`                 | `GeometryCollection::GeometryCollection(Array[Geometry]) -> Self` (canonical) | ✅     | Port consolidates `new_from` under the canonical Type::Type constructor           |
+| `GeometryCollection::empty()`                                           | `GeometryCollection::empty()`                                                 | ✅     | Returns `GeometryCollection([])`                                                  |
+| `len()` / `is_empty()`                                                  | `GeometryCollection::length`, `GeometryCollection::is_empty`                  | ✅     |                                                                                   |
+| `iter()` / `iter_mut()`                                                 | `GeometryCollection::geometries(Self) -> Array[Geometry]`                     | 🟡     |                                                                                   |
+| `IntoIteratorHelper`, `IterHelper`, `IterMutHelper` (custom iter types) | —                                                                             | —      | Rust-specific iterator scaffolding, not needed in MoonBit                         |
+| `IntoIterator` / `FromIterator`                                         | —                                                                             | —      |                                                                                   |
+| `Default::default() == empty()`                                         | (port `derive(Eq, Debug)` only)                                               | ⏳     | `Default` derive not enabled                                                      |
 
 Tests (in `type/geometry_collection_test.mbt`): `GeometryCollection holds heterogeneous geometries`, `GeometryCollection::empty`.
 
@@ -536,16 +550,50 @@ Counted across the port (`grep -rE '^(test|bench) "' src/`):
 
 | Package       | Test files                                                                                                                                                                                                                                                                                                                                                                    | Tests   | Benches |
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------- |
-| `geo/2d/type` | `coord_test.mbt`, `point_test.mbt`, `line_test.mbt`, `line_string_test.mbt`, `polygon_test.mbt`, `rect_test.mbt`, `triangle_test.mbt`, `multi_point_test.mbt`, `multi_line_string_test.mbt`, `multi_polygon_test.mbt`, `geometry_collection_test.mbt`                                                                                                                         | 53      | 0       |
+| `geo/2d/type` | `coord_test.mbt`, `point_test.mbt`, `line_test.mbt`, `line_string_test.mbt`, `polygon_test.mbt`, `rect_test.mbt`, `triangle_test.mbt`, `multi_point_test.mbt`, `multi_line_string_test.mbt`, `multi_polygon_test.mbt`, `geometry_collection_test.mbt`                                                                                                                         | 89      | 0       |
 | `geo/2d`      | `affine_test.mbt`, `bool_ops_test.mbt`, `closest_test.mbt`, `containment_test.mbt`, `convex_hull_test.mbt`, `distance_metrics_test.mbt`, `iteration_test.mbt`, `kernel_test.mbt`, `measure_test.mbt`, `property_test.mbt`, `shape_test.mbt`, `simplify_test.mbt`, `topology_test.mbt`, `traits_test.mbt`, `validation_test.mbt`, `vector_distance_test.mbt`, `bench_test.mbt` | 137     | 14      |
 | `robust`      | `robust_test.mbt`                                                                                                                                                                                                                                                                                                                                                             | 6       | 0       |
 | `rtree`       | `rtree_test.mbt`, `bench_test.mbt`                                                                                                                                                                                                                                                                                                                                            | 6       | 4       |
-| **Total**     |                                                                                                                                                                                                                                                                                                                                                                               | **202** | **18**  |
+| **Total**     |                                                                                                                                                                                                                                                                                                                                                                               | **238** | **18**  |
 
-Reconciliation: `grep -rE '^test "' --include='*.mbt'` reports `220`,
-because MoonBit's bench blocks share the `test "..." { ... }` syntax.
-Splitting on the handler signature (`(b : @bench.T)` → bench, otherwise
-→ unit test) gives `202 + 18 = 220`.
+Per-file breakdown for `geo/2d/type` (post-review):
+`coord_test.mbt` 13, `point_test.mbt` 10, `line_test.mbt` 10,
+`line_string_test.mbt` 21, `polygon_test.mbt` 11, `rect_test.mbt` 7,
+`triangle_test.mbt` 4, `multi_point_test.mbt` 3,
+`multi_line_string_test.mbt` 6, `multi_polygon_test.mbt` 2,
+`geometry_collection_test.mbt` 2 — total 89.
+
+Reconciliation: `grep -rE '^test "' --include='*.mbt' src/` reports
+`256`, because MoonBit's bench blocks share the `test "..." { ... }`
+syntax. Splitting on the handler signature (`(b : @bench.T)` → bench,
+otherwise → unit test) gives `238 + 18 = 256`.
+
+Notable post-review changes vs. the initial port survey:
+
+- All canonical constructors renamed to the Type::Type form (e.g.
+  `Coord(...)` short / `Coord::Coord(...)` qualified; same for `Point`,
+  `Line`, `LineString`, `Polygon`, `Rect`, `Triangle`,
+  `MultiPoint`, `MultiLineString`, `MultiPolygon`, `GeometryCollection`).
+- `Point` is now a named-field struct (`{ coord: Coord }`) instead of
+  the previous newtype-tuple `Point(Coord)`.
+- `LineString::close(&mut self)` (mutating) replaced by
+  `LineString::closed(Self) -> Self` (past-participle, immutable).
+- `Polygon::interiors_push(&mut self, _)` replaced by
+  `Polygon::pushed_interior(Self, LineString) -> Self`.
+- `Polygon` constructor no longer mutates input `LineString`s — uses
+  `LineString::closed` so already-closed inputs are returned unchanged
+  and unclosed inputs produce a fresh closed copy.
+- `Rect::to_lines` added as a method (was previously only available as
+  the algorithm-layer free function `lines_of_rect`); the free function
+  is now a thin wrapper around the method.
+- `Line::reverse(Self) -> Self` added (independent helper, no upstream
+  counterpart).
+- `LineString` gains `points` / `points_iter` / `lines_iter` /
+  `rev_lines` / `rev_lines_iter` (eager + lazy pairs as independent
+  implementations, per `coding/mbt-bestpractice.md` §3.2).
+- The combined `multi_test.mbt` file was split into per-type test files
+  (`multi_point_test.mbt`, `multi_line_string_test.mbt`,
+  `multi_polygon_test.mbt`, `geometry_collection_test.mbt`).
 
 ---
 
