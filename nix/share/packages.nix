@@ -30,8 +30,4 @@ with pkgs;
     binName = "ctx7";
     packageName = "ctx7";
   })
-  (npm {
-    binName = "nono";
-    packageName = "nono";
-  })
 ]
