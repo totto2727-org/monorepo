@@ -3,7 +3,7 @@
 - **Source:** `task-plan.md`
 - **Active Steps:** Step 6-7 (Implementation / External Review)
 - **Created at:** 2026-05-06T10:25:00Z
-- **Last updated:** 2026-05-06T11:18:30Z
+- **Last updated:** 2026-05-06T11:21:30Z
 
 本ファイルは Step 6-7 中の **persisted task state**。Main の `TaskCreate` task list と同期するが、**こちらが source of truth**。状態変更時は TODO.md → commit → `TaskUpdate` の順で更新する。
 
@@ -99,25 +99,33 @@
   - implementer: implementer-B (Phase 2a web chain)
   - re_activations: 0
   - notes: |
-      `app/{entry.worker.ts, app.tsx, routes.ts, assets/entry.ts, ui/document.tsx}` を配置。
-      middleware order = `logger → contextStorage → runtimeMiddleware → remixRenderer`
-      (design.md L268-271)。`/` で素朴な `c.render(<Document>...)` の Hello World、
-      `/api/v1/hello` で `c.var.runtime.runPromise` 経由 Greeting Service を呼ぶ JSON loader 実装。
-      `routes.ts` の `frames` は空 + `isFrameRequest` のみ最小 export (将来 PageOrFrame 採用時の足場)。
-      `Hono<AppEnv>` の自己参照 TS7022/7023 を `const app: Hono<AppEnv>` 注釈 +
-      `fetcher` 戻り値型明示で解消 (identity-provider 同形)。
-      Effect skeleton 未配置のため本 commit 単独では型エラーを含む状態 (T-H で解消予定、
-      task-plan.md "Per-task CI failures acceptable mid-chain" 方針)。
+    `app/{entry.worker.ts, app.tsx, routes.ts, assets/entry.ts, ui/document.tsx}` を配置。
+    middleware order = `logger → contextStorage → runtimeMiddleware → remixRenderer`
+    (design.md L268-271)。`/` で素朴な `c.render(<Document>...)` の Hello World、
+    `/api/v1/hello` で `c.var.runtime.runPromise` 経由 Greeting Service を呼ぶ JSON loader 実装。
+    `routes.ts` の `frames` は空 + `isFrameRequest` のみ最小 export (将来 PageOrFrame 採用時の足場)。
+    `Hono<AppEnv>` の自己参照 TS7022/7023 を `const app: Hono<AppEnv>` 注釈 +
+    `fetcher` 戻り値型明示で解消 (identity-provider 同形)。
+    Effect skeleton 未配置のため本 commit 単独では型エラーを含む状態 (T-H で解消予定、
+    task-plan.md "Per-task CI failures acceptable mid-chain" 方針)。
 
-- [ ] **T-H** — feed-platform-web Effect skeleton + smoke test
-  - status: pending
+- [x] **T-H** — feed-platform-web Effect skeleton + smoke test
+  - status: completed
   - dependencies: T-F, T-G
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-06T11:19:00Z
+  - completed_at: 2026-05-06T11:21:00Z
+  - commit: b5d0bba
+  - implementer: implementer-B (Phase 2a web chain)
   - re_activations: 0
-  - notes: T-B と同形
+  - notes: |
+    `app/feature/{env, greeting, health, runtime/server, runtime/hono}.ts` の 5 ファイルと
+    `app/smoke.test.ts` を配置。Phase 1 deviation を踏襲:
+    Context.Service (NOT ServiceMap.Service) + dynamicLoggerLayer は
+    `Layer.provide(envLayer)` で Env を内包させる形式。
+    Service tag namespace は `@app/feed-platform-web/feature/<name>/Service` (CC-6)。
+    `vp test run js/app/feed-platform-web/app/smoke.test.ts` は 1 件 PASS。
+    `vp check` は feed-platform-web 内では識別子エラー 0 件。
+    rss-graphql の既存 86 errors は本サイクル責任外で継続。
 
 - [x] **T-I** — identity-provider プロジェクト全体 (T-F〜T-H 同形コピー)
   - status: completed
