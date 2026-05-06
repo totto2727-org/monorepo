@@ -3,7 +3,7 @@
 - **Source:** `task-plan.md`
 - **Active Steps:** Step 6-7 (Implementation / External Review)
 - **Created at:** 2026-05-06T10:25:00Z
-- **Last updated:** 2026-05-06T11:13:30Z
+- **Last updated:** 2026-05-06T11:18:30Z
 
 本ファイルは Step 6-7 中の **persisted task state**。Main の `TaskCreate` task list と同期するが、**こちらが source of truth**。状態変更時は TODO.md → commit → `TaskUpdate` の順で更新する。
 
@@ -72,33 +72,42 @@
   - implementer: implementer-B (Phase 2a web chain)
   - re_activations: 0
   - notes: |
-      hono-remix-v3-cloudflare-example 1:1 コピーベースで package.json /
-      tsconfig.json / vite.config.ts / wrangler.jsonc / .gitignore を配置。
-      vite.config.ts には setup:cloudflare task (wrangler types) を追加。
-      Counter / TODO / Frame サンプルや routes.ts は採用しない (PageOrFrame
-      未採用、TC-022)。`pnpm install --no-frozen-lockfile` で依存解決成功。
+    hono-remix-v3-cloudflare-example 1:1 コピーベースで package.json /
+    tsconfig.json / vite.config.ts / wrangler.jsonc / .gitignore を配置。
+    vite.config.ts には setup:cloudflare task (wrangler types) を追加。
+    Counter / TODO / Frame サンプルや routes.ts は採用しない (PageOrFrame
+    未採用、TC-022)。`pnpm install --no-frozen-lockfile` で依存解決成功。
 
-      **Cross-implementer concern (要 Main 確認)**: 私の最初の T-F commit
-      作成時、implementer-C が同時並行で T-J 用に編集中だった
-      `js/app/identity-provider/{app/app.tsx, wrangler.jsonc}` の unstaged 変更
-      が、私の `git add js/app/feed-platform-web/` の影響範囲外であったにも
-      関わらず最初の commit (a089283) に巻き込まれて作成された (原因不明、
-      git の通常動作では起こり得ない)。私はその commit を `git update-ref`
-      で巻き戻し `8fa4df2` を再 commit した結果、orphan となった a089283 を
-      implementer-C は **T-J commit として TODO.md L111 に記録済み**。
-      a089283 自体は reflog に残っており、内容は T-J の正しい変更。
-      最終的な対処は Main 判断に委ねる (implementer-C による T-J 再 commit
-      が必要)。
+    **Cross-implementer concern (要 Main 確認)**: 私の最初の T-F commit
+    作成時、implementer-C が同時並行で T-J 用に編集中だった
+    `js/app/identity-provider/{app/app.tsx, wrangler.jsonc}` の unstaged 変更
+    が、私の `git add js/app/feed-platform-web/` の影響範囲外であったにも
+    関わらず最初の commit (a089283) に巻き込まれて作成された (原因不明、
+    git の通常動作では起こり得ない)。私はその commit を `git update-ref`
+    で巻き戻し `8fa4df2` を再 commit した結果、orphan となった a089283 を
+    implementer-C は **T-J commit として TODO.md L111 に記録済み**。
+    a089283 自体は reflog に残っており、内容は T-J の正しい変更。
+    最終的な対処は Main 判断に委ねる (implementer-C による T-J 再 commit
+    が必要)。
 
-- [ ] **T-G** — feed-platform-web app/ ディレクトリ + Hello World 1 ページ
-  - status: pending
+- [x] **T-G** — feed-platform-web app/ ディレクトリ + Hello World 1 ページ
+  - status: completed
   - dependencies: T-F
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-06T11:13:00Z
+  - completed_at: 2026-05-06T11:18:00Z
+  - commit: ee21531
+  - implementer: implementer-B (Phase 2a web chain)
   - re_activations: 0
-  - notes: PageOrFrame 未採用 (TC-022 対応)
+  - notes: |
+      `app/{entry.worker.ts, app.tsx, routes.ts, assets/entry.ts, ui/document.tsx}` を配置。
+      middleware order = `logger → contextStorage → runtimeMiddleware → remixRenderer`
+      (design.md L268-271)。`/` で素朴な `c.render(<Document>...)` の Hello World、
+      `/api/v1/hello` で `c.var.runtime.runPromise` 経由 Greeting Service を呼ぶ JSON loader 実装。
+      `routes.ts` の `frames` は空 + `isFrameRequest` のみ最小 export (将来 PageOrFrame 採用時の足場)。
+      `Hono<AppEnv>` の自己参照 TS7022/7023 を `const app: Hono<AppEnv>` 注釈 +
+      `fetcher` 戻り値型明示で解消 (identity-provider 同形)。
+      Effect skeleton 未配置のため本 commit 単独では型エラーを含む状態 (T-H で解消予定、
+      task-plan.md "Per-task CI failures acceptable mid-chain" 方針)。
 
 - [ ] **T-H** — feed-platform-web Effect skeleton + smoke test
   - status: pending
@@ -129,22 +138,22 @@
   - implementer: implementer-C (Phase 2b identity-provider chain)
   - re_activations: 0
   - notes: |
-      TC-023 観測仕様達成: `wrangler.jsonc` に `BETTER_AUTH_URL` / `BETTER_AUTH_SECRET` /
-      `d1_databases` / `kv_namespaces` の 4 種類のコメント予約を追加。
-      副次変更で `app/app.tsx` のコメントから "PageOrFrame" 文字列を削除し、
-      TC-022 観測仕様 (`grep -E 'PageOrFrame|createPageOrFrame'` 0 hit) を
-      コメントレベルでも完全に満たす状態に整理。
+    TC-023 観測仕様達成: `wrangler.jsonc` に `BETTER_AUTH_URL` / `BETTER_AUTH_SECRET` /
+    `d1_databases` / `kv_namespaces` の 4 種類のコメント予約を追加。
+    副次変更で `app/app.tsx` のコメントから "PageOrFrame" 文字列を削除し、
+    TC-022 観測仕様 (`grep -E 'PageOrFrame|createPageOrFrame'` 0 hit) を
+    コメントレベルでも完全に満たす状態に整理。
 
-      **Cross-implementer concern (記録 / Main 確認推奨)**:
-      当初 T-J 用に staged していた `identity-provider/wrangler.jsonc` /
-      `app/app.tsx` の編集が、implementer-B の並列 T-F commit に巻き込まれて
-      orphan commit (a089283) として作成され、その後 reflog で巻き戻されて
-      実体は worktree 上にのみ残存 → 改めて私が `80f3ca8` として T-J commit を
-      作成した経緯がある (詳細は最終報告)。最終的なリポジトリ状態は task-plan.md
-      の意図通り (T-F = 8fa4df2 / T-I = da5dfaf / T-J = 80f3ca8 が独立 commit)
-      で完成しており、機能的な乖離はなし。implementer-B 側 (T-F notes) の
-      cross-implementer concern 記述と合わせて Main 側で判断を確認することを
-      推奨する。
+    **Cross-implementer concern (記録 / Main 確認推奨)**:
+    当初 T-J 用に staged していた `identity-provider/wrangler.jsonc` /
+    `app/app.tsx` の編集が、implementer-B の並列 T-F commit に巻き込まれて
+    orphan commit (a089283) として作成され、その後 reflog で巻き戻されて
+    実体は worktree 上にのみ残存 → 改めて私が `80f3ca8` として T-J commit を
+    作成した経緯がある (詳細は最終報告)。最終的なリポジトリ状態は task-plan.md
+    の意図通り (T-F = 8fa4df2 / T-I = da5dfaf / T-J = 80f3ca8 が独立 commit)
+    で完成しており、機能的な乖離はなし。implementer-B 側 (T-F notes) の
+    cross-implementer concern 記述と合わせて Main 側で判断を確認することを
+    推奨する。
 
 - [ ] **T-K** — ADR-01 起票 (Roadmap mode)
   - status: pending
