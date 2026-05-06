@@ -6,10 +6,10 @@
     "#@/*": "./src/*"
   },
   "scripts": {
-    "deploy:bff": "wrangler deploy --config src/bff/wrangler.jsonc",
-    "deploy:health": "wrangler deploy --config src/health/wrangler.jsonc",
-    "dev:bff": "wrangler dev --config src/bff/wrangler.jsonc",
-    "dev:health": "wrangler dev --config src/health/wrangler.jsonc",
+    "deploy:bff": "wrangler deploy --config src/worker/bff/wrangler.jsonc",
+    "deploy:health": "wrangler deploy --config src/worker/health/wrangler.jsonc",
+    "dev:bff": "wrangler dev --config src/worker/bff/wrangler.jsonc",
+    "dev:health": "wrangler dev --config src/worker/health/wrangler.jsonc",
     "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
