@@ -7,24 +7,22 @@ tasks:
       - list
     cmd: task --list-all
 
-  docker:build:sandbox:
-    deps:
-      - docker:build:sandbox-base
-    cmds:
-      - docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox:latest -f ./sandbox/Dockerfile ./sandbox
-
   docker:build:sandbox-base:
     cmds:
-      - docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox-base:latest -f ./docker/sandbox-base.Dockerfile ./docker
+      - docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox-base:latest -f ./sandbox/sandbox-base.Dockerfile ./sandbox
 
-  docker:push:
+  docker:build:sandbox-dev:
     deps:
-      - docker:build:sandbox
       - docker:build:sandbox-base
     cmds:
-      - docker push ghcr.io/totto2727-org/monorepo/sandbox:latest
-      - docker push ghcr.io/totto2727-org/monorepo/sandbox-base:latest
+      - docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox-dev:latest -f ./sandbox/sandbox-dev.Dockerfile ./sandbox
+
+  docker:build:sandbox-monorepo:
+    deps:
+      - docker:build:sandbox-dev
+    cmds:
+      - docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox-monorepo:latest -f ./sandbox/sandbox-monorepo.Dockerfile ./sandbox
 
   sandbox:create:
     cmds:
-      - uvx openshell sandbox create --from ghcr.io/totto2727-org/monorepo/sandbox:latest --policy sandbox/policy.yaml
+      - uvx openshell sandbox create --from ghcr.io/totto2727-org/monorepo/sandbox-monorepo:latest --policy sandbox/policy.yaml

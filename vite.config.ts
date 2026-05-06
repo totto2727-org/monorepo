@@ -60,15 +60,22 @@ export default defineConfig({
       },
       'workspace:build': {
         command: 'vp run -r build',
+        dependsOn: ['workspace:setup'],
       },
       'workspace:check': {
         command: 'vp run -r check',
+        dependsOn: ['workspace:setup'],
       },
       'workspace:fix': {
         command: 'vp run -r fix',
+        dependsOn: ['workspace:setup'],
+      },
+      'workspace:setup': {
+        command: 'vp run -r setup',
       },
       'workspace:test': {
         command: 'vp run -r test',
+        dependsOn: ['workspace:setup'],
       },
     },
   },
