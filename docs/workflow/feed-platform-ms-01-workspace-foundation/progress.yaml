@@ -1,9 +1,9 @@
 identifier: feed-platform-ms-01-workspace-foundation
 started_at: 2026-05-04T12:55:38Z
-updated_at: 2026-05-06T12:02:04Z
+updated_at: 2026-05-06T14:40:53Z
 
 status: active
-current_step: 7
+current_step: 8
 
 completed_steps:
   - step: Step 1 Intent Clarification
@@ -50,10 +50,13 @@ completed_steps:
       - review/api-design.md (Round 1 needs_fix → Round 2 approved)
       - review/holistic.md (Round 1 needs_fix → Round 2 approved)
 
-pending_gates:
-  - User gate (Step 7 → Step 8): External review 全 6 観点 approved、Validation 開始判断待ち
+pending_gates: []
 
-active_specialists: []
+active_specialists:
+  - name: validator
+    task: SC-1〜SC-11 を qa-design.md TC-001〜TC-026 経由で実走、PASS / FAIL / pending を確定し validation-report.md を作成
+    status: running
+    started_at: 2026-05-06T14:40:53Z
 
 blockers: []
 
@@ -95,6 +98,10 @@ user_approvals:
     approved_at: 2026-05-06T10:25:00Z
     approved_by: user
     notes: qa-design.md / qa-flow.md (4ebdbdb) を承認、CI PASS 確認済 (run 25429582530)
+  - gate: User gate (Step 7 → Step 8)
+    approved_at: 2026-05-06T14:40:53Z
+    approved_by: user
+    notes: Step 7 (External Review Round 1+2) 全 6 aspect approved + 累積 7 件の user-gate-driven refinements (Logger/await using/PageOrFrame/src/worker/typecheck/devDependencies/no-op build/process.env.NODE_ENV/test colocation) 全反映後、CI PASS 確認済 (run 25441580954、commit aa7d0a6)
 
 rollbacks:
   - from: Step 7 (External Review Round 1)
