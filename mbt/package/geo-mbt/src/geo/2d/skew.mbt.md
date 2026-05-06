@@ -82,7 +82,7 @@ let unit_square = @type.Geometry::Polygon(
 )
 
 ///|
-let sheared = @lib2d.skew_geometry(unit_square, @math.pi / 4.0, 0.0)
+let sheared = @lib2d.skew_geometry(unit_square, @math.PI / 4.0, 0.0)
 //   bottom corners stay at y = 0 (because tan(45°) · 0 = 0)
 //   top corners shift right by tan(45°) · 1 = 1
 //   resulting parallelogram: (0, 0), (1, 0), (2, 1), (1, 1)

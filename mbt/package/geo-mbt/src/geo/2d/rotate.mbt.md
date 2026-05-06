@@ -65,7 +65,7 @@ let unit_square = @type.Geometry::Polygon(
 ///|
 let rotated = @lib2d.rotate_geometry_around(
   unit_square,
-  @math.pi / 2.0,
+  @math.PI / 2.0,
   @type.Coord(0.0, 0.0),
 )
 // Square is now in the second quadrant: corners (-1, 0), (-1, 1), (0, 1), (0, 0)
@@ -74,7 +74,7 @@ let rotated = @lib2d.rotate_geometry_around(
 //   because a square is rotationally symmetric every 90°.
 
 ///|
-let spun = @lib2d.rotate_geometry_around_centroid(unit_square, @math.pi)
+let spun = @lib2d.rotate_geometry_around_centroid(unit_square, @math.PI)
 // `spun`'s vertex order is reversed but the shape is at the same coords.
 ```
 

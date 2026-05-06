@@ -6,7 +6,7 @@ fn make_circle_coords(n : Int, radius : Double) -> Array[@type.Coord] {
     return []
   }
   let circle = Array::makei(n, fn(i) {
-    let theta = i.to_double() / n.to_double() * 2.0 * 3.14159265358979323846
+    let theta = i.to_double() / n.to_double() * 2.0 * @math.PI
     @type.Coord(radius * @math.cos(theta), radius * @math.sin(theta))
   })
   [..circle, circle[0]]

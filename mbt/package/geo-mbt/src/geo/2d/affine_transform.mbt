@@ -79,7 +79,7 @@ pub fn AffineTransform::scale_xy(
 /// - row x: `a=cos, b=-sin` → `scale=cos, skew=-sin`
 /// - row y: `d=sin, e=cos`  → `skew=sin, scale=cos`
 pub fn AffineTransform::rotate_origin(degrees : Double) -> AffineTransform {
-  let rad = degrees * 3.14159265358979323846 / 180.0
+  let rad = degrees * @math.PI / 180.0
   let c = @math.cos(rad)
   let s = @math.sin(rad)
   AffineTransform(AffineRow(c, -s, 0.0), AffineRow(c, s, 0.0))
@@ -95,8 +95,8 @@ pub fn AffineTransform::skew_origin(
   xs_degrees : Double,
   ys_degrees : Double,
 ) -> AffineTransform {
-  let tan_x = @math.tan(xs_degrees * 3.14159265358979323846 / 180.0)
-  let tan_y = @math.tan(ys_degrees * 3.14159265358979323846 / 180.0)
+  let tan_x = @math.tan(xs_degrees * @math.PI / 180.0)
+  let tan_y = @math.tan(ys_degrees * @math.PI / 180.0)
   AffineTransform(AffineRow(1.0, tan_x, 0.0), AffineRow(1.0, tan_y, 0.0))
 }
 

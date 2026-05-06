@@ -108,7 +108,7 @@ pub fn euclidean_bearing(
 ) -> Double {
   let dx = destination.x() - origin.x()
   let dy = destination.y() - origin.y()
-  @math.atan2(dy, dx) * 180.0 / 3.14159265358979323846
+  @math.atan2(dy, dx) * 180.0 / @math.PI
 }
 
 ///|
@@ -120,7 +120,7 @@ pub fn euclidean_destination(
   bearing_degrees : Double,
   distance : Double,
 ) -> @type.Coord {
-  let radians = bearing_degrees * 3.14159265358979323846 / 180.0
+  let radians = bearing_degrees * @math.PI / 180.0
   @type.Coord(
     origin.x() + distance * @math.cos(radians),
     origin.y() + distance * @math.sin(radians),

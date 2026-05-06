@@ -72,7 +72,7 @@ Reading order:
 ```moonbit nocheck
 ///|
 let t = AffineTransform::translate_xy(10.0, 0.0).compose(
-  AffineTransform::rotate_origin(@math.pi / 2.0),
+  AffineTransform::rotate_origin(@math.PI / 2.0),
 )
 // `t` first rotates the input 90° CCW, then translates +10 along x
 //
@@ -102,7 +102,7 @@ result.y = self.d · c.x  +  self.e · c.y  +  self.yoff
 let centre = @type.Coord(50.0, 50.0)
 let t =
   AffineTransform::translate_xy(centre.x(), centre.y())
-    .compose(AffineTransform::rotate_origin(@math.pi / 4.0))    // 45°
+    .compose(AffineTransform::rotate_origin(@math.PI / 4.0))    // 45°
     .compose(AffineTransform::translate_xy(-centre.x(), -centre.y()))
 
 // Apply to a polygon:
