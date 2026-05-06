@@ -85,8 +85,8 @@ backend の各 entry は wrangler 上の `name` を **`feed-platform-backend-<en
 
 - **`compatibility_flags: ["nodejs_compat"]` を全プロジェクトの `wrangler.jsonc` で採用** (Effect / Hono / `crypto.randomUUID` 等が要求するため)
 - **`observability.enabled: true` + `head_sampling_rate: 1`** を全プロジェクトの `wrangler.jsonc` で採用 (`hono-remix-v3-cloudflare-example/wrangler.jsonc:14` 踏襲)
-- **Logger 形式選択**: Effect の Logger 形式切替は **`Layer.unwrap` + `Env.Service` 経由**で実行時判定 (`env.ENV === 'production'` ? `Logger.consoleJson` : `Logger.consolePretty()`)。`wrangler.jsonc.vars.ENV` の値が単一ソース。`import.meta.env.PROD` の直参照は不採用 (refinement #1)
-- **Runtime 解放パターン**: TC39 `await using runtime = Runtime.make(c.env)` を採用し、try/finally + 明示的 `runtime.dispose()` 呼び出しは不採用 (refinement #2)
+- **Logger 形式選択**: Effect の Logger 形式切替は **`Layer.unwrap` + `Env.Service` 経由**で実行時判定 (`env.ENV === 'production'` ? `Logger.consoleJson` : `Logger.consolePretty()`)。Env Service の値ソースは **`process.env.NODE_ENV`** (wrangler / vite が dev/deploy 時に自動設定する標準ソース、ref: <https://developers.cloudflare.com/workers/wrangler/bundling/#node_env>) を採用し、`wrangler.jsonc.vars.ENV` の独自 vars は不採用 (refinement #1 + Step 7 → Step 8 user-gate refinement で再確定: 旧設計の `vars.ENV` 単一ソースが本番 deploy で dev 値を焼き込むバグを構造的に予防)。`import.meta.env.PROD` の直参照も不採用
+- **Runtime 解放パターン**: TC39 `await using runtime = Runtime.make()` を採用し、try/finally + 明示的 `runtime.dispose()` 呼び出しは不採用 (refinement #2 + Step 7 → Step 8 user-gate refinement: ENV 取得を内部の `Env.layer` に内部化したため `Runtime.make()` の引数も削除済)
 
 ### D-7: backend multi-entry 規約 = `src/worker/<entry>/worker.ts` + `src/worker/<entry>/wrangler.jsonc` ペア
 
@@ -133,6 +133,7 @@ backend の各 entry は wrangler 上の `name` を **`feed-platform-backend-<en
 - **`saas-example`** は backend の Effect skeleton 雛形参照として今後も保守対象に留まる
 - 実装時の deviation: `effect@4.0.0-beta.60` (catalog 採用版) は `ServiceMap.Service` 非対応のため、design.md 当初記述の `ServiceMap.Service` は実装上 **`Context.Service`** に置換 (saas-example の整合性踏襲、TODO.md T-B notes)。CC-6 の Service tag namespace 規約は維持
 - Step 7 → Step 8 user-gate refinement: backend entry 配置を `src/<entry>/` から **`src/worker/<entry>/`** に変更 (User 要望、worker 群と feature 群の責務分離をディレクトリ構造で明示するため)。`src/feature/` は src 直下を維持。詳細は design.md "Deviation note (Step 7 → Step 8 user-gate-driven path restructure)" / task-plan.md "Path restructure deviation note" 参照
+- Step 7 → Step 8 user-gate refinement (ENV detection): ENV 取得方法を **`wrangler.jsonc.vars.ENV` (旧設計) から `process.env.NODE_ENV` (新設計、wrangler / vite 自動設定)** に変更 (User 要望、本番 deploy で dev 値が焼き込まれるバグの根本予防)。`feature/env.ts` × 3 に production code 用 `Env.layer` (`Layer.sync` from `process.env.NODE_ENV`) を新設し、test 用 `Env.makeLayer` は維持。`feature/runtime/{server,hono}.ts` × 3 + `worker.ts` × 2 + `app.tsx` × 2 + `wrangler.jsonc` × 4 を整合更新。詳細は design.md "Deviation note: ENV detection switched from `wrangler.jsonc.vars.ENV` to `process.env.NODE_ENV`" 参照
 
 ### Constraints going forward
 
@@ -142,8 +143,8 @@ backend の各 entry は wrangler 上の `name` を **`feed-platform-backend-<en
 - **backend multi-entry 規約 (`src/worker/<entry>/worker.ts` + `wrangler.jsonc`、`name: feed-platform-backend-<entry>`)** は ms-02 以降でも維持される。新 entry 追加手順は design.md M-1 に従う
 - **Cloudflare Workers 以外のサーバレス実行環境** (AWS Lambda / Vercel Edge / 他) への対応は本 ADR の射程外 (ロードマップ Intent 非スコープ `roadmap.md:47`)
 - **Effect Service の命名規約 (Service tag namespace)** = `@app/<project-name>/feature/<name>/Service` は ms-02 以降の Service 追加でも踏襲する
-- **Logger 形式判定は `Layer.unwrap` + `Env.Service` 経由** (= `import.meta.env.PROD` 直参照禁止) を ms-02 以降でも維持
-- **Runtime 解放は `await using` パターン** (= 明示的 `runtime.dispose()` 禁止) を ms-02 以降でも維持
+- **Logger 形式判定は `Layer.unwrap` + `Env.Service` 経由** (= `import.meta.env.PROD` 直参照禁止) を ms-02 以降でも維持。**Env Service の値ソースは `process.env.NODE_ENV` (wrangler / vite 自動設定) を単一ソースとし、`wrangler.jsonc.vars.ENV` の独自 vars は持たない** 規約も ms-02 以降に継承 (本番 deploy で dev 値が焼き込まれるバグの根本予防、Step 7 → Step 8 user-gate refinement で確定)
+- **Runtime 解放は `await using` パターン** (= 明示的 `runtime.dispose()` 禁止) を ms-02 以降でも維持。`Runtime.make()` は引数なし (= ENV は内部 `Env.layer` 経由) を維持
 - **Web UI レンダリング戦略**: ms-01 では素朴な `c.render(<Document>...)` のみ。`createPageOrFrame` パターン採用は ms-04 (期間限定共有 UI) / ms-07 (出力プラグイン基盤) の Step 3 (Design) で確定 (design.md L1062-1069 委譲)
 - **テスト設定の分離は需要発生時のみ**: ms-01 段階では vp (Vitest) 設定 1 個のみ。プロジェクトごとの分離 / カスタマイズは ms-02 以降の必要時に実施
 

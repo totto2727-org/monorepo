@@ -31,7 +31,9 @@
   - commit: 49784f2
   - implementer: implementer-A (Phase 1 backend chain)
   - re_activations: 0
-  - notes: refinement #1 (Logger Env Service 経由) + #2 (await using) を反映。design.md の `ServiceMap.Service` は `effect@4.0.0-beta.60` 非対応のため `Context.Service` に置換 (saas-example 整合)。dynamicLoggerLayer の Env 依存解決のために Env Layer を `Layer.provide(envLayer)` で内部に重ねる形式に微調整
+  - notes: |
+    refinement #1 (Logger Env Service 経由) + #2 (await using) を反映。design.md の `ServiceMap.Service` は `effect@4.0.0-beta.60` 非対応のため `Context.Service` に置換 (saas-example 整合)。dynamicLoggerLayer の Env 依存解決のために Env Layer を `Layer.provide(envLayer)` で内部に重ねる形式に微調整。
+    Step 7 → Step 8 user-gate refinement (commit: 2edda8c — ENV detection switch to process.env.NODE_ENV、re_activations は加算しない): production code 用 `Env.layer` を `Layer.sync` で `process.env.NODE_ENV` から導出する形に変更、`makeRuntime` / `DisposableRuntime` / `make` の `env` 引数を削除、`dynamicLoggerLayer` を `.pipe(Layer.provide(Env.layer))` で Env 依存を独立 Layer に閉じ込め。test 用 `Env.makeLayer` は維持。詳細は design.md "Deviation note: ENV detection switched..." 参照。
 
 - [x] **T-C** — feed-platform-backend health entry
   - status: completed
@@ -45,7 +47,8 @@
     `vp run setup:cloudflare:health` で worker-configuration.d.ts 生成確認済。
     Step 7 → Step 8 user-gate-driven path change: `src/health/` → `src/worker/health/`
     (commit: 3654122 — structural-only refactor、re_activations は加算しない)。
-    詳細は task-plan.md "Path restructure deviation note" 参照。
+    Step 7 → Step 8 user-gate refinement (commit: 2edda8c — ENV detection switch、re_activations は加算しない): `worker.ts` の `Bindings: EnvType` 削除、`AppEnv = { Variables }` のみに簡素化。`wrangler.jsonc` の `vars.ENV` block を削除。`worker-configuration.d.ts` 再生成 (gitignored) で `Env` interface から `ENV` プロパティ消失確認。
+    詳細は task-plan.md "Path restructure deviation note" / design.md "Deviation note: ENV detection switched..." 参照。
 
 - [x] **T-D** — feed-platform-backend bff entry
   - status: completed
@@ -60,7 +63,8 @@
     (新構造でも変わらず 2 件)。
     Step 7 → Step 8 user-gate-driven path change: `src/bff/` → `src/worker/bff/`
     (commit: 3654122 — structural-only refactor、re_activations は加算しない)。
-    詳細は task-plan.md "Path restructure deviation note" 参照。
+    Step 7 → Step 8 user-gate refinement (commit: 2edda8c — ENV detection switch、re_activations は加算しない): `worker.ts` の `Bindings: EnvType` 削除、`AppEnv = { Variables }` のみに簡素化。`wrangler.jsonc` の `vars.ENV` block を削除。
+    詳細は task-plan.md "Path restructure deviation note" / design.md "Deviation note: ENV detection switched..." 参照。
 
 - [x] **T-E** — feed-platform-backend smoke test
   - status: completed
@@ -99,6 +103,8 @@
     最終的な対処は Main 判断に委ねる (implementer-C による T-J 再 commit
     が必要)。
 
+    Step 7 → Step 8 user-gate refinement (commit: 2edda8c — ENV detection switch、re_activations は加算しない): `wrangler.jsonc` の `vars.ENV` block を削除。
+
 - [x] **T-G** — feed-platform-web app/ ディレクトリ + Hello World 1 ページ
   - status: completed
   - dependencies: T-F
@@ -117,6 +123,8 @@
     `fetcher` 戻り値型明示で解消 (identity-provider 同形)。
     Effect skeleton 未配置のため本 commit 単独では型エラーを含む状態 (T-H で解消予定、
     task-plan.md "Per-task CI failures acceptable mid-chain" 方針)。
+
+    Step 7 → Step 8 user-gate refinement (commit: 2edda8c — ENV detection switch、re_activations は加算しない): `app/app.tsx` の `Bindings: EnvType` 削除、`AppEnv = { Variables }` のみに簡素化。`Type as EnvType` import も除去。
 
 - [x] **T-H** — feed-platform-web Effect skeleton + smoke test
   - status: completed
@@ -143,6 +151,8 @@
     経由で Layer.effect + Env 注入経路を踏ませ、3 プロジェクト全体で TC-004
     の `scenario` 性を担保。web smoke は Greeting + Health の 2 件 PASS。
 
+    Step 7 → Step 8 user-gate refinement (commit: 2edda8c — ENV detection switch、re_activations は加算しない): `feature/env.ts` に production code 用 `Env.layer` (`Layer.sync` from `process.env.NODE_ENV`) を追加、`feature/runtime/{server,hono}.ts` の `env: Env.Type` 引数削除 + `Env.layer` 利用に切替。test 用 `Env.makeLayer` は維持のため smoke test は不変。
+
 - [x] **T-I** — identity-provider プロジェクト全体 (T-F〜T-H 同形コピー)
   - status: completed
   - dependencies: なし (Wave 2 ルート、T-F と完全並列可)
@@ -152,7 +162,10 @@
   - re_activation_commits: [dacf3e4]
   - implementer: implementer-C (Phase 2b identity-provider chain)
   - re_activations: 1
-  - notes: hono-remix-v3-cloudflare-example 構成踏襲、Counter / TODO / Frame サンプル削除、PageOrFrame 不採用 (TC-022)。Phase 1 deviation (Context.Service + dynamicLoggerLayer の Env closure) を踏襲。`Hono<AppEnv>` chain 中 `app` 自己参照の TS7022/TS7023 を `const app: Hono<AppEnv>` 明示 + `fetcher` 戻り値型明示で解消。`vp test run js/app/identity-provider/app/smoke.test.ts` は 2 件 PASS。`vp check` は識別子のエラー 0 件 (rss-graphql の既存 86 件は既存問題で本タスク責任外)。OAuth 2.1 / Better Auth は ms-02 委譲。**Round 1 re-activation (dacf3e4)**: api-design M-1 / readability M-3 / holistic M-1 / performance m-3 / security m-1 を解消するため `vite.config.ts` を `feed-platform-web` と完全同形 (setup / setup:cloudflare task 追加) に修正、`.gitignore` に `worker-configuration.d.ts` を追加、`routes.ts` の `frames` を `{} as const` に揃え docstring も web と同形化
+  - notes: |
+    hono-remix-v3-cloudflare-example 構成踏襲、Counter / TODO / Frame サンプル削除、PageOrFrame 不採用 (TC-022)。Phase 1 deviation (Context.Service + dynamicLoggerLayer の Env closure) を踏襲。`Hono<AppEnv>` chain 中 `app` 自己参照の TS7022/TS7023 を `const app: Hono<AppEnv>` 明示 + `fetcher` 戻り値型明示で解消。`vp test run js/app/identity-provider/app/smoke.test.ts` は 2 件 PASS。`vp check` は識別子のエラー 0 件 (rss-graphql の既存 86 件は既存問題で本タスク責任外)。OAuth 2.1 / Better Auth は ms-02 委譲。**Round 1 re-activation (dacf3e4)**: api-design M-1 / readability M-3 / holistic M-1 / performance m-3 / security m-1 を解消するため `vite.config.ts` を `feed-platform-web` と完全同形 (setup / setup:cloudflare task 追加) に修正、`.gitignore` に `worker-configuration.d.ts` を追加、`routes.ts` の `frames` を `{} as const` に揃え docstring も web と同形化。
+
+    Step 7 → Step 8 user-gate refinement (commit: 2edda8c — ENV detection switch、re_activations は加算しない): `feature/env.ts` に production code 用 `Env.layer` (`Layer.sync` from `process.env.NODE_ENV`) を追加、`feature/runtime/{server,hono}.ts` の `env: Env.Type` 引数削除 + `Env.layer` 利用、`app/app.tsx` の `Bindings: EnvType` 削除。`wrangler.jsonc` は ms-02 用コメント予約のみに整理 (`vars.ENV` 削除、`vars` block 全体は ms-02 用 secret 予約コメントとして残置)。test 用 `Env.makeLayer` は維持のため smoke test は不変。
 
 - [x] **T-J** — identity-provider DB binding コメント予約
   - status: completed
@@ -168,6 +181,8 @@
     副次変更で `app/app.tsx` のコメントから "PageOrFrame" 文字列を削除し、
     TC-022 観測仕様 (`grep -E 'PageOrFrame|createPageOrFrame'` 0 hit) を
     コメントレベルでも完全に満たす状態に整理。
+
+    Step 7 → Step 8 user-gate refinement (commit: 2edda8c — ENV detection switch、re_activations は加算しない): `wrangler.jsonc` の `vars.ENV` を削除し、`vars` block 全体は ms-02 用 secret 予約コメントに変更。`BETTER_AUTH_*` のコメント予約は維持。`d1_databases` / `kv_namespaces` のコメント予約も不変。
 
     **Cross-implementer concern (記録 / Main 確認推奨)**:
     当初 T-J 用に staged していた `identity-provider/wrangler.jsonc` /
