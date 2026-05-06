@@ -19,15 +19,19 @@ with pkgs;
   chezmoi
   # npm
   (npm {
-    binName = "skills";
-    packageName = "skills";
-  })
-  (npm {
     binName = "pi";
     packageName = "@mariozechner/pi-coding-agent";
   })
   (npm {
     binName = "ctx7";
     packageName = "ctx7";
+  })
+  (npm {
+    binName = "c-plugin";
+    packageName = "@totto2727/c-plugin";
+  })
+  (npm {
+    binName = "bw";
+    packageName = "@totto2727/bw";
   })
 ]
