@@ -88,7 +88,55 @@
 - **Struct Update Syntax**: Avoid using Struct Update Syntax (e.g., `{ ..base, field: value }`) whenever possible, as it may bypass validation logic or constraints.
 - **Ignore Usage**: Use proper pipeline style when ignoring return values: `expr |> ignore`.
 
-### 3.2 Error Handling
+### 3.2 Sequence-returning functions (Array vs Iter)
+
+A library function that returns a sequence of transformed elements should choose its return shape according to the predicted output size:
+
+- **Predictable, small element count** (e.g. `Line` always yields 2 endpoints, `Triangle` always yields 3 vertices): **return `Array[T]` only.** A lazy `Iter[T]` form does not earn its complexity at this size.
+- **Variable, or predictable but large**, element count (e.g. `LineString::lines`, `LineString::points`, anything walking a polygon's coords): **provide both an `Array[T]` form and an `Iter[T]` form**, where the `Iter[T]` form is named with an `_iter` suffix.
+
+  The two forms must be **independent implementations**. Do NOT implement one in terms of the other:
+
+  - The eager form must build the `Array` directly (e.g. `Array::new(capacity=n)` + `push` in a loop).
+  - The lazy form must construct an `Iter` directly (e.g. `Iter::new(fn() -> T?)` with a captured cursor).
+
+  Going through `Iter -> Array` (`iter().collect()`) defeats the laziness; going through `Array -> Iter` (`array.iter()`) forces the allocation that the caller may have wanted to avoid. Either direction adds avoidable overhead at the call site, so each shape is implemented from scratch.
+
+  Common per-element logic MAY be extracted into a private helper used by both forms.
+
+  **Example** (LineString):
+
+  ```mbt check
+  // Eager: builds Array directly
+  pub fn LineString::lines(self : LineString) -> Array[Line] {
+    let n = self.coords.length()
+    if n < 2 {
+      return []
+    }
+    let result = Array::new(capacity=n - 1)
+    for i = 0; i < n - 1; i = i + 1 {
+      result.push(Line::Line(self.coords[i], self.coords[i + 1]))
+    }
+    result
+  }
+
+  // Lazy: independent Iter; no Array allocated
+  pub fn LineString::lines_iter(self : LineString) -> Iter[Line] {
+    let n = self.coords.length()
+    let mut i = 0
+    Iter::new(fn() -> Line? {
+      if n >= 2 && i < n - 1 {
+        let line = Line::Line(self.coords[i], self.coords[i + 1])
+        i = i + 1
+        Some(line)
+      } else {
+        None
+      }
+    })
+  }
+  ```
+
+### 3.3 Error Handling
 
 Use the `raise` effect for functions that can fail instead of returning `Result` types for synchronous logic.
 
@@ -164,7 +212,7 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
 - Prefer `raise` effect over `Result` for synchronous code
 - In tests, let errors propagate or use `guard` to assert success
 
-### 3.3 Pattern Matching & Guards
+### 3.4 Pattern Matching & Guards
 
 - **Avoid `if` for Validation**: Use `guard` instead:
 
@@ -194,7 +242,7 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
   }
   ```
 
-### 3.4 Functions
+### 3.5 Functions
 
 - **Anonymous Functions**: Prefer arrow syntax `args => body` over `fn` keyword `fn(args) { body }`.
 - **Local `fn` annotation**: Local `fn` definitions must explicitly annotate `raise`/`async` effects. Inference for local `fn` is deprecated. Arrow functions are unaffected.
@@ -206,7 +254,7 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
   }
   ```
 
-### 3.5 Structs & Enums
+### 3.6 Structs & Enums
 
 - **Enum Wrapping Structs**: Define independent Structs for each variant, then wrap them in the Enum. Use the same name for the Variant and the Struct.
 
@@ -234,7 +282,7 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
   let f = x => Some(x)
   ```
 
-### 3.6 Traits
+### 3.7 Traits
 
 - **Definition Notation**:
 
@@ -251,7 +299,7 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
   2. **Trait Object Delegation**: When implementing a super-trait for a type that also implements a sub-trait, define the logic as a static function on the sub-trait's object and relay to it.
   3. **Direct Implementation**: If delegation is not possible or creates circular dependencies, implement the method directly on the type.
 
-### 3.7 Cascade Operator
+### 3.8 Cascade Operator
 
 `x..f()` is equivalent to `{ x.f(); x }` — for methods returning `Unit`.
 
@@ -265,7 +313,7 @@ let result = StringBuilder::new()
 
 Enables chaining mutable operations without modifying return types. Compiler warns if result is ignored.
 
-### 3.8 Range Syntax
+### 3.9 Range Syntax
 
 - `a..<b`: exclusive upper bound (increasing)
 - `a..<=b`: inclusive upper bound (increasing) — replaces deprecated `a..=b`
@@ -277,7 +325,7 @@ for i in 0..<10 { ... }
 for i in 10>=..0 { ... }
 ```
 
-### 3.9 Loop `nobreak`
+### 3.10 Loop `nobreak`
 
 Replaces old loop `else`. Executes when the loop condition becomes false.
 
@@ -292,7 +340,7 @@ let r = while i > 0 {
 
 `break` must provide a value matching the `nobreak` return type.
 
-### 3.10 `declare` Keyword
+### 3.11 `declare` Keyword
 
 Similar to Rust's `todo!` macro. Use `declare` before function definitions to indicate specification-only declarations. Missing implementations generate warnings (not errors).
 
