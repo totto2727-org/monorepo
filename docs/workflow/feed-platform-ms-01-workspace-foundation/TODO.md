@@ -3,7 +3,7 @@
 - **Source:** `task-plan.md`
 - **Active Steps:** Step 6-7 (Implementation / External Review)
 - **Created at:** 2026-05-06T10:25:00Z
-- **Last updated:** 2026-05-06T11:29:20Z
+- **Last updated:** 2026-05-06T11:32:57Z
 
 本ファイルは Step 6-7 中の **persisted task state**。Main の `TaskCreate` task list と同期するが、**こちらが source of truth**。状態変更時は TODO.md → commit → `TaskUpdate` の順で更新する。
 
@@ -180,15 +180,23 @@
     整形 (ADR-01 ファイルのみが整形対象、rss-graphql の既存 86 errors は本サイクル
     責任外で継続)。
 
-- [ ] **T-L** — ADR-02 起票 (General mode)
-  - status: pending
+- [x] **T-L** — ADR-02 起票 (General mode)
+  - status: completed
   - dependencies: T-A〜T-J
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-06T11:30:01Z
+  - completed_at: 2026-05-06T11:32:57Z
+  - commit: 729b889
+  - implementer: implementer-D (Phase 3 ADR pair, sequential)
   - re_activations: 0
-  - notes: share-adr General mode 経由
+  - notes: |
+    `docs/adr/2026-05-05-identity-provider-and-authn-authz-architecture.md` を
+    General mode (scope: general) で起票。General mode 配置根拠:
+    `identity-provider` の汎用化方針 + 認証認可アーキテクチャ大枠は本リポジトリで
+    認証認可を要する将来の他システムにも影響するため (本 ADR Status / Context 節
+    で明記)。Status / Context / Decision / Consequences / References の 5 セクション
+    を満たし (TC-018 観測仕様充足)、Decision 内に Q2.7 / Q2.7-extension / Q2.8 /
+    Q2.11-extension の 4 確定事項をすべて参照 (TC-019 観測仕様充足)。
+    `vp check --fix` で oxfmt が table padding を整形 (ADR-02 ファイルのみが整形対象)。
 
 ## State transition guide
 
