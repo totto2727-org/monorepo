@@ -66,15 +66,34 @@ pub fn Rect::area(self : Rect) -> Double {
 }
 
 ///|
+/// Returns the four edges of the rectangle as `Line` segments, walked CCW
+/// starting from the `min` corner: `bl→br, br→tr, tr→tl, tl→bl`.
+///
+/// Mirrors `Triangle::to_lines` for symmetry and matches the upstream
+/// `geo_types` API surface (the algorithm-layer helper
+/// `lines_of_rect` is now a thin wrapper around this method).
+pub fn Rect::to_lines(self : Rect) -> Array[Line] {
+  let bl = Coord(self.min.x(), self.min.y())
+  let br = Coord(self.max.x(), self.min.y())
+  let tr = Coord(self.max.x(), self.max.y())
+  let tl = Coord(self.min.x(), self.max.y())
+  [
+    Line::Line(bl, br),
+    Line::Line(br, tr),
+    Line::Line(tr, tl),
+    Line::Line(tl, bl),
+  ]
+}
+
+///|
 /// Converts the rectangle into a `Polygon` with the four corners (CCW from
-/// `min`).
+/// `min`). Reuses `to_lines` so the corner walk is defined in exactly one
+/// place: each line's `start` contributes one corner, and the first
+/// corner is repeated at the end to close the ring.
 pub fn Rect::to_polygon(self : Rect) -> Polygon {
-  let exterior = LineString::LineString([
-    Coord(self.min.x(), self.min.y()),
-    Coord(self.max.x(), self.min.y()),
-    Coord(self.max.x(), self.max.y()),
-    Coord(self.min.x(), self.max.y()),
-    Coord(self.min.x(), self.min.y()),
-  ])
+  let lines = self.to_lines()
+  let exterior = LineString::LineString(
+    [..lines.map(Line::start), lines[0].start()],
+  )
   Polygon::Polygon(exterior, [])
 }

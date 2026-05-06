@@ -160,6 +160,7 @@ pub fn Rect::center(Self) -> Coord
 pub fn Rect::height(Self) -> Double
 pub fn Rect::max(Self) -> Coord
 pub fn Rect::min(Self) -> Coord
+pub fn Rect::to_lines(Self) -> Array[Line]
 pub fn Rect::to_polygon(Self) -> Polygon
 pub fn Rect::width(Self) -> Double
 

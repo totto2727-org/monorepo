@@ -42,20 +42,10 @@ pub fn lines_of_multi_polygon(mp : @type.MultiPolygon) -> Array[@type.Line] {
 
 ///|
 /// Returns the four edges of a `Rect`, going CCW starting from the
-/// `min` corner.
+/// `min` corner. Thin wrapper around `Rect::to_lines` for parity with
+/// the other `lines_of_*` dispatch entries.
 pub fn lines_of_rect(r : @type.Rect) -> Array[@type.Line] {
-  let min = r.min()
-  let max = r.max()
-  let bl = @type.Coord(min.x(), min.y())
-  let br = @type.Coord(max.x(), min.y())
-  let tr = @type.Coord(max.x(), max.y())
-  let tl = @type.Coord(min.x(), max.y())
-  [
-    @type.Line::Line(bl, br),
-    @type.Line::Line(br, tr),
-    @type.Line::Line(tr, tl),
-    @type.Line::Line(tl, bl),
-  ]
+  r.to_lines()
 }
 
 ///|

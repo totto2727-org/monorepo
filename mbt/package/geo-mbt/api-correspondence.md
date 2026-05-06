@@ -167,19 +167,20 @@ appends + auto-closes new ring, original polygon untouched, input
 
 ### 1.6 `Rect<T>` ↔ `type/rect.mbt`
 
-| Rust upstream item                              | MoonBit port                          | Status | Notes                                     |
-| ----------------------------------------------- | ------------------------------------- | ------ | ----------------------------------------- |
-| `pub struct Rect<T> { min, max }`               | `pub struct Rect { min, max: Coord }` | ✅     |                                           |
-| `Rect::new(c1, c2)` (normalises corners)        | `Rect::new(Coord, Coord)`             | ✅     | Same normalisation                        |
-| `Rect::try_new` + `InvalidRectCoordinatesError` | —                                     | ⛔     | Validation handled at higher layer        |
-| `min()`, `max()`, `set_min`, `set_max`          | `Rect::min`, `Rect::max`              | 🟡     | Setters dropped                           |
-| `width`, `height`, `center`                     | `Rect::width`, `height`, `center`     | ✅     |                                           |
-| `to_polygon`, `to_lines`                        | `Rect::to_polygon` + `lines_of_rect`  | 🟡     | `to_lines` lives in `lines_iter`          |
-| `split_x`, `split_y`                            | —                                     | ⏳     |                                           |
-| —                                               | `Rect::area`                          | ✅     | Convenience wrapper around `width*height` |
+| Rust upstream item                              | MoonBit port                          | Status | Notes                                                                                                                                                                                                                                             |
+| ----------------------------------------------- | ------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pub struct Rect<T> { min, max }`               | `pub struct Rect { min, max: Coord }` | ✅     |                                                                                                                                                                                                                                                   |
+| `Rect::new(c1, c2)` (normalises corners)        | `Rect::new(Coord, Coord)`             | ✅     | Same normalisation                                                                                                                                                                                                                                |
+| `Rect::try_new` + `InvalidRectCoordinatesError` | —                                     | ⛔     | Validation handled at higher layer                                                                                                                                                                                                                |
+| `min()`, `max()`, `set_min`, `set_max`          | `Rect::min`, `Rect::max`              | 🟡     | Setters dropped                                                                                                                                                                                                                                   |
+| `width`, `height`, `center`                     | `Rect::width`, `height`, `center`     | ✅     |                                                                                                                                                                                                                                                   |
+| `to_polygon`, `to_lines`                        | `Rect::to_polygon`, `Rect::to_lines`  | ✅     | `Rect::to_lines` is the canonical implementation; the algorithm-layer free fn `lines_of_rect` is a thin wrapper. `Rect::to_polygon` reuses `to_lines` to define the corner walk in one place. Symmetric with `Triangle::to_lines` / `to_polygon`. |
+| `split_x`, `split_y`                            | —                                     | ⏳     |                                                                                                                                                                                                                                                   |
+| —                                               | `Rect::area`                          | ✅     | Convenience wrapper around `width*height`                                                                                                                                                                                                         |
 
-Tests: `type/rect_test.mbt` — 5 cases (corner normalisation, width/height,
-center, area, `to_polygon` closed-ring shape).
+Tests: `type/rect_test.mbt` — 7 cases (corner normalisation, width/height,
+center, area, `to_polygon` closed-ring shape, `to_lines` 4-edge CCW
+order, `to_polygon` corners agree with `to_lines` starts).
 
 ### 1.7 `Triangle<T>` ↔ `type/triangle.mbt`
 
