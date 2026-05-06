@@ -45,10 +45,7 @@ pub fn coord_on_line(coord : @type.Coord, line : @type.Line) -> Bool {
 ///|
 /// Returns the position of `coord` relative to `line`. Endpoints are
 /// `OnBoundary`; strict interior of the segment is `Inside`.
-pub fn coord_position_for_line(
-  coord : @type.Coord,
-  line : @type.Line,
-) -> CoordPos {
+fn coord_position_for_line(coord : @type.Coord, line : @type.Line) -> CoordPos {
   if line.start() == line.end() {
     return if coord == line.start() { Inside } else { Outside }
   }
@@ -65,7 +62,7 @@ pub fn coord_position_for_line(
 ///|
 /// Returns the position of `coord` relative to a `LineString`. Endpoints (for
 /// open line strings) are `OnBoundary`; closed line strings have no boundary.
-pub fn coord_position_for_line_string(
+fn coord_position_for_line_string(
   coord : @type.Coord,
   ls : @type.LineString,
 ) -> CoordPos {
@@ -130,7 +127,7 @@ fn coord_position_in_ring(
 /// Returns the position of `coord` relative to a `Polygon`. Walks the
 /// exterior ring (Inside, OnBoundary, Outside), then for points classified
 /// `Inside` checks whether they fall on or inside any interior ring.
-pub fn coord_position_for_polygon(
+fn coord_position_for_polygon(
   coord : @type.Coord,
   polygon : @type.Polygon,
 ) -> CoordPos {
@@ -161,7 +158,7 @@ pub fn coord_position_for_polygon(
 }
 
 ///|
-pub fn coord_position_for_multi_polygon(
+fn coord_position_for_multi_polygon(
   coord : @type.Coord,
   mp : @type.MultiPolygon,
 ) -> CoordPos {
@@ -184,10 +181,7 @@ pub fn coord_position_for_multi_polygon(
 }
 
 ///|
-pub fn coord_position_for_rect(
-  coord : @type.Coord,
-  rect : @type.Rect,
-) -> CoordPos {
+fn coord_position_for_rect(coord : @type.Coord, rect : @type.Rect) -> CoordPos {
   if point_strictly_in_rect(coord, rect) {
     return Inside
   }
@@ -204,7 +198,7 @@ pub fn coord_position_for_rect(
 }
 
 ///|
-pub fn coord_position_for_triangle(
+fn coord_position_for_triangle(
   coord : @type.Coord,
   t : @type.Triangle,
 ) -> CoordPos {
@@ -214,7 +208,7 @@ pub fn coord_position_for_triangle(
 ///|
 /// Returns the position of `coord` relative to a `Geometry`. For Point and
 /// MultiPoint, `Inside` means equal-to-some-point.
-pub fn coord_position_for_geometry(
+fn coord_position_for_geometry(
   coord : @type.Coord,
   g : @type.Geometry,
 ) -> CoordPos {

@@ -23,7 +23,7 @@ test "property: signed_area flips sign when coords are reversed" {
   let exterior_cw = reverse_line_string(exterior_ccw)
   let p_ccw = @type.Polygon::Polygon(exterior_ccw, [])
   let p_cw = @type.Polygon::Polygon(exterior_cw, [])
-  assert_eq(signed_area_of_polygon(p_ccw), -signed_area_of_polygon(p_cw))
+  assert_eq(HasArea::signed_area(p_ccw), -HasArea::signed_area(p_cw))
 }
 
 ///|
@@ -36,8 +36,8 @@ test "property: centroid is inside (or on boundary of) convex polygon" {
     (0.0, 0.0),
   ])
   let p = @type.Polygon::Polygon(exterior, [])
-  let c = centroid_polygon(p).unwrap()
-  let pos = coord_position_for_polygon(c.coord(), p)
+  let c = HasCentroid::centroid(p).unwrap()
+  let pos = CoordPositionFor::coord_position(p, c.coord())
   let inside_or_boundary = match pos {
     Inside => true
     OnBoundary => true
@@ -56,7 +56,7 @@ test "property: bounding rect contains every coord of the geometry" {
     (0.0, 7.0),
   ]
   let mp = @type.MultiPoint::from_tuples(coords_input)
-  let bbox = bounding_rect_of_multi_point(mp).unwrap()
+  let bbox = Bounded::bbox(mp).unwrap()
   for tuple in coords_input {
     let c = @type.Coord(tuple.0, tuple.1)
     assert_true(c.x() >= bbox.min().x() && c.x() <= bbox.max().x())
@@ -75,7 +75,7 @@ test "property: convex hull of n points is convex" {
     (3.0, 7.0),
     (7.0, 3.0),
   ])
-  let hull = convex_hull_of_multi_point(mp)
+  let hull = HasConvexHull::convex_hull(mp)
   assert_true(is_convex(hull.exterior()))
 }
 
@@ -102,7 +102,7 @@ test "property: simplify preserves first and last coord" {
     (3.0, 0.001),
     (10.0, 0.0),
   ])
-  let simplified = simplify_line_string(ls, 1.0)
+  let simplified = Simplify::simplify(ls, 1.0)
   let original = ls.coords()
   let simplified_coords = simplified.coords()
   assert_true(simplified_coords[0] == original[0])
@@ -175,7 +175,7 @@ test "property: scale preserves shape (area scales by factor squared)" {
     (0.0, 0.0),
   ])
   let p = @type.Polygon::Polygon(exterior, [])
-  let original_area = unsigned_area_of_polygon(p)
+  let original_area = HasArea::unsigned_area(p)
   let scaled = scale_geometry_around(
     @type.Geometry::Polygon(p),
     2.0,
@@ -184,7 +184,7 @@ test "property: scale preserves shape (area scales by factor squared)" {
   )
   match scaled {
     @type.Geometry::Polygon(sp) => {
-      let scaled_area = unsigned_area_of_polygon(sp)
+      let scaled_area = HasArea::unsigned_area(sp)
       // Area scales by factor² = 4
       assert_true((scaled_area - original_area * 4.0).abs() < 1.0e-9)
     }

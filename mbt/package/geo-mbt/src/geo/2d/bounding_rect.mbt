@@ -30,39 +30,39 @@ pub fn bounding_rect_of_coord(c : @type.Coord) -> @type.Rect {
 
 ///|
 /// Bounding rect of a `Point` is a degenerate `Rect` of zero size.
-pub fn bounding_rect_of_point(p : @type.Point) -> @type.Rect {
+fn bounding_rect_of_point(p : @type.Point) -> @type.Rect {
   @type.Rect::Rect(p.coord(), p.coord())
 }
 
 ///|
-pub fn bounding_rect_of_line(l : @type.Line) -> @type.Rect {
+fn bounding_rect_of_line(l : @type.Line) -> @type.Rect {
   @type.Rect::Rect(l.start(), l.end())
 }
 
 ///|
-pub fn bounding_rect_of_line_string(ls : @type.LineString) -> @type.Rect? {
+fn bounding_rect_of_line_string(ls : @type.LineString) -> @type.Rect? {
   bounding_rect_of_coords(ls.coords())
 }
 
 ///|
-pub fn bounding_rect_of_multi_point(mp : @type.MultiPoint) -> @type.Rect? {
+fn bounding_rect_of_multi_point(mp : @type.MultiPoint) -> @type.Rect? {
   bounding_rect_of_coords(coords_of_multi_point(mp))
 }
 
 ///|
-pub fn bounding_rect_of_multi_line_string(
+fn bounding_rect_of_multi_line_string(
   mls : @type.MultiLineString,
 ) -> @type.Rect? {
   bounding_rect_of_coords(coords_of_multi_line_string(mls))
 }
 
 ///|
-pub fn bounding_rect_of_polygon(p : @type.Polygon) -> @type.Rect? {
+fn bounding_rect_of_polygon(p : @type.Polygon) -> @type.Rect? {
   bounding_rect_of_coords(p.exterior().coords())
 }
 
 ///|
-pub fn bounding_rect_of_multi_polygon(mp : @type.MultiPolygon) -> @type.Rect? {
+fn bounding_rect_of_multi_polygon(mp : @type.MultiPolygon) -> @type.Rect? {
   let coords = mp
     .polygons()
     .iter()
@@ -72,7 +72,7 @@ pub fn bounding_rect_of_multi_polygon(mp : @type.MultiPolygon) -> @type.Rect? {
 }
 
 ///|
-pub fn bounding_rect_of_triangle(t : @type.Triangle) -> @type.Rect {
+fn bounding_rect_of_triangle(t : @type.Triangle) -> @type.Rect {
   match bounding_rect_of_coords(coords_of_triangle(t)) {
     Some(r) => r
     None => abort("triangle should always have a bounding rect")
@@ -80,12 +80,12 @@ pub fn bounding_rect_of_triangle(t : @type.Triangle) -> @type.Rect {
 }
 
 ///|
-pub fn bounding_rect_of_rect(r : @type.Rect) -> @type.Rect {
+fn bounding_rect_of_rect(r : @type.Rect) -> @type.Rect {
   r
 }
 
 ///|
-pub fn bounding_rect_of_geometry_collection(
+fn bounding_rect_of_geometry_collection(
   gc : @type.GeometryCollection,
 ) -> @type.Rect? {
   let coords = coords_of_geometry_collection(gc)
@@ -95,7 +95,7 @@ pub fn bounding_rect_of_geometry_collection(
 ///|
 /// Returns the bounding rectangle of the geometry, or `None` if it has no
 /// coordinates.
-pub fn bounding_rect_of_geometry(g : @type.Geometry) -> @type.Rect? {
+fn bounding_rect_of_geometry(g : @type.Geometry) -> @type.Rect? {
   match g {
     @type.Geometry::Point(p) => Some(bounding_rect_of_point(p))
     @type.Geometry::Line(l) => Some(bounding_rect_of_line(l))

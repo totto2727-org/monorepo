@@ -57,27 +57,6 @@ pub(open) trait HasEuclideanLength {
 }
 
 ///|
-/// Collection-style cardinality (number of components or coords). Mirrors
-/// `Vec::len()` in Rust / `Array::length()` in MoonBit. Distinct from
-/// `HasEuclideanLength` which is the physical length.
-pub(open) trait HasLength {
-  length(Self) -> Int
-}
-
-///|
-/// Anything that can be empty (zero coords / zero components). Provided so
-/// generic algorithms can short-circuit before computing.
-pub(open) trait IsEmpty {
-  is_empty(Self) -> Bool
-}
-
-///|
-/// Anything that can be a closed ring (first and last coord equal).
-pub(open) trait IsClosed {
-  is_closed(Self) -> Bool
-}
-
-///|
 /// Anything that produces the line segments composing the geometry. Mirrors
 /// upstream Rust `geo::algorithm::lines_iter::LinesIter` (eager form).
 pub(open) trait LinesCarrier {
@@ -330,133 +309,153 @@ pub impl HasEuclideanLength for @type.MultiLineString with euclidean_length(
 }
 
 ///|
-pub impl HasLength for @type.LineString with length(self) {
-  self.coords().length()
-}
-
-///|
-pub impl HasLength for @type.MultiPoint with length(self) {
-  self.points().length()
-}
-
-///|
-pub impl HasLength for @type.MultiLineString with length(self) {
-  self.line_strings().length()
-}
-
-///|
-pub impl HasLength for @type.MultiPolygon with length(self) {
-  self.polygons().length()
-}
-
-///|
-pub impl HasLength for @type.GeometryCollection with length(self) {
-  self.geometries().length()
-}
-
-///|
-pub impl IsEmpty for @type.LineString with is_empty(self) {
-  self.is_empty()
-}
-
-///|
-pub impl IsEmpty for @type.MultiPoint with is_empty(self) {
-  self.is_empty()
-}
-
-///|
-pub impl IsEmpty for @type.MultiLineString with is_empty(self) {
-  self.is_empty()
-}
-
-///|
-pub impl IsEmpty for @type.MultiPolygon with is_empty(self) {
-  self.is_empty()
-}
-
-///|
-pub impl IsEmpty for @type.GeometryCollection with is_empty(self) {
-  self.is_empty()
-}
-
-///|
-pub impl IsEmpty for @type.Polygon with is_empty(self) {
-  self.is_empty()
-}
-
-///|
-pub impl IsEmpty for @type.Geometry with is_empty(self) {
-  is_empty_of_geometry(self)
-}
-
-///|
-pub impl IsClosed for @type.LineString with is_closed(self) {
-  self.is_closed()
-}
-
-///|
-pub impl IsClosed for @type.MultiLineString with is_closed(self) {
-  self.is_closed()
-}
-
-///|
 pub impl LinesCarrier for @type.Line with lines(self) {
-  lines_of_line(self)
+  [self]
 }
 
 ///|
 pub impl LinesCarrier for @type.LineString with lines(self) {
-  lines_of_line_string(self)
+  self.lines()
 }
 
 ///|
 pub impl LinesCarrier for @type.MultiLineString with lines(self) {
-  lines_of_multi_line_string(self)
+  self.line_strings().iter().flat_map(fn(ls) { ls.lines().iter() }).collect()
 }
 
 ///|
 pub impl LinesCarrier for @type.Polygon with lines(self) {
-  lines_of_polygon(self)
+  self
+  .exterior()
+  .lines()
+  .iter()
+  .concat(
+    self.interiors().iter().flat_map(fn(interior) { interior.lines().iter() }),
+  )
+  .collect()
 }
 
 ///|
 pub impl LinesCarrier for @type.MultiPolygon with lines(self) {
-  lines_of_multi_polygon(self)
+  self
+  .polygons()
+  .iter()
+  .flat_map(fn(p) { LinesCarrier::lines(p).iter() })
+  .collect()
 }
 
 ///|
 pub impl LinesCarrier for @type.Rect with lines(self) {
-  lines_of_rect(self)
+  self.to_lines()
 }
 
 ///|
 pub impl LinesCarrier for @type.Triangle with lines(self) {
-  lines_of_triangle(self)
+  self.to_lines()
 }
 
 ///|
 pub impl LinesCarrier for @type.GeometryCollection with lines(self) {
-  lines_of_geometry_collection(self)
+  self
+  .geometries()
+  .iter()
+  .flat_map(fn(g) { LinesCarrier::lines(g).iter() })
+  .collect()
 }
 
 ///|
 pub impl LinesCarrier for @type.Geometry with lines(self) {
-  lines_of_geometry(self)
+  match self {
+    @type.Geometry::Point(_) => []
+    @type.Geometry::MultiPoint(_) => []
+    @type.Geometry::Line(l) => LinesCarrier::lines(l)
+    @type.Geometry::LineString(ls) => LinesCarrier::lines(ls)
+    @type.Geometry::MultiLineString(mls) => LinesCarrier::lines(mls)
+    @type.Geometry::Polygon(p) => LinesCarrier::lines(p)
+    @type.Geometry::MultiPolygon(mp) => LinesCarrier::lines(mp)
+    @type.Geometry::Rect(r) => LinesCarrier::lines(r)
+    @type.Geometry::Triangle(t) => LinesCarrier::lines(t)
+    @type.Geometry::GeometryCollection(gc) => LinesCarrier::lines(gc)
+  }
 }
 
 ///|
+/// A degenerate rectangle of zero width and zero height collapses to
+/// `ZeroDimensional`; one of zero width or zero height (but not both) is
+/// `OneDimensional`.
 pub impl HasDimensions for @type.Rect with dimensions(self) {
-  dimensions_of_rect(self)
+  let zero_w = self.width() == 0.0
+  let zero_h = self.height() == 0.0
+  match (zero_w, zero_h) {
+    (true, true) => ZeroDimensional
+    (true, false) | (false, true) => OneDimensional
+    _ => TwoDimensional
+  }
 }
 
 ///|
+/// Empty / single-coord linestrings are `Empty`. A linestring whose coords
+/// are all identical is `ZeroDimensional`; otherwise `OneDimensional`.
 pub impl HasDimensions for @type.LineString with dimensions(self) {
-  dimensions_of_line_string(self)
+  let coords = self.coords()
+  if coords.length() == 0 {
+    return Empty
+  }
+  let first = coords[0]
+  if coords.iter().any(fn(c) { c != first }) {
+    OneDimensional
+  } else {
+    ZeroDimensional
+  }
 }
 
 ///|
+/// `Polygon` is `TwoDimensional` unless its exterior is empty (`Empty`) or
+/// all of its exterior coordinates collapse to a single coordinate
+/// (`ZeroDimensional`).
 pub impl HasDimensions for @type.Geometry with dimensions(self) {
-  dimensions_of_geometry(self)
+  match self {
+    @type.Geometry::Point(_) => ZeroDimensional
+    @type.Geometry::Line(l) =>
+      if l.start() == l.end() {
+        ZeroDimensional
+      } else {
+        OneDimensional
+      }
+    @type.Geometry::LineString(ls) => HasDimensions::dimensions(ls)
+    @type.Geometry::Polygon(p) =>
+      match HasDimensions::dimensions(p.exterior()) {
+        Empty => Empty
+        ZeroDimensional => ZeroDimensional
+        _ => TwoDimensional
+      }
+    @type.Geometry::MultiPoint(mp) =>
+      if mp.is_empty() {
+        Empty
+      } else {
+        ZeroDimensional
+      }
+    @type.Geometry::MultiLineString(mls) =>
+      mls
+      .line_strings()
+      .iter()
+      .map(HasDimensions::dimensions)
+      .fold(init=Dimensions::Empty, max_dimension)
+    @type.Geometry::MultiPolygon(mp) =>
+      mp
+      .polygons()
+      .iter()
+      .map(fn(p) { HasDimensions::dimensions(@type.Geometry::Polygon(p)) })
+      .fold(init=Dimensions::Empty, max_dimension)
+    @type.Geometry::Rect(r) => HasDimensions::dimensions(r)
+    @type.Geometry::Triangle(_) => TwoDimensional
+    @type.Geometry::GeometryCollection(gc) =>
+      gc
+      .geometries()
+      .iter()
+      .map(HasDimensions::dimensions)
+      .fold(init=Dimensions::Empty, max_dimension)
+  }
 }
 
 ///|
@@ -481,12 +480,59 @@ pub impl HasConvexHull for @type.Geometry with convex_hull(self) {
 
 ///|
 pub impl ClosestPoint for @type.Line with closest_point(self, target) {
-  closest_point_on_line(self, target)
+  let v = self.delta()
+  let w = target - self.start()
+  let v_dot_v = v.dot(v)
+  if v_dot_v == 0.0 {
+    return if self.start() == target {
+      Intersection(self.start())
+    } else {
+      SinglePoint(self.start())
+    }
+  }
+  let t = w.dot(v) / v_dot_v
+  let clamped = if t < 0.0 { 0.0 } else if t > 1.0 { 1.0 } else { t }
+  let proj = self.start() + v.mul(clamped)
+  if proj == target {
+    Intersection(proj)
+  } else {
+    SinglePoint(proj)
+  }
 }
 
 ///|
 pub impl ClosestPoint for @type.LineString with closest_point(self, target) {
-  closest_point_on_line_string(self, target)
+  let segments = self.lines()
+  if segments.length() == 0 {
+    return Indeterminate
+  }
+  // Fold tracks the best candidate so far. Once an `Intersection` is seen
+  // the result is locked in and remains stable across the rest of the fold.
+  segments
+  .iter()
+  .fold(init=Closest::Indeterminate, fn(acc, seg) {
+    match acc {
+      Intersection(_) => acc
+      _ =>
+        match ClosestPoint::closest_point(seg, target) {
+          Intersection(c) => Intersection(c)
+          SinglePoint(c) =>
+            match acc {
+              SinglePoint(prev) => {
+                let d_new = euclidean_distance_squared_coords(c, target)
+                let d_prev = euclidean_distance_squared_coords(prev, target)
+                if d_new < d_prev {
+                  SinglePoint(c)
+                } else {
+                  acc
+                }
+              }
+              _ => SinglePoint(c)
+            }
+          Indeterminate => acc
+        }
+    }
+  })
 }
 
 ///|

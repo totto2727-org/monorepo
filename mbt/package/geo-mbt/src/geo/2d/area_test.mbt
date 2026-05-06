@@ -11,8 +11,8 @@ test "signed_area_of_polygon CCW positive" {
     (0.0, 0.0),
   ])
   let polygon = @type.Polygon::Polygon(exterior, [])
-  assert_eq(signed_area_of_polygon(polygon), 30.0)
-  assert_eq(unsigned_area_of_polygon(polygon), 30.0)
+  assert_eq(HasArea::signed_area(polygon), 30.0)
+  assert_eq(HasArea::unsigned_area(polygon), 30.0)
 }
 
 ///|
@@ -26,8 +26,8 @@ test "signed_area_of_polygon CW negative" {
     (0.0, 0.0),
   ])
   let polygon = @type.Polygon::Polygon(exterior, [])
-  assert_eq(signed_area_of_polygon(polygon), -30.0)
-  assert_eq(unsigned_area_of_polygon(polygon), 30.0)
+  assert_eq(HasArea::signed_area(polygon), -30.0)
+  assert_eq(HasArea::unsigned_area(polygon), 30.0)
 }
 
 ///|
@@ -48,13 +48,13 @@ test "signed_area_of_polygon with hole" {
     (3.0, 3.0),
   ])
   let polygon = @type.Polygon::Polygon(exterior, [interior])
-  assert_eq(signed_area_of_polygon(polygon), 100.0 - 16.0)
+  assert_eq(HasArea::signed_area(polygon), 100.0 - 16.0)
 }
 
 ///|
 test "signed_area_of_rect is width * height" {
   let r = @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(3.0, 4.0))
-  assert_eq(signed_area_of_rect(r), 12.0)
+  assert_eq(HasArea::signed_area(r), 12.0)
 }
 
 ///|
@@ -65,15 +65,15 @@ test "signed_area_of_triangle" {
     @type.Coord(4.0, 0.0),
     @type.Coord(0.0, 6.0),
   )
-  assert_eq(unsigned_area_of_triangle(t), 12.0)
+  assert_eq(HasArea::unsigned_area(t), 12.0)
 }
 
 ///|
 test "Point/Line/LineString have zero area" {
   let p = @type.Point::Point(1.0, 2.0)
-  assert_eq(signed_area_of_geometry(@type.Geometry::Point(p)), 0.0)
+  assert_eq(HasArea::signed_area(@type.Geometry::Point(p)), 0.0)
   let l = @type.Line::from_tuples((0.0, 0.0), (1.0, 1.0))
-  assert_eq(signed_area_of_geometry(@type.Geometry::Line(l)), 0.0)
+  assert_eq(HasArea::signed_area(@type.Geometry::Line(l)), 0.0)
   let ls = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0)])
-  assert_eq(signed_area_of_geometry(@type.Geometry::LineString(ls)), 0.0)
+  assert_eq(HasArea::signed_area(@type.Geometry::LineString(ls)), 0.0)
 }

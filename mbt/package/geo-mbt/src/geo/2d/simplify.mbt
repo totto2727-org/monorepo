@@ -40,7 +40,7 @@ fn rdp_recurse(
 /// Simplifies a `LineString` using the Ramer-Douglas-Peucker algorithm.
 /// Coordinates whose perpendicular distance to the working segment is less
 /// than `epsilon` are removed.
-pub fn simplify_line_string(
+fn simplify_line_string(
   ls : @type.LineString,
   epsilon : Double,
 ) -> @type.LineString {
@@ -70,10 +70,7 @@ pub fn simplify_line_string_indices(
 
 ///|
 /// Simplifies a `Polygon` by simplifying each ring with RDP.
-pub fn simplify_polygon(
-  polygon : @type.Polygon,
-  epsilon : Double,
-) -> @type.Polygon {
+fn simplify_polygon(polygon : @type.Polygon, epsilon : Double) -> @type.Polygon {
   let exterior = simplify_line_string(polygon.exterior(), epsilon)
   let interiors = polygon
     .interiors()

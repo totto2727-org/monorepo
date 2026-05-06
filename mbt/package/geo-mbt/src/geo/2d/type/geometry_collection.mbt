@@ -38,3 +38,13 @@ pub fn GeometryCollection::length(self : GeometryCollection) -> Int {
 pub fn GeometryCollection::is_empty(self : GeometryCollection) -> Bool {
   self.geometries.length() == 0
 }
+
+///|
+pub impl HasLength for GeometryCollection with length(self) {
+  self.length()
+}
+
+///|
+pub impl IsEmpty for GeometryCollection with is_empty(self) {
+  self.is_empty()
+}

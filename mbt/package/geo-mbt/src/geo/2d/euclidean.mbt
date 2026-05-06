@@ -76,14 +76,14 @@ pub fn euclidean_distance_coord_to_line_string(
 
 ///|
 /// Euclidean length of a line segment: `sqrt(dx² + dy²)`.
-pub fn euclidean_length_line(l : @type.Line) -> Double {
+fn euclidean_length_line(l : @type.Line) -> Double {
   euclidean_distance_coords(l.start(), l.end())
 }
 
 ///|
 /// Sum of segment lengths in a `LineString`. An empty or single-coord line
 /// string has length zero.
-pub fn euclidean_length_line_string(ls : @type.LineString) -> Double {
+fn euclidean_length_line_string(ls : @type.LineString) -> Double {
   ls
   .lines_iter()
   .fold(init=0.0, fn(acc, line) { acc + euclidean_length_line(line) })
@@ -91,9 +91,7 @@ pub fn euclidean_length_line_string(ls : @type.LineString) -> Double {
 
 ///|
 /// Sum of segment lengths in a `MultiLineString`.
-pub fn euclidean_length_multi_line_string(
-  mls : @type.MultiLineString,
-) -> Double {
+fn euclidean_length_multi_line_string(mls : @type.MultiLineString) -> Double {
   mls
   .line_strings()
   .iter()

@@ -3,7 +3,7 @@
 ///|
 test "coords_of_point yields one coord" {
   let p = @type.Point::Point(1.0, 2.0)
-  let coords = coords_of_point(p)
+  let coords = CoordsCarrier::coords(p)
   assert_eq(coords.length(), 1)
   assert_true(coords[0] == @type.Coord(1.0, 2.0))
 }
@@ -15,7 +15,7 @@ test "coords_of_multi_point preserves order" {
     (20.0, 20.0),
     (30.0, 40.0),
   ])
-  let coords = coords_of_multi_point(mp)
+  let coords = CoordsCarrier::coords(mp)
   assert_eq(coords.length(), 3)
   assert_true(coords[0] == @type.Coord(-10.0, 0.0))
   assert_true(coords[2] == @type.Coord(30.0, 40.0))
@@ -36,7 +36,7 @@ test "coords_of_polygon walks exterior then interiors" {
     (3.0, 7.0),
   ])
   let polygon = @type.Polygon::Polygon(exterior, [interior])
-  let all_coords = coords_of_polygon(polygon)
+  let all_coords = CoordsCarrier::coords(polygon)
   let exterior_coords = exterior_coords_of_polygon(polygon)
   assert_true(all_coords.length() > exterior_coords.length())
   // Exterior alone has 5 coords (auto-closed).

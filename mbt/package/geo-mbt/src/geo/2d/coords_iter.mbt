@@ -6,36 +6,36 @@
 /// geometry, in iteration order. The array form is preferred over a lazy
 /// iterator since MoonBit's `Iter` does not retain ordering guarantees as
 /// strongly as Rust's `Iterator` for these per-type recursive cases.
-pub fn coords_of_point(p : @type.Point) -> Array[@type.Coord] {
+fn coords_of_point(p : @type.Point) -> Array[@type.Coord] {
   [p.coord()]
 }
 
 ///|
-pub fn coords_of_line(l : @type.Line) -> Array[@type.Coord] {
+fn coords_of_line(l : @type.Line) -> Array[@type.Coord] {
   [l.start(), l.end()]
 }
 
 ///|
-pub fn coords_of_line_string(ls : @type.LineString) -> Array[@type.Coord] {
+fn coords_of_line_string(ls : @type.LineString) -> Array[@type.Coord] {
   // Defensive copy so the caller cannot mutate the line string's backing
   // array via the returned reference.
   [..ls.coords()]
 }
 
 ///|
-pub fn coords_of_multi_point(mp : @type.MultiPoint) -> Array[@type.Coord] {
+fn coords_of_multi_point(mp : @type.MultiPoint) -> Array[@type.Coord] {
   mp.points().map(@type.Point::coord)
 }
 
 ///|
-pub fn coords_of_multi_line_string(
+fn coords_of_multi_line_string(
   mls : @type.MultiLineString,
 ) -> Array[@type.Coord] {
   mls.line_strings().iter().flat_map(fn(ls) { ls.coords().iter() }).collect()
 }
 
 ///|
-pub fn coords_of_polygon(p : @type.Polygon) -> Array[@type.Coord] {
+fn coords_of_polygon(p : @type.Polygon) -> Array[@type.Coord] {
   p
   .exterior()
   .coords()
@@ -47,7 +47,7 @@ pub fn coords_of_polygon(p : @type.Polygon) -> Array[@type.Coord] {
 }
 
 ///|
-pub fn coords_of_multi_polygon(mp : @type.MultiPolygon) -> Array[@type.Coord] {
+fn coords_of_multi_polygon(mp : @type.MultiPolygon) -> Array[@type.Coord] {
   mp
   .polygons()
   .iter()
@@ -56,7 +56,7 @@ pub fn coords_of_multi_polygon(mp : @type.MultiPolygon) -> Array[@type.Coord] {
 }
 
 ///|
-pub fn coords_of_rect(r : @type.Rect) -> Array[@type.Coord] {
+fn coords_of_rect(r : @type.Rect) -> Array[@type.Coord] {
   let min = r.min()
   let max = r.max()
   [
@@ -68,12 +68,12 @@ pub fn coords_of_rect(r : @type.Rect) -> Array[@type.Coord] {
 }
 
 ///|
-pub fn coords_of_triangle(t : @type.Triangle) -> Array[@type.Coord] {
+fn coords_of_triangle(t : @type.Triangle) -> Array[@type.Coord] {
   [t.v0(), t.v1(), t.v2()]
 }
 
 ///|
-pub fn coords_of_geometry_collection(
+fn coords_of_geometry_collection(
   gc : @type.GeometryCollection,
 ) -> Array[@type.Coord] {
   gc
@@ -85,7 +85,7 @@ pub fn coords_of_geometry_collection(
 
 ///|
 /// Dispatches `coords_of_*` based on the `Geometry` variant.
-pub fn coords_of_geometry(g : @type.Geometry) -> Array[@type.Coord] {
+fn coords_of_geometry(g : @type.Geometry) -> Array[@type.Coord] {
   match g {
     @type.Geometry::Point(p) => coords_of_point(p)
     @type.Geometry::Line(l) => coords_of_line(l)

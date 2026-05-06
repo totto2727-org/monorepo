@@ -3,7 +3,7 @@
 ///|
 test "convex hull of triangle is itself" {
   let mp = @type.MultiPoint::from_tuples([(0.0, 0.0), (1.0, 0.0), (0.0, 1.0)])
-  let hull = convex_hull_of_multi_point(mp)
+  let hull = HasConvexHull::convex_hull(mp)
   let coords = hull.exterior().coords()
   // Hull should have 4 coords (3 unique + closing)
   assert_eq(coords.length(), 4)
@@ -19,7 +19,7 @@ test "convex hull of points includes all corners" {
     (0.0, 10.0),
     (5.0, 5.0),
   ])
-  let hull = convex_hull_of_multi_point(mp)
+  let hull = HasConvexHull::convex_hull(mp)
   let coords = hull.exterior().coords()
   // Hull should be the 4 corners (closed = 5 coords)
   assert_eq(coords.length(), 5)
@@ -45,7 +45,7 @@ test "convex hull is closed and CCW" {
     (10.0, 10.0),
     (0.0, 10.0),
   ])
-  let hull = convex_hull_of_multi_point(mp)
+  let hull = HasConvexHull::convex_hull(mp)
   let exterior = hull.exterior()
   assert_true(exterior.is_closed())
   // Should be counter-clockwise (positive signed area)
@@ -55,7 +55,7 @@ test "convex hull is closed and CCW" {
 ///|
 test "convex hull of single point is degenerate" {
   let mp = @type.MultiPoint::from_tuples([(5.0, 5.0)])
-  let hull = convex_hull_of_multi_point(mp)
+  let hull = HasConvexHull::convex_hull(mp)
   // For 1 point we degenerate to a 2-coord linestring (start == end)
   let coords = hull.exterior().coords()
   // Test does not enforce a specific length for degenerate case; just check

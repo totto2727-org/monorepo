@@ -10,14 +10,14 @@ test "euclidean_distance_coords" {
 ///|
 test "euclidean_length_line" {
   let l = @type.Line::from_tuples((0.0, 0.0), (3.0, 4.0))
-  assert_eq(euclidean_length_line(l), 5.0)
+  assert_eq(HasEuclideanLength::euclidean_length(l), 5.0)
 }
 
 ///|
 test "euclidean_length_line_string" {
   let ls = @type.LineString::from_tuples([(0.0, 0.0), (3.0, 0.0), (3.0, 4.0)])
   // 3 + 4 = 7
-  assert_eq(euclidean_length_line_string(ls), 7.0)
+  assert_eq(HasEuclideanLength::euclidean_length(ls), 7.0)
 }
 
 ///|

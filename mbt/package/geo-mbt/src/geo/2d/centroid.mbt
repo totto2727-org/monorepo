@@ -18,7 +18,7 @@ fn centroid_of_coords(coords : Array[@type.Coord]) -> @type.Coord? {
 ///|
 /// Centroid of a `LineString` weighted by segment length. Returns `None` for
 /// empty linestrings.
-pub fn centroid_line_string(ls : @type.LineString) -> @type.Point? {
+fn centroid_line_string(ls : @type.LineString) -> @type.Point? {
   let segments = ls.lines()
   if segments.length() == 0 {
     if ls.coords().length() == 1 {
@@ -71,7 +71,7 @@ fn ring_centroid_accumulator(
 ///|
 /// Centroid of a polygon (the centre of mass). Holes contribute negatively
 /// to the weighted sum.
-pub fn centroid_polygon(p : @type.Polygon) -> @type.Point? {
+fn centroid_polygon(p : @type.Polygon) -> @type.Point? {
   let exterior = p.exterior()
   let exterior_coords = exterior.coords()
   if exterior_coords.length() < 3 {
@@ -95,7 +95,7 @@ pub fn centroid_polygon(p : @type.Polygon) -> @type.Point? {
 
 ///|
 /// Centroid of a multi polygon weighted by polygon area.
-pub fn centroid_multi_polygon(mp : @type.MultiPolygon) -> @type.Point? {
+fn centroid_multi_polygon(mp : @type.MultiPolygon) -> @type.Point? {
   if mp.is_empty() {
     return None
   }
@@ -118,7 +118,7 @@ pub fn centroid_multi_polygon(mp : @type.MultiPolygon) -> @type.Point? {
 }
 
 ///|
-pub fn centroid_geometry(g : @type.Geometry) -> @type.Point? {
+fn centroid_geometry(g : @type.Geometry) -> @type.Point? {
   match g {
     @type.Geometry::Point(p) => Some(p)
     @type.Geometry::Line(l) =>

@@ -15,5 +15,5 @@ fn make_circle_coords(n : Int, radius : Double) -> Array[@type.Coord] {
 ///|
 test "bench: bounding_rect_of_line_string n=100" (b : @bench.T) {
   let ls = @type.LineString::LineString(make_circle_coords(100, 5.0))
-  b.bench(fn() { b.keep(bounding_rect_of_line_string(ls)) })
+  b.bench(fn() { b.keep(Bounded::bbox(ls)) })
 }

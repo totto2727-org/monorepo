@@ -80,26 +80,26 @@ fn convex_hull_of_coords(coords : Array[@type.Coord]) -> @type.LineString {
 
 ///|
 /// Convex hull of a `MultiPoint`.
-pub fn convex_hull_of_multi_point(mp : @type.MultiPoint) -> @type.Polygon {
+fn convex_hull_of_multi_point(mp : @type.MultiPoint) -> @type.Polygon {
   let coords = mp.points().map(fn(p) { p.coord() })
   @type.Polygon::Polygon(convex_hull_of_coords(coords), [])
 }
 
 ///|
 /// Convex hull of a `LineString`. Returns a `Polygon`.
-pub fn convex_hull_of_line_string(ls : @type.LineString) -> @type.Polygon {
+fn convex_hull_of_line_string(ls : @type.LineString) -> @type.Polygon {
   @type.Polygon::Polygon(convex_hull_of_coords(ls.coords()), [])
 }
 
 ///|
 /// Convex hull of a `Polygon` (uses its exterior ring's coords).
-pub fn convex_hull_of_polygon(p : @type.Polygon) -> @type.Polygon {
+fn convex_hull_of_polygon(p : @type.Polygon) -> @type.Polygon {
   @type.Polygon::Polygon(convex_hull_of_coords(p.exterior().coords()), [])
 }
 
 ///|
 /// Convex hull of any `Geometry`. The hull is always a `Polygon`.
-pub fn convex_hull_of_geometry(g : @type.Geometry) -> @type.Polygon {
+fn convex_hull_of_geometry(g : @type.Geometry) -> @type.Polygon {
   let coords = coords_of_geometry(g)
   @type.Polygon::Polygon(convex_hull_of_coords(coords), [])
 }

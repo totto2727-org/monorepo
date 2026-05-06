@@ -30,7 +30,7 @@ fn densify_one_segment(
 ///|
 /// Inserts intermediate coordinates along a `LineString` so that no segment
 /// is longer than `max_segment_length`. Endpoints are preserved.
-pub fn densify_line_string(
+fn densify_line_string(
   ls : @type.LineString,
   max_segment_length : Double,
 ) -> @type.LineString {
@@ -55,7 +55,7 @@ pub fn densify_line_string(
 
 ///|
 /// Densifies each ring of a polygon.
-pub fn densify_polygon(
+fn densify_polygon(
   polygon : @type.Polygon,
   max_segment_length : Double,
 ) -> @type.Polygon {

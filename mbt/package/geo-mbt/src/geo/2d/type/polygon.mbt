@@ -75,6 +75,11 @@ pub fn Polygon::is_empty(self : Polygon) -> Bool {
 }
 
 ///|
+pub impl IsEmpty for Polygon with is_empty(self) {
+  self.is_empty()
+}
+
+///|
 /// Returns a new `Polygon` whose `interiors` are the original interiors plus
 /// `new_interior` appended at the end. The original `Polygon` is not modified
 /// (immutable counterpart of Rust upstream `Polygon::interiors_push`, which
