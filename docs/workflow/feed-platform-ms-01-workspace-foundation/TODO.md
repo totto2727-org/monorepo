@@ -23,15 +23,15 @@
   - re_activations: 0
   - notes: Wave 1 root。`vite.config.ts` の setup task は wrangler.jsonc 配置 (T-C/T-D) を前提とするため、本タスク段階で `vp run setup` 単体は通らない (T-C/T-D 完了後に通る設計)。`pnpm install` は repo root で成功
 
-- [ ] **T-B** — feed-platform-backend Effect skeleton 5 ファイル
-  - status: pending
+- [x] **T-B** — feed-platform-backend Effect skeleton 5 ファイル
+  - status: completed
   - dependencies: T-A
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-06T10:51:00Z
+  - completed_at: 2026-05-06T10:58:00Z
+  - commit: 49784f2
+  - implementer: implementer-A (Phase 1 backend chain)
   - re_activations: 0
-  - notes: refinement #1 (Logger Env Service 経由) + #2 (await using) を反映
+  - notes: refinement #1 (Logger Env Service 経由) + #2 (await using) を反映。design.md の `ServiceMap.Service` は `effect@4.0.0-beta.60` 非対応のため `Context.Service` に置換 (saas-example 整合)。dynamicLoggerLayer の Env 依存解決のために Env Layer を `Layer.provide(envLayer)` で内部に重ねる形式に微調整
 
 - [ ] **T-C** — feed-platform-backend health entry
   - status: pending
