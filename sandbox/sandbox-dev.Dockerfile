@@ -6,7 +6,7 @@ FROM ghcr.io/totto2727-org/monorepo/sandbox-base:latest
 # clone), then symlink ~/monorepo/nix to ~/nix so the flake alias
 # `~/nix/sandbox#sandbox` resolves.
 RUN <<EOF
-git clone --filter=blob:none --no-checkout https://github.com/totto2727-org/monorepo.git ~/monorepo
+git clone --filter=tree:0 --no-checkout https://github.com/totto2727-org/monorepo.git ~/monorepo
 cd ~/monorepo
 git sparse-checkout init --cone
 git sparse-checkout set nix/share nix/sandbox
@@ -15,10 +15,11 @@ ln -s ~/monorepo/nix ~/nix
 home-manager switch --flake ~/nix/sandbox#sandbox
 EOF
 
-RUN git clone https://github.com/totto2727-dotfiles/chezmoi.git ~/chezmoi
+RUN <<EOF
+git clone https://github.com/totto2727-dotfiles/chezmoi.git ~/chezmoi
+chezmoi apply --source ~/chezmoi
+EOF
 
 SHELL ["zsh", "-c"]
-
-RUN chezmoi apply --source ~/chezmoi
 
 ENTRYPOINT [ "zsh" ]
