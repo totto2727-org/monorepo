@@ -80,28 +80,16 @@ pub fn Polygon::is_empty(self : Polygon) -> Bool {
 /// (immutable counterpart of Rust upstream `Polygon::interiors_push`, which
 /// mutates `&mut self`).
 ///
-/// `new_interior` itself is also left untouched — `LineString::closed` is
-/// used to obtain a closed view without mutating the caller's value (and
-/// returns `self` when already closed, so no allocation occurs in that
-/// case).
+/// `new_interior` itself is left untouched: `LineString::closed` returns
+/// `self` when already closed (no allocation), or a freshly closed copy
+/// otherwise — never mutating the caller's value.
 ///
-/// **Performance**: the destination interiors `Array` is sized to its final
-/// length (`n + 1`) in a single `Array::makei` allocation. The canonical
-/// `Polygon` constructor then re-runs `LineString::closed` on every entry,
-/// but since the existing interiors and `closed_new` are already closed,
-/// every per-element call returns `self` without copying.
-pub fn Polygon::with_pushed_interior(
+/// The destination `interiors` array is built with the array-spread literal
+/// `[..self.interiors, new_interior.closed()]`, which pre-sizes to the
+/// final length in a single allocation.
+pub fn Polygon::pushed_interior(
   self : Polygon,
   new_interior : LineString,
 ) -> Polygon {
-  let n = self.interiors.length()
-  let closed_new = new_interior.closed()
-  let next_interiors = Array::makei(n + 1, fn(i) {
-    if i < n {
-      self.interiors[i]
-    } else {
-      closed_new
-    }
-  })
-  Polygon(self.exterior, next_interiors)
+  Polygon(self.exterior, [..self.interiors, new_interior.closed()])
 }
