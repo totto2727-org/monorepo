@@ -17,38 +17,21 @@ with pkgs;
   # Coding
   devbox
   chezmoi
-  lefthook
-  go-task
-  nixfmt-rfc-style
-  duckdb
-  # Runtime
-  nodejs
-  bun
-  deno
-  pnpm
-  typescript
-  typescript-language-server
-  python3
-  pyright
-  uv
-  go
-  rustup
   # npm
   (npm {
-    name = "srt";
+    binName = "srt";
     packageName = "@anthropic-ai/sandbox-runtime";
-    additionalArgs = "";
   })
   (npm {
-    name = "skills";
+    binName = "skills";
     packageName = "skills";
   })
   (npm {
-    name = "pi";
+    binName = "pi";
     packageName = "@mariozechner/pi-coding-agent";
   })
   (npm {
-    name = "ctx7";
+    binName = "ctx7";
     packageName = "ctx7";
   })
 ]

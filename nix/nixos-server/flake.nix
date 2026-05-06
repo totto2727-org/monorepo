@@ -134,6 +134,7 @@
 
                 home.packages =
                   (import ../share/packages.nix { inherit pkgs npm; })
+                  ++ (import ../share/packages-dev.nix { inherit pkgs; })
                   ++ (with pkgs; [
                     docker
                   ]);
