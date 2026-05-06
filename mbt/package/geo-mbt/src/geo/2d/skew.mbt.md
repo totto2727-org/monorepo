@@ -67,6 +67,7 @@ A pure x-skew turns rectangles into parallelograms with horizontal top/bottom ed
 
 ```moonbit nocheck
 // Shear x by 45°
+
 ///|
 let unit_square = @type.Geometry::Polygon(
   @type.Polygon::Polygon(

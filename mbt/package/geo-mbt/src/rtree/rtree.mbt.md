@@ -109,6 +109,7 @@ The priority queue ensures we visit subtrees in distance-from-target order. The 
 
 ```moonbit nocheck
 // Build an R-tree of 100 random rects
+
 ///|
 let entries = Array::makei(100, fn(i) {
   let i_d = i.to_double()

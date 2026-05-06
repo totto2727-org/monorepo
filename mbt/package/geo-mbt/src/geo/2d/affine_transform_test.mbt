@@ -1,4 +1,4 @@
-// Tests for affine transforms.
+// Tests for affine_transform.mbt.
 
 ///|
 test "AffineTransform::identity" {
@@ -85,7 +85,7 @@ test "scale_geometry_around: 2x around origin" {
 }
 
 ///|
-test "AffineTransform composition: translate then scale" {
+test "AffineTransform::compose: translate then scale" {
   // First translate by (1,1), then scale by 2: (0,0) -> (1,1) -> (2,2)
   let t1 = AffineTransform::translate_xy(1.0, 1.0)
   let t2 = AffineTransform::scale_xy(2.0, 2.0)
