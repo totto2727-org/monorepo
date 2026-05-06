@@ -53,3 +53,27 @@ test "Line points / start_point / end_point" {
   assert_true(s == @type.Point::Point(0.0, 0.0))
   assert_true(e == @type.Point::Point(3.0, 4.0))
 }
+
+///|
+test "Line reverse: swaps start and end" {
+  let line = @type.Line::from_tuples((1.0, 2.0), (3.0, 4.0))
+  let r = line.reverse()
+  assert_true(r.start() == @type.Coord(3.0, 4.0))
+  assert_true(r.end() == @type.Coord(1.0, 2.0))
+}
+
+///|
+test "Line reverse is involutive (reverse twice == original)" {
+  let line = @type.Line::from_tuples((-2.5, 7.0), (8.0, -1.5))
+  assert_true(line.reverse().reverse() == line)
+}
+
+///|
+test "Line reverse flips determinant sign (matches reversed-construct)" {
+  let a = @type.Coord(4.0, -12.0)
+  let b = @type.Coord(0.0, 9.0)
+  let forward = @type.Line::Line(a, b)
+  let reversed = forward.reverse()
+  assert_eq(reversed.determinant(), -forward.determinant())
+  assert_true(reversed == @type.Line::Line(b, a))
+}

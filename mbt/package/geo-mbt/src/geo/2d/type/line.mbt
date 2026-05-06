@@ -87,3 +87,18 @@ pub fn Line::slope(self : Line) -> Double {
 pub fn Line::determinant(self : Line) -> Double {
   self.start.x() * self.end.y() - self.start.y() * self.end.x()
 }
+
+///|
+/// Returns a new `Line` with `start` and `end` swapped — the same segment
+/// traversed in the opposite direction.
+///
+/// Independent from Rust upstream (`geo_types::Line` does not expose a
+/// dedicated reverse method); added here as a focused helper.
+///
+/// **Note for `LineString::rev_lines`**: that method intentionally does NOT
+/// build forward lines first and then reverse them — it constructs each
+/// segment with swapped endpoints directly inside its loop. This avoids
+/// an avoidable round trip through `Line::reverse`.
+pub fn Line::reverse(self : Line) -> Line {
+  Line::Line(self.end, self.start)
+}

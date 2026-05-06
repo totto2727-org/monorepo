@@ -66,6 +66,7 @@ pub fn Line::end(Self) -> Coord
 pub fn Line::end_point(Self) -> Point
 pub fn Line::from_tuples((Double, Double), (Double, Double)) -> Self
 pub fn Line::points(Self) -> (Point, Point)
+pub fn Line::reverse(Self) -> Self
 pub fn Line::slope(Self) -> Double
 pub fn Line::start(Self) -> Coord
 pub fn Line::start_point(Self) -> Point
