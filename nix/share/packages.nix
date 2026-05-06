@@ -19,10 +19,6 @@ with pkgs;
   chezmoi
   # npm
   (npm {
-    binName = "srt";
-    packageName = "@anthropic-ai/sandbox-runtime";
-  })
-  (npm {
     binName = "skills";
     packageName = "skills";
   })
@@ -33,5 +29,9 @@ with pkgs;
   (npm {
     binName = "ctx7";
     packageName = "ctx7";
+  })
+  (npm {
+    binName = "nono";
+    packageName = "nono";
   })
 ]
