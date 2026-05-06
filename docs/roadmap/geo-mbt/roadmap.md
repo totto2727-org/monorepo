@@ -46,7 +46,7 @@
 - **緯度経度 / 球面・測地距離 (Geodesic / Haversine / Rhumb / Vincenty)** — `geographiclib-rs` 依存の地球楕円体計算は別ロードマップに延期 (本ロードマップは平面 Euclidean に集中)
 - **Boolean Operations (Union / Intersection / Difference / XOR)** — `i_overlay` 依存。実装規模が極めて大きく、独立ロードマップとして扱う
 - **三角形分割 (Earcut / Delaunay / Spade) / Voronoi 図** — `earcut` / `spade` 依存。独立ロードマップに延期
-- **空間索引 (R*-tree / BallTree / 区間木)** — `rstar` / `sif-itree` 依存。独立ロードマップに延期
+- **空間索引 (R\*-tree / BallTree / 区間木)** — `rstar` / `sif-itree` 依存。独立ロードマップに延期
 - **Buffer (オフセット) 演算** — `i_overlay` ベースで提供されており Boolean Ops と一括延期
 - **PROJ ベースの投影変換 (`Transform` / `proj` モジュール)** — Rust 版でも `feature = "proj"` フラグ。本ロードマップでは扱わない
 - **Relate (DE-9IM) / Bentley-Ottmann スイープ / 単調分割 (Monotone / MonotoneChain)** — 実装規模が大きく、堅牢述語と空間索引の整備後に別ロードマップで扱う
@@ -58,7 +58,7 @@
 
 本ロードマップ (ms-01〜ms-15) 完了後、以下の順序で進めた (2026-05-06 同一ブランチ上で完了):
 
-1. **空間索引 (Spatial Index)** ✅ — `src/rtree/` に bulk-loaded R-tree (Sort-Tile-Recursive packing) を実装。`query_rect_intersection` / `query_nearest` を提供。完全な R*-tree ではなく読み取り専用版だが、`indexed` 系ユースケースに十分。詳細はコミット `bdce595`
+1. **空間索引 (Spatial Index)** ✅ — `src/rtree/` に bulk-loaded R-tree (Sort-Tile-Recursive packing) を実装。`query_rect_intersection` / `query_nearest` を提供。完全な R\*-tree ではなく読み取り専用版だが、`indexed` 系ユースケースに十分。詳細はコミット `bdce595`
 2. **トレイト化 (制約用途のみ)** ✅ — `src/geo/2d/traits.mbt` に `CoordsCarrier`, `Bounded`, `HasArea`, `HasCentroid`, `HasLength` を定義。Generic な数値型対応 / 3D 対応は方針通り行わず、各既存ジオメトリ型への impl のみで構成。詳細はコミット `125eb71`
 3. **Boolean Operations (部分実装)** ⚠️ — `src/geo/2d/bool_ops.mbt` に Sutherland-Hodgman アルゴリズムを実装。**凸クリップ多角形による任意多角形のクリッピング限定**。`i_overlay` 相当の任意の多角形 (穴付き / 非凸) 同士の Union / Intersection / Difference / XOR は今後の作業として残る。詳細はコミット `c182ff5`
 4. **Rust 版 fuzz テスト / benchmark の移植** ✅ (プロパティテスト部分) — `src/geo/2d/property_test.mbt` に 11 個の不変性テストを追加。signed_area の符号反転、centroid が凸 polygon に含まれること、convex hull の凸性、translate の可逆性等。`moon bench` 移植は `moonbitlang/x/benchmark` が deprecated のため将来作業として保留。詳細はコミット `4acaccf`
@@ -102,23 +102,23 @@
 
 `dev-roadmap` の Step 2 で確定した本節以降は immutable。`milestones/<milestone-id>.md` に各マイルストーンの詳細を記載。
 
-| ID                          | Title                                              | Estimated dev-workflow cycle count | Milestone dependencies                | Detail                                       |
-| --------------------------- | -------------------------------------------------- | ---------------------------------- | ------------------------------------- | -------------------------------------------- |
-| ms-01-foundation            | Foundation: Package Skeleton + Coord Type          | 1                                  | (none)                                | `milestones/ms-01-foundation.md`             |
-| ms-02-primitives            | Geometry Primitives (Point/Line/LineString/etc.)   | 1                                  | ms-01-foundation                      | `milestones/ms-02-primitives.md`             |
-| ms-03-iteration             | Iteration & Traversal (CoordsIter/LinesIter/Map)   | 1                                  | ms-02-primitives                      | `milestones/ms-03-iteration.md`              |
-| ms-04-bounding-area         | Bounding & Area (BoundingRect/Area/Dimensions)     | 1                                  | ms-03-iteration                       | `milestones/ms-04-bounding-area.md`          |
-| ms-05-robust-kernels        | Robust Predicates (orient2d/incircle) + Kernel     | 1                                  | ms-02-primitives                      | `milestones/ms-05-robust-kernels.md`         |
-| ms-06-vector-distance       | Vector Ops + Euclidean Distance/Length/Bearing     | 1                                  | ms-03-iteration                       | `milestones/ms-06-vector-distance.md`        |
-| ms-07-topology-basics       | Topology Basics (CoordinatePosition/Intersects)    | 1                                  | ms-05-robust-kernels                  | `milestones/ms-07-topology-basics.md`        |
-| ms-08-containment           | Containment (Contains/Within/Covers)               | 1                                  | ms-07-topology-basics                 | `milestones/ms-08-containment.md`            |
-| ms-09-centroid-extremes     | Centroid / Extremes / Winding / IsConvex / Orient  | 1                                  | ms-04-bounding-area, ms-07-topology-basics | `milestones/ms-09-centroid-extremes.md` |
-| ms-10-affine                | Affine Ops (Translate/Rotate/Scale/Skew)           | 1                                  | ms-04-bounding-area                   | `milestones/ms-10-affine.md`                 |
-| ms-11-hulls                 | Convex Hull / Concave Hull                         | 1                                  | ms-05-robust-kernels                  | `milestones/ms-11-hulls.md`                  |
-| ms-12-closest-intersection  | Closest Point / Line Intersection / Locate / Interp | 1                                  | ms-06-vector-distance                 | `milestones/ms-12-closest-intersection.md`   |
-| ms-13-simplify              | Simplify (RDP/VW) / Chaikin / RemoveRepeated       | 1                                  | ms-06-vector-distance                 | `milestones/ms-13-simplify.md`               |
-| ms-14-distance-metrics      | Frechet / Hausdorff Distance / Densify             | 1                                  | ms-06-vector-distance                 | `milestones/ms-14-distance-metrics.md`       |
-| ms-15-validation-finalize   | Validation + API Surface Review + Release Prep     | 1                                  | ms-08-containment, ms-09-centroid-extremes, ms-10-affine, ms-11-hulls, ms-12-closest-intersection, ms-13-simplify, ms-14-distance-metrics | `milestones/ms-15-validation-finalize.md` |
+| ID                         | Title                                               | Estimated dev-workflow cycle count | Milestone dependencies                                                                                                                    | Detail                                     |
+| -------------------------- | --------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| ms-01-foundation           | Foundation: Package Skeleton + Coord Type           | 1                                  | (none)                                                                                                                                    | `milestones/ms-01-foundation.md`           |
+| ms-02-primitives           | Geometry Primitives (Point/Line/LineString/etc.)    | 1                                  | ms-01-foundation                                                                                                                          | `milestones/ms-02-primitives.md`           |
+| ms-03-iteration            | Iteration & Traversal (CoordsIter/LinesIter/Map)    | 1                                  | ms-02-primitives                                                                                                                          | `milestones/ms-03-iteration.md`            |
+| ms-04-bounding-area        | Bounding & Area (BoundingRect/Area/Dimensions)      | 1                                  | ms-03-iteration                                                                                                                           | `milestones/ms-04-bounding-area.md`        |
+| ms-05-robust-kernels       | Robust Predicates (orient2d/incircle) + Kernel      | 1                                  | ms-02-primitives                                                                                                                          | `milestones/ms-05-robust-kernels.md`       |
+| ms-06-vector-distance      | Vector Ops + Euclidean Distance/Length/Bearing      | 1                                  | ms-03-iteration                                                                                                                           | `milestones/ms-06-vector-distance.md`      |
+| ms-07-topology-basics      | Topology Basics (CoordinatePosition/Intersects)     | 1                                  | ms-05-robust-kernels                                                                                                                      | `milestones/ms-07-topology-basics.md`      |
+| ms-08-containment          | Containment (Contains/Within/Covers)                | 1                                  | ms-07-topology-basics                                                                                                                     | `milestones/ms-08-containment.md`          |
+| ms-09-centroid-extremes    | Centroid / Extremes / Winding / IsConvex / Orient   | 1                                  | ms-04-bounding-area, ms-07-topology-basics                                                                                                | `milestones/ms-09-centroid-extremes.md`    |
+| ms-10-affine               | Affine Ops (Translate/Rotate/Scale/Skew)            | 1                                  | ms-04-bounding-area                                                                                                                       | `milestones/ms-10-affine.md`               |
+| ms-11-hulls                | Convex Hull / Concave Hull                          | 1                                  | ms-05-robust-kernels                                                                                                                      | `milestones/ms-11-hulls.md`                |
+| ms-12-closest-intersection | Closest Point / Line Intersection / Locate / Interp | 1                                  | ms-06-vector-distance                                                                                                                     | `milestones/ms-12-closest-intersection.md` |
+| ms-13-simplify             | Simplify (RDP/VW) / Chaikin / RemoveRepeated        | 1                                  | ms-06-vector-distance                                                                                                                     | `milestones/ms-13-simplify.md`             |
+| ms-14-distance-metrics     | Frechet / Hausdorff Distance / Densify              | 1                                  | ms-06-vector-distance                                                                                                                     | `milestones/ms-14-distance-metrics.md`     |
+| ms-15-validation-finalize  | Validation + API Surface Review + Release Prep      | 1                                  | ms-08-containment, ms-09-centroid-extremes, ms-10-affine, ms-11-hulls, ms-12-closest-intersection, ms-13-simplify, ms-14-distance-metrics | `milestones/ms-15-validation-finalize.md`  |
 
 ## 依存グラフ
 

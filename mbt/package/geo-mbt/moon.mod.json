@@ -7,12 +7,7 @@
   "readme": "README.mbt.md",
   "repository": "",
   "license": "Apache-2.0",
-  "keywords": [
-    "gis",
-    "geo",
-    "geography",
-    "geospatial"
-  ],
+  "keywords": ["gis", "geo", "geography", "geospatial"],
   "description": "MoonBit port of georust/geo: 2D planar geospatial primitives and algorithms",
   "source": "./src"
 }
