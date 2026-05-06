@@ -13,13 +13,15 @@ env:
 
 jobs:
   deploy:
-    runs-on: ubuntu-24.04-arm
-    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
     permissions:
       contents: read
       packages: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
 
       - uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
@@ -35,6 +37,7 @@ jobs:
           context: ./sandbox
           file: ./sandbox/sandbox-base.Dockerfile
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ env.IMAGE_PREFIX }}/sandbox-base:latest
 
       - name: Build and push sandbox-dev
@@ -43,6 +46,7 @@ jobs:
           context: ./sandbox
           file: ./sandbox/sandbox-dev.Dockerfile
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ env.IMAGE_PREFIX }}/sandbox-dev:latest
 
       - name: Build and push sandbox-monorepo
@@ -51,4 +55,5 @@ jobs:
           context: ./sandbox
           file: ./sandbox/sandbox-monorepo.Dockerfile
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ env.IMAGE_PREFIX }}/sandbox-monorepo:latest
