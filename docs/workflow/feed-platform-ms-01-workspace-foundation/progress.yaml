@@ -1,9 +1,9 @@
 identifier: feed-platform-ms-01-workspace-foundation
 started_at: 2026-05-04T12:55:38Z
-updated_at: 2026-05-06T10:19:40Z
+updated_at: 2026-05-06T10:32:28Z
 
 status: active
-current_step: 4
+current_step: 6
 
 completed_steps:
   - step: Step 1 Intent Clarification
@@ -21,14 +21,18 @@ completed_steps:
     completed_at: 2026-05-06T10:12:37Z
     artifacts:
       - design.md
-  - step: Step 4 QA Design (候補、User gate 待ち)
+  - step: Step 4 QA Design
     completed_at: 2026-05-06T10:19:40Z
     artifacts:
       - qa-design.md
       - qa-flow.md
+  - step: Step 5 Task Decomposition
+    completed_at: 2026-05-06T10:32:28Z
+    artifacts:
+      - task-plan.md
+      - TODO.md
 
-pending_gates:
-  - User gate (Step 4 → Step 5): qa-design.md / qa-flow.md レビューと承認待ち
+pending_gates: []
 
 active_specialists: []
 
@@ -45,8 +49,8 @@ artifacts:
   qa_design: qa-design.md
   qa_flow: qa-flow.md
   external_adrs: []
-  task_plan: null
-  todo: null
+  task_plan: task-plan.md
+  todo: TODO.md
   review: []
   validation: null
   retrospective: null
@@ -60,6 +64,10 @@ user_approvals:
     approved_at: 2026-05-06T10:12:37Z
     approved_by: user
     notes: design.md (e61e309) を承認。3 件の refinement (Logger Env Service 経由 / await using auto-dispose / PageOrFrame future direction) 適用後、CI PASS 確認済 (run 25429085246)
+  - gate: User gate (Step 4 → Step 5)
+    approved_at: 2026-05-06T10:25:00Z
+    approved_by: user
+    notes: qa-design.md / qa-flow.md (4ebdbdb) を承認、CI PASS 確認済 (run 25429582530)
 
 rollbacks: []
 
