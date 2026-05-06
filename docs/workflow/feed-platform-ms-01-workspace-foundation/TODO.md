@@ -133,9 +133,10 @@
   - started_at: 2026-05-06T10:59:28Z
   - completed_at: 2026-05-06T11:07:11Z
   - commit: da5dfaf
+  - re_activation_commits: [dacf3e4]
   - implementer: implementer-C (Phase 2b identity-provider chain)
-  - re_activations: 0
-  - notes: hono-remix-v3-cloudflare-example 構成踏襲、Counter / TODO / Frame サンプル削除、PageOrFrame 不採用 (TC-022)。Phase 1 deviation (Context.Service + dynamicLoggerLayer の Env closure) を踏襲。`Hono<AppEnv>` chain 中 `app` 自己参照の TS7022/TS7023 を `const app: Hono<AppEnv>` 明示 + `fetcher` 戻り値型明示で解消。`vp test run js/app/identity-provider/app/smoke.test.ts` は 2 件 PASS。`vp check` は識別子のエラー 0 件 (rss-graphql の既存 86 件は既存問題で本タスク責任外)。OAuth 2.1 / Better Auth は ms-02 委譲
+  - re_activations: 1
+  - notes: hono-remix-v3-cloudflare-example 構成踏襲、Counter / TODO / Frame サンプル削除、PageOrFrame 不採用 (TC-022)。Phase 1 deviation (Context.Service + dynamicLoggerLayer の Env closure) を踏襲。`Hono<AppEnv>` chain 中 `app` 自己参照の TS7022/TS7023 を `const app: Hono<AppEnv>` 明示 + `fetcher` 戻り値型明示で解消。`vp test run js/app/identity-provider/app/smoke.test.ts` は 2 件 PASS。`vp check` は識別子のエラー 0 件 (rss-graphql の既存 86 件は既存問題で本タスク責任外)。OAuth 2.1 / Better Auth は ms-02 委譲。**Round 1 re-activation (dacf3e4)**: api-design M-1 / readability M-3 / holistic M-1 / performance m-3 / security m-1 を解消するため `vite.config.ts` を `feed-platform-web` と完全同形 (setup / setup:cloudflare task 追加) に修正、`.gitignore` に `worker-configuration.d.ts` を追加、`routes.ts` の `frames` を `{} as const` に揃え docstring も web と同形化
 
 - [x] **T-J** — identity-provider DB binding コメント予約
   - status: completed
