@@ -66,7 +66,7 @@
     Step 7 → Step 8 user-gate refinement (commit: 2edda8c — ENV detection switch、re_activations は加算しない): `worker.ts` の `Bindings: EnvType` 削除、`AppEnv = { Variables }` のみに簡素化。`wrangler.jsonc` の `vars.ENV` block を削除。
     詳細は task-plan.md "Path restructure deviation note" / design.md "Deviation note: ENV detection switched..." 参照。
 
-- [x] **T-E** — feed-platform-backend smoke test
+- [x] **T-E** — feed-platform-backend Effect Service test (旧 smoke test)
   - status: completed
   - dependencies: T-B
   - started_at: 2026-05-06T11:06:00Z
@@ -74,7 +74,10 @@
   - commit: 12cab81
   - implementer: implementer-A (Phase 1 backend chain)
   - re_activations: 0
-  - notes: `vp test run src/smoke.test.ts` PASS 確認。vite-plus/test 暗黙 config 利用、vitest.config 新設なし
+  - notes: |
+    `vp test run src/smoke.test.ts` PASS 確認。vite-plus/test 暗黙 config 利用、vitest.config 新設なし。
+
+    Step 7 → Step 8 user-gate refinement (test placement、re_activations は加算しない): test ファイルを `src/smoke.test.ts` から **検証対象 module の隣 `src/feature/health.test.ts`** に colocation 移動。describe ラベルを `'feed-platform-backend smoke'` から `'Health'` に変更、import を subpath imports (`#@/feature/...`) から relative path (`./env.ts` `./health.ts`) に変更。test 件数 / 内容 / PASS 振る舞いは不変 (Health 1 件)。詳細は design.md "Deviation note: Test placement switched to feature/<name>.test.ts colocation" 参照。
 
 - [x] **T-F** — feed-platform-web プロジェクト初期化
   - status: completed
@@ -153,6 +156,8 @@
 
     Step 7 → Step 8 user-gate refinement (commit: 2edda8c — ENV detection switch、re_activations は加算しない): `feature/env.ts` に production code 用 `Env.layer` (`Layer.sync` from `process.env.NODE_ENV`) を追加、`feature/runtime/{server,hono}.ts` の `env: Env.Type` 引数削除 + `Env.layer` 利用に切替。test 用 `Env.makeLayer` は維持のため smoke test は不変。
 
+    Step 7 → Step 8 user-gate refinement (test placement、re_activations は加算しない): test ファイルを `app/smoke.test.ts` (Greeting + Health 2 件) から **検証対象 module の隣 `app/feature/greeting.test.ts` + `app/feature/health.test.ts`** (各 1 件) に colocation 分割。describe ラベルを `'feed-platform-web smoke'` から `'Greeting'` / `'Health'` に変更、import を subpath imports から relative path に変更。test 件数 / 内容 / PASS 振る舞いは不変 (Greeting 1 件 + Health 1 件 = 2 件)。詳細は design.md "Deviation note: Test placement switched to feature/<name>.test.ts colocation" 参照。
+
 - [x] **T-I** — identity-provider プロジェクト全体 (T-F〜T-H 同形コピー)
   - status: completed
   - dependencies: なし (Wave 2 ルート、T-F と完全並列可)
@@ -166,6 +171,8 @@
     hono-remix-v3-cloudflare-example 構成踏襲、Counter / TODO / Frame サンプル削除、PageOrFrame 不採用 (TC-022)。Phase 1 deviation (Context.Service + dynamicLoggerLayer の Env closure) を踏襲。`Hono<AppEnv>` chain 中 `app` 自己参照の TS7022/TS7023 を `const app: Hono<AppEnv>` 明示 + `fetcher` 戻り値型明示で解消。`vp test run js/app/identity-provider/app/smoke.test.ts` は 2 件 PASS。`vp check` は識別子のエラー 0 件 (rss-graphql の既存 86 件は既存問題で本タスク責任外)。OAuth 2.1 / Better Auth は ms-02 委譲。**Round 1 re-activation (dacf3e4)**: api-design M-1 / readability M-3 / holistic M-1 / performance m-3 / security m-1 を解消するため `vite.config.ts` を `feed-platform-web` と完全同形 (setup / setup:cloudflare task 追加) に修正、`.gitignore` に `worker-configuration.d.ts` を追加、`routes.ts` の `frames` を `{} as const` に揃え docstring も web と同形化。
 
     Step 7 → Step 8 user-gate refinement (commit: 2edda8c — ENV detection switch、re_activations は加算しない): `feature/env.ts` に production code 用 `Env.layer` (`Layer.sync` from `process.env.NODE_ENV`) を追加、`feature/runtime/{server,hono}.ts` の `env: Env.Type` 引数削除 + `Env.layer` 利用、`app/app.tsx` の `Bindings: EnvType` 削除。`wrangler.jsonc` は ms-02 用コメント予約のみに整理 (`vars.ENV` 削除、`vars` block 全体は ms-02 用 secret 予約コメントとして残置)。test 用 `Env.makeLayer` は維持のため smoke test は不変。
+
+    Step 7 → Step 8 user-gate refinement (test placement、re_activations は加算しない): test ファイルを `app/smoke.test.ts` (Greeting + Health 2 件) から **検証対象 module の隣 `app/feature/greeting.test.ts` + `app/feature/health.test.ts`** (各 1 件) に colocation 分割。describe ラベルは module 名 (`'Greeting'` / `'Health'`)、import は relative path。test 件数 / 内容 / PASS 振る舞いは不変。詳細は design.md "Deviation note: Test placement switched to feature/<name>.test.ts colocation" 参照。
 
 - [x] **T-J** — identity-provider DB binding コメント予約
   - status: completed
@@ -182,7 +189,7 @@
     TC-022 観測仕様 (`grep -E 'PageOrFrame|createPageOrFrame'` 0 hit) を
     コメントレベルでも完全に満たす状態に整理。
 
-    Step 7 → Step 8 user-gate refinement (commit: 2edda8c — ENV detection switch、re_activations は加算しない): `wrangler.jsonc` の `vars.ENV` を削除し、`vars` block 全体は ms-02 用 secret 予約コメントに変更。`BETTER_AUTH_*` のコメント予約は維持。`d1_databases` / `kv_namespaces` のコメント予約も不変。
+    Step 7 → Step 8 user-gate refinement (commit: 2edda8c — ENV detection switch、re*activations は加算しない): `wrangler.jsonc` の `vars.ENV` を削除し、`vars` block 全体は ms-02 用 secret 予約コメントに変更。`BETTER_AUTH*\*` のコメント予約は維持。`d1_databases`/`kv_namespaces` のコメント予約も不変。
 
     **Cross-implementer concern (記録 / Main 確認推奨)**:
     当初 T-J 用に staged していた `identity-provider/wrangler.jsonc` /

@@ -72,16 +72,16 @@
 - **Test cases covered:** TC-007 (worker.ts 配置) / TC-008 (worker.ts ≥ 2、SC-5 観測仕様の `find ... wc -l ≥ 2` 充足)
 - **Design document references:** Project A-5 / S-2 (マイクロサービス境界の構造的予告)
 
-### T-E: feed-platform-backend smoke test
+### T-E: feed-platform-backend Effect Service test (`feature/health.test.ts` colocation)
 
-- **Summary:** `feed-platform-backend/src/smoke.test.ts` (or 同等の test ファイル 1 件) を配置。Effect Service の `Layer.provide` + `Effect.runPromise` の最小経路を踏んで Hello World 確認。`vite-plus/test` デフォルト共通利用 (vitest.config 新設しない)
+- **Summary:** `feed-platform-backend/src/feature/health.test.ts` を配置 (検証対象 module の隣に colocation、Step 7 → Step 8 user-gate refinement で確定。旧計画は `src/smoke.test.ts`)。Effect Service の `Layer.provide` + `Effect.runPromise` の最小経路を踏んで Health.check を検証。`vite-plus/test` デフォルト共通利用 (vitest.config 新設しない)
 - **Artifact:**
-  - `js/app/feed-platform-backend/src/smoke.test.ts` (新規)
+  - `js/app/feed-platform-backend/src/feature/health.test.ts` (新規、describe `'Health'`、relative import `./env.ts` `./health.ts`)
 - **Dependencies:** T-B (Effect skeleton 利用)
 - **Parallelizable:** yes (T-C, T-D と並列、ただし T-B 完了が前提)
 - **Estimated size:** S (1h)
-- **Test cases covered:** TC-004 (smoke test PASS) / TC-005 (各プロジェクト smoke test ≥ 1)
-- **Design document references:** Project A-7 (smoke test) / CC-5 (Test 設定)
+- **Test cases covered:** TC-004 (Effect Service test PASS) / TC-005 (各プロジェクト test ≥ 1)
+- **Design document references:** Project A-7 (Tests, colocated) / CC-5 (Test 設定) / "Deviation note: Test placement switched to feature/<name>.test.ts colocation"
 
 ### T-F: feed-platform-web プロジェクト初期化
 
@@ -113,16 +113,17 @@
 - **Test cases covered:** TC-009 (構成整合) / TC-010 (`app/entry.worker.ts` 等の存在) / TC-022 (PageOrFrame 未採用)
 - **Design document references:** Project B-5 / B-6 / "feed-platform-web / identity-provider の app/app.tsx 形" L296-323
 
-### T-H: feed-platform-web Effect skeleton + smoke test
+### T-H: feed-platform-web Effect skeleton + Effect Service tests (colocated)
 
-- **Summary:** `feed-platform-web/app/feature/{env,greeting,health,runtime/server,runtime/hono}.ts` の 5 ファイルを配置 (backend と同形、namespace のみ差し替え)。`app/smoke.test.ts` も配置
+- **Summary:** `feed-platform-web/app/feature/{env,greeting,health,runtime/server,runtime/hono}.ts` の 5 ファイルを配置 (backend と同形、namespace のみ差し替え)。Effect Service test は **検証対象 module の隣に colocation** (Step 7 → Step 8 user-gate refinement で確定。旧計画は `app/smoke.test.ts`): `app/feature/greeting.test.ts` + `app/feature/health.test.ts` の 2 件
 - **Artifact:**
   - `js/app/feed-platform-web/app/feature/env.ts` (新規)
   - `js/app/feed-platform-web/app/feature/greeting.ts` (新規)
+  - `js/app/feed-platform-web/app/feature/greeting.test.ts` (新規、describe `'Greeting'`、relative import `./greeting.ts`)
   - `js/app/feed-platform-web/app/feature/health.ts` (新規)
+  - `js/app/feed-platform-web/app/feature/health.test.ts` (新規、describe `'Health'`、relative import `./env.ts` `./health.ts`)
   - `js/app/feed-platform-web/app/feature/runtime/server.ts` (新規)
   - `js/app/feed-platform-web/app/feature/runtime/hono.ts` (新規)
-  - `js/app/feed-platform-web/app/smoke.test.ts` (新規)
 - **Dependencies:** T-F, T-G
 - **Parallelizable:** no (同一 implementer で T-G → T-H チェーン)
 - **Estimated size:** M (2-3h)
@@ -136,7 +137,8 @@
   - `js/app/identity-provider/{package.json, tsconfig.json, vite.config.ts, .gitignore}` (新規、T-F 同形)
   - `js/app/identity-provider/app/{entry.worker.ts, app.tsx, routes.ts, assets/entry.ts, ui/document.tsx}` (新規、T-G 同形)
   - `js/app/identity-provider/app/feature/{env, greeting, health, runtime/server, runtime/hono}.ts` (新規、T-H 同形)
-  - `js/app/identity-provider/app/smoke.test.ts` (新規)
+  - `js/app/identity-provider/app/feature/greeting.test.ts` (新規、describe `'Greeting'`、relative import `./greeting.ts`)
+  - `js/app/identity-provider/app/feature/health.test.ts` (新規、describe `'Health'`、relative import `./env.ts` `./health.ts`)
 - **Dependencies:** なし (Wave 2 ルート、T-F〜T-H と完全並列)
 - **Parallelizable:** yes (T-F〜T-H と完全並列、別 implementer instance)
 - **Estimated size:** L (3-4h、T-F〜T-H 相当 + DB binding 予約)
@@ -184,10 +186,10 @@ graph LR
   TB["T-B: backend Effect skeleton"]
   TC["T-C: backend health entry"]
   TD["T-D: backend bff entry"]
-  TE["T-E: backend smoke test"]
+  TE["T-E: backend feature/health.test.ts"]
   TF["T-F: web init"]
   TG["T-G: web app/ + Hello"]
-  TH["T-H: web Effect + smoke"]
+  TH["T-H: web Effect + feature/{greeting,health}.test.ts"]
   TI["T-I: IdP 全体"]
   TJ["T-J: IdP DB binding 予約"]
   TK["T-K: ADR-01 起票"]
@@ -255,6 +257,29 @@ backend が「複数サーバレス関数 (worker)」を持つ性格をディレ
 - `docs(.../...): document backend src/worker/ restructure across artifacts`
 
 詳細は design.md "Deviation note (Step 7 → Step 8 user-gate-driven path restructure)" セクション参照。
+
+## Test placement deviation note (Step 7 → Step 8 user-gate-driven)
+
+Path restructure と同じ user gate 内で User からの追加要望「smoke.test.ts は全て検証ロジックの近くに .test.ts を作成。`feature/*.test.ts` とするのが適切」に基づき、test ファイル配置を **検証対象 module の隣に colocation** する形に変更した。元の T-E / T-H / T-I セクションは **immutable として残す**が、最終リポジトリ状態は本 deviation note の内容を反映する。
+
+**最終配置 (Step 8 Validation 観測対象)**:
+
+- **T-E** 出力 path: `js/app/feed-platform-backend/src/smoke.test.ts` → `js/app/feed-platform-backend/src/feature/health.test.ts` (Health 1 件、describe `'Health'`、relative import `./env.ts` `./health.ts`)
+- **T-H** 出力 path: `js/app/feed-platform-web/app/smoke.test.ts` (Greeting + Health 2 件) → `js/app/feed-platform-web/app/feature/greeting.test.ts` + `js/app/feed-platform-web/app/feature/health.test.ts` (各 1 件、describe ラベル module 名、relative import)
+- **T-I** 出力 path: `js/app/identity-provider/app/smoke.test.ts` (Greeting + Health 2 件) → `js/app/identity-provider/app/feature/greeting.test.ts` + `js/app/identity-provider/app/feature/health.test.ts` (web と同形)
+- 合計 5 件 (test 件数は不変、PASS / FAIL も不変)
+
+**変更理由 (User 意図)**:
+
+検証対象 module と test の物理的近接性で対応関係を直感化する。後続マイルストーンで新規 Service module を追加する際に、隣に専用 test ファイルを置く規約が自明になり、ms-02 以降の実装者の引き継ぎコストを最小化する。
+
+**SC への影響なし**:
+
+- SC-3 (test PASS): test 件数 / 内容は不変、`vp test run js/app` で全 5 件 PASS 確認済
+- SC-2 (`vp check` exit 0): 確認済、本サイクル雛形のエラーゼロ
+- 他 SC: 構造不変
+
+詳細は design.md "Deviation note: Test placement switched to feature/<name>.test.ts colocation" セクション参照。
 
 ## Risks / anticipated Blockers
 

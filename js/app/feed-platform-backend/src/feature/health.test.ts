@@ -1,11 +1,11 @@
 import { Effect, Layer } from 'effect'
 import { describe, expect, test } from 'vite-plus/test'
 
-import * as Env from '#@/feature/env.ts'
-import * as Health from '#@/feature/health.ts'
+import * as Env from './env.ts'
+import * as Health from './health.ts'
 
-describe('feed-platform-backend smoke', () => {
-  test('Health.check returns ok with env injected from layer', async () => {
+describe('Health', () => {
+  test('check returns ok with env injected from layer', async () => {
     const program = Effect.gen(function* () {
       const checker = yield* Health.Service
       return yield* checker.check()

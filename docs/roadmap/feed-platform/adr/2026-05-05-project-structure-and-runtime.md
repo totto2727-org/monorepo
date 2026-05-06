@@ -116,9 +116,10 @@ backend の各 entry は wrangler 上の `name` を **`feed-platform-backend-<en
 ### Newly added
 
 - **3 プロジェクトの最小雛形が `js/app/` 直下に配置**:
-  - `js/app/feed-platform-backend/` (`src/feature/{env,greeting,health,runtime/server,runtime/hono}.ts` + `src/worker/{health,bff}/{worker.ts,wrangler.jsonc}` + `src/smoke.test.ts`)
-  - `js/app/feed-platform-web/` (`app/{entry.worker.ts, app.tsx, routes.ts, assets/entry.ts, ui/document.tsx}` + `app/feature/<5 ファイル>` + `app/smoke.test.ts`)
-  - `js/app/identity-provider/` (T-F〜T-H 同形構造)
+  - `js/app/feed-platform-backend/` (`src/feature/{env,greeting,health,runtime/server,runtime/hono}.ts` + `src/feature/health.test.ts` + `src/worker/{health,bff}/{worker.ts,wrangler.jsonc}`)
+  - `js/app/feed-platform-web/` (`app/{entry.worker.ts, app.tsx, routes.ts, assets/entry.ts, ui/document.tsx}` + `app/feature/<5 ファイル>` + `app/feature/{greeting,health}.test.ts`)
+  - `js/app/identity-provider/` (T-F〜T-H 同形構造、test ファイルも `app/feature/{greeting,health}.test.ts`)
+  - test ファイルは検証対象 module の隣に colocation 配置 (Step 7 → Step 8 user-gate refinement で確定、describe ラベルは module 名 (`'Health'` / `'Greeting'`)、import は relative path)
 - **3 プロジェクト共通の Effect skeleton 5 ファイル** (env.ts = `Layer.succeed` / greeting.ts = `Layer.sync` / health.ts = `Layer.effect` / runtime/server.ts = `ManagedRuntime` + `Layer.unwrap` 経由 Logger 判定 / runtime/hono.ts = `await using` middleware) — design.md CC-7
 - **wrangler.jsonc 構造規約**: `compatibility_flags: ["nodejs_compat"]` + `observability.enabled: true` + `head_sampling_rate: 1` + (backend のみ) `name: feed-platform-backend-<entry>` プレフィックス
 - **vp (Vite+) task 規約**: `vite.config.ts` 内 `run.tasks` に `setup` (および web/IdP は `build`) を定義 (CLAUDE.md `Standard Tasks` 節準拠、backend は `build` 未定義 = Vite+ auto-skip)。`check` / `fix` / `test` は root の `vite.config.ts` 経由で workspace-wide に提供される
@@ -134,6 +135,7 @@ backend の各 entry は wrangler 上の `name` を **`feed-platform-backend-<en
 - 実装時の deviation: `effect@4.0.0-beta.60` (catalog 採用版) は `ServiceMap.Service` 非対応のため、design.md 当初記述の `ServiceMap.Service` は実装上 **`Context.Service`** に置換 (saas-example の整合性踏襲、TODO.md T-B notes)。CC-6 の Service tag namespace 規約は維持
 - Step 7 → Step 8 user-gate refinement: backend entry 配置を `src/<entry>/` から **`src/worker/<entry>/`** に変更 (User 要望、worker 群と feature 群の責務分離をディレクトリ構造で明示するため)。`src/feature/` は src 直下を維持。詳細は design.md "Deviation note (Step 7 → Step 8 user-gate-driven path restructure)" / task-plan.md "Path restructure deviation note" 参照
 - Step 7 → Step 8 user-gate refinement (ENV detection): ENV 取得方法を **`wrangler.jsonc.vars.ENV` (旧設計) から `process.env.NODE_ENV` (新設計、wrangler / vite 自動設定)** に変更 (User 要望、本番 deploy で dev 値が焼き込まれるバグの根本予防)。`feature/env.ts` × 3 に production code 用 `Env.layer` (`Layer.sync` from `process.env.NODE_ENV`) を新設し、test 用 `Env.makeLayer` は維持。`feature/runtime/{server,hono}.ts` × 3 + `worker.ts` × 2 + `app.tsx` × 2 + `wrangler.jsonc` × 4 を整合更新。詳細は design.md "Deviation note: ENV detection switched from `wrangler.jsonc.vars.ENV` to `process.env.NODE_ENV`" 参照
+- Step 7 → Step 8 user-gate refinement (test placement): test ファイル配置を **ソース直下 `smoke.test.ts` 1 ファイル形 (旧設計) から、検証対象 module の隣に置く `feature/<name>.test.ts` colocation 形 (新設計)** に変更 (User 要望「smoke.test.ts は全て検証ロジックの近くに .test.ts を作成」)。3 件の `smoke.test.ts` を削除し、5 件の `feature/<name>.test.ts` (backend `feature/health.test.ts` 1 件 + web/IdP 各 `feature/{greeting,health}.test.ts` 2 件) を新規追加。describe ラベルは module 名、import は relative path。test 件数 (5 件) と PASS/FAIL 振る舞いは不変。詳細は design.md "Deviation note: Test placement switched to feature/<name>.test.ts colocation" / task-plan.md "Test placement deviation note" 参照
 
 ### Constraints going forward
 
@@ -147,6 +149,7 @@ backend の各 entry は wrangler 上の `name` を **`feed-platform-backend-<en
 - **Runtime 解放は `await using` パターン** (= 明示的 `runtime.dispose()` 禁止) を ms-02 以降でも維持。`Runtime.make()` は引数なし (= ENV は内部 `Env.layer` 経由) を維持
 - **Web UI レンダリング戦略**: ms-01 では素朴な `c.render(<Document>...)` のみ。`createPageOrFrame` パターン採用は ms-04 (期間限定共有 UI) / ms-07 (出力プラグイン基盤) の Step 3 (Design) で確定 (design.md L1062-1069 委譲)
 - **テスト設定の分離は需要発生時のみ**: ms-01 段階では vp (Vitest) 設定 1 個のみ。プロジェクトごとの分離 / カスタマイズは ms-02 以降の必要時に実施
+- **テストファイルは検証対象 module の隣に colocation** (= `feature/<name>.test.ts` 形、Step 7 → Step 8 user-gate refinement で確定) を ms-02 以降でも維持。新規 Service module を `feature/auth.ts` 等で追加する際は、隣に `feature/auth.test.ts` を置く規約を踏襲する。describe ラベルは module 名、import は relative path
 
 ### Trade-offs と緩和策
 
