@@ -21,7 +21,7 @@
 - **Immutable operations use the past-participle form** (mirroring TypeScript Array's `toSorted`/`toReversed`, Swift's `sorted`/`reversed`/`appended`). The bare verb (`sort`, `reverse`, `push`, `append`) denotes the **mutating** form; the past participle (`sorted`, `reversed`, `pushed`, `appended`) denotes the **non-mutating** form that returns a new value and leaves the receiver untouched. This rule applies to every method that has a mutable / immutable pair — array helpers, collection wrappers, in-place vs. value-object updates. Examples:
   - `array.sort()` (mutates) ↔ `array.sorted()` (returns sorted copy)
   - `array.push(x)` (mutates) ↔ `array.pushed(x)` (returns extended copy)
-  - `polygon.interiors_push(ring)` (mutating, upstream Rust idiom) ↔ port-side `polygon.interior_appended(ring)` (returns new `Polygon`)
+  - `polygon.push_interior(ring)` (mutating) ↔ `polygon.pushed_interior(ring)` (returns new `Polygon`)
 
   Do NOT name an immutable operation with the bare verb. Do NOT name a mutating operation with the past participle.
 
@@ -110,13 +110,13 @@
 
     **`with_*` is reserved strictly for pure field replacement.** If the operation transforms an existing field rather than overwriting it (e.g. "append one element to an array field", "remove an entry by predicate", "increment a counter"), do NOT name it `with_*`. Use the past-participle naming rule above instead — the operation is still immutable, but it is _not_ a wither.
 
-    | Operation                                                  | Naming                              | Why                                                                                                             |
-    | ---------------------------------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-    | Replace the entire `x` field                               | `point.with_x(5.0)`                 | Pure replacement — wither                                                                                       |
-    | Replace the entire `interiors` array                       | `polygon.with_interiors([r1, r2])`  | Pure replacement — wither                                                                                       |
-    | Append one ring to `interiors` (returning a new `Polygon`) | `polygon.interior_appended(r)`      | Not pure replacement — past-participle non-mutating verb                                                        |
-    | Remove an interior matching a predicate                    | `polygon.interiors_filtered(pred)`  | Not pure replacement                                                                                            |
-    | Pre-existing mutating Rust idiom (`interiors_push`)        | `polygon.interiors_push(r)` (avoid) | Mutating bare verb — only acceptable on a genuinely mutable type; on an immutable port, use the past participle |
+    | Operation                                                  | Naming                             | Why                                                                                                             |
+    | ---------------------------------------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+    | Replace the entire `x` field                               | `point.with_x(5.0)`                | Pure replacement — wither                                                                                       |
+    | Replace the entire `interiors` array                       | `polygon.with_interiors([r1, r2])` | Pure replacement — wither                                                                                       |
+    | Append one ring to `interiors` (returning a new `Polygon`) | `polygon.pushed_interior(r)`       | Not pure replacement — past-participle verb at the front, noun at the back                                      |
+    | Remove an interior matching a predicate                    | `polygon.filtered_interiors(pred)` | Not pure replacement                                                                                            |
+    | Mutating counterpart on a genuinely mutable type           | `builder.push_interior(r)`         | Bare verb at the front. Only acceptable on a mutable type; on an immutable type, use the past-participle form above |
 
   - **Mutable update — setter pattern (`set_hoge`)**: For genuinely mutable types (builders, in-place collection wrappers, types with externally observable identity), define `set_<field>` methods that mutate `self` in place and return `Unit`. The setter pattern is reserved for cases where allocation cost or in-place semantics are part of the intended contract.
 
@@ -447,12 +447,12 @@ MoonBit shares array references, so any caller still holding the reference will 
 
 ```mbt check
 // BAD — `coords` may be aliased by callers; appending corrupts their view.
-fn add_origin(coords : Array[Coord]) -> Unit {
+fn append_origin(coords : Array[Coord]) -> Unit {
   coords.push(Coord::new(0.0, 0.0))
 }
 
 // GOOD — return a new array via spread; original `coords` stays untouched.
-fn coords_with_origin(coords : Array[Coord]) -> Array[Coord] {
+fn appended_origin(coords : Array[Coord]) -> Array[Coord] {
   [..coords, Coord::new(0.0, 0.0)]
 }
 ```
