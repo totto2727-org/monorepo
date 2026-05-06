@@ -115,8 +115,9 @@
   - started_at: 2026-05-06T11:19:00Z
   - completed_at: 2026-05-06T11:21:00Z
   - commit: b5d0bba
+  - re_activation_commits: [cf489b3]
   - implementer: implementer-B (Phase 2a web chain)
-  - re_activations: 0
+  - re_activations: 1
   - notes: |
     `app/feature/{env, greeting, health, runtime/server, runtime/hono}.ts` の 5 ファイルと
     `app/smoke.test.ts` を配置。Phase 1 deviation を踏襲:
@@ -126,6 +127,12 @@
     `vp test run js/app/feed-platform-web/app/smoke.test.ts` は 1 件 PASS。
     `vp check` は feed-platform-web 内では識別子エラー 0 件。
     rss-graphql の既存 86 errors は本サイクル責任外で継続。
+
+    **Round 1 re-activation (cf489b3)**: test-quality M-1 / M-2 を解消するため
+    `app/smoke.test.ts` に `Health.check` テストを追加。
+    backend / IdP と同形の `Health.layer.pipe(Layer.provide(Env.makeLayer(...)))`
+    経由で Layer.effect + Env 注入経路を踏ませ、3 プロジェクト全体で TC-004
+    の `scenario` 性を担保。web smoke は Greeting + Health の 2 件 PASS。
 
 - [x] **T-I** — identity-provider プロジェクト全体 (T-F〜T-H 同形コピー)
   - status: completed
