@@ -33,15 +33,15 @@
   - re_activations: 0
   - notes: refinement #1 (Logger Env Service 経由) + #2 (await using) を反映。design.md の `ServiceMap.Service` は `effect@4.0.0-beta.60` 非対応のため `Context.Service` に置換 (saas-example 整合)。dynamicLoggerLayer の Env 依存解決のために Env Layer を `Layer.provide(envLayer)` で内部に重ねる形式に微調整
 
-- [ ] **T-C** — feed-platform-backend health entry
-  - status: pending
+- [x] **T-C** — feed-platform-backend health entry
+  - status: completed
   - dependencies: T-A, T-B
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-06T10:58:00Z
+  - completed_at: 2026-05-06T11:02:00Z
+  - commit: 7812ba6
+  - implementer: implementer-A (Phase 1 backend chain)
   - re_activations: 0
-  - notes: -
+  - notes: `vp run setup:cloudflare:health` で worker-configuration.d.ts 生成確認済
 
 - [ ] **T-D** — feed-platform-backend bff entry
   - status: pending
