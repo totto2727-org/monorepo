@@ -62,6 +62,7 @@
                   # Coding
                   "zed"
                   "orbstack"
+                  "warp"
                   # Game
                   "heroic"
                   # Utility
