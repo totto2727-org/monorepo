@@ -1,0 +1,26 @@
+{
+  "name": "identity-provider",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#@/*": "./app/*"
+  },
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "vp dev",
+    "start": "wrangler dev",
+    "typecheck": "tsgo --noEmit"
+  },
+  "dependencies": {
+    "effect": "catalog:effect",
+    "hono": "catalog:hono",
+    "hono-remix-middleware": "workspace:*",
+    "remix": "catalog:remix",
+    "vite-plugin-remix": "workspace:*"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "catalog:cloudflare",
+    "@totto2727/fp": "workspace:*",
+    "wrangler": "catalog:cloudflare"
+  }
+}
