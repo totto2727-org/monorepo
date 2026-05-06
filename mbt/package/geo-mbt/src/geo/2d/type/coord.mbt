@@ -30,7 +30,7 @@ pub fn Coord::Coord(x : Double, y : Double) -> Coord {
 ///|
 /// Creates a `Coord` at the origin (0.0, 0.0).
 pub fn Coord::zero() -> Coord {
-  Coord::{ x: 0.0, y: 0.0 }
+  Coord(0.0, 0.0)
 }
 
 ///|
@@ -62,7 +62,7 @@ pub fn Coord::x_y(self : Coord) -> (Double, Double) {
 ///|
 /// Builds a `Coord` from a `(x, y)` tuple.
 pub fn Coord::from_tuple(t : (Double, Double)) -> Coord {
-  Coord::{ x: t.0, y: t.1 }
+  Coord(t.0, t.1)
 }
 
 ///|
@@ -72,7 +72,7 @@ pub fn Coord::from_array(a : Array[Double]) -> Coord {
   if a.length() != 2 {
     abort("Coord::from_array expects an array of length 2")
   }
-  Coord::{ x: a[0], y: a[1] }
+  Coord(a[0], a[1])
 }
 
 ///|
@@ -86,19 +86,19 @@ pub fn Coord::to_array(self : Coord) -> Array[Double] {
 ///|
 /// Negates this coordinate.
 pub impl Neg for Coord with neg(self) {
-  Coord::{ x: -self.x, y: -self.y }
+  Coord(-self.x, -self.y)
 }
 
 ///|
 /// Adds two coordinates component-wise.
 pub impl Add for Coord with add(self, other) {
-  Coord::{ x: self.x + other.x, y: self.y + other.y }
+  Coord(self.x + other.x, self.y + other.y)
 }
 
 ///|
 /// Subtracts another coordinate from this one component-wise.
 pub impl Sub for Coord with sub(self, other) {
-  Coord::{ x: self.x - other.x, y: self.y - other.y }
+  Coord(self.x - other.x, self.y - other.y)
 }
 
 ///|
@@ -107,7 +107,7 @@ pub impl Sub for Coord with sub(self, other) {
 /// MoonBit's trait system cannot express the Rust `Mul<T>` overload across
 /// different types, so we expose this as a regular method instead.
 pub fn Coord::mul(self : Coord, scalar : Double) -> Coord {
-  Coord::{ x: self.x * scalar, y: self.y * scalar }
+  Coord(self.x * scalar, self.y * scalar)
 }
 
 ///|
@@ -116,7 +116,7 @@ pub fn Coord::mul(self : Coord, scalar : Double) -> Coord {
 /// MoonBit's trait system cannot express the Rust `Div<T>` overload across
 /// different types, so we expose this as a regular method instead.
 pub fn Coord::div(self : Coord, scalar : Double) -> Coord {
-  Coord::{ x: self.x / scalar, y: self.y / scalar }
+  Coord(self.x / scalar, self.y / scalar)
 }
 
 ///|

@@ -13,21 +13,22 @@ pub struct Point {
 } derive(Eq, Debug, Hash, Default)
 
 ///|
-/// Creates a new point.
+/// Canonical constructor: creates a new point from `x` and `y`.
 pub fn Point::Point(x : Double, y : Double) -> Point {
   Point::{ coord: Coord(x, y) }
 }
 
 ///|
-/// Creates a point from a `Coord`.
+/// Creates a point from a `Coord`. Goes through the canonical constructor.
 pub fn Point::from_coord(c : Coord) -> Point {
-  Point::{ coord: c }
+  Point::Point(c.x(), c.y())
 }
 
 ///|
-/// Creates a point from a `(x, y)` tuple.
+/// Creates a point from a `(x, y)` tuple. Goes through the canonical
+/// constructor.
 pub fn Point::from_tuple(t : (Double, Double)) -> Point {
-  Point::{ coord: Coord(t.0, t.1) }
+  Point::Point(t.0, t.1)
 }
 
 ///|
@@ -57,13 +58,13 @@ pub fn Point::x_y(self : Point) -> (Double, Double) {
 ///|
 /// Returns a new point with `x` set, the original `y` preserved.
 pub fn Point::with_x(self : Point, x : Double) -> Point {
-  Point::{ coord: Coord(x, self.coord.y()) }
+  Point::Point(x, self.coord.y())
 }
 
 ///|
 /// Returns a new point with `y` set, the original `x` preserved.
 pub fn Point::with_y(self : Point, y : Double) -> Point {
-  Point::{ coord: Coord(self.coord.x(), y) }
+  Point::Point(self.coord.x(), y)
 }
 
 ///|
@@ -85,27 +86,27 @@ pub fn Point::cross_prod(self : Point, b : Point, c : Point) -> Double {
 
 ///|
 pub impl Neg for Point with neg(self) {
-  Point::{ coord: -self.coord }
+  Point::from_coord(-self.coord)
 }
 
 ///|
 pub impl Add for Point with add(self, other) {
-  Point::{ coord: self.coord + other.coord }
+  Point::from_coord(self.coord + other.coord)
 }
 
 ///|
 pub impl Sub for Point with sub(self, other) {
-  Point::{ coord: self.coord - other.coord }
+  Point::from_coord(self.coord - other.coord)
 }
 
 ///|
 /// Multiplies the point's coordinates by a scalar.
 pub fn Point::mul(self : Point, scalar : Double) -> Point {
-  Point::{ coord: self.coord.mul(scalar) }
+  Point::from_coord(self.coord.mul(scalar))
 }
 
 ///|
 /// Divides the point's coordinates by a scalar.
 pub fn Point::div(self : Point, scalar : Double) -> Point {
-  Point::{ coord: self.coord.div(scalar) }
+  Point::from_coord(self.coord.div(scalar))
 }

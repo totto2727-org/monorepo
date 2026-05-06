@@ -25,7 +25,7 @@ pub fn Line::from_tuples(
   start : (Double, Double),
   end : (Double, Double),
 ) -> Line {
-  Line::{ start: Coord::from_tuple(start), end: Coord::from_tuple(end) }
+  Line::Line(Coord::from_tuple(start), Coord::from_tuple(end))
 }
 
 ///|

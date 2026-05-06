@@ -53,6 +53,14 @@ pub struct RTree[T] {
 }
 
 ///|
+/// Canonical constructor for `RTree`. Most callers use the higher-level
+/// `RTree::bulk_load` factory; this raw constructor is kept private to the
+/// package and is the single struct-literal entry point for the type.
+fn[T] RTree::RTree(root : Node[T]?, size : Int) -> RTree[T] {
+  RTree::{ root, size }
+}
+
+///|
 pub fn[T] RTree::is_empty(self : RTree[T]) -> Bool {
   self.size == 0
 }
@@ -225,7 +233,7 @@ fn[T] build_internal_level(nodes : Array[Node[T]]) -> Array[Node[T]] {
 pub fn[T] RTree::bulk_load(entries : Array[Entry[T]]) -> RTree[T] {
   let n = entries.length()
   if n == 0 {
-    return RTree::{ root: None, size: 0 }
+    return RTree(None, 0)
   }
   let mut current_level : Array[Node[T]] = build_leaves(entries)
   while current_level.length() > 1 {
@@ -236,7 +244,7 @@ pub fn[T] RTree::bulk_load(entries : Array[Entry[T]]) -> RTree[T] {
   } else {
     None
   }
-  RTree::{ root, size: n }
+  RTree(root, n)
 }
 
 ///|

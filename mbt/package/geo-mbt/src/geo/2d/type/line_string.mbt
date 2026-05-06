@@ -23,8 +23,7 @@ pub fn LineString::LineString(coords : Array[Coord]) -> LineString {
 ///|
 /// Creates a new `LineString` from `(x, y)` tuples.
 pub fn LineString::from_tuples(tuples : Array[(Double, Double)]) -> LineString {
-  let coords = tuples.map(Coord::from_tuple)
-  LineString::{ coords, }
+  LineString::LineString(tuples.map(Coord::from_tuple))
 }
 
 ///|

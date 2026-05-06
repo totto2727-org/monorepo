@@ -15,7 +15,7 @@ pub fn MultiPoint::MultiPoint(points : Array[Point]) -> MultiPoint {
 
 ///|
 pub fn MultiPoint::from_tuples(tuples : Array[(Double, Double)]) -> MultiPoint {
-  MultiPoint::{ points: tuples.map(Point::from_tuple) }
+  MultiPoint::MultiPoint(tuples.map(Point::from_tuple))
 }
 
 ///|
