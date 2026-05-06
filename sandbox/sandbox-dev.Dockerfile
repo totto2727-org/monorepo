@@ -2,17 +2,23 @@
 
 FROM ghcr.io/totto2727-org/monorepo/sandbox-base:latest
 
+# Sparse-checkout `nix/share` + `nix/sandbox` from the monorepo (blobless partial
+# clone), then symlink ~/monorepo/nix to ~/nix so the flake alias
+# `~/nix/sandbox#sandbox` resolves.
 RUN <<EOF
-nix run nixpkgs#git clone https://github.com/totto2727-dotfiles/nix.git
-nix run nixpkgs#git clone https://github.com/totto2727-dotfiles/chezmoi.git
+git clone --filter=blob:none --no-checkout https://github.com/totto2727-org/monorepo.git ~/monorepo
+cd ~/monorepo
+git sparse-checkout init --cone
+git sparse-checkout set nix/share nix/sandbox
+git checkout
+ln -s ~/monorepo/nix ~/nix
 home-manager switch --flake ~/nix/sandbox#sandbox
 EOF
 
+RUN git clone https://github.com/totto2727-dotfiles/chezmoi.git ~/chezmoi
+
 SHELL ["zsh", "-c"]
 
-RUN <<EOF
-rustup default stable
-chezmoi apply --source ~/chezmoi
-EOF
+RUN chezmoi apply --source ~/chezmoi
 
 ENTRYPOINT [ "zsh" ]
