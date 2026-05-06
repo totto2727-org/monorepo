@@ -19,8 +19,8 @@ test "skew_geometry - 45 deg X-skew shifts (1,1) to (2,1)" {
   let g = @type.Geometry::Point(@type.Point::Point(1.0, 1.0))
   let pt = try! skew_geometry(g, 45.0, 0.0).try_into_point()
   // Up to floating-point round-off the result is (2, 1).
-  assert_true((pt.x() - 2.0).abs() < 1.0e-9)
-  assert_true((pt.y() - 1.0).abs() < 1.0e-9)
+  assert_true((pt.x() - 2.0).abs() < TOLERANCE)
+  assert_true((pt.y() - 1.0).abs() < TOLERANCE)
 }
 ```
 
@@ -39,7 +39,7 @@ test "skew_geometry_around - pivot at the point leaves it unchanged" {
     @type.Coord::Coord(3.0, 4.0),
   )
   let pt = try! sheared.try_into_point()
-  assert_true((pt.x() - 3.0).abs() < 1.0e-9)
-  assert_true((pt.y() - 4.0).abs() < 1.0e-9)
+  assert_true((pt.x() - 3.0).abs() < TOLERANCE)
+  assert_true((pt.y() - 4.0).abs() < TOLERANCE)
 }
 ```

@@ -35,8 +35,8 @@ test "HasCentroid::centroid - unit square Polygon centroid is (0.5, 0.5)" {
     Some(p) => p
     None => abort("expected centroid for non-empty polygon")
   }
-  assert_true((c.x() - 0.5).abs() < 1.0e-9)
-  assert_true((c.y() - 0.5).abs() < 1.0e-9)
+  assert_true((c.x() - 0.5).abs() < TOLERANCE)
+  assert_true((c.y() - 0.5).abs() < TOLERANCE)
 }
 ```
 

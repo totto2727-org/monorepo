@@ -31,8 +31,8 @@ test "rotate_geometry_around - origin pivot, square 180 deg" {
   let p = try! rotated.try_into_polygon()
   let coords = p.exterior().coords()
   // (1, 0) → (-1, 0) up to floating-point round-off.
-  assert_true((coords[1].x() - -1.0).abs() < 1.0e-9)
-  assert_true(coords[1].y().abs() < 1.0e-9)
+  assert_true((coords[1].x() - -1.0).abs() < TOLERANCE)
+  assert_true(coords[1].y().abs() < TOLERANCE)
 }
 ```
 
@@ -59,7 +59,7 @@ test "rotate_geometry_around_centroid - 180 deg leaves centroid fixed" {
     Some(p) => p
     None => abort("expected centroid for rotated polygon")
   }
-  assert_true((rotated_centroid.x() - original_centroid.x()).abs() < 1.0e-9)
-  assert_true((rotated_centroid.y() - original_centroid.y()).abs() < 1.0e-9)
+  assert_true((rotated_centroid.x() - original_centroid.x()).abs() < TOLERANCE)
+  assert_true((rotated_centroid.y() - original_centroid.y()).abs() < TOLERANCE)
 }
 ```

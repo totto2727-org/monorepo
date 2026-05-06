@@ -138,6 +138,6 @@ test "intersection_sutherland_hodgman - inner triangle equals clip area" {
     intersection_sutherland_hodgman(subject, clip),
   )
   // The clip triangle is entirely inside the subject — area = 0.5 * 6 * 6 = 18.
-  assert_true((area - 18.0).abs() < 1.0e-9)
+  assert_true((area - 18.0).abs() < TOLERANCE)
 }
 ```

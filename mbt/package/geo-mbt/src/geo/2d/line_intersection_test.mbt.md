@@ -29,8 +29,8 @@ test "line_intersection - classic crossing intersects at center" {
     _ => abort("expected SinglePoint")
   }
   // Up to floating-point round-off the intersection is (5, 5), proper=true.
-  assert_true((result.0.x() - 5.0).abs() < 1.0e-9)
-  assert_true((result.0.y() - 5.0).abs() < 1.0e-9)
+  assert_true((result.0.x() - 5.0).abs() < TOLERANCE)
+  assert_true((result.0.y() - 5.0).abs() < TOLERANCE)
   assert_true(result.1)
 }
 ```

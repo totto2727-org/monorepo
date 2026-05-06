@@ -105,8 +105,8 @@ test "property: translate is invertible" {
     5.0,
   )
   let pt = try! restored.try_into_point()
-  assert_true((pt.x() - 3.0).abs() < 1.0e-9)
-  assert_true((pt.y() - 4.0).abs() < 1.0e-9)
+  assert_true((pt.x() - 3.0).abs() < TOLERANCE)
+  assert_true((pt.y() - 4.0).abs() < TOLERANCE)
 }
 ```
 
@@ -144,7 +144,7 @@ test "property: line_locate after line_interpolate is approximately identity" {
       Some(f2) => f2
       None => abort("expected Some(fraction) for non-degenerate line")
     }
-    assert_true((f - f2).abs() < 1.0e-9)
+    assert_true((f - f2).abs() < TOLERANCE)
   }
 }
 ```
@@ -202,7 +202,7 @@ test "property: frechet_distance is at least the endpoint distance" {
     @type.Coord::Coord(0.0, 0.0),
     @type.Coord::Coord(0.0, 5.0),
   )
-  assert_true(frechet_distance(a, b) >= endpoint_dist - 1.0e-9)
+  assert_true(frechet_distance(a, b) >= endpoint_dist - TOLERANCE)
 }
 ```
 
@@ -230,6 +230,6 @@ test "property: scale by factor f scales area by f²" {
   ).try_into_polygon()
   let scaled_area = HasArea::unsigned_area(scaled)
   // Area scales by factor² = 4.
-  assert_true((scaled_area - original_area * 4.0).abs() < 1.0e-9)
+  assert_true((scaled_area - original_area * 4.0).abs() < TOLERANCE)
 }
 ```

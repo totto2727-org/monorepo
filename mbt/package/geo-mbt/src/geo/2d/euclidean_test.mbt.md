@@ -114,7 +114,7 @@ test "euclidean_distance_coord_to_line - past start clamps to start distance" {
   let l = @type.Line::from_tuples((0.0, 0.0), (10.0, 0.0))
   let d = euclidean_distance_coord_to_line(@type.Coord::Coord(-5.0, 3.0), l)
   let expected = (34.0 : Double).sqrt()
-  assert_true((d - expected).abs() < 1.0e-9)
+  assert_true((d - expected).abs() < TOLERANCE)
 }
 ```
 
@@ -157,9 +157,9 @@ test "euclidean_destination - east and north" {
   let east = euclidean_destination(@type.Coord::Coord(0.0, 0.0), 0.0, 5.0)
   let north = euclidean_destination(@type.Coord::Coord(0.0, 0.0), 90.0, 5.0)
   // Up to floating-point round-off the results are (5, 0) and (0, 5).
-  assert_true((east.x() - 5.0).abs() < 1.0e-9)
-  assert_true(east.y().abs() < 1.0e-9)
-  assert_true(north.x().abs() < 1.0e-9)
-  assert_true((north.y() - 5.0).abs() < 1.0e-9)
+  assert_true((east.x() - 5.0).abs() < TOLERANCE)
+  assert_true(east.y().abs() < TOLERANCE)
+  assert_true(north.x().abs() < TOLERANCE)
+  assert_true((north.y() - 5.0).abs() < TOLERANCE)
 }
 ```

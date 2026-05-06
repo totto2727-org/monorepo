@@ -35,7 +35,7 @@ test "hausdorff_distance_coords - 2 vs 1 corners gives sqrt 50" {
   let b = [@type.Coord::Coord(5.0, 5.0)]
   let d = hausdorff_distance_coords(a, b)
   let expected = (50.0 : Double).sqrt()
-  assert_true((d - expected).abs() < 1.0e-9)
+  assert_true((d - expected).abs() < TOLERANCE)
 }
 ```
 

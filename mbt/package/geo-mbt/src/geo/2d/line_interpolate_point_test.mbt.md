@@ -60,7 +60,7 @@ test "line_string_interpolate_point - half-way along" {
     None => abort("expected Some for non-empty linestring")
   }
   // Up to floating-point round-off the result is (10, 0).
-  assert_true((p.x() - 10.0).abs() < 1.0e-9)
-  assert_true(p.y().abs() < 1.0e-9)
+  assert_true((p.x() - 10.0).abs() < TOLERANCE)
+  assert_true(p.y().abs() < TOLERANCE)
 }
 ```

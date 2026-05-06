@@ -120,8 +120,8 @@ test "HasCentroid - dispatches to per-type centroid()" {
     Some(c) => c
     None => abort("expected centroid for non-degenerate polygon")
   }
-  assert_true((c.x() - 2.0).abs() < 1.0e-9)
-  assert_true((c.y() - 2.0).abs() < 1.0e-9)
+  assert_true((c.x() - 2.0).abs() < TOLERANCE)
+  assert_true((c.y() - 2.0).abs() < TOLERANCE)
 }
 ```
 

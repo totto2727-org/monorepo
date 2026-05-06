@@ -3,6 +3,17 @@
 // and line_measures/{euclidean,bearing,destination}.rs
 
 ///|
+/// Default tolerance for approximate Euclidean comparisons.
+///
+/// Sized to absorb the cumulative round-off of a few floating-point operations
+/// (trigonometric / affine transforms / dot products) — about seven orders of
+/// magnitude looser than the machine epsilon `@robust.EPSILON ≈ 1.11e-16`.
+/// Use this when comparing coordinates that are mathematically equal but went
+/// through several float operations; for exact-equality checks compare with
+/// `@test.assert_eq` (or `==`) directly.
+pub const TOLERANCE : Double = 1.0e-9
+
+///|
 /// Euclidean distance between two coordinates.
 pub fn euclidean_distance_coords(a : @type.Coord, b : @type.Coord) -> Double {
   let dx = b.x() - a.x()

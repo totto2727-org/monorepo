@@ -114,9 +114,9 @@ test "AffineTransform::scale_xy - pure scaling" {
 test "AffineTransform::rotate_origin - 90 degrees CCW" {
   let t = AffineTransform::rotate_origin(90.0)
   let p = t.apply(@type.Coord::Coord(1.0, 0.0))
-  // Up to ~1e-9 floating-point round-off the result is (0, 1).
-  assert_true(p.x().abs() < 1.0e-9)
-  assert_true((p.y() - 1.0).abs() < 1.0e-9)
+  // Up to ~`TOLERANCE` floating-point round-off the result is (0, 1).
+  assert_true(p.x().abs() < TOLERANCE)
+  assert_true((p.y() - 1.0).abs() < TOLERANCE)
 }
 ```
 
@@ -130,8 +130,8 @@ test "AffineTransform::skew_origin - 45 deg X-skew shifts y onto x" {
   let t = AffineTransform::skew_origin(45.0, 0.0)
   let p = t.apply(@type.Coord::Coord(0.0, 1.0))
   // Up to floating-point round-off the result is (1, 1) since tan(45°) = 1.
-  assert_true((p.x() - 1.0).abs() < 1.0e-9)
-  assert_true((p.y() - 1.0).abs() < 1.0e-9)
+  assert_true((p.x() - 1.0).abs() < TOLERANCE)
+  assert_true((p.y() - 1.0).abs() < TOLERANCE)
 }
 ```
 

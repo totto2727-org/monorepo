@@ -34,7 +34,7 @@ test "frechet_distance - parallel translated lines give the offset" {
   let a = @type.LineString::from_tuples([(0.0, 0.0), (10.0, 0.0)])
   let b = @type.LineString::from_tuples([(0.0, 5.0), (10.0, 5.0)])
   let d = frechet_distance(a, b)
-  assert_true((d - 5.0).abs() < 1.0e-9)
+  assert_true((d - 5.0).abs() < TOLERANCE)
 }
 ```
 
