@@ -36,7 +36,8 @@ pub fn coords_of_multi_line_string(
 
 ///|
 pub fn coords_of_polygon(p : @type.Polygon) -> Array[@type.Coord] {
-  p.exterior()
+  p
+  .exterior()
   .coords()
   .iter()
   .concat(
@@ -47,7 +48,11 @@ pub fn coords_of_polygon(p : @type.Polygon) -> Array[@type.Coord] {
 
 ///|
 pub fn coords_of_multi_polygon(mp : @type.MultiPolygon) -> Array[@type.Coord] {
-  mp.polygons().iter().flat_map(fn(poly) { coords_of_polygon(poly).iter() }).collect()
+  mp
+  .polygons()
+  .iter()
+  .flat_map(fn(poly) { coords_of_polygon(poly).iter() })
+  .collect()
 }
 
 ///|
@@ -71,7 +76,11 @@ pub fn coords_of_triangle(t : @type.Triangle) -> Array[@type.Coord] {
 pub fn coords_of_geometry_collection(
   gc : @type.GeometryCollection,
 ) -> Array[@type.Coord] {
-  gc.geometries().iter().flat_map(fn(g) { coords_of_geometry(g).iter() }).collect()
+  gc
+  .geometries()
+  .iter()
+  .flat_map(fn(g) { coords_of_geometry(g).iter() })
+  .collect()
 }
 
 ///|
@@ -110,7 +119,8 @@ pub fn exterior_coords_of_polygon(p : @type.Polygon) -> Array[@type.Coord] {
 pub fn exterior_coords_of_multi_polygon(
   mp : @type.MultiPolygon,
 ) -> Array[@type.Coord] {
-  mp.polygons()
+  mp
+  .polygons()
   .iter()
   .flat_map(fn(poly) { exterior_coords_of_polygon(poly).iter() })
   .collect()

@@ -29,12 +29,7 @@ pub fn covers_polygon_line_string(
   polygon : @type.Polygon,
   ls : @type.LineString,
 ) -> Bool {
-  for c in ls.coords() {
-    if !covers_polygon_coord(polygon, c) {
-      return false
-    }
-  }
-  true
+  ls.coords().iter().all(fn(c) { covers_polygon_coord(polygon, c) })
 }
 
 ///|
@@ -42,12 +37,7 @@ pub fn covers_polygon_polygon(
   outer : @type.Polygon,
   inner : @type.Polygon,
 ) -> Bool {
-  for c in inner.exterior().coords() {
-    if !covers_polygon_coord(outer, c) {
-      return false
-    }
-  }
-  true
+  inner.exterior().coords().iter().all(fn(c) { covers_polygon_coord(outer, c) })
 }
 
 ///|
@@ -70,14 +60,8 @@ pub fn covers_geometry(a : @type.Geometry, b : @type.Geometry) -> Bool {
       covers_polygon_polygon(o, i)
     (@type.Geometry::Rect(r), @type.Geometry::Point(pt)) =>
       covers_rect_coord(r, pt.coord())
-    (@type.Geometry::MultiPolygon(mp), @type.Geometry::Point(pt)) => {
-      for p in mp.polygons() {
-        if covers_polygon_point(p, pt) {
-          return true
-        }
-      }
-      false
-    }
+    (@type.Geometry::MultiPolygon(mp), @type.Geometry::Point(pt)) =>
+      mp.polygons().iter().any(fn(p) { covers_polygon_point(p, pt) })
     _ => contains_geometry(a, b)
   }
 }

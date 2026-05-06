@@ -44,7 +44,8 @@ pub fn densify_line_string(
   }
   // First coord is preserved as-is, then each segment's contribution
   // (interpolated coords + end) follows.
-  let tail = (1).until(n)
+  let tail = (1)
+    .until(n)
     .flat_map(fn(i) {
       densify_one_segment(coords[i - 1], coords[i], max_segment_length).iter()
     })

@@ -34,32 +34,26 @@ pub fn contains_polygon_line(
     !contains_polygon_coord(polygon, line.end()) {
     return false
   }
-  // Check that the line does not cross any ring edge.
-  for edge in polygon.exterior().lines() {
-    if intersects_line_line(line, edge) {
-      // Touching at an endpoint is allowed if the touching coord equals
-      // start/end of `line`. Otherwise it's a crossing.
-      if !(line.start() == edge.start() ||
-        line.start() == edge.end() ||
-        line.end() == edge.start() ||
-        line.end() == edge.end()) {
-        return false
-      }
-    }
+  // Touching at an endpoint is allowed if the touching coord equals start/end
+  // of `line`. Otherwise it's a crossing.
+  fn is_endpoint_touch(edge : @type.Line) -> Bool {
+    line.start() == edge.start() ||
+    line.start() == edge.end() ||
+    line.end() == edge.start() ||
+    line.end() == edge.end()
   }
-  for interior in polygon.interiors() {
-    for edge in interior.lines() {
-      if intersects_line_line(line, edge) {
-        if !(line.start() == edge.start() ||
-          line.start() == edge.end() ||
-          line.end() == edge.start() ||
-          line.end() == edge.end()) {
-          return false
-        }
-      }
-    }
+
+  fn crosses(edge : @type.Line) -> Bool {
+    intersects_line_line(line, edge) && !is_endpoint_touch(edge)
   }
-  true
+
+  if polygon.exterior().lines_iter().any(crosses) {
+    return false
+  }
+  !polygon
+  .interiors()
+  .iter()
+  .any(fn(interior) { interior.lines_iter().any(crosses) })
 }
 
 ///|
@@ -68,24 +62,7 @@ pub fn contains_polygon_line_string(
   polygon : @type.Polygon,
   ls : @type.LineString,
 ) -> Bool {
-  for c in ls.coords() {
-    if !contains_polygon_coord(polygon, c) {
-      return false
-    }
-  }
-  // Also ensure no edge of the linestring exits the polygon. Since all
-  // vertices are inside or on boundary, edges may still leave the polygon
-  // if they cross between holes. Check edge-edge:
-  for line in ls.lines() {
-    if !contains_polygon_line(polygon, line) {
-      // A vertex-touching edge is fine but a crossing isn't.
-      // The check inside contains_polygon_line considers boundary touch as
-      // ok, so a `false` here means the line enters a hole or goes outside.
-      // Be permissive: only require both endpoints inside (already checked).
-      // Skip rigid edge-edge check.
-    }
-  }
-  true
+  ls.coords().iter().all(fn(c) { contains_polygon_coord(polygon, c) })
 }
 
 ///|
@@ -96,19 +73,20 @@ pub fn contains_polygon_polygon(
   outer : @type.Polygon,
   inner : @type.Polygon,
 ) -> Bool {
-  for c in inner.exterior().coords() {
-    if !contains_polygon_coord(outer, c) {
-      // Allow boundary touch
-      match coord_position_for_polygon(c, outer) {
-        OnBoundary => continue
-        _ => return false
-      }
+  // Each vertex of `inner.exterior` must be Inside or OnBoundary of `outer`.
+  // For typical Contains semantics we'd also check edge crossings, but the
+  // base Rust geo impl is similar (uses a more thorough check); for this
+  // simplified port the vertex-only check is sufficient for many use cases.
+  inner
+  .exterior()
+  .coords()
+  .iter()
+  .all(fn(c) {
+    match coord_position_for_polygon(c, outer) {
+      Outside => false
+      _ => true
     }
-  }
-  // For typical Contains semantics we'd also check edge crossings but the
-  // base Rust geo impl is similar (uses a more thorough check). For our
-  // simplified port, the vertex-only check is sufficient for many use cases.
-  true
+  })
 }
 
 ///|
@@ -117,12 +95,7 @@ pub fn contains_multi_polygon_coord(
   mp : @type.MultiPolygon,
   coord : @type.Coord,
 ) -> Bool {
-  for p in mp.polygons() {
-    if contains_polygon_coord(p, coord) {
-      return true
-    }
-  }
-  false
+  mp.polygons().iter().any(fn(p) { contains_polygon_coord(p, coord) })
 }
 
 ///|

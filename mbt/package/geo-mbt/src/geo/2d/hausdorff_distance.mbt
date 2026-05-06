@@ -11,20 +11,25 @@ fn directed_hausdorff(
   if from.length() == 0 || to.length() == 0 {
     return @double.infinity
   }
-  let mut max_dist = 0.0
-  for a in from {
-    let mut min_dist = @double.infinity
-    for b in to {
-      let d = euclidean_distance_coords(a, b)
-      if d < min_dist {
-        min_dist = d
-      }
-    }
+  from
+  .iter()
+  .fold(init=0.0, fn(max_dist, a) {
+    let min_dist = to
+      .iter()
+      .fold(init=@double.infinity, fn(acc, b) {
+        let d = euclidean_distance_coords(a, b)
+        if d < acc {
+          d
+        } else {
+          acc
+        }
+      })
     if min_dist > max_dist {
-      max_dist = min_dist
+      min_dist
+    } else {
+      max_dist
     }
-  }
-  max_dist
+  })
 }
 
 ///|

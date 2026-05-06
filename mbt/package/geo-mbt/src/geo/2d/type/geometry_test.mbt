@@ -12,12 +12,13 @@ test "try_into_point: happy path" {
 ///|
 test "try_into_point: mismatch raises with expected/found" {
   let g = @type.Geometry::Line(@type.Line::from_tuples((0.0, 0.0), (1.0, 1.0)))
-  match (try? g.try_into_point()) {
-    Err(@type.MismatchedGeometry(expected~, found~)) => {
+  try g.try_into_point() catch {
+    @type.MismatchedGeometry(expected~, found~) => {
       assert_eq(expected, "Point")
       assert_eq(found, "Line")
     }
-    Ok(_) => abort("expected mismatch error")
+  } noraise {
+    _ => abort("expected mismatch error")
   }
 }
 
@@ -93,18 +94,21 @@ test "try_into_*: every other variant -> mismatch with correct found name" {
     (0.0, 1.0),
   ])
   let g = @type.Geometry::Polygon(@type.Polygon::Polygon(exterior, []))
-  let extracted_found = match (try? g.try_into_point()) {
-    Err(@type.MismatchedGeometry(found~, ..)) => found
+  let extracted_found = try g.try_into_point() catch {
+    @type.MismatchedGeometry(found~, ..) => found
+  } noraise {
     _ => abort("expected mismatch")
   }
   assert_eq(extracted_found, "Polygon")
-  let extracted_found_2 = match (try? g.try_into_line()) {
-    Err(@type.MismatchedGeometry(found~, ..)) => found
+  let extracted_found_2 = try g.try_into_line() catch {
+    @type.MismatchedGeometry(found~, ..) => found
+  } noraise {
     _ => abort("expected mismatch")
   }
   assert_eq(extracted_found_2, "Polygon")
-  let extracted_found_3 = match (try? g.try_into_rect()) {
-    Err(@type.MismatchedGeometry(found~, ..)) => found
+  let extracted_found_3 = try g.try_into_rect() catch {
+    @type.MismatchedGeometry(found~, ..) => found
+  } noraise {
     _ => abort("expected mismatch")
   }
   assert_eq(extracted_found_3, "Polygon")

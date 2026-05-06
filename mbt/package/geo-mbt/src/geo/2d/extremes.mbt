@@ -29,25 +29,17 @@ pub fn extremes_of_coords(coords : Array[@type.Coord]) -> Outcome? {
   if coords.length() == 0 {
     return None
   }
-  let mut x_min = coords[0]
-  let mut x_max = coords[0]
-  let mut y_min = coords[0]
-  let mut y_max = coords[0]
-  for i = 1; i < coords.length(); i = i + 1 {
-    let c = coords[i]
-    if c.x() < x_min.x() {
-      x_min = c
-    }
-    if c.x() > x_max.x() {
-      x_max = c
-    }
-    if c.y() < y_min.y() {
-      y_min = c
-    }
-    if c.y() > y_max.y() {
-      y_max = c
-    }
-  }
+  let init = (coords[0], coords[0], coords[0], coords[0])
+  let acc = coords
+    .iter()
+    .fold(init~, fn(acc, c) {
+      let x_min = if c.x() < acc.0.x() { c } else { acc.0 }
+      let x_max = if c.x() > acc.1.x() { c } else { acc.1 }
+      let y_min = if c.y() < acc.2.y() { c } else { acc.2 }
+      let y_max = if c.y() > acc.3.y() { c } else { acc.3 }
+      (x_min, x_max, y_min, y_max)
+    })
+  let (x_min, x_max, y_min, y_max) = acc
   Some(Outcome(x_min, x_max, y_min, y_max))
 }
 

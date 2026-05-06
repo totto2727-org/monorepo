@@ -99,20 +99,50 @@ fn rect_center_y(r : @type.Rect) -> Double {
 
 ///|
 fn[T] entries_bbox(entries : Array[Entry[T]]) -> @type.Rect {
-  let mut current = entries[0].bbox
-  for i = 1; i < entries.length(); i = i + 1 {
-    current = rect_union(current, entries[i].bbox)
-  }
-  current
+  entries
+  .iter()
+  .drop(1)
+  .fold(init=entries[0].bbox, fn(acc, e) { rect_union(acc, e.bbox) })
 }
 
 ///|
 fn[T] nodes_bbox(nodes : Array[Node[T]]) -> @type.Rect {
-  let mut current = nodes[0].node_bbox()
-  for i = 1; i < nodes.length(); i = i + 1 {
-    current = rect_union(current, nodes[i].node_bbox())
+  nodes
+  .iter()
+  .drop(1)
+  .fold(init=nodes[0].node_bbox(), fn(acc, node) {
+    rect_union(acc, node.node_bbox())
+  })
+}
+
+///|
+
+///|
+/// Compares two values by mapping them through `key` and ordering by the
+/// `Double` result.
+fn[T] cmp_by_double(a : T, b : T, key : (T) -> Double) -> Int {
+  let ka = key(a)
+  let kb = key(b)
+  if ka < kb {
+    -1
+  } else if ka > kb {
+    1
+  } else {
+    0
   }
-  current
+}
+
+///|
+/// Sorts `entries` by `key` (without mutating the input) and slices the result
+/// into chunks of size up to `slice_size`.
+fn[T] partition_entries_by(
+  entries : Array[Entry[T]],
+  slice_size : Int,
+  key : (Entry[T]) -> Double,
+) -> Array[Array[Entry[T]]] {
+  let sorted = Array::makei(entries.length(), fn(i) { entries[i] })
+  sorted.sort_by(fn(a, b) { cmp_by_double(a, b, key) })
+  sorted.chunks(slice_size).map(fn(chunk) { chunk.iter().to_array() })
 }
 
 ///|
@@ -120,31 +150,7 @@ fn[T] partition_entries_by_x(
   entries : Array[Entry[T]],
   slice_size : Int,
 ) -> Array[Array[Entry[T]]] {
-  let sorted = entries.copy()
-  sorted.sort_by(fn(a, b) {
-    let ax = rect_center_x(a.bbox)
-    let bx = rect_center_x(b.bbox)
-    if ax < bx {
-      -1
-    } else if ax > bx {
-      1
-    } else {
-      0
-    }
-  })
-  let result : Array[Array[Entry[T]]] = []
-  let n = sorted.length()
-  let mut i = 0
-  while i < n {
-    let end = if i + slice_size > n { n } else { i + slice_size }
-    let slice : Array[Entry[T]] = []
-    for j = i; j < end; j = j + 1 {
-      slice.push(sorted[j])
-    }
-    result.push(slice)
-    i = i + slice_size
-  }
-  result
+  partition_entries_by(entries, slice_size, fn(e) { rect_center_x(e.bbox) })
 }
 
 ///|
@@ -152,31 +158,7 @@ fn[T] partition_entries_by_y(
   entries : Array[Entry[T]],
   slice_size : Int,
 ) -> Array[Array[Entry[T]]] {
-  let sorted = entries.copy()
-  sorted.sort_by(fn(a, b) {
-    let ay = rect_center_y(a.bbox)
-    let by = rect_center_y(b.bbox)
-    if ay < by {
-      -1
-    } else if ay > by {
-      1
-    } else {
-      0
-    }
-  })
-  let result : Array[Array[Entry[T]]] = []
-  let n = sorted.length()
-  let mut i = 0
-  while i < n {
-    let end = if i + slice_size > n { n } else { i + slice_size }
-    let slice : Array[Entry[T]] = []
-    for j = i; j < end; j = j + 1 {
-      slice.push(sorted[j])
-    }
-    result.push(slice)
-    i = i + slice_size
-  }
-  result
+  partition_entries_by(entries, slice_size, fn(e) { rect_center_y(e.bbox) })
 }
 
 ///|
@@ -190,41 +172,46 @@ fn[T] build_leaves(entries : Array[Entry[T]]) -> Array[Node[T]] {
   let leaf_count = (n + MAX_ENTRIES - 1) / MAX_ENTRIES
   let strip_count = (leaf_count.to_double().sqrt().ceil() : Double).to_int()
   let actual_strip_count = if strip_count == 0 { 1 } else { strip_count }
-  let entries_per_strip = (n + actual_strip_count - 1) / actual_strip_count * 1
+  let entries_per_strip = (n + actual_strip_count - 1) / actual_strip_count
   let entries_per_strip_padded = if entries_per_strip < MAX_ENTRIES {
     MAX_ENTRIES
   } else {
     (entries_per_strip + MAX_ENTRIES - 1) / MAX_ENTRIES * MAX_ENTRIES
   }
-  let strips = partition_entries_by_x(entries, entries_per_strip_padded)
-  let leaves : Array[Node[T]] = []
-  for strip in strips {
-    let leaf_groups = partition_entries_by_y(strip, MAX_ENTRIES)
-    for group in leaf_groups {
-      let bbox = entries_bbox(group)
-      leaves.push(Node::Leaf(bbox, group))
-    }
-  }
-  leaves
+  partition_entries_by_x(entries, entries_per_strip_padded)
+  .iter()
+  .flat_map(fn(strip) {
+    partition_entries_by_y(strip, MAX_ENTRIES)
+    .iter()
+    .map(fn(group) { Node::Leaf(entries_bbox(group), group) })
+  })
+  .collect()
 }
 
 ///|
 fn[T] build_internal_level(nodes : Array[Node[T]]) -> Array[Node[T]] {
   // Group up nodes into the next level: pack MAX_ENTRIES per parent.
-  let result : Array[Node[T]] = []
-  let n = nodes.length()
-  let mut i = 0
-  while i < n {
-    let end = if i + MAX_ENTRIES > n { n } else { i + MAX_ENTRIES }
-    let children : Array[Node[T]] = []
-    for j = i; j < end; j = j + 1 {
-      children.push(nodes[j])
-    }
-    let bbox = nodes_bbox(children)
-    result.push(Node::Internal(bbox, children))
-    i = i + MAX_ENTRIES
+  nodes
+  .chunks(MAX_ENTRIES)
+  .map(fn(chunk) {
+    let children = chunk.iter().to_array()
+    Node::Internal(nodes_bbox(children), children)
+  })
+}
+
+///|
+/// Builds an `RTree` from the given entries. Returns an empty tree when
+/// `entries` is empty.
+
+///|
+/// Recursively packs each level of nodes (already at the leaf level) up to
+/// the root by grouping `MAX_ENTRIES` siblings per parent.
+fn[T] reduce_to_root(level : Array[Node[T]]) -> Array[Node[T]] {
+  if level.length() <= 1 {
+    level
+  } else {
+    reduce_to_root(build_internal_level(level))
   }
-  result
 }
 
 ///|
@@ -235,15 +222,8 @@ pub fn[T] RTree::bulk_load(entries : Array[Entry[T]]) -> RTree[T] {
   if n == 0 {
     return RTree(None, 0)
   }
-  let mut current_level : Array[Node[T]] = build_leaves(entries)
-  while current_level.length() > 1 {
-    current_level = build_internal_level(current_level)
-  }
-  let root = if current_level.length() == 1 {
-    Some(current_level[0])
-  } else {
-    None
-  }
+  let root_level = reduce_to_root(build_leaves(entries))
+  let root = if root_level.length() == 1 { Some(root_level[0]) } else { None }
   RTree(root, n)
 }
 
@@ -253,39 +233,37 @@ pub fn[T] RTree::query_rect_intersection(
   self : RTree[T],
   query : @type.Rect,
 ) -> Array[T] {
-  let result : Array[T] = []
   match self.root {
-    None => return result
-    Some(root) => collect_intersecting(root, query, result)
+    None => []
+    Some(root) => intersecting(root, query)
   }
-  result
 }
 
 ///|
-fn[T] collect_intersecting(
-  node : Node[T],
-  query : @type.Rect,
-  out : Array[T],
-) -> Unit {
+/// Returns all leaf-entry values reachable from `node` whose bbox intersects
+/// `query`. Pure: builds new arrays via iter chains rather than mutating an
+/// out-parameter.
+fn[T] intersecting(node : Node[T], query : @type.Rect) -> Array[T] {
   match node {
-    Leaf(bbox, entries) => {
+    Leaf(bbox, entries) =>
       if !rect_intersects(bbox, query) {
-        return
+        []
+      } else {
+        entries
+        .iter()
+        .filter(fn(e) { rect_intersects(e.bbox, query) })
+        .map(fn(e) { e.value })
+        .collect()
       }
-      for entry in entries {
-        if rect_intersects(entry.bbox, query) {
-          out.push(entry.value)
-        }
-      }
-    }
-    Internal(bbox, children) => {
+    Internal(bbox, children) =>
       if !rect_intersects(bbox, query) {
-        return
+        []
+      } else {
+        children
+        .iter()
+        .flat_map(fn(c) { intersecting(c, query).iter() })
+        .collect()
       }
-      for child in children {
-        collect_intersecting(child, query, out)
-      }
-    }
   }
 }
 
@@ -321,38 +299,40 @@ fn rect_min_dist_sq(coord : @type.Coord, rect : @type.Rect) -> Double {
 pub fn[T] RTree::query_nearest(self : RTree[T], target : @type.Coord) -> T? {
   match self.root {
     None => None
-    Some(root) => {
-      let mut best : T? = None
-      let mut best_dist = @double.infinity
-      nearest_recurse(root, target, best_dist, fn(value, dist) {
-        if dist < best_dist {
-          best_dist = dist
-          best = Some(value)
-        }
-      })
-      best
-    }
+    Some(root) =>
+      match nearest_recurse(root, target, @double.infinity) {
+        Some((value, _)) => Some(value)
+        None => None
+      }
   }
 }
 
 ///|
+/// Returns the (value, squared-distance) pair from the subtree rooted at
+/// `node` that is closer than `current_best`, or `None` if nothing in this
+/// subtree improves on `current_best`. Pure: no captured mutation.
 fn[T] nearest_recurse(
   node : Node[T],
   target : @type.Coord,
   current_best : Double,
-  update : (T, Double) -> Unit,
-) -> Unit {
+) -> (T, Double)? {
+  let initial : ((T, Double)?, Double) = (None, current_best)
   match node {
     Leaf(_, entries) =>
-      for entry in entries {
+      entries
+      .iter()
+      .fold(init=initial, fn(acc, entry) {
+        let (best, best_dist) = acc
         let d = rect_min_dist_sq(target, entry.bbox)
-        if d < current_best {
-          update(entry.value, d)
+        if d < best_dist {
+          (Some((entry.value, d)), d)
+        } else {
+          (best, best_dist)
         }
-      }
+      }).0
     Internal(_, children) => {
       // Visit children in order of increasing min-distance for pruning.
-      let with_dist : Array[(Double, Node[T])] = children.map(fn(child) {
+      let with_dist = children.map(fn(child) {
         (rect_min_dist_sq(target, child.node_bbox()), child)
       })
       with_dist.sort_by(fn(a, b) {
@@ -364,12 +344,20 @@ fn[T] nearest_recurse(
           0
         }
       })
-      for pair in with_dist {
-        if pair.0 >= current_best {
-          break
+      with_dist
+      .iter()
+      .take_while(fn(pair) { pair.0 < current_best })
+      .fold(init=initial, fn(acc, pair) {
+        let (_, best_dist) = acc
+        if pair.0 >= best_dist {
+          acc
+        } else {
+          match nearest_recurse(pair.1, target, best_dist) {
+            Some((v, d)) => (Some((v, d)), d)
+            None => acc
+          }
         }
-        nearest_recurse(pair.1, target, current_best, update)
-      }
+      }).0
     }
   }
 }

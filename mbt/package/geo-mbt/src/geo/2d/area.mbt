@@ -10,16 +10,17 @@ fn sum_line_determinants(points : Array[@type.Coord]) -> Double {
   if points.length() <= 2 {
     return 0.0
   }
-  let mut sum = 0.0
   let shift = points[0]
-  let mut prev = points[1] - shift
-  for i = 2; i < points.length(); i = i + 1 {
-    let shifted = points[i] - shift
-    let line = @type.Line::Line(prev, shifted)
-    sum = sum + line.determinant()
-    prev = shifted
-  }
-  sum
+  let init_prev = points[1] - shift
+  let acc = (2)
+    .until(points.length())
+    .fold(init=(init_prev, 0.0), fn(acc, i) {
+      let (prev, sum) = acc
+      let shifted = points[i] - shift
+      let line = @type.Line::Line(prev, shifted)
+      (shifted, sum + line.determinant())
+    })
+  acc.1
 }
 
 ///|
@@ -48,10 +49,12 @@ fn linestring_signed_area(ls : @type.LineString) -> Double {
 pub fn signed_area_of_polygon(p : @type.Polygon) -> Double {
   let exterior_area = linestring_signed_area(p.exterior())
   let is_negative = exterior_area < 0.0
-  let mut area = exterior_area.abs()
-  for interior in p.interiors() {
-    area = area - linestring_signed_area(interior).abs()
-  }
+  let area = p
+    .interiors()
+    .iter()
+    .fold(init=exterior_area.abs(), fn(acc, interior) {
+      acc - linestring_signed_area(interior).abs()
+    })
   if is_negative {
     -area
   } else {
@@ -66,20 +69,18 @@ pub fn unsigned_area_of_polygon(p : @type.Polygon) -> Double {
 
 ///|
 pub fn signed_area_of_multi_polygon(mp : @type.MultiPolygon) -> Double {
-  let mut total = 0.0
-  for p in mp.polygons() {
-    total = total + signed_area_of_polygon(p)
-  }
-  total
+  mp
+  .polygons()
+  .iter()
+  .fold(init=0.0, fn(acc, p) { acc + signed_area_of_polygon(p) })
 }
 
 ///|
 pub fn unsigned_area_of_multi_polygon(mp : @type.MultiPolygon) -> Double {
-  let mut total = 0.0
-  for p in mp.polygons() {
-    total = total + unsigned_area_of_polygon(p)
-  }
-  total
+  mp
+  .polygons()
+  .iter()
+  .fold(init=0.0, fn(acc, p) { acc + unsigned_area_of_polygon(p) })
 }
 
 ///|
@@ -112,13 +113,11 @@ pub fn signed_area_of_geometry(g : @type.Geometry) -> Double {
     @type.Geometry::MultiPolygon(mp) => signed_area_of_multi_polygon(mp)
     @type.Geometry::Rect(r) => signed_area_of_rect(r)
     @type.Geometry::Triangle(t) => signed_area_of_triangle(t)
-    @type.Geometry::GeometryCollection(gc) => {
-      let mut total = 0.0
-      for g2 in gc.geometries() {
-        total = total + signed_area_of_geometry(g2)
-      }
-      total
-    }
+    @type.Geometry::GeometryCollection(gc) =>
+      gc
+      .geometries()
+      .iter()
+      .fold(init=0.0, fn(acc, g2) { acc + signed_area_of_geometry(g2) })
     _ => 0.0
   }
 }
@@ -133,13 +132,11 @@ pub fn unsigned_area_of_geometry(g : @type.Geometry) -> Double {
     @type.Geometry::MultiPolygon(mp) => unsigned_area_of_multi_polygon(mp)
     @type.Geometry::Rect(r) => unsigned_area_of_rect(r)
     @type.Geometry::Triangle(t) => unsigned_area_of_triangle(t)
-    @type.Geometry::GeometryCollection(gc) => {
-      let mut total = 0.0
-      for g2 in gc.geometries() {
-        total = total + unsigned_area_of_geometry(g2)
-      }
-      total
-    }
+    @type.Geometry::GeometryCollection(gc) =>
+      gc
+      .geometries()
+      .iter()
+      .fold(init=0.0, fn(acc, g2) { acc + unsigned_area_of_geometry(g2) })
     _ => 0.0
   }
 }

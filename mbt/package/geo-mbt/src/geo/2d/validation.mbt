@@ -25,7 +25,10 @@ fn all_finite(coords : Array[@type.Coord]) -> Bool {
 ///|
 /// Helper: optional-singleton — returns `[problem]` when `flag` holds, `[]`
 /// otherwise. Used to express a per-rule contribution without mutation.
-fn problem_if(flag : Bool, problem : ValidationProblem) -> Array[ValidationProblem] {
+fn problem_if(
+  flag : Bool,
+  problem : ValidationProblem,
+) -> Array[ValidationProblem] {
   if flag {
     [problem]
   } else {
@@ -50,9 +53,7 @@ fn validate_ring(ring : @type.LineString) -> Array[ValidationProblem] {
 }
 
 ///|
-fn validate_line_string(
-  ls : @type.LineString,
-) -> Array[ValidationProblem] {
+fn validate_line_string(ls : @type.LineString) -> Array[ValidationProblem] {
   let coords = ls.coords()
   let too_few = problem_if(coords.length() < 2, TooFewPoints)
   let non_finite = problem_if(!all_finite(coords), NonFiniteCoord)
@@ -64,12 +65,10 @@ fn validate_line_string(
 /// indicates the geometry is valid (within the simplified port's checks).
 pub fn validation_problems(g : @type.Geometry) -> Array[ValidationProblem] {
   match g {
-    @type.Geometry::Point(p) => problem_if(!is_finite(p.coord()), NonFiniteCoord)
+    @type.Geometry::Point(p) =>
+      problem_if(!is_finite(p.coord()), NonFiniteCoord)
     @type.Geometry::Line(l) =>
-      problem_if(
-        !is_finite(l.start()) || !is_finite(l.end()),
-        NonFiniteCoord,
-      )
+      problem_if(!is_finite(l.start()) || !is_finite(l.end()), NonFiniteCoord)
     @type.Geometry::LineString(ls) => validate_line_string(ls)
     @type.Geometry::Polygon(p) => {
       let exterior_problems = validate_ring(p.exterior())
@@ -100,10 +99,7 @@ pub fn validation_problems(g : @type.Geometry) -> Array[ValidationProblem] {
       })
       .collect()
     @type.Geometry::Rect(r) =>
-      problem_if(
-        !is_finite(r.min()) || !is_finite(r.max()),
-        NonFiniteCoord,
-      )
+      problem_if(!is_finite(r.min()) || !is_finite(r.max()), NonFiniteCoord)
     @type.Geometry::Triangle(t) =>
       problem_if(
         !is_finite(t.v0()) || !is_finite(t.v1()) || !is_finite(t.v2()),

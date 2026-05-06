@@ -98,3 +98,34 @@ pub fn Rect::to_polygon(self : Rect) -> Polygon {
   ])
   Polygon::Polygon(exterior, [])
 }
+
+///|
+/// Splits the rectangle into two equal-width halves along the X-axis at the
+/// midpoint. Returns `(left, right)` where `left.max.x == right.min.x` is
+/// the shared mid-X. The shared mid coordinate is computed once and reused
+/// in both halves so floating-point round-off is bit-identical on the seam.
+///
+/// Mirrors Rust upstream `geo_types::Rect::split_x` (which returns a
+/// `[Rect<T>; 2]` fixed-length array; a tuple is the closest MoonBit
+/// equivalent that preserves the "exactly two" type-level guarantee).
+pub fn Rect::split_x(self : Rect) -> (Rect, Rect) {
+  let mid_x = (self.min.x() + self.max.x()) / 2.0
+  let left = Rect::Rect(self.min, Coord(mid_x, self.max.y()))
+  let right = Rect::Rect(Coord(mid_x, self.min.y()), self.max)
+  (left, right)
+}
+
+///|
+/// Splits the rectangle into two equal-height halves along the Y-axis at
+/// the midpoint. Returns `(bottom, top)` where `bottom.max.y == top.min.y`
+/// is the shared mid-Y. The shared mid coordinate is computed once and
+/// reused in both halves so floating-point round-off is bit-identical on
+/// the seam.
+///
+/// Mirrors Rust upstream `geo_types::Rect::split_y`.
+pub fn Rect::split_y(self : Rect) -> (Rect, Rect) {
+  let mid_y = (self.min.y() + self.max.y()) / 2.0
+  let bottom = Rect::Rect(self.min, Coord(self.max.x(), mid_y))
+  let top = Rect::Rect(Coord(self.min.x(), mid_y), self.max)
+  (bottom, top)
+}

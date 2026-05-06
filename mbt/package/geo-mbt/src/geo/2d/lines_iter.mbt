@@ -26,7 +26,8 @@ pub fn lines_of_multi_line_string(
 /// Returns the line segments of the polygon's exterior ring followed by
 /// each interior ring's segments.
 pub fn lines_of_polygon(p : @type.Polygon) -> Array[@type.Line] {
-  p.exterior()
+  p
+  .exterior()
   .lines()
   .iter()
   .concat(
@@ -37,7 +38,11 @@ pub fn lines_of_polygon(p : @type.Polygon) -> Array[@type.Line] {
 
 ///|
 pub fn lines_of_multi_polygon(mp : @type.MultiPolygon) -> Array[@type.Line] {
-  mp.polygons().iter().flat_map(fn(poly) { lines_of_polygon(poly).iter() }).collect()
+  mp
+  .polygons()
+  .iter()
+  .flat_map(fn(poly) { lines_of_polygon(poly).iter() })
+  .collect()
 }
 
 ///|
@@ -57,7 +62,11 @@ pub fn lines_of_triangle(t : @type.Triangle) -> Array[@type.Line] {
 pub fn lines_of_geometry_collection(
   gc : @type.GeometryCollection,
 ) -> Array[@type.Line] {
-  gc.geometries().iter().flat_map(fn(g) { lines_of_geometry(g).iter() }).collect()
+  gc
+  .geometries()
+  .iter()
+  .flat_map(fn(g) { lines_of_geometry(g).iter() })
+  .collect()
 }
 
 ///|

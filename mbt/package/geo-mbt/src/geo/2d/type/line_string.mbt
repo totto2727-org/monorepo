@@ -95,9 +95,7 @@ pub fn LineString::lines(self : LineString) -> Array[Line] {
   if n < 2 {
     return []
   }
-  Array::makei(n - 1, fn(i) {
-    Line::Line(self.coords[i], self.coords[i + 1])
-  })
+  Array::makei(n - 1, fn(i) { Line::Line(self.coords[i], self.coords[i + 1]) })
 }
 
 ///|

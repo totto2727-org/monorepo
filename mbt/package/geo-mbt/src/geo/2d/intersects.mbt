@@ -54,12 +54,7 @@ pub fn intersects_coord_line_string(
   coord : @type.Coord,
   ls : @type.LineString,
 ) -> Bool {
-  for line in ls.lines() {
-    if coord_on_line(coord, line) {
-      return true
-    }
-  }
-  false
+  ls.lines_iter().any(fn(line) { coord_on_line(coord, line) })
 }
 
 ///|
@@ -67,12 +62,7 @@ pub fn intersects_line_line_string(
   l : @type.Line,
   ls : @type.LineString,
 ) -> Bool {
-  for segment in ls.lines() {
-    if intersects_line_line(l, segment) {
-      return true
-    }
-  }
-  false
+  ls.lines_iter().any(fn(segment) { intersects_line_line(l, segment) })
 }
 
 ///|
@@ -80,14 +70,9 @@ pub fn intersects_line_string_line_string(
   a : @type.LineString,
   b : @type.LineString,
 ) -> Bool {
-  for la in a.lines() {
-    for lb in b.lines() {
-      if intersects_line_line(la, lb) {
-        return true
-      }
-    }
-  }
-  false
+  a
+  .lines_iter()
+  .any(fn(la) { b.lines_iter().any(fn(lb) { intersects_line_line(la, lb) }) })
 }
 
 ///|
@@ -107,43 +92,33 @@ pub fn intersects_line_polygon(l : @type.Line, p : @type.Polygon) -> Bool {
   if intersects_coord_polygon(l.end(), p) {
     return true
   }
-  for edge in p.exterior().lines() {
-    if intersects_line_line(l, edge) {
-      return true
-    }
+  if p.exterior().lines_iter().any(fn(edge) { intersects_line_line(l, edge) }) {
+    return true
   }
-  for interior in p.interiors() {
-    for edge in interior.lines() {
-      if intersects_line_line(l, edge) {
-        return true
-      }
-    }
-  }
-  false
+  p
+  .interiors()
+  .iter()
+  .any(fn(interior) {
+    interior.lines_iter().any(fn(edge) { intersects_line_line(l, edge) })
+  })
 }
 
 ///|
 pub fn intersects_polygon_polygon(a : @type.Polygon, b : @type.Polygon) -> Bool {
   // Check if any vertex of a is inside or on boundary of b, or vice versa
-  for c in a.exterior().coords() {
-    if intersects_coord_polygon(c, b) {
-      return true
-    }
+  if a.exterior().coords().iter().any(fn(c) { intersects_coord_polygon(c, b) }) {
+    return true
   }
-  for c in b.exterior().coords() {
-    if intersects_coord_polygon(c, a) {
-      return true
-    }
+  if b.exterior().coords().iter().any(fn(c) { intersects_coord_polygon(c, a) }) {
+    return true
   }
   // Check edge-edge intersection
-  for ea in a.exterior().lines() {
-    for eb in b.exterior().lines() {
-      if intersects_line_line(ea, eb) {
-        return true
-      }
-    }
-  }
-  false
+  a
+  .exterior()
+  .lines_iter()
+  .any(fn(ea) {
+    b.exterior().lines_iter().any(fn(eb) { intersects_line_line(ea, eb) })
+  })
 }
 
 ///|
@@ -187,22 +162,10 @@ pub fn intersects_geometry(a : @type.Geometry, b : @type.Geometry) -> Bool {
       intersects_line_polygon(l, p)
     (@type.Geometry::Polygon(p1), @type.Geometry::Polygon(p2)) =>
       intersects_polygon_polygon(p1, p2)
-    (@type.Geometry::GeometryCollection(gc), other) => {
-      for g in gc.geometries() {
-        if intersects_geometry(g, other) {
-          return true
-        }
-      }
-      false
-    }
-    (other, @type.Geometry::GeometryCollection(gc)) => {
-      for g in gc.geometries() {
-        if intersects_geometry(other, g) {
-          return true
-        }
-      }
-      false
-    }
+    (@type.Geometry::GeometryCollection(gc), other) =>
+      gc.geometries().iter().any(fn(g) { intersects_geometry(g, other) })
+    (other, @type.Geometry::GeometryCollection(gc)) =>
+      gc.geometries().iter().any(fn(g) { intersects_geometry(other, g) })
     // Other combinations: bounding-rect approximation as a fallback.
     (g1, g2) =>
       match (bounding_rect_of_geometry(g1), bounding_rect_of_geometry(g2)) {

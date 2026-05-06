@@ -61,3 +61,76 @@ test "Rect to_polygon corners agree with to_lines starts" {
   }
   assert_true(polygon_coords[4] == polygon_coords[0])
 }
+
+///|
+test "Rect split_x: equal-width left / right halves at the midpoint" {
+  let r = @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(4.0, 4.0))
+  let (left, right) = r.split_x()
+  assert_true(
+    left == @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(2.0, 4.0)),
+  )
+  assert_true(
+    right == @type.Rect::Rect(@type.Coord(2.0, 0.0), @type.Coord(4.0, 4.0)),
+  )
+}
+
+///|
+test "Rect split_x: shared mid-X is bit-identical on the seam" {
+  let r = @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(4.0, 4.0))
+  let (left, right) = r.split_x()
+  assert_eq(left.max().x(), right.min().x())
+}
+
+///|
+test "Rect split_x: total width and full height preserved" {
+  let r = @type.Rect::Rect(@type.Coord(1.0, 2.0), @type.Coord(7.0, 5.0))
+  let (left, right) = r.split_x()
+  assert_eq(left.width() + right.width(), r.width())
+  assert_eq(left.height(), r.height())
+  assert_eq(right.height(), r.height())
+}
+
+///|
+test "Rect split_y: equal-height bottom / top halves at the midpoint" {
+  let r = @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(4.0, 4.0))
+  let (bottom, top) = r.split_y()
+  assert_true(
+    bottom == @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(4.0, 2.0)),
+  )
+  assert_true(
+    top == @type.Rect::Rect(@type.Coord(0.0, 2.0), @type.Coord(4.0, 4.0)),
+  )
+}
+
+///|
+test "Rect split_y: shared mid-Y is bit-identical on the seam" {
+  let r = @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(4.0, 4.0))
+  let (bottom, top) = r.split_y()
+  assert_eq(bottom.max().y(), top.min().y())
+}
+
+///|
+test "Rect split_y: total height and full width preserved" {
+  let r = @type.Rect::Rect(@type.Coord(1.0, 2.0), @type.Coord(7.0, 5.0))
+  let (bottom, top) = r.split_y()
+  assert_eq(bottom.height() + top.height(), r.height())
+  assert_eq(bottom.width(), r.width())
+  assert_eq(top.width(), r.width())
+}
+
+///|
+test "Rect split_x then split_y produces 4 quadrants of equal area" {
+  let r = @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(4.0, 4.0))
+  let (left, right) = r.split_x()
+  let (bottom_left, top_left) = left.split_y()
+  let (bottom_right, top_right) = right.split_y()
+  let total = r.area()
+  assert_eq(
+    bottom_left.area() +
+    top_left.area() +
+    bottom_right.area() +
+    top_right.area(),
+    total,
+  )
+  assert_eq(bottom_left.area(), total / 4.0)
+}

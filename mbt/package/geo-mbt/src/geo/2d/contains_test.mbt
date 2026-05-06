@@ -1,7 +1,7 @@
-// Tests for contains / within / covers.
+// Tests for contains.mbt.
 
 ///|
-fn make_test_polygon() -> @type.Polygon {
+fn contains_test_polygon() -> @type.Polygon {
   let exterior = @type.LineString::from_tuples([
     (0.0, 0.0),
     (10.0, 0.0),
@@ -14,34 +14,26 @@ fn make_test_polygon() -> @type.Polygon {
 
 ///|
 test "contains_polygon_point: inside" {
-  let p = make_test_polygon()
+  let p = contains_test_polygon()
   assert_true(contains_polygon_point(p, @type.Point::Point(5.0, 5.0)))
 }
 
 ///|
 test "contains_polygon_point: boundary excluded" {
-  let p = make_test_polygon()
+  let p = contains_test_polygon()
   // Contains is strict — boundary is NOT contained
   assert_true(!contains_polygon_point(p, @type.Point::Point(0.0, 5.0)))
 }
 
 ///|
 test "contains_polygon_point: outside" {
-  let p = make_test_polygon()
+  let p = contains_test_polygon()
   assert_true(!contains_polygon_point(p, @type.Point::Point(20.0, 20.0)))
 }
 
 ///|
-test "covers_polygon_point: boundary INCLUDED" {
-  let p = make_test_polygon()
-  assert_true(covers_polygon_point(p, @type.Point::Point(0.0, 5.0)))
-  assert_true(covers_polygon_point(p, @type.Point::Point(5.0, 5.0)))
-  assert_true(!covers_polygon_point(p, @type.Point::Point(20.0, 20.0)))
-}
-
-///|
 test "contains_polygon_polygon: nested" {
-  let outer = make_test_polygon()
+  let outer = contains_test_polygon()
   let inner_ext = @type.LineString::from_tuples([
     (2.0, 2.0),
     (4.0, 2.0),
@@ -55,7 +47,7 @@ test "contains_polygon_polygon: nested" {
 
 ///|
 test "contains_polygon_polygon: not contained" {
-  let outer = make_test_polygon()
+  let outer = contains_test_polygon()
   let inner_ext = @type.LineString::from_tuples([
     (5.0, 5.0),
     (15.0, 5.0),
@@ -78,31 +70,12 @@ test "contains_rect_rect" {
 
 ///|
 test "within is the inverse of contains" {
-  let p = make_test_polygon()
+  let p = contains_test_polygon()
   let pt = @type.Point::Point(5.0, 5.0)
   assert_true(
     within_geometry(@type.Geometry::Point(pt), @type.Geometry::Polygon(p)),
   )
   assert_true(
     !within_geometry(@type.Geometry::Polygon(p), @type.Geometry::Point(pt)),
-  )
-}
-
-///|
-test "covers_geometry boundary point" {
-  let p = make_test_polygon()
-  let boundary_pt = @type.Point::Point(0.0, 5.0)
-  // contains: false (strict), covers: true (inclusive)
-  assert_true(
-    !contains_geometry(
-      @type.Geometry::Polygon(p),
-      @type.Geometry::Point(boundary_pt),
-    ),
-  )
-  assert_true(
-    covers_geometry(
-      @type.Geometry::Polygon(p),
-      @type.Geometry::Point(boundary_pt),
-    ),
   )
 }

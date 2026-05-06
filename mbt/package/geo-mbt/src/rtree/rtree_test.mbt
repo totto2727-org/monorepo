@@ -34,14 +34,11 @@ test "single entry intersection" {
 
 ///|
 test "many entries: rectangular query" {
-  let entries : Array[@rtree.Entry[Int]] = []
-  for x = 0; x < 10; x = x + 1 {
-    for y = 0; y < 10; y = y + 1 {
-      entries.push(
-        @rtree.Entry(make_unit_rect(x.to_double(), y.to_double()), x * 10 + y),
-      )
-    }
-  }
+  let entries = Array::makei(100, fn(idx) {
+    let x = idx / 10
+    let y = idx % 10
+    @rtree.Entry(make_unit_rect(x.to_double(), y.to_double()), x * 10 + y)
+  })
   let tree = @rtree.RTree::bulk_load(entries)
   assert_eq(tree.size(), 100)
   // Query a 3x3 region
@@ -75,7 +72,6 @@ test "query_nearest: returns the nearest entry" {
 
 ///|
 test "exhaustive verification: query against all entries" {
-  let entries : Array[@rtree.Entry[Int]] = []
   let coords = [
     (0.0, 0.0),
     (3.5, 1.2),
@@ -86,30 +82,30 @@ test "exhaustive verification: query against all entries" {
     (8.0, 2.0),
     (3.0, 8.0),
   ]
-  for i = 0; i < coords.length(); i = i + 1 {
+  let entries = Array::makei(coords.length(), fn(i) {
     let (x, y) = coords[i]
-    entries.push(@rtree.Entry(make_unit_rect(x, y), i))
-  }
+    @rtree.Entry(make_unit_rect(x, y), i)
+  })
   let tree = @rtree.RTree::bulk_load(entries)
   let query = @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(6.0, 6.0))
   let hits = tree.query_rect_intersection(query)
-  // Brute-force expected:
-  let expected : Array[Int] = []
-  for i = 0; i < coords.length(); i = i + 1 {
-    let (x, y) = coords[i]
-    let r = make_unit_rect(x, y)
-    if !(r.max().x() < query.min().x() ||
+  // Brute-force expected via index filter.
+  let expected = (0)
+    .until(coords.length())
+    .filter(fn(i) {
+      let (x, y) = coords[i]
+      let r = make_unit_rect(x, y)
+      !(r.max().x() < query.min().x() ||
       query.max().x() < r.min().x() ||
       r.max().y() < query.min().y() ||
-      query.max().y() < r.min().y()) {
-      expected.push(i)
-    }
-  }
-  // Sort both and compare lengths (ordering not guaranteed by the tree)
+      query.max().y() < r.min().y())
+    })
+    .collect()
+  // Sort both and compare (ordering not guaranteed by the tree).
   hits.sort()
   expected.sort()
   assert_eq(hits.length(), expected.length())
-  for i = 0; i < hits.length(); i = i + 1 {
-    assert_eq(hits[i], expected[i])
+  for i, hit in hits {
+    assert_eq(hit, expected[i])
   }
 }

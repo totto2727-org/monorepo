@@ -29,11 +29,7 @@ pub const ICCERRBOUND_C : Double = (44.0 + 576.0 * EPSILON) * EPSILON * EPSILON
 
 ///|
 pub fn estimate(e : Array[Double], len : Int) -> Double {
-  let mut q = e[0]
-  for i = 1; i < len; i = i + 1 {
-    q += e[i]
-  }
-  q
+  e.iter().take(len).fold(init=0.0, fn(acc, x) { acc + x })
 }
 
 ///|
@@ -194,133 +190,129 @@ pub fn two_one_product(
 }
 
 ///|
+/// Drains the `tail` of either input (picking up where the merge stopped),
+/// updating the running accumulator `q` and appending nonzero corrections.
+fn drain_tail(
+  source : Array[Double],
+  start : Int,
+  finish : Int,
+  q_init : Double,
+  h : Array[Double],
+) -> Double {
+  start
+  .until(finish)
+  .fold(init=q_init, fn(q, idx) {
+    let (qnew, hh) = two_sum(q, source[idx])
+    if hh != 0.0 {
+      h.push(hh)
+    }
+    qnew
+  })
+}
+
+///|
+/// Shewchuk's "fast expansion sum, zero-elimination" merge of two
+/// expansions `e[0..elen]` and `f[0..flen]` into a returned expansion of
+/// length up to `elen + flen`. The output array is freshly allocated; the
+/// inputs are not mutated.
+///
+/// §3.12 case 3: the merge body is a measured hot path (called many times
+/// per `orient2d` adaptive step). The local accumulator `h` is built via
+/// `push` and never escapes — it is returned to the caller as the only
+/// reference, so the encapsulated mutation is invisible to the rest of the
+/// program.
 pub fn fast_expansion_sum_zeroelim(
   e : Array[Double],
   elen : Int,
   f : Array[Double],
   flen : Int,
-  h : Array[Double],
-) -> Int {
-  let mut enow = e[0]
-  let mut fnow = f[0]
+) -> Array[Double] {
+  let h : Array[Double] = []
   let mut eindex = 0
   let mut findex = 0
-  let mut qnew = 0.0
-  let mut hh = 0.0
-  let mut q = 0.0
-  if (fnow > enow) == (fnow > -enow) {
-    q = enow
-    eindex += 1
+  let mut enow = e[0]
+  let mut fnow = f[0]
+  let mut q = if (fnow > enow) == (fnow > -enow) {
+    eindex = 1
+    enow
   } else {
-    q = fnow
-    findex += 1
+    findex = 1
+    fnow
   }
-  let mut hindex = 0
+  // First merge step (if both inputs still have elements) uses `fast_two_sum`.
   if eindex < elen && findex < flen {
     enow = e[eindex]
     fnow = f[findex]
-    if (fnow > enow) == (fnow > -enow) {
-      let r = fast_two_sum(enow, q)
-      qnew = r.0
-      hh = r.1
-      eindex += 1
+    let pick_e = (fnow > enow) == (fnow > -enow)
+    let chosen = if pick_e { enow } else { fnow }
+    let (qnew, hh) = fast_two_sum(chosen, q)
+    if pick_e {
+      eindex = eindex + 1
     } else {
-      let r = fast_two_sum(fnow, q)
-      qnew = r.0
-      hh = r.1
-      findex += 1
+      findex = findex + 1
     }
     q = qnew
     if hh != 0.0 {
-      h[hindex] = hh
-      hindex += 1
+      h.push(hh)
     }
+    // Subsequent merge steps use `two_sum`.
     while eindex < elen && findex < flen {
       enow = e[eindex]
       fnow = f[findex]
-      if (fnow > enow) == (fnow > -enow) {
-        let r = two_sum(q, enow)
-        qnew = r.0
-        hh = r.1
-        eindex += 1
+      let pick_e2 = (fnow > enow) == (fnow > -enow)
+      let chosen2 = if pick_e2 { enow } else { fnow }
+      let (qnew2, hh2) = two_sum(q, chosen2)
+      if pick_e2 {
+        eindex = eindex + 1
       } else {
-        let r = two_sum(q, fnow)
-        qnew = r.0
-        hh = r.1
-        findex += 1
+        findex = findex + 1
       }
-      q = qnew
-      if hh != 0.0 {
-        h[hindex] = hh
-        hindex += 1
+      q = qnew2
+      if hh2 != 0.0 {
+        h.push(hh2)
       }
     }
   }
-  while eindex < elen {
-    enow = e[eindex]
-    let r = two_sum(q, enow)
-    qnew = r.0
-    hh = r.1
-    q = qnew
-    eindex += 1
-    if hh != 0.0 {
-      h[hindex] = hh
-      hindex += 1
-    }
+  q = drain_tail(e, eindex, elen, q, h)
+  q = drain_tail(f, findex, flen, q, h)
+  if q != 0.0 || h.length() == 0 {
+    h.push(q)
   }
-  while findex < flen {
-    fnow = f[findex]
-    let r = two_sum(q, fnow)
-    qnew = r.0
-    hh = r.1
-    q = qnew
-    findex += 1
-    if hh != 0.0 {
-      h[hindex] = hh
-      hindex += 1
-    }
-  }
-  if q != 0.0 || hindex == 0 {
-    h[hindex] = q
-    hindex += 1
-  }
-  hindex
+  h
 }
 
 ///|
+/// Shewchuk's "scale expansion, zero-elimination": multiplies expansion
+/// `e[0..elen]` by scalar `b`. Returns a freshly allocated expansion; the
+/// input is not mutated. Same hot-path justification as
+/// `fast_expansion_sum_zeroelim`.
 pub fn scale_expansion_zeroelim(
   e : Array[Double],
   elen : Int,
   b : Double,
-  h : Array[Double],
-) -> Int {
+) -> Array[Double] {
   let (bhi, blo) = split(b)
-  let q_hh = two_product_presplit(e[0], b, bhi, blo)
-  let mut q = q_hh.0
-  let hh = q_hh.1
-  let mut hindex = 0
-  if hh != 0.0 {
-    h[hindex] = hh
-    hindex += 1
+  let h : Array[Double] = []
+  let (q0, hh0) = two_product_presplit(e[0], b, bhi, blo)
+  if hh0 != 0.0 {
+    h.push(hh0)
   }
-  for eindex = 1; eindex < elen; eindex = eindex + 1 {
-    let enow = e[eindex]
-    let (product1, product0) = two_product_presplit(enow, b, bhi, blo)
-    let (sum, hh_sum) = two_sum(q, product0)
-    if hh_sum != 0.0 {
-      h[hindex] = hh_sum
-      hindex += 1
-    }
-    let (new_q, hh_fast) = fast_two_sum(product1, sum)
-    q = new_q
-    if hh_fast != 0.0 {
-      h[hindex] = hh_fast
-      hindex += 1
-    }
+  let final_q = (1)
+    .until(elen)
+    .fold(init=q0, fn(q, eindex) {
+      let (product1, product0) = two_product_presplit(e[eindex], b, bhi, blo)
+      let (sum, hh_sum) = two_sum(q, product0)
+      if hh_sum != 0.0 {
+        h.push(hh_sum)
+      }
+      let (new_q, hh_fast) = fast_two_sum(product1, sum)
+      if hh_fast != 0.0 {
+        h.push(hh_fast)
+      }
+      new_q
+    })
+  if final_q != 0.0 || h.length() == 0 {
+    h.push(final_q)
   }
-  if q != 0.0 || hindex == 0 {
-    h[hindex] = q
-    hindex += 1
-  }
-  hindex
+  h
 }

@@ -2,33 +2,37 @@
 // https://github.com/georust/geo/blob/main/geo/src/algorithm/simplify.rs
 
 ///|
-/// Recursive Ramer-Douglas-Peucker. Adds the indices of retained coords to
-/// `keep` (except for the start and end which are always kept). The caller
-/// adds the start/end indices once at the top level.
+/// Recursive Ramer-Douglas-Peucker. Returns the *interior* retained indices
+/// (excluding `start` and `end`); the caller bookends the result with the
+/// segment endpoints. Pure: creates new arrays via spread literals; the
+/// input `coords` is never mutated.
 fn rdp_recurse(
   coords : Array[@type.Coord],
   start : Int,
   end : Int,
   epsilon : Double,
-  keep : Array[Int],
-) -> Unit {
+) -> Array[Int] {
   if end <= start + 1 {
-    return
+    return []
   }
   let line = @type.Line::Line(coords[start], coords[end])
-  let mut max_dist = 0.0
-  let mut max_index = start
-  for i = start + 1; i < end; i = i + 1 {
-    let d = euclidean_distance_coord_to_line(coords[i], line)
-    if d > max_dist {
-      max_dist = d
-      max_index = i
-    }
-  }
+  let acc = (start + 1)
+    .until(end)
+    .fold(init=(0.0, start), fn(acc, i) {
+      let d = euclidean_distance_coord_to_line(coords[i], line)
+      if d > acc.0 {
+        (d, i)
+      } else {
+        acc
+      }
+    })
+  let (max_dist, max_index) = acc
   if max_dist > epsilon {
-    rdp_recurse(coords, start, max_index, epsilon, keep)
-    keep.push(max_index)
-    rdp_recurse(coords, max_index, end, epsilon, keep)
+    let left = rdp_recurse(coords, start, max_index, epsilon)
+    let right = rdp_recurse(coords, max_index, end, epsilon)
+    [..left, max_index, ..right]
+  } else {
+    []
   }
 }
 
@@ -44,10 +48,8 @@ pub fn simplify_line_string(
   if coords.length() < 3 {
     return ls
   }
-  let kept_indices : Array[Int] = []
-  kept_indices.push(0)
-  rdp_recurse(coords, 0, coords.length() - 1, epsilon, kept_indices)
-  kept_indices.push(coords.length() - 1)
+  let middle = rdp_recurse(coords, 0, coords.length() - 1, epsilon)
+  let kept_indices = [0, ..middle, coords.length() - 1]
   @type.LineString::LineString(kept_indices.map(fn(idx) { coords[idx] }))
 }
 
@@ -62,11 +64,8 @@ pub fn simplify_line_string_indices(
   if coords.length() < 3 {
     return Array::makei(coords.length(), fn(i) { i })
   }
-  let kept_indices : Array[Int] = []
-  kept_indices.push(0)
-  rdp_recurse(coords, 0, coords.length() - 1, epsilon, kept_indices)
-  kept_indices.push(coords.length() - 1)
-  kept_indices
+  let middle = rdp_recurse(coords, 0, coords.length() - 1, epsilon)
+  [0, ..middle, coords.length() - 1]
 }
 
 ///|

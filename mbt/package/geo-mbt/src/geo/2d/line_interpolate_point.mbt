@@ -41,19 +41,26 @@ pub fn line_string_interpolate_point(
     fraction
   }
   let target = f * total_length
-  let mut accumulated = 0.0
-  for seg in segments {
-    let seg_length = euclidean_length_line(seg)
-    if accumulated + seg_length >= target {
+  // cumulative[i] = euclidean length of segments[0..=i].
+  let cumulative = segments
+    .iter()
+    .fold(init=([] : Array[Double]), fn(acc, seg) {
+      let prev = if acc.length() > 0 { acc[acc.length() - 1] } else { 0.0 }
+      [..acc, prev + euclidean_length_line(seg)]
+    })
+  match
+    (0).until(segments.length()).find_first(fn(i) { cumulative[i] >= target }) {
+    Some(i) => {
+      let seg = segments[i]
+      let seg_length = euclidean_length_line(seg)
+      let prev_acc = if i == 0 { 0.0 } else { cumulative[i - 1] }
       let local_fraction = if seg_length == 0.0 {
         0.0
       } else {
-        (target - accumulated) / seg_length
+        (target - prev_acc) / seg_length
       }
-      return Some(line_interpolate_point(seg, local_fraction))
+      Some(line_interpolate_point(seg, local_fraction))
     }
-    accumulated = accumulated + seg_length
+    None => Some(@type.Point::from_coord(segments[segments.length() - 1].end()))
   }
-  // Should not reach here, but return the last endpoint as a safe fallback.
-  Some(@type.Point::from_coord(segments[segments.length() - 1].end()))
 }

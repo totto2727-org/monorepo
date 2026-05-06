@@ -80,12 +80,11 @@ pub fn coord_position_for_line_string(
   if !is_closed && (coord == coords[0] || coord == coords[n - 1]) {
     return OnBoundary
   }
-  for line in ls.lines() {
-    if coord_on_line(coord, line) {
-      return Inside
-    }
+  if ls.lines_iter().any(fn(line) { coord_on_line(coord, line) }) {
+    Inside
+  } else {
+    Outside
   }
-  Outside
 }
 
 ///|
@@ -96,27 +95,30 @@ fn coord_position_in_ring(
   ring : @type.LineString,
 ) -> CoordPos {
   // First, check if the coord lies on any edge of the ring.
-  for line in ring.lines() {
-    if coord_on_line(coord, line) {
-      return OnBoundary
-    }
+  if ring.lines_iter().any(fn(line) { coord_on_line(coord, line) }) {
+    return OnBoundary
   }
-  // Then, ray-casting test for interior.
+  // Ray-casting test for interior. Each edge `(coords[j], coords[i])` toggles
+  // `inside` if the horizontal ray from `coord` crosses it. `j` is `i - 1`
+  // wrapped around to the last index for the closing edge.
   let coords = ring.coords()
-  let mut inside = false
-  let mut j = coords.length() - 1
-  for i = 0; i < coords.length(); i = i + 1 {
-    let xi = coords[i].x()
-    let yi = coords[i].y()
-    let xj = coords[j].x()
-    let yj = coords[j].y()
-    let intersect = (yi > coord.y()) != (yj > coord.y()) &&
-      coord.x() < (xj - xi) * (coord.y() - yi) / (yj - yi) + xi
-    if intersect {
-      inside = !inside
-    }
-    j = i
-  }
+  let n = coords.length()
+  let inside = (0)
+    .until(n)
+    .fold(init=false, fn(acc, i) {
+      let j = if i == 0 { n - 1 } else { i - 1 }
+      let xi = coords[i].x()
+      let yi = coords[i].y()
+      let xj = coords[j].x()
+      let yj = coords[j].y()
+      let intersect = (yi > coord.y()) != (yj > coord.y()) &&
+        coord.x() < (xj - xi) * (coord.y() - yi) / (yj - yi) + xi
+      if intersect {
+        !acc
+      } else {
+        acc
+      }
+    })
   if inside {
     Inside
   } else {
@@ -135,16 +137,26 @@ pub fn coord_position_for_polygon(
   match coord_position_in_ring(coord, polygon.exterior()) {
     Outside => Outside
     OnBoundary => OnBoundary
-    Inside => {
-      for interior in polygon.interiors() {
-        match coord_position_in_ring(coord, interior) {
-          OnBoundary => return OnBoundary
-          Inside => return Outside // hole interior is exterior of the polygon
-          _ => continue
+    Inside =>
+      // Reduce over the holes: hole-boundary wins, hole-interior demotes to
+      // Outside, otherwise the running `Inside` survives. `find_first` does
+      // not short-circuit eagerly enough to be worth the extra wrapping —
+      // fold matches the imperative early-return semantics.
+      polygon
+      .interiors()
+      .iter()
+      .fold(init=CoordPos::Inside, fn(acc, interior) {
+        match acc {
+          OnBoundary => acc
+          Outside => acc
+          _ =>
+            match coord_position_in_ring(coord, interior) {
+              OnBoundary => OnBoundary
+              Inside => Outside
+              _ => acc
+            }
         }
-      }
-      Inside
-    }
+      })
   }
 }
 
@@ -153,19 +165,22 @@ pub fn coord_position_for_multi_polygon(
   coord : @type.Coord,
   mp : @type.MultiPolygon,
 ) -> CoordPos {
-  let mut on_boundary = false
-  for poly in mp.polygons() {
-    match coord_position_for_polygon(coord, poly) {
-      Inside => return Inside
-      OnBoundary => on_boundary = true
-      _ => continue
+  // Inside any polygon dominates; otherwise OnBoundary if any polygon's
+  // boundary is touched; otherwise Outside.
+  mp
+  .polygons()
+  .iter()
+  .fold(init=CoordPos::Outside, fn(acc, poly) {
+    match acc {
+      Inside => acc
+      _ =>
+        match coord_position_for_polygon(coord, poly) {
+          Inside => Inside
+          OnBoundary => OnBoundary
+          Outside => acc
+        }
     }
-  }
-  if on_boundary {
-    OnBoundary
-  } else {
-    Outside
-  }
+  })
 }
 
 ///|
@@ -213,24 +228,35 @@ pub fn coord_position_for_geometry(
     @type.Geometry::Line(l) => coord_position_for_line(coord, l)
     @type.Geometry::LineString(ls) => coord_position_for_line_string(coord, ls)
     @type.Geometry::Polygon(p) => coord_position_for_polygon(coord, p)
-    @type.Geometry::MultiPoint(mp) => {
-      for p in mp.points() {
-        if p.coord() == coord {
-          return Inside
-        }
+    @type.Geometry::MultiPoint(mp) =>
+      if mp.points().iter().any(fn(p) { p.coord() == coord }) {
+        Inside
+      } else {
+        Outside
       }
-      Outside
-    }
     @type.Geometry::MultiLineString(mls) => {
-      let mut on_boundary = false
-      for ls in mls.line_strings() {
-        match coord_position_for_line_string(coord, ls) {
-          Inside => return Inside
-          OnBoundary => on_boundary = !on_boundary
-          _ => continue
-        }
-      }
-      if on_boundary {
+      // Track (locked_inside, boundary_count_parity). Once `Inside` is
+      // observed it locks (Inside dominates);
+      // otherwise OnBoundary if odd boundary count, else Outside.
+      let acc = mls
+        .line_strings()
+        .iter()
+        .fold(init=(false, false), fn(acc, ls) {
+          let (locked, parity) = acc
+          if locked {
+            acc
+          } else {
+            match coord_position_for_line_string(coord, ls) {
+              Inside => (true, parity)
+              OnBoundary => (false, !parity)
+              Outside => acc
+            }
+          }
+        })
+      let (locked, parity) = acc
+      if locked {
+        Inside
+      } else if parity {
         OnBoundary
       } else {
         Outside
@@ -241,15 +267,18 @@ pub fn coord_position_for_geometry(
     @type.Geometry::Rect(r) => coord_position_for_rect(coord, r)
     @type.Geometry::Triangle(t) => coord_position_for_triangle(coord, t)
     @type.Geometry::GeometryCollection(gc) => {
-      let mut is_inside = false
-      let mut boundary_count = 0
-      for g2 in gc.geometries() {
-        match coord_position_for_geometry(coord, g2) {
-          Inside => is_inside = true
-          OnBoundary => boundary_count = boundary_count + 1
-          _ => continue
-        }
-      }
+      let acc = gc
+        .geometries()
+        .iter()
+        .fold(init=(false, 0), fn(acc, g2) {
+          let (is_inside, boundary_count) = acc
+          match coord_position_for_geometry(coord, g2) {
+            Inside => (true, boundary_count)
+            OnBoundary => (is_inside, boundary_count + 1)
+            Outside => acc
+          }
+        })
+      let (is_inside, boundary_count) = acc
       if boundary_count % 2 == 1 {
         OnBoundary
       } else if is_inside {

@@ -42,10 +42,5 @@ pub fn MultiLineString::is_empty(self : MultiLineString) -> Bool {
 /// Returns whether **all** line strings inside are closed. An empty multi line
 /// string is considered closed.
 pub fn MultiLineString::is_closed(self : MultiLineString) -> Bool {
-  for ls in self.line_strings {
-    if !ls.is_closed() {
-      return false
-    }
-  }
-  true
+  self.line_strings.iter().all(LineString::is_closed)
 }

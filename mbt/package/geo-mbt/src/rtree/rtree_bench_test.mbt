@@ -2,17 +2,15 @@
 
 ///|
 fn make_grid_entries(side : Int) -> Array[@rtree.Entry[Int]] {
-  let entries : Array[@rtree.Entry[Int]] = []
-  for x = 0; x < side; x = x + 1 {
-    for y = 0; y < side; y = y + 1 {
-      let r = @type.Rect::Rect(
-        @type.Coord(x.to_double(), y.to_double()),
-        @type.Coord(x.to_double() + 1.0, y.to_double() + 1.0),
-      )
-      entries.push(@rtree.Entry(r, x * side + y))
-    }
-  }
-  entries
+  Array::makei(side * side, fn(idx) {
+    let x = idx / side
+    let y = idx % side
+    let r = @type.Rect::Rect(
+      @type.Coord(x.to_double(), y.to_double()),
+      @type.Coord(x.to_double() + 1.0, y.to_double() + 1.0),
+    )
+    @rtree.Entry(r, x * side + y)
+  })
 }
 
 ///|

@@ -90,10 +90,7 @@ pub fn Geometry::try_into_polygon(
   match self {
     Polygon(p) => p
     other =>
-      raise MismatchedGeometry(
-        expected="Polygon",
-        found=other.variant_name(),
-      )
+      raise MismatchedGeometry(expected="Polygon", found=other.variant_name())
   }
 }
 
@@ -175,9 +172,6 @@ pub fn Geometry::try_into_triangle(
   match self {
     Triangle(t) => t
     other =>
-      raise MismatchedGeometry(
-        expected="Triangle",
-        found=other.variant_name(),
-      )
+      raise MismatchedGeometry(expected="Triangle", found=other.variant_name())
   }
 }

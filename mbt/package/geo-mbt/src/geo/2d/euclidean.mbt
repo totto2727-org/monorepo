@@ -62,18 +62,16 @@ pub fn euclidean_distance_coord_to_line_string(
   p : @type.Coord,
   ls : @type.LineString,
 ) -> Double {
-  let segments = ls.lines()
-  if segments.length() == 0 {
-    return @double.infinity
-  }
-  let mut min_dist = euclidean_distance_coord_to_line(p, segments[0])
-  for i = 1; i < segments.length(); i = i + 1 {
-    let d = euclidean_distance_coord_to_line(p, segments[i])
-    if d < min_dist {
-      min_dist = d
+  ls
+  .lines_iter()
+  .fold(init=@double.infinity, fn(acc, seg) {
+    let d = euclidean_distance_coord_to_line(p, seg)
+    if d < acc {
+      d
+    } else {
+      acc
     }
-  }
-  min_dist
+  })
 }
 
 ///|
@@ -86,11 +84,9 @@ pub fn euclidean_length_line(l : @type.Line) -> Double {
 /// Sum of segment lengths in a `LineString`. An empty or single-coord line
 /// string has length zero.
 pub fn euclidean_length_line_string(ls : @type.LineString) -> Double {
-  let mut total = 0.0
-  for line in ls.lines() {
-    total = total + euclidean_length_line(line)
-  }
-  total
+  ls
+  .lines_iter()
+  .fold(init=0.0, fn(acc, line) { acc + euclidean_length_line(line) })
 }
 
 ///|
@@ -98,11 +94,10 @@ pub fn euclidean_length_line_string(ls : @type.LineString) -> Double {
 pub fn euclidean_length_multi_line_string(
   mls : @type.MultiLineString,
 ) -> Double {
-  let mut total = 0.0
-  for ls in mls.line_strings() {
-    total = total + euclidean_length_line_string(ls)
-  }
-  total
+  mls
+  .line_strings()
+  .iter()
+  .fold(init=0.0, fn(acc, ls) { acc + euclidean_length_line_string(ls) })
 }
 
 ///|

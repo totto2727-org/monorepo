@@ -10,11 +10,7 @@ pub fn chaikin_smoothing(
   ls : @type.LineString,
   n_iterations : Int,
 ) -> @type.LineString {
-  let mut current = ls
-  for i = 0; i < n_iterations; i = i + 1 {
-    current = chaikin_step(current)
-  }
-  current
+  (0).until(n_iterations).fold(init=ls, fn(acc, _) { chaikin_step(acc) })
 }
 
 ///|

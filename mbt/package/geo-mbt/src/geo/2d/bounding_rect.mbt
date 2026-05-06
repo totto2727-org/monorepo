@@ -8,25 +8,17 @@ fn bounding_rect_of_coords(coords : Array[@type.Coord]) -> @type.Rect? {
   if coords.length() == 0 {
     return None
   }
-  let mut min_x = coords[0].x()
-  let mut max_x = coords[0].x()
-  let mut min_y = coords[0].y()
-  let mut max_y = coords[0].y()
-  for i = 1; i < coords.length(); i = i + 1 {
-    let c = coords[i]
-    if c.x() < min_x {
-      min_x = c.x()
-    }
-    if c.x() > max_x {
-      max_x = c.x()
-    }
-    if c.y() < min_y {
-      min_y = c.y()
-    }
-    if c.y() > max_y {
-      max_y = c.y()
-    }
-  }
+  let init = (coords[0].x(), coords[0].x(), coords[0].y(), coords[0].y())
+  let acc = coords
+    .iter()
+    .fold(init~, fn(acc, c) {
+      let min_x = if c.x() < acc.0 { c.x() } else { acc.0 }
+      let max_x = if c.x() > acc.1 { c.x() } else { acc.1 }
+      let min_y = if c.y() < acc.2 { c.y() } else { acc.2 }
+      let max_y = if c.y() > acc.3 { c.y() } else { acc.3 }
+      (min_x, max_x, min_y, max_y)
+    })
+  let (min_x, max_x, min_y, max_y) = acc
   Some(@type.Rect::Rect(@type.Coord(min_x, min_y), @type.Coord(max_x, max_y)))
 }
 

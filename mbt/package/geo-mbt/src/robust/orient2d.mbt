@@ -73,19 +73,16 @@ fn orient2dadapt(
   let (t1, t0) = two_product(acytail, bcx)
   let (u3, u2, u1, u0) = two_two_diff(s1, s0, t1, t0)
   let u = [u0, u1, u2, u3]
-  let c1 = Array::make(8, 0.0)
-  let c1length = fast_expansion_sum_zeroelim(b, 4, u, 4, c1)
+  let c1 = fast_expansion_sum_zeroelim(b, 4, u, 4)
   let (s1, s0) = two_product(acx, bcytail)
   let (t1, t0) = two_product(acy, bcxtail)
   let (u3, u2, u1, u0) = two_two_diff(s1, s0, t1, t0)
   let u = [u0, u1, u2, u3]
-  let c2 = Array::make(12, 0.0)
-  let c2length = fast_expansion_sum_zeroelim(c1, c1length, u, 4, c2)
+  let c2 = fast_expansion_sum_zeroelim(c1, c1.length(), u, 4)
   let (s1, s0) = two_product(acxtail, bcytail)
   let (t1, t0) = two_product(acytail, bcxtail)
   let (u3, u2, u1, u0) = two_two_diff(s1, s0, t1, t0)
   let u = [u0, u1, u2, u3]
-  let d = Array::make(16, 0.0)
-  let dlength = fast_expansion_sum_zeroelim(c2, c2length, u, 4, d)
-  d[dlength - 1]
+  let d = fast_expansion_sum_zeroelim(c2, c2.length(), u, 4)
+  d[d.length() - 1]
 }

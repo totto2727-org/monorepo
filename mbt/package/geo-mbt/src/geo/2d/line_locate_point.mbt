@@ -32,20 +32,24 @@ pub fn line_string_locate_point(
   if total_length == 0.0 {
     return None
   }
-  let mut accumulated = 0.0
-  let mut best_position = 0.0
-  let mut best_dist = @double.infinity
-  for seg in segments {
-    let seg_length = euclidean_length_line(seg)
-    let location_in_seg = line_locate_point(seg, target).unwrap_or(0.0)
-    let projection = seg.start() + seg.delta().mul(location_in_seg)
-    let dist = euclidean_distance_squared_coords(projection, target)
-    if dist < best_dist {
-      best_dist = dist
-      best_position = (accumulated + location_in_seg * seg_length) /
-        total_length
-    }
-    accumulated = accumulated + seg_length
-  }
+  // Fold over the segments tracking (accumulated_length, best_position, best_dist²).
+  let acc = segments
+    .iter()
+    .fold(init=(0.0, 0.0, @double.infinity), fn(acc, seg) {
+      let (accumulated, best_position, best_dist) = acc
+      let seg_length = euclidean_length_line(seg)
+      let location_in_seg = line_locate_point(seg, target).unwrap_or(0.0)
+      let projection = seg.start() + seg.delta().mul(location_in_seg)
+      let dist = euclidean_distance_squared_coords(projection, target)
+      let next_accumulated = accumulated + seg_length
+      if dist < best_dist {
+        let next_position = (accumulated + location_in_seg * seg_length) /
+          total_length
+        (next_accumulated, next_position, dist)
+      } else {
+        (next_accumulated, best_position, best_dist)
+      }
+    })
+  let (_, best_position, _) = acc
   Some(best_position)
 }

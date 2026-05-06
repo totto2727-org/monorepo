@@ -14,7 +14,8 @@ pub fn remove_repeated_points_line_string(
   // Index-based filter chain: keep index 0 unconditionally, then keep
   // every other index iff its coord differs from the previous one.
   // Output length is variable, so iterator-collect is the immutable form.
-  let kept = (0).until(n)
+  let kept = (0)
+    .until(n)
     .filter(fn(i) { i == 0 || coords[i] != coords[i - 1] })
     .map(fn(i) { coords[i] })
     .collect()

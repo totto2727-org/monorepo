@@ -62,64 +62,91 @@ fn line_line_intersection_extend(
 ///
 /// If `subject` lies entirely outside `clip`, returns an empty polygon
 /// (exterior with 0 coordinates).
+
+///|
+/// Sutherland-Hodgman pass: clips `input` against the directed half-plane
+/// defined by edge `e1 -> e2`, returning the new working polygon. Pure;
+/// the result is built via spread-literal concatenation so neither `input`
+/// nor any intermediate value is mutated.
+fn clip_against_edge(
+  input : Array[@type.Coord],
+  e1 : @type.Coord,
+  e2 : @type.Coord,
+) -> Array[@type.Coord] {
+  let m = input.length()
+  if m == 0 {
+    return []
+  }
+  let prev0 = input[m - 1]
+  let prev_inside0 = inside_edge(prev0, e1, e2)
+  let acc = (0)
+    .until(m)
+    .fold(init=(prev0, prev_inside0, []), fn(acc, k) {
+      let (prev, prev_inside, output) = acc
+      let current = input[k]
+      let current_inside = inside_edge(current, e1, e2)
+      let new_output = if current_inside {
+        if !prev_inside {
+          [
+            ..output,
+            line_line_intersection_extend(prev, current, e1, e2),
+            current,
+          ]
+        } else {
+          [..output, current]
+        }
+      } else if prev_inside {
+        [..output, line_line_intersection_extend(prev, current, e1, e2)]
+      } else {
+        output
+      }
+      (current, current_inside, new_output)
+    })
+  let (_, _, output) = acc
+  output
+}
+
+///|
 pub fn intersection_sutherland_hodgman(
   subject : @type.Polygon,
   clip : @type.Polygon,
 ) -> @type.Polygon {
-  let mut output : Array[@type.Coord] = []
   let subject_coords = subject.exterior().coords()
-  // Use the closed form (drop the trailing duplicate if present) for the
-  // working list.
-  for i = 0; i < subject_coords.length() - 1; i = i + 1 {
-    output.push(subject_coords[i])
-  }
-  if subject_coords.length() > 0 &&
-    subject_coords[0] != subject_coords[subject_coords.length() - 1] {
-    // Add the last coord if the ring isn't auto-closed
-    output.push(subject_coords[subject_coords.length() - 1])
+  // Working list: drop the trailing duplicate if the ring is auto-closed.
+  let n_subject = subject_coords.length()
+  let initial = if n_subject > 1 &&
+    subject_coords[0] == subject_coords[n_subject - 1] {
+    Array::makei(n_subject - 1, fn(i) { subject_coords[i] })
+  } else if n_subject == 0 {
+    []
+  } else {
+    Array::makei(n_subject, fn(i) { subject_coords[i] })
   }
   let clip_coords = clip.exterior().coords()
   let n_clip = clip_coords.length()
-  // Iterate clip edges (drop last clip coord if it equals the first)
+  // Drop trailing duplicate of the clip ring as well.
   let clip_edge_count = if n_clip > 1 &&
     clip_coords[0] == clip_coords[n_clip - 1] {
     n_clip - 1
   } else {
     n_clip
   }
-  for i = 0; i < clip_edge_count; i = i + 1 {
-    if output.length() == 0 {
-      break
-    }
-    let e1 = clip_coords[i]
-    let e2 = clip_coords[(i + 1) % clip_edge_count]
-    let input = output
-    output = []
-    let m = input.length()
-    if m == 0 {
-      continue
-    }
-    let mut prev = input[m - 1]
-    let mut prev_inside = inside_edge(prev, e1, e2)
-    for k = 0; k < m; k = k + 1 {
-      let current = input[k]
-      let current_inside = inside_edge(current, e1, e2)
-      if current_inside {
-        if !prev_inside {
-          output.push(line_line_intersection_extend(prev, current, e1, e2))
-        }
-        output.push(current)
-      } else if prev_inside {
-        output.push(line_line_intersection_extend(prev, current, e1, e2))
+  let output = (0)
+    .until(clip_edge_count)
+    .fold(init=initial, fn(working, i) {
+      if working.length() == 0 {
+        working
+      } else {
+        let e1 = clip_coords[i]
+        let e2 = clip_coords[(i + 1) % clip_edge_count]
+        clip_against_edge(working, e1, e2)
       }
-      prev = current
-      prev_inside = current_inside
-    }
-  }
+    })
   if output.length() == 0 {
-    return @type.Polygon::Polygon(@type.LineString::LineString([]), [])
+    @type.Polygon::Polygon(@type.LineString::empty(), [])
+  } else {
+    @type.Polygon::Polygon(@type.LineString::LineString(output), [])
   }
-  @type.Polygon::Polygon(@type.LineString::LineString(output), [])
 }
 
 ///|

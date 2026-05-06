@@ -50,28 +50,31 @@ pub fn closest_point_on_line_string(
   if segments.length() == 0 {
     return Indeterminate
   }
-  let mut best : @type.Coord? = None
-  let mut best_dist = @double.infinity
-  let mut intersection_found = false
-  for seg in segments {
-    match closest_point_on_line(seg, target) {
-      Intersection(c) => {
-        intersection_found = true
-        best = Some(c)
-        break
-      }
-      SinglePoint(c) => {
-        let d = euclidean_distance_squared_coords(c, target)
-        if d < best_dist {
-          best_dist = d
-          best = Some(c)
+  // Fold tracks the best candidate so far. Once an `Intersection` is seen
+  // the result is locked in and remains stable across the rest of the fold.
+  segments
+  .iter()
+  .fold(init=Closest::Indeterminate, fn(acc, seg) {
+    match acc {
+      Intersection(_) => acc
+      _ =>
+        match closest_point_on_line(seg, target) {
+          Intersection(c) => Intersection(c)
+          SinglePoint(c) =>
+            match acc {
+              SinglePoint(prev) => {
+                let d_new = euclidean_distance_squared_coords(c, target)
+                let d_prev = euclidean_distance_squared_coords(prev, target)
+                if d_new < d_prev {
+                  SinglePoint(c)
+                } else {
+                  acc
+                }
+              }
+              _ => SinglePoint(c)
+            }
+          Indeterminate => acc
         }
-      }
-      _ => continue
     }
-  }
-  match best {
-    Some(c) => if intersection_found { Intersection(c) } else { SinglePoint(c) }
-    None => Indeterminate
-  }
+  })
 }

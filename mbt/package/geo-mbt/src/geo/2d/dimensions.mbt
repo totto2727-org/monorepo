@@ -30,6 +30,17 @@ pub fn dimensions_less(a : Dimensions, b : Dimensions) -> Bool {
 }
 
 ///|
+/// Returns the dimension with the higher rank. Used as a fold combinator
+/// when computing the max dimensionality across a collection of components.
+fn max_dimension(a : Dimensions, b : Dimensions) -> Dimensions {
+  if a.rank() >= b.rank() {
+    a
+  } else {
+    b
+  }
+}
+
+///|
 /// Returns whether the geometry has no coordinates.
 pub fn is_empty_of_geometry(g : @type.Geometry) -> Bool {
   match g {
@@ -39,40 +50,13 @@ pub fn is_empty_of_geometry(g : @type.Geometry) -> Bool {
     @type.Geometry::Line(_) => false
     @type.Geometry::LineString(ls) => ls.is_empty()
     @type.Geometry::MultiPoint(mp) => mp.is_empty()
-    @type.Geometry::MultiLineString(mls) => {
-      if mls.is_empty() {
-        return true
-      }
-      for ls in mls.line_strings() {
-        if !ls.is_empty() {
-          return false
-        }
-      }
-      true
-    }
+    @type.Geometry::MultiLineString(mls) =>
+      mls.line_strings().iter().all(@type.LineString::is_empty)
     @type.Geometry::Polygon(p) => p.exterior().is_empty()
-    @type.Geometry::MultiPolygon(mp) => {
-      if mp.is_empty() {
-        return true
-      }
-      for p in mp.polygons() {
-        if !p.exterior().is_empty() {
-          return false
-        }
-      }
-      true
-    }
-    @type.Geometry::GeometryCollection(gc) => {
-      if gc.is_empty() {
-        return true
-      }
-      for g2 in gc.geometries() {
-        if !is_empty_of_geometry(g2) {
-          return false
-        }
-      }
-      true
-    }
+    @type.Geometry::MultiPolygon(mp) =>
+      mp.polygons().iter().all(fn(p) { p.exterior().is_empty() })
+    @type.Geometry::GeometryCollection(gc) =>
+      gc.geometries().iter().all(is_empty_of_geometry)
   }
 }
 
@@ -100,12 +84,11 @@ pub fn dimensions_of_line_string(ls : @type.LineString) -> Dimensions {
     return Empty
   }
   let first = coords[0]
-  for c in coords {
-    if c != first {
-      return OneDimensional
-    }
+  if coords.iter().any(fn(c) { c != first }) {
+    OneDimensional
+  } else {
+    ZeroDimensional
   }
-  ZeroDimensional
 }
 
 ///|
@@ -138,46 +121,25 @@ pub fn dimensions_of_geometry(g : @type.Geometry) -> Dimensions {
       } else {
         ZeroDimensional
       }
-    @type.Geometry::MultiLineString(mls) => {
-      if mls.is_empty() {
-        return Empty
-      }
-      let mut max_dim = Empty
-      for ls in mls.line_strings() {
-        let d = dimensions_of_line_string(ls)
-        if d.rank() > max_dim.rank() {
-          max_dim = d
-        }
-      }
-      max_dim
-    }
-    @type.Geometry::MultiPolygon(mp) => {
-      if mp.is_empty() {
-        return Empty
-      }
-      let mut max_dim = Empty
-      for p in mp.polygons() {
-        let d = dimensions_of_geometry(@type.Geometry::Polygon(p))
-        if d.rank() > max_dim.rank() {
-          max_dim = d
-        }
-      }
-      max_dim
-    }
+    @type.Geometry::MultiLineString(mls) =>
+      mls
+      .line_strings()
+      .iter()
+      .map(dimensions_of_line_string)
+      .fold(init=Dimensions::Empty, max_dimension)
+    @type.Geometry::MultiPolygon(mp) =>
+      mp
+      .polygons()
+      .iter()
+      .map(fn(p) { dimensions_of_geometry(@type.Geometry::Polygon(p)) })
+      .fold(init=Dimensions::Empty, max_dimension)
     @type.Geometry::Rect(r) => dimensions_of_rect(r)
     @type.Geometry::Triangle(_) => TwoDimensional
-    @type.Geometry::GeometryCollection(gc) => {
-      if gc.is_empty() {
-        return Empty
-      }
-      let mut max_dim = Empty
-      for g2 in gc.geometries() {
-        let d = dimensions_of_geometry(g2)
-        if d.rank() > max_dim.rank() {
-          max_dim = d
-        }
-      }
-      max_dim
-    }
+    @type.Geometry::GeometryCollection(gc) =>
+      gc
+      .geometries()
+      .iter()
+      .map(dimensions_of_geometry)
+      .fold(init=Dimensions::Empty, max_dimension)
   }
 }
