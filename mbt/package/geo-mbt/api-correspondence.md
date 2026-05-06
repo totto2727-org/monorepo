@@ -202,7 +202,7 @@ A heterogeneous collection (newtype-`Vec`) of `Point`s. WKT-equivalent of `MULTI
 | `From<Point<T>>` / `From<Vec<Point<T>>>`                 | —                                                  | ⏳     | Could add as ergonomic helpers                                    |
 | —                                                        | `MultiPoint::from_tuples(Array[(Double, Double)])` | ✅     | Port-only convenience matching `LineString::from_tuples`          |
 
-Tests (in `type/multi_test.mbt`): `MultiPoint::from_tuples`, `MultiPoint empty`, `MultiPoint::empty`.
+Tests (in `type/multi_point_test.mbt`): `MultiPoint::from_tuples`, `MultiPoint empty`, `MultiPoint::empty`.
 
 ### 1.9 `MultiLineString<T>` ↔ `type/multi_line_string.mbt`
 
@@ -219,7 +219,7 @@ A collection of `LineString`s. Considered _simple_ when all elements are simple 
 | `IntoIterator` / `FromIterator` / `From<LineString>`    | —                                                                | —      | Rust trait scaffolding                                                    |
 | `Index<I>` / `IndexMut<I>`                              | —                                                                | —      |                                                                           |
 
-Tests (in `type/multi_test.mbt`): `MultiLineString length`, `MultiLineString empty is closed`, `MultiLineString::empty`.
+Tests (in `type/multi_line_string_test.mbt`): `MultiLineString length`, `MultiLineString empty is closed`, `MultiLineString::empty`.
 
 ### 1.10 `MultiPolygon<T>` ↔ `type/multi_polygon.mbt`
 
@@ -236,7 +236,7 @@ A collection of `Polygon`s.
 | `Index<I>` / `IndexMut<I>`                           | —                                                      | —      |                                                |
 | `impl RTreeObject` (via `impl_rstar_multi_polygon!`) | —                                                      | ⛔     | Spatial-index integration is out of port scope |
 
-Tests (in `type/multi_test.mbt`): `MultiPolygon basic`, `MultiPolygon::empty`.
+Tests (in `type/multi_polygon_test.mbt`): `MultiPolygon basic`, `MultiPolygon::empty`.
 
 ### 1.11 `GeometryCollection<T>` ↔ `type/geometry_collection.mbt`
 
@@ -254,13 +254,7 @@ A heterogeneous collection of `Geometry` values (the WKT/GeoJSON `GEOMETRYCOLLEC
 | `IntoIterator` / `FromIterator`                                         | —                                                               | —      |                                                                |
 | `Default::default() == empty()`                                         | (port `derive(Eq, Debug)` only)                                 | ⏳     | `Default` derive not enabled                                   |
 
-Tests (in `type/multi_test.mbt`): `GeometryCollection holds heterogeneous geometries`, `GeometryCollection::empty`.
-
-> **Combined test file note** — All four collection types share `type/multi_test.mbt` (10 cases total):
-> `MultiPoint::from_tuples`, `MultiPoint empty`, `MultiPoint::empty`,
-> `MultiLineString length`, `MultiLineString empty is closed`, `MultiLineString::empty`,
-> `MultiPolygon basic`, `MultiPolygon::empty`,
-> `GeometryCollection holds heterogeneous geometries`, `GeometryCollection::empty`.
+Tests (in `type/geometry_collection_test.mbt`): `GeometryCollection holds heterogeneous geometries`, `GeometryCollection::empty`.
 
 ### 1.12 `Geometry<T>` enum ↔ `type/geometry.mbt`
 
@@ -533,7 +527,7 @@ Counted across the port (`grep -rE '^(test|bench) "' src/`):
 
 | Package       | Test files                                                                                                                                                                                                                                                                                                                                                                    | Tests   | Benches |
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------- |
-| `geo/2d/type` | `coord_test.mbt`, `point_test.mbt`, `line_test.mbt`, `line_string_test.mbt`, `polygon_test.mbt`, `rect_test.mbt`, `triangle_test.mbt`, `multi_test.mbt`                                                                                                                                                                                                                       | 53      | 0       |
+| `geo/2d/type` | `coord_test.mbt`, `point_test.mbt`, `line_test.mbt`, `line_string_test.mbt`, `polygon_test.mbt`, `rect_test.mbt`, `triangle_test.mbt`, `multi_point_test.mbt`, `multi_line_string_test.mbt`, `multi_polygon_test.mbt`, `geometry_collection_test.mbt`                                                                                                                         | 53      | 0       |
 | `geo/2d`      | `affine_test.mbt`, `bool_ops_test.mbt`, `closest_test.mbt`, `containment_test.mbt`, `convex_hull_test.mbt`, `distance_metrics_test.mbt`, `iteration_test.mbt`, `kernel_test.mbt`, `measure_test.mbt`, `property_test.mbt`, `shape_test.mbt`, `simplify_test.mbt`, `topology_test.mbt`, `traits_test.mbt`, `validation_test.mbt`, `vector_distance_test.mbt`, `bench_test.mbt` | 137     | 14      |
 | `robust`      | `robust_test.mbt`                                                                                                                                                                                                                                                                                                                                                             | 6       | 0       |
 | `rtree`       | `rtree_test.mbt`, `bench_test.mbt`                                                                                                                                                                                                                                                                                                                                            | 6       | 4       |
