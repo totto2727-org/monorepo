@@ -53,15 +53,15 @@
   - re_activations: 0
   - notes: SC-5 (≥ 2 entry) の構造的担保完成。`find src -name worker.ts | wc -l = 2`
 
-- [ ] **T-E** — feed-platform-backend smoke test
-  - status: pending
+- [x] **T-E** — feed-platform-backend smoke test
+  - status: completed
   - dependencies: T-B
-  - started_at: -
-  - completed_at: -
-  - commit: -
-  - implementer: -
+  - started_at: 2026-05-06T11:06:00Z
+  - completed_at: 2026-05-06T11:10:00Z
+  - commit: 12cab81
+  - implementer: implementer-A (Phase 1 backend chain)
   - re_activations: 0
-  - notes: -
+  - notes: `vp test run src/smoke.test.ts` PASS 確認。vite-plus/test 暗黙 config 利用、vitest.config 新設なし
 
 - [ ] **T-F** — feed-platform-web プロジェクト初期化
   - status: pending
