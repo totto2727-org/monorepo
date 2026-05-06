@@ -76,7 +76,7 @@ backend の各 entry は wrangler 上の `name` を **`feed-platform-backend-<en
 
 ロードマップ Intent の「サーバレス原則」を **Cloudflare Workers** として具現化する (intent-spec Q2.12)。
 
-- **バックエンド (`feed-platform-backend`)**: **wrangler 直接実行** (`wrangler deploy --config src/worker/<entry>/wrangler.jsonc`)。Vite ビルドを介さず、Cloudflare Workers ランタイムに直接デプロイ。`vite.config.ts` の `build` task は **no-op** (`command: ''` + `dependsOn: ['setup']`) として定義し、`vp run -r build` の workspace-wide 完走は `wrangler types` で `worker-configuration.d.ts` が生成される `setup` フェーズが担う
+- **バックエンド (`feed-platform-backend`)**: **wrangler 直接実行** (`wrangler deploy --config src/worker/<entry>/wrangler.jsonc`)。Vite ビルドを介さず、Cloudflare Workers ランタイムに直接デプロイ。`vite.config.ts` には `build` task を定義せず、Vite+ が `build` 未定義パッケージを `vp run -r build` から auto-skip する機構を活用 (`rss-graphql/vite.config.ts` と同等)。`setup` フェーズで `wrangler types` 経由の `worker-configuration.d.ts` 生成のみが走る
 - **Web フロント (`feed-platform-web`) / 認証基幹サーバ (`identity-provider`)**: **Vite + Remix v3 + Cloudflare Workers** (`js/app/hono-remix-v3-cloudflare-example` 最新構成踏襲)。`vite build` でビルド出力 (`dist/client/`)、`wrangler deploy` でデプロイ
 - **テスト**: vp (Vitest)。ms-01 段階では設定 1 個のみ (root or 単一プロジェクト共通設定 = `vite-plus/test`、vitest.config 新設しない)
 - **CI / 本番デプロイ自動化は本 ms-01 非スコープ** (ロードマップ Intent `roadmap.md:47` の非スコープ事項)、現状は手動デプロイ
@@ -121,7 +121,7 @@ backend の各 entry は wrangler 上の `name` を **`feed-platform-backend-<en
   - `js/app/identity-provider/` (T-F〜T-H 同形構造)
 - **3 プロジェクト共通の Effect skeleton 5 ファイル** (env.ts = `Layer.succeed` / greeting.ts = `Layer.sync` / health.ts = `Layer.effect` / runtime/server.ts = `ManagedRuntime` + `Layer.unwrap` 経由 Logger 判定 / runtime/hono.ts = `await using` middleware) — design.md CC-7
 - **wrangler.jsonc 構造規約**: `compatibility_flags: ["nodejs_compat"]` + `observability.enabled: true` + `head_sampling_rate: 1` + (backend のみ) `name: feed-platform-backend-<entry>` プレフィックス
-- **vp (Vite+) task 規約**: `vite.config.ts` 内 `run.tasks` に `check` / `fix` / `test` / `build` / `setup` を定義 (CLAUDE.md `Standard Tasks` 節準拠、backend の `build` は no-op)
+- **vp (Vite+) task 規約**: `vite.config.ts` 内 `run.tasks` に `setup` (および web/IdP は `build`) を定義 (CLAUDE.md `Standard Tasks` 節準拠、backend は `build` 未定義 = Vite+ auto-skip)。`check` / `fix` / `test` は root の `vite.config.ts` 経由で workspace-wide に提供される
 - **Service tag namespace 規約**: `@app/<project-name>/feature/<name>/Service` (saas-example 踏襲、design.md CC-6)
 
 ### Existing impact
@@ -150,8 +150,8 @@ backend の各 entry は wrangler 上の `name` を **`feed-platform-backend-<en
 ### Trade-offs と緩和策
 
 - **Pros**: ロードマップ Intent の architectural constraints を構造的に保証 / 既存資産 (`hono-remix-v3-cloudflare-example` / `saas-example` / `rss-graphql`) を最大活用 / 後続 9 マイルストーンが一貫した雛形上で進む / vp (Vitest) + Ultracite の既存集約規約に乗る
-- **Cons**: backend と Web フロントで entry ファイル命名が `worker.ts` ↔ `entry.worker.ts` の微妙な不整合 / `wrangler.jsonc` の共通設定 (`compatibility_date` / `observability` 等) が entry ごとに重複記述される / backend の `build` no-op が一見奇妙
-- **Mitigation**: 命名差は用途差 (multi-entry 直 vs Vite 経由) で説明可能 (design.md A-5 / B-1 で明記) / 共通設定の重複は entry 数が一桁の間は問題ない (将来 entry 数が膨らむ場合は共通設定の SSOT 化を検討) / no-op build の意図は design.md A-4 + 本 ADR D-6 で明記済み
+- **Cons**: backend と Web フロントで entry ファイル命名が `worker.ts` ↔ `entry.worker.ts` の微妙な不整合 / `wrangler.jsonc` の共通設定 (`compatibility_date` / `observability` 等) が entry ごとに重複記述される
+- **Mitigation**: 命名差は用途差 (multi-entry 直 vs Vite 経由) で説明可能 (design.md A-5 / B-1 で明記) / 共通設定の重複は entry 数が一桁の間は問題ない (将来 entry 数が膨らむ場合は共通設定の SSOT 化を検討)
 
 ## References
 

@@ -11,12 +11,6 @@ const taskInput = defineTaskInputFromOutput({
 export default defineConfig({
   run: {
     tasks: {
-      build: {
-        // backend は wrangler 直接 deploy 時にビルドされるため、ここでは no-op に設定。
-        // SC-4 (`vp run -r build`) が backend を skip しないように空 command で完走させる。
-        command: '',
-        dependsOn: ['setup'],
-      },
       setup: {
         command: '',
         dependsOn: ['setup:cloudflare:bff', 'setup:cloudflare:health'],
