@@ -10,10 +10,10 @@ RUN <<EOF
 export GIT_CONFIG_GLOBAL=/dev/null
 git clone https://github.com/totto2727-org/monorepo.git ~/monorepo
 cd ~/monorepo
-direnv allow
 devbox install
+direnv allow
 devbox run vp i
-devbox run vp run -r setup
+devbox run vp run workspace:setup
 EOF
 
 WORKDIR /sandbox/monorepo
