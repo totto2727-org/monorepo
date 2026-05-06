@@ -37,7 +37,7 @@ pub fn orient_polygon(
   let interiors = polygon
     .interiors()
     .map(fn(i) { ensure_winding(i, interior_winding) })
-  @type.Polygon::new(exterior, interiors)
+  @type.Polygon::Polygon(exterior, interiors)
 }
 
 ///|
@@ -47,5 +47,5 @@ pub fn orient_multi_polygon(
   direction : OrientDirection,
 ) -> @type.MultiPolygon {
   let polygons = mp.polygons().map(fn(p) { orient_polygon(p, direction) })
-  @type.MultiPolygon::new(polygons)
+  @type.MultiPolygon::MultiPolygon(polygons)
 }

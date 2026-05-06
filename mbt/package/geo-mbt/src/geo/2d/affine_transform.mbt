@@ -18,7 +18,7 @@ pub struct AffineTransform {
 } derive(Eq, Debug)
 
 ///|
-pub fn AffineTransform::new(
+pub fn AffineTransform::AffineTransform(
   a : Double,
   b : Double,
   xoff : Double,
@@ -31,7 +31,7 @@ pub fn AffineTransform::new(
 
 ///|
 pub fn AffineTransform::identity() -> AffineTransform {
-  AffineTransform::new(1.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+  AffineTransform(1.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 }
 
 ///|
@@ -39,7 +39,7 @@ pub fn AffineTransform::translate_xy(
   xoff : Double,
   yoff : Double,
 ) -> AffineTransform {
-  AffineTransform::new(1.0, 0.0, xoff, 0.0, 1.0, yoff)
+  AffineTransform(1.0, 0.0, xoff, 0.0, 1.0, yoff)
 }
 
 ///|
@@ -47,7 +47,7 @@ pub fn AffineTransform::scale_xy(
   xfact : Double,
   yfact : Double,
 ) -> AffineTransform {
-  AffineTransform::new(xfact, 0.0, 0.0, 0.0, yfact, 0.0)
+  AffineTransform(xfact, 0.0, 0.0, 0.0, yfact, 0.0)
 }
 
 ///|
@@ -57,7 +57,7 @@ pub fn AffineTransform::rotate_origin(degrees : Double) -> AffineTransform {
   let rad = degrees * 3.14159265358979323846 / 180.0
   let c = @math.cos(rad)
   let s = @math.sin(rad)
-  AffineTransform::new(c, -s, 0.0, s, c, 0.0)
+  AffineTransform(c, -s, 0.0, s, c, 0.0)
 }
 
 ///|
@@ -68,7 +68,7 @@ pub fn AffineTransform::skew_origin(
 ) -> AffineTransform {
   let tan_x = @math.tan(xs_degrees * 3.14159265358979323846 / 180.0)
   let tan_y = @math.tan(ys_degrees * 3.14159265358979323846 / 180.0)
-  AffineTransform::new(1.0, tan_x, 0.0, tan_y, 1.0, 0.0)
+  AffineTransform(1.0, tan_x, 0.0, tan_y, 1.0, 0.0)
 }
 
 ///|
@@ -77,7 +77,7 @@ pub fn AffineTransform::apply(
   self : AffineTransform,
   c : @type.Coord,
 ) -> @type.Coord {
-  @type.Coord::new(
+  @type.Coord(
     self.a * c.x() + self.b * c.y() + self.xoff,
     self.d * c.x() + self.e * c.y() + self.yoff,
   )
@@ -93,7 +93,7 @@ pub fn AffineTransform::compose(
   // self is applied first (gives intermediate coords), then `other`.
   // Multiplying matrices: result = other * self (since transforms apply
   // right-to-left when written `M_new = other_matrix * self_matrix`).
-  AffineTransform::new(
+  AffineTransform(
     other.a * self.a + other.b * self.d,
     other.a * self.b + other.b * self.e,
     other.a * self.xoff + other.b * self.yoff + other.xoff,

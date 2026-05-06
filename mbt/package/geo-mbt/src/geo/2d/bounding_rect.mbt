@@ -27,29 +27,24 @@ fn bounding_rect_of_coords(coords : Array[@type.Coord]) -> @type.Rect? {
       max_y = c.y()
     }
   }
-  Some(
-    @type.Rect::new(
-      @type.Coord::new(min_x, min_y),
-      @type.Coord::new(max_x, max_y),
-    ),
-  )
+  Some(@type.Rect::Rect(@type.Coord(min_x, min_y), @type.Coord(max_x, max_y)))
 }
 
 ///|
 /// Bounding rect of a `Coord` is a degenerate `Rect` of zero size.
 pub fn bounding_rect_of_coord(c : @type.Coord) -> @type.Rect {
-  @type.Rect::new(c, c)
+  @type.Rect::Rect(c, c)
 }
 
 ///|
 /// Bounding rect of a `Point` is a degenerate `Rect` of zero size.
 pub fn bounding_rect_of_point(p : @type.Point) -> @type.Rect {
-  @type.Rect::new(p.coord(), p.coord())
+  @type.Rect::Rect(p.coord(), p.coord())
 }
 
 ///|
 pub fn bounding_rect_of_line(l : @type.Line) -> @type.Rect {
-  @type.Rect::new(l.start(), l.end())
+  @type.Rect::Rect(l.start(), l.end())
 }
 
 ///|

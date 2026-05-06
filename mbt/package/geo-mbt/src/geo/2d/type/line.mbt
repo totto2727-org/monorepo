@@ -15,7 +15,7 @@ pub struct Line {
 
 ///|
 /// Creates a new line segment from two coordinates.
-pub fn Line::new(start : Coord, end : Coord) -> Line {
+pub fn Line::Line(start : Coord, end : Coord) -> Line {
   Line::{ start, end }
 }
 

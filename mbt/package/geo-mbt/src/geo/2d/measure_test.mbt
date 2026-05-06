@@ -16,7 +16,7 @@ test "bounding_rect_of_line_string" {
 
 ///|
 test "bounding_rect_of_point is degenerate" {
-  let p = @type.Point::new(1.0, 2.0)
+  let p = @type.Point::Point(1.0, 2.0)
   let r = bounding_rect_of_point(p)
   assert_eq(r.width(), 0.0)
   assert_eq(r.height(), 0.0)
@@ -24,7 +24,7 @@ test "bounding_rect_of_point is degenerate" {
 
 ///|
 test "bounding_rect_of_line_string empty" {
-  let ls = @type.LineString::new([])
+  let ls = @type.LineString::LineString([])
   assert_true(bounding_rect_of_line_string(ls) == None)
 }
 
@@ -38,7 +38,7 @@ test "signed_area_of_polygon CCW positive" {
     (0.0, 6.0),
     (0.0, 0.0),
   ])
-  let polygon = @type.Polygon::new(exterior, [])
+  let polygon = @type.Polygon::Polygon(exterior, [])
   assert_eq(signed_area_of_polygon(polygon), 30.0)
   assert_eq(unsigned_area_of_polygon(polygon), 30.0)
 }
@@ -53,7 +53,7 @@ test "signed_area_of_polygon CW negative" {
     (5.0, 0.0),
     (0.0, 0.0),
   ])
-  let polygon = @type.Polygon::new(exterior, [])
+  let polygon = @type.Polygon::Polygon(exterior, [])
   assert_eq(signed_area_of_polygon(polygon), -30.0)
   assert_eq(unsigned_area_of_polygon(polygon), 30.0)
 }
@@ -75,33 +75,30 @@ test "signed_area_of_polygon with hole" {
     (3.0, 7.0),
     (3.0, 3.0),
   ])
-  let polygon = @type.Polygon::new(exterior, [interior])
+  let polygon = @type.Polygon::Polygon(exterior, [interior])
   assert_eq(signed_area_of_polygon(polygon), 100.0 - 16.0)
 }
 
 ///|
 test "signed_area_of_rect is width * height" {
-  let r = @type.Rect::new(
-    @type.Coord::new(0.0, 0.0),
-    @type.Coord::new(3.0, 4.0),
-  )
+  let r = @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(3.0, 4.0))
   assert_eq(signed_area_of_rect(r), 12.0)
 }
 
 ///|
 test "signed_area_of_triangle" {
   // Right triangle with legs 4 and 6 has area 12.
-  let t = @type.Triangle::new(
-    @type.Coord::new(0.0, 0.0),
-    @type.Coord::new(4.0, 0.0),
-    @type.Coord::new(0.0, 6.0),
+  let t = @type.Triangle::Triangle(
+    @type.Coord(0.0, 0.0),
+    @type.Coord(4.0, 0.0),
+    @type.Coord(0.0, 6.0),
   )
   assert_eq(unsigned_area_of_triangle(t), 12.0)
 }
 
 ///|
 test "Point/Line/LineString have zero area" {
-  let p = @type.Point::new(1.0, 2.0)
+  let p = @type.Point::Point(1.0, 2.0)
   assert_eq(signed_area_of_geometry(@type.Geometry::Point(p)), 0.0)
   let l = @type.Line::from_tuples((0.0, 0.0), (1.0, 1.0))
   assert_eq(signed_area_of_geometry(@type.Geometry::Line(l)), 0.0)
@@ -112,7 +109,7 @@ test "Point/Line/LineString have zero area" {
 ///|
 test "dimensions of basic geometries" {
   assert_true(
-    dimensions_of_geometry(@type.Geometry::Point(@type.Point::new(0.0, 5.0))) ==
+    dimensions_of_geometry(@type.Geometry::Point(@type.Point::Point(0.0, 5.0))) ==
     Dimensions::ZeroDimensional,
   )
   let ls = @type.LineString::from_tuples([(0.0, 0.0), (5.0, 5.0), (0.0, 5.0)])
@@ -120,10 +117,7 @@ test "dimensions of basic geometries" {
     dimensions_of_geometry(@type.Geometry::LineString(ls)) ==
     Dimensions::OneDimensional,
   )
-  let r = @type.Rect::new(
-    @type.Coord::new(0.0, 0.0),
-    @type.Coord::new(10.0, 10.0),
-  )
+  let r = @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(10.0, 10.0))
   assert_true(
     dimensions_of_geometry(@type.Geometry::Rect(r)) ==
     Dimensions::TwoDimensional,
@@ -133,22 +127,16 @@ test "dimensions of basic geometries" {
 ///|
 test "degenerate rect dimensions" {
   // Zero height: rect collapses to a horizontal segment (1D).
-  let r1 = @type.Rect::new(
-    @type.Coord::new(0.0, 10.0),
-    @type.Coord::new(10.0, 10.0),
-  )
+  let r1 = @type.Rect::Rect(@type.Coord(0.0, 10.0), @type.Coord(10.0, 10.0))
   assert_true(dimensions_of_rect(r1) == Dimensions::OneDimensional)
   // Zero width and zero height: collapses to a single point.
-  let r2 = @type.Rect::new(
-    @type.Coord::new(10.0, 10.0),
-    @type.Coord::new(10.0, 10.0),
-  )
+  let r2 = @type.Rect::Rect(@type.Coord(10.0, 10.0), @type.Coord(10.0, 10.0))
   assert_true(dimensions_of_rect(r2) == Dimensions::ZeroDimensional)
 }
 
 ///|
 test "empty multi point has Empty dimensions" {
-  let mp = @type.MultiPoint::new([])
+  let mp = @type.MultiPoint::MultiPoint([])
   assert_true(
     dimensions_of_geometry(@type.Geometry::MultiPoint(mp)) == Dimensions::Empty,
   )
@@ -156,10 +144,10 @@ test "empty multi point has Empty dimensions" {
 
 ///|
 test "is_empty for various geometries" {
-  let p = @type.Point::new(1.0, 2.0)
+  let p = @type.Point::Point(1.0, 2.0)
   assert_true(!is_empty_of_geometry(@type.Geometry::Point(p)))
-  let mp_empty = @type.MultiPoint::new([])
+  let mp_empty = @type.MultiPoint::MultiPoint([])
   assert_true(is_empty_of_geometry(@type.Geometry::MultiPoint(mp_empty)))
-  let ls_empty = @type.LineString::new([])
+  let ls_empty = @type.LineString::LineString([])
   assert_true(is_empty_of_geometry(@type.Geometry::LineString(ls_empty)))
 }

@@ -14,7 +14,7 @@ fn centroid_of_coords(coords : Array[@type.Coord]) -> @type.Coord? {
     sum_y = sum_y + c.y()
   }
   let n = coords.length().to_double()
-  Some(@type.Coord::new(sum_x / n, sum_y / n))
+  Some(@type.Coord(sum_x / n, sum_y / n))
 }
 
 ///|
@@ -42,7 +42,7 @@ pub fn centroid_line_string(ls : @type.LineString) -> @type.Point? {
   if total_length == 0.0 {
     return centroid_of_coords(ls.coords()).map(@type.Point::from_coord)
   }
-  Some(@type.Point::new(sum_x / total_length, sum_y / total_length))
+  Some(@type.Point::Point(sum_x / total_length, sum_y / total_length))
 }
 
 ///|
@@ -98,7 +98,7 @@ pub fn centroid_polygon(p : @type.Polygon) -> @type.Point? {
   if area == 0.0 {
     return centroid_of_coords(exterior_coords).map(@type.Point::from_coord)
   }
-  Some(@type.Point::new(sum_x / (6.0 * area), sum_y / (6.0 * area)))
+  Some(@type.Point::Point(sum_x / (6.0 * area), sum_y / (6.0 * area)))
 }
 
 ///|
@@ -124,7 +124,7 @@ pub fn centroid_multi_polygon(mp : @type.MultiPolygon) -> @type.Point? {
   if total_area == 0.0 {
     None
   } else {
-    Some(@type.Point::new(sum_x / total_area, sum_y / total_area))
+    Some(@type.Point::Point(sum_x / total_area, sum_y / total_area))
   }
 }
 
@@ -134,7 +134,7 @@ pub fn centroid_geometry(g : @type.Geometry) -> @type.Point? {
     @type.Geometry::Point(p) => Some(p)
     @type.Geometry::Line(l) =>
       Some(
-        @type.Point::new(
+        @type.Point::Point(
           (l.start().x() + l.end().x()) / 2.0,
           (l.start().y() + l.end().y()) / 2.0,
         ),
@@ -163,14 +163,14 @@ pub fn centroid_geometry(g : @type.Geometry) -> @type.Point? {
       if total_length == 0.0 {
         None
       } else {
-        Some(@type.Point::new(sum_x / total_length, sum_y / total_length))
+        Some(@type.Point::Point(sum_x / total_length, sum_y / total_length))
       }
     }
     @type.Geometry::MultiPolygon(mp) => centroid_multi_polygon(mp)
     @type.Geometry::Rect(r) => Some(@type.Point::from_coord(r.center()))
     @type.Geometry::Triangle(t) =>
       Some(
-        @type.Point::new(
+        @type.Point::Point(
           (t.v0().x() + t.v1().x() + t.v2().x()) / 3.0,
           (t.v0().y() + t.v1().y() + t.v2().y()) / 3.0,
         ),
@@ -193,7 +193,7 @@ pub fn centroid_geometry(g : @type.Geometry) -> @type.Point? {
         None
       } else {
         let n = count.to_double()
-        Some(@type.Point::new(sum_x / n, sum_y / n))
+        Some(@type.Point::Point(sum_x / n, sum_y / n))
       }
     }
   }

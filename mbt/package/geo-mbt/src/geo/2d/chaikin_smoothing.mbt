@@ -32,11 +32,11 @@ fn chaikin_step(ls : @type.LineString) -> @type.LineString {
   for i = 0; i < n - 1; i = i + 1 {
     let p = coords[i]
     let q = coords[i + 1]
-    let q1 = @type.Coord::new(
+    let q1 = @type.Coord(
       0.75 * p.x() + 0.25 * q.x(),
       0.75 * p.y() + 0.25 * q.y(),
     )
-    let q2 = @type.Coord::new(
+    let q2 = @type.Coord(
       0.25 * p.x() + 0.75 * q.x(),
       0.25 * p.y() + 0.75 * q.y(),
     )
@@ -49,5 +49,5 @@ fn chaikin_step(ls : @type.LineString) -> @type.LineString {
     // Close the smoothed ring
     result.push(result[0])
   }
-  @type.LineString::new(result)
+  @type.LineString::LineString(result)
 }

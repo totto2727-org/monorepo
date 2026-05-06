@@ -8,7 +8,7 @@ pub struct MultiPolygon {
 } derive(Eq, Debug)
 
 ///|
-pub fn MultiPolygon::new(polygons : Array[Polygon]) -> MultiPolygon {
+pub fn MultiPolygon::MultiPolygon(polygons : Array[Polygon]) -> MultiPolygon {
   MultiPolygon::{ polygons, }
 }
 

@@ -23,7 +23,7 @@ pub struct Coord {
 
 ///|
 /// Creates a new `Coord` from the given `x` and `y` ordinate values.
-pub fn Coord::new(x : Double, y : Double) -> Coord {
+pub fn Coord::Coord(x : Double, y : Double) -> Coord {
   Coord::{ x, y }
 }
 

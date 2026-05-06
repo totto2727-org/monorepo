@@ -31,5 +31,5 @@ pub fn reverse_line_string(ls : @type.LineString) -> @type.LineString {
   for i = coords.length() - 1; i >= 0; i = i - 1 {
     reversed.push(coords[i])
   }
-  @type.LineString::new(reversed)
+  @type.LineString::LineString(reversed)
 }

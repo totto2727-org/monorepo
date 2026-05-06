@@ -26,10 +26,10 @@ test "convex hull of points includes all corners" {
   // Each corner should appear in the hull
   let mut seen_corners = 0
   for c in coords {
-    if c == @type.Coord::new(0.0, 0.0) ||
-      c == @type.Coord::new(10.0, 0.0) ||
-      c == @type.Coord::new(10.0, 10.0) ||
-      c == @type.Coord::new(0.0, 10.0) {
+    if c == @type.Coord(0.0, 0.0) ||
+      c == @type.Coord(10.0, 0.0) ||
+      c == @type.Coord(10.0, 10.0) ||
+      c == @type.Coord(0.0, 10.0) {
       seen_corners = seen_corners + 1
     }
   }

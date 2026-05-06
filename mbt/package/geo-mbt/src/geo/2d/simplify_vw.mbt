@@ -56,5 +56,5 @@ pub fn simplify_vw_line_string(
   for idx in kept {
     result.push(coords[idx])
   }
-  @type.LineString::new(result)
+  @type.LineString::LineString(result)
 }

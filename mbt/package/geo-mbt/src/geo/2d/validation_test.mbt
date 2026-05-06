@@ -8,7 +8,7 @@ test "valid polygon" {
     (1.0, 1.0),
     (0.0, 1.0),
   ])
-  let p = @type.Polygon::new(exterior, [])
+  let p = @type.Polygon::Polygon(exterior, [])
   assert_true(is_valid(@type.Geometry::Polygon(p)))
   assert_eq(validation_problems(@type.Geometry::Polygon(p)).length(), 0)
 }
@@ -27,7 +27,7 @@ test "valid linestring" {
 
 ///|
 test "non-finite coord is invalid" {
-  let p = @type.Point::new(0.0 / 0.0, 0.0) // NaN
+  let p = @type.Point::Point(0.0 / 0.0, 0.0) // NaN
   assert_true(!is_valid(@type.Geometry::Point(p)))
 }
 
@@ -35,7 +35,7 @@ test "non-finite coord is invalid" {
 test "ring with too few points is invalid" {
   // A polygon with exterior containing only 2 unique coords → too few
   let exterior = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0)])
-  let p = @type.Polygon::new(exterior, [])
+  let p = @type.Polygon::Polygon(exterior, [])
   // After auto-close, exterior has 3 coords (start, mid, start). Still <4.
   assert_true(!is_valid(@type.Geometry::Polygon(p)))
 }

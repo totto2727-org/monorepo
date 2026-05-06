@@ -10,7 +10,7 @@ pub struct Triangle {
 } derive(Eq, Debug, Hash)
 
 ///|
-pub fn Triangle::new(v0 : Coord, v1 : Coord, v2 : Coord) -> Triangle {
+pub fn Triangle::Triangle(v0 : Coord, v1 : Coord, v2 : Coord) -> Triangle {
   Triangle::{ v0, v1, v2 }
 }
 
@@ -39,15 +39,15 @@ pub fn Triangle::to_array(self : Triangle) -> Array[Coord] {
 /// v1->v2, v2->v0)` order.
 pub fn Triangle::to_lines(self : Triangle) -> Array[Line] {
   [
-    Line::new(self.v0, self.v1),
-    Line::new(self.v1, self.v2),
-    Line::new(self.v2, self.v0),
+    Line::Line(self.v0, self.v1),
+    Line::Line(self.v1, self.v2),
+    Line::Line(self.v2, self.v0),
   ]
 }
 
 ///|
 /// Converts to a closed `Polygon` representation.
 pub fn Triangle::to_polygon(self : Triangle) -> Polygon {
-  let exterior = LineString::new([self.v0, self.v1, self.v2, self.v0])
-  Polygon::new(exterior, [])
+  let exterior = LineString::LineString([self.v0, self.v1, self.v2, self.v0])
+  Polygon::Polygon(exterior, [])
 }

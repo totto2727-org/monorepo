@@ -47,9 +47,9 @@ fn line_line_intersection_extend(
   if denom == 0.0 {
     // Parallel — return midpoint as a fallback (shouldn't happen on a
     // well-formed clip).
-    return @type.Coord::new((s1.x() + s2.x()) / 2.0, (s1.y() + s2.y()) / 2.0)
+    return @type.Coord((s1.x() + s2.x()) / 2.0, (s1.y() + s2.y()) / 2.0)
   }
-  @type.Coord::new(
+  @type.Coord(
     (n1 * dp.x() - n2 * dc.x()) / denom,
     (n1 * dp.y() - n2 * dc.y()) / denom,
   )
@@ -81,7 +81,8 @@ pub fn intersection_sutherland_hodgman(
   let clip_coords = clip.exterior().coords()
   let n_clip = clip_coords.length()
   // Iterate clip edges (drop last clip coord if it equals the first)
-  let clip_edge_count = if n_clip > 1 && clip_coords[0] == clip_coords[n_clip - 1] {
+  let clip_edge_count = if n_clip > 1 &&
+    clip_coords[0] == clip_coords[n_clip - 1] {
     n_clip - 1
   } else {
     n_clip
@@ -116,9 +117,9 @@ pub fn intersection_sutherland_hodgman(
     }
   }
   if output.length() == 0 {
-    return @type.Polygon::new(@type.LineString::new([]), [])
+    return @type.Polygon::Polygon(@type.LineString::LineString([]), [])
   }
-  @type.Polygon::new(@type.LineString::new(output), [])
+  @type.Polygon::Polygon(@type.LineString::LineString(output), [])
 }
 
 ///|

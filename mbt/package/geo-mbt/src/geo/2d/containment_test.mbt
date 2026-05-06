@@ -9,34 +9,34 @@ fn make_test_polygon() -> @type.Polygon {
     (0.0, 10.0),
     (0.0, 0.0),
   ])
-  @type.Polygon::new(exterior, [])
+  @type.Polygon::Polygon(exterior, [])
 }
 
 ///|
 test "contains_polygon_point: inside" {
   let p = make_test_polygon()
-  assert_true(contains_polygon_point(p, @type.Point::new(5.0, 5.0)))
+  assert_true(contains_polygon_point(p, @type.Point::Point(5.0, 5.0)))
 }
 
 ///|
 test "contains_polygon_point: boundary excluded" {
   let p = make_test_polygon()
   // Contains is strict — boundary is NOT contained
-  assert_true(!contains_polygon_point(p, @type.Point::new(0.0, 5.0)))
+  assert_true(!contains_polygon_point(p, @type.Point::Point(0.0, 5.0)))
 }
 
 ///|
 test "contains_polygon_point: outside" {
   let p = make_test_polygon()
-  assert_true(!contains_polygon_point(p, @type.Point::new(20.0, 20.0)))
+  assert_true(!contains_polygon_point(p, @type.Point::Point(20.0, 20.0)))
 }
 
 ///|
 test "covers_polygon_point: boundary INCLUDED" {
   let p = make_test_polygon()
-  assert_true(covers_polygon_point(p, @type.Point::new(0.0, 5.0)))
-  assert_true(covers_polygon_point(p, @type.Point::new(5.0, 5.0)))
-  assert_true(!covers_polygon_point(p, @type.Point::new(20.0, 20.0)))
+  assert_true(covers_polygon_point(p, @type.Point::Point(0.0, 5.0)))
+  assert_true(covers_polygon_point(p, @type.Point::Point(5.0, 5.0)))
+  assert_true(!covers_polygon_point(p, @type.Point::Point(20.0, 20.0)))
 }
 
 ///|
@@ -49,7 +49,7 @@ test "contains_polygon_polygon: nested" {
     (2.0, 4.0),
     (2.0, 2.0),
   ])
-  let inner = @type.Polygon::new(inner_ext, [])
+  let inner = @type.Polygon::Polygon(inner_ext, [])
   assert_true(contains_polygon_polygon(outer, inner))
 }
 
@@ -63,32 +63,23 @@ test "contains_polygon_polygon: not contained" {
     (5.0, 15.0),
     (5.0, 5.0),
   ])
-  let inner = @type.Polygon::new(inner_ext, [])
+  let inner = @type.Polygon::Polygon(inner_ext, [])
   assert_true(!contains_polygon_polygon(outer, inner))
 }
 
 ///|
 test "contains_rect_rect" {
-  let outer = @type.Rect::new(
-    @type.Coord::new(0.0, 0.0),
-    @type.Coord::new(10.0, 10.0),
-  )
-  let inner = @type.Rect::new(
-    @type.Coord::new(2.0, 2.0),
-    @type.Coord::new(8.0, 8.0),
-  )
+  let outer = @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(10.0, 10.0))
+  let inner = @type.Rect::Rect(@type.Coord(2.0, 2.0), @type.Coord(8.0, 8.0))
   assert_true(contains_rect_rect(outer, inner))
-  let outside = @type.Rect::new(
-    @type.Coord::new(5.0, 5.0),
-    @type.Coord::new(15.0, 15.0),
-  )
+  let outside = @type.Rect::Rect(@type.Coord(5.0, 5.0), @type.Coord(15.0, 15.0))
   assert_true(!contains_rect_rect(outer, outside))
 }
 
 ///|
 test "within is the inverse of contains" {
   let p = make_test_polygon()
-  let pt = @type.Point::new(5.0, 5.0)
+  let pt = @type.Point::Point(5.0, 5.0)
   assert_true(
     within_geometry(@type.Geometry::Point(pt), @type.Geometry::Polygon(p)),
   )
@@ -100,7 +91,7 @@ test "within is the inverse of contains" {
 ///|
 test "covers_geometry boundary point" {
   let p = make_test_polygon()
-  let boundary_pt = @type.Point::new(0.0, 5.0)
+  let boundary_pt = @type.Point::Point(0.0, 5.0)
   // contains: false (strict), covers: true (inclusive)
   assert_true(
     !contains_geometry(

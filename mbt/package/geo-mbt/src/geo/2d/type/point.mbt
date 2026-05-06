@@ -8,66 +8,68 @@
 ///
 /// The _interior_ of the point is itself (a singleton set), and its _boundary_
 /// is empty. A point is _valid_ if and only if its `Coord` is valid.
-pub struct Point(Coord) derive(Eq, Debug, Hash, Default)
+pub struct Point {
+  coord : Coord
+} derive(Eq, Debug, Hash, Default)
 
 ///|
 /// Creates a new point.
-pub fn Point::new(x : Double, y : Double) -> Point {
-  Point(Coord::new(x, y))
+pub fn Point::Point(x : Double, y : Double) -> Point {
+  Point::{ coord: Coord(x, y) }
 }
 
 ///|
 /// Creates a point from a `Coord`.
 pub fn Point::from_coord(c : Coord) -> Point {
-  Point(c)
+  Point::{ coord: c }
 }
 
 ///|
 /// Creates a point from a `(x, y)` tuple.
 pub fn Point::from_tuple(t : (Double, Double)) -> Point {
-  Point(Coord::new(t.0, t.1))
+  Point::{ coord: Coord(t.0, t.1) }
 }
 
 ///|
 /// Returns the underlying `Coord`.
 pub fn Point::coord(self : Point) -> Coord {
-  self.0
+  self.coord
 }
 
 ///|
 /// Returns the `x`/horizontal component.
 pub fn Point::x(self : Point) -> Double {
-  self.0.x()
+  self.coord.x()
 }
 
 ///|
 /// Returns the `y`/vertical component.
 pub fn Point::y(self : Point) -> Double {
-  self.0.y()
+  self.coord.y()
 }
 
 ///|
 /// Returns a `(x, y)` tuple.
 pub fn Point::x_y(self : Point) -> (Double, Double) {
-  self.0.x_y()
+  self.coord.x_y()
 }
 
 ///|
 /// Returns a new point with `x` set, the original `y` preserved.
 pub fn Point::with_x(self : Point, x : Double) -> Point {
-  Point(Coord::new(x, self.0.y()))
+  Point::{ coord: Coord(x, self.coord.y()) }
 }
 
 ///|
 /// Returns a new point with `y` set, the original `x` preserved.
 pub fn Point::with_y(self : Point, y : Double) -> Point {
-  Point(Coord::new(self.0.x(), y))
+  Point::{ coord: Coord(self.coord.x(), y) }
 }
 
 ///|
 /// Returns the dot product of the two points: `x1 * x2 + y1 * y2`.
 pub fn Point::dot(self : Point, other : Point) -> Double {
-  self.0.dot(other.0)
+  self.coord.dot(other.coord)
 }
 
 ///|
@@ -83,27 +85,27 @@ pub fn Point::cross_prod(self : Point, b : Point, c : Point) -> Double {
 
 ///|
 pub impl Neg for Point with neg(self) {
-  Point(-self.0)
+  Point::{ coord: -self.coord }
 }
 
 ///|
 pub impl Add for Point with add(self, other) {
-  Point(self.0 + other.0)
+  Point::{ coord: self.coord + other.coord }
 }
 
 ///|
 pub impl Sub for Point with sub(self, other) {
-  Point(self.0 - other.0)
+  Point::{ coord: self.coord - other.coord }
 }
 
 ///|
 /// Multiplies the point's coordinates by a scalar.
 pub fn Point::mul(self : Point, scalar : Double) -> Point {
-  Point(self.0.mul(scalar))
+  Point::{ coord: self.coord.mul(scalar) }
 }
 
 ///|
 /// Divides the point's coordinates by a scalar.
 pub fn Point::div(self : Point, scalar : Double) -> Point {
-  Point(self.0.div(scalar))
+  Point::{ coord: self.coord.div(scalar) }
 }

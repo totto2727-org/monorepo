@@ -14,7 +14,7 @@ pub fn map_coords_in_line(
   l : @type.Line,
   f : (@type.Coord) -> @type.Coord,
 ) -> @type.Line {
-  @type.Line::new(f(l.start()), f(l.end()))
+  @type.Line::Line(f(l.start()), f(l.end()))
 }
 
 ///|
@@ -22,7 +22,7 @@ pub fn map_coords_in_line_string(
   ls : @type.LineString,
   f : (@type.Coord) -> @type.Coord,
 ) -> @type.LineString {
-  @type.LineString::new(ls.coords().map(f))
+  @type.LineString::LineString(ls.coords().map(f))
 }
 
 ///|
@@ -31,7 +31,7 @@ pub fn map_coords_in_multi_point(
   f : (@type.Coord) -> @type.Coord,
 ) -> @type.MultiPoint {
   let pts = mp.points().map(fn(p) { map_coords_in_point(p, f) })
-  @type.MultiPoint::new(pts)
+  @type.MultiPoint::MultiPoint(pts)
 }
 
 ///|
@@ -40,7 +40,7 @@ pub fn map_coords_in_multi_line_string(
   f : (@type.Coord) -> @type.Coord,
 ) -> @type.MultiLineString {
   let lss = mls.line_strings().map(fn(ls) { map_coords_in_line_string(ls, f) })
-  @type.MultiLineString::new(lss)
+  @type.MultiLineString::MultiLineString(lss)
 }
 
 ///|
@@ -50,7 +50,7 @@ pub fn map_coords_in_polygon(
 ) -> @type.Polygon {
   let exterior = map_coords_in_line_string(p.exterior(), f)
   let interiors = p.interiors().map(fn(ls) { map_coords_in_line_string(ls, f) })
-  @type.Polygon::new(exterior, interiors)
+  @type.Polygon::Polygon(exterior, interiors)
 }
 
 ///|
@@ -59,7 +59,7 @@ pub fn map_coords_in_multi_polygon(
   f : (@type.Coord) -> @type.Coord,
 ) -> @type.MultiPolygon {
   let polys = mp.polygons().map(fn(p) { map_coords_in_polygon(p, f) })
-  @type.MultiPolygon::new(polys)
+  @type.MultiPolygon::MultiPolygon(polys)
 }
 
 ///|
@@ -67,7 +67,7 @@ pub fn map_coords_in_rect(
   r : @type.Rect,
   f : (@type.Coord) -> @type.Coord,
 ) -> @type.Rect {
-  @type.Rect::new(f(r.min()), f(r.max()))
+  @type.Rect::Rect(f(r.min()), f(r.max()))
 }
 
 ///|
@@ -75,7 +75,7 @@ pub fn map_coords_in_triangle(
   t : @type.Triangle,
   f : (@type.Coord) -> @type.Coord,
 ) -> @type.Triangle {
-  @type.Triangle::new(f(t.v0()), f(t.v1()), f(t.v2()))
+  @type.Triangle::Triangle(f(t.v0()), f(t.v1()), f(t.v2()))
 }
 
 ///|
@@ -84,7 +84,7 @@ pub fn map_coords_in_geometry_collection(
   f : (@type.Coord) -> @type.Coord,
 ) -> @type.GeometryCollection {
   let mapped = gc.geometries().map(fn(g) { map_coords_in_geometry(g, f) })
-  @type.GeometryCollection::new(mapped)
+  @type.GeometryCollection::GeometryCollection(mapped)
 }
 
 ///|

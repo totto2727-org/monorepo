@@ -9,7 +9,7 @@ test "centroid of unit square is (0.5, 0.5)" {
     (0.0, 1.0),
     (0.0, 0.0),
   ])
-  let p = @type.Polygon::new(exterior, [])
+  let p = @type.Polygon::Polygon(exterior, [])
   let c = centroid_polygon(p).unwrap()
   assert_true((c.x() - 0.5).abs() < 1.0e-9)
   assert_true((c.y() - 0.5).abs() < 1.0e-9)
@@ -17,10 +17,10 @@ test "centroid of unit square is (0.5, 0.5)" {
 
 ///|
 test "centroid of triangle is (avg, avg)" {
-  let t = @type.Triangle::new(
-    @type.Coord::new(0.0, 0.0),
-    @type.Coord::new(6.0, 0.0),
-    @type.Coord::new(0.0, 9.0),
+  let t = @type.Triangle::Triangle(
+    @type.Coord(0.0, 0.0),
+    @type.Coord(6.0, 0.0),
+    @type.Coord(0.0, 9.0),
   )
   let c = centroid_geometry(@type.Geometry::Triangle(t)).unwrap()
   assert_eq(c.x(), 2.0)
@@ -29,10 +29,7 @@ test "centroid of triangle is (avg, avg)" {
 
 ///|
 test "centroid of rect is rect.center" {
-  let r = @type.Rect::new(
-    @type.Coord::new(0.0, 0.0),
-    @type.Coord::new(10.0, 20.0),
-  )
+  let r = @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(10.0, 20.0))
   let c = centroid_geometry(@type.Geometry::Rect(r)).unwrap()
   assert_eq(c.x(), 5.0)
   assert_eq(c.y(), 10.0)
@@ -99,7 +96,7 @@ test "orient_polygon: makes exterior CCW by default" {
     (1.0, 0.0),
     (0.0, 0.0),
   ])
-  let p = @type.Polygon::new(cw_exterior, [])
+  let p = @type.Polygon::Polygon(cw_exterior, [])
   let oriented = orient_polygon(p, OrientDirection::Default)
   assert_true(
     winding_order(oriented.exterior()).unwrap() ==
@@ -127,6 +124,6 @@ test "reverse_line_string" {
   let ls = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 0.0), (1.0, 1.0)])
   let rev = reverse_line_string(ls)
   let coords = rev.coords()
-  assert_true(coords[0] == @type.Coord::new(1.0, 1.0))
-  assert_true(coords[2] == @type.Coord::new(0.0, 0.0))
+  assert_true(coords[0] == @type.Coord(1.0, 1.0))
+  assert_true(coords[2] == @type.Coord(0.0, 0.0))
 }

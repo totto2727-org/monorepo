@@ -2,10 +2,10 @@
 
 ///|
 test "coords_of_point yields one coord" {
-  let p = @type.Point::new(1.0, 2.0)
+  let p = @type.Point::Point(1.0, 2.0)
   let coords = coords_of_point(p)
   assert_eq(coords.length(), 1)
-  assert_true(coords[0] == @type.Coord::new(1.0, 2.0))
+  assert_true(coords[0] == @type.Coord(1.0, 2.0))
 }
 
 ///|
@@ -17,8 +17,8 @@ test "coords_of_multi_point preserves order" {
   ])
   let coords = coords_of_multi_point(mp)
   assert_eq(coords.length(), 3)
-  assert_true(coords[0] == @type.Coord::new(-10.0, 0.0))
-  assert_true(coords[2] == @type.Coord::new(30.0, 40.0))
+  assert_true(coords[0] == @type.Coord(-10.0, 0.0))
+  assert_true(coords[2] == @type.Coord(30.0, 40.0))
 }
 
 ///|
@@ -35,7 +35,7 @@ test "coords_of_polygon walks exterior then interiors" {
     (7.0, 7.0),
     (3.0, 7.0),
   ])
-  let polygon = @type.Polygon::new(exterior, [interior])
+  let polygon = @type.Polygon::Polygon(exterior, [interior])
   let all_coords = coords_of_polygon(polygon)
   let exterior_coords = exterior_coords_of_polygon(polygon)
   assert_true(all_coords.length() > exterior_coords.length())
@@ -45,7 +45,7 @@ test "coords_of_polygon walks exterior then interiors" {
 
 ///|
 test "coords_count via Geometry dispatch" {
-  let g = @type.Geometry::Point(@type.Point::new(1.0, 2.0))
+  let g = @type.Geometry::Point(@type.Point::Point(1.0, 2.0))
   assert_eq(coords_count(g), 1)
   let mp = @type.MultiPoint::from_tuples([(0.0, 0.0), (1.0, 1.0), (2.0, 2.0)])
   let g2 = @type.Geometry::MultiPoint(mp)
@@ -61,27 +61,24 @@ test "lines_of_line_string yields n-1 segments" {
 
 ///|
 test "lines_of_rect yields 4 edges" {
-  let r = @type.Rect::new(
-    @type.Coord::new(0.0, 0.0),
-    @type.Coord::new(1.0, 1.0),
-  )
+  let r = @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(1.0, 1.0))
   let lines = lines_of_rect(r)
   assert_eq(lines.length(), 4)
 }
 
 ///|
 test "lines_of_geometry returns empty for Point" {
-  let g = @type.Geometry::Point(@type.Point::new(1.0, 2.0))
+  let g = @type.Geometry::Point(@type.Point::Point(1.0, 2.0))
   assert_eq(lines_of_geometry(g).length(), 0)
 }
 
 ///|
 test "map_coords_in_point shifts the coord" {
-  let p = @type.Point::new(1.0, 2.0)
+  let p = @type.Point::Point(1.0, 2.0)
   let q = map_coords_in_point(p, fn(c) {
-    @type.Coord::new(c.x() + 10.0, c.y() + 20.0)
+    @type.Coord(c.x() + 10.0, c.y() + 20.0)
   })
-  assert_true(q == @type.Point::new(11.0, 22.0))
+  assert_true(q == @type.Point::Point(11.0, 22.0))
 }
 
 ///|
@@ -92,16 +89,16 @@ test "map_coords_in_polygon transforms all rings" {
     (1.0, 1.0),
     (0.0, 1.0),
   ])
-  let polygon = @type.Polygon::new(exterior, [])
+  let polygon = @type.Polygon::Polygon(exterior, [])
   let scaled = map_coords_in_polygon(polygon, fn(c) { c.mul(2.0) })
   let scaled_coords = scaled.exterior().coords()
-  assert_true(scaled_coords[1] == @type.Coord::new(2.0, 0.0))
-  assert_true(scaled_coords[2] == @type.Coord::new(2.0, 2.0))
+  assert_true(scaled_coords[1] == @type.Coord(2.0, 0.0))
+  assert_true(scaled_coords[2] == @type.Coord(2.0, 2.0))
 }
 
 ///|
 test "map_coords_in_geometry roundtrip with identity" {
-  let p = @type.Point::new(3.5, 7.0)
+  let p = @type.Point::Point(3.5, 7.0)
   let g = @type.Geometry::Point(p)
   let g2 = map_coords_in_geometry(g, fn(c) { c })
   match g2 {

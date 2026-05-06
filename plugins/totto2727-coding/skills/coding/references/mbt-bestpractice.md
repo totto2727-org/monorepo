@@ -17,15 +17,28 @@
 - **Variables & Parameters**: snake_case (e.g., `coordinates`, `shifted_poly`).
 - **No Abbreviations**: Do not abbreviate variable names unless they are common abbreviations (e.g., `id`, `json`). Avoid `p` for `point`, `ls` for `line_string`, etc.
 - **Collections**: Use the `_array` suffix for array arguments/variables instead of plural names (e.g., `polygon_array` instead of `polygons`).
-- **Constructors**: Always define `fn new` inside the struct body. Factory functions use `new_hoge`/`from_hoge` naming — never `::new`.
+- **Constructors**: Always define the default constructor as a toplevel `fn TypeName::TypeName(...)` (the constructor's own name is the type name itself). The deprecated `fn new(..)` declaration inside the struct body must not be used. Factory functions use `new_hoge`/`from_hoge` naming — never `::new`.
 
 ## 3. Idioms & Best Practices
 
 ### 3.1 Constructors & Instance Initialization
 
-- **Default constructor**: The `fn new` declaration inside the struct body is the constructor definition itself — do NOT write a separate `fn StructName::new(...)` implementation outside. `fn new` supports `raise`, so validation logic should be placed in `new` to ensure instances are always in a valid state.
+- **Default constructor**: Define the default constructor as a toplevel `fn TypeName::TypeName(...)` — the constructor's name is the type name itself. This is the canonical entry point and must contain any validation logic; `raise` is supported and validation must live here so every instance is in a valid state. After this declaration, values are constructed via `TypeName(...)` (the short form) or `TypeName::TypeName(...)` (the qualified form).
 
   **OK**:
+
+  ```mbt check
+  struct MyStruct {
+    x : Int
+    y : Int
+  }
+
+  pub fn MyStruct::MyStruct(x~ : Int, y~ : Int) -> MyStruct {
+    MyStruct::{ x, y }
+  }
+  ```
+
+  **NG (deprecated `fn new` declaration inside struct body)**:
 
   ```mbt check
   struct MyStruct {
@@ -36,7 +49,7 @@
   }
   ```
 
-  **NG**:
+  **NG (`fn TypeName::new` implementation without the in-name approach)**:
 
   ```mbt check
   fn MyStruct::new(x~ : Int, y~ : Int) -> MyStruct {
@@ -44,7 +57,7 @@
   }
   ```
 
-- **Factory functions**: Define separate static functions with names like `new_hoge`, `from_hoge`, etc. Never name them `::new`. Factory functions must generate values via the `new` constructor (`StructName(...)` is equivalent to `StructName::new(...)`):
+- **Factory functions**: Define separate static functions with names like `new_hoge`, `from_hoge`, etc. Never name them `::new`. Factory functions must generate values via the canonical `TypeName(...)` constructor:
 
   ```mbt check
   struct Rect {
@@ -52,23 +65,25 @@
     y : Double
     width : Double
     height : Double
+  }
 
-    // Validation in new ensures all Rect instances have valid size
-    fn new(x~ : Double, y~ : Double, width~ : Double, height~ : Double) -> Rect raise
+  // Validation in the default constructor ensures every Rect instance has valid size
+  pub fn Rect::Rect(x~ : Double, y~ : Double, width~ : Double, height~ : Double) -> Rect raise {
+    Rect::{ x, y, width, height }
   }
 
   // Conversion: create from a different representation
-  fn Rect::from_corners(x1~ : Double, y1~ : Double, x2~ : Double, y2~ : Double) -> Rect {
+  pub fn Rect::from_corners(x1~ : Double, y1~ : Double, x2~ : Double, y2~ : Double) -> Rect raise {
     Rect(x=x1, y=y1, width=x2 - x1, height=y2 - y1)
   }
 
   // Specific state: create a type with optional fields in a predetermined state
-  fn Rect::new_unit(x~ : Double, y~ : Double) -> Rect {
+  pub fn Rect::new_unit(x~ : Double, y~ : Double) -> Rect raise {
     Rect(x~, y~, width=1.0, height=1.0)
   }
   ```
 
-- **Initialization**: Struct literal syntax (`StructName::{...}`) should ONLY be used strictly within constructor functions like `new`. External code must use the constructor syntax (`StructName(...)`).
+- **Initialization**: Struct literal syntax (`TypeName::{...}`) should ONLY be used strictly within the canonical `TypeName::TypeName(...)` constructor. All other code (including factory functions and tests) must use the constructor short form (`TypeName(...)`).
 - **Updating**: Use dedicated update functions/methods to modify values.
 - **Struct Update Syntax**: Avoid using Struct Update Syntax (e.g., `{ ..base, field: value }`) whenever possible, as it may bypass validation logic or constraints.
 - **Ignore Usage**: Use proper pipeline style when ignoring return values: `expr |> ignore`.

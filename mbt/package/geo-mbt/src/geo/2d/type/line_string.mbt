@@ -16,7 +16,7 @@ pub struct LineString {
 
 ///|
 /// Creates a new `LineString` from an array of `Coord`s.
-pub fn LineString::new(coords : Array[Coord]) -> LineString {
+pub fn LineString::LineString(coords : Array[Coord]) -> LineString {
   LineString::{ coords, }
 }
 
@@ -68,7 +68,7 @@ pub fn LineString::lines(self : LineString) -> Array[Line] {
   }
   let result = Array::new(capacity=n - 1)
   for i = 0; i < n - 1; i = i + 1 {
-    result.push(Line::new(self.coords[i], self.coords[i + 1]))
+    result.push(Line::Line(self.coords[i], self.coords[i + 1]))
   }
   result
 }

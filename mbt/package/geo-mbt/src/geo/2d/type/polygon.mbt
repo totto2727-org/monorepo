@@ -28,7 +28,7 @@ pub struct Polygon {
 ///
 /// The exterior and each interior ring are closed in place if not already
 /// closed (matching the Rust geo-types semantics).
-pub fn Polygon::new(
+pub fn Polygon::Polygon(
   exterior : LineString,
   interiors : Array[LineString],
 ) -> Polygon {

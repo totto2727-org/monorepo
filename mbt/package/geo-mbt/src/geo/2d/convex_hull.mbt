@@ -7,10 +7,10 @@
 /// For fewer than 3 unique points the returned LineString may be degenerate.
 fn convex_hull_of_coords(coords : Array[@type.Coord]) -> @type.LineString {
   if coords.length() == 0 {
-    return @type.LineString::new([])
+    return @type.LineString::LineString([])
   }
   if coords.length() == 1 {
-    return @type.LineString::new([coords[0], coords[0]])
+    return @type.LineString::LineString([coords[0], coords[0]])
   }
   // Sort coords lexicographically by (x, y).
   let sorted = coords.copy()
@@ -72,31 +72,31 @@ fn convex_hull_of_coords(coords : Array[@type.Coord]) -> @type.LineString {
   if hull.length() > 0 {
     hull.push(hull[0])
   }
-  @type.LineString::new(hull)
+  @type.LineString::LineString(hull)
 }
 
 ///|
 /// Convex hull of a `MultiPoint`.
 pub fn convex_hull_of_multi_point(mp : @type.MultiPoint) -> @type.Polygon {
   let coords = mp.points().map(fn(p) { p.coord() })
-  @type.Polygon::new(convex_hull_of_coords(coords), [])
+  @type.Polygon::Polygon(convex_hull_of_coords(coords), [])
 }
 
 ///|
 /// Convex hull of a `LineString`. Returns a `Polygon`.
 pub fn convex_hull_of_line_string(ls : @type.LineString) -> @type.Polygon {
-  @type.Polygon::new(convex_hull_of_coords(ls.coords()), [])
+  @type.Polygon::Polygon(convex_hull_of_coords(ls.coords()), [])
 }
 
 ///|
 /// Convex hull of a `Polygon` (uses its exterior ring's coords).
 pub fn convex_hull_of_polygon(p : @type.Polygon) -> @type.Polygon {
-  @type.Polygon::new(convex_hull_of_coords(p.exterior().coords()), [])
+  @type.Polygon::Polygon(convex_hull_of_coords(p.exterior().coords()), [])
 }
 
 ///|
 /// Convex hull of any `Geometry`. The hull is always a `Polygon`.
 pub fn convex_hull_of_geometry(g : @type.Geometry) -> @type.Polygon {
   let coords = coords_of_geometry(g)
-  @type.Polygon::new(convex_hull_of_coords(coords), [])
+  @type.Polygon::Polygon(convex_hull_of_coords(coords), [])
 }

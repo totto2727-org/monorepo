@@ -9,7 +9,7 @@ test "MultiPoint::from_tuples" {
 
 ///|
 test "MultiPoint empty" {
-  let mp = @type.MultiPoint::new([])
+  let mp = @type.MultiPoint::MultiPoint([])
   assert_true(mp.is_empty())
   assert_eq(mp.length(), 0)
 }
@@ -18,14 +18,14 @@ test "MultiPoint empty" {
 test "MultiLineString length" {
   let ls1 = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0)])
   let ls2 = @type.LineString::from_tuples([(2.0, 0.0), (3.0, 1.0)])
-  let mls = @type.MultiLineString::new([ls1, ls2])
+  let mls = @type.MultiLineString::MultiLineString([ls1, ls2])
   assert_eq(mls.length(), 2)
   assert_true(!mls.is_empty())
 }
 
 ///|
 test "MultiLineString empty is closed" {
-  let mls = @type.MultiLineString::new([])
+  let mls = @type.MultiLineString::MultiLineString([])
   assert_true(mls.is_closed())
 }
 
@@ -37,15 +37,15 @@ test "MultiPolygon basic" {
     (1.0, 1.0),
     (0.0, 1.0),
   ])
-  let polygon = @type.Polygon::new(exterior, [])
-  let mp = @type.MultiPolygon::new([polygon])
+  let polygon = @type.Polygon::Polygon(exterior, [])
+  let mp = @type.MultiPolygon::MultiPolygon([polygon])
   assert_eq(mp.length(), 1)
 }
 
 ///|
 test "GeometryCollection holds heterogeneous geometries" {
-  let gc = @type.GeometryCollection::new([
-    @type.Geometry::Point(@type.Point::new(1.0, 2.0)),
+  let gc = @type.GeometryCollection::GeometryCollection([
+    @type.Geometry::Point(@type.Point::Point(1.0, 2.0)),
     @type.Geometry::Line(@type.Line::from_tuples((0.0, 0.0), (1.0, 1.0))),
   ])
   assert_eq(gc.length(), 2)

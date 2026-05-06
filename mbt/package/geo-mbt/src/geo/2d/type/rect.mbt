@@ -16,7 +16,7 @@ pub struct Rect {
 /// Creates a new `Rect` from two coordinates. Order is not significant — the
 /// resulting rectangle's `min`/`max` are the component-wise min/max of the
 /// inputs.
-pub fn Rect::new(c1 : Coord, c2 : Coord) -> Rect {
+pub fn Rect::Rect(c1 : Coord, c2 : Coord) -> Rect {
   let (min_x, max_x) = if c1.x() <= c2.x() {
     (c1.x(), c2.x())
   } else {
@@ -27,7 +27,7 @@ pub fn Rect::new(c1 : Coord, c2 : Coord) -> Rect {
   } else {
     (c2.y(), c1.y())
   }
-  Rect::{ min: Coord::new(min_x, min_y), max: Coord::new(max_x, max_y) }
+  Rect::{ min: Coord(min_x, min_y), max: Coord(max_x, max_y) }
 }
 
 ///|
@@ -53,7 +53,7 @@ pub fn Rect::height(self : Rect) -> Double {
 ///|
 /// Returns the centroid of the rectangle.
 pub fn Rect::center(self : Rect) -> Coord {
-  Coord::new(
+  Coord(
     (self.min.x() + self.max.x()) / 2.0,
     (self.min.y() + self.max.y()) / 2.0,
   )
@@ -69,12 +69,12 @@ pub fn Rect::area(self : Rect) -> Double {
 /// Converts the rectangle into a `Polygon` with the four corners (CCW from
 /// `min`).
 pub fn Rect::to_polygon(self : Rect) -> Polygon {
-  let exterior = LineString::new([
-    Coord::new(self.min.x(), self.min.y()),
-    Coord::new(self.max.x(), self.min.y()),
-    Coord::new(self.max.x(), self.max.y()),
-    Coord::new(self.min.x(), self.max.y()),
-    Coord::new(self.min.x(), self.min.y()),
+  let exterior = LineString::LineString([
+    Coord(self.min.x(), self.min.y()),
+    Coord(self.max.x(), self.min.y()),
+    Coord(self.max.x(), self.max.y()),
+    Coord(self.min.x(), self.max.y()),
+    Coord(self.min.x(), self.min.y()),
   ])
-  Polygon::new(exterior, [])
+  Polygon::Polygon(exterior, [])
 }

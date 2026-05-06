@@ -16,7 +16,7 @@ pub fn remove_repeated_points_line_string(
       result.push(coords[i])
     }
   }
-  @type.LineString::new(result)
+  @type.LineString::LineString(result)
 }
 
 ///|
@@ -24,5 +24,5 @@ pub fn remove_repeated_points_line_string(
 pub fn remove_repeated_points_polygon(p : @type.Polygon) -> @type.Polygon {
   let exterior = remove_repeated_points_line_string(p.exterior())
   let interiors = p.interiors().map(remove_repeated_points_line_string)
-  @type.Polygon::new(exterior, interiors)
+  @type.Polygon::Polygon(exterior, interiors)
 }

@@ -18,21 +18,21 @@ test "frechet_distance: parallel translated lines" {
 
 ///|
 test "frechet_distance: empty lines" {
-  let a = @type.LineString::new([])
-  let b = @type.LineString::new([])
+  let a = @type.LineString::LineString([])
+  let b = @type.LineString::LineString([])
   assert_eq(frechet_distance(a, b), 0.0)
 }
 
 ///|
 test "hausdorff_distance: identical sets is 0" {
-  let coords = [@type.Coord::new(0.0, 0.0), @type.Coord::new(1.0, 1.0)]
+  let coords = [@type.Coord(0.0, 0.0), @type.Coord(1.0, 1.0)]
   assert_eq(hausdorff_distance_coords(coords, coords), 0.0)
 }
 
 ///|
 test "hausdorff_distance: known case" {
-  let a = [@type.Coord::new(0.0, 0.0), @type.Coord::new(0.0, 10.0)]
-  let b = [@type.Coord::new(5.0, 5.0)]
+  let a = [@type.Coord(0.0, 0.0), @type.Coord(0.0, 10.0)]
+  let b = [@type.Coord(5.0, 5.0)]
   // From a to b: max(min) = max(sqrt(50), sqrt(50)) = sqrt(50)
   // From b to a: max(min) = sqrt(50)
   // So Hausdorff = sqrt(50) ≈ 7.07
@@ -48,7 +48,7 @@ test "densify_line_string: long segment gets split" {
   let densified = densify_line_string(ls, 5.0)
   assert_eq(densified.coords().length(), 3)
   // Middle coord should be exactly halfway
-  assert_true(densified.coords()[1] == @type.Coord::new(5.0, 0.0))
+  assert_true(densified.coords()[1] == @type.Coord(5.0, 0.0))
 }
 
 ///|

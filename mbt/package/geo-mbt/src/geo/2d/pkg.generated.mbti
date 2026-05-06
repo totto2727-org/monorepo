@@ -360,10 +360,10 @@ pub struct AffineTransform {
   e : Double
   yoff : Double
 } derive(Eq, @debug.Debug)
+pub fn AffineTransform::AffineTransform(Double, Double, Double, Double, Double, Double) -> Self
 pub fn AffineTransform::apply(Self, @type.Coord) -> @type.Coord
 pub fn AffineTransform::compose(Self, Self) -> Self
 pub fn AffineTransform::identity() -> Self
-pub fn AffineTransform::new(Double, Double, Double, Double, Double, Double) -> Self
 pub fn AffineTransform::rotate_origin(Double) -> Self
 pub fn AffineTransform::scale_xy(Double, Double) -> Self
 pub fn AffineTransform::skew_origin(Double, Double) -> Self

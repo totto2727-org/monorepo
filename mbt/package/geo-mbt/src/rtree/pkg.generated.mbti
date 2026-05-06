@@ -14,7 +14,7 @@ pub(all) struct Entry[T] {
   bbox : @type.Rect
   value : T
 }
-pub fn[T] Entry::new(@type.Rect, T) -> Self[T]
+pub fn[T] Entry::Entry(@type.Rect, T) -> Self[T]
 
 type Node[T]
 

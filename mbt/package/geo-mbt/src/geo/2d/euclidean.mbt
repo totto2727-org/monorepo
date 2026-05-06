@@ -128,7 +128,7 @@ pub fn euclidean_destination(
   distance : Double,
 ) -> @type.Coord {
   let radians = bearing_degrees * 3.14159265358979323846 / 180.0
-  @type.Coord::new(
+  @type.Coord(
     origin.x() + distance * @math.cos(radians),
     origin.y() + distance * @math.sin(radians),
   )

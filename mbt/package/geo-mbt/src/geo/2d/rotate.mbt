@@ -23,7 +23,7 @@ pub fn rotate_geometry_around_centroid(
 ) -> @type.Geometry {
   let pivot = match centroid_geometry(g) {
     Some(p) => p.coord()
-    None => @type.Coord::new(0.0, 0.0)
+    None => @type.Coord(0.0, 0.0)
   }
   rotate_geometry_around(g, degrees, pivot)
 }

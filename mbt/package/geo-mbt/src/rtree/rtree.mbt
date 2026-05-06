@@ -27,7 +27,7 @@ pub(all) struct Entry[T] {
 }
 
 ///|
-pub fn[T] Entry::new(bbox : @type.Rect, value : T) -> Entry[T] {
+pub fn[T] Entry::Entry(bbox : @type.Rect, value : T) -> Entry[T] {
   Entry::{ bbox, value }
 }
 
@@ -64,40 +64,19 @@ pub fn[T] RTree::size(self : RTree[T]) -> Int {
 
 ///|
 fn rect_union(a : @type.Rect, b : @type.Rect) -> @type.Rect {
-  let min_x = if a.min().x() < b.min().x() {
-    a.min().x()
-  } else {
-    b.min().x()
-  }
-  let min_y = if a.min().y() < b.min().y() {
-    a.min().y()
-  } else {
-    b.min().y()
-  }
-  let max_x = if a.max().x() > b.max().x() {
-    a.max().x()
-  } else {
-    b.max().x()
-  }
-  let max_y = if a.max().y() > b.max().y() {
-    a.max().y()
-  } else {
-    b.max().y()
-  }
-  @type.Rect::new(
-    @type.Coord::new(min_x, min_y),
-    @type.Coord::new(max_x, max_y),
-  )
+  let min_x = if a.min().x() < b.min().x() { a.min().x() } else { b.min().x() }
+  let min_y = if a.min().y() < b.min().y() { a.min().y() } else { b.min().y() }
+  let max_x = if a.max().x() > b.max().x() { a.max().x() } else { b.max().x() }
+  let max_y = if a.max().y() > b.max().y() { a.max().y() } else { b.max().y() }
+  @type.Rect::Rect(@type.Coord(min_x, min_y), @type.Coord(max_x, max_y))
 }
 
 ///|
 fn rect_intersects(a : @type.Rect, b : @type.Rect) -> Bool {
-  !(
-    a.max().x() < b.min().x() ||
-    b.max().x() < a.min().x() ||
-    a.max().y() < b.min().y() ||
-    b.max().y() < a.min().y()
-  )
+  !(a.max().x() < b.min().x() ||
+  b.max().x() < a.min().x() ||
+  a.max().y() < b.min().y() ||
+  b.max().y() < a.min().y())
 }
 
 ///|
@@ -203,13 +182,11 @@ fn[T] build_leaves(entries : Array[Entry[T]]) -> Array[Node[T]] {
   let leaf_count = (n + MAX_ENTRIES - 1) / MAX_ENTRIES
   let strip_count = (leaf_count.to_double().sqrt().ceil() : Double).to_int()
   let actual_strip_count = if strip_count == 0 { 1 } else { strip_count }
-  let entries_per_strip = (
-    (n + actual_strip_count - 1) / actual_strip_count
-  ) * 1
+  let entries_per_strip = (n + actual_strip_count - 1) / actual_strip_count * 1
   let entries_per_strip_padded = if entries_per_strip < MAX_ENTRIES {
     MAX_ENTRIES
   } else {
-    ((entries_per_strip + MAX_ENTRIES - 1) / MAX_ENTRIES) * MAX_ENTRIES
+    (entries_per_strip + MAX_ENTRIES - 1) / MAX_ENTRIES * MAX_ENTRIES
   }
   let strips = partition_entries_by_x(entries, entries_per_strip_padded)
   let leaves : Array[Node[T]] = []
@@ -333,10 +310,7 @@ fn rect_min_dist_sq(coord : @type.Coord, rect : @type.Rect) -> Double {
 /// callers that need true geometric distance to a complex shape should
 /// post-filter by computing the actual distance for the candidate(s) returned
 /// by `query_rect_intersection` of an appropriately enlarged query rect.
-pub fn[T] RTree::query_nearest(
-  self : RTree[T],
-  target : @type.Coord,
-) -> T? {
+pub fn[T] RTree::query_nearest(self : RTree[T], target : @type.Coord) -> T? {
   match self.root {
     None => None
     Some(root) => {

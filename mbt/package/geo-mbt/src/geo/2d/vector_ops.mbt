@@ -18,14 +18,14 @@ pub fn magnitude_squared(c : @type.Coord) -> Double {
 /// Rotate this coordinate around the origin by 90 degrees clockwise:
 /// `(x, y) -> (-y, x)`.
 pub fn left(c : @type.Coord) -> @type.Coord {
-  @type.Coord::new(-c.y(), c.x())
+  @type.Coord(-c.y(), c.x())
 }
 
 ///|
 /// Rotate this coordinate around the origin by 90 degrees anti-clockwise:
 /// `(x, y) -> (y, -x)`.
 pub fn right(c : @type.Coord) -> @type.Coord {
-  @type.Coord::new(c.y(), -c.x())
+  @type.Coord(c.y(), -c.x())
 }
 
 ///|

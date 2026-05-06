@@ -27,7 +27,7 @@ pub fn densify_line_string(
       for k = 1; k < n; k = k + 1 {
         let f = k.to_double() / n.to_double()
         result.push(
-          @type.Coord::new(
+          @type.Coord(
             start.x() + (end.x() - start.x()) * f,
             start.y() + (end.y() - start.y()) * f,
           ),
@@ -36,7 +36,7 @@ pub fn densify_line_string(
     }
     result.push(end)
   }
-  @type.LineString::new(result)
+  @type.LineString::LineString(result)
 }
 
 ///|
@@ -49,5 +49,5 @@ pub fn densify_polygon(
   let interiors = polygon
     .interiors()
     .map(fn(ls) { densify_line_string(ls, max_segment_length) })
-  @type.Polygon::new(exterior, interiors)
+  @type.Polygon::Polygon(exterior, interiors)
 }

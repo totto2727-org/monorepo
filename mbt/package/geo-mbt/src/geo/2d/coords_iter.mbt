@@ -77,10 +77,10 @@ pub fn coords_of_rect(r : @type.Rect) -> Array[@type.Coord] {
   let min = r.min()
   let max = r.max()
   [
-    @type.Coord::new(min.x(), min.y()),
-    @type.Coord::new(min.x(), max.y()),
-    @type.Coord::new(max.x(), max.y()),
-    @type.Coord::new(max.x(), min.y()),
+    @type.Coord(min.x(), min.y()),
+    @type.Coord(min.x(), max.y()),
+    @type.Coord(max.x(), max.y()),
+    @type.Coord(max.x(), min.y()),
   ]
 }
 

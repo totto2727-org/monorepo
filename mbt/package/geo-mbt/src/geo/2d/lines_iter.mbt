@@ -61,15 +61,15 @@ pub fn lines_of_multi_polygon(mp : @type.MultiPolygon) -> Array[@type.Line] {
 pub fn lines_of_rect(r : @type.Rect) -> Array[@type.Line] {
   let min = r.min()
   let max = r.max()
-  let bl = @type.Coord::new(min.x(), min.y())
-  let br = @type.Coord::new(max.x(), min.y())
-  let tr = @type.Coord::new(max.x(), max.y())
-  let tl = @type.Coord::new(min.x(), max.y())
+  let bl = @type.Coord(min.x(), min.y())
+  let br = @type.Coord(max.x(), min.y())
+  let tr = @type.Coord(max.x(), max.y())
+  let tl = @type.Coord(min.x(), max.y())
   [
-    @type.Line::new(bl, br),
-    @type.Line::new(br, tr),
-    @type.Line::new(tr, tl),
-    @type.Line::new(tl, bl),
+    @type.Line::Line(bl, br),
+    @type.Line::Line(br, tr),
+    @type.Line::Line(tr, tl),
+    @type.Line::Line(tl, bl),
   ]
 }
 

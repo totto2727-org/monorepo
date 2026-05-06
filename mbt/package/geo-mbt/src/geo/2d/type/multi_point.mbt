@@ -9,7 +9,7 @@ pub struct MultiPoint {
 } derive(Eq, Debug)
 
 ///|
-pub fn MultiPoint::new(points : Array[Point]) -> MultiPoint {
+pub fn MultiPoint::MultiPoint(points : Array[Point]) -> MultiPoint {
   MultiPoint::{ points, }
 }
 

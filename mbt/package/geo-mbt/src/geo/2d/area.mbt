@@ -15,7 +15,7 @@ fn sum_line_determinants(points : Array[@type.Coord]) -> Double {
   let mut prev = points[1] - shift
   for i = 2; i < points.length(); i = i + 1 {
     let shifted = points[i] - shift
-    let line = @type.Line::new(prev, shifted)
+    let line = @type.Line::Line(prev, shifted)
     sum = sum + line.determinant()
     prev = shifted
   }

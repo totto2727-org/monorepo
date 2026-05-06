@@ -15,7 +15,7 @@ fn rdp_recurse(
   if end <= start + 1 {
     return
   }
-  let line = @type.Line::new(coords[start], coords[end])
+  let line = @type.Line::Line(coords[start], coords[end])
   let mut max_dist = 0.0
   let mut max_index = start
   for i = start + 1; i < end; i = i + 1 {
@@ -52,7 +52,7 @@ pub fn simplify_line_string(
   for idx in kept_indices {
     result.push(coords[idx])
   }
-  @type.LineString::new(result)
+  @type.LineString::LineString(result)
 }
 
 ///|
@@ -83,5 +83,5 @@ pub fn simplify_polygon(
   let interiors = polygon
     .interiors()
     .map(fn(ls) { simplify_line_string(ls, epsilon) })
-  @type.Polygon::new(exterior, interiors)
+  @type.Polygon::Polygon(exterior, interiors)
 }

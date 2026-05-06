@@ -21,8 +21,8 @@ test "property: signed_area flips sign when coords are reversed" {
     (0.0, 0.0),
   ])
   let exterior_cw = reverse_line_string(exterior_ccw)
-  let p_ccw = @type.Polygon::new(exterior_ccw, [])
-  let p_cw = @type.Polygon::new(exterior_cw, [])
+  let p_ccw = @type.Polygon::Polygon(exterior_ccw, [])
+  let p_cw = @type.Polygon::Polygon(exterior_cw, [])
   assert_eq(signed_area_of_polygon(p_ccw), -signed_area_of_polygon(p_cw))
 }
 
@@ -35,7 +35,7 @@ test "property: centroid is inside (or on boundary of) convex polygon" {
     (0.0, 10.0),
     (0.0, 0.0),
   ])
-  let p = @type.Polygon::new(exterior, [])
+  let p = @type.Polygon::Polygon(exterior, [])
   let c = centroid_polygon(p).unwrap()
   let pos = coord_position_for_polygon(c.coord(), p)
   let inside_or_boundary = match pos {
@@ -58,7 +58,7 @@ test "property: bounding rect contains every coord of the geometry" {
   let mp = @type.MultiPoint::from_tuples(coords_input)
   let bbox = bounding_rect_of_multi_point(mp).unwrap()
   for tuple in coords_input {
-    let c = @type.Coord::new(tuple.0, tuple.1)
+    let c = @type.Coord(tuple.0, tuple.1)
     assert_true(c.x() >= bbox.min().x() && c.x() <= bbox.max().x())
     assert_true(c.y() >= bbox.min().y() && c.y() <= bbox.max().y())
   }
@@ -81,7 +81,7 @@ test "property: convex hull of n points is convex" {
 
 ///|
 test "property: translate is invertible" {
-  let p = @type.Geometry::Point(@type.Point::new(3.0, 4.0))
+  let p = @type.Geometry::Point(@type.Point::Point(3.0, 4.0))
   let translated = translate_geometry(p, 10.0, -5.0)
   let restored = translate_geometry(translated, -10.0, 5.0)
   match restored {
@@ -132,7 +132,7 @@ test "property: orient_polygon is idempotent" {
     (0.0, 1.0),
     (0.0, 0.0),
   ])
-  let p = @type.Polygon::new(exterior, [])
+  let p = @type.Polygon::Polygon(exterior, [])
   let oriented_once = orient_polygon(p, OrientDirection::Default)
   let oriented_twice = orient_polygon(oriented_once, OrientDirection::Default)
   // Coords of both should match exactly
@@ -146,12 +146,8 @@ test "property: orient_polygon is idempotent" {
 
 ///|
 test "property: hausdorff_distance is symmetric" {
-  let a = [
-    @type.Coord::new(0.0, 0.0),
-    @type.Coord::new(1.0, 1.0),
-    @type.Coord::new(2.0, 0.0),
-  ]
-  let b = [@type.Coord::new(5.0, 5.0), @type.Coord::new(6.0, 6.0)]
+  let a = [@type.Coord(0.0, 0.0), @type.Coord(1.0, 1.0), @type.Coord(2.0, 0.0)]
+  let b = [@type.Coord(5.0, 5.0), @type.Coord(6.0, 6.0)]
   let d_ab = hausdorff_distance_coords(a, b)
   let d_ba = hausdorff_distance_coords(b, a)
   assert_eq(d_ab, d_ba)
@@ -163,8 +159,8 @@ test "property: frechet_distance >= euclidean_distance of endpoints" {
   let b = @type.LineString::from_tuples([(0.0, 5.0), (10.0, 15.0)])
   let frechet = frechet_distance(a, b)
   let endpoint_dist = euclidean_distance_coords(
-    @type.Coord::new(0.0, 0.0),
-    @type.Coord::new(0.0, 5.0),
+    @type.Coord(0.0, 0.0),
+    @type.Coord(0.0, 5.0),
   )
   assert_true(frechet >= endpoint_dist - 1.0e-9)
 }
@@ -178,13 +174,13 @@ test "property: scale preserves shape (area scales by factor squared)" {
     (0.0, 3.0),
     (0.0, 0.0),
   ])
-  let p = @type.Polygon::new(exterior, [])
+  let p = @type.Polygon::Polygon(exterior, [])
   let original_area = unsigned_area_of_polygon(p)
   let scaled = scale_geometry_around(
     @type.Geometry::Polygon(p),
     2.0,
     2.0,
-    @type.Coord::new(0.0, 0.0),
+    @type.Coord(0.0, 0.0),
   )
   match scaled {
     @type.Geometry::Polygon(sp) => {

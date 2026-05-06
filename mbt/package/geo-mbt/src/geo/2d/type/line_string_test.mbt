@@ -9,7 +9,7 @@ test "LineString::from_tuples and length" {
 
 ///|
 test "LineString empty" {
-  let ls = @type.LineString::new([])
+  let ls = @type.LineString::LineString([])
   assert_true(ls.is_empty())
   assert_true(!ls.is_closed())
   assert_eq(ls.lines().length(), 0)
