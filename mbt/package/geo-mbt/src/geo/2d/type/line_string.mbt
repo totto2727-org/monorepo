@@ -172,25 +172,14 @@ pub fn LineString::rev_lines_iter(self : LineString) -> Iter[Line] {
 /// Returns a closed copy of this line string. If `self` is already closed
 /// (or empty — there is no start coord to repeat), `self` is returned
 /// directly without allocating a new value. Otherwise a new `LineString`
-/// is built whose coords are `self.coords` followed by `self.coords[0]`.
+/// is built via the array-spread literal `[..self.coords, self.coords[0]]`,
+/// pre-sized to its final length in a single allocation.
 ///
 /// The original `self` is **never** mutated. This is the immutable
 /// counterpart of Rust upstream `LineString::close(&mut self)`.
-///
-/// **Performance**: when a copy is required, the destination coord
-/// `Array` is sized to its final length (`n + 1`) in a single
-/// `Array::makei` allocation; no incremental `push` loop.
 pub fn LineString::closed(self : LineString) -> LineString {
-  let n = self.coords.length()
-  if n == 0 || self.is_closed() {
+  if self.coords.length() == 0 || self.is_closed() {
     return self
   }
-  let next = Array::makei(n + 1, fn(i) {
-    if i < n {
-      self.coords[i]
-    } else {
-      self.coords[0]
-    }
-  })
-  LineString::LineString(next)
+  LineString::LineString([..self.coords, self.coords[0]])
 }
