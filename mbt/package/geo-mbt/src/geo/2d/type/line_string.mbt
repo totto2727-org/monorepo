@@ -82,7 +82,11 @@ pub fn LineString::is_closed(self : LineString) -> Bool {
 }
 
 ///|
-/// Returns the line segments composing this line string.
+/// Returns the line segments composing this line string, eagerly. Each
+/// segment connects two consecutive coords with the same orientation as
+/// upstream Rust `geo_types::LineString::lines`. For a pipeline that
+/// already consumes results as an iterator, prefer `lines_iter` to skip
+/// the intermediate Array allocation.
 ///
 /// An empty line string and a single-coordinate line string yield an empty
 /// segment array.
@@ -99,8 +103,32 @@ pub fn LineString::lines(self : LineString) -> Array[Line] {
 }
 
 ///|
+/// Returns a lazy iterator yielding the line segments composing this line
+/// string. Independent of `lines()` — does not allocate an intermediate
+/// Array; each `Line` is constructed on demand. Use this when chaining
+/// iterator combinators (`take`, `filter`, …) so allocation is paid only
+/// for what is consumed.
+///
+/// An empty line string and a single-coordinate line string yield an
+/// iterator with no elements.
+pub fn LineString::lines_iter(self : LineString) -> Iter[Line] {
+  let n = self.coords.length()
+  let mut i = 0
+  Iter::new(fn() -> Line? {
+    if n >= 2 && i < n - 1 {
+      let line = Line::Line(self.coords[i], self.coords[i + 1])
+      i = i + 1
+      Some(line)
+    } else {
+      None
+    }
+  })
+}
+
+///|
 /// Returns the line segments in reverse order, with each segment's
-/// `start` / `end` swapped. Mirrors Rust `geo_types::LineString::rev_lines`.
+/// `start` / `end` swapped, eagerly. Mirrors Rust
+/// `geo_types::LineString::rev_lines`.
 ///
 /// For a line string `[a, b, c, d]`, `lines()` yields `[a→b, b→c, c→d]`
 /// while `rev_lines()` yields `[d→c, c→b, b→a]`.
@@ -117,6 +145,27 @@ pub fn LineString::rev_lines(self : LineString) -> Array[Line] {
     result.push(Line::Line(self.coords[i], self.coords[i - 1]))
   }
   result
+}
+
+///|
+/// Lazy iterator version of `rev_lines()`. Independent implementation; does
+/// not allocate an intermediate Array. Yields segments in reverse order
+/// with each `Line`'s `start` / `end` swapped, just like the eager variant.
+///
+/// An empty line string and a single-coordinate line string yield an
+/// iterator with no elements.
+pub fn LineString::rev_lines_iter(self : LineString) -> Iter[Line] {
+  let n = self.coords.length()
+  let mut i = n - 1
+  Iter::new(fn() -> Line? {
+    if n >= 2 && i > 0 {
+      let line = Line::Line(self.coords[i], self.coords[i - 1])
+      i = i - 1
+      Some(line)
+    } else {
+      None
+    }
+  })
 }
 
 ///|

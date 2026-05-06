@@ -129,3 +129,68 @@ test "LineString rev_lines is the reverse of lines (with swapped endpoints)" {
     assert_true(r.end() == f.start())
   }
 }
+
+///|
+test "LineString lines_iter (lazy) collects to same as lines()" {
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0), (2.0, 0.0)])
+  let from_iter = ls.lines_iter().collect()
+  let eager = ls.lines()
+  assert_eq(from_iter.length(), eager.length())
+  for i = 0; i < eager.length(); i = i + 1 {
+    assert_true(from_iter[i] == eager[i])
+  }
+}
+
+///|
+test "LineString lines_iter: empty / single-coord yields no elements" {
+  let empty = @type.LineString::empty()
+  assert_eq(empty.lines_iter().collect().length(), 0)
+  let one = @type.LineString::from_tuples([(1.0, 2.0)])
+  assert_eq(one.lines_iter().collect().length(), 0)
+}
+
+///|
+test "LineString lines_iter: take short-circuits without materialising rest" {
+  let ls = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (1.0, 1.0),
+    (2.0, 0.0),
+    (3.0, 5.0),
+  ])
+  let head = ls.lines_iter().take(1).collect()
+  assert_eq(head.length(), 1)
+  assert_true(head[0] == @type.Line::from_tuples((0.0, 0.0), (1.0, 1.0)))
+}
+
+///|
+test "LineString rev_lines_iter (lazy) collects to same as rev_lines()" {
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (5.0, 0.0), (7.0, 9.0)])
+  let from_iter = ls.rev_lines_iter().collect()
+  let eager = ls.rev_lines()
+  assert_eq(from_iter.length(), eager.length())
+  for i = 0; i < eager.length(); i = i + 1 {
+    assert_true(from_iter[i] == eager[i])
+  }
+}
+
+///|
+test "LineString rev_lines_iter: empty / single-coord yields no elements" {
+  let empty = @type.LineString::empty()
+  assert_eq(empty.rev_lines_iter().collect().length(), 0)
+  let one = @type.LineString::from_tuples([(1.0, 2.0)])
+  assert_eq(one.rev_lines_iter().collect().length(), 0)
+}
+
+///|
+test "LineString rev_lines_iter: take short-circuits without materialising rest" {
+  let ls = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (1.0, 1.0),
+    (2.0, 0.0),
+    (3.0, 5.0),
+  ])
+  let head = ls.rev_lines_iter().take(1).collect()
+  assert_eq(head.length(), 1)
+  // First item of the reverse iterator is the last forward segment, swapped.
+  assert_true(head[0] == @type.Line::from_tuples((3.0, 5.0), (2.0, 0.0)))
+}
