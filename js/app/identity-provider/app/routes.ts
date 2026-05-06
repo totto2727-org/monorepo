@@ -1,26 +1,23 @@
 import { getContext } from 'hono/context-storage'
 
 /**
- * Named frames declared in this app. Each entry pairs the JSX `<Frame name>`
- * with the `<a rmx-target>` value so the two stay in lock-step.
+ * Named frames declared in this app.
  *
- * The router itself is defined in `app.tsx` against Hono — this module exists
- * solely to give `<Frame>` / `<FrameLink rmx-target>` / `isFrameRequest()` a
- * single source of truth for frame names.
+ * ms-01 段階では Frame ベースの partial swap UI (PageOrFrame) は未採用 (TC-022)。
+ * 本ファイルは将来 ms-04 / ms-07 で UI を強化する際の最小骨格として、
+ * 名前空間と `isFrameRequest` ヘルパだけを保持する。
  *
- * ms-01 段階では Frame は宣言のみで未使用。ms-04 / ms-07 で UI を強化する際に活用する。
+ * `frames` は空オブジェクトのまま、PageOrFrame パターンを採用する時点で
+ * `content: 'content'` 等のキーを追加する (`feed-platform-web/app/routes.ts` と完全同形)。
  */
-export const frames = {
-  content: 'content',
-} as const
+export const frames = {} as const
 
 export type FrameName = (typeof frames)[keyof typeof frames]
 
 /**
  * Returns true when the current request is the framework re-entering to fetch
- * the inner content of the given frame. In that case the route should respond
- * with just the page fragment so only that named frame is updated and the
- * surrounding shell stays mounted.
+ * the inner content of the given frame. ms-01 では誰も呼ばないが、後続マイル
+ * ストーンが PageOrFrame を採用したときに参照する形を予告する。
  *
  * Reads the current Hono context via `hono/context-storage`, so `contextStorage()`
  * must be in the middleware chain.
