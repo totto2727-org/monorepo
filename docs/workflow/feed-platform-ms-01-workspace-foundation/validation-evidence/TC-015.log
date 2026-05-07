@@ -1,0 +1,9 @@
+$ grep -nE '@app/(feed-platform-backend|feed-platform-web|identity-provider)/feature/env/Service' js/app/feed-platform-backend/src/feature/env.ts js/app/feed-platform-web/app/feature/env.ts js/app/identity-provider/app/feature/env.ts
+js/app/feed-platform-backend/src/feature/env.ts:7:export const Service = Context.Service<Type>('@app/feed-platform-backend/feature/env/Service')
+js/app/feed-platform-web/app/feature/env.ts:7:export const Service = Context.Service<Type>('@app/feed-platform-web/feature/env/Service')
+js/app/identity-provider/app/feature/env.ts:7:export const Service = Context.Service<Type>('@app/identity-provider/feature/env/Service')
+
+期待: 各プロジェクトの feature/env.ts に @app/<project-name>/feature/env/Service 形式の tag namespace
+実際: 3 ファイルすべて期待通り
+
+PASS

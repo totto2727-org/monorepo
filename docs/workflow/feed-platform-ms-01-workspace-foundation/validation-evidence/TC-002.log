@@ -1,0 +1,12 @@
+$ for p in feed-platform-backend feed-platform-web identity-provider; do echo "=== $p ==="; node -p "require('./js/app/$p/package.json').name"; done
+=== feed-platform-backend ===
+feed-platform-backend
+=== feed-platform-web ===
+feed-platform-web
+=== identity-provider ===
+identity-provider
+
+Expected: feed-platform-backend / feed-platform-web / identity-provider
+Actual:   feed-platform-backend / feed-platform-web / identity-provider
+
+PASS
