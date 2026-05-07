@@ -19,10 +19,6 @@ with pkgs;
   chezmoi
   # npm
   (npm {
-    binName = "pi";
-    packageName = "@mariozechner/pi-coding-agent";
-  })
-  (npm {
     binName = "ctx7";
     packageName = "ctx7";
   })

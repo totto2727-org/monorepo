@@ -62,6 +62,7 @@
                   # Coding
                   "zed"
                   "orbstack"
+                  "droid"
                   # Game
                   "heroic"
                   # Utility
