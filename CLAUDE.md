@@ -103,4 +103,4 @@ moon coverage analyze > uncovered.log
 - **Ultracite** - Code quality (Oxlint + Oxfmt) — `ultracite check` / `ultracite fix`
 - **Grit** - Additional code analysis and auto-fixes
 - **Renovate** - Automated dependency updates (weekly, Saturday 00:00)
-- **Go Task** - Additional task definitions (`Taskfile.yml`)
+- **Just** - Additional task definitions (`Justfile`)
