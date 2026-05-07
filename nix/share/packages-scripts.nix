@@ -46,7 +46,7 @@ let
   # --- shared wrappers (no secrets) ---
 
   exocortex-mcp = writeShellScriptBin "exocortex-mcp" ''
-    exec ${pkgs.uv}/bin/uv tool run \
+    exec ${pkgs.uv}/bin/uvx \
       --from "git+https://github.com/fuwasegu/exocortex" \
       exocortex --mode proxy --ensure-server "$@"
   '';
