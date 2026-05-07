@@ -8,6 +8,7 @@
   # Coding
   "claude-code@latest"
   "ghostty"
+  "warp"
   "claude"
   # Utility
   "thaw"
