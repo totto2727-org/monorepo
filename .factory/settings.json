@@ -1,0 +1,16 @@
+{
+  "extraKnownMarketplaces": {
+    "monorepo": {
+      "source": {
+        "source": "local",
+        "path": "/Users/totto2727/proj/monorepo"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "totto2727-coding@monorepo": true,
+    "dev-workflow@monorepo": true,
+    "totto2727@monorepo": true,
+    "external-search@monorepo": true
+  }
+}

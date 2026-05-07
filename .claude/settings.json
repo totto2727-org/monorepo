@@ -3,7 +3,8 @@
   "enabledPlugins": {
     "dev-workflow@totto2727": true,
     "totto2727@totto2727": true,
-    "totto2727-coding@totto2727": true
+    "totto2727-coding@totto2727": true,
+    "external-search@totto2727": true
   },
   "extraKnownMarketplaces": {
     "totto2727": {
