@@ -1,26 +1,59 @@
 identifier: feed-platform-ms-01-shared-libraries
 started_at: 2026-05-07T03:55:00Z
-updated_at: 2026-05-07T05:30:00Z
+updated_at: 2026-05-07T06:30:00Z
 
 status: active
-current_step: 1
+current_step: 2
 
 completed_steps:
-  - step: Step 1 Intent Clarification (候補、User gate 待ち)
-    completed_at: 2026-05-07T05:30:00Z
+  - step: Step 1 Intent Clarification
+    completed_at: 2026-05-07T05:45:00Z
     artifacts:
       - intent-spec.md
+    user_gate: approved
+    user_gate_approved_at: 2026-05-07T05:45:00Z
+    user_gate_note: 'Q1〜Q7 全項目確定 (factory-only 抽出 / effect-hono + remix-helper 2 分割 / hono-remix-v3-cloudflare-example も migration 対象 / 既存 js/package とは isolation / ADR-03 Roadmap mode 起票)'
+  - step: Step 2 Research (候補、User gate 待ち)
+    completed_at: 2026-05-07T06:30:00Z
+    artifacts:
+      - research/effect-4-api-verification.md
+      - research/hono-remix-v3-cloudflare-example-frame-helpers.md
+      - research/existing-js-package-isolation-check.md
+      - research/infer-frame-name-type-utility-pattern.md
+    note: '4 角度 (Effect 4.x API / frame helpers SoT / js/package isolation / InferFrameName pattern) を researcher × 4 で並列調査完了。Step 3 で User judgment が必要な重要論点 2 件 (U-1 signature 食い違い / U-3 Hono 依存衝突) が浮上、blockers ではなく Step 3 architect 経由で User inquiry 候補。'
 
 pending_gates:
-  - User gate (Step 1 → Step 2): intent-spec.md レビューと承認待ち
+  - User gate (Step 2 → Step 3): research notes (4 件) レビューと承認待ち、Step 3 Design への carry over 論点 (U-1 / U-3 等) の方針確認
 
 active_specialists: []
 
 blockers: []
 
+step3_design_carry_over:
+  - id: U-1
+    angle: B / D
+    issue: 'Intent Spec L82 の signature 案 `name: keyof F` (key union) と既存実装 `(typeof frames)[keyof typeof frames]` (value union) の意味論的食い違い。3 projects + hono-remix-v3-cloudflare-example すべて value union 採用済'
+    proposed_resolution: 'Step 3 で既存実装に整合させ、`F[keyof F]` (string literal value union) を採用。Intent Spec を後追い訂正'
+  - id: U-3
+    angle: B
+    issue: '`isFrameRequest` の `hono/context-storage` 依存と User Q3「`remix-helper` は Hono と無関係」表明の衝突。3 projects + example すべて Hono context store からの header lookup を使用'
+    proposed_resolution_options:
+      - 'A: `remix-helper` の `isFrameRequest` を Request 直接受け取り版に signature 変更し Hono 切り離し (要 consumer 側 adapter)'
+      - 'B: `remix-helper` の `hono` peerDependencies 許容を User に再確認'
+      - 'C: `remix-helper` を 2 sub-export 化 (純 Remix UI / Hono 統合) で分離'
+    requires_user_judgment: true
+  - id: U-other
+    angle: A / B / D
+    issue: 'A: ManagedRuntime に Symbol.asyncDispose 未組込 → wrapper class パターン継承必須. B: PageOrFrame web/IdP 未採用観測 → SC-6 達成は refactor only option A 推奨. D: P1 vs P2 vs P3 の InferFrameName 実装パターン選択 (researcher 私見 P2)'
+    proposed_resolution: 'Step 3 architect が design.md で確定、Main 経由で User confirm 不要 (技術判断)'
+
 artifacts:
   intent_spec: intent-spec.md
-  research: []
+  research:
+    - research/effect-4-api-verification.md
+    - research/hono-remix-v3-cloudflare-example-frame-helpers.md
+    - research/existing-js-package-isolation-check.md
+    - research/infer-frame-name-type-utility-pattern.md
   design: null
   qa_design: null
   qa_flow: null
@@ -31,7 +64,11 @@ artifacts:
   validation: null
   retrospective: null
 
-user_approvals: []
+user_approvals:
+  - step: 1
+    decision: approved
+    approved_at: 2026-05-07T05:45:00Z
+    note: 'Step 1 (Intent Clarification) 候補を承認、Step 2 (Research) へ移行'
 
 rollbacks: []
 
