@@ -1,0 +1,19 @@
+default:
+    @just --list
+
+db-schema-apply:
+    mkdir -p ./node_modules/.cache/
+    atlas schema apply --env local
+    vp run setup:kysely
+
+db-reset:
+    rm ./node_modules/.cache/db
+
+db-dev: db-schema-apply
+    turso dev -f ./node_modules/.cache/db
+
+db-migrate-apply: db-reset
+    atlas migrate apply --env local
+
+db-migrate-diff: db-migrate-apply
+    atlas migrate diff --env local

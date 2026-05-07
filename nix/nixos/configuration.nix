@@ -4,7 +4,7 @@
 # cd nix/nixos
 # cp /etc/nixos/hardware-configuration.nix .
 # sudo nixos-rebuild switch -I ./configuration.nix
-# task init
+# just init
 # sudo tailscale up --ssh
 { config, pkgs, ... }:
 
