@@ -38,11 +38,11 @@ atlas-kysely-gen -i schema.hcl --camel-case
 
 ### フラグ
 
-| フラグ              | 既定値    | 説明 |
-| ------------------- | --------- | ---- |
-| `--input` / `-i`    | (必須)    | 入力 schema.hcl のパス |
-| `--output` / `-o`   | stdout    | 出力 .ts ファイルのパス |
-| `--camel-case`      | `false`   | `true` のとき Kysely 公式 `CamelCasePlugin`（既定オプション = `upperCase=false`）でカラム名・テーブルの DB キーを変換する。`false` のときは無変換（identity）。kysely-codegen の `--camel-case` フラグと挙動を 1:1 に揃えている。 |
+| フラグ            | 既定値  | 説明                                                                                                                                                                                                                              |
+| ----------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--input` / `-i`  | (必須)  | 入力 schema.hcl のパス                                                                                                                                                                                                            |
+| `--output` / `-o` | stdout  | 出力 .ts ファイルのパス                                                                                                                                                                                                           |
+| `--camel-case`    | `false` | `true` のとき Kysely 公式 `CamelCasePlugin`（既定オプション = `upperCase=false`）でカラム名・テーブルの DB キーを変換する。`false` のときは無変換（identity）。kysely-codegen の `--camel-case` フラグと挙動を 1:1 に揃えている。 |
 
 ## TSプロジェクトへの統合
 
