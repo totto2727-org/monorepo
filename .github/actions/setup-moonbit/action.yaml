@@ -5,7 +5,7 @@ runs:
   using: composite
   steps:
     - name: Install moonbit
-      uses: hustcer/setup-moonbit@90ea2eec0b33fff99a2a1d2825d723deb31eb621 # v1.20
+      uses: totto2727/setup-moonbit@fd52b0c75e10e5e9bdb9e17d8dedc520e93d1bd0 # fork of hustcer/setup-moonbit
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
