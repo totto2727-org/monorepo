@@ -119,11 +119,8 @@ go run *.go -i fixture/schema.hcl
 
 ## ロードマップ
 
-- [ ] **カラム名のケース変換オプション** — 現在は camelCase 固定。CLI オプションで命名規則を選択できるようにする（例: `--case camel`, `--case snake`, `--case none`）。
-- [ ] **Kysely 公式の camelCase ロジックに準拠** — [`kysely/src/plugin/camel-case/camel-case.ts`](https://github.com/kysely-org/kysely/blob/main/src/plugin/camel-case/camel-case.ts) の変換ロジックを移植し、Kysely の `CamelCasePlugin` と一貫した動作を保証する。対応すべき差分:
-  - `UPPER_SNAKE_CASE` 入力の処理（例: `USER_ID` → `userId`）
-  - `underscoreBeforeDigits` 相当のオプション（数字の前にアンダースコアを挿入）
-  - `underscoreBetweenUppercaseLetters` 相当のオプション（連続する大文字間にアンダースコアを挿入）
-- [ ] **`Generated<>` ラッパーのサポート** — デフォルト値や `auto_increment` を持つカラムを `Generated<T>` でラップするオプションを追加し、Kysely の `Selectable` / `Insertable` / `Updateable` ユーティリティ型と組み合わせて使えるようにする。
+- [x] **カラム名のケース変換オプション** — `--case camel|snake|none` CLI オプションでカラム名の命名規則を選択可能。
+- [x] **Kysely 公式の camelCase ロジックに準拠** — Kysely の `CamelCasePlugin`（`upperCase=true`）と同等のロジックを移植。`UPPER_SNAKE_CASE` 入力を正しく処理（例: `USER_ID` → `userId`、`HTTP_STATUS` → `httpStatus`）。
+- [x] **`Generated<>` ラッパーのサポート** — デフォルト値や `auto_increment` を持つカラムを `Generated<T>` でラップ。`import type { Generated } from "kysely"` も自動出力。
 - [ ] **複数データベース方言のサポート** — 現在は SQLite HCL のみ対応。PostgreSQL、MySQL 等を追加する。
 - [ ] **Watch モード** — 入力 HCL ファイルの変更を検知して自動的に型定義を再生成する。
