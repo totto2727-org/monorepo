@@ -41,8 +41,7 @@ export const frames = {
 
 export type FrameName = (typeof frames)[keyof typeof frames]
 
-export const isFrameRequest = (frame: FrameName): boolean =>
-  getContext().req.header('x-remix-target') === frame
+export const isFrameRequest = (frame: FrameName): boolean => getContext().req.header('x-remix-target') === frame
 ```
 
 `feed-platform-web/app/routes.ts:13-26` と `identity-provider/app/routes.ts:13-26` は **完全同形** で、`frames = {} as const` (空の placeholder) のみ違い。
@@ -71,11 +70,7 @@ export const isFrameRequest = (frame: FrameName): boolean =>
 
   ```typescript
   export declare namespace ReadonlyArray {
-    type Infer<S extends Iterable<any>> = S extends ReadonlyArray<infer A>
-      ? A
-      : S extends Iterable<infer A>
-        ? A
-        : never
+    type Infer<S extends Iterable<any>> = S extends ReadonlyArray<infer A> ? A : S extends Iterable<infer A> ? A : never
   }
   ```
 
@@ -170,12 +165,12 @@ const helpers = createFrameHelpers({ content: 'content', sidebar: 'sidebar' })
 type FrameName = InferFrameName<typeof helpers>  // 'content' | 'sidebar'
 ```
 
-| 観点                  | 評価                                                                                                                                                                                                                                                                  |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Pros                  | (1) intent-spec.md 草案と整合、(2) consumer は `InferFrameName<typeof helpers>` の 1 行で取り出せる                                                                                                                                                                    |
-| Cons                  | (1) 既存 `hono-remix-v3-cloudflare-example/app/routes.ts:15` の `(typeof frames)[keyof typeof frames]` (= **values の union**) と意味論が異なる (= keys を採る)、(2) `ReturnType<typeof createFrameHelpers>` の型がジェネリクスをまたぐと推論が脆くなる (未検証) |
-| TS バージョン要件    | 5.0+ (`<const F>` のため)。conditional type 部分自体は TS 2.8+                                                                                                                                                                                                       |
-| Step 3 で要検証      | `ReturnType<typeof createFrameHelpers>` のジェネリクス T が consumer 側 `typeof helpers` から逆推論できるか (= F が distributed されるか) — **未検証 (Step 3 Design で実機検証要)**                                                                              |
+| 観点              | 評価                                                                                                                                                                                                                                                             |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pros              | (1) intent-spec.md 草案と整合、(2) consumer は `InferFrameName<typeof helpers>` の 1 行で取り出せる                                                                                                                                                              |
+| Cons              | (1) 既存 `hono-remix-v3-cloudflare-example/app/routes.ts:15` の `(typeof frames)[keyof typeof frames]` (= **values の union**) と意味論が異なる (= keys を採る)、(2) `ReturnType<typeof createFrameHelpers>` の型がジェネリクスをまたぐと推論が脆くなる (未検証) |
+| TS バージョン要件 | 5.0+ (`<const F>` のため)。conditional type 部分自体は TS 2.8+                                                                                                                                                                                                   |
+| Step 3 で要検証   | `ReturnType<typeof createFrameHelpers>` のジェネリクス T が consumer 側 `typeof helpers` から逆推論できるか (= F が distributed されるか) — **未検証 (Step 3 Design で実機検証要)**                                                                              |
 
 #### Pattern P2: 入力配列 (string literal tuple) を直接渡す
 
@@ -200,12 +195,12 @@ const helpers2 = createFrameHelpers(['header', 'footer'])
 type FrameName2 = (typeof helpers2)['frames'][number]  // ← ただしこれは別途 helper 経由が良い
 ```
 
-| 観点                | 評価                                                                                                                                                                  |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Pros               | (1) 型関数が conditional type 不要で `T[number]` 一発、(2) 意味論が明快 (= input tuple → element union)                                                              |
-| Cons               | (1) `T` に渡すべきものが「factory 戻り値」ではなく「input 配列」になる体験が、Pattern P1 と異なる、(2) 既存 `routes.ts` は `Record<string, string>` 形なので mapping 工夫が必要 |
-| TS バージョン要件 | 5.0+ (`<const T>` のため)                                                                                                                                            |
-| Step 3 で要検証   | 既存 `Record<string, string>` 形の object も受け付けたい場合のオーバーロード設計 — **未検証 (Step 3 Design で実機検証要)**                                       |
+| 観点              | 評価                                                                                                                                                                            |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pros              | (1) 型関数が conditional type 不要で `T[number]` 一発、(2) 意味論が明快 (= input tuple → element union)                                                                         |
+| Cons              | (1) `T` に渡すべきものが「factory 戻り値」ではなく「input 配列」になる体験が、Pattern P1 と異なる、(2) 既存 `routes.ts` は `Record<string, string>` 形なので mapping 工夫が必要 |
+| TS バージョン要件 | 5.0+ (`<const T>` のため)                                                                                                                                                       |
+| Step 3 で要検証   | 既存 `Record<string, string>` 形の object も受け付けたい場合のオーバーロード設計 — **未検証 (Step 3 Design で実機検証要)**                                                      |
 
 #### Pattern P3: factory 戻り値型から phantom property を取り出す (Effect Schema 風)
 
@@ -220,23 +215,23 @@ export type FrameHelpers<N extends string> = {
   readonly [FrameNameBrand]?: N // phantom (実体 undefined)
 }
 
-export const createFrameHelpers = <const T extends readonly string[]>(
-  frames: T,
-): FrameHelpers<T[number]> => ({ frames, /* ... */ })
+export const createFrameHelpers = <const T extends readonly string[]>(frames: T): FrameHelpers<T[number]> => ({
+  frames /* ... */,
+})
 
 export type InferFrameName<T> = T extends FrameHelpers<infer N> ? N : never
 
 // consumer
 const helpers = createFrameHelpers(['header', 'footer'])
-type FrameName = InferFrameName<typeof helpers>  // 'header' | 'footer'
+type FrameName = InferFrameName<typeof helpers> // 'header' | 'footer'
 ```
 
-| 観点                | 評価                                                                                                                                                              |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Pros               | (1) Effect Schema / zod / valibot と同型 (industry-standard)、(2) `InferFrameName<T>` の `T` 制約が緩い (`T extends FrameHelpers<...>` の構造マッチで吸収)、(3) library 側の戻り値型を明示できる |
-| Cons               | (1) phantom property の Symbol 設計が必要 (= 実装複雑度が P1/P2 より高い)、(2) `verbatimModuleSyntax: true` 環境で `FrameHelpers` の export が `export type` になる必要 |
-| TS バージョン要件 | 5.0+ (`<const T>` のため)。phantom + conditional + `infer` 自体は TS 2.8+                                                                                        |
-| Step 3 で要検証   | Symbol-keyed phantom が tree-shaking / Worker bundle で問題ないか — **未検証 (Step 3 Design で実機検証要)**                                                  |
+| 観点              | 評価                                                                                                                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Pros              | (1) Effect Schema / zod / valibot と同型 (industry-standard)、(2) `InferFrameName<T>` の `T` 制約が緩い (`T extends FrameHelpers<...>` の構造マッチで吸収)、(3) library 側の戻り値型を明示できる |
+| Cons              | (1) phantom property の Symbol 設計が必要 (= 実装複雑度が P1/P2 より高い)、(2) `verbatimModuleSyntax: true` 環境で `FrameHelpers` の export が `export type` になる必要                          |
+| TS バージョン要件 | 5.0+ (`<const T>` のため)。phantom + conditional + `infer` 自体は TS 2.8+                                                                                                                        |
+| Step 3 で要検証   | Symbol-keyed phantom が tree-shaking / Worker bundle で問題ないか — **未検証 (Step 3 Design で実機検証要)**                                                                                      |
 
 ### I-3. user 指示「型は返せない」の本質的整合は 3 パターンとも満たす
 

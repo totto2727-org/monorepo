@@ -23,13 +23,13 @@
 
 ### F1. `js/package/` 配下 5 packages の存在と責務分担 (各 1 行サマリ)
 
-| Package | name | scope | 責務 | 主要 dependency 圏 |
-| --- | --- | --- | --- | --- |
-| `js/package/fp` | `@totto2727/fp` | scope 付き (totto2727 個人 OSS / JSR 公開) | プリミティブ FP / Effect Schema CUID / option-t / temporal / change-case / micro-memoize / type-fest / **Vite+ task helper (`defineTaskInputFromOutput`)** の薄い再 export 集合 | `effect` (peer) / `option-t` / `bignumber.js` / `@noble/hashes` / `@formatjs/intl-durationformat` / `temporal-polyfill` / `velona` (DI) |
-| `js/package/hono-remix-middleware` | `hono-remix-middleware` | scope なし flat | Hono の `c.render()` を Remix v3 `remix/ui/server#renderToStream` に橋渡しする middleware (`remixRenderer`) + Remix v3 `createAssetServer` を Hono middleware に wrap する (`remixAssetServer`) | `effect` (dep) / `hono` (peer) / `remix` (peer) |
-| `js/package/vite-plugin-remix` | `vite-plugin-remix` | scope なし flat | Remix v3 client bundle を Vite environment + rollup options で構成する Vite plugin (`remix`) + client entry boot helper (`boot`) + dev/prod 切替 `<Script>` コンポーネント | `effect` (dep) / `remix` (peer) / `vite` (peer) |
-| `js/package/ui` | `@package/ui` | `@package` scope (workspace 限定 private) | Shadcn/UI ベースの React UI primitives (`button` のみ現状) + tailwind-merge `cn()` utility + Tailwind CSS v4 style.css | `react` (peer) / `react-dom` (peer) / `@base-ui/react` / `class-variance-authority` / `tailwind-merge` / `lucide-react` |
-| `js/package/oxlint-plugin` | `@package/oxlint-plugin` | `@package` scope (workspace 限定 private) | Oxlint JS plugin: 11 件の rule (force-array-empty / no-let / force-ts-extension / no-eslint-disable-comments 等) + preset entry | `effect` (dep) / `@oxlint/plugins` |
+| Package                            | name                     | scope                                      | 責務                                                                                                                                                                                            | 主要 dependency 圏                                                                                                                      |
+| ---------------------------------- | ------------------------ | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `js/package/fp`                    | `@totto2727/fp`          | scope 付き (totto2727 個人 OSS / JSR 公開) | プリミティブ FP / Effect Schema CUID / option-t / temporal / change-case / micro-memoize / type-fest / **Vite+ task helper (`defineTaskInputFromOutput`)** の薄い再 export 集合                 | `effect` (peer) / `option-t` / `bignumber.js` / `@noble/hashes` / `@formatjs/intl-durationformat` / `temporal-polyfill` / `velona` (DI) |
+| `js/package/hono-remix-middleware` | `hono-remix-middleware`  | scope なし flat                            | Hono の `c.render()` を Remix v3 `remix/ui/server#renderToStream` に橋渡しする middleware (`remixRenderer`) + Remix v3 `createAssetServer` を Hono middleware に wrap する (`remixAssetServer`) | `effect` (dep) / `hono` (peer) / `remix` (peer)                                                                                         |
+| `js/package/vite-plugin-remix`     | `vite-plugin-remix`      | scope なし flat                            | Remix v3 client bundle を Vite environment + rollup options で構成する Vite plugin (`remix`) + client entry boot helper (`boot`) + dev/prod 切替 `<Script>` コンポーネント                      | `effect` (dep) / `remix` (peer) / `vite` (peer)                                                                                         |
+| `js/package/ui`                    | `@package/ui`            | `@package` scope (workspace 限定 private)  | Shadcn/UI ベースの React UI primitives (`button` のみ現状) + tailwind-merge `cn()` utility + Tailwind CSS v4 style.css                                                                          | `react` (peer) / `react-dom` (peer) / `@base-ui/react` / `class-variance-authority` / `tailwind-merge` / `lucide-react`                 |
+| `js/package/oxlint-plugin`         | `@package/oxlint-plugin` | `@package` scope (workspace 限定 private)  | Oxlint JS plugin: 11 件の rule (force-array-empty / no-let / force-ts-extension / no-eslint-disable-comments 等) + preset entry                                                                 | `effect` (dep) / `@oxlint/plugins`                                                                                                      |
 
 ### F2. `@totto2727/fp` の 14 件 export と Effect 関連の正確な含み度
 
@@ -130,7 +130,7 @@ export default defineConfig({
 })
 ```
 
-→ **fp は JSR 公開 (`jsr.json` 存在) を前提とした check タスク群を持つが、新規 effect-hono / remix-helper は workspace 限定 private (`@package/ui` / `hono-remix-middleware` / `vite-plugin-remix` と同じ慣行) になる見込みのため、fp 構造をそのまま参考にはしない**。新規 library の `setup` / `build` task 定義は Intent Spec Constraints の `@totto2727/fp/vite#defineTaskInputFromOutput` を呼び出すだけで成立する (= **既存 reference 実装は js/app/* 側に多く存在、`js/package/` 側には参考事例ほぼなし**)。
+→ **fp は JSR 公開 (`jsr.json` 存在) を前提とした check タスク群を持つが、新規 effect-hono / remix-helper は workspace 限定 private (`@package/ui` / `hono-remix-middleware` / `vite-plugin-remix` と同じ慣行) になる見込みのため、fp 構造をそのまま参考にはしない**。新規 library の `setup` / `build` task 定義は Intent Spec Constraints の `@totto2727/fp/vite#defineTaskInputFromOutput` を呼び出すだけで成立する (= **既存 reference 実装は js/app/\* 側に多く存在、`js/package/` 側には参考事例ほぼなし**)。
 
 ### F9. naming policy: scope 混在は既存形態として許容済み
 

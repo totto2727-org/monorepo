@@ -69,10 +69,10 @@ export const createPageOrFrame =
 
 ```typescript
 export interface FrameProps {
-    name?: string;            // optional, plain string
-    src: string;
-    fallback?: Renderable;
-    on?: Record<string, (event: Event, signal: AbortSignal) => void | Promise<void>>;
+  name?: string // optional, plain string
+  src: string
+  fallback?: Renderable
+  on?: Record<string, (event: Event, signal: AbortSignal) => void | Promise<void>>
 }
 ```
 

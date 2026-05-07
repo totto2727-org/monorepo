@@ -47,17 +47,18 @@ export declare const make: <R, ER>(
 
 主要 API のシグネチャ:
 
-| API | シグネチャ |
-| --- | --- |
-| `Layer.succeed` | `<I, S>(service: Context.Key<I, S>): (resource: S) => Layer<I>` (`Layer.d.ts:686-729`) |
-| `Layer.sync` | `<I, S>(service: Context.Key<I, S>): (evaluate: LazyArg<S>) => Layer<I>` (`Layer.d.ts:804-851`) |
-| `Layer.effect` | `<I, S>(service: Context.Key<I, S>): <E, R>(effect: Effect<S, E, R>) => Layer<I, E, Exclude<R, Scope.Scope>>` (`Layer.d.ts:909-974`) |
-| `Layer.unwrap` | `<A, E1, R1, E, R>(self: Effect<Layer<A, E1, R1>, E, R>) => Layer<A, E \| E1, R1 \| Exclude<R, Scope.Scope>>` (`Layer.d.ts:1079`) |
-| `Layer.provide` (data-last 2-args) | `<RIn2, E2, ROut2, RIn, E, ROut>(self: Layer<ROut2, E2, RIn2>, that: Layer<ROut, E, RIn>): Layer<ROut2, E \| E2, RIn \| Exclude<RIn2, ROut>>` (`Layer.d.ts:1540`) |
+| API                                     | シグネチャ                                                                                                                                                                |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Layer.succeed`                         | `<I, S>(service: Context.Key<I, S>): (resource: S) => Layer<I>` (`Layer.d.ts:686-729`)                                                                                    |
+| `Layer.sync`                            | `<I, S>(service: Context.Key<I, S>): (evaluate: LazyArg<S>) => Layer<I>` (`Layer.d.ts:804-851`)                                                                           |
+| `Layer.effect`                          | `<I, S>(service: Context.Key<I, S>): <E, R>(effect: Effect<S, E, R>) => Layer<I, E, Exclude<R, Scope.Scope>>` (`Layer.d.ts:909-974`)                                      |
+| `Layer.unwrap`                          | `<A, E1, R1, E, R>(self: Effect<Layer<A, E1, R1>, E, R>) => Layer<A, E \| E1, R1 \| Exclude<R, Scope.Scope>>` (`Layer.d.ts:1079`)                                         |
+| `Layer.provide` (data-last 2-args)      | `<RIn2, E2, ROut2, RIn, E, ROut>(self: Layer<ROut2, E2, RIn2>, that: Layer<ROut, E, RIn>): Layer<ROut2, E \| E2, RIn \| Exclude<RIn2, ROut>>` (`Layer.d.ts:1540`)         |
 | `Layer.provideMerge` (data-last 2-args) | `<RIn2, E2, ROut2, RIn, E, ROut>(self: Layer<ROut2, E2, RIn2>, that: Layer<ROut, E, RIn>): Layer<ROut \| ROut2, E \| E2, RIn \| Exclude<RIn2, ROut>>` (`Layer.d.ts:1900`) |
-| `Layer.merge` (data-last 2-args) | `<RIn2, E2, ROut2, RIn, E, ROut>(self: Layer<ROut2, E2, RIn2>, that: Layer<ROut, E, RIn>): Layer<ROut \| ROut2, E \| E2, RIn \| RIn2>` (`Layer.d.ts:1239`) |
+| `Layer.merge` (data-last 2-args)        | `<RIn2, E2, ROut2, RIn, E, ROut>(self: Layer<ROut2, E2, RIn2>, that: Layer<ROut, E, RIn>): Layer<ROut \| ROut2, E \| E2, RIn \| RIn2>` (`Layer.d.ts:1239`)                |
 
 差異:
+
 - `provide`: `that` の出力 `ROut` を `self` の入力 `RIn2` から閉じる、ただし出力には残さない (RIn2 ← ROut で消費、ROut2 のみ output)。
 - `provideMerge`: `provide` と同じく入力を閉じるが、出力に `ROut | ROut2` で **両方残す**。
 - `merge`: 入力同士を `RIn | RIn2` でユニオン、出力同士を `ROut | ROut2` でユニオン (依存解決はしない、純粋な並行合成)。
@@ -114,13 +115,13 @@ interface AsyncDisposable {
 
 `saas-example/src/feature/runtime/server.ts:7-58` と Phase 1 3 プロジェクト実装を比較:
 
-| 項目 | Phase 1 (3 projects) | saas-example | ジェネリクス factory での吸収方針 |
-| ---- | --------------------- | ------------ | --------------------------------- |
-| `makeRuntime` の引数 | `() => ManagedRuntime<...>` (引数 0 個) | `(env: Env.Type) => ManagedRuntime<...>` (引数 1 個) | `<Args extends readonly unknown[]>` で可変長受け |
-| `Layer` 合成の中身 | `Health.layer.pipe(provideMerge(Greeting.layer), provideMerge(Env.layer), provide(dynamicLoggerLayer))` | `BetterAuth.layer.pipe(provideMerge(DB.remoteLayer), provideMerge(Env.makeLayer(env)), provide(Logger.layer([...])))` | factory **外側** に残す (consumer 責務、Q1-ext / Q4 確定済) |
-| Logger 切替方式 | `dynamicLoggerLayer` (Layer.unwrap + Env.Service) | `makeRuntime` / `makeDevRuntime` の二系統で静的に切替 | factory **外側** に残す |
-| `DisposableRuntime` の class 部分 | `constructor() { this.instance = make() }` | `constructor(env: Env.Type) { this.instance = make(env) }` | constructor が `(...args: Args)` を受け、`make(...args)` に委譲する形でジェネリクス化 |
-| 公開 `make` | `() => new DisposableRuntime()` | `(env) => import.meta.env.PROD ? new DisposableRuntime(env) : new DisposableDevRuntime(env)` | factory **外側** に残す (consumer が runtime バリアントを選ぶロジック) |
+| 項目                              | Phase 1 (3 projects)                                                                                    | saas-example                                                                                                          | ジェネリクス factory での吸収方針                                                     |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `makeRuntime` の引数              | `() => ManagedRuntime<...>` (引数 0 個)                                                                 | `(env: Env.Type) => ManagedRuntime<...>` (引数 1 個)                                                                  | `<Args extends readonly unknown[]>` で可変長受け                                      |
+| `Layer` 合成の中身                | `Health.layer.pipe(provideMerge(Greeting.layer), provideMerge(Env.layer), provide(dynamicLoggerLayer))` | `BetterAuth.layer.pipe(provideMerge(DB.remoteLayer), provideMerge(Env.makeLayer(env)), provide(Logger.layer([...])))` | factory **外側** に残す (consumer 責務、Q1-ext / Q4 確定済)                           |
+| Logger 切替方式                   | `dynamicLoggerLayer` (Layer.unwrap + Env.Service)                                                       | `makeRuntime` / `makeDevRuntime` の二系統で静的に切替                                                                 | factory **外側** に残す                                                               |
+| `DisposableRuntime` の class 部分 | `constructor() { this.instance = make() }`                                                              | `constructor(env: Env.Type) { this.instance = make(env) }`                                                            | constructor が `(...args: Args)` を受け、`make(...args)` に委譲する形でジェネリクス化 |
+| 公開 `make`                       | `() => new DisposableRuntime()`                                                                         | `(env) => import.meta.env.PROD ? new DisposableRuntime(env) : new DisposableDevRuntime(env)`                          | factory **外側** に残す (consumer が runtime バリアントを選ぶロジック)                |
 
 差分の本質: **`makeDisposableRuntime` が抽象化すべき箇所は「`make` 関数の引数列 (`Args`) と戻り値の `ManagedRuntime<R, ER>` を保持したまま `AsyncDisposable` wrapper class を生成すること」のみ**。具体的な Layer 合成内容、Service tag namespace、runtime バリアント数 (1 / 3) などはすべて consumer に残す。
 
@@ -136,11 +137,7 @@ interface DisposableRuntime<R, ER> extends AsyncDisposable {
   readonly instance: ManagedRuntime.ManagedRuntime<R, ER>
 }
 
-export const makeDisposableRuntime = <
-  Args extends readonly unknown[],
-  R,
-  ER,
->(
+export const makeDisposableRuntime = <Args extends readonly unknown[], R, ER>(
   make: (...args: Args) => ManagedRuntime.ManagedRuntime<R, ER>,
 ) =>
   class implements DisposableRuntime<R, ER> {
@@ -155,6 +152,7 @@ export const makeDisposableRuntime = <
 ```
 
 型推論挙動:
+
 - 入力 `make` のシグネチャから `Args` / `R` / `ER` の 3 つを TypeScript が同時に推論する (= 関数型からの structural inference、標準パターン)。
 - 戻り class の constructor は `new DisposableRuntime(...args: Args)`、`instance: ManagedRuntime<R, ER>` で公開される。
 - `[Symbol.asyncDispose]` は `Promise<void>` を返し、global `AsyncDisposable` interface (`PromiseLike<void>`) と互換。
@@ -223,6 +221,7 @@ export const makeDisposableRuntimeFromLayer = <Args extends readonly unknown[], 
 以下、Step 3 (Design) で `architect` が `makeDisposableRuntime` 抽象化境界を確定する際に直接利用できる形にまとめる:
 
 - **I-1 (factory 引数の型シグネチャ確定)**: 採用すべきは **「`make` 関数を受け取る factory」(案 A)**。理由: (a) Phase 1 / saas-example の既存パターンの自然な継承、(b) `Layer<R, ER, never>` 制約は consumer 側の `ManagedRuntime.make(layer)` 呼び出しが自動で強制するため library 側で再表明不要、(c) intent-spec.md L50 の表現と直接一致。最終形:
+
   ```typescript
   export const makeDisposableRuntime = <
     Args extends readonly unknown[],
@@ -232,6 +231,7 @@ export const makeDisposableRuntimeFromLayer = <Args extends readonly unknown[], 
     make: (...args: Args) => ManagedRuntime.ManagedRuntime<R, ER>,
   ) => class { ... constructor(...args: Args) { ... } ... }
   ```
+
   ジェネリクスは **3 つ (`Args` / `R` / `ER`)** のみで足りる。Effect 4.x の Layer 中間型を library 側で扱う必要なし。
 
 - **I-2 (戻り class の export 形式)**: factory が **無名 class を直接 return** する形 (= `() => class { ... }`) で OK。consumer は `const DisposableRuntime = makeDisposableRuntime(makeRuntime)` で名前を付ける既存パターンを継続できる (`feed-platform-backend/src/feature/runtime/server.ts:52` と同形)。`new DisposableRuntime(...args)` で構築、`await using rt = new DisposableRuntime(...args)` で AsyncDisposable として使える。
@@ -252,7 +252,7 @@ export const makeDisposableRuntimeFromLayer = <Args extends readonly unknown[], 
   - `import { makeDisposableRuntime } from '@app/effect-hono'` (新規 import) を追加
   - `const makeDisposableRuntime = (make: typeof makeRuntime) => class DisposableRuntime ...` (15 行) を削除
   - `export const DisposableRuntime = makeDisposableRuntime(makeRuntime)` 行は **そのまま残る** (factory への引数も同じ)
-  → 削減行数 ≒ 各プロジェクト 16-17 行 × 3 = 約 50 行。
+    → 削減行数 ≒ 各プロジェクト 16-17 行 × 3 = 約 50 行。
 
 - **I-8 (Phase 1 同形コピーの差分なし確認による安心材料)**: 3 プロジェクトの `server.ts` の `makeDisposableRuntime` 部分は完全同形コピー (F-7) なので、library 化に伴う semantic 変化が発生しない。consumer 側 import 切替は機械的な作業として Step 6 (Implementation) で実施可能。
 
