@@ -4,14 +4,14 @@
  */
 
 export interface AppConfig {
-  httpStatus: number;
-  id: number;
-  maxRetryCount: number;
-  updatedAt: string;
-  userId: string;
   apiKey: string | null;
   createdAt: string;
+  HTTPSTATUS: number;
+  ID: number;
   isActive: number;
+  MAXRETRYCOUNT: number;
+  UPDATEDAT: string;
+  USERID: string;
 }
 
 export interface DB {

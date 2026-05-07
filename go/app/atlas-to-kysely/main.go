@@ -9,7 +9,7 @@ import (
 func main() {
 	input := flag.String("input", "", "Path to schema.hcl (required)")
 	output := flag.String("output", "", "Output .ts file path (default: stdout)")
-	caseMode := flag.String("case", "camel", "Column name case: camel, snake, none")
+	camelCase := flag.Bool("camel-case", false, "Convert column and table identifiers to camelCase using Kysely's CamelCasePlugin (default options)")
 	flag.StringVar(input, "i", "", "Path to schema.hcl (shorthand)")
 	flag.StringVar(output, "o", "", "Output .ts file path (shorthand)")
 	flag.Parse()
@@ -17,13 +17,6 @@ func main() {
 	if *input == "" {
 		fmt.Fprintln(os.Stderr, "Error: --input is required")
 		flag.Usage()
-		os.Exit(1)
-	}
-
-	switch *caseMode {
-	case "camel", "snake", "none":
-	default:
-		fmt.Fprintf(os.Stderr, "Error: --case must be camel, snake, or none (got %q)\n", *caseMode)
 		os.Exit(1)
 	}
 
@@ -39,7 +32,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	opts := GenerateOptions{CaseMode: *caseMode}
+	opts := GenerateOptions{CamelCase: *camelCase}
 	out, err := GenerateKysely(realm, opts)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: codegen failed: %v\n", err)
@@ -52,7 +45,7 @@ func main() {
 			os.Exit(1)
 		}
 		tableCount := len(realm.Schemas[0].Tables)
-		fmt.Fprintf(os.Stderr, "✓ Generated: %s  (%d table(s))\n", *output, tableCount)
+		fmt.Fprintf(os.Stderr, "Generated: %s  (%d table(s))\n", *output, tableCount)
 	} else {
 		fmt.Print(out)
 	}

@@ -16,55 +16,55 @@ func TestGenerateKysely_Fixtures(t *testing.T) {
 			name:    "default_camel",
 			hclPath: "fixture/schema.hcl",
 			tsPath:  "fixture/generated.ts.fixture",
-			opts:    GenerateOptions{CaseMode: "camel"},
+			opts:    GenerateOptions{CamelCase: true},
 		},
 		{
 			name:    "generated_wrapper",
 			hclPath: "fixture/generated_wrapper/schema.hcl",
 			tsPath:  "fixture/generated_wrapper/generated.ts.fixture",
-			opts:    GenerateOptions{CaseMode: "camel"},
+			opts:    GenerateOptions{CamelCase: true},
 		},
 		{
-			name:    "snake_case",
+			name:    "snake_identity",
 			hclPath: "fixture/snake/schema.hcl",
 			tsPath:  "fixture/snake/generated.ts.fixture",
-			opts:    GenerateOptions{CaseMode: "snake"},
+			opts:    GenerateOptions{CamelCase: false},
 		},
 		{
 			name:    "camel_kysely_upper_snake",
 			hclPath: "fixture/camel_kysely/schema.hcl",
 			tsPath:  "fixture/camel_kysely/generated.ts.fixture",
-			opts:    GenerateOptions{CaseMode: "camel"},
+			opts:    GenerateOptions{CamelCase: true},
 		},
 		{
 			name:    "all_types",
 			hclPath: "fixture/all_types/schema.hcl",
 			tsPath:  "fixture/all_types/generated.ts.fixture",
-			opts:    GenerateOptions{CaseMode: "none"},
+			opts:    GenerateOptions{CamelCase: false},
 		},
 		{
 			name:    "generated_nullable",
 			hclPath: "fixture/generated_nullable/schema.hcl",
 			tsPath:  "fixture/generated_nullable/generated.ts.fixture",
-			opts:    GenerateOptions{CaseMode: "none"},
+			opts:    GenerateOptions{CamelCase: false},
 		},
 		{
 			name:    "empty_table",
 			hclPath: "fixture/empty_table/schema.hcl",
 			tsPath:  "fixture/empty_table/generated.ts.fixture",
-			opts:    GenerateOptions{CaseMode: "none"},
+			opts:    GenerateOptions{CamelCase: false},
 		},
 		{
 			name:    "single_table",
 			hclPath: "fixture/single_table/schema.hcl",
 			tsPath:  "fixture/single_table/generated.ts.fixture",
-			opts:    GenerateOptions{CaseMode: "none"},
+			opts:    GenerateOptions{CamelCase: false},
 		},
 		{
-			name:    "none_case_mode",
+			name:    "none_identity",
 			hclPath: "fixture/none/schema.hcl",
 			tsPath:  "fixture/none/generated.ts.fixture",
-			opts:    GenerateOptions{CaseMode: "none"},
+			opts:    GenerateOptions{CamelCase: false},
 		},
 	}
 
@@ -97,93 +97,63 @@ func TestGenerateKysely_Fixtures(t *testing.T) {
 	}
 }
 
-func TestKyselyCamelCase(t *testing.T) {
+func TestToKyselyCamelCase(t *testing.T) {
 	tests := []struct {
 		input string
 		want  string
 	}{
-		// Standard snake_case
+		// Standard snake_case → camelCase
 		{"access_token", "accessToken"},
 		{"user_id", "userId"},
 		{"created_at", "createdAt"},
 		{"refresh_token_expires_at", "refreshTokenExpiresAt"},
-		// UPPER_SNAKE_CASE (Kysely upperCase=true behavior)
-		{"USER_ID", "userId"},
-		{"HTTP_STATUS", "httpStatus"},
-		{"MAX_RETRY_COUNT", "maxRetryCount"},
-		{"UPDATED_AT", "updatedAt"},
-		{"ID", "id"},
-		// Already camelCase (should pass through)
+		// UPPER_SNAKE_CASE: with kysely-codegen's default upperCase=false
+		// the helper does NOT pre-lowercase, so consecutive uppercase
+		// segments fuse into one screaming token.
+		{"USER_ID", "USERID"},
+		{"HTTP_STATUS", "HTTPSTATUS"},
+		{"MAX_RETRY_COUNT", "MAXRETRYCOUNT"},
+		{"UPDATED_AT", "UPDATEDAT"},
+		{"ID", "ID"},
+		// Already camelCase or single-token: passthrough.
 		{"userId", "userId"},
 		{"accessToken", "accessToken"},
 		{"already", "already"},
-		// Single character
 		{"a", "a"},
-		{"A", "a"},
-		// Empty string
+		{"A", "A"},
 		{"", ""},
-		// No underscores
 		{"id", "id"},
-		// Mixed case with digits
-		{"ITEM_2_NAME", "item2Name"},
-		// Leading underscore: first char '_' is kept, next char uppercased
-		{"_private", "_Private"},
-		// Trailing underscore: underscore is stripped
-		{"trailing_", "trailing"},
-		// Consecutive underscores: treated as single separator
-		{"double__under", "doubleUnder"},
-		// All underscores: first underscore kept, rest stripped
-		{"___", "_"},
-		// Digits only
-		{"123", "123"},
-		// Digit-starting name
+		// Digit handling around underscores.
+		{"ITEM_2_NAME", "ITEM2NAME"},
 		{"2nd_item", "2ndItem"},
-		// Mixed camelCase passthrough
-		{"myFieldName", "myFieldName"},
-		// Single char + underscore
-		{"a_b", "aB"},
-		// Single underscore: first char is underscore, kept as-is
+		{"123", "123"},
+		// Underscore edge cases.
+		{"_private", "_Private"},
+		{"trailing_", "trailing"},
+		{"double__under", "doubleUnder"},
+		{"___", "_"},
 		{"_", "_"},
-		// Uppercase single + underscore
-		{"A_B", "aB"},
+		// Mixed case passthrough (no underscores).
+		{"myFieldName", "myFieldName"},
+		// Single-letter pair.
+		{"a_b", "aB"},
+		{"A_B", "AB"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
-			got := kyselyCamelCase(tt.input)
+			got := toKyselyCamelCase(tt.input)
 			if got != tt.want {
-				t.Errorf("kyselyCamelCase(%q) = %q, want %q", tt.input, got, tt.want)
+				t.Errorf("toKyselyCamelCase(%q) = %q, want %q", tt.input, got, tt.want)
 			}
 		})
 	}
 }
 
-func TestToCamelCase(t *testing.T) {
-	tests := []struct {
-		input string
-		want  string
-	}{
-		{"access_token", "accessToken"},
-		{"user_id", "userId"},
-		{"email_verified", "emailVerified"},
-		{"id", "id"},
-		{"created_at", "createdAt"},
-		{"refresh_token_expires_at", "refreshTokenExpiresAt"},
-		{"", ""},
-		{"already", "already"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.input, func(t *testing.T) {
-			got := toCamelCase(tt.input)
-			if got != tt.want {
-				t.Errorf("toCamelCase(%q) = %q, want %q", tt.input, got, tt.want)
-			}
-		})
-	}
-}
-
-func TestToPascalCase(t *testing.T) {
+func TestToKyselyPascalCase(t *testing.T) {
+	// toKyselyPascalCase = toUpperFirst(toKyselyCamelCase(s)).
+	// Note: separator characters other than '_' (e.g. '-') are NOT
+	// pre-replaced here; that step belongs to tableInterfaceName.
 	tests := []struct {
 		input string
 		want  string
@@ -192,84 +162,158 @@ func TestToPascalCase(t *testing.T) {
 		{"account", "Account"},
 		{"user_profiles", "UserProfiles"},
 		{"", ""},
-		{"user-profiles", "UserProfiles"},
 		{"a", "A"},
 		{"item_2", "Item2"},
 		{"USER_ID", "USERID"},
 		{"single", "Single"},
 		{"multi_word_name", "MultiWordName"},
-		{"kebab-case-name", "KebabCaseName"},
+		// Hyphens are preserved by toKyselyPascalCase alone.
+		{"user-profiles", "User-profiles"},
+		{"kebab-case-name", "Kebab-case-name"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
-			got := toPascalCase(tt.input)
+			got := toKyselyPascalCase(tt.input)
 			if got != tt.want {
-				t.Errorf("toPascalCase(%q) = %q, want %q", tt.input, got, tt.want)
+				t.Errorf("toKyselyPascalCase(%q) = %q, want %q", tt.input, got, tt.want)
 			}
 		})
 	}
 }
 
-func TestConvertColumnName(t *testing.T) {
+func TestTableInterfaceName(t *testing.T) {
+	// tableInterfaceName = toKyselyPascalCase(replaceNonWordChars(s)),
+	// which mirrors SymbolCollection.set's preprocessing.
 	tests := []struct {
-		name     string
-		input    string
-		caseMode string
-		want     string
+		input string
+		want  string
 	}{
-		{"camel mode", "user_id", "camel", "userId"},
-		{"snake mode", "user_id", "snake", "user_id"},
-		{"none mode", "user_id", "none", "user_id"},
-		{"default (empty) falls back to camel", "user_id", "", "userId"},
-		{"camel with UPPER_SNAKE", "USER_ID", "camel", "userId"},
-		{"snake preserves UPPER_SNAKE", "USER_ID", "snake", "USER_ID"},
-		{"none preserves UPPER_SNAKE", "USER_ID", "none", "USER_ID"},
-		{"camel with already camelCase", "userId", "camel", "userId"},
-		{"snake with already camelCase", "userId", "snake", "userId"},
-		{"camel with single word", "id", "camel", "id"},
-		{"snake with single word", "id", "snake", "id"},
-		{"camel with multi-part", "access_token_expires_at", "camel", "accessTokenExpiresAt"},
-		{"snake with multi-part", "access_token_expires_at", "snake", "access_token_expires_at"},
+		{"user", "User"},
+		{"user_profiles", "UserProfiles"},
+		{"app_config", "AppConfig"},
+		{"kebab-case-name", "KebabCaseName"},
+		{"weird.dot", "WeirdDot"},
+		{"with space", "WithSpace"},
+		{"USER_ID", "USERID"},
+		{"", ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			got := tableInterfaceName(tt.input)
+			if got != tt.want {
+				t.Errorf("tableInterfaceName(%q) = %q, want %q", tt.input, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestReplaceNonWordChars(t *testing.T) {
+	tests := []struct {
+		input string
+		want  string
+	}{
+		{"kebab-case-name", "kebab_case_name"},
+		{"app config", "app_config"},
+		{"weird.dot", "weird_dot"},
+		{"clean_word", "clean_word"},
+		{"with$dollar", "with$dollar"},
+		{"123abc", "123abc"},
+		{"", ""},
+		{"!@#$", "___$"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			got := replaceNonWordChars(tt.input)
+			if got != tt.want {
+				t.Errorf("replaceNonWordChars(%q) = %q, want %q", tt.input, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTransformName(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     string
+		camelCase bool
+		want      string
+	}{
+		{"camel mode on snake input", "user_id", true, "userId"},
+		{"identity on snake input", "user_id", false, "user_id"},
+		{"camel on UPPER_SNAKE keeps screaming", "USER_ID", true, "USERID"},
+		{"identity on UPPER_SNAKE", "USER_ID", false, "USER_ID"},
+		{"camel idempotent on already camel", "userId", true, "userId"},
+		{"identity on already camel", "userId", false, "userId"},
+		{"camel on single word", "id", true, "id"},
+		{"identity on single word", "id", false, "id"},
+		{"camel multi-segment", "access_token_expires_at", true, "accessTokenExpiresAt"},
+		{"identity multi-segment", "access_token_expires_at", false, "access_token_expires_at"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := convertColumnName(tt.input, tt.caseMode)
+			got := transformName(tt.input, tt.camelCase)
 			if got != tt.want {
-				t.Errorf("convertColumnName(%q, %q) = %q, want %q", tt.input, tt.caseMode, got, tt.want)
+				t.Errorf("transformName(%q, %v) = %q, want %q", tt.input, tt.camelCase, got, tt.want)
 			}
 		})
 	}
 }
 
-func TestIsAllUpperCaseSnakeCase(t *testing.T) {
+func TestSerializeKey(t *testing.T) {
 	tests := []struct {
 		input string
-		want  bool
+		want  string
 	}{
-		{"USER_ID", true},
-		{"HTTP_STATUS", true},
-		{"ID", true},
-		{"A_1_B", true},
-		{"MAX_RETRY_COUNT", true},
-		{"123", true},
-		{"_", true},
-		{"__", true},
-		{"", true},
-		{"userId", false},
-		{"User_Id", false},
-		{"user_id", false},
-		{"HTTPStatus", false},
-		{"a", false},
-		{"ABc", false},
+		{"userId", "userId"},
+		{"user_id", "user_id"},
+		{"_private", "_private"},
+		{"$dollar", "$dollar"},
+		{"A", "A"},
+		{"_", "_"},
+		// Keys that must be quoted.
+		{"123abc", `"123abc"`},
+		{"kebab-case", `"kebab-case"`},
+		{"with space", `"with space"`},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
-			got := isAllUpperCaseSnakeCase(tt.input)
+			got := serializeKey(tt.input)
 			if got != tt.want {
-				t.Errorf("isAllUpperCaseSnakeCase(%q) = %v, want %v", tt.input, got, tt.want)
+				t.Errorf("serializeKey(%q) = %q, want %q", tt.input, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestLocaleKeyLess(t *testing.T) {
+	tests := []struct {
+		a, b string
+		want bool
+	}{
+		// Different primary level.
+		{"apple", "banana", true},
+		{"banana", "apple", false},
+		{"apiKey", "userId", true},
+		{"USERID", "apiKey", false}, // u > a primary
+		// Equal strings.
+		{"apple", "apple", false},
+		// Case-only ties: lowercase comes first (en-US ICU default).
+		{"apple", "Apple", true},
+		{"Apple", "apple", false},
+		{"id", "ID", true},
+		{"ID", "id", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.a+"_vs_"+tt.b, func(t *testing.T) {
+			got := localeKeyLess(tt.a, tt.b)
+			if got != tt.want {
+				t.Errorf("localeKeyLess(%q, %q) = %v, want %v", tt.a, tt.b, got, tt.want)
 			}
 		})
 	}
