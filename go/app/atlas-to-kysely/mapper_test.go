@@ -7,75 +7,91 @@ import (
 	"ariga.io/atlas/sql/sqlite"
 )
 
-func TestTsType_InnerType(t *testing.T) {
+// TestTsTypeInnerType (SC-U1): tsType formatter — base × nullable × generated.
+func TestTsTypeInnerType(t *testing.T) {
+	const enumUnion = `"a" | "b"`
+
 	tests := []struct {
 		name string
 		typ  tsType
 		want string
 	}{
-		{"plain number", tsType{base: "number", nullable: false, generated: false}, "number"},
-		{"plain string", tsType{base: "string", nullable: false, generated: false}, "string"},
-		{"nullable string", tsType{base: "string", nullable: true, generated: false}, "string | null"},
-		{"nullable number", tsType{base: "number", nullable: true, generated: false}, "number | null"},
-		{"generated number", tsType{base: "number", nullable: false, generated: true}, "Generated<number>"},
-		{"generated string", tsType{base: "string", nullable: false, generated: true}, "Generated<string>"},
-		{"generated nullable string", tsType{base: "string", nullable: true, generated: true}, "Generated<string | null>"},
-		{"generated nullable number", tsType{base: "number", nullable: true, generated: true}, "Generated<number | null>"},
-		{"plain Uint8Array", tsType{base: "Uint8Array", nullable: false, generated: false}, "Uint8Array"},
-		{"nullable Uint8Array", tsType{base: "Uint8Array", nullable: true, generated: false}, "Uint8Array | null"},
-		{"plain boolean", tsType{base: "boolean", nullable: false, generated: false}, "boolean"},
-		{"generated boolean", tsType{base: "boolean", nullable: false, generated: true}, "Generated<boolean>"},
-		{"enum type", tsType{base: `"a" | "b"`, nullable: false, generated: false}, `"a" | "b"`},
-		{"nullable enum type", tsType{base: `"a" | "b"`, nullable: true, generated: false}, `"a" | "b" | null`},
-		{"generated enum type", tsType{base: `"a" | "b"`, nullable: false, generated: true}, `Generated<"a" | "b">`},
-		{"generated nullable enum type", tsType{base: `"a" | "b"`, nullable: true, generated: true}, `Generated<"a" | "b" | null>`},
+		{"plain number", tsType{base: "number"}, "number"},
+		{"plain string", tsType{base: "string"}, "string"},
+		{"plain boolean", tsType{base: "boolean"}, "boolean"},
+		{"plain Uint8Array", tsType{base: "Uint8Array"}, "Uint8Array"},
+
+		{"nullable number", tsType{base: "number", nullable: true}, "number | null"},
+		{"nullable string", tsType{base: "string", nullable: true}, "string | null"},
+		{"nullable boolean", tsType{base: "boolean", nullable: true}, "boolean | null"},
+		{"nullable Uint8Array", tsType{base: "Uint8Array", nullable: true}, "Uint8Array | null"},
+
+		{"generated number", tsType{base: "number", generated: true}, "Generated<number>"},
+		{"generated string", tsType{base: "string", generated: true}, "Generated<string>"},
+		{"generated boolean", tsType{base: "boolean", generated: true}, "Generated<boolean>"},
+		{"generated Uint8Array", tsType{base: "Uint8Array", generated: true}, "Generated<Uint8Array>"},
+
+		{"nullable + generated number", tsType{base: "number", nullable: true, generated: true}, "Generated<number | null>"},
+		{"nullable + generated string", tsType{base: "string", nullable: true, generated: true}, "Generated<string | null>"},
+		{"nullable + generated boolean", tsType{base: "boolean", nullable: true, generated: true}, "Generated<boolean | null>"},
+		{"nullable + generated Uint8Array", tsType{base: "Uint8Array", nullable: true, generated: true}, "Generated<Uint8Array | null>"},
+
+		{"plain enum union", tsType{base: enumUnion}, enumUnion},
+		{"nullable enum union", tsType{base: enumUnion, nullable: true}, enumUnion + ` | null`},
+		{"generated enum union", tsType{base: enumUnion, generated: true}, `Generated<` + enumUnion + `>`},
+		{"nullable + generated enum union", tsType{base: enumUnion, nullable: true, generated: true}, `Generated<` + enumUnion + ` | null>`},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.typ.innerType()
-			if got != tt.want {
+			if got := tt.typ.innerType(); got != tt.want {
 				t.Errorf("innerType() = %q, want %q", got, tt.want)
 			}
 		})
 	}
 }
 
+// TestSchemaTypeToBase (SC-U2): Atlas schema.Type → TS base type dispatcher.
 func TestSchemaTypeToBase(t *testing.T) {
 	tests := []struct {
 		name string
 		typ  schema.Type
 		want string
 	}{
+		// Primitive types
 		{"IntegerType", &schema.IntegerType{T: "integer"}, "number"},
 		{"FloatType", &schema.FloatType{T: "real"}, "number"},
 		{"DecimalType", &schema.DecimalType{T: "decimal"}, "number"},
 		{"StringType", &schema.StringType{T: "text"}, "string"},
-		{"BinaryType", &schema.BinaryType{T: "blob"}, "Uint8Array"},
 		{"BoolType", &schema.BoolType{T: "boolean"}, "boolean"},
-		{"TimeType", &schema.TimeType{T: "datetime"}, "string"},
+		// Binary
+		{"BinaryType", &schema.BinaryType{T: "blob"}, "Uint8Array"},
+		// Date / JSON → string
+		{"TimeType datetime", &schema.TimeType{T: "datetime"}, "string"},
 		{"JSONType", &schema.JSONType{T: "json"}, "string"},
-		{"EnumType with values", &schema.EnumType{Values: []string{"active", "inactive"}}, `"active" | "inactive"`},
+		// Enum unions
+		{"EnumType empty values", &schema.EnumType{Values: []string{}}, "string"},
 		{"EnumType single value", &schema.EnumType{Values: []string{"only"}}, `"only"`},
-		{"EnumType empty", &schema.EnumType{Values: []string{}}, "string"},
-		{"EnumType three values", &schema.EnumType{Values: []string{"a", "b", "c"}}, `"a" | "b" | "c"`},
+		{"EnumType multi value", &schema.EnumType{Values: []string{"a", "b", "c"}}, `"a" | "b" | "c"`},
+		// UnsupportedType falls through to sqliteAffinityFallback
 		{"UnsupportedType BIGINT", &schema.UnsupportedType{T: "BIGINT"}, "number"},
 		{"UnsupportedType VARCHAR", &schema.UnsupportedType{T: "VARCHAR(255)"}, "string"},
 		{"UnsupportedType BLOB", &schema.UnsupportedType{T: "BLOB"}, "Uint8Array"},
 		{"UnsupportedType BOOLEAN", &schema.UnsupportedType{T: "BOOLEAN"}, "boolean"},
+		// Defensive: nil
 		{"nil type", nil, "unknown"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := schemaTypeToBase(tt.typ)
-			if got != tt.want {
+			if got := schemaTypeToBase(tt.typ); got != tt.want {
 				t.Errorf("schemaTypeToBase() = %q, want %q", got, tt.want)
 			}
 		})
 	}
 }
 
+// TestSqliteAffinityFallback (SC-U3): SQLite type-name affinity rules.
 func TestSqliteAffinityFallback(t *testing.T) {
 	tests := []struct {
 		input string
@@ -106,20 +122,19 @@ func TestSqliteAffinityFallback(t *testing.T) {
 		{"NUMERIC", "number"},
 		{"DECIMAL", "number"},
 		{"DECIMAL(10,2)", "number"},
-		// Boolean
+		// Boolean special case
 		{"BOOLEAN", "boolean"},
 		{"BOOL", "boolean"},
-		// Date/time
+		// Date / time / JSON → string
 		{"DATE", "string"},
 		{"DATETIME", "string"},
 		{"TIMESTAMP", "string"},
-		// JSON
 		{"JSON", "string"},
 		{"JSONB", "string"},
-		// Default fallback
+		// Unknown / default fallback → string
 		{"UNKNOWN_TYPE", "string"},
 		{"custom_thing", "string"},
-		// Whitespace trimming
+		// Whitespace tolerance
 		{"  real  ", "number"},
 		{"  TEXT  ", "string"},
 		// Case insensitivity
@@ -130,14 +145,14 @@ func TestSqliteAffinityFallback(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
-			got := sqliteAffinityFallback(tt.input)
-			if got != tt.want {
+			if got := sqliteAffinityFallback(tt.input); got != tt.want {
 				t.Errorf("sqliteAffinityFallback(%q) = %q, want %q", tt.input, got, tt.want)
 			}
 		})
 	}
 }
 
+// TestIsGenerated (SC-U4): default / auto_increment detection.
 func TestIsGenerated(t *testing.T) {
 	tests := []struct {
 		name string
@@ -147,7 +162,6 @@ func TestIsGenerated(t *testing.T) {
 		{
 			name: "no default no auto_increment",
 			col: &schema.Column{
-				Name: "name",
 				Type: &schema.ColumnType{Type: &schema.StringType{T: "text"}},
 			},
 			want: false,
@@ -155,7 +169,6 @@ func TestIsGenerated(t *testing.T) {
 		{
 			name: "with default value",
 			col: &schema.Column{
-				Name:    "status",
 				Type:    &schema.ColumnType{Type: &schema.StringType{T: "text"}},
 				Default: &schema.Literal{V: "'draft'"},
 			},
@@ -164,16 +177,14 @@ func TestIsGenerated(t *testing.T) {
 		{
 			name: "with auto_increment",
 			col: &schema.Column{
-				Name:  "id",
 				Type:  &schema.ColumnType{Type: &schema.IntegerType{T: "integer"}},
 				Attrs: []schema.Attr{&sqlite.AutoIncrement{}},
 			},
 			want: true,
 		},
 		{
-			name: "with both default and auto_increment",
+			name: "default + auto_increment",
 			col: &schema.Column{
-				Name:    "id",
 				Type:    &schema.ColumnType{Type: &schema.IntegerType{T: "integer"}},
 				Default: &schema.Literal{V: "0"},
 				Attrs:   []schema.Attr{&sqlite.AutoIncrement{}},
@@ -181,9 +192,8 @@ func TestIsGenerated(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "with non-autoincrement attr",
+			name: "unrelated attr only",
 			col: &schema.Column{
-				Name: "name",
 				Type: &schema.ColumnType{Type: &schema.StringType{T: "text"}},
 				Attrs: []schema.Attr{
 					&schema.Comment{Text: "just a comment"},
@@ -195,14 +205,14 @@ func TestIsGenerated(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := isGenerated(tt.col)
-			if got != tt.want {
+			if got := isGenerated(tt.col); got != tt.want {
 				t.Errorf("isGenerated() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
+// TestColumnToTsType (SC-U5): composition of schemaTypeToBase × Null × isGenerated.
 func TestColumnToTsType(t *testing.T) {
 	tests := []struct {
 		name string
@@ -210,96 +220,99 @@ func TestColumnToTsType(t *testing.T) {
 		want tsType
 	}{
 		{
-			name: "plain text column",
+			name: "plain text",
 			col: &schema.Column{
-				Name: "name",
-				Type: &schema.ColumnType{Type: &schema.StringType{T: "text"}, Null: false},
+				Type: &schema.ColumnType{Type: &schema.StringType{T: "text"}},
 			},
-			want: tsType{base: "string", nullable: false, generated: false},
+			want: tsType{base: "string"},
 		},
 		{
-			name: "nullable text column",
+			name: "nullable text",
 			col: &schema.Column{
-				Name: "bio",
 				Type: &schema.ColumnType{Type: &schema.StringType{T: "text"}, Null: true},
 			},
-			want: tsType{base: "string", nullable: true, generated: false},
+			want: tsType{base: "string", nullable: true},
 		},
 		{
-			name: "generated integer column (auto_increment)",
+			name: "auto_increment integer",
 			col: &schema.Column{
-				Name:  "id",
-				Type:  &schema.ColumnType{Type: &schema.IntegerType{T: "integer"}, Null: false},
+				Type:  &schema.ColumnType{Type: &schema.IntegerType{T: "integer"}},
 				Attrs: []schema.Attr{&sqlite.AutoIncrement{}},
 			},
-			want: tsType{base: "number", nullable: false, generated: true},
+			want: tsType{base: "number", generated: true},
 		},
 		{
-			name: "generated text column (default)",
+			name: "default text",
 			col: &schema.Column{
-				Name:    "status",
-				Type:    &schema.ColumnType{Type: &schema.StringType{T: "text"}, Null: false},
+				Type:    &schema.ColumnType{Type: &schema.StringType{T: "text"}},
 				Default: &schema.Literal{V: "'draft'"},
 			},
-			want: tsType{base: "string", nullable: false, generated: true},
+			want: tsType{base: "string", generated: true},
 		},
 		{
-			name: "nullable generated text column",
+			name: "nullable + default text",
 			col: &schema.Column{
-				Name:    "description",
 				Type:    &schema.ColumnType{Type: &schema.StringType{T: "text"}, Null: true},
 				Default: &schema.Literal{V: "'unknown'"},
 			},
 			want: tsType{base: "string", nullable: true, generated: true},
 		},
 		{
-			name: "plain integer column",
+			name: "blob",
 			col: &schema.Column{
-				Name: "count",
-				Type: &schema.ColumnType{Type: &schema.IntegerType{T: "integer"}, Null: false},
+				Type: &schema.ColumnType{Type: &schema.BinaryType{T: "blob"}},
 			},
-			want: tsType{base: "number", nullable: false, generated: false},
+			want: tsType{base: "Uint8Array"},
 		},
 		{
-			name: "nullable integer column",
+			name: "boolean",
 			col: &schema.Column{
-				Name: "age",
-				Type: &schema.ColumnType{Type: &schema.IntegerType{T: "integer"}, Null: true},
+				Type: &schema.ColumnType{Type: &schema.BoolType{T: "boolean"}},
 			},
-			want: tsType{base: "number", nullable: true, generated: false},
+			want: tsType{base: "boolean"},
 		},
 		{
-			name: "blob column",
+			name: "real",
 			col: &schema.Column{
-				Name: "data",
-				Type: &schema.ColumnType{Type: &schema.BinaryType{T: "blob"}, Null: false},
+				Type: &schema.ColumnType{Type: &schema.FloatType{T: "real"}},
 			},
-			want: tsType{base: "Uint8Array", nullable: false, generated: false},
+			want: tsType{base: "number"},
+		},
+		// TC-U-M33: gap-fill — enum column composition
+		{
+			name: "enum union",
+			col: &schema.Column{
+				Type: &schema.ColumnType{
+					Type: &schema.EnumType{Values: []string{"open", "closed"}},
+				},
+			},
+			want: tsType{base: `"open" | "closed"`},
 		},
 		{
-			name: "boolean column",
+			name: "nullable enum union",
 			col: &schema.Column{
-				Name: "active",
-				Type: &schema.ColumnType{Type: &schema.BoolType{T: "boolean"}, Null: false},
+				Type: &schema.ColumnType{
+					Type: &schema.EnumType{Values: []string{"yes", "no"}},
+					Null: true,
+				},
 			},
-			want: tsType{base: "boolean", nullable: false, generated: false},
+			want: tsType{base: `"yes" | "no"`, nullable: true},
 		},
+		// TC-U-M34: gap-fill — defensive nil type path
 		{
-			name: "real column",
+			name: "nil type defensive",
 			col: &schema.Column{
-				Name: "price",
-				Type: &schema.ColumnType{Type: &schema.FloatType{T: "real"}, Null: false},
+				Type: &schema.ColumnType{Type: nil},
 			},
-			want: tsType{base: "number", nullable: false, generated: false},
+			want: tsType{base: "unknown"},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := columnToTsType(tt.col)
-			if got.base != tt.want.base || got.nullable != tt.want.nullable || got.generated != tt.want.generated {
-				t.Errorf("columnToTsType() = {base:%q, nullable:%v, generated:%v}, want {base:%q, nullable:%v, generated:%v}",
-					got.base, got.nullable, got.generated, tt.want.base, tt.want.nullable, tt.want.generated)
+			if got != tt.want {
+				t.Errorf("columnToTsType() = %+v, want %+v", got, tt.want)
 			}
 		})
 	}

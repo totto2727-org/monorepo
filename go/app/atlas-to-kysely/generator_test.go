@@ -4,45 +4,104 @@ import (
 	"testing"
 )
 
+// TestTransformName (SC-U10): camelCase flag dispatcher.
+func TestTransformName(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     string
+		camelCase bool
+		want      string
+	}{
+		// camelCase=true delegates to toKyselyCamelCase
+		{"camel snake input", "user_id", true, "userId"},
+		{"camel already camel", "userId", true, "userId"},
+		{"camel UPPER_SNAKE preserved (upperCase=false)", "USER_ID", true, "USERID"},
+		{"camel empty input", "", true, ""},
+		// camelCase=false is identity
+		{"identity snake input", "user_id", false, "user_id"},
+		{"identity camel input", "userId", false, "userId"},
+		{"identity UPPER_SNAKE", "USER_ID", false, "USER_ID"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := transformName(tt.input, tt.camelCase)
+			if got != tt.want {
+				t.Errorf("transformName(%q, %v) = %q, want %q", tt.input, tt.camelCase, got, tt.want)
+			}
+		})
+	}
+}
+
+// TestTableInterfaceName (SC-U11): replaceNonWordChars → toKyselyPascalCase composition.
+func TestTableInterfaceName(t *testing.T) {
+	tests := []struct {
+		input string
+		want  string
+	}{
+		// Plain identifiers
+		{"user", "User"},
+		{"user_account", "UserAccount"},
+		{"userAccount", "UserAccount"},
+		// Non-word characters get replaced with `_`, then PascalCased
+		{"user-account", "UserAccount"},
+		{"user.profile", "UserProfile"},
+		// `$` is preserved through the pascal case
+		{"my$table", "My$table"},
+		// Digit-leading
+		{"2nd_table", "2ndTable"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			got := tableInterfaceName(tt.input)
+			if got != tt.want {
+				t.Errorf("tableInterfaceName(%q) = %q, want %q", tt.input, got, tt.want)
+			}
+		})
+	}
+}
+
+// TestToKyselyCamelCase (SC-U6): port of kysely-codegen's case-converter.
+//
+// kysely-codegen calls `createCamelCaseMapper({})` (default opts,
+// upperCase=false), so screaming snake stays screaming.
 func TestToKyselyCamelCase(t *testing.T) {
 	tests := []struct {
 		input string
 		want  string
 	}{
-		// Standard snake_case → camelCase
+		// Standard snake_case
 		{"access_token", "accessToken"},
 		{"user_id", "userId"},
 		{"created_at", "createdAt"},
 		{"refresh_token_expires_at", "refreshTokenExpiresAt"},
-		// UPPER_SNAKE_CASE: with kysely-codegen's default upperCase=false
-		// the helper does NOT pre-lowercase, so consecutive uppercase
-		// segments fuse into one screaming token.
+		// UPPER_SNAKE_CASE — upperCase=false leaves screaming intact
 		{"USER_ID", "USERID"},
 		{"HTTP_STATUS", "HTTPSTATUS"},
 		{"MAX_RETRY_COUNT", "MAXRETRYCOUNT"},
-		{"UPDATED_AT", "UPDATEDAT"},
 		{"ID", "ID"},
-		// Already camelCase or single-token: passthrough.
+		// Already camelCase / passthrough
 		{"userId", "userId"},
 		{"accessToken", "accessToken"},
 		{"already", "already"},
+		{"myFieldName", "myFieldName"},
+		// Single char
 		{"a", "a"},
 		{"A", "A"},
-		{"", ""},
 		{"id", "id"},
-		// Digit handling around underscores.
+		// Empty input
+		{"", ""},
+		// Digits
 		{"ITEM_2_NAME", "ITEM2NAME"},
 		{"2nd_item", "2ndItem"},
 		{"123", "123"},
-		// Underscore edge cases.
+		// Underscore edges
 		{"_private", "_Private"},
 		{"trailing_", "trailing"},
 		{"double__under", "doubleUnder"},
 		{"___", "_"},
 		{"_", "_"},
-		// Mixed case passthrough (no underscores).
-		{"myFieldName", "myFieldName"},
-		// Single-letter pair.
 		{"a_b", "aB"},
 		{"A_B", "AB"},
 	}
@@ -57,26 +116,22 @@ func TestToKyselyCamelCase(t *testing.T) {
 	}
 }
 
+// TestToKyselyPascalCase (SC-U6): toUpperFirst(toKyselyCamelCase(s)).
 func TestToKyselyPascalCase(t *testing.T) {
-	// toKyselyPascalCase = toUpperFirst(toKyselyCamelCase(s)).
-	// Note: separator characters other than '_' (e.g. '-') are NOT
-	// pre-replaced here; that step belongs to tableInterfaceName.
 	tests := []struct {
 		input string
 		want  string
 	}{
-		{"user", "User"},
-		{"account", "Account"},
-		{"user_profiles", "UserProfiles"},
+		// snake / kebab / camel / UPPER_SNAKE inputs
+		{"user_account", "UserAccount"},
+		{"user-account", "User-account"}, // `-` is non-word; not pre-replaced here
+		{"userAccount", "UserAccount"},
+		{"USER_ID", "USERID"},
+		// Edges
 		{"", ""},
 		{"a", "A"},
-		{"item_2", "Item2"},
-		{"USER_ID", "USERID"},
-		{"single", "Single"},
-		{"multi_word_name", "MultiWordName"},
-		// Hyphens are preserved by toKyselyPascalCase alone.
-		{"user-profiles", "User-profiles"},
-		{"kebab-case-name", "Kebab-case-name"},
+		{"A", "A"},
+		{"_private", "_Private"},
 	}
 
 	for _, tt := range tests {
@@ -89,46 +144,29 @@ func TestToKyselyPascalCase(t *testing.T) {
 	}
 }
 
-func TestTableInterfaceName(t *testing.T) {
-	// tableInterfaceName = toKyselyPascalCase(replaceNonWordChars(s)),
-	// which mirrors SymbolCollection.set's preprocessing.
-	tests := []struct {
-		input string
-		want  string
-	}{
-		{"user", "User"},
-		{"user_profiles", "UserProfiles"},
-		{"app_config", "AppConfig"},
-		{"kebab-case-name", "KebabCaseName"},
-		{"weird.dot", "WeirdDot"},
-		{"with space", "WithSpace"},
-		{"USER_ID", "USERID"},
-		{"", ""},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.input, func(t *testing.T) {
-			got := tableInterfaceName(tt.input)
-			if got != tt.want {
-				t.Errorf("tableInterfaceName(%q) = %q, want %q", tt.input, got, tt.want)
-			}
-		})
-	}
-}
-
+// TestReplaceNonWordChars (SC-U7): mirrors JS `s.replaceAll(/[^\w$]/g, '_')`.
+//
+// `\w` is `[A-Za-z0-9_]`; `$` is also retained.
 func TestReplaceNonWordChars(t *testing.T) {
 	tests := []struct {
 		input string
 		want  string
 	}{
-		{"kebab-case-name", "kebab_case_name"},
-		{"app config", "app_config"},
-		{"weird.dot", "weird_dot"},
-		{"clean_word", "clean_word"},
-		{"with$dollar", "with$dollar"},
-		{"123abc", "123abc"},
+		// Non-word characters become `_`
+		{"a-b", "a_b"},
+		{"a.b", "a_b"},
+		{"a b", "a_b"},
+		// `$` is retained
+		{"a$b", "a$b"},
+		{"$only", "$only"},
+		// `_` is retained (already a word char)
+		{"a_b", "a_b"},
+		// Digits / letters retained
+		{"abc123", "abc123"},
+		// All non-word
+		{"---", "___"},
+		// Empty
 		{"", ""},
-		{"!@#$", "___$"},
 	}
 
 	for _, tt := range tests {
@@ -141,50 +179,30 @@ func TestReplaceNonWordChars(t *testing.T) {
 	}
 }
 
-func TestTransformName(t *testing.T) {
-	tests := []struct {
-		name      string
-		input     string
-		camelCase bool
-		want      string
-	}{
-		{"camel mode on snake input", "user_id", true, "userId"},
-		{"identity on snake input", "user_id", false, "user_id"},
-		{"camel on UPPER_SNAKE keeps screaming", "USER_ID", true, "USERID"},
-		{"identity on UPPER_SNAKE", "USER_ID", false, "USER_ID"},
-		{"camel idempotent on already camel", "userId", true, "userId"},
-		{"identity on already camel", "userId", false, "userId"},
-		{"camel on single word", "id", true, "id"},
-		{"identity on single word", "id", false, "id"},
-		{"camel multi-segment", "access_token_expires_at", true, "accessTokenExpiresAt"},
-		{"identity multi-segment", "access_token_expires_at", false, "access_token_expires_at"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := transformName(tt.input, tt.camelCase)
-			if got != tt.want {
-				t.Errorf("transformName(%q, %v) = %q, want %q", tt.input, tt.camelCase, got, tt.want)
-			}
-		})
-	}
-}
-
+// TestSerializeKey (SC-U8): IDENTIFIER_REGEXP-based bare / quoted dispatch.
+//
+// The regex `^[$A-Z_a-z][\w$]*$` matches valid TS identifiers; non-matches
+// are double-quoted via strconv.Quote.
 func TestSerializeKey(t *testing.T) {
 	tests := []struct {
 		input string
 		want  string
 	}{
-		{"userId", "userId"},
+		// Bare (matches regex)
 		{"user_id", "user_id"},
+		{"userId", "userId"},
 		{"_private", "_private"},
-		{"$dollar", "$dollar"},
-		{"A", "A"},
-		{"_", "_"},
-		// Keys that must be quoted.
-		{"123abc", `"123abc"`},
-		{"kebab-case", `"kebab-case"`},
+		{"$id", "$id"},
+		{"USER_ID", "USER_ID"},
+		// TS reserved words are valid object property names → bare
+		{"class", "class"},
+		{"default", "default"},
+		// Quoted (regex fails)
+		{"2nd", `"2nd"`},          // digit-leading
+		{"user.name", `"user.name"`}, // contains `.`
 		{"with space", `"with space"`},
+		// Empty input fails the regex (requires ≥1 starting char) → quoted
+		{"", `""`},
 	}
 
 	for _, tt := range tests {
@@ -197,27 +215,36 @@ func TestSerializeKey(t *testing.T) {
 	}
 }
 
+// TestLocaleKeyLess (SC-U9): localeCompare-style sort comparator.
+//
+// Primary level case-insensitive; secondary level lowercase before
+// uppercase on case-only ties (en-US ICU default).
 func TestLocaleKeyLess(t *testing.T) {
 	tests := []struct {
+		name string
 		a, b string
 		want bool
 	}{
-		// Different primary level.
-		{"apple", "banana", true},
-		{"banana", "apple", false},
-		{"apiKey", "userId", true},
-		{"USERID", "apiKey", false}, // u > a primary
-		// Equal strings.
-		{"apple", "apple", false},
-		// Case-only ties: lowercase comes first (en-US ICU default).
-		{"apple", "Apple", true},
-		{"Apple", "apple", false},
-		{"id", "ID", true},
-		{"ID", "id", false},
+		// Primary level: alphabetical, case-insensitive
+		{"a < b", "a", "b", true},
+		{"A < B", "A", "B", true},
+		{"a < B (case-insensitive)", "a", "B", true},
+		{"B > a", "B", "a", false},
+		// Equal keys → not less
+		{"abc == abc", "abc", "abc", false},
+		// Case-only tie: lower before upper
+		{"a < A on case-only tie", "a", "A", true},
+		{"A > a on case-only tie", "A", "a", false},
+		// Multi-char prefix ordering
+		{"item < user", "item", "user", true},
+		// Digits in identifiers — string comparison (NOT numeric):
+		// JS `localeCompare` defaults to ICU's [<digit>...] string ordering,
+		// so "item10" < "item2" because '1' < '2' in code-point order.
+		{"item10 < item2 (string compare)", "item10", "item2", true},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.a+"_vs_"+tt.b, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			got := localeKeyLess(tt.a, tt.b)
 			if got != tt.want {
 				t.Errorf("localeKeyLess(%q, %q) = %v, want %v", tt.a, tt.b, got, tt.want)
