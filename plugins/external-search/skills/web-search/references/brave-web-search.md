@@ -4,7 +4,7 @@ Search the web with real-time results via the Brave Search MCP server.
 
 ## MCP Server
 
-- **Server name:** `plugin:totto2727:brave-search` (or local MCP configuration)
+- **Server name:** `plugin:external-search:brave-search` (or local MCP configuration)
 - **Tool name:** `brave_web_search`
 - **Package:** `@brave/brave-search-mcp-server`
 

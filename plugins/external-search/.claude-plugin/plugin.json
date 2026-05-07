@@ -1,0 +1,10 @@
+{
+  "name": "external-search",
+  "description": "External search tools: web search (Brave), OSS repository analysis (Zread), documentation lookup (Context7), and web page reader.",
+  "version": "0.1.0",
+  "author": {
+    "name": "totto2727",
+    "url": "https://github.com/totto2727",
+    "email": "kaihatu.totto2727@gmail.com"
+  }
+}

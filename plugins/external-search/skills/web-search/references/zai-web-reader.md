@@ -4,7 +4,7 @@ Retrieve full webpage content via the Z AI MCP server.
 
 ## MCP Server
 
-- **Server name:** `plugin:totto2727:web-reader` (or local MCP configuration)
+- **Server name:** `plugin:external-search:web-reader` (or local MCP configuration)
 - **Tool name:** `webReader`
 - **Endpoint:** `https://api.z.ai/api/mcp/web_reader/mcp`
 

@@ -4,7 +4,7 @@ Analyze open source GitHub repositories via the Z AI zread MCP server.
 
 ## MCP Server
 
-- **Server name:** `plugin:totto2727:zread` (or local MCP configuration)
+- **Server name:** `plugin:external-search:zread` (or local MCP configuration)
 - **Endpoint:** `https://api.z.ai/api/mcp/zread/mcp`
 
 ## Tools
