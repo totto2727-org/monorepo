@@ -17,7 +17,7 @@ direnv allow
 
 vp config
 vp i
-vp run workspace:setup
+vp run w:setup
 EOF
 
 WORKDIR /sandbox/monorepo

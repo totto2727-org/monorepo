@@ -39,7 +39,7 @@
   - `vite-plus`: top-level catalog に `^0.1.19` (`pnpm-workspace.yaml:17`)
 - **catalog 直接ピン留めしないトップレベル overrides**: `vite` / `vitest` は `overrides` で `catalog:` に強制 (`pnpm-workspace.yaml:101-103`)
 - **root `package.json`**: `"type": "module"` / `wrangler: latest` / `vite-plus: catalog:` / `ultracite: catalog:lint` (`package.json:1-13`)
-- **root `vite.config.ts` の役割**: ワークスペース全体の lint / fmt 設定 (`extends: [core, react, remix, oxlintPluginPreset]`, `vite.config.ts:30-44`) と、root レベルの `run.tasks` (`workspace:check` / `workspace:test` / `workspace:build` / `workspace:fix` / `ci`) を定義 (`vite.config.ts:46-74`)。`ci` は `workspace:check` + `workspace:test` + `workspace:build` を `dependsOn` で連結する (`vite.config.ts:51-54`)
+- **root `vite.config.ts` の役割**: ワークスペース全体の lint / fmt 設定 (`extends: [core, react, remix, oxlintPluginPreset]`, `vite.config.ts:30-44`) と、root レベルの `run.tasks` (`w:check` / `w:test` / `w:build` / `w:fix` / `ci`) を定義 (`vite.config.ts:46-74`)。`ci` は `w:check` + `w:test` + `w:build` を `dependsOn` で連結する (`vite.config.ts:51-54`)
 - **CLAUDE.md `Standard Tasks` 節の規約** (`CLAUDE.md:17-31`):
   - `vp run <task>` がカレントパッケージ、`-r` でワークスペース全体に fan-out
   - `--cache` flag は不要 (常時ON、`CLAUDE.md:15`)
@@ -90,8 +90,8 @@
   vp run --parallel ci
   ```
   setup を先に走らせて生成物を確実にディスクに置き、`ci` 並列実行時のキャッシュを温める意図
-- **root の `ci` タスク** (`vite.config.ts:51-54`): `dependsOn: ['workspace:check', 'workspace:test', 'workspace:build']` の集約タスク (command 空)
-- **`workspace:*` 系**: `command: 'vp run -r <task>'` でワークスペース全体に fan-out (`vite.config.ts:62-72`)
+- **root の `ci` タスク** (`vite.config.ts:51-54`): `dependsOn: ['w:check', 'w:test', 'w:build']` の集約タスク (command 空)
+- **`w:*` 系**: `command: 'vp run -r <task>'` でワークスペース全体に fan-out (`vite.config.ts:62-72`)
 
 ### E. `--cache` flag が不要となった現状仕様
 

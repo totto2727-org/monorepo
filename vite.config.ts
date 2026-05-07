@@ -50,7 +50,7 @@ export default defineConfig({
       },
       ci: {
         command: '',
-        dependsOn: ['workspace:check', 'workspace:test', 'workspace:build'],
+        dependsOn: ['w:check', 'w:test', 'w:build'],
       },
       fix: {
         command: 'vp check --fix',
@@ -58,24 +58,24 @@ export default defineConfig({
       test: {
         command: 'vp test',
       },
-      'workspace:build': {
+      'w:build': {
         command: 'vp run -r build',
-        dependsOn: ['workspace:setup'],
+        dependsOn: ['w:setup'],
       },
-      'workspace:check': {
+      'w:check': {
         command: 'vp run -r check',
-        dependsOn: ['workspace:setup'],
+        dependsOn: ['w:setup'],
       },
-      'workspace:fix': {
+      'w:fix': {
         command: 'vp run -r fix',
-        dependsOn: ['workspace:setup'],
+        dependsOn: ['w:setup'],
       },
-      'workspace:setup': {
+      'w:setup': {
         command: 'vp run -r setup',
       },
-      'workspace:test': {
+      'w:test': {
         command: 'vp run -r test',
-        dependsOn: ['workspace:setup'],
+        dependsOn: ['w:setup'],
       },
     },
   },
