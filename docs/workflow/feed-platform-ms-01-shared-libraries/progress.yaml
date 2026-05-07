@@ -1,0 +1,36 @@
+identifier: feed-platform-ms-01-shared-libraries
+started_at: 2026-05-07T03:55:00Z
+updated_at: 2026-05-07T03:55:00Z
+
+status: active
+current_step: 1
+
+completed_steps: []
+
+pending_gates: []
+
+active_specialists: []
+
+blockers: []
+
+artifacts:
+  intent_spec: intent-spec.md
+  research: []
+  design: null
+  qa_design: null
+  qa_flow: null
+  external_adrs: []
+  task_plan: null
+  todo: null
+  review: []
+  validation: null
+  retrospective: null
+
+user_approvals: []
+
+rollbacks: []
+
+roadmap:
+  id: feed-platform
+  milestone:
+    id: ms-01-workspace-foundation
