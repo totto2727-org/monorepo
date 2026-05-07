@@ -47,7 +47,9 @@
               home.username = username;
               home.homeDirectory = homedir;
 
-              home.packages = import ../share/packages.nix { inherit pkgs npm; };
+              home.packages =
+                (import ../share/packages.nix { inherit pkgs npm; })
+                ++ (import ../share/packages-scripts.nix { inherit pkgs; }).sandbox;
 
               programs = (import ../share/programs.nix) // {
                 home-manager.enable = true;
