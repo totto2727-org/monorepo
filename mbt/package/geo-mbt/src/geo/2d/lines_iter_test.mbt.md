@@ -12,11 +12,11 @@ Per-geometry edge-iteration trait. `LinesCarrier::lines` returns the line segmen
 
 #### `lines`
 
-| Variable | State                | Note                                |  1  |  2  |  3  |
-| :------- | :------------------- | :---------------------------------- | :-: | :-: | :-: |
-| `self`   | `LineString`         | `n − 1` segments                    |  ✓  |     |     |
-| `self`   | `Rect`               | 4 CCW edges                         |     |  ✓  |     |
-| `self`   | `Geometry::Point`    | empty (no segments)                 |     |     |  ✓  |
+| Variable | State             | Note                |  1  |  2  |  3  |
+| :------- | :---------------- | :------------------ | :-: | :-: | :-: |
+| `self`   | `LineString`      | `n − 1` segments    |  ✓  |     |     |
+| `self`   | `Rect`            | 4 CCW edges         |     |  ✓  |     |
+| `self`   | `Geometry::Point` | empty (no segments) |     |     |  ✓  |
 
 - LineString of `n` coords yields `n − 1` segments
 
