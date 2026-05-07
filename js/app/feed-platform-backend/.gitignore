@@ -1,0 +1,4 @@
+.wrangler/
+dist/
+src/worker/bff/worker-configuration.d.ts
+src/worker/health/worker-configuration.d.ts

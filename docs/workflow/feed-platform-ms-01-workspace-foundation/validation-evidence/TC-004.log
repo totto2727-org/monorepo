@@ -1,0 +1,21 @@
+$ find js/app/feed-platform-backend/src js/app/feed-platform-web/app js/app/identity-provider/app -name '*.test.ts'
+js/app/feed-platform-backend/src/feature/health.test.ts
+js/app/feed-platform-web/app/feature/greeting.test.ts
+js/app/feed-platform-web/app/feature/health.test.ts
+js/app/identity-provider/app/feature/greeting.test.ts
+js/app/identity-provider/app/feature/health.test.ts
+
+合計 5 ファイル (backend 1 + web 2 + IdP 2) - design.md / qa-design.md 規約通り
+
+$ vp test run js/app/feed-platform-backend js/app/feed-platform-web js/app/identity-provider
+VITE+ - The Unified Toolchain for the Web
+
+ RUN  /Users/totto2727/.warp/worktrees/monorepo/roadrunner-pinyon
+
+ Test Files  5 passed (5)
+      Tests  5 passed (5)
+   Start at  23:44:56
+   Duration  289ms (transform 194ms, setup 0ms, import 919ms, tests 16ms, environment 0ms)
+exit=0
+
+PASS (5 test files PASS、5 tests PASS、0 failed)

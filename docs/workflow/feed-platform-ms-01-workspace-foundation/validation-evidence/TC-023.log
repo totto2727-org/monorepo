@@ -1,0 +1,14 @@
+$ grep -nE 'd1_databases|kv_namespaces|BETTER_AUTH' js/app/identity-provider/wrangler.jsonc
+27:  //   "BETTER_AUTH_URL": "...",
+28:  //   "BETTER_AUTH_SECRET": "[REDACTED — wrangler secret 経由で注入]",
+32:  // "d1_databases": [
+35:  // "kv_namespaces": [
+
+期待: 3 種の DB binding 関連コメント形式 (d1_databases / kv_namespaces / BETTER_AUTH_*) すべてが ≥ 1 hit、かつ実体定義 (active JSON キー) は 0 件
+実際:
+- d1_databases: コメント形式 1 hit (L32) ✓
+- kv_namespaces: コメント形式 1 hit (L35) ✓
+- BETTER_AUTH_URL / BETTER_AUTH_SECRET: コメント形式 2 hit (L27 / L28) ✓
+- 全て `//` 始まりのコメントのみ、active な JSON エントリは 0 件 ✓
+
+PASS (Option H 採用 = コメント予約のみ、ms-02 引き継ぎ点が明示)
