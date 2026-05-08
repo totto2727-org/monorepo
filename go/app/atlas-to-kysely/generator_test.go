@@ -198,7 +198,7 @@ func TestSerializeKey(t *testing.T) {
 		{"class", "class"},
 		{"default", "default"},
 		// Quoted (regex fails)
-		{"2nd", `"2nd"`},          // digit-leading
+		{"2nd", `"2nd"`},             // digit-leading
 		{"user.name", `"user.name"`}, // contains `.`
 		{"with space", `"with space"`},
 		// Empty input fails the regex (requires ≥1 starting char) → quoted
