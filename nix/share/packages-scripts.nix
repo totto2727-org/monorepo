@@ -3,6 +3,45 @@
 let
   inherit (pkgs) writeShellScriptBin;
 
+  # --- shared wrappers (no secrets) ---
+
+  exocortex-mcp = writeShellScriptBin "exocortex-mcp" ''
+    exec ${pkgs.uv}/bin/uvx \
+      --from "git+https://github.com/fuwasegu/exocortex" \
+      exocortex --mode proxy --ensure-server "$@"
+  '';
+
+  docker-credential-gh = writeShellScriptBin "docker-credential-gh" ''
+    set -e
+
+    cmd="$1"
+    if [ "erase" = "$cmd" ]; then
+      cat - >/dev/null
+      exit 0
+    fi
+    if [ "store" = "$cmd" ]; then
+      cat - >/dev/null
+      exit 0
+    fi
+    if [ "get" != "$cmd" ]; then
+      exit 1
+    fi
+
+    host="$(cat -)"
+    host="''${host#https://}"
+    host="''${host%/}"
+    if [ "$host" != "ghcr.io" ] && [ "$host" != "docker.pkg.github.com" ]; then
+      exit 1
+    fi
+
+    token="$(gh config get -h github.com oauth_token)"
+    if [ -z "$token" ]; then
+      exit 1
+    fi
+
+    printf '{"Username":"%s", "Secret":"%s"}\n' "$(gh config get -h github.com user)" "$token"
+  '';
+
   # --- wrappers with pass-cli (macos) ---
 
   macos-zai-mcp-server = writeShellScriptBin "zai-mcp-server" ''
@@ -41,45 +80,6 @@ let
     export CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
     export CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
     exec claude "$@"
-  '';
-
-  # --- shared wrappers (no secrets) ---
-
-  exocortex-mcp = writeShellScriptBin "exocortex-mcp" ''
-    exec ${pkgs.uv}/bin/uvx \
-      --from "git+https://github.com/fuwasegu/exocortex" \
-      exocortex --mode proxy --ensure-server "$@"
-  '';
-
-  docker-credential-gh = writeShellScriptBin "docker-credential-gh" ''
-    set -e
-
-    cmd="$1"
-    if [ "erase" = "$cmd" ]; then
-      cat - >/dev/null
-      exit 0
-    fi
-    if [ "store" = "$cmd" ]; then
-      cat - >/dev/null
-      exit 0
-    fi
-    if [ "get" != "$cmd" ]; then
-      exit 1
-    fi
-
-    host="$(cat -)"
-    host="''${host#https://}"
-    host="''${host%/}"
-    if [ "$host" != "ghcr.io" ] && [ "$host" != "docker.pkg.github.com" ]; then
-      exit 1
-    fi
-
-    token="$(gh config get -h github.com oauth_token)"
-    if [ -z "$token" ]; then
-      exit 1
-    fi
-
-    printf '{"Username":"%s", "Secret":"%s"}\n' "$(gh config get -h github.com user)" "$token"
   '';
 
   macos-work-c = writeShellScriptBin "c" ''
