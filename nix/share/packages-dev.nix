@@ -3,7 +3,7 @@ with pkgs;
 [
   # Coding
   lefthook
-  go-task
+  just
   nixfmt-rfc-style
   duckdb
   # Runtime
