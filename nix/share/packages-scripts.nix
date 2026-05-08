@@ -128,7 +128,6 @@ in
   ];
 
   macos-work = [
-    exocortex-mcp
     docker-credential-gh
     macos-work-c
   ];
