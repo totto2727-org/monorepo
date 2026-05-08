@@ -83,6 +83,7 @@ let
   '';
 
   macos-work-c = writeShellScriptBin "c" ''
+    export CLAUDE_CONFIG_DIR="$HOME/.claude-work"
     exec claude "$@"
   '';
 
