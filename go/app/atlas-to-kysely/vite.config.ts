@@ -4,7 +4,7 @@ export default defineConfig({
   run: {
     tasks: {
       check: {
-        command: 'test -z "$(gofmt -l .)"',
+        command: 'gofmt -d .',
         input: [{ auto: true }],
       },
       fix: {
