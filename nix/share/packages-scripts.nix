@@ -117,12 +117,11 @@ in
 {
   macos = [
     exocortex-mcp
+    docker-credential-gh
     macos-zai-mcp-server
     macos-zread-mcp
     macos-brave-search-mcp
     macos-web-reader-mcp
-    docker-credential-gh
-    # macos only
     macos-d
     macos-c
   ];
