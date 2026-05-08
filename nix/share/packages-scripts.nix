@@ -82,7 +82,15 @@ let
     printf '{"Username":"%s", "Secret":"%s"}\n' "$(gh config get -h github.com user)" "$token"
   '';
 
+  macos-work-c = writeShellScriptBin "c" ''
+    exec claude "$@"
+  '';
+
   # --- wrappers without pass-cli (sandbox, OpenShell injects env vars) ---
+
+  sandbox-c = writeShellScriptBin "c" ''
+    exec claude "$@"
+  '';
 
   sandbox-zai-mcp-server = writeShellScriptBin "zai-mcp-server" ''
     export Z_AI_MODE="ZAI"
@@ -122,6 +130,7 @@ in
   macos-work = [
     exocortex-mcp
     docker-credential-gh
+    macos-work-c
   ];
 
   sandbox = [
@@ -131,5 +140,6 @@ in
     sandbox-brave-search-mcp
     sandbox-web-reader-mcp
     docker-credential-gh
+    sandbox-c
   ];
 }
