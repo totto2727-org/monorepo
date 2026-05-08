@@ -36,9 +36,9 @@ const isPrArray = (value: unknown): value is readonly RawPr[] =>
     (item) =>
       Predicate.isObject(item) &&
       'number' in item &&
-      typeof (item as { number: unknown }).number === 'number' &&
+      Predicate.isNumber(item.number) &&
       'state' in item &&
-      typeof (item as { state: unknown }).state === 'string',
+      Predicate.isString(item.state),
   )
 
 const parsePrs = (json: string): readonly RawPr[] => {
@@ -244,6 +244,9 @@ export const formatPr = (info: PrInfo): string => {
     }
     case 'closed': {
       return `CLOSED(#${info.number ?? '?'})`
+    }
+    default: {
+      return info.state satisfies never
     }
   }
 }

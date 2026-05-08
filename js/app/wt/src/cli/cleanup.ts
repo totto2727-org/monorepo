@@ -40,7 +40,7 @@ const classifyEntry =
     const pr = prMap.get(entry.branch) ?? { number: null, state: 'none' as const }
     const git = gitMap.get(entry.path) ?? 'committed'
     const reason = classifyForRemoval(pr, git)
-    if (Predicate.isNull(reason)) {
+    if (Predicate.isNullish(reason)) {
       return null
     }
     return { entry, git, pr, reason }
