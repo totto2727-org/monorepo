@@ -5,7 +5,6 @@ export default defineConfig({
     tasks: {
       check: {
         command: 'gofmt -d .',
-        input: [{ auto: true }],
       },
       fix: {
         command: 'go fmt .',
