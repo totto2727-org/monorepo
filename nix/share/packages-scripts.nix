@@ -71,6 +71,7 @@ let
 
   macos-d = writeShellScriptBin "d" ''
     export Z_AI_API_KEY="$(pass-cli get z-ai/api-key --quiet -f password)"
+    export OPENCODE_ZEN_API_KEY="$(pass-cli get opencode-zen/api-key --quiet -f password)"
     export CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
     export CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
     exec droid "$@"
