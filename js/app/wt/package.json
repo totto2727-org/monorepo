@@ -1,0 +1,31 @@
+{
+  "name": "@totto2727/wt",
+  "version": "0.1.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/totto2727-org/monorepo",
+    "directory": "js/app/wt"
+  },
+  "bin": {
+    "wt": "./dist/bin.mjs"
+  },
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "imports": {
+    "#@/*": "./src/*"
+  },
+  "scripts": {
+    "bin": "node dist/bin.mjs"
+  },
+  "dependencies": {
+    "@effect/platform-node": "catalog:effect",
+    "effect": "catalog:effect"
+  },
+  "devDependencies": {
+    "@totto2727/fp": "workspace:*",
+    "vite-plus": "catalog:"
+  }
+}
