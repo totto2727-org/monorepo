@@ -1,7 +1,7 @@
 import { Effect } from 'effect'
 import { Argument, Command, Flag } from 'effect/unstable/cli'
 
-import { getAgentsDir } from '#@/lib/paths.ts'
+import { expandHomePath, getAgentsDir } from '#@/lib/paths.ts'
 import * as LockFileService from '#@/service/lock-file.ts'
 import * as SyncService from '#@/service/sync.ts'
 
@@ -16,7 +16,9 @@ export const targetAddCommand = Command.make(
       const agentsDir = getAgentsDir(config.global)
       const lockFile = yield* LockFileService.read(agentsDir)
 
-      if (lockFile.skillDirs.includes(config.path)) {
+      const expanded = expandHomePath(config.path)
+      const isDuplicate = lockFile.skillDirs.some((d) => expandHomePath(d) === expanded)
+      if (isDuplicate) {
         yield* Effect.log(`Directory already registered: ${config.path}`)
         return
       }
