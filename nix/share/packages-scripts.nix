@@ -3,41 +3,41 @@
 let
   inherit (pkgs) writeShellScriptBin;
 
-  # --- wrappers with pass-cli (full) ---
+  # --- wrappers with pass-cli (macos) ---
 
-  full-zai-mcp-server = writeShellScriptBin "zai-mcp-server" ''
+  macos-zai-mcp-server = writeShellScriptBin "zai-mcp-server" ''
     export Z_AI_API_KEY="$(pass-cli get z-ai/api-key --quiet -f password)"
     export Z_AI_MODE="ZAI"
     exec ${pkgs.bun}/bin/bunx -y @z_ai/mcp-server "$@"
   '';
 
-  full-zread-mcp = writeShellScriptBin "zread-mcp" ''
+  macos-zread-mcp = writeShellScriptBin "zread-mcp" ''
     export Z_AI_API_KEY="$(pass-cli get z-ai/api-key --quiet -f password)"
     exec ${pkgs.uv}/bin/uvx mcp-proxy --transport streamablehttp \
       --headers Authorization "Bearer $Z_AI_API_KEY" \
       https://api.z.ai/api/mcp/zread/mcp "$@"
   '';
 
-  full-brave-search-mcp = writeShellScriptBin "brave-search-mcp" ''
+  macos-brave-search-mcp = writeShellScriptBin "brave-search-mcp" ''
     export BRAVE_API_KEY="$(pass-cli get brave-search/api-key --quiet -f password)"
     exec ${pkgs.bun}/bin/bunx -y @brave/brave-search-mcp-server "$@"
   '';
 
-  full-web-reader-mcp = writeShellScriptBin "web-reader-mcp" ''
+  macos-web-reader-mcp = writeShellScriptBin "web-reader-mcp" ''
     export Z_AI_API_KEY="$(pass-cli get z-ai/api-key --quiet -f password)"
     exec ${pkgs.uv}/bin/uvx mcp-proxy --transport streamablehttp \
       --headers Authorization "Bearer $Z_AI_API_KEY" \
       https://api.z.ai/api/mcp/web_reader/mcp "$@"
   '';
 
-  full-d = writeShellScriptBin "d" ''
+  macos-d = writeShellScriptBin "d" ''
     export Z_AI_API_KEY="$(pass-cli get z-ai/api-key --quiet -f password)"
     export CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
     export CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
     exec droid "$@"
   '';
 
-  full-c = writeShellScriptBin "c" ''
+  macos-c = writeShellScriptBin "c" ''
     export CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
     export CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
     exec claude "$@"
@@ -107,16 +107,21 @@ let
 
 in
 {
-  full = [
+  macos = [
     exocortex-mcp
-    full-zai-mcp-server
-    full-zread-mcp
-    full-brave-search-mcp
-    full-web-reader-mcp
+    macos-zai-mcp-server
+    macos-zread-mcp
+    macos-brave-search-mcp
+    macos-web-reader-mcp
     docker-credential-gh
-    # full only
-    full-d
-    full-c
+    # macos only
+    macos-d
+    macos-c
+  ];
+
+  macos-work = [
+    exocortex-mcp
+    docker-credential-gh
   ];
 
   sandbox = [
