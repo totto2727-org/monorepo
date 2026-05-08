@@ -83,6 +83,7 @@
                     (import ../share/packages.nix { inherit pkgs npm; })
                     ++ (import ../share/packages-dev.nix { inherit pkgs; })
                     ++ (import ../share/packages-macos.nix { inherit pkgs; })
+                    ++ (import ../share/packages-scripts.nix { inherit pkgs; }).macos-work
                     ++ (with pkgs; [
                       docker
                     ]);

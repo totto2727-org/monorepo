@@ -3,46 +3,6 @@
 let
   inherit (pkgs) writeShellScriptBin;
 
-  # --- wrappers with pass-cli (full) ---
-
-  full-zai-mcp-server = writeShellScriptBin "zai-mcp-server" ''
-    export Z_AI_API_KEY="$(pass-cli get z-ai/api-key --quiet -f password)"
-    export Z_AI_MODE="ZAI"
-    exec ${pkgs.bun}/bin/bunx -y @z_ai/mcp-server "$@"
-  '';
-
-  full-zread-mcp = writeShellScriptBin "zread-mcp" ''
-    export Z_AI_API_KEY="$(pass-cli get z-ai/api-key --quiet -f password)"
-    exec ${pkgs.uv}/bin/uvx mcp-proxy --transport streamablehttp \
-      --headers Authorization "Bearer $Z_AI_API_KEY" \
-      https://api.z.ai/api/mcp/zread/mcp "$@"
-  '';
-
-  full-brave-search-mcp = writeShellScriptBin "brave-search-mcp" ''
-    export BRAVE_API_KEY="$(pass-cli get brave-search/api-key --quiet -f password)"
-    exec ${pkgs.bun}/bin/bunx -y @brave/brave-search-mcp-server "$@"
-  '';
-
-  full-web-reader-mcp = writeShellScriptBin "web-reader-mcp" ''
-    export Z_AI_API_KEY="$(pass-cli get z-ai/api-key --quiet -f password)"
-    exec ${pkgs.uv}/bin/uvx mcp-proxy --transport streamablehttp \
-      --headers Authorization "Bearer $Z_AI_API_KEY" \
-      https://api.z.ai/api/mcp/web_reader/mcp "$@"
-  '';
-
-  full-d = writeShellScriptBin "d" ''
-    export Z_AI_API_KEY="$(pass-cli get z-ai/api-key --quiet -f password)"
-    export CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
-    export CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
-    exec droid "$@"
-  '';
-
-  full-c = writeShellScriptBin "c" ''
-    export CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
-    export CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
-    exec claude "$@"
-  '';
-
   # --- shared wrappers (no secrets) ---
 
   exocortex-mcp = writeShellScriptBin "exocortex-mcp" ''
@@ -82,7 +42,55 @@ let
     printf '{"Username":"%s", "Secret":"%s"}\n' "$(gh config get -h github.com user)" "$token"
   '';
 
+  # --- wrappers with pass-cli (macos) ---
+
+  macos-zai-mcp-server = writeShellScriptBin "zai-mcp-server" ''
+    export Z_AI_API_KEY="$(pass-cli get z-ai/api-key --quiet -f password)"
+    export Z_AI_MODE="ZAI"
+    exec ${pkgs.bun}/bin/bunx -y @z_ai/mcp-server "$@"
+  '';
+
+  macos-zread-mcp = writeShellScriptBin "zread-mcp" ''
+    export Z_AI_API_KEY="$(pass-cli get z-ai/api-key --quiet -f password)"
+    exec ${pkgs.uv}/bin/uvx mcp-proxy --transport streamablehttp \
+      --headers Authorization "Bearer $Z_AI_API_KEY" \
+      https://api.z.ai/api/mcp/zread/mcp "$@"
+  '';
+
+  macos-brave-search-mcp = writeShellScriptBin "brave-search-mcp" ''
+    export BRAVE_API_KEY="$(pass-cli get brave-search/api-key --quiet -f password)"
+    exec ${pkgs.bun}/bin/bunx -y @brave/brave-search-mcp-server "$@"
+  '';
+
+  macos-web-reader-mcp = writeShellScriptBin "web-reader-mcp" ''
+    export Z_AI_API_KEY="$(pass-cli get z-ai/api-key --quiet -f password)"
+    exec ${pkgs.uv}/bin/uvx mcp-proxy --transport streamablehttp \
+      --headers Authorization "Bearer $Z_AI_API_KEY" \
+      https://api.z.ai/api/mcp/web_reader/mcp "$@"
+  '';
+
+  macos-d = writeShellScriptBin "d" ''
+    export Z_AI_API_KEY="$(pass-cli get z-ai/api-key --quiet -f password)"
+    export CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
+    export CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
+    exec droid "$@"
+  '';
+
+  macos-c = writeShellScriptBin "c" ''
+    export CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
+    export CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
+    exec claude "$@"
+  '';
+
+  macos-work-c = writeShellScriptBin "c" ''
+    exec claude "$@"
+  '';
+
   # --- wrappers without pass-cli (sandbox, OpenShell injects env vars) ---
+
+  sandbox-c = writeShellScriptBin "c" ''
+    exec claude "$@"
+  '';
 
   sandbox-zai-mcp-server = writeShellScriptBin "zai-mcp-server" ''
     export Z_AI_MODE="ZAI"
@@ -107,16 +115,20 @@ let
 
 in
 {
-  full = [
+  macos = [
     exocortex-mcp
-    full-zai-mcp-server
-    full-zread-mcp
-    full-brave-search-mcp
-    full-web-reader-mcp
     docker-credential-gh
-    # full only
-    full-d
-    full-c
+    macos-zai-mcp-server
+    macos-zread-mcp
+    macos-brave-search-mcp
+    macos-web-reader-mcp
+    macos-d
+    macos-c
+  ];
+
+  macos-work = [
+    docker-credential-gh
+    macos-work-c
   ];
 
   sandbox = [
@@ -126,5 +138,6 @@ in
     sandbox-brave-search-mcp
     sandbox-web-reader-mcp
     docker-credential-gh
+    sandbox-c
   ];
 }
