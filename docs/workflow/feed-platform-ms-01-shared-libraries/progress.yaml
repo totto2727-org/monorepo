@@ -1,6 +1,6 @@
 identifier: feed-platform-ms-01-shared-libraries
 started_at: 2026-05-07T03:55:00Z
-updated_at: 2026-05-08T01:45:00Z
+updated_at: 2026-05-09T08:00:00Z
 
 status: active
 current_step: 3
@@ -39,7 +39,7 @@ blockers: []
 
 step3_design_inputs:
   - id: U-1
-    decision: 'consumer 既存実装に揃え、frame name 型は `F[keyof F]` (= string literal value union) を採用。Intent Spec L82 は後追い訂正 (architect が design.md 内で記載、必要なら intent-spec.md にも反映)'
+    decision: 'consumer 既存実装に揃え、frame name 型は `T[keyof T]` (= string literal value union) を採用。Intent Spec L82 は後追い訂正 (architect が design.md 内で記載、必要なら intent-spec.md にも反映)'
     decided_at: 2026-05-08T00:30:00Z
   - id: U-3
     decision: '案 A 採用: `isFrameRequest(request: Request, frames)` に signature 変更し `remix-helper` を完全 Hono フリー化。consumer 側 (3 projects + hono-remix-v3-cloudflare-example) で `c.req.raw` を渡す adapter 追加が必要'
@@ -51,8 +51,26 @@ step3_design_inputs:
     decision: 'PageOrFrame web/IdP 未採用観測のため SC-6 達成は refactor only option A 採用 (3 consumer + example で routes.ts のみ更新、document.tsx の PageOrFrame 導入は本 cycle スコープ外)'
     decided_at: 2026-05-08T00:30:00Z
   - id: U-other-D
-    decision: 'InferFrameName<T> の実装パターンは researcher 私見 P2 (input `readonly string[]` 直接ジェネリクス + `<const T>` + `T[number]`) を採用。Step 3 で実機検証'
-    decided_at: 2026-05-08T00:30:00Z
+    decision: '当初 Pattern P2 (`readonly string[]` + `T[number]`) を採用したが、User 指摘 (2026-05-09) で撤回。`frames` の基底型は `Record<PropertyKey, string>`、`InferFrameName<T extends Record<PropertyKey, string>> = T[keyof T]` (= P1 寄り、value union) を確定。既存実装 `(typeof frames)[keyof typeof frames]` と完全整合'
+    decided_at: 2026-05-09T08:00:00Z
+    superseded_decision: 'Pattern P2 (readonly string[] + T[number])'
+
+step3_design_revisions:
+  - revision_at: 2026-05-09T08:00:00Z
+    trigger: 'User 指摘 4 件 (2026-05-09)'
+    items:
+      - id: R-1
+        target: 'Env.Type'
+        change: "struct `{ readonly ENV: ... }` → 直接 string literal union `'production' | 'development'` に simplify。`yield* Env.Service` 戻り値が文字列直接、consumer 側 `env.ENV` → `env`"
+      - id: R-2
+        target: 'dynamicLoggerLayer'
+        change: 'library 側で `Layer.unwrap` / `Layer.provide(Env.layer)` を行うのは coding 規約違反。Env-open `Layer<never, never, Env.Type>` として export し、Env 依存 closure は consumer entry point の責務'
+      - id: R-3
+        target: 'dynamicLoggerLayer 内部実装'
+        change: '`env.ts` import 維持。具体的 Effect 4.x API (Layer.unwrap 不使用) は Step 6 implementer が effect/dist/dts/ を引いて確定'
+      - id: R-4
+        target: 'createFrameHelpers / FrameHelpers / InferFrameName'
+        change: '`frames: readonly string[]` 廃止 → `frames: Record<PropertyKey, string>` に変更。`T[number]` → `T[keyof T]`。U-other-D Pattern P2 撤回、Record + value union (P1 寄り) を採用'
 
 artifacts:
   intent_spec: intent-spec.md
