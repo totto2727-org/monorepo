@@ -30,4 +30,8 @@ with pkgs;
     binName = "bw";
     packageName = "@totto2727/bw";
   })
+  (npm {
+    binName = "wt";
+    packageName = "@totto2727/wt";
+  })
 ]

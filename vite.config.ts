@@ -5,6 +5,8 @@ import { defineConfig } from 'vite-plus'
 
 import oxlintPluginPreset from './js/package/oxlint-plugin/src/preset.ts'
 
+const ignorePatterns = ['**/__fixtures__/**', '**/.factory/settings.json']
+
 export default defineConfig({
   fmt: {
     arrowParens: 'always',
@@ -18,6 +20,7 @@ export default defineConfig({
     },
     experimentalSortPackageJson: true,
     extends: [core, react, remix],
+    ignorePatterns,
     jsxSingleQuote: true,
     printWidth: 120,
     quoteProps: 'as-needed',
@@ -29,7 +32,7 @@ export default defineConfig({
   },
   lint: {
     extends: [core, react, remix, oxlintPluginPreset],
-    ignorePatterns: ['**/__fixtures__/**', '**/.script/**', '**/skills/**', '.factory/settings.json'],
+    ignorePatterns: [...ignorePatterns, '**/skills/**', '**/.script/**'],
     options: {
       typeAware: true,
       typeCheck: true,
