@@ -83,6 +83,14 @@ let
     exec claude "$@"
   '';
 
+  macos-o = writeShellScriptBin "o" ''
+    export ANTHROPIC_API_KEY="x"
+    export ANTHROPIC_BASE_URL="http://127.0.0.1:3456"
+    export CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
+    export CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
+    exec opencode "$@"
+  '';
+
   macos-work-c = writeShellScriptBin "c" ''
     export CLAUDE_CONFIG_DIR="$HOME/.claude-work"
     exec claude "$@"
@@ -92,6 +100,12 @@ let
 
   sandbox-c = writeShellScriptBin "c" ''
     exec claude "$@"
+  '';
+
+  sandbox-o = writeShellScriptBin "o" ''
+    export ANTHROPIC_API_KEY="x"
+    export ANTHROPIC_BASE_URL="http://127.0.0.1:3456"
+    exec opencode "$@"
   '';
 
   sandbox-zai-mcp-server = writeShellScriptBin "zai-mcp-server" ''
@@ -126,6 +140,7 @@ in
     macos-web-reader-mcp
     macos-d
     macos-c
+    macos-o
   ];
 
   macos-work = [
@@ -141,5 +156,6 @@ in
     sandbox-web-reader-mcp
     docker-credential-gh
     sandbox-c
+    sandbox-o
   ];
 }
