@@ -112,30 +112,29 @@ const OpencodeGoModelSchema = Schema.Struct({
   name: Schema.String,
 })
 
-const ProviderSchema = Schema.Record(
-  Schema.String,
-  Schema.Struct({
-    models: Schema.Record(Schema.String, Schema.Unknown),
-  }),
-)
+const AnthropicProviderSchema = Schema.Struct({
+  models: Schema.Record(Schema.String, AnthropicModelSchema),
+})
+
+const OpencodeGoProviderSchema = Schema.Struct({
+  models: Schema.Record(Schema.String, OpencodeGoModelSchema),
+})
+
+const ModelsDevSchema = Schema.Struct({
+  anthropic: AnthropicProviderSchema,
+  'opencode-go': OpencodeGoProviderSchema,
+})
 
 // ── Build entries ────────────────────────────────────────────────────────────
 
-const buildAnthropicEntries = (
-  providerData: Record<string, { models: Record<string, unknown> }>,
-): { compaction: number; entry: { id: string } & Record<string, unknown> }[] => {
-  const { anthropic } = providerData
-  if (Predicate.isNullish(anthropic)) {
-    throw new Error('anthropic provider not found in models.dev')
-  }
-
-  return ANTHROPIC_MODELS.map((modelId) => {
-    const rawModel = anthropic.models[modelId]
-    if (Predicate.isNullish(rawModel)) {
+const buildAnthropicEntries = (anthropic: {
+  models: Record<string, { limit: { context: number; output: number } }>
+}): { compaction: number; entry: { id: string } & Record<string, unknown> }[] =>
+  ANTHROPIC_MODELS.map((modelId) => {
+    const model = anthropic.models[modelId]
+    if (Predicate.isNullish(model)) {
       throw new Error(`Model ${modelId} not found in anthropic provider`)
     }
-    // oxlint-disable-next-line rules/no-sync-decode
-    const model = Schema.decodeUnknownSync(AnthropicModelSchema)(rawModel)
 
     const maxOutput = model.limit.output
     const { context } = model.limit
@@ -154,7 +153,6 @@ const buildAnthropicEntries = (
       },
     }
   })
-}
 
 const extractProviderPrefix = (modelId: string): string => {
   const match = /^[a-z]+/.exec(modelId)
@@ -164,23 +162,16 @@ const extractProviderPrefix = (modelId: string): string => {
   return match[0]
 }
 
-const buildOpencodeGoEntries = (
-  providerData: Record<string, { models: Record<string, unknown> }>,
-): { compaction: number; entry: { id: string } & Record<string, unknown> }[] => {
-  const ocg = providerData['opencode-go']
-  if (Predicate.isNullish(ocg)) {
-    throw new Error('opencode-go provider not found in models.dev')
-  }
-
-  return Object.entries(ocg.models)
+const buildOpencodeGoEntries = (ocg: {
+  models: Record<string, { attachment: boolean; limit: { context: number; output: number }; name: string }>
+}): { compaction: number; entry: { id: string } & Record<string, unknown> }[] =>
+  Object.entries(ocg.models)
     .toSorted(([a], [b]) => {
       const pa = extractProviderPrefix(a)
       const pb = extractProviderPrefix(b)
       return pa === pb ? 0 : pa.localeCompare(pb)
     })
-    .map(([modelId, rawModel]) => {
-      // oxlint-disable-next-line rules/no-sync-decode
-      const m = Schema.decodeUnknownSync(OpencodeGoModelSchema)(rawModel)
+    .map(([modelId, m]) => {
       const maxOutput = m.limit.output
       const { context } = m.limit
       const slug = slugForId(modelId)
@@ -198,7 +189,6 @@ const buildOpencodeGoEntries = (
         },
       }
     })
-}
 
 const buildZaiEntries = (): { compaction: number; entry: { id: string } & Record<string, unknown> }[] =>
   ZAI_MODELS.map((m, i) => {
@@ -247,10 +237,10 @@ const main = async (): Promise<void> => {
 
   const resp = await fetch(MODELS_DEV_URL)
   // oxlint-disable-next-line rules/no-sync-decode
-  const data = Schema.decodeUnknownSync(ProviderSchema)(await resp.json())
+  const data = Schema.decodeUnknownSync(ModelsDevSchema)(await resp.json())
 
-  const anthropic = buildAnthropicEntries(data)
-  const opencodeGo = buildOpencodeGoEntries(data)
+  const anthropic = buildAnthropicEntries(data.anthropic)
+  const opencodeGo = buildOpencodeGoEntries(data['opencode-go'])
   const zai = buildZaiEntries()
 
   const all = [...anthropic, ...opencodeGo, ...zai]
