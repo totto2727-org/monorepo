@@ -243,14 +243,14 @@ interface FrameHelpers<const T extends Record<PropertyKey, string>> {
    * `c.req.raw` (Hono) / `request` (Remix loader) 等を渡す責務を持つ (design.md "Consumer
    * migration の adapter 統一 pattern" 参照)。
    */
-  readonly isFrameRequest: (request: Request, frame: T[keyof T]) => boolean
+  readonly isFrameRequest: (request: Request, frame: InferFrameName<T>) => boolean
   /**
    * Layout を受け取り「frame fragment 出力 / 完全 page 出力」を切り替える Remix 3 component
    * factory を返す HOF (`hono-remix-v3-cloudflare-example/app/ui/page-or-frame.tsx:20-31` 完全継承)。
    * consumer 側で context から `Request` を取り出して引数に bind する形で利用する。
    */
   readonly createPageOrFrame: <P extends { children?: RemixNode }>(
-    frameName: T[keyof T],
+    frameName: InferFrameName<T>,
     layout: (handle: Handle<P>) => () => RemixNode,
   ) => (request: Request) => (handle: Handle<P>) => () => RemixNode
 }

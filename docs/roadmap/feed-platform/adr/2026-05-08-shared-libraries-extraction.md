@@ -54,7 +54,7 @@ Phase 1 ADR-01 (`2026-05-05-project-structure-and-runtime.md`) が定めた arch
 
 ### D-3: `remix-helper` の Hono 切り離し signature
 
-`createFrameHelpers` factory が返す `isFrameRequest` の signature を **`(request: Request, frame: T[keyof T]) => boolean`** に確定する (= Hono `getContext()` 直呼びを廃し、`Request` を直接受け取る形)。`createPageOrFrame` も同様に **`(frameName, layout) => (request: Request) => (handle) => () => RemixNode`** で `Request` を中間段階で bind する形に変更する (Phase 1 既存実装の 3 段階カリーに `Request` 受け取り段階を 1 段挿入)。
+`createFrameHelpers` factory が返す `isFrameRequest` の signature を **`(request: Request, frame: InferFrameName<T>) => boolean`** に確定する (= Hono `getContext()` 直呼びを廃し、`Request` を直接受け取る形。`InferFrameName<T>` 型関数を経由することで frame name 型表現を library 内 1 本に統一)。`createPageOrFrame` も同様に **`(frameName: InferFrameName<T>, layout) => (request: Request) => (handle) => () => RemixNode`** で `Request` を中間段階で bind する形に変更する (Phase 1 既存実装の 3 段階カリーに `Request` 受け取り段階を 1 段挿入)。
 
 `remix-helper` package は **`hono` を `peerDependencies` に持たない** (= 完全 Hono フリー化)。consumer 側 (4 projects) では以下の **3 行 adapter** を `routes.ts` (またはそれに相当する場所) に置く:
 
