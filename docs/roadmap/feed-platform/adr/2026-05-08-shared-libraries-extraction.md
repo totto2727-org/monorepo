@@ -33,7 +33,7 @@ Phase 1 ADR-01 (`2026-05-05-project-structure-and-runtime.md`) が定めた arch
 `js/package/` 配下に 2 つの新規 library package を配置する:
 
 - **`js/package/effect-hono/`** (Group A、Effect + Hono 統合領域): C-1 `dynamicLoggerLayer` / C-2 `makeDisposableRuntime` / C-3 `Env` (Service + `layer` + `makeLayer`) を集約
-- **`js/package/remix-helper/`** (Group B、Remix v3 Frame UI 領域): C-4+5 統合 `createFrameHelpers(frames)` factory + 型関数 `InferFrameName<T>` を集約
+- **`js/package/remix-helper/`** (Group B、Remix v3 Frame UI 領域): C-4 + C-5 + C-6 統合 `createFrameHelpers<T>()` factory を集約。戻り値プロパティ `isFrameRequest` / `createPageOrFrame` / `FrameLink` の 3 メンバすべてが string literal union `T` で型 specialize される
 
 両 package とも `private: true` / scope なし flat name (= 既存 `hono-remix-middleware` / `vite-plugin-remix` と同形、Research C F9)。命名規約は **`effect-hono` = Effect + Hono 統合の意味で将来 Hono middleware factory が増えたときに自然に absorb できる名前** / **`remix-helper` = 純粋な Remix v3 Frame helper、Hono とは無関係** (Intent Spec L60-L61)。
 
@@ -43,34 +43,41 @@ Phase 1 ADR-01 (`2026-05-05-project-structure-and-runtime.md`) が定めた arch
 
 各 candidate について **「具体を後から渡すべき箇所」と「抽象化するべき箇所」を一緒くたにしない** 原則 (Intent Spec L45) で抽出境界を確定:
 
-| Candidate                      | library 抽出形式                                                                                                                                                                                                    | consumer に残す具体                                                                                                                                                      |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| C-1 `dynamicLoggerLayer`       | factory 化せず **そのまま移植** (Env-open `Layer<never, never, Env.Type>` を 1 つ export、Env 依存 closure は consumer 責務)                                                                                        | なし (= library を import + `Layer.provide(Env.layer)` で使える)                                                                                                         |
-| C-2 `makeDisposableRuntime`    | **generic factory** (D-4 で詳述)                                                                                                                                                                                    | `make` 関数 / Layer 合成内容 / Service tag namespace / runtime バリアント数                                                                                              |
-| C-3 `Env`                      | factory 化せず **そのまま移植**。`Type` を **直接 string literal union 型** (`'production' \| 'development'`、struct 廃止) に simplify。Service tag は **library 内 1 本に統一** (`'@app/effect-hono/env/Service'`) | なし (= Phase 1 で各 project が個別に持っていた `'@app/<project-name>/feature/env/Service'` namespace は廃止、3 consumer すべてが library 提供の同一 Service tag を使う) |
-| C-4 + C-5 `createFrameHelpers` | **generic factory** + 型関数 `InferFrameName<T>` (D-3 で signature 詳述)                                                                                                                                            | frame names registry / adapter 1 行 helper / `Layout` 関数 / `PageOrFrame` の `Request` bind                                                                             |
+| Candidate                            | library 抽出形式                                                                                                                                                                                                        | consumer に残す具体                                                                                                                                                      |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| C-1 `dynamicLoggerLayer`             | factory 化せず **そのまま移植** (Env-open `Layer<never, never, Env.Type>` を 1 つ export、Env 依存 closure は consumer 責務)                                                                                            | なし (= library を import + `Layer.provide(Env.layer)` で使える)                                                                                                         |
+| C-2 `makeDisposableRuntime`          | **generic factory** (D-4 で詳述)                                                                                                                                                                                        | `make` 関数 / Layer 合成内容 / Service tag namespace / runtime バリアント数                                                                                              |
+| C-3 `Env`                            | factory 化せず **そのまま移植**。`Type` を **直接 string literal union 型** (`'production' \| 'development'`、struct 廃止) に simplify。Service tag は **library 内 1 本に統一** (`'@app/effect-hono/env/Service'`)     | なし (= Phase 1 で各 project が個別に持っていた `'@app/<project-name>/feature/env/Service'` namespace は廃止、3 consumer すべてが library 提供の同一 Service tag を使う) |
+| C-4 + C-5 + C-6 `createFrameHelpers` | **generic factory** (`<T extends string>` で string literal union を直接受け、戻り値プロパティに `isFrameRequest` / `createPageOrFrame` / `FrameLink` を集約。型関数 `InferFrameName<T>` は廃止。D-3 で signature 詳述) | frame name string literal union 型宣言 (`type FrameName = 'content'`) / adapter 1 行 helper / `Layout` 関数 / `PageOrFrame` の `Request` bind / `FrameLink` の re-export |
 
 **根拠**: Intent Spec L44-L53 + L62-L72 で User confirm 済。library API surface を最小化、consumer 側差分を import 切替の機械的作業に縮約する設計が抽象化原則 (Intent Spec L198) と整合。C-1 / C-3 の factory 化は将来 cycle に委譲 (= 本 cycle scope 最小化、Intent Spec L66 「ひとまず」)。
 
-### D-3: `remix-helper` の Hono 切り離し signature
+### D-3: `remix-helper` の Hono 切り離し signature + Union 直接受け + FrameLink 統合
 
-`createFrameHelpers` factory が返す `isFrameRequest` の signature を **`(request: Request, frame: InferFrameName<T>) => boolean`** に確定する (= Hono `getContext()` 直呼びを廃し、`Request` を直接受け取る形。`InferFrameName<T>` 型関数を経由することで frame name 型表現を library 内 1 本に統一)。`createPageOrFrame` も同様に **`(frameName: InferFrameName<T>, layout) => (request: Request) => (handle) => () => RemixNode`** で `Request` を中間段階で bind する形に変更する (Phase 1 既存実装の 3 段階カリーに `Request` 受け取り段階を 1 段挿入)。
+`createFrameHelpers<T extends string>()` factory が **string literal union 型を generics 引数で直接受ける** 形を採用する (User 確定 2026-05-09)。tuple / Record / 型関数 `InferFrameName<T>` は一切不採用 (= 渡された `T` 自体が frame name union として全 signature に bind される)。
 
-`remix-helper` package は **`hono` を `peerDependencies` に持たない** (= 完全 Hono フリー化)。consumer 側 (4 projects) では以下の **3 行 adapter** を `routes.ts` (またはそれに相当する場所) に置く:
+戻り値の 3 メンバ:
+
+- `isFrameRequest: (request: Request, frame: T) => boolean` (= Hono `getContext()` 直呼びを廃し、`Request` を直接受け取る形)
+- `createPageOrFrame: <P>(frame: T, layout) => (request: Request) => (handle) => () => RemixNode` (Phase 1 既存実装の 3 段階カリーに `Request` 受け取り段階を 1 段挿入)
+- `FrameLink: (handle: Handle<FrameLinkProps<T>>) => () => RemixNode` (`rmx-target` prop が `T` に拘束、`hono-remix-v3-cloudflare-example/app/ui/frame-link.tsx` 完全継承)
+
+`remix-helper` package は **`hono` を `peerDependencies` に持たない** (= 完全 Hono フリー化)。consumer 側 (4 projects) では以下の adapter を `routes.ts` (またはそれに相当する場所) に置く:
 
 ```typescript
 import { getContext } from 'hono/context-storage'
-import { createFrameHelpers, type InferFrameName } from 'remix-helper'
+import { createFrameHelpers } from 'remix-helper'
 
-export const helpers = createFrameHelpers({ content: 'content' } as const)
-export const isFrameRequest = (frame: InferFrameName<typeof helpers.frames>) =>
-  helpers.isFrameRequest(getContext().req.raw, frame)
-export type FrameName = InferFrameName<typeof helpers.frames>
+export type FrameName = 'content' // string literal union を直接定義
+const helpers = createFrameHelpers<FrameName>()
+
+export const isFrameRequest = (frame: FrameName) => helpers.isFrameRequest(getContext().req.raw, frame)
+export const FrameLink = helpers.FrameLink
 ```
 
-`frames` の基底型は **`Record<PropertyKey, string>`** とし、frame name 型は **`T[keyof T]` (= string literal value union)** を採用 (= Phase 1 既存実装 `(typeof frames)[keyof typeof frames]` と整合、`x-remix-target` header 比較対象が value 側であるため)。Intent Spec L82 草案 `keyof F` (key union) は誤りで、本 ADR で訂正する。`InferFrameName<T>` は `<const T extends Record<PropertyKey, string>>` + `T[keyof T]` 形 (Research D Pattern P2 当初採用は User 指摘 2026-05-09 で撤回、`Record` ベースの P1 寄りに変更)。
+frame name 型は **string literal union を generics 引数 `T` で直接受ける** 形に確定 (= 既存実装 `(typeof frames)[keyof typeof frames]` の value union 結果と意味論的に一致)。Intent Spec L82 草案 `keyof F` (key union) は誤りで、本 ADR で訂正する。tuple ベース P2 (`T[number]`) や Record ベース (`T[keyof T]`) は両方とも 2026-05-09 撤回、union 型を直接渡す最もシンプルな形を採用。
 
-**根拠**: `progress.yaml.step3_design_inputs` U-1 + U-3 で User confirm 済 (2026-05-08T00:30:00Z)。Research B I-8 で発見された `getContext()` 依存問題 (= ユーザー強調「remix-helper は Hono と無関係」と既存実装 `hono/context-storage` 直呼びの矛盾) を完全解消。consumer 側 adapter 3 行で吸収可能、library 純度が optimal。
+**根拠**: `progress.yaml.step3_design_inputs` U-1 + U-3 + U-other-D + R-5/R-6 で User confirm 済 (2026-05-08T00:30:00Z 〜 2026-05-09)。Research B I-8 で発見された `getContext()` 依存問題 (= ユーザー強調「remix-helper は Hono と無関係」と既存実装 `hono/context-storage` 直呼びの矛盾) を完全解消。consumer 側 adapter 3 行で吸収可能、library 純度が optimal。`FrameLink` (C-6) を本 cycle で正式に library 化対象に追加し、helpers の戻り値プロパティとして提供することで consumer の import path を 1 本に統一。
 
 ### D-4: `makeDisposableRuntime` wrapper class 継承
 
@@ -114,15 +121,15 @@ export const makeDisposableRuntime = <Args extends readonly unknown[], R, ER>(
 
 ### Alternatives considered
 
-| Option          | Summary                                                                                                                        | Adopted / Rejected | Rationale                                                                                                                                                                                             |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **A** (Adopted) | 2 package 分割 + factory-only 抽出 + Hono フリー remix-helper + wrapper class makeDisposableRuntime + 既存 5 packages 完全分離 | Adopted            | Intent Spec Q1〜Q7 + step3_design_inputs U-1/U-3/U-other-A/B/D を完全反映。Research A〜D で事実裏取り済、既存慣行と整合                                                                               |
-| **B**           | 1 package 統合 (`@feed-platform/shared` 等)                                                                                    | Rejected           | 責務範囲が異なる (Effect runtime layer vs Remix Frame UI layer)、命名上 User 強調「remix-helper は Hono と無関係」と矛盾                                                                              |
-| **C**           | `remix-helper` で `hono/context-storage` peer-dep を許容 (現状実装継承)                                                        | Rejected           | step3_design_inputs U-3 で User confirm 済 (案 A `Request` 直接受け取り採用)。consumer 側 adapter 3 行で吸収可能、library 純度が optimal                                                              |
-| **D**           | 全 candidate を generic factory 化 (C-1 / C-3 も factory 化)                                                                   | Rejected           | Intent Spec L62-L72 で User 「ひとまずそのまま移植」確定、本 cycle scope 最小化、将来 factory 化の余地は extension point として記録                                                                   |
-| **E**           | `effect-hono` を `@totto2727/fp` に統合                                                                                        | Rejected           | `@totto2727/fp` は primitive FP のみ (Hono / Remix 非依存)、`effect-hono` は application-runtime level で抽象階層が異なる。将来統合は別 cycle 責務                                                    |
-| **F**           | `makeDisposableRuntime` を Layer 直接受け取る factory (案 B)                                                                   | Rejected           | step3_design_inputs U-other-A で案 A 確定。既存 Phase 1 / saas-example pattern との互換性、`Layer<R,ER,never>` 制約再表明不要                                                                         |
-| **G**           | `InferFrameName<T>` を Pattern P2 (`readonly string[]` + `T[number]`)                                                          | Rejected           | User 指摘 (2026-05-09) で撤回。`frames` の基底型は `Record<PropertyKey, string>` (既存実装 + Research B I-1/I-2 整合) のため、Record + `T[keyof T]` (= P1 寄り) が正解。Adopted version は D-3 に記載 |
+| Option          | Summary                                                                                                                            | Adopted / Rejected | Rationale                                                                                                                                                                                                                                                                       |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **A** (Adopted) | 2 package 分割 + factory-only 抽出 + Hono フリー remix-helper + wrapper class makeDisposableRuntime + 既存 5 packages 完全分離     | Adopted            | Intent Spec Q1〜Q7 + step3_design_inputs U-1/U-3/U-other-A/B/D を完全反映。Research A〜D で事実裏取り済、既存慣行と整合                                                                                                                                                         |
+| **B**           | 1 package 統合 (`@feed-platform/shared` 等)                                                                                        | Rejected           | 責務範囲が異なる (Effect runtime layer vs Remix Frame UI layer)、命名上 User 強調「remix-helper は Hono と無関係」と矛盾                                                                                                                                                        |
+| **C**           | `remix-helper` で `hono/context-storage` peer-dep を許容 (現状実装継承)                                                            | Rejected           | step3_design_inputs U-3 で User confirm 済 (案 A `Request` 直接受け取り採用)。consumer 側 adapter 3 行で吸収可能、library 純度が optimal                                                                                                                                        |
+| **D**           | 全 candidate を generic factory 化 (C-1 / C-3 も factory 化)                                                                       | Rejected           | Intent Spec L62-L72 で User 「ひとまずそのまま移植」確定、本 cycle scope 最小化、将来 factory 化の余地は extension point として記録                                                                                                                                             |
+| **E**           | `effect-hono` を `@totto2727/fp` に統合                                                                                            | Rejected           | `@totto2727/fp` は primitive FP のみ (Hono / Remix 非依存)、`effect-hono` は application-runtime level で抽象階層が異なる。将来統合は別 cycle 責務                                                                                                                              |
+| **F**           | `makeDisposableRuntime` を Layer 直接受け取る factory (案 B)                                                                       | Rejected           | step3_design_inputs U-other-A で案 A 確定。既存 Phase 1 / saas-example pattern との互換性、`Layer<R,ER,never>` 制約再表明不要                                                                                                                                                   |
+| **G**           | frame name 型を Pattern P2 (`readonly string[]` + `T[number]`) または Record (`Record<PropertyKey, string>` + `T[keyof T]`) で抽出 | Rejected           | User 確定 (2026-05-09) で両形式撤回。`createFrameHelpers<T extends string>()` で **string literal union を generics 引数で直接受ける** 最もシンプルな形を採用。型関数 `InferFrameName<T>` も廃止 (= consumer 側で union 型を直接定義 / 取り回す)。Adopted version は D-3 に記載 |
 
 ## Consequences
 
@@ -134,7 +141,7 @@ export const makeDisposableRuntime = <Args extends readonly unknown[], R, ER>(
 - **`js/package/remix-helper/`** が `package.json` (`name: "remix-helper"` / `private: true` / `peerDependencies.remix: catalog:remix`) + `tsconfig.json` (extends `@totto2727/fp/tsconfig/vite` + `jsxImportSource: "remix/ui"`) + `src/{index,frame-helpers,frame-helpers.test}.ts` で配置される
 - **library API surface**:
   - `effect-hono`: `Env.Type = 'production' | 'development'` (string literal union 直接、struct 廃止) / `Env.Service` (= `'@app/effect-hono/env/Service'` 1 本) / `Env.layer` / `Env.makeLayer` / `dynamicLoggerLayer: Layer<never, never, Env.Type>` (Env-open、consumer 側で `Layer.provide(Env.layer)` 必須) / `makeDisposableRuntime: <Args, R, ER>(make) => class implements AsyncDisposable`
-  - `remix-helper`: `createFrameHelpers: <const T extends Record<PropertyKey, string>>(frames: T) => FrameHelpers<T>` / `InferFrameName<T extends Record<PropertyKey, string>> = T[keyof T]` (export type)
+  - `remix-helper`: `createFrameHelpers: <T extends string>() => FrameHelpers<T>` (1 export のみ、型関数 `InferFrameName` 廃止)。`FrameHelpers<T>` の戻り値メンバ: `isFrameRequest(request, frame)` / `createPageOrFrame(frame, layout)(request)(handle)` / `FrameLink(handle)` の 3 メンバ、すべて `T` で型 specialize
 - **consumer 側 adapter pattern** (4 projects 共通の 3 行 helper、design.md 参照): `getContext().req.raw` を `helpers.isFrameRequest` に渡す形
 
 ### Existing impact
@@ -143,7 +150,7 @@ export const makeDisposableRuntime = <Args extends readonly unknown[], R, ER>(
 - **既存 CI (`vp run --parallel ci`)**: 追加変更なしで 2 library + 4 consumer を取り込む (Phase 1 ADR-01 D-6 整合)
 - **3 effect-hono consumer projects** (`feed-platform-backend` / `feed-platform-web` / `identity-provider`): 旧 `feature/env.ts` (`Env.Service` namespace = `'@app/<project-name>/feature/env/Service'`) を削除し library import に切替。Phase 1 で確立された Service tag namespace は **library 内 1 本** (`'@app/effect-hono/env/Service'`) に統一される (= D-2 の副作用、Intent Spec L70-L72)
 - **3 effect-hono consumer projects**: 旧 `feature/runtime/server.ts` の `dynamicLoggerLayer` 定義 (約 8 行) + `makeDisposableRuntime` HOF (約 17 行) を削除し library import に切替 (各 project 約 24 行純減 × 3 = 約 72 行削減、Research A I-7)
-- **3 remix-helper consumer projects** (`feed-platform-web` / `identity-provider` / `hono-remix-v3-cloudflare-example`): `app/routes.ts` を library + adapter pattern に置換。`hono-remix-v3-cloudflare-example` のみ既存 `app/ui/page-or-frame.tsx` ファイル削除 + `app/ui/content-layout.tsx` の `createPageOrFrame` 呼出 adapter 経由化
+- **3 remix-helper consumer projects** (`feed-platform-web` / `identity-provider` / `hono-remix-v3-cloudflare-example`): `app/routes.ts` を library + union 直接受け pattern に置換 (`type FrameName = ...` + `createFrameHelpers<FrameName>()`)。`hono-remix-v3-cloudflare-example` のみ既存 `app/ui/page-or-frame.tsx` (C-5) + `app/ui/frame-link.tsx` (C-6) の 2 ファイル削除 + `app/ui/content-layout.tsx` の `createPageOrFrame` 呼出 adapter 経由化 + `FrameLink` の `import` path を `routes.ts` 経由 (helpers re-export) に切替
 - **`hono-remix-v3-cloudflare-example`**: Counter / TODO / Frame ナビゲーション既存 behavior は **保持** (refactor only、機能変更なし、Intent Spec L96-L97)。本 example は本 cycle で **C-4 / C-5 抽出の基準 source-of-truth** として位置付けられ、同時に migration target にも追加された (Intent Spec L94-L97)
 - **既存 `js/package/*` 5 packages**: いずれも touch しない (D-5)
 
@@ -181,7 +188,7 @@ export const makeDisposableRuntime = <Args extends readonly unknown[], R, ER>(
   - [`research/effect-4-api-verification.md`](../../../workflow/feed-platform-ms-01-shared-libraries/research/effect-4-api-verification.md) (D-4 wrapper class factory の Effect 4.0.0-beta.60 API 裏取り)
   - [`research/hono-remix-v3-cloudflare-example-frame-helpers.md`](../../../workflow/feed-platform-ms-01-shared-libraries/research/hono-remix-v3-cloudflare-example-frame-helpers.md) (D-3 Hono フリー signature の根拠)
   - [`research/existing-js-package-isolation-check.md`](../../../workflow/feed-platform-ms-01-shared-libraries/research/existing-js-package-isolation-check.md) (D-5 既存 5 packages 分離維持の事実裏取り)
-  - [`research/infer-frame-name-type-utility-pattern.md`](../../../workflow/feed-platform-ms-01-shared-libraries/research/infer-frame-name-type-utility-pattern.md) (D-3 `InferFrameName<T>` パターン候補比較。当初 P2 採用 → User 指摘 2026-05-09 で `Record` ベースに撤回)
+  - [`research/infer-frame-name-type-utility-pattern.md`](../../../workflow/feed-platform-ms-01-shared-libraries/research/infer-frame-name-type-utility-pattern.md) (D-3 frame name 型パターン候補比較。当初 P2 採用 → 2026-05-09 で Record 形 → 同日 string literal union 直接受けに最終確定。型関数 `InferFrameName<T>` は廃止)
 - **Phase 1 ADR-01**: [`2026-05-05-project-structure-and-runtime.md`](./2026-05-05-project-structure-and-runtime.md) (本 ADR は ADR-01 を supersede しない、Phase 1 の architectural constraints を継承)
 - **Phase 1 retrospective**: [`docs/retrospective/feed-platform-ms-01-workspace-foundation.md`](../../../retrospective/feed-platform-ms-01-workspace-foundation.md) (DRY 違反候補の指摘元)
 - **Roadmap**: [`docs/roadmap/feed-platform/roadmap.md`](../roadmap.md)

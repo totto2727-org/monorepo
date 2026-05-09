@@ -1,6 +1,6 @@
 identifier: feed-platform-ms-01-shared-libraries
 started_at: 2026-05-07T03:55:00Z
-updated_at: 2026-05-09T08:00:00Z
+updated_at: 2026-05-09T09:30:00Z
 
 status: active
 current_step: 3
@@ -51,13 +51,15 @@ step3_design_inputs:
     decision: 'PageOrFrame web/IdP 未採用観測のため SC-6 達成は refactor only option A 採用 (3 consumer + example で routes.ts のみ更新、document.tsx の PageOrFrame 導入は本 cycle スコープ外)'
     decided_at: 2026-05-08T00:30:00Z
   - id: U-other-D
-    decision: '当初 Pattern P2 (`readonly string[]` + `T[number]`) を採用したが、User 指摘 (2026-05-09) で撤回。`frames` の基底型は `Record<PropertyKey, string>`、`InferFrameName<T extends Record<PropertyKey, string>> = T[keyof T]` (= P1 寄り、value union) を確定。既存実装 `(typeof frames)[keyof typeof frames]` と完全整合'
-    decided_at: 2026-05-09T08:00:00Z
-    superseded_decision: 'Pattern P2 (readonly string[] + T[number])'
+    decision: "frame name 型表現は **string literal union を generics 引数で直接受ける** 形 (`createFrameHelpers<T extends string>()`) に最終確定 (User 確定 2026-05-09 第 3 改訂)。型関数 `InferFrameName<T>` は廃止 (= consumer 側で `type FrameName = 'content'` のように union 型を直接定義し generics に渡す)。tuple / Record / 型関数いずれも不要、最もシンプルな形"
+    decided_at: 2026-05-09T09:30:00Z
+    superseded_decisions:
+      - 'Pattern P2 (readonly string[] + T[number])'
+      - 'Record<PropertyKey, string> + T[keyof T] (P1 寄り)'
 
 step3_design_revisions:
   - revision_at: 2026-05-09T08:00:00Z
-    trigger: 'User 指摘 4 件 (2026-05-09)'
+    trigger: 'User 指摘 4 件 (2026-05-09 1st round)'
     items:
       - id: R-1
         target: 'Env.Type'
@@ -70,7 +72,17 @@ step3_design_revisions:
         change: '`env.ts` import 維持。具体的 Effect 4.x API (Layer.unwrap 不使用) は Step 6 implementer が effect/dist/dts/ を引いて確定'
       - id: R-4
         target: 'createFrameHelpers / FrameHelpers / InferFrameName'
-        change: '`frames: readonly string[]` 廃止 → `frames: Record<PropertyKey, string>` に変更。`T[number]` → `T[keyof T]`。U-other-D Pattern P2 撤回、Record + value union (P1 寄り) を採用'
+        change: '`frames: readonly string[]` 廃止 → `frames: Record<PropertyKey, string>` に変更。`T[number]` → `T[keyof T]`。U-other-D Pattern P2 撤回、Record + value union (P1 寄り) を採用 (この決定は R-5 で再撤回)'
+        superseded_at: 2026-05-09T09:30:00Z
+  - revision_at: 2026-05-09T09:30:00Z
+    trigger: 'User 指摘 (2026-05-09 2nd round): Union で直接指定 + FrameLink を移植対象に追加'
+    items:
+      - id: R-5
+        target: 'createFrameHelpers / FrameHelpers'
+        change: "R-4 撤回。`Record<PropertyKey, string>` + `T[keyof T]` を廃止し、`<T extends string>` で string literal union を generics 引数で **直接受ける** 形に変更。型関数 `InferFrameName<T>` 廃止 (= 渡された `T` 自体が frame name union)。consumer は `type FrameName = 'content'` のように union 型を 1 行宣言して `createFrameHelpers<FrameName>()` で渡す形"
+      - id: R-6
+        target: 'FrameLink (新 candidate C-6)'
+        change: 'FrameLink (`hono-remix-v3-cloudflare-example/app/ui/frame-link.tsx`) を本 cycle の移植対象に正式追加。`createFrameHelpers` の戻り値プロパティ `helpers.FrameLink` として提供、`rmx-target` prop は `T` で型 specialize。既存 frame-link.tsx 削除 + library 経由 import に切替で migration 完了。`hono-remix-v3-cloudflare-example` の純減行数が +約 30 行 (約 72 → 約 102 行) に増加'
 
 artifacts:
   intent_spec: intent-spec.md
