@@ -125,11 +125,59 @@ const ModelsDevSchema = Schema.Struct({
   'opencode-go': OpencodeGoProviderSchema,
 })
 
+// ── Derived types ────────────────────────────────────────────────────────────
+
+type AnthropicProvider = Schema.Schema.Type<typeof AnthropicProviderSchema>
+type OpencodeGoProvider = Schema.Schema.Type<typeof OpencodeGoProviderSchema>
+
+// ── Entry types ──────────────────────────────────────────────────────────────
+
+interface CompactedEntry<E> {
+  readonly compaction: number
+  readonly entry: E
+}
+
+interface AnthropicModelEntry {
+  readonly apiKey: string
+  readonly baseUrl: string
+  readonly noImageSupport: boolean
+  readonly provider: 'anthropic'
+  readonly displayName: string
+  readonly id: string
+  readonly index: number
+  readonly maxOutputTokens: number
+  readonly model: string
+}
+
+interface OpencodeGoModelEntry {
+  readonly apiKey: string
+  readonly baseUrl: string
+  readonly provider: 'generic-chat-completion-api'
+  readonly displayName: string
+  readonly id: string
+  readonly index: number
+  readonly maxOutputTokens: number
+  readonly model: string
+  readonly noImageSupport: boolean
+}
+
+interface ZaiModelEntry {
+  readonly apiKey: string
+  readonly baseUrl: string
+  readonly maxOutputTokens: number
+  readonly noImageSupport: boolean
+  readonly provider: 'generic-chat-completion-api'
+  readonly displayName: string
+  readonly id: string
+  readonly index: number
+  readonly model: string
+}
+
+type AnyModelEntry = AnthropicModelEntry | OpencodeGoModelEntry | ZaiModelEntry
+
 // ── Build entries ────────────────────────────────────────────────────────────
 
-const buildAnthropicEntries = (anthropic: {
-  models: Record<string, { limit: { context: number; output: number } }>
-}): { compaction: number; entry: { id: string } & Record<string, unknown> }[] =>
+const buildAnthropicEntries = (anthropic: AnthropicProvider): CompactedEntry<AnthropicModelEntry>[] =>
   ANTHROPIC_MODELS.map((modelId) => {
     const model = anthropic.models[modelId]
     if (Predicate.isNullish(model)) {
@@ -162,9 +210,7 @@ const extractProviderPrefix = (modelId: string): string => {
   return match[0]
 }
 
-const buildOpencodeGoEntries = (ocg: {
-  models: Record<string, { attachment: boolean; limit: { context: number; output: number }; name: string }>
-}): { compaction: number; entry: { id: string } & Record<string, unknown> }[] =>
+const buildOpencodeGoEntries = (ocg: OpencodeGoProvider): CompactedEntry<OpencodeGoModelEntry>[] =>
   Object.entries(ocg.models)
     .toSorted(([a], [b]) => {
       const pa = extractProviderPrefix(a)
@@ -190,7 +236,7 @@ const buildOpencodeGoEntries = (ocg: {
       }
     })
 
-const buildZaiEntries = (): { compaction: number; entry: { id: string } & Record<string, unknown> }[] =>
+const buildZaiEntries = (): CompactedEntry<ZaiModelEntry>[] =>
   ZAI_MODELS.map((m, i) => {
     const slug = slugForId(m.model)
     return {
@@ -206,7 +252,7 @@ const buildZaiEntries = (): { compaction: number; entry: { id: string } & Record
   })
 
 const writeSettings = async (
-  customModels: Record<string, unknown>[],
+  customModels: AnyModelEntry[],
   compactionTokenLimitPerModel: Record<string, number>,
 ): Promise<void> => {
   try {
