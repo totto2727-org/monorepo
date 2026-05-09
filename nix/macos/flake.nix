@@ -15,6 +15,10 @@
       url = "https://flakehub.com/f/totto2727-dotfiles/npm-packages/*";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    meridian = {
+      url = "github:rynfar/meridian";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -24,6 +28,7 @@
       npmpkgs,
       home-manager,
       nix-darwin,
+      meridian,
     }:
     let
       hostname = "totto2727-macos";
@@ -90,6 +95,10 @@
               (import ../share/home-manager.nix { inherit username homedir; })
               // {
                 home-manager.users."${username}" = {
+                  imports = [
+                    (import ../share/meridian.nix { inherit meridian; })
+                  ];
+
                   home.stateVersion = stateVersion;
 
                   home.packages =
@@ -129,7 +138,12 @@
                       };
                     };
 
-                  services = (import ../share/programs-macos.nix { inherit pkgs; }).services;
+                  services = (import ../share/programs-macos.nix { inherit pkgs; }).services // {
+                    meridian = {
+                      enable = true;
+                      settings.sonnetModel = "sonnet[1m]";
+                    };
+                  };
 
                   home.sessionVariables = import ../share/session-variables.nix;
                   home.sessionPath = import ../share/session-path.nix;
