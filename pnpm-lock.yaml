@@ -471,6 +471,19 @@ importers:
         specifier: catalog:ui
         version: 4.2.1
 
+  js/app/update-factory-model:
+    dependencies:
+      effect:
+        specifier: catalog:effect
+        version: 4.0.0-beta.60
+    devDependencies:
+      '@totto2727/fp':
+        specifier: workspace:*
+        version: link:../../package/fp
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.1.19(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(typescript@6.0.3)(vite@8.0.0(@emnapi/core@1.9.0)(@emnapi/runtime@1.9.0)(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(yaml@2.8.3)
+
   js/app/wt:
     dependencies:
       '@effect/platform-node':

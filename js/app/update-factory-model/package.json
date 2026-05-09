@@ -1,0 +1,25 @@
+{
+  "name": "update-factory-model",
+  "version": "0.0.0",
+  "private": true,
+  "bin": {
+    "update-factory-model": "./dist/bin.mjs"
+  },
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "imports": {
+    "#@/*": "./src/*"
+  },
+  "scripts": {
+    "bin": "node dist/bin.mjs"
+  },
+  "dependencies": {
+    "effect": "catalog:effect"
+  },
+  "devDependencies": {
+    "@totto2727/fp": "workspace:*",
+    "vite-plus": "catalog:"
+  }
+}

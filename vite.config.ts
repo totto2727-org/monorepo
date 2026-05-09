@@ -29,7 +29,7 @@ export default defineConfig({
   },
   lint: {
     extends: [core, react, remix, oxlintPluginPreset],
-    ignorePatterns: ['**/__fixtures__/**', '**/.script/**', '**/skills/**'],
+    ignorePatterns: ['**/__fixtures__/**', '**/.script/**', '**/skills/**', '.factory/settings.json'],
     options: {
       typeAware: true,
       typeCheck: true,
