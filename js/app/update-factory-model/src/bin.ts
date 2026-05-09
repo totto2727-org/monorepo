@@ -112,30 +112,77 @@ const OpencodeGoModelSchema = Schema.Struct({
   name: Schema.String,
 })
 
-const ProviderSchema = Schema.Record(
-  Schema.String,
-  Schema.Struct({
-    models: Schema.Record(Schema.String, Schema.Unknown),
-  }),
-)
+const AnthropicProviderSchema = Schema.Struct({
+  models: Schema.Record(Schema.String, AnthropicModelSchema),
+})
+
+const OpencodeGoProviderSchema = Schema.Struct({
+  models: Schema.Record(Schema.String, OpencodeGoModelSchema),
+})
+
+const ModelsDevSchema = Schema.Struct({
+  anthropic: AnthropicProviderSchema,
+  'opencode-go': OpencodeGoProviderSchema,
+})
+
+// ── Derived types ────────────────────────────────────────────────────────────
+
+type AnthropicProvider = Schema.Schema.Type<typeof AnthropicProviderSchema>
+type OpencodeGoProvider = Schema.Schema.Type<typeof OpencodeGoProviderSchema>
+
+// ── Entry types ──────────────────────────────────────────────────────────────
+
+interface CompactedEntry<E> {
+  readonly compaction: number
+  readonly entry: E
+}
+
+interface AnthropicModelEntry {
+  readonly apiKey: string
+  readonly baseUrl: string
+  readonly noImageSupport: boolean
+  readonly provider: 'anthropic'
+  readonly displayName: string
+  readonly id: string
+  readonly index: number
+  readonly maxOutputTokens: number
+  readonly model: string
+}
+
+interface OpencodeGoModelEntry {
+  readonly apiKey: string
+  readonly baseUrl: string
+  readonly provider: 'generic-chat-completion-api'
+  readonly displayName: string
+  readonly id: string
+  readonly index: number
+  readonly maxOutputTokens: number
+  readonly model: string
+  readonly noImageSupport: boolean
+}
+
+interface ZaiModelEntry {
+  readonly apiKey: string
+  readonly baseUrl: string
+  readonly maxOutputTokens: number
+  readonly noImageSupport: boolean
+  readonly provider: 'generic-chat-completion-api'
+  readonly displayName: string
+  readonly id: string
+  readonly index: number
+  readonly model: string
+}
+
+type AnyModelEntry = AnthropicModelEntry | OpencodeGoModelEntry | ZaiModelEntry
 
 // ── Build entries ────────────────────────────────────────────────────────────
 
-const buildAnthropicEntries = (
-  providerData: Record<string, { models: Record<string, unknown> }>,
-): { compaction: number; entry: { id: string } & Record<string, unknown> }[] => {
-  const { anthropic } = providerData
-  if (Predicate.isNullish(anthropic)) {
-    throw new Error('anthropic provider not found in models.dev')
-  }
-
-  return ANTHROPIC_MODELS.map((modelId) => {
-    const rawModel = anthropic.models[modelId]
-    if (Predicate.isNullish(rawModel)) {
+const buildAnthropicEntries = (anthropic: AnthropicProvider): CompactedEntry<AnthropicModelEntry>[] =>
+  ANTHROPIC_MODELS.map((modelId) => {
+    const model = anthropic.models[modelId]
+    if (Predicate.isNullish(model)) {
       throw new Error(`Model ${modelId} not found in anthropic provider`)
     }
-    // oxlint-disable-next-line rules/no-sync-decode
-    const model = Schema.decodeUnknownSync(AnthropicModelSchema)(rawModel)
 
     const maxOutput = model.limit.output
     const { context } = model.limit
@@ -154,7 +201,6 @@ const buildAnthropicEntries = (
       },
     }
   })
-}
 
 const extractProviderPrefix = (modelId: string): string => {
   const match = /^[a-z]+/.exec(modelId)
@@ -164,23 +210,14 @@ const extractProviderPrefix = (modelId: string): string => {
   return match[0]
 }
 
-const buildOpencodeGoEntries = (
-  providerData: Record<string, { models: Record<string, unknown> }>,
-): { compaction: number; entry: { id: string } & Record<string, unknown> }[] => {
-  const ocg = providerData['opencode-go']
-  if (Predicate.isNullish(ocg)) {
-    throw new Error('opencode-go provider not found in models.dev')
-  }
-
-  return Object.entries(ocg.models)
+const buildOpencodeGoEntries = (ocg: OpencodeGoProvider): CompactedEntry<OpencodeGoModelEntry>[] =>
+  Object.entries(ocg.models)
     .toSorted(([a], [b]) => {
       const pa = extractProviderPrefix(a)
       const pb = extractProviderPrefix(b)
       return pa === pb ? 0 : pa.localeCompare(pb)
     })
-    .map(([modelId, rawModel]) => {
-      // oxlint-disable-next-line rules/no-sync-decode
-      const m = Schema.decodeUnknownSync(OpencodeGoModelSchema)(rawModel)
+    .map(([modelId, m]) => {
       const maxOutput = m.limit.output
       const { context } = m.limit
       const slug = slugForId(modelId)
@@ -198,9 +235,8 @@ const buildOpencodeGoEntries = (
         },
       }
     })
-}
 
-const buildZaiEntries = (): { compaction: number; entry: { id: string } & Record<string, unknown> }[] =>
+const buildZaiEntries = (): CompactedEntry<ZaiModelEntry>[] =>
   ZAI_MODELS.map((m, i) => {
     const slug = slugForId(m.model)
     return {
@@ -216,7 +252,7 @@ const buildZaiEntries = (): { compaction: number; entry: { id: string } & Record
   })
 
 const writeSettings = async (
-  customModels: Record<string, unknown>[],
+  customModels: AnyModelEntry[],
   compactionTokenLimitPerModel: Record<string, number>,
 ): Promise<void> => {
   try {
@@ -247,10 +283,10 @@ const main = async (): Promise<void> => {
 
   const resp = await fetch(MODELS_DEV_URL)
   // oxlint-disable-next-line rules/no-sync-decode
-  const data = Schema.decodeUnknownSync(ProviderSchema)(await resp.json())
+  const data = Schema.decodeUnknownSync(ModelsDevSchema)(await resp.json())
 
-  const anthropic = buildAnthropicEntries(data)
-  const opencodeGo = buildOpencodeGoEntries(data)
+  const anthropic = buildAnthropicEntries(data.anthropic)
+  const opencodeGo = buildOpencodeGoEntries(data['opencode-go'])
   const zai = buildZaiEntries()
 
   const all = [...anthropic, ...opencodeGo, ...zai]
