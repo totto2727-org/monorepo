@@ -1,4 +1,4 @@
-# Milestone: R*-tree Full Implementation
+# Milestone: R\*-tree Full Implementation
 
 - **Milestone ID:** ms-18-rtree-expansion
 - **Roadmap ID:** geo-mbt
