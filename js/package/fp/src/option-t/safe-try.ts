@@ -122,9 +122,9 @@ export function safeTry<T, E>(
 const _safeUnwrapOk = <const RESULT extends R.Result<unknown, unknown>>(
   result: RESULT,
 ): Generator<R.Err<InferErr<RESULT>>, InferOk<RESULT>> =>
-  // oxlint-disable-next-line require-yield
+  // oxlint-disable-next-line require-yield -- Ok branch returns synchronously without yielding
   (function* () {
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- narrows generic Result to concrete InferOk shape
     return R.unwrapOk(result) as InferOk<RESULT>
   })()
 
@@ -138,7 +138,7 @@ const _safeUnwrapErr = <const RESULT extends R.Result<unknown, unknown>>(
 ): Generator<R.Err<InferErr<RESULT>>, InferOk<RESULT>> =>
   (function* () {
     R.unwrapErr(result)
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- narrows generic Result to concrete InferErr shape
     yield result as R.Err<InferErr<RESULT>>
 
     throw new Error('Do not use this generator out of `safeTry`')
@@ -155,11 +155,11 @@ const _safeUnwrap = function* <const RESULT extends R.Result<unknown, unknown>>(
   result: RESULT,
 ): Generator<R.Err<InferErr<RESULT>>, InferOk<RESULT>> {
   if (R.isOk(result)) {
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- narrows generic Result to concrete InferOk shape
     return R.unwrapOk(result) as InferOk<RESULT>
   } else if (R.isErr(result)) {
     R.unwrapErr(result)
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- narrows generic Result to concrete InferErr shape
     yield result as R.Err<InferErr<RESULT>>
 
     throw new Error('Do not use this generator out of `safeTry`')

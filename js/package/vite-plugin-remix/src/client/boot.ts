@@ -36,7 +36,7 @@ export const boot = ({ components }: BootOptions): ReturnType<typeof run> =>
       if (Predicate.isNullish(loader) || !Predicate.isFunction(loader)) {
         throw new Error(`No client entry registered for ${moduleUrl}`)
       }
-      // oxlint-disable-next-line typescript/no-unsafe-call,typescript/no-unsafe-assignment,typescript/ban-types,typescript/no-unsafe-function-type
+      // oxlint-disable-next-line typescript/no-unsafe-call,typescript/no-unsafe-assignment,typescript/ban-types,typescript/no-unsafe-function-type -- dynamic loader returns Function-shaped module records without precise types
       const mod: Record<string, Function | Promise<Function>> = await loader()
       const exported = mod[exportName]
       if (Predicate.isNullish(exported)) {
