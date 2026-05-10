@@ -1,115 +1,140 @@
-# `dimensions.mbt` — OGC dimensionality classification
+# dimensions.mbt
 
-## Goal
+The `Dimensions` enum — `Empty`, `ZeroDimensional`, `OneDimensional`, `TwoDimensional` — and helpers (`rank`, `dimensions_less`) for comparing them. The `HasDimensions::dimensions` trait lifts this to whole `Geometry` values.
 
-Tell each geometry's **topological dimension** — i.e. how many coordinates you'd need to parametrise its interior:
+## Public API
 
-- **`Empty`** — no points at all
-- **`ZeroDimensional`** — points (interior is finite set of locations, dim 0)
-- **`OneDimensional`** — line / curve (parametrised by 1 number along its arc, dim 1)
-- **`TwoDimensional`** — area (parametrised by 2 numbers in its interior, dim 2)
+- `Dimensions`
+- `Dimensions::rank`
+- `dimensions_less`
+- `HasDimensions` — `dimensions` (impls in this file)
 
-This classification matches the OGC Simple Features Access spec (the `Dimension` table in §6.1) and the GEOS / JTS `Dimension` enum. It's used internally by `coordinate_position.mbt`, `intersects.mbt`, and the (future) DE-9IM `relate` machinery.
+## Test
 
-## API surface
+### `Dimensions::rank`
 
-```moonbit nocheck
-pub(all) enum Dimensions {
-  Empty
-  ZeroDimensional
-  OneDimensional
-  TwoDimensional
+- The four ranks are 0, 1, 2, 3 in `Empty < ZeroDimensional < OneDimensional < TwoDimensional` order
+
+```mbt check
+///|
+test "Dimensions::rank - 0..3 in natural order" {
+  @test.assert_eq(Dimensions::Empty.rank(), 0)
+  @test.assert_eq(Dimensions::ZeroDimensional.rank(), 1)
+  @test.assert_eq(Dimensions::OneDimensional.rank(), 2)
+  @test.assert_eq(Dimensions::TwoDimensional.rank(), 3)
 }
-
-pub fn Dimensions::rank(self) -> Int      // -1 / 0 / 1 / 2  (Empty = -1)
-pub fn dimensions_less(a, b) -> Bool      // a.rank() < b.rank()
-
-pub fn dimensions_of_geometry(g)    -> Dimensions
-pub fn dimensions_of_line_string(ls) -> Dimensions
-pub fn dimensions_of_rect(r)         -> Dimensions
-pub fn is_empty_of_geometry(g)       -> Bool        // shortcut for `dim == Empty`
 ```
 
-## Logic
+### `dimensions_less`
 
-The dimension depends on **what's actually present**, not just the static type:
+- True iff the first rank is strictly smaller than the second
 
-| Static type          | Dimension when…                                                                                                                         |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `Point`              | Always `ZeroDimensional`                                                                                                                |
-| `MultiPoint`         | `Empty` if no points; else `ZeroDimensional`                                                                                            |
-| `Line`               | Always `OneDimensional`                                                                                                                 |
-| `LineString`         | `Empty` if 0 coords; `ZeroDimensional` if all coords identical (degenerate); else `OneDimensional`                                      |
-| `MultiLineString`    | `Empty` if no members or all empty; max of components otherwise                                                                         |
-| `Polygon`            | `Empty` if exterior is empty; `OneDimensional` if `area == 0` (degenerate but shape exists); else `TwoDimensional`                      |
-| `MultiPolygon`       | `Empty` / max of components                                                                                                             |
-| `GeometryCollection` | max of all members; `Empty` if all members are empty                                                                                    |
-| `Rect`               | `Empty` if `min == max` and degenerate; `OneDimensional` if width or height is 0 (a vertical or horizontal line); else `TwoDimensional` |
-| `Triangle`           | Always `TwoDimensional` (the canonical constructor stores three coords; degenerate = collinear = `OneDimensional`)                      |
-
-The "max of components" rule means a `GeometryCollection` containing both points and a polygon has dimension `TwoDimensional` overall.
-
-## `Dimensions::rank` — for ordering
-
-`rank` maps the enum to an integer so you can compare dimensions:
-
-```
-Empty            → -1
-ZeroDimensional  →  0
-OneDimensional   →  1
-TwoDimensional   →  2
+```mbt check
+///|
+test "dimensions_less - strict less by rank" {
+  assert_true(dimensions_less(Dimensions::Empty, Dimensions::ZeroDimensional))
+  assert_true(
+    dimensions_less(Dimensions::OneDimensional, Dimensions::TwoDimensional),
+  )
+  assert_false(
+    dimensions_less(Dimensions::TwoDimensional, Dimensions::TwoDimensional),
+  )
+  assert_false(
+    dimensions_less(Dimensions::TwoDimensional, Dimensions::OneDimensional),
+  )
+}
 ```
 
-`dimensions_less(a, b) ⇔ a.rank() < b.rank()`. Useful for picking "the higher-dimensional of two operands" when computing the result dimension of an intersection or boolean op.
+### `HasDimensions`
 
-## Step-by-step (line string)
+#### `dimensions`
 
-```
-input: LineString [c₀, c₁, …]
+| Variable | State                                   | Note              |  1  |  2  |  3  |  4  |  5  |
+| :------- | :-------------------------------------- | :---------------- | :-: | :-: | :-: | :-: | :-: |
+| `self`   | `Point`                                 | `ZeroDimensional` |  ✓  |     |     |     |     |
+| `self`   | `LineString (≥ 2 distinct coords)`      | `OneDimensional`  |     |  ✓  |     |     |     |
+| `self`   | `Rect (positive width and height)`      | `TwoDimensional`  |     |     |  ✓  |     |     |
+| `self`   | `Rect (zero height) / Rect (zero size)` | degenerate ranks  |     |     |     |  ✓  |     |
+| `self`   | `Empty MultiPoint`                      | `Empty`           |     |     |     |     |  ✓  |
 
-if length == 0:                    return Empty
-if all coords equal c₀:            return ZeroDimensional   // degenerate point
-                                                            // (e.g. [(1,1),(1,1)])
-otherwise:                         return OneDimensional
-```
+- `Point` has zero dimension
 
-The `ZeroDimensional` case is a quirk of the OGC spec: a line string with all-equal coords represents a single location, so its topological dimension is 0 even though the type is `LineString`.
-
-## Examples
-
-```moonbit nocheck
-let pt = @type.Geometry::Point(@type.Point::Point(1.0, 2.0))
-@lib2d.dimensions_of_geometry(pt)        // ZeroDimensional
-
-let ls = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0), (2.0, 0.0)])
-@lib2d.dimensions_of_line_string(ls)     // OneDimensional
-
-let degen = @type.LineString::from_tuples([(0.0, 0.0), (0.0, 0.0)])
-@lib2d.dimensions_of_line_string(degen)  // ZeroDimensional
-
-@lib2d.dimensions_of_rect(@type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(0.0, 5.0)))
-// width = 0 → OneDimensional (vertical segment)
+```mbt check
+///|
+test "HasDimensions::dimensions - Point is ZeroDimensional" {
+  @test.assert_eq(
+    HasDimensions::dimensions(
+      @type.Geometry::Point(@type.Point::Point(0.0, 5.0)),
+    ),
+    Dimensions::ZeroDimensional,
+  )
+}
 ```
 
-`is_empty_of_geometry` is the friendly shortcut:
+- `LineString` with two distinct coords has one dimension
 
-```moonbit nocheck
-@lib2d.is_empty_of_geometry(@type.Geometry::LineString(@type.LineString::empty()))   // true
+```mbt check
+///|
+test "HasDimensions::dimensions - non-degenerate LineString is OneDimensional" {
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (5.0, 5.0), (0.0, 5.0)])
+  @test.assert_eq(
+    HasDimensions::dimensions(@type.Geometry::LineString(ls)),
+    Dimensions::OneDimensional,
+  )
+}
 ```
 
-Tests in `dimensions_test.mbt`:
+- `Rect` with positive width and height has two dimensions
 
-- `dimensions of basic geometries`
-- `degenerate rect dimensions`
-- `empty multi point has Empty dimensions`
-- `is_empty for various geometries`
+```mbt check
+///|
+test "HasDimensions::dimensions - non-degenerate Rect is TwoDimensional" {
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(10.0, 10.0),
+  )
+  @test.assert_eq(
+    HasDimensions::dimensions(@type.Geometry::Rect(r)),
+    Dimensions::TwoDimensional,
+  )
+}
+```
 
-## Why this matters
+- Degenerate `Rect`s collapse to lower ranks
 
-The DE-9IM relate model (used to formalise spatial relations like _touches_, _crosses_, _covers_, _equals_, etc.) compares the dimensions of three sets per pair of geometries: interior-interior, interior-boundary, boundary-boundary. The `Dimensions` enum is the alphabet that machine reads.
+```mbt check
+///|
+test "HasDimensions::dimensions - degenerate Rect collapses to lower rank" {
+  // Zero height: collapses to a horizontal segment.
+  let zero_height = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 10.0),
+    @type.Coord::Coord(10.0, 10.0),
+  )
+  @test.assert_eq(
+    HasDimensions::dimensions(zero_height),
+    Dimensions::OneDimensional,
+  )
+  // Zero width and zero height: collapses to a single point.
+  let zero_size = @type.Rect::Rect(
+    @type.Coord::Coord(10.0, 10.0),
+    @type.Coord::Coord(10.0, 10.0),
+  )
+  @test.assert_eq(
+    HasDimensions::dimensions(zero_size),
+    Dimensions::ZeroDimensional,
+  )
+}
+```
 
-This port doesn't implement DE-9IM yet (deferred), but `dimensions.mbt` is the building block — a future `relate` implementation can be layered on top without changing the type surface.
+- Empty `MultiPoint` has dimension `Empty`
 
-## Related
-
-- `validation.mbt` — checks structural validity (closed rings, ≥ 3 points, etc.) which is **separate from dimensionality**. A polygon with a 2-point ring is structurally invalid; a polygon with all-coincident vertices is valid but `OneDimensional`.
+```mbt check
+///|
+test "HasDimensions::dimensions - empty MultiPoint is Empty" {
+  let mp = @type.MultiPoint::empty()
+  @test.assert_eq(
+    HasDimensions::dimensions(@type.Geometry::MultiPoint(mp)),
+    Dimensions::Empty,
+  )
+}
+```

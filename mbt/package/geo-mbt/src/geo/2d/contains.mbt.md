@@ -1,136 +1,292 @@
-# `contains.mbt` — does `A` strictly contain `B`?
+# contains.mbt
 
-## Goal
+Strict (OGC) `contains` predicates: every point of the inner geometry must lie in the **interior** of the outer geometry — boundary points are excluded. `within(a, b) ≡ contains(b, a)` is the symmetric inverse.
 
-Decide whether geometry `A` **strictly contains** geometry `B`: every point of `B` is either inside `A`'s interior, **and** at least one point of `B` is in `A`'s interior (not just on the boundary). This is the OGC SFA `Contains` predicate.
+## Public API
 
-The port also implements the asymmetric companion `Within` (`B within A` ⇔ `A contains B`) and the boundary-inclusive `Covers` (which differs from `Contains` only at the boundary).
+- `contains_polygon_coord`
+- `contains_polygon_point`
+- `contains_polygon_line`
+- `contains_polygon_line_string`
+- `contains_polygon_polygon`
+- `contains_multi_polygon_coord`
+- `contains_rect_coord`
+- `contains_rect_rect`
+- `contains_geometry`
+- `within_geometry`
 
-## API surface
+## Test
 
-```moonbit nocheck
-pub fn contains_polygon_point(p, q)             -> Bool
-pub fn contains_polygon_coord(p, c)             -> Bool
-pub fn contains_polygon_line(p, l)              -> Bool
-pub fn contains_polygon_line_string(p, ls)      -> Bool
-pub fn contains_polygon_polygon(a, b)           -> Bool
-pub fn contains_multi_polygon_coord(mp, c)      -> Bool
-pub fn contains_rect_coord(r, c)                -> Bool
-pub fn contains_rect_rect(a, b)                 -> Bool
-pub fn contains_geometry(a, b)                  -> Bool   // dispatch
-pub fn within_geometry(a, b)                    -> Bool   // == contains_geometry(b, a)
+### `contains_polygon_point`
+
+| Variable | State             | Note                      |  1  |  2  |  3  |
+| :------- | :---------------- | :------------------------ | :-: | :-: | :-: |
+| `point`  | `Strictly inside` | true                      |  ✓  |     |     |
+| `point`  | `On boundary`     | false (boundary excluded) |     |  ✓  |     |
+| `point`  | `Outside`         | false                     |     |     |  ✓  |
+
+- Inside, boundary, outside
+
+```mbt check
+///|
+test "contains_polygon_point - inside, boundary excluded, outside" {
+  let exterior = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (10.0, 0.0),
+    (10.0, 10.0),
+    (0.0, 10.0),
+    (0.0, 0.0),
+  ])
+  let p = @type.Polygon::Polygon(exterior, [])
+  assert_true(contains_polygon_point(p, @type.Point::Point(5.0, 5.0))) // inside
+  assert_false(contains_polygon_point(p, @type.Point::Point(0.0, 5.0))) // boundary
+  assert_false(contains_polygon_point(p, @type.Point::Point(20.0, 20.0))) // outside
+}
 ```
-
-## The boundary subtlety: `contains` vs `covers`
-
-Two pairs of definitions differ **only at the boundary**:
-
-| Predicate  | A point of `B` on `A`'s boundary                                          | A point of `B` inside `A`'s interior | At least one interior-interior overlap required? |
-| ---------- | ------------------------------------------------------------------------- | ------------------------------------ | ------------------------------------------------ |
-| `contains` | Allowed only if other points are inside; **boundary alone is not enough** | Required (at least one such point)   | Yes                                              |
-| `covers`   | Allowed                                                                   | Not required                         | No                                               |
-
-In particular:
-
-```
-poly:        ┌─────┐
-             │     │
-             │     │
-             └─────┘
-
-point on boundary of poly:
-  contains_polygon_point(poly, pt)  →  false   (interior overlap required, but pt has no interior)
-  covers_polygon_point(poly, pt)    →  true    (every part of pt is in poly's closure)
-
-point strictly inside poly:
-  contains_polygon_point(poly, pt)  →  true
-  covers_polygon_point(poly, pt)    →  true
-```
-
-Use `contains` when you mean strict topological containment (e.g. "is this town fully inside the county and not on its border?") and `covers` when you mean weak containment (e.g. "would I see this point on the map if I drew the polygon?").
-
-## Algorithm strategies
-
-### `contains_polygon_coord` (point-in-polygon, strict)
-
-```
-1. coord_position_for_polygon(c, polygon)
-2. result == Inside   → true
-   result == OnBoundary or Outside → false
-```
-
-Strict boundary exclusion. Equivalent to "covers AND not OnBoundary".
 
 ### `contains_polygon_polygon`
 
-```
-1. bbox(B) inside bbox(A)? if no → false
-2. every vertex of B inside A's interior or on A's boundary? if any vertex outside → false
-3. no edge of B crosses any edge of A's exterior or interior rings? if any cross → false
-4. at least one vertex of B strictly inside A? if all on boundary → false
-                                                  (would be `equals`, not `contains`)
+| Variable           | State      | Note  |  1  |  2  |
+| :----------------- | :--------- | :---- | :-: | :-: |
+| `inner` vs `outer` | `Nested`   | true  |  ✓  |     |
+| `inner` vs `outer` | `Crossing` | false |     |  ✓  |
+
+- Nested polygon is contained
+
+```mbt check
+///|
+test "contains_polygon_polygon - nested inner is contained" {
+  let outer = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (10.0, 0.0),
+      (10.0, 10.0),
+      (0.0, 10.0),
+      (0.0, 0.0),
+    ]),
+    [],
+  )
+  let inner = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (2.0, 2.0),
+      (4.0, 2.0),
+      (4.0, 4.0),
+      (2.0, 4.0),
+      (2.0, 2.0),
+    ]),
+    [],
+  )
+  assert_true(contains_polygon_polygon(outer, inner))
+}
 ```
 
-Step 4 is the "strict" requirement. If all of `B` lies on `A`'s boundary, they are equal-or-overlapping in 1-D and `contains` is false (use `covers` instead).
+- Crossing polygon is not contained
+
+```mbt check
+///|
+test "contains_polygon_polygon - crossing inner is not contained" {
+  let outer = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (10.0, 0.0),
+      (10.0, 10.0),
+      (0.0, 10.0),
+      (0.0, 0.0),
+    ]),
+    [],
+  )
+  let crossing = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (5.0, 5.0),
+      (15.0, 5.0),
+      (15.0, 15.0),
+      (5.0, 15.0),
+      (5.0, 5.0),
+    ]),
+    [],
+  )
+  assert_false(contains_polygon_polygon(outer, crossing))
+}
+```
+
+### `contains_rect_rect`
+
+| Variable           | State      | Note  |  1  |  2  |
+| :----------------- | :--------- | :---- | :-: | :-: |
+| `inner` vs `outer` | `Nested`   | true  |  ✓  |     |
+| `inner` vs `outer` | `Crossing` | false |     |  ✓  |
+
+- Nested then crossing rectangles
+
+```mbt check
+///|
+test "contains_rect_rect - nested true, crossing false" {
+  let outer = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(10.0, 10.0),
+  )
+  let inner = @type.Rect::Rect(
+    @type.Coord::Coord(2.0, 2.0),
+    @type.Coord::Coord(8.0, 8.0),
+  )
+  let crossing = @type.Rect::Rect(
+    @type.Coord::Coord(5.0, 5.0),
+    @type.Coord::Coord(15.0, 15.0),
+  )
+  assert_true(contains_rect_rect(outer, inner))
+  assert_false(contains_rect_rect(outer, crossing))
+}
+```
+
+### `within_geometry`
+
+- `within(a, b)` is the symmetric inverse of `contains(b, a)`
+
+```mbt check
+///|
+test "within_geometry - is the inverse of contains_geometry" {
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (10.0, 0.0),
+      (10.0, 10.0),
+      (0.0, 10.0),
+      (0.0, 0.0),
+    ]),
+    [],
+  )
+  let pt = @type.Point::Point(5.0, 5.0)
+  let g_polygon = @type.Geometry::Polygon(polygon)
+  let g_pt = @type.Geometry::Point(pt)
+  assert_true(within_geometry(g_pt, g_polygon))
+  assert_false(within_geometry(g_polygon, g_pt))
+}
+```
 
 ### `contains_polygon_line` / `contains_polygon_line_string`
 
-Same shape: every coord of `line` / `line string` must be in `A`'s interior or on its boundary, AND no segment of the input crosses `A`'s boundary.
+- Strictly contained line and the linestring whose every coord is inside
 
-### `contains_rect_*`
-
-Trivial bounding-box comparisons. `contains_rect_rect(a, b)` ⇔ `a.min.x ≤ b.min.x` AND `a.max.x ≥ b.max.x` AND analogously for `y`, with strict inequalities for "strict" containment of corner-coincident rects.
-
-## `within_geometry` and `contains_geometry`
-
-Symmetry: `within_geometry(a, b) ≡ contains_geometry(b, a)`. The port implements `within_geometry` as a one-line call to `contains_geometry` with arguments swapped.
-
-`contains_geometry` pattern-matches on the **container** type first (which carries the dimension signal — only 2-D types can contain anything 2-D-ish meaningfully) and then on the contained type, dispatching to the right per-pair function.
-
-## Examples
-
-```moonbit nocheck
-let outer = @type.Polygon::Polygon(
-  @type.LineString::from_tuples([(0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0)]),
-  [],
-)
-let inner = @type.Polygon::Polygon(
-  @type.LineString::from_tuples([(2.0, 2.0), (5.0, 2.0), (5.0, 5.0), (2.0, 5.0)]),
-  [],
-)
-
-@lib2d.contains_polygon_polygon(outer, inner)     // true (inner strictly inside outer)
-@lib2d.within_geometry(
-  @type.Geometry::Polygon(inner),
-  @type.Geometry::Polygon(outer),
-)                                                 // true (same fact, reverse direction)
-
-let pt_inside  = @type.Point::Point(5.0, 5.0)
-let pt_on_edge = @type.Point::Point(0.0, 5.0)
-
-@lib2d.contains_polygon_point(outer, pt_inside)   // true
-@lib2d.contains_polygon_point(outer, pt_on_edge)  // false (boundary, not interior)
-@lib2d.covers_polygon_point(outer, pt_on_edge)    // true  (covers includes boundary)
+```mbt check
+///|
+test "contains_polygon_line / contains_polygon_line_string - strict containment" {
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (10.0, 0.0),
+      (10.0, 10.0),
+      (0.0, 10.0),
+      (0.0, 0.0),
+    ]),
+    [],
+  )
+  let inside_line = @type.Line::from_tuples((1.0, 1.0), (5.0, 5.0))
+  assert_true(contains_polygon_line(polygon, inside_line))
+  let crossing_line = @type.Line::from_tuples((1.0, 1.0), (20.0, 20.0))
+  assert_false(contains_polygon_line(polygon, crossing_line))
+  let inside_ls = @type.LineString::from_tuples([
+    (1.0, 1.0),
+    (5.0, 5.0),
+    (8.0, 2.0),
+  ])
+  assert_true(contains_polygon_line_string(polygon, inside_ls))
+  let mixed_ls = @type.LineString::from_tuples([(1.0, 1.0), (20.0, 20.0)])
+  assert_false(contains_polygon_line_string(polygon, mixed_ls))
+}
 ```
 
-Tests in `contains_test.mbt`:
+### `contains_multi_polygon_coord` / `contains_rect_coord`
 
-- `contains_polygon_point: inside / boundary excluded / outside`
-- `covers_polygon_point: boundary INCLUDED`
-- `contains_polygon_polygon: nested / not contained`
-- `contains_rect_rect`
-- `within is the inverse of contains`
-- `covers_geometry boundary point`
+- Multi polygon containment by any component; rect containment is strict
 
-Plus the bench `bench: contains_polygon_coord n=100`.
+```mbt check
+///|
+test "contains_multi_polygon_coord / contains_rect_coord" {
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (10.0, 0.0),
+      (10.0, 10.0),
+      (0.0, 10.0),
+      (0.0, 0.0),
+    ]),
+    [],
+  )
+  let mp = @type.MultiPolygon::MultiPolygon([polygon])
+  assert_true(contains_multi_polygon_coord(mp, @type.Coord::Coord(5.0, 5.0)))
+  assert_false(contains_multi_polygon_coord(mp, @type.Coord::Coord(20.0, 20.0)))
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(10.0, 10.0),
+  )
+  assert_true(contains_rect_coord(r, @type.Coord::Coord(5.0, 5.0)))
+  assert_false(contains_rect_coord(r, @type.Coord::Coord(0.0, 5.0)))
+}
+```
 
-## Performance
+### `contains_geometry` dispatch sweep
 
-`contains_polygon_coord` is `O(n)` (ray cast). `contains_polygon_polygon` is `O(n × m)` worst case but commonly `O(1)` thanks to the bbox early-out at step 1.
-
-## Related
-
-- `coordinate_position.mbt` — the underlying classifier.
-- `covers.mbt` — boundary-inclusive sibling.
-- `intersects.mbt` — symmetric "share any point" weaker relation.
-- `within.mbt` — argument-flipped form (currently inlined into `within_geometry` in this same file's neighbourhood, but conceptually the same operation).
+```mbt check
+///|
+test "contains_geometry - dispatch sweep over every supported pair" {
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (10.0, 0.0),
+      (10.0, 10.0),
+      (0.0, 10.0),
+      (0.0, 0.0),
+    ]),
+    [],
+  )
+  let g_poly = @type.Geometry::Polygon(polygon)
+  let g_line = @type.Geometry::Line(
+    @type.Line::from_tuples((1.0, 1.0), (5.0, 5.0)),
+  )
+  assert_true(contains_geometry(g_poly, g_line))
+  let g_ls = @type.Geometry::LineString(
+    @type.LineString::from_tuples([(1.0, 1.0), (5.0, 5.0)]),
+  )
+  assert_true(contains_geometry(g_poly, g_ls))
+  let inner = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (2.0, 2.0),
+      (3.0, 2.0),
+      (3.0, 3.0),
+      (2.0, 3.0),
+      (2.0, 2.0),
+    ]),
+    [],
+  )
+  assert_true(contains_geometry(g_poly, @type.Geometry::Polygon(inner)))
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(10.0, 10.0),
+  )
+  assert_true(
+    contains_geometry(
+      @type.Geometry::Rect(r),
+      @type.Geometry::Point(@type.Point::Point(5.0, 5.0)),
+    ),
+  )
+  let inner_r = @type.Rect::Rect(
+    @type.Coord::Coord(2.0, 2.0),
+    @type.Coord::Coord(8.0, 8.0),
+  )
+  assert_true(
+    contains_geometry(@type.Geometry::Rect(r), @type.Geometry::Rect(inner_r)),
+  )
+  let mp = @type.MultiPolygon::MultiPolygon([polygon])
+  assert_true(
+    contains_geometry(
+      @type.Geometry::MultiPolygon(mp),
+      @type.Geometry::Point(@type.Point::Point(5.0, 5.0)),
+    ),
+  )
+  let g_pt = @type.Geometry::Point(@type.Point::Point(0.0, 0.0))
+  assert_true(contains_geometry(g_pt, g_pt))
+  assert_false(
+    contains_geometry(g_pt, @type.Geometry::Point(@type.Point::Point(1.0, 1.0))),
+  )
+}
+```

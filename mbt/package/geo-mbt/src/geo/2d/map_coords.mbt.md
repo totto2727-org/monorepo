@@ -1,85 +1,110 @@
-# `map_coords.mbt` — apply a function to every coordinate
+# map_coords.mbt
 
-## Goal
+Per-`Coord` transformation lifted over every geometry shape via the `MapCoords::map_coords` trait. The structural skeleton (which polygons have which holes, which line strings live in which collection) is preserved exactly; only the coord values change. Trait impls live alongside the definition.
 
-Take a geometry and a per-`Coord` transformation function `(Coord) -> Coord`, and return a **new geometry of the same shape** with every coordinate replaced by the function's output. The structural skeleton (which polygons have which holes, which line strings are inside which collection) is preserved exactly — only the coord values change.
+## Public API
 
-This is the **functor over coords** for the `Geometry` enum. Almost every coordinate-system transformation, projection, or numeric perturbation is one call to `map_coords_in_*`.
+- `MapCoords` — `map_coords` (impls in this file)
 
-## API surface
+## Test
 
-```moonbit nocheck
-pub fn map_coords_in_point(p, f)              -> Point
-pub fn map_coords_in_line(l, f)               -> Line
-pub fn map_coords_in_line_string(ls, f)       -> LineString
-pub fn map_coords_in_polygon(p, f)            -> Polygon
-pub fn map_coords_in_multi_point(mp, f)       -> MultiPoint
-pub fn map_coords_in_multi_line_string(mls, f) -> MultiLineString
-pub fn map_coords_in_multi_polygon(mp, f)     -> MultiPolygon
-pub fn map_coords_in_rect(r, f)               -> Rect
-pub fn map_coords_in_triangle(t, f)           -> Triangle
-pub fn map_coords_in_geometry_collection(gc, f) -> GeometryCollection
-pub fn map_coords_in_geometry(g, f)           -> Geometry
+### `MapCoords`
+
+#### `map_coords`
+
+| Variable | State                        | Note                                  |  1  |  2  |  3  |
+| :------- | :--------------------------- | :------------------------------------ | :-: | :-: | :-: |
+| `self`   | `Point` + shift `f`          | applies `f` to the single coord       |  ✓  |     |     |
+| `self`   | `Polygon` + scale `f`        | applies `f` to every ring's coords    |     |  ✓  |     |
+| `self`   | `Geometry::Point` + identity | round-trip (`map_coords(g, id) == g`) |     |     |  ✓  |
+
+- `Point` shifts the underlying coord
+
+```mbt check
+///|
+test "MapCoords::map_coords - Point shifts the coord" {
+  let p = @type.Point::Point(1.0, 2.0)
+  @test.assert_eq(
+    MapCoords::map_coords(p, fn(c) {
+      @type.Coord::Coord(c.x() + 10.0, c.y() + 20.0)
+    }),
+    @type.Point::Point(11.0, 22.0),
+  )
+}
 ```
 
-`f` is `(Coord) -> Coord`. The function is **pure**: it must not mutate any external state (the algorithm doesn't promise any particular call order; you should treat each call as independent).
+- `Polygon` transforms every ring's coords
 
-## Behaviour
-
-Per type:
-
-- **`Point`**: `Point::from_coord(f(p.coord))`
-- **`Line`**: new `Line` with `f(start)`, `f(end)`
-- **`LineString`**: array of `f(c)` for every coord, wrapped back into a `LineString`
-- **`Polygon`**: same on the exterior and each interior ring, then re-construct via `Polygon::Polygon(...)` (which re-runs auto-closure on the transformed rings)
-- **`Rect`**: applies `f` to `min` and `max` corners and re-runs the constructor's normalisation, so a transformation that flips orientation produces a sensible `Rect` with `min.x <= max.x` and `min.y <= max.y`
-- **`Triangle`**: applies `f` to each of the three vertices
-- **Multi / collection types**: recursively map every member and re-wrap
-
-The result has the **same enum variant** as the input. `Geometry::Point(_)` stays `Geometry::Point(_)`, etc.
-
-## Examples
-
-```moonbit nocheck
-// Translate a polygon by (10, 5) by composing map_coords_in_polygon with
-// a per-coord shift.
-
+```mbt check
 ///|
-let polygon = @type.Polygon::Polygon(
-  @type.LineString::from_tuples([(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)]),
-  [],
-)
-
-///|
-let shifted = @lib2d.map_coords_in_polygon(polygon, fn(c) {
-  @type.Coord(c.x() + 10.0, c.y() + 5.0)
-})
-// shifted's exterior is now [(10, 5), (11, 5), (11, 6), (10, 6), (10, 5)]
+test "MapCoords::map_coords - Polygon transforms every ring's coords" {
+  let exterior = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (1.0, 0.0),
+    (1.0, 1.0),
+    (0.0, 1.0),
+  ])
+  let polygon = @type.Polygon::Polygon(exterior, [])
+  let scaled = MapCoords::map_coords(polygon, fn(c) { c.mul(2.0) })
+  let scaled_coords = scaled.exterior().coords()
+  @test.assert_eq(scaled_coords[1], @type.Coord::Coord(2.0, 0.0))
+  @test.assert_eq(scaled_coords[2], @type.Coord::Coord(2.0, 2.0))
+}
 ```
 
-The dedicated `translate_*` / `rotate_*` / `scale_*` / `skew_*` functions in their own files (`translate.mbt`, `rotate.mbt`, …) are all implemented as one-line wrappers around `map_coords_in_*` — the affine transform builds the closure, then `map_coords` does the walk.
+- Direct dispatch on every concrete type (identity round-trip)
 
-Tests in `map_coords_test.mbt`:
+```mbt check
+///|
+test "MapCoords::map_coords - direct dispatch on every concrete type" {
+  let identity = fn(c : @type.Coord) -> @type.Coord { c }
+  let pt = @type.Point::Point(1.0, 2.0)
+  let l = @type.Line::from_tuples((0.0, 0.0), (1.0, 1.0))
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0)])
+  let mp = @type.MultiPoint::from_tuples([(0.0, 0.0)])
+  let mls = @type.MultiLineString::MultiLineString([ls])
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (4.0, 0.0),
+      (4.0, 4.0),
+      (0.0, 4.0),
+    ]),
+    [],
+  )
+  let mpoly = @type.MultiPolygon::MultiPolygon([polygon])
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(1.0, 1.0),
+  )
+  let tri = @type.Triangle::Triangle(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(1.0, 0.0),
+    @type.Coord::Coord(0.0, 1.0),
+  )
+  let gc = @type.GeometryCollection::GeometryCollection([
+    @type.Geometry::Point(pt),
+  ])
+  @test.assert_eq(MapCoords::map_coords(pt, identity), pt)
+  @test.assert_eq(MapCoords::map_coords(l, identity), l)
+  @test.assert_eq(MapCoords::map_coords(ls, identity), ls)
+  @test.assert_eq(MapCoords::map_coords(mp, identity), mp)
+  @test.assert_eq(MapCoords::map_coords(mls, identity), mls)
+  @test.assert_eq(MapCoords::map_coords(polygon, identity), polygon)
+  @test.assert_eq(MapCoords::map_coords(mpoly, identity), mpoly)
+  @test.assert_eq(MapCoords::map_coords(r, identity), r)
+  @test.assert_eq(MapCoords::map_coords(tri, identity), tri)
+  @test.assert_eq(MapCoords::map_coords(gc, identity), gc)
+}
+```
 
-- `map_coords_in_point shifts the coord`
-- `map_coords_in_polygon transforms all rings`
-- `map_coords_in_geometry roundtrip with identity`
+- `Geometry::Point` round-trip with identity
 
-## Functor laws
-
-The free functions satisfy the standard functor laws (informally):
-
-- **Identity**: `map_coords_in_g(g, fn(c) { c }) == g`
-- **Composition**: `map_coords_in_g(map_coords_in_g(g, f), h) == map_coords_in_g(g, fn(c) { h(f(c)) })`
-
-The first one is exercised by `map_coords_in_geometry roundtrip with identity` in `map_coords_test.mbt`. The second one is implicit in how the affine-transform combinators chain (e.g. `translate ∘ rotate` is computed as a single composed `(Coord) -> Coord`, not as two separate `map_coords` passes).
-
-## Edge cases
-
-- **Empty geometries** — the transformation is applied to zero coords; the result is the empty geometry of the same shape.
-- **`f` produces invalid output** (e.g. NaN) — `map_coords_in_*` does not validate. If `f` violates polygon validity (e.g. collapses two corners onto each other, creating a self-intersecting ring), the output will be structurally a polygon but invalid by the OGC SFA spec. Run `validation.mbt`'s `is_valid` afterwards if downstream code requires it.
-- **`f` flips orientation** (e.g. negate `y`) — the polygon's winding order will flip too. Algorithms that depend on a particular winding (notably most boolean ops) should re-orient via `orient_polygon` after the map.
-
-## Performance
-
-`O(n)` calls to `f`. The output array is `Array::makei`-built where size is known up front, or built via spread literal otherwise. No incremental `push` loops — see `coding/mbt-bestpractice.md` §3.12 for why.
+```mbt check
+///|
+test "MapCoords::map_coords - Geometry::Point round-trip with identity" {
+  let p = @type.Point::Point(3.5, 7.0)
+  let g = @type.Geometry::Point(p)
+  @test.assert_eq(MapCoords::map_coords(g, fn(c) { c }), g)
+}
+```

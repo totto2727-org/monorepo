@@ -1,132 +1,291 @@
-# `intersects.mbt` — do two geometries share any point?
+# intersects.mbt
 
-## Goal
+Boundary-inclusive intersection predicates: `intersects(a, b)` is true if `a` and `b` share at least one point (interior or boundary). Per-pair entry points cover the common cases; `intersects_geometry` dispatches over the `Geometry` enum, falling back to a bounding-rect approximation for uncommon pairs.
 
-Decide whether two geometries have **at least one point in common** — without computing the actual intersection. The output is just `Bool`. This is the cheaper, decision-only sibling of `bool_ops.mbt` (which would compute the intersection geometry).
+## Public API
 
-`intersects(a, b)` is the symmetric companion of `contains` — `a` intersects `b` iff `a` and `b` share _any_ point (interior, boundary, anywhere).
+- `intersects_coord_coord`
+- `intersects_coord_line`
+- `intersects_line_line`
+- `intersects_coord_line_string`
+- `intersects_line_line_string`
+- `intersects_line_string_line_string`
+- `intersects_coord_polygon`
+- `intersects_line_polygon`
+- `intersects_polygon_polygon`
+- `intersects_rect_coord`
+- `intersects_geometry`
 
-## API surface
+## Test
 
-The port provides one function per (geometry-type, geometry-type) pair, plus a `Geometry` dispatch:
+### `intersects_line_line`
 
-```moonbit nocheck
-pub fn intersects_coord_coord(a, b)             -> Bool
-pub fn intersects_coord_line(c, l)              -> Bool
-pub fn intersects_coord_line_string(c, ls)      -> Bool
-pub fn intersects_coord_polygon(c, p)           -> Bool
-pub fn intersects_line_line(a, b)               -> Bool
-pub fn intersects_line_line_string(l, ls)       -> Bool
-pub fn intersects_line_polygon(l, p)            -> Bool
-pub fn intersects_line_string_line_string(a, b) -> Bool
-pub fn intersects_polygon_polygon(a, b)         -> Bool
-pub fn intersects_rect_coord(r, c)              -> Bool
-pub fn intersects_geometry(a, b)                -> Bool   // dispatch on both arguments
+| Variable | State                      | Note  |  1  |  2  |  3  |  4  |
+| :------- | :------------------------- | :---- | :-: | :-: | :-: | :-: |
+| `a`/`b`  | `Touching endpoints`       | true  |  ✓  |     |     |     |
+| `a`/`b`  | `Classic crossing`         | true  |     |  ✓  |     |     |
+| `a`/`b`  | `Parallel non-overlapping` | false |     |     |  ✓  |     |
+| `a`/`b`  | `Collinear overlapping`    | true  |     |     |     |  ✓  |
+
+- Touching endpoints
+
+```mbt check
+///|
+test "intersects_line_line - touching endpoints" {
+  let a = @type.Line::from_tuples((0.0, 0.0), (1.0, 0.0))
+  let b = @type.Line::from_tuples((1.0, 0.0), (1.0, 1.0))
+  assert_true(intersects_line_line(a, b))
+}
 ```
 
-## Algorithm strategies
+- Classic crossing
 
-The implementation picks the cheapest strategy for each pair:
-
-### Coord vs anything
-
-- `coord vs coord`: equality check.
-- `coord vs line`: `coord_on_line` (collinear AND parametric `t ∈ [0, 1]`).
-- `coord vs line string`: any segment contains it.
-- `coord vs polygon`: `coord_position_for_polygon != Outside`.
-- `coord vs rect`: bbox containment check.
-
-### Segment vs segment (`Line` vs `Line`)
-
-This is the classic segment-segment intersection test. Uses **four orientation checks**:
-
-```
-Let segments be (p1, p2) and (q1, q2).
-o1 = orient(p1, p2, q1)
-o2 = orient(p1, p2, q2)
-o3 = orient(q1, q2, p1)
-o4 = orient(q1, q2, p2)
-
-The segments cross iff (o1 ≠ o2) AND (o3 ≠ o4).
-Special-case: if any oᵢ == Collinear, fall back to a parametric overlap test.
+```mbt check
+///|
+test "intersects_line_line - classic crossing" {
+  let a = @type.Line::from_tuples((0.0, 0.0), (10.0, 10.0))
+  let b = @type.Line::from_tuples((0.0, 10.0), (10.0, 0.0))
+  assert_true(intersects_line_line(a, b))
+}
 ```
 
-The "different orientation on each side" is a consequence of the segments going from one side of the other to the other — a topological argument that doesn't need the actual intersection coordinate, just signs.
+- Parallel non-overlapping
 
-The collinear case requires a separate test because the formula above gives `Collinear == Collinear` for both endpoint orientations and would say "no intersection". `intersects_line_line` falls back to checking whether the two collinear segments **overlap** along their shared line (using parametric `t` ranges).
-
-### Line / segment vs line string
-
-Walk each segment of the line string, run `intersects_line_line` against the input line. Return `true` on the first hit.
-
-### Polygon vs anything
-
-A polygon is a 2-D region, so "intersection" includes all of: _touching at the boundary_, _one shape inside the other_, _boundaries crossing_. The implementation handles each:
-
-```
-intersects_polygon_X(p, x):
-  1. bbox-vs-bbox quick reject (returns false when bboxes don't overlap)
-  2. boundary edges of p vs x: any segment-segment crossing? → true
-  3. any vertex of x inside p?                              → true
-  4. any vertex of p inside x?                              → true
-  5. otherwise                                              → false
+```mbt check
+///|
+test "intersects_line_line - parallel non-overlapping false" {
+  let a = @type.Line::from_tuples((0.0, 0.0), (10.0, 0.0))
+  let b = @type.Line::from_tuples((0.0, 1.0), (10.0, 1.0))
+  assert_false(intersects_line_line(a, b))
+}
 ```
 
-The vertex-in-polygon checks (steps 3 and 4) handle the "one shape entirely contained inside the other without any boundary crossing" case.
+- Collinear overlapping
 
-### Polygon vs polygon
-
-Same shape as above but with both vertex-in-polygon directions. Handles holes correctly because `coord_position_for_polygon` already accounts for them.
-
-## Examples
-
-```moonbit nocheck
-let l1 = @type.Line::Line(@type.Coord(0.0, 0.0), @type.Coord(10.0, 10.0))
-let l2 = @type.Line::Line(@type.Coord(0.0, 10.0), @type.Coord(10.0, 0.0))
-@lib2d.intersects_line_line(l1, l2)    // true (cross at (5, 5))
-
-let parallel = @type.Line::Line(@type.Coord(0.0, 0.0), @type.Coord(10.0, 0.0))
-let above    = @type.Line::Line(@type.Coord(0.0, 1.0), @type.Coord(10.0, 1.0))
-@lib2d.intersects_line_line(parallel, above)   // false
-
-let touching = @type.Line::Line(@type.Coord(10.0, 0.0), @type.Coord(20.0, 0.0))
-@lib2d.intersects_line_line(parallel, touching)   // true (share endpoint (10, 0))
+```mbt check
+///|
+test "intersects_line_line - collinear overlapping" {
+  let a = @type.Line::from_tuples((0.0, 0.0), (10.0, 0.0))
+  let b = @type.Line::from_tuples((5.0, 0.0), (15.0, 0.0))
+  assert_true(intersects_line_line(a, b))
+}
 ```
 
-Tests in `intersects_test.mbt`:
+### `intersects_polygon_polygon`
 
-- `intersects_line_line — touching endpoints`
-- `intersects_line_line — crossing`
-- `intersects_line_line — parallel non-overlapping`
-- `intersects_line_line — collinear overlapping`
-- `intersects_polygon_polygon — overlap / disjoint`
-- `intersects_geometry dispatch`
+| Variable | State      | Note  |  1  |  2  |
+| :------- | :--------- | :---- | :-: | :-: |
+| `a`/`b`  | `Overlap`  | true  |  ✓  |     |
+| `a`/`b`  | `Disjoint` | false |     |  ✓  |
 
-Plus the bench `bench: line_intersection crossing` (which times the related `line_intersection.mbt` path).
+- Overlap
 
-## Why this is cheaper than `line_intersection`
+```mbt check
+///|
+test "intersects_polygon_polygon - overlap" {
+  let a = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (2.0, 0.0),
+      (2.0, 2.0),
+      (0.0, 2.0),
+      (0.0, 0.0),
+    ]),
+    [],
+  )
+  let b = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (1.0, 1.0),
+      (3.0, 1.0),
+      (3.0, 3.0),
+      (1.0, 3.0),
+    ]),
+    [],
+  )
+  assert_true(intersects_polygon_polygon(a, b))
+}
+```
 
-`intersects_line_line` returns `Bool`. `line_intersection` returns the actual `LineIntersection?` result with the crossing coord. They share most of the work — but `intersects` can short-circuit as soon as the four orientation signs are determined, while `line_intersection` always completes the parametric solve. For "did anything hit?" queries, prefer `intersects_*`.
+- Disjoint
 
-## `intersects_geometry` dispatch
+```mbt check
+///|
+test "intersects_polygon_polygon - disjoint" {
+  let a = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (2.0, 0.0),
+      (2.0, 2.0),
+      (0.0, 2.0),
+      (0.0, 0.0),
+    ]),
+    [],
+  )
+  let b = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (10.0, 10.0),
+      (12.0, 10.0),
+      (12.0, 12.0),
+      (10.0, 12.0),
+    ]),
+    [],
+  )
+  assert_false(intersects_polygon_polygon(a, b))
+}
+```
 
-For a uniform call site, `intersects_geometry(a, b)` pattern-matches on both arguments and delegates to the appropriate per-pair function. **It is symmetric**: `intersects_geometry(a, b) == intersects_geometry(b, a)`, even though the per-pair functions may have ordered argument lists.
+### `intersects_geometry`
 
-## Edge cases
+- Dispatches `Point` × `Polygon` to `intersects_coord_polygon`
 
-- **Empty geometries** never intersect anything (no points to share).
-- **Touching at a single boundary point** ⇒ `true` ("intersect" = share any point, including boundary).
-- **Coincident segments** ⇒ `true` (they share infinitely many points).
+```mbt check
+///|
+test "intersects_geometry - Point inside Polygon dispatches correctly" {
+  let p = @type.Geometry::Point(@type.Point::Point(1.0, 1.0))
+  let poly = @type.Geometry::Polygon(
+    @type.Polygon::Polygon(
+      @type.LineString::from_tuples([
+        (0.0, 0.0),
+        (2.0, 0.0),
+        (2.0, 2.0),
+        (0.0, 2.0),
+        (0.0, 0.0),
+      ]),
+      [],
+    ),
+  )
+  assert_true(intersects_geometry(p, poly))
+}
+```
 
-## Performance
+- Dispatch sweep: each common pair routes to its per-type predicate
 
-- `coord vs coord/line/rect`: `O(1)`.
-- `coord vs line string / polygon`: `O(n)` — segment scan or ray casting.
-- `line string vs line string`: `O(n × m)` naive segment-pair test. The port currently uses this naive scan; a sweep-line algorithm would bring it to `O((n+m+k) log (n+m))` but is post-scope.
-- `polygon vs polygon`: `O(n × m)` worst case, but the bbox early-out makes the common case `O(1)`.
+```mbt check
+///|
+test "intersects_geometry - dispatch sweep over common pairs" {
+  let pt0 = @type.Point::Point(0.0, 0.0)
+  let pt1 = @type.Point::Point(1.0, 1.0)
+  let l = @type.Line::from_tuples((0.0, 0.0), (10.0, 0.0))
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (10.0, 0.0)])
+  let poly = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (2.0, 0.0),
+      (2.0, 2.0),
+      (0.0, 2.0),
+      (0.0, 0.0),
+    ]),
+    [],
+  )
+  let g_pt = @type.Geometry::Point(pt0)
+  let g_pt_eq = @type.Geometry::Point(pt0)
+  let g_pt_diff = @type.Geometry::Point(pt1)
+  let g_line = @type.Geometry::Line(l)
+  let g_ls = @type.Geometry::LineString(ls)
+  let g_poly = @type.Geometry::Polygon(poly)
+  // Point × Point
+  assert_true(intersects_geometry(g_pt, g_pt_eq))
+  assert_false(intersects_geometry(g_pt, g_pt_diff))
+  // Point × Line and reverse
+  assert_true(intersects_geometry(g_pt, g_line))
+  assert_true(intersects_geometry(g_line, g_pt))
+  // Point × LineString and reverse
+  assert_true(intersects_geometry(g_pt, g_ls))
+  assert_true(intersects_geometry(g_ls, g_pt))
+  // Polygon × Point reverse
+  assert_true(intersects_geometry(g_poly, g_pt))
+  // Line × Line
+  let g_line_b = @type.Geometry::Line(
+    @type.Line::from_tuples((5.0, -1.0), (5.0, 1.0)),
+  )
+  assert_true(intersects_geometry(g_line, g_line_b))
+  // Line × LineString and reverse
+  assert_true(intersects_geometry(g_line, g_ls))
+  assert_true(intersects_geometry(g_ls, g_line))
+  // LineString × LineString
+  assert_true(intersects_geometry(g_ls, g_ls))
+  // Line × Polygon and reverse
+  assert_true(intersects_geometry(g_line, g_poly))
+  assert_true(intersects_geometry(g_poly, g_line))
+  // GeometryCollection vs anything routes through `any` over its components.
+  let gc = @type.Geometry::GeometryCollection(
+    @type.GeometryCollection::GeometryCollection([g_pt]),
+  )
+  assert_true(intersects_geometry(gc, g_pt))
+  assert_true(intersects_geometry(g_pt, gc))
+  // Fallback bbox-approximation path: pair without a specialised arm.
+  let g_mp = @type.Geometry::MultiPoint(
+    @type.MultiPoint::from_tuples([(0.0, 0.0)]),
+  )
+  let g_mls = @type.Geometry::MultiLineString(
+    @type.MultiLineString::MultiLineString([ls]),
+  )
+  // Both bboxes are at origin → bbox-overlap = true.
+  assert_true(intersects_geometry(g_mp, g_mls))
+  // Disjoint MultiPoints fall through to the bbox path and return false.
+  let g_far = @type.Geometry::MultiPoint(
+    @type.MultiPoint::from_tuples([(100.0, 100.0)]),
+  )
+  assert_false(intersects_geometry(g_mp, g_far))
+}
+```
 
-## Related
+### `intersects_coord_*` / `intersects_rect_coord` direct calls
 
-- `line_intersection.mbt` — actually computes the crossing point.
-- `coordinate_position.mbt` — the underlying point-vs-region classifier.
-- `contains.mbt`, `within.mbt`, `covers.mbt` — relations strictly stronger than `intersects`.
+```mbt check
+///|
+test "intersects_coord_coord / intersects_coord_line" {
+  let a = @type.Coord::Coord(1.0, 2.0)
+  let b = @type.Coord::Coord(1.0, 2.0)
+  let c = @type.Coord::Coord(3.0, 4.0)
+  assert_true(intersects_coord_coord(a, b))
+  assert_false(intersects_coord_coord(a, c))
+  let l = @type.Line::from_tuples((0.0, 0.0), (10.0, 0.0))
+  assert_true(intersects_coord_line(@type.Coord::Coord(5.0, 0.0), l))
+  assert_false(intersects_coord_line(@type.Coord::Coord(5.0, 1.0), l))
+}
+```
+
+```mbt check
+///|
+test "intersects_coord_line_string / intersects_line_line_string" {
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (10.0, 0.0)])
+  assert_true(intersects_coord_line_string(@type.Coord::Coord(5.0, 0.0), ls))
+  assert_false(intersects_coord_line_string(@type.Coord::Coord(5.0, 1.0), ls))
+  let l = @type.Line::from_tuples((5.0, -1.0), (5.0, 1.0))
+  assert_true(intersects_line_line_string(l, ls))
+}
+```
+
+```mbt check
+///|
+test "intersects_coord_polygon / intersects_line_polygon / intersects_rect_coord" {
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (2.0, 0.0),
+      (2.0, 2.0),
+      (0.0, 2.0),
+      (0.0, 0.0),
+    ]),
+    [],
+  )
+  assert_true(intersects_coord_polygon(@type.Coord::Coord(1.0, 1.0), polygon))
+  assert_false(
+    intersects_coord_polygon(@type.Coord::Coord(10.0, 10.0), polygon),
+  )
+  // Line crossing the polygon's interior intersects.
+  let crossing = @type.Line::from_tuples((-1.0, 1.0), (3.0, 1.0))
+  assert_true(intersects_line_polygon(crossing, polygon))
+  // Line entirely outside has no intersection.
+  let outside = @type.Line::from_tuples((10.0, 10.0), (20.0, 20.0))
+  assert_false(intersects_line_polygon(outside, polygon))
+  // Rect × Coord direct call.
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(10.0, 10.0),
+  )
+  assert_true(intersects_rect_coord(r, @type.Coord::Coord(5.0, 5.0)))
+  assert_false(intersects_rect_coord(r, @type.Coord::Coord(20.0, 20.0)))
+}
+```

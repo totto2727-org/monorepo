@@ -1,71 +1,156 @@
-# `lines_iter.mbt` — visit every edge / segment in a geometry
+# lines_iter.mbt
 
-## Goal
+Per-geometry edge-iteration trait. `LinesCarrier::lines` returns the line segments composing the geometry: a single segment for `Line`, the `n − 1` segments of a `LineString`, the four edges of a `Rect` / three of a `Triangle`, and concatenations across `MultiLineString` / `Polygon` / `MultiPolygon` / `GeometryCollection`. `Point` / `MultiPoint` produce no segments.
 
-The edge analogue of `coords_iter.mbt`. Where `coords_*` yields _vertices_, `lines_*` yields the **`Line` segments** that connect consecutive vertices — the geometry's "skeleton".
+## Public API
 
-Used by anything that needs to process geometry **edge-by-edge**: distance from a point to a polygon, segment intersection, ray casting for point-in-polygon, line-clipping, sweep algorithms, etc.
+- `LinesCarrier` — `lines` (impls for `Line` / `LineString` / `MultiLineString` / `Polygon` / `MultiPolygon` / `Rect` / `Triangle` / `GeometryCollection` / `Geometry`)
 
-## API surface
+## Test
 
-| Function                           | Returns       | Description                                                                     |
-| ---------------------------------- | ------------- | ------------------------------------------------------------------------------- |
-| `lines_of_geometry(g)`             | `Array[Line]` | Dispatch over the `Geometry` enum                                               |
-| `lines_of_line(l)`                 | `Array[Line]` | `[l]` — a single-element array (a `Line` is its own only edge)                  |
-| `lines_of_line_string(ls)`         | `Array[Line]` | `n−1` segments connecting consecutive coords (delegates to `LineString::lines`) |
-| `lines_of_multi_line_string(mls)`  | `Array[Line]` | All members' lines concatenated, in member order                                |
-| `lines_of_polygon(p)`              | `Array[Line]` | Exterior ring's edges, then each interior ring's edges                          |
-| `lines_of_multi_polygon(mp)`       | `Array[Line]` | All polygon edges, in member order                                              |
-| `lines_of_geometry_collection(gc)` | `Array[Line]` | Recurses into each member                                                       |
-| `lines_of_rect(r)`                 | `Array[Line]` | Thin wrapper around `Rect::to_lines` — 4 edges CCW from `min` corner            |
-| `lines_of_triangle(t)`             | `Array[Line]` | Thin wrapper around `Triangle::to_lines` — 3 edges                              |
+### `LinesCarrier`
 
-For shapes without edges (`Point`, `MultiPoint`, `Coord`), `lines_of_geometry` returns an **empty array** — there are no segments between zero coords.
+#### `lines`
 
-## What counts as an edge
+| Variable | State             | Note                |  1  |  2  |  3  |
+| :------- | :---------------- | :------------------ | :-: | :-: | :-: |
+| `self`   | `LineString`      | `n − 1` segments    |  ✓  |     |     |
+| `self`   | `Rect`            | 4 CCW edges         |     |  ✓  |     |
+| `self`   | `Geometry::Point` | empty (no segments) |     |     |  ✓  |
 
-For a **closed ring** (polygon exterior or interior), the last edge connects the final coord back to the first — i.e. the ring's `n` coords yield `n` edges (`n−1` from the array plus the implicit close). The port relies on the polygon constructor having auto-closed the ring, so `lines_of_polygon` simply walks adjacent coord pairs and the closure is automatic.
+- LineString of `n` coords yields `n − 1` segments
 
-For an **open** line string (start ≠ end), `n` coords yield `n−1` edges. There is no implicit "close back to start" segment.
-
-## Examples
-
-```moonbit nocheck
-// Open line string of 4 coords → 3 edges
-let ls = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)])
-@lib2d.lines_of_line_string(ls).length()         // 3
-
-// Polygon (auto-closed) of 4 corners → 4 edges
-let square = @type.Polygon::Polygon(ls, [])
-@lib2d.lines_of_polygon(square).length()         // 4 (closing edge included)
-
-// Rect → 4 edges
-let r = @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(1.0, 1.0))
-@lib2d.lines_of_rect(r).length()                 // 4
-
-// Point → no edges
-let pt = @type.Geometry::Point(@type.Point::Point(3.0, 4.0))
-@lib2d.lines_of_geometry(pt).length()            // 0
+```mbt check
+///|
+test "LinesCarrier::lines - LineString yields n-1 segments" {
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0), (2.0, 2.0)])
+  @test.assert_eq(LinesCarrier::lines(ls).length(), 2)
+}
 ```
 
-Tests in `lines_iter_test.mbt`:
+- Rect yields the four CCW edges
 
-- `lines_of_line_string yields n-1 segments`
-- `lines_of_rect yields 4 edges`
-- `lines_of_geometry returns empty for Point`
+```mbt check
+///|
+test "LinesCarrier::lines - Rect yields 4 edges" {
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(1.0, 1.0),
+  )
+  @test.assert_eq(LinesCarrier::lines(r).length(), 4)
+}
+```
 
-## Edge ordering
+- `Geometry::Point` yields no segments
 
-Edges come out in the **same order as the source coords**. For a polygon that means: exterior edges (starting from the exterior's `coords[0] → coords[1]`), then each interior ring in the order they appear in the `interiors` array. This determinism matters when an algorithm wants to pair edges with their indices (e.g. for "report the edge index where the intersection occurred").
+```mbt check
+///|
+test "LinesCarrier::lines - Geometry::Point yields no segments" {
+  @test.assert_eq(
+    LinesCarrier::lines(@type.Geometry::Point(@type.Point::Point(1.0, 2.0))),
+    [],
+  )
+}
+```
 
-For a `MultiPolygon` / `GeometryCollection`, the order is depth-first member-by-member.
+- Direct dispatch on every concrete type (sweep)
 
-## Performance
+```mbt check
+///|
+test "LinesCarrier::lines - direct dispatch on every concrete type" {
+  let l = @type.Line::from_tuples((0.0, 0.0), (1.0, 1.0))
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0), (2.0, 2.0)])
+  let mls = @type.MultiLineString::MultiLineString([ls])
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (4.0, 0.0),
+      (4.0, 4.0),
+      (0.0, 4.0),
+    ]),
+    [],
+  )
+  let mpoly = @type.MultiPolygon::MultiPolygon([polygon])
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(1.0, 1.0),
+  )
+  let tri = @type.Triangle::Triangle(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(1.0, 0.0),
+    @type.Coord::Coord(0.0, 1.0),
+  )
+  let gc = @type.GeometryCollection::GeometryCollection([
+    @type.Geometry::LineString(ls),
+  ])
+  @test.assert_eq(LinesCarrier::lines(l), [l])
+  @test.assert_eq(LinesCarrier::lines(ls).length(), 2)
+  @test.assert_eq(LinesCarrier::lines(mls).length(), 2)
+  @test.assert_eq(LinesCarrier::lines(polygon).length(), 4)
+  @test.assert_eq(LinesCarrier::lines(mpoly).length(), 4)
+  @test.assert_eq(LinesCarrier::lines(r).length(), 4)
+  @test.assert_eq(LinesCarrier::lines(tri).length(), 3)
+  @test.assert_eq(LinesCarrier::lines(gc).length(), 2)
+}
+```
 
-`O(n)` in total edge count. Eager — allocates one `Array[Line]` of the right size. For very large geometries the lazy alternative `LineString::lines_iter` (and friends) is available on the type itself; the algorithm-layer free functions don't currently provide a `_iter` variant because the typical caller wants random access (e.g. `lines[i]`).
+- `Geometry` dispatch hits every `match` arm (Point and MultiPoint return empty; the rest delegate to the per-type impl)
 
-## Related
-
-- `coords_iter.mbt` — vertex-level iteration (one level finer-grained).
-- `closest_point.mbt`, `intersects.mbt`, `coordinate_position.mbt` — primary consumers of these per-edge iterators.
-- `LineString::lines_iter` — lazy `Iter[Line]` form on the type, when allocation matters.
+```mbt check
+///|
+test "LinesCarrier::lines - Geometry dispatch hits every match arm" {
+  let pt = @type.Geometry::Point(@type.Point::Point(0.0, 0.0))
+  let mp = @type.Geometry::MultiPoint(
+    @type.MultiPoint::from_tuples([(0.0, 0.0), (1.0, 1.0)]),
+  )
+  let l = @type.Geometry::Line(@type.Line::from_tuples((0.0, 0.0), (1.0, 1.0)))
+  let ls = @type.Geometry::LineString(
+    @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0)]),
+  )
+  let mls = @type.Geometry::MultiLineString(
+    @type.MultiLineString::MultiLineString([
+      @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0)]),
+    ]),
+  )
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (4.0, 0.0),
+      (4.0, 4.0),
+      (0.0, 4.0),
+    ]),
+    [],
+  )
+  let g_polygon = @type.Geometry::Polygon(polygon)
+  let g_mpoly = @type.Geometry::MultiPolygon(
+    @type.MultiPolygon::MultiPolygon([polygon]),
+  )
+  let g_rect = @type.Geometry::Rect(
+    @type.Rect::Rect(@type.Coord::Coord(0.0, 0.0), @type.Coord::Coord(1.0, 1.0)),
+  )
+  let g_tri = @type.Geometry::Triangle(
+    @type.Triangle::Triangle(
+      @type.Coord::Coord(0.0, 0.0),
+      @type.Coord::Coord(1.0, 0.0),
+      @type.Coord::Coord(0.0, 1.0),
+    ),
+  )
+  let g_gc = @type.Geometry::GeometryCollection(
+    @type.GeometryCollection::GeometryCollection([
+      @type.Geometry::LineString(
+        @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0)]),
+      ),
+    ]),
+  )
+  @test.assert_eq(LinesCarrier::lines(pt), [])
+  @test.assert_eq(LinesCarrier::lines(mp), [])
+  @test.assert_eq(LinesCarrier::lines(l).length(), 1)
+  @test.assert_eq(LinesCarrier::lines(ls).length(), 1)
+  @test.assert_eq(LinesCarrier::lines(mls).length(), 1)
+  @test.assert_eq(LinesCarrier::lines(g_polygon).length(), 4)
+  @test.assert_eq(LinesCarrier::lines(g_mpoly).length(), 4)
+  @test.assert_eq(LinesCarrier::lines(g_rect).length(), 4)
+  @test.assert_eq(LinesCarrier::lines(g_tri).length(), 3)
+  @test.assert_eq(LinesCarrier::lines(g_gc).length(), 1)
+}
+```

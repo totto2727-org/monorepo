@@ -1,90 +1,220 @@
-# `bounding_rect.mbt` — axis-aligned bounding box (AABB)
+# bounding_rect.mbt
 
-## Goal
+Axis-aligned bounding rectangle of a coordinate set or geometry. Exposed via the `Bounded::bbox` trait alongside its impls (the per-type `bounding_rect_of_*` helpers are private).
 
-Find the **smallest axis-aligned rectangle** that fully contains a geometry. Used everywhere as a cheap "first-line filter" — many geometric tests (`intersects`, `contains`, spatial indexing in `rtree`) can return early with a bbox-vs-bbox check before doing the expensive shape-vs-shape comparison.
+## Public API
 
-## API surface
+- `Bounded` — `bbox` (impls in this file)
 
-| Function                                   | Result  | Empty input                                 |
-| ------------------------------------------ | ------- | ------------------------------------------- |
-| `bounding_rect_of_coord(c)`                | `Rect`  | n/a (a coord is never empty)                |
-| `bounding_rect_of_point(p)`                | `Rect`  | n/a — degenerate `Rect` with `min == max`   |
-| `bounding_rect_of_line(l)`                 | `Rect`  | n/a                                         |
-| `bounding_rect_of_line_string(ls)`         | `Rect?` | `None` when `ls` has 0 coords               |
-| `bounding_rect_of_polygon(p)`              | `Rect?` | `None` when exterior is empty               |
-| `bounding_rect_of_multi_*`                 | `Rect?` | `None` when no member contributes any point |
-| `bounding_rect_of_geometry(g)`             | `Rect?` | Dispatch over `Geometry` enum               |
-| `bounding_rect_of_geometry_collection(gc)` | `Rect?` | `None` when collection is empty             |
-| `bounding_rect_of_rect(r)`                 | `Rect`  | The rect itself (identity)                  |
-| `bounding_rect_of_triangle(t)`             | `Rect`  | Always defined (3 finite vertices)          |
+## Test
 
-The `Rect?` return form (instead of `Rect`) is the port's way of signalling "the geometry contributed no points, so the bounding rectangle is undefined". This is structurally cleaner than upstream's "empty" sentinel `Rect`.
+### `Bounded`
 
-## Algorithm
+#### `bbox`
 
-Trivial:
+| Variable | State                   | Note                               |  1  |  2  |  3  |
+| :------- | :---------------------- | :--------------------------------- | :-: | :-: | :-: |
+| `self`   | `LineString (3 coords)` | tight rect over (min, max) corners |  ✓  |     |     |
+| `self`   | `Point`                 | degenerate zero-size rect at coord |     |  ✓  |     |
+| `self`   | `Empty LineString`      | `None`                             |     |     |  ✓  |
 
-1. Walk every coordinate the geometry exposes (via `CoordsCarrier::coords` for the homogeneous types, or the underlying ring coords for `Polygon`).
-2. Track running `(min_x, min_y, max_x, max_y)` initialised from the first coord.
-3. For each subsequent coord, `min_x = min(min_x, c.x)`, etc.
-4. Return `Rect(Coord(min_x, min_y), Coord(max_x, max_y))`.
+- LineString: tight rect over its coords
 
-For composite types (`MultiPolygon`, `GeometryCollection`), the algorithm recurses into each member's bounding rect and then takes the bbox of bboxes. `None`-valued members are skipped so an empty member doesn't poison the result.
-
-## Step-by-step (line string)
-
-```
-input:  LineString [(2, 1), (5, 4), (3, 7), (0, 3)]
-
-start:  min_x = 2, max_x = 2, min_y = 1, max_y = 1   (from coord 0)
-coord 1: (5, 4) →   min_x = 2, max_x = 5, min_y = 1, max_y = 4
-coord 2: (3, 7) →   min_x = 2, max_x = 5, min_y = 1, max_y = 7
-coord 3: (0, 3) →   min_x = 0, max_x = 5, min_y = 1, max_y = 7
-
-result: Rect(Coord(0, 1), Coord(5, 7))
-```
-
-The Trait API on the port (`Bounded::bbox(self) -> Rect?`) has a uniform impl per type that wraps these free functions.
-
-## Why the special `coord` / `point` / `line` / `triangle` / `rect` cases
-
-These types are **never** empty by construction (they always have at least one finite vertex), so they return `Rect` directly without the `Option` wrapper. The compile-time guarantee saves callers from `unwrap()`s.
-
-A `Point` produces a degenerate `Rect` with `min == max` — this is intentional and matches OGC SFA (a point has zero width and zero height).
-
-## Examples
-
-```moonbit nocheck
+```mbt check
 ///|
-let ls = @type.LineString::from_tuples([(2.0, 1.0), (5.0, 4.0), (0.0, 3.0)])
+test "Bounded::bbox - LineString tight rect over its coords" {
+  let ls = @type.LineString::from_tuples([
+    (40.02, 116.34),
+    (42.02, 116.34),
+    (42.02, 118.34),
+  ])
+  @test.assert_eq(
+    Bounded::bbox(ls),
+    Some(
+      @type.Rect::Rect(
+        @type.Coord::Coord(40.02, 116.34),
+        @type.Coord::Coord(42.02, 118.34),
+      ),
+    ),
+  )
+}
+```
 
+- Point: degenerate zero-size rect at the coord
+
+```mbt check
 ///|
-let bbox = @lib2d.bounding_rect_of_line_string(ls).unwrap()
-// bbox.min == Coord(0, 1), bbox.max == Coord(5, 4)
-// bbox.width()  == 5, bbox.height() == 3
+test "Bounded::bbox - Point is degenerate zero-size rect" {
+  let p = @type.Point::Point(1.0, 2.0)
+  let r = match Bounded::bbox(p) {
+    Some(r) => r
+    None => abort("Point always has a bounding rect")
+  }
+  @test.assert_eq(r.width(), 0.0)
+  @test.assert_eq(r.height(), 0.0)
+}
 ```
 
-For empty input:
+- Empty LineString: `None`
 
-```moonbit nocheck
-let empty_ls = @type.LineString::empty()
-@lib2d.bounding_rect_of_line_string(empty_ls)   // None
+```mbt check
+///|
+test "Bounded::bbox - empty LineString returns None" {
+  @test.assert_eq(Bounded::bbox(@type.LineString::empty()), None)
+}
 ```
 
-See `bounding_rect_test.mbt`:
+- Dispatch sweep across every Geometry variant
 
-- `bounding_rect_of_line_string`
-- `bounding_rect_of_point is degenerate`
-- `bounding_rect_of_line_string empty`
+```mbt check
+///|
+test "Bounded::bbox - dispatch covers every Geometry variant" {
+  // Line: rect over its endpoints.
+  @test.assert_eq(
+    Bounded::bbox(
+      @type.Geometry::Line(@type.Line::from_tuples((0.0, 0.0), (3.0, 4.0))),
+    ),
+    Some(
+      @type.Rect::Rect(
+        @type.Coord::Coord(0.0, 0.0),
+        @type.Coord::Coord(3.0, 4.0),
+      ),
+    ),
+  )
+  // MultiLineString: rect over all coords.
+  let mls = @type.MultiLineString::MultiLineString([
+    @type.LineString::from_tuples([(0.0, 0.0), (10.0, 5.0)]),
+    @type.LineString::from_tuples([(-2.0, 3.0), (4.0, 8.0)]),
+  ])
+  @test.assert_eq(
+    Bounded::bbox(@type.Geometry::MultiLineString(mls)),
+    Some(
+      @type.Rect::Rect(
+        @type.Coord::Coord(-2.0, 0.0),
+        @type.Coord::Coord(10.0, 8.0),
+      ),
+    ),
+  )
+  // Polygon: rect over the exterior coords.
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (10.0, 0.0),
+      (10.0, 10.0),
+      (0.0, 10.0),
+    ]),
+    [],
+  )
+  @test.assert_eq(
+    Bounded::bbox(@type.Geometry::Polygon(polygon)),
+    Some(
+      @type.Rect::Rect(
+        @type.Coord::Coord(0.0, 0.0),
+        @type.Coord::Coord(10.0, 10.0),
+      ),
+    ),
+  )
+  // MultiPolygon: rect over every exterior.
+  @test.assert_eq(
+    Bounded::bbox(
+      @type.Geometry::MultiPolygon(@type.MultiPolygon::MultiPolygon([polygon])),
+    ),
+    Some(
+      @type.Rect::Rect(
+        @type.Coord::Coord(0.0, 0.0),
+        @type.Coord::Coord(10.0, 10.0),
+      ),
+    ),
+  )
+  // Triangle: rect over its three vertices.
+  let tri = @type.Triangle::Triangle(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(6.0, 0.0),
+    @type.Coord::Coord(3.0, 9.0),
+  )
+  @test.assert_eq(
+    Bounded::bbox(@type.Geometry::Triangle(tri)),
+    Some(
+      @type.Rect::Rect(
+        @type.Coord::Coord(0.0, 0.0),
+        @type.Coord::Coord(6.0, 9.0),
+      ),
+    ),
+  )
+  // Rect dispatch: itself.
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(7.0, 4.0),
+  )
+  @test.assert_eq(Bounded::bbox(@type.Geometry::Rect(r)), Some(r))
+  // GeometryCollection: rect over all collected coords.
+  let gc = @type.GeometryCollection::GeometryCollection([
+    @type.Geometry::Point(@type.Point::Point(0.0, 0.0)),
+    @type.Geometry::Point(@type.Point::Point(5.0, 5.0)),
+  ])
+  @test.assert_eq(
+    Bounded::bbox(@type.Geometry::GeometryCollection(gc)),
+    Some(
+      @type.Rect::Rect(
+        @type.Coord::Coord(0.0, 0.0),
+        @type.Coord::Coord(5.0, 5.0),
+      ),
+    ),
+  )
+}
+```
 
-And the property test `property: bounding rect contains every coord of the geometry` (`property_test.mbt`).
+- Direct dispatch on every concrete type
 
-## Performance
+```mbt check
+///|
+test "Bounded::bbox - direct dispatch on every concrete type" {
+  let pt = @type.Point::Point(0.0, 0.0)
+  let l = @type.Line::from_tuples((0.0, 0.0), (1.0, 1.0))
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0)])
+  let mp = @type.MultiPoint::from_tuples([(0.0, 0.0), (3.0, 4.0)])
+  let mls = @type.MultiLineString::MultiLineString([ls])
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (4.0, 0.0),
+      (4.0, 4.0),
+      (0.0, 4.0),
+    ]),
+    [],
+  )
+  let mpoly = @type.MultiPolygon::MultiPolygon([polygon])
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(1.0, 1.0),
+  )
+  let tri = @type.Triangle::Triangle(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(1.0, 0.0),
+    @type.Coord::Coord(0.0, 1.0),
+  )
+  let gc = @type.GeometryCollection::GeometryCollection([
+    @type.Geometry::Point(pt),
+  ])
+  assert_true(Bounded::bbox(pt) is Some(_))
+  assert_true(Bounded::bbox(l) is Some(_))
+  assert_true(Bounded::bbox(ls) is Some(_))
+  assert_true(Bounded::bbox(mp) is Some(_))
+  assert_true(Bounded::bbox(mls) is Some(_))
+  assert_true(Bounded::bbox(polygon) is Some(_))
+  assert_true(Bounded::bbox(mpoly) is Some(_))
+  assert_true(Bounded::bbox(r) is Some(_))
+  assert_true(Bounded::bbox(tri) is Some(_))
+  assert_true(Bounded::bbox(gc) is Some(_))
+}
+```
 
-`O(n)`. Single pass over all coords, no allocation. Benchmarked as `bench: bounding_rect_of_line_string n=100` (`bounding_rect_bench_test.mbt`).
+- `Coord` impl: degenerate zero-size rect at the coord
 
-## Caveats
-
-- Floating-point only: `min` / `max` propagate `NaN` if any coord is `NaN`. Use `validation.mbt`'s `is_valid` upstream of bbox calls if your data may contain non-finite values.
-- The bbox is only as tight as the input vertices — a curve approximated by few line segments will produce a bbox slightly larger than the true geometric extent.
+```mbt check
+///|
+test "Bounded::bbox - Coord is a degenerate zero-size rect at itself" {
+  let c = @type.Coord::Coord(3.0, 4.0)
+  @test.assert_eq(Bounded::bbox(c), Some(@type.Rect::Rect(c, c)))
+}
+```

@@ -1,164 +1,165 @@
-# `euclidean.mbt` — straight-line (planar Euclidean) distance, length, bearing, destination
+# euclidean.mbt
 
-## Goal
+Planar Euclidean distance, squared distance, distance-to-segment, length, bearing, and destination helpers. The `HasEuclideanLength::euclidean_length` trait lifts the line / line-string length functions to a uniform interface.
 
-Provide the planar (`x`, `y` in metres or whatever unit) versions of the most common line-measurement operations:
-
-- **Distance** between two points / a point and a line / two collections.
-- **Length** of a line, line string, or multi-line-string.
-- **Bearing** (angle from `+x` axis) between two coords.
-- **Destination** — given a start, distance, and bearing, where do you end up?
-
-This is the **planar / Cartesian** family. The geographic / spherical / geodesic variants (`Haversine`, `Geodesic`, `Vincenty`) are explicitly **out of scope** for this port — see `mbt/package/geo-mbt/CLAUDE.md`.
-
-## API surface
-
-| Function                                         | Returns  | What it does                                                                                                         |
-| ------------------------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------- |
-| `euclidean_distance_coords(a, b)`                | `Double` | `sqrt((a.x − b.x)² + (a.y − b.y)²)`                                                                                  |
-| `euclidean_distance_squared_coords(a, b)`        | `Double` | Skips the `sqrt` — useful when you only need to compare distances                                                    |
-| `euclidean_distance_points(a, b)`                | `Double` | Same, but takes `Point`                                                                                              |
-| `euclidean_distance_coord_to_line(c, l)`         | `Double` | Shortest distance from `c` to the segment `l` (perpendicular if foot lies on the segment, otherwise nearer endpoint) |
-| `euclidean_distance_point_to_line(p, l)`         | `Double` | Same, with `Point` input                                                                                             |
-| `euclidean_distance_coord_to_line_string(c, ls)` | `Double` | Min over all segments                                                                                                |
-| `euclidean_length_line(l)`                       | `Double` | `magnitude(l.delta())`                                                                                               |
-| `euclidean_length_line_string(ls)`               | `Double` | Sum of segment lengths (0 for `< 2` coords)                                                                          |
-| `euclidean_length_multi_line_string(mls)`        | `Double` | Sum across all member line strings                                                                                   |
-| `euclidean_bearing(from, to)`                    | `Double` | Angle in radians from `+x` axis, `atan2(Δy, Δx)`                                                                     |
-| `euclidean_destination(from, distance, bearing)` | `Coord`  | `from + distance · (cos(bearing), sin(bearing))`                                                                     |
-
-## Distance — point to point
-
-```
-       b•
-       ╱│
-      ╱ │ Δy
-     ╱  │
-    ╱___│
-   a    Δx
-
-distance = sqrt(Δx² + Δy²)
-```
-
-Just the Pythagorean theorem on the Δ vector.
-
-`euclidean_distance_squared_coords` returns `Δx² + Δy²` without the square root. **Use it whenever you don't need the absolute distance**, e.g. "find the closest of these N points" — comparing squared distances is monotonic with comparing real distances and dodges one `sqrt` per candidate.
-
-## Distance — point to line segment
-
-A bit more involved than point-to-infinite-line. The closest point on a segment depends on whether the **foot of the perpendicular** falls inside the segment:
-
-```
-                  • c                     • c                  • c
-                   ╲                       │                    ╲
-                    ╲                      │                     ╲
-   a───●─────b      a─────●─────b      a─────b ●          a────b  ●
-       ↑                  ↑                  ↑                    ↑
-   foot inside        foot inside       foot past b           foot past b
-   distance =         distance =        distance =            distance =
-   |c − foot|         |c − foot|        |c − b|               |c − b|
-```
-
-The implementation:
-
-1. Parametrise the segment as `a + t · (b − a)` with `t ∈ [0, 1]`.
-2. Solve `t* = ((c − a) · (b − a)) / |b − a|²` (the projection scalar).
-3. **Clamp** `t = clamp(t*, 0, 1)`. This is what handles the "foot past the endpoint" case.
-4. The closest point is `a + t · (b − a)`. Return its distance to `c`.
-
-This is the same algorithm `closest_point.mbt` uses internally; the distance functions just discard the closest-point coordinate at the end.
-
-## Length
-
-For a line: `magnitude(end − start)`.
-
-For a line string: walk consecutive pairs, sum each pair's distance. `O(n)`.
-
-For a multi-line-string: same idea, summed across components.
-
-Empty inputs (0 or 1 coords) return `0`.
-
-## Bearing
-
-```
-                ↑ +y
-                │
-                │     to
-                │    ╱
-                │   ╱
-                │  ╱  bearing
-                │ ╱
-                │╱_______→ +x
-              from
-```
-
-`euclidean_bearing(from, to) = atan2(to.y − from.y, to.x − from.x)`.
-
-The result is in **radians, measured CCW from the `+x` axis** — the standard math convention. (Compass bearing measured CW from north would be `π/2 − bearing` after sign flips. The port doesn't add a compass-bearing helper because the planar scope keeps the convention pure.)
-
-## Destination
-
-The inverse of bearing: given a starting `from`, a `distance`, and a `bearing` (radians, CCW from `+x`), return the point you end up at.
-
-```
-result = (from.x + distance · cos(bearing),
-         from.y + distance · sin(bearing))
-```
-
-`euclidean_bearing(from, euclidean_destination(from, d, θ)) ≈ θ` and `euclidean_distance_coords(from, euclidean_destination(from, d, θ)) ≈ d` — these round-trip identities are what `euclidean_test.mbt`'s `euclidean_destination roundtrip with bearing` test exercises.
-
-## Examples
-
-```moonbit nocheck
-let a = @type.Coord(0.0, 0.0)
-let b = @type.Coord(3.0, 4.0)
-
-@lib2d.euclidean_distance_coords(a, b)   // 5.0  (3-4-5 triangle)
-@lib2d.euclidean_distance_squared_coords(a, b)   // 25.0 — no sqrt
-
-let line = @type.Line::Line(@type.Coord(0.0, 0.0), @type.Coord(10.0, 0.0))
-@lib2d.euclidean_distance_coord_to_line(@type.Coord(5.0, 3.0), line)   // 3.0
-@lib2d.euclidean_distance_coord_to_line(@type.Coord(15.0, 3.0), line)
-//   ↑ foot would land at x=15, beyond endpoint — clamps to (10, 0)
-//     distance becomes √(5² + 3²) ≈ 5.83
-```
-
-Length of a line string:
-
-```moonbit nocheck
-let ls = @type.LineString::from_tuples([(0.0, 0.0), (3.0, 0.0), (3.0, 4.0)])
-@lib2d.euclidean_length_line_string(ls)   // 3 + 4 = 7
-```
-
-Tests in `euclidean_test.mbt`:
+## Public API
 
 - `euclidean_distance_coords`
-- `euclidean_length_line`, `euclidean_length_line_string`
-- `euclidean_distance_coord_to_line — point on segment`
-- `euclidean_distance_coord_to_line — point off-segment`
-- `euclidean_destination roundtrip with bearing`
+- `euclidean_distance_points`
+- `euclidean_distance_squared_coords`
+- `euclidean_distance_coord_to_line`
+- `euclidean_distance_point_to_line`
+- `euclidean_distance_coord_to_line_string`
+- `euclidean_bearing`
+- `euclidean_destination`
+- `HasEuclideanLength` — `euclidean_length` (impls in this file)
 
-Plus the bench `bench: euclidean_length_line_string n=100` (`euclidean_bench_test.mbt`).
+## Test
 
-## Trait API
+### `euclidean_distance_points`
 
-The free functions above feed into the port-wide `HasLength` trait:
+- Wraps `euclidean_distance_coords` for `Point` inputs
 
-```
-HasLength { euclidean_length(self) -> Double }
-```
-
-with impls for `Line`, `LineString`, and `MultiLineString`. Use the trait when you want a uniform call site:
-
-```moonbit nocheck
+```mbt check
 ///|
-fn[T : @lib2d.HasLength] total(arr : Array[T]) -> Double {
-  arr.iter().fold(init=0.0, fn(acc, x) { acc + x.euclidean_length() })
+test "euclidean_distance_points - 3-4-5 via Point inputs" {
+  @test.assert_eq(
+    euclidean_distance_points(
+      @type.Point::Point(0.0, 0.0),
+      @type.Point::Point(3.0, 4.0),
+    ),
+    5.0,
+  )
 }
 ```
 
-## Caveats
+### Squared distance / point-to-line / coord-to-linestring / bearing
 
-- **Planar only**. If your coords are longitude/latitude in degrees, this gives nonsense — `(0, 0)` to `(180, 0)` is half the equator (~20 000 km), not `magnitude((180, 0)) = 180`. Project to a metric CRS before using these.
-- **No checks for non-finite coordinates.** `NaN` propagates. Use `validation.mbt` upstream if your data may be dirty.
-- `euclidean_bearing` returns `0` for identical points (`atan2(0, 0)` is defined as `0` in IEEE-754). If that matters, check for equality first.
+```mbt check
+///|
+test "euclidean - squared / point_to_line / coord_to_line_string / bearing" {
+  // Squared distance avoids the sqrt: 3² + 4² = 25.
+  @test.assert_eq(
+    euclidean_distance_squared_coords(
+      @type.Coord::Coord(0.0, 0.0),
+      @type.Coord::Coord(3.0, 4.0),
+    ),
+    25.0,
+  )
+  // Point → line distance: foot of perpendicular at midpoint.
+  let l = @type.Line::from_tuples((0.0, 0.0), (10.0, 0.0))
+  @test.assert_eq(
+    euclidean_distance_point_to_line(@type.Point::Point(5.0, 3.0), l),
+    3.0,
+  )
+  // Coord → linestring distance: shortest of any segment.
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (10.0, 0.0)])
+  @test.assert_eq(
+    euclidean_distance_coord_to_line_string(@type.Coord::Coord(5.0, 3.0), ls),
+    3.0,
+  )
+  // Bearing east is 0°.
+  @test.assert_eq(
+    euclidean_bearing(
+      @type.Coord::Coord(0.0, 0.0),
+      @type.Coord::Coord(1.0, 0.0),
+    ),
+    0.0,
+  )
+}
+```
+
+### `euclidean_distance_coords`
+
+- 3-4-5 triangle: distance from origin to `(3, 4)` is 5
+
+```mbt check
+///|
+test "euclidean_distance_coords - 3-4-5 triangle" {
+  @test.assert_eq(
+    euclidean_distance_coords(
+      @type.Coord::Coord(0.0, 0.0),
+      @type.Coord::Coord(3.0, 4.0),
+    ),
+    5.0,
+  )
+}
+```
+
+### `euclidean_distance_coord_to_line`
+
+| Variable | State                        | Note                   |  1  |  2  |
+| :------- | :--------------------------- | :--------------------- | :-: | :-: |
+| `p`      | `Above midpoint`             | perpendicular distance |  ✓  |     |
+| `p`      | `Off the segment past start` | clamped to start       |     |  ✓  |
+
+- Point above the midpoint: perpendicular distance
+
+```mbt check
+///|
+test "euclidean_distance_coord_to_line - perpendicular at midpoint" {
+  let l = @type.Line::from_tuples((0.0, 0.0), (10.0, 0.0))
+  @test.assert_eq(
+    euclidean_distance_coord_to_line(@type.Coord::Coord(5.0, 3.0), l),
+    3.0,
+  )
+}
+```
+
+- Point past the start: clamped distance to start
+
+```mbt check
+///|
+test "euclidean_distance_coord_to_line - past start clamps to start distance" {
+  let l = @type.Line::from_tuples((0.0, 0.0), (10.0, 0.0))
+  let d = euclidean_distance_coord_to_line(@type.Coord::Coord(-5.0, 3.0), l)
+  let expected = (34.0 : Double).sqrt()
+  assert_true((d - expected).abs() < TOLERANCE)
+}
+```
+
+### `HasEuclideanLength`
+
+#### `euclidean_length`
+
+| Variable | State                | Note |  1  |  2  |
+| :------- | :------------------- | :--- | :-: | :-: |
+| `self`   | `Line` (length 5)    | 5    |  ✓  |     |
+| `self`   | `LineString` (3 + 4) | 7    |     |  ✓  |
+
+- Line of length 5 reports 5
+
+```mbt check
+///|
+test "HasEuclideanLength::euclidean_length - Line of length 5" {
+  let l = @type.Line::from_tuples((0.0, 0.0), (3.0, 4.0))
+  @test.assert_eq(HasEuclideanLength::euclidean_length(l), 5.0)
+}
+```
+
+- LineString of total length 3 + 4 = 7
+
+```mbt check
+///|
+test "HasEuclideanLength::euclidean_length - 3+4 LineString gives 7" {
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (3.0, 0.0), (3.0, 4.0)])
+  @test.assert_eq(HasEuclideanLength::euclidean_length(ls), 7.0)
+}
+```
+
+### `euclidean_destination`
+
+- Heading east (`0°`) by distance 5 → `(5, 0)`; heading north (`90°`) by distance 5 → `(0, 5)`
+
+```mbt check
+///|
+test "euclidean_destination - east and north" {
+  let east = euclidean_destination(@type.Coord::Coord(0.0, 0.0), 0.0, 5.0)
+  let north = euclidean_destination(@type.Coord::Coord(0.0, 0.0), 90.0, 5.0)
+  // Up to floating-point round-off the results are (5, 0) and (0, 5).
+  assert_true((east.x() - 5.0).abs() < TOLERANCE)
+  assert_true(east.y().abs() < TOLERANCE)
+  assert_true(north.x().abs() < TOLERANCE)
+  assert_true((north.y() - 5.0).abs() < TOLERANCE)
+}
+```

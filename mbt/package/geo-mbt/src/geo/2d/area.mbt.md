@@ -1,106 +1,319 @@
-# `area.mbt` — signed and unsigned area
+# area.mbt
 
-## Goal
+Planar (signed and unsigned) area helpers for `Polygon`, `MultiPolygon`, `Rect`, `Triangle`, and `Geometry`. The single public free function `twice_signed_ring_area` returns 2× the signed area of a closed `LineString` ring (the shoelace value before halving). All other area entry points are exposed via the `HasArea` trait alongside its impls
 
-Compute the **area** of a planar geometry. Two flavours:
+## Public API
 
-- **Signed area** — has a sign that encodes the polygon's winding order. Positive when the vertices are listed counter-clockwise (CCW), negative when clockwise (CW). Empty / degenerate geometries return `0`.
-- **Unsigned area** — the absolute value: always `≥ 0`.
+- `twice_signed_ring_area`
+- `HasArea` — impls on `Polygon` / `MultiPolygon` / `Rect` / `Triangle` / `Geometry`
+  - `signed_area`
+  - `unsigned_area`
 
-The signed form is what most algorithms want internally (it implicitly carries orientation information); the unsigned form is what end users usually want when they ask "how big is this region?".
+## Test
 
-## API surface
+### `twice_signed_ring_area`
 
-| Function                           | Result           | Notes                                                                    |
-| ---------------------------------- | ---------------- | ------------------------------------------------------------------------ |
-| `signed_area_of_polygon(p)`        | `Double`         | Exterior contributes positive area, interior rings (holes) subtract      |
-| `signed_area_of_multi_polygon(mp)` | `Double`         | Sum of each polygon's signed area                                        |
-| `signed_area_of_rect(r)`           | `Double`         | `width * height`. Always non-negative because `Rect` normalises corners  |
-| `signed_area_of_triangle(t)`       | `Double`         | Non-robust; uses simple `cross` product                                  |
-| `signed_area_of_triangle_robust`   | `Double`         | Same shape, but uses `@robust.orient2d` so the sign is correct near zero |
-| `signed_area_of_geometry(g)`       | `Double`         | Dispatch over the `Geometry` enum                                        |
-| `unsigned_area_of_*`               | `Double` (`≥ 0`) | `abs(signed_area_of_*)`                                                  |
-| `twice_signed_ring_area(ls)`       | `Double`         | Helper: returns `2 × signedArea` for a single closed ring                |
+| Variable | State                      | Note                               |  1  |  2  |  3  |  4  |
+| :------- | :------------------------- | :--------------------------------- | :-: | :-: | :-: | :-: |
+| `ls`     | `Closed CCW square`        | positive, equals `2 * signed area` |  ✓  |     |     |     |
+| `ls`     | `Closed CW square`         | negative                           |     |  ✓  |     |     |
+| `ls`     | `Open ring (first ≠ last)` | returns 0                          |     |     |  ✓  |     |
+| `ls`     | `Fewer than 3 coords`      | returns 0                          |     |     |     |  ✓  |
 
-`Point`, `Line`, `LineString`, `MultiLineString`, `MultiPoint` always have area `0` (their dimension is 0 or 1, not 2). The free functions just return `0` for those without dispatching.
+- Closed CCW square gives `2 * area`
 
-## Algorithm — the shoelace formula
-
-For a simple polygon with vertices `(x₀, y₀), (x₁, y₁), …, (xₙ₋₁, yₙ₋₁)`:
-
-```
-signed_area = ½ · Σᵢ (xᵢ · yᵢ₊₁  −  xᵢ₊₁ · yᵢ)
-            (indices wrap, so xₙ ≡ x₀)
-```
-
-The geometric intuition: each segment `(pᵢ → pᵢ₊₁)` contributes a _trapezoid_ between itself and the x-axis, with sign equal to the segment's left-to-right direction. When you sum over a closed ring, the trapezoids that are "outside" the polygon cancel, leaving exactly the polygon's signed area.
-
-The port computes `2 × signed_area` (`twice_signed_ring_area`) and then divides by 2 only at the outermost call. This avoids one floating-point division per ring and is a common implementation trick in geometry libraries.
-
-For a `Polygon` with holes, the exterior ring contributes its signed area, and each interior ring contributes its signed area too. Because conventional winding has interiors going the opposite way to the exterior (CW interior + CCW exterior, or vice versa), the interior signed areas naturally come out with the opposite sign and **subtract** from the exterior. The implementation simply sums them.
-
-## Step-by-step (polygon, single ring)
-
-1. Walk consecutive coordinate pairs `(pᵢ, pᵢ₊₁)`, with `pₙ` wrapping back to `p₀` (the ring is implicitly closed).
-2. For each pair, accumulate `xᵢ · yᵢ₊₁ − xᵢ₊₁ · yᵢ`.
-3. Divide by 2.
-
-The contribution per edge can also be read as a 2D cross product `(pᵢ × pᵢ₊₁)`, which is why "signed area" and "winding order" are deeply linked — they're computing the same quantity.
-
-## What the sign tells you
-
-Given the convention `+x → right, +y → up`:
-
-- **Positive** signed area ⇒ vertices listed **CCW** (math convention, GeoJSON exterior, OGC SFA exterior).
-- **Negative** signed area ⇒ vertices listed **CW** (Shapefile exterior, GeoJSON interior ring).
-- **Zero** ⇒ degenerate (collinear, self-overlapping, or empty).
-
-`winding_order(line_string)` is implemented on top of this — it inspects the sign of `twice_signed_ring_area(ls)`.
-
-## Examples
-
-```moonbit nocheck
+```mbt check
 ///|
-let unit_square = @type.Polygon::Polygon(
-  @type.LineString::from_tuples([(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)]),
-  [],
-)
-// signed_area_of_polygon(unit_square) == 1.0   (CCW exterior)
-// unsigned_area_of_polygon(unit_square) == 1.0
+test "twice_signed_ring_area - closed CCW square" {
+  let ls = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (5.0, 0.0),
+    (5.0, 6.0),
+    (0.0, 6.0),
+    (0.0, 0.0),
+  ])
+  @test.assert_eq(twice_signed_ring_area(ls), 60.0)
+}
 ```
 
-A polygon with a hole subtracts the hole:
+- Closed CW square gives a negative value
 
+```mbt check
+///|
+test "twice_signed_ring_area - closed CW square is negative" {
+  let ls = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (0.0, 6.0),
+    (5.0, 6.0),
+    (5.0, 0.0),
+    (0.0, 0.0),
+  ])
+  @test.assert_eq(twice_signed_ring_area(ls), -60.0)
+}
 ```
-exterior:  10×10 square (CCW)        →  +100
-interior:   2×2 square (CW)          →   −4
-                                     ────
-signed_area_of_polygon              =  +96
+
+- Open ring returns 0
+
+```mbt check
+///|
+test "twice_signed_ring_area - open ring returns zero" {
+  let ls = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (5.0, 0.0),
+    (5.0, 6.0),
+    (0.0, 6.0),
+  ])
+  @test.assert_eq(twice_signed_ring_area(ls), 0.0)
+}
 ```
 
-For `Triangle`: the simple version uses one cross product. The `_robust` version routes through `@robust.orient2d`, which is essential when three vertices are _almost_ collinear — without it, the sign can flip due to floating-point rounding.
+- Fewer than 3 coords returns 0
 
-See `area_test.mbt` for executable cases:
+```mbt check
+///|
+test "twice_signed_ring_area - fewer than 3 coords returns zero" {
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0)])
+  @test.assert_eq(twice_signed_ring_area(ls), 0.0)
+}
+```
 
-- `signed_area_of_polygon CCW positive`
-- `signed_area_of_polygon CW negative`
-- `signed_area_of_polygon with hole`
-- `signed_area_of_rect is width * height`
-- `signed_area_of_triangle`
-- `Point/Line/LineString have zero area`
+### `HasArea`
 
-And `kernel_test.mbt` for the robust variant: `signed_area_of_triangle_robust`.
+#### `signed_area`
 
-## Property-style checks
+| Variable | State                             | Note                                   |  1  |  2  |  3  |  4  |  5  |
+| :------- | :-------------------------------- | :------------------------------------- | :-: | :-: | :-: | :-: | :-: |
+| `self`   | `Polygon (CCW)`                   | positive                               |  ✓  |     |     |     |     |
+| `self`   | `Polygon (CW)`                    | negative                               |     |  ✓  |     |     |     |
+| `self`   | `Polygon with hole`               | exterior area minus interior           |     |     |  ✓  |     |     |
+| `self`   | `Rect`                            | `width * height`                       |     |     |     |  ✓  |     |
+| `self`   | `Geometry::Point/Line/LineString` | zero-dimensional / one-dimensional → 0 |     |     |     |     |  ✓  |
 
-`property_test.mbt` includes `property: signed_area flips sign when coords are reversed`, exercising the wind-order ↔ sign correspondence on randomly generated polygons.
+- Polygon (CCW exterior): positive
 
-## Edge cases
+```mbt check
+///|
+test "HasArea::signed_area - Polygon CCW positive" {
+  let exterior = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (5.0, 0.0),
+    (5.0, 6.0),
+    (0.0, 6.0),
+    (0.0, 0.0),
+  ])
+  @test.assert_eq(
+    HasArea::signed_area(@type.Polygon::Polygon(exterior, [])),
+    30.0,
+  )
+}
+```
 
-- **Empty geometries** return `0`.
-- **Self-intersecting polygons** (the "bowtie" shape) — the formula still produces a value, but it has no useful geometric meaning. The validation layer (`validation.mbt`) is responsible for catching these before they reach `signed_area_of_polygon`.
-- **Degenerate triangles** (3 collinear points) → `signed_area = 0` from the simple formula. The robust variant returns `0` too, but importantly it returns _exactly_ `0` rather than a tiny non-zero rounding artefact.
+- Polygon (CW exterior): negative
 
-## Performance
+```mbt check
+///|
+test "HasArea::signed_area - Polygon CW negative" {
+  let exterior = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (0.0, 6.0),
+    (5.0, 6.0),
+    (5.0, 0.0),
+    (0.0, 0.0),
+  ])
+  @test.assert_eq(
+    HasArea::signed_area(@type.Polygon::Polygon(exterior, [])),
+    -30.0,
+  )
+}
+```
 
-`O(n)` where `n` is the total number of coordinates across all rings. A single pass; no allocation. The `bench: signed_area_of_polygon n=100` benchmark in `area_bench_test.mbt` covers this path.
+- Polygon with hole: exterior area minus interior
+
+```mbt check
+///|
+test "HasArea::signed_area - Polygon with hole subtracts interior area" {
+  let exterior = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (10.0, 0.0),
+    (10.0, 10.0),
+    (0.0, 10.0),
+    (0.0, 0.0),
+  ])
+  let interior = @type.LineString::from_tuples([
+    (3.0, 3.0),
+    (7.0, 3.0),
+    (7.0, 7.0),
+    (3.0, 7.0),
+    (3.0, 3.0),
+  ])
+  @test.assert_eq(
+    HasArea::signed_area(@type.Polygon::Polygon(exterior, [interior])),
+    100.0 - 16.0,
+  )
+}
+```
+
+- Rect: `width * height`
+
+```mbt check
+///|
+test "HasArea::signed_area - Rect is width * height" {
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(3.0, 4.0),
+  )
+  @test.assert_eq(HasArea::signed_area(r), 12.0)
+}
+```
+
+- `Geometry` variants below 2D have area zero
+
+```mbt check
+///|
+test "HasArea::signed_area - sub-2D Geometry variants have area zero" {
+  let p = @type.Geometry::Point(@type.Point::Point(1.0, 2.0))
+  let l = @type.Geometry::Line(@type.Line::from_tuples((0.0, 0.0), (1.0, 1.0)))
+  let ls = @type.Geometry::LineString(
+    @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0)]),
+  )
+  @test.assert_eq(HasArea::signed_area(p), 0.0)
+  @test.assert_eq(HasArea::signed_area(l), 0.0)
+  @test.assert_eq(HasArea::signed_area(ls), 0.0)
+}
+```
+
+#### `unsigned_area`
+
+| Variable | State                   | Note              |  1  |  2  |
+| :------- | :---------------------- | :---------------- | :-: | :-: |
+| `self`   | `Polygon (any winding)` | `\|signed_area\|` |  ✓  |     |
+| `self`   | `Right Triangle`        | `\|signed_area\|` |     |  ✓  |
+
+- Polygon: `|signed_area|` regardless of winding
+
+```mbt check
+///|
+test "HasArea::unsigned_area - Polygon equals abs of signed_area" {
+  let exterior = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (0.0, 6.0),
+    (5.0, 6.0),
+    (5.0, 0.0),
+    (0.0, 0.0),
+  ])
+  let polygon = @type.Polygon::Polygon(exterior, [])
+  @test.assert_eq(HasArea::unsigned_area(polygon), 30.0)
+}
+```
+
+- Triangle: `|signed_area|`
+
+```mbt check
+///|
+test "HasArea::unsigned_area - right triangle with legs 4 and 6 is 12" {
+  let t = @type.Triangle::Triangle(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(4.0, 0.0),
+    @type.Coord::Coord(0.0, 6.0),
+  )
+  @test.assert_eq(HasArea::unsigned_area(t), 12.0)
+}
+```
+
+- MultiPolygon: signed and unsigned direct dispatch
+
+```mbt check
+///|
+test "HasArea - MultiPolygon direct dispatch (signed and unsigned)" {
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (5.0, 0.0),
+      (5.0, 6.0),
+      (0.0, 6.0),
+      (0.0, 0.0),
+    ]),
+    [],
+  )
+  let mp = @type.MultiPolygon::MultiPolygon([polygon])
+  @test.assert_eq(HasArea::signed_area(mp), 30.0)
+  @test.assert_eq(HasArea::unsigned_area(mp), 30.0)
+}
+```
+
+- Rect: `unsigned_area` direct dispatch
+
+```mbt check
+///|
+test "HasArea::unsigned_area - Rect direct dispatch" {
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(3.0, 4.0),
+  )
+  @test.assert_eq(HasArea::unsigned_area(r), 12.0)
+}
+```
+
+- Triangle: `signed_area` direct dispatch
+
+```mbt check
+///|
+test "HasArea::signed_area - Triangle direct dispatch" {
+  let t = @type.Triangle::Triangle(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(4.0, 0.0),
+    @type.Coord::Coord(0.0, 6.0),
+  )
+  // CCW triangle: positive signed area = unsigned area = 12.
+  @test.assert_eq(HasArea::signed_area(t), 12.0)
+}
+```
+
+- `Geometry::unsigned_area` dispatch on every 2-D variant
+
+```mbt check
+///|
+test "HasArea::unsigned_area - Geometry dispatch sweep over 2-D variants" {
+  let exterior = @type.LineString::from_tuples([
+    (0.0, 0.0),
+    (5.0, 0.0),
+    (5.0, 6.0),
+    (0.0, 6.0),
+    (0.0, 0.0),
+  ])
+  let polygon = @type.Polygon::Polygon(exterior, [])
+  // Polygon dispatch.
+  @test.assert_eq(
+    HasArea::unsigned_area(@type.Geometry::Polygon(polygon)),
+    30.0,
+  )
+  // MultiPolygon dispatch (sum of polygon areas).
+  let mp = @type.MultiPolygon::MultiPolygon([polygon])
+  @test.assert_eq(
+    HasArea::unsigned_area(@type.Geometry::MultiPolygon(mp)),
+    30.0,
+  )
+  // Rect dispatch.
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(3.0, 4.0),
+  )
+  @test.assert_eq(HasArea::unsigned_area(@type.Geometry::Rect(r)), 12.0)
+  // Triangle dispatch via Geometry.
+  let t = @type.Triangle::Triangle(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(4.0, 0.0),
+    @type.Coord::Coord(0.0, 6.0),
+  )
+  @test.assert_eq(HasArea::unsigned_area(@type.Geometry::Triangle(t)), 12.0)
+  // GeometryCollection dispatch (sum of components).
+  let gc = @type.GeometryCollection::GeometryCollection([
+    @type.Geometry::Polygon(polygon),
+    @type.Geometry::Rect(r),
+  ])
+  @test.assert_eq(
+    HasArea::unsigned_area(@type.Geometry::GeometryCollection(gc)),
+    42.0,
+  )
+}
+```

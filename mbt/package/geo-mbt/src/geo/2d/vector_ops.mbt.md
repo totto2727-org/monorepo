@@ -1,84 +1,157 @@
-# `vector_ops.mbt` — 2D vector primitives on `Coord`
+# vector_ops.mbt
 
-## Goal
+Treats a `Coord` as a 2D vector and provides magnitude, squared magnitude, 90° rotations (`left` / `right`), dot / wedge products, finite-check, and `try_normalize` (returns `None` for zero or non-finite inputs).
 
-Treat `Coord` as a 2D vector and provide the small handful of operations that every geometric algorithm wants: magnitude, normalisation, dot product, the 2D wedge / cross product, and the two 90° rotations.
+## Public API
 
-These are the building blocks for distance, projection, bearing, orientation tests, and so on. They are intentionally **not** trait-shaped — they're free functions on `Coord` so they're cheap to call inline.
+- `magnitude`
+- `magnitude_squared`
+- `left`
+- `right`
+- `dot_product`
+- `wedge_product`
+- `is_finite`
+- `try_normalize`
 
-## API surface
+## Test
 
-| Function               | Returns  | Description                                                                  |
-| ---------------------- | -------- | ---------------------------------------------------------------------------- |
-| `magnitude(c)`         | `Double` | `sqrt(x² + y²)` — the Euclidean length / norm of `c`                         |
-| `magnitude_squared(c)` | `Double` | `x² + y²` — skips the `sqrt`. Use this when you only need to compare lengths |
-| `dot_product(a, b)`    | `Double` | `a.x*b.x + a.y*b.y`                                                          |
-| `wedge_product(a, b)`  | `Double` | `a.x*b.y − a.y*b.x` — the 2D cross product (a scalar in 2D)                  |
-| `try_normalize(c)`     | `Coord?` | `c / magnitude(c)`. `None` when `magnitude` is 0 or non-finite               |
-| `is_finite(c)`         | `Bool`   | Both `x` and `y` are finite (rejects `NaN` / `±Inf`)                         |
-| `left(c)`              | `Coord`  | 90° CCW rotation: `Coord(-c.y, c.x)`                                         |
-| `right(c)`             | `Coord`  | 90° CW rotation: `Coord(c.y, -c.x)`                                          |
+### `magnitude`
 
-`Coord::dot` and `Coord::cross` are method aliases of `dot_product` and `wedge_product` respectively, sitting on the type itself for ergonomic `.dot()` / `.cross()` chaining.
+- 3-4-5 right triangle: magnitude is 5
 
-## Why "wedge product" not "cross product"
-
-In 3D, the cross product `a × b` returns a vector perpendicular to both inputs. In 2D you only have one degree of freedom for that perpendicular direction — by convention the z-component of the embedded 3D cross — so the 2D analogue is a _scalar_: `a.x*b.y − a.y*b.x`.
-
-This scalar is also called the **wedge product** (`a ∧ b`) or the **2D cross product**. Its sign and magnitude carry geometric meaning:
-
-- **Sign** ⇒ orientation. Positive ⇒ `b` is CCW from `a`; negative ⇒ CW; zero ⇒ collinear.
-- **|wedge|** ⇒ the area of the parallelogram spanned by `a` and `b`. (Half of that is the triangle area, which is exactly what `signed_area_of_triangle` computes.)
-
-## `try_normalize` semantics
-
-```
-try_normalize(Coord(0, 0))                → None      // zero vector has no direction
-try_normalize(Coord(NaN, 0))              → None      // not finite
-try_normalize(Coord(3, 4))                → Some Coord(0.6, 0.8)   // length-1 unit vector
+```mbt check
+///|
+test "magnitude - 3-4-5 right triangle is 5" {
+  @test.assert_eq(magnitude(@type.Coord::Coord(3.0, 4.0)), 5.0)
+}
 ```
 
-The port returns `None` rather than dividing by zero / propagating `NaN`. Algorithms that need a unit vector should pattern-match on the result and decide what to do for the degenerate case.
+### `magnitude_squared`
 
-## `left` / `right` — 90° turns
+- Squared magnitude skips the `sqrt`: `x² + y²`
 
-```
-v = Coord(3, 1)         right(v) = Coord(1, -3)         (rotated 90° clockwise)
-                                                          ↓
-                                                       Coord(3, 1)
-                            left(v) = Coord(-1, 3)         ↑
-                                                       Coord(-1, 3)
-```
-
-These are useful for computing **normals** to a line: given a direction vector `d`, `left(d)` and `right(d)` are the two unit-perpendicular candidates (after dividing by `magnitude(d)`).
-
-## Examples
-
-```moonbit nocheck
-let v = @type.Coord(3.0, 4.0)
-let m = @lib2d.magnitude(v)            // 5.0
-let unit = @lib2d.try_normalize(v).unwrap()
-// unit == Coord(0.6, 0.8)
-
-let a = @type.Coord(1.0, 0.0)
-let b = @type.Coord(0.0, 1.0)
-@lib2d.dot_product(a, b)               // 0.0   (perpendicular)
-@lib2d.wedge_product(a, b)             // 1.0   (CCW unit area)
-
-@lib2d.left(@type.Coord(1.0, 0.0))     // Coord(0, 1)
-@lib2d.right(@type.Coord(1.0, 0.0))    // Coord(0, -1)
+```mbt check
+///|
+test "magnitude_squared - x² + y²" {
+  @test.assert_eq(magnitude_squared(@type.Coord::Coord(3.0, 4.0)), 25.0)
+}
 ```
 
-Tests live in `vector_ops_test.mbt`:
+### `left`
 
-- `magnitude`, `dot_product / wedge_product`
-- `try_normalize`, `try_normalize zero vector returns None`
-- `is_finite`, `left / right rotation`
+- 90° CCW rotation maps `(1, 0)` to `(0, 1)`
 
-## Performance
+```mbt check
+///|
+test "left - rotates 90 deg CCW" {
+  @test.assert_eq(
+    left(@type.Coord::Coord(1.0, 0.0)),
+    @type.Coord::Coord(0.0, 1.0),
+  )
+}
+```
 
-All of these are constant-time, allocation-free, and trivially inlinable.
+### `right`
 
-## Notes for upstream parity
+- 90° CW rotation maps `(1, 0)` to `(0, -1)`
 
-In Rust upstream `geo`, this is the `Vector2DOps` trait with the same set of operations. The port flattens it into free functions because MoonBit doesn't have the same blanket-impl pattern, and because every algorithm in the port already takes `Coord` directly — adding a trait dispatch wouldn't earn its complexity here.
+```mbt check
+///|
+test "right - rotates 90 deg CW" {
+  @test.assert_eq(
+    right(@type.Coord::Coord(1.0, 0.0)),
+    @type.Coord::Coord(0.0, -1.0),
+  )
+}
+```
+
+### `dot_product`
+
+- Inner product: `(1,2) · (3,4) = 11`
+
+```mbt check
+///|
+test "dot_product - basic" {
+  @test.assert_eq(
+    dot_product(@type.Coord::Coord(1.0, 2.0), @type.Coord::Coord(3.0, 4.0)),
+    11.0,
+  )
+}
+```
+
+### `wedge_product`
+
+- 2D wedge: `(1,2) ∧ (3,4) = 1*4 - 2*3 = -2`
+
+```mbt check
+///|
+test "wedge_product - basic" {
+  @test.assert_eq(
+    wedge_product(@type.Coord::Coord(1.0, 2.0), @type.Coord::Coord(3.0, 4.0)),
+    -2.0,
+  )
+}
+```
+
+### `is_finite`
+
+| Variable | State          | Note  |  1  |  2  |  3  |
+| :------- | :------------- | :---- | :-: | :-: | :-: |
+| `c`      | `(0, 0)`       | true  |  ✓  |     |     |
+| `c`      | `Has NaN`      | false |     |  ✓  |     |
+| `c`      | `Has infinity` | false |     |     |  ✓  |
+
+- All-finite is true
+
+```mbt check
+///|
+test "is_finite - all-finite is true" {
+  assert_true(is_finite(@type.Coord::Coord(0.0, 0.0)))
+}
+```
+
+- NaN is false
+
+```mbt check
+///|
+test "is_finite - NaN is false" {
+  assert_false(is_finite(@type.Coord::Coord(0.0 / 0.0, 0.0)))
+}
+```
+
+- Infinity is false
+
+```mbt check
+///|
+test "is_finite - infinity is false" {
+  assert_false(is_finite(@type.Coord::Coord(1.0 / 0.0, 0.0)))
+}
+```
+
+### `try_normalize`
+
+| Variable | State            | Note                                  |  1  |  2  |
+| :------- | :--------------- | :------------------------------------ | :-: | :-: |
+| `c`      | `Non-zero (3,4)` | unit vector `(0.6, 0.8)`              |  ✓  |     |
+| `c`      | `Zero vector`    | `None` (division produces non-finite) |     |  ✓  |
+
+- Non-zero vector normalises to its unit vector
+
+```mbt check
+///|
+test "try_normalize - non-zero gives unit vector" {
+  @test.assert_eq(
+    try_normalize(@type.Coord::Coord(3.0, 4.0)),
+    Some(@type.Coord::Coord(0.6, 0.8)),
+  )
+}
+```
+
+- Zero vector returns `None`
+
+```mbt check
+///|
+test "try_normalize - zero vector returns None" {
+  @test.assert_eq(try_normalize(@type.Coord::Coord(0.0, 0.0)), None)
+}
+```

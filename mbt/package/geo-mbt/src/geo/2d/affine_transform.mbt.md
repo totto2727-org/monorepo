@@ -1,146 +1,187 @@
-# `affine_transform.mbt` — composable 2D affine transformations
+# affine_transform.mbt
 
-## Goal
+A 2D affine transform stored as a pair of `AffineRow`s (`row_x` / `row_y`) representing the upper two rows of a 3×3 row-major matrix. Provides factory constructors (`identity` / `translate_xy` / `scale_xy` / `rotate_origin` / `skew_origin`), pointwise `apply`, `compose` (matrix multiplication in the order _first self, then other_), and a generic `transform` over any `MapCoords` instance.
 
-Provide an **`AffineTransform`** value type that captures any 2D linear-plus-translation transformation as a single object — translate, scale, rotate, skew, or any composition of these — and applies it to coordinates in `O(1)` per coord.
+## Public API
 
-The whole transformation is stored as 6 numbers (a 2×3 matrix in homogeneous coords). Composing two transformations `(M ∘ N)` produces another `AffineTransform` so chains stay flat instead of recursive.
-
-## API surface
-
-```moonbit nocheck
-pub struct AffineTransform {
-  a    : Double  // x-scale     |a  b  xoff|
-  b    : Double  // x-skew      |        |
-  xoff : Double  // x-translate
-  d    : Double  // y-skew      |d  e  yoff|
-  e    : Double  // y-scale     |        |
-  yoff : Double  // y-translate (third row implicitly  |0 0 1|)
-}
-
-pub fn AffineTransform::new(a, b, xoff, d, e, yoff) -> Self
-pub fn AffineTransform::identity() -> Self        // identity transform
-pub fn AffineTransform::translate_xy(dx, dy) -> Self
-pub fn AffineTransform::scale_xy(sx, sy) -> Self
-pub fn AffineTransform::rotate_origin(angle_radians) -> Self
-pub fn AffineTransform::skew_origin(skew_x_radians, skew_y_radians) -> Self
-pub fn AffineTransform::compose(self, other) -> Self
-pub fn AffineTransform::apply(self, c : Coord) -> Coord
-```
-
-## What an affine transformation is
-
-In 2D, an **affine transformation** maps any coord `(x, y)` to a new coord via:
-
-```
-x' = a · x  +  b · y  +  xoff
-y' = d · x  +  e · y  +  yoff
-```
-
-The 4 numbers `a, b, d, e` form the **linear** part (rotation + scale + skew); the 2 numbers `xoff, yoff` are the **translation** part. Every operation in the Affine family — translate, scale, rotate, skew — is just a particular pattern of these 6 numbers.
-
-In matrix form (homogeneous coords):
-
-```
-| x' |     | a  b  xoff |   | x |
-| y' |  =  | d  e  yoff | · | y |
-| 1  |     | 0  0   1   |   | 1 |
-```
-
-The implementation stores only the top 6 numbers (the bottom row `[0 0 1]` is implied).
-
-## Pre-built transformations
-
-| Constructor            | Matrix                            | Effect                                   |
-| ---------------------- | --------------------------------- | ---------------------------------------- |
-| `identity()`           | `[1 0 0; 0 1 0]`                  | Coord ↦ coord (no change)                |
-| `translate_xy(dx, dy)` | `[1 0 dx; 0 1 dy]`                | Shift everything by `(dx, dy)`           |
-| `scale_xy(sx, sy)`     | `[sx 0 0; 0 sy 0]`                | Stretch / shrink. Negative values flip   |
-| `rotate_origin(θ)`     | `[cos θ −sin θ 0; sin θ cos θ 0]` | Rotate `θ` radians CCW around the origin |
-| `skew_origin(α, β)`    | `[1 tan α 0; tan β 1 0]`          | Shear along x by α, along y by β         |
-
-## Composing transformations
-
-`compose(self, other)` produces a new transform that applies `other` first, then `self`. Matrix-wise:
-
-```
-self ∘ other  =  self.matrix · other.matrix
-```
-
-Reading order:
-
-```moonbit nocheck
-///|
-let t = AffineTransform::translate_xy(10.0, 0.0).compose(
-  AffineTransform::rotate_origin(@math.PI / 2.0),
-)
-// `t` first rotates the input 90° CCW, then translates +10 along x
-//
-// Equivalent to:
-//   for each coord c:
-//     rotated = rotate_origin(π/2).apply(c)
-//     final   = translate_xy(10, 0).apply(rotated)
-```
-
-The composition order is **right-to-left** (innermost first), matching the matrix-multiplication convention. This is the same as in WebGL / SVG / OpenGL transformation stacks.
-
-## Applying to a single coord
-
-`apply(self, c)` does the matrix-vector product:
-
-```
-result.x = self.a · c.x  +  self.b · c.y  +  self.xoff
-result.y = self.d · c.x  +  self.e · c.y  +  self.yoff
-```
-
-`O(1)` per coord. The bulk forms (`affine_transform_geometry`, `affine_transform_polygon`, etc.) walk the geometry's coords with `apply` via `map_coords_in_*` — a single composed transform is built once, then applied to every vertex, regardless of how complex the chain was.
-
-## Examples
-
-```moonbit nocheck
-// Build a "rotate around centre then translate" transform:
-let centre = @type.Coord(50.0, 50.0)
-let t =
-  AffineTransform::translate_xy(centre.x(), centre.y())
-    .compose(AffineTransform::rotate_origin(@math.PI / 4.0))    // 45°
-    .compose(AffineTransform::translate_xy(-centre.x(), -centre.y()))
-
-// Apply to a polygon:
-@lib2d.affine_transform_polygon(my_polygon, t)
-//   rotates `my_polygon` 45° around (50, 50)
-```
-
-Tests in `affine_transform_test.mbt`:
-
+- `AffineRow`
+- `AffineRow::AffineRow`
+- `AffineTransform`
+- `AffineTransform::AffineTransform`
 - `AffineTransform::identity`
 - `AffineTransform::translate_xy`
 - `AffineTransform::scale_xy`
-- `AffineTransform::rotate_origin 90 degrees`
-- `AffineTransform composition: translate then scale`
+- `AffineTransform::rotate_origin`
+- `AffineTransform::skew_origin`
+- `AffineTransform::apply`
+- `AffineTransform::compose`
+- `AffineTransform::transform`
+- `Eq` (derived, on both structs)
 
-Plus the bench `bench: affine transform translate+rotate compose`.
+## Test
 
-## Why store the matrix instead of recomputing each step
+### `AffineRow::AffineRow`
 
-The alternative (store a list of `(operation, parameters)` and replay them per coord) is `O(k)` per coord (k = chain depth). The matrix form is `O(1)` per coord regardless of how the transform was built. For a transform of any complexity applied to many coords, the matrix wins decisively.
+- Simple initialization
 
-## Composition rules / properties
+```mbt check
+///|
+test "AffineRow::AffineRow - simple initialization" {
+  let row = AffineRow::AffineRow(2.0, 0.5, 7.0)
+  debug_inspect(
+    row,
+    content=(
+      #|{ scale: 2, skew: 0.5, translate: 7 }
+    ),
+  )
+}
+```
 
-- **Identity is the unit**: `identity ∘ T == T == T ∘ identity`.
-- **Associative**: `(A ∘ B) ∘ C == A ∘ (B ∘ C)`.
-- **NOT commutative** in general: `translate(10) ∘ rotate(π/2) ≠ rotate(π/2) ∘ translate(10)`. Order matters!
+### `AffineTransform::AffineTransform`
 
-## What's missing
+- Simple initialization
 
-The port doesn't currently expose:
+```mbt check
+///|
+test "AffineTransform::AffineTransform - simple initialization" {
+  let t = AffineTransform::AffineTransform(
+    AffineRow::AffineRow(1.0, 0.0, 0.0),
+    AffineRow::AffineRow(1.0, 0.0, 0.0),
+  )
+  debug_inspect(
+    t,
+    content=(
+      #|{
+      #|  row_x: { scale: 1, skew: 0, translate: 0 },
+      #|  row_y: { scale: 1, skew: 0, translate: 0 },
+      #|}
+    ),
+  )
+}
+```
 
-- `inverse()` — for computing the inverse transform (matrix inverse). Useful when "undoing" a transform applied earlier.
-- `compose_many` — variadic compose (the chain pattern with `.compose()` works fine).
-- `is_identity()` / `scaled` / `translated` / `rotated` / `skewed` (alternative builder-style API surface from upstream `geo`).
+### `AffineTransform::identity`
 
-These are post-scope (⏳ in `api-correspondence.md` §2.2 row `affine_ops::AffineTransform::*`).
+- Apply leaves the coordinate unchanged
 
-## Related
+```mbt check
+///|
+test "AffineTransform::identity - leaves coordinate unchanged" {
+  let t = AffineTransform::identity()
+  @test.assert_eq(
+    t.apply(@type.Coord::Coord(3.0, 4.0)),
+    @type.Coord::Coord(3.0, 4.0),
+  )
+}
+```
 
-- `translate.mbt`, `rotate.mbt`, `scale.mbt`, `skew.mbt` — convenience wrappers that build the right `AffineTransform` and apply it via `affine_transform_*`.
-- `map_coords.mbt` — the underlying functor that walks every coord and applies the per-coord function.
+### `AffineTransform::translate_xy`
+
+- Pure translation
+
+```mbt check
+///|
+test "AffineTransform::translate_xy - pure translation" {
+  let t = AffineTransform::translate_xy(1.0, 2.0)
+  @test.assert_eq(
+    t.apply(@type.Coord::Coord(0.0, 0.0)),
+    @type.Coord::Coord(1.0, 2.0),
+  )
+}
+```
+
+### `AffineTransform::scale_xy`
+
+- Pure axis-aligned scaling
+
+```mbt check
+///|
+test "AffineTransform::scale_xy - pure scaling" {
+  let t = AffineTransform::scale_xy(2.0, 3.0)
+  @test.assert_eq(
+    t.apply(@type.Coord::Coord(1.0, 1.0)),
+    @type.Coord::Coord(2.0, 3.0),
+  )
+}
+```
+
+### `AffineTransform::rotate_origin`
+
+- 90° CCW rotation maps `(1, 0)` to `(0, 1)` (up to floating-point round-off)
+
+```mbt check
+///|
+test "AffineTransform::rotate_origin - 90 degrees CCW" {
+  let t = AffineTransform::rotate_origin(90.0)
+  let p = t.apply(@type.Coord::Coord(1.0, 0.0))
+  // Up to ~`TOLERANCE` floating-point round-off the result is (0, 1).
+  assert_true(p.x().abs() < TOLERANCE)
+  assert_true((p.y() - 1.0).abs() < TOLERANCE)
+}
+```
+
+### `AffineTransform::skew_origin`
+
+- 45° X-skew maps `(0, 1)` to `(1, 1)` (`tan(45°) = 1`)
+
+```mbt check
+///|
+test "AffineTransform::skew_origin - 45 deg X-skew shifts y onto x" {
+  let t = AffineTransform::skew_origin(45.0, 0.0)
+  let p = t.apply(@type.Coord::Coord(0.0, 1.0))
+  // Up to floating-point round-off the result is (1, 1) since tan(45°) = 1.
+  assert_true((p.x() - 1.0).abs() < TOLERANCE)
+  assert_true((p.y() - 1.0).abs() < TOLERANCE)
+}
+```
+
+### `AffineTransform::apply`
+
+Exercised by every `identity` / `translate_xy` / `scale_xy` / `rotate_origin` / `skew_origin` test above. No additional dedicated case.
+
+### `AffineTransform::compose`
+
+- Translate then scale: `(0, 0) → (1, 1) → (2, 2)`
+
+```mbt check
+///|
+test "AffineTransform::compose - translate then scale" {
+  let t1 = AffineTransform::translate_xy(1.0, 1.0)
+  let t2 = AffineTransform::scale_xy(2.0, 2.0)
+  let combined = t1.compose(t2)
+  @test.assert_eq(
+    combined.apply(@type.Coord::Coord(0.0, 0.0)),
+    @type.Coord::Coord(2.0, 2.0),
+  )
+}
+```
+
+### `AffineTransform::transform`
+
+- Lifts `apply` over any `MapCoords` instance — verified on `Point`
+
+```mbt check
+///|
+test "AffineTransform::transform - applies to a Point via MapCoords" {
+  let t = AffineTransform::translate_xy(10.0, 20.0)
+  let p = @type.Point::Point(1.0, 2.0)
+  @test.assert_eq(t.transform(p), @type.Point::Point(11.0, 22.0))
+}
+```
+
+### `Eq` (derived)
+
+#### `op_equal`
+
+- Equal and unequal `AffineTransform`s
+
+```mbt check
+///|
+test "AffineTransform Eq::op_equal - equal and unequal" {
+  let a = AffineTransform::identity()
+  let b = AffineTransform::identity()
+  let c = AffineTransform::scale_xy(2.0, 2.0)
+  @test.assert_eq(a, b)
+  @test.assert_not_eq(a, c)
+}
+```

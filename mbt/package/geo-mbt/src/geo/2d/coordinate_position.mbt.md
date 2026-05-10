@@ -1,121 +1,360 @@
-# `coordinate_position.mbt` — where is a coord, relative to a geometry?
+# coordinate_position.mbt
 
-## Goal
+Classifies a `Coord` relative to a geometry as `CoordPos` — `Inside`, `OnBoundary`, or `Outside`. Exposed via the `CoordPositionFor::coord_position` trait alongside its impls Also exposes the public free predicate `coord_on_line`.
 
-Classify a single `Coord` as **inside**, **on the boundary**, or **outside** a 2D geometry. The result is the building block for `contains`, `within`, `covers`, and the eventual DE-9IM `relate`.
+## Public API
 
-## API surface
+- `CoordPos`
+- `coord_on_line`
+- `CoordPositionFor` — `coord_position` (impls in this file)
 
-```moonbit nocheck
-pub(all) enum CoordPos {
-  OnBoundary
-  Inside
-  Outside
+## Test
+
+### `coord_on_line`
+
+| Variable | State             | Note  |  1  |  2  |  3  |  4  |  5  |
+| :------- | :---------------- | :---- | :-: | :-: | :-: | :-: | :-: |
+| `coord`  | `Start endpoint`  | true  |  ✓  |     |     |     |     |
+| `coord`  | `End endpoint`    | true  |     |  ✓  |     |     |     |
+| `coord`  | `Strict midpoint` | true  |     |     |  ✓  |     |     |
+| `coord`  | `Off the line`    | false |     |     |     |  ✓  |     |
+| `coord`  | `Beyond end`      | false |     |     |     |     |  ✓  |
+
+- Endpoints, midpoint, off-line, beyond-end
+
+```mbt check
+///|
+test "coord_on_line - endpoints, midpoint, off-line, beyond-end" {
+  let l = @type.Line::from_tuples((0.0, 0.0), (10.0, 0.0))
+  assert_true(coord_on_line(@type.Coord::Coord(0.0, 0.0), l))
+  assert_true(coord_on_line(@type.Coord::Coord(10.0, 0.0), l))
+  assert_true(coord_on_line(@type.Coord::Coord(5.0, 0.0), l))
+  assert_false(coord_on_line(@type.Coord::Coord(5.0, 1.0), l))
+  assert_false(coord_on_line(@type.Coord::Coord(11.0, 0.0), l))
 }
-
-pub fn coord_position_for_line(c, l)            -> CoordPos
-pub fn coord_position_for_line_string(c, ls)    -> CoordPos
-pub fn coord_position_for_polygon(c, p)         -> CoordPos
-pub fn coord_position_for_multi_polygon(c, mp)  -> CoordPos
-pub fn coord_position_for_rect(c, r)            -> CoordPos
-pub fn coord_position_for_triangle(c, t)        -> CoordPos
-pub fn coord_position_for_geometry(c, g)        -> CoordPos
-pub fn coord_on_line(c, l)                      -> Bool       // shortcut: c is on the closed segment l
 ```
 
-## What "boundary" / "inside" / "outside" mean per shape
+### `CoordPositionFor`
 
-| Shape          | Boundary                                                   | Inside                                                             | Outside                              |
-| -------------- | ---------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------ |
-| `Line`         | The two endpoints                                          | The open segment between them                                      | Anywhere else                        |
-| `LineString`   | The two extreme endpoints (or empty if closed ring)        | Any other point that lies on a segment                             | Anywhere else                        |
-| `Polygon`      | Every coord that lies on the exterior or any interior ring | Coord strictly inside exterior **and** outside every interior ring | Outside exterior, or inside any hole |
-| `MultiPolygon` | Boundary of any member                                     | Inside any member's interior                                       | Outside every member                 |
-| `Rect`         | The 4 edges                                                | Strictly inside the rect                                           | Outside                              |
-| `Triangle`     | The 3 edges                                                | Strictly inside                                                    | Outside                              |
+#### `coord_position`
 
-OGC SFA terms: the "interior" is the open set; the "boundary" is the topological boundary; the "exterior" of a geometry is the complement of (interior ∪ boundary).
+| Variable       | State                                       | Note         |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |
+| :------------- | :------------------------------------------ | :----------- | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| `self`/`coord` | `Polygon, coord inside`                     | `Inside`     |  ✓  |     |     |     |     |     |     |     |
+| `self`/`coord` | `Polygon, coord on edge`                    | `OnBoundary` |     |  ✓  |     |     |     |     |     |     |
+| `self`/`coord` | `Polygon, coord outside`                    | `Outside`    |     |     |  ✓  |     |     |     |     |     |
+| `self`/`coord` | `Polygon with hole, coord inside hole`      | `Outside`    |     |     |     |  ✓  |     |     |     |     |
+| `self`/`coord` | `Polygon with hole, coord on hole boundary` | `OnBoundary` |     |     |     |     |  ✓  |     |     |     |
+| `self`/`coord` | `Rect, coord inside`                        | `Inside`     |     |     |     |     |     |  ✓  |     |     |
+| `self`/`coord` | `Rect, coord on edge`                       | `OnBoundary` |     |     |     |     |     |     |  ✓  |     |
+| `self`/`coord` | `Rect, coord outside`                       | `Outside`    |     |     |     |     |     |     |     |  ✓  |
 
-## Algorithm — line / line string / boundary cases
+- Polygon: inside, boundary, outside
 
-A coord is on a line segment `(a, b)` iff:
-
-1. `orient(a, b, c) == Collinear` (uses the robust `kernel.mbt`).
-2. The coord lies between `a` and `b` along the line, i.e. its parametric `t` falls in `[0, 1]` (`coord_on_line` checks both via `min`/`max` of the components).
-
-For a line string, the coord is on the boundary iff it equals the first or last coord and the line string is open. Otherwise, walk every segment with the `coord_on_line` test — if any segment hits, the coord is `Inside` (the interior of a 1-D geometry is its open arc minus its endpoints).
-
-## Algorithm — polygon
-
-This is the classic **point-in-polygon** problem. The port uses the **ray-casting** method:
-
-```
-1. Trivial reject: if c is outside the polygon's bounding rect, return Outside.
-2. Boundary check: if c lies on any ring edge (exterior or interior),
-   return OnBoundary. (Robust segment containment via kernel.mbt's orient.)
-3. Ray casting:
-   a. Shoot a horizontal ray from c to +∞.
-   b. Count how many edges of all rings the ray crosses.
-   c. Odd count ⇒ Inside; even count ⇒ Outside.
-```
-
-The ray-casting "counting" is implemented carefully to handle edge cases:
-
-- **Ray passes exactly through a vertex** — could double-count. Resolved by counting "below-to-above" crossings only (strict inequality on one side).
-- **Coord lies exactly on an edge** — caught by step 2 before reaching the ray-casting step.
-- **Horizontal edge collinear with the ray** — its endpoints are tested separately as part of the adjacent edges; the horizontal edge contributes 0 crossings.
-
-For a polygon with **holes**, a coord is `Inside` only if it's inside the exterior **and** outside every interior ring — this falls out of the parity rule because a coord inside a hole has its ray crossing the hole's boundary an extra two times (entering + exiting), keeping the parity unchanged from "inside exterior" → "outside hole-region of exterior".
-
-## Algorithm — rect / triangle
-
-`Rect` is a special case: a coord is on the boundary if it lies on any of the 4 edges, inside if `min.x < c.x < max.x` and `min.y < c.y < max.y`, outside otherwise. The bbox-vs-coord comparison is `O(1)`.
-
-`Triangle` is also a special case but uses three orientation checks: a coord is inside iff it's on the same side of all three edges (all `orient` results agree). On any edge ⇒ boundary. Otherwise outside. Robust by virtue of using `kernel.orient`.
-
-## Examples
-
-```moonbit nocheck
-let polygon = @type.Polygon::Polygon(
-  @type.LineString::from_tuples([(0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0)]),
-  [],
-)
-
-@lib2d.coord_position_for_polygon(@type.Coord(5.0, 5.0), polygon)   // Inside
-@lib2d.coord_position_for_polygon(@type.Coord(0.0, 5.0), polygon)   // OnBoundary (on left edge)
-@lib2d.coord_position_for_polygon(@type.Coord(20.0, 5.0), polygon)  // Outside
+```mbt check
+///|
+test "CoordPositionFor::coord_position - Polygon inside, boundary, outside" {
+  let p = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (2.0, 0.0),
+      (2.0, 2.0),
+      (0.0, 2.0),
+      (0.0, 0.0),
+    ]),
+    [],
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(p, @type.Coord::Coord(1.0, 1.0)),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(p, @type.Coord::Coord(0.0, 1.0)),
+    CoordPos::OnBoundary,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(p, @type.Coord::Coord(5.0, 5.0)),
+    CoordPos::Outside,
+  )
+}
 ```
 
-With a hole:
+- Polygon with hole: inside-hole is `Outside`, hole boundary is `OnBoundary`, polygon-not-hole is `Inside`
 
-```moonbit nocheck
-let with_hole = @type.Polygon::Polygon(
-  @type.LineString::from_tuples([(0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0)]),
-  [
-    @type.LineString::from_tuples([(3.0, 3.0), (7.0, 3.0), (7.0, 7.0), (3.0, 7.0)]),
-  ],
-)
-@lib2d.coord_position_for_polygon(@type.Coord(5.0, 5.0), with_hole)   // Outside (in hole)
-@lib2d.coord_position_for_polygon(@type.Coord(2.0, 2.0), with_hole)   // Inside
+```mbt check
+///|
+test "CoordPositionFor::coord_position - Polygon with hole demotes to Outside" {
+  let p = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (10.0, 0.0),
+      (10.0, 10.0),
+      (0.0, 10.0),
+      (0.0, 0.0),
+    ]),
+    [
+      @type.LineString::from_tuples([
+        (3.0, 3.0),
+        (7.0, 3.0),
+        (7.0, 7.0),
+        (3.0, 7.0),
+        (3.0, 3.0),
+      ]),
+    ],
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(p, @type.Coord::Coord(5.0, 5.0)),
+    CoordPos::Outside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(p, @type.Coord::Coord(3.0, 5.0)),
+    CoordPos::OnBoundary,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(p, @type.Coord::Coord(1.0, 1.0)),
+    CoordPos::Inside,
+  )
+}
 ```
 
-Tests in `coordinate_position_test.mbt`:
+- Rect: inside, boundary, outside
 
-- `coord_position polygon: inside / boundary / outside`
-- `coord_position polygon with hole: inside hole`
-- `coord_position rect`
-- `coord_on_line endpoints and midpoints`
+```mbt check
+///|
+test "CoordPositionFor::coord_position - Rect inside, boundary, outside" {
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(10.0, 10.0),
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(r, @type.Coord::Coord(5.0, 5.0)),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(r, @type.Coord::Coord(0.0, 5.0)),
+    CoordPos::OnBoundary,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(r, @type.Coord::Coord(11.0, 11.0)),
+    CoordPos::Outside,
+  )
+}
+```
 
-## Why robust matters here
+- Line: degenerate (start==end) and non-degenerate cases
 
-A coord that's mathematically _exactly_ on an edge can fail the boundary check under naive `f64` arithmetic (the orient determinant rounds to a non-zero value), and the ray-casting fallback can then misclassify it. The port uses the robust `orient` everywhere boundary detection happens, which keeps OnBoundary correctly distinguished from the two halfplanes.
+```mbt check
+///|
+test "CoordPositionFor::coord_position - Line degenerate / endpoint / interior / off-line" {
+  let degenerate = @type.Line::from_tuples((3.0, 4.0), (3.0, 4.0))
+  @test.assert_eq(
+    CoordPositionFor::coord_position(degenerate, @type.Coord::Coord(3.0, 4.0)),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(degenerate, @type.Coord::Coord(0.0, 0.0)),
+    CoordPos::Outside,
+  )
+  let l = @type.Line::from_tuples((0.0, 0.0), (10.0, 0.0))
+  @test.assert_eq(
+    CoordPositionFor::coord_position(l, @type.Coord::Coord(0.0, 0.0)),
+    CoordPos::OnBoundary,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(l, @type.Coord::Coord(5.0, 0.0)),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(l, @type.Coord::Coord(5.0, 5.0)),
+    CoordPos::Outside,
+  )
+}
+```
 
-## Performance
+- LineString: empty / endpoint / interior / off-line
 
-`O(n)` in total ring length: one bbox check (`O(1)`), one pass over all edges to detect boundary (`O(n)`), and one pass to count ray crossings (`O(n)`). For huge polygons the bbox early-out is the most important optimisation.
+```mbt check
+///|
+test "CoordPositionFor::coord_position - LineString empty / endpoint / interior / off-line" {
+  @test.assert_eq(
+    CoordPositionFor::coord_position(
+      @type.LineString::empty(),
+      @type.Coord::Coord(0.0, 0.0),
+    ),
+    CoordPos::Outside,
+  )
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (5.0, 0.0), (10.0, 0.0)])
+  @test.assert_eq(
+    CoordPositionFor::coord_position(ls, @type.Coord::Coord(0.0, 0.0)),
+    CoordPos::OnBoundary,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(ls, @type.Coord::Coord(2.5, 0.0)),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(ls, @type.Coord::Coord(5.0, 5.0)),
+    CoordPos::Outside,
+  )
+}
+```
 
-## Related
+- MultiPolygon: Inside dominates and OnBoundary surfaces
 
-- `contains.mbt`, `covers.mbt`, `within.mbt` — built on top of this; e.g. `contains_polygon_coord = (coord_position_for_polygon == Inside)`.
-- `intersects.mbt` — uses ray casting for the coord-polygon intersection case.
-- `kernel.mbt` — the robust orient predicate used throughout.
+```mbt check
+///|
+test "CoordPositionFor::coord_position - MultiPolygon Inside / OnBoundary / Outside" {
+  let in_polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (10.0, 0.0),
+      (10.0, 10.0),
+      (0.0, 10.0),
+      (0.0, 0.0),
+    ]),
+    [],
+  )
+  let other_polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (20.0, 20.0),
+      (30.0, 20.0),
+      (30.0, 30.0),
+      (20.0, 30.0),
+      (20.0, 20.0),
+    ]),
+    [],
+  )
+  let mp = @type.MultiPolygon::MultiPolygon([in_polygon, other_polygon])
+  @test.assert_eq(
+    CoordPositionFor::coord_position(mp, @type.Coord::Coord(5.0, 5.0)),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(mp, @type.Coord::Coord(0.0, 5.0)),
+    CoordPos::OnBoundary,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(mp, @type.Coord::Coord(100.0, 100.0)),
+    CoordPos::Outside,
+  )
+}
+```
+
+- Triangle: dispatch via `Triangle::to_polygon`
+
+```mbt check
+///|
+test "CoordPositionFor::coord_position - Triangle dispatches via to_polygon" {
+  let t = @type.Triangle::Triangle(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(10.0, 0.0),
+    @type.Coord::Coord(0.0, 10.0),
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(t, @type.Coord::Coord(2.0, 2.0)),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(t, @type.Coord::Coord(20.0, 20.0)),
+    CoordPos::Outside,
+  )
+}
+```
+
+- `Geometry` dispatch sweep over every variant
+
+```mbt check
+///|
+test "CoordPositionFor::coord_position - Geometry dispatch sweep" {
+  let g_pt = @type.Geometry::Point(@type.Point::Point(0.0, 0.0))
+  let g_line = @type.Geometry::Line(
+    @type.Line::from_tuples((0.0, 0.0), (10.0, 0.0)),
+  )
+  let g_ls = @type.Geometry::LineString(
+    @type.LineString::from_tuples([(0.0, 0.0), (10.0, 0.0)]),
+  )
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (10.0, 0.0),
+      (10.0, 10.0),
+      (0.0, 10.0),
+      (0.0, 0.0),
+    ]),
+    [],
+  )
+  let g_polygon = @type.Geometry::Polygon(polygon)
+  let g_mp = @type.Geometry::MultiPoint(
+    @type.MultiPoint::from_tuples([(5.0, 5.0)]),
+  )
+  let g_mls = @type.Geometry::MultiLineString(
+    @type.MultiLineString::MultiLineString([
+      @type.LineString::from_tuples([(0.0, 0.0), (10.0, 0.0)]),
+    ]),
+  )
+  let g_mpoly = @type.Geometry::MultiPolygon(
+    @type.MultiPolygon::MultiPolygon([polygon]),
+  )
+  let g_rect = @type.Geometry::Rect(
+    @type.Rect::Rect(
+      @type.Coord::Coord(0.0, 0.0),
+      @type.Coord::Coord(10.0, 10.0),
+    ),
+  )
+  let g_tri = @type.Geometry::Triangle(
+    @type.Triangle::Triangle(
+      @type.Coord::Coord(0.0, 0.0),
+      @type.Coord::Coord(10.0, 0.0),
+      @type.Coord::Coord(0.0, 10.0),
+    ),
+  )
+  let g_gc = @type.Geometry::GeometryCollection(
+    @type.GeometryCollection::GeometryCollection([g_pt]),
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(g_pt, @type.Coord::Coord(0.0, 0.0)),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(g_pt, @type.Coord::Coord(1.0, 1.0)),
+    CoordPos::Outside,
+  )
+  let inside = @type.Coord::Coord(5.0, 0.0)
+  @test.assert_eq(
+    CoordPositionFor::coord_position(g_line, inside),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(g_ls, inside),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(g_polygon, @type.Coord::Coord(5.0, 5.0)),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(g_mp, @type.Coord::Coord(5.0, 5.0)),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(g_mls, @type.Coord::Coord(5.0, 0.0)),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(g_mpoly, @type.Coord::Coord(5.0, 5.0)),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(g_rect, @type.Coord::Coord(5.0, 5.0)),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(g_tri, @type.Coord::Coord(2.0, 2.0)),
+    CoordPos::Inside,
+  )
+  @test.assert_eq(
+    CoordPositionFor::coord_position(g_gc, @type.Coord::Coord(0.0, 0.0)),
+    CoordPos::Inside,
+  )
+}
+```

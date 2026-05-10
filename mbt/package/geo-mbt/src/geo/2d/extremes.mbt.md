@@ -1,98 +1,151 @@
-# `extremes.mbt` — extreme coordinates of a geometry
+# extremes.mbt
 
-## Goal
+Cardinal-direction extremes (`x_min` / `x_max` / `y_min` / `y_max`) of a coordinate set, returned as an `Outcome` struct (or `None` if the input is empty). The trait `HasExtremes::extremes` lifts this to whole `Geometry` values.
 
-Pick out the **four extreme points** of a geometry — the actual coords (not just the bounding box corners) that touch the bounding rectangle's edges.
+## Public API
 
-For a polygon, these are the leftmost, rightmost, topmost, and bottommost vertices. They're the **vertices that would touch a pair of vertical and horizontal calipers** sweeping in from infinity.
+- `Outcome`
+- `Outcome::Outcome`
+- `extremes_of_coords`
+- `HasExtremes` — `extremes` (impls in this file)
 
-This is what you want when you're asking "give me a representative landmark on each side of this shape". It's distinct from:
+## Test
 
-- `bounding_rect_of_*` — gives you four `Coord`s computed by `min` / `max` aggregation; those _are not_ vertices of the input.
-- `convex_hull_of_*` — gives you the full hull polygon (more vertices, more cost).
+### `Outcome::Outcome`
 
-## API surface
+- Simple initialization
 
-```moonbit nocheck
-pub(all) struct Outcome {
-  x_min : Coord    // vertex with the smallest x
-  x_max : Coord    // vertex with the largest  x
-  y_min : Coord    // vertex with the smallest y
-  y_max : Coord    // vertex with the largest  y
+```mbt check
+///|
+test "Outcome::Outcome - simple initialization" {
+  let o = Outcome::Outcome(
+    @type.Coord::Coord(-1.0, 5.0),
+    @type.Coord::Coord(4.0, 0.0),
+    @type.Coord::Coord(4.0, 0.0),
+    @type.Coord::Coord(-1.0, 5.0),
+  )
+  debug_inspect(
+    o,
+    content=(
+      #|{
+      #|  x_min: { x: -1, y: 5 },
+      #|  x_max: { x: 4, y: 0 },
+      #|  y_min: { x: 4, y: 0 },
+      #|  y_max: { x: -1, y: 5 },
+      #|}
+    ),
+  )
 }
-
-pub fn extremes_of_coords(coords : Array[Coord]) -> Outcome?
-pub fn extremes_of_geometry(g : Geometry)        -> Outcome?
 ```
 
-`None` is returned for empty inputs (no coords to pick extremes from).
+### `extremes_of_coords`
 
-## Algorithm
+| Variable | State       | Note                |  1  |  2  |
+| :------- | :---------- | :------------------ | :-: | :-: |
+| `coords` | `Empty`     | returns `None`      |  ✓  |     |
+| `coords` | `Non-empty` | returns `Some(...)` |     |  ✓  |
 
-Trivial:
+- Empty input returns `None`
 
-1. Walk every coord the geometry exposes.
-2. Track running `(x_min_coord, x_max_coord, y_min_coord, y_max_coord)`, initialised from the first coord.
-3. For each subsequent coord, replace any of the four if it strictly improves the corresponding extreme.
-
-The result holds **actual vertices of the input**, not synthetic `Coord`s assembled from `min` / `max` of `x` / `y` independently.
-
-```
-input: 5 vertices
-
-  •(2,8)         ← y_max
-        •(7,5)   ← x_max
-   •(0,3)        ← x_min
-        •(6,1)   ← y_min
-            •(4,4)
-```
-
-The bounding box (from `bounding_rect_of_coords`) would be `Rect((0,1), (7,8))` — its four corners are synthetic. The extremes here are the four real vertices `(0,3) (7,5) (6,1) (2,8)`.
-
-## Tie-breaking
-
-When multiple coords share the same extreme value, the **first one encountered** in iteration order wins. This is consistent across calls (the iteration order is the geometry's internal coord order — exterior ring first, then interiors, then sub-geometries).
-
-## Examples
-
-```moonbit nocheck
+```mbt check
 ///|
-let coords = [
-  @type.Coord(2.0, 8.0),
-  @type.Coord(7.0, 5.0),
-  @type.Coord(0.0, 3.0),
-  @type.Coord(6.0, 1.0),
-  @type.Coord(4.0, 4.0),
-]
-
-///|
-let r = @lib2d.extremes_of_coords(coords).unwrap()
-// r.x_min == Coord(0, 3)
-// r.x_max == Coord(7, 5)
-// r.y_min == Coord(6, 1)
-// r.y_max == Coord(2, 8)
+test "extremes_of_coords - empty returns None" {
+  @test.assert_eq(extremes_of_coords([]), None)
+}
 ```
 
-Tests in `extremes_test.mbt`:
+- Non-empty input returns the four cardinal-extreme coords
 
-- `extremes_of_geometry`
+```mbt check
+///|
+test "extremes_of_coords - returns x_min, x_max, y_min, y_max" {
+  let coords = [
+    @type.Coord::Coord(1.0, 5.0),
+    @type.Coord::Coord(3.0, 2.0),
+    @type.Coord::Coord(-1.0, 7.0),
+    @type.Coord::Coord(4.0, 0.0),
+  ]
+  @test.assert_eq(
+    extremes_of_coords(coords),
+    Some(
+      Outcome::Outcome(
+        @type.Coord::Coord(-1.0, 7.0),
+        @type.Coord::Coord(4.0, 0.0),
+        @type.Coord::Coord(4.0, 0.0),
+        @type.Coord::Coord(-1.0, 7.0),
+      ),
+    ),
+  )
+}
+```
 
-## Use cases
+### `HasExtremes`
 
-- Initial guess for a **convex hull** — three of the four extreme points are guaranteed to be on the hull (rotating-callipers warm start).
-- **Anchor points** for labelling a polygon (e.g. "leftmost vertex" for an arrow).
-- Quick sanity check that a geometry "looks like" what you expect (extremes are easier to reason about than centroid).
+#### `extremes`
 
-## Edge cases
+- Direct dispatch on every concrete type
 
-- **Single coord** → all four extremes are that coord.
-- **Empty input** → `None`.
-- **Degenerate inputs** (e.g. all coords on a vertical line) — `x_min` and `x_max` may equal the same coord; the four fields are independent.
+```mbt check
+///|
+test "HasExtremes::extremes - direct dispatch on every concrete type" {
+  let pt = @type.Point::Point(0.0, 0.0)
+  let l = @type.Line::from_tuples((0.0, 0.0), (1.0, 1.0))
+  let ls = @type.LineString::from_tuples([(0.0, 0.0), (1.0, 1.0)])
+  let mp = @type.MultiPoint::from_tuples([(0.0, 0.0), (3.0, 4.0)])
+  let mls = @type.MultiLineString::MultiLineString([ls])
+  let polygon = @type.Polygon::Polygon(
+    @type.LineString::from_tuples([
+      (0.0, 0.0),
+      (4.0, 0.0),
+      (4.0, 4.0),
+      (0.0, 4.0),
+    ]),
+    [],
+  )
+  let mpoly = @type.MultiPolygon::MultiPolygon([polygon])
+  let r = @type.Rect::Rect(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(1.0, 1.0),
+  )
+  let tri = @type.Triangle::Triangle(
+    @type.Coord::Coord(0.0, 0.0),
+    @type.Coord::Coord(1.0, 0.0),
+    @type.Coord::Coord(0.0, 1.0),
+  )
+  let gc = @type.GeometryCollection::GeometryCollection([
+    @type.Geometry::Point(pt),
+  ])
+  assert_true(HasExtremes::extremes(pt) is Some(_))
+  assert_true(HasExtremes::extremes(l) is Some(_))
+  assert_true(HasExtremes::extremes(ls) is Some(_))
+  assert_true(HasExtremes::extremes(mp) is Some(_))
+  assert_true(HasExtremes::extremes(mls) is Some(_))
+  assert_true(HasExtremes::extremes(polygon) is Some(_))
+  assert_true(HasExtremes::extremes(mpoly) is Some(_))
+  assert_true(HasExtremes::extremes(r) is Some(_))
+  assert_true(HasExtremes::extremes(tri) is Some(_))
+  assert_true(HasExtremes::extremes(gc) is Some(_))
+}
+```
 
-## Performance
+- Lifts `extremes_of_coords` to a `Geometry::LineString`
 
-`O(n)`, single pass, no allocation. Faster than `convex_hull_of_*` by about an order of magnitude (no sort, no orientation tests) — useful when you only need a quick anchor and not the full hull.
-
-## Upstream parity
-
-In Rust upstream `geo`, `extremes::Extreme<T>` carries both the index _and_ the coord; the port keeps only the coord because indexing into a heterogeneous `Geometry` tree isn't useful when the input may be a `MultiPolygon`. If you need the index for a flat input, walk `coords` yourself with `Array::iter().enumerate()`.
+```mbt check
+///|
+test "HasExtremes::extremes - LineString cardinal extremes" {
+  let ls = @type.LineString::from_tuples([
+    (1.0, 5.0),
+    (3.0, 2.0),
+    (-1.0, 7.0),
+    (4.0, 0.0),
+  ])
+  let outcome = match HasExtremes::extremes(@type.Geometry::LineString(ls)) {
+    Some(o) => o
+    None => abort("expected Some for non-empty LineString")
+  }
+  @test.assert_eq(outcome.x_min.x(), -1.0)
+  @test.assert_eq(outcome.x_max.x(), 4.0)
+  @test.assert_eq(outcome.y_min.y(), 0.0)
+  @test.assert_eq(outcome.y_max.y(), 7.0)
+}
+```
