@@ -1,9 +1,9 @@
 identifier: feed-platform-ms-01-shared-libraries
 started_at: 2026-05-07T03:55:00Z
-updated_at: 2026-05-09T09:30:00Z
+updated_at: 2026-05-10T08:30:00Z
 
 status: active
-current_step: 3
+current_step: 4
 
 completed_steps:
   - step: Step 1 Intent Clarification
@@ -23,15 +23,17 @@ completed_steps:
     user_gate: approved
     user_gate_approved_at: 2026-05-08T00:30:00Z
     user_gate_note: '4 角度 researcher × 4 並列完了 (Effect 4.x API / frame helpers SoT / js/package isolation / InferFrameName pattern)。Step 3 carry-over 論点 U-1 / U-3 / U-other を User confirm 済 (U-1: 既存実装 F[keyof F] value union 採用 / U-3: 案 A Request 直接受け取り signature 変更 + Hono 切り離し / U-other: researcher 推奨採用)'
-  - step: Step 3 Design (候補、User gate 待ち)
-    completed_at: 2026-05-08T01:45:00Z
+  - step: Step 3 Design
+    completed_at: 2026-05-10T08:30:00Z
     artifacts:
       - design.md
       - docs/roadmap/feed-platform/adr/2026-05-08-shared-libraries-extraction.md
-    note: 'architect specialist × 1 で design.md (39KB / 14 sections) + ADR-03 (23KB / Roadmap mode、起草 status) を作成。User confirm 済 5 件 (U-1 / U-3 / U-other-A / B / D) を全採用。Public API surface に effect-hono × 3 export + remix-helper × 2 export を実装可能な型シグネチャで記載済。Step 4 / Step 5 carry-over 5 件 (test boundary / SC-7 観測仕様 / TS 5.9 実機検証 / atomic commit 構造 / Service tag namespace 部分上書き)。Blockers なし。'
+    user_gate: approved
+    user_gate_approved_at: 2026-05-10T08:30:00Z
+    user_gate_note: 'Step 3 改訂版 (R-1〜R-6 反映後) を承認。effect-hono × 3 export (Env.Type 直接 union / dynamicLoggerLayer Env-open / makeDisposableRuntime wrapper class) + remix-helper × 1 export (createFrameHelpers<T extends string>() with FrameLink C-6 統合) で確定。CI PASS (run 25623758677 on d6bfd41 merge commit)。'
 
 pending_gates:
-  - User gate (Step 3 → Step 4): design.md + ADR-03 レビューと承認待ち
+  - User gate (Step 4 → Step 5): qa-design.md + qa-flow.md レビューと承認待ち
 
 active_specialists: []
 
@@ -111,6 +113,10 @@ user_approvals:
     decision: approved
     approved_at: 2026-05-08T00:30:00Z
     note: 'Step 2 (Research) 候補を承認 + carry-over 論点確定 (U-1 既存実装合わせ / U-3 案 A Hono 切り離し / U-other researcher 推奨)、Step 3 (Design) へ移行'
+  - step: 3
+    decision: approved
+    approved_at: 2026-05-10T08:30:00Z
+    note: 'Step 3 (Design) 改訂版 (R-1〜R-6 全反映) を承認、Step 4 (QA Design) へ移行'
 
 rollbacks: []
 
