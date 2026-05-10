@@ -1,29 +1,29 @@
-## スキルレビュー結果: [skill-name]
+## Skill Review Results: [skill-name]
 
-### 汎用評価（あらゆるAgentに適用可能）
+### General Evaluation (Applicable to Any Agent)
 
-| カテゴリ                   | スコア | 要約 |
-| -------------------------- | ------ | ---- |
-| G1: Frontmatter            | ?      | ...  |
-| G2: Description品質        | ?      | ...  |
-| G3: 本文構成               | ?      | ...  |
-| G4: Progressive Disclosure | ?      | ...  |
-| G5: ユースケースとパターン | ?      | ...  |
-| G6: テスト戦略             | ?      | ...  |
-| G7: Anti-Patterns          | ?      | ...  |
+| Category                   | Score | Summary |
+| -------------------------- | ----- | ------- |
+| G1: Frontmatter            | ?     | ...     |
+| G2: Description Quality    | ?     | ...     |
+| G3: Body Structure         | ?     | ...     |
+| G4: Progressive Disclosure | ?     | ...     |
+| G5: Use Cases & Patterns   | ?     | ...     |
+| G6: Testing Strategy       | ?     | ...     |
+| G7: Anti-Patterns          | ?     | ...     |
 
-### Platform固有評価（該当Platformのみ表示）
+### Platform-Specific Evaluation (Displayed Only for Relevant Platform)
 
-| カテゴリ             | スコア | 要約 |
-| -------------------- | ------ | ---- |
-| [Platform名] P1: ... | ?      | ...  |
-| [Platform名] P2: ... | ?      | ...  |
-| ...                  | ...    | ...  |
+| Category            | Score | Summary |
+| ------------------- | ----- | ------- |
+| [Platform Name] P1: | ?     | ...     |
+| [Platform Name] P2: | ?     | ...     |
+| ...                 | ...   | ...     |
 
-### 総合スコア: ?/A
+### Overall Score: ?/A
 
-### 優先度順の改善提案
+### Improvement Proposals by Priority
 
-1. [最も重要な改善点]
-2. [次に重要な改善点]
+1. [Most important improvement]
+2. [Second most important improvement]
 3. ...
