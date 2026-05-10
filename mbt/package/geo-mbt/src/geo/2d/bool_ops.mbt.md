@@ -22,12 +22,12 @@ Deprecated wrappers (preserved for backward compatibility):
 
 ### Two disjoint squares
 
-| Variable        | State    | Note                |  1  |  2  |  3  |  4  |
-| :-------------- | :------- | :------------------ | :-: | :-: | :-: | :-: |
-| `a`/`b`         | Disjoint | `intersection` = ∅  |  ✓  |     |     |     |
-| `a`/`b`         | Disjoint | `union` = 2 polys   |     |  ✓  |     |     |
-| `a`/`b`         | Disjoint | `difference` = a    |     |     |  ✓  |     |
-| `a`/`b`         | Disjoint | `xor` = 2 polys     |     |     |     |  ✓  |
+| Variable | State    | Note               |  1  |  2  |  3  |  4  |
+| :------- | :------- | :----------------- | :-: | :-: | :-: | :-: |
+| `a`/`b`  | Disjoint | `intersection` = ∅ |  ✓  |     |     |     |
+| `a`/`b`  | Disjoint | `union` = 2 polys  |     |  ✓  |     |     |
+| `a`/`b`  | Disjoint | `difference` = a   |     |     |  ✓  |     |
+| `a`/`b`  | Disjoint | `xor` = 2 polys    |     |     |     |  ✓  |
 
 ```mbt check
 ///|

@@ -9,16 +9,16 @@
 
 ## 1. Source Files and Line Counts
 
-| File | Lines | Role |
-|------|-------|------|
-| `src/lib.rs` | 1335 | **Main algorithm** — all core logic |
-| `src/legacy.rs` | 124 | Utilities: `flatten()`, `deviation()`, debug dump |
-| `src/tests.rs` | 729 | Unit tests (linked list, ear detection, etc.) |
-| `tests/integration_test.rs` | 347 | 30 fixture-based area-verification tests |
-| `benches/speedtest.rs` | 578 | Criterion benchmarks |
-| `examples/main.rs` | 110 | Example runner |
-| `fuzz/fuzz_targets/earcut.rs` | 12 | Fuzz harness |
-| **Total** | **3235** | |
+| File                          | Lines    | Role                                              |
+| ----------------------------- | -------- | ------------------------------------------------- |
+| `src/lib.rs`                  | 1335     | **Main algorithm** — all core logic               |
+| `src/legacy.rs`               | 124      | Utilities: `flatten()`, `deviation()`, debug dump |
+| `src/tests.rs`                | 729      | Unit tests (linked list, ear detection, etc.)     |
+| `tests/integration_test.rs`   | 347      | 30 fixture-based area-verification tests          |
+| `benches/speedtest.rs`        | 578      | Criterion benchmarks                              |
+| `examples/main.rs`            | 110      | Example runner                                    |
+| `fuzz/fuzz_targets/earcut.rs` | 12       | Fuzz harness                                      |
+| **Total**                     | **3235** |                                                   |
 
 **Core algorithm to port: ~1335 lines** (`lib.rs`) + ~124 lines (`legacy.rs` for `flatten`/`deviation` if needed).
 
@@ -38,6 +38,7 @@ serde_json = "1.0.107"
 ```
 
 **Dependency mapping for MoonBit:**
+
 - `itertools` — used only for `.tuples()` to iterate flat array in (x,y) pairs. MoonBit: manual index stepping.
 - `num-traits` — used for `Float` trait bound + `num_traits::cast` for f64/i64 conversions. MoonBit: hardcode `Double` + `to_int()`/`to_double()`.
 - `criterion`, `serde`, `serde_json` — dev-only, not needed.
@@ -87,11 +88,13 @@ pub mod legacy;                               // re-exports flatten, deviation
 ### 3.4 Input Format (detailed)
 
 `vertices` is a **flat** `[T]` slice. For a simple triangle with points (0,0), (1,0), (1,1):
+
 ```
 vertices = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0]
 ```
 
 `hole_indices` contains the vertex **index** (in coordinate-pair units, not byte offsets) where each hole ring's data begins. For a square with one hole:
+
 ```
 outer: (0,0), (10,0), (10,10), (0,10)   → indices 0..4
 hole:  (2,2), (8,2), (8,8), (2,8)        → indices 4..8
@@ -129,39 +132,39 @@ earcut(vertices, hole_indices, dims)
 
 Both `earcut_linked_hashed` and `earcut_linked_unhashed` share a 4-pass strategy:
 
-| PASS | Action on stall | Purpose |
-|------|-----------------|---------|
-| 0 | Try standard ear-clipping | Primary path — works for most inputs |
-| 1 | `filter_points()` — remove colinear/duplicate vertices, retry PASS 0 | Clean up degenerate geometry |
-| 2 | `cure_local_intersections()` — remove local self-intersections, retry PASS 0 | Handle self-touching polygons |
-| 3 | `split_earcut()` — split along valid diagonal, recurse on halves | Handle complex non-earable polygons |
+| PASS | Action on stall                                                              | Purpose                              |
+| ---- | ---------------------------------------------------------------------------- | ------------------------------------ |
+| 0    | Try standard ear-clipping                                                    | Primary path — works for most inputs |
+| 1    | `filter_points()` — remove colinear/duplicate vertices, retry PASS 0         | Clean up degenerate geometry         |
+| 2    | `cure_local_intersections()` — remove local self-intersections, retry PASS 0 | Handle self-touching polygons        |
+| 3    | `split_earcut()` — split along valid diagonal, recurse on halves             | Handle complex non-earable polygons  |
 
 ### 4.3 Key Functions
 
-| Function | LOC | Role |
-|----------|-----|------|
-| `earcut()` | ~55 | Entry point, dispatches to either hashed/unhashed |
-| `linked_list()` | ~8 | Builds doubly-linked list from flat coords |
-| `add_contour()` | ~55 | Adds a ring (outer or hole) to the linked list, enforces winding order |
-| `eliminate_holes()` | ~42 | Links all hole rings to the outer ring via bridges |
-| `find_hole_bridge()` | ~70 | David Eberly's bridge-finding algorithm (ray from hole leftmost point) |
-| `earcut_linked_hashed()` | ~47 | Main ear-clipping loop with z-order spatial hash |
-| `earcut_linked_unhashed()` | ~42 | Main ear-clipping loop without spatial hash (for small polygons) |
-| `is_ear_hashed()` | ~83 | **Most complex** — ear test using z-order for O(log n) spatial queries |
-| `is_ear()` | ~14 | Simpler ear test — O(n) spatial queries |
-| `cure_local_intersections()` | ~54 | Remove local self-intersections |
-| `split_earcut()` | ~53 | Split polygon along valid diagonal, recurse |
-| `split_bridge_polygon()` | ~29 | Connect or split linked lists via bridge node |
-| `filter_points()` | ~35 | Remove colinear/duplicate vertices |
-| `pseudo_intersects()` | ~14 | Check if two segments cross |
-| `intersects_polygon()` | ~11 | Check if diagonal intersects any polygon edge |
-| `locally_inside()` | ~18 | Check if diagonal is locally inside polygon |
-| `middle_inside()` | ~10 | Ray-casting: is diagonal midpoint inside polygon? |
-| `signed_area()` | ~8 | Signed area of a ring segment |
-| `calc_invsize()` | ~6 | Compute inverse size for z-order normalization |
-| `zorder()` | ~14 | Compute 64-bit Morton code for spatial hashing |
-| `index_curve()` | ~20 | Interlink nodes in z-order for spatial queries |
-| `sort_linked()` | ~58 | Simon Tatham's linked-list merge sort (on z-order) |
+| Function                     | LOC | Role                                                                   |
+| ---------------------------- | --- | ---------------------------------------------------------------------- |
+| `earcut()`                   | ~55 | Entry point, dispatches to either hashed/unhashed                      |
+| `linked_list()`              | ~8  | Builds doubly-linked list from flat coords                             |
+| `add_contour()`              | ~55 | Adds a ring (outer or hole) to the linked list, enforces winding order |
+| `eliminate_holes()`          | ~42 | Links all hole rings to the outer ring via bridges                     |
+| `find_hole_bridge()`         | ~70 | David Eberly's bridge-finding algorithm (ray from hole leftmost point) |
+| `earcut_linked_hashed()`     | ~47 | Main ear-clipping loop with z-order spatial hash                       |
+| `earcut_linked_unhashed()`   | ~42 | Main ear-clipping loop without spatial hash (for small polygons)       |
+| `is_ear_hashed()`            | ~83 | **Most complex** — ear test using z-order for O(log n) spatial queries |
+| `is_ear()`                   | ~14 | Simpler ear test — O(n) spatial queries                                |
+| `cure_local_intersections()` | ~54 | Remove local self-intersections                                        |
+| `split_earcut()`             | ~53 | Split polygon along valid diagonal, recurse                            |
+| `split_bridge_polygon()`     | ~29 | Connect or split linked lists via bridge node                          |
+| `filter_points()`            | ~35 | Remove colinear/duplicate vertices                                     |
+| `pseudo_intersects()`        | ~14 | Check if two segments cross                                            |
+| `intersects_polygon()`       | ~11 | Check if diagonal intersects any polygon edge                          |
+| `locally_inside()`           | ~18 | Check if diagonal is locally inside polygon                            |
+| `middle_inside()`            | ~10 | Ray-casting: is diagonal midpoint inside polygon?                      |
+| `signed_area()`              | ~8  | Signed area of a ring segment                                          |
+| `calc_invsize()`             | ~6  | Compute inverse size for z-order normalization                         |
+| `zorder()`                   | ~14 | Compute 64-bit Morton code for spatial hashing                         |
+| `index_curve()`              | ~20 | Interlink nodes in z-order for spatial queries                         |
+| `sort_linked()`              | ~58 | Simon Tatham's linked-list merge sort (on z-order)                     |
 
 ### 4.4 Internal Data Structures
 
@@ -196,13 +199,14 @@ Geo wraps earcut through the `earcut` crate v0.4.9 (not `earcutr`), but the algo
 
 ### Public trait: `TriangulateEarcut<T: CoordFloat>` on `Polygon<T>`
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `earcut_triangles()` | `Vec<Triangle<T>>` | Collect all triangles |
-| `earcut_triangles_iter()` | `Iter<T>` | Lazy iterator |
-| `earcut_triangles_raw()` | `RawTriangulation<T>` | Flat vertices + indices |
+| Method                    | Returns               | Description             |
+| ------------------------- | --------------------- | ----------------------- |
+| `earcut_triangles()`      | `Vec<Triangle<T>>`    | Collect all triangles   |
+| `earcut_triangles_iter()` | `Iter<T>`             | Lazy iterator           |
+| `earcut_triangles_raw()`  | `RawTriangulation<T>` | Flat vertices + indices |
 
 ### `RawTriangulation<T>` struct
+
 ```rust
 pub struct RawTriangulation<T: CoordFloat> {
     pub vertices: Vec<[T; 2]>,           // flat coords per vertex
@@ -211,6 +215,7 @@ pub struct RawTriangulation<T: CoordFloat> {
 ```
 
 ### Wrapper Pipeline
+
 1. `EarcutInput::from(&Polygon)` — flattens exterior + interiors into `Vec<[T;2]>`, tracks interior start indices (skipping redundant closing coord)
 2. Calls `earcut.earcut(vertices, interior_indexes, &mut triangle_indices)`
 3. Returns `RawTriangulation { vertices, triangle_indices }`
@@ -220,9 +225,11 @@ pub struct RawTriangulation<T: CoordFloat> {
 ## 6. api-correspondence.md Entry
 
 Line 443:
+
 ```
 | `triangulate_earcut`, `triangulate_delaunay`, `triangulate_spade` | — | — | — | ⛔ |
 ```
+
 All three triangulation modules are currently marked **out of scope (⛔)**. ms-26 would change `triangulate_earcut` from ⛔ → ✅.
 
 ---
@@ -231,14 +238,14 @@ All three triangulation modules are currently marked **out of scope (⛔)**. ms-
 
 ### 7.1 Effort Estimation
 
-| Category | Estimate |
-|----------|----------|
-| Core algorithm (`lib.rs`) | ~1335 lines of Rust → ~1000-1200 lines of MoonBit |
-| Public API + wrapper (`triangulate_earcut.mbt`) | ~250 lines (port of geo wrapper) |
-| Unit tests | ~30-50 test cases |
-| Documentation + doctests | inline |
-| **Total estimated MoonBit code** | ~1500-1800 lines |
-| **Estimated effort** | ~1 dev-workflow cycle (confirms milestone estimate) |
+| Category                                        | Estimate                                            |
+| ----------------------------------------------- | --------------------------------------------------- |
+| Core algorithm (`lib.rs`)                       | ~1335 lines of Rust → ~1000-1200 lines of MoonBit   |
+| Public API + wrapper (`triangulate_earcut.mbt`) | ~250 lines (port of geo wrapper)                    |
+| Unit tests                                      | ~30-50 test cases                                   |
+| Documentation + doctests                        | inline                                              |
+| **Total estimated MoonBit code**                | ~1500-1800 lines                                    |
+| **Estimated effort**                            | ~1 dev-workflow cycle (confirms milestone estimate) |
 
 ### 7.2 MoonBit Data Structures Needed
 
@@ -299,24 +306,26 @@ struct RawTriangulation {
 
 ### 7.4 Key Porting Decisions
 
-| Decision | Recommendation |
-|----------|---------------|
-| Z-order hashing | **Skip for initial port.** Use `is_ear()` (unhashed) only. Add hashing later as optimization if needed. This cuts ~200 lines of port complexity (`zorder`, `index_curve`, `sort_linked`, `is_ear_hashed`). |
-| Generic `T: Float` vs `Double` | **Hardcode `Double`.** Consistent with geo-mbt design decisions (no `CoordNum` generics). |
-| `const PASS` generic | **Replace with `Int` parameter.** Simpler, negligible runtime cost. |
-| Error handling | **Use `EarcutError` enum.** The upstream only has `Unknown` variant; keep it simple. |
-| `flatten()` utility | **Not needed as public API** if geo wrapper handles flattening (as geo does). Keep as internal helper if needed for test fixtures. |
-| `deviation()` utility | **Useful for test correctness verification.** Port as a private test helper function. |
-| Recursion (split_earcut) | **Direct translation** — MoonBit supports recursion natively. |
-| Linked list sentinel | **Index 0 = NULL sentinel.** Keep the same design. MoonBit `Array[Node]` with a dummy node at index 0. |
+| Decision                       | Recommendation                                                                                                                                                                                             |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Z-order hashing                | **Skip for initial port.** Use `is_ear()` (unhashed) only. Add hashing later as optimization if needed. This cuts ~200 lines of port complexity (`zorder`, `index_curve`, `sort_linked`, `is_ear_hashed`). |
+| Generic `T: Float` vs `Double` | **Hardcode `Double`.** Consistent with geo-mbt design decisions (no `CoordNum` generics).                                                                                                                  |
+| `const PASS` generic           | **Replace with `Int` parameter.** Simpler, negligible runtime cost.                                                                                                                                        |
+| Error handling                 | **Use `EarcutError` enum.** The upstream only has `Unknown` variant; keep it simple.                                                                                                                       |
+| `flatten()` utility            | **Not needed as public API** if geo wrapper handles flattening (as geo does). Keep as internal helper if needed for test fixtures.                                                                         |
+| `deviation()` utility          | **Useful for test correctness verification.** Port as a private test helper function.                                                                                                                      |
+| Recursion (split_earcut)       | **Direct translation** — MoonBit supports recursion natively.                                                                                                                                              |
+| Linked list sentinel           | **Index 0 = NULL sentinel.** Keep the same design. MoonBit `Array[Node]` with a dummy node at index 0.                                                                                                     |
 
 ### 7.5 Test Coverage Strategy
 
 The integration tests (`tests/integration_test.rs`) test 30 fixture-based polygons from JSON files in `tests/fixtures/`. Each test verifies:
+
 - Correct number of output triangles
 - Area deviation between original polygon and triangulation < threshold
 
 **For the MoonBit port:**
+
 - Port the 30 fixture files as embedded test data arrays (or copy JSON files)
 - Write equivalent area-deviation tests
 - Also port unit tests from `src/tests.rs` covering: linked list ops, ear detection, signed area, point-in-triangle, intersection, hole bridging, local intersection curing, split earcut

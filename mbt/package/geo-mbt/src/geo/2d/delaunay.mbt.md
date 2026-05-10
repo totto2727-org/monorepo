@@ -33,14 +33,14 @@ inputs may misclassify until the adaptive version is ported.
 
 ### `delaunay_triangulation`
 
-| Variable | State                                | Note                                                        |  1  |  2  |  3  |  4  |  5  |  6  |
-| :------- | :----------------------------------- | :---------------------------------------------------------- | :-: | :-: | :-: | :-: | :-: | :-: |
-| `points` | empty                                | `None`                                                      |  ✓  |     |     |     |     |     |
-| `points` | 3 collinear                          | `None`                                                      |     |  ✓  |     |     |     |     |
-| `points` | 3 non-collinear                      | exactly 1 triangle covering the input vertices              |     |     |  ✓  |     |     |     |
-| `points` | 4 corners of unit square             | exactly 2 triangles sharing one diagonal edge               |     |     |     |  ✓  |     |     |
-| `points` | square + center                      | exactly 4 triangles, all sharing the center vertex (fan)    |     |     |     |     |  ✓  |     |
-| `points` | 25 grid points (5×5)                 | Euler-formula triangle count `2N - h - 2` (N=25, h=16)      |     |     |     |     |     |  ✓  |
+| Variable | State                    | Note                                                     |  1  |  2  |  3  |  4  |  5  |  6  |
+| :------- | :----------------------- | :------------------------------------------------------- | :-: | :-: | :-: | :-: | :-: | :-: |
+| `points` | empty                    | `None`                                                   |  ✓  |     |     |     |     |     |
+| `points` | 3 collinear              | `None`                                                   |     |  ✓  |     |     |     |     |
+| `points` | 3 non-collinear          | exactly 1 triangle covering the input vertices           |     |     |  ✓  |     |     |     |
+| `points` | 4 corners of unit square | exactly 2 triangles sharing one diagonal edge            |     |     |     |  ✓  |     |     |
+| `points` | square + center          | exactly 4 triangles, all sharing the center vertex (fan) |     |     |     |     |  ✓  |     |
+| `points` | 25 grid points (5×5)     | Euler-formula triangle count `2N - h - 2` (N=25, h=16)   |     |     |     |     |     |  ✓  |
 
 - Empty input returns `None`.
 
@@ -181,9 +181,9 @@ test "delaunay_triangulation - 5x5 grid Euler formula" {
 
 ### `delaunay_triangles_to_geometries`
 
-| Variable    | State                            | Note                                       |  1  |
-| :---------- | :------------------------------- | :----------------------------------------- | :-: |
-| `triangles` | result of triangulating a square | one `Triangle` per input index-triple      |  ✓  |
+| Variable    | State                            | Note                                  |  1  |
+| :---------- | :------------------------------- | :------------------------------------ | :-: |
+| `triangles` | result of triangulating a square | one `Triangle` per input index-triple |  ✓  |
 
 - Round-trips a triangulation into concrete `Triangle` geometries.
 

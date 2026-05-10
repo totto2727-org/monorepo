@@ -1,12 +1,12 @@
 # indexed.mbt
 
-R*-tree-backed query helpers ported from georust/geo's
+R\*-tree-backed query helpers ported from georust/geo's
 [`algorithm::indexed`](https://github.com/georust/geo/blob/main/geo/src/algorithm/indexed/).
 Each function builds an index from a fixed input collection once and
 returns a closure answering repeated spatial queries in roughly
 `O(log n + k)` instead of brute-force `O(n)` per query.
 
-The georust crate ships `PreparedGeometry` (R*-tree backed `Relate` /
+The georust crate ships `PreparedGeometry` (R\*-tree backed `Relate` /
 `Contains` / `Intersects`) and `IntervalTreeMultiPolygon` (1-D interval
 tree). The DE-9IM `Relate` machinery is out of scope for this port, so
 this module instead exposes the simpler "build once, query many times"
@@ -23,12 +23,12 @@ predicates already provided by the package.
 
 ### `indexed_contains_polygons`
 
-| Variable   | State                  | Note                                          |  1  |  2  |  3  |  4  |
-| :--------- | :--------------------- | :-------------------------------------------- | :-: | :-: | :-: | :-: |
-| `polygons` | empty                  | every query returns `false`                   |  ✓  |     |     |     |
-| `polygons` | single polygon         | predicate equals `contains_polygon_coord`     |     |  ✓  |     |     |
-| `polygons` | 10×10 grid (n = 100)   | predicate matches brute force on 100 queries  |     |     |  ✓  |     |
-| `polygons` | 32×32 grid (n = 1024)  | predicate matches brute force on 200 queries  |     |     |     |  ✓  |
+| Variable   | State                 | Note                                         |  1  |  2  |  3  |  4  |
+| :--------- | :-------------------- | :------------------------------------------- | :-: | :-: | :-: | :-: |
+| `polygons` | empty                 | every query returns `false`                  |  ✓  |     |     |     |
+| `polygons` | single polygon        | predicate equals `contains_polygon_coord`    |     |  ✓  |     |     |
+| `polygons` | 10×10 grid (n = 100)  | predicate matches brute force on 100 queries |     |     |  ✓  |     |
+| `polygons` | 32×32 grid (n = 1024) | predicate matches brute force on 200 queries |     |     |     |  ✓  |
 
 - Empty input: every query returns `false`.
 
@@ -133,11 +133,11 @@ test "indexed_contains_polygons - 32x32 stress matches brute force" {
 
 ### `indexed_nearest_point`
 
-| Variable | State                 | Note                                  |  1  |  2  |  3  |
-| :------- | :-------------------- | :------------------------------------ | :-: | :-: | :-: |
-| `points` | empty                 | every query returns `None`            |  ✓  |     |     |
-| `points` | single point          | always returns that point             |     |  ✓  |     |
-| `points` | 1000 distinct points  | matches brute-force nearest on 100 qs |     |     |  ✓  |
+| Variable | State                | Note                                  |  1  |  2  |  3  |
+| :------- | :------------------- | :------------------------------------ | :-: | :-: | :-: |
+| `points` | empty                | every query returns `None`            |  ✓  |     |     |
+| `points` | single point         | always returns that point             |     |  ✓  |     |
+| `points` | 1000 distinct points | matches brute-force nearest on 100 qs |     |     |  ✓  |
 
 - Empty input: every query returns `None`.
 

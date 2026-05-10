@@ -20,7 +20,7 @@ Both return a closed `LineString` (first == last) or `None` for
 degenerate input (fewer than 3 distinct points / all collinear / the
 underlying Delaunay triangulation empty).
 
-The R*-tree from `@rtree` backs the k-NN candidate query so each
+The R\*-tree from `@rtree` backs the k-NN candidate query so each
 walk step costs `O(n)` brute-force collect + `n log n` sort
 (`nearest_neighbors` is currently brute force; see the TODO in
 `rtree/rtree_nearest.mbt`). The Delaunay variant inherits the
@@ -37,13 +37,13 @@ component selection are deferred follow-ups.
 
 ### `k_nearest_concave_hull`
 
-| Variable | State                                  | Note                                                    |  1  |  2  |  3  |  4  |  5  |
-| :------- | :------------------------------------- | :------------------------------------------------------ | :-: | :-: | :-: | :-: | :-: |
-| `points` | empty                                  | `None`                                                  |  ✓  |     |     |     |     |
-| `points` | 3 collinear                            | `None`                                                  |     |  ✓  |     |     |     |
-| `points` | 3 non-collinear                        | closed ring of 4 coords (the triangle)                  |     |     |  ✓  |     |     |
-| `points` | square corners                         | closed ring of 5 coords (the square)                    |     |     |     |  ✓  |     |
-| `points` | square corners + center, large `k`     | falls back to convex hull (5 coords, no center)         |     |     |     |     |  ✓  |
+| Variable | State                              | Note                                            |  1  |  2  |  3  |  4  |  5  |
+| :------- | :--------------------------------- | :---------------------------------------------- | :-: | :-: | :-: | :-: | :-: |
+| `points` | empty                              | `None`                                          |  ✓  |     |     |     |     |
+| `points` | 3 collinear                        | `None`                                          |     |  ✓  |     |     |     |
+| `points` | 3 non-collinear                    | closed ring of 4 coords (the triangle)          |     |     |  ✓  |     |     |
+| `points` | square corners                     | closed ring of 5 coords (the square)            |     |     |     |  ✓  |     |
+| `points` | square corners + center, large `k` | falls back to convex hull (5 coords, no center) |     |     |     |     |  ✓  |
 
 - Empty input returns `None`.
 
@@ -175,12 +175,12 @@ test "k_nearest_concave_hull - 5x5 grid is closed and covers all" {
 
 ### `delaunay_concave_hull`
 
-| Variable   | State                              | Note                                                  |  1  |  2  |  3  |  4  |
-| :--------- | :--------------------------------- | :---------------------------------------------------- | :-: | :-: | :-: | :-: |
-| `points`   | empty                              | `None`                                                |  ✓  |     |     |     |
-| `points`   | 3 collinear                        | `None`                                                |     |  ✓  |     |     |
-| `points`   | 3 non-collinear                    | closed triangle (4 coords)                            |     |     |  ✓  |     |
-| `points`   | square corners, large `concavity`  | closed square (5 coords)                              |     |     |     |  ✓  |
+| Variable | State                             | Note                       |  1  |  2  |  3  |  4  |
+| :------- | :-------------------------------- | :------------------------- | :-: | :-: | :-: | :-: |
+| `points` | empty                             | `None`                     |  ✓  |     |     |     |
+| `points` | 3 collinear                       | `None`                     |     |  ✓  |     |     |
+| `points` | 3 non-collinear                   | closed triangle (4 coords) |     |     |  ✓  |     |
+| `points` | square corners, large `concavity` | closed square (5 coords)   |     |     |     |  ✓  |
 
 - Empty input returns `None`.
 

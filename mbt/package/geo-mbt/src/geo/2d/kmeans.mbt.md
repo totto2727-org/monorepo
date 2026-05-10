@@ -20,14 +20,14 @@ is the cluster assignment for `points[i]`. Invalid configurations
 
 ### `kmeans`
 
-| Variable | State                              | Note                                        |  1  |  2  |  3  |  4  |  5  |  6  |
-| :------- | :--------------------------------- | :------------------------------------------ | :-: | :-: | :-: | :-: | :-: | :-: |
-| `points` | empty                              | `None`                                      |  ✓  |     |     |     |     |     |
-| `k`      | `0`                                | `None`                                      |     |  ✓  |     |     |     |     |
-| `k`      | `> N`                              | `None`                                      |     |     |  ✓  |     |     |     |
-| `points` | 3 well-separated clusters of 3     | each cluster shares a label, all distinct   |     |     |     |  ✓  |     |     |
-| `points` | 4 points around (1, 1), `k = 1`    | sole centroid is the exact arithmetic mean  |     |     |     |     |  ✓  |     |
-| `points` | 3 isolated points, `k = N`         | each point gets its own cluster             |     |     |     |     |     |  ✓  |
+| Variable | State                           | Note                                       |  1  |  2  |  3  |  4  |  5  |  6  |
+| :------- | :------------------------------ | :----------------------------------------- | :-: | :-: | :-: | :-: | :-: | :-: |
+| `points` | empty                           | `None`                                     |  ✓  |     |     |     |     |     |
+| `k`      | `0`                             | `None`                                     |     |  ✓  |     |     |     |     |
+| `k`      | `> N`                           | `None`                                     |     |     |  ✓  |     |     |     |
+| `points` | 3 well-separated clusters of 3  | each cluster shares a label, all distinct  |     |     |     |  ✓  |     |     |
+| `points` | 4 points around (1, 1), `k = 1` | sole centroid is the exact arithmetic mean |     |     |     |     |  ✓  |     |
+| `points` | 3 isolated points, `k = N`      | each point gets its own cluster            |     |     |     |     |     |  ✓  |
 
 - Empty input returns `None` (since any positive `k` exceeds
   `points.length() == 0`).

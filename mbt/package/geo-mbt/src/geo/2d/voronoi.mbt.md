@@ -29,11 +29,11 @@ exact ray clipping are deferred to follow-up work.
 
 ### `voronoi_vertices`
 
-| Variable | State                                | Note                                                       |  1  |  2  |  3  |
-| :------- | :----------------------------------- | :--------------------------------------------------------- | :-: | :-: | :-: |
-| `points` | 3 non-collinear                      | exactly one vertex at the triangle circumcenter            |  ✓  |     |     |
-| `points` | 3 collinear                          | `None`                                                     |     |  ✓  |     |
-| `points` | 5×5 grid (25 points)                 | one vertex per Delaunay triangle (32 by Euler formula)     |     |     |  ✓  |
+| Variable | State                | Note                                                   |  1  |  2  |  3  |
+| :------- | :------------------- | :----------------------------------------------------- | :-: | :-: | :-: |
+| `points` | 3 non-collinear      | exactly one vertex at the triangle circumcenter        |  ✓  |     |     |
+| `points` | 3 collinear          | `None`                                                 |     |  ✓  |     |
+| `points` | 5×5 grid (25 points) | one vertex per Delaunay triangle (32 by Euler formula) |     |     |  ✓  |
 
 - Three non-collinear points produce exactly one Voronoi vertex — the
   circumcenter of the triangle.
@@ -97,13 +97,13 @@ test "voronoi_vertices - 5x5 grid count matches Delaunay" {
 
 ### `voronoi_diagram`
 
-| Variable | State                                | Note                                                       |  1  |  2  |  3  |  4  |  5  |
-| :------- | :----------------------------------- | :--------------------------------------------------------- | :-: | :-: | :-: | :-: | :-: |
-| `points` | empty                                | `None`                                                     |  ✓  |     |     |     |     |
-| `points` | 3 collinear                          | `None`                                                     |     |  ✓  |     |     |     |
-| `points` | 3 non-collinear                      | 3 boundary rays from the circumcenter to the bbox          |     |     |  ✓  |     |     |
-| `points` | square corners                       | 4 boundary rays (interior diagonal edge is degenerate)     |     |     |     |  ✓  |     |
-| `points` | square + center                      | 8 edges (4 interior between cell midpoints + 4 boundary)   |     |     |     |     |  ✓  |
+| Variable | State           | Note                                                     |  1  |  2  |  3  |  4  |  5  |
+| :------- | :-------------- | :------------------------------------------------------- | :-: | :-: | :-: | :-: | :-: |
+| `points` | empty           | `None`                                                   |  ✓  |     |     |     |     |
+| `points` | 3 collinear     | `None`                                                   |     |  ✓  |     |     |     |
+| `points` | 3 non-collinear | 3 boundary rays from the circumcenter to the bbox        |     |     |  ✓  |     |     |
+| `points` | square corners  | 4 boundary rays (interior diagonal edge is degenerate)   |     |     |     |  ✓  |     |
+| `points` | square + center | 8 edges (4 interior between cell midpoints + 4 boundary) |     |     |     |     |  ✓  |
 
 - Empty input returns `None`.
 

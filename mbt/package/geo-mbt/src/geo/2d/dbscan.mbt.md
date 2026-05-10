@@ -5,7 +5,7 @@ Density-Based Spatial Clustering of Applications with Noise — ported
 [`algorithm::dbscan`](https://github.com/georust/geo/blob/main/geo/src/algorithm/dbscan.rs).
 DBSCAN groups points whose `eps`-neighbourhoods contain at least
 `min_pts` neighbours (counting the point itself) and labels the rest as
-noise. The R*-tree (`@rtree`) backs every per-point neighbour query so
+noise. The R\*-tree (`@rtree`) backs every per-point neighbour query so
 the sweep runs in `O(n log n)` for typical inputs instead of `O(n²)`.
 
 The georust/geo crate also ships a separate `outlier_detection` module
@@ -27,13 +27,13 @@ Cluster IDs are 1-based; `0` is reserved for noise so the returned
 
 ### `dbscan`
 
-| Variable  | State                              | Note                                     |  1  |  2  |  3  |  4  |  5  |
-| :-------- | :--------------------------------- | :--------------------------------------- | :-: | :-: | :-: | :-: | :-: |
-| `points`  | empty                              | empty result                             |  ✓  |     |     |     |     |
-| `points`  | 5 well-separated clusters of 3     | 5 cluster IDs, no noise                  |     |  ✓  |     |     |     |
-| `points`  | 3 isolated points, `min_pts = 2`   | every label is `0` (noise-only input)    |     |     |  ✓  |     |     |
-| `points`  | 3 distinct points, `eps = 0`       | every label is `0`                       |     |     |     |  ✓  |     |
-| `points`  | 3 isolated points, `min_pts = 1`   | every label is `> 0` (no noise)          |     |     |     |     |  ✓  |
+| Variable | State                            | Note                                  |  1  |  2  |  3  |  4  |  5  |
+| :------- | :------------------------------- | :------------------------------------ | :-: | :-: | :-: | :-: | :-: |
+| `points` | empty                            | empty result                          |  ✓  |     |     |     |     |
+| `points` | 5 well-separated clusters of 3   | 5 cluster IDs, no noise               |     |  ✓  |     |     |     |
+| `points` | 3 isolated points, `min_pts = 2` | every label is `0` (noise-only input) |     |     |  ✓  |     |     |
+| `points` | 3 distinct points, `eps = 0`     | every label is `0`                    |     |     |     |  ✓  |     |
+| `points` | 3 isolated points, `min_pts = 1` | every label is `> 0` (no noise)       |     |     |     |     |  ✓  |
 
 - Empty input returns an empty result.
 
@@ -154,9 +154,9 @@ test "dbscan - min_pts=1 produces no noise" {
 
 ### `dbscan_outliers`
 
-| Variable | State                                   | Note                            |  1  |
-| :------- | :-------------------------------------- | :------------------------------ | :-: |
-| `points` | dense triangle + 1 outlier (mp=3, e=1)  | only the outlier index returned |  ✓  |
+| Variable | State                                  | Note                            |  1  |
+| :------- | :------------------------------------- | :------------------------------ | :-: |
+| `points` | dense triangle + 1 outlier (mp=3, e=1) | only the outlier index returned |  ✓  |
 
 - Returns the indices labelled noise by `dbscan`.
 

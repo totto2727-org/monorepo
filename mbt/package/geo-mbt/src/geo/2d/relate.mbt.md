@@ -20,7 +20,7 @@ resulting matrix is exact for the common pairs:
 - `Polygon × Polygon`
 
 Triangle / Rect / Line are reduced to Polygon / LineString first, so
-their relations route through the same code paths. Multi-* and
+their relations route through the same code paths. Multi-\* and
 GeometryCollection fall through to a conservative
 `relate_default` that fills only the disjoint cells exactly — a
 follow-up cycle (`TODO ms-20-followup` in the source) will replace
@@ -45,17 +45,17 @@ that with the full `geomgraph` construction.
 
 ### `relate` and predicates
 
-| Variable | State                                            | Note                                     |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |
-| :------- | :----------------------------------------------- | :--------------------------------------- | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
-| `(a, b)` | two distinct points                              | `disjoint`, `II = Empty`                 |  ✓  |     |     |     |     |     |     |     |     |
-| `(a, b)` | identical points                                 | `equals`                                 |     |  ✓  |     |     |     |     |     |     |     |
-| `(a, b)` | polygon, point in interior                       | `contains` and `covers`                  |     |     |  ✓  |     |     |     |     |     |     |
-| `(a, b)` | polygon, point on boundary                       | `covers` but **not** `contains` (OGC)    |     |     |     |  ✓  |     |     |     |     |     |
-| `(a, b)` | two crossing line segments                       | `crosses` and `intersects`               |     |     |     |     |  ✓  |     |     |     |     |
-| `(a, b)` | two equal polygons                               | `equals`                                 |     |     |     |     |     |  ✓  |     |     |     |
-| `(a, b)` | polygon strictly inside polygon                  | `contains`                               |     |     |     |     |     |     |  ✓  |     |     |
-| `(a, b)` | two well-separated polygons                      | `disjoint`, **not** `intersects`         |     |     |     |     |     |     |     |  ✓  |     |
-| `(a, b)` | polygons sharing exactly one boundary edge       | `touches`, **not** `overlaps`            |     |     |     |     |     |     |     |     |  ✓  |
+| Variable | State                                      | Note                                  |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |
+| :------- | :----------------------------------------- | :------------------------------------ | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| `(a, b)` | two distinct points                        | `disjoint`, `II = Empty`              |  ✓  |     |     |     |     |     |     |     |     |
+| `(a, b)` | identical points                           | `equals`                              |     |  ✓  |     |     |     |     |     |     |     |
+| `(a, b)` | polygon, point in interior                 | `contains` and `covers`               |     |     |  ✓  |     |     |     |     |     |     |
+| `(a, b)` | polygon, point on boundary                 | `covers` but **not** `contains` (OGC) |     |     |     |  ✓  |     |     |     |     |     |
+| `(a, b)` | two crossing line segments                 | `crosses` and `intersects`            |     |     |     |     |  ✓  |     |     |     |     |
+| `(a, b)` | two equal polygons                         | `equals`                              |     |     |     |     |     |  ✓  |     |     |     |
+| `(a, b)` | polygon strictly inside polygon            | `contains`                            |     |     |     |     |     |     |  ✓  |     |     |
+| `(a, b)` | two well-separated polygons                | `disjoint`, **not** `intersects`      |     |     |     |     |     |     |     |  ✓  |     |
+| `(a, b)` | polygons sharing exactly one boundary edge | `touches`, **not** `overlaps`         |     |     |     |     |     |     |     |     |  ✓  |
 
 - Two distinct points are disjoint and never intersect.
 

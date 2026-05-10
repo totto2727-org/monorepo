@@ -1,7 +1,7 @@
-# ms-18 R-tree Gap Analysis: Bulk-Load Index → Full R*-tree
+# ms-18 R-tree Gap Analysis: Bulk-Load Index → Full R\*-tree
 
 **Date**: 2026-05-10  
-**Milestone**: ms-18 — "R*-tree Full Implementation"  
+**Milestone**: ms-18 — "R\*-tree Full Implementation"  
 **Status**: planned, depends on ms-15-validation-finalize  
 **Phase**: 2 (post-scope expansion)
 
@@ -11,14 +11,14 @@
 
 ### Files
 
-| File | Purpose |
-|---|---|
-| `rtree.mbt` (363 lines) | Core implementation |
-| `rtree.mbt.md` (189 lines) | Literate documentation |
-| `rtree_test.mbt` (111 lines) | 6 test cases |
-| `rtree_bench_test.mbt` (41 lines) | 4 benchmarks |
-| `moon.pkg` (8 lines) | Package manifest |
-| `pkg.generated.mbti` (34 lines) | Generated interface |
+| File                              | Purpose                |
+| --------------------------------- | ---------------------- |
+| `rtree.mbt` (363 lines)           | Core implementation    |
+| `rtree.mbt.md` (189 lines)        | Literate documentation |
+| `rtree_test.mbt` (111 lines)      | 6 test cases           |
+| `rtree_bench_test.mbt` (41 lines) | 4 benchmarks           |
+| `moon.pkg` (8 lines)              | Package manifest       |
+| `pkg.generated.mbti` (34 lines)   | Generated interface    |
 
 ### API Surface (from `pkg.generated.mbti`)
 
@@ -47,6 +47,7 @@
 ### Dependencies (`moon.pkg`)
 
 Importing only two packages:
+
 - `totto2727/geo-mbt/geo/2d/type` — for `Rect` and `Coord` types
 - `moonbitlang/core/double` — for Double math (`infinity`, `sqrt`, etc.)
 - `moonbitlang/core/bench` — test-only, for benchmark harness
@@ -104,27 +105,33 @@ rstar/src/
 ### Complete Public API of `RTree<T, Params>`
 
 **Construction** (4 methods):
+
 - `new()` → `RTree<T, DefaultParams>` — empty tree with default params
 - `new_with_params()` → `RTree<T, Params>` — empty tree with custom params
 - `bulk_load(elements: Vec<T>)` → `RTree<T, DefaultParams>` — OMT bulk load
 - `bulk_load_with_params(elements: Vec<T>)` → `RTree<T, Params>` — bulk load with custom params
 
 **Size queries** (1 public):
+
 - `size(&self) -> usize` — element count (also tracked in an internal `size_mut`)
 
 **Insertion** (1 method):
-- `insert(&mut self, t: T)` — R*-tree insert with rebalancing, O(log n)
+
+- `insert(&mut self, t: T)` — R\*-tree insert with rebalancing, O(log n)
 
 **Removal** (4 methods):
+
 - `remove(&mut self, t: &T) -> Option<T>` — remove by equality (requires `T: PartialEq`)
 - `remove_at_point(&mut self, point) -> Option<T>` — remove element covering a point (requires `T: PointDistance`)
 - `remove_with_selection_function(&mut self, F) -> Option<T>` — generic remove via SelectionFunction
 - `pop_nearest_neighbor(&mut self, point) -> Option<T>` — remove nearest element to a point
 
 **Contains** (1 method):
+
 - `contains(&self, t: &T) -> bool` — true if equal element exists in tree
 
 **Locate — Envelope** (8 methods):
+
 - `locate_in_envelope(&self, envelope) -> LocateInEnvelope` — elements fully contained in envelope
 - `locate_in_envelope_mut(&mut self, envelope) -> LocateInEnvelopeMut`
 - `locate_in_envelope_int(&self, envelope, visitor) -> ControlFlow<B>` — internal iteration variant
@@ -135,6 +142,7 @@ rstar/src/
 - `locate_in_envelope_intersecting_int_mut(...)`
 
 **Locate — Point** (8 methods):
+
 - `locate_at_point(&self, point) -> Option<&T>` — returns one element covering point
 - `locate_at_point_mut(&mut self, point) -> Option<&mut T>`
 - `locate_at_point_int(&self, point) -> Option<&T>` — internal iteration, short-circuits
@@ -145,13 +153,16 @@ rstar/src/
 - `locate_all_at_point_int_mut(...)`
 
 **Locate — Distance** (1 method):
+
 - `locate_within_distance(&self, point, max_squared_radius) -> LocateWithinDistanceIterator` — elements within distance
 
 **Locate — Generic** (2 methods):
+
 - `locate_with_selection_function(&self, S) -> SelectionIterator` — arbitrary selection
 - `locate_with_selection_function_mut(&mut self, S) -> SelectionIteratorMut`
 
 **Nearest neighbor** (8 methods): (all require `T: PointDistance`)
+
 - `nearest_neighbor(&self, point) -> Option<&T>` — single nearest, no distance
 - `nearest_neighbor_with_distance_2(&self, point) -> Option<(&T, Distance)>` — nearest + squared distance
 - `nearest_neighbors(&self, point) -> Vec<&T>` — all tied at minimum distance
@@ -162,6 +173,7 @@ rstar/src/
 - `pop_nearest_neighbor(&mut self, point) -> Option<T>` — remove-and-return nearest
 
 **Drain** (5 methods):
+
 - `drain(&mut self) -> DrainIterator` — drain all elements
 - `drain_in_envelope(&mut self, envelope) -> DrainIterator` — drain fully contained
 - `drain_in_envelope_intersecting(&mut self, envelope) -> DrainIterator` — drain intersecting
@@ -169,6 +181,7 @@ rstar/src/
 - `drain_with_selection_function(&mut self, F) -> DrainIterator` — generic drain
 
 **Iteration** (2 methods + 3 IntoIterator impls):
+
 - `iter(&self) -> RTreeIterator` — iterate all elements (immutable ref)
 - `iter_mut(&mut self) -> RTreeIteratorMut` — iterate all elements (mutable ref)
 - `impl IntoIterator for RTree` → `IntoIter` (owned, consumes tree)
@@ -176,121 +189,124 @@ rstar/src/
 - `impl IntoIterator for &mut RTree` → `RTreeIteratorMut` (mutably borrowed)
 
 **Cross-tree** (1 method):
+
 - `intersection_candidates_with_other_tree(&self, other: &RTree<U>) -> IntersectionIterator`
 
 **Debug / introspection** (1 method):
+
 - `root(&self) -> &ParentNode<T>` — public access to root for manual traversal
 
 **Total: ~46 public methods** (counting immutable/mutable/internal-iteration variants separately).
 
 ---
 
-## 3. Gap Analysis: Current Port vs Full R*-tree
+## 3. Gap Analysis: Current Port vs Full R\*-tree
 
 ### Legend
-| Symbol | Meaning |
-|---|---|
-| ✅ | Present (possibly under a different name) |
-| 🟡 | Partial — present but in simplified form |
-| ❌ | Missing — needs implementation |
-| ⛔ | Not applicable to 2D-only, no-generic MoonBit port |
-| ➕ | Enhancement of an existing partial |
+
+| Symbol | Meaning                                            |
+| ------ | -------------------------------------------------- |
+| ✅     | Present (possibly under a different name)          |
+| 🟡     | Partial — present but in simplified form           |
+| ❌     | Missing — needs implementation                     |
+| ⛔     | Not applicable to 2D-only, no-generic MoonBit port |
+| ➕     | Enhancement of an existing partial                 |
 
 ### Construction
 
-| rstar operation | Port status | Current port equivalent | Gap notes |
-|---|---|---|---|
-| `new()` | ❌ | — | Current tree is read-only; only `bulk_load` exists. Need an empty-tree constructor. |
-| `new_with_params()` | ⛔ | — | No `Params` type system in MoonBit; keep hard-coded fanout for now. |
-| `bulk_load(Vec<T>)` | ✅ | `RTree::bulk_load(Array[Entry[T]])` | Exists as STR-packing. rstar uses OMT (overlap-minimizing top-down). Acceptable difference. |
-| `bulk_load_with_params(Vec<T>)` | ⛔ | — | No tunable params needed. |
+| rstar operation                 | Port status | Current port equivalent             | Gap notes                                                                                   |
+| ------------------------------- | ----------- | ----------------------------------- | ------------------------------------------------------------------------------------------- |
+| `new()`                         | ❌          | —                                   | Current tree is read-only; only `bulk_load` exists. Need an empty-tree constructor.         |
+| `new_with_params()`             | ⛔          | —                                   | No `Params` type system in MoonBit; keep hard-coded fanout for now.                         |
+| `bulk_load(Vec<T>)`             | ✅          | `RTree::bulk_load(Array[Entry[T]])` | Exists as STR-packing. rstar uses OMT (overlap-minimizing top-down). Acceptable difference. |
+| `bulk_load_with_params(Vec<T>)` | ⛔          | —                                   | No tunable params needed.                                                                   |
 
 ### Size / is_empty
 
-| rstar operation | Port status | Notes |
-|---|---|---|
-| `size(&self) -> usize` | ✅ | `RTree::size(Self) -> Int` |
-| `is_empty` (derived) | ✅ | `RTree::is_empty(Self) -> Bool` |
+| rstar operation        | Port status | Notes                           |
+| ---------------------- | ----------- | ------------------------------- |
+| `size(&self) -> usize` | ✅          | `RTree::size(Self) -> Int`      |
+| `is_empty` (derived)   | ✅          | `RTree::is_empty(Self) -> Bool` |
 
 ### Mutation: Insert
 
-| rstar operation | Port status | Gap notes |
-|---|---|---|
-| `insert(&mut self, t: T)` | ❌ | **Major gap.** Requires porting the full R*-tree insertion algorithm: `RStarInsertionStrategy`, `recursive_insert`, node split strategies, reinsert logic from `algorithm/rstar.rs` (349 lines). Also requires restructuring `Node[T]` from a two-variant enum to support dynamic insertion: parent nodes need Vec-like mutable children, not fixed-size arrays. |
+| rstar operation           | Port status | Gap notes                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `insert(&mut self, t: T)` | ❌          | **Major gap.** Requires porting the full R\*-tree insertion algorithm: `RStarInsertionStrategy`, `recursive_insert`, node split strategies, reinsert logic from `algorithm/rstar.rs` (349 lines). Also requires restructuring `Node[T]` from a two-variant enum to support dynamic insertion: parent nodes need Vec-like mutable children, not fixed-size arrays. |
 
 ### Mutation: Remove
 
-| rstar operation | Port status | Gap notes |
-|---|---|---|
-| `remove(&mut self, t: &T)` | ❌ | Requires `T: PartialEq` — MoonBit has built-in equality on all types. Needs porting `algorithm/removal.rs` (397 lines) — DrainIterator core logic, tree condensing after removal. |
-| `remove_at_point(&mut self, point)` | ❌ | Requires `PointDistance` concept (or equivalent: bbox-distance check). |
-| `remove_with_selection_function(&mut self, F)` | ❌ | Requires `SelectionFunction` trait port. |
+| rstar operation                                | Port status | Gap notes                                                                                                                                                                         |
+| ---------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `remove(&mut self, t: &T)`                     | ❌          | Requires `T: PartialEq` — MoonBit has built-in equality on all types. Needs porting `algorithm/removal.rs` (397 lines) — DrainIterator core logic, tree condensing after removal. |
+| `remove_at_point(&mut self, point)`            | ❌          | Requires `PointDistance` concept (or equivalent: bbox-distance check).                                                                                                            |
+| `remove_with_selection_function(&mut self, F)` | ❌          | Requires `SelectionFunction` trait port.                                                                                                                                          |
 
 ### Mutation: Drain
 
-| rstar operation | Port status | Gap notes |
-|---|---|---|
-| `drain(&mut self)` | ❌ | Drain all elements, consuming the tree. |
-| `drain_in_envelope(...)` | ❌ | Drain elements fully contained in envelope. |
-| `drain_in_envelope_intersecting(...)` | ❌ | Drain intersecting elements. |
-| `drain_within_distance(...)` | ❌ | Drain elements within distance. |
-| `drain_with_selection_function(...)` | ❌ | Generic drain. Requires `SelectionFunction` + `DrainIterator` infrastructure. |
+| rstar operation                       | Port status | Gap notes                                                                     |
+| ------------------------------------- | ----------- | ----------------------------------------------------------------------------- |
+| `drain(&mut self)`                    | ❌          | Drain all elements, consuming the tree.                                       |
+| `drain_in_envelope(...)`              | ❌          | Drain elements fully contained in envelope.                                   |
+| `drain_in_envelope_intersecting(...)` | ❌          | Drain intersecting elements.                                                  |
+| `drain_within_distance(...)`          | ❌          | Drain elements within distance.                                               |
+| `drain_with_selection_function(...)`  | ❌          | Generic drain. Requires `SelectionFunction` + `DrainIterator` infrastructure. |
 
 ### Query: Envelope-based
 
-| rstar operation | Port status | Port equivalent | Gap notes |
-|---|---|---|---|
-| `locate_in_envelope(...)` | ❌ | — | Fully-contained query (different from intersecting). |
-| `locate_in_envelope_intersecting(...)` | 🟡 | `query_rect_intersection(Self, Rect) -> Array[T]` | Current port returns eager `Array[T]`, not a lazy iterator. For full R*-tree features (especially drain), should be changed to iterator-based. |
-| All `_mut` variants | ⛔ | — | MoonBit values are immutable; no mutable variants needed. |
-| All `_int` variants | ⛔ | — | Internal iteration pattern is Rust-specific; MoonBit uses iterators differently. |
+| rstar operation                        | Port status | Port equivalent                                   | Gap notes                                                                                                                                       |
+| -------------------------------------- | ----------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `locate_in_envelope(...)`              | ❌          | —                                                 | Fully-contained query (different from intersecting).                                                                                            |
+| `locate_in_envelope_intersecting(...)` | 🟡          | `query_rect_intersection(Self, Rect) -> Array[T]` | Current port returns eager `Array[T]`, not a lazy iterator. For full R\*-tree features (especially drain), should be changed to iterator-based. |
+| All `_mut` variants                    | ⛔          | —                                                 | MoonBit values are immutable; no mutable variants needed.                                                                                       |
+| All `_int` variants                    | ⛔          | —                                                 | Internal iteration pattern is Rust-specific; MoonBit uses iterators differently.                                                                |
 
 ### Query: Point-based
 
-| rstar operation | Port status | Gap notes |
-|---|---|---|
-| `locate_at_point(...)` | ❌ | Requires `contains_point` concept — in 2D MoonBit port, this is `Rect::contains(Coord)`. |
-| `locate_all_at_point(...)` | ❌ | All elements whose bbox contains a point. |
+| rstar operation            | Port status | Gap notes                                                                                |
+| -------------------------- | ----------- | ---------------------------------------------------------------------------------------- |
+| `locate_at_point(...)`     | ❌          | Requires `contains_point` concept — in 2D MoonBit port, this is `Rect::contains(Coord)`. |
+| `locate_all_at_point(...)` | ❌          | All elements whose bbox contains a point.                                                |
 
 ### Query: Distance-based
 
-| rstar operation | Port status | Gap notes |
-|---|---|---|
-| `locate_within_distance(...)` | ❌ | Requires squared-distance check against each entry bbox. |
+| rstar operation               | Port status | Gap notes                                                |
+| ----------------------------- | ----------- | -------------------------------------------------------- |
+| `locate_within_distance(...)` | ❌          | Requires squared-distance check against each entry bbox. |
 
 ### Nearest neighbor
 
-| rstar operation | Port status | Port equivalent | Gap notes |
-|---|---|---|---|
-| `nearest_neighbor(...)` | ✅ | `query_nearest(Self, Coord) -> T?` | Current port returns value (not reference). Note: current impl does bbox-distance only, no `PointDistance` trait. |
-| `nearest_neighbor_with_distance_2(...)` | ❌ | — | Needs to return `(T, Double)` tuple. |
-| `nearest_neighbors(...)` | ❌ | — | All tied-nearest elements. **Mentioned in ms-18 description.** |
-| `nearest_neighbor_iter(...)` | ❌ | — | Sorted k-NN iterator. **Mentioned in ms-18 description.** Uses a binary heap (priority queue). MoonBit has `priority_queue` in its standard library. |
+| rstar operation                         | Port status | Port equivalent                    | Gap notes                                                                                                                                            |
+| --------------------------------------- | ----------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `nearest_neighbor(...)`                 | ✅          | `query_nearest(Self, Coord) -> T?` | Current port returns value (not reference). Note: current impl does bbox-distance only, no `PointDistance` trait.                                    |
+| `nearest_neighbor_with_distance_2(...)` | ❌          | —                                  | Needs to return `(T, Double)` tuple.                                                                                                                 |
+| `nearest_neighbors(...)`                | ❌          | —                                  | All tied-nearest elements. **Mentioned in ms-18 description.**                                                                                       |
+| `nearest_neighbor_iter(...)`            | ❌          | —                                  | Sorted k-NN iterator. **Mentioned in ms-18 description.** Uses a binary heap (priority queue). MoonBit has `priority_queue` in its standard library. |
 
 ### Iteration
 
-| rstar operation | Port status | Gap notes |
-|---|---|---|
-| `iter(&self) -> Iterator` | ❌ | **Mentioned in ms-18 description.** Requires exposing an iteration mechanism over all leaf entries. |
-| `iter_mut(...)` | ⛔ | Immutable port — no mutable iteration. |
-| `impl IntoIterator for RTree` | ❌ | Consuming iteration — returns all elements, destroys tree. |
+| rstar operation               | Port status | Gap notes                                                                                           |
+| ----------------------------- | ----------- | --------------------------------------------------------------------------------------------------- |
+| `iter(&self) -> Iterator`     | ❌          | **Mentioned in ms-18 description.** Requires exposing an iteration mechanism over all leaf entries. |
+| `iter_mut(...)`               | ⛔          | Immutable port — no mutable iteration.                                                              |
+| `impl IntoIterator for RTree` | ❌          | Consuming iteration — returns all elements, destroys tree.                                          |
 
 ### Other
 
-| rstar operation | Port status | Gap notes |
-|---|---|---|
-| `contains(&self, &T) -> bool` | ❌ | Requires `T: PartialEq`. Simple: search by envelope then equality-check. |
-| `intersection_candidates_with_other_tree(...)` | ❌ | Cross-tree intersection. Complex iterator machinery. Deferred; not in ms-18 scope. |
-| `root(&self) -> &ParentNode` | 🟡 | Current `Node[T]` is opaque (package-private `type`). Could expose for debugging. |
+| rstar operation                                | Port status | Gap notes                                                                          |
+| ---------------------------------------------- | ----------- | ---------------------------------------------------------------------------------- |
+| `contains(&self, &T) -> bool`                  | ❌          | Requires `T: PartialEq`. Simple: search by envelope then equality-check.           |
+| `intersection_candidates_with_other_tree(...)` | ❌          | Cross-tree intersection. Complex iterator machinery. Deferred; not in ms-18 scope. |
+| `root(&self) -> &ParentNode`                   | 🟡          | Current `Node[T]` is opaque (package-private `type`). Could expose for debugging.  |
 
 ### Summary matrix
 
-| Category | Count | Status |
-|---|---|---|
-| ✅ Fully present | 3 | bulk_load, size, is_empty |
-| 🟡 Partial | 2 | query_rect_intersection (eager, no iterator), query_nearest (returns value not ref, no distance) |
-| ❌ Missing | 32+ | insert, remove, drain, locate_in_envelope, locate_at_point, locate_within_distance, nearest_neighbors, nearest_neighbor_iter, iter, into_iter, contains, drain_all_variants |
-| ⛔ N/A (mutable/generic/Params) | ~12 | All `_mut`, `_int`, `_with_params`, `_with_selection_function_mut` variants; `intersection_candidates_with_other_tree` |
+| Category                        | Count | Status                                                                                                                                                                      |
+| ------------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ✅ Fully present                | 3     | bulk_load, size, is_empty                                                                                                                                                   |
+| 🟡 Partial                      | 2     | query_rect_intersection (eager, no iterator), query_nearest (returns value not ref, no distance)                                                                            |
+| ❌ Missing                      | 32+   | insert, remove, drain, locate_in_envelope, locate_at_point, locate_within_distance, nearest_neighbors, nearest_neighbor_iter, iter, into_iter, contains, drain_all_variants |
+| ⛔ N/A (mutable/generic/Params) | ~12   | All `_mut`, `_int`, `_with_params`, `_with_selection_function_mut` variants; `intersection_candidates_with_other_tree`                                                      |
 
 ---
 
@@ -299,6 +315,7 @@ rstar/src/
 ### 4.1 Current `Node[T]` is Immutable
 
 The current port uses:
+
 ```moonbit
 enum Node[T] {
   Leaf(@type.Rect, Array[Entry[T]])
@@ -315,11 +332,12 @@ This is built once during `bulk_load` and never modified. Each node stores `Arra
 2. **Separate `LeafNode`/`ParentNode` into distinct types** — match rstar's design where `RTreeNode<T>` is `Leaf(T) | Parent(ParentNode<T>)` and `ParentNode` has mutable `children: Vec<RTreeNode<T>>` plus a cached `envelope`.
 
 Key changes needed to the internal node types:
+
 - Parent nodes need mutable child vectors (currently immutable `Array`)
 - Nodes need their envelope recomputed after child changes
 - The root needs to be able to split and grow
 
-### 4.2 R*-tree Insertion Algorithm
+### 4.2 R\*-tree Insertion Algorithm
 
 From `rstar/src/algorithm/rstar.rs` (349 lines), the insertion algorithm:
 
@@ -346,6 +364,7 @@ pub trait SelectionFunction<T: RTreeObject> {
 All `locate_*` methods are built on top of `locate_with_selection_function`, which uses a `SelectionIterator` that traverses the tree, pruning parent nodes via `should_unpack_parent` and selecting leaf items via `should_unpack_leaf`.
 
 The 7 concrete implementations:
+
 - `SelectAllFunc` — always true → `iter()`
 - `SelectInEnvelopeFunction` — envelope containment → `locate_in_envelope()`
 - `SelectInEnvelopeFuncIntersecting` — envelope intersection → `locate_in_envelope_intersecting()`
@@ -420,7 +439,7 @@ From `rstar/src/algorithm/removal.rs`:
 
 ### Phase D: Mutation
 
-12. **Port R*-tree insertion** (`algorithm/rstar.rs`):
+12. **Port R\*-tree insertion** (`algorithm/rstar.rs`):
     - `choose_subtree` logic
     - Node split (axis + index selection)
     - Overflow resolution (reinsert vs split)
@@ -454,14 +473,14 @@ From `rstar/src/algorithm/removal.rs`:
 
 ## 6. Risk Assessment
 
-| Risk | Severity | Mitigation |
-|---|---|---|
-| R*-tree insertion is algorithmically complex (~349 lines of Rust) | High | Port incrementally: split logic first, then insertion, then overflow resolution. Write exhaustive property tests. |
-| MoonBit lacks `Vec` — `Array` has different resize semantics | Medium | Pre-allocate arrays at `MAX_SIZE + 1` capacity; use `Array::push` / `Array::pop` for mutation within capacity. May need to split into new arrays on overflow (similar to Vec realloc). |
-| `SelectionFunction` trait port — MoonBit trait ergonomics differ from Rust | Low | Can use simple function closures instead of traits for the 2D-only case, or define a local trait. |
-| Nearest-neighbor iterator requires a binary heap with custom ordering | Low | MoonBit's `@priority_queue` library supports custom comparators. |
-| Drain iterator requires complex state tracking during removal | Medium | Port removal.rs incrementally, testing against brute-force. The condensing logic is the trickiest part. |
-| No mutable references in MoonBit | Low | The port already follows an immutable style. For mutation, we use `let mut tree = ...` and pass `tree` by value where needed. The tree struct itself is mutated in-place via `fn RTree::insert(mut self : RTree[T], t : Entry[T]) -> RTree[T]`. |
+| Risk                                                                       | Severity | Mitigation                                                                                                                                                                                                                                      |
+| -------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R\*-tree insertion is algorithmically complex (~349 lines of Rust)         | High     | Port incrementally: split logic first, then insertion, then overflow resolution. Write exhaustive property tests.                                                                                                                               |
+| MoonBit lacks `Vec` — `Array` has different resize semantics               | Medium   | Pre-allocate arrays at `MAX_SIZE + 1` capacity; use `Array::push` / `Array::pop` for mutation within capacity. May need to split into new arrays on overflow (similar to Vec realloc).                                                          |
+| `SelectionFunction` trait port — MoonBit trait ergonomics differ from Rust | Low      | Can use simple function closures instead of traits for the 2D-only case, or define a local trait.                                                                                                                                               |
+| Nearest-neighbor iterator requires a binary heap with custom ordering      | Low      | MoonBit's `@priority_queue` library supports custom comparators.                                                                                                                                                                                |
+| Drain iterator requires complex state tracking during removal              | Medium   | Port removal.rs incrementally, testing against brute-force. The condensing logic is the trickiest part.                                                                                                                                         |
+| No mutable references in MoonBit                                           | Low      | The port already follows an immutable style. For mutation, we use `let mut tree = ...` and pass `tree` by value where needed. The tree struct itself is mutated in-place via `fn RTree::insert(mut self : RTree[T], t : Entry[T]) -> RTree[T]`. |
 
 ---
 
@@ -469,33 +488,35 @@ From `rstar/src/algorithm/removal.rs`:
 
 Per `CLAUDE.md` and the 2D-only constraint:
 
-| rstar feature | Reason to skip |
-|---|---|
-| Generic `T: CoordNum` / `RTreeNum` | Port uses `Double` only |
-| N-dimensional `AABB<P: Point>` | 2D `Rect` sufficient |
-| `mint` integration | External crate interop not needed |
-| `serde` support | Serialization out of scope |
+| rstar feature                                     | Reason to skip                                                   |
+| ------------------------------------------------- | ---------------------------------------------------------------- |
+| Generic `T: CoordNum` / `RTreeNum`                | Port uses `Double` only                                          |
+| N-dimensional `AABB<P: Point>`                    | 2D `Rect` sufficient                                             |
+| `mint` integration                                | External crate interop not needed                                |
+| `serde` support                                   | Serialization out of scope                                       |
 | `primitives::Line`, `primitives::Rectangle`, etc. | Not needed — port uses `Rect` for envelopes and `T` for payloads |
-| `CachedEnvelope`, `GeomWithData` | `Entry[T]` already carries bbox + value |
-| `_mut` variants of all methods | Immutable port |
-| `_int` (internal iteration) variants | Rust-specific pattern; MoonBit callers use iterators |
-| `RTreeParams` / `DefaultParams` / tunable fanout | Hard-coded `MAX_ENTRIES = 16` is sufficient |
-| `intersection_candidates_with_other_tree` | Cross-tree intersection — complex, not used by ms-27/ms-30 |
+| `CachedEnvelope`, `GeomWithData`                  | `Entry[T]` already carries bbox + value                          |
+| `_mut` variants of all methods                    | Immutable port                                                   |
+| `_int` (internal iteration) variants              | Rust-specific pattern; MoonBit callers use iterators             |
+| `RTreeParams` / `DefaultParams` / tunable fanout  | Hard-coded `MAX_ENTRIES = 16` is sufficient                      |
+| `intersection_candidates_with_other_tree`         | Cross-tree intersection — complex, not used by ms-27/ms-30       |
 
 ---
 
 ## 8. Key Reference Files
 
 ### MoonBit port files
+
 - `/Users/totto2727/.warp/worktrees/monorepo/cobalt-ocotillo/mbt/package/geo-mbt/src/rtree/rtree.mbt` — current implementation (363 lines)
 - `/Users/totto2727/.warp/worktrees/monorepo/cobalt-ocotillo/mbt/package/geo-mbt/src/rtree/pkg.generated.mbti` — current interface
 - `/Users/totto2727/.warp/worktrees/monorepo/cobalt-ocotillo/mbt/package/geo-mbt/src/rtree/moon.pkg` — current dependencies
 - `/Users/totto2727/.warp/worktrees/monorepo/cobalt-ocotillo/docs/roadmap/geo-mbt/roadmap-progress.yaml` — milestone definition (lines 163-182)
 
 ### rstar reference files
+
 - `/Users/totto2727/proj/geo/rstar/rstar/src/lib.rs` — crate root with re-exports
 - `/Users/totto2727/proj/geo/rstar/rstar/src/rtree.rs` — RTree<T,Params> full API (1372 lines)
-- `/Users/totto2727/proj/geo/rstar/rstar/src/algorithm/rstar.rs` — R*-tree insertion (349 lines)
+- `/Users/totto2727/proj/geo/rstar/rstar/src/algorithm/rstar.rs` — R\*-tree insertion (349 lines)
 - `/Users/totto2727/proj/geo/rstar/rstar/src/algorithm/removal.rs` — drain/removal/IntoIter (397 lines)
 - `/Users/totto2727/proj/geo/rstar/rstar/src/algorithm/iterators.rs` — SelectionIterator (420 lines)
 - `/Users/totto2727/proj/geo/rstar/rstar/src/algorithm/selection_functions.rs` — 7 SelectionFunction impls (240 lines)
@@ -510,6 +531,7 @@ Per `CLAUDE.md` and the 2D-only constraint:
 - `/Users/totto2727/proj/geo/rstar/rstar/src/primitives/mod.rs` — primitive types (15 lines)
 
 ### Port documentation
+
 - `/Users/totto2727/.warp/worktrees/monorepo/cobalt-ocotillo/mbt/package/geo-mbt/api-correspondence.md` — §4 rstar section (lines 552-611)
 
 ---
@@ -518,14 +540,14 @@ Per `CLAUDE.md` and the 2D-only constraint:
 
 The current port (`src/rtree/`) is a **read-only, bulk-loaded STR R-tree** with exactly 2 query methods (intersection + nearest), 6 files, and 363 lines of core code. It is intentionally minimal and covers only the "load once, query many" use case.
 
-To become a full R*-tree matching ms-18 requirements, approximately **32+ rstar API methods** must be added across 5 implementation phases:
+To become a full R\*-tree matching ms-18 requirements, approximately **32+ rstar API methods** must be added across 5 implementation phases:
 
 1. **Internal restructuring** — mutable `Node[T]`, `SelectionFunction` concept, `SelectionIterator`
 2. **Query expansion** — `locate_in_envelope`, `locate_at_point`, `locate_within_distance`, `iter`
 3. **Nearest neighbor expansion** — `nearest_neighbor_with_distance_2`, `nearest_neighbors`, `nearest_neighbor_iter`
-4. **Mutation** — R*-tree `insert`, `remove`, `drain`, `contains` (the core dynamic tree operations)
+4. **Mutation** — R\*-tree `insert`, `remove`, `drain`, `contains` (the core dynamic tree operations)
 5. **Integration** — make bulk-load coexist with dynamic ops, `IntoIter`, tests/benchmarks
 
-The biggest implementation risks are the R*-tree insertion algorithm (complex split/reinsert logic) and the drain iterator (stateful tree condensing). The nearest-neighbor iterator is a moderate risk since the current port already has a best-first traversal that can be extended to a persistent iterator using MoonBit's `@priority_queue`.
+The biggest implementation risks are the R\*-tree insertion algorithm (complex split/reinsert logic) and the drain iterator (stateful tree condensing). The nearest-neighbor iterator is a moderate risk since the current port already has a best-first traversal that can be extended to a persistent iterator using MoonBit's `@priority_queue`.
 
 Approximate LOC estimate: ~2000-3000 new MoonBit lines (the reference Rust code across rstar.rs, rstar.rs, removal.rs, iterators.rs, selection_functions.rs, nearest_neighbor.rs totals ~2700 lines).
