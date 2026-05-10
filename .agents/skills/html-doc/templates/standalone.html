@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{TITLE}}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ratex-wasm@0.1.4/fonts.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/ratex-wasm@0.1.4/dist/ratex-formula.js"></script>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #080b12;
+        --bg-soft: #101624;
+        --panel: rgba(18, 25, 40, 0.86);
+        --panel-strong: rgba(26, 36, 58, 0.94);
+        --text: #e8eefc;
+        --muted: #9aa8c7;
+        --faint: #6f7d99;
+        --line: rgba(159, 180, 216, 0.2);
+        --accent: #73e0ff;
+        --accent-2: #b991ff;
+        --accent-3: #8dffbd;
+        --danger: #ff7d97;
+        --warn: #ffd479;
+        --ok: #8dffbd;
+        --code-bg: #060913;
+        --shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+        --radius: 18px;
+        --mono:
+          'Moralerspace Neon', 'Moralerspace Argon', 'UDEV Gothic 35NFLG', 'HackGen Console NF',
+          'Noto Sans Mono CJK JP', 'Noto Sans Mono CJK Japanese', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          monospace;
+        --sans:
+          'Noto Sans CJK JP', 'Noto Sans CJK Japanese', 'Noto Sans JP', 'BIZ UDPGothic', 'Hiragino Sans',
+          'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', 'Yu Gothic', Meiryo, system-ui, -apple-system,
+          BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top left, rgba(115, 224, 255, 0.22), transparent 36rem),
+          radial-gradient(circle at top right, rgba(185, 145, 255, 0.18), transparent 34rem),
+          linear-gradient(180deg, #080b12 0%, #0b1020 52%, #080b12 100%);
+        color: var(--text);
+        font-family: var(--sans);
+        line-height: 1.7;
+      }
+
+      a {
+        color: var(--accent);
+      }
+      code,
+      pre {
+        font-family: var(--mono);
+      }
+      main {
+        width: min(1160px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 80px;
+      }
+
+      .hero-card,
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--panel);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+
+      .hero-card {
+        padding: clamp(28px, 5vw, 64px);
+        margin-bottom: 20px;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero-card::after {
+        content: '';
+        position: absolute;
+        inset: auto -10% -35% 35%;
+        height: 260px;
+        background: linear-gradient(90deg, transparent, rgba(115, 224, 255, 0.18), rgba(185, 145, 255, 0.2));
+        transform: rotate(-8deg);
+        pointer-events: none;
+      }
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+      h1,
+      h2,
+      h3 {
+        line-height: 1.18;
+        margin: 0 0 14px;
+      }
+      h1 {
+        font-size: clamp(2.2rem, 8vw, 5.8rem);
+        letter-spacing: -0.06em;
+        max-width: 12ch;
+      }
+      h2 {
+        font-size: clamp(1.35rem, 3vw, 2rem);
+        letter-spacing: -0.03em;
+      }
+      h3 {
+        font-size: 1.05rem;
+        color: var(--accent-3);
+      }
+      p {
+        margin: 0 0 14px;
+        color: var(--muted);
+      }
+      ul,
+      ol {
+        color: var(--muted);
+        padding-left: 1.2rem;
+      }
+      li + li {
+        margin-top: 0.35rem;
+      }
+
+      .doc-nav {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 0 0 20px;
+        position: sticky;
+        top: 8px;
+        z-index: 10;
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(8, 11, 18, 0.72);
+        backdrop-filter: blur(14px);
+      }
+      .doc-nav a,
+      button,
+      .chip {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        padding: 8px 12px;
+        font: 700 0.82rem/1 var(--sans);
+        text-decoration: none;
+        cursor: pointer;
+      }
+      button:hover,
+      .doc-nav a:hover {
+        border-color: rgba(115, 224, 255, 0.75);
+      }
+      button[aria-pressed='true'],
+      .chip.active {
+        background: linear-gradient(135deg, rgba(115, 224, 255, 0.22), rgba(185, 145, 255, 0.2));
+        border-color: rgba(115, 224, 255, 0.7);
+      }
+
+      .panel {
+        padding: clamp(18px, 3vw, 30px);
+        margin: 20px 0;
+      }
+      .grid {
+        display: grid;
+        gap: 18px;
+      }
+      .grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .grid.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      @media (max-width: 780px) {
+        .grid.two,
+        .grid.three {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .metric {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .metric strong {
+        display: block;
+        font-size: 1.8rem;
+        line-height: 1.1;
+        color: var(--text);
+      }
+      .metric span {
+        color: var(--faint);
+        font-size: 0.86rem;
+      }
+
+      .flow-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+      .node {
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text);
+      }
+      .arrow {
+        color: var(--accent);
+        font-weight: 900;
+      }
+
+      .code-block {
+        margin: 16px 0 0;
+      }
+      .code-block[data-title]::before {
+        content: attr(data-title);
+        display: block;
+        margin: 0 0 6px;
+        color: var(--faint);
+        font: 700 0.76rem/1 var(--mono);
+      }
+      .code-block pre {
+        margin: 0;
+        padding: 14px 16px;
+        overflow: auto;
+        border: 1px solid rgba(115, 224, 255, 0.22);
+        border-radius: 14px;
+        tab-size: 2;
+      }
+      .code-block pre code {
+        font-family: var(--mono);
+      }
+      .math {
+        display: inline-grid;
+        min-height: 1.4em;
+        padding: 2px 4px;
+        vertical-align: middle;
+        color: var(--text);
+      }
+      .math.display {
+        display: grid;
+        justify-content: center;
+        margin: 14px 0;
+        padding: 12px 14px;
+        border: 1px solid rgba(115, 224, 255, 0.18);
+        border-radius: 14px;
+        background: transparent;
+        overflow-x: auto;
+      }
+      ratex-formula {
+        display: inline-block;
+        filter: invert(1) hue-rotate(180deg);
+        mix-blend-mode: screen;
+        color: #111827;
+      }
+
+      .mermaid-box,
+      .viz {
+        min-height: 180px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.035);
+        overflow: auto;
+      }
+      .mermaid {
+        text-align: center;
+      }
+      .mermaid-viewport {
+        display: grid;
+        gap: 8px;
+      }
+      .mermaid-tools {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+      .mermaid-panzoom {
+        width: 100%;
+        min-height: 220px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.16);
+        cursor: grab;
+        touch-action: none;
+      }
+      .mermaid-panzoom.is-dragging {
+        cursor: grabbing;
+      }
+      .mermaid-panzoom svg {
+        display: block;
+        width: 100%;
+        height: min(64vh, 620px);
+        min-height: 220px;
+        max-height: 620px;
+        user-select: none;
+      }
+      .mermaid-error {
+        color: var(--warn);
+        font-family: var(--mono);
+        white-space: pre-wrap;
+      }
+
+      .stepper {
+        display: grid;
+        gap: 14px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .stepper-output {
+        min-height: 112px;
+        padding: 16px;
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.26);
+        border: 1px solid var(--line);
+      }
+      .step-title {
+        color: var(--accent-3);
+        font-weight: 800;
+        margin-bottom: 6px;
+      }
+      .progress {
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+      }
+      .progress > i {
+        display: block;
+        height: 100%;
+        width: var(--value, 0%);
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      }
+
+      canvas.demo-canvas {
+        width: 100%;
+        height: 280px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: radial-gradient(circle at 30% 20%, rgba(115, 224, 255, 0.08), transparent 30%), #060913;
+        display: block;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 14px 0;
+        overflow: hidden;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+      }
+      th,
+      td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+      }
+      th {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.06);
+      }
+      td {
+        color: var(--muted);
+      }
+
+      details {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px 14px;
+        background: rgba(255, 255, 255, 0.035);
+      }
+      details + details {
+        margin-top: 10px;
+      }
+      summary {
+        cursor: pointer;
+        color: var(--text);
+        font-weight: 800;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="doc-nav" data-auto-nav></nav>
+
+      <section class="hero-card" id="top">
+        <p class="eyebrow">interactive technical note</p>
+        <h1>{{TITLE}}</h1>
+        <p>{{SUMMARY}}</p>
+      </section>
+
+      {{CONTENT}}
+    </main>
+
+    <script type="application/json" id="doc-data">
+      {{BOOTSTRAP_DATA}}
+    </script>
+
+    <script>
+      ;(() => {
+        const $ = (sel, root = document) => root.querySelector(sel)
+        const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel))
+
+        function parseData() {
+          const node = $('#doc-data')
+          if (!node) return {}
+          try {
+            return JSON.parse(node.textContent.trim() || '{}')
+          } catch (error) {
+            console.warn('Invalid doc-data JSON', error)
+            return {}
+          }
+        }
+
+        function buildNav() {
+          const nav = $('[data-auto-nav]')
+          if (!nav) return
+          const sections = $$('main > section[id]').filter((s) => s.id !== 'top')
+          nav.innerHTML =
+            '<a href="#top">Top</a>' +
+            sections
+              .map((section) => {
+                const title = section.querySelector('h2, h1')?.textContent?.trim() || section.id
+                return `<a href="#${section.id}">${title}</a>`
+              })
+              .join('')
+        }
+
+        function escapeHtml(text) {
+          return text.replace(/[&<>]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[ch])
+        }
+
+        function replaceCodeBlock(pre, title, htmlText) {
+          const wrapper = document.createElement('div')
+          wrapper.className = 'code-block'
+          if (title) wrapper.dataset.title = title
+          wrapper.innerHTML = htmlText
+          pre.replaceWith(wrapper)
+        }
+
+        function shikiLang(lang) {
+          if (!lang || lang === 'nocheck') return 'text'
+          if (lang === 'moonbit') return 'rust'
+          if (lang.startsWith('moonbit ')) return 'rust'
+          return lang
+        }
+
+        async function enhanceCodeBlocks() {
+          const blocks = $$('pre > code').map((code) => {
+            const pre = code.parentElement
+            if (!pre.dataset.title) pre.dataset.title = code.className.replace('language-', '') || 'code'
+            const raw = code.textContent.replace(/\n$/, '')
+            return {
+              pre,
+              raw,
+              title: pre.dataset.title,
+              lang: code.className.match(/language-([^\s]+)/)?.[1] || 'text',
+            }
+          })
+          if (!blocks.length) return
+          try {
+            const { codeToHtml } = await import('https://esm.sh/shiki@1.29.2')
+            await Promise.all(
+              blocks.map(async ({ pre, raw, title, lang }) => {
+                try {
+                  const highlighted = await codeToHtml(raw, { lang: shikiLang(lang), theme: 'github-dark-default' })
+                  replaceCodeBlock(pre, title, highlighted)
+                } catch (error) {
+                  replaceCodeBlock(pre, title, `<pre><code>${escapeHtml(raw)}</code></pre>`)
+                  console.warn('Shiki highlight failed for', lang, error)
+                }
+              }),
+            )
+          } catch (error) {
+            blocks.forEach(({ pre, raw, title }) =>
+              replaceCodeBlock(pre, title, `<pre><code>${escapeHtml(raw)}</code></pre>`),
+            )
+            console.warn('Shiki unavailable; using plain code renderer', error)
+          }
+        }
+
+        async function initFormulas() {
+          const formulas = $$('.math[data-latex]')
+          if (!formulas.length) return
+          await Promise.all(
+            [
+              '20px KaTeX_Main',
+              'italic 20px KaTeX_Math',
+              'bold 20px KaTeX_Main',
+              '20px KaTeX_Size1',
+              '20px KaTeX_Size2',
+              '20px KaTeX_Size3',
+              '20px KaTeX_Size4',
+            ].map((font) => document.fonts?.load(font).catch(() => {})),
+          )
+          if (customElements?.whenDefined) {
+            await customElements.whenDefined('ratex-formula').catch(() => {})
+          }
+          formulas.forEach((span) => {
+            const latex = span.dataset.latex
+            if (!latex) return
+            const el = document.createElement('ratex-formula')
+            el.setAttribute('latex', latex)
+            el.setAttribute('font-size', span.dataset.fs || (span.classList.contains('display') ? '26' : '18'))
+            el.setAttribute('padding', span.dataset.pad || '4')
+            el.setAttribute('color', span.dataset.color || '#111827')
+            span.replaceChildren(el)
+          })
+        }
+
+        function initSteppers() {
+          $$('.stepper[data-steps]').forEach((root) => {
+            let steps = []
+            try {
+              steps = JSON.parse(root.dataset.steps || '[]')
+            } catch {}
+            if (!steps.length) return
+            let index = 0
+            root.innerHTML = `
+            <div class="stepper-output"></div>
+            <div class="progress"><i></i></div>
+            <div class="flow-row">
+              <button type="button" data-prev>Prev</button>
+              <button type="button" data-next>Next</button>
+              <span class="chip" data-count></span>
+            </div>
+          `
+            const output = $('.stepper-output', root)
+            const bar = $('.progress > i', root)
+            const count = $('[data-count]', root)
+            const render = () => {
+              const step = steps[index]
+              output.innerHTML = `<div class="step-title">${step.title || `Step ${index + 1}`}</div><p>${step.body || ''}</p>${step.html || ''}`
+              bar.style.setProperty('--value', `${((index + 1) / steps.length) * 100}%`)
+              count.textContent = `${index + 1} / ${steps.length}`
+            }
+            $('[data-prev]', root).addEventListener('click', () => {
+              index = Math.max(0, index - 1)
+              render()
+            })
+            $('[data-next]', root).addEventListener('click', () => {
+              index = Math.min(steps.length - 1, index + 1)
+              render()
+            })
+            render()
+          })
+        }
+
+        function initToggles() {
+          $$('[data-toggle-group]').forEach((group) => {
+            const targetSelector = group.dataset.target
+            const target = targetSelector ? $(targetSelector) : null
+            $$('button[data-value]', group).forEach((button) => {
+              button.addEventListener('click', () => {
+                $$('button[data-value]', group).forEach((b) => b.setAttribute('aria-pressed', String(b === button)))
+                if (target) target.dataset.value = button.dataset.value || ''
+                target?.dispatchEvent(new CustomEvent('doc-toggle', { detail: button.dataset.value }))
+              })
+            })
+          })
+        }
+
+        function initCanvasDemos(data) {
+          $$('canvas.demo-canvas').forEach((canvas) => {
+            const ctx = canvas.getContext('2d')
+            const dpr = window.devicePixelRatio || 1
+            const resize = () => {
+              const rect = canvas.getBoundingClientRect()
+              canvas.width = Math.max(1, Math.floor(rect.width * dpr))
+              canvas.height = Math.max(1, Math.floor(rect.height * dpr))
+              ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+            }
+            const points = data[canvas.dataset.points] || [
+              [40, 220],
+              [170, 70],
+              [300, 220],
+              [430, 90],
+              [560, 210],
+            ]
+            let t = 0
+            const draw = () => {
+              const rect = canvas.getBoundingClientRect()
+              ctx.clearRect(0, 0, rect.width, rect.height)
+              ctx.lineWidth = 2
+              ctx.strokeStyle = 'rgba(115,224,255,0.75)'
+              ctx.beginPath()
+              points.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)))
+              ctx.stroke()
+              points.forEach(([x, y]) => {
+                ctx.fillStyle = '#b991ff'
+                ctx.beginPath()
+                ctx.arc(x, y, 4, 0, Math.PI * 2)
+                ctx.fill()
+              })
+              const span = Math.max(1, points.length - 1)
+              const pos = (t % 1) * span
+              const i = Math.min(points.length - 2, Math.floor(pos))
+              const local = pos - i
+              const [ax, ay] = points[i]
+              const [bx, by] = points[i + 1]
+              const x = ax + (bx - ax) * local
+              const y = ay + (by - ay) * local
+              ctx.fillStyle = '#8dffbd'
+              ctx.beginPath()
+              ctx.arc(x, y, 7, 0, Math.PI * 2)
+              ctx.fill()
+              t += 0.003
+              requestAnimationFrame(draw)
+            }
+            resize()
+            window.addEventListener('resize', resize)
+            draw()
+          })
+        }
+
+        function enableMermaidPanZoom(node, svg) {
+          const wrapper = document.createElement('div')
+          wrapper.className = 'mermaid-viewport'
+          const tools = document.createElement('div')
+          tools.className = 'mermaid-tools'
+          const reset = document.createElement('button')
+          reset.type = 'button'
+          reset.textContent = 'Reset view'
+          tools.append(reset)
+          const panzoom = document.createElement('div')
+          panzoom.className = 'mermaid-panzoom'
+          while (node.firstChild) panzoom.append(node.firstChild)
+          wrapper.append(tools, panzoom)
+          node.replaceChildren(wrapper)
+
+          if (!svg.getAttribute('viewBox')) {
+            const width = Number.parseFloat(svg.getAttribute('width')) || svg.getBoundingClientRect().width || 800
+            const height = Number.parseFloat(svg.getAttribute('height')) || svg.getBoundingClientRect().height || 480
+            svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
+          }
+          const initial = svg.getAttribute('viewBox').split(/\s+/).map(Number)
+          let view = [...initial]
+          let drag = null
+          const apply = () => svg.setAttribute('viewBox', view.join(' '))
+          const point = (event) => {
+            const rect = svg.getBoundingClientRect()
+            return {
+              x: view[0] + ((event.clientX - rect.left) / rect.width) * view[2],
+              y: view[1] + ((event.clientY - rect.top) / rect.height) * view[3],
+            }
+          }
+          panzoom.addEventListener(
+            'wheel',
+            (event) => {
+              event.preventDefault()
+              const before = point(event)
+              const factor = Math.exp(Math.max(-240, Math.min(240, event.deltaY)) * 0.00045)
+              const nextW = Math.min(initial[2] * 8, Math.max(initial[2] * 0.08, view[2] * factor))
+              const nextH = Math.min(initial[3] * 8, Math.max(initial[3] * 0.08, view[3] * factor))
+              view[0] = before.x - ((before.x - view[0]) / view[2]) * nextW
+              view[1] = before.y - ((before.y - view[1]) / view[3]) * nextH
+              view[2] = nextW
+              view[3] = nextH
+              apply()
+            },
+            { passive: false },
+          )
+          panzoom.addEventListener('pointerdown', (event) => {
+            panzoom.setPointerCapture(event.pointerId)
+            panzoom.classList.add('is-dragging')
+            drag = { x: event.clientX, y: event.clientY, view: [...view] }
+          })
+          panzoom.addEventListener('pointermove', (event) => {
+            if (!drag) return
+            const rect = svg.getBoundingClientRect()
+            view[0] = drag.view[0] - ((event.clientX - drag.x) / rect.width) * drag.view[2]
+            view[1] = drag.view[1] - ((event.clientY - drag.y) / rect.height) * drag.view[3]
+            apply()
+          })
+          const endDrag = () => {
+            drag = null
+            panzoom.classList.remove('is-dragging')
+          }
+          panzoom.addEventListener('pointerup', endDrag)
+          panzoom.addEventListener('pointercancel', endDrag)
+          panzoom.addEventListener('dblclick', () => {
+            view = [...initial]
+            apply()
+          })
+          reset.addEventListener('click', () => {
+            view = [...initial]
+            apply()
+          })
+        }
+
+        function initMermaid() {
+          const diagrams = $$('.mermaid')
+          if (!diagrams.length) return
+          const sources = diagrams.map((node) => node.textContent.trim())
+          const load = () =>
+            new Promise((resolve, reject) => {
+              if (window.mermaid) return resolve(window.mermaid)
+              const script = document.createElement('script')
+              script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js'
+              script.onload = () => resolve(window.mermaid)
+              script.onerror = reject
+              document.head.append(script)
+            })
+          load()
+            .then((mermaid) => {
+              mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'strict' })
+              return Promise.all(
+                diagrams.map(async (node, index) => {
+                  const source = sources[index]
+                  try {
+                    const { svg } = await mermaid.render(`mermaid-${Date.now()}-${index}`, source)
+                    node.innerHTML = svg
+                    const renderedSvg = node.querySelector('svg')
+                    if (renderedSvg) enableMermaidPanZoom(node, renderedSvg)
+                  } catch (error) {
+                    node.classList.add('mermaid-error')
+                    node.textContent = `Mermaid unavailable. Raw diagram:\n\n${source}`
+                    console.warn('Mermaid diagram render failed', error, source)
+                  }
+                }),
+              )
+            })
+            .catch((error) => {
+              diagrams.forEach((node, index) => {
+                node.classList.add('mermaid-error')
+                node.textContent = `Mermaid unavailable. Raw diagram:\n\n${sources[index]}`
+              })
+              console.warn('Mermaid load failed', error)
+            })
+        }
+
+        const data = parseData()
+        buildNav()
+        enhanceCodeBlocks()
+        initFormulas()
+        initSteppers()
+        initToggles()
+        initCanvasDemos(data)
+        initMermaid()
+      })()
+    </script>
+  </body>
+</html>

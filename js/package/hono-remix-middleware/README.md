@@ -1,10 +1,10 @@
 # hono-remix-middleware
 
-Hono の組み込み [`jsxRenderer`](https://hono.dev/docs/middleware/builtin/jsx-renderer) と同じ作法で **Remix v3 の `remix/ui` SSR** を呼び出すための middleware。
+Following the same pattern as Hono's built-in [`jsxRenderer`](https://hono.dev/docs/middleware/builtin/jsx-renderer), this is middleware for calling **Remix v3's `remix/ui` SSR**.
 
-ランタイム / バンドラ非依存で、Cloudflare Workers / Node / Bun / Deno のいずれでも動作。
+Runtime / bundler agnostic, works on Cloudflare Workers / Node / Bun / Deno.
 
-## インストール
+## Installation
 
 ```sh
 pnpm add hono-remix-middleware
@@ -14,7 +14,7 @@ pnpm add hono-remix-middleware
 
 ### `remixRenderer(options)`
 
-Hono の `c.render()` を拡張するミドルウェア生成関数。
+Middleware factory function that extends Hono's `c.render()`.
 
 ```tsx
 import { remixRenderer } from 'hono-remix-middleware'
@@ -35,16 +35,16 @@ app.get('/', (c) =>
 )
 ```
 
-| Option               | 型                                             | 説明                                                                                                                                     |
-| -------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `fetcher`            | `typeof fetch`                                 | 入れ子 SSR (`remix/ui/server` の `resolveFrame`) で frame を再取得するときに呼ばれる。通常 `(req) => app.fetch(req)` を closure で渡す。 |
-| `resolveClientEntry` | `(entryId, component) => { exportName, href }` | 任意。clientEntry の ID から `moduleUrl`/`exportName` を計算するフック。デフォルトは `/assets/` プレフィックスを剥がすだけ。             |
+| Option               | Type                                           | Description                                                                                                                                 |
+| -------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fetcher`            | `typeof fetch`                                 | Called when re-fetching a frame in nested SSR (`resolveFrame` in `remix/ui/server`). Typically pass `(req) => app.fetch(req)` as a closure. |
+| `resolveClientEntry` | `(entryId, component) => { exportName, href }` | Optional. Hook to compute `moduleUrl`/`exportName` from the clientEntry ID. Default is to strip the `/assets/` prefix.                      |
 
-`c.render(content)` の `content` をそのまま `renderToStream` に渡す素朴な実装で、Layout / Document の組み付けはハンドラ側の責務になる。
+A straightforward implementation that passes `c.render(content)`'s `content` directly to `renderToStream`. Composing the Layout / Document is the handler's responsibility.
 
 ### `remixAssetServer(assetServer)`
 
-Remix v3のアセットサーバ機能を統合するmiddleware生成関数。
+Middleware factory function that integrates Remix v3's asset server.
 
 ```ts
 import { createAssetServer } from 'remix/assets'
@@ -64,24 +64,24 @@ const assetServer = createAssetServer({
 app.use('/assets/*', remixAssetServer(assetServer))
 ```
 
-注意：`remixAssetServer` はバンドルせずTSXやBun、Denoで直接実行される環境での利用を想定している。ファイルを操作する都合上Worker上では動作しないため、必要に応じてViteプラグインでアセットを準備する必要がある。
+Note: `remixAssetServer` is intended for environments where TSX or Bun/Deno run files directly without bundling. Since it manipulates files, it does not work on Workers; if needed, assets must be prepared with a Vite plugin.
 
 ---
 
-## 構成パターン
+## Architecture Patterns
 
-|                      | Vite + Cloudflare         | Vite + Node/Bun/Deno   | Native (no bundler)   |
-| -------------------- | ------------------------- | ---------------------- | --------------------- |
-| クライアントバンドル | `vite-plugin-remix`       | `vite-plugin-remix`    | なし — runtime 直実行 |
-| アセット配信 (prod)  | wrangler `assets` binding | Hono `serveStatic`     | `remixAssetServer`    |
-| アセット配信 (dev)   | Vite dev server           | Vite dev server        | `remixAssetServer`    |
-| SSR 実行先           | Workers                   | `@hono/node-server` 等 | tsx / bun / deno      |
+|                      | Vite + Cloudflare         | Vite + Node/Bun/Deno     | Native (no bundler)            |
+| -------------------- | ------------------------- | ------------------------ | ------------------------------ |
+| Client bundle        | `vite-plugin-remix`       | `vite-plugin-remix`      | None — run directly on runtime |
+| Asset serving (prod) | wrangler `assets` binding | Hono `serveStatic`       | `remixAssetServer`             |
+| Asset serving (dev)  | Vite dev server           | Vite dev server          | `remixAssetServer`             |
+| SSR execution target | Workers                   | `@hono/node-server` etc. | tsx / bun / deno               |
 
-[`vite-plugin-remix` の README](../vite-plugin-remix/README.md)
+[`vite-plugin-remix` README](../vite-plugin-remix/README.md)
 
-### パターン 1: Vite + Cloudflare Workers
+### Pattern 1: Vite + Cloudflare Workers
 
-`vite-plugin-remix` でクライアントバンドル、`wrangler.jsonc` の `assets` binding で配信。
+Bundle the client with `vite-plugin-remix`, serve with `wrangler.jsonc`'s `assets` binding.
 
 ```ts:vite.config.ts
 import { cloudflare } from '@cloudflare/vite-plugin'
@@ -162,9 +162,9 @@ boot({
 })
 ```
 
-### パターン 2: Vite + Node / Bun / Deno
+### Pattern 2: Vite + Node / Bun / Deno
 
-`vite-plugin-remix` のビルド出力 (`dist/client/`) を Hono の `serveStatic` で配信、Hono を Node/Bun/Deno のサーバランタイム上で起動。
+Serve the build output of `vite-plugin-remix` (`dist/client/`) via Hono's `serveStatic`, and run Hono on the Node/Bun/Deno server runtime.
 
 ```ts:vite.config.ts
 import { remix } from 'vite-plugin-remix'
@@ -176,7 +176,7 @@ export default defineConfig({
 ```
 
 ```tsx:app/app.tsx
-// Node の例（Bun / Deno は serveStatic の import 元を差し替え）
+// Node example (Bun / Deno: swap the serveStatic import source)
 import { Hono } from 'hono'
 import { serveStatic } from '@hono/node-server/serve-static'  // Bun: 'hono/bun', Deno: 'hono/deno'
 import { remixRenderer } from 'hono-remix-middleware'
@@ -184,7 +184,7 @@ import { remixRenderer } from 'hono-remix-middleware'
 const app = new Hono()
 
 app
-  .use('/assets/*', serveStatic({ root: './dist/client' }))   // ← prod 用
+  .use('/assets/*', serveStatic({ root: './dist/client' }))   // ← prod
   .use('*', remixRenderer({
     fetcher: (req) => app.fetch(req),
   }))
@@ -200,18 +200,18 @@ export default app
 ```
 
 ```ts:server.ts
-// Node の例
+// Node example
 import { serve } from '@hono/node-server'
 import app from './app/app.tsx'
 
 serve({ fetch: app.fetch, port: 3000 })
 ```
 
-dev では Vite が `/assets/*` 配下のリクエストを受けない（dev 用 URL は `/app/assets/entry.ts` 等の source パス）ので `serveStatic` は呼ばれず、prod でのみ実体が要求される。dev サーバは Vite middleware mode + Node サーバを組合せる。
+In dev, Vite handles requests under `/assets/*` (dev URLs are source paths like `/app/assets/entry.ts`), so `serveStatic` is not called; it's only needed for prod. The dev server combines Vite middleware mode with a Node server.
 
-### パターン 3: Native（バンドラ不使用 — tsx / bun / deno）
+### Pattern 3: Native (no bundler — tsx / bun / deno)
 
-`tsx`, `bun`, `deno` など TypeScript を直接実行できる環境。`remix/assets` の asset server をそのまま Hono middleware として使う。
+Environments that can run TypeScript directly, such as `tsx`, `bun`, `deno`. Uses the `remix/assets` asset server directly as a Hono middleware.
 
 ```tsx:app/app.tsx
 import { Hono } from 'hono'
@@ -265,10 +265,10 @@ run({
 })
 ```
 
-`/assets/app/ui/counter.tsx` のような URL を asset server がランタイム コンパイルして配信するので、クライアントの動的 `import()` がそのまま通る。pnpm の hoist 構造に合わせて `fileMap` / `allow` を調整する点だけ注意。
+The asset server compiles URLs like `/assets/app/ui/counter.tsx` at runtime and serves them, so the client's dynamic `import()` works directly. Just be careful to adjust `fileMap`/`allow` according to pnpm's hoist structure.
 
 ---
 
-## ライセンス
+## License
 
 MIT

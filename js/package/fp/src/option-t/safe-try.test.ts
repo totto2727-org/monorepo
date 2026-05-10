@@ -35,7 +35,7 @@ import { safeTry, safeUnwrap } from './safe-try.ts'
 describe('Returns what is returned from the generator function', () => {
   test('With synchronous Ok', () => {
     const actual = Result.unwrapOk(
-      // oxlint-disable-next-line require-yield
+      // oxlint-disable-next-line require-yield -- generator returns immediately to test the no-yield path
       safeTry(function* () {
         return Result.createOk('value')
       }),
@@ -46,7 +46,7 @@ describe('Returns what is returned from the generator function', () => {
 
   test('With synchronous Err', () => {
     const actual = Result.unwrapErr(
-      // oxlint-disable-next-line require-yield
+      // oxlint-disable-next-line require-yield -- generator returns immediately to test the no-yield path
       safeTry(function* () {
         return Result.createErr('value')
       }),
@@ -57,7 +57,7 @@ describe('Returns what is returned from the generator function', () => {
 
   test('With async Ok', async () => {
     const actual = Result.unwrapOk(
-      // oxlint-disable-next-line require-yield
+      // oxlint-disable-next-line require-yield -- generator returns immediately to test the no-yield path
       await safeTry(async function* () {
         return Result.createOk('value')
       }),
@@ -70,7 +70,7 @@ describe('Returns what is returned from the generator function', () => {
 
   test('With async Err', async () => {
     const actual = Result.unwrapErr(
-      // oxlint-disable-next-line require-yield
+      // oxlint-disable-next-line require-yield -- generator returns immediately to test the no-yield path
       await safeTry(async function* () {
         return Result.createErr('value')
       }),

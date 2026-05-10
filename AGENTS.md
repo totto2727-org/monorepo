@@ -1,5 +1,10 @@
 # monorepo
 
+## Language Rules
+
+- Use English by default.
+- Use Japanese only for user-facing temporary outputs that are not final artifacts.
+
 ## Repository Structure
 
 ```bash

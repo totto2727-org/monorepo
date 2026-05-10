@@ -48,7 +48,7 @@ const classifyEntry =
 
 const classifyRepo = (repo: Wt.RepoWorktrees): Effect.Effect<RepoCleanup> =>
   Effect.gen(function* () {
-    const nonMain = repo.entries.filter((e): e is NonMainEntry => !e.isMain && Predicate.isNotNull(e.branch))
+    const nonMain = repo.entries.filter((e): e is NonMainEntry => !e.isMain && Predicate.isNotNullish(e.branch))
 
     if (Array.isReadonlyArrayEmpty(nonMain)) {
       return { removable: [], repoPath: repo.repoPath, skipped: 0 }
@@ -66,7 +66,7 @@ const classifyRepo = (repo: Wt.RepoWorktrees): Effect.Effect<RepoCleanup> =>
     )
 
     const classify = classifyEntry(prMap, gitMap)
-    const removable = nonMain.map(classify).filter(Predicate.isNotNull)
+    const removable = nonMain.map(classify).filter(Predicate.isNotNullish)
     const skipped = nonMain.length - removable.length
 
     return { removable, repoPath: repo.repoPath, skipped }
@@ -118,7 +118,7 @@ const cleanupWorktrees = (dir: string, dryRun: boolean): Effect.Effect<void> =>
     }
 
     const repoResults = yield* Effect.forEach(repos, Wt.fetchRepoWorktrees, { concurrency: 'unbounded' })
-    const validRepos = repoResults.filter(Predicate.isNotNull)
+    const validRepos = repoResults.filter(Predicate.isNotNullish)
 
     const repoCleanups = yield* Effect.forEach(validRepos, classifyRepo, { concurrency: 'unbounded' })
 

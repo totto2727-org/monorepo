@@ -9,5 +9,5 @@
  * @module
  */
 
-// oxlint-disable-next-line oxc/no-barrel-file
+// oxlint-disable-next-line oxc/no-barrel-file -- intentional barrel re-export of the effect package
 export * from 'effect'

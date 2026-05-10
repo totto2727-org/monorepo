@@ -47,6 +47,8 @@ catalogs:
     hono: ^4.12.6
   i18n:
     '@inlang/paraglide-js': ^2.13.1
+  opencode:
+    '@opencode-ai/sdk': ^1.14.46
   lint:
     eslint: ^9.37.0
     eslint-config-flat-gitignore: ^2.1.0

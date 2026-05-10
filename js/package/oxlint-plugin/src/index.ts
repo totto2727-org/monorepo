@@ -5,8 +5,6 @@ import { Predicate, String } from 'effect'
 // helpers
 // ---------------------------------------------------------------------------
 
-const isNotNull = <A>(value: A): value is A & Record<string, unknown> => Predicate.isNotNull(value)
-
 const hasProperty = <K extends PropertyKey>(obj: unknown, key: K): obj is Record<K, unknown> =>
   Predicate.isObjectKeyword(obj) && key in obj
 
@@ -21,7 +19,7 @@ const JS_IMPORT_RE = /^(\.+|#(?!#)[^/]*)(\/.*)\.js(x?)$/
 
 export const matchJsImport = (value: string): { start: string; path: string; x: string } | null => {
   const match = JS_IMPORT_RE.exec(value)
-  if (Predicate.isNotNull(match)) {
+  if (Predicate.isNotNullish(match)) {
     const [, start, path, x] = match
     return { path: path ?? '', start: start ?? '', x: x ?? '' }
   }
@@ -34,7 +32,7 @@ const forceTsExtensionRule: Rule = {
       if (
         Predicate.isObject(node) &&
         hasProperty(node, 'source') &&
-        Predicate.isNotNull(node.source) &&
+        Predicate.isNotNullish(node.source) &&
         hasProperty(node.source, 'raw') &&
         hasProperty(node.source, 'value')
       ) {
@@ -42,7 +40,7 @@ const forceTsExtensionRule: Rule = {
         const { raw, value } = source
         if (Predicate.isString(value) && Predicate.isString(raw)) {
           const matched = matchJsImport(value)
-          if (Predicate.isNotNull(matched)) {
+          if (Predicate.isNotNullish(matched)) {
             const { path, start, x } = matched
             const fixed = `${start}${path}.ts${x}`
             const [quote] = raw
@@ -128,10 +126,10 @@ const resolveTypeStr = (
   leftStr: string | null,
   rightStr: string | null,
 ): string | null => {
-  if (Predicate.isNotNull(leftTypeof)) {
+  if (Predicate.isNotNullish(leftTypeof)) {
     return rightStr
   }
-  if (Predicate.isNotNull(rightTypeof)) {
+  if (Predicate.isNotNullish(rightTypeof)) {
     return leftStr
   }
   return null
@@ -149,7 +147,7 @@ const forcePredicateRule: Rule = {
           const rightKind = getNullishSide(node.right)
           const kind = leftKind ?? rightKind
 
-          if (Predicate.isNotNull(kind)) {
+          if (Predicate.isNotNullish(kind)) {
             const predicateFn = kind === 'null' ? 'Predicate.isNull' : 'Predicate.isUndefined'
             context.report({
               message: `Use ${predicateFn}() instead of direct ${kind} comparison`,
@@ -484,7 +482,7 @@ const noOptionTagComparisonRule: Rule = {
             return
           }
 
-          const otherSide = isNotNull(leftTag) ? node.right : node.left
+          const otherSide = Predicate.isNotNullish(leftTag) ? node.right : node.left
           if (isTagPropertyAccess(otherSide) || isTypeofTag(otherSide)) {
             const predicateFn = tagToPredicateMap[tag]
             const isEquality = node.operator === '==' || node.operator === '==='
@@ -560,7 +558,7 @@ const noSyncDecodeRule: Rule = {
           return
         }
         const method = isSchemaBannedDecodeCall(node)
-        if (Predicate.isNotNull(method)) {
+        if (Predicate.isNotNullish(method)) {
           const recommended = BANNED_DECODE_METHODS[method]
           context.report({
             message: `Use Schema.${recommended} or Schema.decodeExit instead of Schema.${method}.`,
@@ -601,7 +599,7 @@ const preferNonUnknownDecodeRule: Rule = {
           return
         }
         const method = isSchemaUnknownDecodeCall(node)
-        if (Predicate.isNotNull(method)) {
+        if (Predicate.isNotNullish(method)) {
           const recommended = UNKNOWN_DECODE_METHODS[method]
           context.report({
             message: `Prefer Schema.${recommended} over Schema.${method}. Use unknown variants only when input type is truly unknown. Add an oxlint-disable comment if the unknown variant is required.`,
@@ -620,34 +618,40 @@ const preferNonUnknownDecodeRule: Rule = {
 // prefer-is-nullish
 // ---------------------------------------------------------------------------
 
-const isPredicateCall = (node: unknown, methodName: string): boolean =>
-  Predicate.isObject(node) &&
-  node.type === 'CallExpression' &&
-  Predicate.isObject(node.callee) &&
-  node.callee.type === 'MemberExpression' &&
-  Predicate.isObject(node.callee.object) &&
-  node.callee.object.type === 'Identifier' &&
-  node.callee.object.name === 'Predicate' &&
-  Predicate.isObject(node.callee.property) &&
-  node.callee.property.type === 'Identifier' &&
-  node.callee.property.name === methodName
+const NULLISH_PREDICATE_METHODS = new Set(['isNull', 'isNotNull', 'isUndefined', 'isNotUndefined'])
+
+const getNullishPredicateMember = (node: unknown): string | null => {
+  if (
+    !Predicate.isObject(node) ||
+    !Predicate.isObject(node.object) ||
+    node.object.type !== 'Identifier' ||
+    node.object.name !== 'Predicate' ||
+    !Predicate.isObject(node.property) ||
+    node.property.type !== 'Identifier' ||
+    !Predicate.isString(node.property.name)
+  ) {
+    return null
+  }
+  const { name } = node.property
+  return NULLISH_PREDICATE_METHODS.has(name) ? name : null
+}
 
 const preferIsNullishRule: Rule = {
   create(context: Context) {
     return {
-      CallExpression(node: unknown) {
+      MemberExpression(node: unknown) {
         if (!isReportable(node)) {
           return
         }
-        const isNull = isPredicateCall(node, 'isNull')
-        const isUndefined = isPredicateCall(node, 'isUndefined')
-        if (isNull || isUndefined) {
-          const method = isNull ? 'isNull' : 'isUndefined'
-          context.report({
-            message: `Prefer Predicate.isNullish over Predicate.${method}. Use null/undefined distinction only when necessary and disable this rule with an oxlint-disable comment.`,
-            node,
-          })
+        const method = getNullishPredicateMember(node)
+        if (Predicate.isNullish(method)) {
+          return
         }
+        const recommended = method.startsWith('isNot') ? 'isNotNullish' : 'isNullish'
+        context.report({
+          message: `Use Predicate.${recommended} to treat null and undefined uniformly. Only when distinguishing them is required, disable this rule with an oxlint-disable comment that includes the reason.`,
+          node,
+        })
       },
     }
   },
@@ -693,6 +697,39 @@ const noEslintDisableRule: Rule = {
 }
 
 // ---------------------------------------------------------------------------
+// require-disable-reason
+// ---------------------------------------------------------------------------
+
+const OXLINT_DISABLE_DIRECTIVE_RE = /\boxlint-disable\b/
+const DISABLE_REASON_RE = /\s--\s+\S/
+
+const requireDisableReasonRule: Rule = {
+  create(context: Context) {
+    return {
+      'Program:exit'() {
+        const comments = context.sourceCode.getAllComments()
+        for (const comment of comments) {
+          const { value } = comment
+          if (!OXLINT_DISABLE_DIRECTIVE_RE.test(value)) {
+            continue
+          }
+          if (DISABLE_REASON_RE.test(value)) {
+            continue
+          }
+          context.report({
+            message: 'oxlint-disable comments must include a reason in the form `<disable directive> -- <reason>`.',
+            node: comment,
+          })
+        }
+      },
+    }
+  },
+  meta: {
+    type: 'problem',
+  },
+}
+
+// ---------------------------------------------------------------------------
 // Plugin
 // ---------------------------------------------------------------------------
 
@@ -710,6 +747,7 @@ const plugin = {
     'no-sync-decode': noSyncDecodeRule,
     'prefer-is-nullish': preferIsNullishRule,
     'prefer-non-unknown-decode': preferNonUnknownDecodeRule,
+    'require-disable-reason': requireDisableReasonRule,
   },
 }
 
