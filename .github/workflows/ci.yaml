@@ -26,5 +26,5 @@ jobs:
         shell: bash
         run: |
           eval "$(devbox shellenv)"
-          vp run -r setup
+          vp run w:setup
           vp run --parallel ci

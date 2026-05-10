@@ -1,0 +1,15 @@
+default:
+    @just --list
+
+init:
+    sudo nixos-rebuild switch \
+        --flake .#nixos \
+        --option extra-substituters https://install.determinate.systems \
+        --option extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM=
+
+lang-fix:
+    LANG=C xdg-user-dirs-update --force
+
+flatpak-install:
+    flatpak install app.zen_browser.zen
+    flatpak install flathub com.github.tchx84.Flatseal

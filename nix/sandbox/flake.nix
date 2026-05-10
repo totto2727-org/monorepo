@@ -24,42 +24,56 @@
       username = "sandbox";
       homedir = "/sandbox";
       stateVersion = "25.11";
-      pkgs = import nixpkgs {
-        system = "arm64-linux";
-      };
-      npm = npmpkgs.lib.${pkgs.system}.npmPackage;
-    in
-    {
-      nixpkgs.config.allowUnfree = true;
-      homeConfigurations.${username} = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
+      systems = [
+        "aarch64-linux"
+        "x86_64-linux"
+      ];
 
-        modules = [
-          ({
-            home.stateVersion = stateVersion;
-            home.username = username;
-            home.homeDirectory = homedir;
+      mkHomeConfiguration =
+        system:
+        let
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
+          npm = npmpkgs.lib.${system}.npmPackage;
+        in
+        home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
 
-            home.packages = import ../share/packages.nix { inherit pkgs npm; };
+          modules = [
+            ({
+              home.stateVersion = stateVersion;
+              home.username = username;
+              home.homeDirectory = homedir;
 
-            programs = (import ../share/programs.nix) // {
-              home-manager.enable = true;
-              zsh = (import ../share/zsh.nix { inherit pkgs; }) // {
-                initContent = ''
-                          eval "$(devbox global shellenv --init-hook)"
-                          [ -f "$HOME/.vite-plus/env" ] && . "$HOME/.vite-plus/env"
-                  	      '';
+              home.packages =
+                (import ../share/packages.nix { inherit pkgs npm; })
+                ++ (import ../share/packages-scripts.nix { inherit pkgs; }).sandbox;
 
-                shellAliases = (import ../share/shell-aliases.nix) // {
-                  home-manager = "home-manager --flake ~/nix/sandbox#sandbox";
+              programs = (import ../share/programs.nix) // {
+                home-manager.enable = true;
+                zsh = (import ../share/zsh.nix { inherit pkgs; }) // {
+                  initContent = ''
+                            eval "$(devbox global shellenv --init-hook)"
+                            [ -f "$HOME/.vite-plus/env" ] && . "$HOME/.vite-plus/env"
+                    	      '';
+
+                  shellAliases = (import ../share/shell-aliases.nix) // {
+                    home-manager = "home-manager --flake ~/nix/sandbox#${username}-${system}";
+                  };
                 };
               };
-            };
 
-            home.sessionVariables = import ../share/session-variables.nix;
-            home.sessionPath = import ../share/session-path.nix;
-          })
-        ];
-      };
+              home.sessionVariables = import ../share/session-variables.nix;
+              home.sessionPath = import ../share/session-path.nix;
+            })
+          ];
+        };
+    in
+    {
+      homeConfigurations = nixpkgs.lib.genAttrs (map (s: "${username}-${s}") systems) (
+        name: mkHomeConfiguration (nixpkgs.lib.removePrefix "${username}-" name)
+      );
     };
 }

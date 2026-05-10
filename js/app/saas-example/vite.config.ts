@@ -51,7 +51,7 @@ export default defineConfig({
       },
       'setup:kysely': {
         command:
-          'go run github.com/totto2727-org/monorepo/go/app/atlas-to-kysely@0faf30b464eece8a80acdafad0f7ea0cec2f89e2 -i db/schema.hcl -o src/feature/db/generated.ts',
+          'go run github.com/totto2727-org/monorepo/go/app/atlas-to-kysely@22cc648211cc6a73d004eb332c12d78a021ba4ec -i db/schema.hcl -o src/feature/db/generated.ts --camel-case',
         input: taskInput.setup.kysely,
       },
       'setup:paraglide': {

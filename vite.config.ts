@@ -5,6 +5,8 @@ import { defineConfig } from 'vite-plus'
 
 import oxlintPluginPreset from './js/package/oxlint-plugin/src/preset.ts'
 
+const ignorePatterns = ['**/__fixtures__/**', '**/.factory/settings.json']
+
 export default defineConfig({
   fmt: {
     arrowParens: 'always',
@@ -18,6 +20,7 @@ export default defineConfig({
     },
     experimentalSortPackageJson: true,
     extends: [core, react, remix],
+    ignorePatterns,
     jsxSingleQuote: true,
     printWidth: 120,
     quoteProps: 'as-needed',
@@ -29,7 +32,7 @@ export default defineConfig({
   },
   lint: {
     extends: [core, react, remix, oxlintPluginPreset],
-    ignorePatterns: ['**/__fixtures__/**', '**/.script/**', '**/skills/**'],
+    ignorePatterns: [...ignorePatterns, '**/skills/**', '**/.script/**'],
     options: {
       typeAware: true,
       typeCheck: true,
@@ -50,7 +53,7 @@ export default defineConfig({
       },
       ci: {
         command: '',
-        dependsOn: ['workspace:check', 'workspace:test', 'workspace:build'],
+        dependsOn: ['w:check', 'w:test', 'w:build'],
       },
       fix: {
         command: 'vp check --fix',
@@ -58,17 +61,24 @@ export default defineConfig({
       test: {
         command: 'vp test',
       },
-      'workspace:build': {
+      'w:build': {
         command: 'vp run -r build',
+        dependsOn: ['w:setup'],
       },
-      'workspace:check': {
+      'w:check': {
         command: 'vp run -r check',
+        dependsOn: ['w:setup'],
       },
-      'workspace:fix': {
+      'w:fix': {
         command: 'vp run -r fix',
+        dependsOn: ['w:setup'],
       },
-      'workspace:test': {
+      'w:setup': {
+        command: 'vp run -r setup',
+      },
+      'w:test': {
         command: 'vp run -r test',
+        dependsOn: ['w:setup'],
       },
     },
   },

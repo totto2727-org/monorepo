@@ -23,7 +23,7 @@ go build -o atlas-kysely-gen .
 ## 使い方
 
 ```bash
-# stdout に出力
+# stdout に出力（識別子はそのまま）
 atlas-kysely-gen --input schema.hcl
 
 # ファイルに出力
@@ -31,7 +31,18 @@ atlas-kysely-gen --input schema.hcl --output src/db/types.ts
 
 # shorthand
 atlas-kysely-gen -i schema.hcl -o src/db/types.ts
+
+# Kysely の CamelCasePlugin でカラム名・テーブル名を変換
+atlas-kysely-gen -i schema.hcl --camel-case
 ```
+
+### フラグ
+
+| フラグ            | 既定値  | 説明                                                                                                                                                                                                                              |
+| ----------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--input` / `-i`  | (必須)  | 入力 schema.hcl のパス                                                                                                                                                                                                            |
+| `--output` / `-o` | stdout  | 出力 .ts ファイルのパス                                                                                                                                                                                                           |
+| `--camel-case`    | `false` | `true` のとき Kysely 公式 `CamelCasePlugin`（既定オプション = `upperCase=false`）でカラム名・テーブルの DB キーを変換する。`false` のときは無変換（identity）。kysely-codegen の `--camel-case` フラグと挙動を 1:1 に揃えている。 |
 
 ## TSプロジェクトへの統合
 
@@ -119,11 +130,8 @@ go run *.go -i fixture/schema.hcl
 
 ## ロードマップ
 
-- [ ] **カラム名のケース変換オプション** — 現在は camelCase 固定。CLI オプションで命名規則を選択できるようにする（例: `--case camel`, `--case snake`, `--case none`）。
-- [ ] **Kysely 公式の camelCase ロジックに準拠** — [`kysely/src/plugin/camel-case/camel-case.ts`](https://github.com/kysely-org/kysely/blob/main/src/plugin/camel-case/camel-case.ts) の変換ロジックを移植し、Kysely の `CamelCasePlugin` と一貫した動作を保証する。対応すべき差分:
-  - `UPPER_SNAKE_CASE` 入力の処理（例: `USER_ID` → `userId`）
-  - `underscoreBeforeDigits` 相当のオプション（数字の前にアンダースコアを挿入）
-  - `underscoreBetweenUppercaseLetters` 相当のオプション（連続する大文字間にアンダースコアを挿入）
-- [ ] **`Generated<>` ラッパーのサポート** — デフォルト値や `auto_increment` を持つカラムを `Generated<T>` でラップするオプションを追加し、Kysely の `Selectable` / `Insertable` / `Updateable` ユーティリティ型と組み合わせて使えるようにする。
+- [x] **`--camel-case` オプション** — kysely-codegen と同じ単一 boolean フラグ。識別子を Kysely `CamelCasePlugin`（既定オプション）で camelCase に変換するか、無変換のまま出すかを切り替える。
+- [x] **kysely-codegen 互換のケース変換ロジック** — `toKyselyCamelCase` / `toKyselyPascalCase` を JS 原典から忠実にポート。`upperCase=false` の挙動なので `USER_ID` 等の SCREAMING_SNAKE_CASE は意図的に screaming のままになる（kysely-codegen と同一）。
+- [x] **`Generated<>` ラッパーのサポート** — デフォルト値や `auto_increment` を持つカラムを `Generated<T>` でラップ。`import type { Generated } from "kysely"` も自動出力。
 - [ ] **複数データベース方言のサポート** — 現在は SQLite HCL のみ対応。PostgreSQL、MySQL 等を追加する。
 - [ ] **Watch モード** — 入力 HCL ファイルの変更を検知して自動的に型定義を再生成する。

@@ -4,7 +4,7 @@
     "go@latest",
     "deno@latest",
     "pnpm@latest",
-    "go-task@latest",
+    "just@latest",
     "turso-cli@latest",
     "sqld@latest",
     "nixfmt@latest"

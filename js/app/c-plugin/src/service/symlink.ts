@@ -3,7 +3,7 @@ import * as NodePath from 'node:path'
 
 import { Effect } from 'effect'
 
-import { getSkillsDir } from '#@/lib/paths.ts'
+import { expandHomePath, getSkillsDir } from '#@/lib/paths.ts'
 
 const createLinkInDir = (dir: string, skillName: string, targetPath: string): Effect.Effect<void> =>
   Effect.tryPromise({
@@ -32,7 +32,7 @@ const removeLinkInDir = (dir: string, skillName: string): Effect.Effect<void> =>
 
 const getAllDirs = (agentsDir: string, skillDirs: readonly string[]): string[] => {
   const primary = getSkillsDir(agentsDir)
-  return [primary, ...skillDirs]
+  return [primary, ...skillDirs.map(expandHomePath)]
 }
 
 export const createSkillLink = (
@@ -58,7 +58,7 @@ export const removeSkillLink = (
 
 export const removeSkillLinkFromDirs = (dirs: readonly string[], skillName: string): Effect.Effect<void> =>
   Effect.all(
-    dirs.map((dir) => removeLinkInDir(dir, skillName)),
+    dirs.map((dir) => removeLinkInDir(expandHomePath(dir), skillName)),
     { concurrency: 'unbounded' },
   ).pipe(Effect.asVoid)
 

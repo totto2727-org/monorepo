@@ -36,6 +36,18 @@
         "path": "././plugins/totto2727-coding",
         "source": "local"
       }
+    },
+    {
+      "category": "Productivity",
+      "name": "external-search",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "././plugins/external-search",
+        "source": "local"
+      }
     }
   ]
 }

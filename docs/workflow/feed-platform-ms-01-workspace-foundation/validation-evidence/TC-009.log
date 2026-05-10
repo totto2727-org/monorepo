@@ -1,0 +1,14 @@
+$ grep -E '"name":' js/app/feed-platform-backend/src/worker/health/wrangler.jsonc js/app/feed-platform-backend/src/worker/bff/wrangler.jsonc
+js/app/feed-platform-backend/src/worker/health/wrangler.jsonc:  "name": "feed-platform-backend-health",
+js/app/feed-platform-backend/src/worker/bff/wrangler.jsonc:  "name": "feed-platform-backend-bff",
+
+Note: wrangler.jsonc は JSONC (JSON with comments) フォーマットなので jq は parse error を出す。grep 経由で name フィールドを直接確認した。
+
+期待:
+- src/worker/health/wrangler.jsonc.name = "feed-platform-backend-health"
+- src/worker/bff/wrangler.jsonc.name    = "feed-platform-backend-bff"
+実際:
+- "feed-platform-backend-health" ✓
+- "feed-platform-backend-bff" ✓
+
+PASS

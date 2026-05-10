@@ -6,6 +6,16 @@ import { Predicate, String } from 'effect'
 export const getAgentsDir = (global: boolean): string =>
   global ? NodePath.join(Os.homedir(), '.agents') : NodePath.join(process.cwd(), '.agents')
 
+export const expandHomePath = (path: string): string => {
+  if (path === '~') {
+    return Os.homedir()
+  }
+  if (path.startsWith('~/')) {
+    return NodePath.join(Os.homedir(), path.slice(2))
+  }
+  return path
+}
+
 export const getCacheDir = (agentsDir: string): string => NodePath.join(agentsDir, '.cache')
 
 export const getSkillsDir = (agentsDir: string): string => NodePath.join(agentsDir, 'skills')

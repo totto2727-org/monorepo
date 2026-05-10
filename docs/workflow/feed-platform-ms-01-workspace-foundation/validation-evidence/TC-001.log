@@ -1,0 +1,7 @@
+$ ls js/app/feed-platform-backend/package.json js/app/feed-platform-web/package.json js/app/identity-provider/package.json
+js/app/feed-platform-backend/package.json
+js/app/feed-platform-web/package.json
+js/app/identity-provider/package.json
+exit=0
+
+PASS

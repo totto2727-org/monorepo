@@ -1,0 +1,12 @@
+$ for p in js/app/feed-platform-backend js/app/feed-platform-web js/app/identity-provider; do echo "=== $p ==="; grep -rE '(Layer\.|ServiceMap\.Service|ManagedRuntime)' --include='*.ts' --include='*.tsx' "$p" | wc -l; done
+=== js/app/feed-platform-backend ===
+15
+=== js/app/feed-platform-web ===
+16
+=== js/app/identity-provider ===
+15
+
+期待: 各プロジェクト ≥ 1 hit
+実際: 15 / 16 / 15
+
+PASS

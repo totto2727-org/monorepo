@@ -7,8 +7,7 @@
   "google-chrome"
   # Coding
   "claude-code@latest"
-  "ghostty"
-  "claude"
+  "warp"
   # Utility
   "thaw"
   "macs-fan-control"

@@ -38,7 +38,7 @@
                     xdg-user-dirs
                     # CLI
                     git
-                    go-task
+                    just
                     unzip
                     fakeroot
                     sqlite

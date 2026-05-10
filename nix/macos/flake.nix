@@ -15,6 +15,10 @@
       url = "https://flakehub.com/f/totto2727-dotfiles/npm-packages/*";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    meridian = {
+      url = "github:rynfar/meridian";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -24,6 +28,7 @@
       npmpkgs,
       home-manager,
       nix-darwin,
+      meridian,
     }:
     let
       hostname = "totto2727-macos";
@@ -49,12 +54,15 @@
             {
               system = import ../share/darwin-system.nix { inherit username; };
               homebrew = (import ../share/homebrew.nix) // {
-                taps = import ../share/taps.nix;
+                taps = (import ../share/taps.nix) ++ [
+                  "anomalyco/tap"
+                ];
                 brews = (import ../share/brews.nix) ++ [
                   "mas"
                   "tailscale"
                   "incus"
                   "talosctl"
+                  "anomalyco/tap/opencode"
                 ];
                 casks = (import ../share/casks.nix) ++ [
                   # Browser
@@ -89,11 +97,17 @@
               (import ../share/home-manager.nix { inherit username homedir; })
               // {
                 home-manager.users."${username}" = {
+                  imports = [
+                    (import ../share/meridian.nix { inherit meridian; })
+                  ];
+
                   home.stateVersion = stateVersion;
 
                   home.packages =
                     (import ../share/packages.nix { inherit pkgs npm; })
+                    ++ (import ../share/packages-dev.nix { inherit pkgs; })
                     ++ (import ../share/packages-macos.nix { inherit pkgs; })
+                    ++ (import ../share/packages-scripts.nix { inherit pkgs; }).macos
                     ++ (with pkgs; [
                       gopls
                       air
@@ -126,7 +140,12 @@
                       };
                     };
 
-                  services = (import ../share/programs-macos.nix { inherit pkgs; }).services;
+                  services = (import ../share/programs-macos.nix { inherit pkgs; }).services // {
+                    meridian = {
+                      enable = true;
+                      settings.sonnetModel = "sonnet[1m]";
+                    };
+                  };
 
                   home.sessionVariables = import ../share/session-variables.nix;
                   home.sessionPath = import ../share/session-path.nix;
