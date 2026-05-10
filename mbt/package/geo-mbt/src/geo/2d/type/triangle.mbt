@@ -10,8 +10,27 @@ pub struct Triangle {
 } derive(Eq, Debug, Hash)
 
 ///|
+/// Stores vertices as-given (no winding normalisation). Semantically equivalent
+/// to upstream `Triangle::unchecked_winding`.
 pub fn Triangle::Triangle(v0 : Coord, v1 : Coord, v2 : Coord) -> Triangle {
   Triangle::{ v0, v1, v2 }
+}
+
+///|
+/// Creates a `Triangle` with counter-clockwise (CCW) winding.
+///
+/// Winding is determined by the signed double-area cross product
+/// `(v1 − v0) × (v2 − v0)` (non-robust, matching geo-types
+/// `Triangle::new`). If the input vertices are clockwise, `v1` and `v2`
+/// are swapped to produce CCW winding. Collinear input is stored as-is.
+pub fn Triangle::ccw(v0 : Coord, v1 : Coord, v2 : Coord) -> Triangle {
+  let cross = (v1.x() - v0.x()) * (v2.y() - v0.y()) -
+    (v1.y() - v0.y()) * (v2.x() - v0.x())
+  if cross >= 0.0 {
+    Triangle::Triangle(v0, v1, v2)
+  } else {
+    Triangle::Triangle(v0, v2, v1)
+  }
 }
 
 ///|
