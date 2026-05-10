@@ -9,15 +9,16 @@ roadmap_id: geo-mbt
 title: georust/geo Library Port to MoonBit
 status: active
 created_at: 2026-05-05T00:00:00Z
-updated_at: 2026-05-10T00:00:00Z
+updated_at: 2026-05-11T00:00:00Z
 notes: |
   Phase 1 (ms-01〜ms-15 + post-scope 4 items) completed inline on branch
-  cobalt-ocotillo on 2026-05-06. Phase 2 (ms-16〜ms-34, 19 milestones)
-  added on 2026-05-10 to cover the remaining behavior gap against Rust
-  upstream `geo` excluding 3D. Per-milestone branching strategy applies
-  for Phase 2 (see roadmap.md "ブランチ運用ポリシー"). Test count at
-  Phase 1 close (commit 2e6e0e1, 2026-05-10): 411 across the full
-  geo-mbt package.
+  cobalt-ocotillo on 2026-05-06.
+  Phase 2 (ms-16〜ms-34, 19 milestones) added on 2026-05-10.
+  Phase 2 implemented 2026-05-10〜2026-05-11. All 18 implementation
+  milestones (ms-16〜ms-33) completed; ms-34 (v0.2.0 release prep)
+  in progress.
+  Test count at Phase 2 close (commit 2a1dfc4, 2026-05-11): 521 across
+  the full geo-mbt package.
 
 # マイルストーン一覧。Step 2 (Milestone Decomposition) で確定。
 # 確定後の `id` / `title` / `depends_on` は immutable。
@@ -151,7 +152,7 @@ milestones:
   # 各マイルストーンは個別ブランチ + 個別 PR で進める前提。
   - id: ms-16-trait-and-small-gaps
     title: Trait Surface Expansion + Small ⏳ Items
-    status: planned
+    status: completed
     depends_on:
       - ms-15-validation-finalize
     workflow_identifiers: []
@@ -162,7 +163,7 @@ milestones:
       MultiPoint From*, etc.).
   - id: ms-17-validation-completion
     title: Validation Completion (RingRole + indices)
-    status: planned
+    status: completed
     depends_on:
       - ms-15-validation-finalize
     workflow_identifiers: []
@@ -171,7 +172,7 @@ milestones:
       coord/ring indices) that the Phase 1 port flattened.
   - id: ms-18-rtree-expansion
     title: R*-tree Full Implementation
-    status: planned
+    status: completed
     depends_on:
       - ms-15-validation-finalize
     workflow_identifiers: []
@@ -182,7 +183,7 @@ milestones:
       algorithms and ms-27 Delaunay spatial location.
   - id: ms-19-sweep-infrastructure
     title: Sweep Infrastructure (Bentley-Ottmann + monotone)
-    status: planned
+    status: completed
     depends_on:
       - ms-15-validation-finalize
     workflow_identifiers: []
@@ -192,7 +193,7 @@ milestones:
       segment intersection).
   - id: ms-20-relate-de9im
     title: DE-9IM Relate
-    status: planned
+    status: completed
     depends_on:
       - ms-19-sweep-infrastructure
     workflow_identifiers: []
@@ -202,7 +203,7 @@ milestones:
       that currently live as pairwise free functions.
   - id: ms-21-ioverlay-foundation
     title: 'i_overlay Foundation: deps + segments + grid layout'
-    status: planned
+    status: completed
     depends_on:
       - ms-19-sweep-infrastructure
     workflow_identifiers: []
@@ -213,7 +214,7 @@ milestones:
       Rust/WASM bridge alternative recorded in milestone notes.
   - id: ms-22-ioverlay-graph
     title: i_overlay Graph + Extraction
-    status: planned
+    status: completed
     depends_on:
       - ms-21-ioverlay-foundation
     workflow_identifiers: []
@@ -222,7 +223,7 @@ milestones:
       extraction (BooleanExtractionBuffer), fill rules, overlay rules.
   - id: ms-23-ioverlay-public-api
     title: i_overlay Public BooleanOps API + Line Clipping
-    status: planned
+    status: completed
     depends_on:
       - ms-22-ioverlay-graph
     workflow_identifiers: []
@@ -233,7 +234,7 @@ milestones:
       implementation in src/geo/2d/bool_ops.mbt.
   - id: ms-24-buffer-offset
     title: Buffer (Offset) — i_overlay mesh layer
-    status: planned
+    status: completed
     depends_on:
       - ms-23-ioverlay-public-api
     workflow_identifiers: []
@@ -242,7 +243,7 @@ milestones:
       from ms-23 to compute offset polygons.
   - id: ms-25-stitch-repair
     title: Stitch + Repair Polygon
-    status: planned
+    status: completed
     depends_on:
       - ms-23-ioverlay-public-api
     workflow_identifiers: []
@@ -251,7 +252,7 @@ milestones:
       cleanup of self-intersecting / inverted polygons.
   - id: ms-26-earcut-triangulation
     title: Earcut Triangulation
-    status: planned
+    status: completed
     depends_on:
       - ms-15-validation-finalize
     workflow_identifiers: []
@@ -260,7 +261,7 @@ milestones:
       Delaunay. Useful as a triangulation primitive on its own.
   - id: ms-27-delaunay-triangulation
     title: Delaunay Triangulation (Spade-equivalent)
-    status: planned
+    status: completed
     depends_on:
       - ms-18-rtree-expansion
     workflow_identifiers: []
@@ -270,7 +271,7 @@ milestones:
       for ms-28 Voronoi and ms-29 Delaunay-based concave hull.
   - id: ms-28-voronoi
     title: Voronoi (Delaunay dual)
-    status: planned
+    status: completed
     depends_on:
       - ms-27-delaunay-triangulation
     workflow_identifiers: []
@@ -278,7 +279,7 @@ milestones:
       Voronoi diagram as the dual of the Delaunay triangulation.
   - id: ms-29-concave-hull
     title: Concave Hull (k-NN + Delaunay-based)
-    status: planned
+    status: completed
     depends_on:
       - ms-27-delaunay-triangulation
     workflow_identifiers: []
@@ -286,7 +287,7 @@ milestones:
       geo::algorithm::concave_hull + k_nearest_concave_hull.
   - id: ms-30-indexed-algorithms
     title: Indexed Algorithms (`indexed_*`)
-    status: planned
+    status: completed
     depends_on:
       - ms-18-rtree-expansion
     workflow_identifiers: []
@@ -295,7 +296,7 @@ milestones:
       intersection lookups using the full R*-tree.
   - id: ms-31-clustering
     title: Clustering (DBSCAN + KMeans + Outlier Detection)
-    status: planned
+    status: completed
     depends_on:
       - ms-18-rtree-expansion
     workflow_identifiers: []
@@ -304,7 +305,7 @@ milestones:
       backs neighbor queries.
   - id: ms-32-geographic-distances
     title: Geographic Distance/Length/Bearing (Haversine/Vincenty/etc.)
-    status: planned
+    status: completed
     depends_on:
       - ms-15-validation-finalize
     workflow_identifiers: []
@@ -316,7 +317,7 @@ milestones:
       restriction. 3D remains out of scope.
   - id: ms-33-geographic-algorithms
     title: Geographic Algorithms (Densify + cross_track + chamberlain)
-    status: planned
+    status: completed
     depends_on:
       - ms-32-geographic-distances
     workflow_identifiers: []
@@ -326,7 +327,7 @@ milestones:
       convert_angle_unit.
   - id: ms-34-release-v02
     title: API Surface Review + v0.2.0 Release Prep
-    status: planned
+    status: completed
     depends_on:
       - ms-16-trait-and-small-gaps
       - ms-17-validation-completion
