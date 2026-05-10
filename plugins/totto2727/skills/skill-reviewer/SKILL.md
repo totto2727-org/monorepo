@@ -1,321 +1,321 @@
 ---
 name: skill-reviewer
 description: |
-  スキル（SKILL.md）の品質レビュー・改善提案を行う。
-  フロントマター検証、description品質、本文構成、テスト戦略、anti-pattern検出を網羅。
-  「スキルレビュー」「SKILL.mdチェック」「スキル品質確認」「スキル改善」で起動。
-  Do NOT use for: スキルの新規作成（skill-creatorを使え）、スキルの実行・呼び出し。
+  Performs quality review and improvement suggestions for skills (SKILL.md).
+  Covers frontmatter validation, description quality, body composition, testing strategy, and anti-pattern detection.
+  Triggered by "skill review", "SKILL.md check", "skill quality check", "skill improvement".
+  Do NOT use for: creating new skills (use skill-creator), executing or invoking skills.
 argument-hint: '[path/to/SKILL.md]'
 metadata:
   author: totto2727
   version: 1.0.0
 ---
 
-# Skill Reviewer — スキル品質レビュー & 改善提案
+# Skill Reviewer — Skill Quality Review & Improvement Suggestions
 
-ユースケースカテゴリ: **Workflow Automation**
-設計パターン: **Sequential Workflow**（Step 1→2→3→4の順序実行）
+Use Case Category: **Workflow Automation**
+Design Pattern: **Sequential Workflow** (Step 1→2→3→4 sequential execution)
 
-スキル（SKILL.md）の品質を体系的にレビューし、改善提案を行う。
-Anthropic公式 "The Complete Guide to Building Skills for Claude" (2026-03) に準拠。
+Performs systematic quality review of skills (SKILL.md) and provides improvement suggestions.
+Conforms to Anthropic official "The Complete Guide to Building Skills for Claude" (2026-03).
 
-## 基本方針
+## Basic Policy
 
-- レビュー結果は**評価カテゴリごとにスコア（A/B/C/D）**で提示する
-- 各カテゴリについて**具体的な改善提案**を提示する
-- 評価は **汎用評価**（あらゆるAgentで適用可能）と **Platform固有評価** に明確に分離する
-- レビュー対象のSKILL.mdを最初に全文読み込むこと
-
----
-
-## レビュー実行手順
-
-### Step 1: 対象スキルの読み込み
-
-1. ユーザーが指定したスキルのSKILL.mdを全文読み込む
-2. 同ディレクトリ内のファイル構成を確認（scripts/, references/, assets/, examples/）
-3. 同プロジェクト内の他スキル一覧を確認し、各descriptionとの重複リスクを評価
-   - スキルディレクトリ内の全SKILL.mdのfrontmatterを読み込む
-
-### Step 2: 汎用評価の実施
-
-以下の評価カテゴリ（G1-G7）を順に実施する。
-
-### Step 3: Platform固有評価の実施
-
-**ユーザーに対象Platformを確認する。** 推測で判断しない。
-回答に基づき、該当するPlatform固有評価を `references/` から読み込んで実施する。
-Platformセクションの表を参照し、該当ファイルを読み込むこと。
-複数Platformに対応する場合、それぞれの評価を実施する。
-
-### Step 4: レビューサマリーの出力
-
-全カテゴリのスコアと改善提案を表形式で一覧化する。
+- Review results are presented as **scores (A/B/C/D) per evaluation category**
+- **Concrete improvement suggestions** are provided for each category
+- Evaluation is clearly separated into **general evaluation** (applicable to all Agents) and **Platform-specific evaluation**
+- First, read the full content of the target SKILL.md
 
 ---
 
-## 汎用評価カテゴリ（あらゆるAgentに適用可能）
+## Review Procedure
 
-### G1: Frontmatter — 構造的正当性
+### Step 1: Load the Target Skill
 
-YAML frontmatterが仕様に準拠しているか検証する。
+1. Read the full content of the user-specified skill's SKILL.md
+2. Check the file structure within the same directory (scripts/, references/, assets/, examples/)
+3. Check the list of other skills in the same project and evaluate overlap risk with each description
+   - Load the frontmatter of all SKILL.md files in the skills directory
 
-**必須チェック:**
+### Step 2: Perform General Evaluation
 
-- `name` が存在し、kebab-caseであること
-- `name` が最大64文字であること
-- `name` に "claude" / "anthropic" を含まないこと（予約語）
-- `description` が存在し、空でないこと
-- `description` が1024文字以内であること
-- `---` デリミタで正しく囲まれていること
-- XML角括弧 `< >` がフロントマター内に含まれないこと
+Perform the following evaluation categories (G1-G7) in order.
 
-**推奨チェック:**
+### Step 3: Perform Platform-Specific Evaluation
 
-- `name` がフォルダ名と一致すること
-- `SKILL.md` は大文字小文字厳密（`skill.md` ❌ / `SKILL.MD` ❌）
-- フォルダ名がkebab-caseであること（`my-skill` ✅ / `My_Skill` ❌）
-- `license` フィールド（OSSの場合）
-- `metadata` に author / version が含まれること
-- `compatibility` に環境要件が記載されていること（依存がある場合）
+**Confirm the target Platform with the user.** Do not guess.
+Based on the response, load the relevant Platform-specific evaluation from `references/` and execute it.
+Refer to the table in the Platform section and load the relevant file.
+If supporting multiple Platforms, perform each evaluation.
 
-**スコア基準:**
+### Step 4: Output Review Summary
 
-- A: 必須全クリア + 推奨3項目以上
-- B: 必須全クリア + 推奨1-2項目
-- C: 必須全クリアだが推奨なし
-- D: 必須項目に違反あり
-
-### G2: Description品質 — 発火精度の生命線
-
-descriptionはスキル発火判断の唯一の材料。品質が直結する。
-
-**7項目チェックリスト:**
-
-| #   | チェック                                     | 評価ポイント                                                                   |
-| --- | -------------------------------------------- | ------------------------------------------------------------------------------ |
-| 1   | What: 何をするか明記されているか             | 曖昧な動詞（"管理する"）ではなく具体的アクション動詞（"抽出・変換・検証する"） |
-| 2   | When: いつ使うか明記されているか             | ユースケースやコンテキストの記述                                               |
-| 3   | トリガーワードが含まれているか               | ユーザーが実際に言いそうなフレーズ                                             |
-| 4   | 具体的なアクション動詞か                     | "処理する" → "解析してCSVに変換する"                                           |
-| 5   | 長さが適切か（1024文字以内、かつ短すぎない） | 2-3文で概要+トリガー+除外が理想                                                |
-| 6   | 既存スキルとの差別化ができているか           | 他スキルとの守備範囲の重複がないか                                             |
-| 7   | ネガティブトリガーがあるか                   | "Do NOT use for: ..." で誤発火を防止                                           |
-
-**追加チェック:**
-
-- ファイル種別が関係する場合、拡張子が言及されているか
-- 技術用語が適切に含まれているか（undertriggering防止）
-- descriptionが "pushy" すぎないか / 弱すぎないか
-
-**スコア基準:**
-
-- A: 7項目中6-7項目クリア + 追加チェック概ねOK
-- B: 7項目中4-5項目クリア
-- C: 7項目中2-3項目クリア
-- D: 7項目中0-1項目クリア
-
-**デバッグ支援:**
-発火に問題がある場合、以下の問いかけでdescriptionを診断できる:
-
-> 「When would you use the [skill-name] skill?」
-
-### G3: 本文構成 — 指示の明確性と構造
-
-SKILL.md本文が効果的に構成されているか評価する。
-
-**チェック項目:**
-
-- 重要な指示がファイル上部に配置されているか
-- 命令形（Imperative form）が使用されているか
-- 具体的で実行可能な指示か（"適切にバリデーションしろ" ❌ → "project nameが空でないことを確認せよ" ✅）
-- ステップが明確な番号付きリストになっているか
-- 出力フォーマットが明示されているか（テンプレートや例）
-- エラーハンドリングの指示が含まれているか
-- 参照ファイル（references/）へのリンクが明確か
-- 5,000語（約500行）を超えていないか
-
-**Whyの説明:**
-MUSTやNEVERの多用ではなく、**なぜそうすべきか**の理由説明があるか。
-理由を理解したモデルは、エッジケースでもより適切に判断できる。
-
-**スコア基準:**
-
-- A: 構造明確、指示具体的、エラーハンドリングあり、progressive disclosure適切
-- B: 構造はあるが一部曖昧な指示あり
-- C: 構造が弱い、または指示が抽象的
-- D: 構造なし、または曖昧な指示のみ
-
-### G4: Progressive Disclosure — 情報の階層設計
-
-3層構造が適切に活用されているか。
-
-| 層  | 内容                  | 理想的な状態                    |
-| --- | --------------------- | ------------------------------- |
-| L1  | YAML frontmatter      | 発火判断に十分な情報（~100語）  |
-| L2  | SKILL.md本文          | コア指示のみ（500行以内が理想） |
-| L3  | references/, scripts/ | 詳細情報、大きなリファレンス    |
-
-**チェック項目:**
-
-- SKILL.mdに詳細なAPIドキュメント等が直接埋め込まれていないか
-- 300行超のリファレンスにはTable of Contentsがあるか
-- scripts/ にバリデーション等の決定的処理が分離されているか
-- 「コードは決定的、言語の解釈は非決定的」原則が守られているか
-
-**スコア基準:**
-
-- A: 3層が明確に活用され、本文がリーンでreferences/が適切
-- B: 概ね良いが一部の情報がL2に過剰に含まれる
-- C: progressive disclosureの意識が弱い
-- D: 全情報がSKILL.mdに詰め込まれている
-
-### G5: ユースケースとパターン — 設計の明確性
-
-スキルの目的と設計パターンが明確か。
-
-**ユースケースカテゴリ（3種のいずれか）:**
-
-1. **Document & Asset Creation** — 成果物生成（PDF, コード, 記事等）
-2. **Workflow Automation** — ステップバイステップの自動化
-3. **MCP Enhancement** — MCPツール + ワークフロー知識
-
-**設計パターン（5種のいずれか）:**
-
-1. Sequential Workflow — 順序付き処理、ステップ間依存、バリデーション
-2. Multi-Service Coordination — 複数サービス連携、フェーズ分離
-3. Iterative Refinement — 生成→検証→改善ループ
-4. Context-aware Selection — 条件分岐、動的ツール選択
-5. Domain Intelligence — 専門知識埋め込み、コンプライアンス
-
-**チェック項目:**
-
-- スキルがどのカテゴリ/パターンに該当するか明確か
-- パターンに応じた必要要素（バリデーションゲート、データ受け渡し等）が含まれているか
-- 例示が含まれているか（input → output の具体例）
-- スキルが特定のユースケースに過度に特化していないか（汎用性）
-  - 多様なプロンプトで有用に機能するか
-  - 特定の例にオーバーフィットしていないか（フィードバックから一般化すべき）
-
-**MCP Enhancement固有チェック（カテゴリ3に該当する場合）:**
-
-- 使用するMCPツール名が本文中に明示されているか（曖昧な「MCPツールを使う」ではなく具体名）
-- 接続エラー時の挙動が定義されているか（MCPサーバー未起動、タイムアウト等）
-- 複数MCPサーバーを連携する場合、フェーズ分離が明確か（どのサーバーをいつ使うか）
-
-**Composabilityチェック:**
-
-- 他スキルの存在を前提とした設計か（排他的な前提を置いていないか）
-  - 例: 「このスキルが唯一のコード生成手段である」という前提 → NG
-- 他スキルと共存した際に干渉しない設計か（出力フォーマットの衝突、グローバル状態の変更等）
-- 責務の境界が明確で、隣接スキルとの役割分担が推定可能か
-
-**スコア基準:**
-
-- A: カテゴリ/パターンが明確、例示あり、パターン固有要素充実、Composability考慮あり、該当カテゴリの固有チェッククリア
-- B: カテゴリは推定可能だが明示されていない、例示は部分的、Composabilityの考慮が弱い
-- C: 目的は分かるがパターンが不明確、他スキルとの共存が考慮されていない
-- D: 何をするスキルなのか不明確
-
-### G6: テスト戦略 — 品質保証の設計
-
-テストの観点が設計に含まれているか。
-
-**3領域:**
-
-1. **Triggering Test** — Should trigger / Should NOT trigger の例
-2. **Functional Test** — 正しい出力、エラーハンドリング、エッジケース
-3. **Performance Test** — スキルあり/なしの比較
-
-**チェック項目:**
-
-- description内のトリガーワードに対応するテスト例が想定できるか
-- 失敗時の挙動が定義されているか
-- 「まず1つの難しいタスクで反復し、成功したアプローチをスキル化」の原則に沿っているか
-
-**スコア基準:**
-
-- A: 3領域すべてカバー、テスト例が豊富
-- B: 2領域カバー
-- C: 1領域のみ、またはテスト観点が弱い
-- D: テスト戦略なし
-
-### G7: Anti-Patterns — 既知の問題パターン検出
-
-以下の既知のanti-patternに該当していないか検出する。
-
-| NG パターン                                | 理由                                                                                  |
-| ------------------------------------------ | ------------------------------------------------------------------------------------- |
-| SKILL.md 5,000語超                         | 読み込みコスト増大、応答品質低下                                                      |
-| description が曖昧                         | 発火しない or 誤発火                                                                  |
-| description 1024文字超                     | フロントマター制限超過                                                                |
-| description に `< >`                       | セキュリティ違反                                                                      |
-| ネガティブトリガーなし                     | 類似スキル間で誤発火リスク                                                            |
-| README.md がスキルフォルダ内に存在         | 仕様違反                                                                              |
-| 指示が曖昧（"適切に処理する"等）           | モデルが正しく従えない                                                                |
-| MUSTやNEVERの過剰使用                      | Whyの説明で代替すべき                                                                 |
-| バリデーションを言語指示のみに依存         | スクリプト化すべき                                                                    |
-| 参照ファイルの内容をSKILL.mdに直接コピー   | progressive disclosure違反                                                            |
-| 同時有効スキル50個超                       | コンテキスト圧迫、応答品質低下                                                        |
-| マルウェア・エクスプロイトコードを含む     | Principle of Lack of Surprise違反。スキルはユーザーの期待に反する動作をしてはならない |
-| 不正アクセスやデータ抜き取りを促進する指示 | セキュリティ・安全性違反                                                              |
-| ユーザーの意図と異なる動作をする指示       | 信頼性の毀損。スキルの動作はdescriptionから予測可能であるべき                         |
-
-**スコア基準:**
-
-- A: anti-pattern 0件
-- B: 1件（軽微）
-- C: 2-3件
-- D: 4件以上、またはセキュリティ関連のanti-pattern
+List all category scores and improvement suggestions in a table format.
 
 ---
 
-## Platform固有評価
+## General Evaluation Categories (Applicable to all Agents)
 
-対象スキルが使用されるPlatformに応じて、該当するリファレンスファイルを読み込み追加評価を実施する。
+### G1: Frontmatter — Structural Validity
 
-| Platform    | リファレンスファイル        | 評価カテゴリ                                                             |
-| ----------- | --------------------------- | ------------------------------------------------------------------------ |
-| Claude Code | `references/claude-code.md` | CC1-CC4（専用フロントマター、実行パターン、動的機能、allowed-tools設計） |
+Verify that the YAML frontmatter conforms to the specification.
 
-**必ずユーザーに対象Platformを確認すること。** 推測で判断しない。
-複数Platformに対応するスキルの場合、該当するすべてのリファレンスを読み込み評価する。
+**Mandatory Checks:**
+
+- `name` exists and is in kebab-case
+- `name` is at most 64 characters
+- `name` does not contain "claude" / "anthropic" (reserved words)
+- `description` exists and is not empty
+- `description` is within 1024 characters
+- Properly enclosed with `---` delimiters
+- No XML angle brackets `< >` in the frontmatter
+
+**Recommended Checks:**
+
+- `name` matches the folder name
+- `SKILL.md` is case-sensitive (`skill.md` ❌ / `SKILL.MD` ❌)
+- Folder name is kebab-case (`my-skill` ✅ / `My_Skill` ❌)
+- `license` field (for OSS)
+- `metadata` includes author / version
+- `compatibility` describes environment requirements (if there are dependencies)
+
+**Score Criteria:**
+
+- A: All mandatory cleared + 3+ recommended
+- B: All mandatory cleared + 1-2 recommended
+- C: All mandatory cleared but no recommended
+- D: Violation in mandatory items
+
+### G2: Description Quality — Lifeline of Triggering Accuracy
+
+Description is the sole material for skill trigger decisions. Quality directly impacts this.
+
+**7-Item Checklist:**
+
+| #   | Check                                               | Evaluation Point                                                                   |
+| --- | --------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| 1   | What: Is it clearly stated what it does?            | Concrete action verbs ("extract, transform, validate") rather than vague verbs ("manage") |
+| 2   | When: Is it clearly stated when to use it?          | Description of use cases or context                                                |
+| 3   | Does it contain trigger phrases?                    | Phrases the user would actually say                                                |
+| 4   | Are the action verbs concrete?                      | "process" → "analyze and convert to CSV"                                          |
+| 5   | Is the length appropriate? (within 1024 chars, not too short) | 2-3 sentences covering overview + trigger + exclusion is ideal                     |
+| 6   | Is it differentiated from existing skills?          | No overlap in coverage with other skills                                           |
+| 7   | Is there a negative trigger?                        | "Do NOT use for: ..." to prevent false triggering                                  |
+
+**Additional Checks:**
+
+- If file types are relevant, are extensions mentioned?
+- Are technical terms properly included? (to prevent undertriggering)
+- Is the description neither too "pushy" nor too weak?
+
+**Score Criteria:**
+
+- A: 6-7 out of 7 items cleared + additional checks mostly OK
+- B: 4-5 out of 7 items cleared
+- C: 2-3 out of 7 items cleared
+- D: 0-1 out of 7 items cleared
+
+**Debug Support:**
+If there are triggering issues, diagnose the description with:
+
+> "When would you use the [skill-name] skill?"
+
+### G3: Body Structure — Clarity and Structure of Instructions
+
+Evaluate whether the SKILL.md body is effectively structured.
+
+**Check Items:**
+
+- Are important instructions placed at the top of the file?
+- Is the imperative form used?
+- Are instructions concrete and actionable? ("validate properly" ❌ → "verify project name is not empty" ✅)
+- Are steps in clear numbered lists?
+- Is the output format specified? (templates or examples)
+- Are error handling instructions included?
+- Are links to reference files (references/) clear?
+- Does it exceed 5,000 words (approx. 500 lines)?
+
+**Why Explanation:**
+Rather than overusing MUST or NEVER, does it include **reasoning why** it should be done?
+A model that understands the reasoning can make better judgments even in edge cases.
+
+**Score Criteria:**
+
+- A: Clear structure, concrete instructions, error handling present, progressive disclosure appropriate
+- B: Structure exists but some instructions are vague
+- C: Weak structure or abstract instructions
+- D: No structure or only vague instructions
+
+### G4: Progressive Disclosure — Information Hierarchy Design
+
+Is the 3-layer structure properly utilized?
+
+| Layer | Content                   | Ideal State                               |
+| ----- | ------------------------- | ----------------------------------------- |
+| L1    | YAML frontmatter          | Sufficient info for triggering (~100 words) |
+| L2    | SKILL.md body             | Core instructions only (ideally under 500 lines) |
+| L3    | references/, scripts/     | Detailed information, large references    |
+
+**Check Items:**
+
+- Are detailed API documents etc. embedded directly in SKILL.md?
+- Does reference material exceeding 300 lines have a Table of Contents?
+- Are deterministic processes like validation separated into scripts/?
+- Is the principle "code is deterministic, language interpretation is non-deterministic" followed?
+
+**Score Criteria:**
+
+- A: 3 layers clearly utilized, body is lean, references/ is appropriate
+- B: Mostly good but some information excessively included in L2
+- C: Weak awareness of progressive disclosure
+- D: All information crammed into SKILL.md
+
+### G5: Use Cases and Patterns — Design Clarity
+
+Is the skill's purpose and design pattern clear?
+
+**Use Case Categories (one of three):**
+
+1. **Document & Asset Creation** — Artifact generation (PDF, code, articles, etc.)
+2. **Workflow Automation** — Step-by-step automation
+3. **MCP Enhancement** — MCP tools + workflow knowledge
+
+**Design Patterns (one of five):**
+
+1. Sequential Workflow — Ordered processing, step dependencies, validation
+2. Multi-Service Coordination — Multiple service coordination, phase separation
+3. Iterative Refinement — Generate → Verify → Improve loop
+4. Context-aware Selection — Conditional branching, dynamic tool selection
+5. Domain Intelligence — Embedded expert knowledge, compliance
+
+**Check Items:**
+
+- Is it clear which category/pattern the skill falls under?
+- Does it include pattern-required elements (validation gates, data passing, etc.)?
+- Are examples included? (concrete input → output examples)
+- Is the skill overly specialized for a specific use case? (generality)
+  - Does it function usefully across diverse prompts?
+  - Is it not overfitted to specific examples? (should generalize from feedback)
+
+**MCP Enhancement Specific Checks (when applicable to category 3):**
+
+- Are the MCP tool names explicitly stated in the body? (not vague "use MCP tool" but specific names)
+- Is behavior on connection errors defined? (MCP server not started, timeout, etc.)
+- When coordinating multiple MCP servers, is phase separation clear? (which server to use when)
+
+**Composability Check:**
+
+- Is the design premised on the existence of other skills? (does it not make exclusive assumptions?)
+  - Example: Assuming "this skill is the only means of code generation" → NG
+- Is it designed not to interfere when coexisting with other skills? (output format conflicts, global state changes, etc.)
+- Are responsibility boundaries clear, making role division with adjacent skills inferable?
+
+**Score Criteria:**
+
+- A: Category/pattern clear, examples provided, pattern-specific elements sufficient, composability considered, category-specific checks cleared
+- B: Category inferable but not explicitly stated, partial examples, weak composability consideration
+- C: Purpose understandable but pattern unclear, coexistence with other skills not considered
+- D: Unclear what the skill does
+
+### G6: Testing Strategy — Quality Assurance Design
+
+Is the testing perspective included in the design?
+
+**3 Areas:**
+
+1. **Triggering Test** — Should trigger / Should NOT trigger examples
+2. **Functional Test** — Correct output, error handling, edge cases
+3. **Performance Test** — Comparison with/without skill
+
+**Check Items:**
+
+- Can test examples corresponding to trigger words in the description be envisioned?
+- Is failure behavior defined?
+- Does it follow the principle of "first iterate on one difficult task, then skill-ize the successful approach"?
+
+**Score Criteria:**
+
+- A: All 3 areas covered, abundant test examples
+- B: 2 areas covered
+- C: Only 1 area covered, or weak testing perspective
+- D: No testing strategy
+
+### G7: Anti-Patterns — Known Problem Pattern Detection
+
+Detect whether any of the following known anti-patterns apply.
+
+| NG Pattern                                      | Reason                                                                                |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------- |
+| SKILL.md over 5,000 words                       | Increased loading cost, degraded response quality                                     |
+| Vague description                               | No triggering or false triggering                                                     |
+| Description over 1024 characters                | Exceeds frontmatter limit                                                             |
+| `< >` in description                            | Security violation                                                                    |
+| No negative trigger                             | False triggering risk between similar skills                                          |
+| README.md exists in the skill folder            | Specification violation                                                               |
+| Vague instructions (e.g., "process appropriately") | Model cannot follow correctly                                                         |
+| Excessive use of MUST or NEVER                  | Should be replaced by Why explanation                                                 |
+| Validation relying solely on language instructions | Should be scriptified                                                                |
+| Copying reference file content directly into SKILL.md | Progressive disclosure violation                                                      |
+| Over 50 simultaneously active skills            | Context pressure, degraded response quality                                           |
+| Contains malware or exploit code                | Violation of Principle of Lack of Surprise. Skills must not act against user expectations |
+| Instructions promoting unauthorized access or data exfiltration | Security/safety violation                                              |
+| Instructions that act contrary to user intent   | Trust erosion. Skill behavior should be predictable from its description              |
+
+**Score Criteria:**
+
+- A: 0 anti-patterns
+- B: 1 (minor)
+- C: 2-3
+- D: 4 or more, or security-related anti-pattern
 
 ---
 
-## レビューサマリー出力フォーマット
+## Platform-Specific Evaluation
 
-レビュー結果は `templates/review-summary.md` のテンプレートに従って出力する。
-テンプレートを読み込み、`?` をスコアに、`...` を要約に置き換えること。
+Depending on the Platform where the target skill is used, load the relevant reference file and perform additional evaluation.
+
+| Platform    | Reference File               | Evaluation Categories                                                    |
+| ----------- | ----------------------------- | ------------------------------------------------------------------------ |
+| Claude Code | `references/claude-code.md`  | CC1-CC4 (dedicated frontmatter, execution patterns, dynamic features, allowed-tools design) |
+
+**Always confirm the target Platform with the user.** Do not guess.
+For skills supporting multiple platforms, load all relevant references and evaluate.
 
 ---
 
-## トラブルシューティングガイド
+## Review Summary Output Format
 
-レビュー中に発見した問題に対して、以下のガイドも提供する。
+Output review results according to the `templates/review-summary.md` template.
+Load the template and replace `?` with the score and `...` with the summary.
 
-### 発火しない（Undertriggering）
+---
 
-- descriptionにトリガーワードを追加
-- 技術用語やキーワードを含める
-- descriptionを少し "pushy" にする（関連するかもしれないユースケースも明記）
+## Troubleshooting Guide
 
-### 発火しすぎ（Overtriggering）
+Also provide the following guide for issues discovered during review.
 
-- ネガティブトリガー "Do NOT use for: ..." を追加
-- descriptionをより具体的にする
-- スコープを明確に限定（例: "PDFの法務文書に限定"）
+### No Triggering (Undertriggering)
 
-### 指示が守られない
+- Add trigger words to the description
+- Include technical terms and keywords
+- Make the description slightly "pushy" (also mention possibly relevant use cases)
 
-- 指示を具体的にする（"適切にバリデーションしろ" → 具体的な条件列挙）
-- 重要な指示をファイル上部に移動
-- MUSTの代わりにWhyを説明する
-- クリティカルなバリデーションはscripts/にスクリプト化
-  - **コードは決定的、言語の解釈は非決定的**
+### Over-triggering (Overtriggering)
 
-### 応答が遅い・品質低下
+- Add negative trigger "Do NOT use for: ..."
+- Make the description more specific
+- Clearly limit the scope (e.g., "limited to legal PDF documents")
 
-- SKILL.mdが5,000語を超えていないか確認
-- 詳細情報をreferences/に分離
-- 同時有効スキル数を確認（20-50個が目安上限）
+### Instructions Not Followed
+
+- Make instructions more specific ("validate properly" → enumerate specific conditions)
+- Move important instructions to the top of the file
+- Explain Why instead of MUST
+- Script critical validations in scripts/
+  - **Code is deterministic, language interpretation is non-deterministic**
+
+### Slow Response or Degraded Quality
+
+- Check if SKILL.md exceeds 5,000 words
+- Separate detailed information into references/
+- Check the number of simultaneously active skills (20-50 is the recommended upper limit)

@@ -1,104 +1,104 @@
-# Claude Code固有評価カテゴリ
+# Claude Code-Specific Evaluation Categories
 
-Claude Code環境で使用されるスキルに対する追加評価。
-汎用評価（G1-G7）に加えて、以下のCC1-CC4を実施する。
+Additional evaluation for skills used in the Claude Code environment.
+In addition to the general evaluation (G1-G7), the following CC1-CC4 are implemented.
 
-レビューサマリーでは各カテゴリを `CC1`, `CC2`, `CC3`, `CC4` として表示する。
-
----
-
-## CC1: Claude Code専用フロントマター
-
-Claude Code固有のフロントマターフィールドが適切に使用されているか。
-
-**チェック項目:**
-
-- `argument-hint`: 引数ありスキルの場合、補完ヒントが設定されているか
-- `disable-model-invocation`: 副作用のあるスキルで適切にtrueにされているか
-- `user-invocable`: バックグラウンド知識スキルで適切にfalseにされているか
-- `allowed-tools`: 必要最小限のツールに制限されているか（省略=全ツール継承）
-- `model`: 特定モデルが必要な場合に指定されているか
-- `context: fork`: 重い処理でサブエージェント実行が適切に指定されているか
-- `agent`: fork時のエージェント種別が適切か
-- `hooks`: スキル内フックが必要な場合に定義されているか
-
-**矛盾チェック:**
-
-- `disable-model-invocation: true` + `user-invocable: false` → 誰も起動できない
-- `context: fork` + ガイドラインのみのスキル → サブエージェントが迷走する
-
-**Claude Code固有anti-pattern:**
-
-- フロントマターに独自フィールド（metadata以外）を記載 → Claude Codeに無視される。本文のMarkdownに記載せよ
-
-**スコア基準:**
-
-- A: 必要なフィールドが適切に設定され、矛盾なし
-- B: 基本的に適切だが一部最適化の余地あり
-- C: 重要なフィールドが未設定
-- D: 矛盾した設定あり
+In the review summary, each category is displayed as `CC1`, `CC2`, `CC3`, `CC4`.
 
 ---
 
-## CC2: 実行パターン — 適切な実行方式
+## CC1: Claude Code-Specific Frontmatter
 
-スキルの性質に合った実行パターンが選択されているか。
+Whether Claude Code-specific frontmatter fields are used appropriately.
 
-| パターン                                     | 適用場面                   | 注意点                                               |
-| -------------------------------------------- | -------------------------- | ---------------------------------------------------- |
-| インライン（デフォルト）                     | ガイドライン型、短いタスク | 特に設定不要                                         |
-| Fork（`context: fork`）                      | 重い処理、大量出力         | 明確なタスクが必要。ガイドラインだけのスキルに使うな |
-| 手動専用（`disable-model-invocation: true`） | 副作用あり（git push等）   | `/name` でのみ起動                                   |
+**Check Items:**
 
-**スコア基準:**
+- `argument-hint`: Whether completion hints are set for skills with arguments.
+- `disable-model-invocation`: Whether it is appropriately set to `true` for skills with side effects.
+- `user-invocable`: Whether it is appropriately set to `false` for background knowledge skills.
+- `allowed-tools`: Whether it is restricted to the minimum necessary tools (omitted = inherits all tools).
+- `model`: Whether a specific model is specified when necessary.
+- `context: fork`: Whether sub-agent execution is appropriately specified for heavy processes.
+- `agent`: Whether the agent type is appropriate when forked.
+- `hooks`: Whether in-skill hooks are defined when necessary.
 
-- A: スキルの性質に最適なパターンが選択されている
-- B: 動作するが最適ではない
-- C: パターン選択が不適切で問題が発生しうる
-- D: 矛盾した設定（fork + ガイドラインのみ等）
+**Contradiction Checks:**
 
----
+- `disable-model-invocation: true` + `user-invocable: false` → Nobody can invoke it.
+- `context: fork` + guideline-only skill → The sub-agent will wander.
 
-## CC3: 動的機能 — 引数とコンテキスト
+**Claude Code-Specific Anti-pattern:**
 
-Claude Code固有の動的機能が適切に活用されているか。
+- Including custom fields (other than metadata) in frontmatter → Ignored by Claude Code. Describe them in the body markdown.
 
-**引数置換:**
+**Score Criteria:**
 
-- `$ARGUMENTS`（全引数）、`$0`（第1引数）、`$1`（第2引数）の使用
-- `$ARGUMENTS` を本文で使わない場合、末尾に自動追加される
-- `argument-hint` が設定されているか
-- 引数が使われない場合、不要な `argument-hint` が設定されていないか
-
-**動的コンテキスト `!`command``:**
-
-- スキル読み込み前にシェルコマンドで取得すべき情報があるか
-  - 例: `!`git branch --show-current``、`!`git log --oneline -5``
-- 不必要に重いコマンドが動的コンテキストに含まれていないか
-
-**スコア基準:**
-
-- A: 動的機能が効果的に活用されている
-- B: 基本的な活用はあるが改善の余地あり
-- C: 活用すべき場面で使われていない
-- D: 誤った使い方をしている
+- A: Necessary fields are set appropriately with no contradictions.
+- B: Generally appropriate but some room for optimization.
+- C: Important fields are not set.
+- D: Contradictory settings exist.
 
 ---
 
-## CC4: allowed-tools設計 — 最小権限の原則
+## CC2: Execution Pattern — Appropriate Execution Method
 
-ツールアクセスが適切に制限されているか。
+Whether the execution pattern matches the nature of the skill.
 
-**チェック項目:**
+| Pattern | Application Scenario | Notes |
+|---|---|---|
+| Inline (default) | Guideline type, short tasks | No special configuration needed |
+| Fork (`context: fork`) | Heavy processing, large output | Requires a clear task. Don't use for guideline-only skills |
+| Manual only (`disable-model-invocation: true`) | Has side effects (git push, etc.) | Only invocable via `/name` |
 
-- 省略されている場合: 全ツール継承が意図的か
-- 指定されている場合: 必要最小限のツールのみか
-- Bashが含まれる場合: 正当な理由があるか（スクリプト実行等）
-- 重い処理を行うスキルで未指定: 意図しないツール使用のリスク
+**Score Criteria:**
 
-**スコア基準:**
+- A: The optimal pattern for the skill's nature is selected.
+- B: It works but is not optimal.
+- C: The pattern selection is inappropriate and may cause issues.
+- D: Contradictory settings (e.g., fork + guideline only).
 
-- A: 最小権限の原則が守られている
-- B: 概ね適切だが過剰なツールが含まれる
-- C: 制限が考慮されていない
-- D: セキュリティ上の懸念がある設定
+---
+
+## CC3: Dynamic Features — Arguments and Context
+
+Whether Claude Code-specific dynamic features are used effectively.
+
+**Argument Substitution:**
+
+- Usage of `$ARGUMENTS` (all arguments), `$0` (first argument), `$1` (second argument).
+- If `$ARGUMENTS` is not used in the body, it is automatically appended to the end.
+- Whether `argument-hint` is set.
+- Whether unnecessary `argument-hint` is set when arguments are not used.
+
+**Dynamic Context `!`command``:**
+
+- Is there information that should be obtained via shell command before loading the skill?
+  - Examples: `!`git branch --show-current``, `!`git log --oneline -5``
+- Whether unnecessarily heavy commands are included in the dynamic context.
+
+**Score Criteria:**
+
+- A: Dynamic features are used effectively.
+- B: Basic usage exists but room for improvement.
+- C: Not used in scenarios where they should be.
+- D: Used incorrectly.
+
+---
+
+## CC4: allowed-tools Design — Principle of Least Privilege
+
+Whether tool access is appropriately restricted.
+
+**Check Items:**
+
+- If omitted: Whether inheriting all tools is intentional.
+- If specified: Whether only the minimum necessary tools are listed.
+- If Bash is included: Whether there is a valid reason (script execution, etc.).
+- Unspecified for skills performing heavy processing: Risk of unintended tool usage.
+
+**Score Criteria:**
+
+- A: The principle of least privilege is followed.
+- B: Generally appropriate but includes excessive tools.
+- C: Restrictions are not considered.
+- D: Settings that pose security concerns.

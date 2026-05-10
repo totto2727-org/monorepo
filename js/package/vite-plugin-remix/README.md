@@ -1,26 +1,26 @@
 # vite-plugin-remix
 
-Remix v3 のクライアントバンドル + ハイドレーションを Vite で扱うための minimal プラグイン。
+A minimal plugin for handling Remix v3 client bundling + hydration with Vite.
 
-参考：任意のフレームワークにおけるSSRについては [`hono-remix-middleware`](../hono-remix-middleware/README.md) を参照。
+Reference: For SSR in arbitrary frameworks, see [`hono-remix-middleware`](../hono-remix-middleware/README.md).
 
-## 何をするか？
+## What it does?
 
-- Vite の `client` environment を登録し、クライアントエントリを 1 ファイルから build
-- 各 `*.client.tsx` を rollup に **個別 chunk** として吐かせる（Remix の asset server と同等の per-component lazy loading）
-- dev / prod でスクリプト URL を切替える `<Script>` コンポーネント
-- `import.meta.glob` の loader を `remix/ui#run` に渡すための `boot()` ヘルパ
+- Registers a Vite `client` environment and builds a client entry from a single file
+- Forces rollup to emit each `*.client.tsx` as an **individual chunk** (per-component lazy loading equivalent to Remix's asset server)
+- A `<Script>` component that switches the script URL between dev / prod
+- A `boot()` helper to pass `import.meta.glob` loaders into `remix/ui#run`
 
-## インストール
+## Installation
 
 ```sh
 pnpm add -D vite-plugin-remix
 # peer: vite, remix
 ```
 
-## クイックスタート
+## Quick Start
 
-以下で `app` と指定している箇所は `src` を含め任意のディレクトリで設定可能。
+The directory specified as `app` below can be set to any arbitrary directory including `src`.
 
 ### `vite.config.ts`
 
@@ -33,7 +33,7 @@ export default defineConfig({
 })
 ```
 
-### `app/assets/entry.ts`（クライアントエントリ）
+### `app/assets/entry.ts` (client entry)
 
 ```ts
 import { boot } from 'vite-plugin-remix/client'
@@ -43,18 +43,18 @@ boot({
 })
 ```
 
-### `<Script>` コンポーネント (SSR HTML 内に挿入)
+### `<Script>` component (inserted into SSR HTML)
 
-- プロジェクトによってURLが変わるため、明示的に設定する必要がある
-- `devSrc` = Vite dev server が `clientEntry` を解決する project-relative URL
-- `prodSrc` = ビルド済みエントリの公開 URL（プラグインの `entryFileNames` に対応）
+- Because the URL changes per project, it must be explicitly set
+- `devSrc` = project-relative URL where the Vite dev server resolves `clientEntry`
+- `prodSrc` = public URL of the built entry (corresponds to the plugin's `entryFileNames`)
 
-`<Script>` は `import.meta.env.DEV` で両者を切替:
+`<Script>` switches between the two via `import.meta.env.DEV`:
 
-| 環境                | 出力                                                                                     |
-| ------------------- | ---------------------------------------------------------------------------------------- |
-| dev (`vite dev`)    | `<script type="module" src={devSrc}></script>` — Vite dev server が source TS を変換配信 |
-| prod (`vite build`) | `<script type="module" src={prodSrc}></script>` — ビルド済み chunk を静的配信            |
+| Environment       | Output                                                                                    |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| dev (`vite dev`)    | `<script type="module" src={devSrc}></script>` — Vite dev server serves transformed source TS |
+| prod (`vite build`) | `<script type="module" src={prodSrc}></script>` — Static distribution of the built chunk  |
 
 ```tsx
 import { Script } from 'vite-plugin-remix/client'
@@ -72,36 +72,36 @@ export function Document() {
 }
 ```
 
-## オプション
+## Options
 
 ```ts
 remix({
-  clientEntry: 'app/assets/entry.ts', // クライアントエントリの相対パス
-  clientOutDir: 'dist/client', // build 出力先
-  entryFileNames: 'assets/entry.js', // エントリ chunk のファイル名 (no hash by default)
+  clientEntry: 'app/assets/entry.ts', // relative path to the client entry
+  clientOutDir: 'dist/client', // build output directory
+  entryFileNames: 'assets/entry.js', // entry chunk filename (no hash by default)
 })
 ```
 
-| オプション       | デフォルト        | 用途                                                                                                                                                                                                                     |
-| ---------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `clientEntry`    | **必須**          | rollup の input。`boot()` を呼ぶファイル。                                                                                                                                                                               |
-| `clientOutDir`   | `dist/client`     | client environment の build 出力先。静的ホスト（`serveStatic` 等）の root に向ける場所。                                                                                                                                 |
-| `entryFileNames` | `assets/entry.js` | メインエントリの出力ファイル名。デフォルトはハッシュなし固定で、SSR HTML から manifest なしで参照可能。cache busting したい場合は `assets/entry.[hash].js` 等に変更し、Vite manifest を SSR から読む経路を別途用意する。 |
+| Option            | Default           | Purpose                                                                                                                                                                                                                    |
+| ----------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `clientEntry`     | **Required**      | rollup input. The file that calls `boot()`.                                                                                                                                                                                |
+| `clientOutDir`    | `dist/client`     | Build output destination for the client environment. The directory to point a static host (e.g. `serveStatic`) to.                                                                                                         |
+| `entryFileNames`  | `assets/entry.js` | Output filename for the main entry. Default is a fixed name without a hash, so it can be referenced from SSR HTML without a manifest. For cache busting, change to `assets/entry.[hash].js` etc. and separately set up a route to read the Vite manifest from SSR. |
 
-`chunkFileNames` / `assetFileNames` はハッシュ付きで固定（component chunk 等）。
+`chunkFileNames` / `assetFileNames` are fixed with hashes (for component chunks, etc.).
 
-## ビルド出力
+## Build Output
 
 ```text
 dist/client/
-├── .vite/manifest.json                 # cache busting / 動的解決用 (consumer は任意で参照)
+├── .vite/manifest.json                 # For cache busting / dynamic resolution (consumers may optionally reference)
 ├── assets/
-│   ├── entry.js                        # メインエントリ (固定名)
-│   ├── counter.client-XXX.js           # *.client.tsx ごとに 1 chunk
+│   ├── entry.js                        # main entry (fixed name)
+│   ├── counter.client-XXX.js           # one chunk per *.client.tsx
 │   ├── todo.client-XXX.js
-│   └── css-mixin-XXX.js                # 共通 chunk
+│   └── css-mixin-XXX.js                # shared chunk
 ```
 
-## ライセンス
+## License
 
 MIT

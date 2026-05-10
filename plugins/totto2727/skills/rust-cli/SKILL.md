@@ -13,112 +13,112 @@ metadata:
   version: 1.0.0
 ---
 
-# Rust CLI — 非同期 Rust CLI 技術選定マップ
+# Rust CLI — Async Rust CLI Technology Selection Map
 
-ユースケースカテゴリ: **Workflow Automation**
-設計パターン: **Context-aware Selection**（要件に応じてレイヤを動的に選択）
+Use Case Category: **Workflow Automation**
+Design Pattern: **Context-aware Selection** (dynamically select layers based on requirements)
 
-非同期 Rust で CLI を新規実装する／Effect ベースの既存 CLI を移植する際の、
-クレート選定と最小構成セットを提示する。判断の前提は **tokio + clap + reqwest + serde** の標準スタック。
+Provides crate selection and minimal configuration sets for implementing new async Rust CLIs / porting existing Effect-based CLIs.
+The baseline assumption is the **tokio + clap + reqwest + serde** standard stack.
 
-## スキル発火時の出力
+## Output on Skill Trigger
 
-ユーザーの要件を聞き取った上で、以下のいずれか or 組み合わせを返す:
+After hearing the user's requirements, return one or a combination of the following:
 
-1. **「レイヤ別早見表」と「UI レイヤ選択 (軽量 CLI / 高度な宣言的 UI の二択)」の表を提示**（迷っている場合の最初のレスポンス）
-2. **`references/libraries.md` の該当カテゴリを引用**（特定機能のクレート比較を求められた場合）
-3. **`templates/` のスターターを案内**（プロジェクト雛形が欲しい場合）
-4. **JS/Effect ↔ Rust の置換早見**（移植作業の場合、`references/libraries.md` 末尾参照）
+1. **Show the "Layer Quick Reference" table and the "UI Layer Selection (Lightweight CLI / Advanced Declarative UI)" table** (first response when the user is unsure)
+2. **Quote the relevant category from `references/libraries.md`** (when asked for crate comparison for a specific feature)
+3. **Guide to `templates/` starters** (when a project scaffold is desired)
+4. **JS/Effect ↔ Rust replacement quick reference** (for porting work, see end of `references/libraries.md`)
 
-新規 Rust 質問でも CLI に関係しない場合は **発火しない**。
+**Do not trigger** for new Rust questions unrelated to CLI.
 
-## 基本方針
+## Basic Policy
 
-- **非同期前提**: `tokio` をデフォルトランタイムにする。同期処理だけで足りるなら blocking 版を選ぶ
-- **エラー戦略**: ライブラリ層 / アプリ層ともに `thiserror` + `miette` の単一スタックで設計する。各エラー型に `#[derive(thiserror::Error, miette::Diagnostic)]` を併用し、`#[diagnostic(code(...), help(...))]` でリッチな診断レポートを付与する。アプリ層は `miette::Result<T>` を返し、外部クレートの `Result` は `.into_diagnostic()` で取り込み、`.wrap_err(...)` で意味的 context を積む
-- **HTTP**: `reqwest::Client` をプロセス全体で `Arc` 共有してコネクションを再利用する
-- **CLI フラグ**: `clap` derive。`#[arg(env = "...")]` で env フォールバックを宣言的に表現する
-- **UI レイヤ選定 (二択)**:
-  - **軽量 CLI** (入力受付 + ログ出力 + 進捗表示が中心): `clap` + `tracing` + `inquire` + `indicatif` + `owo-colors` の単体機能クレートを組み合わせる。出力責務は明確に分ける — 構造化ログは `tracing`、単純 stdout は標準機能 (`println!` / `eprintln!`)、色付けは `owo-colors`。これで足りるなら `tui-realm` を持ち込まない (過剰)
-  - **高度な宣言的 UI** (複数画面・大規模状態・ダッシュボード等): `tui-realm` (Elm Architecture) に統一。下層描画ライブラリ (`ratatui`) は transitive dep として入るが、原則として `tui-realm` の API のみで実装する
-  - **例外 (部分採用)**: 軽量 CLI モードのまま、最終アウトプットだけが複雑 (表 / 多列リスト / 構造化ビュー) な場合は、その出力箇所のみ `tui-realm` を呼び出す部分採用を許容する。UI 全体の切り替えは不要
-- **コードは決定的、言語の解釈は非決定的** — バリデーション・スキーマ検査は serde/garde に任せる
+- **Async-first**: `tokio` is the default runtime. If synchronous processing suffices, choose the blocking variant
+- **Error strategy**: Design with a single `thiserror` + `miette` stack for both library and application layers. Combine `#[derive(thiserror::Error, miette::Diagnostic)]` on each error type, and attach rich diagnostic reports with `#[diagnostic(code(...), help(...))]`. The application layer returns `miette::Result<T>`, external crate `Result`s are converted via `.into_diagnostic()`, and semantic context is accumulated with `.wrap_err(...)`
+- **HTTP**: Share `reqwest::Client` as `Arc` across the process for connection reuse
+- **CLI flags**: `clap` derive. Use `#[arg(env = "...")]` to declaratively express env fallback
+- **UI Layer Selection (two choices)**:
+  - **Lightweight CLI** (input + logging + progress display): Combine standalone feature crates: `clap` + `tracing` + `inquire` + `indicatif` + `owo-colors`. Clearly separate output responsibilities — structured logging via `tracing`, simple stdout via standard features (`println!` / `eprintln!`), coloring via `owo-colors`. Do not bring in `tui-realm` if this suffices (overkill)
+  - **Advanced Declarative UI** (multi-screen, large state, dashboards, etc.): Standardize on `tui-realm` (Elm Architecture). The underlying drawing library (`ratatui`) comes in as a transitive dependency, but implement using only `tui-realm`'s API in principle
+  - **Exception (partial adoption)**: If remaining in lightweight CLI mode but only the final output is complex (tables / multi-column lists / structured views), allow partial adoption by calling `tui-realm` only for that output. No need to switch the entire UI
+- **Code is deterministic, language interpretation is non-deterministic** — delegate validation and schema checks to serde/garde
 
-## レイヤ別早見表（必須カテゴリのみ）
+## Layer Quick Reference (Required Categories Only)
 
-| カテゴリ     | 推奨クレート                     | 補足                                                                                |
-| ------------ | -------------------------------- | ----------------------------------------------------------------------------------- |
-| ランタイム   | `tokio` (`full`)                 | `#[tokio::main]`                                                                    |
-| 引数解析     | `clap` (`derive`)                | env フォールバック・サブコマンドを宣言的に                                          |
-| HTTP         | `reqwest` (`json`, `rustls-tls`) | `Arc<Client>` を共有                                                                |
-| シリアライズ | `serde` + `serde_json`           | derive                                                                              |
-| スキーマ検証 | `garde` (任意)                   | serde で型一致は保証、値域は garde                                                  |
-| エラー型     | `thiserror` + `miette`           | `#[derive(thiserror::Error, miette::Diagnostic)]` を併用                            |
-| エラー集約   | `miette` (`Result` / `Report`)   | アプリ層は `miette::Result<T>`、外部 `Result` は `.into_diagnostic().wrap_err(...)` |
-| ファイル I/O | `tokio::fs`                      | mkdir/read/write/symlink 等                                                         |
-| 子プロセス   | `tokio::process::Command`        | git CLI 駆動などはこれが最短                                                        |
-| 日付         | `jiff`                           | TZ-aware/DST 安全（chrono は legacy）                                               |
-| ログ         | `tracing` + `tracing-subscriber` | 単発 println で済むなら不要                                                         |
+| Category       | Recommended Crate                 | Notes                                                                               |
+| -------------- | --------------------------------- | ----------------------------------------------------------------------------------- |
+| Runtime        | `tokio` (`full`)                  | `#[tokio::main]`                                                                    |
+| Argument Parsing | `clap` (`derive`)                 | Declarative env fallback and subcommands                                            |
+| HTTP           | `reqwest` (`json`, `rustls-tls`)  | Share `Arc<Client>`                                                                 |
+| Serialization  | `serde` + `serde_json`            | derive                                                                              |
+| Schema Validation | `garde` (optional)             | serde guarantees type matching; garde handles value ranges                          |
+| Error Types    | `thiserror` + `miette`            | Combine `#[derive(thiserror::Error, miette::Diagnostic)]`                           |
+| Error Aggregation | `miette` (`Result` / `Report`) | Application layer: `miette::Result<T>`, external `Result`: `.into_diagnostic().wrap_err(...)` |
+| File I/O       | `tokio::fs`                       | mkdir/read/write/symlink, etc.                                                      |
+| Subprocess     | `tokio::process::Command`         | Shortest path for driving git CLI, etc.                                             |
+| Dates          | `jiff`                            | TZ-aware/DST safe (chrono is legacy)                                                |
+| Logging        | `tracing` + `tracing-subscriber`  | Not needed if occasional `println!` suffices                                        |
 
-詳細は [references/libraries.md](./references/libraries.md) — JS/Effect 側との **完全対応表**（FS/Path/並行/テスト/git/glob まで）。
+See [references/libraries.md](./references/libraries.md) for details — **complete correspondence table** with JS/Effect side (FS/Path/Concurrency/Testing/git/glob included).
 
-## UI レイヤ選択 (軽量 CLI / 高度な宣言的 UI の二択)
+## UI Layer Selection (Lightweight CLI / Advanced Declarative CLI)
 
-要件に応じて 2 レイヤから選ぶ。**入力 + ログ + 進捗で済むなら軽量 CLI で止める** (`tui-realm` は過剰)。
+Choose from 2 layers based on requirements. **If input + logging + progress suffice, stop at lightweight CLI** (`tui-realm` is overkill).
 
-| レイヤ          | 用途                                                    | 推奨スタック                                                                                                                                                                                                          |
-| --------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 軽量 CLI        | 引数解析・単発プロンプト・進捗バー / スピナー・ログ出力 | `clap` + `tracing` + `inquire` + `indicatif` + `owo-colors` を**単体機能クレートとして組み合わせる** (フレームワーク化しない)。出力責務は **ログ=`tracing` / stdout=標準機能 / 色付け=`owo-colors`** で明確に分担する |
-| 高度な宣言的 UI | フル画面ダッシュボード・複数画面遷移・大規模状態管理    | `tui-realm` (Elm Architecture)                                                                                                                                                                                        |
+| Layer                   | Use Case                                                      | Recommended Stack                                                                                                                                                                                                                        |
+| ----------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lightweight CLI         | Argument parsing, one-off prompts, progress bars / spinners, log output | Combine `clap` + `tracing` + `inquire` + `indicatif` + `owo-colors` as **standalone feature crates** (no framework). Clearly divide output responsibilities: **log=`tracing` / stdout=standard features / coloring=`owo-colors`** |
+| Advanced Declarative UI | Full-screen dashboards, multi-screen transitions, large state management | `tui-realm` (Elm Architecture)                                                                                                                                                                                                           |
 
-軽量 CLI 側は責務ごとに独立した薄いクレートを直接呼ぶ設計。`tui-realm` を持ち込むのは UI 自体が状態機械として複雑になるケースに限定する。
+The lightweight CLI side directly calls thin, independent crates per responsibility. Only bring in `tui-realm` when the UI itself becomes complex enough to warrant a state machine.
 
-詳細・コード例は [references/tui.md](./references/tui.md)。
+For details and code examples, see [references/tui.md](./references/tui.md).
 
-## スターター・テンプレート
+## Starter Templates
 
-プロジェクトはテンプレートから開始する:
+Start projects from templates:
 
-- [templates/Cargo.toml](./templates/Cargo.toml) — `references/libraries.md` に登場する **全推奨クレートを含む包括的依存セット (kitchen-sink 方式)**。プロジェクト初期に**不要なクレートを削除して使う**運用とする。理由: 「途中で必要になって追加し忘れる」より「最初から全部入りで不要分を削る」方が選択肢を見落とさない
-- [templates/main.rs](./templates/main.rs) — `clap` + `tokio` + `reqwest` + `thiserror` + `miette` の最小起動例 (Cargo.toml に並ぶ他クレートの利用例ではない、エントリポイントの骨格のみ)
+- [templates/Cargo.toml](./templates/Cargo.toml) — **Comprehensive dependency set (kitchen-sink approach)** containing all recommended crates from `references/libraries.md`. Operate by **removing unnecessary crates** early in the project. Rationale: removing unnecessary items from a full set is less risky than forgetting to add something later
+- [templates/main.rs](./templates/main.rs) — Minimal bootstrap example with `clap` + `tokio` + `reqwest` + `thiserror` + `miette` (only the entry-point skeleton, not an example of using every crate listed in Cargo.toml)
 
-## 選定の判断手順
+## Selection Decision Procedure
 
-1. **同期で済むか確認** — 並行 I/O が無いなら blocking 版（`reqwest::blocking`）で十分
-2. **UI レイヤを決める** — 軽量 CLI (clap + tracing + inquire + indicatif + owo-colors + 標準 `println!`) で足りるか、それとも高度な宣言的 UI (tui-realm) が要るか
-3. **エラー設計を決める** — ライブラリ・アプリ層共通で `thiserror` + `miette::Diagnostic` derive を使い、アプリ層は `miette::Result<T>` で `?` 伝播。外部クレートの `Result` は `.into_diagnostic().wrap_err(...)` で取り込む
-4. **既存 Effect/Node CLI 移植の場合** — まず引数解析の `Option<T>` フラグと env フォールバックを `clap` の derive で書き直すと、`auth.ts` 的な手書き分岐が消える
+1. **Check if synchronous suffices** — If no concurrent I/O, the blocking variant (`reqwest::blocking`) is sufficient
+2. **Decide the UI layer** — Does lightweight CLI (clap + tracing + inquire + indicatif + owo-colors + standard `println!`) suffice, or is advanced declarative UI (tui-realm) needed?
+3. **Decide error design** — Use `thiserror` + `miette::Diagnostic` derive for both library and application layers; the application layer returns `miette::Result<T>` and propagates with `?`. External crate `Result`s are converted with `.into_diagnostic().wrap_err(...)`
+4. **For existing Effect/Node CLI porting** — First rewrite `Option<T>` flags and env fallback using `clap` derive, which eliminates manual branching like `auth.ts`
 
-## トラブルシューティング
+## Troubleshooting
 
-### サブコマンドが多すぎて `clap` 定義が肥大化する
+### Too many subcommands bloating `clap` definitions
 
-derive の `#[derive(Subcommand)]` を enum で分割し、サブモジュールごとにファイル分け。
-構造は [templates/main.rs](./templates/main.rs) を起点に拡張する。
+Split with `#[derive(Subcommand)]` enum and organize into one file per submodule.
+Extend the structure starting from [templates/main.rs](./templates/main.rs).
 
-### `thiserror` + `miette` の役割分担
+### Role separation of `thiserror` + `miette`
 
-- **ライブラリ／サービス層**: `#[derive(thiserror::Error, miette::Diagnostic)]` を併用。`thiserror` は呼び出し側が `match` 可能な型付き enum を提供し、`miette` は `#[diagnostic(code(...), help(...))]` で診断メタデータを付与する
-- **アプリ層 / `main`**: `miette::Result<()>` (= `Result<(), miette::Report>`) で集約。`?` で `miette::Diagnostic` 実装型を直接吸い上げる
-- **外部クレートの `Result`**: `.into_diagnostic()` (`miette::IntoDiagnostic`) で `Report` 化してから `?` 伝播
-- **意味的 context**: ドメイン情報 (リクエスト ID・対象パス等) は `.wrap_err(...)` / `.wrap_err_with(\|\| format!("..."))` (`miette::WrapErr`) で積む
-- **ソース位置 / バックトレース**: `RUST_BACKTRACE=1` で `miette::Report` がバックトレースを表示。`?` 単位の自動位置注入はしない (関数単位の `wrap_err` で意味的に追跡する方針)
-- **エンドユーザー向け表示**: `main` 起動時に `miette::set_panic_hook()` を呼ぶか、`Cargo.toml` で `miette = { version = "...", features = ["fancy"] }` を有効化することでカラー付きの診断レポートが出力される
+- **Library / Service layer**: Combine `#[derive(thiserror::Error, miette::Diagnostic)]`. `thiserror` provides a typed enum the caller can `match` on; `miette` attaches diagnostic metadata with `#[diagnostic(code(...), help(...))]`
+- **Application layer / `main`**: Aggregate via `miette::Result<()>` (= `Result<(), miette::Report>`). `?` directly lifts types implementing `miette::Diagnostic`
+- **External crate `Result`**: Convert to `Report` via `.into_diagnostic()` (`miette::IntoDiagnostic`), then propagate with `?`
+- **Semantic context**: Attach domain information (request ID, target path, etc.) via `.wrap_err(...)` / `.wrap_err_with(|| format!("..."))` (`miette::WrapErr`)
+- **Source location / backtrace**: `RUST_BACKTRACE=1` causes `miette::Report` to display a backtrace. Do not auto-inject position per `?` (policy is to semantically trace via function-level `wrap_err`)
+- **End-user display**: Call `miette::set_panic_hook()` at `main` startup or enable `miette = { version = "...", features = ["fancy"] }` in `Cargo.toml` to output colorized diagnostic reports
 
-## 発火例
+## Trigger Examples
 
-### Should trigger（発火させたい）
+### Should trigger
 
-- 「Rust で非同期 CLI を作りたい。clap と tokio と reqwest の組み合わせで雛形が欲しい」
-- 「Effect で書いた CLI を Rust に移植したい。Schema の置き換えはどうすれば？」
-- 「Rust CLI でスピナー / 進捗バーを出したい。indicatif の使い方を教えて」
-- 「Rust CLI でフル画面ダッシュボードを書きたい。tui-realm の構成は？」
-- 「Rust CLI のエラー設計を miette + thiserror で組みたい」
+- "I want to build an async CLI in Rust. I'd like a scaffold with clap, tokio, and reqwest."
+- "I want to port an Effect-based CLI to Rust. How do I replace Schema?"
+- "I want to show spinners / progress bars in a Rust CLI. Teach me how to use indicatif."
+- "I want to write a full-screen dashboard in a Rust CLI. What is the tui-realm setup?"
+- "I want to design error handling in a Rust CLI with miette + thiserror."
 
-### Should NOT trigger（発火させない）
+### Should NOT trigger
 
-- 「Rust の所有権について教えて」 → CLI 文脈ではない
-- 「Rust の actix-web で API サーバーを作りたい」 → サーバー実装、CLI ではない
-- 「この Rust コードのレビューをお願い」 → `code-reviewer` の責務
-- 「Deno で CLI を作りたい」 → `deno-cli-tool` の責務
-- 「同期処理だけで済む短い Rust スクリプトを書きたい」 → 非同期 CLI スコープ外（ネガティブトリガーで明示）
+- "Teach me about Rust ownership." → Not a CLI context
+- "I want to build an API server with Rust actix-web." → Server implementation, not CLI
+- "Please review this Rust code." → `code-reviewer` responsibility
+- "I want to build a CLI in Deno." → `deno-cli-tool` responsibility
+- "I want to write a short Rust script that only needs synchronous processing." → Outside async CLI scope (explicit negative trigger)

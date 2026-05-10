@@ -1,107 +1,107 @@
-# Rust CLI Libraries — JS/Effect ↔ Rust 完全対応表
+# Rust CLI Libraries — JS/Effect ↔ Rust Complete Mapping Table
 
-非同期 Rust で CLI を実装する際の、機能カテゴリごとの推奨クレート。
-JS / Effect 側の対応物を併記し、移植の見通しを立てやすくする。
+Recommended crates by feature category when implementing a CLI in asynchronous Rust.
+Corresponding JS/Effect items are listed side by side to clarify the migration path.
 
-## 表の見方
+## How to read the table
 
-- **推奨**: 採用するクレート (本スキルでは候補を絞り、代替は記載しない)
-- 非同期前提（tokio）。同期版が必要な場合は各クレートの blocking feature を参照
+- **Recommended**: The crate to adopt (this skill narrows down candidates; no alternatives are listed)
+- Assumes asynchronous (tokio). For synchronous versions, refer to each crate's blocking feature
 
-## コア（必須カテゴリ）
+## Core (required categories)
 
-| 機能                   | 用途                           | JS / Effect 側                                            | Rust 推奨                                                                          |
-| ---------------------- | ------------------------------ | --------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| ランタイム             | task / 並行 I/O                | `@effect/platform-node` `NodeRuntime` + `Effect.gen`      | `tokio` (`full` features)                                                          |
-| 引数解析               | サブコマンド・フラグ・ヘルプ   | `effect/unstable/cli` (`Command`/`Flag`)                  | `clap` (`derive`)                                                                  |
-| HTTP クライアント      | REST API（JSON/binary/header） | `effect/unstable/http` (`HttpClient` + `FetchHttpClient`) | `reqwest` (`json` + `rustls-tls`)                                                  |
-| JSON                   | parse / stringify              | `JSON.*`                                                  | `serde` + `serde_json`                                                             |
-| スキーマ検証           | 不明値→型検査                  | `effect` `Schema.decodeUnknownEffect`                     | `serde` derive（型一致） + `garde`（値域）                                         |
-| エラー型定義           | タグ付きエラー                 | `Data.TaggedError`                                        | `thiserror` + `miette` (`Diagnostic` derive 併用)                                  |
-| エラー集約（アプリ層） | `?` 伝播 + context             | `Effect` の chain                                         | `miette::Result<T>` (= `Result<T, miette::Report>`) + `IntoDiagnostic` / `WrapErr` |
-| エラー診断レポート     | help / labels / source-spans   | （手書きフォーマット）                                    | `miette` (`#[diagnostic(code, help, ...)]` + `fancy` feature)                      |
-| Option / Result        | nullable / 失敗                | `Option`, `Effect`                                        | 標準 `Option<T>` / `Result<T, E>`                                                  |
+| Feature                          | Use case                        | JS / Effect side                                            | Rust (recommended)                                                              |
+| -------------------------------- | ------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Runtime                          | task / concurrent I/O           | `@effect/platform-node` `NodeRuntime` + `Effect.gen`        | `tokio` (`full` features)                                                       |
+| Argument parsing                 | subcommands / flags / help      | `effect/unstable/cli` (`Command`/`Flag`)                    | `clap` (`derive`)                                                               |
+| HTTP client                      | REST API (JSON/binary/header)   | `effect/unstable/http` (`HttpClient` + `FetchHttpClient`)   | `reqwest` (`json` + `rustls-tls`)                                               |
+| JSON                             | parse / stringify               | `JSON.*`                                                    | `serde` + `serde_json`                                                          |
+| Schema validation                | unknown value → type check      | `effect` `Schema.decodeUnknownEffect`                       | `serde` derive (type match) + `garde` (value range)                             |
+| Error type definition            | tagged errors                   | `Data.TaggedError`                                          | `thiserror` + `miette` (`Diagnostic` derive combined)                           |
+| Error aggregation (app layer)    | `?` propagation + context       | `Effect` chain                                              | `miette::Result<T>` (= `Result<T, miette::Report>`) + `IntoDiagnostic` / `WrapErr` |
+| Error diagnostic report          | help / labels / source-spans    | (hand-written format)                                       | `miette` (`#[diagnostic(code, help, ...)]` + `fancy` feature)                   |
+| Option / Result                  | nullable / failure              | `Option`, `Effect`                                          | Standard `Option<T>` / `Result<T, E>`                                           |
 
-## I/O・OS
+## I/O / OS
 
-| 機能           | 用途                             | JS / Effect 側                                | Rust 推奨                                 | 補足                                                                                                                                  |
-| -------------- | -------------------------------- | --------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| 非同期ファイル | read/write/mkdir/rm              | `node:fs/promises`                            | `tokio::fs`                               | —                                                                                                                                     |
-| パス           | join / relative / dirname        | `node:path`                                   | `camino` (`Utf8Path` / `Utf8PathBuf`)     | `std::path::Path` の UTF-8 限定ラッパー。`.as_str()` が Option を返さない / serde が plain string で安定 / HashMap キーで JSON 出力可 |
-| Symlink        | 作成 / 判定                      | `Fs.symlink`, `lstat().isSymbolicLink()`      | `tokio::fs::symlink` + `symlink_metadata` | Windows は `std::os::windows::fs::symlink_dir/file` を使い分ける必要あり                                                              |
-| 子プロセス     | `git` などの外部コマンド呼び出し | Node `child_process` の execFile（promisify） | `tokio::process::Command`                 | sync 処理は `tokio::task::spawn_blocking` 経由で逃がす                                                                                |
-| 環境変数       | API トークン取得                 | `process.env`                                 | 標準 `std::env::var`                      | —                                                                                                                                     |
-| 一時ファイル   | テスト fixture                   | （手書き）                                    | `camino-tempfile`                         | `tempfile` の UTF-8 ラッパー (`NamedUtf8TempFile` / `Utf8TempDir`)、RAII で自動削除                                                   |
-| ファイル排他   | lock-file 同時書き込み防止       | （手書き）                                    | `fd-lock`                                 | —                                                                                                                                     |
+| Feature              | Use case                            | JS / Effect side                               | Rust (recommended)                          | Notes                                                                                                                                 |
+| -------------------- | ----------------------------------- | ---------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Async file           | read/write/mkdir/rm                 | `node:fs/promises`                             | `tokio::fs`                                 | —                                                                                                                                     |
+| Path                 | join / relative / dirname           | `node:path`                                    | `camino` (`Utf8Path` / `Utf8PathBuf`)       | UTF-8-only wrapper for `std::path::Path`. `.as_str()` never returns `Option` / serde serializes stably as plain string / works as HashMap keys for JSON output |
+| Symlink              | create / detect                     | `Fs.symlink`, `lstat().isSymbolicLink()`       | `tokio::fs::symlink` + `symlink_metadata`   | On Windows you must choose `std::os::windows::fs::symlink_dir/file`                                                                   |
+| Child process        | call external commands like `git`   | Node `child_process` execFile (promisified)    | `tokio::process::Command`                   | Offload sync work via `tokio::task::spawn_blocking`                                                                                   |
+| Environment variable | get API token                       | `process.env`                                  | Standard `std::env::var`                     | —                                                                                                                                     |
+| Temp file            | test fixture                        | (hand-written)                                 | `camino-tempfile`                            | UTF-8 wrapper for `tempfile` (`NamedUtf8TempFile` / `Utf8TempDir`), auto-cleanup via RAII                                            |
+| File lock            | prevent concurrent lock-file writes | (hand-written)                                 | `fd-lock`                                    | —                                                                                                                                     |
 
-## 並行・並列
+## Concurrency / Parallelism
 
-| 機能                 | 用途         | JS / Effect 側                             | Rust 推奨                               |
-| -------------------- | ------------ | ------------------------------------------ | --------------------------------------- |
-| unbounded concurrent | 並列 I/O     | `Effect.all({ concurrency: 'unbounded' })` | `futures::future::join_all`             |
-| 上限付き concurrent  | n 並列に制限 | `Effect.all({ concurrency: n })`           | `stream::iter(...).buffer_unordered(n)` |
-| panic 安全な spawn   | エラー分離   | —                                          | `tokio::task::JoinSet`                  |
+| Feature              | Use case             | JS / Effect side                              | Rust (recommended)                    |
+| -------------------- | -------------------- | --------------------------------------------- | ------------------------------------- |
+| Unbounded concurrent | parallel I/O         | `Effect.all({ concurrency: 'unbounded' })`    | `futures::future::join_all`           |
+| Bounded concurrent   | limit to n parallel  | `Effect.all({ concurrency: n })`              | `stream::iter(...).buffer_unordered(n)` |
+| Panic-safe spawn     | error isolation      | —                                             | `tokio::task::JoinSet`                |
 
-## データ・フォーマット
+## Data / Format
 
-| 機能                   | 用途                  | JS / Effect 側                      | Rust 推奨                |
-| ---------------------- | --------------------- | ----------------------------------- | ------------------------ |
-| YAML                   | frontmatter, config   | （現状未使用）                      | `serde_yml`              |
-| TOML                   | config                | （現状未使用）                      | `toml`                   |
-| 設定（複数ソース統合） | env + file + CLI 統合 | `JSON.parse(readFile)` + 自前マージ | `figment`                |
-| 日付・時刻             | TZ-aware datetime     | `Date`, `effect` DateTime           | `jiff`                   |
-| グロブ                 | パターンマッチ        | （手書き）                          | `globset`                |
-| ファイル走査           | gitignore 尊重再帰    | 手書き再帰 + `SKIP_DIRS`            | `ignore`（ripgrep 由来） |
-| 差分                   | dry-run プレビュー    | （手書き）                          | `similar`                |
+| Feature                  | Use case                  | JS / Effect side                     | Rust (recommended) |
+| ------------------------ | ------------------------- | ------------------------------------ | ------------------ |
+| YAML                     | frontmatter, config       | (not currently used)                 | `serde_yml`        |
+| TOML                     | config                    | (not currently used)                 | `toml`             |
+| Config (multi-source)    | env + file + CLI merge    | `JSON.parse(readFile)` + manual merge | `figment`          |
+| Date / time              | TZ-aware datetime         | `Date`, `effect` DateTime            | `jiff`             |
+| Glob                      | pattern matching          | (hand-written)                       | `globset`          |
+| File walk                | gitignore-respecting walk | manual recursion + `SKIP_DIRS`        | `ignore` (from ripgrep) |
+| Diff                     | dry-run preview           | (hand-written)                       | `similar`          |
 
-## 観測・出力
+## Observability / Output
 
-| 機能        | 用途         | JS / Effect 側 | Rust 推奨                        |
-| ----------- | ------------ | -------------- | -------------------------------- |
-| 構造化ログ  | 階層付きログ | `Effect.log`   | `tracing` + `tracing-subscriber` |
-| 単純 stdout | デバッグ出力 | `Console.log`  | 標準 `println!` / `eprintln!`    |
-| 色付け      | 装飾出力     | （現状なし）   | `owo-colors`                     |
+| Feature            | Use case             | JS / Effect side | Rust (recommended)                |
+| ------------------ | -------------------- | ---------------- | --------------------------------- |
+| Structured logging | hierarchical logging | `Effect.log`     | `tracing` + `tracing-subscriber`  |
+| Simple stdout      | debug output         | `Console.log`    | Standard `println!` / `eprintln!` |
+| Coloring           | styled output        | (none currently) | `owo-colors`                      |
 
-## UI レイヤ (軽量 CLI / 高度な宣言的 UI の二択)
+## UI Layer (lightweight CLI / advanced declarative UI — two options)
 
-[tui.md](./tui.md) も参照。
+See also [tui.md](./tui.md).
 
-| レイヤ                | 用途                                | 推奨        |
-| --------------------- | ----------------------------------- | ----------- |
-| 軽量 (プロンプト)     | select / input / confirm / password | `inquire`   |
-| 軽量 (進捗・スピナー) | プログレスバー / 待機表示           | `indicatif` |
-| 高度な宣言的 UI       | フル画面ダッシュボード / 多画面遷移 | `tui-realm` |
+| Layer                                | Use case                                     | Recommended |
+| ------------------------------------ | -------------------------------------------- | ----------- |
+| Lightweight (prompt)                 | select / input / confirm / password          | `inquire`   |
+| Lightweight (progress / spinner)     | progress bar / waiting indicator             | `indicatif` |
+| Advanced declarative UI              | fullscreen dashboard / multi-screen navigation | `tui-realm` |
 
-軽量 CLI 側は **`clap` + `tracing` + `inquire` + `indicatif` を単体機能クレートとして組み合わせる**。これで足りるなら `tui-realm` を持ち込まない (過剰)。
+The lightweight CLI side **combines `clap` + `tracing` + `inquire` + `indicatif` as independent utility crates**. If that suffices, do not bring in `tui-realm` (overkill).
 
-## バージョン管理 / Git
+## Version control / Git
 
-| 機能     | 用途                            | JS / Effect 側                   | Rust 推奨                                     |
-| -------- | ------------------------------- | -------------------------------- | --------------------------------------------- |
-| Git 操作 | clone / pull / fetch / checkout | Node の execFile で git CLI 駆動 | `tokio::process::Command` で git 駆動（最短） |
+| Feature        | Use case                              | JS / Effect side              | Rust (recommended)                            |
+| -------------- | ------------------------------------- | ----------------------------- | --------------------------------------------- |
+| Git operations | clone / pull / fetch / checkout       | Node execFile driving git CLI | `tokio::process::Command` driving git (shortest path) |
 
-## テスト
+## Testing
 
-| 機能        | 用途              | JS / Effect 側 | Rust 推奨                         |
-| ----------- | ----------------- | -------------- | --------------------------------- |
-| 単体テスト  | 通常テスト        | Vitest         | 標準 `#[test]` / `#[tokio::test]` |
-| 表示比較    | アサーション diff | Vitest         | `pretty_assertions`               |
-| Snapshot    | 構造化出力比較    | （未使用）     | `insta`                           |
-| HTTP モック | API モック        | （手書き）     | `mockito`                         |
-| 一時 dir    | fs テスト fixture | （手書き）     | `camino-tempfile`                 |
+| Feature            | Use case                   | JS / Effect side | Rust (recommended)                  |
+| ------------------ | -------------------------- | ---------------- | ----------------------------------- |
+| Unit test          | normal tests               | Vitest           | Standard `#[test]` / `#[tokio::test]` |
+| Display comparison | assertion diff             | Vitest           | `pretty_assertions`                 |
+| Snapshot           | structured output comparison | (not used)      | `insta`                             |
+| HTTP mock          | API mock                   | (hand-written)   | `mockito`                           |
+| Temp dir           | fs test fixture            | (hand-written)   | `camino-tempfile`                   |
 
-## 移植時の置換早見
+## Migration quick reference
 
-JS/Effect の典型イディオムから Rust の対応イディオムへ:
+From JS/Effect idioms to Rust idioms:
 
 | JS / Effect                                | Rust                                                                            |
 | ------------------------------------------ | ------------------------------------------------------------------------------- |
 | `Effect.gen(function*() { yield* x })`     | `async fn { x.await }`                                                          |
-| `Effect.tryPromise({ try, catch })`        | `?` 演算子 + `thiserror` の `#[from]` (外部クレート由来は `.into_diagnostic()`) |
+| `Effect.tryPromise({ try, catch })`        | `?` operator + `thiserror` `#[from]` (external crate errors → `.into_diagnostic()`) |
 | `Effect.all({ concurrency: 'unbounded' })` | `futures::future::join_all`                                                     |
 | `Option.isSome(x) ? x.value : default`     | `x.unwrap_or(default)`                                                          |
 | `Schema.decodeUnknownEffect(T)(input)`     | `serde_json::from_value::<T>(input)?`                                           |
 | `Data.TaggedError('Foo')<{...}>`           | `#[derive(thiserror::Error, miette::Diagnostic)] enum FooError { ... }`         |
-| `process.env.X ?? flag`                    | `clap` の `#[arg(env = "X")]`                                                   |
+| `process.env.X ?? flag`                    | `clap` `#[arg(env = "X")]`                                                      |
 | `Console.log(...)`                         | `println!("{...}", ...)`                                                        |
 | `Effect.log(...)`                          | `tracing::info!(...)`                                                           |
