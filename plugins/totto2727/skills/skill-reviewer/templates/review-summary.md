@@ -2,15 +2,15 @@
 
 ### General Evaluation (Applicable to Any Agent)
 
-| Category                  | Score | Summary |
-| ------------------------- | ----- | ------- |
-| G1: Frontmatter           | ?     | ...     |
-| G2: Description Quality   | ?     | ...     |
-| G3: Body Structure        | ?     | ...     |
-| G4: Progressive Disclosure| ?     | ...     |
-| G5: Use Cases & Patterns  | ?     | ...     |
-| G6: Testing Strategy      | ?     | ...     |
-| G7: Anti-Patterns         | ?     | ...     |
+| Category                   | Score | Summary |
+| -------------------------- | ----- | ------- |
+| G1: Frontmatter            | ?     | ...     |
+| G2: Description Quality    | ?     | ...     |
+| G3: Body Structure         | ?     | ...     |
+| G4: Progressive Disclosure | ?     | ...     |
+| G5: Use Cases & Patterns   | ?     | ...     |
+| G6: Testing Strategy       | ?     | ...     |
+| G7: Anti-Patterns          | ?     | ...     |
 
 ### Platform-Specific Evaluation (Displayed Only for Relevant Platform)
 

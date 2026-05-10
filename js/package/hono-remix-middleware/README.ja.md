@@ -35,10 +35,10 @@ app.get('/', (c) =>
 )
 ```
 
-| オプション           | 型                                            | 説明                                                                                                                                     |
-| -------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| オプション           | 型                                             | 説明                                                                                                                                                        |
+| -------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `fetcher`            | `typeof fetch`                                 | ネストされた SSR でフレームを再取得する際に呼ばれます（`remix/ui/server` の `resolveFrame`）。通常はクロージャとして `(req) => app.fetch(req)` を渡します。 |
-| `resolveClientEntry` | `(entryId, component) => { exportName, href }` | 省略可能。clientEntry ID から `moduleUrl`/`exportName` を計算するフック。デフォルトは `/assets/` プレフィックスを除去します。             |
+| `resolveClientEntry` | `(entryId, component) => { exportName, href }` | 省略可能。clientEntry ID から `moduleUrl`/`exportName` を計算するフック。デフォルトは `/assets/` プレフィックスを除去します。                               |
 
 シンプルな実装で、`c.render(content)` の `content` をそのまま `renderToStream` に渡します。Layout / Document の構成はハンドラーの責務です。
 
@@ -70,12 +70,12 @@ app.use('/assets/*', remixAssetServer(assetServer))
 
 ## アーキテクチャパターン
 
-|                      | Vite + Cloudflare         | Vite + Node/Bun/Deno   | Native (バンドラーなし)   |
-| -------------------- | ------------------------- | ---------------------- | --------------------- |
-| クライアントバンドル | `vite-plugin-remix`       | `vite-plugin-remix`    | なし — ランタイム上で直接実行 |
-| プロダクションのアセット配信 | wrangler `assets` バインディング | Hono `serveStatic`     | `remixAssetServer`    |
-| 開発時のアセット配信   | Vite 開発サーバー           | Vite 開発サーバー        | `remixAssetServer`    |
-| SSR 実行ターゲット           | Workers                   | `@hono/node-server` など | tsx / bun / deno    |
+|                              | Vite + Cloudflare                | Vite + Node/Bun/Deno     | Native (バンドラーなし)       |
+| ---------------------------- | -------------------------------- | ------------------------ | ----------------------------- |
+| クライアントバンドル         | `vite-plugin-remix`              | `vite-plugin-remix`      | なし — ランタイム上で直接実行 |
+| プロダクションのアセット配信 | wrangler `assets` バインディング | Hono `serveStatic`       | `remixAssetServer`            |
+| 開発時のアセット配信         | Vite 開発サーバー                | Vite 開発サーバー        | `remixAssetServer`            |
+| SSR 実行ターゲット           | Workers                          | `@hono/node-server` など | tsx / bun / deno              |
 
 [`vite-plugin-remix` README](../vite-plugin-remix/README.md)
 

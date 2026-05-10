@@ -38,11 +38,11 @@ atlas-kysely-gen -i schema.hcl --camel-case
 
 ### Flags
 
-| Flag               | Default  | Description                                                                                                                                                                                                                       |
-| ------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--input` / `-i`   | (required) | Path to the input schema.hcl                                                                                                                                                                                                      |
-| `--output` / `-o`  | stdout   | Path to the output `.ts` file                                                                                                                                                                                                     |
-| `--camel-case`     | `false`  | When `true`, converts column and table DB keys using Kysely's official `CamelCasePlugin` (default option = `upperCase=false`). When `false`, uses identity (no conversion). Behavior is 1:1 aligned with kysely-codegen's `--camel-case` flag. |
+| Flag              | Default    | Description                                                                                                                                                                                                                                    |
+| ----------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--input` / `-i`  | (required) | Path to the input schema.hcl                                                                                                                                                                                                                   |
+| `--output` / `-o` | stdout     | Path to the output `.ts` file                                                                                                                                                                                                                  |
+| `--camel-case`    | `false`    | When `true`, converts column and table DB keys using Kysely's official `CamelCasePlugin` (default option = `upperCase=false`). When `false`, uses identity (no conversion). Behavior is 1:1 aligned with kysely-codegen's `--camel-case` flag. |
 
 ## Integration into TS projects
 
@@ -109,18 +109,18 @@ export interface DB {
 
 ## Type mapping
 
-| Atlas / SQLite type              | TypeScript type |
-| -------------------------------- | --------------- |
-| `int`, `integer`, `*INT*`        | `number`        |
-| `text`, `*CHAR*`, `*CLOB*`       | `string`        |
-| `real`, `*FLOAT*`, `*DOUBLE*`    | `number`        |
-| `numeric`, `decimal`             | `number`        |
-| `boolean`, `bool`                | `boolean`       |
-| `blob`                           | `Uint8Array`    |
-| `date`, `datetime`, `timestamp`  | `string`        |
-| `json`, `jsonb`                  | `string`        |
-| `enum("a","b")`                  | `"a" \| "b"`    |
-| `null = true`                    | `T \| null`     |
+| Atlas / SQLite type             | TypeScript type |
+| ------------------------------- | --------------- |
+| `int`, `integer`, `*INT*`       | `number`        |
+| `text`, `*CHAR*`, `*CLOB*`      | `string`        |
+| `real`, `*FLOAT*`, `*DOUBLE*`   | `number`        |
+| `numeric`, `decimal`            | `number`        |
+| `boolean`, `bool`               | `boolean`       |
+| `blob`                          | `Uint8Array`    |
+| `date`, `datetime`, `timestamp` | `string`        |
+| `json`, `jsonb`                 | `string`        |
+| `enum("a","b")`                 | `"a" \| "b"`    |
+| `null = true`                   | `T \| null`     |
 
 ## Development
 

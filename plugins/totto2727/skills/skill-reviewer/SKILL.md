@@ -92,15 +92,15 @@ Description is the sole material for skill trigger decisions. Quality directly i
 
 **7-Item Checklist:**
 
-| #   | Check                                               | Evaluation Point                                                                   |
-| --- | --------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| 1   | What: Is it clearly stated what it does?            | Concrete action verbs ("extract, transform, validate") rather than vague verbs ("manage") |
-| 2   | When: Is it clearly stated when to use it?          | Description of use cases or context                                                |
-| 3   | Does it contain trigger phrases?                    | Phrases the user would actually say                                                |
-| 4   | Are the action verbs concrete?                      | "process" → "analyze and convert to CSV"                                          |
-| 5   | Is the length appropriate? (within 1024 chars, not too short) | 2-3 sentences covering overview + trigger + exclusion is ideal                     |
-| 6   | Is it differentiated from existing skills?          | No overlap in coverage with other skills                                           |
-| 7   | Is there a negative trigger?                        | "Do NOT use for: ..." to prevent false triggering                                  |
+| #   | Check                                                         | Evaluation Point                                                                          |
+| --- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| 1   | What: Is it clearly stated what it does?                      | Concrete action verbs ("extract, transform, validate") rather than vague verbs ("manage") |
+| 2   | When: Is it clearly stated when to use it?                    | Description of use cases or context                                                       |
+| 3   | Does it contain trigger phrases?                              | Phrases the user would actually say                                                       |
+| 4   | Are the action verbs concrete?                                | "process" → "analyze and convert to CSV"                                                  |
+| 5   | Is the length appropriate? (within 1024 chars, not too short) | 2-3 sentences covering overview + trigger + exclusion is ideal                            |
+| 6   | Is it differentiated from existing skills?                    | No overlap in coverage with other skills                                                  |
+| 7   | Is there a negative trigger?                                  | "Do NOT use for: ..." to prevent false triggering                                         |
 
 **Additional Checks:**
 
@@ -150,11 +150,11 @@ A model that understands the reasoning can make better judgments even in edge ca
 
 Is the 3-layer structure properly utilized?
 
-| Layer | Content                   | Ideal State                               |
-| ----- | ------------------------- | ----------------------------------------- |
-| L1    | YAML frontmatter          | Sufficient info for triggering (~100 words) |
-| L2    | SKILL.md body             | Core instructions only (ideally under 500 lines) |
-| L3    | references/, scripts/     | Detailed information, large references    |
+| Layer | Content               | Ideal State                                      |
+| ----- | --------------------- | ------------------------------------------------ |
+| L1    | YAML frontmatter      | Sufficient info for triggering (~100 words)      |
+| L2    | SKILL.md body         | Core instructions only (ideally under 500 lines) |
+| L3    | references/, scripts/ | Detailed information, large references           |
 
 **Check Items:**
 
@@ -244,22 +244,22 @@ Is the testing perspective included in the design?
 
 Detect whether any of the following known anti-patterns apply.
 
-| NG Pattern                                      | Reason                                                                                |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------- |
-| SKILL.md over 5,000 words                       | Increased loading cost, degraded response quality                                     |
-| Vague description                               | No triggering or false triggering                                                     |
-| Description over 1024 characters                | Exceeds frontmatter limit                                                             |
-| `< >` in description                            | Security violation                                                                    |
-| No negative trigger                             | False triggering risk between similar skills                                          |
-| README.md exists in the skill folder            | Specification violation                                                               |
-| Vague instructions (e.g., "process appropriately") | Model cannot follow correctly                                                         |
-| Excessive use of MUST or NEVER                  | Should be replaced by Why explanation                                                 |
-| Validation relying solely on language instructions | Should be scriptified                                                                |
-| Copying reference file content directly into SKILL.md | Progressive disclosure violation                                                      |
-| Over 50 simultaneously active skills            | Context pressure, degraded response quality                                           |
-| Contains malware or exploit code                | Violation of Principle of Lack of Surprise. Skills must not act against user expectations |
-| Instructions promoting unauthorized access or data exfiltration | Security/safety violation                                              |
-| Instructions that act contrary to user intent   | Trust erosion. Skill behavior should be predictable from its description              |
+| NG Pattern                                                      | Reason                                                                                    |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| SKILL.md over 5,000 words                                       | Increased loading cost, degraded response quality                                         |
+| Vague description                                               | No triggering or false triggering                                                         |
+| Description over 1024 characters                                | Exceeds frontmatter limit                                                                 |
+| `< >` in description                                            | Security violation                                                                        |
+| No negative trigger                                             | False triggering risk between similar skills                                              |
+| README.md exists in the skill folder                            | Specification violation                                                                   |
+| Vague instructions (e.g., "process appropriately")              | Model cannot follow correctly                                                             |
+| Excessive use of MUST or NEVER                                  | Should be replaced by Why explanation                                                     |
+| Validation relying solely on language instructions              | Should be scriptified                                                                     |
+| Copying reference file content directly into SKILL.md           | Progressive disclosure violation                                                          |
+| Over 50 simultaneously active skills                            | Context pressure, degraded response quality                                               |
+| Contains malware or exploit code                                | Violation of Principle of Lack of Surprise. Skills must not act against user expectations |
+| Instructions promoting unauthorized access or data exfiltration | Security/safety violation                                                                 |
+| Instructions that act contrary to user intent                   | Trust erosion. Skill behavior should be predictable from its description                  |
 
 **Score Criteria:**
 
@@ -274,9 +274,9 @@ Detect whether any of the following known anti-patterns apply.
 
 Depending on the Platform where the target skill is used, load the relevant reference file and perform additional evaluation.
 
-| Platform    | Reference File               | Evaluation Categories                                                    |
-| ----------- | ----------------------------- | ------------------------------------------------------------------------ |
-| Claude Code | `references/claude-code.md`  | CC1-CC4 (dedicated frontmatter, execution patterns, dynamic features, allowed-tools design) |
+| Platform    | Reference File              | Evaluation Categories                                                                       |
+| ----------- | --------------------------- | ------------------------------------------------------------------------------------------- |
+| Claude Code | `references/claude-code.md` | CC1-CC4 (dedicated frontmatter, execution patterns, dynamic features, allowed-tools design) |
 
 **Always confirm the target Platform with the user.** Do not guess.
 For skills supporting multiple platforms, load all relevant references and evaluate.

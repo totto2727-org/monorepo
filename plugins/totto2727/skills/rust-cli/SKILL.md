@@ -46,19 +46,19 @@ After hearing the user's requirements, return one or a combination of the follow
 
 ## Layer Quick Reference (Required Categories Only)
 
-| Category       | Recommended Crate                 | Notes                                                                               |
-| -------------- | --------------------------------- | ----------------------------------------------------------------------------------- |
-| Runtime        | `tokio` (`full`)                  | `#[tokio::main]`                                                                    |
-| Argument Parsing | `clap` (`derive`)                 | Declarative env fallback and subcommands                                            |
-| HTTP           | `reqwest` (`json`, `rustls-tls`)  | Share `Arc<Client>`                                                                 |
-| Serialization  | `serde` + `serde_json`            | derive                                                                              |
-| Schema Validation | `garde` (optional)             | serde guarantees type matching; garde handles value ranges                          |
-| Error Types    | `thiserror` + `miette`            | Combine `#[derive(thiserror::Error, miette::Diagnostic)]`                           |
-| Error Aggregation | `miette` (`Result` / `Report`) | Application layer: `miette::Result<T>`, external `Result`: `.into_diagnostic().wrap_err(...)` |
-| File I/O       | `tokio::fs`                       | mkdir/read/write/symlink, etc.                                                      |
-| Subprocess     | `tokio::process::Command`         | Shortest path for driving git CLI, etc.                                             |
-| Dates          | `jiff`                            | TZ-aware/DST safe (chrono is legacy)                                                |
-| Logging        | `tracing` + `tracing-subscriber`  | Not needed if occasional `println!` suffices                                        |
+| Category          | Recommended Crate                | Notes                                                                                         |
+| ----------------- | -------------------------------- | --------------------------------------------------------------------------------------------- |
+| Runtime           | `tokio` (`full`)                 | `#[tokio::main]`                                                                              |
+| Argument Parsing  | `clap` (`derive`)                | Declarative env fallback and subcommands                                                      |
+| HTTP              | `reqwest` (`json`, `rustls-tls`) | Share `Arc<Client>`                                                                           |
+| Serialization     | `serde` + `serde_json`           | derive                                                                                        |
+| Schema Validation | `garde` (optional)               | serde guarantees type matching; garde handles value ranges                                    |
+| Error Types       | `thiserror` + `miette`           | Combine `#[derive(thiserror::Error, miette::Diagnostic)]`                                     |
+| Error Aggregation | `miette` (`Result` / `Report`)   | Application layer: `miette::Result<T>`, external `Result`: `.into_diagnostic().wrap_err(...)` |
+| File I/O          | `tokio::fs`                      | mkdir/read/write/symlink, etc.                                                                |
+| Subprocess        | `tokio::process::Command`        | Shortest path for driving git CLI, etc.                                                       |
+| Dates             | `jiff`                           | TZ-aware/DST safe (chrono is legacy)                                                          |
+| Logging           | `tracing` + `tracing-subscriber` | Not needed if occasional `println!` suffices                                                  |
 
 See [references/libraries.md](./references/libraries.md) for details — **complete correspondence table** with JS/Effect side (FS/Path/Concurrency/Testing/git/glob included).
 
@@ -66,10 +66,10 @@ See [references/libraries.md](./references/libraries.md) for details — **compl
 
 Choose from 2 layers based on requirements. **If input + logging + progress suffice, stop at lightweight CLI** (`tui-realm` is overkill).
 
-| Layer                   | Use Case                                                      | Recommended Stack                                                                                                                                                                                                                        |
-| ----------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lightweight CLI         | Argument parsing, one-off prompts, progress bars / spinners, log output | Combine `clap` + `tracing` + `inquire` + `indicatif` + `owo-colors` as **standalone feature crates** (no framework). Clearly divide output responsibilities: **log=`tracing` / stdout=standard features / coloring=`owo-colors`** |
-| Advanced Declarative UI | Full-screen dashboards, multi-screen transitions, large state management | `tui-realm` (Elm Architecture)                                                                                                                                                                                                           |
+| Layer                   | Use Case                                                                 | Recommended Stack                                                                                                                                                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lightweight CLI         | Argument parsing, one-off prompts, progress bars / spinners, log output  | Combine `clap` + `tracing` + `inquire` + `indicatif` + `owo-colors` as **standalone feature crates** (no framework). Clearly divide output responsibilities: **log=`tracing` / stdout=standard features / coloring=`owo-colors`** |
+| Advanced Declarative UI | Full-screen dashboards, multi-screen transitions, large state management | `tui-realm` (Elm Architecture)                                                                                                                                                                                                    |
 
 The lightweight CLI side directly calls thin, independent crates per responsibility. Only bring in `tui-realm` when the UI itself becomes complex enough to warrant a state machine.
 

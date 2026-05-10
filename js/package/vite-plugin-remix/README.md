@@ -51,10 +51,10 @@ boot({
 
 `<Script>` switches between the two via `import.meta.env.DEV`:
 
-| Environment       | Output                                                                                    |
-| ----------------- | ----------------------------------------------------------------------------------------- |
+| Environment         | Output                                                                                        |
+| ------------------- | --------------------------------------------------------------------------------------------- |
 | dev (`vite dev`)    | `<script type="module" src={devSrc}></script>` — Vite dev server serves transformed source TS |
-| prod (`vite build`) | `<script type="module" src={prodSrc}></script>` — Static distribution of the built chunk  |
+| prod (`vite build`) | `<script type="module" src={prodSrc}></script>` — Static distribution of the built chunk      |
 
 ```tsx
 import { Script } from 'vite-plugin-remix/client'
@@ -82,11 +82,11 @@ remix({
 })
 ```
 
-| Option            | Default           | Purpose                                                                                                                                                                                                                    |
-| ----------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `clientEntry`     | **Required**      | rollup input. The file that calls `boot()`.                                                                                                                                                                                |
-| `clientOutDir`    | `dist/client`     | Build output destination for the client environment. The directory to point a static host (e.g. `serveStatic`) to.                                                                                                         |
-| `entryFileNames`  | `assets/entry.js` | Output filename for the main entry. Default is a fixed name without a hash, so it can be referenced from SSR HTML without a manifest. For cache busting, change to `assets/entry.[hash].js` etc. and separately set up a route to read the Vite manifest from SSR. |
+| Option           | Default           | Purpose                                                                                                                                                                                                                                                            |
+| ---------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `clientEntry`    | **Required**      | rollup input. The file that calls `boot()`.                                                                                                                                                                                                                        |
+| `clientOutDir`   | `dist/client`     | Build output destination for the client environment. The directory to point a static host (e.g. `serveStatic`) to.                                                                                                                                                 |
+| `entryFileNames` | `assets/entry.js` | Output filename for the main entry. Default is a fixed name without a hash, so it can be referenced from SSR HTML without a manifest. For cache busting, change to `assets/entry.[hash].js` etc. and separately set up a route to read the Vite manifest from SSR. |
 
 `chunkFileNames` / `assetFileNames` are fixed with hashes (for component chunks, etc.).
 

@@ -44,11 +44,11 @@ Whether Claude Code-specific frontmatter fields are used appropriately.
 
 Whether the execution pattern matches the nature of the skill.
 
-| Pattern | Application Scenario | Notes |
-|---|---|---|
-| Inline (default) | Guideline type, short tasks | No special configuration needed |
-| Fork (`context: fork`) | Heavy processing, large output | Requires a clear task. Don't use for guideline-only skills |
-| Manual only (`disable-model-invocation: true`) | Has side effects (git push, etc.) | Only invocable via `/name` |
+| Pattern                                        | Application Scenario              | Notes                                                      |
+| ---------------------------------------------- | --------------------------------- | ---------------------------------------------------------- |
+| Inline (default)                               | Guideline type, short tasks       | No special configuration needed                            |
+| Fork (`context: fork`)                         | Heavy processing, large output    | Requires a clear task. Don't use for guideline-only skills |
+| Manual only (`disable-model-invocation: true`) | Has side effects (git push, etc.) | Only invocable via `/name`                                 |
 
 **Score Criteria:**
 

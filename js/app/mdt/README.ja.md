@@ -25,23 +25,23 @@ vp run --filter @totto2727/mdt build
 mdt <file> --lang <code> [--model <provider/model>] [--force]
 ```
 
-| フラグ     | エイリアス | 説明                                      | デフォルト                       |
-| ---------- | ---------- | ----------------------------------------- | -------------------------------- |
-| `--lang`   | `-l`       | 対象言語コード（例：`ja`、`en`）          | 必須                             |
-| `--model`  | `-m`       | `provider/model` 形式のモデル             | `opencode-go/deepseek-v4-flash` |
-| `--force`  | `-f`       | 出力ファイルが既存の場合に上書き          | オフ                             |
+| フラグ    | エイリアス | 説明                             | デフォルト                      |
+| --------- | ---------- | -------------------------------- | ------------------------------- |
+| `--lang`  | `-l`       | 対象言語コード（例：`ja`、`en`） | 必須                            |
+| `--model` | `-m`       | `provider/model` 形式のモデル    | `opencode-go/deepseek-v4-flash` |
+| `--force` | `-f`       | 出力ファイルが既存の場合に上書き | オフ                            |
 
 ### 出力パスのルール
 
 `mdt` は拡張子の前に言語タグを挿入した兄弟ファイルに書き込みます。`.mbt.md` のような複合拡張子は保持されます。
 
-| 入力              | `--lang ja` の出力                            |
-| ----------------- | --------------------------------------------- |
-| `hoge.md`         | `hoge.ja.md`                                  |
-| `hoge.mbt.md`     | `hoge.ja.mbt.md`                              |
-| `README.draft.md` | `README.draft.ja.md`                          |
-| `hoge.en.md`      | `hoge.ja.md`（既存の言語タグは置き換え）      |
-| `hoge.en.mbt.md`  | `hoge.ja.mbt.md`                              |
+| 入力              | `--lang ja` の出力                       |
+| ----------------- | ---------------------------------------- |
+| `hoge.md`         | `hoge.ja.md`                             |
+| `hoge.mbt.md`     | `hoge.ja.mbt.md`                         |
+| `README.draft.md` | `README.draft.ja.md`                     |
+| `hoge.en.md`      | `hoge.ja.md`（既存の言語タグは置き換え） |
+| `hoge.en.mbt.md`  | `hoge.ja.mbt.md`                         |
 
 既知の言語タグは `ja` と `en` です。既知の複合拡張子は `.mbt.md` です。どちらのリストも `src/lib/path.ts` にあります。
 

@@ -9,28 +9,28 @@ Intermediate options that are "declarative but lightweight" (e.g., React-style T
 
 ## Layer Overview
 
-| Layer              | Use Case                                                     | Recommended                                                                                                    | Features                                                                                                |
-| ------------------ | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Lightweight CLI    | Argument parsing, prompts, progress bars / spinners, log output, coloring | Combination of `clap` + `tracing` + `inquire` + `indicatif` + `owo-colors` + standard `println!` | Each crate has a thin independent responsibility, called directly as needed. Not framework-based.        |
-| Advanced Declarative UI | Full-screen dashboards, multi-screen navigation             | `tui-realm`                                                                                                    | Elm Architecture with Component + Message/Update                                                        |
+| Layer                   | Use Case                                                                  | Recommended                                                                                      | Features                                                                                          |
+| ----------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Lightweight CLI         | Argument parsing, prompts, progress bars / spinners, log output, coloring | Combination of `clap` + `tracing` + `inquire` + `indicatif` + `owo-colors` + standard `println!` | Each crate has a thin independent responsibility, called directly as needed. Not framework-based. |
+| Advanced Declarative UI | Full-screen dashboards, multi-screen navigation                           | `tui-realm`                                                                                      | Elm Architecture with Component + Message/Update                                                  |
 
 The criterion for choosing between them is **whether the UI itself becomes complex as a state machine**.
 If you only need to stream input + logs, stop at the lightweight CLI (`tui-realm` is overkill for simple I/O).
 
 ## Lightweight CLI: `clap` + `tracing` + `inquire` + `indicatif` + `owo-colors` + standard `println!`
 
-Each is a small, single-responsibility crate, combined by calling them directly where needed in the CLI. It is *not* a "TUI framework".
+Each is a small, single-responsibility crate, combined by calling them directly where needed in the CLI. It is _not_ a "TUI framework".
 
 ### Role Distribution
 
-| Crate / Feature               | Role                                                   | Typical Invocation Example                                    |
-| ----------------------------- | ------------------------------------------------------ | ------------------------------------------------------------- |
-| `clap`                        | Argument / subcommand / env                            | `Cli::parse()` (declarative flags via `derive`)               |
-| `tracing`                     | **Structured logging** (machine-readable)              | `tracing::info!(...)` + `tracing_subscriber::fmt()` init      |
-| Standard `println!` / `eprintln!` | **Simple stdout / stderr** (human-readable / inter-process pipes) | `println!("...")` / `eprintln!("...")`          |
-| `owo-colors`                  | **Coloring** (decorative output)                       | `"warning".yellow()` / `"ok".green()` (`OwoColorize` trait)   |
-| `inquire`                     | One-shot prompts                                       | `Select::new(...).prompt()?` / `Confirm::new(...).prompt()?`  |
-| `indicatif`                   | Progress bars / spinners                               | `ProgressBar::new(n)` / `ProgressBar::new_spinner()`          |
+| Crate / Feature                   | Role                                                              | Typical Invocation Example                                   |
+| --------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------ |
+| `clap`                            | Argument / subcommand / env                                       | `Cli::parse()` (declarative flags via `derive`)              |
+| `tracing`                         | **Structured logging** (machine-readable)                         | `tracing::info!(...)` + `tracing_subscriber::fmt()` init     |
+| Standard `println!` / `eprintln!` | **Simple stdout / stderr** (human-readable / inter-process pipes) | `println!("...")` / `eprintln!("...")`                       |
+| `owo-colors`                      | **Coloring** (decorative output)                                  | `"warning".yellow()` / `"ok".green()` (`OwoColorize` trait)  |
+| `inquire`                         | One-shot prompts                                                  | `Select::new(...).prompt()?` / `Confirm::new(...).prompt()?` |
+| `indicatif`                       | Progress bars / spinners                                          | `ProgressBar::new(n)` / `ProgressBar::new_spinner()`         |
 
 #### Output Responsibility Sharing Principle
 

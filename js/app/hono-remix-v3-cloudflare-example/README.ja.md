@@ -9,12 +9,12 @@
 
 ## 技術スタック
 
-| レイヤー                   | 選択肢                                                                         |
-| -------------------------- | ------------------------------------------------------------------------------ |
-| HTTP ルーター              | **Hono**（`remix/fetch-router` の代替）                                        |
-| SSR / UI                   | **Remix v3 `remix/ui` + `remix/ui/server`** （そのまま使用）                    |
-| クライアントバンドル/開発  | **Vite** + `@cloudflare/vite-plugin`（`remix/assets` ランタイムの代替）          |
-| ランタイム                 | **Cloudflare Workers**（開発は Vite プラグイン経由の workerd、本番も Workers）   |
+| レイヤー                  | 選択肢                                                                         |
+| ------------------------- | ------------------------------------------------------------------------------ |
+| HTTP ルーター             | **Hono**（`remix/fetch-router` の代替）                                        |
+| SSR / UI                  | **Remix v3 `remix/ui` + `remix/ui/server`** （そのまま使用）                   |
+| クライアントバンドル/開発 | **Vite** + `@cloudflare/vite-plugin`（`remix/assets` ランタイムの代替）        |
+| ランタイム                | **Cloudflare Workers**（開発は Vite プラグイン経由の workerd、本番も Workers） |
 
 重要なポイントは、Remix v3 の Node 限定 API（`remix/node-serve`、`remix/assets` など）をすべて除去し、Web API ベースの部分のみを Workers 上で直接実行していることです。
 

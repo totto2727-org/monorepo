@@ -38,11 +38,11 @@ atlas-kysely-gen -i schema.hcl --camel-case
 
 ### フラグ
 
-| フラグ               | デフォルト | 説明                                                                                                                                                                                                                     |
-| -------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `--input` / `-i`     | (必須)     | 入力schema.hclへのパス                                                                                                                                                                                                   |
-| `--output` / `-o`    | 標準出力   | 出力`.ts`ファイルへのパス                                                                                                                                                                                                |
-| `--camel-case`       | `false`    | `true`の場合、Kyselyの公式`CamelCasePlugin`を使用してカラムとテーブルのDBキーを変換します（デフォルトオプション = `upperCase=false`）。`false`の場合は恒等変換（変換なし）を使用します。動作はkysely-codegenの`--camel-case`フラグと1:1で一致します。 |
+| フラグ            | デフォルト | 説明                                                                                                                                                                                                                                                  |
+| ----------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--input` / `-i`  | (必須)     | 入力schema.hclへのパス                                                                                                                                                                                                                                |
+| `--output` / `-o` | 標準出力   | 出力`.ts`ファイルへのパス                                                                                                                                                                                                                             |
+| `--camel-case`    | `false`    | `true`の場合、Kyselyの公式`CamelCasePlugin`を使用してカラムとテーブルのDBキーを変換します（デフォルトオプション = `upperCase=false`）。`false`の場合は恒等変換（変換なし）を使用します。動作はkysely-codegenの`--camel-case`フラグと1:1で一致します。 |
 
 ## TSプロジェクトへの統合
 
@@ -109,18 +109,18 @@ export interface DB {
 
 ## 型マッピング
 
-| Atlas / SQLite型                    | TypeScript型     |
-| ----------------------------------- | ---------------- |
-| `int`, `integer`, `*INT*`           | `number`         |
-| `text`, `*CHAR*`, `*CLOB*`          | `string`         |
-| `real`, `*FLOAT*`, `*DOUBLE*`       | `number`         |
-| `numeric`, `decimal`                | `number`         |
-| `boolean`, `bool`                   | `boolean`        |
-| `blob`                              | `Uint8Array`     |
-| `date`, `datetime`, `timestamp`     | `string`         |
-| `json`, `jsonb`                     | `string`         |
-| `enum("a","b")`                     | `"a" \| "b"`     |
-| `null = true`                       | `T \| null`      |
+| Atlas / SQLite型                | TypeScript型 |
+| ------------------------------- | ------------ |
+| `int`, `integer`, `*INT*`       | `number`     |
+| `text`, `*CHAR*`, `*CLOB*`      | `string`     |
+| `real`, `*FLOAT*`, `*DOUBLE*`   | `number`     |
+| `numeric`, `decimal`            | `number`     |
+| `boolean`, `bool`               | `boolean`    |
+| `blob`                          | `Uint8Array` |
+| `date`, `datetime`, `timestamp` | `string`     |
+| `json`, `jsonb`                 | `string`     |
+| `enum("a","b")`                 | `"a" \| "b"` |
+| `null = true`                   | `T \| null`  |
 
 ## 開発
 

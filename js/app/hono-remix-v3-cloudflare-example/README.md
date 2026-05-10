@@ -9,12 +9,12 @@ Two pages:
 
 ## Tech Stack
 
-| Layer                     | Choice                                                                       |
-| ------------------------- | ---------------------------------------------------------------------------- |
-| HTTP Router               | **Hono** (replacement for `remix/fetch-router`)                              |
-| SSR / UI                  | **Remix v3 `remix/ui` + `remix/ui/server`** (used as-is)                     |
-| Client bundle / dev       | **Vite** + `@cloudflare/vite-plugin` (replacement for `remix/assets` runtime) |
-| Runtime                   | **Cloudflare Workers** (dev via workerd through Vite plugin, prod also Workers) |
+| Layer               | Choice                                                                          |
+| ------------------- | ------------------------------------------------------------------------------- |
+| HTTP Router         | **Hono** (replacement for `remix/fetch-router`)                                 |
+| SSR / UI            | **Remix v3 `remix/ui` + `remix/ui/server`** (used as-is)                        |
+| Client bundle / dev | **Vite** + `@cloudflare/vite-plugin` (replacement for `remix/assets` runtime)   |
+| Runtime             | **Cloudflare Workers** (dev via workerd through Vite plugin, prod also Workers) |
 
 The key point is that all Node-only APIs from Remix v3 (`remix/node-serve`, `remix/assets`, etc.) have been removed, leaving only the Web API-based parts running directly on Workers.
 

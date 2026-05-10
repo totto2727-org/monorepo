@@ -35,10 +35,10 @@ app.get('/', (c) =>
 )
 ```
 
-| Option               | Type                                           | Description                                                                                                                                     |
-| -------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Option               | Type                                           | Description                                                                                                                                 |
+| -------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `fetcher`            | `typeof fetch`                                 | Called when re-fetching a frame in nested SSR (`resolveFrame` in `remix/ui/server`). Typically pass `(req) => app.fetch(req)` as a closure. |
-| `resolveClientEntry` | `(entryId, component) => { exportName, href }` | Optional. Hook to compute `moduleUrl`/`exportName` from the clientEntry ID. Default is to strip the `/assets/` prefix.             |
+| `resolveClientEntry` | `(entryId, component) => { exportName, href }` | Optional. Hook to compute `moduleUrl`/`exportName` from the clientEntry ID. Default is to strip the `/assets/` prefix.                      |
 
 A straightforward implementation that passes `c.render(content)`'s `content` directly to `renderToStream`. Composing the Layout / Document is the handler's responsibility.
 
@@ -70,12 +70,12 @@ Note: `remixAssetServer` is intended for environments where TSX or Bun/Deno run 
 
 ## Architecture Patterns
 
-|                      | Vite + Cloudflare         | Vite + Node/Bun/Deno   | Native (no bundler)   |
-| -------------------- | ------------------------- | ---------------------- | --------------------- |
-| Client bundle | `vite-plugin-remix`       | `vite-plugin-remix`    | None — run directly on runtime |
-| Asset serving (prod)  | wrangler `assets` binding | Hono `serveStatic`     | `remixAssetServer`    |
-| Asset serving (dev)   | Vite dev server           | Vite dev server        | `remixAssetServer`    |
-| SSR execution target           | Workers                   | `@hono/node-server` etc. | tsx / bun / deno    |
+|                      | Vite + Cloudflare         | Vite + Node/Bun/Deno     | Native (no bundler)            |
+| -------------------- | ------------------------- | ------------------------ | ------------------------------ |
+| Client bundle        | `vite-plugin-remix`       | `vite-plugin-remix`      | None — run directly on runtime |
+| Asset serving (prod) | wrangler `assets` binding | Hono `serveStatic`       | `remixAssetServer`             |
+| Asset serving (dev)  | Vite dev server           | Vite dev server          | `remixAssetServer`             |
+| SSR execution target | Workers                   | `@hono/node-server` etc. | tsx / bun / deno               |
 
 [`vite-plugin-remix` README](../vite-plugin-remix/README.md)
 
