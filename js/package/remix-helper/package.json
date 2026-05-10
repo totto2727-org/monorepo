@@ -1,0 +1,16 @@
+{
+  "name": "remix-helper",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/frame-helpers.ts"
+  },
+  "devDependencies": {
+    "@totto2727/fp": "workspace:*",
+    "remix": "catalog:remix"
+  },
+  "peerDependencies": {
+    "remix": "catalog:remix"
+  }
+}

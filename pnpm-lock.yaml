@@ -587,6 +587,15 @@ importers:
         specifier: catalog:effect
         version: 4.0.0-beta.60
 
+  js/package/remix-helper:
+    devDependencies:
+      '@totto2727/fp':
+        specifier: workspace:*
+        version: link:../fp
+      remix:
+        specifier: catalog:remix
+        version: 3.0.0-beta.0(@emnapi/core@1.9.0)(@emnapi/runtime@1.9.0)
+
   js/package/ui:
     dependencies:
       '@base-ui/react':
