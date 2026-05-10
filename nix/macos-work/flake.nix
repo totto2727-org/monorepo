@@ -63,6 +63,8 @@
                   # Coding
                   "visual-studio-code"
                   "cursor"
+                  "ghostty"
+                  "claude"
                   "podman-desktop"
                   "figma"
                   "postman"

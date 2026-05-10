@@ -48,6 +48,9 @@ in
     }
 
     (lib.mkIf (cfg.enable && pkgs.stdenv.hostPlatform.isDarwin) {
+      xdg.configFile."opencode/plugins/meridian.ts".source =
+        "${cfg.package}/lib/meridian/plugin/meridian.ts";
+
       launchd.agents.meridian = {
         enable = true;
         config = {

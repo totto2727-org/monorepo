@@ -34,4 +34,10 @@ with pkgs;
     binName = "wt";
     packageName = "@totto2727/wt";
   })
+  # (npm {
+  #   binName = "comment-checker";
+  #   packageName = "@code-yeongyu/comment-checker";
+  #   runtime = "bun";
+  #   additionalArgs = "--bun";
+  # })
 ]

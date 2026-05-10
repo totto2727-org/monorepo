@@ -54,12 +54,15 @@
             {
               system = import ../share/darwin-system.nix { inherit username; };
               homebrew = (import ../share/homebrew.nix) // {
-                taps = import ../share/taps.nix;
+                taps = (import ../share/taps.nix) ++ [
+                  "anomalyco/tap"
+                ];
                 brews = (import ../share/brews.nix) ++ [
                   "mas"
                   "tailscale"
                   "incus"
                   "talosctl"
+                  "anomalyco/tap/opencode"
                 ];
                 casks = (import ../share/casks.nix) ++ [
                   # Browser
@@ -67,7 +70,6 @@
                   # Coding
                   "zed"
                   "orbstack"
-                  "droid"
                   # Game
                   "heroic"
                   # Utility

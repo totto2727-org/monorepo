@@ -1,6 +1,7 @@
 [
   "$HOME/.local/bin"
   "$HOME/.deno/bin"
-  "$HOME/.moon/bin"
+  "$HOME/.bun/bin"
   "$HOME/.vite-plus/bin"
+  "$HOME/.moon/bin"
 ]
