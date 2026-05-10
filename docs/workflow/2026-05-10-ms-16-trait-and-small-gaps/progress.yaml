@@ -1,0 +1,37 @@
+identifier: 2026-05-10-ms-16-trait-and-small-gaps
+started_at: 2026-05-10T00:00:00Z
+updated_at: 2026-05-10T00:00:00Z
+
+status: active
+current_step: 1
+
+completed_steps: []
+
+pending_gates: []
+
+active_specialists: []
+
+blockers: []
+
+artifacts:
+  intent_spec: null
+  research:
+    - research/ms-16-current-state.md
+  design: null
+  qa_design: null
+  qa_flow: null
+  external_adrs: []
+  task_plan: null
+  todo: null
+  review: []
+  validation: null
+  retrospective: null
+
+user_approvals: []
+
+rollbacks: []
+
+roadmap:
+  id: geo-mbt
+  milestone:
+    id: ms-16-trait-and-small-gaps
