@@ -1,14 +1,14 @@
 [
   {
     "label": "mdt: translate to ja",
-    "command": "vp node js/app/mdt/dist/bin.mjs \"$ZED_FILE\" --lang ja --force",
+    "command": "vp node js/app/mdt/src/bin.ts \"$ZED_FILE\" --lang ja --force",
     "reveal": "always",
     "use_new_terminal": false,
     "allow_concurrent_runs": false
   },
   {
     "label": "mdt: translate to en",
-    "command": "vp node js/app/mdt/dist/bin.mjs \"$ZED_FILE\" --lang en --force",
+    "command": "vp node js/app/mdt/src/bin.ts \"$ZED_FILE\" --lang en --force",
     "reveal": "always",
     "use_new_terminal": false,
     "allow_concurrent_runs": false
