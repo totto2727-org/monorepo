@@ -1,12 +1,12 @@
 ---
-confirmed: false
+confirmed: true
 scope: roadmap:feed-platform
 ---
 
 # ADR: feed-platform 共通ライブラリ抽出 (effect-hono / remix-helper)
 
 - **Filed at:** 2026-05-08
-- **Filer:** architect (Step 3) — `confirmed: false` で起草。Step 6 (Implementation) で `share-adr` Roadmap mode を経由して `confirmed: true` に promote する
+- **Filer:** architect (Step 3) → implementer (Step 6) — `confirmed: true` 確定 (2026-05-10)。Step 6 (Implementation) でライブラリ実装 + 4 consumer migration が完了し、本文書は正式 ADR として確定した。
 - **Originating step:** dev-workflow Step 3 (Design) of cycle `feed-platform-ms-01-shared-libraries`
 - **Storage path:** docs/roadmap/feed-platform/adr/2026-05-08-shared-libraries-extraction.md
 
