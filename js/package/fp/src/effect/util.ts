@@ -4,7 +4,7 @@
  * @module
  */
 
-// oxlint-disable typescript/no-explicit-any
+// oxlint-disable typescript/no-explicit-any -- variadic Effect signatures require `any` for argument inference
 
 import { Array, Effect, flow, Function, Option } from '#@/effect.ts'
 
@@ -43,7 +43,7 @@ export const tap =
   <const T extends readonly unknown[]>(fn: (v: Array.ReadonlyArray.Infer<T>) => void): ((vs: T) => T) =>
   (vs) => {
     for (const v of vs) {
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- narrows iterated element from readonly tuple to its inferred element type
       fn(v as Array.ReadonlyArray.Infer<T>)
     }
     return vs

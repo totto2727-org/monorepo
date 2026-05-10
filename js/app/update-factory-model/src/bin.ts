@@ -262,7 +262,7 @@ const writeSettings = async (
   }
   const raw = await readFile(SETTINGS_PATH, 'utf-8')
   const settings = {
-    // oxlint-disable-next-line rules/no-sync-decode
+    // oxlint-disable-next-line rules/no-sync-decode -- one-shot CLI script; sync decode keeps the bootstrap path linear
     ...Schema.decodeUnknownSync(Schema.Record(Schema.String, Schema.Unknown))(JSON.parse(raw)),
     compactionTokenLimitPerModel,
     customModels,
@@ -282,7 +282,7 @@ const main = async (): Promise<void> => {
   const writeMode = args.has('--write') || args.has('-w')
 
   const resp = await fetch(MODELS_DEV_URL)
-  // oxlint-disable-next-line rules/no-sync-decode
+  // oxlint-disable-next-line rules/no-sync-decode -- one-shot CLI script; sync decode keeps the bootstrap path linear
   const data = Schema.decodeUnknownSync(ModelsDevSchema)(await resp.json())
 
   const anthropic = buildAnthropicEntries(data.anthropic)

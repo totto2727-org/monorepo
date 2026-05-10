@@ -33,7 +33,6 @@ const printRows = (rows: readonly Row[]): Effect.Effect<void> =>
     )
     console.log('-'.repeat(nameW + branchW + prW + gitW + 50))
 
-    // oxlint-disable-next-line rules/no-let
     for (const r of rows) {
       console.log(
         `${r.name.padEnd(nameW)}  ${r.branch.padEnd(branchW)}  ${r.pr.padEnd(prW)}  ${r.git.padEnd(gitW)}  ${r.path}`,
@@ -53,14 +52,14 @@ const listWorktrees = (dir: string): Effect.Effect<void> =>
     }
 
     const repoResults = yield* Effect.forEach(repos, Wt.fetchRepoWorktrees, { concurrency: 'unbounded' })
-    const validRepos = repoResults.filter(Predicate.isNotNull)
+    const validRepos = repoResults.filter(Predicate.isNotNullish)
 
     const rowsPerRepo = yield* Effect.forEach(
       validRepos,
       (repo) =>
         Effect.gen(function* () {
           const branches = repo.entries.filter((e): e is Wt.WorktreeEntry & { branch: string } =>
-            Predicate.isNotNull(e.branch),
+            Predicate.isNotNullish(e.branch),
           )
           const [prMap, gitMap] = yield* Effect.all(
             [

@@ -35,8 +35,9 @@ const preset: Preset = {
     'rules/no-let': 'error',
     'rules/no-option-tag-comparison': 'error',
     'rules/no-sync-decode': 'error',
-    'rules/prefer-is-nullish': 'warn',
-    'rules/prefer-non-unknown-decode': 'warn',
+    'rules/prefer-is-nullish': 'error',
+    'rules/prefer-non-unknown-decode': 'error',
+    'rules/require-disable-reason': 'error',
   },
 }
 

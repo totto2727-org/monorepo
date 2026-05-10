@@ -7,7 +7,7 @@ const config: StorybookConfig = {
     options: {},
   },
   stories: ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
-  // oxlint-disable-next-line no-shadow
+  // oxlint-disable-next-line no-shadow -- viteFinal callback parameter mirrors the outer config name by Storybook convention
   async viteFinal(config) {
     const { default: tailwindcss } = await import('@tailwindcss/vite')
     config.plugins = config.plugins ?? []

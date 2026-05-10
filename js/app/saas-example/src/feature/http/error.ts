@@ -1,5 +1,5 @@
-// oxlint-disable class-methods-use-this
-// oxlint-disable max-classes-per-file
+// oxlint-disable class-methods-use-this -- TaggedError response builders do not reference this
+// oxlint-disable max-classes-per-file -- HTTP error classes are grouped by domain
 
 import { Data, Effect } from 'effect'
 

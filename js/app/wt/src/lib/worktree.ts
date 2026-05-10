@@ -5,7 +5,7 @@ import { promisify } from 'node:util'
 
 import { Effect, Predicate, String } from 'effect'
 
-// oxlint-disable-next-line typescript-eslint(strict-void-return)
+// oxlint-disable-next-line typescript-eslint(strict-void-return) -- node's promisify(execFile) overloads trigger a false positive
 const execFileAsync = promisify(execFile)
 
 const execAsync = async (cmd: string, args: string[]): Promise<string> => {
@@ -105,7 +105,7 @@ export const discoverRepos = (baseDir: string): Effect.Effect<readonly string[]>
       }),
     )
 
-    return [isSelfRepo, ...childRepos].filter(Predicate.isNotNull).toSorted()
+    return [isSelfRepo, ...childRepos].filter(Predicate.isNotNullish).toSorted()
   })
 
 // --- Remote parsing ---
@@ -144,7 +144,7 @@ export const parseWorktreeList = (output: string, repoPath: string): readonly Wo
       const branch = Predicate.isNullish(branchLine) ? null : branchLine.slice('branch refs/heads/'.length)
       return { branch, isMain: path === repoPath, path } as WorktreeEntry
     })
-    .filter(Predicate.isNotNull)
+    .filter(Predicate.isNotNullish)
 
 // --- Async git/gh commands ---
 
