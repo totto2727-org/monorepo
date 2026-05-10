@@ -1,0 +1,21 @@
+{
+  "name": "effect-hono",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./env": "./src/env.ts",
+    "./logger": "./src/logger.ts",
+    "./runtime": "./src/runtime.ts"
+  },
+  "dependencies": {
+    "effect": "catalog:effect"
+  },
+  "devDependencies": {
+    "@totto2727/fp": "workspace:*",
+    "@types/node": "catalog:types"
+  },
+  "peerDependencies": {
+    "effect": "catalog:effect"
+  }
+}
