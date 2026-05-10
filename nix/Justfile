@@ -1,6 +1,11 @@
 default:
     @just --list
 
+init-opencode:
+    # post-installの関係上2回実行する必要がある
+    bun add -g --trust @code-yeongyu/comment-checker
+    bun add -g --trust @code-yeongyu/comment-checker
+
 [working-directory: 'macos']
 rebuild-macos:
     sudo nix flake update --option access-tokens "github.com=$(gh auth token)"
