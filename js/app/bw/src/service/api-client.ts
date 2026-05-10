@@ -14,6 +14,32 @@ export class ApiError extends Data.TaggedError('ApiError')<{
   readonly message: string
 }> {}
 
+const formatErrorChain = (error: unknown): string => {
+  if (!(error instanceof Error)) {
+    try {
+      return JSON.stringify(error)
+    } catch {
+      return String(error)
+    }
+  }
+  const parts: string[] = [`${error.name}: ${error.message}`]
+  let current: unknown = error.cause
+  let depth = 0
+  while (current instanceof Error && depth < 10) {
+    parts.push(`caused by: ${current.name}: ${current.message}`)
+    current = current.cause
+    depth += 1
+  }
+  if (current !== undefined && !(current instanceof Error)) {
+    try {
+      parts.push(`caused by: ${JSON.stringify(current)}`)
+    } catch {
+      parts.push(`caused by: ${String(current)}`)
+    }
+  }
+  return parts.join(' | ')
+}
+
 const buildUrl = (auth: AuthConfig, endpoint: string): string =>
   `https://api.cloudflare.com${BASE_PATH}/${auth.accountId}/browser-rendering${endpoint}`
 
@@ -34,7 +60,7 @@ const postRequest = (
           (error) =>
             new ApiError({
               endpoint,
-              message: error instanceof Error ? error.message : JSON.stringify(error),
+              message: formatErrorChain(error),
               status: 0,
             }),
         ),
@@ -68,7 +94,7 @@ const getRequest = (
           (error) =>
             new ApiError({
               endpoint,
-              message: error instanceof Error ? error.message : JSON.stringify(error),
+              message: formatErrorChain(error),
               status: 0,
             }),
         ),
@@ -92,7 +118,7 @@ const postText = (
         (error) =>
           new ApiError({
             endpoint,
-            message: error instanceof Error ? error.message : JSON.stringify(error),
+            message: formatErrorChain(error),
             status: 0,
           }),
       ),
@@ -123,7 +149,7 @@ const postBinary = (
         (error) =>
           new ApiError({
             endpoint,
-            message: error instanceof Error ? error.message : JSON.stringify(error),
+            message: formatErrorChain(error),
             status: 0,
           }),
       ),
@@ -169,7 +195,7 @@ export const snapshot = (
         (e) =>
           new ApiError({
             endpoint: '/snapshot',
-            message: e instanceof Error ? e.message : JSON.stringify(e),
+            message: formatErrorChain(e),
             status: 0,
           }),
       ),
@@ -201,7 +227,7 @@ export const crawlStart = (
     const parsed = yield* decodeCrawlStart(data).pipe(
       Effect.mapError(
         (e) =>
-          new ApiError({ endpoint: '/crawl', message: e instanceof Error ? e.message : JSON.stringify(e), status: 0 }),
+          new ApiError({ endpoint: '/crawl', message: formatErrorChain(e), status: 0 }),
       ),
     )
     return parsed.result
@@ -218,7 +244,7 @@ export const crawlStatus = (
         (error) =>
           new ApiError({
             endpoint: `/crawl/${crawlId}`,
-            message: error instanceof Error ? error.message : JSON.stringify(error),
+            message: formatErrorChain(error),
             status: 0,
           }),
       ),
@@ -229,7 +255,7 @@ export const crawlStatus = (
         (e) =>
           new ApiError({
             endpoint: `/crawl/${crawlId}`,
-            message: e instanceof Error ? e.message : JSON.stringify(e),
+            message: formatErrorChain(e),
             status: 0,
           }),
       ),
@@ -249,7 +275,7 @@ export const crawlResults = (
         (error) =>
           new ApiError({
             endpoint: `/crawl/${crawlId}`,
-            message: error instanceof Error ? error.message : JSON.stringify(error),
+            message: formatErrorChain(error),
             status: 0,
           }),
       ),
@@ -266,7 +292,7 @@ export const crawlList = (auth: AuthConfig): Effect.Effect<unknown, ApiError, Ht
         (error) =>
           new ApiError({
             endpoint: '/crawl',
-            message: error instanceof Error ? error.message : JSON.stringify(error),
+            message: formatErrorChain(error),
             status: 0,
           }),
       ),

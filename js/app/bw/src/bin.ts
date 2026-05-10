@@ -38,6 +38,6 @@ const app = Command.make('bw').pipe(
 
 const appLayer = Layer.merge(NodeServices.layer, FetchHttpClient.layer)
 
-const program = app.pipe(Command.run({ version: '0.1.0' }), Effect.provide(appLayer))
+const program = app.pipe(Command.run({ version: '0.1.3' }), Effect.provide(appLayer))
 
 NodeRuntime.runMain(program)
