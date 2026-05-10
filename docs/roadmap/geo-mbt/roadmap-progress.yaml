@@ -7,15 +7,17 @@
 
 roadmap_id: geo-mbt
 title: georust/geo Library Port to MoonBit
-status: completed
+status: active
 created_at: 2026-05-05T00:00:00Z
-updated_at: 2026-05-06T00:00:00Z
+updated_at: 2026-05-10T00:00:00Z
 notes: |
-  ms-01 to ms-15 (in-scope) all completed inline on branch cobalt-ocotillo.
-  Post-scope priority items (spatial index / traits / boolean ops /
-  property-style fuzz tests) also completed on the same branch — see
-  roadmap.md "非スコープ後続作業の優先順位" section. 202 tests passing
-  across the full geo-mbt package.
+  Phase 1 (ms-01〜ms-15 + post-scope 4 items) completed inline on branch
+  cobalt-ocotillo on 2026-05-06. Phase 2 (ms-16〜ms-34, 19 milestones)
+  added on 2026-05-10 to cover the remaining behavior gap against Rust
+  upstream `geo` excluding 3D. Per-milestone branching strategy applies
+  for Phase 2 (see roadmap.md "ブランチ運用ポリシー"). Test count at
+  Phase 1 close (commit 2e6e0e1, 2026-05-10): 411 across the full
+  geo-mbt package.
 
 # マイルストーン一覧。Step 2 (Milestone Decomposition) で確定。
 # 確定後の `id` / `title` / `depends_on` は immutable。
@@ -144,3 +146,201 @@ milestones:
       Post-scope priority order (per Intent / 2026-05-05):
       1. Spatial Index → 2. Trait abstraction (constraint-only)
       → 3. Boolean Ops → 4. fuzz/bench port.
+
+  # Phase 2: 大規模 port + scope 拡張 (added 2026-05-10).
+  # 各マイルストーンは個別ブランチ + 個別 PR で進める前提。
+  - id: ms-16-trait-and-small-gaps
+    title: Trait Surface Expansion + Small ⏳ Items
+    status: planned
+    depends_on:
+      - ms-15-validation-finalize
+    workflow_identifiers: []
+    notes: |
+      Unify pairwise predicates (Contains/Covers/Intersects/Within) into
+      traits; absorb the long tail of ⏳ items (Polygon::empty, Triangle
+      CCW ctor, AffineTransform inverse/scaled/compose_many/is_identity,
+      MultiPoint From*, etc.).
+  - id: ms-17-validation-completion
+    title: Validation Completion (RingRole + indices)
+    status: planned
+    depends_on:
+      - ms-15-validation-finalize
+    workflow_identifiers: []
+    notes: |
+      Restore upstream's full ValidationProblem detail (RingRole +
+      coord/ring indices) that the Phase 1 port flattened.
+  - id: ms-18-rtree-expansion
+    title: R*-tree Full Implementation
+    status: planned
+    depends_on:
+      - ms-15-validation-finalize
+    workflow_identifiers: []
+    notes: |
+      Expand src/rtree/ from bulk-load-only to full R*-tree (insert /
+      remove / locate_at_point / locate_within_distance /
+      nearest_neighbors / iter / drain). Foundation for ms-30 indexed
+      algorithms and ms-27 Delaunay spatial location.
+  - id: ms-19-sweep-infrastructure
+    title: Sweep Infrastructure (Bentley-Ottmann + monotone)
+    status: planned
+    depends_on:
+      - ms-15-validation-finalize
+    workflow_identifiers: []
+    notes: |
+      Bentley-Ottmann sweep + monotone partition + monotone_chain.
+      Foundation for ms-20 (DE-9IM) and parts of ms-21 (i_overlay
+      segment intersection).
+  - id: ms-20-relate-de9im
+    title: DE-9IM Relate
+    status: planned
+    depends_on:
+      - ms-19-sweep-infrastructure
+    workflow_identifiers: []
+    notes: |
+      Full DE-9IM relate predicate matrix on top of the sweep
+      infrastructure. Subsumes parts of contains/covers/within/intersects
+      that currently live as pairwise free functions.
+  - id: ms-21-ioverlay-foundation
+    title: 'i_overlay Foundation: deps + segments + grid layout'
+    status: planned
+    depends_on:
+      - ms-19-sweep-infrastructure
+    workflow_identifiers: []
+    notes: |
+      Pure MoonBit port of the i_overlay foundation: depended-on crates
+      (i_float, i_shape, i_tree, i_key_sort) + iOverlay/src/{segm,split}
+      + grid_layout. Largest single milestone in Phase 2 (~3 cycles).
+      Rust/WASM bridge alternative recorded in milestone notes.
+  - id: ms-22-ioverlay-graph
+    title: i_overlay Graph + Extraction
+    status: planned
+    depends_on:
+      - ms-21-ioverlay-foundation
+    workflow_identifiers: []
+    notes: |
+      iOverlay/src/core: graph builder, vector_edge, segment building,
+      extraction (BooleanExtractionBuffer), fill rules, overlay rules.
+  - id: ms-23-ioverlay-public-api
+    title: i_overlay Public BooleanOps API + Line Clipping
+    status: planned
+    depends_on:
+      - ms-22-ioverlay-graph
+    workflow_identifiers: []
+    notes: |
+      iOverlay/src/float: float adapter, scaling, public BooleanOps API
+      (intersection / union / difference / xor / unary_union) +
+      string/clip line clipping. Replaces the Phase 1 Sutherland-Hodgman
+      implementation in src/geo/2d/bool_ops.mbt.
+  - id: ms-24-buffer-offset
+    title: Buffer (Offset) — i_overlay mesh layer
+    status: planned
+    depends_on:
+      - ms-23-ioverlay-public-api
+    workflow_identifiers: []
+    notes: |
+      iOverlay/src/mesh (stroke/offset). Uses the BooleanOps engine
+      from ms-23 to compute offset polygons.
+  - id: ms-25-stitch-repair
+    title: Stitch + Repair Polygon
+    status: planned
+    depends_on:
+      - ms-23-ioverlay-public-api
+    workflow_identifiers: []
+    notes: |
+      geo::algorithm::{stitch, repair_polygon}. Uses BooleanOps for
+      cleanup of self-intersecting / inverted polygons.
+  - id: ms-26-earcut-triangulation
+    title: Earcut Triangulation
+    status: planned
+    depends_on:
+      - ms-15-validation-finalize
+    workflow_identifiers: []
+    notes: |
+      Pure MoonBit port of earcutr. Independent of i_overlay and
+      Delaunay. Useful as a triangulation primitive on its own.
+  - id: ms-27-delaunay-triangulation
+    title: Delaunay Triangulation (Spade-equivalent)
+    status: planned
+    depends_on:
+      - ms-18-rtree-expansion
+    workflow_identifiers: []
+    notes: |
+      Pure MoonBit port of a Spade-equivalent DCEL + flip-based
+      incremental Delaunay + spatial location + bulk insert. Foundation
+      for ms-28 Voronoi and ms-29 Delaunay-based concave hull.
+  - id: ms-28-voronoi
+    title: Voronoi (Delaunay dual)
+    status: planned
+    depends_on:
+      - ms-27-delaunay-triangulation
+    workflow_identifiers: []
+    notes: |
+      Voronoi diagram as the dual of the Delaunay triangulation.
+  - id: ms-29-concave-hull
+    title: Concave Hull (k-NN + Delaunay-based)
+    status: planned
+    depends_on:
+      - ms-27-delaunay-triangulation
+    workflow_identifiers: []
+    notes: |
+      geo::algorithm::concave_hull + k_nearest_concave_hull.
+  - id: ms-30-indexed-algorithms
+    title: Indexed Algorithms (`indexed_*`)
+    status: planned
+    depends_on:
+      - ms-18-rtree-expansion
+    workflow_identifiers: []
+    notes: |
+      geo::algorithm::indexed: pre-indexed contains / nearest /
+      intersection lookups using the full R*-tree.
+  - id: ms-31-clustering
+    title: Clustering (DBSCAN + KMeans + Outlier Detection)
+    status: planned
+    depends_on:
+      - ms-18-rtree-expansion
+    workflow_identifiers: []
+    notes: |
+      geo::algorithm::{dbscan, kmeans, outlier_detection}. R*-tree
+      backs neighbor queries.
+  - id: ms-32-geographic-distances
+    title: Geographic Distance/Length/Bearing (Haversine/Vincenty/etc.)
+    status: planned
+    depends_on:
+      - ms-15-validation-finalize
+    workflow_identifiers: []
+    notes: |
+      Scope expansion: Haversine + Vincenty + Geodesic + Rhumb metric
+      spaces with Bearing / Destination / Distance / Length /
+      InterpolatePoint trait impls. Requires updating
+      mbt/package/geo-mbt/CLAUDE.md to relax the planar-Euclidean-only
+      restriction. 3D remains out of scope.
+  - id: ms-33-geographic-algorithms
+    title: Geographic Algorithms (Densify + cross_track + chamberlain)
+    status: planned
+    depends_on:
+      - ms-32-geographic-distances
+    workflow_identifiers: []
+    notes: |
+      densify_haversine, cross_track_distance,
+      chamberlain_duquette_area, geographic Densify trait impls,
+      convert_angle_unit.
+  - id: ms-34-release-v02
+    title: API Surface Review + v0.2.0 Release Prep
+    status: planned
+    depends_on:
+      - ms-16-trait-and-small-gaps
+      - ms-17-validation-completion
+      - ms-20-relate-de9im
+      - ms-23-ioverlay-public-api
+      - ms-24-buffer-offset
+      - ms-25-stitch-repair
+      - ms-26-earcut-triangulation
+      - ms-28-voronoi
+      - ms-29-concave-hull
+      - ms-30-indexed-algorithms
+      - ms-31-clustering
+      - ms-33-geographic-algorithms
+    workflow_identifiers: []
+    notes: |
+      Final API consolidation, README/CLAUDE refresh,
+      api-correspondence.md update, v0.2.0 release.

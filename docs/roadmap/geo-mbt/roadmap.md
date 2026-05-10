@@ -3,8 +3,9 @@
 - **Roadmap ID:** geo-mbt
 - **Author:** totto2727 (roadmap-analyst 役割を Main が代行)
 - **Created at:** 2026-05-05T00:00:00Z
-- **Last updated:** 2026-05-05T00:00:00Z
+- **Last updated:** 2026-05-10T00:00:00Z
 - **Status:** active <!-- planned | active | completed (`roadmap-progress.yaml.status` と一致) -->
+  - **Phase 1 (ms-01〜ms-15) は 2026-05-06 に completed**。後述 "Phase 2 マイルストーン一覧" に列挙する ms-16 以降の大規模 port / scope 拡張作業のため、ロードマップ全体としては再度 active 扱いに復帰している
 
 このドキュメントは `dev-roadmap` の **Step 1 (Roadmap Intent)** で起草され、**Step 2 (Milestone Decomposition)** でマイルストーン一覧と依存グラフが追記されて確定する**戦略層の不変な計画書**。1 サイクルの `dev-workflow` では収まらない複数サイクル規模の開発を束ねる。書き方の詳細は `share-artifacts/references/roadmap.md` を参照。
 
@@ -59,9 +60,55 @@
 本ロードマップ (ms-01〜ms-15) 完了後、以下の順序で進めた (2026-05-06 同一ブランチ上で完了):
 
 1. **空間索引 (Spatial Index)** ✅ — `src/rtree/` に bulk-loaded R-tree (Sort-Tile-Recursive packing) を実装。`query_rect_intersection` / `query_nearest` を提供。完全な R\*-tree ではなく読み取り専用版だが、`indexed` 系ユースケースに十分。詳細はコミット `bdce595`
-2. **トレイト化 (制約用途のみ)** ✅ — `src/geo/2d/traits.mbt` に `CoordsCarrier`, `Bounded`, `HasArea`, `HasCentroid`, `HasLength` を定義。Generic な数値型対応 / 3D 対応は方針通り行わず、各既存ジオメトリ型への impl のみで構成。詳細はコミット `125eb71`
-3. **Boolean Operations (部分実装)** ⚠️ — `src/geo/2d/bool_ops.mbt` に Sutherland-Hodgman アルゴリズムを実装。**凸クリップ多角形による任意多角形のクリッピング限定**。`i_overlay` 相当の任意の多角形 (穴付き / 非凸) 同士の Union / Intersection / Difference / XOR は今後の作業として残る。詳細はコミット `c182ff5`
+2. **トレイト化 (制約用途のみ)** ✅ — `src/geo/2d/traits.mbt` に `CoordsCarrier`, `Bounded`, `HasArea`, `HasCentroid`, `HasLength` を定義。Generic な数値型対応 / 3D 対応は方針通り行わず、各既存ジオメトリ型への impl のみで構成。詳細はコミット `125eb71`。その後 `c8b61f2` で `traits.mbt` を解体し、各 trait をアルゴリズム実装ファイルにコロケート
+3. **Boolean Operations (部分実装)** ⚠️ — `src/geo/2d/bool_ops.mbt` に Sutherland-Hodgman アルゴリズムを実装。**凸クリップ多角形による任意多角形のクリッピング限定**。`i_overlay` 相当の任意の多角形 (穴付き / 非凸) 同士の Union / Intersection / Difference / XOR は今後の作業として残る (Phase 2 ms-21〜ms-23 で扱う)。詳細はコミット `c182ff5`
 4. **Rust 版 fuzz テスト / benchmark の移植** ✅ (プロパティテスト部分) — `src/geo/2d/property_test.mbt` に 11 個の不変性テストを追加。signed_area の符号反転、centroid が凸 polygon に含まれること、convex hull の凸性、translate の可逆性等。`moon bench` 移植は `moonbitlang/x/benchmark` が deprecated のため将来作業として保留。詳細はコミット `4acaccf`
+
+## Phase 2: 大規模 port / scope 拡張 マイルストーン一覧 (ms-16 以降)
+
+Phase 1 (ms-01〜ms-15 + 上記 post-scope 4 項目) 完了後、Rust 版 `geo` との
+**残挙動差分のうち 3D を除く全項目**を Phase 2 として追加した (2026-05-10
+追記)。各マイルストーンは Phase 1 と同じ粒度 (1〜3 dev-workflow サイクル
+規模) で、原則として独立に着手可能だが、依存グラフに沿って進める。
+
+Phase 2 の特徴:
+
+- **i_overlay-equivalent の汎用 BooleanOps** が最大規模 (ms-21〜ms-23)。
+  上流 Rust `i_overlay` クレートは ~19,400 LOC + 4 つの依存 crate
+  (`i_float`, `i_shape`, `i_tree`, `i_key_sort`)。Pure MoonBit port を
+  前提に 3 サブマイルストーンへ分割した。Rust/WASM bridge は scope 上
+  の代替案として `milestones/ms-21-ioverlay-foundation.md` の Notes に
+  併記するが、ロードマップ上の正準アプローチは pure MoonBit port
+- **空間索引 (R\*-tree) の本格化** は ms-18 (現在は bulk-load 限定)
+- **DE-9IM relate** (ms-20) は **sweep infrastructure** (ms-19) に依存
+- **Triangulation** (ms-26〜ms-28) は **earcut** → **Delaunay** → **Voronoi** の順で積む
+- **Geographic algorithms** (ms-32〜ms-33) は scope 上、本来の `geo-mbt`
+  CLAUDE.md では out-of-scope として記載されている。Phase 2 で取り込む
+  にあたっては `mbt/package/geo-mbt/CLAUDE.md` の "Scope" セクションを
+  ms-32 着手時に更新する必要がある (planar Euclidean only 制約の緩和)
+- **3D は Phase 2 でも引き続き対象外**。Phase 2 完了後も 3D は実装しない方針
+
+| ID                            | Title                                                       | Estimated dev-workflow cycle count | Milestone dependencies                                                  | Detail                                        |
+| ----------------------------- | ----------------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------------------- | --------------------------------------------- |
+| ms-16-trait-and-small-gaps    | Trait Surface Expansion + Small ⏳ Items                    | 1                                  | ms-15-validation-finalize                                               | `milestones/ms-16-trait-and-small-gaps.md`    |
+| ms-17-validation-completion   | Validation Completion (RingRole + indices)                  | 1                                  | ms-15-validation-finalize                                               | `milestones/ms-17-validation-completion.md`   |
+| ms-18-rtree-expansion         | R\*-tree Full Implementation (insert/remove/locate/iter)    | 2                                  | ms-15-validation-finalize                                               | `milestones/ms-18-rtree-expansion.md`         |
+| ms-19-sweep-infrastructure    | Sweep Infrastructure (Bentley-Ottmann + monotone)           | 2                                  | ms-15-validation-finalize                                               | `milestones/ms-19-sweep-infrastructure.md`    |
+| ms-20-relate-de9im            | DE-9IM Relate                                               | 2                                  | ms-19-sweep-infrastructure                                              | `milestones/ms-20-relate-de9im.md`            |
+| ms-21-ioverlay-foundation     | i_overlay Foundation (deps + segments + grid layout)        | 3                                  | ms-19-sweep-infrastructure                                              | `milestones/ms-21-ioverlay-foundation.md`     |
+| ms-22-ioverlay-graph          | i_overlay Graph + Extraction                                | 2                                  | ms-21-ioverlay-foundation                                               | `milestones/ms-22-ioverlay-graph.md`          |
+| ms-23-ioverlay-public-api     | i_overlay Public BooleanOps API + Line Clipping             | 2                                  | ms-22-ioverlay-graph                                                    | `milestones/ms-23-ioverlay-public-api.md`     |
+| ms-24-buffer-offset           | Buffer (Offset) — i_overlay mesh layer                      | 2                                  | ms-23-ioverlay-public-api                                               | `milestones/ms-24-buffer-offset.md`           |
+| ms-25-stitch-repair           | Stitch + Repair Polygon                                     | 1                                  | ms-23-ioverlay-public-api                                               | `milestones/ms-25-stitch-repair.md`           |
+| ms-26-earcut-triangulation    | Earcut Triangulation                                        | 1                                  | ms-15-validation-finalize                                               | `milestones/ms-26-earcut-triangulation.md`    |
+| ms-27-delaunay-triangulation  | Delaunay Triangulation (Spade-equivalent)                   | 3                                  | ms-18-rtree-expansion                                                   | `milestones/ms-27-delaunay-triangulation.md`  |
+| ms-28-voronoi                 | Voronoi (Delaunay dual)                                     | 1                                  | ms-27-delaunay-triangulation                                            | `milestones/ms-28-voronoi.md`                 |
+| ms-29-concave-hull            | Concave Hull (k-NN + Delaunay-based)                        | 1                                  | ms-27-delaunay-triangulation                                            | `milestones/ms-29-concave-hull.md`            |
+| ms-30-indexed-algorithms      | Indexed Algorithms (`indexed_*`)                            | 1                                  | ms-18-rtree-expansion                                                   | `milestones/ms-30-indexed-algorithms.md`      |
+| ms-31-clustering              | Clustering (DBSCAN + KMeans + Outlier Detection)            | 2                                  | ms-18-rtree-expansion                                                   | `milestones/ms-31-clustering.md`              |
+| ms-32-geographic-distances    | Geographic Distance/Length/Bearing (Haversine/Vincenty/etc) | 2                                  | ms-15-validation-finalize                                               | `milestones/ms-32-geographic-distances.md`    |
+| ms-33-geographic-algorithms   | Geographic Algorithms (Densify + cross_track + chamberlain) | 1                                  | ms-32-geographic-distances                                              | `milestones/ms-33-geographic-algorithms.md`   |
+| ms-34-release-v02             | API Surface Review + v0.2.0 Release Prep                    | 1                                  | (all of ms-16〜ms-33)                                                   | `milestones/ms-34-release-v02.md`             |
 
 ## 大局的制約
 
@@ -122,6 +169,8 @@
 
 ## 依存グラフ
 
+### Phase 1 (ms-01〜ms-15)
+
 ```mermaid
 graph LR
   ms01[ms-01 Foundation]
@@ -163,6 +212,63 @@ graph LR
   ms14 --> ms15
 ```
 
+### Phase 2 (ms-16〜ms-34)
+
+```mermaid
+graph LR
+  ms15[ms-15 Validation/Finalize]
+  ms16[ms-16 Trait/SmallGaps]
+  ms17[ms-17 Validation Completion]
+  ms18[ms-18 RTree Expansion]
+  ms19[ms-19 Sweep Infrastructure]
+  ms20[ms-20 DE-9IM Relate]
+  ms21[ms-21 i_overlay Foundation]
+  ms22[ms-22 i_overlay Graph]
+  ms23[ms-23 i_overlay Public API]
+  ms24[ms-24 Buffer/Offset]
+  ms25[ms-25 Stitch/Repair]
+  ms26[ms-26 Earcut Triangulation]
+  ms27[ms-27 Delaunay Triangulation]
+  ms28[ms-28 Voronoi]
+  ms29[ms-29 Concave Hull]
+  ms30[ms-30 Indexed Algorithms]
+  ms31[ms-31 Clustering]
+  ms32[ms-32 Geographic Distances]
+  ms33[ms-33 Geographic Algorithms]
+  ms34[ms-34 Release v0.2.0]
+
+  ms15 --> ms16
+  ms15 --> ms17
+  ms15 --> ms18
+  ms15 --> ms19
+  ms15 --> ms26
+  ms15 --> ms32
+  ms19 --> ms20
+  ms19 --> ms21
+  ms21 --> ms22
+  ms22 --> ms23
+  ms23 --> ms24
+  ms23 --> ms25
+  ms18 --> ms27
+  ms27 --> ms28
+  ms27 --> ms29
+  ms18 --> ms30
+  ms18 --> ms31
+  ms32 --> ms33
+  ms16 --> ms34
+  ms17 --> ms34
+  ms20 --> ms34
+  ms23 --> ms34
+  ms24 --> ms34
+  ms25 --> ms34
+  ms26 --> ms34
+  ms28 --> ms34
+  ms29 --> ms34
+  ms30 --> ms34
+  ms31 --> ms34
+  ms33 --> ms34
+```
+
 ## 関連リンク
 
 - georust 公式: https://georust.org/
@@ -182,4 +288,6 @@ graph LR
 
 ## ブランチ運用ポリシー
 
-本ロードマップ実行中は **単一ブランチ (`cobalt-ocotillo`) ですべてのマイルストーンを実装する**。複数 PR への分割は本ロードマップ完了後 (またはユーザー判断のタイミング) に別途実施する。各マイルストーンは独立コミットとして履歴に積み、後からチェリーピックや分割 PR 化が可能な単位粒度を保つ。
+**Phase 1** は単一ブランチ (`cobalt-ocotillo`) ですべてのマイルストーンを実装した。各マイルストーンは独立コミットとして履歴に積み、後からチェリーピックや分割 PR 化が可能な単位粒度を保っている。
+
+**Phase 2** はマイルストーンあたりの実装規模が大きく (i_overlay foundation だけで数千 LOC 規模)、単一ブランチに積み続けると履歴が散らかるため、**マイルストーン単位で個別ブランチ + 個別 PR を起こす運用に切り替える**。`cobalt-ocotillo` ブランチは Phase 1 のアーカイブとして残し、Phase 2 の各サイクルは `geo-mbt/<milestone-id>` のような短命ブランチで進めて main にマージする。具体のブランチ命名規則は ms-16 着手サイクルの `dev-workflow` Step 1 (Intent Spec) で確定する。
