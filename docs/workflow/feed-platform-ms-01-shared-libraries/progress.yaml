@@ -1,6 +1,6 @@
 identifier: feed-platform-ms-01-shared-libraries
 started_at: 2026-05-07T03:55:00Z
-updated_at: 2026-05-10T08:30:00Z
+updated_at: 2026-05-10T09:00:00Z
 
 status: active
 current_step: 4
@@ -31,6 +31,12 @@ completed_steps:
     user_gate: approved
     user_gate_approved_at: 2026-05-10T08:30:00Z
     user_gate_note: 'Step 3 改訂版 (R-1〜R-6 反映後) を承認。effect-hono × 3 export (Env.Type 直接 union / dynamicLoggerLayer Env-open / makeDisposableRuntime wrapper class) + remix-helper × 1 export (createFrameHelpers<T extends string>() with FrameLink C-6 統合) で確定。CI PASS (run 25623758677 on d6bfd41 merge commit)。'
+  - step: Step 4 QA Design (候補、User gate 待ち)
+    completed_at: 2026-05-10T09:00:00Z
+    artifacts:
+      - qa-design.md
+      - qa-flow.md
+    note: 'qa-analyst specialist × 1 で qa-design.md (140 lines / 14 TCs) + qa-flow.md (354 lines) を作成。SC-1〜SC-10 全 10 件の観測手段確定。P0 (必須) 2 件 = TC-001 (effect-hono runtime smoke) + TC-002 (remix-helper frame-helpers smoke)。P1 (推奨) 9 件 + P2 (任意) 3 件。Step 5 carry-over 4 件 (CO-1〜CO-4: TC を T-A〜T-F atomic commit に紐付け、TC-013 logger test の Step 6 確定タイミング、TC-009 hono-example smoke の 0-test 振る舞い)。Blockers なし。'
 
 pending_gates:
   - User gate (Step 4 → Step 5): qa-design.md + qa-flow.md レビューと承認待ち
@@ -94,8 +100,8 @@ artifacts:
     - research/existing-js-package-isolation-check.md
     - research/infer-frame-name-type-utility-pattern.md
   design: design.md
-  qa_design: null
-  qa_flow: null
+  qa_design: qa-design.md
+  qa_flow: qa-flow.md
   external_adrs:
     - docs/roadmap/feed-platform/adr/2026-05-08-shared-libraries-extraction.md
   task_plan: null
