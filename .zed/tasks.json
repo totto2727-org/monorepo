@@ -1,0 +1,16 @@
+[
+  {
+    "label": "mdt: translate to ja",
+    "command": "node js/app/mdt/dist/bin.mjs \"$ZED_FILE\" --lang ja --force",
+    "reveal": "always",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "mdt: translate to en",
+    "command": "node js/app/mdt/dist/bin.mjs \"$ZED_FILE\" --lang en --force",
+    "reveal": "always",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false
+  }
+]
