@@ -46,10 +46,11 @@ fn[T] Node::node_bbox(self : Node[T]) -> @type.Rect {
 }
 
 ///|
-/// A read-only 2D R-tree. Build with `RTree::bulk_load(entries)`.
+/// A 2D R-tree. Build with `RTree::bulk_load(entries)` for static data, or
+/// start empty with `RTree::new()` and `insert` / `remove` for dynamic use.
 pub struct RTree[T] {
-  root : Node[T]?
-  size : Int
+  mut root : Node[T]?
+  mut size : Int
 }
 
 ///|
@@ -58,6 +59,12 @@ pub struct RTree[T] {
 /// package and is the single struct-literal entry point for the type.
 fn[T] RTree::RTree(root : Node[T]?, size : Int) -> RTree[T] {
   RTree::{ root, size }
+}
+
+///|
+/// Returns an empty `RTree`. Use with `insert` / `remove` for dynamic use.
+pub fn[T] RTree::new() -> RTree[T] {
+  RTree::{ root: None, size: 0 }
 }
 
 ///|
