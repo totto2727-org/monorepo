@@ -1,9 +1,9 @@
 identifier: feed-platform-ms-01-shared-libraries
 started_at: 2026-05-07T03:55:00Z
-updated_at: 2026-05-10T09:00:00Z
+updated_at: 2026-05-10T10:00:00Z
 
 status: active
-current_step: 4
+current_step: 5
 
 completed_steps:
   - step: Step 1 Intent Clarification
@@ -31,15 +31,27 @@ completed_steps:
     user_gate: approved
     user_gate_approved_at: 2026-05-10T08:30:00Z
     user_gate_note: 'Step 3 改訂版 (R-1〜R-6 反映後) を承認。effect-hono × 3 export (Env.Type 直接 union / dynamicLoggerLayer Env-open / makeDisposableRuntime wrapper class) + remix-helper × 1 export (createFrameHelpers<T extends string>() with FrameLink C-6 統合) で確定。CI PASS (run 25623758677 on d6bfd41 merge commit)。'
-  - step: Step 4 QA Design (候補、User gate 待ち)
-    completed_at: 2026-05-10T09:00:00Z
+  - step: Step 4 QA Design
+    completed_at: 2026-05-10T10:00:00Z
     artifacts:
       - qa-design.md
       - qa-flow.md
-    note: 'qa-analyst specialist × 1 で qa-design.md (140 lines / 14 TCs) + qa-flow.md (354 lines) を作成。SC-1〜SC-10 全 10 件の観測手段確定。P0 (必須) 2 件 = TC-001 (effect-hono runtime smoke) + TC-002 (remix-helper frame-helpers smoke)。P1 (推奨) 9 件 + P2 (任意) 3 件。Step 5 carry-over 4 件 (CO-1〜CO-4: TC を T-A〜T-F atomic commit に紐付け、TC-013 logger test の Step 6 確定タイミング、TC-009 hono-example smoke の 0-test 振る舞い)。Blockers なし。'
+    user_gate: approved
+    user_gate_approved_at: 2026-05-10T10:00:00Z
+    user_gate_note: 'Step 4 (QA Design) を承認。14 TCs (P0 2 / P1 9 / P2 3) で SC-1〜SC-10 全 10 件の観測手段確定、Step 5 carry-over CO-1〜CO-4 を引き継ぎ。CI PASS (run 25624456442 on 22d8383)。'
+
+step4_qa_carry_over:
+  - id: CO-1
+    decision: 'TC-001 / TC-002 を T-A / T-B (library skeleton) と同 atomic commit に統合 (Step 5 で task ordering 確定)'
+  - id: CO-2
+    decision: 'TC-006 / TC-007 / TC-008 を T-C〜T-F (consumer migration) と同 atomic commit に紐付け (中間状態許容なし)'
+  - id: CO-3
+    decision: 'TC-013 (logger.test.ts P2) は Step 6 implementer が Logger.replaceEffect / Layer.effect 等の Effect 4.x API 確定後に書くため、Step 5 で T-A 内 subtask として書きうる時点を予約'
+  - id: CO-4
+    decision: 'TC-009 (hono-example smoke) で test 群が不在の場合の vp run --filter <pkg> test exit 0 振る舞い (= 0 件 PASS が exit 0 で成立する Vite+ 仕様) を Step 5 で T-F 前提として記録'
 
 pending_gates:
-  - User gate (Step 4 → Step 5): qa-design.md + qa-flow.md レビューと承認待ち
+  - User gate (Step 5 → Step 6): task-plan.md + TODO.md レビューと承認待ち
 
 active_specialists: []
 
@@ -123,6 +135,10 @@ user_approvals:
     decision: approved
     approved_at: 2026-05-10T08:30:00Z
     note: 'Step 3 (Design) 改訂版 (R-1〜R-6 全反映) を承認、Step 4 (QA Design) へ移行'
+  - step: 4
+    decision: approved
+    approved_at: 2026-05-10T10:00:00Z
+    note: 'Step 4 (QA Design) を承認、Step 5 (Task Decomposition) へ移行'
 
 rollbacks: []
 
