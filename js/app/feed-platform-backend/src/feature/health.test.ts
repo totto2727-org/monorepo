@@ -10,7 +10,7 @@ describe('Health', () => {
       const checker = yield* Health.Service
       return yield* checker.check()
     })
-    const layer = Health.layer.pipe(Layer.provide(Env.makeLayer({ ENV: 'development' })))
+    const layer = Health.layer.pipe(Layer.provide(Env.makeLayer('development')))
     const result = await Effect.runPromise(Effect.provide(program, layer))
     expect(result).toEqual({ env: 'development', status: 'ok' })
   })
