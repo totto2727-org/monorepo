@@ -6,12 +6,20 @@
 //   http://www.movable-type.co.uk/scripts/latlong-vincenty.html
 //   https://en.wikipedia.org/wiki/Vincenty%27s_formulae
 
+///|
 let equatorial_earth_radius : Double = 6_378_137.0
-let polar_earth_radius : Double = 6_356_752.314_245
-let earth_flattening : Double =
-  (equatorial_earth_radius - polar_earth_radius) / equatorial_earth_radius
 
-fn to_rad(x : Double) -> Double { x * @math.PI / 180.0 }
+///|
+let polar_earth_radius : Double = 6_356_752.314_245
+
+///|
+let earth_flattening : Double = (equatorial_earth_radius - polar_earth_radius) /
+  equatorial_earth_radius
+
+///|
+fn to_rad(x : Double) -> Double {
+  x * @math.PI / 180.0
+}
 
 ///|
 /// Returns the distance in meters between two points on the WGS84 ellipsoid
@@ -31,10 +39,7 @@ fn to_rad(x : Double) -> Double { x * @math.PI / 180.0 }
 ///   }
 /// }
 /// ```
-pub fn vincenty_distance(
-  a : @type.Point,
-  b : @type.Point,
-) -> Double? {
+pub fn vincenty_distance(a : @type.Point, b : @type.Point) -> Double? {
   let a_radius = equatorial_earth_radius
   let b_radius = polar_earth_radius
   let f = earth_flattening
@@ -53,11 +58,9 @@ pub fn vincenty_distance(
 
   while iter_limit > 0 {
     let (sin_lambda, cos_lambda) = (@math.sin(lambda), @math.cos(lambda))
-    sin_sigma = (
-      (cos_u2 * sin_lambda) * (cos_u2 * sin_lambda) +
-      (cos_u1 * sin_u2 - sin_u1 * cos_u2 * cos_lambda) *
-      (cos_u1 * sin_u2 - sin_u1 * cos_u2 * cos_lambda)
-    ).sqrt()
+    sin_sigma = (cos_u2 * sin_lambda * (cos_u2 * sin_lambda) +
+    (cos_u1 * sin_u2 - sin_u1 * cos_u2 * cos_lambda) *
+    (cos_u1 * sin_u2 - sin_u1 * cos_u2 * cos_lambda)).sqrt()
 
     if sin_sigma == 0.0 {
       return if a == b { Some(0.0) } else { None }
@@ -74,13 +77,21 @@ pub fn vincenty_distance(
       cos_sigma - 2.0 * sin_u1 * sin_u2 / cos_sq_alpha
     }
 
-    let c = f / 16.0 * cos_sq_alpha *
-      (4.0 + f * (4.0 - 3.0 * cos_sq_alpha))
+    let c = f / 16.0 * cos_sq_alpha * (4.0 + f * (4.0 - 3.0 * cos_sq_alpha))
     let lambda_p = lambda
-    lambda = l + (1.0 - c) * f * sin_alpha *
-      (sigma + c * sin_sigma *
-        (cos2_sigma_m + c * cos_sigma *
-          (-1.0 + 2.0 * cos2_sigma_m * cos2_sigma_m)))
+    lambda = l +
+      (1.0 - c) *
+      f *
+      sin_alpha *
+      (
+        sigma +
+        c *
+        sin_sigma *
+        (
+          cos2_sigma_m +
+          c * cos_sigma * (-1.0 + 2.0 * cos2_sigma_m * cos2_sigma_m)
+        )
+      )
 
     if (lambda - lambda_p).abs() <= 1.0e-12 {
       break
@@ -93,18 +104,29 @@ pub fn vincenty_distance(
   }
 
   let u_sq = cos_sq_alpha *
-    (a_radius * a_radius - b_radius * b_radius) / (b_radius * b_radius)
-  let aa = 1.0 + u_sq / 16384.0 *
-    (4096.0 + u_sq * (-768.0 + u_sq * (320.0 - 175.0 * u_sq)))
-  let bb = u_sq / 1024.0 *
+    (a_radius * a_radius - b_radius * b_radius) /
+    (b_radius * b_radius)
+  let aa = 1.0 +
+    u_sq / 16384.0 * (4096.0 + u_sq * (-768.0 + u_sq * (320.0 - 175.0 * u_sq)))
+  let bb = u_sq /
+    1024.0 *
     (256.0 + u_sq * (-128.0 + u_sq * (74.0 - 47.0 * u_sq)))
 
-  let delta_sigma = bb * sin_sigma *
-    (cos2_sigma_m + bb / 4.0 *
-      (cos_sigma * (-1.0 + 2.0 * cos2_sigma_m * cos2_sigma_m) -
-        bb / 6.0 * cos2_sigma_m *
+  let delta_sigma = bb *
+    sin_sigma *
+    (
+      cos2_sigma_m +
+      bb /
+      4.0 *
+      (
+        cos_sigma * (-1.0 + 2.0 * cos2_sigma_m * cos2_sigma_m) -
+        bb /
+        6.0 *
+        cos2_sigma_m *
         (-3.0 + 4.0 * sin_sigma * sin_sigma) *
-        (-3.0 + 4.0 * cos2_sigma_m * cos2_sigma_m)))
+        (-3.0 + 4.0 * cos2_sigma_m * cos2_sigma_m)
+      )
+    )
 
   Some(b_radius * aa * (sigma - delta_sigma))
 }

@@ -17,7 +17,7 @@ pub fn haversine() -> HaversineMeasure {
 
 ///|
 pub fn HaversineMeasure::new(radius : Double) -> HaversineMeasure {
-  HaversineMeasure::{ radius }
+  HaversineMeasure::{ radius, }
 }
 
 ///|
@@ -51,10 +51,11 @@ pub fn HaversineMeasure::distance(
   let theta2 = to_rad(destination.y())
   let delta_theta = to_rad(destination.y() - origin.y())
   let delta_lambda = to_rad(destination.x() - origin.x())
-  let a =
-    @math.sin(delta_theta / 2.0) * @math.sin(delta_theta / 2.0) +
-    @math.cos(theta1) * @math.cos(theta2) *
-    @math.sin(delta_lambda / 2.0) * @math.sin(delta_lambda / 2.0)
+  let a = @math.sin(delta_theta / 2.0) * @math.sin(delta_theta / 2.0) +
+    @math.cos(theta1) *
+    @math.cos(theta2) *
+    @math.sin(delta_lambda / 2.0) *
+    @math.sin(delta_lambda / 2.0)
   let c = 2.0 * @math.asin(a.sqrt())
   self.radius * c
 }
@@ -124,7 +125,7 @@ pub fn HaversineMeasure::destination(
   let rad = distance / self.radius
   let lat = @math.asin(
     @math.sin(center_lat) * @math.cos(rad) +
-    @math.cos(center_lat) * @math.sin(rad) * @math.cos(bearing_rad)
+    @math.cos(center_lat) * @math.sin(rad) * @math.cos(bearing_rad),
   )
   let lng = center_lng +
     @math.atan2(
@@ -166,10 +167,8 @@ pub fn point_at_ratio_between(
   let o = lat2_cos * lon2_cos
   let p = lat1_cos * lon1_sin
   let q = lat2_cos * lon2_sin
-  let k = (
-    @math.sin((lat1 - lat2) / 2.0) * @math.sin((lat1 - lat2) / 2.0) +
-    m * @math.sin((lon1 - lon2) / 2.0) * @math.sin((lon1 - lon2) / 2.0)
-  ).sqrt()
+  let k = (@math.sin((lat1 - lat2) / 2.0) * @math.sin((lat1 - lat2) / 2.0) +
+  m * @math.sin((lon1 - lon2) / 2.0) * @math.sin((lon1 - lon2) / 2.0)).sqrt()
   let d = 2.0 * @math.asin(k)
 
   let a = @math.sin((1.0 - ratio_from_start) * d) / @math.sin(d)

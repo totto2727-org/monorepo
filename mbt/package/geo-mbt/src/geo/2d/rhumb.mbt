@@ -2,7 +2,10 @@
 // Ported from georust/geo
 // https://github.com/georust/geo/blob/main/geo/src/algorithm/rhumb/mod.rs
 
-fn to_deg(x : Double) -> Double { x * 180.0 / @math.PI }
+///|
+fn to_deg(x : Double) -> Double {
+  x * 180.0 / @math.PI
+}
 
 ///|
 /// Pre-calculated shared values for rhumb line operations between two points.
@@ -13,6 +16,7 @@ priv struct RhumbCalc {
   delta_psi : Double
 }
 
+///|
 fn rhumb_calc(origin : @type.Point, destination : @type.Point) -> RhumbCalc {
   let phi1 = to_rad(origin.y())
   let phi2 = to_rad(destination.y())
@@ -25,7 +29,7 @@ fn rhumb_calc(origin : @type.Point, destination : @type.Point) -> RhumbCalc {
   }
   let delta_psi = @math.ln(
     @math.tan(phi2 / 2.0 + @math.PI / 4.0) /
-    @math.tan(phi1 / 2.0 + @math.PI / 4.0)
+    @math.tan(phi1 / 2.0 + @math.PI / 4.0),
   )
   let delta_phi = phi2 - phi1
   RhumbCalc::{ phi1, delta_lambda, delta_phi, delta_psi }
@@ -45,7 +49,7 @@ pub fn rhumb() -> RhumbMeasure {
 
 ///|
 pub fn RhumbMeasure::new(radius : Double) -> RhumbMeasure {
-  RhumbMeasure::{ radius }
+  RhumbMeasure::{ radius, }
 }
 
 ///|
@@ -74,8 +78,8 @@ pub fn RhumbMeasure::distance(
   } else {
     @math.cos(c.phi1)
   }
-  (c.delta_phi * c.delta_phi + q * q * c.delta_lambda * c.delta_lambda)
-  .sqrt() * self.radius
+  (c.delta_phi * c.delta_phi + q * q * c.delta_lambda * c.delta_lambda).sqrt() *
+  self.radius
 }
 
 ///|
@@ -123,7 +127,7 @@ pub fn RhumbMeasure::destination(
   }
   let delta_psi = @math.ln(
     @math.tan(phi2 / 2.0 + @math.PI / 4.0) /
-    @math.tan(phi1 / 2.0 + @math.PI / 4.0)
+    @math.tan(phi1 / 2.0 + @math.PI / 4.0),
   )
   let q = if delta_phi.abs() > 10.0e-12 {
     delta_phi / delta_psi
@@ -133,7 +137,10 @@ pub fn RhumbMeasure::destination(
   let delta_lambda = delta * @math.sin(theta) / q
   let lambda2 = lambda1 + delta_lambda
   @type.Point::from_tuple(
-    ((-180.0).max(180.0.min(to_deg(lambda2))), (-90.0).max(90.0.min(to_deg(phi2)))),
+    (
+      (-180.0).max(180.0.min(to_deg(lambda2))),
+      (-90.0).max(90.0.min(to_deg(phi2))),
+    ),
   )
 }
 
