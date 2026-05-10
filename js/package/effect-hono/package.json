@@ -8,12 +8,10 @@
     "./logger": "./src/logger.ts",
     "./runtime": "./src/runtime.ts"
   },
-  "dependencies": {
-    "effect": "catalog:effect"
-  },
   "devDependencies": {
     "@totto2727/fp": "workspace:*",
-    "@types/node": "catalog:types"
+    "@types/node": "catalog:types",
+    "effect": "catalog:effect"
   },
   "peerDependencies": {
     "effect": "catalog:effect"
