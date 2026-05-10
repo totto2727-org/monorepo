@@ -7,9 +7,12 @@
 //
 // Algorithm-layer traits (`CoordsCarrier`, `Bounded`, `HasArea`,
 // `HasCentroid`, `HasEuclideanLength`, `LinesCarrier`, `HasDimensions`,
-// `HasConvexHull`, `ClosestPoint`, `CoordPositionFor`, `Simplify`,
-// `Densify`, `MapCoords`) live in `geo/2d/traits.mbt` because their
-// canonical implementations live in the algorithm layer, not in `type/`.
+// `HasConvexHull`, `HasExtremes`, `ExteriorCoordsCarrier`, `ClosestPoint`,
+// `CoordPositionFor`, `Simplify`, `Densify`, `MapCoords`) live colocated
+// with their impls in each algorithm-layer source file under `geo/2d/`
+// (e.g. `area.mbt`, `bounding_rect.mbt`, `lines_iter.mbt`). The
+// previously-monolithic `geo/2d/traits.mbt` was dismantled in commit
+// `c8b61f2` so that the contract sits next to its canonical implementations.
 
 ///|
 /// Anything that can be empty (zero coords / zero components). Mirrors the
