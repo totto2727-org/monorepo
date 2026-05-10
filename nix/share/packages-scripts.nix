@@ -69,20 +69,6 @@ let
       https://api.z.ai/api/mcp/web_reader/mcp "$@"
   '';
 
-  macos-d = writeShellScriptBin "d" ''
-    export Z_AI_API_KEY="$(pass-cli get z-ai/api-key --quiet -f password)"
-    export OPENCODE_ZEN_API_KEY="$(pass-cli get opencode-zen/api-key --quiet -f password)"
-    export CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
-    export CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
-    exec droid "$@"
-  '';
-
-  macos-c = writeShellScriptBin "c" ''
-    export CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
-    export CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
-    exec claude "$@"
-  '';
-
   macos-o = writeShellScriptBin "o" ''
     export ANTHROPIC_API_KEY="x"
     export ANTHROPIC_BASE_URL="http://127.0.0.1:3456"
@@ -138,8 +124,6 @@ in
     macos-zread-mcp
     macos-brave-search-mcp
     macos-web-reader-mcp
-    macos-d
-    macos-c
     macos-o
   ];
 
