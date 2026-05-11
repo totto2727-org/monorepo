@@ -15,10 +15,10 @@ Look up library and framework documentation using the Context7 CLI.
 
 ## Available Tools
 
-| Priority | Tool               | Use Case                                      | Reference                                            |
-| -------- | ------------------ | --------------------------------------------- | ---------------------------------------------------- |
-| Primary  | `ctx7` CLI         | General library/framework official docs       | [references/context7.md](references/context7.md)     |
-| Fallback | web-search skill   | When ctx7 is insufficient                     | [../web-search/SKILL.md](../web-search/SKILL.md)     |
+| Priority | Tool             | Use Case                                | Reference                                        |
+| -------- | ---------------- | --------------------------------------- | ------------------------------------------------ |
+| Primary  | `ctx7` CLI       | General library/framework official docs | [references/context7.md](references/context7.md) |
+| Fallback | web-search skill | When ctx7 is insufficient               | [../web-search/SKILL.md](../web-search/SKILL.md) |
 
 ## Workflow
 

@@ -82,7 +82,6 @@ let
     exec opencode "$@"
   '';
 
-
 in
 {
   macos = [

@@ -16,10 +16,10 @@ Search the web via Brave Search (`bsx` CLI) and retrieve page content via Cloudf
 
 ## Available Tools
 
-| Role   | Tool            | Use Case                                 | Reference                                  |
-| ------ | --------------- | ---------------------------------------- | ------------------------------------------ |
-| Search | `bsx` CLI       | Web search with real-time results        | [references/bsx.md](references/bsx.md)     |
-| Fetch  | `bwx markdown`  | Retrieve page content as markdown        | [references/bwx.md](references/bwx.md)     |
+| Role   | Tool           | Use Case                          | Reference                              |
+| ------ | -------------- | --------------------------------- | -------------------------------------- |
+| Search | `bsx` CLI      | Web search with real-time results | [references/bsx.md](references/bsx.md) |
+| Fetch  | `bwx markdown` | Retrieve page content as markdown | [references/bwx.md](references/bwx.md) |
 
 If CLI tools are unavailable, fall back to the equivalent standard tools provided by the agent runtime.
 

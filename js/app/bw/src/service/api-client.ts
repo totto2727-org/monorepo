@@ -225,10 +225,7 @@ export const crawlStart = (
   Effect.gen(function* () {
     const data = yield* postJson(auth, '/crawl', body)
     const parsed = yield* decodeCrawlStart(data).pipe(
-      Effect.mapError(
-        (e) =>
-          new ApiError({ endpoint: '/crawl', message: formatErrorChain(e), status: 0 }),
-      ),
+      Effect.mapError((e) => new ApiError({ endpoint: '/crawl', message: formatErrorChain(e), status: 0 })),
     )
     return parsed.result
   })

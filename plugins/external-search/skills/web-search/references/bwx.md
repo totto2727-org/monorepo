@@ -20,25 +20,25 @@ bwx markdown --url https://example.com --wait-until networkidle0
 
 ### Other Subcommands
 
-| Subcommand  | Use Case                                |
-| ----------- | --------------------------------------- |
-| `content`   | Fetch rendered HTML from a URL          |
-| `screenshot`| Capture a screenshot of a URL           |
-| `pdf`       | Generate a PDF from a URL               |
-| `markdown`  | Extract markdown from a URL             |
-| `snapshot`  | Capture both HTML and screenshot        |
-| `scrape`    | Extract elements by CSS selector        |
-| `json`      | Extract structured data using AI        |
-| `links`     | Retrieve all links from a URL           |
-| `crawl`     | Manage async crawl jobs                 |
+| Subcommand   | Use Case                         |
+| ------------ | -------------------------------- |
+| `content`    | Fetch rendered HTML from a URL   |
+| `screenshot` | Capture a screenshot of a URL    |
+| `pdf`        | Generate a PDF from a URL        |
+| `markdown`   | Extract markdown from a URL      |
+| `snapshot`   | Capture both HTML and screenshot |
+| `scrape`     | Extract elements by CSS selector |
+| `json`       | Extract structured data using AI |
+| `links`      | Retrieve all links from a URL    |
+| `crawl`      | Manage async crawl jobs          |
 
 ## Key Parameters (markdown)
 
-| Parameter       | Description                                                     |
-| --------------- | --------------------------------------------------------------- |
-| `--url`         | URL to fetch                                                    |
-| `--wait-until`  | Page load strategy: `load`, `domcontentloaded`, `networkidle0`, `networkidle2` |
-| `--output`, `-o`| Output file path (otherwise prints to stdout)                   |
+| Parameter        | Description                                                                    |
+| ---------------- | ------------------------------------------------------------------------------ |
+| `--url`          | URL to fetch                                                                   |
+| `--wait-until`   | Page load strategy: `load`, `domcontentloaded`, `networkidle0`, `networkidle2` |
+| `--output`, `-o` | Output file path (otherwise prints to stdout)                                  |
 
 ## Tips
 

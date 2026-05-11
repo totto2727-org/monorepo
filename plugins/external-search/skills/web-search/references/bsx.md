@@ -38,16 +38,16 @@ bsx web "React 19 new features" --count 20
 
 ## Key Parameters
 
-| Parameter          | Description                                            |
-| ------------------ | ------------------------------------------------------ |
-| `--count`          | Number of results (context: 1-20, web: 1-20)           |
-| `--max-tokens`     | Token budget for RAG grounding output                  |
-| `--threshold`      | Relevance threshold: `strict`, `balanced`, `lenient`   |
-| `--country`        | Country code for search results                        |
-| `--freshness`      | Time filter: query with date qualifiers                |
-| `--include-site`   | Restrict to specific domains                           |
-| `--exclude-site`   | Exclude specific domains                               |
-| `--goggles`        | Custom ranking (boost docs, discard spam)              |
+| Parameter        | Description                                          |
+| ---------------- | ---------------------------------------------------- |
+| `--count`        | Number of results (context: 1-20, web: 1-20)         |
+| `--max-tokens`   | Token budget for RAG grounding output                |
+| `--threshold`    | Relevance threshold: `strict`, `balanced`, `lenient` |
+| `--country`      | Country code for search results                      |
+| `--freshness`    | Time filter: query with date qualifiers              |
+| `--include-site` | Restrict to specific domains                         |
+| `--exclude-site` | Exclude specific domains                             |
+| `--goggles`      | Custom ranking (boost docs, discard spam)            |
 
 ## Tips
 
