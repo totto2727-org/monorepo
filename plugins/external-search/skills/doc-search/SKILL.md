@@ -18,7 +18,6 @@ Look up library and framework documentation using the Context7 CLI.
 | Priority | Tool               | Use Case                                      | Reference                                            |
 | -------- | ------------------ | --------------------------------------------- | ---------------------------------------------------- |
 | Primary  | `ctx7` CLI         | General library/framework official docs       | [references/context7.md](references/context7.md)     |
-| Delegate | oss-analysis skill | GitHub repository code and structure analysis | [../oss-analysis/SKILL.md](../oss-analysis/SKILL.md) |
 | Fallback | web-search skill   | When ctx7 is insufficient                     | [../web-search/SKILL.md](../web-search/SKILL.md)     |
 
 ## Workflow
@@ -30,11 +29,7 @@ Look up library and framework documentation using the Context7 CLI.
    - Sufficient information found -> Return results
    - Insufficient -> Proceed to step 3
 
-3. **Delegate: oss-analysis skill (when applicable)**
-   - When documentation research requires analyzing a GitHub repository's code or structure, use the [oss-analysis](../oss-analysis/SKILL.md) skill
-   - Applicable when you need to understand source code, project structure, or implementation details beyond published docs
-
-4. **Fallback: web-search skill**
+3. **Fallback: web-search skill**
    - Invoke the [web-search](../web-search/SKILL.md) skill to search the web for documentation
    - Target official documentation sites in the search query
 

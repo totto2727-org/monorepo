@@ -1,16 +1,3 @@
 {
-  "mcpServers": {
-    "zread": {
-      "type": "stdio",
-      "command": "zread-mcp"
-    },
-    "brave-search": {
-      "type": "stdio",
-      "command": "brave-search-mcp"
-    },
-    "web-reader": {
-      "type": "stdio",
-      "command": "web-reader-mcp"
-    }
-  }
+  "mcpServers": {}
 }
