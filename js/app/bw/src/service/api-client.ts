@@ -1,4 +1,4 @@
-import { Data, Effect, Schema } from 'effect'
+import { Data, Effect, Predicate, Schema } from 'effect'
 import type { HttpClientResponse } from 'effect/unstable/http'
 import { HttpBody, HttpClient } from 'effect/unstable/http'
 
@@ -23,20 +23,24 @@ const formatErrorChain = (error: unknown): string => {
     }
   }
   const parts: string[] = [`${error.name}: ${error.message}`]
-  let current: unknown = error.cause
-  let depth = 0
-  while (current instanceof Error && depth < 10) {
-    parts.push(`caused by: ${current.name}: ${current.message}`)
-    current = current.cause
-    depth += 1
-  }
-  if (current !== undefined && !(current instanceof Error)) {
-    try {
-      parts.push(`caused by: ${JSON.stringify(current)}`)
-    } catch {
-      parts.push(`caused by: ${String(current)}`)
+
+  const collectCauses = (cause: unknown, depth: number): void => {
+    if (depth >= 10) {
+      return
+    }
+    if (cause instanceof Error) {
+      parts.push(`caused by: ${cause.name}: ${cause.message}`)
+      collectCauses(cause.cause, depth + 1)
+    } else if (!Predicate.isNullish(cause)) {
+      try {
+        parts.push(`caused by: ${JSON.stringify(cause)}`)
+      } catch {
+        parts.push(`caused by: [${typeof cause}]`)
+      }
     }
   }
+
+  collectCauses(error.cause, 0)
   return parts.join(' | ')
 }
 
