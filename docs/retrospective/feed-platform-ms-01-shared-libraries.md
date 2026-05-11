@@ -19,7 +19,8 @@ Intent Specification で 7 件の決定を会話駆動で確定し、Step 3 Desi
 - **factory-only 抽出による実装の簡素化**: 具体実装は consumer に残し、factory のみを抽出する方針 (User Q1-ext) により、ライブラリ API surface が全 4 export に最小化され実装が早期収束した
 - **Step 3 design revision loop の効率**: User feedback 6 回 (R-1〜R-6) を CI パイプラインで逐次検証でき、型表現 (struct → union → Record → union direct + FrameLink) の試行錯誤が全く branch 汚染を起こさずに収束。毎 revision commit が CI PASS した状態で進んだ
 - **parallel specialist invocation (Step 2 / Step 5 / Step 6)**: Research 4 角度並列 / task-decomposer single / implementer 3 並列 により 3 日 8 時間で 9 ステップ完走
-- **design.md "即時 corrigendum" の遂行**: oxc no-barrel-file rule による subpath exports 変更、Env-open Layer の composition 順序変更、`@types/node` tsconfig types 追加等の deviation を実装段階で発生順に記録し、Step 7 review で整理
+- **design.md "即時 corrigendum" の遂行**: Env-open Layer の composition 順序変更、`@types/node` tsconfig types 追加等の deviation を実装段階で発生順に記録し、Step 7 review で整理
+- **User feedback による barrel revert の即応**: 当初 oxc no-barrel-file rule 回避のため subpath exports に切り替えていたが、User feedback (2026-05-11) で「`fp` などの library barrel は `// oxlint-disable-next-line oxc/no-barrel-file` 注釈で許容」が明示されると即座に design.md 当初想定の barrel パターンへ復元できた (1 commit、a0833eb)。consumer の import も 3 行 subpath → 1 行 barrel に集約され、design.md ↔ 実装の整合性も回復
 - **holistic review の実装確認**: 11 findings で Major 1 (M-1: dependency structure) / Minor 3 / Info 6 を検出。M-1 は即時修正 (1 commit) で完結
 
 ## Issues (what did not work well)
@@ -39,7 +40,7 @@ Intent Specification で 7 件の決定を会話駆動で確定し、Step 3 Desi
 
 ### 認識された主要な摩擦
 
-1. **barrel file → subpath exports への設計 deviation**: design.md が `src/index.ts` barrel を前提としていたが、oxc no-barrel-file rule (threshold 100 modules) が effect import を伴う barrel を拒否したため、全ライブラリを subpath exports に変更せざるを得なくなった。hono-remix-middleware は barrel パターンだが、そちらは 3 export のみで threshold に達していないため免れている。library の exports 設計では最初から oxc rule を考慮した subpath exports とする方が安全
+1. **barrel file vs oxc no-barrel-file rule の運用知識不足**: design.md が `src/index.ts` barrel を前提としていたが、oxc no-barrel-file rule (threshold 100 modules) が `effect` import を伴う barrel を拒否したため、当初は全ライブラリを subpath exports に切り替えていた。User feedback (2026-05-11) で「`fp` などのライブラリ barrel は `// oxlint-disable-next-line oxc/no-barrel-file -- <reason>` 注釈で許容方針」と明示され、modern bundler の解析能力向上を理由に当初想定の barrel に revert (commit `a0833eb`)。学び: monorepo 横断の lint rule 緩和方針 (どのコードで OK / どのコードで NG か) を architect / implementer に事前共有する protocol が必要。本 cycle では deviation → revert で結果整合したが、最初から知っていれば deviation 自体を防げた
 
 2. **CI の横断フォーマット問題**: 本 cycle の変更とは無関係な `plugins/totto2727/skills/` 配下 25 ファイルが CI 環境でフォーマット警告を出力し、check job が exit ≠ 0 になった。Phase 1 retrospective の rss-graphql 86 errors と同様の問題。workspace-wide check の pre-existing issues が後続 cycle にノイズを乗せる
 
@@ -49,12 +50,12 @@ Intent Specification で 7 件の決定を会話駆動で確定し、Step 3 Desi
 
 ## Future improvements
 
-| Improvement                                                    | Action                                                                                                                      | Priority                | Roadmap cycle     |
-| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ----------------- |
-| oxc no-barrel-file rule との整合を design.md template に含める | library 新設テンプレートに subpath exports を default 化                                                                    | low                     | n/a (doc-only)    |
-| CI の pre-existing formatting issues の cleanup                | `plugins/totto2727/skills/` の 25 files を `vp run fix` で一括修正し main に merge                                          | medium                  | next housekeeping |
-| remix-helper test の Handle<T> mock factory                    | `createHandleMock<T>(props)` を remix-helper 自身が export するか、`@remix-run/ui` に test utility リクエスト               | low                     | ms-04 or upstream |
-| design.md ↔ 実装 deviation の即時修正                          | deviation 発見時に design.md corrigendum commit を即座に行う protocol を Phase 1 retrospective から継承 (本 cycle で実施済) | — (already implemented) | —                 |
+| Improvement                                                | Action                                                                                                                                                                                    | Priority                | Roadmap cycle     |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ----------------- |
+| library barrel と oxc no-barrel-file rule 緩和方針の文書化 | `AGENTS.md` または `js/package/AGENTS.md` に「ライブラリ barrel は `// oxlint-disable-next-line oxc/no-barrel-file -- <reason>` 注釈で許容、`fp/src/effect.ts` がリファレンス実装」を明記 | medium                  | next housekeeping |
+| CI の pre-existing formatting issues の cleanup            | `plugins/totto2727/skills/` の 25 files を `vp run fix` で一括修正し main に merge                                                                                                        | medium                  | next housekeeping |
+| remix-helper test の Handle<T> mock factory                | `createHandleMock<T>(props)` を remix-helper 自身が export するか、`@remix-run/ui` に test utility リクエスト                                                                             | low                     | ms-04 or upstream |
+| design.md ↔ 実装 deviation の即時修正                      | deviation 発見時に design.md corrigendum commit を即座に行う protocol を Phase 1 retrospective から継承 (本 cycle で実施済)                                                               | — (already implemented) | —                 |
 
 ## Summary
 
