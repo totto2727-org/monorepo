@@ -194,4 +194,4 @@ The benchmarks at `n = 1000` give a sense of real-world performance.
 ## Related
 
 - `geo/2d/type/rect.mbt` — the bounding-box primitive every entry carries.
-- The wider port-scope discussion in [`api-correspondence/rstar.md`](../../api-correspondence/rstar.md) — only a small subset of `rstar`'s API is mirrored here.
+- The wider port-scope discussion in [`docs/api-correspondence/rstar.md`](../../docs/api-correspondence/rstar.md) — only a small subset of `rstar`'s API is mirrored here.
