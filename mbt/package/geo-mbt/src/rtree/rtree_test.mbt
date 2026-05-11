@@ -148,6 +148,25 @@ test "remove all leaves empty tree" {
 }
 
 ///|
+test "remove then reinsert keeps queries correct" {
+  let tree : @rtree.RTree[Int] = @rtree.RTree::new()
+  for i in 0..<10 {
+    tree.insert(@rtree.Entry(make_unit_rect(i.to_double(), 0.0), i))
+  }
+  let entry = @rtree.Entry(make_unit_rect(4.0, 0.0), 4)
+  assert_true(tree.remove(entry) == Some(4))
+  assert_eq(tree.size(), 9)
+  assert_true(tree.locate_at_point(@type.Coord(4.5, 0.5)).length() == 0)
+
+  tree.insert(entry)
+  assert_eq(tree.size(), 10)
+  let hits = tree.locate_at_point(@type.Coord(4.5, 0.5))
+  assert_eq(hits, [4])
+  let nearest = tree.query_nearest(@type.Coord(4.5, 0.5)).unwrap()
+  assert_eq(nearest, 4)
+}
+
+///|
 test "locate_at_point: finds overlapping rects" {
   let tree : @rtree.RTree[Int] = @rtree.RTree::new()
   tree.insert(

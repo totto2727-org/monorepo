@@ -77,7 +77,7 @@ pub fn HaversineMeasure::distance(
 /// }
 /// ```
 pub fn HaversineMeasure::bearing(
-  self : HaversineMeasure,
+  _self : HaversineMeasure,
   origin : @type.Point,
   destination : @type.Point,
 ) -> Double {

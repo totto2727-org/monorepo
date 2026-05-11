@@ -66,6 +66,40 @@ test "segment_intersections - triangle yields 3 corner intersections" {
 }
 ```
 
+- Endpoint touches count as intersections, matching upstream's `LineIntersection::SinglePoint { is_proper: false }` path.
+
+```mbt check
+///|
+test "segment_intersections - endpoint touch is reported" {
+  let l1 = @type.Line::from_tuples((0.0, 0.0), (1.0, 1.0))
+  let l2 = @type.Line::from_tuples((1.0, 1.0), (2.0, 0.0))
+  let coords = segment_intersections([l1, l2])
+  @test.assert_eq(coords.length(), 1)
+  assert_true((coords[0].x() - 1.0).abs() < TOLERANCE)
+  assert_true((coords[0].y() - 1.0).abs() < TOLERANCE)
+}
+```
+
+- Collinear overlapping segments report the shared sub-segment endpoints, mirroring upstream's `LineIntersection::Collinear` coverage.
+
+```mbt check
+///|
+test "segment_intersections - overlapping collinear segments" {
+  let l1 = @type.Line::from_tuples((0.0, 0.0), (4.0, 0.0))
+  let l2 = @type.Line::from_tuples((2.0, 0.0), (6.0, 0.0))
+  let coords = segment_intersections([l1, l2])
+  @test.assert_eq(coords.length(), 2)
+  coords.sort_by(fn(a, b) {
+    if a.x() < b.x() { -1 } else if a.x() > b.x() { 1 } else { 0 }
+  })
+  assert_true((coords[0].x() - 2.0).abs() < TOLERANCE)
+  assert_true(coords[0].y().abs() < TOLERANCE)
+  assert_true((coords[1].x() - 4.0).abs() < TOLERANCE)
+  assert_true(coords[1].y().abs() < TOLERANCE)
+  assert_true(has_segment_intersection([l1, l2]))
+}
+```
+
 - A 3 × 4 grid of horizontal × vertical segments produces 3 · 4 = 12 intersections.
 
 ```mbt check

@@ -1,17 +1,18 @@
 // 2D R-tree spatial index ported from georust/rstar (https://github.com/georust/rstar).
 //
-// This is a **bulk-loaded** R-tree using sort-tile-recursive (STR) packing.
-// It is read-only after construction and intentionally simpler than the full
-// R*-tree in `rstar`. It supports two queries:
+// This is an R-tree using sort-tile-recursive (STR) packing for bulk load and
+// a simpler split-only dynamic path for insert/remove. It is intentionally
+// smaller than the full R*-tree in `rstar`. It supports:
 //
 // - `query_rect_intersection`: all entries whose bounding rect intersects a
 //   query rect.
 // - `query_nearest`: the entry closest to a query coordinate (Euclidean).
+// - dynamic `insert` / `remove`, iteration, draining, point/radius locate, and
+//   k-nearest collection.
 //
-// The dynamic insertion / deletion / rebalancing of the original R*-tree is
-// out of scope for this port. The intended use case is geo-mbt's `indexed`
-// algorithms (e.g. preparing a polygon set for many point-in-polygon queries
-// against a fixed set of polygons).
+// The forced reinsertion, condense-tree rebalancing, tunable params, and
+// best-first nearest-neighbour traversal of the original R*-tree are out of
+// scope for this port.
 
 ///|
 /// Maximum number of entries per node. With STR packing, branching factor

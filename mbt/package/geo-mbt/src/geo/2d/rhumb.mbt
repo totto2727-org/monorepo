@@ -90,7 +90,7 @@ pub fn RhumbMeasure::distance(
 /// - `origin`, `destination`: Points where x=longitude, y=latitude
 /// - returns: degrees (North=0°, East=90°)
 pub fn RhumbMeasure::bearing(
-  self : RhumbMeasure,
+  _self : RhumbMeasure,
   origin : @type.Point,
   destination : @type.Point,
 ) -> Double {

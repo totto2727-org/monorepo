@@ -111,7 +111,7 @@ test "earcut - empty-square fixture gives 0 triangles" {
 }
 ```
 
-- `earcutr`'s `eberly-3.json` fixture (a 6-vertex outer ring with a 6-vertex hole) → 8 triangles for `outer.len + hole.len + 2*holes - 2` = 6 + 6 + 0 = 12. Earcutr's integration test reports 73 area-units of correctness, but in _triangle count_ terms (n_outer + n_hole - 2 + 2\*holes) the value is 8.
+- `earcutr`'s `eberly-3.json` fixture (a 6-vertex outer ring with a 6-vertex hole) → 12 triangles for `outer.len + hole.len + 2*holes - 2` = 6 + 6 + 2 - 2 = 12. Earcutr's integration test reports 73 area-units of correctness; this doctest checks the equivalent triangulation topology.
 
 ```mbt check
 ///|
