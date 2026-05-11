@@ -23,23 +23,24 @@ const formatErrorChain = (error: unknown): string => {
     }
   }
   const parts: string[] = [`${error.name}: ${error.message}`]
-  // oxlint-disable-next-line rules/no-let -- preserve cause chain walker (issue #N: avoid recursion for budget)
-  let current: unknown = error.cause
-  // oxlint-disable-next-line rules/no-let -- depth counter caps cause-chain walking at 10 frames
-  let depth = 0
-  while (current instanceof Error && depth < 10) {
-    parts.push(`caused by: ${current.name}: ${current.message}`)
-    current = current.cause
-    depth += 1
-  }
-  if (!Predicate.isNullish(current) && !(current instanceof Error)) {
-    try {
-      parts.push(`caused by: ${JSON.stringify(current)}`)
-    } catch {
-      // oxlint-disable-next-line typescript-eslint/no-base-to-string -- last-resort fallback when JSON.stringify throws (circular refs)
-      parts.push(`caused by: ${String(current)}`)
+
+  const collectCauses = (cause: unknown, depth: number): void => {
+    if (depth >= 10) {
+      return
+    }
+    if (cause instanceof Error) {
+      parts.push(`caused by: ${cause.name}: ${cause.message}`)
+      collectCauses(cause.cause, depth + 1)
+    } else if (!Predicate.isNullish(cause)) {
+      try {
+        parts.push(`caused by: ${JSON.stringify(cause)}`)
+      } catch {
+        parts.push(`caused by: [${typeof cause}]`)
+      }
     }
   }
+
+  collectCauses(error.cause, 0)
   return parts.join(' | ')
 }
 
