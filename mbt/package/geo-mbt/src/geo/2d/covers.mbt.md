@@ -4,12 +4,10 @@ Boundary-inclusive containment. `covers(a, b)` is `true` whenever every point of
 
 ## Public API
 
-- `covers_polygon_coord`
-- `covers_polygon_point`
-- `covers_polygon_line_string`
-- `covers_polygon_polygon`
-- `covers_rect_coord`
+- `Covers` trait
 - `covers_geometry`
+
+Per-type pairwise helpers are implementation details; tests in this file use the public trait/unified geometry surface.
 
 ## Test
 
@@ -34,9 +32,10 @@ test "covers_polygon_point - boundary included, outside rejected" {
     (0.0, 0.0),
   ])
   let p = @type.Polygon::Polygon(exterior, [])
-  assert_true(covers_polygon_point(p, @type.Point::Point(0.0, 5.0))) // boundary
-  assert_true(covers_polygon_point(p, @type.Point::Point(5.0, 5.0))) // interior
-  assert_false(covers_polygon_point(p, @type.Point::Point(20.0, 20.0))) // outside
+  let gp = @type.Geometry::Polygon(p)
+  assert_true(covers_geometry(gp, @type.Geometry::Point(@type.Point::Point(0.0, 5.0)))) // boundary
+  assert_true(covers_geometry(gp, @type.Geometry::Point(@type.Point::Point(5.0, 5.0)))) // interior
+  assert_false(covers_geometry(gp, @type.Geometry::Point(@type.Point::Point(20.0, 20.0)))) // outside
 }
 ```
 
@@ -46,7 +45,7 @@ test "covers_polygon_point - boundary included, outside rejected" {
 
 ```mbt check
 ///|
-test "covers_polygon_coord / line_string / polygon - boundary inclusive" {
+test "covers_geometry - coord/line string/polygon boundary inclusive" {
   let polygon = @type.Polygon::Polygon(
     @type.LineString::from_tuples([
       (0.0, 0.0),
@@ -58,13 +57,14 @@ test "covers_polygon_coord / line_string / polygon - boundary inclusive" {
     [],
   )
   // Coord on boundary → covered.
-  assert_true(covers_polygon_coord(polygon, @type.Coord::Coord(0.0, 5.0)))
-  assert_false(covers_polygon_coord(polygon, @type.Coord::Coord(20.0, 20.0)))
+  let gp = @type.Geometry::Polygon(polygon)
+  assert_true(covers_geometry(gp, @type.Geometry::Point(@type.Point::Point(0.0, 5.0))))
+  assert_false(covers_geometry(gp, @type.Geometry::Point(@type.Point::Point(20.0, 20.0))))
   // LineString every coord covered.
   let ls = @type.LineString::from_tuples([(1.0, 1.0), (5.0, 5.0)])
-  assert_true(covers_polygon_line_string(polygon, ls))
+  assert_true(covers_geometry(gp, @type.Geometry::LineString(ls)))
   let crossing = @type.LineString::from_tuples([(1.0, 1.0), (20.0, 20.0)])
-  assert_false(covers_polygon_line_string(polygon, crossing))
+  assert_false(covers_geometry(gp, @type.Geometry::LineString(crossing)))
   // Inner polygon's exterior coords all covered.
   let inner = @type.Polygon::Polygon(
     @type.LineString::from_tuples([
@@ -76,7 +76,7 @@ test "covers_polygon_coord / line_string / polygon - boundary inclusive" {
     ]),
     [],
   )
-  assert_true(covers_polygon_polygon(polygon, inner))
+  assert_true(covers_geometry(gp, @type.Geometry::Polygon(inner)))
 }
 ```
 
@@ -84,15 +84,16 @@ test "covers_polygon_coord / line_string / polygon - boundary inclusive" {
 
 ```mbt check
 ///|
-test "covers_rect_coord - boundary inclusive" {
+test "covers_geometry - rect boundary inclusive" {
   let r = @type.Rect::Rect(
     @type.Coord::Coord(0.0, 0.0),
     @type.Coord::Coord(10.0, 10.0),
   )
   // Boundary is covered (unlike strict contains_rect_coord).
-  assert_true(covers_rect_coord(r, @type.Coord::Coord(0.0, 5.0)))
-  assert_true(covers_rect_coord(r, @type.Coord::Coord(5.0, 5.0)))
-  assert_false(covers_rect_coord(r, @type.Coord::Coord(20.0, 20.0)))
+  let gr = @type.Geometry::Rect(r)
+  assert_true(covers_geometry(gr, @type.Geometry::Point(@type.Point::Point(0.0, 5.0))))
+  assert_true(covers_geometry(gr, @type.Geometry::Point(@type.Point::Point(5.0, 5.0))))
+  assert_false(covers_geometry(gr, @type.Geometry::Point(@type.Point::Point(20.0, 20.0))))
 }
 ```
 

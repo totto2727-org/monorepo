@@ -19,6 +19,24 @@ pub fn MultiPoint::from_tuples(tuples : Array[(Double, Double)]) -> MultiPoint {
 }
 
 ///|
+/// Creates a `MultiPoint` containing a single `Point`.
+pub fn MultiPoint::from_point(p : Point) -> MultiPoint {
+  MultiPoint::MultiPoint([p])
+}
+
+///|
+/// Creates a `MultiPoint` containing a single `Coord`.
+pub fn MultiPoint::from_coord(c : Coord) -> MultiPoint {
+  MultiPoint::MultiPoint([Point::from_coord(c)])
+}
+
+///|
+/// Creates a `MultiPoint` from an `Array[Coord]`.
+pub fn MultiPoint::from_coords(coords : Array[Coord]) -> MultiPoint {
+  MultiPoint::MultiPoint(coords.map(Point::from_coord))
+}
+
+///|
 /// Creates an empty `MultiPoint`. Mirrors Rust `geo_types::MultiPoint::empty`.
 pub fn MultiPoint::empty() -> MultiPoint {
   MultiPoint::MultiPoint([])

@@ -25,7 +25,7 @@ fn ensure_winding(
 
 ///|
 /// Returns a `Polygon` with the rings re-oriented per `direction`.
-pub fn orient_polygon(
+fn orient_polygon(
   polygon : @type.Polygon,
   direction : OrientDirection,
 ) -> @type.Polygon {
@@ -42,10 +42,30 @@ pub fn orient_polygon(
 
 ///|
 /// Re-orient every polygon in a multi polygon.
-pub fn orient_multi_polygon(
+fn orient_multi_polygon(
   mp : @type.MultiPolygon,
   direction : OrientDirection,
 ) -> @type.MultiPolygon {
   let polygons = mp.polygons().map(fn(p) { orient_polygon(p, direction) })
   @type.MultiPolygon::MultiPolygon(polygons)
+}
+
+// MARK: trait Orient + impls ------------------------------------------------
+
+///|
+/// Predicate trait: `self.orient(direction)` returns a copy of `self` with
+/// rings re-oriented per the requested winding convention. Mirrors upstream
+/// `geo::algorithm::orient::Orient`.
+pub(open) trait Orient {
+  orient(Self, OrientDirection) -> Self
+}
+
+///|
+pub impl Orient for @type.Polygon with orient(self, direction) {
+  orient_polygon(self, direction)
+}
+
+///|
+pub impl Orient for @type.MultiPolygon with orient(self, direction) {
+  orient_multi_polygon(self, direction)
 }

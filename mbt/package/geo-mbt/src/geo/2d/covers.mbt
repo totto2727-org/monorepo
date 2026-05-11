@@ -6,7 +6,7 @@
 ///
 /// `covers(a, b)` returns true if every point of `b` lies in `a` (interior
 /// **or** boundary).
-pub fn covers_polygon_coord(
+fn covers_polygon_coord(
   polygon : @type.Polygon,
   coord : @type.Coord,
 ) -> Bool {
@@ -17,7 +17,7 @@ pub fn covers_polygon_coord(
 }
 
 ///|
-pub fn covers_polygon_point(
+fn covers_polygon_point(
   polygon : @type.Polygon,
   point : @type.Point,
 ) -> Bool {
@@ -25,7 +25,7 @@ pub fn covers_polygon_point(
 }
 
 ///|
-pub fn covers_polygon_line_string(
+fn covers_polygon_line_string(
   polygon : @type.Polygon,
   ls : @type.LineString,
 ) -> Bool {
@@ -33,7 +33,7 @@ pub fn covers_polygon_line_string(
 }
 
 ///|
-pub fn covers_polygon_polygon(
+fn covers_polygon_polygon(
   outer : @type.Polygon,
   inner : @type.Polygon,
 ) -> Bool {
@@ -41,7 +41,7 @@ pub fn covers_polygon_polygon(
 }
 
 ///|
-pub fn covers_rect_coord(rect : @type.Rect, coord : @type.Coord) -> Bool {
+fn covers_rect_coord(rect : @type.Rect, coord : @type.Coord) -> Bool {
   match coord_position_for_rect(coord, rect) {
     Outside => false
     _ => true
@@ -64,4 +64,68 @@ pub fn covers_geometry(a : @type.Geometry, b : @type.Geometry) -> Bool {
       mp.polygons().iter().any(fn(p) { covers_polygon_point(p, pt) })
     _ => contains_geometry(a, b)
   }
+}
+
+// MARK: trait Covers + impls -------------------------------------------------
+
+///|
+/// Predicate trait: `self.covers(other)` returns true when every point of
+/// `other` lies in `self` (interior **or** boundary).
+pub(open) trait Covers {
+  covers(Self, @type.Geometry) -> Bool
+}
+
+///|
+pub impl Covers for @type.Geometry with covers(self, other) {
+  covers_geometry(self, other)
+}
+
+///|
+pub impl Covers for @type.Polygon with covers(self, other) {
+  covers_geometry(@type.Geometry::Polygon(self), other)
+}
+
+///|
+pub impl Covers for @type.MultiPolygon with covers(self, other) {
+  covers_geometry(@type.Geometry::MultiPolygon(self), other)
+}
+
+///|
+pub impl Covers for @type.Rect with covers(self, other) {
+  covers_geometry(@type.Geometry::Rect(self), other)
+}
+
+///|
+pub impl Covers for @type.Point with covers(self, other) {
+  covers_geometry(@type.Geometry::Point(self), other)
+}
+
+///|
+pub impl Covers for @type.Line with covers(self, other) {
+  covers_geometry(@type.Geometry::Line(self), other)
+}
+
+///|
+pub impl Covers for @type.LineString with covers(self, other) {
+  covers_geometry(@type.Geometry::LineString(self), other)
+}
+
+///|
+pub impl Covers for @type.MultiLineString with covers(self, other) {
+  covers_geometry(@type.Geometry::MultiLineString(self), other)
+}
+
+///|
+pub impl Covers for @type.MultiPoint with covers(self, other) {
+  covers_geometry(@type.Geometry::MultiPoint(self), other)
+}
+
+///|
+pub impl Covers for @type.Triangle with covers(self, other) {
+  covers_geometry(@type.Geometry::Triangle(self), other)
+}
+
+///|
+pub impl Covers for @type.GeometryCollection with covers(self, other) {
+  covers_geometry(@type.Geometry::GeometryCollection(self), other)
 }

@@ -1,13 +1,13 @@
-# `rtree/rtree.mbt` — bulk-loaded R-tree spatial index
+# `rtree/rtree.mbt` — R-tree spatial index
 
 ## Goal
 
-Provide a **read-only spatial index** over a fixed set of items, each tagged with a bounding rect. After bulk-loading, you can ask:
+Provide a spatial index over items tagged with bounding rects. Build it in one shot with `bulk_load`, or start empty and update it with `insert` / `remove`. You can ask:
 
 - "Which items intersect this query rect?" — `O(log n + k)` where `k` is the result size.
 - "Which item is closest to this point?" — `O(log n)` average.
 
-This is **not** a fully-featured R\*-tree (no insertions, no deletions, no rebalancing on edits). It's a static spatial structure built once and queried many times — the typical use case for "I have N polygons and I want to find which ones contain a click position".
+This is **not** a fully-featured R\*-tree: forced reinsertion, condense-tree rebalancing, tunable params, and best-first nearest-neighbour traversal are intentionally omitted. It still supports the dynamic operations needed by geo-mbt's indexed algorithms.
 
 ## API surface
 
@@ -16,7 +16,7 @@ pub(all) struct Entry[T] {
   bbox  : @type.Rect
   value : T
 }
-pub fn[T] Entry::new(bbox : @type.Rect, value : T) -> Self[T]
+pub fn[T] Entry::Entry(bbox : @type.Rect, value : T) -> Self[T]
 
 pub struct RTree[T] {
   root : Node[T]?       // opaque internal node; not user-facing
@@ -24,12 +24,20 @@ pub struct RTree[T] {
 }
 
 pub fn[T] RTree::bulk_load(entries : Array[Entry[T]]) -> Self[T]
+pub fn[T] RTree::new() -> Self[T]
+pub fn[T] RTree::insert(self, entry : Entry[T]) -> Unit
+pub fn[T : Eq] RTree::remove(self, entry : Entry[T]) -> T?
 
 pub fn[T] RTree::is_empty(self) -> Bool
 pub fn[T] RTree::size(self) -> Int
+pub fn[T] RTree::iter(self) -> Iter[T]
+pub fn[T] RTree::drain(self) -> Array[T]
 
 pub fn[T] RTree::query_rect_intersection(self, query : @type.Rect) -> Array[T]
 pub fn[T] RTree::query_nearest(self, target : @type.Coord) -> T?
+pub fn[T] RTree::nearest_neighbors(self, target : @type.Coord, limit : Int?) -> Array[T]
+pub fn[T] RTree::locate_at_point(self, point : @type.Coord) -> Array[T]
+pub fn[T] RTree::locate_within_distance(self, point : @type.Coord, radius : Double) -> Array[T]
 ```
 
 The `T` type parameter is whatever you want to associate with each rect — the `Entry` carries the bbox (for spatial queries) and a payload `value` of any type.
@@ -117,7 +125,7 @@ let entries = Array::makei(100, fn(i) {
     @type.Coord(i_d, i_d),
     @type.Coord(i_d + 1.0, i_d + 1.0),
   )
-  @rtree.Entry::new(bbox, i)
+  @rtree.Entry(bbox, i)
 })
 
 ///|
@@ -186,4 +194,4 @@ The benchmarks at `n = 1000` give a sense of real-world performance.
 ## Related
 
 - `geo/2d/type/rect.mbt` — the bounding-box primitive every entry carries.
-- The wider port-scope discussion in `api-correspondence.md` §4 (rstar mapping) — only a small subset of `rstar`'s API is mirrored here.
+- The wider port-scope discussion in [`docs/api-correspondence/rstar.md`](../../docs/api-correspondence/rstar.md) — only a small subset of `rstar`'s API is mirrored here.

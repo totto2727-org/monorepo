@@ -71,6 +71,181 @@ test "query_nearest: returns the nearest entry" {
 }
 
 ///|
+test "RTree::new: empty tree" {
+  let tree : @rtree.RTree[Int] = @rtree.RTree::new()
+  assert_true(tree.is_empty())
+  assert_eq(tree.size(), 0)
+}
+
+///|
+test "insert: size increments per item" {
+  let tree : @rtree.RTree[Int] = @rtree.RTree::new()
+  tree.insert(@rtree.Entry(make_unit_rect(0.0, 0.0), 1))
+  assert_eq(tree.size(), 1)
+  tree.insert(@rtree.Entry(make_unit_rect(1.0, 1.0), 2))
+  assert_eq(tree.size(), 2)
+}
+
+///|
+test "insert N items, iter yields N" {
+  let tree : @rtree.RTree[Int] = @rtree.RTree::new()
+  for i in 0..<50 {
+    tree.insert(@rtree.Entry(make_unit_rect(i.to_double(), i.to_double()), i))
+  }
+  assert_eq(tree.size(), 50)
+  assert_eq(tree.iter().count(), 50)
+}
+
+///|
+test "insert with splits keeps query results correct" {
+  let tree : @rtree.RTree[Int] = @rtree.RTree::new()
+  // 100 items forces multiple node splits and tree growth (MAX_ENTRIES=16).
+  for i in 0..<100 {
+    let x = (i / 10).to_double()
+    let y = (i % 10).to_double()
+    tree.insert(@rtree.Entry(make_unit_rect(x, y), i))
+  }
+  assert_eq(tree.size(), 100)
+  let hits = tree.query_rect_intersection(
+    @type.Rect::Rect(@type.Coord(2.5, 2.5), @type.Coord(5.5, 5.5)),
+  )
+  assert_true(hits.length() >= 9)
+}
+
+///|
+test "remove existing returns Some, size decrements" {
+  let tree : @rtree.RTree[Int] = @rtree.RTree::new()
+  for i in 0..<5 {
+    tree.insert(@rtree.Entry(make_unit_rect(i.to_double(), 0.0), i))
+  }
+  let removed = tree.remove(@rtree.Entry(make_unit_rect(2.0, 0.0), 2))
+  assert_true(removed == Some(2))
+  assert_eq(tree.size(), 4)
+}
+
+///|
+test "remove non-existent returns None, size unchanged" {
+  let tree : @rtree.RTree[Int] = @rtree.RTree::new()
+  for i in 0..<5 {
+    tree.insert(@rtree.Entry(make_unit_rect(i.to_double(), 0.0), i))
+  }
+  let removed = tree.remove(@rtree.Entry(make_unit_rect(99.0, 99.0), 99))
+  assert_true(removed == None)
+  assert_eq(tree.size(), 5)
+}
+
+///|
+test "remove all leaves empty tree" {
+  let tree : @rtree.RTree[Int] = @rtree.RTree::new()
+  for i in 0..<5 {
+    tree.insert(@rtree.Entry(make_unit_rect(i.to_double(), 0.0), i))
+  }
+  for i in 0..<5 {
+    let _ = tree.remove(@rtree.Entry(make_unit_rect(i.to_double(), 0.0), i))
+  }
+  assert_true(tree.is_empty())
+  assert_eq(tree.size(), 0)
+}
+
+///|
+test "remove then reinsert keeps queries correct" {
+  let tree : @rtree.RTree[Int] = @rtree.RTree::new()
+  for i in 0..<10 {
+    tree.insert(@rtree.Entry(make_unit_rect(i.to_double(), 0.0), i))
+  }
+  let entry = @rtree.Entry(make_unit_rect(4.0, 0.0), 4)
+  assert_true(tree.remove(entry) == Some(4))
+  assert_eq(tree.size(), 9)
+  assert_true(tree.locate_at_point(@type.Coord(4.5, 0.5)).length() == 0)
+
+  tree.insert(entry)
+  assert_eq(tree.size(), 10)
+  let hits = tree.locate_at_point(@type.Coord(4.5, 0.5))
+  assert_eq(hits, [4])
+  let nearest = tree.query_nearest(@type.Coord(4.5, 0.5)).unwrap()
+  assert_eq(nearest, 4)
+}
+
+///|
+test "locate_at_point: finds overlapping rects" {
+  let tree : @rtree.RTree[Int] = @rtree.RTree::new()
+  tree.insert(
+    @rtree.Entry(
+      @type.Rect::Rect(@type.Coord(0.0, 0.0), @type.Coord(5.0, 5.0)),
+      0,
+    ),
+  )
+  tree.insert(
+    @rtree.Entry(
+      @type.Rect::Rect(@type.Coord(2.0, 2.0), @type.Coord(3.0, 3.0)),
+      1,
+    ),
+  )
+  tree.insert(
+    @rtree.Entry(
+      @type.Rect::Rect(@type.Coord(2.5, 2.5), @type.Coord(10.0, 10.0)),
+      2,
+    ),
+  )
+  tree.insert(
+    @rtree.Entry(
+      @type.Rect::Rect(@type.Coord(20.0, 20.0), @type.Coord(30.0, 30.0)),
+      3,
+    ),
+  )
+  let hits = tree.locate_at_point(@type.Coord(2.5, 2.5))
+  hits.sort()
+  assert_eq(hits, [0, 1, 2])
+}
+
+///|
+test "locate_within_distance: finds entries within radius" {
+  let tree : @rtree.RTree[Int] = @rtree.RTree::new()
+  // bbox dist² from (0,0): 0, 1, 4, 25, 100
+  tree.insert(@rtree.Entry(make_unit_rect(0.0, 0.0), 0))
+  tree.insert(@rtree.Entry(make_unit_rect(1.0, 0.0), 1))
+  tree.insert(@rtree.Entry(make_unit_rect(2.0, 0.0), 2))
+  tree.insert(@rtree.Entry(make_unit_rect(5.0, 0.0), 3))
+  tree.insert(@rtree.Entry(make_unit_rect(10.0, 0.0), 4))
+  let hits = tree.locate_within_distance(@type.Coord(0.0, 0.0), 2.5)
+  hits.sort()
+  assert_eq(hits, [0, 1, 2])
+}
+
+///|
+test "nearest_neighbors: returns elements in distance order" {
+  let tree : @rtree.RTree[Int] = @rtree.RTree::new()
+  tree.insert(@rtree.Entry(make_unit_rect(5.0, 5.0), 0))
+  tree.insert(@rtree.Entry(make_unit_rect(0.0, 0.0), 1))
+  tree.insert(@rtree.Entry(make_unit_rect(3.0, 3.0), 2))
+  let nn = tree.nearest_neighbors(@type.Coord(0.0, 0.0), None)
+  assert_eq(nn, [1, 2, 0])
+}
+
+///|
+test "nearest_neighbors: respects k limit" {
+  let tree : @rtree.RTree[Int] = @rtree.RTree::new()
+  tree.insert(@rtree.Entry(make_unit_rect(5.0, 5.0), 0))
+  tree.insert(@rtree.Entry(make_unit_rect(0.0, 0.0), 1))
+  tree.insert(@rtree.Entry(make_unit_rect(3.0, 3.0), 2))
+  let nn = tree.nearest_neighbors(@type.Coord(0.0, 0.0), Some(2))
+  assert_eq(nn, [1, 2])
+}
+
+///|
+test "drain: returns all and leaves empty" {
+  let tree : @rtree.RTree[Int] = @rtree.RTree::new()
+  for i in 0..<10 {
+    tree.insert(@rtree.Entry(make_unit_rect(i.to_double(), 0.0), i))
+  }
+  let drained = tree.drain()
+  drained.sort()
+  assert_eq(drained, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+  assert_true(tree.is_empty())
+  assert_eq(tree.size(), 0)
+}
+
+///|
 test "exhaustive verification: query against all entries" {
   let coords = [
     (0.0, 0.0),

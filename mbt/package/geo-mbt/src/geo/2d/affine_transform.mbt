@@ -153,3 +153,154 @@ pub fn[T : MapCoords] AffineTransform::transform(
 ) -> T {
   x.map_coords(fn(c) { self.apply(c) })
 }
+
+// Construction helpers (origin-aware) ----------------------------------------
+
+///|
+fn translate_origin(origin : @type.Coord) -> (AffineTransform, AffineTransform) {
+  (
+    AffineTransform::translate_xy(-origin.x(), -origin.y()),
+    AffineTransform::translate_xy(origin.x(), origin.y()),
+  )
+}
+
+///|
+/// A pure rotation by `degrees` (CCW positive) about `origin`.
+pub fn AffineTransform::rotate_around(
+  degrees : Double,
+  origin : @type.Coord,
+) -> AffineTransform {
+  let (to_origin, from_origin) = translate_origin(origin)
+  let rot = AffineTransform::rotate_origin(degrees)
+  from_origin.compose(rot).compose(to_origin)
+}
+
+///|
+/// A pure scaling by `(xfact, yfact)` about `origin`.
+pub fn AffineTransform::scale_around(
+  xfact : Double,
+  yfact : Double,
+  origin : @type.Coord,
+) -> AffineTransform {
+  let (to_origin, from_origin) = translate_origin(origin)
+  let scl = AffineTransform::scale_xy(xfact, yfact)
+  from_origin.compose(scl).compose(to_origin)
+}
+
+///|
+/// Skew (shear) by `xs_degrees` and `ys_degrees` about `origin`.
+pub fn AffineTransform::skew_around(
+  xs_degrees : Double,
+  ys_degrees : Double,
+  origin : @type.Coord,
+) -> AffineTransform {
+  let (to_origin, from_origin) = translate_origin(origin)
+  let sk = AffineTransform::skew_origin(xs_degrees, ys_degrees)
+  from_origin.compose(sk).compose(to_origin)
+}
+
+// Withers (compose-with-self) ------------------------------------------------
+
+///|
+/// Returns a copy of `self` post-composed with a rotation about `origin`.
+pub fn AffineTransform::rotated(
+  self : AffineTransform,
+  degrees : Double,
+  origin : @type.Coord,
+) -> AffineTransform {
+  self.compose(AffineTransform::rotate_around(degrees, origin))
+}
+
+///|
+/// Returns a copy of `self` post-composed with a scale about `origin`.
+pub fn AffineTransform::scaled(
+  self : AffineTransform,
+  xfact : Double,
+  yfact : Double,
+  origin : @type.Coord,
+) -> AffineTransform {
+  self.compose(AffineTransform::scale_around(xfact, yfact, origin))
+}
+
+///|
+/// Returns a copy of `self` post-composed with a skew about `origin`.
+pub fn AffineTransform::skewed(
+  self : AffineTransform,
+  xs : Double,
+  ys : Double,
+  origin : @type.Coord,
+) -> AffineTransform {
+  self.compose(AffineTransform::skew_around(xs, ys, origin))
+}
+
+///|
+/// Returns a copy of `self` post-composed with a translation `(xoff, yoff)`.
+pub fn AffineTransform::translated(
+  self : AffineTransform,
+  xoff : Double,
+  yoff : Double,
+) -> AffineTransform {
+  self.compose(AffineTransform::translate_xy(xoff, yoff))
+}
+
+///|
+/// Post-compose a sequence of transforms: `self ∘ transforms[0] ∘ … ∘ transforms[n-1]`.
+/// Equivalent to `transforms.fold(identity, compose)`.
+pub fn AffineTransform::compose_many(
+  self : AffineTransform,
+  transforms : Array[AffineTransform],
+) -> AffineTransform {
+  let mut result = self
+  for i = 0; i < transforms.length(); i = i + 1 {
+    result = result.compose(transforms[i])
+  }
+  result
+}
+
+// Inversion + identity check -------------------------------------------------
+
+///|
+/// Determinant of the 2×2 linear part of the affine matrix:
+/// `a*e - b*d`.
+fn AffineTransform::determinant(self : AffineTransform) -> Double {
+  self.row_x.scale * self.row_y.scale - self.row_x.skew * self.row_y.skew
+}
+
+///|
+/// Returns the inverse transform if `det != 0.0`, otherwise `None`.
+///
+/// Matrix:
+/// ```text
+/// [[a, b, xoff],   inverse:  [[ e/det, -b/det, (b*yoff - e*xoff)/det],
+///  [d, e, yoff],              [-d/det,  a/det, (d*xoff - a*yoff)/det],
+///  [0, 0,    1]]              [ 0,      0,                   1       ]]
+/// ```
+pub fn AffineTransform::inverse(self : AffineTransform) -> Self? {
+  let det = self.determinant()
+  if det == 0.0 {
+    return None
+  }
+  let a = self.row_x.scale
+  let b = self.row_x.skew
+  let d = self.row_y.skew
+  let e = self.row_y.scale
+  let xoff = self.row_x.translate
+  let yoff = self.row_y.translate
+  // row_x: new a = e / det,  new b = -b / det,  new xoff = (b*yoff - e*xoff) / det
+  // row_y: new d = -d / det, new e =  a / det,  new yoff = (d*xoff - a*yoff) / det
+  let inv_x = AffineRow(e / det, -b / det, (b * yoff - e * xoff) / det)
+  let inv_y = AffineRow(-d / det, a / det, (d * xoff - a * yoff) / det)
+  Some(AffineTransform(inv_x, inv_y))
+}
+
+///|
+/// Returns whether this transform is exactly the identity matrix (all
+/// fields compare equal to the identity values).
+pub fn AffineTransform::is_identity(self : AffineTransform) -> Bool {
+  self.row_x.scale == 1.0 &&
+  self.row_x.skew == 0.0 &&
+  self.row_x.translate == 0.0 &&
+  self.row_y.scale == 1.0 &&
+  self.row_y.skew == 0.0 &&
+  self.row_y.translate == 0.0
+}

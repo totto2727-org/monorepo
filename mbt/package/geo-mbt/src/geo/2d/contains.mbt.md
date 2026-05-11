@@ -4,16 +4,12 @@ Strict (OGC) `contains` predicates: every point of the inner geometry must lie i
 
 ## Public API
 
-- `contains_polygon_coord`
-- `contains_polygon_point`
-- `contains_polygon_line`
-- `contains_polygon_line_string`
-- `contains_polygon_polygon`
-- `contains_multi_polygon_coord`
-- `contains_rect_coord`
-- `contains_rect_rect`
+- `Contains` trait
+- `Within` trait
 - `contains_geometry`
 - `within_geometry`
+
+Per-type pairwise helpers are implementation details; tests in this file use the public trait/unified geometry surface.
 
 ## Test
 
@@ -29,7 +25,7 @@ Strict (OGC) `contains` predicates: every point of the inner geometry must lie i
 
 ```mbt check
 ///|
-test "contains_polygon_point - inside, boundary excluded, outside" {
+test "contains_geometry - point inside, boundary excluded, outside" {
   let exterior = @type.LineString::from_tuples([
     (0.0, 0.0),
     (10.0, 0.0),
@@ -38,9 +34,10 @@ test "contains_polygon_point - inside, boundary excluded, outside" {
     (0.0, 0.0),
   ])
   let p = @type.Polygon::Polygon(exterior, [])
-  assert_true(contains_polygon_point(p, @type.Point::Point(5.0, 5.0))) // inside
-  assert_false(contains_polygon_point(p, @type.Point::Point(0.0, 5.0))) // boundary
-  assert_false(contains_polygon_point(p, @type.Point::Point(20.0, 20.0))) // outside
+  let gp = @type.Geometry::Polygon(p)
+  assert_true(contains_geometry(gp, @type.Geometry::Point(@type.Point::Point(5.0, 5.0)))) // inside
+  assert_false(contains_geometry(gp, @type.Geometry::Point(@type.Point::Point(0.0, 5.0)))) // boundary
+  assert_false(contains_geometry(gp, @type.Geometry::Point(@type.Point::Point(20.0, 20.0)))) // outside
 }
 ```
 
@@ -55,7 +52,7 @@ test "contains_polygon_point - inside, boundary excluded, outside" {
 
 ```mbt check
 ///|
-test "contains_polygon_polygon - nested inner is contained" {
+test "contains_geometry - nested inner polygon is contained" {
   let outer = @type.Polygon::Polygon(
     @type.LineString::from_tuples([
       (0.0, 0.0),
@@ -76,7 +73,7 @@ test "contains_polygon_polygon - nested inner is contained" {
     ]),
     [],
   )
-  assert_true(contains_polygon_polygon(outer, inner))
+  assert_true(contains_geometry(@type.Geometry::Polygon(outer), @type.Geometry::Polygon(inner)))
 }
 ```
 
@@ -84,7 +81,7 @@ test "contains_polygon_polygon - nested inner is contained" {
 
 ```mbt check
 ///|
-test "contains_polygon_polygon - crossing inner is not contained" {
+test "contains_geometry - crossing inner polygon is not contained" {
   let outer = @type.Polygon::Polygon(
     @type.LineString::from_tuples([
       (0.0, 0.0),
@@ -105,7 +102,7 @@ test "contains_polygon_polygon - crossing inner is not contained" {
     ]),
     [],
   )
-  assert_false(contains_polygon_polygon(outer, crossing))
+  assert_false(contains_geometry(@type.Geometry::Polygon(outer), @type.Geometry::Polygon(crossing)))
 }
 ```
 
@@ -120,7 +117,7 @@ test "contains_polygon_polygon - crossing inner is not contained" {
 
 ```mbt check
 ///|
-test "contains_rect_rect - nested true, crossing false" {
+test "contains_geometry - nested rect true, crossing false" {
   let outer = @type.Rect::Rect(
     @type.Coord::Coord(0.0, 0.0),
     @type.Coord::Coord(10.0, 10.0),
@@ -133,8 +130,8 @@ test "contains_rect_rect - nested true, crossing false" {
     @type.Coord::Coord(5.0, 5.0),
     @type.Coord::Coord(15.0, 15.0),
   )
-  assert_true(contains_rect_rect(outer, inner))
-  assert_false(contains_rect_rect(outer, crossing))
+  assert_true(contains_geometry(@type.Geometry::Rect(outer), @type.Geometry::Rect(inner)))
+  assert_false(contains_geometry(@type.Geometry::Rect(outer), @type.Geometry::Rect(crossing)))
 }
 ```
 
@@ -169,7 +166,7 @@ test "within_geometry - is the inverse of contains_geometry" {
 
 ```mbt check
 ///|
-test "contains_polygon_line / contains_polygon_line_string - strict containment" {
+test "contains_geometry - line and linestring strict containment" {
   let polygon = @type.Polygon::Polygon(
     @type.LineString::from_tuples([
       (0.0, 0.0),
@@ -181,17 +178,18 @@ test "contains_polygon_line / contains_polygon_line_string - strict containment"
     [],
   )
   let inside_line = @type.Line::from_tuples((1.0, 1.0), (5.0, 5.0))
-  assert_true(contains_polygon_line(polygon, inside_line))
+  let g_polygon = @type.Geometry::Polygon(polygon)
+  assert_true(contains_geometry(g_polygon, @type.Geometry::Line(inside_line)))
   let crossing_line = @type.Line::from_tuples((1.0, 1.0), (20.0, 20.0))
-  assert_false(contains_polygon_line(polygon, crossing_line))
+  assert_false(contains_geometry(g_polygon, @type.Geometry::Line(crossing_line)))
   let inside_ls = @type.LineString::from_tuples([
     (1.0, 1.0),
     (5.0, 5.0),
     (8.0, 2.0),
   ])
-  assert_true(contains_polygon_line_string(polygon, inside_ls))
+  assert_true(contains_geometry(g_polygon, @type.Geometry::LineString(inside_ls)))
   let mixed_ls = @type.LineString::from_tuples([(1.0, 1.0), (20.0, 20.0)])
-  assert_false(contains_polygon_line_string(polygon, mixed_ls))
+  assert_false(contains_geometry(g_polygon, @type.Geometry::LineString(mixed_ls)))
 }
 ```
 
@@ -201,7 +199,7 @@ test "contains_polygon_line / contains_polygon_line_string - strict containment"
 
 ```mbt check
 ///|
-test "contains_multi_polygon_coord / contains_rect_coord" {
+test "contains_geometry - multi polygon point and rect point" {
   let polygon = @type.Polygon::Polygon(
     @type.LineString::from_tuples([
       (0.0, 0.0),
@@ -213,14 +211,14 @@ test "contains_multi_polygon_coord / contains_rect_coord" {
     [],
   )
   let mp = @type.MultiPolygon::MultiPolygon([polygon])
-  assert_true(contains_multi_polygon_coord(mp, @type.Coord::Coord(5.0, 5.0)))
-  assert_false(contains_multi_polygon_coord(mp, @type.Coord::Coord(20.0, 20.0)))
+  assert_true(contains_geometry(@type.Geometry::MultiPolygon(mp), @type.Geometry::Point(@type.Point::Point(5.0, 5.0))))
+  assert_false(contains_geometry(@type.Geometry::MultiPolygon(mp), @type.Geometry::Point(@type.Point::Point(20.0, 20.0))))
   let r = @type.Rect::Rect(
     @type.Coord::Coord(0.0, 0.0),
     @type.Coord::Coord(10.0, 10.0),
   )
-  assert_true(contains_rect_coord(r, @type.Coord::Coord(5.0, 5.0)))
-  assert_false(contains_rect_coord(r, @type.Coord::Coord(0.0, 5.0)))
+  assert_true(contains_geometry(@type.Geometry::Rect(r), @type.Geometry::Point(@type.Point::Point(5.0, 5.0))))
+  assert_false(contains_geometry(@type.Geometry::Rect(r), @type.Geometry::Point(@type.Point::Point(0.0, 5.0))))
 }
 ```
 

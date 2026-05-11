@@ -4,7 +4,7 @@
 ///|
 /// Returns whether `polygon` contains `coord` (strictly inside; boundary
 /// returns false per OGC Contains semantics).
-pub fn contains_polygon_coord(
+fn contains_polygon_coord(
   polygon : @type.Polygon,
   coord : @type.Coord,
 ) -> Bool {
@@ -16,7 +16,7 @@ pub fn contains_polygon_coord(
 
 ///|
 /// Returns whether `polygon` contains `point`.
-pub fn contains_polygon_point(
+fn contains_polygon_point(
   polygon : @type.Polygon,
   point : @type.Point,
 ) -> Bool {
@@ -26,7 +26,7 @@ pub fn contains_polygon_point(
 ///|
 /// Returns whether `polygon` strictly contains `line` — both endpoints inside
 /// and the line does not cross any ring edge.
-pub fn contains_polygon_line(
+fn contains_polygon_line(
   polygon : @type.Polygon,
   line : @type.Line,
 ) -> Bool {
@@ -58,7 +58,7 @@ pub fn contains_polygon_line(
 
 ///|
 /// Returns whether `polygon` contains every coordinate of `linestring`.
-pub fn contains_polygon_line_string(
+fn contains_polygon_line_string(
   polygon : @type.Polygon,
   ls : @type.LineString,
 ) -> Bool {
@@ -69,7 +69,7 @@ pub fn contains_polygon_line_string(
 /// Returns whether `outer` contains `inner` polygon: every coordinate of
 /// `inner.exterior` is inside `outer`, and no edge of `inner.exterior`
 /// crosses an edge of `outer`'s rings.
-pub fn contains_polygon_polygon(
+fn contains_polygon_polygon(
   outer : @type.Polygon,
   inner : @type.Polygon,
 ) -> Bool {
@@ -91,7 +91,7 @@ pub fn contains_polygon_polygon(
 
 ///|
 /// Returns whether `multi_polygon` contains the coordinate.
-pub fn contains_multi_polygon_coord(
+fn contains_multi_polygon_coord(
   mp : @type.MultiPolygon,
   coord : @type.Coord,
 ) -> Bool {
@@ -100,7 +100,7 @@ pub fn contains_multi_polygon_coord(
 
 ///|
 /// Returns whether `rect` strictly contains `coord`.
-pub fn contains_rect_coord(rect : @type.Rect, coord : @type.Coord) -> Bool {
+fn contains_rect_coord(rect : @type.Rect, coord : @type.Coord) -> Bool {
   match coord_position_for_rect(coord, rect) {
     Inside => true
     _ => false
@@ -109,7 +109,7 @@ pub fn contains_rect_coord(rect : @type.Rect, coord : @type.Coord) -> Bool {
 
 ///|
 /// Returns whether `outer` contains `inner` Rect.
-pub fn contains_rect_rect(outer : @type.Rect, inner : @type.Rect) -> Bool {
+fn contains_rect_rect(outer : @type.Rect, inner : @type.Rect) -> Bool {
   inner.min().x() >= outer.min().x() &&
   inner.max().x() <= outer.max().x() &&
   inner.min().y() >= outer.min().y() &&
@@ -146,4 +146,133 @@ pub fn contains_geometry(
 /// `within(a, b)` is the inverse of `contains(b, a)`.
 pub fn within_geometry(inner : @type.Geometry, outer : @type.Geometry) -> Bool {
   contains_geometry(outer, inner)
+}
+
+// MARK: trait Contains + impls -----------------------------------------------
+
+///|
+/// Predicate trait: `self.contains(other)` returns true when `self` spatially
+/// contains `other` (strictly interior per OGC Contains semantics — boundary
+/// points return false).
+pub(open) trait Contains {
+  contains(Self, @type.Geometry) -> Bool
+}
+
+///|
+pub impl Contains for @type.Geometry with contains(self, other) {
+  contains_geometry(self, other)
+}
+
+///|
+pub impl Contains for @type.Polygon with contains(self, other) {
+  contains_geometry(@type.Geometry::Polygon(self), other)
+}
+
+///|
+pub impl Contains for @type.MultiPolygon with contains(self, other) {
+  contains_geometry(@type.Geometry::MultiPolygon(self), other)
+}
+
+///|
+pub impl Contains for @type.Rect with contains(self, other) {
+  contains_geometry(@type.Geometry::Rect(self), other)
+}
+
+///|
+pub impl Contains for @type.Point with contains(self, other) {
+  contains_geometry(@type.Geometry::Point(self), other)
+}
+
+///|
+pub impl Contains for @type.Line with contains(self, other) {
+  contains_geometry(@type.Geometry::Line(self), other)
+}
+
+///|
+pub impl Contains for @type.LineString with contains(self, other) {
+  contains_geometry(@type.Geometry::LineString(self), other)
+}
+
+///|
+pub impl Contains for @type.MultiLineString with contains(self, other) {
+  contains_geometry(@type.Geometry::MultiLineString(self), other)
+}
+
+///|
+pub impl Contains for @type.MultiPoint with contains(self, other) {
+  contains_geometry(@type.Geometry::MultiPoint(self), other)
+}
+
+///|
+pub impl Contains for @type.Triangle with contains(self, other) {
+  contains_geometry(@type.Geometry::Triangle(self), other)
+}
+
+///|
+pub impl Contains for @type.GeometryCollection with contains(self, other) {
+  contains_geometry(@type.Geometry::GeometryCollection(self), other)
+}
+
+// MARK: trait Within + impls -------------------------------------------------
+
+///|
+/// Predicate trait: `self.within(other)` is equivalent to
+/// `other.contains(self)`.
+pub(open) trait Within {
+  within(Self, @type.Geometry) -> Bool
+}
+
+///|
+pub impl Within for @type.Geometry with within(self, other) {
+  within_geometry(self, other)
+}
+
+///|
+pub impl Within for @type.Polygon with within(self, other) {
+  within_geometry(@type.Geometry::Polygon(self), other)
+}
+
+///|
+pub impl Within for @type.MultiPolygon with within(self, other) {
+  within_geometry(@type.Geometry::MultiPolygon(self), other)
+}
+
+///|
+pub impl Within for @type.Rect with within(self, other) {
+  within_geometry(@type.Geometry::Rect(self), other)
+}
+
+///|
+pub impl Within for @type.Point with within(self, other) {
+  within_geometry(@type.Geometry::Point(self), other)
+}
+
+///|
+pub impl Within for @type.Line with within(self, other) {
+  within_geometry(@type.Geometry::Line(self), other)
+}
+
+///|
+pub impl Within for @type.LineString with within(self, other) {
+  within_geometry(@type.Geometry::LineString(self), other)
+}
+
+///|
+pub impl Within for @type.MultiLineString with within(self, other) {
+  within_geometry(@type.Geometry::MultiLineString(self), other)
+}
+
+///|
+pub impl Within for @type.MultiPoint with within(self, other) {
+  within_geometry(@type.Geometry::MultiPoint(self), other)
+}
+
+///|
+pub impl Within for @type.Triangle with within(self, other) {
+  within_geometry(@type.Geometry::Triangle(self), other)
+}
+
+///|
+pub impl Within for @type.GeometryCollection with within(self, other) {
+  within_geometry(@type.Geometry::GeometryCollection(self), other)
 }

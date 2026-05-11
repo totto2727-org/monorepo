@@ -42,6 +42,13 @@ pub fn Polygon::Polygon(
 }
 
 ///|
+/// Creates an empty `Polygon` (exterior ring has no coordinates, no holes).
+/// Mirrors Rust `geo_types::Polygon::empty`.
+pub fn Polygon::empty() -> Polygon {
+  Polygon::Polygon(LineString::empty(), [])
+}
+
+///|
 /// Returns the exterior ring.
 pub fn Polygon::exterior(self : Polygon) -> LineString {
   self.exterior
