@@ -1,4 +1,4 @@
-import { Data, Effect, Schema } from 'effect'
+import { Data, Effect, Predicate, Schema } from 'effect'
 import type { HttpClientResponse } from 'effect/unstable/http'
 import { HttpBody, HttpClient } from 'effect/unstable/http'
 
@@ -23,17 +23,20 @@ const formatErrorChain = (error: unknown): string => {
     }
   }
   const parts: string[] = [`${error.name}: ${error.message}`]
+  // oxlint-disable-next-line rules/no-let -- preserve cause chain walker (issue #N: avoid recursion for budget)
   let current: unknown = error.cause
+  // oxlint-disable-next-line rules/no-let -- depth counter caps cause-chain walking at 10 frames
   let depth = 0
   while (current instanceof Error && depth < 10) {
     parts.push(`caused by: ${current.name}: ${current.message}`)
     current = current.cause
     depth += 1
   }
-  if (current !== undefined && !(current instanceof Error)) {
+  if (!Predicate.isNullish(current) && !(current instanceof Error)) {
     try {
       parts.push(`caused by: ${JSON.stringify(current)}`)
     } catch {
+      // oxlint-disable-next-line typescript-eslint/no-base-to-string -- last-resort fallback when JSON.stringify throws (circular refs)
       parts.push(`caused by: ${String(current)}`)
     }
   }
@@ -225,10 +228,7 @@ export const crawlStart = (
   Effect.gen(function* () {
     const data = yield* postJson(auth, '/crawl', body)
     const parsed = yield* decodeCrawlStart(data).pipe(
-      Effect.mapError(
-        (e) =>
-          new ApiError({ endpoint: '/crawl', message: formatErrorChain(e), status: 0 }),
-      ),
+      Effect.mapError((e) => new ApiError({ endpoint: '/crawl', message: formatErrorChain(e), status: 0 })),
     )
     return parsed.result
   })
