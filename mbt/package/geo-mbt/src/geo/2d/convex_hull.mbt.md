@@ -61,7 +61,7 @@ test "HasConvexHull::convex_hull - hull is closed and CCW" {
   let exterior = HasConvexHull::convex_hull(mp).exterior()
   assert_true(exterior.is_closed())
   // CCW orientation → positive signed area.
-  assert_true(twice_signed_ring_area(exterior) > 0.0)
+  assert_true(HasArea::signed_area(@type.Polygon::Polygon(exterior, [])) > 0.0)
 }
 ```
 

@@ -26,7 +26,7 @@ predicates already provided by the package.
 | Variable   | State                 | Note                                         |  1  |  2  |  3  |  4  |
 | :--------- | :-------------------- | :------------------------------------------- | :-: | :-: | :-: | :-: |
 | `polygons` | empty                 | every query returns `false`                  |  ✓  |     |     |     |
-| `polygons` | single polygon        | predicate equals `contains_polygon_coord`    |     |  ✓  |     |     |
+| `polygons` | single polygon        | predicate equals `Polygon.contains(Point)`   |     |  ✓  |     |     |
 | `polygons` | 10×10 grid (n = 100)  | predicate matches brute force on 100 queries |     |     |  ✓  |     |
 | `polygons` | 32×32 grid (n = 1024) | predicate matches brute force on 200 queries |     |     |     |  ✓  |
 
@@ -41,7 +41,7 @@ test "indexed_contains_polygons - empty input always returns false" {
 }
 ```
 
-- Single polygon: the indexed predicate equals `contains_polygon_coord`.
+- Single polygon: the indexed predicate equals the trait call `Polygon.contains(Point)`.
 
 ```mbt check
 ///|
@@ -64,7 +64,7 @@ test "indexed_contains_polygons - single polygon agrees with direct call" {
     @type.Coord(0.0, 5.0), // boundary edge
   ]
   for i = 0; i < probes.length(); i = i + 1 {
-    @test.assert_eq(pred(probes[i]), contains_polygon_coord(p, probes[i]))
+    @test.assert_eq(pred(probes[i]), Contains::contains(p, @type.Geometry::Point(@type.Point::from_coord(probes[i]))))
   }
 }
 ```
@@ -94,7 +94,7 @@ test "indexed_contains_polygons - 10x10 grid matches brute force" {
       (i * 13 % 41).to_double() * 0.5,
       (i * 17 % 37).to_double() * 0.5,
     )
-    let brute = polys.iter().any(fn(p) { contains_polygon_coord(p, q) })
+    let brute = polys.iter().any(fn(p) { Contains::contains(p, @type.Geometry::Point(@type.Point::from_coord(q))) })
     @test.assert_eq(pred(q), brute)
   }
 }
@@ -125,7 +125,7 @@ test "indexed_contains_polygons - 32x32 stress matches brute force" {
       (i * 23 % 131).to_double() * 0.5,
       (i * 31 % 127).to_double() * 0.5,
     )
-    let brute = polys.iter().any(fn(p) { contains_polygon_coord(p, q) })
+    let brute = polys.iter().any(fn(p) { Contains::contains(p, @type.Geometry::Point(@type.Point::from_coord(q))) })
     @test.assert_eq(pred(q), brute)
   }
 }
@@ -328,7 +328,7 @@ test "indexed_intersecting_polygons - 10x10 grid matches brute force" {
     // Brute-force expected indices.
     let expected : Array[Int] = []
     for i = 0; i < polys.length(); i = i + 1 {
-      if intersects_polygon_polygon(polys[i], q) {
+      if Intersects::intersects(polys[i], @type.Geometry::Polygon(q)) {
         expected.push(i)
       }
     }
@@ -400,7 +400,7 @@ test "indexed_intersecting_polygons - 32x32 stress matches brute force" {
     let indexed = pred(q)
     let expected : Array[Int] = []
     for i = 0; i < polys.length(); i = i + 1 {
-      if intersects_polygon_polygon(polys[i], q) {
+      if Intersects::intersects(polys[i], @type.Geometry::Polygon(q)) {
         expected.push(i)
       }
     }

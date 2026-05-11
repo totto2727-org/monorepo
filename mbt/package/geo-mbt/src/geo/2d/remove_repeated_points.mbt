@@ -3,7 +3,7 @@
 
 ///|
 /// Removes consecutive duplicate coordinates from a `LineString`.
-pub fn remove_repeated_points_line_string(
+fn remove_repeated_points_line_string(
   ls : @type.LineString,
 ) -> @type.LineString {
   let coords = ls.coords()
@@ -24,8 +24,31 @@ pub fn remove_repeated_points_line_string(
 
 ///|
 /// Removes consecutive duplicate coordinates from each ring of a polygon.
-pub fn remove_repeated_points_polygon(p : @type.Polygon) -> @type.Polygon {
+fn remove_repeated_points_polygon(p : @type.Polygon) -> @type.Polygon {
   let exterior = remove_repeated_points_line_string(p.exterior())
   let interiors = p.interiors().map(remove_repeated_points_line_string)
   @type.Polygon::Polygon(exterior, interiors)
+}
+
+// MARK: trait RemoveRepeatedPoints + impls ---------------------------------
+
+///|
+/// Returns a copy of `self` with consecutive duplicate coordinates removed.
+/// Mirrors upstream `geo::algorithm::remove_repeated_points::RemoveRepeatedPoints`.
+pub(open) trait RemoveRepeatedPoints {
+  remove_repeated_points(Self) -> Self
+}
+
+///|
+pub impl RemoveRepeatedPoints for @type.LineString with remove_repeated_points(
+  self,
+) {
+  remove_repeated_points_line_string(self)
+}
+
+///|
+pub impl RemoveRepeatedPoints for @type.Polygon with remove_repeated_points(
+  self,
+) {
+  remove_repeated_points_polygon(self)
 }

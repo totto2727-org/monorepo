@@ -5,18 +5,18 @@ Re-orient the rings of a `Polygon` (or every polygon in a `MultiPolygon`) into t
 ## Public API
 
 - `OrientDirection`
-- `orient_polygon`
-- `orient_multi_polygon`
+- `Orient` trait — impls on `Polygon` / `MultiPolygon`
+  - `orient(Self, OrientDirection) -> Self`
 
 ## Test
 
-### `orient_polygon`
+### `Orient` for `Polygon`
 
 - Default direction makes a CW exterior CCW
 
 ```mbt check
 ///|
-test "orient_polygon - Default makes exterior CCW" {
+test "Orient::orient - Polygon Default makes exterior CCW" {
   let cw_exterior = @type.LineString::from_tuples([
     (0.0, 0.0),
     (0.0, 1.0),
@@ -24,7 +24,7 @@ test "orient_polygon - Default makes exterior CCW" {
     (1.0, 0.0),
     (0.0, 0.0),
   ])
-  let oriented = orient_polygon(
+  let oriented = Orient::orient(
     @type.Polygon::Polygon(cw_exterior, []),
     OrientDirection::Default,
   )
@@ -40,7 +40,7 @@ test "orient_polygon - Default makes exterior CCW" {
 
 ```mbt check
 ///|
-test "orient_polygon - Reversed makes exterior CW" {
+test "Orient::orient - Polygon Reversed makes exterior CW" {
   let ccw_exterior = @type.LineString::from_tuples([
     (0.0, 0.0),
     (1.0, 0.0),
@@ -48,7 +48,7 @@ test "orient_polygon - Reversed makes exterior CW" {
     (0.0, 1.0),
     (0.0, 0.0),
   ])
-  let oriented = orient_polygon(
+  let oriented = Orient::orient(
     @type.Polygon::Polygon(ccw_exterior, []),
     OrientDirection::Reversed,
   )
@@ -60,13 +60,13 @@ test "orient_polygon - Reversed makes exterior CW" {
 }
 ```
 
-### `orient_multi_polygon`
+### `Orient` for `MultiPolygon`
 
 - Re-orients every polygon in the collection
 
 ```mbt check
 ///|
-test "orient_multi_polygon - re-orients every polygon" {
+test "Orient::orient - MultiPolygon re-orients every polygon" {
   let cw_exterior = @type.LineString::from_tuples([
     (0.0, 0.0),
     (0.0, 1.0),
@@ -77,7 +77,7 @@ test "orient_multi_polygon - re-orients every polygon" {
   let mp = @type.MultiPolygon::MultiPolygon([
     @type.Polygon::Polygon(cw_exterior, []),
   ])
-  let oriented = orient_multi_polygon(mp, OrientDirection::Default)
+  let oriented = Orient::orient(mp, OrientDirection::Default)
   let actual = match winding_order(oriented.polygons()[0].exterior()) {
     Some(w) => w
     None => abort("expected winding order for non-degenerate exterior")

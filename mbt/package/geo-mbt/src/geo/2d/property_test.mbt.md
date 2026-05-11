@@ -164,8 +164,8 @@ test "property: orient_polygon is idempotent" {
     ]),
     [],
   )
-  let oriented_once = orient_polygon(p, OrientDirection::Default)
-  let oriented_twice = orient_polygon(oriented_once, OrientDirection::Default)
+  let oriented_once = Orient::orient(p, OrientDirection::Default)
+  let oriented_twice = Orient::orient(oriented_once, OrientDirection::Default)
   @test.assert_eq(
     oriented_once.exterior().coords(),
     oriented_twice.exterior().coords(),

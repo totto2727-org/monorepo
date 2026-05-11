@@ -2,21 +2,15 @@
 // https://github.com/georust/geo/blob/main/geo/src/algorithm/intersects/
 
 ///|
-/// Returns whether two coordinates are equal.
-pub fn intersects_coord_coord(a : @type.Coord, b : @type.Coord) -> Bool {
-  a == b
-}
-
-///|
 /// Returns whether `coord` lies on `line` (including endpoints).
-pub fn intersects_coord_line(coord : @type.Coord, line : @type.Line) -> Bool {
+fn intersects_coord_line(coord : @type.Coord, line : @type.Line) -> Bool {
   coord_on_line(coord, line)
 }
 
 ///|
 /// Returns whether two line segments intersect (including endpoints and
 /// collinear overlaps).
-pub fn intersects_line_line(a : @type.Line, b : @type.Line) -> Bool {
+fn intersects_line_line(a : @type.Line, b : @type.Line) -> Bool {
   // Endpoints touching count as intersection
   if a.start() == b.start() ||
     a.start() == b.end() ||
@@ -50,7 +44,7 @@ pub fn intersects_line_line(a : @type.Line, b : @type.Line) -> Bool {
 }
 
 ///|
-pub fn intersects_coord_line_string(
+fn intersects_coord_line_string(
   coord : @type.Coord,
   ls : @type.LineString,
 ) -> Bool {
@@ -58,7 +52,7 @@ pub fn intersects_coord_line_string(
 }
 
 ///|
-pub fn intersects_line_line_string(
+fn intersects_line_line_string(
   l : @type.Line,
   ls : @type.LineString,
 ) -> Bool {
@@ -66,7 +60,7 @@ pub fn intersects_line_line_string(
 }
 
 ///|
-pub fn intersects_line_string_line_string(
+fn intersects_line_string_line_string(
   a : @type.LineString,
   b : @type.LineString,
 ) -> Bool {
@@ -76,7 +70,7 @@ pub fn intersects_line_string_line_string(
 }
 
 ///|
-pub fn intersects_coord_polygon(coord : @type.Coord, p : @type.Polygon) -> Bool {
+fn intersects_coord_polygon(coord : @type.Coord, p : @type.Polygon) -> Bool {
   match coord_position_for_polygon(coord, p) {
     Outside => false
     _ => true
@@ -84,7 +78,7 @@ pub fn intersects_coord_polygon(coord : @type.Coord, p : @type.Polygon) -> Bool 
 }
 
 ///|
-pub fn intersects_line_polygon(l : @type.Line, p : @type.Polygon) -> Bool {
+fn intersects_line_polygon(l : @type.Line, p : @type.Polygon) -> Bool {
   // Either endpoint inside or on boundary, or any segment intersects a ring edge
   if intersects_coord_polygon(l.start(), p) {
     return true
@@ -104,7 +98,7 @@ pub fn intersects_line_polygon(l : @type.Line, p : @type.Polygon) -> Bool {
 }
 
 ///|
-pub fn intersects_polygon_polygon(a : @type.Polygon, b : @type.Polygon) -> Bool {
+fn intersects_polygon_polygon(a : @type.Polygon, b : @type.Polygon) -> Bool {
   // Check if any vertex of a is inside or on boundary of b, or vice versa
   if a.exterior().coords().iter().any(fn(c) { intersects_coord_polygon(c, b) }) {
     return true
@@ -119,14 +113,6 @@ pub fn intersects_polygon_polygon(a : @type.Polygon, b : @type.Polygon) -> Bool 
   .any(fn(ea) {
     b.exterior().lines_iter().any(fn(eb) { intersects_line_line(ea, eb) })
   })
-}
-
-///|
-pub fn intersects_rect_coord(rect : @type.Rect, coord : @type.Coord) -> Bool {
-  match coord_position_for_rect(coord, rect) {
-    Outside => false
-    _ => true
-  }
 }
 
 ///|

@@ -1,19 +1,10 @@
 # intersects.mbt
 
-Boundary-inclusive intersection predicates: `intersects(a, b)` is true if `a` and `b` share at least one point (interior or boundary). Per-pair entry points cover the common cases; `intersects_geometry` dispatches over the `Geometry` enum, falling back to a bounding-rect approximation for uncommon pairs.
+Boundary-inclusive intersection predicates: `intersects(a, b)` is true if `a` and `b` share at least one point (interior or boundary). The public surface is the `Intersects` trait plus `intersects_geometry`; per-pair helpers are implementation details.
 
 ## Public API
 
-- `intersects_coord_coord`
-- `intersects_coord_line`
-- `intersects_line_line`
-- `intersects_coord_line_string`
-- `intersects_line_line_string`
-- `intersects_line_string_line_string`
-- `intersects_coord_polygon`
-- `intersects_line_polygon`
-- `intersects_polygon_polygon`
-- `intersects_rect_coord`
+- `Intersects` trait
 - `intersects_geometry`
 
 ## Test
@@ -31,10 +22,10 @@ Boundary-inclusive intersection predicates: `intersects(a, b)` is true if `a` an
 
 ```mbt check
 ///|
-test "intersects_line_line - touching endpoints" {
+test "intersects_geometry - touching line endpoints" {
   let a = @type.Line::from_tuples((0.0, 0.0), (1.0, 0.0))
   let b = @type.Line::from_tuples((1.0, 0.0), (1.0, 1.0))
-  assert_true(intersects_line_line(a, b))
+  assert_true(intersects_geometry(@type.Geometry::Line(a), @type.Geometry::Line(b)))
 }
 ```
 
@@ -42,10 +33,10 @@ test "intersects_line_line - touching endpoints" {
 
 ```mbt check
 ///|
-test "intersects_line_line - classic crossing" {
+test "intersects_geometry - classic crossing lines" {
   let a = @type.Line::from_tuples((0.0, 0.0), (10.0, 10.0))
   let b = @type.Line::from_tuples((0.0, 10.0), (10.0, 0.0))
-  assert_true(intersects_line_line(a, b))
+  assert_true(intersects_geometry(@type.Geometry::Line(a), @type.Geometry::Line(b)))
 }
 ```
 
@@ -53,10 +44,10 @@ test "intersects_line_line - classic crossing" {
 
 ```mbt check
 ///|
-test "intersects_line_line - parallel non-overlapping false" {
+test "intersects_geometry - parallel non-overlapping lines false" {
   let a = @type.Line::from_tuples((0.0, 0.0), (10.0, 0.0))
   let b = @type.Line::from_tuples((0.0, 1.0), (10.0, 1.0))
-  assert_false(intersects_line_line(a, b))
+  assert_false(intersects_geometry(@type.Geometry::Line(a), @type.Geometry::Line(b)))
 }
 ```
 
@@ -64,10 +55,10 @@ test "intersects_line_line - parallel non-overlapping false" {
 
 ```mbt check
 ///|
-test "intersects_line_line - collinear overlapping" {
+test "intersects_geometry - collinear overlapping lines" {
   let a = @type.Line::from_tuples((0.0, 0.0), (10.0, 0.0))
   let b = @type.Line::from_tuples((5.0, 0.0), (15.0, 0.0))
-  assert_true(intersects_line_line(a, b))
+  assert_true(intersects_geometry(@type.Geometry::Line(a), @type.Geometry::Line(b)))
 }
 ```
 
@@ -82,7 +73,7 @@ test "intersects_line_line - collinear overlapping" {
 
 ```mbt check
 ///|
-test "intersects_polygon_polygon - overlap" {
+test "intersects_geometry - polygon overlap" {
   let a = @type.Polygon::Polygon(
     @type.LineString::from_tuples([
       (0.0, 0.0),
@@ -102,7 +93,7 @@ test "intersects_polygon_polygon - overlap" {
     ]),
     [],
   )
-  assert_true(intersects_polygon_polygon(a, b))
+  assert_true(intersects_geometry(@type.Geometry::Polygon(a), @type.Geometry::Polygon(b)))
 }
 ```
 
@@ -110,7 +101,7 @@ test "intersects_polygon_polygon - overlap" {
 
 ```mbt check
 ///|
-test "intersects_polygon_polygon - disjoint" {
+test "intersects_geometry - polygon disjoint" {
   let a = @type.Polygon::Polygon(
     @type.LineString::from_tuples([
       (0.0, 0.0),
@@ -130,7 +121,7 @@ test "intersects_polygon_polygon - disjoint" {
     ]),
     [],
   )
-  assert_false(intersects_polygon_polygon(a, b))
+  assert_false(intersects_geometry(@type.Geometry::Polygon(a), @type.Geometry::Polygon(b)))
 }
 ```
 
@@ -234,32 +225,32 @@ test "intersects_geometry - dispatch sweep over common pairs" {
 
 ```mbt check
 ///|
-test "intersects_coord_coord / intersects_coord_line" {
+test "intersects_geometry - point point and point line" {
   let a = @type.Coord::Coord(1.0, 2.0)
   let b = @type.Coord::Coord(1.0, 2.0)
   let c = @type.Coord::Coord(3.0, 4.0)
-  assert_true(intersects_coord_coord(a, b))
-  assert_false(intersects_coord_coord(a, c))
+  assert_true(intersects_geometry(@type.Geometry::Point(@type.Point::from_coord(a)), @type.Geometry::Point(@type.Point::from_coord(b))))
+  assert_false(intersects_geometry(@type.Geometry::Point(@type.Point::from_coord(a)), @type.Geometry::Point(@type.Point::from_coord(c))))
   let l = @type.Line::from_tuples((0.0, 0.0), (10.0, 0.0))
-  assert_true(intersects_coord_line(@type.Coord::Coord(5.0, 0.0), l))
-  assert_false(intersects_coord_line(@type.Coord::Coord(5.0, 1.0), l))
+  assert_true(intersects_geometry(@type.Geometry::Point(@type.Point::Point(5.0, 0.0)), @type.Geometry::Line(l)))
+  assert_false(intersects_geometry(@type.Geometry::Point(@type.Point::Point(5.0, 1.0)), @type.Geometry::Line(l)))
 }
 ```
 
 ```mbt check
 ///|
-test "intersects_coord_line_string / intersects_line_line_string" {
+test "intersects_geometry - point linestring and line linestring" {
   let ls = @type.LineString::from_tuples([(0.0, 0.0), (10.0, 0.0)])
-  assert_true(intersects_coord_line_string(@type.Coord::Coord(5.0, 0.0), ls))
-  assert_false(intersects_coord_line_string(@type.Coord::Coord(5.0, 1.0), ls))
+  assert_true(intersects_geometry(@type.Geometry::Point(@type.Point::Point(5.0, 0.0)), @type.Geometry::LineString(ls)))
+  assert_false(intersects_geometry(@type.Geometry::Point(@type.Point::Point(5.0, 1.0)), @type.Geometry::LineString(ls)))
   let l = @type.Line::from_tuples((5.0, -1.0), (5.0, 1.0))
-  assert_true(intersects_line_line_string(l, ls))
+  assert_true(intersects_geometry(@type.Geometry::Line(l), @type.Geometry::LineString(ls)))
 }
 ```
 
 ```mbt check
 ///|
-test "intersects_coord_polygon / intersects_line_polygon / intersects_rect_coord" {
+test "intersects_geometry - point/line polygon and rect point" {
   let polygon = @type.Polygon::Polygon(
     @type.LineString::from_tuples([
       (0.0, 0.0),
@@ -270,22 +261,23 @@ test "intersects_coord_polygon / intersects_line_polygon / intersects_rect_coord
     ]),
     [],
   )
-  assert_true(intersects_coord_polygon(@type.Coord::Coord(1.0, 1.0), polygon))
+  let g_polygon = @type.Geometry::Polygon(polygon)
+  assert_true(intersects_geometry(@type.Geometry::Point(@type.Point::Point(1.0, 1.0)), g_polygon))
   assert_false(
-    intersects_coord_polygon(@type.Coord::Coord(10.0, 10.0), polygon),
+    intersects_geometry(@type.Geometry::Point(@type.Point::Point(10.0, 10.0)), g_polygon),
   )
   // Line crossing the polygon's interior intersects.
   let crossing = @type.Line::from_tuples((-1.0, 1.0), (3.0, 1.0))
-  assert_true(intersects_line_polygon(crossing, polygon))
+  assert_true(intersects_geometry(@type.Geometry::Line(crossing), g_polygon))
   // Line entirely outside has no intersection.
   let outside = @type.Line::from_tuples((10.0, 10.0), (20.0, 20.0))
-  assert_false(intersects_line_polygon(outside, polygon))
+  assert_false(intersects_geometry(@type.Geometry::Line(outside), g_polygon))
   // Rect × Coord direct call.
   let r = @type.Rect::Rect(
     @type.Coord::Coord(0.0, 0.0),
     @type.Coord::Coord(10.0, 10.0),
   )
-  assert_true(intersects_rect_coord(r, @type.Coord::Coord(5.0, 5.0)))
-  assert_false(intersects_rect_coord(r, @type.Coord::Coord(20.0, 20.0)))
+  assert_true(intersects_geometry(@type.Geometry::Rect(r), @type.Geometry::Point(@type.Point::Point(5.0, 5.0))))
+  assert_false(intersects_geometry(@type.Geometry::Rect(r), @type.Geometry::Point(@type.Point::Point(20.0, 20.0))))
 }
 ```

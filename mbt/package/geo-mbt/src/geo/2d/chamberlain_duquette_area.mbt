@@ -49,7 +49,7 @@ fn ring_chamberlain_duquette_signed_area(ring : @type.LineString) -> Double {
 
 ///|
 /// Signed Chamberlain-Duquette spherical area of a polygon (meters²).
-pub fn chamberlain_duquette_signed_area_polygon(
+fn chamberlain_duquette_signed_area_polygon(
   polygon : @type.Polygon,
 ) -> Double {
   polygon
@@ -66,7 +66,7 @@ pub fn chamberlain_duquette_signed_area_polygon(
 ///|
 /// Unsigned (absolute) Chamberlain-Duquette spherical area of a polygon
 /// (meters²).
-pub fn chamberlain_duquette_unsigned_area_polygon(
+fn chamberlain_duquette_unsigned_area_polygon(
   polygon : @type.Polygon,
 ) -> Double {
   chamberlain_duquette_signed_area_polygon(polygon).abs()
@@ -75,7 +75,7 @@ pub fn chamberlain_duquette_unsigned_area_polygon(
 ///|
 /// Signed Chamberlain-Duquette spherical area of a `MultiPolygon` (sum of
 /// per-component signed areas; meters²).
-pub fn chamberlain_duquette_signed_area_multi_polygon(
+fn chamberlain_duquette_signed_area_multi_polygon(
   mp : @type.MultiPolygon,
 ) -> Double {
   mp
@@ -89,7 +89,7 @@ pub fn chamberlain_duquette_signed_area_multi_polygon(
 ///|
 /// Unsigned Chamberlain-Duquette spherical area of a `MultiPolygon`
 /// (meters²).
-pub fn chamberlain_duquette_unsigned_area_multi_polygon(
+fn chamberlain_duquette_unsigned_area_multi_polygon(
   mp : @type.MultiPolygon,
 ) -> Double {
   mp
