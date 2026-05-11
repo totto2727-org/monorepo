@@ -3,10 +3,6 @@
     "exocortex": {
       "type": "stdio",
       "command": "exocortex-mcp"
-    },
-    "zai-mcp-server": {
-      "type": "stdio",
-      "command": "zai-mcp-server"
     }
   }
 }

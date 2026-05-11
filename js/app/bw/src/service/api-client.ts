@@ -1,4 +1,4 @@
-import { Data, Effect, Schema } from 'effect'
+import { Data, Effect, Predicate, Schema } from 'effect'
 import type { HttpClientResponse } from 'effect/unstable/http'
 import { HttpBody, HttpClient } from 'effect/unstable/http'
 
@@ -13,6 +13,36 @@ export class ApiError extends Data.TaggedError('ApiError')<{
   readonly status: number
   readonly message: string
 }> {}
+
+const formatErrorChain = (error: unknown): string => {
+  if (!(error instanceof Error)) {
+    try {
+      return JSON.stringify(error)
+    } catch {
+      return String(error)
+    }
+  }
+  const parts: string[] = [`${error.name}: ${error.message}`]
+
+  const collectCauses = (cause: unknown, depth: number): void => {
+    if (depth >= 10) {
+      return
+    }
+    if (cause instanceof Error) {
+      parts.push(`caused by: ${cause.name}: ${cause.message}`)
+      collectCauses(cause.cause, depth + 1)
+    } else if (!Predicate.isNullish(cause)) {
+      try {
+        parts.push(`caused by: ${JSON.stringify(cause)}`)
+      } catch {
+        parts.push(`caused by: [${typeof cause}]`)
+      }
+    }
+  }
+
+  collectCauses(error.cause, 0)
+  return parts.join(' | ')
+}
 
 const buildUrl = (auth: AuthConfig, endpoint: string): string =>
   `https://api.cloudflare.com${BASE_PATH}/${auth.accountId}/browser-rendering${endpoint}`
@@ -34,7 +64,7 @@ const postRequest = (
           (error) =>
             new ApiError({
               endpoint,
-              message: error instanceof Error ? error.message : JSON.stringify(error),
+              message: formatErrorChain(error),
               status: 0,
             }),
         ),
@@ -68,7 +98,7 @@ const getRequest = (
           (error) =>
             new ApiError({
               endpoint,
-              message: error instanceof Error ? error.message : JSON.stringify(error),
+              message: formatErrorChain(error),
               status: 0,
             }),
         ),
@@ -92,7 +122,7 @@ const postText = (
         (error) =>
           new ApiError({
             endpoint,
-            message: error instanceof Error ? error.message : JSON.stringify(error),
+            message: formatErrorChain(error),
             status: 0,
           }),
       ),
@@ -123,7 +153,7 @@ const postBinary = (
         (error) =>
           new ApiError({
             endpoint,
-            message: error instanceof Error ? error.message : JSON.stringify(error),
+            message: formatErrorChain(error),
             status: 0,
           }),
       ),
@@ -169,7 +199,7 @@ export const snapshot = (
         (e) =>
           new ApiError({
             endpoint: '/snapshot',
-            message: e instanceof Error ? e.message : JSON.stringify(e),
+            message: formatErrorChain(e),
             status: 0,
           }),
       ),
@@ -199,10 +229,7 @@ export const crawlStart = (
   Effect.gen(function* () {
     const data = yield* postJson(auth, '/crawl', body)
     const parsed = yield* decodeCrawlStart(data).pipe(
-      Effect.mapError(
-        (e) =>
-          new ApiError({ endpoint: '/crawl', message: e instanceof Error ? e.message : JSON.stringify(e), status: 0 }),
-      ),
+      Effect.mapError((e) => new ApiError({ endpoint: '/crawl', message: formatErrorChain(e), status: 0 })),
     )
     return parsed.result
   })
@@ -218,7 +245,7 @@ export const crawlStatus = (
         (error) =>
           new ApiError({
             endpoint: `/crawl/${crawlId}`,
-            message: error instanceof Error ? error.message : JSON.stringify(error),
+            message: formatErrorChain(error),
             status: 0,
           }),
       ),
@@ -229,7 +256,7 @@ export const crawlStatus = (
         (e) =>
           new ApiError({
             endpoint: `/crawl/${crawlId}`,
-            message: e instanceof Error ? e.message : JSON.stringify(e),
+            message: formatErrorChain(e),
             status: 0,
           }),
       ),
@@ -249,7 +276,7 @@ export const crawlResults = (
         (error) =>
           new ApiError({
             endpoint: `/crawl/${crawlId}`,
-            message: error instanceof Error ? error.message : JSON.stringify(error),
+            message: formatErrorChain(error),
             status: 0,
           }),
       ),
@@ -266,7 +293,7 @@ export const crawlList = (auth: AuthConfig): Effect.Effect<unknown, ApiError, Ht
         (error) =>
           new ApiError({
             endpoint: '/crawl',
-            message: error instanceof Error ? error.message : JSON.stringify(error),
+            message: formatErrorChain(error),
             status: 0,
           }),
       ),

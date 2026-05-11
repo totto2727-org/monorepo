@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import { NodeRuntime, NodeServices } from '@effect/platform-node'
+import * as NodeRuntime from '@effect/platform-node/NodeRuntime'
+import * as NodeServices from '@effect/platform-node/NodeServices'
 import { Effect, Layer } from 'effect'
 import { Command } from 'effect/unstable/cli'
 import { FetchHttpClient } from 'effect/unstable/http'
@@ -38,6 +39,6 @@ const app = Command.make('bw').pipe(
 
 const appLayer = Layer.merge(NodeServices.layer, FetchHttpClient.layer)
 
-const program = app.pipe(Command.run({ version: '0.1.0' }), Effect.provide(appLayer))
+const program = app.pipe(Command.run({ version: '0.1.5' }), Effect.provide(appLayer))
 
 NodeRuntime.runMain(program)
