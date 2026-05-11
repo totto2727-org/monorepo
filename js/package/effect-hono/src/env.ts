@@ -1,10 +1,8 @@
 import { Context, Layer } from 'effect'
 
-export interface Type {
-  readonly ENV: 'production' | 'development'
-}
+export type Type = 'production' | 'development'
 
-export const Service = Context.Service<Type>('@app/feed-platform-web/feature/env/Service')
+export const Service = Context.Service<Type>('@app/effect-hono/env/Service')
 
 // production code 用 layer。`process.env.NODE_ENV` を単一ソースに採用する。
 // wrangler / vite が下記のとおり `NODE_ENV` を自動設定するため、追加の wrangler vars 設定は不要:
@@ -13,9 +11,7 @@ export const Service = Context.Service<Type>('@app/feed-platform-web/feature/env
 // ref: https://developers.cloudflare.com/workers/wrangler/bundling/#node_env
 export const layer = Layer.sync(
   Service,
-  (): Type => ({
-    ENV: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-  }),
+  (): Type => (process.env.NODE_ENV === 'production' ? 'production' : 'development'),
 )
 
 // test 用 layer。明示値で注入することで Vitest 上での Logger 形式や ENV 振る舞いを固定できる。

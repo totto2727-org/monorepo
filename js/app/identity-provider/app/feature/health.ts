@@ -1,11 +1,10 @@
 import { Context, Effect, Layer } from 'effect'
-
-import * as Env from './env.ts'
+import { Env } from 'effect-hono'
 
 export interface Type {
   readonly check: () => Effect.Effect<{
     readonly status: 'ok'
-    readonly env: Env.Type['ENV']
+    readonly env: Env.Type
   }>
 }
 
@@ -16,7 +15,7 @@ export const layer = Layer.effect(
   Effect.gen(function* () {
     const env = yield* Env.Service
     return {
-      check: () => Effect.succeed({ env: env.ENV, status: 'ok' as const }),
+      check: () => Effect.succeed({ env, status: 'ok' as const }),
     }
   }),
 )

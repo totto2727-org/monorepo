@@ -1,12 +1,11 @@
 import { getContext } from 'hono/context-storage'
+import { createFrameHelpers } from 'remix-helper'
 import type { Handle, RemixNode } from 'remix/ui'
 import { Frame, css } from 'remix/ui'
 
-import { frames } from '../routes.ts'
+import type { FrameName } from '../routes.ts'
 import { Counter } from './counter.client.tsx'
 import { Document } from './document.tsx'
-import { FrameLink } from './frame-link.tsx'
-import { createPageOrFrame } from './page-or-frame.tsx'
 
 interface LayoutProps {
   title: string
@@ -41,23 +40,27 @@ const mainStyle = css({
   padding: '24px 16px',
 })
 
+const helpers = createFrameHelpers<FrameName>()
+
 const Layout = (handle: Handle<LayoutProps>) => () => (
   <Document title={handle.props.title}>
     <header mix={headerStyle}>
       <nav mix={navStyle}>
-        <FrameLink href='/' rmx-target={frames.content} rmx-src='/'>
+        <helpers.FrameLink href='/' rmx-target={'content'} rmx-src='/'>
           Counter
-        </FrameLink>
-        <FrameLink href='/todo' rmx-target={frames.content} rmx-src='/todo'>
+        </helpers.FrameLink>
+        <helpers.FrameLink href='/todo' rmx-target={'content'} rmx-src='/todo'>
           TODO
-        </FrameLink>
+        </helpers.FrameLink>
       </nav>
     </header>
     <main mix={mainStyle}>
       <Counter initial={0} />
-      <Frame name={frames.content} src={getContext().req.url} />
+      <Frame name={'content'} src={getContext().req.url} />
     </main>
   </Document>
 )
 
-export const PageOrFrame = createPageOrFrame(frames.content, Layout)
+const pageOrFrame = helpers.createPageOrFrame('content', Layout)
+
+export const PageOrFrame = (handle: Handle<LayoutProps>) => pageOrFrame(getContext().req.raw)(handle)

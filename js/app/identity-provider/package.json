@@ -14,9 +14,11 @@
     "@cloudflare/vite-plugin": "catalog:cloudflare",
     "@totto2727/fp": "workspace:*",
     "effect": "catalog:effect",
+    "effect-hono": "workspace:*",
     "hono": "catalog:hono",
     "hono-remix-middleware": "workspace:*",
     "remix": "catalog:remix",
+    "remix-helper": "workspace:*",
     "vite-plugin-remix": "workspace:*",
     "wrangler": "catalog:cloudflare"
   }

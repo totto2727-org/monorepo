@@ -21,6 +21,7 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "catalog:cloudflare",
     "@totto2727/fp": "workspace:*",
+    "remix-helper": "workspace:*",
     "wrangler": "catalog:cloudflare"
   }
 }

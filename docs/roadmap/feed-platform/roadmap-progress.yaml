@@ -11,18 +11,19 @@ roadmap_id: feed-platform
 title: Pluggable Multi-Source Feed Platform
 status: active
 created_at: 2026-05-02T13:29:59Z
-updated_at: 2026-05-07T03:45:15Z
+updated_at: 2026-05-07T03:55:00Z
 
 # マイルストーン一覧。Step 2 (Milestone Decomposition) で `roadmap-planner` が確定。
 # 確定後の `id` / `title` / `depends_on` は immutable (Step 3 中の並行 workflow サイクルは触らない)。
 milestones:
   - id: ms-01-workspace-foundation
-    title: Workspace Foundation
+    title: Workspace Foundation (Phase 1 + Phase 2 両方完了)
     status: completed
     depends_on: []
     workflow_identifiers:
       - feed-platform-ms-01-workspace-foundation
-    notes: '2026-05-07 完了。3 プロジェクト雛形 + Cloudflare Workers + Hono + Remix v3 + Effect + ADR-01 / ADR-02 起票。全 11 SC / 26 TC PASS。retrospective: docs/retrospective/feed-platform-ms-01-workspace-foundation.md'
+      - feed-platform-ms-01-shared-libraries
+    notes: 'Phase 1 (feed-platform-ms-01-workspace-foundation) 2026-05-07 完了 (全 11 SC / 26 TC PASS、retrospective docs/retrospective/feed-platform-ms-01-workspace-foundation.md)。Phase 2 (feed-platform-ms-01-shared-libraries) 2026-05-10 完了 — js/package/effect-hono + js/package/remix-helper の 2 library 新設 + 4 consumer (feed-platform-backend / feed-platform-web / identity-provider / hono-remix-v3-cloudflare-example) を library import に切替。純減約 330 行。ADR-03 confirmed: true。CI PASS。ms-02 認証着手の前提達成。'
   - id: ms-02-auth-passkey-magiclink
     title: Auth — Passkey + Magic Link 認証
     status: planned
