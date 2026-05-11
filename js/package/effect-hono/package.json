@@ -4,9 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./env": "./src/env.ts",
-    "./logger": "./src/logger.ts",
-    "./runtime": "./src/runtime.ts"
+    ".": "./src/index.ts"
   },
   "devDependencies": {
     "@totto2727/fp": "workspace:*",

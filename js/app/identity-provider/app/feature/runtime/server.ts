@@ -1,8 +1,6 @@
 import { Layer, ManagedRuntime } from 'effect'
-import { dynamicLoggerLayer } from 'effect-hono/logger'
-import { makeDisposableRuntime } from 'effect-hono/runtime'
+import { dynamicLoggerLayer, Env, makeDisposableRuntime } from 'effect-hono'
 
-import * as Env from '../env.ts'
 import * as Greeting from '../greeting.ts'
 import * as Health from '../health.ts'
 

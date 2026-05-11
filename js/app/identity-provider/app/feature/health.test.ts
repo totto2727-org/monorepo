@@ -1,7 +1,7 @@
 import { Effect, Layer } from 'effect'
+import { Env } from 'effect-hono'
 import { describe, expect, test } from 'vite-plus/test'
 
-import * as Env from './env.ts'
 import * as Health from './health.ts'
 
 describe('Health', () => {

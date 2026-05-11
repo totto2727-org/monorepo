@@ -1,6 +1,5 @@
 import { Context, Effect, Layer } from 'effect'
-
-import * as Env from './env.ts'
+import { Env } from 'effect-hono'
 
 export interface Type {
   readonly check: () => Effect.Effect<{
