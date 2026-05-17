@@ -1,5 +1,5 @@
 import { FeedType as FeedTypeForRawFeed } from '@mikaelporttila/rss'
-import { Effect, Predicate, Schema } from 'effect'
+import { DateTime, Effect, Predicate, Schema } from 'effect'
 import { Literals } from 'effect/Schema'
 import { NonEmptyStringResolver } from 'graphql-scalars'
 
@@ -148,6 +148,7 @@ export const initGraphQL = (builder: Builder) => {
           Effect.gen(function* () {
             const rssFetchClient = yield* makeRSSFetchClient
             const rss = yield* rssFetchClient(args.feedURL)
+            const nowIso = DateTime.formatIso(yield* DateTime.now)
 
             return {
               feed: {
@@ -172,20 +173,15 @@ export const initGraphQL = (builder: Builder) => {
                     description: entry.description?.value ?? '',
                     id: entry.id ?? '',
                     links: entry.links.map((link) => link.href).filter((v) => Predicate.isNotNullish(v)),
-                    publishedAt:
-                      entry.published?.toISOString() ?? entry.updated?.toISOString() ?? new Date().toISOString(),
+                    publishedAt: entry.published?.toISOString() ?? entry.updated?.toISOString() ?? nowIso,
                     title: entry.title?.value ?? '',
-                    updatedAt:
-                      entry.updated?.toISOString() ?? entry.published?.toISOString() ?? new Date().toISOString(),
+                    updatedAt: entry.updated?.toISOString() ?? entry.published?.toISOString() ?? nowIso,
                   })),
                 links: rss.links,
                 title: rss.title.value ?? '',
                 type: yield* decodeFeedType(rss.type),
                 updatedAt:
-                  rss.updateDate?.toISOString() ??
-                  rss.created?.toISOString() ??
-                  rss.published?.toISOString() ??
-                  new Date().toISOString(),
+                  rss.updateDate?.toISOString() ?? rss.created?.toISOString() ?? rss.published?.toISOString() ?? nowIso,
               },
               feedURL: args.feedURL,
             } as const satisfies FeedResponse
