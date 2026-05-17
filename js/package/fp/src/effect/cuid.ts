@@ -1,7 +1,7 @@
 import { sha3_512 } from '@noble/hashes/sha3.js'
 import BaseX from 'base-x'
 import { BigNumber } from 'bignumber.js'
-import { Array, Context, Effect, Layer, Predicate, Schema } from 'effect'
+import { Array, Context, DateTime, Effect, Layer, Predicate, Schema } from 'effect'
 /*
  * MIT License
  * Copyright (c) 2022 Eric Elliott
@@ -172,7 +172,7 @@ export const init = ({
 
     // If we're lucky, the `.toString(36)` calls may reduce hashing rounds
     // by shortening the input to the hash function a little.
-    const time = Date.now().toString(36)
+    const time = DateTime.toEpochMillis(DateTime.nowUnsafe()).toString(36)
     const count = counter().toString(36)
 
     // The salt should be long enough to be globally unique across the full
