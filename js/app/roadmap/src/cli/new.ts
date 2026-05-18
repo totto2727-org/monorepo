@@ -1,9 +1,9 @@
-import { Console, DateTime, Effect, type FileSystem, Option } from 'effect'
+import { Console, DateTime, Effect, Option } from 'effect'
 import { Argument, Command, Flag } from 'effect/unstable/cli'
 
 import { initProgressFile } from '#@/lib/progress.ts'
 
-const failWith = (message: string): Effect.Effect<null> =>
+const failWith = (message: string) =>
   Effect.gen(function* () {
     yield* Console.error(`error: ${message}`)
     yield* Effect.sync(() => {
@@ -12,11 +12,7 @@ const failWith = (message: string): Effect.Effect<null> =>
     return null
   })
 
-const runNew = (
-  roadmapId: string,
-  title: Option.Option<string>,
-  dir: string,
-): Effect.Effect<void, never, FileSystem.FileSystem> =>
+const runNew = (roadmapId: string, title: Option.Option<string>, dir: string) =>
   Effect.gen(function* () {
     const resolvedTitle = Option.getOrElse(title, () => roadmapId)
     const now = yield* DateTime.now

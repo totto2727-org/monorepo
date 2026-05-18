@@ -7,31 +7,30 @@ export type MilestoneStatus = typeof MilestoneStatus.Type
 export const RoadmapStatus = Schema.Literals(['planned', 'active', 'completed'])
 export type RoadmapStatus = typeof RoadmapStatus.Type
 
-const isKebabCase = new SchemaAST.Filter<string>(
-  (input) =>
-    input.length > 0 && kebabCase(input) === input
-      ? undefined
-      : new SchemaIssue.InvalidValue(Option.some(input), { message: 'must be kebab-case' }),
+const isKebabCase = new SchemaAST.Filter<string>((input) =>
+  input.length > 0 && kebabCase(input) === input
+    ? undefined
+    : new SchemaIssue.InvalidValue(Option.some(input), { message: 'must be kebab-case' }),
 )
 
 const KebabCase = Schema.String.pipe(Schema.check(isKebabCase))
 
 export const Milestone = Schema.Struct({
-  id: KebabCase,
-  title: Schema.NonEmptyString,
-  status: MilestoneStatus,
   depends_on: Schema.Array(KebabCase),
-  workflow_identifiers: Schema.Array(Schema.NonEmptyString),
+  id: KebabCase,
   notes: Schema.NullOr(Schema.String),
+  status: MilestoneStatus,
+  title: Schema.NonEmptyString,
+  workflow_identifiers: Schema.Array(Schema.NonEmptyString),
 })
 export type Milestone = typeof Milestone.Type
 
 export const RoadmapProgress = Schema.Struct({
-  roadmap_id: KebabCase,
-  title: Schema.NonEmptyString,
-  status: RoadmapStatus,
   created_at: Schema.DateTimeUtcFromString,
-  updated_at: Schema.DateTimeUtcFromString,
   milestones: Schema.Array(Milestone),
+  roadmap_id: KebabCase,
+  status: RoadmapStatus,
+  title: Schema.NonEmptyString,
+  updated_at: Schema.DateTimeUtcFromString,
 })
 export type RoadmapProgress = typeof RoadmapProgress.Type

@@ -1,12 +1,21 @@
 import { dirname, join } from 'node:path'
 
 import { Data, DateTime, Effect, FileSystem, Schema } from 'effect'
-import { dump as dumpYaml } from 'js-yaml'
+import { dump as dumpYaml, load as loadYaml } from 'js-yaml'
 
 import { RoadmapProgress } from '#@/schema/progress.ts'
 
 export class ProgressFileExistsError extends Data.TaggedError('ProgressFileExistsError')<{
   readonly path: string
+}> {}
+
+export class ProgressFileNotFoundError extends Data.TaggedError('ProgressFileNotFoundError')<{
+  readonly path: string
+}> {}
+
+export class ProgressReadError extends Data.TaggedError('ProgressReadError')<{
+  readonly path: string
+  readonly message: string
 }> {}
 
 export class ProgressWriteError extends Data.TaggedError('ProgressWriteError')<{
@@ -24,20 +33,92 @@ const HEADER_COMMENT = `# Roadmap progress tracking yaml managed by the \`roadma
 # Schema reference: plugins/dev-workflow/skills/share-artifacts/references/roadmap-progress-yaml.md
 `
 
-const renderYaml = (data: RoadmapProgress): string => {
+export const progressFilePath = (dir: string, roadmapId: string): string => join(dir, roadmapId, 'progress.yaml')
+
+export const renderProgressYaml = (data: RoadmapProgress): string => {
   const body = dumpYaml(
     {
-      roadmap_id: data.roadmap_id,
-      title: data.title,
-      status: data.status,
       created_at: DateTime.formatIso(data.created_at),
-      updated_at: DateTime.formatIso(data.updated_at),
       milestones: data.milestones,
+      roadmap_id: data.roadmap_id,
+      status: data.status,
+      title: data.title,
+      updated_at: DateTime.formatIso(data.updated_at),
     },
     { lineWidth: -1, noRefs: true },
   )
   return `${HEADER_COMMENT}\n${body}`
 }
+
+export interface ReadInput {
+  readonly dir: string
+  readonly roadmapId: string
+}
+
+export const readProgressFile = (
+  input: ReadInput,
+): Effect.Effect<
+  RoadmapProgress,
+  ProgressFileNotFoundError | ProgressReadError | ProgressValidationError,
+  FileSystem.FileSystem
+> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const path = progressFilePath(input.dir, input.roadmapId)
+
+    const toReadError = (error: unknown): ProgressReadError =>
+      new ProgressReadError({
+        message: error instanceof Error ? error.message : String(error),
+        path,
+      })
+
+    if (!(yield* fs.exists(path).pipe(Effect.mapError(toReadError)))) {
+      return yield* new ProgressFileNotFoundError({ path })
+    }
+
+    const raw = yield* fs.readFileString(path).pipe(Effect.mapError(toReadError))
+
+    const parsed = yield* Effect.try({
+      catch: (error) =>
+        new ProgressValidationError({
+          message: `failed to parse yaml at ${path}: ${error instanceof Error ? error.message : String(error)}`,
+        }),
+      try: () => loadYaml(raw),
+    })
+
+    return yield* decodeUnknown(parsed).pipe(
+      Effect.mapError((error) => new ProgressValidationError({ message: `${path}: ${String(error)}` })),
+    )
+  })
+
+export interface WriteInput {
+  readonly dir: string
+  readonly roadmapId: string
+  readonly data: RoadmapProgress
+}
+
+export interface WriteResult {
+  readonly path: string
+}
+
+export const writeProgressFile = (
+  input: WriteInput,
+): Effect.Effect<WriteResult, ProgressWriteError, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const path = progressFilePath(input.dir, input.roadmapId)
+
+    const toWriteError = (error: unknown): ProgressWriteError =>
+      new ProgressWriteError({
+        message: error instanceof Error ? error.message : String(error),
+        path,
+      })
+
+    yield* fs.makeDirectory(dirname(path), { recursive: true }).pipe(Effect.mapError(toWriteError))
+    yield* fs.writeFileString(path, renderProgressYaml(input.data)).pipe(Effect.mapError(toWriteError))
+
+    return { path }
+  })
 
 export interface InitInput {
   readonly roadmapId: string
@@ -59,17 +140,16 @@ export const initProgressFile = (
 > =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
-    const targetDir = join(input.dir, input.roadmapId)
-    const targetPath = join(targetDir, 'progress.yaml')
+    const path = progressFilePath(input.dir, input.roadmapId)
 
     const timestamp = DateTime.formatIso(input.now)
     const draft = {
-      roadmap_id: input.roadmapId,
-      title: input.title,
-      status: 'planned',
       created_at: timestamp,
-      updated_at: timestamp,
       milestones: [],
+      roadmap_id: input.roadmapId,
+      status: 'planned',
+      title: input.title,
+      updated_at: timestamp,
     }
 
     const validated = yield* decodeUnknown(draft).pipe(
@@ -79,15 +159,18 @@ export const initProgressFile = (
     const toWriteError = (error: unknown): ProgressWriteError =>
       new ProgressWriteError({
         message: error instanceof Error ? error.message : String(error),
-        path: targetPath,
+        path,
       })
 
-    if (yield* fs.exists(targetPath).pipe(Effect.mapError(toWriteError))) {
-      return yield* new ProgressFileExistsError({ path: targetPath })
+    if (yield* fs.exists(path).pipe(Effect.mapError(toWriteError))) {
+      return yield* new ProgressFileExistsError({ path })
     }
 
-    yield* fs.makeDirectory(dirname(targetPath), { recursive: true }).pipe(Effect.mapError(toWriteError))
-    yield* fs.writeFileString(targetPath, renderYaml(validated)).pipe(Effect.mapError(toWriteError))
+    const result = yield* writeProgressFile({
+      data: validated,
+      dir: input.dir,
+      roadmapId: input.roadmapId,
+    })
 
-    return { path: targetPath }
+    return { path: result.path }
   })
