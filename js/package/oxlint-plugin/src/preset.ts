@@ -32,6 +32,7 @@ const preset: Preset = {
     'rules/force-string-empty': 'error',
     'rules/force-ts-extension': 'error',
     'rules/no-eslint-disable-comments': 'error',
+    'rules/no-js-date': 'error',
     'rules/no-let': 'error',
     'rules/no-option-tag-comparison': 'error',
     'rules/no-sync-decode': 'error',
