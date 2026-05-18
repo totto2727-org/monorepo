@@ -1,6 +1,6 @@
 ---
-milestone_id: "{{milestone_id}}"
-roadmap_id: "{{roadmap_id}}"
+milestone_id: '{{milestone_id}}'
+roadmap_id: '{{roadmap_id}}'
 ---
 
 # Milestone: {{milestone_title}}

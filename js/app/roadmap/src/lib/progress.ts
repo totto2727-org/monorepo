@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path'
 import { Data, DateTime, Effect, FileSystem, Predicate, Schema } from 'effect'
 import { dump as dumpYaml, load as loadYaml } from 'js-yaml'
 
+import type { RoadmapStatus } from '#@/schema/progress.ts'
 import { RoadmapProgress } from '#@/schema/progress.ts'
 
 export class ProgressFileExistsError extends Data.TaggedError('ProgressFileExistsError')<{
@@ -183,6 +184,29 @@ export const listRoadmaps = (
     )
 
     return results.filter(Predicate.isNotNullish).toSorted((a, b) => a.roadmap_id.localeCompare(b.roadmap_id))
+  })
+
+export interface UpdateRoadmapStatusInput {
+  readonly dir: string
+  readonly roadmapId: string
+  readonly status: RoadmapStatus
+  readonly now: DateTime.Utc
+}
+
+export const updateRoadmapStatus = (
+  input: UpdateRoadmapStatusInput,
+): Effect.Effect<
+  WriteResult,
+  ProgressFileNotFoundError | ProgressReadError | ProgressValidationError | ProgressWriteError,
+  FileSystem.FileSystem
+> =>
+  Effect.gen(function* () {
+    const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
+    return yield* writeProgressFile({
+      data: { ...progress, status: input.status, updated_at: input.now },
+      dir: input.dir,
+      roadmapId: input.roadmapId,
+    })
   })
 
 export const initProgressFile = (
