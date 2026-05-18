@@ -4,8 +4,7 @@ import * as NodePath from 'node:path'
 
 import { Predicate, String } from 'effect'
 
-export const getAgentsDir = (global: boolean): string =>
-  global ? NodePath.join(Os.homedir(), '.agents') : NodePath.join(process.cwd(), '.agents')
+export const getGlobalAgentsDir = (): string => NodePath.join(Os.homedir(), '.agents')
 
 export const expandHomePath = (path: string): string => {
   if (path === '~') {
@@ -50,6 +49,26 @@ export const findAgentsRoot = async (startDir: string = process.cwd()): Promise<
     return findAgentsRoot(parentDir)
   }
 }
+
+export const findNearestAgentsDir = async (startDir: string = process.cwd()): Promise<string> => {
+  const currentDir = NodePath.resolve(startDir)
+  const agentsDir = NodePath.join(currentDir, '.agents')
+  const lockPath = NodePath.join(agentsDir, 'skills-lock.json')
+
+  try {
+    await Fs.access(lockPath)
+    return agentsDir
+  } catch {
+    const parentDir = NodePath.dirname(currentDir)
+    if (parentDir === currentDir) {
+      throw new Error('Could not find .agents directory with skills-lock.json')
+    }
+    return findNearestAgentsDir(parentDir)
+  }
+}
+
+export const toRelativeLocalPath = (absPath: string, agentsRoot: string): string =>
+  `./${NodePath.relative(agentsRoot, absPath)}`
 
 export const getCacheDir = (agentsDir: string): string => NodePath.join(agentsDir, '.cache')
 

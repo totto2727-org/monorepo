@@ -7,6 +7,7 @@ import { describe, expect, test } from 'vite-plus/test'
 import {
   expandHomePath,
   findAgentsRoot,
+  findNearestAgentsDir,
   getGitHubCloneUrl,
   isHomePath,
   isLocalPath,
@@ -14,6 +15,7 @@ import {
   normalizePathSpec,
   parseRepoSource,
   resolveLocalPath,
+  toRelativeLocalPath,
 } from './paths.ts'
 
 describe('parseRepoSource', () => {
@@ -160,5 +162,49 @@ describe('findAgentsRoot', () => {
     await Fs.mkdir(nested, { recursive: true })
 
     await expect(findAgentsRoot(nested)).rejects.toThrow('Could not find project root with .agents directory')
+  })
+})
+
+describe('findNearestAgentsDir', () => {
+  test('finds nearest parent .agents with lock file', async () => {
+    const root = await Fs.mkdtemp(NodePath.join(Os.tmpdir(), 'c-plugin-agents-dir-'))
+    const agentsDir = NodePath.join(root, '.agents')
+    await Fs.mkdir(agentsDir, { recursive: true })
+    await Fs.writeFile(NodePath.join(agentsDir, 'skills-lock.json'), '{}', 'utf-8')
+    const nested = NodePath.join(root, 'a', 'b', 'c')
+    await Fs.mkdir(nested, { recursive: true })
+
+    await expect(findNearestAgentsDir(nested)).resolves.toBe(agentsDir)
+  })
+
+  test('finds .agents in current directory', async () => {
+    const root = await Fs.mkdtemp(NodePath.join(Os.tmpdir(), 'c-plugin-agents-dir-'))
+    const agentsDir = NodePath.join(root, '.agents')
+    await Fs.mkdir(agentsDir, { recursive: true })
+    await Fs.writeFile(NodePath.join(agentsDir, 'skills-lock.json'), '{}', 'utf-8')
+
+    await expect(findNearestAgentsDir(root)).resolves.toBe(agentsDir)
+  })
+
+  test('throws when no .agents with lock file exists', async () => {
+    const root = await Fs.mkdtemp(NodePath.join(Os.tmpdir(), 'c-plugin-no-agents-dir-'))
+    const nested = NodePath.join(root, 'a', 'b')
+    await Fs.mkdir(nested, { recursive: true })
+
+    await expect(findNearestAgentsDir(nested)).rejects.toThrow('Could not find .agents directory with skills-lock.json')
+  })
+})
+
+describe('toRelativeLocalPath', () => {
+  test('converts absolute path to ./relative from agents root', () => {
+    expect(toRelativeLocalPath('/proj/packages/foo', '/proj')).toBe('./packages/foo')
+  })
+
+  test('handles same directory', () => {
+    expect(toRelativeLocalPath('/proj', '/proj')).toBe('./')
+  })
+
+  test('handles nested paths', () => {
+    expect(toRelativeLocalPath('/proj/a/b/c', '/proj')).toBe('./a/b/c')
   })
 })
