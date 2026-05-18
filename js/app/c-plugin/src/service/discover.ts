@@ -3,7 +3,7 @@ import * as NodePath from 'node:path'
 
 import { Effect } from 'effect'
 
-import { getLockFilePath } from '#@/lib/paths.ts'
+import { findNearestAgentsDir, getLockFilePath } from '#@/lib/paths.ts'
 
 const SKIP_DIRS = new Set(['.agents', '.git', 'node_modules'])
 
@@ -33,3 +33,14 @@ export const collectAgentsDirs = (startDir: string): Effect.Effect<string[]> =>
       return results
     },
   }).pipe(Effect.orElseSucceed((): string[] => []))
+
+export const resolveAgentsDirs = (recursive: boolean): Effect.Effect<string[]> =>
+  Effect.gen(function* () {
+    const nearest = yield* Effect.promise(() => findNearestAgentsDir())
+    if (!recursive) {
+      return [nearest]
+    }
+    const startDir = NodePath.dirname(nearest)
+    const all = yield* collectAgentsDirs(startDir)
+    return all
+  })
