@@ -2,13 +2,13 @@
   description = "A flake to provision my environment";
 
   inputs = {
-    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0";
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
     home-manager = {
-      url = "https://flakehub.com/f/nix-community/home-manager/*";
+      url = "https://flakehub.com/f/nix-community/home-manager/0.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-darwin = {
-      url = "https://flakehub.com/f/nix-darwin/nix-darwin/0";
+      url = "https://flakehub.com/f/nix-darwin/nix-darwin/0.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     npmpkgs = {
@@ -24,7 +24,6 @@
       npmpkgs,
       home-manager,
       nix-darwin,
-      meridian,
     }:
     let
       hostname = "totto2727-macos";
@@ -92,6 +91,7 @@
             (
               (import ../share/home-manager.nix { inherit username homedir; })
               // {
+                home-manager.backupFileExtension = "bak";
                 home-manager.users."${username}" = {
                   home.stateVersion = stateVersion;
 
@@ -103,8 +103,6 @@
                     ++ (with pkgs; [
                       gopls
                       air
-                      dotnet-sdk
-                      zig
                     ]);
 
                   programs =

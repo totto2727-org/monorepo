@@ -34,6 +34,10 @@ with pkgs;
     binName = "wt";
     packageName = "@totto2727/wt";
   })
+  (npm {
+    binName = "codex";
+    packageName = "@openai/codex";
+  })
   # (npm {
   #   binName = "comment-checker";
   #   packageName = "@code-yeongyu/comment-checker";
