@@ -1,9 +1,16 @@
+import * as Fs from 'node:fs/promises'
 import * as NodePath from 'node:path'
 
 import { Array, Effect, Option } from 'effect'
 import { Argument, Command, Flag, Prompt } from 'effect/unstable/cli'
 
-import { getAgentsDir, isLocalPath, normalizePathSpec } from '#@/lib/paths.ts'
+import {
+  findNearestAgentsDir,
+  getGlobalAgentsDir,
+  isLocalPath,
+  normalizePathSpec,
+  toRelativeLocalPath,
+} from '#@/lib/paths.ts'
 import { hasSupportedPluginFormat } from '#@/lib/plugin-format.ts'
 import type { LockFile, PluginEntry, RepositoryEntry } from '#@/schema/lock-file.ts'
 import type { MarketplaceKind } from '#@/schema/marketplace-kind.ts'
@@ -43,7 +50,7 @@ export const addCommand = Command.make(
   },
   (config) =>
     Effect.gen(function* () {
-      const agentsDir = getAgentsDir(config.global)
+      const agentsDir = config.global ? getGlobalAgentsDir() : yield* Effect.promise(() => findNearestAgentsDir())
       yield* Cache.ensureDirs(agentsDir)
 
       const resolved: ResolvedSource = yield* Option.match(config.local, {
@@ -65,13 +72,24 @@ export const addCommand = Command.make(
             if (!isLocalPath(localSpec)) {
               return yield* Effect.fail(new Error(`Invalid local path: ${rawSpec}. Expected './...' (local path).`))
             }
-            const agentsRoot = NodePath.dirname(agentsDir)
-            const dir = yield* Cache.ensureLocalPath(localSpec, agentsRoot)
-            const hasFormat = yield* Effect.promise(() => hasSupportedPluginFormat(dir))
+
+            const resolvedAbs = yield* Effect.tryPromise({
+              catch: () => new Error(`Local path does not exist: ${localSpec}`),
+              try: async () => {
+                const abs = NodePath.resolve(process.cwd(), localSpec)
+                await Fs.access(abs)
+                return abs
+              },
+            })
+
+            const hasFormat = yield* Effect.promise(() => hasSupportedPluginFormat(resolvedAbs))
             if (!hasFormat) {
               return yield* Effect.fail(new Error(`No marketplace found at: ${localSpec}`))
             }
-            return { dir, source: localSpec, type: 'local' as const }
+
+            const agentsRoot = NodePath.dirname(agentsDir)
+            const relativeSource = toRelativeLocalPath(resolvedAbs, agentsRoot)
+            return { dir: resolvedAbs, source: relativeSource, type: 'local' as const }
           }),
       })
 

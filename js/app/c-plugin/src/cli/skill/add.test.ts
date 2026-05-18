@@ -11,21 +11,18 @@ import { allKinds, getKindConfig } from '#@/schema/marketplace-kind.ts'
 
 import { addCommand } from './add.ts'
 
-const { mockEnsureDirs, mockEnsureLocalPath, mockEnsureRepo } = vi.hoisted(() => ({
+const { mockEnsureDirs, mockEnsureRepo } = vi.hoisted(() => ({
   mockEnsureDirs: vi.fn(() => Effect.void),
-  mockEnsureLocalPath: vi.fn((spec: string) => Effect.succeed(spec)),
   mockEnsureRepo: vi.fn((_agentsDir: string, source: string) => Effect.succeed(source)),
 }))
 
 vi.mock('#@/service/cache.ts', () => ({
   ensureDirs: mockEnsureDirs,
-  ensureLocalPath: mockEnsureLocalPath,
   ensureRepo: mockEnsureRepo,
 }))
 
 beforeEach(() => {
   mockEnsureDirs.mockClear()
-  mockEnsureLocalPath.mockClear()
   mockEnsureRepo.mockClear()
 })
 
