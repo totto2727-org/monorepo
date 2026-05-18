@@ -67,7 +67,7 @@ curl -fsSL https://raw.githubusercontent.com/moonbitlang/moonbit-compiler/refs/h
 moon upgrade -f && moon update
 
 curl -fsSL https://vite.plus | bash
-curl -fsSL https://claude.ai/install.sh | bash
+curl -fsSL https://opencode.ai/install | bash
 
 rm -rf ~/.rustup ~/.cargo ~/.npm ~/.cache /tmp/*
 nix-collect-garbage -d
