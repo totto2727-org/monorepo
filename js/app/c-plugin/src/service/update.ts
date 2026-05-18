@@ -19,9 +19,17 @@ export const run = (
       return
     }
 
+    if (lockFile.repositories.some((r) => r.sourceType === 'github')) {
+      yield* Git.checkInstalled
+    }
+
     const updatedRepos: LockFile['repositories'][number][] = []
 
     for (const repo of lockFile.repositories) {
+      if (repo.sourceType === 'local') {
+        updatedRepos.push(repo)
+        continue
+      }
       const repoDir = getRepoCacheDir(agentsDir, repo.source)
       yield* Effect.log(`Updating ${repo.source}...`)
       yield* Git.pull(repoDir)
