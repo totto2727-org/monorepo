@@ -8,5 +8,8 @@
     "turso-cli@latest",
     "sqld@latest",
     "nixfmt@latest"
-  ]
+  ],
+  "shell": {
+    "init_hook": ["vp config"]
+  }
 }

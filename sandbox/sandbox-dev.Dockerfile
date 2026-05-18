@@ -20,11 +20,9 @@ git sparse-checkout set nix/share nix/sandbox
 git checkout
 ln -s ~/.local/share/sandbox-flake/nix ~/nix
 home-manager switch --flake ~/nix/sandbox#sandbox-${NIX_SYSTEM}
-EOF
 
-RUN <<EOF
-git clone https://github.com/totto2727-dotfiles/chezmoi.git ~/chezmoi
-chezmoi apply --source ~/chezmoi
+chezmoi init https://github.com/totto2727-dotfiles/chezmoi.git
+chezmoi apply
 EOF
 
 SHELL ["zsh", "-c"]

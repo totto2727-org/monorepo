@@ -14,10 +14,6 @@ cd ~/monorepo
 devbox install
 eval "$(devbox shellenv)"
 direnv allow
-
-vp config
-vp i
-vp run w:setup
 EOF
 
 WORKDIR /sandbox/monorepo
