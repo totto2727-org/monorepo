@@ -6,10 +6,7 @@
 ///
 /// `covers(a, b)` returns true if every point of `b` lies in `a` (interior
 /// **or** boundary).
-fn covers_polygon_coord(
-  polygon : @type.Polygon,
-  coord : @type.Coord,
-) -> Bool {
+fn covers_polygon_coord(polygon : @type.Polygon, coord : @type.Coord) -> Bool {
   match coord_position_for_polygon(coord, polygon) {
     Outside => false
     _ => true
@@ -17,10 +14,7 @@ fn covers_polygon_coord(
 }
 
 ///|
-fn covers_polygon_point(
-  polygon : @type.Polygon,
-  point : @type.Point,
-) -> Bool {
+fn covers_polygon_point(polygon : @type.Polygon, point : @type.Point) -> Bool {
   covers_polygon_coord(polygon, point.coord())
 }
 
@@ -33,10 +27,7 @@ fn covers_polygon_line_string(
 }
 
 ///|
-fn covers_polygon_polygon(
-  outer : @type.Polygon,
-  inner : @type.Polygon,
-) -> Bool {
+fn covers_polygon_polygon(outer : @type.Polygon, inner : @type.Polygon) -> Bool {
   inner.exterior().coords().iter().all(fn(c) { covers_polygon_coord(outer, c) })
 }
 

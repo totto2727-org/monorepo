@@ -64,7 +64,13 @@ test "indexed_contains_polygons - single polygon agrees with direct call" {
     @type.Coord(0.0, 5.0), // boundary edge
   ]
   for i = 0; i < probes.length(); i = i + 1 {
-    @test.assert_eq(pred(probes[i]), Contains::contains(p, @type.Geometry::Point(@type.Point::from_coord(probes[i]))))
+    @test.assert_eq(
+      pred(probes[i]),
+      Contains::contains(
+        p,
+        @type.Geometry::Point(@type.Point::from_coord(probes[i])),
+      ),
+    )
   }
 }
 ```
@@ -94,7 +100,11 @@ test "indexed_contains_polygons - 10x10 grid matches brute force" {
       (i * 13 % 41).to_double() * 0.5,
       (i * 17 % 37).to_double() * 0.5,
     )
-    let brute = polys.iter().any(fn(p) { Contains::contains(p, @type.Geometry::Point(@type.Point::from_coord(q))) })
+    let brute = polys
+      .iter()
+      .any(fn(p) {
+        Contains::contains(p, @type.Geometry::Point(@type.Point::from_coord(q)))
+      })
     @test.assert_eq(pred(q), brute)
   }
 }
@@ -125,7 +135,11 @@ test "indexed_contains_polygons - 32x32 stress matches brute force" {
       (i * 23 % 131).to_double() * 0.5,
       (i * 31 % 127).to_double() * 0.5,
     )
-    let brute = polys.iter().any(fn(p) { Contains::contains(p, @type.Geometry::Point(@type.Point::from_coord(q))) })
+    let brute = polys
+      .iter()
+      .any(fn(p) {
+        Contains::contains(p, @type.Geometry::Point(@type.Point::from_coord(q)))
+      })
     @test.assert_eq(pred(q), brute)
   }
 }

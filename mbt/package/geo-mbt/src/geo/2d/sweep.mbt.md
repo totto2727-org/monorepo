@@ -90,7 +90,13 @@ test "segment_intersections - overlapping collinear segments" {
   let coords = segment_intersections([l1, l2])
   @test.assert_eq(coords.length(), 2)
   coords.sort_by(fn(a, b) {
-    if a.x() < b.x() { -1 } else if a.x() > b.x() { 1 } else { 0 }
+    if a.x() < b.x() {
+      -1
+    } else if a.x() > b.x() {
+      1
+    } else {
+      0
+    }
   })
   assert_true((coords[0].x() - 2.0).abs() < TOLERANCE)
   assert_true(coords[0].y().abs() < TOLERANCE)

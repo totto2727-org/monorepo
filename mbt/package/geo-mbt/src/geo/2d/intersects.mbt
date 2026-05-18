@@ -52,10 +52,7 @@ fn intersects_coord_line_string(
 }
 
 ///|
-fn intersects_line_line_string(
-  l : @type.Line,
-  ls : @type.LineString,
-) -> Bool {
+fn intersects_line_line_string(l : @type.Line, ls : @type.LineString) -> Bool {
   ls.lines_iter().any(fn(segment) { intersects_line_line(l, segment) })
 }
 

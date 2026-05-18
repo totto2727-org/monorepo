@@ -4,10 +4,7 @@
 ///|
 /// Returns whether `polygon` contains `coord` (strictly inside; boundary
 /// returns false per OGC Contains semantics).
-fn contains_polygon_coord(
-  polygon : @type.Polygon,
-  coord : @type.Coord,
-) -> Bool {
+fn contains_polygon_coord(polygon : @type.Polygon, coord : @type.Coord) -> Bool {
   match coord_position_for_polygon(coord, polygon) {
     Inside => true
     _ => false
@@ -16,20 +13,14 @@ fn contains_polygon_coord(
 
 ///|
 /// Returns whether `polygon` contains `point`.
-fn contains_polygon_point(
-  polygon : @type.Polygon,
-  point : @type.Point,
-) -> Bool {
+fn contains_polygon_point(polygon : @type.Polygon, point : @type.Point) -> Bool {
   contains_polygon_coord(polygon, point.coord())
 }
 
 ///|
 /// Returns whether `polygon` strictly contains `line` — both endpoints inside
 /// and the line does not cross any ring edge.
-fn contains_polygon_line(
-  polygon : @type.Polygon,
-  line : @type.Line,
-) -> Bool {
+fn contains_polygon_line(polygon : @type.Polygon, line : @type.Line) -> Bool {
   if !contains_polygon_coord(polygon, line.start()) ||
     !contains_polygon_coord(polygon, line.end()) {
     return false

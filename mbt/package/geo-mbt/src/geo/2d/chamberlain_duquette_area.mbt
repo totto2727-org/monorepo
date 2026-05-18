@@ -49,9 +49,7 @@ fn ring_chamberlain_duquette_signed_area(ring : @type.LineString) -> Double {
 
 ///|
 /// Signed Chamberlain-Duquette spherical area of a polygon (meters²).
-fn chamberlain_duquette_signed_area_polygon(
-  polygon : @type.Polygon,
-) -> Double {
+fn chamberlain_duquette_signed_area_polygon(polygon : @type.Polygon) -> Double {
   polygon
   .interiors()
   .iter()

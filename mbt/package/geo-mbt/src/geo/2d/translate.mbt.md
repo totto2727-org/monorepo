@@ -34,10 +34,10 @@ test "translate_geometry - shifts all coords of a Polygon variant" {
   ])
   let polygon = @type.Polygon::Polygon(exterior, [])
   let translated = try! translate_geometry(
-      @type.Geometry::Polygon(polygon),
-      10.0,
-      20.0,
-    ).try_into_polygon()
+    @type.Geometry::Polygon(polygon),
+    10.0,
+    20.0,
+  ).try_into_polygon()
   let coords = translated.exterior().coords()
   @test.assert_eq(coords[0], @type.Coord::Coord(10.0, 20.0))
   @test.assert_eq(coords[1], @type.Coord::Coord(11.0, 20.0))

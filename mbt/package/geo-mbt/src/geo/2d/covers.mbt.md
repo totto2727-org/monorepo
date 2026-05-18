@@ -33,9 +33,15 @@ test "covers_polygon_point - boundary included, outside rejected" {
   ])
   let p = @type.Polygon::Polygon(exterior, [])
   let gp = @type.Geometry::Polygon(p)
-  assert_true(covers_geometry(gp, @type.Geometry::Point(@type.Point::Point(0.0, 5.0)))) // boundary
-  assert_true(covers_geometry(gp, @type.Geometry::Point(@type.Point::Point(5.0, 5.0)))) // interior
-  assert_false(covers_geometry(gp, @type.Geometry::Point(@type.Point::Point(20.0, 20.0)))) // outside
+  assert_true(
+    covers_geometry(gp, @type.Geometry::Point(@type.Point::Point(0.0, 5.0))),
+  ) // boundary
+  assert_true(
+    covers_geometry(gp, @type.Geometry::Point(@type.Point::Point(5.0, 5.0))),
+  ) // interior
+  assert_false(
+    covers_geometry(gp, @type.Geometry::Point(@type.Point::Point(20.0, 20.0))),
+  ) // outside
 }
 ```
 
@@ -58,8 +64,12 @@ test "covers_geometry - coord/line string/polygon boundary inclusive" {
   )
   // Coord on boundary → covered.
   let gp = @type.Geometry::Polygon(polygon)
-  assert_true(covers_geometry(gp, @type.Geometry::Point(@type.Point::Point(0.0, 5.0))))
-  assert_false(covers_geometry(gp, @type.Geometry::Point(@type.Point::Point(20.0, 20.0))))
+  assert_true(
+    covers_geometry(gp, @type.Geometry::Point(@type.Point::Point(0.0, 5.0))),
+  )
+  assert_false(
+    covers_geometry(gp, @type.Geometry::Point(@type.Point::Point(20.0, 20.0))),
+  )
   // LineString every coord covered.
   let ls = @type.LineString::from_tuples([(1.0, 1.0), (5.0, 5.0)])
   assert_true(covers_geometry(gp, @type.Geometry::LineString(ls)))
@@ -91,9 +101,15 @@ test "covers_geometry - rect boundary inclusive" {
   )
   // Boundary is covered (unlike strict contains_rect_coord).
   let gr = @type.Geometry::Rect(r)
-  assert_true(covers_geometry(gr, @type.Geometry::Point(@type.Point::Point(0.0, 5.0))))
-  assert_true(covers_geometry(gr, @type.Geometry::Point(@type.Point::Point(5.0, 5.0))))
-  assert_false(covers_geometry(gr, @type.Geometry::Point(@type.Point::Point(20.0, 20.0))))
+  assert_true(
+    covers_geometry(gr, @type.Geometry::Point(@type.Point::Point(0.0, 5.0))),
+  )
+  assert_true(
+    covers_geometry(gr, @type.Geometry::Point(@type.Point::Point(5.0, 5.0))),
+  )
+  assert_false(
+    covers_geometry(gr, @type.Geometry::Point(@type.Point::Point(20.0, 20.0))),
+  )
 }
 ```
 
