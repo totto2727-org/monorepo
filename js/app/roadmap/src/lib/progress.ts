@@ -1,6 +1,7 @@
+// oxlint-disable max-classes-per-file -- TaggedError subclasses are grouped by domain
 import { dirname, join } from 'node:path'
 
-import { Data, DateTime, Effect, FileSystem, Schema } from 'effect'
+import { Data, DateTime, Effect, FileSystem, Predicate, Schema } from 'effect'
 import { dump as dumpYaml, load as loadYaml } from 'js-yaml'
 
 import { RoadmapProgress } from '#@/schema/progress.ts'
@@ -27,6 +28,7 @@ export class ProgressValidationError extends Data.TaggedError('ProgressValidatio
   readonly message: string
 }> {}
 
+// oxlint-disable-next-line rules/prefer-non-unknown-decode -- yaml parse output is unknown
 const decodeUnknown = Schema.decodeUnknownEffect(RoadmapProgress)
 
 const HEADER_COMMENT = `# Roadmap progress tracking yaml managed by the \`roadmap\` CLI.
@@ -130,6 +132,58 @@ export interface InitInput {
 export interface InitResult {
   readonly path: string
 }
+
+export class ProgressDirNotFoundError extends Data.TaggedError('ProgressDirNotFoundError')<{
+  readonly dir: string
+}> {}
+
+export const listRoadmaps = (
+  dir: string,
+): Effect.Effect<
+  readonly RoadmapProgress[],
+  ProgressDirNotFoundError | ProgressReadError | ProgressValidationError,
+  FileSystem.FileSystem
+> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+
+    const toReadError =
+      (path: string) =>
+      (error: unknown): ProgressReadError =>
+        new ProgressReadError({
+          message: error instanceof Error ? error.message : String(error),
+          path,
+        })
+
+    if (!(yield* fs.exists(dir).pipe(Effect.mapError(toReadError(dir))))) {
+      return yield* new ProgressDirNotFoundError({ dir })
+    }
+
+    const entries = yield* fs.readDirectory(dir).pipe(Effect.mapError(toReadError(dir)))
+
+    // oxlint-disable-next-line unicorn/no-array-method-this-argument -- Effect.forEach, not Array.forEach
+    const results = yield* Effect.forEach(entries, (entry) =>
+      Effect.gen(function* () {
+        if (entry.startsWith('.')) {
+          return null
+        }
+        const entryPath = join(dir, entry)
+        const info = yield* fs.stat(entryPath).pipe(Effect.mapError(toReadError(entryPath)))
+        if (info.type !== 'Directory') {
+          return null
+        }
+        const progressPath = progressFilePath(dir, entry)
+        if (!(yield* fs.exists(progressPath).pipe(Effect.mapError(toReadError(progressPath))))) {
+          return null
+        }
+        return yield* readProgressFile({ dir, roadmapId: entry }).pipe(
+          Effect.catchTag('ProgressFileNotFoundError', () => Effect.succeed(null)),
+        )
+      }),
+    )
+
+    return results.filter(Predicate.isNotNullish).toSorted((a, b) => a.roadmap_id.localeCompare(b.roadmap_id))
+  })
 
 export const initProgressFile = (
   input: InitInput,

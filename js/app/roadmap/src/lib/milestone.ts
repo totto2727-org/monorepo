@@ -1,9 +1,11 @@
+// oxlint-disable max-classes-per-file -- TaggedError subclasses are grouped by domain
 import { join } from 'node:path'
 
-import { Data, DateTime, Effect, FileSystem, Schema } from 'effect'
+import type { DateTime } from 'effect'
+import { Data, Effect, FileSystem, Schema } from 'effect'
 
-import { ProgressValidationError, readProgressFile, writeProgressFile } from '#@/lib/progress.ts';
-import type { ProgressFileNotFoundError, ProgressReadError, ProgressWriteError } from '#@/lib/progress.ts';
+import { ProgressValidationError, readProgressFile, writeProgressFile } from '#@/lib/progress.ts'
+import type { ProgressFileNotFoundError, ProgressReadError, ProgressWriteError } from '#@/lib/progress.ts'
 import { Milestone } from '#@/schema/progress.ts'
 
 import MILESTONE_TEMPLATE from './milestone-template.md'
@@ -22,6 +24,7 @@ export class MilestoneWriteError extends Data.TaggedError('MilestoneWriteError')
   readonly message: string
 }> {}
 
+// oxlint-disable-next-line rules/prefer-non-unknown-decode -- draft is a partially-typed literal
 const decodeMilestone = Schema.decodeUnknownEffect(Milestone)
 
 const milestonePath = (dir: string, roadmapId: string, milestoneId: string): string =>
