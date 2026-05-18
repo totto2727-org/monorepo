@@ -2,7 +2,7 @@ import * as Fs from 'node:fs/promises'
 
 import { Effect } from 'effect'
 
-import { getCacheDir, getGitHubCloneUrl, getRepoCacheDir, getSkillsDir } from '#@/lib/paths.ts'
+import { getCacheDir, getGitHubCloneUrl, getRepoCacheDir, getSkillsDir, resolveLocalPath } from '#@/lib/paths.ts'
 import * as Git from '#@/service/git.ts'
 
 export const ensureDirs = (agentsDir: string): Effect.Effect<void> =>
@@ -33,3 +33,13 @@ export const removeRepo = (agentsDir: string, source: string): Effect.Effect<voi
     catch: (e: unknown) => e,
     try: () => Fs.rm(getRepoCacheDir(agentsDir, source), { force: true, recursive: true }),
   }).pipe(Effect.ignore)
+
+export const ensureLocalPath = (spec: string, agentsRoot: string): Effect.Effect<string, Error> =>
+  Effect.tryPromise({
+    catch: () => new Error(`Local path does not exist: ${spec}`),
+    try: async () => {
+      const resolved = resolveLocalPath(spec, agentsRoot)
+      await Fs.access(resolved)
+      return resolved
+    },
+  })
