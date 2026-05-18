@@ -53,6 +53,7 @@
                   "slp/krun"
                 ];
                 brews = (import ../share/brews.nix) ++ [
+                  "git"
                   "podman"
                   "krunkit"
                   "zlib"
