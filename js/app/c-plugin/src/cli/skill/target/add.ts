@@ -1,7 +1,13 @@
 import { Effect } from 'effect'
 import { Argument, Command, Flag } from 'effect/unstable/cli'
 
-import { expandHomePath, getAgentsDir, isHomePath, normalizePathSpec } from '#@/lib/paths.ts'
+import {
+  expandHomePath,
+  findNearestAgentsDir,
+  getGlobalAgentsDir,
+  isHomePath,
+  normalizePathSpec,
+} from '#@/lib/paths.ts'
 import * as LockFileService from '#@/service/lock-file.ts'
 import * as SyncService from '#@/service/sync.ts'
 
@@ -19,7 +25,7 @@ export const targetAddCommand = Command.make(
         return
       }
 
-      const agentsDir = getAgentsDir(config.global)
+      const agentsDir = config.global ? getGlobalAgentsDir() : yield* Effect.promise(() => findNearestAgentsDir())
       const lockFile = yield* LockFileService.read(agentsDir)
 
       const expanded = expandHomePath(normalizedPath)

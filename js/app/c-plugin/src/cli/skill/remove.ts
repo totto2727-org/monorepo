@@ -1,7 +1,7 @@
 import { Array, Effect } from 'effect'
 import { Command, Flag, Prompt } from 'effect/unstable/cli'
 
-import { getAgentsDir } from '#@/lib/paths.ts'
+import { findNearestAgentsDir, getGlobalAgentsDir } from '#@/lib/paths.ts'
 import type { LockFile } from '#@/schema/lock-file.ts'
 import * as Cache from '#@/service/cache.ts'
 import * as LockFileService from '#@/service/lock-file.ts'
@@ -26,7 +26,7 @@ export const removeCommand = Command.make(
   },
   (config) =>
     Effect.gen(function* () {
-      const agentsDir = getAgentsDir(config.global)
+      const agentsDir = config.global ? getGlobalAgentsDir() : yield* Effect.promise(() => findNearestAgentsDir())
       const lockFile = yield* LockFileService.read(agentsDir)
 
       const allSkills = lockFile.repositories.flatMap((repo) =>
