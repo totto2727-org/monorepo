@@ -1,0 +1,34 @@
+{
+  "name": "@totto2727/roadmap",
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/totto2727-org/monorepo",
+    "directory": "js/app/roadmap"
+  },
+  "bin": {
+    "roadmap": "./dist/bin.mjs"
+  },
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "imports": {
+    "#@/*": "./src/*"
+  },
+  "scripts": {
+    "bin": "node dist/bin.mjs"
+  },
+  "dependencies": {
+    "@effect/platform-node": "catalog:effect",
+    "change-case": "^5.4.4",
+    "effect": "catalog:effect",
+    "js-yaml": "^4.1.1"
+  },
+  "devDependencies": {
+    "@totto2727/fp": "workspace:*",
+    "@types/js-yaml": "^4.0.9",
+    "vite-plus": "catalog:"
+  }
+}
