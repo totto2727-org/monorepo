@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-import * as NodeRuntime from '@effect/platform-node/NodeRuntime'
-import * as NodeServices from '@effect/platform-node/NodeServices'
+import { NodeRuntime, NodeServices } from '@effect/platform-node'
 import { Effect, Layer } from 'effect'
 import { Command } from 'effect/unstable/cli'
 import { FetchHttpClient } from 'effect/unstable/http'

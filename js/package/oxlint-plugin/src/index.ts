@@ -789,6 +789,157 @@ const noJsDateRule: Rule = {
 }
 
 // ---------------------------------------------------------------------------
+// no-effect-import-as
+// ---------------------------------------------------------------------------
+
+const EFFECT_IMPORT_RE = /^@?effect(?:\/|$)/
+
+const isEffectEcosystemImport = (sourceValue: string): boolean => EFFECT_IMPORT_RE.test(sourceValue)
+
+const getImportSource = (node: unknown): string | null => {
+  if (
+    Predicate.isObject(node) &&
+    hasProperty(node, 'source') &&
+    Predicate.isObject(node.source) &&
+    hasProperty(node.source, 'value') &&
+    Predicate.isString(node.source.value)
+  ) {
+    return node.source.value
+  }
+  return null
+}
+
+const checkSpecifierForAs = (
+  spec: Record<string, unknown>,
+  context: Context,
+  reportNode: Record<string, unknown> & { range: [number, number] },
+): boolean => {
+  if (spec.type === 'ImportNamespaceSpecifier') {
+    const localName =
+      hasProperty(spec, 'local') &&
+      Predicate.isObject(spec.local) &&
+      hasProperty(spec.local, 'name') &&
+      Predicate.isString(spec.local.name)
+        ? spec.local.name
+        : ''
+    context.report({
+      message: `Avoid namespace import (\`import * as ${localName}\`) from the effect ecosystem. Use named imports directly.`,
+      node: reportNode,
+    })
+    return true
+  }
+
+  if (
+    spec.type === 'ImportSpecifier' &&
+    hasProperty(spec, 'imported') &&
+    hasProperty(spec, 'local') &&
+    Predicate.isObject(spec.imported) &&
+    Predicate.isObject(spec.local) &&
+    hasProperty(spec.imported, 'name') &&
+    hasProperty(spec.local, 'name') &&
+    Predicate.isString(spec.imported.name) &&
+    Predicate.isString(spec.local.name)
+  ) {
+    const { name: importedName } = spec.imported
+    const { name: localName } = spec.local
+    if (importedName !== localName) {
+      context.report({
+        message: `Avoid aliased import (\`${importedName} as ${localName}\`) from the effect ecosystem. Import \`${importedName}\` directly without aliasing.`,
+        node: reportNode,
+      })
+      return true
+    }
+  }
+
+  return false
+}
+
+const noEffectImportAsRule: Rule = {
+  create(context: Context) {
+    return {
+      ImportDeclaration(node: unknown) {
+        const sourceValue = getImportSource(node)
+        if (Predicate.isNull(sourceValue) || !isEffectEcosystemImport(sourceValue) || !isReportable(node)) {
+          return
+        }
+        const specifiers = Predicate.isObject(node) && hasProperty(node, 'specifiers') ? node.specifiers : null
+        if (!Array.isArray(specifiers)) {
+          return
+        }
+        for (const spec of specifiers) {
+          if (Predicate.isObject(spec) && checkSpecifierForAs(spec, context, node)) {
+            return
+          }
+        }
+      },
+    }
+  },
+  meta: {
+    type: 'problem',
+  },
+}
+
+// ---------------------------------------------------------------------------
+// no-effect-subpath-import
+// ---------------------------------------------------------------------------
+
+const EFFECT_ECOSYSTEM_RE = /^@?effect(?:\/|$)/
+
+const isAllowedEffectImport = (source: string): boolean => {
+  if (source === 'effect') {
+    return true
+  }
+  if (/^@effect\/[^/]+$/.test(source)) {
+    return true
+  }
+  if (/^effect\/unstable\/[^/]+$/.test(source)) {
+    return true
+  }
+  return false
+}
+
+const noEffectSubpathImportRule: Rule = {
+  create(context: Context) {
+    return {
+      ImportDeclaration(node: unknown) {
+        if (!isReportable(node)) {
+          return
+        }
+        if (!Predicate.isObject(node)) {
+          return
+        }
+        if (!hasProperty(node, 'source')) {
+          return
+        }
+        const { source } = node
+        if (!Predicate.isObject(source)) {
+          return
+        }
+        if (!hasProperty(source, 'value')) {
+          return
+        }
+        if (!Predicate.isString(source.value)) {
+          return
+        }
+        if (!EFFECT_ECOSYSTEM_RE.test(source.value)) {
+          return
+        }
+        if (isAllowedEffectImport(source.value)) {
+          return
+        }
+        context.report({
+          message: `Avoid subpath imports from the effect ecosystem. Import from the package root instead (e.g. \`@effect/platform-node\` not \`@effect/platform-node/NodeRuntime\`).`,
+          node,
+        })
+      },
+    }
+  },
+  meta: {
+    type: 'problem',
+  },
+}
+
+// ---------------------------------------------------------------------------
 // Plugin
 // ---------------------------------------------------------------------------
 
@@ -800,6 +951,8 @@ const plugin = {
     'force-predicate': forcePredicateRule,
     'force-string-empty': forceStringEmptyRule,
     'force-ts-extension': forceTsExtensionRule,
+    'no-effect-import-as': noEffectImportAsRule,
+    'no-effect-subpath-import': noEffectSubpathImportRule,
     'no-eslint-disable-comments': noEslintDisableRule,
     'no-js-date': noJsDateRule,
     'no-let': noLetRule,
