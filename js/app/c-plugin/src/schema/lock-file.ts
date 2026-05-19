@@ -8,13 +8,26 @@ export const PluginEntry = Schema.Struct({
 
 export type PluginEntry = typeof PluginEntry.Type
 
-export const RepositoryEntry = Schema.Struct({
+export const GithubRepositoryEntry = Schema.Struct({
   commitHash: Schema.String,
   marketplaceKind: Schema.Literals(['claude', 'cursor', 'codex']),
   plugins: Schema.Array(PluginEntry),
   source: Schema.String,
   sourceType: Schema.Literal('github'),
 })
+
+export type GithubRepositoryEntry = typeof GithubRepositoryEntry.Type
+
+export const LocalRepositoryEntry = Schema.Struct({
+  marketplaceKind: Schema.Literals(['claude', 'cursor', 'codex']),
+  plugins: Schema.Array(PluginEntry),
+  source: Schema.String,
+  sourceType: Schema.Literal('local'),
+})
+
+export type LocalRepositoryEntry = typeof LocalRepositoryEntry.Type
+
+export const RepositoryEntry = Schema.Union([GithubRepositoryEntry, LocalRepositoryEntry])
 
 export type RepositoryEntry = typeof RepositoryEntry.Type
 

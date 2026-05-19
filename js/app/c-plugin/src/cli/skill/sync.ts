@@ -1,7 +1,7 @@
 import { Effect } from 'effect'
 import { Command, Flag } from 'effect/unstable/cli'
 
-import { getAgentsDir } from '#@/lib/paths.ts'
+import { getGlobalAgentsDir } from '#@/lib/paths.ts'
 import * as Discover from '#@/service/discover.ts'
 import * as SyncService from '#@/service/sync.ts'
 
@@ -13,9 +13,7 @@ export const syncCommand = Command.make(
   },
   (config) =>
     Effect.gen(function* () {
-      const agentsDirs = config.recursive
-        ? yield* Discover.collectAgentsDirs(process.cwd())
-        : [getAgentsDir(config.global)]
+      const agentsDirs = config.global ? [getGlobalAgentsDir()] : yield* Discover.resolveAgentsDirs(config.recursive)
       for (const agentsDir of agentsDirs) {
         yield* SyncService.run(agentsDir)
       }

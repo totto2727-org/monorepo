@@ -1,9 +1,12 @@
+// oxlint-disable max-classes-per-file -- TaggedError subclasses are grouped by domain
 import { join } from 'node:path'
 
-import { Data, DateTime, Effect, FileSystem, Schema } from 'effect'
+import type { DateTime } from 'effect'
+import { Data, Effect, FileSystem, Predicate, Schema } from 'effect'
 
-import { ProgressValidationError, readProgressFile, writeProgressFile } from '#@/lib/progress.ts';
-import type { ProgressFileNotFoundError, ProgressReadError, ProgressWriteError } from '#@/lib/progress.ts';
+import { ProgressValidationError, readProgressFile, writeProgressFile } from '#@/lib/progress.ts'
+import type { ProgressFileNotFoundError, ProgressReadError, ProgressWriteError } from '#@/lib/progress.ts'
+import type { MilestoneStatus } from '#@/schema/progress.ts'
 import { Milestone } from '#@/schema/progress.ts'
 
 import MILESTONE_TEMPLATE from './milestone-template.md'
@@ -22,6 +25,7 @@ export class MilestoneWriteError extends Data.TaggedError('MilestoneWriteError')
   readonly message: string
 }> {}
 
+// oxlint-disable-next-line rules/prefer-non-unknown-decode -- draft is a partially-typed literal
 const decodeMilestone = Schema.decodeUnknownEffect(Milestone)
 
 const milestonePath = (dir: string, roadmapId: string, milestoneId: string): string =>
@@ -110,4 +114,90 @@ export const addMilestone = (
     })
 
     return { milestonePath: targetPath, progressPath: progressResult.path }
+  })
+
+export class MilestoneNotFoundError extends Data.TaggedError('MilestoneNotFoundError')<{
+  readonly roadmapId: string
+  readonly milestoneId: string
+}> {}
+
+const findMilestone = (progress: { milestones: readonly (typeof Milestone.Type)[] }, milestoneId: string) =>
+  progress.milestones.find((m) => m.id === milestoneId)
+
+export interface UpdateMilestoneStatusInput {
+  readonly dir: string
+  readonly roadmapId: string
+  readonly milestoneId: string
+  readonly status: MilestoneStatus
+  readonly now: DateTime.Utc
+}
+
+export const updateMilestoneStatus = (
+  input: UpdateMilestoneStatusInput,
+): Effect.Effect<
+  { path: string },
+  MilestoneNotFoundError | ProgressFileNotFoundError | ProgressReadError | ProgressValidationError | ProgressWriteError,
+  FileSystem.FileSystem
+> =>
+  Effect.gen(function* () {
+    const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
+
+    const existing = findMilestone(progress, input.milestoneId)
+    if (Predicate.isNullish(existing)) {
+      return yield* new MilestoneNotFoundError({
+        milestoneId: input.milestoneId,
+        roadmapId: input.roadmapId,
+      })
+    }
+
+    const updatedMilestones = progress.milestones.map((m) =>
+      m.id === input.milestoneId ? { ...m, status: input.status } : m,
+    )
+
+    const result = yield* writeProgressFile({
+      data: { ...progress, milestones: updatedMilestones, updated_at: input.now },
+      dir: input.dir,
+      roadmapId: input.roadmapId,
+    })
+
+    return { path: result.path }
+  })
+
+export interface UpdateMilestoneNoteInput {
+  readonly dir: string
+  readonly roadmapId: string
+  readonly milestoneId: string
+  readonly note: string | null
+  readonly now: DateTime.Utc
+}
+
+export const updateMilestoneNote = (
+  input: UpdateMilestoneNoteInput,
+): Effect.Effect<
+  { path: string },
+  MilestoneNotFoundError | ProgressFileNotFoundError | ProgressReadError | ProgressValidationError | ProgressWriteError,
+  FileSystem.FileSystem
+> =>
+  Effect.gen(function* () {
+    const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
+
+    const existing = findMilestone(progress, input.milestoneId)
+    if (Predicate.isNullish(existing)) {
+      return yield* new MilestoneNotFoundError({
+        milestoneId: input.milestoneId,
+        roadmapId: input.roadmapId,
+      })
+    }
+
+    const updatedMilestones = progress.milestones.map((m) =>
+      m.id === input.milestoneId ? { ...m, notes: input.note } : m,
+    )
+
+    const result = yield* writeProgressFile({
+      data: { ...progress, milestones: updatedMilestones, updated_at: input.now },
+      dir: input.dir,
+      roadmapId: input.roadmapId,
+    })
+
+    return { path: result.path }
   })

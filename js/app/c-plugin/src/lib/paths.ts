@@ -1,10 +1,10 @@
+import * as Fs from 'node:fs/promises'
 import * as Os from 'node:os'
 import * as NodePath from 'node:path'
 
 import { Predicate, String } from 'effect'
 
-export const getAgentsDir = (global: boolean): string =>
-  global ? NodePath.join(Os.homedir(), '.agents') : NodePath.join(process.cwd(), '.agents')
+export const getGlobalAgentsDir = (): string => NodePath.join(Os.homedir(), '.agents')
 
 export const expandHomePath = (path: string): string => {
   if (path === '~') {
@@ -15,6 +15,60 @@ export const expandHomePath = (path: string): string => {
   }
   return path
 }
+
+export const isLocalPath = (spec: string): boolean => spec.startsWith('./')
+
+export const isParentPath = (spec: string): boolean => spec.startsWith('../')
+
+export const isHomePath = (spec: string): boolean => spec.startsWith('~/')
+
+export const normalizePathSpec = (spec: string): string =>
+  spec.length > 1 && spec.endsWith('/') ? spec.replace(/\/+$/, '') : spec
+
+export const resolveLocalPath = (spec: string, agentsRoot: string): string => {
+  if (isHomePath(spec) || spec === '~') {
+    return expandHomePath(spec)
+  }
+  if (isLocalPath(spec) || isParentPath(spec)) {
+    return NodePath.resolve(agentsRoot, spec)
+  }
+  return spec
+}
+
+export const findAgentsRoot = async (startDir: string = process.cwd()): Promise<string> => {
+  const currentDir = NodePath.resolve(startDir)
+
+  try {
+    await Fs.access(NodePath.join(currentDir, '.agents'))
+    return currentDir
+  } catch {
+    const parentDir = NodePath.dirname(currentDir)
+    if (parentDir === currentDir) {
+      throw new Error('Could not find project root with .agents directory')
+    }
+    return findAgentsRoot(parentDir)
+  }
+}
+
+export const findNearestAgentsDir = async (startDir: string = process.cwd()): Promise<string> => {
+  const currentDir = NodePath.resolve(startDir)
+  const agentsDir = NodePath.join(currentDir, '.agents')
+  const lockPath = NodePath.join(agentsDir, 'skills-lock.json')
+
+  try {
+    await Fs.access(lockPath)
+    return agentsDir
+  } catch {
+    const parentDir = NodePath.dirname(currentDir)
+    if (parentDir === currentDir) {
+      throw new Error('Could not find .agents directory with skills-lock.json')
+    }
+    return findNearestAgentsDir(parentDir)
+  }
+}
+
+export const toRelativeLocalPath = (absPath: string, agentsRoot: string): string =>
+  `./${NodePath.relative(agentsRoot, absPath)}`
 
 export const getCacheDir = (agentsDir: string): string => NodePath.join(agentsDir, '.cache')
 

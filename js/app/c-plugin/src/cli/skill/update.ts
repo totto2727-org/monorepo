@@ -1,9 +1,8 @@
 import { Effect } from 'effect'
 import { Command, Flag } from 'effect/unstable/cli'
 
-import { getAgentsDir } from '#@/lib/paths.ts'
+import { getGlobalAgentsDir } from '#@/lib/paths.ts'
 import * as Discover from '#@/service/discover.ts'
-import * as Git from '#@/service/git.ts'
 import * as UpdateService from '#@/service/update.ts'
 
 export const updateCommand = Command.make(
@@ -14,11 +13,7 @@ export const updateCommand = Command.make(
   },
   (config) =>
     Effect.gen(function* () {
-      yield* Git.checkInstalled
-
-      const agentsDirs = config.recursive
-        ? yield* Discover.collectAgentsDirs(process.cwd())
-        : [getAgentsDir(config.global)]
+      const agentsDirs = config.global ? [getGlobalAgentsDir()] : yield* Discover.resolveAgentsDirs(config.recursive)
       for (const agentsDir of agentsDirs) {
         yield* UpdateService.run(agentsDir)
       }

@@ -1,3 +1,5 @@
+import * as NodePath from 'node:path'
+
 import { Array, Effect } from 'effect'
 
 import type { LockFile } from '#@/schema/lock-file.ts'
@@ -12,7 +14,6 @@ export const run = (
   agentsDir: string,
 ): Effect.Effect<void, Error | Git.GitError | LockFileService.LockFileCorruptError> =>
   Effect.gen(function* () {
-    yield* Git.checkInstalled
     yield* Cache.ensureDirs(agentsDir)
 
     const lockFile = yield* LockFileService.read(agentsDir)
@@ -21,12 +22,24 @@ export const run = (
       return
     }
 
+    const hasGithubRepos = lockFile.repositories.some((r) => r.sourceType === 'github')
+    if (hasGithubRepos) {
+      yield* Git.checkInstalled
+    }
+
+    const agentsRoot = NodePath.dirname(agentsDir)
     const updatedRepos: LockFile['repositories'][number][] = []
 
     for (const repo of lockFile.repositories) {
       yield* Effect.log(`Syncing ${repo.source}...`)
-      const repoDir = yield* Cache.ensureRepo(agentsDir, repo.source)
-      yield* Git.checkout(repoDir, repo.commitHash)
+      const repoDir =
+        repo.sourceType === 'local'
+          ? yield* Cache.ensureLocalPath(repo.source, agentsRoot)
+          : yield* Cache.ensureRepo(agentsDir, repo.source)
+
+      if (repo.sourceType !== 'local') {
+        yield* Git.checkout(repoDir, repo.commitHash)
+      }
 
       const availableSkills = yield* SkillResolver.resolveFromRepo(repoDir, repo.marketplaceKind)
       const availableNames = new Set(availableSkills.map((s) => s.skillName))

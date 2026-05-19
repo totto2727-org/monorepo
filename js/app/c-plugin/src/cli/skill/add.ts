@@ -1,7 +1,17 @@
-import { Array, Effect } from 'effect'
+import * as Fs from 'node:fs/promises'
+import * as NodePath from 'node:path'
+
+import { Array, Effect, Option } from 'effect'
 import { Argument, Command, Flag, Prompt } from 'effect/unstable/cli'
 
-import { getAgentsDir } from '#@/lib/paths.ts'
+import {
+  findNearestAgentsDir,
+  getGlobalAgentsDir,
+  isLocalPath,
+  normalizePathSpec,
+  toRelativeLocalPath,
+} from '#@/lib/paths.ts'
+import { hasSupportedPluginFormat } from '#@/lib/plugin-format.ts'
 import type { LockFile, PluginEntry, RepositoryEntry } from '#@/schema/lock-file.ts'
 import type { MarketplaceKind } from '#@/schema/marketplace-kind.ts'
 import * as Cache from '#@/service/cache.ts'
@@ -27,24 +37,63 @@ const mergePlugins = (existing: readonly PluginEntry[], incoming: readonly Plugi
   return [...map.values()]
 }
 
+type ResolvedSource =
+  | { readonly type: 'github'; readonly source: string; readonly dir: string; readonly commitHash: string }
+  | { readonly type: 'local'; readonly source: string; readonly dir: string }
+
 export const addCommand = Command.make(
   'add',
   {
     global: Flag.boolean('global').pipe(Flag.withAlias('g')),
-    repo: Argument.string('repo'),
+    local: Flag.string('local').pipe(Flag.optional),
+    repo: Argument.string('repo').pipe(Argument.optional),
   },
   (config) =>
     Effect.gen(function* () {
-      yield* Git.checkInstalled
-
-      const agentsDir = getAgentsDir(config.global)
+      const agentsDir = config.global ? getGlobalAgentsDir() : yield* Effect.promise(() => findNearestAgentsDir())
       yield* Cache.ensureDirs(agentsDir)
 
-      yield* Effect.log(`Cloning ${config.repo}...`)
-      const repoDir = yield* Cache.ensureRepo(agentsDir, config.repo)
-      const commitHash = yield* Git.revParseHead(repoDir)
+      const resolved: ResolvedSource = yield* Option.match(config.local, {
+        onNone: () =>
+          Effect.gen(function* () {
+            const repoSpec = yield* Option.match(config.repo, {
+              onNone: () => Effect.fail(new Error('Either <repo> or --local <path> must be provided')),
+              onSome: (value) => Effect.succeed(value),
+            })
+            yield* Git.checkInstalled
+            yield* Effect.log(`Cloning ${repoSpec}...`)
+            const repoDir = yield* Cache.ensureRepo(agentsDir, repoSpec)
+            const commitHash = yield* Git.revParseHead(repoDir)
+            return { commitHash, dir: repoDir, source: repoSpec, type: 'github' as const }
+          }),
+        onSome: (rawSpec) =>
+          Effect.gen(function* () {
+            const localSpec = normalizePathSpec(rawSpec)
+            if (!isLocalPath(localSpec)) {
+              return yield* Effect.fail(new Error(`Invalid local path: ${rawSpec}. Expected './...' (local path).`))
+            }
 
-      const availableKinds = yield* SkillResolver.detectAvailableKinds(repoDir)
+            const resolvedAbs = yield* Effect.tryPromise({
+              catch: () => new Error(`Local path does not exist: ${localSpec}`),
+              try: async () => {
+                const abs = NodePath.resolve(process.cwd(), localSpec)
+                await Fs.access(abs)
+                return abs
+              },
+            })
+
+            const hasFormat = yield* Effect.promise(() => hasSupportedPluginFormat(resolvedAbs))
+            if (!hasFormat) {
+              return yield* Effect.fail(new Error(`No marketplace found at: ${localSpec}`))
+            }
+
+            const agentsRoot = NodePath.dirname(agentsDir)
+            const relativeSource = toRelativeLocalPath(resolvedAbs, agentsRoot)
+            return { dir: resolvedAbs, source: relativeSource, type: 'local' as const }
+          }),
+      })
+
+      const availableKinds = yield* SkillResolver.detectAvailableKinds(resolved.dir)
       if (Array.isReadonlyArrayEmpty(availableKinds)) {
         yield* Effect.log('No marketplace found in this repository.')
         return
@@ -64,7 +113,7 @@ export const addCommand = Command.make(
         yield* Effect.log(`Using marketplace kind: ${selectedKind}`)
       }
 
-      const allSkills = yield* SkillResolver.resolveFromRepo(repoDir, selectedKind)
+      const allSkills = yield* SkillResolver.resolveFromRepo(resolved.dir, selectedKind)
       if (Array.isReadonlyArrayEmpty(allSkills)) {
         yield* Effect.log('No skills found in this repository.')
         return
@@ -105,18 +154,27 @@ export const addCommand = Command.make(
         }
       }
 
-      const existingRepo = lockFile.repositories.find((r) => r.source === config.repo)
-      const newRepoEntry: RepositoryEntry = {
-        commitHash,
-        marketplaceKind: selectedKind,
-        plugins: mergePlugins(existingRepo?.plugins ?? [], [...pluginMap.values()]),
-        source: config.repo,
-        sourceType: 'github',
-      }
+      const existingRepo = lockFile.repositories.find((r) => r.source === resolved.source)
+      const mergedPlugins = mergePlugins(existingRepo?.plugins ?? [], [...pluginMap.values()])
+      const newRepoEntry: RepositoryEntry =
+        resolved.type === 'github'
+          ? {
+              commitHash: resolved.commitHash,
+              marketplaceKind: selectedKind,
+              plugins: mergedPlugins,
+              source: resolved.source,
+              sourceType: 'github',
+            }
+          : {
+              marketplaceKind: selectedKind,
+              plugins: mergedPlugins,
+              source: resolved.source,
+              sourceType: 'local',
+            }
 
       const newLockFile: LockFile = {
         ...lockFile,
-        repositories: [...lockFile.repositories.filter((r) => r.source !== config.repo), newRepoEntry],
+        repositories: [...lockFile.repositories.filter((r) => r.source !== resolved.source), newRepoEntry],
       }
 
       yield* LockFileService.write(agentsDir, newLockFile)

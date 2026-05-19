@@ -1,5 +1,5 @@
 import { kebabCase } from 'change-case'
-import { Option, Schema, SchemaAST, SchemaIssue } from 'effect'
+import { Option, Schema, SchemaAST, SchemaIssue, String as Str } from 'effect'
 
 export const MilestoneStatus = Schema.Literals(['planned', 'active', 'completed', 'blocked', 'cancelled'])
 export type MilestoneStatus = typeof MilestoneStatus.Type
@@ -8,7 +8,7 @@ export const RoadmapStatus = Schema.Literals(['planned', 'active', 'completed'])
 export type RoadmapStatus = typeof RoadmapStatus.Type
 
 const isKebabCase = new SchemaAST.Filter<string>((input) =>
-  input.length > 0 && kebabCase(input) === input
+  Str.isNonEmpty(input) && kebabCase(input) === input
     ? undefined
     : new SchemaIssue.InvalidValue(Option.some(input), { message: 'must be kebab-case' }),
 )

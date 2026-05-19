@@ -1,4 +1,5 @@
 import * as Fs from 'node:fs/promises'
+import * as Os from 'node:os'
 import * as NodePath from 'node:path'
 
 import { Effect } from 'effect'
@@ -200,5 +201,60 @@ describe('sync run', () => {
 
     const extraLink = await Fs.lstat(NodePath.join(extraDir, 'skill-a'))
     expect(extraLink.isSymbolicLink()).toBe(true)
+  })
+
+  test('syncs local repo without invoking git', async () => {
+    const localRepoDir = await Fs.mkdtemp(NodePath.join(Os.tmpdir(), 'c-plugin-local-'))
+    try {
+      const marketplaceDir = NodePath.join(localRepoDir, '.claude-plugin')
+      await Fs.mkdir(marketplaceDir, { recursive: true })
+      const marketplace = {
+        name: 'local-marketplace',
+        plugins: [{ name: 'local-plugin', source: 'plugins/local-plugin' }],
+      }
+      await Fs.writeFile(
+        NodePath.join(marketplaceDir, 'marketplace.json'),
+        JSON.stringify(marketplace, null, '\t'),
+        'utf-8',
+      )
+
+      const skillDir = NodePath.join(localRepoDir, 'plugins', 'local-plugin', 'skills', 'local-skill')
+      await Fs.mkdir(skillDir, { recursive: true })
+      await Fs.writeFile(NodePath.join(skillDir, 'SKILL.md'), '# local-skill\n', 'utf-8')
+
+      const lockFile: LockFile = {
+        repositories: [
+          {
+            marketplaceKind: 'claude',
+            plugins: [
+              {
+                enabledSkills: ['local-skill'],
+                name: 'local-plugin',
+                path: 'plugins/local-plugin',
+              },
+            ],
+            source: localRepoDir,
+            sourceType: 'local',
+          },
+        ],
+        skillDirs: [],
+        version: 1,
+      }
+      await writeLockFile(ctx.agentsDir, lockFile)
+
+      await Effect.runPromise(run(ctx.agentsDir))
+
+      const skillsDir = getSkillsDir(ctx.agentsDir)
+      const link = await Fs.lstat(NodePath.join(skillsDir, 'local-skill'))
+      expect(link.isSymbolicLink()).toBe(true)
+
+      const resolved = await Fs.realpath(NodePath.join(skillsDir, 'local-skill'))
+      const expected = await Fs.realpath(
+        NodePath.join(localRepoDir, 'plugins', 'local-plugin', 'skills', 'local-skill'),
+      )
+      expect(resolved).toBe(expected)
+    } finally {
+      await Fs.rm(localRepoDir, { force: true, recursive: true })
+    }
   })
 })

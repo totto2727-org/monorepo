@@ -1,9 +1,27 @@
 # Roadmap progress tracking yaml managed by the `roadmap` CLI.
 # Schema reference: plugins/dev-workflow/skills/share-artifacts/references/roadmap-progress-yaml.md
 
-roadmap_id: roadmap-cli
-title: Roadmap management CLI
-status: planned
 created_at: '2026-05-15T16:15:13.160Z'
-updated_at: '2026-05-15T16:15:13.160Z'
-milestones: []
+milestones:
+  - depends_on: []
+    id: ms-01-cli-bootstrap
+    notes: null
+    status: planned
+    title: CLI bootstrap with new subcommand
+    workflow_identifiers: []
+  - depends_on: []
+    id: ms-02-milestone-new
+    notes: null
+    status: planned
+    title: milestone new subcommand
+    workflow_identifiers: []
+  - depends_on: []
+    id: ms-03-ls-and-status
+    notes: null
+    status: planned
+    title: ls and status commands
+    workflow_identifiers: []
+roadmap_id: roadmap-cli
+status: planned
+title: Roadmap management CLI
+updated_at: '2026-05-18T15:11:38.004Z'

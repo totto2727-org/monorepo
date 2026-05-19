@@ -1,11 +1,23 @@
 import { Array, Effect } from 'effect'
 import { Command, Flag, Prompt } from 'effect/unstable/cli'
 
-import { getAgentsDir } from '#@/lib/paths.ts'
+import { findNearestAgentsDir, getGlobalAgentsDir } from '#@/lib/paths.ts'
 import type { LockFile } from '#@/schema/lock-file.ts'
 import * as Cache from '#@/service/cache.ts'
 import * as LockFileService from '#@/service/lock-file.ts'
 import * as Symlink from '#@/service/symlink.ts'
+
+export const removeRepoCaches = (agentsDir: string, lockFile: LockFile, removedRepoSources: ReadonlySet<string>) =>
+  Effect.gen(function* () {
+    for (const source of removedRepoSources) {
+      const repo = lockFile.repositories.find((r) => r.source === source)
+      if (repo?.sourceType === 'local') {
+        continue
+      }
+      yield* Effect.log(`Removing cache for ${source}...`)
+      yield* Cache.removeRepo(agentsDir, source)
+    }
+  })
 
 export const removeCommand = Command.make(
   'remove',
@@ -14,7 +26,7 @@ export const removeCommand = Command.make(
   },
   (config) =>
     Effect.gen(function* () {
-      const agentsDir = getAgentsDir(config.global)
+      const agentsDir = config.global ? getGlobalAgentsDir() : yield* Effect.promise(() => findNearestAgentsDir())
       const lockFile = yield* LockFileService.read(agentsDir)
 
       const allSkills = lockFile.repositories.flatMap((repo) =>
@@ -75,10 +87,7 @@ export const removeCommand = Command.make(
         yield* Symlink.removeSkillLink(agentsDir, lockFile.skillDirs, skill.skillName)
       }
 
-      for (const source of removedRepoSources) {
-        yield* Effect.log(`Removing cache for ${source}...`)
-        yield* Cache.removeRepo(agentsDir, source)
-      }
+      yield* removeRepoCaches(agentsDir, lockFile, removedRepoSources)
 
       yield* Effect.log(`Removed ${toRemove.length} skill(s).`)
     }),

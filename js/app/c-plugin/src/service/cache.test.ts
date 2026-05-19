@@ -1,4 +1,5 @@
 import * as Fs from 'node:fs/promises'
+import * as Os from 'node:os'
 import * as NodePath from 'node:path'
 
 import { Effect } from 'effect'
@@ -8,7 +9,7 @@ import { getCacheDir, getRepoCacheDir, getSkillsDir } from '#@/lib/paths.ts'
 
 import { gitMock } from './_git-mock.ts'
 import { setupTestContext } from './_test-helper.ts'
-import { ensureDirs, ensureRepo, removeRepo } from './cache.ts'
+import { ensureDirs, ensureLocalPath, ensureRepo, removeRepo } from './cache.ts'
 
 vi.mock('#@/service/git.ts', () => gitMock)
 
@@ -84,5 +85,26 @@ describe('removeRepo', () => {
 
   test('does not throw when directory does not exist', async () => {
     await expect(Effect.runPromise(removeRepo(ctx.agentsDir, 'nonexistent/repo'))).resolves.toBeUndefined()
+  })
+})
+
+describe('ensureLocalPath', () => {
+  test('resolves ~ to home directory when it exists', async () => {
+    const resolved = await Effect.runPromise(ensureLocalPath('~', ctx.agentsDir))
+    expect(resolved).toBe(Os.homedir())
+  })
+
+  test('resolves ./some/path relative to agentsRoot when it exists', async () => {
+    const targetDir = NodePath.join(ctx.agentsDir, 'some', 'path')
+    await Fs.mkdir(targetDir, { recursive: true })
+
+    const resolved = await Effect.runPromise(ensureLocalPath('./some/path', ctx.agentsDir))
+    expect(resolved).toBe(targetDir)
+  })
+
+  test('fails with descriptive Error when path does not exist', async () => {
+    await expect(Effect.runPromise(ensureLocalPath('./nonexistent', ctx.agentsDir))).rejects.toThrow(
+      /Local path does not exist/,
+    )
   })
 })
