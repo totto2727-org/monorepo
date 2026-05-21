@@ -22,6 +22,12 @@ jobs:
 
       - uses: ./.github/actions/setup-typescript
 
+      - name: Init vp config
+        shell: bash
+        run: |
+          eval "$(devbox shellenv)"
+          vp config
+
       - name: Run check, build, and test
         shell: bash
         run: |
