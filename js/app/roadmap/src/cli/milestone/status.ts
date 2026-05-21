@@ -1,4 +1,4 @@
-import { Array as Arr, Console, Effect, Predicate } from 'effect'
+import { Array, Console, Effect, Predicate } from 'effect'
 import { Argument, Command } from 'effect/unstable/cli'
 
 import { rootCommand } from '#@/cli/root.ts'
@@ -13,7 +13,8 @@ const failWith = (message: string) =>
     return null
   })
 
-const formatList = (items: readonly string[]): string => (Arr.isReadonlyArrayEmpty(items) ? '(none)' : items.join(', '))
+const formatList = (items: readonly string[]): string =>
+  Array.isReadonlyArrayEmpty(items) ? '(none)' : items.join(', ')
 
 export const milestoneStatusCommand = Command.make(
   'status',

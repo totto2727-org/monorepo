@@ -1,4 +1,4 @@
-import { Array as Arr, Console, Effect, Predicate } from 'effect'
+import { Array, Console, Effect, Predicate } from 'effect'
 import { Argument, Command } from 'effect/unstable/cli'
 
 import { rootCommand } from '#@/cli/root.ts'
@@ -33,13 +33,13 @@ export const milestoneLsCommand = Command.make(
         return
       }
 
-      if (Arr.isReadonlyArrayEmpty(progress.milestones)) {
+      if (Array.isReadonlyArrayEmpty(progress.milestones)) {
         yield* Console.log(`(no milestones in ${roadmapId})`)
         return
       }
 
       for (const m of progress.milestones) {
-        const deps = Arr.isReadonlyArrayEmpty(m.depends_on) ? '' : ` [depends on: ${m.depends_on.join(', ')}]`
+        const deps = Array.isReadonlyArrayEmpty(m.depends_on) ? '' : ` [depends on: ${m.depends_on.join(', ')}]`
         yield* Console.log(`- ${m.id} (${m.status}) ${m.title}${deps}`)
       }
     }),

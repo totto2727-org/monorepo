@@ -859,7 +859,7 @@ const noEffectImportAsRule: Rule = {
     return {
       ImportDeclaration(node: unknown) {
         const sourceValue = getImportSource(node)
-        if (Predicate.isNull(sourceValue) || !isEffectEcosystemImport(sourceValue) || !isReportable(node)) {
+        if (Predicate.isNullish(sourceValue) || !isEffectEcosystemImport(sourceValue) || !isReportable(node)) {
           return
         }
         const specifiers = Predicate.isObject(node) && hasProperty(node, 'specifiers') ? node.specifiers : null

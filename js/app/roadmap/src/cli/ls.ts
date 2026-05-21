@@ -1,4 +1,4 @@
-import { Array as Arr, Console, Effect, Predicate } from 'effect'
+import { Array, Console, Effect, Predicate } from 'effect'
 import { Command } from 'effect/unstable/cli'
 
 import { rootCommand } from '#@/cli/root.ts'
@@ -32,7 +32,7 @@ export const lsCommand = Command.make('ls', {}, () =>
       return
     }
 
-    if (Arr.isReadonlyArrayEmpty(roadmaps)) {
+    if (Array.isReadonlyArrayEmpty(roadmaps)) {
       yield* Console.log(`(no roadmaps found under ${dir})`)
       return
     }
