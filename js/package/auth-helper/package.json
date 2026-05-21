@@ -1,5 +1,8 @@
 {
   "name": "auth-helper",
+
   "private": true,
   "type": "module"
+||||||| parent of 1cd7cada (feat(auth-helper): introduce shared workspace package for auth types, constants, and pure helpers)
+ 1cd7cada (feat(auth-helper): introduce shared workspace package for auth types, constants, and pure helpers)
 }
