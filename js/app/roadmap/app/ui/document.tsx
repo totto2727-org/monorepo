@@ -9,7 +9,7 @@ export interface DocumentProps {
 const baseStyle = css({
   backgroundColor: '#f8fafc',
   color: '#0f172a',
-  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+  fontFamily: "'Noto Sans JP', sans-serif",
   fontSize: '14px',
   lineHeight: '1.5',
   margin: '0',
@@ -35,6 +35,12 @@ export const Document = () => (props: DocumentProps) => (
     <head>
       <meta charset='utf-8' />
       <meta name='viewport' content='width=device-width, initial-scale=1' />
+      <link rel='preconnect' href='https://fonts.googleapis.com' />
+      <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='anonymous' />
+      <link
+        rel='stylesheet'
+        href='https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap'
+      />
       <title>{props.title ?? 'Roadmap'}</title>
     </head>
     <body mix={bodyStyle}>
