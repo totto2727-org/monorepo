@@ -12,7 +12,7 @@ export interface KanbanRoadmap {
 export interface KanbanMilestone {
   id: string
   title: string
-  status: string
+  status: keyof typeof STATUS_COLORS
   depends_on: readonly string[]
   prs: readonly string[]
   notes: string | null
@@ -20,21 +20,21 @@ export interface KanbanMilestone {
 
 const STATUSES = ['planned', 'active', 'completed', 'blocked', 'cancelled'] as const
 
-const STATUS_LABELS: Record<string, string> = {
+const STATUS_LABELS = {
   active: 'Active',
   blocked: 'Blocked',
   cancelled: 'Cancelled',
   completed: 'Completed',
   planned: 'Planned',
-}
+} as const satisfies Record<string, string>
 
-const STATUS_COLORS: Record<string, string> = {
+const STATUS_COLORS = {
   active: '#3b82f6',
   blocked: '#ef4444',
   cancelled: '#6b7280',
   completed: '#22c55e',
   planned: '#94a3b8',
-}
+} as const satisfies Record<string, string>
 
 const toolbarStyle = css({
   '& a': { textDecoration: 'none' },
@@ -80,7 +80,7 @@ const gridStyle = css({
   gridTemplateColumns: `200px repeat(${STATUSES.length}, 1fr)`,
 })
 
-const gridHeaderStyle = (status: string) =>
+const gridHeaderStyle = (status: keyof typeof STATUS_COLORS) =>
   css({
     '&::after': {
       background: STATUS_COLORS[status] ?? '#94a3b8',
@@ -117,7 +117,7 @@ const emptyCellStyle = css({
   minHeight: '60px',
 })
 
-const milestoneCardStyle = (status: string) =>
+const milestoneCardStyle = (status: keyof typeof STATUS_COLORS) =>
   css({
     '& .ms-deps': { color: '#64748b', fontSize: '11px', marginTop: '6px' },
     '& .ms-id': { color: '#64748b', fontSize: '11px', fontWeight: '500', marginBottom: '4px' },
