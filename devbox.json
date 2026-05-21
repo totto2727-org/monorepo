@@ -10,6 +10,6 @@
     "nixfmt@latest"
   ],
   "shell": {
-    "init_hook": ["vp config"]
+    "init_hook": ["command -v vp >/dev/null && vp config || true"]
   }
 }

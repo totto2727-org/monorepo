@@ -1,4 +1,4 @@
-import { Array as Arr, Console, DateTime, Effect, Predicate } from 'effect'
+import { Array, Console, DateTime, Effect, Predicate } from 'effect'
 import { Argument, Command } from 'effect/unstable/cli'
 
 import { rootCommand } from '#@/cli/root.ts'
@@ -45,7 +45,7 @@ export const statusCommand = Command.make(
       yield* Console.log(`updated_at: ${DateTime.formatIso(progress.updated_at)}`)
       yield* Console.log('')
       yield* Console.log(`milestones (${completed}/${progress.milestones.length} completed):`)
-      if (Arr.isReadonlyArrayEmpty(progress.milestones)) {
+      if (Array.isReadonlyArrayEmpty(progress.milestones)) {
         yield* Console.log('  (none)')
         return
       }

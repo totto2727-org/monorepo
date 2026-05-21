@@ -1,16 +1,15 @@
 import { FeedType as FeedTypeForRawFeed } from '@mikaelporttila/rss'
 import { DateTime, Effect, Predicate, Schema } from 'effect'
-import { Literals } from 'effect/Schema'
 import { NonEmptyStringResolver } from 'graphql-scalars'
 
 import { makeRSSFetchClient } from './rss-fetch-client.ts'
 import type { Builder } from './schema.ts'
 
-const feedType = Literals(['ATOM', 'JSONFeed', 'RSS_1_0', 'RSS_2_0'])
+const feedType = Schema.Literals(['ATOM', 'JSONFeed', 'RSS_1_0', 'RSS_2_0'])
 
 type FeedType = typeof feedType.Type
 
-const feedTypeDTO = Literals([
+const feedTypeDTO = Schema.Literals([
   FeedTypeForRawFeed.Atom,
   FeedTypeForRawFeed.JsonFeed,
   FeedTypeForRawFeed.Rss1,

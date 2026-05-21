@@ -31,6 +31,8 @@ const preset: Preset = {
     'rules/force-predicate': 'error',
     'rules/force-string-empty': 'error',
     'rules/force-ts-extension': 'error',
+    'rules/no-effect-import-as': 'error',
+    'rules/no-effect-subpath-import': 'error',
     'rules/no-eslint-disable-comments': 'error',
     'rules/no-js-date': 'error',
     'rules/no-let': 'error',

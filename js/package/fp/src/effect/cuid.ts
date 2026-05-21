@@ -1,6 +1,7 @@
 import { sha3_512 } from '@noble/hashes/sha3.js'
 import BaseX from 'base-x'
 import { BigNumber } from 'bignumber.js'
+import type { SchemaAST } from 'effect'
 import { Array, Context, DateTime, Effect, Layer, Predicate, Schema } from 'effect'
 /*
  * MIT License
@@ -8,7 +9,6 @@ import { Array, Context, DateTime, Effect, Layer, Predicate, Schema } from 'effe
  * <https://github.com/paralleldrive/cuid2/blob/e2391a06836226249ed2ca1a287516d2c459dab7/LICENSE>
  * <https://github.com/paralleldrive/cuid2/blob/e2391a06836226249ed2ca1a287516d2c459dab7/src/index.js>
  */
-import type { ParseOptions } from 'effect/SchemaAST'
 import SR from 'seedrandom'
 
 const defaultLength = 24
@@ -26,7 +26,8 @@ export const schema: Schema.brand<Schema.String, '@totto2727/fp/effect/cuid/Cuid
 export type CUID = typeof schema.Type
 
 /** Type guard for CUID values. */
-export const is: (value: unknown, overrideOptions?: ParseOptions | number) => value is CUID = Schema.is(schema)
+export const is: (value: unknown, overrideOptions?: SchemaAST.ParseOptions | number) => value is CUID =
+  Schema.is(schema)
 
 const decodeSync = Schema.decodeSync(schema) // oxlint-disable-line rules/no-sync-decode -- public API: input is already validated by is() guard
 
