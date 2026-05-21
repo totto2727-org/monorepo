@@ -13,9 +13,11 @@
   },
   "devDependencies": {
     "@totto2727/fp": "workspace:*",
+    "auth-helper": "workspace:*",
     "effect": "catalog:effect",
     "effect-hono": "workspace:*",
     "hono": "catalog:hono",
+    "jose": "catalog:auth",
     "wrangler": "catalog:cloudflare"
   }
 }

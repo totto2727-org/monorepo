@@ -13,10 +13,13 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "catalog:cloudflare",
     "@totto2727/fp": "workspace:*",
+    "auth-helper": "workspace:*",
+    "better-auth": "catalog:auth",
     "effect": "catalog:effect",
     "effect-hono": "workspace:*",
     "hono": "catalog:hono",
     "hono-remix-middleware": "workspace:*",
+    "jose": "catalog:auth",
     "remix": "catalog:remix",
     "remix-helper": "workspace:*",
     "vite-plugin-remix": "workspace:*",
