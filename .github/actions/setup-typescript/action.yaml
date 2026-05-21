@@ -33,3 +33,9 @@ runs:
       run: |
         eval "$(devbox shellenv)"
         vp install $VP_INSTALL_ARGS
+
+    - name: Init vp config
+      shell: bash
+      run: |
+        eval "$(devbox shellenv)"
+        vp config
