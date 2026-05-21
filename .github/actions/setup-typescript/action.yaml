@@ -26,6 +26,12 @@ runs:
         node-version-file: ${{ inputs.node-version-file }}
         cache: ${{ inputs.cache }}
 
+    - name: Init vp config
+      shell: bash
+      run: |
+        eval "$(devbox shellenv)"
+        vp config
+
     - name: Install packages
       shell: bash
       env:
