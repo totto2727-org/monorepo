@@ -3,17 +3,25 @@ import { Hono } from 'hono'
 import { remixRenderer } from 'hono-remix-middleware'
 import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
+import { sql } from 'kysely'
 
+import { handleAuthCallback } from '#@/feature/auth/callback.ts'
+import * as DB from '#@/feature/db/kysely.ts'
+import type * as Env from '#@/feature/env.ts'
 import * as Greeting from '#@/feature/greeting.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 import type { Variables } from '#@/feature/runtime/hono.ts'
+import { AccountPage } from '#@/ui/account.tsx'
+import { CheckEmailPage } from '#@/ui/check-email.tsx'
 import { Document } from '#@/ui/document.tsx'
+import { LoginPasskeyPage } from '#@/ui/login-passkey.tsx'
+import { LoginPage } from '#@/ui/login.tsx'
+import { RegisterPasskeyPage } from '#@/ui/register-passkey.tsx'
 
-// Bindings は明示しない: ENV は process.env.NODE_ENV (wrangler / vite 自動設定) を
-// 単一ソースとし、Effect Service (`Env.Service`) 経由で読み取るため、
-// Hono の `c.env` 経路を経由しない。Cloudflare 側 binding を後で追加する場合は
-// worker-configuration.d.ts の自動生成 `Env` interface を `Bindings` に渡す形で拡張する。
+// 生成済み `Cloudflare.Env` には secret (`BETTER_AUTH_SECRET` 等) が含まれず
+// runtime middleware (Bindings: Env.Type) と整合しないため `Env.Type` を採用。
 interface AppEnv {
+  Bindings: Env.Type
   Variables: Variables
 }
 
@@ -29,6 +37,25 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
   .use(logger())
   .use(contextStorage())
   .use(runtimeMiddleware)
+  .get('/api/v1/auth/session', (c) =>
+    c.var.auth.handler(
+      new Request(new URL('/api/v1/auth/get-session', c.req.url), { headers: c.req.raw.headers, method: 'GET' }),
+    ),
+  )
+  .get('/api/v1/auth/oauth/.well-known/openid-configuration', (c) =>
+    c.json({
+      authorization_endpoint: `${c.req.url.replace(/\/api\/v1\/auth\/oauth\/\.well-known\/openid-configuration$/, '')}/api/v1/auth/oauth2/authorize`,
+      id_token_signing_alg_values_supported: ['ES256'],
+      issuer: `${c.req.url.replace(/\/api\/v1\/auth\/oauth\/\.well-known\/openid-configuration$/, '')}/api/v1/auth`,
+      jwks_uri: `${c.req.url.replace(/\/api\/v1\/auth\/oauth\/\.well-known\/openid-configuration$/, '')}/api/v1/auth/jwks`,
+      response_types_supported: ['code'],
+      scopes_supported: ['openid', 'profile', 'email'],
+      subject_types_supported: ['public'],
+      token_endpoint: `${c.req.url.replace(/\/api\/v1\/auth\/oauth\/\.well-known\/openid-configuration$/, '')}/api/v1/auth/oauth2/token`,
+      userinfo_endpoint: `${c.req.url.replace(/\/api\/v1\/auth\/oauth\/\.well-known\/openid-configuration$/, '')}/api/v1/auth/oauth2/userinfo`,
+    }),
+  )
+  .all('/api/v1/auth/*', (c) => c.var.auth.handler(c.req.raw))
   .use(
     '*',
     remixRenderer({
@@ -46,6 +73,56 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
       </Document>,
     ),
   )
+  .get('/login', (c) =>
+    c.render(
+      <Document title='ログイン'>
+        <LoginPage />
+      </Document>,
+    ),
+  )
+  .get('/login/passkey', (c) =>
+    c.render(
+      <Document title='Passkey ログイン'>
+        <LoginPasskeyPage />
+      </Document>,
+    ),
+  )
+  .get('/login/check-email', (c) => {
+    const email = c.req.query('email') ?? ''
+    const CheckEmail = CheckEmailPage(email)
+    return c.render(
+      <Document title='メール確認'>
+        <CheckEmail />
+      </Document>,
+    )
+  })
+  .get('/auth/callback', handleAuthCallback)
+  .get('/register/passkey', async (c) => {
+    const session = await c.var.auth.api.getSession({ headers: c.req.raw.headers })
+    if (!session) {
+      return c.redirect('/login')
+    }
+    return c.render(
+      <Document title='Passkey 登録'>
+        <RegisterPasskeyPage />
+      </Document>,
+    )
+  })
+  .get('/account', async (c) => {
+    const session = await c.var.auth.api.getSession({ headers: c.req.raw.headers })
+    if (!session) {
+      return c.redirect('/login')
+    }
+    const email = session.user.email ?? ''
+    const rawCreatedAt: Date | string = session.user.createdAt
+    const createdAt = rawCreatedAt instanceof Date ? rawCreatedAt.toLocaleDateString('ja-JP') : rawCreatedAt
+    const Account = AccountPage({ createdAt, email })
+    return c.render(
+      <Document title='アカウント'>
+        <Account />
+      </Document>,
+    )
+  })
   .get('/api/v1/hello', (c) =>
     c.var.runtime.runPromise(
       Effect.gen(function* () {
@@ -54,5 +131,37 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
       }),
     ),
   )
+  .get('/debug/test-db', async (c) => {
+    const crypto = await import('node:crypto')
+    const id = crypto.randomUUID()
+    const { runtime } = c.var
+    try {
+      const result = await runtime.runPromise(
+        Effect.gen(function* () {
+          const db = yield* DB.Service
+          yield* Effect.promise(() =>
+            db
+              .insertInto('verification')
+              .values({
+                createdAt: sql<string>`datetime('now')`,
+                expiresAt: sql<string>`datetime('now', '+1 hour')`,
+                id,
+                identifier: `test-debug-${id}`,
+                updatedAt: sql<string>`datetime('now')`,
+                value: JSON.stringify({ test: true }),
+              })
+              .execute(),
+          )
+          const found = yield* Effect.promise(() =>
+            db.selectFrom('verification').selectAll().where('id', '=', id).executeTakeFirst(),
+          )
+          return { found, id, inserted: true }
+        }),
+      )
+      return c.json(result)
+    } catch (error: unknown) {
+      return c.json({ error: String(error) })
+    }
+  })
 
 export default app
