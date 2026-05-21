@@ -20,17 +20,16 @@
   "scripts": {
     "bin": "node dist/bin.mjs"
   },
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "@effect/platform-node": "catalog:effect",
     "@hono/node-server": "catalog:hono",
     "@totto2727/fp": "workspace:*",
+    "@types/js-yaml": "^4.0.9",
     "effect": "catalog:effect",
     "hono": "catalog:hono",
     "js-yaml": "^4.1.1",
-    "remix": "catalog:remix"
-  },
-  "devDependencies": {
-    "@types/js-yaml": "^4.0.9",
+    "remix": "catalog:remix",
     "vite-plus": "catalog:"
   }
 }
