@@ -28,10 +28,10 @@ export class MilestoneWriteError extends Data.TaggedError('MilestoneWriteError')
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- draft is a partially-typed literal
 const decodeMilestone = Schema.decodeUnknownEffect(Milestone)
 
-const milestonePath = (dir: string, roadmapId: string, milestoneId: string): string =>
+export const milestonePath = (dir: string, roadmapId: string, milestoneId: string): string =>
   join(dir, roadmapId, 'milestones', `${milestoneId}.md`)
 
-const renderMilestoneTemplate = (input: {
+export const renderMilestoneTemplate = (input: {
   readonly milestoneId: string
   readonly roadmapId: string
   readonly title: string
@@ -122,8 +122,10 @@ export class MilestoneNotFoundError extends Data.TaggedError('MilestoneNotFoundE
   readonly milestoneId: string
 }> {}
 
-const findMilestone = (progress: { milestones: readonly (typeof Milestone.Type)[] }, milestoneId: string) =>
-  progress.milestones.find((m) => m.id === milestoneId)
+export const findMilestone = (
+  progress: { readonly milestones: readonly (typeof Milestone.Type)[] },
+  milestoneId: string,
+): typeof Milestone.Type | undefined => progress.milestones.find((m) => m.id === milestoneId)
 
 export interface UpdateMilestoneStatusInput {
   readonly dir: string
