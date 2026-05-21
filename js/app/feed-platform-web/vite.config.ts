@@ -11,14 +11,22 @@ const taskInput = defineTaskInputFromOutput({
   },
 })
 
+// @cloudflare/vite-plugin rejects resolve.external injected by Vite+ in vitest mode.
+// Unit tests do not need live Cloudflare bindings, so skip the plugin for tests.
+const isTest = Boolean(process.env.VITEST)
+
 export default defineConfig({
-  plugins: [remix({ clientEntry: 'app/assets/entry.ts' }), cloudflare()],
+  plugins: [remix({ clientEntry: 'app/assets/entry.ts' }), ...(isTest ? [] : [cloudflare()])],
   run: {
     tasks: {
       build: {
         command: 'vp build',
         dependsOn: ['setup'],
         input: taskInput.build,
+      },
+      check: {
+        command: 'vp check',
+        dependsOn: ['setup'],
       },
       setup: {
         command: '',
