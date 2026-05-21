@@ -1,7 +1,0 @@
-{
-  "name": "@totto2727/fp",
-  "exports": "./src/exports.ts",
-  "lint": {
-    "exclude": ["node_modules/"]
-  }
-}
