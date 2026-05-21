@@ -1,4 +1,4 @@
-import { kebabCase } from 'change-case'
+import { kebabCase } from '@totto2727/fp/case'
 import { Option, Schema, SchemaAST, SchemaIssue, String } from 'effect'
 
 export const MilestoneStatus = Schema.Literals(['planned', 'active', 'completed', 'blocked', 'cancelled'])

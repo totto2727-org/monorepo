@@ -23,14 +23,13 @@
   "dependencies": {
     "@effect/platform-node": "catalog:effect",
     "@hono/node-server": "catalog:hono",
-    "change-case": "^5.4.4",
+    "@totto2727/fp": "workspace:*",
     "effect": "catalog:effect",
     "hono": "catalog:hono",
     "js-yaml": "^4.1.1",
     "remix": "catalog:remix"
   },
   "devDependencies": {
-    "@totto2727/fp": "workspace:*",
     "@types/js-yaml": "^4.0.9",
     "vite-plus": "catalog:"
   }
