@@ -1,4 +1,5 @@
 {
+  "name": "@totto2727/fp",
   "lint": {
     "exclude": ["node_modules/"]
   }
