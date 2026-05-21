@@ -9,7 +9,7 @@ import type { ProgressFileNotFoundError, ProgressReadError, ProgressWriteError }
 import type { MilestoneStatus } from '#@/schema/progress.ts'
 import { Milestone } from '#@/schema/progress.ts'
 
-import MILESTONE_TEMPLATE from './milestone-template.md'
+import MILESTONE_TEMPLATE from './milestone-template.ts'
 
 export class MilestoneAlreadyExistsError extends Data.TaggedError('MilestoneAlreadyExistsError')<{
   readonly roadmapId: string

@@ -1,11 +1,11 @@
----
+export default `---
 milestone_id: '{{milestone_id}}'
 roadmap_id: '{{roadmap_id}}'
 ---
 
 # Milestone: {{milestone_title}}
 
-This document is the **definition of a single milestone**. The rule is one file per milestone; place each one at `docs/roadmap/<roadmap-id>/milestones/<milestone-id>.md`.
+This document is the **definition of a single milestone**. The rule is one file per milestone; place each one at \`docs/roadmap/<roadmap-id>/milestones/<milestone-id>.md\`.
 
 ## Purpose
 
@@ -46,7 +46,7 @@ Areas intentionally not handled.
 
 {{depends_on}}
 
-List the IDs of other milestones that must complete before this one. Keep this in exact agreement with `progress.yaml.milestones[].depends_on[]`. For root milestones (no dependencies) write `(none)` explicitly.
+List the IDs of other milestones that must complete before this one. Keep this in exact agreement with \`progress.yaml.milestones[].depends_on[]\`. For root milestones (no dependencies) write \`(none)\` explicitly.
 
 - {{milestone_dependency_1_id}}: {{milestone_dependency_1_reason}}
 - {{milestone_dependency_2_id}}: {{milestone_dependency_2_reason}}
@@ -55,4 +55,5 @@ List the IDs of other milestones that must complete before this one. Keep this i
 
 {{notes}}
 
-Supplementary notes that do not fit into `progress.yaml.milestones[].notes`. Optional (may be left empty).
+Supplementary notes that do not fit into \`progress.yaml.milestones[].notes\`. Optional (may be left empty).
+`
