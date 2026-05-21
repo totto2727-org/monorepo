@@ -1,15 +1,23 @@
 import { Layer, ManagedRuntime } from 'effect'
-import { dynamicLoggerLayer, Env, makeDisposableRuntime } from 'effect-hono'
+import { dynamicLoggerLayer, Env as RuntimeEnv, makeDisposableRuntime } from 'effect-hono'
 
+import * as BetterAuth from '../auth/better-auth.ts'
+import * as DB from '../db/kysely.ts'
+import * as EmailCloudflare from '../email/cloudflare.ts'
+import * as Env from '../env.ts'
 import * as Greeting from '../greeting.ts'
 import * as Health from '../health.ts'
 
-const makeRuntime = () =>
+const makeRuntime = (env: Env.Type) =>
   ManagedRuntime.make(
-    Health.layer.pipe(
+    BetterAuth.layer.pipe(
+      Layer.provideMerge(DB.remoteLayer),
+      Layer.provideMerge(EmailCloudflare.layer),
       Layer.provideMerge(Greeting.layer),
+      Layer.provideMerge(Health.layer),
       Layer.provideMerge(dynamicLoggerLayer),
-      Layer.provide(Env.layer),
+      Layer.provideMerge(RuntimeEnv.layer),
+      Layer.provide(Env.makeLayer(env)),
     ),
   )
 
@@ -17,4 +25,4 @@ export type Runtime = ReturnType<typeof makeRuntime>
 
 export const DisposableRuntime = makeDisposableRuntime(makeRuntime)
 
-export const make = () => new DisposableRuntime()
+export const make = (env: Env.Type) => new DisposableRuntime(env)
