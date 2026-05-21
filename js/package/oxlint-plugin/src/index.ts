@@ -789,6 +789,40 @@ const noJsDateRule: Rule = {
 }
 
 // ---------------------------------------------------------------------------
+// no-string-style
+// ---------------------------------------------------------------------------
+
+const hasStringStyleValue = (node: unknown): boolean =>
+  Predicate.isObject(node) &&
+  node.type === 'JSXAttribute' &&
+  Predicate.isObject(node.name) &&
+  (node.name as { name?: string }).name === 'style' &&
+  Predicate.isObject(node.value) &&
+  (node.value as { type?: string }).type === 'Literal' &&
+  Predicate.isString((node.value as { value?: unknown }).value)
+
+const noStringStyleRule: Rule = {
+  create(context: Context) {
+    return {
+      JSXAttribute(node: unknown) {
+        if (!isReportable(node)) {
+          return
+        }
+        if (hasStringStyleValue(node)) {
+          context.report({
+            message: 'Use object-style `style={{ ... }}` instead of string `style="..."`.',
+            node,
+          })
+        }
+      },
+    }
+  },
+  meta: {
+    type: 'problem',
+  },
+}
+
+// ---------------------------------------------------------------------------
 // Plugin
 // ---------------------------------------------------------------------------
 
@@ -804,6 +838,7 @@ const plugin = {
     'no-js-date': noJsDateRule,
     'no-let': noLetRule,
     'no-option-tag-comparison': noOptionTagComparisonRule,
+    'no-string-style': noStringStyleRule,
     'no-sync-decode': noSyncDecodeRule,
     'prefer-is-nullish': preferIsNullishRule,
     'prefer-non-unknown-decode': preferNonUnknownDecodeRule,

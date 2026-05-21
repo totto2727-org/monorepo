@@ -181,7 +181,7 @@ export const Kanban = () => (props: KanbanProps) => {
   return (
     <div>
       <div mix={toolbarStyle}>
-        <span style='color:#64748b;font-size:12px;margin-right:8px'>Filter:</span>
+        <span style={{ color: '#64748b', fontSize: '12px', marginRight: '8px' }}>Filter:</span>
         {roadmaps.map((r) => (
           <a key={r.id} href={buildUrl(allIds, show, r.id)}>
             <button type='button' mix={toggleStyle(show.includes(r.id))}>
@@ -189,7 +189,7 @@ export const Kanban = () => (props: KanbanProps) => {
             </button>
           </a>
         ))}
-        <span style='color:#cbd5e1;margin:0 4px'>|</span>
+        <span style={{ color: '#cbd5e1', margin: '0 4px' }}>|</span>
         <a href='?'>
           <button type='button' mix={actionButtonStyle}>
             All
