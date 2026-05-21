@@ -28,11 +28,11 @@ milestones:
     id: ms-04-web-ui
     notes: null
     prs: []
-    status: active
+    status: completed
     title: Web UI with kanban board
     workflow_identifiers: []
 prs: []
 roadmap_id: roadmap-cli
 status: active
 title: Roadmap management CLI
-updated_at: '2026-05-18T17:15:59.324Z'
+updated_at: '2026-05-21T10:37:37.969Z'
