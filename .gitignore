@@ -4,3 +4,4 @@ node_modules/
 .cache
 .pnpm-store
 .claude/worktrees/
+.playwright-mcp/
