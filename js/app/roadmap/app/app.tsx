@@ -1,5 +1,5 @@
 import { NodeServices } from '@effect/platform-node'
-import { Effect, Predicate, String as Str } from 'effect'
+import { Effect, Predicate, String } from 'effect'
 import { Hono } from 'hono'
 import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
@@ -49,7 +49,7 @@ const parseShow = (showParam: string | undefined): string[] => {
   if (Predicate.isNullish(showParam)) {
     return []
   }
-  if (Str.isEmpty(showParam)) {
+  if (String.isEmpty(showParam)) {
     return ['']
   }
   return showParam.split(',')

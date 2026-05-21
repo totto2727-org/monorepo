@@ -1,4 +1,4 @@
-import { Array as Arr, Predicate, String as Str } from 'effect'
+import { Array, Predicate, String } from 'effect'
 import { css } from 'remix/ui'
 
 export interface KanbanRoadmap {
@@ -145,7 +145,7 @@ const buildUrl = (allIds: string[], show: string[], toggleId: string | undefined
   if (next.length >= allIds.length) {
     return '?'
   }
-  if (Arr.isArrayEmpty(next)) {
+  if (Array.isArrayEmpty(next)) {
     return '?show='
   }
   return `?show=${next.join(',')}`
@@ -164,8 +164,8 @@ const formatPrLabel = (pr: string): string => {
 export const Kanban = () => (props: KanbanProps) => {
   const { roadmaps, show: rawShow } = props
   const allIds = roadmaps.map((r) => r.id)
-  const isAll = Arr.isArrayEmpty(rawShow) || rawShow[0] === 'all'
-  const isNone = rawShow.length === 1 && Predicate.isNotNullish(rawShow[0]) && Str.isEmpty(rawShow[0])
+  const isAll = Array.isArrayEmpty(rawShow) || rawShow[0] === 'all'
+  const isNone = rawShow.length === 1 && Predicate.isNotNullish(rawShow[0]) && String.isEmpty(rawShow[0])
   const resolveShow = (): string[] => {
     if (isAll) {
       return allIds
@@ -215,13 +215,13 @@ export const Kanban = () => (props: KanbanProps) => {
             <div class='roadmap-title'>{roadmap.title}</div>
             <div class='roadmap-meta'>
               {roadmap.id} · {roadmap.milestones.length} milestones
-              {Arr.isReadonlyArrayNonEmpty(roadmap.prs) &&
+              {Array.isReadonlyArrayNonEmpty(roadmap.prs) &&
                 ` · ${roadmap.prs.length} PR${roadmap.prs.length === 1 ? '' : 's'}`}
             </div>
           </div>,
           ...STATUSES.map((status) => {
             const items = roadmap.milestones.filter((m) => m.status === status)
-            if (Arr.isArrayEmpty(items)) {
+            if (Array.isArrayEmpty(items)) {
               return (
                 <div key={`${roadmap.id}-${status}`} mix={emptyCellStyle}>
                   —
@@ -234,10 +234,10 @@ export const Kanban = () => (props: KanbanProps) => {
                   <div key={m.id} mix={milestoneCardStyle(m.status)}>
                     <div class='ms-id'>{m.id}</div>
                     <div class='ms-title'>{m.title}</div>
-                    {Arr.isReadonlyArrayNonEmpty(m.depends_on) && (
+                    {Array.isReadonlyArrayNonEmpty(m.depends_on) && (
                       <div class='ms-deps'>← depends on: {m.depends_on.join(', ')}</div>
                     )}
-                    {Arr.isReadonlyArrayNonEmpty(m.prs) && (
+                    {Array.isReadonlyArrayNonEmpty(m.prs) && (
                       <div class='ms-prs'>
                         PRs:{' '}
                         {m.prs.map((pr, i) => (

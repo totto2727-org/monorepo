@@ -17,7 +17,8 @@ const failWith = (message: string) =>
 const countCompleted = (milestones: readonly Milestone[]): number =>
   milestones.filter((m) => m.status === 'completed').length
 
-const formatList = (items: readonly string[]): string => (Arr.isReadonlyArrayEmpty(items) ? '(none)' : items.join(', '))
+const formatList = (items: readonly string[]): string =>
+  Array.isReadonlyArrayEmpty(items) ? '(none)' : items.join(', ')
 
 export const statusCommand = Command.make(
   'status',

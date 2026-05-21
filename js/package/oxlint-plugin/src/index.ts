@@ -814,6 +814,14 @@ const noStringStyleRule: Rule = {
             node,
           })
         }
+      },
+    }
+  },
+  meta: {
+    type: 'problem',
+  },
+}
+
 // no-effect-import-as
 // ---------------------------------------------------------------------------
 
