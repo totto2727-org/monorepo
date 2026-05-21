@@ -120,20 +120,10 @@ const emptyCellStyle = css({
 const milestoneCardStyle = (status: string) =>
   css({
     '& .ms-deps': { color: '#64748b', fontSize: '11px', marginTop: '6px' },
-    '& .ms-header': { alignItems: 'center', display: 'flex', gap: '8px', marginBottom: '4px' },
-    '& .ms-id': { color: '#64748b', fontSize: '11px', fontWeight: '500' },
+    '& .ms-id': { color: '#64748b', fontSize: '11px', fontWeight: '500', marginBottom: '4px' },
     '& .ms-prs': { color: '#475569', fontSize: '11px', marginTop: '4px' },
     '& .ms-prs a': { color: '#2563eb', textDecoration: 'none' },
     '& .ms-prs a:hover': { textDecoration: 'underline' },
-    '& .ms-status': {
-      borderRadius: '4px',
-      display: 'inline-block',
-      fontSize: '9px',
-      fontWeight: '600',
-      letterSpacing: '0.5px',
-      padding: '2px 6px',
-      textTransform: 'uppercase',
-    },
     '& .ms-title': { fontSize: '13px', fontWeight: '500', marginTop: '4px' },
     background: '#fff',
     border: 'none',
@@ -166,20 +156,9 @@ export interface KanbanProps {
   show: string[]
 }
 
-const STATUS_BADGE_BG: Record<string, string> = {
-  active: '#dbeafe',
-  blocked: '#fee2e2',
-  cancelled: '#f3f4f6',
-  completed: '#dcfce7',
-  planned: '#f1f5f9',
-}
-
-const STATUS_BADGE_COLOR: Record<string, string> = {
-  active: '#1d4ed8',
-  blocked: '#dc2626',
-  cancelled: '#6b7280',
-  completed: '#16a34a',
-  planned: '#64748b',
+const formatPrLabel = (pr: string): string => {
+  const match = /\/(?:pull|issues)\/(\d+)/.exec(pr)
+  return Predicate.isNullish(match) ? pr : `#${match[1]}`
 }
 
 export const Kanban = () => (props: KanbanProps) => {
@@ -253,15 +232,7 @@ export const Kanban = () => (props: KanbanProps) => {
               <div key={`${roadmap.id}-${status}`}>
                 {items.map((m) => (
                   <div key={m.id} mix={milestoneCardStyle(m.status)}>
-                    <div class='ms-header'>
-                      <span class='ms-id'>{m.id}</span>
-                      <span
-                        class='ms-status'
-                        style={`background:${STATUS_BADGE_BG[m.status]};color:${STATUS_BADGE_COLOR[m.status]}`}
-                      >
-                        {STATUS_LABELS[m.status]}
-                      </span>
-                    </div>
+                    <div class='ms-id'>{m.id}</div>
                     <div class='ms-title'>{m.title}</div>
                     {Arr.isReadonlyArrayNonEmpty(m.depends_on) && (
                       <div class='ms-deps'>← depends on: {m.depends_on.join(', ')}</div>
@@ -272,7 +243,13 @@ export const Kanban = () => (props: KanbanProps) => {
                         {m.prs.map((pr, i) => (
                           <span key={pr}>
                             {i > 0 && ', '}
-                            {pr.startsWith('http') ? <a href={pr}>{pr}</a> : pr}
+                            {pr.startsWith('http') ? (
+                              <a href={pr} target='_blank' rel='noopener noreferrer'>
+                                {formatPrLabel(pr)}
+                              </a>
+                            ) : (
+                              pr
+                            )}
                           </span>
                         ))}
                       </div>
