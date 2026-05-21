@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import type { DateTime } from 'effect'
 import { Data, Effect, FileSystem, Predicate, Schema } from 'effect'
 
-import { ProgressValidationError, readProgressFile, writeProgressFile } from '#@/lib/progress.ts'
+import { mergePrs, ProgressValidationError, readProgressFile, writeProgressFile } from '#@/lib/progress.ts'
 import type { ProgressFileNotFoundError, ProgressReadError, ProgressWriteError } from '#@/lib/progress.ts'
 import type { MilestoneStatus } from '#@/schema/progress.ts'
 import { Milestone } from '#@/schema/progress.ts'
@@ -210,6 +210,7 @@ export interface UpdateMilestonePrsInput {
   readonly roadmapId: string
   readonly milestoneId: string
   readonly prs: readonly string[]
+  readonly append: boolean
   readonly now: DateTime.Utc
 }
 
@@ -223,7 +224,8 @@ export const updateMilestonePrs = (
   Effect.gen(function* () {
     const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
 
-    if (Predicate.isNullish(findMilestone(progress, input.milestoneId))) {
+    const existing = findMilestone(progress, input.milestoneId)
+    if (Predicate.isNullish(existing)) {
       return yield* new MilestoneNotFoundError({
         milestoneId: input.milestoneId,
         roadmapId: input.roadmapId,
@@ -231,7 +233,7 @@ export const updateMilestonePrs = (
     }
 
     const updatedMilestones = progress.milestones.map((m) =>
-      m.id === input.milestoneId ? { ...m, prs: [...input.prs] } : m,
+      m.id === input.milestoneId ? { ...m, prs: mergePrs(m.prs, input.prs, input.append) } : m,
     )
 
     const result = yield* writeProgressFile({

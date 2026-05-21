@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vite-plus/test'
 
 import { RoadmapProgress } from '#@/schema/progress.ts'
 
-import { progressFilePath, renderProgressYaml } from './progress.ts'
+import { mergePrs, progressFilePath, renderProgressYaml } from './progress.ts'
 
 const buildRoadmap = (overrides: Partial<typeof RoadmapProgress.Encoded> = {}) =>
   Schema.decodeUnknownSync(RoadmapProgress)({
@@ -103,5 +103,42 @@ describe('renderProgressYaml', () => {
     expect(yaml).toContain('    status: completed\n')
     expect(yaml).toContain('    title: Bar\n')
     expect(yaml).toContain('    workflow_identifiers:\n      - wf-2026\n')
+  })
+})
+
+describe('mergePrs', () => {
+  test('replaces existing list when append is false', () => {
+    expect(mergePrs(['old-1', 'old-2'], ['new-1'], false)).toStrictEqual(['new-1'])
+  })
+
+  test('replaces with empty incoming when append is false', () => {
+    expect(mergePrs(['old-1', 'old-2'], [], false)).toStrictEqual([])
+  })
+
+  test('returns a fresh array when replacing (not the incoming reference)', () => {
+    const incoming = ['x']
+    const result = mergePrs([], incoming, false)
+    expect(result).toStrictEqual(['x'])
+    expect(result).not.toBe(incoming)
+  })
+
+  test('appends incoming to existing when append is true', () => {
+    expect(mergePrs(['old-1'], ['new-1', 'new-2'], true)).toStrictEqual(['old-1', 'new-1', 'new-2'])
+  })
+
+  test('drops duplicates already present in existing when appending', () => {
+    expect(mergePrs(['pr-1', 'pr-2'], ['pr-2', 'pr-3'], true)).toStrictEqual(['pr-1', 'pr-2', 'pr-3'])
+  })
+
+  test('drops duplicates within the incoming list when appending', () => {
+    expect(mergePrs(['pr-1'], ['pr-2', 'pr-2', 'pr-3'], true)).toStrictEqual(['pr-1', 'pr-2', 'pr-3'])
+  })
+
+  test('preserves existing order when appending', () => {
+    expect(mergePrs(['b', 'a', 'c'], ['d'], true)).toStrictEqual(['b', 'a', 'c', 'd'])
+  })
+
+  test('returns existing copy when appending empty incoming', () => {
+    expect(mergePrs(['pr-1'], [], true)).toStrictEqual(['pr-1'])
   })
 })

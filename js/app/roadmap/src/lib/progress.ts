@@ -38,6 +38,26 @@ const HEADER_COMMENT = `# Roadmap progress tracking yaml managed by the \`roadma
 
 export const progressFilePath = (dir: string, roadmapId: string): string => join(dir, roadmapId, 'progress.yaml')
 
+export const mergePrs = (
+  existing: readonly string[],
+  incoming: readonly string[],
+  append: boolean,
+): readonly string[] => {
+  if (!append) {
+    return [...incoming]
+  }
+  const seen = new Set<string>(existing)
+  const merged: string[] = [...existing]
+  for (const pr of incoming) {
+    if (seen.has(pr)) {
+      continue
+    }
+    seen.add(pr)
+    merged.push(pr)
+  }
+  return merged
+}
+
 export const renderProgressYaml = (data: RoadmapProgress): string => {
   const body = dumpYaml(
     {
@@ -214,6 +234,7 @@ export interface UpdateRoadmapPrsInput {
   readonly dir: string
   readonly roadmapId: string
   readonly prs: readonly string[]
+  readonly append: boolean
   readonly now: DateTime.Utc
 }
 
@@ -227,7 +248,7 @@ export const updateRoadmapPrs = (
   Effect.gen(function* () {
     const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
     return yield* writeProgressFile({
-      data: { ...progress, prs: [...input.prs], updated_at: input.now },
+      data: { ...progress, prs: mergePrs(progress.prs, input.prs, input.append), updated_at: input.now },
       dir: input.dir,
       roadmapId: input.roadmapId,
     })

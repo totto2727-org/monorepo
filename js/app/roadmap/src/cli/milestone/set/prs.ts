@@ -1,5 +1,5 @@
 import { Console, DateTime, Effect, Predicate } from 'effect'
-import { Argument, Command } from 'effect/unstable/cli'
+import { Argument, Command, Flag } from 'effect/unstable/cli'
 
 import { rootCommand } from '#@/cli/root.ts'
 import { updateMilestonePrs } from '#@/lib/milestone.ts'
@@ -16,15 +16,20 @@ const failWith = (message: string) =>
 export const milestoneSetPrsCommand = Command.make(
   'prs',
   {
+    append: Flag.boolean('append').pipe(
+      Flag.withAlias('a'),
+      Flag.withDescription('Append to existing PRs instead of replacing (duplicates are dropped)'),
+    ),
     roadmapId: Argument.string('roadmap-id'),
     targetId: Argument.string('milestone-id'),
     value: Argument.string('pr').pipe(Argument.atLeast(1)),
   },
-  ({ roadmapId, targetId: milestoneId, value: prs }) =>
+  ({ append, roadmapId, targetId: milestoneId, value: prs }) =>
     Effect.gen(function* () {
       const { dir } = yield* rootCommand
       const now = yield* DateTime.now
       const result = yield* updateMilestonePrs({
+        append,
         dir,
         milestoneId,
         now,
@@ -42,7 +47,8 @@ export const milestoneSetPrsCommand = Command.make(
       )
 
       if (Predicate.isNotNullish(result)) {
-        yield* Console.log(`Set ${roadmapId}/${milestoneId} PRs to: [${prs.join(', ')}]`)
+        const action = append ? 'Appended' : 'Set'
+        yield* Console.log(`${action} ${roadmapId}/${milestoneId} PRs: [${prs.join(', ')}]`)
       }
     }),
 ).pipe(Command.withDescription("Set a milestone's linked PRs"))
