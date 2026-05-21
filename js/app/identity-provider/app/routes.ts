@@ -1,7 +1,7 @@
 import { getContext } from 'hono/context-storage'
 import { createFrameHelpers } from 'remix-helper'
 
-export type FrameName = never
+export type FrameName = 'login' | 'check-email' | 'register-passkey' | 'account'
 
 const helpers = createFrameHelpers<FrameName>()
 
