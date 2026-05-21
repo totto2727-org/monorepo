@@ -43,6 +43,7 @@ export const renderProgressYaml = (data: RoadmapProgress): string => {
     {
       created_at: DateTime.formatIso(data.created_at),
       milestones: data.milestones,
+      prs: data.prs,
       roadmap_id: data.roadmap_id,
       status: data.status,
       title: data.title,
@@ -209,6 +210,29 @@ export const updateRoadmapStatus = (
     })
   })
 
+export interface UpdateRoadmapPrsInput {
+  readonly dir: string
+  readonly roadmapId: string
+  readonly prs: readonly string[]
+  readonly now: DateTime.Utc
+}
+
+export const updateRoadmapPrs = (
+  input: UpdateRoadmapPrsInput,
+): Effect.Effect<
+  WriteResult,
+  ProgressFileNotFoundError | ProgressReadError | ProgressValidationError | ProgressWriteError,
+  FileSystem.FileSystem
+> =>
+  Effect.gen(function* () {
+    const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
+    return yield* writeProgressFile({
+      data: { ...progress, prs: [...input.prs], updated_at: input.now },
+      dir: input.dir,
+      roadmapId: input.roadmapId,
+    })
+  })
+
 export const initProgressFile = (
   input: InitInput,
 ): Effect.Effect<
@@ -224,6 +248,7 @@ export const initProgressFile = (
     const draft = {
       created_at: timestamp,
       milestones: [],
+      prs: [],
       roadmap_id: input.roadmapId,
       status: 'planned',
       title: input.title,

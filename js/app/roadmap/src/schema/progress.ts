@@ -19,6 +19,7 @@ export const Milestone = Schema.Struct({
   depends_on: Schema.Array(KebabCase),
   id: KebabCase,
   notes: Schema.NullOr(Schema.String),
+  prs: Schema.Array(Schema.String),
   status: MilestoneStatus,
   title: Schema.NonEmptyString,
   workflow_identifiers: Schema.Array(Schema.NonEmptyString),
@@ -28,6 +29,7 @@ export type Milestone = typeof Milestone.Type
 export const RoadmapProgress = Schema.Struct({
   created_at: Schema.DateTimeUtcFromString,
   milestones: Schema.Array(Milestone),
+  prs: Schema.Array(Schema.String),
   roadmap_id: KebabCase,
   status: RoadmapStatus,
   title: Schema.NonEmptyString,

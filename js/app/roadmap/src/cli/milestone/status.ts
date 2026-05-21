@@ -48,6 +48,7 @@ export const milestoneStatusCommand = Command.make(
       yield* Console.log(`status:               ${milestone.status}`)
       yield* Console.log(`depends_on:           ${formatList(milestone.depends_on)}`)
       yield* Console.log(`workflow_identifiers: ${formatList(milestone.workflow_identifiers)}`)
+      yield* Console.log(`prs:                  ${formatList(milestone.prs)}`)
       yield* Console.log(`notes:                ${milestone.notes ?? '(none)'}`)
     }),
 ).pipe(Command.withDescription('Show detailed status of one milestone'))

@@ -22,9 +22,12 @@
   },
   "dependencies": {
     "@effect/platform-node": "catalog:effect",
+    "@hono/node-server": "catalog:hono",
     "change-case": "^5.4.4",
     "effect": "catalog:effect",
-    "js-yaml": "^4.1.1"
+    "hono": "catalog:hono",
+    "js-yaml": "^4.1.1",
+    "remix": "catalog:remix"
   },
   "devDependencies": {
     "@totto2727/fp": "workspace:*",

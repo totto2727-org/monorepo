@@ -6,22 +6,33 @@ milestones:
   - depends_on: []
     id: ms-01-cli-bootstrap
     notes: null
-    status: planned
+    prs: []
+    status: completed
     title: CLI bootstrap with new subcommand
     workflow_identifiers: []
   - depends_on: []
     id: ms-02-milestone-new
     notes: null
-    status: planned
+    prs: []
+    status: completed
     title: milestone new subcommand
     workflow_identifiers: []
   - depends_on: []
     id: ms-03-ls-and-status
     notes: null
-    status: planned
+    prs: []
+    status: completed
     title: ls and status commands
     workflow_identifiers: []
+  - depends_on: []
+    id: ms-04-web-ui
+    notes: null
+    prs: []
+    status: active
+    title: Web UI with kanban board
+    workflow_identifiers: []
+prs: []
 roadmap_id: roadmap-cli
-status: planned
+status: active
 title: Roadmap management CLI
-updated_at: '2026-05-18T15:11:38.004Z'
+updated_at: '2026-05-18T17:15:59.324Z'

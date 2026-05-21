@@ -17,6 +17,8 @@ const failWith = (message: string) =>
 const countCompleted = (milestones: readonly Milestone[]): number =>
   milestones.filter((m) => m.status === 'completed').length
 
+const formatList = (items: readonly string[]): string => (Arr.isReadonlyArrayEmpty(items) ? '(none)' : items.join(', '))
+
 export const statusCommand = Command.make(
   'status',
   {
@@ -43,6 +45,7 @@ export const statusCommand = Command.make(
       yield* Console.log(`status:     ${progress.status}`)
       yield* Console.log(`created_at: ${DateTime.formatIso(progress.created_at)}`)
       yield* Console.log(`updated_at: ${DateTime.formatIso(progress.updated_at)}`)
+      yield* Console.log(`prs:        ${formatList(progress.prs)}`)
       yield* Console.log('')
       yield* Console.log(`milestones (${completed}/${progress.milestones.length} completed):`)
       if (Arr.isReadonlyArrayEmpty(progress.milestones)) {

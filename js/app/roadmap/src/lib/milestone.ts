@@ -93,6 +93,7 @@ export const addMilestone = (
       depends_on: [],
       id: input.milestoneId,
       notes: null,
+      prs: [],
       status: 'planned',
       title: input.title,
       workflow_identifiers: [],
@@ -191,6 +192,44 @@ export const updateMilestoneNote = (
 
     const updatedMilestones = progress.milestones.map((m) =>
       m.id === input.milestoneId ? { ...m, notes: input.note } : m,
+    )
+
+    const result = yield* writeProgressFile({
+      data: { ...progress, milestones: updatedMilestones, updated_at: input.now },
+      dir: input.dir,
+      roadmapId: input.roadmapId,
+    })
+
+    return { path: result.path }
+  })
+
+export interface UpdateMilestonePrsInput {
+  readonly dir: string
+  readonly roadmapId: string
+  readonly milestoneId: string
+  readonly prs: readonly string[]
+  readonly now: DateTime.Utc
+}
+
+export const updateMilestonePrs = (
+  input: UpdateMilestonePrsInput,
+): Effect.Effect<
+  { path: string },
+  MilestoneNotFoundError | ProgressFileNotFoundError | ProgressReadError | ProgressValidationError | ProgressWriteError,
+  FileSystem.FileSystem
+> =>
+  Effect.gen(function* () {
+    const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
+
+    if (Predicate.isNullish(findMilestone(progress, input.milestoneId))) {
+      return yield* new MilestoneNotFoundError({
+        milestoneId: input.milestoneId,
+        roadmapId: input.roadmapId,
+      })
+    }
+
+    const updatedMilestones = progress.milestones.map((m) =>
+      m.id === input.milestoneId ? { ...m, prs: [...input.prs] } : m,
     )
 
     const result = yield* writeProgressFile({
