@@ -38,11 +38,32 @@ const HEADER_COMMENT = `# Roadmap progress tracking yaml managed by the \`roadma
 
 export const progressFilePath = (dir: string, roadmapId: string): string => join(dir, roadmapId, 'progress.yaml')
 
+export const mergePrs = (
+  existing: readonly string[],
+  incoming: readonly string[],
+  append: boolean,
+): readonly string[] => {
+  if (!append) {
+    return [...incoming]
+  }
+  const seen = new Set<string>(existing)
+  const merged: string[] = [...existing]
+  for (const pr of incoming) {
+    if (seen.has(pr)) {
+      continue
+    }
+    seen.add(pr)
+    merged.push(pr)
+  }
+  return merged
+}
+
 export const renderProgressYaml = (data: RoadmapProgress): string => {
   const body = dumpYaml(
     {
       created_at: DateTime.formatIso(data.created_at),
       milestones: data.milestones,
+      prs: data.prs,
       roadmap_id: data.roadmap_id,
       status: data.status,
       title: data.title,
@@ -209,6 +230,30 @@ export const updateRoadmapStatus = (
     })
   })
 
+export interface UpdateRoadmapPrsInput {
+  readonly dir: string
+  readonly roadmapId: string
+  readonly prs: readonly string[]
+  readonly append: boolean
+  readonly now: DateTime.Utc
+}
+
+export const updateRoadmapPrs = (
+  input: UpdateRoadmapPrsInput,
+): Effect.Effect<
+  WriteResult,
+  ProgressFileNotFoundError | ProgressReadError | ProgressValidationError | ProgressWriteError,
+  FileSystem.FileSystem
+> =>
+  Effect.gen(function* () {
+    const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
+    return yield* writeProgressFile({
+      data: { ...progress, prs: mergePrs(progress.prs, input.prs, input.append), updated_at: input.now },
+      dir: input.dir,
+      roadmapId: input.roadmapId,
+    })
+  })
+
 export const initProgressFile = (
   input: InitInput,
 ): Effect.Effect<
@@ -224,6 +269,7 @@ export const initProgressFile = (
     const draft = {
       created_at: timestamp,
       milestones: [],
+      prs: [],
       roadmap_id: input.roadmapId,
       status: 'planned',
       title: input.title,

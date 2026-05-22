@@ -5,6 +5,7 @@
   "scripts": {},
   "devDependencies": {
     "@types/node": "catalog:types",
+    "@vitest/coverage-v8": "^4.1.7",
     "ultracite": "catalog:lint",
     "vite-plus": "catalog:",
     "wrangler": "latest"

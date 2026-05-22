@@ -85,4 +85,7 @@ export default defineConfig({
   staged: {
     '*': 'vp run fix',
   },
+  test: {
+    dir: 'js/',
+  },
 })
