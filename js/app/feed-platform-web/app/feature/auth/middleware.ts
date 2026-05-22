@@ -1,8 +1,9 @@
-import { FEED_SESSION_COOKIE } from 'auth-helper'
 import { Predicate } from 'effect'
 import { getCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
+
+import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
 
 export interface AuthUser {
   readonly id: string
