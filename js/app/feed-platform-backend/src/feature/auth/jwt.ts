@@ -1,6 +1,7 @@
-import type { AppJWTPayload } from 'auth-helper'
 import { Context, Data, Effect, Layer, Predicate } from 'effect'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
+
+import type { AppJWTPayload } from '#@/feature/auth/jwt-payload.ts'
 
 export class JwtVerifyError extends Data.TaggedError('JwtVerifyError')<{
   readonly cause: unknown
