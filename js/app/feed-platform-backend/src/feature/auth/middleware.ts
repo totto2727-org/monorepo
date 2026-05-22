@@ -1,7 +1,7 @@
-import type { AppJWTPayload } from 'auth-helper'
 import { Effect, Exit, Predicate, String } from 'effect'
 import { createMiddleware } from 'hono/factory'
 
+import type { AppJWTPayload } from '#@/feature/auth/jwt-payload.ts'
 import { JwtService, liveLayer } from '#@/feature/auth/jwt.ts'
 
 export const authMiddleware = createMiddleware<{

@@ -1,9 +1,9 @@
-import type { AppJWTPayload } from 'auth-helper'
 import { Effect } from 'effect'
 import { Hono } from 'hono'
 import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
 
+import type { AppJWTPayload } from '#@/feature/auth/jwt-payload.ts'
 import { authMiddleware } from '#@/feature/auth/middleware.ts'
 import * as Health from '#@/feature/health.ts'
 import type { Variables } from '#@/feature/runtime/hono.ts'
