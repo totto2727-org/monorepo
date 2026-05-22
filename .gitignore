@@ -5,3 +5,4 @@ node_modules/
 .pnpm-store
 .claude/worktrees/
 .playwright-mcp/
+.playwright-cli/
