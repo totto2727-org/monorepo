@@ -8,7 +8,7 @@ describe('extractBearerFromCookie', () => {
   })
 
   it('returns null when cookieHeader is undefined', () => {
-    expect(extractBearerFromCookie('feed-session')).toBeNull()
+    expect(extractBearerFromCookie('feed-session', undefined)).toBeNull()
   })
 
   it('returns null when cookie name is not found', () => {
