@@ -35,6 +35,14 @@ with pkgs;
     packageName = "@totto2727/wt";
   })
   (npm {
+    binName = "mdt";
+    packageName = "@totto2727/mdt";
+  })
+  (npm {
+    binName = "roadmap";
+    packageName = "@totto2727/roadmap";
+  })
+  (npm {
     binName = "codex";
     packageName = "@openai/codex";
   })
