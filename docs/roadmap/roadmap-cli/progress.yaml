@@ -32,9 +32,16 @@ milestones:
     status: completed
     title: Web UI with kanban board
     workflow_identifiers: []
+  - depends_on: []
+    id: ms-05-multi-worktree-ui
+    notes: Discovers all git worktrees via 'git worktree list --porcelain' from the repo root (.git walk-up), loads docs/roadmap from each, dedupes identical milestones across worktrees, and renders 3-tier filters (Master / Roadmaps / Worktrees) plus per-worktree color stripes on cards. CLI '-d' is now repo-root-relative.
+    prs: []
+    status: completed
+    title: Multi-worktree web UI with 3-tier filters
+    workflow_identifiers: []
 prs:
   - https://github.com/totto2727-org/monorepo/pull/128
 roadmap_id: roadmap-cli
 status: active
 title: Roadmap management CLI
-updated_at: '2026-05-21T10:41:17.838Z'
+updated_at: '2026-05-22T14:06:36.647Z'

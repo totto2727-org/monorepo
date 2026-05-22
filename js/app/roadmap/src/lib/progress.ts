@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path'
 import { Data, DateTime, Effect, FileSystem, Predicate, Schema } from 'effect'
 import { dump as dumpYaml, load as loadYaml } from 'js-yaml'
 
+import type { Worktree } from '#@/lib/git.ts'
 import type { RoadmapStatus } from '#@/schema/progress.ts'
 import { RoadmapProgress } from '#@/schema/progress.ts'
 
@@ -200,12 +201,35 @@ export const listRoadmaps = (
         }
         return yield* readProgressFile({ dir, roadmapId: entry }).pipe(
           Effect.catchTag('ProgressFileNotFoundError', () => Effect.succeed(null)),
+          Effect.catchTag('ProgressValidationError', (e) =>
+            Effect.logWarning(`Skipping invalid progress file: ${e.message}`).pipe(Effect.as(null)),
+          ),
+          Effect.catchTag('ProgressReadError', (e) =>
+            Effect.logWarning(`Skipping unreadable progress file (${e.path}): ${e.message}`).pipe(Effect.as(null)),
+          ),
         )
       }),
     )
 
     return results.filter(Predicate.isNotNullish).toSorted((a, b) => a.roadmap_id.localeCompare(b.roadmap_id))
   })
+
+export interface WorktreeRoadmaps {
+  readonly worktree: Worktree
+  readonly roadmaps: readonly RoadmapProgress[]
+}
+
+export const listRoadmapsAcrossWorktrees = (
+  worktrees: readonly Worktree[],
+  relativeDir: string,
+): Effect.Effect<readonly WorktreeRoadmaps[], ProgressReadError | ProgressValidationError, FileSystem.FileSystem> =>
+  // oxlint-disable-next-line unicorn/no-array-method-this-argument -- Effect.forEach, not Array.forEach
+  Effect.forEach(worktrees, (worktree) =>
+    listRoadmaps(join(worktree.path, relativeDir)).pipe(
+      Effect.catchTag('ProgressDirNotFoundError', () => Effect.succeed([] as readonly RoadmapProgress[])),
+      Effect.map((roadmaps) => ({ roadmaps, worktree })),
+    ),
+  )
 
 export interface UpdateRoadmapStatusInput {
   readonly dir: string

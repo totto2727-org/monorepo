@@ -1,7 +1,7 @@
 import { Console, DateTime, Effect, Option, Predicate } from 'effect'
 import { Argument, Command, Flag } from 'effect/unstable/cli'
 
-import { rootCommand } from '#@/cli/root.ts'
+import { resolveDirOrFail, rootCommand } from '#@/cli/root.ts'
 import { addMilestone } from '#@/lib/milestone.ts'
 
 const failWith = (message: string) =>
@@ -26,7 +26,12 @@ export const milestoneNewCommand = Command.make(
   },
   ({ roadmapId, targetId: milestoneId, title }) =>
     Effect.gen(function* () {
-      const { dir } = yield* rootCommand
+      const { dir: relativeDir } = yield* rootCommand
+      const resolved = yield* resolveDirOrFail(relativeDir)
+      if (Predicate.isNullish(resolved)) {
+        return
+      }
+      const { dir } = resolved
       const resolvedTitle = Option.getOrElse(title, () => milestoneId)
       const now = yield* DateTime.now
       const result = yield* addMilestone({

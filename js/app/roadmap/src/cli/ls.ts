@@ -1,7 +1,7 @@
 import { Array, Console, Effect, Predicate } from 'effect'
 import { Command } from 'effect/unstable/cli'
 
-import { rootCommand } from '#@/cli/root.ts'
+import { resolveDirOrFail, rootCommand } from '#@/cli/root.ts'
 import { listRoadmaps } from '#@/lib/progress.ts'
 import type { Milestone } from '#@/schema/progress.ts'
 
@@ -19,7 +19,12 @@ const countCompleted = (milestones: readonly Milestone[]): number =>
 
 export const lsCommand = Command.make('ls', {}, () =>
   Effect.gen(function* () {
-    const { dir } = yield* rootCommand
+    const { dir: relativeDir } = yield* rootCommand
+    const resolved = yield* resolveDirOrFail(relativeDir)
+    if (Predicate.isNullish(resolved)) {
+      return
+    }
+    const { dir } = resolved
     const roadmaps = yield* listRoadmaps(dir).pipe(
       Effect.catchTags({
         ProgressDirNotFoundError: (error) => failWith(`${error.dir} not found`),
