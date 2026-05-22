@@ -16,6 +16,8 @@ import { scrapeCommand } from '#@/cli/scrape.ts'
 import { screenshotCommand } from '#@/cli/screenshot.ts'
 import { snapshotCommand } from '#@/cli/snapshot.ts'
 
+import pkg from '../package.json' with { type: 'json' }
+
 const crawlCommand = Command.make('crawl').pipe(
   Command.withDescription('Manage async crawl jobs'),
   Command.withSubcommands([crawlStartCommand, crawlStatusCommand, crawlResultsCommand]),
@@ -38,6 +40,6 @@ const app = Command.make('bw').pipe(
 
 const appLayer = Layer.merge(NodeServices.layer, FetchHttpClient.layer)
 
-const program = app.pipe(Command.run({ version: '0.1.5' }), Effect.provide(appLayer))
+const program = app.pipe(Command.run({ version: pkg.version }), Effect.provide(appLayer))
 
 NodeRuntime.runMain(program)

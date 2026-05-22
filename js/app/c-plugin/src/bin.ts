@@ -11,6 +11,8 @@ import { targetAddCommand } from '#@/cli/skill/target/add.ts'
 import { targetRemoveCommand } from '#@/cli/skill/target/remove.ts'
 import { updateCommand } from '#@/cli/skill/update.ts'
 
+import pkg from '../package.json' with { type: 'json' }
+
 const targetCommand = Command.make('target').pipe(
   Command.withDescription('Manage skill symlink target directories'),
   Command.withSubcommands([targetAddCommand, targetRemoveCommand]),
@@ -37,7 +39,7 @@ const app = Command.make('c-plugin').pipe(
 )
 
 const program = app.pipe(
-  Command.run({ version: '0.1.0' }),
+  Command.run({ version: pkg.version }),
   Effect.tapCause((cause) => Console.error(Cause.pretty(cause))),
   Effect.catchCause(() =>
     Effect.sync(() => {
