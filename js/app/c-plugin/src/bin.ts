@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { NodeServices } from '@effect/platform-node'
-import { Effect } from 'effect'
+import { Cause, Console, Effect } from 'effect'
 import { Command } from 'effect/unstable/cli'
 
 import { devMarketplaceSyncCommand } from '#@/cli/dev/marketplace/sync.ts'
@@ -36,6 +36,15 @@ const app = Command.make('c-plugin').pipe(
   Command.withSubcommands([skillCommand, devCommand]),
 )
 
-const program = app.pipe(Command.run({ version: '0.1.0' }), Effect.provide(NodeServices.layer))
+const program = app.pipe(
+  Command.run({ version: '0.1.0' }),
+  Effect.tapCause((cause) => Console.error(Cause.pretty(cause))),
+  Effect.catchCause(() =>
+    Effect.sync(() => {
+      process.exitCode = 1
+    }),
+  ),
+  Effect.provide(NodeServices.layer),
+)
 
 Effect.runFork(program)

@@ -22,8 +22,12 @@ export const isParentPath = (spec: string): boolean => spec.startsWith('../')
 
 export const isHomePath = (spec: string): boolean => spec.startsWith('~/')
 
-export const normalizePathSpec = (spec: string): string =>
-  spec.length > 1 && spec.endsWith('/') ? spec.replace(/\/+$/, '') : spec
+export const normalizePathSpec = (spec: string): string => {
+  if (spec === './' || spec === '../' || spec === '~/') {
+    return spec
+  }
+  return spec.length > 1 && spec.endsWith('/') ? spec.replace(/\/+$/, '') : spec
+}
 
 export const resolveLocalPath = (spec: string, agentsRoot: string): string => {
   if (isHomePath(spec) || spec === '~') {

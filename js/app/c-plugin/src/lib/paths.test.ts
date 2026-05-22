@@ -134,6 +134,12 @@ describe('normalizePathSpec', () => {
   test('preserves single "/" root', () => {
     expect(normalizePathSpec('/')).toBe('/')
   })
+
+  test('preserves prefix-only specs that mean "current/parent/home dir"', () => {
+    expect(normalizePathSpec('./')).toBe('./')
+    expect(normalizePathSpec('../')).toBe('../')
+    expect(normalizePathSpec('~/')).toBe('~/')
+  })
 })
 
 describe('resolveLocalPath', () => {
