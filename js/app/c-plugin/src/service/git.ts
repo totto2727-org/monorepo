@@ -27,7 +27,7 @@ const run = (args: readonly string[], cwd?: string): Effect.Effect<string, GitEr
 export const checkInstalled: Effect.Effect<void, GitError> = run(['--version']).pipe(Effect.asVoid)
 
 export const clone = (url: string, dest: string): Effect.Effect<void, GitError> =>
-  run(['clone', '--depth', '1', url, dest]).pipe(Effect.asVoid)
+  run(['clone', url, dest]).pipe(Effect.asVoid)
 
 export const pull = (cwd: string): Effect.Effect<void, GitError> => run(['pull'], cwd).pipe(Effect.asVoid)
 
