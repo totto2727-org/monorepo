@@ -248,9 +248,6 @@ importers:
       '@totto2727/fp':
         specifier: workspace:*
         version: link:../../package/fp
-      auth-helper:
-        specifier: workspace:*
-        version: link:../../package/auth-helper
       effect:
         specifier: catalog:effect
         version: 4.0.0-beta.65
