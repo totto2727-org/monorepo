@@ -1,0 +1,5 @@
+{
+  "name": "auth-helper",
+  "private": true,
+  "type": "module"
+}
