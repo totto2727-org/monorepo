@@ -11,12 +11,7 @@ import type * as Env from '#@/feature/env.ts'
 import * as Greeting from '#@/feature/greeting.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 import type { Variables } from '#@/feature/runtime/hono.ts'
-import { AccountPage } from '#@/ui/account.tsx'
-import { CheckEmailPage } from '#@/ui/check-email.tsx'
 import { Document } from '#@/ui/document.tsx'
-import { LoginPasskeyPage } from '#@/ui/login-passkey.tsx'
-import { LoginPage } from '#@/ui/login.tsx'
-import { RegisterPasskeyPage } from '#@/ui/register-passkey.tsx'
 
 // 生成済み `Cloudflare.Env` には secret (`BETTER_AUTH_SECRET` 等) が含まれず
 // runtime middleware (Bindings: Env.Type) と整合しないため `Env.Type` を採用。
@@ -76,23 +71,22 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
   .get('/login', (c) =>
     c.render(
       <Document title='ログイン'>
-        <LoginPage />
+        <p>Login page (UI added in ms-02-pr4)</p>
       </Document>,
     ),
   )
   .get('/login/passkey', (c) =>
     c.render(
       <Document title='Passkey ログイン'>
-        <LoginPasskeyPage />
+        <p>Passkey login page (UI added in ms-02-pr4)</p>
       </Document>,
     ),
   )
   .get('/login/check-email', (c) => {
     const email = c.req.query('email') ?? ''
-    const CheckEmail = CheckEmailPage(email)
     return c.render(
       <Document title='メール確認'>
-        <CheckEmail />
+        <p>Check your email: {email}</p>
       </Document>,
     )
   })
@@ -104,7 +98,7 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     }
     return c.render(
       <Document title='Passkey 登録'>
-        <RegisterPasskeyPage />
+        <p>Passkey registration page (UI added in ms-02-pr4)</p>
       </Document>,
     )
   })
@@ -116,10 +110,27 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     const email = session.user.email ?? ''
     const rawCreatedAt: Date | string = session.user.createdAt
     const createdAt = rawCreatedAt instanceof Date ? rawCreatedAt.toLocaleDateString('ja-JP') : rawCreatedAt
-    const Account = AccountPage({ createdAt, email })
     return c.render(
       <Document title='アカウント'>
-        <Account />
+        <p>
+          Account: {email} (created {createdAt})
+        </p>
+      </Document>,
+    )
+  })
+  .get('/account', async (c) => {
+    const session = await c.var.auth.api.getSession({ headers: c.req.raw.headers })
+    if (!session) {
+      return c.redirect('/login')
+    }
+    const email = session.user.email ?? ''
+    const rawCreatedAt: Date | string = session.user.createdAt
+    const createdAt = rawCreatedAt instanceof Date ? rawCreatedAt.toLocaleDateString('ja-JP') : rawCreatedAt
+    return c.render(
+      <Document title='アカウント'>
+        <p>
+          Account: {email} (created {createdAt})
+        </p>
       </Document>,
     )
   })
