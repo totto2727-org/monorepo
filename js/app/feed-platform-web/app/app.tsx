@@ -1,4 +1,3 @@
-import { FEED_SESSION_COOKIE } from 'auth-helper'
 import { Effect, Predicate } from 'effect'
 import { Hono } from 'hono'
 import { remixRenderer } from 'hono-remix-middleware'
@@ -8,6 +7,7 @@ import { logger } from 'hono/logger'
 
 import { BackendClient, liveLayer } from '#@/feature/api/client.ts'
 import { handleAuthCallback } from '#@/feature/auth/callback.ts'
+import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
 import { authMiddleware } from '#@/feature/auth/middleware.ts'
 import type { AuthUser } from '#@/feature/auth/middleware.ts'
 import { buildAuthorizeUrl, generateChallenge, generateState, generateVerifier } from '#@/feature/auth/oauth-client.ts'

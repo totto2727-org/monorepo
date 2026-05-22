@@ -1,7 +1,8 @@
-import { FEED_SESSION_COOKIE } from 'auth-helper'
 import { Predicate, String } from 'effect'
 import type { Context } from 'hono'
 import { getCookie } from 'hono/cookie'
+
+import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
 
 export const handleAuthCallback = async (c: Context): Promise<Response> => {
   const code = c.req.query('code')
@@ -31,8 +32,8 @@ export const handleAuthCallback = async (c: Context): Promise<Response> => {
     grant_type: 'authorization_code',
     redirect_uri: redirectUri,
   }
-  if (clientSecret.length > 0) {
-    bodyParams['client_secret'] = clientSecret
+  if (String.isNonEmpty(clientSecret)) {
+    bodyParams.client_secret = clientSecret
   }
 
   const tokenRes = await fetch(`${idpBaseUrl}/api/v1/auth/oauth2/token`, {

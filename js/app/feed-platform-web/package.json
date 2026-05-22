@@ -13,7 +13,6 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "catalog:cloudflare",
     "@totto2727/fp": "workspace:*",
-    "auth-helper": "workspace:*",
     "better-auth": "catalog:auth",
     "effect": "catalog:effect",
     "effect-hono": "workspace:*",

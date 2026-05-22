@@ -1,6 +1,7 @@
-import { FEED_SESSION_COOKIE } from 'auth-helper'
 import { Hono } from 'hono'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
+
+import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
 
 import { handleAuthCallback } from './callback.ts'
 
