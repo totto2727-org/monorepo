@@ -166,7 +166,7 @@ PR-A → PR-C (or PR-D) → PR-E
 
 ## TODOs
 
-- [ ] **A1. auth-helper 既存スタブの完成 (tsconfig + src/index.ts + package.json exports)** (PR-A / Wave 1)
+- [x] **A1. auth-helper 既存スタブの完成 (tsconfig + src/index.ts + package.json exports)** (PR-A / Wave 1)
 
   **What to do**:
   - **既存 stub** `js/package/auth-helper/package.json` を完成形に更新:
@@ -228,7 +228,7 @@ PR-A → PR-C (or PR-D) → PR-E
   - Files: `js/package/auth-helper/{package.json,tsconfig.json,src/index.ts}`
   - Pre-commit: `vp check` (build task は無い)
 
-- [ ] **A2. auth-helper 実装 (constants + cookie-translator + jwt-payload)** (PR-A / Wave 1)
+- [x] **A2. auth-helper 実装 (constants + cookie-translator + jwt-payload)** (PR-A / Wave 1)
 
   **What to do**:
   - `src/constants.ts`: `FEED_SESSION_COOKIE = 'feed-session'`, `OAUTH_BASE_PATH = '/api/v1/auth/oauth'`, 必要なら `OAUTH_CLIENT_ID = 'feed-platform-web'`, `OAUTH_SCOPES = ['openid','profile','email'] as const`
@@ -576,7 +576,7 @@ PR-A → PR-C (or PR-D) → PR-E
   **Commit**: NO (検証のみ。コードは B1/B2/B3 でコミット済)
   - **PR-B 提出可能ポイント** (B1〜B4 完了時)
 
-- [ ] **C1. web OAuth クライアント実装 (oauth-client + callback + constants)** (PR-C / Wave 2)
+- [x] **C1. web OAuth クライアント実装 (oauth-client + callback + constants)** (PR-C / Wave 2)
 
   **What to do**:
   - **前提確認**: `js/app/feed-platform-web/package.json` 既に `auth-helper: "workspace:*"` を devDependencies に含む (main 上で確認済) → 新たな dep 追加は不要、import だけ書く
@@ -653,7 +653,7 @@ PR-A → PR-C (or PR-D) → PR-E
   - Files: `js/app/feed-platform-web/app/feature/auth/{oauth-client,callback,constants}.ts(.test.ts)`
   - Pre-commit: `vp check && vp test --filter feed-platform-web`
 
-- [ ] **C2. web auth middleware + BFF api/client** (PR-C / Wave 2)
+- [x] **C2. web auth middleware + BFF api/client** (PR-C / Wave 2)
 
   **What to do**:
   - `js/app/feed-platform-web/app/feature/auth/middleware.ts` (pr5 流用):
