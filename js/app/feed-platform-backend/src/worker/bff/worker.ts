@@ -3,6 +3,8 @@ import { Hono } from 'hono'
 import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
 
+import type { AppJWTPayload } from '#@/feature/auth/jwt-payload.ts'
+import { authMiddleware } from '#@/feature/auth/middleware.ts'
 import * as Health from '#@/feature/health.ts'
 import type { Variables } from '#@/feature/runtime/hono.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
@@ -12,7 +14,7 @@ import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 // Hono の `c.env` 経路を経由しない。Cloudflare 側 binding を後で追加する場合は
 // worker-configuration.d.ts の自動生成 `Env` interface を `Bindings` に渡す形で拡張する。
 interface AppEnv {
-  Variables: Variables
+  Variables: Variables & { user: AppJWTPayload }
 }
 
 // BFF entry: ms-01 段階では health entry と同形の Hello World を返すのみ。
@@ -31,5 +33,7 @@ const app = new Hono<AppEnv>()
       }),
     ),
   )
+  .use('/api/*', authMiddleware)
+  .get('/api/v1/me', (c) => c.json(c.var.user))
 
 export default app
