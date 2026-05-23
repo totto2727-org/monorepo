@@ -8,8 +8,6 @@ import * as DB from '#@/feature/db/kysely.ts'
 import * as EmailSender from '#@/feature/email/sender.ts'
 import * as Env from '#@/feature/env.ts'
 
-const effectRunPromise = Effect.runPromise
-
 const makeInstance = (db: DB.Instance, env: Env.Type, emailSender: EmailSender.EmailSender) =>
   betterAuth({
     account: {
@@ -31,7 +29,7 @@ const makeInstance = (db: DB.Instance, env: Env.Type, emailSender: EmailSender.E
       }),
       magicLink({
         sendMagicLink: ({ email, url }) =>
-          effectRunPromise(
+          Effect.runPromise(
             emailSender.send({
               subject: 'Login link',
               text: `Login here: ${url}`,
