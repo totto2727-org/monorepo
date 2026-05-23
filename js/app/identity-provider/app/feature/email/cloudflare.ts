@@ -1,4 +1,6 @@
 import { Effect, Layer } from 'effect'
+// oxlint-disable-next-line import/no-unstable -- Thread 8 review: use Effect's HttpClient
+import { FetchHttpClient, HttpClient, HttpClientRequest } from 'effect/unstable/http'
 
 import * as Env from '#@/feature/env.ts'
 
@@ -12,44 +14,48 @@ export interface Config {
   readonly fromAddress: string
 }
 
-const buildEndpoint = (accountId: string): string => `${CLOUDFLARE_API_BASE}/client/v4/accounts/${accountId}/email/send`
+const buildEndpoint = (accountId: string): string =>
+  `${CLOUDFLARE_API_BASE}/client/v4/accounts/${accountId}/email/send`
 
 export const makeImpl = (config: Config): Sender.EmailSender => ({
   send: (params) =>
-    Effect.tryPromise({
-      catch: (cause) =>
-        new Sender.EmailSendError({
-          message: cause instanceof Error ? cause.message : String(cause),
+    Effect.gen(function* () {
+      const client = yield* HttpClient.HttpClient
+      const request = HttpClientRequest.post(buildEndpoint(config.accountId), {
+        headers: {
+          Authorization: `Bearer ${config.apiToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: { email: config.fromAddress },
+          html: params.html,
+          personalizations: [{ to: [{ email: params.to }] }],
+          subject: params.subject,
+          text: params.text,
         }),
-      try: () =>
-        fetch(buildEndpoint(config.accountId), {
-          body: JSON.stringify({
-            from: { email: config.fromAddress },
-            html: params.html,
-            personalizations: [{ to: [{ email: params.to }] }],
-            subject: params.subject,
-            text: params.text,
+      })
+      const response = yield* client.execute(request).pipe(
+        Effect.mapError(
+          (cause) =>
+            new Sender.EmailSendError({
+              message: cause instanceof Error ? cause.message : String(cause),
+            }),
+        ),
+      )
+      if (response.status < 200 || response.status >= 300) {
+        return Effect.fail(
+          new Sender.EmailSendError({
+            message: `Cloudflare Email Send API returned status ${response.status}`,
           }),
-          headers: {
-            Authorization: `Bearer ${config.apiToken}`,
-            'Content-Type': 'application/json',
-          },
-          method: 'POST',
-        }),
-    }).pipe(
-      Effect.flatMap((response) =>
-        response.ok
-          ? Effect.void
-          : Effect.fail(
-              new Sender.EmailSendError({
-                message: `Cloudflare Email Send API returned status ${response.status}`,
-              }),
-            ),
-      ),
-    ),
+        )
+      }
+    }),
 })
 
-export const makeLayer = (config: Config) => Layer.succeed(Sender.Service, makeImpl(config))
+export const makeLayer = (config: Config) =>
+  Layer.succeed(Sender.Service, makeImpl(config)).pipe(
+    Layer.provide(FetchHttpClient.layer),
+  )
 
 export const layer = Layer.effect(
   Sender.Service,
@@ -61,4 +67,4 @@ export const layer = Layer.effect(
       fromAddress: env.MAIL_FROM_ADDRESS,
     })
   }),
-)
+).pipe(Layer.provide(FetchHttpClient.layer))
