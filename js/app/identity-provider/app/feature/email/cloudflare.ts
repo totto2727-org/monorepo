@@ -49,7 +49,6 @@ export const makeImpl = (config: Config): Sender.EmailSender => ({
           }),
         )
       }
-      return Effect.void
     }),
 })
 
