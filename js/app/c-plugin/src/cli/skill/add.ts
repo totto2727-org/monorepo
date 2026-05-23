@@ -119,10 +119,20 @@ export const addCommand = Command.make(
         return
       }
 
-      const choices = allSkills.map((s) => ({
-        title: `${s.pluginName}/${s.skillName}`,
-        value: s,
-      }))
+      const lockFile = yield* LockFileService.read(agentsDir)
+      const existingRepo = lockFile.repositories.find((r) => r.source === resolved.source)
+      const alreadyEnabled = new Set(
+        (existingRepo?.plugins ?? []).flatMap((p) => p.enabledSkills.map((skill) => `${p.name}/${skill}`)),
+      )
+
+      const choices = allSkills.map((s) => {
+        const key = `${s.pluginName}/${s.skillName}`
+        return {
+          selected: alreadyEnabled.has(key),
+          title: key,
+          value: s,
+        }
+      })
 
       const selected = yield* Prompt.multiSelect({
         choices,
@@ -133,8 +143,6 @@ export const addCommand = Command.make(
         yield* Effect.log('No skills selected.')
         return
       }
-
-      const lockFile = yield* LockFileService.read(agentsDir)
 
       const pluginMap = new Map<string, PluginEntry>()
       for (const skill of selected) {
@@ -154,7 +162,6 @@ export const addCommand = Command.make(
         }
       }
 
-      const existingRepo = lockFile.repositories.find((r) => r.source === resolved.source)
       const mergedPlugins = mergePlugins(existingRepo?.plugins ?? [], [...pluginMap.values()])
       const newRepoEntry: RepositoryEntry =
         resolved.type === 'github'
