@@ -20,7 +20,7 @@ const makeSend =
   (config: Config): Sender.EmailSender['send'] =>
   (params) =>
     // oxlint-disable-next-line typescript-eslint/consistent-return -- success path yields void
-  Effect.gen(function* () {
+    Effect.gen(function* () {
       const client = yield* HttpClient.HttpClient
       const request = HttpClientRequest.post(buildEndpoint(config.accountId), {
         body: HttpBody.jsonUnsafe({
