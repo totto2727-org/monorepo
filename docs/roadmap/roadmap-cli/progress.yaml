@@ -6,42 +6,22 @@ milestones:
   - depends_on: []
     id: ms-01-cli-bootstrap
     notes: null
-    prs: []
-    status: completed
+    status: planned
     title: CLI bootstrap with new subcommand
     workflow_identifiers: []
   - depends_on: []
     id: ms-02-milestone-new
     notes: null
-    prs: []
-    status: completed
+    status: planned
     title: milestone new subcommand
     workflow_identifiers: []
   - depends_on: []
     id: ms-03-ls-and-status
     notes: null
-    prs: []
-    status: completed
+    status: planned
     title: ls and status commands
     workflow_identifiers: []
-  - depends_on: []
-    id: ms-04-web-ui
-    notes: null
-    prs:
-      - https://github.com/totto2727-org/monorepo/pull/128
-    status: completed
-    title: Web UI with kanban board
-    workflow_identifiers: []
-  - depends_on: []
-    id: ms-05-multi-worktree-ui
-    notes: Discovers all git worktrees via 'git worktree list --porcelain' from the repo root (.git walk-up), loads docs/roadmap from each, dedupes identical milestones across worktrees, and renders 3-tier filters (Master / Roadmaps / Worktrees) plus per-worktree color stripes on cards. CLI '-d' is now repo-root-relative.
-    prs: []
-    status: completed
-    title: Multi-worktree web UI with 3-tier filters
-    workflow_identifiers: []
-prs:
-  - https://github.com/totto2727-org/monorepo/pull/128
 roadmap_id: roadmap-cli
-status: active
+status: planned
 title: Roadmap management CLI
-updated_at: '2026-05-22T14:06:36.647Z'
+updated_at: '2026-05-18T15:11:38.004Z'
