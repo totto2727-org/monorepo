@@ -102,7 +102,7 @@ func GenerateKysely(realm *schema.Realm, opts GenerateOptions) (string, error) {
 
 		fmt.Fprintf(&sb, "export interface %s {\n", ti.interfaceName)
 		for _, p := range props {
-			fmt.Fprintf(&sb, "  %s: %s\n", serializeKey(p.key), p.value)
+			fmt.Fprintf(&sb, "  %s: %s;\n", serializeKey(p.key), p.value)
 		}
 		sb.WriteString("}\n\n")
 	}
@@ -117,7 +117,7 @@ func GenerateKysely(realm *schema.Realm, opts GenerateOptions) (string, error) {
 
 	sb.WriteString("export interface DB {\n")
 	for _, ti := range dbEntries {
-		fmt.Fprintf(&sb, "  %s: %s\n", serializeKey(ti.identifier), ti.interfaceName)
+		fmt.Fprintf(&sb, "  %s: %s;\n", serializeKey(ti.identifier), ti.interfaceName)
 	}
 	sb.WriteString("}\n")
 
