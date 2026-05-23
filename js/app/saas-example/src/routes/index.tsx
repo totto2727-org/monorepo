@@ -50,9 +50,7 @@ const pokemonCollection = createCollection(
     getKey: (item) => item.name,
     queryClient: getContext().queryClient,
     queryFn: async () => {
-      const { results } = await Effect.runPromise(
-        fetchPokemonList('https://pokeapi.co/api/v2/pokemon/?limit=20'),
-      )
+      const { results } = await Effect.runPromise(fetchPokemonList('https://pokeapi.co/api/v2/pokemon/?limit=20'))
       return [...results]
     },
     queryKey: ['pokemon'],

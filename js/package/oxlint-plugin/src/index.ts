@@ -1105,11 +1105,7 @@ const noRedundantAliasRule: Rule = {
 const TOP_LEVEL_DECODER_MESSAGE =
   'Hoist schema decoder construction to module top level and call the cached function inside this scope. Building the decoder per call re-runs the schema compilation on every invocation.'
 
-const matchMemberCallByPrefix = (
-  node: unknown,
-  namespace: string,
-  prefix: string,
-): boolean => {
+const matchMemberCallByPrefix = (node: unknown, namespace: string, prefix: string): boolean => {
   if (
     !Predicate.isObject(node) ||
     node.type !== 'CallExpression' ||
@@ -1140,8 +1136,7 @@ const matchMemberCallByPrefix = (
 }
 
 const isHoistableDecoderCall = (node: unknown): boolean =>
-  matchMemberCallByPrefix(node, 'Schema', 'decode') ||
-  matchMemberCallByPrefix(node, 'HttpClientResponse', 'schema')
+  matchMemberCallByPrefix(node, 'Schema', 'decode') || matchMemberCallByPrefix(node, 'HttpClientResponse', 'schema')
 
 const requireTopLevelDecoderRule: Rule = {
   create(context: Context) {
