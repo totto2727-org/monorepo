@@ -3,7 +3,8 @@ import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { createCollection, useLiveQuery } from '@tanstack/react-db'
 import { ClientOnly, createFileRoute, Link } from '@tanstack/react-router'
 import { createStore, useSelector } from '@tanstack/react-store'
-import { Function, Schema } from 'effect'
+import { Effect, Function, Schema } from 'effect'
+import { FetchHttpClient, HttpClient, HttpClientResponse } from 'effect/unstable/http'
 
 import { getContext } from '#@/feature/share/lib/tanstack-query/provider.tsx'
 
@@ -35,17 +36,24 @@ const Counter = () => {
 
 const pokemonSchema = Schema.Struct({ name: Schema.String, url: Schema.String })
 const pokeAPISchema = Schema.Struct({ results: Schema.Array(pokemonSchema) })
-// oxlint-disable-next-line rules/no-sync-decode -- demo: simple PokeAPI decode in route handler
-const decodePokeAPI = Schema.decodeSync(pokeAPISchema)
+const decodePokeAPIResponse = HttpClientResponse.schemaBodyJson(pokeAPISchema)
+
+const fetchPokemonList = (url: string) =>
+  Effect.gen(function* () {
+    const client = yield* HttpClient.HttpClient
+    const response = yield* client.get(url)
+    return yield* decodePokeAPIResponse(response)
+  }).pipe(Effect.provide(FetchHttpClient.layer))
 
 const pokemonCollection = createCollection(
   queryCollectionOptions({
     getKey: (item) => item.name,
     queryClient: getContext().queryClient,
     queryFn: async () => {
-      const response = await fetch('https://pokeapi.co/api/v2/pokemon/?limit=20')
-      //
-      return [...decodePokeAPI(await response.json()).results]
+      const { results } = await Effect.runPromise(
+        fetchPokemonList('https://pokeapi.co/api/v2/pokemon/?limit=20'),
+      )
+      return [...results]
     },
     queryKey: ['pokemon'],
     schema: Schema.toStandardSchemaV1(pokemonSchema),
@@ -53,8 +61,9 @@ const pokemonCollection = createCollection(
 )
 
 const loadMoreButton = async (length: number) => {
-  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/?limit=20&offset=${length}`)
-  const { results } = decodePokeAPI(await response.json())
+  const { results } = await Effect.runPromise(
+    fetchPokemonList(`https://pokeapi.co/api/v2/pokemon/?limit=20&offset=${length}`),
+  )
   pokemonCollection.utils.writeBatch(() => {
     for (const pokemon of results) {
       pokemonCollection.utils.writeInsert(pokemon)
