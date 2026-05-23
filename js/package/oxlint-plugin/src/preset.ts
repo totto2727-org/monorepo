@@ -22,6 +22,13 @@ const preset: Preset = {
         'rules/no-sync-decode': 'allow',
         'rules/prefer-is-nullish': 'allow',
         'rules/prefer-non-unknown-decode': 'allow',
+        'rules/require-top-level-decoder': 'allow',
+      },
+    },
+    {
+      files: ['**/*.gen.ts'],
+      rules: {
+        'rules/no-redundant-alias': 'allow',
       },
     },
   ],
@@ -34,14 +41,17 @@ const preset: Preset = {
     'rules/no-effect-import-as': 'error',
     'rules/no-effect-subpath-import': 'error',
     'rules/no-eslint-disable-comments': 'error',
+    'rules/no-fetch': 'error',
     'rules/no-js-date': 'error',
     'rules/no-let': 'error',
     'rules/no-option-tag-comparison': 'error',
+    'rules/no-redundant-alias': 'error',
     'rules/no-string-style': 'error',
     'rules/no-sync-decode': 'error',
     'rules/prefer-is-nullish': 'error',
     'rules/prefer-non-unknown-decode': 'error',
     'rules/require-disable-reason': 'error',
+    'rules/require-top-level-decoder': 'error',
   },
 }
 

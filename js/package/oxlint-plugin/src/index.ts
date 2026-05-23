@@ -973,6 +973,211 @@ const noEffectSubpathImportRule: Rule = {
 }
 
 // ---------------------------------------------------------------------------
+// no-fetch
+// ---------------------------------------------------------------------------
+
+const FETCH_GLOBALS: ReadonlySet<string> = new Set(['globalThis', 'window', 'self'])
+const FETCH_GUIDANCE_MESSAGE =
+  'Use Effect `HttpClient` (provide the `FetchHttpClient` layer) instead of the global `fetch`. Bypass only at external-library anti-corruption layers with a documented disable reason.'
+
+const isFetchIdentifier = (node: unknown): boolean =>
+  Predicate.isObject(node) && node.type === 'Identifier' && hasProperty(node, 'name') && node.name === 'fetch'
+
+const isFetchOnGlobal = (node: unknown): boolean => {
+  if (!Predicate.isObject(node) || node.type !== 'MemberExpression' || node.computed === true) {
+    return false
+  }
+  if (!isFetchIdentifier(node.property)) {
+    return false
+  }
+  if (!Predicate.isObject(node.object) || node.object.type !== 'Identifier') {
+    return false
+  }
+  return hasProperty(node.object, 'name') && Predicate.isString(node.object.name) && FETCH_GLOBALS.has(node.object.name)
+}
+
+const noFetchRule: Rule = {
+  create(context: Context) {
+    return {
+      CallExpression(node: unknown) {
+        if (!isReportable(node) || !Predicate.isObject(node) || !hasProperty(node, 'callee')) {
+          return
+        }
+        const { callee } = node
+        if (isFetchIdentifier(callee) || isFetchOnGlobal(callee)) {
+          context.report({
+            message: FETCH_GUIDANCE_MESSAGE,
+            node,
+          })
+        }
+      },
+    }
+  },
+  meta: {
+    type: 'problem',
+  },
+}
+
+// ---------------------------------------------------------------------------
+// no-redundant-alias
+// ---------------------------------------------------------------------------
+
+const REDUNDANT_TYPE_ALIAS_MESSAGE =
+  'Avoid type aliases that merely rename another type (e.g. `type SentEmail = SendParams`). Inline the original, or keep the alias only inside an anti-corruption layer with a documented disable reason.'
+const REDUNDANT_VALUE_ALIAS_MESSAGE =
+  'Avoid exported bindings that merely rename another value (e.g. `export const sentEmail = sendParams`). Re-export the original directly, or keep the alias only inside an anti-corruption layer with a documented disable reason.'
+
+const hasTypeArguments = (node: unknown): boolean =>
+  Predicate.isObject(node) && hasProperty(node, 'typeArguments') && Predicate.isNotNullish(node.typeArguments)
+
+const hasGenericTypeParameters = (node: unknown): boolean =>
+  Predicate.isObject(node) && hasProperty(node, 'typeParameters') && Predicate.isNotNullish(node.typeParameters)
+
+const isPlainTypeReference = (node: unknown): boolean =>
+  Predicate.isObject(node) && node.type === 'TSTypeReference' && !hasTypeArguments(node)
+
+const isRedundantTypeAlias = (node: unknown): boolean => {
+  if (!Predicate.isObject(node) || node.type !== 'TSTypeAliasDeclaration') {
+    return false
+  }
+  if (hasGenericTypeParameters(node)) {
+    return false
+  }
+  return hasProperty(node, 'typeAnnotation') && isPlainTypeReference(node.typeAnnotation)
+}
+
+const isIdentifierInitDeclarator = (declarator: unknown): boolean =>
+  Predicate.isObject(declarator) &&
+  hasProperty(declarator, 'id') &&
+  Predicate.isObject(declarator.id) &&
+  declarator.id.type === 'Identifier' &&
+  hasProperty(declarator, 'init') &&
+  Predicate.isObject(declarator.init) &&
+  declarator.init.type === 'Identifier'
+
+const noRedundantAliasRule: Rule = {
+  create(context: Context) {
+    return {
+      ExportNamedDeclaration(node: unknown) {
+        if (!isReportable(node) || !Predicate.isObject(node) || !hasProperty(node, 'declaration')) {
+          return
+        }
+        const { declaration } = node
+        if (
+          !Predicate.isObject(declaration) ||
+          declaration.type !== 'VariableDeclaration' ||
+          !hasProperty(declaration, 'declarations') ||
+          !Array.isArray(declaration.declarations)
+        ) {
+          return
+        }
+        for (const declarator of declaration.declarations) {
+          if (isIdentifierInitDeclarator(declarator) && isReportable(declarator)) {
+            context.report({
+              message: REDUNDANT_VALUE_ALIAS_MESSAGE,
+              node: declarator,
+            })
+          }
+        }
+      },
+      TSTypeAliasDeclaration(node: unknown) {
+        if (!isReportable(node)) {
+          return
+        }
+        if (isRedundantTypeAlias(node)) {
+          context.report({
+            message: REDUNDANT_TYPE_ALIAS_MESSAGE,
+            node,
+          })
+        }
+      },
+    }
+  },
+  meta: {
+    type: 'problem',
+  },
+}
+
+// ---------------------------------------------------------------------------
+// require-top-level-decoder
+// ---------------------------------------------------------------------------
+
+const TOP_LEVEL_DECODER_MESSAGE =
+  'Hoist schema decoder construction to module top level and call the cached function inside this scope. Building the decoder per call re-runs the schema compilation on every invocation.'
+
+const matchMemberCallByPrefix = (
+  node: unknown,
+  namespace: string,
+  prefix: string,
+): boolean => {
+  if (
+    !Predicate.isObject(node) ||
+    node.type !== 'CallExpression' ||
+    !Predicate.isObject(node.callee) ||
+    node.callee.type !== 'MemberExpression' ||
+    Predicate.isTruthy(node.callee.computed)
+  ) {
+    return false
+  }
+  const { object, property } = node.callee
+  if (
+    !Predicate.isObject(object) ||
+    object.type !== 'Identifier' ||
+    !hasProperty(object, 'name') ||
+    object.name !== namespace
+  ) {
+    return false
+  }
+  if (
+    !Predicate.isObject(property) ||
+    property.type !== 'Identifier' ||
+    !hasProperty(property, 'name') ||
+    !Predicate.isString(property.name)
+  ) {
+    return false
+  }
+  return property.name.startsWith(prefix)
+}
+
+const isHoistableDecoderCall = (node: unknown): boolean =>
+  matchMemberCallByPrefix(node, 'Schema', 'decode') ||
+  matchMemberCallByPrefix(node, 'HttpClientResponse', 'schema')
+
+const requireTopLevelDecoderRule: Rule = {
+  create(context: Context) {
+    const functionStack: true[] = []
+    const enterFunction = () => {
+      functionStack.push(true)
+    }
+    const exitFunction = () => {
+      functionStack.pop()
+    }
+    return {
+      ArrowFunctionExpression: enterFunction,
+      'ArrowFunctionExpression:exit': exitFunction,
+      CallExpression(node: unknown) {
+        if (Predicate.isNullish(functionStack[0]) || !isReportable(node)) {
+          return
+        }
+        if (isHoistableDecoderCall(node)) {
+          context.report({
+            message: TOP_LEVEL_DECODER_MESSAGE,
+            node,
+          })
+        }
+      },
+      FunctionDeclaration: enterFunction,
+      'FunctionDeclaration:exit': exitFunction,
+      FunctionExpression: enterFunction,
+      'FunctionExpression:exit': exitFunction,
+    }
+  },
+  meta: {
+    type: 'problem',
+  },
+}
+
+// ---------------------------------------------------------------------------
 // Plugin
 // ---------------------------------------------------------------------------
 
@@ -987,14 +1192,17 @@ const plugin = {
     'no-effect-import-as': noEffectImportAsRule,
     'no-effect-subpath-import': noEffectSubpathImportRule,
     'no-eslint-disable-comments': noEslintDisableRule,
+    'no-fetch': noFetchRule,
     'no-js-date': noJsDateRule,
     'no-let': noLetRule,
     'no-option-tag-comparison': noOptionTagComparisonRule,
+    'no-redundant-alias': noRedundantAliasRule,
     'no-string-style': noStringStyleRule,
     'no-sync-decode': noSyncDecodeRule,
     'prefer-is-nullish': preferIsNullishRule,
     'prefer-non-unknown-decode': preferNonUnknownDecodeRule,
     'require-disable-reason': requireDisableReasonRule,
+    'require-top-level-decoder': requireTopLevelDecoderRule,
   },
 }
 
