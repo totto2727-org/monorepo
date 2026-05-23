@@ -1,4 +1,4 @@
-// oxlint-disable-next-line oxc/no-barrel-file -- intentional barrel re-export of auth-helper modules
-export * from './constants'
-export * from './cookie-translator'
-export * from './jwt-payload'
+// oxlint-disable oxc/no-barrel-file -- intentional barrel re-export of auth-helper modules
+export * from './constants.ts'
+export * from './cookie-translator.ts'
+export type * from './jwt-payload.ts'

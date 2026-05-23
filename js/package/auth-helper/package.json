@@ -8,6 +8,7 @@
   },
   "devDependencies": {
     "@totto2727/fp": "workspace:*",
-    "@types/node": "catalog:types"
+    "@types/node": "catalog:types",
+    "effect": "catalog:effect"
   }
 }

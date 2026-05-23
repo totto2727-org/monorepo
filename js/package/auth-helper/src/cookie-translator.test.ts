@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { extractBearerFromCookie } from './cookie-translator'
+import { extractBearerFromCookie } from './cookie-translator.ts'
 
 describe('extractBearerFromCookie', () => {
   test('returns Bearer token when cookie is present', () => {
@@ -8,7 +8,8 @@ describe('extractBearerFromCookie', () => {
   })
 
   test('returns null when cookieHeader is undefined', () => {
-    expect(extractBearerFromCookie('feed-session', undefined)).toBeNull()
+    const noCookie: string | undefined = undefined
+    expect(extractBearerFromCookie('feed-session', noCookie)).toBeNull()
   })
 
   test('returns null when cookie name is not found', () => {
