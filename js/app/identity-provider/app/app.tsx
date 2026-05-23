@@ -27,19 +27,19 @@ const api = new Hono<AppEnv>()
     ),
   )
   .get('/auth/oauth/.well-known/openid-configuration', (c) => {
-      const origin = new URL(c.req.url).origin
-      return c.json({
-        authorization_endpoint: `${origin}/api/v1/auth/oauth2/authorize`,
-        id_token_signing_alg_values_supported: ['ES256'],
-        issuer: `${origin}/api/v1/auth`,
-        jwks_uri: `${origin}/api/v1/auth/jwks`,
-        response_types_supported: ['code'],
-        scopes_supported: ['openid', 'profile', 'email'],
-        subject_types_supported: ['public'],
-        token_endpoint: `${origin}/api/v1/auth/oauth2/token`,
-        userinfo_endpoint: `${origin}/api/v1/auth/oauth2/userinfo`,
-      })
-    },
+    const { origin } = new URL(c.req.url)
+    return c.json({
+      authorization_endpoint: `${origin}/api/v1/auth/oauth2/authorize`,
+      id_token_signing_alg_values_supported: ['ES256'],
+      issuer: `${origin}/api/v1/auth`,
+      jwks_uri: `${origin}/api/v1/auth/jwks`,
+      response_types_supported: ['code'],
+      scopes_supported: ['openid', 'profile', 'email'],
+      subject_types_supported: ['public'],
+      token_endpoint: `${origin}/api/v1/auth/oauth2/token`,
+      userinfo_endpoint: `${origin}/api/v1/auth/oauth2/userinfo`,
+    })
+  })
   .all('/auth/*', (c) => c.var.auth.handler(c.req.raw))
   .get('/hello', (c) =>
     c.var.runtime.runPromise(
