@@ -789,7 +789,7 @@ PR-A → PR-C (or PR-D) → PR-E
   **Commit**: NO (検証のみ)
   - **PR-C 提出可能ポイント** (C1〜C3 完了時、PR-A + PR-B が main にあること前提)
 
-- [ ] **D1. backend JWT verification service** (PR-D / Wave 2)
+- [x] **D1. backend JWT verification service** (PR-D / Wave 2)
 
   **What to do**:
   - **前提確認**: `js/app/feed-platform-backend/package.json` 既に `auth-helper: "workspace:*"` を devDependencies に含む (main 上で確認済) → 新たな dep 追加は不要、import だけ書く
@@ -850,7 +850,7 @@ PR-A → PR-C (or PR-D) → PR-E
   - Files: `js/app/feed-platform-backend/src/feature/auth/{jwt-payload,jwt,jwt.test}.ts`
   - Pre-commit: `vp check && vp test --filter feed-platform-backend`
 
-- [ ] **D2. backend auth middleware + 保護 /api/v1/me** (PR-D / Wave 2)
+- [x] **D2. backend auth middleware + 保護 /api/v1/me** (PR-D / Wave 2)
 
   **What to do**:
   - `js/app/feed-platform-backend/src/feature/auth/middleware.ts` (pr6 流用):
