@@ -8,7 +8,7 @@ import { sql } from 'kysely'
 import * as DB from '#@/feature/db/kysely.ts'
 import type * as Env from '#@/feature/env.ts'
 import * as Greeting from '#@/feature/greeting.ts'
-import { auth as authMiddleware } from '#@/feature/auth/middleware.ts'
+import { authMiddleware } from '#@/feature/auth/middleware.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 import type { Variables } from '#@/feature/runtime/hono.ts'
 import { Document } from '#@/ui/document.tsx'
@@ -40,15 +40,15 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
   )
   .get('/api/v1/auth/oauth/.well-known/openid-configuration', (c) =>
     c.json({
-      authorization_endpoint: `${c.req.url.replace(/\/api\/v1\/auth\/oauth\/\.well-known\/openid-configuration$/, '')}/api/v1/auth/oauth2/authorize`,
+      authorization_endpoint: `${new URL(c.req.url).origin}/api/v1/auth/oauth2/authorize`,
       id_token_signing_alg_values_supported: ['ES256'],
-      issuer: `${c.req.url.replace(/\/api\/v1\/auth\/oauth\/\.well-known\/openid-configuration$/, '')}/api/v1/auth`,
-      jwks_uri: `${c.req.url.replace(/\/api\/v1\/auth\/oauth\/\.well-known\/openid-configuration$/, '')}/api/v1/auth/jwks`,
+      issuer: `${new URL(c.req.url).origin}/api/v1/auth`,
+      jwks_uri: `${new URL(c.req.url).origin}/api/v1/auth/jwks`,
       response_types_supported: ['code'],
       scopes_supported: ['openid', 'profile', 'email'],
       subject_types_supported: ['public'],
-      token_endpoint: `${c.req.url.replace(/\/api\/v1\/auth\/oauth\/\.well-known\/openid-configuration$/, '')}/api/v1/auth/oauth2/token`,
-      userinfo_endpoint: `${c.req.url.replace(/\/api\/v1\/auth\/oauth\/\.well-known\/openid-configuration$/, '')}/api/v1/auth/oauth2/userinfo`,
+      token_endpoint: `${new URL(c.req.url).origin}/api/v1/auth/oauth2/token`,
+      userinfo_endpoint: `${new URL(c.req.url).origin}/api/v1/auth/oauth2/userinfo`,
     }),
   )
   .all('/api/v1/auth/*', (c) => c.var.auth.handler(c.req.raw))

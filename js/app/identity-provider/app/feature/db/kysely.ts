@@ -1,6 +1,8 @@
+import { randomUUID } from 'node:crypto'
+
+import { LibsqlDialect } from '@libsql/kysely-libsql'
 import { Context, Effect, Layer } from 'effect'
 import { CamelCasePlugin, Kysely } from 'kysely'
-import { D1Dialect } from 'kysely-d1'
 
 import * as Env from '#@/feature/env.ts'
 
@@ -14,41 +16,26 @@ export type Instance = Kysely<Type.DB>
 
 export const makeInMemory = (): Instance =>
   new Kysely({
-    dialect: new D1Dialect({
-      database: {
-      batch: () => {
-        throw new Error('identity-provider local D1 mock only supports query compilation')
-      },
-      dump: () => {
-        throw new Error('identity-provider local D1 mock only supports query compilation')
-      },
-      exec: () => {
-        throw new Error('identity-provider local D1 mock only supports query compilation')
-      },
-      prepare: () => {
-        throw new Error('identity-provider local D1 mock only supports query compilation')
-      },
-      withSession: () => {
-        throw new Error('identity-provider local D1 mock only supports query compilation')
-      },
-    } as D1Database,
+    dialect: new LibsqlDialect({
+      url: `file:${randomUUID()}?mode=memory&cache=shared`,
     }),
     plugins,
   })
 
-export const makeD1 = (db: D1Database): Instance =>
+export const makeRemote = (env: Env.Database): Instance =>
   new Kysely({
-    dialect: new D1Dialect({ database: db }),
+    dialect: new LibsqlDialect({
+      authToken: env.DATABASE_AUTH_TOKEN,
+      url: env.DATABASE_URL,
+    }),
     plugins,
   })
-
-export const makeRemote = (env: Env.Type): Instance => makeD1(env.DB)
 
 export const Service = Context.Service<Instance>('@app/identity-provider/feature/db/kysely/Service')
 
 export const inMemoryLayer = Layer.sync(Service, () => makeInMemory())
 
-export const d1Layer = Layer.effect(
+export const remoteLayer = Layer.effect(
   Service,
   Effect.gen(function* () {
     const env = yield* Env.Service

@@ -25,16 +25,8 @@
   // ref: https://developers.cloudflare.com/workers/wrangler/bundling/#node_env
   "vars": {
     "BETTER_AUTH_URL": "http://localhost:8787",
+    "DATABASE_URL": "libsql://identity-provider-dev.turso.io",
+    "DATABASE_AUTH_TOKEN": "",
     "BASE_URL": "http://localhost:8787",
   },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "identity-provider-dev",
-      "database_id": "2eee7070-2ca5-4e67-86c9-f3fd180b9b88",
-    },
-  ],
-  // "kv_namespaces": [
-  //   { "binding": "KV_SESSIONS", "id": "..." },
-  // ],
 }

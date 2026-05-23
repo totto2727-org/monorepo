@@ -11,7 +11,7 @@ import * as Health from '../health.ts'
 const makeRuntime = (env: Env.Type) =>
   ManagedRuntime.make(
     BetterAuth.layer.pipe(
-      Layer.provideMerge(DB.d1Layer),
+      Layer.provideMerge(DB.remoteLayer),
       Layer.provideMerge(EmailCloudflare.layer),
       Layer.provideMerge(Greeting.layer),
       Layer.provideMerge(Health.layer),

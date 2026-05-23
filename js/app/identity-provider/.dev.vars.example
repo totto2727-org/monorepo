@@ -1,0 +1,5 @@
+BETTER_AUTH_SECRET=[your-better-auth-secret-here]
+CLOUDFLARE_EMAIL_API_TOKEN=[your-cloudflare-email-api-token-here]
+CLOUDFLARE_ACCOUNT_ID=[your-cloudflare-account-id-here]
+DATABASE_URL=libsql://your-db.turso.io
+DATABASE_AUTH_TOKEN=[your-turso-auth-token]

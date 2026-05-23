@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vite-plus/test'
 
 import * as DB from './kysely.ts'
 
-describe('Kysely D1 service', () => {
+describe('Kysely LibSQL service', () => {
   test('inMemoryLayer builds a CamelCase Kysely instance that compiles snake_case SQL', async () => {
     const program = Effect.gen(function* () {
       const db = yield* DB.Service

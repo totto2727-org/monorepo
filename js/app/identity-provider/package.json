@@ -21,7 +21,7 @@
     "hono": "catalog:hono",
     "hono-remix-middleware": "workspace:*",
     "kysely": "catalog:database",
-    "kysely-d1": "catalog:database",
+    "@libsql/kysely-libsql": "catalog:database",
     "remix": "catalog:remix",
     "remix-helper": "workspace:*",
     "vite-plugin-remix": "workspace:*",

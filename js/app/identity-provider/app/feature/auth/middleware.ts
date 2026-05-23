@@ -5,7 +5,7 @@ import * as BetterAuth from './better-auth.ts'
 import type * as Env from '../env.ts'
 import type * as Runtime from '../runtime/server.ts'
 
-export const auth = createMiddleware<{
+export const authMiddleware = createMiddleware<{
   Bindings: Env.Type
   Variables: {
     readonly runtime: Runtime.Runtime
