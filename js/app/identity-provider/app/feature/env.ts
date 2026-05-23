@@ -33,7 +33,7 @@ export const devLayer = Layer.succeed(Service, {
   CLOUDFLARE_ACCOUNT_ID: 'dev-account',
   CLOUDFLARE_EMAIL_API_TOKEN: 'dev-token',
   DATABASE_AUTH_TOKEN: '',
-  DATABASE_URL: 'file:local-dev.db',
+  DATABASE_URL: 'http://127.0.0.1:8080',
   MAIL_FROM_ADDRESS: 'auth@dev.example.com',
   PASSKEY_RP_ID: 'localhost',
 } satisfies Type as Type)

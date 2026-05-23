@@ -23,10 +23,5 @@
   // を単一ソースとし、`feature/env.ts` の `Env.layer` 経由で参照するため、
   // ここで明示的に `vars.ENV` を持たない方針 (本番 deploy で dev 値が焼き込まれるバグの根本予防)。
   // ref: https://developers.cloudflare.com/workers/wrangler/bundling/#node_env
-  "vars": {
-    "BETTER_AUTH_URL": "http://localhost:8787",
-    "DATABASE_URL": "libsql://identity-provider-dev.turso.io",
-    "DATABASE_AUTH_TOKEN": "",
-    "BASE_URL": "http://localhost:8787",
-  },
+  // ローカル開発時は env.ts の devLayer で値が提供される。
 }
