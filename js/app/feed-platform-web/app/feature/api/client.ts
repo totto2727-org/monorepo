@@ -22,6 +22,7 @@ export const liveLayer = Layer.succeed(BackendClient, {
     Effect.tryPromise({
       catch: (cause) => new BackendError({ cause }),
       try: async () => {
+        // oxlint-disable-next-line rules/no-fetch -- external backend API
         const res = await fetch(`${BACKEND_BASE_URL}/api/v1/me`, {
           headers: { Authorization: `Bearer ${feedSession}` },
         })

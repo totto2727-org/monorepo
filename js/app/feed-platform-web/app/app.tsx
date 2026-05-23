@@ -115,6 +115,7 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     const idpBaseUrl = process.env.IDP_BASE_URL ?? 'http://localhost:8787'
     const token = getCookie(c, FEED_SESSION_COOKIE)
     if (!Predicate.isNullish(token)) {
+      // oxlint-disable-next-line rules/no-fetch -- external IdP sign-out endpoint
       await fetch(`${idpBaseUrl}/api/v1/auth/sign-out`, {
         headers: { Cookie: `${FEED_SESSION_COOKIE}=${token}` },
         method: 'POST',

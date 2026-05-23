@@ -36,6 +36,7 @@ export const handleAuthCallback = async (c: Context): Promise<Response> => {
     bodyParams.client_secret = clientSecret
   }
 
+  // oxlint-disable-next-line rules/no-fetch -- external OAuth 2.1 token endpoint
   const tokenRes = await fetch(`${idpBaseUrl}/api/v1/auth/oauth2/token`, {
     body: new URLSearchParams(bodyParams).toString(),
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
