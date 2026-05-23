@@ -26,9 +26,9 @@ export const makeImpl = (config: Config): Sender.EmailSender => ({
           body: JSON.stringify({
             from: { email: config.fromAddress },
             html: params.html,
+            personalizations: [{ to: [{ email: params.to }] }],
             subject: params.subject,
             text: params.text,
-            to: [{ email: params.to }],
           }),
           headers: {
             Authorization: `Bearer ${config.apiToken}`,
