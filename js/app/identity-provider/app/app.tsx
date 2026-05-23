@@ -3,11 +3,9 @@ import { Hono } from 'hono'
 import { remixRenderer } from 'hono-remix-middleware'
 import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
-import { sql } from 'kysely'
 
 import type * as BetterAuth from '#@/feature/auth/better-auth.ts'
 import { authMiddleware } from '#@/feature/auth/middleware.ts'
-import * as DB from '#@/feature/db/kysely.ts'
 import type * as Env from '#@/feature/env.ts'
 import * as Greeting from '#@/feature/greeting.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
@@ -28,19 +26,20 @@ const api = new Hono<AppEnv>()
       new Request(new URL('/api/v1/auth/get-session', c.req.url), { headers: c.req.raw.headers, method: 'GET' }),
     ),
   )
-  .get('/auth/oauth/.well-known/openid-configuration', (c) =>
-    c.json({
-      authorization_endpoint: `${new URL(c.req.url).origin}/api/v1/auth/oauth2/authorize`,
-      id_token_signing_alg_values_supported: ['ES256'],
-      issuer: `${new URL(c.req.url).origin}/api/v1/auth`,
-      jwks_uri: `${new URL(c.req.url).origin}/api/v1/auth/jwks`,
-      response_types_supported: ['code'],
-      scopes_supported: ['openid', 'profile', 'email'],
-      subject_types_supported: ['public'],
-      token_endpoint: `${new URL(c.req.url).origin}/api/v1/auth/oauth2/token`,
-      userinfo_endpoint: `${new URL(c.req.url).origin}/api/v1/auth/oauth2/userinfo`,
-    }),
-  )
+  .get('/auth/oauth/.well-known/openid-configuration', (c) => {
+      const origin = new URL(c.req.url).origin
+      return c.json({
+        authorization_endpoint: `${origin}/api/v1/auth/oauth2/authorize`,
+        id_token_signing_alg_values_supported: ['ES256'],
+        issuer: `${origin}/api/v1/auth`,
+        jwks_uri: `${origin}/api/v1/auth/jwks`,
+        response_types_supported: ['code'],
+        scopes_supported: ['openid', 'profile', 'email'],
+        subject_types_supported: ['public'],
+        token_endpoint: `${origin}/api/v1/auth/oauth2/token`,
+        userinfo_endpoint: `${origin}/api/v1/auth/oauth2/userinfo`,
+      })
+    },
   .all('/auth/*', (c) => c.var.auth.handler(c.req.raw))
   .get('/hello', (c) =>
     c.var.runtime.runPromise(
@@ -133,37 +132,5 @@ const app = new Hono<AppEnv>()
   )
   .route('/', appRoutes)
   .route('/app', appRoutes)
-  .get('/debug/test-db', async (c) => {
-    const crypto = await import('node:crypto')
-    const id = crypto.randomUUID()
-    const { runtime } = c.var
-    try {
-      const result = await runtime.runPromise(
-        Effect.gen(function* () {
-          const db = yield* DB.Service
-          yield* Effect.promise(() =>
-            db
-              .insertInto('verification')
-              .values({
-                createdAt: sql<string>`datetime('now')`,
-                expiresAt: sql<string>`datetime('now', '+1 hour')`,
-                id,
-                identifier: `test-debug-${id}`,
-                updatedAt: sql<string>`datetime('now')`,
-                value: JSON.stringify({ test: true }),
-              })
-              .execute(),
-          )
-          const found = yield* Effect.promise(() =>
-            db.selectFrom('verification').selectAll().where('id', '=', id).executeTakeFirst(),
-          )
-          return { found, id, inserted: true }
-        }),
-      )
-      return c.json(result)
-    } catch (error: unknown) {
-      return c.json({ error: String(error) })
-    }
-  })
 
 export default app
