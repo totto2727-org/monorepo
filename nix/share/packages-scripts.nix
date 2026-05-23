@@ -1,7 +1,12 @@
-{ pkgs }:
+{ pkgs, npm }:
 
 let
-  inherit (pkgs) writeShellScriptBin;
+  inherit (pkgs) lib writeShellScriptBin;
+
+  bw-pkg = npm {
+    binName = "bw";
+    packageName = "@totto2727/bw";
+  };
 
   # --- shared wrappers (no secrets) ---
 
@@ -44,16 +49,18 @@ let
 
   # --- wrappers with pass-cli (macos) ---
 
-  macos-bsx = writeShellScriptBin "bsx" ''
+  macos-bx = writeShellScriptBin "bx" ''
     export BRAVE_SEARCH_API_KEY="$(pass-cli get brave-search/api-key --quiet -f password)"
-    exec bx "$@"
+    exec $HOME/.local/bin/bx "$@"
   '';
 
-  macos-bwx = writeShellScriptBin "bwx" ''
-    export CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
-    export CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
-    exec bw "$@"
-  '';
+  macos-bw = lib.hiPrio (
+    writeShellScriptBin "bw" ''
+      export CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
+      export CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
+      exec ${bw-pkg}/bin/bw "$@"
+    ''
+  );
 
   macos-o = writeShellScriptBin "o" ''
     export ANTHROPIC_API_KEY="x"
@@ -68,13 +75,15 @@ let
 
   # --- wrappers without pass-cli (sandbox, OpenShell injects env vars) ---
 
-  sandbox-bsx = writeShellScriptBin "bsx" ''
-    exec bx "$@"
+  sandbox-bx = writeShellScriptBin "bx" ''
+    exec $HOME/.local/bin/bx "$@"
   '';
 
-  sandbox-bwx = writeShellScriptBin "bwx" ''
-    exec bw "$@"
-  '';
+  sandbox-bw = lib.hiPrio (
+    writeShellScriptBin "bw" ''
+      exec ${bw-pkg}/bin/bw "$@"
+    ''
+  );
 
   sandbox-o = writeShellScriptBin "o" ''
     export ANTHROPIC_API_KEY="x"
@@ -87,8 +96,8 @@ in
   macos = [
     exocortex-mcp
     docker-credential-gh
-    macos-bsx
-    macos-bwx
+    macos-bx
+    macos-bw
     macos-o
   ];
 
@@ -100,8 +109,8 @@ in
   sandbox = [
     exocortex-mcp
     docker-credential-gh
-    sandbox-bsx
-    sandbox-bwx
+    sandbox-bx
+    sandbox-bw
     sandbox-o
   ];
 }

@@ -8,7 +8,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     npmpkgs = {
-      url = "https://flakehub.com/f/totto2727-dotfiles/npm-packages/*";
+      url = "path:../npm-package";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -49,7 +49,7 @@
 
               home.packages =
                 (import ../share/packages.nix { inherit pkgs npm; })
-                ++ (import ../share/packages-scripts.nix { inherit pkgs; }).sandbox;
+                ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).sandbox;
 
               programs = (import ../share/programs.nix) // {
                 home-manager.enable = true;

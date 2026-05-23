@@ -12,7 +12,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     npmpkgs = {
-      url = "https://flakehub.com/f/totto2727-dotfiles/npm-packages/*";
+      url = "path:../npm-package";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -86,7 +86,7 @@
                     (import ../share/packages.nix { inherit pkgs npm; })
                     ++ (import ../share/packages-dev.nix { inherit pkgs; })
                     ++ (import ../share/packages-macos.nix { inherit pkgs; })
-                    ++ (import ../share/packages-scripts.nix { inherit pkgs; }).macos-work
+                    ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).macos-work
                     ++ (with pkgs; [
                       docker
                     ]);
