@@ -1039,7 +1039,7 @@ PR-A → PR-C (or PR-D) → PR-E
   **Commit**: YES (groups with E1, E3)
   - Message: `docs(retrospective): add feed-platform ms-02 retrospective`
 
-- [ ] **E3. progress.yaml + milestone .md status 更新** (PR-E / Wave 3)
+- [x] **E3. progress.yaml + milestone .md status 更新** (PR-E / Wave 3)
 
   **What to do**:
   - roadmap CLI で:
