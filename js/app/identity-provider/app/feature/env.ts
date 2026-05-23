@@ -26,3 +26,14 @@ export type Type = BetterAuth & Passkey & Database & Email
 export const Service = Context.Service<Type>('@app/identity-provider/feature/env/Service')
 
 export const makeLayer = (env: Type) => Layer.succeed(Service, env)
+export const devLayer = Layer.succeed(Service, {
+  BASE_URL: 'http://localhost:8787',
+  BETTER_AUTH_SECRET: '0123456789abcdef0123456789abcdef0123456789abcdef',
+  BETTER_AUTH_URL: 'http://localhost:8787',
+  CLOUDFLARE_ACCOUNT_ID: 'dev-account',
+  CLOUDFLARE_EMAIL_API_TOKEN: 'dev-token',
+  DATABASE_AUTH_TOKEN: '',
+  DATABASE_URL: 'file:local-dev.db',
+  MAIL_FROM_ADDRESS: 'auth@dev.example.com',
+  PASSKEY_RP_ID: 'localhost',
+} satisfies Type as Type)
