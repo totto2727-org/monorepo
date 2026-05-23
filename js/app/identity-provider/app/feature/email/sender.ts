@@ -8,8 +8,6 @@ export interface SendParams {
   readonly html?: string
 }
 
-export type SentEmail = SendParams
-
 export class EmailSendError extends Data.TaggedError('EmailSendError')<{
   readonly message: string
 }> {}

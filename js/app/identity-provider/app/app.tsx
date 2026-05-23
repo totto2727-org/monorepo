@@ -5,10 +5,10 @@ import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
 import { sql } from 'kysely'
 
-import { handleAuthCallback } from '#@/feature/auth/callback.ts'
 import * as DB from '#@/feature/db/kysely.ts'
 import type * as Env from '#@/feature/env.ts'
 import * as Greeting from '#@/feature/greeting.ts'
+import { auth as authMiddleware } from '#@/feature/auth/middleware.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 import type { Variables } from '#@/feature/runtime/hono.ts'
 import { Document } from '#@/ui/document.tsx'
@@ -32,6 +32,7 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
   .use(logger())
   .use(contextStorage())
   .use(runtimeMiddleware)
+  .use(authMiddleware)
   .get('/api/v1/auth/session', (c) =>
     c.var.auth.handler(
       new Request(new URL('/api/v1/auth/get-session', c.req.url), { headers: c.req.raw.headers, method: 'GET' }),
@@ -90,7 +91,13 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
       </Document>,
     )
   })
-  .get('/auth/callback', handleAuthCallback)
+  .get('/auth/callback', async (c) => {
+    const session = await c.var.auth.api.getSession({ headers: c.req.raw.headers })
+    if (!session) {
+      return c.redirect('/login?error=invalid_link')
+    }
+    return c.redirect('/account')
+  })
   .get('/register/passkey', async (c) => {
     const session = await c.var.auth.api.getSession({ headers: c.req.raw.headers })
     if (!session) {
