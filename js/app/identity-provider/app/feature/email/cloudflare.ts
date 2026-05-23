@@ -15,18 +15,13 @@ export interface Config {
   readonly fromAddress: string
 }
 
-const buildEndpoint = (accountId: string): string =>
-  `${CLOUDFLARE_API_BASE}/client/v4/accounts/${accountId}/email/send`
+const buildEndpoint = (accountId: string): string => `${CLOUDFLARE_API_BASE}/client/v4/accounts/${accountId}/email/send`
 
 export const makeImpl = (config: Config): Sender.EmailSender => ({
   send: (params) =>
     Effect.gen(function* () {
       const client = yield* HttpClient.HttpClient
       const request = HttpClientRequest.post(buildEndpoint(config.accountId), {
-        headers: {
-          Authorization: `Bearer ${config.apiToken}`,
-          'Content-Type': 'application/json',
-        },
         body: HttpBody.jsonUnsafe({
           from: { email: config.fromAddress },
           html: params.html,
@@ -34,6 +29,10 @@ export const makeImpl = (config: Config): Sender.EmailSender => ({
           subject: params.subject,
           text: params.text,
         }),
+        headers: {
+          Authorization: `Bearer ${config.apiToken}`,
+          'Content-Type': 'application/json',
+        },
       })
       const response = yield* client.execute(request).pipe(
         Effect.mapError(
@@ -55,9 +54,7 @@ export const makeImpl = (config: Config): Sender.EmailSender => ({
 })
 
 export const makeLayer = (config: Config) =>
-  Layer.succeed(Sender.Service, makeImpl(config)).pipe(
-    Layer.provide(FetchHttpClient.layer),
-  )
+  Layer.succeed(Sender.Service, makeImpl(config)).pipe(Layer.provide(FetchHttpClient.layer))
 
 export const layer = Layer.effect(
   Sender.Service,
