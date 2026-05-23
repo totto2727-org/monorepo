@@ -1,6 +1,7 @@
 import { Effect, Layer } from 'effect'
 // oxlint-disable-next-line import/no-unstable -- Thread 8 review: use Effect's HttpClient
 import { FetchHttpClient, HttpClient, HttpClientRequest } from 'effect/unstable/http'
+import { HttpBody } from 'effect/unstable/http'
 
 import * as Env from '#@/feature/env.ts'
 
@@ -26,7 +27,7 @@ export const makeImpl = (config: Config): Sender.EmailSender => ({
           Authorization: `Bearer ${config.apiToken}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
+        body: HttpBody.jsonUnsafe({
           from: { email: config.fromAddress },
           html: params.html,
           personalizations: [{ to: [{ email: params.to }] }],
@@ -43,12 +44,13 @@ export const makeImpl = (config: Config): Sender.EmailSender => ({
         ),
       )
       if (response.status < 200 || response.status >= 300) {
-        return Effect.fail(
+        return yield* Effect.fail(
           new Sender.EmailSendError({
             message: `Cloudflare Email Send API returned status ${response.status}`,
           }),
         )
       }
+      return Effect.void
     }),
 })
 

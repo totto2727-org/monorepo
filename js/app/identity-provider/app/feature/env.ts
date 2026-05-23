@@ -1,6 +1,7 @@
 import { Context, Layer } from 'effect'
 
 export interface BetterAuth {
+  BASE_URL: string
   BETTER_AUTH_URL: string
   BETTER_AUTH_SECRET: string
 }

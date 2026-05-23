@@ -10,7 +10,7 @@ import type * as Env from '#@/feature/env.ts'
 import * as Greeting from '#@/feature/greeting.ts'
 import { authMiddleware } from '#@/feature/auth/middleware.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
-import type { Variables as RuntimeVariables } from '#@/feature/runtime/hono.ts'
+import type { Variables } from '#@/feature/runtime/hono.ts'
 import { Document } from '#@/ui/document.tsx'
 
 // 生成済み `Cloudflare.Env` には secret (`BETTER_AUTH_SECRET` 等) が含まれず
