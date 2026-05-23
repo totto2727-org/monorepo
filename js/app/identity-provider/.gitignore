@@ -2,3 +2,4 @@ dist/
 .wrangler/
 worker-configuration.d.ts
 generated.ts
+.dev.vars

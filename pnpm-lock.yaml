@@ -35,9 +35,6 @@ catalogs:
     kysely-codegen:
       specifier: ^0.19.0
       version: 0.19.0
-    kysely-d1:
-      specifier: ^0.3.0
-      version: 0.3.0
   default:
     vite-plus:
       specifier: ^0.1.19
@@ -354,6 +351,9 @@ importers:
       '@cloudflare/vite-plugin':
         specifier: catalog:cloudflare
         version: 1.28.0(vite@8.0.0(@emnapi/core@1.9.0)(@emnapi/runtime@1.9.0)(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))(workerd@1.20260430.1)(wrangler@4.87.0)
+      '@libsql/kysely-libsql':
+        specifier: catalog:database
+        version: 0.4.1(kysely@0.28.12)
       '@totto2727/fp':
         specifier: workspace:*
         version: link:../../package/fp
@@ -375,9 +375,6 @@ importers:
       kysely:
         specifier: catalog:database
         version: 0.28.12
-      kysely-d1:
-        specifier: catalog:database
-        version: 0.3.0(kysely@0.28.12)
       remix:
         specifier: catalog:remix
         version: 3.0.0-beta.0(@emnapi/core@1.9.0)(@emnapi/runtime@1.9.0)
@@ -4852,11 +4849,6 @@ packages:
         optional: true
       tedious:
         optional: true
-
-  kysely-d1@0.3.0:
-    resolution: {integrity: sha512-9wTbE6ooLiYtBa4wPg9e4fjfcmvRtgE/2j9pAjYrIq+iz+EsH/Hj9YbtxpEXA6JoRgfulVQ1EtGj6aycGGRpYw==, tarball: https://registry.npmjs.org/kysely-d1/-/kysely-d1-0.3.0.tgz}
-    peerDependencies:
-      kysely: '*'
 
   kysely@0.27.6:
     resolution: {integrity: sha512-FIyV/64EkKhJmjgC0g2hygpBv5RNWVPyNCqSAD7eTCv6eFWNIi4PN1UvdSJGicN/o35bnevgis4Y0UDC0qi8jQ==, tarball: https://registry.npmjs.org/kysely/-/kysely-0.27.6.tgz}
@@ -9515,10 +9507,6 @@ snapshots:
       '@libsql/kysely-libsql': 0.4.1(kysely@0.28.12)
     transitivePeerDependencies:
       - typescript
-
-  kysely-d1@0.3.0(kysely@0.28.12):
-    dependencies:
-      kysely: 0.28.12
 
   kysely@0.27.6: {}
 

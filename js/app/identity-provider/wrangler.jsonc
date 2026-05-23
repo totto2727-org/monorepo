@@ -23,16 +23,5 @@
   // を単一ソースとし、`feature/env.ts` の `Env.layer` 経由で参照するため、
   // ここで明示的に `vars.ENV` を持たない方針 (本番 deploy で dev 値が焼き込まれるバグの根本予防)。
   // ref: https://developers.cloudflare.com/workers/wrangler/bundling/#node_env
-  // "vars": {
-  //   "BETTER_AUTH_URL": "...",
-  //   "BETTER_AUTH_SECRET": "[REDACTED — wrangler secret 経由で注入]",
-  // },
-  // ms-02 (Passkey + Magic Link) 以降で D1 / KV binding を有効化する。
-  // 実際の database_id / namespace id は秘密情報相当のため ms-02 の実装者が確定する。
-  // "d1_databases": [
-  //   { "binding": "DB", "database_name": "identity-provider", "database_id": "..." },
-  // ],
-  // "kv_namespaces": [
-  //   { "binding": "KV_SESSIONS", "id": "..." },
-  // ],
+  // ローカル開発時は env.ts の devLayer で値が提供される。
 }
