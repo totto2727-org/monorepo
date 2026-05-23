@@ -17,7 +17,7 @@ const makeRuntime = (env: Env.Type) =>
       Layer.provideMerge(Health.layer),
       Layer.provideMerge(dynamicLoggerLayer),
       Layer.provideMerge(RuntimeEnv.layer),
-      Layer.provide(Env.makeLayer(env)),
+      Layer.provide(import.meta.env.PROD ? Env.makeLayer(env) : Env.devLayer),
     ),
   )
 

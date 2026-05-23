@@ -10,7 +10,12 @@ import type * as Env from '#@/feature/env.ts'
 import * as Greeting from '#@/feature/greeting.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 import type { Variables } from '#@/feature/runtime/hono.ts'
+import { AccountPage } from '#@/ui/account.client.tsx'
+import { CheckEmailPage } from '#@/ui/check-email.tsx'
 import { Document } from '#@/ui/document.tsx'
+import { LoginPasskeyPage } from '#@/ui/login-passkey.client.tsx'
+import { LoginPage } from '#@/ui/login.client.tsx'
+import { RegisterPasskeyPage } from '#@/ui/register-passkey.client.tsx'
 
 interface AppEnv {
   Bindings: Env.Type
@@ -23,7 +28,10 @@ interface AppEnv {
 const api = new Hono<AppEnv>()
   .get('/auth/session', (c) =>
     c.var.auth.handler(
-      new Request(new URL('/api/v1/auth/get-session', c.req.url), { headers: c.req.raw.headers, method: 'GET' }),
+      new Request(new URL('/api/v1/auth/get-session', c.req.url), {
+        headers: c.req.raw.headers,
+        method: 'GET',
+      }),
     ),
   )
   .get('/auth/oauth/.well-known/openid-configuration', (c) => {
@@ -62,22 +70,23 @@ const appRoutes = new Hono<AppEnv>()
   .get('/login', (c) =>
     c.render(
       <Document title='ログイン'>
-        <p>Login page (UI added in ms-02-pr4)</p>
+        <LoginPage />
       </Document>,
     ),
   )
   .get('/login/passkey', (c) =>
     c.render(
       <Document title='Passkey ログイン'>
-        <p>Passkey login page (UI added in ms-02-pr4)</p>
+        <LoginPasskeyPage />
       </Document>,
     ),
   )
   .get('/login/check-email', (c) => {
     const email = c.req.query('email') ?? ''
+    const CheckEmail = CheckEmailPage(email)
     return c.render(
       <Document title='メール確認'>
-        <p>Check your email: {email}</p>
+        <CheckEmail />
       </Document>,
     )
   })
@@ -95,7 +104,7 @@ const appRoutes = new Hono<AppEnv>()
     }
     return c.render(
       <Document title='Passkey 登録'>
-        <p>Passkey registration page (UI added in ms-02-pr4)</p>
+        <RegisterPasskeyPage />
       </Document>,
     )
   })
@@ -109,9 +118,7 @@ const appRoutes = new Hono<AppEnv>()
     const createdAt = rawCreatedAt instanceof Date ? rawCreatedAt.toLocaleDateString('ja-JP') : rawCreatedAt
     return c.render(
       <Document title='アカウント'>
-        <p>
-          Account: {email} (created {createdAt})
-        </p>
+        <AccountPage email={email} createdAt={createdAt} />
       </Document>,
     )
   })
@@ -130,7 +137,6 @@ const app = new Hono<AppEnv>()
         Promise.resolve(app.fetch(input instanceof Request ? input : new Request(input))),
     }),
   )
-  .route('/', appRoutes)
   .route('/app', appRoutes)
 
 export default app
