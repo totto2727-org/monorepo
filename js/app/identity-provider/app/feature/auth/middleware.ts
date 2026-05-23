@@ -1,19 +1,11 @@
 import { Effect } from 'effect'
-import { createMiddleware } from 'hono/factory'
 
-import type * as Env from '../env.ts'
-import type * as Runtime from '../runtime/server.ts'
+import { factory } from '#@/feature/share/lib/hono/factory.ts'
+
 import * as BetterAuth from './better-auth.ts'
 
-export const authMiddleware = createMiddleware<{
-  Bindings: Env.Type
-  Variables: {
-    readonly runtime: Runtime.Runtime
-    readonly auth: BetterAuth.Instance
-  }
-}>(async (c, next) => {
-  const runtime = c.get('runtime')
-  const auth = await runtime.runPromise(
+export const authMiddleware = factory.createMiddleware(async (c, next) => {
+  const auth = await c.var.runtime.runPromise(
     Effect.gen(function* () {
       return yield* BetterAuth.Service
     }),

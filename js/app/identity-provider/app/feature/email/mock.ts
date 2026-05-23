@@ -1,16 +1,15 @@
-import { Effect, Layer, Ref } from 'effect'
+import { Effect, Layer } from 'effect'
 
 import * as Sender from './sender.ts'
 
-const makeMockLayer = (): Layer.Layer<Sender.EmailSender> =>
-  Layer.effect(
-    Sender.Service,
-    Effect.gen(function* () {
-      const history = yield* Ref.make<readonly Sender.SendParams[]>([])
-      return {
-        send: (params) => Ref.update(history, (xs) => [...xs, params]),
-      }
-    }),
-  )
-
-export const layer = makeMockLayer()
+export const layer: Layer.Layer<Sender.EmailSender> = Layer.succeed(Sender.Service, {
+  send: (params) =>
+    Effect.log('mock email send').pipe(
+      Effect.annotateLogs({
+        html: params.html ?? '',
+        subject: params.subject,
+        text: params.text,
+        to: params.to,
+      }),
+    ),
+})

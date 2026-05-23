@@ -1,26 +1,14 @@
-import { Effect } from 'effect'
-import { Hono } from 'hono'
 import { remixRenderer } from 'hono-remix-middleware'
 import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
 
-import type * as BetterAuth from '#@/feature/auth/better-auth.ts'
 import { authMiddleware } from '#@/feature/auth/middleware.ts'
-import type * as Env from '#@/feature/env.ts'
-import * as Greeting from '#@/feature/greeting.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
-import type { Variables } from '#@/feature/runtime/hono.ts'
+import { factory } from '#@/feature/share/lib/hono/factory.ts'
 import { Document } from '#@/ui/document.tsx'
 
-interface AppEnv {
-  Bindings: Env.Type
-  Variables: Variables & {
-    readonly auth: BetterAuth.Instance
-  }
-}
-
-// API sub-router for /api/v1/* (Thread 14 review)
-const api = new Hono<AppEnv>()
+const api = factory
+  .createApp()
   .get('/auth/session', (c) =>
     c.var.auth.handler(
       new Request(new URL('/api/v1/auth/get-session', c.req.url), { headers: c.req.raw.headers, method: 'GET' }),
@@ -41,17 +29,9 @@ const api = new Hono<AppEnv>()
     })
   })
   .all('/auth/*', (c) => c.var.auth.handler(c.req.raw))
-  .get('/hello', (c) =>
-    c.var.runtime.runPromise(
-      Effect.gen(function* () {
-        const greeting = yield* Greeting.Service
-        return c.json({ message: greeting.greet('identity-provider') })
-      }),
-    ),
-  )
 
-// UI sub-router for /app/* (Thread 13 review)
-const appRoutes = new Hono<AppEnv>()
+const appRoutes = factory
+  .createApp()
   .get('/', (c) =>
     c.render(
       <Document>
@@ -116,8 +96,8 @@ const appRoutes = new Hono<AppEnv>()
     )
   })
 
-// Main app: middleware → sub-routers → fallback
-const app = new Hono<AppEnv>()
+const app = factory
+  .createApp()
   .use(logger())
   .use(contextStorage())
   .use(runtimeMiddleware)
@@ -130,7 +110,6 @@ const app = new Hono<AppEnv>()
         Promise.resolve(app.fetch(input instanceof Request ? input : new Request(input))),
     }),
   )
-  .route('/', appRoutes)
   .route('/app', appRoutes)
 
 export default app

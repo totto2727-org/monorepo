@@ -7,18 +7,19 @@ import { Context, Effect, Layer } from 'effect'
 import * as DB from '#@/feature/db/kysely.ts'
 import * as EmailSender from '#@/feature/email/sender.ts'
 import * as Env from '#@/feature/env.ts'
+import * as HonoContext from '#@/feature/share/lib/hono/context.ts'
 
-const makeInstance = (db: DB.Instance, env: Env.Type, emailSender: EmailSender.EmailSender) =>
+const makeInstance = (db: DB.Instance, env: Env.Type, emailSender: EmailSender.EmailSender, origin: string) =>
   betterAuth({
     account: {
       modelName: 'account',
     },
     basePath: '/api/v1/auth',
-    baseURL: env.BETTER_AUTH_URL,
+    baseURL: origin,
     database: { db, type: 'sqlite' },
     plugins: [
       passkey({
-        origin: env.BASE_URL,
+        origin,
         rpID: env.PASSKEY_RP_ID,
         rpName: 'identity-provider',
         schema: {
@@ -97,6 +98,7 @@ export const layer = Layer.effect(
     const db = yield* DB.Service
     const env = yield* Env.Service
     const emailSender = yield* EmailSender.Service
-    return makeInstance(db, env, emailSender)
+    const { origin } = new URL(HonoContext.get().req.url)
+    return makeInstance(db, env, emailSender, origin)
   }),
 )
