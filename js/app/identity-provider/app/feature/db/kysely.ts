@@ -1,5 +1,3 @@
-import { randomUUID } from 'node:crypto'
-
 import { LibsqlDialect } from '@libsql/kysely-libsql'
 import { Context, Effect, Layer } from 'effect'
 import { CamelCasePlugin, Kysely } from 'kysely'
@@ -17,7 +15,7 @@ export type Instance = Kysely<Type.DB>
 export const makeInMemory = (): Instance =>
   new Kysely({
     dialect: new LibsqlDialect({
-      url: `file:${randomUUID()}?mode=memory&cache=shared`,
+      url: ':memory:',
     }),
     plugins,
   })

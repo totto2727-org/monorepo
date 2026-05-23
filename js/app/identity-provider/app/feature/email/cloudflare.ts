@@ -19,7 +19,8 @@ const buildEndpoint = (accountId: string): string => `${CLOUDFLARE_API_BASE}/cli
 const makeSend =
   (config: Config): Sender.EmailSender['send'] =>
   (params) =>
-    Effect.gen(function* () {
+    // oxlint-disable-next-line typescript-eslint/consistent-return -- success path yields void
+  Effect.gen(function* () {
       const client = yield* HttpClient.HttpClient
       const request = HttpClientRequest.post(buildEndpoint(config.accountId), {
         body: HttpBody.jsonUnsafe({
