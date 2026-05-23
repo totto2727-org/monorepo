@@ -1130,11 +1130,11 @@ PR-A → PR-C (or PR-D) → PR-E
 
 ## Final Verification Wave (after all PRs merged)
 
-- [ ] **F1. Plan Compliance Audit** — `oracle`
+- [x] **F1. Plan Compliance Audit** — `oracle`
   Read each PR diff vs this plan. For each "Must Have": grep main for evidence (auth-helper imports in consumers, `/oauth/consent.tsx` exists, ADR files exist). For each "Must NOT Have": grep for inline constants / `as any` / `console.log`. Evidence: `.sisyphus/evidence/feed-platform-ms-02/F1-compliance.md`
   Output: `Must Have [N/N] | Must NOT Have [N/N] | VERDICT: APPROVE/REJECT`
 
-- [ ] **F2. Code Quality Review** — `unspecified-high`
+- [x] **F2. Code Quality Review** — `unspecified-high`
   `vp check` + `vp test` + `vp run -r build` on main. Lint diff for AI slop / over-comment / unused imports. Evidence: `.sisyphus/evidence/feed-platform-ms-02/F2-quality.txt`
   Output: `Build/Lint/Test status + clean file count + VERDICT`
 
@@ -1142,7 +1142,7 @@ PR-A → PR-C (or PR-D) → PR-E
   全 PR の QA シナリオを統合実行: cross-app login (magic link + passkey) → backend protected endpoint → logout。Evidence: `.sisyphus/evidence/feed-platform-ms-02/F3-e2e/`
   Output: `Scenarios [N/N pass] + VERDICT`
 
-- [ ] **F4. Scope Fidelity Check** — `deep`
+- [x] **F4. Scope Fidelity Check** — `deep`
   各 PR diff vs plan "What to do" 1:1 比較。未承認の変更 / スコープ漏れを検出。Evidence: `.sisyphus/evidence/feed-platform-ms-02/F4-scope.md`
   Output: `PRs [N/N compliant] + VERDICT`
 
