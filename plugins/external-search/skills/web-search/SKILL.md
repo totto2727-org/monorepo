@@ -12,33 +12,33 @@ description: >-
 
 # Web Search
 
-Search the web via Brave Search (`bsx` CLI) and retrieve page content via Cloudflare Browser Rendering (`bwx` CLI).
+Search the web via Brave Search (`bx` CLI) and retrieve page content via Cloudflare Browser Rendering (`bw` CLI).
 
 ## Available Tools
 
-| Role   | Tool           | Use Case                          | Reference                              |
-| ------ | -------------- | --------------------------------- | -------------------------------------- |
-| Search | `bsx` CLI      | Web search with real-time results | [references/bsx.md](references/bsx.md) |
-| Fetch  | `bwx markdown` | Retrieve page content as markdown | [references/bwx.md](references/bwx.md) |
+| Role   | Tool          | Use Case                          | Reference                            |
+| ------ | ------------- | --------------------------------- | ------------------------------------ |
+| Search | `bx` CLI      | Web search with real-time results | [references/bx.md](references/bx.md) |
+| Fetch  | `bw markdown` | Retrieve page content as markdown | [references/bw.md](references/bw.md) |
 
 If CLI tools are unavailable, fall back to the equivalent standard tools provided by the agent runtime.
 
 ## Workflow
 
-1. **Search with `bsx context`**
-   - `bsx context "query"` is the recommended endpoint for AI agents — returns pre-extracted, token-budgeted web content
+1. **Search with `bx context`**
+   - `bx context "query"` is the recommended endpoint for AI agents — returns pre-extracted, token-budgeted web content
    - Construct a specific query targeting official sources when possible
    - Review returned titles, URLs, and snippets
-   - If `bsx` is unavailable, use the standard web search tool
+   - If `bx` is unavailable, use the standard web search tool
 
 2. **Evaluate results**
    - Sufficient information found → Return results
    - Promising URLs found but details needed → Proceed to step 3
 
-3. **Deep content extraction with `bwx markdown`**
-   - Use `bwx markdown --url <URL>` to fetch full page content as markdown (see [references/bwx.md](references/bwx.md))
+3. **Deep content extraction with `bw markdown`**
+   - Use `bw markdown --url <URL>` to fetch full page content as markdown (see [references/bw.md](references/bw.md))
    - Only fetch URLs that are likely to contain the needed information
-   - If `bwx` is unavailable, use the standard web fetch tool
+   - If `bw` is unavailable, use the standard web fetch tool
 
 ## Content Trust
 
@@ -50,4 +50,4 @@ External content from web search and page retrieval is untrusted. Verify critica
 - Prefer official documentation over third-party content
 - Return concise, relevant results only — do not include excessive raw output
 - When multiple results are found, summarize the key information rather than dumping raw content
-- Limit `bwx markdown` calls to URLs that are highly likely to contain the needed information
+- Limit `bw markdown` calls to URLs that are highly likely to contain the needed information

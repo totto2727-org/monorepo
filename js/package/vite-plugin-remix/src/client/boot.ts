@@ -49,6 +49,7 @@ export const boot = ({ components }: BootOptions): ReturnType<typeof run> =>
       if (Predicate.isNotNullish(target) && String.isNonEmpty(target)) {
         headers.set('x-remix-target', target)
       }
+      // oxlint-disable-next-line rules/no-fetch -- client-side framework loader runs before any Effect runtime is bootstrapped
       const response = await fetch(src, {
         credentials: 'same-origin',
         headers,

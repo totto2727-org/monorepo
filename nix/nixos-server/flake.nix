@@ -7,7 +7,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     npmpkgs = {
-      url = "https://flakehub.com/f/totto2727-dotfiles/npm-packages/*";
+      url = "path:../npm-package";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

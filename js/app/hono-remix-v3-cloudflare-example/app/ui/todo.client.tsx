@@ -2,8 +2,6 @@ import { Array, Predicate, String } from 'effect'
 import { clientEntry, css, on } from 'remix/ui'
 import type { Handle, SerializableProps } from 'remix/ui'
 
-type TodoProps = SerializableProps
-
 interface Item {
   id: string
   text: string
@@ -105,7 +103,7 @@ const deleteButtonStyle = css({
   padding: '0 10px',
 })
 
-export const Todo = clientEntry('/assets/app/ui/todo.client.tsx#Todo', (handle: Handle<TodoProps>) => {
+export const Todo = clientEntry('/assets/app/ui/todo.client.tsx#Todo', (handle: Handle<SerializableProps>) => {
   const state = { items: [] as Item[] }
 
   return () => {
