@@ -43,7 +43,7 @@ export default defineConfig({
       },
       'setup:kysely': {
         command:
-          'go run github.com/totto2727-org/monorepo/go/app/atlas-to-kysely@22cc648211cc6a73d004eb332c12d78a021ba4ec -i db/schema.hcl -o app/feature/db/generated.ts --camel-case && vp check --fix',
+          'go run github.com/totto2727-org/monorepo/go/app/atlas-to-kysely@22cc648211cc6a73d004eb332c12d78a021ba4ec -i db/schema.hcl -o app/feature/db/generated.ts --camel-case',
         input: taskInput.setup.kysely,
       },
     },
