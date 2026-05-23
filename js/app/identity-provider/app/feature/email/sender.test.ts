@@ -1,22 +1,22 @@
-import { Effect } from 'effect'
+import { Effect, Ref } from 'effect'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vite-plus/test'
 
 import * as Cloudflare from './cloudflare.ts'
-import * as Mock from './mock.ts'
 import * as Sender from './sender.ts'
 
 describe('EmailSender', () => {
-  beforeEach(() => Effect.runPromise(Mock.clearSent()))
-
-  test('mock layer records every sent email', async () => {
+  test('mock layer records sent emails via internal Ref', async () => {
     const program = Effect.gen(function* () {
-      const sender = yield* Sender.Service
-      yield* sender.send({ subject: 'subj-1', text: 'body-1', to: 'a@example.com' })
-      yield* sender.send({ subject: 'subj-2', text: 'body-2', to: 'b@example.com' })
-      return yield* Mock.getAllSent()
+      const history = yield* Ref.make<readonly Sender.SendParams[]>([])
+      const mockSender: Sender.EmailSender = {
+        send: (params) => Ref.update(history, (xs) => [...xs, params]),
+      }
+      yield* mockSender.send({ subject: 'subj-1', text: 'body-1', to: 'a@example.com' })
+      yield* mockSender.send({ subject: 'subj-2', text: 'body-2', to: 'b@example.com' })
+      return yield* Ref.get(history)
     })
 
-    const sent = await Effect.runPromise(Effect.provide(program, Mock.layer))
+    const sent = await Effect.runPromise(program)
 
     expect(sent).toHaveLength(2)
     expect(sent[0]?.to).toBe('a@example.com')
