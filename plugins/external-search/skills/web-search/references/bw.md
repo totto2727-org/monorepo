@@ -1,21 +1,19 @@
-# Cloudflare Browser Rendering CLI (bwx)
+# Cloudflare Browser Rendering CLI (bw)
 
-Retrieve full webpage content via the `bwx` CLI wrapper.
+Retrieve full webpage content via the `bw` CLI.
 
 ## CLI
 
-- **Command:** `bwx` (wrapper that injects `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` from `pass-cli`)
-- **Underlying tool:** `bw` — Cloudflare Browser Rendering CLI
+- **Command:** `bw` — Cloudflare Browser Rendering CLI
+- **Required env:** `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` (or pass `--api-token` / `--account-id` per call)
 
 ## Usage
-
-`bwx` is a thin wrapper around `bw` that injects credentials via environment variables. All `bw` subcommands and flags are supported.
 
 ### Primary: Markdown Extraction
 
 ```
-bwx markdown --url https://example.com
-bwx markdown --url https://example.com --wait-until networkidle0
+bw markdown --url https://example.com
+bw markdown --url https://example.com --wait-until networkidle0
 ```
 
 ### Other Subcommands
