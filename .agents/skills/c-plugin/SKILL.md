@@ -54,8 +54,45 @@ c-plugin skill target remove ~/.claude/skills/
 
 ## Dev (plugin authors)
 
+Tools that operate on the marketplace repo you're **authoring** (run from the repo root with `.claude-plugin/` / `.cursor-plugin/` / `.codex-plugin/` directories).
+
+### `c-plugin dev marketplace sync <base-kind>`
+
+Takes one kind as the source of truth and **regenerates the other two kinds' marketplace files + per-plugin `plugin.json`** from it. Use this after editing the canonical marketplace so the others stay in sync.
+
 ```bash
-c-plugin dev marketplace sync   # regenerate marketplace.json plugin list
+c-plugin dev marketplace sync claude    # claude is source → write cursor + codex
+c-plugin dev marketplace sync cursor    # cursor is source → write claude + codex
+c-plugin dev marketplace sync codex     # codex  is source → write claude + cursor
+```
+
+What gets written:
+
+| Kind     | marketplace path                                                | plugin path                           |
+| -------- | --------------------------------------------------------------- | ------------------------------------- |
+| `claude` | `.claude-plugin/marketplace.json`                               | `<plugin>/.claude-plugin/plugin.json` |
+| `cursor` | `.cursor-plugin/marketplace.json`                               | `<plugin>/.cursor-plugin/plugin.json` |
+| `codex`  | `.agents/plugins/marketplace.json` (note: not `.codex-plugin/`) | `<plugin>/.codex-plugin/plugin.json`  |
+
+Format differences are handled automatically:
+
+- **claude / cursor** share the same shape: `{ name, plugins: [{ name, description, source }] }`
+- **codex** uses a richer shape: `source: { source: 'local', path: './...' }`, plus `category`, `policy`
+
+Per-plugin `plugin.json` is **copied as-is** from the base kind's `<plugin>/<configDir>/plugin.json` to each target kind's directory (so the plugin metadata stays identical across formats). If the base plugin.json is missing, that copy step is silently skipped.
+
+### Typical author workflow
+
+```bash
+# 1. Edit your canonical marketplace (say, the claude one)
+vim .claude-plugin/marketplace.json
+
+# 2. Mirror it to the others
+c-plugin dev marketplace sync claude
+
+# 3. Commit all touched files together
+git add .claude-plugin .cursor-plugin .codex-plugin .agents/plugins
+git commit
 ```
 
 ## File layout cheatsheet
