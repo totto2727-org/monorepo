@@ -1,5 +1,4 @@
 import { Effect, Layer } from 'effect'
-// oxlint-disable-next-line import/no-unstable -- Thread 8 review: use Effect's HttpClient
 import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from 'effect/unstable/http'
 
 import * as Env from '#@/feature/env.ts'
