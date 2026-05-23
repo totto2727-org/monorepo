@@ -28,7 +28,7 @@ interface AppEnv {
 // 型推論ループ (TS7022 / TS7023) を起こすため、route 登録に入る前に `app` を
 // 一旦変数化してから chain を続ける形に分離する (saas-example でも同パターンの
 // 分離はないが、generic 付き `Hono` での既知の制約)。
-const app: Hono<AppEnv> = new Hono<AppEnv>()
+const app = new Hono<AppEnv>()
   .use(logger())
   .use(contextStorage())
   .use(runtimeMiddleware)
