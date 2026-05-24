@@ -19,6 +19,7 @@ scope: roadmap:feed-platform
 `docs/adr/2026-05-05-identity-provider-and-authn-authz-architecture.md` (D-4) で「JWT Bearer をセッション伝達手段として採用」「Web フロントは HttpOnly Cookie に JWT を保持し、API コール時に Authorization: Bearer として付け替える」方針が確定した。ms-02 ではこの方針を具体的な実装として確定させる必要があった。
 
 **要件**:
+
 - IdP (Better Auth, OAuth 2.1 AS) と consumer (feed-platform-web) が異なる Cloudflare Worker として動作する
 - Web フロント (feed-platform-web) がブラウザ経由のユーザ操作を受け付ける
 - feed-platform-backend は feed-platform-web から Bearer トークンを受け取り JWT を検証する
@@ -29,20 +30,20 @@ scope: roadmap:feed-platform
 
 ### D-1: OAuth 2.1 Authorization Code + PKCE フロー採用
 
-| Option                          | 概要                                                         | 採否     | 理由                                                                 |
-| ------------------------------- | ------------------------------------------------------------ | -------- | -------------------------------------------------------------------- |
+| Option                              | 概要                                                          | 採否     | 理由                                                                 |
+| ----------------------------------- | ------------------------------------------------------------- | -------- | -------------------------------------------------------------------- |
 | OAuth 2.1 Authorization Code + PKCE | IdP へリダイレクト → code 取得 → PKCE verifier でトークン交換 | **採用** | OAuth 2.1 標準、公共クライアント向け PKCE 必須、CSRF は state で防止 |
-| Implicit フロー                 | code 交換なしでトークンを直接返す                           | 却下     | OAuth 2.1 では Implicit フロー廃止                                   |
-| Password フロー                 | credential を直接送信                                        | 却下     | フィッシング耐性なし、OAuth 2.1 では廃止                             |
+| Implicit フロー                     | code 交換なしでトークンを直接返す                             | 却下     | OAuth 2.1 では Implicit フロー廃止                                   |
+| Password フロー                     | credential を直接送信                                         | 却下     | フィッシング耐性なし、OAuth 2.1 では廃止                             |
 
 ### D-2: JWT を HttpOnly Cookie に格納 (Cookie-to-Bearer BFF パターン)
 
-| Option                     | 概要                                                              | 採否     | 理由                                                                              |
-| -------------------------- | ----------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------- |
-| HttpOnly Cookie + BFF 変換 | JWT を HttpOnly SameSite=Lax Cookie に保存、バックエンド呼び出し時に Bearer に変換 | **採用** | XSS で JS から読み取り不可、CSRF は SameSite=Lax + state で軽減             |
-| localStorage               | JWT を localStorage に保存                                        | 却下     | XSS で読み取り可能、セキュリティリスク高                                         |
-| sessionStorage             | JWT を sessionStorage に保存                                      | 却下     | タブ間共有不可、XSS リスクは localStorage と同等                                 |
-| Cookie をそのまま backend へ | Cookie ヘッダをバックエンドへ転送                                | 却下     | feed-platform-backend は別 Worker origin のため Cookie が到達しない              |
+| Option                       | 概要                                                                               | 採否     | 理由                                                                |
+| ---------------------------- | ---------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------- |
+| HttpOnly Cookie + BFF 変換   | JWT を HttpOnly SameSite=Lax Cookie に保存、バックエンド呼び出し時に Bearer に変換 | **採用** | XSS で JS から読み取り不可、CSRF は SameSite=Lax + state で軽減     |
+| localStorage                 | JWT を localStorage に保存                                                         | 却下     | XSS で読み取り可能、セキュリティリスク高                            |
+| sessionStorage               | JWT を sessionStorage に保存                                                       | 却下     | タブ間共有不可、XSS リスクは localStorage と同等                    |
+| Cookie をそのまま backend へ | Cookie ヘッダをバックエンドへ転送                                                  | 却下     | feed-platform-backend は別 Worker origin のため Cookie が到達しない |
 
 ### D-3: Cookie-to-Bearer 変換の実装
 

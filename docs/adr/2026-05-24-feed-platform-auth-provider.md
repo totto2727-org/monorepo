@@ -19,6 +19,7 @@ scope: roadmap:feed-platform
 `docs/adr/2026-05-05-identity-provider-and-authn-authz-architecture.md` (D-1〜D-6) において、認証認可の 4 構成要素 (クライアント / IdP / リソースサーバ / PDP) と JWT Bearer セッション方式が確定した。ms-02 では IdP (`js/app/identity-provider/`) に具体的な認証バックエンドライブラリを導入する必要があり、以下の要件が制約として存在した。
 
 **要件**:
+
 - Cloudflare Workers 上で動作すること (= Node.js ランタイム依存不可、Edge Runtime 互換)
 - Passkey (WebAuthn) および Magic Link の双方を組み込みサポートすること
 - OAuth 2.1 Authorization Server (認可サーバ) として機能できること
@@ -30,12 +31,12 @@ scope: roadmap:feed-platform
 
 ### D-1: Better Auth を OAuth 2.1 プロバイダとして採用
 
-| Option      | 概要                                                                 | 採否     | 理由                                                                                                             |
-| ----------- | -------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------- |
+| Option      | 概要                                                                         | 採否     | 理由                                                                                                        |
+| ----------- | ---------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------- |
 | Better Auth | TypeScript-native OSS 認証ライブラリ。Cloudflare Workers 対応、plugin 式拡張 | **採用** | Edge Runtime 完全対応、passkey / magicLink / oauthProvider / jwt プラグインが built-in、self-hosted、型安全 |
-| Auth0       | 外部 SaaS 認証プラットフォーム                                        | 却下     | per-MAU 課金、認証データが外部サービスに保存される、monorepo インフラ外のコントロール不可           |
-| Keycloak    | OSS IdP (Java/JVM ベース)                                            | 却下     | JVM 依存のため Cloudflare Workers 上での動作不可、重い ops オーバーヘッド                                   |
-| Clerk       | 外部 SaaS 認証プラットフォーム (Next.js 特化寄り)                    | 却下     | 外部 SaaS、self-hosting 制限あり、独自 UI コンポーネントが Remix v3 スタックと競合する                       |
+| Auth0       | 外部 SaaS 認証プラットフォーム                                               | 却下     | per-MAU 課金、認証データが外部サービスに保存される、monorepo インフラ外のコントロール不可                   |
+| Keycloak    | OSS IdP (Java/JVM ベース)                                                    | 却下     | JVM 依存のため Cloudflare Workers 上での動作不可、重い ops オーバーヘッド                                   |
+| Clerk       | 外部 SaaS 認証プラットフォーム (Next.js 特化寄り)                            | 却下     | 外部 SaaS、self-hosting 制限あり、独自 UI コンポーネントが Remix v3 スタックと競合する                      |
 
 ### D-2: 採用 Plugin 構成
 
