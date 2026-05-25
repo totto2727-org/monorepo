@@ -1,8 +1,6 @@
 import { Effect, Exit } from 'effect'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
-import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
-
 import { BackendClient, liveLayer } from './client.ts'
 
 afterEach(() => {
@@ -13,7 +11,7 @@ const runWith = <A, E>(effect: Effect.Effect<A, E, typeof BackendClient.Identifi
   Effect.runPromise(Effect.provide(effect, liveLayer))
 
 describe('BackendClient.callMe', () => {
-  it('sends Authorization Bearer header extracted from cookie to backend', async () => {
+  it('sends the supplied Authorization Bearer header to backend', async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       json: () => Promise.resolve({ email: 'user@example.com', id: 'user-1' }),
       ok: true,
@@ -23,7 +21,7 @@ describe('BackendClient.callMe', () => {
     const result = await runWith(
       Effect.gen(function* () {
         const client = yield* BackendClient
-        return yield* client.callMe(`${FEED_SESSION_COOKIE}=test-jwt`)
+        return yield* client.callMe('Bearer test-jwt')
       }),
     )
 
@@ -34,13 +32,12 @@ describe('BackendClient.callMe', () => {
     )
   })
 
-  it('fails with BackendError when cookie header is missing', async () => {
-    const noCookie: string | undefined = undefined
+  it('fails with BackendError when authorization is null', async () => {
     const exit = await Effect.runPromiseExit(
       Effect.provide(
         Effect.gen(function* () {
           const client = yield* BackendClient
-          return yield* client.callMe(noCookie)
+          return yield* client.callMe(null)
         }),
         liveLayer,
       ),
@@ -56,7 +53,7 @@ describe('BackendClient.callMe', () => {
       Effect.provide(
         Effect.gen(function* () {
           const client = yield* BackendClient
-          return yield* client.callMe(`${FEED_SESSION_COOKIE}=bad-jwt`)
+          return yield* client.callMe('Bearer bad-jwt')
         }),
         liveLayer,
       ),

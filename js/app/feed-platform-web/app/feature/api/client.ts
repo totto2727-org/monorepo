@@ -1,7 +1,4 @@
-import { extractBearerFromCookie } from 'auth-helper'
 import { Context, Data, Effect, Layer, Predicate } from 'effect'
-
-import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
 
 export interface UserDTO {
   readonly id: string
@@ -13,7 +10,7 @@ export class BackendError extends Data.TaggedError('BackendError')<{
 }> {}
 
 interface BackendClientService {
-  readonly callMe: (cookieHeader: string | undefined) => Effect.Effect<UserDTO, BackendError>
+  readonly callMe: (authorization: string | null) => Effect.Effect<UserDTO, BackendError>
 }
 
 export const BackendClient = Context.Service<BackendClientService>('BackendClient')
@@ -21,11 +18,10 @@ export const BackendClient = Context.Service<BackendClientService>('BackendClien
 const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL ?? 'http://localhost:8789'
 
 export const liveLayer = Layer.succeed(BackendClient, {
-  callMe: (cookieHeader: string | undefined) =>
+  callMe: (authorization: string | null) =>
     Effect.tryPromise({
       catch: (cause) => new BackendError({ cause }),
       try: async () => {
-        const authorization = extractBearerFromCookie(FEED_SESSION_COOKIE, cookieHeader)
         if (Predicate.isNullish(authorization)) {
           throw new TypeError('missing feed-session cookie')
         }

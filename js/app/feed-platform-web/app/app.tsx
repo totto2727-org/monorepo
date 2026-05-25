@@ -92,11 +92,13 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     if (Predicate.isNullish(user)) {
       return c.redirect('/login')
     }
+    const token = getCookie(c, FEED_SESSION_COOKIE)
+    const authorization = Predicate.isNullish(token) ? null : `Bearer ${token}`
     const { email, id } = await Effect.runPromise(
       Effect.provide(
         Effect.gen(function* () {
           const client = yield* BackendClient
-          return yield* client.callMe(c.req.header('Cookie'))
+          return yield* client.callMe(authorization)
         }),
         liveLayer,
       ),
