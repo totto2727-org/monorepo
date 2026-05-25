@@ -7,8 +7,6 @@
     ".": "./src/index.ts"
   },
   "devDependencies": {
-    "@totto2727/fp": "workspace:*",
-    "@types/node": "catalog:types",
-    "effect": "catalog:effect"
+    "@totto2727/fp": "workspace:*"
   }
 }
