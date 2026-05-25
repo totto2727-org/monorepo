@@ -608,12 +608,6 @@ importers:
       '@totto2727/fp':
         specifier: workspace:*
         version: link:../fp
-      '@types/node':
-        specifier: catalog:types
-        version: 24.12.2
-      effect:
-        specifier: catalog:effect
-        version: 4.0.0-beta.65
 
   js/package/effect-hono:
     devDependencies:
