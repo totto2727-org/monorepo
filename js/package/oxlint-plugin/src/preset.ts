@@ -43,6 +43,7 @@ const preset: Preset = {
     'rules/no-eslint-disable-comments': 'error',
     'rules/no-fetch': 'error',
     'rules/no-js-date': 'error',
+    'rules/no-jsx-script-tag': 'error',
     'rules/no-let': 'error',
     'rules/no-option-tag-comparison': 'error',
     'rules/no-redundant-alias': 'error',
