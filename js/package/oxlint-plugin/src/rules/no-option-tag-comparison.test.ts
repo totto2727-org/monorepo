@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { getOptionTag, isTagPropertyAccess } from './no-option-tag-comparison.ts'
+import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
+import rule, { getOptionTag, isTagPropertyAccess } from './no-option-tag-comparison.ts'
 
 describe('getOptionTag', () => {
   test('"Some" returns "Some"', () => {
@@ -61,4 +62,33 @@ describe('isTagPropertyAccess', () => {
   test('non-MemberExpression returns false', () => {
     expect(isTagPropertyAccess({ name: '_tag', type: 'Identifier' })).toBe(false)
   })
+})
+
+runRuleTest('no-option-tag-comparison', rule, {
+  invalid: [
+    {
+      code: "if (opt._tag === 'Some') {}",
+      errors: 1,
+      name: '_tag === Some is reported and fixed to Option.isSome',
+      output: 'if (Option.isSome(opt)) {}',
+    },
+    {
+      code: "if (opt._tag === 'None') {}",
+      errors: 1,
+      name: '_tag === None is reported and fixed to Option.isNone',
+      output: 'if (Option.isNone(opt)) {}',
+    },
+    {
+      code: "if (opt._tag !== 'Some') {}",
+      errors: 1,
+      name: '_tag !== Some is reported and fixed to !Option.isSome',
+      output: 'if (!Option.isSome(opt)) {}',
+    },
+  ],
+  valid: [
+    { code: 'if (Option.isSome(opt)) {}', name: 'recommended Option.isSome call' },
+    { code: 'if (Option.isNone(opt)) {}', name: 'recommended Option.isNone call' },
+    { code: "if (opt._tag === 'Other') {}", name: 'unknown tag is ignored' },
+    { code: "if (x === 'Some') {}", name: 'tag-shaped string against non _tag access is ignored' },
+  ],
 })

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { hasStringStyleValue } from './no-string-style.ts'
+import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
+import rule, { hasStringStyleValue } from './no-string-style.ts'
 
 describe('hasStringStyleValue', () => {
   test('string style attribute returns true', () => {
@@ -42,4 +43,27 @@ describe('hasStringStyleValue', () => {
       }),
     ).toBe(false)
   })
+})
+
+runRuleTest('no-string-style', rule, {
+  invalid: [
+    {
+      code: "const el = <div style='color: red' />",
+      errors: 1,
+      filename: 'test.tsx',
+      name: 'string-valued style attribute is reported',
+    },
+  ],
+  valid: [
+    {
+      code: "const el = <div style={{ color: 'red' }} />",
+      filename: 'test.tsx',
+      name: 'object-valued style attribute is allowed',
+    },
+    {
+      code: "const el = <div className='x' />",
+      filename: 'test.tsx',
+      name: 'string-valued non-style attribute is allowed',
+    },
+  ],
 })

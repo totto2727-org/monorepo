@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { isSchemaUnknownDecodeCall } from './prefer-non-unknown-decode.ts'
+import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
+import rule, { isSchemaUnknownDecodeCall } from './prefer-non-unknown-decode.ts'
 
 const makeSchemaCall = (method: string) => ({
   callee: {
@@ -38,4 +39,27 @@ describe('isSchemaUnknownDecodeCall', () => {
       }),
     ).toBeNull()
   })
+})
+
+runRuleTest('prefer-non-unknown-decode', rule, {
+  invalid: [
+    {
+      code: 'Schema.decodeUnknownEffect(schema)(input)',
+      errors: 1,
+      name: 'decodeUnknownEffect is reported',
+    },
+    {
+      code: 'Schema.decodeUnknownExit(schema)(input)',
+      errors: 1,
+      name: 'decodeUnknownExit is reported',
+    },
+  ],
+  valid: [
+    { code: 'Schema.decodeEffect(schema)(input)', name: 'decodeEffect is allowed' },
+    { code: 'Schema.decodeExit(schema)(input)', name: 'decodeExit is allowed' },
+    {
+      code: 'Other.decodeUnknownEffect(schema)(input)',
+      name: 'non-Schema namespace decodeUnknownEffect is ignored',
+    },
+  ],
 })

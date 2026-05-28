@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { isIdentifierInitDeclarator, isRedundantTypeAlias } from './no-redundant-alias.ts'
+import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
+import rule, { isIdentifierInitDeclarator, isRedundantTypeAlias } from './no-redundant-alias.ts'
 
 describe('isRedundantTypeAlias', () => {
   test('plain type reference without generics returns true', () => {
@@ -84,4 +85,43 @@ describe('isIdentifierInitDeclarator', () => {
       }),
     ).toBe(false)
   })
+})
+
+runRuleTest('no-redundant-alias', rule, {
+  invalid: [
+    {
+      code: 'type SentEmail = SendParams',
+      errors: 1,
+      filename: 'test.ts',
+      name: 'plain type-alias rename is reported',
+    },
+    {
+      code: 'export const sentEmail = sendParams',
+      errors: 1,
+      filename: 'test.ts',
+      name: 'exported identifier-only re-binding is reported',
+    },
+  ],
+  valid: [
+    {
+      code: 'type SentEmail = SendParams & { sentAt: Date }',
+      filename: 'test.ts',
+      name: 'type alias that adds structure is allowed',
+    },
+    {
+      code: 'type Wrapped<T> = Box<T>',
+      filename: 'test.ts',
+      name: 'generic alias is allowed',
+    },
+    {
+      code: 'export const sentEmail = makeSentEmail()',
+      filename: 'test.ts',
+      name: 'exported binding initialised by a call expression is allowed',
+    },
+    {
+      code: 'const sentEmail = sendParams',
+      filename: 'test.ts',
+      name: 'non-exported identifier re-binding is allowed',
+    },
+  ],
 })
