@@ -1,4 +1,5 @@
 import type { RemixNode } from 'remix/ui'
+import { RMX_01, RMX_01_GLYPHS } from 'remix/ui/theme'
 import { Script } from 'vite-plugin-remix/client'
 
 export interface DocumentProps {
@@ -13,6 +14,8 @@ export const Document = () => (props: DocumentProps) => (
       <meta charSet='utf-8' />
       <meta name='viewport' content='width=device-width, initial-scale=1' />
       <title>{props.title ?? 'Hono Remix Example'}</title>
+      <RMX_01 />
+      <RMX_01_GLYPHS />
     </head>
     <body>
       {props.children}

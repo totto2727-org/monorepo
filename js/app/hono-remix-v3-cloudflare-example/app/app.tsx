@@ -5,6 +5,7 @@ import { logger } from 'hono/logger'
 
 import { PageOrFrame } from './ui/content-layout.tsx'
 import { Todo } from './ui/todo.client.tsx'
+import { UiShowcase } from './ui/ui-showcase.client.tsx'
 
 const app = new Hono()
 
@@ -29,6 +30,13 @@ app
       <PageOrFrame title='TODO'>
         <h1>TODO</h1>
         <Todo />
+      </PageOrFrame>,
+    ),
+  )
+  .get('/ui', (c) =>
+    c.render(
+      <PageOrFrame title='UI Components'>
+        <UiShowcase />
       </PageOrFrame>,
     ),
   )

@@ -52,6 +52,9 @@ const Layout = (handle: Handle<LayoutProps>) => () => (
         <helpers.FrameLink href='/todo' rmx-target={'content'} rmx-src='/todo'>
           TODO
         </helpers.FrameLink>
+        <helpers.FrameLink href='/ui' rmx-target={'content'} rmx-src='/ui'>
+          UI
+        </helpers.FrameLink>
       </nav>
     </header>
     <main mix={mainStyle}>
