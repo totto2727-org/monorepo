@@ -2,8 +2,8 @@ import { Array, Console, Effect, Predicate } from 'effect'
 import { Command } from 'effect/unstable/cli'
 
 import { resolveDirOrFail, rootCommand } from '#@/cli/root.ts'
+import type { Milestone } from '#@/feature/schema/current.ts'
 import { listRoadmaps } from '#@/lib/progress.ts'
-import type { Milestone } from '#@/schema/progress.ts'
 
 const failWith = (message: string) =>
   Effect.gen(function* () {

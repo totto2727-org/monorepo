@@ -1,7 +1,7 @@
 import { Schema } from 'effect'
 import { describe, expect, test } from 'vite-plus/test'
 
-import { Milestone, RoadmapProgress } from '#@/schema/progress.ts'
+import { Milestone, RoadmapProgress } from '#@/feature/schema/current.ts'
 
 import { findMilestone, milestonePath, renderMilestoneTemplate } from './milestone.ts'
 
@@ -12,6 +12,7 @@ const buildMilestone = (overrides: Partial<typeof Milestone.Encoded> = {}) =>
     notes: null,
     prs: [],
     status: 'planned',
+    tasks: [],
     title: 'Foo',
     workflow_identifiers: [],
     ...overrides,
@@ -26,6 +27,7 @@ const buildRoadmap = (milestones: readonly (typeof Milestone.Type)[]) =>
     status: 'planned',
     title: 'Alpha',
     updated_at: '2026-05-15T16:15:13.160Z',
+    version: 2,
   })
 
 describe('milestonePath', () => {
