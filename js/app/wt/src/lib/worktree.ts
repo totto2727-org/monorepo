@@ -5,7 +5,7 @@ import { promisify } from 'node:util'
 
 import { Effect, Predicate, String } from 'effect'
 
-// oxlint-disable-next-line typescript-eslint(strict-void-return) -- node's promisify(execFile) overloads trigger a false positive
+// oxlint-disable-next-line typescript/strict-void-return -- node's promisify(execFile) overloads trigger a false positive
 const execFileAsync = promisify(execFile)
 
 const execAsync = async (cmd: string, args: string[]): Promise<string> => {
