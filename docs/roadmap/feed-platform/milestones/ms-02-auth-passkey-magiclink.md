@@ -2,7 +2,7 @@
 
 - **Milestone ID:** ms-02-auth-passkey-magiclink
 - **Roadmap ID:** feed-platform
-- **Status:** planned
+- **Status:** completed
 - **Created at:** 2026-05-04T00:00:00Z
 - **Last updated:** 2026-05-04T00:00:00Z
 

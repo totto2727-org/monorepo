@@ -12,9 +12,9 @@ milestones:
     workflow_identifiers: []
   - depends_on: []
     id: ms-02-auth-passkey-magiclink
-    notes: null
+    notes: Better Auth OAuth 2.1 + Passkey + Magic Link 実装完了。PR-A (auth-helper) / PR-B (IdP UI) / PR-C (web OAuth) / PR-D (backend JWT) / PR-E (ADR + retro) で構成。cross-app E2E は PR-F で継続。
     prs: []
-    status: active
+    status: completed
     title: Auth — Passkey + Magic Link 認証
     workflow_identifiers: []
   - depends_on: []
@@ -77,4 +77,4 @@ prs: []
 roadmap_id: feed-platform
 status: active
 title: Pluggable Multi-Source Feed Platform
-updated_at: '2026-05-23T14:29:15.374Z'
+updated_at: '2026-05-23T18:50:01.762Z'
