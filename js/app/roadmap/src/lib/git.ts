@@ -66,7 +66,7 @@ const parseBlock = (block: string, isMain: boolean): Worktree | null => {
 
 const parsePorcelain = (output: string): readonly Worktree[] =>
   output
-    .split(/\n\n+/)
+    .split(/\n\n+/u)
     .map((b) => b.trim())
     .filter((b) => String.isNonEmpty(b))
     .map((block, i) => parseBlock(block, i === 0))

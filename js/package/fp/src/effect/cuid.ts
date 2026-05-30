@@ -16,7 +16,7 @@ const bigLength = 32
 
 /** Effect Schema for CUID branded string type. */
 export const schema: Schema.brand<Schema.String, '@totto2727/fp/effect/cuid/Cuid'> = Schema.String.pipe(
-  Schema.check(Schema.isPattern(/^[a-z][0-9a-z]+$/)),
+  Schema.check(Schema.isPattern(/^[a-z][0-9a-z]+$/u)),
   Schema.check(Schema.isMinLength(2)),
   Schema.check(Schema.isMaxLength(bigLength)),
   Schema.brand('@totto2727/fp/effect/cuid/Cuid'),

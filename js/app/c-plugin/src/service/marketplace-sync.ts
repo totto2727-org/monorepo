@@ -39,7 +39,7 @@ const readBaseMarketplace = (repoDir: string, baseKind: MarketplaceKind): Effect
         plugins: marketplace.plugins.map((p) => ({
           description: p.description,
           name: p.name,
-          source: p.source.path.replace(/^\.\//, ''),
+          source: p.source.path.replace(/^\.\//u, ''),
         })),
         raw: parsed,
       }

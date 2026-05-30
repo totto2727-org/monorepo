@@ -271,7 +271,7 @@ const buildUrl = (
 }
 
 const formatPrLabel = (pr: string): string => {
-  const match = /\/(?:pull|issues)\/(\d+)/.exec(pr)
+  const match = /\/(?:pull|issues)\/(\d+)/u.exec(pr)
   return Predicate.isNullish(match) ? pr : `#${match[1]}`
 }
 

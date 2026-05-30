@@ -26,7 +26,7 @@ export const normalizePathSpec = (spec: string): string => {
   if (spec === './' || spec === '../' || spec === '~/') {
     return spec
   }
-  return spec.length > 1 && spec.endsWith('/') ? spec.replace(/\/+$/, '') : spec
+  return spec.length > 1 && spec.endsWith('/') ? spec.replace(/\/+$/u, '') : spec
 }
 
 export const resolveLocalPath = (spec: string, agentsRoot: string): string => {

@@ -120,10 +120,10 @@ const parseOwnerRepo = (path: string): { owner: string; repo: string } | null =>
 
 export const parseGithubRemote = (url: string): { owner: string; repo: string } | null => {
   if (url.startsWith('https://github.com/')) {
-    return parseOwnerRepo(url.slice('https://github.com/'.length).replace(/\.git$/, ''))
+    return parseOwnerRepo(url.slice('https://github.com/'.length).replace(/\.git$/u, ''))
   }
   if (url.startsWith('git@github.com:')) {
-    return parseOwnerRepo(url.slice('git@github.com:'.length).replace(/\.git$/, ''))
+    return parseOwnerRepo(url.slice('git@github.com:'.length).replace(/\.git$/u, ''))
   }
   return null
 }

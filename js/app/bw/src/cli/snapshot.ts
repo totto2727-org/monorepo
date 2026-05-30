@@ -31,7 +31,7 @@ export const snapshotCommand = Command.make(
       const body = flags.fullPage ? { ...bodyWithWait, screenshotOptions: { fullPage: true } } : bodyWithWait
       const result = yield* ApiClient.snapshot(auth, body)
 
-      const base = flags.output.replace(/\/$/, '')
+      const base = flags.output.replace(/\/$/u, '')
       const name = basename(base)
       const dir = base
 

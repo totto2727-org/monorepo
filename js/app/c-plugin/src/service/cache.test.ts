@@ -104,7 +104,7 @@ describe('ensureLocalPath', () => {
 
   test('fails with descriptive Error when path does not exist', async () => {
     await expect(Effect.runPromise(ensureLocalPath('./nonexistent', ctx.agentsDir))).rejects.toThrow(
-      /Local path does not exist/,
+      /Local path does not exist/u,
     )
   })
 })
