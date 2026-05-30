@@ -1,43 +1,40 @@
 import { LibsqlDialect } from '@libsql/kysely-libsql'
-import { Context, Layer } from 'effect'
-import { Kysely, sql } from 'kysely'
+import { Context, Effect, Layer } from 'effect'
+import { CamelCasePlugin, Kysely } from 'kysely'
 
-export interface OauthNonceTable {
-  expires_at: number
-  nonce: string
-  state: string
-}
+import * as Env from '#@/feature/env.ts'
 
-export interface OIDCDB {
-  oauth_nonce: OauthNonceTable
-}
+import type * as Type from './generated.ts'
 
-export type Instance = Kysely<OIDCDB>
+export type * as Type from './generated.ts'
+
+const plugins = [new CamelCasePlugin()]
+
+export type Instance = Kysely<Type.DB>
+
+export const makeInMemory = (): Instance =>
+  new Kysely({
+    dialect: new LibsqlDialect({ url: ':memory:' }),
+    plugins,
+  })
+
+export const makeRemote = (env: Env.Database): Instance =>
+  new Kysely({
+    dialect: new LibsqlDialect({
+      authToken: env.DATABASE_AUTH_TOKEN,
+      url: env.DATABASE_URL,
+    }),
+    plugins,
+  })
 
 export const Service = Context.Service<Instance>('@app/feed-platform-web/feature/db/kysely/Service')
 
-const makeRemote = (): Instance =>
-  new Kysely<OIDCDB>({
-    dialect: new LibsqlDialect({
-      authToken: process.env.DATABASE_AUTH_TOKEN ?? '',
-      url: process.env.DATABASE_URL ?? 'http://127.0.0.1:8080',
-    }),
-  })
-
-export const makeInMemory = (): Instance =>
-  new Kysely<OIDCDB>({
-    dialect: new LibsqlDialect({ url: ':memory:' }),
-  })
-
-export const remoteLayer = Layer.sync(Service, () => makeRemote())
 export const inMemoryLayer = Layer.sync(Service, () => makeInMemory())
 
-export const initialize = async (db: Instance): Promise<void> => {
-  await sql`
-    CREATE TABLE IF NOT EXISTS oauth_nonce (
-      state      TEXT PRIMARY KEY,
-      nonce      TEXT NOT NULL,
-      expires_at INTEGER NOT NULL
-    )
-  `.execute(db)
-}
+export const remoteLayer = Layer.effect(
+  Service,
+  Effect.gen(function* () {
+    const env = yield* Env.Service
+    return makeRemote(env)
+  }),
+)

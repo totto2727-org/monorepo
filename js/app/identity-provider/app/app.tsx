@@ -90,7 +90,8 @@ const appRoutes = factory
     }
     const email = session.user.email ?? ''
     const rawCreatedAt: Date | string = session.user.createdAt
-    const createdAt = rawCreatedAt instanceof Date ? rawCreatedAt.toLocaleDateString('ja-JP') : rawCreatedAt
+    const createdAt =
+      typeof rawCreatedAt === 'string' ? rawCreatedAt : new Date(rawCreatedAt).toLocaleDateString('ja-JP')
     return c.render(
       <Document title='アカウント'>
         <AccountPage email={email} createdAt={createdAt} />
@@ -130,8 +131,7 @@ const app = factory
   .use(
     '*',
     remixRenderer({
-      fetcher: (input): Promise<Response> =>
-        Promise.resolve(app.fetch(input instanceof Request ? input : new Request(input))),
+      fetcher: (input): Promise<Response> => Promise.resolve(app.fetch(new Request(input))),
     }),
   )
   .route('/app', appRoutes)

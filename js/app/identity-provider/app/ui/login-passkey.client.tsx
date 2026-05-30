@@ -1,4 +1,3 @@
-/* oxlint-disable typescript-eslint/no-unsafe-type-assertion -- WebAuthn API returns CredentialResponse base types; narrowing is unavoidable at this boundary */
 import { Predicate, String } from 'effect'
 import { clientEntry, on } from 'remix/ui'
 import type { Handle, SerializableProps } from 'remix/ui'
@@ -85,7 +84,7 @@ export const PasskeyLoginButton = clientEntry(
               }
               window.location.href = withReturnTo('/app/auth/passkey/callback', handle.props.returnTo)
             } catch (error) {
-              state.error = error instanceof Error ? error.message : 'Passkey 認証に失敗しました'
+              state.error = String(error) || 'Passkey 認証に失敗しました'
               state.submitting = false
               void handle.update()
             }

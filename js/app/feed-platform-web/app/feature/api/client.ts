@@ -1,4 +1,5 @@
-import { Context, Data, Effect, Layer, Predicate } from 'effect'
+import { Context, Data, Effect, Layer, Predicate, Schema } from 'effect'
+import { HttpClient, HttpClientRequest } from 'effect/unstable/http'
 
 export interface UserDTO {
   readonly id: string
@@ -17,33 +18,30 @@ export const BackendClient = Context.Service<BackendClientService>('BackendClien
 
 const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL ?? 'http://localhost:8789'
 
+const UserResponse = Schema.Struct({
+  id: Schema.String,
+  email: Schema.String,
+})
+
+const callBackendApi = (authorization: string) =>
+  Effect.gen(function* () {
+    const client = yield* HttpClient.HttpClient
+    const request = HttpClientRequest.get(`${BACKEND_BASE_URL}/api/v1/me`, {
+      headers: { Authorization: authorization },
+    })
+    const response = yield* client.execute(request)
+    if (response.status !== 200) return yield* Effect.fail(new BackendError({ cause: `HTTP ${response.status}` }))
+    const data: unknown = yield* response.json
+    return yield* Schema.decodeUnknownEffect(UserResponse)(data).pipe(
+      Effect.mapError(() => new BackendError({ cause: 'invalid response shape' })),
+    )
+  })
+
 export const liveLayer = Layer.succeed(BackendClient, {
   callMe: (authorization: string | null) =>
-    Effect.tryPromise({
-      catch: (cause) => new BackendError({ cause }),
-      try: async () => {
-        if (Predicate.isNullish(authorization)) {
-          throw new TypeError('missing feed-session cookie')
-        }
-        // oxlint-disable-next-line rules/no-fetch -- external backend API
-        const res = await fetch(`${BACKEND_BASE_URL}/api/v1/me`, {
-          headers: { Authorization: authorization },
-        })
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`)
-        }
-        const data: unknown = await res.json()
-        if (!Predicate.isObject(data)) {
-          throw new TypeError('Invalid response shape')
-        }
-        const { id } = data
-        const { email } = data
-        if (!Predicate.isString(id) || !Predicate.isString(email)) {
-          throw new TypeError('Invalid response fields')
-        }
-        return { email, id }
-      },
-    }),
+    Predicate.isNullish(authorization)
+      ? Effect.fail(new BackendError({ cause: 'missing feed-session cookie' }))
+      : callBackendApi(authorization),
 })
 
 export const mockLayer = Layer.succeed(BackendClient, {

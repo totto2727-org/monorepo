@@ -11,26 +11,27 @@ export interface AuthUser {
   readonly email: string
 }
 
-const jwks = createRemoteJWKSet(new URL(`${process.env.IDP_BASE_URL ?? 'http://localhost:8787'}/api/v1/auth/jwks`))
-
 export const authMiddleware = createMiddleware<{
   Variables: { user: AuthUser | null }
-}>(async (c, next) => {
-  const token = getCookie(c, FEED_SESSION_COOKIE)
+}>(async (ctx, next) => {
+  const token = getCookie(ctx, FEED_SESSION_COOKIE)
 
   if (Predicate.isNullish(token)) {
-    c.set('user', null)
+    ctx.set('user', null)
     await next()
     return
   }
 
+  const idpBaseUrl = ctx.env.IDP_BASE_URL
+  const jwks = createRemoteJWKSet(new URL(`${idpBaseUrl}/api/v1/auth/jwks`))
+
   try {
     const { payload } = await jwtVerify<AppJWTPayload>(token, jwks)
     const { sub, email } = payload
-    c.set('user', { email, id: sub })
-  } catch (error) {
-    console.warn('[auth] JWT verification failed:', error instanceof Error ? error.message : String(error))
-    c.set('user', null)
+    ctx.set('user', { email, id: sub })
+  } catch (e) {
+    console.warn('[auth] JWT verification failed:', String(e))
+    ctx.set('user', null)
   }
 
   await next()

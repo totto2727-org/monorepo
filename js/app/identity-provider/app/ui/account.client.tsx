@@ -20,7 +20,7 @@ export const LogoutButton = clientEntry(
               await fetch('/api/v1/auth/sign-out', { credentials: 'include', method: 'POST' })
               window.location.href = '/app/login'
             } catch (error) {
-              state.error = error instanceof Error ? error.message : 'ログアウトに失敗しました'
+              state.error = String(error) || 'ログアウトに失敗しました'
               state.submitting = false
               void handle.update()
             }

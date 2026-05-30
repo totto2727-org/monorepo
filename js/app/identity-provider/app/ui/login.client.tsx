@@ -55,7 +55,7 @@ export const MagicLinkForm = clientEntry(
               }
               window.location.href = `/app/login/check-email?${params.toString()}`
             } catch (error) {
-              state.error = error instanceof Error ? error.message : 'マジックリンクの送信に失敗しました'
+              state.error = String(error) || 'マジックリンクの送信に失敗しました'
               state.submitting = false
               void handle.update()
             }
