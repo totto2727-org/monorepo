@@ -5,6 +5,8 @@ import * as NodePath from 'node:path'
 
 import { Predicate, String } from 'effect'
 
+export const LOCK_FILE_NAME = 'c-plugin-lock.json'
+
 export const getGlobalAgentsDir = (): string => NodePath.join(Os.homedir(), '.agents')
 
 export const getGlobalCacheRoot = (): string =>
@@ -64,7 +66,7 @@ export const findAgentsRoot = async (startDir: string = process.cwd()): Promise<
 export const findNearestAgentsDir = async (startDir: string = process.cwd()): Promise<string> => {
   const currentDir = NodePath.resolve(startDir)
   const agentsDir = NodePath.join(currentDir, '.agents')
-  const lockPath = NodePath.join(agentsDir, 'skills-lock.json')
+  const lockPath = NodePath.join(agentsDir, LOCK_FILE_NAME)
 
   try {
     await Fs.access(lockPath)
@@ -72,7 +74,7 @@ export const findNearestAgentsDir = async (startDir: string = process.cwd()): Pr
   } catch {
     const parentDir = NodePath.dirname(currentDir)
     if (parentDir === currentDir) {
-      throw new Error('Could not find .agents directory with skills-lock.json')
+      throw new Error(`Could not find .agents directory with ${LOCK_FILE_NAME}`)
     }
     return await findNearestAgentsDir(parentDir)
   }
@@ -86,7 +88,7 @@ export const getCacheDir = (projectRoot: string): string =>
 
 export const getSkillsDir = (agentsDir: string): string => NodePath.join(agentsDir, 'skills')
 
-export const getLockFilePath = (agentsDir: string): string => NodePath.join(agentsDir, 'skills-lock.json')
+export const getLockFilePath = (agentsDir: string): string => NodePath.join(agentsDir, LOCK_FILE_NAME)
 
 export const getGitIgnorePath = (agentsDir: string): string => NodePath.join(agentsDir, '.gitignore')
 

@@ -8,6 +8,7 @@ import {
   expandHomePath,
   findAgentsRoot,
   findNearestAgentsDir,
+  LOCK_FILE_NAME,
   getGitHubCloneUrl,
   isHomePath,
   isLocalPath,
@@ -176,7 +177,7 @@ describe('findNearestAgentsDir', () => {
     const root = await Fs.mkdtemp(NodePath.join(Os.tmpdir(), 'c-plugin-agents-dir-'))
     const agentsDir = NodePath.join(root, '.agents')
     await Fs.mkdir(agentsDir, { recursive: true })
-    await Fs.writeFile(NodePath.join(agentsDir, 'skills-lock.json'), '{}', 'utf-8')
+    await Fs.writeFile(NodePath.join(agentsDir, LOCK_FILE_NAME), '{}', 'utf-8')
     const nested = NodePath.join(root, 'a', 'b', 'c')
     await Fs.mkdir(nested, { recursive: true })
 
@@ -187,7 +188,7 @@ describe('findNearestAgentsDir', () => {
     const root = await Fs.mkdtemp(NodePath.join(Os.tmpdir(), 'c-plugin-agents-dir-'))
     const agentsDir = NodePath.join(root, '.agents')
     await Fs.mkdir(agentsDir, { recursive: true })
-    await Fs.writeFile(NodePath.join(agentsDir, 'skills-lock.json'), '{}', 'utf-8')
+    await Fs.writeFile(NodePath.join(agentsDir, LOCK_FILE_NAME), '{}', 'utf-8')
 
     await expect(findNearestAgentsDir(root)).resolves.toBe(agentsDir)
   })
@@ -197,7 +198,9 @@ describe('findNearestAgentsDir', () => {
     const nested = NodePath.join(root, 'a', 'b')
     await Fs.mkdir(nested, { recursive: true })
 
-    await expect(findNearestAgentsDir(nested)).rejects.toThrow('Could not find .agents directory with skills-lock.json')
+    await expect(findNearestAgentsDir(nested)).rejects.toThrow(
+      `Could not find .agents directory with ${LOCK_FILE_NAME}`,
+    )
   })
 })
 

@@ -4,6 +4,8 @@ import * as NodePath from 'node:path'
 import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 
+import { LOCK_FILE_NAME } from '#@/lib/paths.ts'
+
 import { setupTestContext } from './_test-helper.ts'
 import { collectAgentsDirs } from './discover.ts'
 
@@ -20,7 +22,7 @@ afterEach(async () => {
 
 const writeLockFile = async (agentsDir: string): Promise<void> => {
   await Fs.mkdir(agentsDir, { recursive: true })
-  await Fs.writeFile(NodePath.join(agentsDir, 'skills-lock.json'), '{}', 'utf-8')
+  await Fs.writeFile(NodePath.join(agentsDir, LOCK_FILE_NAME), '{}', 'utf-8')
 }
 
 describe('collectAgentsDirs', () => {
