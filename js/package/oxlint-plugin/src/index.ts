@@ -4,12 +4,15 @@ import forcePredicate from './rules/force-predicate.ts'
 import forceStringEmpty from './rules/force-string-empty.ts'
 import forceTsExtension from './rules/force-ts-extension.ts'
 import noEffectImportAs from './rules/no-effect-import-as.ts'
+import noEffectRuntimeRun from './rules/no-effect-runtime-run.ts'
 import noEffectSubpathImport from './rules/no-effect-subpath-import.ts'
+import noErrorMessageInstanceof from './rules/no-error-message-instanceof.ts'
 import noEslintDisableComments from './rules/no-eslint-disable-comments.ts'
 import noFetch from './rules/no-fetch.ts'
 import noJsDate from './rules/no-js-date.ts'
 import noJsxScriptTag from './rules/no-jsx-script-tag.ts'
 import noLet from './rules/no-let.ts'
+import noNodeImports from './rules/no-node-imports.ts'
 import noOptionTagComparison from './rules/no-option-tag-comparison.ts'
 import noRedundantAlias from './rules/no-redundant-alias.ts'
 import noStringStyle from './rules/no-string-style.ts'
@@ -28,12 +31,15 @@ const plugin = {
     'force-string-empty': forceStringEmpty,
     'force-ts-extension': forceTsExtension,
     'no-effect-import-as': noEffectImportAs,
+    'no-effect-runtime-run': noEffectRuntimeRun,
     'no-effect-subpath-import': noEffectSubpathImport,
+    'no-error-message-instanceof': noErrorMessageInstanceof,
     'no-eslint-disable-comments': noEslintDisableComments,
     'no-fetch': noFetch,
     'no-js-date': noJsDate,
     'no-jsx-script-tag': noJsxScriptTag,
     'no-let': noLet,
+    'no-node-imports': noNodeImports,
     'no-option-tag-comparison': noOptionTagComparison,
     'no-redundant-alias': noRedundantAlias,
     'no-string-style': noStringStyle,
