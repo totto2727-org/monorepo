@@ -1,26 +1,28 @@
-import * as Fs from 'node:fs/promises'
-
-import { Effect } from 'effect'
+import { Effect, FileSystem } from 'effect'
 
 import { getCacheDir, getGitHubCloneUrl, getRepoCacheDir, getSkillsDir, resolveLocalPath } from '#@/lib/paths.ts'
 import * as Git from '#@/service/git.ts'
 
-export const ensureDirs = (agentsDir: string, projectRoot: string): Effect.Effect<void> =>
-  Effect.tryPromise({
-    catch: (e: unknown) => e,
-    try: async () => {
-      await Fs.mkdir(getCacheDir(projectRoot), { recursive: true })
-      await Fs.mkdir(getSkillsDir(agentsDir), { recursive: true })
-    },
-  }).pipe(Effect.ignore)
+export const ensureDirs = (agentsDir: string, projectRoot: string): Effect.Effect<void, never, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    yield* fs.makeDirectory(getCacheDir(projectRoot), { recursive: true }).pipe(Effect.ignore)
+    yield* fs.makeDirectory(getSkillsDir(agentsDir), { recursive: true }).pipe(Effect.ignore)
+  })
 
-export const ensureRepo = (projectRoot: string, source: string): Effect.Effect<string, Git.GitError> => {
+export const ensureRepo = (
+  projectRoot: string,
+  source: string,
+): Effect.Effect<string, Git.GitError, FileSystem.FileSystem> => {
   const repoDir = getRepoCacheDir(projectRoot, source)
-  return Effect.tryPromise({
-    catch: () => new Git.GitError({ command: 'access', message: 'not found' }),
-    try: () => Fs.access(repoDir),
+  return Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const exists = yield* fs.exists(repoDir).pipe(Effect.orElseSucceed(() => false))
+    if (exists) {
+      return repoDir
+    }
+    return yield* Effect.fail(new Git.GitError({ command: 'access', message: 'not found' }))
   }).pipe(
-    Effect.map(() => repoDir),
     Effect.catchTag('GitError', () => {
       const url = getGitHubCloneUrl(source)
       return Git.clone(url, repoDir).pipe(Effect.map(() => repoDir))
@@ -28,18 +30,22 @@ export const ensureRepo = (projectRoot: string, source: string): Effect.Effect<s
   )
 }
 
-export const removeRepo = (projectRoot: string, source: string): Effect.Effect<void> =>
-  Effect.tryPromise({
-    catch: (e: unknown) => e,
-    try: () => Fs.rm(getRepoCacheDir(projectRoot, source), { force: true, recursive: true }),
-  }).pipe(Effect.ignore)
+export const removeRepo = (projectRoot: string, source: string): Effect.Effect<void, never, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    yield* fs.remove(getRepoCacheDir(projectRoot, source), { recursive: true }).pipe(Effect.ignore)
+  })
 
-export const ensureLocalPath = (spec: string, agentsRoot: string): Effect.Effect<string, Error> =>
-  Effect.tryPromise({
-    catch: () => new Error(`Local path does not exist: ${spec}`),
-    try: async () => {
-      const resolved = resolveLocalPath(spec, agentsRoot)
-      await Fs.access(resolved)
-      return resolved
-    },
+export const ensureLocalPath = (
+  spec: string,
+  agentsRoot: string,
+): Effect.Effect<string, Error, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const resolved = resolveLocalPath(spec, agentsRoot)
+    const fs = yield* FileSystem.FileSystem
+    const exists = yield* fs.exists(resolved).pipe(Effect.orElseSucceed(() => false))
+    if (!exists) {
+      return yield* Effect.fail(new Error(`Local path does not exist: ${spec}`))
+    }
+    return resolved
   })

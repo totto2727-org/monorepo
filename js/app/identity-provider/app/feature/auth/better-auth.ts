@@ -30,6 +30,7 @@ const makeInstance = (db: DB.Instance, env: Env.Type, emailSender: EmailSender.E
       }),
       magicLink({
         sendMagicLink: ({ email, url }) =>
+          // oxlint-disable-next-line rules/no-effect-runtime-run -- better-auth callback requires a Promise boundary for the email sending Effect.
           Effect.runPromise(
             emailSender.send({
               subject: 'Login link',

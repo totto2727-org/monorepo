@@ -1,100 +1,143 @@
-import * as Fs from 'node:fs/promises'
 import * as Os from 'node:os'
 import * as NodePath from 'node:path'
 
-import { Effect, Exit, Option } from 'effect'
+import { NodeServices } from '@effect/platform-node'
+import { Effect, Exit, FileSystem, Option } from 'effect'
 import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 
 import { applyWaitUntil, loadConfig, resolveInput } from './config.ts'
 
 let tmpDir: string
 
+const runWithNodeServices = <A, E>(effect: Effect.Effect<A, E, FileSystem.FileSystem>) =>
+  Effect.runPromise(effect.pipe(Effect.provide(NodeServices.layer)))
+
+const runExitWithNodeServices = <A, E>(effect: Effect.Effect<A, E, FileSystem.FileSystem>) =>
+  Effect.runPromiseExit(effect.pipe(Effect.provide(NodeServices.layer)))
+
+const fsEffect = <A, E>(effect: Effect.Effect<A, E, FileSystem.FileSystem>) => runWithNodeServices(effect)
+
+const makeTempDir = (prefix: string): Promise<string> =>
+  fsEffect(
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem
+      return yield* fs.makeTempDirectory({ directory: Os.tmpdir(), prefix })
+    }),
+  )
+
 beforeEach(async () => {
-  tmpDir = await Fs.mkdtemp(NodePath.join(Os.tmpdir(), 'bw-config-test-'))
+  tmpDir = await makeTempDir('bw-config-test-')
 })
 
 afterEach(async () => {
-  await Fs.rm(tmpDir, { force: true, recursive: true })
+  await fsEffect(
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem
+      yield* fs.remove(tmpDir, { force: true, recursive: true })
+    }),
+  )
 })
 
 describe('loadConfig', () => {
   test('returns empty object when configPath is None', async () => {
-    const result = await Effect.runPromise(loadConfig(Option.none()))
+    const result = await runWithNodeServices(loadConfig(Option.none()))
     expect(result).toStrictEqual({})
   })
 
   test('loads and parses valid JSON config file', async () => {
     const configPath = NodePath.join(tmpDir, 'config.json')
-    await Fs.writeFile(configPath, JSON.stringify({ html: '<p>test</p>', url: 'https://example.com' }), 'utf-8')
+    await fsEffect(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem
+        yield* fs.writeFileString(configPath, JSON.stringify({ html: '<p>test</p>', url: 'https://example.com' }))
+      }),
+    )
 
-    const result = await Effect.runPromise(loadConfig(Option.some(configPath)))
+    const result = await runWithNodeServices(loadConfig(Option.some(configPath)))
     expect(result).toStrictEqual({ html: '<p>test</p>', url: 'https://example.com' })
   })
 
   test('fails when file does not exist', async () => {
     const configPath = NodePath.join(tmpDir, 'nonexistent.json')
 
-    const exit = await Effect.runPromiseExit(loadConfig(Option.some(configPath)))
+    const exit = await runExitWithNodeServices(loadConfig(Option.some(configPath)))
     expect(Exit.isFailure(exit)).toBe(true)
   })
 
   test('fails when file contains invalid JSON', async () => {
     const configPath = NodePath.join(tmpDir, 'bad.json')
-    await Fs.writeFile(configPath, '{ invalid }', 'utf-8')
+    await fsEffect(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem
+        yield* fs.writeFileString(configPath, '{ invalid }')
+      }),
+    )
 
-    const exit = await Effect.runPromiseExit(loadConfig(Option.some(configPath)))
+    const exit = await runExitWithNodeServices(loadConfig(Option.some(configPath)))
     expect(Exit.isFailure(exit)).toBe(true)
   })
 })
 
 describe('resolveInput', () => {
   test('resolves url from urlFlag', async () => {
-    const result = await Effect.runPromise(resolveInput(Option.some('https://example.com'), Option.none(), {}))
+    const result = await runWithNodeServices(resolveInput(Option.some('https://example.com'), Option.none(), {}))
     expect(result).toStrictEqual({ url: 'https://example.com' })
   })
 
   test('resolves html content from htmlFlag', async () => {
     const htmlPath = NodePath.join(tmpDir, 'page.html')
-    await Fs.writeFile(htmlPath, '<h1>Hello</h1>', 'utf-8')
+    await fsEffect(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem
+        yield* fs.writeFileString(htmlPath, '<h1>Hello</h1>')
+      }),
+    )
 
-    const result = await Effect.runPromise(resolveInput(Option.none(), Option.some(htmlPath), {}))
+    const result = await runWithNodeServices(resolveInput(Option.none(), Option.some(htmlPath), {}))
     expect(result).toStrictEqual({ html: '<h1>Hello</h1>' })
   })
 
   test('uses config url when no flags provided and config has url', async () => {
-    const result = await Effect.runPromise(
+    const result = await runWithNodeServices(
       resolveInput(Option.none(), Option.none(), { url: 'https://from-config.com' }),
     )
     expect(result).toStrictEqual({ url: 'https://from-config.com' })
   })
 
   test('uses config html when no flags provided and config has html', async () => {
-    const result = await Effect.runPromise(resolveInput(Option.none(), Option.none(), { html: '<p>from config</p>' }))
+    const result = await runWithNodeServices(resolveInput(Option.none(), Option.none(), { html: '<p>from config</p>' }))
     expect(result).toStrictEqual({ html: '<p>from config</p>' })
   })
 
   test('urlFlag takes priority over htmlFlag', async () => {
     const htmlPath = NodePath.join(tmpDir, 'page.html')
-    await Fs.writeFile(htmlPath, '<p>html</p>', 'utf-8')
+    await fsEffect(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem
+        yield* fs.writeFileString(htmlPath, '<p>html</p>')
+      }),
+    )
 
-    const result = await Effect.runPromise(resolveInput(Option.some('https://example.com'), Option.some(htmlPath), {}))
+    const result = await runWithNodeServices(
+      resolveInput(Option.some('https://example.com'), Option.some(htmlPath), {}),
+    )
     expect(result).toStrictEqual({ url: 'https://example.com' })
   })
 
   test('fails when no url or html is available', async () => {
-    const exit = await Effect.runPromiseExit(resolveInput(Option.none(), Option.none(), {}))
+    const exit = await runExitWithNodeServices(resolveInput(Option.none(), Option.none(), {}))
     expect(Exit.isFailure(exit)).toBe(true)
   })
 
   test('fails when html file does not exist', async () => {
-    const exit = await Effect.runPromiseExit(
+    const exit = await runExitWithNodeServices(
       resolveInput(Option.none(), Option.some(NodePath.join(tmpDir, 'missing.html')), {}),
     )
     expect(Exit.isFailure(exit)).toBe(true)
   })
 
   test('merges flags with existing config', async () => {
-    const result = await Effect.runPromise(
+    const result = await runWithNodeServices(
       resolveInput(Option.some('https://example.com'), Option.none(), { extra: 'value' }),
     )
     expect(result).toStrictEqual({ extra: 'value', url: 'https://example.com' })

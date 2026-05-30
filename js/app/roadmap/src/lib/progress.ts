@@ -1,7 +1,6 @@
+import type { TaggedErrorBaseData } from '@totto2727/fp/error'
 // oxlint-disable max-classes-per-file -- TaggedError subclasses are grouped by domain
-import { dirname, join } from 'node:path'
-
-import { Data, DateTime, Effect, FileSystem, Predicate, Schema } from 'effect'
+import { Data, DateTime, Effect, FileSystem, Path, Predicate, Schema } from 'effect'
 import { dump as dumpYaml, load as loadYaml } from 'js-yaml'
 
 import type { RoadmapStatus } from '#@/feature/schema/current.ts'
@@ -20,25 +19,29 @@ export class ProgressFileNotFoundError extends Data.TaggedError('ProgressFileNot
   readonly path: string
 }> {}
 
-export class ProgressReadError extends Data.TaggedError('ProgressReadError')<{
-  readonly path: string
-  readonly message: string
-}> {}
+export class ProgressReadError extends Data.TaggedError('ProgressReadError')<
+  TaggedErrorBaseData & {
+    readonly path: string
+  }
+> {}
 
-export class ProgressWriteError extends Data.TaggedError('ProgressWriteError')<{
-  readonly path: string
-  readonly message: string
-}> {}
+export class ProgressWriteError extends Data.TaggedError('ProgressWriteError')<
+  TaggedErrorBaseData & {
+    readonly path: string
+  }
+> {}
 
-export class ProgressValidationError extends Data.TaggedError('ProgressValidationError')<{
-  readonly message: string
-}> {}
+export class ProgressValidationError extends Data.TaggedError('ProgressValidationError')<TaggedErrorBaseData> {}
 
 const HEADER_COMMENT = `# Roadmap progress tracking yaml managed by the \`roadmap\` CLI.
 # Schema reference: plugins/dev-workflow/skills/share-artifacts/references/roadmap-progress-yaml.md
 `
 
-export const progressFilePath = (dir: string, roadmapId: string): string => join(dir, roadmapId, 'progress.yaml')
+export const progressFilePath = (dir: string, roadmapId: string): Effect.Effect<string, never, Path.Path> =>
+  Effect.gen(function* () {
+    const pathService = yield* Path.Path
+    return pathService.join(dir, roadmapId, 'progress.yaml')
+  })
 
 export const mergePrs = (
   existing: readonly string[],
@@ -87,15 +90,15 @@ export const readProgressFile = (
 ): Effect.Effect<
   RoadmapProgress,
   ProgressFileNotFoundError | ProgressReadError | ProgressValidationError,
-  FileSystem.FileSystem
+  FileSystem.FileSystem | Path.Path
 > =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
-    const path = progressFilePath(input.dir, input.roadmapId)
+    const path = yield* progressFilePath(input.dir, input.roadmapId)
 
     const toReadError = (error: unknown): ProgressReadError =>
       new ProgressReadError({
-        message: error instanceof Error ? error.message : String(error),
+        error,
         path,
       })
 
@@ -108,19 +111,26 @@ export const readProgressFile = (
     const parsed = yield* Effect.try({
       catch: (error) =>
         new ProgressValidationError({
-          message: `failed to parse yaml at ${path}: ${error instanceof Error ? error.message : String(error)}`,
+          error,
+          message: `failed to parse yaml at ${path}`,
         }),
       try: () => loadYaml(raw),
     })
 
     return yield* migrate(parsed).pipe(
       Effect.catchTags({
-        SchemaDecodeError: (error) =>
-          Effect.fail(new ProgressValidationError({ message: `${path} (v${error.version}): ${error.message}` })),
+        SchemaDecodeError: (schemaDecodeError) =>
+          Effect.fail(
+            new ProgressValidationError({
+              error: schemaDecodeError,
+              message: `${path} (v${schemaDecodeError.version})`,
+            }),
+          ),
         SchemaVersionError: (error) =>
           Effect.fail(
             new ProgressValidationError({
-              message: `${path}: unsupported schema version (${String(error.version)})`,
+              error,
+              message: `${path}: unsupported schema version`,
             }),
           ),
       }),
@@ -139,18 +149,19 @@ export interface WriteResult {
 
 export const writeProgressFile = (
   input: WriteInput,
-): Effect.Effect<WriteResult, ProgressWriteError, FileSystem.FileSystem> =>
+): Effect.Effect<WriteResult, ProgressWriteError, FileSystem.FileSystem | Path.Path> =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
-    const path = progressFilePath(input.dir, input.roadmapId)
+    const pathService = yield* Path.Path
+    const path = yield* progressFilePath(input.dir, input.roadmapId)
 
     const toWriteError = (error: unknown): ProgressWriteError =>
       new ProgressWriteError({
-        message: error instanceof Error ? error.message : String(error),
+        error,
         path,
       })
 
-    yield* fs.makeDirectory(dirname(path), { recursive: true }).pipe(Effect.mapError(toWriteError))
+    yield* fs.makeDirectory(pathService.dirname(path), { recursive: true }).pipe(Effect.mapError(toWriteError))
     yield* fs.writeFileString(path, renderProgressYaml(input.data)).pipe(Effect.mapError(toWriteError))
 
     return { path }
@@ -175,18 +186,19 @@ export const listRoadmaps = (
   dir: string,
 ): Effect.Effect<
   readonly RoadmapProgress[],
-  ProgressDirNotFoundError | ProgressReadError | ProgressValidationError,
-  FileSystem.FileSystem
+  ProgressDirNotFoundError | ProgressFileNotFoundError | ProgressReadError | ProgressValidationError,
+  FileSystem.FileSystem | Path.Path
 > =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
+    const pathService = yield* Path.Path
 
     const toReadError =
-      (path: string) =>
+      (progressPath: string) =>
       (error: unknown): ProgressReadError =>
         new ProgressReadError({
-          message: error instanceof Error ? error.message : String(error),
-          path,
+          error,
+          path: progressPath,
         })
 
     if (!(yield* fs.exists(dir).pipe(Effect.mapError(toReadError(dir))))) {
@@ -201,24 +213,16 @@ export const listRoadmaps = (
         if (entry.startsWith('.')) {
           return null
         }
-        const entryPath = join(dir, entry)
+        const entryPath = pathService.join(dir, entry)
         const info = yield* fs.stat(entryPath).pipe(Effect.mapError(toReadError(entryPath)))
         if (info.type !== 'Directory') {
           return null
         }
-        const progressPath = progressFilePath(dir, entry)
+        const progressPath = yield* progressFilePath(dir, entry)
         if (!(yield* fs.exists(progressPath).pipe(Effect.mapError(toReadError(progressPath))))) {
           return null
         }
-        return yield* readProgressFile({ dir, roadmapId: entry }).pipe(
-          Effect.catchTag('ProgressFileNotFoundError', () => Effect.succeed(null)),
-          Effect.catchTag('ProgressValidationError', (e) =>
-            Effect.logWarning(`Skipping invalid progress file: ${e.message}`).pipe(Effect.as(null)),
-          ),
-          Effect.catchTag('ProgressReadError', (e) =>
-            Effect.logWarning(`Skipping unreadable progress file (${e.path}): ${e.message}`).pipe(Effect.as(null)),
-          ),
-        )
+        return yield* readProgressFile({ dir, roadmapId: entry })
       }),
     )
 
@@ -233,13 +237,19 @@ export interface WorktreeRoadmaps {
 export const listRoadmapsAcrossWorktrees = (
   worktrees: readonly Worktree[],
   relativeDir: string,
-): Effect.Effect<readonly WorktreeRoadmaps[], ProgressReadError | ProgressValidationError, FileSystem.FileSystem> =>
+): Effect.Effect<
+  readonly WorktreeRoadmaps[],
+  ProgressDirNotFoundError | ProgressFileNotFoundError | ProgressReadError | ProgressValidationError,
+  FileSystem.FileSystem | Path.Path
+> =>
   // oxlint-disable-next-line unicorn/no-array-method-this-argument -- Effect.forEach, not Array.forEach
   Effect.forEach(worktrees, (worktree) =>
-    listRoadmaps(join(worktree.path, relativeDir)).pipe(
-      Effect.catchTag('ProgressDirNotFoundError', () => Effect.succeed([] as readonly RoadmapProgress[])),
-      Effect.map((roadmaps) => ({ roadmaps, worktree })),
-    ),
+    Effect.gen(function* () {
+      const path = yield* Path.Path
+      return yield* listRoadmaps(path.join(worktree.path, relativeDir)).pipe(
+        Effect.map((roadmaps) => ({ roadmaps, worktree })),
+      )
+    }),
   )
 
 export interface UpdateRoadmapStatusInput {
@@ -254,7 +264,7 @@ export const updateRoadmapStatus = (
 ): Effect.Effect<
   WriteResult,
   ProgressFileNotFoundError | ProgressReadError | ProgressValidationError | ProgressWriteError,
-  FileSystem.FileSystem
+  FileSystem.FileSystem | Path.Path
 > =>
   Effect.gen(function* () {
     const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
@@ -278,7 +288,7 @@ export const updateRoadmapPrs = (
 ): Effect.Effect<
   WriteResult,
   ProgressFileNotFoundError | ProgressReadError | ProgressValidationError | ProgressWriteError,
-  FileSystem.FileSystem
+  FileSystem.FileSystem | Path.Path
 > =>
   Effect.gen(function* () {
     const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
@@ -294,11 +304,11 @@ export const initProgressFile = (
 ): Effect.Effect<
   InitResult,
   ProgressFileExistsError | ProgressValidationError | ProgressWriteError,
-  FileSystem.FileSystem
+  FileSystem.FileSystem | Path.Path
 > =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
-    const path = progressFilePath(input.dir, input.roadmapId)
+    const path = yield* progressFilePath(input.dir, input.roadmapId)
 
     const timestamp = DateTime.formatIso(input.now)
     const draft = {
@@ -313,12 +323,12 @@ export const initProgressFile = (
     }
 
     const validated = yield* decodeRoadmapProgress(draft).pipe(
-      Effect.mapError((error) => new ProgressValidationError({ message: String(error) })),
+      Effect.mapError((error) => new ProgressValidationError({ error })),
     )
 
     const toWriteError = (error: unknown): ProgressWriteError =>
       new ProgressWriteError({
-        message: error instanceof Error ? error.message : String(error),
+        error,
         path,
       })
 

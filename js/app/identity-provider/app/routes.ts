@@ -5,4 +5,4 @@ export type FrameName = 'login' | 'check-email' | 'register-passkey' | 'account'
 
 const helpers = createFrameHelpers<FrameName>()
 
-export const isFrameRequest = (frame: FrameName): boolean => helpers.isFrameRequest(getContext().req.raw, frame)
+export const matchesFrameRequest = (frame: FrameName): boolean => helpers.isFrameRequest(getContext().req.raw, frame)

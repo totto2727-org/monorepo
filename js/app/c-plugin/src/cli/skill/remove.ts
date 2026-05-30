@@ -1,6 +1,4 @@
-import * as NodePath from 'node:path'
-
-import { Array, Effect } from 'effect'
+import { Array, Effect, Path } from 'effect'
 import { Command, Flag, Prompt } from 'effect/unstable/cli'
 
 import { findNearestAgentsDir, getGlobalAgentsDir } from '#@/lib/paths.ts'
@@ -28,7 +26,8 @@ export const removeCommand = Command.make(
   },
   (config) =>
     Effect.gen(function* () {
-      const agentsDir = config.global ? getGlobalAgentsDir() : yield* Effect.promise(() => findNearestAgentsDir())
+      const path = yield* Path.Path
+      const agentsDir = yield* config.global ? Effect.succeed(getGlobalAgentsDir()) : findNearestAgentsDir()
       const lockFile = yield* LockFileService.read(agentsDir)
 
       const allSkills = lockFile.repositories.flatMap((repo) =>
@@ -89,7 +88,7 @@ export const removeCommand = Command.make(
         yield* Symlink.removeSkillLink(agentsDir, lockFile.skillDirs, skill.skillName)
       }
 
-      yield* removeRepoCaches(NodePath.dirname(agentsDir), lockFile, removedRepoSources)
+      yield* removeRepoCaches(path.dirname(agentsDir), lockFile, removedRepoSources)
 
       yield* Effect.log(`Removed ${toRemove.length} skill(s).`)
     }),

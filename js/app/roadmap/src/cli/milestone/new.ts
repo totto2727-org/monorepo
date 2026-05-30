@@ -4,15 +4,6 @@ import { Argument, Command, Flag } from 'effect/unstable/cli'
 import { resolveDirOrFail, rootCommand } from '#@/cli/root.ts'
 import { addMilestone } from '#@/lib/milestone.ts'
 
-const failWith = (message: string) =>
-  Effect.gen(function* () {
-    yield* Console.error(`error: ${message}`)
-    yield* Effect.sync(() => {
-      process.exitCode = 1
-    })
-    return null
-  })
-
 export const milestoneNewCommand = Command.make(
   'new',
   {
@@ -27,11 +18,7 @@ export const milestoneNewCommand = Command.make(
   ({ roadmapId, targetId: milestoneId, title }) =>
     Effect.gen(function* () {
       const { dir: relativeDir } = yield* rootCommand
-      const resolved = yield* resolveDirOrFail(relativeDir)
-      if (Predicate.isNullish(resolved)) {
-        return
-      }
-      const { dir } = resolved
+      const { dir } = yield* resolveDirOrFail(relativeDir)
       const resolvedTitle = Option.getOrElse(title, () => milestoneId)
       const now = yield* DateTime.now
       const result = yield* addMilestone({
@@ -40,18 +27,7 @@ export const milestoneNewCommand = Command.make(
         now,
         roadmapId,
         title: resolvedTitle,
-      }).pipe(
-        Effect.catchTags({
-          MilestoneAlreadyExistsError: (error) =>
-            failWith(`milestone "${error.milestoneId}" already exists in ${error.roadmapId}`),
-          MilestoneFileExistsError: (error) => failWith(`${error.path} already exists`),
-          MilestoneWriteError: (error) => failWith(`failed to write ${error.path}: ${error.message}`),
-          ProgressFileNotFoundError: (error) => failWith(`${error.path} not found`),
-          ProgressReadError: (error) => failWith(`failed to read ${error.path}: ${error.message}`),
-          ProgressValidationError: (error) => failWith(`invalid roadmap progress (${error.message})`),
-          ProgressWriteError: (error) => failWith(`failed to write ${error.path}: ${error.message}`),
-        }),
-      )
+      })
 
       if (Predicate.isNotNullish(result)) {
         yield* Console.log(`Created ${result.milestonePath}`)

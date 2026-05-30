@@ -1,22 +1,17 @@
-import * as Fs from 'node:fs/promises'
-import * as NodePath from 'node:path'
-
-import { Effect } from 'effect'
+import { Effect, FileSystem } from 'effect'
 import { Command } from 'effect/unstable/cli'
 
 import { getLockFilePath } from '#@/lib/paths.ts'
 import { emptyLockFile } from '#@/schema/lock-file.ts'
 
-export const initLockFile = (projectRoot: string): Effect.Effect<void, unknown> =>
-  Effect.tryPromise({
-    catch: (e: unknown) => e,
-    try: async () => {
-      const agentsDir = NodePath.join(projectRoot, '.agents')
-      const lockPath = getLockFilePath(agentsDir)
+export const initLockFile = (projectRoot: string): Effect.Effect<void, unknown, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const agentsDir = `${projectRoot}/.agents`
+    const lockPath = getLockFilePath(agentsDir)
 
-      await Fs.mkdir(agentsDir, { recursive: true })
-      await Fs.writeFile(lockPath, `${JSON.stringify(emptyLockFile, null, '\t')}\n`, { encoding: 'utf-8', flag: 'wx' })
-    },
+    yield* fs.makeDirectory(agentsDir, { recursive: true })
+    yield* fs.writeFileString(lockPath, `${JSON.stringify(emptyLockFile, null, '\t')}\n`, { flag: 'wx' })
   })
 
 export const initCommand = Command.make('init', {}, () => initLockFile(process.cwd())).pipe(

@@ -1,34 +1,32 @@
-import * as Fs from 'node:fs/promises'
-import * as NodePath from 'node:path'
-
-import { Effect } from 'effect'
+import { Effect, FileSystem, Path } from 'effect'
 
 import { expandHomePath, getSkillsDir } from '#@/lib/paths.ts'
 
-const createLinkInDir = (dir: string, skillName: string, targetPath: string): Effect.Effect<void> =>
-  Effect.tryPromise({
-    catch: (e: unknown) => e,
-    try: async () => {
-      await Fs.mkdir(dir, { recursive: true })
-      const linkPath = NodePath.join(dir, skillName)
-      const relativePath = NodePath.relative(dir, targetPath)
-      try {
-        await Fs.unlink(linkPath)
-      } catch {
-        // ignore if not exists
-      }
-      await Fs.symlink(relativePath, linkPath)
-    },
-  }).pipe(Effect.ignore)
+const createLinkInDir = (
+  dir: string,
+  skillName: string,
+  targetPath: string,
+): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const path = yield* Path.Path
+    yield* fs.makeDirectory(dir, { recursive: true }).pipe(Effect.ignore)
+    const linkPath = path.join(dir, skillName)
+    const relativePath = path.relative(dir, targetPath)
+    yield* fs.remove(linkPath, { force: true }).pipe(Effect.ignore)
+    yield* fs.symlink(relativePath, linkPath).pipe(Effect.ignore)
+  })
 
-const removeLinkInDir = (dir: string, skillName: string): Effect.Effect<void> =>
-  Effect.tryPromise({
-    catch: (e: unknown) => e,
-    try: async () => {
-      const linkPath = NodePath.join(dir, skillName)
-      await Fs.unlink(linkPath)
-    },
-  }).pipe(Effect.ignore)
+const removeLinkInDir = (
+  dir: string,
+  skillName: string,
+): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const path = yield* Path.Path
+    const linkPath = path.join(dir, skillName)
+    yield* fs.remove(linkPath, { force: true }).pipe(Effect.ignore)
+  })
 
 const getAllDirs = (agentsDir: string, skillDirs: readonly string[]): string[] => {
   const primary = getSkillsDir(agentsDir)
@@ -40,7 +38,7 @@ export const createSkillLink = (
   skillDirs: readonly string[],
   skillName: string,
   targetPath: string,
-): Effect.Effect<void> =>
+): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path> =>
   Effect.all(
     getAllDirs(agentsDir, skillDirs).map((dir) => createLinkInDir(dir, skillName, targetPath)),
     { concurrency: 'unbounded' },
@@ -50,32 +48,39 @@ export const removeSkillLink = (
   agentsDir: string,
   skillDirs: readonly string[],
   skillName: string,
-): Effect.Effect<void> =>
+): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path> =>
   Effect.all(
     getAllDirs(agentsDir, skillDirs).map((dir) => removeLinkInDir(dir, skillName)),
     { concurrency: 'unbounded' },
   ).pipe(Effect.asVoid)
 
-export const removeSkillLinkFromDirs = (dirs: readonly string[], skillName: string): Effect.Effect<void> =>
+export const removeSkillLinkFromDirs = (
+  dirs: readonly string[],
+  skillName: string,
+): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path> =>
   Effect.all(
     dirs.map((dir) => removeLinkInDir(expandHomePath(dir), skillName)),
     { concurrency: 'unbounded' },
   ).pipe(Effect.asVoid)
 
-export const listSkillLinks = (agentsDir: string): Effect.Effect<readonly string[]> =>
-  Effect.tryPromise({
-    catch: (e: unknown) => e,
-    try: async () => {
-      const skillsDir = getSkillsDir(agentsDir)
-      const entries = await Fs.readdir(skillsDir)
-      const links: string[] = []
-      for (const entry of entries) {
-        const fullPath = NodePath.join(skillsDir, entry)
-        const stat = await Fs.lstat(fullPath)
-        if (stat.isSymbolicLink()) {
-          links.push(entry)
-        }
+export const listSkillLinks = (
+  agentsDir: string,
+): Effect.Effect<readonly string[], never, FileSystem.FileSystem | Path.Path> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const path = yield* Path.Path
+    const skillsDir = getSkillsDir(agentsDir)
+    const entries = yield* fs.readDirectory(skillsDir).pipe(Effect.orElseSucceed(() => [] as readonly string[]))
+    const links: string[] = []
+    for (const entry of entries) {
+      const fullPath = path.join(skillsDir, entry)
+      const isLink = yield* fs.readLink(fullPath).pipe(
+        Effect.as(true),
+        Effect.orElseSucceed(() => false),
+      )
+      if (isLink) {
+        links.push(entry)
       }
-      return links
-    },
+    }
+    return links
   }).pipe(Effect.orElseSucceed((): string[] => []))

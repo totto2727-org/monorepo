@@ -1,6 +1,5 @@
-import * as NodePath from 'node:path'
-
-import { Array, Effect } from 'effect'
+import type { FileSystem } from 'effect'
+import { Array, Effect, Path } from 'effect'
 
 import { getRepoCacheDir } from '#@/lib/paths.ts'
 import type { LockFile } from '#@/schema/lock-file.ts'
@@ -11,9 +10,14 @@ import * as SyncService from '#@/service/sync.ts'
 
 export const run = (
   agentsDir: string,
-): Effect.Effect<void, Error | Git.GitError | LockFileService.LockFileCorruptError> =>
+): Effect.Effect<
+  void,
+  Error | Git.GitError | LockFileService.LockFileCorruptError,
+  FileSystem.FileSystem | Path.Path
+> =>
   Effect.gen(function* () {
-    const agentsRoot = NodePath.dirname(agentsDir)
+    const path = yield* Path.Path
+    const agentsRoot = path.dirname(agentsDir)
     yield* Cache.ensureDirs(agentsDir, agentsRoot)
 
     const lockFile = yield* LockFileService.read(agentsDir)

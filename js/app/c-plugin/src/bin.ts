@@ -50,4 +50,5 @@ const program = app.pipe(
   Effect.provide(NodeServices.layer),
 )
 
+// oxlint-disable-next-line rules/no-effect-runtime-run -- CLI executable entrypoint owns process-level Effect runtime execution.
 Effect.runFork(program)

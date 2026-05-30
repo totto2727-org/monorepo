@@ -1,9 +1,11 @@
-import { Schema } from 'effect'
+import { Effect, Path, Schema } from 'effect'
 import { describe, expect, test } from 'vite-plus/test'
 
 import { Milestone, RoadmapProgress } from '#@/feature/schema/current.ts'
 
 import { findMilestone, milestonePath, renderMilestoneTemplate } from './milestone.ts'
+
+const runPath = <A>(effect: Effect.Effect<A, never, Path.Path>): A => Effect.runSync(Effect.provide(effect, Path.layer))
 
 const buildMilestone = (overrides: Partial<typeof Milestone.Encoded> = {}) =>
   Schema.decodeUnknownSync(Milestone)({
@@ -32,15 +34,21 @@ const buildRoadmap = (milestones: readonly (typeof Milestone.Type)[]) =>
 
 describe('milestonePath', () => {
   test('joins dir, roadmap id, milestones segment and <id>.md filename', () => {
-    expect(milestonePath('docs/roadmap', 'alpha', 'ms-01-foo')).toBe('docs/roadmap/alpha/milestones/ms-01-foo.md')
+    expect(runPath(milestonePath('docs/roadmap', 'alpha', 'ms-01-foo'))).toBe(
+      'docs/roadmap/alpha/milestones/ms-01-foo.md',
+    )
   })
 
   test('normalizes trailing slash on dir', () => {
-    expect(milestonePath('docs/roadmap/', 'alpha', 'ms-01-foo')).toBe('docs/roadmap/alpha/milestones/ms-01-foo.md')
+    expect(runPath(milestonePath('docs/roadmap/', 'alpha', 'ms-01-foo'))).toBe(
+      'docs/roadmap/alpha/milestones/ms-01-foo.md',
+    )
   })
 
   test('handles absolute dir', () => {
-    expect(milestonePath('/abs/roadmap', 'alpha', 'ms-01-foo')).toBe('/abs/roadmap/alpha/milestones/ms-01-foo.md')
+    expect(runPath(milestonePath('/abs/roadmap', 'alpha', 'ms-01-foo'))).toBe(
+      '/abs/roadmap/alpha/milestones/ms-01-foo.md',
+    )
   })
 })
 

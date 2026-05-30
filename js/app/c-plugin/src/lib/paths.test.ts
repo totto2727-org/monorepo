@@ -2,6 +2,8 @@ import * as Fs from 'node:fs/promises'
 import * as Os from 'node:os'
 import * as NodePath from 'node:path'
 
+import { NodeServices } from '@effect/platform-node'
+import { Effect } from 'effect'
 import { describe, expect, test } from 'vite-plus/test'
 
 import {
@@ -10,9 +12,9 @@ import {
   findNearestAgentsDir,
   LOCK_FILE_NAME,
   getGitHubCloneUrl,
-  isHomePath,
-  isLocalPath,
-  isParentPath,
+  hasHomePathPrefix,
+  hasLocalPathPrefix,
+  hasParentPathPrefix,
   normalizePathSpec,
   parseRepoSource,
   resolveLocalPath,
@@ -76,43 +78,43 @@ describe('expandHomePath', () => {
 
 describe('isLocalPath', () => {
   test('accepts "./..." paths', () => {
-    expect(isLocalPath('./foo')).toBe(true)
-    expect(isLocalPath('./foo/bar')).toBe(true)
+    expect(hasLocalPathPrefix('./foo')).toBe(true)
+    expect(hasLocalPathPrefix('./foo/bar')).toBe(true)
   })
 
   test('rejects non-local paths', () => {
-    expect(isLocalPath('~/foo')).toBe(false)
-    expect(isLocalPath('../up')).toBe(false)
-    expect(isLocalPath('/abs/path')).toBe(false)
-    expect(isLocalPath('foo/bar')).toBe(false)
-    expect(isLocalPath('~')).toBe(false)
+    expect(hasLocalPathPrefix('~/foo')).toBe(false)
+    expect(hasLocalPathPrefix('../up')).toBe(false)
+    expect(hasLocalPathPrefix('/abs/path')).toBe(false)
+    expect(hasLocalPathPrefix('foo/bar')).toBe(false)
+    expect(hasLocalPathPrefix('~')).toBe(false)
   })
 })
 
 describe('isParentPath', () => {
   test('accepts "../..." paths', () => {
-    expect(isParentPath('../foo')).toBe(true)
-    expect(isParentPath('../../bar')).toBe(true)
+    expect(hasParentPathPrefix('../foo')).toBe(true)
+    expect(hasParentPathPrefix('../../bar')).toBe(true)
   })
 
   test('rejects non-parent paths', () => {
-    expect(isParentPath('./foo')).toBe(false)
-    expect(isParentPath('~/foo')).toBe(false)
-    expect(isParentPath('/abs/path')).toBe(false)
+    expect(hasParentPathPrefix('./foo')).toBe(false)
+    expect(hasParentPathPrefix('~/foo')).toBe(false)
+    expect(hasParentPathPrefix('/abs/path')).toBe(false)
   })
 })
 
 describe('isHomePath', () => {
   test('accepts "~/..." paths', () => {
-    expect(isHomePath('~/foo')).toBe(true)
-    expect(isHomePath('~/foo/bar')).toBe(true)
+    expect(hasHomePathPrefix('~/foo')).toBe(true)
+    expect(hasHomePathPrefix('~/foo/bar')).toBe(true)
   })
 
   test('rejects non-home paths', () => {
-    expect(isHomePath('./foo')).toBe(false)
-    expect(isHomePath('../up')).toBe(false)
-    expect(isHomePath('/abs/path')).toBe(false)
-    expect(isHomePath('~')).toBe(false)
+    expect(hasHomePathPrefix('./foo')).toBe(false)
+    expect(hasHomePathPrefix('../up')).toBe(false)
+    expect(hasHomePathPrefix('/abs/path')).toBe(false)
+    expect(hasHomePathPrefix('~')).toBe(false)
   })
 })
 
@@ -160,7 +162,7 @@ describe('findAgentsRoot', () => {
     await Fs.mkdir(NodePath.join(root, '.agents'), { recursive: true })
     await Fs.mkdir(nested, { recursive: true })
 
-    await expect(findAgentsRoot(nested)).resolves.toBe(root)
+    await expect(Effect.runPromise(findAgentsRoot(nested).pipe(Effect.provide(NodeServices.layer)))).resolves.toBe(root)
   })
 
   test('throws when no .agents directory exists', async () => {
@@ -168,7 +170,9 @@ describe('findAgentsRoot', () => {
     const nested = NodePath.join(root, 'a', 'b')
     await Fs.mkdir(nested, { recursive: true })
 
-    await expect(findAgentsRoot(nested)).rejects.toThrow('Could not find project root with .agents directory')
+    await expect(Effect.runPromise(findAgentsRoot(nested).pipe(Effect.provide(NodeServices.layer)))).rejects.toThrow(
+      'Could not find project root with .agents directory',
+    )
   })
 })
 
@@ -181,7 +185,9 @@ describe('findNearestAgentsDir', () => {
     const nested = NodePath.join(root, 'a', 'b', 'c')
     await Fs.mkdir(nested, { recursive: true })
 
-    await expect(findNearestAgentsDir(nested)).resolves.toBe(agentsDir)
+    await expect(
+      Effect.runPromise(findNearestAgentsDir(nested).pipe(Effect.provide(NodeServices.layer))),
+    ).resolves.toBe(agentsDir)
   })
 
   test('finds .agents in current directory', async () => {
@@ -190,7 +196,9 @@ describe('findNearestAgentsDir', () => {
     await Fs.mkdir(agentsDir, { recursive: true })
     await Fs.writeFile(NodePath.join(agentsDir, LOCK_FILE_NAME), '{}', 'utf-8')
 
-    await expect(findNearestAgentsDir(root)).resolves.toBe(agentsDir)
+    await expect(Effect.runPromise(findNearestAgentsDir(root).pipe(Effect.provide(NodeServices.layer)))).resolves.toBe(
+      agentsDir,
+    )
   })
 
   test('throws when no .agents with lock file exists', async () => {
@@ -198,9 +206,9 @@ describe('findNearestAgentsDir', () => {
     const nested = NodePath.join(root, 'a', 'b')
     await Fs.mkdir(nested, { recursive: true })
 
-    await expect(findNearestAgentsDir(nested)).rejects.toThrow(
-      `Could not find .agents directory with ${LOCK_FILE_NAME}`,
-    )
+    await expect(
+      Effect.runPromise(findNearestAgentsDir(nested).pipe(Effect.provide(NodeServices.layer))),
+    ).rejects.toThrow(`Could not find .agents directory with ${LOCK_FILE_NAME}`)
   })
 })
 

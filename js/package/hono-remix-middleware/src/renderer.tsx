@@ -46,21 +46,21 @@ const defaultResolveClientEntry: NonNullable<RenderToStreamOptions['resolveClien
 export const remixRenderer = (options: RemixRendererOptions): MiddlewareHandler => {
   const resolveClientEntry = options.resolveClientEntry ?? defaultResolveClientEntry
 
-  return (c, next) => {
-    c.setRenderer((content) => {
+  return (ctx, next) => {
+    ctx.setRenderer((content) => {
       const stream = renderToStream(content, {
-        frameSrc: c.req.url,
+        frameSrc: ctx.req.url,
         resolveClientEntry,
         async resolveFrame(src, target) {
           const headers = new Headers({ accept: 'text/html' })
-          const cookie = c.req.header('cookie')
+          const cookie = ctx.req.header('cookie')
           if (Predicate.isNotNullish(cookie) && String.isNonEmpty(cookie)) {
             headers.set('cookie', cookie)
           }
           if (Predicate.isString(target) && String.isNonEmpty(target)) {
             headers.set('x-remix-target', target)
           }
-          const response = await options.fetcher(new Request(new URL(src, c.req.url), { headers }))
+          const response = await options.fetcher(new Request(new URL(src, ctx.req.url), { headers }))
           return await (response.body ?? response.text())
         },
       })

@@ -12,7 +12,7 @@ export const targetRemoveCommand = Command.make(
   },
   (config) =>
     Effect.gen(function* () {
-      const agentsDir = config.global ? getGlobalAgentsDir() : yield* Effect.promise(() => findNearestAgentsDir())
+      const agentsDir = yield* config.global ? Effect.succeed(getGlobalAgentsDir()) : findNearestAgentsDir()
       const lockFile = yield* LockFileService.read(agentsDir)
 
       if (Array.isReadonlyArrayEmpty(lockFile.skillDirs)) {
