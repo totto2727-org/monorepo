@@ -1,3 +1,4 @@
+import * as Crypto from 'node:crypto'
 import * as Fs from 'node:fs/promises'
 import * as Os from 'node:os'
 import * as NodePath from 'node:path'
@@ -5,6 +6,12 @@ import * as NodePath from 'node:path'
 import { Predicate, String } from 'effect'
 
 export const getGlobalAgentsDir = (): string => NodePath.join(Os.homedir(), '.agents')
+
+export const getGlobalCacheRoot = (): string =>
+  process.env.C_PLUGIN_CACHE_ROOT ?? NodePath.join(Os.homedir(), '.c-plugin', 'cache')
+
+export const hashProjectRoot = (projectRoot: string): string =>
+  Crypto.createHash('sha256').update(NodePath.resolve(projectRoot)).digest('hex').slice(0, 12)
 
 export const expandHomePath = (path: string): string => {
   if (path === '~') {
@@ -74,7 +81,8 @@ export const findNearestAgentsDir = async (startDir: string = process.cwd()): Pr
 export const toRelativeLocalPath = (absPath: string, agentsRoot: string): string =>
   `./${NodePath.relative(agentsRoot, absPath)}`
 
-export const getCacheDir = (agentsDir: string): string => NodePath.join(agentsDir, '.cache')
+export const getCacheDir = (projectRoot: string): string =>
+  NodePath.join(getGlobalCacheRoot(), hashProjectRoot(projectRoot))
 
 export const getSkillsDir = (agentsDir: string): string => NodePath.join(agentsDir, 'skills')
 
@@ -82,8 +90,8 @@ export const getLockFilePath = (agentsDir: string): string => NodePath.join(agen
 
 export const getGitIgnorePath = (agentsDir: string): string => NodePath.join(agentsDir, '.gitignore')
 
-export const getRepoCacheDir = (agentsDir: string, source: string): string =>
-  NodePath.join(getCacheDir(agentsDir), source)
+export const getRepoCacheDir = (projectRoot: string, source: string): string =>
+  NodePath.join(getCacheDir(projectRoot), source)
 
 export const parseRepoSource = (repo: string): { owner: string; name: string } => {
   const parts = repo.split('/')

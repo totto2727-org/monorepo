@@ -23,7 +23,6 @@ describe('write', () => {
     await Effect.runPromise(write(ctx.agentsDir))
 
     const content = await Fs.readFile(getGitIgnorePath(ctx.agentsDir), 'utf-8')
-    expect(content).toContain('.cache/')
     expect(content).toContain('skills/')
     expect(content).toContain('.gitignore')
   })
@@ -35,6 +34,6 @@ describe('write', () => {
 
     const content = await Fs.readFile(getGitIgnorePath(ctx.agentsDir), 'utf-8')
     expect(content).not.toContain('old content')
-    expect(content).toContain('.cache/')
+    expect(content).toContain('skills/')
   })
 })

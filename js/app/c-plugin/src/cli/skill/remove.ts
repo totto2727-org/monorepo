@@ -1,3 +1,5 @@
+import * as NodePath from 'node:path'
+
 import { Array, Effect } from 'effect'
 import { Command, Flag, Prompt } from 'effect/unstable/cli'
 
@@ -7,7 +9,7 @@ import * as Cache from '#@/service/cache.ts'
 import * as LockFileService from '#@/service/lock-file.ts'
 import * as Symlink from '#@/service/symlink.ts'
 
-export const removeRepoCaches = (agentsDir: string, lockFile: LockFile, removedRepoSources: ReadonlySet<string>) =>
+export const removeRepoCaches = (projectRoot: string, lockFile: LockFile, removedRepoSources: ReadonlySet<string>) =>
   Effect.gen(function* () {
     for (const source of removedRepoSources) {
       const repo = lockFile.repositories.find((r) => r.source === source)
@@ -15,7 +17,7 @@ export const removeRepoCaches = (agentsDir: string, lockFile: LockFile, removedR
         continue
       }
       yield* Effect.log(`Removing cache for ${source}...`)
-      yield* Cache.removeRepo(agentsDir, source)
+      yield* Cache.removeRepo(projectRoot, source)
     }
   })
 
@@ -87,7 +89,7 @@ export const removeCommand = Command.make(
         yield* Symlink.removeSkillLink(agentsDir, lockFile.skillDirs, skill.skillName)
       }
 
-      yield* removeRepoCaches(agentsDir, lockFile, removedRepoSources)
+      yield* removeRepoCaches(NodePath.dirname(agentsDir), lockFile, removedRepoSources)
 
       yield* Effect.log(`Removed ${toRemove.length} skill(s).`)
     }),

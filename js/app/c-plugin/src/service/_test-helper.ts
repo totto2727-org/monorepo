@@ -2,15 +2,38 @@ import * as Fs from 'node:fs/promises'
 import * as Os from 'node:os'
 import * as NodePath from 'node:path'
 
+import { Predicate } from 'effect'
+
 import { getCacheDir, getLockFilePath, getRepoCacheDir } from '#@/lib/paths.ts'
 import type { LockFile } from '#@/schema/lock-file.ts'
 import type { Marketplace } from '#@/schema/marketplace.ts'
 
-export const setupTestContext = async (): Promise<{ agentsDir: string; cleanup: () => Promise<void> }> => {
-  const agentsDir = await Fs.mkdtemp(NodePath.join(Os.tmpdir(), 'c-plugin-test-'))
+export interface TestContext {
+  readonly projectRoot: string
+  readonly agentsDir: string
+  readonly cleanup: () => Promise<void>
+}
+
+export const setupTestContext = async (): Promise<TestContext> => {
+  const projectRoot = await Fs.mkdtemp(NodePath.join(Os.tmpdir(), 'c-plugin-test-'))
+  const agentsDir = NodePath.join(projectRoot, '.agents')
+  await Fs.mkdir(agentsDir, { recursive: true })
+
+  const cacheRoot = NodePath.join(projectRoot, '.c-plugin-cache-test')
+  const previousCacheRoot = process.env.C_PLUGIN_CACHE_ROOT
+  process.env.C_PLUGIN_CACHE_ROOT = cacheRoot
+
   return {
     agentsDir,
-    cleanup: () => Fs.rm(agentsDir, { force: true, recursive: true }),
+    cleanup: async () => {
+      if (Predicate.isNullish(previousCacheRoot)) {
+        delete process.env.C_PLUGIN_CACHE_ROOT
+      } else {
+        process.env.C_PLUGIN_CACHE_ROOT = previousCacheRoot
+      }
+      await Fs.rm(projectRoot, { force: true, recursive: true })
+    },
+    projectRoot,
   }
 }
 
@@ -26,11 +49,11 @@ export interface FakeRepoFixtureOptions {
 }
 
 export const buildFakeRepoFixture = async (
-  agentsDir: string,
+  projectRoot: string,
   source: string,
   options: FakeRepoFixtureOptions,
 ): Promise<string> => {
-  const repoDir = getRepoCacheDir(agentsDir, source)
+  const repoDir = getRepoCacheDir(projectRoot, source)
 
   const marketplace: Marketplace = {
     name: options.marketplaceName ?? 'test-marketplace',
@@ -65,7 +88,7 @@ export const writeLockFile = async (agentsDir: string, lockFile: LockFile): Prom
   await Fs.writeFile(path, `${JSON.stringify(lockFile, null, '\t')}\n`, 'utf-8')
 }
 
-export const ensureAgentsDirs = async (agentsDir: string): Promise<void> => {
-  await Fs.mkdir(getCacheDir(agentsDir), { recursive: true })
+export const ensureAgentsDirs = async (agentsDir: string, projectRoot: string): Promise<void> => {
+  await Fs.mkdir(getCacheDir(projectRoot), { recursive: true })
   await Fs.mkdir(NodePath.join(agentsDir, 'skills'), { recursive: true })
 }

@@ -10,11 +10,20 @@ import { rootCommand } from '#@/cli/root.ts'
 import { serveCommand } from '#@/cli/serve.ts'
 import { setCommand } from '#@/cli/set.ts'
 import { statusCommand } from '#@/cli/status.ts'
+import { taskCommand } from '#@/cli/task.ts'
 
 import pkg from '../package.json' with { type: 'json' }
 
 const app = rootCommand.pipe(
-  Command.withSubcommands([newCommand, lsCommand, statusCommand, setCommand, milestoneCommand, serveCommand]),
+  Command.withSubcommands([
+    newCommand,
+    lsCommand,
+    statusCommand,
+    setCommand,
+    milestoneCommand,
+    taskCommand,
+    serveCommand,
+  ]),
 )
 
 const program = app.pipe(Command.run({ version: pkg.version }), Effect.provide(NodeServices.layer))

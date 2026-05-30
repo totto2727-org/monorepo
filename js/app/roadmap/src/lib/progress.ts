@@ -4,9 +4,13 @@ import { dirname, join } from 'node:path'
 import { Data, DateTime, Effect, FileSystem, Predicate, Schema } from 'effect'
 import { dump as dumpYaml, load as loadYaml } from 'js-yaml'
 
+import type { RoadmapStatus } from '#@/feature/schema/current.ts'
+import { RoadmapProgress, SCHEMA_VERSION } from '#@/feature/schema/current.ts'
+import { migrate } from '#@/feature/schema/migrate.ts'
 import type { Worktree } from '#@/lib/git.ts'
-import type { RoadmapStatus } from '#@/schema/progress.ts'
-import { RoadmapProgress } from '#@/schema/progress.ts'
+
+// oxlint-disable-next-line rules/prefer-non-unknown-decode -- draft is a partially-typed literal
+const decodeRoadmapProgress = Schema.decodeUnknownEffect(RoadmapProgress)
 
 export class ProgressFileExistsError extends Data.TaggedError('ProgressFileExistsError')<{
   readonly path: string
@@ -29,9 +33,6 @@ export class ProgressWriteError extends Data.TaggedError('ProgressWriteError')<{
 export class ProgressValidationError extends Data.TaggedError('ProgressValidationError')<{
   readonly message: string
 }> {}
-
-// oxlint-disable-next-line rules/prefer-non-unknown-decode -- yaml parse output is unknown
-const decodeUnknown = Schema.decodeUnknownEffect(RoadmapProgress)
 
 const HEADER_COMMENT = `# Roadmap progress tracking yaml managed by the \`roadmap\` CLI.
 # Schema reference: plugins/dev-workflow/skills/share-artifacts/references/roadmap-progress-yaml.md
@@ -69,8 +70,9 @@ export const renderProgressYaml = (data: RoadmapProgress): string => {
       status: data.status,
       title: data.title,
       updated_at: DateTime.formatIso(data.updated_at),
+      version: SCHEMA_VERSION,
     },
-    { lineWidth: -1, noRefs: true },
+    { lineWidth: -1, noRefs: true, sortKeys: true },
   )
   return `${HEADER_COMMENT}\n${body}`
 }
@@ -111,8 +113,17 @@ export const readProgressFile = (
       try: () => loadYaml(raw),
     })
 
-    return yield* decodeUnknown(parsed).pipe(
-      Effect.mapError((error) => new ProgressValidationError({ message: `${path}: ${String(error)}` })),
+    return yield* migrate(parsed).pipe(
+      Effect.catchTags({
+        SchemaDecodeError: (error) =>
+          Effect.fail(new ProgressValidationError({ message: `${path} (v${error.version}): ${error.message}` })),
+        SchemaVersionError: (error) =>
+          Effect.fail(
+            new ProgressValidationError({
+              message: `${path}: unsupported schema version (${String(error.version)})`,
+            }),
+          ),
+      }),
     )
   })
 
@@ -298,9 +309,10 @@ export const initProgressFile = (
       status: 'planned',
       title: input.title,
       updated_at: timestamp,
+      version: SCHEMA_VERSION,
     }
 
-    const validated = yield* decodeUnknown(draft).pipe(
+    const validated = yield* decodeRoadmapProgress(draft).pipe(
       Effect.mapError((error) => new ProgressValidationError({ message: String(error) })),
     )
 

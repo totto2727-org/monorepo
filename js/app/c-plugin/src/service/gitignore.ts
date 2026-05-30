@@ -4,7 +4,7 @@ import { Effect } from 'effect'
 
 import { getGitIgnorePath } from '#@/lib/paths.ts'
 
-const CONTENT = `.cache/\nskills/\n.gitignore\n`
+const CONTENT = `skills/\n.gitignore\n`
 
 export const write = (agentsDir: string): Effect.Effect<void> =>
   Effect.tryPromise({

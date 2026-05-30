@@ -2,8 +2,8 @@ import { Array, Console, DateTime, Effect, Predicate } from 'effect'
 import { Argument, Command } from 'effect/unstable/cli'
 
 import { resolveDirOrFail, rootCommand } from '#@/cli/root.ts'
+import type { Milestone } from '#@/feature/schema/current.ts'
 import { readProgressFile } from '#@/lib/progress.ts'
-import type { Milestone } from '#@/schema/progress.ts'
 
 const failWith = (message: string) =>
   Effect.gen(function* () {

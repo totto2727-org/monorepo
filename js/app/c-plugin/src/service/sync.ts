@@ -20,7 +20,7 @@ const syncRepo = (
     const repoDir =
       repo.sourceType === 'local'
         ? yield* Cache.ensureLocalPath(repo.source, agentsRoot)
-        : yield* Cache.ensureRepo(agentsDir, repo.source)
+        : yield* Cache.ensureRepo(agentsRoot, repo.source)
 
     if (repo.sourceType !== 'local') {
       yield* Git.checkout(repoDir, repo.commitHash)
@@ -69,7 +69,8 @@ export const run = (
   agentsDir: string,
 ): Effect.Effect<void, Error | Git.GitError | LockFileService.LockFileCorruptError> =>
   Effect.gen(function* () {
-    yield* Cache.ensureDirs(agentsDir)
+    const agentsRoot = NodePath.dirname(agentsDir)
+    yield* Cache.ensureDirs(agentsDir, agentsRoot)
 
     const lockFile = yield* LockFileService.read(agentsDir)
     if (Array.isReadonlyArrayEmpty(lockFile.repositories)) {
@@ -82,7 +83,6 @@ export const run = (
       yield* Git.checkInstalled
     }
 
-    const agentsRoot = NodePath.dirname(agentsDir)
     const updatedRepos: RepositoryEntry[] = []
 
     for (const repo of lockFile.repositories) {

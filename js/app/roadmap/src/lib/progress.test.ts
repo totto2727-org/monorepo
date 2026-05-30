@@ -1,7 +1,7 @@
 import { Schema } from 'effect'
 import { describe, expect, test } from 'vite-plus/test'
 
-import { RoadmapProgress } from '#@/schema/progress.ts'
+import { RoadmapProgress } from '#@/feature/schema/current.ts'
 
 import { mergePrs, progressFilePath, renderProgressYaml } from './progress.ts'
 
@@ -14,6 +14,7 @@ const buildRoadmap = (overrides: Partial<typeof RoadmapProgress.Encoded> = {}) =
     status: 'planned',
     title: 'Roadmap management CLI',
     updated_at: '2026-05-15T16:15:13.160Z',
+    version: 2,
     ...overrides,
   })
 
@@ -90,6 +91,7 @@ describe('renderProgressYaml', () => {
             notes: null,
             prs: ['https://example.com/pr/3'],
             status: 'completed',
+            tasks: [],
             title: 'Bar',
             workflow_identifiers: ['wf-2026'],
           },

@@ -1,3 +1,5 @@
+import * as NodePath from 'node:path'
+
 import { Array, Effect } from 'effect'
 
 import { getRepoCacheDir } from '#@/lib/paths.ts'
@@ -11,7 +13,8 @@ export const run = (
   agentsDir: string,
 ): Effect.Effect<void, Error | Git.GitError | LockFileService.LockFileCorruptError> =>
   Effect.gen(function* () {
-    yield* Cache.ensureDirs(agentsDir)
+    const agentsRoot = NodePath.dirname(agentsDir)
+    yield* Cache.ensureDirs(agentsDir, agentsRoot)
 
     const lockFile = yield* LockFileService.read(agentsDir)
     if (Array.isReadonlyArrayEmpty(lockFile.repositories)) {
@@ -30,7 +33,7 @@ export const run = (
         updatedRepos.push(repo)
         continue
       }
-      const repoDir = getRepoCacheDir(agentsDir, repo.source)
+      const repoDir = getRepoCacheDir(agentsRoot, repo.source)
       yield* Effect.log(`Updating ${repo.source}...`)
       yield* Git.pull(repoDir)
       const newCommitHash = yield* Git.revParseHead(repoDir)

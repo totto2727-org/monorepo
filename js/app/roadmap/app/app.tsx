@@ -6,9 +6,9 @@ import { logger } from 'hono/logger'
 import type { RemixNode } from 'remix/ui'
 import { renderToStream } from 'remix/ui/server'
 
+import type { Milestone, RoadmapProgress } from '#@/feature/schema/current.ts'
 import type { Worktree } from '#@/lib/git.ts'
 import { listRoadmapsAcrossWorktrees } from '#@/lib/progress.ts'
-import type { Milestone, RoadmapProgress } from '#@/schema/progress.ts'
 
 import { Document } from './ui/document.tsx'
 import { Kanban } from './ui/kanban.tsx'
@@ -48,6 +48,13 @@ const milestoneContentKey = (m: Milestone): string =>
     notes: m.notes,
     prs: [...m.prs],
     status: m.status,
+    tasks: m.tasks.map((t) => ({
+      id: t.id,
+      notes: t.notes,
+      prs: [...t.prs],
+      status: t.status,
+      title: t.title,
+    })),
     title: m.title,
   })
 
@@ -87,6 +94,13 @@ const buildRoadmapData = (raws: readonly RawRoadmap[]): KanbanRoadmap[] => {
         notes: sample.notes,
         prs: sample.prs,
         status: sample.status satisfies MilestoneStatus,
+        tasks: sample.tasks.map((t) => ({
+          id: t.id,
+          notes: t.notes,
+          prs: t.prs,
+          status: t.status satisfies MilestoneStatus,
+          title: t.title,
+        })),
         title: sample.title,
         worktreeIds: wids,
       })
