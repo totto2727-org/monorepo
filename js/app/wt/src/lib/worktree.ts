@@ -1,9 +1,8 @@
 import { execFile } from 'node:child_process'
-import { readdir, stat } from 'node:fs/promises'
-import { join } from 'node:path'
 import { promisify } from 'node:util'
 
-import { Effect, Predicate, String } from 'effect'
+import { NodeServices } from '@effect/platform-node'
+import { Effect, FileSystem, Path, Predicate, String } from 'effect'
 
 // oxlint-disable-next-line typescript/strict-void-return -- node's promisify(execFile) overloads trigger a false positive
 const execFileAsync = promisify(execFile)
@@ -77,36 +76,30 @@ export interface PrInfo {
 // --- FS discovery ---
 
 export const discoverRepos = (baseDir: string): Effect.Effect<readonly string[]> =>
-  Effect.promise(async () => {
-    const isSelfRepo = await stat(join(baseDir, '.git'))
-      .then((s) => (s.isDirectory() ? baseDir : null))
-      .catch(() => null)
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const path = yield* Path.Path
+    const isSelfRepo = yield* fs.stat(path.join(baseDir, '.git')).pipe(
+      Effect.map((s) => (s.type === 'Directory' ? baseDir : null)),
+      Effect.orElseSucceed(() => null),
+    )
 
-    const entries = await readdir(baseDir)
-    const childRepos = await Promise.all(
-      entries.map(async (entry) => {
-        const full = join(baseDir, entry)
-        try {
-          const s = await stat(full)
-          if (!s.isDirectory()) {
-            return null
-          }
-          if (full === isSelfRepo) {
-            return null
-          }
-          const gitStat = await stat(join(full, '.git'))
-          if (!gitStat.isDirectory()) {
-            return null
-          }
-          return full
-        } catch {
+    const entries = yield* fs.readDirectory(baseDir).pipe(Effect.orElseSucceed(() => [] as readonly string[]))
+    // oxlint-disable-next-line unicorn/no-array-method-this-argument -- Effect.forEach, not Array.forEach
+    const childRepos = yield* Effect.forEach(entries, (entry) =>
+      Effect.gen(function* () {
+        const full = path.join(baseDir, entry)
+        const stat = yield* fs.stat(full).pipe(Effect.orElseSucceed(() => null))
+        if (Predicate.isNullish(stat) || stat.type !== 'Directory' || full === isSelfRepo) {
           return null
         }
+        const gitStat = yield* fs.stat(path.join(full, '.git')).pipe(Effect.orElseSucceed(() => null))
+        return !Predicate.isNullish(gitStat) && gitStat.type === 'Directory' ? full : null
       }),
     )
 
     return [isSelfRepo, ...childRepos].filter(Predicate.isNotNullish).toSorted()
-  })
+  }).pipe(Effect.provide(NodeServices.layer))
 
 // --- Remote parsing ---
 

@@ -33,6 +33,7 @@
   },
   "scripts": {},
   "dependencies": {
+    "@effect/platform-node": "catalog:effect",
     "@formatjs/intl-durationformat": "^0.10.13",
     "@noble/hashes": "^2.2.0",
     "base-x": "^5.0.1",

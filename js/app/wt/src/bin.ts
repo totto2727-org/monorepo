@@ -15,4 +15,5 @@ const app = Command.make('wt').pipe(
 
 const program = app.pipe(Command.run({ version: pkg.version }), Effect.provide(NodeServices.layer))
 
+// oxlint-disable-next-line rules/no-effect-runtime-run -- CLI executable entrypoint owns process-level Effect runtime execution.
 Effect.runFork(program)

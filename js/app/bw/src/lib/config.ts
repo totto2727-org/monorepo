@@ -1,7 +1,6 @@
-import { readFile } from 'node:fs/promises'
+import { Effect, FileSystem, Option, Predicate, Schema } from 'effect'
 
-import { Effect, Option, Predicate, Schema } from 'effect'
-
+import { errorMessageOrDefault } from '#@/lib/error.ts'
 import { ConfigFileError } from '#@/lib/errors.ts'
 import { InputError } from '#@/lib/input-error.ts'
 import { ConfigFile } from '#@/schema/config-file.ts'
@@ -11,25 +10,27 @@ const decodeConfigFile = Schema.decodeUnknownEffect(ConfigFile)
 
 export const loadConfig = (
   configPath: Option.Option<string>,
-): Effect.Effect<Record<string, unknown>, ConfigFileError> =>
+): Effect.Effect<Record<string, unknown>, ConfigFileError, FileSystem.FileSystem> =>
   Effect.gen(function* () {
     if (Option.isNone(configPath)) {
       return {}
     }
 
-    const text = yield* Effect.tryPromise({
-      catch: (error) =>
-        new ConfigFileError({
-          message: error instanceof Error ? error.message : String(error),
-          path: configPath.value,
-        }),
-      try: () => readFile(configPath.value, 'utf-8'),
-    })
+    const fs = yield* FileSystem.FileSystem
+    const text = yield* fs.readFileString(configPath.value).pipe(
+      Effect.mapError(
+        (error) =>
+          new ConfigFileError({
+            message: errorMessageOrDefault(error),
+            path: configPath.value,
+          }),
+      ),
+    )
 
     const parsed: unknown = yield* Effect.try({
       catch: (error) =>
         new ConfigFileError({
-          message: error instanceof Error ? error.message : String(error),
+          message: errorMessageOrDefault(error),
           path: configPath.value,
         }),
       try: (): unknown => JSON.parse(text),
@@ -37,8 +38,7 @@ export const loadConfig = (
 
     return yield* decodeConfigFile(parsed).pipe(
       Effect.mapError(
-        (e) =>
-          new ConfigFileError({ message: e instanceof Error ? e.message : JSON.stringify(e), path: configPath.value }),
+        (e) => new ConfigFileError({ message: errorMessageOrDefault(e, JSON.stringify(e)), path: configPath.value }),
       ),
     )
   })
@@ -47,20 +47,22 @@ export const resolveInput = (
   urlFlag: Option.Option<string>,
   htmlFlag: Option.Option<string>,
   config: Record<string, unknown>,
-): Effect.Effect<Record<string, unknown>, InputError> =>
+): Effect.Effect<Record<string, unknown>, InputError, FileSystem.FileSystem> =>
   Effect.gen(function* () {
     if (Option.isSome(urlFlag)) {
       return { ...config, url: urlFlag.value }
     }
 
     if (Option.isSome(htmlFlag)) {
-      const htmlContent = yield* Effect.tryPromise({
-        catch: (error) =>
-          new InputError({
-            message: `Failed to read HTML file: ${error instanceof Error ? error.message : String(error)}`,
-          }),
-        try: () => readFile(htmlFlag.value, 'utf-8'),
-      })
+      const fs = yield* FileSystem.FileSystem
+      const htmlContent = yield* fs.readFileString(htmlFlag.value).pipe(
+        Effect.mapError(
+          (error) =>
+            new InputError({
+              message: `Failed to read HTML file: ${errorMessageOrDefault(error)}`,
+            }),
+        ),
+      )
       return { ...config, html: htmlContent }
     }
 

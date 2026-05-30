@@ -1,6 +1,7 @@
 import { createOpencode } from '@opencode-ai/sdk'
 import { Effect } from 'effect'
 
+import { errorMessageOrDefault } from '#@/lib/error.ts'
 import { TranslateError } from '#@/lib/translate-error.ts'
 
 interface TranslateInput {
@@ -27,8 +28,7 @@ const parseModel = (raw: string): { providerID: string; modelID: string } | null
   return { modelID: raw.slice(slash + 1), providerID: raw.slice(0, slash) }
 }
 
-const fail = (error: unknown): TranslateError =>
-  new TranslateError({ message: error instanceof Error ? error.message : String(error) })
+const fail = (error: unknown): TranslateError => new TranslateError({ message: errorMessageOrDefault(error) })
 
 export const translate = (input: TranslateInput): Effect.Effect<string, TranslateError> =>
   Effect.acquireUseRelease(

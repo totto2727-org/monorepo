@@ -46,6 +46,7 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     ),
   )
   .get('/api/v1/hello', (c) =>
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes request-scoped Effect with the request runtime.
     c.var.runtime.runPromise(
       Effect.gen(function* () {
         const greeting = yield* Greeting.Service

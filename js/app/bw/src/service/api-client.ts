@@ -2,6 +2,7 @@ import { Data, Effect, Predicate, Schema } from 'effect'
 import type { HttpClientResponse } from 'effect/unstable/http'
 import { HttpBody, HttpClient } from 'effect/unstable/http'
 
+import { errorCauseOrUndefined, errorMessageOrDefault, errorNameOrDefault } from '#@/lib/error.ts'
 import type { CrawlStatusResult, SnapshotResult } from '#@/schema/response.ts'
 import { CrawlStartApiResponse, CrawlStatusApiResponse, SnapshotApiResponse } from '#@/schema/response.ts'
 import type { AuthConfig } from '#@/service/auth.ts'
@@ -15,22 +16,22 @@ export class ApiError extends Data.TaggedError('ApiError')<{
 }> {}
 
 const formatErrorChain = (error: unknown): string => {
-  if (!(error instanceof Error)) {
+  if (!(Predicate.isObject(error) && 'message' in error)) {
     try {
       return JSON.stringify(error)
     } catch {
-      return String(error)
+      return errorMessageOrDefault(error)
     }
   }
-  const parts: string[] = [`${error.name}: ${error.message}`]
+  const parts: string[] = [`${errorNameOrDefault(error)}: ${errorMessageOrDefault(error)}`]
 
   const collectCauses = (cause: unknown, depth: number): void => {
     if (depth >= 10) {
       return
     }
-    if (cause instanceof Error) {
-      parts.push(`caused by: ${cause.name}: ${cause.message}`)
-      collectCauses(cause.cause, depth + 1)
+    if (Predicate.isObject(cause) && 'message' in cause) {
+      parts.push(`caused by: ${errorNameOrDefault(cause)}: ${errorMessageOrDefault(cause)}`)
+      collectCauses(errorCauseOrUndefined(cause), depth + 1)
     } else if (!Predicate.isNullish(cause)) {
       try {
         parts.push(`caused by: ${JSON.stringify(cause)}`)
@@ -40,7 +41,7 @@ const formatErrorChain = (error: unknown): string => {
     }
   }
 
-  collectCauses(error.cause, 0)
+  collectCauses(errorCauseOrUndefined(error), 0)
   return parts.join(' | ')
 }
 

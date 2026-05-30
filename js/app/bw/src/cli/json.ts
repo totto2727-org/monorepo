@@ -1,9 +1,8 @@
-import { readFile } from 'node:fs/promises'
-
-import { Effect, Option } from 'effect'
+import { Effect, FileSystem, Option } from 'effect'
 import { Command, Flag } from 'effect/unstable/cli'
 
 import { applyWaitUntil, loadConfig, resolveInput } from '#@/lib/config.ts'
+import { errorMessageOrDefault } from '#@/lib/error.ts'
 import * as Flags from '#@/lib/flags.ts'
 import * as ApiClient from '#@/service/api-client.ts'
 import * as Auth from '#@/service/auth.ts'
@@ -30,16 +29,18 @@ export const jsonCommand = Command.make(
 
       const schemaPath = flags.schema
       const body = Option.isSome(schemaPath)
-        ? yield* Effect.tryPromise({
-            catch: (error) =>
-              new Error(`Failed to read schema file: ${error instanceof Error ? error.message : String(error)}`),
-            try: () => readFile(schemaPath.value, 'utf-8'),
-          }).pipe(
-            Effect.map((schemaText) => ({
+        ? yield* Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem
+            const schemaText = yield* fs
+              .readFileString(schemaPath.value)
+              .pipe(
+                Effect.mapError((error) => new Error(`Failed to read schema file: ${errorMessageOrDefault(error)}`)),
+              )
+            return {
               ...bodyWithPrompt,
               response_format: { schema: JSON.parse(schemaText) as unknown, type: 'json_schema' },
-            })),
-          )
+            }
+          })
         : bodyWithPrompt
 
       const result = yield* ApiClient.jsonExtract(auth, body)

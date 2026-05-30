@@ -1,35 +1,34 @@
-import { access, readFile, writeFile } from 'node:fs/promises'
+import { Effect, FileSystem } from 'effect'
 
-import { Effect } from 'effect'
-
+import { errorMessageOrDefault } from '#@/lib/error.ts'
 import { InputError } from '#@/lib/input-error.ts'
 import { OutputExistsError } from '#@/lib/output-exists-error.ts'
 
-const fileExists = (path: string): Effect.Effect<boolean> =>
-  Effect.promise(async () => {
-    try {
-      await access(path)
-      return true
-    } catch {
-      return false
-    }
+const fileExists = (path: string): Effect.Effect<boolean, never, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    return yield* fs.exists(path).pipe(Effect.orElseSucceed(() => false))
   })
 
-export const readText = (path: string): Effect.Effect<string, InputError> =>
-  Effect.tryPromise({
-    catch: (error) =>
-      new InputError({
-        message: error instanceof Error ? error.message : String(error),
-        path,
-      }),
-    try: () => readFile(path, 'utf-8'),
+export const readText = (path: string): Effect.Effect<string, InputError, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    return yield* fs.readFileString(path).pipe(
+      Effect.mapError(
+        (error) =>
+          new InputError({
+            message: errorMessageOrDefault(error),
+            path,
+          }),
+      ),
+    )
   })
 
 export const writeText = (
   path: string,
   text: string,
   force: boolean,
-): Effect.Effect<void, InputError | OutputExistsError> =>
+): Effect.Effect<void, InputError | OutputExistsError, FileSystem.FileSystem> =>
   Effect.gen(function* () {
     if (!force) {
       const exists = yield* fileExists(path)
@@ -37,12 +36,14 @@ export const writeText = (
         return yield* Effect.fail(new OutputExistsError({ path }))
       }
     }
-    return yield* Effect.tryPromise({
-      catch: (error) =>
-        new InputError({
-          message: error instanceof Error ? error.message : String(error),
-          path,
-        }),
-      try: () => writeFile(path, text, 'utf-8'),
-    })
+    const fs = yield* FileSystem.FileSystem
+    return yield* fs.writeFileString(path, text).pipe(
+      Effect.mapError(
+        (error) =>
+          new InputError({
+            message: errorMessageOrDefault(error),
+            path,
+          }),
+      ),
+    )
   })
