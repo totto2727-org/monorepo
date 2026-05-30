@@ -1,5 +1,4 @@
 node_modules/
-.claude/**.local.*
 *.local.*
 .cache
 .pnpm-store
@@ -7,3 +6,9 @@ node_modules/
 .claude/worktrees/
 .playwright-mcp/
 .playwright-cli/
+dist/
+build/
+_build/
+.wrangler/
+.tanstack/
+.mooncakes
