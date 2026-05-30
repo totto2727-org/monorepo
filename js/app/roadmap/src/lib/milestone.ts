@@ -4,10 +4,10 @@ import { join } from 'node:path'
 import type { DateTime } from 'effect'
 import { Data, Effect, FileSystem, Predicate, Schema } from 'effect'
 
+import type { MilestoneStatus } from '#@/feature/schema/current.ts'
+import { Milestone } from '#@/feature/schema/current.ts'
 import { mergePrs, ProgressValidationError, readProgressFile, writeProgressFile } from '#@/lib/progress.ts'
 import type { ProgressFileNotFoundError, ProgressReadError, ProgressWriteError } from '#@/lib/progress.ts'
-import type { MilestoneStatus } from '#@/schema/progress.ts'
-import { Milestone } from '#@/schema/progress.ts'
 
 import MILESTONE_TEMPLATE from './milestone-template.ts'
 
@@ -95,6 +95,7 @@ export const addMilestone = (
       notes: null,
       prs: [],
       status: 'planned',
+      tasks: [],
       title: input.title,
       workflow_identifiers: [],
     }).pipe(Effect.mapError((error) => new ProgressValidationError({ message: String(error) })))
