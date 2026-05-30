@@ -3,16 +3,16 @@ import { Predicate } from 'effect'
 
 import { hasProperty, isReportable } from '../helpers.ts'
 
-const EFFECT_ECOSYSTEM_RE = /^@?effect(?:\/|$)/
+const EFFECT_ECOSYSTEM_RE = /^@?effect(?:\/|$)/u
 
 export const isAllowedEffectImport = (source: string): boolean => {
   if (source === 'effect') {
     return true
   }
-  if (/^@effect\/[^/]+$/.test(source)) {
+  if (/^@effect\/[^/]+$/u.test(source)) {
     return true
   }
-  if (/^effect\/unstable\/[^/]+$/.test(source)) {
+  if (/^effect\/unstable\/[^/]+$/u.test(source)) {
     return true
   }
   return false

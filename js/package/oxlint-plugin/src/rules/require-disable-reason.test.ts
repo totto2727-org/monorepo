@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { hasDisableReason, isOxlintDisableDirective } from './require-disable-reason.ts'
+import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
+import rule, { hasDisableReason, isOxlintDisableDirective } from './require-disable-reason.ts'
 
 describe('isOxlintDisableDirective', () => {
   test('oxlint-disable matches', () => {
@@ -40,4 +41,31 @@ describe('hasDisableReason', () => {
   test('double dash without leading space does not match', () => {
     expect(hasDisableReason(' oxlint-disable-- reason')).toBe(false)
   })
+})
+
+runRuleTest('require-disable-reason', rule, {
+  invalid: [
+    {
+      code: '// oxlint-disable-next-line no-fetch\nfetch("x")',
+      errors: 1,
+      name: 'line oxlint-disable without reason is reported',
+    },
+    {
+      code: '/* oxlint-disable no-fetch */\nfetch("x")',
+      errors: 1,
+      name: 'block oxlint-disable without reason is reported',
+    },
+  ],
+  valid: [
+    {
+      code: '// oxlint-disable-next-line no-fetch -- bypass for external API\nfetch("x")',
+      name: 'line oxlint-disable with reason is allowed',
+    },
+    {
+      code: '/* oxlint-disable no-fetch -- anti-corruption boundary */\nfetch("x")',
+      name: 'block oxlint-disable with reason is allowed',
+    },
+    { code: '// regular comment\nconst x = 1', name: 'non-directive comments are allowed' },
+    { code: '// eslint-disable-next-line foo\nconst x = 1', name: 'eslint-disable directives are out of scope' },
+  ],
 })

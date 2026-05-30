@@ -1,9 +1,10 @@
 import type { Rule } from '@oxlint/plugins'
 
-const ESLINT_DISABLE_RE = /^\s*eslint-disable(?:-next-line|-line)?\b/gm
+const ESLINT_DISABLE_RE = /^\s*eslint-disable(?:-next-line|-line)?\b/gmu
 
 // Exported for testing only — uses a fresh RegExp instance to avoid lastIndex side-effects
-export const matchesEslintDisable = (value: string): boolean => /^\s*eslint-disable(?:-next-line|-line)?\b/m.test(value)
+export const matchesEslintDisable = (value: string): boolean =>
+  /^\s*eslint-disable(?:-next-line|-line)?\b/mu.test(value)
 
 const rule: Rule = {
   create(context) {

@@ -1,8 +1,0 @@
-{
-  "extends": ["@totto2727/fp/tsconfig/vite"],
-  "compilerOptions": {
-    "paths": {
-      "@package/ui/*": ["./src/*"]
-    }
-  }
-}

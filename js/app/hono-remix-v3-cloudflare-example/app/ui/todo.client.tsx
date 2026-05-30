@@ -129,7 +129,14 @@ export const Todo = clientEntry('/assets/app/ui/todo.client.tsx#Todo', (handle: 
             }),
           ]}
         >
-          <input type='text' name='todo' placeholder='What needs doing?' autoComplete='off' mix={inputStyle} />
+          <input
+            type='text'
+            name='todo'
+            aria-label='New todo'
+            placeholder='What needs doing?'
+            autoComplete='off'
+            mix={inputStyle}
+          />
           <button type='submit' mix={addButtonStyle}>
             Add
           </button>
@@ -143,6 +150,7 @@ export const Todo = clientEntry('/assets/app/ui/todo.client.tsx#Todo', (handle: 
               <label mix={labelStyle}>
                 <input
                   type='checkbox'
+                  aria-label={`Toggle ${item.text}`}
                   checked={item.done}
                   mix={on('change', () => {
                     state.items = state.items.map((it) => (it.id === item.id ? { ...it, done: !it.done } : it))

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { isAllowedEffectImport } from './no-effect-subpath-import.ts'
+import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
+import rule, { isAllowedEffectImport } from './no-effect-subpath-import.ts'
 
 describe('isAllowedEffectImport', () => {
   describe('allowed imports', () => {
@@ -34,4 +35,31 @@ describe('isAllowedEffectImport', () => {
       expect(isAllowedEffectImport('effect/unstable/foo/bar')).toBe(false)
     })
   })
+})
+
+runRuleTest('no-effect-subpath-import', rule, {
+  invalid: [
+    {
+      code: "import { Schema } from 'effect/Schema'",
+      errors: 1,
+      name: 'subpath under effect root is reported',
+    },
+    {
+      code: "import { NodeRuntime } from '@effect/platform-node/NodeRuntime'",
+      errors: 1,
+      name: 'subpath under @effect scope is reported',
+    },
+  ],
+  valid: [
+    { code: "import { Schema } from 'effect'", name: 'effect root import is allowed' },
+    {
+      code: "import { NodeRuntime } from '@effect/platform-node'",
+      name: '@effect package root import is allowed',
+    },
+    {
+      code: "import { Sql } from 'effect/unstable/sql'",
+      name: 'effect/unstable/<pkg> namespace import is allowed',
+    },
+    { code: "import { foo } from 'unrelated/deep/path'", name: 'unrelated package subpath is allowed' },
+  ],
 })

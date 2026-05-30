@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { getNullishSide, getStringValue, getTypeofType } from './force-predicate.ts'
+import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
+import rule, { getNullishSide, getStringValue, getTypeofType } from './force-predicate.ts'
 
 describe('getNullishSide', () => {
   test('null literal returns "null"', () => {
@@ -55,4 +56,21 @@ describe('getStringValue', () => {
   test('non-literal returns null', () => {
     expect(getStringValue({ name: 'foo', type: 'Identifier' })).toBeNull()
   })
+})
+
+runRuleTest('force-predicate', rule, {
+  invalid: [
+    { code: 'if (x === null) {}', errors: 1, name: '=== null reports Predicate.isNull' },
+    { code: 'if (null === x) {}', errors: 1, name: 'null === x reports Predicate.isNull' },
+    { code: 'if (x !== undefined) {}', errors: 1, name: '!== undefined reports Predicate.isUndefined' },
+    { code: "if (typeof x === 'string') {}", errors: 1, name: "typeof === 'string' reports Predicate.isString" },
+    { code: "if (typeof x === 'object') {}", errors: 1, name: "typeof === 'object' reports Predicate.isObject" },
+    { code: "if (typeof x === 'function') {}", errors: 1, name: "typeof === 'function' reports Predicate.isFunction" },
+  ],
+  valid: [
+    { code: 'if (Predicate.isNull(x)) {}', name: 'recommended Predicate.isNull call' },
+    { code: 'if (Predicate.isString(x)) {}', name: 'recommended Predicate.isString call' },
+    { code: 'if (x === 1) {}', name: 'unrelated numeric comparison is ignored' },
+    { code: "if (typeof x === 'unknownType') {}", name: 'unknown typeof string is ignored' },
+  ],
 })

@@ -13,7 +13,7 @@
   "devDependencies": {
     "@totto2727/fp": "workspace:*",
     "remix": "catalog:remix",
-    "vite": "catalog:vite"
+    "vite": "catalog:"
   },
   "peerDependencies": {
     "remix": "catalog:remix",

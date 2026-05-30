@@ -1,7 +1,7 @@
 import type { Rule } from '@oxlint/plugins'
 
-const OXLINT_DISABLE_DIRECTIVE_RE = /\boxlint-disable\b/
-const DISABLE_REASON_RE = /\s--\s+\S/
+const OXLINT_DISABLE_DIRECTIVE_RE = /\boxlint-disable\b/u
+const DISABLE_REASON_RE = /\s--\s+\S/u
 
 export const isOxlintDisableDirective = (value: string): boolean => OXLINT_DISABLE_DIRECTIVE_RE.test(value)
 

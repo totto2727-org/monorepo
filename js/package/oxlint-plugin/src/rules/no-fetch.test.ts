@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { isFetchIdentifier, isFetchOnGlobal } from './no-fetch.ts'
+import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
+import rule, { isFetchIdentifier, isFetchOnGlobal } from './no-fetch.ts'
 
 describe('isFetchIdentifier', () => {
   test('fetch identifier returns true', () => {
@@ -60,4 +61,18 @@ describe('isFetchOnGlobal', () => {
       }),
     ).toBe(false)
   })
+})
+
+runRuleTest('no-fetch', rule, {
+  invalid: [
+    { code: "fetch('https://example.com')", errors: 1, name: 'bare fetch call is reported' },
+    { code: "globalThis.fetch('https://example.com')", errors: 1, name: 'globalThis.fetch is reported' },
+    { code: "window.fetch('https://example.com')", errors: 1, name: 'window.fetch is reported' },
+    { code: "self.fetch('https://example.com')", errors: 1, name: 'self.fetch is reported' },
+  ],
+  valid: [
+    { code: "myClient.fetch('https://example.com')", name: 'non-global .fetch call is allowed' },
+    { code: 'const f = fetch; f()', name: 'reference to fetch without call site is not reported' },
+    { code: "httpClient.get('https://example.com')", name: 'arbitrary client call is allowed' },
+  ],
 })

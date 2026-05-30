@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { matchJsImport } from './force-ts-extension.ts'
+import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
+import rule, { matchJsImport } from './force-ts-extension.ts'
 
 describe('matchJsImport', () => {
   describe('matches', () => {
@@ -79,4 +80,39 @@ describe('matchJsImport', () => {
       expect(elapsed).toBeLessThan(100)
     })
   })
+})
+
+runRuleTest('force-ts-extension', rule, {
+  invalid: [
+    {
+      code: "import { foo } from './foo.js'",
+      errors: 1,
+      name: '.js import is reported and fixed to .ts',
+      output: "import { foo } from './foo.ts'",
+    },
+    {
+      code: "import { foo } from '../bar.jsx'",
+      errors: 1,
+      name: '.jsx import is reported and fixed to .tsx',
+      output: "import { foo } from '../bar.tsx'",
+    },
+    {
+      code: "export { foo } from './foo.js'",
+      errors: 1,
+      name: 're-export with .js is reported and fixed',
+      output: "export { foo } from './foo.ts'",
+    },
+    {
+      code: "import { baz } from '#@/baz.js'",
+      errors: 1,
+      name: 'subpath import with .js is reported and fixed',
+      output: "import { baz } from '#@/baz.ts'",
+    },
+  ],
+  valid: [
+    { code: "import { foo } from './foo.ts'", name: '.ts import is allowed' },
+    { code: "import { foo } from 'package-name'", name: 'bare package import is ignored' },
+    { code: "import { foo } from 'package.js'", name: 'package name ending in .js is ignored' },
+    { code: "import { foo } from '##storybook/utils'", name: 'double-hash subpath import is ignored' },
+  ],
 })

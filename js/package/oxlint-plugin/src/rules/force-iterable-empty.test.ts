@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { isIterableSizeCall } from './force-iterable-empty.ts'
+import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
+import rule, { isIterableSizeCall } from './force-iterable-empty.ts'
 
 const makeIterableSize = (objectName: string, methodName: string) => ({
   callee: {
@@ -42,4 +43,18 @@ describe('isIterableSizeCall', () => {
   test('non-CallExpression returns false', () => {
     expect(isIterableSizeCall({ name: 'size', type: 'Identifier' })).toBe(false)
   })
+})
+
+runRuleTest('force-iterable-empty', rule, {
+  invalid: [
+    { code: 'if (Iterable.size(xs) === 0) {}', errors: 1, name: 'size === 0 reports empty' },
+    { code: 'if (Iterable.size(xs) !== 0) {}', errors: 1, name: 'size !== 0 reports non-empty' },
+    { code: 'if (Iterable.size(xs) > 0) {}', errors: 1, name: 'size > 0 reports non-empty' },
+    { code: 'if (Iterable.size(xs) < 1) {}', errors: 1, name: 'size < 1 reports empty' },
+  ],
+  valid: [
+    { code: 'if (Iterable.isEmpty(xs)) {}', name: 'recommended Iterable.isEmpty call' },
+    { code: 'if (Iterable.size(xs) === 5) {}', name: 'comparison with arbitrary literal is ignored' },
+    { code: 'if (xs.length === 0) {}', name: 'array-style length is ignored by this rule' },
+  ],
 })

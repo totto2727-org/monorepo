@@ -3,7 +3,7 @@ import { Predicate } from 'effect'
 
 import { getImportSource, hasProperty, isReportable } from '../helpers.ts'
 
-const EFFECT_IMPORT_RE = /^@?effect(?:\/|$)/
+const EFFECT_IMPORT_RE = /^@?effect(?:\/|$)/u
 
 export const isEffectEcosystemImport = (sourceValue: string): boolean => EFFECT_IMPORT_RE.test(sourceValue)
 

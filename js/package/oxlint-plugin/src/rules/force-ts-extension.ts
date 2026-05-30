@@ -3,7 +3,7 @@ import { Predicate } from 'effect'
 
 import { hasProperty, isReportable } from '../helpers.ts'
 
-const JS_IMPORT_RE = /^(\.+|#(?!#)[^/]*)(\/.*)\.js(x?)$/
+const JS_IMPORT_RE = /^(\.+|#(?!#)[^/]*)(\/.*)\.js(x?)$/u
 
 export const matchJsImport = (value: string): { path: string; start: string; x: string } | null => {
   const match = JS_IMPORT_RE.exec(value)

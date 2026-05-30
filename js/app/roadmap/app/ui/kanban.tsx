@@ -398,7 +398,7 @@ const buildUrl = (
 }
 
 const formatPrLabel = (pr: string): string => {
-  const match = /\/(?:pull|issues)\/(\d+)/.exec(pr)
+  const match = /\/(?:pull|issues)\/(\d+)/u.exec(pr)
   return Predicate.isNullish(match) ? pr : `#${match[1]}`
 }
 
@@ -530,7 +530,7 @@ export const Kanban = () => (props: KanbanProps) => {
                   const stripeColors = m.worktreeIds.map(worktreeColor)
                   const stripe = buildStripe(stripeColors)
                   const dialogId = `dlg-${roadmap.id}-${m.id}-${m.worktreeIds.join('_')}`.replaceAll(
-                    /[^a-zA-Z0-9_-]/g,
+                    /[^a-zA-Z0-9_-]/gu,
                     '_',
                   )
                   const ratio = taskRatio(m.tasks)

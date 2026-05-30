@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { getForbiddenDateStaticMethod, isDateIdentifier } from './no-js-date.ts'
+import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
+import rule, { getForbiddenDateStaticMethod, isDateIdentifier } from './no-js-date.ts'
 
 describe('isDateIdentifier', () => {
   test('Date identifier returns true', () => {
@@ -64,4 +65,19 @@ describe('getForbiddenDateStaticMethod', () => {
       }),
     ).toBeNull()
   })
+})
+
+runRuleTest('no-js-date', rule, {
+  invalid: [
+    { code: 'const d = new Date()', errors: 1, name: 'new Date() is reported' },
+    { code: 'const n = Date.now()', errors: 1, name: 'Date.now() is reported' },
+    { code: "const p = Date.parse('2024-01-01')", errors: 1, name: 'Date.parse() is reported' },
+    { code: 'const u = Date.UTC(2024, 0, 1)', errors: 1, name: 'Date.UTC() is reported' },
+  ],
+  valid: [
+    { code: 'const d = DateTime.now()', name: 'Effect DateTime.now is allowed' },
+    { code: 'const t = Duration.seconds(1)', name: 'Effect Duration is allowed' },
+    { code: 'const x = Date', name: 'mere Date reference without member access or new is allowed' },
+    { code: 'const x = Date.prototype', name: 'non-forbidden Date member access is allowed' },
+  ],
 })

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { matchesEslintDisable } from './no-eslint-disable-comments.ts'
+import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
+import rule, { matchesEslintDisable } from './no-eslint-disable-comments.ts'
 
 describe('matchesEslintDisable', () => {
   test('eslint-disable matches', () => {
@@ -30,4 +31,25 @@ describe('matchesEslintDisable', () => {
   test('eslint-enable does not match (not a disable directive)', () => {
     expect(matchesEslintDisable(' eslint-enable')).toBe(false)
   })
+})
+
+runRuleTest('no-eslint-disable-comments', rule, {
+  invalid: [
+    {
+      code: '// eslint-disable-next-line no-console\nconsole.log(1)',
+      errors: 1,
+      name: 'line eslint-disable-next-line is reported and fixed',
+      output: '// oxlint-disable-next-line no-console\nconsole.log(1)',
+    },
+    {
+      code: '/* eslint-disable no-console */\nconsole.log(1)',
+      errors: 1,
+      name: 'block eslint-disable is reported and fixed',
+      output: '/* oxlint-disable no-console */\nconsole.log(1)',
+    },
+  ],
+  valid: [
+    { code: '// oxlint-disable-next-line no-console\nconsole.log(1)', name: 'oxlint-disable comments are allowed' },
+    { code: '// just a regular comment\nconst x = 1', name: 'regular comments are allowed' },
+  ],
 })
