@@ -19,6 +19,7 @@
     "./case": "./src/case.ts",
     "./di": "./src/di.ts",
     "./duration": "./src/duration.ts",
+    "./error": "./src/error.ts",
     "./effect/cuid": "./src/effect/cuid.ts",
     "./effect/option-t": "./src/effect/option-t.ts",
     "./effect/util": "./src/effect/util.ts",
