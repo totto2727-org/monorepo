@@ -5,7 +5,7 @@ import {
   expandHomePath,
   findNearestAgentsDir,
   getGlobalAgentsDir,
-  isHomePath,
+  hasHomePathPrefix,
   normalizePathSpec,
 } from '#@/lib/paths.ts'
 import * as LockFileService from '#@/service/lock-file.ts'
@@ -20,12 +20,12 @@ export const targetAddCommand = Command.make(
   (config) =>
     Effect.gen(function* () {
       const normalizedPath = normalizePathSpec(config.path)
-      if (!isHomePath(normalizedPath)) {
+      if (!hasHomePathPrefix(normalizedPath)) {
         yield* Effect.fail(new Error(`Invalid target path: ${config.path}. Expected '~/...' (home path).`))
         return
       }
 
-      const agentsDir = config.global ? getGlobalAgentsDir() : yield* Effect.promise(() => findNearestAgentsDir())
+      const agentsDir = yield* config.global ? Effect.succeed(getGlobalAgentsDir()) : findNearestAgentsDir()
       const lockFile = yield* LockFileService.read(agentsDir)
 
       const expanded = expandHomePath(normalizedPath)

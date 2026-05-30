@@ -2,10 +2,11 @@ import * as Fs from 'node:fs/promises'
 import * as Os from 'node:os'
 import * as NodePath from 'node:path'
 
+import { NodeServices } from '@effect/platform-node'
 import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vite-plus/test'
 
-import { isLocalPath } from '#@/lib/paths.ts'
+import { hasLocalPathPrefix } from '#@/lib/paths.ts'
 import { hasSupportedPluginFormat } from '#@/lib/plugin-format.ts'
 import { allKinds, getKindConfig } from '#@/schema/marketplace-kind.ts'
 
@@ -34,27 +35,27 @@ describe('add module', () => {
 
 describe('isLocalPath (add local-flow validation)', () => {
   test('rejects absolute path', () => {
-    expect(isLocalPath('/abs/path')).toBe(false)
+    expect(hasLocalPathPrefix('/abs/path')).toBe(false)
   })
 
   test('rejects bare relative path', () => {
-    expect(isLocalPath('foo/bar')).toBe(false)
+    expect(hasLocalPathPrefix('foo/bar')).toBe(false)
   })
 
   test('rejects parent traversal', () => {
-    expect(isLocalPath('../up')).toBe(false)
+    expect(hasLocalPathPrefix('../up')).toBe(false)
   })
 
   test('rejects lone "~"', () => {
-    expect(isLocalPath('~')).toBe(false)
+    expect(hasLocalPathPrefix('~')).toBe(false)
   })
 
   test('rejects "~/foo" home-prefixed path', () => {
-    expect(isLocalPath('~/foo')).toBe(false)
+    expect(hasLocalPathPrefix('~/foo')).toBe(false)
   })
 
   test('accepts "./foo" explicit relative path', () => {
-    expect(isLocalPath('./foo')).toBe(true)
+    expect(hasLocalPathPrefix('./foo')).toBe(true)
   })
 })
 
@@ -75,17 +76,25 @@ describe('hasSupportedPluginFormat (add local-flow target check)', () => {
     for (const kind of allKinds) {
       const dir = await mkTmp()
       await Fs.mkdir(NodePath.join(dir, getKindConfig(kind).configDir))
-      await expect(hasSupportedPluginFormat(dir)).resolves.toBe(true)
+      await expect(
+        Effect.runPromise(hasSupportedPluginFormat(dir).pipe(Effect.provide(NodeServices.layer))),
+      ).resolves.toBe(true)
     }
   })
 
   test('returns false when target has no plugin config dir', async () => {
     const dir = await mkTmp()
-    await expect(hasSupportedPluginFormat(dir)).resolves.toBe(false)
+    await expect(
+      Effect.runPromise(hasSupportedPluginFormat(dir).pipe(Effect.provide(NodeServices.layer))),
+    ).resolves.toBe(false)
   })
 
   test('returns false when target directory does not exist', async () => {
     const dir = await mkTmp()
-    await expect(hasSupportedPluginFormat(NodePath.join(dir, 'missing'))).resolves.toBe(false)
+    await expect(
+      Effect.runPromise(
+        hasSupportedPluginFormat(NodePath.join(dir, 'missing')).pipe(Effect.provide(NodeServices.layer)),
+      ),
+    ).resolves.toBe(false)
   })
 })

@@ -2,6 +2,7 @@ import * as Fs from 'node:fs/promises'
 import * as Os from 'node:os'
 import * as NodePath from 'node:path'
 
+import { NodeServices } from '@effect/platform-node'
 import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vite-plus/test'
 
@@ -35,7 +36,9 @@ describe('sync run', () => {
     }
     await writeLockFile(ctx.agentsDir, lockFile)
 
-    await expect(Effect.runPromise(run(ctx.agentsDir))).resolves.toBeUndefined()
+    await expect(
+      Effect.runPromise(run(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer))),
+    ).resolves.toBeUndefined()
   })
 
   test('creates symlinks for enabled skills', async () => {
@@ -70,7 +73,7 @@ describe('sync run', () => {
     }
     await writeLockFile(ctx.agentsDir, lockFile)
 
-    await Effect.runPromise(run(ctx.agentsDir))
+    await Effect.runPromise(run(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
 
     const skillsDir = getSkillsDir(ctx.agentsDir)
     const linkA = await Fs.lstat(NodePath.join(skillsDir, 'skill-a'))
@@ -111,7 +114,7 @@ describe('sync run', () => {
     }
     await writeLockFile(ctx.agentsDir, lockFile)
 
-    await Effect.runPromise(run(ctx.agentsDir))
+    await Effect.runPromise(run(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
 
     const skillsDir = getSkillsDir(ctx.agentsDir)
     const linkA = await Fs.lstat(NodePath.join(skillsDir, 'skill-a'))
@@ -119,7 +122,9 @@ describe('sync run', () => {
 
     await expect(Fs.lstat(NodePath.join(skillsDir, 'skill-removed'))).rejects.toThrow()
 
-    const updatedLockFile = await Effect.runPromise(readLockFile(ctx.agentsDir))
+    const updatedLockFile = await Effect.runPromise(
+      readLockFile(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)),
+    )
     const plugin = updatedLockFile.repositories[0]?.plugins[0]
     expect(plugin?.enabledSkills).toStrictEqual(['skill-a'])
   })
@@ -156,9 +161,11 @@ describe('sync run', () => {
     }
     await writeLockFile(ctx.agentsDir, lockFile)
 
-    await Effect.runPromise(run(ctx.agentsDir))
+    await Effect.runPromise(run(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
 
-    const updatedLockFile = await Effect.runPromise(readLockFile(ctx.agentsDir))
+    const updatedLockFile = await Effect.runPromise(
+      readLockFile(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)),
+    )
     expect(updatedLockFile.repositories).toHaveLength(0)
   })
 
@@ -197,7 +204,7 @@ describe('sync run', () => {
     }
     await writeLockFile(ctx.agentsDir, lockFile)
 
-    await Effect.runPromise(run(ctx.agentsDir))
+    await Effect.runPromise(run(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
 
     const extraLink = await Fs.lstat(NodePath.join(extraDir, 'skill-a'))
     expect(extraLink.isSymbolicLink()).toBe(true)
@@ -242,7 +249,7 @@ describe('sync run', () => {
       }
       await writeLockFile(ctx.agentsDir, lockFile)
 
-      await Effect.runPromise(run(ctx.agentsDir))
+      await Effect.runPromise(run(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
 
       const skillsDir = getSkillsDir(ctx.agentsDir)
       const link = await Fs.lstat(NodePath.join(skillsDir, 'local-skill'))

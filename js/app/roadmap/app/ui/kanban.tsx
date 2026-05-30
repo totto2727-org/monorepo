@@ -349,16 +349,16 @@ interface FilterParams {
   worktrees: readonly string[]
 }
 
-const isAll = (raw: readonly string[]): boolean => Array.isReadonlyArrayEmpty(raw)
+const selectsAll = (raw: readonly string[]): boolean => Array.isReadonlyArrayEmpty(raw)
 
-const isNone = (raw: readonly string[]): boolean =>
+const selectsNone = (raw: readonly string[]): boolean =>
   raw.length === 1 && Predicate.isNotNullish(raw[0]) && String.isEmpty(raw[0])
 
 const resolveSelection = (raw: readonly string[], allIds: readonly string[]): readonly string[] => {
-  if (isAll(raw)) {
+  if (selectsAll(raw)) {
     return allIds
   }
-  if (isNone(raw)) {
+  if (selectsNone(raw)) {
     return []
   }
   return raw.filter((id) => allIds.includes(id))

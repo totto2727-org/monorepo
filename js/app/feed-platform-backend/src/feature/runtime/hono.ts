@@ -17,8 +17,8 @@ export interface Variables {
 // generic に渡す形で拡張する。
 export const middleware = createMiddleware<{
   Variables: Variables
-}>(async (c, next) => {
+}>(async (ctx, next) => {
   await using runtime = Runtime.make()
-  c.set('runtime', runtime.instance)
+  ctx.set('runtime', runtime.instance)
   await next()
 })

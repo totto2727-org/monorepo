@@ -1,17 +1,17 @@
-import * as Fs from 'node:fs/promises'
-import * as NodePath from 'node:path'
+import { Effect, FileSystem } from 'effect'
 
 import { allKinds, getKindConfig } from '#@/schema/marketplace-kind.ts'
 
-export const hasSupportedPluginFormat = async (dirPath: string): Promise<boolean> => {
-  for (const kind of allKinds) {
-    try {
-      await Fs.access(NodePath.join(dirPath, getKindConfig(kind).configDir))
-      return true
-    } catch {
-      // keep checking other supported formats
+export const hasSupportedPluginFormat = (dirPath: string): Effect.Effect<boolean, never, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    for (const kind of allKinds) {
+      const exists = yield* fs
+        .exists(`${dirPath}/${getKindConfig(kind).configDir}`)
+        .pipe(Effect.orElseSucceed(() => false))
+      if (exists) {
+        return true
+      }
     }
-  }
-
-  return false
-}
+    return false
+  })

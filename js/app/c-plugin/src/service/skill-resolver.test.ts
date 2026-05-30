@@ -1,6 +1,7 @@
 import * as Fs from 'node:fs/promises'
 import * as NodePath from 'node:path'
 
+import { NodeServices } from '@effect/platform-node'
 import { Effect, Exit } from 'effect'
 import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 
@@ -30,7 +31,7 @@ describe('resolveFromRepo', () => {
       ],
     })
 
-    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude'))
+    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)))
 
     expect(skills).toHaveLength(2)
     expect(skills.map((s) => s.skillName).toSorted()).toStrictEqual(['skill-a', 'skill-b'])
@@ -53,7 +54,7 @@ describe('resolveFromRepo', () => {
       ],
     })
 
-    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude'))
+    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)))
     expect(skills).toHaveLength(3)
   })
 
@@ -71,7 +72,7 @@ describe('resolveFromRepo', () => {
     const noSkillMdDir = NodePath.join(repoDir, 'plugins', 'my-plugin', 'skills', 'no-skill-md')
     await Fs.mkdir(noSkillMdDir, { recursive: true })
 
-    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude'))
+    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)))
     expect(skills).toHaveLength(1)
     expect(skills[0]?.skillName).toBe('valid-skill')
   })
@@ -87,7 +88,7 @@ describe('resolveFromRepo', () => {
       ],
     })
 
-    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude'))
+    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)))
     expect(skills).toHaveLength(0)
   })
 
@@ -95,7 +96,9 @@ describe('resolveFromRepo', () => {
     const repoDir = NodePath.join(ctx.agentsDir, '.cache', 'owner', 'no-marketplace')
     await Fs.mkdir(repoDir, { recursive: true })
 
-    const exit = await Effect.runPromiseExit(resolveFromRepo(repoDir, 'claude'))
+    const exit = await Effect.runPromiseExit(
+      resolveFromRepo(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)),
+    )
     expect(Exit.isFailure(exit)).toBe(true)
   })
 
@@ -105,7 +108,9 @@ describe('resolveFromRepo', () => {
     await Fs.mkdir(marketplaceDir, { recursive: true })
     await Fs.writeFile(NodePath.join(marketplaceDir, 'marketplace.json'), JSON.stringify({ invalid: true }), 'utf-8')
 
-    const exit = await Effect.runPromiseExit(resolveFromRepo(repoDir, 'claude'))
+    const exit = await Effect.runPromiseExit(
+      resolveFromRepo(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)),
+    )
     expect(Exit.isFailure(exit)).toBe(true)
   })
 })

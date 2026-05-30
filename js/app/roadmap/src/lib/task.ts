@@ -1,5 +1,5 @@
 // oxlint-disable max-classes-per-file -- TaggedError subclasses are grouped by domain
-import type { DateTime, FileSystem } from 'effect'
+import type { DateTime, FileSystem, Path } from 'effect'
 import { Data, Effect, Predicate, Schema } from 'effect'
 
 import type { Milestone, MilestoneStatus, Task } from '#@/feature/schema/current.ts'
@@ -56,7 +56,7 @@ export const addTask = (
   | ProgressValidationError
   | ProgressWriteError
   | TaskAlreadyExistsError,
-  FileSystem.FileSystem
+  FileSystem.FileSystem | Path.Path
 > =>
   Effect.gen(function* () {
     const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
@@ -84,7 +84,7 @@ export const addTask = (
       status: 'planned',
       title: input.title,
       workflow_identifiers: [],
-    }).pipe(Effect.mapError((error) => new ProgressValidationError({ message: String(error) })))
+    }).pipe(Effect.mapError((error) => new ProgressValidationError({ error })))
 
     const updatedMilestones = progress.milestones.map((m) =>
       m.id === input.milestoneId ? { ...m, tasks: [...m.tasks, task] } : m,
@@ -134,7 +134,7 @@ export const updateTaskStatus = (
   | ProgressValidationError
   | ProgressWriteError
   | TaskNotFoundError,
-  FileSystem.FileSystem
+  FileSystem.FileSystem | Path.Path
 > =>
   Effect.gen(function* () {
     const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
@@ -173,7 +173,7 @@ export const updateTaskNote = (
   | ProgressValidationError
   | ProgressWriteError
   | TaskNotFoundError,
-  FileSystem.FileSystem
+  FileSystem.FileSystem | Path.Path
 > =>
   Effect.gen(function* () {
     const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
@@ -213,7 +213,7 @@ export const updateTaskPrs = (
   | ProgressValidationError
   | ProgressWriteError
   | TaskNotFoundError,
-  FileSystem.FileSystem
+  FileSystem.FileSystem | Path.Path
 > =>
   Effect.gen(function* () {
     const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })

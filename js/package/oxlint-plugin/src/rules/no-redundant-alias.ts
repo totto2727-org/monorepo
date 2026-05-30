@@ -52,8 +52,9 @@ const rule: Rule = {
         ) {
           return
         }
-        for (const declarator of declaration.declarations) {
-          if (isIdentifierInitDeclarator(declarator) && isReportable(declarator)) {
+        const declarationItems: readonly unknown[] = declaration.declarations
+        for (const declarator of declarationItems) {
+          if (isReportable(declarator) && isIdentifierInitDeclarator(declarator)) {
             context.report({
               message: REDUNDANT_VALUE_ALIAS_MESSAGE,
               node: declarator,

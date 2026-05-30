@@ -1,12 +1,19 @@
-import { Predicate } from 'effect'
+import type { Ranged } from '@oxlint/plugins'
+import { Predicate, Schema } from 'effect'
 
-export const hasProperty = <K extends PropertyKey>(obj: unknown, key: K): obj is Record<K, unknown> =>
-  Predicate.isObjectKeyword(obj) && key in obj
+interface ReportableNode extends Ranged, Record<string, unknown> {
+  range: [number, number]
+}
 
-export const isReportable = (u: unknown): u is Record<string, unknown> & { range: [number, number] } =>
-  Predicate.isObject(u) && 'range' in u
+const Reportable: Schema.Schema<ReportableNode> = Schema.Struct({
+  range: Schema.mutable(Schema.Tuple([Schema.Number, Schema.Number])),
+})
 
-export const isEqualityOperator = (op: unknown): op is '==' | '!=' | '===' | '!==' =>
+export const { hasProperty } = Predicate
+
+export const isReportable = Schema.is(Reportable)
+
+export const isEqualityOperator: Predicate.Refinement<unknown, '==' | '!=' | '===' | '!=='> = (op: unknown) =>
   op === '==' || op === '!=' || op === '===' || op === '!=='
 
 export const getLiteralNumber = (node: unknown): number | null => {

@@ -417,6 +417,9 @@ importers:
 
   js/package/fp:
     dependencies:
+      '@effect/platform-node':
+        specifier: catalog:effect
+        version: 4.0.0-beta.65(effect@4.0.0-beta.65)(ioredis@5.10.1)
       '@formatjs/intl-durationformat':
         specifier: ^0.10.13
         version: 0.10.13

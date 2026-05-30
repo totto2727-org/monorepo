@@ -6,15 +6,6 @@ import { findMilestone } from '#@/lib/milestone.ts'
 import { readProgressFile } from '#@/lib/progress.ts'
 import { findTask } from '#@/lib/task.ts'
 
-const failWith = (message: string) =>
-  Effect.gen(function* () {
-    yield* Console.error(`error: ${message}`)
-    yield* Effect.sync(() => {
-      process.exitCode = 1
-    })
-    return null
-  })
-
 const formatList = (items: readonly string[]): string =>
   Array.isReadonlyArrayEmpty(items) ? '(none)' : items.join(', ')
 
@@ -28,32 +19,18 @@ export const taskStatusCommand = Command.make(
   ({ roadmapId, scopeId: milestoneId, targetId: taskId }) =>
     Effect.gen(function* () {
       const { dir: relativeDir } = yield* rootCommand
-      const resolved = yield* resolveDirOrFail(relativeDir)
-      if (Predicate.isNullish(resolved)) {
-        return
-      }
-      const { dir } = resolved
-      const progress = yield* readProgressFile({ dir, roadmapId }).pipe(
-        Effect.catchTags({
-          ProgressFileNotFoundError: (error) => failWith(`${error.path} not found`),
-          ProgressReadError: (error) => failWith(`failed to read ${error.path}: ${error.message}`),
-          ProgressValidationError: (error) => failWith(`invalid roadmap progress (${error.message})`),
-        }),
-      )
-
-      if (Predicate.isNullish(progress)) {
-        return
-      }
+      const { dir } = yield* resolveDirOrFail(relativeDir)
+      const progress = yield* readProgressFile({ dir, roadmapId })
 
       const milestone = findMilestone(progress, milestoneId)
       if (Predicate.isNullish(milestone)) {
-        yield* failWith(`milestone "${milestoneId}" not found in ${roadmapId}`)
+        yield* Effect.fail(new Error(`milestone "${milestoneId}" not found in ${roadmapId}`))
         return
       }
 
       const task = findTask(milestone, taskId)
       if (Predicate.isNullish(task)) {
-        yield* failWith(`task "${taskId}" not found under ${roadmapId}/${milestoneId}`)
+        yield* Effect.fail(new Error(`task "${taskId}" not found under ${roadmapId}/${milestoneId}`))
         return
       }
 

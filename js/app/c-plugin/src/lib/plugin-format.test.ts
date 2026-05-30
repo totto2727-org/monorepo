@@ -2,6 +2,8 @@ import * as Fs from 'node:fs/promises'
 import * as Os from 'node:os'
 import * as NodePath from 'node:path'
 
+import { NodeServices } from '@effect/platform-node'
+import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 
 import { allKinds, getKindConfig } from '#@/schema/marketplace-kind.ts'
@@ -25,17 +27,25 @@ describe('hasSupportedPluginFormat', () => {
     for (const kind of allKinds) {
       const dir = NodePath.join(tmpDir, `${kind}-root`)
       await Fs.mkdir(dir, { recursive: true })
-      await Fs.mkdir(NodePath.join(dir, getKindConfig(kind).configDir))
+      await Fs.mkdir(NodePath.join(dir, getKindConfig(kind).configDir), { recursive: true })
 
-      await expect(hasSupportedPluginFormat(dir)).resolves.toBe(true)
+      await expect(
+        Effect.runPromise(hasSupportedPluginFormat(dir).pipe(Effect.provide(NodeServices.layer))),
+      ).resolves.toBe(true)
     }
   })
 
   test('returns false for empty directory', async () => {
-    await expect(hasSupportedPluginFormat(tmpDir)).resolves.toBe(false)
+    await expect(
+      Effect.runPromise(hasSupportedPluginFormat(tmpDir).pipe(Effect.provide(NodeServices.layer))),
+    ).resolves.toBe(false)
   })
 
   test('returns false for nonexistent directory', async () => {
-    await expect(hasSupportedPluginFormat(NodePath.join(tmpDir, 'missing'))).resolves.toBe(false)
+    await expect(
+      Effect.runPromise(
+        hasSupportedPluginFormat(NodePath.join(tmpDir, 'missing')).pipe(Effect.provide(NodeServices.layer)),
+      ),
+    ).resolves.toBe(false)
   })
 })

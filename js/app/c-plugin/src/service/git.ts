@@ -1,22 +1,24 @@
 import { execFile as execFileCb } from 'node:child_process'
 import { promisify } from 'node:util'
 
+import type { TaggedErrorBaseData } from '@totto2727/fp/error'
 import { Data, Effect } from 'effect'
 
 // oxlint-disable-next-line typescript/strict-void-return -- node の execFile 型定義由来の偽陽性
 const execFile = promisify(execFileCb)
 
-export class GitError extends Data.TaggedError('GitError')<{
-  readonly command: string
-  readonly message: string
-}> {}
+export class GitError extends Data.TaggedError('GitError')<
+  TaggedErrorBaseData & {
+    readonly command: string
+  }
+> {}
 
 const run = (args: readonly string[], cwd?: string): Effect.Effect<string, GitError> =>
   Effect.tryPromise({
     catch: (error) =>
       new GitError({
         command: `git ${args.join(' ')}`,
-        message: error instanceof Error ? error.message : String(error),
+        error,
       }),
     try: async () => {
       const { stdout } = await execFile('git', [...args], { cwd })

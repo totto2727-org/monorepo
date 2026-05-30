@@ -13,7 +13,7 @@ interface Row {
 
 const toRow =
   (prMap: ReadonlyMap<string, Wt.PrInfo>, gitMap: ReadonlyMap<string, Wt.GitStatus>) =>
-  (entry: Wt.WorktreeEntry & { branch: string }): Row => ({
+  (entry: Wt.BranchedWorktreeEntry): Row => ({
     branch: entry.branch,
     git: gitMap.get(entry.path) ?? 'committed',
     name: entry.path.split('/').pop() ?? entry.path,
@@ -58,16 +58,14 @@ const listWorktrees = (dir: string): Effect.Effect<void> =>
       validRepos,
       (repo) =>
         Effect.gen(function* () {
-          const branches = repo.entries.filter((e): e is Wt.WorktreeEntry & { branch: string } =>
-            Predicate.isNotNullish(e.branch),
-          )
+          const branches = repo.entries.filter(Wt.matchesBranchedWorktreeEntry)
           const [prMap, gitMap] = yield* Effect.all(
             [
               Wt.getPrInfoMap(
                 repo.slug,
-                branches.map((e) => ({ branch: e.branch, isMain: e.isMain })),
+                branches.map((entry) => ({ branch: entry.branch, isMain: entry.isMain })),
               ),
-              Wt.getGitStatusMap(branches.map((e) => e.path)),
+              Wt.getGitStatusMap(branches.map((entry) => entry.path)),
             ],
             { concurrency: 'unbounded' },
           )

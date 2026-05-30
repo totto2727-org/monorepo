@@ -54,7 +54,7 @@ describe('EmailSender', () => {
       expect(result._tag).toBe('Failure')
       if (result._tag === 'Failure') {
         expect(result.failure._tag).toBe('EmailSendError')
-        expect(result.failure.message).toContain('401')
+        expect(result.failure).toHaveProperty('message', expect.stringContaining('401'))
       }
     })
   })
