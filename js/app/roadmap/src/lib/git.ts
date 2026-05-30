@@ -1,9 +1,10 @@
 // oxlint-disable max-classes-per-file -- TaggedError subclasses are grouped by domain
 import { execFile as execFileCb } from 'node:child_process'
-import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { promisify } from 'node:util'
 
-import { Data, Effect, FileSystem, Predicate, String } from 'effect'
+import { Data, Effect, FileSystem, Path, Predicate, String } from 'effect'
+
+import { errorMessageOrDefault } from '#@/lib/error.ts'
 
 // oxlint-disable-next-line typescript-eslint/strict-void-return -- node child_process callbacks return a ChildProcess, not void
 const execFile = promisify(execFileCb)
@@ -25,22 +26,28 @@ export interface Worktree {
   readonly isMain: boolean
 }
 
-export const findRepoRoot = (start: string): Effect.Effect<string, RepoRootNotFoundError, FileSystem.FileSystem> => {
-  const recurse = (current: string): Effect.Effect<string, RepoRootNotFoundError, FileSystem.FileSystem> =>
+export const findRepoRoot = (
+  start: string,
+): Effect.Effect<string, RepoRootNotFoundError, FileSystem.FileSystem | Path.Path> => {
+  const recurse = (current: string): Effect.Effect<string, RepoRootNotFoundError, FileSystem.FileSystem | Path.Path> =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem
-      const gitPath = join(current, '.git')
+      const path = yield* Path.Path
+      const gitPath = path.join(current, '.git')
       const exists = yield* fs.exists(gitPath).pipe(Effect.orElseSucceed(() => false))
       if (exists) {
         return current
       }
-      const parent = dirname(current)
+      const parent = path.dirname(current)
       if (parent === current) {
         return yield* new RepoRootNotFoundError({ startedFrom: start })
       }
       return yield* recurse(parent)
     })
-  return recurse(resolve(start))
+  return Effect.gen(function* () {
+    const path = yield* Path.Path
+    return yield* recurse(path.resolve(start))
+  })
 }
 
 const parseBlock = (block: string, isMain: boolean): Worktree | null => {
@@ -77,7 +84,7 @@ const runGit = (cmd: string, args: readonly string[], cwd: string): Effect.Effec
     catch: (error): GitCommandError =>
       new GitCommandError({
         command: `${cmd} ${args.join(' ')}`,
-        message: error instanceof Error ? error.message : globalThis.String(error),
+        message: errorMessageOrDefault(error),
       }),
     try: async () => {
       const result = await execFile(cmd, [...args], { cwd })
@@ -95,9 +102,10 @@ export interface ResolvedDir {
 
 export const resolveDirAgainstRepoRoot = (
   relativeDir: string,
-): Effect.Effect<ResolvedDir, RepoRootNotFoundError, FileSystem.FileSystem> =>
+): Effect.Effect<ResolvedDir, RepoRootNotFoundError, FileSystem.FileSystem | Path.Path> =>
   Effect.gen(function* () {
     const repoRoot = yield* findRepoRoot(process.cwd())
-    const dir = isAbsolute(relativeDir) ? relativeDir : join(repoRoot, relativeDir)
+    const path = yield* Path.Path
+    const dir = path.isAbsolute(relativeDir) ? relativeDir : path.join(repoRoot, relativeDir)
     return { dir, repoRoot }
   })

@@ -1,11 +1,10 @@
 // oxlint-disable max-classes-per-file -- TaggedError subclasses are grouped by domain
-import { join } from 'node:path'
-
 import type { DateTime } from 'effect'
-import { Data, Effect, FileSystem, Predicate, Schema } from 'effect'
+import { Data, Effect, FileSystem, Path, Predicate, Schema } from 'effect'
 
 import type { MilestoneStatus } from '#@/feature/schema/current.ts'
 import { Milestone } from '#@/feature/schema/current.ts'
+import { errorMessageOrDefault } from '#@/lib/error.ts'
 import { mergePrs, ProgressValidationError, readProgressFile, writeProgressFile } from '#@/lib/progress.ts'
 import type { ProgressFileNotFoundError, ProgressReadError, ProgressWriteError } from '#@/lib/progress.ts'
 
@@ -28,8 +27,15 @@ export class MilestoneWriteError extends Data.TaggedError('MilestoneWriteError')
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- draft is a partially-typed literal
 const decodeMilestone = Schema.decodeUnknownEffect(Milestone)
 
-export const milestonePath = (dir: string, roadmapId: string, milestoneId: string): string =>
-  join(dir, roadmapId, 'milestones', `${milestoneId}.md`)
+export const milestonePath = (
+  dir: string,
+  roadmapId: string,
+  milestoneId: string,
+): Effect.Effect<string, never, Path.Path> =>
+  Effect.gen(function* () {
+    const path = yield* Path.Path
+    return path.join(dir, roadmapId, 'milestones', `${milestoneId}.md`)
+  })
 
 export const renderMilestoneTemplate = (input: {
   readonly milestoneId: string
@@ -64,10 +70,11 @@ export const addMilestone = (
   | ProgressReadError
   | ProgressValidationError
   | ProgressWriteError,
-  FileSystem.FileSystem
+  FileSystem.FileSystem | Path.Path
 > =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
+    const path = yield* Path.Path
     const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
 
     if (progress.milestones.some((m) => m.id === input.milestoneId)) {
@@ -77,11 +84,11 @@ export const addMilestone = (
       })
     }
 
-    const targetPath = milestonePath(input.dir, input.roadmapId, input.milestoneId)
+    const targetPath = yield* milestonePath(input.dir, input.roadmapId, input.milestoneId)
 
     const toMilestoneWriteError = (error: unknown): MilestoneWriteError =>
       new MilestoneWriteError({
-        message: error instanceof Error ? error.message : String(error),
+        message: errorMessageOrDefault(error),
         path: targetPath,
       })
 
@@ -98,11 +105,9 @@ export const addMilestone = (
       tasks: [],
       title: input.title,
       workflow_identifiers: [],
-    }).pipe(Effect.mapError((error) => new ProgressValidationError({ message: String(error) })))
+    }).pipe(Effect.mapError((error) => new ProgressValidationError({ message: error.message })))
 
-    yield* fs
-      .makeDirectory(join(input.dir, input.roadmapId, 'milestones'), { recursive: true })
-      .pipe(Effect.mapError(toMilestoneWriteError))
+    yield* fs.makeDirectory(path.dirname(targetPath), { recursive: true }).pipe(Effect.mapError(toMilestoneWriteError))
     yield* fs.writeFileString(targetPath, renderMilestoneTemplate(input)).pipe(Effect.mapError(toMilestoneWriteError))
 
     const progressResult = yield* writeProgressFile({
@@ -141,7 +146,7 @@ export const updateMilestoneStatus = (
 ): Effect.Effect<
   { path: string },
   MilestoneNotFoundError | ProgressFileNotFoundError | ProgressReadError | ProgressValidationError | ProgressWriteError,
-  FileSystem.FileSystem
+  FileSystem.FileSystem | Path.Path
 > =>
   Effect.gen(function* () {
     const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
@@ -180,7 +185,7 @@ export const updateMilestoneNote = (
 ): Effect.Effect<
   { path: string },
   MilestoneNotFoundError | ProgressFileNotFoundError | ProgressReadError | ProgressValidationError | ProgressWriteError,
-  FileSystem.FileSystem
+  FileSystem.FileSystem | Path.Path
 > =>
   Effect.gen(function* () {
     const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })
@@ -220,7 +225,7 @@ export const updateMilestonePrs = (
 ): Effect.Effect<
   { path: string },
   MilestoneNotFoundError | ProgressFileNotFoundError | ProgressReadError | ProgressValidationError | ProgressWriteError,
-  FileSystem.FileSystem
+  FileSystem.FileSystem | Path.Path
 > =>
   Effect.gen(function* () {
     const progress = yield* readProgressFile({ dir: input.dir, roadmapId: input.roadmapId })

@@ -1,6 +1,8 @@
 // oxlint-disable max-classes-per-file -- TaggedError subclasses are grouped by domain
 import { Data, Effect, Predicate, Schema } from 'effect'
 
+import { errorMessageOrDefault } from '#@/lib/error.ts'
+
 import * as V1 from './v1.ts'
 import * as V2 from './v2.ts'
 
@@ -32,10 +34,10 @@ const decodeV1 = Schema.decodeUnknownEffect(V1.RoadmapProgress)
 const decodeV2 = Schema.decodeUnknownEffect(V2.RoadmapProgress)
 
 const toV1DecodeError = (error: unknown): SchemaDecodeError =>
-  new SchemaDecodeError({ message: String(error), version: 1 })
+  new SchemaDecodeError({ message: errorMessageOrDefault(error), version: 1 })
 
 const toV2DecodeError = (error: unknown): SchemaDecodeError =>
-  new SchemaDecodeError({ message: String(error), version: 2 })
+  new SchemaDecodeError({ message: errorMessageOrDefault(error), version: 2 })
 
 const migrateV1ToV2 = (v1: V1.RoadmapProgress): V2.RoadmapProgress => ({
   created_at: v1.created_at,

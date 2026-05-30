@@ -116,6 +116,7 @@ interface LoadedData {
 }
 
 const loadData = (worktrees: readonly Worktree[], relativeDir: string): Promise<LoadedData> =>
+  // oxlint-disable-next-line rules/no-effect-runtime-run -- Remix loader helper returns Promise data at the framework boundary.
   Effect.runPromise(
     listRoadmapsAcrossWorktrees(worktrees, relativeDir).pipe(
       Effect.map((wrs) => {
