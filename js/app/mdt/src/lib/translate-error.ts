@@ -1,5 +1,4 @@
+import type { TaggedErrorBaseData } from '@totto2727/fp/error'
 import { Data } from 'effect'
 
-import type { TaggedErrorBaseType } from '#@/lib/error.ts'
-
-export class TranslateError extends Data.TaggedError('TranslateError')<TaggedErrorBaseType> {}
+export class TranslateError extends Data.TaggedError('TranslateError')<TaggedErrorBaseData> {}

@@ -1,9 +1,8 @@
+import type { TaggedErrorBaseData } from '@totto2727/fp/error'
 import { Data } from 'effect'
 
-import type { TaggedErrorBaseType } from '#@/lib/error.ts'
-
 export class ConfigFileError extends Data.TaggedError('ConfigFileError')<
-  TaggedErrorBaseType & {
+  TaggedErrorBaseData & {
     readonly path: string
   }
 > {}

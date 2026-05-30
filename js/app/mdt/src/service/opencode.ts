@@ -27,12 +27,10 @@ const parseModel = (raw: string): { providerID: string; modelID: string } | null
   return { modelID: raw.slice(slash + 1), providerID: raw.slice(0, slash) }
 }
 
-const fail = (error: unknown): TranslateError => new TranslateError({ error })
-
 export const translate = (input: TranslateInput): Effect.Effect<string, TranslateError> =>
   Effect.acquireUseRelease(
     Effect.tryPromise({
-      catch: fail,
+      catch: (error) => new TranslateError({ error }),
       try: () => createOpencode(),
     }),
     (opencode) =>
@@ -40,14 +38,14 @@ export const translate = (input: TranslateInput): Effect.Effect<string, Translat
         const { client } = opencode
 
         const toolIdsRes = yield* Effect.tryPromise({
-          catch: fail,
+          catch: (error) => new TranslateError({ error }),
           try: () => client.tool.ids(),
         })
         const toolIds = toolIdsRes.data ?? []
         const disabledTools = Object.fromEntries(toolIds.map((id) => [id, false]))
 
         const sessionRes = yield* Effect.tryPromise({
-          catch: fail,
+          catch: (error) => new TranslateError({ error }),
           try: () => client.session.create({ body: { title: 'mdt-translate' } }),
         })
         const session = sessionRes.data
@@ -61,7 +59,7 @@ export const translate = (input: TranslateInput): Effect.Effect<string, Translat
         }
 
         yield* Effect.tryPromise({
-          catch: fail,
+          catch: (error) => new TranslateError({ error }),
           try: () =>
             client.session.prompt({
               body: {
@@ -75,7 +73,7 @@ export const translate = (input: TranslateInput): Effect.Effect<string, Translat
         })
 
         const messagesRes = yield* Effect.tryPromise({
-          catch: fail,
+          catch: (error) => new TranslateError({ error }),
           try: () => client.session.messages({ path: { id: session.id } }),
         })
         const messages = messagesRes.data ?? []

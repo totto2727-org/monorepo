@@ -2,7 +2,6 @@ import { Effect, FileSystem, Option } from 'effect'
 import { Command, Flag } from 'effect/unstable/cli'
 
 import { applyWaitUntil, loadConfig, resolveInput } from '#@/lib/config.ts'
-import { errorMessageOrDefault } from '#@/lib/error.ts'
 import * as Flags from '#@/lib/flags.ts'
 import * as ApiClient from '#@/service/api-client.ts'
 import * as Auth from '#@/service/auth.ts'
@@ -33,9 +32,7 @@ export const jsonCommand = Command.make(
             const fs = yield* FileSystem.FileSystem
             const schemaText = yield* fs
               .readFileString(schemaPath.value)
-              .pipe(
-                Effect.mapError((error) => new Error(`Failed to read schema file: ${errorMessageOrDefault(error)}`)),
-              )
+              .pipe(Effect.mapError((error) => new Error('Failed to read schema file', { error })))
             return {
               ...bodyWithPrompt,
               response_format: { schema: JSON.parse(schemaText) as unknown, type: 'json_schema' },
