@@ -6,13 +6,15 @@ import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { FEED_REFRESH_COOKIE, FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
 import { verifyAndDeleteNonce } from '#@/feature/auth/nonce-store.ts'
 import type { Instance as DBInstance } from '#@/feature/db/kysely.ts'
-import type * as Env from '#@/feature/env.ts'
+import * as Env from '#@/feature/env.ts'
 
 const TokenResponse = Schema.Struct({
   access_token: Schema.String,
   id_token: Schema.optional(Schema.String),
   refresh_token: Schema.optional(Schema.String),
 })
+
+const decodeTokenResponse = Schema.decodeUnknownEffect(TokenResponse)
 
 const exchangeToken = (idpBaseUrl: string, params: Record<string, string>) =>
   Effect.gen(function* () {
@@ -22,9 +24,7 @@ const exchangeToken = (idpBaseUrl: string, params: Record<string, string>) =>
       body: HttpBody.text(formBody, 'application/x-www-form-urlencoded'),
     })
     const response = yield* client.execute(request)
-    if (response.status !== 200) {
-      return yield* Effect.fail(new Error('token exchange failed'))
-    }
+    if (response.status !== 200) return yield* Effect.fail(new Error('token exchange failed'))
     const data: unknown = yield* response.json
     return data
   })
@@ -32,30 +32,20 @@ const exchangeToken = (idpBaseUrl: string, params: Record<string, string>) =>
 const verifyNonce = (db: DBInstance, idToken: string, state: string) =>
   Effect.gen(function* () {
     const parts = idToken.split('.')
-    if (parts.length !== 3) {
-      return false
-    }
+    if (parts.length !== 3) return false
     const [, payloadPart] = parts
-    if (payloadPart === undefined) {
-      return false
-    }
+    if (Predicate.isUndefined(payloadPart)) return false
     const payloadStr = atob(payloadPart)
     const payload = JSON.parse(payloadStr)
-    if (!Predicate.isObject(payload)) {
-      return false
-    }
-    if (!('nonce' in payload)) {
-      return false
-    }
+    if (!Predicate.isObject(payload)) return false
+    if (!('nonce' in payload)) return false
     const { nonce } = payload
-    if (!Predicate.isString(nonce)) {
-      return false
-    }
+    if (!Predicate.isString(nonce)) return false
     return yield* Effect.promise(() => verifyAndDeleteNonce(db, state, nonce))
   })
 
 export interface CallbackRuntime {
-  readonly runPromise: <A, E>(effect: Effect.Effect<A, E>) => Promise<A>
+  readonly runPromise: <A, E>(effect: Effect.Effect<A, E, never>) => Promise<A>
 }
 
 export const handleAuthCallback = async (
@@ -89,31 +79,31 @@ export const handleAuthCallback = async (
     bodyParams.client_secret = env.OAUTH_CLIENT_SECRET
   }
 
-  const rawToken = await callbackRuntime.runPromise(exchangeToken(env.IDP_BASE_URL, bodyParams)).catch(() => null)
-  if (rawToken === null) {
-    return new Response('auth failed', { status: 401 })
+  const result = await callbackRuntime
+    .runPromise(
+      Effect.gen(function* () {
+        const rawToken = yield* exchangeToken(env.IDP_BASE_URL, bodyParams)
+        return yield* decodeTokenResponse(rawToken)
+      }),
+    )
+    .catch(() => null)
+
+  if (Predicate.isNull(result)) return new Response('auth failed', { status: 401 })
+  if (String.isEmpty(result.access_token)) return new Response('auth failed', { status: 401 })
+
+  if (!Predicate.isUndefined(result.id_token) && Predicate.isNotNullish(state)) {
+    const valid = await callbackRuntime.runPromise(verifyNonce(db, result.id_token, state))
+    if (!valid) return new Response('nonce mismatch', { status: 403 })
   }
 
-  const token = Schema.decodeUnknownSync(TokenResponse)(rawToken)
-  if (String.isEmpty(token.access_token)) {
-    return new Response('auth failed', { status: 401 })
-  }
-
-  if (token.id_token !== undefined && Predicate.isNotNullish(state)) {
-    const valid = await callbackRuntime.runPromise(verifyNonce(db, token.id_token, state))
-    if (!valid) {
-      return new Response('nonce mismatch', { status: 403 })
-    }
-  }
-
-  setCookie(ctx, FEED_SESSION_COOKIE, token.access_token, { httpOnly: true, path: '/', sameSite: 'Lax' })
+  setCookie(ctx, FEED_SESSION_COOKIE, result.access_token, { httpOnly: true, path: '/', sameSite: 'Lax' })
   deleteCookie(ctx, 'pkce_verifier', { httpOnly: true, path: '/', sameSite: 'Lax' })
   deleteCookie(ctx, 'oauth_state', { httpOnly: true, path: '/', sameSite: 'Lax' })
 
-  if (token.refresh_token !== undefined && String.isNonEmpty(token.refresh_token)) {
-    setCookie(ctx, FEED_REFRESH_COOKIE, token.refresh_token, {
+  if (!Predicate.isUndefined(result.refresh_token) && String.isNonEmpty(result.refresh_token)) {
+    setCookie(ctx, FEED_REFRESH_COOKIE, result.refresh_token, {
       httpOnly: true,
-      maxAge: 2_592_000,
+      maxAge: 2592000,
       path: '/',
       sameSite: 'Lax',
     })

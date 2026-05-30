@@ -36,6 +36,8 @@ const TokenResponse = Schema.Struct({
   refresh_token: Schema.optional(Schema.String),
 })
 
+const decodeTokenResponse = Schema.decodeUnknownEffect(TokenResponse)
+
 const refreshTokens = (idpBaseUrl: string, params: Record<string, string>) =>
   Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient
@@ -43,6 +45,11 @@ const refreshTokens = (idpBaseUrl: string, params: Record<string, string>) =>
     const request = HttpClientRequest.post(`${idpBaseUrl}/api/v1/auth/oauth2/token`, {
       body: HttpBody.text(formBody, 'application/x-www-form-urlencoded'),
     })
+    const response = yield* client.execute(request)
+    if (response.status !== 200) return yield* Effect.fail(new Error('token refresh failed'))
+    const data: unknown = yield* response.json
+    return yield* decodeTokenResponse(data)
+  })
     const response = yield* client.execute(request)
     if (response.status !== 200) {
       return yield* Effect.fail(new Error('token refresh failed'))
@@ -144,7 +151,7 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
         liveLayer,
       ).pipe(Effect.orElseSucceed(() => null)),
     )
-    if (callMeResult !== null) {
+    if (!Predicate.isNull(callMeResult)) {
       return ctx.render(
         <Document>
           <h1>Dashboard</h1>
@@ -175,7 +182,7 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     const tokenData = await runtime.runPromise(
       refreshTokens(env.IDP_BASE_URL, bodyParams).pipe(Effect.orElseSucceed(() => null)),
     )
-    if (tokenData === null) {
+    if (Predicate.isNull(tokenData)) {
       deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
       deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
       return ctx.redirect('/login')
@@ -190,14 +197,14 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
         liveLayer,
       ).pipe(Effect.orElseSucceed(() => null)),
     )
-    if (retryResult === null) {
+    if (Predicate.isNull(retryResult)) {
       deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
       deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
       return ctx.redirect('/login')
     }
 
     setCookie(ctx, FEED_SESSION_COOKIE, tokenData.access_token, { httpOnly: true, path: '/', sameSite: 'Lax' })
-    if (tokenData.refresh_token !== undefined && String.isNonEmpty(tokenData.refresh_token)) {
+    if (!Predicate.isUndefined(tokenData.refresh_token) && String.isNonEmpty(tokenData.refresh_token)) {
       setCookie(ctx, FEED_REFRESH_COOKIE, tokenData.refresh_token, {
         httpOnly: true,
         maxAge: 2_592_000,
