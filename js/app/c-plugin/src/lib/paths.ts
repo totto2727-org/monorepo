@@ -50,7 +50,7 @@ export const findAgentsRoot = async (startDir: string = process.cwd()): Promise<
     if (parentDir === currentDir) {
       throw new Error('Could not find project root with .agents directory')
     }
-    return findAgentsRoot(parentDir)
+    return await findAgentsRoot(parentDir)
   }
 }
 
@@ -67,7 +67,7 @@ export const findNearestAgentsDir = async (startDir: string = process.cwd()): Pr
     if (parentDir === currentDir) {
       throw new Error('Could not find .agents directory with skills-lock.json')
     }
-    return findNearestAgentsDir(parentDir)
+    return await findNearestAgentsDir(parentDir)
   }
 }
 

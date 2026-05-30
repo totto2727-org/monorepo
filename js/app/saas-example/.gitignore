@@ -1,7 +1,0 @@
-.tanstack/
-.wrangler/
-dist/
-*.local
-routeTree.gen.ts
-generated.ts
-worker-configuration.d.ts
