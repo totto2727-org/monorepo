@@ -6,8 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "if": "Bash(git push *)",
-            "command": "cd \"$CLAUDE_PROJECT_DIR\" && vp run ci"
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-git-push.py\""
           }
         ]
       }
