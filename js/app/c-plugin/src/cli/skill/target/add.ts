@@ -25,7 +25,7 @@ export const targetAddCommand = Command.make(
         return
       }
 
-      const agentsDir = config.global ? getGlobalAgentsDir() : yield* Effect.promise(() => findNearestAgentsDir())
+      const agentsDir = yield* config.global ? Effect.succeed(getGlobalAgentsDir()) : findNearestAgentsDir()
       const lockFile = yield* LockFileService.read(agentsDir)
 
       const expanded = expandHomePath(normalizedPath)

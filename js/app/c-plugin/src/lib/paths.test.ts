@@ -2,6 +2,8 @@ import * as Fs from 'node:fs/promises'
 import * as Os from 'node:os'
 import * as NodePath from 'node:path'
 
+import { NodeServices } from '@effect/platform-node'
+import { Effect } from 'effect'
 import { describe, expect, test } from 'vite-plus/test'
 
 import {
@@ -160,7 +162,7 @@ describe('findAgentsRoot', () => {
     await Fs.mkdir(NodePath.join(root, '.agents'), { recursive: true })
     await Fs.mkdir(nested, { recursive: true })
 
-    await expect(findAgentsRoot(nested)).resolves.toBe(root)
+    await expect(Effect.runPromise(findAgentsRoot(nested).pipe(Effect.provide(NodeServices.layer)))).resolves.toBe(root)
   })
 
   test('throws when no .agents directory exists', async () => {
@@ -168,7 +170,9 @@ describe('findAgentsRoot', () => {
     const nested = NodePath.join(root, 'a', 'b')
     await Fs.mkdir(nested, { recursive: true })
 
-    await expect(findAgentsRoot(nested)).rejects.toThrow('Could not find project root with .agents directory')
+    await expect(Effect.runPromise(findAgentsRoot(nested).pipe(Effect.provide(NodeServices.layer)))).rejects.toThrow(
+      'Could not find project root with .agents directory',
+    )
   })
 })
 
@@ -181,7 +185,9 @@ describe('findNearestAgentsDir', () => {
     const nested = NodePath.join(root, 'a', 'b', 'c')
     await Fs.mkdir(nested, { recursive: true })
 
-    await expect(findNearestAgentsDir(nested)).resolves.toBe(agentsDir)
+    await expect(
+      Effect.runPromise(findNearestAgentsDir(nested).pipe(Effect.provide(NodeServices.layer))),
+    ).resolves.toBe(agentsDir)
   })
 
   test('finds .agents in current directory', async () => {
@@ -190,7 +196,9 @@ describe('findNearestAgentsDir', () => {
     await Fs.mkdir(agentsDir, { recursive: true })
     await Fs.writeFile(NodePath.join(agentsDir, LOCK_FILE_NAME), '{}', 'utf-8')
 
-    await expect(findNearestAgentsDir(root)).resolves.toBe(agentsDir)
+    await expect(Effect.runPromise(findNearestAgentsDir(root).pipe(Effect.provide(NodeServices.layer)))).resolves.toBe(
+      agentsDir,
+    )
   })
 
   test('throws when no .agents with lock file exists', async () => {
@@ -198,9 +206,9 @@ describe('findNearestAgentsDir', () => {
     const nested = NodePath.join(root, 'a', 'b')
     await Fs.mkdir(nested, { recursive: true })
 
-    await expect(findNearestAgentsDir(nested)).rejects.toThrow(
-      `Could not find .agents directory with ${LOCK_FILE_NAME}`,
-    )
+    await expect(
+      Effect.runPromise(findNearestAgentsDir(nested).pipe(Effect.provide(NodeServices.layer))),
+    ).rejects.toThrow(`Could not find .agents directory with ${LOCK_FILE_NAME}`)
   })
 })
 

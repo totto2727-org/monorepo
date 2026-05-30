@@ -1,6 +1,7 @@
 import * as Fs from 'node:fs/promises'
 import * as NodePath from 'node:path'
 
+import { NodeServices } from '@effect/platform-node'
 import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 
@@ -30,7 +31,7 @@ describe('collectAgentsDirs', () => {
     const agentsDir = NodePath.join(ctx.agentsDir, '.agents')
     await writeLockFile(agentsDir)
 
-    const result = await Effect.runPromise(collectAgentsDirs(ctx.agentsDir))
+    const result = await Effect.runPromise(collectAgentsDirs(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect(result).toContain(agentsDir)
   })
 
@@ -39,7 +40,7 @@ describe('collectAgentsDirs', () => {
     const subAgentsDir = NodePath.join(subDir, '.agents')
     await writeLockFile(subAgentsDir)
 
-    const result = await Effect.runPromise(collectAgentsDirs(ctx.agentsDir))
+    const result = await Effect.runPromise(collectAgentsDirs(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect(result).toContain(subAgentsDir)
   })
 
@@ -49,7 +50,7 @@ describe('collectAgentsDirs', () => {
     await writeLockFile(agentsDirA)
     await writeLockFile(agentsDirB)
 
-    const result = await Effect.runPromise(collectAgentsDirs(ctx.agentsDir))
+    const result = await Effect.runPromise(collectAgentsDirs(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect(result).toContain(agentsDirA)
     expect(result).toContain(agentsDirB)
   })
@@ -61,13 +62,13 @@ describe('collectAgentsDirs', () => {
     const nested = NodePath.join(agentsDir, '.cache', 'repo', '.agents')
     await writeLockFile(nested)
 
-    const result = await Effect.runPromise(collectAgentsDirs(ctx.agentsDir))
+    const result = await Effect.runPromise(collectAgentsDirs(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect(result).toContain(agentsDir)
     expect(result).not.toContain(nested)
   })
 
   test('returns empty array when no .agents found', async () => {
-    const result = await Effect.runPromise(collectAgentsDirs(ctx.agentsDir))
+    const result = await Effect.runPromise(collectAgentsDirs(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect(result).toStrictEqual([])
   })
 })

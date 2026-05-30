@@ -1,6 +1,7 @@
 import * as Fs from 'node:fs/promises'
 import * as NodePath from 'node:path'
 
+import { NodeServices } from '@effect/platform-node'
 import { Effect, Exit } from 'effect'
 import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 
@@ -48,7 +49,7 @@ describe('syncMarketplace', () => {
         ],
       })
 
-      await Effect.runPromise(syncMarketplace(repoDir, 'claude'))
+      await Effect.runPromise(syncMarketplace(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)))
 
       // Codex marketplace
       const codexMarketplace = await readJsonFile(NodePath.join(repoDir, '.agents', 'plugins', 'marketplace.json'))
@@ -95,7 +96,7 @@ describe('syncMarketplace', () => {
       await Fs.mkdir(pluginDir, { recursive: true })
       await Fs.writeFile(NodePath.join(pluginDir, 'plugin.json'), JSON.stringify({ key: 'value' }), 'utf-8')
 
-      await Effect.runPromise(syncMarketplace(repoDir, 'claude'))
+      await Effect.runPromise(syncMarketplace(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)))
 
       // Codex plugin.json should exist
       const codexPluginJson = await readJsonFile(NodePath.join(repoDir, 'plugins', 'p', '.codex-plugin', 'plugin.json'))
@@ -117,10 +118,15 @@ describe('syncMarketplace', () => {
         plugins: [{ name: 'p', source: 'plugins/p' }],
       })
 
-      await Effect.runPromise(syncMarketplace(repoDir, 'claude'))
+      await Effect.runPromise(syncMarketplace(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)))
 
       // No codex plugin.json should be created
-      await expect(Fs.access(NodePath.join(repoDir, 'plugins', 'p', '.codex-plugin', 'plugin.json'))).rejects.toThrow()
+      expect(
+        await Fs.access(NodePath.join(repoDir, 'plugins', 'p', '.codex-plugin', 'plugin.json')).then(
+          () => true,
+          () => false,
+        ),
+      ).toBe(false)
     })
   })
 
@@ -139,7 +145,7 @@ describe('syncMarketplace', () => {
         ],
       })
 
-      await Effect.runPromise(syncMarketplace(repoDir, 'codex'))
+      await Effect.runPromise(syncMarketplace(repoDir, 'codex').pipe(Effect.provide(NodeServices.layer)))
 
       // Claude marketplace
       const claudeMarketplace = await readJsonFile(NodePath.join(repoDir, '.claude-plugin', 'marketplace.json'))
@@ -154,7 +160,9 @@ describe('syncMarketplace', () => {
     const repoDir = NodePath.join(ctx.agentsDir, 'empty-repo')
     await Fs.mkdir(repoDir, { recursive: true })
 
-    const exit = await Effect.runPromiseExit(syncMarketplace(repoDir, 'claude'))
+    const exit = await Effect.runPromiseExit(
+      syncMarketplace(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)),
+    )
     expect(Exit.isFailure(exit)).toBe(true)
   })
 })

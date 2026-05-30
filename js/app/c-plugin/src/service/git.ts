@@ -3,6 +3,8 @@ import { promisify } from 'node:util'
 
 import { Data, Effect } from 'effect'
 
+import { errorMessageOrDefault } from '#@/lib/error.ts'
+
 // oxlint-disable-next-line typescript/strict-void-return -- node の execFile 型定義由来の偽陽性
 const execFile = promisify(execFileCb)
 
@@ -16,7 +18,7 @@ const run = (args: readonly string[], cwd?: string): Effect.Effect<string, GitEr
     catch: (error) =>
       new GitError({
         command: `git ${args.join(' ')}`,
-        message: error instanceof Error ? error.message : String(error),
+        message: errorMessageOrDefault(error),
       }),
     try: async () => {
       const { stdout } = await execFile('git', [...args], { cwd })

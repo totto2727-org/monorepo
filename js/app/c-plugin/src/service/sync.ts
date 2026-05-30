@@ -1,7 +1,7 @@
-import * as NodePath from 'node:path'
+import type { FileSystem } from 'effect'
+import { Array, Effect, Path, Predicate } from 'effect'
 
-import { Array, Effect, Predicate } from 'effect'
-
+import { errorMessageOrDefault } from '#@/lib/error.ts'
 import type { LockFile, RepositoryEntry } from '#@/schema/lock-file.ts'
 import * as Cache from '#@/service/cache.ts'
 import * as Git from '#@/service/git.ts'
@@ -15,7 +15,7 @@ const syncRepo = (
   agentsRoot: string,
   lockFile: LockFile,
   repo: RepositoryEntry,
-): Effect.Effect<RepositoryEntry | null, Error | Git.GitError> =>
+): Effect.Effect<RepositoryEntry | null, Error | Git.GitError, FileSystem.FileSystem | Path.Path> =>
   Effect.gen(function* () {
     const repoDir =
       repo.sourceType === 'local'
@@ -67,9 +67,14 @@ const syncRepo = (
 
 export const run = (
   agentsDir: string,
-): Effect.Effect<void, Error | Git.GitError | LockFileService.LockFileCorruptError> =>
+): Effect.Effect<
+  void,
+  Error | Git.GitError | LockFileService.LockFileCorruptError,
+  FileSystem.FileSystem | Path.Path
+> =>
   Effect.gen(function* () {
-    const agentsRoot = NodePath.dirname(agentsDir)
+    const path = yield* Path.Path
+    const agentsRoot = path.dirname(agentsDir)
     yield* Cache.ensureDirs(agentsDir, agentsRoot)
 
     const lockFile = yield* LockFileService.read(agentsDir)
@@ -90,7 +95,7 @@ export const run = (
       const result = yield* syncRepo(agentsDir, agentsRoot, lockFile, repo).pipe(
         Effect.catch((error) =>
           Effect.gen(function* () {
-            const message = error instanceof Error ? error.message : String(error)
+            const message = errorMessageOrDefault(error)
             yield* Effect.log(`  Skipped ${repo.source}: ${message}`)
             return repo
           }),

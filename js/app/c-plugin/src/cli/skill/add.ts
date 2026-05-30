@@ -1,7 +1,4 @@
-import * as Fs from 'node:fs/promises'
-import * as NodePath from 'node:path'
-
-import { Array, Effect, Option } from 'effect'
+import { Array, Effect, FileSystem, Option, Path } from 'effect'
 import { Argument, Command, Flag, Prompt } from 'effect/unstable/cli'
 
 import {
@@ -50,8 +47,9 @@ export const addCommand = Command.make(
   },
   (config) =>
     Effect.gen(function* () {
-      const agentsDir = config.global ? getGlobalAgentsDir() : yield* Effect.promise(() => findNearestAgentsDir())
-      const agentsRoot = NodePath.dirname(agentsDir)
+      const path = yield* Path.Path
+      const agentsDir = yield* config.global ? Effect.succeed(getGlobalAgentsDir()) : findNearestAgentsDir()
+      const agentsRoot = path.dirname(agentsDir)
       yield* Cache.ensureDirs(agentsDir, agentsRoot)
 
       const resolved: ResolvedSource = yield* Option.match(config.local, {
@@ -74,16 +72,14 @@ export const addCommand = Command.make(
               return yield* Effect.fail(new Error(`Invalid local path: ${rawSpec}. Expected './...' (local path).`))
             }
 
-            const resolvedAbs = yield* Effect.tryPromise({
-              catch: () => new Error(`Local path does not exist: ${localSpec}`),
-              try: async () => {
-                const abs = NodePath.resolve(process.cwd(), localSpec)
-                await Fs.access(abs)
-                return abs
-              },
-            })
+            const resolvedAbs = path.resolve(process.cwd(), localSpec)
+            const fs = yield* FileSystem.FileSystem
+            const exists = yield* fs.exists(resolvedAbs).pipe(Effect.orElseSucceed(() => false))
+            if (!exists) {
+              return yield* Effect.fail(new Error(`Local path does not exist: ${localSpec}`))
+            }
 
-            const hasFormat = yield* Effect.promise(() => hasSupportedPluginFormat(resolvedAbs))
+            const hasFormat = yield* hasSupportedPluginFormat(resolvedAbs)
             if (!hasFormat) {
               return yield* Effect.fail(new Error(`No marketplace found at: ${localSpec}`))
             }

@@ -1,6 +1,4 @@
-import * as Fs from 'node:fs/promises'
-
-import { Effect } from 'effect'
+import { Effect, FileSystem } from 'effect'
 
 class GitError extends Error {
   override name = 'GitError'
@@ -8,10 +6,10 @@ class GitError extends Error {
 }
 
 const mockClone = (_url: string, dest: string) =>
-  Effect.tryPromise({
-    catch: (e: unknown) => e,
-    try: () => Fs.mkdir(dest, { recursive: true }),
-  }).pipe(Effect.asVoid)
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    yield* fs.makeDirectory(dest, { recursive: true })
+  })
 
 export const gitMock = {
   GitError,

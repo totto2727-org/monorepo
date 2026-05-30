@@ -2,6 +2,7 @@ import * as Fs from 'node:fs/promises'
 import * as Os from 'node:os'
 import * as NodePath from 'node:path'
 
+import { NodeServices } from '@effect/platform-node'
 import { Effect } from 'effect'
 import { afterEach, describe, expect, test } from 'vite-plus/test'
 
@@ -33,7 +34,7 @@ describe('initLockFile', () => {
     const projectRoot = await mkTmp()
     const lockPath = getLockFilePath(NodePath.join(projectRoot, '.agents'))
 
-    await Effect.runPromise(initLockFile(projectRoot))
+    await Effect.runPromise(initLockFile(projectRoot).pipe(Effect.provide(NodeServices.layer)))
 
     await expect(Fs.readFile(lockPath, 'utf-8')).resolves.toBe(`${JSON.stringify(emptyLockFile, null, '\t')}\n`)
     await expect(Fs.readdir(NodePath.join(projectRoot, '.agents'))).resolves.toStrictEqual(['c-plugin-lock.json'])
@@ -45,7 +46,9 @@ describe('initLockFile', () => {
     await Fs.mkdir(NodePath.dirname(lockPath), { recursive: true })
     await Fs.writeFile(lockPath, '{"version":1,"repositories":[],"skillDirs":["/keep"]}\n', 'utf-8')
 
-    await expect(Effect.runPromise(initLockFile(projectRoot))).rejects.toThrow()
+    await expect(
+      Effect.runPromise(initLockFile(projectRoot).pipe(Effect.provide(NodeServices.layer))),
+    ).rejects.toThrow()
     await expect(Fs.readFile(lockPath, 'utf-8')).resolves.toBe(
       '{"version":1,"repositories":[],"skillDirs":["/keep"]}\n',
     )

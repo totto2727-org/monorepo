@@ -1,3 +1,4 @@
+import { NodeServices } from '@effect/platform-node'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, test, vi } from 'vite-plus/test'
 
@@ -32,7 +33,9 @@ describe('removeRepoCaches', () => {
       version: 1,
     }
 
-    await Effect.runPromise(removeRepoCaches('/tmp/agents', lockFile, new Set(['~/local-plugin'])))
+    await Effect.runPromise(
+      removeRepoCaches('/tmp/agents', lockFile, new Set(['~/local-plugin'])).pipe(Effect.provide(NodeServices.layer)),
+    )
 
     expect(mockRemoveRepo).not.toHaveBeenCalled()
   })
@@ -52,7 +55,9 @@ describe('removeRepoCaches', () => {
       version: 1,
     }
 
-    await Effect.runPromise(removeRepoCaches('/tmp/agents', lockFile, new Set(['owner/repo'])))
+    await Effect.runPromise(
+      removeRepoCaches('/tmp/agents', lockFile, new Set(['owner/repo'])).pipe(Effect.provide(NodeServices.layer)),
+    )
 
     expect(mockRemoveRepo).toHaveBeenCalledTimes(1)
     expect(mockRemoveRepo).toHaveBeenCalledWith('/tmp/agents', 'owner/repo')
