@@ -11,7 +11,7 @@ let ctx: Awaited<ReturnType<typeof setupTestContext>>
 
 beforeEach(async () => {
   ctx = await setupTestContext()
-  await ensureAgentsDirs(ctx.agentsDir)
+  await ensureAgentsDirs(ctx.agentsDir, ctx.projectRoot)
 })
 
 afterEach(async () => {
@@ -20,7 +20,7 @@ afterEach(async () => {
 
 describe('resolveFromRepo', () => {
   test('resolves skills from valid repo structure', async () => {
-    const repoDir = await buildFakeRepoFixture(ctx.agentsDir, 'owner/repo', {
+    const repoDir = await buildFakeRepoFixture(ctx.projectRoot, 'owner/repo', {
       plugins: [
         {
           name: 'my-plugin',
@@ -38,7 +38,7 @@ describe('resolveFromRepo', () => {
   })
 
   test('resolves skills from multiple plugins', async () => {
-    const repoDir = await buildFakeRepoFixture(ctx.agentsDir, 'owner/repo', {
+    const repoDir = await buildFakeRepoFixture(ctx.projectRoot, 'owner/repo', {
       plugins: [
         {
           name: 'plugin-a',
@@ -58,7 +58,7 @@ describe('resolveFromRepo', () => {
   })
 
   test('excludes directories without SKILL.md', async () => {
-    const repoDir = await buildFakeRepoFixture(ctx.agentsDir, 'owner/repo', {
+    const repoDir = await buildFakeRepoFixture(ctx.projectRoot, 'owner/repo', {
       plugins: [
         {
           name: 'my-plugin',
@@ -77,7 +77,7 @@ describe('resolveFromRepo', () => {
   })
 
   test('returns empty when plugin has no skills directory', async () => {
-    const repoDir = await buildFakeRepoFixture(ctx.agentsDir, 'owner/repo', {
+    const repoDir = await buildFakeRepoFixture(ctx.projectRoot, 'owner/repo', {
       plugins: [
         {
           name: 'empty-plugin',

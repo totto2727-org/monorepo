@@ -24,10 +24,10 @@ afterEach(async () => {
 })
 
 describe('ensureDirs', () => {
-  test('creates .cache and skills directories', async () => {
-    await Effect.runPromise(ensureDirs(ctx.agentsDir))
+  test('creates cache and skills directories', async () => {
+    await Effect.runPromise(ensureDirs(ctx.agentsDir, ctx.projectRoot))
 
-    const cacheDir = getCacheDir(ctx.agentsDir)
+    const cacheDir = getCacheDir(ctx.projectRoot)
     const skillsDir = getSkillsDir(ctx.agentsDir)
 
     const cacheStat = await Fs.stat(cacheDir)
@@ -38,32 +38,32 @@ describe('ensureDirs', () => {
   })
 
   test('succeeds when directories already exist', async () => {
-    await Effect.runPromise(ensureDirs(ctx.agentsDir))
-    await expect(Effect.runPromise(ensureDirs(ctx.agentsDir))).resolves.toBeUndefined()
+    await Effect.runPromise(ensureDirs(ctx.agentsDir, ctx.projectRoot))
+    await expect(Effect.runPromise(ensureDirs(ctx.agentsDir, ctx.projectRoot))).resolves.toBeUndefined()
   })
 })
 
 describe('ensureRepo', () => {
   test('clones repo when not cached', async () => {
-    await Effect.runPromise(ensureDirs(ctx.agentsDir))
+    await Effect.runPromise(ensureDirs(ctx.agentsDir, ctx.projectRoot))
 
-    const repoDir = await Effect.runPromise(ensureRepo(ctx.agentsDir, 'owner/repo'))
+    const repoDir = await Effect.runPromise(ensureRepo(ctx.projectRoot, 'owner/repo'))
 
-    expect(repoDir).toBe(getRepoCacheDir(ctx.agentsDir, 'owner/repo'))
+    expect(repoDir).toBe(getRepoCacheDir(ctx.projectRoot, 'owner/repo'))
     const stat = await Fs.stat(repoDir)
     expect(stat.isDirectory()).toBe(true)
   })
 
   test('returns existing directory when already cached', async () => {
-    await Effect.runPromise(ensureDirs(ctx.agentsDir))
+    await Effect.runPromise(ensureDirs(ctx.agentsDir, ctx.projectRoot))
 
-    const repoCacheDir = getRepoCacheDir(ctx.agentsDir, 'owner/repo')
+    const repoCacheDir = getRepoCacheDir(ctx.projectRoot, 'owner/repo')
     await Fs.mkdir(repoCacheDir, { recursive: true })
 
     const markerFile = NodePath.join(repoCacheDir, 'marker.txt')
     await Fs.writeFile(markerFile, 'exists', 'utf-8')
 
-    const repoDir = await Effect.runPromise(ensureRepo(ctx.agentsDir, 'owner/repo'))
+    const repoDir = await Effect.runPromise(ensureRepo(ctx.projectRoot, 'owner/repo'))
     expect(repoDir).toBe(repoCacheDir)
 
     const content = await Fs.readFile(markerFile, 'utf-8')
@@ -73,18 +73,18 @@ describe('ensureRepo', () => {
 
 describe('removeRepo', () => {
   test('removes cached repository directory', async () => {
-    await Effect.runPromise(ensureDirs(ctx.agentsDir))
+    await Effect.runPromise(ensureDirs(ctx.agentsDir, ctx.projectRoot))
 
-    const repoCacheDir = getRepoCacheDir(ctx.agentsDir, 'owner/repo')
+    const repoCacheDir = getRepoCacheDir(ctx.projectRoot, 'owner/repo')
     await Fs.mkdir(repoCacheDir, { recursive: true })
     await Fs.writeFile(NodePath.join(repoCacheDir, 'file.txt'), 'data', 'utf-8')
 
-    await Effect.runPromise(removeRepo(ctx.agentsDir, 'owner/repo'))
+    await Effect.runPromise(removeRepo(ctx.projectRoot, 'owner/repo'))
     await expect(Fs.access(repoCacheDir)).rejects.toThrow()
   })
 
   test('does not throw when directory does not exist', async () => {
-    await expect(Effect.runPromise(removeRepo(ctx.agentsDir, 'nonexistent/repo'))).resolves.toBeUndefined()
+    await expect(Effect.runPromise(removeRepo(ctx.projectRoot, 'nonexistent/repo'))).resolves.toBeUndefined()
   })
 })
 

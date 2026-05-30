@@ -51,7 +51,8 @@ export const addCommand = Command.make(
   (config) =>
     Effect.gen(function* () {
       const agentsDir = config.global ? getGlobalAgentsDir() : yield* Effect.promise(() => findNearestAgentsDir())
-      yield* Cache.ensureDirs(agentsDir)
+      const agentsRoot = NodePath.dirname(agentsDir)
+      yield* Cache.ensureDirs(agentsDir, agentsRoot)
 
       const resolved: ResolvedSource = yield* Option.match(config.local, {
         onNone: () =>
@@ -62,7 +63,7 @@ export const addCommand = Command.make(
             })
             yield* Git.checkInstalled
             yield* Effect.log(`Cloning ${repoSpec}...`)
-            const repoDir = yield* Cache.ensureRepo(agentsDir, repoSpec)
+            const repoDir = yield* Cache.ensureRepo(agentsRoot, repoSpec)
             const commitHash = yield* Git.revParseHead(repoDir)
             return { commitHash, dir: repoDir, source: repoSpec, type: 'github' as const }
           }),
@@ -87,7 +88,6 @@ export const addCommand = Command.make(
               return yield* Effect.fail(new Error(`No marketplace found at: ${localSpec}`))
             }
 
-            const agentsRoot = NodePath.dirname(agentsDir)
             const relativeSource = toRelativeLocalPath(resolvedAbs, agentsRoot)
             return { dir: resolvedAbs, source: relativeSource, type: 'local' as const }
           }),
