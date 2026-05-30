@@ -63,7 +63,7 @@ const makeInstance = (db: DB.Instance, env: Env.Type, emailSender: EmailSender.E
           },
         },
         scopes: ['openid', 'profile', 'email', 'offline_access'],
-        validAudiences: ['feed-platform-web', 'http://localhost:8789'],
+        validAudiences: env.OAUTH_VALID_AUDIENCES.split(','),
       }),
       jwt({
         jwks: { keyPairConfig: { alg: 'ES256' } },

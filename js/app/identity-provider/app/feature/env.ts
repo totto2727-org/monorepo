@@ -2,6 +2,7 @@ import { Context, Layer } from 'effect'
 
 export interface BetterAuth {
   BETTER_AUTH_SECRET: string
+  OAUTH_VALID_AUDIENCES: string
 }
 
 export interface Passkey {
@@ -26,6 +27,7 @@ export const Service = Context.Service<Type>('@app/identity-provider/feature/env
 export const makeLayer = (env: Type) => Layer.succeed(Service, env)
 export const devLayer = Layer.succeed(Service, {
   BETTER_AUTH_SECRET: '0123456789abcdef0123456789abcdef0123456789abcdef',
+  OAUTH_VALID_AUDIENCES: 'feed-platform-web,http://localhost:8789',
   CLOUDFLARE_ACCOUNT_ID: 'dev-account',
   CLOUDFLARE_EMAIL_API_TOKEN: 'dev-token',
   DATABASE_AUTH_TOKEN: '',

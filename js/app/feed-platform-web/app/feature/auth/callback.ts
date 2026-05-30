@@ -64,7 +64,8 @@ export const handleAuthCallback = async (
     return new Response('missing code or verifier', { status: 400 })
   }
 
-  const redirectUri = `${env.WEB_BASE_URL}/auth/callback`
+  const { origin } = new URL(ctx.req.url)
+  const redirectUri = `${origin}/auth/callback`
   const bodyParams: Record<string, string> = {
     client_id: env.OAUTH_CLIENT_ID,
     code,

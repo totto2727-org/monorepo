@@ -92,7 +92,8 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     const nonce = generateNonce()
     const codeChallenge = await generateChallenge(verifier)
 
-    const redirectUri = `${env.WEB_BASE_URL}/auth/callback`
+    const { origin } = new URL(ctx.req.url)
+    const redirectUri = `${origin}/auth/callback`
     const authorizeUrl = buildAuthorizeUrl({
       clientId: env.OAUTH_CLIENT_ID,
       codeChallenge,

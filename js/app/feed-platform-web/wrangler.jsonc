@@ -14,15 +14,6 @@
     "enabled": true,
     "head_sampling_rate": 1,
   },
-  "vars": {
-    "IDP_BASE_URL": "http://localhost:8787",
-    "OAUTH_CLIENT_ID": "feed-platform-web",
-    "WEB_BASE_URL": "http://localhost:8788",
-    "BACKEND_BASE_URL": "http://localhost:8789",
-    "OAUTH_CLIENT_SECRET": "dev-secret-pkce-not-used",
-    "DATABASE_URL": "http://127.0.0.1:8080",
-    "DATABASE_AUTH_TOKEN": "",
-  },
   "placement": {
     "mode": "smart",
   },
