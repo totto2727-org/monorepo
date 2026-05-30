@@ -1,11 +1,27 @@
+import { Effect } from 'effect'
 import { Hono } from 'hono'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
+import type { Type as EnvType } from '#@/feature/env.ts'
 
 import { handleAuthCallback } from './callback.ts'
 
-const makeApp = () => new Hono().get('/auth/callback', (c) => handleAuthCallback(c))
+const testEnv: EnvType = {
+  BACKEND_BASE_URL: 'http://localhost:8789',
+  DATABASE_AUTH_TOKEN: '',
+  DATABASE_URL: ':memory:',
+  IDP_BASE_URL: 'https://idp.example.com',
+  OAUTH_CLIENT_ID: 'feed-platform-web',
+  OAUTH_CLIENT_SECRET: '',
+}
+
+const testRuntime = {
+  runPromise: <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(effect),
+}
+
+const makeApp = () =>
+  new Hono().get('/auth/callback', (c) => handleAuthCallback(c, testEnv, null as never, testRuntime))
 
 const makeCookieHeader = (pairs: Record<string, string>) =>
   Object.entries(pairs)

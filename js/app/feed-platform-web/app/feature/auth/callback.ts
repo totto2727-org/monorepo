@@ -1,12 +1,12 @@
 import { Effect, Predicate, Schema, String } from 'effect'
-import { HttpClient, HttpClientRequest, HttpBody } from 'effect/unstable/http'
+import { FetchHttpClient, HttpClient, HttpClientRequest, HttpBody } from 'effect/unstable/http'
 import type { Context } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 
 import { FEED_REFRESH_COOKIE, FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
 import { verifyAndDeleteNonce } from '#@/feature/auth/nonce-store.ts'
 import type { Instance as DBInstance } from '#@/feature/db/kysely.ts'
-import * as Env from '#@/feature/env.ts'
+import type * as Env from '#@/feature/env.ts'
 
 const TokenResponse = Schema.Struct({
   access_token: Schema.String,
@@ -24,7 +24,9 @@ const exchangeToken = (idpBaseUrl: string, params: Record<string, string>) =>
       body: HttpBody.text(formBody, 'application/x-www-form-urlencoded'),
     })
     const response = yield* client.execute(request)
-    if (response.status !== 200) return yield* Effect.fail(new Error('token exchange failed'))
+    if (response.status !== 200) {
+      return yield* Effect.fail(new Error('token exchange failed'))
+    }
     const data: unknown = yield* response.json
     return data
   })
@@ -32,20 +34,30 @@ const exchangeToken = (idpBaseUrl: string, params: Record<string, string>) =>
 const verifyNonce = (db: DBInstance, idToken: string, state: string) =>
   Effect.gen(function* () {
     const parts = idToken.split('.')
-    if (parts.length !== 3) return false
+    if (parts.length !== 3) {
+      return false
+    }
     const [, payloadPart] = parts
-    if (Predicate.isUndefined(payloadPart)) return false
+    if (Predicate.isUndefined(payloadPart)) {
+      return false
+    }
     const payloadStr = atob(payloadPart)
     const payload = JSON.parse(payloadStr)
-    if (!Predicate.isObject(payload)) return false
-    if (!('nonce' in payload)) return false
+    if (!Predicate.isObject(payload)) {
+      return false
+    }
+    if (!('nonce' in payload)) {
+      return false
+    }
     const { nonce } = payload
-    if (!Predicate.isString(nonce)) return false
+    if (!Predicate.isString(nonce)) {
+      return false
+    }
     return yield* Effect.promise(() => verifyAndDeleteNonce(db, state, nonce))
   })
 
 export interface CallbackRuntime {
-  readonly runPromise: <A, E>(effect: Effect.Effect<A, E, never>) => Promise<A>
+  readonly runPromise: <A, E>(effect: Effect.Effect<A, E>) => Promise<A>
 }
 
 export const handleAuthCallback = async (
@@ -84,16 +96,22 @@ export const handleAuthCallback = async (
       Effect.gen(function* () {
         const rawToken = yield* exchangeToken(env.IDP_BASE_URL, bodyParams)
         return yield* decodeTokenResponse(rawToken)
-      }),
+      }).pipe(Effect.provide(FetchHttpClient.layer)),
     )
     .catch(() => null)
 
-  if (Predicate.isNull(result)) return new Response('auth failed', { status: 401 })
-  if (String.isEmpty(result.access_token)) return new Response('auth failed', { status: 401 })
+  if (Predicate.isNull(result)) {
+    return new Response('auth failed', { status: 401 })
+  }
+  if (String.isEmpty(result.access_token)) {
+    return new Response('auth failed', { status: 401 })
+  }
 
   if (!Predicate.isUndefined(result.id_token) && Predicate.isNotNullish(state)) {
     const valid = await callbackRuntime.runPromise(verifyNonce(db, result.id_token, state))
-    if (!valid) return new Response('nonce mismatch', { status: 403 })
+    if (!valid) {
+      return new Response('nonce mismatch', { status: 403 })
+    }
   }
 
   setCookie(ctx, FEED_SESSION_COOKIE, result.access_token, { httpOnly: true, path: '/', sameSite: 'Lax' })
@@ -103,7 +121,7 @@ export const handleAuthCallback = async (
   if (!Predicate.isUndefined(result.refresh_token) && String.isNonEmpty(result.refresh_token)) {
     setCookie(ctx, FEED_REFRESH_COOKIE, result.refresh_token, {
       httpOnly: true,
-      maxAge: 2592000,
+      maxAge: 2_592_000,
       path: '/',
       sameSite: 'Lax',
     })

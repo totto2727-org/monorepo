@@ -46,16 +46,11 @@ const refreshTokens = (idpBaseUrl: string, params: Record<string, string>) =>
       body: HttpBody.text(formBody, 'application/x-www-form-urlencoded'),
     })
     const response = yield* client.execute(request)
-    if (response.status !== 200) return yield* Effect.fail(new Error('token refresh failed'))
-    const data: unknown = yield* response.json
-    return yield* decodeTokenResponse(data)
-  })
-    const response = yield* client.execute(request)
     if (response.status !== 200) {
       return yield* Effect.fail(new Error('token refresh failed'))
     }
     const data: unknown = yield* response.json
-    return yield* Schema.decodeUnknownEffect(TokenResponse)(data)
+    return yield* decodeTokenResponse(data)
   })
 
 const logoutFromIdp = (idpBaseUrl: string, sessionCookieValue: string) =>
