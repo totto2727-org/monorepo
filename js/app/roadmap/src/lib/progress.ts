@@ -1,3 +1,4 @@
+import type { TaggedErrorBaseData } from '@totto2727/fp/error'
 // oxlint-disable max-classes-per-file -- TaggedError subclasses are grouped by domain
 import { Data, DateTime, Effect, FileSystem, Path, Predicate, Schema } from 'effect'
 import { dump as dumpYaml, load as loadYaml } from 'js-yaml'
@@ -5,7 +6,6 @@ import { dump as dumpYaml, load as loadYaml } from 'js-yaml'
 import type { RoadmapStatus } from '#@/feature/schema/current.ts'
 import { RoadmapProgress, SCHEMA_VERSION } from '#@/feature/schema/current.ts'
 import { migrate } from '#@/feature/schema/migrate.ts'
-import type { TaggedErrorBaseType } from '#@/lib/error.ts'
 import type { Worktree } from '#@/lib/git.ts'
 
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- draft is a partially-typed literal
@@ -20,18 +20,18 @@ export class ProgressFileNotFoundError extends Data.TaggedError('ProgressFileNot
 }> {}
 
 export class ProgressReadError extends Data.TaggedError('ProgressReadError')<
-  TaggedErrorBaseType & {
+  TaggedErrorBaseData & {
     readonly path: string
   }
 > {}
 
 export class ProgressWriteError extends Data.TaggedError('ProgressWriteError')<
-  TaggedErrorBaseType & {
+  TaggedErrorBaseData & {
     readonly path: string
   }
 > {}
 
-export class ProgressValidationError extends Data.TaggedError('ProgressValidationError')<TaggedErrorBaseType> {}
+export class ProgressValidationError extends Data.TaggedError('ProgressValidationError')<TaggedErrorBaseData> {}
 
 const HEADER_COMMENT = `# Roadmap progress tracking yaml managed by the \`roadmap\` CLI.
 # Schema reference: plugins/dev-workflow/skills/share-artifacts/references/roadmap-progress-yaml.md
@@ -119,8 +119,13 @@ export const readProgressFile = (
 
     return yield* migrate(parsed).pipe(
       Effect.catchTags({
-        SchemaDecodeError: (error) =>
-          Effect.fail(new ProgressValidationError({ error, message: `${path} (v${error.version})` })),
+        SchemaDecodeError: (schemaDecodeError) =>
+          Effect.fail(
+            new ProgressValidationError({
+              error: schemaDecodeError,
+              message: `${path} (v${schemaDecodeError.version})`,
+            }),
+          ),
         SchemaVersionError: (error) =>
           Effect.fail(
             new ProgressValidationError({
@@ -181,7 +186,7 @@ export const listRoadmaps = (
   dir: string,
 ): Effect.Effect<
   readonly RoadmapProgress[],
-  ProgressDirNotFoundError | ProgressReadError | ProgressValidationError,
+  ProgressDirNotFoundError | ProgressFileNotFoundError | ProgressReadError | ProgressValidationError,
   FileSystem.FileSystem | Path.Path
 > =>
   Effect.gen(function* () {
@@ -217,15 +222,7 @@ export const listRoadmaps = (
         if (!(yield* fs.exists(progressPath).pipe(Effect.mapError(toReadError(progressPath))))) {
           return null
         }
-        return yield* readProgressFile({ dir, roadmapId: entry }).pipe(
-          Effect.catchTag('ProgressFileNotFoundError', () => Effect.succeed(null)),
-          Effect.catchTag('ProgressValidationError', (e) =>
-            Effect.logWarning(`Skipping invalid progress file: ${e.message}`).pipe(Effect.as(null)),
-          ),
-          Effect.catchTag('ProgressReadError', (e) =>
-            Effect.logWarning(`Skipping unreadable progress file (${e.path}): ${e.message}`).pipe(Effect.as(null)),
-          ),
-        )
+        return yield* readProgressFile({ dir, roadmapId: entry })
       }),
     )
 
@@ -242,7 +239,7 @@ export const listRoadmapsAcrossWorktrees = (
   relativeDir: string,
 ): Effect.Effect<
   readonly WorktreeRoadmaps[],
-  ProgressReadError | ProgressValidationError,
+  ProgressDirNotFoundError | ProgressFileNotFoundError | ProgressReadError | ProgressValidationError,
   FileSystem.FileSystem | Path.Path
 > =>
   // oxlint-disable-next-line unicorn/no-array-method-this-argument -- Effect.forEach, not Array.forEach
@@ -250,7 +247,6 @@ export const listRoadmapsAcrossWorktrees = (
     Effect.gen(function* () {
       const path = yield* Path.Path
       return yield* listRoadmaps(path.join(worktree.path, relativeDir)).pipe(
-        Effect.catchTag('ProgressDirNotFoundError', () => Effect.succeed([] as readonly RoadmapProgress[])),
         Effect.map((roadmaps) => ({ roadmaps, worktree })),
       )
     }),

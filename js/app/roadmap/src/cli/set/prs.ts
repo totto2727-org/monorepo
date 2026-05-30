@@ -4,15 +4,6 @@ import { Argument, Command, Flag } from 'effect/unstable/cli'
 import { resolveDirOrFail, rootCommand } from '#@/cli/root.ts'
 import { updateRoadmapPrs } from '#@/lib/progress.ts'
 
-const failWith = (message: string) =>
-  Effect.gen(function* () {
-    yield* Console.error(`error: ${message}`)
-    yield* Effect.sync(() => {
-      process.exitCode = 1
-    })
-    return null
-  })
-
 export const setPrsCommand = Command.make(
   'prs',
   {
@@ -26,11 +17,7 @@ export const setPrsCommand = Command.make(
   ({ append, roadmapId, value: prs }) =>
     Effect.gen(function* () {
       const { dir: relativeDir } = yield* rootCommand
-      const resolved = yield* resolveDirOrFail(relativeDir)
-      if (Predicate.isNullish(resolved)) {
-        return
-      }
-      const { dir } = resolved
+      const { dir } = yield* resolveDirOrFail(relativeDir)
       const now = yield* DateTime.now
       const result = yield* updateRoadmapPrs({
         append,
@@ -38,14 +25,7 @@ export const setPrsCommand = Command.make(
         now,
         prs,
         roadmapId,
-      }).pipe(
-        Effect.catchTags({
-          ProgressFileNotFoundError: (error) => failWith(`${error.path} not found`),
-          ProgressReadError: (error) => failWith(`failed to read ${error.path}: ${error.message}`),
-          ProgressValidationError: (error) => failWith(`invalid roadmap progress (${error.message})`),
-          ProgressWriteError: (error) => failWith(`failed to write ${error.path}: ${error.message}`),
-        }),
-      )
+      })
 
       if (Predicate.isNotNullish(result)) {
         const action = append ? 'Appended' : 'Set'

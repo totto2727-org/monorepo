@@ -1,10 +1,10 @@
+import type { TaggedErrorBaseData } from '@totto2727/fp/error'
 // oxlint-disable max-classes-per-file -- TaggedError subclasses are grouped by domain
 import type { DateTime } from 'effect'
 import { Data, Effect, FileSystem, Path, Predicate, Schema } from 'effect'
 
 import type { MilestoneStatus } from '#@/feature/schema/current.ts'
 import { Milestone } from '#@/feature/schema/current.ts'
-import type { TaggedErrorBaseType } from '#@/lib/error.ts'
 import { mergePrs, ProgressValidationError, readProgressFile, writeProgressFile } from '#@/lib/progress.ts'
 import type { ProgressFileNotFoundError, ProgressReadError, ProgressWriteError } from '#@/lib/progress.ts'
 
@@ -20,7 +20,7 @@ export class MilestoneFileExistsError extends Data.TaggedError('MilestoneFileExi
 }> {}
 
 export class MilestoneWriteError extends Data.TaggedError('MilestoneWriteError')<
-  TaggedErrorBaseType & {
+  TaggedErrorBaseData & {
     readonly path: string
   }
 > {}

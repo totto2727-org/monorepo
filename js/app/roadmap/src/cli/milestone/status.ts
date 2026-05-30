@@ -4,15 +4,6 @@ import { Argument, Command } from 'effect/unstable/cli'
 import { resolveDirOrFail, rootCommand } from '#@/cli/root.ts'
 import { readProgressFile } from '#@/lib/progress.ts'
 
-const failWith = (message: string) =>
-  Effect.gen(function* () {
-    yield* Console.error(`error: ${message}`)
-    yield* Effect.sync(() => {
-      process.exitCode = 1
-    })
-    return null
-  })
-
 const formatList = (items: readonly string[]): string =>
   Array.isReadonlyArrayEmpty(items) ? '(none)' : items.join(', ')
 
@@ -25,26 +16,12 @@ export const milestoneStatusCommand = Command.make(
   ({ roadmapId, targetId: milestoneId }) =>
     Effect.gen(function* () {
       const { dir: relativeDir } = yield* rootCommand
-      const resolved = yield* resolveDirOrFail(relativeDir)
-      if (Predicate.isNullish(resolved)) {
-        return
-      }
-      const { dir } = resolved
-      const progress = yield* readProgressFile({ dir, roadmapId }).pipe(
-        Effect.catchTags({
-          ProgressFileNotFoundError: (error) => failWith(`${error.path} not found`),
-          ProgressReadError: (error) => failWith(`failed to read ${error.path}: ${error.message}`),
-          ProgressValidationError: (error) => failWith(`invalid roadmap progress (${error.message})`),
-        }),
-      )
-
-      if (Predicate.isNullish(progress)) {
-        return
-      }
+      const { dir } = yield* resolveDirOrFail(relativeDir)
+      const progress = yield* readProgressFile({ dir, roadmapId })
 
       const milestone = progress.milestones.find((m) => m.id === milestoneId)
       if (Predicate.isNullish(milestone)) {
-        yield* failWith(`milestone "${milestoneId}" not found in ${roadmapId}`)
+        yield* Effect.fail(new Error(`milestone "${milestoneId}" not found in ${roadmapId}`))
         return
       }
 

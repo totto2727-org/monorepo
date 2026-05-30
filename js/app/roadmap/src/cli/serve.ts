@@ -1,20 +1,11 @@
 import { serve } from '@hono/node-server'
-import { Console, Effect, Predicate } from 'effect'
+import { Console, Effect } from 'effect'
 import { Command, Flag } from 'effect/unstable/cli'
 
 import { rootCommand } from '#@/cli/root.ts'
 import { findRepoRoot, listWorktrees } from '#@/lib/git.ts'
 
 import { createApp } from '../../app/app.tsx'
-
-const failWith = (message: string) =>
-  Effect.gen(function* () {
-    yield* Console.error(`error: ${message}`)
-    yield* Effect.sync(() => {
-      process.exitCode = 1
-    })
-    return null
-  })
 
 export const serveCommand = Command.make(
   'serve',
@@ -29,21 +20,9 @@ export const serveCommand = Command.make(
     Effect.gen(function* () {
       const { dir: relativeDir } = yield* rootCommand
 
-      const repoRoot = yield* findRepoRoot(process.cwd()).pipe(
-        Effect.catchTag('RepoRootNotFoundError', (e) =>
-          failWith(`not inside a git repository (searched from ${e.startedFrom})`),
-        ),
-      )
-      if (Predicate.isNullish(repoRoot)) {
-        return
-      }
+      const repoRoot = yield* findRepoRoot(process.cwd())
 
-      const worktrees = yield* listWorktrees(repoRoot).pipe(
-        Effect.catchTag('GitCommandError', (e) => failWith(`${e.command} failed: ${e.message}`)),
-      )
-      if (Predicate.isNullish(worktrees)) {
-        return
-      }
+      const worktrees = yield* listWorktrees(repoRoot)
 
       const app = createApp({ relativeDir, worktrees })
 

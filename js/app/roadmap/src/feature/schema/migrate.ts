@@ -1,7 +1,6 @@
+import type { TaggedErrorBaseData } from '@totto2727/fp/error'
 // oxlint-disable max-classes-per-file -- TaggedError subclasses are grouped by domain
 import { Data, Effect, Predicate, Schema } from 'effect'
-
-import type { TaggedErrorBaseType } from '#@/lib/error.ts'
 
 import * as V1 from './v1.ts'
 import * as V2 from './v2.ts'
@@ -11,7 +10,7 @@ export class SchemaVersionError extends Data.TaggedError('SchemaVersionError')<{
 }> {}
 
 export class SchemaDecodeError extends Data.TaggedError('SchemaDecodeError')<
-  TaggedErrorBaseType & {
+  TaggedErrorBaseData & {
     readonly version: number
   }
 > {}
