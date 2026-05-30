@@ -2,7 +2,7 @@ import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 
 import { NodeServices } from '@effect/platform-node'
-import { Effect, FileSystem, Path, Predicate, String } from 'effect'
+import { Effect, FileSystem, Path, Predicate, Schema, String } from 'effect'
 
 // oxlint-disable-next-line typescript/strict-void-return -- node's promisify(execFile) overloads trigger a false positive
 const execFileAsync = promisify(execFile)
@@ -29,16 +29,8 @@ interface RawPr {
   readonly state: string
 }
 
-const isPrArray = (value: unknown): value is readonly RawPr[] =>
-  Array.isArray(value) &&
-  value.every(
-    (item) =>
-      Predicate.isObject(item) &&
-      'number' in item &&
-      Predicate.isNumber(item.number) &&
-      'state' in item &&
-      Predicate.isString(item.state),
-  )
+const RawPrArray = Schema.Array(Schema.Struct({ number: Schema.Number, state: Schema.String }))
+const matchesRawPrArray = Schema.is(RawPrArray)
 
 const parsePrs = (json: string): readonly RawPr[] => {
   if (String.isEmpty(json)) {
@@ -46,7 +38,7 @@ const parsePrs = (json: string): readonly RawPr[] => {
   }
   try {
     const parsed = parseJson(json)
-    return isPrArray(parsed) ? parsed : []
+    return matchesRawPrArray(parsed) ? parsed : []
   } catch {
     return []
   }
@@ -59,6 +51,22 @@ export interface WorktreeEntry {
   readonly branch: string | null
   readonly isMain: boolean
 }
+
+export const BranchedWorktreeEntry = Schema.Struct({
+  branch: Schema.String,
+  isMain: Schema.Boolean,
+  path: Schema.String,
+})
+export type BranchedWorktreeEntry = Schema.Schema.Type<typeof BranchedWorktreeEntry>
+export const matchesBranchedWorktreeEntry = Schema.is(BranchedWorktreeEntry)
+
+export const NonMainWorktreeEntry = Schema.Struct({
+  branch: Schema.String,
+  isMain: Schema.Literal(false),
+  path: Schema.String,
+})
+export type NonMainWorktreeEntry = Schema.Schema.Type<typeof NonMainWorktreeEntry>
+export const matchesNonMainWorktreeEntry = Schema.is(NonMainWorktreeEntry)
 
 export interface RepoWorktrees {
   readonly repoPath: string

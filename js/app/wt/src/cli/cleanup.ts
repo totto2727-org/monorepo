@@ -4,7 +4,7 @@ import { Argument, Command, Flag } from 'effect/unstable/cli'
 import * as Wt from '#@/lib/worktree.ts'
 
 interface BranchWithStatus {
-  readonly entry: Wt.WorktreeEntry & { branch: string }
+  readonly entry: Wt.NonMainWorktreeEntry
   readonly pr: Wt.PrInfo
   readonly git: Wt.GitStatus
   readonly reason: string
@@ -15,8 +15,6 @@ interface RepoCleanup {
   readonly removable: readonly BranchWithStatus[]
   readonly skipped: number
 }
-
-type NonMainEntry = Wt.WorktreeEntry & { branch: string }
 
 const classifyForRemoval = (pr: Wt.PrInfo, git: Wt.GitStatus): string | null => {
   if (pr.state === 'merged') {
@@ -36,7 +34,7 @@ const classifyForRemoval = (pr: Wt.PrInfo, git: Wt.GitStatus): string | null => 
 
 const classifyEntry =
   (prMap: ReadonlyMap<string, Wt.PrInfo>, gitMap: ReadonlyMap<string, Wt.GitStatus>) =>
-  (entry: NonMainEntry): BranchWithStatus | null => {
+  (entry: Wt.NonMainWorktreeEntry): BranchWithStatus | null => {
     const pr = prMap.get(entry.branch) ?? { number: null, state: 'none' as const }
     const git = gitMap.get(entry.path) ?? 'committed'
     const reason = classifyForRemoval(pr, git)
@@ -48,7 +46,7 @@ const classifyEntry =
 
 const classifyRepo = (repo: Wt.RepoWorktrees): Effect.Effect<RepoCleanup> =>
   Effect.gen(function* () {
-    const nonMain = repo.entries.filter((e): e is NonMainEntry => !e.isMain && Predicate.isNotNullish(e.branch))
+    const nonMain = repo.entries.filter(Wt.matchesNonMainWorktreeEntry)
 
     if (Array.isReadonlyArrayEmpty(nonMain)) {
       return { removable: [], repoPath: repo.repoPath, skipped: 0 }
@@ -58,9 +56,9 @@ const classifyRepo = (repo: Wt.RepoWorktrees): Effect.Effect<RepoCleanup> =>
       [
         Wt.getPrInfoMap(
           repo.slug,
-          nonMain.map((e) => ({ branch: e.branch, isMain: false })),
+          nonMain.map((entry) => ({ branch: entry.branch, isMain: false })),
         ),
-        Wt.getGitStatusMap(nonMain.map((e) => e.path)),
+        Wt.getGitStatusMap(nonMain.map((entry) => entry.path)),
       ],
       { concurrency: 'unbounded' },
     )
@@ -126,7 +124,7 @@ const cleanupWorktrees = (dir: string, dryRun: boolean): Effect.Effect<void> =>
       concurrency: 1,
     })
     const totalRemoved = Array.reduce(removedCounts, 0, (acc, n) => acc + n)
-    const totalSkipped = Array.reduce(repoCleanups, 0, (acc, c) => acc + c.skipped)
+    const totalSkipped = Array.reduce(repoCleanups, 0, (acc, cleanup) => acc + cleanup.skipped)
 
     yield* Effect.sync(() => {
       console.log(`Done: ${totalRemoved} removed, ${totalSkipped} skipped${dryRun ? ' (dry-run)' : ''}`)
