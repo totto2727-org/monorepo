@@ -35,22 +35,22 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
         Promise.resolve(app.fetch(input instanceof Request ? input : new Request(input))),
     }),
   )
-  .get('/', (c) =>
+  .get('/', (ctx) =>
     // ms-01 段階では Frame ベースのレイアウト (hono-remix-v3-cloudflare-example の
     // content-layout 系) は採用せず、素朴な c.render(<Document>...) で Hello World を出す。
     // ms-04 / ms-07 で UI を強化する際に Frame レイアウトの採用可否を再検討する。
-    c.render(
+    ctx.render(
       <Document>
         <h1>Hello, feed-platform-web</h1>
       </Document>,
     ),
   )
-  .get('/api/v1/hello', (c) =>
+  .get('/api/v1/hello', (ctx) =>
     // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes request-scoped Effect with the request runtime.
-    c.var.runtime.runPromise(
+    ctx.var.runtime.runPromise(
       Effect.gen(function* () {
         const greeting = yield* Greeting.Service
-        return c.json({ message: greeting.greet('feed-platform-web') })
+        return ctx.json({ message: greeting.greet('feed-platform-web') })
       }),
     ),
   )

@@ -19,13 +19,13 @@ const app = new Hono<AppEnv>()
   .use(contextStorage())
   .use(runtimeMiddleware)
   .use(logger())
-  .get('/health', (c) =>
+  .get('/health', (ctx) =>
     // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes request-scoped Effect with the request runtime.
-    c.var.runtime.runPromise(
+    ctx.var.runtime.runPromise(
       Effect.gen(function* () {
         const checker = yield* Health.Service
         const result = yield* checker.check()
-        return c.json(result)
+        return ctx.json(result)
       }),
     ),
   )
