@@ -1,5 +1,5 @@
 import { Context, Data, Effect, Layer, Predicate, Schema } from 'effect'
-import { HttpClient, HttpClientRequest } from 'effect/unstable/http'
+import { FetchHttpClient, HttpClient, HttpClientRequest } from 'effect/unstable/http'
 
 export interface UserDTO {
   readonly id: string
@@ -19,8 +19,8 @@ export const BackendClient = Context.Service<BackendClientService>('BackendClien
 const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL ?? 'http://localhost:8789'
 
 const UserResponse = Schema.Struct({
-  id: Schema.String,
   email: Schema.String,
+  id: Schema.String,
 })
 
 const callBackendApi = (authorization: string) =>
@@ -30,7 +30,9 @@ const callBackendApi = (authorization: string) =>
       headers: { Authorization: authorization },
     })
     const response = yield* client.execute(request)
-    if (response.status !== 200) return yield* Effect.fail(new BackendError({ cause: `HTTP ${response.status}` }))
+    if (response.status !== 200) {
+      return yield* Effect.fail(new BackendError({ cause: `HTTP ${response.status}` }))
+    }
     const data: unknown = yield* response.json
     return yield* Schema.decodeUnknownEffect(UserResponse)(data).pipe(
       Effect.mapError(() => new BackendError({ cause: 'invalid response shape' })),
@@ -41,7 +43,10 @@ export const liveLayer = Layer.succeed(BackendClient, {
   callMe: (authorization: string | null) =>
     Predicate.isNullish(authorization)
       ? Effect.fail(new BackendError({ cause: 'missing feed-session cookie' }))
-      : callBackendApi(authorization),
+      : callBackendApi(authorization).pipe(
+          Effect.mapError((cause) => new BackendError({ cause: String(cause) })),
+          Effect.provide(FetchHttpClient.layer),
+        ),
 })
 
 export const mockLayer = Layer.succeed(BackendClient, {

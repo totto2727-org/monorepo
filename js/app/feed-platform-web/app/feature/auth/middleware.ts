@@ -29,8 +29,8 @@ export const authMiddleware = createMiddleware<{
     const { payload } = await jwtVerify<AppJWTPayload>(token, jwks)
     const { sub, email } = payload
     ctx.set('user', { email, id: sub })
-  } catch (e) {
-    console.warn('[auth] JWT verification failed:', String(e))
+  } catch (error) {
+    console.warn('[auth] JWT verification failed:', String(error))
     ctx.set('user', null)
   }
 

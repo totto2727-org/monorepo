@@ -3,7 +3,7 @@ import { HttpClient, HttpClientRequest, HttpBody } from 'effect/unstable/http'
 import { Hono } from 'hono'
 import { remixRenderer } from 'hono-remix-middleware'
 import { contextStorage } from 'hono/context-storage'
-import { getCookie } from 'hono/cookie'
+import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { logger } from 'hono/logger'
 
 import { BackendClient, liveLayer } from '#@/feature/api/client.ts'
@@ -44,7 +44,9 @@ const refreshTokens = (idpBaseUrl: string, params: Record<string, string>) =>
       body: HttpBody.text(formBody, 'application/x-www-form-urlencoded'),
     })
     const response = yield* client.execute(request)
-    if (response.status !== 200) return yield* Effect.fail(new Error('token refresh failed'))
+    if (response.status !== 200) {
+      return yield* Effect.fail(new Error('token refresh failed'))
+    }
     const data: unknown = yield* response.json
     return yield* Schema.decodeUnknownEffect(TokenResponse)(data)
   })
@@ -57,13 +59,6 @@ const logoutFromIdp = (idpBaseUrl: string, sessionCookieValue: string) =>
     })
     yield* client.execute(request)
   })
-
-const redirectToLogin = () => {
-  const headers = new Headers({ Location: '/login' })
-  headers.append('Set-Cookie', `${FEED_SESSION_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax; HttpOnly`)
-  headers.append('Set-Cookie', `${FEED_REFRESH_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax; HttpOnly`)
-  return new Response(null, { headers, status: 302 })
-}
 
 const app: Hono<AppEnv> = new Hono<AppEnv>()
   .use(logger())
@@ -84,8 +79,8 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     ),
   )
   .get('/login', async (ctx) => {
-    const env = ctx.env
-    const runtime = ctx.var.runtime
+    const { env } = ctx
+    const { runtime } = ctx.var
 
     const verifier = generateVerifier()
     const state = generateState()
@@ -110,10 +105,10 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
       }),
     )
 
-    const headers = new Headers({ Location: authorizeUrl.toString() })
-    headers.append('Set-Cookie', `pkce_verifier=${verifier}; HttpOnly; SameSite=Lax; Path=/`)
-    headers.append('Set-Cookie', `oauth_state=${state}; HttpOnly; SameSite=Lax; Path=/`)
-    return new Response(null, { headers, status: 302 })
+    setCookie(ctx, 'pkce_verifier', verifier, { httpOnly: true, path: '/', sameSite: 'Lax' })
+    setCookie(ctx, 'oauth_state', state, { httpOnly: true, path: '/', sameSite: 'Lax' })
+
+    return ctx.redirect(authorizeUrl.toString())
   })
   .get('/auth/callback', async (ctx) => {
     const db = await ctx.var.runtime.runPromise(
@@ -121,7 +116,7 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
         return yield* DBService
       }),
     )
-    return handleAuthCallback(ctx, ctx.env, db, ctx.var.runtime)
+    return await handleAuthCallback(ctx, ctx.env, db, ctx.var.runtime)
   })
   .get('/api/me-debug', (ctx) => ctx.json({ user: ctx.var.user }))
   .get('/api/v1/hello', (ctx) =>
@@ -134,7 +129,9 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
   )
   .get('/dashboard', async (ctx) => {
     const { runtime, user } = ctx.var
-    if (Predicate.isNullish(user)) return ctx.redirect('/login')
+    if (Predicate.isNullish(user)) {
+      return ctx.redirect('/login')
+    }
     const token = getCookie(ctx, FEED_SESSION_COOKIE)
     const authorization = Predicate.isNullish(token) ? null : `Bearer ${token}`
 
@@ -159,9 +156,13 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     }
 
     const refreshToken = getCookie(ctx, FEED_REFRESH_COOKIE)
-    if (Predicate.isNullish(refreshToken)) return redirectToLogin()
+    if (Predicate.isNullish(refreshToken)) {
+      deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+      deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+      return ctx.redirect('/login')
+    }
 
-    const env = ctx.env
+    const { env } = ctx
     const bodyParams: Record<string, string> = {
       client_id: env.OAUTH_CLIENT_ID,
       grant_type: 'refresh_token',
@@ -174,7 +175,11 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     const tokenData = await runtime.runPromise(
       refreshTokens(env.IDP_BASE_URL, bodyParams).pipe(Effect.orElseSucceed(() => null)),
     )
-    if (tokenData === null) return redirectToLogin()
+    if (tokenData === null) {
+      deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+      deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+      return ctx.redirect('/login')
+    }
 
     const retryResult = await runtime.runPromise(
       Effect.provide(
@@ -185,21 +190,23 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
         liveLayer,
       ).pipe(Effect.orElseSucceed(() => null)),
     )
-    if (retryResult === null) return redirectToLogin()
-
-    const responseHeaders = new Headers()
-    responseHeaders.append(
-      'Set-Cookie',
-      `${FEED_SESSION_COOKIE}=${tokenData.access_token}; HttpOnly; SameSite=Lax; Path=/`,
-    )
-    if (tokenData.refresh_token !== undefined && String.isNonEmpty(tokenData.refresh_token)) {
-      responseHeaders.append(
-        'Set-Cookie',
-        `${FEED_REFRESH_COOKIE}=${tokenData.refresh_token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=2592000`,
-      )
+    if (retryResult === null) {
+      deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+      deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+      return ctx.redirect('/login')
     }
 
-    const res = ctx.render(
+    setCookie(ctx, FEED_SESSION_COOKIE, tokenData.access_token, { httpOnly: true, path: '/', sameSite: 'Lax' })
+    if (tokenData.refresh_token !== undefined && String.isNonEmpty(tokenData.refresh_token)) {
+      setCookie(ctx, FEED_REFRESH_COOKIE, tokenData.refresh_token, {
+        httpOnly: true,
+        maxAge: 2_592_000,
+        path: '/',
+        sameSite: 'Lax',
+      })
+    }
+
+    return ctx.render(
       <Document>
         <h1>Dashboard</h1>
         <p>Logged in as: {retryResult.email}</p>
@@ -207,17 +214,15 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
         <a href='/logout'>Logout</a>
       </Document>,
     )
-    for (const [key, value] of responseHeaders) {
-      if (key.toLowerCase() === 'set-cookie') res.headers.append(key, value)
-    }
-    return res
   })
   .get('/logout', async (ctx) => {
     const token = getCookie(ctx, FEED_SESSION_COOKIE)
     if (!Predicate.isNullish(token)) {
       await ctx.var.runtime.runPromise(logoutFromIdp(ctx.env.IDP_BASE_URL, token)).catch(() => null)
     }
-    return redirectToLogin()
+    deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+    deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+    return ctx.redirect('/login')
   })
 
 export default app
