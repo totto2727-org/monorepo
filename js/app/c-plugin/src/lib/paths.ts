@@ -56,11 +56,11 @@ export const expandHomePath = (path: string): string => {
   return path
 }
 
-export const isLocalPath = (spec: string): boolean => spec.startsWith('./')
+export const hasLocalPathPrefix = (spec: string): boolean => spec.startsWith('./')
 
-export const isParentPath = (spec: string): boolean => spec.startsWith('../')
+export const hasParentPathPrefix = (spec: string): boolean => spec.startsWith('../')
 
-export const isHomePath = (spec: string): boolean => spec.startsWith('~/')
+export const hasHomePathPrefix = (spec: string): boolean => spec.startsWith('~/')
 
 export const normalizePathSpec = (spec: string): string => {
   if (spec === './' || spec === '../' || spec === '~/') {
@@ -70,10 +70,10 @@ export const normalizePathSpec = (spec: string): string => {
 }
 
 export const resolveLocalPath = (spec: string, agentsRoot: string): string => {
-  if (isHomePath(spec) || spec === '~') {
+  if (hasHomePathPrefix(spec) || spec === '~') {
     return expandHomePath(spec)
   }
-  if (isLocalPath(spec) || isParentPath(spec)) {
+  if (hasLocalPathPrefix(spec) || hasParentPathPrefix(spec)) {
     return normalizeAbsolutePath(`${agentsRoot}/${spec}`)
   }
   return spec

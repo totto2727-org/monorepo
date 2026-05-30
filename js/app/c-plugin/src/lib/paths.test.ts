@@ -12,9 +12,9 @@ import {
   findNearestAgentsDir,
   LOCK_FILE_NAME,
   getGitHubCloneUrl,
-  isHomePath,
-  isLocalPath,
-  isParentPath,
+  hasHomePathPrefix,
+  hasLocalPathPrefix,
+  hasParentPathPrefix,
   normalizePathSpec,
   parseRepoSource,
   resolveLocalPath,
@@ -78,43 +78,43 @@ describe('expandHomePath', () => {
 
 describe('isLocalPath', () => {
   test('accepts "./..." paths', () => {
-    expect(isLocalPath('./foo')).toBe(true)
-    expect(isLocalPath('./foo/bar')).toBe(true)
+    expect(hasLocalPathPrefix('./foo')).toBe(true)
+    expect(hasLocalPathPrefix('./foo/bar')).toBe(true)
   })
 
   test('rejects non-local paths', () => {
-    expect(isLocalPath('~/foo')).toBe(false)
-    expect(isLocalPath('../up')).toBe(false)
-    expect(isLocalPath('/abs/path')).toBe(false)
-    expect(isLocalPath('foo/bar')).toBe(false)
-    expect(isLocalPath('~')).toBe(false)
+    expect(hasLocalPathPrefix('~/foo')).toBe(false)
+    expect(hasLocalPathPrefix('../up')).toBe(false)
+    expect(hasLocalPathPrefix('/abs/path')).toBe(false)
+    expect(hasLocalPathPrefix('foo/bar')).toBe(false)
+    expect(hasLocalPathPrefix('~')).toBe(false)
   })
 })
 
 describe('isParentPath', () => {
   test('accepts "../..." paths', () => {
-    expect(isParentPath('../foo')).toBe(true)
-    expect(isParentPath('../../bar')).toBe(true)
+    expect(hasParentPathPrefix('../foo')).toBe(true)
+    expect(hasParentPathPrefix('../../bar')).toBe(true)
   })
 
   test('rejects non-parent paths', () => {
-    expect(isParentPath('./foo')).toBe(false)
-    expect(isParentPath('~/foo')).toBe(false)
-    expect(isParentPath('/abs/path')).toBe(false)
+    expect(hasParentPathPrefix('./foo')).toBe(false)
+    expect(hasParentPathPrefix('~/foo')).toBe(false)
+    expect(hasParentPathPrefix('/abs/path')).toBe(false)
   })
 })
 
 describe('isHomePath', () => {
   test('accepts "~/..." paths', () => {
-    expect(isHomePath('~/foo')).toBe(true)
-    expect(isHomePath('~/foo/bar')).toBe(true)
+    expect(hasHomePathPrefix('~/foo')).toBe(true)
+    expect(hasHomePathPrefix('~/foo/bar')).toBe(true)
   })
 
   test('rejects non-home paths', () => {
-    expect(isHomePath('./foo')).toBe(false)
-    expect(isHomePath('../up')).toBe(false)
-    expect(isHomePath('/abs/path')).toBe(false)
-    expect(isHomePath('~')).toBe(false)
+    expect(hasHomePathPrefix('./foo')).toBe(false)
+    expect(hasHomePathPrefix('../up')).toBe(false)
+    expect(hasHomePathPrefix('/abs/path')).toBe(false)
+    expect(hasHomePathPrefix('~')).toBe(false)
   })
 })
 

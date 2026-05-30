@@ -4,7 +4,7 @@ import { Argument, Command, Flag, Prompt } from 'effect/unstable/cli'
 import {
   findNearestAgentsDir,
   getGlobalAgentsDir,
-  isLocalPath,
+  hasLocalPathPrefix,
   normalizePathSpec,
   toRelativeLocalPath,
 } from '#@/lib/paths.ts'
@@ -68,7 +68,7 @@ export const addCommand = Command.make(
         onSome: (rawSpec) =>
           Effect.gen(function* () {
             const localSpec = normalizePathSpec(rawSpec)
-            if (!isLocalPath(localSpec)) {
+            if (!hasLocalPathPrefix(localSpec)) {
               return yield* Effect.fail(new Error(`Invalid local path: ${rawSpec}. Expected './...' (local path).`))
             }
 

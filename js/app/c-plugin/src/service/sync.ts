@@ -1,7 +1,6 @@
 import type { FileSystem } from 'effect'
 import { Array, Effect, Path, Predicate } from 'effect'
 
-import { errorMessageOrDefault } from '#@/lib/error.ts'
 import type { LockFile, RepositoryEntry } from '#@/schema/lock-file.ts'
 import * as Cache from '#@/service/cache.ts'
 import * as Git from '#@/service/git.ts'
@@ -93,10 +92,9 @@ export const run = (
     for (const repo of lockFile.repositories) {
       yield* Effect.log(`Syncing ${repo.source}...`)
       const result = yield* syncRepo(agentsDir, agentsRoot, lockFile, repo).pipe(
-        Effect.catch((error) =>
+        Effect.catch(() =>
           Effect.gen(function* () {
-            const message = errorMessageOrDefault(error)
-            yield* Effect.log(`  Skipped ${repo.source}: ${message}`)
+            yield* Effect.log(`  Skipped ${repo.source}`)
             return repo
           }),
         ),

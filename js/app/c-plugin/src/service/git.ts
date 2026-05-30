@@ -1,15 +1,14 @@
 import { execFile as execFileCb } from 'node:child_process'
 import { promisify } from 'node:util'
 
+import type { TaggedErrorBaseData } from '@totto2727/fp/error'
 import { Data, Effect } from 'effect'
-
-import type { TaggedErrorBaseType } from '#@/lib/error.ts'
 
 // oxlint-disable-next-line typescript/strict-void-return -- node の execFile 型定義由来の偽陽性
 const execFile = promisify(execFileCb)
 
 export class GitError extends Data.TaggedError('GitError')<
-  TaggedErrorBaseType & {
+  TaggedErrorBaseData & {
     readonly command: string
   }
 > {}

@@ -6,7 +6,7 @@ import { NodeServices } from '@effect/platform-node'
 import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vite-plus/test'
 
-import { isLocalPath } from '#@/lib/paths.ts'
+import { hasLocalPathPrefix } from '#@/lib/paths.ts'
 import { hasSupportedPluginFormat } from '#@/lib/plugin-format.ts'
 import { allKinds, getKindConfig } from '#@/schema/marketplace-kind.ts'
 
@@ -35,27 +35,27 @@ describe('add module', () => {
 
 describe('isLocalPath (add local-flow validation)', () => {
   test('rejects absolute path', () => {
-    expect(isLocalPath('/abs/path')).toBe(false)
+    expect(hasLocalPathPrefix('/abs/path')).toBe(false)
   })
 
   test('rejects bare relative path', () => {
-    expect(isLocalPath('foo/bar')).toBe(false)
+    expect(hasLocalPathPrefix('foo/bar')).toBe(false)
   })
 
   test('rejects parent traversal', () => {
-    expect(isLocalPath('../up')).toBe(false)
+    expect(hasLocalPathPrefix('../up')).toBe(false)
   })
 
   test('rejects lone "~"', () => {
-    expect(isLocalPath('~')).toBe(false)
+    expect(hasLocalPathPrefix('~')).toBe(false)
   })
 
   test('rejects "~/foo" home-prefixed path', () => {
-    expect(isLocalPath('~/foo')).toBe(false)
+    expect(hasLocalPathPrefix('~/foo')).toBe(false)
   })
 
   test('accepts "./foo" explicit relative path', () => {
-    expect(isLocalPath('./foo')).toBe(true)
+    expect(hasLocalPathPrefix('./foo')).toBe(true)
   })
 })
 
