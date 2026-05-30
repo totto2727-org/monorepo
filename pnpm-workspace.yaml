@@ -68,6 +68,8 @@ catalogs:
 overrides:
   vite: 'catalog:'
   vitest: 'catalog:'
+patchedDependencies:
+  '@better-auth/kysely-adapter@1.6.12': patches/@better-auth__kysely-adapter@1.6.12.patch
 
 peerDependencyRules:
   allowAny:

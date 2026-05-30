@@ -3,6 +3,7 @@ node_modules/
 *.local.*
 .cache
 .pnpm-store
+.sisyphus/
 .claude/worktrees/
 .playwright-mcp/
 .playwright-cli/
