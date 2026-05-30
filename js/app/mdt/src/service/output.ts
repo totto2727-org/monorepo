@@ -1,6 +1,5 @@
 import { Effect, FileSystem } from 'effect'
 
-import { errorMessageOrDefault } from '#@/lib/error.ts'
 import { InputError } from '#@/lib/input-error.ts'
 import { OutputExistsError } from '#@/lib/output-exists-error.ts'
 
@@ -17,7 +16,7 @@ export const readText = (path: string): Effect.Effect<string, InputError, FileSy
       Effect.mapError(
         (error) =>
           new InputError({
-            message: errorMessageOrDefault(error),
+            error,
             path,
           }),
       ),
@@ -41,7 +40,7 @@ export const writeText = (
       Effect.mapError(
         (error) =>
           new InputError({
-            message: errorMessageOrDefault(error),
+            error,
             path,
           }),
       ),

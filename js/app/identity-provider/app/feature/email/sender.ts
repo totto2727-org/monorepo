@@ -1,6 +1,8 @@
 import { Context, Data } from 'effect'
 import type { Effect } from 'effect'
 
+import type { TaggedErrorBaseType } from '#@/feature/share/lib/error.ts'
+
 export interface SendParams {
   readonly to: string
   readonly subject: string
@@ -8,9 +10,7 @@ export interface SendParams {
   readonly html?: string
 }
 
-export class EmailSendError extends Data.TaggedError('EmailSendError')<{
-  readonly message: string
-}> {}
+export class EmailSendError extends Data.TaggedError('EmailSendError')<TaggedErrorBaseType> {}
 
 export interface EmailSender {
   readonly send: (params: SendParams) => Effect.Effect<void, EmailSendError>

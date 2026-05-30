@@ -5,7 +5,7 @@ import { dump as dumpYaml, load as loadYaml } from 'js-yaml'
 import type { RoadmapStatus } from '#@/feature/schema/current.ts'
 import { RoadmapProgress, SCHEMA_VERSION } from '#@/feature/schema/current.ts'
 import { migrate } from '#@/feature/schema/migrate.ts'
-import { errorMessageOrDefault } from '#@/lib/error.ts'
+import type { TaggedErrorBaseType } from '#@/lib/error.ts'
 import type { Worktree } from '#@/lib/git.ts'
 
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- draft is a partially-typed literal
@@ -19,19 +19,19 @@ export class ProgressFileNotFoundError extends Data.TaggedError('ProgressFileNot
   readonly path: string
 }> {}
 
-export class ProgressReadError extends Data.TaggedError('ProgressReadError')<{
-  readonly path: string
-  readonly message: string
-}> {}
+export class ProgressReadError extends Data.TaggedError('ProgressReadError')<
+  TaggedErrorBaseType & {
+    readonly path: string
+  }
+> {}
 
-export class ProgressWriteError extends Data.TaggedError('ProgressWriteError')<{
-  readonly path: string
-  readonly message: string
-}> {}
+export class ProgressWriteError extends Data.TaggedError('ProgressWriteError')<
+  TaggedErrorBaseType & {
+    readonly path: string
+  }
+> {}
 
-export class ProgressValidationError extends Data.TaggedError('ProgressValidationError')<{
-  readonly message: string
-}> {}
+export class ProgressValidationError extends Data.TaggedError('ProgressValidationError')<TaggedErrorBaseType> {}
 
 const HEADER_COMMENT = `# Roadmap progress tracking yaml managed by the \`roadmap\` CLI.
 # Schema reference: plugins/dev-workflow/skills/share-artifacts/references/roadmap-progress-yaml.md
@@ -98,7 +98,7 @@ export const readProgressFile = (
 
     const toReadError = (error: unknown): ProgressReadError =>
       new ProgressReadError({
-        message: errorMessageOrDefault(error),
+        error,
         path,
       })
 
@@ -111,7 +111,8 @@ export const readProgressFile = (
     const parsed = yield* Effect.try({
       catch: (error) =>
         new ProgressValidationError({
-          message: `failed to parse yaml at ${path}: ${errorMessageOrDefault(error)}`,
+          error,
+          message: `failed to parse yaml at ${path}`,
         }),
       try: () => loadYaml(raw),
     })
@@ -119,11 +120,12 @@ export const readProgressFile = (
     return yield* migrate(parsed).pipe(
       Effect.catchTags({
         SchemaDecodeError: (error) =>
-          Effect.fail(new ProgressValidationError({ message: `${path} (v${error.version}): ${error.message}` })),
+          Effect.fail(new ProgressValidationError({ error, message: `${path} (v${error.version})` })),
         SchemaVersionError: (error) =>
           Effect.fail(
             new ProgressValidationError({
-              message: `${path}: unsupported schema version (${errorMessageOrDefault(error.version)})`,
+              error,
+              message: `${path}: unsupported schema version`,
             }),
           ),
       }),
@@ -150,7 +152,7 @@ export const writeProgressFile = (
 
     const toWriteError = (error: unknown): ProgressWriteError =>
       new ProgressWriteError({
-        message: errorMessageOrDefault(error),
+        error,
         path,
       })
 
@@ -190,7 +192,7 @@ export const listRoadmaps = (
       (progressPath: string) =>
       (error: unknown): ProgressReadError =>
         new ProgressReadError({
-          message: errorMessageOrDefault(error),
+          error,
           path: progressPath,
         })
 
@@ -325,12 +327,12 @@ export const initProgressFile = (
     }
 
     const validated = yield* decodeRoadmapProgress(draft).pipe(
-      Effect.mapError((error) => new ProgressValidationError({ message: error.message })),
+      Effect.mapError((error) => new ProgressValidationError({ error })),
     )
 
     const toWriteError = (error: unknown): ProgressWriteError =>
       new ProgressWriteError({
-        message: errorMessageOrDefault(error),
+        error,
         path,
       })
 

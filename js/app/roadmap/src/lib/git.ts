@@ -4,7 +4,7 @@ import { promisify } from 'node:util'
 
 import { Data, Effect, FileSystem, Path, Predicate, String } from 'effect'
 
-import { errorMessageOrDefault } from '#@/lib/error.ts'
+import type { TaggedErrorBaseType } from '#@/lib/error.ts'
 
 // oxlint-disable-next-line typescript-eslint/strict-void-return -- node child_process callbacks return a ChildProcess, not void
 const execFile = promisify(execFileCb)
@@ -13,10 +13,11 @@ export class RepoRootNotFoundError extends Data.TaggedError('RepoRootNotFoundErr
   readonly startedFrom: string
 }> {}
 
-export class GitCommandError extends Data.TaggedError('GitCommandError')<{
-  readonly command: string
-  readonly message: string
-}> {}
+export class GitCommandError extends Data.TaggedError('GitCommandError')<
+  TaggedErrorBaseType & {
+    readonly command: string
+  }
+> {}
 
 export interface Worktree {
   readonly id: string
@@ -84,7 +85,7 @@ const runGit = (cmd: string, args: readonly string[], cwd: string): Effect.Effec
     catch: (error): GitCommandError =>
       new GitCommandError({
         command: `${cmd} ${args.join(' ')}`,
-        message: errorMessageOrDefault(error),
+        error,
       }),
     try: async () => {
       const result = await execFile(cmd, [...args], { cwd })

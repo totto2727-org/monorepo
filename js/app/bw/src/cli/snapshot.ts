@@ -2,7 +2,6 @@ import { Effect, FileSystem, Path } from 'effect'
 import { Command, Flag } from 'effect/unstable/cli'
 
 import { applyWaitUntil, loadConfig, resolveInput } from '#@/lib/config.ts'
-import { errorMessageOrDefault } from '#@/lib/error.ts'
 import * as Flags from '#@/lib/flags.ts'
 import * as ApiClient from '#@/service/api-client.ts'
 import * as Auth from '#@/service/auth.ts'
@@ -37,7 +36,7 @@ export const snapshotCommand = Command.make(
       const fs = yield* FileSystem.FileSystem
       yield* fs
         .makeDirectory(dir, { recursive: true })
-        .pipe(Effect.mapError((error) => new Output.OutputError({ message: errorMessageOrDefault(error), path: dir })))
+        .pipe(Effect.mapError((error) => new Output.OutputError({ error, path: dir })))
 
       const screenshotBuf = Buffer.from(result.screenshot, 'base64')
       yield* Effect.all([

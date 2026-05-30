@@ -4,7 +4,6 @@ import { Data, Effect, Predicate, Schema } from 'effect'
 
 import type { Milestone, MilestoneStatus, Task } from '#@/feature/schema/current.ts'
 import { Task as TaskSchema } from '#@/feature/schema/current.ts'
-import { errorMessageOrDefault } from '#@/lib/error.ts'
 import type { ProgressFileNotFoundError, ProgressReadError, ProgressWriteError } from '#@/lib/progress.ts'
 import { ProgressValidationError, readProgressFile, writeProgressFile } from '#@/lib/progress.ts'
 
@@ -85,7 +84,7 @@ export const addTask = (
       status: 'planned',
       title: input.title,
       workflow_identifiers: [],
-    }).pipe(Effect.mapError((error) => new ProgressValidationError({ message: errorMessageOrDefault(error) })))
+    }).pipe(Effect.mapError((error) => new ProgressValidationError({ error })))
 
     const updatedMilestones = progress.milestones.map((m) =>
       m.id === input.milestoneId ? { ...m, tasks: [...m.tasks, task] } : m,

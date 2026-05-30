@@ -1,7 +1,7 @@
 // oxlint-disable max-classes-per-file -- TaggedError subclasses are grouped by domain
 import { Data, Effect, Predicate, Schema } from 'effect'
 
-import { errorMessageOrDefault } from '#@/lib/error.ts'
+import type { TaggedErrorBaseType } from '#@/lib/error.ts'
 
 import * as V1 from './v1.ts'
 import * as V2 from './v2.ts'
@@ -10,10 +10,11 @@ export class SchemaVersionError extends Data.TaggedError('SchemaVersionError')<{
   readonly version: unknown
 }> {}
 
-export class SchemaDecodeError extends Data.TaggedError('SchemaDecodeError')<{
-  readonly version: number
-  readonly message: string
-}> {}
+export class SchemaDecodeError extends Data.TaggedError('SchemaDecodeError')<
+  TaggedErrorBaseType & {
+    readonly version: number
+  }
+> {}
 
 const LATEST_VERSION = V2.SCHEMA_VERSION
 
@@ -33,11 +34,9 @@ const decodeV1 = Schema.decodeUnknownEffect(V1.RoadmapProgress)
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- input is parsed YAML (unknown)
 const decodeV2 = Schema.decodeUnknownEffect(V2.RoadmapProgress)
 
-const toV1DecodeError = (error: unknown): SchemaDecodeError =>
-  new SchemaDecodeError({ message: errorMessageOrDefault(error), version: 1 })
+const toV1DecodeError = (error: unknown): SchemaDecodeError => new SchemaDecodeError({ error, version: 1 })
 
-const toV2DecodeError = (error: unknown): SchemaDecodeError =>
-  new SchemaDecodeError({ message: errorMessageOrDefault(error), version: 2 })
+const toV2DecodeError = (error: unknown): SchemaDecodeError => new SchemaDecodeError({ error, version: 2 })
 
 const migrateV1ToV2 = (v1: V1.RoadmapProgress): V2.RoadmapProgress => ({
   created_at: v1.created_at,

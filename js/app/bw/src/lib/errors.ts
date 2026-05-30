@@ -1,6 +1,9 @@
 import { Data } from 'effect'
 
-export class ConfigFileError extends Data.TaggedError('ConfigFileError')<{
-  readonly path: string
-  readonly message: string
-}> {}
+import type { TaggedErrorBaseType } from '#@/lib/error.ts'
+
+export class ConfigFileError extends Data.TaggedError('ConfigFileError')<
+  TaggedErrorBaseType & {
+    readonly path: string
+  }
+> {}

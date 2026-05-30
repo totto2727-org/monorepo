@@ -2,7 +2,6 @@ import { Effect, Layer } from 'effect'
 import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from 'effect/unstable/http'
 
 import * as Env from '#@/feature/env.ts'
-import { errorMessageOrDefault } from '#@/feature/share/lib/error.ts'
 
 import * as Sender from './sender.ts'
 
@@ -39,7 +38,7 @@ const makeSend =
         Effect.mapError(
           (cause) =>
             new Sender.EmailSendError({
-              message: errorMessageOrDefault(cause),
+              error: cause,
             }),
         ),
       )

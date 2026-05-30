@@ -1,6 +1,5 @@
 import { Effect, FileSystem, Option, Predicate, Schema } from 'effect'
 
-import { errorMessageOrDefault } from '#@/lib/error.ts'
 import { ConfigFileError } from '#@/lib/errors.ts'
 import { InputError } from '#@/lib/input-error.ts'
 import { ConfigFile } from '#@/schema/config-file.ts'
@@ -21,7 +20,7 @@ export const loadConfig = (
       Effect.mapError(
         (error) =>
           new ConfigFileError({
-            message: errorMessageOrDefault(error),
+            error,
             path: configPath.value,
           }),
       ),
@@ -30,16 +29,14 @@ export const loadConfig = (
     const parsed: unknown = yield* Effect.try({
       catch: (error) =>
         new ConfigFileError({
-          message: errorMessageOrDefault(error),
+          error,
           path: configPath.value,
         }),
       try: (): unknown => JSON.parse(text),
     })
 
     return yield* decodeConfigFile(parsed).pipe(
-      Effect.mapError(
-        (e) => new ConfigFileError({ message: errorMessageOrDefault(e, JSON.stringify(e)), path: configPath.value }),
-      ),
+      Effect.mapError((e) => new ConfigFileError({ error: e, path: configPath.value })),
     )
   })
 
@@ -59,7 +56,8 @@ export const resolveInput = (
         Effect.mapError(
           (error) =>
             new InputError({
-              message: `Failed to read HTML file: ${errorMessageOrDefault(error)}`,
+              error,
+              message: 'Failed to read HTML file',
             }),
         ),
       )

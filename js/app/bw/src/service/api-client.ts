@@ -1,49 +1,20 @@
-import { Data, Effect, Predicate, Schema } from 'effect'
+import { Data, Effect, Schema } from 'effect'
 import type { HttpClientResponse } from 'effect/unstable/http'
 import { HttpBody, HttpClient } from 'effect/unstable/http'
 
-import { errorCauseOrUndefined, errorMessageOrDefault, errorNameOrDefault } from '#@/lib/error.ts'
+import type { TaggedErrorBaseType } from '#@/lib/error.ts'
 import type { CrawlStatusResult, SnapshotResult } from '#@/schema/response.ts'
 import { CrawlStartApiResponse, CrawlStatusApiResponse, SnapshotApiResponse } from '#@/schema/response.ts'
 import type { AuthConfig } from '#@/service/auth.ts'
 
 const BASE_PATH = '/client/v4/accounts'
 
-export class ApiError extends Data.TaggedError('ApiError')<{
-  readonly endpoint: string
-  readonly status: number
-  readonly message: string
-}> {}
-
-const formatErrorChain = (error: unknown): string => {
-  if (!(Predicate.isObject(error) && 'message' in error)) {
-    try {
-      return JSON.stringify(error)
-    } catch {
-      return errorMessageOrDefault(error)
-    }
+export class ApiError extends Data.TaggedError('ApiError')<
+  TaggedErrorBaseType & {
+    readonly endpoint: string
+    readonly status: number
   }
-  const parts: string[] = [`${errorNameOrDefault(error)}: ${errorMessageOrDefault(error)}`]
-
-  const collectCauses = (cause: unknown, depth: number): void => {
-    if (depth >= 10) {
-      return
-    }
-    if (Predicate.isObject(cause) && 'message' in cause) {
-      parts.push(`caused by: ${errorNameOrDefault(cause)}: ${errorMessageOrDefault(cause)}`)
-      collectCauses(errorCauseOrUndefined(cause), depth + 1)
-    } else if (!Predicate.isNullish(cause)) {
-      try {
-        parts.push(`caused by: ${JSON.stringify(cause)}`)
-      } catch {
-        parts.push(`caused by: [${typeof cause}]`)
-      }
-    }
-  }
-
-  collectCauses(errorCauseOrUndefined(error), 0)
-  return parts.join(' | ')
-}
+> {}
 
 const buildUrl = (auth: AuthConfig, endpoint: string): string =>
   `https://api.cloudflare.com${BASE_PATH}/${auth.accountId}/browser-rendering${endpoint}`
@@ -65,7 +36,7 @@ const postRequest = (
           (error) =>
             new ApiError({
               endpoint,
-              message: formatErrorChain(error),
+              error,
               status: 0,
             }),
         ),
@@ -99,7 +70,7 @@ const getRequest = (
           (error) =>
             new ApiError({
               endpoint,
-              message: formatErrorChain(error),
+              error,
               status: 0,
             }),
         ),
@@ -123,7 +94,7 @@ const postText = (
         (error) =>
           new ApiError({
             endpoint,
-            message: formatErrorChain(error),
+            error,
             status: 0,
           }),
       ),
@@ -154,7 +125,7 @@ const postBinary = (
         (error) =>
           new ApiError({
             endpoint,
-            message: formatErrorChain(error),
+            error,
             status: 0,
           }),
       ),
@@ -200,7 +171,7 @@ export const snapshot = (
         (e) =>
           new ApiError({
             endpoint: '/snapshot',
-            message: formatErrorChain(e),
+            error: e,
             status: 0,
           }),
       ),
@@ -230,7 +201,7 @@ export const crawlStart = (
   Effect.gen(function* () {
     const data = yield* postJson(auth, '/crawl', body)
     const parsed = yield* decodeCrawlStart(data).pipe(
-      Effect.mapError((e) => new ApiError({ endpoint: '/crawl', message: formatErrorChain(e), status: 0 })),
+      Effect.mapError((e) => new ApiError({ endpoint: '/crawl', error: e, status: 0 })),
     )
     return parsed.result
   })
@@ -246,7 +217,7 @@ export const crawlStatus = (
         (error) =>
           new ApiError({
             endpoint: `/crawl/${crawlId}`,
-            message: formatErrorChain(error),
+            error,
             status: 0,
           }),
       ),
@@ -257,7 +228,7 @@ export const crawlStatus = (
         (e) =>
           new ApiError({
             endpoint: `/crawl/${crawlId}`,
-            message: formatErrorChain(e),
+            error: e,
             status: 0,
           }),
       ),
@@ -277,7 +248,7 @@ export const crawlResults = (
         (error) =>
           new ApiError({
             endpoint: `/crawl/${crawlId}`,
-            message: formatErrorChain(error),
+            error,
             status: 0,
           }),
       ),
@@ -294,7 +265,7 @@ export const crawlList = (auth: AuthConfig): Effect.Effect<unknown, ApiError, Ht
         (error) =>
           new ApiError({
             endpoint: '/crawl',
-            message: formatErrorChain(error),
+            error,
             status: 0,
           }),
       ),

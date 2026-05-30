@@ -4,7 +4,7 @@ import { Data, Effect, FileSystem, Path, Predicate, Schema } from 'effect'
 
 import type { MilestoneStatus } from '#@/feature/schema/current.ts'
 import { Milestone } from '#@/feature/schema/current.ts'
-import { errorMessageOrDefault } from '#@/lib/error.ts'
+import type { TaggedErrorBaseType } from '#@/lib/error.ts'
 import { mergePrs, ProgressValidationError, readProgressFile, writeProgressFile } from '#@/lib/progress.ts'
 import type { ProgressFileNotFoundError, ProgressReadError, ProgressWriteError } from '#@/lib/progress.ts'
 
@@ -19,10 +19,11 @@ export class MilestoneFileExistsError extends Data.TaggedError('MilestoneFileExi
   readonly path: string
 }> {}
 
-export class MilestoneWriteError extends Data.TaggedError('MilestoneWriteError')<{
-  readonly path: string
-  readonly message: string
-}> {}
+export class MilestoneWriteError extends Data.TaggedError('MilestoneWriteError')<
+  TaggedErrorBaseType & {
+    readonly path: string
+  }
+> {}
 
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- draft is a partially-typed literal
 const decodeMilestone = Schema.decodeUnknownEffect(Milestone)
@@ -88,7 +89,7 @@ export const addMilestone = (
 
     const toMilestoneWriteError = (error: unknown): MilestoneWriteError =>
       new MilestoneWriteError({
-        message: errorMessageOrDefault(error),
+        error,
         path: targetPath,
       })
 
@@ -105,7 +106,7 @@ export const addMilestone = (
       tasks: [],
       title: input.title,
       workflow_identifiers: [],
-    }).pipe(Effect.mapError((error) => new ProgressValidationError({ message: error.message })))
+    }).pipe(Effect.mapError((error) => new ProgressValidationError({ error })))
 
     yield* fs.makeDirectory(path.dirname(targetPath), { recursive: true }).pipe(Effect.mapError(toMilestoneWriteError))
     yield* fs.writeFileString(targetPath, renderMilestoneTemplate(input)).pipe(Effect.mapError(toMilestoneWriteError))

@@ -1,5 +1,5 @@
 import { Data } from 'effect'
 
-export class InputError extends Data.TaggedError('InputError')<{
-  readonly message: string
-}> {}
+import type { TaggedErrorBaseType } from '#@/lib/error.ts'
+
+export class InputError extends Data.TaggedError('InputError')<TaggedErrorBaseType> {}
