@@ -33,7 +33,7 @@ const parseMarketplace = (
           m.plugins.map((p) => ({
             description: p.description,
             name: p.name,
-            source: p.source.path.replace(/^\.\//, ''),
+            source: p.source.path.replace(/^\.\//u, ''),
           })),
         ),
         Effect.mapError(() => new Error(`Invalid Codex marketplace.json at ${path}`)),

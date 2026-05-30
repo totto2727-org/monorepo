@@ -41,5 +41,6 @@ export const remixAssetServer =
     if (response) {
       return response
     }
-    return next()
+    await next()
+    return c.res
   }

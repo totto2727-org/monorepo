@@ -61,7 +61,7 @@ export const remixRenderer = (options: RemixRendererOptions): MiddlewareHandler 
             headers.set('x-remix-target', target)
           }
           const response = await options.fetcher(new Request(new URL(src, c.req.url), { headers }))
-          return response.body ?? response.text()
+          return await (response.body ?? response.text())
         },
       })
 

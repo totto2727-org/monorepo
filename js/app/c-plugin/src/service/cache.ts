@@ -5,17 +5,17 @@ import { Effect } from 'effect'
 import { getCacheDir, getGitHubCloneUrl, getRepoCacheDir, getSkillsDir, resolveLocalPath } from '#@/lib/paths.ts'
 import * as Git from '#@/service/git.ts'
 
-export const ensureDirs = (agentsDir: string): Effect.Effect<void> =>
+export const ensureDirs = (agentsDir: string, projectRoot: string): Effect.Effect<void> =>
   Effect.tryPromise({
     catch: (e: unknown) => e,
     try: async () => {
-      await Fs.mkdir(getCacheDir(agentsDir), { recursive: true })
+      await Fs.mkdir(getCacheDir(projectRoot), { recursive: true })
       await Fs.mkdir(getSkillsDir(agentsDir), { recursive: true })
     },
   }).pipe(Effect.ignore)
 
-export const ensureRepo = (agentsDir: string, source: string): Effect.Effect<string, Git.GitError> => {
-  const repoDir = getRepoCacheDir(agentsDir, source)
+export const ensureRepo = (projectRoot: string, source: string): Effect.Effect<string, Git.GitError> => {
+  const repoDir = getRepoCacheDir(projectRoot, source)
   return Effect.tryPromise({
     catch: () => new Git.GitError({ command: 'access', message: 'not found' }),
     try: () => Fs.access(repoDir),
@@ -28,10 +28,10 @@ export const ensureRepo = (agentsDir: string, source: string): Effect.Effect<str
   )
 }
 
-export const removeRepo = (agentsDir: string, source: string): Effect.Effect<void> =>
+export const removeRepo = (projectRoot: string, source: string): Effect.Effect<void> =>
   Effect.tryPromise({
     catch: (e: unknown) => e,
-    try: () => Fs.rm(getRepoCacheDir(agentsDir, source), { force: true, recursive: true }),
+    try: () => Fs.rm(getRepoCacheDir(projectRoot, source), { force: true, recursive: true }),
   }).pipe(Effect.ignore)
 
 export const ensureLocalPath = (spec: string, agentsRoot: string): Effect.Effect<string, Error> =>

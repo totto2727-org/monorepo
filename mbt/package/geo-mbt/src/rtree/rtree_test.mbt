@@ -161,7 +161,7 @@ test "remove then reinsert keeps queries correct" {
   tree.insert(entry)
   assert_eq(tree.size(), 10)
   let hits = tree.locate_at_point(@type.Coord(4.5, 0.5))
-  assert_eq(hits, [4])
+  assert_true(hits == [4])
   let nearest = tree.query_nearest(@type.Coord(4.5, 0.5)).unwrap()
   assert_eq(nearest, 4)
 }
@@ -195,7 +195,7 @@ test "locate_at_point: finds overlapping rects" {
   )
   let hits = tree.locate_at_point(@type.Coord(2.5, 2.5))
   hits.sort()
-  assert_eq(hits, [0, 1, 2])
+  assert_true(hits == [0, 1, 2])
 }
 
 ///|
@@ -209,7 +209,7 @@ test "locate_within_distance: finds entries within radius" {
   tree.insert(@rtree.Entry(make_unit_rect(10.0, 0.0), 4))
   let hits = tree.locate_within_distance(@type.Coord(0.0, 0.0), 2.5)
   hits.sort()
-  assert_eq(hits, [0, 1, 2])
+  assert_true(hits == [0, 1, 2])
 }
 
 ///|
@@ -219,7 +219,7 @@ test "nearest_neighbors: returns elements in distance order" {
   tree.insert(@rtree.Entry(make_unit_rect(0.0, 0.0), 1))
   tree.insert(@rtree.Entry(make_unit_rect(3.0, 3.0), 2))
   let nn = tree.nearest_neighbors(@type.Coord(0.0, 0.0), None)
-  assert_eq(nn, [1, 2, 0])
+  assert_true(nn == [1, 2, 0])
 }
 
 ///|
@@ -229,7 +229,7 @@ test "nearest_neighbors: respects k limit" {
   tree.insert(@rtree.Entry(make_unit_rect(0.0, 0.0), 1))
   tree.insert(@rtree.Entry(make_unit_rect(3.0, 3.0), 2))
   let nn = tree.nearest_neighbors(@type.Coord(0.0, 0.0), Some(2))
-  assert_eq(nn, [1, 2])
+  assert_true(nn == [1, 2])
 }
 
 ///|
@@ -240,7 +240,7 @@ test "drain: returns all and leaves empty" {
   }
   let drained = tree.drain()
   drained.sort()
-  assert_eq(drained, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+  assert_true(drained == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
   assert_true(tree.is_empty())
   assert_eq(tree.size(), 0)
 }

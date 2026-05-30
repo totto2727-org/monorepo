@@ -6,17 +6,20 @@ allowed-tools: Bash(c-plugin:*)
 
 # `c-plugin` — Claude Code Plugin manager
 
-Lockfile-driven installer for **Claude Code marketplaces** (also handles Cursor and Codex marketplace formats). State lives in `.agents/skills-lock.json` at the nearest ancestor that has one (or `~/.agents/` when `--global`).
+Lockfile-driven installer for **Claude Code marketplaces** (also handles Cursor and Codex marketplace formats). State lives in `.agents/c-plugin-lock.json` at the nearest ancestor that has one (or `~/.agents/` when `--global`).
 
 ## Concepts
 
 - **Marketplace root** — a directory containing `.claude-plugin/marketplace.json` (or `.cursor-plugin/` / `.codex-plugin/`). Its `plugins[].source` paths point at individual plugins; each plugin's `skills/<name>/SKILL.md` becomes an installable skill.
-- **Lockfile** — `.agents/skills-lock.json` pins each repo's source, marketplace kind, enabled skills per plugin, and (for GitHub sources) commit hash.
+- **Lockfile** — `.agents/c-plugin-lock.json` pins each repo's source, marketplace kind, enabled skills per plugin, and (for GitHub sources) commit hash.
 - **Skill targets** — extra directories that receive the same skill symlinks (e.g. `~/.claude/skills/`). Managed via `c-plugin skill target add|remove`.
 
 ## Most common flows
 
 ```bash
+# Initialize a project lock file in the current directory
+c-plugin init
+
 # Add from a GitHub marketplace
 c-plugin skill add totto2727-org/monorepo
 
@@ -100,7 +103,7 @@ git commit
 ```
 project/
 └── .agents/
-    ├── skills-lock.json     # pinned state
+    ├── c-plugin-lock.json   # pinned state
     ├── skills/              # symlinks created by sync
     └── .cache/<owner>/<repo>/   # GitHub clones (full history, not shallow)
 ```

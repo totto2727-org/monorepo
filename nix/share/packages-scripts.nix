@@ -63,8 +63,6 @@ let
   );
 
   macos-o = writeShellScriptBin "o" ''
-    export ANTHROPIC_API_KEY="x"
-    export ANTHROPIC_BASE_URL="http://127.0.0.1:3456"
     exec opencode "$@"
   '';
 
@@ -86,8 +84,6 @@ let
   );
 
   sandbox-o = writeShellScriptBin "o" ''
-    export ANTHROPIC_API_KEY="x"
-    export ANTHROPIC_BASE_URL="http://127.0.0.1:3456"
     exec opencode "$@"
   '';
 

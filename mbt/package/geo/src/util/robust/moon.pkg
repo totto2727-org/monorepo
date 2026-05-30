@@ -1,9 +1,0 @@
-import {
-  "totto2727/geo/type",
-  "moonbitlang/core/cmp",
-  "moonbitlang/core/string",
-}
-
-import {
-  "moonbitlang/x/fs",
-} for "test"

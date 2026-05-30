@@ -19,7 +19,7 @@ let ctx: Awaited<ReturnType<typeof setupTestContext>>
 
 beforeEach(async () => {
   ctx = await setupTestContext()
-  await ensureAgentsDirs(ctx.agentsDir)
+  await ensureAgentsDirs(ctx.agentsDir, ctx.projectRoot)
 })
 
 afterEach(async () => {
@@ -39,7 +39,7 @@ describe('sync run', () => {
   })
 
   test('creates symlinks for enabled skills', async () => {
-    await buildFakeRepoFixture(ctx.agentsDir, 'owner/repo', {
+    await buildFakeRepoFixture(ctx.projectRoot, 'owner/repo', {
       plugins: [
         {
           name: 'my-plugin',
@@ -80,7 +80,7 @@ describe('sync run', () => {
   })
 
   test('removes symlinks for skills no longer in repo', async () => {
-    await buildFakeRepoFixture(ctx.agentsDir, 'owner/repo', {
+    await buildFakeRepoFixture(ctx.projectRoot, 'owner/repo', {
       plugins: [
         {
           name: 'my-plugin',
@@ -125,7 +125,7 @@ describe('sync run', () => {
   })
 
   test('removes plugin entry when all skills are removed', async () => {
-    await buildFakeRepoFixture(ctx.agentsDir, 'owner/repo', {
+    await buildFakeRepoFixture(ctx.projectRoot, 'owner/repo', {
       plugins: [
         {
           name: 'my-plugin',
@@ -166,7 +166,7 @@ describe('sync run', () => {
     const extraDir = NodePath.join(ctx.agentsDir, 'extra-skills')
     await Fs.mkdir(extraDir, { recursive: true })
 
-    await buildFakeRepoFixture(ctx.agentsDir, 'owner/repo', {
+    await buildFakeRepoFixture(ctx.projectRoot, 'owner/repo', {
       plugins: [
         {
           name: 'my-plugin',

@@ -42,7 +42,7 @@ export const boot = ({ components }: BootOptions): ReturnType<typeof run> =>
       if (Predicate.isNullish(exported)) {
         throw new Error(`Module ${moduleUrl} has no export named "${exportName}"`)
       }
-      return exported
+      return await exported
     },
     async resolveFrame(src: string, signal?: AbortSignal, target?: string) {
       const headers = new Headers({ accept: 'text/html' })
@@ -55,6 +55,6 @@ export const boot = ({ components }: BootOptions): ReturnType<typeof run> =>
         headers,
         signal,
       })
-      return response.body ?? response.text()
+      return await (response.body ?? response.text())
     },
   })
