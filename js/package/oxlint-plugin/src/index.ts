@@ -16,6 +16,7 @@ import noJsxScriptTag from './rules/no-jsx-script-tag.ts'
 import noLet from './rules/no-let.ts'
 import noNodeImports from './rules/no-node-imports.ts'
 import noOptionTagComparison from './rules/no-option-tag-comparison.ts'
+import noRawHonoCreateMiddleware from './rules/no-raw-hono-create-middleware.ts'
 import noRedundantAlias from './rules/no-redundant-alias.ts'
 import noStringStyle from './rules/no-string-style.ts'
 import noSyncDecode from './rules/no-sync-decode.ts'
@@ -46,6 +47,7 @@ const plugin = {
     'no-let': noLet,
     'no-node-imports': noNodeImports,
     'no-option-tag-comparison': noOptionTagComparison,
+    'no-raw-hono-create-middleware': noRawHonoCreateMiddleware,
     'no-redundant-alias': noRedundantAlias,
     'no-string-style': noStringStyle,
     'no-sync-decode': noSyncDecode,

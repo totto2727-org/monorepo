@@ -1,12 +1,10 @@
 import type { AppJWTPayload } from 'auth-helper'
 import { Effect, Predicate, Result, Schema } from 'effect'
 import { getCookie } from 'hono/cookie'
-import { createMiddleware } from 'hono/factory'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
-import type { Type as EnvType } from '#@/feature/env.ts'
-import type { Variables } from '#@/feature/runtime/hono.ts'
+import { factory } from '#@/feature/share/lib/hono/factory.ts'
 
 const AuthUserPayload = Schema.Struct({
   email: Schema.String,
@@ -15,10 +13,7 @@ const AuthUserPayload = Schema.Struct({
 
 const decodeAuthUserPayload = Schema.decodeEffect(AuthUserPayload)
 
-export const authMiddleware = createMiddleware<{
-  Bindings: EnvType
-  Variables: Pick<Variables, 'user'>
-}>((ctx, next) =>
+export const authMiddleware = factory.createMiddleware((ctx, next) =>
   // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP middleware boundary executes the auth workflow once.
   Effect.runPromise(
     Effect.gen(function* () {
