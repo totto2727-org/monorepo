@@ -44,8 +44,6 @@
                     sqlite
                     # Lang toolchain
                     nixfmt-rfc-style
-                    # TUI
-                    neovim
                     # game
                     protonup-ng
                     waydroid-helper
