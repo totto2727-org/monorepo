@@ -7,6 +7,8 @@ This file intentionally vendors raw upstream Markdown from Effect Smol so agents
 - Raw URL: https://raw.githubusercontent.com/Effect-TS/effect-smol/main/MIGRATION.md
 - Retrieved: 2026-05-31T11:41:55.828Z
 
+<!-- prettier-ignore-start -->
+
 # Migrating from Effect v3 to Effect v4
 
 > **Note:** Effect v4 is currently in beta. APIs may change between beta
@@ -91,10 +93,14 @@ minimal Effect program bundles to ~6.3 KB (minified + gzipped). With Schema,
 
 - [Schema v4 Migration Guide](./migration/schema.md)
 
+<!-- prettier-ignore-end -->
+
 ## Source: packages/effect/SCHEMA.md
 
 - Raw URL: https://raw.githubusercontent.com/Effect-TS/effect-smol/main/packages/effect/SCHEMA.md
 - Retrieved: 2026-05-31T11:41:55.875Z
+
+<!-- prettier-ignore-start -->
 
 # Schema
 
@@ -7226,3 +7232,4 @@ new Elysia({ adapter: node() })
   .listen(3000)
 ```
 
+<!-- prettier-ignore-end -->
