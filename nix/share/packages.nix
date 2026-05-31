@@ -11,6 +11,7 @@ with pkgs;
   fzf
   starship
   # TUI
+  neovim
   lazygit
   lazydocker
   yazi

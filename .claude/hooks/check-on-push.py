@@ -45,7 +45,11 @@ def main() -> int:
 
     sys.stdout.write(result.stdout)
     sys.stderr.write(result.stderr)
-    return result.returncode
+
+    if result.returncode != 0:
+        return 2
+
+    return 0
 
 
 if __name__ == "__main__":

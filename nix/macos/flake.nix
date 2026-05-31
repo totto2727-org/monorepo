@@ -134,6 +134,19 @@
 
                   home.sessionVariables = import ../share/session-variables.nix;
                   home.sessionPath = import ../share/session-path.nix;
+
+                  home.file.".docker/config.json".text = builtins.toJSON {
+                    auths = {
+                      "ghcr.io" = { };
+                      "registry.cloudflare.com" = { };
+                    };
+                    credsStore = "osxkeychain";
+                    credHelpers = {
+                      "docker.pkg.github.com" = "gh";
+                      "ghcr.io" = "gh";
+                    };
+                    currentContext = "orbstack";
+                  };
                 };
               }
             )
