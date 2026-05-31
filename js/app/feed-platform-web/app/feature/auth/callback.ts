@@ -20,7 +20,8 @@ const IdTokenPayload = Schema.Struct({
 
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- OAuth token JSON response is an external boundary with unknown shape.
 const decodeTokenResponse = Schema.decodeUnknownEffect(TokenResponse)
-const isIdTokenPayload = Schema.is(IdTokenPayload)
+// oxlint-disable-next-line rules/prefer-non-unknown-decode -- ID token payload JSON is decoded from an untrusted token segment.
+const decodeIdTokenPayload = Schema.decodeUnknownEffect(IdTokenPayload)
 
 const exchangeToken = (idpBaseUrl: string, params: Record<string, string>) =>
   Effect.gen(function* () {
@@ -49,10 +50,11 @@ const verifyNonce = (db: DBInstance, idToken: string, state: string) =>
     }
     const payloadStr = atob(payloadPart)
     const payload: unknown = JSON.parse(payloadStr)
-    if (!isIdTokenPayload(payload)) {
+    const decodedPayload = yield* decodeIdTokenPayload(payload).pipe(Effect.orElseSucceed(() => null))
+    if (Predicate.isNullish(decodedPayload)) {
       return false
     }
-    return yield* Effect.promise(() => verifyAndDeleteNonce(db, state, payload.nonce))
+    return yield* Effect.promise(() => verifyAndDeleteNonce(db, state, decodedPayload.nonce))
   })
 
 export interface CallbackRuntime {
