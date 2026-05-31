@@ -41,17 +41,19 @@ const callBackendApi = (baseUrl: string, authorization: string) =>
     )
   })
 
+const makeCallMe =
+  (baseUrl: string): BackendClientService['callMe'] =>
+  (authorization) =>
+    Predicate.isNullish(authorization)
+      ? Effect.fail(new BackendError({ message: 'missing feed-session cookie' }))
+      : callBackendApi(baseUrl, authorization).pipe(Effect.mapError((failure) => new BackendError({ error: failure })))
+
 export const liveLayer = Layer.effect(
   BackendClient,
   Effect.gen(function* () {
     const env = yield* Env.Service
     return {
-      callMe: (authorization: string | null) =>
-        Predicate.isNullish(authorization)
-          ? Effect.fail(new BackendError({ message: 'missing feed-session cookie' }))
-          : callBackendApi(env.BACKEND_BASE_URL, authorization).pipe(
-              Effect.mapError((failure) => new BackendError({ error: failure })),
-            ),
+      callMe: makeCallMe(env.BACKEND_BASE_URL),
     }
   }),
 )
