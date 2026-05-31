@@ -57,6 +57,7 @@ const preset: Preset = {
       },
     ],
     'rules/no-option-tag-comparison': 'error',
+    'rules/no-raw-hono-create-middleware': 'error',
     'rules/no-redundant-alias': 'error',
     'rules/no-string-style': 'error',
     'rules/no-sync-decode': 'error',

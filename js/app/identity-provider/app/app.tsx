@@ -1,3 +1,4 @@
+import { Predicate } from 'effect'
 import { remixRenderer } from 'hono-remix-middleware'
 import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
@@ -5,30 +6,16 @@ import { logger } from 'hono/logger'
 import { authMiddleware } from '#@/feature/auth/middleware.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 import { factory } from '#@/feature/share/lib/hono/factory.ts'
+import { AccountPage } from '#@/ui/account.tsx'
+import { CheckEmailPage } from '#@/ui/check-email.tsx'
 import { Document } from '#@/ui/document.tsx'
+import { LoginPasskeyPage } from '#@/ui/login-passkey.tsx'
+import { LoginPage } from '#@/ui/login.tsx'
+import { OAuthConsentErrorPage, OAuthConsentPage } from '#@/ui/oauth-consent.tsx'
+import { RegisterPasskeyPage } from '#@/ui/register-passkey.tsx'
+import { getSafeReturnTo } from '#@/ui/return-to.ts'
 
-const api = factory
-  .createApp()
-  .get('/auth/session', (ctx) =>
-    ctx.var.auth.handler(
-      new Request(new URL('/api/v1/auth/get-session', ctx.req.url), { headers: ctx.req.raw.headers, method: 'GET' }),
-    ),
-  )
-  .get('/auth/oauth/.well-known/openid-configuration', (ctx) => {
-    const { origin } = new URL(ctx.req.url)
-    return ctx.json({
-      authorization_endpoint: `${origin}/api/v1/auth/oauth2/authorize`,
-      id_token_signing_alg_values_supported: ['ES256'],
-      issuer: `${origin}/api/v1/auth`,
-      jwks_uri: `${origin}/api/v1/auth/jwks`,
-      response_types_supported: ['code'],
-      scopes_supported: ['openid', 'profile', 'email'],
-      subject_types_supported: ['public'],
-      token_endpoint: `${origin}/api/v1/auth/oauth2/token`,
-      userinfo_endpoint: `${origin}/api/v1/auth/oauth2/userinfo`,
-    })
-  })
-  .all('/auth/*', (ctx) => ctx.var.auth.handler(ctx.req.raw))
+const api = factory.createApp().all('/auth/*', (ctx) => ctx.var.auth.handler(ctx.req.raw))
 
 const appRoutes = factory
   .createApp()
@@ -39,43 +26,60 @@ const appRoutes = factory
       </Document>,
     ),
   )
-  .get('/login', (ctx) =>
-    ctx.render(
-      <Document title='ログイン'>
-        <p>Login page (UI added in ms-02-pr4)</p>
-      </Document>,
-    ),
-  )
-  .get('/login/passkey', (ctx) =>
-    ctx.render(
-      <Document title='Passkey ログイン'>
-        <p>Passkey login page (UI added in ms-02-pr4)</p>
-      </Document>,
-    ),
-  )
-  .get('/login/check-email', (ctx) => {
-    const email = ctx.req.query('email') ?? ''
+  .get('/login', (ctx) => {
+    const returnTo = ctx.req.query('return_to')
+    const safeReturnTo = getSafeReturnTo(returnTo)
     return ctx.render(
-      <Document title='メール確認'>
-        <p>Check your email: {email}</p>
+      <Document title='ログイン'>
+        <LoginPage returnTo={safeReturnTo} />
       </Document>,
     )
   })
-  .get('/auth/callback', async (ctx) => {
+  .get('/login/passkey', (ctx) => {
+    const returnTo = ctx.req.query('return_to')
+    const safeReturnTo = getSafeReturnTo(returnTo)
+    return ctx.render(
+      <Document title='Passkey ログイン'>
+        <LoginPasskeyPage returnTo={safeReturnTo} />
+      </Document>,
+    )
+  })
+  .get('/login/check-email', (ctx) => {
+    const email = ctx.req.query('email') ?? ''
+    const returnTo = ctx.req.query('return_to')
+    const safeReturnTo = getSafeReturnTo(returnTo)
+    return ctx.render(
+      <Document title='メール確認'>
+        <CheckEmailPage email={email} returnTo={safeReturnTo} />
+      </Document>,
+    )
+  })
+  .get('/auth/magic-link/callback', async (ctx) => {
     const session = await ctx.var.auth.api.getSession({ headers: ctx.req.raw.headers })
     if (!session) {
       return ctx.redirect('/app/login?error=invalid_link')
     }
-    return ctx.redirect('/app/account')
+    const returnTo = ctx.req.query('return_to')
+    return ctx.redirect(getSafeReturnTo(returnTo) ?? '/app/account')
+  })
+  .get('/auth/passkey/callback', async (ctx) => {
+    const session = await ctx.var.auth.api.getSession({ headers: ctx.req.raw.headers })
+    if (!session) {
+      return ctx.redirect('/app/login')
+    }
+    const returnTo = ctx.req.query('return_to')
+    return ctx.redirect(getSafeReturnTo(returnTo) ?? '/app/account')
   })
   .get('/register/passkey', async (ctx) => {
     const session = await ctx.var.auth.api.getSession({ headers: ctx.req.raw.headers })
     if (!session) {
       return ctx.redirect('/app/login')
     }
+    const returnTo = ctx.req.query('return_to')
+    const safeReturnTo = getSafeReturnTo(returnTo)
     return ctx.render(
       <Document title='Passkey 登録'>
-        <p>Passkey registration page (UI added in ms-02-pr4)</p>
+        <RegisterPasskeyPage returnTo={safeReturnTo} />
       </Document>,
     )
   })
@@ -86,12 +90,32 @@ const appRoutes = factory
     }
     const email = session.user.email ?? ''
     const rawCreatedAt: Date | string = session.user.createdAt
-    const createdAt = rawCreatedAt instanceof Date ? rawCreatedAt.toLocaleDateString('ja-JP') : rawCreatedAt
+    const createdAt = Predicate.isString(rawCreatedAt) ? rawCreatedAt : rawCreatedAt.toLocaleDateString('ja-JP')
     return ctx.render(
       <Document title='アカウント'>
-        <p>
-          Account: {email} (created {createdAt})
-        </p>
+        <AccountPage email={email} createdAt={createdAt} />
+      </Document>,
+    )
+  })
+  .get('/oauth/consent', async (ctx) => {
+    const session = await ctx.var.auth.api.getSession({ headers: ctx.req.raw.headers })
+    if (!session) {
+      return ctx.redirect('/app/login')
+    }
+    const clientId = ctx.req.query('client_id')
+    const redirectUri = ctx.req.query('redirect_uri')
+    const scope = ctx.req.query('scope') ?? 'openid'
+    const state = ctx.req.query('state') ?? ''
+    if (Predicate.isNullish(clientId) || Predicate.isNullish(redirectUri)) {
+      return ctx.render(
+        <Document title='OAuth 認可エラー'>
+          <OAuthConsentErrorPage message='client_id と redirect_uri は必須です。' />
+        </Document>,
+      )
+    }
+    return ctx.render(
+      <Document title='OAuth 認可'>
+        <OAuthConsentPage clientId={clientId} scope={scope} redirectUri={redirectUri} state={state} />
       </Document>,
     )
   })
@@ -106,8 +130,7 @@ const app = factory
   .use(
     '*',
     remixRenderer({
-      fetcher: (input): Promise<Response> =>
-        Promise.resolve(app.fetch(input instanceof Request ? input : new Request(input))),
+      fetcher: (input): Promise<Response> => Promise.resolve(app.fetch(new Request(input))),
     }),
   )
   .route('/app', appRoutes)

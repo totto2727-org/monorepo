@@ -1,4 +1,4 @@
-import type { TaggedErrorBaseData } from '@totto2727/fp/error'
+import type { TaggedErrorBaseType } from '@totto2727/fp/error'
 // oxlint-disable max-classes-per-file -- TaggedError subclasses are grouped by domain
 import type { DateTime } from 'effect'
 import { Data, Effect, FileSystem, Path, Predicate, Schema } from 'effect'
@@ -20,7 +20,7 @@ export class MilestoneFileExistsError extends Data.TaggedError('MilestoneFileExi
 }> {}
 
 export class MilestoneWriteError extends Data.TaggedError('MilestoneWriteError')<
-  TaggedErrorBaseData & {
+  TaggedErrorBaseType & {
     readonly path: string
   }
 > {}

@@ -1,4 +1,5 @@
 import type { RemixNode } from 'remix/ui'
+import { RMX_01 } from 'remix/ui/theme'
 import { Script } from 'vite-plugin-remix/client'
 
 export interface DocumentProps {
@@ -8,11 +9,12 @@ export interface DocumentProps {
 }
 
 export const Document = () => (props: DocumentProps) => (
-  <html lang={props.lang ?? 'en'}>
+  <html lang={props.lang ?? 'ja'}>
     <head>
       <meta charSet='utf-8' />
       <meta name='viewport' content='width=device-width, initial-scale=1' />
       <title>{props.title ?? 'Identity Provider'}</title>
+      <RMX_01 />
     </head>
     <body>
       {props.children}

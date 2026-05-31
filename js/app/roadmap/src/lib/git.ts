@@ -2,7 +2,7 @@
 import { execFile as execFileCb } from 'node:child_process'
 import { promisify } from 'node:util'
 
-import type { TaggedErrorBaseData } from '@totto2727/fp/error'
+import type { TaggedErrorBaseType } from '@totto2727/fp/error'
 import { Data, Effect, FileSystem, Path, Predicate, String } from 'effect'
 
 // oxlint-disable-next-line typescript-eslint/strict-void-return -- node child_process callbacks return a ChildProcess, not void
@@ -13,7 +13,7 @@ export class RepoRootNotFoundError extends Data.TaggedError('RepoRootNotFoundErr
 }> {}
 
 export class GitCommandError extends Data.TaggedError('GitCommandError')<
-  TaggedErrorBaseData & {
+  TaggedErrorBaseType & {
     readonly command: string
   }
 > {}

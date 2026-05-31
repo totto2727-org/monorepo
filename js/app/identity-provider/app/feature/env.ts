@@ -2,6 +2,7 @@ import { Context, Layer } from 'effect'
 
 export interface BetterAuth {
   BETTER_AUTH_SECRET: string
+  OAUTH_VALID_AUDIENCES: string
 }
 
 export interface Passkey {
@@ -31,5 +32,6 @@ export const devLayer = Layer.succeed(Service, {
   DATABASE_AUTH_TOKEN: '',
   DATABASE_URL: 'http://127.0.0.1:8080',
   MAIL_FROM_ADDRESS: 'auth@dev.example.com',
+  OAUTH_VALID_AUDIENCES: 'feed-platform-web,http://localhost:8789',
   PASSKEY_RP_ID: 'localhost',
 } satisfies Type as Type)

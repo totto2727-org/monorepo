@@ -183,6 +183,9 @@ importers:
       '@cloudflare/vite-plugin':
         specifier: catalog:cloudflare
         version: 1.39.0(vite@8.0.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@25.9.1)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))(workerd@1.20260526.1)(wrangler@4.95.0)
+      '@libsql/kysely-libsql':
+        specifier: catalog:database
+        version: 0.4.1(kysely@0.29.2)
       '@totto2727/fp':
         specifier: workspace:*
         version: link:../../package/fp
@@ -207,6 +210,9 @@ importers:
       jose:
         specifier: catalog:auth
         version: 6.2.3
+      kysely:
+        specifier: catalog:database
+        version: 0.29.2
       remix:
         specifier: catalog:remix
         version: 3.0.0-beta.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
@@ -721,7 +727,7 @@ packages:
     resolution: {integrity: sha512-SZBPRPF3z0nBvE5ygOkxae35wnnXPRShmqFo78S+qslLeFoPu/pMgnXAuNKFMMybac3tiLaVg1e3MQW5MC+1iA==}
 
   '@better-fetch/fetch@1.1.21':
-    resolution: {integrity: sha512-/ImESw0sskqlVR94jB+5+Pxjf+xBwDZF/N5+y2/q4EqD7IARUTSpPfIo8uf39SYpCxyOCtbyYpUrZ3F/k0zT4A==, tarball: https://registry.npmjs.org/@better-fetch/fetch/-/fetch-1.1.21.tgz}
+    resolution: {integrity: sha512-/ImESw0sskqlVR94jB+5+Pxjf+xBwDZF/N5+y2/q4EqD7IARUTSpPfIo8uf39SYpCxyOCtbyYpUrZ3F/k0zT4A==}
 
   '@clack/core@1.4.0':
     resolution: {integrity: sha512-7Wctjq6f7c1CPz8sPpkwUnz8yRgVANkpNupb81q432FjcJg4l+Sw7XANdNSdWfAKq0IHI0JTcUeK5dxs/HrGPw==}

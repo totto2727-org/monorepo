@@ -1,4 +1,4 @@
-import type { TaggedErrorBaseData } from '@totto2727/fp/error'
+import type { TaggedErrorBaseType } from '@totto2727/fp/error'
 import { Context, Data } from 'effect'
 import type { Effect } from 'effect'
 
@@ -9,7 +9,7 @@ export interface SendParams {
   readonly html?: string
 }
 
-export class EmailSendError extends Data.TaggedError('EmailSendError')<TaggedErrorBaseData> {}
+export class EmailSendError extends Data.TaggedError('EmailSendError')<TaggedErrorBaseType> {}
 
 export interface EmailSender {
   readonly send: (params: SendParams) => Effect.Effect<void, EmailSendError>

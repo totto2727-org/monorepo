@@ -1,56 +1,216 @@
-import { Effect } from 'effect'
+import { DateTime, Effect, Predicate, Schema, String } from 'effect'
+import { HttpClient, HttpClientRequest, HttpBody } from 'effect/unstable/http'
 import { Hono } from 'hono'
 import { remixRenderer } from 'hono-remix-middleware'
 import { contextStorage } from 'hono/context-storage'
+import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { logger } from 'hono/logger'
 
+import { BackendClient } from '#@/feature/api/client.ts'
+import { handleAuthCallback } from '#@/feature/auth/callback.ts'
+import { FEED_REFRESH_COOKIE, FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
+import { authMiddleware } from '#@/feature/auth/middleware.ts'
+import { storeNonce } from '#@/feature/auth/nonce-store.ts'
+import {
+  buildAuthorizeUrl,
+  generateChallenge,
+  generateNonce,
+  generateState,
+  generateVerifier,
+} from '#@/feature/auth/oauth-client.ts'
+import { Service as DBService } from '#@/feature/db/kysely.ts'
 import * as Greeting from '#@/feature/greeting.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
-import type { Variables } from '#@/feature/runtime/hono.ts'
+import type { Env as AppEnv } from '#@/feature/share/lib/hono/context.ts'
 import { Document } from '#@/ui/document.tsx'
 
-// Bindings は明示しない: ENV は process.env.NODE_ENV (wrangler / vite 自動設定) を
-// 単一ソースとし、Effect Service (`Env.Service`) 経由で読み取るため、
-// Hono の `c.env` 経路を経由しない。Cloudflare 側 binding を後で追加する場合は
-// worker-configuration.d.ts の自動生成 `Env` interface を `Bindings` に渡す形で拡張する。
-interface AppEnv {
-  Variables: Variables
-}
+const TokenResponse = Schema.Struct({
+  access_token: Schema.String,
+  refresh_token: Schema.optional(Schema.String),
+})
 
-// middleware order は design.md L268-271 / hono-remix-cloudflare-example-structure.md §I1-6 に従い
-// `logger → contextStorage → runtimeMiddleware → remixRenderer` の順。
-// この順序を崩すと将来 Frame 機能を導入した際に壊れる。
-//
-// `Hono<AppEnv>` で generic を付けると chain 中の `app` 自己参照 (fetcher 内) が
-// 型推論ループ (TS7022 / TS7023) を起こすため、`app` の型を明示し
-// fetcher の戻り値型も明示することで解消する (identity-provider 同形)。
+// oxlint-disable-next-line rules/prefer-non-unknown-decode -- OAuth token JSON response is an external boundary with unknown shape.
+const decodeTokenResponse = Schema.decodeUnknownEffect(TokenResponse)
+
+const refreshTokens = (idpBaseUrl: string, params: Record<string, string>) =>
+  Effect.gen(function* () {
+    const client = yield* HttpClient.HttpClient
+    const formBody = new URLSearchParams(params).toString()
+    const request = HttpClientRequest.post(`${idpBaseUrl}/api/v1/auth/oauth2/token`, {
+      body: HttpBody.text(formBody, 'application/x-www-form-urlencoded'),
+    })
+    const response = yield* client.execute(request)
+    if (response.status !== 200) {
+      return yield* Effect.fail(new Error('token refresh failed'))
+    }
+    const data: unknown = yield* response.json
+    return yield* decodeTokenResponse(data)
+  })
+
+const logoutFromIdp = (idpBaseUrl: string, sessionCookieValue: string) =>
+  Effect.gen(function* () {
+    const client = yield* HttpClient.HttpClient
+    const request = HttpClientRequest.post(`${idpBaseUrl}/api/v1/auth/sign-out`, {
+      headers: { Cookie: `${FEED_SESSION_COOKIE}=${sessionCookieValue}` },
+    })
+    yield* client.execute(request)
+  })
+
 const app: Hono<AppEnv> = new Hono<AppEnv>()
   .use(logger())
   .use(contextStorage())
   .use(runtimeMiddleware)
+  .use('*', authMiddleware)
   .use(
     '*',
     remixRenderer({
-      fetcher: (input): Promise<Response> =>
-        Promise.resolve(app.fetch(input instanceof Request ? input : new Request(input))),
+      fetcher: (input): Promise<Response> => Promise.resolve(app.fetch(new Request(input))),
     }),
   )
   .get('/', (ctx) =>
-    // ms-01 段階では Frame ベースのレイアウト (hono-remix-v3-cloudflare-example の
-    // content-layout 系) は採用せず、素朴な c.render(<Document>...) で Hello World を出す。
-    // ms-04 / ms-07 で UI を強化する際に Frame レイアウトの採用可否を再検討する。
     ctx.render(
       <Document>
         <h1>Hello, feed-platform-web</h1>
       </Document>,
     ),
   )
+  .get('/login', (ctx) =>
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes the whole OAuth login workflow once.
+    ctx.var.runtime.runPromise(
+      Effect.gen(function* () {
+        const { env } = ctx
+        const verifier = generateVerifier()
+        const state = generateState()
+        const nonce = generateNonce()
+        const codeChallenge = yield* Effect.promise(() => generateChallenge(verifier))
+        const { origin } = new URL(ctx.req.url)
+        const redirectUri = `${origin}/auth/callback`
+        const authorizeUrl = buildAuthorizeUrl({
+          clientId: env.OAUTH_CLIENT_ID,
+          codeChallenge,
+          idpBaseUrl: env.IDP_BASE_URL,
+          nonce,
+          redirectUri,
+          state,
+        })
+        const db = yield* DBService
+        const now = DateTime.toEpochMillis(yield* DateTime.now)
+        yield* Effect.promise(() => storeNonce(db, state, nonce, now))
+        setCookie(ctx, 'pkce_verifier', verifier, { httpOnly: true, path: '/', sameSite: 'Lax' })
+        setCookie(ctx, 'oauth_state', state, { httpOnly: true, path: '/', sameSite: 'Lax' })
+        return ctx.redirect(authorizeUrl.toString())
+      }),
+    ),
+  )
+  .get('/auth/callback', (ctx) =>
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP callback boundary executes request-scoped callback Effect once.
+    ctx.var.runtime.runPromise(
+      Effect.gen(function* () {
+        const db = yield* DBService
+        return yield* handleAuthCallback(ctx, ctx.env, db)
+      }),
+    ),
+  )
+  .get('/api/me-debug', (ctx) => ctx.json({ user: ctx.var.user }))
   .get('/api/v1/hello', (ctx) =>
-    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes request-scoped Effect with the request runtime.
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes request-scoped greeting Effect.
     ctx.var.runtime.runPromise(
       Effect.gen(function* () {
         const greeting = yield* Greeting.Service
         return ctx.json({ message: greeting.greet('feed-platform-web') })
+      }),
+    ),
+  )
+  .get('/dashboard', (ctx) =>
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes the whole dashboard dependency and render workflow once.
+    ctx.var.runtime.runPromise(
+      Effect.gen(function* () {
+        const { user } = ctx.var
+        if (Predicate.isNullish(user)) {
+          return ctx.redirect('/login')
+        }
+        const { env } = ctx
+        const client = yield* BackendClient
+        const callMeResult = yield* client.callMe().pipe(Effect.orElseSucceed(() => null))
+        if (!Predicate.isNullish(callMeResult)) {
+          return ctx.render(
+            <Document>
+              <h1>Dashboard</h1>
+              <p>Logged in as: {callMeResult.email}</p>
+              <p>User ID: {callMeResult.id}</p>
+              <a href='/logout'>Logout</a>
+            </Document>,
+          )
+        }
+
+        const refreshToken = getCookie(ctx, FEED_REFRESH_COOKIE)
+        if (Predicate.isNullish(refreshToken)) {
+          deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+          deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+          return ctx.redirect('/login')
+        }
+
+        const bodyParams: Record<string, string> = {
+          client_id: env.OAUTH_CLIENT_ID,
+          grant_type: 'refresh_token',
+          refresh_token: refreshToken,
+        }
+        if (String.isNonEmpty(env.OAUTH_CLIENT_SECRET)) {
+          bodyParams.client_secret = env.OAUTH_CLIENT_SECRET
+        }
+
+        const tokenData = yield* refreshTokens(env.IDP_BASE_URL, bodyParams).pipe(Effect.orElseSucceed(() => null))
+        if (Predicate.isNullish(tokenData)) {
+          deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+          deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+          return ctx.redirect('/login')
+        }
+
+        const retryResult = yield* client
+          .callMeWithAccessToken(tokenData.access_token)
+          .pipe(Effect.orElseSucceed(() => null))
+        if (Predicate.isNullish(retryResult)) {
+          deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+          deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+          return ctx.redirect('/login')
+        }
+
+        setCookie(ctx, FEED_SESSION_COOKIE, tokenData.access_token, {
+          httpOnly: true,
+          path: '/',
+          sameSite: 'Lax',
+        })
+        if (!Predicate.isNullish(tokenData.refresh_token) && String.isNonEmpty(tokenData.refresh_token)) {
+          setCookie(ctx, FEED_REFRESH_COOKIE, tokenData.refresh_token, {
+            httpOnly: true,
+            maxAge: 2_592_000,
+            path: '/',
+            sameSite: 'Lax',
+          })
+        }
+
+        return ctx.render(
+          <Document>
+            <h1>Dashboard</h1>
+            <p>Logged in as: {retryResult.email}</p>
+            <p>User ID: {retryResult.id}</p>
+            <a href='/logout'>Logout</a>
+          </Document>,
+        )
+      }),
+    ),
+  )
+  .get('/logout', (ctx) =>
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes the whole logout workflow once.
+    ctx.var.runtime.runPromise(
+      Effect.gen(function* () {
+        const token = getCookie(ctx, FEED_SESSION_COOKIE)
+        if (!Predicate.isNullish(token)) {
+          yield* logoutFromIdp(ctx.env.IDP_BASE_URL, token).pipe(Effect.ignore)
+        }
+        deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+        deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+        return ctx.redirect('/login')
       }),
     ),
   )

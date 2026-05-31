@@ -1,4 +1,4 @@
-import type { TaggedErrorBaseData } from '@totto2727/fp/error'
+import type { TaggedErrorBaseType } from '@totto2727/fp/error'
 // oxlint-disable max-classes-per-file -- TaggedError subclasses are grouped by domain
 import { Data, DateTime, Effect, FileSystem, Path, Predicate, Schema } from 'effect'
 import { dump as dumpYaml, load as loadYaml } from 'js-yaml'
@@ -20,18 +20,18 @@ export class ProgressFileNotFoundError extends Data.TaggedError('ProgressFileNot
 }> {}
 
 export class ProgressReadError extends Data.TaggedError('ProgressReadError')<
-  TaggedErrorBaseData & {
+  TaggedErrorBaseType & {
     readonly path: string
   }
 > {}
 
 export class ProgressWriteError extends Data.TaggedError('ProgressWriteError')<
-  TaggedErrorBaseData & {
+  TaggedErrorBaseType & {
     readonly path: string
   }
 > {}
 
-export class ProgressValidationError extends Data.TaggedError('ProgressValidationError')<TaggedErrorBaseData> {}
+export class ProgressValidationError extends Data.TaggedError('ProgressValidationError')<TaggedErrorBaseType> {}
 
 const HEADER_COMMENT = `# Roadmap progress tracking yaml managed by the \`roadmap\` CLI.
 # Schema reference: plugins/dev-workflow/skills/share-artifacts/references/roadmap-progress-yaml.md

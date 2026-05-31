@@ -1,4 +1,4 @@
-import type { TaggedErrorBaseData } from '@totto2727/fp/error'
+import type { TaggedErrorBaseType } from '@totto2727/fp/error'
 import { Data, Effect, Schema } from 'effect'
 import type { HttpClientResponse } from 'effect/unstable/http'
 import { HttpBody, HttpClient } from 'effect/unstable/http'
@@ -10,7 +10,7 @@ import type { AuthConfig } from '#@/service/auth.ts'
 const BASE_PATH = '/client/v4/accounts'
 
 export class ApiError extends Data.TaggedError('ApiError')<
-  TaggedErrorBaseData & {
+  TaggedErrorBaseType & {
     readonly endpoint: string
     readonly status: number
   }

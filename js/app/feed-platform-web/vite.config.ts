@@ -8,11 +8,16 @@ import { defineConfig } from 'vite-plus'
 const taskInput = defineTaskInputFromOutput({
   setup: {
     cloudflare: ['.wrangler/**', 'worker-configuration.d.ts'],
+    kysely: ['app/feature/db/generated.ts'],
   },
 })
 
+// @cloudflare/vite-plugin rejects resolve.external injected by Vite+ in vitest mode.
+// Unit tests do not need live Cloudflare bindings, so skip the plugin for tests.
+const isTest = Boolean(process.env.VITEST)
+
 export default defineConfig({
-  plugins: [remix({ clientEntry: 'app/assets/entry.ts' }), cloudflare()],
+  plugins: [remix({ clientEntry: 'app/assets/entry.ts' }), ...(isTest ? [] : [cloudflare()])],
   run: {
     tasks: {
       build: {
@@ -20,13 +25,22 @@ export default defineConfig({
         dependsOn: ['setup'],
         input: taskInput.build,
       },
+      check: {
+        command: 'vp check',
+        dependsOn: ['setup'],
+      },
       setup: {
         command: '',
-        dependsOn: ['setup:cloudflare'],
+        dependsOn: ['setup:cloudflare', 'setup:kysely'],
       },
       'setup:cloudflare': {
         command: 'wrangler types',
         input: taskInput.setup.cloudflare,
+      },
+      'setup:kysely': {
+        command:
+          'mkdir -p app/feature/db && go run github.com/totto2727-org/monorepo/go/app/atlas-to-kysely@22cc648211cc6a73d004eb332c12d78a021ba4ec -i db/schema.hcl -o app/feature/db/generated.ts --camel-case',
+        input: taskInput.setup.kysely,
       },
     },
   },
