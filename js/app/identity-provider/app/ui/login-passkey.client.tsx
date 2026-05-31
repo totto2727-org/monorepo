@@ -44,18 +44,23 @@ export const PasskeyLoginButton = clientEntry(
               const opts: AuthenticateOptionsResponse = await optsRes.json()
               const publicKey: PublicKeyCredentialRequestOptions = {
                 ...opts,
-                allowCredentials: (opts.allowCredentials ?? []).map((c) => ({
-                  id: b64urlToBuf(c.id),
-                  transports: c.transports as AuthenticatorTransport[] | undefined,
+                allowCredentials: (opts.allowCredentials ?? []).map((credential) => ({
+                  id: b64urlToBuf(credential.id),
                   type: 'public-key',
                 })),
                 challenge: b64urlToBuf(opts.challenge),
               }
-              const credential = (await navigator.credentials.get({ publicKey })) as PublicKeyCredential | null
+              const credential = await navigator.credentials.get({ publicKey })
               if (Predicate.isNullish(credential)) {
                 throw new Error('Passkey 認証がキャンセルされました')
               }
-              const assertionResponse = credential.response as AuthenticatorAssertionResponse
+              if (!(credential instanceof PublicKeyCredential)) {
+                throw new Error('Passkey 認証レスポンスが不正です')
+              }
+              const { response: assertionResponse } = credential
+              if (!(assertionResponse instanceof AuthenticatorAssertionResponse)) {
+                throw new Error('Passkey 認証レスポンスが不正です')
+              }
               const assertion = {
                 authenticatorAttachment: credential.authenticatorAttachment,
                 clientExtensionResults: credential.getClientExtensionResults(),
@@ -83,8 +88,8 @@ export const PasskeyLoginButton = clientEntry(
                 throw new Error(String.isNonEmpty(text) ? text : 'Passkey 認証に失敗しました')
               }
               window.location.href = withReturnTo('/app/auth/passkey/callback', handle.props.returnTo)
-            } catch (error) {
-              state.error = String(error) || 'Passkey 認証に失敗しました'
+            } catch {
+              state.error = 'Passkey 認証に失敗しました'
               state.submitting = false
               void handle.update()
             }

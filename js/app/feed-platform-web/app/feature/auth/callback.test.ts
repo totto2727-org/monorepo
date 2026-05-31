@@ -20,8 +20,7 @@ const testRuntime = {
   runPromise: <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(effect),
 }
 
-const makeApp = () =>
-  new Hono().get('/auth/callback', (c) => handleAuthCallback(c, testEnv, null as never, testRuntime))
+const makeApp = () => new Hono().get('/auth/callback', (ctx) => handleAuthCallback(ctx, testEnv, null, testRuntime))
 
 const makeCookieHeader = (pairs: Record<string, string>) =>
   Object.entries(pairs)
@@ -44,10 +43,7 @@ describe('handleAuthCallback', () => {
   it('redirects to /dashboard and sets feed-session on success', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue({
-        json: () => Promise.resolve({ access_token: 'jwt-token-here' }),
-        ok: true,
-      }),
+      vi.fn().mockResolvedValue(Response.json({ access_token: 'jwt-token-here' }, { status: 200 })),
     )
     const app = makeApp()
     const res = await app.request('/auth/callback?code=authcode&state=mystate', {
@@ -56,11 +52,11 @@ describe('handleAuthCallback', () => {
     expect(res.status).toBe(302)
     expect(res.headers.get('location')).toBe('/dashboard')
     const cookies = res.headers.getSetCookie()
-    expect(cookies.some((c) => c.startsWith(`${FEED_SESSION_COOKIE}=jwt-token-here`))).toBe(true)
+    expect(cookies.some((cookie) => cookie.startsWith(`${FEED_SESSION_COOKIE}=jwt-token-here`))).toBe(true)
   })
 
   it('returns 401 when token endpoint returns non-200', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 401 })))
     const app = makeApp()
     const res = await app.request('/auth/callback?code=authcode&state=mystate', {
       headers: { cookie: makeCookieHeader({ oauth_state: 'mystate', pkce_verifier: 'verifier123' }) },
@@ -69,13 +65,7 @@ describe('handleAuthCallback', () => {
   })
 
   it('returns 401 when access_token is missing from response', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({
-        json: () => Promise.resolve({ error: 'invalid_grant' }),
-        ok: true,
-      }),
-    )
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({ error: 'invalid_grant' }, { status: 200 })))
     const app = makeApp()
     const res = await app.request('/auth/callback?code=authcode&state=mystate', {
       headers: { cookie: makeCookieHeader({ oauth_state: 'mystate', pkce_verifier: 'verifier123' }) },

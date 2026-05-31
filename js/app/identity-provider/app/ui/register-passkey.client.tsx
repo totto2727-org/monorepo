@@ -49,9 +49,8 @@ export const PasskeyRegisterButton = clientEntry(
                 attestation: opts.attestation,
                 authenticatorSelection: opts.authenticatorSelection,
                 challenge: b64urlToBuf(opts.challenge),
-                excludeCredentials: (opts.excludeCredentials ?? []).map((c) => ({
-                  id: b64urlToBuf(c.id),
-                  transports: c.transports as AuthenticatorTransport[] | undefined,
+                excludeCredentials: (opts.excludeCredentials ?? []).map((credential) => ({
+                  id: b64urlToBuf(credential.id),
                   type: 'public-key',
                 })),
                 pubKeyCredParams: Predicate.isNotNullish(opts.pubKeyCredParams) ? [...opts.pubKeyCredParams] : [],
@@ -63,11 +62,17 @@ export const PasskeyRegisterButton = clientEntry(
                   name: opts.user.name ?? '',
                 },
               }
-              const credential = (await navigator.credentials.create({ publicKey })) as PublicKeyCredential | null
+              const credential = await navigator.credentials.create({ publicKey })
               if (Predicate.isNullish(credential)) {
                 throw new Error('Passkey の作成がキャンセルされました')
               }
-              const attestationResponse = credential.response as AuthenticatorAttestationResponse
+              if (!(credential instanceof PublicKeyCredential)) {
+                throw new Error('Passkey 登録レスポンスが不正です')
+              }
+              const { response: attestationResponse } = credential
+              if (!(attestationResponse instanceof AuthenticatorAttestationResponse)) {
+                throw new Error('Passkey 登録レスポンスが不正です')
+              }
               const transports = Predicate.isFunction(attestationResponse.getTransports.bind(attestationResponse))
                 ? attestationResponse.getTransports()
                 : []
@@ -95,8 +100,8 @@ export const PasskeyRegisterButton = clientEntry(
                 throw new Error(String.isNonEmpty(text) ? text : 'Passkey の検証に失敗しました')
               }
               window.location.href = withReturnTo('/app/auth/passkey/callback', handle.props.returnTo)
-            } catch (error) {
-              state.error = String(error) || 'Passkey 登録に失敗しました'
+            } catch {
+              state.error = 'Passkey 登録に失敗しました'
               state.submitting = false
               void handle.update()
             }

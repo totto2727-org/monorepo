@@ -1,4 +1,4 @@
-import { Effect, Predicate, Schema, String } from 'effect'
+import { DateTime, Effect, Predicate, Schema, String } from 'effect'
 import { HttpClient, HttpClientRequest, HttpBody } from 'effect/unstable/http'
 import { Hono } from 'hono'
 import { remixRenderer } from 'hono-remix-middleware'
@@ -36,6 +36,7 @@ const TokenResponse = Schema.Struct({
   refresh_token: Schema.optional(Schema.String),
 })
 
+// oxlint-disable-next-line rules/prefer-non-unknown-decode -- OAuth token JSON response is an external boundary with unknown shape.
 const decodeTokenResponse = Schema.decodeUnknownEffect(TokenResponse)
 
 const refreshTokens = (idpBaseUrl: string, params: Record<string, string>) =>
@@ -100,10 +101,12 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
       state,
     })
 
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary stores OAuth nonce with the request runtime.
     await runtime.runPromise(
       Effect.gen(function* () {
         const db = yield* DBService
-        return yield* Effect.promise(() => storeNonce(db, state, nonce, Date.now()))
+        const now = DateTime.toEpochMillis(yield* DateTime.now)
+        return yield* Effect.promise(() => storeNonce(db, state, nonce, now))
       }),
     )
 
@@ -113,6 +116,7 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     return ctx.redirect(authorizeUrl.toString())
   })
   .get('/auth/callback', async (ctx) => {
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP callback boundary obtains request-scoped DB service.
     const db = await ctx.var.runtime.runPromise(
       Effect.gen(function* () {
         return yield* DBService
@@ -122,6 +126,7 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
   })
   .get('/api/me-debug', (ctx) => ctx.json({ user: ctx.var.user }))
   .get('/api/v1/hello', (ctx) =>
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes request-scoped greeting Effect.
     ctx.var.runtime.runPromise(
       Effect.gen(function* () {
         const greeting = yield* Greeting.Service
@@ -137,6 +142,7 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     const token = getCookie(ctx, FEED_SESSION_COOKIE)
     const authorization = Predicate.isNullish(token) ? null : `Bearer ${token}`
 
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary calls backend through the request runtime.
     const callMeResult = await runtime.runPromise(
       Effect.provide(
         Effect.gen(function* () {
@@ -146,7 +152,7 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
         liveLayer,
       ).pipe(Effect.orElseSucceed(() => null)),
     )
-    if (!Predicate.isNull(callMeResult)) {
+    if (!Predicate.isNullish(callMeResult)) {
       return ctx.render(
         <Document>
           <h1>Dashboard</h1>
@@ -174,15 +180,17 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
       bodyParams.client_secret = env.OAUTH_CLIENT_SECRET
     }
 
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary refreshes tokens through the request runtime.
     const tokenData = await runtime.runPromise(
       refreshTokens(env.IDP_BASE_URL, bodyParams).pipe(Effect.orElseSucceed(() => null)),
     )
-    if (Predicate.isNull(tokenData)) {
+    if (Predicate.isNullish(tokenData)) {
       deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
       deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
       return ctx.redirect('/login')
     }
 
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary retries backend call through the request runtime.
     const retryResult = await runtime.runPromise(
       Effect.provide(
         Effect.gen(function* () {
@@ -192,14 +200,14 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
         liveLayer,
       ).pipe(Effect.orElseSucceed(() => null)),
     )
-    if (Predicate.isNull(retryResult)) {
+    if (Predicate.isNullish(retryResult)) {
       deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
       deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
       return ctx.redirect('/login')
     }
 
     setCookie(ctx, FEED_SESSION_COOKIE, tokenData.access_token, { httpOnly: true, path: '/', sameSite: 'Lax' })
-    if (!Predicate.isUndefined(tokenData.refresh_token) && String.isNonEmpty(tokenData.refresh_token)) {
+    if (!Predicate.isNullish(tokenData.refresh_token) && String.isNonEmpty(tokenData.refresh_token)) {
       setCookie(ctx, FEED_REFRESH_COOKIE, tokenData.refresh_token, {
         httpOnly: true,
         maxAge: 2_592_000,
@@ -220,6 +228,7 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
   .get('/logout', async (ctx) => {
     const token = getCookie(ctx, FEED_SESSION_COOKIE)
     if (!Predicate.isNullish(token)) {
+      // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary best-effort signs out from IdP through the request runtime.
       await ctx.var.runtime.runPromise(logoutFromIdp(ctx.env.IDP_BASE_URL, token)).catch(() => null)
     }
     deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })

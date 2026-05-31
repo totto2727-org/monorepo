@@ -19,8 +19,8 @@ export const LogoutButton = clientEntry(
               // oxlint-disable-next-line rules/no-fetch -- IdP sign-out endpoint (browser context)
               await fetch('/api/v1/auth/sign-out', { credentials: 'include', method: 'POST' })
               window.location.href = '/app/login'
-            } catch (error) {
-              state.error = String(error) || 'ログアウトに失敗しました'
+            } catch {
+              state.error = 'ログアウトに失敗しました'
               state.submitting = false
               void handle.update()
             }

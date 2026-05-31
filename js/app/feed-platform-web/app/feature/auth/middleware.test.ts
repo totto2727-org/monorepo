@@ -12,10 +12,12 @@ vi.mock('jose', () => ({
 
 const { authMiddleware } = await import('./middleware.ts')
 
+const testEnv = { IDP_BASE_URL: 'https://idp.example.com' }
+
 const makeApp = () =>
   new Hono<{ Variables: { user: { id: string; email: string } | null } }>()
     .use('*', authMiddleware)
-    .get('/test', (c) => c.json({ user: c.var.user }))
+    .get('/test', (ctx) => ctx.json({ user: ctx.var.user }))
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -24,7 +26,7 @@ beforeEach(() => {
 describe('authMiddleware', () => {
   it('sets user to null when no cookie present', async () => {
     const app = makeApp()
-    const res = await app.request('/test')
+    const res = await app.request('/test', undefined, testEnv)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ user: null })
   })
@@ -34,9 +36,7 @@ describe('authMiddleware', () => {
       payload: { email: 'test@example.com', sub: 'user-123' },
     })
     const app = makeApp()
-    const res = await app.request('/test', {
-      headers: { cookie: `${FEED_SESSION_COOKIE}=valid.jwt.token` },
-    })
+    const res = await app.request('/test', { headers: { cookie: `${FEED_SESSION_COOKIE}=valid.jwt.token` } }, testEnv)
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ user: { email: 'test@example.com', id: 'user-123' } })
   })
@@ -44,9 +44,11 @@ describe('authMiddleware', () => {
   it('sets user to null when JWT verification fails', async () => {
     mockJwtVerify.mockRejectedValue(new Error('Invalid JWT'))
     const app = makeApp()
-    const res = await app.request('/test', {
-      headers: { cookie: `${FEED_SESSION_COOKIE}=tampered.jwt.token` },
-    })
+    const res = await app.request(
+      '/test',
+      { headers: { cookie: `${FEED_SESSION_COOKIE}=tampered.jwt.token` } },
+      testEnv,
+    )
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ user: null })
   })

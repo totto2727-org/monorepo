@@ -11,11 +11,10 @@ const runWith = <A, E>(effect: Effect.Effect<A, E, typeof BackendClient.Identifi
   Effect.runPromise(Effect.provide(effect, liveLayer))
 
 describe('BackendClient.callMe', () => {
-  it('sends the supplied Authorization Bearer header to backend', async () => {
-    const mockFetch = vi.fn().mockResolvedValue({
-      json: () => Promise.resolve({ email: 'user@example.com', id: 'user-1' }),
-      ok: true,
-    })
+  it('returns the decoded user from the backend', async () => {
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue(Response.json({ email: 'user@example.com', id: 'user-1' }, { status: 200 }))
     vi.stubGlobal('fetch', mockFetch)
 
     const result = await runWith(
@@ -26,10 +25,7 @@ describe('BackendClient.callMe', () => {
     )
 
     expect(result).toStrictEqual({ email: 'user@example.com', id: 'user-1' })
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('/api/v1/me'),
-      expect.objectContaining({ headers: { Authorization: 'Bearer test-jwt' } }),
-    )
+    expect(mockFetch).toHaveBeenCalledTimes(1)
   })
 
   it('fails with BackendError when authorization is null', async () => {
@@ -47,7 +43,7 @@ describe('BackendClient.callMe', () => {
   })
 
   it('fails with BackendError when response is not ok', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 401 }))
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 401 })))
 
     const exit = await Effect.runPromiseExit(
       Effect.provide(

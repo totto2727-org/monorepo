@@ -14,7 +14,13 @@ const TokenResponse = Schema.Struct({
   refresh_token: Schema.optional(Schema.String),
 })
 
+const IdTokenPayload = Schema.Struct({
+  nonce: Schema.String,
+})
+
+// oxlint-disable-next-line rules/prefer-non-unknown-decode -- OAuth token JSON response is an external boundary with unknown shape.
 const decodeTokenResponse = Schema.decodeUnknownEffect(TokenResponse)
+const isIdTokenPayload = Schema.is(IdTokenPayload)
 
 const exchangeToken = (idpBaseUrl: string, params: Record<string, string>) =>
   Effect.gen(function* () {
@@ -38,22 +44,15 @@ const verifyNonce = (db: DBInstance, idToken: string, state: string) =>
       return false
     }
     const [, payloadPart] = parts
-    if (Predicate.isUndefined(payloadPart)) {
+    if (Predicate.isNullish(payloadPart)) {
       return false
     }
     const payloadStr = atob(payloadPart)
-    const payload = JSON.parse(payloadStr)
-    if (!Predicate.isObject(payload)) {
+    const payload: unknown = JSON.parse(payloadStr)
+    if (!isIdTokenPayload(payload)) {
       return false
     }
-    if (!('nonce' in payload)) {
-      return false
-    }
-    const { nonce } = payload
-    if (!Predicate.isString(nonce)) {
-      return false
-    }
-    return yield* Effect.promise(() => verifyAndDeleteNonce(db, state, nonce))
+    return yield* Effect.promise(() => verifyAndDeleteNonce(db, state, payload.nonce))
   })
 
 export interface CallbackRuntime {
@@ -63,7 +62,7 @@ export interface CallbackRuntime {
 export const handleAuthCallback = async (
   ctx: Context,
   env: Env.Type,
-  db: DBInstance,
+  db: DBInstance | null,
   callbackRuntime: CallbackRuntime,
 ): Promise<Response> => {
   const code = ctx.req.query('code')
@@ -91,6 +90,7 @@ export const handleAuthCallback = async (
     bodyParams.client_secret = env.OAUTH_CLIENT_SECRET
   }
 
+  // oxlint-disable-next-line rules/no-effect-runtime-run -- Hono callback handler boundary executes token exchange Effect.
   const result = await callbackRuntime
     .runPromise(
       Effect.gen(function* () {
@@ -100,14 +100,15 @@ export const handleAuthCallback = async (
     )
     .catch(() => null)
 
-  if (Predicate.isNull(result)) {
+  if (Predicate.isNullish(result)) {
     return new Response('auth failed', { status: 401 })
   }
   if (String.isEmpty(result.access_token)) {
     return new Response('auth failed', { status: 401 })
   }
 
-  if (!Predicate.isUndefined(result.id_token) && Predicate.isNotNullish(state)) {
+  if (!Predicate.isNullish(result.id_token) && Predicate.isNotNullish(state) && Predicate.isNotNullish(db)) {
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- Hono callback handler boundary verifies nonce through the request runtime.
     const valid = await callbackRuntime.runPromise(verifyNonce(db, result.id_token, state))
     if (!valid) {
       return new Response('nonce mismatch', { status: 403 })
@@ -118,7 +119,7 @@ export const handleAuthCallback = async (
   deleteCookie(ctx, 'pkce_verifier', { httpOnly: true, path: '/', sameSite: 'Lax' })
   deleteCookie(ctx, 'oauth_state', { httpOnly: true, path: '/', sameSite: 'Lax' })
 
-  if (!Predicate.isUndefined(result.refresh_token) && String.isNonEmpty(result.refresh_token)) {
+  if (!Predicate.isNullish(result.refresh_token) && String.isNonEmpty(result.refresh_token)) {
     setCookie(ctx, FEED_REFRESH_COOKIE, result.refresh_token, {
       httpOnly: true,
       maxAge: 2_592_000,
