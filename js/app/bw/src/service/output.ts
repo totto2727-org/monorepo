@@ -1,8 +1,8 @@
-import type { TaggedErrorBaseData } from '@totto2727/fp/error'
+import type { TaggedErrorBaseType } from '@totto2727/fp/error'
 import { Console, Data, Effect, FileSystem } from 'effect'
 
 export class OutputError extends Data.TaggedError('OutputError')<
-  TaggedErrorBaseData & {
+  TaggedErrorBaseType & {
     readonly path: string
   }
 > {}

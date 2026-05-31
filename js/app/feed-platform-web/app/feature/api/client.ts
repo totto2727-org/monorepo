@@ -1,3 +1,4 @@
+import type { TaggedErrorBaseType } from '@totto2727/fp/error'
 import { Context, Data, Effect, Layer, Predicate, Schema } from 'effect'
 import { FetchHttpClient, HttpClient, HttpClientRequest } from 'effect/unstable/http'
 
@@ -6,9 +7,7 @@ export interface UserDTO {
   readonly email: string
 }
 
-export class BackendError extends Data.TaggedError('BackendError')<{
-  cause: unknown
-}> {}
+export class BackendError extends Data.TaggedError('BackendError')<TaggedErrorBaseType> {}
 
 interface BackendClientService {
   readonly callMe: (authorization: string | null) => Effect.Effect<UserDTO, BackendError>
@@ -34,20 +33,20 @@ const callBackendApi = (authorization: string) =>
     })
     const response = yield* client.execute(request)
     if (response.status !== 200) {
-      return yield* Effect.fail(new BackendError({ cause: `HTTP ${response.status}` }))
+      return yield* Effect.fail(new BackendError({ message: `HTTP ${response.status}` }))
     }
     const data: unknown = yield* response.json
     return yield* decodeUserResponse(data).pipe(
-      Effect.mapError(() => new BackendError({ cause: 'invalid response shape' })),
+      Effect.mapError((error) => new BackendError({ error, message: 'invalid response shape' })),
     )
   })
 
 export const liveLayer = Layer.succeed(BackendClient, {
   callMe: (authorization: string | null) =>
     Predicate.isNullish(authorization)
-      ? Effect.fail(new BackendError({ cause: 'missing feed-session cookie' }))
+      ? Effect.fail(new BackendError({ message: 'missing feed-session cookie' }))
       : callBackendApi(authorization).pipe(
-          Effect.mapError((failure) => new BackendError({ cause: failure })),
+          Effect.mapError((failure) => new BackendError({ error: failure })),
           Effect.provide(FetchHttpClient.layer),
         ),
 })

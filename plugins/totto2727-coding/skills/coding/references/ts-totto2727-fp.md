@@ -40,7 +40,7 @@ Thin wrappers that re-export external libraries:
 ### Custom Modules
 
 - `./duration` — Locale-aware duration formatting with caching
-- `./error` — Shared domain error payload types (`TaggedErrorBaseType`, `TaggedErrorBaseData`) and `ErrorOptions.error` augmentation
+- `./error` — Shared domain error payload type (`TaggedErrorBaseType`) and `ErrorOptions.error` augmentation
 - `./effect/cuid` — CUID generator with Effect Schema branding
 - `./effect/util` — Effect type helpers (`EffectFn`, `nonEmptyArrayOrNone`, `tap`)
 - `./effect/option-t` — Bridge: option-t Result → Effect Exit
@@ -58,11 +58,12 @@ Thin wrappers that re-export external libraries:
 ## Error payload and propagation policy
 
 Use `@totto2727/fp/error` as the canonical shape for domain error payloads.
+`TaggedErrorBaseType` is the only allowed base type for custom `Data.TaggedError` payloads.
 
 ```ts
-import type { TaggedErrorBaseData } from '@totto2727/fp/error'
+import type { TaggedErrorBaseType } from '@totto2727/fp/error'
 
-export class BackendError extends Data.TaggedError('BackendError')<TaggedErrorBaseData>() {}
+export class BackendError extends Data.TaggedError('BackendError')<TaggedErrorBaseType>() {}
 ```
 
 Rules:

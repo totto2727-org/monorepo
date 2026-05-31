@@ -4,6 +4,12 @@ import * as Runtime from './server.ts'
 
 export interface Variables {
   readonly runtime: Runtime.Runtime
+  readonly user: AuthUser | null
+}
+
+export interface AuthUser {
+  readonly id: string
+  readonly email: string
 }
 
 export const middleware = factory.createMiddleware(async (ctx, next) => {

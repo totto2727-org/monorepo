@@ -6,15 +6,11 @@ import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
 import type { Type as EnvType } from '#@/feature/env.ts'
-
-export interface AuthUser {
-  readonly id: string
-  readonly email: string
-}
+import type { Variables } from '#@/feature/runtime/hono.ts'
 
 export const authMiddleware = createMiddleware<{
   Bindings: EnvType
-  Variables: { user: AuthUser | null }
+  Variables: Pick<Variables, 'user'>
 }>(async (ctx, next) => {
   const token = getCookie(ctx, FEED_SESSION_COOKIE)
 

@@ -88,10 +88,11 @@ export const handleAuthCallback = (
       bodyParams.client_secret = env.OAUTH_CLIENT_SECRET
     }
 
-    const result = yield* Effect.gen(function* () {
-      const rawToken = yield* exchangeToken(env.IDP_BASE_URL, bodyParams)
-      return yield* decodeTokenResponse(rawToken)
-    }).pipe(Effect.orElseSucceed(() => null))
+    const rawToken = yield* exchangeToken(env.IDP_BASE_URL, bodyParams).pipe(Effect.orElseSucceed(() => null))
+    if (Predicate.isNullish(rawToken)) {
+      return new Response('auth failed', { status: 401 })
+    }
+    const result = yield* decodeTokenResponse(rawToken).pipe(Effect.orElseSucceed(() => null))
 
     if (Predicate.isNullish(result)) {
       return new Response('auth failed', { status: 401 })

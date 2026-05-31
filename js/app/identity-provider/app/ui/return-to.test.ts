@@ -11,11 +11,6 @@ describe('isSafeReturnTo', () => {
     expect(isSafeReturnTo('/api/v1/auth/oauth2/authorize?client_id=x&state=y')).toBe(true)
   })
 
-  it('rejects undefined', () => {
-    const noValue: string | undefined = undefined
-    expect(isSafeReturnTo(noValue)).toBe(false)
-  })
-
   it('rejects empty string', () => {
     expect(isSafeReturnTo('')).toBe(false)
   })

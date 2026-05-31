@@ -1,4 +1,4 @@
-import type { TaggedErrorBaseData } from '@totto2727/fp/error'
+import type { TaggedErrorBaseType } from '@totto2727/fp/error'
 import { Data, Effect, FileSystem, Schema } from 'effect'
 
 import { parseJson } from '#@/lib/json.ts'
@@ -7,7 +7,7 @@ import { LockFile as LockFileSchema, emptyLockFile } from '#@/schema/lock-file.t
 import type { LockFile } from '#@/schema/lock-file.ts'
 
 export class LockFileCorruptError extends Data.TaggedError('LockFileCorruptError')<
-  TaggedErrorBaseData & {
+  TaggedErrorBaseType & {
     readonly path: string
   }
 > {}
