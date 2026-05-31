@@ -41,8 +41,7 @@ def main() -> int:
     if not command:
         return 0
 
-    lower = command.lower()
-    if "git" not in lower:
+    if not command.lower().lstrip().startswith("git "):
         return 0
 
     for flag in FORBIDDEN_FLAGS:
