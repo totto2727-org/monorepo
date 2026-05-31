@@ -1,6 +1,8 @@
 import type { TaggedErrorBaseType } from '@totto2727/fp/error'
 import { Context, Data, Effect, Layer, Predicate, Schema } from 'effect'
-import { FetchHttpClient, HttpClient, HttpClientRequest } from 'effect/unstable/http'
+import { HttpClient, HttpClientRequest } from 'effect/unstable/http'
+
+import * as Env from '#@/feature/env.ts'
 
 export interface UserDTO {
   readonly id: string
@@ -10,12 +12,10 @@ export interface UserDTO {
 export class BackendError extends Data.TaggedError('BackendError')<TaggedErrorBaseType> {}
 
 interface BackendClientService {
-  readonly callMe: (authorization: string | null) => Effect.Effect<UserDTO, BackendError>
+  readonly callMe: (authorization: string | null) => Effect.Effect<UserDTO, BackendError, HttpClient.HttpClient>
 }
 
 export const BackendClient = Context.Service<BackendClientService>('BackendClient')
-
-const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL ?? 'http://localhost:8789'
 
 const UserResponse = Schema.Struct({
   email: Schema.String,
@@ -25,10 +25,10 @@ const UserResponse = Schema.Struct({
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- backend JSON response is an external boundary with unknown shape.
 const decodeUserResponse = Schema.decodeUnknownEffect(UserResponse)
 
-const callBackendApi = (authorization: string) =>
+const callBackendApi = (baseUrl: string, authorization: string) =>
   Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient
-    const request = HttpClientRequest.get(`${BACKEND_BASE_URL}/api/v1/me`, {
+    const request = HttpClientRequest.get(`${baseUrl}/api/v1/me`, {
       headers: { Authorization: authorization },
     })
     const response = yield* client.execute(request)
@@ -41,15 +41,20 @@ const callBackendApi = (authorization: string) =>
     )
   })
 
-export const liveLayer = Layer.succeed(BackendClient, {
-  callMe: (authorization: string | null) =>
-    Predicate.isNullish(authorization)
-      ? Effect.fail(new BackendError({ message: 'missing feed-session cookie' }))
-      : callBackendApi(authorization).pipe(
-          Effect.mapError((failure) => new BackendError({ error: failure })),
-          Effect.provide(FetchHttpClient.layer),
-        ),
-})
+export const liveLayer = Layer.effect(
+  BackendClient,
+  Effect.gen(function* () {
+    const env = yield* Env.Service
+    return {
+      callMe: (authorization: string | null) =>
+        Predicate.isNullish(authorization)
+          ? Effect.fail(new BackendError({ message: 'missing feed-session cookie' }))
+          : callBackendApi(env.BACKEND_BASE_URL, authorization).pipe(
+              Effect.mapError((failure) => new BackendError({ error: failure })),
+            ),
+    }
+  }),
+)
 
 export const mockLayer = Layer.succeed(BackendClient, {
   callMe: () => Effect.succeed({ email: 'mock@example.com', id: 'mock-user' }),

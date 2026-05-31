@@ -2,6 +2,7 @@ import { Layer, ManagedRuntime } from 'effect'
 import { dynamicLoggerLayer, Env as RuntimeEnv, makeDisposableRuntime } from 'effect-hono'
 import { FetchHttpClient } from 'effect/unstable/http'
 
+import * as Api from '../api/client.ts'
 import * as DB from '../db/kysely.ts'
 import * as AppEnv from '../env.ts'
 import * as Greeting from '../greeting.ts'
@@ -11,6 +12,7 @@ const makeProdRuntime = (env: AppEnv.Type) =>
   ManagedRuntime.make(
     Health.layer.pipe(
       Layer.provideMerge(Greeting.layer),
+      Layer.provideMerge(Api.liveLayer),
       Layer.provideMerge(DB.remoteLayer),
       Layer.provideMerge(FetchHttpClient.layer),
       Layer.provideMerge(dynamicLoggerLayer),
@@ -23,6 +25,7 @@ const makeDevRuntime = () =>
   ManagedRuntime.make(
     Health.layer.pipe(
       Layer.provideMerge(Greeting.layer),
+      Layer.provideMerge(Api.liveLayer),
       Layer.provideMerge(DB.remoteLayer),
       Layer.provideMerge(FetchHttpClient.layer),
       Layer.provideMerge(dynamicLoggerLayer),

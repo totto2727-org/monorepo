@@ -6,7 +6,7 @@ import { contextStorage } from 'hono/context-storage'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { logger } from 'hono/logger'
 
-import { BackendClient, liveLayer } from '#@/feature/api/client.ts'
+import { BackendClient } from '#@/feature/api/client.ts'
 import { handleAuthCallback } from '#@/feature/auth/callback.ts'
 import { FEED_REFRESH_COOKIE, FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
 import { authMiddleware } from '#@/feature/auth/middleware.ts'
@@ -124,85 +124,82 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
   .get('/dashboard', (ctx) =>
     // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes the whole dashboard dependency and render workflow once.
     ctx.var.runtime.runPromise(
-      Effect.provide(
-        Effect.gen(function* () {
-          const { user } = ctx.var
-          if (Predicate.isNullish(user)) {
-            return ctx.redirect('/login')
-          }
-          const token = getCookie(ctx, FEED_SESSION_COOKIE)
-          const authorization = Predicate.isNullish(token) ? null : `Bearer ${token}`
-          const { env } = ctx
-          const client = yield* BackendClient
-          const callMeResult = yield* client.callMe(authorization).pipe(Effect.orElseSucceed(() => null))
-          if (!Predicate.isNullish(callMeResult)) {
-            return ctx.render(
-              <Document>
-                <h1>Dashboard</h1>
-                <p>Logged in as: {callMeResult.email}</p>
-                <p>User ID: {callMeResult.id}</p>
-                <a href='/logout'>Logout</a>
-              </Document>,
-            )
-          }
-
-          const refreshToken = getCookie(ctx, FEED_REFRESH_COOKIE)
-          if (Predicate.isNullish(refreshToken)) {
-            deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-            deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-            return ctx.redirect('/login')
-          }
-
-          const bodyParams: Record<string, string> = {
-            client_id: env.OAUTH_CLIENT_ID,
-            grant_type: 'refresh_token',
-            refresh_token: refreshToken,
-          }
-          if (String.isNonEmpty(env.OAUTH_CLIENT_SECRET)) {
-            bodyParams.client_secret = env.OAUTH_CLIENT_SECRET
-          }
-
-          const tokenData = yield* refreshTokens(env.IDP_BASE_URL, bodyParams).pipe(Effect.orElseSucceed(() => null))
-          if (Predicate.isNullish(tokenData)) {
-            deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-            deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-            return ctx.redirect('/login')
-          }
-
-          const retryResult = yield* client
-            .callMe(`Bearer ${tokenData.access_token}`)
-            .pipe(Effect.orElseSucceed(() => null))
-          if (Predicate.isNullish(retryResult)) {
-            deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-            deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-            return ctx.redirect('/login')
-          }
-
-          setCookie(ctx, FEED_SESSION_COOKIE, tokenData.access_token, {
-            httpOnly: true,
-            path: '/',
-            sameSite: 'Lax',
-          })
-          if (!Predicate.isNullish(tokenData.refresh_token) && String.isNonEmpty(tokenData.refresh_token)) {
-            setCookie(ctx, FEED_REFRESH_COOKIE, tokenData.refresh_token, {
-              httpOnly: true,
-              maxAge: 2_592_000,
-              path: '/',
-              sameSite: 'Lax',
-            })
-          }
-
+      Effect.gen(function* () {
+        const { user } = ctx.var
+        if (Predicate.isNullish(user)) {
+          return ctx.redirect('/login')
+        }
+        const token = getCookie(ctx, FEED_SESSION_COOKIE)
+        const authorization = Predicate.isNullish(token) ? null : `Bearer ${token}`
+        const { env } = ctx
+        const client = yield* BackendClient
+        const callMeResult = yield* client.callMe(authorization).pipe(Effect.orElseSucceed(() => null))
+        if (!Predicate.isNullish(callMeResult)) {
           return ctx.render(
             <Document>
               <h1>Dashboard</h1>
-              <p>Logged in as: {retryResult.email}</p>
-              <p>User ID: {retryResult.id}</p>
+              <p>Logged in as: {callMeResult.email}</p>
+              <p>User ID: {callMeResult.id}</p>
               <a href='/logout'>Logout</a>
             </Document>,
           )
-        }),
-        liveLayer,
-      ),
+        }
+
+        const refreshToken = getCookie(ctx, FEED_REFRESH_COOKIE)
+        if (Predicate.isNullish(refreshToken)) {
+          deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+          deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+          return ctx.redirect('/login')
+        }
+
+        const bodyParams: Record<string, string> = {
+          client_id: env.OAUTH_CLIENT_ID,
+          grant_type: 'refresh_token',
+          refresh_token: refreshToken,
+        }
+        if (String.isNonEmpty(env.OAUTH_CLIENT_SECRET)) {
+          bodyParams.client_secret = env.OAUTH_CLIENT_SECRET
+        }
+
+        const tokenData = yield* refreshTokens(env.IDP_BASE_URL, bodyParams).pipe(Effect.orElseSucceed(() => null))
+        if (Predicate.isNullish(tokenData)) {
+          deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+          deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+          return ctx.redirect('/login')
+        }
+
+        const retryResult = yield* client
+          .callMe(`Bearer ${tokenData.access_token}`)
+          .pipe(Effect.orElseSucceed(() => null))
+        if (Predicate.isNullish(retryResult)) {
+          deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+          deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+          return ctx.redirect('/login')
+        }
+
+        setCookie(ctx, FEED_SESSION_COOKIE, tokenData.access_token, {
+          httpOnly: true,
+          path: '/',
+          sameSite: 'Lax',
+        })
+        if (!Predicate.isNullish(tokenData.refresh_token) && String.isNonEmpty(tokenData.refresh_token)) {
+          setCookie(ctx, FEED_REFRESH_COOKIE, tokenData.refresh_token, {
+            httpOnly: true,
+            maxAge: 2_592_000,
+            path: '/',
+            sameSite: 'Lax',
+          })
+        }
+
+        return ctx.render(
+          <Document>
+            <h1>Dashboard</h1>
+            <p>Logged in as: {retryResult.email}</p>
+            <p>User ID: {retryResult.id}</p>
+            <a href='/logout'>Logout</a>
+          </Document>,
+        )
+      }),
     ),
   )
   .get('/logout', (ctx) =>

@@ -41,6 +41,20 @@ describe('authMiddleware', () => {
     expect(await res.json()).toStrictEqual({ user: { email: 'test@example.com', id: 'user-123' } })
   })
 
+  it('sets user to null when JWT payload shape is invalid', async () => {
+    mockJwtVerify.mockResolvedValue({
+      payload: { sub: 'user-123' },
+    })
+    const app = makeApp()
+    const res = await app.request(
+      '/test',
+      { headers: { cookie: `${FEED_SESSION_COOKIE}=invalid-payload.jwt.token` } },
+      testEnv,
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ user: null })
+  })
+
   it('sets user to null when JWT verification fails', async () => {
     mockJwtVerify.mockRejectedValue(new Error('Invalid JWT'))
     const app = makeApp()

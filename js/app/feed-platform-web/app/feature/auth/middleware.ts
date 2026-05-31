@@ -1,5 +1,5 @@
 import type { AppJWTPayload } from 'auth-helper'
-import { Predicate } from 'effect'
+import { Effect, Predicate, Result, Schema } from 'effect'
 import { getCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
@@ -8,29 +8,47 @@ import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
 import type { Type as EnvType } from '#@/feature/env.ts'
 import type { Variables } from '#@/feature/runtime/hono.ts'
 
+const AuthUserPayload = Schema.Struct({
+  email: Schema.String,
+  sub: Schema.String,
+})
+
+const decodeAuthUserPayload = Schema.decodeEffect(AuthUserPayload)
+
 export const authMiddleware = createMiddleware<{
   Bindings: EnvType
   Variables: Pick<Variables, 'user'>
-}>(async (ctx, next) => {
-  const token = getCookie(ctx, FEED_SESSION_COOKIE)
+}>((ctx, next) =>
+  // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP middleware boundary executes the auth workflow once.
+  Effect.runPromise(
+    Effect.gen(function* () {
+      const token = getCookie(ctx, FEED_SESSION_COOKIE)
 
-  if (Predicate.isNullish(token)) {
-    ctx.set('user', null)
-    await next()
-    return
-  }
+      if (Predicate.isNullish(token)) {
+        ctx.set('user', null)
+        yield* Effect.promise(() => next())
+        return
+      }
 
-  const idpBaseUrl = ctx.env.IDP_BASE_URL
-  const jwks = createRemoteJWKSet(new URL(`${idpBaseUrl}/api/v1/auth/jwks`))
+      const idpBaseUrl = ctx.env.IDP_BASE_URL
+      const jwks = createRemoteJWKSet(new URL(`${idpBaseUrl}/api/v1/auth/jwks`))
+      const verified = yield* Effect.result(Effect.tryPromise(() => jwtVerify<AppJWTPayload>(token, jwks)))
+      if (Result.isFailure(verified)) {
+        console.warn('[auth] JWT verification failed:', String(verified.failure))
+        ctx.set('user', null)
+        yield* Effect.promise(() => next())
+        return
+      }
 
-  try {
-    const { payload } = await jwtVerify<AppJWTPayload>(token, jwks)
-    const { sub, email } = payload
-    ctx.set('user', { email, id: sub })
-  } catch (error) {
-    console.warn('[auth] JWT verification failed:', String(error))
-    ctx.set('user', null)
-  }
+      const decodedPayload = yield* Effect.result(decodeAuthUserPayload(verified.success.payload))
+      if (Result.isFailure(decodedPayload)) {
+        ctx.set('user', null)
+      } else {
+        const { email, sub } = decodedPayload.success
+        ctx.set('user', { email, id: sub })
+      }
 
-  await next()
-})
+      yield* Effect.promise(() => next())
+    }),
+  ),
+)
