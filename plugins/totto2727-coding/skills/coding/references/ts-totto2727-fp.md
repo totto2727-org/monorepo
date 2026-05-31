@@ -40,6 +40,7 @@ Thin wrappers that re-export external libraries:
 ### Custom Modules
 
 - `./duration` — Locale-aware duration formatting with caching
+- `./error` — Shared domain error payload types (`TaggedErrorBaseType`, `TaggedErrorBaseData`) and `ErrorOptions.error` augmentation
 - `./effect/cuid` — CUID generator with Effect Schema branding
 - `./effect/util` — Effect type helpers (`EffectFn`, `nonEmptyArrayOrNone`, `tap`)
 - `./effect/option-t` — Bridge: option-t Result → Effect Exit
@@ -53,3 +54,50 @@ Thin wrappers that re-export external libraries:
 ## Reference
 
 - [Effect AI Guide](https://raw.githubusercontent.com/Effect-TS/effect-smol/refs/heads/main/LLMS.md)
+
+## Error payload and propagation policy
+
+Use `@totto2727/fp/error` as the canonical shape for domain error payloads.
+
+```ts
+import type { TaggedErrorBaseData } from '@totto2727/fp/error'
+
+export class BackendError extends Data.TaggedError('BackendError')<TaggedErrorBaseData>() {}
+```
+
+Rules:
+
+- Root/domain-boundary errors that are created from the current code path must include a human-authored `message`.
+- Wrapping a caught error must pass the original caught value through unchanged as `error`; do not stringify, format, map, redact, or replace it.
+- If a `catch` block only catches in order to wrap / rethrow, the only allowed payload transformation is `{ error }`.
+- Do not use helpers like `formatError`, `formatCause`, `String(error)`, `error.message`, or fallback strings such as `'request failed'` for caught errors.
+- If both context and a caught error are needed, use `{ message: '...', error }`: the message describes this boundary, and `error` preserves the original value.
+
+Allowed:
+
+```ts
+catch (error) {
+  return yield* Effect.fail(new BackendError({ error }))
+}
+
+return yield* Effect.fail(new BackendError({ message: 'missing session cookie' }))
+
+catch (error) {
+  return yield* Effect.fail(new BackendError({ message: 'backend request failed', error }))
+}
+```
+
+Forbidden:
+
+```ts
+catch (error) {
+  return yield* Effect.fail(new BackendError({ error: String(error) }))
+}
+
+catch (error) {
+  return yield* Effect.fail(new BackendError({ message: error.message }))
+}
+
+const formatBackendFailure = (error: unknown) =>
+  Predicate.isString(error) ? error : 'backend request failed'
+```
