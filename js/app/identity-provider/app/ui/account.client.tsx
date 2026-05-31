@@ -12,28 +12,36 @@ export const LogoutButton = clientEntry(
     return () => (
       <>
         <Button
-          mix={on('click', async () => {
-            state.error = ''
-            state.submitting = true
-            void handle.update()
-            try {
-              // oxlint-disable-next-line rules/no-effect-runtime-run -- Client event boundary executes one sign-out workflow Effect.
-              await Effect.runPromise(
-                Effect.gen(function* () {
-                  const client = yield* HttpClient.HttpClient
-                  const response = yield* client.execute(HttpClientRequest.post('/api/v1/auth/sign-out'))
-                  if (response.status !== 200) {
-                    return yield* Effect.fail(new Error('ログアウトに失敗しました'))
-                  }
-                  return true
-                }).pipe(Effect.provide(FetchHttpClient.layer)),
-              )
-              window.location.href = '/app/login'
-            } catch {
-              state.error = 'ログアウトに失敗しました'
-              state.submitting = false
-              void handle.update()
-            }
+          mix={on('click', () => {
+            // oxlint-disable-next-line rules/no-effect-runtime-run -- Client event boundary executes one sign-out workflow Effect.
+            void Effect.runPromise(
+              Effect.gen(function* () {
+                yield* Effect.sync(() => {
+                  state.error = ''
+                  state.submitting = true
+                  void handle.update()
+                })
+
+                const client = yield* HttpClient.HttpClient
+                const response = yield* client.execute(HttpClientRequest.post('/api/v1/auth/sign-out'))
+                if (response.status !== 200) {
+                  return yield* Effect.fail(new Error('ログアウトに失敗しました'))
+                }
+
+                window.location.href = '/app/login'
+                return yield* Effect.void
+              }).pipe(
+                // oxlint-disable-next-line promise/prefer-await-to-then -- This is Effect.catch, not Promise.catch.
+                Effect.catch(() =>
+                  Effect.sync(() => {
+                    state.error = 'ログアウトに失敗しました'
+                    state.submitting = false
+                    void handle.update()
+                  }),
+                ),
+                Effect.provide(FetchHttpClient.layer),
+              ),
+            )
           })}
           type='button'
           tone='secondary'
