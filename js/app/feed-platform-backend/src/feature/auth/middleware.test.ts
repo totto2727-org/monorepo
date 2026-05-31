@@ -1,9 +1,9 @@
 import { Hono } from 'hono'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
-import type { AppJWTPayload } from '#@/feature/auth/jwt-payload.ts'
+import type { Variables } from '#@/feature/runtime/hono.ts'
 
-const mockJwtVerify = vi.fn()
+const { mockJwtVerify } = vi.hoisted(() => ({ mockJwtVerify: vi.fn() }))
 
 vi.mock('jose', () => ({
   createRemoteJWKSet: vi.fn().mockReturnValue({}),
@@ -11,11 +11,16 @@ vi.mock('jose', () => ({
 }))
 
 const { authMiddleware } = await import('./middleware.ts')
+const { middleware: runtimeMiddleware } = await import('#@/feature/runtime/hono.ts')
+const { default: bffWorker } = await import('#@/worker/bff/worker.ts')
 
-const makeApp = () =>
-  new Hono<{ Variables: { user: AppJWTPayload } }>()
-    .use('/api/*', authMiddleware)
-    .get('/api/v1/me', (c) => c.json(c.var.user))
+const makeApp = () => {
+  const app = new Hono<{ Variables: Variables }>()
+  app.use(runtimeMiddleware)
+  app.use('/api/*', authMiddleware)
+  app.get('/api/v1/me', (ctx) => ctx.json(ctx.var.user))
+  return app
+}
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -67,5 +72,26 @@ describe('authMiddleware', () => {
     })
     expect(res.status).toBe(401)
     expect(res.headers.get('WWW-Authenticate')).toBe('Bearer error="invalid_token"')
+  })
+
+  it('protects /api/v1/me through the exported BFF worker', async () => {
+    mockJwtVerify.mockResolvedValue({
+      payload: {
+        email: 'worker@example.com',
+        exp: 9_999_999,
+        iat: 1_000_000,
+        sub: 'worker-user',
+      },
+    })
+    const res = await bffWorker.request('/api/v1/me', {
+      headers: { Authorization: 'Bearer worker.jwt.token' },
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      email: 'worker@example.com',
+      exp: 9_999_999,
+      iat: 1_000_000,
+      sub: 'worker-user',
+    })
   })
 })

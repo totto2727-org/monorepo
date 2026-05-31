@@ -2,51 +2,66 @@ import { Context, Data, Effect, Layer, Predicate } from 'effect'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 import type { AppJWTPayload } from '#@/feature/auth/jwt-payload.ts'
+import * as Env from '#@/feature/env.ts'
 
 export class JwtVerifyError extends Data.TaggedError('JwtVerifyError')<{
   readonly cause: unknown
 }> {}
 
-interface JwtService {
+export interface Type {
   readonly verify: (token: string) => Effect.Effect<AppJWTPayload, JwtVerifyError>
 }
 
-export const JwtService = Context.Service<JwtService>('JwtService')
+export const Service = Context.Service<Type>('@app/feed-platform-backend/feature/auth/jwt/Service')
 
-const IDP_JWKS_URL = process.env.IDP_JWKS_URL ?? 'http://localhost:8787/api/v1/auth/jwks'
-const IDP_BASE_URL = process.env.IDP_BASE_URL ?? 'http://localhost:8787'
-const FEED_PLATFORM_AUDIENCE = process.env.FEED_PLATFORM_AUDIENCE ?? 'feed-platform-web'
+const remoteJwkSets = new Map<string, ReturnType<typeof createRemoteJWKSet>>()
 
-const remoteJwkSet = createRemoteJWKSet(new URL(IDP_JWKS_URL))
+const makeRemoteJwkSet = (url: string) => {
+  const remoteJwkSet = remoteJwkSets.get(url)
+  if (Predicate.isNotNullish(remoteJwkSet)) {
+    return remoteJwkSet
+  }
+  const nextRemoteJwkSet = createRemoteJWKSet(new URL(url))
+  remoteJwkSets.set(url, nextRemoteJwkSet)
+  return nextRemoteJwkSet
+}
 
-export const liveLayer = Layer.succeed(JwtService, {
-  verify: (token: string) =>
-    Effect.tryPromise({
-      catch: (cause) => new JwtVerifyError({ cause }),
-      try: async () => {
-        const { payload } = await jwtVerify(token, remoteJwkSet, {
-          algorithms: ['ES256'],
-          audience: FEED_PLATFORM_AUDIENCE,
-          issuer: IDP_BASE_URL,
-        })
-        const { sub, email, iat, exp } = payload as {
-          sub?: unknown
-          email?: unknown
-          iat?: unknown
-          exp?: unknown
-        }
-        if (!Predicate.isString(sub)) {
-          throw new TypeError('Missing sub claim')
-        }
-        if (!Predicate.isString(email)) {
-          throw new TypeError('Missing email claim')
-        }
-        return {
-          email,
-          sub,
-          ...(Predicate.isNumber(iat) ? { iat } : {}),
-          ...(Predicate.isNumber(exp) ? { exp } : {}),
-        }
-      },
-    }),
-})
+export const layer = Layer.effect(
+  Service,
+  Effect.gen(function* () {
+    const env = yield* Env.Service
+    const remoteJwkSet = makeRemoteJwkSet(env.IDP_JWKS_URL)
+
+    return {
+      verify: (token: string) =>
+        Effect.tryPromise({
+          catch: (cause) => new JwtVerifyError({ cause }),
+          try: async () => {
+            const { payload } = await jwtVerify(token, remoteJwkSet, {
+              algorithms: ['ES256'],
+              audience: env.FEED_PLATFORM_AUDIENCE,
+              issuer: env.IDP_BASE_URL,
+            })
+            const { sub, email, iat, exp } = payload as {
+              sub?: unknown
+              email?: unknown
+              iat?: unknown
+              exp?: unknown
+            }
+            if (!Predicate.isString(sub)) {
+              throw new TypeError('Missing sub claim')
+            }
+            if (!Predicate.isString(email)) {
+              throw new TypeError('Missing email claim')
+            }
+            return {
+              email,
+              sub,
+              ...(Predicate.isNumber(iat) ? { iat } : {}),
+              ...(Predicate.isNumber(exp) ? { exp } : {}),
+            }
+          },
+        }),
+    }
+  }),
+)

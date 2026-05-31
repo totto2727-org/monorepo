@@ -1,5 +1,7 @@
-import { Effect, Exit } from 'effect'
+import { Effect, Exit, Layer, Predicate } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
+
+import * as AppEnv from '../env.ts'
 
 const mockJwtVerify = vi.fn()
 const mockCreateRemoteJWKSet = vi.fn().mockReturnValue({})
@@ -9,16 +11,16 @@ vi.mock('jose', () => ({
   jwtVerify: mockJwtVerify,
 }))
 
-const { JwtService, liveLayer } = await import('./jwt.ts')
+const { Service, layer } = await import('./jwt.ts')
 
 const runVerify = (token: string) =>
   Effect.runPromiseExit(
     Effect.provide(
       Effect.gen(function* () {
-        const jwt = yield* JwtService
+        const jwt = yield* Service
         return yield* jwt.verify(token)
       }),
-      liveLayer,
+      layer.pipe(Layer.provide(AppEnv.layer)),
     ),
   )
 
@@ -82,17 +84,28 @@ describe('JwtService', () => {
     expect(Exit.isFailure(exit)).toBe(true)
   })
 
-  it('createRemoteJWKSet is called once at module scope (JWKS cache)', async () => {
-    mockJwtVerify.mockResolvedValue({
-      payload: {
-        email: 'user@example.com',
-        exp: 9_999_999,
-        iat: 1_000_000,
-        sub: 'user-1',
-      },
-    })
-    await runVerify('token-1')
-    await runVerify('token-2')
-    expect(mockCreateRemoteJWKSet).toHaveBeenCalledTimes(0)
+  it('createRemoteJWKSet is called lazily inside the layer (JWKS cache by URL)', async () => {
+    const previousJwksUrl = process.env.IDP_JWKS_URL
+    process.env.IDP_JWKS_URL = 'http://localhost:8787/api/v1/auth/jwks-cache-test'
+    try {
+      mockJwtVerify.mockResolvedValue({
+        payload: {
+          email: 'user@example.com',
+          exp: 9_999_999,
+          iat: 1_000_000,
+          sub: 'user-1',
+        },
+      })
+      expect(mockCreateRemoteJWKSet).toHaveBeenCalledTimes(0)
+      await runVerify('token-1')
+      await runVerify('token-2')
+      expect(mockCreateRemoteJWKSet).toHaveBeenCalledTimes(1)
+    } finally {
+      if (Predicate.isUndefined(previousJwksUrl)) {
+        delete process.env.IDP_JWKS_URL
+      } else {
+        process.env.IDP_JWKS_URL = previousJwksUrl
+      }
+    }
   })
 })

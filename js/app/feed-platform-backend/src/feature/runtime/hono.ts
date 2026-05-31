@@ -1,9 +1,11 @@
+import type { AppJWTPayload } from '#@/feature/auth/jwt-payload.ts'
 import { factory } from '#@/feature/share/lib/hono/factory.ts'
 
 import * as Runtime from './server.ts'
 
 export interface Variables {
   readonly runtime: Runtime.Runtime
+  readonly user: AppJWTPayload | null
 }
 
 // TC39 `await using` によりスコープ終了時に Symbol.asyncDispose が自動実行されるため
@@ -18,5 +20,6 @@ export interface Variables {
 export const middleware = factory.createMiddleware(async (ctx, next) => {
   await using runtime = Runtime.make()
   ctx.set('runtime', runtime.instance)
+  ctx.set('user', null)
   await next()
 })
