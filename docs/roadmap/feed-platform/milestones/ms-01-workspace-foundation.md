@@ -6,20 +6,20 @@
 - **Created at:** 2026-05-04T00:00:00Z
 - **Last updated:** 2026-05-07T03:55:00Z (Phase 2 拡張 — 共通ライブラリ抽出 cycle 追加)
 
-このドキュメントは `dev-roadmap` の **Step 2 (Milestone Decomposition)** で `roadmap-planner` Specialist が起草する**1 マイルストーンの定義書**。1 ファイル = 1 マイルストーンを原則とし、`docs/roadmap/<roadmap-id>/milestones/<milestone-id>.md` に配置する。書き方の詳細は `shared-artifacts/references/milestone.md` を参照。
+このドキュメントは `roadmap` の **Step 2 (Milestone Decomposition)** で `roadmap-planner` Specialist が起草する**1 マイルストーンの定義書**。1 ファイル = 1 マイルストーンを原則とし、`docs/roadmap/<roadmap-id>/milestones/<milestone-id>.md` に配置する。書き方の詳細は `plugins/totto2727-dev-flow/skills/share-artifacts/references/milestone.md` を参照。
 
 ## 目的
 
-`feed-platform` ロードマップ全領域の前提となる**採用ワークスペース (`js/` / `mbt/` / `go/` のいずれか) の確定とプロジェクト雛形整備**を完了し、後続 9 マイルストーンが共通基盤として参照できる土台を成立させる。Intent 未解決事項「採用ワークスペースの確定」を本マイルストーンの配下 `dev-workflow` サイクル Step 1〜2 で解消する。
+`feed-platform` ロードマップ全領域の前提となる**採用ワークスペース (`js/` / `mbt/` / `go/` のいずれか) の確定とプロジェクト雛形整備**を完了し、後続 9 マイルストーンが共通基盤として参照できる土台を成立させる。Intent 未解決事項「採用ワークスペースの確定」を本マイルストーンの配下 oh-my-codingagent execution サイクル Step 1〜2 で解消する。
 
-本マイルストーンは **2 つの dev-workflow サイクル** で構成される:
+本マイルストーンは **2 つの oh-my-codingagent execution サイクル** で構成される:
 
 - **Phase 1 (`feed-platform-ms-01-workspace-foundation`、completed 2026-05-07)**: 採用ワークスペース確定 + 3 プロジェクト (`feed-platform-backend` / `feed-platform-web` / `identity-provider`) の Hello World レベル雛形整備 + Cloudflare Workers + Hono + Remix v3 + Effect + ADR-01 / ADR-02 起票。retrospective: `docs/retrospective/feed-platform-ms-01-workspace-foundation.md`
 - **Phase 2 (`feed-platform-ms-01-shared-libraries`、active 2026-05-07〜)**: Phase 1 完了時点で 3 プロジェクトに完全同形コピーされていた共通ロジック (`dynamicLoggerLayer` / `makeDisposableRuntime` / `feature/env.ts` / `isFrameRequest` / `PageOrFrame` / 他 Remix・Effect 横断ユーティリティ) を `js/package/` 配下のライブラリとして抽出し、3 プロジェクトから参照する形に refactor。User 戦略指示 (2026-05-06) によりロードマップに後追い挿入され、ms-02 (認証) 着手前に完了させる必要がある
 
 ## 到達点 (定性)
 
-配下の `dev-workflow` サイクルが完了し、`roadmap-progress.yaml.milestones[ms-01-workspace-foundation].status` が `completed` に遷移する条件として、人間が目視で「達成された」と合意できる粒度で書く。
+配下の oh-my-codingagent execution サイクルが完了し、`roadmap-progress.yaml.milestones[ms-01-workspace-foundation].status` が `completed` に遷移する条件として、人間が目視で「達成された」と合意できる粒度で書く。
 
 ### Phase 1 到達点 (completed 2026-05-07)
 
@@ -37,14 +37,14 @@
 
 ## スコープ
 
-このマイルストーンで扱う領域を具体的に記述する。配下の `dev-workflow` サイクルが**最大でどこまで触ってよいか**の境界。
+このマイルストーンで扱う領域を具体的に記述する。配下の oh-my-codingagent execution サイクルが**最大でどこまで触ってよいか**の境界。
 
 ### Phase 1 (completed)
 
 - 対象モジュール: 採用ワークスペース直下の `feed-platform` 専用ルートパッケージ (例: `js/app/feed-platform/` または `mbt/feed-platform/` または `go/feed-platform/`)
 - 対象設定: 採用ワークスペースの Lint / Format / 型チェック / テスト / ビルド設定 (`package.json` / `moon.pkg.json` / `go.mod` 等の必要範囲)
 - 対象 ADR: 「採用ワークスペースの確定」「プロジェクト雛形構成」「アーキテクチャ的制約のプロジェクト構造への反映方針」 (= ADR-01 / ADR-02 として起票済)
-- 対象ドキュメント: 雛形利用方法を後続マイルストーンに引き継ぐ最低限の README または `docs/workflow/<identifier>/` 配下の `intent-spec.md` / `design.md`
+- 対象ドキュメント: 雛形利用方法を後続マイルストーンに引き継ぐ最低限の README、roadmap ADR、または milestone notes
 
 ### Phase 2 (active)
 
@@ -70,16 +70,16 @@
 
 - (なし) — 本マイルストーンはロードマップの起点
 
-## 関連 dev-workflow サイクル (workflow_identifiers)
+## 関連 oh-my-codingagent execution サイクル (workflow_identifiers)
 
-このマイルストーンに紐付く `dev-workflow` サイクルの `<identifier>` 一覧。1:1 が推奨だが 1:N も許容する。本マイルストーンは Phase 1 + Phase 2 の 2 サイクル構成 (User 戦略指示 2026-05-06 によるロードマップ後追い拡張)。
+このマイルストーンに紐付く oh-my-codingagent execution サイクルの `<identifier>` 一覧。1:1 が推奨だが 1:N も許容する。本マイルストーンは Phase 1 + Phase 2 の 2 サイクル構成 (User 戦略指示 2026-05-06 によるロードマップ後追い拡張)。
 
 | サイクル `<identifier>`                    | 状態        | コメント                                                                                                                                                                                                          |
 | ------------------------------------------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `feed-platform-ms-01-workspace-foundation` | `completed` | Phase 1 (2026-05-04 〜 2026-05-07)。3 プロジェクト雛形 + Cloudflare Workers + Hono + Remix v3 + Effect + ADR-01 / ADR-02 起票成立。retrospective `docs/retrospective/feed-platform-ms-01-workspace-foundation.md` |
 | `feed-platform-ms-01-shared-libraries`     | `active`    | Phase 2 (2026-05-07 〜)。共通ライブラリ抽出 (`dynamicLoggerLayer` / `makeDisposableRuntime` / `feature/env.ts` / `isFrameRequest` / `PageOrFrame` 等) を `js/package/` 配下に refactor                            |
 
-## 想定 dev-workflow サイクル数
+## 想定 oh-my-codingagent execution サイクル数
 
 **2** (Phase 1 + Phase 2)
 
@@ -88,6 +88,6 @@
 
 ## 補足 / 留意事項
 
-- Intent 未解決事項「採用ワークスペースの確定」は本マイルストーンの配下 `dev-workflow` サイクル Step 1〜2 で解消する。`js/` を選ぶ場合は既存スキル群 (`effect-layer` / `effect-runtime` / `effect-hono` / `totto2727-fp`) との整合性が最も高い
+- Intent 未解決事項「採用ワークスペースの確定」は本マイルストーンの配下 oh-my-codingagent execution サイクル Step 1〜2 で解消する。`js/` を選ぶ場合は既存スキル群 (`effect-layer` / `effect-runtime` / `effect-hono` / `totto2727-fp`) との整合性が最も高い
 - 本マイルストーン完了後、後続マイルストーンの「対応プロジェクト固有スキル」が確定する (例: `js/` 採用なら `effect-*` 系スキル、`mbt/` 採用なら `moonbit-*` 系スキル、`go/` 採用なら別途スキル整備が必要)
 - アーキテクチャ的制約 (サーバレス / マイクロサービス境界 / イベントソーシング + CQRS) はディレクトリ構成 / モジュール境界レベルでの「素地」のみを整える。実装は後続マイルストーン

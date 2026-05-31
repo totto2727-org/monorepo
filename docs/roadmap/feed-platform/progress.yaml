@@ -1,5 +1,5 @@
 # Roadmap progress tracking yaml managed by the `roadmap` CLI.
-# Schema reference: plugins/dev-workflow/skills/share-artifacts/references/roadmap-progress-yaml.md
+# Schema reference: plugins/totto2727-dev-flow/skills/share-artifacts/references/roadmap-progress-yaml.md
 
 created_at: '2026-05-23T14:27:58.483Z'
 milestones:
@@ -8,6 +8,7 @@ milestones:
     notes: 'Phase 1 (feed-platform-ms-01-workspace-foundation) 2026-05-07 完了 (全 11 SC / 26 TC PASS、retrospective docs/retrospective/feed-platform-ms-01-workspace-foundation.md)。Phase 2 (feed-platform-ms-01-shared-libraries) 2026-05-10 完了 — js/package/effect-hono + js/package/remix-helper の 2 library 新設 + 4 consumer (feed-platform-backend / feed-platform-web / identity-provider / hono-remix-v3-cloudflare-example) を library import に切替。純減約 330 行。ADR-03 confirmed: true。CI PASS。ms-02 認証着手の前提達成。'
     prs: []
     status: completed
+    tasks: []
     title: Workspace Foundation (Phase 1 + Phase 2 両方完了)
     workflow_identifiers: []
   - depends_on: []
@@ -15,13 +16,15 @@ milestones:
     notes: Better Auth OAuth 2.1 + Passkey + Magic Link 実装完了。PR-A (auth-helper) / PR-B (IdP UI) / PR-C (web OAuth) / PR-D (backend JWT) / PR-E (ADR + retro) で構成。cross-app E2E は PR-F で継続。
     prs: []
     status: completed
+    tasks: []
     title: Auth — Passkey + Magic Link 認証
     workflow_identifiers: []
   - depends_on: []
     id: ms-03-auth-rbac-organization
-    notes: null
+    notes: Next auth scope remains RBAC + Organization; tactical execution is delegated to oh-my-codingagent while roadmap state stays in progress.yaml.
     prs: []
     status: planned
+    tasks: []
     title: Auth — RBAC + Organization
     workflow_identifiers: []
   - depends_on: []
@@ -29,6 +32,7 @@ milestones:
     notes: null
     prs: []
     status: planned
+    tasks: []
     title: Auth — 期間限定共有
     workflow_identifiers: []
   - depends_on: []
@@ -36,6 +40,7 @@ milestones:
     notes: null
     prs: []
     status: planned
+    tasks: []
     title: Persistence — Event Store + CQRS Skeleton + Plugin Contracts
     workflow_identifiers: []
   - depends_on: []
@@ -43,6 +48,7 @@ milestones:
     notes: null
     prs: []
     status: planned
+    tasks: []
     title: Input Plugin Platform
     workflow_identifiers: []
   - depends_on: []
@@ -50,6 +56,7 @@ milestones:
     notes: null
     prs: []
     status: planned
+    tasks: []
     title: Output Plugin Platform
     workflow_identifiers: []
   - depends_on: []
@@ -57,6 +64,7 @@ milestones:
     notes: null
     prs: []
     status: planned
+    tasks: []
     title: Scheduler Platform
     workflow_identifiers: []
   - depends_on: []
@@ -64,6 +72,7 @@ milestones:
     notes: null
     prs: []
     status: planned
+    tasks: []
     title: AI Summary
     workflow_identifiers: []
   - depends_on: []
@@ -71,10 +80,12 @@ milestones:
     notes: null
     prs: []
     status: planned
+    tasks: []
     title: Integration Verification (最終統合検証)
     workflow_identifiers: []
 prs: []
 roadmap_id: feed-platform
 status: active
 title: Pluggable Multi-Source Feed Platform
-updated_at: '2026-05-23T18:50:01.762Z'
+updated_at: '2026-05-31T12:39:31.924Z'
+version: 2

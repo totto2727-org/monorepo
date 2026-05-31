@@ -6,7 +6,7 @@
 - **Created at:** 2026-05-04T00:00:00Z
 - **Last updated:** 2026-05-04T00:00:00Z
 
-このドキュメントは `dev-roadmap` の **Step 2 (Milestone Decomposition)** で `roadmap-planner` Specialist が起草する**1 マイルストーンの定義書**。本マイルストーンは「最終マイルストーン = 統合検証マイルストーン」のパターン (`shared-artifacts/references/milestone.md` 参照) で配置されている。
+このドキュメントは `roadmap` の **Step 2 (Milestone Decomposition)** で `roadmap-planner` Specialist が起草する**1 マイルストーンの定義書**。本マイルストーンは「最終マイルストーン = 統合検証マイルストーン」のパターン (`plugins/totto2727-dev-flow/skills/share-artifacts/references/milestone.md` 参照) で配置されている。
 
 ## 目的
 
@@ -21,7 +21,7 @@
 - 期間限定共有でフィードを共有でき、共有期間内のみ受信者がアクセスでき、期間満了で自動失効する
 - 全 6 領域が**独立サーバレス関数 (マイクロサービス境界)** として疎結合に動作している (1 領域の変更が他領域に波及しないことが構造的に確認できる)
 - 「コードレベル契約による入出力プラグイン拡張可能性」が新規アダプタ追加によって実証される (例: ms-06 / ms-07 で実装された参照アダプタとは別の追加アダプタを 1 つ簡易実装し、契約遵守だけで動作することを確認)
-- ロードマップ全体に対する目視レビューと残存課題の洗い出しが行われ、`docs/retrospective/roadmap-feed-platform.md` (Step 4 で `roadmap-retrospective-writer` が生成) への入力として整理されている
+- ロードマップ全体に対する目視レビューと残存課題の洗い出しが行われ、`docs/retrospective/roadmap-feed-platform.md` (Step 4 で `roadmap retrospective step` が生成) への入力として整理されている
 
 ## スコープ
 
@@ -42,20 +42,20 @@
 - `ms-08-scheduler-platform`: 入力プラグインの定期実行統合が前提
 - `ms-09-ai-summary`: AI 要約の End-to-End 動作確認が前提
 
-## 関連 dev-workflow サイクル (workflow_identifiers)
+## 関連 oh-my-codingagent execution サイクル (workflow_identifiers)
 
 | サイクル `<identifier>` | 状態 | コメント |
 | ----------------------- | ---- | -------- |
 | (未起動)                | -    | -        |
 
-## 想定 dev-workflow サイクル数
+## 想定 oh-my-codingagent execution サイクル数
 
 1 (推奨)
 
-検証中心の小規模サイクル。`shared-artifacts/references/milestone.md` の「最終マイルストーン = 統合検証マイルストーン」配置パターンに従い、通常の dev-workflow サイクル (本ファイルテンプレート) で表現する。
+検証中心の小規模サイクル。`plugins/totto2727-dev-flow/skills/share-artifacts/references/milestone.md` の「最終マイルストーン = 統合検証マイルストーン」配置パターンに従い、通常の oh-my-codingagent execution サイクル (本ファイルテンプレート) で表現する。
 
 ## 補足 / 留意事項
 
-- 本マイルストーン完了後、`dev-roadmap` Step 4 (Roadmap Retrospective) に進み、`roadmap-retrospective-writer` がロードマップ全体の総括を `docs/retrospective/roadmap-feed-platform.md` として生成する
-- 本マイルストーンの配下 `dev-workflow` サイクルは「機能追加なしの統合検証 + 残存課題洗い出し」に専念し、検証中に新規発見された深刻な不具合は別途 hotfix サイクルとして起動する (本マイルストーン内で抱え込まない)
-- `design-hint.md` のライフサイクル方針「配下 `dev-workflow` サイクルで具体構造が確定後に削除 or ADR 昇格」の最終判断は本マイルストーンで行う (削除 or 抽出すべき ADR 項目の確定)
+- 本マイルストーン完了後、`roadmap` Step 4 (Roadmap Retrospective) に進み、`roadmap retrospective step` がロードマップ全体の総括を `docs/retrospective/roadmap-feed-platform.md` として生成する
+- 本マイルストーンの配下 oh-my-codingagent execution サイクルは「機能追加なしの統合検証 + 残存課題洗い出し」に専念し、検証中に新規発見された深刻な不具合は別途 hotfix サイクルとして起動する (本マイルストーン内で抱え込まない)
+- `design-hint.md` のライフサイクル方針「配下 oh-my-codingagent execution サイクルで具体構造が確定後に削除 or ADR 昇格」の最終判断は本マイルストーンで行う (削除 or 抽出すべき ADR 項目の確定)

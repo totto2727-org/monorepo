@@ -1,3 +1,0 @@
-Total relative links scanned: 15
-Skipped (External skill references section): 0
-Unresolved links: 0

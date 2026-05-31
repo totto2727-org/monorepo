@@ -1,5 +1,5 @@
 # Roadmap progress tracking yaml managed by the `roadmap` CLI.
-# Schema reference: plugins/dev-workflow/skills/share-artifacts/references/roadmap-progress-yaml.md
+# Schema reference: plugins/totto2727-dev-flow/skills/share-artifacts/references/roadmap-progress-yaml.md
 
 created_at: '2026-05-15T16:15:13.160Z'
 milestones:
@@ -8,6 +8,7 @@ milestones:
     notes: null
     prs: []
     status: completed
+    tasks: []
     title: CLI bootstrap with new subcommand
     workflow_identifiers: []
   - depends_on: []
@@ -15,6 +16,7 @@ milestones:
     notes: null
     prs: []
     status: completed
+    tasks: []
     title: milestone new subcommand
     workflow_identifiers: []
   - depends_on: []
@@ -22,6 +24,7 @@ milestones:
     notes: null
     prs: []
     status: completed
+    tasks: []
     title: ls and status commands
     workflow_identifiers: []
   - depends_on: []
@@ -30,6 +33,7 @@ milestones:
     prs:
       - https://github.com/totto2727-org/monorepo/pull/128
     status: completed
+    tasks: []
     title: Web UI with kanban board
     workflow_identifiers: []
   - depends_on: []
@@ -37,11 +41,21 @@ milestones:
     notes: Discovers all git worktrees via 'git worktree list --porcelain' from the repo root (.git walk-up), loads docs/roadmap from each, dedupes identical milestones across worktrees, and renders 3-tier filters (Master / Roadmaps / Worktrees) plus per-worktree color stripes on cards. CLI '-d' is now repo-root-relative.
     prs: []
     status: completed
+    tasks: []
     title: Multi-worktree web UI with 3-tier filters
+    workflow_identifiers: []
+  - depends_on: []
+    id: ms-06-legacy-roadmap-import
+    notes: Add CLI support to import or normalize legacy roadmap-progress.yaml files, refresh schema-reference comments after plugin renames, and bulk-rewrite progress.yaml files without direct editing.
+    prs: []
+    status: planned
+    tasks: []
+    title: Legacy roadmap import and normalization
     workflow_identifiers: []
 prs:
   - https://github.com/totto2727-org/monorepo/pull/128
 roadmap_id: roadmap-cli
 status: active
 title: Roadmap management CLI
-updated_at: '2026-05-22T14:06:36.647Z'
+updated_at: '2026-05-31T12:39:38.517Z'
+version: 2

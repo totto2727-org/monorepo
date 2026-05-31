@@ -7,7 +7,7 @@ scope: roadmap:feed-platform
 
 - **Filed at:** 2026-05-08
 - **Filer:** architect (Step 3) → implementer (Step 6) — `confirmed: true` 確定 (2026-05-10)。Step 6 (Implementation) でライブラリ実装 + 4 consumer migration が完了し、本文書は正式 ADR として確定した。
-- **Originating step:** dev-workflow Step 3 (Design) of cycle `feed-platform-ms-01-shared-libraries`
+- **Originating step:** delegated execution design step of cycle `feed-platform-ms-01-shared-libraries`
 - **Storage path:** docs/roadmap/feed-platform/adr/2026-05-08-shared-libraries-extraction.md
 
 ## Context
@@ -18,7 +18,7 @@ scope: roadmap:feed-platform
 
 User 戦略指示 (2026-05-06): 「ms-02 (認証) 着手前に新規共通化マイルストーンをロードマップに挿入する。対象は dynamicLoggerLayer / makeDisposableRuntime / feature/env.ts / isFrameRequest / PageOrFrame / 他 Remix・Effect 横断ユーティリティ。」
 
-Intent Spec (`docs/workflow/feed-platform-ms-01-shared-libraries/intent-spec.md`) の Q1〜Q7 + Step 2 → Step 3 移行時 User confirm (`progress.yaml.step3_design_inputs`、2026-05-08) で確定した 5 件の決定事項を、本 ADR が単一の決定束として記録する。
+2026-05-08 の execution cycle で確定した Q1〜Q7 と Step 2 → Step 3 移行時 User confirm の決定事項を、本 ADR が単一の決定束として記録する。旧 workflow 作業資料は廃止済みで、本 ADR を永続記録とする。
 
 影響範囲は **feed-platform ロードマップ内のすべての配下サイクル (ms-02〜ms-10)** に閉じる。新設 2 library の API surface は ms-02 以降のすべての cycle が前提とする ABI として機能するため Roadmap mode (`docs/roadmap/feed-platform/adr/`) として起票する。本リポジトリの他ロードマップへの影響は限定的 (= 本 cycle の判断は feed-platform 内 + 既存 monorepo 内に閉じる、他システム再利用視野の項目なし、Intent Spec L121)。
 
@@ -182,13 +182,7 @@ export const makeDisposableRuntime = <Args extends readonly unknown[], R, ER>(
 
 ## Related
 
-- **Intent Spec**: [`docs/workflow/feed-platform-ms-01-shared-libraries/intent-spec.md`](../../../workflow/feed-platform-ms-01-shared-libraries/intent-spec.md) (Q1〜Q7 確定事項 / SC-1〜SC-10)
-- **Design Document**: [`docs/workflow/feed-platform-ms-01-shared-libraries/design.md`](../../../workflow/feed-platform-ms-01-shared-libraries/design.md) (本 ADR の決定束を実装可能な詳細度で展開)
-- **Research Notes**:
-  - [`research/effect-4-api-verification.md`](../../../workflow/feed-platform-ms-01-shared-libraries/research/effect-4-api-verification.md) (D-4 wrapper class factory の Effect 4.0.0-beta.60 API 裏取り)
-  - [`research/hono-remix-v3-cloudflare-example-frame-helpers.md`](../../../workflow/feed-platform-ms-01-shared-libraries/research/hono-remix-v3-cloudflare-example-frame-helpers.md) (D-3 Hono フリー signature の根拠)
-  - [`research/existing-js-package-isolation-check.md`](../../../workflow/feed-platform-ms-01-shared-libraries/research/existing-js-package-isolation-check.md) (D-5 既存 5 packages 分離維持の事実裏取り)
-  - [`research/infer-frame-name-type-utility-pattern.md`](../../../workflow/feed-platform-ms-01-shared-libraries/research/infer-frame-name-type-utility-pattern.md) (D-3 frame name 型パターン候補比較。当初 P2 採用 → 2026-05-09 で Record 形 → 同日 string literal union 直接受けに最終確定。型関数 `InferFrameName<T>` は廃止)
+- **Migrated workflow record**: the durable decisions from the 2026-05-08 shared-libraries cycle are preserved in this ADR; temporary intent/design/research artifacts were removed when `retired workflow artifact: docs/workflow/` was retired.
 - **Phase 1 ADR-01**: [`2026-05-05-project-structure-and-runtime.md`](./2026-05-05-project-structure-and-runtime.md) (本 ADR は ADR-01 を supersede しない、Phase 1 の architectural constraints を継承)
 - **Phase 1 retrospective**: [`docs/retrospective/feed-platform-ms-01-workspace-foundation.md`](../../../retrospective/feed-platform-ms-01-workspace-foundation.md) (DRY 違反候補の指摘元)
 - **Roadmap**: [`docs/roadmap/feed-platform/roadmap.md`](../roadmap.md)

@@ -1,2 +1,0 @@
-.agents/skills-lock.json:14:          "path": "./plugins/components-build"
-.claude-plugin/marketplace.json:20:      "source": "./plugins/components-build"

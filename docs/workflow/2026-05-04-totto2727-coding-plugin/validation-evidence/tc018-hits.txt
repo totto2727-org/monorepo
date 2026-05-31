@@ -1,1 +1,0 @@
-0 residual hits (TC-018 PASS)

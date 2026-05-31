@@ -7,7 +7,7 @@ scope: roadmap:feed-platform
 
 - **Filed at:** 2026-05-06
 - **Filer:** implementer (Step 6)
-- **Originating step:** dev-workflow Step 6 (Implementation) of cycle `feed-platform-ms-01-workspace-foundation`
+- **Originating step:** delegated execution implementation step of cycle `feed-platform-ms-01-workspace-foundation`
 - **Storage path:** docs/roadmap/feed-platform/adr/2026-05-05-project-structure-and-runtime.md
 
 ## Status
@@ -27,7 +27,7 @@ scope: roadmap:feed-platform
 
 これら制約をプロジェクト構造・命名・実行環境のレベルで構造的に保証することが ms-01 の責務であり、その確定事項を後続マイルストーンが参照可能な不変記録として永続化するために本 ADR を起票する。
 
-intent-spec.md (`docs/workflow/feed-platform-ms-01-workspace-foundation/intent-spec.md`) の Q2 / Q2.5 / Q2.6 / Q2.9 / Q2.10 / Q2.11 (命名部分) / Q2.12 で確定した 7 件の決定事項を、本 ADR が単一の決定束として記録する。
+2026-05-05〜2026-05-07 の workspace foundation execution cycle で確定した Q2 / Q2.5 / Q2.6 / Q2.9 / Q2.10 / Q2.11 (命名部分) / Q2.12 の 7 件の決定事項を、本 ADR が単一の決定束として記録する。旧 workflow 作業資料は廃止済みで、本 ADR を永続記録とする。
 
 影響範囲は **feed-platform ロードマップ内のすべての配下サイクル (ms-02〜ms-10)** に閉じる。本リポジトリの他ロードマップへの影響は限定的なため、Roadmap mode (`docs/roadmap/feed-platform/adr/`) として起票した。`identity-provider` の汎用化方針 (= 他システム再利用視野) は別 ADR (ADR-02) として General mode で起票する (本 ADR と分離)。
 
@@ -159,13 +159,7 @@ backend の各 entry は wrangler 上の `name` を **`feed-platform-backend-<en
 
 ## References
 
-- **Intent Spec**: `docs/workflow/feed-platform-ms-01-workspace-foundation/intent-spec.md` (Q2 / Q2.5 / Q2.6 / Q2.9 / Q2.10 / Q2.11 / Q2.12)
-- **Design Document**: `docs/workflow/feed-platform-ms-01-workspace-foundation/design.md` (Component breakdown / Project A / Project B / Project C / Multi-entry pattern M-1〜M-4 / Common conventions CC-1〜CC-9 / ADR-01 outline L1080-1111)
-- **Research Notes**:
-  - `docs/workflow/feed-platform-ms-01-workspace-foundation/research/hono-remix-cloudflare-example-structure.md`
-  - `docs/workflow/feed-platform-ms-01-workspace-foundation/research/wrangler-multi-entry-monorepo.md`
-  - `docs/workflow/feed-platform-ms-01-workspace-foundation/research/vite-plus-task-system-and-existing-packages.md`
-  - `docs/workflow/feed-platform-ms-01-workspace-foundation/research/effect-cloudflare-hono-integration.md`
+- **Migrated workflow record**: durable decisions from the 2026-05-05〜2026-05-07 workspace foundation cycle are preserved in this ADR; temporary intent/design/research artifacts were removed when `docs/workflow/` was retired.
 - **Related Roadmap**: `docs/roadmap/feed-platform/roadmap.md` (アーキテクチャ的制約 / ms-01〜ms-10 マイルストーン定義)
 - **Related Milestone**: `docs/roadmap/feed-platform/milestones/ms-01-workspace-foundation.md`
 - **Related ADR**: `docs/adr/2026-05-05-identity-provider-and-authn-authz-architecture.md` (ADR-02、`identity-provider` の汎用化方針 + 認証認可アーキテクチャ。General mode、本 ADR と対をなす)
