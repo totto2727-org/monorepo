@@ -1,5 +1,8 @@
+import type * as AuthContext from '#@/feature/auth/context.ts'
+import type * as AppEnv from '#@/feature/env.ts'
 import type { Variables } from '#@/feature/runtime/hono.ts'
 
 export interface Env {
-  Variables: Variables
+  Bindings: AppEnv.Type
+  Variables: AuthContext.Variables & Variables
 }

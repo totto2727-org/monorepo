@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
-import type { Variables } from '#@/feature/runtime/hono.ts'
+import type { Env } from '#@/feature/share/lib/hono/context.ts'
 
 const { mockJwtVerify } = vi.hoisted(() => ({ mockJwtVerify: vi.fn() }))
 
@@ -15,7 +15,7 @@ const { middleware: runtimeMiddleware } = await import('#@/feature/runtime/hono.
 const { default: bffWorker } = await import('#@/worker/bff/worker.ts')
 
 const makeApp = () => {
-  const app = new Hono<{ Variables: Variables }>()
+  const app = new Hono<Env>()
   app.use(runtimeMiddleware)
   app.use('/api/*', authMiddleware)
   app.get('/api/v1/me', (ctx) => ctx.json(ctx.var.user))
