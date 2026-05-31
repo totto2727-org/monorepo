@@ -26,13 +26,6 @@ const UserResponse = Schema.Struct({
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- backend JSON response is an external boundary with unknown shape.
 const decodeUserResponse = Schema.decodeUnknownEffect(UserResponse)
 
-const formatBackendFailure = (failure: unknown): string => {
-  if (Predicate.isString(failure)) {
-    return failure
-  }
-  return 'backend request failed'
-}
-
 const callBackendApi = (authorization: string) =>
   Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient
@@ -54,7 +47,7 @@ export const liveLayer = Layer.succeed(BackendClient, {
     Predicate.isNullish(authorization)
       ? Effect.fail(new BackendError({ cause: 'missing feed-session cookie' }))
       : callBackendApi(authorization).pipe(
-          Effect.mapError((failure) => new BackendError({ cause: formatBackendFailure(failure) })),
+          Effect.mapError((failure) => new BackendError({ cause: failure })),
           Effect.provide(FetchHttpClient.layer),
         ),
 })
