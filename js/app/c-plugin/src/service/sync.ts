@@ -1,6 +1,5 @@
-import * as NodePath from 'node:path'
-
-import { Array, Effect, Predicate } from 'effect'
+import type { FileSystem } from 'effect'
+import { Array, Effect, Path, Predicate } from 'effect'
 
 import type { LockFile, RepositoryEntry } from '#@/schema/lock-file.ts'
 import * as Cache from '#@/service/cache.ts'
@@ -15,12 +14,12 @@ const syncRepo = (
   agentsRoot: string,
   lockFile: LockFile,
   repo: RepositoryEntry,
-): Effect.Effect<RepositoryEntry | null, Error | Git.GitError> =>
+): Effect.Effect<RepositoryEntry | null, Error | Git.GitError, FileSystem.FileSystem | Path.Path> =>
   Effect.gen(function* () {
     const repoDir =
       repo.sourceType === 'local'
         ? yield* Cache.ensureLocalPath(repo.source, agentsRoot)
-        : yield* Cache.ensureRepo(agentsDir, repo.source)
+        : yield* Cache.ensureRepo(agentsRoot, repo.source)
 
     if (repo.sourceType !== 'local') {
       yield* Git.checkout(repoDir, repo.commitHash)
@@ -67,9 +66,15 @@ const syncRepo = (
 
 export const run = (
   agentsDir: string,
-): Effect.Effect<void, Error | Git.GitError | LockFileService.LockFileCorruptError> =>
+): Effect.Effect<
+  void,
+  Error | Git.GitError | LockFileService.LockFileCorruptError,
+  FileSystem.FileSystem | Path.Path
+> =>
   Effect.gen(function* () {
-    yield* Cache.ensureDirs(agentsDir)
+    const path = yield* Path.Path
+    const agentsRoot = path.dirname(agentsDir)
+    yield* Cache.ensureDirs(agentsDir, agentsRoot)
 
     const lockFile = yield* LockFileService.read(agentsDir)
     if (Array.isReadonlyArrayEmpty(lockFile.repositories)) {
@@ -82,16 +87,14 @@ export const run = (
       yield* Git.checkInstalled
     }
 
-    const agentsRoot = NodePath.dirname(agentsDir)
     const updatedRepos: RepositoryEntry[] = []
 
     for (const repo of lockFile.repositories) {
       yield* Effect.log(`Syncing ${repo.source}...`)
       const result = yield* syncRepo(agentsDir, agentsRoot, lockFile, repo).pipe(
-        Effect.catch((error) =>
+        Effect.catch(() =>
           Effect.gen(function* () {
-            const message = error instanceof Error ? error.message : String(error)
-            yield* Effect.log(`  Skipped ${repo.source}: ${message}`)
+            yield* Effect.log(`  Skipped ${repo.source}`)
             return repo
           }),
         ),

@@ -1,3 +1,4 @@
+import { NodeServices } from '@effect/platform-node'
 import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vite-plus/test'
 
@@ -17,7 +18,7 @@ let ctx: Awaited<ReturnType<typeof setupTestContext>>
 
 beforeEach(async () => {
   ctx = await setupTestContext()
-  await ensureAgentsDirs(ctx.agentsDir)
+  await ensureAgentsDirs(ctx.agentsDir, ctx.projectRoot)
 })
 
 afterEach(async () => {
@@ -33,7 +34,9 @@ describe('update run', () => {
     }
     await writeLockFile(ctx.agentsDir, lockFile)
 
-    await expect(Effect.runPromise(run(ctx.agentsDir))).resolves.toBeUndefined()
+    await expect(
+      Effect.runPromise(run(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer))),
+    ).resolves.toBeUndefined()
   })
 
   test('updates commitHash for github repos', async () => {
@@ -58,9 +61,9 @@ describe('update run', () => {
     }
     await writeLockFile(ctx.agentsDir, lockFile)
 
-    await Effect.runPromise(run(ctx.agentsDir))
+    await Effect.runPromise(run(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
 
-    const updated = await Effect.runPromise(readLockFile(ctx.agentsDir))
+    const updated = await Effect.runPromise(readLockFile(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     const [repo] = updated.repositories
     expect(repo?.sourceType).toBe('github')
     if (repo?.sourceType === 'github') {
@@ -89,9 +92,9 @@ describe('update run', () => {
     }
     await writeLockFile(ctx.agentsDir, lockFile)
 
-    await Effect.runPromise(run(ctx.agentsDir))
+    await Effect.runPromise(run(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
 
-    const updated = await Effect.runPromise(readLockFile(ctx.agentsDir))
+    const updated = await Effect.runPromise(readLockFile(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect(updated.repositories).toHaveLength(1)
     const [repo] = updated.repositories
     expect(repo).toStrictEqual(localEntry)
@@ -121,9 +124,9 @@ describe('update run', () => {
     }
     await writeLockFile(ctx.agentsDir, lockFile)
 
-    await Effect.runPromise(run(ctx.agentsDir))
+    await Effect.runPromise(run(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
 
-    const updated = await Effect.runPromise(readLockFile(ctx.agentsDir))
+    const updated = await Effect.runPromise(readLockFile(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect(updated.repositories).toHaveLength(2)
 
     const github = updated.repositories.find((r) => r.sourceType === 'github')
@@ -156,7 +159,9 @@ describe('update run', () => {
       }
       await writeLockFile(ctx.agentsDir, lockFile)
 
-      await expect(Effect.runPromise(run(ctx.agentsDir))).resolves.toBeUndefined()
+      await expect(
+        Effect.runPromise(run(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer))),
+      ).resolves.toBeUndefined()
     } finally {
       Object.assign(failing, { checkInstalled: original })
     }

@@ -1,8 +1,15 @@
 node_modules/
-.claude/**.local.*
 *.local.*
 .cache
 .pnpm-store
+.sisyphus/
 .claude/worktrees/
 .playwright-mcp/
 .playwright-cli/
+dist/
+build/
+_build/
+.wrangler/
+.tanstack/
+.mooncakes
+__pycache__/

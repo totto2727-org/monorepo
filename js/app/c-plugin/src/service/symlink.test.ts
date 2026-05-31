@@ -1,6 +1,7 @@
 import * as Fs from 'node:fs/promises'
 import * as NodePath from 'node:path'
 
+import { NodeServices } from '@effect/platform-node'
 import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 
@@ -13,7 +14,7 @@ let ctx: Awaited<ReturnType<typeof setupTestContext>>
 
 beforeEach(async () => {
   ctx = await setupTestContext()
-  await ensureAgentsDirs(ctx.agentsDir)
+  await ensureAgentsDirs(ctx.agentsDir, ctx.projectRoot)
 })
 
 afterEach(async () => {
@@ -25,11 +26,17 @@ describe('createSkillLink', () => {
     const targetDir = NodePath.join(ctx.agentsDir, '.cache', 'owner', 'repo', 'plugins', 'p', 'skills', 'my-skill')
     await Fs.mkdir(targetDir, { recursive: true })
 
-    await Effect.runPromise(createSkillLink(ctx.agentsDir, [], 'my-skill', targetDir))
+    await Effect.runPromise(
+      createSkillLink(ctx.agentsDir, [], 'my-skill', targetDir).pipe(Effect.provide(NodeServices.layer)),
+    )
 
     const linkPath = NodePath.join(getSkillsDir(ctx.agentsDir), 'my-skill')
-    const stat = await Fs.lstat(linkPath)
-    expect(stat.isSymbolicLink()).toBe(true)
+    expect(
+      await Fs.lstat(linkPath).then(
+        (stat) => stat.isSymbolicLink(),
+        () => false,
+      ),
+    ).toBe(true)
   })
 
   test('creates symlinks in additional skillDirs', async () => {
@@ -39,15 +46,25 @@ describe('createSkillLink', () => {
     const extraDir = NodePath.join(ctx.agentsDir, 'extra-skills')
     await Fs.mkdir(extraDir, { recursive: true })
 
-    await Effect.runPromise(createSkillLink(ctx.agentsDir, [extraDir], 'my-skill', targetDir))
+    await Effect.runPromise(
+      createSkillLink(ctx.agentsDir, [extraDir], 'my-skill', targetDir).pipe(Effect.provide(NodeServices.layer)),
+    )
 
     const primaryLink = NodePath.join(getSkillsDir(ctx.agentsDir), 'my-skill')
     const extraLink = NodePath.join(extraDir, 'my-skill')
 
-    const primaryStat = await Fs.lstat(primaryLink)
-    expect(primaryStat.isSymbolicLink()).toBe(true)
-    const extraStat = await Fs.lstat(extraLink)
-    expect(extraStat.isSymbolicLink()).toBe(true)
+    expect(
+      await Fs.lstat(primaryLink).then(
+        (stat) => stat.isSymbolicLink(),
+        () => false,
+      ),
+    ).toBe(true)
+    expect(
+      await Fs.lstat(extraLink).then(
+        (stat) => stat.isSymbolicLink(),
+        () => false,
+      ),
+    ).toBe(true)
   })
 
   test('overwrites existing symlink without error', async () => {
@@ -56,12 +73,20 @@ describe('createSkillLink', () => {
     await Fs.mkdir(targetDir1, { recursive: true })
     await Fs.mkdir(targetDir2, { recursive: true })
 
-    await Effect.runPromise(createSkillLink(ctx.agentsDir, [], 'my-skill', targetDir1))
-    await Effect.runPromise(createSkillLink(ctx.agentsDir, [], 'my-skill', targetDir2))
+    await Effect.runPromise(
+      createSkillLink(ctx.agentsDir, [], 'my-skill', targetDir1).pipe(Effect.provide(NodeServices.layer)),
+    )
+    await Effect.runPromise(
+      createSkillLink(ctx.agentsDir, [], 'my-skill', targetDir2).pipe(Effect.provide(NodeServices.layer)),
+    )
 
     const linkPath = NodePath.join(getSkillsDir(ctx.agentsDir), 'my-skill')
-    const stat = await Fs.lstat(linkPath)
-    expect(stat.isSymbolicLink()).toBe(true)
+    expect(
+      await Fs.lstat(linkPath).then(
+        (stat) => stat.isSymbolicLink(),
+        () => false,
+      ),
+    ).toBe(true)
   })
 })
 
@@ -70,15 +95,24 @@ describe('removeSkillLink', () => {
     const targetDir = NodePath.join(ctx.agentsDir, 'target')
     await Fs.mkdir(targetDir, { recursive: true })
 
-    await Effect.runPromise(createSkillLink(ctx.agentsDir, [], 'my-skill', targetDir))
-    await Effect.runPromise(removeSkillLink(ctx.agentsDir, [], 'my-skill'))
+    await Effect.runPromise(
+      createSkillLink(ctx.agentsDir, [], 'my-skill', targetDir).pipe(Effect.provide(NodeServices.layer)),
+    )
+    await Effect.runPromise(removeSkillLink(ctx.agentsDir, [], 'my-skill').pipe(Effect.provide(NodeServices.layer)))
 
     const linkPath = NodePath.join(getSkillsDir(ctx.agentsDir), 'my-skill')
-    await expect(Fs.lstat(linkPath)).rejects.toThrow()
+    expect(
+      await Fs.access(linkPath).then(
+        () => true,
+        () => false,
+      ),
+    ).toBe(false)
   })
 
   test('does not throw when symlink does not exist', async () => {
-    await expect(Effect.runPromise(removeSkillLink(ctx.agentsDir, [], 'nonexistent'))).resolves.toBeUndefined()
+    await expect(
+      Effect.runPromise(removeSkillLink(ctx.agentsDir, [], 'nonexistent').pipe(Effect.provide(NodeServices.layer))),
+    ).resolves.toBeUndefined()
   })
 })
 
@@ -89,15 +123,26 @@ describe('removeSkillLinkFromDirs', () => {
 
     const extraDir = NodePath.join(ctx.agentsDir, 'extra-skills')
 
-    await Effect.runPromise(createSkillLink(ctx.agentsDir, [extraDir], 'my-skill', targetDir))
-    await Effect.runPromise(removeSkillLinkFromDirs([extraDir], 'my-skill'))
+    await Effect.runPromise(
+      createSkillLink(ctx.agentsDir, [extraDir], 'my-skill', targetDir).pipe(Effect.provide(NodeServices.layer)),
+    )
+    await Effect.runPromise(removeSkillLinkFromDirs([extraDir], 'my-skill').pipe(Effect.provide(NodeServices.layer)))
 
     const primaryLink = NodePath.join(getSkillsDir(ctx.agentsDir), 'my-skill')
     const extraLink = NodePath.join(extraDir, 'my-skill')
 
-    const primaryStat = await Fs.lstat(primaryLink)
-    expect(primaryStat.isSymbolicLink()).toBe(true)
-    await expect(Fs.lstat(extraLink)).rejects.toThrow()
+    expect(
+      await Fs.lstat(primaryLink).then(
+        (stat) => stat.isSymbolicLink(),
+        () => false,
+      ),
+    ).toBe(true)
+    expect(
+      await Fs.access(extraLink).then(
+        () => true,
+        () => false,
+      ),
+    ).toBe(false)
   })
 })
 
@@ -106,10 +151,14 @@ describe('listSkillLinks', () => {
     const targetDir = NodePath.join(ctx.agentsDir, 'target')
     await Fs.mkdir(targetDir, { recursive: true })
 
-    await Effect.runPromise(createSkillLink(ctx.agentsDir, [], 'skill-a', targetDir))
-    await Effect.runPromise(createSkillLink(ctx.agentsDir, [], 'skill-b', targetDir))
+    await Effect.runPromise(
+      createSkillLink(ctx.agentsDir, [], 'skill-a', targetDir).pipe(Effect.provide(NodeServices.layer)),
+    )
+    await Effect.runPromise(
+      createSkillLink(ctx.agentsDir, [], 'skill-b', targetDir).pipe(Effect.provide(NodeServices.layer)),
+    )
 
-    const links = await Effect.runPromise(listSkillLinks(ctx.agentsDir))
+    const links = await Effect.runPromise(listSkillLinks(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect([...links].toSorted()).toStrictEqual(['skill-a', 'skill-b'])
   })
 
@@ -117,18 +166,20 @@ describe('listSkillLinks', () => {
     const targetDir = NodePath.join(ctx.agentsDir, 'target')
     await Fs.mkdir(targetDir, { recursive: true })
 
-    await Effect.runPromise(createSkillLink(ctx.agentsDir, [], 'skill-a', targetDir))
+    await Effect.runPromise(
+      createSkillLink(ctx.agentsDir, [], 'skill-a', targetDir).pipe(Effect.provide(NodeServices.layer)),
+    )
 
     const regularFile = NodePath.join(getSkillsDir(ctx.agentsDir), 'not-a-link')
     await Fs.writeFile(regularFile, '', 'utf-8')
 
-    const links = await Effect.runPromise(listSkillLinks(ctx.agentsDir))
+    const links = await Effect.runPromise(listSkillLinks(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect([...links]).toStrictEqual(['skill-a'])
   })
 
   test('returns empty array when skills directory does not exist', async () => {
     await Fs.rm(getSkillsDir(ctx.agentsDir), { force: true, recursive: true })
-    const links = await Effect.runPromise(listSkillLinks(ctx.agentsDir))
+    const links = await Effect.runPromise(listSkillLinks(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect([...links]).toStrictEqual([])
   })
 })

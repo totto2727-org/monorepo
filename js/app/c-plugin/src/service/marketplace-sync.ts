@@ -1,7 +1,4 @@
-import * as Fs from 'node:fs/promises'
-import * as NodePath from 'node:path'
-
-import { Effect, Schema, String } from 'effect'
+import { Effect, FileSystem, Schema, String } from 'effect'
 
 import { parseJson } from '#@/lib/json.ts'
 import type { MarketplaceKind } from '#@/schema/marketplace-kind.ts'
@@ -20,14 +17,17 @@ const decodeClaudeCursor = Schema.decodeUnknownEffect(Marketplace)
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (file content)
 const decodeCodex = Schema.decodeUnknownEffect(CodexMarketplace)
 
-const readBaseMarketplace = (repoDir: string, baseKind: MarketplaceKind): Effect.Effect<ParsedMarketplace, Error> =>
+const readBaseMarketplace = (
+  repoDir: string,
+  baseKind: MarketplaceKind,
+): Effect.Effect<ParsedMarketplace, Error, FileSystem.FileSystem> =>
   Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
     const config = getKindConfig(baseKind)
-    const marketplacePath = NodePath.join(repoDir, config.marketplacePath)
-    const raw = yield* Effect.tryPromise({
-      catch: () => new Error(`marketplace.json not found at ${marketplacePath}`),
-      try: () => Fs.readFile(marketplacePath, 'utf-8'),
-    })
+    const marketplacePath = `${repoDir}/${config.marketplacePath}`
+    const raw = yield* fs
+      .readFileString(marketplacePath)
+      .pipe(Effect.mapError(() => new Error(`marketplace.json not found at ${marketplacePath}`)))
     const parsed = parseJson(raw)
 
     if (baseKind === 'codex') {
@@ -39,7 +39,7 @@ const readBaseMarketplace = (repoDir: string, baseKind: MarketplaceKind): Effect
         plugins: marketplace.plugins.map((p) => ({
           description: p.description,
           name: p.name,
-          source: p.source.path.replace(/^\.\//, ''),
+          source: p.source.path.replace(/^\.\//u, ''),
         })),
         raw: parsed,
       }
@@ -81,31 +81,27 @@ const toCodexFormat = (marketplace: ParsedMarketplace): unknown => ({
 const formatForKind = (marketplace: ParsedMarketplace, targetKind: MarketplaceKind): unknown =>
   targetKind === 'codex' ? toCodexFormat(marketplace) : toClaudeCursorFormat(marketplace)
 
-const writeJson = (filePath: string, data: unknown): Effect.Effect<void> =>
-  Effect.tryPromise({
-    catch: (e: unknown) => e,
-    try: async () => {
-      await Fs.mkdir(NodePath.dirname(filePath), { recursive: true })
-      await Fs.writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`, 'utf-8')
-    },
-  }).pipe(Effect.ignore)
+const writeJson = (filePath: string, data: unknown): Effect.Effect<void, never, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    yield* fs.makeDirectory(filePath.slice(0, filePath.lastIndexOf('/')), { recursive: true }).pipe(Effect.ignore)
+    yield* fs.writeFileString(filePath, `${JSON.stringify(data, null, 2)}\n`).pipe(Effect.ignore)
+  })
 
 const syncPluginJson = (
   repoDir: string,
   baseKind: MarketplaceKind,
   targetKind: MarketplaceKind,
   pluginSource: string,
-): Effect.Effect<void> =>
+): Effect.Effect<void, never, FileSystem.FileSystem> =>
   Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
     const baseConfig = getKindConfig(baseKind)
     const targetConfig = getKindConfig(targetKind)
-    const basePluginJsonPath = NodePath.join(repoDir, pluginSource, baseConfig.configDir, 'plugin.json')
-    const targetPluginJsonPath = NodePath.join(repoDir, pluginSource, targetConfig.configDir, 'plugin.json')
+    const basePluginJsonPath = `${repoDir}/${pluginSource}/${baseConfig.configDir}/plugin.json`
+    const targetPluginJsonPath = `${repoDir}/${pluginSource}/${targetConfig.configDir}/plugin.json`
 
-    const raw = yield* Effect.tryPromise({
-      catch: () => new Error(`plugin.json not found at ${basePluginJsonPath}`),
-      try: () => Fs.readFile(basePluginJsonPath, 'utf-8'),
-    }).pipe(Effect.orElseSucceed(() => ''))
+    const raw = yield* fs.readFileString(basePluginJsonPath).pipe(Effect.orElseSucceed(() => ''))
 
     if (String.isNonEmpty(raw)) {
       const parsed = parseJson(raw)
@@ -113,14 +109,17 @@ const syncPluginJson = (
     }
   })
 
-export const syncMarketplace = (repoDir: string, baseKind: MarketplaceKind): Effect.Effect<void, Error> =>
+export const syncMarketplace = (
+  repoDir: string,
+  baseKind: MarketplaceKind,
+): Effect.Effect<void, Error, FileSystem.FileSystem> =>
   Effect.gen(function* () {
     const marketplace = yield* readBaseMarketplace(repoDir, baseKind)
     const targetKinds = allKinds.filter((k) => k !== baseKind)
 
     for (const targetKind of targetKinds) {
       const targetConfig = getKindConfig(targetKind)
-      const targetMarketplacePath = NodePath.join(repoDir, targetConfig.marketplacePath)
+      const targetMarketplacePath = `${repoDir}/${targetConfig.marketplacePath}`
 
       yield* Effect.log(`Generating ${targetKind} marketplace...`)
       const formatted = formatForKind(marketplace, targetKind)

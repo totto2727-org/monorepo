@@ -1,28 +1,40 @@
-import * as Fs from 'node:fs/promises'
-
-import { Data, Effect, Schema } from 'effect'
+import type { TaggedErrorBaseType } from '@totto2727/fp/error'
+import { Data, Effect, FileSystem, Schema } from 'effect'
 
 import { parseJson } from '#@/lib/json.ts'
 import { getLockFilePath } from '#@/lib/paths.ts'
 import { LockFile as LockFileSchema, emptyLockFile } from '#@/schema/lock-file.ts'
 import type { LockFile } from '#@/schema/lock-file.ts'
 
-export class LockFileCorruptError extends Data.TaggedError('LockFileCorruptError')<{
-  readonly path: string
-  readonly cause: unknown
-}> {}
+export class LockFileCorruptError extends Data.TaggedError('LockFileCorruptError')<
+  TaggedErrorBaseType & {
+    readonly path: string
+  }
+> {}
 
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- input is unknown (file content)
 const decode = Schema.decodeUnknownEffect(LockFileSchema)
 
-export const read = (agentsDir: string): Effect.Effect<LockFile, LockFileCorruptError> =>
-  Effect.tryPromise({
-    catch: () => new LockFileCorruptError({ cause: 'file not found', path: getLockFilePath(agentsDir) }),
-    try: () => Fs.readFile(getLockFilePath(agentsDir), 'utf-8'),
+export const read = (agentsDir: string): Effect.Effect<LockFile, LockFileCorruptError, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    return yield* fs.readFileString(getLockFilePath(agentsDir)).pipe(
+      Effect.mapError(
+        (cause) =>
+          new LockFileCorruptError({
+            error: cause,
+            path: getLockFilePath(agentsDir),
+          }),
+      ),
+    )
   }).pipe(
     Effect.flatMap((content) =>
       Effect.try({
-        catch: (cause) => new LockFileCorruptError({ cause, path: getLockFilePath(agentsDir) }),
+        catch: (cause) =>
+          new LockFileCorruptError({
+            error: cause,
+            path: getLockFilePath(agentsDir),
+          }),
         try: () => parseJson(content),
       }).pipe(
         Effect.flatMap((parsed) =>
@@ -30,7 +42,7 @@ export const read = (agentsDir: string): Effect.Effect<LockFile, LockFileCorrupt
             Effect.mapError(
               (cause) =>
                 new LockFileCorruptError({
-                  cause,
+                  error: cause,
                   path: getLockFilePath(agentsDir),
                 }),
             ),
@@ -41,14 +53,12 @@ export const read = (agentsDir: string): Effect.Effect<LockFile, LockFileCorrupt
     Effect.orElseSucceed(() => emptyLockFile),
   )
 
-export const write = (agentsDir: string, lockFile: LockFile): Effect.Effect<void> =>
-  Effect.tryPromise({
-    catch: (e: unknown) => e,
-    try: async () => {
-      const path = getLockFilePath(agentsDir)
-      const tmpPath = `${path}.tmp`
-      const content = JSON.stringify(lockFile, null, '\t')
-      await Fs.writeFile(tmpPath, `${content}\n`, 'utf-8')
-      await Fs.rename(tmpPath, path)
-    },
-  }).pipe(Effect.ignore)
+export const write = (agentsDir: string, lockFile: LockFile): Effect.Effect<void, never, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const path = getLockFilePath(agentsDir)
+    const tmpPath = `${path}.tmp`
+    const content = JSON.stringify(lockFile, null, '\t')
+    yield* fs.writeFileString(tmpPath, `${content}\n`).pipe(Effect.ignore)
+    yield* fs.rename(tmpPath, path).pipe(Effect.ignore)
+  })

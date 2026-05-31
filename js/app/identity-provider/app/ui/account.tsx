@@ -1,0 +1,31 @@
+import { css } from 'remix/ui'
+import type { Handle } from 'remix/ui'
+
+import { LogoutButton } from '#@/ui/account.client.tsx'
+
+const containerStyle = css({
+  margin: '40px auto',
+  maxWidth: '400px',
+  padding: '0 16px',
+})
+
+interface AccountPageProps {
+  email: string
+  createdAt: string
+}
+
+export const AccountPage = (handle: Handle<AccountPageProps>) => () => (
+  <main mix={containerStyle}>
+    <h1>アカウント</h1>
+    <p>
+      <strong>メール:</strong> {handle.props.email}
+    </p>
+    <p>
+      <strong>作成日:</strong> {handle.props.createdAt}
+    </p>
+    <p>
+      <a href='/app/register/passkey'>Passkey を登録</a>
+    </p>
+    <LogoutButton />
+  </main>
+)

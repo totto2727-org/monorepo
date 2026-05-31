@@ -38,7 +38,7 @@ const makeSend =
         Effect.mapError(
           (cause) =>
             new Sender.EmailSendError({
-              message: cause instanceof Error ? cause.message : String(cause),
+              error: cause,
             }),
         ),
       )

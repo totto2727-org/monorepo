@@ -30,6 +30,7 @@ const makeInstance = (db: DB.Instance, env: Env.Type, emailSender: EmailSender.E
       }),
       magicLink({
         sendMagicLink: ({ email, url }) =>
+          // oxlint-disable-next-line rules/no-effect-runtime-run -- better-auth callback requires a Promise boundary for the email sending Effect.
           Effect.runPromise(
             emailSender.send({
               subject: 'Login link',
@@ -40,8 +41,10 @@ const makeInstance = (db: DB.Instance, env: Env.Type, emailSender: EmailSender.E
       }),
       oauthProvider({
         cachedTrustedClients: new Set(['feed-platform-web']),
-        consentPage: '/oauth/consent',
-        loginPage: '/login',
+        consentPage: '/app/oauth/consent',
+        idTokenExpiresIn: 3600,
+        loginPage: '/app/login',
+        refreshTokenExpiresIn: 2_592_000,
         schema: {
           oauthAccessToken: {
             fields: {
@@ -59,7 +62,8 @@ const makeInstance = (db: DB.Instance, env: Env.Type, emailSender: EmailSender.E
             modelName: 'oauth_consent',
           },
         },
-        scopes: ['openid', 'profile', 'email'],
+        scopes: ['openid', 'profile', 'email', 'offline_access'],
+        validAudiences: env.OAUTH_VALID_AUDIENCES.split(','),
       }),
       jwt({
         jwks: { keyPairConfig: { alg: 'ES256' } },

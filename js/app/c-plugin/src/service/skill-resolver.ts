@@ -1,8 +1,4 @@
-import type { Dirent } from 'node:fs'
-import * as Fs from 'node:fs/promises'
-import * as NodePath from 'node:path'
-
-import { Effect, Schema } from 'effect'
+import { Effect, FileSystem, Schema } from 'effect'
 
 import { parseJson } from '#@/lib/json.ts'
 import type { MarketplaceKind } from '#@/schema/marketplace-kind.ts'
@@ -33,7 +29,7 @@ const parseMarketplace = (
           m.plugins.map((p) => ({
             description: p.description,
             name: p.name,
-            source: p.source.path.replace(/^\.\//, ''),
+            source: p.source.path.replace(/^\.\//u, ''),
           })),
         ),
         Effect.mapError(() => new Error(`Invalid Codex marketplace.json at ${path}`)),
@@ -49,35 +45,32 @@ const parseMarketplace = (
         Effect.mapError(() => new Error(`Invalid marketplace.json at ${path}`)),
       )
 
-const resolvePluginSkills = (repoDir: string, plugin: NormalizedPlugin): Effect.Effect<ResolvedSkill[], Error> =>
+const resolvePluginSkills = (
+  repoDir: string,
+  plugin: NormalizedPlugin,
+): Effect.Effect<ResolvedSkill[], Error, FileSystem.FileSystem> =>
   Effect.gen(function* () {
-    const pluginDir = NodePath.resolve(repoDir, plugin.source)
-    const skillsDir = NodePath.join(pluginDir, 'skills')
-    const entries: Dirent[] = yield* Effect.tryPromise({
-      catch: () => new Error(`Cannot read skills directory: ${skillsDir}`),
-      try: () => Fs.readdir(skillsDir, { withFileTypes: true }),
-    }).pipe(Effect.orElseSucceed((): Dirent[] => []))
+    const fs = yield* FileSystem.FileSystem
+    const pluginDir = `${repoDir}/${plugin.source}`
+    const skillsDir = `${pluginDir}/skills`
+    const entries = yield* fs.readDirectory(skillsDir).pipe(Effect.orElseSucceed(() => [] as readonly string[]))
 
     const skills: ResolvedSkill[] = []
 
     for (const entry of entries) {
-      if (!entry.isDirectory()) {
+      const skillPath = `${skillsDir}/${entry}`
+      const stat = yield* fs.stat(skillPath).pipe(Effect.orElseSucceed(() => null))
+      if (stat?.type !== 'Directory') {
         continue
       }
-      const skillMdPath = NodePath.join(skillsDir, entry.name, 'SKILL.md')
-      const exists: boolean = yield* Effect.tryPromise({
-        catch: () => new Error('access failed'),
-        try: async () => {
-          await Fs.access(skillMdPath)
-          return true
-        },
-      }).pipe(Effect.orElseSucceed(() => false))
+      const skillMdPath = `${skillPath}/SKILL.md`
+      const exists = yield* fs.exists(skillMdPath).pipe(Effect.orElseSucceed(() => false))
       if (exists) {
         skills.push({
           pluginName: plugin.name,
           pluginPath: plugin.source,
-          skillName: entry.name,
-          skillPath: NodePath.join(skillsDir, entry.name),
+          skillName: entry,
+          skillPath,
         })
       }
     }
@@ -88,14 +81,14 @@ const resolvePluginSkills = (repoDir: string, plugin: NormalizedPlugin): Effect.
 export const resolveFromRepo = (
   repoDir: string,
   kind: MarketplaceKind,
-): Effect.Effect<readonly ResolvedSkill[], Error> =>
+): Effect.Effect<readonly ResolvedSkill[], Error, FileSystem.FileSystem> =>
   Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
     const config = getKindConfig(kind)
-    const marketplacePath = NodePath.join(repoDir, config.marketplacePath)
-    const raw = yield* Effect.tryPromise({
-      catch: () => new Error(`marketplace.json not found at ${marketplacePath}`),
-      try: () => Fs.readFile(marketplacePath, 'utf-8'),
-    })
+    const marketplacePath = `${repoDir}/${config.marketplacePath}`
+    const raw = yield* fs
+      .readFileString(marketplacePath)
+      .pipe(Effect.mapError(() => new Error(`marketplace.json not found at ${marketplacePath}`)))
     const plugins = yield* parseMarketplace(parseJson(raw), kind, marketplacePath)
 
     const results: ResolvedSkill[] = []
@@ -107,19 +100,16 @@ export const resolveFromRepo = (
     return results
   })
 
-export const detectAvailableKinds = (repoDir: string): Effect.Effect<readonly MarketplaceKind[]> =>
+export const detectAvailableKinds = (
+  repoDir: string,
+): Effect.Effect<readonly MarketplaceKind[], never, FileSystem.FileSystem> =>
   Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
     const available: MarketplaceKind[] = []
     for (const kind of allKinds) {
       const config = getKindConfig(kind)
-      const marketplacePath = NodePath.join(repoDir, config.marketplacePath)
-      const exists: boolean = yield* Effect.tryPromise({
-        catch: () => new Error('access failed'),
-        try: async () => {
-          await Fs.access(marketplacePath)
-          return true
-        },
-      }).pipe(Effect.orElseSucceed(() => false))
+      const marketplacePath = `${repoDir}/${config.marketplacePath}`
+      const exists = yield* fs.exists(marketplacePath).pipe(Effect.orElseSucceed(() => false))
       if (exists) {
         available.push(kind)
       }

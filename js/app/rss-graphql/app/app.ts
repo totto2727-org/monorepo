@@ -20,12 +20,12 @@ interface AppEnv {
 const app = new Hono<AppEnv>()
   .use(logger())
   .use(cors())
-  .use(async (c, next) => {
-    c.set('runtime', runtime)
+  .use(async (ctx, next) => {
+    ctx.set('runtime', runtime)
     await next()
   })
-  .get('/', (c) =>
-    c.html(
+  .get('/', (ctx) =>
+    ctx.html(
       `
 <!DOCTYPE html>
 <html lang="en">
@@ -35,7 +35,7 @@ const app = new Hono<AppEnv>()
     <title>GraphQL API Information</title>
 </head>
 <body>
-    <p>API Endpoint: <code>${new URL('/api/graphql', c.req.url).toString()}</code></p>
+    <p>API Endpoint: <code>${new URL('/api/graphql', ctx.req.url).toString()}</code></p>
     <p>Schema: <a href="/api/graphql/schema">/api/graphql/schema</a></p>
     <p>GraphiQL: <a href="/api/graphql">/api/graphql</a></p>
 </body>
@@ -43,7 +43,7 @@ const app = new Hono<AppEnv>()
 `.trim(),
     ),
   )
-  .get('/api/graphql/schema', (c) => c.text(toFormattedString(schema)))
+  .get('/api/graphql/schema', (ctx) => ctx.text(toFormattedString(schema)))
   .use(
     '/api/graphql',
     graphqlServer({

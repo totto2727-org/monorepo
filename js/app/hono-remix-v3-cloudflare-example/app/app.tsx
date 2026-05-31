@@ -17,15 +17,15 @@ app
       fetcher: (input) => Promise.resolve(app.fetch(input instanceof Request ? input : new Request(input))),
     }),
   )
-  .get('/', (c) =>
-    c.render(
+  .get('/', (ctx) =>
+    ctx.render(
       <PageOrFrame title='Counter'>
         <h1>Counter</h1>
       </PageOrFrame>,
     ),
   )
-  .get('/todo', (c) =>
-    c.render(
+  .get('/todo', (ctx) =>
+    ctx.render(
       <PageOrFrame title='TODO'>
         <h1>TODO</h1>
         <Todo />

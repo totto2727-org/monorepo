@@ -1,14 +1,14 @@
 import { NodeServices } from '@effect/platform-node'
-import { Effect, Predicate, String } from 'effect'
+import { Effect, Path, Predicate, String } from 'effect'
 import { Hono } from 'hono'
 import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
 import type { RemixNode } from 'remix/ui'
 import { renderToStream } from 'remix/ui/server'
 
+import type { Milestone, RoadmapProgress } from '#@/feature/schema/current.ts'
 import type { Worktree } from '#@/lib/git.ts'
-import { listRoadmapsAcrossWorktrees } from '#@/lib/progress.ts'
-import type { Milestone, RoadmapProgress } from '#@/schema/progress.ts'
+import { listRoadmaps } from '#@/lib/progress.ts'
 
 import { Document } from './ui/document.tsx'
 import { Kanban } from './ui/kanban.tsx'
@@ -48,6 +48,13 @@ const milestoneContentKey = (m: Milestone): string =>
     notes: m.notes,
     prs: [...m.prs],
     status: m.status,
+    tasks: m.tasks.map((t) => ({
+      id: t.id,
+      notes: t.notes,
+      prs: [...t.prs],
+      status: t.status,
+      title: t.title,
+    })),
     title: m.title,
   })
 
@@ -87,6 +94,13 @@ const buildRoadmapData = (raws: readonly RawRoadmap[]): KanbanRoadmap[] => {
         notes: sample.notes,
         prs: sample.prs,
         status: sample.status satisfies MilestoneStatus,
+        tasks: sample.tasks.map((t) => ({
+          id: t.id,
+          notes: t.notes,
+          prs: t.prs,
+          status: t.status satisfies MilestoneStatus,
+          title: t.title,
+        })),
         title: sample.title,
         worktreeIds: wids,
       })
@@ -102,8 +116,19 @@ interface LoadedData {
 }
 
 const loadData = (worktrees: readonly Worktree[], relativeDir: string): Promise<LoadedData> =>
+  // oxlint-disable-next-line rules/no-effect-runtime-run -- Remix loader helper returns Promise data at the framework boundary.
   Effect.runPromise(
-    listRoadmapsAcrossWorktrees(worktrees, relativeDir).pipe(
+    Effect.gen(function* () {
+      const path = yield* Path.Path
+      const noRoadmaps: readonly RoadmapProgress[] = []
+      // oxlint-disable-next-line unicorn/no-array-method-this-argument -- Effect.forEach, not Array.forEach
+      return yield* Effect.forEach(worktrees, (worktree) =>
+        listRoadmaps(path.join(worktree.path, relativeDir)).pipe(
+          Effect.catchTag('ProgressDirNotFoundError', () => Effect.succeed(noRoadmaps)),
+          Effect.map((roadmaps) => ({ roadmaps, worktree })),
+        ),
+      )
+    }).pipe(
       Effect.map((wrs) => {
         const raws: RawRoadmap[] = []
         for (const { roadmaps, worktree } of wrs) {
@@ -116,12 +141,6 @@ const loadData = (worktrees: readonly Worktree[], relativeDir: string): Promise<
           worktrees: buildWorktreeViews(worktrees),
         } satisfies LoadedData
       }),
-      Effect.orElseSucceed(
-        (): LoadedData => ({
-          roadmaps: [],
-          worktrees: buildWorktreeViews(worktrees),
-        }),
-      ),
       Effect.provide(NodeServices.layer),
     ),
   )
@@ -147,10 +166,10 @@ export const createApp = (options: AppOptions): Hono => {
   app
     .use(logger())
     .use(contextStorage())
-    .get('/', async (c) => {
+    .get('/', async (ctx) => {
       const data = await loadData(options.worktrees, options.relativeDir)
-      const showRoadmaps = parseFilter(c.req.query('roadmaps'))
-      const showWorktrees = parseFilter(c.req.query('worktrees'))
+      const showRoadmaps = parseFilter(ctx.req.query('roadmaps'))
+      const showWorktrees = parseFilter(ctx.req.query('worktrees'))
 
       return renderRemix(
         <Document title='Roadmap Kanban'>
@@ -161,7 +180,7 @@ export const createApp = (options: AppOptions): Hono => {
             worktrees={data.worktrees}
           />
         </Document>,
-        c.req.url,
+        ctx.req.url,
       )
     })
 

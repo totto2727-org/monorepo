@@ -1,7 +1,4 @@
-import { mkdir } from 'node:fs/promises'
-import { basename, join } from 'node:path'
-
-import { Effect } from 'effect'
+import { Effect, FileSystem, Path } from 'effect'
 import { Command, Flag } from 'effect/unstable/cli'
 
 import { applyWaitUntil, loadConfig, resolveInput } from '#@/lib/config.ts'
@@ -31,20 +28,20 @@ export const snapshotCommand = Command.make(
       const body = flags.fullPage ? { ...bodyWithWait, screenshotOptions: { fullPage: true } } : bodyWithWait
       const result = yield* ApiClient.snapshot(auth, body)
 
-      const base = flags.output.replace(/\/$/, '')
-      const name = basename(base)
+      const base = flags.output.replace(/\/$/u, '')
+      const path = yield* Path.Path
+      const name = path.basename(base)
       const dir = base
 
-      yield* Effect.tryPromise({
-        catch: (error) =>
-          new Output.OutputError({ message: error instanceof Error ? error.message : String(error), path: dir }),
-        try: () => mkdir(dir, { recursive: true }),
-      })
+      const fs = yield* FileSystem.FileSystem
+      yield* fs
+        .makeDirectory(dir, { recursive: true })
+        .pipe(Effect.mapError((error) => new Output.OutputError({ error, path: dir })))
 
       const screenshotBuf = Buffer.from(result.screenshot, 'base64')
       yield* Effect.all([
-        Output.writeFile(join(dir, `${name}.png`), new Uint8Array(screenshotBuf)),
-        Output.writeText(join(dir, `${name}.html`), result.content),
+        Output.writeFile(path.join(dir, `${name}.png`), new Uint8Array(screenshotBuf)),
+        Output.writeText(path.join(dir, `${name}.html`), result.content),
       ])
       yield* Effect.log(`Snapshot saved to ${dir}/`)
     }),

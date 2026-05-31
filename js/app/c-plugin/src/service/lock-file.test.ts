@@ -1,6 +1,7 @@
 import * as Fs from 'node:fs/promises'
 import * as NodePath from 'node:path'
 
+import { NodeServices } from '@effect/platform-node'
 import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 
@@ -23,7 +24,7 @@ afterEach(async () => {
 
 describe('read', () => {
   test('returns emptyLockFile when file does not exist', async () => {
-    const result = await Effect.runPromise(read(ctx.agentsDir))
+    const result = await Effect.runPromise(read(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect(result).toStrictEqual(emptyLockFile)
   })
 
@@ -52,7 +53,7 @@ describe('read', () => {
     await Fs.mkdir(NodePath.dirname(filePath), { recursive: true })
     await Fs.writeFile(filePath, JSON.stringify(lockFile, null, '\t'), 'utf-8')
 
-    const result = await Effect.runPromise(read(ctx.agentsDir))
+    const result = await Effect.runPromise(read(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect(result).toStrictEqual(lockFile)
   })
 
@@ -61,7 +62,7 @@ describe('read', () => {
     await Fs.mkdir(NodePath.dirname(filePath), { recursive: true })
     await Fs.writeFile(filePath, '{ invalid json }}}', 'utf-8')
 
-    const result = await Effect.runPromise(read(ctx.agentsDir))
+    const result = await Effect.runPromise(read(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect(result).toStrictEqual(emptyLockFile)
   })
 
@@ -70,7 +71,7 @@ describe('read', () => {
     await Fs.mkdir(NodePath.dirname(filePath), { recursive: true })
     await Fs.writeFile(filePath, JSON.stringify({ invalid: true, version: 99 }), 'utf-8')
 
-    const result = await Effect.runPromise(read(ctx.agentsDir))
+    const result = await Effect.runPromise(read(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect(result).toStrictEqual(emptyLockFile)
   })
 })
@@ -97,19 +98,24 @@ describe('write', () => {
       version: 1,
     }
 
-    await Effect.runPromise(write(ctx.agentsDir, lockFile))
-    const result = await Effect.runPromise(read(ctx.agentsDir))
+    await Effect.runPromise(write(ctx.agentsDir, lockFile).pipe(Effect.provide(NodeServices.layer)))
+    const result = await Effect.runPromise(read(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect(result).toStrictEqual(lockFile)
   })
 
   test('does not leave .tmp file after write', async () => {
     const lockFile: LockFile = { ...emptyLockFile }
 
-    await Effect.runPromise(write(ctx.agentsDir, lockFile))
+    await Effect.runPromise(write(ctx.agentsDir, lockFile).pipe(Effect.provide(NodeServices.layer)))
 
     const filePath = getLockFilePath(ctx.agentsDir)
     const tmpPath = `${filePath}.tmp`
 
-    await expect(Fs.access(tmpPath)).rejects.toThrow()
+    expect(
+      await Fs.access(tmpPath).then(
+        () => true,
+        () => false,
+      ),
+    ).toBe(false)
   })
 })

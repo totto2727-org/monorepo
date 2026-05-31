@@ -1,22 +1,22 @@
-import { writeFile as fsWriteFile } from 'node:fs/promises'
+import type { TaggedErrorBaseType } from '@totto2727/fp/error'
+import { Console, Data, Effect, FileSystem } from 'effect'
 
-import { Console, Data, Effect } from 'effect'
+export class OutputError extends Data.TaggedError('OutputError')<
+  TaggedErrorBaseType & {
+    readonly path: string
+  }
+> {}
 
-export class OutputError extends Data.TaggedError('OutputError')<{
-  readonly path: string
-  readonly message: string
-}> {}
-
-export const writeFile = (path: string, data: Uint8Array): Effect.Effect<void, OutputError> =>
-  Effect.tryPromise({
-    catch: (error) => new OutputError({ message: error instanceof Error ? error.message : String(error), path }),
-    try: () => fsWriteFile(path, data),
+export const writeFile = (path: string, data: Uint8Array): Effect.Effect<void, OutputError, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    return yield* fs.writeFile(path, data).pipe(Effect.mapError((error) => new OutputError({ error, path })))
   })
 
-export const writeText = (path: string, text: string): Effect.Effect<void, OutputError> =>
-  Effect.tryPromise({
-    catch: (error) => new OutputError({ message: error instanceof Error ? error.message : String(error), path }),
-    try: () => fsWriteFile(path, text, 'utf-8'),
+export const writeText = (path: string, text: string): Effect.Effect<void, OutputError, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    return yield* fs.writeFileString(path, text).pipe(Effect.mapError((error) => new OutputError({ error, path })))
   })
 
 export const printJson = (data: unknown): Effect.Effect<void> => Console.log(JSON.stringify(data, null, 2))

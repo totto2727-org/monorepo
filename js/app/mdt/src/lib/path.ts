@@ -2,7 +2,7 @@ import { Array } from 'effect'
 
 const COMPOUND_EXTENSIONS: readonly string[] = ['.mbt.md']
 
-const isLocaleSegment = (segment: string): boolean => {
+const matchesLocaleSegment = (segment: string): boolean => {
   try {
     return Array.isArrayNonEmpty(Intl.getCanonicalLocales(segment))
   } catch {
@@ -19,7 +19,7 @@ export const stripLangTag = (filePath: string): string => {
         return filePath
       }
       const tag = stem.slice(dotIndex + 1)
-      return isLocaleSegment(tag) ? stem.slice(0, dotIndex) + compound : filePath
+      return matchesLocaleSegment(tag) ? stem.slice(0, dotIndex) + compound : filePath
     }
   }
   const extIndex = filePath.lastIndexOf('.')
@@ -33,7 +33,7 @@ export const stripLangTag = (filePath: string): string => {
     return filePath
   }
   const tag = stem.slice(tagIndex + 1)
-  return isLocaleSegment(tag) ? stem.slice(0, tagIndex) + ext : filePath
+  return matchesLocaleSegment(tag) ? stem.slice(0, tagIndex) + ext : filePath
 }
 
 export const targetPath = (filePath: string, lang: string): string => {

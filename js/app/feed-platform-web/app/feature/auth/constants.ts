@@ -1,0 +1,9 @@
+export const FEED_SESSION_COOKIE = 'feed-session'
+
+export const FEED_REFRESH_COOKIE = 'feed-refresh'
+
+export const OAUTH_BASE_PATH = '/api/v1/auth/oauth'
+
+export const OAUTH_CLIENT_ID = 'feed-platform-web'
+
+export const OAUTH_SCOPES = ['openid', 'profile', 'email', 'offline_access'] as const satisfies readonly string[]

@@ -2,6 +2,7 @@ import * as Fs from 'node:fs/promises'
 import * as Os from 'node:os'
 import * as NodePath from 'node:path'
 
+import { NodeServices } from '@effect/platform-node'
 import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vite-plus/test'
 
@@ -24,46 +25,63 @@ afterEach(async () => {
 })
 
 describe('ensureDirs', () => {
-  test('creates .cache and skills directories', async () => {
-    await Effect.runPromise(ensureDirs(ctx.agentsDir))
+  test('creates cache and skills directories', async () => {
+    await Effect.runPromise(ensureDirs(ctx.agentsDir, ctx.projectRoot).pipe(Effect.provide(NodeServices.layer)))
 
-    const cacheDir = getCacheDir(ctx.agentsDir)
+    const cacheDir = getCacheDir(ctx.projectRoot)
     const skillsDir = getSkillsDir(ctx.agentsDir)
 
-    const cacheStat = await Fs.stat(cacheDir)
-    const skillsStat = await Fs.stat(skillsDir)
-
-    expect(cacheStat.isDirectory()).toBe(true)
-    expect(skillsStat.isDirectory()).toBe(true)
+    expect(
+      await Fs.stat(cacheDir).then(
+        (stat) => stat.isDirectory(),
+        () => false,
+      ),
+    ).toBe(true)
+    expect(
+      await Fs.stat(skillsDir).then(
+        (stat) => stat.isDirectory(),
+        () => false,
+      ),
+    ).toBe(true)
   })
 
   test('succeeds when directories already exist', async () => {
-    await Effect.runPromise(ensureDirs(ctx.agentsDir))
-    await expect(Effect.runPromise(ensureDirs(ctx.agentsDir))).resolves.toBeUndefined()
+    await Effect.runPromise(ensureDirs(ctx.agentsDir, ctx.projectRoot).pipe(Effect.provide(NodeServices.layer)))
+    await expect(
+      Effect.runPromise(ensureDirs(ctx.agentsDir, ctx.projectRoot).pipe(Effect.provide(NodeServices.layer))),
+    ).resolves.toBeUndefined()
   })
 })
 
 describe('ensureRepo', () => {
   test('clones repo when not cached', async () => {
-    await Effect.runPromise(ensureDirs(ctx.agentsDir))
+    await Effect.runPromise(ensureDirs(ctx.agentsDir, ctx.projectRoot).pipe(Effect.provide(NodeServices.layer)))
 
-    const repoDir = await Effect.runPromise(ensureRepo(ctx.agentsDir, 'owner/repo'))
+    const repoDir = await Effect.runPromise(
+      ensureRepo(ctx.projectRoot, 'owner/repo').pipe(Effect.provide(NodeServices.layer)),
+    )
 
-    expect(repoDir).toBe(getRepoCacheDir(ctx.agentsDir, 'owner/repo'))
-    const stat = await Fs.stat(repoDir)
-    expect(stat.isDirectory()).toBe(true)
+    expect(repoDir).toBe(getRepoCacheDir(ctx.projectRoot, 'owner/repo'))
+    expect(
+      await Fs.stat(repoDir).then(
+        (stat) => stat.isDirectory(),
+        () => false,
+      ),
+    ).toBe(true)
   })
 
   test('returns existing directory when already cached', async () => {
-    await Effect.runPromise(ensureDirs(ctx.agentsDir))
+    await Effect.runPromise(ensureDirs(ctx.agentsDir, ctx.projectRoot).pipe(Effect.provide(NodeServices.layer)))
 
-    const repoCacheDir = getRepoCacheDir(ctx.agentsDir, 'owner/repo')
+    const repoCacheDir = getRepoCacheDir(ctx.projectRoot, 'owner/repo')
     await Fs.mkdir(repoCacheDir, { recursive: true })
 
     const markerFile = NodePath.join(repoCacheDir, 'marker.txt')
     await Fs.writeFile(markerFile, 'exists', 'utf-8')
 
-    const repoDir = await Effect.runPromise(ensureRepo(ctx.agentsDir, 'owner/repo'))
+    const repoDir = await Effect.runPromise(
+      ensureRepo(ctx.projectRoot, 'owner/repo').pipe(Effect.provide(NodeServices.layer)),
+    )
     expect(repoDir).toBe(repoCacheDir)
 
     const content = await Fs.readFile(markerFile, 'utf-8')
@@ -73,24 +91,33 @@ describe('ensureRepo', () => {
 
 describe('removeRepo', () => {
   test('removes cached repository directory', async () => {
-    await Effect.runPromise(ensureDirs(ctx.agentsDir))
+    await Effect.runPromise(ensureDirs(ctx.agentsDir, ctx.projectRoot).pipe(Effect.provide(NodeServices.layer)))
 
-    const repoCacheDir = getRepoCacheDir(ctx.agentsDir, 'owner/repo')
+    const repoCacheDir = getRepoCacheDir(ctx.projectRoot, 'owner/repo')
     await Fs.mkdir(repoCacheDir, { recursive: true })
     await Fs.writeFile(NodePath.join(repoCacheDir, 'file.txt'), 'data', 'utf-8')
 
-    await Effect.runPromise(removeRepo(ctx.agentsDir, 'owner/repo'))
-    await expect(Fs.access(repoCacheDir)).rejects.toThrow()
+    await Effect.runPromise(removeRepo(ctx.projectRoot, 'owner/repo').pipe(Effect.provide(NodeServices.layer)))
+    expect(
+      await Fs.access(repoCacheDir).then(
+        () => true,
+        () => false,
+      ),
+    ).toBe(false)
   })
 
   test('does not throw when directory does not exist', async () => {
-    await expect(Effect.runPromise(removeRepo(ctx.agentsDir, 'nonexistent/repo'))).resolves.toBeUndefined()
+    await expect(
+      Effect.runPromise(removeRepo(ctx.projectRoot, 'nonexistent/repo').pipe(Effect.provide(NodeServices.layer))),
+    ).resolves.toBeUndefined()
   })
 })
 
 describe('ensureLocalPath', () => {
   test('resolves ~ to home directory when it exists', async () => {
-    const resolved = await Effect.runPromise(ensureLocalPath('~', ctx.agentsDir))
+    const resolved = await Effect.runPromise(
+      ensureLocalPath('~', ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)),
+    )
     expect(resolved).toBe(Os.homedir())
   })
 
@@ -98,13 +125,15 @@ describe('ensureLocalPath', () => {
     const targetDir = NodePath.join(ctx.agentsDir, 'some', 'path')
     await Fs.mkdir(targetDir, { recursive: true })
 
-    const resolved = await Effect.runPromise(ensureLocalPath('./some/path', ctx.agentsDir))
+    const resolved = await Effect.runPromise(
+      ensureLocalPath('./some/path', ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)),
+    )
     expect(resolved).toBe(targetDir)
   })
 
   test('fails with descriptive Error when path does not exist', async () => {
-    await expect(Effect.runPromise(ensureLocalPath('./nonexistent', ctx.agentsDir))).rejects.toThrow(
-      /Local path does not exist/,
-    )
+    await expect(
+      Effect.runPromise(ensureLocalPath('./nonexistent', ctx.agentsDir).pipe(Effect.provide(NodeServices.layer))),
+    ).rejects.toThrow(/Local path does not exist/u)
   })
 })

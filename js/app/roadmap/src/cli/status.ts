@@ -1,18 +1,9 @@
-import { Array, Console, DateTime, Effect, Predicate } from 'effect'
+import { Array, Console, DateTime, Effect } from 'effect'
 import { Argument, Command } from 'effect/unstable/cli'
 
 import { resolveDirOrFail, rootCommand } from '#@/cli/root.ts'
+import type { Milestone } from '#@/feature/schema/current.ts'
 import { readProgressFile } from '#@/lib/progress.ts'
-import type { Milestone } from '#@/schema/progress.ts'
-
-const failWith = (message: string) =>
-  Effect.gen(function* () {
-    yield* Console.error(`error: ${message}`)
-    yield* Effect.sync(() => {
-      process.exitCode = 1
-    })
-    return null
-  })
 
 const countCompleted = (milestones: readonly Milestone[]): number =>
   milestones.filter((m) => m.status === 'completed').length
@@ -28,22 +19,8 @@ export const statusCommand = Command.make(
   ({ roadmapId }) =>
     Effect.gen(function* () {
       const { dir: relativeDir } = yield* rootCommand
-      const resolved = yield* resolveDirOrFail(relativeDir)
-      if (Predicate.isNullish(resolved)) {
-        return
-      }
-      const { dir } = resolved
-      const progress = yield* readProgressFile({ dir, roadmapId }).pipe(
-        Effect.catchTags({
-          ProgressFileNotFoundError: (error) => failWith(`${error.path} not found`),
-          ProgressReadError: (error) => failWith(`failed to read ${error.path}: ${error.message}`),
-          ProgressValidationError: (error) => failWith(`invalid roadmap progress (${error.message})`),
-        }),
-      )
-
-      if (Predicate.isNullish(progress)) {
-        return
-      }
+      const { dir } = yield* resolveDirOrFail(relativeDir)
+      const progress = yield* readProgressFile({ dir, roadmapId })
 
       const completed = countCompleted(progress.milestones)
       yield* Console.log(`roadmap_id: ${progress.roadmap_id}`)

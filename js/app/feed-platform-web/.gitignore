@@ -1,3 +1,4 @@
 .wrangler/
+app/feature/db/generated.ts
 dist/
 worker-configuration.d.ts

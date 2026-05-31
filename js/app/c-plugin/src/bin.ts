@@ -4,6 +4,7 @@ import { Cause, Console, Effect } from 'effect'
 import { Command } from 'effect/unstable/cli'
 
 import { devMarketplaceSyncCommand } from '#@/cli/dev/marketplace/sync.ts'
+import { initCommand } from '#@/cli/init.ts'
 import { addCommand } from '#@/cli/skill/add.ts'
 import { removeCommand } from '#@/cli/skill/remove.ts'
 import { syncCommand } from '#@/cli/skill/sync.ts'
@@ -35,7 +36,7 @@ const devCommand = Command.make('dev').pipe(
 
 const app = Command.make('c-plugin').pipe(
   Command.withDescription('CLI to manage Claude Code Plugin resources'),
-  Command.withSubcommands([skillCommand, devCommand]),
+  Command.withSubcommands([initCommand, skillCommand, devCommand]),
 )
 
 const program = app.pipe(
@@ -49,4 +50,5 @@ const program = app.pipe(
   Effect.provide(NodeServices.layer),
 )
 
+// oxlint-disable-next-line rules/no-effect-runtime-run -- CLI executable entrypoint owns process-level Effect runtime execution.
 Effect.runFork(program)

@@ -16,7 +16,7 @@ const bigLength = 32
 
 /** Effect Schema for CUID branded string type. */
 export const schema: Schema.brand<Schema.String, '@totto2727/fp/effect/cuid/Cuid'> = Schema.String.pipe(
-  Schema.check(Schema.isPattern(/^[a-z][0-9a-z]+$/)),
+  Schema.check(Schema.isPattern(/^[a-z][0-9a-z]+$/u)),
   Schema.check(Schema.isMinLength(2)),
   Schema.check(Schema.isMaxLength(bigLength)),
   Schema.brand('@totto2727/fp/effect/cuid/Cuid'),
@@ -26,6 +26,7 @@ export const schema: Schema.brand<Schema.String, '@totto2727/fp/effect/cuid/Cuid
 export type CUID = typeof schema.Type
 
 /** Type guard for CUID values. */
+// oxlint-disable-next-line rules/no-type-predicate -- public package API requires an explicit type predicate annotation for generated documentation and exported type surface
 export const is: (value: unknown, overrideOptions?: SchemaAST.ParseOptions | number) => value is CUID =
   Schema.is(schema)
 

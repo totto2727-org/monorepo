@@ -42,4 +42,5 @@ const appLayer = Layer.merge(NodeServices.layer, FetchHttpClient.layer)
 
 const program = app.pipe(Command.run({ version: pkg.version }), Effect.provide(appLayer))
 
+// oxlint-disable-next-line rules/no-effect-runtime-run -- CLI executable entrypoint owns process-level Effect runtime execution.
 NodeRuntime.runMain(program)

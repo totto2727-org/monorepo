@@ -1,6 +1,7 @@
 import * as Fs from 'node:fs/promises'
 import * as NodePath from 'node:path'
 
+import { NodeServices } from '@effect/platform-node'
 import { Effect, Exit } from 'effect'
 import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 
@@ -11,7 +12,7 @@ let ctx: Awaited<ReturnType<typeof setupTestContext>>
 
 beforeEach(async () => {
   ctx = await setupTestContext()
-  await ensureAgentsDirs(ctx.agentsDir)
+  await ensureAgentsDirs(ctx.agentsDir, ctx.projectRoot)
 })
 
 afterEach(async () => {
@@ -20,7 +21,7 @@ afterEach(async () => {
 
 describe('resolveFromRepo', () => {
   test('resolves skills from valid repo structure', async () => {
-    const repoDir = await buildFakeRepoFixture(ctx.agentsDir, 'owner/repo', {
+    const repoDir = await buildFakeRepoFixture(ctx.projectRoot, 'owner/repo', {
       plugins: [
         {
           name: 'my-plugin',
@@ -30,7 +31,7 @@ describe('resolveFromRepo', () => {
       ],
     })
 
-    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude'))
+    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)))
 
     expect(skills).toHaveLength(2)
     expect(skills.map((s) => s.skillName).toSorted()).toStrictEqual(['skill-a', 'skill-b'])
@@ -38,7 +39,7 @@ describe('resolveFromRepo', () => {
   })
 
   test('resolves skills from multiple plugins', async () => {
-    const repoDir = await buildFakeRepoFixture(ctx.agentsDir, 'owner/repo', {
+    const repoDir = await buildFakeRepoFixture(ctx.projectRoot, 'owner/repo', {
       plugins: [
         {
           name: 'plugin-a',
@@ -53,12 +54,12 @@ describe('resolveFromRepo', () => {
       ],
     })
 
-    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude'))
+    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)))
     expect(skills).toHaveLength(3)
   })
 
   test('excludes directories without SKILL.md', async () => {
-    const repoDir = await buildFakeRepoFixture(ctx.agentsDir, 'owner/repo', {
+    const repoDir = await buildFakeRepoFixture(ctx.projectRoot, 'owner/repo', {
       plugins: [
         {
           name: 'my-plugin',
@@ -71,13 +72,13 @@ describe('resolveFromRepo', () => {
     const noSkillMdDir = NodePath.join(repoDir, 'plugins', 'my-plugin', 'skills', 'no-skill-md')
     await Fs.mkdir(noSkillMdDir, { recursive: true })
 
-    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude'))
+    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)))
     expect(skills).toHaveLength(1)
     expect(skills[0]?.skillName).toBe('valid-skill')
   })
 
   test('returns empty when plugin has no skills directory', async () => {
-    const repoDir = await buildFakeRepoFixture(ctx.agentsDir, 'owner/repo', {
+    const repoDir = await buildFakeRepoFixture(ctx.projectRoot, 'owner/repo', {
       plugins: [
         {
           name: 'empty-plugin',
@@ -87,7 +88,7 @@ describe('resolveFromRepo', () => {
       ],
     })
 
-    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude'))
+    const skills = await Effect.runPromise(resolveFromRepo(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)))
     expect(skills).toHaveLength(0)
   })
 
@@ -95,7 +96,9 @@ describe('resolveFromRepo', () => {
     const repoDir = NodePath.join(ctx.agentsDir, '.cache', 'owner', 'no-marketplace')
     await Fs.mkdir(repoDir, { recursive: true })
 
-    const exit = await Effect.runPromiseExit(resolveFromRepo(repoDir, 'claude'))
+    const exit = await Effect.runPromiseExit(
+      resolveFromRepo(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)),
+    )
     expect(Exit.isFailure(exit)).toBe(true)
   })
 
@@ -105,7 +108,9 @@ describe('resolveFromRepo', () => {
     await Fs.mkdir(marketplaceDir, { recursive: true })
     await Fs.writeFile(NodePath.join(marketplaceDir, 'marketplace.json'), JSON.stringify({ invalid: true }), 'utf-8')
 
-    const exit = await Effect.runPromiseExit(resolveFromRepo(repoDir, 'claude'))
+    const exit = await Effect.runPromiseExit(
+      resolveFromRepo(repoDir, 'claude').pipe(Effect.provide(NodeServices.layer)),
+    )
     expect(Exit.isFailure(exit)).toBe(true)
   })
 })

@@ -1,4 +1,4 @@
-import { createMiddleware } from 'hono/factory'
+import { factory } from '#@/feature/share/lib/hono/factory.ts'
 
 import * as Runtime from './server.ts'
 
@@ -15,10 +15,8 @@ export interface Variables {
 // Hono の `c.env` を介して読み取る経路を採用していない。
 // 必要が生じれば worker-configuration.d.ts (Cloudflare 自動生成) の Env interface を
 // generic に渡す形で拡張する。
-export const middleware = createMiddleware<{
-  Variables: Variables
-}>(async (c, next) => {
+export const middleware = factory.createMiddleware(async (ctx, next) => {
   await using runtime = Runtime.make()
-  c.set('runtime', runtime.instance)
+  ctx.set('runtime', runtime.instance)
   await next()
 })

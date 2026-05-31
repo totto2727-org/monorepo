@@ -28,6 +28,14 @@ export interface WorktreeView {
   isMain: boolean
 }
 
+export interface KanbanTask {
+  id: string
+  title: string
+  status: MilestoneStatus
+  prs: readonly string[]
+  notes: string | null
+}
+
 export interface KanbanMilestone {
   id: string
   title: string
@@ -36,6 +44,16 @@ export interface KanbanMilestone {
   prs: readonly string[]
   notes: string | null
   worktreeIds: readonly string[]
+  tasks: readonly KanbanTask[]
+}
+
+export const taskRatio = (tasks: readonly KanbanTask[]): { completed: number; denominator: number } | undefined => {
+  if (Array.isReadonlyArrayEmpty(tasks)) {
+    return undefined
+  }
+  const denominator = tasks.filter((t) => t.status !== 'cancelled').length
+  const completed = tasks.filter((t) => t.status === 'completed').length
+  return { completed, denominator }
 }
 
 export interface KanbanRoadmap {
@@ -203,6 +221,115 @@ const milestoneCardStyle = (status: MilestoneStatus, stripe: string) =>
     padding: '12px 12px 10px',
   })
 
+const titleButtonStyle = css({
+  '&:hover .ms-title': { color: '#2563eb', textDecoration: 'underline' },
+  background: 'transparent',
+  border: 'none',
+  cursor: 'pointer',
+  display: 'block',
+  font: 'inherit',
+  padding: '0',
+  textAlign: 'left',
+  width: '100%',
+})
+
+const ratioBadgeStyle = (complete: boolean) =>
+  css({
+    background: complete ? '#dcfce7' : '#e0f2fe',
+    borderRadius: '4px',
+    color: complete ? '#15803d' : '#0369a1',
+    display: 'inline-block',
+    fontSize: '10px',
+    fontWeight: '600',
+    marginLeft: '6px',
+    padding: '1px 6px',
+    verticalAlign: 'middle',
+  })
+
+const dialogStyle = css({
+  '&::backdrop': { background: 'rgba(15, 23, 42, 0.4)' },
+  background: '#fff',
+  border: '1px solid #e2e8f0',
+  borderRadius: '10px',
+  boxShadow: '0 20px 40px rgba(15, 23, 42, 0.2)',
+  inset: 'unset',
+  left: '50%',
+  margin: '0',
+  maxHeight: '80vh',
+  maxWidth: '720px',
+  overflow: 'auto',
+  padding: '0',
+  position: 'fixed',
+  top: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 'min(90vw, 720px)',
+})
+
+const dialogHeaderStyle = css({
+  '& .dlg-id': { color: '#64748b', fontSize: '12px', fontWeight: '500' },
+  '& .dlg-title': { fontSize: '16px', fontWeight: '600', marginTop: '2px' },
+  alignItems: 'flex-start',
+  borderBottom: '1px solid #e2e8f0',
+  display: 'flex',
+  gap: '12px',
+  justifyContent: 'space-between',
+  padding: '16px 18px',
+})
+
+const dialogCloseStyle = css({
+  '&:hover': { background: '#e2e8f0' },
+  background: 'transparent',
+  border: '1px solid #cbd5e1',
+  borderRadius: '6px',
+  color: '#475569',
+  cursor: 'pointer',
+  fontSize: '14px',
+  fontWeight: '600',
+  height: '28px',
+  lineHeight: '1',
+  width: '28px',
+})
+
+const dialogBodyStyle = css({
+  '& .task-group': { marginBottom: '14px' },
+  '& .task-group-header': {
+    color: '#64748b',
+    fontSize: '11px',
+    fontWeight: '600',
+    letterSpacing: '0.5px',
+    marginBottom: '6px',
+    textTransform: 'uppercase',
+  },
+  '& .task-list': {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    listStyle: 'none',
+    margin: '0',
+    padding: '0',
+  },
+  '& .task-row': {
+    background: '#f8fafc',
+    border: '1px solid #e2e8f0',
+    borderRadius: '6px',
+    padding: '8px 10px',
+  },
+  '& .task-row .task-id': { color: '#64748b', fontSize: '11px', fontWeight: '500' },
+  '& .task-row .task-notes': { color: '#475569', fontSize: '12px', marginTop: '4px' },
+  '& .task-row .task-prs': { color: '#475569', fontSize: '11px', marginTop: '4px' },
+  '& .task-row .task-prs a': { color: '#2563eb', textDecoration: 'none' },
+  '& .task-row .task-title': { fontSize: '13px', fontWeight: '500', marginTop: '2px' },
+  padding: '16px 18px',
+})
+
+const dialogEmptyStyle = css({
+  color: '#94a3b8',
+  fontSize: '12px',
+  fontStyle: 'italic',
+  padding: '24px 0',
+  textAlign: 'center',
+})
+
 const buildStripe = (worktreeColors: readonly string[]): string => {
   if (Array.isReadonlyArrayEmpty(worktreeColors)) {
     return 'none'
@@ -222,16 +349,16 @@ interface FilterParams {
   worktrees: readonly string[]
 }
 
-const isAll = (raw: readonly string[]): boolean => Array.isReadonlyArrayEmpty(raw)
+const selectsAll = (raw: readonly string[]): boolean => Array.isReadonlyArrayEmpty(raw)
 
-const isNone = (raw: readonly string[]): boolean =>
+const selectsNone = (raw: readonly string[]): boolean =>
   raw.length === 1 && Predicate.isNotNullish(raw[0]) && String.isEmpty(raw[0])
 
 const resolveSelection = (raw: readonly string[], allIds: readonly string[]): readonly string[] => {
-  if (isAll(raw)) {
+  if (selectsAll(raw)) {
     return allIds
   }
-  if (isNone(raw)) {
+  if (selectsNone(raw)) {
     return []
   }
   return raw.filter((id) => allIds.includes(id))
@@ -271,7 +398,7 @@ const buildUrl = (
 }
 
 const formatPrLabel = (pr: string): string => {
-  const match = /\/(?:pull|issues)\/(\d+)/.exec(pr)
+  const match = /\/(?:pull|issues)\/(\d+)/u.exec(pr)
   return Predicate.isNullish(match) ? pr : `#${match[1]}`
 }
 
@@ -402,34 +529,112 @@ export const Kanban = () => (props: KanbanProps) => {
                 {items.map((m) => {
                   const stripeColors = m.worktreeIds.map(worktreeColor)
                   const stripe = buildStripe(stripeColors)
+                  const dialogId = `dlg-${roadmap.id}-${m.id}-${m.worktreeIds.join('_')}`.replaceAll(
+                    /[^a-zA-Z0-9_-]/gu,
+                    '_',
+                  )
+                  const ratio = taskRatio(m.tasks)
                   return (
-                    <div key={`${m.id}-${m.worktreeIds.join('|')}`} mix={milestoneCardStyle(m.status, stripe)}>
-                      <div class='ms-id'>{m.id}</div>
-                      <div class='ms-title'>{m.title}</div>
-                      {Array.isReadonlyArrayNonEmpty(m.depends_on) && (
-                        <div class='ms-deps'>← depends on: {m.depends_on.join(', ')}</div>
-                      )}
-                      {Array.isReadonlyArrayNonEmpty(m.prs) && (
-                        <div class='ms-prs'>
-                          PRs:{' '}
-                          {m.prs.map((pr, i) => (
-                            <span key={pr}>
-                              {i > 0 && ', '}
-                              {pr.startsWith('http') ? (
-                                <a href={pr} target='_blank' rel='noopener noreferrer'>
-                                  {formatPrLabel(pr)}
-                                </a>
-                              ) : (
-                                pr
-                              )}
-                            </span>
-                          ))}
+                    <div key={`${m.id}-${m.worktreeIds.join('|')}`}>
+                      <div mix={milestoneCardStyle(m.status, stripe)}>
+                        <div class='ms-id'>{m.id}</div>
+                        <button type='button' popovertarget={dialogId} mix={titleButtonStyle}>
+                          <div class='ms-title'>
+                            {m.title}
+                            {Predicate.isNotNullish(ratio) && (
+                              <span mix={ratioBadgeStyle(ratio.completed === ratio.denominator)}>
+                                {ratio.completed}/{ratio.denominator}
+                              </span>
+                            )}
+                          </div>
+                        </button>
+                        {Array.isReadonlyArrayNonEmpty(m.depends_on) && (
+                          <div class='ms-deps'>← depends on: {m.depends_on.join(', ')}</div>
+                        )}
+                        {Array.isReadonlyArrayNonEmpty(m.prs) && (
+                          <div class='ms-prs'>
+                            PRs:{' '}
+                            {m.prs.map((pr, i) => (
+                              <span key={pr}>
+                                {i > 0 && ', '}
+                                {pr.startsWith('http') ? (
+                                  <a href={pr} target='_blank' rel='noopener noreferrer'>
+                                    {formatPrLabel(pr)}
+                                  </a>
+                                ) : (
+                                  pr
+                                )}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <div class='ms-worktrees'>
+                          {m.worktreeIds.length === worktrees.length
+                            ? 'all worktrees'
+                            : m.worktreeIds.map(worktreeLabel).join(', ')}
                         </div>
-                      )}
-                      <div class='ms-worktrees'>
-                        {m.worktreeIds.length === worktrees.length
-                          ? 'all worktrees'
-                          : m.worktreeIds.map(worktreeLabel).join(', ')}
+                      </div>
+                      <div id={dialogId} popover='auto' mix={dialogStyle}>
+                        <div mix={dialogHeaderStyle}>
+                          <div>
+                            <div class='dlg-id'>{m.id}</div>
+                            <div class='dlg-title'>{m.title}</div>
+                          </div>
+                          <button
+                            type='button'
+                            popovertarget={dialogId}
+                            popovertargetaction='hide'
+                            mix={dialogCloseStyle}
+                          >
+                            ×
+                          </button>
+                        </div>
+                        <div mix={dialogBodyStyle}>
+                          {Array.isReadonlyArrayEmpty(m.tasks) ? (
+                            <div mix={dialogEmptyStyle}>No tasks defined for this milestone.</div>
+                          ) : (
+                            STATUSES.map((s) => {
+                              const tasksForStatus = m.tasks.filter((t) => t.status === s)
+                              if (Array.isReadonlyArrayEmpty(tasksForStatus)) {
+                                return null
+                              }
+                              return (
+                                <div key={s} class='task-group'>
+                                  <div class='task-group-header'>
+                                    <span style={{ color: STATUS_COLORS[s] }}>●</span> {STATUS_LABELS[s]} (
+                                    {tasksForStatus.length})
+                                  </div>
+                                  <ul class='task-list'>
+                                    {tasksForStatus.map((t) => (
+                                      <li key={t.id} class='task-row'>
+                                        <div class='task-id'>{t.id}</div>
+                                        <div class='task-title'>{t.title}</div>
+                                        {Array.isReadonlyArrayNonEmpty(t.prs) && (
+                                          <div class='task-prs'>
+                                            PRs:{' '}
+                                            {t.prs.map((pr, i) => (
+                                              <span key={pr}>
+                                                {i > 0 && ', '}
+                                                {pr.startsWith('http') ? (
+                                                  <a href={pr} target='_blank' rel='noopener noreferrer'>
+                                                    {formatPrLabel(pr)}
+                                                  </a>
+                                                ) : (
+                                                  pr
+                                                )}
+                                              </span>
+                                            ))}
+                                          </div>
+                                        )}
+                                        {Predicate.isNotNullish(t.notes) && <div class='task-notes'>{t.notes}</div>}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )
+                            })
+                          )}
+                        </div>
                       </div>
                     </div>
                   )

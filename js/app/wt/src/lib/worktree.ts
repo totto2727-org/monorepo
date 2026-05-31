@@ -1,11 +1,10 @@
 import { execFile } from 'node:child_process'
-import { readdir, stat } from 'node:fs/promises'
-import { join } from 'node:path'
 import { promisify } from 'node:util'
 
-import { Effect, Predicate, String } from 'effect'
+import { NodeServices } from '@effect/platform-node'
+import { Effect, FileSystem, Path, Predicate, Schema, String } from 'effect'
 
-// oxlint-disable-next-line typescript-eslint(strict-void-return) -- node's promisify(execFile) overloads trigger a false positive
+// oxlint-disable-next-line typescript/strict-void-return -- node's promisify(execFile) overloads trigger a false positive
 const execFileAsync = promisify(execFile)
 
 const execAsync = async (cmd: string, args: string[]): Promise<string> => {
@@ -30,16 +29,8 @@ interface RawPr {
   readonly state: string
 }
 
-const isPrArray = (value: unknown): value is readonly RawPr[] =>
-  Array.isArray(value) &&
-  value.every(
-    (item) =>
-      Predicate.isObject(item) &&
-      'number' in item &&
-      Predicate.isNumber(item.number) &&
-      'state' in item &&
-      Predicate.isString(item.state),
-  )
+const RawPrArray = Schema.Array(Schema.Struct({ number: Schema.Number, state: Schema.String }))
+const matchesRawPrArray = Schema.is(RawPrArray)
 
 const parsePrs = (json: string): readonly RawPr[] => {
   if (String.isEmpty(json)) {
@@ -47,7 +38,7 @@ const parsePrs = (json: string): readonly RawPr[] => {
   }
   try {
     const parsed = parseJson(json)
-    return isPrArray(parsed) ? parsed : []
+    return matchesRawPrArray(parsed) ? parsed : []
   } catch {
     return []
   }
@@ -60,6 +51,22 @@ export interface WorktreeEntry {
   readonly branch: string | null
   readonly isMain: boolean
 }
+
+export const BranchedWorktreeEntry = Schema.Struct({
+  branch: Schema.String,
+  isMain: Schema.Boolean,
+  path: Schema.String,
+})
+export type BranchedWorktreeEntry = Schema.Schema.Type<typeof BranchedWorktreeEntry>
+export const matchesBranchedWorktreeEntry = Schema.is(BranchedWorktreeEntry)
+
+export const NonMainWorktreeEntry = Schema.Struct({
+  branch: Schema.String,
+  isMain: Schema.Literal(false),
+  path: Schema.String,
+})
+export type NonMainWorktreeEntry = Schema.Schema.Type<typeof NonMainWorktreeEntry>
+export const matchesNonMainWorktreeEntry = Schema.is(NonMainWorktreeEntry)
 
 export interface RepoWorktrees {
   readonly repoPath: string
@@ -77,36 +84,30 @@ export interface PrInfo {
 // --- FS discovery ---
 
 export const discoverRepos = (baseDir: string): Effect.Effect<readonly string[]> =>
-  Effect.promise(async () => {
-    const isSelfRepo = await stat(join(baseDir, '.git'))
-      .then((s) => (s.isDirectory() ? baseDir : null))
-      .catch(() => null)
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const path = yield* Path.Path
+    const isSelfRepo = yield* fs.stat(path.join(baseDir, '.git')).pipe(
+      Effect.map((s) => (s.type === 'Directory' ? baseDir : null)),
+      Effect.orElseSucceed(() => null),
+    )
 
-    const entries = await readdir(baseDir)
-    const childRepos = await Promise.all(
-      entries.map(async (entry) => {
-        const full = join(baseDir, entry)
-        try {
-          const s = await stat(full)
-          if (!s.isDirectory()) {
-            return null
-          }
-          if (full === isSelfRepo) {
-            return null
-          }
-          const gitStat = await stat(join(full, '.git'))
-          if (!gitStat.isDirectory()) {
-            return null
-          }
-          return full
-        } catch {
+    const entries = yield* fs.readDirectory(baseDir).pipe(Effect.orElseSucceed(() => [] as readonly string[]))
+    // oxlint-disable-next-line unicorn/no-array-method-this-argument -- Effect.forEach, not Array.forEach
+    const childRepos = yield* Effect.forEach(entries, (entry) =>
+      Effect.gen(function* () {
+        const full = path.join(baseDir, entry)
+        const stat = yield* fs.stat(full).pipe(Effect.orElseSucceed(() => null))
+        if (Predicate.isNullish(stat) || stat.type !== 'Directory' || full === isSelfRepo) {
           return null
         }
+        const gitStat = yield* fs.stat(path.join(full, '.git')).pipe(Effect.orElseSucceed(() => null))
+        return !Predicate.isNullish(gitStat) && gitStat.type === 'Directory' ? full : null
       }),
     )
 
     return [isSelfRepo, ...childRepos].filter(Predicate.isNotNullish).toSorted()
-  })
+  }).pipe(Effect.provide(NodeServices.layer))
 
 // --- Remote parsing ---
 
@@ -120,10 +121,10 @@ const parseOwnerRepo = (path: string): { owner: string; repo: string } | null =>
 
 export const parseGithubRemote = (url: string): { owner: string; repo: string } | null => {
   if (url.startsWith('https://github.com/')) {
-    return parseOwnerRepo(url.slice('https://github.com/'.length).replace(/\.git$/, ''))
+    return parseOwnerRepo(url.slice('https://github.com/'.length).replace(/\.git$/u, ''))
   }
   if (url.startsWith('git@github.com:')) {
-    return parseOwnerRepo(url.slice('git@github.com:'.length).replace(/\.git$/, ''))
+    return parseOwnerRepo(url.slice('git@github.com:'.length).replace(/\.git$/u, ''))
   }
   return null
 }

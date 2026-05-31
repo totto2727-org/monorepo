@@ -36,10 +36,11 @@ export interface AssetServer {
  */
 export const remixAssetServer =
   (assetServer: AssetServer): MiddlewareHandler =>
-  async (c, next) => {
-    const response = await assetServer.fetch(c.req.raw)
+  async (ctx, next) => {
+    const response = await assetServer.fetch(ctx.req.raw)
     if (response) {
       return response
     }
-    return next()
+    await next()
+    return ctx.res
   }

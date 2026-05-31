@@ -19,6 +19,7 @@
     "./case": "./src/case.ts",
     "./di": "./src/di.ts",
     "./duration": "./src/duration.ts",
+    "./error": "./src/error.ts",
     "./effect/cuid": "./src/effect/cuid.ts",
     "./effect/option-t": "./src/effect/option-t.ts",
     "./effect/util": "./src/effect/util.ts",
@@ -33,15 +34,16 @@
   },
   "scripts": {},
   "dependencies": {
-    "@formatjs/intl-durationformat": "^0.10.1",
-    "@noble/hashes": "^2.0.1",
+    "@effect/platform-node": "catalog:effect",
+    "@formatjs/intl-durationformat": "^0.10.13",
+    "@noble/hashes": "^2.2.0",
     "base-x": "^5.0.1",
-    "bignumber.js": "^9.3.1",
+    "bignumber.js": "^11.1.1",
     "change-case": "^5.4.4",
     "micro-memoize": "^5.1.1",
-    "option-t": "^55.1.1",
+    "option-t": "^56.1.2",
     "seedrandom": "^3.0.5",
-    "temporal-polyfill": "^0.3.0",
+    "temporal-polyfill": "^0.3.2",
     "velona": "^0.8.0"
   },
   "devDependencies": {
@@ -49,7 +51,7 @@
     "@types/node": "catalog:types",
     "@types/seedrandom": "^3.0.8",
     "effect": "catalog:effect",
-    "type-fest": "^5.4.4"
+    "type-fest": "^5.6.0"
   },
   "peerDependencies": {
     "effect": "catalog:effect"

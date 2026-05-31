@@ -17,3 +17,7 @@ db-migrate-apply: db-reset
 
 db-migrate-diff: db-migrate-apply
     atlas migrate diff --env local
+
+seed-oauth: db-schema-apply
+    echo "Seeding OAuth application..."
+    sqlite3 ./node_modules/.cache/db < ./db/seeds/oauth_application.sql

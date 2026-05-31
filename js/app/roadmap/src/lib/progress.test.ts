@@ -1,9 +1,11 @@
-import { Schema } from 'effect'
+import { Effect, Path, Schema } from 'effect'
 import { describe, expect, test } from 'vite-plus/test'
 
-import { RoadmapProgress } from '#@/schema/progress.ts'
+import { RoadmapProgress } from '#@/feature/schema/current.ts'
 
 import { mergePrs, progressFilePath, renderProgressYaml } from './progress.ts'
+
+const runPath = <A>(effect: Effect.Effect<A, never, Path.Path>): A => Effect.runSync(Effect.provide(effect, Path.layer))
 
 const buildRoadmap = (overrides: Partial<typeof RoadmapProgress.Encoded> = {}) =>
   Schema.decodeUnknownSync(RoadmapProgress)({
@@ -14,24 +16,25 @@ const buildRoadmap = (overrides: Partial<typeof RoadmapProgress.Encoded> = {}) =
     status: 'planned',
     title: 'Roadmap management CLI',
     updated_at: '2026-05-15T16:15:13.160Z',
+    version: 2,
     ...overrides,
   })
 
 describe('progressFilePath', () => {
   test('joins dir, roadmap id and progress.yaml filename', () => {
-    expect(progressFilePath('docs/roadmap', 'roadmap-cli')).toBe('docs/roadmap/roadmap-cli/progress.yaml')
+    expect(runPath(progressFilePath('docs/roadmap', 'roadmap-cli'))).toBe('docs/roadmap/roadmap-cli/progress.yaml')
   })
 
   test('normalizes trailing slash on dir', () => {
-    expect(progressFilePath('docs/roadmap/', 'roadmap-cli')).toBe('docs/roadmap/roadmap-cli/progress.yaml')
+    expect(runPath(progressFilePath('docs/roadmap/', 'roadmap-cli'))).toBe('docs/roadmap/roadmap-cli/progress.yaml')
   })
 
   test('handles absolute dir', () => {
-    expect(progressFilePath('/abs/roadmap', 'alpha')).toBe('/abs/roadmap/alpha/progress.yaml')
+    expect(runPath(progressFilePath('/abs/roadmap', 'alpha'))).toBe('/abs/roadmap/alpha/progress.yaml')
   })
 
   test('handles "." as dir', () => {
-    expect(progressFilePath('.', 'alpha')).toBe('alpha/progress.yaml')
+    expect(runPath(progressFilePath('.', 'alpha'))).toBe('alpha/progress.yaml')
   })
 })
 
@@ -90,6 +93,7 @@ describe('renderProgressYaml', () => {
             notes: null,
             prs: ['https://example.com/pr/3'],
             status: 'completed',
+            tasks: [],
             title: 'Bar',
             workflow_identifiers: ['wf-2026'],
           },
