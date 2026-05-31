@@ -1,9 +1,12 @@
-import { Effect, Exit, Layer } from 'effect'
-import type { HttpClient } from 'effect/unstable/http'
+import { Effect, Layer, Predicate, Result } from 'effect'
 import { FetchHttpClient } from 'effect/unstable/http'
+import { Hono } from 'hono'
+import { contextStorage } from 'hono/context-storage'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
+import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
 import * as Env from '#@/feature/env.ts'
+import type { Env as HonoEnv } from '#@/feature/share/lib/hono/context.ts'
 
 import { BackendClient, liveLayer } from './client.ts'
 
@@ -16,60 +19,73 @@ const testEnv = {
   OAUTH_CLIENT_SECRET: 'dev-secret',
 } satisfies Env.Type
 
-const testLayer = Layer.merge(liveLayer, FetchHttpClient.layer).pipe(Layer.provide(Env.makeLayer(testEnv)))
+const makeTestLayer = () => Layer.merge(liveLayer, FetchHttpClient.layer).pipe(Layer.provide(Env.makeLayer(testEnv)))
+
+const successResponse = () =>
+  Promise.resolve(Response.json({ email: 'user@example.com', id: 'user-1' }, { status: 200 }))
 
 afterEach(() => {
   vi.restoreAllMocks()
+  vi.unstubAllGlobals()
 })
 
-const runWith = <A, E>(effect: Effect.Effect<A, E, typeof BackendClient.Identifier | HttpClient.HttpClient>) =>
-  Effect.runPromise(Effect.provide(effect, testLayer))
+const requestCallMe = (cookie?: string) => {
+  const app = new Hono<HonoEnv>().use(contextStorage()).get('/test', async (ctx) =>
+    ctx.json(
+      await Effect.runPromise(
+        Effect.provide(
+          Effect.gen(function* () {
+            const client = yield* BackendClient
+            const exit = yield* Effect.result(client.callMe())
+            return Result.isSuccess(exit) ? { data: exit.success, ok: true } : { ok: false }
+          }),
+          makeTestLayer(),
+        ),
+      ),
+    ),
+  )
+  return app.request('/test', Predicate.isNullish(cookie) ? undefined : { headers: { cookie } }, testEnv)
+}
+
+const requestCallMeWithAccessToken = () => {
+  const app = new Hono<HonoEnv>().use(contextStorage()).get('/test', async (ctx) =>
+    ctx.json(
+      await Effect.runPromise(
+        Effect.provide(
+          Effect.gen(function* () {
+            const client = yield* BackendClient
+            const exit = yield* Effect.result(client.callMeWithAccessToken('test-jwt'))
+            return Result.isSuccess(exit) ? { data: exit.success, ok: true } : { ok: false }
+          }),
+          makeTestLayer(),
+        ),
+      ),
+    ),
+  )
+  return app.request('/test', undefined, testEnv)
+}
 
 describe('BackendClient.callMe', () => {
-  it('returns the decoded user from the backend', async () => {
+  it('reads authorization from Hono context and supports refresh-token retry calls', async () => {
     const mockFetch = vi
       .fn()
-      .mockResolvedValue(Response.json({ email: 'user@example.com', id: 'user-1' }, { status: 200 }))
+      .mockImplementationOnce(successResponse)
+      .mockImplementationOnce(successResponse)
+      .mockImplementationOnce(() => Promise.resolve(new Response(null, { status: 401 })))
     vi.stubGlobal('fetch', mockFetch)
 
-    const result = await runWith(
-      Effect.gen(function* () {
-        const client = yield* BackendClient
-        return yield* client.callMe('Bearer test-jwt')
-      }),
-    )
+    const cookieResponse = await requestCallMe(`${FEED_SESSION_COOKIE}=test-jwt`)
+    const accessTokenResponse = await requestCallMeWithAccessToken()
+    const missingCookieResponse = await requestCallMe()
+    const failedBackendResponse = await requestCallMeWithAccessToken()
 
-    expect(result).toStrictEqual({ email: 'user@example.com', id: 'user-1' })
-    expect(mockFetch).toHaveBeenCalledTimes(1)
-  })
-
-  it('fails with BackendError when authorization is null', async () => {
-    const exit = await Effect.runPromiseExit(
-      Effect.provide(
-        Effect.gen(function* () {
-          const client = yield* BackendClient
-          return yield* client.callMe(null)
-        }),
-        testLayer,
-      ),
-    )
-
-    expect(Exit.isFailure(exit)).toBe(true)
-  })
-
-  it('fails with BackendError when response is not ok', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 401 })))
-
-    const exit = await Effect.runPromiseExit(
-      Effect.provide(
-        Effect.gen(function* () {
-          const client = yield* BackendClient
-          return yield* client.callMe('Bearer bad-jwt')
-        }),
-        testLayer,
-      ),
-    )
-
-    expect(Exit.isFailure(exit)).toBe(true)
+    expect(await cookieResponse.json()).toStrictEqual({ data: { email: 'user@example.com', id: 'user-1' }, ok: true })
+    expect(await accessTokenResponse.json()).toStrictEqual({
+      data: { email: 'user@example.com', id: 'user-1' },
+      ok: true,
+    })
+    expect(await missingCookieResponse.json()).toMatchObject({ ok: false })
+    expect(await failedBackendResponse.json()).toMatchObject({ ok: false })
+    expect(mockFetch).toHaveBeenCalledTimes(3)
   })
 })

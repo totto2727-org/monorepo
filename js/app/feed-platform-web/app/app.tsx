@@ -129,11 +129,9 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
         if (Predicate.isNullish(user)) {
           return ctx.redirect('/login')
         }
-        const token = getCookie(ctx, FEED_SESSION_COOKIE)
-        const authorization = Predicate.isNullish(token) ? null : `Bearer ${token}`
         const { env } = ctx
         const client = yield* BackendClient
-        const callMeResult = yield* client.callMe(authorization).pipe(Effect.orElseSucceed(() => null))
+        const callMeResult = yield* client.callMe().pipe(Effect.orElseSucceed(() => null))
         if (!Predicate.isNullish(callMeResult)) {
           return ctx.render(
             <Document>
@@ -169,7 +167,7 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
         }
 
         const retryResult = yield* client
-          .callMe(`Bearer ${tokenData.access_token}`)
+          .callMeWithAccessToken(tokenData.access_token)
           .pipe(Effect.orElseSucceed(() => null))
         if (Predicate.isNullish(retryResult)) {
           deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
