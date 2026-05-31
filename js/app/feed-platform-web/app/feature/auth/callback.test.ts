@@ -1,8 +1,10 @@
 import { Effect } from 'effect'
+import { FetchHttpClient } from 'effect/unstable/http'
 import { Hono } from 'hono'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
+import { makeInMemory } from '#@/feature/db/kysely.ts'
 import type { Type as EnvType } from '#@/feature/env.ts'
 
 import { handleAuthCallback } from './callback.ts'
@@ -16,11 +18,10 @@ const testEnv: EnvType = {
   OAUTH_CLIENT_SECRET: '',
 }
 
-const testRuntime = {
-  runPromise: <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(effect),
-}
-
-const makeApp = () => new Hono().get('/auth/callback', (ctx) => handleAuthCallback(ctx, testEnv, null, testRuntime))
+const makeApp = () =>
+  new Hono().get('/auth/callback', (ctx) =>
+    Effect.runPromise(handleAuthCallback(ctx, testEnv, makeInMemory()).pipe(Effect.provide(FetchHttpClient.layer))),
+  )
 
 const makeCookieHeader = (pairs: Record<string, string>) =>
   Object.entries(pairs)

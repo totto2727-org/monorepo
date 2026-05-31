@@ -115,15 +115,15 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
 
     return ctx.redirect(authorizeUrl.toString())
   })
-  .get('/auth/callback', async (ctx) => {
-    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP callback boundary obtains request-scoped DB service.
-    const db = await ctx.var.runtime.runPromise(
+  .get('/auth/callback', (ctx) =>
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP callback boundary executes request-scoped callback Effect once.
+    ctx.var.runtime.runPromise(
       Effect.gen(function* () {
-        return yield* DBService
+        const db = yield* DBService
+        return yield* handleAuthCallback(ctx, ctx.env, db)
       }),
-    )
-    return await handleAuthCallback(ctx, ctx.env, db, ctx.var.runtime)
-  })
+    ),
+  )
   .get('/api/me-debug', (ctx) => ctx.json({ user: ctx.var.user }))
   .get('/api/v1/hello', (ctx) =>
     // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes request-scoped greeting Effect.
@@ -141,74 +141,77 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     }
     const token = getCookie(ctx, FEED_SESSION_COOKIE)
     const authorization = Predicate.isNullish(token) ? null : `Bearer ${token}`
+    const { env } = ctx
 
-    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary calls backend through the request runtime.
-    const callMeResult = await runtime.runPromise(
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes the whole dashboard dependency workflow once.
+    const dashboardResult = await runtime.runPromise(
       Effect.provide(
         Effect.gen(function* () {
           const client = yield* BackendClient
-          return yield* client.callMe(authorization)
+          const callMeResult = yield* client.callMe(authorization).pipe(Effect.orElseSucceed(() => null))
+          if (!Predicate.isNullish(callMeResult)) {
+            return { _tag: 'authenticated', user: callMeResult } as const
+          }
+
+          const refreshToken = getCookie(ctx, FEED_REFRESH_COOKIE)
+          if (Predicate.isNullish(refreshToken)) {
+            return { _tag: 'redirect' } as const
+          }
+
+          const bodyParams: Record<string, string> = {
+            client_id: env.OAUTH_CLIENT_ID,
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken,
+          }
+          if (String.isNonEmpty(env.OAUTH_CLIENT_SECRET)) {
+            bodyParams.client_secret = env.OAUTH_CLIENT_SECRET
+          }
+
+          const tokenData = yield* refreshTokens(env.IDP_BASE_URL, bodyParams).pipe(Effect.orElseSucceed(() => null))
+          if (Predicate.isNullish(tokenData)) {
+            return { _tag: 'redirect' } as const
+          }
+
+          const retryResult = yield* client
+            .callMe(`Bearer ${tokenData.access_token}`)
+            .pipe(Effect.orElseSucceed(() => null))
+          if (Predicate.isNullish(retryResult)) {
+            return { _tag: 'redirect' } as const
+          }
+
+          return { _tag: 'refreshed', tokenData, user: retryResult } as const
         }),
         liveLayer,
-      ).pipe(Effect.orElseSucceed(() => null)),
+      ),
     )
-    if (!Predicate.isNullish(callMeResult)) {
+
+    if (dashboardResult._tag === 'authenticated') {
       return ctx.render(
         <Document>
           <h1>Dashboard</h1>
-          <p>Logged in as: {callMeResult.email}</p>
-          <p>User ID: {callMeResult.id}</p>
+          <p>Logged in as: {dashboardResult.user.email}</p>
+          <p>User ID: {dashboardResult.user.id}</p>
           <a href='/logout'>Logout</a>
         </Document>,
       )
     }
 
-    const refreshToken = getCookie(ctx, FEED_REFRESH_COOKIE)
-    if (Predicate.isNullish(refreshToken)) {
+    if (dashboardResult._tag === 'redirect') {
       deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
       deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
       return ctx.redirect('/login')
     }
 
-    const { env } = ctx
-    const bodyParams: Record<string, string> = {
-      client_id: env.OAUTH_CLIENT_ID,
-      grant_type: 'refresh_token',
-      refresh_token: refreshToken,
-    }
-    if (String.isNonEmpty(env.OAUTH_CLIENT_SECRET)) {
-      bodyParams.client_secret = env.OAUTH_CLIENT_SECRET
-    }
-
-    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary refreshes tokens through the request runtime.
-    const tokenData = await runtime.runPromise(
-      refreshTokens(env.IDP_BASE_URL, bodyParams).pipe(Effect.orElseSucceed(() => null)),
-    )
-    if (Predicate.isNullish(tokenData)) {
-      deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-      deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-      return ctx.redirect('/login')
-    }
-
-    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary retries backend call through the request runtime.
-    const retryResult = await runtime.runPromise(
-      Effect.provide(
-        Effect.gen(function* () {
-          const client = yield* BackendClient
-          return yield* client.callMe(`Bearer ${tokenData.access_token}`)
-        }),
-        liveLayer,
-      ).pipe(Effect.orElseSucceed(() => null)),
-    )
-    if (Predicate.isNullish(retryResult)) {
-      deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-      deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-      return ctx.redirect('/login')
-    }
-
-    setCookie(ctx, FEED_SESSION_COOKIE, tokenData.access_token, { httpOnly: true, path: '/', sameSite: 'Lax' })
-    if (!Predicate.isNullish(tokenData.refresh_token) && String.isNonEmpty(tokenData.refresh_token)) {
-      setCookie(ctx, FEED_REFRESH_COOKIE, tokenData.refresh_token, {
+    setCookie(ctx, FEED_SESSION_COOKIE, dashboardResult.tokenData.access_token, {
+      httpOnly: true,
+      path: '/',
+      sameSite: 'Lax',
+    })
+    if (
+      !Predicate.isNullish(dashboardResult.tokenData.refresh_token) &&
+      String.isNonEmpty(dashboardResult.tokenData.refresh_token)
+    ) {
+      setCookie(ctx, FEED_REFRESH_COOKIE, dashboardResult.tokenData.refresh_token, {
         httpOnly: true,
         maxAge: 2_592_000,
         path: '/',
@@ -219,8 +222,8 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     return ctx.render(
       <Document>
         <h1>Dashboard</h1>
-        <p>Logged in as: {retryResult.email}</p>
-        <p>User ID: {retryResult.id}</p>
+        <p>Logged in as: {dashboardResult.user.email}</p>
+        <p>User ID: {dashboardResult.user.id}</p>
         <a href='/logout'>Logout</a>
       </Document>,
     )
