@@ -99,12 +99,12 @@ graph LR
 
 ## Step list
 
-| Step | Title                   | Invocation           | Gate          | Detail SKILL                 |
-| ---- | ----------------------- | -------------------- | ------------- | ---------------------------- |
-| 1    | Roadmap Intent          | Main only            | User approval | `roadmap-intent`        |
-| 2    | Milestone Decomposition | Main only            | User approval | `roadmap-decomposition` |
-| 3    | Execution               | Main only (observer) | Main judgment | inline (this SKILL, below)   |
-| 4    | Roadmap Retrospective   | Main only            | Main judgment | `roadmap-retrospective` |
+| Step | Title                   | Invocation           | Gate          | Detail SKILL               |
+| ---- | ----------------------- | -------------------- | ------------- | -------------------------- |
+| 1    | Roadmap Intent          | Main only            | User approval | `roadmap-intent`           |
+| 2    | Milestone Decomposition | Main only            | User approval | `roadmap-decomposition`    |
+| 3    | Execution               | Main only (observer) | Main judgment | inline (this SKILL, below) |
+| 4    | Roadmap Retrospective   | Main only            | Main judgment | `roadmap-retrospective`    |
 
 Per-step exit criteria, rollback specifics, and commit examples live in the corresponding
 `roadmap-*/SKILL.md` (or, for Step 3, in the inline section below).
@@ -200,13 +200,13 @@ graph LR
 
 ### Who writes what, when (summary)
 
-| Trigger                                                                | Owner                               | Effect on `progress.yaml`                                               |
-| ---------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------- |
-| `roadmap` Step 1 completes                                         | `roadmap-intent` (Main)        | Initialise `roadmap_id` / `title` / `status: planned` / empty `milestones: []`. |
-| `roadmap` Step 2 completes                                         | `roadmap-decomposition` (Main) | Finalise `milestones[]` (`planned`); transition roadmap `status` to `active`.   |
-| oh-my-codingagent execution cycle starts (during Roadmap Step 3)                    | `totto2727-dev-flow` Main                 | `milestones[].status: planned → active`; append to `workflow_identifiers[]`.    |
-| oh-my-codingagent execution cycle completes (= cycle's Step 9 Retrospective commit) | `totto2727-dev-flow` Main                 | `milestones[].status: active → completed`.                                      |
-| `roadmap` Step 4 completes                                         | `roadmap-retrospective` (Main) | Roadmap `status: active → completed`.                                           |
+| Trigger                                                                             | Owner                          | Effect on `progress.yaml`                                                       |
+| ----------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------- |
+| `roadmap` Step 1 completes                                                          | `roadmap-intent` (Main)        | Initialise `roadmap_id` / `title` / `status: planned` / empty `milestones: []`. |
+| `roadmap` Step 2 completes                                                          | `roadmap-decomposition` (Main) | Finalise `milestones[]` (`planned`); transition roadmap `status` to `active`.   |
+| oh-my-codingagent execution cycle starts (during Roadmap Step 3)                    | `totto2727-dev-flow` Main      | `milestones[].status: planned → active`; append to `workflow_identifiers[]`.    |
+| oh-my-codingagent execution cycle completes (= cycle's Step 9 Retrospective commit) | `totto2727-dev-flow` Main      | `milestones[].status: active → completed`.                                      |
+| `roadmap` Step 4 completes                                                          | `roadmap-retrospective` (Main) | Roadmap `status: active → completed`.                                           |
 
 ### Concurrency notes
 
@@ -244,11 +244,11 @@ artifact-based context restoration) are inherited. Roadmap-specific additions:
 
 ### Resume scenarios
 
-| Scenario                                 | State                                                                                                 | Path forward                                                                                                                                    |
-| ---------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| **A: Step 1–2 done, Step 3 not started** | Roadmap `status: active` / all `milestones[].status: planned` / `workflow_identifiers[]` empty        | Present the next milestone to the user; invite the user to launch the corresponding oh-my-codingagent execution cycle. (See "Step 3: Execution" above.)      |
-| **B: Step 3 in progress**                | Roadmap `status: active` / one or more `milestones[].status: active` with running `<identifier>`s     | Run execution-side session resume first (preamble item 4). Present a milestone-progress summary and confirm next-launch agreement with the user. |
-| **C: Step 4 in progress**                | Roadmap `status: active` / all `milestones[]` are `completed` or `cancelled` / Step 4 already started | Continue per `roadmap-retrospective`.                                                                                                      |
+| Scenario                                 | State                                                                                                 | Path forward                                                                                                                                            |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **A: Step 1–2 done, Step 3 not started** | Roadmap `status: active` / all `milestones[].status: planned` / `workflow_identifiers[]` empty        | Present the next milestone to the user; invite the user to launch the corresponding oh-my-codingagent execution cycle. (See "Step 3: Execution" above.) |
+| **B: Step 3 in progress**                | Roadmap `status: active` / one or more `milestones[].status: active` with running `<identifier>`s     | Run execution-side session resume first (preamble item 4). Present a milestone-progress summary and confirm next-launch agreement with the user.        |
+| **C: Step 4 in progress**                | Roadmap `status: active` / all `milestones[]` are `completed` or `cancelled` / Step 4 already started | Continue per `roadmap-retrospective`.                                                                                                                   |
 
 ### Detecting resumable roadmaps
 

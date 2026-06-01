@@ -20,7 +20,7 @@ Two modes (mutually exclusive); the choice is recorded both in the storage path 
 | Mode             | Storage location                                      | When to use                                                                                 |
 | ---------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | **General mode** | `docs/adr/<YYYY-MM-DD-title>.md`                      | Decision spans multiple roadmaps, multiple independent workflows, or is a project-wide norm |
-| **Roadmap mode** | `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md` | Decision is shared by multiple oh-my-codingagent execution cycles under a single roadmap                 |
+| **Roadmap mode** | `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md` | Decision is shared by multiple oh-my-codingagent execution cycles under a single roadmap    |
 
 For the full mode-decision flow chart, see `share-adr/SKILL.md` "Mode decision flow".
 

@@ -18,10 +18,10 @@ This skill provides the format and operating rules for permanently recording **d
 
 ADRs use one of two modes depending on **the context in which they are filed**. The determination is made at filing time by Main evaluating the scope, and is explicitly stated in the ADR body.
 
-| Mode             | Storage location                                      | Filing decision essence                                                                                             | Main filing origins                                                                                  |
-| ---------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| **General mode** | `docs/adr/<YYYY-MM-DD-title>.md`                      | A decision that "**spans multiple roadmaps / multiple independent workflows**" or becomes a "**project-wide norm**" | totto2727-dev-flow Step 3 (when a cross-cutting decision occurs) / roadmap Step 1 to 4 / one-off use   |
-| **Roadmap mode** | `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md` | Context, premises, or norms "**shared by multiple oh-my-codingagent execution cycles under a single roadmap**"                     | roadmap Step 1 to 4 / oh-my-codingagent execution cycles under it Step 3 (when invoked under a roadmap context) |
+| Mode             | Storage location                                      | Filing decision essence                                                                                             | Main filing origins                                                                                             |
+| ---------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **General mode** | `docs/adr/<YYYY-MM-DD-title>.md`                      | A decision that "**spans multiple roadmaps / multiple independent workflows**" or becomes a "**project-wide norm**" | totto2727-dev-flow Step 3 (when a cross-cutting decision occurs) / roadmap Step 1 to 4 / one-off use            |
+| **Roadmap mode** | `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md` | Context, premises, or norms "**shared by multiple oh-my-codingagent execution cycles under a single roadmap**"      | roadmap Step 1 to 4 / oh-my-codingagent execution cycles under it Step 3 (when invoked under a roadmap context) |
 
 ### Mode decision flow
 

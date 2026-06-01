@@ -51,10 +51,10 @@ Constraints that affect the entire roadmap. Cycle-specific constraints belong to
 The section finalized by `roadmap-planner` in Step 2 (Milestone Decomposition). One row per milestone with a one-line summary; details are split into `milestones/<milestone-id>.md` (one file per milestone).
 
 | ID                 | Title                 | Estimated oh-my-codingagent execution cycle count | Milestone dependencies     | Detail                             |
-| ------------------ | --------------------- | ---------------------------------- | -------------------------- | ---------------------------------- |
-| {{milestone_1_id}} | {{milestone_1_title}} | {{milestone_1_cycle_count}}        | {{milestone_1_depends_on}} | `milestones/{{milestone_1_id}}.md` |
-| {{milestone_2_id}} | {{milestone_2_title}} | {{milestone_2_cycle_count}}        | {{milestone_2_depends_on}} | `milestones/{{milestone_2_id}}.md` |
-| {{milestone_3_id}} | {{milestone_3_title}} | {{milestone_3_cycle_count}}        | {{milestone_3_depends_on}} | `milestones/{{milestone_3_id}}.md` |
+| ------------------ | --------------------- | ------------------------------------------------- | -------------------------- | ---------------------------------- |
+| {{milestone_1_id}} | {{milestone_1_title}} | {{milestone_1_cycle_count}}                       | {{milestone_1_depends_on}} | `milestones/{{milestone_1_id}}.md` |
+| {{milestone_2_id}} | {{milestone_2_title}} | {{milestone_2_cycle_count}}                       | {{milestone_2_depends_on}} | `milestones/{{milestone_2_id}}.md` |
+| {{milestone_3_id}} | {{milestone_3_title}} | {{milestone_3_cycle_count}}                       | {{milestone_3_depends_on}} | `milestones/{{milestone_3_id}}.md` |
 
 <!-- Add as many rows as needed. Multiple rows are expected because the very premise of starting a roadmap is that the work does not fit into a single cycle. -->
 

@@ -65,7 +65,7 @@ The expected number of cycles needed to achieve this milestone. 1 is standard. W
 
 | Number of cycles | Anticipated case                                                                                    |
 | ---------------- | --------------------------------------------------------------------------------------------------- |
-| 1 (recommended)  | The milestone fits within a single totto2727-dev-flow Intent Spec scale                                   |
+| 1 (recommended)  | The milestone fits within a single totto2727-dev-flow Intent Spec scale                             |
 | 2-3              | Intentional split across design / implementation / verification, or parallel multi-team             |
 | 4 or more        | Recommend re-examining milestone decomposition (consider further splitting into smaller milestones) |
 
@@ -79,14 +79,14 @@ As **an optional layout pattern example** when the `roadmap-planner` carves out 
 
 ## Quality criteria
 
-| Good                                                  | Bad                                                                         |
-| ----------------------------------------------------- | --------------------------------------------------------------------------- |
-| Purpose is written as a qualitative goal              | Observable criteria are mixed in (encroaching on workflow's responsibility) |
-| Dependent milestone IDs match `progress.yaml` | Notation drift or missing entries                                           |
-| Starting milestones explicitly list `(none)`          | The dependency section is left blank                                        |
-| The principle of 1 file = 1 milestone is followed     | Multiple milestones bundled into one file                                   |
-| Anticipated cycle count stays within 1-3              | Cycle count is 4 or more without considering re-decomposition               |
-| Non-scope is explicit                                 | Only scope, with ambiguous boundaries                                       |
+| Good                                              | Bad                                                                         |
+| ------------------------------------------------- | --------------------------------------------------------------------------- |
+| Purpose is written as a qualitative goal          | Observable criteria are mixed in (encroaching on workflow's responsibility) |
+| Dependent milestone IDs match `progress.yaml`     | Notation drift or missing entries                                           |
+| Starting milestones explicitly list `(none)`      | The dependency section is left blank                                        |
+| The principle of 1 file = 1 milestone is followed | Multiple milestones bundled into one file                                   |
+| Anticipated cycle count stays within 1-3          | Cycle count is 4 or more without considering re-decomposition               |
+| Non-scope is explicit                             | Only scope, with ambiguous boundaries                                       |
 
 ## Related artifacts
 

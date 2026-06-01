@@ -21,11 +21,11 @@ Describe in 1-3 paragraphs what the roadmap as a whole accomplished against the 
 
 List the final state of `progress.yaml.milestones[]` and describe the rationale for each milestone's completion / non-completion / blocked / cancelled judgment.
 
-| Milestone ID       | Title                 | Final Status           | Rationale for the completion judgment | Related totto2727-dev-flow `<identifier>`  |
-| ------------------ | --------------------- | ---------------------- | ------------------------------------- | ------------------------------------ |
-| {{milestone_1_id}} | {{milestone_1_title}} | {{milestone_1_status}} | {{milestone_1_completion_rationale}}  | {{milestone_1_workflow_identifiers}} |
-| {{milestone_2_id}} | {{milestone_2_title}} | {{milestone_2_status}} | {{milestone_2_completion_rationale}}  | {{milestone_2_workflow_identifiers}} |
-| {{milestone_3_id}} | {{milestone_3_title}} | {{milestone_3_status}} | {{milestone_3_completion_rationale}}  | {{milestone_3_workflow_identifiers}} |
+| Milestone ID       | Title                 | Final Status           | Rationale for the completion judgment | Related totto2727-dev-flow `<identifier>` |
+| ------------------ | --------------------- | ---------------------- | ------------------------------------- | ----------------------------------------- |
+| {{milestone_1_id}} | {{milestone_1_title}} | {{milestone_1_status}} | {{milestone_1_completion_rationale}}  | {{milestone_1_workflow_identifiers}}      |
+| {{milestone_2_id}} | {{milestone_2_title}} | {{milestone_2_status}} | {{milestone_2_completion_rationale}}  | {{milestone_2_workflow_identifiers}}      |
+| {{milestone_3_id}} | {{milestone_3_title}} | {{milestone_3_status}} | {{milestone_3_completion_rationale}}  | {{milestone_3_workflow_identifiers}}      |
 
 <!-- Add as many rows as needed. Judge each milestone against the "Outcomes (qualitative)" section of `milestones/<milestone-id>.md`. -->
 

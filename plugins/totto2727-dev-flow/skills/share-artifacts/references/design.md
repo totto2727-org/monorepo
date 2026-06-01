@@ -98,7 +98,7 @@ Determining whether to conclude inside `design.md` or file an ADR separately:
 | Adopting Effect across the entire project (General)                                            | The cache strategy of this feature is LRU            |
 | Using gRPC across all services (General)                                                       | Pagination of this API is cursor-based               |
 | Unifying the authorization layer with OpenFGA (General)                                        | Validation of this screen is written with zod        |
-| Conventions shared by multiple independent oh-my-codingagent execution cycles (General)                       | Naming rules for temporary KV keys in this cycle     |
+| Conventions shared by multiple independent oh-my-codingagent execution cycles (General)        | Naming rules for temporary KV keys in this cycle     |
 | `AuthSession` type definition shared by all cycles under the `oauth-rollout` roadmap (Roadmap) | Wording of the Session guard in this cycle           |
 
 - Affects other features / other teams / future cycles → ADR

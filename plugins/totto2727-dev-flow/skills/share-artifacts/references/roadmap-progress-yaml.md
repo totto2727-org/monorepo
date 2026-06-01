@@ -61,14 +61,14 @@ Transition timing of roadmap-wide `status`:
 
 ### `milestones[]`
 
-| Sub-field              | How to write                                                                                                                                                      |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                   | kebab-case recommended (e.g. `ms-01-foundation`). Match the `milestones/<id>.md` file basename. **Immutable after Step 2 confirmation**                           |
-| `title`                | Short description (1 line). Match the title of `milestones/<id>.md`                                                                                               |
-| `status`               | 5 values: `planned` / `active` / `completed` / `blocked` / `cancelled`. Scalar rewrite from `planned → active` at cycle start, `active → completed` at completion |
-| `depends_on`           | Array of milestone IDs that must be completed first. Maintain DAG. Immutable after Step 2 confirmation                                                            |
+| Sub-field              | How to write                                                                                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`                   | kebab-case recommended (e.g. `ms-01-foundation`). Match the `milestones/<id>.md` file basename. **Immutable after Step 2 confirmation**                                        |
+| `title`                | Short description (1 line). Match the title of `milestones/<id>.md`                                                                                                            |
+| `status`               | 5 values: `planned` / `active` / `completed` / `blocked` / `cancelled`. Scalar rewrite from `planned → active` at cycle start, `active → completed` at completion              |
+| `depends_on`           | Array of milestone IDs that must be completed first. Maintain DAG. Immutable after Step 2 confirmation                                                                         |
 | `workflow_identifiers` | Array of linked oh-my-codingagent execution cycle `<identifier>` values (1:N allowed). **Append-only operation** (do not delete; if no longer needed, explain in `notes` etc.) |
-| `notes`                | Optional supplement (default `null`). Free area for future schema extension. Do not include PII / tokens / internal URLs (consistent with `specialist-common` §9) |
+| `notes`                | Optional supplement (default `null`). Free area for future schema extension. Do not include PII / tokens / internal URLs (consistent with `specialist-common` §9)              |
 
 #### Recommended `id` naming examples
 
@@ -78,12 +78,12 @@ Transition timing of roadmap-wide `status`:
 
 #### `status` transition rules
 
-| Transition           | Timing                                                                                                                                                  |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `planned → active`   | At underlying oh-my-codingagent execution cycle start (Main transitions at the same time as `progress.yaml` initialization; see "Update protocol" of this document)  |
+| Transition           | Timing                                                                                                                                                                     |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `planned → active`   | At underlying oh-my-codingagent execution cycle start (Main transitions at the same time as `progress.yaml` initialization; see "Update protocol" of this document)        |
 | `active → completed` | At underlying oh-my-codingagent execution cycle completion (= `totto2727-dev-flow` Step 9 Retrospective completion). For 1:N, the final state judgment is left to the user |
-| `* → blocked`        | When an underlying cycle hits a hard-to-resolve Blocker, transitioned by Main's judgment                                                                |
-| `* → cancelled`      | When the user judges to cancel a milestone during roadmap Step 2 / Step 3                                                                               |
+| `* → blocked`        | When an underlying cycle hits a hard-to-resolve Blocker, transitioned by Main's judgment                                                                                   |
+| `* → cancelled`      | When the user judges to cancel a milestone during roadmap Step 2 / Step 3                                                                                                  |
 
 #### Append/delete rules for `workflow_identifiers[]`
 
@@ -114,8 +114,8 @@ Fields **not** to update (immutable or other Specialist's responsibility):
 
 Following the user-simplification policy ("only the linkage is needed"), this version updates only at the following **2 timings**:
 
-| Timing                      | Details                                                                                                                                                                                                                                                                           |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Timing                      | Details                                                                                                                                                                                                                                                                                 |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **(a) At cycle start**      | Same timing as `progress.yaml` initialization (`totto2727-dev-flow/SKILL.md` "When the workflow starts" step 5). Transition the relevant `milestones[].status` from `planned → active`, append the cycle's `<identifier>` to `milestones[].workflow_identifiers[]`, update `updated_at` |
 | **(c) At cycle completion** | **At `totto2727-dev-flow` Step 9 Retrospective completion** (the 9-step system). Transition the relevant `milestones[].status` from `active → completed`, update `updated_at`                                                                                                           |
 

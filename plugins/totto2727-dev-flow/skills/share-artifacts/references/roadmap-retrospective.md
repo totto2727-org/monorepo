@@ -23,10 +23,10 @@ While taking `references/retrospective.md` (the workflow version) as **a referen
 
 Under `docs/retrospective/`, `totto2727-dev-flow` retrospectives and `roadmap` retrospectives coexist in **a flat aggregation** (same pattern as `docs/adr/`). Name-space collisions between the two are avoided by **prefixing the roadmap side with `roadmap-`**:
 
-| Kind                            | Storage location                             | Example                                       |
-| ------------------------------- | -------------------------------------------- | --------------------------------------------- |
+| Kind                                  | Storage location                             | Example                                       |
+| ------------------------------------- | -------------------------------------------- | --------------------------------------------- |
 | `totto2727-dev-flow` individual cycle | `docs/retrospective/<identifier>.md`         | `docs/retrospective/auth-foundation.md`       |
-| `roadmap` roadmap           | `docs/retrospective/roadmap-<roadmap-id>.md` | `docs/retrospective/roadmap-oauth-rollout.md` |
+| `roadmap` roadmap                     | `docs/retrospective/roadmap-<roadmap-id>.md` | `docs/retrospective/roadmap-oauth-rollout.md` |
 
 This `roadmap-` prefix naming rule is duplicated in this document and in `roadmap/SKILL.md` (avoiding name collisions in a directory where the aggregated form has workflow and roadmap coexisting).
 
@@ -117,13 +117,13 @@ Inheriting the quality criteria of `references/retrospective.md` (workflow versi
 
 | Good                                                                                                                        | Bad                                                                             |
 | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| **All** underlying `totto2727-dev-flow` retrospectives are summarized as aggregation paragraphs                                   | Some cycle's retrospective is not mentioned                                     |
-| The milestone achievement overview table matches `progress.yaml.milestones[]`                                       | The table is stale, or has notation drift from the yaml                         |
+| **All** underlying `totto2727-dev-flow` retrospectives are summarized as aggregation paragraphs                             | Some cycle's retrospective is not mentioned                                     |
+| The milestone achievement overview table matches `progress.yaml.milestones[]`                                               | The table is stale, or has notation drift from the yaml                         |
 | Dependency graph validity is written from the 4 aspects "as intended" / "unnecessary" / "missing" / "effective parallelism" | Ends with abstract impressions like "the dependency graph generally functioned" |
 | Improvement proposals are purified to the roadmap layer (strategic level)                                                   | Tactically duplicates improvement proposals from inside underlying cycles       |
 | The judgment process is written for milestones ending in `cancelled` / `blocked`                                            | Unmet milestones are not mentioned, or the basis is unclear                     |
 | The file location follows `docs/retrospective/roadmap-<roadmap-id>.md`                                                      | The `roadmap-` prefix is missing, or the directory is wrong                     |
-| Causal analysis is done from observed data (`progress.yaml` timestamps and workflow_identifiers)                    | Ends with impressions / opinions                                                |
+| Causal analysis is done from observed data (`progress.yaml` timestamps and workflow_identifiers)                            | Ends with impressions / opinions                                                |
 
 ## Data sources (required as input)
 
