@@ -25,9 +25,9 @@ export const Service = Context.Service<Type>('@app/feed-platform-web/feature/env
 export const makeLayer = (env: Type) => Layer.succeed(Service, env)
 
 export const devLayer = Layer.succeed(Service, {
-  BACKEND_BASE_URL: 'http://localhost:8789',
+  BACKEND_BASE_URL: 'http://localhost:8788',
   DATABASE_AUTH_TOKEN: '',
-  DATABASE_URL: 'http://127.0.0.1:8080',
+  DATABASE_URL: 'http://127.0.0.1:8081',
   IDP_BASE_URL: 'http://localhost:8787',
   OAUTH_CLIENT_ID: 'feed-platform-web',
   OAUTH_CLIENT_SECRET: 'dev-secret-pkce-not-used',
