@@ -10,7 +10,7 @@ db-reset:
     rm ./node_modules/.cache/db
 
 db-dev: db-schema-apply
-    turso dev -f ./node_modules/.cache/db
+    turso dev -f ./node_modules/.cache/db --port 8080
 
 db-migrate-apply: db-reset
     atlas migrate apply --env local
