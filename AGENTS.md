@@ -42,15 +42,16 @@ Use only the tasks that the project defines. For example, a package may expose `
 Languages whose toolchains support workspace-root execution expose root tasks as `<language>:<basic-task>`. These tasks must run without `-r` and without file arguments.
 
 ```bash
-vp run js:check               # JavaScript format / lint / type check
-vp run js:fix                 # JavaScript auto-fix, then type check
-vp run js:test                # JavaScript tests
-vp run mbt:check              # MoonBit check from repository-root moon.work
-vp run mbt:fix                # MoonBit format from repository-root moon.work
-vp run mbt:test               # MoonBit tests from repository-root moon.work
+vp run js:check
+vp run js:fix
+vp run js:test
+vp run mbt:check
+vp run mbt:fix
+vp run mbt:test
 ```
 
 Do not create root language-level tasks for commands that require `-r`, package filters, or file paths. Define those in the relevant project and let `w:*` collect them.
+Language-specific details live in the language directory's `AGENTS.md` when needed, such as `js/AGENTS.md` or `mbt/AGENTS.md`.
 
 #### Root aggregate tasks
 
@@ -103,13 +104,6 @@ Multi-step scripts that are not workspace fan-out tasks belong in the `Justfile`
 vp run --no-cache <task>             # Skip the cache for this invocation
 vp run --concurrency-limit 0 <task>  # Unlimited concurrency (default: 4)
 vp run -v <task>                     # Show the per-task cache hit / miss summary
-```
-
-### File-level test commands
-
-```bash
-vp test run <test-file>              # Run a specific test file
-vp test related <source>             # Run tests related to a source file
 ```
 
 ### Defining new tasks

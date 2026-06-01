@@ -24,17 +24,13 @@ Each directory contains a `moon.pkg.json` listing dependencies, source files (`*
 
 ## Commands
 
-MoonBit workspace-level tasks are defined at the repository root. This package keeps only `build` because `w:build` fans out to package build tasks.
+MoonBit workspace-level commands live in `mbt/AGENTS.md`. This package keeps only `build` because `w:build` fans out to package build tasks.
 
 - `vp run w:build` — includes this package's `moon build`
-- `vp run mbt:check` — `moon check`
-- `vp run mbt:fix` — `moon fmt`
-- `vp run mbt:test` — `moon test`
-- `moon info` — Update generated interface files (`.mbti`)
 
 ## Workflow
 
-After making changes, always run `moon info` then `vp run mbt:fix` to refresh interfaces and format code. Check `.mbti` diffs to verify expected API changes.
+After making API changes, follow `mbt/AGENTS.md` to refresh interfaces and format code. Check `.mbti` diffs to verify expected API changes.
 
 ## Roadmap
 
