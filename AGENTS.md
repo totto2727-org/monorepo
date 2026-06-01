@@ -86,7 +86,14 @@ vp run <project>#<task>              # e.g. vp run saas-example#setup:tsr
 
 When the above is impractical, `cd` into the package first and run `vp run <task>`.
 
-Project-specific commands beyond `setup` / `fix` / `check` / `build` / `test` belong in that project's documentation. If you need file-level execution, inspect the relevant project's `package.json` and `vite.config.ts` and mirror the command shape they define.
+Project-specific commands beyond `setup` / `fix` / `check` / `build` / `test` belong in that project's documentation.
+
+If you need file-based execution, use one of two patterns:
+
+1. Pass file arguments through an existing Vite+ task when that task supports extra arguments.
+2. Inspect the relevant project's `package.json` and `vite.config.ts`, then run the underlying command directly with the needed file arguments.
+
+Prefer the first pattern when supported; use the second when the Vite+ task cannot express the file-level invocation.
 
 Multi-step scripts that are not workspace fan-out tasks belong in the `Justfile`. Use Just tasks for operational workflows such as database-related procedures.
 
@@ -123,27 +130,6 @@ run: {
 self-output exclusion globs across `setup:*` and `build`. Vite+ rejects
 a task and a `package.json` script that share a name — when promoting
 a script to a task, drop the script.
-
-### MoonBit Commands
-
-MoonBit uses the repository-root `moon.work`. Root `vite.config.ts`
-exposes `mbt:check` / `mbt:fix` / `mbt:test`; build remains a
-package task collected by `w:build`.
-
-```bash
-vp run mbt:check # moon check
-vp run mbt:fix   # moon fmt
-vp run mbt:test  # moon test
-vp run w:build   # includes MoonBit package builds
-```
-
-Drop down to `moon` directly only for non-task subcommands:
-
-```bash
-moon info          # Update generated interface files (.mbti)
-moon test --update # Update snapshot tests
-moon coverage analyze > uncovered.log
-```
 
 ## Architecture
 
