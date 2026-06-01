@@ -17,23 +17,65 @@ eza --tree -L 2 -D js mbt go
 
 - **Never use `npx` or `bunx`** — always use `vp run`, `vp exec`, or `vpx` in that order
 - All commands must be run from the repository root unless noted otherwise
-- All `check` / `fix` / `test` / `setup` / `build` are Vite+ tasks defined in `vite.config.ts`. The `--cache` flag is no longer required — caching is on by default
+- The task runner is always Vite+ (`vp`) regardless of language. Use Vite+ tasks for JavaScript, MoonBit, Go, and any future language-specific automation.
+- Basic task names are `setup`, `fix`, `check`, `build`, and `test`. A project may omit tasks that are not needed.
+- All tasks are defined in `vite.config.ts`. The `--cache` flag is no longer required — caching is on by default.
 
-### Standard Tasks
+### Task Layers
 
-`vp run <task>` runs the task in the current package; `-r` fans it out across the workspace.
+#### Project-level tasks
+
+Project-level tasks live in each project's `vite.config.ts`. They use the basic task names directly and are the unit collected by workspace fan-out.
 
 ```bash
-vp run check                  # Format / lint / type check (root task: vp check)
-vp run fix                    # Auto-fix lint / format, then type check (root task: vp check --fix)
-vp run test                   # Run Vitest (root task: vp test)
-vp run -r setup               # Run every package's setup task (e.g. wrangler types,
-                              # paraglide-js compile, tsr generate, atlas-to-kysely)
-vp run -r build               # Build every package; per-package build dependsOn its setup
-vp run --parallel ci          # Run check / test / build across the workspace ignoring
-                              # task ordering. Run `vp run -r setup` first to warm the
-                              # cache so generated outputs already exist
+vp run --filter <project> setup
+vp run --filter <project> fix
+vp run --filter <project> check
+vp run --filter <project> build
+vp run --filter <project> test
 ```
+
+Use only the tasks that the project defines. For example, a package may expose `build` but omit `test`.
+
+#### Language-level root tasks
+
+Languages whose toolchains support workspace-root execution expose root tasks as `<language>:<basic-task>`. These tasks must run without `-r` and without file arguments.
+
+```bash
+vp run js:check               # JavaScript format / lint / type check
+vp run js:fix                 # JavaScript auto-fix, then type check
+vp run js:test                # JavaScript tests
+vp run mbt:check              # MoonBit check from repository-root moon.work
+vp run mbt:fix                # MoonBit format from repository-root moon.work
+vp run mbt:test               # MoonBit tests from repository-root moon.work
+```
+
+Do not create root language-level tasks for commands that require `-r`, package filters, or file paths. Define those in the relevant project and let `w:*` collect them.
+
+#### Repository-level tasks
+
+Repository-level tasks aggregate across projects and languages. Use the existing root interface for normal repo-wide work.
+
+```bash
+vp run setup                  # Repository setup aggregate, when defined
+vp run fix                    # Repository fix aggregate
+vp run check                  # Repository check aggregate
+vp run build                  # Repository build aggregate, when defined
+vp run test                   # Repository test aggregate
+```
+
+Workspace fan-out tasks use the `w:<basic-task>` form and run the corresponding project-level task across the workspace.
+
+```bash
+vp run w:setup                # Run every package's setup task
+vp run w:fix                  # Run every package's fix task
+vp run w:check                # Run every package's check task
+vp run w:build                # Run every package's build task
+vp run w:test                 # Run every package's test task
+vp run --parallel ci          # Run check / test / build across the workspace ignoring task ordering
+```
+
+Run `vp run w:setup` first when generated outputs must exist before parallel CI-style execution.
 
 ### Targeting a single package
 
@@ -44,6 +86,10 @@ vp run <project>#<task>              # e.g. vp run saas-example#setup:tsr
 
 When the above is impractical, `cd` into the package first and run `vp run <task>`.
 
+Project-specific commands beyond `setup` / `fix` / `check` / `build` / `test` belong in that project's documentation. If you need file-level execution, inspect the relevant project's `package.json` and `vite.config.ts` and mirror the command shape they define.
+
+Multi-step scripts that are not workspace fan-out tasks belong in the `Justfile`. Use Just tasks for operational workflows such as database-related procedures.
+
 ### Adjusting cache and concurrency
 
 ```bash
@@ -52,7 +98,7 @@ vp run --concurrency-limit 0 <task>  # Unlimited concurrency (default: 4)
 vp run -v <task>                     # Show the per-task cache hit / miss summary
 ```
 
-### Per-test commands
+### File-level test commands
 
 ```bash
 vp test run <test-file>              # Run a specific test file
