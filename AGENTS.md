@@ -80,9 +80,18 @@ a script to a task, drop the script.
 
 ### MoonBit Commands
 
-`mbt/` packages expose `build` / `check` / `fix` / `test` as Vite+
-tasks, so use `vp run --filter @totto2727/geo <task>` from the repo
-root. Drop down to `moon` directly only for non-task subcommands:
+MoonBit uses the repository-root `moon.work`. Root `vite.config.ts`
+exposes `mbt:check` / `mbt:fix` / `mbt:test`; build remains a
+package task collected by `w:build`.
+
+```bash
+vp run mbt:check # moon check
+vp run mbt:fix   # moon fmt
+vp run mbt:test  # moon test
+vp run w:build   # includes MoonBit package builds
+```
+
+Drop down to `moon` directly only for non-task subcommands:
 
 ```bash
 moon info          # Update generated interface files (.mbti)

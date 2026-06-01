@@ -24,17 +24,17 @@ Each directory contains a `moon.pkg.json` listing dependencies, source files (`*
 
 ## Commands
 
-`build` / `check` / `fix` / `test` are Vite+ tasks (see `vite.config.ts`). Run them from the repo root via `vp run --filter @totto2727/geo-mbt <task>` or `vp run -r <task>`.
+MoonBit workspace-level tasks are defined at the repository root. This package keeps only `build` because `w:build` fans out to package build tasks.
 
-- `vp run --filter @totto2727/geo-mbt build` — `moon build`
-- `vp run --filter @totto2727/geo-mbt check` — `moon check`
-- `vp run --filter @totto2727/geo-mbt fix` — `moon fmt`
-- `vp run --filter @totto2727/geo-mbt test` — `moon test`
+- `vp run w:build` — includes this package's `moon build`
+- `vp run mbt:check` — `moon check`
+- `vp run mbt:fix` — `moon fmt`
+- `vp run mbt:test` — `moon test`
 - `moon info` — Update generated interface files (`.mbti`)
 
 ## Workflow
 
-After making changes, always run `moon info` then `vp run --filter @totto2727/geo-mbt fix` to refresh interfaces and format code. Check `.mbti` diffs to verify expected API changes.
+After making changes, always run `moon info` then `vp run mbt:fix` to refresh interfaces and format code. Check `.mbti` diffs to verify expected API changes.
 
 ## Roadmap
 
