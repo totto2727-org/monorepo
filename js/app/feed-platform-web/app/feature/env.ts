@@ -1,5 +1,7 @@
 import { Context, Layer } from 'effect'
 
+import * as HonoContext from '#@/feature/share/lib/hono/context.ts'
+
 export interface Backend {
   BACKEND_BASE_URL: string
 }
@@ -23,6 +25,8 @@ export type Type = OAuth & Idp & Backend & Database
 export const Service = Context.Service<Type>('@app/feed-platform-web/feature/env/Service')
 
 export const makeLayer = (env: Type) => Layer.succeed(Service, env)
+
+export const prodLayer = Layer.sync(Service, () => HonoContext.get().env)
 
 export const devLayer = Layer.succeed(Service, {
   BACKEND_BASE_URL: 'http://localhost:8788',

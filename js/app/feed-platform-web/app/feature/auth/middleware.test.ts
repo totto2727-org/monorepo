@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
+import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 
 const mockJwtVerify = vi.fn()
 
@@ -12,10 +13,9 @@ vi.mock('jose', () => ({
 
 const { authMiddleware } = await import('./middleware.ts')
 
-const testEnv = { IDP_BASE_URL: 'https://idp.example.com' }
-
 const makeApp = () =>
   new Hono<{ Variables: { user: { id: string; email: string } | null } }>()
+    .use('*', runtimeMiddleware)
     .use('*', authMiddleware)
     .get('/test', (ctx) => ctx.json({ user: ctx.var.user }))
 
@@ -26,7 +26,7 @@ beforeEach(() => {
 describe('authMiddleware', () => {
   it('sets user to null when no cookie present', async () => {
     const app = makeApp()
-    const res = await app.request('/test', undefined, testEnv)
+    const res = await app.request('/test')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ user: null })
   })
@@ -36,7 +36,7 @@ describe('authMiddleware', () => {
       payload: { email: 'test@example.com', sub: 'user-123' },
     })
     const app = makeApp()
-    const res = await app.request('/test', { headers: { cookie: `${FEED_SESSION_COOKIE}=valid.jwt.token` } }, testEnv)
+    const res = await app.request('/test', { headers: { cookie: `${FEED_SESSION_COOKIE}=valid.jwt.token` } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ user: { email: 'test@example.com', id: 'user-123' } })
   })
@@ -46,11 +46,7 @@ describe('authMiddleware', () => {
       payload: { sub: 'user-123' },
     })
     const app = makeApp()
-    const res = await app.request(
-      '/test',
-      { headers: { cookie: `${FEED_SESSION_COOKIE}=invalid-payload.jwt.token` } },
-      testEnv,
-    )
+    const res = await app.request('/test', { headers: { cookie: `${FEED_SESSION_COOKIE}=invalid-payload.jwt.token` } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ user: null })
   })
@@ -58,11 +54,7 @@ describe('authMiddleware', () => {
   it('sets user to null when JWT verification fails', async () => {
     mockJwtVerify.mockRejectedValue(new Error('Invalid JWT'))
     const app = makeApp()
-    const res = await app.request(
-      '/test',
-      { headers: { cookie: `${FEED_SESSION_COOKIE}=tampered.jwt.token` } },
-      testEnv,
-    )
+    const res = await app.request('/test', { headers: { cookie: `${FEED_SESSION_COOKIE}=tampered.jwt.token` } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ user: null })
   })

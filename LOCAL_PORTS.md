@@ -15,7 +15,7 @@ This file is the local port registry for systems that are designed to run togeth
 
 ## Cross-Service Expectations
 
-- `identity-provider` accepts `feed-platform-web` and `http://localhost:8789` as local OAuth audiences.
+- `identity-provider` accepts `feed-platform-web` and `http://127.0.0.1:8789` as local OAuth audiences.
 - `feed-platform-web` expects IdP at `http://localhost:8787`, backend BFF at `http://localhost:8788`, and its own DB at `http://127.0.0.1:8081`.
 - `feed-platform-backend` expects IdP and JWKS at `http://localhost:8787`.
 - IdP DB and feed-platform-web DB are separate local database boundaries, matching production separation. Do not point both apps at the same `turso dev` process.

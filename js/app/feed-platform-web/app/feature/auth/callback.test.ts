@@ -66,7 +66,7 @@ describe('handleAuthCallback', () => {
   })
 
   it('returns 401 when access_token is missing from response', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({ error: 'invalid_grant' }, { status: 200 })))
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({})))
     const app = makeApp()
     const res = await app.request('/auth/callback?code=authcode&state=mystate', {
       headers: { cookie: makeCookieHeader({ oauth_state: 'mystate', pkce_verifier: 'verifier123' }) },

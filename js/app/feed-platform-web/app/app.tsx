@@ -19,9 +19,10 @@ import {
   generateVerifier,
 } from '#@/feature/auth/oauth-client.ts'
 import { Service as DBService } from '#@/feature/db/kysely.ts'
+import * as AppEnv from '#@/feature/env.ts'
 import * as Greeting from '#@/feature/greeting.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
-import type { Env as AppEnv } from '#@/feature/share/lib/hono/context.ts'
+import type { Env } from '#@/feature/share/lib/hono/context.ts'
 import { Document } from '#@/ui/document.tsx'
 
 const TokenResponse = Schema.Struct({
@@ -56,7 +57,7 @@ const logoutFromIdp = (idpBaseUrl: string, sessionCookieValue: string) =>
     yield* client.execute(request)
   })
 
-const app: Hono<AppEnv> = new Hono<AppEnv>()
+const app: Hono<Env> = new Hono<Env>()
   .use(logger())
   .use(contextStorage())
   .use(runtimeMiddleware)
@@ -78,7 +79,7 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes the whole OAuth login workflow once.
     ctx.var.runtime.runPromise(
       Effect.gen(function* () {
-        const { env } = ctx
+        const env = yield* AppEnv.Service
         const verifier = generateVerifier()
         const state = generateState()
         const nonce = generateNonce()
@@ -106,8 +107,9 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP callback boundary executes request-scoped callback Effect once.
     ctx.var.runtime.runPromise(
       Effect.gen(function* () {
+        const env = yield* AppEnv.Service
         const db = yield* DBService
-        return yield* handleAuthCallback(ctx, ctx.env, db)
+        return yield* handleAuthCallback(ctx, env, db)
       }),
     ),
   )
@@ -129,7 +131,7 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
         if (Predicate.isNullish(user)) {
           return ctx.redirect('/login')
         }
-        const { env } = ctx
+        const env = yield* AppEnv.Service
         const client = yield* BackendClient
         const callMeResult = yield* client.callMe().pipe(Effect.orElseSucceed(() => null))
         if (!Predicate.isNullish(callMeResult)) {
@@ -204,9 +206,10 @@ const app: Hono<AppEnv> = new Hono<AppEnv>()
     // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes the whole logout workflow once.
     ctx.var.runtime.runPromise(
       Effect.gen(function* () {
+        const env = yield* AppEnv.Service
         const token = getCookie(ctx, FEED_SESSION_COOKIE)
         if (!Predicate.isNullish(token)) {
-          yield* logoutFromIdp(ctx.env.IDP_BASE_URL, token).pipe(Effect.ignore)
+          yield* logoutFromIdp(env.IDP_BASE_URL, token).pipe(Effect.ignore)
         }
         deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
         deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
