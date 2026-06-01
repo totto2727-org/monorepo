@@ -52,19 +52,21 @@ vp run mbt:test               # MoonBit tests from repository-root moon.work
 
 Do not create root language-level tasks for commands that require `-r`, package filters, or file paths. Define those in the relevant project and let `w:*` collect them.
 
-#### Repository-level tasks
+#### Root aggregate tasks
 
-Repository-level tasks aggregate across projects and languages. Use the existing root interface for normal repo-wide work.
+Root aggregate tasks combine language-level root tasks. They are not full workspace fan-out tasks; use them when the operation is implemented by root language tasks such as `js:*` and `mbt:*`.
 
 ```bash
-vp run setup                  # Repository setup aggregate, when defined
-vp run fix                    # Repository fix aggregate
-vp run check                  # Repository check aggregate
-vp run build                  # Repository build aggregate, when defined
-vp run test                   # Repository test aggregate
+vp run setup                  # Root setup aggregate, when defined
+vp run fix                    # Root language fix aggregate
+vp run check                  # Root language check aggregate
+vp run build                  # Root build aggregate, when defined
+vp run test                   # Root language test aggregate
 ```
 
-Workspace fan-out tasks use the `w:<basic-task>` form and run the corresponding project-level task across the workspace.
+#### Repository-level workspace fan-out tasks
+
+True repository-level execution uses the `w:<basic-task>` form. These tasks run the corresponding project-level task across the workspace.
 
 ```bash
 vp run w:setup                # Run every package's setup task
