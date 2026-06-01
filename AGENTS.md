@@ -57,10 +57,8 @@ Do not create root language-level tasks for commands that require `-r`, package 
 Root aggregate tasks combine language-level root tasks. They are not full workspace fan-out tasks; use them when the operation is implemented by root language tasks such as `js:*` and `mbt:*`.
 
 ```bash
-vp run setup                  # Root setup aggregate, when defined
 vp run fix                    # Root language fix aggregate
 vp run check                  # Root language check aggregate
-vp run build                  # Root build aggregate, when defined
 vp run test                   # Root language test aggregate
 ```
 
