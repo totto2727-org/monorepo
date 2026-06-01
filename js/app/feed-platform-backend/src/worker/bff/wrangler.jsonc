@@ -11,6 +11,10 @@
   "placement": {
     "mode": "smart",
   },
+  "dev": {
+    "ip": "127.0.0.1",
+    "port": 8788,
+  },
   "vars": {
     "IDP_BASE_URL": "http://localhost:8787",
     "IDP_JWKS_URL": "http://localhost:8787/api/v1/auth/jwks",
