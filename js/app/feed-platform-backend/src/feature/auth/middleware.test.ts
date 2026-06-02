@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
+import * as AppEnv from '#@/feature/env.ts'
 import type { Env } from '#@/feature/share/lib/hono/context.ts'
 
 const { mockJwtVerify } = vi.hoisted(() => ({ mockJwtVerify: vi.fn() }))
@@ -14,11 +15,7 @@ const { authMiddleware } = await import('./middleware.ts')
 const { middleware: runtimeMiddleware } = await import('#@/feature/runtime/hono.ts')
 const { default: bffWorker } = await import('#@/worker/bff/worker.ts')
 
-const bindings = {
-  FEED_PLATFORM_AUDIENCE: 'feed-platform-web',
-  IDP_BASE_URL: 'http://localhost:8787',
-  IDP_JWKS_URL: 'http://localhost:8787/api/v1/auth/jwks',
-}
+const bindings = AppEnv.dev
 
 const makeApp = () => {
   const app = new Hono<Env>()
