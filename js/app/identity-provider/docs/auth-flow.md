@@ -25,6 +25,42 @@ The feed example consists of:
 - `feed-platform-backend` on `http://127.0.0.1:8788` as the BFF API protected by
   IdP-issued JWTs.
 
+## Sequence diagram
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor User
+  participant Web as feed-platform-web
+  participant IdP as identity-provider
+  participant BetterAuth as Better Auth OAuth/OIDC
+  participant Backend as feed-platform-backend
+
+  User->>Web: GET /login
+  Web-->>User: Set oauth_state and pkce_verifier cookies; redirect to /oauth2/authorize
+  User->>IdP: GET /api/v1/auth/oauth2/authorize?state&nonce&code_challenge
+  IdP->>BetterAuth: Validate OAuth client, redirect URI, scope, state, PKCE challenge
+  BetterAuth-->>User: Redirect to /app/login when no IdP session exists
+  User->>IdP: Complete Magic Link or Passkey login
+  IdP-->>User: Restore login_return_to and redirect to original authorize URL
+  User->>IdP: GET /api/v1/auth/oauth2/authorize?...original query...
+  BetterAuth-->>User: Redirect to /app/oauth/consent
+  User->>IdP: POST /api/v1/auth/oauth2/consent with accept and oauth_query
+  IdP->>BetterAuth: Verify signed oauth_query and record consent
+  BetterAuth-->>User: Redirect to feed /auth/callback?code&state
+  User->>Web: GET /auth/callback?code&state
+  Web->>Web: Verify oauth_state cookie and load pkce_verifier
+  Web->>BetterAuth: POST /oauth2/token with code, client credentials, PKCE verifier
+  BetterAuth-->>Web: access_token, id_token, optional refresh_token
+  Web->>Web: Verify ID token nonce and set feed-session/feed-refresh cookies
+  Web-->>User: Redirect to /dashboard
+  User->>Web: GET /dashboard
+  Web->>Backend: GET /api/v1/me with Authorization: Bearer feed-session token
+  Backend->>IdP: Fetch JWKS when needed
+  Backend-->>Web: JWT-derived user payload or 401
+  Web-->>User: Render dashboard or unauthenticated state
+```
+
 ## Local feed OAuth flow
 
 ### 1. Login starts in feed-platform-web
