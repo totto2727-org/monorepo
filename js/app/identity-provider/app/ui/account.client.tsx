@@ -33,7 +33,6 @@ export const LogoutButton = clientEntry(
                 window.location.href = '/app/login'
                 return yield* Effect.void
               }).pipe(
-                // oxlint-disable-next-line promise/prefer-await-to-then -- This is Effect.catch, not Promise.catch.
                 Effect.catch(() =>
                   Effect.sync(() => {
                     state.error = 'ログアウトに失敗しました'

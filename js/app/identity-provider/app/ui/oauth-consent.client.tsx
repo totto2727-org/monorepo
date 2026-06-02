@@ -41,7 +41,6 @@ export const OAuthConsentForm = clientEntry(
         window.location.href = result.url
         return yield* Effect.void
       }).pipe(
-        // oxlint-disable-next-line promise/prefer-await-to-then -- This is Effect.catch, not Promise.catch.
         Effect.catch(() =>
           Effect.sync(() => {
             state.error = 'OAuth 認可に失敗しました'

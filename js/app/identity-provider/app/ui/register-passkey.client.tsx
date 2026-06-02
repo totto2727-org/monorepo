@@ -122,7 +122,6 @@ export const PasskeyRegisterButton = clientEntry(
                 window.location.href = withReturnTo('/app/auth/passkey/callback', handle.props.returnTo)
                 return yield* Effect.void
               }).pipe(
-                // oxlint-disable-next-line promise/prefer-await-to-then -- This is Effect.catch, not Promise.catch.
                 Effect.catch(() =>
                   Effect.sync(() => {
                     state.error = 'Passkey 登録に失敗しました'

@@ -1,4 +1,5 @@
 import { Effect, Predicate, Schema, String } from 'effect'
+import { HttpBody, HttpClient, HttpClientRequest } from 'effect/unstable/http'
 import type { Context } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 
@@ -24,21 +25,17 @@ const decodeIdTokenPayload = Schema.decodeUnknownEffect(IdTokenPayload)
 
 const exchangeToken = (idpBaseUrl: string, params: Record<string, string>) =>
   Effect.gen(function* () {
+    const client = yield* HttpClient.HttpClient
     const formBody = new URLSearchParams(params).toString()
-    /* oxlint-disable rules/no-fetch -- Token exchange runs in a Worker request handler where native fetch is the platform boundary. */
-    const response = yield* Effect.promise(() =>
-      fetch(`${idpBaseUrl}/api/v1/auth/oauth2/token`, {
-        body: formBody,
-        headers: { 'content-type': 'application/x-www-form-urlencoded' },
-        method: 'POST',
-      }),
-    )
-    /* oxlint-enable rules/no-fetch */
+    const request = HttpClientRequest.post(`${idpBaseUrl}/api/v1/auth/oauth2/token`, {
+      body: HttpBody.text(formBody, 'application/x-www-form-urlencoded'),
+    })
+    const response = yield* client.execute(request)
     if (response.status !== 200) {
-      const text = yield* Effect.promise(() => response.text())
+      const text = yield* response.text
       return { data: null, error: String.isNonEmpty(text) ? text : 'token exchange failed' }
     }
-    const data: unknown = yield* Effect.promise(() => response.json())
+    const data: unknown = yield* response.json
     return { data, error: null }
   })
 
@@ -61,7 +58,11 @@ const verifyNonce = (db: DBInstance, idToken: string, state: string) =>
     return yield* Effect.promise(() => verifyAndDeleteNonce(db, state, decodedPayload.nonce))
   })
 
-export const handleAuthCallback = (ctx: Context, env: Env.Type, db: DBInstance): Effect.Effect<Response> =>
+export const handleAuthCallback = (
+  ctx: Context,
+  env: Env.Type,
+  db: DBInstance,
+): Effect.Effect<Response, never, HttpClient.HttpClient> =>
   Effect.gen(function* () {
     const code = ctx.req.query('code')
     const state = ctx.req.query('state')
