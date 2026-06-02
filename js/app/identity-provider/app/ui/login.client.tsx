@@ -4,8 +4,6 @@ import { clientEntry, css, on } from 'remix/ui'
 import type { Handle, SerializableProps } from 'remix/ui'
 import { Button } from 'remix/ui/button'
 
-import { withReturnTo } from '#@/ui/return-to.ts'
-
 const formStyle = css({
   display: 'flex',
   flexDirection: 'column',
@@ -46,15 +44,26 @@ export const MagicLinkForm = clientEntry(
                 state.submitting = true
                 void handle.update()
 
-                const callbackURL = withReturnTo('/app/auth/magic-link/callback', handle.props.returnTo)
+                const { returnTo } = handle.props
+                if (Predicate.isNotNullish(returnTo) && String.isNonEmpty(returnTo)) {
+                  yield* Effect.promise(() =>
+                    cookieStore.set({
+                      name: 'login_return_to',
+                      path: '/',
+                      sameSite: 'lax',
+                      value: encodeURIComponent(returnTo),
+                    }),
+                  )
+                }
+
                 const params = new URLSearchParams({ email })
-                if (Predicate.isNotNullish(handle.props.returnTo)) {
-                  params.set('return_to', handle.props.returnTo)
+                if (Predicate.isNotNullish(returnTo)) {
+                  params.set('return_to', returnTo)
                 }
 
                 const client = yield* HttpClient.HttpClient
                 const request = HttpClientRequest.post('/api/v1/auth/sign-in/magic-link', {
-                  body: HttpBody.jsonUnsafe({ callbackURL, email }),
+                  body: HttpBody.jsonUnsafe({ callbackURL: '/app/auth/magic-link/callback', email }),
                 })
                 const response = yield* client.execute(request)
                 if (response.status < 200 || response.status >= 300) {
