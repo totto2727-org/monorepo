@@ -46,7 +46,7 @@ milestones:
     workflow_identifiers: []
   - depends_on: []
     id: ms-06-progress-normalization
-    notes: Add CLI support to normalize roadmap progress files, refresh schema-reference comments after plugin renames, and bulk-rewrite progress.yaml files without direct editing.
+    notes: Add CLI support to normalize roadmap progress files, refresh schema-reference comments to the canonical locations, and bulk-rewrite progress.yaml files without direct editing.
     prs: []
     status: planned
     tasks: []

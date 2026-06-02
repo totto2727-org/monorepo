@@ -5,15 +5,15 @@ created_at: '2026-05-23T14:27:58.483Z'
 milestones:
   - depends_on: []
     id: ms-01-workspace-foundation
-    notes: 'ms-02 認証着手の前提は充足済み。js/app/feed-platform-backend、js/app/feed-platform-web、js/app/identity-provider の土台が js/ workspace にあり、共通 runtime/helper は js/package/effect-hono と js/package/remix-helper から利用する。ADR-03 confirmed: true。'
+    notes: 'js/app/feed-platform-backend、js/app/feed-platform-web、js/app/identity-provider が js/ workspace 上のアプリケーション境界であり、共通 runtime/helper は js/package/effect-hono と js/package/remix-helper から利用する。後続マイルストーンはこの基盤を前提に進める。ADR-03 confirmed: true。'
     prs: []
     status: completed
     tasks: []
-    title: Workspace Foundation (Phase 1 + Phase 2 両方完了)
+    title: Workspace Foundation
     workflow_identifiers: []
   - depends_on: []
     id: ms-02-auth-passkey-magiclink
-    notes: Better Auth OAuth 2.1 + Passkey + Magic Link 実装完了。PR-A (auth-helper) / PR-B (IdP UI) / PR-C (web OAuth) / PR-D (backend JWT) / PR-E (ADR + retro) で構成。cross-app E2E は PR-F で継続。
+    notes: Better Auth OAuth 2.1 + Passkey + Magic Link を提供する。auth-helper、IdP UI、web OAuth、backend JWT の境界を持ち、cross-app E2E は後続検証対象とする。
     prs: []
     status: completed
     tasks: []
