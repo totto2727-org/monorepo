@@ -40,7 +40,7 @@ export const layer = Layer.effect(
             const { payload } = await jwtVerify(token, remoteJwkSet, {
               algorithms: ['ES256'],
               audience: env.FEED_PLATFORM_AUDIENCE,
-              issuer: env.IDP_BASE_URL,
+              issuer: `${env.IDP_BASE_URL}/api/v1/auth`,
             })
             const { sub, email, iat, exp } = payload as {
               sub?: unknown

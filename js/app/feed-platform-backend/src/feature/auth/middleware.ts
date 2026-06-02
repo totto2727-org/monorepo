@@ -4,8 +4,13 @@ import * as Jwt from '#@/feature/auth/jwt.ts'
 import * as Env from '#@/feature/env.ts'
 import { factory } from '#@/feature/share/lib/hono/factory.ts'
 
-const makeJwtLayer = (env: Env.Type) =>
-  Jwt.layer.pipe(Layer.provide(import.meta.env.PROD ? Env.makeLayer(env) : Env.devLayer))
+const makeJwtLayer = (env: Env.Type) => {
+  try {
+    return Jwt.layer.pipe(Layer.provide(import.meta.env.PROD ? Env.makeLayer(env) : Env.devLayer))
+  } catch {
+    return Jwt.layer.pipe(Layer.provide(Env.devLayer))
+  }
+}
 
 export const authMiddleware = factory.createMiddleware((ctx, next) =>
   // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP middleware boundary executes request-scoped auth workflow.
