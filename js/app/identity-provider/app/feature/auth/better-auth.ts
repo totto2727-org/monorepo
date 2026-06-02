@@ -40,7 +40,6 @@ const makeInstance = (db: DB.Instance, env: Env.Type, emailSender: EmailSender.E
           ),
       }),
       oauthProvider({
-        cachedTrustedClients: new Set(['feed-platform-web']),
         consentPage: '/app/oauth/consent',
         idTokenExpiresIn: 3600,
         loginPage: '/app/login',
@@ -49,6 +48,7 @@ const makeInstance = (db: DB.Instance, env: Env.Type, emailSender: EmailSender.E
           oauthAccessToken: {
             fields: {
               scopes: 'scope',
+              token: 'access_token',
             },
             modelName: 'oauth_access_token',
           },
@@ -61,8 +61,18 @@ const makeInstance = (db: DB.Instance, env: Env.Type, emailSender: EmailSender.E
             },
             modelName: 'oauth_consent',
           },
+          oauthRefreshToken: {
+            fields: {
+              scopes: 'scope',
+            },
+            modelName: 'oauth_refresh_token',
+          },
         },
         scopes: ['openid', 'profile', 'email', 'offline_access'],
+        storeClientSecret: {
+          hash: (clientSecret) => Promise.resolve(clientSecret),
+          verify: (clientSecret, storedHash) => Promise.resolve(clientSecret === storedHash),
+        },
         validAudiences: env.OAUTH_VALID_AUDIENCES.split(','),
       }),
       jwt({
