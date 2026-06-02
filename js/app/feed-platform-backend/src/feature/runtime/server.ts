@@ -1,15 +1,19 @@
 import { Layer, ManagedRuntime } from 'effect'
-import { dynamicLoggerLayer, Env, makeDisposableRuntime } from 'effect-hono'
+import { dynamicLoggerLayer, Env as RuntimeEnv, makeDisposableRuntime } from 'effect-hono'
 
+import * as Jwt from '../auth/jwt.ts'
+import * as AppEnv from '../env.ts'
 import * as Greeting from '../greeting.ts'
 import * as Health from '../health.ts'
 
-const makeRuntime = () =>
+const makeRuntime = (env: AppEnv.Type) =>
   ManagedRuntime.make(
     Health.layer.pipe(
       Layer.provideMerge(Greeting.layer),
+      Layer.provideMerge(Jwt.layer),
       Layer.provideMerge(dynamicLoggerLayer),
-      Layer.provide(Env.layer),
+      Layer.provideMerge(RuntimeEnv.layer),
+      Layer.provideMerge(AppEnv.makeLayer(env)),
     ),
   )
 
@@ -20,6 +24,5 @@ export type Runtime = ReturnType<typeof makeRuntime>
 // consumer 側は `makeRuntime` 関数定義のみを持ち、wrapper class / interface は library に委譲。
 export const DisposableRuntime = makeDisposableRuntime(makeRuntime)
 
-// 公開 entry: Hono middleware から `await using runtime = Runtime.make()` 形で利用される。
-// ENV 取得は Env.layer (process.env.NODE_ENV 由来) に内部化したため引数は不要。
-export const make = () => new DisposableRuntime()
+// 公開 entry: Hono middleware から `await using runtime = Runtime.make(ctx.env)` 形で利用される。
+export const make = (env: AppEnv.Type) => new DisposableRuntime(env)

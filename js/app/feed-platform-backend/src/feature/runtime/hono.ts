@@ -10,7 +10,7 @@ export interface Variables {
 // try/finally による明示的な `runtime.dispose()` 呼び出しは不要。
 // saas-example/src/feature/runtime/hono.ts:5-11 と同形。
 export const middleware = factory.createMiddleware(async (ctx, next) => {
-  await using runtime = Runtime.make()
+  await using runtime = Runtime.make(ctx.env)
   ctx.set('runtime', runtime.instance)
   await next()
 })
