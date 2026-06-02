@@ -31,7 +31,7 @@ No artifact other than these 3 may be added that breaks the same-name correspond
 ## Prerequisites
 
 - Main manages the artifacts and Specialists create them
-- Roadmap artifacts are stored under `docs/roadmap/<roadmap-id>/`; retained workflow-format templates still describe `docs/workflow/<identifier>/` for compatibility with delegated execution systems.
+- Roadmap artifacts are stored under `docs/roadmap/<roadmap-id>/`; execution-cycle artifacts are stored under the cycle artifact path selected by the delegated execution system.
 - references and templates are in **1:1 correspondence**, linked by file name
 - When filling in a template, a Specialist must always refer to the corresponding reference
 - When reviewing an artifact, Main uses the corresponding reference as the quality criterion
@@ -115,7 +115,7 @@ The artifacts and progress records of totto2727-dev-flow are **aggregated under 
 
 ```mermaid
 graph LR
-    Root["docs/workflow/&lt;identifier&gt;/"]
+    Root["cycle artifact path"]
     PY["progress.yaml<br/>(Main updates each turn)"]
     IS["intent-spec.md<br/>(Step 1)"]
     RD["research/<br/>(Step 2, one file per aspect)"]
@@ -153,7 +153,7 @@ For details on how to write each file, refer to `share-artifacts/references/<nam
 
 ### roadmap working directory
 
-The roadmap artifacts under the `roadmap` skill are aggregated in an independent directory `docs/roadmap/<roadmap-id>/` placed **in parallel with** the cycle working directory (`docs/workflow/<identifier>/`). By being physically separated from the underlying oh-my-codingagent execution cycles, the strategic layer (roadmap) and the tactical layer (workflow cycles) can run in parallel without polluting each other's working directory.
+The roadmap artifacts under the `roadmap` skill are aggregated in an independent directory `docs/roadmap/<roadmap-id>/`. The strategic layer (roadmap) and the tactical layer (execution cycles) use separate artifact roots so they can run in parallel without polluting each other's working directory.
 
 ```mermaid
 graph LR
@@ -168,7 +168,7 @@ graph LR
     RRoot --> RP
 ```
 
-The Step 4 (Roadmap Retrospective) artifact `roadmap-<roadmap-id>.md` is aggregated outside the roadmap working directory under `docs/retrospective/` (see "Artifacts outside the cycle" below for details). The artifacts of the underlying oh-my-codingagent execution cycles (`docs/workflow/<identifier>/`) are not included in this directory; instead they are linked bidirectionally through `progress.yaml.milestones[].workflow_identifiers[]`.
+The Step 4 (Roadmap Retrospective) artifact `roadmap-<roadmap-id>.md` is aggregated outside the roadmap working directory under `docs/retrospective/` (see "Artifacts outside the cycle" below for details). The artifacts of the underlying execution cycles are not included in this directory; instead they are linked bidirectionally through `progress.yaml.milestones[].workflow_identifiers[]`.
 
 #### Naming rules for `<roadmap-id>`
 
@@ -192,7 +192,7 @@ Decided by agreement between Main and the user when the cycle starts. If a namin
 
 ### Artifacts outside the cycle
 
-The following are stored **outside** the cycle working directory (`docs/workflow/<identifier>/`):
+The following are stored **outside** the cycle artifact path:
 
 #### ADRs that cross cycle boundaries (General / Roadmap mode)
 
@@ -246,7 +246,7 @@ Artifacts must be reflected in the repository at step completion. For details, s
 
 ### Behavior on resumption
 
-When a different session / user resumes an interrupted cycle, the design ensures that the context can be fully restored solely from the files under `docs/workflow/<identifier>/`. For the detailed resumption protocol, see "Session resumption" in `totto2727-dev-flow`.
+When a different session / user resumes an interrupted cycle, the design ensures that the context can be fully restored solely from the files under the cycle artifact path. For the detailed resumption protocol, see "Session resumption" in `totto2727-dev-flow`.
 
 ---
 

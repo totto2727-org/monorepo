@@ -143,8 +143,8 @@ export const makeDisposableRuntime = <Args extends readonly unknown[], R, ER>(
 
 - **`pnpm-workspace.yaml`**: 既存 `js/package/*` glob で新規 2 packages が自動取り込み (Research C F7、catalog 定義変更不要)
 - **既存 CI (`vp run --parallel ci`)**: 追加変更なしで 2 library + 4 consumer を取り込む (Phase 1 ADR-01 D-6 整合)
-- **3 effect-hono consumer projects** (`feed-platform-backend` / `feed-platform-web` / `identity-provider`): 旧 `feature/env.ts` (`Env.Service` namespace = `'@app/<project-name>/feature/env/Service'`) を削除し library import に切替。Phase 1 で確立された Service tag namespace は **library 内 1 本** (`'@app/effect-hono/env/Service'`) に統一される (= D-2 の副作用、Intent Spec L70-L72)
-- **3 effect-hono consumer projects**: 旧 `feature/runtime/server.ts` の `dynamicLoggerLayer` 定義 (約 8 行) + `makeDisposableRuntime` HOF (約 17 行) を削除し library import に切替 (各 project 約 24 行純減 × 3 = 約 72 行削減、Research A I-7)
+- **3 effect-hono consumer projects** (`feed-platform-backend` / `feed-platform-web` / `identity-provider`): Env Service と runtime helper は library import を使用する。Service tag namespace は **library 内 1 本** (`'@app/effect-hono/env/Service'`) に統一される (= D-2 の副作用、Intent Spec L70-L72)
+- **3 effect-hono consumer projects**: `dynamicLoggerLayer` と `makeDisposableRuntime` HOF は library import を使用する (各 project 約 24 行純減 × 3 = 約 72 行削減、Research A I-7)
 - **3 remix-helper consumer projects** (`feed-platform-web` / `identity-provider` / `hono-remix-v3-cloudflare-example`): `app/routes.ts` を library + union 直接受け pattern に置換 (`type FrameName = ...` + `createFrameHelpers<FrameName>()`)。`hono-remix-v3-cloudflare-example` のみ既存 `app/ui/page-or-frame.tsx` (C-5) + `app/ui/frame-link.tsx` (C-6) の 2 ファイル削除 + `app/ui/content-layout.tsx` の `createPageOrFrame` 呼出 adapter 経由化 + `FrameLink` の `import` path を `routes.ts` 経由 (helpers re-export) に切替
 - **`hono-remix-v3-cloudflare-example`**: Counter / TODO / Frame ナビゲーション既存 behavior は **保持** (refactor only、機能変更なし、Intent Spec L96-L97)。本 example は本 cycle で **C-4 / C-5 抽出の基準 source-of-truth** として位置付けられ、同時に migration target にも追加された (Intent Spec L94-L97)
 - **既存 `js/package/*` 5 packages**: いずれも touch しない (D-5)

@@ -154,7 +154,7 @@ graph LR
 
 - 関連プロジェクト固有スキル: `effect-layer` / `effect-runtime` / `effect-hono` (採用ワークスペースが `js/` の場合の主要パターン)
 - 関連横断スキル: `git-workflow` / `adr` / `script-rules` / `totto2727-fp`
-- 関連既存サイクル: `docs/workflow/` 配下 (本リポジトリ内の oh-my-codingagent execution サイクル群、本ロードマップは新規ドメインのため直接の前提サイクルはなし)
+- 関連実行サイクル: 各マイルストーンの `workflow_identifiers` で参照する execution cycle
 - 関連 ADR: `docs/adr/` 配下 (本ロードマップ着手時点で本ドメインに直接関連する ADR はなし。マイルストーン段階で必要に応じて新規 ADR 起票)
 - 戦略層補助メモ: `docs/roadmap/feed-platform/design-hint.md` (全体アーキテクチャ素案。配下 oh-my-codingagent execution サイクルで具体構造が確定後に削除 or ADR 昇格予定)
 
