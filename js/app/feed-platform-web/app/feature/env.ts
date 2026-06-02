@@ -34,5 +34,5 @@ export const devLayer = Layer.succeed(Service, {
   DATABASE_URL: 'http://127.0.0.1:8081',
   IDP_BASE_URL: 'http://localhost:8787',
   OAUTH_CLIENT_ID: 'feed-platform-web',
-  OAUTH_CLIENT_SECRET: 'dev-secret-pkce-not-used',
+  OAUTH_CLIENT_SECRET: 'dev-secret-do-not-use-in-prod',
 } satisfies Type as Type)

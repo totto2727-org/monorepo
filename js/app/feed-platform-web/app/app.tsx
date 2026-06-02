@@ -27,6 +27,7 @@ import { Document } from '#@/ui/document.tsx'
 
 const TokenResponse = Schema.Struct({
   access_token: Schema.String,
+  id_token: Schema.optional(Schema.String),
   refresh_token: Schema.optional(Schema.String),
 })
 
@@ -52,6 +53,7 @@ const logoutFromIdp = (idpBaseUrl: string, sessionCookieValue: string) =>
   Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient
     const request = HttpClientRequest.post(`${idpBaseUrl}/api/v1/auth/sign-out`, {
+      body: HttpBody.jsonUnsafe({}),
       headers: { Cookie: `${FEED_SESSION_COOKIE}=${sessionCookieValue}` },
     })
     yield* client.execute(request)
@@ -177,7 +179,7 @@ const app: Hono<Env> = new Hono<Env>()
           return ctx.redirect('/login')
         }
 
-        setCookie(ctx, FEED_SESSION_COOKIE, tokenData.access_token, {
+        setCookie(ctx, FEED_SESSION_COOKIE, tokenData.id_token ?? tokenData.access_token, {
           httpOnly: true,
           path: '/',
           sameSite: 'Lax',

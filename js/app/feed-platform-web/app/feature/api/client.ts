@@ -23,7 +23,8 @@ export const BackendClient = Context.Service<BackendClientService>('BackendClien
 
 const UserResponse = Schema.Struct({
   email: Schema.String,
-  id: Schema.String,
+  id: Schema.optional(Schema.String),
+  sub: Schema.optional(Schema.String),
 })
 
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- backend JSON response is an external boundary with unknown shape.
@@ -40,9 +41,14 @@ const callBackendApi = (baseUrl: string, authorization: string) =>
       return yield* Effect.fail(new BackendError({ message: `HTTP ${response.status}` }))
     }
     const data: unknown = yield* response.json
-    return yield* decodeUserResponse(data).pipe(
+    const user = yield* decodeUserResponse(data).pipe(
       Effect.mapError((error) => new BackendError({ error, message: 'invalid response shape' })),
     )
+    const id = user.id ?? user.sub
+    if (Predicate.isNullish(id)) {
+      return yield* Effect.fail(new BackendError({ message: 'missing user id' }))
+    }
+    return { email: user.email, id }
   })
 
 const getAuthorization = (): string | null => {
