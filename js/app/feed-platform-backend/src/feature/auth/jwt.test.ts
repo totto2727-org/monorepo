@@ -13,6 +13,12 @@ vi.mock('jose', () => ({
 
 const { Service, layer } = await import('./jwt.ts')
 
+const localBindings = {
+  FEED_PLATFORM_AUDIENCE: 'feed-platform-web',
+  IDP_BASE_URL: 'http://localhost:8787',
+  IDP_JWKS_URL: 'http://localhost:8787/api/v1/auth/jwks',
+} satisfies AppEnv.Type
+
 const runVerify = (token: string) =>
   Effect.runPromiseExit(
     Effect.provide(
@@ -20,7 +26,7 @@ const runVerify = (token: string) =>
         const jwt = yield* Service
         return yield* jwt.verify(token)
       }),
-      layer.pipe(Layer.provide(AppEnv.devLayer)),
+      layer.pipe(Layer.provide(AppEnv.makeLayer(localBindings))),
     ),
   )
 
