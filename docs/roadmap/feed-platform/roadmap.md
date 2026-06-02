@@ -6,7 +6,7 @@
 - **Last updated:** 2026-05-04T00:00:00Z
 - **Status:** active <!-- planned | active | completed (`progress.yaml.status` と一致させる) -->
 
-このドキュメントは `roadmap` の **Step 1 (Roadmap Intent)** で起草され、**Step 2 (Milestone Decomposition)** でマイルストーン一覧と依存グラフが追記されて確定する**戦略層の不変な計画書**。1 サイクルの oh-my-codingagent execution では収まらない複数サイクル規模の開発を束ねる。書き方の詳細は `plugins/totto2727-dev-flow/skills/share-artifacts/references/roadmap.md` を参照。
+このドキュメントは、1 サイクルの oh-my-codingagent execution では収まらない複数サイクル規模の開発を束ねる**戦略層の不変な計画書**。ロードマップの意図、マイルストーン一覧、依存グラフを一体で保持する。書き方の詳細は `plugins/totto2727-dev-flow/skills/share-artifacts/references/roadmap.md` を参照。
 
 ## 背景
 

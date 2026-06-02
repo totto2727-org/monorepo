@@ -6,7 +6,7 @@ confirmed: true
 
 ## Context
 
-The 2026-05-04 workflow consolidated totto2727-specific coding, testing, and generated external specification references into one plugin. The temporary migration research is not durable, but the plugin boundary decision is.
+Coding conventions, testing conventions, and generated external specification references belong to a dedicated coding plugin. Workflow and roadmap plugins should not own language-specific implementation rules.
 
 ## Decision
 
@@ -19,4 +19,4 @@ Keep coding conventions and external coding references in `plugins/totto2727-cod
 
 ## Consequences
 
-The dev-flow plugin can be reduced to roadmap governance and reusable document formats. Coding rules evolve independently and can be reused by oh-my-codingagent or other agents without importing workflow-level procedures.
+The dev-flow plugin stays focused on roadmap governance and reusable document formats. Coding rules evolve independently and can be reused by oh-my-codingagent or other agents without importing workflow-level procedures.

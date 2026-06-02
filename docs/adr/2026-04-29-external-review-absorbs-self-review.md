@@ -6,7 +6,7 @@ confirmed: true
 
 ## Context
 
-The 2026-04-29 review cleanup found that a standalone self-review step duplicated external review while missing issues that independent reviewers were better at finding. The useful part of self-review was the holistic check: alignment with design, task completion, success criteria coverage, and obvious artifact breakage.
+Review needs both focused specialist perspectives and a holistic consistency check. A standalone self-review gate duplicates independent review, while holistic checks fit naturally inside the external review boundary.
 
 ## Decision
 
@@ -18,4 +18,4 @@ Do not maintain a standalone self-review workflow step. Fold that responsibility
 
 ## Consequences
 
-The workflow became smaller and easier to run. In the current repository direction, oh-my-codingagent owns workflow-level review orchestration; this ADR preserves only the durable decision that holistic review belongs with independent review rather than a separate self-review gate.
+Review orchestration stays smaller and easier to run. Workflow-level review orchestration belongs outside `totto2727-dev-flow`; this repository-level plugin keeps only the rule that holistic review is part of independent review rather than a separate self-review gate.

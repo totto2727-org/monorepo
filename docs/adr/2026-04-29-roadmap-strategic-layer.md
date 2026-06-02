@@ -6,9 +6,9 @@ confirmed: true
 
 ## Context
 
-The 2026-04-29 roadmap cycle introduced a strategic layer for work that is too large for a single PR-sized workflow cycle. The durable need was to keep worldview, scope, milestone order, and coarse status visible across many execution cycles.
+Work that is too large for a single PR-sized execution requires a strategic roadmap layer. The roadmap layer keeps worldview, scope, milestone order, and coarse status visible across many execution units.
 
-The tactical workflow layer has since moved out of this repository, but the roadmap-level responsibility remains.
+Tactical workflow execution belongs outside this repository-level plugin. Roadmap governance remains part of `totto2727-dev-flow`.
 
 ## Decision
 
@@ -22,4 +22,4 @@ Maintain a roadmap layer with these responsibilities:
 
 ## Consequences
 
-The repository now keeps only high-level roadmap governance in `totto2727-dev-flow`. Direct progress YAML editing is avoided so schema migration, timestamps, tasks, and formatting stay controlled by the roadmap CLI.
+`totto2727-dev-flow` keeps high-level roadmap governance. Direct progress YAML editing is avoided so schema updates, timestamps, tasks, and formatting stay controlled by the roadmap CLI.

@@ -6,7 +6,7 @@ confirmed: true
 
 ## Context
 
-The 2026-04-24 workflow bootstrap established the original AI-DLC-derived plugin as a Markdown-only Claude Code plugin. The useful decision was not the temporary research trail, but the operating model: a lead agent coordinates bounded specialist work through durable artifacts, while the plugin itself ships skills, agent entrypoints, templates, and authoring guides.
+`totto2727-dev-flow` provides reusable agent-workflow conventions as repository artifacts, not as hidden agent memory or runtime code. A lead agent coordinates bounded specialist work through explicit documents, while the plugin ships skills, agent entrypoints, templates, and authoring guides.
 
 Claude Code did not support nested subagent orchestration, so an extra orchestrator tier would have made the design incompatible with the runtime. The plugin also needed resumable handoff files rather than hidden agent memory.
 
@@ -22,4 +22,4 @@ Adopt an artifact-driven plugin structure with these durable rules:
 
 ## Consequences
 
-This made the workflow resumable and reviewable without depending on opaque agent state. It also created many tactical workflow artifacts; those tactical steps are now delegated to oh-my-codingagent, while the reusable artifact formats remain in `totto2727-dev-flow`.
+Workflow state remains resumable and reviewable because it is stored in explicit artifacts. `totto2727-dev-flow` owns reusable artifact formats and authoring conventions; tactical execution orchestration belongs outside this repository-level plugin.

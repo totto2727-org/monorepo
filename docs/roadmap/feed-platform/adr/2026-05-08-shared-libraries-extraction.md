@@ -5,24 +5,19 @@ scope: roadmap:feed-platform
 
 # ADR: feed-platform 共通ライブラリ抽出 (effect-hono / remix-helper)
 
-- **Filed at:** 2026-05-08
-- **Filer:** architect (Step 3) → implementer (Step 6) — `confirmed: true` 確定 (2026-05-10)。Step 6 (Implementation) でライブラリ実装 + 4 consumer migration が完了し、本文書は正式 ADR として確定した。
-- **Originating step:** delegated execution design step of cycle `feed-platform-ms-01-shared-libraries`
 - **Storage path:** docs/roadmap/feed-platform/adr/2026-05-08-shared-libraries-extraction.md
 
 ## Context
 
-`feed-platform` ロードマップ (`docs/roadmap/feed-platform/roadmap.md`) の起点マイルストーン ms-01 (Workspace Foundation) は 2 phase 構成で進行している。Phase 1 cycle (`feed-platform-ms-01-workspace-foundation`、completed 2026-05-07) で 3 プロジェクト (`feed-platform-backend` / `feed-platform-web` / `identity-provider`) の Hello World レベル雛形を整備した結果、各プロジェクトに **完全同形コピーされた共通ロジック** が存在する状態となった (Phase 1 retrospective `docs/retrospective/feed-platform-ms-01-workspace-foundation.md` で言及済の DRY 違反候補)。
+`feed-platform` ロードマップ (`docs/roadmap/feed-platform/roadmap.md`) の起点マイルストーン ms-01 (Workspace Foundation) は、3 プロジェクト (`feed-platform-backend` / `feed-platform-web` / `identity-provider`) が共有する横断ロジックを明示的な共通ライブラリとして切り出す責務を持つ。
 
-本 ADR は ms-01 Phase 2 cycle (`feed-platform-ms-01-shared-libraries`) Step 3 の設計判断束として、後続マイルストーン (ms-02〜ms-10) が引き継ぐ「共通ライブラリの責務分担と抽出原則」を永続記録する。
+本 ADR は、後続マイルストーン (ms-02〜ms-10) が引き継ぐ「共通ライブラリの責務分担と抽出原則」を定義する。
 
 User 戦略指示 (2026-05-06): 「ms-02 (認証) 着手前に新規共通化マイルストーンをロードマップに挿入する。対象は dynamicLoggerLayer / makeDisposableRuntime / feature/env.ts / isFrameRequest / PageOrFrame / 他 Remix・Effect 横断ユーティリティ。」
 
-2026-05-08 の execution cycle で確定した Q1〜Q7 と Step 2 → Step 3 移行時 User confirm の決定事項を、本 ADR が単一の決定束として記録する。旧 workflow 作業資料は廃止済みで、本 ADR を永続記録とする。
-
 影響範囲は **feed-platform ロードマップ内のすべての配下サイクル (ms-02〜ms-10)** に閉じる。新設 2 library の API surface は ms-02 以降のすべての cycle が前提とする ABI として機能するため Roadmap mode (`docs/roadmap/feed-platform/adr/`) として起票する。本リポジトリの他ロードマップへの影響は限定的 (= 本 cycle の判断は feed-platform 内 + 既存 monorepo 内に閉じる、他システム再利用視野の項目なし、Intent Spec L121)。
 
-Phase 1 ADR-01 (`2026-05-05-project-structure-and-runtime.md`) が定めた architectural constraints (`process.env.NODE_ENV` 単一ソース / `await using` / `Env.Service` 経由 Logger 切替 / Service tag namespace 規約) は本 ADR でもすべて継承される (本 ADR は Phase 1 ADR-01 を supersede しない、historical record として完結維持、Intent Spec L122)。ただし Phase 1 で各 project が持っていた `Layer.unwrap` + `Layer.provide(Env.layer)` 直書きは library 側で行わず、**consumer 側 entry point の責務に集約** する (User 指摘 2026-05-09、本 ADR D-3 範囲外の補足条項として本 Context に明記)。
+ADR-01 (`2026-05-05-project-structure-and-runtime.md`) が定めた architectural constraints (`process.env.NODE_ENV` 単一ソース / `await using` / `Env.Service` 経由 Logger 切替 / Service tag namespace 規約) は本 ADR でもすべて継承される。本 ADR は ADR-01 を supersede しない。`Layer.unwrap` + `Layer.provide(Env.layer)` は library 側で行わず、**consumer 側 entry point の責務に集約** する。
 
 ## Decision
 
@@ -182,7 +177,7 @@ export const makeDisposableRuntime = <Args extends readonly unknown[], R, ER>(
 
 ## Related
 
-- **Migrated workflow record**: the durable decisions from the 2026-05-08 shared-libraries cycle are preserved in this ADR; temporary intent/design/research artifacts were removed when `retired workflow artifact: docs/workflow/` was retired.
+- **Roadmap-scoped record**: this ADR is the durable source for the ms-01 shared-library decisions used by ms-02〜ms-10.
 - **Phase 1 ADR-01**: [`2026-05-05-project-structure-and-runtime.md`](./2026-05-05-project-structure-and-runtime.md) (本 ADR は ADR-01 を supersede しない、Phase 1 の architectural constraints を継承)
 - **Phase 1 retrospective**: [`docs/retrospective/feed-platform-ms-01-workspace-foundation.md`](../../../retrospective/feed-platform-ms-01-workspace-foundation.md) (DRY 違反候補の指摘元)
 - **Roadmap**: [`docs/roadmap/feed-platform/roadmap.md`](../roadmap.md)

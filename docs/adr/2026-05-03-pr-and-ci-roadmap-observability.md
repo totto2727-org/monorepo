@@ -6,7 +6,7 @@ confirmed: true
 
 ## Context
 
-The 2026-05-03 workflow cycle added draft PR creation, PR description updates, CI monitoring, retry guidance, and ready-for-review transitions. Its durable lesson was that PR/CI state is useful operational evidence, but repository artifacts remain the source of progress truth.
+PR and CI state are useful operational evidence around execution, but repository artifacts remain the source of progress truth. Roadmap documents should not become a mirror of transient PR lifecycle details.
 
 ## Decision
 
@@ -19,4 +19,4 @@ Use PR and CI state as derived observability around execution:
 
 ## Consequences
 
-Roadmap documents stay concise while still allowing PR links and notes. Tactical PR/CI lifecycle details are no longer maintained in `totto2727-dev-flow` because workflow-level operation is delegated outside this repository.
+Roadmap documents stay concise while still allowing PR links and notes. Tactical PR/CI lifecycle details belong outside `totto2727-dev-flow`.

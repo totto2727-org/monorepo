@@ -5,7 +5,7 @@ created_at: '2026-05-23T14:27:58.483Z'
 milestones:
   - depends_on: []
     id: ms-01-workspace-foundation
-    notes: 'Phase 1 (feed-platform-ms-01-workspace-foundation) 2026-05-07 完了 (全 11 SC / 26 TC PASS、retrospective docs/retrospective/feed-platform-ms-01-workspace-foundation.md)。Phase 2 (feed-platform-ms-01-shared-libraries) 2026-05-10 完了 — js/package/effect-hono + js/package/remix-helper の 2 library 新設 + 4 consumer (feed-platform-backend / feed-platform-web / identity-provider / hono-remix-v3-cloudflare-example) を library import に切替。純減約 330 行。ADR-03 confirmed: true。CI PASS。ms-02 認証着手の前提達成。'
+    notes: 'ms-02 認証着手の前提は充足済み。js/app/feed-platform-backend、js/app/feed-platform-web、js/app/identity-provider の土台が js/ workspace にあり、共通 runtime/helper は js/package/effect-hono と js/package/remix-helper から利用する。ADR-03 confirmed: true。'
     prs: []
     status: completed
     tasks: []

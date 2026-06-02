@@ -6,7 +6,7 @@ confirmed: true
 
 ## Context
 
-The 2026-04-26 workflow cycle found that implementation planning was mixing task decomposition with test strategy. That made success criteria harder to observe and encouraged later validators to infer intended behavior from implementation details.
+Implementation planning, task decomposition, and test strategy require separate artifact boundaries. Observable success criteria must be defined before implementation tasks so validators can check behavior without inferring intent from implementation details.
 
 ## Decision
 
@@ -19,4 +19,4 @@ Introduce a dedicated QA design boundary between design and task decomposition:
 
 ## Consequences
 
-Behavioral acceptance moved earlier in the cycle and became easier to validate. The exact tactical QA step is no longer maintained in this repository, but the document formats remain valuable and are preserved under the dev-flow shared artifacts.
+Behavioral acceptance is defined before task execution and remains easy to validate. `totto2727-dev-flow` preserves the QA document formats as shared artifacts; tactical QA orchestration belongs outside this repository-level plugin.
