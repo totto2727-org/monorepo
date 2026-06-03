@@ -42,11 +42,16 @@ export const layer = Layer.effect(
               audience: env.FEED_PLATFORM_AUDIENCE,
               issuer: `${env.IDP_BASE_URL}/api/v1/auth`,
             })
-            const { sub, email, iat, exp } = payload as {
+            const { sub, email, token_use, scope, iat, exp } = payload as {
               sub?: unknown
               email?: unknown
+              token_use?: unknown
+              scope?: unknown
               iat?: unknown
               exp?: unknown
+            }
+            if (token_use !== 'access') {
+              throw new TypeError('Missing access token marker')
             }
             if (!Predicate.isString(sub)) {
               throw new TypeError('Missing sub claim')
@@ -56,7 +61,9 @@ export const layer = Layer.effect(
             }
             return {
               email,
+              ...(Predicate.isString(scope) ? { scope } : {}),
               sub,
+              token_use,
               ...(Predicate.isNumber(iat) ? { iat } : {}),
               ...(Predicate.isNumber(exp) ? { exp } : {}),
             }

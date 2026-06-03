@@ -35,6 +35,6 @@ export const devLayer = Layer.succeed(Service, {
   DATABASE_AUTH_TOKEN: '',
   DATABASE_URL: 'http://127.0.0.1:8080',
   MAIL_FROM_ADDRESS: 'auth@dev.example.com',
-  OAUTH_VALID_AUDIENCES: 'feed-platform-web,http://127.0.0.1:8789',
+  OAUTH_VALID_AUDIENCES: 'feed-platform-web,feed-platform-backend,http://127.0.0.1:8789',
   PASSKEY_RP_ID: 'localhost',
 } satisfies Type as Type)

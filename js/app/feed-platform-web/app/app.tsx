@@ -8,7 +8,7 @@ import { logger } from 'hono/logger'
 
 import { BackendClient } from '#@/feature/api/client.ts'
 import { handleAuthCallback } from '#@/feature/auth/callback.ts'
-import { FEED_REFRESH_COOKIE, FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
+import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
 import { authMiddleware } from '#@/feature/auth/middleware.ts'
 import { storeNonce } from '#@/feature/auth/nonce-store.ts'
 import {
@@ -18,6 +18,7 @@ import {
   generateState,
   generateVerifier,
 } from '#@/feature/auth/oauth-client.ts'
+import { deleteRefreshToken, getRefreshToken, replaceRefreshToken } from '#@/feature/auth/refresh-store.ts'
 import { Service as DBService } from '#@/feature/db/kysely.ts'
 import * as AppEnv from '#@/feature/env.ts'
 import * as Greeting from '#@/feature/greeting.ts'
@@ -130,12 +131,15 @@ const app: Hono<Env> = new Hono<Env>()
     ctx.var.runtime.runPromise(
       Effect.gen(function* () {
         const { user } = ctx.var
-        if (Predicate.isNullish(user)) {
+        const sessionToken = getCookie(ctx, FEED_SESSION_COOKIE)
+        if (Predicate.isNullish(user) && Predicate.isNullish(sessionToken)) {
           return ctx.redirect('/login')
         }
         const env = yield* AppEnv.Service
         const client = yield* BackendClient
-        const callMeResult = yield* client.callMe().pipe(Effect.orElseSucceed(() => null))
+        const callMeResult = Predicate.isNullish(user)
+          ? null
+          : yield* client.callMe().pipe(Effect.orElseSucceed(() => null))
         if (!Predicate.isNullish(callMeResult)) {
           return ctx.render(
             <Document>
@@ -147,10 +151,15 @@ const app: Hono<Env> = new Hono<Env>()
           )
         }
 
-        const refreshToken = getCookie(ctx, FEED_REFRESH_COOKIE)
+        const db = yield* DBService
+        if (Predicate.isNullish(sessionToken)) {
+          deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+          return ctx.redirect('/login')
+        }
+        const now = DateTime.toEpochMillis(yield* DateTime.now)
+        const refreshToken = yield* Effect.promise(() => getRefreshToken(db, sessionToken, now))
         if (Predicate.isNullish(refreshToken)) {
           deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-          deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
           return ctx.redirect('/login')
         }
 
@@ -158,6 +167,7 @@ const app: Hono<Env> = new Hono<Env>()
           client_id: env.OAUTH_CLIENT_ID,
           grant_type: 'refresh_token',
           refresh_token: refreshToken,
+          resource: env.BACKEND_RESOURCE,
         }
         if (String.isNonEmpty(env.OAUTH_CLIENT_SECRET)) {
           bodyParams.client_secret = env.OAUTH_CLIENT_SECRET
@@ -165,8 +175,8 @@ const app: Hono<Env> = new Hono<Env>()
 
         const tokenData = yield* refreshTokens(env.IDP_BASE_URL, bodyParams).pipe(Effect.orElseSucceed(() => null))
         if (Predicate.isNullish(tokenData)) {
+          yield* Effect.promise(() => deleteRefreshToken(db, sessionToken))
           deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-          deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
           return ctx.redirect('/login')
         }
 
@@ -174,24 +184,24 @@ const app: Hono<Env> = new Hono<Env>()
           .callMeWithAccessToken(tokenData.access_token)
           .pipe(Effect.orElseSucceed(() => null))
         if (Predicate.isNullish(retryResult)) {
+          yield* Effect.promise(() => deleteRefreshToken(db, sessionToken))
           deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-          deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
           return ctx.redirect('/login')
         }
 
-        setCookie(ctx, FEED_SESSION_COOKIE, tokenData.id_token ?? tokenData.access_token, {
+        const nextSessionToken = tokenData.id_token ?? sessionToken
+        setCookie(ctx, FEED_SESSION_COOKIE, nextSessionToken, {
           httpOnly: true,
           path: '/',
           sameSite: 'Lax',
         })
-        if (!Predicate.isNullish(tokenData.refresh_token) && String.isNonEmpty(tokenData.refresh_token)) {
-          setCookie(ctx, FEED_REFRESH_COOKIE, tokenData.refresh_token, {
-            httpOnly: true,
-            maxAge: 2_592_000,
-            path: '/',
-            sameSite: 'Lax',
-          })
-        }
+        const nextRefreshToken =
+          !Predicate.isNullish(tokenData.refresh_token) && String.isNonEmpty(tokenData.refresh_token)
+            ? tokenData.refresh_token
+            : refreshToken
+        yield* Effect.promise(() =>
+          replaceRefreshToken(db, sessionToken, nextSessionToken, nextRefreshToken, tokenData.access_token, now),
+        )
 
         return ctx.render(
           <Document>
@@ -209,12 +219,13 @@ const app: Hono<Env> = new Hono<Env>()
     ctx.var.runtime.runPromise(
       Effect.gen(function* () {
         const env = yield* AppEnv.Service
+        const db = yield* DBService
         const token = getCookie(ctx, FEED_SESSION_COOKIE)
         if (!Predicate.isNullish(token)) {
           yield* logoutFromIdp(env.IDP_BASE_URL, token).pipe(Effect.ignore)
+          yield* Effect.promise(() => deleteRefreshToken(db, token))
         }
         deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-        deleteCookie(ctx, FEED_REFRESH_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
         return ctx.redirect('/login')
       }),
     ),

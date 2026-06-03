@@ -13,5 +13,6 @@ example depends on:
 - `src/feature/auth/middleware.ts` for `Authorization: Bearer ...` enforcement.
 - `src/worker/bff/worker.ts` for the protected `/api/v1/me` endpoint.
 
-Production follow-up from the IdP document: the backend should authorize API
-access with a proper access token or introspection result, not an OIDC ID token.
+The backend must authorize API access with the resource-specific JWT access token
+for `feed-platform-backend`. Keep rejecting OIDC ID tokens, including tokens that
+have a valid signature but do not carry `token_use=access`.

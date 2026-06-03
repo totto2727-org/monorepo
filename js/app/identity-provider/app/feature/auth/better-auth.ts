@@ -2,7 +2,7 @@ import { oauthProvider } from '@better-auth/oauth-provider'
 import { passkey } from '@better-auth/passkey'
 import { betterAuth } from 'better-auth'
 import { jwt, magicLink } from 'better-auth/plugins'
-import { Context, Effect, Layer } from 'effect'
+import { Context, Effect, Layer, Predicate } from 'effect'
 
 import * as DB from '#@/feature/db/kysely.ts'
 import * as EmailSender from '#@/feature/email/sender.ts'
@@ -41,6 +41,10 @@ const makeInstance = (db: DB.Instance, env: Env.Type, emailSender: EmailSender.E
       }),
       oauthProvider({
         consentPage: '/app/oauth/consent',
+        customAccessTokenClaims: ({ user }) => ({
+          ...(Predicate.isString(user?.email) ? { email: user.email } : {}),
+          token_use: 'access',
+        }),
         idTokenExpiresIn: 3600,
         loginPage: '/app/login',
         refreshTokenExpiresIn: 2_592_000,

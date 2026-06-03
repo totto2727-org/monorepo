@@ -1,10 +1,11 @@
-import { Effect, Predicate, Schema, String } from 'effect'
+import { DateTime, Effect, Predicate, Schema, String } from 'effect'
 import { HttpBody, HttpClient, HttpClientRequest } from 'effect/unstable/http'
 import type { Context } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 
-import { FEED_REFRESH_COOKIE, FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
+import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
 import { verifyAndDeleteNonce } from '#@/feature/auth/nonce-store.ts'
+import { storeRefreshToken } from '#@/feature/auth/refresh-store.ts'
 import type { Instance as DBInstance } from '#@/feature/db/kysely.ts'
 import type * as Env from '#@/feature/env.ts'
 
@@ -84,6 +85,7 @@ export const handleAuthCallback = (
       code_verifier: verifier,
       grant_type: 'authorization_code',
       redirect_uri: redirectUri,
+      resource: env.BACKEND_RESOURCE,
     }
     if (String.isNonEmpty(env.OAUTH_CLIENT_SECRET)) {
       bodyParams.client_secret = env.OAUTH_CLIENT_SECRET
@@ -105,14 +107,20 @@ export const handleAuthCallback = (
       return new Response('auth failed', { status: 401 })
     }
 
-    if (!Predicate.isNullish(result.id_token) && Predicate.isNotNullish(state)) {
-      const valid = yield* verifyNonce(db, result.id_token, state)
+    const idToken = result.id_token
+    if (Predicate.isNullish(idToken) || String.isEmpty(idToken)) {
+      return new Response('auth failed', { status: 401 })
+    }
+
+    if (Predicate.isNotNullish(state)) {
+      const valid = yield* verifyNonce(db, idToken, state)
       if (!valid) {
         return new Response('nonce mismatch', { status: 403 })
       }
     }
 
-    setCookie(ctx, FEED_SESSION_COOKIE, result.id_token ?? result.access_token, {
+    const sessionToken = idToken
+    setCookie(ctx, FEED_SESSION_COOKIE, sessionToken, {
       httpOnly: true,
       path: '/',
       sameSite: 'Lax',
@@ -120,13 +128,10 @@ export const handleAuthCallback = (
     deleteCookie(ctx, 'pkce_verifier', { httpOnly: true, path: '/', sameSite: 'Lax' })
     deleteCookie(ctx, 'oauth_state', { httpOnly: true, path: '/', sameSite: 'Lax' })
 
-    if (!Predicate.isNullish(result.refresh_token) && String.isNonEmpty(result.refresh_token)) {
-      setCookie(ctx, FEED_REFRESH_COOKIE, result.refresh_token, {
-        httpOnly: true,
-        maxAge: 2_592_000,
-        path: '/',
-        sameSite: 'Lax',
-      })
+    const refreshToken = result.refresh_token
+    if (!Predicate.isNullish(refreshToken) && String.isNonEmpty(refreshToken)) {
+      const now = DateTime.toEpochMillis(yield* DateTime.now)
+      yield* Effect.promise(() => storeRefreshToken(db, sessionToken, refreshToken, result.access_token, now))
     }
 
     return ctx.redirect('/dashboard')

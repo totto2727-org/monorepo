@@ -11,9 +11,11 @@ depends on:
 - `app/feature/auth/oauth-client.ts` for authorization URL, PKCE, state, and
   nonce generation.
 - `app/feature/auth/callback.ts` for code exchange, nonce verification, and
-  session cookie creation.
+  session cookie creation plus server-side access/refresh token storage.
 - `app/feature/auth/middleware.ts` for ID-token session verification.
-- `app/feature/api/client.ts` for calls to `feed-platform-backend`.
+- `app/feature/api/client.ts` for calls to `feed-platform-backend` using the
+  server-side JWT access token, not the `feed-session` ID token.
 
-Production follow-up from the IdP document: use a proper API access token or
-introspection flow instead of using an ID token as the backend bearer token.
+The backend bearer token must be the resource-specific JWT access token obtained
+with `resource=feed-platform-backend`. Keep `feed-session` scoped to web session
+identity.

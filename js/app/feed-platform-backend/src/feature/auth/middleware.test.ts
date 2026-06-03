@@ -16,7 +16,7 @@ const { middleware: runtimeMiddleware } = await import('#@/feature/runtime/hono.
 const { default: bffWorker } = await import('#@/worker/bff/worker.ts')
 
 const localBindings = {
-  FEED_PLATFORM_AUDIENCE: 'feed-platform-web',
+  FEED_PLATFORM_AUDIENCE: 'feed-platform-backend',
   IDP_BASE_URL: 'http://localhost:8787',
   IDP_JWKS_URL: 'http://localhost:8787/api/v1/auth/jwks',
 } satisfies AppEnv.Type
@@ -41,6 +41,7 @@ describe('authMiddleware', () => {
         exp: 9_999_999,
         iat: 1_000_000,
         sub: 'user-123',
+        token_use: 'access',
       },
     })
     const app = makeApp()
@@ -51,6 +52,7 @@ describe('authMiddleware', () => {
       exp: 9_999_999,
       iat: 1_000_000,
       sub: 'user-123',
+      token_use: 'access',
     })
   })
 
@@ -86,6 +88,7 @@ describe('authMiddleware', () => {
         exp: 9_999_999,
         iat: 1_000_000,
         sub: 'worker-user',
+        token_use: 'access',
       },
     })
     const res = await bffWorker.request(
@@ -99,6 +102,7 @@ describe('authMiddleware', () => {
       exp: 9_999_999,
       iat: 1_000_000,
       sub: 'worker-user',
+      token_use: 'access',
     })
   })
 })

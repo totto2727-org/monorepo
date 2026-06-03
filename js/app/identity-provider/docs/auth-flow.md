@@ -14,6 +14,8 @@ under `/api/v1/auth`. It currently provides:
 - Passkey login and registration.
 - OAuth 2.0 Authorization Code flow for `feed-platform-web`.
 - OIDC ID tokens signed by the Better Auth JWT/JWKS plugin.
+- JWT access tokens for API calls when the token request includes a valid
+  `resource` audience.
 - Refresh tokens for the `offline_access` scope.
 
 The feed example consists of:
@@ -50,12 +52,13 @@ sequenceDiagram
   BetterAuth-->>User: Redirect to feed /auth/callback?code&state
   User->>Web: GET /auth/callback?code&state
   Web->>Web: Verify oauth_state cookie and load pkce_verifier
-  Web->>BetterAuth: POST /oauth2/token with code, client credentials, PKCE verifier
-  BetterAuth-->>Web: access_token, id_token, optional refresh_token
-  Web->>Web: Verify ID token nonce and set feed-session/feed-refresh cookies
+  Web->>BetterAuth: POST /oauth2/token with code, client credentials, PKCE verifier, resource=feed-platform-backend
+  BetterAuth-->>Web: JWT access_token, id_token, optional refresh_token
+  Web->>Web: Verify ID token nonce; store ID token cookie plus access/refresh tokens server-side
   Web-->>User: Redirect to /dashboard
   User->>Web: GET /dashboard
-  Web->>Backend: GET /api/v1/me with Authorization: Bearer feed-session token
+  Web->>Web: Look up JWT access token by feed-session ID token
+  Web->>Backend: GET /api/v1/me with Authorization: Bearer JWT access_token
   Backend->>IdP: Fetch JWKS when needed
   Backend-->>Web: JWT-derived user payload or 401
   Web-->>User: Render dashboard or unauthenticated state
@@ -150,19 +153,21 @@ POST http://localhost:8787/api/v1/auth/oauth2/token
 ```
 
 with form-encoded `grant_type=authorization_code`, `client_id`,
-`client_secret`, `code`, `code_verifier`, and `redirect_uri`.
+`client_secret`, `code`, `code_verifier`, `redirect_uri`, and
+`resource=feed-platform-backend`.
 
 The token response is decoded as:
 
-- `access_token`: opaque Better Auth OAuth access token.
+- `access_token`: JWT OAuth access token for the `feed-platform-backend`
+  resource.
 - `id_token`: OIDC JWT when `openid` is requested.
 - `refresh_token`: opaque refresh token when `offline_access` is granted.
 
 `feed-platform-web` verifies the `nonce` claim in the ID token against its stored
-nonce. It stores the ID token, not the opaque access token, in the
-`feed-session` HTTP-only cookie because the feed web and backend middleware
-verify JWTs through the IdP JWKS endpoint. `feed-refresh` stores the refresh
-token.
+nonce. It stores the ID token in the `feed-session` HTTP-only cookie for the web
+login session only. The JWT access token and refresh token are stored
+server-side in `oauth_refresh_session` keyed by the current `feed-session` token;
+neither token is sent to the browser.
 
 ### 5. Dashboard and backend call
 
@@ -176,19 +181,22 @@ The current web middleware does not validate issuer or audience. The backend
 does validate those claims, so the backend is the stricter JWT enforcement point
 in the feed example.
 
-The dashboard calls `feed-platform-backend`:
+Before calling the backend, feed web looks up the server-side access token for
+the current `feed-session`. The dashboard then calls `feed-platform-backend`:
 
 ```text
 GET http://localhost:8788/api/v1/me
-Authorization: Bearer <feed-session ID token>
+Authorization: Bearer <JWT access token>
 ```
 
 `feed-platform-backend` verifies:
 
 - `alg=ES256`.
-- `aud=feed-platform-web`.
+- `aud=feed-platform-backend`.
 - `iss=http://localhost:8787/api/v1/auth`.
 - signature through `http://localhost:8787/api/v1/auth/jwks`.
+- `token_use=access`, rejecting ID tokens even when they are otherwise valid
+  JWTs.
 - required `sub` and `email` claims.
 
 The backend returns the JWT-derived user payload. `feed-platform-web` accepts
@@ -196,16 +204,19 @@ either `{ id, email }` or `{ sub, email }` and renders the dashboard.
 
 ### 6. Refresh
 
-If the backend call fails and `feed-refresh` exists, `feed-platform-web` attempts
-`grant_type=refresh_token` at the IdP token endpoint. The refreshed ID token is
-stored back in `feed-session` when present, otherwise the access token is used as
-a fallback.
+If the backend call fails and a server-side refresh token exists for the current
+`feed-session`, `feed-platform-web` attempts `grant_type=refresh_token` at the
+IdP token endpoint with `resource=feed-platform-backend`. The refreshed ID token
+is stored back in `feed-session` when present. The refreshed JWT access token and
+refreshed or previous refresh token remain server-side, then feed web retries the
+backend call with the refreshed access token.
 
 ### 7. Logout
 
-`GET /logout` in `feed-platform-web` clears `feed-session` and `feed-refresh`.
-It also attempts to call Better Auth sign-out with an empty JSON body to satisfy
-the endpoint content-type contract.
+`GET /logout` in `feed-platform-web` clears `feed-session`, deletes the
+server-side refresh session for that browser session, and attempts to call Better
+Auth sign-out with an empty JSON body to satisfy the endpoint content-type
+contract.
 
 Current logout is a local best-effort operation. It is not a complete OIDC
 RP-Initiated Logout or OAuth token revocation flow.
@@ -220,18 +231,19 @@ Core 1.0, and the OWASP OAuth2 Cheat Sheet.
 
 ### Implemented or mostly compliant
 
-| Area                      | Status                     | Evidence                                                                                  |
-| ------------------------- | -------------------------- | ----------------------------------------------------------------------------------------- |
-| Authorization Code flow   | Implemented                | Feed web uses `/oauth2/authorize`, receives `code`, and exchanges it at `/oauth2/token`.  |
-| PKCE                      | Implemented                | Feed web generates a verifier and S256 challenge; the callback sends `code_verifier`.     |
-| `state` CSRF binding      | Implemented                | Feed web stores `oauth_state` in an HTTP-only cookie and rejects callback state mismatch. |
-| OIDC `nonce`              | Implemented                | Feed web stores a nonce and verifies the ID token nonce before accepting the login.       |
-| Exact redirect URI        | Implemented for local feed | Seeded client redirect URI is `http://127.0.0.1:8789/auth/callback`.                      |
-| ID token signing and JWKS | Implemented                | IdP uses Better Auth `jwt` with ES256 and exposes `/api/v1/auth/jwks`.                    |
-| Audience validation       | Implemented                | Backend verifies `aud=feed-platform-web`; IdP has `validAudiences`.                       |
-| Issuer validation         | Implemented                | Backend verifies issuer `http://localhost:8787/api/v1/auth`.                              |
-| Refresh token table       | Implemented                | `oauth_refresh_token` table exists and maps `scopes` to `scope`.                          |
-| Consent endpoint          | Implemented                | Consent screen calls `/oauth2/consent` with Better Auth `oauth_query`.                    |
+| Area                      | Status                     | Evidence                                                                                               |
+| ------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Authorization Code flow   | Implemented                | Feed web uses `/oauth2/authorize`, receives `code`, and exchanges it at `/oauth2/token`.               |
+| PKCE                      | Implemented                | Feed web generates a verifier and S256 challenge; the callback sends `code_verifier`.                  |
+| `state` CSRF binding      | Implemented                | Feed web stores `oauth_state` in an HTTP-only cookie and rejects callback state mismatch.              |
+| OIDC `nonce`              | Implemented                | Feed web stores a nonce and verifies the ID token nonce before accepting the login.                    |
+| Exact redirect URI        | Implemented for local feed | Seeded client redirect URI is `http://127.0.0.1:8789/auth/callback`.                                   |
+| ID token signing and JWKS | Implemented                | IdP uses Better Auth `jwt` with ES256 and exposes `/api/v1/auth/jwks`.                                 |
+| JWT access token boundary | Implemented                | Feed web requests `resource=feed-platform-backend`; backend rejects tokens without `token_use=access`. |
+| Audience validation       | Implemented                | Backend verifies `aud=feed-platform-backend`; IdP has `validAudiences`.                                |
+| Issuer validation         | Implemented                | Backend verifies issuer `http://localhost:8787/api/v1/auth`.                                           |
+| Refresh token table       | Implemented                | `oauth_refresh_token` table exists and maps `scopes` to `scope`.                                       |
+| Consent endpoint          | Implemented                | Consent screen calls `/oauth2/consent` with Better Auth `oauth_query`.                                 |
 
 ### Non-compliant, incomplete, or local-only behavior
 
@@ -332,36 +344,44 @@ Why this is incomplete:
 
 Fix:
 
-- Implement token revocation for `feed-refresh` using RFC 7009-compatible revoke
-  behavior if the provider exposes it.
+- Implement token revocation for server-side feed refresh sessions using
+  RFC 7009-compatible revoke behavior if the provider exposes it.
 - Add OIDC RP-Initiated Logout support when Better Auth configuration and client
   metadata support `end_session_endpoint` and `post_logout_redirect_uri`.
 - Ensure logout does not send an ID token in a cookie named as an access-token
   session to the wrong endpoint.
 
-#### Access token is opaque but feed uses ID token as session
+#### Backend access token purpose is separated from web session identity
 
 Current behavior:
 
-- Better Auth returns an opaque OAuth access token.
-- Feed web stores the ID token in `feed-session` because the BFF verifies JWTs.
+- Feed web requests a JWT access token by sending
+  `resource=feed-platform-backend` to the token endpoint.
+- The IdP includes `aud=feed-platform-backend`, `azp=feed-platform-web`, and
+  `token_use=access` in the access token.
+- Feed web stores the ID token in `feed-session` only for the web login session.
+- Feed web stores the JWT access token server-side and sends that token, not the
+  ID token, to `feed-platform-backend`.
+- The backend verifies issuer, audience, ES256 signature, required user claims,
+  and `token_use=access`.
 
-Why this is a design mismatch:
+Why this matters:
 
 - ID tokens are intended to authenticate the user to the client, while access
-  tokens authorize API access. Using an ID token as a bearer token for a backend
-  API conflates token purposes.
+  tokens authorize API access. A backend that accepts ID tokens as bearer tokens
+  conflates token purposes and can accidentally accept tokens minted for a
+  different relying party.
+- Requiring a resource-specific JWT access token keeps the BFF authorization
+  boundary aligned with OAuth token purpose and audience semantics.
 
-Fix:
+Remaining hardening:
 
-- Prefer one of these designs:
-  1. Configure or issue JWT access tokens with an API audience and have the BFF
-     verify those access tokens.
-  2. Keep opaque access tokens and make the BFF call the IdP introspection
-     endpoint.
-  3. Treat feed web as a BFF session holder and have the backend trust only a
-     separate server-to-server session/token minted by feed web.
-- Do not use ID tokens as API bearer tokens in production.
+- Keep the ID-token rejection test in `feed-platform-backend` whenever changing
+  JWT claims or token exchange behavior.
+- If the IdP ever returns opaque access tokens for this flow, replace backend JWT
+  verification with RFC 7662-style introspection or a server-to-server token
+  minted specifically for the backend.
+- Do not send `feed-session` ID tokens to backend APIs.
 
 #### Feed web JWT validation is weaker than backend validation
 
@@ -387,8 +407,9 @@ Fix:
 
 Current behavior:
 
-- Better Auth stores refresh tokens in `oauth_refresh_token`.
-- Feed web stores the current refresh token in an HTTP-only cookie.
+- Better Auth stores provider-side refresh tokens in `oauth_refresh_token`.
+- Feed web stores the client refresh token server-side in `oauth_refresh_session`
+  keyed by the current `feed-session` token.
 
 Why this needs follow-up:
 
@@ -401,8 +422,8 @@ Fix:
 - Confirm Better Auth refresh-token family invalidation and rotation settings for
   the deployed version.
 - Add tests for refresh replay and revoked refresh-token rejection.
-- Consider storing refresh tokens server-side rather than directly in browser
-  cookies for production.
+- Add explicit refresh-token revocation and replay tests for the
+  `oauth_refresh_session` store.
 
 #### CSRF and origin policy around sign-out and consent need explicit tests
 
@@ -471,7 +492,8 @@ Before using this flow beyond local development:
 1. Use HTTPS-only origins and exact registered redirect URIs.
 2. Store client secrets hashed or encrypted; do not use the local identity
    secret verifier.
-3. Use access tokens, not ID tokens, for backend API authorization.
+3. Keep backend API authorization on resource-specific access tokens; never send
+   ID tokens as backend bearer tokens.
 4. Validate issuer, audience, and allowed algorithms in every JWT-consuming
    relying party, including `feed-platform-web` middleware.
 5. Implement or validate token revocation for refresh tokens.

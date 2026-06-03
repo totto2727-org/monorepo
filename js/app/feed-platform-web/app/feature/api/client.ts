@@ -1,9 +1,11 @@
 import type { TaggedErrorBaseType } from '@totto2727/fp/error'
-import { Context, Data, Effect, Layer, Predicate, Schema } from 'effect'
+import { Context, Data, DateTime, Effect, Layer, Predicate, Schema } from 'effect'
 import { HttpClient, HttpClientRequest } from 'effect/unstable/http'
 import { getCookie } from 'hono/cookie'
 
 import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
+import { getAccessToken } from '#@/feature/auth/refresh-store.ts'
+import * as DB from '#@/feature/db/kysely.ts'
 import * as Env from '#@/feature/env.ts'
 import * as HonoContext from '#@/feature/share/lib/hono/context.ts'
 
@@ -51,20 +53,26 @@ const callBackendApi = (baseUrl: string, authorization: string) =>
     return { email: user.email, id }
   })
 
-const getAuthorization = (): string | null => {
-  const token = getCookie(HonoContext.get(), FEED_SESSION_COOKIE)
-  return Predicate.isNullish(token) ? null : `Bearer ${token}`
-}
-
 const callBackendApiWithAuthorization = (baseUrl: string, authorization: string | null) =>
   Predicate.isNullish(authorization)
     ? Effect.fail(new BackendError({ message: 'missing feed-session cookie' }))
     : callBackendApi(baseUrl, authorization).pipe(Effect.mapError((failure) => new BackendError({ error: failure })))
 
 const makeCallMe =
-  (baseUrl: string): BackendClientService['callMe'] =>
+  (baseUrl: string, db: DB.Instance): BackendClientService['callMe'] =>
   () =>
-    callBackendApiWithAuthorization(baseUrl, getAuthorization())
+    Effect.gen(function* () {
+      const sessionToken = getCookie(HonoContext.get(), FEED_SESSION_COOKIE)
+      if (Predicate.isNullish(sessionToken)) {
+        return yield* Effect.fail(new BackendError({ message: 'missing feed-session cookie' }))
+      }
+      const now = DateTime.toEpochMillis(yield* DateTime.now)
+      const accessToken = yield* Effect.promise(() => getAccessToken(db, sessionToken, now))
+      return yield* callBackendApiWithAuthorization(
+        baseUrl,
+        Predicate.isNullish(accessToken) ? null : `Bearer ${accessToken}`,
+      )
+    })
 
 const makeCallMeWithAccessToken =
   (baseUrl: string): BackendClientService['callMeWithAccessToken'] =>
@@ -75,8 +83,9 @@ export const liveLayer = Layer.effect(
   BackendClient,
   Effect.gen(function* () {
     const env = yield* Env.Service
+    const db = yield* DB.Service
     return {
-      callMe: makeCallMe(env.BACKEND_BASE_URL),
+      callMe: makeCallMe(env.BACKEND_BASE_URL, db),
       callMeWithAccessToken: makeCallMeWithAccessToken(env.BACKEND_BASE_URL),
     }
   }),
