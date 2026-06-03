@@ -10,8 +10,8 @@ import * as Env from '#@/feature/env.ts'
 import * as HonoContext from '#@/feature/share/lib/hono/context.ts'
 
 export interface UserDTO {
-  readonly id: string
   readonly email: string
+  readonly sub: string
 }
 
 export class BackendError extends Data.TaggedError('BackendError')<TaggedErrorBaseType> {}
@@ -25,8 +25,7 @@ export const BackendClient = Context.Service<BackendClientService>('BackendClien
 
 const UserResponse = Schema.Struct({
   email: Schema.String,
-  id: Schema.optional(Schema.String),
-  sub: Schema.optional(Schema.String),
+  sub: Schema.String,
 })
 
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- backend JSON response is an external boundary with unknown shape.
@@ -46,11 +45,7 @@ const callBackendApi = (baseUrl: string, authorization: string) =>
     const user = yield* decodeUserResponse(data).pipe(
       Effect.mapError((error) => new BackendError({ error, message: 'invalid response shape' })),
     )
-    const id = user.id ?? user.sub
-    if (Predicate.isNullish(id)) {
-      return yield* Effect.fail(new BackendError({ message: 'missing user id' }))
-    }
-    return { email: user.email, id }
+    return { email: user.email, sub: user.sub }
   })
 
 const callBackendApiWithAuthorization = (baseUrl: string, authorization: string | null) =>
@@ -92,6 +87,6 @@ export const liveLayer = Layer.effect(
 )
 
 export const mockLayer = Layer.succeed(BackendClient, {
-  callMe: () => Effect.succeed({ email: 'mock@example.com', id: 'mock-user' }),
-  callMeWithAccessToken: () => Effect.succeed({ email: 'mock@example.com', id: 'mock-user' }),
+  callMe: () => Effect.succeed({ email: 'mock@example.com', sub: 'mock-user' }),
+  callMeWithAccessToken: () => Effect.succeed({ email: 'mock@example.com', sub: 'mock-user' }),
 })

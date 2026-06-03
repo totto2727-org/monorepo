@@ -11,7 +11,7 @@ import type * as Env from '#@/feature/env.ts'
 
 const TokenResponse = Schema.Struct({
   access_token: Schema.String,
-  id_token: Schema.optional(Schema.String),
+  id_token: Schema.String,
   refresh_token: Schema.optional(Schema.String),
 })
 
@@ -34,10 +34,9 @@ const exchangeToken = (idpBaseUrl: string, params: Record<string, string>) =>
     const response = yield* client.execute(request)
     if (response.status !== 200) {
       const text = yield* response.text
-      return { data: null, error: String.isNonEmpty(text) ? text : 'token exchange failed' }
+      return yield* Effect.fail(new Error(String.isNonEmpty(text) ? text : 'token exchange failed'))
     }
-    const data: unknown = yield* response.json
-    return { data, error: null }
+    return yield* response.json
   })
 
 const verifyNonce = (db: DBInstance, idToken: string, state: string) =>
@@ -91,24 +90,24 @@ export const handleAuthCallback = (
       bodyParams.client_secret = env.OAUTH_CLIENT_SECRET
     }
 
-    const rawTokenResult = yield* exchangeToken(env.IDP_BASE_URL, bodyParams).pipe(
-      Effect.orElseSucceed(() => ({ data: null, error: 'token exchange failed' })),
+    const resultOrResponse = yield* exchangeToken(env.IDP_BASE_URL, bodyParams).pipe(
+      Effect.flatMap(decodeTokenResponse),
+      Effect.match({
+        onFailure: (error) => new Response(`auth failed: ${globalThis.String(error)}`, { status: 401 }),
+        onSuccess: (tokenResponse) => tokenResponse,
+      }),
     )
-    if (Predicate.isNullish(rawTokenResult.data)) {
-      return new Response(`auth failed: ${rawTokenResult.error}`, { status: 401 })
-    }
-    const rawToken = rawTokenResult.data
-    const result = yield* decodeTokenResponse(rawToken).pipe(Effect.orElseSucceed(() => null))
 
-    if (Predicate.isNullish(result)) {
-      return new Response('auth failed', { status: 401 })
+    if (resultOrResponse instanceof Response) {
+      return resultOrResponse
     }
+    const result = resultOrResponse
     if (String.isEmpty(result.access_token)) {
       return new Response('auth failed', { status: 401 })
     }
 
     const idToken = result.id_token
-    if (Predicate.isNullish(idToken) || String.isEmpty(idToken)) {
+    if (String.isEmpty(idToken)) {
       return new Response('auth failed', { status: 401 })
     }
 

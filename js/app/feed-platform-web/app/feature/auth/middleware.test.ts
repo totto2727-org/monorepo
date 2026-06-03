@@ -14,7 +14,7 @@ vi.mock('jose', () => ({
 const { authMiddleware } = await import('./middleware.ts')
 
 const makeApp = () =>
-  new Hono<{ Variables: { user: { id: string; email: string } | null } }>()
+  new Hono<{ Variables: { user: { email: string; sub: string } | null } }>()
     .use('*', runtimeMiddleware)
     .use('*', authMiddleware)
     .get('/test', (ctx) => ctx.json({ user: ctx.var.user }))
@@ -38,7 +38,7 @@ describe('authMiddleware', () => {
     const app = makeApp()
     const res = await app.request('/test', { headers: { cookie: `${FEED_SESSION_COOKIE}=valid.jwt.token` } })
     expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ user: { email: 'test@example.com', id: 'user-123' } })
+    expect(await res.json()).toStrictEqual({ user: { email: 'test@example.com', sub: 'user-123' } })
   })
 
   it('sets user to null when JWT payload shape is invalid', async () => {

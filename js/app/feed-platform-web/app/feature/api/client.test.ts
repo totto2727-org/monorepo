@@ -1,4 +1,4 @@
-import { Effect, Layer, Predicate, Result } from 'effect'
+import { Effect, Layer, Predicate } from 'effect'
 import { FetchHttpClient } from 'effect/unstable/http'
 import { Hono } from 'hono'
 import { contextStorage } from 'hono/context-storage'
@@ -39,7 +39,7 @@ const makeTestLayer = (db: DB.Instance) =>
   )
 
 const successResponse = () =>
-  Promise.resolve(Response.json({ email: 'user@example.com', id: 'user-1' }, { status: 200 }))
+  Promise.resolve(Response.json({ email: 'user@example.com', sub: 'user-1' }, { status: 200 }))
 
 const validExpiresAt = 4_102_444_800_000
 
@@ -55,8 +55,12 @@ const requestCallMe = (db: DB.Instance, cookie?: string) => {
         Effect.provide(
           Effect.gen(function* () {
             const client = yield* BackendClient
-            const exit = yield* Effect.result(client.callMe())
-            return Result.isSuccess(exit) ? { data: exit.success, ok: true } : { ok: false }
+            return yield* client.callMe().pipe(
+              Effect.match({
+                onFailure: () => ({ ok: false }),
+                onSuccess: (data) => ({ data, ok: true }),
+              }),
+            )
           }),
           makeTestLayer(db),
         ),
@@ -74,8 +78,12 @@ const requestCallMeWithAccessToken = () => {
         Effect.provide(
           Effect.gen(function* () {
             const client = yield* BackendClient
-            const exit = yield* Effect.result(client.callMeWithAccessToken('test-jwt'))
-            return Result.isSuccess(exit) ? { data: exit.success, ok: true } : { ok: false }
+            return yield* client.callMeWithAccessToken('test-jwt').pipe(
+              Effect.match({
+                onFailure: () => ({ ok: false }),
+                onSuccess: (data) => ({ data, ok: true }),
+              }),
+            )
           }),
           makeTestLayer(db),
         ),
@@ -110,9 +118,9 @@ describe('BackendClient.callMe', () => {
     const missingCookieResponse = await requestCallMe(db)
     const failedBackendResponse = await requestCallMeWithAccessToken()
 
-    expect(await cookieResponse.json()).toStrictEqual({ data: { email: 'user@example.com', id: 'user-1' }, ok: true })
+    expect(await cookieResponse.json()).toStrictEqual({ data: { email: 'user@example.com', sub: 'user-1' }, ok: true })
     expect(await accessTokenResponse.json()).toStrictEqual({
-      data: { email: 'user@example.com', id: 'user-1' },
+      data: { email: 'user@example.com', sub: 'user-1' },
       ok: true,
     })
     expect(await missingCookieResponse.json()).toMatchObject({ ok: false })
@@ -123,5 +131,16 @@ describe('BackendClient.callMe', () => {
     expect(firstRequestUrl).toBe('http://localhost:8789/api/v1/me')
     const firstRequestInit = mockFetch.mock.calls[0]?.[1]
     expect(firstRequestInit?.headers).toMatchObject({ authorization: 'Bearer stored-access-jwt' })
+  })
+
+  it('rejects backend responses that provide id without sub', async () => {
+    const mockFetch = vi
+      .fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>()
+      .mockResolvedValue(Response.json({ email: 'user@example.com', id: 'user-1' }, { status: 200 }))
+    vi.stubGlobal('fetch', mockFetch)
+
+    const response = await requestCallMeWithAccessToken()
+
+    expect(await response.json()).toStrictEqual({ ok: false })
   })
 })

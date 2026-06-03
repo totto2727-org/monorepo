@@ -28,7 +28,7 @@ import { Document } from '#@/ui/document.tsx'
 
 const TokenResponse = Schema.Struct({
   access_token: Schema.String,
-  id_token: Schema.optional(Schema.String),
+  id_token: Schema.String,
   refresh_token: Schema.optional(Schema.String),
 })
 
@@ -145,7 +145,7 @@ const app: Hono<Env> = new Hono<Env>()
             <Document>
               <h1>Dashboard</h1>
               <p>Logged in as: {callMeResult.email}</p>
-              <p>User ID: {callMeResult.id}</p>
+              <p>Subject: {callMeResult.sub}</p>
               <a href='/logout'>Logout</a>
             </Document>,
           )
@@ -189,7 +189,7 @@ const app: Hono<Env> = new Hono<Env>()
           return ctx.redirect('/login')
         }
 
-        const nextSessionToken = tokenData.id_token ?? sessionToken
+        const nextSessionToken = tokenData.id_token
         setCookie(ctx, FEED_SESSION_COOKIE, nextSessionToken, {
           httpOnly: true,
           path: '/',
@@ -207,7 +207,7 @@ const app: Hono<Env> = new Hono<Env>()
           <Document>
             <h1>Dashboard</h1>
             <p>Logged in as: {retryResult.email}</p>
-            <p>User ID: {retryResult.id}</p>
+            <p>Subject: {retryResult.sub}</p>
             <a href='/logout'>Logout</a>
           </Document>,
         )

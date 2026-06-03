@@ -199,17 +199,18 @@ Authorization: Bearer <JWT access token>
   JWTs.
 - required `sub` and `email` claims.
 
-The backend returns the JWT-derived user payload. `feed-platform-web` accepts
-either `{ id, email }` or `{ sub, email }` and renders the dashboard.
+The backend returns the JWT-derived `sub` and `email` payload. `feed-platform-web`
+uses `sub` as the OIDC subject and does not fall back to an application `id`.
 
 ### 6. Refresh
 
 If the backend call fails and a server-side refresh token exists for the current
 `feed-session`, `feed-platform-web` attempts `grant_type=refresh_token` at the
-IdP token endpoint with `resource=feed-platform-backend`. The refreshed ID token
-is stored back in `feed-session` when present. The refreshed JWT access token and
-refreshed or previous refresh token remain server-side, then feed web retries the
-backend call with the refreshed access token.
+IdP token endpoint with `resource=feed-platform-backend`. The refresh response
+must include a refreshed ID token for `feed-session` and a refreshed JWT access
+token for the backend. The refreshed or previous refresh token remains
+server-side, then feed web retries the backend call with the refreshed access
+token.
 
 ### 7. Logout
 
