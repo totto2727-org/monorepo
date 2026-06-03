@@ -50,8 +50,7 @@ When Main begins this step, the following must be available:
 - Path of `share-artifacts/templates/roadmap.md` and
   `share-artifacts/references/roadmap.md` (writing guide) — needed to fill the Intent
   section.
-- Path of `share-artifacts/templates/progress.yaml` and
-  `share-artifacts/references/roadmap-progress-yaml.md` — needed to initialise the YAML.
+- Roadmap CLI available for initializing `docs/roadmap/<roadmap-id>/progress.yaml`.
 
 If any item is missing, Main confirms with the user before starting work.
 
@@ -59,9 +58,9 @@ If any item is missing, Main confirms with the user before starting work.
 
 1. Confirm the `<roadmap-id>` does not collide with an existing
    `docs/roadmap/<roadmap-id>/` directory.
-2. Create `docs/roadmap/<roadmap-id>/` and copy the templates into place
-   (`roadmap.md` from `share-artifacts/templates/roadmap.md`,
-   `progress.yaml` from `share-artifacts/templates/progress.yaml`).
+2. Create `docs/roadmap/<roadmap-id>/`, copy `roadmap.md` from
+   `share-artifacts/templates/roadmap.md`, and initialize `progress.yaml` through the
+   roadmap CLI.
 3. Hold a dialogue with the user to elicit:
    - Background and motivation of the roadmap.
    - Strategic objective.
@@ -71,8 +70,8 @@ If any item is missing, Main confirms with the user before starting work.
    - Long-lived constraints that span multiple downstream cycles.
 4. Fill in the Intent section of `roadmap.md` following
    `share-artifacts/references/roadmap.md`.
-5. Initialise `progress.yaml` with `roadmap_id`, `title`, `status: planned`,
-   `created_at`, `updated_at` (ISO 8601 to-the-second), and an empty `milestones: []`.
+5. Use the roadmap CLI to initialise `progress.yaml` with `roadmap_id`, `title`,
+   `status: planned`, timestamps, and an empty `milestones: []`.
 6. If long-lived premises or constraints shared by multiple downstream `totto2727-dev-flow`
    cycles surface during the dialogue, file a **Roadmap mode ADR**
    (`docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD>-<title>.md`) per Main's judgment;
@@ -90,8 +89,7 @@ If any item is missing, Main confirms with the user before starting work.
   Reference: `share-artifacts/references/roadmap.md`.
 - `docs/roadmap/<roadmap-id>/progress.yaml` — initialised with
   `status: planned` and empty `milestones: []`.
-  Template: `share-artifacts/templates/progress.yaml`.
-  Reference: `share-artifacts/references/roadmap-progress-yaml.md`.
+  Managed by the roadmap CLI.
 - (Optional) `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD>-<title>.md` — Roadmap mode ADR
   if a long-lived shared premise was discovered. See `share-adr/SKILL.md`.
 

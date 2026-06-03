@@ -1,6 +1,5 @@
 # `dev-roadmap` のロードマップ進捗管理 yaml。
-# `docs/roadmap/geo-mbt/roadmap-progress.yaml` に配置。
-# 書き方の詳細は `share-artifacts/references/roadmap-progress-yaml.md` を参照。
+# Roadmap progress is managed by the `roadmap` CLI.
 #
 # 設計方針 (最小限の責務): 「マイルストーン ↔ workflow identifier の紐付け」と粗粒度ステータス
 # (planned / active / completed / blocked / cancelled) のみを保持する。

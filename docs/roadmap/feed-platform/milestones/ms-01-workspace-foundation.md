@@ -2,7 +2,7 @@
 
 - **Milestone ID:** ms-01-workspace-foundation
 - **Roadmap ID:** feed-platform
-- **Status:** completed <!-- planned | active | completed | blocked | cancelled (`roadmap-progress.yaml.milestones[].status` と一致させる) -->
+- **Status:** completed <!-- planned | active | completed | blocked | cancelled (`progress.yaml.milestones[].status` と一致させる) -->
 - **Created at:** 2026-05-04T00:00:00Z
 - **Last updated:** 2026-05-07T03:55:00Z
 
@@ -21,7 +21,7 @@
 
 ## 到達点 (定性)
 
-配下の oh-my-codingagent execution サイクルが完了し、`roadmap-progress.yaml.milestones[ms-01-workspace-foundation].status` が `completed` に遷移する条件として、人間が目視で「達成された」と合意できる粒度で書く。
+配下の oh-my-codingagent execution サイクルが完了し、`progress.yaml.milestones[ms-01-workspace-foundation].status` が `completed` に遷移する条件として、人間が目視で「達成された」と合意できる粒度で書く。
 
 - `js/` が `feed-platform` の採用ワークスペースである
 - `feed-platform-backend` / `feed-platform-web` / `identity-provider` が `js/app/` 配下に存在し、各アプリケーションのパッケージ、モジュール構成、Lint / Format / 型チェック / ビルド設定が成立している
@@ -53,7 +53,7 @@
 
 ## 依存マイルストーン
 
-このマイルストーンが**先行完了を要求する**他のマイルストーン ID を列挙する。`roadmap-progress.yaml.milestones[].depends_on[]` と完全一致させる。
+このマイルストーンが**先行完了を要求する**他のマイルストーン ID を列挙する。`progress.yaml.milestones[].depends_on[]` と完全一致させる。
 
 - (なし) — 本マイルストーンはロードマップの起点
 

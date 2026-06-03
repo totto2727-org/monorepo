@@ -497,5 +497,5 @@ Web フロントエンドサーバーは以下を担う:
 ## 関連
 
 - ロードマップ本体: [`./roadmap.md`](./roadmap.md)
-- ロードマップ進捗: [`./roadmap-progress.yaml`](./roadmap-progress.yaml)
+- ロードマップ進捗: [`./progress.yaml`](./progress.yaml)
 - 配下 oh-my-codingagent execution サイクル: 未着手 (`roadmap` Step 2 Milestone Decomposition 後に確定)

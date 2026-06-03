@@ -10,7 +10,7 @@ This plugin keeps only the strategic roadmap layer and shared document formats. 
 - `roadmap-intent` — capture the worldview, scope, non-scope, and success boundary of a roadmap.
 - `roadmap-decomposition` — split a roadmap into observable milestones.
 - `roadmap-retrospective` — close out roadmap-level learning.
-- `share-artifacts` — authoring guides and templates for roadmap, milestone, ADR, and retained workflow document formats.
+- `share-artifacts` — authoring guides and templates for roadmap, milestone, ADR, and retained QA test design formats.
 - `share-adr` — ADR writing rules.
 
 ## State management

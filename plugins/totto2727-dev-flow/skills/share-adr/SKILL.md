@@ -165,10 +165,10 @@ docs/
 
 ## What This Skill Does NOT Cover
 
-- Design decisions completed within a single cycle -> write inside `design.md` (`share-artifacts/references/design.md`)
+- Design decisions completed within a single cycle -> keep them in the tactical execution cycle's design artifact, outside this plugin's retained artifact formats
 - Direction completed within a milestone -> write inside `milestones/<id>.md`
 - Meeting notes / memos -> no corresponding skill (follow this repository's conventions)
-- Retrospective (volatile report) -> `docs/retrospective/<identifier>.md` or `docs/retrospective/roadmap-<roadmap-id>.md` (`share-artifacts/references/retrospective.md` / `roadmap-retrospective.md`)
+- Retrospective (volatile report) -> per-cycle retrospectives are owned by the tactical execution system; roadmap retrospectives use `docs/retrospective/roadmap-<roadmap-id>.md` (`share-artifacts/references/roadmap-retrospective.md`)
 - Roadmap Intent itself -> `roadmap.md` (`share-artifacts/references/roadmap.md`)
 - CHANGELOG / release notes -> no corresponding skill
 - Overusing ADR as a "substitute for design documents" (if it looks like 5 or more ADRs would be written within a single cycle, the granularity is likely wrong; consider integrating into `design.md`)

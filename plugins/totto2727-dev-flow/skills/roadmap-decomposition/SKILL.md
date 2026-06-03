@@ -50,8 +50,7 @@ exists for this step.
 - Path of `share-artifacts/templates/roadmap.md` and
   `share-artifacts/references/roadmap.md` — for appending the milestone list and dependency
   graph to the existing `roadmap.md`.
-- Path of `share-artifacts/references/roadmap-progress-yaml.md` — for completing the
-  `milestones[]` section.
+- Roadmap CLI available for updating `progress.yaml.milestones[]`.
 
 If any item is missing, Main confirms with the user before starting work.
 
@@ -67,7 +66,7 @@ If any item is missing, Main confirms with the user before starting work.
    following `share-artifacts/references/milestone.md`. Each file states the completion
    criteria so a future reader can decide when the milestone transitions to `completed`.
 6. Append the milestone list and the Mermaid dependency graph to `roadmap.md`.
-7. Finalise `progress.yaml.milestones[]` with one entry per milestone:
+7. Use the roadmap CLI to finalise `progress.yaml.milestones[]` with one entry per milestone:
    - `id`, `title`, `status: planned`
    - `depends_on: [<milestone-id>, ...]` (DAG edges)
    - `workflow_identifiers: []` (empty; downstream oh-my-codingagent execution cycles will fill this)
@@ -94,8 +93,7 @@ If any item is missing, Main confirms with the user before starting work.
   Reference: `share-artifacts/references/milestone.md`.
 - `docs/roadmap/<roadmap-id>/progress.yaml` — `milestones[]` finalised; roadmap
   `status: active`.
-  Template: `share-artifacts/templates/progress.yaml`.
-  Reference: `share-artifacts/references/roadmap-progress-yaml.md`.
+  Managed by the roadmap CLI.
 - (Optional) `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD>-<title>.md` — Roadmap mode ADR
   if a cross-cycle shared norm was discovered.
 

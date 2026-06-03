@@ -122,7 +122,7 @@ A `roadmap.md` not satisfying these may be sent back at the Step 2 user approval
 - **No input** (Step 1 starts from user dialogue)
 - **Premise for downstream artifacts:**
   - `milestones/<milestone-id>.md` (decomposed by `roadmap-planner` in Step 2)
-  - `progress.yaml` (initialized in Step 1, `milestones[]` confirmed in Step 2, autonomously updated by underlying oh-my-codingagent execution cycles in Step 3)
-  - The `intent-spec.md` of each underlying oh-my-codingagent execution cycle (drafted with this document as input)
+  - `progress.yaml` (CLI-managed roadmap state)
+  - The planning artifact of each underlying execution cycle (drafted with this document as input)
 - **Impact when changed:** confirmed milestone dependencies are recommended not to be changed during underlying cycle progression. If a change is necessary, this is equivalent to regressing back to roadmap Step 2.
-- **Related:** `references/milestone.md` (how to write a single milestone definition), `references/roadmap-progress-yaml.md` (how to write the progress management yaml), `references/roadmap-retrospective.md` (how to write the reflection on the entire roadmap)
+- **Related:** `references/milestone.md` (how to write a single milestone definition), `references/roadmap-retrospective.md` (how to write the reflection on the entire roadmap)

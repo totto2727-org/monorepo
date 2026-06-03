@@ -73,8 +73,8 @@ If any item is missing, Main confirms with the user before starting work.
    - Roadmap-specific improvements (e.g. proposed `progress.yaml` schema
      extensions, the case for finer-grained progress reporting, parallel-cycle
      operational lessons, specialist-launch-count observations, etc.).
-4. Update `progress.yaml`: set the roadmap-wide `status` to `completed` and
-   refresh `updated_at`.
+4. Use the roadmap CLI to set the roadmap-wide `status` to `completed` and refresh
+   `updated_at` in `progress.yaml`.
 5. If long-lived insights worth permanent recording surface during retrospective,
    propose extracting them into ADRs (Main's judgment):
    - **Roadmap mode** (`docs/roadmap/<roadmap-id>/adr/`) when the insight stays inside
@@ -95,8 +95,7 @@ If any item is missing, Main confirms with the user before starting work.
   Reference: `share-artifacts/references/roadmap-retrospective.md`.
 - `docs/roadmap/<roadmap-id>/progress.yaml` — `status: completed`, `updated_at`
   refreshed.
-  Template: `share-artifacts/templates/progress.yaml`.
-  Reference: `share-artifacts/references/roadmap-progress-yaml.md`.
+  Managed by the roadmap CLI.
 - (Optional) ADR(s) extracted from retrospective insights, in either mode per
   `share-adr/SKILL.md`.
 

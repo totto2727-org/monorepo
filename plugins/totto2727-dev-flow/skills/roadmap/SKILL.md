@@ -216,9 +216,8 @@ graph LR
 - On conflict, neither the workflow Main nor a specialist resolves it unilaterally;
   it is reported as a Blocker (`specialist-common §4` Case B), and the roadmap Main
   drives recovery.
-- Detailed recovery flow: see
-  `share-artifacts/references/roadmap-progress-yaml.md` "`totto2727-dev-flow` update
-  protocol".
+- Detailed recovery uses the roadmap CLI as the single writer for `progress.yaml`; do not
+  edit the YAML through share-artifacts templates.
 
 ---
 

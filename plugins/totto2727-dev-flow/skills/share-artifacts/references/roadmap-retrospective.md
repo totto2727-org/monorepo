@@ -4,7 +4,7 @@
 
 In `roadmap` Step 4 (Roadmap Retrospective), **reflect on the entire roadmap** by aggregating the `retrospective.md` of each underlying oh-my-codingagent execution cycle while integrating roadmap-specific points (overview of milestone achievement / dependency graph validity / roadmap-specific improvement proposals). The goal is to extract **strategic-level knowledge** that can be applied when starting the next similar roadmap.
 
-While taking `references/retrospective.md` (the workflow version) as **a reference**, this document must include the following sections specific to the roadmap context:
+This document must include the following sections specific to the roadmap context:
 
 - Overview of milestone achievement (list of the final states of `progress.yaml.milestones[]`)
 - Reflection on dependency graph validity (whether the DAG confirmed in Step 2 was actually valid in operation)
@@ -15,7 +15,7 @@ While taking `references/retrospective.md` (the workflow version) as **a referen
 
 - **Author:** `roadmap-retrospective-writer` Specialist (single instance)
 - **Step:** `roadmap` Step 4 (Roadmap Retrospective)
-- **Approval:** Main verdict (information sharing only with the user. Same policy as `references/retrospective.md` (workflow version))
+- **Approval:** Main verdict (information sharing only with the user)
 
 ## File location (aggregated form + `roadmap-` prefix naming rule)
 
@@ -34,7 +34,7 @@ This `roadmap-` prefix naming rule is duplicated in this document and in `roadma
 
 ## Lifecycle
 
-Like `references/retrospective.md` (workflow version), the roadmap retrospective is also operated as **a volatile report box**. Decisions to be persistently recorded are extracted into ADRs (General mode `docs/adr/` / Roadmap mode `docs/roadmap/<roadmap-id>/adr/`; mode determination in `share-adr/SKILL.md`) before the retrospective is deleted.
+The roadmap retrospective is operated as **a volatile report box**. Decisions to be persistently recorded are extracted into ADRs (General mode `docs/adr/` / Roadmap mode `docs/roadmap/<roadmap-id>/adr/`; mode determination in `share-adr/SKILL.md`) before the retrospective is deleted.
 
 | Kind                  | Storage location                                | Lifecycle                                                                                    |
 | --------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------- |
@@ -89,12 +89,12 @@ Write only improvement proposals at the roadmap layer. Improvement proposals con
 
 #### Aspects that should be included
 
-- **`progress.yaml` schema extension proposals**: whether additions are needed for the `events` array / `last_step` field / status_view derived view / ms-precision timestamps that are scoped out in this version (consistent with "Extension points" in `references/roadmap-progress-yaml.md`)
+- **Roadmap CLI progress model proposals**: whether additions are needed for the `events` array / `last_step` field / status_view derived view / ms-precision timestamps that are scoped out in this version
 - **Reflection on milestone splitting granularity**: validity of 1:N cycles, accuracy of anticipated cycle count estimates, milestones that needed re-decomposition
 - **Necessity of per-step reflection (re-evaluation of (b) scope-out policy)**: through actual operation, whether it has become apparent that `progress.yaml` should be updated at each step completion on the workflow side
 - **`roadmap` ↔ `totto2727-dev-flow` integration protocol**: whether bidirectional ID references, the `progress.yaml.roadmap` nested structure, and the writer asymmetry (workflow → roadmap is the norm) functioned operationally without issue
 
-Each improvement proposal is decomposed to action granularity (following the quality criteria of `references/retrospective.md` (workflow version): not "improve X" but "when X happens, do Y").
+Each improvement proposal is decomposed to action granularity: not "improve X" but "when X happens, do Y".
 
 ### Hand-off to the next cycle
 
@@ -113,7 +113,7 @@ Describe knowledge usable when starting the next similar roadmap, reusable miles
 
 ## Quality criteria
 
-Inheriting the quality criteria of `references/retrospective.md` (workflow version), with roadmap-specific additional criteria:
+Use the roadmap-specific quality criteria below:
 
 | Good                                                                                                                        | Bad                                                                             |
 | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
@@ -131,11 +131,11 @@ Inheriting the quality criteria of `references/retrospective.md` (workflow versi
 - All `docs/roadmap/<roadmap-id>/milestones/<milestone-id>.md` (each milestone definition / goals)
 - `docs/roadmap/<roadmap-id>/progress.yaml` (final state, timestamps, list of workflow_identifiers)
 - All `docs/retrospective/<identifier>.md` of each underlying oh-my-codingagent execution cycle (aggregation target)
-- All `docs/workflow/<identifier>/progress.yaml` of each underlying oh-my-codingagent execution cycle (when tracing detailed progress)
+- Any retained delegated execution artifacts or summaries linked from milestone notes (when tracing detailed progress)
 
 ## Related artifacts
 
 - **Inputs:** all roadmap artifacts (`roadmap.md` / `milestones/*.md` / `progress.yaml`) + all retrospectives of the underlying oh-my-codingagent execution cycles
 - **Output destination:** `docs/retrospective/roadmap-<roadmap-id>.md` (persisted in the repository. Deletable once improvement items are consumed at the start of the next roadmap)
 - **Reflection destinations:** improvement proposals directly feed into the next roadmap's `roadmap.md` / updates to the `roadmap` plugin / `progress.yaml` schema extensions
-- **Related:** `references/retrospective.md` (workflow version, the reference of this document), `references/roadmap.md`, `references/milestone.md`, `references/roadmap-progress-yaml.md`
+- **Related:** `references/roadmap.md`, `references/milestone.md`

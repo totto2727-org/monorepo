@@ -92,7 +92,7 @@ As **an optional layout pattern example** when the `roadmap-planner` carves out 
 
 - **Inputs:** `roadmap.md` (purpose, scope boundaries, and macro constraints of the parent roadmap)
 - **Premise for downstream artifacts:**
-  - `progress.yaml.milestones[]` (initialized at Step 2 by `roadmap-planner` with `id` / `title` / `status: planned` / `depends_on` / empty `workflow_identifiers: []` / `notes: null`)
-  - The `intent-spec.md` of each underlying oh-my-codingagent execution cycle (this file is used as input to draft observable success criteria)
+  - `progress.yaml.milestones[]` (CLI-managed roadmap state initialized at Step 2)
+  - The planning artifact of each underlying execution cycle (this file is used as input to draft observable success criteria)
 - **Impact when changed:** in principle immutable after confirmation in Step 2. Changes during the underlying cycle are equivalent to regressing back to roadmap Step 2.
-- **Related:** `references/roadmap.md`, `references/roadmap-progress-yaml.md`, `references/roadmap-retrospective.md`
+- **Related:** `references/roadmap.md`, `references/roadmap-retrospective.md`

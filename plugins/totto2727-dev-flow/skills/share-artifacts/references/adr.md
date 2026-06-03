@@ -123,8 +123,8 @@ Demotion (Confirmed → Draft) is not allowed. If a confirmed decision must be r
 
 ## Related artifacts
 
-- **`design.md`** — cycle-specific design decisions stay here. ADRs are filed only when the decision crosses cycle boundaries (see `share-artifacts/references/design.md` "ADR filing decision criteria" and "References to ADRs that cross cycle boundaries").
-- **`progress.yaml.artifacts.external_adrs`** — every ADR filed during a cycle is recorded here (paths, both General and Roadmap modes listed flat). See `share-artifacts/references/progress-yaml.md`.
+- **Cycle design artifact** — cycle-specific design decisions stay in the delegated execution system. ADRs are filed only when the decision crosses cycle or roadmap boundaries.
+- **Roadmap progress state** — ADR paths are tracked through the roadmap CLI when roadmap state needs to reference them.
 - **`roadmap.md` / `milestones/<id>.md`** — roadmap-shared ADRs are linked from these artifacts.
-- **`retrospective.md` / `roadmap-retrospective.md`** — when a retrospective insight is worth permanent recording, an ADR is extracted from it before the retrospective is digested by the next cycle (see `share-artifacts/references/retrospective.md`).
+- **`roadmap-retrospective.md`** — when a roadmap retrospective insight is worth permanent recording, an ADR is extracted from it.
 - **`share-adr/SKILL.md`** — operating rules: mode-decision flow, immutability principle, supersession rules, reference rules per filing origin, and the division of role with retrospectives.
