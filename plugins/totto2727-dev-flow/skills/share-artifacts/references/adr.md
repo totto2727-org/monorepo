@@ -2,14 +2,13 @@
 
 ## Purpose
 
-Permanently record decisions whose impact extends **beyond a single oh-my-codingagent execution cycle** so that future cycles, future roadmaps, and other contributors can rely on the same agreed premises. ADRs complement two volatile artifacts: `design.md` carries cycle-local design decisions; `retrospective.md` / `roadmap-retrospective.md` carry self-evaluation. ADRs are the **long-lived decision layer** that survives both.
+Permanently record decisions whose impact extends **beyond a single workflow-level execution** so that future executions, future roadmaps, and other contributors can rely on the same agreed premises. ADRs complement execution-specific design artifacts and volatile retrospectives. ADRs are the **long-lived decision layer** that survives both.
 
 ## Author / creation timing
 
 - **Filer:** Main (after evaluating the scope). Specialists do not file ADRs autonomously — when an `architect`, `roadmap-analyst`, `roadmap-planner`, or any other specialist surfaces a candidate decision, it is reported to Main, who decides the mode and either authors the ADR directly or delegates the authoring back to the specialist with explicit scope.
-- **Step where ADRs typically originate:**
-  - `totto2727-dev-flow` Step 3 (Design) — most common origin
-  - `totto2727-dev-flow` Step 9 (Retrospective) — when an insight worth permanent recording surfaces
+- **Where ADRs typically originate:**
+  - Workflow-level design or retrospective work — when a cross-execution decision or insight worth permanent recording surfaces
   - `roadmap` Step 1-4 — when a roadmap-shared norm or premise is identified
 - **Approval:** the ADR is filed first with `confirmed: false`, then promoted to `confirmed: true` after the originating step's gate (or a dedicated user approval) is satisfied. The promotion lives in the same commit as the originating step's gate commit.
 
@@ -20,7 +19,7 @@ Two modes (mutually exclusive); the choice is recorded both in the storage path 
 | Mode             | Storage location                                      | When to use                                                                                 |
 | ---------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | **General mode** | `docs/adr/<YYYY-MM-DD-title>.md`                      | Decision spans multiple roadmaps, multiple independent workflows, or is a project-wide norm |
-| **Roadmap mode** | `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md` | Decision is shared by multiple oh-my-codingagent execution cycles under a single roadmap    |
+| **Roadmap mode** | `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md` | Decision is shared by multiple workflow-level executions under a single roadmap             |
 
 For the full mode-decision flow chart, see `share-adr/SKILL.md` "Mode decision flow".
 
@@ -61,8 +60,8 @@ The `scope` value must match the storage path. It also serves as a grep / progra
 State **why this decision is necessary**. Cover:
 
 - The scope range (which roadmap, which workflows, which project-wide norm).
-- Pre-existing constraints (quote `intent-spec.md`, prior ADRs, external requirements).
-- The forces driving the decision (e.g. duplicate effort across cycles, a one-way migration window, a regulatory requirement).
+- Pre-existing constraints (quote the owning execution system's intent specification, prior ADRs, external requirements).
+- The forces driving the decision (e.g. duplicate effort across executions, a one-way migration window, a regulatory requirement).
 
 ### Decision
 
@@ -81,11 +80,11 @@ The scope of impact arising from the decision. Use three sub-bullets to cover wh
 
 - **Newly added** — new tables / modules / routes / conventions.
 - **Existing impact** — existing code or operations that must change.
-- **Constraints going forward** — invariants subsequent cycles must respect.
+- **Constraints going forward** — invariants subsequent executions must respect.
 
 ### Related
 
-Bullet list of links to related artifacts (existing ADRs, `roadmap.md`, `milestones/<id>.md`, `design.md`). Omit the section entirely if there is nothing to link.
+Bullet list of links to related artifacts (existing ADRs, `roadmap.md`, `milestones/<id>.md`, execution-specific design artifacts). Omit the section entirely if there is nothing to link.
 
 ### Supersession addendum (post-`confirmed: true` only)
 
@@ -101,11 +100,11 @@ The body above it remains unchanged. The new ADR carries the active decision and
 
 | Good                                                                                         | Bad                                                                |
 | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| Scope range is stated explicitly in Context (which roadmap / which workflows / project-wide) | Scope is implicit; reader must guess which cycles are affected     |
+| Scope range is stated explicitly in Context (which roadmap / which workflows / project-wide) | Scope is implicit; reader must guess which executions are affected |
 | 2-3 alternatives are compared in the Decision table                                          | Only the adopted option is described                               |
 | Consequences enumerate newly added, existing impact, and constraints going forward           | Consequences read as a paragraph with no clear structure           |
 | Filename uses `YYYY-MM-DD-` prefix and matches `scope` storage path                          | Date or scope mismatch between filename, frontmatter, and location |
-| Linked from the originating artifact (`design.md`, `roadmap.md`, etc.)                       | ADR is filed but never cross-linked, so future readers miss it     |
+| Linked from the originating artifact (execution design artifact, `roadmap.md`, etc.)         | ADR is filed but never cross-linked, so future readers miss it     |
 
 ## Lifecycle
 
@@ -123,7 +122,7 @@ Demotion (Confirmed → Draft) is not allowed. If a confirmed decision must be r
 
 ## Related artifacts
 
-- **Cycle design artifact** — cycle-specific design decisions stay in the delegated execution system. ADRs are filed only when the decision crosses cycle or roadmap boundaries.
+- **Execution design artifact** — execution-specific design decisions stay in the delegated execution system. ADRs are filed only when the decision crosses execution or roadmap boundaries.
 - **Roadmap progress state** — ADR paths are tracked through the roadmap CLI when roadmap state needs to reference them.
 - **`roadmap.md` / `milestones/<id>.md`** — roadmap-shared ADRs are linked from these artifacts.
 - **`roadmap-retrospective.md`** — when a roadmap retrospective insight is worth permanent recording, an ADR is extracted from it.

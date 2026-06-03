@@ -1,8 +1,8 @@
 # totto2727-dev-flow
 
-Roadmap-level development flow plugin for Claude Code-compatible agents.
+Roadmap-level development flow plugin for agentic development systems.
 
-This plugin keeps only the strategic roadmap layer and shared document formats. Tactical workflow orchestration (intent clarification, research, implementation, review, validation, and PR/CI handling) is delegated to oh-my-codingagent.
+This plugin keeps only the strategic roadmap layer and shared document formats. Workflow-level execution (intent clarification, research, implementation, review, validation, and PR/CI handling) is delegated to the agents or execution systems that own each milestone.
 
 ## Skills
 

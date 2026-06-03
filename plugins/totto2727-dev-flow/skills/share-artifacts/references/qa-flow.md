@@ -6,13 +6,13 @@
 
 ## Author / creation timing
 
-- **Author:** `qa-analyst` Specialist (initial creation in Step 4)
-- **Updater:** `implementer` Specialist (appends branches discovered in Step 6)
-- **Approval:** user approval required at Step 4 completion (same review gate as qa-design.md)
+- **Author:** the owning execution system's QA/test-design role
+- **Updater:** the implementation role, appending branches discovered during implementation
+- **Approval:** follows the owning execution system's gate rules (same review gate as qa-design.md)
 
 ## File location
 
-`docs/workflow/<identifier>/qa-flow.md`
+Storage path is selected by the owning execution system. This plugin retains only the format reference.
 
 ## File format
 
@@ -172,7 +172,7 @@ When a single flowchart exceeds **15-20 nodes**, it becomes hard to follow visua
 2. **Subsystems** (frontend / backend / DB) — do not forcibly split branches that span UI to DB
 3. **Success criteria groups** (one section for SC-1 to SC-3, another for SC-4 to SC-6) — when prioritizing traceability with the Intent Spec
 
-The primary axis is **concerns**, but qa-analyst can choose depending on the structure of design.md.
+The primary axis is **concerns**, but the owning execution system can choose depending on the structure of its design artifact.
 
 ### Concrete rules for splitting
 

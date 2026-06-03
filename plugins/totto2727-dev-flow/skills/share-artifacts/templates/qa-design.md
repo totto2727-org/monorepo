@@ -2,18 +2,18 @@
 
 - **Identifier:** {{identifier}}
 - **Author:** {{qa_analyst_instance_id}}
-- **Source:** `intent-spec.md`, `design.md`
+- **Source:** owning execution system's intent specification and design artifact
 - **Created at:** {{created_at}}
 - **Last updated:** {{updated_at}}
 - **Status:** {{status}} <!-- draft | approved -->
 
-This document is the **essential test design finalized in Step 4**. During Step 6 (Implementation) the implementer appends "tests discovered during implementation". See `share-artifacts/references/qa-design.md` for authoring details.
+This document is the **essential test design finalized by the owning execution system**. During implementation, the implementer appends "tests discovered during implementation". See `share-artifacts/references/qa-design.md` for authoring details.
 
 ## Overview
 
 {{overview}}
 
-A summary that drills the success criteria from `intent-spec.md` down to an observable form.
+A summary that drills the success criteria from the intent specification down to an observable form.
 
 Examples:
 
@@ -25,19 +25,19 @@ Examples:
 
 {{automation_rationale}}
 
-Building on the architectural decisions in `design.md`, write 1-3 paragraphs explaining the rationale for the choice of execution actor (automated / ai-driven / manual) for each test.
+Building on the architectural decisions in the owning execution system's design artifact, write 1-3 paragraphs explaining the rationale for the choice of execution actor (automated / ai-driven / manual) for each test.
 
 ## Test file placement policy
 
 {{file_placement_policy}}
 
-Describe placement policy by category. Concrete file paths are finalized in Step 5 (task-plan) / Step 6 (implementer).
+Describe placement policy by category. Concrete file paths are finalized by the owning execution system during task planning or implementation.
 
 Examples:
 
 - `automated × assertion`: co-located with the source file (e.g. place `foo.test.ts` next to `foo.ts` in the same directory)
 - `automated × scenario`: directly under `e2e/`
-- `manual × inspection`: place the procedure document at `docs/workflow/{{identifier}}/manual-tests/<TC-ID>.md`
+- `manual × inspection`: place the procedure document in the manual-test artifact location used by the owning execution system
 
 ## Essential test cases (TC-NNN)
 
@@ -78,4 +78,4 @@ A reverse lookup from success criterion to TC-ID. The Step 8 validator uses it t
 | SC-2  | {{tc_for_sc_2}}      | -     |
 | SC-3  | {{tc_for_sc_3}}      | -     |
 
-<!-- Write one row per success criterion in intent-spec.md. If any criterion has zero matching TCs, roll back to Step 4. -->
+<!-- Write one row per success criterion from the owning execution system's intent specification. If any criterion has zero matching TCs, return it to the execution system's test-design step. -->

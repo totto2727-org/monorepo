@@ -33,14 +33,14 @@ This skill aggregates **authoring guides (`share-artifacts/references/`) and tem
 
 ## Artifact list (table of contents)
 
-| #   | Artifact                                                                | Phase / Step                          | Author                            | Reference                                             | Template                                             |
-| --- | ----------------------------------------------------------------------- | ------------------------------------- | --------------------------------- | ----------------------------------------------------- | ---------------------------------------------------- |
-| 1   | `roadmap.md`                                                            | roadmap Step 1                        | Main                              | `share-artifacts/references/roadmap.md`               | `share-artifacts/templates/roadmap.md`               |
-| 2   | `milestones/<milestone-id>.md`                                          | roadmap Step 2                        | Main                              | `share-artifacts/references/milestone.md`             | `share-artifacts/templates/milestone.md`             |
-| 3   | `docs/retrospective/roadmap-<roadmap-id>.md`                            | roadmap Step 4                        | Main                              | `share-artifacts/references/roadmap-retrospective.md` | `share-artifacts/templates/roadmap-retrospective.md` |
-| 4   | `docs/adr/<file>.md` or `docs/roadmap/<roadmap-id>/adr/<file>.md` (ADR) | Cross-cycle / cross-roadmap decisions | Main                              | `share-artifacts/references/adr.md`                   | `share-artifacts/templates/adr.md`                   |
-| 5   | `qa-design.md`                                                          | Retained QA test design format        | Delegated execution system / Main | `share-artifacts/references/qa-design.md`             | `share-artifacts/templates/qa-design.md`             |
-| 6   | `qa-flow.md`                                                            | Retained QA test design visualization | Delegated execution system / Main | `share-artifacts/references/qa-flow.md`               | `share-artifacts/templates/qa-flow.md`               |
+| #   | Artifact                                                                | Phase / Step                          | Author                         | Reference                                             | Template                                             |
+| --- | ----------------------------------------------------------------------- | ------------------------------------- | ------------------------------ | ----------------------------------------------------- | ---------------------------------------------------- |
+| 1   | `roadmap.md`                                                            | roadmap Step 1                        | Main                           | `share-artifacts/references/roadmap.md`               | `share-artifacts/templates/roadmap.md`               |
+| 2   | `milestones/<milestone-id>.md`                                          | roadmap Step 2                        | Main                           | `share-artifacts/references/milestone.md`             | `share-artifacts/templates/milestone.md`             |
+| 3   | `docs/retrospective/roadmap-<roadmap-id>.md`                            | roadmap Step 4                        | Main                           | `share-artifacts/references/roadmap-retrospective.md` | `share-artifacts/templates/roadmap-retrospective.md` |
+| 4   | `docs/adr/<file>.md` or `docs/roadmap/<roadmap-id>/adr/<file>.md` (ADR) | Cross-cycle / cross-roadmap decisions | Main                           | `share-artifacts/references/adr.md`                   | `share-artifacts/templates/adr.md`                   |
+| 5   | `qa-design.md`                                                          | Retained QA test design format        | Owning execution system / Main | `share-artifacts/references/qa-design.md`             | `share-artifacts/templates/qa-design.md`             |
+| 6   | `qa-flow.md`                                                            | Retained QA test design visualization | Owning execution system / Main | `share-artifacts/references/qa-flow.md`               | `share-artifacts/templates/qa-flow.md`               |
 
 ## When to use Reference vs. Template
 
@@ -94,7 +94,7 @@ This skill aggregates **authoring guides (`share-artifacts/references/`) and tem
 
 ### Roadmap working directory
 
-The roadmap artifacts under the `roadmap` skill are aggregated in an independent directory `docs/roadmap/<roadmap-id>/`. The strategic layer (roadmap) and the tactical layer (execution cycles) use separate artifact roots so they can run in parallel without polluting each other's working directory.
+The roadmap artifacts under the `roadmap` skill are aggregated in an independent directory `docs/roadmap/<roadmap-id>/`. The strategic layer (roadmap) and the tactical layer (workflow-level executions) use separate artifact roots so they can run in parallel without polluting each other's working directory.
 
 ```mermaid
 graph LR
@@ -111,7 +111,7 @@ graph LR
 
 `progress.yaml` is shown only as the state file in the roadmap directory. Its schema and updates are owned by the roadmap CLI, not by share-artifacts.
 
-The Step 4 (Roadmap Retrospective) artifact `roadmap-<roadmap-id>.md` is aggregated outside the roadmap working directory under `docs/retrospective/` (see "Artifacts outside the roadmap" below for details). The artifacts of the underlying execution cycles are not included in this directory; instead they are linked bidirectionally through `progress.yaml.milestones[].workflow_identifiers[]`.
+The Step 4 (Roadmap Retrospective) artifact `roadmap-<roadmap-id>.md` is aggregated outside the roadmap working directory under `docs/retrospective/` (see "Artifacts outside the roadmap" below for details). The artifacts of the underlying workflow-level executions are not included in this directory; instead they are linked bidirectionally through `progress.yaml.milestones[].workflow_identifiers[]` when identifiers exist.
 
 #### Naming rules for `<roadmap-id>`
 
@@ -121,7 +121,7 @@ Decide it per project, like `<identifier>`. Candidates:
 - Date + slug (e.g. `2026-04-29-payment-overhaul`)
 - Roadmap ticket ID (e.g. `EPIC-1234`)
 
-Decided by agreement between Main and the user when the roadmap is started. Take care that it does not clash with the `<identifier>` of the underlying oh-my-codingagent execution cycles (the aggregated `docs/retrospective/` avoids collisions via the `roadmap-` prefix; see "Artifacts outside the cycle" below).
+Decided by agreement between Main and the user when the roadmap is started. Take care that it does not clash with the `<identifier>` of underlying workflow-level executions (the aggregated `docs/retrospective/` avoids collisions via the `roadmap-` prefix; see "Artifacts outside the roadmap" below).
 
 ### Artifacts outside the roadmap
 
@@ -130,9 +130,9 @@ The following are stored **outside** `docs/roadmap/<roadmap-id>/`:
 #### ADRs that cross cycle boundaries (General / Roadmap mode)
 
 - **Storage location:**
-  - **General mode** (decisions affecting multiple roadmaps / multiple independent oh-my-codingagent execution cycles / the entire project): `docs/adr/<YYYY-MM-DD-title>.md`
-  - **Roadmap mode** (decisions shared by multiple cycles under a single roadmap): `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md`
-- **Filing conditions:** only when a decision has an impact beyond a single tactical execution cycle or applies across a roadmap. For mode determination (which storage location to use), see "Mode determination flow" in `share-adr/SKILL.md`
+  - **General mode** (decisions affecting multiple roadmaps / multiple independent workflow-level executions / the entire project): `docs/adr/<YYYY-MM-DD-title>.md`
+  - **Roadmap mode** (decisions shared by multiple workflow-level executions under a single roadmap): `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD-title>.md`
+- **Filing conditions:** only when a decision has an impact beyond a single workflow-level execution or applies across a roadmap. For mode determination (which storage location to use), see "Mode determination flow" in `share-adr/SKILL.md`
 - **Reference from the roadmap:** link from `roadmap.md`, `milestones/<milestone-id>.md`, or `docs/retrospective/roadmap-<roadmap-id>.md` as appropriate
 - **Lifecycle:** persistent. Immutable once `confirmed: true` (detailed format and operational rules are aggregated in `share-adr/SKILL.md`)
 
@@ -189,6 +189,6 @@ When a different session / user resumes roadmap work, the context is restored fr
 
 **Should NOT trigger:**
 
-- "Start tactical implementation workflow" → delegated to oh-my-codingagent
+- "Start tactical implementation workflow" → delegate to the milestone's owning agent or execution system
 - "Update roadmap progress.yaml by hand" → use the roadmap CLI
 - "Update CLAUDE.md" → outside the scope of this skill

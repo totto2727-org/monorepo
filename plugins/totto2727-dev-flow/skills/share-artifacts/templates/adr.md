@@ -7,14 +7,14 @@ scope: { { scope } } # general | roadmap:<roadmap-id>
 
 - **Filed at:** {{filed_at}} <!-- YYYY-MM-DD -->
 - **Filer:** {{filer}} <!-- Main / architect / roadmap-analyst / etc. -->
-- **Originating step:** {{originating_step}} <!-- e.g. totto2727-dev-flow Step 3 / roadmap Step 2 -->
+- **Originating step:** {{originating_step}} <!-- e.g. workflow-level design step / roadmap Step 2 -->
 - **Storage path:** {{storage_path}} <!-- docs/adr/<file>.md or docs/roadmap/<roadmap-id>/adr/<file>.md -->
 
 ## Context
 
 {{context}}
 
-State why this decision is needed. **Make the scope range explicit**: which roadmap, which workflows, or which project-wide norm it applies to. Quote any pre-existing constraints (Intent Spec, prior ADRs, external requirements) that frame the decision.
+State why this decision is needed. **Make the scope range explicit**: which roadmap, which workflows, or which project-wide norm it applies to. Quote any pre-existing constraints (intent specification, prior ADRs, external requirements) that frame the decision.
 
 ## Decision
 
@@ -36,13 +36,13 @@ The scope of impact arising from this decision.
 
 - **Newly added:** {{newly_added}} <!-- new tables / modules / routes / conventions -->
 - **Existing impact:** {{existing_impact}} <!-- existing code / operations that must change -->
-- **Constraints going forward:** {{constraints_going_forward}} <!-- invariants future cycles must respect -->
+- **Constraints going forward:** {{constraints_going_forward}} <!-- invariants future executions must respect -->
 
 ## Related
 
 {{related}}
 
-Bullet list of links to related existing ADRs, `roadmap.md`, `milestones/<id>.md`, or `design.md`. Omit the section if not applicable.
+Bullet list of links to related existing ADRs, `roadmap.md`, `milestones/<id>.md`, or execution-specific design artifacts. Omit the section if not applicable.
 
 - [{{related_title}}]({{related_path}})
 

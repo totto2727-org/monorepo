@@ -8,8 +8,8 @@ description: >
   Activation triggers: "Milestone Decomposition", "milestone decomposition", "create milestones/*.md",
   "finalise progress.yaml.milestones[]", "roadmap Step 2".
   Do NOT use for: roadmap intent (`roadmap-intent`), roadmap retrospective
-  (`roadmap-retrospective`), in-cycle task decomposition (`step-task-decomposition`),
-  oh-my-codingagent execution cycle invocation (asymmetric coupling rule),
+  (`roadmap-retrospective`), in-cycle task decomposition owned by a workflow-level agent,
+  workflow-level execution invocation (asymmetric coupling rule),
   roadmap-of-roadmaps (out of scope), CI / external system integration.
 ---
 
@@ -19,8 +19,8 @@ description: >
 
 Split the roadmap into observable milestones, make the dependency graph explicit, and
 finalise the milestone-level entries inside `progress.yaml`. Each milestone should
-correspond roughly to one downstream oh-my-codingagent execution cycle (1:N is allowed: one milestone may
-later have multiple cycles attached).
+correspond roughly to one downstream workflow-level execution (1:N is allowed: one milestone may
+later have multiple executions attached).
 
 ## Invocation: Main only
 
@@ -58,7 +58,7 @@ If any item is missing, Main confirms with the user before starting work.
 
 1. Read `roadmap.md` Intent section and the listed project-specific skills.
 2. Identify candidate milestones with each milestone roughly the size of one downstream
-   oh-my-codingagent execution cycle.
+   workflow-level execution.
 3. Define dependencies between milestones as a DAG. Render the graph in Mermaid
    (`graph LR`).
 4. Identify which milestones can run in parallel.
@@ -69,10 +69,10 @@ If any item is missing, Main confirms with the user before starting work.
 7. Use the roadmap CLI to finalise `progress.yaml.milestones[]` with one entry per milestone:
    - `id`, `title`, `status: planned`
    - `depends_on: [<milestone-id>, ...]` (DAG edges)
-   - `workflow_identifiers: []` (empty; downstream oh-my-codingagent execution cycles will fill this)
+   - `workflow_identifiers: []` (empty; downstream workflow-level executions will fill this)
    - `notes: null`
 8. Transition the roadmap-wide `status` from `planned` to `active`.
-9. If norms shared across multiple downstream cycles surface during decomposition (e.g. a
+9. If norms shared across multiple downstream executions surface during decomposition (e.g. a
    common API contract, a shared data model, a shared error-handling policy), file a
    **Roadmap mode ADR** (`docs/roadmap/<roadmap-id>/adr/`) per Main's judgment; see
    `share-adr/SKILL.md`. Link from the affected `milestones/<id>.md` to the ADR.
@@ -95,7 +95,7 @@ If any item is missing, Main confirms with the user before starting work.
   `status: active`.
   Managed by the roadmap CLI.
 - (Optional) `docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD>-<title>.md` — Roadmap mode ADR
-  if a cross-cycle shared norm was discovered.
+  if a cross-execution shared norm was discovered.
 
 ## Exit criteria
 
@@ -108,7 +108,7 @@ If any item is missing, Main confirms with the user before starting work.
 - The user has agreed to the decomposition (= execution-start agreement).
 - `roadmap.md`, all `milestones/*.md`, and `progress.yaml` are committed.
 - Any CI / PR verification required by the surrounding execution system has completed;
-  detailed CI handling is delegated to oh-my-codingagent.
+  detailed CI handling is delegated to that system.
 
 ## Gate
 
@@ -123,7 +123,7 @@ These rollbacks originate from this step:
   if needed.
 - **Dependencies are unsolvable** → Roll back to Step 1 to revise the Intent's scope.
 - **Only 1–2 milestones emerge** → Roll back to Step 1 to re-evaluate whether a roadmap
-  is needed at all (a single oh-my-codingagent execution cycle may suffice).
+  is needed at all (a single workflow-level execution may suffice).
 
 Cross-step rollbacks (e.g. issues discovered in Step 3 that point back here) are handled
 in the originating step.

@@ -8,8 +8,8 @@ description: >
   Activation triggers: "Roadmap Intent", "roadmap intent clarification", "create roadmap.md",
   "initialise progress.yaml", "roadmap Step 1".
   Do NOT use for: milestone decomposition (`roadmap-decomposition`), roadmap retrospective
-  (`roadmap-retrospective`), single-cycle development (oh-my-codingagent directly), artifact
-  format reference only (`share-artifacts`), oh-my-codingagent execution cycle invocation (asymmetric coupling
+  (`roadmap-retrospective`), single-cycle development (use the relevant workflow-level agent directly), artifact
+  format reference only (`share-artifacts`), workflow-level execution invocation (asymmetric coupling
   rule: `roadmap` never auto-launches `totto2727-dev-flow`).
 ---
 
@@ -67,13 +67,13 @@ If any item is missing, Main confirms with the user before starting work.
    - In-scope items (what the roadmap will tackle).
    - Out-of-scope items (what is explicitly excluded).
    - Success picture in observable form ("when does the roadmap count as done?").
-   - Long-lived constraints that span multiple downstream cycles.
+   - Long-lived constraints that span multiple downstream executions.
 4. Fill in the Intent section of `roadmap.md` following
    `share-artifacts/references/roadmap.md`.
 5. Use the roadmap CLI to initialise `progress.yaml` with `roadmap_id`, `title`,
    `status: planned`, timestamps, and an empty `milestones: []`.
 6. If long-lived premises or constraints shared by multiple downstream `totto2727-dev-flow`
-   cycles surface during the dialogue, file a **Roadmap mode ADR**
+   executions surface during the dialogue, file a **Roadmap mode ADR**
    (`docs/roadmap/<roadmap-id>/adr/<YYYY-MM-DD>-<title>.md`) per Main's judgment;
    see `share-adr/SKILL.md` "Mode decision flow". Link from `roadmap.md` to the new ADR.
 7. Present the **finalised Intent section of `roadmap.md` itself** to the user (no
@@ -101,7 +101,7 @@ If any item is missing, Main confirms with the user before starting work.
 - The user has agreed to the Intent section.
 - `roadmap.md` and `progress.yaml` are committed.
 - Any CI / PR verification required by the surrounding execution system has completed;
-  detailed CI handling is delegated to oh-my-codingagent.
+  detailed CI handling is delegated to that system.
 
 ## Gate
 
@@ -116,8 +116,8 @@ These rollbacks originate from this step:
   dialogue with the user (no specialist to "send back to"; Main owns the conversation).
 - **The success picture is not observable** → Main consults the user to find a
   measurement angle and re-defines it.
-- **Scope turns out to fit a single cycle** → Withdraw the roadmap and switch to a
-  standalone oh-my-codingagent execution cycle. Main proposes this to the user; the roadmap exits
+- **Scope turns out to fit a single execution** → Withdraw the roadmap and switch to a
+  standalone workflow-level execution. Main proposes this to the user; the roadmap exits
   this skill entirely.
 
 Cross-step rollbacks (e.g. issues discovered later that point back to Step 1) are

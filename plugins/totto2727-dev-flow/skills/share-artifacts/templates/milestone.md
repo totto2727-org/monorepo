@@ -12,13 +12,13 @@ This document is the **definition of a single milestone**, drafted by the `roadm
 
 {{purpose}}
 
-Describe in 1-2 sentences the state this milestone aims to reach. **A qualitative goal is sufficient** (the responsibility for observable success criteria lies with the Intent Spec of the oh-my-codingagent execution cycles underneath). Examples: "the OAuth client registration feature is operational", "the first one-third of the payment API endpoints run on the new platform".
+Describe in 1-2 sentences the state this milestone aims to reach. **A qualitative goal is sufficient** (the responsibility for observable success criteria lies with the workflow-level executions underneath). Examples: "the OAuth client registration feature is operational", "the first one-third of the payment API endpoints run on the new platform".
 
 ## Outcomes (qualitative)
 
 {{outcomes}}
 
-List, as bullets, the **qualitative observation points** that justify a "completed" judgment. Write at the level of granularity at which a human can visually agree "this has been achieved" once the underlying oh-my-codingagent execution cycles finish and `progress.yaml.milestones[<this>].status` transitions to `completed`.
+List, as bullets, the **qualitative observation points** that justify a "completed" judgment. Write at the level of granularity at which a human can visually agree "this has been achieved" once the underlying workflow-level executions finish and `progress.yaml.milestones[<this>].status` transitions to `completed`.
 
 - {{outcome_1}}
 - {{outcome_2}}
@@ -28,7 +28,7 @@ List, as bullets, the **qualitative observation points** that justify a "complet
 
 {{scope}}
 
-Describe concretely the area covered by this milestone. This is the boundary defining **how far the underlying oh-my-codingagent execution cycles are allowed to reach**.
+Describe concretely the area covered by this milestone. This is the boundary defining **how far the underlying workflow-level executions are allowed to reach**.
 
 - Target modules / components / file groups
 - Target users / system boundary
@@ -52,28 +52,28 @@ List the IDs of other milestones that **must complete before** this one. Keep th
 - {{milestone_dependency_1_id}}: {{milestone_dependency_1_reason}}
 - {{milestone_dependency_2_id}}: {{milestone_dependency_2_reason}}
 
-## Related oh-my-codingagent execution cycles (workflow_identifiers)
+## Related workflow-level executions (workflow_identifiers)
 
 {{workflow_identifiers}}
 
-The list of `<identifier>` values for oh-my-codingagent execution cycles linked to this milestone. 1:1 mapping is recommended, but 1:N is allowed (must be confirmed in the Intent Spec).
+The list of `<identifier>` values for workflow-level executions linked to this milestone. 1:1 mapping is recommended, but 1:N is allowed when the owning agents or execution systems split the milestone.
 
 - At creation time (Step 2): leave as empty `[]`, or pre-fill with the planned `<identifier>` values
-- When an underlying cycle starts: each oh-my-codingagent execution cycle appends its own `<identifier>` to `progress.yaml.milestones[].workflow_identifiers[]` at the moment it initializes the `progress.yaml.roadmap` block (appending here is optional — `progress.yaml` is the primary source)
+- When an underlying execution starts: it appends its own `<identifier>` to `progress.yaml.milestones[].workflow_identifiers[]` through the roadmap CLI (appending here is optional — `progress.yaml` is the primary source)
 
-| Cycle `<identifier>`      | Status (`active` / `completed` / `blocked` / `cancelled`) | Comment             |
+| Execution `<identifier>`  | Status (`active` / `completed` / `blocked` / `cancelled`) | Comment             |
 | ------------------------- | --------------------------------------------------------- | ------------------- |
 | {{workflow_identifier_1}} | {{workflow_status_1}}                                     | {{workflow_note_1}} |
 | {{workflow_identifier_2}} | {{workflow_status_2}}                                     | {{workflow_note_2}} |
 
-## Estimated number of oh-my-codingagent execution cycles
+## Estimated number of workflow-level executions
 
 {{cycle_count_estimate}}
 
-The number of oh-my-codingagent execution cycles expected to be required to complete this milestone (1 is the standard; if more, also write the rationale). Examples of valid 1:N rationales: "split into two cycles, one for design and one for implementation", "multiple teams will run parallel cycles to try different approaches".
+The number of workflow-level executions expected to be required to complete this milestone (1 is the standard; if more, also write the rationale). Examples of valid 1:N rationales: "split into two executions, one for design and one for implementation", "multiple teams or agents will run parallel executions to try different approaches".
 
 ## Notes / additional remarks
 
 {{notes}}
 
-Supplementary notes that do not fit into `progress.yaml.milestones[].notes`, or handoff memos for when an underlying oh-my-codingagent execution cycle is launched. Optional (may be left empty).
+Supplementary notes that do not fit into `progress.yaml.milestones[].notes`, or handoff memos for when an underlying workflow-level execution is launched. Optional (may be left empty).

@@ -2,25 +2,25 @@
 
 ## Purpose
 
-Expand the success criteria of the Intent Spec into **a set of observable test cases**. Each test case is independently tagged with the two axes "execution agent" and "verification style", and written at an abstraction level that does not depend on a specific test framework (Vitest / Playwright / pytest etc.). The `implementer` in Step 6 (Implementation) refers to this document to implement tests, and the `validator` in Step 8 (Validation) measures the actual coverage.
+Expand the success criteria from the owning execution system's intent specification into **a set of observable test cases**. Each test case is independently tagged with the two axes "execution agent" and "verification style", and written at an abstraction level that does not depend on a specific test framework (Vitest / Playwright / pytest etc.). The owning execution system uses this document during implementation and validation.
 
 ## Author / creation timing
 
-- **Author:** `qa-analyst` Specialist (initial creation in Step 4)
-- **Updater:** `implementer` Specialist (in Step 6, appends "tests discovered during implementation")
-- **Approval:** user approval required at Step 4 completion (Artifact-as-Gate-Review)
+- **Author:** the owning execution system's QA/test-design role
+- **Updater:** the implementation role, appending "tests discovered during implementation"
+- **Approval:** follows the owning execution system's gate rules
 
 ## File location
 
-`docs/workflow/<identifier>/qa-design.md`
+Storage path is selected by the owning execution system. This plugin retains only the format reference.
 
 ## Section structure
 
 ```text
 1. # qa-design (title)
-2. ## Overview (deepens the success criteria of intent-spec.md into observable form)
-3. ## Auto vs. manual decision policy (rationale from architecture and design.md)
-4. ## Test file placement policy (placement policy per category; concrete paths are confirmed in task-plan)
+2. ## Overview (deepens success criteria into observable form)
+3. ## Auto vs. manual decision policy (rationale from architecture and design)
+4. ## Test file placement policy (placement policy per category; concrete paths are confirmed by the owning execution system)
 5. ## Essential test cases (TC-NNN: verifies behaviors expressible at the spec level)
 6. ## Implementation-detail test cases (TC-IMPL-NNN: verifies defensive branches that arise only with concrete implementation)
 7. ## Coverage table (success criteria → TC-ID reverse lookup, used in Validation)
@@ -30,13 +30,13 @@ Expand the success criteria of the Intent Spec into **a set of observable test c
 
 ### 1. Overview
 
-**Transcribe and deepen** the success criteria of the Intent Spec as-is. Rewrite qualitative descriptions like "fast" into observable forms like "p95 < 200ms in a specific scenario". The rewritten result is finalized by qa-analyst and agreed upon at the Step 4 user approval gate.
+**Transcribe and deepen** the success criteria from the owning execution system's intent specification as-is. Rewrite qualitative descriptions like "fast" into observable forms like "p95 < 200ms in a specific scenario". The rewritten result is finalized according to that system's QA gate.
 
 Assign IDs to success criteria (e.g. `SC-1`, `SC-2`) so they can be referenced in the subsequent test case tables.
 
 ### 2. Auto vs. manual decision policy
 
-Based on the architectural decisions in `design.md`, describe in 1-3 paragraphs the rationale for selecting the "execution agent" (automated / ai-driven / manual) for each test. Examples:
+Based on the architectural decisions in the owning execution system's design artifact, describe in 1-3 paragraphs the rationale for selecting the "execution agent" (automated / ai-driven / manual) for each test. Examples:
 
 - "Visual confirmation of the front-end UI is more reliably judged by the human eye, so `manual × inspection`"
 - "Backend API response verification is reproducible by an automated test runner, so `automated × assertion`"
@@ -44,24 +44,24 @@ Based on the architectural decisions in `design.md`, describe in 1-3 paragraphs 
 
 ### 3. Test file placement policy
 
-Describe **only the placement policy per category**. Concrete file paths are decided by planner in Step 5 (Task Decomposition) / by implementer in Step 6.
+Describe **only the placement policy per category**. Concrete file paths are decided by the owning execution system during task planning or implementation.
 
 Examples:
 
 - `automated × assertion` tests → co-located with the source file (e.g. `foo.ts` and `foo.test.ts` in the same directory)
 - `automated × scenario` tests → directly under `e2e/`
-- `manual × inspection` instruction documents → `docs/workflow/<id>/manual-tests/<TC-ID>.md`
+- `manual × inspection` instruction documents → the manual-test artifact location used by the owning execution system
 
 ### 4. Essential test cases (TC-NNN)
 
-Cases that verify behaviors expressible at the spec level (intent-spec.md / design.md). Describe in **a Markdown table**.
+Cases that verify behaviors expressible at the specification and design level. Describe in **a Markdown table**.
 
 #### Required columns (6 columns)
 
 | Column               | Content                                                        | Example values                                                         |
 | -------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | `ID`                 | Test case identifier (3-digit zero-padded)                     | `TC-001`                                                               |
-| `Target SC`          | Success criterion ID from intent-spec.md or `(none)`           | `SC-1` / `(none)`                                                      |
+| `Target SC`          | Success criterion ID from the intent specification or `(none)` | `SC-1` / `(none)`                                                      |
 | `Expected behavior`  | Stated as an observable event (no code yet, so behavior-based) | `When a User submits valid credentials to the login form, returns 200` |
 | `Execution agent`    | Axis A: enum                                                   | `automated` / `ai-driven` / `manual`                                   |
 | `Verification style` | Axis B: enum                                                   | `assertion` / `scenario` / `observation` / `inspection`                |
@@ -78,7 +78,7 @@ Typical examples of "Target SC = (none)":
 - Defensive programming (throwing on invalid arguments)
 - Verifying internal invariants (cache integrity)
 - Regression prevention (preventing recurrence of past bugs)
-- Security requirements (necessary but not explicit in the Intent Spec)
+- Security requirements (necessary but not explicit in the intent specification)
 
 → If "Reason it is needed" is empty, **send back at the Step 4 review**.
 
@@ -108,7 +108,7 @@ Cases that verify **defensive branches that arise only with concrete implementat
 
 | Essential test (TC-NNN)                                                | Implementation-detail test (TC-IMPL-NNN)                                         |
 | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Expressible at the spec level (intent-spec.md / design.md)             | Arises only with the behavior of a specific library / framework / OS             |
+| Expressible at the specification and design level                      | Arises only with the behavior of a specific library / framework / OS             |
 | Same test required even if reimplemented in another language / library | Not needed in another language / library, or becomes a different defensive test  |
 | Example: "Unauthenticated User returns 401"                            | Example: "Defensive handling for the case where the library used returns `null`" |
 
@@ -189,6 +189,6 @@ Example:
 
 ## Related artifacts
 
-- **Inputs:** `intent-spec.md` (success criteria), `design.md` (architectural decisions = basis for auto/manual)
-- **Output destinations:** `task-plan.md` (optional TC-ID linkage), `code` (implementer in Step 6 implements tests), `validation-report.md` (validator in Step 8 measures actual coverage)
+- **Inputs:** owning execution system's intent specification (success criteria) and design artifact (architectural decisions = basis for auto/manual)
+- **Output destinations:** owning execution system's task plan (optional TC-ID linkage), code, and validation artifacts
 - **Linkage:** `qa-flow.md` (references TC-IDs of this table as leaves of the Mermaid flowchart, illustrating all TC-NNN / TC-IMPL-NNN)
