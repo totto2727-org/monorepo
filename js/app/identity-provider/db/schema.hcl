@@ -339,11 +339,23 @@ table "oauth_access_token" {
     type = text
     null = false
   }
+  column "session_id" {
+    type = text
+    null = true
+  }
   column "user_id" {
     type = text
     null = false
   }
   column "scope" {
+    type = text
+    null = true
+  }
+  column "reference_id" {
+    type = text
+    null = true
+  }
+  column "refresh_id" {
     type = text
     null = true
   }
@@ -357,7 +369,7 @@ table "oauth_access_token" {
   }
   column "updated_at" {
     type = text
-    null = false
+    null = true
   }
 
   primary_key {
@@ -365,6 +377,71 @@ table "oauth_access_token" {
   }
 
   foreign_key "oauth_access_token_user_id_fk" {
+    columns     = [column.user_id]
+    ref_columns = [table.user.column.id]
+    on_delete   = CASCADE
+  }
+}
+
+table "oauth_refresh_token" {
+  schema = schema.main
+
+  column "id" {
+    type = text
+    null = false
+  }
+  column "token" {
+    type = text
+    null = false
+  }
+  column "client_id" {
+    type = text
+    null = false
+  }
+  column "session_id" {
+    type = text
+    null = true
+  }
+  column "user_id" {
+    type = text
+    null = false
+  }
+  column "reference_id" {
+    type = text
+    null = true
+  }
+  column "expires_at" {
+    type = text
+    null = false
+  }
+  column "created_at" {
+    type = text
+    null = false
+  }
+  column "revoked" {
+    type = text
+    null = true
+  }
+  column "auth_time" {
+    type = text
+    null = true
+  }
+  column "scope" {
+    type = text
+    null = false
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  foreign_key "oauth_refresh_token_session_id_fk" {
+    columns     = [column.session_id]
+    ref_columns = [table.session.column.id]
+    on_delete   = SET_NULL
+  }
+
+  foreign_key "oauth_refresh_token_user_id_fk" {
     columns     = [column.user_id]
     ref_columns = [table.user.column.id]
     on_delete   = CASCADE

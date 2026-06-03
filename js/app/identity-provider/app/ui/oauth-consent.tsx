@@ -1,16 +1,12 @@
 import { css } from 'remix/ui'
 import type { Handle } from 'remix/ui'
-import { Button } from 'remix/ui/button'
+
+import { OAuthConsentForm } from '#@/ui/oauth-consent.client.tsx'
 
 const containerStyle = css({
   margin: '40px auto',
   maxWidth: '480px',
   padding: '0 16px',
-})
-
-const formStyle = css({
-  display: 'flex',
-  gap: '12px',
 })
 
 interface ConsentPageProps {
@@ -32,17 +28,7 @@ export const OAuthConsentPage = (handle: Handle<ConsentPageProps>) => () => (
       ))}
     </ul>
     <p>リダイレクト先: {handle.props.redirectUri}</p>
-    <form action='/api/v1/auth/oauth2/confirm-consent' method='POST' mix={formStyle}>
-      <input type='hidden' name='clientId' value={handle.props.clientId} />
-      <input type='hidden' name='redirectUri' value={handle.props.redirectUri} />
-      <input type='hidden' name='state' value={handle.props.state} />
-      <Button type='submit' name='action' value='allow' tone='primary'>
-        許可
-      </Button>
-      <Button type='submit' name='action' value='deny' tone='ghost'>
-        拒否
-      </Button>
-    </form>
+    <OAuthConsentForm />
   </main>
 )
 

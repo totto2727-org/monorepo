@@ -16,7 +16,8 @@ export default defineConfig({
         dependsOn: ['setup:cloudflare:bff', 'setup:cloudflare:health'],
       },
       'setup:cloudflare:bff': {
-        command: 'wrangler types --config src/worker/bff/wrangler.jsonc src/worker/bff/worker-configuration.d.ts',
+        command:
+          'wrangler types --env local --config src/worker/bff/wrangler.jsonc src/worker/bff/worker-configuration.d.ts',
         input: taskInput.setup['cloudflare:bff'],
       },
       'setup:cloudflare:health': {

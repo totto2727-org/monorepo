@@ -1,5 +1,5 @@
 import { Effect, String } from 'effect'
-import { FetchHttpClient, HttpClient, HttpClientRequest } from 'effect/unstable/http'
+import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from 'effect/unstable/http'
 import { clientEntry, on } from 'remix/ui'
 import type { Handle, SerializableProps } from 'remix/ui'
 import { Button } from 'remix/ui/button'
@@ -23,7 +23,9 @@ export const LogoutButton = clientEntry(
                 })
 
                 const client = yield* HttpClient.HttpClient
-                const response = yield* client.execute(HttpClientRequest.post('/api/v1/auth/sign-out'))
+                const response = yield* client.execute(
+                  HttpClientRequest.post('/api/v1/auth/sign-out', { body: HttpBody.jsonUnsafe({}) }),
+                )
                 if (response.status !== 200) {
                   return yield* Effect.fail(new Error('ログアウトに失敗しました'))
                 }
@@ -31,7 +33,6 @@ export const LogoutButton = clientEntry(
                 window.location.href = '/app/login'
                 return yield* Effect.void
               }).pipe(
-                // oxlint-disable-next-line promise/prefer-await-to-then -- This is Effect.catch, not Promise.catch.
                 Effect.catch(() =>
                   Effect.sync(() => {
                     state.error = 'ログアウトに失敗しました'

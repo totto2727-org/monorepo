@@ -43,6 +43,7 @@ export default defineConfig({
       'jsx-no-new-function-as-prop': 'allow',
       'no-nodejs-modules': 'allow',
       'number-literal-case': 'allow',
+      'promise/prefer-await-to-then': 'allow',
       'typescript/promise-function-async': 'allow',
     },
   },

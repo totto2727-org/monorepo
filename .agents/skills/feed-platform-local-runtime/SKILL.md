@@ -25,13 +25,39 @@ The goal is to choose the right local topology before running commands, so IdP, 
 - Treat `wrangler dev` as the production-like Worker runtime. Treat `vp dev` as the hot-reload Vite development runtime for Remix apps.
 - If you change startup configuration, regenerate Worker types with the package setup task.
 
+## Effect + Hono Runtime and Env Policy
+
+Choose the env strategy from the runtime entrypoint. Do not mix Vite-only signals into direct Wrangler Workers.
+
+### Vite-managed Remix apps
+
+Use this pattern for `identity-provider` and `feed-platform-web` Vite/Cloudflare-plugin development paths:
+
+- Runtime construction may branch on `import.meta.env.PROD` because Vite replaces it.
+- Production/runtime bindings come from Hono/Cloudflare `ctx.env` through the app env layer.
+- Local Vite development can use a fixed `devLayer` for deterministic endpoints and DB URLs.
+- Keep the Vite dev layer aligned with the root port registry and the app's Wrangler config.
+
+### Direct Wrangler Workers
+
+Use this pattern for `feed-platform-backend`, which runs Worker entries directly through Wrangler:
+
+- Do not use `import.meta.env.PROD` for app behavior. It is a Vite convention and is not the source of truth for direct Wrangler execution.
+- Build the Effect runtime at the Hono/Worker boundary from `ctx.env` and provide app env once at the top level, for example `Runtime.make(ctx.env)` -> `AppEnv.makeLayer(env)`.
+- Middleware and services should consume `ctx.var.runtime` / Effect services. They should not create local env fallback layers or branch between dev/prod themselves.
+- Fixed local values must live under the Wrangler local environment, for example `env.local.vars` in `wrangler.jsonc` / `[env.local.vars]` in `wrangler.toml`.
+- Local scripts and type generation that need those fixed values must pass `--env local`.
+- Deploy scripts must not pass `--env local`; otherwise local-only URLs can be pushed to production.
+- Because Wrangler bindings such as `vars` are not inherited across environments, do not put local-only feed/IdP URLs in top-level `vars`.
+- Unit tests that call Hono directly must pass an explicit test binding object to `app.request(...)`; do not add application `devLayer` fallbacks only to satisfy tests.
+
 ## Local Port Map
 
 See the root [local port registry](../../../LOCAL_PORTS.md). Do not duplicate port values in this skill.
 
 IdP and feed-platform-web must be treated as separate database boundaries. Production runs separate databases, so local development should also use separate DB files and ports instead of sharing one libSQL endpoint.
 
-Backend BFF Wrangler vars must stay aligned with the IdP URL in the root port registry.
+Backend BFF local Wrangler vars under `env.local.vars` must stay aligned with the IdP URL in the root port registry.
 
 ## One-Time / Preflight Setup
 
@@ -161,7 +187,7 @@ vp run --filter feed-platform-backend dev:bff
 vp run --filter feed-platform-backend dev:health
 ```
 
-If backend env vars change, edit `src/worker/bff/wrangler.jsonc`, then regenerate types:
+If backend local env vars change, edit `src/worker/bff/wrangler.jsonc` under `env.local.vars`, then regenerate types:
 
 ```bash
 vp run --filter feed-platform-backend setup:cloudflare:bff

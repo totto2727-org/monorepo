@@ -1,6 +1,7 @@
-import { Predicate } from 'effect'
+import { Predicate, String } from 'effect'
 import { remixRenderer } from 'hono-remix-middleware'
 import { contextStorage } from 'hono/context-storage'
+import { deleteCookie, getCookie } from 'hono/cookie'
 import { logger } from 'hono/logger'
 
 import { authMiddleware } from '#@/feature/auth/middleware.ts'
@@ -17,6 +18,27 @@ import { getSafeReturnTo } from '#@/ui/return-to.ts'
 
 const api = factory.createApp().all('/auth/*', (ctx) => ctx.var.auth.handler(ctx.req.raw))
 
+const LOGIN_RETURN_TO_COOKIE = 'login_return_to'
+
+const getStoredLoginReturnTo = (value: string | undefined): string | undefined => {
+  if (Predicate.isNullish(value)) {
+    return undefined
+  }
+  return getSafeReturnTo(decodeURIComponent(value))
+}
+
+const getLoginReturnTo = (url: string, rawReturnTo: string | undefined): string | undefined => {
+  const safeReturnTo = getSafeReturnTo(rawReturnTo)
+  if (Predicate.isNotNullish(safeReturnTo) && String.isNonEmpty(safeReturnTo)) {
+    return safeReturnTo
+  }
+  const parsedUrl = new URL(url)
+  if (parsedUrl.searchParams.has('client_id') && parsedUrl.searchParams.has('redirect_uri')) {
+    return `/api/v1/auth/oauth2/authorize${parsedUrl.search}`
+  }
+  return undefined
+}
+
 const appRoutes = factory
   .createApp()
   .get('/', (ctx) =>
@@ -27,8 +49,10 @@ const appRoutes = factory
     ),
   )
   .get('/login', (ctx) => {
-    const returnTo = ctx.req.query('return_to')
-    const safeReturnTo = getSafeReturnTo(returnTo)
+    const safeReturnTo = getLoginReturnTo(ctx.req.url, ctx.req.query('return_to'))
+    if (Predicate.isNullish(safeReturnTo) || String.isEmpty(safeReturnTo)) {
+      deleteCookie(ctx, LOGIN_RETURN_TO_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+    }
     return ctx.render(
       <Document title='ログイン'>
         <LoginPage returnTo={safeReturnTo} />
@@ -59,16 +83,20 @@ const appRoutes = factory
     if (!session) {
       return ctx.redirect('/app/login?error=invalid_link')
     }
-    const returnTo = ctx.req.query('return_to')
-    return ctx.redirect(getSafeReturnTo(returnTo) ?? '/app/account')
+    const returnTo =
+      getSafeReturnTo(ctx.req.query('return_to')) ?? getStoredLoginReturnTo(getCookie(ctx, LOGIN_RETURN_TO_COOKIE))
+    deleteCookie(ctx, LOGIN_RETURN_TO_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+    return ctx.redirect(returnTo ?? '/app/account')
   })
   .get('/auth/passkey/callback', async (ctx) => {
     const session = await ctx.var.auth.api.getSession({ headers: ctx.req.raw.headers })
     if (!session) {
       return ctx.redirect('/app/login')
     }
-    const returnTo = ctx.req.query('return_to')
-    return ctx.redirect(getSafeReturnTo(returnTo) ?? '/app/account')
+    const returnTo =
+      getSafeReturnTo(ctx.req.query('return_to')) ?? getStoredLoginReturnTo(getCookie(ctx, LOGIN_RETURN_TO_COOKIE))
+    deleteCookie(ctx, LOGIN_RETURN_TO_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+    return ctx.redirect(returnTo ?? '/app/account')
   })
   .get('/register/passkey', async (ctx) => {
     const session = await ctx.var.auth.api.getSession({ headers: ctx.req.raw.headers })

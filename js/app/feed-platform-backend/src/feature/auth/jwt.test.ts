@@ -13,6 +13,12 @@ vi.mock('jose', () => ({
 
 const { Service, layer } = await import('./jwt.ts')
 
+const localBindings = {
+  FEED_PLATFORM_AUDIENCE: 'feed-platform-backend',
+  IDP_BASE_URL: 'http://localhost:8787',
+  IDP_JWKS_URL: 'http://localhost:8787/api/v1/auth/jwks',
+} satisfies AppEnv.Type
+
 const runVerify = (token: string) =>
   Effect.runPromiseExit(
     Effect.provide(
@@ -20,7 +26,7 @@ const runVerify = (token: string) =>
         const jwt = yield* Service
         return yield* jwt.verify(token)
       }),
-      layer.pipe(Layer.provide(AppEnv.devLayer)),
+      layer.pipe(Layer.provide(AppEnv.makeLayer(localBindings))),
     ),
   )
 
@@ -36,6 +42,7 @@ describe('JwtService', () => {
         exp: 9_999_999,
         iat: 1_000_000,
         sub: 'user-123',
+        token_use: 'access',
       },
     })
     const exit = await runVerify('valid.jwt.token')
@@ -46,13 +53,14 @@ describe('JwtService', () => {
         exp: 9_999_999,
         iat: 1_000_000,
         sub: 'user-123',
+        token_use: 'access',
       })
     }
   })
 
   it('returns payload without iat/exp when IdP omits them', async () => {
     mockJwtVerify.mockResolvedValue({
-      payload: { email: 'user@example.com', sub: 'user-123' },
+      payload: { email: 'user@example.com', sub: 'user-123', token_use: 'access' },
     })
     const exit = await runVerify('short.lived.token')
     expect(Exit.isSuccess(exit)).toBe(true)
@@ -60,6 +68,7 @@ describe('JwtService', () => {
       expect(exit.value).toStrictEqual({
         email: 'user@example.com',
         sub: 'user-123',
+        token_use: 'access',
       })
     }
   })
@@ -78,9 +87,17 @@ describe('JwtService', () => {
 
   it('fails with JwtVerifyError when email claim is missing', async () => {
     mockJwtVerify.mockResolvedValue({
-      payload: { exp: 9_999_999, iat: 1_000_000, sub: 'user-123' },
+      payload: { exp: 9_999_999, iat: 1_000_000, sub: 'user-123', token_use: 'access' },
     })
     const exit = await runVerify('no-email.jwt.token')
+    expect(Exit.isFailure(exit)).toBe(true)
+  })
+
+  it('fails with JwtVerifyError when token_use is not access', async () => {
+    mockJwtVerify.mockResolvedValue({
+      payload: { email: 'user@example.com', sub: 'user-123' },
+    })
+    const exit = await runVerify('id-token.jwt.token')
     expect(Exit.isFailure(exit)).toBe(true)
   })
 
@@ -88,7 +105,7 @@ describe('JwtService', () => {
     const testLayer = layer.pipe(
       Layer.provide(
         AppEnv.makeLayer({
-          FEED_PLATFORM_AUDIENCE: 'feed-platform-web',
+          FEED_PLATFORM_AUDIENCE: 'feed-platform-backend',
           IDP_BASE_URL: 'http://localhost:8787',
           IDP_JWKS_URL: 'http://localhost:8787/api/v1/auth/jwks-cache-test',
         }),
@@ -111,6 +128,7 @@ describe('JwtService', () => {
         exp: 9_999_999,
         iat: 1_000_000,
         sub: 'user-1',
+        token_use: 'access',
       },
     })
     expect(mockCreateRemoteJWKSet).toHaveBeenCalledTimes(0)

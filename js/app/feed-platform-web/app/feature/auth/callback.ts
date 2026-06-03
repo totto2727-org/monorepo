@@ -1,16 +1,17 @@
-import { Effect, Predicate, Schema, String } from 'effect'
-import { HttpClient, HttpClientRequest, HttpBody } from 'effect/unstable/http'
+import { DateTime, Effect, Predicate, Schema, String } from 'effect'
+import { HttpBody, HttpClient, HttpClientRequest } from 'effect/unstable/http'
 import type { Context } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 
-import { FEED_REFRESH_COOKIE, FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
+import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
 import { verifyAndDeleteNonce } from '#@/feature/auth/nonce-store.ts'
+import { storeRefreshToken } from '#@/feature/auth/refresh-store.ts'
 import type { Instance as DBInstance } from '#@/feature/db/kysely.ts'
 import type * as Env from '#@/feature/env.ts'
 
 const TokenResponse = Schema.Struct({
   access_token: Schema.String,
-  id_token: Schema.optional(Schema.String),
+  id_token: Schema.String,
   refresh_token: Schema.optional(Schema.String),
 })
 
@@ -32,10 +33,10 @@ const exchangeToken = (idpBaseUrl: string, params: Record<string, string>) =>
     })
     const response = yield* client.execute(request)
     if (response.status !== 200) {
-      return yield* Effect.fail(new Error('token exchange failed'))
+      const text = yield* response.text
+      return yield* Effect.fail(new Error(String.isNonEmpty(text) ? text : 'token exchange failed'))
     }
-    const data: unknown = yield* response.json
-    return data
+    return yield* response.json
   })
 
 const verifyNonce = (db: DBInstance, idToken: string, state: string) =>
@@ -83,42 +84,53 @@ export const handleAuthCallback = (
       code_verifier: verifier,
       grant_type: 'authorization_code',
       redirect_uri: redirectUri,
+      resource: env.BACKEND_RESOURCE,
     }
     if (String.isNonEmpty(env.OAUTH_CLIENT_SECRET)) {
       bodyParams.client_secret = env.OAUTH_CLIENT_SECRET
     }
 
-    const rawToken = yield* exchangeToken(env.IDP_BASE_URL, bodyParams).pipe(Effect.orElseSucceed(() => null))
-    if (Predicate.isNullish(rawToken)) {
-      return new Response('auth failed', { status: 401 })
-    }
-    const result = yield* decodeTokenResponse(rawToken).pipe(Effect.orElseSucceed(() => null))
+    const resultOrResponse = yield* exchangeToken(env.IDP_BASE_URL, bodyParams).pipe(
+      Effect.flatMap(decodeTokenResponse),
+      Effect.match({
+        onFailure: (error) => new Response(`auth failed: ${globalThis.String(error)}`, { status: 401 }),
+        onSuccess: (tokenResponse) => tokenResponse,
+      }),
+    )
 
-    if (Predicate.isNullish(result)) {
-      return new Response('auth failed', { status: 401 })
+    if (resultOrResponse instanceof Response) {
+      return resultOrResponse
     }
+    const result = resultOrResponse
     if (String.isEmpty(result.access_token)) {
       return new Response('auth failed', { status: 401 })
     }
 
-    if (!Predicate.isNullish(result.id_token) && Predicate.isNotNullish(state)) {
-      const valid = yield* verifyNonce(db, result.id_token, state)
+    const idToken = result.id_token
+    if (String.isEmpty(idToken)) {
+      return new Response('auth failed', { status: 401 })
+    }
+
+    if (Predicate.isNotNullish(state)) {
+      const valid = yield* verifyNonce(db, idToken, state)
       if (!valid) {
         return new Response('nonce mismatch', { status: 403 })
       }
     }
 
-    setCookie(ctx, FEED_SESSION_COOKIE, result.access_token, { httpOnly: true, path: '/', sameSite: 'Lax' })
+    const sessionToken = idToken
+    setCookie(ctx, FEED_SESSION_COOKIE, sessionToken, {
+      httpOnly: true,
+      path: '/',
+      sameSite: 'Lax',
+    })
     deleteCookie(ctx, 'pkce_verifier', { httpOnly: true, path: '/', sameSite: 'Lax' })
     deleteCookie(ctx, 'oauth_state', { httpOnly: true, path: '/', sameSite: 'Lax' })
 
-    if (!Predicate.isNullish(result.refresh_token) && String.isNonEmpty(result.refresh_token)) {
-      setCookie(ctx, FEED_REFRESH_COOKIE, result.refresh_token, {
-        httpOnly: true,
-        maxAge: 2_592_000,
-        path: '/',
-        sameSite: 'Lax',
-      })
+    const refreshToken = result.refresh_token
+    if (!Predicate.isNullish(refreshToken) && String.isNonEmpty(refreshToken)) {
+      const now = DateTime.toEpochMillis(yield* DateTime.now)
+      yield* Effect.promise(() => storeRefreshToken(db, sessionToken, refreshToken, result.access_token, now))
     }
 
     return ctx.redirect('/dashboard')

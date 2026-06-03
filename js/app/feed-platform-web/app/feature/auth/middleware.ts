@@ -1,5 +1,5 @@
 import type { AppJWTPayload } from 'auth-helper'
-import { Effect, Predicate, Result, Schema } from 'effect'
+import { Effect, Predicate, Schema } from 'effect'
 import { getCookie } from 'hono/cookie'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 
@@ -28,21 +28,20 @@ export const authMiddleware = factory.createMiddleware((ctx, next) =>
 
       const env = yield* AppEnv.Service
       const jwks = createRemoteJWKSet(new URL(`${env.IDP_BASE_URL}/api/v1/auth/jwks`))
-      const verified = yield* Effect.result(Effect.tryPromise(() => jwtVerify<AppJWTPayload>(token, jwks)))
-      if (Result.isFailure(verified)) {
-        console.warn('[auth] JWT verification failed:', String(verified.failure))
-        ctx.set('user', null)
-        yield* Effect.promise(() => next())
-        return
-      }
-
-      const decodedPayload = yield* Effect.result(decodeAuthUserPayload(verified.success.payload))
-      if (Result.isFailure(decodedPayload)) {
-        ctx.set('user', null)
-      } else {
-        const { email, sub } = decodedPayload.success
-        ctx.set('user', { email, id: sub })
-      }
+      const decodedPayload = yield* Effect.tryPromise({
+        catch: (cause) => new Error(String(cause)),
+        try: () => jwtVerify<AppJWTPayload>(token, jwks),
+      }).pipe(
+        Effect.flatMap(({ payload }) => decodeAuthUserPayload(payload)),
+        Effect.match({
+          onFailure: (failure) => {
+            console.warn('[auth] JWT verification failed:', String(failure))
+            return null
+          },
+          onSuccess: (payload) => payload,
+        }),
+      )
+      ctx.set('user', decodedPayload)
 
       yield* Effect.promise(() => next())
     }),
