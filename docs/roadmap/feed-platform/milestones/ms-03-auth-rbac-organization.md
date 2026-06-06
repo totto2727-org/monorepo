@@ -37,13 +37,13 @@
 
 - `ms-02-auth-passkey-magiclink`: ユーザーモデルとセッション基盤が前提 (Organization は User に紐付くため)
 
-## 関連 dev-workflow サイクル (workflow_identifiers)
+## 関連 oh-my-codingagent execution サイクル (workflow_identifiers)
 
 | サイクル `<identifier>` | 状態 | コメント |
 | ----------------------- | ---- | -------- |
 | (未起動)                | -    | -        |
 
-## 想定 dev-workflow サイクル数
+## 想定 oh-my-codingagent execution サイクル数
 
 1 (推奨)
 

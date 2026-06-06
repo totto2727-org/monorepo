@@ -5,24 +5,19 @@ scope: roadmap:feed-platform
 
 # ADR: feed-platform 共通ライブラリ抽出 (effect-hono / remix-helper)
 
-- **Filed at:** 2026-05-08
-- **Filer:** architect (Step 3) → implementer (Step 6) — `confirmed: true` 確定 (2026-05-10)。Step 6 (Implementation) でライブラリ実装 + 4 consumer migration が完了し、本文書は正式 ADR として確定した。
-- **Originating step:** dev-workflow Step 3 (Design) of cycle `feed-platform-ms-01-shared-libraries`
 - **Storage path:** docs/roadmap/feed-platform/adr/2026-05-08-shared-libraries-extraction.md
 
 ## Context
 
-`feed-platform` ロードマップ (`docs/roadmap/feed-platform/roadmap.md`) の起点マイルストーン ms-01 (Workspace Foundation) は 2 phase 構成で進行している。Phase 1 cycle (`feed-platform-ms-01-workspace-foundation`、completed 2026-05-07) で 3 プロジェクト (`feed-platform-backend` / `feed-platform-web` / `identity-provider`) の Hello World レベル雛形を整備した結果、各プロジェクトに **完全同形コピーされた共通ロジック** が存在する状態となった (Phase 1 retrospective `docs/retrospective/feed-platform-ms-01-workspace-foundation.md` で言及済の DRY 違反候補)。
+`feed-platform` ロードマップ (`docs/roadmap/feed-platform/roadmap.md`) の起点マイルストーン ms-01 (Workspace Foundation) は、3 プロジェクト (`feed-platform-backend` / `feed-platform-web` / `identity-provider`) が共有する横断ロジックを明示的な共通ライブラリとして切り出す責務を持つ。
 
-本 ADR は ms-01 Phase 2 cycle (`feed-platform-ms-01-shared-libraries`) Step 3 の設計判断束として、後続マイルストーン (ms-02〜ms-10) が引き継ぐ「共通ライブラリの責務分担と抽出原則」を永続記録する。
+本 ADR は、後続マイルストーン (ms-02〜ms-10) が引き継ぐ「共通ライブラリの責務分担と抽出原則」を定義する。
 
 User 戦略指示 (2026-05-06): 「ms-02 (認証) 着手前に新規共通化マイルストーンをロードマップに挿入する。対象は dynamicLoggerLayer / makeDisposableRuntime / feature/env.ts / isFrameRequest / PageOrFrame / 他 Remix・Effect 横断ユーティリティ。」
 
-Intent Spec (`docs/workflow/feed-platform-ms-01-shared-libraries/intent-spec.md`) の Q1〜Q7 + Step 2 → Step 3 移行時 User confirm (`progress.yaml.step3_design_inputs`、2026-05-08) で確定した 5 件の決定事項を、本 ADR が単一の決定束として記録する。
-
 影響範囲は **feed-platform ロードマップ内のすべての配下サイクル (ms-02〜ms-10)** に閉じる。新設 2 library の API surface は ms-02 以降のすべての cycle が前提とする ABI として機能するため Roadmap mode (`docs/roadmap/feed-platform/adr/`) として起票する。本リポジトリの他ロードマップへの影響は限定的 (= 本 cycle の判断は feed-platform 内 + 既存 monorepo 内に閉じる、他システム再利用視野の項目なし、Intent Spec L121)。
 
-Phase 1 ADR-01 (`2026-05-05-project-structure-and-runtime.md`) が定めた architectural constraints (`process.env.NODE_ENV` 単一ソース / `await using` / `Env.Service` 経由 Logger 切替 / Service tag namespace 規約) は本 ADR でもすべて継承される (本 ADR は Phase 1 ADR-01 を supersede しない、historical record として完結維持、Intent Spec L122)。ただし Phase 1 で各 project が持っていた `Layer.unwrap` + `Layer.provide(Env.layer)` 直書きは library 側で行わず、**consumer 側 entry point の責務に集約** する (User 指摘 2026-05-09、本 ADR D-3 範囲外の補足条項として本 Context に明記)。
+ADR-01 (`2026-05-05-project-structure-and-runtime.md`) が定めた architectural constraints (`process.env.NODE_ENV` 単一ソース / `await using` / `Env.Service` 経由 Logger 切替 / Service tag namespace 規約) は本 ADR でもすべて継承される。本 ADR は ADR-01 を supersede しない。`Layer.unwrap` + `Layer.provide(Env.layer)` は library 側で行わず、**consumer 側 entry point の責務に集約** する。
 
 ## Decision
 
@@ -148,8 +143,8 @@ export const makeDisposableRuntime = <Args extends readonly unknown[], R, ER>(
 
 - **`pnpm-workspace.yaml`**: 既存 `js/package/*` glob で新規 2 packages が自動取り込み (Research C F7、catalog 定義変更不要)
 - **既存 CI (`vp run --parallel ci`)**: 追加変更なしで 2 library + 4 consumer を取り込む (Phase 1 ADR-01 D-6 整合)
-- **3 effect-hono consumer projects** (`feed-platform-backend` / `feed-platform-web` / `identity-provider`): 旧 `feature/env.ts` (`Env.Service` namespace = `'@app/<project-name>/feature/env/Service'`) を削除し library import に切替。Phase 1 で確立された Service tag namespace は **library 内 1 本** (`'@app/effect-hono/env/Service'`) に統一される (= D-2 の副作用、Intent Spec L70-L72)
-- **3 effect-hono consumer projects**: 旧 `feature/runtime/server.ts` の `dynamicLoggerLayer` 定義 (約 8 行) + `makeDisposableRuntime` HOF (約 17 行) を削除し library import に切替 (各 project 約 24 行純減 × 3 = 約 72 行削減、Research A I-7)
+- **3 effect-hono consumer projects** (`feed-platform-backend` / `feed-platform-web` / `identity-provider`): Env Service と runtime helper は library import を使用する。Service tag namespace は **library 内 1 本** (`'@app/effect-hono/env/Service'`) に統一される (= D-2 の副作用、Intent Spec L70-L72)
+- **3 effect-hono consumer projects**: `dynamicLoggerLayer` と `makeDisposableRuntime` HOF は library import を使用する (各 project 約 24 行純減 × 3 = 約 72 行削減、Research A I-7)
 - **3 remix-helper consumer projects** (`feed-platform-web` / `identity-provider` / `hono-remix-v3-cloudflare-example`): `app/routes.ts` を library + union 直接受け pattern に置換 (`type FrameName = ...` + `createFrameHelpers<FrameName>()`)。`hono-remix-v3-cloudflare-example` のみ既存 `app/ui/page-or-frame.tsx` (C-5) + `app/ui/frame-link.tsx` (C-6) の 2 ファイル削除 + `app/ui/content-layout.tsx` の `createPageOrFrame` 呼出 adapter 経由化 + `FrameLink` の `import` path を `routes.ts` 経由 (helpers re-export) に切替
 - **`hono-remix-v3-cloudflare-example`**: Counter / TODO / Frame ナビゲーション既存 behavior は **保持** (refactor only、機能変更なし、Intent Spec L96-L97)。本 example は本 cycle で **C-4 / C-5 抽出の基準 source-of-truth** として位置付けられ、同時に migration target にも追加された (Intent Spec L94-L97)
 - **既存 `js/package/*` 5 packages**: いずれも touch しない (D-5)
@@ -182,13 +177,7 @@ export const makeDisposableRuntime = <Args extends readonly unknown[], R, ER>(
 
 ## Related
 
-- **Intent Spec**: [`docs/workflow/feed-platform-ms-01-shared-libraries/intent-spec.md`](../../../workflow/feed-platform-ms-01-shared-libraries/intent-spec.md) (Q1〜Q7 確定事項 / SC-1〜SC-10)
-- **Design Document**: [`docs/workflow/feed-platform-ms-01-shared-libraries/design.md`](../../../workflow/feed-platform-ms-01-shared-libraries/design.md) (本 ADR の決定束を実装可能な詳細度で展開)
-- **Research Notes**:
-  - [`research/effect-4-api-verification.md`](../../../workflow/feed-platform-ms-01-shared-libraries/research/effect-4-api-verification.md) (D-4 wrapper class factory の Effect 4.0.0-beta.60 API 裏取り)
-  - [`research/hono-remix-v3-cloudflare-example-frame-helpers.md`](../../../workflow/feed-platform-ms-01-shared-libraries/research/hono-remix-v3-cloudflare-example-frame-helpers.md) (D-3 Hono フリー signature の根拠)
-  - [`research/existing-js-package-isolation-check.md`](../../../workflow/feed-platform-ms-01-shared-libraries/research/existing-js-package-isolation-check.md) (D-5 既存 5 packages 分離維持の事実裏取り)
-  - [`research/infer-frame-name-type-utility-pattern.md`](../../../workflow/feed-platform-ms-01-shared-libraries/research/infer-frame-name-type-utility-pattern.md) (D-3 frame name 型パターン候補比較。当初 P2 採用 → 2026-05-09 で Record 形 → 同日 string literal union 直接受けに最終確定。型関数 `InferFrameName<T>` は廃止)
+- **Roadmap-scoped record**: this ADR is the durable source for the ms-01 shared-library decisions used by ms-02〜ms-10.
 - **Phase 1 ADR-01**: [`2026-05-05-project-structure-and-runtime.md`](./2026-05-05-project-structure-and-runtime.md) (本 ADR は ADR-01 を supersede しない、Phase 1 の architectural constraints を継承)
 - **Phase 1 retrospective**: [`docs/retrospective/feed-platform-ms-01-workspace-foundation.md`](../../../retrospective/feed-platform-ms-01-workspace-foundation.md) (DRY 違反候補の指摘元)
 - **Roadmap**: [`docs/roadmap/feed-platform/roadmap.md`](../roadmap.md)

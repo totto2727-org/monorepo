@@ -40,17 +40,17 @@
 - `ms-01-workspace-foundation`: 採用ワークスペースが前提
 - (認証認可基盤への依存はなし) — Intent 規範的制約「認証認可基盤は他全領域 (永続化層を除く) の利用前提」により、永続化層は認証認可と独立して進められる
 
-## 関連 dev-workflow サイクル (workflow_identifiers)
+## 関連 oh-my-codingagent execution サイクル (workflow_identifiers)
 
 | サイクル `<identifier>` | 状態 | コメント |
 | ----------------------- | ---- | -------- |
 | (未起動)                | -    | -        |
 
-## 想定 dev-workflow サイクル数
+## 想定 oh-my-codingagent execution サイクル数
 
 1〜2
 
-本マイルストーンは 6 領域中で最も論点が集中する (`design-hint.md` の L1〜L9 の大半が永続化層関連)。配下サイクルが 1 つで完遂可能と判断される場合は 1 サイクル、Step 3 (Design) で論点が膨らんだ場合は「(a) Event Store + CQRS 基盤」「(b) プラグイン契約スケルトン + Read-Your-Write 戦略」の 2 サイクルに分割することを許容する。最終判断は配下 `dev-workflow` サイクル Step 1 (Intent Clarification) 段階でユーザー承認を得る。
+本マイルストーンは 6 領域中で最も論点が集中する (`design-hint.md` の L1〜L9 の大半が永続化層関連)。配下サイクルが 1 つで完遂可能と判断される場合は 1 サイクル、Step 3 (Design) で論点が膨らんだ場合は「(a) Event Store + CQRS 基盤」「(b) プラグイン契約スケルトン + Read-Your-Write 戦略」の 2 サイクルに分割することを許容する。最終判断は配下 oh-my-codingagent execution サイクル Step 1 (Intent Clarification) 段階でユーザー承認を得る。
 
 ## 補足 / 留意事項
 

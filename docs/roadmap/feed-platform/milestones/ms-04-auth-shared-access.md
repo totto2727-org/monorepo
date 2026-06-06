@@ -36,20 +36,20 @@
 
 - `ms-03-auth-rbac-organization`: 共有判定は Organization スコープと RBAC レイヤを前提とする
 
-## 関連 dev-workflow サイクル (workflow_identifiers)
+## 関連 oh-my-codingagent execution サイクル (workflow_identifiers)
 
 | サイクル `<identifier>` | 状態 | コメント |
 | ----------------------- | ---- | -------- |
 | (未起動)                | -    | -        |
 
-## 想定 dev-workflow サイクル数
+## 想定 oh-my-codingagent execution サイクル数
 
 1 (推奨)
 
-期間限定共有の論点は「RBAC 統合方式の確定」に集約され、配下 `dev-workflow` サイクル Step 1〜3 で意思決定が完結する。共有失効ジョブの定期実行は `ms-08-scheduler-platform` 完了後の運用統合だが、本マイルストーン内では失効判定ロジックを Pull 型 (アクセス時判定) で先行完成させ、Push 型 (定期失効ジョブ) は ms-08 完了後に補強する形を許容する。
+期間限定共有の論点は「RBAC 統合方式の確定」に集約され、配下 oh-my-codingagent execution サイクル Step 1〜3 で意思決定が完結する。共有失効ジョブの定期実行は `ms-08-scheduler-platform` 完了後の運用統合だが、本マイルストーン内では失効判定ロジックを Pull 型 (アクセス時判定) で先行完成させ、Push 型 (定期失効ジョブ) は ms-08 完了後に補強する形を許容する。
 
 ## 補足 / 留意事項
 
-- Intent 未解決事項「期間限定共有の RBAC 統合方針」の最終決定は本マイルストーンの配下 `dev-workflow` サイクル Step 1〜3 で行う
+- Intent 未解決事項「期間限定共有の RBAC 統合方針」の最終決定は本マイルストーンの配下 oh-my-codingagent execution サイクル Step 1〜3 で行う
 - 共有判定がアクセス毎に評価される (Pull 型) ため、本マイルストーン完了時点で `ms-08-scheduler-platform` 未完了でも機能成立する設計を採る
 - 共有対象となる業務リソース (フィード / 出力 / 集計) は本マイルストーン時点では未存在のため、`ms-05` 以降のリソースが共有対象として登録される際の API 形 (リソース ID + 共有指定) のみを抽象化して提供する

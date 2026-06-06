@@ -1,0 +1,10 @@
+{
+  "name": "totto2727-dev-flow",
+  "description": "Roadmap-level development flow plugin with progress.yaml formats, milestone planning, ADR references, and shared document templates; tactical workflow execution is delegated to oh-my-codingagent",
+  "version": "0.1.0",
+  "author": {
+    "name": "totto2727",
+    "url": "https://github.com/totto2727",
+    "email": "kaihatu.totto2727@gmail.com"
+  }
+}

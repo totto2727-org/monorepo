@@ -1,3 +1,0 @@
-.agents/skills-lock.json:9:          "path": "./plugins/moonbit"
-docs/adr/2026-04-06-c-plugin-cli-tool.md:105:          "path": "plugins/moonbit",
-.claude-plugin/marketplace.json:16:      "source": "./plugins/moonbit"
