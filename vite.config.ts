@@ -49,17 +49,41 @@ export default defineConfig({
   run: {
     tasks: {
       check: {
-        command: 'vp check',
+        command: '',
+        dependsOn: ['js:check', 'mbt:check'],
       },
       ci: {
         command: '',
         dependsOn: ['w:check', 'w:test', 'w:build'],
       },
       fix: {
+        command: '',
+        dependsOn: ['js:fix', 'mbt:fix'],
+      },
+      'js:check': {
+        command: 'vp check',
+      },
+      'js:fix': {
         command: 'vp check --fix',
       },
-      test: {
+      'js:test': {
         command: 'vp test',
+      },
+      'mbt:check': {
+        command: 'moon check',
+        input: [{ auto: true }, '!**/_build/**'],
+      },
+      'mbt:fix': {
+        command: 'moon fmt',
+        input: [{ auto: true }, '!**/_build/**'],
+      },
+      'mbt:test': {
+        command: 'moon test',
+        input: [{ auto: true }, '!**/_build/**'],
+      },
+      test: {
+        command: '',
+        dependsOn: ['js:test', 'mbt:test'],
       },
       'w:build': {
         command: 'vp run -r build',
