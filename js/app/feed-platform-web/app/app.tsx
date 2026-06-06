@@ -50,16 +50,6 @@ const refreshTokens = (idpBaseUrl: string, params: Record<string, string>) =>
     return yield* decodeTokenResponse(data)
   })
 
-const logoutFromIdp = (idpBaseUrl: string, sessionCookieValue: string) =>
-  Effect.gen(function* () {
-    const client = yield* HttpClient.HttpClient
-    const request = HttpClientRequest.post(`${idpBaseUrl}/api/v1/auth/sign-out`, {
-      body: HttpBody.jsonUnsafe({}),
-      headers: { Cookie: `${FEED_SESSION_COOKIE}=${sessionCookieValue}` },
-    })
-    yield* client.execute(request)
-  })
-
 const app: Hono<Env> = new Hono<Env>()
   .use(logger())
   .use(contextStorage())
@@ -222,11 +212,11 @@ const app: Hono<Env> = new Hono<Env>()
         const db = yield* DBService
         const token = getCookie(ctx, FEED_SESSION_COOKIE)
         if (!Predicate.isNullish(token)) {
-          yield* logoutFromIdp(env.IDP_BASE_URL, token).pipe(Effect.ignore)
           yield* Effect.promise(() => deleteRefreshToken(db, token))
         }
         deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-        return ctx.redirect('/login')
+        const { origin } = new URL(ctx.req.url)
+        return ctx.redirect(`${env.IDP_BASE_URL}/app/logout?return_to=${encodeURIComponent(`${origin}/login`)}`)
       }),
     ),
   )

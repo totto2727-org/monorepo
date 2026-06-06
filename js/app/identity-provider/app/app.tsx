@@ -39,6 +39,18 @@ const getLoginReturnTo = (url: string, rawReturnTo: string | undefined): string 
   return undefined
 }
 
+const getSafeLogoutReturnTo = (value: string | undefined): string | undefined => {
+  if (Predicate.isNullish(value)) {
+    return undefined
+  }
+  try {
+    const url = new URL(value)
+    return url.protocol === 'http:' && url.hostname === '127.0.0.1' && url.port === '8789' ? value : undefined
+  } catch {
+    return getSafeReturnTo(value)
+  }
+}
+
 const appRoutes = factory
   .createApp()
   .get('/', (ctx) =>
@@ -58,6 +70,11 @@ const appRoutes = factory
         <LoginPage returnTo={safeReturnTo} />
       </Document>,
     )
+  })
+  .get('/logout', (ctx) => {
+    deleteCookie(ctx, 'better-auth.session_token', { httpOnly: true, path: '/', sameSite: 'Lax' })
+    const returnTo = getSafeLogoutReturnTo(ctx.req.query('return_to'))
+    return ctx.redirect(returnTo ?? '/app/login')
   })
   .get('/login/passkey', (ctx) => {
     const returnTo = ctx.req.query('return_to')

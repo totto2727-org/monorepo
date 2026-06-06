@@ -39,7 +39,7 @@ sequenceDiagram
   participant Backend as feed-platform-backend
 
   User->>Web: GET /login
-  Web-->>User: Set oauth_state and pkce_verifier cookies; redirect to /oauth2/authorize
+  Web-->>User: Set oauth_state and pkce_verifier cookies, then redirect to /oauth2/authorize
   User->>IdP: GET /api/v1/auth/oauth2/authorize?state&nonce&code_challenge
   IdP->>BetterAuth: Validate OAuth client, redirect URI, scope, state, PKCE challenge
   BetterAuth-->>User: Redirect to /app/login when no IdP session exists
@@ -54,7 +54,7 @@ sequenceDiagram
   Web->>Web: Verify oauth_state cookie and load pkce_verifier
   Web->>BetterAuth: POST /oauth2/token with code, client credentials, PKCE verifier, resource=feed-platform-backend
   BetterAuth-->>Web: JWT access_token, id_token, optional refresh_token
-  Web->>Web: Verify ID token nonce; store ID token cookie plus access/refresh tokens server-side
+  Web->>Web: Verify ID token nonce, then store ID token cookie plus access/refresh tokens server-side
   Web-->>User: Redirect to /dashboard
   User->>Web: GET /dashboard
   Web->>Web: Look up JWT access token by feed-session ID token
