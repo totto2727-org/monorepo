@@ -426,6 +426,36 @@ Fix:
 - Add explicit refresh-token revocation and replay tests for the
   `oauth_refresh_session` store.
 
+#### Better Auth should own browser sessions where possible
+
+Investigation result:
+
+- Better Auth's session-management options can reduce custom browser-session
+  work. The relevant knobs are `session.cookieCache`, `storeSessionInDatabase`,
+  `preserveSessionInDatabase`, and `secondaryStorage` for deployments that want
+  stateless validation with a secondary revocation/refresh store.
+- The IdP cannot become fully database-less in this application because passkeys,
+  OAuth clients, consent, JWKS, authorization codes, access tokens, and refresh
+  tokens are persisted provider state.
+- `feed-platform-web` is the strongest candidate for future replacement work: it
+  currently implements PKCE/state generation, callback token exchange, nonce
+  persistence, ID-token session-cookie handling, and access/refresh-token storage
+  itself.
+
+Recommendation:
+
+- Keep `feed-platform-backend` as an OAuth resource server that accepts only
+  resource-specific bearer access tokens. Do not replace that boundary with the
+  web app's Better Auth/browser session cookie.
+- Move `feed-platform-web` toward Better Auth's OAuth client/session helpers in a
+  separate migration PR, but preserve the requirement that backend calls use an
+  access token minted for `resource=feed-platform-backend`.
+- Consider `session.cookieCache` or secondary storage for the IdP only after a
+  runtime test proves passkey, Magic Link, OAuth consent, token issuance, refresh,
+  and revocation semantics still match the documented flow.
+- Until that migration lands, every relying party that reads a JWT must validate
+  issuer, audience, and allowed algorithms explicitly.
+
 #### CSRF and origin policy around sign-out and consent need explicit tests
 
 Current behavior:

@@ -39,6 +39,23 @@ describe('authMiddleware', () => {
     const res = await app.request('/test', { headers: { cookie: `${FEED_SESSION_COOKIE}=valid.jwt.token` } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ user: { email: 'test@example.com', sub: 'user-123' } })
+    expect(mockJwtVerify).toHaveBeenCalledWith(
+      'valid.jwt.token',
+      {},
+      {
+        algorithms: ['ES256'],
+        audience: 'feed-platform-web',
+        issuer: 'http://localhost:8787/api/v1/auth',
+      },
+    )
+  })
+
+  it('sets user to null when strict JWT validation fails', async () => {
+    mockJwtVerify.mockRejectedValue(new Error('unexpected "aud" claim value'))
+    const app = makeApp()
+    const res = await app.request('/test', { headers: { cookie: `${FEED_SESSION_COOKIE}=wrong-audience.jwt.token` } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ user: null })
   })
 
   it('sets user to null when JWT payload shape is invalid', async () => {

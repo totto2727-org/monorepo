@@ -30,7 +30,12 @@ export const authMiddleware = factory.createMiddleware((ctx, next) =>
       const jwks = createRemoteJWKSet(new URL(`${env.IDP_BASE_URL}/api/v1/auth/jwks`))
       const decodedPayload = yield* Effect.tryPromise({
         catch: (cause) => new Error(String(cause)),
-        try: () => jwtVerify<AppJWTPayload>(token, jwks),
+        try: () =>
+          jwtVerify<AppJWTPayload>(token, jwks, {
+            algorithms: ['ES256'],
+            audience: env.OAUTH_CLIENT_ID,
+            issuer: `${env.IDP_BASE_URL}/api/v1/auth`,
+          }),
       }).pipe(
         Effect.flatMap(({ payload }) => decodeAuthUserPayload(payload)),
         Effect.match({
