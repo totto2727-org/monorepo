@@ -2,6 +2,7 @@ import { Layer, ManagedRuntime } from 'effect'
 import { dynamicLoggerLayer, Env as RuntimeEnv, makeDisposableRuntime } from 'effect-hono'
 
 import * as BetterAuth from '../auth/better-auth.ts'
+import * as BetterAuthDB from '../db/better-auth-kysely.ts'
 import * as DB from '../db/kysely.ts'
 import * as EmailCloudflare from '../email/cloudflare.ts'
 import * as EmailMock from '../email/mock.ts'
@@ -10,6 +11,7 @@ import * as Env from '../env.ts'
 const makeProdRuntime = () =>
   ManagedRuntime.make(
     BetterAuth.layer.pipe(
+      Layer.provideMerge(BetterAuthDB.remoteLayer),
       Layer.provideMerge(DB.remoteLayer),
       Layer.provideMerge(EmailCloudflare.layer),
       Layer.provideMerge(dynamicLoggerLayer),
@@ -21,6 +23,7 @@ const makeProdRuntime = () =>
 const makeDevRuntime = () =>
   ManagedRuntime.make(
     BetterAuth.layer.pipe(
+      Layer.provideMerge(BetterAuthDB.remoteLayer),
       Layer.provideMerge(DB.remoteLayer),
       Layer.provideMerge(EmailMock.layer),
       Layer.provideMerge(dynamicLoggerLayer),

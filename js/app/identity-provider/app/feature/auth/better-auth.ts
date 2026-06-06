@@ -2,49 +2,14 @@ import { oauthProvider } from '@better-auth/oauth-provider'
 import { passkey } from '@better-auth/passkey'
 import { betterAuth } from 'better-auth'
 import { jwt, magicLink } from 'better-auth/plugins'
-import type { Jwk } from 'better-auth/plugins'
 import { Context, Effect, Layer, Predicate } from 'effect'
 
-import * as DB from '#@/feature/db/kysely.ts'
+import * as BetterAuthDB from '#@/feature/db/better-auth-kysely.ts'
 import * as EmailSender from '#@/feature/email/sender.ts'
 import * as Env from '#@/feature/env.ts'
 import * as HonoContext from '#@/feature/share/lib/hono/context.ts'
 
-const toJwk = (row: DB.Type.Jwks): Jwk => ({
-  // oxlint-disable-next-line rules/no-js-date -- Better Auth JWT adapter boundary requires JavaScript Date objects.
-  createdAt: new Date(row.createdAt),
-  // oxlint-disable-next-line rules/no-js-date -- Better Auth JWT adapter boundary requires JavaScript Date objects.
-  ...(Predicate.isNotNullish(row.expiresAt) ? { expiresAt: new Date(row.expiresAt) } : {}),
-  id: row.id,
-  privateKey: row.privateKey,
-  publicKey: row.publicKey,
-})
-
-const makeJwksAdapter = (db: DB.Instance) => ({
-  createJwk: async (data: Omit<Jwk, 'id'>): Promise<Jwk> => {
-    const jwk: Jwk = {
-      ...data,
-      id: crypto.randomUUID(),
-    }
-    await db
-      .insertInto('jwks')
-      .values({
-        createdAt: jwk.createdAt.toISOString(),
-        expiresAt: jwk.expiresAt?.toISOString() ?? null,
-        id: jwk.id,
-        privateKey: jwk.privateKey,
-        publicKey: jwk.publicKey,
-      })
-      .execute()
-    return jwk
-  },
-  getJwks: async (): Promise<Jwk[]> => {
-    const rows = await db.selectFrom('jwks').selectAll().execute()
-    return rows.map(toJwk)
-  },
-})
-
-const makeInstance = (db: DB.Instance, env: Env.Type, emailSender: EmailSender.EmailSender, origin: string) =>
+const makeInstance = (db: BetterAuthDB.Instance, env: Env.Type, emailSender: EmailSender.EmailSender, origin: string) =>
   betterAuth({
     account: {
       fields: {
@@ -198,7 +163,6 @@ const makeInstance = (db: DB.Instance, env: Env.Type, emailSender: EmailSender.E
         validAudiences: env.OAUTH_VALID_AUDIENCES.split(','),
       }),
       jwt({
-        adapter: makeJwksAdapter(db),
         jwks: { keyPairConfig: { alg: 'ES256' } },
         schema: {
           jwks: {
@@ -261,7 +225,7 @@ export const Service = Context.Service<Instance>('@app/identity-provider/feature
 export const layer = Layer.effect(
   Service,
   Effect.gen(function* () {
-    const db = yield* DB.Service
+    const db = yield* BetterAuthDB.Service
     const env = yield* Env.Service
     const emailSender = yield* EmailSender.Service
     const { origin } = new URL(HonoContext.get().req.url)
