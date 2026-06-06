@@ -79,6 +79,16 @@ export const resolveLocalPath = (spec: string, agentsRoot: string): string => {
   return spec
 }
 
+export const resolveSkillDirPath = (spec: string, lockFileDir: string): string => {
+  if (hasHomePathPrefix(spec) || spec === '~') {
+    return expandHomePath(spec)
+  }
+  if (spec.startsWith('/')) {
+    return spec
+  }
+  return normalizeAbsolutePath(`${lockFileDir}/${spec}`)
+}
+
 export const findAgentsRoot = (startDir: string = process.cwd()): Effect.Effect<string, Error, FileSystem.FileSystem> =>
   Effect.gen(function* () {
     const currentDir = normalizeAbsolutePath(startDir)
@@ -100,7 +110,7 @@ export const findNearestAgentsDir = (
   Effect.gen(function* () {
     const currentDir = normalizeAbsolutePath(startDir)
     const agentsDir = `${currentDir}/.agents`
-    const lockPath = `${agentsDir}/${LOCK_FILE_NAME}`
+    const lockPath = `${currentDir}/${LOCK_FILE_NAME}`
     const fs = yield* FileSystem.FileSystem
 
     if (yield* fs.exists(lockPath).pipe(Effect.orElseSucceed(() => false))) {
@@ -120,7 +130,7 @@ export const getCacheDir = (projectRoot: string): string => `${getGlobalCacheRoo
 
 export const getSkillsDir = (agentsDir: string): string => `${agentsDir}/skills`
 
-export const getLockFilePath = (agentsDir: string): string => `${agentsDir}/${LOCK_FILE_NAME}`
+export const getLockFilePath = (agentsDir: string): string => `${parentDirectory(agentsDir)}/${LOCK_FILE_NAME}`
 
 export const getGitIgnorePath = (agentsDir: string): string => `${agentsDir}/.gitignore`
 

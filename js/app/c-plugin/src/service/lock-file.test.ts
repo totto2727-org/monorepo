@@ -101,6 +101,7 @@ describe('write', () => {
     await Effect.runPromise(write(ctx.agentsDir, lockFile).pipe(Effect.provide(NodeServices.layer)))
     const result = await Effect.runPromise(read(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
     expect(result).toStrictEqual(lockFile)
+    await expect(Fs.access(NodePath.join(ctx.agentsDir, 'c-plugin-lock.json'))).rejects.toThrow()
   })
 
   test('does not leave .tmp file after write', async () => {

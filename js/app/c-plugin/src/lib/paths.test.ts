@@ -18,6 +18,7 @@ import {
   normalizePathSpec,
   parseRepoSource,
   resolveLocalPath,
+  resolveSkillDirPath,
   toRelativeLocalPath,
 } from './paths.ts'
 
@@ -181,7 +182,7 @@ describe('findNearestAgentsDir', () => {
     const root = await Fs.mkdtemp(NodePath.join(Os.tmpdir(), 'c-plugin-agents-dir-'))
     const agentsDir = NodePath.join(root, '.agents')
     await Fs.mkdir(agentsDir, { recursive: true })
-    await Fs.writeFile(NodePath.join(agentsDir, LOCK_FILE_NAME), '{}', 'utf-8')
+    await Fs.writeFile(NodePath.join(root, LOCK_FILE_NAME), '{}', 'utf-8')
     const nested = NodePath.join(root, 'a', 'b', 'c')
     await Fs.mkdir(nested, { recursive: true })
 
@@ -194,7 +195,7 @@ describe('findNearestAgentsDir', () => {
     const root = await Fs.mkdtemp(NodePath.join(Os.tmpdir(), 'c-plugin-agents-dir-'))
     const agentsDir = NodePath.join(root, '.agents')
     await Fs.mkdir(agentsDir, { recursive: true })
-    await Fs.writeFile(NodePath.join(agentsDir, LOCK_FILE_NAME), '{}', 'utf-8')
+    await Fs.writeFile(NodePath.join(root, LOCK_FILE_NAME), '{}', 'utf-8')
 
     await expect(Effect.runPromise(findNearestAgentsDir(root).pipe(Effect.provide(NodeServices.layer)))).resolves.toBe(
       agentsDir,
@@ -209,6 +210,24 @@ describe('findNearestAgentsDir', () => {
     await expect(
       Effect.runPromise(findNearestAgentsDir(nested).pipe(Effect.provide(NodeServices.layer))),
     ).rejects.toThrow(`Could not find .agents directory with ${LOCK_FILE_NAME}`)
+  })
+})
+
+describe('resolveSkillDirPath', () => {
+  test('resolves bare relative paths against agents root', () => {
+    expect(resolveSkillDirPath('.claude/skills', '/proj')).toBe('/proj/.claude/skills')
+  })
+
+  test('resolves dot-slash paths against agents root', () => {
+    expect(resolveSkillDirPath('./.claude/skills', '/proj')).toBe('/proj/.claude/skills')
+  })
+
+  test('expands home paths', () => {
+    expect(resolveSkillDirPath('~/.claude/skills', '/proj')).toBe(NodePath.join(Os.homedir(), '.claude', 'skills'))
+  })
+
+  test('keeps absolute paths unchanged', () => {
+    expect(resolveSkillDirPath('/abs/skills', '/proj')).toBe('/abs/skills')
   })
 })
 

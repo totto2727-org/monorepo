@@ -1,6 +1,6 @@
 import { Effect, FileSystem, Path } from 'effect'
 
-import { expandHomePath, getSkillsDir } from '#@/lib/paths.ts'
+import { getSkillsDir, resolveSkillDirPath } from '#@/lib/paths.ts'
 
 const createLinkInDir = (
   dir: string,
@@ -29,8 +29,9 @@ const removeLinkInDir = (
   })
 
 const getAllDirs = (agentsDir: string, skillDirs: readonly string[]): string[] => {
+  const lockFileDir = agentsDir.slice(0, agentsDir.lastIndexOf('/'))
   const primary = getSkillsDir(agentsDir)
-  return [primary, ...skillDirs.map(expandHomePath)]
+  return [primary, ...skillDirs.map((dir) => resolveSkillDirPath(dir, lockFileDir))]
 }
 
 export const createSkillLink = (
@@ -56,10 +57,11 @@ export const removeSkillLink = (
 
 export const removeSkillLinkFromDirs = (
   dirs: readonly string[],
+  lockFileDir: string,
   skillName: string,
 ): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path> =>
   Effect.all(
-    dirs.map((dir) => removeLinkInDir(expandHomePath(dir), skillName)),
+    dirs.map((dir) => removeLinkInDir(resolveSkillDirPath(dir, lockFileDir), skillName)),
     { concurrency: 'unbounded' },
   ).pipe(Effect.asVoid)
 
