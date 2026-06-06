@@ -1,4 +1,4 @@
-import { Array, Effect } from 'effect'
+import { Array, Effect, Path } from 'effect'
 import { Command, Flag, Prompt } from 'effect/unstable/cli'
 
 import { findNearestAgentsDir, getGlobalAgentsDir } from '#@/lib/paths.ts'
@@ -12,7 +12,9 @@ export const targetRemoveCommand = Command.make(
   },
   (config) =>
     Effect.gen(function* () {
+      const path = yield* Path.Path
       const agentsDir = yield* config.global ? Effect.succeed(getGlobalAgentsDir()) : findNearestAgentsDir()
+      const lockFileDir = path.dirname(agentsDir)
       const lockFile = yield* LockFileService.read(agentsDir)
 
       if (Array.isReadonlyArrayEmpty(lockFile.skillDirs)) {
@@ -39,10 +41,8 @@ export const targetRemoveCommand = Command.make(
 
       // Remove symlinks only from the selected directories (not .agents/skills/)
       const existingLinks = yield* Symlink.listSkillLinks(agentsDir)
-      for (const dir of toRemove) {
-        for (const link of existingLinks) {
-          yield* Symlink.removeSkillLinkFromDirs([dir], link)
-        }
+      for (const link of existingLinks) {
+        yield* Symlink.removeSkillLinkFromDirs(toRemove, lockFileDir, link)
       }
 
       const newLockFile = {

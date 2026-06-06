@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@effect/platform-node": "catalog:effect",
+    "@package/target-file-discovery": "workspace:*",
     "effect": "catalog:effect"
   },
   "devDependencies": {

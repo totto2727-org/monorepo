@@ -30,14 +30,14 @@ describe('initCommand', () => {
 })
 
 describe('initLockFile', () => {
-  test('creates only an empty lock file under .agents in the target directory', async () => {
+  test('creates .agents and an empty lock file beside it', async () => {
     const projectRoot = await mkTmp()
     const lockPath = getLockFilePath(NodePath.join(projectRoot, '.agents'))
 
     await Effect.runPromise(initLockFile(projectRoot).pipe(Effect.provide(NodeServices.layer)))
 
     await expect(Fs.readFile(lockPath, 'utf-8')).resolves.toBe(`${JSON.stringify(emptyLockFile, null, '\t')}\n`)
-    await expect(Fs.readdir(NodePath.join(projectRoot, '.agents'))).resolves.toStrictEqual(['c-plugin-lock.json'])
+    await expect(Fs.readdir(NodePath.join(projectRoot, '.agents'))).resolves.toStrictEqual([])
   })
 
   test('does not overwrite an existing lock file', async () => {

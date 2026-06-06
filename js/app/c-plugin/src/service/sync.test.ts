@@ -169,10 +169,7 @@ describe('sync run', () => {
     expect(updatedLockFile.repositories).toHaveLength(0)
   })
 
-  test('creates symlinks in additional skillDirs', async () => {
-    const extraDir = NodePath.join(ctx.agentsDir, 'extra-skills')
-    await Fs.mkdir(extraDir, { recursive: true })
-
+  test('creates symlinks in additional skillDirs relative to the lock file directory', async () => {
     await buildFakeRepoFixture(ctx.projectRoot, 'owner/repo', {
       plugins: [
         {
@@ -199,14 +196,14 @@ describe('sync run', () => {
           sourceType: 'github',
         },
       ],
-      skillDirs: [extraDir],
+      skillDirs: ['extra-skills'],
       version: 1,
     }
     await writeLockFile(ctx.agentsDir, lockFile)
 
     await Effect.runPromise(run(ctx.agentsDir).pipe(Effect.provide(NodeServices.layer)))
 
-    const extraLink = await Fs.lstat(NodePath.join(extraDir, 'skill-a'))
+    const extraLink = await Fs.lstat(NodePath.join(ctx.projectRoot, 'extra-skills', 'skill-a'))
     expect(extraLink.isSymbolicLink()).toBe(true)
   })
 
