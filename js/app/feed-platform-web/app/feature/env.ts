@@ -4,7 +4,11 @@ import * as HonoContext from '#@/feature/share/lib/hono/context.ts'
 
 export interface Backend {
   BACKEND_BASE_URL: string
-  BACKEND_RESOURCE: string
+}
+
+export interface BetterAuth {
+  BETTER_AUTH_SECRET: string
+  WEB_BASE_URL: string
 }
 
 export interface Database {
@@ -21,7 +25,7 @@ export interface OAuth {
   OAUTH_CLIENT_SECRET: string
 }
 
-export type Type = OAuth & Idp & Backend & Database
+export type Type = OAuth & Idp & Backend & BetterAuth & Database
 
 export const Service = Context.Service<Type>('@app/feed-platform-web/feature/env/Service')
 
@@ -31,10 +35,11 @@ export const prodLayer = Layer.sync(Service, () => HonoContext.get().env)
 
 export const devLayer = Layer.succeed(Service, {
   BACKEND_BASE_URL: 'http://localhost:8788',
-  BACKEND_RESOURCE: 'feed-platform-backend',
+  BETTER_AUTH_SECRET: '0123456789abcdef0123456789abcdef0123456789abcdef',
   DATABASE_AUTH_TOKEN: '',
   DATABASE_URL: 'http://127.0.0.1:8081',
   IDP_BASE_URL: 'http://localhost:8787',
   OAUTH_CLIENT_ID: 'feed-platform-web',
   OAUTH_CLIENT_SECRET: 'dev-secret-do-not-use-in-prod',
+  WEB_BASE_URL: 'http://127.0.0.1:8789',
 } satisfies Type as Type)

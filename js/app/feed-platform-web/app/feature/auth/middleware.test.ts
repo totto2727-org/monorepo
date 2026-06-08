@@ -1,14 +1,19 @@
 import { Hono } from 'hono'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
-import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 
-const mockJwtVerify = vi.fn()
+const { mockGetSession } = vi.hoisted(() => ({ mockGetSession: vi.fn() }))
 
-vi.mock('jose', () => ({
-  createRemoteJWKSet: vi.fn().mockReturnValue({}),
-  jwtVerify: mockJwtVerify,
+vi.mock('better-auth', () => ({
+  betterAuth: vi.fn(() => ({
+    api: { getSession: mockGetSession },
+  })),
+}))
+
+vi.mock('better-auth/plugins', () => ({
+  bearer: vi.fn(() => ({})),
+  genericOAuth: vi.fn(() => ({})),
 }))
 
 const { authMiddleware } = await import('./middleware.ts')
@@ -24,54 +29,28 @@ beforeEach(() => {
 })
 
 describe('authMiddleware', () => {
-  it('sets user to null when no cookie present', async () => {
+  it('sets user to null when Better Auth has no session', async () => {
+    mockGetSession.mockResolvedValue(null)
     const app = makeApp()
     const res = await app.request('/test')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ user: null })
   })
 
-  it('sets user from valid JWT payload', async () => {
-    mockJwtVerify.mockResolvedValue({
-      payload: { email: 'test@example.com', sub: 'user-123' },
+  it('sets user from a Better Auth stateless session', async () => {
+    mockGetSession.mockResolvedValue({
+      user: { email: 'test@example.com', id: 'user-123' },
     })
     const app = makeApp()
-    const res = await app.request('/test', { headers: { cookie: `${FEED_SESSION_COOKIE}=valid.jwt.token` } })
+    const res = await app.request('/test', { headers: { cookie: 'better-auth.session_token=session-token' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ user: { email: 'test@example.com', sub: 'user-123' } })
-    expect(mockJwtVerify).toHaveBeenCalledWith(
-      'valid.jwt.token',
-      {},
-      {
-        algorithms: ['ES256'],
-        audience: 'feed-platform-web',
-        issuer: 'http://localhost:8787/api/v1/auth',
-      },
-    )
   })
 
-  it('sets user to null when strict JWT validation fails', async () => {
-    mockJwtVerify.mockRejectedValue(new Error('unexpected "aud" claim value'))
+  it('sets user to null when Better Auth user shape is invalid', async () => {
+    mockGetSession.mockResolvedValue({ user: { id: 'user-123' } })
     const app = makeApp()
-    const res = await app.request('/test', { headers: { cookie: `${FEED_SESSION_COOKIE}=wrong-audience.jwt.token` } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ user: null })
-  })
-
-  it('sets user to null when JWT payload shape is invalid', async () => {
-    mockJwtVerify.mockResolvedValue({
-      payload: { sub: 'user-123' },
-    })
-    const app = makeApp()
-    const res = await app.request('/test', { headers: { cookie: `${FEED_SESSION_COOKIE}=invalid-payload.jwt.token` } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ user: null })
-  })
-
-  it('sets user to null when JWT verification fails', async () => {
-    mockJwtVerify.mockRejectedValue(new Error('Invalid JWT'))
-    const app = makeApp()
-    const res = await app.request('/test', { headers: { cookie: `${FEED_SESSION_COOKIE}=tampered.jwt.token` } })
+    const res = await app.request('/test', { headers: { cookie: 'better-auth.session_token=session-token' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ user: null })
   })

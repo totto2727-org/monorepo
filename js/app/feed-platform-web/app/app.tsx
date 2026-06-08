@@ -1,59 +1,45 @@
-import { DateTime, Effect, Predicate, Schema, String } from 'effect'
-import { HttpClient, HttpClientRequest, HttpBody } from 'effect/unstable/http'
+import { Array, Effect, Predicate } from 'effect'
 import { Hono } from 'hono'
 import { remixRenderer } from 'hono-remix-middleware'
 import { contextStorage } from 'hono/context-storage'
-import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { logger } from 'hono/logger'
 
 import { BackendClient } from '#@/feature/api/client.ts'
-import { handleAuthCallback } from '#@/feature/auth/callback.ts'
-import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
+import * as BetterAuth from '#@/feature/auth/better-auth.ts'
 import { authMiddleware } from '#@/feature/auth/middleware.ts'
-import { storeNonce } from '#@/feature/auth/nonce-store.ts'
-import {
-  buildAuthorizeUrl,
-  generateChallenge,
-  generateNonce,
-  generateState,
-  generateVerifier,
-} from '#@/feature/auth/oauth-client.ts'
-import { deleteRefreshToken, getRefreshToken, replaceRefreshToken } from '#@/feature/auth/refresh-store.ts'
-import { Service as DBService } from '#@/feature/db/kysely.ts'
-import * as AppEnv from '#@/feature/env.ts'
 import * as Greeting from '#@/feature/greeting.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 import type { Env } from '#@/feature/share/lib/hono/context.ts'
 import { Document } from '#@/ui/document.tsx'
 
-const TokenResponse = Schema.Struct({
-  access_token: Schema.String,
-  id_token: Schema.String,
-  refresh_token: Schema.optional(Schema.String),
-})
-
-// oxlint-disable-next-line rules/prefer-non-unknown-decode -- OAuth token JSON response is an external boundary with unknown shape.
-const decodeTokenResponse = Schema.decodeUnknownEffect(TokenResponse)
-
-const refreshTokens = (idpBaseUrl: string, params: Record<string, string>) =>
-  Effect.gen(function* () {
-    const client = yield* HttpClient.HttpClient
-    const formBody = new URLSearchParams(params).toString()
-    const request = HttpClientRequest.post(`${idpBaseUrl}/api/v1/auth/oauth2/token`, {
-      body: HttpBody.text(formBody, 'application/x-www-form-urlencoded'),
-    })
-    const response = yield* client.execute(request)
-    if (response.status !== 200) {
-      return yield* Effect.fail(new Error('token refresh failed'))
+const copySetCookieHeaders = (from: Response, to: Response): void => {
+  const getSetCookie = from.headers.getSetCookie?.bind(from.headers)
+  const cookies = getSetCookie?.() ?? []
+  if (Array.isArrayNonEmpty(cookies)) {
+    for (const cookie of cookies) {
+      to.headers.append('Set-Cookie', cookie)
     }
-    const data: unknown = yield* response.json
-    return yield* decodeTokenResponse(data)
-  })
+    return
+  }
+  const cookie = from.headers.get('Set-Cookie')
+  if (!Predicate.isNullish(cookie)) {
+    to.headers.append('Set-Cookie', cookie)
+  }
+}
 
 const app: Hono<Env> = new Hono<Env>()
   .use(logger())
   .use(contextStorage())
   .use(runtimeMiddleware)
+  .all('/api/v1/auth/*', (ctx) =>
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP auth route boundary delegates the request to Better Auth once.
+    ctx.var.runtime.runPromise(
+      Effect.gen(function* () {
+        const auth = yield* BetterAuth.Service
+        return auth.handler(ctx.req.raw)
+      }),
+    ),
+  )
   .use('*', authMiddleware)
   .use(
     '*',
@@ -69,40 +55,26 @@ const app: Hono<Env> = new Hono<Env>()
     ),
   )
   .get('/login', (ctx) =>
-    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes the whole OAuth login workflow once.
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary delegates OAuth login to Better Auth.
     ctx.var.runtime.runPromise(
       Effect.gen(function* () {
-        const env = yield* AppEnv.Service
-        const verifier = generateVerifier()
-        const state = generateState()
-        const nonce = generateNonce()
-        const codeChallenge = yield* Effect.promise(() => generateChallenge(verifier))
-        const { origin } = new URL(ctx.req.url)
-        const redirectUri = `${origin}/auth/callback`
-        const authorizeUrl = buildAuthorizeUrl({
-          clientId: env.OAUTH_CLIENT_ID,
-          codeChallenge,
-          idpBaseUrl: env.IDP_BASE_URL,
-          nonce,
-          redirectUri,
-          state,
-        })
-        const db = yield* DBService
-        const now = DateTime.toEpochMillis(yield* DateTime.now)
-        yield* Effect.promise(() => storeNonce(db, state, nonce, now))
-        setCookie(ctx, 'pkce_verifier', verifier, { httpOnly: true, path: '/', sameSite: 'Lax' })
-        setCookie(ctx, 'oauth_state', state, { httpOnly: true, path: '/', sameSite: 'Lax' })
-        return ctx.redirect(authorizeUrl.toString())
-      }),
-    ),
-  )
-  .get('/auth/callback', (ctx) =>
-    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP callback boundary executes request-scoped callback Effect once.
-    ctx.var.runtime.runPromise(
-      Effect.gen(function* () {
-        const env = yield* AppEnv.Service
-        const db = yield* DBService
-        return yield* handleAuthCallback(ctx, env, db)
+        const auth = yield* BetterAuth.Service
+        const url = new URL('/api/v1/auth/sign-in/oauth2', ctx.req.url)
+        return yield* Effect.promise(() =>
+          auth.handler(
+            new Request(url, {
+              body: JSON.stringify({
+                callbackURL: '/dashboard',
+                providerId: 'identity-provider',
+              }),
+              headers: {
+                'Content-Type': 'application/json',
+                Cookie: ctx.req.header('Cookie') ?? '',
+              },
+              method: 'POST',
+            }),
+          ),
+        )
       }),
     ),
   )
@@ -121,15 +93,11 @@ const app: Hono<Env> = new Hono<Env>()
     ctx.var.runtime.runPromise(
       Effect.gen(function* () {
         const { user } = ctx.var
-        const sessionToken = getCookie(ctx, FEED_SESSION_COOKIE)
-        if (Predicate.isNullish(user) && Predicate.isNullish(sessionToken)) {
+        if (Predicate.isNullish(user)) {
           return ctx.redirect('/login')
         }
-        const env = yield* AppEnv.Service
         const client = yield* BackendClient
-        const callMeResult = Predicate.isNullish(user)
-          ? null
-          : yield* client.callMe().pipe(Effect.orElseSucceed(() => null))
+        const callMeResult = yield* client.callMe().pipe(Effect.orElseSucceed(() => null))
         if (!Predicate.isNullish(callMeResult)) {
           return ctx.render(
             <Document>
@@ -140,67 +108,7 @@ const app: Hono<Env> = new Hono<Env>()
             </Document>,
           )
         }
-
-        const db = yield* DBService
-        if (Predicate.isNullish(sessionToken)) {
-          deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-          return ctx.redirect('/login')
-        }
-        const now = DateTime.toEpochMillis(yield* DateTime.now)
-        const refreshToken = yield* Effect.promise(() => getRefreshToken(db, sessionToken, now))
-        if (Predicate.isNullish(refreshToken)) {
-          deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-          return ctx.redirect('/login')
-        }
-
-        const bodyParams: Record<string, string> = {
-          client_id: env.OAUTH_CLIENT_ID,
-          grant_type: 'refresh_token',
-          refresh_token: refreshToken,
-          resource: env.BACKEND_RESOURCE,
-        }
-        if (String.isNonEmpty(env.OAUTH_CLIENT_SECRET)) {
-          bodyParams.client_secret = env.OAUTH_CLIENT_SECRET
-        }
-
-        const tokenData = yield* refreshTokens(env.IDP_BASE_URL, bodyParams).pipe(Effect.orElseSucceed(() => null))
-        if (Predicate.isNullish(tokenData)) {
-          yield* Effect.promise(() => deleteRefreshToken(db, sessionToken))
-          deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-          return ctx.redirect('/login')
-        }
-
-        const retryResult = yield* client
-          .callMeWithAccessToken(tokenData.access_token)
-          .pipe(Effect.orElseSucceed(() => null))
-        if (Predicate.isNullish(retryResult)) {
-          yield* Effect.promise(() => deleteRefreshToken(db, sessionToken))
-          deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-          return ctx.redirect('/login')
-        }
-
-        const nextSessionToken = tokenData.id_token
-        setCookie(ctx, FEED_SESSION_COOKIE, nextSessionToken, {
-          httpOnly: true,
-          path: '/',
-          sameSite: 'Lax',
-        })
-        const nextRefreshToken =
-          !Predicate.isNullish(tokenData.refresh_token) && String.isNonEmpty(tokenData.refresh_token)
-            ? tokenData.refresh_token
-            : refreshToken
-        yield* Effect.promise(() =>
-          replaceRefreshToken(db, sessionToken, nextSessionToken, nextRefreshToken, tokenData.access_token, now),
-        )
-
-        return ctx.render(
-          <Document>
-            <h1>Dashboard</h1>
-            <p>Logged in as: {retryResult.email}</p>
-            <p>Subject: {retryResult.sub}</p>
-            <a href='/logout'>Logout</a>
-          </Document>,
-        )
+        return ctx.redirect('/login')
       }),
     ),
   )
@@ -208,15 +116,23 @@ const app: Hono<Env> = new Hono<Env>()
     // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes the whole logout workflow once.
     ctx.var.runtime.runPromise(
       Effect.gen(function* () {
-        const env = yield* AppEnv.Service
-        const db = yield* DBService
-        const token = getCookie(ctx, FEED_SESSION_COOKIE)
-        if (!Predicate.isNullish(token)) {
-          yield* Effect.promise(() => deleteRefreshToken(db, token))
-        }
-        deleteCookie(ctx, FEED_SESSION_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-        const { origin } = new URL(ctx.req.url)
-        return ctx.redirect(`${env.IDP_BASE_URL}/app/logout?return_to=${encodeURIComponent(`${origin}/login`)}`)
+        const auth = yield* BetterAuth.Service
+        const url = new URL('/api/v1/auth/sign-out', ctx.req.url)
+        const signOutResponse = yield* Effect.promise(() =>
+          auth.handler(
+            new Request(url, {
+              body: JSON.stringify({}),
+              headers: {
+                'Content-Type': 'application/json',
+                Cookie: ctx.req.header('Cookie') ?? '',
+              },
+              method: 'POST',
+            }),
+          ),
+        )
+        const response = ctx.redirect('/login')
+        copySetCookieHeaders(signOutResponse, response)
+        return response
       }),
     ),
   )

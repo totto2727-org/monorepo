@@ -1,7 +1,7 @@
 import { Layer, ManagedRuntime } from 'effect'
 import { dynamicLoggerLayer, Env as RuntimeEnv, makeDisposableRuntime } from 'effect-hono'
 
-import * as Jwt from '../auth/jwt.ts'
+import * as BetterAuth from '../auth/better-auth.ts'
 import * as AppEnv from '../env.ts'
 import * as Greeting from '../greeting.ts'
 import * as Health from '../health.ts'
@@ -10,7 +10,7 @@ const makeRuntime = (env: AppEnv.Type) =>
   ManagedRuntime.make(
     Health.layer.pipe(
       Layer.provideMerge(Greeting.layer),
-      Layer.provideMerge(Jwt.layer),
+      Layer.provideMerge(BetterAuth.layer),
       Layer.provideMerge(dynamicLoggerLayer),
       Layer.provideMerge(RuntimeEnv.layer),
       Layer.provideMerge(AppEnv.makeLayer(env)),

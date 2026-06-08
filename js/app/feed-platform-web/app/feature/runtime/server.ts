@@ -3,6 +3,7 @@ import { dynamicLoggerLayer, Env as RuntimeEnv, makeDisposableRuntime } from 'ef
 import { FetchHttpClient } from 'effect/unstable/http'
 
 import * as Api from '../api/client.ts'
+import * as BetterAuth from '../auth/better-auth.ts'
 import * as DB from '../db/kysely.ts'
 import * as AppEnv from '../env.ts'
 import * as Greeting from '../greeting.ts'
@@ -12,6 +13,7 @@ const makeProdRuntime = () =>
   ManagedRuntime.make(
     Health.layer.pipe(
       Layer.provideMerge(Greeting.layer),
+      Layer.provideMerge(BetterAuth.layer),
       Layer.provideMerge(Api.liveLayer),
       Layer.provideMerge(DB.remoteLayer),
       Layer.provideMerge(FetchHttpClient.layer),
@@ -25,6 +27,7 @@ const makeDevRuntime = () =>
   ManagedRuntime.make(
     Health.layer.pipe(
       Layer.provideMerge(Greeting.layer),
+      Layer.provideMerge(BetterAuth.layer),
       Layer.provideMerge(Api.liveLayer),
       Layer.provideMerge(DB.remoteLayer),
       Layer.provideMerge(FetchHttpClient.layer),

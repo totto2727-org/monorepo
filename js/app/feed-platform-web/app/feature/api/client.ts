@@ -1,11 +1,7 @@
 import type { TaggedErrorBaseType } from '@totto2727/fp/error'
-import { Context, Data, DateTime, Effect, Layer, Predicate, Schema } from 'effect'
+import { Array, Context, Data, Effect, Layer, Predicate, Schema } from 'effect'
 import { HttpClient, HttpClientRequest } from 'effect/unstable/http'
-import { getCookie } from 'hono/cookie'
 
-import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
-import { getAccessToken } from '#@/feature/auth/refresh-store.ts'
-import * as DB from '#@/feature/db/kysely.ts'
 import * as Env from '#@/feature/env.ts'
 import * as HonoContext from '#@/feature/share/lib/hono/context.ts'
 
@@ -18,7 +14,6 @@ export class BackendError extends Data.TaggedError('BackendError')<TaggedErrorBa
 
 interface BackendClientService {
   readonly callMe: () => Effect.Effect<UserDTO, BackendError, HttpClient.HttpClient>
-  readonly callMeWithAccessToken: (accessToken: string) => Effect.Effect<UserDTO, BackendError, HttpClient.HttpClient>
 }
 
 export const BackendClient = Context.Service<BackendClientService>('BackendClient')
@@ -31,11 +26,29 @@ const UserResponse = Schema.Struct({
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- backend JSON response is an external boundary with unknown shape.
 const decodeUserResponse = Schema.decodeUnknownEffect(UserResponse)
 
-const callBackendApi = (baseUrl: string, authorization: string) =>
+const isBetterAuthCookie = (cookie: string): boolean => {
+  const [name] = cookie.trim().split('=')
+  if (Predicate.isNullish(name)) {
+    return false
+  }
+  return (
+    name === 'better-auth.session_token' ||
+    name === '__Secure-better-auth.session_token' ||
+    name.startsWith('better-auth.session_token.') ||
+    name.startsWith('__Secure-better-auth.session_token.')
+  )
+}
+
+const filterBetterAuthCookies = (cookie: string): string | null => {
+  const filtered = cookie.split(';').filter(isBetterAuthCookie)
+  return Array.isArrayEmpty(filtered) ? null : filtered.join('; ')
+}
+
+const callBackendApi = (baseUrl: string, cookie: string) =>
   Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient
     const request = HttpClientRequest.get(`${baseUrl}/api/v1/me`, {
-      headers: { Authorization: authorization },
+      headers: { Cookie: cookie },
     })
     const response = yield* client.execute(request)
     if (response.status !== 200) {
@@ -48,45 +61,33 @@ const callBackendApi = (baseUrl: string, authorization: string) =>
     return { email: user.email, sub: user.sub }
   })
 
-const callBackendApiWithAuthorization = (baseUrl: string, authorization: string | null) =>
-  Predicate.isNullish(authorization)
-    ? Effect.fail(new BackendError({ message: 'missing feed-session cookie' }))
-    : callBackendApi(baseUrl, authorization).pipe(Effect.mapError((failure) => new BackendError({ error: failure })))
-
 const makeCallMe =
-  (baseUrl: string, db: DB.Instance): BackendClientService['callMe'] =>
+  (baseUrl: string): BackendClientService['callMe'] =>
   () =>
     Effect.gen(function* () {
-      const sessionToken = getCookie(HonoContext.get(), FEED_SESSION_COOKIE)
-      if (Predicate.isNullish(sessionToken)) {
-        return yield* Effect.fail(new BackendError({ message: 'missing feed-session cookie' }))
+      const cookie = HonoContext.get().req.header('Cookie')
+      if (Predicate.isNullish(cookie)) {
+        return yield* Effect.fail(new BackendError({ message: 'missing Better Auth session cookie' }))
       }
-      const now = DateTime.toEpochMillis(yield* DateTime.now)
-      const accessToken = yield* Effect.promise(() => getAccessToken(db, sessionToken, now))
-      return yield* callBackendApiWithAuthorization(
-        baseUrl,
-        Predicate.isNullish(accessToken) ? null : `Bearer ${accessToken}`,
+      const sessionCookie = filterBetterAuthCookies(cookie)
+      if (Predicate.isNullish(sessionCookie)) {
+        return yield* Effect.fail(new BackendError({ message: 'missing Better Auth session cookie' }))
+      }
+      return yield* callBackendApi(baseUrl, sessionCookie).pipe(
+        Effect.mapError((failure) => new BackendError({ error: failure })),
       )
     })
-
-const makeCallMeWithAccessToken =
-  (baseUrl: string): BackendClientService['callMeWithAccessToken'] =>
-  (accessToken) =>
-    callBackendApiWithAuthorization(baseUrl, `Bearer ${accessToken}`)
 
 export const liveLayer = Layer.effect(
   BackendClient,
   Effect.gen(function* () {
     const env = yield* Env.Service
-    const db = yield* DB.Service
     return {
-      callMe: makeCallMe(env.BACKEND_BASE_URL, db),
-      callMeWithAccessToken: makeCallMeWithAccessToken(env.BACKEND_BASE_URL),
+      callMe: makeCallMe(env.BACKEND_BASE_URL),
     }
   }),
 )
 
 export const mockLayer = Layer.succeed(BackendClient, {
   callMe: () => Effect.succeed({ email: 'mock@example.com', sub: 'mock-user' }),
-  callMeWithAccessToken: () => Effect.succeed({ email: 'mock@example.com', sub: 'mock-user' }),
 })
