@@ -1,6 +1,7 @@
 import { Effect } from 'effect'
 import { describe, expect, test } from 'vite-plus/test'
 
+import * as BetterAuthDB from './better-auth-kysely.ts'
 import * as DB from './kysely.ts'
 
 describe('Kysely LibSQL service', () => {
@@ -16,5 +17,18 @@ describe('Kysely LibSQL service', () => {
     expect(sql).toContain('"created_at"')
     expect(sql).toContain('from "user"')
     expect(sql).not.toContain('createdAt')
+  })
+
+  test('Better Auth inMemoryLayer builds a raw Kysely instance without CamelCasePlugin', async () => {
+    const program = Effect.gen(function* () {
+      const db = yield* BetterAuthDB.Service
+      return db.selectFrom('jwks').select('public_key').compile().sql
+    })
+
+    const sql = await Effect.runPromise(Effect.provide(program, BetterAuthDB.inMemoryLayer))
+
+    expect(sql).toContain('"public_key"')
+    expect(sql).toContain('from "jwks"')
+    expect(sql).not.toContain('publicKey')
   })
 })
