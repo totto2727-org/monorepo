@@ -23,7 +23,9 @@ vi.mock('better-auth/plugins', () => ({
   genericOAuth: vi.fn(() => ({})),
 }))
 
-const { authMiddleware } = await import('./middleware.ts')
+const { loginReturnToCookieName } = await import('./cookie.ts')
+const { authMiddleware, requireAuthMiddleware } = await import('./middleware.ts')
+const { preserveReturnToQueryParameterName, preserveReturnToQueryParameterValue } = await import('./query-parameter.ts')
 
 const makeApp = () =>
   new Hono<{ Variables: { user: { email: string; sub: string } | null } }>()
@@ -62,5 +64,33 @@ describe('authMiddleware', () => {
     const res = await app.request('/test', { headers: { cookie: 'better-auth.session_token=session-token' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ user: null })
+  })
+})
+
+describe('requireAuthMiddleware', () => {
+  const makeProtectedApp = () =>
+    new Hono<{ Variables: { user: { email: string; sub: string } | null } }>()
+      .use('*', contextStorage())
+      .use('*', runtimeMiddleware)
+      .use('*', authMiddleware)
+      .get('/app/settings', requireAuthMiddleware, (ctx) => ctx.text(ctx.var.user?.email ?? 'missing'))
+
+  it('redirects unauthenticated app requests to login with a return-to cookie', async () => {
+    mockGetSession.mockResolvedValue(null)
+    const app = makeProtectedApp()
+    const res = await app.request('/app/settings?tab=profile')
+    expect(res.status).toBe(302)
+    expect(res.headers.get('location')).toBe(
+      `/app/login?${preserveReturnToQueryParameterName}=${preserveReturnToQueryParameterValue}`,
+    )
+    expect(res.headers.get('set-cookie')).toContain(`${loginReturnToCookieName}=%2Fapp%2Fsettings%3Ftab%3Dprofile`)
+  })
+
+  it('passes authenticated app requests through', async () => {
+    mockGetSession.mockResolvedValue({ user: { email: 'test@example.com', id: 'user-123' } })
+    const app = makeProtectedApp()
+    const res = await app.request('/app/settings', { headers: { cookie: 'better-auth.session_token=session-token' } })
+    expect(res.status).toBe(200)
+    expect(await res.text()).toBe('test@example.com')
   })
 })

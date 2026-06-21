@@ -6,8 +6,17 @@ import { logger } from 'hono/logger'
 
 import { BackendClient } from '#@/feature/api/client.ts'
 import * as BetterAuth from '#@/feature/auth/better-auth.ts'
-import { authMiddleware } from '#@/feature/auth/middleware.ts'
-import * as Greeting from '#@/feature/greeting.ts'
+import {
+  appendDeleteBetterAuthCookies,
+  deleteLoginReturnToCookie,
+  getLoginReturnToCookie,
+} from '#@/feature/auth/cookie.ts'
+import { authMiddleware, requireAuthMiddleware } from '#@/feature/auth/middleware.ts'
+import {
+  preserveReturnToQueryParameterName,
+  preserveReturnToQueryParameterValue,
+} from '#@/feature/auth/query-parameter.ts'
+import { getReturnToPath } from '#@/feature/auth/return-to.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 import type { Env } from '#@/feature/share/lib/hono/context.ts'
 import { Document } from '#@/ui/document.tsx'
@@ -32,15 +41,27 @@ const app: Hono<Env> = new Hono<Env>()
     ),
   )
   .use('*', authMiddleware)
-  .get('/login', (ctx) =>
+  .get('/api/v1/auth-callback', (ctx) => {
+    const returnTo = getReturnToPath(getLoginReturnToCookie())
+    deleteLoginReturnToCookie()
+    return ctx.redirect(returnTo)
+  })
+  .get('/app/login', (ctx) =>
     // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP auth route boundary starts the OAuth redirect once.
     ctx.var.runtime.runPromise(
       Effect.gen(function* () {
+        const { user } = ctx.var
+        if (!Predicate.isNullish(user)) {
+          return ctx.redirect('/app')
+        }
+        if (ctx.req.query(preserveReturnToQueryParameterName) !== preserveReturnToQueryParameterValue) {
+          deleteLoginReturnToCookie()
+        }
         const auth = yield* BetterAuth.Service
         const { headers, response } = yield* Effect.tryPromise(() =>
           auth.api.signInWithOAuth2({
             body: {
-              callbackURL: '/dashboard',
+              callbackURL: '/api/v1/auth-callback',
               providerId: 'identity-provider',
             },
             returnHeaders: true,
@@ -50,7 +71,7 @@ const app: Hono<Env> = new Hono<Env>()
       }),
     ),
   )
-  .get('/logout', (ctx) =>
+  .get('/app/logout', (ctx) =>
     // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP auth route boundary clears the session and redirects once.
     ctx.var.runtime.runPromise(
       Effect.gen(function* () {
@@ -61,53 +82,33 @@ const app: Hono<Env> = new Hono<Env>()
             returnHeaders: true,
           }),
         )
-        return redirectWithHeaders('/', headers)
+        appendDeleteBetterAuthCookies(headers)
+        return redirectWithHeaders('/app', headers)
       }),
     ),
   )
+  .get('/', (ctx) => ctx.redirect('/app'))
+  .use('/app/*', requireAuthMiddleware)
   .use(
-    '*',
+    '/app/*',
     remixRenderer({
       fetcher: (input): Promise<Response> => Promise.resolve(app.fetch(new Request(input))),
     }),
   )
-  .get('/', (ctx) =>
-    ctx.render(
-      <Document>
-        <h1>Hello, feed-platform-web</h1>
-      </Document>,
-    ),
-  )
-  .get('/api/v1/hello', (ctx) =>
-    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes request-scoped greeting Effect.
-    ctx.var.runtime.runPromise(
-      Effect.gen(function* () {
-        const greeting = yield* Greeting.Service
-        return ctx.json({ message: greeting.greet('feed-platform-web') })
-      }),
-    ),
-  )
-  .get('/dashboard', (ctx) =>
+  .get('/app', (ctx) =>
     // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP handler boundary executes the whole dashboard dependency and render workflow once.
     ctx.var.runtime.runPromise(
       Effect.gen(function* () {
-        const { user } = ctx.var
-        if (Predicate.isNullish(user)) {
-          return ctx.redirect('/login')
-        }
         const client = yield* BackendClient
-        const callMeResult = yield* client.callMe().pipe(Effect.orElseSucceed(() => null))
-        if (!Predicate.isNullish(callMeResult)) {
-          return ctx.render(
-            <Document>
-              <h1>Dashboard</h1>
-              <p>Logged in as: {callMeResult.email}</p>
-              <p>Subject: {callMeResult.sub}</p>
-              <a href='/logout'>Logout</a>
-            </Document>,
-          )
-        }
-        return ctx.redirect('/login')
+        const user = yield* client.callMe()
+        return ctx.render(
+          <Document>
+            <h1>Dashboard</h1>
+            <p>Logged in as: {user.email}</p>
+            <p>Subject: {user.sub}</p>
+            <a href='/app/logout'>Logout</a>
+          </Document>,
+        )
       }),
     ),
   )
