@@ -11,30 +11,23 @@ const AuthUserPayload = Schema.Struct({
 
 const decodeAuthUserPayload = Schema.decodeEffect(AuthUserPayload)
 
-export const authMiddleware = factory.createMiddleware((ctx, next) =>
+const verifyUser = Effect.fn(function* (headers: Headers) {
+  const auth = yield* BetterAuth.Service
+  const session = yield* Effect.tryPromise(() => auth.api.getSession({ headers }))
+
+  if (Predicate.isNullish(session)) {
+    return null
+  }
+  return yield* decodeAuthUserPayload(session.user)
+})
+
+export const authMiddleware = factory.createMiddleware((ctx, next) => {
+  const runtime = Effect.gen(function* () {
+    ctx.set('user', yield verifyUser(ctx.req.raw.headers))
+
+    yield* Effect.promise(() => next())
+  })
+  const catchedRuntime = runtime
   // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP middleware boundary executes the auth workflow once.
-  ctx.var.runtime.runPromise(
-    Effect.gen(function* () {
-      const auth = yield* BetterAuth.Service
-      const session = yield* Effect.tryPromise({
-        catch: (cause) => new Error(String(cause)),
-        try: () => auth.api.getSession({ headers: ctx.req.raw.headers }),
-      }).pipe(
-        Effect.flatMap((value) =>
-          Predicate.isNullish(value) ? Effect.succeed(null) : decodeAuthUserPayload(value.user),
-        ),
-        Effect.match({
-          onFailure: (failure) => {
-            console.warn('[auth] Better Auth session validation failed:', String(failure))
-            return null
-          },
-          onSuccess: (payload) => payload,
-        }),
-      )
-
-      ctx.set('user', Predicate.isNullish(session) ? null : { email: session.email, sub: session.id })
-
-      yield* Effect.promise(() => next())
-    }),
-  ),
-)
+  return ctx.var.runtime.runPromise(catchedRuntime)
+})

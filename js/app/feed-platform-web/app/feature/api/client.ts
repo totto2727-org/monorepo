@@ -1,5 +1,5 @@
 import type { TaggedErrorBaseType } from '@totto2727/fp/error'
-import { Array, Context, Data, Effect, Layer, Predicate, Schema } from 'effect'
+import { Context, Data, Effect, Layer, Schema } from 'effect'
 import { HttpClient, HttpClientRequest } from 'effect/unstable/http'
 
 import * as Env from '#@/feature/env.ts'
@@ -26,29 +26,11 @@ const UserResponse = Schema.Struct({
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- backend JSON response is an external boundary with unknown shape.
 const decodeUserResponse = Schema.decodeUnknownEffect(UserResponse)
 
-const isBetterAuthCookie = (cookie: string): boolean => {
-  const [name] = cookie.trim().split('=')
-  if (Predicate.isNullish(name)) {
-    return false
-  }
-  return (
-    name === 'better-auth.session_token' ||
-    name === '__Secure-better-auth.session_token' ||
-    name.startsWith('better-auth.session_token.') ||
-    name.startsWith('__Secure-better-auth.session_token.')
-  )
-}
-
-const filterBetterAuthCookies = (cookie: string): string | null => {
-  const filtered = cookie.split(';').filter(isBetterAuthCookie)
-  return Array.isArrayEmpty(filtered) ? null : filtered.join('; ')
-}
-
-const callBackendApi = (baseUrl: string, cookie: string) =>
+const callBackendApi = (baseUrl: string) =>
   Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient
     const request = HttpClientRequest.get(`${baseUrl}/api/v1/me`, {
-      headers: { Cookie: cookie },
+      headers: HonoContext.get().req.header(),
     })
     const response = yield* client.execute(request)
     if (response.status !== 200) {
@@ -65,17 +47,7 @@ const makeCallMe =
   (baseUrl: string): BackendClientService['callMe'] =>
   () =>
     Effect.gen(function* () {
-      const cookie = HonoContext.get().req.header('Cookie')
-      if (Predicate.isNullish(cookie)) {
-        return yield* Effect.fail(new BackendError({ message: 'missing Better Auth session cookie' }))
-      }
-      const sessionCookie = filterBetterAuthCookies(cookie)
-      if (Predicate.isNullish(sessionCookie)) {
-        return yield* Effect.fail(new BackendError({ message: 'missing Better Auth session cookie' }))
-      }
-      return yield* callBackendApi(baseUrl, sessionCookie).pipe(
-        Effect.mapError((failure) => new BackendError({ error: failure })),
-      )
+      return yield* callBackendApi(baseUrl).pipe(Effect.mapError((failure) => new BackendError({ error: failure })))
     })
 
 export const liveLayer = Layer.effect(

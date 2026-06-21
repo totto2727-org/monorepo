@@ -3,11 +3,12 @@ import { bearer } from 'better-auth/plugins'
 import { Context, Effect, Layer } from 'effect'
 
 import * as Env from '#@/feature/env.ts'
+import * as HonoContext from '#@/feature/share/lib/hono/context.ts'
 
 const makeInstance = (env: Env.Type) =>
   betterAuth({
     basePath: '/api/v1/auth',
-    baseURL: env.WEB_BASE_URL,
+    baseURL: new URL(HonoContext.get().req.url).origin,
     plugins: [bearer()],
     secret: env.BETTER_AUTH_SECRET,
     session: {

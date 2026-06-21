@@ -23,7 +23,7 @@ export const OAuthConsentForm = clientEntry(
       Effect.gen(function* () {
         state.error = ''
         state.submitting = true
-        void handle.update()
+        yield* Effect.promise(() => handle.update())
 
         const oauthQuery = window.location.search.slice(1)
         const client = yield* HttpClient.HttpClient
@@ -41,13 +41,11 @@ export const OAuthConsentForm = clientEntry(
         window.location.href = result.url
         return yield* Effect.void
       }).pipe(
-        Effect.catch(() =>
-          Effect.sync(() => {
-            state.error = 'OAuth 認可に失敗しました'
-            state.submitting = false
-            void handle.update()
-          }),
-        ),
+        Effect.catch(() => {
+          state.error = 'OAuth 認可に失敗しました'
+          state.submitting = false
+          return Effect.promise(() => handle.update())
+        }),
         Effect.provide(FetchHttpClient.layer),
       )
 

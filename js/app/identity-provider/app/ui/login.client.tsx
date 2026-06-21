@@ -27,22 +27,19 @@ export const MagicLinkForm = clientEntry(
             // oxlint-disable-next-line rules/no-effect-runtime-run -- Client event boundary executes one magic-link workflow Effect.
             void Effect.runPromise(
               Effect.gen(function* () {
-                const email = yield* Effect.sync(() => {
-                  event.preventDefault()
-                  const form = event.currentTarget
-                  const formData = new FormData(form)
-                  return formData.get('email')
-                })
+                event.preventDefault()
+                const form = event.currentTarget
+                const formData = new FormData(form)
+                const email = formData.get('email')
 
                 if (!Predicate.isString(email) || String.isEmpty(email)) {
                   state.error = 'メールアドレスを入力してください'
-                  void handle.update()
-                  return yield* Effect.void
+                  return yield* Effect.promise(() => handle.update())
                 }
 
                 state.error = ''
                 state.submitting = true
-                void handle.update()
+                yield* Effect.promise(() => handle.update())
 
                 const { returnTo } = handle.props
                 if (Predicate.isNotNullish(returnTo) && String.isNonEmpty(returnTo)) {
@@ -76,13 +73,11 @@ export const MagicLinkForm = clientEntry(
                 window.location.href = `/app/login/check-email?${params.toString()}`
                 return yield* Effect.void
               }).pipe(
-                Effect.catch(() =>
-                  Effect.sync(() => {
-                    state.error = 'マジックリンクの送信に失敗しました'
-                    state.submitting = false
-                    void handle.update()
-                  }),
-                ),
+                Effect.catch(() => {
+                  state.error = 'マジックリンクの送信に失敗しました'
+                  state.submitting = false
+                  return Effect.promise(() => handle.update())
+                }),
                 Effect.provide(FetchHttpClient.layer),
               ),
             )

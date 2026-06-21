@@ -1,14 +1,21 @@
 import { Hono } from 'hono'
+import { contextStorage } from 'hono/context-storage'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 
-const { mockGetSession } = vi.hoisted(() => ({ mockGetSession: vi.fn() }))
+const { mockBetterAuth, mockGetSession } = vi.hoisted(() => {
+  const getSession = vi.fn()
+  return {
+    mockBetterAuth: vi.fn(() => ({
+      api: { getSession },
+    })),
+    mockGetSession: getSession,
+  }
+})
 
 vi.mock('better-auth', () => ({
-  betterAuth: vi.fn(() => ({
-    api: { getSession: mockGetSession },
-  })),
+  betterAuth: mockBetterAuth,
 }))
 
 vi.mock('better-auth/plugins', () => ({
@@ -20,6 +27,7 @@ const { authMiddleware } = await import('./middleware.ts')
 
 const makeApp = () =>
   new Hono<{ Variables: { user: { email: string; sub: string } | null } }>()
+    .use('*', contextStorage())
     .use('*', runtimeMiddleware)
     .use('*', authMiddleware)
     .get('/test', (ctx) => ctx.json({ user: ctx.var.user }))
@@ -45,6 +53,7 @@ describe('authMiddleware', () => {
     const res = await app.request('/test', { headers: { cookie: 'better-auth.session_token=session-token' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ user: { email: 'test@example.com', sub: 'user-123' } })
+    expect(mockBetterAuth).toHaveBeenCalledTimes(1)
   })
 
   it('sets user to null when Better Auth user shape is invalid', async () => {

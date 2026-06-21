@@ -18,7 +18,6 @@ const buildEndpoint = (accountId: string): string => `${CLOUDFLARE_API_BASE}/cli
 const makeSend =
   (config: Config): Sender.EmailSender['send'] =>
   (params) =>
-    // oxlint-disable-next-line typescript-eslint/consistent-return -- success path yields void
     Effect.gen(function* () {
       const client = yield* HttpClient.HttpClient
       const request = HttpClientRequest.post(buildEndpoint(config.accountId), {
@@ -49,6 +48,7 @@ const makeSend =
           }),
         )
       }
+      return yield* Effect.void
     }).pipe(Effect.provide(FetchHttpClient.layer))
 
 export const makeLayer = (config: Config) => Layer.succeed(Sender.Service, { send: makeSend(config) })

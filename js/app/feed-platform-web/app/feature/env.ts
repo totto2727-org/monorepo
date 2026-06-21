@@ -8,7 +8,6 @@ export interface Backend {
 
 export interface BetterAuth {
   BETTER_AUTH_SECRET: string
-  WEB_BASE_URL: string
 }
 
 export interface Database {
@@ -41,5 +40,4 @@ export const devLayer = Layer.succeed(Service, {
   IDP_BASE_URL: 'http://localhost:8787',
   OAUTH_CLIENT_ID: 'feed-platform-web',
   OAUTH_CLIENT_SECRET: 'dev-secret-do-not-use-in-prod',
-  WEB_BASE_URL: 'http://127.0.0.1:8789',
 } satisfies Type as Type)

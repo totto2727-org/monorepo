@@ -2,7 +2,6 @@ import { Context, Layer } from 'effect'
 
 export interface Type {
   BETTER_AUTH_SECRET: string
-  WEB_BASE_URL: string
 }
 
 export const Service = Context.Service<Type>('@app/feed-platform-backend/feature/env/Service')

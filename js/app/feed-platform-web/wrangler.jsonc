@@ -29,6 +29,5 @@
     "IDP_BASE_URL": "http://localhost:8787",
     "OAUTH_CLIENT_ID": "feed-platform-web",
     "OAUTH_CLIENT_SECRET": "dev-secret-do-not-use-in-prod",
-    "WEB_BASE_URL": "http://127.0.0.1:8789",
   },
 }
