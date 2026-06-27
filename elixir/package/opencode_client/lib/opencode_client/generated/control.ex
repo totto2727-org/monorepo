@@ -1,0 +1,134 @@
+defmodule OpencodeClient.Generated.Control do
+  @moduledoc """
+  Provides API endpoints related to control
+  """
+
+  @default_client OpencodeClient.Generated.Client
+
+  @doc """
+  Write log
+
+  Write a log entry to the server logs with specified level and metadata.
+
+  ## Options
+
+    * `directory`
+    * `workspace`
+
+  ## Request Body
+
+  **Content Types**: `application/json`
+  """
+  @spec app_log(body :: map, opts :: keyword) ::
+          {:ok, boolean}
+          | {:error,
+             OpencodeClient.Generated.EffectHttpApiErrorBadRequest.t()
+             | OpencodeClient.Generated.InvalidRequestError.t()}
+  def app_log(body, opts \\ []) do
+    client = opts[:client] || @default_client
+    query = Keyword.take(opts, [:directory, :workspace])
+
+    client.request(%{
+      args: [body: body],
+      call: {OpencodeClient.Generated.Control, :app_log},
+      url: "/log",
+      body: body,
+      method: :post,
+      query: query,
+      request: [{"application/json", :map}],
+      response: [
+        {200, :boolean},
+        {400,
+         {:union,
+          [
+            {OpencodeClient.Generated.EffectHttpApiErrorBadRequest, :t},
+            {OpencodeClient.Generated.InvalidRequestError, :t}
+          ]}}
+      ],
+      opts: opts
+    })
+  end
+
+  @doc """
+  Remove auth credentials
+
+  Remove authentication credentials
+  """
+  @spec auth_remove(providerID :: String.t(), opts :: keyword) ::
+          {:ok, boolean}
+          | {:error,
+             OpencodeClient.Generated.EffectHttpApiErrorBadRequest.t()
+             | OpencodeClient.Generated.InvalidRequestError.t()}
+  def auth_remove(providerID, opts \\ []) do
+    client = opts[:client] || @default_client
+
+    client.request(%{
+      args: [providerID: providerID],
+      call: {OpencodeClient.Generated.Control, :auth_remove},
+      url: "/auth/#{providerID}",
+      method: :delete,
+      response: [
+        {200, :boolean},
+        {400,
+         {:union,
+          [
+            {OpencodeClient.Generated.EffectHttpApiErrorBadRequest, :t},
+            {OpencodeClient.Generated.InvalidRequestError, :t}
+          ]}}
+      ],
+      opts: opts
+    })
+  end
+
+  @doc """
+  Set auth credentials
+
+  Set authentication credentials
+
+  ## Request Body
+
+  **Content Types**: `application/json`
+  """
+  @spec auth_set(
+          providerID :: String.t(),
+          body ::
+            OpencodeClient.Generated.ApiAuth.t()
+            | OpencodeClient.Generated.OAuth.t()
+            | OpencodeClient.Generated.WellKnownAuth.t(),
+          opts :: keyword
+        ) ::
+          {:ok, boolean}
+          | {:error,
+             OpencodeClient.Generated.EffectHttpApiErrorBadRequest.t()
+             | OpencodeClient.Generated.InvalidRequestError.t()}
+  def auth_set(providerID, body, opts \\ []) do
+    client = opts[:client] || @default_client
+
+    client.request(%{
+      args: [providerID: providerID, body: body],
+      call: {OpencodeClient.Generated.Control, :auth_set},
+      url: "/auth/#{providerID}",
+      body: body,
+      method: :put,
+      request: [
+        {"application/json",
+         {:union,
+          [
+            {OpencodeClient.Generated.ApiAuth, :t},
+            {OpencodeClient.Generated.OAuth, :t},
+            {OpencodeClient.Generated.WellKnownAuth, :t}
+          ]}}
+      ],
+      response: [
+        {200, :boolean},
+        {400,
+         {:union,
+          [
+            {OpencodeClient.Generated.EffectHttpApiErrorBadRequest, :t},
+            {OpencodeClient.Generated.InvalidRequestError, :t}
+          ]}}
+      ],
+      opts: opts
+    })
+  end
+end

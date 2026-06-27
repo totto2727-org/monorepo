@@ -1,0 +1,25 @@
+defmodule OpencodeClient.Generated.EventTodoUpdated do
+  @moduledoc """
+  Provides struct and type for a EventTodoUpdated
+  """
+
+  @type t :: %__MODULE__{
+          id: String.t(),
+          properties: OpencodeClient.Generated.EventTodoUpdatedProperties.t(),
+          type: String.t()
+        }
+
+  defstruct [:id, :properties, :type]
+
+  @doc false
+  @spec __fields__(atom) :: keyword
+  def __fields__(type \\ :t)
+
+  def __fields__(:t) do
+    [
+      id: :string,
+      properties: {OpencodeClient.Generated.EventTodoUpdatedProperties, :t},
+      type: {:const, "todo.updated"}
+    ]
+  end
+end
