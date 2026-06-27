@@ -33,7 +33,7 @@ export const deleteLoginReturnToCookie = (): void => {
   deleteCookie(HonoContext.get(), loginReturnToCookieName, loginReturnToCookieOptions)
 }
 
-export const appendDeleteBetterAuthCookies = (headers: Headers): void => {
+export const deleteBetterAuthCookies = (headers: Headers): void => {
   for (const cookieName of betterAuthCookieNames) {
     headers.append('Set-Cookie', `${cookieName}=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax`)
   }

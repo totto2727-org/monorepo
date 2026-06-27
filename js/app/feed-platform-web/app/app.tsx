@@ -6,11 +6,7 @@ import { logger } from 'hono/logger'
 
 import { BackendClient } from '#@/feature/api/client.ts'
 import * as BetterAuth from '#@/feature/auth/better-auth.ts'
-import {
-  appendDeleteBetterAuthCookies,
-  deleteLoginReturnToCookie,
-  getLoginReturnToCookie,
-} from '#@/feature/auth/cookie.ts'
+import { deleteBetterAuthCookies, deleteLoginReturnToCookie, getLoginReturnToCookie } from '#@/feature/auth/cookie.ts'
 import { authMiddleware, requireAuthMiddleware } from '#@/feature/auth/middleware.ts'
 import {
   preserveReturnToQueryParameterName,
@@ -82,7 +78,7 @@ const app: Hono<Env> = new Hono<Env>()
             returnHeaders: true,
           }),
         )
-        appendDeleteBetterAuthCookies(headers)
+        deleteBetterAuthCookies(headers)
         return redirectWithHeaders('/app', headers)
       }),
     ),
