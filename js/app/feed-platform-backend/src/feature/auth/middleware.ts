@@ -1,4 +1,4 @@
-import { Effect, Predicate, Schema } from 'effect'
+import { Effect, Option, Predicate, Schema } from 'effect'
 
 import * as HonoContext from '#@/feature/share/lib/hono/context.ts'
 import { factory } from '#@/feature/share/lib/hono/factory.ts'
@@ -11,7 +11,7 @@ const AuthUserPayload = Schema.Struct({
 })
 
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- Better Auth session user is an external auth boundary.
-const decodeAuthUserPayload = Schema.decodeUnknownEffect(AuthUserPayload)
+const decodeAuthUserPayload = Schema.decodeUnknownOption(AuthUserPayload)
 
 const verifyUser = Effect.gen(function* () {
   const auth = yield* BetterAuth.Service
@@ -19,7 +19,10 @@ const verifyUser = Effect.gen(function* () {
   if (Predicate.isNullish(result)) {
     return null
   }
-  return yield* decodeAuthUserPayload(result.user)
+  return Option.match(decodeAuthUserPayload(result.user), {
+    onNone: () => null,
+    onSome: (user) => user,
+  })
 })
 
 export const authMiddleware = factory.createMiddleware((ctx, next) => {
