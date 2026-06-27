@@ -1,4 +1,4 @@
-import { Effect, Predicate, Schema } from 'effect'
+import { Effect, Option, Predicate, Schema } from 'effect'
 
 import { factory } from '#@/feature/share/lib/hono/factory.ts'
 
@@ -12,7 +12,7 @@ const AuthUserPayload = Schema.Struct({
   id: Schema.String,
 })
 
-const decodeAuthUserPayload = Schema.decodeEffect(AuthUserPayload)
+const decodeAuthUserPayload = Schema.decodeOption(AuthUserPayload)
 
 const verifyUser = Effect.fn(function* (headers: Headers) {
   const auth = yield* BetterAuth.Service
@@ -21,7 +21,10 @@ const verifyUser = Effect.fn(function* (headers: Headers) {
   if (Predicate.isNullish(session)) {
     return null
   }
-  return yield* decodeAuthUserPayload(session.user)
+  return Option.match(decodeAuthUserPayload(session.user), {
+    onNone: () => null,
+    onSome: (user) => user,
+  })
 })
 
 export const authMiddleware = factory.createMiddleware((ctx, next) => {

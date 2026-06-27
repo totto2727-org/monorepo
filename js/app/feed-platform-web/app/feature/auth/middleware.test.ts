@@ -28,7 +28,7 @@ const { authMiddleware, requireAuthMiddleware } = await import('./middleware.ts'
 const { preserveReturnToQueryParameterName, preserveReturnToQueryParameterValue } = await import('./query-parameter.ts')
 
 const makeApp = () =>
-  new Hono<{ Variables: { user: { email: string; sub: string } | null } }>()
+  new Hono<{ Variables: { user: { email: string; id: string } | null } }>()
     .use('*', contextStorage())
     .use('*', runtimeMiddleware)
     .use('*', authMiddleware)
@@ -54,7 +54,7 @@ describe('authMiddleware', () => {
     const app = makeApp()
     const res = await app.request('/test', { headers: { cookie: 'better-auth.session_token=session-token' } })
     expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ user: { email: 'test@example.com', sub: 'user-123' } })
+    expect(await res.json()).toStrictEqual({ user: { email: 'test@example.com', id: 'user-123' } })
     expect(mockBetterAuth).toHaveBeenCalledTimes(1)
   })
 
@@ -69,7 +69,7 @@ describe('authMiddleware', () => {
 
 describe('requireAuthMiddleware', () => {
   const makeProtectedApp = () =>
-    new Hono<{ Variables: { user: { email: string; sub: string } | null } }>()
+    new Hono<{ Variables: { user: { email: string; id: string } | null } }>()
       .use('*', contextStorage())
       .use('*', runtimeMiddleware)
       .use('*', authMiddleware)

@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { contextStorage } from 'hono/context-storage'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import type * as AppEnv from '#@/feature/env.ts'
@@ -25,6 +26,7 @@ const localBindings = {
 
 const makeApp = () => {
   const app = new Hono<Env>()
+  app.use(contextStorage())
   app.use(runtimeMiddleware)
   app.use('/api/*', authMiddleware)
   app.get('/api/v1/me', (ctx) => ctx.json(ctx.var.user))
