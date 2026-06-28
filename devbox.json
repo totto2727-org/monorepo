@@ -7,7 +7,8 @@
     "just@latest",
     "turso-cli@latest",
     "sqld@latest",
-    "nixfmt@latest"
+    "nixfmt@latest",
+    "github:NixOS/nixpkgs/nixos-26.05#beam29Packages.elixir_1_20"
   ],
   "shell": {
     "init_hook": ["command -v vp >/dev/null && vp config || true"]
