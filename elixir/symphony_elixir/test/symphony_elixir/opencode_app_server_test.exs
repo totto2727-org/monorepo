@@ -1,3 +1,8 @@
+# このファイルは元のApache 2.0ライセンスのコードから新規に追加されています
+# 変更日: 2026-06-28
+# 変更者: totto2727
+# 変更内容: Symphony OpenCode AppServer と opencode_client lifecycle 連携のテストを追加
+
 defmodule SymphonyElixir.OpencodeAppServerTest do
   use SymphonyElixir.TestSupport
 

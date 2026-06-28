@@ -1,3 +1,8 @@
+# このファイルは元のApache 2.0ライセンスのコードから変更されています
+# 変更日: 2026-06-28
+# 変更者: totto2727
+# 変更内容: Codex app-server fake 前提のテストを OpenCode client fake 前提へ更新
+
 defmodule SymphonyElixir.CoreTest do
   use SymphonyElixir.TestSupport
 
@@ -205,8 +210,7 @@ defmodule SymphonyElixir.CoreTest do
 
     File.write!(workflow_path, "---\ntracker:\n  kind: linear\n")
 
-    assert {:ok,
-            %{config: %{"tracker" => %{"kind" => "linear"}}, prompt: "", prompt_template: ""}} =
+    assert {:ok, %{config: %{"tracker" => %{"kind" => "linear"}}, prompt: "", prompt_template: ""}} =
              Workflow.load(workflow_path)
   end
 
@@ -1078,9 +1082,7 @@ defmodule SymphonyElixir.CoreTest do
     assert :ok =
              Supervisor.terminate_child(SymphonyElixir.Supervisor, SymphonyElixir.WorkflowStore)
 
-    Workflow.set_workflow_file_path(
-      Path.join(System.tmp_dir!(), "missing-workflow-#{System.unique_integer([:positive])}.md")
-    )
+    Workflow.set_workflow_file_path(Path.join(System.tmp_dir!(), "missing-workflow-#{System.unique_integer([:positive])}.md"))
 
     issue = %Issue{
       identifier: "MT-780",
@@ -1405,11 +1407,9 @@ defmodule SymphonyElixir.CoreTest do
 
       assert_received {:opencode_session_create, _body, _client}
 
-      assert_received {:opencode_prompt_async, "ses_continue", %{parts: [%{text: first_prompt}]},
-                       _client}
+      assert_received {:opencode_prompt_async, "ses_continue", %{parts: [%{text: first_prompt}]}, _client}
 
-      assert_received {:opencode_prompt_async, "ses_continue", %{parts: [%{text: second_prompt}]},
-                       _client}
+      assert_received {:opencode_prompt_async, "ses_continue", %{parts: [%{text: second_prompt}]}, _client}
 
       assert_received {:opencode_session_delete, "ses_continue", _client}
 

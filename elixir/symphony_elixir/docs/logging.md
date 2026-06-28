@@ -1,3 +1,10 @@
+<!--
+このファイルは元のApache 2.0ライセンスのコードから変更されています
+変更日: 2026-06-28
+変更者: totto2727
+変更内容: OpenCode バックエンドのログ説明へ更新
+-->
+
 # Logging Best Practices
 
 This guide defines logging conventions for Symphony so agent runtime failures can be diagnosed quickly.

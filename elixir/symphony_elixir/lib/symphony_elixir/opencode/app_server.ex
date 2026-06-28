@@ -1,7 +1,7 @@
 # このファイルは元のApache 2.0ライセンスのコードから新規に追加されています
 # 変更日: 2026-06-28
 # 変更者: totto2727
-# 変更内容: OpenCode HTTP server 連携用 AppServer を追加
+# 変更内容: OpenCode HTTP server 連携用 AppServer を追加し、server/client 起動責務を opencode_client へ委譲
 
 defmodule SymphonyElixir.Opencode.AppServer do
   @moduledoc """
@@ -21,19 +21,17 @@ defmodule SymphonyElixir.Opencode.AppServer do
   require Logger
 
   alias SymphonyElixir.{Config, Linear.Issue, PathSafety}
-  alias OpencodeClient.EventStream
-  alias OpencodeClient.Server
+  alias OpencodeClient.{Connection, EventStream}
   alias OpencodeClient.Generated.Session
 
   @default_turn_timeout_ms 3_600_000
 
   @type session :: %{
           client: keyword(),
+          connection: Connection.t(),
           event_stream: module(),
           session_id: String.t(),
           session_api: module(),
-          server: GenServer.server() | nil,
-          server_module: module(),
           workspace: Path.t(),
           metadata: map()
         }
@@ -94,15 +92,11 @@ defmodule SymphonyElixir.Opencode.AppServer do
     try do
       case session_api.session_prompt_async(session_id, body, client) do
         :ok ->
-          Logger.info(
-            "OpenCode prompt accepted for #{issue_context(issue)} session_id=#{session_id} workspace=#{workspace}"
-          )
+          Logger.info("OpenCode prompt accepted for #{issue_context(issue)} session_id=#{session_id} workspace=#{workspace}")
 
           case await_turn_completion(session_id, on_message, session.metadata, timeout_ms, issue) do
             {:ok, result} ->
-              Logger.info(
-                "OpenCode session completed for #{issue_context(issue)} session_id=#{session_id}"
-              )
+              Logger.info("OpenCode session completed for #{issue_context(issue)} session_id=#{session_id}")
 
               {:ok,
                %{
@@ -113,9 +107,7 @@ defmodule SymphonyElixir.Opencode.AppServer do
                }}
 
             {:error, reason} ->
-              Logger.warning(
-                "OpenCode session ended with error for #{issue_context(issue)} session_id=#{session_id}: #{inspect(reason)}"
-              )
+              Logger.warning("OpenCode session ended with error for #{issue_context(issue)} session_id=#{session_id}: #{inspect(reason)}")
 
               emit_message(
                 on_message,
@@ -149,21 +141,17 @@ defmodule SymphonyElixir.Opencode.AppServer do
           :ok
 
         {:error, reason} ->
-          Logger.warning(
-            "OpenCode session delete failed for session_id=#{session_id}: #{inspect(reason)}"
-          )
+          Logger.warning("OpenCode session delete failed for session_id=#{session_id}: #{inspect(reason)}")
 
           :ok
       end
     catch
       kind, reason ->
-        Logger.warning(
-          "OpenCode session delete raised for session_id=#{session_id}: #{inspect({kind, reason})}"
-        )
+        Logger.warning("OpenCode session delete raised for session_id=#{session_id}: #{inspect({kind, reason})}")
 
         :ok
     after
-      stop_connection_server(session)
+      Connection.stop(session.connection)
     end
   end
 
@@ -180,146 +168,64 @@ defmodule SymphonyElixir.Opencode.AppServer do
             {:ok,
              %{
                client: client,
+               connection: connection,
                event_stream: event_stream,
                session_api: session_api,
                session_id: session_id,
-               server: connection.server,
-               server_module: connection.server_module,
                workspace: workspace,
                metadata: session_metadata(session_id, client, connection)
              }}
 
           _ ->
-            stop_connection_server(connection)
+            Connection.stop(connection)
             {:error, {:invalid_session_response, body_json}}
         end
 
       {:ok, body} ->
-        stop_connection_server(connection)
+        Connection.stop(connection)
         {:error, {:session_create_failed, body}}
 
       {:error, reason} ->
-        stop_connection_server(connection)
+        Connection.stop(connection)
         {:error, {:session_create_error, reason}}
     end
   end
 
   defp start_connection(opts, worker_host) do
-    base_url = explicit_base_url(opts)
+    opts =
+      opts
+      |> Keyword.take([
+        :auth,
+        :base_url,
+        :client_opts,
+        :server_config,
+        :server_module,
+        :server_opts
+      ])
+      |> Keyword.put(:allow_server_start, is_nil(worker_host))
 
-    cond do
-      is_binary(base_url) ->
-        {:ok,
-         %{
-           client: build_client(opts, base_url),
-           server: nil,
-           server_module: Keyword.get(opts, :server_module, Server),
-           worker_host: worker_host
-         }}
+    case Connection.start(opts) do
+      {:ok, connection} ->
+        {:ok, Map.put(connection, :worker_host, worker_host)}
 
-      is_binary(worker_host) ->
+      {:error, :opencode_base_url_required} when is_binary(worker_host) ->
         {:error, {:opencode_remote_worker_requires_base_url, worker_host}}
 
-      true ->
-        start_local_server(opts)
-    end
-  end
-
-  defp start_local_server(opts) do
-    server_module = Keyword.get(opts, :server_module, Server)
-
-    case server_module.start(server_opts(opts)) do
-      {:ok, server} ->
-        case server_module.url(server) do
-          base_url when is_binary(base_url) ->
-            {:ok,
-             %{
-               client: build_client(opts, base_url),
-               server: server,
-               server_module: server_module,
-               worker_host: nil
-             }}
-
-          {:error, reason} ->
-            stop_server(server_module, server)
-            {:error, {:opencode_server_url_failed, reason}}
-
-          other ->
-            stop_server(server_module, server)
-            {:error, {:opencode_server_url_failed, other}}
-        end
-
       {:error, reason} ->
-        {:error, {:opencode_server_start_failed, reason}}
+        {:error, reason}
     end
-  end
-
-  defp explicit_base_url(opts) do
-    opts
-    |> Keyword.get(:base_url, System.get_env("OPENCODE_BASE_URL"))
-    |> case do
-      url when is_binary(url) ->
-        url = String.trim(url)
-        if url == "", do: nil, else: url
-
-      _ ->
-        nil
-    end
-  end
-
-  defp build_client(opts, base_url) do
-    client_opts = Keyword.get(opts, :client_opts, [])
-    auth = Keyword.get(opts, :auth, Keyword.get(client_opts, :auth, env_auth()))
-
-    client_opts
-    |> Keyword.put(:base_url, base_url)
-    |> Keyword.put(:auth, auth)
-  end
-
-  defp env_auth do
-    case {System.get_env("OPENCODE_AUTH_USER"), System.get_env("OPENCODE_AUTH_PASS")} do
-      {user, pass} when is_binary(user) and is_binary(pass) -> {:basic, user, pass}
-      _ -> nil
-    end
-  end
-
-  defp server_opts(opts) do
-    opts
-    |> Keyword.get(:server_opts, [])
-    |> Keyword.put_new(:config, Keyword.get(opts, :server_config, %{}))
   end
 
   defp session_metadata(session_id, client, connection) do
-    %{
-      opencode_base_url: Keyword.get(client, :base_url),
-      opencode_session_id: session_id
-    }
+    connection
+    |> Connection.metadata()
+    |> Map.put(:opencode_base_url, Keyword.get(client, :base_url))
+    |> Map.put(:opencode_session_id, session_id)
     |> maybe_put(:worker_host, connection.worker_host)
-    |> maybe_put(:opencode_server_pid, server_pid(connection.server))
   end
-
-  defp server_pid(nil), do: nil
-
-  defp server_pid(server) when is_pid(server), do: inspect(server)
-
-  defp server_pid(_server), do: nil
 
   defp maybe_put(map, _key, nil), do: map
   defp maybe_put(map, key, value), do: Map.put(map, key, value)
-
-  defp stop_connection_server(%{server: nil}), do: :ok
-
-  defp stop_connection_server(%{server: server, server_module: server_module}) do
-    stop_server(server_module, server)
-  end
-
-  defp stop_server(server_module, server) do
-    server_module.stop(server)
-  catch
-    kind, reason ->
-      Logger.warning("OpenCode server stop failed: #{inspect({kind, reason})}")
-      :ok
-  end
 
   defp validate_workspace_cwd(workspace, nil) when is_binary(workspace) do
     expanded_workspace = Path.expand(workspace)
@@ -341,8 +247,7 @@ defmodule SymphonyElixir.Opencode.AppServer do
           {:error, {:invalid_workspace_cwd, :symlink_escape, expanded_workspace, canonical_root}}
 
         true ->
-          {:error,
-           {:invalid_workspace_cwd, :outside_workspace_root, canonical_workspace, canonical_root}}
+          {:error, {:invalid_workspace_cwd, :outside_workspace_root, canonical_workspace, canonical_root}}
       end
     else
       {:error, {:path_canonicalize_failed, path, reason}} ->
@@ -416,9 +321,7 @@ defmodule SymphonyElixir.Opencode.AppServer do
         type = event_type(event)
         data = event_data(event)
 
-        Logger.debug(
-          "OpenCode SSE event for #{issue_context(issue)} session_id=#{session_id} type=#{inspect(type)}"
-        )
+        Logger.debug("OpenCode SSE event for #{issue_context(issue)} session_id=#{session_id} type=#{inspect(type)}")
 
         handle_sse_event(session_id, type, data, on_message, metadata, deadline, issue)
 

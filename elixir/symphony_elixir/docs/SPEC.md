@@ -2,7 +2,7 @@
 このファイルは元のApache 2.0ライセンスのコードから変更されています
 変更日: 2026-06-28
 変更者: totto2727
-変更内容: 元リポジトリルートの SPEC.md を docs/SPEC.md として移設
+変更内容: 元リポジトリルートの SPEC.md を docs/SPEC.md として移設し、OpenCode バックエンド実装注記を追加
 -->
 
 # Symphony Service Specification
