@@ -34,13 +34,6 @@ codex:
     type: workspaceWrite
     networkAccess: true
 ---
-<!--
-このファイルは元のApache 2.0ライセンスのコードから変更されています
-変更日: 2026-06-28
-変更者: totto2727
-変更内容:
-  - フロントマターを設定値をプロジェクト用に調整
--->
 
 You are working on a Linear ticket `{{ issue.identifier }}`
 
