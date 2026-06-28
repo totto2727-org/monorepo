@@ -58,20 +58,10 @@ end)
 
 The generated modules are committed, but must be regenerated from the OpenCode OpenAPI schema when the schema changes.
 
-### Fetch the OpenAPI schema
-
-Start OpenCode Server, then refresh the schema:
+Start OpenCode Server, then regenerate the schema and generated modules:
 
 ```bash
-opencode serve
-curl http://localhost:4096/doc -o opencode-openapi.json
-```
-
-### Generate code
-
-```bash
-mix deps.get
-mix api.gen default opencode-openapi.json
+just regenerate
 ```
 
 Generation is configured in `config/config.exs`:
