@@ -5,7 +5,7 @@ runs:
   using: composite
   steps:
     - name: Install Elixir
-      uses: erlef/setup-beam@v1
+      uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93
       elixir-version: 1.20.2
 
     - name: Install mix
