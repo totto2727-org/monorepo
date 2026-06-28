@@ -146,61 +146,61 @@ pub fn within_geometry(inner : @type.Geometry, outer : @type.Geometry) -> Bool {
 /// contains `other` (strictly interior per OGC Contains semantics — boundary
 /// points return false).
 pub(open) trait Contains {
-  contains(Self, @type.Geometry) -> Bool
+  fn contains(Self, @type.Geometry) -> Bool
 }
 
 ///|
-pub impl Contains for @type.Geometry with contains(self, other) {
+pub impl Contains for @type.Geometry with fn contains(self, other) {
   contains_geometry(self, other)
 }
 
 ///|
-pub impl Contains for @type.Polygon with contains(self, other) {
+pub impl Contains for @type.Polygon with fn contains(self, other) {
   contains_geometry(@type.Geometry::Polygon(self), other)
 }
 
 ///|
-pub impl Contains for @type.MultiPolygon with contains(self, other) {
+pub impl Contains for @type.MultiPolygon with fn contains(self, other) {
   contains_geometry(@type.Geometry::MultiPolygon(self), other)
 }
 
 ///|
-pub impl Contains for @type.Rect with contains(self, other) {
+pub impl Contains for @type.Rect with fn contains(self, other) {
   contains_geometry(@type.Geometry::Rect(self), other)
 }
 
 ///|
-pub impl Contains for @type.Point with contains(self, other) {
+pub impl Contains for @type.Point with fn contains(self, other) {
   contains_geometry(@type.Geometry::Point(self), other)
 }
 
 ///|
-pub impl Contains for @type.Line with contains(self, other) {
+pub impl Contains for @type.Line with fn contains(self, other) {
   contains_geometry(@type.Geometry::Line(self), other)
 }
 
 ///|
-pub impl Contains for @type.LineString with contains(self, other) {
+pub impl Contains for @type.LineString with fn contains(self, other) {
   contains_geometry(@type.Geometry::LineString(self), other)
 }
 
 ///|
-pub impl Contains for @type.MultiLineString with contains(self, other) {
+pub impl Contains for @type.MultiLineString with fn contains(self, other) {
   contains_geometry(@type.Geometry::MultiLineString(self), other)
 }
 
 ///|
-pub impl Contains for @type.MultiPoint with contains(self, other) {
+pub impl Contains for @type.MultiPoint with fn contains(self, other) {
   contains_geometry(@type.Geometry::MultiPoint(self), other)
 }
 
 ///|
-pub impl Contains for @type.Triangle with contains(self, other) {
+pub impl Contains for @type.Triangle with fn contains(self, other) {
   contains_geometry(@type.Geometry::Triangle(self), other)
 }
 
 ///|
-pub impl Contains for @type.GeometryCollection with contains(self, other) {
+pub impl Contains for @type.GeometryCollection with fn contains(self, other) {
   contains_geometry(@type.Geometry::GeometryCollection(self), other)
 }
 
@@ -210,60 +210,60 @@ pub impl Contains for @type.GeometryCollection with contains(self, other) {
 /// Predicate trait: `self.within(other)` is equivalent to
 /// `other.contains(self)`.
 pub(open) trait Within {
-  within(Self, @type.Geometry) -> Bool
+  fn within(Self, @type.Geometry) -> Bool
 }
 
 ///|
-pub impl Within for @type.Geometry with within(self, other) {
+pub impl Within for @type.Geometry with fn within(self, other) {
   within_geometry(self, other)
 }
 
 ///|
-pub impl Within for @type.Polygon with within(self, other) {
+pub impl Within for @type.Polygon with fn within(self, other) {
   within_geometry(@type.Geometry::Polygon(self), other)
 }
 
 ///|
-pub impl Within for @type.MultiPolygon with within(self, other) {
+pub impl Within for @type.MultiPolygon with fn within(self, other) {
   within_geometry(@type.Geometry::MultiPolygon(self), other)
 }
 
 ///|
-pub impl Within for @type.Rect with within(self, other) {
+pub impl Within for @type.Rect with fn within(self, other) {
   within_geometry(@type.Geometry::Rect(self), other)
 }
 
 ///|
-pub impl Within for @type.Point with within(self, other) {
+pub impl Within for @type.Point with fn within(self, other) {
   within_geometry(@type.Geometry::Point(self), other)
 }
 
 ///|
-pub impl Within for @type.Line with within(self, other) {
+pub impl Within for @type.Line with fn within(self, other) {
   within_geometry(@type.Geometry::Line(self), other)
 }
 
 ///|
-pub impl Within for @type.LineString with within(self, other) {
+pub impl Within for @type.LineString with fn within(self, other) {
   within_geometry(@type.Geometry::LineString(self), other)
 }
 
 ///|
-pub impl Within for @type.MultiLineString with within(self, other) {
+pub impl Within for @type.MultiLineString with fn within(self, other) {
   within_geometry(@type.Geometry::MultiLineString(self), other)
 }
 
 ///|
-pub impl Within for @type.MultiPoint with within(self, other) {
+pub impl Within for @type.MultiPoint with fn within(self, other) {
   within_geometry(@type.Geometry::MultiPoint(self), other)
 }
 
 ///|
-pub impl Within for @type.Triangle with within(self, other) {
+pub impl Within for @type.Triangle with fn within(self, other) {
   within_geometry(@type.Geometry::Triangle(self), other)
 }
 
 ///|
-pub impl Within for @type.GeometryCollection with within(self, other) {
+pub impl Within for @type.GeometryCollection with fn within(self, other) {
   within_geometry(@type.Geometry::GeometryCollection(self), other)
 }

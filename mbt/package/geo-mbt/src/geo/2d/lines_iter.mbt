@@ -9,26 +9,26 @@
 ///|
 /// Anything that produces the line segments composing the geometry.
 pub(open) trait LinesCarrier {
-  lines(Self) -> Array[@type.Line]
+  fn lines(Self) -> Array[@type.Line]
 }
 
 ///|
-pub impl LinesCarrier for @type.Line with lines(self) {
+pub impl LinesCarrier for @type.Line with fn lines(self) {
   [self]
 }
 
 ///|
-pub impl LinesCarrier for @type.LineString with lines(self) {
+pub impl LinesCarrier for @type.LineString with fn lines(self) {
   self.lines()
 }
 
 ///|
-pub impl LinesCarrier for @type.MultiLineString with lines(self) {
+pub impl LinesCarrier for @type.MultiLineString with fn lines(self) {
   self.line_strings().iter().flat_map(fn(ls) { ls.lines().iter() }).collect()
 }
 
 ///|
-pub impl LinesCarrier for @type.Polygon with lines(self) {
+pub impl LinesCarrier for @type.Polygon with fn lines(self) {
   self
   .exterior()
   .lines()
@@ -40,7 +40,7 @@ pub impl LinesCarrier for @type.Polygon with lines(self) {
 }
 
 ///|
-pub impl LinesCarrier for @type.MultiPolygon with lines(self) {
+pub impl LinesCarrier for @type.MultiPolygon with fn lines(self) {
   self
   .polygons()
   .iter()
@@ -49,17 +49,17 @@ pub impl LinesCarrier for @type.MultiPolygon with lines(self) {
 }
 
 ///|
-pub impl LinesCarrier for @type.Rect with lines(self) {
+pub impl LinesCarrier for @type.Rect with fn lines(self) {
   self.to_lines()
 }
 
 ///|
-pub impl LinesCarrier for @type.Triangle with lines(self) {
+pub impl LinesCarrier for @type.Triangle with fn lines(self) {
   self.to_lines()
 }
 
 ///|
-pub impl LinesCarrier for @type.GeometryCollection with lines(self) {
+pub impl LinesCarrier for @type.GeometryCollection with fn lines(self) {
   self
   .geometries()
   .iter()
@@ -68,7 +68,7 @@ pub impl LinesCarrier for @type.GeometryCollection with lines(self) {
 }
 
 ///|
-pub impl LinesCarrier for @type.Geometry with lines(self) {
+pub impl LinesCarrier for @type.Geometry with fn lines(self) {
   match self {
     @type.Geometry::Point(_) => []
     @type.Geometry::MultiPoint(_) => []

@@ -45,14 +45,14 @@ fn max_dimension(a : Dimensions, b : Dimensions) -> Dimensions {
 ///|
 /// Anything whose dimensionality (Empty / 0D / 1D / 2D) can be computed.
 pub(open) trait HasDimensions {
-  dimensions(Self) -> Dimensions
+  fn dimensions(Self) -> Dimensions
 }
 
 ///|
 /// A degenerate rectangle of zero width and zero height collapses to
 /// `ZeroDimensional`; one of zero width or zero height (but not both) is
 /// `OneDimensional`.
-pub impl HasDimensions for @type.Rect with dimensions(self) {
+pub impl HasDimensions for @type.Rect with fn dimensions(self) {
   let zero_w = self.width() == 0.0
   let zero_h = self.height() == 0.0
   match (zero_w, zero_h) {
@@ -65,7 +65,7 @@ pub impl HasDimensions for @type.Rect with dimensions(self) {
 ///|
 /// Empty / single-coord linestrings are `Empty`. A linestring whose coords
 /// are all identical is `ZeroDimensional`; otherwise `OneDimensional`.
-pub impl HasDimensions for @type.LineString with dimensions(self) {
+pub impl HasDimensions for @type.LineString with fn dimensions(self) {
   let coords = self.coords()
   if coords.length() == 0 {
     return Empty
@@ -82,7 +82,7 @@ pub impl HasDimensions for @type.LineString with dimensions(self) {
 /// `Polygon` is `TwoDimensional` unless its exterior is empty (`Empty`) or
 /// all of its exterior coordinates collapse to a single coordinate
 /// (`ZeroDimensional`).
-pub impl HasDimensions for @type.Geometry with dimensions(self) {
+pub impl HasDimensions for @type.Geometry with fn dimensions(self) {
   match self {
     @type.Geometry::Point(_) => ZeroDimensional
     @type.Geometry::Line(l) =>

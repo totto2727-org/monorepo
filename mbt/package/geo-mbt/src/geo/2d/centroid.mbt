@@ -187,25 +187,25 @@ fn centroid_geometry(g : @type.Geometry) -> @type.Point? {
 ///|
 /// Anything that has a centroid (geometric centre of mass).
 pub(open) trait HasCentroid {
-  centroid(Self) -> @type.Point?
+  fn centroid(Self) -> @type.Point?
 }
 
 ///|
-pub impl HasCentroid for @type.Polygon with centroid(self) {
+pub impl HasCentroid for @type.Polygon with fn centroid(self) {
   centroid_polygon(self)
 }
 
 ///|
-pub impl HasCentroid for @type.MultiPolygon with centroid(self) {
+pub impl HasCentroid for @type.MultiPolygon with fn centroid(self) {
   centroid_multi_polygon(self)
 }
 
 ///|
-pub impl HasCentroid for @type.LineString with centroid(self) {
+pub impl HasCentroid for @type.LineString with fn centroid(self) {
   centroid_line_string(self)
 }
 
 ///|
-pub impl HasCentroid for @type.Geometry with centroid(self) {
+pub impl HasCentroid for @type.Geometry with fn centroid(self) {
   centroid_geometry(self)
 }

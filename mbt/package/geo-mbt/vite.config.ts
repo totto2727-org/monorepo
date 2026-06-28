@@ -5,7 +5,7 @@ export default defineConfig({
     tasks: {
       build: {
         command: 'moon build',
-        input: [{ auto: true }, '!_build/**'],
+        input: ['moon.mod', '**/*.mbt', '**/*.mbt.md'],
       },
     },
   },

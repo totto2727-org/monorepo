@@ -49,60 +49,60 @@ pub fn extremes_of_coords(coords : Array[@type.Coord]) -> Outcome? {
 /// Anything whose extreme coordinates (xmin / xmax / ymin / ymax) can be
 /// taken. Returns `None` when there are no coordinates at all.
 pub(open) trait HasExtremes {
-  extremes(Self) -> Outcome?
+  fn extremes(Self) -> Outcome?
 }
 
 ///|
-pub impl HasExtremes for @type.Point with extremes(self) {
+pub impl HasExtremes for @type.Point with fn extremes(self) {
   extremes_of_coords(CoordsCarrier::coords(self))
 }
 
 ///|
-pub impl HasExtremes for @type.Line with extremes(self) {
+pub impl HasExtremes for @type.Line with fn extremes(self) {
   extremes_of_coords(CoordsCarrier::coords(self))
 }
 
 ///|
-pub impl HasExtremes for @type.LineString with extremes(self) {
+pub impl HasExtremes for @type.LineString with fn extremes(self) {
   extremes_of_coords(CoordsCarrier::coords(self))
 }
 
 ///|
-pub impl HasExtremes for @type.MultiPoint with extremes(self) {
+pub impl HasExtremes for @type.MultiPoint with fn extremes(self) {
   extremes_of_coords(CoordsCarrier::coords(self))
 }
 
 ///|
-pub impl HasExtremes for @type.MultiLineString with extremes(self) {
+pub impl HasExtremes for @type.MultiLineString with fn extremes(self) {
   extremes_of_coords(CoordsCarrier::coords(self))
 }
 
 ///|
-pub impl HasExtremes for @type.Polygon with extremes(self) {
+pub impl HasExtremes for @type.Polygon with fn extremes(self) {
   extremes_of_coords(CoordsCarrier::coords(self))
 }
 
 ///|
-pub impl HasExtremes for @type.MultiPolygon with extremes(self) {
+pub impl HasExtremes for @type.MultiPolygon with fn extremes(self) {
   extremes_of_coords(CoordsCarrier::coords(self))
 }
 
 ///|
-pub impl HasExtremes for @type.Rect with extremes(self) {
+pub impl HasExtremes for @type.Rect with fn extremes(self) {
   extremes_of_coords(CoordsCarrier::coords(self))
 }
 
 ///|
-pub impl HasExtremes for @type.Triangle with extremes(self) {
+pub impl HasExtremes for @type.Triangle with fn extremes(self) {
   extremes_of_coords(CoordsCarrier::coords(self))
 }
 
 ///|
-pub impl HasExtremes for @type.GeometryCollection with extremes(self) {
+pub impl HasExtremes for @type.GeometryCollection with fn extremes(self) {
   extremes_of_coords(CoordsCarrier::coords(self))
 }
 
 ///|
-pub impl HasExtremes for @type.Geometry with extremes(self) {
+pub impl HasExtremes for @type.Geometry with fn extremes(self) {
   extremes_of_coords(CoordsCarrier::coords(self))
 }

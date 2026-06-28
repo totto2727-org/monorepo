@@ -63,60 +63,60 @@ pub fn covers_geometry(a : @type.Geometry, b : @type.Geometry) -> Bool {
 /// Predicate trait: `self.covers(other)` returns true when every point of
 /// `other` lies in `self` (interior **or** boundary).
 pub(open) trait Covers {
-  covers(Self, @type.Geometry) -> Bool
+  fn covers(Self, @type.Geometry) -> Bool
 }
 
 ///|
-pub impl Covers for @type.Geometry with covers(self, other) {
+pub impl Covers for @type.Geometry with fn covers(self, other) {
   covers_geometry(self, other)
 }
 
 ///|
-pub impl Covers for @type.Polygon with covers(self, other) {
+pub impl Covers for @type.Polygon with fn covers(self, other) {
   covers_geometry(@type.Geometry::Polygon(self), other)
 }
 
 ///|
-pub impl Covers for @type.MultiPolygon with covers(self, other) {
+pub impl Covers for @type.MultiPolygon with fn covers(self, other) {
   covers_geometry(@type.Geometry::MultiPolygon(self), other)
 }
 
 ///|
-pub impl Covers for @type.Rect with covers(self, other) {
+pub impl Covers for @type.Rect with fn covers(self, other) {
   covers_geometry(@type.Geometry::Rect(self), other)
 }
 
 ///|
-pub impl Covers for @type.Point with covers(self, other) {
+pub impl Covers for @type.Point with fn covers(self, other) {
   covers_geometry(@type.Geometry::Point(self), other)
 }
 
 ///|
-pub impl Covers for @type.Line with covers(self, other) {
+pub impl Covers for @type.Line with fn covers(self, other) {
   covers_geometry(@type.Geometry::Line(self), other)
 }
 
 ///|
-pub impl Covers for @type.LineString with covers(self, other) {
+pub impl Covers for @type.LineString with fn covers(self, other) {
   covers_geometry(@type.Geometry::LineString(self), other)
 }
 
 ///|
-pub impl Covers for @type.MultiLineString with covers(self, other) {
+pub impl Covers for @type.MultiLineString with fn covers(self, other) {
   covers_geometry(@type.Geometry::MultiLineString(self), other)
 }
 
 ///|
-pub impl Covers for @type.MultiPoint with covers(self, other) {
+pub impl Covers for @type.MultiPoint with fn covers(self, other) {
   covers_geometry(@type.Geometry::MultiPoint(self), other)
 }
 
 ///|
-pub impl Covers for @type.Triangle with covers(self, other) {
+pub impl Covers for @type.Triangle with fn covers(self, other) {
   covers_geometry(@type.Geometry::Triangle(self), other)
 }
 
 ///|
-pub impl Covers for @type.GeometryCollection with covers(self, other) {
+pub impl Covers for @type.GeometryCollection with fn covers(self, other) {
   covers_geometry(@type.Geometry::GeometryCollection(self), other)
 }

@@ -146,56 +146,56 @@ fn unsigned_area_of_geometry(g : @type.Geometry) -> Double {
 ///|
 /// Anything that has a planar area (including signed area for orientation).
 pub(open) trait HasArea {
-  signed_area(Self) -> Double
-  unsigned_area(Self) -> Double
+  fn signed_area(Self) -> Double
+  fn unsigned_area(Self) -> Double
 }
 
 ///|
-pub impl HasArea for @type.Polygon with signed_area(self) {
+pub impl HasArea for @type.Polygon with fn signed_area(self) {
   signed_area_of_polygon(self)
 }
 
 ///|
-pub impl HasArea for @type.Polygon with unsigned_area(self) {
+pub impl HasArea for @type.Polygon with fn unsigned_area(self) {
   unsigned_area_of_polygon(self)
 }
 
 ///|
-pub impl HasArea for @type.MultiPolygon with signed_area(self) {
+pub impl HasArea for @type.MultiPolygon with fn signed_area(self) {
   signed_area_of_multi_polygon(self)
 }
 
 ///|
-pub impl HasArea for @type.MultiPolygon with unsigned_area(self) {
+pub impl HasArea for @type.MultiPolygon with fn unsigned_area(self) {
   unsigned_area_of_multi_polygon(self)
 }
 
 ///|
-pub impl HasArea for @type.Rect with signed_area(self) {
+pub impl HasArea for @type.Rect with fn signed_area(self) {
   signed_area_of_rect(self)
 }
 
 ///|
-pub impl HasArea for @type.Rect with unsigned_area(self) {
+pub impl HasArea for @type.Rect with fn unsigned_area(self) {
   unsigned_area_of_rect(self)
 }
 
 ///|
-pub impl HasArea for @type.Triangle with signed_area(self) {
+pub impl HasArea for @type.Triangle with fn signed_area(self) {
   signed_area_of_triangle(self)
 }
 
 ///|
-pub impl HasArea for @type.Triangle with unsigned_area(self) {
+pub impl HasArea for @type.Triangle with fn unsigned_area(self) {
   unsigned_area_of_triangle(self)
 }
 
 ///|
-pub impl HasArea for @type.Geometry with signed_area(self) {
+pub impl HasArea for @type.Geometry with fn signed_area(self) {
   signed_area_of_geometry(self)
 }
 
 ///|
-pub impl HasArea for @type.Geometry with unsigned_area(self) {
+pub impl HasArea for @type.Geometry with fn unsigned_area(self) {
   unsigned_area_of_geometry(self)
 }

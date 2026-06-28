@@ -109,25 +109,25 @@ fn convex_hull_of_geometry(g : @type.Geometry) -> @type.Polygon {
 ///|
 /// Anything whose convex hull can be taken. The result is always a `Polygon`.
 pub(open) trait HasConvexHull {
-  convex_hull(Self) -> @type.Polygon
+  fn convex_hull(Self) -> @type.Polygon
 }
 
 ///|
-pub impl HasConvexHull for @type.MultiPoint with convex_hull(self) {
+pub impl HasConvexHull for @type.MultiPoint with fn convex_hull(self) {
   convex_hull_of_multi_point(self)
 }
 
 ///|
-pub impl HasConvexHull for @type.LineString with convex_hull(self) {
+pub impl HasConvexHull for @type.LineString with fn convex_hull(self) {
   convex_hull_of_line_string(self)
 }
 
 ///|
-pub impl HasConvexHull for @type.Polygon with convex_hull(self) {
+pub impl HasConvexHull for @type.Polygon with fn convex_hull(self) {
   convex_hull_of_polygon(self)
 }
 
 ///|
-pub impl HasConvexHull for @type.Geometry with convex_hull(self) {
+pub impl HasConvexHull for @type.Geometry with fn convex_hull(self) {
   convex_hull_of_geometry(self)
 }

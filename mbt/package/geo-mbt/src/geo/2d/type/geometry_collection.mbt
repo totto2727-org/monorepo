@@ -30,11 +30,11 @@ pub fn GeometryCollection::geometries(
 }
 
 ///|
-pub impl HasLength for GeometryCollection with length(self) {
+pub impl HasLength for GeometryCollection with fn length(self) {
   self.geometries.length()
 }
 
 ///|
-pub impl IsEmpty for GeometryCollection with is_empty(self) {
+pub impl IsEmpty for GeometryCollection with fn is_empty(self) {
   self.geometries.length() == 0
 }

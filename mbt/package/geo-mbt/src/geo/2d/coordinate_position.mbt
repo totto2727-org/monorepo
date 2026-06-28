@@ -289,26 +289,29 @@ fn coord_position_for_geometry(
 ///|
 /// Determines whether a coord is inside / on boundary / outside a geometry.
 pub(open) trait CoordPositionFor {
-  coord_position(Self, @type.Coord) -> CoordPos
+  fn coord_position(Self, @type.Coord) -> CoordPos
 }
 
 ///|
-pub impl CoordPositionFor for @type.Line with coord_position(self, coord) {
+pub impl CoordPositionFor for @type.Line with fn coord_position(self, coord) {
   coord_position_for_line(coord, self)
 }
 
 ///|
-pub impl CoordPositionFor for @type.LineString with coord_position(self, coord) {
+pub impl CoordPositionFor for @type.LineString with fn coord_position(
+  self,
+  coord,
+) {
   coord_position_for_line_string(coord, self)
 }
 
 ///|
-pub impl CoordPositionFor for @type.Polygon with coord_position(self, coord) {
+pub impl CoordPositionFor for @type.Polygon with fn coord_position(self, coord) {
   coord_position_for_polygon(coord, self)
 }
 
 ///|
-pub impl CoordPositionFor for @type.MultiPolygon with coord_position(
+pub impl CoordPositionFor for @type.MultiPolygon with fn coord_position(
   self,
   coord,
 ) {
@@ -316,16 +319,16 @@ pub impl CoordPositionFor for @type.MultiPolygon with coord_position(
 }
 
 ///|
-pub impl CoordPositionFor for @type.Rect with coord_position(self, coord) {
+pub impl CoordPositionFor for @type.Rect with fn coord_position(self, coord) {
   coord_position_for_rect(coord, self)
 }
 
 ///|
-pub impl CoordPositionFor for @type.Triangle with coord_position(self, coord) {
+pub impl CoordPositionFor for @type.Triangle with fn coord_position(self, coord) {
   coord_position_for_triangle(coord, self)
 }
 
 ///|
-pub impl CoordPositionFor for @type.Geometry with coord_position(self, coord) {
+pub impl CoordPositionFor for @type.Geometry with fn coord_position(self, coord) {
   coord_position_for_geometry(coord, self)
 }
