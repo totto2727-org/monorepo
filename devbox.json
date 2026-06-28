@@ -7,7 +7,10 @@
     "just@latest",
     "turso-cli@latest",
     "sqld@latest",
-    "nixfmt@latest"
+    "nixfmt@latest",
+    "erlang@latest",
+    "elixir@latest",
+    "beam27Packages.hex@latest"
   ],
   "shell": {
     "init_hook": ["command -v vp >/dev/null && vp config || true"]
