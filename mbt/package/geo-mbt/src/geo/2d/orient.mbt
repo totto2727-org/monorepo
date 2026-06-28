@@ -57,15 +57,15 @@ fn orient_multi_polygon(
 /// rings re-oriented per the requested winding convention. Mirrors upstream
 /// `geo::algorithm::orient::Orient`.
 pub(open) trait Orient {
-  orient(Self, OrientDirection) -> Self
+  fn orient(Self, OrientDirection) -> Self
 }
 
 ///|
-pub impl Orient for @type.Polygon with orient(self, direction) {
+pub impl Orient for @type.Polygon with fn orient(self, direction) {
   orient_polygon(self, direction)
 }
 
 ///|
-pub impl Orient for @type.MultiPolygon with orient(self, direction) {
+pub impl Orient for @type.MultiPolygon with fn orient(self, direction) {
   orient_multi_polygon(self, direction)
 }

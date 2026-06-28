@@ -1,0 +1,7 @@
+default:
+    @just --list
+
+regenerate:
+    curl http://localhost:4096/doc -o opencode-openapi.json
+    mix deps.get
+    mix api.gen default opencode-openapi.json

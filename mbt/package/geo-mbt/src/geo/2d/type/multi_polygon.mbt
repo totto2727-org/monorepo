@@ -25,11 +25,11 @@ pub fn MultiPolygon::polygons(self : MultiPolygon) -> Array[Polygon] {
 }
 
 ///|
-pub impl HasLength for MultiPolygon with length(self) {
+pub impl HasLength for MultiPolygon with fn length(self) {
   self.polygons.length()
 }
 
 ///|
-pub impl IsEmpty for MultiPolygon with is_empty(self) {
+pub impl IsEmpty for MultiPolygon with fn is_empty(self) {
   self.polygons.length() == 0
 }

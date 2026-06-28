@@ -85,19 +85,19 @@ pub fn Coord::to_array(self : Coord) -> Array[Double] {
 
 ///|
 /// Negates this coordinate.
-pub impl Neg for Coord with neg(self) {
+pub impl Neg for Coord with fn neg(self) {
   Coord(-self.x, -self.y)
 }
 
 ///|
 /// Adds two coordinates component-wise.
-pub impl Add for Coord with add(self, other) {
+pub impl Add for Coord with fn add(self, other) {
   Coord(self.x + other.x, self.y + other.y)
 }
 
 ///|
 /// Subtracts another coordinate from this one component-wise.
-pub impl Sub for Coord with sub(self, other) {
+pub impl Sub for Coord with fn sub(self, other) {
   Coord(self.x - other.x, self.y - other.y)
 }
 

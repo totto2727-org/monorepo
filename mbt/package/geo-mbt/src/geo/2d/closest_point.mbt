@@ -18,11 +18,11 @@ pub(all) enum Closest {
 ///|
 /// Computes the closest point on `self` to a target coordinate.
 pub(open) trait ClosestPoint {
-  closest_point(Self, @type.Coord) -> Closest
+  fn closest_point(Self, @type.Coord) -> Closest
 }
 
 ///|
-pub impl ClosestPoint for @type.Line with closest_point(self, target) {
+pub impl ClosestPoint for @type.Line with fn closest_point(self, target) {
   let v = self.delta()
   let w = target - self.start()
   let v_dot_v = v.dot(v)
@@ -44,7 +44,7 @@ pub impl ClosestPoint for @type.Line with closest_point(self, target) {
 }
 
 ///|
-pub impl ClosestPoint for @type.LineString with closest_point(self, target) {
+pub impl ClosestPoint for @type.LineString with fn closest_point(self, target) {
   let segments = self.lines()
   if segments.length() == 0 {
     return Indeterminate

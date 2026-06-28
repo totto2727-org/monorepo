@@ -39,19 +39,16 @@ describe('createSkillLink', () => {
     ).toBe(true)
   })
 
-  test('creates symlinks in additional skillDirs', async () => {
+  test('creates symlinks in additional skillDirs relative to the lock file directory', async () => {
     const targetDir = NodePath.join(ctx.agentsDir, '.cache', 'owner', 'repo', 'plugins', 'p', 'skills', 'my-skill')
     await Fs.mkdir(targetDir, { recursive: true })
 
-    const extraDir = NodePath.join(ctx.agentsDir, 'extra-skills')
-    await Fs.mkdir(extraDir, { recursive: true })
-
     await Effect.runPromise(
-      createSkillLink(ctx.agentsDir, [extraDir], 'my-skill', targetDir).pipe(Effect.provide(NodeServices.layer)),
+      createSkillLink(ctx.agentsDir, ['extra-skills'], 'my-skill', targetDir).pipe(Effect.provide(NodeServices.layer)),
     )
 
     const primaryLink = NodePath.join(getSkillsDir(ctx.agentsDir), 'my-skill')
-    const extraLink = NodePath.join(extraDir, 'my-skill')
+    const extraLink = NodePath.join(ctx.projectRoot, 'extra-skills', 'my-skill')
 
     expect(
       await Fs.lstat(primaryLink).then(
@@ -121,12 +118,14 @@ describe('removeSkillLinkFromDirs', () => {
     const targetDir = NodePath.join(ctx.agentsDir, 'target')
     await Fs.mkdir(targetDir, { recursive: true })
 
-    const extraDir = NodePath.join(ctx.agentsDir, 'extra-skills')
+    const extraDir = NodePath.join(ctx.projectRoot, 'extra-skills')
 
     await Effect.runPromise(
-      createSkillLink(ctx.agentsDir, [extraDir], 'my-skill', targetDir).pipe(Effect.provide(NodeServices.layer)),
+      createSkillLink(ctx.agentsDir, ['extra-skills'], 'my-skill', targetDir).pipe(Effect.provide(NodeServices.layer)),
     )
-    await Effect.runPromise(removeSkillLinkFromDirs([extraDir], 'my-skill').pipe(Effect.provide(NodeServices.layer)))
+    await Effect.runPromise(
+      removeSkillLinkFromDirs(['extra-skills'], ctx.projectRoot, 'my-skill').pipe(Effect.provide(NodeServices.layer)),
+    )
 
     const primaryLink = NodePath.join(getSkillsDir(ctx.agentsDir), 'my-skill')
     const extraLink = NodePath.join(extraDir, 'my-skill')

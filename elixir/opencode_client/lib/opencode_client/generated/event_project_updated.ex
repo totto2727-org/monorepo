@@ -1,0 +1,25 @@
+defmodule OpencodeClient.Generated.EventProjectUpdated do
+  @moduledoc """
+  Provides struct and type for a EventProjectUpdated
+  """
+
+  @type t :: %__MODULE__{
+          id: String.t(),
+          properties: OpencodeClient.Generated.Project.t(),
+          type: String.t()
+        }
+
+  defstruct [:id, :properties, :type]
+
+  @doc false
+  @spec __fields__(atom) :: keyword
+  def __fields__(type \\ :t)
+
+  def __fields__(:t) do
+    [
+      id: :string,
+      properties: {OpencodeClient.Generated.Project, :t},
+      type: {:const, "project.updated"}
+    ]
+  end
+end

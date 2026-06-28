@@ -18,13 +18,13 @@
 /// Anything that can be empty (zero coords / zero components). Mirrors the
 /// `is_empty()` inherent method present on every collection-shaped type.
 pub(open) trait IsEmpty {
-  is_empty(Self) -> Bool
+  fn is_empty(Self) -> Bool
 }
 
 ///|
 /// Anything that can be a closed ring (first and last coord equal).
 pub(open) trait IsClosed {
-  is_closed(Self) -> Bool
+  fn is_closed(Self) -> Bool
 }
 
 ///|
@@ -32,5 +32,5 @@ pub(open) trait IsClosed {
 /// `Vec::len()` / `Array::length()`. Distinct from `HasEuclideanLength` (the
 /// physical length of a curve, defined in `geo/2d/traits.mbt`).
 pub(open) trait HasLength {
-  length(Self) -> Int
+  fn length(Self) -> Int
 }

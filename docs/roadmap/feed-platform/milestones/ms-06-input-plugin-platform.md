@@ -21,7 +21,7 @@
 
 ## スコープ
 
-- 対象モジュール: 採用ワークスペース上の入力プラグイン基盤パッケージ、参照アダプタ (RSS 推奨、ただし配下 dev-workflow サイクル Step 1 で最終確定)
+- 対象モジュール: 採用ワークスペース上の入力プラグイン基盤パッケージ、参照アダプタ (RSS 推奨、ただし配下 oh-my-codingagent execution サイクル Step 1 で最終確定)
 - 対象機能: 入力プラグイン契約準拠の参照アダプタ実装、IQ 投入、取得状態管理 (L4 の選択結果に応じた実装)
 - 対象 ADR: L4 (取得情報用 DB の必要性) の確定、参照アダプタ選定理由
 
@@ -38,13 +38,13 @@
 - `ms-03-auth-rbac-organization`: 取得したフィードを Organization スコープに紐付けるため、認証認可基盤 (RBAC + Organization) が前提
 - `ms-05-persistence-event-store`: 入力プラグイン契約スケルトンと Event Source of Truth が前提
 
-## 関連 dev-workflow サイクル (workflow_identifiers)
+## 関連 oh-my-codingagent execution サイクル (workflow_identifiers)
 
 | サイクル `<identifier>` | 状態 | コメント |
 | ----------------------- | ---- | -------- |
 | (未起動)                | -    | -        |
 
-## 想定 dev-workflow サイクル数
+## 想定 oh-my-codingagent execution サイクル数
 
 1 (推奨)
 

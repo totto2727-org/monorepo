@@ -5,6 +5,7 @@ packages:
   - 'mbt/package/*'
   - 'go/app/*'
   - 'nix'
+  - 'elixir/*'
 
 allowBuilds:
   esbuild: true

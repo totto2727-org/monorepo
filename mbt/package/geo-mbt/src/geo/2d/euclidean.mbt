@@ -146,21 +146,21 @@ pub fn euclidean_destination(
 /// multi line string total length. Distinct from `HasLength`, which is the
 /// **collection cardinality** (how many components / coords).
 pub(open) trait HasEuclideanLength {
-  euclidean_length(Self) -> Double
+  fn euclidean_length(Self) -> Double
 }
 
 ///|
-pub impl HasEuclideanLength for @type.Line with euclidean_length(self) {
+pub impl HasEuclideanLength for @type.Line with fn euclidean_length(self) {
   euclidean_length_line(self)
 }
 
 ///|
-pub impl HasEuclideanLength for @type.LineString with euclidean_length(self) {
+pub impl HasEuclideanLength for @type.LineString with fn euclidean_length(self) {
   euclidean_length_line_string(self)
 }
 
 ///|
-pub impl HasEuclideanLength for @type.MultiLineString with euclidean_length(
+pub impl HasEuclideanLength for @type.MultiLineString with fn euclidean_length(
   self,
 ) {
   euclidean_length_multi_line_string(self)

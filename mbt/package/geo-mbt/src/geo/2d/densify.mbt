@@ -72,15 +72,15 @@ fn densify_polygon(
 /// Densification with a maximum segment length. Returns a value of the same
 /// type with extra coords inserted along long segments.
 pub(open) trait Densify {
-  densify(Self, Double) -> Self
+  fn densify(Self, Double) -> Self
 }
 
 ///|
-pub impl Densify for @type.LineString with densify(self, max_segment_length) {
+pub impl Densify for @type.LineString with fn densify(self, max_segment_length) {
   densify_line_string(self, max_segment_length)
 }
 
 ///|
-pub impl Densify for @type.Polygon with densify(self, max_segment_length) {
+pub impl Densify for @type.Polygon with fn densify(self, max_segment_length) {
   densify_polygon(self, max_segment_length)
 }

@@ -5,14 +5,11 @@ scope: roadmap:feed-platform
 
 # ADR: feed-platform プロジェクト構造と実行環境
 
-- **Filed at:** 2026-05-06
-- **Filer:** implementer (Step 6)
-- **Originating step:** dev-workflow Step 6 (Implementation) of cycle `feed-platform-ms-01-workspace-foundation`
 - **Storage path:** docs/roadmap/feed-platform/adr/2026-05-05-project-structure-and-runtime.md
 
 ## Status
 
-`Accepted` — 本 ms-01 サイクル (`feed-platform-ms-01-workspace-foundation`) で確定。後続 9 マイルストーン (ms-02〜ms-10) はすべて本 ADR の決定事項を前提として進行する。
+`Accepted` — 後続 9 マイルストーン (ms-02〜ms-10) はすべて本 ADR の決定事項を前提として進行する。
 
 ## Context
 
@@ -25,9 +22,7 @@ scope: roadmap:feed-platform
 - **イベントソーシング + CQRS** の素地確保
 - **コードレベル契約のみのプラグイン拡張** (= ランタイム動的ロードを採用しない)
 
-これら制約をプロジェクト構造・命名・実行環境のレベルで構造的に保証することが ms-01 の責務であり、その確定事項を後続マイルストーンが参照可能な不変記録として永続化するために本 ADR を起票する。
-
-intent-spec.md (`docs/workflow/feed-platform-ms-01-workspace-foundation/intent-spec.md`) の Q2 / Q2.5 / Q2.6 / Q2.9 / Q2.10 / Q2.11 (命名部分) / Q2.12 で確定した 7 件の決定事項を、本 ADR が単一の決定束として記録する。
+これら制約をプロジェクト構造・命名・実行環境のレベルで構造的に保証することが ms-01 の責務であり、本 ADR が後続マイルストーンの参照する不変記録となる。
 
 影響範囲は **feed-platform ロードマップ内のすべての配下サイクル (ms-02〜ms-10)** に閉じる。本リポジトリの他ロードマップへの影響は限定的なため、Roadmap mode (`docs/roadmap/feed-platform/adr/`) として起票した。`identity-provider` の汎用化方針 (= 他システム再利用視野) は別 ADR (ADR-02) として General mode で起票する (本 ADR と分離)。
 
@@ -85,7 +80,7 @@ backend の各 entry は wrangler 上の `name` を **`feed-platform-backend-<en
 
 - **`compatibility_flags: ["nodejs_compat"]` を全プロジェクトの `wrangler.jsonc` で採用** (Effect / Hono / `crypto.randomUUID` 等が要求するため)
 - **`observability.enabled: true` + `head_sampling_rate: 1`** を全プロジェクトの `wrangler.jsonc` で採用 (`hono-remix-v3-cloudflare-example/wrangler.jsonc:14` 踏襲)
-- **Logger 形式選択**: Effect の Logger 形式切替は **`Layer.unwrap` + `Env.Service` 経由**で実行時判定 (`env.ENV === 'production'` ? `Logger.consoleJson` : `Logger.consolePretty()`)。Env Service の値ソースは **`process.env.NODE_ENV`** (wrangler / vite が dev/deploy 時に自動設定する標準ソース、ref: <https://developers.cloudflare.com/workers/wrangler/bundling/#node_env>) を採用し、`wrangler.jsonc.vars.ENV` の独自 vars は不採用 (refinement #1 + Step 7 → Step 8 user-gate refinement で再確定: 旧設計の `vars.ENV` 単一ソースが本番 deploy で dev 値を焼き込むバグを構造的に予防)。`import.meta.env.PROD` の直参照も不採用
+- **Logger 形式選択**: Effect の Logger 形式切替は **`Layer.unwrap` + `Env.Service` 経由**で実行時判定 (`env.ENV === 'production'` ? `Logger.consoleJson` : `Logger.consolePretty()`)。Env Service の値ソースは **`process.env.NODE_ENV`** (wrangler / vite が dev/deploy 時に自動設定する標準ソース、ref: <https://developers.cloudflare.com/workers/wrangler/bundling/#node_env>) を採用し、`wrangler.jsonc.vars.ENV` の独自 vars は不採用。これにより本番 deploy で dev 値が焼き込まれるバグを構造的に予防する。`import.meta.env.PROD` の直参照も不採用
 - **Runtime 解放パターン**: TC39 `await using runtime = Runtime.make()` を採用し、try/finally + 明示的 `runtime.dispose()` 呼び出しは不採用 (refinement #2 + Step 7 → Step 8 user-gate refinement: ENV 取得を内部の `Env.layer` に内部化したため `Runtime.make()` の引数も削除済)
 
 ### D-7: backend multi-entry 規約 = `src/worker/<entry>/worker.ts` + `src/worker/<entry>/wrangler.jsonc` ペア
@@ -134,8 +129,8 @@ backend の各 entry は wrangler 上の `name` を **`feed-platform-backend-<en
 - **`saas-example`** は backend の Effect skeleton 雛形参照として今後も保守対象に留まる
 - 実装時の deviation: `effect@4.0.0-beta.60` (catalog 採用版) は `ServiceMap.Service` 非対応のため、design.md 当初記述の `ServiceMap.Service` は実装上 **`Context.Service`** に置換 (saas-example の整合性踏襲、TODO.md T-B notes)。CC-6 の Service tag namespace 規約は維持
 - Step 7 → Step 8 user-gate refinement: backend entry 配置を `src/<entry>/` から **`src/worker/<entry>/`** に変更 (User 要望、worker 群と feature 群の責務分離をディレクトリ構造で明示するため)。`src/feature/` は src 直下を維持。詳細は design.md "Deviation note (Step 7 → Step 8 user-gate-driven path restructure)" / task-plan.md "Path restructure deviation note" 参照
-- Step 7 → Step 8 user-gate refinement (ENV detection): ENV 取得方法を **`wrangler.jsonc.vars.ENV` (旧設計) から `process.env.NODE_ENV` (新設計、wrangler / vite 自動設定)** に変更 (User 要望、本番 deploy で dev 値が焼き込まれるバグの根本予防)。`feature/env.ts` × 3 に production code 用 `Env.layer` (`Layer.sync` from `process.env.NODE_ENV`) を新設し、test 用 `Env.makeLayer` は維持。`feature/runtime/{server,hono}.ts` × 3 + `worker.ts` × 2 + `app.tsx` × 2 + `wrangler.jsonc` × 4 を整合更新。詳細は design.md "Deviation note: ENV detection switched from `wrangler.jsonc.vars.ENV` to `process.env.NODE_ENV`" 参照
-- Step 7 → Step 8 user-gate refinement (test placement): test ファイル配置を **ソース直下 `smoke.test.ts` 1 ファイル形 (旧設計) から、検証対象 module の隣に置く `feature/<name>.test.ts` colocation 形 (新設計)** に変更 (User 要望「smoke.test.ts は全て検証ロジックの近くに .test.ts を作成」)。3 件の `smoke.test.ts` を削除し、5 件の `feature/<name>.test.ts` (backend `feature/health.test.ts` 1 件 + web/IdP 各 `feature/{greeting,health}.test.ts` 2 件) を新規追加。describe ラベルは module 名、import は relative path。test 件数 (5 件) と PASS/FAIL 振る舞いは不変。詳細は design.md "Deviation note: Test placement switched to feature/<name>.test.ts colocation" / task-plan.md "Test placement deviation note" 参照
+- Step 7 → Step 8 user-gate refinement (ENV detection): ENV 取得方法は **`process.env.NODE_ENV` (wrangler / vite 自動設定)** とする (User 要望、本番 deploy で dev 値が焼き込まれるバグの根本予防)。`feature/env.ts` × 3 に production code 用 `Env.layer` (`Layer.sync` from `process.env.NODE_ENV`) を新設し、test 用 `Env.makeLayer` は維持。`feature/runtime/{server,hono}.ts` × 3 + `worker.ts` × 2 + `app.tsx` × 2 + `wrangler.jsonc` × 4 を整合更新。詳細は design.md "Deviation note: ENV detection switched from `wrangler.jsonc.vars.ENV` to `process.env.NODE_ENV`" 参照
+- Step 7 → Step 8 user-gate refinement (test placement): test ファイル配置は **検証対象 module の隣に置く `feature/<name>.test.ts` colocation 形** とする (User 要望「smoke.test.ts は全て検証ロジックの近くに .test.ts を作成」)。5 件の `feature/<name>.test.ts` (backend `feature/health.test.ts` 1 件 + web/IdP 各 `feature/{greeting,health}.test.ts` 2 件) を配置。describe ラベルは module 名、import は relative path。test 件数 (5 件) と PASS/FAIL 振る舞いは不変。詳細は design.md "Deviation note: Test placement switched to feature/<name>.test.ts colocation" / task-plan.md "Test placement deviation note" 参照
 
 ### Constraints going forward
 
@@ -159,13 +154,7 @@ backend の各 entry は wrangler 上の `name` を **`feed-platform-backend-<en
 
 ## References
 
-- **Intent Spec**: `docs/workflow/feed-platform-ms-01-workspace-foundation/intent-spec.md` (Q2 / Q2.5 / Q2.6 / Q2.9 / Q2.10 / Q2.11 / Q2.12)
-- **Design Document**: `docs/workflow/feed-platform-ms-01-workspace-foundation/design.md` (Component breakdown / Project A / Project B / Project C / Multi-entry pattern M-1〜M-4 / Common conventions CC-1〜CC-9 / ADR-01 outline L1080-1111)
-- **Research Notes**:
-  - `docs/workflow/feed-platform-ms-01-workspace-foundation/research/hono-remix-cloudflare-example-structure.md`
-  - `docs/workflow/feed-platform-ms-01-workspace-foundation/research/wrangler-multi-entry-monorepo.md`
-  - `docs/workflow/feed-platform-ms-01-workspace-foundation/research/vite-plus-task-system-and-existing-packages.md`
-  - `docs/workflow/feed-platform-ms-01-workspace-foundation/research/effect-cloudflare-hono-integration.md`
+- **Roadmap-scoped record**: this ADR is the durable source for the ms-01 workspace foundation decisions used by ms-02〜ms-10.
 - **Related Roadmap**: `docs/roadmap/feed-platform/roadmap.md` (アーキテクチャ的制約 / ms-01〜ms-10 マイルストーン定義)
 - **Related Milestone**: `docs/roadmap/feed-platform/milestones/ms-01-workspace-foundation.md`
 - **Related ADR**: `docs/adr/2026-05-05-identity-provider-and-authn-authz-architecture.md` (ADR-02、`identity-provider` の汎用化方針 + 認証認可アーキテクチャ。General mode、本 ADR と対をなす)

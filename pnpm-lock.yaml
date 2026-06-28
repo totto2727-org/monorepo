@@ -143,6 +143,9 @@ importers:
       '@effect/platform-node':
         specifier: catalog:effect
         version: 4.0.0-beta.65(effect@4.0.0-beta.65)(ioredis@5.10.1)
+      '@package/target-file-discovery':
+        specifier: workspace:*
+        version: link:../../package/target-file-discovery
       effect:
         specifier: catalog:effect
         version: 4.0.0-beta.65
@@ -506,6 +509,25 @@ importers:
       remix:
         specifier: catalog:remix
         version: 3.0.0-beta.2(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+
+  js/package/target-file-discovery:
+    dependencies:
+      effect:
+        specifier: catalog:effect
+        version: 4.0.0-beta.65
+      ignore:
+        specifier: ^7.0.5
+        version: 7.0.5
+    devDependencies:
+      '@effect/platform-node':
+        specifier: catalog:effect
+        version: 4.0.0-beta.65(effect@4.0.0-beta.65)(ioredis@5.10.1)
+      '@totto2727/fp':
+        specifier: workspace:*
+        version: link:../fp
+      '@types/node':
+        specifier: catalog:types
+        version: 25.9.1
 
   js/package/vite-plugin-remix:
     dependencies:
@@ -3275,6 +3297,10 @@ packages:
 
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
+
+  ignore@7.0.5:
+    resolution: {integrity: sha512-Hs59xBNfUIunMFgWAbGX5cq6893IbWg4KnrjbYwX3tx0ztorVgTDA6B2sxf8ejHJ4wz8BqGUMYlnzNBer5NvGg==}
+    engines: {node: '>= 4'}
 
   ini@6.0.0:
     resolution: {integrity: sha512-IBTdIkzZNOpqm7q3dRqJvMaldXjDHWkEDfrwGEQTs5eaQMWV+djAhR+wahyNNMAa+qpbDUhBMVt4ZKNwpPm7xQ==}
@@ -6388,6 +6414,8 @@ snapshots:
   hono@4.12.23: {}
 
   html-escaper@2.0.2: {}
+
+  ignore@7.0.5: {}
 
   ini@6.0.0: {}
 

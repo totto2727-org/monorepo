@@ -180,7 +180,7 @@ pub fn Geometry::try_into_triangle(
 /// Returns whether this geometry has no coordinates. Single-point and
 /// single-segment geometries (Point, Line, Rect, Triangle) are never empty.
 /// Collections are empty when **all** of their components are empty.
-pub impl IsEmpty for Geometry with is_empty(self) {
+pub impl IsEmpty for Geometry with fn is_empty(self) {
   match self {
     Point(_) | Line(_) | Rect(_) | Triangle(_) => false
     LineString(ls) => ls.is_empty()

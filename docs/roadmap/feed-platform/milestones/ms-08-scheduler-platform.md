@@ -29,20 +29,20 @@ Cron 的な定期処理基盤を構築し、入力プラグインの周期起動
 
 - 入力プラグイン参照アダプタの実装 — `ms-06` の責務 (本マイルストーンでは ms-06 の参照アダプタを呼び出す側に立つ)
 - AI 要約機能の実装 — `ms-09` の責務 (本マイルストーンでは AI 要約周期起動の設計余地を確保するに留める)
-- 期間限定共有の自動失効ジョブ — `ms-04-auth-shared-access` で先行 Pull 型実装済、ms-08 完了後に Push 型ジョブとして補強する場合は ms-04 配下サイクルの追加 dev-workflow サイクルで対応
-- 具体的サービス選定 (AWS EventBridge / Cloudflare Cron Triggers / Google Cloud Scheduler 等) は配下 `dev-workflow` サイクル Step 3 (Design) で確定し、Intent の「サーバレス原則」に整合する選定に留める
+- 期間限定共有の自動失効ジョブ — `ms-04-auth-shared-access` で先行 Pull 型実装済、ms-08 完了後に Push 型ジョブとして補強する場合は ms-04 配下サイクルの追加 oh-my-codingagent execution サイクルで対応
+- 具体的サービス選定 (AWS EventBridge / Cloudflare Cron Triggers / Google Cloud Scheduler 等) は配下 oh-my-codingagent execution サイクル Step 3 (Design) で確定し、Intent の「サーバレス原則」に整合する選定に留める
 
 ## 依存マイルストーン
 
 - `ms-06-input-plugin-platform`: 定期実行が起動する対象として入力プラグイン参照アダプタが必要
 
-## 関連 dev-workflow サイクル (workflow_identifiers)
+## 関連 oh-my-codingagent execution サイクル (workflow_identifiers)
 
 | サイクル `<identifier>` | 状態 | コメント |
 | ----------------------- | ---- | -------- |
 | (未起動)                | -    | -        |
 
-## 想定 dev-workflow サイクル数
+## 想定 oh-my-codingagent execution サイクル数
 
 1 (推奨)
 

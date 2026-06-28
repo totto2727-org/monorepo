@@ -21,7 +21,7 @@
 
 ## スコープ
 
-- 対象モジュール: 採用ワークスペース上の出力プラグイン基盤パッケージ、参照アダプタ (Web UI 推奨、ただし配下 dev-workflow サイクル Step 1 で最終確定)
+- 対象モジュール: 採用ワークスペース上の出力プラグイン基盤パッケージ、参照アダプタ (Web UI 推奨、ただし配下 oh-my-codingagent execution サイクル Step 1 で最終確定)
 - 対象機能: 出力プラグイン契約準拠の参照アダプタ実装、Query API 経由の読み出し、Tier 1 / Tier 2 適用ルールに従う UI ロジック
 - 対象 ADR: Web UI 参照アダプタの Read-Your-Write Tier 確定、参照アダプタ選定理由
 
@@ -38,13 +38,13 @@
 - `ms-03-auth-rbac-organization`: 出力配信は認証済みユーザーの Organization スコープに紐付くため、認証認可基盤が前提
 - `ms-05-persistence-event-store`: 出力プラグイン契約スケルトンと Query API が前提
 
-## 関連 dev-workflow サイクル (workflow_identifiers)
+## 関連 oh-my-codingagent execution サイクル (workflow_identifiers)
 
 | サイクル `<identifier>` | 状態 | コメント |
 | ----------------------- | ---- | -------- |
 | (未起動)                | -    | -        |
 
-## 想定 dev-workflow サイクル数
+## 想定 oh-my-codingagent execution サイクル数
 
 1 (推奨)
 

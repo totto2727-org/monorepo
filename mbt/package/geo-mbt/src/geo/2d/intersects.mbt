@@ -169,60 +169,60 @@ pub fn intersects_geometry(a : @type.Geometry, b : @type.Geometry) -> Bool {
 /// Predicate trait: `self.intersects(other)` returns true when `self` and
 /// `other` share at least one point.
 pub(open) trait Intersects {
-  intersects(Self, @type.Geometry) -> Bool
+  fn intersects(Self, @type.Geometry) -> Bool
 }
 
 ///|
-pub impl Intersects for @type.Geometry with intersects(self, other) {
+pub impl Intersects for @type.Geometry with fn intersects(self, other) {
   intersects_geometry(self, other)
 }
 
 ///|
-pub impl Intersects for @type.Polygon with intersects(self, other) {
+pub impl Intersects for @type.Polygon with fn intersects(self, other) {
   intersects_geometry(@type.Geometry::Polygon(self), other)
 }
 
 ///|
-pub impl Intersects for @type.MultiPolygon with intersects(self, other) {
+pub impl Intersects for @type.MultiPolygon with fn intersects(self, other) {
   intersects_geometry(@type.Geometry::MultiPolygon(self), other)
 }
 
 ///|
-pub impl Intersects for @type.Rect with intersects(self, other) {
+pub impl Intersects for @type.Rect with fn intersects(self, other) {
   intersects_geometry(@type.Geometry::Rect(self), other)
 }
 
 ///|
-pub impl Intersects for @type.Point with intersects(self, other) {
+pub impl Intersects for @type.Point with fn intersects(self, other) {
   intersects_geometry(@type.Geometry::Point(self), other)
 }
 
 ///|
-pub impl Intersects for @type.Line with intersects(self, other) {
+pub impl Intersects for @type.Line with fn intersects(self, other) {
   intersects_geometry(@type.Geometry::Line(self), other)
 }
 
 ///|
-pub impl Intersects for @type.LineString with intersects(self, other) {
+pub impl Intersects for @type.LineString with fn intersects(self, other) {
   intersects_geometry(@type.Geometry::LineString(self), other)
 }
 
 ///|
-pub impl Intersects for @type.MultiLineString with intersects(self, other) {
+pub impl Intersects for @type.MultiLineString with fn intersects(self, other) {
   intersects_geometry(@type.Geometry::MultiLineString(self), other)
 }
 
 ///|
-pub impl Intersects for @type.MultiPoint with intersects(self, other) {
+pub impl Intersects for @type.MultiPoint with fn intersects(self, other) {
   intersects_geometry(@type.Geometry::MultiPoint(self), other)
 }
 
 ///|
-pub impl Intersects for @type.Triangle with intersects(self, other) {
+pub impl Intersects for @type.Triangle with fn intersects(self, other) {
   intersects_geometry(@type.Geometry::Triangle(self), other)
 }
 
 ///|
-pub impl Intersects for @type.GeometryCollection with intersects(self, other) {
+pub impl Intersects for @type.GeometryCollection with fn intersects(self, other) {
   intersects_geometry(@type.Geometry::GeometryCollection(self), other)
 }

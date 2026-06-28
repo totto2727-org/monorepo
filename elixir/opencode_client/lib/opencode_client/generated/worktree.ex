@@ -1,0 +1,17 @@
+defmodule OpencodeClient.Generated.Worktree do
+  @moduledoc """
+  Provides struct and type for a Worktree
+  """
+
+  @type t :: %__MODULE__{branch: String.t() | nil, directory: String.t(), name: String.t()}
+
+  defstruct [:branch, :directory, :name]
+
+  @doc false
+  @spec __fields__(atom) :: keyword
+  def __fields__(type \\ :t)
+
+  def __fields__(:t) do
+    [branch: :string, directory: :string, name: :string]
+  end
+end

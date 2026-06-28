@@ -1,0 +1,9 @@
+name: Setup Elixir
+description: Install the Elixir toolchain and update the registry.
+
+runs:
+  using: composite
+  steps:
+    - name: Install mix
+      shell: bash
+      run: mix deps.get

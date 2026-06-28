@@ -85,17 +85,17 @@ pub fn Point::cross_prod(self : Point, b : Point, c : Point) -> Double {
 }
 
 ///|
-pub impl Neg for Point with neg(self) {
+pub impl Neg for Point with fn neg(self) {
   Point::from_coord(-self.coord)
 }
 
 ///|
-pub impl Add for Point with add(self, other) {
+pub impl Add for Point with fn add(self, other) {
   Point::from_coord(self.coord + other.coord)
 }
 
 ///|
-pub impl Sub for Point with sub(self, other) {
+pub impl Sub for Point with fn sub(self, other) {
   Point::from_coord(self.coord - other.coord)
 }
 

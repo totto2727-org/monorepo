@@ -4,20 +4,20 @@
 - **Author:** totto2727 (roadmap-analyst 役割を Main が代行)
 - **Created at:** 2026-05-02T13:29:59Z
 - **Last updated:** 2026-05-04T00:00:00Z
-- **Status:** active <!-- planned | active | completed (`roadmap-progress.yaml.status` と一致させる) -->
+- **Status:** active <!-- planned | active | completed (`progress.yaml.status` と一致させる) -->
 
-このドキュメントは `dev-roadmap` の **Step 1 (Roadmap Intent)** で起草され、**Step 2 (Milestone Decomposition)** でマイルストーン一覧と依存グラフが追記されて確定する**戦略層の不変な計画書**。1 サイクルの `dev-workflow` では収まらない複数サイクル規模の開発を束ねる。書き方の詳細は `shared-artifacts/references/roadmap.md` を参照。
+このドキュメントは、1 サイクルの oh-my-codingagent execution では収まらない複数サイクル規模の開発を束ねる**戦略層の不変な計画書**。ロードマップの意図、マイルストーン一覧、依存グラフを一体で保持する。書き方の詳細は `plugins/totto2727-dev-flow/skills/share-artifacts/references/roadmap.md` を参照。
 
 ## 背景
 
-「任意の入力 (HTML 解析 / RSS / X リスト等) からフィードを収集し、共通の永続層に保存して、任意の出力 (API / Slack / Web UI 等) へ配信する」という性格上独立した複数の関心領域 (入力アダプタ層 / 永続化層 / 出力アダプタ層 / 認証認可基盤 / 定期実行基盤 / AI 要約) を束ねる必要がある。各領域は以下の理由で**単一の `dev-workflow` サイクル (= 1 PR 規模 / 1 機能粒度) では収まらない**:
+「任意の入力 (HTML 解析 / RSS / X リスト等) からフィードを収集し、共通の永続層に保存して、任意の出力 (API / Slack / Web UI 等) へ配信する」という性格上独立した複数の関心領域 (入力アダプタ層 / 永続化層 / 出力アダプタ層 / 認証認可基盤 / 定期実行基盤 / AI 要約) を束ねる必要がある。各領域は以下の理由で**単一の oh-my-codingagent execution サイクル (= 1 PR 規模 / 1 機能粒度) では収まらない**:
 
 1. **強い順序依存と前提共有が領域間にまたがる**: 認証認可基盤は他全領域 (永続化層を除く) の利用前提となり、永続化層の Feed データモデルは入出力アダプタ契約より先に確定する必要がある。これらを 1 サイクルで束ねると Intent Spec が観測可能性を失い、設計と実装の分離が崩壊する
-2. **各領域自体が複数サイクルに分割される**: 認証認可だけでも Passkey / Magic Link / 3 ロール RBAC / 個人&汎用 Organization / 期間限定共有という独立した観測可能機能を持ち、それぞれ独立 dev-workflow サイクル相当
+2. **各領域自体が複数サイクルに分割される**: 認証認可だけでも Passkey / Magic Link / 3 ロール RBAC / 個人&汎用 Organization / 期間限定共有という独立した観測可能機能を持ち、それぞれ独立 oh-my-codingagent execution サイクル相当
 3. **アダプタ追加可能性をコードレベル契約として確立する責務**: 入力・出力それぞれの「プラグイン契約」を抽象化し、後からアダプタを追加できる構造を作ることそのものが独立した戦略テーマであり、参照アダプタ実装と切り分けて検証する必要がある
 4. **進捗の俯瞰と並行サイクル統制の必要性**: 個人開発であっても 6 領域を平行に進める意思決定 (どの順序で / どこで一旦立ち止まるか / 領域間の整合性) を戦略層で明示しないと、サイクル間の暗黙依存が事故化する
 
-ユーザーの観察として「具体的なサービス名・技術スタックは廃して大枠だけ考える」状態で全体像を確定したい意図があり、ロードマップ層 (実装非依存・戦略合意層) と配下 `dev-workflow` サイクル (戦術・実装層) の責務分離が本ドキュメントの存在意義である。
+ユーザーの観察として「具体的なサービス名・技術スタックは廃して大枠だけ考える」状態で全体像を確定したい意図があり、ロードマップ層 (実装非依存・戦略合意層) と配下 oh-my-codingagent execution サイクル (戦術・実装層) の責務分離が本ドキュメントの存在意義である。
 
 ## 目的
 
@@ -45,7 +45,7 @@
 - **RBAC のカスタムロール定義 / ポリシーエンジン** — Admin / Member / Guest の 3 ロール固定。カスタムロール / ABAC / OPA 等のポリシー言語統合は将来別ロードマップ
 - **本リポジトリ外への横展開** — 本 monorepo 単独で完結する。OSS 公開 / 配布パッケージ化等は対象外
 - **CI / 本番デプロイ自動化** — 具体的サービス選定後の別ロードマップで扱う。本ロードマップは実装非依存の段階で完結する
-- **具体的サービス名・技術スタックの確定** — 本ロードマップ Intent は「大枠だけ考える」スタンスであり、永続化技術 / Cron 提供サービス / AI モデル提供事業者等の選定は配下マイルストーンの `dev-workflow` サイクルに委譲する
+- **具体的サービス名・技術スタックの確定** — 本ロードマップ Intent は「大枠だけ考える」スタンスであり、永続化技術 / Cron 提供サービス / AI モデル提供事業者等の選定は配下マイルストーンの oh-my-codingagent execution サイクルに委譲する
 
 ## 大局的制約
 
@@ -68,7 +68,7 @@
 ### 組織的制約
 
 - 個人 (totto2727 単独) 開発を想定。レビュー観点は `specialist-reviewer` の観点別並列起動で代替
-- 並行 dev-workflow サイクル数の上限は **2** (実装中サイクル + ドキュメント / レビュー作業の並走を許容)
+- 並行 oh-my-codingagent execution サイクル数の上限は **2** (実装中サイクル + ドキュメント / レビュー作業の並走を許容)
 - 期間目標は本ロードマップでは設定しない (個人開発の特性上、配下サイクル単位で柔軟に進める)
 
 ### 規範的制約
@@ -77,31 +77,31 @@
 - 認証認可基盤を他全領域 (永続化層を除く) の利用前提とする (順序依存制約)
 - 永続化基盤の Feed 共通データモデルを入出力アダプタの契約より先に確定する (依存制約)
 - 個人情報 / API キー / 共有トークン等の機密情報をリポジトリに保存しない
-- ロードマップ全体および配下サイクル群が `dev-workflow` の 9 ステップ体系および本スキル (`dev-roadmap`) の 4 ステップ体系に準拠すること
+- ロードマップ全体および配下サイクル群が oh-my-codingagent execution の 9 ステップ体系および本スキル (`roadmap`) の 4 ステップ体系に準拠すること
 
 ## マイルストーン一覧
 
-`dev-roadmap` Step 2 (Milestone Decomposition) にて `roadmap-planner` が確定。各マイルストーンの詳細は `milestones/<milestone-id>.md` を参照。粒度判断の根拠は本セクション末尾の「分解粒度の根拠」を参照。
+`roadmap` Step 2 (Milestone Decomposition) にて `roadmap-planner` が確定。各マイルストーンの詳細は `milestones/<milestone-id>.md` を参照。粒度判断の根拠は本セクション末尾の「分解粒度の根拠」を参照。
 
-| ID                             | タイトル                                                         | 想定 dev-workflow サイクル数 | 依存マイルストーン  | 詳細                                           |
-| ------------------------------ | ---------------------------------------------------------------- | ---------------------------- | ------------------- | ---------------------------------------------- |
-| ms-01-workspace-foundation     | Workspace Foundation (Phase 1 完了 + Phase 2 共通ライブラリ抽出) | 2                            | (なし)              | `milestones/ms-01-workspace-foundation.md`     |
-| ms-02-auth-passkey-magiclink   | Auth — Passkey + Magic Link 認証                                 | 1                            | ms-01               | `milestones/ms-02-auth-passkey-magiclink.md`   |
-| ms-03-auth-rbac-organization   | Auth — RBAC + Organization                                       | 1                            | ms-02               | `milestones/ms-03-auth-rbac-organization.md`   |
-| ms-04-auth-shared-access       | Auth — 期間限定共有                                              | 1                            | ms-03               | `milestones/ms-04-auth-shared-access.md`       |
-| ms-05-persistence-event-store  | Persistence — Event Store + CQRS + Plugin Contracts              | 1〜2                         | ms-01               | `milestones/ms-05-persistence-event-store.md`  |
-| ms-06-input-plugin-platform    | Input Plugin Platform                                            | 1                            | ms-03, ms-05        | `milestones/ms-06-input-plugin-platform.md`    |
-| ms-07-output-plugin-platform   | Output Plugin Platform                                           | 1                            | ms-03, ms-05        | `milestones/ms-07-output-plugin-platform.md`   |
-| ms-08-scheduler-platform       | Scheduler Platform                                               | 1                            | ms-06               | `milestones/ms-08-scheduler-platform.md`       |
-| ms-09-ai-summary               | AI Summary                                                       | 1                            | ms-05, ms-07, ms-08 | `milestones/ms-09-ai-summary.md`               |
-| ms-10-integration-verification | Integration Verification (最終統合検証)                          | 1                            | ms-04, ms-08, ms-09 | `milestones/ms-10-integration-verification.md` |
+| ID                             | タイトル                                            | 想定 oh-my-codingagent execution サイクル数 | 依存マイルストーン  | 詳細                                           |
+| ------------------------------ | --------------------------------------------------- | ------------------------------------------- | ------------------- | ---------------------------------------------- |
+| ms-01-workspace-foundation     | Workspace Foundation                                | 2                                           | (なし)              | `milestones/ms-01-workspace-foundation.md`     |
+| ms-02-auth-passkey-magiclink   | Auth — Passkey + Magic Link 認証                    | 1                                           | ms-01               | `milestones/ms-02-auth-passkey-magiclink.md`   |
+| ms-03-auth-rbac-organization   | Auth — RBAC + Organization                          | 1                                           | ms-02               | `milestones/ms-03-auth-rbac-organization.md`   |
+| ms-04-auth-shared-access       | Auth — 期間限定共有                                 | 1                                           | ms-03               | `milestones/ms-04-auth-shared-access.md`       |
+| ms-05-persistence-event-store  | Persistence — Event Store + CQRS + Plugin Contracts | 1〜2                                        | ms-01               | `milestones/ms-05-persistence-event-store.md`  |
+| ms-06-input-plugin-platform    | Input Plugin Platform                               | 1                                           | ms-03, ms-05        | `milestones/ms-06-input-plugin-platform.md`    |
+| ms-07-output-plugin-platform   | Output Plugin Platform                              | 1                                           | ms-03, ms-05        | `milestones/ms-07-output-plugin-platform.md`   |
+| ms-08-scheduler-platform       | Scheduler Platform                                  | 1                                           | ms-06               | `milestones/ms-08-scheduler-platform.md`       |
+| ms-09-ai-summary               | AI Summary                                          | 1                                           | ms-05, ms-07, ms-08 | `milestones/ms-09-ai-summary.md`               |
+| ms-10-integration-verification | Integration Verification (最終統合検証)             | 1                                           | ms-04, ms-08, ms-09 | `milestones/ms-10-integration-verification.md` |
 
 ### 分解粒度の根拠
 
 - **6 領域 → 10 マイルストーン**: Intent スコープ境界の 6 領域 (認証認可 / 永続化 / 入力プラグイン / 出力プラグイン / 定期実行 / AI 要約) のうち、認証認可は単一サイクルでは過大 (Intent 未解決事項記載) のため 3 マイルストーンに分割 (Passkey + Magic Link / RBAC + Organization / 期間限定共有)。永続化を 1 マイルストーン、入出力プラグインを各 1 マイルストーンずつ、定期実行と AI 要約を各 1 マイルストーンとし、最後にロードマップ全体の統合検証マイルストーンを配置 (合計 10)
 - **永続化と入出力プラグイン契約の境界面 (Intent 未解決事項)**: 永続化マイルストーン (`ms-05`) 内で入出力プラグイン契約スケルトン (interface のみ) を先行確定する方針を採用。これにより `ms-06` / `ms-07` は「契約準拠 + 1 つの参照アダプタ実装」に専念可能となり単一サイクル粒度に収まる
-- **採用ワークスペース確定 (Intent 未解決事項)**: 全領域共通の前提のため、最初の独立マイルストーン `ms-01-workspace-foundation` として切り出し。配下 `dev-workflow` サイクル Step 1〜2 で確定する
-- **最終統合検証マイルストーン**: `shared-artifacts/references/milestone.md` の「最終マイルストーン = 統合検証マイルストーン」配置パターンに従い、6 領域横断の End-to-End シナリオ動作確認とコードレベル契約による拡張可能性の実証を目的として `ms-10-integration-verification` を配置
+- **採用ワークスペース確定 (Intent 未解決事項)**: 全領域共通の前提のため、最初の独立マイルストーン `ms-01-workspace-foundation` として切り出し。配下 oh-my-codingagent execution サイクル Step 1〜2 で確定する
+- **最終統合検証マイルストーン**: `plugins/totto2727-dev-flow/skills/share-artifacts/references/milestone.md` の「最終マイルストーン = 統合検証マイルストーン」配置パターンに従い、6 領域横断の End-to-End シナリオ動作確認とコードレベル契約による拡張可能性の実証を目的として `ms-10-integration-verification` を配置
 
 ## 依存グラフ
 
@@ -138,7 +138,7 @@ graph LR
 
 ### 並列実行可能なマイルストーン群
 
-依存グラフ上で同じ前提を満たし互いに依存しないマイルストーン群を Wave 形式で識別する。Intent「組織的制約: 並行 dev-workflow サイクル数の上限は 2」のため、識別された並列群でも実行段階では 2 並行までに留める。
+依存グラフ上で同じ前提を満たし互いに依存しないマイルストーン群を Wave 形式で識別する。Intent「組織的制約: 並行 oh-my-codingagent execution サイクル数の上限は 2」のため、識別された並列群でも実行段階では 2 並行までに留める。
 
 - **Wave 0 (起点)**: `ms-01-workspace-foundation`
 - **Wave 1 (ms-01 完了後)**: `ms-02-auth-passkey-magiclink` と `ms-05-persistence-event-store` が並列可能 (前提が ms-01 のみで共通)
@@ -154,16 +154,16 @@ graph LR
 
 - 関連プロジェクト固有スキル: `effect-layer` / `effect-runtime` / `effect-hono` (採用ワークスペースが `js/` の場合の主要パターン)
 - 関連横断スキル: `git-workflow` / `adr` / `script-rules` / `totto2727-fp`
-- 関連既存サイクル: `docs/workflow/` 配下 (本リポジトリ内の dev-workflow サイクル群、本ロードマップは新規ドメインのため直接の前提サイクルはなし)
+- 関連実行サイクル: 各マイルストーンの `workflow_identifiers` で参照する execution cycle
 - 関連 ADR: `docs/adr/` 配下 (本ロードマップ着手時点で本ドメインに直接関連する ADR はなし。マイルストーン段階で必要に応じて新規 ADR 起票)
-- 戦略層補助メモ: `docs/roadmap/feed-platform/design-hint.md` (全体アーキテクチャ素案。配下 `dev-workflow` サイクルで具体構造が確定後に削除 or ADR 昇格予定)
+- 戦略層補助メモ: `docs/roadmap/feed-platform/design-hint.md` (全体アーキテクチャ素案。配下 oh-my-codingagent execution サイクルで具体構造が確定後に削除 or ADR 昇格予定)
 
 ## 未解決事項
 
-戦略レベルで残った論点。配下の `dev-workflow` サイクルが Step 1〜2 で扱う論点はここに列挙せず、配下サイクルに委譲する。
+戦略レベルで残った論点。配下の oh-my-codingagent execution サイクルが Step 1〜2 で扱う論点はここに列挙せず、配下サイクルに委譲する。
 
-- **採用ワークスペースの確定** (`js/` / `mbt/` / `go/` のいずれか): 全領域共通の前提であるため、本ロードマップ Step 2 のマイルストーン分解と同時に大枠を合意する必要がある (具体的決定は最初の `dev-workflow` サイクルの Step 1〜2 に委譲)
-- **「期間限定共有」の RBAC 統合方針**: ユーザー要望「できればこれも RBAC で関してみたい」の実現方法が未確定 (専用ポリシーレイヤを設けるか / 既存 RBAC + 期限フィールド付与で表現するか)。認証認可マイルストーン内の最初の `dev-workflow` サイクル Step 1〜3 で詳細を詰める前提とする
-- **マイルストーン分割の粒度方針**: 6 領域それぞれを 1 マイルストーン = 1 dev-workflow サイクルにまとめるか、領域内をさらに分割するか (例: 認証認可を Passkey マイルストーンと RBAC マイルストーンに分割) は Step 2 `roadmap-planner` の判断に委ねる
+- **採用ワークスペースの確定** (`js/` / `mbt/` / `go/` のいずれか): 全領域共通の前提であるため、本ロードマップ Step 2 のマイルストーン分解と同時に大枠を合意する必要がある (具体的決定は最初の oh-my-codingagent execution サイクルの Step 1〜2 に委譲)
+- **「期間限定共有」の RBAC 統合方針**: ユーザー要望「できればこれも RBAC で関してみたい」の実現方法が未確定 (専用ポリシーレイヤを設けるか / 既存 RBAC + 期限フィールド付与で表現するか)。認証認可マイルストーン内の最初の oh-my-codingagent execution サイクル Step 1〜3 で詳細を詰める前提とする
+- **マイルストーン分割の粒度方針**: 6 領域それぞれを 1 マイルストーン = 1 oh-my-codingagent execution サイクルにまとめるか、領域内をさらに分割するか (例: 認証認可を Passkey マイルストーンと RBAC マイルストーンに分割) は Step 2 `roadmap-planner` の判断に委ねる
 - **「永続化基盤」と「入出力プラグイン契約」の境界面確定タイミング**: 永続化のデータモデルと入出力契約は密結合になる可能性があるため、永続化マイルストーン内で入出力契約のスケルトン (`interface` 定義のみ) を先行確定するか、それとも入出力マイルストーン側で逆引きするかの戦略選択が残る (Step 2 で議論)
-- **アーキテクチャ素案 (`design-hint.md`) の採否**: 全体フロー素案 (取得 → インプット Queue → イベント記録 → 出力 Queue → ビュー更新 / 通知) を最終的にどこまで採用するかは、配下 `dev-workflow` サイクル (特に永続化基盤 / 入力基盤 / 定期実行基盤) の Step 3 (Design) で確定。素案内の論点 (Queue 粒度、イベント記録の出力性、通知経路、取得 DB の必要性等) は配下サイクルに委譲
+- **アーキテクチャ素案 (`design-hint.md`) の採否**: 全体フロー素案 (取得 → インプット Queue → イベント記録 → 出力 Queue → ビュー更新 / 通知) を最終的にどこまで採用するかは、配下 oh-my-codingagent execution サイクル (特に永続化基盤 / 入力基盤 / 定期実行基盤) の Step 3 (Design) で確定。素案内の論点 (Queue 粒度、イベント記録の出力性、通知経路、取得 DB の必要性等) は配下サイクルに委譲

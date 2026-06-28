@@ -4,7 +4,7 @@
 - **Author:** totto2727 (roadmap-analyst 役割を Main が代行)
 - **Created at:** 2026-05-05T00:00:00Z
 - **Last updated:** 2026-05-10T00:00:00Z
-- **Status:** active <!-- planned | active | completed (`roadmap-progress.yaml.status` と一致) -->
+- **Status:** active <!-- planned | active | completed (`progress.yaml.status` と一致) -->
   - **Phase 1 (ms-01〜ms-15) は 2026-05-06 に completed**。後述 "Phase 2 マイルストーン一覧" に列挙する ms-16 以降の大規模 port / scope 拡張作業のため、ロードマップ全体としては再度 active 扱いに復帰している
 
 このドキュメントは `dev-roadmap` の **Step 1 (Roadmap Intent)** で起草され、**Step 2 (Milestone Decomposition)** でマイルストーン一覧と依存グラフが追記されて確定する**戦略層の不変な計画書**。1 サイクルの `dev-workflow` では収まらない複数サイクル規模の開発を束ねる。書き方の詳細は `share-artifacts/references/roadmap.md` を参照。
