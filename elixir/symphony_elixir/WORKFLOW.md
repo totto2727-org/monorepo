@@ -1,7 +1,7 @@
 ---
 tracker:
   kind: linear
-  project_slug: "symphony-test-7cec2162ba4c"
+  project_slug: 'symphony-test-7cec2162ba4c'
   required_labels: []
   active_states:
     - Todo
@@ -20,8 +20,7 @@ workspace:
   root: ~/symphony-workspaces-test
 hooks:
   after_create: |
-    git clone --depth 1 https://github.com/totto2727-org/monorepo .
-    direnv allow
+    git clone --depth 1 https://github.com/totto2727-org/monorepo . && direnv allow
   before_remove: |
     cd elixir/symphony-elixir && mix workspace.before_remove
 agent:
