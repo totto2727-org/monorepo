@@ -1,9 +1,20 @@
+# このファイルは元のApache 2.0ライセンスのコードから変更されています
+# 変更日: 2026-06-28
+# 変更者: totto2727
+# 変更内容: CIでElixirをセットアップしてからmix deps.getを実行するよう復旧
+
 name: Setup Elixir
 description: Install the Elixir toolchain and update the registry.
 
 runs:
   using: composite
   steps:
+    - name: Install Elixir
+      uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93
+      with:
+        otp-version: 29.0.2
+        elixir-version: 1.20.2
+
     - name: Install mix
       shell: bash
       run: mix deps.get
