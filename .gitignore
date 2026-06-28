@@ -13,3 +13,4 @@ _build/
 .tanstack/
 .mooncakes
 __pycache__/
+deps/

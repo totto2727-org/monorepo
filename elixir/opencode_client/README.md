@@ -11,7 +11,7 @@ Add to your `mix.exs`:
 ```elixir
 def deps do
   [
-    {:opencode_client, path: "../package/opencode_client"}
+    {:opencode_client, in_umbrella: true}
   ]
 end
 ```
@@ -91,11 +91,11 @@ config :oapi_generator,
 
 `oapi_generator` is the primary generator because it is Elixir-native and emits operation modules that delegate requests through a configurable `client.request/1` boundary. That boundary keeps HTTP transport and SSE support separate from generated endpoint definitions.
 
-| Tool | Status | Notes |
-|---|---|---|
-| [`oapi_generator`](https://hex.pm/packages/oapi_generator) | Primary | Elixir-native Mix task, generated modules committed under `lib/opencode_client/generated` |
-| [`openapi-generator` Elixir](https://openapi-generator.tech/docs/generators/elixir/) | Fallback | Use only if `oapi_generator` can no longer process the schema |
-| [`openapi_codegen`](https://hex.pm/packages/openapi_codegen) | Fallback | Re-evaluate if it supports the current OpenCode schema |
+| Tool                                                                                 | Status   | Notes                                                                                     |
+| ------------------------------------------------------------------------------------ | -------- | ----------------------------------------------------------------------------------------- |
+| [`oapi_generator`](https://hex.pm/packages/oapi_generator)                           | Primary  | Elixir-native Mix task, generated modules committed under `lib/opencode_client/generated` |
+| [`openapi-generator` Elixir](https://openapi-generator.tech/docs/generators/elixir/) | Fallback | Use only if `oapi_generator` can no longer process the schema                             |
+| [`openapi_codegen`](https://hex.pm/packages/openapi_codegen)                         | Fallback | Re-evaluate if it supports the current OpenCode schema                                    |
 
 ## SSE
 

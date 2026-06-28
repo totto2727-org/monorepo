@@ -16,50 +16,37 @@ defmodule OpencodeClient.Client do
         }
 
   @spec request(operation) :: {:ok, term} | :ok | {:error, term}
-  def request(%{method: method, url: url} = operation) do
+  def request(operation) when is_map(operation) do
+    method = Map.fetch!(operation, :method)
+    url = Map.fetch!(operation, :url)
+    body = Map.get(operation, :body)
+    query = Map.get(operation, :query, [])
     opts = Map.get(operation, :opts, [])
 
     req =
       Req.new(
-        base_url: Keyword.get(opts, :base_url, base_url()),
+        base_url: Keyword.get(opts, :base_url, OpencodeClient.Config.base_url()),
         method: method,
         url: url,
-        json: Map.get(operation, :body),
-        params: Map.get(operation, :query, [])
+        json: body,
+        params: query
       )
-      |> apply_auth(Keyword.get(opts, :auth, auth()))
+      |> OpencodeClient.Auth.apply(Keyword.get(opts, :auth, OpencodeClient.Config.auth()))
 
     with {:ok, response} <- Req.request(req) do
       handle_response(response)
     end
   end
 
-  defp handle_response(%Req.Response{status: status, body: body}) when status in 200..299 do
+  defp handle_response(%{status: status, body: body}) when status in 200..299 do
     case {status, body} do
       {204, _body} -> :ok
       {_status, body} -> {:ok, body}
     end
   end
 
-  defp handle_response(%Req.Response{status: status, body: body}) do
+  defp handle_response(%{status: status, body: body}) do
     {:error, %{status: status, body: body}}
   end
 
-  defp apply_auth(req, {:basic, username, password}) do
-    Req.merge(req, auth: {:basic, username, password})
-  end
-
-  defp apply_auth(req, {:bearer, token}) do
-    Req.merge(req, auth: {:bearer, token})
-  end
-
-  defp apply_auth(req, _auth), do: req
-
-  defp base_url do
-    Application.get_env(:opencode_client, :base_url, "http://localhost:4096")
-  end
-
-  defp auth do
-    Application.get_env(:opencode_client, :auth)
-  end
 end

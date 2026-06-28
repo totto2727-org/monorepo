@@ -32,7 +32,7 @@ defmodule OpencodeClient.EventStream do
   defp request_stream(owner, ref, opts) do
     req =
       Req.new(
-        base_url: Keyword.get(opts, :base_url, base_url()),
+        base_url: Keyword.get(opts, :base_url, OpencodeClient.Config.base_url()),
         method: :get,
         url: "/event",
         into: fn {:sse_event, frame}, {req, resp} ->
@@ -40,7 +40,7 @@ defmodule OpencodeClient.EventStream do
           {:cont, {req, resp}}
         end
       )
-      |> apply_auth(Keyword.get(opts, :auth, auth()))
+      |> OpencodeClient.Auth.apply(Keyword.get(opts, :auth, OpencodeClient.Config.auth()))
       |> ReqServerSentEvents.attach()
 
     Req.request(req)
@@ -61,12 +61,12 @@ defmodule OpencodeClient.EventStream do
     )
   end
 
-  defp decode_frame(%ReqServerSentEvents.Frame{} = frame) do
+  defp decode_frame(%{event: event, data: data, id: id, retry: retry}) do
     %{
-      type: frame.event,
-      data: decode_data(frame.data),
-      id: frame.id,
-      retry: frame.retry
+      type: event,
+      data: decode_data(data),
+      id: id,
+      retry: retry
     }
   end
 
@@ -79,21 +79,4 @@ defmodule OpencodeClient.EventStream do
     end
   end
 
-  defp apply_auth(req, {:basic, username, password}) do
-    Req.merge(req, auth: {:basic, username, password})
-  end
-
-  defp apply_auth(req, {:bearer, token}) do
-    Req.merge(req, auth: {:bearer, token})
-  end
-
-  defp apply_auth(req, _auth), do: req
-
-  defp base_url do
-    Application.get_env(:opencode_client, :base_url, "http://localhost:4096")
-  end
-
-  defp auth do
-    Application.get_env(:opencode_client, :auth)
-  end
 end

@@ -23,7 +23,7 @@ defmodule OpencodeClientTest do
 
       frame = ReqServerSentEvents.Frame.parse(~s(event: session.idle\ndata: {"type":"session.idle"}))
 
-      assert %ReqServerSentEvents.Frame{event: "session.idle", data: ~s({"type":"session.idle"})} = frame
+      assert %{event: "session.idle", data: ~s({"type":"session.idle"})} = frame
     end
   end
 end
