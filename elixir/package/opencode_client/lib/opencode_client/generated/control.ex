@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Control do
   Provides API endpoints related to control
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   Write log

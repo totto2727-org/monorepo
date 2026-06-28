@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Session do
   Provides API endpoints related to session
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   delete `/session/{sessionID}/message/{messageID}/part/{partID}`

@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.V2Messages do
   Provides API endpoint related to v2 messages
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   Get v2 session messages

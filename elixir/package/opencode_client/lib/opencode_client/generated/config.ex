@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Config do
   Provides API endpoints related to config
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   Get configuration

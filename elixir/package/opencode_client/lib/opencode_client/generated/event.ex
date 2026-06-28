@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Event do
   Provides API endpoint related to event
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   Subscribe to events

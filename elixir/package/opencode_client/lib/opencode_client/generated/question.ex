@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Question do
   Provides API endpoints related to question
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   List pending questions

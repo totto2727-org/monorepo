@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Tui do
   Provides API endpoints related to tui
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   Append TUI prompt

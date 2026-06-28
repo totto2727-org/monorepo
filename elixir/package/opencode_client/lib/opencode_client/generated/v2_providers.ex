@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.V2Providers do
   Provides API endpoints related to v2 providers
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   Get v2 provider

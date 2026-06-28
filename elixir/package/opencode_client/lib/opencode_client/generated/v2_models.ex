@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.V2Models do
   Provides API endpoint related to v2 models
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   List v2 models

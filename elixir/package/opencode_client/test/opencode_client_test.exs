@@ -11,9 +11,9 @@ defmodule OpencodeClientTest do
     end
 
     test "provides generated client transport" do
-      assert {:module, OpencodeClient.Generated.Client} = Code.ensure_loaded(OpencodeClient.Generated.Client)
+      assert {:module, OpencodeClient.Client} = Code.ensure_loaded(OpencodeClient.Client)
 
-      assert function_exported?(OpencodeClient.Generated.Client, :request, 1)
+      assert function_exported?(OpencodeClient.Client, :request, 1)
     end
 
     test "provides SSE event stream backed by ReqServerSentEvents" do

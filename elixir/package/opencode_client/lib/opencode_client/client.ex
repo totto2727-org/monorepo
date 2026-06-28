@@ -1,4 +1,4 @@
-defmodule OpencodeClient.Generated.Client do
+defmodule OpencodeClient.Client do
   @moduledoc """
   Req-based transport for generated OpenCode operation modules.
 

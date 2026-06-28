@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Mcp do
   Provides API endpoints related to mcp
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   Add MCP server

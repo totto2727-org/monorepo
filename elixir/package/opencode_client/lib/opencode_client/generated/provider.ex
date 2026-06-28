@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Provider do
   Provides API endpoints related to provider
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   Get provider auth methods

@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Pty do
   Provides API endpoints related to pty
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   Connect to PTY session

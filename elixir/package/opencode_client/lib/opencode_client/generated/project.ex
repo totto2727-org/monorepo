@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Project do
   Provides API endpoints related to project
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   Get current project

@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Instance do
   Provides API endpoints related to instance
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   List agents

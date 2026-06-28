@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.File do
   Provides API endpoints related to file
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   List files

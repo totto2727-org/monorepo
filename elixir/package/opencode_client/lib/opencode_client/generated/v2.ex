@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.V2 do
   Provides API endpoints related to v2
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   Compact v2 session

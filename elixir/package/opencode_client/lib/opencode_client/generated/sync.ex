@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Sync do
   Provides API endpoints related to sync
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @type sync_history_list_200_json_resp :: %{
           aggregate_id: String.t(),

@@ -5,6 +5,7 @@ if config_env() == :dev do
     default: [
       output: [
         base_module: OpencodeClient.Generated,
+        default_client: OpencodeClient.Client,
         location: "lib/opencode_client/generated"
       ]
     ]

@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Experimental do
   Provides API endpoints related to experimental
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   Get active Console provider metadata

@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Global do
   Provides API endpoints related to global
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   Get global configuration

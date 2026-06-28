@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Workspace do
   Provides API endpoints related to workspace
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @type experimental_workspace_adapter_list_200_json_resp :: %{
           description: String.t(),

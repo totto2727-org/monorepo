@@ -44,7 +44,7 @@ end)
 
 - `OpencodeClient.Generated.Session` — generated session operations
 - `OpencodeClient.Generated.*` — generated OpenCode schemas and operation groups
-- `OpencodeClient.Generated.Client` — Req transport for generated operation request maps
+- `OpencodeClient.Client` — Req transport for generated operation request maps
 - `OpencodeClient.EventStream` — `/event` SSE stream helper backed by `req_server_sent_events`
 
 ## Dependencies
@@ -81,6 +81,7 @@ config :oapi_generator,
   default: [
     output: [
       base_module: OpencodeClient.Generated,
+      default_client: OpencodeClient.Client,
       location: "lib/opencode_client/generated"
     ]
   ]
@@ -115,4 +116,4 @@ end)
 
 ## Boundary between generated and manual code
 
-Generated endpoint and schema modules live under `lib/opencode_client/generated/`. Manual code is limited to transport concerns that the generator intentionally delegates to a `client.request/1` callback and to SSE stream consumption, which OpenAPI generators do not model as ordinary request/response operations.
+Generated endpoint and schema modules live under `lib/opencode_client/generated/`. Manual code stays outside that directory: `OpencodeClient.Client` implements the `client.request/1` callback configured via `output.default_client`, and `OpencodeClient.EventStream` handles SSE stream consumption, which OpenAPI generators do not model as ordinary request/response operations.

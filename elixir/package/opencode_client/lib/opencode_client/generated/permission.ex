@@ -3,7 +3,7 @@ defmodule OpencodeClient.Generated.Permission do
   Provides API endpoints related to permission
   """
 
-  @default_client OpencodeClient.Generated.Client
+  @default_client OpencodeClient.Client
 
   @doc """
   List pending permissions
