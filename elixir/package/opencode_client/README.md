@@ -19,31 +19,39 @@ end
 ## Usage
 
 ```elixir
-# Generated operation modules call opts[:client].request/1.
-# A concrete HTTP client implementation is added separately from generation.
 {:ok, session} = OpencodeClient.Generated.Session.session_create(%{
   title: "My Session",
   directory: "/path/to/project"
-}, client: MyClient)
+})
 
 # Send prompt asynchronously
 {:ok, _} = OpencodeClient.Generated.Session.session_prompt_async(session.id, %{
   parts: [%{type: "text", text: "Hello, implement a feature"}]
-}, client: MyClient)
+})
+
+# Stream Server-Sent Events. SSE frame parsing is handled by req_server_sent_events.
+{:ok, events} = OpencodeClient.EventStream.stream()
+
+Enum.each(events, fn event ->
+  IO.inspect(event)
+end)
 
 # Delete session
-{:ok, _} = OpencodeClient.Generated.Session.session_delete(session.id, client: MyClient)
+{:ok, _} = OpencodeClient.Generated.Session.session_delete(session.id)
 ```
 
 ## Modules
 
 - `OpencodeClient.Generated.Session` — generated session operations
 - `OpencodeClient.Generated.*` — generated OpenCode schemas and operation groups
+- `OpencodeClient.Generated.Client` — Req transport for generated operation request maps
+- `OpencodeClient.EventStream` — `/event` SSE stream helper backed by `req_server_sent_events`
 
 ## Dependencies
 
 - `req` — HTTP client
 - `jason` — JSON encoding/decoding
+- `req_server_sent_events` — Server-Sent Events frame parsing for Req streams
 - `oapi_generator` — OpenAPI code generator, dev-only
 
 ## Regeneration
@@ -88,6 +96,23 @@ config :oapi_generator,
 | [`openapi-generator` Elixir](https://openapi-generator.tech/docs/generators/elixir/) | Fallback | Use only if `oapi_generator` can no longer process the schema |
 | [`openapi_codegen`](https://hex.pm/packages/openapi_codegen) | Fallback | Re-evaluate if it supports the current OpenCode schema |
 
-### SSE
+## SSE
 
-SSE support is intentionally not generated in this first stage. Add it after the generated-only commit, using an existing SSE client/parser library if available; write custom SSE parsing only if no suitable library exists.
+OpenCode exposes `/event` as a Server-Sent Events stream. This package uses [`req_server_sent_events`](https://hex.pm/packages/req_server_sent_events) for SSE frame parsing instead of maintaining a custom parser.
+
+```elixir
+{:ok, events} = OpencodeClient.EventStream.stream(
+  base_url: "http://localhost:4096",
+  auth: {:basic, "opencode", "password"}
+)
+
+Enum.each(events, fn %{type: type, data: data} ->
+  IO.inspect({type, data})
+end)
+```
+
+`OpencodeClient.EventStream` opens the HTTP stream with Req, delegates SSE frame parsing to `ReqServerSentEvents`, then JSON-decodes each frame's `data` payload.
+
+## Boundary between generated and manual code
+
+Generated endpoint and schema modules live under `lib/opencode_client/generated/`. Manual code is limited to transport concerns that the generator intentionally delegates to a `client.request/1` callback and to SSE stream consumption, which OpenAPI generators do not model as ordinary request/response operations.

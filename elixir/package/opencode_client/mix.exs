@@ -21,6 +21,7 @@ defmodule OpenCodeClient.MixProject do
     [
       {:req, "~> 0.5"},
       {:jason, "~> 1.4"},
+      {:req_server_sent_events, "~> 0.2.1"},
       {:oapi_generator, "~> 0.4.0", only: :dev, runtime: false}
     ]
   end
