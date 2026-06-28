@@ -11,6 +11,11 @@ Status: Draft v1 (language-agnostic)
 
 Purpose: Define a service that orchestrates coding agents to get project work done.
 
+Implementation note: this repository's current Elixir implementation dispatches normal agent runs
+through OpenCode using the in-repository `opencode_client`. Sections that discuss the Codex
+app-server protocol describe the original/legacy integration contract and compatibility vocabulary
+until this language-neutral specification is fully revised.
+
 ## Normative Language
 
 The key words `MUST`, `MUST NOT`, `REQUIRED`, `SHOULD`, `SHOULD NOT`, `RECOMMENDED`, `MAY`, and

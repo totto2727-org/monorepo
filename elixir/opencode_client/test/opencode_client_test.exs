@@ -25,5 +25,19 @@ defmodule OpencodeClientTest do
 
       assert %{event: "session.idle", data: ~s({"type":"session.idle"})} = frame
     end
+
+    test "normalizes SSE event type from JSON payload when event name is omitted" do
+      frame = %{
+        event: nil,
+        data: ~s({"type":"session.idle","properties":{"sessionID":"ses_test"}}),
+        id: nil,
+        retry: nil
+      }
+
+      assert %{
+               type: "session.idle",
+               data: %{"properties" => %{"sessionID" => "ses_test"}}
+             } = OpencodeClient.EventStream.decode_frame_for_test(frame)
+    end
   end
 end

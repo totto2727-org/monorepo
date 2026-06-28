@@ -29,6 +29,10 @@ defmodule OpencodeClient.EventStream do
     {:ok, stream_from_mailbox(ref, task, timeout)}
   end
 
+  @doc false
+  @spec decode_frame_for_test(map()) :: event()
+  def decode_frame_for_test(frame), do: decode_frame(frame)
+
   defp request_stream(owner, ref, opts) do
     req =
       Req.new(
@@ -62,9 +66,11 @@ defmodule OpencodeClient.EventStream do
   end
 
   defp decode_frame(%{event: event, data: data, id: id, retry: retry}) do
+    decoded_data = decode_data(data)
+
     %{
-      type: event,
-      data: decode_data(data),
+      type: event || event_type(decoded_data),
+      data: decoded_data,
       id: id,
       retry: retry
     }
@@ -79,4 +85,9 @@ defmodule OpencodeClient.EventStream do
     end
   end
 
+  defp event_type(%{"type" => type}) when is_binary(type), do: type
+  defp event_type(%{type: type}) when is_binary(type), do: type
+  defp event_type(%{"payload" => payload}) when is_map(payload), do: event_type(payload)
+  defp event_type(%{payload: payload}) when is_map(payload), do: event_type(payload)
+  defp event_type(_data), do: nil
 end

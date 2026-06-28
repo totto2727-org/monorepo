@@ -7,12 +7,9 @@ defmodule SymphonyElixir.Opencode.AgentRunner do
   @moduledoc """
   Executes a single Linear issue in its workspace using the OpenCode HTTP server.
 
-  This module mirrors `SymphonyElixir.AgentRunner` but replaces the Codex app-server
-  subprocess with HTTP calls to a running `opencode serve` instance via
-  `SymphonyElixir.Opencode.AppServer`.
-
-  The orchestrator can select this runner instead of the Codex-backed one by setting
-  the `OPENCODE_BASE_URL` environment variable (or passing `base_url` in opts).
+  `SymphonyElixir.AgentRunner` is now the canonical OpenCode-backed runner.
+  This module remains as a compatibility runner around the same OpenCode app-server
+  integration vocabulary.
   """
 
   require Logger
