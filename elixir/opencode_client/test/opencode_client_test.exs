@@ -3,7 +3,8 @@ defmodule OpencodeClientTest do
 
   describe "generated OpenAPI client" do
     test "exports generated session operations" do
-      assert {:module, OpencodeClient.Generated.Session} = Code.ensure_loaded(OpencodeClient.Generated.Session)
+      assert {:module, OpencodeClient.Generated.Session} =
+               Code.ensure_loaded(OpencodeClient.Generated.Session)
 
       assert function_exported?(OpencodeClient.Generated.Session, :session_create, 2)
       assert function_exported?(OpencodeClient.Generated.Session, :session_prompt_async, 3)
@@ -17,13 +18,29 @@ defmodule OpencodeClientTest do
     end
 
     test "provides SSE event stream backed by ReqServerSentEvents" do
-      assert {:module, OpencodeClient.EventStream} = Code.ensure_loaded(OpencodeClient.EventStream)
+      assert {:module, OpencodeClient.EventStream} =
+               Code.ensure_loaded(OpencodeClient.EventStream)
 
       assert function_exported?(OpencodeClient.EventStream, :stream, 1)
 
-      frame = ReqServerSentEvents.Frame.parse(~s(event: session.idle\ndata: {"type":"session.idle"}))
+      frame =
+        ReqServerSentEvents.Frame.parse(~s(event: session.idle\ndata: {"type":"session.idle"}))
 
       assert %{event: "session.idle", data: ~s({"type":"session.idle"})} = frame
+    end
+
+    test "normalizes SSE event type from JSON payload when event name is omitted" do
+      frame = %{
+        event: nil,
+        data: ~s({"type":"session.idle","properties":{"sessionID":"ses_test"}}),
+        id: nil,
+        retry: nil
+      }
+
+      assert %{
+               type: "session.idle",
+               data: %{"properties" => %{"sessionID" => "ses_test"}}
+             } = OpencodeClient.EventStream.decode_frame_for_test(frame)
     end
   end
 end
