@@ -22,6 +22,8 @@ jobs:
 
       - uses: ./.github/actions/setup-typescript
 
+      - uses: ./.github/actions/setup-elixir
+
       - name: Run check, build, and test
         shell: bash
         run: |

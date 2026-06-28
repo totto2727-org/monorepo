@@ -1,0 +1,13 @@
+name: Setup Elixir
+description: Install the Elixir toolchain and update the registry.
+
+runs:
+  using: composite
+  steps:
+    - name: Install Elixir
+      uses: erlef/setup-beam@v1
+      elixir-version: 1.20.2
+
+    - name: Install mix
+      shell: bash
+      run: mix deps.get
