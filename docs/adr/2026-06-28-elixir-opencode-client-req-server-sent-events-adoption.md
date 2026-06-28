@@ -33,11 +33,11 @@ scope: general
 
 ### D-1: `req_server_sent_events` を採用する
 
-| Option | 概要 | 採否 | 理由 |
-| --- | --- | --- | --- |
-| `req_server_sent_events` | `Req` plugin として SSE chunk を `%ReqServerSentEvents.Frame{}` に decode する | **採用** | 既存 HTTP client (`Req`) と自然に統合でき、実装が小さく、SSE parsing の主要仕様を既に扱っている |
-| 自前 SSE parser | `/event` 専用に frame splitting / parsing / buffering を実装する | 却下 | chunk 境界・CRLF/CR/LF delimiter・BOM・`retry`/`id` 等の仕様処理を再実装する保守コストとバグリスクが高い |
-| Raw streaming のみ | `Req` の raw chunk を呼び出し側で処理する | 却下 | 呼び出し側に SSE parsing 責務が漏れ、API とテスト境界が不明瞭になる |
+| Option                   | 概要                                                                           | 採否     | 理由                                                                                                     |
+| ------------------------ | ------------------------------------------------------------------------------ | -------- | -------------------------------------------------------------------------------------------------------- |
+| `req_server_sent_events` | `Req` plugin として SSE chunk を `%ReqServerSentEvents.Frame{}` に decode する | **採用** | 既存 HTTP client (`Req`) と自然に統合でき、実装が小さく、SSE parsing の主要仕様を既に扱っている          |
+| 自前 SSE parser          | `/event` 専用に frame splitting / parsing / buffering を実装する               | 却下     | chunk 境界・CRLF/CR/LF delimiter・BOM・`retry`/`id` 等の仕様処理を再実装する保守コストとバグリスクが高い |
+| Raw streaming のみ       | `Req` の raw chunk を呼び出し側で処理する                                      | 却下     | 呼び出し側に SSE parsing 責務が漏れ、API とテスト境界が不明瞭になる                                      |
 
 ### D-2: 採用は localhost OpenCode `/event` 用途に限定して評価する
 
@@ -65,13 +65,13 @@ scope: general
 
 ## Risk Record
 
-| Risk | Severity | Finding | Mitigation |
-| --- | --- | --- | --- |
-| 未完了 frame の unbounded buffering | Medium | `max_frame_size` default は `nil` で、delimiter が来ない stream では buffer が伸び得る | `attach(max_frame_size: ...)` を必須化する |
-| complete frame size の bypass | Medium-High | `Internal.decode_chunk/3` は split 後の `leftover` を check するため、1 chunk 内の巨大 complete frame は上限として完全には止められない | decoded payload size / expected schema / event kind を client 側で検証する |
-| mailbox pressure | Low-Medium | `into: :self` は frame ごとに `send/2` し、consumer が遅い場合 backpressure がない | `into: fun` を優先し、`:self` 利用時は task 監視と timeout を置く |
-| partial frame discard | Low | stream end 時の未完了 frame は flush されず破棄される | SSE frame は delimiter で完了するものとして扱い、欠落を許容できない用途では protocol-level retry を検討する |
-| malformed binary / parser exception | Low | `String.*` parser のため、不正 binary で例外になる可能性がある | 例外を stream failure として扱い、制御された retry / abort にする |
+| Risk                                | Severity    | Finding                                                                                                                                | Mitigation                                                                                                  |
+| ----------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| 未完了 frame の unbounded buffering | Medium      | `max_frame_size` default は `nil` で、delimiter が来ない stream では buffer が伸び得る                                                 | `attach(max_frame_size: ...)` を必須化する                                                                  |
+| complete frame size の bypass       | Medium-High | `Internal.decode_chunk/3` は split 後の `leftover` を check するため、1 chunk 内の巨大 complete frame は上限として完全には止められない | decoded payload size / expected schema / event kind を client 側で検証する                                  |
+| mailbox pressure                    | Low-Medium  | `into: :self` は frame ごとに `send/2` し、consumer が遅い場合 backpressure がない                                                     | `into: fun` を優先し、`:self` 利用時は task 監視と timeout を置く                                           |
+| partial frame discard               | Low         | stream end 時の未完了 frame は flush されず破棄される                                                                                  | SSE frame は delimiter で完了するものとして扱い、欠落を許容できない用途では protocol-level retry を検討する |
+| malformed binary / parser exception | Low         | `String.*` parser のため、不正 binary で例外になる可能性がある                                                                         | 例外を stream failure として扱い、制御された retry / abort にする                                           |
 
 ## Related
 

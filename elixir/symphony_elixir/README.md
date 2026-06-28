@@ -1,7 +1,14 @@
+<!--
+このファイルは元のApache 2.0ライセンスのコードから変更されています
+変更日: 2026-06-28
+変更者: totto2727
+変更内容: 冒頭に元リポジトリ（OpenAI Symphony）への帰属表示を追加し、移設した docs 配下の資料へのリンクに修正
+-->
+
 # Symphony Elixir
 
 This directory contains the current Elixir/OTP implementation of Symphony, based on
-[`SPEC.md`](../SPEC.md) at the repository root.
+[`SPEC.md`](docs/SPEC.md) from the original repository.
 
 This project is a port of the original [OpenAI Symphony](https://github.com/openai/symphony).
 
@@ -11,7 +18,7 @@ This project is a port of the original [OpenAI Symphony](https://github.com/open
 
 ## Screenshot
 
-![Symphony Elixir screenshot](../.github/media/elixir-screenshot.png)
+![Symphony Elixir screenshot](docs/media/elixir-screenshot.png)
 
 ## How it works
 
@@ -96,7 +103,7 @@ Minimal example:
 ---
 tracker:
   kind: linear
-  project_slug: "..."
+  project_slug: '...'
 workspace:
   root: ~/code/workspaces
 hooks:
@@ -155,7 +162,7 @@ hooks:
   after_create: |
     git clone --depth 1 "$SOURCE_REPO_URL" .
 codex:
-  command: "$CODEX_BIN --config 'model=\"gpt-5.5\"' app-server"
+  command: '$CODEX_BIN --config ''model="gpt-5.5"'' app-server'
 ```
 
 - If `WORKFLOW.md` is missing or has invalid YAML at startup, Symphony does not boot.
@@ -202,6 +209,7 @@ Optional environment variables:
 - `SYMPHONY_LIVE_SSH_WORKER_HOSTS` uses those SSH hosts when set, as a comma-separated list
 
 `make e2e` runs two live scenarios:
+
 - one with a local worker
 - one with SSH workers
 
@@ -232,9 +240,4 @@ you.
 
 ## License
 
-This project is licensed under the [Apache License 2.0](../LICENSE).
-
-<!-- 変更通知: このファイルは元のリポジトリから変更されています。
-     変更内容:
-     - 冒頭に元リポジトリ（OpenAI Symphony）への帰属表示を追加
--->
+This project is licensed under the [Apache License 2.0](LICENSE).
