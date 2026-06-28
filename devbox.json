@@ -3,6 +3,7 @@
   "packages": [
     "go@latest",
     "deno@latest",
+    "elixir@latest",
     "pnpm@latest",
     "just@latest",
     "turso-cli@latest",
