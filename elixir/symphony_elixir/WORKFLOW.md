@@ -1,7 +1,7 @@
 ---
 tracker:
   kind: linear
-  project_slug: 'symphony-0c79b11b75ea'
+  project_slug: "symphony-test-7cec2162ba4c"
   required_labels: []
   active_states:
     - Todo
@@ -17,15 +17,13 @@ tracker:
 polling:
   interval_ms: 5000
 workspace:
-  root: ~/code/symphony-workspaces
+  root: ~/symphony-workspaces-test
 hooks:
   after_create: |
-    git clone --depth 1 https://github.com/openai/symphony .
-    if command -v mise >/dev/null 2>&1; then
-      cd elixir && mise trust && mise exec -- mix deps.get
-    fi
+    git clone --depth 1 https://github.com/totto2727-org/monorepo .
+    direnv allow
   before_remove: |
-    cd elixir && mise exec -- mix workspace.before_remove
+    cd elixir/symphony-elixir && mix workspace.before_remove
 agent:
   max_concurrent_agents: 10
   max_turns: 20
@@ -37,6 +35,13 @@ codex:
     type: workspaceWrite
     networkAccess: true
 ---
+<!--
+このファイルは元のApache 2.0ライセンスのコードから変更されています
+変更日: 2026-06-28
+変更者: totto2727
+変更内容:
+  - フロントマターを設定値をプロジェクト用に調整
+-->
 
 You are working on a Linear ticket `{{ issue.identifier }}`
 
