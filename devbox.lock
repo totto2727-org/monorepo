@@ -49,6 +49,10 @@
         }
       }
     },
+    "github:NixOS/nixpkgs/nixos-26.05#beam29Packages.elixir_1_20": {
+      "last_modified": "2026-06-25T08:17:00Z",
+      "resolved": "github:NixOS/nixpkgs/4062d36ebeae843c750011eef6b61ec9a9dbc9a9?lastModified=1782375420#beam29Packages.elixir_1_20"
+    },
     "github:NixOS/nixpkgs/nixpkgs-unstable": {
       "last_modified": "2026-06-23T00:43:55Z",
       "resolved": "github:NixOS/nixpkgs/89570f24e97e614aa34aa9ab1c927b6578a43775?lastModified=1782175435"
