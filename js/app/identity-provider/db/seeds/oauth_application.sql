@@ -12,7 +12,7 @@ VALUES (
   'Feed Platform Web',
   'feed-platform-web',
   'dev-secret-do-not-use-in-prod',
-  '["http://127.0.0.1:8789/auth/callback"]',
+'["http://127.0.0.1:8789/api/v1/auth/oauth2/callback/identity-provider"]',
   'dev-user-id',
   datetime('now'),
   datetime('now')

@@ -1,33 +1,42 @@
-import { Effect, Predicate, Result, String } from 'effect'
+import { Effect, Option, Predicate, Schema } from 'effect'
 
-import * as Jwt from '#@/feature/auth/jwt.ts'
+import * as HonoContext from '#@/feature/share/lib/hono/context.ts'
 import { factory } from '#@/feature/share/lib/hono/factory.ts'
 
-export const authMiddleware = factory.createMiddleware((ctx, next) =>
+import * as BetterAuth from './better-auth.ts'
+
+const AuthUserPayload = Schema.Struct({
+  email: Schema.String,
+  id: Schema.String,
+})
+
+// oxlint-disable-next-line rules/prefer-non-unknown-decode -- Better Auth session user is an external auth boundary.
+const decodeAuthUserPayload = Schema.decodeUnknownOption(AuthUserPayload)
+
+const verifyUser = Effect.gen(function* () {
+  const auth = yield* BetterAuth.Service
+  const result = yield* Effect.tryPromise(() => auth.api.getSession({ headers: HonoContext.get().req.raw.headers }))
+  if (Predicate.isNullish(result)) {
+    return null
+  }
+  return Option.match(decodeAuthUserPayload(result.user), {
+    onNone: () => null,
+    onSome: (user) => user,
+  })
+})
+
+export const authMiddleware = factory.createMiddleware((ctx, next) => {
+  const runtime = Effect.gen(function* () {
+    const user = yield* verifyUser
+    if (Predicate.isNullish(user)) {
+      return ctx.json({ error: 'Unauthorized' }, 401, {
+        'WWW-Authenticate': 'Session error="invalid_session"',
+      })
+    }
+    ctx.set('user', { email: user.email, sub: user.id })
+    return yield* Effect.promise(() => next())
+  })
+  const catchedRuntime = runtime
   // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP middleware boundary executes request-scoped auth workflow.
-  ctx.var.runtime.runPromise(
-    Effect.gen(function* () {
-      const authorization = ctx.req.header('Authorization')
-      if (Predicate.isNullish(authorization) || !authorization.startsWith('Bearer ')) {
-        return ctx.json({ error: 'Unauthorized' }, 401, {
-          'WWW-Authenticate': 'Bearer error="invalid_token"',
-        })
-      }
-      const token = authorization.slice('Bearer '.length)
-      if (String.isEmpty(token)) {
-        return ctx.json({ error: 'Unauthorized' }, 401, {
-          'WWW-Authenticate': 'Bearer error="invalid_token"',
-        })
-      }
-      const jwt = yield* Jwt.Service
-      const result = yield* Effect.result(jwt.verify(token))
-      if (Result.isFailure(result)) {
-        return ctx.json({ error: 'Unauthorized' }, 401, {
-          'WWW-Authenticate': 'Bearer error="invalid_token"',
-        })
-      }
-      ctx.set('user', result.success)
-      return yield* Effect.promise(() => next())
-    }),
-  ),
-)
+  return ctx.var.runtime.runPromise(catchedRuntime)
+})

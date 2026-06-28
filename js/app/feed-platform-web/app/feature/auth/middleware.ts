@@ -1,49 +1,50 @@
-import type { AppJWTPayload } from 'auth-helper'
-import { Effect, Predicate, Schema } from 'effect'
-import { getCookie } from 'hono/cookie'
-import { createRemoteJWKSet, jwtVerify } from 'jose'
+import { Effect, Option, Predicate, Schema } from 'effect'
 
-import { FEED_SESSION_COOKIE } from '#@/feature/auth/constants.ts'
-import * as AppEnv from '#@/feature/env.ts'
 import { factory } from '#@/feature/share/lib/hono/factory.ts'
+
+import * as BetterAuth from './better-auth.ts'
+import { setLoginReturnToCookie } from './cookie.ts'
+import { preserveReturnToQueryParameterName, preserveReturnToQueryParameterValue } from './query-parameter.ts'
+import { getReturnToPath } from './return-to.ts'
 
 const AuthUserPayload = Schema.Struct({
   email: Schema.String,
-  sub: Schema.String,
+  id: Schema.String,
 })
 
-const decodeAuthUserPayload = Schema.decodeEffect(AuthUserPayload)
+const decodeAuthUserPayload = Schema.decodeOption(AuthUserPayload)
 
-export const authMiddleware = factory.createMiddleware((ctx, next) =>
+const verifyUser = Effect.fn(function* (headers: Headers) {
+  const auth = yield* BetterAuth.Service
+  const session = yield* Effect.tryPromise(() => auth.api.getSession({ headers }))
+
+  if (Predicate.isNullish(session)) {
+    return null
+  }
+  return Option.match(decodeAuthUserPayload(session.user), {
+    onNone: () => null,
+    onSome: (user) => user,
+  })
+})
+
+export const authMiddleware = factory.createMiddleware((ctx, next) => {
+  const runtime = Effect.gen(function* () {
+    ctx.set('user', yield verifyUser(ctx.req.raw.headers))
+
+    yield* Effect.promise(() => next())
+  })
+  const catchedRuntime = runtime
   // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP middleware boundary executes the auth workflow once.
-  ctx.var.runtime.runPromise(
-    Effect.gen(function* () {
-      const token = getCookie(ctx, FEED_SESSION_COOKIE)
+  return ctx.var.runtime.runPromise(catchedRuntime)
+})
 
-      if (Predicate.isNullish(token)) {
-        ctx.set('user', null)
-        yield* Effect.promise(() => next())
-        return
-      }
+export const requireAuthMiddleware = factory.createMiddleware((ctx, next) => {
+  if (!Predicate.isNullish(ctx.var.user)) {
+    return next()
+  }
 
-      const env = yield* AppEnv.Service
-      const jwks = createRemoteJWKSet(new URL(`${env.IDP_BASE_URL}/api/v1/auth/jwks`))
-      const decodedPayload = yield* Effect.tryPromise({
-        catch: (cause) => new Error(String(cause)),
-        try: () => jwtVerify<AppJWTPayload>(token, jwks),
-      }).pipe(
-        Effect.flatMap(({ payload }) => decodeAuthUserPayload(payload)),
-        Effect.match({
-          onFailure: (failure) => {
-            console.warn('[auth] JWT verification failed:', String(failure))
-            return null
-          },
-          onSuccess: (payload) => payload,
-        }),
-      )
-      ctx.set('user', decodedPayload)
-
-      yield* Effect.promise(() => next())
-    }),
-  ),
-)
+  setLoginReturnToCookie(getReturnToPath(ctx.req.url))
+  return Promise.resolve(
+    ctx.redirect(`/app/login?${preserveReturnToQueryParameterName}=${preserveReturnToQueryParameterValue}`),
+  )
+})

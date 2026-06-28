@@ -39,7 +39,8 @@ sequenceDiagram
   participant Backend as feed-platform-backend
 
   User->>Web: GET /login
-  Web-->>User: Set oauth_state and pkce_verifier cookies, then redirect to /oauth2/authorize
+  Web->>BetterAuth: signInWithOAuth2(providerId=identity-provider)
+  BetterAuth-->>User: Redirect to /oauth2/authorize with Better Auth-managed state and PKCE
   User->>IdP: GET /api/v1/auth/oauth2/authorize?state&nonce&code_challenge
   IdP->>BetterAuth: Validate OAuth client, redirect URI, scope, state, PKCE challenge
   BetterAuth-->>User: Redirect to /app/login when no IdP session exists
@@ -49,43 +50,34 @@ sequenceDiagram
   BetterAuth-->>User: Redirect to /app/oauth/consent
   User->>IdP: POST /api/v1/auth/oauth2/consent with accept and oauth_query
   IdP->>BetterAuth: Verify signed oauth_query and record consent
-  BetterAuth-->>User: Redirect to feed /auth/callback?code&state
-  User->>Web: GET /auth/callback?code&state
-  Web->>Web: Verify oauth_state cookie and load pkce_verifier
-  Web->>BetterAuth: POST /oauth2/token with code, client credentials, PKCE verifier, resource=feed-platform-backend
-  BetterAuth-->>Web: JWT access_token, id_token, optional refresh_token
-  Web->>Web: Verify ID token nonce, then store ID token cookie plus access/refresh tokens server-side
+  BetterAuth-->>User: Redirect to feed Better Auth callback with code and state
+  User->>Web: GET /api/v1/auth/* callback route
+  Web->>BetterAuth: Complete genericOAuth callback and create stateless session cookie
   Web-->>User: Redirect to /dashboard
   User->>Web: GET /dashboard
-  Web->>Web: Look up JWT access token by feed-session ID token
-  Web->>Backend: GET /api/v1/me with Authorization: Bearer JWT access_token
-  Backend->>IdP: Fetch JWKS when needed
-  Backend-->>Web: JWT-derived user payload or 401
+  Web->>BetterAuth: getSession(headers)
+  Web->>Backend: GET /api/v1/me with Better Auth session cookie
+  Backend->>BetterAuth: getSession(headers)
+  Backend-->>Web: Better Auth user payload or 401
   Web-->>User: Render dashboard or unauthenticated state
 ```
 
-## Local feed OAuth flow
+## Local feed Better Auth session flow
 
 ### 1. Login starts in feed-platform-web
 
-`GET /login` in `feed-platform-web` generates:
-
-- `state`, stored in the `oauth_state` HTTP-only cookie.
-- PKCE `code_verifier`, stored in the `pkce_verifier` HTTP-only cookie.
-- `nonce`, stored in the feed web database and later checked against the ID
-  token.
-- PKCE `code_challenge` using S256.
-
-The browser is redirected to:
+`GET /login` in `feed-platform-web` delegates sign-in to its local Better Auth
+instance:
 
 ```text
-http://localhost:8787/api/v1/auth/oauth2/authorize
+POST /api/v1/auth/sign-in/oauth2
 ```
 
-with `response_type=code`, `client_id=feed-platform-web`,
-`redirect_uri=http://127.0.0.1:8789/auth/callback`, `scope=openid profile email
-offline_access`, `state`, `nonce`, `code_challenge`, and
-`code_challenge_method=S256`.
+The local Better Auth instance uses the `genericOAuth` plugin with
+`identity-provider` as the provider. Better Auth owns OAuth state, PKCE,
+callback handling, and the resulting browser session cookie. The web app no
+longer stores `oauth_state`, `pkce_verifier`, nonce rows, ID tokens, access
+tokens, or refresh tokens itself.
 
 ### 2. Identity Provider login
 
@@ -137,90 +129,44 @@ request and reconstruct provider state. When consent is accepted, Better Auth
 returns a JSON object containing `redirect: true` and the final callback URL.
 The browser is then sent to `feed-platform-web` with an authorization code.
 
-### 4. Authorization callback and token exchange
+### 4. Better Auth callback and stateless session
 
-`feed-platform-web` handles:
-
-```text
-GET /auth/callback
-```
-
-It validates that the returned `state` matches the `oauth_state` cookie, then
-exchanges the authorization code at:
+Better Auth handles the OAuth callback under `feed-platform-web`'s auth base path:
 
 ```text
-POST http://localhost:8787/api/v1/auth/oauth2/token
+/api/v1/auth/*
 ```
 
-with form-encoded `grant_type=authorization_code`, `client_id`,
-`client_secret`, `code`, `code_verifier`, `redirect_uri`, and
-`resource=feed-platform-backend`.
-
-The token response is decoded as:
-
-- `access_token`: JWT OAuth access token for the `feed-platform-backend`
-  resource.
-- `id_token`: OIDC JWT when `openid` is requested.
-- `refresh_token`: opaque refresh token when `offline_access` is granted.
-
-`feed-platform-web` verifies the `nonce` claim in the ID token against its stored
-nonce. It stores the ID token in the `feed-session` HTTP-only cookie for the web
-login session only. The JWT access token and refresh token are stored
-server-side in `oauth_refresh_session` keyed by the current `feed-session` token;
-neither token is sent to the browser.
+The `genericOAuth` provider exchanges the code at the IdP token endpoint and
+builds a local Better Auth user from the OIDC ID token. The feed web session is a
+Better Auth stateless cookie using `session.cookieCache` with the `jwe` strategy;
+there is no feed-specific session database table.
 
 ### 5. Dashboard and backend call
 
-`feed-platform-web` auth middleware verifies the `feed-session` signature against:
+`feed-platform-web` auth middleware calls:
 
-```text
-http://localhost:8787/api/v1/auth/jwks
+```ts
+auth.api.getSession({ headers })
 ```
 
-The current web middleware does not validate issuer or audience. The backend
-does validate those claims, so the backend is the stricter JWT enforcement point
-in the feed example.
-
-Before calling the backend, feed web looks up the server-side access token for
-the current `feed-session`. The dashboard then calls `feed-platform-backend`:
+If a Better Auth session exists, the dashboard forwards the browser's Better Auth
+session cookie to `feed-platform-backend` when calling:
 
 ```text
 GET http://localhost:8788/api/v1/me
-Authorization: Bearer <JWT access token>
+Cookie: better-auth session cookie
 ```
 
-`feed-platform-backend` verifies:
+`feed-platform-backend` uses the same Better Auth stateless-session settings and
+also calls `auth.api.getSession({ headers })`. It does not implement its own JWT,
+JWKS, issuer, audience, token-use, or refresh-token validation.
 
-- `alg=ES256`.
-- `aud=feed-platform-backend`.
-- `iss=http://localhost:8787/api/v1/auth`.
-- signature through `http://localhost:8787/api/v1/auth/jwks`.
-- `token_use=access`, rejecting ID tokens even when they are otherwise valid
-  JWTs.
-- required `sub` and `email` claims.
+### 6. Logout
 
-The backend returns the JWT-derived `sub` and `email` payload. `feed-platform-web`
-uses `sub` as the OIDC subject and does not fall back to an application `id`.
-
-### 6. Refresh
-
-If the backend call fails and a server-side refresh token exists for the current
-`feed-session`, `feed-platform-web` attempts `grant_type=refresh_token` at the
-IdP token endpoint with `resource=feed-platform-backend`. The refresh response
-must include a refreshed ID token for `feed-session` and a refreshed JWT access
-token for the backend. The refreshed or previous refresh token remains
-server-side, then feed web retries the backend call with the refreshed access
-token.
-
-### 7. Logout
-
-`GET /logout` in `feed-platform-web` clears `feed-session`, deletes the
-server-side refresh session for that browser session, and attempts to call Better
-Auth sign-out with an empty JSON body to satisfy the endpoint content-type
-contract.
-
-Current logout is a local best-effort operation. It is not a complete OIDC
-RP-Initiated Logout or OAuth token revocation flow.
+`GET /logout` in `feed-platform-web` delegates sign-out to Better Auth and then
+redirects to `/login`. Current logout is local to the feed web Better Auth
+session and does not perform OIDC RP-Initiated Logout at the IdP.
 
 ## OAuth 2.0 and OIDC compliance status
 
@@ -232,19 +178,17 @@ Core 1.0, and the OWASP OAuth2 Cheat Sheet.
 
 ### Implemented or mostly compliant
 
-| Area                      | Status                     | Evidence                                                                                               |
-| ------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Authorization Code flow   | Implemented                | Feed web uses `/oauth2/authorize`, receives `code`, and exchanges it at `/oauth2/token`.               |
-| PKCE                      | Implemented                | Feed web generates a verifier and S256 challenge; the callback sends `code_verifier`.                  |
-| `state` CSRF binding      | Implemented                | Feed web stores `oauth_state` in an HTTP-only cookie and rejects callback state mismatch.              |
-| OIDC `nonce`              | Implemented                | Feed web stores a nonce and verifies the ID token nonce before accepting the login.                    |
-| Exact redirect URI        | Implemented for local feed | Seeded client redirect URI is `http://127.0.0.1:8789/auth/callback`.                                   |
-| ID token signing and JWKS | Implemented                | IdP uses Better Auth `jwt` with ES256 and exposes `/api/v1/auth/jwks`.                                 |
-| JWT access token boundary | Implemented                | Feed web requests `resource=feed-platform-backend`; backend rejects tokens without `token_use=access`. |
-| Audience validation       | Implemented                | Backend verifies `aud=feed-platform-backend`; IdP has `validAudiences`.                                |
-| Issuer validation         | Implemented                | Backend verifies issuer `http://localhost:8787/api/v1/auth`.                                           |
-| Refresh token table       | Implemented                | `oauth_refresh_token` table exists and maps `scopes` to `scope`.                                       |
-| Consent endpoint          | Implemented                | Consent screen calls `/oauth2/consent` with Better Auth `oauth_query`.                                 |
+| Area                      | Status                     | Evidence                                                                                      |
+| ------------------------- | -------------------------- | --------------------------------------------------------------------------------------------- |
+| Authorization Code flow   | Implemented                | Feed web delegates the OAuth flow to Better Auth `genericOAuth`.                              |
+| PKCE                      | Implemented                | Better Auth owns state and PKCE for the generic OAuth provider.                               |
+| `state` CSRF binding      | Implemented                | Better Auth owns OAuth state validation for the feed web client.                              |
+| OIDC `nonce`              | Delegated                  | Feed web no longer verifies nonce itself; provider callback handling is owned by Better Auth. |
+| Exact redirect URI        | Implemented for local feed | Seeded redirect URI is `http://127.0.0.1:8789/api/v1/auth/oauth2/callback/identity-provider`. |
+| ID token signing and JWKS | Implemented                | IdP uses Better Auth `jwt` with ES256 and exposes `/api/v1/auth/jwks`.                        |
+| Stateless session auth    | Implemented                | Feed web and backend both authorize with Better Auth `auth.api.getSession({ headers })`.      |
+| Refresh token table       | Implemented                | `oauth_refresh_token` table exists and maps `scopes` to `scope`.                              |
+| Consent endpoint          | Implemented                | Consent screen calls `/oauth2/consent` with Better Auth `oauth_query`.                        |
 
 ### Non-compliant, incomplete, or local-only behavior
 
@@ -349,82 +293,34 @@ Fix:
   RFC 7009-compatible revoke behavior if the provider exposes it.
 - Add OIDC RP-Initiated Logout support when Better Auth configuration and client
   metadata support `end_session_endpoint` and `post_logout_redirect_uri`.
-- Ensure logout does not send an ID token in a cookie named as an access-token
-  session to the wrong endpoint.
 
-#### Backend access token purpose is separated from web session identity
+#### Feed web and backend share Better Auth stateless session validation
 
 Current behavior:
 
-- Feed web requests a JWT access token by sending
-  `resource=feed-platform-backend` to the token endpoint.
-- The IdP includes `aud=feed-platform-backend`, `azp=feed-platform-web`, and
-  `token_use=access` in the access token.
-- Feed web stores the ID token in `feed-session` only for the web login session.
-- Feed web stores the JWT access token server-side and sends that token, not the
-  ID token, to `feed-platform-backend`.
-- The backend verifies issuer, audience, ES256 signature, required user claims,
-  and `token_use=access`.
+- `feed-platform-web` owns the relying-party browser session with Better Auth
+  `genericOAuth` and `session.cookieCache.strategy = "jwe"`.
+- `feed-platform-web` middleware calls `auth.api.getSession({ headers })` instead
+  of verifying an ID token itself.
+- `feed-platform-backend` receives the forwarded Better Auth session cookie and
+  also calls `auth.api.getSession({ headers })`.
+- The feed backend no longer contains custom JWT/JWKS/audience/token-use
+  validation code.
 
 Why this matters:
 
-- ID tokens are intended to authenticate the user to the client, while access
-  tokens authorize API access. A backend that accepts ID tokens as bearer tokens
-  conflates token purposes and can accidentally accept tokens minted for a
-  different relying party.
-- Requiring a resource-specific JWT access token keeps the BFF authorization
-  boundary aligned with OAuth token purpose and audience semantics.
+- The feed apps now use Better Auth as the single session authority instead of
+  maintaining a second OAuth token store and verifier.
+- Both services must share the same Better Auth secret and stateless session
+  settings. A secret mismatch invalidates backend requests even when the browser
+  is logged into feed web.
 
 Remaining hardening:
 
-- Keep the ID-token rejection test in `feed-platform-backend` whenever changing
-  JWT claims or token exchange behavior.
-- If the IdP ever returns opaque access tokens for this flow, replace backend JWT
-  verification with RFC 7662-style introspection or a server-to-server token
-  minted specifically for the backend.
-- Do not send `feed-session` ID tokens to backend APIs.
-
-#### Feed web JWT validation is weaker than backend validation
-
-Current behavior:
-
-- `feed-platform-web` middleware verifies JWT signatures with the IdP JWKS.
-- It does not pass expected `issuer`, `audience`, or `algorithms` to `jwtVerify`.
-- `feed-platform-backend` does validate issuer, audience, and ES256.
-
-Why this is incomplete:
-
-- A relying party should reject tokens from the wrong issuer, for the wrong
-  audience, or with an unexpected algorithm before treating the user as signed
-  in.
-
-Fix:
-
-- Update `feed-platform-web` auth middleware to verify `issuer`, `audience`, and
-  `algorithms: ['ES256']`, matching backend validation.
-- Keep the backend validation as the API authorization enforcement point.
-
-#### Refresh-token storage and rotation policy is not documented in code
-
-Current behavior:
-
-- Better Auth stores provider-side refresh tokens in `oauth_refresh_token`.
-- Feed web stores the client refresh token server-side in `oauth_refresh_session`
-  keyed by the current `feed-session` token.
-
-Why this needs follow-up:
-
-- Refresh tokens are long-lived and high-value.
-- The implementation should clearly enforce rotation, replay detection, expiry,
-  and revocation.
-
-Fix:
-
-- Confirm Better Auth refresh-token family invalidation and rotation settings for
-  the deployed version.
-- Add tests for refresh replay and revoked refresh-token rejection.
-- Add explicit refresh-token revocation and replay tests for the
-  `oauth_refresh_session` store.
+- Move the shared Better Auth session settings into a shared package if more feed
+  services need to validate the same stateless session.
+- Add runtime tests that prove a session cookie issued by `feed-platform-web` is
+  accepted by `feed-platform-backend` and rejected after sign-out or expiry.
 
 #### CSRF and origin policy around sign-out and consent need explicit tests
 
@@ -493,17 +389,18 @@ Before using this flow beyond local development:
 1. Use HTTPS-only origins and exact registered redirect URIs.
 2. Store client secrets hashed or encrypted; do not use the local identity
    secret verifier.
-3. Keep backend API authorization on resource-specific access tokens; never send
-   ID tokens as backend bearer tokens.
-4. Validate issuer, audience, and allowed algorithms in every JWT-consuming
-   relying party, including `feed-platform-web` middleware.
-5. Implement or validate token revocation for refresh tokens.
+3. Keep `feed-platform-web` and `feed-platform-backend` Better Auth stateless
+   session secrets and cookie-cache settings aligned.
+4. Do not reintroduce feed-specific ID-token cookies, access-token stores, or
+   custom JWKS verification unless the architecture intentionally moves away from
+   Better Auth session clients.
+5. Implement or validate token revocation for provider-side refresh tokens.
 6. Add consent review and revocation UI.
 7. Serve OAuth/OIDC discovery metadata and test issuer/JWKS consistency.
-8. Add end-to-end tests for authorization code, PKCE, nonce, refresh, revocation,
-   and logout.
-9. Add negative tests for invalid state, invalid nonce, invalid redirect URI,
-   invalid client secret, replayed authorization code, and untrusted origins.
+8. Add end-to-end tests for Better Auth generic OAuth sign-in, stateless session
+   validation in both feed apps, revocation, expiry, and logout.
+9. Add negative tests for invalid redirect URI, invalid client secret, replayed
+   authorization code, expired stateless session cookies, and untrusted origins.
 10. Keep local DB schema migrations in sync with Better Auth model names and field
     mappings.
 
@@ -514,8 +411,8 @@ Before using this flow beyond local development:
 - IdP consent UI: `app/ui/oauth-consent.tsx`
 - IdP consent client entry: `app/ui/oauth-consent.client.tsx`
 - IdP OAuth schema: `db/schema.hcl`
-- Feed OAuth client helpers: `../../feed-platform-web/app/feature/auth/oauth-client.ts`
-- Feed callback: `../../feed-platform-web/app/feature/auth/callback.ts`
+- Feed Better Auth config: `../../feed-platform-web/app/feature/auth/better-auth.ts`
 - Feed auth middleware: `../../feed-platform-web/app/feature/auth/middleware.ts`
 - Feed backend client: `../../feed-platform-web/app/feature/api/client.ts`
-- Backend JWT verifier: `../../feed-platform-backend/src/feature/auth/jwt.ts`
+- Backend Better Auth config: `../../feed-platform-backend/src/feature/auth/better-auth.ts`
+- Backend auth middleware: `../../feed-platform-backend/src/feature/auth/middleware.ts`

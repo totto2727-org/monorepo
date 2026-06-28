@@ -36,7 +36,7 @@ export const PasskeyLoginButton = clientEntry(
               Effect.gen(function* () {
                 state.error = ''
                 state.submitting = true
-                void handle.update()
+                yield* Effect.promise(() => handle.update())
 
                 const client = yield* HttpClient.HttpClient
                 const optsRes = yield* client.execute(
@@ -96,13 +96,11 @@ export const PasskeyLoginButton = clientEntry(
                 window.location.href = withReturnTo('/app/auth/passkey/callback', handle.props.returnTo)
                 return yield* Effect.void
               }).pipe(
-                Effect.catch(() =>
-                  Effect.sync(() => {
-                    state.error = 'Passkey 認証に失敗しました'
-                    state.submitting = false
-                    void handle.update()
-                  }),
-                ),
+                Effect.catch(() => {
+                  state.error = 'Passkey 認証に失敗しました'
+                  state.submitting = false
+                  return Effect.promise(() => handle.update())
+                }),
                 Effect.provide(FetchHttpClient.layer),
               ),
             )

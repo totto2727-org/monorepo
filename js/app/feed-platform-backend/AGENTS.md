@@ -8,11 +8,12 @@
 When editing backend auth code, check that document first. The current backend
 example depends on:
 
-- `src/feature/auth/jwt.ts` for IdP JWKS verification, expected issuer, expected
-  audience, and required claims.
-- `src/feature/auth/middleware.ts` for `Authorization: Bearer ...` enforcement.
+- `src/feature/auth/better-auth.ts` for Better Auth stateless session
+  configuration shared with `feed-platform-web`.
+- `src/feature/auth/middleware.ts` for Better Auth session validation through
+  `auth.api.getSession({ headers })`.
 - `src/worker/bff/worker.ts` for the protected `/api/v1/me` endpoint.
 
-The backend must authorize API access with the resource-specific JWT access token
-for `feed-platform-backend`. Keep rejecting OIDC ID tokens, including tokens that
-have a valid signature but do not carry `token_use=access`.
+Do not reintroduce custom JWKS, bearer JWT, issuer, audience, or `token_use`
+validation unless `docs/auth-flow.md` is updated with a new architecture decision
+first.

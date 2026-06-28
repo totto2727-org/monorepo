@@ -16,11 +16,9 @@ export const LogoutButton = clientEntry(
             // oxlint-disable-next-line rules/no-effect-runtime-run -- Client event boundary executes one sign-out workflow Effect.
             void Effect.runPromise(
               Effect.gen(function* () {
-                yield* Effect.sync(() => {
-                  state.error = ''
-                  state.submitting = true
-                  void handle.update()
-                })
+                state.error = ''
+                state.submitting = true
+                yield* Effect.promise(() => handle.update())
 
                 const client = yield* HttpClient.HttpClient
                 const response = yield* client.execute(
@@ -33,13 +31,11 @@ export const LogoutButton = clientEntry(
                 window.location.href = '/app/login'
                 return yield* Effect.void
               }).pipe(
-                Effect.catch(() =>
-                  Effect.sync(() => {
-                    state.error = 'ログアウトに失敗しました'
-                    state.submitting = false
-                    void handle.update()
-                  }),
-                ),
+                Effect.catch(() => {
+                  state.error = 'ログアウトに失敗しました'
+                  state.submitting = false
+                  return Effect.promise(() => handle.update())
+                }),
                 Effect.provide(FetchHttpClient.layer),
               ),
             )
