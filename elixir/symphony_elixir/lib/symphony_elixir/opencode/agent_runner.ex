@@ -35,7 +35,9 @@ defmodule SymphonyElixir.Opencode.AgentRunner do
 
       {:error, reason} ->
         Logger.error("OpenCode agent run failed for #{issue_context(issue)}: #{inspect(reason)}")
-        raise RuntimeError, "OpenCode agent run failed for #{issue_context(issue)}: #{inspect(reason)}"
+
+        raise RuntimeError,
+              "OpenCode agent run failed for #{issue_context(issue)}: #{inspect(reason)}"
     end
   end
 
@@ -91,11 +93,23 @@ defmodule SymphonyElixir.Opencode.AgentRunner do
 
   defp run_opencode_turns(workspace, issue, codex_update_recipient, opts) do
     max_turns = Keyword.get(opts, :max_turns, Config.settings!().agent.max_turns)
-    issue_state_fetcher = Keyword.get(opts, :issue_state_fetcher, &Tracker.fetch_issue_states_by_ids/1)
 
-    with {:ok, session} <- AppServer.start_session(workspace, title: "#{issue.identifier}: #{issue.title}") do
+    issue_state_fetcher =
+      Keyword.get(opts, :issue_state_fetcher, &Tracker.fetch_issue_states_by_ids/1)
+
+    with {:ok, session} <-
+           AppServer.start_session(workspace, title: "#{issue.identifier}: #{issue.title}") do
       try do
-        do_run_opencode_turns(session, workspace, issue, codex_update_recipient, opts, issue_state_fetcher, 1, max_turns)
+        do_run_opencode_turns(
+          session,
+          workspace,
+          issue,
+          codex_update_recipient,
+          opts,
+          issue_state_fetcher,
+          1,
+          max_turns
+        )
       after
         AppServer.stop_session(session)
       end
@@ -121,11 +135,15 @@ defmodule SymphonyElixir.Opencode.AgentRunner do
              issue,
              on_message: codex_message_handler(codex_update_recipient, issue)
            ) do
-      Logger.info("Completed OpenCode agent run for #{issue_context(issue)} session_id=#{turn_session[:session_id]} workspace=#{workspace} turn=#{turn_number}/#{max_turns}")
+      Logger.info(
+        "Completed OpenCode agent run for #{issue_context(issue)} session_id=#{turn_session[:session_id]} workspace=#{workspace} turn=#{turn_number}/#{max_turns}"
+      )
 
       case continue_with_issue?(issue, issue_state_fetcher) do
         {:continue, refreshed_issue} when turn_number < max_turns ->
-          Logger.info("Continuing OpenCode agent run for #{issue_context(refreshed_issue)} after normal turn completion turn=#{turn_number}/#{max_turns}")
+          Logger.info(
+            "Continuing OpenCode agent run for #{issue_context(refreshed_issue)} after normal turn completion turn=#{turn_number}/#{max_turns}"
+          )
 
           do_run_opencode_turns(
             app_session,
@@ -139,7 +157,10 @@ defmodule SymphonyElixir.Opencode.AgentRunner do
           )
 
         {:continue, refreshed_issue} ->
-          Logger.info("Reached agent.max_turns for #{issue_context(refreshed_issue)} with issue still active; returning control to orchestrator")
+          Logger.info(
+            "Reached agent.max_turns for #{issue_context(refreshed_issue)} with issue still active; returning control to orchestrator"
+          )
+
           :ok
 
         {:done, _refreshed_issue} ->
@@ -165,7 +186,8 @@ defmodule SymphonyElixir.Opencode.AgentRunner do
     """
   end
 
-  defp continue_with_issue?(%Issue{id: issue_id} = issue, issue_state_fetcher) when is_binary(issue_id) do
+  defp continue_with_issue?(%Issue{id: issue_id} = issue, issue_state_fetcher)
+       when is_binary(issue_id) do
     case issue_state_fetcher.([issue_id]) do
       {:ok, [%Issue{} = refreshed_issue | _]} ->
         if active_issue_state?(refreshed_issue.state) and issue_routable?(refreshed_issue) do

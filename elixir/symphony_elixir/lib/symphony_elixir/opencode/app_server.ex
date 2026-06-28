@@ -94,16 +94,36 @@ defmodule SymphonyElixir.Opencode.AppServer do
     try do
       case session_api.session_prompt_async(session_id, body, client) do
         :ok ->
-          Logger.info("OpenCode prompt accepted for #{issue_context(issue)} session_id=#{session_id} workspace=#{workspace}")
+          Logger.info(
+            "OpenCode prompt accepted for #{issue_context(issue)} session_id=#{session_id} workspace=#{workspace}"
+          )
 
           case await_turn_completion(session_id, on_message, session.metadata, timeout_ms, issue) do
             {:ok, result} ->
-              Logger.info("OpenCode session completed for #{issue_context(issue)} session_id=#{session_id}")
-              {:ok, %{result: result, session_id: session_id, thread_id: session_id, turn_id: session_id}}
+              Logger.info(
+                "OpenCode session completed for #{issue_context(issue)} session_id=#{session_id}"
+              )
+
+              {:ok,
+               %{
+                 result: result,
+                 session_id: session_id,
+                 thread_id: session_id,
+                 turn_id: session_id
+               }}
 
             {:error, reason} ->
-              Logger.warning("OpenCode session ended with error for #{issue_context(issue)} session_id=#{session_id}: #{inspect(reason)}")
-              emit_message(on_message, :turn_ended_with_error, %{session_id: session_id, reason: reason}, session.metadata)
+              Logger.warning(
+                "OpenCode session ended with error for #{issue_context(issue)} session_id=#{session_id}: #{inspect(reason)}"
+              )
+
+              emit_message(
+                on_message,
+                :turn_ended_with_error,
+                %{session_id: session_id, reason: reason},
+                session.metadata
+              )
+
               {:error, reason}
           end
 
@@ -129,12 +149,18 @@ defmodule SymphonyElixir.Opencode.AppServer do
           :ok
 
         {:error, reason} ->
-          Logger.warning("OpenCode session delete failed for session_id=#{session_id}: #{inspect(reason)}")
+          Logger.warning(
+            "OpenCode session delete failed for session_id=#{session_id}: #{inspect(reason)}"
+          )
+
           :ok
       end
     catch
       kind, reason ->
-        Logger.warning("OpenCode session delete raised for session_id=#{session_id}: #{inspect({kind, reason})}")
+        Logger.warning(
+          "OpenCode session delete raised for session_id=#{session_id}: #{inspect({kind, reason})}"
+        )
+
         :ok
     after
       stop_connection_server(session)
@@ -315,7 +341,8 @@ defmodule SymphonyElixir.Opencode.AppServer do
           {:error, {:invalid_workspace_cwd, :symlink_escape, expanded_workspace, canonical_root}}
 
         true ->
-          {:error, {:invalid_workspace_cwd, :outside_workspace_root, canonical_workspace, canonical_root}}
+          {:error,
+           {:invalid_workspace_cwd, :outside_workspace_root, canonical_workspace, canonical_root}}
       end
     else
       {:error, {:path_canonicalize_failed, path, reason}} ->
@@ -389,7 +416,9 @@ defmodule SymphonyElixir.Opencode.AppServer do
         type = event_type(event)
         data = event_data(event)
 
-        Logger.debug("OpenCode SSE event for #{issue_context(issue)} session_id=#{session_id} type=#{inspect(type)}")
+        Logger.debug(
+          "OpenCode SSE event for #{issue_context(issue)} session_id=#{session_id} type=#{inspect(type)}"
+        )
 
         handle_sse_event(session_id, type, data, on_message, metadata, deadline, issue)
 
@@ -401,38 +430,64 @@ defmodule SymphonyElixir.Opencode.AppServer do
     end
   end
 
-  defp handle_sse_event(session_id, "session.idle", data, on_message, metadata, _deadline, _issue) do
+  defp handle_sse_event(session_id, "session.idle", data, on_message, metadata, deadline, issue) do
     if event_for_session?(data, session_id) do
       emit_message(on_message, :turn_completed, %{session_id: session_id}, metadata)
       {:ok, :turn_completed}
     else
-      {:error, {:unexpected_session_idle, data}}
+      continue_after_notification(
+        session_id,
+        "session.idle",
+        data,
+        on_message,
+        metadata,
+        deadline,
+        issue
+      )
     end
   end
 
-  defp handle_sse_event(session_id, "session.error", data, on_message, metadata, _deadline, _issue) do
+  defp handle_sse_event(session_id, "session.error", data, on_message, metadata, deadline, issue) do
     if event_for_session?(data, session_id) do
       error = event_error(data)
       emit_message(on_message, :turn_failed, %{session_id: session_id, error: error}, metadata)
       {:error, {:session_error, error}}
     else
-      {:error, {:unexpected_session_error, data}}
+      continue_after_notification(
+        session_id,
+        "session.error",
+        data,
+        on_message,
+        metadata,
+        deadline,
+        issue
+      )
     end
   end
 
-  defp handle_sse_event(session_id, type, data, on_message, metadata, _deadline, _issue)
+  defp handle_sse_event(session_id, type, data, on_message, metadata, deadline, issue)
        when type in ["permission.asked", "question.asked"] do
     if event_for_session?(data, session_id) do
       reason = {:interactive_input_required, type, data}
-      emit_message(on_message, :turn_input_required, %{session_id: session_id, reason: reason}, metadata)
+
+      emit_message(
+        on_message,
+        :turn_input_required,
+        %{session_id: session_id, reason: reason},
+        metadata
+      )
+
       {:error, reason}
     else
-      emit_message(on_message, :notification, %{type: type, payload: data}, metadata)
-      {:error, {:unexpected_interactive_event, type, data}}
+      continue_after_notification(session_id, type, data, on_message, metadata, deadline, issue)
     end
   end
 
   defp handle_sse_event(session_id, type, data, on_message, metadata, deadline, issue) do
+    continue_after_notification(session_id, type, data, on_message, metadata, deadline, issue)
+  end
+
+  defp continue_after_notification(session_id, type, data, on_message, metadata, deadline, issue) do
     emit_message(on_message, :notification, %{type: type, payload: data}, metadata)
     now = System.monotonic_time(:millisecond)
 
@@ -484,7 +539,12 @@ defmodule SymphonyElixir.Opencode.AppServer do
   end
 
   defp emit_message(on_message, event, details, metadata) when is_function(on_message, 1) do
-    message = metadata |> Map.merge(details) |> Map.put(:event, event) |> Map.put(:timestamp, DateTime.utc_now())
+    message =
+      metadata
+      |> Map.merge(details)
+      |> Map.put(:event, event)
+      |> Map.put(:timestamp, DateTime.utc_now())
+
     on_message.(message)
   end
 

@@ -61,23 +61,23 @@ export default defineConfig({
         dependsOn: ['ex:check:format', 'ex:check:compile'],
       },
       'ex:check:compile': {
-        command: 'mix compile',
+        command: 'elixir -S mix compile',
         input: [{ auto: true }, '!_build/**', '!deps/**'],
       },
       'ex:check:format': {
-        command: 'mix format --check-formatted',
+        command: 'elixir -S mix format --check-formatted',
         input: [{ auto: true }, '!_build/**', '!deps/**'],
       },
       'ex:check:lint': {
-        command: 'mix lint',
+        command: 'elixir -S mix lint',
         input: [{ auto: true }, '!_build/**', '!deps/**'],
       },
       'ex:fix': {
-        command: 'mix format',
+        command: 'elixir -S mix format',
         input: [{ auto: true }, '!_build/**', '!deps/**'],
       },
       'ex:test': {
-        command: 'mix test',
+        command: 'elixir -S mix test',
         input: [{ auto: true }, '!_build/**', '!deps/**'],
       },
       fix: {

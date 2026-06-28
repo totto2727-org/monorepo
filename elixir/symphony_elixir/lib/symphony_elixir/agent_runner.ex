@@ -32,9 +32,12 @@ defmodule SymphonyElixir.AgentRunner do
   @spec run(map(), pid() | nil, keyword()) :: :ok | no_return()
   def run(issue, update_recipient \\ nil, opts \\ []) do
     # The orchestrator owns host retries so one worker lifetime never hops machines.
-    worker_host = selected_worker_host(Keyword.get(opts, :worker_host), Config.settings!().worker.ssh_hosts)
+    worker_host =
+      selected_worker_host(Keyword.get(opts, :worker_host), Config.settings!().worker.ssh_hosts)
 
-    Logger.info("Starting agent run for #{issue_context(issue)} worker_host=#{worker_host_for_log(worker_host)}")
+    Logger.info(
+      "Starting agent run for #{issue_context(issue)} worker_host=#{worker_host_for_log(worker_host)}"
+    )
 
     case run_on_worker_host(issue, update_recipient, opts, worker_host) do
       :ok ->
@@ -47,7 +50,9 @@ defmodule SymphonyElixir.AgentRunner do
   end
 
   defp run_on_worker_host(issue, update_recipient, opts, worker_host) do
-    Logger.info("Starting worker attempt for #{issue_context(issue)} worker_host=#{worker_host_for_log(worker_host)}")
+    Logger.info(
+      "Starting worker attempt for #{issue_context(issue)} worker_host=#{worker_host_for_log(worker_host)}"
+    )
 
     case Workspace.create_for_issue(issue, worker_host) do
       {:ok, workspace} ->
@@ -98,12 +103,24 @@ defmodule SymphonyElixir.AgentRunner do
 
   defp run_opencode_turns(workspace, issue, update_recipient, opts, worker_host) do
     max_turns = Keyword.get(opts, :max_turns, Config.settings!().agent.max_turns)
-    issue_state_fetcher = Keyword.get(opts, :issue_state_fetcher, &Tracker.fetch_issue_states_by_ids/1)
+
+    issue_state_fetcher =
+      Keyword.get(opts, :issue_state_fetcher, &Tracker.fetch_issue_states_by_ids/1)
+
     app_server_opts = app_server_opts(opts, worker_host, issue)
 
     with {:ok, session} <- AppServer.start_session(workspace, app_server_opts) do
       try do
-        do_run_opencode_turns(session, workspace, issue, update_recipient, opts, issue_state_fetcher, 1, max_turns)
+        do_run_opencode_turns(
+          session,
+          workspace,
+          issue,
+          update_recipient,
+          opts,
+          issue_state_fetcher,
+          1,
+          max_turns
+        )
       after
         AppServer.stop_session(session)
       end
@@ -131,11 +148,15 @@ defmodule SymphonyElixir.AgentRunner do
                on_message: opencode_message_handler(update_recipient, issue)
              )
            ) do
-      Logger.info("Completed agent run for #{issue_context(issue)} session_id=#{turn_session[:session_id]} workspace=#{workspace} turn=#{turn_number}/#{max_turns}")
+      Logger.info(
+        "Completed agent run for #{issue_context(issue)} session_id=#{turn_session[:session_id]} workspace=#{workspace} turn=#{turn_number}/#{max_turns}"
+      )
 
       case continue_with_issue?(issue, issue_state_fetcher) do
         {:continue, refreshed_issue} when turn_number < max_turns ->
-          Logger.info("Continuing agent run for #{issue_context(refreshed_issue)} after normal turn completion turn=#{turn_number}/#{max_turns}")
+          Logger.info(
+            "Continuing agent run for #{issue_context(refreshed_issue)} after normal turn completion turn=#{turn_number}/#{max_turns}"
+          )
 
           do_run_opencode_turns(
             app_session,
@@ -149,7 +170,9 @@ defmodule SymphonyElixir.AgentRunner do
           )
 
         {:continue, refreshed_issue} ->
-          Logger.info("Reached agent.max_turns for #{issue_context(refreshed_issue)} with issue still active; returning control to orchestrator")
+          Logger.info(
+            "Reached agent.max_turns for #{issue_context(refreshed_issue)} with issue still active; returning control to orchestrator"
+          )
 
           :ok
 
@@ -176,7 +199,8 @@ defmodule SymphonyElixir.AgentRunner do
     """
   end
 
-  defp continue_with_issue?(%Issue{id: issue_id} = issue, issue_state_fetcher) when is_binary(issue_id) do
+  defp continue_with_issue?(%Issue{id: issue_id} = issue, issue_state_fetcher)
+       when is_binary(issue_id) do
     case issue_state_fetcher.([issue_id]) do
       {:ok, [%Issue{} = refreshed_issue | _]} ->
         if active_issue_state?(refreshed_issue.state) and issue_routable?(refreshed_issue) do

@@ -55,6 +55,47 @@ defmodule SymphonyElixir.OpencodeAppServerTest do
     end
   end
 
+  test "app server ignores SSE lifecycle events for other sessions" do
+    test_root =
+      Path.join(
+        System.tmp_dir!(),
+        "symphony-elixir-opencode-app-server-session-filter-#{System.unique_integer([:positive])}"
+      )
+
+    try do
+      workspace_root = Path.join(test_root, "workspaces")
+      workspace = Path.join(workspace_root, "MT-OC-2")
+      File.mkdir_p!(workspace)
+
+      write_workflow_file!(Workflow.workflow_file_path(), workspace_root: workspace_root)
+
+      issue = %Issue{
+        id: "issue-opencode-session-filter",
+        identifier: "MT-OC-2",
+        title: "Filter OpenCode session events",
+        description: "Ignore unrelated global SSE events",
+        state: "In Progress"
+      }
+
+      events = [
+        EventStream.idle_event("ses_other"),
+        EventStream.idle_event("ses_target")
+      ]
+
+      assert {:ok, %{session_id: "ses_target"}} =
+               AppServer.run(workspace, "Use OpenCode", issue,
+                 client_opts: [events: events, session_id: "ses_target"],
+                 event_stream: EventStream,
+                 server_module: Server,
+                 server_opts: [url: "http://127.0.0.1:4999"],
+                 session_api: SessionApi,
+                 turn_timeout_ms: 1_000
+               )
+    after
+      File.rm_rf(test_root)
+    end
+  end
+
   test "app server rejects unsafe local workspace paths before creating OpenCode sessions" do
     test_root =
       Path.join(
