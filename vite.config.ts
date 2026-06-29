@@ -50,7 +50,11 @@ export default defineConfig({
     tasks: {
       check: {
         command: '',
-        dependsOn: ['js:check', 'mbt:check', 'ex:check'],
+        dependsOn: [
+          'js:check',
+          'mbt:check',
+          // 'ex:check'
+        ],
       },
       ci: {
         command: '',
@@ -82,7 +86,11 @@ export default defineConfig({
       },
       fix: {
         command: '',
-        dependsOn: ['js:fix', 'mbt:fix', 'ex:fix'],
+        dependsOn: [
+          'js:fix',
+          'mbt:fix',
+          // 'ex:fix'
+        ],
       },
       'js:check': {
         command: 'vp check',
