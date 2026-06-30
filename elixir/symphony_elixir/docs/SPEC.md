@@ -2,7 +2,7 @@
 このファイルは元のApache 2.0ライセンスのコードから変更されています
 変更日: 2026-06-28
 変更者: totto2727
-変更内容: 元リポジトリルートの SPEC.md を docs/SPEC.md として移設
+変更内容: 元リポジトリルートの SPEC.md を docs/SPEC.md として移設し、OpenCode バックエンド実装注記を追加
 -->
 
 # Symphony Service Specification
@@ -10,6 +10,11 @@
 Status: Draft v1 (language-agnostic)
 
 Purpose: Define a service that orchestrates coding agents to get project work done.
+
+Implementation note: this repository's current Elixir implementation dispatches normal agent runs
+through OpenCode using the in-repository `opencode_client`. Sections that discuss the Codex
+app-server protocol describe the original/legacy integration contract and compatibility vocabulary
+until this language-neutral specification is fully revised.
 
 ## Normative Language
 
