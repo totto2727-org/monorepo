@@ -2,7 +2,7 @@
 
 This app uses **Cloudflare Workers + Hono + Remix v3 (UI / SSR)**. Vite (`vp dev`) drives local development via `@cloudflare/vite-plugin`; Wrangler runs the Worker locally and deploys it.
 
-Package management is pnpm (via `vp`). Do not introduce Bun.
+Package management is Bun (via `vp`). Do not introduce package-manager-specific commands when Vite+ tasks already exist.
 
 ## Commands
 
@@ -16,7 +16,7 @@ vp run --filter hono-remix-v3-cloudflare-example deploy     # wrangler deploy
 vp run --filter hono-remix-v3-cloudflare-example typecheck  # tsgo --noEmit
 ```
 
-Run-from-app-dir works too (`cd js/app/hono-remix-v3-cloudflare-example && vp run build`). Install dependencies from the repo root with `pnpm install`.
+Run-from-app-dir works too (`cd js/app/hono-remix-v3-cloudflare-example && vp run build`). Install dependencies from the repo root with `bun install`.
 
 ## Building Features
 

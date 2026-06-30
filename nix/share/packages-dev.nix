@@ -10,7 +10,6 @@ with pkgs;
   nodejs
   bun
   deno
-  pnpm
   typescript
   typescript-language-server
   python3

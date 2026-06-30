@@ -31,19 +31,30 @@ export default defineConfig({
     useTabs: false,
   },
   lint: {
+    // @ts-expect-error Vite+ v0.2.1/Ultracite preset typing is narrower than the runtime-accepted preset array.
     extends: [core, react, remix, oxlintPluginPreset],
     ignorePatterns: [...ignorePatterns, '**/skills/**', '**/.script/**'],
     options: {
       typeAware: true,
       typeCheck: true,
     },
+    overrides: [
+      {
+        files: ['**/*.test.{ts,tsx}', '**/*_test-helper.{ts,tsx}', '**/__tests__/**/*.{ts,tsx}'],
+        rules: {
+          'no-await-in-loop': 'allow',
+        },
+      },
+    ],
     rules: {
       'func-names': ['error', 'always', { generators: 'never' }],
       'import/extensions': ['error', 'always', { checkTypeImports: true, ignorePackages: true }],
       'jsx-no-new-function-as-prop': 'allow',
       'no-nodejs-modules': 'allow',
+      'node/callback-return': 'allow',
       'number-literal-case': 'allow',
       'typescript/promise-function-async': 'allow',
+      'unicorn/import-style': 'allow',
     },
   },
   run: {

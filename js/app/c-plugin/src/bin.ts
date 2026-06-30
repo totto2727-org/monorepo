@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 import { NodeServices } from '@effect/platform-node'
 import { Cause, Console, Effect } from 'effect'
 import { Command } from 'effect/unstable/cli'

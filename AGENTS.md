@@ -129,8 +129,8 @@ a script to a task, drop the script.
 
 ### Package Management
 
-- pnpm workspaces with catalog mode for centralized dependency version management
-- All dependency versions are defined in `pnpm-workspace.yaml` catalogs
+- Bun workspaces with catalog mode for centralized dependency version management
+- All dependency versions are defined in root `package.json` catalogs
 
 ### Path Aliases
 
