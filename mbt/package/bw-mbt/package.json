@@ -8,8 +8,7 @@
     "directory": "mbt/package/bw-mbt"
   },
   "scripts": {
-    "bin": "moon run ./src --target native",
-    "build": "moon build --target native"
+    "bin": "moon run ./src --target native"
   },
   "devDependencies": {
     "vite-plus": "catalog:"
