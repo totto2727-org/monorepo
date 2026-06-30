@@ -12,4 +12,6 @@ runs:
 
     - name: Install mix
       shell: bash
-      run: mix deps.get
+      run: |
+        eval "$(devbox shellenv)"
+        mix deps.get

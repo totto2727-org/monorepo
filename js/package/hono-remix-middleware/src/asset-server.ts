@@ -7,7 +7,7 @@ import type { MiddlewareHandler } from 'hono'
  * (which depends on Node's `fs` / `path`) into the bundle.
  */
 export interface AssetServer {
-  fetch(request: Request): Promise<Response | null>
+  fetch: (request: Request) => Promise<Response | null>
 }
 
 /**

@@ -34,7 +34,7 @@ scope: roadmap:feed-platform
 
 ロードマップ全領域 (バックエンド / Web フロント / 認証基幹 / 共有 authz パッケージ) を `js/` ワークスペースに集約する。`mbt/` (MoonBit) / `go/` (Go) は採用しない。
 
-- **根拠**: 既存 monorepo 内の関連スキル群 (`effect-layer` / `effect-runtime` / `effect-hono` / `totto2727-fp` / `remix`) との整合性が最大、CQRS / イベントソーシング / サーバレス BFF の参照実装が `js/app/saas-example/` / `js/app/hono-remix-v3-cloudflare-example/` / `js/app/rss-graphql/` として既に存在し再利用可能、pnpm workspace + catalog による依存集中管理を流用可能 (intent-spec Q2)
+- **根拠**: 既存 monorepo 内の関連スキル群 (`effect-layer` / `effect-runtime` / `effect-hono` / `totto2727-fp` / `remix`) との整合性が最大、CQRS / イベントソーシング / サーバレス BFF の参照実装が `js/app/saas-example/` / `js/app/hono-remix-v3-cloudflare-example/` / `js/app/rss-graphql/` として既に存在し再利用可能、Bun workspace + catalog による依存集中管理を流用可能 (intent-spec Q2)
 
 ### D-2: 3 プロジェクト構成 = `feed-platform-backend` + `feed-platform-web` + `identity-provider`
 
@@ -122,7 +122,7 @@ backend の各 entry は wrangler 上の `name` を **`feed-platform-backend-<en
 
 ### Existing impact
 
-- **monorepo `pnpm-workspace.yaml`** の workspace パターン (`js/app/*`) によって自動的に 3 プロジェクトが workspace に組み込まれる (追加変更不要)
+- **monorepo root `package.json`** の workspace パターン (`js/app/*`) によって自動的に 3 プロジェクトが workspace に組み込まれる (追加変更不要)
 - **既存 CI ワークフロー (`.github/workflows/ci.yaml`)** の `vp run --parallel ci` ジョブが追加変更なしで 3 プロジェクトを取り込む (CC-9)
 - **既存スキル (`effect-layer` / `effect-runtime` / `effect-hono` / `totto2727-fp` / `remix`)** は Project A/B/C すべてで活用される (= 本 ADR の規約に組み込まれる)
 - **`hono-remix-v3-cloudflare-example`** は Web フロント / IdP の参照実装として今後も保守対象に留まる (削除しない)

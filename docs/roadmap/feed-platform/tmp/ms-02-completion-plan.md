@@ -195,7 +195,7 @@ PR-A → PR-C (or PR-D) → PR-E
   - `js/package/auth-helper/tsconfig.json` を新規作成 (`effect-hono/tsconfig.json` と同形)
   - `js/package/auth-helper/src/index.ts` を新規作成 (barrel)
   - **vite.config.ts は作成しない** — `effect-hono` / `remix-helper` 同様、純粋 TS ライブラリで build / test task は不要 (root の `vp test` が `test.dir: 'js/'` で自動スキャン)
-  - **pnpm-workspace.yaml は確認のみ** (`js/package/*` カバー済の想定、要なら追加)
+  - **root `package.json` workspaces は確認のみ** (`js/package/*` カバー済の想定、要なら追加)
 
   **Must NOT do**:
   - `vite.config.ts` を作成 (`effect-hono` / `remix-helper` パターンに統一 — 余計な build task を作らない)
@@ -228,7 +228,7 @@ PR-A → PR-C (or PR-D) → PR-E
   - [ ] `js/package/auth-helper/tsconfig.json` 存在
   - [ ] `js/package/auth-helper/src/index.ts` 存在
   - [ ] `js/package/auth-helper/vite.config.ts` は **存在しない** (パターン統一)
-  - [ ] `pnpm install` で workspace symlink が解決 (feed-platform-web / feed-platform-backend / identity-provider が auth-helper を解決可能)
+  - [ ] `bun install` で workspace symlink が解決 (feed-platform-web / feed-platform-backend / identity-provider が auth-helper を解決可能)
 
   **QA Scenarios**:
 
@@ -237,8 +237,8 @@ PR-A → PR-C (or PR-D) → PR-E
     Tool: Bash
     Preconditions: A1 完了
     Steps:
-      1. pnpm list --filter auth-helper を実行
-      2. node -e "import('auth-helper').then(m => console.log(Object.keys(m)))" でロード可能性確認 (空 export でも throw しないこと)
+      1. bun pm ls --filter auth-helper を実行
+      2. bun -e "import('auth-helper').then(m => console.log(Object.keys(m)))" でロード可能性確認 (空 export でも throw しないこと)
     Expected Result: パッケージが workspace package として list 表示、import 時 throw 無し
     Evidence: .sisyphus/evidence/feed-platform-ms-02/pr-a/a1-workspace.txt
   ```
@@ -283,7 +283,7 @@ PR-A → PR-C (or PR-D) → PR-E
   **Acceptance Criteria**:
   - [ ] `vp test run js/package/auth-helper` PASS (6+ ケース)
   - [ ] `vp check` PASS (lint / format / type)
-  - [ ] `node -e "import('auth-helper').then(m => console.log(m.FEED_SESSION_COOKIE, m.OAUTH_BASE_PATH))"` で値出力
+  - [ ] `bun -e "import('auth-helper').then(m => console.log(m.FEED_SESSION_COOKIE, m.OAUTH_BASE_PATH))"` で値出力
 
   **QA Scenarios**:
 
@@ -292,7 +292,7 @@ PR-A → PR-C (or PR-D) → PR-E
     Tool: Bash
     Preconditions: A2 完了
     Steps:
-      1. node -e "const {extractBearerFromCookie} = await import('auth-helper'); console.log(extractBearerFromCookie('feed-session', 'feed-session=abc.def.ghi'))"
+      1. bun -e "const {extractBearerFromCookie} = await import('auth-helper'); console.log(extractBearerFromCookie('feed-session', 'feed-session=abc.def.ghi'))"
     Expected Result: stdout が "Bearer abc.def.ghi"
     Evidence: .sisyphus/evidence/feed-platform-ms-02/pr-a/a2-translator-ok.txt
 
@@ -300,14 +300,14 @@ PR-A → PR-C (or PR-D) → PR-E
     Tool: Bash
     Preconditions: 同上
     Steps:
-      1. node -e "const {extractBearerFromCookie} = await import('auth-helper'); console.log(extractBearerFromCookie('feed-session', undefined))"
+      1. bun -e "const {extractBearerFromCookie} = await import('auth-helper'); console.log(extractBearerFromCookie('feed-session', undefined))"
     Expected Result: stdout が "null"
     Evidence: .sisyphus/evidence/feed-platform-ms-02/pr-a/a2-translator-null.txt
   ```
 
   **Commit**: YES (groups with A1)
   - Message: `feat(auth-helper): introduce shared workspace package for auth types, constants, and pure helpers`
-  - Files: `js/package/auth-helper/src/*.ts`, `pnpm-lock.yaml` (sync if needed)
+  - Files: `js/package/auth-helper/src/*.ts`, `bun.lock` (sync if needed)
   - Pre-commit: `vp check && vp test --filter auth-helper`
   - **PR-A 提出可能ポイント**
 
@@ -1075,8 +1075,8 @@ PR-A → PR-C (or PR-D) → PR-E
 
   **What to do**:
   - roadmap CLI で:
-    - `node js/app/roadmap/dist/bin.mjs milestone set status feed-platform ms-02-auth-passkey-magiclink completed`
-    - `node js/app/roadmap/dist/bin.mjs milestone set note feed-platform ms-02-auth-passkey-magiclink "<retrospective 要約>"`
+    - `bun js/app/roadmap/dist/bin.mjs milestone set status feed-platform ms-02-auth-passkey-magiclink completed`
+    - `bun js/app/roadmap/dist/bin.mjs milestone set note feed-platform ms-02-auth-passkey-magiclink "<retrospective 要約>"`
   - `docs/roadmap/feed-platform/milestones/ms-02-auth-passkey-magiclink.md` の `Status: planned` → `completed` 手動更新
   - milestone .md の "関連 oh-my-codingagent execution サイクル" 表に実際のサイクル ID を記入 (該当する場合)
 
@@ -1104,7 +1104,7 @@ PR-A → PR-C (or PR-D) → PR-E
   Scenario: progress.yaml 反映
     Tool: Bash
     Steps:
-      1. node js/app/roadmap/dist/bin.mjs status feed-platform
+      1. bun js/app/roadmap/dist/bin.mjs status feed-platform
     Expected Result: stdout に "ms-02-auth-passkey-magiclink (completed)" を含む
     Evidence: .sisyphus/evidence/feed-platform-ms-02/pr-e/e3-status.txt
   ```
@@ -1151,7 +1151,7 @@ PR-A → PR-C (or PR-D) → PR-E
   Scenario: CI で e2e PASS
     Tool: Bash
     Steps:
-      1. pnpm dlx playwright test (or `vp test run js/<e2e-package-path>`)
+      1. bunx playwright test (or `vp test run js/<e2e-package-path>`)
     Expected Result: 全 spec pass
     Evidence: .sisyphus/evidence/feed-platform-ms-02/pr-f/f1-ci.txt
   ```
@@ -1213,7 +1213,7 @@ vp test --filter feed-platform-web      # PR-C
 vp test --filter feed-platform-backend  # PR-D
 
 # Roadmap CLI
-node js/app/roadmap/dist/bin.mjs status feed-platform   # ms-02 status: completed
+bun js/app/roadmap/dist/bin.mjs status feed-platform   # ms-02 status: completed
 
 # Cross-app E2E (PR-F が無くても playwright-cli で手動検証)
 curl -sw '%{http_code}\n' http://localhost:8788/api/v1/me   # 401
