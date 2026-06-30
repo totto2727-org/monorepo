@@ -1,8 +1,3 @@
-# このファイルは元のApache 2.0ライセンスのコードから新規に追加されています
-# 変更日: 2026-06-28
-# 変更者: totto2727
-# 変更内容: OpenCode server 起動と generated client 用オプション構築を集約
-
 defmodule OpencodeClient.Connection do
   @moduledoc """
   Starts or connects to an OpenCode server and builds generated-client options.

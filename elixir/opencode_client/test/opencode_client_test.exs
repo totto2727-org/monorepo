@@ -1,8 +1,3 @@
-# このファイルは元のApache 2.0ライセンスのコードから変更されています
-# 変更日: 2026-06-28
-# 変更者: totto2727
-# 変更内容: OpenCode server/client lifecycle 境界のテストを追加
-
 defmodule OpencodeClientTest do
   use ExUnit.Case
 

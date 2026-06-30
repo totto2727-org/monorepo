@@ -1,8 +1,3 @@
-// このファイルは元のApache 2.0ライセンスのコードから変更されています
-// 変更日: 2026-06-28
-// 変更者: totto2727
-// 変更内容: CI上のVite+ Elixirタスクをelixir -S mix経由で実行するよう修正
-
 import core from 'ultracite/oxlint/core'
 import react from 'ultracite/oxlint/react'
 import remix from 'ultracite/oxlint/remix'
@@ -66,23 +61,23 @@ export default defineConfig({
         dependsOn: ['ex:check:format', 'ex:check:compile'],
       },
       'ex:check:compile': {
-        command: 'elixir -S mix compile',
+        command: 'mix compile',
         input: [{ auto: true }, '!_build/**', '!deps/**'],
       },
       'ex:check:format': {
-        command: 'elixir -S mix format --check-formatted',
+        command: 'mix format --check-formatted',
         input: [{ auto: true }, '!_build/**', '!deps/**'],
       },
       'ex:check:lint': {
-        command: 'elixir -S mix lint',
+        command: 'mix lint',
         input: [{ auto: true }, '!_build/**', '!deps/**'],
       },
       'ex:fix': {
-        command: 'elixir -S mix format',
+        command: 'mix format',
         input: [{ auto: true }, '!_build/**', '!deps/**'],
       },
       'ex:test': {
-        command: 'elixir -S mix test',
+        command: 'mix test',
         input: [{ auto: true }, '!_build/**', '!deps/**'],
       },
       fix: {
