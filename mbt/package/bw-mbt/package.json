@@ -1,0 +1,17 @@
+{
+  "name": "bw-mbt",
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/totto2727-org/monorepo",
+    "directory": "mbt/package/bw-mbt"
+  },
+  "scripts": {
+    "bin": "moon run ./src --target native",
+    "build": "moon build --target native"
+  },
+  "devDependencies": {
+    "vite-plus": "catalog:"
+  }
+}
