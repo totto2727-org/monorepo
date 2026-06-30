@@ -1,5 +1,5 @@
 name: Publish to npm
-description: Publish the package in working-directory to npm via npm trusted publishing, skipping if the version is already published.
+description: Publish the package in working-directory to npm via bun, skipping if the version is already published.
 
 inputs:
   working-directory:
@@ -27,5 +27,5 @@ runs:
         if [ "$HTTP_STATUS" = "200" ]; then
           echo "v${LOCAL_VERSION} already published. Skipping."
         else
-          npm publish --registry "${NPM_REGISTRY}"
+          bun publish --registry "${NPM_REGISTRY}"
         fi
