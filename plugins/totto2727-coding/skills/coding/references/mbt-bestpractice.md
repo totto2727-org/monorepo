@@ -4,6 +4,10 @@
 
 - [docs-moonbit](../../docs-moonbit/SKILL.md) — MoonBit language reference (syntax, types, functions, methods, deriving). Use for language questions and debugging.
 
+## Detail Files
+
+- [mbt-cli-application.md](./mbt-cli-application.md) — CLI application implementation rules for `admiral` option definitions, typed options, request body `ToJson`, and JSON response handling.
+
 ## 1. Documentation
 
 - Use `///|` for documentation comments on top-level definitions (functions, structs, enums, traits, tests). This is the output format of `moon fmt`.
@@ -513,3 +517,7 @@ Outside these three cases, default to the immutable construction patterns above.
 ## 6. Testing
 
 See [MoonBit Testing Standards](../../test/references/mbt-bestpractice.md) for detailed testing guidelines.
+
+## 7. CLI Applications
+
+See [MoonBit CLI Application Implementation](./mbt-cli-application.md) for the required command structure and JSON/request-body rules. Use `bw-mbt` as the reference implementation shape, while treating that guide as normative when it is stricter than existing code.
