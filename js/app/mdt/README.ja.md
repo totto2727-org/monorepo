@@ -13,7 +13,7 @@
 このパッケージはワークスペースの一部です。リポジトリルートで一度インストールしてください：
 
 ```bash
-pnpm install
+bun install
 vp run --filter @totto2727/mdt build
 ```
 

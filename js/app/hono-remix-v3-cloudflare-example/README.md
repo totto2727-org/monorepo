@@ -30,7 +30,7 @@ vp run --filter hono-remix-v3-cloudflare-example deploy     # wrangler deploy
 vp run --filter hono-remix-v3-cloudflare-example typecheck  # tsgo --noEmit
 ```
 
-`vp run <task>` works inside this app directory too. Dependency resolution is done with `pnpm install` at the repository root. No Bun.
+`vp run <task>` works inside this app directory too. Dependency resolution is done with `bun install` at the repository root.
 
 ## Directory Structure
 

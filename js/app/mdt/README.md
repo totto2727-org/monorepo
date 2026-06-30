@@ -13,7 +13,7 @@ A CLI that translates a single markdown file using the [opencode SDK](https://op
 This package is part of the workspace; install once at the repo root:
 
 ```bash
-pnpm install
+bun install
 vp run --filter @totto2727/mdt build
 ```
 

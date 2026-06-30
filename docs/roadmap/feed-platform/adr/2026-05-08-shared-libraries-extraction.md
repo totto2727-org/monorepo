@@ -141,7 +141,7 @@ export const makeDisposableRuntime = <Args extends readonly unknown[], R, ER>(
 
 ### Existing impact
 
-- **`pnpm-workspace.yaml`**: 既存 `js/package/*` glob で新規 2 packages が自動取り込み (Research C F7、catalog 定義変更不要)
+- **root `package.json` workspaces**: 既存 `js/package/*` glob で新規 2 packages が自動取り込み (Research C F7、catalog 定義変更不要)
 - **既存 CI (`vp run --parallel ci`)**: 追加変更なしで 2 library + 4 consumer を取り込む (Phase 1 ADR-01 D-6 整合)
 - **3 effect-hono consumer projects** (`feed-platform-backend` / `feed-platform-web` / `identity-provider`): Env Service と runtime helper は library import を使用する。Service tag namespace は **library 内 1 本** (`'@app/effect-hono/env/Service'`) に統一される (= D-2 の副作用、Intent Spec L70-L72)
 - **3 effect-hono consumer projects**: `dynamicLoggerLayer` と `makeDisposableRuntime` HOF は library import を使用する (各 project 約 24 行純減 × 3 = 約 72 行削減、Research A I-7)
