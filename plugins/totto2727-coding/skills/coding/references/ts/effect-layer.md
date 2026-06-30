@@ -1,6 +1,6 @@
 # Effect Layer Definition Patterns
 
-Related skills: [ts-effect-runtime](./ts-effect-runtime.md), [ts-effect-hono](./ts-effect-hono.md)
+Related skills: [effect-runtime](./effect-runtime.md), [effect-hono](./effect-hono.md)
 
 ## File Template
 
@@ -58,9 +58,9 @@ export const remoteLayer = Layer.effect(Service, ...)
 
 ### Examples
 
-- `Layer.succeed` — [env.ts](../../../../../js/app/saas-example/src/feature/env.ts)
-- `Layer.sync` / `Layer.effect` — [kysely.ts](../../../../../js/app/saas-example/src/feature/db/kysely.ts)
-- `Layer.effect` with multiple deps — [better-auth.ts](../../../../../js/app/saas-example/src/feature/auth/better-auth.ts)
+- `Layer.succeed` — [env.ts](../../../../../../js/app/saas-example/src/feature/env.ts)
+- `Layer.sync` / `Layer.effect` — [kysely.ts](../../../../../../js/app/saas-example/src/feature/db/kysely.ts)
+- `Layer.effect` with multiple deps — [better-auth.ts](../../../../../../js/app/saas-example/src/feature/auth/better-auth.ts)
 
 ## Service Access
 

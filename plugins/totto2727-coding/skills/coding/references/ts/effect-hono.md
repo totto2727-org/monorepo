@@ -1,6 +1,6 @@
 # Effect + Hono Integration Patterns
 
-Related skills: [ts-effect-layer](./ts-effect-layer.md), [ts-effect-runtime](./ts-effect-runtime.md)
+Related skills: [effect-layer](./effect-layer.md), [effect-runtime](./effect-runtime.md)
 
 ## Effect Handler Pattern
 
@@ -156,7 +156,7 @@ Route files should import this `Env`; they must not locally widen
 
 ### Examples
 
-- [auth/middleware.ts](../../../../../js/app/saas-example/src/feature/auth/middleware.ts)
+- [auth/middleware.ts](../../../../../../js/app/saas-example/src/feature/auth/middleware.ts)
 
 ## Sub-App Pattern
 
@@ -182,8 +182,8 @@ app.route('/api/v1/{name}', SubApp.app)
 
 ### Examples
 
-- Sub-app: [auth/app.ts](../../../../../js/app/saas-example/src/feature/auth/app.ts)
-- Parent integration: [entry.hono.ts](../../../../../js/app/saas-example/src/entry.hono.ts)
+- Sub-app: [auth/app.ts](../../../../../../js/app/saas-example/src/feature/auth/app.ts)
+- Parent integration: [entry.hono.ts](../../../../../../js/app/saas-example/src/entry.hono.ts)
 
 ## HTTP Error Template
 
@@ -201,7 +201,7 @@ Tag format: `http/error/{ErrorName}`
 
 ### Examples
 
-- [http/error.ts](../../../../../js/app/saas-example/src/feature/http/error.ts)
+- [http/error.ts](../../../../../../js/app/saas-example/src/feature/http/error.ts)
 
 ## Middleware Order
 
@@ -212,5 +212,5 @@ Tag format: `http/error/{ErrorName}`
 
 ### Examples
 
-- [entry.hono.ts](../../../../../js/app/saas-example/src/entry.hono.ts)
-- Context/Factory setup: [context.ts](../../../../../js/app/saas-example/src/feature/share/lib/hono/context.ts), [factory.ts](../../../../../js/app/saas-example/src/feature/share/lib/hono/factory.ts)
+- [entry.hono.ts](../../../../../../js/app/saas-example/src/entry.hono.ts)
+- Context/Factory setup: [context.ts](../../../../../../js/app/saas-example/src/feature/share/lib/hono/context.ts), [factory.ts](../../../../../../js/app/saas-example/src/feature/share/lib/hono/factory.ts)

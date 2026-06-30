@@ -1,6 +1,6 @@
 # Effect Runtime & Layer Composition Patterns
 
-Related skills: [ts-effect-layer](./ts-effect-layer.md), [ts-effect-hono](./ts-effect-hono.md)
+Related skills: [effect-layer](./effect-layer.md), [effect-hono](./effect-hono.md)
 
 ## Layer Composition
 
@@ -28,5 +28,5 @@ Provide separate runtime variants per environment (production, development, test
 
 ## Reference Implementation
 
-- [runtime/server.ts](../../../../../js/app/saas-example/src/feature/runtime/server.ts) — Layer composition, ManagedRuntime, DisposableRuntime, environment selection
-- [runtime/hono.ts](../../../../../js/app/saas-example/src/feature/runtime/hono.ts) — `await using` middleware integration
+- [runtime/server.ts](../../../../../../js/app/saas-example/src/feature/runtime/server.ts) — Layer composition, ManagedRuntime, DisposableRuntime, environment selection
+- [runtime/hono.ts](../../../../../../js/app/saas-example/src/feature/runtime/hono.ts) — `await using` middleware integration
