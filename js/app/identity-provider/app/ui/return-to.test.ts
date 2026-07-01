@@ -1,30 +1,37 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { isSafeReturnTo, withReturnTo } from '#@/ui/return-to.ts'
+import { getSafeReturnTo, withReturnTo } from '#@/ui/return-to.ts'
 
-describe('isSafeReturnTo', () => {
-  it('accepts a single-slash absolute path', () => {
-    expect(isSafeReturnTo('/app/login')).toBe(true)
+describe('getSafeReturnTo', () => {
+  it('returns pathname+search for a safe path', () => {
+    expect(getSafeReturnTo('/app/login')).toBe('/app/login')
   })
 
-  it('accepts a path with query string', () => {
-    expect(isSafeReturnTo('/api/v1/auth/oauth2/authorize?client_id=x&state=y')).toBe(true)
+  it('returns pathname+search for a path with query string', () => {
+    expect(getSafeReturnTo('/api/v1/auth/oauth2/authorize?client_id=x&state=y')).toBe(
+      '/api/v1/auth/oauth2/authorize?client_id=x&state=y',
+    )
   })
 
-  it('rejects empty string', () => {
-    expect(isSafeReturnTo('')).toBe(false)
+  it('returns undefined for empty string', () => {
+    expect(getSafeReturnTo('')).toBeUndefined()
   })
 
-  it('rejects an absolute URL with scheme', () => {
-    expect(isSafeReturnTo('https://evil.example.com/callback')).toBe(false)
+  it('returns undefined for undefined', () => {
+    // oxlint-disable-next-line unicorn/no-useless-undefined -- Explicit undefined tests the nullish input branch.
+    expect(getSafeReturnTo(undefined)).toBeUndefined()
   })
 
-  it('rejects a protocol-relative URL (open redirect)', () => {
-    expect(isSafeReturnTo('//evil.example.com/path')).toBe(false)
+  it('extracts pathname from an absolute URL', () => {
+    expect(getSafeReturnTo('https://evil.example.com/callback')).toBe('/callback')
   })
 
-  it('rejects a path without leading slash', () => {
-    expect(isSafeReturnTo('app/login')).toBe(false)
+  it('extracts pathname from a protocol-relative URL', () => {
+    expect(getSafeReturnTo('//evil.example.com/path')).toBe('/path')
+  })
+
+  it('resolves a relative path without leading slash', () => {
+    expect(getSafeReturnTo('app/login')).toBe('/app/login')
   })
 })
 
@@ -44,11 +51,11 @@ describe('withReturnTo', () => {
     expect(withReturnTo('/app/login/passkey', noReturnTo)).toBe('/app/login/passkey')
   })
 
-  it('returns basePath unchanged when return_to is unsafe (protocol-relative)', () => {
-    expect(withReturnTo('/app/login/passkey', '//evil.example.com')).toBe('/app/login/passkey')
+  it('appends return_to for a protocol-relative URL', () => {
+    expect(withReturnTo('/app/login/passkey', '//evil.example.com')).toBe('/app/login/passkey?return_to=%2F')
   })
 
-  it('returns basePath unchanged when return_to is an absolute URL', () => {
-    expect(withReturnTo('/app/login/passkey', 'https://evil.example.com/cb')).toBe('/app/login/passkey')
+  it('appends return_to for an absolute URL', () => {
+    expect(withReturnTo('/app/login/passkey', 'https://evil.example.com/cb')).toBe('/app/login/passkey?return_to=%2Fcb')
   })
 })

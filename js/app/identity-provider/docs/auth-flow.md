@@ -125,11 +125,6 @@ deletes the cookie, and redirects back to the original target.
 
 The same flow applies to Passkey login via `/app/auth/passkey/callback`.
 
-IdP logout (`/app/logout`) deletes the local `better-auth.session_token` cookie
-and supports a `return_to` query parameter validated by `getSafeLogoutReturnTo`.
-For the feed example, `http://127.0.0.1:8789` URLs are allowed; otherwise the
-value falls back to `getSafeReturnTo`.
-
 ### 4. Consent page
 
 Better Auth redirects to the configured consent page:
