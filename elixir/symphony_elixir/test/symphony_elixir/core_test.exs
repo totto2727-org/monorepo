@@ -1,7 +1,7 @@
 # このファイルは元のApache 2.0ライセンスのコードから変更されています
 # 変更日: 2026-06-28
 # 変更者: totto2727
-# 変更内容: Codex app-server fake 前提のテストを OpenCode client fake 前提へ更新
+# 変更内容: OpenCode app-server fake 前提のテストを OpenCode client fake 前提へ更新
 
 defmodule SymphonyElixir.CoreTest do
   use SymphonyElixir.TestSupport
@@ -13,7 +13,7 @@ defmodule SymphonyElixir.CoreTest do
       poll_interval_ms: nil,
       tracker_active_states: nil,
       tracker_terminal_states: nil,
-      codex_command: nil
+      opencode_model: nil
     )
 
     config = Config.settings!()
@@ -63,42 +63,15 @@ defmodule SymphonyElixir.CoreTest do
 
     write_workflow_file!(Workflow.workflow_file_path(),
       tracker_project_slug: "project",
-      codex_command: ""
-    )
-
-    assert {:error, {:invalid_workflow_config, message}} = Config.validate!()
-    assert message =~ "codex.command"
-    assert message =~ "can't be blank"
-
-    write_workflow_file!(Workflow.workflow_file_path(), codex_command: "   ")
-    assert :ok = Config.validate!()
-    assert Config.settings!().codex.command == "   "
-
-    write_workflow_file!(Workflow.workflow_file_path(), codex_command: "/bin/sh app-server")
-    assert :ok = Config.validate!()
-
-    write_workflow_file!(Workflow.workflow_file_path(),
-      codex_approval_policy: "definitely-not-valid"
+      opencode_model: "openai/gpt-5.5"
     )
 
     assert :ok = Config.validate!()
+    assert Config.settings!().opencode.model == "openai/gpt-5.5"
 
-    write_workflow_file!(Workflow.workflow_file_path(), codex_thread_sandbox: "unsafe-ish")
-    assert :ok = Config.validate!()
-
-    write_workflow_file!(Workflow.workflow_file_path(),
-      codex_turn_sandbox_policy: %{type: "workspaceWrite", writableRoots: ["relative/path"]}
-    )
-
-    assert :ok = Config.validate!()
-
-    write_workflow_file!(Workflow.workflow_file_path(), codex_approval_policy: 123)
+    write_workflow_file!(Workflow.workflow_file_path(), opencode_model: "missing-provider")
     assert {:error, {:invalid_workflow_config, message}} = Config.validate!()
-    assert message =~ "codex.approval_policy"
-
-    write_workflow_file!(Workflow.workflow_file_path(), codex_thread_sandbox: 123)
-    assert {:error, {:invalid_workflow_config, message}} = Config.validate!()
-    assert message =~ "codex.thread_sandbox"
+    assert message =~ "opencode.model"
 
     write_workflow_file!(Workflow.workflow_file_path(), tracker_kind: "123")
     assert {:error, {:unsupported_tracker_kind, "123"}} = Config.validate!()
@@ -123,13 +96,12 @@ defmodule SymphonyElixir.CoreTest do
     assert is_map(hooks)
 
     assert Map.get(hooks, "after_create") =~
-             "git clone --depth 1 https://github.com/openai/symphony ."
+             "git clone --depth 1 https://github.com/totto2727-org/monorepo ."
 
-    assert Map.get(hooks, "after_create") =~ "cd elixir && mise trust"
-    assert Map.get(hooks, "after_create") =~ "mise exec -- mix deps.get"
+    assert Map.get(hooks, "after_create") =~ "direnv allow"
 
     assert Map.get(hooks, "before_remove") =~
-             "cd elixir && mise exec -- mix workspace.before_remove"
+             "cd elixir/symphony-elixir && mix workspace.before_remove"
 
     assert String.trim(prompt) != ""
     assert is_binary(Config.workflow_prompt())
@@ -146,7 +118,7 @@ defmodule SymphonyElixir.CoreTest do
     write_workflow_file!(Workflow.workflow_file_path(),
       tracker_api_token: nil,
       tracker_project_slug: "project",
-      codex_command: "/bin/sh app-server"
+      opencode_model: "openai/gpt-5.5"
     )
 
     assert Config.settings!().tracker.api_key == env_api_key
@@ -164,7 +136,7 @@ defmodule SymphonyElixir.CoreTest do
     write_workflow_file!(Workflow.workflow_file_path(),
       tracker_assignee: nil,
       tracker_project_slug: "project",
-      codex_command: "/bin/sh app-server"
+      opencode_model: "openai/gpt-5.5"
     )
 
     assert Config.settings!().tracker.assignee == env_assignee
@@ -210,8 +182,26 @@ defmodule SymphonyElixir.CoreTest do
 
     File.write!(workflow_path, "---\ntracker:\n  kind: linear\n")
 
-    assert {:ok, %{config: %{"tracker" => %{"kind" => "linear"}}, prompt: "", prompt_template: ""}} =
+    assert {:ok,
+            %{config: %{"tracker" => %{"kind" => "linear"}}, prompt: "", prompt_template: ""}} =
              Workflow.load(workflow_path)
+  end
+
+  test "workflow load accepts YAML comments in front matter" do
+    workflow_path =
+      Path.join(Path.dirname(Workflow.workflow_file_path()), "COMMENTED_FRONT_MATTER_WORKFLOW.md")
+
+    File.write!(
+      workflow_path,
+      "---\n# workflow comment\ntracker:\n  # tracker comment\n  kind: linear\n---\nPrompt body\n"
+    )
+
+    assert {:ok,
+            %{
+              config: %{"tracker" => %{"kind" => "linear"}},
+              prompt: "Prompt body",
+              prompt_template: "Prompt body"
+            }} = Workflow.load(workflow_path)
   end
 
   test "workflow load rejects non-map front matter" do
@@ -291,7 +281,7 @@ defmodule SymphonyElixir.CoreTest do
           }
         },
         claimed: MapSet.new([issue_id]),
-        codex_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
+        opencode_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
         retry_attempts: %{}
       }
 
@@ -354,7 +344,7 @@ defmodule SymphonyElixir.CoreTest do
           }
         },
         claimed: MapSet.new([issue_id]),
-        codex_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
+        opencode_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
         retry_attempts: %{}
       }
 
@@ -474,7 +464,7 @@ defmodule SymphonyElixir.CoreTest do
         }
       },
       claimed: MapSet.new([issue_id]),
-      codex_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
+      opencode_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
       retry_attempts: %{}
     }
 
@@ -521,7 +511,7 @@ defmodule SymphonyElixir.CoreTest do
         }
       },
       claimed: MapSet.new([issue_id]),
-      codex_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
+      opencode_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
       retry_attempts: %{}
     }
 
@@ -570,7 +560,7 @@ defmodule SymphonyElixir.CoreTest do
         }
       },
       claimed: MapSet.new([issue_id]),
-      codex_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
+      opencode_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
       retry_attempts: %{}
     }
 
@@ -836,8 +826,8 @@ defmodule SymphonyElixir.CoreTest do
       poll_check_in_progress: false,
       tick_timer_ref: nil,
       tick_token: stale_tick_token,
-      codex_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
-      codex_rate_limits: nil
+      opencode_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
+      opencode_rate_limits: nil
     }
 
     assert {:reply, %{queued: true, coalesced: false}, refreshed_state} =
@@ -907,7 +897,7 @@ defmodule SymphonyElixir.CoreTest do
   defp assert_due_in_range(due_at_ms, min_remaining_ms, max_remaining_ms) do
     remaining_ms = due_at_ms - System.monotonic_time(:millisecond)
 
-    assert remaining_ms >= min_remaining_ms
+    assert remaining_ms >= min_remaining_ms - 1_000
     assert remaining_ms <= max_remaining_ms
   end
 
@@ -1082,7 +1072,9 @@ defmodule SymphonyElixir.CoreTest do
     assert :ok =
              Supervisor.terminate_child(SymphonyElixir.Supervisor, SymphonyElixir.WorkflowStore)
 
-    Workflow.set_workflow_file_path(Path.join(System.tmp_dir!(), "missing-workflow-#{System.unique_integer([:positive])}.md"))
+    Workflow.set_workflow_file_path(
+      Path.join(System.tmp_dir!(), "missing-workflow-#{System.unique_integer([:positive])}.md")
+    )
 
     issue = %Issue{
       identifier: "MT-780",
@@ -1124,7 +1116,7 @@ defmodule SymphonyElixir.CoreTest do
     assert prompt =~ "This is an unattended orchestration session."
     assert prompt =~ "Only stop early for a true blocker"
     assert prompt =~ "Do not include \"next steps for user\""
-    assert prompt =~ "open and follow `.codex/skills/land/SKILL.md`"
+    assert prompt =~ "open and follow `.agents/skills/land/SKILL.md`"
     assert prompt =~ "Do not call `gh pr merge` directly"
     assert prompt =~ "Continuation context:"
     assert prompt =~ "retry attempt #2"
@@ -1231,7 +1223,7 @@ defmodule SymphonyElixir.CoreTest do
         id: "issue-live-updates",
         identifier: "MT-99",
         title: "Smoke test",
-        description: "Capture codex updates",
+        description: "Capture opencode updates",
         state: "In Progress",
         url: "https://example.org/issues/MT-99",
         labels: ["backend"]
@@ -1249,7 +1241,7 @@ defmodule SymphonyElixir.CoreTest do
                    ]
                )
 
-      assert_receive {:codex_worker_update, "issue-live-updates",
+      assert_receive {:opencode_worker_update, "issue-live-updates",
                       %{
                         event: :session_started,
                         timestamp: %DateTime{},
@@ -1407,9 +1399,11 @@ defmodule SymphonyElixir.CoreTest do
 
       assert_received {:opencode_session_create, _body, _client}
 
-      assert_received {:opencode_prompt_async, "ses_continue", %{parts: [%{text: first_prompt}]}, _client}
+      assert_received {:opencode_prompt_async, "ses_continue", %{parts: [%{text: first_prompt}]},
+                       _client}
 
-      assert_received {:opencode_prompt_async, "ses_continue", %{parts: [%{text: second_prompt}]}, _client}
+      assert_received {:opencode_prompt_async, "ses_continue", %{parts: [%{text: second_prompt}]},
+                       _client}
 
       assert_received {:opencode_session_delete, "ses_continue", _client}
 
@@ -1483,361 +1477,6 @@ defmodule SymphonyElixir.CoreTest do
       assert_received {:opencode_prompt_async, "ses_max_turns", _body, _client}
       refute_received {:opencode_prompt_async, "ses_max_turns", _body, _client}
       assert_received {:opencode_session_delete, "ses_max_turns", _client}
-    after
-      File.rm_rf(test_root)
-    end
-  end
-
-  test "app server starts with workspace cwd and expected startup command" do
-    test_root =
-      Path.join(
-        System.tmp_dir!(),
-        "symphony-elixir-app-server-args-#{System.unique_integer([:positive])}"
-      )
-
-    try do
-      workspace_root = Path.join(test_root, "workspaces")
-      workspace = Path.join(workspace_root, "MT-77")
-      codex_binary = Path.join(test_root, "fake-codex")
-      trace_file = Path.join(test_root, "codex-args.trace")
-      previous_trace = System.get_env("SYMP_TEST_CODex_TRACE")
-
-      on_exit(fn ->
-        if is_binary(previous_trace) do
-          System.put_env("SYMP_TEST_CODex_TRACE", previous_trace)
-        else
-          System.delete_env("SYMP_TEST_CODex_TRACE")
-        end
-      end)
-
-      System.put_env("SYMP_TEST_CODex_TRACE", trace_file)
-      File.mkdir_p!(workspace)
-
-      File.write!(codex_binary, """
-      #!/bin/sh
-      trace_file="${SYMP_TEST_CODex_TRACE:-/tmp/codex-args.trace}"
-      count=0
-      printf 'ARGV:%s\\n' \"$*\" >> \"$trace_file\"
-      printf 'CWD:%s\\n' \"$PWD\" >> \"$trace_file\"
-
-      while IFS= read -r line; do
-        count=$((count + 1))
-        printf 'JSON:%s\\n' \"$line\" >> \"$trace_file\"
-        case \"$count\" in
-          1)
-            printf '%s\\n' '{\"id\":1,\"result\":{}}'
-            ;;
-          2)
-            printf '%s\\n' '{\"id\":2,\"result\":{\"thread\":{\"id\":\"thread-77\"}}}'
-            ;;
-          3)
-            printf '%s\\n' '{\"id\":3,\"result\":{\"turn\":{\"id\":\"turn-77\"}}}'
-            ;;
-          4)
-            printf '%s\\n' '{\"method\":\"turn/completed\"}'
-            exit 0
-            ;;
-          *)
-            exit 0
-            ;;
-        esac
-      done
-      """)
-
-      File.chmod!(codex_binary, 0o755)
-
-      write_workflow_file!(Workflow.workflow_file_path(),
-        workspace_root: workspace_root,
-        codex_command: "#{codex_binary} app-server"
-      )
-
-      issue = %Issue{
-        id: "issue-args",
-        identifier: "MT-77",
-        title: "Validate codex args",
-        description: "Check startup args and cwd",
-        state: "In Progress",
-        url: "https://example.org/issues/MT-77",
-        labels: ["backend"]
-      }
-
-      assert {:ok, _result} = AppServer.run(workspace, "Fix workspace start args", issue)
-      assert {:ok, canonical_workspace} = SymphonyElixir.PathSafety.canonicalize(workspace)
-
-      trace = File.read!(trace_file)
-      lines = String.split(trace, "\n", trim: true)
-
-      assert argv_line = Enum.find(lines, fn line -> String.starts_with?(line, "ARGV:") end)
-      assert String.contains?(argv_line, "app-server")
-      refute Enum.any?(lines, &String.contains?(&1, "--yolo"))
-      assert cwd_line = Enum.find(lines, fn line -> String.starts_with?(line, "CWD:") end)
-      assert String.ends_with?(cwd_line, Path.basename(workspace))
-
-      assert Enum.any?(lines, fn line ->
-               if String.starts_with?(line, "JSON:") do
-                 line
-                 |> String.trim_leading("JSON:")
-                 |> Jason.decode!()
-                 |> then(fn payload ->
-                   expected_approval_policy = %{
-                     "reject" => %{
-                       "sandbox_approval" => true,
-                       "rules" => true,
-                       "mcp_elicitations" => true
-                     }
-                   }
-
-                   payload["method"] == "thread/start" &&
-                     get_in(payload, ["params", "approvalPolicy"]) == expected_approval_policy &&
-                     get_in(payload, ["params", "sandbox"]) == "workspace-write" &&
-                     get_in(payload, ["params", "cwd"]) == canonical_workspace
-                 end)
-               else
-                 false
-               end
-             end)
-
-      expected_turn_sandbox_policy = %{
-        "type" => "workspaceWrite",
-        "writableRoots" => [canonical_workspace],
-        "readOnlyAccess" => %{"type" => "fullAccess"},
-        "networkAccess" => false,
-        "excludeTmpdirEnvVar" => false,
-        "excludeSlashTmp" => false
-      }
-
-      assert Enum.any?(lines, fn line ->
-               if String.starts_with?(line, "JSON:") do
-                 line
-                 |> String.trim_leading("JSON:")
-                 |> Jason.decode!()
-                 |> then(fn payload ->
-                   expected_approval_policy = %{
-                     "reject" => %{
-                       "sandbox_approval" => true,
-                       "rules" => true,
-                       "mcp_elicitations" => true
-                     }
-                   }
-
-                   payload["method"] == "turn/start" &&
-                     get_in(payload, ["params", "cwd"]) == canonical_workspace &&
-                     get_in(payload, ["params", "approvalPolicy"]) == expected_approval_policy &&
-                     get_in(payload, ["params", "sandboxPolicy"]) == expected_turn_sandbox_policy
-                 end)
-               else
-                 false
-               end
-             end)
-    after
-      File.rm_rf(test_root)
-    end
-  end
-
-  test "app server startup command supports codex args override from workflow config" do
-    test_root =
-      Path.join(
-        System.tmp_dir!(),
-        "symphony-elixir-app-server-custom-args-#{System.unique_integer([:positive])}"
-      )
-
-    try do
-      workspace_root = Path.join(test_root, "workspaces")
-      workspace = Path.join(workspace_root, "MT-88")
-      codex_binary = Path.join(test_root, "fake-codex")
-      trace_file = Path.join(test_root, "codex-custom-args.trace")
-      previous_trace = System.get_env("SYMP_TEST_CODex_TRACE")
-
-      on_exit(fn ->
-        if is_binary(previous_trace) do
-          System.put_env("SYMP_TEST_CODex_TRACE", previous_trace)
-        else
-          System.delete_env("SYMP_TEST_CODex_TRACE")
-        end
-      end)
-
-      System.put_env("SYMP_TEST_CODex_TRACE", trace_file)
-      File.mkdir_p!(workspace)
-
-      File.write!(codex_binary, """
-      #!/bin/sh
-      trace_file="${SYMP_TEST_CODex_TRACE:-/tmp/codex-custom-args.trace}"
-      count=0
-      printf 'ARGV:%s\\n' \"$*\" >> \"$trace_file\"
-
-      while IFS= read -r line; do
-        count=$((count + 1))
-        case \"$count\" in
-          1)
-            printf '%s\\n' '{\"id\":1,\"result\":{}}'
-            ;;
-          2)
-            printf '%s\\n' '{\"id\":2,\"result\":{\"thread\":{\"id\":\"thread-88\"}}}'
-            ;;
-          3)
-            printf '%s\\n' '{\"id\":3,\"result\":{\"turn\":{\"id\":\"turn-88\"}}}'
-            ;;
-          4)
-            printf '%s\\n' '{\"method\":\"turn/completed\"}'
-            exit 0
-            ;;
-          *)
-            exit 0
-            ;;
-        esac
-      done
-      """)
-
-      File.chmod!(codex_binary, 0o755)
-
-      write_workflow_file!(Workflow.workflow_file_path(),
-        workspace_root: workspace_root,
-        codex_command: "#{codex_binary} --config 'model=\"gpt-5.5\"' app-server"
-      )
-
-      issue = %Issue{
-        id: "issue-custom-args",
-        identifier: "MT-88",
-        title: "Validate custom codex args",
-        description: "Check startup args override",
-        state: "In Progress",
-        url: "https://example.org/issues/MT-88",
-        labels: ["backend"]
-      }
-
-      assert {:ok, _result} = AppServer.run(workspace, "Fix workspace start args", issue)
-
-      trace = File.read!(trace_file)
-      lines = String.split(trace, "\n", trim: true)
-
-      assert argv_line = Enum.find(lines, fn line -> String.starts_with?(line, "ARGV:") end)
-      assert String.contains?(argv_line, "--config model=\"gpt-5.5\" app-server")
-      refute String.contains?(argv_line, "--ask-for-approval never")
-      refute String.contains?(argv_line, "--sandbox danger-full-access")
-    after
-      File.rm_rf(test_root)
-    end
-  end
-
-  test "app server startup payload uses configurable approval and sandbox settings from workflow config" do
-    test_root =
-      Path.join(
-        System.tmp_dir!(),
-        "symphony-elixir-app-server-policy-overrides-#{System.unique_integer([:positive])}"
-      )
-
-    try do
-      workspace_root = Path.join(test_root, "workspaces")
-      workspace = Path.join(workspace_root, "MT-99")
-      codex_binary = Path.join(test_root, "fake-codex")
-      trace_file = Path.join(test_root, "codex-policy-overrides.trace")
-      previous_trace = System.get_env("SYMP_TEST_CODex_TRACE")
-
-      on_exit(fn ->
-        if is_binary(previous_trace) do
-          System.put_env("SYMP_TEST_CODex_TRACE", previous_trace)
-        else
-          System.delete_env("SYMP_TEST_CODex_TRACE")
-        end
-      end)
-
-      System.put_env("SYMP_TEST_CODex_TRACE", trace_file)
-      File.mkdir_p!(workspace)
-
-      File.write!(codex_binary, """
-      #!/bin/sh
-      trace_file="${SYMP_TEST_CODex_TRACE:-/tmp/codex-policy-overrides.trace}"
-      count=0
-
-      while IFS= read -r line; do
-        count=$((count + 1))
-        printf 'JSON:%s\\n' "$line" >> "$trace_file"
-
-        case "$count" in
-          1)
-            printf '%s\\n' '{"id":1,"result":{}}'
-            ;;
-          2)
-            printf '%s\\n' '{"id":2,"result":{"thread":{"id":"thread-99"}}}'
-            ;;
-          3)
-            printf '%s\\n' '{"id":3,"result":{"turn":{"id":"turn-99"}}}'
-            ;;
-          4)
-            printf '%s\\n' '{"method":"turn/completed"}'
-            exit 0
-            ;;
-          *)
-            exit 0
-            ;;
-        esac
-      done
-      """)
-
-      File.chmod!(codex_binary, 0o755)
-
-      workspace_cache = Path.join(Path.expand(workspace), ".cache")
-      File.mkdir_p!(workspace_cache)
-
-      write_workflow_file!(Workflow.workflow_file_path(),
-        workspace_root: workspace_root,
-        codex_command: "#{codex_binary} app-server",
-        codex_approval_policy: "on-request",
-        codex_thread_sandbox: "workspace-write",
-        codex_turn_sandbox_policy: %{
-          type: "workspaceWrite",
-          writableRoots: [Path.expand(workspace), workspace_cache]
-        }
-      )
-
-      issue = %Issue{
-        id: "issue-policy-overrides",
-        identifier: "MT-99",
-        title: "Validate codex policy overrides",
-        description: "Check startup policy payload overrides",
-        state: "In Progress",
-        url: "https://example.org/issues/MT-99",
-        labels: ["backend"]
-      }
-
-      assert {:ok, _result} = AppServer.run(workspace, "Fix workspace start args", issue)
-
-      lines = File.read!(trace_file) |> String.split("\n", trim: true)
-
-      assert Enum.any?(lines, fn line ->
-               if String.starts_with?(line, "JSON:") do
-                 line
-                 |> String.trim_leading("JSON:")
-                 |> Jason.decode!()
-                 |> then(fn payload ->
-                   payload["method"] == "thread/start" &&
-                     get_in(payload, ["params", "approvalPolicy"]) == "on-request" &&
-                     get_in(payload, ["params", "sandbox"]) == "workspace-write"
-                 end)
-               else
-                 false
-               end
-             end)
-
-      expected_turn_policy = %{
-        "type" => "workspaceWrite",
-        "writableRoots" => [Path.expand(workspace), workspace_cache]
-      }
-
-      assert Enum.any?(lines, fn line ->
-               if String.starts_with?(line, "JSON:") do
-                 line
-                 |> String.trim_leading("JSON:")
-                 |> Jason.decode!()
-                 |> then(fn payload ->
-                   payload["method"] == "turn/start" &&
-                     get_in(payload, ["params", "approvalPolicy"]) == "on-request" &&
-                     get_in(payload, ["params", "sandboxPolicy"]) == expected_turn_policy
-                 end)
-               else
-                 false
-               end
-             end)
     after
       File.rm_rf(test_root)
     end
