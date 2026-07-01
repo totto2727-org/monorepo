@@ -7,6 +7,12 @@
     ".": "./src/index.ts"
   },
   "devDependencies": {
-    "@totto2727/fp": "workspace:*"
+    "@totto2727/fp": "workspace:*",
+    "effect": "catalog:effect",
+    "hono": "catalog:hono"
+  },
+  "peerDependencies": {
+    "effect": "catalog:effect",
+    "hono": "catalog:hono"
   }
 }
