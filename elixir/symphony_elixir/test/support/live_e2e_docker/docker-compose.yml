@@ -1,3 +1,8 @@
+# このファイルは元のApache 2.0ライセンスのコードから変更されています
+# 変更日: 2026-07-01
+# 変更者: totto2727
+# 変更内容: live E2E worker の認証マウント先を OpenCode 設定へ更新
+
 services:
   worker1:
     build:
@@ -7,7 +12,7 @@ services:
       - '${SYMPHONY_LIVE_DOCKER_WORKER_1_PORT}:22'
     volumes:
       - ${SYMPHONY_LIVE_DOCKER_AUTHORIZED_KEY}:/run/symphony/ssh/authorized_key.pub:ro
-      - ${SYMPHONY_LIVE_DOCKER_AUTH_JSON}:/root/.codex/auth.json:ro
+      - ${SYMPHONY_LIVE_DOCKER_AUTH_JSON}:/root/.config/opencode/auth.json:ro
 
   worker2:
     build:
@@ -17,4 +22,4 @@ services:
       - '${SYMPHONY_LIVE_DOCKER_WORKER_2_PORT}:22'
     volumes:
       - ${SYMPHONY_LIVE_DOCKER_AUTHORIZED_KEY}:/run/symphony/ssh/authorized_key.pub:ro
-      - ${SYMPHONY_LIVE_DOCKER_AUTH_JSON}:/root/.codex/auth.json:ro
+      - ${SYMPHONY_LIVE_DOCKER_AUTH_JSON}:/root/.config/opencode/auth.json:ro

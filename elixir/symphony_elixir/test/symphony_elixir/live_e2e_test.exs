@@ -1,3 +1,8 @@
+# このファイルは元のApache 2.0ライセンスのコードから変更されています
+# 変更日: 2026-07-01
+# 変更者: totto2727
+# 変更内容: 旧バックエンド関連処理を削除し、OpenCode 前提の設定・状態名へ更新
+
 defmodule SymphonyElixir.LiveE2ETest do
   use SymphonyElixir.TestSupport
 
@@ -8,13 +13,14 @@ defmodule SymphonyElixir.LiveE2ETest do
   @moduletag timeout: 300_000
 
   @default_team_key "SYME2E"
-  @default_docker_auth_json Path.join(System.user_home!(), ".codex/auth.json")
+  @default_docker_auth_json Path.join(System.user_home!(), ".config/opencode/auth.json")
   @docker_worker_count 2
   @docker_support_dir Path.expand("../support/live_e2e_docker", __DIR__)
   @docker_compose_file Path.join(@docker_support_dir, "docker-compose.yml")
   @result_file "LIVE_E2E_RESULT.txt"
   @live_e2e_skip_reason if(System.get_env("SYMPHONY_RUN_LIVE_E2E") != "1",
-                          do: "set SYMPHONY_RUN_LIVE_E2E=1 to enable the real Linear/Codex end-to-end test"
+                          do:
+                            "set SYMPHONY_RUN_LIVE_E2E=1 to enable the real Linear/OpenCode end-to-end test"
                         )
 
   @team_query """
@@ -241,7 +247,8 @@ defmodule SymphonyElixir.LiveE2ETest do
   defp issue_completed?(%{"state" => %{"type" => type}}), do: type in ["completed", "canceled"]
   defp issue_completed?(_issue), do: false
 
-  defp issue_has_comment?(%{"comments" => %{"nodes" => comments}}, expected_body) when is_list(comments) do
+  defp issue_has_comment?(%{"comments" => %{"nodes" => comments}}, expected_body)
+       when is_list(comments) do
     Enum.any?(comments, &(&1["body"] == expected_body))
   end
 
@@ -402,7 +409,7 @@ defmodule SymphonyElixir.LiveE2ETest do
       when is_binary(workspace_path) ->
         runtime_info
 
-      {:codex_worker_update, ^issue_id, _message} ->
+      {:opencode_worker_update, ^issue_id, _message} ->
         receive_runtime_info!(issue_id)
     after
       5_000 ->
@@ -415,7 +422,10 @@ defmodule SymphonyElixir.LiveE2ETest do
     File.read!(Path.join(workspace_path, result_file))
   end
 
-  defp read_worker_result!(%{worker_host: worker_host, workspace_path: workspace_path}, result_file)
+  defp read_worker_result!(
+         %{worker_host: worker_host, workspace_path: workspace_path},
+         result_file
+       )
        when is_binary(worker_host) and is_binary(workspace_path) and is_binary(result_file) do
     remote_result_path = Path.join(workspace_path, result_file)
 
@@ -424,10 +434,14 @@ defmodule SymphonyElixir.LiveE2ETest do
         output
 
       {:ok, {output, status}} ->
-        flunk("failed to read remote result from #{worker_host}:#{remote_result_path} (status #{status}): #{inspect(output)}")
+        flunk(
+          "failed to read remote result from #{worker_host}:#{remote_result_path} (status #{status}): #{inspect(output)}"
+        )
 
       {:error, reason} ->
-        flunk("failed to read remote result from #{worker_host}:#{remote_result_path}: #{inspect(reason)}")
+        flunk(
+          "failed to read remote result from #{worker_host}:#{remote_result_path}: #{inspect(reason)}"
+        )
     end
   end
 
@@ -449,7 +463,11 @@ defmodule SymphonyElixir.LiveE2ETest do
 
     try do
       if is_pid(orchestrator_pid) do
-        assert :ok = Supervisor.terminate_child(SymphonyElixir.Supervisor, SymphonyElixir.Orchestrator)
+        assert :ok =
+                 Supervisor.terminate_child(
+                   SymphonyElixir.Supervisor,
+                   SymphonyElixir.Orchestrator
+                 )
       end
 
       Workflow.set_workflow_file_path(workflow_file)
@@ -459,8 +477,6 @@ defmodule SymphonyElixir.LiveE2ETest do
         tracker_project_slug: "bootstrap",
         workspace_root: worker_setup.workspace_root,
         worker_ssh_hosts: worker_setup.ssh_worker_hosts,
-        codex_command: worker_setup.codex_command,
-        codex_approval_policy: "never",
         observability_enabled: false
       )
 
@@ -490,10 +506,8 @@ defmodule SymphonyElixir.LiveE2ETest do
         tracker_terminal_states: terminal_states,
         workspace_root: worker_setup.workspace_root,
         worker_ssh_hosts: worker_setup.ssh_worker_hosts,
-        codex_command: worker_setup.codex_command,
-        codex_approval_policy: "never",
-        codex_turn_timeout_ms: 600_000,
-        codex_stall_timeout_ms: 600_000,
+        opencode_turn_timeout_ms: 600_000,
+        opencode_stall_timeout_ms: 600_000,
         observability_enabled: false,
         prompt: live_prompt(project["slugId"])
       )
@@ -507,7 +521,11 @@ defmodule SymphonyElixir.LiveE2ETest do
 
       issue_snapshot = fetch_issue_details!(issue.id)
       assert issue_completed?(issue_snapshot)
-      assert issue_has_comment?(issue_snapshot, expected_comment(issue.identifier, project["slugId"]))
+
+      assert issue_has_comment?(
+               issue_snapshot,
+               expected_comment(issue.identifier, project["slugId"])
+             )
 
       assert :ok = complete_project(project["id"], completed_project_status["id"])
     after
@@ -521,13 +539,13 @@ defmodule SymphonyElixir.LiveE2ETest do
   defp live_worker_setup!(:local, _run_id, test_root) when is_binary(test_root) do
     %{
       cleanup: fn -> :ok end,
-      codex_command: "codex app-server",
       ssh_worker_hosts: [],
       workspace_root: Path.join(test_root, "workspaces")
     }
   end
 
-  defp live_worker_setup!(:ssh, run_id, test_root) when is_binary(run_id) and is_binary(test_root) do
+  defp live_worker_setup!(:ssh, run_id, test_root)
+       when is_binary(run_id) and is_binary(test_root) do
     case live_ssh_worker_hosts() do
       [] ->
         live_docker_worker_setup!(run_id, test_root)
@@ -559,13 +577,13 @@ defmodule SymphonyElixir.LiveE2ETest do
 
     %{
       cleanup: fn -> cleanup_remote_test_root(remote_test_root, ssh_worker_hosts) end,
-      codex_command: "codex app-server",
       ssh_worker_hosts: ssh_worker_hosts,
       workspace_root: remote_workspace_root
     }
   end
 
-  defp live_docker_worker_setup!(run_id, test_root) when is_binary(run_id) and is_binary(test_root) do
+  defp live_docker_worker_setup!(run_id, test_root)
+       when is_binary(run_id) and is_binary(test_root) do
     ssh_root = Path.join(test_root, "live-docker-ssh")
     key_path = Path.join(ssh_root, "id_ed25519")
     config_path = Path.join(ssh_root, "config")
@@ -577,7 +595,11 @@ defmodule SymphonyElixir.LiveE2ETest do
 
     base_cleanup = fn ->
       restore_env("SYMPHONY_SSH_CONFIG", previous_ssh_config)
-      docker_compose_down(project_name, docker_compose_env(worker_ports, auth_json_path, key_path <> ".pub"))
+
+      docker_compose_down(
+        project_name,
+        docker_compose_env(worker_ports, auth_json_path, key_path <> ".pub")
+      )
     end
 
     result =
@@ -587,7 +609,11 @@ defmodule SymphonyElixir.LiveE2ETest do
         write_docker_ssh_config!(config_path, key_path)
         System.put_env("SYMPHONY_SSH_CONFIG", config_path)
 
-        docker_compose_up!(project_name, docker_compose_env(worker_ports, auth_json_path, key_path <> ".pub"))
+        docker_compose_up!(
+          project_name,
+          docker_compose_env(worker_ports, auth_json_path, key_path <> ".pub")
+        )
+
         wait_for_ssh_hosts!(worker_hosts)
         remote_test_root = Path.join(shared_remote_home!(worker_hosts), ".#{run_id}")
         remote_workspace_root = "~/.#{run_id}/workspaces"
@@ -597,7 +623,6 @@ defmodule SymphonyElixir.LiveE2ETest do
             cleanup_remote_test_root(remote_test_root, worker_hosts)
             base_cleanup.()
           end,
-          codex_command: "codex app-server",
           ssh_worker_hosts: worker_hosts,
           workspace_root: remote_workspace_root
         }
@@ -637,7 +662,8 @@ defmodule SymphonyElixir.LiveE2ETest do
     end)
   end
 
-  defp shared_remote_home!([first_host | rest] = worker_hosts) when is_binary(first_host) and rest != [] do
+  defp shared_remote_home!([first_host | rest] = worker_hosts)
+       when is_binary(first_host) and rest != [] do
     homes =
       worker_hosts
       |> Enum.map(fn worker_host -> {worker_host, remote_home!(worker_host)} end)
@@ -651,7 +677,9 @@ defmodule SymphonyElixir.LiveE2ETest do
     end
   end
 
-  defp shared_remote_home!([worker_host]) when is_binary(worker_host), do: remote_home!(worker_host)
+  defp shared_remote_home!([worker_host]) when is_binary(worker_host),
+    do: remote_home!(worker_host)
+
   defp shared_remote_home!(_worker_hosts), do: flunk("expected at least one live SSH worker host")
 
   defp remote_home!(worker_host) when is_binary(worker_host) do
@@ -665,7 +693,9 @@ defmodule SymphonyElixir.LiveE2ETest do
         end
 
       {:ok, {output, status}} ->
-        flunk("failed to resolve remote home for #{worker_host} (status #{status}): #{inspect(output)}")
+        flunk(
+          "failed to resolve remote home for #{worker_host} (status #{status}): #{inspect(output)}"
+        )
 
       {:error, reason} ->
         flunk("failed to resolve remote home for #{worker_host}: #{inspect(reason)}")
@@ -706,9 +736,14 @@ defmodule SymphonyElixir.LiveE2ETest do
         File.rm_rf(key_path)
         File.rm_rf(key_path <> ".pub")
 
-        case System.cmd(executable, ["-q", "-t", "ed25519", "-N", "", "-f", key_path], stderr_to_stdout: true) do
-          {_output, 0} -> :ok
-          {output, status} -> flunk("failed to generate live docker ssh key (status #{status}): #{inspect(output)}")
+        case System.cmd(executable, ["-q", "-t", "ed25519", "-N", "", "-f", key_path],
+               stderr_to_stdout: true
+             ) do
+          {_output, 0} ->
+            :ok
+
+          {output, status} ->
+            flunk("failed to generate live docker ssh key (status #{status}): #{inspect(output)}")
         end
     end
   end
@@ -761,7 +796,16 @@ defmodule SymphonyElixir.LiveE2ETest do
     _ =
       System.cmd(
         "docker",
-        ["compose", "-f", @docker_compose_file, "-p", project_name, "down", "-v", "--remove-orphans"],
+        [
+          "compose",
+          "-f",
+          @docker_compose_file,
+          "-p",
+          project_name,
+          "down",
+          "-v",
+          "--remove-orphans"
+        ],
         cd: @docker_support_dir,
         env: env,
         stderr_to_stdout: true
