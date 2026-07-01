@@ -1,0 +1,16 @@
+import {
+  "mizchi/admiral",
+  "moonbitlang/core/argparse",
+  "moonbitlang/core/env",
+  "moonbitlang/core/string",
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/io",
+  "moonbitlang/async/process",
+}
+
+supported_targets = "native"
+
+options(
+  "is-main": true,
+)
