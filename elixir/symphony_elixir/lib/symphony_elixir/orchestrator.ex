@@ -19,7 +19,7 @@ defmodule SymphonyElixir.Orchestrator do
   @failure_retry_base_ms 10_000
   # Slightly above the dashboard render interval so "checking now…" can render.
   @poll_transition_render_delay_ms 20
-  @empty_codex_totals %{
+  @empty_opencode_totals %{
     input_tokens: 0,
     output_tokens: 0,
     total_tokens: 0,
@@ -43,8 +43,8 @@ defmodule SymphonyElixir.Orchestrator do
       claimed: MapSet.new(),
       blocked: %{},
       retry_attempts: %{},
-      codex_totals: nil,
-      codex_rate_limits: nil
+      opencode_totals: nil,
+      opencode_rate_limits: nil
     ]
   end
 
@@ -66,8 +66,8 @@ defmodule SymphonyElixir.Orchestrator do
       poll_check_in_progress: false,
       tick_timer_ref: nil,
       tick_token: nil,
-      codex_totals: @empty_codex_totals,
-      codex_rate_limits: nil
+      opencode_totals: @empty_opencode_totals,
+      opencode_rate_limits: nil
     }
 
     run_terminal_workspace_cleanup()
@@ -137,7 +137,9 @@ defmodule SymphonyElixir.Orchestrator do
 
         state = handle_agent_down(reason, state, issue_id, running_entry, session_id)
 
-        Logger.info("Agent task finished for issue_id=#{issue_id} session_id=#{session_id} reason=#{inspect(reason)}")
+        Logger.info(
+          "Agent task finished for issue_id=#{issue_id} session_id=#{session_id} reason=#{inspect(reason)}"
+        )
 
         notify_dashboard()
         {:noreply, state}
@@ -162,7 +164,7 @@ defmodule SymphonyElixir.Orchestrator do
   end
 
   def handle_info(
-        {:codex_worker_update, issue_id, %{event: _, timestamp: _} = update},
+        {:opencode_worker_update, issue_id, %{event: _, timestamp: _} = update},
         %{running: running} = state
       ) do
     case Map.get(running, issue_id) do
@@ -170,19 +172,19 @@ defmodule SymphonyElixir.Orchestrator do
         {:noreply, state}
 
       running_entry ->
-        {updated_running_entry, token_delta} = integrate_codex_update(running_entry, update)
+        {updated_running_entry, token_delta} = integrate_opencode_update(running_entry, update)
 
         state =
           state
-          |> apply_codex_token_delta(token_delta)
-          |> apply_codex_rate_limits(update)
+          |> apply_opencode_token_delta(token_delta)
+          |> apply_opencode_rate_limits(update)
 
         notify_dashboard()
         {:noreply, %{state | running: Map.put(running, issue_id, updated_running_entry)}}
     end
   end
 
-  def handle_info({:codex_worker_update, _issue_id, _update}, state), do: {:noreply, state}
+  def handle_info({:opencode_worker_update, _issue_id, _update}, state), do: {:noreply, state}
 
   def handle_info({:retry_issue, issue_id, retry_token}, state) do
     result =
@@ -206,7 +208,9 @@ defmodule SymphonyElixir.Orchestrator do
     if input_required_blocker?(running_entry) do
       block_input_required_agent_down(state, issue_id, running_entry, session_id, :normal)
     else
-      Logger.info("Agent task completed for issue_id=#{issue_id} session_id=#{session_id}; scheduling active-state continuation check")
+      Logger.info(
+        "Agent task completed for issue_id=#{issue_id} session_id=#{session_id}; scheduling active-state continuation check"
+      )
 
       state
       |> complete_issue(issue_id)
@@ -231,13 +235,17 @@ defmodule SymphonyElixir.Orchestrator do
   defp block_input_required_agent_down(state, issue_id, running_entry, session_id, reason) do
     error = blocker_error(running_entry, "agent exited: #{inspect(reason)}")
 
-    Logger.warning("Agent task blocked for issue_id=#{issue_id} issue_identifier=#{running_entry.identifier} session_id=#{session_id}: #{error}")
+    Logger.warning(
+      "Agent task blocked for issue_id=#{issue_id} issue_identifier=#{running_entry.identifier} session_id=#{session_id}: #{error}"
+    )
 
     block_issue_from_entry(state, issue_id, running_entry, error)
   end
 
   defp retry_agent_down(state, issue_id, running_entry, session_id, reason) do
-    Logger.warning("Agent task exited for issue_id=#{issue_id} session_id=#{session_id} reason=#{inspect(reason)}; scheduling retry")
+    Logger.warning(
+      "Agent task exited for issue_id=#{issue_id} session_id=#{session_id} reason=#{inspect(reason)}; scheduling retry"
+    )
 
     next_attempt = next_retry_attempt_from_running(running_entry)
 
@@ -322,7 +330,9 @@ defmodule SymphonyElixir.Orchestrator do
           |> reconcile_missing_running_issue_ids(running_ids, issues)
 
         {:error, reason} ->
-          Logger.debug("Failed to refresh running issue states: #{inspect(reason)}; keeping active workers")
+          Logger.debug(
+            "Failed to refresh running issue states: #{inspect(reason)}; keeping active workers"
+          )
 
           state
       end
@@ -346,7 +356,9 @@ defmodule SymphonyElixir.Orchestrator do
           |> reconcile_missing_blocked_issue_ids(blocked_ids, issues)
 
         {:error, reason} ->
-          Logger.debug("Failed to refresh blocked issue states: #{inspect(reason)}; keeping blocked issues")
+          Logger.debug(
+            "Failed to refresh blocked issue states: #{inspect(reason)}; keeping blocked issues"
+          )
 
           state
       end
@@ -433,12 +445,16 @@ defmodule SymphonyElixir.Orchestrator do
   defp reconcile_issue_state(%Issue{} = issue, state, active_states, terminal_states) do
     cond do
       terminal_issue_state?(issue.state, terminal_states) ->
-        Logger.info("Issue moved to terminal state: #{issue_context(issue)} state=#{issue.state}; stopping active agent")
+        Logger.info(
+          "Issue moved to terminal state: #{issue_context(issue)} state=#{issue.state}; stopping active agent"
+        )
 
         terminate_running_issue(state, issue.id, true)
 
       !issue_routable?(issue) ->
-        Logger.info("Issue no longer routed to this worker: #{issue_context(issue)} assignee=#{inspect(issue.assignee_id)}; stopping active agent")
+        Logger.info(
+          "Issue no longer routed to this worker: #{issue_context(issue)} assignee=#{inspect(issue.assignee_id)}; stopping active agent"
+        )
 
         terminate_running_issue(state, issue.id, false)
 
@@ -446,7 +462,9 @@ defmodule SymphonyElixir.Orchestrator do
         refresh_running_issue_state(state, issue)
 
       true ->
-        Logger.info("Issue moved to non-active state: #{issue_context(issue)} state=#{issue.state}; stopping active agent")
+        Logger.info(
+          "Issue moved to non-active state: #{issue_context(issue)} state=#{issue.state}; stopping active agent"
+        )
 
         terminate_running_issue(state, issue.id, false)
     end
@@ -468,13 +486,17 @@ defmodule SymphonyElixir.Orchestrator do
   defp reconcile_blocked_issue_state(%Issue{} = issue, state, active_states, terminal_states) do
     cond do
       terminal_issue_state?(issue.state, terminal_states) ->
-        Logger.info("Blocked issue moved to terminal state: #{issue_context(issue)} state=#{issue.state}; releasing block")
+        Logger.info(
+          "Blocked issue moved to terminal state: #{issue_context(issue)} state=#{issue.state}; releasing block"
+        )
 
         cleanup_issue_workspace(issue.identifier, blocked_issue_worker_host(state, issue.id))
         release_issue_claim(state, issue.id)
 
       !issue_routable?(issue) ->
-        Logger.info("Blocked issue no longer routed to this worker: #{issue_context(issue)} assignee=#{inspect(issue.assignee_id)}; releasing block")
+        Logger.info(
+          "Blocked issue no longer routed to this worker: #{issue_context(issue)} assignee=#{inspect(issue.assignee_id)}; releasing block"
+        )
 
         release_issue_claim(state, issue.id)
 
@@ -482,7 +504,9 @@ defmodule SymphonyElixir.Orchestrator do
         refresh_blocked_issue_state(state, issue)
 
       true ->
-        Logger.info("Blocked issue moved to non-active state: #{issue_context(issue)} state=#{issue.state}; releasing block")
+        Logger.info(
+          "Blocked issue moved to non-active state: #{issue_context(issue)} state=#{issue.state}; releasing block"
+        )
 
         release_issue_claim(state, issue.id)
     end
@@ -526,7 +550,9 @@ defmodule SymphonyElixir.Orchestrator do
       if MapSet.member?(visible_issue_ids, issue_id) do
         state_acc
       else
-        Logger.info("Blocked issue no longer visible during state refresh: issue_id=#{issue_id}; releasing block")
+        Logger.info(
+          "Blocked issue no longer visible during state refresh: issue_id=#{issue_id}; releasing block"
+        )
 
         release_issue_claim(state_acc, issue_id)
       end
@@ -538,10 +564,14 @@ defmodule SymphonyElixir.Orchestrator do
   defp log_missing_running_issue(%State{} = state, issue_id) when is_binary(issue_id) do
     case Map.get(state.running, issue_id) do
       %{identifier: identifier} ->
-        Logger.info("Issue no longer visible during running-state refresh: issue_id=#{issue_id} issue_identifier=#{identifier}; stopping active agent")
+        Logger.info(
+          "Issue no longer visible during running-state refresh: issue_id=#{issue_id} issue_identifier=#{identifier}; stopping active agent"
+        )
 
       _ ->
-        Logger.info("Issue no longer visible during running-state refresh: issue_id=#{issue_id}; stopping active agent")
+        Logger.info(
+          "Issue no longer visible during running-state refresh: issue_id=#{issue_id}; stopping active agent"
+        )
     end
   end
 
@@ -596,7 +626,7 @@ defmodule SymphonyElixir.Orchestrator do
   end
 
   defp reconcile_stalled_running_issues(%State{} = state) do
-    timeout_ms = Config.settings!().codex.stall_timeout_ms
+    timeout_ms = Config.settings!().opencode.stall_timeout_ms
 
     cond do
       timeout_ms <= 0 ->
@@ -636,13 +666,17 @@ defmodule SymphonyElixir.Orchestrator do
             "stalled for #{elapsed_ms}ms after the agent requested operator input"
           )
 
-        Logger.warning("Issue blocked: issue_id=#{issue_id} issue_identifier=#{identifier} session_id=#{session_id} elapsed_ms=#{elapsed_ms}; #{error}")
+        Logger.warning(
+          "Issue blocked: issue_id=#{issue_id} issue_identifier=#{identifier} session_id=#{session_id} elapsed_ms=#{elapsed_ms}; #{error}"
+        )
 
         state
         |> record_session_completion_totals(running_entry)
         |> stop_and_block_issue(issue_id, running_entry, error)
       else
-        Logger.warning("Issue stalled: issue_id=#{issue_id} issue_identifier=#{identifier} session_id=#{session_id} elapsed_ms=#{elapsed_ms}; restarting with backoff")
+        Logger.warning(
+          "Issue stalled: issue_id=#{issue_id} issue_identifier=#{identifier} session_id=#{session_id} elapsed_ms=#{elapsed_ms}; restarting with backoff"
+        )
 
         next_attempt = next_retry_attempt_from_running(running_entry)
 
@@ -651,7 +685,7 @@ defmodule SymphonyElixir.Orchestrator do
         |> schedule_issue_retry(issue_id, next_attempt, %{
           identifier: identifier,
           issue_url: running_entry.issue.url,
-          error: "stalled for #{elapsed_ms}ms without codex activity"
+          error: "stalled for #{elapsed_ms}ms without opencode activity"
         })
       end
     else
@@ -672,15 +706,15 @@ defmodule SymphonyElixir.Orchestrator do
   end
 
   defp last_activity_timestamp(running_entry) when is_map(running_entry) do
-    Map.get(running_entry, :last_codex_timestamp) || Map.get(running_entry, :started_at)
+    Map.get(running_entry, :last_opencode_timestamp) || Map.get(running_entry, :started_at)
   end
 
   defp last_activity_timestamp(_running_entry), do: nil
 
   defp input_required_blocker?(running_entry) when is_map(running_entry) do
-    Map.get(running_entry, :last_codex_event) in [:turn_input_required, :approval_required] or
+    Map.get(running_entry, :last_opencode_event) in [:turn_input_required, :approval_required] or
       not is_nil(input_required_completion_outcome(Map.get(running_entry, :completion))) or
-      codex_message_method(Map.get(running_entry, :last_codex_message)) ==
+      opencode_message_method(Map.get(running_entry, :last_opencode_message)) ==
         "mcpServer/elicitation/request"
   end
 
@@ -709,42 +743,46 @@ defmodule SymphonyElixir.Orchestrator do
   defp normalize_input_required_outcome(_outcome), do: nil
 
   defp blocker_error(running_entry, fallback) when is_map(running_entry) do
-    codex_event_blocker_error(Map.get(running_entry, :last_codex_event)) ||
+    opencode_event_blocker_error(Map.get(running_entry, :last_opencode_event)) ||
       completion_blocker_error(Map.get(running_entry, :completion)) ||
-      codex_message_blocker_error(Map.get(running_entry, :last_codex_message)) ||
+      opencode_message_blocker_error(Map.get(running_entry, :last_opencode_message)) ||
       fallback
   end
 
   defp blocker_error(_running_entry, fallback), do: fallback
 
-  defp codex_event_blocker_error(:turn_input_required), do: "codex turn requires operator input"
-  defp codex_event_blocker_error(:approval_required), do: "codex turn requires approval"
-  defp codex_event_blocker_error(_event), do: nil
+  defp opencode_event_blocker_error(:turn_input_required),
+    do: "opencode turn requires operator input"
+
+  defp opencode_event_blocker_error(:approval_required), do: "opencode turn requires approval"
+  defp opencode_event_blocker_error(_event), do: nil
 
   defp completion_blocker_error(completion) do
     case input_required_completion_outcome(completion) do
       outcome when outcome in [:input_required, :needs_input] ->
-        "codex turn requires operator input"
+        "opencode turn requires operator input"
 
       :approval_required ->
-        "codex turn requires approval"
+        "opencode turn requires approval"
 
       nil ->
         nil
     end
   end
 
-  defp codex_message_blocker_error(message) do
-    if codex_message_method(message) == "mcpServer/elicitation/request" do
-      "codex MCP elicitation requires operator input"
+  defp opencode_message_blocker_error(message) do
+    if opencode_message_method(message) == "mcpServer/elicitation/request" do
+      "opencode MCP elicitation requires operator input"
     end
   end
 
-  defp codex_message_method(%{message: %{"method" => method}}) when is_binary(method), do: method
-  defp codex_message_method(%{message: %{method: method}}) when is_binary(method), do: method
-  defp codex_message_method(%{"method" => method}) when is_binary(method), do: method
-  defp codex_message_method(%{method: method}) when is_binary(method), do: method
-  defp codex_message_method(_message), do: nil
+  defp opencode_message_method(%{message: %{"method" => method}}) when is_binary(method),
+    do: method
+
+  defp opencode_message_method(%{message: %{method: method}}) when is_binary(method), do: method
+  defp opencode_message_method(%{"method" => method}) when is_binary(method), do: method
+  defp opencode_message_method(%{method: method}) when is_binary(method), do: method
+  defp opencode_message_method(_message), do: nil
 
   defp terminate_task(pid) when is_pid(pid) do
     case Task.Supervisor.terminate_child(SymphonyElixir.TaskSupervisor, pid) do
@@ -785,9 +823,9 @@ defmodule SymphonyElixir.Orchestrator do
       session_id: running_entry_session_id(running_entry),
       error: error,
       blocked_at: DateTime.utc_now(),
-      last_codex_message: Map.get(running_entry, :last_codex_message),
-      last_codex_event: Map.get(running_entry, :last_codex_event),
-      last_codex_timestamp: Map.get(running_entry, :last_codex_timestamp)
+      last_opencode_message: Map.get(running_entry, :last_opencode_message),
+      last_opencode_event: Map.get(running_entry, :last_opencode_event),
+      last_opencode_timestamp: Map.get(running_entry, :last_opencode_timestamp)
     }
 
     %{
@@ -817,7 +855,8 @@ defmodule SymphonyElixir.Orchestrator do
   defp sort_issues_for_dispatch(issues) when is_list(issues) do
     Enum.sort_by(issues, fn
       %Issue{} = issue ->
-        {priority_rank(issue.priority), issue_created_at_sort_key(issue), issue.identifier || issue.id || ""}
+        {priority_rank(issue.priority), issue_created_at_sort_key(issue),
+         issue.identifier || issue.id || ""}
 
       _ ->
         {priority_rank(nil), issue_created_at_sort_key(nil), ""}
@@ -949,17 +988,23 @@ defmodule SymphonyElixir.Orchestrator do
         do_dispatch_issue(state, refreshed_issue, attempt, preferred_worker_host)
 
       {:skip, :missing} ->
-        Logger.info("Skipping dispatch; issue no longer active or visible: #{issue_context(issue)}")
+        Logger.info(
+          "Skipping dispatch; issue no longer active or visible: #{issue_context(issue)}"
+        )
 
         state
 
       {:skip, %Issue{} = refreshed_issue} ->
-        Logger.info("Skipping stale dispatch after issue refresh: #{issue_context(refreshed_issue)} state=#{inspect(refreshed_issue.state)} blocked_by=#{length(refreshed_issue.blocked_by)}")
+        Logger.info(
+          "Skipping stale dispatch after issue refresh: #{issue_context(refreshed_issue)} state=#{inspect(refreshed_issue.state)} blocked_by=#{length(refreshed_issue.blocked_by)}"
+        )
 
         state
 
       {:error, reason} ->
-        Logger.warning("Skipping dispatch; issue refresh failed for #{issue_context(issue)}: #{inspect(reason)}")
+        Logger.warning(
+          "Skipping dispatch; issue refresh failed for #{issue_context(issue)}: #{inspect(reason)}"
+        )
 
         state
     end
@@ -970,7 +1015,9 @@ defmodule SymphonyElixir.Orchestrator do
 
     case select_worker_host(state, preferred_worker_host) do
       :no_worker_capacity ->
-        Logger.debug("No SSH worker slots available for #{issue_context(issue)} preferred_worker_host=#{inspect(preferred_worker_host)}")
+        Logger.debug(
+          "No SSH worker slots available for #{issue_context(issue)} preferred_worker_host=#{inspect(preferred_worker_host)}"
+        )
 
         state
 
@@ -986,7 +1033,9 @@ defmodule SymphonyElixir.Orchestrator do
       {:ok, pid} ->
         ref = Process.monitor(pid)
 
-        Logger.info("Dispatching issue to agent: #{issue_context(issue)} pid=#{inspect(pid)} attempt=#{inspect(attempt)} worker_host=#{worker_host || "local"}")
+        Logger.info(
+          "Dispatching issue to agent: #{issue_context(issue)} pid=#{inspect(pid)} attempt=#{inspect(attempt)} worker_host=#{worker_host || "local"}"
+        )
 
         running =
           Map.put(state.running, issue.id, %{
@@ -997,16 +1046,16 @@ defmodule SymphonyElixir.Orchestrator do
             worker_host: worker_host,
             workspace_path: nil,
             session_id: nil,
-            last_codex_message: nil,
-            last_codex_timestamp: nil,
-            last_codex_event: nil,
-            codex_app_server_pid: nil,
-            codex_input_tokens: 0,
-            codex_output_tokens: 0,
-            codex_total_tokens: 0,
-            codex_last_reported_input_tokens: 0,
-            codex_last_reported_output_tokens: 0,
-            codex_last_reported_total_tokens: 0,
+            last_opencode_message: nil,
+            last_opencode_timestamp: nil,
+            last_opencode_event: nil,
+            opencode_server_pid: nil,
+            opencode_input_tokens: 0,
+            opencode_output_tokens: 0,
+            opencode_total_tokens: 0,
+            opencode_last_reported_input_tokens: 0,
+            opencode_last_reported_output_tokens: 0,
+            opencode_last_reported_total_tokens: 0,
             turn_count: 0,
             retry_attempt: normalize_retry_attempt(attempt),
             started_at: DateTime.utc_now()
@@ -1082,7 +1131,9 @@ defmodule SymphonyElixir.Orchestrator do
 
     error_suffix = if is_binary(error), do: " error=#{error}", else: ""
 
-    Logger.warning("Retrying issue_id=#{issue_id} issue_identifier=#{identifier} in #{delay_ms}ms (attempt #{next_attempt})#{error_suffix}")
+    Logger.warning(
+      "Retrying issue_id=#{issue_id} issue_identifier=#{identifier} in #{delay_ms}ms (attempt #{next_attempt})#{error_suffix}"
+    )
 
     %{
       state
@@ -1113,7 +1164,8 @@ defmodule SymphonyElixir.Orchestrator do
           workspace_path: Map.get(retry_entry, :workspace_path)
         }
 
-        {:ok, attempt, metadata, %{state | retry_attempts: Map.delete(state.retry_attempts, issue_id)}}
+        {:ok, attempt, metadata,
+         %{state | retry_attempts: Map.delete(state.retry_attempts, issue_id)}}
 
       _ ->
         :missing
@@ -1128,7 +1180,9 @@ defmodule SymphonyElixir.Orchestrator do
         |> handle_retry_issue_lookup(state, issue_id, attempt, metadata)
 
       {:error, reason} ->
-        Logger.warning("Retry poll failed for issue_id=#{issue_id} issue_identifier=#{metadata[:identifier] || issue_id}: #{inspect(reason)}")
+        Logger.warning(
+          "Retry poll failed for issue_id=#{issue_id} issue_identifier=#{metadata[:identifier] || issue_id}: #{inspect(reason)}"
+        )
 
         {:noreply,
          schedule_issue_retry(
@@ -1145,7 +1199,9 @@ defmodule SymphonyElixir.Orchestrator do
 
     cond do
       terminal_issue_state?(issue.state, terminal_states) ->
-        Logger.info("Issue state is terminal: issue_id=#{issue_id} issue_identifier=#{issue.identifier} state=#{issue.state}; removing associated workspace")
+        Logger.info(
+          "Issue state is terminal: issue_id=#{issue_id} issue_identifier=#{issue.identifier} state=#{issue.state}; removing associated workspace"
+        )
 
         cleanup_issue_workspace(issue.identifier, metadata[:worker_host])
         {:noreply, release_issue_claim(state, issue_id)}
@@ -1154,7 +1210,9 @@ defmodule SymphonyElixir.Orchestrator do
         handle_active_retry(state, issue, attempt, metadata)
 
       true ->
-        Logger.debug("Issue left active states, removing claim issue_id=#{issue_id} issue_identifier=#{issue.identifier}")
+        Logger.debug(
+          "Issue left active states, removing claim issue_id=#{issue_id} issue_identifier=#{issue.identifier}"
+        )
 
         {:noreply, release_issue_claim(state, issue_id)}
     end
@@ -1192,7 +1250,9 @@ defmodule SymphonyElixir.Orchestrator do
         end)
 
       {:error, reason} ->
-        Logger.warning("Skipping startup terminal workspace cleanup; failed to fetch terminal issues: #{inspect(reason)}")
+        Logger.warning(
+          "Skipping startup terminal workspace cleanup; failed to fetch terminal issues: #{inspect(reason)}"
+        )
     end
   end
 
@@ -1429,15 +1489,15 @@ defmodule SymphonyElixir.Orchestrator do
           worker_host: Map.get(metadata, :worker_host),
           workspace_path: Map.get(metadata, :workspace_path),
           session_id: metadata.session_id,
-          codex_app_server_pid: metadata.codex_app_server_pid,
-          codex_input_tokens: metadata.codex_input_tokens,
-          codex_output_tokens: metadata.codex_output_tokens,
-          codex_total_tokens: metadata.codex_total_tokens,
+          opencode_server_pid: metadata.opencode_server_pid,
+          opencode_input_tokens: metadata.opencode_input_tokens,
+          opencode_output_tokens: metadata.opencode_output_tokens,
+          opencode_total_tokens: metadata.opencode_total_tokens,
           turn_count: Map.get(metadata, :turn_count, 0),
           started_at: metadata.started_at,
-          last_codex_timestamp: metadata.last_codex_timestamp,
-          last_codex_message: metadata.last_codex_message,
-          last_codex_event: metadata.last_codex_event,
+          last_opencode_timestamp: metadata.last_opencode_timestamp,
+          last_opencode_message: metadata.last_opencode_message,
+          last_opencode_event: metadata.last_opencode_event,
           runtime_seconds: running_seconds(metadata.started_at, now)
         }
       end)
@@ -1470,9 +1530,9 @@ defmodule SymphonyElixir.Orchestrator do
           session_id: Map.get(metadata, :session_id),
           error: Map.get(metadata, :error),
           blocked_at: Map.get(metadata, :blocked_at),
-          last_codex_timestamp: Map.get(metadata, :last_codex_timestamp),
-          last_codex_message: Map.get(metadata, :last_codex_message),
-          last_codex_event: Map.get(metadata, :last_codex_event)
+          last_opencode_timestamp: Map.get(metadata, :last_opencode_timestamp),
+          last_opencode_message: Map.get(metadata, :last_opencode_message),
+          last_opencode_event: Map.get(metadata, :last_opencode_event)
         }
       end)
 
@@ -1481,8 +1541,8 @@ defmodule SymphonyElixir.Orchestrator do
        running: running,
        retrying: retrying,
        blocked: blocked,
-       codex_totals: state.codex_totals,
-       rate_limits: Map.get(state, :codex_rate_limits),
+       opencode_totals: state.opencode_totals,
+       rate_limits: Map.get(state, :opencode_rate_limits),
        polling: %{
          checking?: state.poll_check_in_progress == true,
          next_poll_in_ms: next_poll_in_ms(state.next_poll_due_at_ms, now_ms),
@@ -1512,48 +1572,49 @@ defmodule SymphonyElixir.Orchestrator do
   defp blocked_issue_url(%{issue: %Issue{url: url}}), do: url
   defp blocked_issue_url(_metadata), do: nil
 
-  defp integrate_codex_update(running_entry, %{event: event, timestamp: timestamp} = update) do
+  defp integrate_opencode_update(running_entry, %{event: event, timestamp: timestamp} = update) do
     token_delta = extract_token_delta(running_entry, update)
-    codex_input_tokens = Map.get(running_entry, :codex_input_tokens, 0)
-    codex_output_tokens = Map.get(running_entry, :codex_output_tokens, 0)
-    codex_total_tokens = Map.get(running_entry, :codex_total_tokens, 0)
-    codex_app_server_pid = Map.get(running_entry, :codex_app_server_pid)
-    last_reported_input = Map.get(running_entry, :codex_last_reported_input_tokens, 0)
-    last_reported_output = Map.get(running_entry, :codex_last_reported_output_tokens, 0)
-    last_reported_total = Map.get(running_entry, :codex_last_reported_total_tokens, 0)
+    opencode_input_tokens = Map.get(running_entry, :opencode_input_tokens, 0)
+    opencode_output_tokens = Map.get(running_entry, :opencode_output_tokens, 0)
+    opencode_total_tokens = Map.get(running_entry, :opencode_total_tokens, 0)
+    opencode_server_pid = Map.get(running_entry, :opencode_server_pid)
+    last_reported_input = Map.get(running_entry, :opencode_last_reported_input_tokens, 0)
+    last_reported_output = Map.get(running_entry, :opencode_last_reported_output_tokens, 0)
+    last_reported_total = Map.get(running_entry, :opencode_last_reported_total_tokens, 0)
     turn_count = Map.get(running_entry, :turn_count, 0)
 
     {
       Map.merge(running_entry, %{
-        last_codex_timestamp: timestamp,
-        last_codex_message: summarize_codex_update(update),
+        last_opencode_timestamp: timestamp,
+        last_opencode_message: summarize_opencode_update(update),
         session_id: session_id_for_update(running_entry.session_id, update),
-        last_codex_event: event,
-        codex_app_server_pid: codex_app_server_pid_for_update(codex_app_server_pid, update),
-        codex_input_tokens: codex_input_tokens + token_delta.input_tokens,
-        codex_output_tokens: codex_output_tokens + token_delta.output_tokens,
-        codex_total_tokens: codex_total_tokens + token_delta.total_tokens,
-        codex_last_reported_input_tokens: max(last_reported_input, token_delta.input_reported),
-        codex_last_reported_output_tokens: max(last_reported_output, token_delta.output_reported),
-        codex_last_reported_total_tokens: max(last_reported_total, token_delta.total_reported),
+        last_opencode_event: event,
+        opencode_server_pid: opencode_server_pid_for_update(opencode_server_pid, update),
+        opencode_input_tokens: opencode_input_tokens + token_delta.input_tokens,
+        opencode_output_tokens: opencode_output_tokens + token_delta.output_tokens,
+        opencode_total_tokens: opencode_total_tokens + token_delta.total_tokens,
+        opencode_last_reported_input_tokens: max(last_reported_input, token_delta.input_reported),
+        opencode_last_reported_output_tokens:
+          max(last_reported_output, token_delta.output_reported),
+        opencode_last_reported_total_tokens: max(last_reported_total, token_delta.total_reported),
         turn_count: turn_count_for_update(turn_count, running_entry.session_id, update)
       }),
       token_delta
     }
   end
 
-  defp codex_app_server_pid_for_update(_existing, %{codex_app_server_pid: pid})
+  defp opencode_server_pid_for_update(_existing, %{opencode_server_pid: pid})
        when is_binary(pid),
        do: pid
 
-  defp codex_app_server_pid_for_update(_existing, %{codex_app_server_pid: pid})
+  defp opencode_server_pid_for_update(_existing, %{opencode_server_pid: pid})
        when is_integer(pid),
        do: Integer.to_string(pid)
 
-  defp codex_app_server_pid_for_update(_existing, %{codex_app_server_pid: pid}) when is_list(pid),
+  defp opencode_server_pid_for_update(_existing, %{opencode_server_pid: pid}) when is_list(pid),
     do: to_string(pid)
 
-  defp codex_app_server_pid_for_update(existing, _update), do: existing
+  defp opencode_server_pid_for_update(existing, _update), do: existing
 
   defp session_id_for_update(_existing, %{session_id: session_id}) when is_binary(session_id),
     do: session_id
@@ -1578,7 +1639,7 @@ defmodule SymphonyElixir.Orchestrator do
 
   defp turn_count_for_update(_existing_count, _existing_session_id, _update), do: 0
 
-  defp summarize_codex_update(update) do
+  defp summarize_opencode_update(update) do
     %{
       event: update[:event],
       message: update[:payload] || update[:raw],
@@ -1620,9 +1681,9 @@ defmodule SymphonyElixir.Orchestrator do
   defp record_session_completion_totals(state, running_entry) when is_map(running_entry) do
     runtime_seconds = running_seconds(running_entry.started_at, DateTime.utc_now())
 
-    codex_totals =
+    opencode_totals =
       apply_token_delta(
-        state.codex_totals,
+        state.opencode_totals,
         %{
           input_tokens: 0,
           output_tokens: 0,
@@ -1631,7 +1692,7 @@ defmodule SymphonyElixir.Orchestrator do
         }
       )
 
-    %{state | codex_totals: codex_totals}
+    %{state | opencode_totals: opencode_totals}
   end
 
   defp record_session_completion_totals(state, _running_entry), do: state
@@ -1655,35 +1716,35 @@ defmodule SymphonyElixir.Orchestrator do
     available_slots(state) > 0 and state_slots_available?(issue, state.running)
   end
 
-  defp apply_codex_token_delta(
-         %{codex_totals: codex_totals} = state,
+  defp apply_opencode_token_delta(
+         %{opencode_totals: opencode_totals} = state,
          %{input_tokens: input, output_tokens: output, total_tokens: total} = token_delta
        )
        when is_integer(input) and is_integer(output) and is_integer(total) do
-    %{state | codex_totals: apply_token_delta(codex_totals, token_delta)}
+    %{state | opencode_totals: apply_token_delta(opencode_totals, token_delta)}
   end
 
-  defp apply_codex_token_delta(state, _token_delta), do: state
+  defp apply_opencode_token_delta(state, _token_delta), do: state
 
-  defp apply_codex_rate_limits(%State{} = state, update) when is_map(update) do
+  defp apply_opencode_rate_limits(%State{} = state, update) when is_map(update) do
     case extract_rate_limits(update) do
       %{} = rate_limits ->
-        %{state | codex_rate_limits: rate_limits}
+        %{state | opencode_rate_limits: rate_limits}
 
       _ ->
         state
     end
   end
 
-  defp apply_codex_rate_limits(state, _update), do: state
+  defp apply_opencode_rate_limits(state, _update), do: state
 
-  defp apply_token_delta(codex_totals, token_delta) do
-    input_tokens = Map.get(codex_totals, :input_tokens, 0) + token_delta.input_tokens
-    output_tokens = Map.get(codex_totals, :output_tokens, 0) + token_delta.output_tokens
-    total_tokens = Map.get(codex_totals, :total_tokens, 0) + token_delta.total_tokens
+  defp apply_token_delta(opencode_totals, token_delta) do
+    input_tokens = Map.get(opencode_totals, :input_tokens, 0) + token_delta.input_tokens
+    output_tokens = Map.get(opencode_totals, :output_tokens, 0) + token_delta.output_tokens
+    total_tokens = Map.get(opencode_totals, :total_tokens, 0) + token_delta.total_tokens
 
     seconds_running =
-      Map.get(codex_totals, :seconds_running, 0) + Map.get(token_delta, :seconds_running, 0)
+      Map.get(opencode_totals, :seconds_running, 0) + Map.get(token_delta, :seconds_running, 0)
 
     %{
       input_tokens: max(0, input_tokens),
@@ -1702,19 +1763,19 @@ defmodule SymphonyElixir.Orchestrator do
         running_entry,
         :input,
         usage,
-        :codex_last_reported_input_tokens
+        :opencode_last_reported_input_tokens
       ),
       compute_token_delta(
         running_entry,
         :output,
         usage,
-        :codex_last_reported_output_tokens
+        :opencode_last_reported_output_tokens
       ),
       compute_token_delta(
         running_entry,
         :total,
         usage,
-        :codex_last_reported_total_tokens
+        :opencode_last_reported_total_tokens
       )
     }
     |> Tuple.to_list()

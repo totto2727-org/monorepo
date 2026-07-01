@@ -20,9 +20,9 @@ defmodule SymphonyElixir.Opencode.AppServer do
 
   require Logger
 
-  alias SymphonyElixir.{Config, Linear.Issue, PathSafety}
   alias OpencodeClient.{Connection, EventStream}
   alias OpencodeClient.Generated.Session
+  alias SymphonyElixir.{Config, Linear.Issue, PathSafety}
 
   @default_turn_timeout_ms 3_600_000
 
@@ -92,11 +92,15 @@ defmodule SymphonyElixir.Opencode.AppServer do
     try do
       case session_api.session_prompt_async(session_id, body, client) do
         :ok ->
-          Logger.info("OpenCode prompt accepted for #{issue_context(issue)} session_id=#{session_id} workspace=#{workspace}")
+          Logger.info(
+            "OpenCode prompt accepted for #{issue_context(issue)} session_id=#{session_id} workspace=#{workspace}"
+          )
 
           case await_turn_completion(session_id, on_message, session.metadata, timeout_ms, issue) do
             {:ok, result} ->
-              Logger.info("OpenCode session completed for #{issue_context(issue)} session_id=#{session_id}")
+              Logger.info(
+                "OpenCode session completed for #{issue_context(issue)} session_id=#{session_id}"
+              )
 
               {:ok,
                %{
@@ -107,7 +111,9 @@ defmodule SymphonyElixir.Opencode.AppServer do
                }}
 
             {:error, reason} ->
-              Logger.warning("OpenCode session ended with error for #{issue_context(issue)} session_id=#{session_id}: #{inspect(reason)}")
+              Logger.warning(
+                "OpenCode session ended with error for #{issue_context(issue)} session_id=#{session_id}: #{inspect(reason)}"
+              )
 
               emit_message(
                 on_message,
@@ -132,27 +138,29 @@ defmodule SymphonyElixir.Opencode.AppServer do
 
   @spec stop_session(session()) :: :ok
   def stop_session(%{client: client, session_api: session_api, session_id: session_id} = session) do
-    try do
-      case session_api.session_delete(session_id, client) do
-        {:ok, _} ->
-          :ok
+    case session_api.session_delete(session_id, client) do
+      {:ok, _} ->
+        :ok
 
-        :ok ->
-          :ok
+      :ok ->
+        :ok
 
-        {:error, reason} ->
-          Logger.warning("OpenCode session delete failed for session_id=#{session_id}: #{inspect(reason)}")
-
-          :ok
-      end
-    catch
-      kind, reason ->
-        Logger.warning("OpenCode session delete raised for session_id=#{session_id}: #{inspect({kind, reason})}")
+      {:error, reason} ->
+        Logger.warning(
+          "OpenCode session delete failed for session_id=#{session_id}: #{inspect(reason)}"
+        )
 
         :ok
-    after
-      Connection.stop(session.connection)
     end
+  catch
+    kind, reason ->
+      Logger.warning(
+        "OpenCode session delete raised for session_id=#{session_id}: #{inspect({kind, reason})}"
+      )
+
+      :ok
+  after
+    Connection.stop(session.connection)
   end
 
   defp create_session(workspace, opts, %{client: client} = connection) do
@@ -192,6 +200,9 @@ defmodule SymphonyElixir.Opencode.AppServer do
   end
 
   defp start_connection(opts, worker_host) do
+    server_config =
+      Map.merge(Config.opencode_server_config(), Keyword.get(opts, :server_config, %{}))
+
     opts =
       opts
       |> Keyword.take([
@@ -202,6 +213,7 @@ defmodule SymphonyElixir.Opencode.AppServer do
         :server_module,
         :server_opts
       ])
+      |> Keyword.put(:server_config, server_config)
       |> Keyword.put(:allow_server_start, is_nil(worker_host))
 
     case Connection.start(opts) do
@@ -247,7 +259,8 @@ defmodule SymphonyElixir.Opencode.AppServer do
           {:error, {:invalid_workspace_cwd, :symlink_escape, expanded_workspace, canonical_root}}
 
         true ->
-          {:error, {:invalid_workspace_cwd, :outside_workspace_root, canonical_workspace, canonical_root}}
+          {:error,
+           {:invalid_workspace_cwd, :outside_workspace_root, canonical_workspace, canonical_root}}
       end
     else
       {:error, {:path_canonicalize_failed, path, reason}} ->
@@ -280,7 +293,7 @@ defmodule SymphonyElixir.Opencode.AppServer do
 
       _ ->
         case Config.settings() do
-          {:ok, settings} -> settings.codex.turn_timeout_ms
+          {:ok, settings} -> settings.opencode.turn_timeout_ms
           _ -> @default_turn_timeout_ms
         end
     end
@@ -321,7 +334,9 @@ defmodule SymphonyElixir.Opencode.AppServer do
         type = event_type(event)
         data = event_data(event)
 
-        Logger.debug("OpenCode SSE event for #{issue_context(issue)} session_id=#{session_id} type=#{inspect(type)}")
+        Logger.debug(
+          "OpenCode SSE event for #{issue_context(issue)} session_id=#{session_id} type=#{inspect(type)}"
+        )
 
         handle_sse_event(session_id, type, data, on_message, metadata, deadline, issue)
 

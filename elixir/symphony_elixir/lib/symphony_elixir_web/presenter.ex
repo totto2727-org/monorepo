@@ -1,3 +1,8 @@
+# このファイルは元のApache 2.0ライセンスのコードから変更されています
+# 変更日: 2026-07-01
+# 変更者: totto2727
+# 変更内容: 旧バックエンド関連処理を削除し、OpenCode 前提の設定・状態名へ更新
+
 defmodule SymphonyElixirWeb.Presenter do
   @moduledoc """
   Shared projections for the observability API and dashboard.
@@ -21,20 +26,28 @@ defmodule SymphonyElixirWeb.Presenter do
           running: Enum.map(snapshot.running, &running_entry_payload/1),
           retrying: Enum.map(snapshot.retrying, &retry_entry_payload/1),
           blocked: Enum.map(Map.get(snapshot, :blocked, []), &blocked_entry_payload/1),
-          codex_totals: snapshot.codex_totals,
+          opencode_totals: snapshot.opencode_totals,
           rate_limits: snapshot.rate_limits
         }
 
       :timeout ->
-        %{generated_at: generated_at, error: %{code: "snapshot_timeout", message: "Snapshot timed out"}}
+        %{
+          generated_at: generated_at,
+          error: %{code: "snapshot_timeout", message: "Snapshot timed out"}
+        }
 
       :unavailable ->
-        %{generated_at: generated_at, error: %{code: "snapshot_unavailable", message: "Snapshot unavailable"}}
+        %{
+          generated_at: generated_at,
+          error: %{code: "snapshot_unavailable", message: "Snapshot unavailable"}
+        }
     end
   end
 
-  @spec issue_payload(String.t(), GenServer.name(), timeout()) :: {:ok, map()} | {:error, :issue_not_found}
-  def issue_payload(issue_identifier, orchestrator, snapshot_timeout_ms) when is_binary(issue_identifier) do
+  @spec issue_payload(String.t(), GenServer.name(), timeout()) ::
+          {:ok, map()} | {:error, :issue_not_found}
+  def issue_payload(issue_identifier, orchestrator, snapshot_timeout_ms)
+      when is_binary(issue_identifier) do
     case Orchestrator.snapshot(orchestrator, snapshot_timeout_ms) do
       %{} = snapshot ->
         running = Enum.find(snapshot.running, &(&1.identifier == issue_identifier))
@@ -80,7 +93,7 @@ defmodule SymphonyElixirWeb.Presenter do
       retry: retry && retry_issue_payload(retry),
       blocked: blocked && blocked_issue_payload(blocked),
       logs: %{
-        codex_session_logs: []
+        opencode_session_logs: []
       },
       recent_events: recent_events_payload(running || blocked),
       last_error: (blocked && blocked.error) || (retry && retry.error),
@@ -89,7 +102,8 @@ defmodule SymphonyElixirWeb.Presenter do
   end
 
   defp issue_id_from_entries(running, retry, blocked),
-    do: (running && running.issue_id) || (retry && retry.issue_id) || (blocked && blocked.issue_id)
+    do:
+      (running && running.issue_id) || (retry && retry.issue_id) || (blocked && blocked.issue_id)
 
   defp restart_count(retry), do: max(retry_attempt(retry) - 1, 0)
   defp retry_attempt(nil), do: 0
@@ -109,14 +123,14 @@ defmodule SymphonyElixirWeb.Presenter do
       workspace_path: Map.get(entry, :workspace_path),
       session_id: entry.session_id,
       turn_count: Map.get(entry, :turn_count, 0),
-      last_event: entry.last_codex_event,
-      last_message: summarize_message(entry.last_codex_message),
+      last_event: entry.last_opencode_event,
+      last_message: summarize_message(entry.last_opencode_message),
       started_at: iso8601(entry.started_at),
-      last_event_at: iso8601(entry.last_codex_timestamp),
+      last_event_at: iso8601(entry.last_opencode_timestamp),
       tokens: %{
-        input_tokens: entry.codex_input_tokens,
-        output_tokens: entry.codex_output_tokens,
-        total_tokens: entry.codex_total_tokens
+        input_tokens: entry.opencode_input_tokens,
+        output_tokens: entry.opencode_output_tokens,
+        total_tokens: entry.opencode_total_tokens
       }
     }
   end
@@ -145,9 +159,9 @@ defmodule SymphonyElixirWeb.Presenter do
       workspace_path: Map.get(entry, :workspace_path),
       session_id: entry.session_id,
       blocked_at: iso8601(entry.blocked_at),
-      last_event: entry.last_codex_event,
-      last_message: summarize_message(entry.last_codex_message),
-      last_event_at: iso8601(entry.last_codex_timestamp)
+      last_event: entry.last_opencode_event,
+      last_message: summarize_message(entry.last_opencode_message),
+      last_event_at: iso8601(entry.last_opencode_timestamp)
     }
   end
 
@@ -159,13 +173,13 @@ defmodule SymphonyElixirWeb.Presenter do
       turn_count: Map.get(running, :turn_count, 0),
       state: running.state,
       started_at: iso8601(running.started_at),
-      last_event: running.last_codex_event,
-      last_message: summarize_message(running.last_codex_message),
-      last_event_at: iso8601(running.last_codex_timestamp),
+      last_event: running.last_opencode_event,
+      last_message: summarize_message(running.last_opencode_message),
+      last_event_at: iso8601(running.last_opencode_timestamp),
       tokens: %{
-        input_tokens: running.codex_input_tokens,
-        output_tokens: running.codex_output_tokens,
-        total_tokens: running.codex_total_tokens
+        input_tokens: running.opencode_input_tokens,
+        output_tokens: running.opencode_output_tokens,
+        total_tokens: running.opencode_total_tokens
       }
     }
   end
@@ -188,9 +202,9 @@ defmodule SymphonyElixirWeb.Presenter do
       state: blocked.state,
       error: blocked.error,
       blocked_at: iso8601(blocked.blocked_at),
-      last_event: blocked.last_codex_event,
-      last_message: summarize_message(blocked.last_codex_message),
-      last_event_at: iso8601(blocked.last_codex_timestamp)
+      last_event: blocked.last_opencode_event,
+      last_message: summarize_message(blocked.last_opencode_message),
+      last_event_at: iso8601(blocked.last_opencode_timestamp)
     }
   end
 
@@ -212,16 +226,16 @@ defmodule SymphonyElixirWeb.Presenter do
   defp recent_events_payload(entry) do
     [
       %{
-        at: iso8601(entry.last_codex_timestamp),
-        event: entry.last_codex_event,
-        message: summarize_message(entry.last_codex_message)
+        at: iso8601(entry.last_opencode_timestamp),
+        event: entry.last_opencode_event,
+        message: summarize_message(entry.last_opencode_message)
       }
     ]
     |> Enum.reject(&is_nil(&1.at))
   end
 
   defp summarize_message(nil), do: nil
-  defp summarize_message(message), do: StatusDashboard.humanize_codex_message(message)
+  defp summarize_message(message), do: StatusDashboard.humanize_opencode_message(message)
 
   defp due_at_iso8601(due_in_ms) when is_integer(due_in_ms) do
     DateTime.utc_now()

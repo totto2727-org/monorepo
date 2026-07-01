@@ -1,3 +1,8 @@
+# このファイルは元のApache 2.0ライセンスのコードから変更されています
+# 変更日: 2026-07-01
+# 変更者: totto2727
+# 変更内容: 旧バックエンド関連処理を削除し、OpenCode 前提の設定・状態名へ更新
+
 defmodule SymphonyElixir.CLI do
   @moduledoc """
   Escript entrypoint for running Symphony with an explicit WORKFLOW.md path.
@@ -114,7 +119,7 @@ defmodule SymphonyElixir.CLI do
   defp acknowledgement_banner do
     lines = [
       "This Symphony implementation is a low key engineering preview.",
-      "Codex will run without any guardrails.",
+      "OpenCode will run without any guardrails.",
       "SymphonyElixir is not a supported product and is presented as-is.",
       "To proceed, start with `--i-understand-that-this-will-be-running-without-the-usual-guardrails` CLI argument"
     ]
