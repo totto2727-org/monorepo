@@ -205,6 +205,134 @@ defmodule SymphonyElixir.OrchestratorStatusTest do
     assert is_integer(completed_state.opencode_totals.seconds_running)
   end
 
+  test "orchestrator snapshot tracks OpenCode session token payloads" do
+    issue_id = "issue-opencode-session-tokens"
+
+    issue = %Issue{
+      id: issue_id,
+      identifier: "MT-203",
+      title: "OpenCode session token test",
+      description: "Collect usage stats from OpenCode session events",
+      state: "In Progress",
+      url: "https://example.org/issues/MT-203"
+    }
+
+    orchestrator_name = Module.concat(__MODULE__, :SessionTokenOrchestrator)
+    {:ok, pid} = Orchestrator.start_link(name: orchestrator_name)
+
+    on_exit(fn ->
+      if Process.alive?(pid) do
+        Process.exit(pid, :normal)
+      end
+    end)
+
+    initial_state = :sys.get_state(pid)
+    process_ref = make_ref()
+
+    running_entry = %{
+      pid: self(),
+      ref: process_ref,
+      identifier: issue.identifier,
+      issue: issue,
+      session_id: "ses_tokens",
+      turn_count: 1,
+      last_opencode_message: nil,
+      last_opencode_timestamp: nil,
+      last_opencode_event: nil,
+      opencode_input_tokens: 0,
+      opencode_output_tokens: 0,
+      opencode_total_tokens: 0,
+      opencode_last_reported_input_tokens: 0,
+      opencode_last_reported_output_tokens: 0,
+      opencode_last_reported_total_tokens: 0,
+      started_at: DateTime.utc_now()
+    }
+
+    :sys.replace_state(pid, fn _ ->
+      initial_state
+      |> Map.put(:running, %{issue_id => running_entry})
+      |> Map.put(:claimed, MapSet.put(initial_state.claimed, issue_id))
+    end)
+
+    now = DateTime.utc_now()
+
+    send(
+      pid,
+      {:opencode_worker_update, issue_id,
+       %{
+         event: :notification,
+         payload: %{
+           "sessionID" => "ses_tokens",
+           "info" => %{
+             "tokens" => %{
+               "input" => 120,
+               "output" => 30,
+               "reasoning" => 5,
+               "cache" => %{"read" => 9, "write" => 1}
+             }
+           }
+         },
+         timestamp: now
+       }}
+    )
+
+    send(
+      pid,
+      {:opencode_worker_update, issue_id,
+       %{
+         event: :notification,
+         payload: %{
+           "properties" => %{
+             "sessionID" => "ses_tokens",
+             "tokens" => %{
+               "input" => 150,
+               "output" => 45,
+               "reasoning" => 8,
+               "cache" => %{"read" => 10, "write" => 2}
+             }
+           }
+         },
+         timestamp: now
+       }}
+    )
+
+    send(
+      pid,
+      {:opencode_worker_update, issue_id,
+       %{
+         event: :notification,
+         payload: %{
+           "type" => "message.part.updated",
+           "properties" => %{
+             "sessionID" => "ses_tokens",
+             "part" => %{
+               "type" => "step-finish",
+               "tokens" => %{
+                 "input" => 170,
+                 "output" => 50,
+                 "reasoning" => 10,
+                 "cache" => %{"read" => 11, "write" => 3}
+               }
+             }
+           }
+         },
+         timestamp: now
+       }}
+    )
+
+    snapshot = GenServer.call(pid, :snapshot)
+    assert %{running: [snapshot_entry]} = snapshot
+    assert snapshot_entry.opencode_input_tokens == 170
+    assert snapshot_entry.opencode_output_tokens == 50
+    assert snapshot_entry.opencode_total_tokens == 220
+
+    send(pid, {:DOWN, process_ref, :process, self(), :normal})
+    completed_state = :sys.get_state(pid)
+    assert completed_state.opencode_totals.input_tokens == 170
+    assert completed_state.opencode_totals.output_tokens == 50
+    assert completed_state.opencode_totals.total_tokens == 220
+  end
+
   test "orchestrator snapshot tracks turn completed usage when present" do
     issue_id = "issue-turn-completed-usage"
 
