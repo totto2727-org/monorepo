@@ -64,10 +64,24 @@ sequenceDiagram
 
 ## Local feed Better Auth session flow
 
-### 1. Login starts in feed-platform-web
+### 1. Unauthenticated request and return-to preservation
 
-`GET /login` in `feed-platform-web` delegates sign-in to its local Better Auth
-instance:
+When an unauthenticated user hits a protected route in `feed-platform-web`,
+`requireAuthMiddleware` stores the current path in a
+`feed_platform_web_login_return_to` cookie and redirects to:
+
+```text
+/app/login?preserve_return_to=true
+```
+
+The `preserve_return_to` query parameter tells the login route not to clear the
+return-to cookie. Without it, the cookie is deleted so stale values do not
+survive across unrelated login attempts.
+
+### 2. Login starts in feed-platform-web
+
+`GET /app/login` in `feed-platform-web` delegates sign-in to its local Better
+Auth instance:
 
 ```text
 POST /api/v1/auth/sign-in/oauth2
@@ -79,7 +93,12 @@ callback handling, and the resulting browser session cookie. The web app no
 longer stores `oauth_state`, `pkce_verifier`, nonce rows, ID tokens, access
 tokens, or refresh tokens itself.
 
-### 2. Identity Provider login
+After Better Auth completes the genericOAuth callback, the browser is redirected
+to `/api/v1/auth-callback` in `feed-platform-web`. That route reads the
+`feed_platform_web_login_return_to` cookie, deletes it, and redirects the user
+to the originally requested path (defaulting to `/app`).
+
+### 3. Identity Provider login
 
 If the user is not signed in, Better Auth redirects to the configured login page:
 
@@ -87,20 +106,31 @@ If the user is not signed in, Better Auth redirects to the configured login page
 /app/login
 ```
 
-The IdP login page recognizes OAuth authorization parameters in the current URL
-and converts them into a safe return target:
+The IdP `/app/login` route computes a safe return target with `getLoginReturnTo`:
 
-```text
-/api/v1/auth/oauth2/authorize?...original OAuth query...
-```
+1. If a `return_to` query parameter is present and passes `getSafeReturnTo`
+   validation (must start with `/` and not `//`), it is used.
+2. Otherwise, if the current URL contains OAuth authorization parameters
+   (`client_id` and `redirect_uri`), the full authorize URL is reconstructed as
+   the return target.
+3. If neither is available, no return target is set and the `login_return_to`
+   cookie is deleted.
 
-For Magic Link login, this return target is stored in a `login_return_to` cookie.
-This avoids passing a nested OAuth authorization URL through Better Auth's Magic
-Link `callbackURL` validation. After the Magic Link callback validates the IdP
-session, the IdP deletes `login_return_to` and redirects back to the original
-OAuth authorize request.
+For Magic Link login, the return target is stored in a `login_return_to` cookie
+by the client-side form handler. This avoids passing a nested OAuth authorization
+URL through Better Auth's Magic Link `callbackURL` validation. After the Magic
+Link callback (`/app/auth/magic-link/callback`) validates the IdP session, the
+IdP reads the `login_return_to` cookie (falling back to `return_to` query param),
+deletes the cookie, and redirects back to the original target.
 
-### 3. Consent page
+The same flow applies to Passkey login via `/app/auth/passkey/callback`.
+
+IdP logout (`/app/logout`) deletes the local `better-auth.session_token` cookie
+and supports a `return_to` query parameter validated by `getSafeLogoutReturnTo`.
+For the feed example, `http://127.0.0.1:8789` URLs are allowed; otherwise the
+value falls back to `getSafeReturnTo`.
+
+### 4. Consent page
 
 Better Auth redirects to the configured consent page:
 
@@ -129,7 +159,7 @@ request and reconstruct provider state. When consent is accepted, Better Auth
 returns a JSON object containing `redirect: true` and the final callback URL.
 The browser is then sent to `feed-platform-web` with an authorization code.
 
-### 4. Better Auth callback and stateless session
+### 5. Better Auth callback and stateless session
 
 Better Auth handles the OAuth callback under `feed-platform-web`'s auth base path:
 
@@ -142,7 +172,7 @@ builds a local Better Auth user from the OIDC ID token. The feed web session is 
 Better Auth stateless cookie using `session.cookieCache` with the `jwe` strategy;
 there is no feed-specific session database table.
 
-### 5. Dashboard and backend call
+### 6. Dashboard and backend call
 
 `feed-platform-web` auth middleware calls:
 
@@ -162,11 +192,15 @@ Cookie: better-auth session cookie
 also calls `auth.api.getSession({ headers })`. It does not implement its own JWT,
 JWKS, issuer, audience, token-use, or refresh-token validation.
 
-### 6. Logout
+### 7. Logout
 
-`GET /logout` in `feed-platform-web` delegates sign-out to Better Auth and then
-redirects to `/login`. Current logout is local to the feed web Better Auth
-session and does not perform OIDC RP-Initiated Logout at the IdP.
+`GET /app/logout` in `feed-platform-web` delegates sign-out to Better Auth
+(`auth.api.signOut`), then deletes all Better Auth cookies that were set in the
+sign-out response headers by reading their names dynamically from the
+`Set-Cookie` response headers. Finally it redirects to `/app`.
+
+Current logout is local to the feed web Better Auth session and does not perform
+OIDC RP-Initiated Logout at the IdP.
 
 ## OAuth 2.0 and OIDC compliance status
 
@@ -408,11 +442,18 @@ Before using this flow beyond local development:
 
 - IdP Better Auth config: `app/feature/auth/better-auth.ts`
 - IdP app routes: `app/app.tsx`
+- IdP login client entry: `app/ui/login.client.tsx`
+- IdP return-to utilities: `app/ui/return-to.ts`
 - IdP consent UI: `app/ui/oauth-consent.tsx`
 - IdP consent client entry: `app/ui/oauth-consent.client.tsx`
 - IdP OAuth schema: `db/schema.hcl`
 - Feed Better Auth config: `../../feed-platform-web/app/feature/auth/better-auth.ts`
 - Feed auth middleware: `../../feed-platform-web/app/feature/auth/middleware.ts`
+- Feed return-to utilities: `../../feed-platform-web/app/feature/auth/return-to.ts`
+- Feed return-to cookie: `../../feed-platform-web/app/feature/auth/cookie.ts`
+- Feed preserve-return-to query parameter:
+  `../../feed-platform-web/app/feature/auth/query-parameter.ts`
+- Feed app routes: `../../feed-platform-web/app/app.tsx`
 - Feed backend client: `../../feed-platform-web/app/feature/api/client.ts`
 - Backend Better Auth config: `../../feed-platform-backend/src/feature/auth/better-auth.ts`
 - Backend auth middleware: `../../feed-platform-backend/src/feature/auth/middleware.ts`
