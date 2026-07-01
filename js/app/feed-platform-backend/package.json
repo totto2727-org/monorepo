@@ -8,16 +8,15 @@
   "scripts": {
     "deploy:bff": "wrangler deploy --config src/worker/bff/wrangler.jsonc",
     "deploy:health": "wrangler deploy --config src/worker/health/wrangler.jsonc",
-    "dev:bff": "wrangler dev --config src/worker/bff/wrangler.jsonc",
+    "dev:bff": "wrangler dev --env local --config src/worker/bff/wrangler.jsonc",
     "dev:health": "wrangler dev --config src/worker/health/wrangler.jsonc"
   },
   "devDependencies": {
     "@totto2727/fp": "workspace:*",
-    "auth-helper": "workspace:*",
+    "better-auth": "catalog:auth",
     "effect": "catalog:effect",
     "effect-hono": "workspace:*",
     "hono": "catalog:hono",
-    "jose": "catalog:auth",
     "wrangler": "catalog:cloudflare"
   }
 }

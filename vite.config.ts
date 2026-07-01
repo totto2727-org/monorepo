@@ -52,6 +52,7 @@ export default defineConfig({
       'no-nodejs-modules': 'allow',
       'node/callback-return': 'allow',
       'number-literal-case': 'allow',
+      'promise/prefer-await-to-then': 'allow',
       'typescript/promise-function-async': 'allow',
       'unicorn/import-style': 'allow',
     },

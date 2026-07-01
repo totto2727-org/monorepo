@@ -17,6 +17,10 @@
   "placement": {
     "mode": "smart",
   },
+  "dev": {
+    "ip": "127.0.0.1",
+    "port": 8787,
+  },
   // ms-02 (Passkey + Magic Link) 以降で Better Auth を導入する際、認証関連の
   // 環境変数 / secret を `vars` block に追加するか `wrangler secret` 経由で注入する。
   // ENV (development / production) 自体は process.env.NODE_ENV (wrangler / vite 自動設定)

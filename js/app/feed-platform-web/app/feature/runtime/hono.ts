@@ -8,12 +8,12 @@ export interface Variables {
 }
 
 export interface AuthUser {
-  readonly id: string
   readonly email: string
+  readonly sub: string
 }
 
 export const middleware = factory.createMiddleware(async (ctx, next) => {
-  await using runtime = Runtime.make(ctx.env)
+  await using runtime = Runtime.make()
   ctx.set('runtime', runtime.instance)
   await next()
 })

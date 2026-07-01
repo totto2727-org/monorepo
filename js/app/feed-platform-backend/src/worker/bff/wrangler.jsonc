@@ -11,4 +11,16 @@
   "placement": {
     "mode": "smart",
   },
+  "dev": {
+    "ip": "127.0.0.1",
+    "port": 8788,
+  },
+  "env": {
+    "local": {
+      "vars": {
+        "BETTER_AUTH_SECRET": "0123456789abcdef0123456789abcdef0123456789abcdef",
+        "WEB_BASE_URL": "http://127.0.0.1:8789",
+      },
+    },
+  },
 }

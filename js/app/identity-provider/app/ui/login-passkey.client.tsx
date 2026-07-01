@@ -1,10 +1,9 @@
 import { Effect, Predicate, Schema, String } from 'effect'
 import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from 'effect/unstable/http'
 import { clientEntry, on } from 'remix/ui'
-import type { Handle, SerializableProps } from 'remix/ui'
+import type { Handle } from 'remix/ui'
 import { Button } from 'remix/ui/button'
 
-import { withReturnTo } from '#@/ui/return-to.ts'
 import { b64urlToBuf, bufToB64url } from '#@/ui/webauthn.ts'
 
 const AuthenticateOptionsResponse = Schema.Struct({
@@ -18,13 +17,9 @@ const AuthenticateOptionsResponse = Schema.Struct({
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- WebAuthn options JSON is an external browser/API boundary.
 const decodeAuthenticateOptionsResponse = Schema.decodeUnknownEffect(AuthenticateOptionsResponse)
 
-interface PasskeyLoginButtonProps extends SerializableProps {
-  returnTo?: string
-}
-
 export const PasskeyLoginButton = clientEntry(
   '/assets/app/ui/login-passkey.client.tsx#PasskeyLoginButton',
-  (handle: Handle<PasskeyLoginButtonProps>) => {
+  (handle: Handle) => {
     const state = { error: '', submitting: false }
 
     return () => (
@@ -36,7 +31,7 @@ export const PasskeyLoginButton = clientEntry(
               Effect.gen(function* () {
                 state.error = ''
                 state.submitting = true
-                void handle.update()
+                yield* Effect.promise(() => handle.update())
 
                 const client = yield* HttpClient.HttpClient
                 const optsRes = yield* client.execute(
@@ -93,17 +88,14 @@ export const PasskeyLoginButton = clientEntry(
                   return yield* Effect.fail(new Error(String.isNonEmpty(text) ? text : 'Passkey 認証に失敗しました'))
                 }
 
-                window.location.href = withReturnTo('/app/auth/passkey/callback', handle.props.returnTo)
+                window.location.href = '/login/callback'
                 return yield* Effect.void
               }).pipe(
-                // oxlint-disable-next-line promise/prefer-await-to-then -- This is Effect.catch, not Promise.catch.
-                Effect.catch(() =>
-                  Effect.sync(() => {
-                    state.error = 'Passkey 認証に失敗しました'
-                    state.submitting = false
-                    void handle.update()
-                  }),
-                ),
+                Effect.catch(() => {
+                  state.error = 'Passkey 認証に失敗しました'
+                  state.submitting = false
+                  return Effect.promise(() => handle.update())
+                }),
                 Effect.provide(FetchHttpClient.layer),
               ),
             )

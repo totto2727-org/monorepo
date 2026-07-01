@@ -45,11 +45,10 @@
       "name": "feed-platform-backend",
       "devDependencies": {
         "@totto2727/fp": "workspace:*",
-        "auth-helper": "workspace:*",
+        "better-auth": "catalog:auth",
         "effect": "catalog:effect",
         "effect-hono": "workspace:*",
         "hono": "catalog:hono",
-        "jose": "catalog:auth",
         "wrangler": "catalog:cloudflare",
       },
     },

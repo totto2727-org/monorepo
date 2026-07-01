@@ -11,4 +11,8 @@
   "placement": {
     "mode": "smart",
   },
+  "dev": {
+    "ip": "127.0.0.1",
+    "port": 8790,
+  },
 }

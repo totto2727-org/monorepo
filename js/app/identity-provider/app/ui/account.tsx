@@ -24,7 +24,7 @@ export const AccountPage = (handle: Handle<AccountPageProps>) => () => (
       <strong>作成日:</strong> {handle.props.createdAt}
     </p>
     <p>
-      <a href='/app/register/passkey'>Passkey を登録</a>
+      <a href='/app/passkey/register'>Passkey を登録</a>
     </p>
     <LogoutButton />
   </main>

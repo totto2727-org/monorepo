@@ -1,4 +1,5 @@
-import { Predicate, String } from 'effect'
+import { Effect, Predicate, String } from 'effect'
+import { FetchHttpClient, HttpClient, HttpClientRequest } from 'effect/unstable/http'
 import { run } from 'remix/ui'
 import type { ImportGlobFunction } from 'vite'
 
@@ -45,16 +46,20 @@ export const boot = ({ components }: BootOptions): ReturnType<typeof run> =>
       return await exported
     },
     async resolveFrame(src: string, signal?: AbortSignal, target?: string) {
-      const headers = new Headers({ accept: 'text/html' })
+      const headers: Record<string, string> = { accept: 'text/html' }
       if (Predicate.isNotNullish(target) && String.isNonEmpty(target)) {
-        headers.set('x-remix-target', target)
+        headers['x-remix-target'] = target
       }
-      // oxlint-disable-next-line rules/no-fetch -- client-side framework loader runs before any Effect runtime is bootstrapped
-      const response = await fetch(src, {
-        credentials: 'same-origin',
-        headers,
-        signal,
-      })
-      return await (response.body ?? response.text())
+      const program = Effect.gen(function* () {
+        if (signal?.aborted === true) {
+          return ''
+        }
+        const client = yield* HttpClient.HttpClient
+        const request = HttpClientRequest.get(src, { headers })
+        const response = yield* client.execute(request)
+        return yield* response.text
+      }).pipe(Effect.provide(FetchHttpClient.layer))
+      // oxlint-disable-next-line rules/no-effect-runtime-run -- Remix frame resolver callback is a client-side framework boundary.
+      return await Effect.runPromise(program)
     },
   })

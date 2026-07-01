@@ -2,7 +2,6 @@ import { css } from 'remix/ui'
 import type { Handle } from 'remix/ui'
 
 import { MagicLinkForm } from '#@/ui/login.client.tsx'
-import { withReturnTo } from '#@/ui/return-to.ts'
 
 const containerStyle = css({
   margin: '40px auto',
@@ -10,16 +9,12 @@ const containerStyle = css({
   padding: '0 16px',
 })
 
-interface LoginPageProps {
-  returnTo?: string
-}
-
-export const LoginPage = (handle: Handle<LoginPageProps>) => () => (
+export const LoginPage = (_handle: Handle) => () => (
   <main mix={containerStyle}>
     <h1>ログイン</h1>
-    <MagicLinkForm returnTo={handle.props.returnTo} />
+    <MagicLinkForm />
     <p>
-      <a href={withReturnTo('/app/login/passkey', handle.props.returnTo)}>Passkey でログイン</a>
+      <a href='/login/passkey'>Passkey でログイン</a>
     </p>
   </main>
 )
