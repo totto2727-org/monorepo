@@ -20,8 +20,6 @@ const api = factory.createApp().all('/auth/*', (ctx) => ctx.var.auth.handler(ctx
 
 const LOGIN_RETURN_TO_COOKIE = 'login_return_to'
 
-const getStoredLoginReturnTo = getSafeReturnTo
-
 const getLoginReturnTo = (url: string, rawReturnTo: string | undefined): string | undefined => {
   const safeReturnTo = getSafeReturnTo(rawReturnTo)
   if (Predicate.isNotNullish(safeReturnTo) && String.isNonEmpty(safeReturnTo)) {
@@ -79,7 +77,7 @@ const appRoutes = factory
       return ctx.redirect('/app/login?error=invalid_link')
     }
     const returnTo =
-      getSafeReturnTo(ctx.req.query('return_to')) ?? getStoredLoginReturnTo(getCookie(ctx, LOGIN_RETURN_TO_COOKIE))
+      getSafeReturnTo(ctx.req.query('return_to')) ?? getSafeReturnTo(getCookie(ctx, LOGIN_RETURN_TO_COOKIE))
     deleteCookie(ctx, LOGIN_RETURN_TO_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
     return ctx.redirect(returnTo ?? '/app/account')
   })
@@ -89,7 +87,7 @@ const appRoutes = factory
       return ctx.redirect('/app/login')
     }
     const returnTo =
-      getSafeReturnTo(ctx.req.query('return_to')) ?? getStoredLoginReturnTo(getCookie(ctx, LOGIN_RETURN_TO_COOKIE))
+      getSafeReturnTo(ctx.req.query('return_to')) ?? getSafeReturnTo(getCookie(ctx, LOGIN_RETURN_TO_COOKIE))
     deleteCookie(ctx, LOGIN_RETURN_TO_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
     return ctx.redirect(returnTo ?? '/app/account')
   })
