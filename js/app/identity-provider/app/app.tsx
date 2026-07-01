@@ -20,18 +20,6 @@ const api = factory.createApp().all('/auth/*', (ctx) => ctx.var.auth.handler(ctx
 
 const LOGIN_RETURN_TO_COOKIE = 'login_return_to'
 
-const getLoginReturnTo = (url: string, rawReturnTo: string | undefined): string | undefined => {
-  const safeReturnTo = getSafeReturnTo(rawReturnTo)
-  if (Predicate.isNotNullish(safeReturnTo) && String.isNonEmpty(safeReturnTo)) {
-    return safeReturnTo
-  }
-  const parsedUrl = new URL(url)
-  if (parsedUrl.searchParams.has('client_id') && parsedUrl.searchParams.has('redirect_uri')) {
-    return `/api/v1/auth/oauth2/authorize${parsedUrl.search}`
-  }
-  return undefined
-}
-
 const appRoutes = factory
   .createApp()
   .get('/', (ctx) =>
@@ -42,13 +30,19 @@ const appRoutes = factory
     ),
   )
   .get('/login', (ctx) => {
-    const safeReturnTo = getLoginReturnTo(ctx.req.url, ctx.req.query('return_to'))
-    if (Predicate.isNullish(safeReturnTo) || String.isEmpty(safeReturnTo)) {
+    const rawReturnTo = ctx.req.query('return_to')
+    const safeReturnTo = getSafeReturnTo(rawReturnTo)
+    const parsedUrl = new URL(ctx.req.url)
+    const hasOAuthParams = parsedUrl.searchParams.has('client_id') && parsedUrl.searchParams.has('redirect_uri')
+    const oauthReturnTo = hasOAuthParams ? `/api/v1/auth/oauth2/authorize${parsedUrl.search}` : undefined
+    const returnTo =
+      Predicate.isNotNullish(safeReturnTo) && String.isNonEmpty(safeReturnTo) ? safeReturnTo : oauthReturnTo
+    if (Predicate.isNullish(returnTo) || String.isEmpty(returnTo)) {
       deleteCookie(ctx, LOGIN_RETURN_TO_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
     }
     return ctx.render(
       <Document title='ログイン'>
-        <LoginPage returnTo={safeReturnTo} />
+        <LoginPage returnTo={returnTo} />
       </Document>,
     )
   })
