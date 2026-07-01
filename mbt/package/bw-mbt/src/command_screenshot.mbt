@@ -75,42 +75,70 @@ impl ToJson for ScreenshotCaptureOptions with fn to_json(self) -> Json {
 
 ///|
 impl ToJson for ScreenshotViewport with fn to_json(self) -> Json {
-  Json::object({
-    "width": match self.width {
-      Some(value) => value.to_json()
-      None => Json::null()
+  let object : Map[String, Json] = Map([])
+  put_json_if_some(
+    object,
+    "width",
+    match self.width {
+      Some(value) => Some(value.to_json())
+      None => None
     },
-    "height": match self.height {
-      Some(value) => value.to_json()
-      None => Json::null()
+  )
+  put_json_if_some(
+    object,
+    "height",
+    match self.height {
+      Some(value) => Some(value.to_json())
+      None => None
     },
-  })
+  )
+  Json::object(object)
 }
 
 ///|
 impl ToJson for ScreenshotBody with fn to_json(self) -> Json {
-  Json::object({
-    "url": match self.url {
-      Some(value) => value.to_json()
-      None => Json::null()
+  let object : Map[String, Json] = Map([])
+  put_json_if_some(
+    object,
+    "url",
+    match self.url {
+      Some(value) => Some(value.to_json())
+      None => None
     },
-    "html": match self.html {
-      Some(value) => value.to_json()
-      None => Json::null()
+  )
+  put_json_if_some(
+    object,
+    "html",
+    match self.html {
+      Some(value) => Some(value.to_json())
+      None => None
     },
-    "gotoOptions": match self.gotoOptions {
-      Some(value) => value.to_json()
-      None => Json::null()
+  )
+  put_json_if_some(
+    object,
+    "gotoOptions",
+    match self.gotoOptions {
+      Some(value) => Some(value.to_json())
+      None => None
     },
-    "screenshotOptions": match self.screenshotOptions {
-      Some(value) => value.to_json()
-      None => Json::null()
+  )
+  put_json_if_some(
+    object,
+    "screenshotOptions",
+    match self.screenshotOptions {
+      Some(value) => Some(value.to_json())
+      None => None
     },
-    "viewport": match self.viewport {
-      Some(value) => value.to_json()
-      None => Json::null()
+  )
+  put_json_if_some(
+    object,
+    "viewport",
+    match self.viewport {
+      Some(value) => Some(value.to_json())
+      None => None
     },
-  })
+  )
+  Json::object(object)
 }
 
 ///|

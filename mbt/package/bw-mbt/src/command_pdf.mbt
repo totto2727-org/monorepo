@@ -60,38 +60,62 @@ impl ToJson for PdfGotoOptions with fn to_json(self) -> Json {
 
 ///|
 impl ToJson for PdfRenderOptions with fn to_json(self) -> Json {
-  Json::object({
-    "landscape": match self.landscape {
-      Some(value) => value.to_json()
-      None => Json::null()
+  let object : Map[String, Json] = Map([])
+  put_json_if_some(
+    object,
+    "landscape",
+    match self.landscape {
+      Some(value) => Some(value.to_json())
+      None => None
     },
-    "format": match self.format {
-      Some(value) => value.to_json()
-      None => Json::null()
+  )
+  put_json_if_some(
+    object,
+    "format",
+    match self.format {
+      Some(value) => Some(value.to_json())
+      None => None
     },
-  })
+  )
+  Json::object(object)
 }
 
 ///|
 impl ToJson for PdfBody with fn to_json(self) -> Json {
-  Json::object({
-    "url": match self.url {
-      Some(value) => value.to_json()
-      None => Json::null()
+  let object : Map[String, Json] = Map([])
+  put_json_if_some(
+    object,
+    "url",
+    match self.url {
+      Some(value) => Some(value.to_json())
+      None => None
     },
-    "html": match self.html {
-      Some(value) => value.to_json()
-      None => Json::null()
+  )
+  put_json_if_some(
+    object,
+    "html",
+    match self.html {
+      Some(value) => Some(value.to_json())
+      None => None
     },
-    "gotoOptions": match self.gotoOptions {
-      Some(value) => value.to_json()
-      None => Json::null()
+  )
+  put_json_if_some(
+    object,
+    "gotoOptions",
+    match self.gotoOptions {
+      Some(value) => Some(value.to_json())
+      None => None
     },
-    "pdfOptions": match self.pdfOptions {
-      Some(value) => value.to_json()
-      None => Json::null()
+  )
+  put_json_if_some(
+    object,
+    "pdfOptions",
+    match self.pdfOptions {
+      Some(value) => Some(value.to_json())
+      None => None
     },
-  })
+  )
+  Json::object(object)
 }
 
 ///|

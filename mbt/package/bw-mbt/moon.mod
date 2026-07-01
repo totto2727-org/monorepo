@@ -1,6 +1,6 @@
-name = "totto2727/bw-mbt"
+name = "totto2727/bw"
 
-version = "0.1.0"
+version = "0.1.7"
 
 preferred_target = "native"
 
