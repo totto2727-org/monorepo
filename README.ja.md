@@ -1,6 +1,6 @@
 # Monorepo
 
-pnpmワークスペースとVite+を使用したマルチ言語モノレポ（TypeScript + MoonBit）
+BunワークスペースとVite+を使用したマルチ言語モノレポ（TypeScript + MoonBit）
 
 ## プロジェクト構成
 

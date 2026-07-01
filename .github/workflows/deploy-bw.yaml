@@ -30,4 +30,4 @@ jobs:
       - name: Publish npm:@totto2727/bw
         uses: ./.github/actions/publish-npm
         with:
-          working-directory: js/app/bw
+          working-directory: mbt/package/bw-mbt

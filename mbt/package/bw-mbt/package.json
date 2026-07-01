@@ -7,6 +7,12 @@
     "url": "git+https://github.com/totto2727-org/monorepo",
     "directory": "mbt/package/bw-mbt"
   },
+  "bin": {
+    "bw": "./dist/bw"
+  },
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "bin": "moon run ./src --target native"
   },

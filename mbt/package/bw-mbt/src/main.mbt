@@ -15,7 +15,7 @@ fn command_defs() -> Array[@admiral.CommandDef] {
 ///|
 fn parse() -> @argparse.Matches raise {
   @argparse.Command(
-    "bw-mbt",
+    "bw",
     about="Native MoonBit CLI for Cloudflare Browser Rendering API",
     subcommands=command_defs().map(fn(cmd) { @admiral.build_command(cmd) }),
   ).parse()

@@ -53,7 +53,7 @@ flowchart TD
 - "Unify the authorization layer on OpenFGA"
 - "Convention for an event bus shared across the `oauth-rollout` roadmap and `notification-platform` roadmap" (spanning multiple roadmaps)
 - "Cache layer separation policy that both workflow execution A (search platform overhaul) and independently-running workflow execution B (CDN configuration overhaul) rely on" (spanning independent executions)
-- "Operating policy of pnpm workspace catalog", "Unification of monorepo lint / format rules"
+- "Operating policy of Bun workspace catalog", "Unification of monorepo lint / format rules"
 
 #### Roadmap mode (`docs/roadmap/<roadmap-id>/adr/`)
 

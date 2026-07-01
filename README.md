@@ -1,6 +1,6 @@
 # Monorepo
 
-A multi-language monorepo (TypeScript + MoonBit) using pnpm workspaces and Vite+.
+A multi-language monorepo (TypeScript + MoonBit) using Bun workspaces and Vite+.
 
 ## Project Structure
 

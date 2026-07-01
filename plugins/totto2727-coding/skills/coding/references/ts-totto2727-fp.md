@@ -9,7 +9,7 @@ A TypeScript functional programming utility library that provides unified re-exp
 ### Node.js
 
 ```bash
-pnpm i jsr:@totto2727/fp effect@beta
+bun add jsr:@totto2727/fp effect@beta
 ```
 
 ### Deno

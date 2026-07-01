@@ -3,12 +3,12 @@ import { Predicate } from 'effect'
 
 import { hasProperty, isReportable } from '../helpers.ts'
 
-const JS_IMPORT_RE = /^(\.+|#(?!#)[^/]*)(\/.*)\.js(x?)$/u
+const JS_IMPORT_RE = /^(?<start>\.+|#(?!#)[^/]*)(?<path>\/.*)\.js(?<x>x?)$/u
 
 export const matchJsImport = (value: string): { path: string; start: string; x: string } | null => {
   const match = JS_IMPORT_RE.exec(value)
   if (Predicate.isNotNullish(match)) {
-    const [, start, path, x] = match
+    const { path, start, x } = match.groups ?? {}
     return { path: path ?? '', start: start ?? '', x: x ?? '' }
   }
   return null

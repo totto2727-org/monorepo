@@ -20,7 +20,7 @@ Comprehensive table mapping content types to target file.
 | Test commands                       | ❌                      | ✅        | How to run tests, filters                           |
 | Lint/format commands                | ❌                      | ✅        | `vp run check`, `vp run fix`                        |
 | Architecture (any form)             | ❌                      | ✅        | Internal design, not for end users                  |
-| Package management                  | ❌                      | ✅        | pnpm workspaces, catalogs                           |
+| Package management                  | ❌                      | ✅        | Bun workspaces, catalogs                            |
 | Path aliases                        | ❌                      | ✅        | `#@/` conventions                                   |
 | Development tooling                 | ❌                      | ✅        | Tools list with usage                               |
 | Code conventions                    | ❌                      | ✅        | Patterns, formatting, naming                        |

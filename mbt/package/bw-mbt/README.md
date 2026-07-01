@@ -1,4 +1,4 @@
-# bw-mbt
+# bw
 
 Native MoonBit implementation of the `bw` Cloudflare Browser Rendering CLI.
 

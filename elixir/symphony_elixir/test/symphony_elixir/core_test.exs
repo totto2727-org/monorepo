@@ -1,3 +1,8 @@
+# このファイルは元のApache 2.0ライセンスのコードから変更されています
+# 変更日: 2026-06-28
+# 変更者: totto2727
+# 変更内容: Codex app-server fake 前提のテストを OpenCode client fake 前提へ更新
+
 defmodule SymphonyElixir.CoreTest do
   use SymphonyElixir.TestSupport
 
@@ -14,7 +19,15 @@ defmodule SymphonyElixir.CoreTest do
     config = Config.settings!()
     assert config.polling.interval_ms == 30_000
     assert config.tracker.active_states == ["Todo", "In Progress"]
-    assert config.tracker.terminal_states == ["Closed", "Cancelled", "Canceled", "Duplicate", "Done"]
+
+    assert config.tracker.terminal_states == [
+             "Closed",
+             "Cancelled",
+             "Canceled",
+             "Duplicate",
+             "Done"
+           ]
+
     assert config.tracker.assignee == nil
     assert config.agent.max_turns == 20
 
@@ -64,7 +77,10 @@ defmodule SymphonyElixir.CoreTest do
     write_workflow_file!(Workflow.workflow_file_path(), codex_command: "/bin/sh app-server")
     assert :ok = Config.validate!()
 
-    write_workflow_file!(Workflow.workflow_file_path(), codex_approval_policy: "definitely-not-valid")
+    write_workflow_file!(Workflow.workflow_file_path(),
+      codex_approval_policy: "definitely-not-valid"
+    )
+
     assert :ok = Config.validate!()
 
     write_workflow_file!(Workflow.workflow_file_path(), codex_thread_sandbox: "unsafe-ish")
@@ -105,10 +121,15 @@ defmodule SymphonyElixir.CoreTest do
 
     hooks = Map.get(config, "hooks", %{})
     assert is_map(hooks)
-    assert Map.get(hooks, "after_create") =~ "git clone --depth 1 https://github.com/openai/symphony ."
+
+    assert Map.get(hooks, "after_create") =~
+             "git clone --depth 1 https://github.com/openai/symphony ."
+
     assert Map.get(hooks, "after_create") =~ "cd elixir && mise trust"
     assert Map.get(hooks, "after_create") =~ "mise exec -- mix deps.get"
-    assert Map.get(hooks, "before_remove") =~ "cd elixir && mise exec -- mix workspace.before_remove"
+
+    assert Map.get(hooks, "before_remove") =~
+             "cd elixir && mise exec -- mix workspace.before_remove"
 
     assert String.trim(prompt) != ""
     assert is_binary(Config.workflow_prompt())
@@ -174,7 +195,9 @@ defmodule SymphonyElixir.CoreTest do
   end
 
   test "workflow load accepts prompt-only files without front matter" do
-    workflow_path = Path.join(Path.dirname(Workflow.workflow_file_path()), "PROMPT_ONLY_WORKFLOW.md")
+    workflow_path =
+      Path.join(Path.dirname(Workflow.workflow_file_path()), "PROMPT_ONLY_WORKFLOW.md")
+
     File.write!(workflow_path, "Prompt only\n")
 
     assert {:ok, %{config: %{}, prompt: "Prompt only", prompt_template: "Prompt only"}} =
@@ -182,7 +205,9 @@ defmodule SymphonyElixir.CoreTest do
   end
 
   test "workflow load accepts unterminated front matter with an empty prompt" do
-    workflow_path = Path.join(Path.dirname(Workflow.workflow_file_path()), "UNTERMINATED_WORKFLOW.md")
+    workflow_path =
+      Path.join(Path.dirname(Workflow.workflow_file_path()), "UNTERMINATED_WORKFLOW.md")
+
     File.write!(workflow_path, "---\ntracker:\n  kind: linear\n")
 
     assert {:ok, %{config: %{"tracker" => %{"kind" => "linear"}}, prompt: "", prompt_template: ""}} =
@@ -190,7 +215,9 @@ defmodule SymphonyElixir.CoreTest do
   end
 
   test "workflow load rejects non-map front matter" do
-    workflow_path = Path.join(Path.dirname(Workflow.workflow_file_path()), "INVALID_FRONT_MATTER_WORKFLOW.md")
+    workflow_path =
+      Path.join(Path.dirname(Workflow.workflow_file_path()), "INVALID_FRONT_MATTER_WORKFLOW.md")
+
     File.write!(workflow_path, "---\n- not-a-map\n---\nPrompt body\n")
 
     assert {:error, :workflow_front_matter_not_a_map} = Workflow.load(workflow_path)
@@ -211,7 +238,8 @@ defmodule SymphonyElixir.CoreTest do
     end)
 
     if is_pid(orchestrator_pid) do
-      assert :ok = Supervisor.terminate_child(SymphonyElixir.Supervisor, SymphonyElixir.Orchestrator)
+      assert :ok =
+               Supervisor.terminate_child(SymphonyElixir.Supervisor, SymphonyElixir.Orchestrator)
     end
 
     assert {:ok, pid} = SymphonyElixir.start_link()
@@ -824,7 +852,9 @@ defmodule SymphonyElixir.CoreTest do
              Orchestrator.handle_call(:request_refresh, {self(), make_ref()}, refreshed_state)
 
     assert coalesced_state.tick_token == refreshed_state.tick_token
-    assert {:noreply, ^coalesced_state} = Orchestrator.handle_info({:tick, stale_tick_token}, coalesced_state)
+
+    assert {:noreply, ^coalesced_state} =
+             Orchestrator.handle_info({:tick, stale_tick_token}, coalesced_state)
   end
 
   test "select_worker_host_for_test skips full ssh hosts under the shared per-host cap" do
@@ -911,7 +941,8 @@ defmodule SymphonyElixir.CoreTest do
   end
 
   test "prompt builder renders issue datetime fields without crashing" do
-    workflow_prompt = "Ticket {{ issue.identifier }} created={{ issue.created_at }} updated={{ issue.updated_at }}"
+    workflow_prompt =
+      "Ticket {{ issue.identifier }} created={{ issue.created_at }} updated={{ issue.updated_at }}"
 
     write_workflow_file!(Workflow.workflow_file_path(), prompt: workflow_prompt)
 
@@ -1048,7 +1079,8 @@ defmodule SymphonyElixir.CoreTest do
       end
     end)
 
-    assert :ok = Supervisor.terminate_child(SymphonyElixir.Supervisor, SymphonyElixir.WorkflowStore)
+    assert :ok =
+             Supervisor.terminate_child(SymphonyElixir.Supervisor, SymphonyElixir.WorkflowStore)
 
     Workflow.set_workflow_file_path(Path.join(System.tmp_dir!(), "missing-workflow-#{System.unique_integer([:positive])}.md"))
 
@@ -1116,7 +1148,7 @@ defmodule SymphonyElixir.CoreTest do
     assert prompt == "Retry #2"
   end
 
-  test "agent runner keeps workspace after successful codex run" do
+  test "agent runner keeps workspace after successful OpenCode run" do
     test_root =
       Path.join(
         System.tmp_dir!(),
@@ -1126,7 +1158,6 @@ defmodule SymphonyElixir.CoreTest do
     try do
       template_repo = Path.join(test_root, "source")
       workspace_root = Path.join(test_root, "workspaces")
-      codex_binary = Path.join(test_root, "fake-codex")
 
       File.mkdir_p!(template_repo)
       File.mkdir_p!(workspace_root)
@@ -1137,37 +1168,9 @@ defmodule SymphonyElixir.CoreTest do
       System.cmd("git", ["-C", template_repo, "add", "README.md"])
       System.cmd("git", ["-C", template_repo, "commit", "-m", "initial"])
 
-      File.write!(codex_binary, """
-      #!/bin/sh
-      count=0
-      while IFS= read -r line; do
-        count=$((count + 1))
-        case "$count" in
-          1)
-            printf '%s\\n' '{\"id\":1,\"result\":{}}'
-            ;;
-          2)
-            ;;
-          3)
-            printf '%s\\n' '{\"id\":2,\"result\":{\"thread\":{\"id\":\"thread-1\"}}}'
-            ;;
-          4)
-            printf '%s\\n' '{\"id\":3,\"result\":{\"turn\":{\"id\":\"turn-1\"}}}'
-            printf '%s\\n' '{\"method\":\"turn/completed\"}'
-            exit 0
-            ;;
-          *)
-            ;;
-        esac
-      done
-      """)
-
-      File.chmod!(codex_binary, 0o755)
-
       write_workflow_file!(Workflow.workflow_file_path(),
         workspace_root: workspace_root,
-        hook_after_create: "cp #{Path.join(template_repo, "README.md")} README.md",
-        codex_command: "#{codex_binary} app-server"
+        hook_after_create: "cp #{Path.join(template_repo, "README.md")} README.md"
       )
 
       issue = %Issue{
@@ -1180,7 +1183,7 @@ defmodule SymphonyElixir.CoreTest do
       }
 
       before = MapSet.new(File.ls!(workspace_root))
-      assert :ok = AgentRunner.run(issue)
+      assert :ok = AgentRunner.run(issue, nil, opencode_fake_opts(self(), "ses_workspace"))
       entries_after = MapSet.new(File.ls!(workspace_root))
 
       created =
@@ -1200,7 +1203,7 @@ defmodule SymphonyElixir.CoreTest do
     end
   end
 
-  test "agent runner forwards timestamped codex updates to recipient" do
+  test "agent runner forwards timestamped OpenCode updates to recipient" do
     test_root =
       Path.join(
         System.tmp_dir!(),
@@ -1210,7 +1213,6 @@ defmodule SymphonyElixir.CoreTest do
     try do
       template_repo = Path.join(test_root, "source")
       workspace_root = Path.join(test_root, "workspaces")
-      codex_binary = Path.join(test_root, "fake-codex")
 
       File.mkdir_p!(template_repo)
       File.write!(Path.join(template_repo, "README.md"), "# test")
@@ -1220,39 +1222,9 @@ defmodule SymphonyElixir.CoreTest do
       System.cmd("git", ["-C", template_repo, "add", "README.md"])
       System.cmd("git", ["-C", template_repo, "commit", "-m", "initial"])
 
-      File.write!(
-        codex_binary,
-        """
-        #!/bin/sh
-        count=0
-        while IFS= read -r line; do
-          count=$((count + 1))
-          case "$count" in
-            1)
-              printf '%s\\n' '{\"id\":1,\"result\":{}}'
-              ;;
-            2)
-              printf '%s\\n' '{\"id\":2,\"result\":{\"thread\":{\"id\":\"thread-live\"}}}'
-              ;;
-            3)
-              printf '%s\\n' '{\"id\":3,\"result\":{\"turn\":{\"id\":\"turn-live\"}}}'
-              ;;
-            4)
-              printf '%s\\n' '{\"method\":\"turn/completed\"}'
-              ;;
-            *)
-              ;;
-          esac
-        done
-        """
-      )
-
-      File.chmod!(codex_binary, 0o755)
-
       write_workflow_file!(Workflow.workflow_file_path(),
         workspace_root: workspace_root,
-        hook_after_create: "cp #{Path.join(template_repo, "README.md")} README.md",
-        codex_command: "#{codex_binary} app-server"
+        hook_after_create: "cp #{Path.join(template_repo, "README.md")} README.md"
       )
 
       issue = %Issue{
@@ -1271,7 +1243,10 @@ defmodule SymphonyElixir.CoreTest do
                AgentRunner.run(
                  issue,
                  test_pid,
-                 issue_state_fetcher: fn [_issue_id] -> {:ok, [%{issue | state: "Done"}]} end
+                 opencode_fake_opts(test_pid, "ses_live") ++
+                   [
+                     issue_state_fetcher: fn [_issue_id] -> {:ok, [%{issue | state: "Done"}]} end
+                   ]
                )
 
       assert_receive {:codex_worker_update, "issue-live-updates",
@@ -1282,7 +1257,7 @@ defmodule SymphonyElixir.CoreTest do
                       }},
                      500
 
-      assert session_id == "thread-live-turn-live"
+      assert session_id == "ses_live"
     after
       File.rm_rf(test_root)
     end
@@ -1368,8 +1343,6 @@ defmodule SymphonyElixir.CoreTest do
     try do
       template_repo = Path.join(test_root, "source")
       workspace_root = Path.join(test_root, "workspaces")
-      codex_binary = Path.join(test_root, "fake-codex")
-      trace_file = Path.join(test_root, "codex.trace")
 
       File.mkdir_p!(template_repo)
       File.write!(Path.join(template_repo, "README.md"), "# test")
@@ -1379,46 +1352,9 @@ defmodule SymphonyElixir.CoreTest do
       System.cmd("git", ["-C", template_repo, "add", "README.md"])
       System.cmd("git", ["-C", template_repo, "commit", "-m", "initial"])
 
-      File.write!(codex_binary, """
-      #!/bin/sh
-      trace_file="${SYMP_TEST_CODEx_TRACE:-/tmp/codex.trace}"
-      run_id="$(date +%s%N)-$$"
-      printf 'RUN:%s\\n' "$run_id" >> "$trace_file"
-      count=0
-
-      while IFS= read -r line; do
-        count=$((count + 1))
-        printf 'JSON:%s\\n' "$line" >> "$trace_file"
-        case "$count" in
-          1)
-            printf '%s\\n' '{"id":1,"result":{}}'
-            ;;
-          2)
-            ;;
-          3)
-            printf '%s\\n' '{"id":2,"result":{"thread":{"id":"thread-cont"}}}'
-            ;;
-          4)
-            printf '%s\\n' '{"id":3,"result":{"turn":{"id":"turn-cont-1"}}}'
-            printf '%s\\n' '{"method":"turn/completed"}'
-            ;;
-          5)
-            printf '%s\\n' '{"id":3,"result":{"turn":{"id":"turn-cont-2"}}}'
-            printf '%s\\n' '{"method":"turn/completed"}'
-            ;;
-        esac
-      done
-      """)
-
-      File.chmod!(codex_binary, 0o755)
-      System.put_env("SYMP_TEST_CODEx_TRACE", trace_file)
-
-      on_exit(fn -> System.delete_env("SYMP_TEST_CODEx_TRACE") end)
-
       write_workflow_file!(Workflow.workflow_file_path(),
         workspace_root: workspace_root,
         hook_after_create: "cp #{Path.join(template_repo, "README.md")} README.md",
-        codex_command: "#{codex_binary} app-server",
         max_turns: 3
       )
 
@@ -1458,33 +1394,30 @@ defmodule SymphonyElixir.CoreTest do
         labels: []
       }
 
-      assert :ok = AgentRunner.run(issue, nil, issue_state_fetcher: state_fetcher)
+      assert :ok =
+               AgentRunner.run(
+                 issue,
+                 nil,
+                 opencode_fake_opts(parent, "ses_continue") ++
+                   [issue_state_fetcher: state_fetcher]
+               )
+
       assert_receive {:issue_state_fetch, 1}
       assert_receive {:issue_state_fetch, 2}
 
-      lines = File.read!(trace_file) |> String.split("\n", trim: true)
+      assert_received {:opencode_session_create, _body, _client}
 
-      assert length(Enum.filter(lines, &String.starts_with?(&1, "RUN:"))) == 1
-      assert length(Enum.filter(lines, &String.contains?(&1, "\"method\":\"thread/start\""))) == 1
+      assert_received {:opencode_prompt_async, "ses_continue", %{parts: [%{text: first_prompt}]}, _client}
 
-      turn_texts =
-        lines
-        |> Enum.filter(&String.starts_with?(&1, "JSON:"))
-        |> Enum.map(&String.trim_leading(&1, "JSON:"))
-        |> Enum.map(&Jason.decode!/1)
-        |> Enum.filter(&(&1["method"] == "turn/start"))
-        |> Enum.map(fn payload ->
-          get_in(payload, ["params", "input"])
-          |> Enum.map_join("\n", &Map.get(&1, "text", ""))
-        end)
+      assert_received {:opencode_prompt_async, "ses_continue", %{parts: [%{text: second_prompt}]}, _client}
 
-      assert length(turn_texts) == 2
-      assert Enum.at(turn_texts, 0) =~ "You are an agent for this repository."
-      refute Enum.at(turn_texts, 1) =~ "You are an agent for this repository."
-      assert Enum.at(turn_texts, 1) =~ "Continuation guidance:"
-      assert Enum.at(turn_texts, 1) =~ "continuation turn #2 of 3"
+      assert_received {:opencode_session_delete, "ses_continue", _client}
+
+      assert first_prompt =~ "You are an agent for this repository."
+      refute second_prompt =~ "You are an agent for this repository."
+      assert second_prompt =~ "Continuation guidance:"
+      assert second_prompt =~ "continuation turn #2 of 3"
     after
-      System.delete_env("SYMP_TEST_CODEx_TRACE")
       File.rm_rf(test_root)
     end
   end
@@ -1499,8 +1432,6 @@ defmodule SymphonyElixir.CoreTest do
     try do
       template_repo = Path.join(test_root, "source")
       workspace_root = Path.join(test_root, "workspaces")
-      codex_binary = Path.join(test_root, "fake-codex")
-      trace_file = Path.join(test_root, "codex.trace")
 
       File.mkdir_p!(template_repo)
       File.write!(Path.join(template_repo, "README.md"), "# test")
@@ -1510,45 +1441,9 @@ defmodule SymphonyElixir.CoreTest do
       System.cmd("git", ["-C", template_repo, "add", "README.md"])
       System.cmd("git", ["-C", template_repo, "commit", "-m", "initial"])
 
-      File.write!(codex_binary, """
-      #!/bin/sh
-      trace_file="${SYMP_TEST_CODEx_TRACE:-/tmp/codex.trace}"
-      printf 'RUN\\n' >> "$trace_file"
-      count=0
-
-      while IFS= read -r line; do
-        count=$((count + 1))
-        printf 'JSON:%s\\n' "$line" >> "$trace_file"
-        case "$count" in
-          1)
-            printf '%s\\n' '{"id":1,"result":{}}'
-            ;;
-          2)
-            ;;
-          3)
-            printf '%s\\n' '{"id":2,"result":{"thread":{"id":"thread-max"}}}'
-            ;;
-          4)
-            printf '%s\\n' '{"id":3,"result":{"turn":{"id":"turn-max-1"}}}'
-            printf '%s\\n' '{"method":"turn/completed"}'
-            ;;
-          5)
-            printf '%s\\n' '{"id":3,"result":{"turn":{"id":"turn-max-2"}}}'
-            printf '%s\\n' '{"method":"turn/completed"}'
-            ;;
-        esac
-      done
-      """)
-
-      File.chmod!(codex_binary, 0o755)
-      System.put_env("SYMP_TEST_CODEx_TRACE", trace_file)
-
-      on_exit(fn -> System.delete_env("SYMP_TEST_CODEx_TRACE") end)
-
       write_workflow_file!(Workflow.workflow_file_path(),
         workspace_root: workspace_root,
         hook_after_create: "cp #{Path.join(template_repo, "README.md")} README.md",
-        codex_command: "#{codex_binary} app-server",
         max_turns: 2
       )
 
@@ -1575,13 +1470,20 @@ defmodule SymphonyElixir.CoreTest do
         labels: []
       }
 
-      assert :ok = AgentRunner.run(issue, nil, issue_state_fetcher: state_fetcher)
+      assert :ok =
+               AgentRunner.run(
+                 issue,
+                 nil,
+                 opencode_fake_opts(self(), "ses_max_turns") ++
+                   [issue_state_fetcher: state_fetcher]
+               )
 
-      trace = File.read!(trace_file)
-      assert length(String.split(trace, "RUN", trim: true)) == 1
-      assert length(Regex.scan(~r/"method":"turn\/start"/, trace)) == 2
+      assert_received {:opencode_session_create, _body, _client}
+      assert_received {:opencode_prompt_async, "ses_max_turns", _body, _client}
+      assert_received {:opencode_prompt_async, "ses_max_turns", _body, _client}
+      refute_received {:opencode_prompt_async, "ses_max_turns", _body, _client}
+      assert_received {:opencode_session_delete, "ses_max_turns", _client}
     after
-      System.delete_env("SYMP_TEST_CODEx_TRACE")
       File.rm_rf(test_root)
     end
   end
@@ -1939,5 +1841,15 @@ defmodule SymphonyElixir.CoreTest do
     after
       File.rm_rf(test_root)
     end
+  end
+
+  defp opencode_fake_opts(test_pid, session_id) do
+    [
+      base_url: "http://opencode.test",
+      client_opts: [test_pid: test_pid, session_id: session_id],
+      event_stream: SymphonyElixir.OpencodeFakes.EventStream,
+      session_api: SymphonyElixir.OpencodeFakes.SessionApi,
+      turn_timeout_ms: 1_000
+    ]
   end
 end

@@ -3,7 +3,7 @@
   "packages": [
     "go@latest",
     "deno@latest",
-    "pnpm@latest",
+    "bun@1.3.13",
     "just@latest",
     "turso-cli@latest",
     "sqld@latest",
