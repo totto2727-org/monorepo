@@ -1,6 +1,6 @@
 # Effect + Remix Integration Patterns
 
-Related skills: [ts-effect-layer](./ts-effect-layer.md), [ts-effect-runtime](./ts-effect-runtime.md)
+Related skills: [effect-layer](./effect-layer.md), [effect-runtime](./effect-runtime.md)
 
 ## Client Event Boundary Pattern
 

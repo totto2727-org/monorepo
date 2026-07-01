@@ -5,7 +5,7 @@ description: >-
   writing or reviewing code in any language (TypeScript, MoonBit, etc.) to
   obtain language-agnostic principles plus pointers to language-specific best
   practices and external specification references. Routes to per-language
-  index skills (`ts-skill.md`, `mbt-skill.md`) for concrete patterns, and to
+  index skills (`ts.md`, `mbt.md`) for concrete patterns, and to
   sibling skills (`docs-moonbit`, `docs-components-build`) for external spec
   reading material. Common triggers: "coding conventions", "language
   conventions", "how should I write X in TypeScript / MoonBit", "look up
@@ -32,7 +32,7 @@ conventions; this skill stays focused on production code style and design.
 1. Read the **Language-agnostic principles** section first. They apply
    regardless of which language you are writing.
 2. Open the **Language index** entry for the language you are working in.
-   That Tier-2 file (`references/<lang>-skill.md`) lists the in-plugin detail
+   That Tier-2 file (`references/<lang>.md`) lists the in-plugin detail
    files (Tier 3) plus any external skills you should also load.
 3. If you need to consult an upstream specification (MoonBit language
    reference, Vercel components.build spec), follow the **External spec
@@ -117,14 +117,14 @@ Each language has a Tier-2 index file under `references/`. Open the index
 for your language to find concrete patterns, library conventions, and
 related external skills.
 
-- **TypeScript** — see [`references/ts-skill.md`](references/ts-skill.md).
+- **TypeScript** — see [`references/ts.md`](references/ts.md).
   Use when writing or reviewing TypeScript code (Effect, Hono, Remix,
   `@totto2727/fp`, monorepo packages under `js/`).
-- **MoonBit** — see [`references/mbt-skill.md`](references/mbt-skill.md).
+- **MoonBit** — see [`references/mbt.md`](references/mbt.md).
   Use when writing or reviewing MoonBit code (packages under `mbt/`).
 
 Adding a new language follows the same shape: create
-`references/<lang>-skill.md` as the index, add `references/<lang>-<topic>.md`
+`references/<lang>.md` as the index, add `references/<lang>/<topic>.md`
 detail files for each concrete topic, and append a bullet to the list above.
 
 ## External spec references
@@ -139,7 +139,7 @@ sibling skills, not in-plugin reference files.
   (syntax, types, functions, methods, deriving). Auto-generated from the
   official MoonBit documentation. Open this when answering "what does the
   MoonBit language itself say about X?", as opposed to "how do we write
-  MoonBit in this repository?" (which is the `mbt-skill.md` index above).
+  MoonBit in this repository?" (which is the `mbt.md` index above).
 - [`docs-components-build`](../docs-components-build/SKILL.md) — Vercel
   `components.build` open standard for modern UI components (composition,
   accessibility, polymorphism, design tokens, registry distribution).
@@ -160,7 +160,7 @@ points.
   files). Always pair `coding` with `test` when writing real code.
 - **`vite-plus`** (external skill, npm-package-bundled) — the project's
   unified toolchain (Vite / Vitest / monorepo orchestration). Referenced
-  from `references/ts-skill.md` for concrete `vp run`, `vp test`, and
+  from `references/ts.md` for concrete `vp run`, `vp test`, and
   `vp check` usage.
 - **`git-workflow`** (external skill) — Conventional Commits, GPG signing,
   staging discipline, multi-branch PR splitting. Apply to every commit

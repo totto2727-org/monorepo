@@ -4,7 +4,7 @@ Tier-2 index for MoonBit test conventions in the `test` skill.
 
 ## In-plugin detail files
 
-- [mbt-bestpractice.md](./mbt-bestpractice.md) — MoonBit testing standards (test naming, .mbt.md format, debug_inspect/json_inspect usage, etc.). Use when writing MoonBit tests.
+- [bestpractice.md](./mbt/bestpractice.md) — MoonBit testing standards (test naming, .mbt.md format, debug_inspect/json_inspect usage, etc.). Use when writing MoonBit tests.
 
 ## Related references
 
