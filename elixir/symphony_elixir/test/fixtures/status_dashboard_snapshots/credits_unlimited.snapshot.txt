@@ -1,3 +1,8 @@
+# このファイルは元のApache 2.0ライセンスのコードから変更されています
+# 変更日: 2026-07-01
+# 変更者: totto2727
+# 変更内容: 旧バックエンド関連処理を削除し、OpenCode 前提の snapshot へ更新
+
 \e[1m╭─ SYMPHONY STATUS\e[0m
 \e[1m│ Agents: \e[0m\e[32m1\e[0m\e[90m/\e[0m\e[90m10\e[0m
 \e[1m│ Throughput: \e[0m\e[36m42 tps\e[0m

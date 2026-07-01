@@ -1,3 +1,8 @@
+# このファイルは元のApache 2.0ライセンスのコードから変更されています
+# 変更日: 2026-07-01
+# 変更者: totto2727
+# 変更内容: 旧バックエンド関連処理を削除し、OpenCode 前提の設定・状態名へ更新
+
 defmodule SymphonyElixir.CLITest do
   use ExUnit.Case, async: true
 
@@ -33,7 +38,7 @@ defmodule SymphonyElixir.CLITest do
 
     assert {:error, banner} = CLI.evaluate(["WORKFLOW.md"], deps)
     assert banner =~ "This Symphony implementation is a low key engineering preview."
-    assert banner =~ "Codex will run without any guardrails."
+    assert banner =~ "OpenCode will run without any guardrails."
     assert banner =~ "SymphonyElixir is not a supported product and is presented as-is."
     assert banner =~ @ack_flag
     refute_received :file_checked

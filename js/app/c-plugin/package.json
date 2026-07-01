@@ -18,7 +18,7 @@
     "#@/*": "./src/*"
   },
   "scripts": {
-    "bin": "node dist/bin.mjs"
+    "bin": "bun dist/bin.mjs"
   },
   "dependencies": {
     "@effect/platform-node": "catalog:effect",

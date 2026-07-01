@@ -1,3 +1,8 @@
+# このファイルは元のApache 2.0ライセンスのコードから変更されています
+# 変更日: 2026-07-01
+# 変更者: totto2727
+# 変更内容: 変更通知付き snapshot fixture を比較できるように更新
+
 defmodule SymphonyElixir.TestSupport.Snapshot do
   import ExUnit.Assertions
 
@@ -34,7 +39,7 @@ defmodule SymphonyElixir.TestSupport.Snapshot do
     else
       case File.read(path) do
         {:ok, expected} ->
-          assert normalized == expected,
+          assert normalized == strip_change_notice(expected),
                  "Snapshot mismatch for `#{relative_path}`. #{@update_snapshot_hint}"
 
         {:error, :enoent} ->
@@ -55,6 +60,7 @@ defmodule SymphonyElixir.TestSupport.Snapshot do
       raw_ansi_content
       |> strip_ansi()
       |> normalize_content()
+      |> trim_line_trailing_whitespace()
       |> String.trim_trailing("\n")
 
     "```text\n#{plain}\n```\n"
@@ -75,4 +81,24 @@ defmodule SymphonyElixir.TestSupport.Snapshot do
     |> String.trim_trailing("\n")
     |> Kernel.<>("\n")
   end
+
+  defp trim_line_trailing_whitespace(content) do
+    Regex.replace(~r/[ \t]+$/m, content, "")
+  end
+
+  defp strip_change_notice("<!--\nこのファイルは元のApache 2.0ライセンスのコードから変更されています\n" <> _rest = content) do
+    case String.split(content, "-->\n\n", parts: 2) do
+      [_notice, body] -> body
+      _ -> content
+    end
+  end
+
+  defp strip_change_notice("# このファイルは元のApache 2.0ライセンスのコードから変更されています\n" <> _rest = content) do
+    case String.split(content, "\n\n", parts: 2) do
+      [_notice, body] -> body
+      _ -> content
+    end
+  end
+
+  defp strip_change_notice(content), do: content
 end

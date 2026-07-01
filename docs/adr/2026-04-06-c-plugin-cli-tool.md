@@ -206,5 +206,5 @@ Using Effect `Data.TaggedError`:
 ## Impact
 
 - **New package**: `js/app/c-plugin/`
-- **pnpm-workspace.yaml**: Catalog additions needed for `@effect/platform-node`, etc.
+- **root `package.json`**: Catalog additions needed for `@effect/platform-node`, etc.
 - **npm**: Published as `c-plugin` package

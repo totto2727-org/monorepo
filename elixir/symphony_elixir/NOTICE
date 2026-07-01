@@ -1,3 +1,10 @@
+<!--
+このファイルは元のApache 2.0ライセンスのコードから変更されています
+変更日: 2026-07-01
+変更者: totto2727
+変更内容: Codex 関連処理削除の通知を追加
+-->
+
 # オリジナルNOTICE
 
 このプロジェクトは [OpenAI Symphony](https://github.com/openai/symphony) の Elixir/OTP への移植版です。
@@ -30,4 +37,4 @@ Limitations under the License.
 - **ビルド・依存関係管理の変更**: Makefile および mise の使用を廃止し、package.json および Justfile によるスクリプト管理に統合
 - **フォーマッター設定の削除**: リポジトリルートのフォーマッターを使用
 - **ロックファイルの削除**: リポジトリルートのロックファイルを使用
-
+- **Codex 関連処理の削除**: 旧 Codex app-server / dynamic tool 実装、Codex 専用設定、互換用テストを削除し、OpenCode サーバー連携へ一本化

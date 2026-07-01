@@ -149,7 +149,7 @@ const _safeUnwrapErr = <const RESULT extends R.Result<unknown, unknown>>(
  *
  * Implementation of `?` operator for Synchronous Result type
  *
- * @yields {R.Err<InferErr<RESULT>>}
+ * @yields {R.Err<InferErr<RESULT>>} The error value yielded when the Result is an Err.
  */
 const _safeUnwrap = function* <const RESULT extends R.Result<unknown, unknown>>(
   result: RESULT,

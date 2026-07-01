@@ -49,13 +49,10 @@
             {
               system = import ../share/darwin-system.nix { inherit username; };
               homebrew = (import ../share/homebrew.nix) // {
-                taps = (import ../share/taps.nix) ++ [
-                  "slp/krun"
-                ];
+                taps = (import ../share/taps.nix);
                 brews = (import ../share/brews.nix) ++ [
                   "git"
                   "podman"
-                  "krunkit"
                   "zlib"
                   "sqlite"
                   "gemini-cli"
@@ -66,6 +63,7 @@
                   "cursor"
                   "ghostty"
                   "claude"
+                  "claude-code@latest"
                   "podman-desktop"
                   "figma"
                   "postman"

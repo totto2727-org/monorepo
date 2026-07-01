@@ -4,4 +4,5 @@
   "$HOME/.bun/bin"
   "$HOME/.vite-plus/bin"
   "$HOME/.moon/bin"
+  "$HOME/.cargo/bin"
 ]
