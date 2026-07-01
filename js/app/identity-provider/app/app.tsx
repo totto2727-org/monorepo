@@ -1,10 +1,15 @@
-import { Predicate, String } from 'effect'
+import { DateTime, Predicate } from 'effect'
 import { remixRenderer } from 'hono-remix-middleware'
 import { contextStorage } from 'hono/context-storage'
-import { deleteCookie, getCookie } from 'hono/cookie'
 import { logger } from 'hono/logger'
 
-import { authMiddleware } from '#@/feature/auth/middleware.ts'
+import { deleteLoginReturnToCookie, getLoginReturnToCookie, setLoginReturnToCookie } from '#@/feature/auth/cookie.ts'
+import { authMiddleware, requireAuthMiddleware, requireLoginSessionMiddleware } from '#@/feature/auth/middleware.ts'
+import {
+  preserveReturnToQueryParameterName,
+  preserveReturnToQueryParameterValue,
+} from '#@/feature/auth/query-parameter.ts'
+import { getReturnToPath } from '#@/feature/auth/return-to.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 import { factory } from '#@/feature/share/lib/hono/factory.ts'
 import { AccountPage } from '#@/ui/account.tsx'
@@ -14,109 +19,47 @@ import { LoginPasskeyPage } from '#@/ui/login-passkey.tsx'
 import { LoginPage } from '#@/ui/login.tsx'
 import { OAuthConsentErrorPage, OAuthConsentPage } from '#@/ui/oauth-consent.tsx'
 import { RegisterPasskeyPage } from '#@/ui/register-passkey.tsx'
-import { getSafeReturnTo } from '#@/ui/return-to.ts'
 
 const api = factory.createApp().all('/auth/*', (ctx) => ctx.var.auth.handler(ctx.req.raw))
 
-const LOGIN_RETURN_TO_COOKIE = 'login_return_to'
-
-const appRoutes = factory
+const loginRoutes = factory
   .createApp()
-  .get('/', (ctx) =>
-    ctx.render(
-      <Document>
-        <h1>Hello, identity-provider</h1>
-      </Document>,
-    ),
-  )
-  .get('/login', (ctx) => {
-    const rawReturnTo = ctx.req.query('return_to')
-    const safeReturnTo = getSafeReturnTo(rawReturnTo)
+  .get('/', (ctx) => {
     const parsedUrl = new URL(ctx.req.url)
-    const hasOAuthParams = parsedUrl.searchParams.has('client_id') && parsedUrl.searchParams.has('redirect_uri')
-    const oauthReturnTo = hasOAuthParams ? `/api/v1/auth/oauth2/authorize${parsedUrl.search}` : undefined
-    const returnTo =
-      Predicate.isNotNullish(safeReturnTo) && String.isNonEmpty(safeReturnTo) ? safeReturnTo : oauthReturnTo
-    if (Predicate.isNullish(returnTo) || String.isEmpty(returnTo)) {
-      deleteCookie(ctx, LOGIN_RETURN_TO_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+    if (ctx.req.query(preserveReturnToQueryParameterName) !== preserveReturnToQueryParameterValue) {
+      if (parsedUrl.searchParams.has('client_id') && parsedUrl.searchParams.has('redirect_uri')) {
+        setLoginReturnToCookie(`/api/v1/auth/oauth2/authorize${parsedUrl.search}`)
+      } else {
+        deleteLoginReturnToCookie()
+      }
     }
     return ctx.render(
       <Document title='ログイン'>
-        <LoginPage returnTo={returnTo} />
+        <LoginPage />
       </Document>,
     )
   })
-  .get('/login/passkey', (ctx) => {
-    const returnTo = ctx.req.query('return_to')
-    const safeReturnTo = getSafeReturnTo(returnTo)
-    return ctx.render(
+  .get('/passkey', (ctx) =>
+    ctx.render(
       <Document title='Passkey ログイン'>
-        <LoginPasskeyPage returnTo={safeReturnTo} />
+        <LoginPasskeyPage />
       </Document>,
-    )
-  })
-  .get('/login/check-email', (ctx) => {
+    ),
+  )
+  .get('/check-email', (ctx) => {
     const email = ctx.req.query('email') ?? ''
-    const returnTo = ctx.req.query('return_to')
-    const safeReturnTo = getSafeReturnTo(returnTo)
     return ctx.render(
       <Document title='メール確認'>
-        <CheckEmailPage email={email} returnTo={safeReturnTo} />
+        <CheckEmailPage email={email} />
       </Document>,
     )
   })
-  .get('/auth/magic-link/callback', async (ctx) => {
-    const session = await ctx.var.auth.api.getSession({ headers: ctx.req.raw.headers })
-    if (!session) {
-      return ctx.redirect('/app/login?error=invalid_link')
-    }
-    const returnTo =
-      getSafeReturnTo(ctx.req.query('return_to')) ?? getSafeReturnTo(getCookie(ctx, LOGIN_RETURN_TO_COOKIE))
-    deleteCookie(ctx, LOGIN_RETURN_TO_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
+  .get('/callback', requireLoginSessionMiddleware, (ctx) => {
+    const returnTo = getReturnToPath(getLoginReturnToCookie())
+    deleteLoginReturnToCookie()
     return ctx.redirect(returnTo ?? '/app/account')
   })
-  .get('/auth/passkey/callback', async (ctx) => {
-    const session = await ctx.var.auth.api.getSession({ headers: ctx.req.raw.headers })
-    if (!session) {
-      return ctx.redirect('/app/login')
-    }
-    const returnTo =
-      getSafeReturnTo(ctx.req.query('return_to')) ?? getSafeReturnTo(getCookie(ctx, LOGIN_RETURN_TO_COOKIE))
-    deleteCookie(ctx, LOGIN_RETURN_TO_COOKIE, { httpOnly: true, path: '/', sameSite: 'Lax' })
-    return ctx.redirect(returnTo ?? '/app/account')
-  })
-  .get('/register/passkey', async (ctx) => {
-    const session = await ctx.var.auth.api.getSession({ headers: ctx.req.raw.headers })
-    if (!session) {
-      return ctx.redirect('/app/login')
-    }
-    const returnTo = ctx.req.query('return_to')
-    const safeReturnTo = getSafeReturnTo(returnTo)
-    return ctx.render(
-      <Document title='Passkey 登録'>
-        <RegisterPasskeyPage returnTo={safeReturnTo} />
-      </Document>,
-    )
-  })
-  .get('/account', async (ctx) => {
-    const session = await ctx.var.auth.api.getSession({ headers: ctx.req.raw.headers })
-    if (!session) {
-      return ctx.redirect('/app/login')
-    }
-    const email = session.user.email ?? ''
-    const rawCreatedAt: Date | string = session.user.createdAt
-    const createdAt = Predicate.isString(rawCreatedAt) ? rawCreatedAt : rawCreatedAt.toLocaleDateString('ja-JP')
-    return ctx.render(
-      <Document title='アカウント'>
-        <AccountPage email={email} createdAt={createdAt} />
-      </Document>,
-    )
-  })
-  .get('/oauth/consent', async (ctx) => {
-    const session = await ctx.var.auth.api.getSession({ headers: ctx.req.raw.headers })
-    if (!session) {
-      return ctx.redirect('/app/login')
-    }
+  .get('/oauth/consent', requireLoginSessionMiddleware, (ctx) => {
     const clientId = ctx.req.query('client_id')
     const redirectUri = ctx.req.query('redirect_uri')
     const scope = ctx.req.query('scope') ?? 'openid'
@@ -135,6 +78,26 @@ const appRoutes = factory
     )
   })
 
+const appRoutes = factory
+  .createApp()
+  .use(requireAuthMiddleware)
+  .get('/account', (ctx) => {
+    const { user } = ctx.var
+    const createdAt = new Intl.DateTimeFormat('ja-JP').format(DateTime.toDate(user.createdAt))
+    return ctx.render(
+      <Document title='アカウント'>
+        <AccountPage email={user.email} createdAt={createdAt} />
+      </Document>,
+    )
+  })
+  .get('/passkey/register', (ctx) =>
+    ctx.render(
+      <Document title='Passkey 登録'>
+        <RegisterPasskeyPage />
+      </Document>,
+    ),
+  )
+
 const app = factory
   .createApp()
   .use(logger())
@@ -148,6 +111,7 @@ const app = factory
       fetcher: (input): Promise<Response> => Promise.resolve(app.fetch(new Request(input))),
     }),
   )
+  .route('/login', loginRoutes)
   .route('/app', appRoutes)
 
 export default app

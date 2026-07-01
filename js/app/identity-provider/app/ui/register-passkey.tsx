@@ -1,8 +1,8 @@
 import { css } from 'remix/ui'
 import type { Handle } from 'remix/ui'
 
+import { preserveReturnToLoginPath } from '#@/feature/auth/query-parameter.ts'
 import { PasskeyRegisterButton } from '#@/ui/register-passkey.client.tsx'
-import { withReturnTo } from '#@/ui/return-to.ts'
 
 const containerStyle = css({
   margin: '40px auto',
@@ -10,20 +10,16 @@ const containerStyle = css({
   padding: '0 16px',
 })
 
-interface RegisterPasskeyPageProps {
-  returnTo?: string
-}
-
-export const RegisterPasskeyPage = (handle: Handle<RegisterPasskeyPageProps>) => () => (
+export const RegisterPasskeyPage = (_handle: Handle) => () => (
   <main mix={containerStyle}>
     <h1>Passkey を登録</h1>
     <p>このデバイスに Passkey を登録すると、次回からパスワードレスでログインできます。</p>
-    <PasskeyRegisterButton returnTo={handle.props.returnTo} />
+    <PasskeyRegisterButton />
     <p>
       <a href='/app/account'>スキップ</a>
     </p>
     <p>
-      <a href={withReturnTo('/app/login', handle.props.returnTo)}>Magic Link でログイン</a>
+      <a href={preserveReturnToLoginPath}>Magic Link でログイン</a>
     </p>
   </main>
 )

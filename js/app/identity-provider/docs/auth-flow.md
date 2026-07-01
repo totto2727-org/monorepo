@@ -43,11 +43,11 @@ sequenceDiagram
   BetterAuth-->>User: Redirect to /oauth2/authorize with Better Auth-managed state and PKCE
   User->>IdP: GET /api/v1/auth/oauth2/authorize?state&nonce&code_challenge
   IdP->>BetterAuth: Validate OAuth client, redirect URI, scope, state, PKCE challenge
-  BetterAuth-->>User: Redirect to /app/login when no IdP session exists
+  BetterAuth-->>User: Redirect to /login when no IdP session exists
   User->>IdP: Complete Magic Link or Passkey login
-  IdP-->>User: Restore login_return_to and redirect to original authorize URL
+  IdP-->>User: Restore identity_provider_login_return_to and redirect to original authorize URL
   User->>IdP: GET /api/v1/auth/oauth2/authorize?...original query...
-  BetterAuth-->>User: Redirect to /app/oauth/consent
+  BetterAuth-->>User: Redirect to /login/oauth/consent
   User->>IdP: POST /api/v1/auth/oauth2/consent with accept and oauth_query
   IdP->>BetterAuth: Verify signed oauth_query and record consent
   BetterAuth-->>User: Redirect to feed Better Auth callback with code and state
@@ -103,34 +103,39 @@ to the originally requested path (defaulting to `/app`).
 If the user is not signed in, Better Auth redirects to the configured login page:
 
 ```text
-/app/login
+/login
 ```
 
-The IdP `/app/login` route computes a safe return target with `getLoginReturnTo`:
+The IdP `/login` route is the single owner of the IdP login return target.
+It uses the same `preserve_return_to=true` pattern as `feed-platform-web`:
 
-1. If a `return_to` query parameter is present and passes `getSafeReturnTo`
-   validation (must start with `/` and not `//`), it is used.
+1. If `preserve_return_to=true` is present, the route leaves the existing
+   `identity_provider_login_return_to` cookie untouched.
 2. Otherwise, if the current URL contains OAuth authorization parameters
-   (`client_id` and `redirect_uri`), the full authorize URL is reconstructed as
-   the return target.
-3. If neither is available, no return target is set and the `login_return_to`
-   cookie is deleted.
+   (`client_id` and `redirect_uri`), the route stores the reconstructed authorize
+   URL (`/api/v1/auth/oauth2/authorize?...`) in that cookie.
+3. If neither condition applies, the route deletes the cookie so stale return
+   targets do not survive unrelated login attempts.
 
-For Magic Link login, the return target is stored in a `login_return_to` cookie
-by the client-side form handler. This avoids passing a nested OAuth authorization
-URL through Better Auth's Magic Link `callbackURL` validation. After the Magic
-Link callback (`/app/auth/magic-link/callback`) validates the IdP session, the
-IdP reads the `login_return_to` cookie (falling back to `return_to` query param),
-deletes the cookie, and redirects back to the original target.
+For logged-in user pages under `/app`, the IdP `requireAuthMiddleware` follows
+the same behavior as `feed-platform-web`: when there is no IdP session, it stores
+the requested `/app/...` path in `identity_provider_login_return_to` and redirects
+to `/login?preserve_return_to=true`.
 
-The same flow applies to Passkey login via `/app/auth/passkey/callback`.
+Magic Link and Passkey UI components do not receive or forward return targets.
+Both authentication methods finish at the shared `/login/callback` route.
+After that callback validates the IdP session, the IdP reads
+`identity_provider_login_return_to`, deletes the cookie, and redirects back to
+the requested `/app/...` page or the original OAuth authorize URL. OAuth authorize
+requests then continue through consent and eventually redirect to the
+`feed-platform-web` OAuth callback.
 
 ### 4. Consent page
 
 Better Auth redirects to the configured consent page:
 
 ```text
-/app/oauth/consent
+/login/oauth/consent
 ```
 
 The consent screen displays `client_id`, `scope`, and `redirect_uri`. The client
@@ -437,8 +442,10 @@ Before using this flow beyond local development:
 
 - IdP Better Auth config: `app/feature/auth/better-auth.ts`
 - IdP app routes: `app/app.tsx`
+- IdP return-to cookie: `app/feature/auth/cookie.ts`
+- IdP return-to utilities: `app/feature/auth/return-to.ts`
+- IdP preserve-return-to query parameter: `app/feature/auth/query-parameter.ts`
 - IdP login client entry: `app/ui/login.client.tsx`
-- IdP return-to utilities: `app/ui/return-to.ts`
 - IdP consent UI: `app/ui/oauth-consent.tsx`
 - IdP consent client entry: `app/ui/oauth-consent.client.tsx`
 - IdP OAuth schema: `db/schema.hcl`

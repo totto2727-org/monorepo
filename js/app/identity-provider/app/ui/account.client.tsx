@@ -28,7 +28,7 @@ export const LogoutButton = clientEntry(
                   return yield* Effect.fail(new Error('ログアウトに失敗しました'))
                 }
 
-                window.location.href = '/app/login'
+                window.location.href = '/login'
                 return yield* Effect.void
               }).pipe(
                 Effect.catch(() => {

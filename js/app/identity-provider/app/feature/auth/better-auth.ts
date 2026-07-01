@@ -67,13 +67,13 @@ const makeInstance = (db: BetterAuthDB.Instance, env: Env.Type, emailSender: Ema
           ),
       }),
       oauthProvider({
-        consentPage: '/app/oauth/consent',
+        consentPage: '/login/oauth/consent',
         customAccessTokenClaims: ({ user }) => ({
           ...(Predicate.isString(user?.email) ? { email: user.email } : {}),
           token_use: 'access',
         }),
         idTokenExpiresIn: 3600,
-        loginPage: '/app/login',
+        loginPage: '/login',
         refreshTokenExpiresIn: 2_592_000,
         schema: {
           oauthAccessToken: {

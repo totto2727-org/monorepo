@@ -1,7 +1,7 @@
 import { css } from 'remix/ui'
 import type { Handle } from 'remix/ui'
 
-import { withReturnTo } from '#@/ui/return-to.ts'
+import { preserveReturnToLoginPath } from '#@/feature/auth/query-parameter.ts'
 
 const containerStyle = css({
   margin: '40px auto',
@@ -11,7 +11,6 @@ const containerStyle = css({
 
 interface CheckEmailPageProps {
   email: string
-  returnTo?: string
 }
 
 export const CheckEmailPage = (handle: Handle<CheckEmailPageProps>) => () => (
@@ -22,7 +21,7 @@ export const CheckEmailPage = (handle: Handle<CheckEmailPageProps>) => () => (
     </p>
     <p>メールをチェックしてリンクをクリックしてください。</p>
     <p>
-      <a href={withReturnTo('/app/login', handle.props.returnTo)}>ログイン画面に戻る</a>
+      <a href={preserveReturnToLoginPath}>ログイン画面に戻る</a>
     </p>
   </main>
 )

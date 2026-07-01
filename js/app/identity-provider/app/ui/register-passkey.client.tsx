@@ -1,10 +1,9 @@
 import { Effect, Predicate, Schema, String } from 'effect'
 import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from 'effect/unstable/http'
 import { clientEntry, on } from 'remix/ui'
-import type { Handle, SerializableProps } from 'remix/ui'
+import type { Handle } from 'remix/ui'
 import { Button } from 'remix/ui/button'
 
-import { withReturnTo } from '#@/ui/return-to.ts'
 import { b64urlToBuf, bufToB64url } from '#@/ui/webauthn.ts'
 
 const AuthenticatorSelection = Schema.Struct({
@@ -32,13 +31,9 @@ const RegisterOptionsResponse = Schema.Struct({
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- WebAuthn options JSON is an external browser/API boundary.
 const decodeRegisterOptionsResponse = Schema.decodeUnknownEffect(RegisterOptionsResponse)
 
-interface PasskeyRegisterButtonProps extends SerializableProps {
-  returnTo?: string
-}
-
 export const PasskeyRegisterButton = clientEntry(
   '/assets/app/ui/register-passkey.client.tsx#PasskeyRegisterButton',
-  (handle: Handle<PasskeyRegisterButtonProps>) => {
+  (handle: Handle) => {
     const state = { error: '', submitting: false }
 
     return () => (
@@ -119,7 +114,7 @@ export const PasskeyRegisterButton = clientEntry(
                   return yield* Effect.fail(new Error(String.isNonEmpty(text) ? text : 'Passkey の検証に失敗しました'))
                 }
 
-                window.location.href = withReturnTo('/app/auth/passkey/callback', handle.props.returnTo)
+                window.location.href = '/login/callback'
                 return yield* Effect.void
               }).pipe(
                 Effect.catch(() => {
