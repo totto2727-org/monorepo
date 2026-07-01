@@ -31,13 +31,17 @@ export default defineConfig({
     useTabs: false,
   },
   lint: {
-    extends: [core, react, remix, oxlintPluginPreset],
-    ignorePatterns: [...ignorePatterns, '**/skills/**', '**/.script/**'],
+    env: core.env,
+    ignorePatterns: [...(core.ignorePatterns ?? []), ...ignorePatterns, '**/skills/**', '**/.script/**'],
+    jsPlugins: oxlintPluginPreset.jsPlugins,
     options: {
       typeAware: true,
       typeCheck: true,
     },
     overrides: [
+      ...(core.overrides ?? []),
+      ...(remix.overrides ?? []),
+      ...oxlintPluginPreset.overrides,
       {
         files: ['**/*.test.{ts,tsx}', '**/*_test-helper.{ts,tsx}', '**/__tests__/**/*.{ts,tsx}'],
         rules: {
@@ -45,7 +49,12 @@ export default defineConfig({
         },
       },
     ],
+    plugins: [...(core.plugins ?? []), ...(react.plugins ?? [])],
     rules: {
+      ...core.rules,
+      ...react.rules,
+      ...remix.rules,
+      ...oxlintPluginPreset.rules,
       'func-names': ['error', 'always', { generators: 'never' }],
       'import/extensions': ['error', 'always', { checkTypeImports: true, ignorePackages: true }],
       'jsx-no-new-function-as-prop': 'allow',
