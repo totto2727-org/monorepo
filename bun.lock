@@ -45,6 +45,7 @@
       "name": "feed-platform-backend",
       "devDependencies": {
         "@totto2727/fp": "workspace:*",
+        "auth-helper": "workspace:*",
         "better-auth": "catalog:auth",
         "effect": "catalog:effect",
         "effect-hono": "workspace:*",
@@ -177,6 +178,12 @@
       "version": "0.0.0",
       "devDependencies": {
         "@totto2727/fp": "workspace:*",
+        "effect": "catalog:effect",
+        "hono": "catalog:hono",
+      },
+      "peerDependencies": {
+        "effect": "catalog:effect",
+        "hono": "catalog:hono",
       },
     },
     "js/package/effect-hono": {
