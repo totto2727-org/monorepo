@@ -6,7 +6,6 @@
   # Browser
   "google-chrome"
   # Coding
-  "claude-code@latest"
   "warp"
   # Utility
   "thaw"
