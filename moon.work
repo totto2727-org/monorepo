@@ -1,4 +1,4 @@
 members = [
   "./mbt/package/geo-mbt",
-  "./mbt/package/bw-mbt",
+  "./mbt/app/bw",
 ]

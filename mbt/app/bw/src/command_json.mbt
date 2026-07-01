@@ -17,6 +17,9 @@ let json_wait_until_option = "wait-until"
 let json_prompt_option = "prompt"
 
 ///|
+let json_schema_option = "schema"
+
+///|
 struct JsonExtractOptionsInput {
   account_id : String
   api_token : String
@@ -24,6 +27,7 @@ struct JsonExtractOptionsInput {
   html : String?
   wait_until : String?
   prompt : String
+  response_format : Json?
 }
 
 ///|
@@ -37,6 +41,7 @@ struct JsonExtractBody {
   html : String?
   gotoOptions : JsonGotoOptions?
   prompt : String
+  response_format : Json?
 }
 
 ///|
@@ -72,6 +77,7 @@ impl ToJson for JsonExtractBody with fn to_json(self) -> Json {
     },
   )
   object.set("prompt", self.prompt.to_json())
+  put_json_if_some(object, "response_format", self.response_format)
   Json::object(object)
 }
 
@@ -88,6 +94,7 @@ fn json_extract_command_def() -> @admiral.CommandDef {
       description="Extraction prompt",
       required=true,
     ),
+    @admiral.string(json_schema_option, description="Path to JSON Schema file"),
   ])
 }
 
@@ -134,6 +141,17 @@ async fn json_extract_options(
       Some([value, ..]) => value
       _ => fail("missing required option: prompt")
     },
+    response_format: match matches.values.get(json_schema_option) {
+      Some([path, ..]) => {
+        let schema = @json.parse(@fs.read_file(path).text()) catch {
+          error => fail("Invalid JSON schema file: \{error}")
+        }
+        Some(
+          Json::object({ "schema": schema, "type": "json_schema".to_json() }),
+        )
+      }
+      _ => None
+    },
   }
 }
 
@@ -152,6 +170,7 @@ fn JsonExtractBody::from_options(
       None => None
     },
     prompt: options.prompt,
+    response_format: options.response_format,
   }
 }
 

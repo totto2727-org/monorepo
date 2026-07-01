@@ -520,4 +520,4 @@ See [MoonBit Testing Standards](../../test/references/mbt-bestpractice.md) for d
 
 ## 7. CLI Applications
 
-See [MoonBit CLI Application Implementation](./mbt-cli-application.md) for the required command structure and JSON/request-body rules. Use `bw-mbt` as the reference implementation shape, while treating that guide as normative when it is stricter than existing code.
+See [MoonBit CLI Application Implementation](./mbt-cli-application.md) for the required command structure and JSON/request-body rules. Use `bw` as the reference implementation shape, while treating that guide as normative when it is stricter than existing code.

@@ -1,12 +1,12 @@
 # MoonBit CLI Application Implementation
 
-Use this guide when implementing MoonBit CLI applications. The `bw-mbt`
+Use this guide when implementing MoonBit CLI applications. The `bw`
 package is the reference implementation for the overall shape: one command file
 per CLI command, `admiral` for argument definitions, `moonbitlang/async` for
 native async execution, explicit option/body types, and request code that only
 accepts typed data.
 
-This document is normative for new CLI work. If an older `bw-mbt` detail differs
+This document is normative for new CLI work. If an older `bw` detail differs
 from this guide, prefer this guide and update the implementation.
 
 ## Required command pipeline

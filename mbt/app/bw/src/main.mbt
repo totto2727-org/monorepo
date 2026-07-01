@@ -4,6 +4,7 @@ fn command_defs() -> Array[@admiral.CommandDef] {
     content_command_def(),
     markdown_command_def(),
     screenshot_command_def(),
+    snapshot_command_def(),
     pdf_command_def(),
     scrape_command_def(),
     json_extract_command_def(),
@@ -27,6 +28,7 @@ async fn dispatch(matches : @argparse.Matches) -> Unit {
     Some(("content", command)) => run_content_command(command)
     Some(("markdown", command)) => run_markdown_command(command)
     Some(("screenshot", command)) => run_screenshot(command)
+    Some(("snapshot", command)) => run_snapshot(command)
     Some(("pdf", command)) => run_pdf(command)
     Some(("scrape", command)) => run_scrape(command)
     Some(("json", command)) => run_json_extract(command)

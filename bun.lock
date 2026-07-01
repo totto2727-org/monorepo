@@ -286,9 +286,12 @@
         "vite": "catalog:vite",
       },
     },
-    "mbt/package/bw-mbt": {
+    "mbt/app/bw": {
       "name": "@totto2727/bw",
       "version": "0.1.7",
+      "bin": {
+        "bw": "./dist/bw",
+      },
       "devDependencies": {
         "vite-plus": "catalog:",
       },
@@ -1036,7 +1039,7 @@
 
     "@testing-library/user-event": ["@testing-library/user-event@14.6.1", "https://npm.flatt.tech/@testing-library/user-event/-/user-event-14.6.1.tgz", { "peerDependencies": { "@testing-library/dom": ">=7.21.4" } }, "sha512-vq7fv0rnt+QTXgPxr5Hjc210p6YKq2kmdziLgnsZGgLJ9e6VAShx1pACLuRjd/AS/sr7phAR58OIIpf0LlmQNw=="],
 
-    "@totto2727/bw": ["@totto2727/bw@workspace:mbt/package/bw-mbt"],
+    "@totto2727/bw": ["@totto2727/bw@workspace:mbt/app/bw"],
 
     "@totto2727/c-plugin": ["@totto2727/c-plugin@workspace:js/app/c-plugin"],
 
