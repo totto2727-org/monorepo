@@ -1,18 +1,6 @@
 {
   "name": "@totto2727/bw",
-  "version": "0.1.7",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/totto2727-org/monorepo",
-    "directory": "mbt/app/bw"
-  },
-  "bin": {
-    "bw": "./dist/bw"
-  },
-  "files": [
-    "dist/"
-  ],
+  "private": true,
   "scripts": {
     "bin": "moon run ./src --target native"
   },

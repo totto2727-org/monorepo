@@ -288,10 +288,6 @@
     },
     "mbt/app/bw": {
       "name": "@totto2727/bw",
-      "version": "0.1.7",
-      "bin": {
-        "bw": "./dist/bw",
-      },
       "devDependencies": {
         "vite-plus": "catalog:",
       },
