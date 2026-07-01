@@ -1,7 +1,7 @@
 # このファイルは元のApache 2.0ライセンスのコードから変更されています
 # 変更日: 2026-06-28
 # 変更者: totto2727
-# 変更内容: monorepo umbrella 構成向けの deps/lockfile 設定と OpenCode 連携依存を追加
+# 変更内容: monorepo umbrella 構成向けの deps/lockfile 設定、OpenCode 連携依存追加、旧バックエンド関連処理削除
 
 defmodule SymphonyElixir.MixProject do
   use Mix.Project
@@ -27,8 +27,6 @@ defmodule SymphonyElixir.MixProject do
           SymphonyElixir.Orchestrator.State,
           SymphonyElixir.AgentRunner,
           SymphonyElixir.CLI,
-          SymphonyElixir.Codex.AppServer,
-          SymphonyElixir.Codex.DynamicTool,
           SymphonyElixir.Opencode.AppServer,
           SymphonyElixir.Opencode.AgentRunner,
           SymphonyElixir.HttpServer,

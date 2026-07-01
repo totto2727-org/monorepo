@@ -1,3 +1,8 @@
+# このファイルは元のApache 2.0ライセンスのコードから変更されています
+# 変更日: 2026-07-01
+# 変更者: totto2727
+# 変更内容: 旧バックエンド関連処理を削除し、OpenCode 前提の設定・状態名へ更新
+
 defmodule SymphonyElixir.ExtensionsTest do
   use SymphonyElixir.TestSupport
 
@@ -261,7 +266,8 @@ defmodule SymphonyElixir.ExtensionsTest do
     assert_receive {:graphql_called, state_lookup_query, %{issueId: "issue-1", stateName: "Done"}}
     assert state_lookup_query =~ "states"
 
-    assert_receive {:graphql_called, update_issue_query, %{issueId: "issue-1", stateId: "state-1"}}
+    assert_receive {:graphql_called, update_issue_query,
+                    %{issueId: "issue-1", stateId: "state-1"}}
 
     assert update_issue_query =~ "issueUpdate"
 
@@ -355,7 +361,8 @@ defmodule SymphonyElixir.ExtensionsTest do
                  "turn_count" => 7,
                  "last_event" => "notification",
                  "last_message" => "rendered",
-                 "started_at" => state_payload["running"] |> List.first() |> Map.fetch!("started_at"),
+                 "started_at" =>
+                   state_payload["running"] |> List.first() |> Map.fetch!("started_at"),
                  "last_event_at" => nil,
                  "tokens" => %{"input_tokens" => 4, "output_tokens" => 8, "total_tokens" => 12}
                }
@@ -378,17 +385,19 @@ defmodule SymphonyElixir.ExtensionsTest do
                  "issue_identifier" => "MT-BLOCKED",
                  "issue_url" => "https://example.org/issues/MT-BLOCKED",
                  "state" => "In Progress",
-                 "error" => "codex turn requires operator input",
+                 "error" => "opencode turn requires operator input",
                  "worker_host" => "dm-dev2",
                  "workspace_path" => "/workspaces/MT-BLOCKED",
                  "session_id" => "thread-blocked",
-                 "blocked_at" => state_payload["blocked"] |> List.first() |> Map.fetch!("blocked_at"),
+                 "blocked_at" =>
+                   state_payload["blocked"] |> List.first() |> Map.fetch!("blocked_at"),
                  "last_event" => "turn_input_required",
                  "last_message" => "turn blocked: waiting for user input",
-                 "last_event_at" => state_payload["blocked"] |> List.first() |> Map.fetch!("last_event_at")
+                 "last_event_at" =>
+                   state_payload["blocked"] |> List.first() |> Map.fetch!("last_event_at")
                }
              ],
-             "codex_totals" => %{
+             "opencode_totals" => %{
                "input_tokens" => 4,
                "output_tokens" => 8,
                "total_tokens" => 12,
@@ -423,7 +432,7 @@ defmodule SymphonyElixir.ExtensionsTest do
              },
              "retry" => nil,
              "blocked" => nil,
-             "logs" => %{"codex_session_logs" => []},
+             "logs" => %{"opencode_session_logs" => []},
              "recent_events" => [],
              "last_error" => nil,
              "tracked" => %{}
@@ -438,11 +447,11 @@ defmodule SymphonyElixir.ExtensionsTest do
 
     assert %{
              "status" => "blocked",
-             "last_error" => "codex turn requires operator input",
+             "last_error" => "opencode turn requires operator input",
              "blocked" => %{
                "session_id" => "thread-blocked",
                "state" => "In Progress",
-               "error" => "codex turn requires operator input"
+               "error" => "opencode turn requires operator input"
              }
            } = json_response(conn, 200)
 
@@ -593,7 +602,7 @@ defmodule SymphonyElixir.ExtensionsTest do
     assert html =~ "Live"
     assert html =~ "Offline"
     assert html =~ "Copy ID"
-    assert html =~ "Codex update"
+    assert html =~ "OpenCode update"
     refute html =~ "data-runtime-clock="
     refute html =~ "setInterval(refreshRuntimeClocks"
     refute html =~ "Refresh now"
@@ -610,12 +619,12 @@ defmodule SymphonyElixir.ExtensionsTest do
           state: "In Progress",
           session_id: "thread-http",
           turn_count: 8,
-          last_codex_event: :notification,
-          last_codex_message: %{
+          last_opencode_event: :notification,
+          last_opencode_message: %{
             event: :notification,
             message: %{
               payload: %{
-                "method" => "codex/event/agent_message_content_delta",
+                "method" => "opencode/event/agent_message_content_delta",
                 "params" => %{
                   "msg" => %{
                     "content" => "structured update"
@@ -624,10 +633,10 @@ defmodule SymphonyElixir.ExtensionsTest do
               }
             }
           },
-          last_codex_timestamp: DateTime.utc_now(),
-          codex_input_tokens: 10,
-          codex_output_tokens: 12,
-          codex_total_tokens: 22,
+          last_opencode_timestamp: DateTime.utc_now(),
+          opencode_input_tokens: 10,
+          opencode_output_tokens: 12,
+          opencode_total_tokens: 22,
           started_at: DateTime.utc_now()
         }
       ])
@@ -681,7 +690,9 @@ defmodule SymphonyElixir.ExtensionsTest do
       snapshot_timeout_ms: 50
     ]
 
-    start_supervised!({StaticOrchestrator, name: orchestrator_name, snapshot: snapshot, refresh: refresh})
+    start_supervised!(
+      {StaticOrchestrator, name: orchestrator_name, snapshot: snapshot, refresh: refresh}
+    )
 
     start_supervised!({HttpServer, server_opts})
 
@@ -742,13 +753,13 @@ defmodule SymphonyElixir.ExtensionsTest do
           state: "In Progress",
           session_id: "thread-http",
           turn_count: 7,
-          codex_app_server_pid: nil,
-          last_codex_message: "rendered",
-          last_codex_timestamp: nil,
-          last_codex_event: :notification,
-          codex_input_tokens: 4,
-          codex_output_tokens: 8,
-          codex_total_tokens: 12,
+          opencode_server_pid: nil,
+          last_opencode_message: "rendered",
+          last_opencode_timestamp: nil,
+          last_opencode_event: :notification,
+          opencode_input_tokens: 4,
+          opencode_output_tokens: 8,
+          opencode_total_tokens: 12,
           started_at: DateTime.utc_now()
         }
       ],
@@ -768,21 +779,26 @@ defmodule SymphonyElixir.ExtensionsTest do
           identifier: "MT-BLOCKED",
           issue_url: "https://example.org/issues/MT-BLOCKED",
           state: "In Progress",
-          error: "codex turn requires operator input",
+          error: "opencode turn requires operator input",
           worker_host: "dm-dev2",
           workspace_path: "/workspaces/MT-BLOCKED",
           session_id: "thread-blocked",
           blocked_at: DateTime.utc_now(),
-          last_codex_event: :turn_input_required,
-          last_codex_message: %{
+          last_opencode_event: :turn_input_required,
+          last_opencode_message: %{
             event: :turn_input_required,
             message: %{"method" => "turn/input_required"},
             timestamp: DateTime.utc_now()
           },
-          last_codex_timestamp: DateTime.utc_now()
+          last_opencode_timestamp: DateTime.utc_now()
         }
       ],
-      codex_totals: %{input_tokens: 4, output_tokens: 8, total_tokens: 12, seconds_running: 42.5},
+      opencode_totals: %{
+        input_tokens: 4,
+        output_tokens: 8,
+        total_tokens: 12,
+        seconds_running: 42.5
+      },
       rate_limits: %{"primary" => %{"remaining" => 11}}
     }
   end

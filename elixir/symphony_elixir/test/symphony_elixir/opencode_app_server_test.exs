@@ -60,6 +60,48 @@ defmodule SymphonyElixir.OpencodeAppServerTest do
     end
   end
 
+  test "app server passes workflow opencode model to local server config" do
+    test_root =
+      Path.join(
+        System.tmp_dir!(),
+        "symphony-elixir-opencode-app-server-model-#{System.unique_integer([:positive])}"
+      )
+
+    try do
+      workspace_root = Path.join(test_root, "workspaces")
+      workspace = Path.join(workspace_root, "MT-OC-MODEL")
+      File.mkdir_p!(workspace)
+
+      write_workflow_file!(Workflow.workflow_file_path(),
+        workspace_root: workspace_root,
+        opencode_model: "openai/gpt-5.5"
+      )
+
+      issue = %Issue{
+        id: "issue-opencode-model",
+        identifier: "MT-OC-MODEL",
+        title: "Validate OpenCode model config",
+        description: "Exercise workflow model forwarding",
+        state: "In Progress"
+      }
+
+      assert {:ok, %{session_id: "ses_model"}} =
+               AppServer.run(workspace, "Use configured model", issue,
+                 client_opts: [test_pid: self(), session_id: "ses_model"],
+                 event_stream: EventStream,
+                 server_module: Server,
+                 server_opts: [test_pid: self(), url: "http://127.0.0.1:4998"],
+                 session_api: SessionApi,
+                 turn_timeout_ms: 1_000
+               )
+
+      assert_received {:opencode_server_start, server_opts}
+      assert Keyword.get(server_opts, :config) == %{model: "openai/gpt-5.5"}
+    after
+      File.rm_rf(test_root)
+    end
+  end
+
   test "app server ignores SSE lifecycle events for other sessions" do
     test_root =
       Path.join(
