@@ -113,6 +113,7 @@
                         initContent = ''
                                       eval "$(/opt/homebrew/bin/brew shellenv)"
 
+                                      . ~/.orbstack/shell/init.zsh
                                       # Vite+
                                       [ -f "$HOME/.vite-plus/env" ] && . "$HOME/.vite-plus/env"
 
