@@ -47,9 +47,7 @@ sequenceDiagram
   User->>IdP: Complete Magic Link or Passkey login
   IdP-->>User: Restore identity_provider_login_return_to and redirect to original authorize URL
   User->>IdP: GET /api/v1/auth/oauth2/authorize?...original query...
-  BetterAuth-->>User: Redirect to /login/oauth/consent
-  User->>IdP: POST /api/v1/auth/oauth2/consent with accept and oauth_query
-  IdP->>BetterAuth: Verify signed oauth_query and record consent
+  BetterAuth-->>User: Skip consent for trusted local client
   BetterAuth-->>User: Redirect to feed Better Auth callback with code and state
   User->>Web: GET /api/v1/auth/* callback route
   Web->>BetterAuth: Complete genericOAuth callback and create stateless session cookie
@@ -127,37 +125,15 @@ Both authentication methods finish at the shared `/login/callback` route.
 After that callback validates the IdP session, the IdP reads
 `identity_provider_login_return_to`, deletes the cookie, and redirects back to
 the requested `/app/...` page or the original OAuth authorize URL. OAuth authorize
-requests then continue through consent and eventually redirect to the
+requests then skip consent for the trusted local client and redirect to the
 `feed-platform-web` OAuth callback.
 
-### 4. Consent page
+### 4. Consent bypass
 
-Better Auth redirects to the configured consent page:
-
-```text
-/login/oauth/consent
-```
-
-The consent screen displays `client_id`, `scope`, and `redirect_uri`. The client
-entry `oauth-consent.client.tsx` submits the decision to:
-
-```text
-POST /api/v1/auth/oauth2/consent
-```
-
-with JSON:
-
-```json
-{
-  "accept": true,
-  "oauth_query": "...signed OAuth query from window.location.search..."
-}
-```
-
-Better Auth requires `oauth_query` so it can verify the signed authorization
-request and reconstruct provider state. When consent is accepted, Better Auth
-returns a JSON object containing `redirect: true` and the final callback URL.
-The browser is then sent to `feed-platform-web` with an authorization code.
+The local `feed-platform-web` OAuth client is treated as a trusted first-party
+client. Its seed row sets `oauth_application.skip_consent` to `1`, so Better Auth
+bypasses consent and redirects directly to `feed-platform-web` with an
+authorization code after the authorize request is validated.
 
 ### 5. Better Auth callback and stateless session
 
@@ -222,7 +198,7 @@ Core 1.0, and the OWASP OAuth2 Cheat Sheet.
 | ID token signing and JWKS | Implemented                | IdP uses Better Auth `jwt` with ES256 and exposes `/api/v1/auth/jwks`.                        |
 | Stateless session auth    | Implemented                | Feed web and backend both authorize with Better Auth `auth.api.getSession({ headers })`.      |
 | Refresh token table       | Implemented                | `oauth_refresh_token` table exists and maps `scopes` to `scope`.                              |
-| Consent endpoint          | Implemented                | Consent screen calls `/oauth2/consent` with Better Auth `oauth_query`.                        |
+| Consent handling          | Skipped for local feed     | Seeded first-party client sets `skip_consent`, so Better Auth bypasses consent.               |
 
 ### Non-compliant, incomplete, or local-only behavior
 
@@ -446,8 +422,6 @@ Before using this flow beyond local development:
 - IdP return-to utilities: `app/feature/auth/return-to.ts`
 - IdP preserve-return-to query parameter: `app/feature/auth/query-parameter.ts`
 - IdP login client entry: `app/ui/login.client.tsx`
-- IdP consent UI: `app/ui/oauth-consent.tsx`
-- IdP consent client entry: `app/ui/oauth-consent.client.tsx`
 - IdP OAuth schema: `db/schema.hcl`
 - Feed Better Auth config: `../../feed-platform-web/app/feature/auth/better-auth.ts`
 - Feed auth middleware: `../../feed-platform-web/app/feature/auth/middleware.ts`

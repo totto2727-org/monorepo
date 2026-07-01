@@ -1,4 +1,4 @@
-import { DateTime, Predicate } from 'effect'
+import { DateTime } from 'effect'
 import { remixRenderer } from 'hono-remix-middleware'
 import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
@@ -17,7 +17,6 @@ import { CheckEmailPage } from '#@/ui/check-email.tsx'
 import { Document } from '#@/ui/document.tsx'
 import { LoginPasskeyPage } from '#@/ui/login-passkey.tsx'
 import { LoginPage } from '#@/ui/login.tsx'
-import { OAuthConsentErrorPage, OAuthConsentPage } from '#@/ui/oauth-consent.tsx'
 import { RegisterPasskeyPage } from '#@/ui/register-passkey.tsx'
 
 const api = factory.createApp().all('/auth/*', (ctx) => ctx.var.auth.handler(ctx.req.raw))
@@ -58,24 +57,6 @@ const loginRoutes = factory
     const returnTo = getReturnToPath(getLoginReturnToCookie())
     deleteLoginReturnToCookie()
     return ctx.redirect(returnTo ?? '/app/account')
-  })
-  .get('/oauth/consent', requireLoginSessionMiddleware, (ctx) => {
-    const clientId = ctx.req.query('client_id')
-    const redirectUri = ctx.req.query('redirect_uri')
-    const scope = ctx.req.query('scope') ?? 'openid'
-    const state = ctx.req.query('state') ?? ''
-    if (Predicate.isNullish(clientId) || Predicate.isNullish(redirectUri)) {
-      return ctx.render(
-        <Document title='OAuth 認可エラー'>
-          <OAuthConsentErrorPage message='client_id と redirect_uri は必須です。' />
-        </Document>,
-      )
-    }
-    return ctx.render(
-      <Document title='OAuth 認可'>
-        <OAuthConsentPage clientId={clientId} scope={scope} redirectUri={redirectUri} state={state} />
-      </Document>,
-    )
   })
 
 const appRoutes = factory
