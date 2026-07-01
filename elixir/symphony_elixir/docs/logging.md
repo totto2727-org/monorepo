@@ -46,6 +46,6 @@ When logging OpenCode execution lifecycle events, include:
 - Is the failure reason present and concise?
 - Is the message format consistent with existing lifecycle logs?
 
-Some status payload keys and pubsub tuples still use `codex` in their names for compatibility with
+Some status payload keys and pubsub tuples still use `opencode` in their names for compatibility with
 existing dashboard consumers. Treat those names as compatibility vocabulary, not as evidence that
-normal dispatch uses the legacy Codex backend.
+normal dispatch uses the legacy OpenCode backend.

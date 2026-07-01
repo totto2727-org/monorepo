@@ -1,3 +1,8 @@
+# このファイルは元のApache 2.0ライセンスのコードから変更されています
+# 変更日: 2026-07-01
+# 変更者: totto2727
+# 変更内容: 旧バックエンド固有のローカル artifact ignore を削除
+
 # The directory Mix will write compiled artifacts to.
 /_build/
 
@@ -44,7 +49,6 @@ erl_crash.dump
 .secrets
 .credentials
 status.txt
-.codex/original-user-prompt.txt
 
 # Also ignore archive artifacts (built via "mix archive.build").
 *.ez

@@ -128,9 +128,9 @@ Notes:
 - `tracker.required_labels` is optional. When set, an issue must have every
   configured label to dispatch or continue running. Label matching ignores
   case and surrounding whitespace. A blank configured label matches no issue.
-- The historical `codex.*` config section is still parsed for compatibility. The active OpenCode
-  backend currently uses `codex.turn_timeout_ms` as the turn timeout; the old Codex command,
-  approval, and sandbox fields are not used by normal dispatch.
+- `opencode.model` can be set to a provider/model identifier such as `openai/gpt-5.5`; Symphony
+  forwards it to the locally started `opencode serve` process. `opencode.turn_timeout_ms` controls
+  the per-turn wait timeout.
 - `agent.max_turns` caps how many back-to-back OpenCode turns Symphony will run in a single agent
   invocation when a turn completes normally but the issue is still in an active state. Default: `20`.
 - If the Markdown body is blank, Symphony uses a default prompt template that includes the issue
@@ -174,7 +174,7 @@ The observability UI now runs on a minimal Phoenix stack:
 - `lib/`: application code and Mix tasks
 - `test/`: ExUnit coverage for runtime behavior
 - `WORKFLOW.md`: in-repo workflow contract used by local runs
-- `../.codex/`: repository-local agent skills and setup helpers
+- `.agents/`: package-local agent skills and setup helpers
 
 ## Testing
 
