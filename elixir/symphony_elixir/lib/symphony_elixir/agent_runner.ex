@@ -194,13 +194,13 @@ defmodule SymphonyElixir.AgentRunner do
 
   defp build_turn_prompt(_issue, _opts, turn_number, max_turns) do
     """
-    Continuation guidance:
+    継続ガイダンス:
 
-    - The previous OpenCode turn completed normally, but the Linear issue is still in an active state.
-    - This is continuation turn ##{turn_number} of #{max_turns} for the current agent run.
-    - Resume from the current workspace and workpad state instead of restarting from scratch.
-    - The original task instructions and prior turn context are already present in this thread, so do not restate them before acting.
-    - Focus on the remaining ticket work and do not end the turn while the issue stays active unless you are truly blocked.
+    - 前回の OpenCode ターンは正常に完了しましたが、Linear チケットはまだアクティブな状態です。
+    - これは現在のエージェント実行の継続ターン ##{turn_number} / #{max_turns} です。
+    - 現在のワークスペースとワークパッドの状態から再開し、最初からやり直さないでください。
+    - 元のタスク指示と前回のターンのコンテキストはこのスレッドに既に存在するため、行動する前に再説明しないでください。
+    - 残りのチケット作業に集中し、本当にブロックされていない限り、チケットがアクティブな間はターンを終了しないでください。
     """
   end
 

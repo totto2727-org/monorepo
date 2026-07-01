@@ -12,16 +12,16 @@ defmodule SymphonyElixir.Config do
   alias SymphonyElixir.Workflow
 
   @default_prompt_template """
-  You are working on a Linear issue.
+  Linear チケットに取り組んでいます。
 
-  Identifier: {{ issue.identifier }}
-  Title: {{ issue.title }}
+  識別子: {{ issue.identifier }}
+  タイトル: {{ issue.title }}
 
-  Body:
+  本文:
   {% if issue.description %}
   {{ issue.description }}
   {% else %}
-  No description provided.
+  説明はありません。
   {% endif %}
   """
 
