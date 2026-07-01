@@ -1,0 +1,10 @@
+{
+  "name": "@totto2727/bw",
+  "private": true,
+  "scripts": {
+    "bin": "moon run ./src --target native"
+  },
+  "devDependencies": {
+    "vite-plus": "catalog:"
+  }
+}
