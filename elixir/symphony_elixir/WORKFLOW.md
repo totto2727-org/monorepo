@@ -32,39 +32,40 @@ agent:
   max_turns: 20
 opencode:
   model: openai/gpt-5.5
+display:
+  language: ja
 ---
 
-Linear チケット `{{ issue.identifier }}` に取り組んでいます
+You are working on a Linear ticket `{{ issue.identifier }}`
 
 {% if attempt %}
-継続コンテキスト:
+Continuation context:
 
-- チケットがまだアクティブな状態のため、これは再試行 attempt #{{ attempt }} です。
-- 現在のワークスペース状態から再開し、最初からやり直さないでください。
-- 新しいコード変更に必要な場合を除き、既に完了した調査や検証を繰り返さないでください。
-- 必要な権限/シークレットが不足していてブロックされていない限り、チケットがアクティブな間はターンを終了しないでください。
+- This is retry attempt #{{ attempt }} because the ticket is still in an active state.
+- Resume from the current workspace state instead of restarting from scratch.
+- Do not repeat already-completed investigation or validation unless needed for new code changes.
+- Do not end the turn while the issue remains in an active state unless you are blocked by missing required permissions/secrets.
   {% endif %}
 
-チケット情報:
-識別子: {{ issue.identifier }}
-タイトル: {{ issue.title }}
-現在の状態: {{ issue.state }}
-ラベル: {{ issue.labels }}
+Issue context:
+Identifier: {{ issue.identifier }}
+Title: {{ issue.title }}
+Current status: {{ issue.state }}
+Labels: {{ issue.labels }}
 URL: {{ issue.url }}
 
-説明:
+Description:
 {% if issue.description %}
 {{ issue.description }}
 {% else %}
-説明はありません。
+No description provided.
 {% endif %}
 
 Instructions:
 
 1. This is an unattended orchestration session. Never ask a human to perform follow-up actions.
 2. Only stop early for a true blocker (missing required auth/permissions/secrets). If blocked, record it in the workpad and move the issue according to workflow.
-3. Final message must be written in Japanese and report completed actions and blockers only. Do not include "next steps for user".
-4. Linear-facing comments must be written in Japanese. If this workflow shows an English workpad heading or placeholder, translate it to Japanese before posting or updating Linear.
+3. Final message must report completed actions and blockers only. Do not include "next steps for user".
 
 Work only in the provided repository copy. Do not touch any other path.
 
@@ -76,7 +77,6 @@ The agent should be able to talk to Linear, either via a configured Linear MCP s
 
 - Start by determining the ticket's current status, then follow the matching flow for that status.
 - Start every task by opening the tracking workpad comment and bringing it up to date before doing new implementation work.
-- Before posting or updating the workpad, translate the workpad section headings, checklist item labels, placeholders, notes, and final Linear-facing text to Japanese.
 - Spend extra effort up front on planning and verification design before implementation.
 - Reproduce first: always confirm the current behavior/issue signal before changing code so the fix target is explicit.
 - Keep ticket metadata current (state, checklist, acceptance criteria, links).
@@ -294,33 +294,33 @@ Use this only when completion is blocked by missing required tools or missing au
 Use this exact structure for the persistent workpad comment and keep it updated in place throughout execution:
 
 ````md
-## OpenCode ワークパッド
+## OpenCode Workpad
 
 ```text
 <hostname>:<abs-path>@<short-sha>
 ```
 
-### 計画
+### Plan
 
-- [ ] 1\. 親タスク
-  - [ ] 1.1 子タスク
-  - [ ] 1.2 子タスク
-- [ ] 2\. 親タスク
+- [ ] 1\. Parent task
+  - [ ] 1.1 Child task
+  - [ ] 1.2 Child task
+- [ ] 2\. Parent task
 
-### 受け入れ基準
+### Acceptance Criteria
 
-- [ ] 基準 1
-- [ ] 基準 2
+- [ ] Criterion 1
+- [ ] Criterion 2
 
-### 検証
+### Validation
 
-- [ ] 対象テスト: `<command>`
+- [ ] targeted tests: `<command>`
 
-### メモ
+### Notes
 
-- <短い進捗メモ（タイムスタンプ付き）>
+- <short progress note with timestamp>
 
-### 混乱・疑問
+### Confusions
 
-- <実行中に混乱や疑問があった場合のみ記載>
+- <only include when something was confusing during execution>
 ````

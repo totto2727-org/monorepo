@@ -931,7 +931,8 @@ defmodule SymphonyElixir.CoreTest do
   end
 
   test "prompt builder renders Japanese workflow and issue text as valid UTF-8" do
-    workflow_prompt = "チケット {{ issue.identifier }}: {{ issue.title }}\n本文: {{ issue.description }}"
+    workflow_prompt =
+      "チケット {{ issue.identifier }}: {{ issue.title }}\n本文: {{ issue.description }}"
 
     write_workflow_file!(Workflow.workflow_file_path(), prompt: workflow_prompt)
 
@@ -1050,10 +1051,10 @@ defmodule SymphonyElixir.CoreTest do
 
     prompt = PromptBuilder.build_prompt(issue)
 
-    assert prompt =~ "Linear チケットに取り組んでいます。"
-    assert prompt =~ "識別子: MT-777"
-    assert prompt =~ "タイトル: Make fallback prompt useful"
-    assert prompt =~ "本文:"
+    assert prompt =~ "You are working on a Linear issue."
+    assert prompt =~ "Identifier: MT-777"
+    assert prompt =~ "Title: Make fallback prompt useful"
+    assert prompt =~ "Body:"
     assert prompt =~ "Include enough issue context to start working."
     assert Config.workflow_prompt() =~ "{{ issue.identifier }}"
     assert Config.workflow_prompt() =~ "{{ issue.title }}"
@@ -1074,9 +1075,9 @@ defmodule SymphonyElixir.CoreTest do
 
     prompt = PromptBuilder.build_prompt(issue)
 
-    assert prompt =~ "識別子: MT-778"
-    assert prompt =~ "タイトル: Handle empty body"
-    assert prompt =~ "説明はありません。"
+    assert prompt =~ "Identifier: MT-778"
+    assert prompt =~ "Title: Handle empty body"
+    assert prompt =~ "No description provided."
   end
 
   test "prompt builder reports workflow load failures separately from template parse errors" do
@@ -1129,19 +1130,19 @@ defmodule SymphonyElixir.CoreTest do
 
     prompt = PromptBuilder.build_prompt(issue, attempt: 2)
 
-    assert prompt =~ "Linear チケット `MT-616` に取り組んでいます"
-    assert prompt =~ "チケット情報:"
-    assert prompt =~ "識別子: MT-616"
-    assert prompt =~ "タイトル: Use rich templates for WORKFLOW.md"
-    assert prompt =~ "現在の状態: In Progress"
+    assert prompt =~ "You are working on a Linear ticket `MT-616`"
+    assert prompt =~ "Issue context:"
+    assert prompt =~ "Identifier: MT-616"
+    assert prompt =~ "Title: Use rich templates for WORKFLOW.md"
+    assert prompt =~ "Current status: In Progress"
     assert prompt =~ "https://example.org/issues/MT-616/use-rich-templates-for-workflowmd"
     assert prompt =~ "This is an unattended orchestration session."
     assert prompt =~ "Only stop early for a true blocker"
     assert prompt =~ "Do not include \"next steps for user\""
     assert prompt =~ "open and follow `.agents/skills/land/SKILL.md`"
     assert prompt =~ "Do not call `gh pr merge` directly"
-    assert prompt =~ "継続コンテキスト:"
-    assert prompt =~ "再試行 attempt #2"
+    assert prompt =~ "Continuation context:"
+    assert prompt =~ "retry attempt #2"
   end
 
   test "prompt builder adds continuation guidance for retries" do
@@ -1431,8 +1432,8 @@ defmodule SymphonyElixir.CoreTest do
 
       assert first_prompt =~ "You are an agent for this repository."
       refute second_prompt =~ "You are an agent for this repository."
-      assert second_prompt =~ "継続ガイダンス:"
-      assert second_prompt =~ "継続ターン #2 / 3"
+      assert second_prompt =~ "Continuation guidance:"
+      assert second_prompt =~ "continuation turn #2 of 3"
     after
       File.rm_rf(test_root)
     end

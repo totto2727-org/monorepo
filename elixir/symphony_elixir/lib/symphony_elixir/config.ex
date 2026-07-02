@@ -12,16 +12,16 @@ defmodule SymphonyElixir.Config do
   alias SymphonyElixir.Workflow
 
   @default_prompt_template """
-  Linear チケットに取り組んでいます。
+  You are working on a Linear issue.
 
-  識別子: {{ issue.identifier }}
-  タイトル: {{ issue.title }}
+  Identifier: {{ issue.identifier }}
+  Title: {{ issue.title }}
 
-  本文:
+  Body:
   {% if issue.description %}
   {{ issue.description }}
   {% else %}
-  説明はありません。
+  No description provided.
   {% endif %}
   """
 
@@ -76,6 +76,14 @@ defmodule SymphonyElixir.Config do
     case Application.get_env(:symphony_elixir, :server_port_override) do
       port when is_integer(port) and port >= 0 -> port
       _ -> settings!().server.port
+    end
+  end
+
+  @spec linear_output_language() :: String.t() | nil
+  def linear_output_language do
+    case settings!().display.language do
+      language when is_binary(language) and language != "" -> language
+      _ -> nil
     end
   end
 
