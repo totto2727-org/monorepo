@@ -7,6 +7,7 @@ import {
   "moonbitlang/async/fs",
   "moonbitlang/async/io",
   "moonbitlang/async/process",
+  "totto2727/c-plugin-support" @support,
 }
 
 supported_targets = "native"

@@ -1,5 +1,5 @@
 {
-  "name": "@totto2727/c-plugin-mbt",
+  "name": "@totto2727/c-plugin",
   "private": true,
   "scripts": {
     "bin": "moon run ./src --target native"

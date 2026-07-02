@@ -25,22 +25,6 @@
         "vite-plus": "catalog:",
       },
     },
-    "js/app/c-plugin": {
-      "name": "@totto2727/c-plugin",
-      "version": "0.6.0",
-      "bin": {
-        "c-plugin": "./dist/bin.mjs",
-      },
-      "dependencies": {
-        "@effect/platform-node": "catalog:effect",
-        "@package/target-file-discovery": "workspace:*",
-        "effect": "catalog:effect",
-      },
-      "devDependencies": {
-        "@totto2727/fp": "workspace:*",
-        "vite-plus": "catalog:",
-      },
-    },
     "js/app/feed-platform-backend": {
       "name": "feed-platform-backend",
       "devDependencies": {
@@ -155,21 +139,6 @@
         "graphql": "catalog:graphql",
         "graphql-scalars": "catalog:graphql",
         "hono": "catalog:hono",
-      },
-    },
-    "js/app/wt": {
-      "name": "@totto2727/wt",
-      "version": "0.1.4",
-      "bin": {
-        "wt": "./dist/bin.mjs",
-      },
-      "dependencies": {
-        "@effect/platform-node": "catalog:effect",
-        "effect": "catalog:effect",
-      },
-      "devDependencies": {
-        "@totto2727/fp": "workspace:*",
-        "vite-plus": "catalog:",
       },
     },
     "js/package/auth-helper": {
@@ -287,6 +256,18 @@
     },
     "mbt/app/bw": {
       "name": "@totto2727/bw",
+      "devDependencies": {
+        "vite-plus": "catalog:",
+      },
+    },
+    "mbt/app/c-plugin": {
+      "name": "@totto2727/c-plugin",
+      "devDependencies": {
+        "vite-plus": "catalog:",
+      },
+    },
+    "mbt/app/wt": {
+      "name": "@totto2727/wt",
       "devDependencies": {
         "vite-plus": "catalog:",
       },
@@ -1036,7 +1017,7 @@
 
     "@totto2727/bw": ["@totto2727/bw@workspace:mbt/app/bw"],
 
-    "@totto2727/c-plugin": ["@totto2727/c-plugin@workspace:js/app/c-plugin"],
+    "@totto2727/c-plugin": ["@totto2727/c-plugin@workspace:mbt/app/c-plugin"],
 
     "@totto2727/fp": ["@totto2727/fp@workspace:js/package/fp"],
 
@@ -1046,7 +1027,7 @@
 
     "@totto2727/roadmap": ["@totto2727/roadmap@workspace:js/app/roadmap"],
 
-    "@totto2727/wt": ["@totto2727/wt@workspace:js/app/wt"],
+    "@totto2727/wt": ["@totto2727/wt@workspace:mbt/app/wt"],
 
     "@tsconfig/strictest": ["@tsconfig/strictest@2.0.8", "https://npm.flatt.tech/@tsconfig/strictest/-/strictest-2.0.8.tgz", {}, "sha512-XnQ7vNz5HRN0r88GYf1J9JJjqtZPiHt2woGJOo2dYqyHGGcd6OLGqSlBB6p1j9mpzja6Oe5BoPqWmeDx6X9rLw=="],
 

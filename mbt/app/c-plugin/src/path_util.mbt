@@ -8,7 +8,7 @@ fn home_dir() -> String {
 
 ///|
 fn cwd() -> String {
-  @env.current_dir().unwrap_or(".")
+  @env.get_env_var("PWD").unwrap_or(@env.current_dir().unwrap_or("."))
 }
 
 ///|
@@ -69,29 +69,12 @@ fn repo_cache_dir(source : String) -> String {
 
 ///|
 fn validate_github_source(source : String) -> Unit raise {
-  guard !source.contains("..") &&
-    !source.contains("\\") &&
-    !source.contains(":") &&
-    !source.has_prefix("/") &&
-    !source.has_suffix(".git") else {
-    fail("GitHub source must be owner/repo")
-  }
-  let parts = source.split("/").map(fn(part) { part.to_owned() }).collect()
-  guard parts.length() == 2 && parts[0] != "" && parts[1] != "" else {
-    fail("GitHub source must be owner/repo")
-  }
+  @support.validate_github_source(source)
 }
 
 ///|
 fn validate_relative_plugin_path(path : String) -> Unit raise {
-  guard path != "" &&
-    !path.has_prefix("/") &&
-    !path.contains("..") &&
-    !path.contains("\\") else {
-    fail(
-      "Marketplace plugin source must be a relative path inside the repository",
-    )
-  }
+  @support.validate_relative_plugin_path(path)
 }
 
 ///|

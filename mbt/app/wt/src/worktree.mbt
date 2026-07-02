@@ -48,10 +48,7 @@ fn parse_github_remote(url : String) -> String? {
 }
 
 ///|
-fn parse_worktree_list(
-  output : String,
-  repo_path : String,
-) -> Array[WorktreeEntry] {
+fn parse_worktree_list(output : String) -> Array[WorktreeEntry] {
   let entries : Array[WorktreeEntry] = []
   for block in output.split("\n\n") {
     let block_text = block.to_owned()
@@ -72,7 +69,7 @@ fn parse_worktree_list(
         entries.push({
           path: path_value,
           branch,
-          is_main: path_value == repo_path,
+          is_main: entries.length() == 0,
         })
       None => ()
     }
@@ -124,7 +121,7 @@ async fn fetch_repo_worktrees(repo : String) -> RepoWorktrees? {
   let output = collect_or_empty("git", [
     "-C", top, "worktree", "list", "--porcelain",
   ])
-  Some({ repo_path: top, slug, entries: parse_worktree_list(output, top) })
+  Some({ repo_path: top, slug, entries: parse_worktree_list(output) })
 }
 
 ///|

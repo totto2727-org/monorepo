@@ -9,6 +9,7 @@ supported_targets = "native"
 import {
   "mizchi/admiral@0.1.0",
   "moonbitlang/async@0.19.2",
+  "totto2727/c-plugin-support@0.1.0",
 }
 
 readme = "README.md"

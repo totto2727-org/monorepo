@@ -1,5 +1,6 @@
 members = [
   "./mbt/package/geo-mbt",
+  "./mbt/package/c-plugin-support",
   "./mbt/app/bw",
   "./mbt/app/wt",
   "./mbt/app/c-plugin",

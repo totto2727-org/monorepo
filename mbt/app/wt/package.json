@@ -1,5 +1,5 @@
 {
-  "name": "@totto2727/wt-mbt",
+  "name": "@totto2727/wt",
   "private": true,
   "scripts": {
     "bin": "moon run ./src --target native"
