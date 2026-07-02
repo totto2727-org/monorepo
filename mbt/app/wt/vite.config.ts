@@ -4,8 +4,7 @@ export default defineConfig({
   run: {
     tasks: {
       build: {
-        command:
-          'moon build --target native && mkdir -p dist && cp ../../../_build/native/debug/build/totto2727/wt/wt.exe dist/wt && chmod +x dist/wt',
+        command: 'moon build --target native',
         input: ['moon.mod', '**/*.mbt'],
       },
     },
