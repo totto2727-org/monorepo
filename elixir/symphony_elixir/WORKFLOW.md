@@ -32,6 +32,8 @@ agent:
   max_turns: 20
 opencode:
   model: openai/gpt-5.5
+display:
+  language: ja
 ---
 
 You are working on a Linear ticket `{{ issue.identifier }}`

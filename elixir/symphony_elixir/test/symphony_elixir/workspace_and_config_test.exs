@@ -486,6 +486,64 @@ defmodule SymphonyElixir.WorkspaceAndConfigTest do
     assert log =~ "Variable \\\"$ids\\\" got invalid value"
   end
 
+  test "linear client translates comment bodies from front matter language before graphql post" do
+    write_workflow_file!(Workflow.workflow_file_path(),
+      tracker_api_token: "token",
+      display_language: "JA"
+    )
+
+    mutation = """
+    mutation Create($issueId: String!, $body: String!) {
+      commentCreate(input: {issueId: $issueId, body: $body}) { success }
+    }
+    """
+
+    body = """
+    ## OpenCode Workpad
+
+    ### Plan
+
+    - [ ] 1\\. Parent task
+      - [ ] 1.1 Child task
+
+    ### Acceptance Criteria
+
+    - [ ] Criterion 1
+
+    ### Validation
+
+    - [ ] targeted tests: `mix test`
+
+    ### Notes
+
+    - <short progress note with timestamp>
+
+    ### Confusions
+
+    - <only include when something was confusing during execution>
+    """
+
+    assert {:ok, %{"data" => %{"commentCreate" => %{"success" => true}}}} =
+             Client.graphql(mutation, %{issueId: "issue-1", body: body},
+               request_fun: fn payload, _headers ->
+                 translated = get_in(payload, ["variables", :body])
+                 assert translated =~ "## OpenCode ワークパッド"
+                 assert translated =~ "### 計画"
+                 assert translated =~ "親タスク"
+                 assert translated =~ "子タスク"
+                 assert translated =~ "### 受け入れ基準"
+                 assert translated =~ "基準 1"
+                 assert translated =~ "### 検証"
+                 assert translated =~ "対象テスト: `mix test`"
+                 assert translated =~ "### メモ"
+                 assert translated =~ "### 混乱・疑問"
+
+                 {:ok,
+                  %{status: 200, body: %{"data" => %{"commentCreate" => %{"success" => true}}}}}
+               end
+             )
+  end
+
   test "orchestrator sorts dispatch by priority then oldest created_at" do
     issue_same_priority_older = %Issue{
       id: "issue-old-high",
@@ -822,6 +880,7 @@ defmodule SymphonyElixir.WorkspaceAndConfigTest do
     assert config.worker.max_concurrent_agents_per_host == nil
     assert config.agent.max_concurrent_agents == 10
     assert config.opencode.model == nil
+    assert config.display.language == nil
 
     assert config.opencode.turn_timeout_ms == 3_600_000
     assert config.opencode.stall_timeout_ms == 300_000
@@ -840,6 +899,10 @@ defmodule SymphonyElixir.WorkspaceAndConfigTest do
     )
 
     assert Config.settings!().opencode.model == "openai/gpt-5.5"
+
+    write_workflow_file!(Workflow.workflow_file_path(), display_language: " JA ")
+    assert Config.settings!().display.language == "ja"
+    assert Config.linear_output_language() == "ja"
 
     write_workflow_file!(Workflow.workflow_file_path(), tracker_active_states: ",")
     assert {:error, {:invalid_workflow_config, message}} = Config.validate!()
