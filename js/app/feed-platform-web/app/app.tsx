@@ -13,7 +13,6 @@ import {
   preserveReturnToQueryParameterValue,
 } from '#@/feature/auth/query-parameter.ts'
 import { getReturnToPath } from '#@/feature/auth/return-to.ts'
-import * as AppEnv from '#@/feature/env.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 import type { Env } from '#@/feature/share/lib/hono/context.ts'
 import { Document } from '#@/ui/document.tsx'
@@ -68,7 +67,8 @@ const app: Hono<Env> = new Hono<Env>()
       }),
     ),
   )
-  .get('/app/logout', (ctx) =>
+  .get('/app/logout', () => new Response(null, { status: 405 }))
+  .post('/app/logout', (ctx) =>
     // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP auth route boundary clears the session and redirects once.
     ctx.var.runtime.runPromise(
       Effect.gen(function* () {
@@ -80,8 +80,7 @@ const app: Hono<Env> = new Hono<Env>()
           }),
         )
         deleteBetterAuthCookies(headers)
-        const env = yield* AppEnv.Service
-        return redirectWithHeaders(`${env.IDP_BASE_URL}/logout`, headers)
+        return redirectWithHeaders('/app/login', headers)
       }),
     ),
   )
@@ -104,7 +103,9 @@ const app: Hono<Env> = new Hono<Env>()
             <h1>Dashboard</h1>
             <p>Logged in as: {user.email}</p>
             <p>Subject: {user.sub}</p>
-            <a href='/app/logout'>Logout</a>
+            <form method='post' action='/app/logout'>
+              <button type='submit'>Logout</button>
+            </form>
           </Document>,
         )
       }),
