@@ -7,6 +7,7 @@ defmodule SymphonyElixir.OpencodeAppServerTest do
   use SymphonyElixir.TestSupport
 
   alias SymphonyElixir.Opencode.AppServer
+  alias SymphonyElixir.Opencode.ConnectionManager
   alias SymphonyElixir.OpencodeFakes.{EventStream, Server, SessionApi}
 
   test "app server uses opencode_client server, session API, event stream, and cleanup lifecycle" do
@@ -31,9 +32,12 @@ defmodule SymphonyElixir.OpencodeAppServerTest do
         state: "In Progress"
       }
 
+      manager = start_connection_manager!()
+
       assert {:ok, %{session_id: "ses_lifecycle"}} =
                AppServer.run(workspace, "Use OpenCode", issue,
                  client_opts: [test_pid: self(), session_id: "ses_lifecycle"],
+                 connection_manager: manager,
                  event_stream: EventStream,
                  server_module: Server,
                  server_opts: [test_pid: self(), url: "http://127.0.0.1:4999"],
@@ -54,7 +58,122 @@ defmodule SymphonyElixir.OpencodeAppServerTest do
       assert prompt_body == %{parts: [%{type: "text", text: "Use OpenCode"}]}
 
       assert_received {:opencode_session_delete, "ses_lifecycle", _client}
-      assert_received {:opencode_server_stop, %{url: "http://127.0.0.1:4999"}}
+      refute_received {:opencode_server_stop, %{url: "http://127.0.0.1:4999"}}
+    after
+      File.rm_rf(test_root)
+    end
+  end
+
+  test "app server reuses one local server across multiple sessions and does not stop it per session" do
+    test_root =
+      Path.join(
+        System.tmp_dir!(),
+        "symphony-elixir-opencode-app-server-shared-server-#{System.unique_integer([:positive])}"
+      )
+
+    try do
+      workspace_root = Path.join(test_root, "workspaces")
+      workspace = Path.join(workspace_root, "MT-OC-SHARED")
+      File.mkdir_p!(workspace)
+
+      write_workflow_file!(Workflow.workflow_file_path(), workspace_root: workspace_root)
+      manager = start_connection_manager!()
+
+      assert {:ok, session1} =
+               AppServer.start_session(workspace,
+                 client_opts: [test_pid: self(), session_id: "ses_shared_1"],
+                 connection_manager: manager,
+                 event_stream: EventStream,
+                 server_module: Server,
+                 server_opts: [test_pid: self(), url: "http://127.0.0.1:4997"],
+                 session_api: SessionApi
+               )
+
+      assert_received {:opencode_server_start, _server_opts}
+
+      assert {:ok, session2} =
+               AppServer.start_session(workspace,
+                 client_opts: [test_pid: self(), session_id: "ses_shared_2"],
+                 connection_manager: manager,
+                 event_stream: EventStream,
+                 server_module: Server,
+                 server_opts: [test_pid: self(), url: "http://127.0.0.1:4997"],
+                 session_api: SessionApi
+               )
+
+      refute_received {:opencode_server_start, _server_opts}
+
+      assert :ok = AppServer.stop_session(session1)
+      assert_received {:opencode_session_delete, "ses_shared_1", _client}
+      refute_received {:opencode_server_stop, _server}
+
+      assert :ok = AppServer.stop_session(session2)
+      assert_received {:opencode_session_delete, "ses_shared_2", _client}
+      refute_received {:opencode_server_stop, _server}
+    after
+      File.rm_rf(test_root)
+    end
+  end
+
+  test "app server preserves explicit base_url without starting a local server" do
+    test_root =
+      Path.join(
+        System.tmp_dir!(),
+        "symphony-elixir-opencode-app-server-explicit-base-url-#{System.unique_integer([:positive])}"
+      )
+
+    try do
+      workspace_root = Path.join(test_root, "workspaces")
+      workspace = Path.join(workspace_root, "MT-OC-BASEURL")
+      File.mkdir_p!(workspace)
+
+      write_workflow_file!(Workflow.workflow_file_path(), workspace_root: workspace_root)
+
+      assert {:ok, session} =
+               AppServer.start_session(workspace,
+                 base_url: "http://127.0.0.1:4996",
+                 client_opts: [test_pid: self(), session_id: "ses_base_url"],
+                 event_stream: EventStream,
+                 server_module: Server,
+                 server_opts: [test_pid: self(), url: "http://127.0.0.1:4996"],
+                 session_api: SessionApi
+               )
+
+      assert_received {:opencode_session_create, _body, client}
+      assert Keyword.get(client, :base_url) == "http://127.0.0.1:4996"
+      refute_received {:opencode_server_start, _server_opts}
+
+      assert :ok = AppServer.stop_session(session)
+
+      assert_received {:opencode_session_delete, "ses_base_url", _client}
+      refute_received {:opencode_server_stop, _server}
+    after
+      File.rm_rf(test_root)
+    end
+  end
+
+  test "app server rejects remote workers without a base_url" do
+    test_root =
+      Path.join(
+        System.tmp_dir!(),
+        "symphony-elixir-opencode-app-server-remote-no-base-url-#{System.unique_integer([:positive])}"
+      )
+
+    try do
+      workspace = Path.join(test_root, "remote-workspace")
+      File.mkdir_p!(test_root)
+
+      assert {:error, {:opencode_remote_worker_requires_base_url, "worker-1"}} =
+               AppServer.start_session(workspace,
+                 client_opts: [test_pid: self()],
+                 event_stream: EventStream,
+                 session_api: SessionApi,
+                 worker_host: "worker-1"
+               )
+
+      refute_received {:opencode_session_create, _body, _client}
+      refute_received {:opencode_server_start, _server_opts}
+      refute_received {:opencode_server_stop, _server}
     after
       File.rm_rf(test_root)
     end
@@ -85,9 +204,12 @@ defmodule SymphonyElixir.OpencodeAppServerTest do
         state: "In Progress"
       }
 
+      manager = start_connection_manager!()
+
       assert {:ok, %{session_id: "ses_model"}} =
                AppServer.run(workspace, "Use configured model", issue,
                  client_opts: [test_pid: self(), session_id: "ses_model"],
+                 connection_manager: manager,
                  event_stream: EventStream,
                  server_module: Server,
                  server_opts: [test_pid: self(), url: "http://127.0.0.1:4998"],
@@ -129,9 +251,12 @@ defmodule SymphonyElixir.OpencodeAppServerTest do
         EventStream.idle_event("ses_target")
       ]
 
+      manager = start_connection_manager!()
+
       assert {:ok, %{session_id: "ses_target"}} =
                AppServer.run(workspace, "Use OpenCode", issue,
                  client_opts: [events: events, session_id: "ses_target"],
+                 connection_manager: manager,
                  event_stream: EventStream,
                  server_module: Server,
                  server_opts: [url: "http://127.0.0.1:4999"],
@@ -178,5 +303,16 @@ defmodule SymphonyElixir.OpencodeAppServerTest do
     after
       File.rm_rf(test_root)
     end
+  end
+
+  defp start_connection_manager! do
+    name = Module.concat(__MODULE__, "Manager#{System.unique_integer([:positive])}")
+
+    start_supervised!(
+      {ConnectionManager, name: name, health_interval_ms: nil},
+      id: name
+    )
+
+    name
   end
 end

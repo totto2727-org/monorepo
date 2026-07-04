@@ -32,6 +32,7 @@ defmodule SymphonyElixir.MixProject do
           SymphonyElixir.HttpServer,
           SymphonyElixir.StatusDashboard,
           SymphonyElixir.LogFile,
+          SymphonyElixir.Opencode.ConnectionManager,
           SymphonyElixir.Workspace,
           SymphonyElixirWeb.DashboardLive,
           SymphonyElixirWeb.Endpoint,

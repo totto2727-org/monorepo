@@ -23,6 +23,7 @@ defmodule SymphonyElixir.Opencode.AppServer do
   alias OpencodeClient.{Connection, EventStream}
   alias OpencodeClient.Generated.Session
   alias SymphonyElixir.{Config, Linear.Issue, PathSafety}
+  alias SymphonyElixir.Opencode.ConnectionManager
 
   @default_turn_timeout_ms 3_600_000
 
@@ -162,7 +163,7 @@ defmodule SymphonyElixir.Opencode.AppServer do
 
       :ok
   after
-    Connection.stop(session.connection)
+    stop_connection(session.connection)
   end
 
   defp create_session(workspace, opts, %{client: client} = connection) do
@@ -187,16 +188,16 @@ defmodule SymphonyElixir.Opencode.AppServer do
              }}
 
           _ ->
-            Connection.stop(connection)
+            stop_connection(connection)
             {:error, {:invalid_session_response, body_json}}
         end
 
       {:ok, body} ->
-        Connection.stop(connection)
+        stop_connection(connection)
         {:error, {:session_create_failed, body}}
 
       {:error, reason} ->
-        Connection.stop(connection)
+        stop_connection(connection)
         {:error, {:session_create_error, reason}}
     end
   end
@@ -218,6 +219,19 @@ defmodule SymphonyElixir.Opencode.AppServer do
       |> Keyword.put(:server_config, server_config)
       |> Keyword.put(:allow_server_start, is_nil(worker_host))
 
+    if shared_local_connection?(opts, worker_host) do
+      manager = Keyword.get(opts, :connection_manager, ConnectionManager)
+
+      case ConnectionManager.connection(opts, manager) do
+        {:ok, connection} -> {:ok, Map.put(connection, :worker_host, worker_host)}
+        {:error, reason} -> {:error, reason}
+      end
+    else
+      start_direct_connection(opts, worker_host)
+    end
+  end
+
+  defp start_direct_connection(opts, worker_host) do
     case Connection.start(opts) do
       {:ok, connection} ->
         {:ok, Map.put(connection, :worker_host, worker_host)}
@@ -229,6 +243,25 @@ defmodule SymphonyElixir.Opencode.AppServer do
         {:error, reason}
     end
   end
+
+  defp shared_local_connection?(opts, nil), do: is_nil(explicit_base_url(opts))
+  defp shared_local_connection?(_opts, _worker_host), do: false
+
+  defp explicit_base_url(opts) do
+    opts
+    |> Keyword.get(:base_url, System.get_env("OPENCODE_BASE_URL"))
+    |> case do
+      url when is_binary(url) ->
+        url = String.trim(url)
+        if url == "", do: nil, else: url
+
+      _ ->
+        nil
+    end
+  end
+
+  defp stop_connection(%{shared_server_owner: ConnectionManager}), do: :ok
+  defp stop_connection(connection), do: Connection.stop(connection)
 
   defp session_metadata(session_id, client, connection) do
     connection
