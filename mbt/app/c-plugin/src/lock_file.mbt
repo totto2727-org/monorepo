@@ -1,9 +1,36 @@
 ///|
 struct LockRepository {
-  source_type : String
+  source_type : RepositorySourceType
   source : String
-  marketplace_kind : String
+  marketplace_kind : MarketplaceKind
   commit_hash : String?
+}
+
+///|
+enum RepositorySourceType {
+  RepositoryLocal
+  RepositoryGithub
+}
+
+///|
+fn repository_source_type_from_string(
+  value : String,
+) -> RepositorySourceType raise {
+  match value {
+    "local" => RepositoryLocal
+    "github" => RepositoryGithub
+    _ => fail("unsupported repository source type: \{value}")
+  }
+}
+
+///|
+fn repository_source_type_to_string(
+  source_type : RepositorySourceType,
+) -> String {
+  match source_type {
+    RepositoryLocal => "local"
+    RepositoryGithub => "github"
+  }
 }
 
 ///|
@@ -73,12 +100,12 @@ async fn read_lock(agents : String) -> LockFile {
     match text[repo_cursor:].find("\"sourceType\"") {
       Some(found) => {
         let start = repo_cursor + found
-        let source_type = quoted_value(text, "sourceType", start).unwrap_or(
-          "local",
+        let source_type = repository_source_type_from_string(
+          quoted_value(text, "sourceType", start).unwrap_or("local"),
         )
         let source = quoted_value(text, "source", start).unwrap_or("")
-        let kind = quoted_value(text, "marketplaceKind", start).unwrap_or(
-          "claude",
+        let kind = marketplace_kind_from_string(
+          quoted_value(text, "marketplaceKind", start).unwrap_or("claude"),
         )
         let commit = quoted_value(text, "commitHash", start)
         if source != "" {
@@ -113,7 +140,9 @@ fn repository_json(
     Some(hash) => "\t\t\"commitHash\": \"\{json_escape(hash)}\",\n"
     None => ""
   }
-  "\t{\n\t\t\"sourceType\": \"\{repo.source_type}\",\n\t\t\"source\": \"\{json_escape(repo.source)}\",\n\{commit_line}\t\t\"marketplaceKind\": \"\{repo.marketplace_kind}\",\n\t\t\"plugins\": [\n\{plugins.join(",\n")}\n\t\t]\n\t}"
+  let source_type = repository_source_type_to_string(repo.source_type)
+  let marketplace_kind = marketplace_kind_to_string(repo.marketplace_kind)
+  "\t{\n\t\t\"sourceType\": \"\{source_type}\",\n\t\t\"source\": \"\{json_escape(repo.source)}\",\n\{commit_line}\t\t\"marketplaceKind\": \"\{marketplace_kind}\",\n\t\t\"plugins\": [\n\{plugins.join(",\n")}\n\t\t]\n\t}"
 }
 
 ///|

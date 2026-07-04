@@ -35,15 +35,16 @@ async fn update_repo(source : String) -> String {
 
 ///|
 async fn repo_dir_for(lock_path : String, repo : LockRepository) -> String {
-  if repo.source_type == "local" {
-    local_source_path(repo.source, dirname(lock_path))
-  } else {
-    let dir = ensure_repo(repo.source)
-    match repo.commit_hash {
-      Some(hash) => run_checked("git", ["-C", dir, "checkout", hash])
-      None => ()
+  match repo.source_type {
+    RepositoryLocal => local_source_path(repo.source, dirname(lock_path))
+    RepositoryGithub => {
+      let dir = ensure_repo(repo.source)
+      match repo.commit_hash {
+        Some(hash) => run_checked("git", ["-C", dir, "checkout", hash])
+        None => ()
+      }
+      dir
     }
-    dir
   }
 }
 

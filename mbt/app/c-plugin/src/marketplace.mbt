@@ -7,46 +7,93 @@ struct ResolvedSkill {
 }
 
 ///|
+enum MarketplaceKind {
+  Claude
+  Cursor
+  Codex
+}
+
+///|
 struct MarketplaceInfo {
-  kind : String
+  kind : MarketplaceKind
   path : String
 }
 
 ///|
-fn marketplace_path(kind : String) -> String {
+fn marketplace_kind_from_string(value : String) -> MarketplaceKind raise {
+  match value {
+    "claude" => Claude
+    "cursor" => Cursor
+    "codex" => Codex
+    _ => fail("unsupported marketplace kind: \{value}")
+  }
+}
+
+///|
+fn marketplace_kind_to_string(kind : MarketplaceKind) -> String {
   match kind {
-    "cursor" => ".cursor-plugin/marketplace.json"
-    "codex" => ".codex-plugin/marketplace.json"
-    _ => ".claude-plugin/marketplace.json"
+    Claude => "claude"
+    Cursor => "cursor"
+    Codex => "codex"
+  }
+}
+
+///|
+fn same_marketplace_kind(
+  left : MarketplaceKind,
+  right : MarketplaceKind,
+) -> Bool {
+  match (left, right) {
+    (Claude, Claude) => true
+    (Cursor, Cursor) => true
+    (Codex, Codex) => true
+    _ => false
+  }
+}
+
+///|
+fn marketplace_kinds() -> Array[MarketplaceKind] {
+  [Claude, Cursor, Codex]
+}
+
+///|
+fn marketplace_path(kind : MarketplaceKind) -> String {
+  match kind {
+    Claude => ".claude-plugin/marketplace.json"
+    Cursor => ".cursor-plugin/marketplace.json"
+    Codex => ".codex-plugin/marketplace.json"
   }
 }
 
 ///|
 async fn detect_marketplace(repo_dir : String) -> MarketplaceInfo? {
   if @fs.exists("\{repo_dir}/.claude-plugin/marketplace.json") {
-    Some({ kind: "claude", path: "\{repo_dir}/.claude-plugin/marketplace.json" })
+    Some({ kind: Claude, path: "\{repo_dir}/.claude-plugin/marketplace.json" })
   } else if @fs.exists("\{repo_dir}/.cursor-plugin/marketplace.json") {
-    Some({ kind: "cursor", path: "\{repo_dir}/.cursor-plugin/marketplace.json" })
+    Some({ kind: Cursor, path: "\{repo_dir}/.cursor-plugin/marketplace.json" })
   } else if @fs.exists("\{repo_dir}/.codex-plugin/marketplace.json") {
-    Some({ kind: "codex", path: "\{repo_dir}/.codex-plugin/marketplace.json" })
+    Some({ kind: Codex, path: "\{repo_dir}/.codex-plugin/marketplace.json" })
   } else {
     None
   }
 }
 
 ///|
-fn source_value(text : String, object_start : Int, kind : String) -> String? {
-  if kind == "codex" {
-    quoted_value(text, "path", object_start)
-  } else {
-    quoted_value(text, "source", object_start)
+fn source_value(
+  text : String,
+  object_start : Int,
+  kind : MarketplaceKind,
+) -> String? {
+  match kind {
+    Codex => quoted_value(text, "path", object_start)
+    _ => quoted_value(text, "source", object_start)
   }
 }
 
 ///|
 async fn resolve_skills(
   repo_dir : String,
-  kind : String,
+  kind : MarketplaceKind,
 ) -> Array[ResolvedSkill] {
   let path = "\{repo_dir}/\{marketplace_path(kind)}"
   let text = @fs.read_file(path).text()

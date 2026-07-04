@@ -27,6 +27,21 @@ fn cleanup_command_def() -> @admiral.CommandDef {
 }
 
 ///|
+struct CleanupOptions {
+  dir : String
+  dry_run : Bool
+}
+
+///|
+fn cleanup_options(matches : @argparse.Matches) -> CleanupOptions {
+  let dir = match matches.values.get(cleanup_dir_option) {
+    Some([value, ..]) => value
+    _ => "."
+  }
+  { dir, dry_run: matches.flags.contains(cleanup_dry_run_option) }
+}
+
+///|
 fn removal_reason(pr : PrInfo, git : String) -> String? {
   if git != "pushed" {
     return None
@@ -45,11 +60,9 @@ fn removal_reason(pr : PrInfo, git : String) -> String? {
 
 ///|
 async fn run_cleanup(matches : @argparse.Matches) -> Unit {
-  let dir = match matches.values.get(cleanup_dir_option) {
-    Some([value, ..]) => value
-    _ => "."
-  }
-  let dry_run = matches.flags.contains(cleanup_dry_run_option)
+  let options = cleanup_options(matches)
+  let dir = options.dir
+  let dry_run = options.dry_run
   let base = if dir == "." { @env.current_dir().unwrap_or(".") } else { dir }
   let repos = discover_repos(base)
   if repos.length() == 0 {

@@ -13,18 +13,34 @@ fn dev_marketplace_sync_command_def() -> @admiral.CommandDef {
 }
 
 ///|
-async fn run_dev_marketplace_sync(matches : @argparse.Matches) -> Unit {
+struct DevMarketplaceSyncOptions {
+  kind : MarketplaceKind
+}
+
+///|
+fn dev_marketplace_sync_options(
+  matches : @argparse.Matches,
+) -> DevMarketplaceSyncOptions raise {
   let kind = match matches.values.get(base_kind_arg) {
-    Some([value, ..]) => value
+    Some([value, ..]) => marketplace_kind_from_string(value)
     _ => fail("base kind is required")
   }
+  { kind, }
+}
+
+///|
+async fn run_dev_marketplace_sync(matches : @argparse.Matches) -> Unit {
+  let options = dev_marketplace_sync_options(matches)
+  let kind = options.kind
   let info = detect_marketplace(cwd()).unwrap_or_else(() => {
     fail("No supported marketplace found")
   })
-  guard info.kind == kind else { fail("base marketplace \{kind} not found") }
+  guard same_marketplace_kind(info.kind, kind) else {
+    fail("base marketplace \{marketplace_kind_to_string(kind)} not found")
+  }
   let text = @fs.read_file(info.path).text()
-  for target_kind in ["claude", "cursor", "codex"] {
-    if target_kind != kind {
+  for target_kind in marketplace_kinds() {
+    if !same_marketplace_kind(target_kind, kind) {
       let path = "\{cwd()}/\{marketplace_path(target_kind)}"
       @fs.mkdir(dirname(path), recursive=true)
       @fs.write_file(path, text, create_mode=CreateOrTruncate)

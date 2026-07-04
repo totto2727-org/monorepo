@@ -8,6 +8,29 @@ let local_option = "local"
 let repo_arg = "repo"
 
 ///|
+enum SkillAddSource {
+  Github(String)
+  Local(String)
+}
+
+///|
+struct SkillAddOptions {
+  global : Bool
+  source : SkillAddSource
+}
+
+///|
+struct SkillGlobalOptions {
+  global : Bool
+}
+
+///|
+struct SkillRemoveOptions {
+  global : Bool
+  source : String
+}
+
+///|
 fn skill_add_command_def() -> @admiral.CommandDef {
   @admiral.command(
     name="add",
@@ -60,36 +83,65 @@ fn skill_remove_command_def() -> @admiral.CommandDef {
 }
 
 ///|
-async fn run_skill_add(matches : @argparse.Matches) -> Unit {
+fn skill_add_options(matches : @argparse.Matches) -> SkillAddOptions raise {
   let global = matches.flags.contains(global_option)
-  let agents = agents_dir(global)
-  ensure_lock(agents)
-  let root = dirname(agents)
   let local_path = match matches.values.get(local_option) {
-    Some([value, ..]) => value
-    _ => ""
+    Some([value, ..]) => Some(value)
+    _ => None
   }
   let repo = match matches.values.get(repo_arg) {
-    Some([value, ..]) => value
-    _ => ""
+    Some([value, ..]) => Some(value)
+    _ => None
   }
-  let (source_type, source, dir) = if local_path != "" {
-    guard local_path.has_prefix("./") else {
-      fail("--local path must start with ./")
+  let source = match (local_path, repo) {
+    (Some(path), _) => {
+      guard path.has_prefix("./") else {
+        fail("--local path must start with ./")
+      }
+      Local(path)
     }
-    ("local", local_path, local_source_path(local_path, root))
-  } else {
-    guard repo != "" else {
-      fail("Either <repo> or --local <path> must be provided")
+    (None, Some(source)) => {
+      validate_github_source(source)
+      Github(source)
     }
-    validate_github_source(repo)
-    let dir = ensure_repo(repo)
-    ("github", repo, dir)
+    _ => fail("Either <repo> or --local <path> must be provided")
+  }
+  { global, source }
+}
+
+///|
+fn skill_global_options(matches : @argparse.Matches) -> SkillGlobalOptions {
+  { global: matches.flags.contains(global_option) }
+}
+
+///|
+fn skill_remove_options(
+  matches : @argparse.Matches,
+) -> SkillRemoveOptions raise {
+  let source = match matches.values.get(repo_arg) {
+    Some([value, ..]) => value
+    _ => fail("source is required")
+  }
+  { global: matches.flags.contains(global_option), source }
+}
+
+///|
+async fn run_skill_add(matches : @argparse.Matches) -> Unit {
+  let options = skill_add_options(matches)
+  let agents = agents_dir(options.global)
+  ensure_lock(agents)
+  let root = dirname(agents)
+  let (source_type, source, dir) = match options.source {
+    Local(path) => (RepositoryLocal, path, local_source_path(path, root))
+    Github(repo) => (RepositoryGithub, repo, ensure_repo(repo))
   }
   let market = detect_marketplace(dir).unwrap_or_else(() => {
     fail("No supported marketplace found in \{dir}")
   })
-  let hash = if source_type == "github" { Some(commit_hash(dir)) } else { None }
+  let hash = match source_type {
+    RepositoryGithub => Some(commit_hash(dir))
+    RepositoryLocal => None
+  }
   let lock = read_lock(agents)
   lock.repositories.push({
     source_type,
@@ -104,25 +156,28 @@ async fn run_skill_add(matches : @argparse.Matches) -> Unit {
 
 ///|
 async fn run_skill_sync(matches : @argparse.Matches) -> Unit {
-  sync_all(agents_dir(matches.flags.contains(global_option)))
+  let options = skill_global_options(matches)
+  sync_all(agents_dir(options.global))
 }
 
 ///|
 async fn run_skill_update(matches : @argparse.Matches) -> Unit {
-  let agents = agents_dir(matches.flags.contains(global_option))
+  let options = skill_global_options(matches)
+  let agents = agents_dir(options.global)
   let lock = read_lock(agents)
   let updated : Array[LockRepository] = []
   for repo in lock.repositories {
-    if repo.source_type == "github" {
-      let dir = update_repo(repo.source)
-      updated.push({
-        source_type: repo.source_type,
-        source: repo.source,
-        marketplace_kind: repo.marketplace_kind,
-        commit_hash: Some(commit_hash(dir)),
-      })
-    } else {
-      updated.push(repo)
+    match repo.source_type {
+      RepositoryGithub => {
+        let dir = update_repo(repo.source)
+        updated.push({
+          source_type: repo.source_type,
+          source: repo.source,
+          marketplace_kind: repo.marketplace_kind,
+          commit_hash: Some(commit_hash(dir)),
+        })
+      }
+      RepositoryLocal => updated.push(repo)
     }
   }
   write_lock(agents, { skill_dirs: lock.skill_dirs, repositories: updated })
@@ -131,11 +186,9 @@ async fn run_skill_update(matches : @argparse.Matches) -> Unit {
 
 ///|
 async fn run_skill_remove(matches : @argparse.Matches) -> Unit {
-  let agents = agents_dir(matches.flags.contains(global_option))
-  let source = match matches.values.get(repo_arg) {
-    Some([value, ..]) => value
-    _ => fail("source is required")
-  }
+  let options = skill_remove_options(matches)
+  let agents = agents_dir(options.global)
+  let source = options.source
   let lock = read_lock(agents)
   let kept : Array[LockRepository] = []
   for repo in lock.repositories {

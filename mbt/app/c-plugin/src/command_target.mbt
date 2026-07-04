@@ -24,12 +24,24 @@ fn target_remove_command_def() -> @admiral.CommandDef {
 }
 
 ///|
-async fn run_target_add(matches : @argparse.Matches) -> Unit {
-  let agents = agents_dir(false)
+struct TargetOptions {
+  dir : String
+}
+
+///|
+fn target_options(matches : @argparse.Matches) -> TargetOptions raise {
   let dir = match matches.values.get(target_dir_arg) {
     Some([value, ..]) => value
     _ => fail("dir is required")
   }
+  { dir, }
+}
+
+///|
+async fn run_target_add(matches : @argparse.Matches) -> Unit {
+  let options = target_options(matches)
+  let agents = agents_dir(false)
+  let dir = options.dir
   let lock = read_lock(agents)
   if !lock.skill_dirs.contains(dir) {
     lock.skill_dirs.push(dir)
@@ -40,11 +52,9 @@ async fn run_target_add(matches : @argparse.Matches) -> Unit {
 
 ///|
 async fn run_target_remove(matches : @argparse.Matches) -> Unit {
+  let options = target_options(matches)
   let agents = agents_dir(false)
-  let dir = match matches.values.get(target_dir_arg) {
-    Some([value, ..]) => value
-    _ => fail("dir is required")
-  }
+  let dir = options.dir
   let lock = read_lock(agents)
   let kept : Array[String] = []
   for item in lock.skill_dirs {

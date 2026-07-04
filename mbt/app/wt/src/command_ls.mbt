@@ -13,11 +13,23 @@ fn ls_command_def() -> @admiral.CommandDef {
 }
 
 ///|
-async fn run_ls(matches : @argparse.Matches) -> Unit {
+struct LsOptions {
+  dir : String
+}
+
+///|
+fn ls_options(matches : @argparse.Matches) -> LsOptions {
   let dir = match matches.values.get(ls_dir_option) {
     Some([value, ..]) => value
     _ => "."
   }
+  { dir, }
+}
+
+///|
+async fn run_ls(matches : @argparse.Matches) -> Unit {
+  let options = ls_options(matches)
+  let dir = options.dir
   let base = if dir == "." { @env.current_dir().unwrap_or(".") } else { dir }
   let repos = discover_repos(base)
   if repos.length() == 0 {

@@ -7,8 +7,19 @@ fn init_command_def() -> @admiral.CommandDef {
 }
 
 ///|
-async fn run_init(_matches : @argparse.Matches) -> Unit {
-  let agents = agents_dir(false)
+struct InitOptions {
+  global : Bool
+}
+
+///|
+fn init_options(_matches : @argparse.Matches) -> InitOptions {
+  { global: false }
+}
+
+///|
+async fn run_init(matches : @argparse.Matches) -> Unit {
+  let options = init_options(matches)
+  let agents = agents_dir(options.global)
   if !@fs.exists(agents) {
     @fs.mkdir(agents, recursive=true)
   }
