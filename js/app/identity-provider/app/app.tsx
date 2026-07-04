@@ -1,4 +1,4 @@
-import { DateTime } from 'effect'
+import { DateTime, Effect } from 'effect'
 import { remixRenderer } from 'hono-remix-middleware'
 import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
@@ -20,6 +20,12 @@ import { LoginPage } from '#@/ui/login.tsx'
 import { RegisterPasskeyPage } from '#@/ui/register-passkey.tsx'
 
 const api = factory.createApp().all('/auth/*', (ctx) => ctx.var.auth.handler(ctx.req.raw))
+
+const redirectWithHeaders = (location: string, headers: Headers): Response => {
+  const redirectHeaders = new Headers(headers)
+  redirectHeaders.set('Location', location)
+  return new Response(null, { headers: redirectHeaders, status: 302 })
+}
 
 const loginRoutes = factory
   .createApp()
@@ -91,6 +97,20 @@ const app = factory
     remixRenderer({
       fetcher: (input): Promise<Response> => Promise.resolve(app.fetch(new Request(input))),
     }),
+  )
+  .get('/logout', (ctx) =>
+    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP logout boundary clears the IdP Better Auth session once.
+    ctx.var.runtime.runPromise(
+      Effect.gen(function* () {
+        const { headers } = yield* Effect.tryPromise(() =>
+          ctx.var.auth.api.signOut({
+            headers: ctx.req.raw.headers,
+            returnHeaders: true,
+          }),
+        )
+        return redirectWithHeaders('/login', headers)
+      }),
+    ),
   )
   .route('/login', loginRoutes)
   .route('/app', appRoutes)

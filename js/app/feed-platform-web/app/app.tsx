@@ -13,6 +13,7 @@ import {
   preserveReturnToQueryParameterValue,
 } from '#@/feature/auth/query-parameter.ts'
 import { getReturnToPath } from '#@/feature/auth/return-to.ts'
+import * as AppEnv from '#@/feature/env.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 import type { Env } from '#@/feature/share/lib/hono/context.ts'
 import { Document } from '#@/ui/document.tsx'
@@ -79,7 +80,8 @@ const app: Hono<Env> = new Hono<Env>()
           }),
         )
         deleteBetterAuthCookies(headers)
-        return redirectWithHeaders('/app', headers)
+        const env = yield* AppEnv.Service
+        return redirectWithHeaders(`${env.IDP_BASE_URL}/logout`, headers)
       }),
     ),
   )
