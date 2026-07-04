@@ -1,4 +1,5 @@
-import { DateTime, Effect, Predicate } from 'effect'
+import { createBetterAuthSetupMiddleware } from 'auth-helper'
+import { DateTime, Option, Predicate, Schema } from 'effect'
 
 import { setLoginReturnToCookie } from '#@/feature/auth/cookie.ts'
 import { preserveReturnToLoginPath } from '#@/feature/auth/query-parameter.ts'
@@ -8,38 +9,49 @@ import { factory } from '#@/feature/share/lib/hono/factory.ts'
 
 import * as BetterAuth from './better-auth.ts'
 
-type BetterAuthSession = NonNullable<Awaited<ReturnType<BetterAuth.Instance['api']['getSession']>>>
+const BetterAuthUserPayload = Schema.Struct({
+  createdAt: Schema.Unknown,
+  email: Schema.String,
+  id: Schema.String,
+})
 
-const toAuthUser = (session: BetterAuthSession): AuthUser | null => {
-  const { user } = session
-  if (!Predicate.isString(user.id)) {
+const decodeBetterAuthUserPayload = Schema.decodeUnknownOption(BetterAuthUserPayload)
+
+const mapAuthUser = (user: unknown): AuthUser | null => {
+  const decodedUser = Option.getOrNull(decodeBetterAuthUserPayload(user))
+  if (Predicate.isNullish(decodedUser)) {
+    return null
+  }
+  const { createdAt: rawCreatedAt } = decodedUser
+  const createdAt = (() => {
+    if (Predicate.isString(rawCreatedAt)) {
+      return rawCreatedAt
+    }
+    if (rawCreatedAt instanceof Date) {
+      return rawCreatedAt.toISOString()
+    }
+    return null
+  })()
+  if (Predicate.isNullish(createdAt)) {
     return null
   }
   return {
-    createdAt: DateTime.makeUnsafe(Predicate.isString(user.createdAt) ? user.createdAt : user.createdAt.toISOString()),
-    email: Predicate.isString(user.email) ? user.email : '',
-    id: user.id,
+    createdAt: DateTime.makeUnsafe(createdAt),
+    email: decodedUser.email,
+    id: decodedUser.id,
   }
 }
 
-const getAuthUser = async (auth: BetterAuth.Instance, headers: Headers): Promise<AuthUser | null> => {
-  const session = await auth.api.getSession({ headers })
-  return Predicate.isNullish(session) ? null : toAuthUser(session)
-}
-
-export const authMiddleware = factory.createMiddleware(async (ctx, next) => {
-  // oxlint-disable-next-line rules/no-effect-runtime-run -- Hono middleware boundary reads request runtime service for downstream handlers.
-  const auth = await ctx.var.runtime.runPromise(
-    Effect.gen(function* () {
-      return yield* BetterAuth.Service
-    }),
-  )
-  ctx.set('auth', auth)
-  await next()
+export const authMiddleware = createBetterAuthSetupMiddleware({
+  factory,
+  mapUser: mapAuthUser,
+  // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP middleware boundary executes request-scoped auth workflow.
+  runPromise: (ctx, effect) => ctx.var.runtime.runPromise(effect),
+  service: BetterAuth.Service,
 })
 
 export const requireAuthMiddleware = factory.createMiddleware(async (ctx, next) => {
-  const user = await getAuthUser(ctx.var.auth, ctx.req.raw.headers)
+  const { user } = ctx.var
   if (Predicate.isNullish(user)) {
     const returnTo = getReturnToPath(ctx.req.url)
     if (Predicate.isNotNullish(returnTo)) {
@@ -47,17 +59,15 @@ export const requireAuthMiddleware = factory.createMiddleware(async (ctx, next) 
     }
     return ctx.redirect(preserveReturnToLoginPath)
   }
-  ctx.set('user', user)
   await next()
   return ctx.res
 })
 
 export const requireLoginSessionMiddleware = factory.createMiddleware(async (ctx, next) => {
-  const user = await getAuthUser(ctx.var.auth, ctx.req.raw.headers)
+  const { user } = ctx.var
   if (Predicate.isNullish(user)) {
     return ctx.redirect('/login')
   }
-  ctx.set('user', user)
   await next()
   return ctx.res
 })

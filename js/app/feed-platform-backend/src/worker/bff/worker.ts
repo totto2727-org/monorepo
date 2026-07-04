@@ -3,7 +3,7 @@ import { Hono } from 'hono'
 import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
 
-import { authMiddleware } from '#@/feature/auth/middleware.ts'
+import { authMiddleware, requireAuthMiddleware } from '#@/feature/auth/middleware.ts'
 import * as Health from '#@/feature/health.ts'
 import { middleware as runtimeMiddleware } from '#@/feature/runtime/hono.ts'
 import type { Env } from '#@/feature/share/lib/hono/context.ts'
@@ -26,6 +26,7 @@ const app = new Hono<Env>()
     ),
   )
   .use('/api/*', authMiddleware)
+  .use('/api/*', requireAuthMiddleware)
   .get('/api/v1/me', (ctx) => ctx.json(ctx.var.user))
 
 export default app
