@@ -41,3 +41,20 @@ fn json_string_array(object : Map[String, Json], key : String) -> Array[String] 
   }
   result
 }
+
+///|
+fn put_json_if_some(
+  object : Map[String, Json],
+  key : String,
+  value : Json?,
+) -> Unit {
+  match value {
+    Some(value) => object.set(key, value)
+    None => ()
+  }
+}
+
+///|
+fn json_document_text(json : Json) -> String {
+  json.stringify(indent=2) + "\n"
+}

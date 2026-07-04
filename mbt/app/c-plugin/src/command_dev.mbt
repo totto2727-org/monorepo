@@ -24,6 +24,79 @@ struct ParsedMarketplace {
 }
 
 ///|
+impl ToJson for NormalizedPlugin with fn to_json(self) -> Json {
+  let object : Map[String, Json] = Map([])
+  put_json_if_some(
+    object,
+    "description",
+    match self.description {
+      Some(value) => Some(value.to_json())
+      None => None
+    },
+  )
+  object.set("name", self.name.to_json())
+  object.set("source", self.source.to_json())
+  Json::object(object)
+}
+
+///|
+struct CodexMarketplacePolicy {
+  authentication : String
+  installation : String
+}
+
+///|
+impl ToJson for CodexMarketplacePolicy with fn to_json(self) -> Json {
+  Json::object({
+    "authentication": self.authentication.to_json(),
+    "installation": self.installation.to_json(),
+  })
+}
+
+///|
+struct CodexMarketplaceSource {
+  path : String
+  source : String
+}
+
+///|
+impl ToJson for CodexMarketplaceSource with fn to_json(self) -> Json {
+  Json::object({ "path": self.path.to_json(), "source": self.source.to_json() })
+}
+
+///|
+struct CodexMarketplacePlugin {
+  category : String
+  name : String
+  policy : CodexMarketplacePolicy
+  source : CodexMarketplaceSource
+}
+
+///|
+impl ToJson for CodexMarketplacePlugin with fn to_json(self) -> Json {
+  Json::object({
+    "category": self.category.to_json(),
+    "name": self.name.to_json(),
+    "policy": self.policy.to_json(),
+    "source": self.source.to_json(),
+  })
+}
+
+///|
+struct MarketplaceDocument {
+  name : String
+  plugins : Array[Json]
+}
+
+///|
+impl ToJson for MarketplaceDocument with fn to_json(self) -> Json {
+  Json::object({
+    "name": self.name.to_json(),
+    "plugins": self.plugins.to_json(),
+  })
+}
+
+///|
 fn dev_marketplace_sync_options(
   matches : @argparse.Matches,
 ) -> DevMarketplaceSyncOptions raise {
@@ -50,54 +123,27 @@ fn parse_marketplace(
 }
 
 ///|
-fn description_json(description : String?) -> String {
-  match description {
-    Some(value) => "\n      \"description\": \"\{json_escape(value)}\","
-    None => ""
-  }
-}
-
-///|
 fn marketplace_json(
   marketplace : ParsedMarketplace,
   kind : MarketplaceKind,
 ) -> String {
-  let plugins : Array[String] = []
+  let plugins : Array[Json] = []
   for plugin in marketplace.plugins {
     match kind {
-      Codex => {
-        let entry = "    {\n" +
-          "      \"category\": \"Productivity\",\n" +
-          "      \"name\": \"\{json_escape(plugin.name)}\",\n" +
-          "      \"policy\": {\n" +
-          "        \"authentication\": \"ON_INSTALL\",\n" +
-          "        \"installation\": \"AVAILABLE\"\n" +
-          "      },\n" +
-          "      \"source\": {\n" +
-          "        \"path\": \"./\{json_escape(plugin.source)}\",\n" +
-          "        \"source\": \"local\"\n" +
-          "      }\n" +
-          "    }"
-        plugins.push(entry)
-      }
-      _ => {
-        let entry = "    {" +
-          description_json(plugin.description) +
-          "\n" +
-          "      \"name\": \"\{json_escape(plugin.name)}\",\n" +
-          "      \"source\": \"\{json_escape(plugin.source)}\"\n" +
-          "    }"
-        plugins.push(entry)
-      }
+      Codex =>
+        plugins.push(
+          {
+            category: "Productivity",
+            name: plugin.name,
+            policy: { authentication: "ON_INSTALL", installation: "AVAILABLE" },
+            source: { path: "./\{plugin.source}", source: "local" },
+          }.to_json(),
+        )
+      _ => plugins.push(plugin.to_json())
     }
   }
-  "{\n" +
-  "  \"name\": \"\{json_escape(marketplace.name)}\",\n" +
-  "  \"plugins\": [\n" +
-  plugins.join(",\n") +
-  "\n" +
-  "  ]\n" +
-  "}\n"
+  let document : MarketplaceDocument = { name: marketplace.name, plugins }
+  json_document_text(document.to_json())
 }
 
 ///|

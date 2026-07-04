@@ -23,6 +23,48 @@ enum RepositorySourceType {
 }
 
 ///|
+impl ToJson for LockPlugin with fn to_json(self) -> Json {
+  Json::object({
+    "name": self.name.to_json(),
+    "path": self.path.to_json(),
+    "enabledSkills": self.enabled_skills.to_json(),
+  })
+}
+
+///|
+impl ToJson for LockRepository with fn to_json(self) -> Json {
+  let object : Map[String, Json] = Map([])
+  object.set(
+    "sourceType",
+    repository_source_type_to_string(self.source_type).to_json(),
+  )
+  object.set("source", self.source.to_json())
+  put_json_if_some(
+    object,
+    "commitHash",
+    match self.commit_hash {
+      Some(value) => Some(value.to_json())
+      None => None
+    },
+  )
+  object.set(
+    "marketplaceKind",
+    marketplace_kind_to_string(self.marketplace_kind).to_json(),
+  )
+  object.set("plugins", self.plugins.to_json())
+  Json::object(object)
+}
+
+///|
+impl ToJson for LockFile with fn to_json(self) -> Json {
+  Json::object({
+    "version": Json::number(1.0, repr="1"),
+    "skillDirs": self.skill_dirs.to_json(),
+    "repositories": self.repositories.to_json(),
+  })
+}
+
+///|
 fn repository_source_type_from_string(
   value : String,
 ) -> RepositorySourceType raise {
@@ -106,7 +148,7 @@ struct LockFile {
 
 ///|
 fn empty_lock_text() -> String {
-  "{\n\t\"version\": 1,\n\t\"skillDirs\": [],\n\t\"repositories\": []\n}\n"
+  json_document_text(empty_lock_file().to_json())
 }
 
 ///|
@@ -147,38 +189,10 @@ async fn read_lock(agents : String) -> LockFile {
 }
 
 ///|
-fn repository_json(repo : LockRepository) -> String {
-  let plugins : Array[String] = []
-  for plugin in repo.plugins {
-    let skills = plugin.enabled_skills
-      .map(fn(skill) { "\"\{json_escape(skill)}\"" })
-      .join(", ")
-    plugins.push(
-      "\t\t\t{ \"name\": \"\{json_escape(plugin.name)}\", \"path\": \"\{json_escape(plugin.path)}\", \"enabledSkills\": [\{skills}] }",
-    )
-  }
-  let commit_line = match repo.commit_hash {
-    Some(hash) => "\t\t\"commitHash\": \"\{json_escape(hash)}\",\n"
-    None => ""
-  }
-  let source_type = repository_source_type_to_string(repo.source_type)
-  let marketplace_kind = marketplace_kind_to_string(repo.marketplace_kind)
-  "\t{\n\t\t\"sourceType\": \"\{source_type}\",\n\t\t\"source\": \"\{json_escape(repo.source)}\",\n\{commit_line}\t\t\"marketplaceKind\": \"\{marketplace_kind}\",\n\t\t\"plugins\": [\n\{plugins.join(",\n")}\n\t\t]\n\t}"
-}
-
-///|
 async fn write_lock(agents : String, lock : LockFile) -> Unit {
-  let repo_blocks : Array[String] = []
-  for repo in lock.repositories {
-    repo_blocks.push(repository_json(repo))
-  }
-  let dirs = lock.skill_dirs
-    .map(fn(path) { "\"\{json_escape(path)}\"" })
-    .join(", ")
-  let text = "{\n\t\"version\": 1,\n\t\"skillDirs\": [\{dirs}],\n\t\"repositories\": [\n\{repo_blocks.join(",\n")}\n\t]\n}\n"
   @fs.write_file(
     lock_path_from_agents(agents),
-    text,
+    json_document_text(lock.to_json()),
     create_mode=CreateOrTruncate,
   )
 }
