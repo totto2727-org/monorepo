@@ -79,6 +79,14 @@ defmodule SymphonyElixir.Config do
     end
   end
 
+  @spec linear_output_language() :: String.t() | nil
+  def linear_output_language do
+    case settings!().display.language do
+      language when is_binary(language) and language != "" -> language
+      _ -> nil
+    end
+  end
+
   @spec opencode_server_config() :: map()
   def opencode_server_config do
     settings!().opencode

@@ -1841,7 +1841,21 @@ defmodule SymphonyElixir.Orchestrator do
       ["params", "tokenUsage", "total"],
       [:params, :tokenUsage, :total],
       ["tokenUsage", "total"],
-      [:tokenUsage, :total]
+      [:tokenUsage, :total],
+      ["params", "msg", "payload", "info", "tokens"],
+      [:params, :msg, :payload, :info, :tokens],
+      ["params", "msg", "info", "tokens"],
+      [:params, :msg, :info, :tokens],
+      ["data", "info", "tokens"],
+      [:data, :info, :tokens],
+      ["info", "tokens"],
+      [:info, :tokens],
+      ["properties", "tokens"],
+      [:properties, :tokens],
+      ["properties", "part", "tokens"],
+      [:properties, :part, :tokens],
+      ["tokens"],
+      [:tokens]
     ]
 
     explicit_map_at_paths(payload, absolute_paths)
@@ -1961,6 +1975,8 @@ defmodule SymphonyElixir.Orchestrator do
       :total_tokens,
       :prompt_tokens,
       :completion_tokens,
+      :input,
+      :output,
       :inputTokens,
       :outputTokens,
       :totalTokens,
@@ -1971,6 +1987,8 @@ defmodule SymphonyElixir.Orchestrator do
       "total_tokens",
       "prompt_tokens",
       "completion_tokens",
+      "input",
+      "output",
       "inputTokens",
       "outputTokens",
       "totalTokens",
@@ -1990,6 +2008,7 @@ defmodule SymphonyElixir.Orchestrator do
       payload_get(usage, [
         "input_tokens",
         "prompt_tokens",
+        "input",
         :input_tokens,
         :prompt_tokens,
         :input,
@@ -2004,6 +2023,8 @@ defmodule SymphonyElixir.Orchestrator do
       payload_get(usage, [
         "output_tokens",
         "completion_tokens",
+        "output",
+        "completion",
         :output_tokens,
         :completion_tokens,
         :output,
@@ -2023,7 +2044,14 @@ defmodule SymphonyElixir.Orchestrator do
         :total,
         "totalTokens",
         :totalTokens
-      ])
+      ]) || input_output_token_total(usage)
+
+  defp input_output_token_total(usage) do
+    input = get_token_usage(usage, :input)
+    output = get_token_usage(usage, :output)
+
+    if is_integer(input) and is_integer(output), do: input + output
+  end
 
   defp payload_get(payload, fields) when is_list(fields) do
     Enum.find_value(fields, fn field -> map_integer_value(payload, field) end)

@@ -930,6 +930,29 @@ defmodule SymphonyElixir.CoreTest do
     assert prompt =~ "attempt=3"
   end
 
+  test "prompt builder renders Japanese workflow and issue text as valid UTF-8" do
+    workflow_prompt =
+      "チケット {{ issue.identifier }}: {{ issue.title }}\n本文: {{ issue.description }}"
+
+    write_workflow_file!(Workflow.workflow_file_path(), prompt: workflow_prompt)
+
+    issue = %Issue{
+      identifier: "TOT-13",
+      title: "Linearへの返答を日本語化する。",
+      description: "作業メモと最終返答を日本語にする。",
+      state: "Todo",
+      url: "https://example.org/issues/TOT-13",
+      labels: []
+    }
+
+    prompt = PromptBuilder.build_prompt(issue)
+
+    assert String.valid?(prompt)
+    assert prompt =~ "チケット TOT-13"
+    assert prompt =~ "Linearへの返答を日本語化する。"
+    assert prompt =~ "作業メモと最終返答を日本語にする。"
+  end
+
   test "prompt builder renders issue datetime fields without crashing" do
     workflow_prompt =
       "Ticket {{ issue.identifier }} created={{ issue.created_at }} updated={{ issue.updated_at }}"
