@@ -164,7 +164,7 @@ defmodule SymphonyElixir.Linear.Client do
   @spec graphql(String.t(), map(), keyword()) :: {:ok, map()} | {:error, term()}
   def graphql(query, variables \\ %{}, opts \\ [])
       when is_binary(query) and is_map(variables) and is_list(opts) do
-    variables = translate_linear_comment_variables(query, variables)
+    variables = translate_linear_comment_variables(query, variables, opts)
     payload = build_graphql_payload(query, variables, Keyword.get(opts, :operation_name))
     request_fun = Keyword.get(opts, :request_fun, &post_graphql_request/2)
 
@@ -437,9 +437,9 @@ defmodule SymphonyElixir.Linear.Client do
     )
   end
 
-  defp translate_linear_comment_variables(query, variables) do
+  defp translate_linear_comment_variables(query, variables, opts) do
     if linear_comment_mutation?(query) do
-      translate_comment_body_values(variables)
+      translate_comment_body_values(variables, opts)
     else
       variables
     end
@@ -449,21 +449,21 @@ defmodule SymphonyElixir.Linear.Client do
     String.contains?(query, ["commentCreate", "commentUpdate"])
   end
 
-  defp translate_comment_body_values(value) when is_map(value) do
+  defp translate_comment_body_values(value, opts) when is_map(value) do
     Map.new(value, fn
       {key, body} when key in [:body, "body"] and is_binary(body) ->
-        {key, CommentTranslator.translate_for_linear(body)}
+        {key, CommentTranslator.translate_for_linear(body, opts)}
 
       {key, nested} ->
-        {key, translate_comment_body_values(nested)}
+        {key, translate_comment_body_values(nested, opts)}
     end)
   end
 
-  defp translate_comment_body_values(value) when is_list(value) do
-    Enum.map(value, &translate_comment_body_values/1)
+  defp translate_comment_body_values(value, opts) when is_list(value) do
+    Enum.map(value, &translate_comment_body_values(&1, opts))
   end
 
-  defp translate_comment_body_values(value), do: value
+  defp translate_comment_body_values(value, _opts), do: value
 
   defp decode_linear_response(%{"data" => %{"issues" => %{"nodes" => nodes}}}, assignee_filter) do
     issues =
