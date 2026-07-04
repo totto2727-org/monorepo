@@ -39,14 +39,10 @@ impl ToJson for LockRepository with fn to_json(self) -> Json {
     repository_source_type_to_string(self.source_type).to_json(),
   )
   object.set("source", self.source.to_json())
-  put_json_if_some(
-    object,
-    "commitHash",
-    match self.commit_hash {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
+  match self.commit_hash {
+    Some(value) => object.set("commitHash", value.to_json())
+    None => ()
+  }
   object.set(
     "marketplaceKind",
     marketplace_kind_to_string(self.marketplace_kind).to_json(),
@@ -94,13 +90,26 @@ fn empty_lock_file() -> LockFile {
 fn lock_plugin_from_json(json : Json) -> LockPlugin? {
   match json {
     Json::Object(object) => {
-      let name = json_string(object, "name").unwrap_or("plugin")
-      let path = json_string(object, "path").unwrap_or(name)
-      Some({
-        name,
-        path,
-        enabled_skills: json_string_array(object, "enabledSkills"),
-      })
+      let name = match object.get("name") {
+        Some(Json::String(value)) => value
+        _ => "plugin"
+      }
+      let path = match object.get("path") {
+        Some(Json::String(value)) => value
+        _ => name
+      }
+      let enabled_skills : Array[String] = []
+      match object.get("enabledSkills") {
+        Some(Json::Array(values)) =>
+          for value in values {
+            match value {
+              Json::String(text) => enabled_skills.push(text)
+              _ => ()
+            }
+          }
+        _ => ()
+      }
+      Some({ name, path, enabled_skills })
     }
     _ => None
   }
@@ -122,18 +131,33 @@ fn lock_plugins_from_json(json : Array[Json]) -> Array[LockPlugin] {
 fn lock_repository_from_json(json : Json) -> LockRepository? raise {
   match json {
     Json::Object(object) => {
-      let source = json_string(object, "source").unwrap_or("")
+      let source = match object.get("source") {
+        Some(Json::String(value)) => value
+        _ => ""
+      }
       guard source != "" else { return None }
+      let source_type = match object.get("sourceType") {
+        Some(Json::String(value)) => value
+        _ => "local"
+      }
+      let marketplace_kind = match object.get("marketplaceKind") {
+        Some(Json::String(value)) => value
+        _ => "claude"
+      }
+      let commit_hash = match object.get("commitHash") {
+        Some(Json::String(value)) => Some(value)
+        _ => None
+      }
+      let plugins = match object.get("plugins") {
+        Some(Json::Array(values)) => lock_plugins_from_json(values)
+        _ => []
+      }
       Some({
-        source_type: repository_source_type_from_string(
-          json_string(object, "sourceType").unwrap_or("local"),
-        ),
+        source_type: repository_source_type_from_string(source_type),
         source,
-        marketplace_kind: marketplace_kind_from_string(
-          json_string(object, "marketplaceKind").unwrap_or("claude"),
-        ),
-        commit_hash: json_string(object, "commitHash"),
-        plugins: lock_plugins_from_json(json_array(object, "plugins")),
+        marketplace_kind: marketplace_kind_from_string(marketplace_kind),
+        commit_hash,
+        plugins,
       })
     }
     _ => None
@@ -148,7 +172,7 @@ struct LockFile {
 
 ///|
 fn empty_lock_text() -> String {
-  json_document_text(empty_lock_file().to_json())
+  empty_lock_file().to_json().stringify(indent=2) + "\n"
 }
 
 ///|
@@ -170,20 +194,34 @@ async fn read_lock(agents : String) -> LockFile {
   } else {
     empty_lock_text()
   }
-  let object = match parse_json_object(text) {
-    Some(object) => object
-    None => return empty_lock_file()
+  let object = match (@json.parse(text) catch { _ => Json::null() }) {
+    Json::Object(object) => object
+    _ => return empty_lock_file()
   }
   guard object.get("version") == Some(Json::number(1.0, repr="1")) else {
     return empty_lock_file()
   }
-  let skill_dirs = json_string_array(object, "skillDirs")
+  let skill_dirs : Array[String] = []
+  match object.get("skillDirs") {
+    Some(Json::Array(values)) =>
+      for value in values {
+        match value {
+          Json::String(text) => skill_dirs.push(text)
+          _ => ()
+        }
+      }
+    _ => ()
+  }
   let repositories : Array[LockRepository] = []
-  for value in json_array(object, "repositories") {
-    match (lock_repository_from_json(value) catch { _ => None }) {
-      Some(repo) => repositories.push(repo)
-      None => ()
-    }
+  match object.get("repositories") {
+    Some(Json::Array(values)) =>
+      for value in values {
+        match (lock_repository_from_json(value) catch { _ => None }) {
+          Some(repo) => repositories.push(repo)
+          None => ()
+        }
+      }
+    _ => ()
   }
   { skill_dirs, repositories }
 }
@@ -192,7 +230,7 @@ async fn read_lock(agents : String) -> LockFile {
 async fn write_lock(agents : String, lock : LockFile) -> Unit {
   @fs.write_file(
     lock_path_from_agents(agents),
-    json_document_text(lock.to_json()),
+    lock.to_json().stringify(indent=2) + "\n",
     create_mode=CreateOrTruncate,
   )
 }

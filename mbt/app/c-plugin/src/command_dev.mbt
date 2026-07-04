@@ -26,14 +26,10 @@ struct ParsedMarketplace {
 ///|
 impl ToJson for NormalizedPlugin with fn to_json(self) -> Json {
   let object : Map[String, Json] = Map([])
-  put_json_if_some(
-    object,
-    "description",
-    match self.description {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
+  match self.description {
+    Some(value) => object.set("description", value.to_json())
+    None => ()
+  }
   object.set("name", self.name.to_json())
   object.set("source", self.source.to_json())
   Json::object(object)
@@ -143,7 +139,7 @@ fn marketplace_json(
     }
   }
   let document : MarketplaceDocument = { name: marketplace.name, plugins }
-  json_document_text(document.to_json())
+  document.to_json().stringify(indent=2) + "\n"
 }
 
 ///|

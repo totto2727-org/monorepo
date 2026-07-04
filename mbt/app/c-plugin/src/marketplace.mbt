@@ -157,11 +157,24 @@ fn plugin_source_from_json(
 ) -> String? {
   match kind {
     Codex =>
-      match json_object(plugin, "source") {
-        Some(source) => normalize_plugin_source(json_string(source, "path"))
+      match plugin.get("source") {
+        Some(Json::Object(source)) =>
+          normalize_plugin_source(
+            match source.get("path") {
+              Some(Json::String(value)) => Some(value)
+              _ => None
+            },
+          )
         None => None
+        _ => None
       }
-    _ => normalize_plugin_source(json_string(plugin, "source"))
+    _ =>
+      normalize_plugin_source(
+        match plugin.get("source") {
+          Some(Json::String(value)) => Some(value)
+          _ => None
+        },
+      )
   }
 }
 
@@ -170,32 +183,49 @@ fn normalized_plugins_from_json(
   text : String,
   kind : MarketplaceKind,
 ) -> Array[NormalizedPlugin] {
-  let object = parse_json_object(text).unwrap_or(Map([]))
+  let object = match (@json.parse(text) catch { _ => Json::null() }) {
+    Json::Object(object) => object
+    _ => Map([])
+  }
   let plugins : Array[NormalizedPlugin] = []
-  for value in json_array(object, "plugins") {
-    match value {
-      Json::Object(plugin) => {
-        let name = json_string(plugin, "name").unwrap_or("plugin")
-        let source = plugin_source_from_json(plugin, kind).unwrap_or(name)
-        if is_relative_plugin_path(source) {
-          plugins.push({
-            name,
-            source,
-            description: json_string(plugin, "description"),
-          })
+  match object.get("plugins") {
+    Some(Json::Array(values)) =>
+      for value in values {
+        match value {
+          Json::Object(plugin) => {
+            let name = match plugin.get("name") {
+              Some(Json::String(value)) => value
+              _ => "plugin"
+            }
+            let source = plugin_source_from_json(plugin, kind).unwrap_or(name)
+            if is_relative_plugin_path(source) {
+              plugins.push({
+                name,
+                source,
+                description: match plugin.get("description") {
+                  Some(Json::String(value)) => Some(value)
+                  _ => None
+                },
+              })
+            }
+          }
+          _ => ()
         }
       }
-      _ => ()
-    }
+    _ => ()
   }
   plugins
 }
 
 ///|
 fn marketplace_name_from_json(text : String) -> String {
-  match parse_json_object(text) {
-    Some(object) => json_string(object, "name").unwrap_or("marketplace")
-    None => "marketplace"
+  match (@json.parse(text) catch { _ => Json::null() }) {
+    Json::Object(object) =>
+      match object.get("name") {
+        Some(Json::String(value)) => value
+        _ => "marketplace"
+      }
+    _ => "marketplace"
   }
 }
 
