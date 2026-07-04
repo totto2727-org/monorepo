@@ -212,6 +212,7 @@ defmodule SymphonyElixir.Opencode.AppServer do
         :auth,
         :base_url,
         :client_opts,
+        :connection_manager,
         :server_config,
         :server_module,
         :server_opts
