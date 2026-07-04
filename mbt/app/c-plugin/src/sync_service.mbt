@@ -77,7 +77,7 @@ async fn create_skill_link(
         _ => ()
       }
     } else if @fs.exists(link) {
-      fail("Refusing to replace non-symlink path: \{link}")
+      raise Failure::Failure("Refusing to replace non-symlink path: \{link}")
     }
     @fs.symlink(target=skill_path, link)
   }

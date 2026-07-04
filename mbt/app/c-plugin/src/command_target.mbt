@@ -32,7 +32,7 @@ struct TargetOptions {
 fn target_options(matches : @argparse.Matches) -> TargetOptions raise {
   let dir = match matches.values.get(target_dir_arg) {
     Some([value, ..]) => value
-    _ => fail("dir is required")
+    _ => raise Failure::Failure("dir is required")
   }
   { dir, }
 }

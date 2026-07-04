@@ -23,7 +23,7 @@ fn dev_marketplace_sync_options(
 ) -> DevMarketplaceSyncOptions raise {
   let kind = match matches.values.get(base_kind_arg) {
     Some([value, ..]) => marketplace_kind_from_string(value)
-    _ => fail("base kind is required")
+    _ => raise Failure::Failure("base kind is required")
   }
   { kind, }
 }
@@ -33,10 +33,12 @@ async fn run_dev_marketplace_sync(matches : @argparse.Matches) -> Unit {
   let options = dev_marketplace_sync_options(matches)
   let kind = options.kind
   let info = detect_marketplace(cwd()).unwrap_or_else(() => {
-    fail("No supported marketplace found")
+    raise Failure::Failure("No supported marketplace found")
   })
   guard same_marketplace_kind(info.kind, kind) else {
-    fail("base marketplace \{marketplace_kind_to_string(kind)} not found")
+    raise Failure::Failure(
+      "base marketplace \{marketplace_kind_to_string(kind)} not found",
+    )
   }
   let text = @fs.read_file(info.path).text()
   for target_kind in marketplace_kinds() {

@@ -19,7 +19,7 @@ fn repository_source_type_from_string(
   match value {
     "local" => RepositoryLocal
     "github" => RepositoryGithub
-    _ => fail("unsupported repository source type: \{value}")
+    _ => raise Failure::Failure("unsupported repository source type: \{value}")
   }
 }
 
@@ -150,9 +150,7 @@ async fn write_lock(agents : String, lock : LockFile) -> Unit {
   let repo_blocks : Array[String] = []
   for repo in lock.repositories {
     let repo_dir = repo_dir_for(lock_path_from_agents(agents), repo)
-    let skills = resolve_skills(repo_dir, repo.marketplace_kind) catch {
-      _ => []
-    }
+    let skills = resolve_skills(repo_dir, repo.marketplace_kind)
     repo_blocks.push(repository_json(repo, skills))
   }
   let dirs = lock.skill_dirs

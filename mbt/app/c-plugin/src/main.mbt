@@ -67,21 +67,22 @@ async fn dispatch(matches : @argparse.Matches) -> Unit {
           match target.subcommand {
             Some(("add", command)) => run_target_add(command)
             Some(("remove", command)) => run_target_remove(command)
-            _ => fail("missing target subcommand")
+            _ => raise Failure::Failure("missing target subcommand")
           }
-        _ => fail("missing skill subcommand")
+        _ => raise Failure::Failure("missing skill subcommand")
       }
     Some(("dev", dev)) =>
       match dev.subcommand {
         Some(("marketplace", market)) =>
           match market.subcommand {
             Some(("sync", command)) => run_dev_marketplace_sync(command)
-            _ => fail("missing marketplace subcommand")
+            _ => raise Failure::Failure("missing marketplace subcommand")
           }
-        _ => fail("missing dev subcommand")
+        _ => raise Failure::Failure("missing dev subcommand")
       }
-    Some((name, _)) => fail("unknown command: \{name}")
-    None => fail("no command specified. Use --help for usage.")
+    Some((name, _)) => raise Failure::Failure("unknown command: \{name}")
+    None =>
+      raise Failure::Failure("no command specified. Use --help for usage.")
   }
 }
 

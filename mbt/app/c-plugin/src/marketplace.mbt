@@ -25,7 +25,7 @@ fn marketplace_kind_from_string(value : String) -> MarketplaceKind raise {
     "claude" => Claude
     "cursor" => Cursor
     "codex" => Codex
-    _ => fail("unsupported marketplace kind: \{value}")
+    _ => raise Failure::Failure("unsupported marketplace kind: \{value}")
   }
 }
 

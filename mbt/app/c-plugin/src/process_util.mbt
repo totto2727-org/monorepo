@@ -38,5 +38,5 @@ async fn run_checked(
     Some(dir) => collect(command, args, cwd=dir)
     None => collect(command, args)
   }
-  guard code == 0 else { fail(stderr) }
+  guard code == 0 else { raise Failure::Failure(stderr) }
 }
