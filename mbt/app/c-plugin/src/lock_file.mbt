@@ -44,73 +44,58 @@ fn repository_source_type_to_string(
 }
 
 ///|
-fn parse_string_array_property(
-  text : String,
-  key : String,
-  start : Int,
-) -> Array[String] {
-  let values : Array[String] = []
-  match text[start:].find("\"\{key}\"") {
-    Some(relative_key) => {
-      let key_start = start + relative_key
-      match text[key_start:].find("]") {
-        Some(relative_end) => {
-          let block = text[key_start:key_start + relative_end]
-          let mut cursor = 0
-          while cursor < block.length() {
-            match block[cursor:].find("\"") {
-              Some(open) => {
-                let value_start = cursor + open + 1
-                match block[value_start:].find("\"") {
-                  Some(close) => {
-                    let value = block[value_start:value_start + close].to_owned()
-                    if value != key {
-                      values.push(value)
-                    }
-                    cursor = value_start + close + 1
-                    continue
-                  }
-                  None => break
-                }
-              }
-              None => break
-            }
-          }
-        }
-        None => ()
-      }
-    }
-    None => ()
-  }
-  values
+fn empty_lock_file() -> LockFile {
+  { skill_dirs: [], repositories: [] }
 }
 
 ///|
-fn parse_plugins(text : String, start : Int, end : Int) -> Array[LockPlugin] {
+fn lock_plugin_from_json(json : Json) -> LockPlugin? {
+  match json {
+    Json::Object(object) => {
+      let name = json_string(object, "name").unwrap_or("plugin")
+      let path = json_string(object, "path").unwrap_or(name)
+      Some({
+        name,
+        path,
+        enabled_skills: json_string_array(object, "enabledSkills"),
+      })
+    }
+    _ => None
+  }
+}
+
+///|
+fn lock_plugins_from_json(json : Array[Json]) -> Array[LockPlugin] {
   let plugins : Array[LockPlugin] = []
-  let block = text[start:end].to_owned()
-  let mut cursor = 0
-  while cursor < block.length() {
-    match block[cursor:].find("\"enabledSkills\"") {
-      Some(found) => {
-        let enabled_start = cursor + found
-        let name = previous_quoted_value(block, "name", enabled_start).unwrap_or(
-          "plugin",
-        )
-        let path = previous_quoted_value(block, "path", enabled_start).unwrap_or(
-          name,
-        )
-        let enabled_skills = parse_string_array_property(
-          block, "enabledSkills", enabled_start,
-        )
-        plugins.push({ name, path, enabled_skills })
-        cursor = enabled_start + 15
-        continue
-      }
-      None => break
+  for value in json {
+    match lock_plugin_from_json(value) {
+      Some(plugin) => plugins.push(plugin)
+      None => ()
     }
   }
   plugins
+}
+
+///|
+fn lock_repository_from_json(json : Json) -> LockRepository? raise {
+  match json {
+    Json::Object(object) => {
+      let source = json_string(object, "source").unwrap_or("")
+      guard source != "" else { return None }
+      Some({
+        source_type: repository_source_type_from_string(
+          json_string(object, "sourceType").unwrap_or("local"),
+        ),
+        source,
+        marketplace_kind: marketplace_kind_from_string(
+          json_string(object, "marketplaceKind").unwrap_or("claude"),
+        ),
+        commit_hash: json_string(object, "commitHash"),
+        plugins: lock_plugins_from_json(json_array(object, "plugins")),
+      })
+    }
+    _ => None
+  }
 }
 
 ///|
@@ -143,69 +128,19 @@ async fn read_lock(agents : String) -> LockFile {
   } else {
     empty_lock_text()
   }
-  let skill_dirs : Array[String] = []
-  match text.find("\"skillDirs\"") {
-    Some(from) =>
-      match text[from:].find("]") {
-        Some(end) => {
-          let block = text[from:from + end]
-          let mut inner = 0
-          while inner < block.length() {
-            match block[inner:].find("\"") {
-              Some(open) => {
-                let value_start = inner + open + 1
-                match block[value_start:].find("\"") {
-                  Some(close) => {
-                    let value = block[value_start:value_start + close].to_owned()
-                    if value != "skillDirs" {
-                      skill_dirs.push(value)
-                    }
-                    inner = value_start + close + 1
-                    continue
-                  }
-                  None => break
-                }
-              }
-              None => break
-            }
-          }
-        }
-        None => ()
-      }
-    None => ()
+  let object = match parse_json_object(text) {
+    Some(object) => object
+    None => return empty_lock_file()
   }
+  guard object.get("version") == Some(Json::number(1.0, repr="1")) else {
+    return empty_lock_file()
+  }
+  let skill_dirs = json_string_array(object, "skillDirs")
   let repositories : Array[LockRepository] = []
-  let mut repo_cursor = 0
-  while repo_cursor < text.length() {
-    match text[repo_cursor:].find("\"sourceType\"") {
-      Some(found) => {
-        let start = repo_cursor + found
-        let source_type = repository_source_type_from_string(
-          quoted_value(text, "sourceType", start).unwrap_or("local"),
-        )
-        let source = quoted_value(text, "source", start).unwrap_or("")
-        let kind = marketplace_kind_from_string(
-          quoted_value(text, "marketplaceKind", start).unwrap_or("claude"),
-        )
-        let commit = quoted_value(text, "commitHash", start)
-        let end = match text[start + 12:].find("\"sourceType\"") {
-          Some(next) => start + 12 + next
-          None => text.length()
-        }
-        let plugins = parse_plugins(text, start, end)
-        if source != "" {
-          repositories.push({
-            source_type,
-            source,
-            marketplace_kind: kind,
-            commit_hash: commit,
-            plugins,
-          })
-        }
-        repo_cursor = start + 12
-        continue
-      }
-      None => break
+  for value in json_array(object, "repositories") {
+    match (lock_repository_from_json(value) catch { _ => None }) {
+      Some(repo) => repositories.push(repo)
+      None => ()
     }
   }
   { skill_dirs, repositories }

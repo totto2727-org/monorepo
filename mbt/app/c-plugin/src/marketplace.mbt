@@ -143,15 +143,7 @@ pub async fn has_supported_plugin_format(dir : String) -> Bool {
 }
 
 ///|
-fn source_value(
-  text : String,
-  object_start : Int,
-  kind : MarketplaceKind,
-) -> String? {
-  let value = match kind {
-    Codex => quoted_value(text, "path", object_start)
-    _ => quoted_value(text, "source", object_start)
-  }
+fn normalize_plugin_source(value : String?) -> String? {
   match value {
     Some(path) if path.has_prefix("./") => Some(path[2:].to_owned())
     _ => value
@@ -159,10 +151,51 @@ fn source_value(
 }
 
 ///|
-fn source_key(kind : MarketplaceKind) -> String {
+fn plugin_source_from_json(
+  plugin : Map[String, Json],
+  kind : MarketplaceKind,
+) -> String? {
   match kind {
-    Codex => "\"path\""
-    _ => "\"source\""
+    Codex =>
+      match json_object(plugin, "source") {
+        Some(source) => normalize_plugin_source(json_string(source, "path"))
+        None => None
+      }
+    _ => normalize_plugin_source(json_string(plugin, "source"))
+  }
+}
+
+///|
+fn normalized_plugins_from_json(
+  text : String,
+  kind : MarketplaceKind,
+) -> Array[NormalizedPlugin] {
+  let object = parse_json_object(text).unwrap_or(Map([]))
+  let plugins : Array[NormalizedPlugin] = []
+  for value in json_array(object, "plugins") {
+    match value {
+      Json::Object(plugin) => {
+        let name = json_string(plugin, "name").unwrap_or("plugin")
+        let source = plugin_source_from_json(plugin, kind).unwrap_or(name)
+        if is_relative_plugin_path(source) {
+          plugins.push({
+            name,
+            source,
+            description: json_string(plugin, "description"),
+          })
+        }
+      }
+      _ => ()
+    }
+  }
+  plugins
+}
+
+///|
+fn marketplace_name_from_json(text : String) -> String {
+  match parse_json_object(text) {
+    Some(object) => json_string(object, "name").unwrap_or("marketplace")
+    None => "marketplace"
   }
 }
 
@@ -174,42 +207,26 @@ async fn resolve_skills(
   let path = "\{repo_dir}/\{marketplace_path(kind)}"
   let text = @fs.read_file(path).text()
   let skills : Array[ResolvedSkill] = []
-  let mut cursor = 0
-  while cursor < text.length() {
-    match text[cursor:].find(source_key(kind)) {
-      Some(found) => {
-        let object_start = cursor + found
-        let plugin_name = previous_quoted_value(text, "name", object_start).unwrap_or(
-          "plugin",
-        )
-        let plugin_path = source_value(text, object_start, kind).unwrap_or(
-          plugin_name,
-        )
-        validate_relative_plugin_path(plugin_path)
-        let skill_dir = "\{repo_dir}/\{plugin_path}/skills"
-        let entries = @fs.readdir(
-          skill_dir,
-          include_hidden=false,
-          include_special=false,
-          sort=true,
-        ) catch {
-          _ => []
-        }
-        for entry in entries {
-          let skill_path = "\{skill_dir}/\{entry}"
-          if @fs.exists("\{skill_path}/SKILL.md") {
-            skills.push({
-              plugin_name,
-              plugin_path,
-              skill_name: entry,
-              skill_path,
-            })
-          }
-        }
-        cursor = object_start + 8
-        continue
+  for plugin in normalized_plugins_from_json(text, kind) {
+    let skill_dir = "\{repo_dir}/\{plugin.source}/skills"
+    let entries = @fs.readdir(
+      skill_dir,
+      include_hidden=false,
+      include_special=false,
+      sort=true,
+    ) catch {
+      _ => []
+    }
+    for entry in entries {
+      let skill_path = "\{skill_dir}/\{entry}"
+      if @fs.exists("\{skill_path}/SKILL.md") {
+        skills.push({
+          plugin_name: plugin.name,
+          plugin_path: plugin.source,
+          skill_name: entry,
+          skill_path,
+        })
       }
-      None => break
     }
   }
   skills

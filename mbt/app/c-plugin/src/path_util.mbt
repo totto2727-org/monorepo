@@ -91,15 +91,11 @@ fn validate_github_source(source : String) -> Unit raise {
 }
 
 ///|
-fn validate_relative_plugin_path(path : String) -> Unit raise {
-  guard path != "" &&
-    !path.has_prefix("/") &&
-    !path.contains("..") &&
-    !path.contains("\\") else {
-    raise Failure::Failure(
-      "Marketplace plugin source must be a relative path inside the repository",
-    )
-  }
+fn is_relative_plugin_path(path : String) -> Bool {
+  path != "" &&
+  !path.has_prefix("/") &&
+  !path.contains("..") &&
+  !path.contains("\\")
 }
 
 ///|

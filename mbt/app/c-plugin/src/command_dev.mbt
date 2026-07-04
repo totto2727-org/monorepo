@@ -43,30 +43,10 @@ fn parse_marketplace(
   text : String,
   kind : MarketplaceKind,
 ) -> ParsedMarketplace {
-  let name = quoted_value(text, "name", 0).unwrap_or("marketplace")
-  let plugins : Array[NormalizedPlugin] = []
-  let mut cursor = 0
-  while cursor < text.length() {
-    match text[cursor:].find(source_key(kind)) {
-      Some(found) => {
-        let object_start = cursor + found
-        let plugin_name = previous_quoted_value(text, "name", object_start).unwrap_or(
-          "plugin",
-        )
-        let description = previous_quoted_value(
-          text, "description", object_start,
-        )
-        let source = source_value(text, object_start, kind).unwrap_or(
-          plugin_name,
-        )
-        plugins.push({ name: plugin_name, source, description })
-        cursor = object_start + 8
-        continue
-      }
-      None => break
-    }
+  {
+    name: marketplace_name_from_json(text),
+    plugins: normalized_plugins_from_json(text, kind),
   }
-  { name, plugins }
 }
 
 ///|
