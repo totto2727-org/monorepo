@@ -146,7 +146,7 @@ async fn pdf_options(matches : @argparse.Matches) -> PdfOptionsInput {
         match @env.get_env_var(cloudflare_account_id_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
             )
         }
@@ -157,7 +157,7 @@ async fn pdf_options(matches : @argparse.Matches) -> PdfOptionsInput {
         match @env.get_env_var(cloudflare_api_token_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
             )
         }
@@ -176,7 +176,7 @@ async fn pdf_options(matches : @argparse.Matches) -> PdfOptionsInput {
     },
     output: match matches.values.get(pdf_output_option) {
       Some([value, ..]) => value
-      _ => fail("missing required option: output")
+      _ => raise Failure::Failure("missing required option: output")
     },
     landscape: matches.flags.get(pdf_landscape_option).unwrap_or(false),
     format: match matches.values.get(pdf_format_option) {
@@ -189,7 +189,7 @@ async fn pdf_options(matches : @argparse.Matches) -> PdfOptionsInput {
 ///|
 fn PdfBody::from_options(options : PdfOptionsInput) -> PdfBody raise {
   guard options.url is Some(_) || options.html is Some(_) else {
-    fail("Either --url or --html is required")
+    raise Failure::Failure("Either --url or --html is required")
   }
   {
     url: options.url,

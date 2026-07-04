@@ -142,7 +142,7 @@ async fn snapshot_options(matches : @argparse.Matches) -> SnapshotOptionsInput {
         match @env.get_env_var(cloudflare_account_id_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
             )
         }
@@ -153,7 +153,7 @@ async fn snapshot_options(matches : @argparse.Matches) -> SnapshotOptionsInput {
         match @env.get_env_var(cloudflare_api_token_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
             )
         }
@@ -172,7 +172,7 @@ async fn snapshot_options(matches : @argparse.Matches) -> SnapshotOptionsInput {
     },
     output: match matches.values.get(snapshot_output_option) {
       Some([value, ..]) => value
-      _ => fail("missing required option: output")
+      _ => raise Failure::Failure("missing required option: output")
     },
     full_page: matches.flags.get(snapshot_full_page_option).unwrap_or(false),
   }
@@ -183,7 +183,7 @@ fn SnapshotBody::from_options(
   options : SnapshotOptionsInput,
 ) -> SnapshotBody raise {
   guard options.url is Some(_) || options.html is Some(_) else {
-    fail("Either --url or --html is required")
+    raise Failure::Failure("Either --url or --html is required")
   }
   {
     url: options.url,
@@ -202,21 +202,20 @@ fn SnapshotBody::from_options(
 
 ///|
 fn snapshot_result(data : &@io.Data) -> (String, Bytes) raise {
-  let parsed = @json.parse(data.text()) catch {
-    error => fail("Invalid snapshot response JSON: \{error}")
-  }
+  let parsed = @json.parse(data.text())
   match parsed {
     Object({ "success": True, "result": Object(result), .. }) =>
       match (result.get("content"), result.get("screenshot")) {
         (Some(String(content)), Some(String(screenshot))) => {
-          let screenshot_bytes = @base64.std_decode2bytes(screenshot) catch {
-            error => fail("Invalid snapshot screenshot data: \{error}")
-          }
+          let screenshot_bytes = @base64.std_decode2bytes(screenshot)
           (content, screenshot_bytes)
         }
-        _ => fail("Invalid snapshot response: missing content or screenshot")
+        _ =>
+          raise Failure::Failure(
+            "Invalid snapshot response: missing content or screenshot",
+          )
       }
-    _ => fail("Invalid snapshot response")
+    _ => raise Failure::Failure("Invalid snapshot response")
   }
 }
 

@@ -187,7 +187,7 @@ async fn screenshot_options(
         match @env.get_env_var(cloudflare_account_id_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
             )
         }
@@ -198,7 +198,7 @@ async fn screenshot_options(
         match @env.get_env_var(cloudflare_api_token_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
             )
         }
@@ -217,7 +217,7 @@ async fn screenshot_options(
     },
     output: match matches.values.get(screenshot_output_option) {
       Some([value, ..]) => value
-      _ => fail("missing required option: output")
+      _ => raise Failure::Failure("missing required option: output")
     },
     full_page: matches.flags.get(screenshot_full_page_option).unwrap_or(false),
     width: match matches.values.get(screenshot_width_option) {
@@ -236,7 +236,7 @@ fn ScreenshotBody::from_options(
   options : ScreenshotOptionsInput,
 ) -> ScreenshotBody raise {
   guard options.url is Some(_) || options.html is Some(_) else {
-    fail("Either --url or --html is required")
+    raise Failure::Failure("Either --url or --html is required")
   }
   {
     url: options.url,
