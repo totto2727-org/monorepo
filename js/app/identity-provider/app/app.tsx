@@ -18,6 +18,7 @@ import { Document } from '#@/ui/document.tsx'
 import { LoginPasskeyPage } from '#@/ui/login-passkey.tsx'
 import { LoginPage } from '#@/ui/login.tsx'
 import { RegisterPasskeyPage } from '#@/ui/register-passkey.tsx'
+import { SelectAccountPage } from '#@/ui/select-account.tsx'
 
 const api = factory.createApp().all('/auth/*', (ctx) => ctx.var.auth.handler(ctx.req.raw))
 
@@ -50,6 +51,15 @@ const loginRoutes = factory
     return ctx.render(
       <Document title='メール確認'>
         <CheckEmailPage email={email} />
+      </Document>,
+    )
+  })
+  .get('/select-account', requireLoginSessionMiddleware, (ctx) => {
+    const { user } = ctx.var
+    const oauthQuery = new URL(ctx.req.url).searchParams.toString()
+    return ctx.render(
+      <Document title='アカウントの選択'>
+        <SelectAccountPage email={user.email} oauthQuery={oauthQuery} />
       </Document>,
     )
   })

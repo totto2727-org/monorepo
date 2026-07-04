@@ -67,7 +67,7 @@ const app: Hono<Env> = new Hono<Env>()
       }),
     ),
   )
-  .get('/app/logout', (ctx) =>
+  .post('/app/logout', (ctx) =>
     // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP auth route boundary clears the session and redirects once.
     ctx.var.runtime.runPromise(
       Effect.gen(function* () {
@@ -79,7 +79,7 @@ const app: Hono<Env> = new Hono<Env>()
           }),
         )
         deleteBetterAuthCookies(headers)
-        return redirectWithHeaders('/app', headers)
+        return redirectWithHeaders('/app/login', headers)
       }),
     ),
   )
@@ -102,7 +102,9 @@ const app: Hono<Env> = new Hono<Env>()
             <h1>Dashboard</h1>
             <p>Logged in as: {user.email}</p>
             <p>Subject: {user.sub}</p>
-            <a href='/app/logout'>Logout</a>
+            <form method='post' action='/app/logout'>
+              <button type='submit'>Logout</button>
+            </form>
           </Document>,
         )
       }),
