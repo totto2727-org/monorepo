@@ -67,7 +67,6 @@ const app: Hono<Env> = new Hono<Env>()
       }),
     ),
   )
-  .get('/app/logout', () => new Response(null, { status: 405 }))
   .post('/app/logout', (ctx) =>
     // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP auth route boundary clears the session and redirects once.
     ctx.var.runtime.runPromise(
