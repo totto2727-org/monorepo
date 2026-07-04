@@ -93,7 +93,7 @@ defmodule Symphony.Opencode.AppServer do
     sse_pid = spawn_link(fn -> sse_listener(event_stream, client, parent) end)
 
     try do
-      case session_api.session_prompt_async(session_id, body, client) do
+      case session_api.session_prompt_async(session_id, body, session_opts(client, workspace)) do
         :ok ->
           Logger.info(
             "OpenCode prompt accepted for #{issue_context(issue)} session_id=#{session_id} workspace=#{workspace}"
@@ -140,8 +140,11 @@ defmodule Symphony.Opencode.AppServer do
   end
 
   @spec stop_session(session()) :: :ok
-  def stop_session(%{client: client, session_api: session_api, session_id: session_id} = session) do
-    case session_api.session_delete(session_id, client) do
+  def stop_session(
+        %{client: client, session_api: session_api, session_id: session_id, workspace: workspace} =
+          session
+      ) do
+    case session_api.session_delete(session_id, session_opts(client, workspace)) do
       {:ok, _} ->
         :ok
 
@@ -170,9 +173,9 @@ defmodule Symphony.Opencode.AppServer do
     session_api = Keyword.get(opts, :session_api, Session)
     event_stream = Keyword.get(opts, :event_stream, EventStream)
     title = Keyword.get(opts, :title, "Symphony agent run")
-    body = %{title: title, directory: workspace}
+    body = %{title: title}
 
-    case session_api.session_create(body, client) do
+    case session_api.session_create(body, session_opts(client, workspace)) do
       {:ok, body_json} when is_map(body_json) ->
         case get_field(body_json, :id) do
           session_id when is_binary(session_id) and session_id != "" ->
@@ -220,17 +223,15 @@ defmodule Symphony.Opencode.AppServer do
       |> Keyword.put(:server_config, server_config)
       |> Keyword.put(:allow_server_start, is_nil(worker_host))
 
-    cond do
-      shared_local_connection?(opts, worker_host) ->
-        manager = Keyword.get(opts, :connection_manager, ConnectionManager)
+    if shared_local_connection?(opts, worker_host) do
+      manager = Keyword.get(opts, :connection_manager, ConnectionManager)
 
-        case ConnectionManager.connection(opts, manager) do
-          {:ok, connection} -> {:ok, Map.put(connection, :worker_host, worker_host)}
-          {:error, reason} -> {:error, reason}
-        end
-
-      true ->
-        start_direct_connection(opts, worker_host)
+      case ConnectionManager.connection(opts, manager) do
+        {:ok, connection} -> {:ok, Map.put(connection, :worker_host, worker_host)}
+        {:error, reason} -> {:error, reason}
+      end
+    else
+      start_direct_connection(opts, worker_host)
     end
   end
 
@@ -265,6 +266,8 @@ defmodule Symphony.Opencode.AppServer do
 
   defp stop_connection(%{shared_server_owner: ConnectionManager}), do: :ok
   defp stop_connection(connection), do: Connection.stop(connection)
+
+  defp session_opts(client, workspace), do: Keyword.put(client, :directory, workspace)
 
   defp session_metadata(session_id, client, connection) do
     connection
