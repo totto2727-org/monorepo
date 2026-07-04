@@ -1,4 +1,4 @@
-import { DateTime, Effect } from 'effect'
+import { DateTime } from 'effect'
 import { remixRenderer } from 'hono-remix-middleware'
 import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
@@ -18,14 +18,9 @@ import { Document } from '#@/ui/document.tsx'
 import { LoginPasskeyPage } from '#@/ui/login-passkey.tsx'
 import { LoginPage } from '#@/ui/login.tsx'
 import { RegisterPasskeyPage } from '#@/ui/register-passkey.tsx'
+import { SelectAccountPage } from '#@/ui/select-account.tsx'
 
 const api = factory.createApp().all('/auth/*', (ctx) => ctx.var.auth.handler(ctx.req.raw))
-
-const redirectWithHeaders = (location: string, headers: Headers): Response => {
-  const redirectHeaders = new Headers(headers)
-  redirectHeaders.set('Location', location)
-  return new Response(null, { headers: redirectHeaders, status: 302 })
-}
 
 const loginRoutes = factory
   .createApp()
@@ -56,6 +51,15 @@ const loginRoutes = factory
     return ctx.render(
       <Document title='メール確認'>
         <CheckEmailPage email={email} />
+      </Document>,
+    )
+  })
+  .get('/select-account', requireLoginSessionMiddleware, (ctx) => {
+    const { user } = ctx.var
+    const oauthQuery = new URL(ctx.req.url).searchParams.toString()
+    return ctx.render(
+      <Document title='アカウントの選択'>
+        <SelectAccountPage email={user.email} oauthQuery={oauthQuery} />
       </Document>,
     )
   })
@@ -97,20 +101,6 @@ const app = factory
     remixRenderer({
       fetcher: (input): Promise<Response> => Promise.resolve(app.fetch(new Request(input))),
     }),
-  )
-  .get('/logout', (ctx) =>
-    // oxlint-disable-next-line rules/no-effect-runtime-run -- HTTP logout boundary clears the IdP Better Auth session once.
-    ctx.var.runtime.runPromise(
-      Effect.gen(function* () {
-        const { headers } = yield* Effect.tryPromise(() =>
-          ctx.var.auth.api.signOut({
-            headers: ctx.req.raw.headers,
-            returnHeaders: true,
-          }),
-        )
-        return redirectWithHeaders('/login', headers)
-      }),
-    ),
   )
   .route('/login', loginRoutes)
   .route('/app', appRoutes)
