@@ -310,9 +310,14 @@ fn crawl_get_options(matches : @argparse.Matches) -> CrawlGetOptionsInput raise 
             )
         }
     },
-    id: match matches.values.get(crawl_id_option) {
-      Some([value, ..]) => value
-      _ => raise Failure::Failure("missing required option: id")
+    id: {
+      let values = matches.values
+        .get(crawl_id_option)
+        .unwrap_or_error(Failure::Failure("missing required option: id"))
+      match values {
+        [value, ..] => value
+        [] => raise Failure::Failure("missing required option: id")
+      }
     },
     output: match matches.values.get(crawl_output_option) {
       Some([value, ..]) => Some(value)

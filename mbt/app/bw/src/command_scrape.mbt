@@ -141,9 +141,14 @@ async fn scrape_options(matches : @argparse.Matches) -> ScrapeOptionsInput {
       Some([value, ..]) => Some(value)
       _ => None
     },
-    selector: match matches.values.get(scrape_selector_option) {
-      Some([value, ..]) => value
-      _ => raise Failure::Failure("missing required option: selector")
+    selector: {
+      let values = matches.values
+        .get(scrape_selector_option)
+        .unwrap_or_error(Failure::Failure("missing required option: selector"))
+      match values {
+        [value, ..] => value
+        [] => raise Failure::Failure("missing required option: selector")
+      }
     },
   }
 }

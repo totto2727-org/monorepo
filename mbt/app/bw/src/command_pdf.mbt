@@ -174,9 +174,14 @@ async fn pdf_options(matches : @argparse.Matches) -> PdfOptionsInput {
       Some([value, ..]) => Some(value)
       _ => None
     },
-    output: match matches.values.get(pdf_output_option) {
-      Some([value, ..]) => value
-      _ => raise Failure::Failure("missing required option: output")
+    output: {
+      let values = matches.values
+        .get(pdf_output_option)
+        .unwrap_or_error(Failure::Failure("missing required option: output"))
+      match values {
+        [value, ..] => value
+        [] => raise Failure::Failure("missing required option: output")
+      }
     },
     landscape: matches.flags.get(pdf_landscape_option).unwrap_or(false),
     format: match matches.values.get(pdf_format_option) {

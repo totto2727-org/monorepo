@@ -215,9 +215,14 @@ async fn screenshot_options(
       Some([value, ..]) => Some(value)
       _ => None
     },
-    output: match matches.values.get(screenshot_output_option) {
-      Some([value, ..]) => value
-      _ => raise Failure::Failure("missing required option: output")
+    output: {
+      let values = matches.values
+        .get(screenshot_output_option)
+        .unwrap_or_error(Failure::Failure("missing required option: output"))
+      match values {
+        [value, ..] => value
+        [] => raise Failure::Failure("missing required option: output")
+      }
     },
     full_page: matches.flags.get(screenshot_full_page_option).unwrap_or(false),
     width: match matches.values.get(screenshot_width_option) {

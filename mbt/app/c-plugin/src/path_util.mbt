@@ -13,21 +13,29 @@ fn cwd() -> String {
 
 ///|
 fn normalize_path(path : String) -> String {
-  if path.has_prefix("/") {
-    path
+  if @path.Path::is_absolute(path) {
+    @path.Path::normalize(path).to_string()
   } else {
-    "\{cwd()}/\{path}"
+    @path.Path::join(cwd(), path).normalize().to_string()
+  }
+}
+
+///|
+fn relative_path(from : String, to : String) -> String {
+  let relative = @path.Path::relative(
+    base=normalize_path(from),
+    normalize_path(to),
+  ).to_string()
+  if relative == "" {
+    "."
+  } else {
+    relative
   }
 }
 
 ///|
 fn dirname(path : String) -> String {
-  let trimmed = path.trim_end(chars="/").to_owned()
-  match trimmed.rev_find("/") {
-    Some(0) => "/"
-    Some(index) => trimmed[:index].to_owned()
-    None => "."
-  }
+  @path.Path::dirname(path).to_string()
 }
 
 ///|

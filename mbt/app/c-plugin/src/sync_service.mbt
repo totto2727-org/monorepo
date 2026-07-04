@@ -79,7 +79,7 @@ async fn create_skill_link(
     } else if @fs.exists(link) {
       raise Failure::Failure("Refusing to replace non-symlink path: \{link}")
     }
-    @fs.symlink(target=skill_path, link)
+    @fs.symlink(target=relative_path(root, skill_path), link)
   }
 }
 
@@ -125,7 +125,16 @@ async fn sync_one(
 ) -> Unit {
   let repo_dir = repo_dir_for(lock_path_from_agents(agents), repo)
   let skills = resolve_skills(repo_dir, repo.marketplace_kind)
+  let expected_skills : Array[String] = []
+  for plugin in repo.plugins {
+    for skill in plugin.enabled_skills {
+      expected_skills.push(skill)
+    }
+  }
   for skill in skills {
+    if !expected_skills.contains(skill.skill_name) {
+      continue
+    }
     create_skill_link(
       agents,
       lock.skill_dirs,

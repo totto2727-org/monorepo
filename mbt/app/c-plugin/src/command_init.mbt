@@ -17,9 +17,8 @@ fn init_options(_matches : @argparse.Matches) -> InitOptions {
 }
 
 ///|
-async fn run_init(matches : @argparse.Matches) -> Unit {
-  let options = init_options(matches)
-  let agents = agents_dir(options.global)
+async fn init_lock_file(project_root : String) -> String {
+  let agents = @path.Path::join(project_root, ".agents").to_string()
   if !@fs.exists(agents) {
     @fs.mkdir(agents, recursive=true)
   }
@@ -28,5 +27,13 @@ async fn run_init(matches : @argparse.Matches) -> Unit {
     raise Failure::Failure("lock file already exists: \{path}")
   }
   @fs.write_file(path, empty_lock_text(), create_mode=CreateOrTruncate)
+  path
+}
+
+///|
+async fn run_init(matches : @argparse.Matches) -> Unit {
+  let options = init_options(matches)
+  let project_root = if options.global { home_dir() } else { cwd() }
+  let path = init_lock_file(project_root)
   println("Created \{path}")
 }

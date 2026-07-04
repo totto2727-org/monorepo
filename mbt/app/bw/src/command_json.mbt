@@ -137,9 +137,14 @@ async fn json_extract_options(
       Some([value, ..]) => Some(value)
       _ => None
     },
-    prompt: match matches.values.get(json_prompt_option) {
-      Some([value, ..]) => value
-      _ => raise Failure::Failure("missing required option: prompt")
+    prompt: {
+      let values = matches.values
+        .get(json_prompt_option)
+        .unwrap_or_error(Failure::Failure("missing required option: prompt"))
+      match values {
+        [value, ..] => value
+        [] => raise Failure::Failure("missing required option: prompt")
+      }
     },
     response_format: match matches.values.get(json_schema_option) {
       Some([path, ..]) => {

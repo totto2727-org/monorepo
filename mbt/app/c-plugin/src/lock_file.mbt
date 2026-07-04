@@ -1,9 +1,19 @@
 ///|
+
+///|
+struct LockPlugin {
+  name : String
+  path : String
+  enabled_skills : Array[String]
+}
+
+///|
 struct LockRepository {
   source_type : RepositorySourceType
   source : String
   marketplace_kind : MarketplaceKind
   commit_hash : String?
+  plugins : Array[LockPlugin]
 }
 
 ///|
@@ -31,6 +41,76 @@ fn repository_source_type_to_string(
     RepositoryLocal => "local"
     RepositoryGithub => "github"
   }
+}
+
+///|
+fn parse_string_array_property(
+  text : String,
+  key : String,
+  start : Int,
+) -> Array[String] {
+  let values : Array[String] = []
+  match text[start:].find("\"\{key}\"") {
+    Some(relative_key) => {
+      let key_start = start + relative_key
+      match text[key_start:].find("]") {
+        Some(relative_end) => {
+          let block = text[key_start:key_start + relative_end]
+          let mut cursor = 0
+          while cursor < block.length() {
+            match block[cursor:].find("\"") {
+              Some(open) => {
+                let value_start = cursor + open + 1
+                match block[value_start:].find("\"") {
+                  Some(close) => {
+                    let value = block[value_start:value_start + close].to_owned()
+                    if value != key {
+                      values.push(value)
+                    }
+                    cursor = value_start + close + 1
+                    continue
+                  }
+                  None => break
+                }
+              }
+              None => break
+            }
+          }
+        }
+        None => ()
+      }
+    }
+    None => ()
+  }
+  values
+}
+
+///|
+fn parse_plugins(text : String, start : Int, end : Int) -> Array[LockPlugin] {
+  let plugins : Array[LockPlugin] = []
+  let block = text[start:end].to_owned()
+  let mut cursor = 0
+  while cursor < block.length() {
+    match block[cursor:].find("\"enabledSkills\"") {
+      Some(found) => {
+        let enabled_start = cursor + found
+        let name = previous_quoted_value(block, "name", enabled_start).unwrap_or(
+          "plugin",
+        )
+        let path = previous_quoted_value(block, "path", enabled_start).unwrap_or(
+          name,
+        )
+        let enabled_skills = parse_string_array_property(
+          block, "enabledSkills", enabled_start,
+        )
+        plugins.push({ name, path, enabled_skills })
+        cursor = enabled_start + 15
+        continue
+      }
+      None => break
+    }
+  }
+  plugins
 }
 
 ///|
@@ -108,12 +188,18 @@ async fn read_lock(agents : String) -> LockFile {
           quoted_value(text, "marketplaceKind", start).unwrap_or("claude"),
         )
         let commit = quoted_value(text, "commitHash", start)
+        let end = match text[start + 12:].find("\"sourceType\"") {
+          Some(next) => start + 12 + next
+          None => text.length()
+        }
+        let plugins = parse_plugins(text, start, end)
         if source != "" {
           repositories.push({
             source_type,
             source,
             marketplace_kind: kind,
             commit_hash: commit,
+            plugins,
           })
         }
         repo_cursor = start + 12
@@ -126,14 +212,14 @@ async fn read_lock(agents : String) -> LockFile {
 }
 
 ///|
-fn repository_json(
-  repo : LockRepository,
-  skills : Array[ResolvedSkill],
-) -> String {
+fn repository_json(repo : LockRepository) -> String {
   let plugins : Array[String] = []
-  for skill in skills {
+  for plugin in repo.plugins {
+    let skills = plugin.enabled_skills
+      .map(fn(skill) { "\"\{json_escape(skill)}\"" })
+      .join(", ")
     plugins.push(
-      "\t\t\t{ \"name\": \"\{json_escape(skill.plugin_name)}\", \"path\": \"\{json_escape(skill.plugin_path)}\", \"enabledSkills\": [\"\{json_escape(skill.skill_name)}\"] }",
+      "\t\t\t{ \"name\": \"\{json_escape(plugin.name)}\", \"path\": \"\{json_escape(plugin.path)}\", \"enabledSkills\": [\{skills}] }",
     )
   }
   let commit_line = match repo.commit_hash {
@@ -149,9 +235,7 @@ fn repository_json(
 async fn write_lock(agents : String, lock : LockFile) -> Unit {
   let repo_blocks : Array[String] = []
   for repo in lock.repositories {
-    let repo_dir = repo_dir_for(lock_path_from_agents(agents), repo)
-    let skills = resolve_skills(repo_dir, repo.marketplace_kind)
-    repo_blocks.push(repository_json(repo, skills))
+    repo_blocks.push(repository_json(repo))
   }
   let dirs = lock.skill_dirs
     .map(fn(path) { "\"\{json_escape(path)}\"" })

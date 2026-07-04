@@ -119,9 +119,12 @@ fn skill_global_options(matches : @argparse.Matches) -> SkillGlobalOptions {
 fn skill_remove_options(
   matches : @argparse.Matches,
 ) -> SkillRemoveOptions raise {
-  let source = match matches.values.get(repo_arg) {
-    Some([value, ..]) => value
-    _ => raise Failure::Failure("source is required")
+  let values = matches.values
+    .get(repo_arg)
+    .unwrap_or_error(Failure::Failure("source is required"))
+  let source = match values {
+    [value, ..] => value
+    [] => raise Failure::Failure("source is required")
   }
   { global: matches.flags.contains(global_option), source }
 }
@@ -136,20 +139,38 @@ async fn run_skill_add(matches : @argparse.Matches) -> Unit {
     Local(path) => (RepositoryLocal, path, local_source_path(path, root))
     Github(repo) => (RepositoryGithub, repo, ensure_repo(repo))
   }
-  let market = detect_marketplace(dir).unwrap_or_else(() => {
-    raise Failure::Failure("No supported marketplace found in \{dir}")
-  })
+  let market = detect_marketplace(dir).unwrap_or_error(
+    Failure::Failure("No supported marketplace found in \{dir}"),
+  )
   let hash = match source_type {
     RepositoryGithub => Some(commit_hash(dir))
     RepositoryLocal => None
   }
   let lock = read_lock(agents)
-  lock.repositories.push({
-    source_type,
-    source,
-    marketplace_kind: market.kind,
-    commit_hash: hash,
-  })
+  let skills = resolve_skills(dir, market.kind)
+  let incoming_plugins = plugins_from_skills(skills)
+  let mut merged = false
+  for index, repo in lock.repositories {
+    if repo.source == source {
+      lock.repositories[index] = {
+        source_type,
+        source,
+        marketplace_kind: market.kind,
+        commit_hash: hash,
+        plugins: merge_plugins(repo.plugins, incoming_plugins),
+      }
+      merged = true
+    }
+  }
+  if !merged {
+    lock.repositories.push({
+      source_type,
+      source,
+      marketplace_kind: market.kind,
+      commit_hash: hash,
+      plugins: incoming_plugins,
+    })
+  }
   write_lock(agents, lock)
   sync_all(agents)
   println("Added \{source}")
@@ -176,6 +197,7 @@ async fn run_skill_update(matches : @argparse.Matches) -> Unit {
           source: repo.source,
           marketplace_kind: repo.marketplace_kind,
           commit_hash: Some(commit_hash(dir)),
+          plugins: repo.plugins,
         })
       }
       RepositoryLocal => updated.push(repo)

@@ -8,6 +8,7 @@ supported_targets = "native"
 
 import {
   "mizchi/admiral@0.1.0",
+  "moonbitlang/x@0.4.38",
   "moonbitlang/async@0.19.2",
 }
 

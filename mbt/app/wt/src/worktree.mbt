@@ -23,11 +23,22 @@ fn format_pr(pr : PrInfo) -> String {
   match pr.state {
     "main" => "main"
     "none" => "none"
-    state =>
+    "merged" =>
       match pr.number {
-        Some(number) => "#\{number} \{state}"
-        None => state
+        Some(number) => "MERGED(#\{number})"
+        None => "MERGED(#?)"
       }
+    "open" =>
+      match pr.number {
+        Some(number) => "OPEN(#\{number})"
+        None => "OPEN(#?)"
+      }
+    "closed" =>
+      match pr.number {
+        Some(number) => "CLOSED(#\{number})"
+        None => "CLOSED(#?)"
+      }
+    state => state
   }
 }
 
@@ -48,7 +59,10 @@ fn parse_github_remote(url : String) -> String? {
 }
 
 ///|
-fn parse_worktree_list(output : String) -> Array[WorktreeEntry] {
+fn parse_worktree_list(
+  output : String,
+  repo_path : String,
+) -> Array[WorktreeEntry] {
   let entries : Array[WorktreeEntry] = []
   for block in output.split("\n\n") {
     let block_text = block.to_owned()
@@ -69,7 +83,7 @@ fn parse_worktree_list(output : String) -> Array[WorktreeEntry] {
         entries.push({
           path: path_value,
           branch,
-          is_main: entries.length() == 0,
+          is_main: path_value == repo_path,
         })
       None => ()
     }
@@ -119,7 +133,7 @@ async fn fetch_repo_worktrees(repo : String) -> RepoWorktrees? {
   let output = collect_or_empty("git", [
     "-C", top, "worktree", "list", "--porcelain",
   ])
-  Some({ repo_path: top, slug, entries: parse_worktree_list(output) })
+  Some({ repo_path: top, slug, entries: parse_worktree_list(output, top) })
 }
 
 ///|

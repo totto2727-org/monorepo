@@ -170,9 +170,14 @@ async fn snapshot_options(matches : @argparse.Matches) -> SnapshotOptionsInput {
       Some([value, ..]) => Some(value)
       _ => None
     },
-    output: match matches.values.get(snapshot_output_option) {
-      Some([value, ..]) => value
-      _ => raise Failure::Failure("missing required option: output")
+    output: {
+      let values = matches.values
+        .get(snapshot_output_option)
+        .unwrap_or_error(Failure::Failure("missing required option: output"))
+      match values {
+        [value, ..] => value
+        [] => raise Failure::Failure("missing required option: output")
+      }
     },
     full_page: matches.flags.get(snapshot_full_page_option).unwrap_or(false),
   }
