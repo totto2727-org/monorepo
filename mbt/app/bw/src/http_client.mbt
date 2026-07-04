@@ -35,6 +35,8 @@ async fn get_json(
 ///|
 fn ensure_success(code : Int, reason : String, data : &@io.Data) -> Unit raise {
   guard code is (200..<300) else {
-    fail("Cloudflare API returned \{code} \{reason}: \{data.text()}")
+    raise Failure::Failure(
+      "Cloudflare API returned \{code} \{reason}: \{data.text()}",
+    )
   }
 }

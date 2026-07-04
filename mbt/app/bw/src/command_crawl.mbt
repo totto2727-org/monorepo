@@ -204,7 +204,7 @@ async fn crawl_start_options(
         match @env.get_env_var(cloudflare_account_id_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
             )
         }
@@ -215,7 +215,7 @@ async fn crawl_start_options(
         match @env.get_env_var(cloudflare_api_token_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
             )
         }
@@ -256,7 +256,7 @@ fn CrawlStartBody::from_options(
   options : CrawlStartOptionsInput,
 ) -> CrawlStartBody raise {
   guard options.url is Some(_) || options.html is Some(_) else {
-    fail("Either --url or --html is required")
+    raise Failure::Failure("Either --url or --html is required")
   }
   {
     url: options.url,
@@ -294,7 +294,7 @@ fn crawl_get_options(matches : @argparse.Matches) -> CrawlGetOptionsInput raise 
         match @env.get_env_var(cloudflare_account_id_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
             )
         }
@@ -305,14 +305,14 @@ fn crawl_get_options(matches : @argparse.Matches) -> CrawlGetOptionsInput raise 
         match @env.get_env_var(cloudflare_api_token_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
             )
         }
     },
     id: match matches.values.get(crawl_id_option) {
       Some([value, ..]) => value
-      _ => fail("missing required option: id")
+      _ => raise Failure::Failure("missing required option: id")
     },
     output: match matches.values.get(crawl_output_option) {
       Some([value, ..]) => Some(value)
