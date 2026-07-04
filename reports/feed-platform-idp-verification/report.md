@@ -30,17 +30,17 @@ IdPとfeed-platform-webのOAuth認可コードフロー、およびfeed-platform
 
 スクリーンショット取得後、画像そのものを確認し、表示内容とレポート記述が一致しているかを検証しました。
 
-| スクリーンショット              | 画像上の主要表示                                                           | 判定                                      |
-| ------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
-| `01-idp-login.png`              | `ログイン`, `メールアドレス`, `マジックリンクを送信`, `Passkey でログイン` | ✅ IdPログイン画面                        |
-| `02-idp-login-passkey.png`      | `Passkey ログイン`                                                         | ✅ Passkeyログイン画面                    |
-| `03-idp-check-email.png`        | `メール確認`                                                               | ✅ Magic Link送信後の確認画面             |
-| `04-feed-app-unauthorized.png`  | `ログイン`, `メールアドレス`, `マジックリンクを送信`, `Passkey でログイン` | ✅ 未認証時のIdPログインリダイレクト      |
-| `05-idp-account.png`            | `アカウント`, `メール`, `ログアウト`                                       | ✅ IdPアカウント画面                      |
-| `06-idp-passkey-register.png`   | `Passkey 登録`                                                             | ✅ Passkey登録画面                        |
-| `07-idp-select-account.png`     | `アカウントの選択`, `dev@example.com`, `このアカウントで続行`             | ✅ IdPアカウント選択画面                  |
-| `08-feed-app-authenticated.png` | `Dashboard`, `Logged in as: ...`, `Subject: ...`, `Logout`                 | ✅ 認証済みDashboard                      |
-| `09-feed-app-after-logout.png`  | `アカウントの選択`, `dev@example.com`, `このアカウントで続行`             | ✅ POSTログアウト後のIdPアカウント選択画面 |
+| スクリーンショット              | 画像上の主要表示                                                           | 判定                                       |
+| ------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------ |
+| `01-idp-login.png`              | `ログイン`, `メールアドレス`, `マジックリンクを送信`, `Passkey でログイン` | ✅ IdPログイン画面                         |
+| `02-idp-login-passkey.png`      | `Passkey ログイン`                                                         | ✅ Passkeyログイン画面                     |
+| `03-idp-check-email.png`        | `メール確認`                                                               | ✅ Magic Link送信後の確認画面              |
+| `04-feed-app-unauthorized.png`  | `ログイン`, `メールアドレス`, `マジックリンクを送信`, `Passkey でログイン` | ✅ 未認証時のIdPログインリダイレクト       |
+| `05-idp-account.png`            | `アカウント`, `メール`, `ログアウト`                                       | ✅ IdPアカウント画面                       |
+| `06-idp-passkey-register.png`   | `Passkey 登録`                                                             | ✅ Passkey登録画面                         |
+| `07-idp-select-account.png`     | `アカウントの選択`, `dev@example.com`, `このアカウントで続行`              | ✅ IdPアカウント選択画面                   |
+| `08-feed-app-authenticated.png` | `Dashboard`, `Logged in as: ...`, `Subject: ...`, `Logout`                 | ✅ 認証済みDashboard                       |
+| `09-feed-app-after-logout.png`  | `アカウントの選択`, `dev@example.com`, `このアカウントで続行`              | ✅ POSTログアウト後のIdPアカウント選択画面 |
 
 ## 修正点
 
