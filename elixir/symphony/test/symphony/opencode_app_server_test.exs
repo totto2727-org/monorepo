@@ -35,11 +35,11 @@ defmodule Symphony.OpencodeAppServerTest do
       manager = start_connection_manager!()
 
       assert {:ok, %{session_id: "ses_lifecycle"}} =
-                AppServer.run(workspace, "Use OpenCode", issue,
-                  client_opts: [test_pid: self(), session_id: "ses_lifecycle"],
-                  connection_manager: manager,
-                  event_stream: EventStream,
-                  server_module: Server,
+               AppServer.run(workspace, "Use OpenCode", issue,
+                 client_opts: [test_pid: self(), session_id: "ses_lifecycle"],
+                 connection_manager: manager,
+                 event_stream: EventStream,
+                 server_module: Server,
                  server_opts: [test_pid: self(), url: "http://127.0.0.1:4999"],
                  session_api: SessionApi,
                  turn_timeout_ms: 1_000
@@ -48,16 +48,18 @@ defmodule Symphony.OpencodeAppServerTest do
       assert_received {:opencode_server_start, server_opts}
       assert Keyword.get(server_opts, :config) == %{}
 
-      assert_received {:opencode_session_create, body, client}
+      assert_received {:opencode_session_create, body, create_opts}
       assert {:ok, canonical_workspace} = Symphony.PathSafety.canonicalize(workspace)
-      assert body.title == "Symphony agent run"
-      assert body.directory == canonical_workspace
-      assert Keyword.get(client, :base_url) == "http://127.0.0.1:4999"
+      assert body == %{title: "Symphony agent run"}
+      assert Keyword.get(create_opts, :directory) == canonical_workspace
+      assert Keyword.get(create_opts, :base_url) == "http://127.0.0.1:4999"
 
-      assert_received {:opencode_prompt_async, "ses_lifecycle", prompt_body, _client}
+      assert_received {:opencode_prompt_async, "ses_lifecycle", prompt_body, prompt_opts}
       assert prompt_body == %{parts: [%{type: "text", text: "Use OpenCode"}]}
+      assert Keyword.get(prompt_opts, :directory) == canonical_workspace
 
-      assert_received {:opencode_session_delete, "ses_lifecycle", _client}
+      assert_received {:opencode_session_delete, "ses_lifecycle", delete_opts}
+      assert Keyword.get(delete_opts, :directory) == canonical_workspace
       refute_received {:opencode_server_stop, %{url: "http://127.0.0.1:4999"}}
     after
       File.rm_rf(test_root)
@@ -80,11 +82,11 @@ defmodule Symphony.OpencodeAppServerTest do
       manager = start_connection_manager!()
 
       assert {:ok, session1} =
-                AppServer.start_session(workspace,
-                  client_opts: [test_pid: self(), session_id: "ses_shared_1"],
-                  connection_manager: manager,
-                  event_stream: EventStream,
-                  server_module: Server,
+               AppServer.start_session(workspace,
+                 client_opts: [test_pid: self(), session_id: "ses_shared_1"],
+                 connection_manager: manager,
+                 event_stream: EventStream,
+                 server_module: Server,
                  server_opts: [test_pid: self(), url: "http://127.0.0.1:4997"],
                  session_api: SessionApi
                )
@@ -92,11 +94,11 @@ defmodule Symphony.OpencodeAppServerTest do
       assert_received {:opencode_server_start, _server_opts}
 
       assert {:ok, session2} =
-                AppServer.start_session(workspace,
-                  client_opts: [test_pid: self(), session_id: "ses_shared_2"],
-                  connection_manager: manager,
-                  event_stream: EventStream,
-                  server_module: Server,
+               AppServer.start_session(workspace,
+                 client_opts: [test_pid: self(), session_id: "ses_shared_2"],
+                 connection_manager: manager,
+                 event_stream: EventStream,
+                 server_module: Server,
                  server_opts: [test_pid: self(), url: "http://127.0.0.1:4997"],
                  session_api: SessionApi
                )
@@ -110,6 +112,62 @@ defmodule Symphony.OpencodeAppServerTest do
       assert :ok = AppServer.stop_session(session2)
       assert_received {:opencode_session_delete, "ses_shared_2", _client}
       refute_received {:opencode_server_stop, _server}
+    after
+      File.rm_rf(test_root)
+    end
+  end
+
+  test "app server prompt opts make git operations target the issue workspace" do
+    test_root =
+      Path.join(
+        System.tmp_dir!(),
+        "symphony-opencode-app-server-git-cwd-#{System.unique_integer([:positive])}"
+      )
+
+    try do
+      workspace_root = Path.join(test_root, "workspaces")
+      workspace = Path.join(workspace_root, "MT-OC-GIT")
+      File.mkdir_p!(workspace)
+
+      assert {_, 0} = System.cmd("git", ["-C", workspace, "init", "-b", "main"])
+      assert {_, 0} = System.cmd("git", ["-C", workspace, "config", "user.name", "Test User"])
+
+      assert {_, 0} =
+               System.cmd("git", ["-C", workspace, "config", "user.email", "test@example.com"])
+
+      File.write!(Path.join(workspace, "README.md"), "# workspace\n")
+      assert {_, 0} = System.cmd("git", ["-C", workspace, "add", "README.md"])
+      assert {_, 0} = System.cmd("git", ["-C", workspace, "commit", "-m", "initial"])
+
+      write_workflow_file!(Workflow.workflow_file_path(), workspace_root: workspace_root)
+
+      issue = %Issue{
+        id: "issue-opencode-git-cwd",
+        identifier: "MT-OC-GIT",
+        title: "Validate OpenCode git cwd",
+        description: "Exercise generated OpenCode directory query opts",
+        state: "In Progress"
+      }
+
+      manager = start_connection_manager!()
+
+      assert {:ok, %{session_id: "ses_git_cwd"}} =
+               AppServer.run(workspace, "Check git cwd", issue,
+                 client_opts: [
+                   test_pid: self(),
+                   session_id: "ses_git_cwd",
+                   assert_git_toplevel: true
+                 ],
+                 connection_manager: manager,
+                 event_stream: EventStream,
+                 server_module: Server,
+                 server_opts: [test_pid: self(), url: "http://127.0.0.1:4995"],
+                 session_api: SessionApi,
+                 turn_timeout_ms: 1_000
+               )
+
+      assert {:ok, canonical_workspace} = Symphony.PathSafety.canonicalize(workspace)
+      assert_received {:opencode_git_toplevel, ^canonical_workspace, ^canonical_workspace}
     after
       File.rm_rf(test_root)
     end
@@ -207,11 +265,11 @@ defmodule Symphony.OpencodeAppServerTest do
       manager = start_connection_manager!()
 
       assert {:ok, %{session_id: "ses_model"}} =
-                AppServer.run(workspace, "Use configured model", issue,
-                  client_opts: [test_pid: self(), session_id: "ses_model"],
-                  connection_manager: manager,
-                  event_stream: EventStream,
-                  server_module: Server,
+               AppServer.run(workspace, "Use configured model", issue,
+                 client_opts: [test_pid: self(), session_id: "ses_model"],
+                 connection_manager: manager,
+                 event_stream: EventStream,
+                 server_module: Server,
                  server_opts: [test_pid: self(), url: "http://127.0.0.1:4998"],
                  session_api: SessionApi,
                  turn_timeout_ms: 1_000
@@ -254,11 +312,11 @@ defmodule Symphony.OpencodeAppServerTest do
       manager = start_connection_manager!()
 
       assert {:ok, %{session_id: "ses_target"}} =
-                AppServer.run(workspace, "Use OpenCode", issue,
-                  client_opts: [events: events, session_id: "ses_target"],
-                  connection_manager: manager,
-                  event_stream: EventStream,
-                  server_module: Server,
+               AppServer.run(workspace, "Use OpenCode", issue,
+                 client_opts: [events: events, session_id: "ses_target"],
+                 connection_manager: manager,
+                 event_stream: EventStream,
+                 server_module: Server,
                  server_opts: [url: "http://127.0.0.1:4999"],
                  session_api: SessionApi,
                  turn_timeout_ms: 1_000
