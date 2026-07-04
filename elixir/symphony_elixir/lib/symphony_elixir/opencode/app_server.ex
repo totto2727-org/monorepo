@@ -84,7 +84,9 @@ defmodule SymphonyElixir.Opencode.AppServer do
       session.metadata
     )
 
-    body = %{parts: [%{type: "text", text: prompt}]}
+    body =
+      %{parts: [%{type: "text", text: prompt}]}
+      |> maybe_put_system(Keyword.get(opts, :system))
 
     parent = self()
     sse_pid = spawn_link(fn -> sse_listener(event_stream, client, parent) end)
@@ -238,6 +240,15 @@ defmodule SymphonyElixir.Opencode.AppServer do
 
   defp maybe_put(map, _key, nil), do: map
   defp maybe_put(map, key, value), do: Map.put(map, key, value)
+
+  defp maybe_put_system(body, system) when is_binary(system) do
+    case String.trim(system) do
+      "" -> body
+      trimmed -> Map.put(body, :system, trimmed)
+    end
+  end
+
+  defp maybe_put_system(body, _system), do: body
 
   defp validate_workspace_cwd(workspace, nil) when is_binary(workspace) do
     expanded_workspace = Path.expand(workspace)

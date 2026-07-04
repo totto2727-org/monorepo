@@ -614,13 +614,13 @@ defmodule SymphonyElixir.WorkspaceAndConfigTest do
                  ]
                )
 
-      assert_received {:opencode_prompt_async, "ses_translate", %{parts: [%{text: prompt}]},
-                       _client}
+      assert_received {:opencode_prompt_async, "ses_translate",
+                       %{parts: [%{text: "Hello"}], system: system}, _client}
 
-      assert prompt =~ "Target language: fr"
-      assert prompt =~ "<linear-comment>"
-      assert prompt =~ "Hello"
-      assert prompt =~ "Output only the final comment body"
+      assert system =~ "Target language: fr"
+      assert system =~ "Translate the user's input into the target language."
+      assert system =~ "Output only the final comment body"
+      refute system =~ "Hello"
     after
       File.rm_rf(test_root)
     end

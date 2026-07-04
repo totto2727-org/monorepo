@@ -30,7 +30,7 @@ defmodule SymphonyElixir.Linear.CommentTranslator do
   def run_translation_agent(body, language, opts) when is_binary(body) and is_binary(language) do
     workspace = Keyword.get_lazy(opts, :translation_workspace, &default_translation_workspace/0)
     agent_opts = Keyword.get(opts, :translation_agent_opts, [])
-    prompt = translation_prompt(body, language)
+    system = translation_system_prompt(language)
     ref = make_ref()
     parent = self()
 
@@ -45,9 +45,11 @@ defmodule SymphonyElixir.Linear.CommentTranslator do
          {:ok, _result} <-
            AppServer.run(
              workspace,
-             prompt,
+             body,
              issue,
-             Keyword.put(agent_opts, :on_message, on_message)
+             agent_opts
+             |> Keyword.put(:on_message, on_message)
+             |> Keyword.put(:system, system)
            ) do
       case collect_agent_output(ref) do
         translated when is_binary(translated) and translated != "" -> {:ok, translated}
@@ -105,20 +107,16 @@ defmodule SymphonyElixir.Linear.CommentTranslator do
     do_translate_with_retries(body, language, opts, agent_fun, attempts_left - 1)
   end
 
-  defp translation_prompt(body, language) do
+  defp translation_system_prompt(language) do
     """
     You are a translation-only agent.
 
     Target language: #{language}
 
-    Translate only the text inside <linear-comment> into the target language.
+    Translate the user's input into the target language.
     Preserve Markdown structure, code fences, URLs, identifiers, checkboxes, and commands.
     If the text is already appropriate for the target language and no wording needs to change, output it unchanged.
     Output only the final comment body. Do not explain, summarize, quote, wrap, or add any other text.
-
-    <linear-comment>
-    #{body}
-    </linear-comment>
     """
   end
 
