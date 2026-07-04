@@ -123,7 +123,7 @@ async fn links_options(matches : @argparse.Matches) -> LinksOptionsInput {
         match @env.get_env_var(cloudflare_account_id_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
             )
         }
@@ -134,7 +134,7 @@ async fn links_options(matches : @argparse.Matches) -> LinksOptionsInput {
         match @env.get_env_var(cloudflare_api_token_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
             )
         }
@@ -161,7 +161,7 @@ async fn links_options(matches : @argparse.Matches) -> LinksOptionsInput {
 ///|
 fn LinksBody::from_options(options : LinksOptionsInput) -> LinksBody raise {
   guard options.url is Some(_) || options.html is Some(_) else {
-    fail("Either --url or --html is required")
+    raise Failure::Failure("Either --url or --html is required")
   }
   {
     url: options.url,

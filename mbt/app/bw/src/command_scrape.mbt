@@ -113,7 +113,7 @@ async fn scrape_options(matches : @argparse.Matches) -> ScrapeOptionsInput {
         match @env.get_env_var(cloudflare_account_id_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
             )
         }
@@ -124,7 +124,7 @@ async fn scrape_options(matches : @argparse.Matches) -> ScrapeOptionsInput {
         match @env.get_env_var(cloudflare_api_token_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
             )
         }
@@ -143,7 +143,7 @@ async fn scrape_options(matches : @argparse.Matches) -> ScrapeOptionsInput {
     },
     selector: match matches.values.get(scrape_selector_option) {
       Some([value, ..]) => value
-      _ => fail("missing required option: selector")
+      _ => raise Failure::Failure("missing required option: selector")
     },
   }
 }
@@ -151,7 +151,7 @@ async fn scrape_options(matches : @argparse.Matches) -> ScrapeOptionsInput {
 ///|
 fn ScrapeBody::from_options(options : ScrapeOptionsInput) -> ScrapeBody raise {
   guard options.url is Some(_) || options.html is Some(_) else {
-    fail("Either --url or --html is required")
+    raise Failure::Failure("Either --url or --html is required")
   }
   {
     url: options.url,

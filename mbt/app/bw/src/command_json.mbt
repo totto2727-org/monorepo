@@ -109,7 +109,7 @@ async fn json_extract_options(
         match @env.get_env_var(cloudflare_account_id_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
             )
         }
@@ -120,7 +120,7 @@ async fn json_extract_options(
         match @env.get_env_var(cloudflare_api_token_env) {
           Some(value) => value
           None =>
-            fail(
+            raise Failure::Failure(
               "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
             )
         }
@@ -139,13 +139,11 @@ async fn json_extract_options(
     },
     prompt: match matches.values.get(json_prompt_option) {
       Some([value, ..]) => value
-      _ => fail("missing required option: prompt")
+      _ => raise Failure::Failure("missing required option: prompt")
     },
     response_format: match matches.values.get(json_schema_option) {
       Some([path, ..]) => {
-        let schema = @json.parse(@fs.read_file(path).text()) catch {
-          error => fail("Invalid JSON schema file: \{error}")
-        }
+        let schema = @json.parse(@fs.read_file(path).text())
         Some(
           Json::object({ "schema": schema, "type": "json_schema".to_json() }),
         )
@@ -160,7 +158,7 @@ fn JsonExtractBody::from_options(
   options : JsonExtractOptionsInput,
 ) -> JsonExtractBody raise {
   guard options.url is Some(_) || options.html is Some(_) else {
-    fail("Either --url or --html is required")
+    raise Failure::Failure("Either --url or --html is required")
   }
   {
     url: options.url,
