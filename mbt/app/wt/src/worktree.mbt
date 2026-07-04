@@ -93,9 +93,7 @@ async fn discover_repos(base_dir : String) -> Array[String] {
     include_hidden=false,
     include_special=false,
     sort=true,
-  ) catch {
-    _ => []
-  }
+  )
   for name in child_names {
     let path = "\{base_dir}/\{name}"
     if has_git_marker("\{path}/.git") {

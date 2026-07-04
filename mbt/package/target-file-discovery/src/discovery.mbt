@@ -5,7 +5,7 @@ pub async fn find_home_target_file(
 ) -> String {
   let target_file = join_path(home_dir, file_name)
   guard @fs.exists(target_file) else {
-    fail("Could not find home-level file: \{file_name}")
+    raise Failure::Failure("Could not find home-level file: \{file_name}")
   }
   target_file
 }
@@ -32,11 +32,13 @@ async fn find_parent_target_file_from(
     return target_file
   }
   guard current_dir != boundary_dir else {
-    fail("Could not find ancestor file: \{file_name}")
+    raise Failure::Failure("Could not find ancestor file: \{file_name}")
   }
   let parent_dir = dirname(current_dir)
   guard parent_dir != current_dir else {
-    fail("Reached filesystem root before top directory: \{boundary_dir}")
+    raise Failure::Failure(
+      "Reached filesystem root before top directory: \{boundary_dir}",
+    )
   }
   find_parent_target_file_from(file_name, boundary_dir, parent_dir)
 }
@@ -71,12 +73,10 @@ async fn collect_recursive_target_files_from(
     include_hidden=true,
     include_special=false,
     sort=true,
-  ) catch {
-    _ => []
-  }
+  )
   for entry in entries {
     let entry_path = join_path(dir, entry)
-    let kind = @fs.kind(entry_path) catch { _ => @fs.FileKind::Unknown }
+    let kind = @fs.kind(entry_path)
     if kind == @fs.FileKind::Directory &&
       !is_ignored_directory(entry_path, ignore_rules) {
       for
