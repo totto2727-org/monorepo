@@ -222,22 +222,6 @@
         "remix": "catalog:remix",
       },
     },
-    "js/package/target-file-discovery": {
-      "name": "@package/target-file-discovery",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:effect",
-        "ignore": "^7.0.5",
-      },
-      "devDependencies": {
-        "@effect/platform-node": "catalog:effect",
-        "@totto2727/fp": "workspace:*",
-        "@types/node": "catalog:types",
-      },
-      "peerDependencies": {
-        "effect": "catalog:effect",
-      },
-    },
     "js/package/vite-plugin-remix": {
       "name": "vite-plugin-remix",
       "version": "0.0.0",
@@ -275,6 +259,12 @@
     "mbt/package/geo-mbt": {
       "name": "@totto2727/geo-mbt",
       "version": "0.0.0",
+      "devDependencies": {
+        "vite-plus": "catalog:",
+      },
+    },
+    "mbt/package/target-file-discovery": {
+      "name": "@package/target-file-discovery",
       "devDependencies": {
         "vite-plus": "catalog:",
       },
@@ -873,7 +863,7 @@
 
     "@package/oxlint-plugin": ["@package/oxlint-plugin@workspace:js/package/oxlint-plugin"],
 
-    "@package/target-file-discovery": ["@package/target-file-discovery@workspace:js/package/target-file-discovery"],
+    "@package/target-file-discovery": ["@package/target-file-discovery@workspace:mbt/package/target-file-discovery"],
 
     "@peculiar/asn1-android": ["@peculiar/asn1-android@2.8.0", "https://npm.flatt.tech/@peculiar/asn1-android/-/asn1-android-2.8.0.tgz", { "dependencies": { "@peculiar/asn1-schema": "^2.8.0", "asn1js": "^3.0.10", "tslib": "^2.8.1" } }, "sha512-skLbS+IOGv1lUgDqtChr8xvtvEr3HMse/JGBaL2r1J1o/n7a8wqOrovMtlRq/UXLhxvmLaONP67hwtshgzwfzA=="],
 
@@ -1216,8 +1206,6 @@
     "html-escaper": ["html-escaper@2.0.2", "https://npm.flatt.tech/html-escaper/-/html-escaper-2.0.2.tgz", {}, "sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg=="],
 
     "identity-provider": ["identity-provider@workspace:js/app/identity-provider"],
-
-    "ignore": ["ignore@7.0.5", "https://npm.flatt.tech/ignore/-/ignore-7.0.5.tgz", {}, "sha512-Hs59xBNfUIunMFgWAbGX5cq6893IbWg4KnrjbYwX3tx0ztorVgTDA6B2sxf8ejHJ4wz8BqGUMYlnzNBer5NvGg=="],
 
     "ini": ["ini@6.0.0", "https://npm.flatt.tech/ini/-/ini-6.0.0.tgz", {}, "sha512-IBTdIkzZNOpqm7q3dRqJvMaldXjDHWkEDfrwGEQTs5eaQMWV+djAhR+wahyNNMAa+qpbDUhBMVt4ZKNwpPm7xQ=="],
 
