@@ -29,5 +29,5 @@ fn previous_quoted_value(text : String, key : String, before : Int) -> String? {
 
 ///|
 fn json_escape(value : String) -> String {
-  @support.json_escape(value)
+  value.replace(old="\\", new="\\\\").replace(old="\"", new="\\\"")
 }
