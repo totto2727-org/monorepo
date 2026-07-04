@@ -16,6 +16,14 @@ let
       exocortex --mode proxy --ensure-server "$@"
   '';
 
+  linear-mcp = writeShellScriptBin "linear-mcp" ''
+    exec vpx mcp-remote \
+      https://mcp.linear.app/mcp \
+      --transport http-only \
+      --header "Authorization:Bearer ''${LINEAR_API_KEY}" \
+      "$@"
+  '';
+
   docker-credential-gh = writeShellScriptBin "docker-credential-gh" ''
     set -e
 
@@ -63,6 +71,7 @@ let
   );
 
   macos-o = writeShellScriptBin "o" ''
+    export LINEAR_API_KEY="$(pass-cli get linear/api-key --quiet -f password)"
     exec opencode "$@"
   '';
 
@@ -91,6 +100,7 @@ in
 {
   macos = [
     exocortex-mcp
+    linear-mcp
     docker-credential-gh
     macos-bx
     macos-bw
@@ -104,6 +114,7 @@ in
 
   sandbox = [
     exocortex-mcp
+    linear-mcp
     docker-credential-gh
     sandbox-bx
     sandbox-bw
