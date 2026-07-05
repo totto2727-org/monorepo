@@ -1,5 +1,4 @@
-import { createBetterAuthSetupMiddleware } from 'auth-helper'
-import { Predicate } from 'effect'
+import { createBetterAuthSetupMiddleware, requireAuthMiddleware as authHelperRequireAuthMiddleware } from 'auth-helper'
 
 import { factory } from '#@/feature/share/lib/hono/factory.ts'
 
@@ -12,13 +11,10 @@ export const authMiddleware = createBetterAuthSetupMiddleware({
   service: BetterAuth.Service,
 })
 
-export const requireAuthMiddleware = factory.createMiddleware(async (ctx, next): Promise<Response> => {
-  if (Predicate.isNotNullish(ctx.var.user)) {
-    await next()
-    return ctx.res
-  }
-
-  return ctx.json({ error: 'Unauthorized' }, 401, {
-    'WWW-Authenticate': 'Session error="invalid_session"',
-  })
+export const requireAuthMiddleware = authHelperRequireAuthMiddleware({
+  factory,
+  onUnauthenticated: (ctx) =>
+    ctx.json({ error: 'Unauthorized' }, 401, {
+      'WWW-Authenticate': 'Session error="invalid_session"',
+    }),
 })
