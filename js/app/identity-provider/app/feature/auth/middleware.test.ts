@@ -1,4 +1,4 @@
-import { DateTime, Predicate } from 'effect'
+import { Predicate } from 'effect'
 import { Hono } from 'hono'
 import { contextStorage } from 'hono/context-storage'
 import { describe, expect, it } from 'vite-plus/test'
@@ -33,9 +33,8 @@ describe('requireAuthMiddleware', () => {
 
   it('passes authenticated app requests through', async () => {
     const app = makeProtectedApp({
-      createdAt: DateTime.makeUnsafe('2026-07-05T00:00:00.000Z'),
       email: 'test@example.com',
-      id: 'user-123',
+      sub: 'user-123',
     })
 
     const res = await app.request('/app/account')
