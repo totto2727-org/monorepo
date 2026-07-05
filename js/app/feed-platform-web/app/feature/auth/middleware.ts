@@ -1,5 +1,4 @@
-import { createBetterAuthSetupMiddleware } from 'auth-helper'
-import { Predicate } from 'effect'
+import { createBetterAuthSetupMiddleware, requireAuthMiddleware as authHelperRequireAuthMiddleware } from 'auth-helper'
 
 import { factory } from '#@/feature/share/lib/hono/factory.ts'
 
@@ -15,13 +14,10 @@ export const authMiddleware = createBetterAuthSetupMiddleware({
   service: BetterAuth.Service,
 })
 
-export const requireAuthMiddleware = factory.createMiddleware((ctx, next) => {
-  if (!Predicate.isNullish(ctx.var.user)) {
-    return next()
-  }
-
-  setLoginReturnToCookie(getReturnToPath(ctx.req.url))
-  return Promise.resolve(
-    ctx.redirect(`/app/login?${preserveReturnToQueryParameterName}=${preserveReturnToQueryParameterValue}`),
-  )
+export const requireAuthMiddleware = authHelperRequireAuthMiddleware({
+  factory,
+  onUnauthenticated: (ctx) => {
+    setLoginReturnToCookie(getReturnToPath(ctx.req.url))
+    return ctx.redirect(`/app/login?${preserveReturnToQueryParameterName}=${preserveReturnToQueryParameterValue}`)
+  },
 })
