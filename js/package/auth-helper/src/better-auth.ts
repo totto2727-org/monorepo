@@ -1,4 +1,4 @@
-import { Effect, Option, Predicate, Schema } from 'effect'
+import { DateTime, Effect, Option, Predicate, Schema } from 'effect'
 import type { Context, Layer } from 'effect'
 import type { Context as HonoContext, Env, MiddlewareHandler } from 'hono'
 
@@ -10,6 +10,12 @@ export interface BetterAuthUser {
 export interface AuthUser {
   readonly email: string
   readonly sub: string
+}
+
+export interface IdentityProviderAuthUser {
+  readonly createdAt: DateTime.Utc
+  readonly email: string
+  readonly id: string
 }
 
 export interface AuthVariables {
@@ -40,12 +46,45 @@ const BetterAuthUserPayload = Schema.Struct({
   id: Schema.String,
 })
 
+const IdentityProviderAuthUserPayload = Schema.Struct({
+  createdAt: Schema.Unknown,
+  email: Schema.String,
+  id: Schema.String,
+})
+
 const decodeBetterAuthUserPayload = Schema.decodeUnknownOption(BetterAuthUserPayload)
+const decodeIdentityProviderAuthUserPayload = Schema.decodeUnknownOption(IdentityProviderAuthUserPayload)
 
 export const toAuthUser = (user: BetterAuthUser): AuthUser => ({ email: user.email, sub: user.id })
 
 export const decodeBetterAuthUser = (value: unknown): BetterAuthUser | null =>
   Option.getOrNull(decodeBetterAuthUserPayload(value))
+
+const decodeIdentityProviderCreatedAt = (value: unknown): string | null => {
+  if (Predicate.isString(value)) {
+    return value
+  }
+  if (value instanceof Date) {
+    return value.toISOString()
+  }
+  return null
+}
+
+export const toIdentityProviderAuthUser = (value: unknown): IdentityProviderAuthUser | null => {
+  const user = Option.getOrNull(decodeIdentityProviderAuthUserPayload(value))
+  if (Predicate.isNullish(user)) {
+    return null
+  }
+  const createdAt = decodeIdentityProviderCreatedAt(user.createdAt)
+  if (Predicate.isNullish(createdAt)) {
+    return null
+  }
+  return {
+    createdAt: DateTime.makeUnsafe(createdAt),
+    email: user.email,
+    id: user.id,
+  }
+}
 
 export const getBetterAuthUser = (auth: BetterAuthSessionProvider, headers: Headers) =>
   Effect.gen(function* () {
@@ -79,6 +118,7 @@ export interface BetterAuthSetupMiddlewareOptions<
 > {
   readonly factory: MiddlewareFactory<E>
   readonly mapUser?: (user: unknown) => User | null
+  readonly onAuth?: (ctx: HonoContext<E>, auth: Auth) => void
   readonly runPromise: <A>(ctx: HonoContext<E>, effect: Effect.Effect<A, unknown, Identifier>) => Promise<A>
   readonly service: Context.Service<Identifier, Auth>
 }
@@ -94,6 +134,7 @@ export const createBetterAuthSetupMiddleware = <
   options.factory.createMiddleware((ctx, next) => {
     const effect = Effect.gen(function* () {
       const auth = yield* options.service
+      options.onAuth?.(ctx, auth)
       const user = yield* getBetterAuthSessionUser(auth, ctx.req.raw.headers)
       ctx.set('user', Predicate.isNullish(user) ? null : (options.mapUser ?? defaultMapUser)(user))
       yield* Effect.promise(() => next())
