@@ -1,7 +1,7 @@
 ///|
 async test "resolve_skills reads Codex source.path marketplace entries" {
   let root = @fs.tmpdir(prefix="c-plugin-codex-")
-  let repo = @test_support.join_path(root, "repo")
+  let repo = @path.Path::join(root, "repo").to_string()
   @test_support.write_codex_marketplace(repo)
   @test_support.write_skill(repo, "codex-skill")
   let skills = resolve_skills(repo, Codex)
@@ -14,9 +14,11 @@ async test "resolve_skills reads Codex source.path marketplace entries" {
 ///|
 async test "resolve_skills resolves multiple plugins and excludes directories without SKILL.md" {
   let root = @fs.tmpdir(prefix="c-plugin-resolve-multiple-")
-  let repo = @test_support.join_path(root, "repo")
+  let repo = @path.Path::join(root, "repo").to_string()
   @test_support.write_text(
-    @test_support.join_path(repo, ".claude-plugin/marketplace.json"),
+    (repo
+    |> @path.Path::join(".claude-plugin")
+    |> @path.Path::join("marketplace.json")).to_string(),
     (
       #|{
       #|  "name": "test-marketplace",
@@ -28,15 +30,29 @@ async test "resolve_skills resolves multiple plugins and excludes directories wi
     ),
   )
   @test_support.write_text(
-    @test_support.join_path(repo, "plugins/plugin-a/skills/skill-1/SKILL.md"),
+    (repo
+    |> @path.Path::join("plugins")
+    |> @path.Path::join("plugin-a")
+    |> @path.Path::join("skills")
+    |> @path.Path::join("skill-1")
+    |> @path.Path::join("SKILL.md")).to_string(),
     "# skill-1\n",
   )
   @test_support.write_text(
-    @test_support.join_path(repo, "plugins/plugin-b/skills/skill-2/SKILL.md"),
+    (repo
+    |> @path.Path::join("plugins")
+    |> @path.Path::join("plugin-b")
+    |> @path.Path::join("skills")
+    |> @path.Path::join("skill-2")
+    |> @path.Path::join("SKILL.md")).to_string(),
     "# skill-2\n",
   )
   @fs.mkdir(
-    @test_support.join_path(repo, "plugins/plugin-b/skills/no-skill-md"),
+    (repo
+    |> @path.Path::join("plugins")
+    |> @path.Path::join("plugin-b")
+    |> @path.Path::join("skills")
+    |> @path.Path::join("no-skill-md")).to_string(),
     recursive=true,
   )
   let skills = resolve_skills(repo, Claude)
@@ -51,9 +67,11 @@ async test "resolve_skills resolves multiple plugins and excludes directories wi
 ///|
 async test "resolve_skills returns empty when plugin has no skills directory" {
   let root = @fs.tmpdir(prefix="c-plugin-resolve-empty-")
-  let repo = @test_support.join_path(root, "repo")
+  let repo = @path.Path::join(root, "repo").to_string()
   @test_support.write_text(
-    @test_support.join_path(repo, ".claude-plugin/marketplace.json"),
+    (repo
+    |> @path.Path::join(".claude-plugin")
+    |> @path.Path::join("marketplace.json")).to_string(),
     (
       #|{
       #|  "name": "test-marketplace",
@@ -129,18 +147,18 @@ test "merge_plugins preserves existing plugin and appends new enabled skills" {
 async test "has_supported_plugin_format detects supported config directories" {
   let root = @fs.tmpdir(prefix="c-plugin-format-")
   for kind in marketplace_kinds() {
-    let dir = @test_support.join_path(root, marketplace_kind_to_string(kind))
+    let dir = @path.Path::join(root, marketplace_kind_to_string(kind)).to_string()
     @fs.mkdir(
-      @test_support.join_path(dir, marketplace_config_dir(kind)),
+      @path.Path::join(dir, marketplace_config_dir(kind)).to_string(),
       recursive=true,
     )
     assert_true(has_supported_plugin_format(dir))
   }
   assert_false(
-    has_supported_plugin_format(@test_support.join_path(root, "empty")),
+    has_supported_plugin_format(@path.Path::join(root, "empty").to_string()),
   )
   assert_false(
-    has_supported_plugin_format(@test_support.join_path(root, "missing")),
+    has_supported_plugin_format(@path.Path::join(root, "missing").to_string()),
   )
   @fs.rmdir(root, recursive=true)
 }

@@ -1,7 +1,7 @@
 ///|
 async test "lock file preserves plugin enabledSkills" {
   let root = @fs.tmpdir(prefix="c-plugin-lock-")
-  let agents = @test_support.join_path(root, ".agents")
+  let agents = @path.Path::join(root, ".agents").to_string()
   @fs.mkdir(agents, recursive=true)
   write_lock(agents, {
     skill_dirs: [],
@@ -34,7 +34,7 @@ async test "lock file preserves plugin enabledSkills" {
 ///|
 async test "read_lock returns empty lock file when file does not exist" {
   let root = @fs.tmpdir(prefix="c-plugin-lock-missing-")
-  let agents = @test_support.join_path(root, ".agents")
+  let agents = @path.Path::join(root, ".agents").to_string()
   @fs.mkdir(agents, recursive=true)
   let lock = read_lock(agents)
   inspect(lock.skill_dirs.length(), content="0")
@@ -45,7 +45,7 @@ async test "read_lock returns empty lock file when file does not exist" {
 ///|
 async test "read_lock returns empty lock file for corrupt JSON" {
   let root = @fs.tmpdir(prefix="c-plugin-lock-corrupt-")
-  let agents = @test_support.join_path(root, ".agents")
+  let agents = @path.Path::join(root, ".agents").to_string()
   @fs.mkdir(agents, recursive=true)
   @test_support.write_text(lock_path_from_agents(agents), "{ invalid json }}}")
   let lock = read_lock(agents)
@@ -57,7 +57,7 @@ async test "read_lock returns empty lock file for corrupt JSON" {
 ///|
 async test "write_lock creates parent directory and roundtrips github repository" {
   let root = @fs.tmpdir(prefix="c-plugin-lock-roundtrip-")
-  let agents = @test_support.join_path(root, ".agents")
+  let agents = @path.Path::join(root, ".agents").to_string()
   let expected : LockFile = {
     skill_dirs: ["/custom/dir"],
     repositories: [

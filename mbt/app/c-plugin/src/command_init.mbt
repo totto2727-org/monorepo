@@ -33,7 +33,11 @@ async fn init_lock_file(project_root : String) -> String {
 ///|
 async fn run_init(matches : @argparse.Matches) -> Unit {
   let options = init_options(matches)
-  let project_root = if options.global { home_dir() } else { cwd() }
+  let project_root = if options.global {
+    current_home_dir()
+  } else {
+    current_working_dir()
+  }
   let path = init_lock_file(project_root)
   println("Created \{path}")
 }

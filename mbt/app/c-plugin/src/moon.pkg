@@ -1,5 +1,6 @@
 import {
   "mizchi/admiral",
+  "package/target-file-discovery/c_plugin_lock",
   "moonbitlang/core/argparse",
   "moonbitlang/core/env",
   "moonbitlang/core/json",

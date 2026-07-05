@@ -104,9 +104,12 @@ fn marketplace_kinds() -> Array[MarketplaceKind] {
 ///|
 fn marketplace_path(kind : MarketplaceKind) -> String {
   match kind {
-    Claude => ".claude-plugin/marketplace.json"
-    Cursor => ".cursor-plugin/marketplace.json"
-    Codex => ".agents/plugins/marketplace.json"
+    Claude => @path.Path::join(".claude-plugin", "marketplace.json").to_string()
+    Cursor => @path.Path::join(".cursor-plugin", "marketplace.json").to_string()
+    Codex =>
+      (".agents"
+      |> @path.Path::join("plugins")
+      |> @path.Path::join("marketplace.json")).to_string()
   }
 }
 
@@ -121,12 +124,15 @@ fn marketplace_config_dir(kind : MarketplaceKind) -> String {
 
 ///|
 async fn detect_marketplace(repo_dir : String) -> MarketplaceInfo? {
-  if @fs.exists("\{repo_dir}/.claude-plugin/marketplace.json") {
-    Some({ kind: Claude, path: "\{repo_dir}/.claude-plugin/marketplace.json" })
-  } else if @fs.exists("\{repo_dir}/.cursor-plugin/marketplace.json") {
-    Some({ kind: Cursor, path: "\{repo_dir}/.cursor-plugin/marketplace.json" })
-  } else if @fs.exists("\{repo_dir}/.agents/plugins/marketplace.json") {
-    Some({ kind: Codex, path: "\{repo_dir}/.agents/plugins/marketplace.json" })
+  let claude = @path.Path::join(repo_dir, marketplace_path(Claude)).to_string()
+  let cursor = @path.Path::join(repo_dir, marketplace_path(Cursor)).to_string()
+  let codex = @path.Path::join(repo_dir, marketplace_path(Codex)).to_string()
+  if @fs.exists(claude) {
+    Some({ kind: Claude, path: claude })
+  } else if @fs.exists(cursor) {
+    Some({ kind: Cursor, path: cursor })
+  } else if @fs.exists(codex) {
+    Some({ kind: Codex, path: codex })
   } else {
     None
   }
@@ -135,7 +141,9 @@ async fn detect_marketplace(repo_dir : String) -> MarketplaceInfo? {
 ///|
 pub async fn has_supported_plugin_format(dir : String) -> Bool {
   for kind in marketplace_kinds() {
-    if @fs.exists("\{dir}/\{marketplace_config_dir(kind)}") {
+    if @fs.exists(
+        @path.Path::join(dir, marketplace_config_dir(kind)).to_string(),
+      ) {
       return true
     }
   }
@@ -234,11 +242,13 @@ async fn resolve_skills(
   repo_dir : String,
   kind : MarketplaceKind,
 ) -> Array[ResolvedSkill] {
-  let path = "\{repo_dir}/\{marketplace_path(kind)}"
+  let path = @path.Path::join(repo_dir, marketplace_path(kind)).to_string()
   let text = @fs.read_file(path).text()
   let skills : Array[ResolvedSkill] = []
   for plugin in normalized_plugins_from_json(text, kind) {
-    let skill_dir = "\{repo_dir}/\{plugin.source}/skills"
+    let skill_dir = (repo_dir
+    |> @path.Path::join(plugin.source)
+    |> @path.Path::join("skills")).to_string()
     let entries = @fs.readdir(
       skill_dir,
       include_hidden=false,
@@ -248,8 +258,8 @@ async fn resolve_skills(
       _ => []
     }
     for entry in entries {
-      let skill_path = "\{skill_dir}/\{entry}"
-      if @fs.exists("\{skill_path}/SKILL.md") {
+      let skill_path = @path.Path::join(skill_dir, entry).to_string()
+      if @fs.exists(@path.Path::join(skill_path, "SKILL.md").to_string()) {
         skills.push({
           plugin_name: plugin.name,
           plugin_path: plugin.source,

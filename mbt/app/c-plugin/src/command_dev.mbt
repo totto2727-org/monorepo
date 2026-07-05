@@ -144,7 +144,7 @@ fn marketplace_json(
 
 ///|
 async fn write_json_file(path : String, text : String) -> Unit {
-  @fs.mkdir(dirname(path), recursive=true)
+  @fs.mkdir(@path.Path::dirname(path).to_string(), recursive=true)
   @fs.write_file(path, text, create_mode=CreateOrTruncate)
 }
 
@@ -155,9 +155,15 @@ async fn sync_plugin_json(
   target_kind : MarketplaceKind,
   plugin_source : String,
 ) -> Unit {
-  let base_path = "\{repo_dir}/\{plugin_source}/\{marketplace_config_dir(base_kind)}/plugin.json"
+  let base_path = (repo_dir
+  |> @path.Path::join(plugin_source)
+  |> @path.Path::join(marketplace_config_dir(base_kind))
+  |> @path.Path::join("plugin.json")).to_string()
   if @fs.exists(base_path) {
-    let target_path = "\{repo_dir}/\{plugin_source}/\{marketplace_config_dir(target_kind)}/plugin.json"
+    let target_path = (repo_dir
+    |> @path.Path::join(plugin_source)
+    |> @path.Path::join(marketplace_config_dir(target_kind))
+    |> @path.Path::join("plugin.json")).to_string()
     write_json_file(target_path, @fs.read_file(base_path).text())
   }
 }
@@ -166,7 +172,7 @@ async fn sync_plugin_json(
 async fn run_dev_marketplace_sync(matches : @argparse.Matches) -> Unit {
   let options = dev_marketplace_sync_options(matches)
   let kind = options.kind
-  let info = detect_marketplace(cwd()).unwrap_or_error(
+  let info = detect_marketplace(current_working_dir()).unwrap_or_error(
     Failure::Failure("No supported marketplace found"),
   )
   guard info.kind == kind else {
@@ -177,13 +183,21 @@ async fn run_dev_marketplace_sync(matches : @argparse.Matches) -> Unit {
   let marketplace = parse_marketplace(@fs.read_file(info.path).text(), kind)
   for target_kind in marketplace_kinds() {
     if target_kind != kind {
-      let path = "\{cwd()}/\{marketplace_path(target_kind)}"
+      let path = @path.Path::join(
+        current_working_dir(),
+        marketplace_path(target_kind),
+      ).to_string()
       println(
         "Generating \{marketplace_kind_to_string(target_kind)} marketplace...",
       )
       write_json_file(path, marketplace_json(marketplace, target_kind))
       for plugin in marketplace.plugins {
-        sync_plugin_json(cwd(), kind, target_kind, plugin.source)
+        sync_plugin_json(
+          current_working_dir(),
+          kind,
+          target_kind,
+          plugin.source,
+        )
       }
     }
   }

@@ -1,9 +1,4 @@
 ///|
-pub fn join_path(base : String, name : String) -> String {
-  @path.Path::join(base, name).to_string()
-}
-
-///|
 pub async fn write_text(path : String, content : String) -> Unit {
   @fs.mkdir(@path.Path::dirname(path).to_string(), recursive=true) catch {
     _ => ()
@@ -14,7 +9,9 @@ pub async fn write_text(path : String, content : String) -> Unit {
 ///|
 pub async fn write_claude_marketplace(repo : String) -> Unit {
   write_text(
-    join_path(repo, ".claude-plugin/marketplace.json"),
+    (repo
+    |> @path.Path::join(".claude-plugin")
+    |> @path.Path::join("marketplace.json")).to_string(),
     (
       #|{
       #|  "name": "test-marketplace",
@@ -29,7 +26,10 @@ pub async fn write_claude_marketplace(repo : String) -> Unit {
 ///|
 pub async fn write_codex_marketplace(repo : String) -> Unit {
   write_text(
-    join_path(repo, ".agents/plugins/marketplace.json"),
+    (repo
+    |> @path.Path::join(".agents")
+    |> @path.Path::join("plugins")
+    |> @path.Path::join("marketplace.json")).to_string(),
     (
       #|{
       #|  "name": "test-marketplace",
@@ -44,7 +44,12 @@ pub async fn write_codex_marketplace(repo : String) -> Unit {
 ///|
 pub async fn write_skill(repo : String, name : String) -> Unit {
   write_text(
-    join_path(repo, "plugins/plugin-a/skills/\{name}/SKILL.md"),
+    (repo
+    |> @path.Path::join("plugins")
+    |> @path.Path::join("plugin-a")
+    |> @path.Path::join("skills")
+    |> @path.Path::join(name)
+    |> @path.Path::join("SKILL.md")).to_string(),
     "# \{name}\n",
   )
 }

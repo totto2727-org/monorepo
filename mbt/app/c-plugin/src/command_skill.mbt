@@ -5,6 +5,9 @@ let global_option = "global"
 let local_option = "local"
 
 ///|
+let recursive_option = "recursive"
+
+///|
 let repo_arg = "repo"
 
 ///|
@@ -22,6 +25,7 @@ struct SkillAddOptions {
 ///|
 struct SkillGlobalOptions {
   global : Bool
+  recursive : Bool
 }
 
 ///|
@@ -56,6 +60,11 @@ fn skill_add_command_def() -> @admiral.CommandDef {
 fn skill_sync_command_def() -> @admiral.CommandDef {
   @admiral.command(name="sync", description="Re-create skill symlinks", options=[
     @admiral.bool(global_option, short='g', description="Use ~/.agents"),
+    @admiral.bool(
+      recursive_option,
+      short='r',
+      description="Sync from the nearest lock file and descendant lock files",
+    ),
   ])
 }
 
@@ -66,6 +75,11 @@ fn skill_update_command_def() -> @admiral.CommandDef {
     description="Update GitHub-sourced repos and sync",
     options=[
       @admiral.bool(global_option, short='g', description="Use ~/.agents"),
+      @admiral.bool(
+        recursive_option,
+        short='r',
+        description="Update from the nearest lock file and descendant lock files",
+      ),
     ],
   )
 }
@@ -112,7 +126,10 @@ fn skill_add_options(matches : @argparse.Matches) -> SkillAddOptions raise {
 
 ///|
 fn skill_global_options(matches : @argparse.Matches) -> SkillGlobalOptions {
-  { global: matches.flags.contains(global_option) }
+  {
+    global: matches.flags.contains(global_option),
+    recursive: matches.flags.contains(recursive_option),
+  }
 }
 
 ///|
@@ -132,9 +149,9 @@ fn skill_remove_options(
 ///|
 async fn run_skill_add(matches : @argparse.Matches) -> Unit {
   let options = skill_add_options(matches)
-  let agents = agents_dir(options.global)
+  let agents = command_agents_dir(options.global)
   ensure_lock(agents)
-  let root = dirname(agents)
+  let root = @path.Path::dirname(agents).to_string()
   let (source_type, source, dir) = match options.source {
     Local(path) => (RepositoryLocal, path, local_source_path(path, root))
     Github(repo) => (RepositoryGithub, repo, ensure_repo(repo))
@@ -179,38 +196,51 @@ async fn run_skill_add(matches : @argparse.Matches) -> Unit {
 ///|
 async fn run_skill_sync(matches : @argparse.Matches) -> Unit {
   let options = skill_global_options(matches)
-  sync_all(agents_dir(options.global))
+  let agents_dirs = if options.global {
+    [resolve_global_agents_dir()]
+  } else {
+    resolve_agents_dirs(options.recursive)
+  }
+  for agents in agents_dirs {
+    sync_all(agents)
+  }
 }
 
 ///|
 async fn run_skill_update(matches : @argparse.Matches) -> Unit {
   let options = skill_global_options(matches)
-  let agents = agents_dir(options.global)
-  let lock = read_lock(agents)
-  let updated : Array[LockRepository] = []
-  for repo in lock.repositories {
-    match repo.source_type {
-      RepositoryGithub => {
-        let dir = update_repo(repo.source)
-        updated.push({
-          source_type: repo.source_type,
-          source: repo.source,
-          marketplace_kind: repo.marketplace_kind,
-          commit_hash: Some(commit_hash(dir)),
-          plugins: repo.plugins,
-        })
-      }
-      RepositoryLocal => updated.push(repo)
-    }
+  let agents_dirs = if options.global {
+    [resolve_global_agents_dir()]
+  } else {
+    resolve_agents_dirs(options.recursive)
   }
-  write_lock(agents, { skill_dirs: lock.skill_dirs, repositories: updated })
-  sync_all(agents)
+  for agents in agents_dirs {
+    let lock = read_lock(agents)
+    let updated : Array[LockRepository] = []
+    for repo in lock.repositories {
+      match repo.source_type {
+        RepositoryGithub => {
+          let dir = update_repo(repo.source)
+          updated.push({
+            source_type: repo.source_type,
+            source: repo.source,
+            marketplace_kind: repo.marketplace_kind,
+            commit_hash: Some(commit_hash(dir)),
+            plugins: repo.plugins,
+          })
+        }
+        RepositoryLocal => updated.push(repo)
+      }
+    }
+    write_lock(agents, { skill_dirs: lock.skill_dirs, repositories: updated })
+    sync_all(agents)
+  }
 }
 
 ///|
 async fn run_skill_remove(matches : @argparse.Matches) -> Unit {
   let options = skill_remove_options(matches)
-  let agents = agents_dir(options.global)
+  let agents = command_agents_dir(options.global)
   let source = options.source
   let lock = read_lock(agents)
   let kept : Array[LockRepository] = []

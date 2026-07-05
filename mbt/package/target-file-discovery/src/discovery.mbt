@@ -52,6 +52,57 @@ pub async fn collect_recursive_target_files(
 }
 
 ///|
+fn sibling_dir_for_target_file(
+  target_file : String,
+  sibling_dir_name : String,
+) -> String {
+  join_path(dirname(target_file), sibling_dir_name)
+}
+
+///|
+pub fn target_file_for_sibling_dir(
+  sibling_dir : String,
+  file_name : String,
+) -> String {
+  join_path(dirname(sibling_dir), file_name)
+}
+
+///|
+pub async fn find_home_sibling_dir_for_target_file(
+  home_dir : String,
+  file_name : String,
+  sibling_dir_name : String,
+) -> String {
+  sibling_dir_for_target_file(
+    find_home_target_file(home_dir, file_name),
+    sibling_dir_name,
+  )
+}
+
+///|
+pub async fn resolve_sibling_dirs_for_target_file(
+  file_name : String,
+  sibling_dir_name : String,
+  recursive : Bool,
+  top_dir : String,
+  start_dir : String,
+) -> Array[String] {
+  let nearest_target_file = find_parent_target_file(
+    file_name, top_dir, start_dir,
+  )
+  if !recursive {
+    return [sibling_dir_for_target_file(nearest_target_file, sibling_dir_name)]
+  }
+  let target_files = collect_recursive_target_files(
+    dirname(nearest_target_file),
+    file_name,
+  )
+  target_files.map(fn(target_file) {
+    sibling_dir_for_target_file(target_file, sibling_dir_name)
+  })
+}
+
+///|
 async fn collect_recursive_target_files_from(
   dir : String,
   file_name : String,

@@ -1,0 +1,12 @@
+import {
+  "moonbitlang/core/env",
+  "moonbitlang/core/string",
+  "moonbitlang/x/path",
+  "moonbitlang/async/fs",
+}
+
+import {
+  "moonbitlang/async",
+} for "test"
+
+supported_targets = "native"

@@ -9,6 +9,9 @@ fn target_add_command_def() -> @admiral.CommandDef {
     positionals=[
       @admiral.positional(target_dir_arg, description="Target directory"),
     ],
+    options=[
+      @admiral.bool(global_option, short='g', description="Use ~/.agents"),
+    ],
   )
 }
 
@@ -20,11 +23,15 @@ fn target_remove_command_def() -> @admiral.CommandDef {
     positionals=[
       @admiral.positional(target_dir_arg, description="Target directory"),
     ],
+    options=[
+      @admiral.bool(global_option, short='g', description="Use ~/.agents"),
+    ],
   )
 }
 
 ///|
 struct TargetOptions {
+  global : Bool
   dir : String
 }
 
@@ -37,13 +44,13 @@ fn target_options(matches : @argparse.Matches) -> TargetOptions raise {
     [value, ..] => value
     [] => raise Failure::Failure("dir is required")
   }
-  { dir, }
+  { global: matches.flags.contains(global_option), dir }
 }
 
 ///|
 async fn run_target_add(matches : @argparse.Matches) -> Unit {
   let options = target_options(matches)
-  let agents = agents_dir(false)
+  let agents = command_agents_dir(options.global)
   let dir = options.dir
   let lock = read_lock(agents)
   if !lock.skill_dirs.contains(dir) {
@@ -56,7 +63,7 @@ async fn run_target_add(matches : @argparse.Matches) -> Unit {
 ///|
 async fn run_target_remove(matches : @argparse.Matches) -> Unit {
   let options = target_options(matches)
-  let agents = agents_dir(false)
+  let agents = command_agents_dir(options.global)
   let dir = options.dir
   let lock = read_lock(agents)
   let kept : Array[String] = []

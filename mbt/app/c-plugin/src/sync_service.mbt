@@ -2,10 +2,10 @@
 async fn ensure_repo(source : String) -> String {
   validate_github_source(source)
   let dir = repo_cache_dir(source)
-  if @fs.exists("\{dir}/.git") {
+  if @fs.exists(@path.Path::join(dir, ".git").to_string()) {
     run_checked("git", ["-C", dir, "fetch", "--depth", "1", "origin"])
   } else {
-    @fs.mkdir(dirname(dir), recursive=true)
+    @fs.mkdir(@path.Path::dirname(dir).to_string(), recursive=true)
     run_checked("git", [
       "clone",
       "--depth",
@@ -36,7 +36,8 @@ async fn update_repo(source : String) -> String {
 ///|
 async fn repo_dir_for(lock_path : String, repo : LockRepository) -> String {
   match repo.source_type {
-    RepositoryLocal => local_source_path(repo.source, dirname(lock_path))
+    RepositoryLocal =>
+      local_source_path(repo.source, @path.Path::dirname(lock_path).to_string())
     RepositoryGithub => {
       let dir = ensure_repo(repo.source)
       match repo.commit_hash {
@@ -60,7 +61,9 @@ async fn create_skill_link(
   skill_name : String,
   skill_path : String,
 ) -> Unit {
-  let target_roots : Array[String] = ["\{agents}/skills"]
+  let target_roots : Array[String] = [
+    @path.Path::join(agents, "skills").to_string(),
+  ]
   for extra in skill_dirs {
     target_roots.push(expand_home(extra))
   }
@@ -68,7 +71,7 @@ async fn create_skill_link(
     if !@fs.exists(root) {
       @fs.mkdir(root, recursive=true)
     }
-    let link = "\{root}/\{skill_name}"
+    let link = @path.Path::join(root, skill_name).to_string()
     let kind = @fs.kind(link, follow_symlink=false) catch {
       _ => @fs.FileKind::Unknown
     }
@@ -94,7 +97,7 @@ async fn clear_skill_links(root : String) -> Unit {
     _ => []
   }
   for entry in entries {
-    let path = "\{root}/\{entry}"
+    let path = @path.Path::join(root, entry).to_string()
     let kind = @fs.kind(path, follow_symlink=false) catch {
       _ => @fs.FileKind::Unknown
     }
@@ -111,7 +114,7 @@ async fn clear_managed_links(
   agents : String,
   skill_dirs : Array[String],
 ) -> Unit {
-  clear_skill_links("\{agents}/skills")
+  clear_skill_links(@path.Path::join(agents, "skills").to_string())
   for dir in skill_dirs {
     clear_skill_links(expand_home(dir))
   }
