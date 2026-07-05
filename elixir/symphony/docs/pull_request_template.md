@@ -25,5 +25,6 @@ _<!-- A short description of what we are changing. Use simple language. Assume r
 
 #### Test Plan
 
-- [ ] `make -C elixir all`
-- [ ] <!-- Additional targeted checks (list below) -->
+- [ ] <!-- Vite+ scoped check, such as `vp run <language-or-project>:check` -->
+- [ ] <!-- Vite+ scoped test, such as `vp run <language-or-project>:test` -->
+- [ ] <!-- Optional targeted checks, such as Dialyzer or e2e, only when required by the change -->
