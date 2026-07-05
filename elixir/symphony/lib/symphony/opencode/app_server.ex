@@ -90,7 +90,9 @@ defmodule Symphony.Opencode.AppServer do
       |> maybe_put_system(Keyword.get(opts, :system))
 
     parent = self()
-    sse_pid = spawn_link(fn -> sse_listener(event_stream, client, parent) end)
+
+    sse_pid =
+      spawn_link(fn -> sse_listener(event_stream, session_opts(client, workspace), parent) end)
 
     try do
       case session_api.session_prompt_async(session_id, body, session_opts(client, workspace)) do

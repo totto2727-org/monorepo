@@ -46,6 +46,7 @@ defmodule Symphony.OpencodeFakes.EventStream do
 
   @spec stream(keyword()) :: {:ok, Enumerable.t()}
   def stream(client) do
+    notify(client, {:opencode_event_stream, client})
     session_id = Keyword.get(client, :session_id, "ses_test")
     {:ok, Keyword.get(client, :events, [idle_event(session_id)])}
   end
@@ -53,6 +54,13 @@ defmodule Symphony.OpencodeFakes.EventStream do
   @spec idle_event(String.t()) :: map()
   def idle_event(session_id) do
     %{type: "session.idle", data: %{"properties" => %{"sessionID" => session_id}}}
+  end
+
+  defp notify(client, message) do
+    case Keyword.get(client, :test_pid) do
+      pid when is_pid(pid) -> send(pid, message)
+      _ -> :ok
+    end
   end
 end
 

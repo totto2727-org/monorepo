@@ -58,6 +58,9 @@ defmodule Symphony.OpencodeAppServerTest do
       assert prompt_body == %{parts: [%{type: "text", text: "Use OpenCode"}]}
       assert Keyword.get(prompt_opts, :directory) == canonical_workspace
 
+      assert_received {:opencode_event_stream, event_stream_opts}
+      assert Keyword.get(event_stream_opts, :directory) == canonical_workspace
+
       assert_received {:opencode_session_delete, "ses_lifecycle", delete_opts}
       assert Keyword.get(delete_opts, :directory) == canonical_workspace
       refute_received {:opencode_server_stop, %{url: "http://127.0.0.1:4999"}}
