@@ -43,22 +43,38 @@ fn expand_home(path : String) -> String {
 }
 
 ///|
+fn agents_dir_from_lock_file(lock_file : String) -> String {
+  @path.Path::join(@path.Path::dirname(lock_file), ".agents").to_string()
+}
+
+///|
+fn lock_path_from_agents(agents : String) -> String {
+  @path.Path::join(@path.Path::dirname(agents), lock_file_name).to_string()
+}
+
+///|
 async fn resolve_agents_dirs(recursive : Bool) -> Array[String] {
-  @c_plugin_lock.resolve_sibling_dirs_for_target_file(
+  let nearest_lock_file = @target_file_discovery.find_parent_target_file(
     lock_file_name,
-    ".agents",
-    recursive,
     current_home_dir(),
     current_working_dir(),
   )
+  if !recursive {
+    return [agents_dir_from_lock_file(nearest_lock_file)]
+  }
+  @target_file_discovery.collect_recursive_target_files(
+    @path.Path::dirname(nearest_lock_file).to_string(),
+    lock_file_name,
+  ).map(agents_dir_from_lock_file)
 }
 
 ///|
 async fn resolve_global_agents_dir() -> String {
-  @c_plugin_lock.find_home_sibling_dir_for_target_file(
-    current_home_dir(),
-    lock_file_name,
-    ".agents",
+  agents_dir_from_lock_file(
+    @target_file_discovery.find_home_target_file(
+      current_home_dir(),
+      lock_file_name,
+    ),
   )
 }
 
@@ -80,11 +96,6 @@ async fn command_agents_dir(global : Bool) -> String {
   } else {
     resolve_agents_dir()
   }
-}
-
-///|
-fn lock_path_from_agents(agents : String) -> String {
-  @c_plugin_lock.target_file_for_sibling_dir(agents, lock_file_name)
 }
 
 ///|

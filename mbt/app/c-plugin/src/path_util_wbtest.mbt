@@ -1,5 +1,5 @@
 ///|
-async fn write_c_plugin_lock_for_path_test(dir : String) -> String {
+async fn write_lock_for_path_test(dir : String) -> String {
   @fs.mkdir(dir, recursive=true) catch {
     _ => ()
   }
@@ -11,11 +11,11 @@ async fn write_c_plugin_lock_for_path_test(dir : String) -> String {
 ///|
 async test "command_agents_dir uses nearest ancestor lock file" {
   let root = @fs.tmpdir(prefix="c-plugin-nearest-lock-command-")
-  let _root_lock = write_c_plugin_lock_for_path_test(root)
+  let _root_lock = write_lock_for_path_test(root)
   let package_dir = (root
   |> @path.Path::join("packages")
   |> @path.Path::join("pkg-a")).to_string()
-  let _package_lock = write_c_plugin_lock_for_path_test(package_dir)
+  let _package_lock = write_lock_for_path_test(package_dir)
   let start = (package_dir
   |> @path.Path::join("src")
   |> @path.Path::join("feature")).to_string()
@@ -34,10 +34,10 @@ async test "command_agents_dir uses nearest ancestor lock file" {
 }
 
 ///|
-async test "command_agents_dir global uses home lock file through discovery package" {
+async test "command_agents_dir global maps home lock file to agents dir" {
   let root = @fs.tmpdir(prefix="c-plugin-global-lock-command-")
   let home = @path.Path::join(root, "home").to_string()
-  let _home_lock = write_c_plugin_lock_for_path_test(home)
+  let _home_lock = write_lock_for_path_test(home)
   let previous_home = @env.get_env_var("HOME")
   @env.set_env_var("HOME", home)
   inspect(
@@ -54,19 +54,19 @@ async test "command_agents_dir global uses home lock file through discovery pack
 ///|
 async test "resolve_agents_dirs recursive starts from nearest lock file directory" {
   let root = @fs.tmpdir(prefix="c-plugin-recursive-lock-command-")
-  let _root_lock = write_c_plugin_lock_for_path_test(root)
+  let _root_lock = write_lock_for_path_test(root)
   let package_dir = (root
   |> @path.Path::join("packages")
   |> @path.Path::join("pkg-a")).to_string()
-  let _package_lock = write_c_plugin_lock_for_path_test(package_dir)
+  let _package_lock = write_lock_for_path_test(package_dir)
   let child_dir = (package_dir
   |> @path.Path::join("examples")
   |> @path.Path::join("demo")).to_string()
-  let _child_lock = write_c_plugin_lock_for_path_test(child_dir)
-  let sibling_dir = (root
+  let _child_lock = write_lock_for_path_test(child_dir)
+  let other_package_dir = (root
   |> @path.Path::join("packages")
   |> @path.Path::join("pkg-b")).to_string()
-  let _sibling_lock = write_c_plugin_lock_for_path_test(sibling_dir)
+  let _other_package_lock = write_lock_for_path_test(other_package_dir)
   let start = @path.Path::join(package_dir, "src").to_string()
   @fs.mkdir(start, recursive=true)
   let previous_pwd = @env.get_env_var("PWD")
@@ -80,7 +80,7 @@ async test "resolve_agents_dirs recursive starts from nearest lock file director
   assert_true(dirs.contains(@path.Path::join(child_dir, ".agents").to_string()))
   assert_false(dirs.contains(@path.Path::join(root, ".agents").to_string()))
   assert_false(
-    dirs.contains(@path.Path::join(sibling_dir, ".agents").to_string()),
+    dirs.contains(@path.Path::join(other_package_dir, ".agents").to_string()),
   )
   match previous_pwd {
     Some(old) => @env.set_env_var("PWD", old)
