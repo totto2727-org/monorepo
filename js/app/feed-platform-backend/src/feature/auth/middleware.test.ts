@@ -65,7 +65,7 @@ describe('authMiddleware', () => {
       localBindings,
     )
     expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ email: 'user@example.com', sub: 'user-123' })
+    expect(await res.json()).toStrictEqual({ email: 'user@example.com', id: 'user-123' })
   })
 
   it('returns 401 from requireAuthMiddleware when Better Auth has no session', async () => {

@@ -20,12 +20,12 @@ describe('decodeBetterAuthUser', () => {
 })
 
 describe('toAuthUser', () => {
-  it('maps Better Auth id to the shared auth subject', () => {
+  it('keeps the Better Auth id in the shared auth user', () => {
     const user = toAuthUser({
       email: 'test@example.com',
       id: 'user-123',
     })
 
-    expect(user).toStrictEqual({ email: 'test@example.com', sub: 'user-123' })
+    expect(user).toStrictEqual({ email: 'test@example.com', id: 'user-123' })
   })
 })

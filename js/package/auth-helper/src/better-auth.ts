@@ -9,7 +9,7 @@ export interface BetterAuthUser {
 
 export interface AuthUser {
   readonly email: string
-  readonly sub: string
+  readonly id: string
 }
 
 export interface AuthVariables {
@@ -42,7 +42,7 @@ const BetterAuthUserPayload = Schema.Struct({
 
 const decodeBetterAuthUserPayload = Schema.decodeUnknownOption(BetterAuthUserPayload)
 
-export const toAuthUser = (user: BetterAuthUser): AuthUser => ({ email: user.email, sub: user.id })
+export const toAuthUser = (user: BetterAuthUser): AuthUser => ({ email: user.email, id: user.id })
 
 export const decodeBetterAuthUser = (value: unknown): BetterAuthUser | null =>
   Option.getOrNull(decodeBetterAuthUserPayload(value))

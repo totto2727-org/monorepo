@@ -54,7 +54,7 @@ describe('authMiddleware', () => {
     const app = makeApp()
     const res = await app.request('/test', { headers: { cookie: 'better-auth.session_token=session-token' } })
     expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ user: { email: 'test@example.com', sub: 'user-123' } })
+    expect(await res.json()).toStrictEqual({ user: { email: 'test@example.com', id: 'user-123' } })
     expect(mockBetterAuth).toHaveBeenCalledTimes(1)
   })
 

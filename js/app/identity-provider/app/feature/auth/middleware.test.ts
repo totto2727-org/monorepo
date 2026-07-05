@@ -34,7 +34,7 @@ describe('requireAuthMiddleware', () => {
   it('passes authenticated app requests through', async () => {
     const app = makeProtectedApp({
       email: 'test@example.com',
-      sub: 'user-123',
+      id: 'user-123',
     })
 
     const res = await app.request('/app/account')
