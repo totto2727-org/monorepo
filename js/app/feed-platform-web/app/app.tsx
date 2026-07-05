@@ -101,7 +101,7 @@ const app: Hono<Env> = new Hono<Env>()
           <Document>
             <h1>Dashboard</h1>
             <p>Logged in as: {user.email}</p>
-            <p>Subject: {user.sub}</p>
+            <p>User ID: {user.id}</p>
             <form method='post' action='/app/logout'>
               <button type='submit'>Logout</button>
             </form>

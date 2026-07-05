@@ -1,8 +1,9 @@
-import { DateTime } from 'effect'
+import { Effect } from 'effect'
 import { remixRenderer } from 'hono-remix-middleware'
 import { contextStorage } from 'hono/context-storage'
 import { logger } from 'hono/logger'
 
+import * as BetterAuth from '#@/feature/auth/better-auth.ts'
 import { deleteLoginReturnToCookie, getLoginReturnToCookie, setLoginReturnToCookie } from '#@/feature/auth/cookie.ts'
 import { authMiddleware, requireAuthMiddleware, requireLoginSessionMiddleware } from '#@/feature/auth/middleware.ts'
 import {
@@ -20,7 +21,15 @@ import { LoginPage } from '#@/ui/login.tsx'
 import { RegisterPasskeyPage } from '#@/ui/register-passkey.tsx'
 import { SelectAccountPage } from '#@/ui/select-account.tsx'
 
-const api = factory.createApp().all('/auth/*', (ctx) => ctx.var.auth.handler(ctx.req.raw))
+const api = factory.createApp().all('/auth/*', (ctx) =>
+  // oxlint-disable-next-line rules/no-effect-runtime-run -- Better Auth API handler is the HTTP boundary for the request runtime.
+  ctx.var.runtime.runPromise(
+    Effect.gen(function* () {
+      const auth = yield* BetterAuth.Service
+      return auth.handler(ctx.req.raw)
+    }),
+  ),
+)
 
 const loginRoutes = factory
   .createApp()
@@ -74,10 +83,9 @@ const appRoutes = factory
   .use(requireAuthMiddleware)
   .get('/account', (ctx) => {
     const { user } = ctx.var
-    const createdAt = new Intl.DateTimeFormat('ja-JP').format(DateTime.toDate(user.createdAt))
     return ctx.render(
       <Document title='アカウント'>
-        <AccountPage email={user.email} createdAt={createdAt} />
+        <AccountPage email={user.email} />
       </Document>,
     )
   })

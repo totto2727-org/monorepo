@@ -7,7 +7,7 @@ import * as HonoContext from '#@/feature/share/lib/hono/context.ts'
 
 export interface UserDTO {
   readonly email: string
-  readonly sub: string
+  readonly id: string
 }
 
 export class BackendError extends Data.TaggedError('BackendError')<TaggedErrorBaseType> {}
@@ -20,7 +20,7 @@ export const BackendClient = Context.Service<BackendClientService>('BackendClien
 
 const UserResponse = Schema.Struct({
   email: Schema.String,
-  sub: Schema.String,
+  id: Schema.String,
 })
 
 // oxlint-disable-next-line rules/prefer-non-unknown-decode -- backend JSON response is an external boundary with unknown shape.
@@ -40,7 +40,7 @@ const callBackendApi = (baseUrl: string) =>
     const user = yield* decodeUserResponse(data).pipe(
       Effect.mapError((error) => new BackendError({ error, message: 'invalid response shape' })),
     )
-    return { email: user.email, sub: user.sub }
+    return { email: user.email, id: user.id }
   })
 
 const makeCallMe =
@@ -61,5 +61,5 @@ export const liveLayer = Layer.effect(
 )
 
 export const mockLayer = Layer.succeed(BackendClient, {
-  callMe: () => Effect.succeed({ email: 'mock@example.com', sub: 'mock-user' }),
+  callMe: () => Effect.succeed({ email: 'mock@example.com', id: 'mock-user' }),
 })

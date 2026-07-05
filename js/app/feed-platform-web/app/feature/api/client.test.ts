@@ -35,7 +35,7 @@ const makeTestLayer = (response: Response) =>
   liveLayer.pipe(Layer.provideMerge(makeHttpClientLayer(response)), Layer.provide(Env.makeLayer(testEnv)))
 
 const successResponse = () =>
-  Promise.resolve(Response.json({ email: 'user@example.com', sub: 'user-1' }, { status: 200 }))
+  Promise.resolve(Response.json({ email: 'user@example.com', id: 'user-1' }, { status: 200 }))
 
 afterEach(() => {
   capturedRequests.length = 0
@@ -79,6 +79,6 @@ describe('BackendClient', () => {
     expect(capturedRequests[0]?.headers.cookie).toBe(
       'unrelated=value; better-auth.session_token=session-token; oauth_state=state',
     )
-    expect(await res.json()).toStrictEqual({ data: { email: 'user@example.com', sub: 'user-1' }, ok: true })
+    expect(await res.json()).toStrictEqual({ data: { email: 'user@example.com', id: 'user-1' }, ok: true })
   })
 })

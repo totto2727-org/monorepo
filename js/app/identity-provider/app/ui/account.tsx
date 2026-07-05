@@ -11,7 +11,6 @@ const containerStyle = css({
 
 interface AccountPageProps {
   email: string
-  createdAt: string
 }
 
 export const AccountPage = (handle: Handle<AccountPageProps>) => () => (
@@ -19,9 +18,6 @@ export const AccountPage = (handle: Handle<AccountPageProps>) => () => (
     <h1>アカウント</h1>
     <p>
       <strong>メール:</strong> {handle.props.email}
-    </p>
-    <p>
-      <strong>作成日:</strong> {handle.props.createdAt}
     </p>
     <p>
       <a href='/app/passkey/register'>Passkey を登録</a>

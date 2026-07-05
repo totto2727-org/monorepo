@@ -17,7 +17,7 @@ vi.mock('better-auth/plugins', () => ({
   bearer: vi.fn(() => ({})),
 }))
 
-const { authMiddleware } = await import('./middleware.ts')
+const { authMiddleware, requireAuthMiddleware } = await import('./middleware.ts')
 const { middleware: runtimeMiddleware } = await import('#@/feature/runtime/hono.ts')
 
 const localBindings = {
@@ -29,7 +29,17 @@ const makeApp = () => {
   app.use(contextStorage())
   app.use(runtimeMiddleware)
   app.use('/api/*', authMiddleware)
+  app.use('/api/*', requireAuthMiddleware)
   app.get('/api/v1/me', (ctx) => ctx.json(ctx.var.user))
+  return app
+}
+
+const makeSetupOnlyApp = () => {
+  const app = new Hono<Env>()
+  app.use(contextStorage())
+  app.use(runtimeMiddleware)
+  app.use('/api/*', authMiddleware)
+  app.get('/api/public', (ctx) => ctx.json({ user: ctx.var.user }))
   return app
 }
 
@@ -38,6 +48,14 @@ beforeEach(() => {
 })
 
 describe('authMiddleware', () => {
+  it('sets user to null and passes through when Better Auth has no session', async () => {
+    mockGetSession.mockResolvedValue(null)
+    const app = makeSetupOnlyApp()
+    const res = await app.request('/api/public', {}, localBindings)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ user: null })
+  })
+
   it('sets user and passes through for a valid Better Auth session', async () => {
     mockGetSession.mockResolvedValue({ user: { email: 'user@example.com', id: 'user-123' } })
     const app = makeApp()
@@ -47,10 +65,10 @@ describe('authMiddleware', () => {
       localBindings,
     )
     expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ email: 'user@example.com', sub: 'user-123' })
+    expect(await res.json()).toStrictEqual({ email: 'user@example.com', id: 'user-123' })
   })
 
-  it('returns 401 when Better Auth has no session', async () => {
+  it('returns 401 from requireAuthMiddleware when Better Auth has no session', async () => {
     mockGetSession.mockResolvedValue(null)
     const app = makeApp()
     const res = await app.request('/api/v1/me', {}, localBindings)
@@ -58,7 +76,7 @@ describe('authMiddleware', () => {
     expect(res.headers.get('WWW-Authenticate')).toBe('Session error="invalid_session"')
   })
 
-  it('returns 401 for an invalid Better Auth user shape', async () => {
+  it('returns 401 from requireAuthMiddleware for an invalid Better Auth user shape', async () => {
     mockGetSession.mockResolvedValue({ user: { id: 'user-123' } })
     const app = makeApp()
     const res = await app.request(
