@@ -178,17 +178,29 @@ The observability UI now runs on a minimal Phoenix stack:
 
 ## Testing
 
+Use Vite+ for the normal repository validation path, choosing the narrowest language or project
+scope that covers your change. For this Symphony package, the usual scoped checks are:
+
 ```bash
-make all
+vp run ex:check
+vp run ex:test
+```
+
+Run tool-specific or expensive checks only when the change requires them. For example, Symphony's
+package-local Dialyzer check is:
+
+```bash
+cd elixir/symphony
+just dialyzer
 ```
 
 Run the real external end-to-end test only when you want Symphony to create disposable Linear
 resources and launch a real OpenCode session:
 
 ```bash
-cd elixir
+cd elixir/symphony
 export LINEAR_API_KEY=...
-make e2e
+just e2e
 ```
 
 Optional environment variables:
@@ -196,7 +208,7 @@ Optional environment variables:
 - `SYMPHONY_LIVE_LINEAR_TEAM_KEY` defaults to `SYME2E`
 - `SYMPHONY_LIVE_SSH_WORKER_HOSTS` uses those SSH hosts when set, as a comma-separated list
 
-`make e2e` runs two live scenarios:
+`just e2e` runs two live scenarios:
 
 - one with a local worker
 - one with SSH workers
@@ -207,7 +219,7 @@ verifies that Symphony can talk to them over real SSH, then runs the same orches
 against those worker addresses. This keeps the transport representative without depending on
 long-lived external machines.
 
-Set `SYMPHONY_LIVE_SSH_WORKER_HOSTS` if you want `make e2e` to target real SSH hosts instead.
+Set `SYMPHONY_LIVE_SSH_WORKER_HOSTS` if you want `just e2e` to target real SSH hosts instead.
 
 The live test creates a temporary Linear project and issue, writes a temporary `WORKFLOW.md`, runs
 a real agent turn, verifies the workspace side effect, requires the agent to comment on and close
