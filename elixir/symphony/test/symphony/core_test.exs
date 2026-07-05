@@ -80,7 +80,7 @@ defmodule Symphony.CoreTest do
   test "current WORKFLOW.md file is valid and complete" do
     original_workflow_path = Workflow.workflow_file_path()
     on_exit(fn -> Workflow.set_workflow_file_path(original_workflow_path) end)
-    Workflow.clear_workflow_file_path()
+    Workflow.set_workflow_file_path(Path.expand("../../../../WORKFLOW.md", __DIR__))
 
     assert {:ok, %{config: config, prompt: prompt}} = Workflow.load()
     assert is_map(config)
@@ -1115,7 +1115,7 @@ defmodule Symphony.CoreTest do
 
   test "in-repo WORKFLOW.md renders correctly" do
     workflow_path = Workflow.workflow_file_path()
-    Workflow.set_workflow_file_path(Path.expand("WORKFLOW.md", File.cwd!()))
+    Workflow.set_workflow_file_path(Path.expand("../../../../WORKFLOW.md", __DIR__))
 
     issue = %Issue{
       identifier: "MT-616",
