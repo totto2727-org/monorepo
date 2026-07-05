@@ -34,6 +34,7 @@ defmodule OpencodeClient.EventStream do
       Req.new(
         base_url: Keyword.get(opts, :base_url, OpencodeClient.Config.base_url()),
         method: :get,
+        params: Keyword.take(opts, [:directory, :workspace]),
         url: "/event",
         into: fn {:sse_event, frame}, {req, resp} ->
           send(owner, {ref, {:event, frame}})
@@ -78,5 +79,4 @@ defmodule OpencodeClient.EventStream do
       {:error, _reason} -> data
     end
   end
-
 end
