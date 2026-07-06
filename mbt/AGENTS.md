@@ -1,5 +1,12 @@
 # mbt
 
+## Coding Rules
+
+MoonBit coding conventions are owned by `plugins/totto2727-coding`, per [ADR 2026-05-04](../docs/adr/2026-05-04-totto2727-coding-plugin-consolidation.md). Use these canonical rule files before editing MoonBit code:
+
+- [MoonBit Coding Standards](../plugins/totto2727-coding/skills/coding/references/mbt/bestpractice.md)
+- [MoonBit CLI Application Implementation](../plugins/totto2727-coding/skills/coding/references/mbt/cli-application.md)
+
 ## Commands
 
 MoonBit uses the repository-root `moon.work`. Root MoonBit tasks are Vite+ tasks defined in the repository-root `vite.config.ts`.

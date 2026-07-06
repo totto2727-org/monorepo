@@ -1,13 +1,12 @@
 # MoonBit CLI Application Implementation
 
-Use this guide when implementing MoonBit CLI applications. The `bw`
-package is the reference implementation for the overall shape: one command file
-per CLI command, `admiral` for argument definitions, `moonbitlang/async` for
-native async execution, explicit option/body types, and request code that only
-accepts typed data.
+Use this guide when implementing MoonBit CLI applications. New CLIs use one
+command file per CLI command, `admiral` for argument definitions,
+`moonbitlang/async` for native async execution, explicit option/body types, and
+request code that only accepts typed data.
 
-This document is normative for new CLI work. If an older `bw` detail differs
-from this guide, prefer this guide and update the implementation.
+This document is normative for new CLI work. If existing implementation details
+differ from this guide, prefer this guide and update the implementation.
 
 ## Required command pipeline
 
@@ -75,7 +74,8 @@ Do not scatter literal option strings through the file.
 The options conversion function is the boundary from raw CLI/config/env input to
 typed data. It must:
 
-- read `@argparse.Matches` using option constants
+- read `@argparse.Matches` using option constants, and keep all raw `Matches`
+  access inside this command-local conversion step
 - resolve environment variable fallbacks such as credentials
 - raise immediately when a required value is missing or malformed
 - preserve user-provided values without domain processing
@@ -108,27 +108,38 @@ struct ScreenshotOptions {
 ///|
 async fn screenshot_options(matches : @argparse.Matches) -> ScreenshotOptions {
   let account_id = match matches.values.get(screenshot_account_id_option) {
-    Some([value, ..]) => value
+    Some(values) => match values {
+      [value] => value
+      _ => raise Failure::Failure("account-id accepts exactly one value")
+    }
     _ => match @env.get_env_var(cloudflare_account_id_env) {
       Some(value) => value
-      None => fail("account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id")
+      None => raise Failure::Failure("account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id")
     }
   }
   let api_token = match matches.values.get(screenshot_api_token_option) {
-    Some([value, ..]) => value
+    Some(values) => match values {
+      [value] => value
+      _ => raise Failure::Failure("api-token accepts exactly one value")
+    }
     _ => match @env.get_env_var(cloudflare_api_token_env) {
       Some(value) => value
-      None => fail("api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token")
+      None => raise Failure::Failure("api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token")
     }
   }
   let input = match (matches.values.get(screenshot_url_option), matches.values.get(screenshot_html_option)) {
-    (Some([value, ..]), _) => Url(value)
-    (_, Some([path, ..])) => HtmlFile(path)
-    _ => fail("Either --url or --html is required")
+    (Some([value]), _) => Url(value)
+    (_, Some([path])) => HtmlFile(path)
+    (Some(_), _) => raise Failure::Failure("url accepts exactly one value")
+    (_, Some(_)) => raise Failure::Failure("html accepts exactly one value")
+    _ => raise Failure::Failure("Either --url or --html is required")
   }
-  let output = match matches.values.get(screenshot_output_option) {
-    Some([value, ..]) => value
-    _ => fail("missing required option: output")
+  let output_values = matches.values.get(screenshot_output_option).unwrap_or_error(
+    Failure::Failure("missing required option: output"),
+  )
+  let output = match output_values {
+    [value] => value
+    _ => raise Failure::Failure("output accepts exactly one value")
   }
   { account_id, api_token, input, output }
 }
@@ -137,6 +148,13 @@ async fn screenshot_options(matches : @argparse.Matches) -> ScreenshotOptions {
 For “one of these inputs is required” cases, use an enum. Do not model the state
 as two independent optional fields in the options struct when only one valid
 state exists.
+
+Use `unwrap_or_error(...)` for values that the command definition marks as
+required, then immediately total-match the resulting array. Do not use partial
+array destructuring such as `[value, ..]` after required extraction. Fallback
+chains, such as command flag to environment variable to error, should stay as
+explicit matches when that shape communicates the command contract better than a
+mechanical `unwrap_or_error(...)` rewrite.
 
 ## Body struct conversion
 
@@ -174,8 +192,8 @@ Preferred order:
 1. Express the JSON shape directly with `Json::object({ ... })` and Json-related
    types.
 2. Use pattern matching plus Json-related types when variants are required.
-3. Use `Map[String, Json]` only when the JSON structure cannot be represented
-   directly.
+3. Use `Map[String, Json]` only when omission vs. explicit `Json::null()`
+   matters or when dynamic keys are unavoidable.
 
 Example:
 
@@ -205,8 +223,13 @@ The runner should be straightforward:
 
 ```moonbit
 ///|
-async fn run_screenshot(matches : @argparse.Matches) -> Unit {
+async fn run_screenshot_command(matches : @argparse.Matches) -> Unit {
   let options = screenshot_options(matches)
+  run_screenshot(options)
+}
+
+///|
+async fn run_screenshot(options : ScreenshotOptions) -> Unit {
   let body = ScreenshotBody::from_options(options)
   let (code, reason, data) = post_json(
     options.account_id,
@@ -219,8 +242,11 @@ async fn run_screenshot(matches : @argparse.Matches) -> Unit {
 }
 ```
 
-The runner must not re-resolve credentials or re-validate required options. If a
-required value can be missing in the runner, the options conversion is too weak.
+Only the command entrypoint receives raw `@argparse.Matches`, and it should do
+so only long enough to call the command-local options conversion. The runner
+itself accepts typed options and body values. It must not re-resolve
+credentials, read raw matches, or re-validate required options. If a required
+value can be missing in the runner, the options conversion is too weak.
 
 ## JSON responses
 
@@ -240,11 +266,14 @@ typed value inside the implementation.
 ## Anti-patterns
 
 - Directly constructing request JSON from `@argparse.Matches`.
+- Reading raw `@argparse.Matches` outside command-local options conversion.
 - Shared generic body builders like `add_bool_nested` or `add_string_nested`.
 - Keeping mutually exclusive states as several optional fields in `Options`.
 - Resolving environment variables in the runner instead of options conversion.
 - Parsing files or domain payloads while creating the options struct.
 - Using `derive(ToJson)` for request body wire types.
 - Using `Map[String, Json]` as the default JSON construction strategy.
+- Replacing meaningful fallback chains with `unwrap_or_error(...)` mechanically.
+- Destructuring required option arrays with `[value, ..]` after extraction.
 - Adding aliases (`#alias` or type aliases) unless the alternate name is actually
   part of the public API and used by callers.
