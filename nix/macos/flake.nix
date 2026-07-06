@@ -76,6 +76,7 @@
                   "discord"
                   "notion-calendar"
                   "balenaetcher"
+                  "thunderbird"
                 ];
                 masApps = {
                   "Kindle" = 302584613;

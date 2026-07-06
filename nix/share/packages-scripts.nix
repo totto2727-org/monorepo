@@ -16,14 +16,6 @@ let
       exocortex --mode proxy --ensure-server "$@"
   '';
 
-  linear-mcp = writeShellScriptBin "linear-mcp" ''
-    exec vpx mcp-remote \
-      https://mcp.linear.app/mcp \
-      --transport http-only \
-      --header "Authorization:Bearer ''${LINEAR_API_KEY}" \
-      "$@"
-  '';
-
   docker-credential-gh = writeShellScriptBin "docker-credential-gh" ''
     set -e
 
@@ -80,6 +72,15 @@ let
     exec claude "$@"
   '';
 
+  macos-linear-mcp = writeShellScriptBin "linear-mcp" ''
+    exec bunx mcp-remote \
+      https://mcp.linear.app/mcp \
+      --transport http-only \
+      --header "Authorization:Bearer ''${LINEAR_API_KEY}" \
+      "$@"
+  '';
+
+
   # --- wrappers without pass-cli (sandbox, OpenShell injects env vars) ---
 
   sandbox-bx = writeShellScriptBin "bx" ''
@@ -96,15 +97,23 @@ let
     exec opencode "$@"
   '';
 
+  sandbox-linear-mcp = writeShellScriptBin "linear-mcp" ''
+    exec bunx mcp-remote \
+      https://mcp.linear.app/mcp \
+      --transport http-only \
+      --header "Authorization:Bearer ''${LINEAR_API_KEY}" \
+      "$@"
+  '';
+
 in
 {
   macos = [
     exocortex-mcp
-    linear-mcp
     docker-credential-gh
     macos-bx
     macos-bw
     macos-o
+    macos-linear-mcp
   ];
 
   macos-work = [
@@ -114,10 +123,10 @@ in
 
   sandbox = [
     exocortex-mcp
-    linear-mcp
     docker-credential-gh
     sandbox-bx
     sandbox-bw
     sandbox-o
+    sandbox-linear-mcp
   ];
 }
