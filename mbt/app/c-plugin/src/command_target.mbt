@@ -53,10 +53,12 @@ async fn run_target_add(matches : @argparse.Matches) -> Unit {
   let agents = command_agents_dir(options.global)
   let dir = options.dir
   let lock = read_lock(agents)
-  if !lock.skill_dirs.contains(dir) {
-    lock.skill_dirs.push(dir)
+  let skill_dirs = if lock.skill_dirs.contains(dir) {
+    lock.skill_dirs
+  } else {
+    lock.skill_dirs.iter().concat([dir].iter()).collect()
   }
-  write_lock(agents, lock)
+  write_lock(agents, { skill_dirs, repositories: lock.repositories })
   sync_all(agents)
 }
 
@@ -66,12 +68,10 @@ async fn run_target_remove(matches : @argparse.Matches) -> Unit {
   let agents = command_agents_dir(options.global)
   let dir = options.dir
   let lock = read_lock(agents)
-  let kept : Array[String] = []
-  for item in lock.skill_dirs {
-    if item != dir {
-      kept.push(item)
-    }
-  }
-  write_lock(agents, { skill_dirs: kept, repositories: lock.repositories })
+  let skill_dirs = lock.skill_dirs
+    .iter()
+    .filter(fn(item) { item != dir })
+    .collect()
+  write_lock(agents, { skill_dirs, repositories: lock.repositories })
   sync_all(agents)
 }

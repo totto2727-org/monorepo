@@ -123,23 +123,29 @@ fn marketplace_json(
   marketplace : ParsedMarketplace,
   kind : MarketplaceKind,
 ) -> String {
-  let plugins : Array[Json] = []
-  for plugin in marketplace.plugins {
-    match kind {
-      Codex =>
-        plugins.push(
-          {
-            category: "Productivity",
-            name: plugin.name,
-            policy: { authentication: "ON_INSTALL", installation: "AVAILABLE" },
-            source: { path: "./\{plugin.source}", source: "local" },
-          }.to_json(),
-        )
-      _ => plugins.push(plugin.to_json())
-    }
-  }
+  let plugins : Array[Json] = marketplace.plugins
+    .iter()
+    .map(fn(plugin) { marketplace_plugin_json(plugin, kind) })
+    .collect()
   let document : MarketplaceDocument = { name: marketplace.name, plugins }
   document.to_json().stringify(indent=2) + "\n"
+}
+
+///|
+fn marketplace_plugin_json(
+  plugin : NormalizedPlugin,
+  kind : MarketplaceKind,
+) -> Json {
+  match kind {
+    Codex =>
+      {
+        category: "Productivity",
+        name: plugin.name,
+        policy: { authentication: "ON_INSTALL", installation: "AVAILABLE" },
+        source: { path: "./\{plugin.source}", source: "local" },
+      }.to_json()
+    _ => plugin.to_json()
+  }
 }
 
 ///|

@@ -15,27 +15,55 @@ struct NormalizedPlugin {
 
 ///|
 fn plugins_from_skills(skills : Array[ResolvedSkill]) -> Array[LockPlugin] {
-  let plugins : Array[LockPlugin] = []
-  for skill in skills {
-    let mut found = false
-    for index, plugin in plugins {
-      if plugin.name == skill.plugin_name {
-        if !plugin.enabled_skills.contains(skill.skill_name) {
-          plugin.enabled_skills.push(skill.skill_name)
-        }
-        plugins[index] = plugin
-        found = true
-      }
-    }
-    if !found {
-      plugins.push({
-        name: skill.plugin_name,
-        path: skill.plugin_path,
-        enabled_skills: [skill.skill_name],
-      })
+  skills
+  .iter()
+  .fold(init=[], fn(plugins, skill) { upsert_plugin_skill(plugins, skill) })
+}
+
+///|
+fn append_enabled_skill(plugin : LockPlugin, skill_name : String) -> LockPlugin {
+  if plugin.enabled_skills.contains(skill_name) {
+    plugin
+  } else {
+    {
+      name: plugin.name,
+      path: plugin.path,
+      enabled_skills: plugin.enabled_skills
+      .iter()
+      .concat([skill_name].iter())
+      .collect(),
     }
   }
-  plugins
+}
+
+///|
+fn upsert_plugin_skill(
+  plugins : Array[LockPlugin],
+  skill : ResolvedSkill,
+) -> Array[LockPlugin] {
+  let updated = plugins.map(fn(plugin) {
+    if plugin.name == skill.plugin_name {
+      append_enabled_skill(plugin, skill.skill_name)
+    } else {
+      plugin
+    }
+  })
+  if plugins.any(fn(plugin) { plugin.name == skill.plugin_name }) {
+    updated
+  } else {
+    updated
+    .iter()
+    .concat(
+      [
+        {
+          name: skill.plugin_name,
+          path: skill.plugin_path,
+          enabled_skills: [skill.skill_name],
+        },
+      ].iter(),
+    )
+    .collect()
+  }
 }
 
 ///|
@@ -43,25 +71,26 @@ fn merge_plugins(
   existing : Array[LockPlugin],
   incoming : Array[LockPlugin],
 ) -> Array[LockPlugin] {
-  let merged = existing.copy()
-  for plugin in incoming {
-    let mut found = false
-    for index, current in merged {
-      if current.name == plugin.name {
-        for skill in plugin.enabled_skills {
-          if !current.enabled_skills.contains(skill) {
-            current.enabled_skills.push(skill)
-          }
-        }
-        merged[index] = current
-        found = true
-      }
+  incoming.iter().fold(init=existing, merge_plugin)
+}
+
+///|
+fn merge_plugin(
+  plugins : Array[LockPlugin],
+  incoming : LockPlugin,
+) -> Array[LockPlugin] {
+  let updated = plugins.map(fn(plugin) {
+    if plugin.name == incoming.name {
+      incoming.enabled_skills.iter().fold(init=plugin, append_enabled_skill)
+    } else {
+      plugin
     }
-    if !found {
-      merged.push(plugin)
-    }
+  })
+  if plugins.any(fn(plugin) { plugin.name == incoming.name }) {
+    updated
+  } else {
+    updated.iter().concat([incoming].iter()).collect()
   }
-  merged
 }
 
 ///|
@@ -140,14 +169,25 @@ async fn detect_marketplace(repo_dir : String) -> MarketplaceInfo? {
 
 ///|
 pub async fn has_supported_plugin_format(dir : String) -> Bool {
-  for kind in marketplace_kinds() {
-    if @fs.exists(
-        @path.Path::join(dir, marketplace_config_dir(kind)).to_string(),
-      ) {
-      return true
-    }
+  has_supported_plugin_format_from(dir, marketplace_kinds(), 0)
+}
+
+///|
+async fn has_supported_plugin_format_from(
+  dir : String,
+  kinds : Array[MarketplaceKind],
+  index : Int,
+) -> Bool {
+  if index >= kinds.length() {
+    return false
   }
-  false
+  if @fs.exists(
+      @path.Path::join(dir, marketplace_config_dir(kinds[index])).to_string(),
+    ) {
+    true
+  } else {
+    has_supported_plugin_format_from(dir, kinds, index + 1)
+  }
 }
 
 ///|
@@ -195,34 +235,46 @@ fn normalized_plugins_from_json(
     Json::Object(object) => object
     _ => Map([])
   }
-  let plugins : Array[NormalizedPlugin] = []
   match object.get("plugins") {
     Some(Json::Array(values)) =>
-      for value in values {
+      values
+      .iter()
+      .fold(init=[], fn(plugins, value) {
         match value {
-          Json::Object(plugin) => {
-            let name = match plugin.get("name") {
-              Some(Json::String(value)) => value
-              _ => "plugin"
+          Json::Object(plugin) =>
+            match normalized_plugin_from_json(plugin, kind) {
+              Some(plugin) => plugins.iter().concat([plugin].iter()).collect()
+              None => plugins
             }
-            let source = plugin_source_from_json(plugin, kind).unwrap_or(name)
-            if is_relative_plugin_path(source) {
-              plugins.push({
-                name,
-                source,
-                description: match plugin.get("description") {
-                  Some(Json::String(value)) => Some(value)
-                  _ => None
-                },
-              })
-            }
-          }
-          _ => ()
+          _ => plugins
         }
-      }
-    _ => ()
+      })
+    _ => []
   }
-  plugins
+}
+
+///|
+fn normalized_plugin_from_json(
+  plugin : Map[String, Json],
+  kind : MarketplaceKind,
+) -> NormalizedPlugin? {
+  let name = match plugin.get("name") {
+    Some(Json::String(value)) => value
+    _ => "plugin"
+  }
+  let source = plugin_source_from_json(plugin, kind).unwrap_or(name)
+  if is_relative_plugin_path(source) {
+    Some({
+      name,
+      source,
+      description: match plugin.get("description") {
+        Some(Json::String(value)) => Some(value)
+        _ => None
+      },
+    })
+  } else {
+    None
+  }
 }
 
 ///|
@@ -244,30 +296,73 @@ async fn resolve_skills(
 ) -> Array[ResolvedSkill] {
   let path = @path.Path::join(repo_dir, marketplace_path(kind)).to_string()
   let text = @fs.read_file(path).text()
-  let skills : Array[ResolvedSkill] = []
-  for plugin in normalized_plugins_from_json(text, kind) {
-    let skill_dir = (repo_dir
-    |> @path.Path::join(plugin.source)
-    |> @path.Path::join("skills")).to_string()
-    let entries = @fs.readdir(
-      skill_dir,
-      include_hidden=false,
-      include_special=false,
-      sort=true,
-    ) catch {
-      _ => []
-    }
-    for entry in entries {
-      let skill_path = @path.Path::join(skill_dir, entry).to_string()
-      if @fs.exists(@path.Path::join(skill_path, "SKILL.md").to_string()) {
-        skills.push({
-          plugin_name: plugin.name,
-          plugin_path: plugin.source,
-          skill_name: entry,
-          skill_path,
-        })
-      }
-    }
+  resolve_skills_from_plugins(
+    repo_dir,
+    normalized_plugins_from_json(text, kind),
+    0,
+  )
+}
+
+///|
+async fn resolve_skills_from_plugins(
+  repo_dir : String,
+  plugins : Array[NormalizedPlugin],
+  index : Int,
+) -> Array[ResolvedSkill] {
+  if index >= plugins.length() {
+    return []
   }
-  skills
+  let plugin = plugins[index]
+  let current = resolve_plugin_skills(repo_dir, plugin)
+  let rest = resolve_skills_from_plugins(repo_dir, plugins, index + 1)
+  current.iter().concat(rest.iter()).collect()
+}
+
+///|
+async fn resolve_plugin_skills(
+  repo_dir : String,
+  plugin : NormalizedPlugin,
+) -> Array[ResolvedSkill] {
+  let skill_dir = (repo_dir
+  |> @path.Path::join(plugin.source)
+  |> @path.Path::join("skills")).to_string()
+  let entries = @fs.readdir(
+    skill_dir,
+    include_hidden=false,
+    include_special=false,
+    sort=true,
+  ) catch {
+    _ => []
+  }
+  resolve_skill_entries(plugin, skill_dir, entries, 0)
+}
+
+///|
+async fn resolve_skill_entries(
+  plugin : NormalizedPlugin,
+  skill_dir : String,
+  entries : Array[String],
+  index : Int,
+) -> Array[ResolvedSkill] {
+  if index >= entries.length() {
+    return []
+  }
+  let entry = entries[index]
+  let skill_path = @path.Path::join(skill_dir, entry).to_string()
+  let current = if @fs.exists(
+      @path.Path::join(skill_path, "SKILL.md").to_string(),
+    ) {
+    [
+      {
+        plugin_name: plugin.name,
+        plugin_path: plugin.source,
+        skill_name: entry,
+        skill_path,
+      },
+    ]
+  } else {
+    []
+  }
+  let rest = resolve_skill_entries(plugin, skill_dir, entries, index + 1)
+  current.iter().concat(rest.iter()).collect()
 }

@@ -166,31 +166,44 @@ async fn run_skill_add(matches : @argparse.Matches) -> Unit {
   let lock = read_lock(agents)
   let skills = resolve_skills(dir, market.kind)
   let incoming_plugins = plugins_from_skills(skills)
-  let mut merged = false
-  for index, repo in lock.repositories {
-    if repo.source == source {
-      lock.repositories[index] = {
-        source_type,
-        source,
-        marketplace_kind: market.kind,
-        commit_hash: hash,
-        plugins: merge_plugins(repo.plugins, incoming_plugins),
-      }
-      merged = true
-    }
+  let repository : LockRepository = {
+    source_type,
+    source,
+    marketplace_kind: market.kind,
+    commit_hash: hash,
+    plugins: incoming_plugins,
   }
-  if !merged {
-    lock.repositories.push({
-      source_type,
-      source,
-      marketplace_kind: market.kind,
-      commit_hash: hash,
-      plugins: incoming_plugins,
-    })
-  }
-  write_lock(agents, lock)
+  write_lock(agents, {
+    skill_dirs: lock.skill_dirs,
+    repositories: upsert_repository(lock.repositories, repository),
+  })
   sync_all(agents)
   println("Added \{source}")
+}
+
+///|
+fn upsert_repository(
+  repositories : Array[LockRepository],
+  incoming : LockRepository,
+) -> Array[LockRepository] {
+  let updated = repositories.map(fn(repo) {
+    if repo.source == incoming.source {
+      {
+        source_type: incoming.source_type,
+        source: incoming.source,
+        marketplace_kind: incoming.marketplace_kind,
+        commit_hash: incoming.commit_hash,
+        plugins: merge_plugins(repo.plugins, incoming.plugins),
+      }
+    } else {
+      repo
+    }
+  })
+  if repositories.any(fn(repo) { repo.source == incoming.source }) {
+    updated
+  } else {
+    updated.iter().concat([incoming].iter()).collect()
+  }
 }
 
 ///|
@@ -216,25 +229,38 @@ async fn run_skill_update(matches : @argparse.Matches) -> Unit {
   }
   for agents in agents_dirs {
     let lock = read_lock(agents)
-    let updated : Array[LockRepository] = []
-    for repo in lock.repositories {
-      match repo.source_type {
-        RepositoryGithub => {
-          let dir = update_repo(repo.source)
-          updated.push({
-            source_type: repo.source_type,
-            source: repo.source,
-            marketplace_kind: repo.marketplace_kind,
-            commit_hash: Some(commit_hash(dir)),
-            plugins: repo.plugins,
-          })
-        }
-        RepositoryLocal => updated.push(repo)
-      }
-    }
+    let updated = update_repositories(lock.repositories, 0)
     write_lock(agents, { skill_dirs: lock.skill_dirs, repositories: updated })
     sync_all(agents)
   }
+}
+
+///|
+async fn update_repositories(
+  repositories : Array[LockRepository],
+  index : Int,
+) -> Array[LockRepository] {
+  if index >= repositories.length() {
+    return []
+  }
+  let repo = repositories[index]
+  let current = match repo.source_type {
+    RepositoryGithub => {
+      let dir = update_repo(repo.source)
+      [
+        {
+          source_type: repo.source_type,
+          source: repo.source,
+          marketplace_kind: repo.marketplace_kind,
+          commit_hash: Some(commit_hash(dir)),
+          plugins: repo.plugins,
+        },
+      ]
+    }
+    RepositoryLocal => [repo]
+  }
+  let rest = update_repositories(repositories, index + 1)
+  current.iter().concat(rest.iter()).collect()
 }
 
 ///|
@@ -243,13 +269,11 @@ async fn run_skill_remove(matches : @argparse.Matches) -> Unit {
   let agents = command_agents_dir(options.global)
   let source = options.source
   let lock = read_lock(agents)
-  let kept : Array[LockRepository] = []
-  for repo in lock.repositories {
-    if repo.source != source {
-      kept.push(repo)
-    }
-  }
-  write_lock(agents, { skill_dirs: lock.skill_dirs, repositories: kept })
+  let repositories = lock.repositories
+    .iter()
+    .filter(fn(repo) { repo.source != source })
+    .collect()
+  write_lock(agents, { skill_dirs: lock.skill_dirs, repositories })
   sync_all(agents)
   println("Removed \{source}")
 }

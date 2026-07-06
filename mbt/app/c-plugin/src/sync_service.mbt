@@ -62,11 +62,11 @@ async fn create_skill_link(
   skill_path : String,
 ) -> Unit {
   let target_roots : Array[String] = [
-    @path.Path::join(agents, "skills").to_string(),
-  ]
-  for extra in skill_dirs {
-    target_roots.push(expand_home(extra))
-  }
+      @path.Path::join(agents, "skills").to_string(),
+    ]
+    .iter()
+    .concat(skill_dirs.iter().map(expand_home))
+    .collect()
   for root in target_roots {
     if !@fs.exists(root) {
       @fs.mkdir(root, recursive=true)
@@ -128,12 +128,10 @@ async fn sync_one(
 ) -> Unit {
   let repo_dir = repo_dir_for(lock_path_from_agents(agents), repo)
   let skills = resolve_skills(repo_dir, repo.marketplace_kind)
-  let expected_skills : Array[String] = []
-  for plugin in repo.plugins {
-    for skill in plugin.enabled_skills {
-      expected_skills.push(skill)
-    }
-  }
+  let expected_skills : Array[String] = repo.plugins
+    .iter()
+    .flat_map(fn(plugin) { plugin.enabled_skills.iter() })
+    .collect()
   for skill in skills {
     if !expected_skills.contains(skill.skill_name) {
       continue
