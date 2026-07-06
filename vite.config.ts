@@ -96,9 +96,8 @@ export default defineConfig({
         input: [{ auto: true }, '!_build/**', '!deps/**'],
       },
       fix: {
-        command: '',
+        command: 'vp check --fix',
         dependsOn: [
-          'js:fix',
           'mbt:fix',
           // 'ex:fix'
         ],
