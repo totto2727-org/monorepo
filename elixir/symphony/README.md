@@ -59,23 +59,24 @@ Linear issue can become a dispatch candidate again after restart.
 
 ## Prerequisites
 
-We recommend using [mise](https://mise.jdx.dev/) to manage Elixir/Erlang versions.
+Use the repository [Devbox](https://www.jetify.com/devbox) environment to provide the required
+Elixir/Erlang versions.
 
 ```bash
-mise install
-mise exec -- elixir --version
+devbox shell
+elixir --version
 ```
 
 ## Run
 
 ```bash
 git clone https://github.com/openai/symphony
-cd symphony/elixir
-mise trust
-mise install
-mise exec -- mix setup
-mise exec -- mix build
-mise exec -- ./bin/symphony ../../WORKFLOW.md
+cd symphony
+devbox shell
+cd elixir
+mix setup
+mix build
+./bin/symphony ../../WORKFLOW.md
 ```
 
 ## Configuration
@@ -137,8 +138,9 @@ Notes:
   identifier, title, and body.
 - Use `hooks.after_create` to bootstrap a fresh workspace. For a Git-backed repo, you can run
   `git clone ... .` there, along with any other setup commands you need.
-- If a hook needs `mise exec` inside a freshly cloned workspace, trust the repo config and fetch
-  the project dependencies in `hooks.after_create` before invoking `mise` later from other hooks.
+- If a hook needs project tooling inside a freshly cloned workspace, enter the repo's Devbox
+  environment and fetch the project dependencies in `hooks.after_create` before invoking that
+  tooling later from other hooks.
 - `tracker.api_key` reads from `LINEAR_API_KEY` when unset or when value is `$LINEAR_API_KEY`.
 - For path values, `~` is expanded to the home directory.
 - For env-backed path values, use `$VAR`. `workspace.root` resolves `$VAR` before path handling.
