@@ -1,4 +1,4 @@
-import { createBetterAuthSetupMiddleware, requireAuthMiddleware as authHelperRequireAuthMiddleware } from 'auth-helper'
+import { createBetterAuthSetupMiddleware, requireAuthMiddleware as authRequireAuthMiddleware } from 'auth'
 
 import { factory } from '#@/feature/share/lib/hono/factory.ts'
 
@@ -11,7 +11,7 @@ export const authMiddleware = createBetterAuthSetupMiddleware({
   service: BetterAuth.Service,
 })
 
-export const requireAuthMiddleware = authHelperRequireAuthMiddleware({
+export const requireAuthMiddleware = authRequireAuthMiddleware({
   factory,
   onUnauthenticated: (ctx) =>
     ctx.json({ error: 'Unauthorized' }, 401, {

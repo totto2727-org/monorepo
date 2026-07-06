@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { decodeBetterAuthUser, toAuthUser } from './better-auth.ts'
+import { decodeBetterAuthUser, toUser } from './better-auth.ts'
 
 describe('decodeBetterAuthUser', () => {
   it('decodes a Better Auth user payload', () => {
@@ -19,9 +19,9 @@ describe('decodeBetterAuthUser', () => {
   })
 })
 
-describe('toAuthUser', () => {
+describe('toUser', () => {
   it('keeps the Better Auth id in the shared auth user', () => {
-    const user = toAuthUser({
+    const user = toUser({
       email: 'test@example.com',
       id: 'user-123',
     })

@@ -80,7 +80,6 @@ let
       "$@"
   '';
 
-
   # --- wrappers without pass-cli (sandbox, OpenShell injects env vars) ---
 
   sandbox-bx = writeShellScriptBin "bx" ''

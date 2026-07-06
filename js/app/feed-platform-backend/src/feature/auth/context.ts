@@ -1,5 +1,5 @@
-import type { AuthUser } from 'auth-helper'
+import type { User } from 'auth'
 
 export interface Variables {
-  readonly user: AuthUser | null
+  readonly user: User | null
 }

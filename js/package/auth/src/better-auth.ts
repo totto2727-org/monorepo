@@ -2,26 +2,15 @@ import { Effect, Option, Predicate, Schema } from 'effect'
 import type { Context, Layer } from 'effect'
 import type { Context as HonoContext, Env, MiddlewareHandler } from 'hono'
 
+import type { User } from './type.ts'
+
 export interface BetterAuthUser {
   readonly email: string
   readonly id: string
 }
 
-export interface AuthUser {
-  readonly email: string
-  readonly id: string
-}
-
-export interface AuthVariables {
-  readonly user: AuthUser
-}
-
-export interface OptionalAuthVariables {
-  readonly user: AuthUser | null
-}
-
 export interface BetterAuthSetupVariables {
-  readonly user: AuthUser | null
+  readonly user: User | null
 }
 
 export interface BetterAuthSessionProvider {
@@ -42,7 +31,7 @@ const BetterAuthUserPayload = Schema.Struct({
 
 const decodeBetterAuthUserPayload = Schema.decodeUnknownOption(BetterAuthUserPayload)
 
-export const toAuthUser = (user: BetterAuthUser): AuthUser => ({ email: user.email, id: user.id })
+export const toUser = (user: BetterAuthUser): User => ({ email: user.email, id: user.id })
 
 export const decodeBetterAuthUser = (value: unknown): BetterAuthUser | null =>
   Option.getOrNull(decodeBetterAuthUserPayload(value))
@@ -62,9 +51,9 @@ export const getBetterAuthSessionUser = (auth: BetterAuthSessionProvider, header
     return Predicate.isNullish(session) ? null : session.user
   })
 
-const defaultMapUser = (user: unknown): AuthUser | null => {
+const defaultMapUser = (user: unknown): User | null => {
   const decodedUser = decodeBetterAuthUser(user)
-  return Predicate.isNullish(decodedUser) ? null : toAuthUser(decodedUser)
+  return Predicate.isNullish(decodedUser) ? null : toUser(decodedUser)
 }
 
 interface MiddlewareFactory<E extends Env> {
