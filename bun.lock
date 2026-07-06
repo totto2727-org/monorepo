@@ -45,7 +45,7 @@
       "name": "feed-platform-backend",
       "devDependencies": {
         "@totto2727/fp": "workspace:*",
-        "auth-helper": "workspace:*",
+        "auth": "workspace:*",
         "better-auth": "catalog:auth",
         "effect": "catalog:effect",
         "effect-hono": "workspace:*",
@@ -59,7 +59,7 @@
         "@cloudflare/vite-plugin": "catalog:cloudflare",
         "@libsql/kysely-libsql": "catalog:database",
         "@totto2727/fp": "workspace:*",
-        "auth-helper": "workspace:*",
+        "auth": "workspace:*",
         "better-auth": "catalog:auth",
         "effect": "catalog:effect",
         "effect-hono": "workspace:*",
@@ -97,7 +97,7 @@
         "@cloudflare/vite-plugin": "catalog:cloudflare",
         "@libsql/kysely-libsql": "catalog:database",
         "@totto2727/fp": "workspace:*",
-        "auth-helper": "workspace:*",
+        "auth": "workspace:*",
         "better-auth": "catalog:auth",
         "effect": "catalog:effect",
         "effect-hono": "workspace:*",
@@ -174,8 +174,8 @@
         "vite-plus": "catalog:",
       },
     },
-    "js/package/auth-helper": {
-      "name": "auth-helper",
+    "js/package/auth": {
+      "name": "auth",
       "version": "0.0.0",
       "devDependencies": {
         "@totto2727/fp": "workspace:*",
@@ -1133,7 +1133,7 @@
 
     "ast-v8-to-istanbul": ["ast-v8-to-istanbul@1.0.4", "https://npm.flatt.tech/ast-v8-to-istanbul/-/ast-v8-to-istanbul-1.0.4.tgz", { "dependencies": { "@jridgewell/trace-mapping": "^0.3.31", "estree-walker": "^3.0.3", "js-tokens": "^10.0.0" } }, "sha512-0bC0/4bTSrnwdhU3IsZDwEdojvuPrSg59OYZfKsLRtJZ0u8VBx9DebfqqG8bRdCC0I7vjgxmPi41P0lpkhJHtA=="],
 
-    "auth-helper": ["auth-helper@workspace:js/package/auth-helper"],
+    "auth": ["auth@workspace:js/package/auth"],
 
     "aws4fetch": ["aws4fetch@1.0.20", "https://npm.flatt.tech/aws4fetch/-/aws4fetch-1.0.20.tgz", {}, "sha512-/djoAN709iY65ETD6LKCtyyEI04XIBP5xVvfmNxsEP0uJB5tyaGBztSryRr4HqMStr9R06PisQE7m9zDTXKu6g=="],
 

@@ -1,4 +1,4 @@
-import { createBetterAuthSetupMiddleware, requireAuthMiddleware as authHelperRequireAuthMiddleware } from 'auth-helper'
+import { createBetterAuthSetupMiddleware, requireAuthMiddleware as authRequireAuthMiddleware } from 'auth'
 import { Predicate } from 'effect'
 
 import { setLoginReturnToCookie } from '#@/feature/auth/cookie.ts'
@@ -15,7 +15,7 @@ export const authMiddleware = createBetterAuthSetupMiddleware({
   service: BetterAuth.Service,
 })
 
-export const requireAuthMiddleware = authHelperRequireAuthMiddleware({
+export const requireAuthMiddleware = authRequireAuthMiddleware({
   factory,
   onUnauthenticated: (ctx) => {
     const returnTo = getReturnToPath(ctx.req.url)
@@ -26,7 +26,7 @@ export const requireAuthMiddleware = authHelperRequireAuthMiddleware({
   },
 })
 
-export const requireLoginSessionMiddleware = authHelperRequireAuthMiddleware({
+export const requireLoginSessionMiddleware = authRequireAuthMiddleware({
   factory,
   onUnauthenticated: (ctx) => ctx.redirect('/login'),
 })

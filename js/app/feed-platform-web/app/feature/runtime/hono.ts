@@ -1,4 +1,4 @@
-import type { OptionalAuthVariables } from 'auth-helper'
+import type { OptionalAuthVariables } from 'auth'
 
 import { factory } from '#@/feature/share/lib/hono/factory.ts'
 
