@@ -59,33 +59,48 @@ async fn collect_recursive_target_files_from(
 ) -> Array[String] {
   let target_file = @path.Path::join(dir, file_name).to_string()
   let local_ignore_rules = read_ignore_rules(dir)
-  let ignore_rules = inherited_ignore_rules.copy()
-  match local_ignore_rules {
-    Some(rules) => ignore_rules.push(rules)
-    None => ()
+  let ignore_rules = match local_ignore_rules {
+    Some(rules) =>
+      inherited_ignore_rules.iter().concat([rules].iter()).collect()
+    None => inherited_ignore_rules
   }
-  let files : Array[String] = []
-  if @fs.exists(target_file) {
-    files.push(target_file)
-  }
+  let local_files = if @fs.exists(target_file) { [target_file] } else { [] }
   let entries = @fs.readdir(
     dir,
     include_hidden=true,
     include_special=false,
     sort=true,
   )
-  for entry in entries {
-    let entry_path = @path.Path::join(dir, entry).to_string()
-    let kind = @fs.kind(entry_path)
-    if kind == @fs.FileKind::Directory &&
-      !is_ignored_directory(entry_path, ignore_rules) {
-      for
-        found in collect_recursive_target_files_from(
-          entry_path, file_name, ignore_rules,
-        ) {
-        files.push(found)
-      }
-    }
+  let descendant_files = collect_descendant_target_files(
+    entries, 0, dir, file_name, ignore_rules,
+  )
+  local_files.iter().concat(descendant_files.iter()).collect()
+}
+
+///|
+async fn collect_descendant_target_files(
+  entries : Array[String],
+  entry_index : Int,
+  dir : String,
+  file_name : String,
+  ignore_rules : Array[IgnoreRuleSet],
+) -> Array[String] {
+  if entry_index >= entries.length() {
+    return []
   }
-  files
+  let entry_path = @path.Path::join(dir, entries[entry_index]).to_string()
+  let current_files = if @fs.kind(entry_path) == @fs.FileKind::Directory &&
+    !is_ignored_directory(entry_path, ignore_rules) {
+    collect_recursive_target_files_from(entry_path, file_name, ignore_rules)
+  } else {
+    []
+  }
+  let remaining_files = collect_descendant_target_files(
+    entries,
+    entry_index + 1,
+    dir,
+    file_name,
+    ignore_rules,
+  )
+  current_files.iter().concat(remaining_files.iter()).collect()
 }

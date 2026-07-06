@@ -15,15 +15,14 @@ let char_star : UInt16 = {
 
 ///|
 fn parse_ignore_patterns(content : String) -> Array[String] {
-  let patterns : Array[String] = []
-  for raw_line in content.split("\n") {
-    let line = raw_line.to_owned().trim().to_owned()
-    if line == "" || line.has_prefix("#") || line.has_prefix("!") {
-      continue
-    }
-    patterns.push(line.trim_start(chars="/").trim_end(chars="/").to_owned())
-  }
-  patterns
+  content
+  .split("\n")
+  .map(fn(raw_line) { raw_line.to_owned().trim().to_owned() })
+  .filter(fn(line) {
+    line != "" && !line.has_prefix("#") && !line.has_prefix("!")
+  })
+  .map(fn(line) { line.trim_start(chars="/").trim_end(chars="/").to_owned() })
+  .collect()
 }
 
 ///|
@@ -69,22 +68,18 @@ fn contains_contiguous_segments(
   if pattern_segments.length() > path_segments.length() {
     return false
   }
-  for start in 0..<=(path_segments.length() - pattern_segments.length()) {
-    let mut matched = true
-    for offset in 0..<pattern_segments.length() {
-      if !glob_segment_matches(
-          pattern_segments[offset],
-          path_segments[start + offset],
-        ) {
-        matched = false
-        break
-      }
-    }
-    if matched {
-      return true
-    }
-  }
-  false
+  (0)
+  .until(path_segments.length() - pattern_segments.length() + 1)
+  .any(fn(start) {
+    (0)
+    .until(pattern_segments.length())
+    .all(fn(offset) {
+      glob_segment_matches(
+        pattern_segments[offset],
+        path_segments[start + offset],
+      )
+    })
+  })
 }
 
 ///|
@@ -125,16 +120,15 @@ fn is_ignored_directory(
   target_path : String,
   ignore_rules : Array[IgnoreRuleSet],
 ) -> Bool {
-  for rules in ignore_rules {
+  ignore_rules
+  .iter()
+  .any(fn(rules) {
     let relative = @path.Path::relative(
       base=normalize_path(rules.base_dir),
       normalize_path(target_path),
     ).to_string()
-    for pattern in rules.patterns {
-      if path_matches_pattern(relative, pattern) {
-        return true
-      }
-    }
-  }
-  false
+    rules.patterns
+    .iter()
+    .any(fn(pattern) { path_matches_pattern(relative, pattern) })
+  })
 }
