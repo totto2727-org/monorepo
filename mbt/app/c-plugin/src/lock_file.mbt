@@ -112,36 +112,26 @@ fn lock_plugin_from_json(json : Json) -> LockPlugin? {
 fn strings_from_json_array(values : Array[Json]) -> Array[String] {
   values
   .iter()
-  .fold(init=[], fn(strings, value) {
+  .filter_map(fn(value) {
     match value {
-      Json::String(text) => strings.iter().concat([text].iter()).collect()
-      _ => strings
+      Json::String(text) => Some(text)
+      _ => None
     }
   })
+  .collect()
 }
 
 ///|
 fn lock_plugins_from_json(json : Array[Json]) -> Array[LockPlugin] {
-  json
-  .iter()
-  .fold(init=[], fn(plugins, value) {
-    match lock_plugin_from_json(value) {
-      Some(plugin) => plugins.iter().concat([plugin].iter()).collect()
-      None => plugins
-    }
-  })
+  json.iter().filter_map(lock_plugin_from_json).collect()
 }
 
 ///|
 fn repositories_from_json_array(values : Array[Json]) -> Array[LockRepository] {
   values
   .iter()
-  .fold(init=[], fn(repositories, value) {
-    match (lock_repository_from_json(value) catch { _ => None }) {
-      Some(repo) => repositories.iter().concat([repo].iter()).collect()
-      None => repositories
-    }
-  })
+  .filter_map(fn(value) { lock_repository_from_json(value) catch { _ => None } })
+  .collect()
 }
 
 ///|

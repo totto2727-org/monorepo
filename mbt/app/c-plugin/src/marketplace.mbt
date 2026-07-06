@@ -239,16 +239,13 @@ fn normalized_plugins_from_json(
     Some(Json::Array(values)) =>
       values
       .iter()
-      .fold(init=[], fn(plugins, value) {
+      .filter_map(fn(value) {
         match value {
-          Json::Object(plugin) =>
-            match normalized_plugin_from_json(plugin, kind) {
-              Some(plugin) => plugins.iter().concat([plugin].iter()).collect()
-              None => plugins
-            }
-          _ => plugins
+          Json::Object(plugin) => normalized_plugin_from_json(plugin, kind)
+          _ => None
         }
       })
+      .collect()
     _ => []
   }
 }
