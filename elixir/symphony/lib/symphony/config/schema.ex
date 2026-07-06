@@ -254,9 +254,7 @@ defmodule Symphony.Config.Schema do
     end
 
     defp normalize_language(language) when is_binary(language) do
-      language
-      |> String.trim()
-      |> String.downcase()
+      String.trim(language)
     end
 
     defp normalize_language(language), do: language

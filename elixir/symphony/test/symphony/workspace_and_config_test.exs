@@ -490,7 +490,7 @@ defmodule Symphony.WorkspaceAndConfigTest do
   test "linear client sends comment bodies through translation agent using front matter language before graphql post" do
     write_workflow_file!(Workflow.workflow_file_path(),
       tracker_api_token: "token",
-      display_language: "FR"
+      display_language: "French"
     )
 
     mutation = """
@@ -515,13 +515,13 @@ defmodule Symphony.WorkspaceAndConfigTest do
                end
              )
 
-    assert_received {:translation_agent_called, "fr"}
+    assert_received {:translation_agent_called, "French"}
   end
 
   test "linear client still sends same-language comment bodies through translation agent" do
     write_workflow_file!(Workflow.workflow_file_path(),
       tracker_api_token: "token",
-      display_language: "en"
+      display_language: "English"
     )
 
     mutation = """
@@ -534,7 +534,7 @@ defmodule Symphony.WorkspaceAndConfigTest do
 
     assert {:ok, %{"data" => %{"commentCreate" => %{"success" => true}}}} =
              Client.graphql(mutation, %{issueId: "issue-1", body: body},
-               translation_agent_fun: fn ^body, "en", _opts ->
+               translation_agent_fun: fn ^body, "English", _opts ->
                  send(self(), :same_language_agent_called)
                  {:ok, body}
                end,
@@ -552,7 +552,7 @@ defmodule Symphony.WorkspaceAndConfigTest do
   test "linear client retries translation agent failures then posts original comment body" do
     write_workflow_file!(Workflow.workflow_file_path(),
       tracker_api_token: "token",
-      display_language: "de"
+      display_language: "German"
     )
 
     mutation = """
@@ -566,7 +566,7 @@ defmodule Symphony.WorkspaceAndConfigTest do
     assert {:ok, %{"data" => %{"commentUpdate" => %{"success" => true}}}} =
              Client.graphql(mutation, %{body: body},
                translation_retry_attempts: 3,
-               translation_agent_fun: fn ^body, "de", _opts ->
+               translation_agent_fun: fn ^body, "German", _opts ->
                  send(self(), :translation_attempt)
                  {:error, :agent_unavailable}
                end,
@@ -604,7 +604,7 @@ defmodule Symphony.WorkspaceAndConfigTest do
       ]
 
       assert {:ok, "Bonjour"} =
-               CommentTranslator.run_translation_agent("Hello", "fr",
+               CommentTranslator.run_translation_agent("Hello", "French",
                  translation_agent_opts: [
                    client_opts: [test_pid: self(), session_id: "ses_translate", events: events],
                    event_stream: OpencodeFakes.EventStream,
@@ -618,9 +618,9 @@ defmodule Symphony.WorkspaceAndConfigTest do
       assert_received {:opencode_prompt_async, "ses_translate",
                        %{parts: [%{text: "Hello"}], system: system}, _client}
 
-      assert system =~ "Target language: fr"
-      assert system =~ "Translate the user's input into the target language."
-      assert system =~ "Output only the final comment body"
+      assert system =~ "**Target language:** `French`"
+      assert system =~ "**Task:** Translate the user's input into the **target language**."
+      assert system =~ "**Output:** Only the final comment body"
       refute system =~ "Hello"
     after
       File.rm_rf(test_root)
@@ -983,9 +983,9 @@ defmodule Symphony.WorkspaceAndConfigTest do
 
     assert Config.settings!().opencode.model == "openai/gpt-5.5"
 
-    write_workflow_file!(Workflow.workflow_file_path(), display_language: " JA ")
-    assert Config.settings!().display.language == "ja"
-    assert Config.linear_output_language() == "ja"
+    write_workflow_file!(Workflow.workflow_file_path(), display_language: " Japanese ")
+    assert Config.settings!().display.language == "Japanese"
+    assert Config.linear_output_language() == "Japanese"
 
     write_workflow_file!(Workflow.workflow_file_path(), tracker_active_states: ",")
     assert {:error, {:invalid_workflow_config, message}} = Config.validate!()

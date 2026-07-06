@@ -33,7 +33,7 @@ agent:
 opencode:
   model: openai/gpt-5.5
 display:
-  language: ja
+  language: Japanese
 ---
 
 You are working on a Linear ticket `{{ issue.identifier }}`

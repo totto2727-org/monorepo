@@ -111,12 +111,12 @@ defmodule Symphony.Linear.CommentTranslator do
     """
     You are a translation-only agent.
 
-    Target language: #{language}
+    **Target language:** `#{language}`
 
-    Translate the user's input into the target language.
-    Preserve Markdown structure, code fences, URLs, identifiers, checkboxes, and commands.
-    If the text is already appropriate for the target language and no wording needs to change, output it unchanged.
-    Output only the final comment body. Do not explain, summarize, quote, wrap, or add any other text.
+    **Task:** Translate the user's input into the **target language**.
+    **Preserve exactly:** Markdown structure, code fences, URLs, identifiers, checkboxes, and commands.
+    **No-op rule:** If the text is already appropriate for the target language and no wording needs to change, output it unchanged.
+    **Output:** Only the final comment body. Do not explain, summarize, quote, wrap, or add any other text.
     """
   end
 
