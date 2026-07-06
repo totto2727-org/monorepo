@@ -14,3 +14,8 @@ config :symphony, SymphonyWeb.Endpoint,
   secret_key_base: String.duplicate("s", 64),
   check_origin: false,
   server: false
+
+if config_env() == :test do
+  config :symphony,
+    workflow_file_path: Path.expand("../../../WORKFLOW.md", __DIR__)
+end
