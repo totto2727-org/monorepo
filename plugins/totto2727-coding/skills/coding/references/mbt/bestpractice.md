@@ -500,6 +500,66 @@ Mutation is only legitimate inside **encapsulated, single-owner** contexts where
 
 Outside these three cases, default to the immutable construction patterns above. **`for i = 0; i < n; i = i + 1 { result.push(...) }` is almost always rewritable with `Array::makei`** — reach for `makei` first and only fall back to a loop when the per-step logic genuinely cannot be expressed as a function of the index.
 
+#### Immutable collection refactor review checklist
+
+When reviewing MoonBit collection code, the smell is not `for` by itself. The
+review finding is a loop paired with mutable flags, mutable result arrays,
+`push`, `append`, local copies that are mutated, or array element reassignment
+to express a routine collection transformation.
+
+Use this checklist before approving collection refactors:
+
+- Simple transformation: use `map` or `Array::makei` when the output length is
+  known.
+- Simple filtering: use `filter`; use `filter_map` when the code maps and drops
+  missing values in one pass.
+- Membership checks: use `any`, `all`, or `contains`; never keep a manual
+  `mut found` flag for an existence test.
+- Accumulation, grouping, upsert, and merge: use `fold` plus small pure helpers
+  such as `upsert_*`, `append_*`, or `merge_*` that return new values.
+- Flattening nested arrays: use `flat_map`, `flatten`, or iterator
+  concatenation followed by `collect`.
+- Order preservation: when replacing upsert or merge logic, preserve
+  first-seen outer order and per-item order explicitly in tests or examples.
+
+Manual upsert flags are review findings. Code shaped like `let mut found =
+false`, a loop that toggles it, and a trailing `if !found { ... }` should become
+a pure helper that either maps over the existing collection or appends a new
+item when `any` reports no match.
+
+Array element reassignment is also a review finding when it implements a
+collection update, for example `items[index] = updated`. Prefer `map` for
+same-length replacement and `fold` for replacement plus conditional append.
+Index assignment is acceptable only for genuinely mutable algorithms where the
+array is the algorithm's working state and an immutable rewrite would obscure
+the logic.
+
+Effectful traversal is the main exception. A `for` loop may remain when each
+iteration performs async or effectful work such as filesystem access, Git
+commands, printing, network calls, or symlink creation and the return value is
+not a simple derived collection. If the team requires removing the loop anyway,
+use a small recursive helper that threads immutable state; do not force
+effectful code into collection combinators that cannot express the effects
+clearly.
+
+Algorithmic state machines are the other exception. Local `mut` state may remain
+for wildcard matchers, parsers, graph walks, geometric kernels, or similar
+algorithms where the state is intrinsic and a functional rewrite would reduce
+clarity. Keep the mutable state local, document the reason when it is not
+obvious, and avoid letting mutable arrays cross function boundaries.
+
+For a structural review, start with this scan and classify every remaining hit:
+
+```bash
+rg -n '\bmut\b|\bfor\b|\.push\(|\[[^]]+\]\s*=' mbt --glob '*.mbt'
+```
+
+Classify each hit as one of: simple transformation needing refactor, effectful
+traversal, algorithmic state machine, unavoidable mutable library object
+construction, or test-only imperative setup. Do not approve an unclassified
+`mut found`, `push`-based map/filter/fold, or array reassignment used for a
+collection update.
+
 ## 4. Performance Optimization
 
 - **Lazy evaluation with Iterator**: For array processing where the size is unknown or potentially large, prefer `iter()` for lazy evaluation to avoid intermediate array allocations. This is especially effective for fold operations like `minimum()`/`maximum()`:
