@@ -28,8 +28,8 @@ This project is a port of the original [OpenAI Symphony](https://github.com/open
 4. Creates an OpenCode session for the issue workspace and sends the workflow prompt
 5. Keeps OpenCode working on the issue until the work is done
 
-During app-server sessions, Symphony also serves a client-side `linear_graphql` tool so that repo
-skills can make raw Linear GraphQL calls.
+During app-server sessions, Symphony also serves a client-side `linear_graphql` tool so agents,
+external helper skills, or workflow prompts can make raw Linear GraphQL calls.
 
 If a claimed issue moves to a terminal state (`Done`, `Closed`, `Cancelled`, or `Duplicate`),
 Symphony stops the active agent for that issue and cleans up matching workspaces.
@@ -46,9 +46,12 @@ Linear issue can become a dispatch candidate again after restart.
 2. Get a new personal token in Linear via Settings → Security & access → Personal API keys, and
    set it as the `LINEAR_API_KEY` environment variable.
 3. Copy the repository root `WORKFLOW.md` to your repo.
-4. Optionally copy the `commit`, `push`, `pull`, `land`, and `linear` skills to your repo.
-   - The `linear` skill expects Symphony's `linear_graphql` app-server tool for raw Linear GraphQL
-     operations such as comment editing or upload flows.
+4. Optionally copy the repository-owned `land` skill from `.agents/skills/land/SKILL.md` to your
+   repo when you want this workflow's merge handling.
+   - `commit`, `push`, and `pull` are git/GitHub workflow capabilities or optional external agent
+     skills. They are not checked-in repo skills provided by this checkout.
+   - Linear support should come from a configured Linear MCP server or Symphony's `linear_graphql`
+     app-server tool for raw Linear GraphQL operations such as comment editing or upload flows.
 5. Customize the copied `WORKFLOW.md` file for your project.
    - To get your project's slug, right-click the project and copy its URL. The slug is part of the
      URL.
