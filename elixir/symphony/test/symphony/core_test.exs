@@ -19,6 +19,7 @@ defmodule Symphony.CoreTest do
     config = Config.settings!()
     assert config.polling.interval_ms == 30_000
     assert config.tracker.active_states == ["Todo", "In Progress"]
+    assert config.tracker.reviewable_states == ["Human Review"]
 
     assert config.tracker.terminal_states == [
              "Closed",
@@ -90,6 +91,7 @@ defmodule Symphony.CoreTest do
     assert Map.get(tracker, "kind") == "linear"
     assert is_binary(Map.get(tracker, "project_slug"))
     assert is_list(Map.get(tracker, "active_states"))
+    assert is_list(Map.get(tracker, "reviewable_states"))
     assert is_list(Map.get(tracker, "terminal_states"))
 
     hooks = Map.get(config, "hooks", %{})

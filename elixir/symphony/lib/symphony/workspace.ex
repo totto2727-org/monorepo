@@ -309,7 +309,11 @@ defmodule Symphony.Workspace do
 
     task =
       Task.async(fn ->
-        System.cmd("sh", ["-lc", command], cd: workspace, stderr_to_stdout: true)
+        System.cmd("sh", ["-lc", command],
+          cd: workspace,
+          env: hook_env(issue_context),
+          stderr_to_stdout: true
+        )
       end)
 
     case Task.yield(task, timeout_ms) do
@@ -337,7 +341,13 @@ defmodule Symphony.Workspace do
 
     case run_remote_command(
            worker_host,
-           "cd #{shell_escape(workspace)} && #{command}",
+           [
+             "cd #{shell_escape(workspace)}",
+             remote_hook_exports(issue_context),
+             command
+           ]
+           |> Enum.reject(&(&1 == ""))
+           |> Enum.join(" && "),
            timeout_ms
          ) do
       {:ok, cmd_result} ->
@@ -479,24 +489,45 @@ defmodule Symphony.Workspace do
   defp worker_host_for_log(nil), do: "local"
   defp worker_host_for_log(worker_host), do: worker_host
 
-  defp issue_context(%{id: issue_id, identifier: identifier}) do
+  defp hook_env(issue_context) do
+    [
+      {"SYMPHONY_ISSUE_BRANCH_NAME", Map.get(issue_context, :issue_branch_name) || ""},
+      {"SYMPHONY_BASE_BRANCH_NAME", Map.get(issue_context, :base_branch_name) || ""}
+    ]
+  end
+
+  defp remote_hook_exports(issue_context) do
+    [
+      "export SYMPHONY_ISSUE_BRANCH_NAME=#{shell_escape(Map.get(issue_context, :issue_branch_name) || "")}",
+      "export SYMPHONY_BASE_BRANCH_NAME=#{shell_escape(Map.get(issue_context, :base_branch_name) || "")}"
+    ]
+    |> Enum.join(" && ")
+  end
+
+  defp issue_context(%{id: issue_id, identifier: identifier} = issue) do
     %{
       issue_id: issue_id,
-      issue_identifier: identifier || "issue"
+      issue_identifier: identifier || "issue",
+      issue_branch_name: Map.get(issue, :branch_name),
+      base_branch_name: Map.get(issue, :base_branch_name)
     }
   end
 
   defp issue_context(identifier) when is_binary(identifier) do
     %{
       issue_id: nil,
-      issue_identifier: identifier
+      issue_identifier: identifier,
+      issue_branch_name: nil,
+      base_branch_name: nil
     }
   end
 
   defp issue_context(_identifier) do
     %{
       issue_id: nil,
-      issue_identifier: "issue"
+      issue_identifier: "issue",
+      issue_branch_name: nil,
+      base_branch_name: nil
     }
   end
 

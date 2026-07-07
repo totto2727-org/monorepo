@@ -16,6 +16,23 @@ defmodule Symphony.HttpServer do
     }
   end
 
+  @spec endpoint_defaults() :: keyword()
+  def endpoint_defaults do
+    [
+      adapter: Bandit.PhoenixAdapter,
+      url: [host: "localhost"],
+      render_errors: [
+        formats: [html: SymphonyWeb.ErrorHTML, json: SymphonyWeb.ErrorJSON],
+        layout: false
+      ],
+      pubsub_server: Symphony.PubSub,
+      live_view: [signing_salt: "symphony-live-view"],
+      secret_key_base: String.duplicate("s", 64),
+      check_origin: false,
+      server: false
+    ]
+  end
+
   @spec start_link(keyword()) :: GenServer.on_start() | :ignore
   def start_link(opts \\ []) do
     case Keyword.get(opts, :port, Config.server_port()) do
@@ -35,8 +52,8 @@ defmodule Symphony.HttpServer do
           ]
 
           endpoint_config =
-            :symphony
-            |> Application.get_env(Endpoint, [])
+            endpoint_defaults()
+            |> Keyword.merge(Application.get_env(:symphony, Endpoint, []))
             |> Keyword.merge(endpoint_opts)
 
           Application.put_env(:symphony, Endpoint, endpoint_config)

@@ -38,6 +38,7 @@ defmodule Symphony.Linear.Client do
             issue {
               id
               identifier
+              branchName
               state {
                 name
               }
@@ -83,6 +84,7 @@ defmodule Symphony.Linear.Client do
             issue {
               id
               identifier
+              branchName
               state {
                 name
               }
@@ -626,7 +628,8 @@ defmodule Symphony.Linear.Client do
             %{
               id: blocker_issue["id"],
               identifier: blocker_issue["identifier"],
-              state: get_in(blocker_issue, ["state", "name"])
+              state: get_in(blocker_issue, ["state", "name"]),
+              branch_name: blocker_issue["branchName"]
             }
           ]
         else
