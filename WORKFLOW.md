@@ -32,9 +32,13 @@ agent:
   max_turns: 20
 opencode:
   model: openai/gpt-5.5
-display:
-  language: Japanese
 ---
+
+## Language rule
+
+- Use English by default for internal reasoning, code, commit messages, PRs, and non-Linear artifacts.
+- Write all Linear-facing posts in Japanese, including workpad comments, blocker notes, issue comments, and status handoff text.
+- Preserve code, commands, identifiers, URLs, branch names, commit hashes, and quoted external text exactly as written.
 
 You are working on a Linear ticket `{{ issue.identifier }}`
 
