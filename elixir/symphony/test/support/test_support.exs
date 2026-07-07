@@ -1,7 +1,9 @@
 # このファイルは元のApache 2.0ライセンスのコードから変更されています
 # 変更日: 2026-07-01
 # 変更者: totto2727
-# 変更内容: 旧バックエンド関連処理を削除し、OpenCode 前提の設定・状態名へ更新
+# 変更内容:
+# - 旧バックエンド関連処理を削除し、OpenCode 前提の設定・状態名へ更新
+# - テスト setup 時に Symphony アプリを起動済みにして supervisor 依存テストの順序依存を解消
 
 defmodule Symphony.TestSupport do
   @workflow_prompt "You are an agent for this repository."
@@ -44,6 +46,7 @@ defmodule Symphony.TestSupport do
         workflow_file = Path.join(workflow_root, "WORKFLOW.md")
         write_workflow_file!(workflow_file)
         Workflow.set_workflow_file_path(workflow_file)
+        {:ok, _apps} = Application.ensure_all_started(:symphony)
 
         if Process.whereis(Symphony.WorkflowStore),
           do: Symphony.WorkflowStore.force_reload()

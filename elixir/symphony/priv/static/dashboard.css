@@ -1,3 +1,10 @@
+/*
+このファイルは元のApache 2.0ライセンスのコードから新規に追加されています
+変更日: 2026-07-07
+変更者: totto2727
+変更内容: Phoenix observability dashboard の静的 CSS を追加
+*/
+
 :root {
   color-scheme: light;
   --page: #f7f7f8;

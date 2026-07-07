@@ -1,7 +1,9 @@
 # このファイルは元のApache 2.0ライセンスのコードから変更されています
 # 変更日: 2026-07-01
 # 変更者: totto2727
-# 変更内容: 旧バックエンド関連処理を削除し、OpenCode 前提の設定・状態名へ更新
+# 変更内容:
+# - 旧バックエンド関連処理を削除し、OpenCode 前提の設定・状態名へ更新
+# - application stop 表示テスト後に Symphony アプリを再起動し、後続テストの supervisor 依存を保護
 
 defmodule Symphony.OrchestratorStatusTest do
   use Symphony.TestSupport
@@ -1917,6 +1919,11 @@ defmodule Symphony.OrchestratorStatusTest do
   end
 
   test "application stop renders offline status" do
+    on_exit(fn ->
+      {:ok, _apps} = Application.ensure_all_started(:symphony)
+      stop_default_http_server()
+    end)
+
     rendered =
       ExUnit.CaptureIO.capture_io(fn ->
         assert :ok = Symphony.Application.stop(:normal)
