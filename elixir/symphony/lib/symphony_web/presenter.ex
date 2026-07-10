@@ -146,6 +146,7 @@ defmodule SymphonyWeb.Presenter do
       worker_host: Map.get(entry, :worker_host),
       workspace_path: Map.get(entry, :workspace_path)
     }
+    |> maybe_put_retry_dependency_metadata(entry)
   end
 
   defp blocked_entry_payload(entry) do
@@ -192,7 +193,17 @@ defmodule SymphonyWeb.Presenter do
       worker_host: Map.get(retry, :worker_host),
       workspace_path: Map.get(retry, :workspace_path)
     }
+    |> maybe_put_retry_dependency_metadata(retry)
   end
+
+  defp maybe_put_retry_dependency_metadata(payload, retry) do
+    payload
+    |> maybe_put(:delay_type, Map.get(retry, :delay_type))
+    |> maybe_put(:blocker_details, Map.get(retry, :blocker_details))
+  end
+
+  defp maybe_put(payload, _key, nil), do: payload
+  defp maybe_put(payload, key, value), do: Map.put(payload, key, value)
 
   defp blocked_issue_payload(blocked) do
     %{

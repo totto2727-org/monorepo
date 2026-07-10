@@ -2,8 +2,13 @@
 
 ## Language Rules
 
-- Use English by default.
-- Use Japanese only for user-facing temporary outputs that are not final artifacts.
+- Use English by default for repository-recorded artifacts, including source code,
+  configuration, documentation, generated files, commit messages, and other
+  committed outputs.
+- Use Japanese for human-facing collaboration interfaces, including pull request
+  titles/descriptions, pull request review discussions, Linear issues/comments,
+  and status handoff text.
+- Use Japanese for user-facing temporary outputs that are not final artifacts.
 
 ## Repository Structure
 

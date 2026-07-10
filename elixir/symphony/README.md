@@ -46,12 +46,10 @@ Linear issue can become a dispatch candidate again after restart.
 2. Get a new personal token in Linear via Settings → Security & access → Personal API keys, and
    set it as the `LINEAR_API_KEY` environment variable.
 3. Copy the repository root `WORKFLOW.md` to your repo.
-4. Optionally copy the repository-owned `land` skill from `.agents/skills/land/SKILL.md` to your
-   repo when you want this workflow's merge handling.
-   - `commit`, `push`, and `pull` are git/GitHub workflow capabilities or optional external agent
-     skills. They are not checked-in repo skills provided by this checkout.
-   - Linear support should come from a configured Linear MCP server or Symphony's `linear_graphql`
-     app-server tool for raw Linear GraphQL operations such as comment editing or upload flows.
+4. Optionally copy the repository-owned workflow skills from `.agents/skills/` to your repo:
+   `linear`, `commit`, `push`, `pull`, and `land`.
+   These skills are adapted for OpenCode; `linear` uses configured Linear MCP tools or Symphony's
+   `linear_graphql` app-server tool for raw Linear GraphQL operations.
 5. Customize the copied `WORKFLOW.md` file for your project.
    - To get your project's slug, right-click the project and copy its URL. The slug is part of the
      URL.
@@ -131,6 +129,11 @@ Notes:
 - `tracker.required_labels` is optional. When set, an issue must have every
   configured label to dispatch or continue running. Label matching ignores
   case and surrounding whitespace. A blank configured label matches no issue.
+- `tracker.reviewable_states` controls dependency unblocking for Todo issues blocked by Linear
+  blockers. It defaults to `["Human Review"]`. Todo issues blocked by non-terminal,
+  non-reviewable blockers stay claimed in the retry/backoff queue with dependency-wait metadata;
+  when blockers become reviewable or terminal, Symphony dispatches the issue and uses an eligible
+  blocker `branchName` as `issue.base_branch_name` for prompt templates and hooks.
 - `opencode.model` can be set to a provider/model identifier such as `openai/gpt-5.5`; Symphony
   forwards it to the locally started `opencode serve` process. `opencode.turn_timeout_ms` controls
   the per-turn wait timeout.
@@ -140,6 +143,10 @@ Notes:
   identifier, title, and body.
 - Use `hooks.after_create` to bootstrap a fresh workspace. For a Git-backed repo, you can run
   `git clone ... .` there, along with any other setup commands you need.
+- Workspace hooks receive `SYMPHONY_ISSUE_BRANCH_NAME` and `SYMPHONY_BASE_BRANCH_NAME` in their
+  environment. The base branch is blank unless Symphony derived it from an eligible dependency
+  blocker. Treat these tracker-derived values as untrusted input in hook scripts: quote them,
+  validate branch syntax before use, and pass them after `--` where supported by the invoked tool.
 - If a hook needs `mise exec` inside a freshly cloned workspace, trust the repo config and fetch
   the project dependencies in `hooks.after_create` before invoking `mise` later from other hooks.
 - `tracker.api_key` reads from `LINEAR_API_KEY` when unset or when value is `$LINEAR_API_KEY`.
