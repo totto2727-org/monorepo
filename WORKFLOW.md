@@ -117,7 +117,7 @@ The agent should be able to talk to Linear, either via a configured Linear MCP s
 - Linear access is an external prerequisite. Use either a configured Linear MCP server or Symphony's injected `linear_graphql` tool for required Linear operations.
 - Git and GitHub workflow capabilities for clean commits, branch sync, and pushes are required, but `commit`, `push`, and `pull` are external agent capabilities or optional helper skills, not repo-owned checked-in skills in this checkout.
 - Sync operations must target the current base branch: `Dependency base branch` when present, otherwise latest `origin/main`.
-- `land`: only use if the workspace adds a dedicated merge-ready status and its workflow explicitly asks the agent to land the PR.
+- `land`: only use if the workspace adds a dedicated merge-ready status and its workflow explicitly asks the agent to land the PR; in that case, open and follow `.agents/skills/land/SKILL.md`. Do not call `gh pr merge` directly.
 
 ### Status map
 
