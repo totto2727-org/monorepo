@@ -161,6 +161,13 @@ helpers should own session lookup, user decoding, and pass-through vs
 unauthenticated branching. App middleware should provide only app-specific
 responses such as redirects, return-to cookies, or JSON 401 responses.
 
+Platform-specific auth design notes live in
+[`docs/roadmap/feed-platform/tmp/ms-02-auth-current-design.md`](../../../../../../docs/roadmap/feed-platform/tmp/ms-02-auth-current-design.md).
+Historical context remains in the auth provider and cross-app session ADRs:
+[`docs/adr/2026-05-24-feed-platform-auth-provider.md`](../../../../../../docs/adr/2026-05-24-feed-platform-auth-provider.md)
+and
+[`docs/adr/2026-05-24-feed-platform-cross-app-session-strategy.md`](../../../../../../docs/adr/2026-05-24-feed-platform-cross-app-session-strategy.md).
+
 - Prefer source-native user fields in application auth types. Better Auth uses
   `user.id`, so app-level shared users should expose `id`; reserve `sub` for
   JWT/OIDC payload types and translate only at that protocol boundary.

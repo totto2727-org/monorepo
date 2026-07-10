@@ -1,10 +1,10 @@
-# TOT-23 platform auth current design
+# feed-platform ms-02 auth current design
 
 ## Scope
 
 This note records the current platform auth design after the shared auth helper
-work. Historical ADRs under `docs/adr/` remain unchanged; this file is the
-worktree-level progress and correction note for the latest codebase state.
+work. Historical ADRs remain unchanged; this file is a roadmap tactical note for
+the latest codebase state.
 
 ## Current state
 
@@ -55,5 +55,17 @@ worktree-level progress and correction note for the latest codebase state.
 - The package rename from `auth-helper` to `auth` is now part of the current
   baseline and should be reflected in new docs and coding guidance.
 - Remaining future auth design work should treat historical ADRs as context and
-  place new implementation-state corrections in worktree or roadmap progress
-  notes rather than rewriting adopted ADRs.
+  place new implementation-state corrections in roadmap progress notes rather
+  than rewriting adopted ADRs.
+
+## Related skills and references
+
+- Coding skill Hono auth guidance:
+  [`effect-hono`](../../../../plugins/totto2727-coding/skills/coding/references/ts/effect-hono.md)
+- Related Effect skill references:
+  [`effect-layer`](../../../../plugins/totto2727-coding/skills/coding/references/ts/effect-layer.md),
+  [`effect-runtime`](../../../../plugins/totto2727-coding/skills/coding/references/ts/effect-runtime.md)
+- Auth provider ADR:
+  [`docs/adr/2026-05-24-feed-platform-auth-provider.md`](../../../adr/2026-05-24-feed-platform-auth-provider.md)
+- Cross-app session ADR:
+  [`docs/adr/2026-05-24-feed-platform-cross-app-session-strategy.md`](../../../adr/2026-05-24-feed-platform-cross-app-session-strategy.md)

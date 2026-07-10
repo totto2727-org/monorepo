@@ -12,7 +12,7 @@ milestones:
     workflow_identifiers: []
   - depends_on: []
     id: ms-02-auth-passkey-magiclink
-    notes: Better Auth OAuth 2.1 + Passkey + Magic Link を提供する。auth、IdP UI、web OAuth、backend JWT の境界を持ち、cross-app E2E は後続検証対象とする。
+    notes: 'Better Auth OAuth 2.1 + Passkey + Magic Link を提供する。current code treats js/package/auth as the shared auth package: setup/require middleware owns Better Auth session lookup and require-auth branching, apps provide only unauthenticated policy, app users expose id, and sub remains limited to JWT/OIDC payload boundaries. cross-app E2E は後続検証対象とする。'
     prs: []
     status: completed
     tasks: []
@@ -86,5 +86,5 @@ prs: []
 roadmap_id: feed-platform
 status: active
 title: Pluggable Multi-Source Feed Platform
-updated_at: '2026-05-31T12:39:31.924Z'
+updated_at: '2026-07-10T00:00:00.000Z'
 version: 2
