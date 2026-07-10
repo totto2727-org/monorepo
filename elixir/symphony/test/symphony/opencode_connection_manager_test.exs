@@ -72,6 +72,21 @@ defmodule Symphony.OpencodeConnectionManagerTest do
     assert_received {:opencode_server_start, _restart_opts}
   end
 
+  test "application prep_stop stops the default shared OpenCode connection" do
+    stop_default_connection()
+    on_exit(&stop_default_connection/0)
+
+    opts = connection_opts("http://127.0.0.1:4990")
+
+    assert {:ok, _connection} = ConnectionManager.connection(opts, ConnectionManager)
+    assert_received {:opencode_server_start, _server_opts}
+
+    state = %{shutdown_ref: make_ref()}
+
+    assert Symphony.Application.prep_stop(state) == state
+    assert_received {:opencode_server_stop, %{url: "http://127.0.0.1:4990"}}
+  end
+
   defp start_connection_manager!(opts) do
     name = Module.concat(__MODULE__, "Manager#{System.unique_integer([:positive])}")
 
@@ -89,6 +104,13 @@ defmodule Symphony.OpencodeConnectionManagerTest do
       server_module: Server,
       server_opts: [test_pid: self(), url: url]
     ]
+  end
+
+  defp stop_default_connection do
+    case Process.whereis(ConnectionManager) do
+      nil -> :ok
+      _pid -> ConnectionManager.stop_connection(ConnectionManager)
+    end
   end
 
   defmodule HealthyApi do

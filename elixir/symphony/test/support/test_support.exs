@@ -141,7 +141,6 @@ defmodule Symphony.TestSupport do
           observability_render_interval_ms: 16,
           server_port: nil,
           server_host: nil,
-          display_language: nil,
           prompt: @workflow_prompt
         ],
         overrides
@@ -179,7 +178,6 @@ defmodule Symphony.TestSupport do
     observability_render_interval_ms = Keyword.get(config, :observability_render_interval_ms)
     server_port = Keyword.get(config, :server_port)
     server_host = Keyword.get(config, :server_host)
-    display_language = Keyword.get(config, :display_language)
     prompt = Keyword.get(config, :prompt)
 
     sections =
@@ -221,7 +219,6 @@ defmodule Symphony.TestSupport do
           observability_render_interval_ms
         ),
         server_yaml(server_port, server_host),
-        display_yaml(display_language),
         "---",
         prompt
       ]
@@ -308,13 +305,6 @@ defmodule Symphony.TestSupport do
       host && "  host: #{yaml_value(host)}"
     ]
     |> Enum.reject(&is_nil/1)
-    |> Enum.join("\n")
-  end
-
-  defp display_yaml(nil), do: nil
-
-  defp display_yaml(language) do
-    ["display:", "  language: #{yaml_value(language)}"]
     |> Enum.join("\n")
   end
 
