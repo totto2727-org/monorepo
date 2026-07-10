@@ -46,12 +46,10 @@ Linear issue can become a dispatch candidate again after restart.
 2. Get a new personal token in Linear via Settings → Security & access → Personal API keys, and
    set it as the `LINEAR_API_KEY` environment variable.
 3. Copy the repository root `WORKFLOW.md` to your repo.
-4. Optionally copy the repository-owned `land` skill from `.agents/skills/land/SKILL.md` to your
-   repo when you want this workflow's merge handling.
-   - `commit`, `push`, and `pull` are git/GitHub workflow capabilities or optional external agent
-     skills. They are not checked-in repo skills provided by this checkout.
-   - Linear support should come from a configured Linear MCP server or Symphony's `linear_graphql`
-     app-server tool for raw Linear GraphQL operations such as comment editing or upload flows.
+4. Optionally copy the repository-owned workflow skills from `.agents/skills/` to your repo:
+   `linear`, `commit`, `push`, `pull`, and `land`.
+   These skills are adapted for OpenCode; `linear` uses configured Linear MCP tools or Symphony's
+   `linear_graphql` app-server tool for raw Linear GraphQL operations.
 5. Customize the copied `WORKFLOW.md` file for your project.
    - To get your project's slug, right-click the project and copy its URL. The slug is part of the
      URL.
