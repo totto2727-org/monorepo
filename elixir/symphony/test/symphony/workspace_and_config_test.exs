@@ -353,7 +353,8 @@ defmodule Symphony.WorkspaceAndConfigTest do
             "issue" => %{
               "id" => "issue-2",
               "identifier" => "MT-2",
-              "state" => %{"name" => "In Progress"}
+              "state" => %{"name" => "In Progress"},
+              "branchName" => "mt-2"
             }
           },
           %{
@@ -372,7 +373,10 @@ defmodule Symphony.WorkspaceAndConfigTest do
 
     issue = Client.normalize_issue_for_test(raw_issue, "user-1")
 
-    assert issue.blocked_by == [%{id: "issue-2", identifier: "MT-2", state: "In Progress"}]
+    assert issue.blocked_by == [
+             %{id: "issue-2", identifier: "MT-2", state: "In Progress", branch_name: "mt-2"}
+           ]
+
     assert issue.labels == ["backend"]
     assert issue.priority == 2
     assert issue.state == "Todo"
@@ -566,6 +570,32 @@ defmodule Symphony.WorkspaceAndConfigTest do
     refute Orchestrator.should_dispatch_issue_for_test(issue, state)
   end
 
+  test "todo issue with reviewable blocker is dispatch-eligible" do
+    write_workflow_file!(Workflow.workflow_file_path(),
+      tracker_reviewable_states: [" human review "]
+    )
+
+    state = %Orchestrator.State{
+      max_concurrent_agents: 3,
+      running: %{},
+      claimed: MapSet.new(),
+      opencode_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
+      retry_attempts: %{}
+    }
+
+    issue = %Issue{
+      id: "ready-review-1",
+      identifier: "MT-1010",
+      title: "Ready after review",
+      state: "Todo",
+      blocked_by: [
+        %{id: "blocker-review-1", identifier: "MT-1011", state: "Human Review"}
+      ]
+    }
+
+    assert Orchestrator.should_dispatch_issue_for_test(issue, state)
+  end
+
   test "issue assigned to another worker is not dispatch-eligible" do
     write_workflow_file!(Workflow.workflow_file_path(), tracker_assignee: "dev@example.com")
 
@@ -666,6 +696,82 @@ defmodule Symphony.WorkspaceAndConfigTest do
            ]
   end
 
+  test "reviewable blocker branch is normalized into issue base branch during dispatch revalidation" do
+    stale_issue = %Issue{
+      id: "blocked-branch-1",
+      identifier: "MT-1012",
+      title: "Needs blocker branch",
+      state: "Todo",
+      blocked_by: []
+    }
+
+    refreshed_issue = %Issue{
+      id: "blocked-branch-1",
+      identifier: "MT-1012",
+      title: "Needs blocker branch",
+      state: "Todo",
+      blocked_by: [
+        %{
+          id: "blocker-branch-1",
+          identifier: "MT-1013",
+          state: "Human Review",
+          branch_name: "  feature/blocker-branch  "
+        }
+      ]
+    }
+
+    fetcher = fn ["blocked-branch-1"] -> {:ok, [refreshed_issue]} end
+
+    assert {:ok, %Issue{} = issue} =
+             Orchestrator.revalidate_issue_for_dispatch_for_test(stale_issue, fetcher)
+
+    assert issue.base_branch_name == "feature/blocker-branch"
+  end
+
+  test "dependency base branch uses first deterministic eligible blocker branch" do
+    stale_issue = %Issue{
+      id: "blocked-branch-2",
+      identifier: "MT-1014",
+      title: "Needs deterministic blocker branch",
+      state: "Todo",
+      blocked_by: []
+    }
+
+    refreshed_issue = %Issue{
+      id: "blocked-branch-2",
+      identifier: "MT-1014",
+      title: "Needs deterministic blocker branch",
+      state: "Todo",
+      blocked_by: [
+        %{
+          id: "blocker-z",
+          identifier: "MT-1020",
+          state: "Human Review",
+          branch_name: "z"
+        },
+        %{
+          id: "blocker-a",
+          identifier: "MT-1019",
+          state: "Closed",
+          branch_name: "  "
+        },
+        %{
+          id: "blocker-b",
+          identifier: "MT-1018",
+          state: "Human Review",
+          branch_name: "b"
+        }
+      ]
+    }
+
+    fetcher = fn ["blocked-branch-2"] -> {:ok, [refreshed_issue]} end
+
+    assert {:ok, %Issue{} = issue} =
+             Orchestrator.revalidate_issue_for_dispatch_for_test(stale_issue, fetcher)
+
+    assert issue.base_branch_name == "b"
+  end
+
   test "dispatch revalidation skips an issue after a required label is removed" do
     write_workflow_file!(Workflow.workflow_file_path(), tracker_required_labels: ["symphony"])
 
@@ -728,6 +834,47 @@ defmodule Symphony.WorkspaceAndConfigTest do
       assert :ok = Workspace.remove_issue_workspaces("MT-HOOKS")
       assert File.read!(before_remove_marker) == "before_remove\n"
       refute File.exists?(workspace)
+    after
+      File.rm_rf(test_root)
+    end
+  end
+
+  test "workspace hooks expose issue and dependency base branch environment" do
+    test_root =
+      Path.join(
+        System.tmp_dir!(),
+        "symphony-workspace-hook-env-#{System.unique_integer([:positive])}"
+      )
+
+    try do
+      workspace_root = Path.join(test_root, "workspaces")
+      File.mkdir_p!(workspace_root)
+
+      write_workflow_file!(Workflow.workflow_file_path(),
+        workspace_root: workspace_root,
+        hook_after_create:
+          "printf '%s:%s' \"$SYMPHONY_ISSUE_BRANCH_NAME\" \"$SYMPHONY_BASE_BRANCH_NAME\" > after_create.env",
+        hook_before_run:
+          "printf '%s:%s' \"$SYMPHONY_ISSUE_BRANCH_NAME\" \"$SYMPHONY_BASE_BRANCH_NAME\" > before_run.env",
+        hook_after_run:
+          "printf '%s:%s' \"$SYMPHONY_ISSUE_BRANCH_NAME\" \"$SYMPHONY_BASE_BRANCH_NAME\" > after_run.env"
+      )
+
+      issue = %Issue{
+        id: "issue-env-1",
+        identifier: "MT-HOOK-ENV",
+        title: "Hook env",
+        state: "Todo",
+        branch_name: "issue/topic",
+        base_branch_name: "dependency/base"
+      }
+
+      assert {:ok, workspace} = Workspace.create_for_issue(issue)
+      assert :ok = Workspace.run_before_run_hook(workspace, issue)
+      assert :ok = Workspace.run_after_run_hook(workspace, issue)
+      assert File.read!(Path.join(workspace, "after_create.env")) == "issue/topic:dependency/base"
+      assert File.read!(Path.join(workspace, "before_run.env")) == "issue/topic:dependency/base"
+      assert File.read!(Path.join(workspace, "after_run.env")) == "issue/topic:dependency/base"
     after
       File.rm_rf(test_root)
     end

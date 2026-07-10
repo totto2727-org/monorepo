@@ -6,6 +6,14 @@
 defmodule Symphony.OrchestratorStatusTest do
   use Symphony.TestSupport
 
+  defmodule RevalidatingLinearClientError do
+    def fetch_candidate_issues, do: {:ok, []}
+
+    def fetch_issues_by_states(_states), do: {:ok, []}
+
+    def fetch_issue_states_by_ids(_issue_ids), do: {:error, :revalidation_fetch_failed}
+  end
+
   test "snapshot returns :timeout when snapshot server is unresponsive" do
     server_name = Module.concat(__MODULE__, :UnresponsiveSnapshotServer)
     parent = self()
@@ -885,6 +893,202 @@ defmodule Symphony.OrchestratorStatusTest do
            ] = snapshot.retrying
 
     assert due_in_ms > 0
+  end
+
+  test "orchestrator schedules dependency-blocked todo into retry queue with blocker metadata" do
+    state = %Orchestrator.State{
+      max_concurrent_agents: 3,
+      running: %{},
+      claimed: MapSet.new(),
+      opencode_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
+      retry_attempts: %{}
+    }
+
+    issue = %Issue{
+      id: "dependency-wait-1",
+      identifier: "MT-600",
+      title: "Blocked by active work",
+      state: "Todo",
+      url: "https://example.org/issues/MT-600",
+      blocked_by: [
+        %{id: "blocker-600", identifier: "MT-601", state: "In Progress", branch_name: "mt-601"}
+      ]
+    }
+
+    updated_state = Orchestrator.choose_issues_for_test([issue], state)
+
+    assert updated_state.running == %{}
+    assert MapSet.member?(updated_state.claimed, "dependency-wait-1")
+
+    assert %{delay_type: :dependency_wait, error: reason, blocker_details: [blocker]} =
+             updated_state.retry_attempts["dependency-wait-1"]
+
+    assert reason =~ "MT-601"
+    assert reason =~ "In Progress"
+    assert blocker.identifier == "MT-601"
+    assert blocker.state == "In Progress"
+    assert blocker.branch_name == "mt-601"
+  end
+
+  test "snapshot retrying entry exposes dependency wait blocker details" do
+    orchestrator_name = Module.concat(__MODULE__, :DependencyRetrySnapshotOrchestrator)
+    {:ok, pid} = Orchestrator.start_link(name: orchestrator_name)
+
+    on_exit(fn ->
+      if Process.alive?(pid) do
+        Process.exit(pid, :normal)
+      end
+    end)
+
+    retry_entry = %{
+      attempt: 1,
+      delay_type: :dependency_wait,
+      timer_ref: nil,
+      due_at_ms: System.monotonic_time(:millisecond) + 30_000,
+      identifier: "MT-610",
+      issue_url: "https://example.org/issues/MT-610",
+      error: "waiting for dependency blocker MT-611 (In Progress)",
+      blocker_details: [
+        %{id: "blocker-611", identifier: "MT-611", state: "In Progress", branch_name: "mt-611"}
+      ]
+    }
+
+    initial_state = :sys.get_state(pid)
+    new_state = %{initial_state | retry_attempts: %{"dependency-wait-2" => retry_entry}}
+    :sys.replace_state(pid, fn _ -> new_state end)
+
+    assert %{retrying: [%{delay_type: :dependency_wait, blocker_details: [blocker]} = retry]} =
+             GenServer.call(pid, :snapshot)
+
+    assert retry.error =~ "MT-611"
+    assert blocker.identifier == "MT-611"
+    assert blocker.branch_name == "mt-611"
+  end
+
+  test "dependency retry keeps waiting until blocker becomes reviewable and revalidation carries base branch" do
+    blocked_issue = %Issue{
+      id: "dependency-wait-3",
+      identifier: "MT-620",
+      title: "Blocked work",
+      state: "Todo",
+      url: "https://example.org/issues/MT-620",
+      blocked_by: [
+        %{id: "blocker-620", identifier: "MT-621", state: "In Progress", branch_name: "mt-621"}
+      ]
+    }
+
+    state = %Orchestrator.State{
+      max_concurrent_agents: 0,
+      running: %{},
+      claimed: MapSet.new(["dependency-wait-3"]),
+      opencode_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
+      retry_attempts: %{}
+    }
+
+    metadata = %{
+      delay_type: :dependency_wait,
+      identifier: "MT-620",
+      issue_url: "https://example.org/issues/MT-620"
+    }
+
+    waiting_state =
+      Orchestrator.handle_retry_issue_lookup_for_test(
+        blocked_issue,
+        state,
+        "dependency-wait-3",
+        1,
+        metadata
+      )
+
+    retry_entry = waiting_state.retry_attempts["dependency-wait-3"]
+
+    assert %{delay_type: :dependency_wait, error: reason} = retry_entry
+
+    assert retry_entry.attempt == 2
+    assert reason =~ "MT-621"
+    assert reason =~ "In Progress"
+
+    ready_issue = %{
+      blocked_issue
+      | blocked_by: [
+          %{
+            id: "blocker-620",
+            identifier: "MT-621",
+            state: "Human Review",
+            branch_name: " mt-621 "
+          }
+        ]
+    }
+
+    fetcher = fn ["dependency-wait-3"] -> {:ok, [ready_issue]} end
+
+    assert {:ok, %Issue{base_branch_name: "mt-621"}} =
+             Orchestrator.revalidate_issue_for_dispatch_for_test(blocked_issue, fetcher)
+  end
+
+  test "dependency-wait retry requeues when revalidation fetch fails after blockers clear" do
+    write_workflow_file!(Workflow.workflow_file_path(),
+      tracker_api_token: "token",
+      tracker_project_slug: "project"
+    )
+
+    previous_linear_client_module = Application.get_env(:symphony, :linear_client_module)
+    Application.put_env(:symphony, :linear_client_module, RevalidatingLinearClientError)
+
+    on_exit(fn ->
+      if is_nil(previous_linear_client_module) do
+        Application.delete_env(:symphony, :linear_client_module)
+      else
+        Application.put_env(:symphony, :linear_client_module, previous_linear_client_module)
+      end
+    end)
+
+    issue_id = "dependency-wait-4"
+
+    issue = %Issue{
+      id: issue_id,
+      identifier: "MT-622",
+      title: "Dependency wait revalidation",
+      state: "In Progress",
+      url: "https://example.org/issues/MT-622",
+      blocked_by: [
+        %{id: "blocker-622", identifier: "MT-623", state: "Human Review", branch_name: "mt-623"}
+      ]
+    }
+
+    state = %Orchestrator.State{
+      max_concurrent_agents: 1,
+      running: %{},
+      claimed: MapSet.new([issue_id]),
+      opencode_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
+      retry_attempts: %{}
+    }
+
+    metadata = %{
+      delay_type: :dependency_wait,
+      identifier: issue.identifier,
+      issue_url: issue.url,
+      error: "waiting for dependency blocker MT-623 (Human Review)",
+      blocker_details: [
+        %{id: "blocker-622", identifier: "MT-623", state: "Human Review", branch_name: "mt-623"}
+      ]
+    }
+
+    updated_state =
+      Orchestrator.handle_retry_issue_lookup_for_test(
+        issue,
+        state,
+        issue_id,
+        1,
+        metadata
+      )
+
+    assert MapSet.member?(updated_state.claimed, issue_id)
+
+    assert %{attempt: 2, error: error} = updated_state.retry_attempts[issue_id]
+    assert error == "issue refresh failed: :revalidation_fetch_failed"
+    refute Map.has_key?(updated_state.retry_attempts[issue_id], :delay_type)
+    refute Map.has_key?(updated_state.retry_attempts[issue_id], :blocker_details)
   end
 
   test "orchestrator snapshot includes poll countdown and checking status" do
