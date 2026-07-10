@@ -31,7 +31,7 @@ This project is a port of the original [OpenAI Symphony](https://github.com/open
 During app-server sessions, Symphony also serves a client-side `linear_graphql` tool so that repo
 skills can make raw Linear GraphQL calls.
 
-If a claimed issue moves to a terminal state (`Done`, `Closed`, `Cancelled`, or `Duplicate`),
+If a claimed issue moves to a terminal state (`Done`, `Canceled`, or `Duplicate`),
 Symphony stops the active agent for that issue and cleans up matching workspaces.
 
 If OpenCode reports that operator input or permission is required, Symphony keeps the
@@ -52,28 +52,27 @@ Linear issue can become a dispatch candidate again after restart.
 5. Customize the copied `WORKFLOW.md` file for your project.
    - To get your project's slug, right-click the project and copy its URL. The slug is part of the
      URL.
-   - When creating a workflow based on this repo, note that it depends on non-standard Linear
-     issue statuses: "Rework", "Human Review", and "Merging". You can customize them in
-     Team Settings → Workflow in Linear.
+   - When creating a workflow based on this repo, note that it expects Linear issues to move from
+     `In Progress` to `In Review` for human approval. You can customize statuses in Team Settings
+     -> Workflow in Linear.
 6. Follow the instructions below to install the required runtime dependencies and start the service.
 
 ## Prerequisites
 
-Install an Elixir/Erlang toolchain that satisfies `mix.exs`, plus the repository-level helper
-CLIs you plan to use:
-
-- `mix` for setup, build, and local execution
-- `vp` for repository validation tasks
-- `just` for optional operational tasks such as Dialyzer and live e2e runs
+Use the repository [Devbox](https://www.jetify.com/devbox) environment to provide the required
+Elixir/Erlang versions.
 
 ```bash
+devbox shell
 elixir --version
-mix --version
 ```
 
 ## Run
 
 ```bash
+git clone https://github.com/totto2727-org/monorepo
+cd monorepo
+devbox shell
 cd elixir/symphony
 mix setup
 mix build
@@ -139,9 +138,9 @@ Notes:
   identifier, title, and body.
 - Use `hooks.after_create` to bootstrap a fresh workspace. For a Git-backed repo, you can run
   `git clone ... .` there, along with any other setup commands you need.
-- If a hook needs project tooling inside a freshly cloned workspace, install or activate that
-  tooling and fetch project dependencies in `hooks.after_create` before invoking the tooling later
-  from other hooks.
+- If a hook needs project tooling inside a freshly cloned workspace, enter the repo's Devbox
+  environment and fetch the project dependencies in `hooks.after_create` before invoking that
+  tooling later from other hooks.
 - `tracker.api_key` reads from `LINEAR_API_KEY` when unset or when value is `$LINEAR_API_KEY`.
 - For path values, `~` is expanded to the home directory.
 - For env-backed path values, use `$VAR`. `workspace.root` resolves `$VAR` before path handling.
