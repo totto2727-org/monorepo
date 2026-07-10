@@ -10,6 +10,7 @@ test "parse_config_object reads snake_case config keys" {
     #|  "full_page": true,
     #|  "width": 1024,
     #|  "height": 768,
+    #|  "format": "markdown",
     #|  "formats": ["html", "markdown"]
     #|}
   let parsed = @json.parse(raw)
@@ -25,6 +26,7 @@ test "parse_config_object reads snake_case config keys" {
   assert_eq(config.full_page, Some(true))
   assert_eq(config.width, Some(1024))
   assert_eq(config.height, Some(768))
+  assert_eq(config.format, Some("markdown"))
   assert_eq(config.formats, Some(["html", "markdown"]))
 }
 

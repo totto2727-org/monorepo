@@ -4,6 +4,9 @@ Native MoonBit implementation of the `bw` Cloudflare Browser Rendering CLI.
 
 ```bash
 moon run ./src --target native -- markdown --url https://example.com
+moon run ./src --target native -- json --url https://example.com --prompt "Extract the title"
+moon run ./src --target native -- json --url https://example.com --prompt "Extract the title" --format markdown > result.md
+moon run ./src --target native -- json --url https://example.com --prompt "Extract the title" --format text > result.txt
 moon run ./src --target native -- screenshot --url https://example.com --output page.png
 moon run ./src --target native -- markdown --config bw-config.json
 ```
@@ -22,6 +25,10 @@ Credentials use the same order: `--account-id` / `--api-token`, then
 Config keys use snake_case names matching the option structs. `html` and
 `schema` are file paths, the same as their CLI options.
 
+`json` prints the Cloudflare JSON response by default. Use `--format markdown`
+or `--format text` to print the extracted `result` as unstyled plain text for
+redirection.
+
 ```json
 {
   "account_id": "your-account-id",
@@ -32,6 +39,7 @@ Config keys use snake_case names matching the option structs. `html` and
   "full_page": true,
   "width": 1280,
   "height": 720,
+  "format": "markdown",
   "formats": ["html", "markdown"]
 }
 ```
