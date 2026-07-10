@@ -114,10 +114,14 @@ The agent should be able to talk to Linear, either via a configured Linear MCP s
 
 ## Workflow support requirements
 
-- Linear access is an external prerequisite. Use either a configured Linear MCP server or Symphony's injected `linear_graphql` tool for required Linear operations.
-- Git and GitHub workflow capabilities for clean commits, branch sync, and pushes are required, but `commit`, `push`, and `pull` are external agent capabilities or optional helper skills, not repo-owned checked-in skills in this checkout.
+The workflow support skills are repository-owned OpenCode skills under `.agents/skills/`:
+
+- `linear`: interact with Linear.
+- `commit`: produce clean, logical commits during implementation.
+- `push`: keep remote branch current and publish updates.
+- `pull`: keep branch updated with the current base branch before handoff.
 - Sync operations must target the current base branch: `Dependency base branch` when present, otherwise latest `origin/main`.
-- `land`: only use if the workspace adds a dedicated merge-ready status and its workflow explicitly asks the agent to land the PR; in that case, open and follow `.agents/skills/land/SKILL.md`. Do not call `gh pr merge` directly.
+- `land`: when ticket reaches `Merging`, explicitly open and follow `.agents/skills/land/SKILL.md`, which includes the `land` loop.
 
 ### Status map
 
@@ -174,7 +178,7 @@ The agent should be able to talk to Linear, either via a configured Linear MCP s
     - If the ticket description/comment context includes `Validation`, `Test Plan`, or `Testing` sections, copy those requirements into the workpad `Acceptance Criteria` and `Validation` sections as required checkboxes (no optional downgrade).
 7.  Run a principal-style self-review of the plan and refine it in the comment.
 8.  Before implementing, capture a concrete reproduction signal and record it in the workpad `Notes` section (command/output, screenshot, or deterministic UI behavior).
-9.  Sync with the current base branch before any code edits using the available git/GitHub workflow capability or an optional external `pull` helper skill, then record the sync result in the workpad `Notes`.
+9.  Run the `pull` skill to sync with the current base branch before any code edits, then record the sync result in the workpad `Notes`.
     - Use `Dependency base branch` as the current base when present; otherwise use latest `origin/main`.
     - Include a `sync evidence` note with:
       - merge source(s),
