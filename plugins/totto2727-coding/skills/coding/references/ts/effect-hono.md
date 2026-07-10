@@ -161,8 +161,9 @@ helpers should own session lookup, user decoding, and pass-through vs
 unauthenticated branching. App middleware should provide only app-specific
 responses such as redirects, return-to cookies, or JSON 401 responses.
 
-Platform-specific auth design notes live in
-[`docs/roadmap/feed-platform/tmp/ms-02-auth-current-design.md`](../../../../../../docs/roadmap/feed-platform/tmp/ms-02-auth-current-design.md).
+Platform-specific auth design notes live directly in the ms-02 milestone's
+current implementation section:
+[`docs/roadmap/feed-platform/milestones/ms-02-auth-passkey-magiclink.md`](../../../../../../docs/roadmap/feed-platform/milestones/ms-02-auth-passkey-magiclink.md#current-implementation-design).
 Historical context remains in the auth provider and cross-app session ADRs:
 [`docs/adr/2026-05-24-feed-platform-auth-provider.md`](../../../../../../docs/adr/2026-05-24-feed-platform-auth-provider.md)
 and
