@@ -375,6 +375,15 @@ defmodule Symphony.ExtensionsTest do
                  "attempt" => 2,
                  "due_at" => state_payload["retrying"] |> List.first() |> Map.fetch!("due_at"),
                  "error" => "boom",
+                 "delay_type" => "dependency_wait",
+                 "blocker_details" => [
+                   %{
+                     "id" => "blocker-retry",
+                     "identifier" => "MT-BLOCKER",
+                     "state" => "In Progress",
+                     "branch_name" => "mt-blocker"
+                   }
+                 ],
                  "worker_host" => nil,
                  "workspace_path" => nil
                }
@@ -440,8 +449,22 @@ defmodule Symphony.ExtensionsTest do
 
     conn = get(build_conn(), "/api/v1/MT-RETRY")
 
-    assert %{"status" => "retrying", "retry" => %{"attempt" => 2, "error" => "boom"}} =
-             json_response(conn, 200)
+    assert %{
+             "status" => "retrying",
+             "retry" => %{
+               "attempt" => 2,
+               "error" => "boom",
+               "delay_type" => "dependency_wait",
+               "blocker_details" => [
+                 %{
+                   "id" => "blocker-retry",
+                   "identifier" => "MT-BLOCKER",
+                   "state" => "In Progress",
+                   "branch_name" => "mt-blocker"
+                 }
+               ]
+             }
+           } = json_response(conn, 200)
 
     conn = get(build_conn(), "/api/v1/MT-BLOCKED")
 
@@ -734,8 +757,8 @@ defmodule Symphony.ExtensionsTest do
 
   defp start_test_endpoint(overrides) do
     endpoint_config =
-      :symphony
-      |> Application.get_env(SymphonyWeb.Endpoint, [])
+      HttpServer.endpoint_defaults()
+      |> Keyword.merge(Application.get_env(:symphony, SymphonyWeb.Endpoint, []))
       |> Keyword.merge(server: false, secret_key_base: String.duplicate("s", 64))
       |> Keyword.merge(overrides)
 
@@ -770,7 +793,16 @@ defmodule Symphony.ExtensionsTest do
           issue_url: "https://example.org/issues/MT-RETRY",
           attempt: 2,
           due_in_ms: 2_000,
-          error: "boom"
+          error: "boom",
+          delay_type: :dependency_wait,
+          blocker_details: [
+            %{
+              id: "blocker-retry",
+              identifier: "MT-BLOCKER",
+              state: "In Progress",
+              branch_name: "mt-blocker"
+            }
+          ]
         }
       ],
       blocked: [

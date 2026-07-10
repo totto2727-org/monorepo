@@ -177,6 +177,8 @@ Fields:
   - Current tracker state name.
 - `branch_name` (string or null)
   - Tracker-provided branch metadata if available.
+- `base_branch_name` (string or null)
+  - Dependency-derived branch that should be used as the issue's base branch when available.
 - `url` (string or null)
 - `labels` (list of strings)
   - Normalized to lowercase.
@@ -185,6 +187,7 @@ Fields:
     - `id` (string or null)
     - `identifier` (string or null)
     - `state` (string or null)
+    - `branch_name` (string or null)
 - `created_at` (timestamp or null)
 - `updated_at` (timestamp or null)
 
@@ -377,6 +380,11 @@ Fields:
   - A blank configured label matches no issue.
 - `active_states` (list of strings)
   - Default: `Todo`, `In Progress`
+- `reviewable_states` (list of strings)
+  - Default: `Human Review`
+  - A `Todo` issue blocked by Linear blockers MAY dispatch when every blocker is in a terminal or
+    reviewable state. When at least one eligible blocker has branch metadata, the implementation
+    SHOULD expose the first deterministic eligible blocker branch as `issue.base_branch_name`.
 - `terminal_states` (list of strings)
   - Default: `Closed`, `Cancelled`, `Canceled`, `Duplicate`, `Done`
 
@@ -469,7 +477,8 @@ Rendering requirements:
 Template input variables:
 
 - `issue` (object)
-  - Includes all normalized issue fields, including labels and blockers.
+  - Includes all normalized issue fields, including labels, blockers, `branch_name`, and
+    `base_branch_name`.
 - `attempt` (integer or null)
   - `null`/absent on first attempt.
   - Integer on retry or continuation run.
@@ -578,6 +587,7 @@ not require recognizing or validating extension fields unless that extension is 
 - `tracker.project_slug`: string, REQUIRED when `tracker.kind=linear`
 - `tracker.required_labels`: list of strings, default `[]`
 - `tracker.active_states`: list of strings, default `["Todo", "In Progress"]`
+- `tracker.reviewable_states`: list of strings, default `["Human Review"]`
 - `tracker.terminal_states`: list of strings, default `["Closed", "Cancelled", "Canceled", "Duplicate", "Done"]`
 - `polling.interval_ms`: integer, default `30000`
 - `workspace.root`: path resolved to absolute, default `<system-temp>/symphony_workspaces`
@@ -726,7 +736,10 @@ An issue is dispatch-eligible only if all are true:
 - Global concurrency slots are available.
 - Per-state concurrency slots are available.
 - Blocker rule for `Todo` state passes:
-  - If the issue state is `Todo`, do not dispatch when any blocker is non-terminal.
+  - If the issue state is `Todo`, do not dispatch when any blocker is neither terminal nor
+    reviewable.
+  - If all blockers are terminal or reviewable, the issue MAY dispatch and SHOULD use an eligible
+    blocker branch as `base_branch_name` when available.
 
 Sorting order (stable intent):
 
@@ -753,22 +766,27 @@ Retry entry creation:
 
 - Cancel any existing retry timer for the same issue.
 - Store `attempt`, `identifier`, `error`, `due_at_ms`, and new timer handle.
+- For dependency-wait retries, store `delay_type: dependency_wait` and blocker details useful for
+  observability, including blocker identifiers, states, and branch names when available.
 
 Backoff formula:
 
 - Normal continuation retries after a clean worker exit use a short fixed delay of `1000` ms.
 - Failure-driven retries use `delay = min(10000 * 2^(attempt - 1), agent.max_retry_backoff_ms)`.
 - Power is capped by the configured max retry backoff (default `300000` / 5m).
+- Dependency-wait retries use a fixed short polling delay capped by `agent.max_retry_backoff_ms`.
 
 Retry handling behavior:
 
 1. Fetch active candidate issues (not all issues).
 2. Find the specific issue by `issue_id`.
 3. If not found, release claim.
-4. If found and still candidate-eligible:
+4. If found and still waiting on non-terminal, non-reviewable blockers, requeue as a
+   dependency-wait retry without dispatching.
+5. If found and still candidate-eligible:
    - Dispatch if slots are available.
    - Otherwise requeue with error `no available orchestrator slots`.
-5. If found but no longer active, release claim.
+6. If found but no longer active, release claim.
 
 Note:
 
@@ -1180,7 +1198,8 @@ Additional normalization details:
 - Label names are trimmed and lowercased.
 
 - `labels` -> lowercase strings
-- `blocked_by` -> derived from inverse relations where relation type is `blocks`
+- `blocked_by` -> derived from inverse relations where relation type is `blocks`, including blocker
+  `id`, `identifier`, `state`, and `branch_name` when available
 - `priority` -> integer only (non-integers become null)
 - `created_at` and `updated_at` -> parse ISO-8601 timestamps
 
@@ -1647,10 +1666,19 @@ RECOMMENDED additional hardening for ports:
 
 Workspace hooks are arbitrary shell scripts from `WORKFLOW.md`.
 
+Hook executions receive branch context through environment variables:
+
+- `SYMPHONY_ISSUE_BRANCH_NAME`: tracker-provided branch for the issue being run, or blank.
+- `SYMPHONY_BASE_BRANCH_NAME`: dependency-derived base branch for the issue being run, or blank.
+
 Implications:
 
 - Hooks are fully trusted configuration.
 - Hooks run inside the workspace directory.
+- Branch environment variables are tracker-derived and MUST be treated as untrusted input by hook
+  scripts. Hooks SHOULD quote them, validate branch syntax (for example with
+  `git check-ref-format --branch "$SYMPHONY_BASE_BRANCH_NAME"`), and pass branch names after `--`
+  where the invoked command supports an option terminator.
 - Hook output SHOULD be truncated in logs.
 - Hook timeouts are REQUIRED to avoid hanging the orchestrator.
 
@@ -1988,7 +2016,10 @@ Unless otherwise noted, Sections 17.1 through 17.7 are `Core Conformance`. Bulle
 ### 17.4 Orchestrator Dispatch, Reconciliation, and Retry
 
 - Dispatch sort order is priority then oldest creation time
-- `Todo` issue with non-terminal blockers is not eligible
+- `Todo` issue with non-terminal, non-reviewable blockers is not eligible and remains in retry/backoff
+  with dependency-wait metadata
+- `Todo` issue with reviewable blockers is eligible and receives an eligible blocker branch as
+  `base_branch_name` when available
 - `Todo` issue with terminal blockers is eligible
 - Active-state issue refresh updates running entry state
 - Non-active state stops running agent without workspace cleanup

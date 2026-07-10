@@ -21,7 +21,7 @@ defmodule Symphony.Opencode.AppServer do
   require Logger
 
   alias OpencodeClient.{Connection, EventStream}
-  alias OpencodeClient.Generated.Session
+  alias OpencodeClient.Generated.{Instance, Session}
   alias Symphony.{Config, Linear.Issue, PathSafety}
   alias Symphony.Opencode.ConnectionManager
 
@@ -31,6 +31,7 @@ defmodule Symphony.Opencode.AppServer do
           client: keyword(),
           connection: Connection.t(),
           event_stream: module(),
+          instance_api: module(),
           session_id: String.t(),
           session_api: module(),
           workspace: Path.t(),
@@ -143,9 +144,62 @@ defmodule Symphony.Opencode.AppServer do
 
   @spec stop_session(session()) :: :ok
   def stop_session(
-        %{client: client, session_api: session_api, session_id: session_id, workspace: workspace} =
-          session
+        %{
+          connection: connection,
+          session_id: _session_id
+        } = session
       ) do
+    delete_session(session)
+    dispose_instance(session)
+    :ok
+  after
+    stop_connection(connection)
+  end
+
+  defp create_session(workspace, opts, %{client: client} = connection) do
+    session_api = Keyword.get(opts, :session_api, Session)
+    instance_api = Keyword.get(opts, :instance_api, Instance)
+    event_stream = Keyword.get(opts, :event_stream, EventStream)
+    title = Keyword.get(opts, :title, "Symphony agent run")
+    body = %{title: title}
+
+    case session_api.session_create(body, session_opts(client, workspace)) do
+      {:ok, body_json} when is_map(body_json) ->
+        case get_field(body_json, :id) do
+          session_id when is_binary(session_id) and session_id != "" ->
+            {:ok,
+             %{
+               client: client,
+               connection: connection,
+               event_stream: event_stream,
+               instance_api: instance_api,
+               session_api: session_api,
+               session_id: session_id,
+               workspace: workspace,
+               metadata: session_metadata(session_id, client, connection)
+             }}
+
+          _ ->
+            stop_connection(connection)
+            {:error, {:invalid_session_response, body_json}}
+        end
+
+      {:ok, body} ->
+        stop_connection(connection)
+        {:error, {:session_create_failed, body}}
+
+      {:error, reason} ->
+        stop_connection(connection)
+        {:error, {:session_create_error, reason}}
+    end
+  end
+
+  defp delete_session(%{
+         client: client,
+         session_api: session_api,
+         session_id: session_id,
+         workspace: workspace
+       }) do
     case session_api.session_delete(session_id, session_opts(client, workspace)) do
       {:ok, _} ->
         :ok
@@ -167,44 +221,35 @@ defmodule Symphony.Opencode.AppServer do
       )
 
       :ok
-  after
-    stop_connection(session.connection)
   end
 
-  defp create_session(workspace, opts, %{client: client} = connection) do
-    session_api = Keyword.get(opts, :session_api, Session)
-    event_stream = Keyword.get(opts, :event_stream, EventStream)
-    title = Keyword.get(opts, :title, "Symphony agent run")
-    body = %{title: title}
+  defp dispose_instance(%{
+         client: client,
+         instance_api: instance_api,
+         session_id: session_id,
+         workspace: workspace
+       }) do
+    case instance_api.instance_dispose(session_opts(client, workspace)) do
+      {:ok, _} ->
+        :ok
 
-    case session_api.session_create(body, session_opts(client, workspace)) do
-      {:ok, body_json} when is_map(body_json) ->
-        case get_field(body_json, :id) do
-          session_id when is_binary(session_id) and session_id != "" ->
-            {:ok,
-             %{
-               client: client,
-               connection: connection,
-               event_stream: event_stream,
-               session_api: session_api,
-               session_id: session_id,
-               workspace: workspace,
-               metadata: session_metadata(session_id, client, connection)
-             }}
-
-          _ ->
-            stop_connection(connection)
-            {:error, {:invalid_session_response, body_json}}
-        end
-
-      {:ok, body} ->
-        stop_connection(connection)
-        {:error, {:session_create_failed, body}}
+      :ok ->
+        :ok
 
       {:error, reason} ->
-        stop_connection(connection)
-        {:error, {:session_create_error, reason}}
+        Logger.warning(
+          "OpenCode instance dispose failed for session_id=#{session_id}: #{inspect(reason)}"
+        )
+
+        :ok
     end
+  catch
+    kind, reason ->
+      Logger.warning(
+        "OpenCode instance dispose raised for session_id=#{session_id}: #{inspect({kind, reason})}"
+      )
+
+      :ok
   end
 
   defp start_connection(opts, worker_host) do

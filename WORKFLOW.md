@@ -12,6 +12,8 @@ tracker:
     - In Progress
     - Merging
     - Rework
+  reviewable_states:
+    - Human Review
   terminal_states:
     - Closed
     - Cancelled
@@ -24,7 +26,13 @@ workspace:
   root: ~/.symphony
 hooks:
   after_create: |
-    git clone --depth 1 https://github.com/totto2727-org/monorepo . && direnv allow
+    git clone --depth 1 https://github.com/totto2727-org/monorepo .
+    if [ -n "$SYMPHONY_BASE_BRANCH_NAME" ]; then
+      git check-ref-format --branch "$SYMPHONY_BASE_BRANCH_NAME"
+      git fetch --depth 1 origin "$SYMPHONY_BASE_BRANCH_NAME"
+      git checkout -B "$SYMPHONY_BASE_BRANCH_NAME" FETCH_HEAD
+    fi
+    direnv allow
   before_remove: |
     cd elixir/symphony && mix workspace.before_remove
 agent:
@@ -32,9 +40,19 @@ agent:
   max_turns: 20
 opencode:
   model: openai/gpt-5.5
-display:
-  language: ja
 ---
+
+## Language Rules
+
+- Use English by default for repository-recorded artifacts, including source code,
+  configuration, documentation, generated files, commit messages, and other
+  committed outputs.
+- Write all human-facing collaboration interfaces in Japanese, including PR
+  titles/descriptions, PR review discussions, Linear workpad comments, blocker
+  notes, issue comments, and status handoff text.
+- Preserve code, commands, identifiers, URLs, branch names, commit hashes, and quoted external text exactly as written.
+
+## Linear Workflow
 
 You are working on a Linear ticket `{{ issue.identifier }}`
 
@@ -53,6 +71,10 @@ Title: {{ issue.title }}
 Current status: {{ issue.state }}
 Labels: {{ issue.labels }}
 URL: {{ issue.url }}
+Issue branch: {{ issue.branch_name }}
+{% if issue.base_branch_name %}
+Dependency base branch: {{ issue.base_branch_name }}
+{% endif %}
 
 Description:
 {% if issue.description %}
@@ -69,13 +91,14 @@ Instructions:
 
 Work only in the provided repository copy. Do not touch any other path.
 
-## Prerequisite: Linear MCP or `linear_graphql` tool is available
+### Prerequisite: Linear MCP or `linear_graphql` tool is available
 
 The agent should be able to talk to Linear, either via a configured Linear MCP server or injected `linear_graphql` tool. If none are present, stop and ask the user to configure Linear.
 
-## Default posture
+### Default posture
 
 - Start by determining the ticket's current status, then follow the matching flow for that status.
+- If `Dependency base branch` is present, treat it as this ticket's base branch instead of `origin/main` for checkout, pull/sync, branch creation, merge/rebase base, and PR base.
 - Start every task by opening the tracking workpad comment and bringing it up to date before doing new implementation work.
 - Spend extra effort up front on planning and verification design before implementation.
 - Reproduce first: always confirm the current behavior/issue signal before changing code so the fix target is explicit.
@@ -93,15 +116,14 @@ The agent should be able to talk to Linear, either via a configured Linear MCP s
 - Operate autonomously end-to-end unless blocked by missing requirements, secrets, or permissions.
 - Use the blocked-access escape hatch only for true external blockers (missing required tools/auth) after exhausting documented fallbacks.
 
-## Related skills
+## Workflow support requirements
 
-- `linear`: interact with Linear.
-- `commit`: produce clean, logical commits during implementation.
-- `push`: keep remote branch current and publish updates.
-- `pull`: keep branch updated with latest `origin/main` before handoff.
-- `land`: when ticket reaches `Merging`, explicitly open and follow `.agents/skills/land/SKILL.md`, which includes the `land` loop.
+- Linear access is an external prerequisite. Use either a configured Linear MCP server or Symphony's injected `linear_graphql` tool for required Linear operations.
+- Git and GitHub workflow capabilities for clean commits, branch sync, and pushes are required, but `commit`, `push`, and `pull` are external agent capabilities or optional helper skills, not repo-owned checked-in skills in this checkout.
+- Sync operations must target the current base branch: `Dependency base branch` when present, otherwise latest `origin/main`.
+- `land`: when ticket reaches `Merging`, explicitly open and follow `.agents/skills/land/SKILL.md`, the repository-owned merge skill, which includes the `land` loop.
 
-## Status map
+### Status map
 
 - `Backlog` -> out of scope for this workflow; do not modify.
 - `Todo` -> queued; immediately transition to `In Progress` before active work.
@@ -112,7 +134,7 @@ The agent should be able to talk to Linear, either via a configured Linear MCP s
 - `Rework` -> reviewer requested changes; planning + implementation required.
 - `Done` -> terminal state; no further action required.
 
-## Step 0: Determine current ticket state and route
+### Step 0: Determine current ticket state and route
 
 1. Fetch the issue by explicit ticket ID.
 2. Read the current state.
@@ -127,14 +149,14 @@ The agent should be able to talk to Linear, either via a configured Linear MCP s
    - `Done` -> do nothing and shut down.
 4. Check whether a PR already exists for the current branch and whether it is closed.
    - If a branch PR exists and is `CLOSED` or `MERGED`, treat prior branch work as non-reusable for this run.
-   - Create a fresh branch from `origin/main` and restart execution flow as a new attempt.
+   - Create a fresh branch from the current base branch (`Dependency base branch` when present, otherwise latest `origin/main`) and restart execution flow as a new attempt.
 5. For `Todo` tickets, do startup sequencing in this exact order:
    - `update_issue(..., state: "In Progress")`
    - find/create `## OpenCode Workpad` bootstrap comment
    - only then begin analysis/planning/implementation work.
 6. Add a short comment if state and issue content are inconsistent, then proceed with the safest flow.
 
-## Step 1: Start/continue execution (Todo or In Progress)
+### Step 1: Start/continue execution (Todo or In Progress)
 
 1.  Find or create a single persistent scratchpad comment for the issue:
     - Search existing comments for a marker header: `## OpenCode Workpad`.
@@ -158,14 +180,15 @@ The agent should be able to talk to Linear, either via a configured Linear MCP s
     - If the ticket description/comment context includes `Validation`, `Test Plan`, or `Testing` sections, copy those requirements into the workpad `Acceptance Criteria` and `Validation` sections as required checkboxes (no optional downgrade).
 7.  Run a principal-style self-review of the plan and refine it in the comment.
 8.  Before implementing, capture a concrete reproduction signal and record it in the workpad `Notes` section (command/output, screenshot, or deterministic UI behavior).
-9.  Run the `pull` skill to sync with latest `origin/main` before any code edits, then record the pull/sync result in the workpad `Notes`.
-    - Include a `pull skill evidence` note with:
+9.  Sync with the current base branch before any code edits using the available git/GitHub workflow capability or an optional external `pull` helper skill, then record the sync result in the workpad `Notes`.
+    - Use `Dependency base branch` as the current base when present; otherwise use latest `origin/main`.
+    - Include a `sync evidence` note with:
       - merge source(s),
       - result (`clean` or `conflicts resolved`),
       - resulting `HEAD` short SHA.
 10. Compact context and proceed to execution.
 
-## PR feedback sweep protocol (required)
+### PR feedback sweep protocol (required)
 
 When a ticket has an attached PR, run this protocol before moving to `Human Review`:
 
@@ -181,7 +204,7 @@ When a ticket has an attached PR, run this protocol before moving to `Human Revi
 5. Re-run validation after feedback-driven changes and push updates.
 6. Repeat this sweep until there are no outstanding actionable comments.
 
-## Blocked-access escape hatch (required behavior)
+### Blocked-access escape hatch (required behavior)
 
 Use this only when completion is blocked by missing required tools or missing auth/permissions that cannot be resolved in-session.
 
@@ -193,9 +216,9 @@ Use this only when completion is blocked by missing required tools or missing au
   - exact human action needed to unblock.
 - Keep the brief concise and action-oriented; do not add extra top-level comments outside the workpad.
 
-## Step 2: Execution phase (Todo -> In Progress -> Human Review)
+### Step 2: Execution phase (Todo -> In Progress -> Human Review)
 
-1.  Determine current repo state (`branch`, `git status`, `HEAD`) and verify the kickoff `pull` sync result is already recorded in the workpad before implementation continues.
+1.  Determine current repo state (`branch`, `git status`, `HEAD`) and verify the kickoff sync result is already recorded in the workpad before implementation continues.
 2.  If current issue state is `Todo`, move it to `In Progress`; otherwise leave the current state unchanged.
 3.  Load the existing workpad comment and treat it as the active execution checklist.
     - Edit it liberally whenever reality changes (scope, risks, validation approach, discovered tasks).
@@ -217,7 +240,8 @@ Use this only when completion is blocked by missing required tools or missing au
 7.  Before every `git push` attempt, run the required validation for your scope and confirm it passes; if it fails, address issues and rerun until green, then commit and push changes.
 8.  Attach PR URL to the issue (prefer attachment; use the workpad comment only if attachment is unavailable).
     - Ensure the GitHub PR has label `symphony` (add it if missing).
-9.  Merge latest `origin/main` into branch, resolve conflicts, and rerun checks.
+9.  Merge the latest current base branch into branch, resolve conflicts, and rerun checks.
+    - Use `Dependency base branch` as the current base when present; otherwise use latest `origin/main`.
 10. Update the workpad comment with final checklist status and validation notes.
     - Mark completed plan/acceptance/validation checklist items as checked.
     - Add final handoff notes (commit + validation summary) in the same workpad comment.
@@ -238,7 +262,7 @@ Use this only when completion is blocked by missing required tools or missing au
     - Ensure branch was pushed with any required updates.
     - Then move to `Human Review`.
 
-## Step 3: Human Review and merge handling
+### Step 3: Human Review and merge handling
 
 1. When the issue is in `Human Review`, do not code or change ticket content.
 2. Poll for updates as needed, including GitHub PR review comments from humans and bots.
@@ -247,19 +271,19 @@ Use this only when completion is blocked by missing required tools or missing au
 5. When the issue is in `Merging`, open and follow `.agents/skills/land/SKILL.md`, then run the `land` skill in a loop until the PR is merged. Do not call `gh pr merge` directly.
 6. After merge is complete, move the issue to `Done`.
 
-## Step 4: Rework handling
+### Step 4: Rework handling
 
 1. Treat `Rework` as a full approach reset, not incremental patching.
 2. Re-read the full issue body and all human comments; explicitly identify what will be done differently this attempt.
 3. Close the existing PR tied to the issue.
 4. Remove the existing `## OpenCode Workpad` comment from the issue.
-5. Create a fresh branch from `origin/main`.
+5. Create a fresh branch from the current base branch (`Dependency base branch` when present, otherwise `origin/main`).
 6. Start over from the normal kickoff flow:
    - If current issue state is `Todo`, move it to `In Progress`; otherwise keep the current state.
    - Create a new bootstrap `## OpenCode Workpad` comment.
    - Build a fresh plan/checklist and execute end-to-end.
 
-## Completion bar before Human Review
+### Completion bar before Human Review
 
 - Step 1/2 checklist is fully complete and accurately reflected in the single workpad comment.
 - Acceptance criteria and required ticket-provided validation items are complete.
@@ -269,10 +293,10 @@ Use this only when completion is blocked by missing required tools or missing au
 - Required PR metadata is present (`symphony` label).
 - If app-touching, runtime validation/media requirements from `App runtime validation (required)` are complete.
 
-## Guardrails
+### Guardrails
 
 - If the branch PR is already closed/merged, do not reuse that branch or prior implementation state for continuation.
-- For closed/merged branch PRs, create a new branch from `origin/main` and restart from reproduction/planning as if starting fresh.
+- For closed/merged branch PRs, create a new branch from the current base branch (`Dependency base branch` when present, otherwise `origin/main`) and restart from reproduction/planning as if starting fresh.
 - If issue state is `Backlog`, do not modify it; wait for human to move to `Todo`.
 - Do not edit the issue body/description for planning or progress tracking.
 - Use exactly one persistent workpad comment (`## OpenCode Workpad`) per issue.
@@ -289,7 +313,7 @@ Use this only when completion is blocked by missing required tools or missing au
 - Keep issue text concise, specific, and reviewer-oriented.
 - If blocked and no workpad exists yet, add one blocker comment describing blocker, impact, and next unblock action.
 
-## Workpad template
+### Workpad template
 
 Use this exact structure for the persistent workpad comment and keep it updated in place throughout execution:
 

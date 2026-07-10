@@ -8,7 +8,6 @@ defmodule Symphony.WorkspaceAndConfigTest do
   alias Ecto.Changeset
   alias Symphony.Config.Schema
   alias Symphony.Linear.Client
-  alias Symphony.{Linear.CommentTranslator, OpencodeFakes}
 
   test "workspace bootstrap can be implemented in after_create hook" do
     test_root =
@@ -354,7 +353,8 @@ defmodule Symphony.WorkspaceAndConfigTest do
             "issue" => %{
               "id" => "issue-2",
               "identifier" => "MT-2",
-              "state" => %{"name" => "In Progress"}
+              "state" => %{"name" => "In Progress"},
+              "branchName" => "mt-2"
             }
           },
           %{
@@ -373,7 +373,10 @@ defmodule Symphony.WorkspaceAndConfigTest do
 
     issue = Client.normalize_issue_for_test(raw_issue, "user-1")
 
-    assert issue.blocked_by == [%{id: "issue-2", identifier: "MT-2", state: "In Progress"}]
+    assert issue.blocked_by == [
+             %{id: "issue-2", identifier: "MT-2", state: "In Progress", branch_name: "mt-2"}
+           ]
+
     assert issue.labels == ["backend"]
     assert issue.priority == 2
     assert issue.state == "Todo"
@@ -487,11 +490,8 @@ defmodule Symphony.WorkspaceAndConfigTest do
     assert log =~ "Variable \\\"$ids\\\" got invalid value"
   end
 
-  test "linear client sends comment bodies through translation agent using front matter language before graphql post" do
-    write_workflow_file!(Workflow.workflow_file_path(),
-      tracker_api_token: "token",
-      display_language: "FR"
-    )
+  test "linear client sends comment mutation bodies unchanged" do
+    write_workflow_file!(Workflow.workflow_file_path(), tracker_api_token: "token")
 
     mutation = """
     mutation Create($input: CommentCreateInput!) {
@@ -502,129 +502,14 @@ defmodule Symphony.WorkspaceAndConfigTest do
     body = "Progress update"
 
     assert {:ok, %{"data" => %{"commentCreate" => %{"success" => true}}}} =
-             Client.graphql(mutation, %{input: %{issueId: "issue-1", body: body}},
-               translation_agent_fun: fn ^body, language, _opts ->
-                 send(self(), {:translation_agent_called, language})
-                 {:ok, "Mise à jour"}
-               end,
-               request_fun: fn payload, _headers ->
-                 assert get_in(payload, ["variables", :input, :body]) == "Mise à jour"
+              Client.graphql(mutation, %{input: %{issueId: "issue-1", body: body}},
+                request_fun: fn payload, _headers ->
+                  assert get_in(payload, ["variables", :input, :body]) == body
 
-                 {:ok,
-                  %{status: 200, body: %{"data" => %{"commentCreate" => %{"success" => true}}}}}
-               end
-             )
-
-    assert_received {:translation_agent_called, "fr"}
-  end
-
-  test "linear client still sends same-language comment bodies through translation agent" do
-    write_workflow_file!(Workflow.workflow_file_path(),
-      tracker_api_token: "token",
-      display_language: "en"
-    )
-
-    mutation = """
-    mutation Create($issueId: String!, $body: String!) {
-      commentCreate(input: {issueId: $issueId, body: $body}) { success }
-    }
-    """
-
-    body = "Already English"
-
-    assert {:ok, %{"data" => %{"commentCreate" => %{"success" => true}}}} =
-             Client.graphql(mutation, %{issueId: "issue-1", body: body},
-               translation_agent_fun: fn ^body, "en", _opts ->
-                 send(self(), :same_language_agent_called)
-                 {:ok, body}
-               end,
-               request_fun: fn payload, _headers ->
-                 assert get_in(payload, ["variables", :body]) == body
-
-                 {:ok,
-                  %{status: 200, body: %{"data" => %{"commentCreate" => %{"success" => true}}}}}
-               end
-             )
-
-    assert_received :same_language_agent_called
-  end
-
-  test "linear client retries translation agent failures then posts original comment body" do
-    write_workflow_file!(Workflow.workflow_file_path(),
-      tracker_api_token: "token",
-      display_language: "de"
-    )
-
-    mutation = """
-    mutation Update($body: String!) {
-      commentUpdate(id: "comment-1", input: {body: $body}) { success }
-    }
-    """
-
-    body = "Keep original after failures"
-
-    assert {:ok, %{"data" => %{"commentUpdate" => %{"success" => true}}}} =
-             Client.graphql(mutation, %{body: body},
-               translation_retry_attempts: 3,
-               translation_agent_fun: fn ^body, "de", _opts ->
-                 send(self(), :translation_attempt)
-                 {:error, :agent_unavailable}
-               end,
-               request_fun: fn payload, _headers ->
-                 assert get_in(payload, ["variables", :body]) == body
-
-                 {:ok,
-                  %{status: 200, body: %{"data" => %{"commentUpdate" => %{"success" => true}}}}}
-               end
-             )
-
-    assert_received :translation_attempt
-    assert_received :translation_attempt
-    assert_received :translation_attempt
-    refute_received :translation_attempt
-  end
-
-  test "comment translator can use an opencode agent run to produce translated body" do
-    test_root =
-      Path.join(
-        System.tmp_dir!(),
-        "symphony-comment-translator-#{System.unique_integer([:positive])}"
-      )
-
-    try do
-      workspace_root = Path.join(test_root, "workspaces")
-      write_workflow_file!(Workflow.workflow_file_path(), workspace_root: workspace_root)
-
-      events = [
-        %{
-          type: "message.part.delta",
-          data: %{"properties" => %{"sessionID" => "ses_translate", "delta" => "Bonjour"}}
-        },
-        OpencodeFakes.EventStream.idle_event("ses_translate")
-      ]
-
-      assert {:ok, "Bonjour"} =
-               CommentTranslator.run_translation_agent("Hello", "fr",
-                 translation_agent_opts: [
-                   client_opts: [test_pid: self(), session_id: "ses_translate", events: events],
-                   event_stream: OpencodeFakes.EventStream,
-                   server_module: OpencodeFakes.Server,
-                   server_opts: [test_pid: self(), url: "http://127.0.0.1:4999"],
-                   session_api: OpencodeFakes.SessionApi,
-                   turn_timeout_ms: 1_000
-                 ]
-               )
-
-      assert_received {:opencode_prompt_async, "ses_translate",
-                       %{parts: [%{text: "Hello"}], system: system}, _client}
-
-      assert system =~ "Target language: fr"
-      assert system =~ "Translate the user's input into the target language."
-      assert system =~ "Output only the final comment body"
-      refute system =~ "Hello"
-    after
-      File.rm_rf(test_root)
-    end
+                  {:ok,
+                   %{status: 200, body: %{"data" => %{"commentCreate" => %{"success" => true}}}}}
+                end
+              )
   end
 
   test "orchestrator sorts dispatch by priority then oldest created_at" do
@@ -683,6 +568,32 @@ defmodule Symphony.WorkspaceAndConfigTest do
     }
 
     refute Orchestrator.should_dispatch_issue_for_test(issue, state)
+  end
+
+  test "todo issue with reviewable blocker is dispatch-eligible" do
+    write_workflow_file!(Workflow.workflow_file_path(),
+      tracker_reviewable_states: [" human review "]
+    )
+
+    state = %Orchestrator.State{
+      max_concurrent_agents: 3,
+      running: %{},
+      claimed: MapSet.new(),
+      opencode_totals: %{input_tokens: 0, output_tokens: 0, total_tokens: 0, seconds_running: 0},
+      retry_attempts: %{}
+    }
+
+    issue = %Issue{
+      id: "ready-review-1",
+      identifier: "MT-1010",
+      title: "Ready after review",
+      state: "Todo",
+      blocked_by: [
+        %{id: "blocker-review-1", identifier: "MT-1011", state: "Human Review"}
+      ]
+    }
+
+    assert Orchestrator.should_dispatch_issue_for_test(issue, state)
   end
 
   test "issue assigned to another worker is not dispatch-eligible" do
@@ -785,6 +696,82 @@ defmodule Symphony.WorkspaceAndConfigTest do
            ]
   end
 
+  test "reviewable blocker branch is normalized into issue base branch during dispatch revalidation" do
+    stale_issue = %Issue{
+      id: "blocked-branch-1",
+      identifier: "MT-1012",
+      title: "Needs blocker branch",
+      state: "Todo",
+      blocked_by: []
+    }
+
+    refreshed_issue = %Issue{
+      id: "blocked-branch-1",
+      identifier: "MT-1012",
+      title: "Needs blocker branch",
+      state: "Todo",
+      blocked_by: [
+        %{
+          id: "blocker-branch-1",
+          identifier: "MT-1013",
+          state: "Human Review",
+          branch_name: "  feature/blocker-branch  "
+        }
+      ]
+    }
+
+    fetcher = fn ["blocked-branch-1"] -> {:ok, [refreshed_issue]} end
+
+    assert {:ok, %Issue{} = issue} =
+             Orchestrator.revalidate_issue_for_dispatch_for_test(stale_issue, fetcher)
+
+    assert issue.base_branch_name == "feature/blocker-branch"
+  end
+
+  test "dependency base branch uses first deterministic eligible blocker branch" do
+    stale_issue = %Issue{
+      id: "blocked-branch-2",
+      identifier: "MT-1014",
+      title: "Needs deterministic blocker branch",
+      state: "Todo",
+      blocked_by: []
+    }
+
+    refreshed_issue = %Issue{
+      id: "blocked-branch-2",
+      identifier: "MT-1014",
+      title: "Needs deterministic blocker branch",
+      state: "Todo",
+      blocked_by: [
+        %{
+          id: "blocker-z",
+          identifier: "MT-1020",
+          state: "Human Review",
+          branch_name: "z"
+        },
+        %{
+          id: "blocker-a",
+          identifier: "MT-1019",
+          state: "Closed",
+          branch_name: "  "
+        },
+        %{
+          id: "blocker-b",
+          identifier: "MT-1018",
+          state: "Human Review",
+          branch_name: "b"
+        }
+      ]
+    }
+
+    fetcher = fn ["blocked-branch-2"] -> {:ok, [refreshed_issue]} end
+
+    assert {:ok, %Issue{} = issue} =
+             Orchestrator.revalidate_issue_for_dispatch_for_test(stale_issue, fetcher)
+
+    assert issue.base_branch_name == "b"
+  end
+
   test "dispatch revalidation skips an issue after a required label is removed" do
     write_workflow_file!(Workflow.workflow_file_path(), tracker_required_labels: ["symphony"])
 
@@ -847,6 +834,47 @@ defmodule Symphony.WorkspaceAndConfigTest do
       assert :ok = Workspace.remove_issue_workspaces("MT-HOOKS")
       assert File.read!(before_remove_marker) == "before_remove\n"
       refute File.exists?(workspace)
+    after
+      File.rm_rf(test_root)
+    end
+  end
+
+  test "workspace hooks expose issue and dependency base branch environment" do
+    test_root =
+      Path.join(
+        System.tmp_dir!(),
+        "symphony-workspace-hook-env-#{System.unique_integer([:positive])}"
+      )
+
+    try do
+      workspace_root = Path.join(test_root, "workspaces")
+      File.mkdir_p!(workspace_root)
+
+      write_workflow_file!(Workflow.workflow_file_path(),
+        workspace_root: workspace_root,
+        hook_after_create:
+          "printf '%s:%s' \"$SYMPHONY_ISSUE_BRANCH_NAME\" \"$SYMPHONY_BASE_BRANCH_NAME\" > after_create.env",
+        hook_before_run:
+          "printf '%s:%s' \"$SYMPHONY_ISSUE_BRANCH_NAME\" \"$SYMPHONY_BASE_BRANCH_NAME\" > before_run.env",
+        hook_after_run:
+          "printf '%s:%s' \"$SYMPHONY_ISSUE_BRANCH_NAME\" \"$SYMPHONY_BASE_BRANCH_NAME\" > after_run.env"
+      )
+
+      issue = %Issue{
+        id: "issue-env-1",
+        identifier: "MT-HOOK-ENV",
+        title: "Hook env",
+        state: "Todo",
+        branch_name: "issue/topic",
+        base_branch_name: "dependency/base"
+      }
+
+      assert {:ok, workspace} = Workspace.create_for_issue(issue)
+      assert :ok = Workspace.run_before_run_hook(workspace, issue)
+      assert :ok = Workspace.run_after_run_hook(workspace, issue)
+      assert File.read!(Path.join(workspace, "after_create.env")) == "issue/topic:dependency/base"
+      assert File.read!(Path.join(workspace, "before_run.env")) == "issue/topic:dependency/base"
+      assert File.read!(Path.join(workspace, "after_run.env")) == "issue/topic:dependency/base"
     after
       File.rm_rf(test_root)
     end
@@ -963,7 +991,6 @@ defmodule Symphony.WorkspaceAndConfigTest do
     assert config.worker.max_concurrent_agents_per_host == nil
     assert config.agent.max_concurrent_agents == 10
     assert config.opencode.model == nil
-    assert config.display.language == nil
 
     assert config.opencode.turn_timeout_ms == 3_600_000
     assert config.opencode.stall_timeout_ms == 300_000
@@ -982,10 +1009,6 @@ defmodule Symphony.WorkspaceAndConfigTest do
     )
 
     assert Config.settings!().opencode.model == "openai/gpt-5.5"
-
-    write_workflow_file!(Workflow.workflow_file_path(), display_language: " JA ")
-    assert Config.settings!().display.language == "ja"
-    assert Config.linear_output_language() == "ja"
 
     write_workflow_file!(Workflow.workflow_file_path(), tracker_active_states: ",")
     assert {:error, {:invalid_workflow_config, message}} = Config.validate!()
