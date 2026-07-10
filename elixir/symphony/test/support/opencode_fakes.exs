@@ -22,7 +22,11 @@ defmodule Symphony.OpencodeFakes.SessionApi do
   @spec session_delete(String.t(), keyword()) :: {:ok, boolean()}
   def session_delete(session_id, opts) do
     notify(opts, {:opencode_session_delete, session_id, opts})
-    {:ok, true}
+
+    case Keyword.get(opts, :session_delete_result, {:ok, true}) do
+      {:raise, reason} -> raise inspect(reason)
+      result -> result
+    end
   end
 
   defp maybe_verify_git_toplevel(opts) do
@@ -37,6 +41,23 @@ defmodule Symphony.OpencodeFakes.SessionApi do
     case Keyword.get(opts, :test_pid) do
       pid when is_pid(pid) -> send(pid, message)
       _ -> :ok
+    end
+  end
+end
+
+defmodule Symphony.OpencodeFakes.InstanceApi do
+  @moduledoc false
+
+  @spec instance_dispose(keyword()) :: {:ok, boolean()}
+  def instance_dispose(opts) do
+    case Keyword.get(opts, :test_pid) do
+      pid when is_pid(pid) -> send(pid, {:opencode_instance_dispose, opts})
+      _ -> :ok
+    end
+
+    case Keyword.get(opts, :instance_dispose_result, {:ok, true}) do
+      {:raise, reason} -> raise inspect(reason)
+      result -> result
     end
   end
 end

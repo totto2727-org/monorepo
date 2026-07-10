@@ -8,7 +8,7 @@ defmodule Symphony.OpencodeAppServerTest do
 
   alias Symphony.Opencode.AppServer
   alias Symphony.Opencode.ConnectionManager
-  alias Symphony.OpencodeFakes.{EventStream, Server, SessionApi}
+  alias Symphony.OpencodeFakes.{EventStream, InstanceApi, Server, SessionApi}
 
   test "app server uses opencode_client server, session API, event stream, and cleanup lifecycle" do
     test_root =
@@ -39,6 +39,7 @@ defmodule Symphony.OpencodeAppServerTest do
                  client_opts: [test_pid: self(), session_id: "ses_lifecycle"],
                  connection_manager: manager,
                  event_stream: EventStream,
+                 instance_api: InstanceApi,
                  server_module: Server,
                  server_opts: [test_pid: self(), url: "http://127.0.0.1:4999"],
                  session_api: SessionApi,
@@ -63,6 +64,8 @@ defmodule Symphony.OpencodeAppServerTest do
 
       assert_received {:opencode_session_delete, "ses_lifecycle", delete_opts}
       assert Keyword.get(delete_opts, :directory) == canonical_workspace
+      assert_received {:opencode_instance_dispose, dispose_opts}
+      assert Keyword.get(dispose_opts, :directory) == canonical_workspace
       refute_received {:opencode_server_stop, %{url: "http://127.0.0.1:4999"}}
     after
       File.rm_rf(test_root)
@@ -89,6 +92,7 @@ defmodule Symphony.OpencodeAppServerTest do
                  client_opts: [test_pid: self(), session_id: "ses_shared_1"],
                  connection_manager: manager,
                  event_stream: EventStream,
+                 instance_api: InstanceApi,
                  server_module: Server,
                  server_opts: [test_pid: self(), url: "http://127.0.0.1:4997"],
                  session_api: SessionApi
@@ -101,6 +105,7 @@ defmodule Symphony.OpencodeAppServerTest do
                  client_opts: [test_pid: self(), session_id: "ses_shared_2"],
                  connection_manager: manager,
                  event_stream: EventStream,
+                 instance_api: InstanceApi,
                  server_module: Server,
                  server_opts: [test_pid: self(), url: "http://127.0.0.1:4997"],
                  session_api: SessionApi
@@ -110,11 +115,95 @@ defmodule Symphony.OpencodeAppServerTest do
 
       assert :ok = AppServer.stop_session(session1)
       assert_received {:opencode_session_delete, "ses_shared_1", _client}
+      assert_received {:opencode_instance_dispose, _dispose_opts}
       refute_received {:opencode_server_stop, _server}
 
       assert :ok = AppServer.stop_session(session2)
       assert_received {:opencode_session_delete, "ses_shared_2", _client}
+      assert_received {:opencode_instance_dispose, _dispose_opts}
       refute_received {:opencode_server_stop, _server}
+    after
+      File.rm_rf(test_root)
+    end
+  end
+
+  test "app server disposes the instance when session deletion fails" do
+    test_root =
+      Path.join(
+        System.tmp_dir!(),
+        "symphony-opencode-app-server-delete-failure-#{System.unique_integer([:positive])}"
+      )
+
+    try do
+      workspace_root = Path.join(test_root, "workspaces")
+      workspace = Path.join(workspace_root, "MT-OC-DELETE-FAILURE")
+      File.mkdir_p!(workspace)
+
+      write_workflow_file!(Workflow.workflow_file_path(), workspace_root: workspace_root)
+      manager = start_connection_manager!()
+
+      assert {:ok, session} =
+               AppServer.start_session(workspace,
+                 client_opts: [
+                   test_pid: self(),
+                   session_id: "ses_delete_failure",
+                   session_delete_result: {:error, :delete_failed}
+                 ],
+                 connection_manager: manager,
+                 event_stream: EventStream,
+                 instance_api: InstanceApi,
+                 server_module: Server,
+                 server_opts: [test_pid: self(), url: "http://127.0.0.1:4994"],
+                 session_api: SessionApi
+               )
+
+      assert :ok = AppServer.stop_session(session)
+
+      assert_received {:opencode_session_delete, "ses_delete_failure", _delete_opts}
+      assert {:ok, canonical_workspace} = Symphony.PathSafety.canonicalize(workspace)
+      assert_received {:opencode_instance_dispose, dispose_opts}
+      assert Keyword.get(dispose_opts, :directory) == canonical_workspace
+    after
+      File.rm_rf(test_root)
+    end
+  end
+
+  test "app server treats instance disposal failures as nonfatal cleanup" do
+    test_root =
+      Path.join(
+        System.tmp_dir!(),
+        "symphony-opencode-app-server-dispose-failure-#{System.unique_integer([:positive])}"
+      )
+
+    try do
+      workspace_root = Path.join(test_root, "workspaces")
+      workspace = Path.join(workspace_root, "MT-OC-DISPOSE-FAILURE")
+      File.mkdir_p!(workspace)
+
+      write_workflow_file!(Workflow.workflow_file_path(), workspace_root: workspace_root)
+      manager = start_connection_manager!()
+
+      assert {:ok, session} =
+               AppServer.start_session(workspace,
+                 client_opts: [
+                   test_pid: self(),
+                   session_id: "ses_dispose_failure",
+                   instance_dispose_result: {:raise, :dispose_failed}
+                 ],
+                 connection_manager: manager,
+                 event_stream: EventStream,
+                 instance_api: InstanceApi,
+                 server_module: Server,
+                 server_opts: [test_pid: self(), url: "http://127.0.0.1:4993"],
+                 session_api: SessionApi
+               )
+
+      assert :ok = AppServer.stop_session(session)
+
+      assert_received {:opencode_session_delete, "ses_dispose_failure", _delete_opts}
+      assert {:ok, canonical_workspace} = Symphony.PathSafety.canonicalize(workspace)
+      assert_received {:opencode_instance_dispose, dispose_opts}
+      assert Keyword.get(dispose_opts, :directory) == canonical_workspace
     after
       File.rm_rf(test_root)
     end
@@ -163,6 +252,7 @@ defmodule Symphony.OpencodeAppServerTest do
                  ],
                  connection_manager: manager,
                  event_stream: EventStream,
+                 instance_api: InstanceApi,
                  server_module: Server,
                  server_opts: [test_pid: self(), url: "http://127.0.0.1:4995"],
                  session_api: SessionApi,
@@ -195,6 +285,7 @@ defmodule Symphony.OpencodeAppServerTest do
                  base_url: "http://127.0.0.1:4996",
                  client_opts: [test_pid: self(), session_id: "ses_base_url"],
                  event_stream: EventStream,
+                 instance_api: InstanceApi,
                  server_module: Server,
                  server_opts: [test_pid: self(), url: "http://127.0.0.1:4996"],
                  session_api: SessionApi
@@ -272,6 +363,7 @@ defmodule Symphony.OpencodeAppServerTest do
                  client_opts: [test_pid: self(), session_id: "ses_model"],
                  connection_manager: manager,
                  event_stream: EventStream,
+                 instance_api: InstanceApi,
                  server_module: Server,
                  server_opts: [test_pid: self(), url: "http://127.0.0.1:4998"],
                  session_api: SessionApi,
@@ -319,6 +411,7 @@ defmodule Symphony.OpencodeAppServerTest do
                  client_opts: [events: events, session_id: "ses_target"],
                  connection_manager: manager,
                  event_stream: EventStream,
+                 instance_api: InstanceApi,
                  server_module: Server,
                  server_opts: [url: "http://127.0.0.1:4999"],
                  session_api: SessionApi,

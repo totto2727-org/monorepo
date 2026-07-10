@@ -6,6 +6,8 @@
 defmodule Symphony.CoreTest do
   use Symphony.TestSupport
 
+  alias Symphony.OpencodeFakes.InstanceApi
+
   test "config defaults and validation checks" do
     write_workflow_file!(Workflow.workflow_file_path(),
       tracker_api_token: nil,
@@ -1429,6 +1431,12 @@ defmodule Symphony.CoreTest do
                        _client}
 
       assert_received {:opencode_session_delete, "ses_continue", _client}
+      assert_received {:opencode_instance_dispose, dispose_opts}
+
+      assert {:ok, canonical_workspace} =
+               Symphony.PathSafety.canonicalize(Path.join(workspace_root, "MT-247"))
+
+      assert Keyword.get(dispose_opts, :directory) == canonical_workspace
 
       assert first_prompt =~ "You are an agent for this repository."
       refute second_prompt =~ "You are an agent for this repository."
@@ -1510,6 +1518,7 @@ defmodule Symphony.CoreTest do
       base_url: "http://opencode.test",
       client_opts: [test_pid: test_pid, session_id: session_id],
       event_stream: Symphony.OpencodeFakes.EventStream,
+      instance_api: InstanceApi,
       session_api: Symphony.OpencodeFakes.SessionApi,
       turn_timeout_ms: 1_000
     ]

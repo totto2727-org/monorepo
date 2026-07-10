@@ -18,6 +18,7 @@ defmodule Symphony.AgentRunner do
     :base_url,
     :client_opts,
     :event_stream,
+    :instance_api,
     :receive_timeout,
     :server_config,
     :server_module,
