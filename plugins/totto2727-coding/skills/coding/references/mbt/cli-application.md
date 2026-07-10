@@ -110,36 +110,37 @@ async fn screenshot_options(matches : @argparse.Matches) -> ScreenshotOptions {
   let account_id = match matches.values.get(screenshot_account_id_option) {
     Some(values) => match values {
       [value] => value
-      _ => raise Failure::Failure("account-id accepts exactly one value")
+      _ => fail("account-id accepts exactly one value")
     }
     _ => match @env.get_env_var(cloudflare_account_id_env) {
       Some(value) => value
-      None => raise Failure::Failure("account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id")
+      None => fail("account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id")
     }
   }
   let api_token = match matches.values.get(screenshot_api_token_option) {
     Some(values) => match values {
       [value] => value
-      _ => raise Failure::Failure("api-token accepts exactly one value")
+      _ => fail("api-token accepts exactly one value")
     }
     _ => match @env.get_env_var(cloudflare_api_token_env) {
       Some(value) => value
-      None => raise Failure::Failure("api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token")
+      None => fail("api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token")
     }
   }
   let input = match (matches.values.get(screenshot_url_option), matches.values.get(screenshot_html_option)) {
     (Some([value]), _) => Url(value)
     (_, Some([path])) => HtmlFile(path)
-    (Some(_), _) => raise Failure::Failure("url accepts exactly one value")
-    (_, Some(_)) => raise Failure::Failure("html accepts exactly one value")
-    _ => raise Failure::Failure("Either --url or --html is required")
+    (Some(_), _) => fail("url accepts exactly one value")
+    (_, Some(_)) => fail("html accepts exactly one value")
+    _ => fail("Either --url or --html is required")
   }
-  let output_values = matches.values.get(screenshot_output_option).unwrap_or_error(
-    Failure::Failure("missing required option: output"),
-  )
+  let output_values = match matches.values.get(screenshot_output_option) {
+    Some(values) => values
+    None => fail("missing required option: output")
+  }
   let output = match output_values {
     [value] => value
-    _ => raise Failure::Failure("output accepts exactly one value")
+    _ => fail("output accepts exactly one value")
   }
   { account_id, api_token, input, output }
 }
@@ -149,12 +150,12 @@ For “one of these inputs is required” cases, use an enum. Do not model the s
 as two independent optional fields in the options struct when only one valid
 state exists.
 
-Use `unwrap_or_error(...)` for values that the command definition marks as
-required, then immediately total-match the resulting array. Do not use partial
-array destructuring such as `[value, ..]` after required extraction. Fallback
-chains, such as command flag to environment variable to error, should stay as
-explicit matches when that shape communicates the command contract better than a
-mechanical `unwrap_or_error(...)` rewrite.
+Handle values that the command definition marks as required with an explicit
+total match at the options-conversion boundary, then immediately total-match the
+resulting array. Do not use partial array destructuring such as `[value, ..]`
+after required extraction. Keep fallback chains, such as command flag to
+environment variable to error, as explicit matches so the command contract stays
+clear.
 
 ## Body struct conversion
 
@@ -273,7 +274,7 @@ typed value inside the implementation.
 - Parsing files or domain payloads while creating the options struct.
 - Using `derive(ToJson)` for request body wire types.
 - Using `Map[String, Json]` as the default JSON construction strategy.
-- Replacing meaningful fallback chains with `unwrap_or_error(...)` mechanically.
+- Replacing explicit required-value handling or meaningful fallback chains with opaque error-extraction helpers.
 - Destructuring required option arrays with `[value, ..]` after extraction.
 - Adding aliases (`#alias` or type aliases) unless the alternate name is actually
   part of the public API and used by callers.

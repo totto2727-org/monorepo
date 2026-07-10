@@ -230,7 +230,7 @@ suberror E3 {
 **Raising errors:**
 
 - Custom error: `raise DivError("division by zero")`
-- Generic failure: `raise Failure::Failure("message")`
+- Generic failure: `fail("message")`. Prefer `fail(...)` for generic failures because it uses the standard failure output and reports the call-site source location. Use it directly, never as `raise fail(...)`.
 
 **Function signatures:**
 
@@ -283,7 +283,7 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
 **Best practices:**
 
 - Prefer `raise` effect over `Result` for synchronous code.
-- Use `raise Failure::Failure("message")` for generic failures. Do not use `fail(...)` in project code.
+- Use `fail("message")` for generic failures. It uses the standard failure output and reports the call-site source location.
 - Catch only failures the current scope can recover from. If the caller can make a better decision, let the error propagate.
 - In tests, let errors propagate or use `guard` to assert success.
 
@@ -299,7 +299,7 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
   - **General Code**: Always provide an explicit fallback using `else`:
 
     ```mbt check
-    guard hoge is Hoge(fuga) else { raise Failure::Failure("Message") }
+    guard hoge is Hoge(fuga) else { fail("Message") }
     ```
 
   - **Tests**: Use `guard` without fallback for better readability:
@@ -325,8 +325,8 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
 
   ```mbt check
   fn outer() -> Unit raise {
-    fn local_fn() -> Unit raise { raise Failure::Failure("err") }
-    let arrow_fn = () => { raise Failure::Failure("err") }
+    fn local_fn() -> Unit raise { fail("err") }
+    let arrow_fn = () => { fail("err") }
   }
   ```
 
@@ -352,7 +352,7 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
   struct MyStruct { ... } derive(Debug, Eq)
   ```
 
-- **Constructor qualified names**: Built-in constructors require qualified names (e.g., `Failure::Failure`). Constructors with arguments cannot be used as higher-order functions; use a wrapper:
+- **Constructor qualified names**: Built-in constructors require qualified names. Constructors with arguments cannot be used as higher-order functions; use a wrapper:
 
   ```mbt check
   let f = x => Some(x)
