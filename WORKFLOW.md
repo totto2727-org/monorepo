@@ -10,6 +10,8 @@ tracker:
   active_states:
     - Todo
     - In Progress
+  reviewable_states:
+    - In Review
   terminal_states:
     - Canceled
     - Duplicate
@@ -20,7 +22,13 @@ workspace:
   root: ~/.symphony
 hooks:
   after_create: |
-    git clone --depth 1 https://github.com/totto2727-org/monorepo . && direnv allow
+    git clone --depth 1 https://github.com/totto2727-org/monorepo .
+    if [ -n "$SYMPHONY_BASE_BRANCH_NAME" ]; then
+      git check-ref-format --branch "$SYMPHONY_BASE_BRANCH_NAME"
+      git fetch --depth 1 origin "$SYMPHONY_BASE_BRANCH_NAME"
+      git checkout -B "$SYMPHONY_BASE_BRANCH_NAME" FETCH_HEAD
+    fi
+    direnv allow
   before_remove: |
     cd elixir/symphony && mix workspace.before_remove
 agent:
@@ -59,6 +67,10 @@ Title: {{ issue.title }}
 Current status: {{ issue.state }}
 Labels: {{ issue.labels }}
 URL: {{ issue.url }}
+Issue branch: {{ issue.branch_name }}
+{% if issue.base_branch_name %}
+Dependency base branch: {{ issue.base_branch_name }}
+{% endif %}
 
 Description:
 {% if issue.description %}
@@ -82,6 +94,7 @@ The agent should be able to talk to Linear, either via a configured Linear MCP s
 ### Default posture
 
 - Start by determining the ticket's current status, then follow the matching flow for that status.
+- If `Dependency base branch` is present, treat it as this ticket's base branch instead of `origin/main` for checkout, pull/sync, branch creation, merge/rebase base, and PR base.
 - Start every task by opening the tracking workpad comment and bringing it up to date before doing new implementation work.
 - Spend extra effort up front on planning and verification design before implementation.
 - Reproduce first: always confirm the current behavior/issue signal before changing code so the fix target is explicit.
@@ -99,12 +112,11 @@ The agent should be able to talk to Linear, either via a configured Linear MCP s
 - Operate autonomously end-to-end unless blocked by missing requirements, secrets, or permissions.
 - Use the blocked-access escape hatch only for true external blockers (missing required tools/auth) after exhausting documented fallbacks.
 
-### Related skills
+## Workflow support requirements
 
-- `linear`: interact with Linear.
-- `commit`: produce clean, logical commits during implementation.
-- `push`: keep remote branch current and publish updates.
-- `pull`: keep branch updated with latest `origin/main` before handoff.
+- Linear access is an external prerequisite. Use either a configured Linear MCP server or Symphony's injected `linear_graphql` tool for required Linear operations.
+- Git and GitHub workflow capabilities for clean commits, branch sync, and pushes are required, but `commit`, `push`, and `pull` are external agent capabilities or optional helper skills, not repo-owned checked-in skills in this checkout.
+- Sync operations must target the current base branch: `Dependency base branch` when present, otherwise latest `origin/main`.
 - `land`: only use if the workspace adds a dedicated merge-ready status and its workflow explicitly asks the agent to land the PR.
 
 ### Status map
@@ -131,7 +143,7 @@ The agent should be able to talk to Linear, either via a configured Linear MCP s
    - `Canceled` / `Duplicate` -> do nothing and shut down.
 4. Check whether a PR already exists for the current branch and whether it is closed.
    - If a branch PR exists and is `CLOSED` or `MERGED`, treat prior branch work as non-reusable for this run.
-   - Create a fresh branch from `origin/main` and restart execution flow as a new attempt.
+   - Create a fresh branch from the current base branch (`Dependency base branch` when present, otherwise latest `origin/main`) and restart execution flow as a new attempt.
 5. For `Todo` tickets, do startup sequencing in this exact order:
    - `update_issue(..., state: "In Progress")`
    - find/create `## OpenCode Workpad` bootstrap comment
@@ -162,8 +174,9 @@ The agent should be able to talk to Linear, either via a configured Linear MCP s
     - If the ticket description/comment context includes `Validation`, `Test Plan`, or `Testing` sections, copy those requirements into the workpad `Acceptance Criteria` and `Validation` sections as required checkboxes (no optional downgrade).
 7.  Run a principal-style self-review of the plan and refine it in the comment.
 8.  Before implementing, capture a concrete reproduction signal and record it in the workpad `Notes` section (command/output, screenshot, or deterministic UI behavior).
-9.  Run the `pull` skill to sync with latest `origin/main` before any code edits, then record the pull/sync result in the workpad `Notes`.
-    - Include a `pull skill evidence` note with:
+9.  Sync with the current base branch before any code edits using the available git/GitHub workflow capability or an optional external `pull` helper skill, then record the sync result in the workpad `Notes`.
+    - Use `Dependency base branch` as the current base when present; otherwise use latest `origin/main`.
+    - Include a `sync evidence` note with:
       - merge source(s),
       - result (`clean` or `conflicts resolved`),
       - resulting `HEAD` short SHA.
@@ -199,7 +212,7 @@ Use this only when completion is blocked by missing required tools or missing au
 
 ### Step 2: Execution phase (Todo -> In Progress -> In Review)
 
-1.  Determine current repo state (`branch`, `git status`, `HEAD`) and verify the kickoff `pull` sync result is already recorded in the workpad before implementation continues.
+1.  Determine current repo state (`branch`, `git status`, `HEAD`) and verify the kickoff sync result is already recorded in the workpad before implementation continues.
 2.  If current issue state is `Todo`, move it to `In Progress`; otherwise leave the current state unchanged.
 3.  Load the existing workpad comment and treat it as the active execution checklist.
     - Edit it liberally whenever reality changes (scope, risks, validation approach, discovered tasks).
@@ -221,7 +234,8 @@ Use this only when completion is blocked by missing required tools or missing au
 7.  Before every `git push` attempt, run the required validation for your scope and confirm it passes; if it fails, address issues and rerun until green, then commit and push changes.
 8.  Attach PR URL to the issue (prefer attachment; use the workpad comment only if attachment is unavailable).
     - Ensure the GitHub PR has label `symphony` (add it if missing).
-9.  Merge latest `origin/main` into branch, resolve conflicts, and rerun checks.
+9.  Merge the latest current base branch into branch, resolve conflicts, and rerun checks.
+    - Use `Dependency base branch` as the current base when present; otherwise use latest `origin/main`.
 10. Update the workpad comment with final checklist status and validation notes.
     - Mark completed plan/acceptance/validation checklist items as checked.
     - Add final handoff notes (commit + validation summary) in the same workpad comment.
@@ -262,7 +276,7 @@ Use this only when completion is blocked by missing required tools or missing au
 ### Guardrails
 
 - If the branch PR is already closed/merged, do not reuse that branch or prior implementation state for continuation.
-- For closed/merged branch PRs, create a new branch from `origin/main` and restart from reproduction/planning as if starting fresh.
+- For closed/merged branch PRs, create a new branch from the current base branch (`Dependency base branch` when present, otherwise `origin/main`) and restart from reproduction/planning as if starting fresh.
 - If issue state is `Backlog`, do not modify it; wait for human to move to `Todo`.
 - Do not edit the issue body/description for planning or progress tracking.
 - Use exactly one persistent workpad comment (`## OpenCode Workpad`) per issue.

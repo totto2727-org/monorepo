@@ -29,6 +29,7 @@ defmodule Symphony.Config.Schema do
       field(:assignee, :string)
       field(:required_labels, {:array, :string}, default: [])
       field(:active_states, {:array, :string}, default: ["Todo", "In Progress"])
+      field(:reviewable_states, {:array, :string}, default: ["Human Review"])
 
       field(:terminal_states, {:array, :string},
         default: ["Closed", "Cancelled", "Canceled", "Duplicate", "Done"]
@@ -48,6 +49,7 @@ defmodule Symphony.Config.Schema do
           :assignee,
           :required_labels,
           :active_states,
+          :reviewable_states,
           :terminal_states
         ],
         empty_values: []

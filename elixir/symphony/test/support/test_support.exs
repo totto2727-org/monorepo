@@ -44,6 +44,7 @@ defmodule Symphony.TestSupport do
         workflow_file = Path.join(workflow_root, "WORKFLOW.md")
         write_workflow_file!(workflow_file)
         Workflow.set_workflow_file_path(workflow_file)
+        :ok = Symphony.TestSupport.ensure_application_started()
 
         if Process.whereis(Symphony.WorkflowStore),
           do: Symphony.WorkflowStore.force_reload()
@@ -80,6 +81,14 @@ defmodule Symphony.TestSupport do
 
   def restore_env(key, nil), do: System.delete_env(key)
   def restore_env(key, value), do: System.put_env(key, value)
+
+  def ensure_application_started do
+    case Application.ensure_all_started(:symphony) do
+      {:ok, _apps} -> :ok
+      {:error, {:already_started, :symphony}} -> :ok
+      {:error, reason} -> raise "failed to start :symphony application: #{inspect(reason)}"
+    end
+  end
 
   def stop_default_http_server do
     if is_nil(Process.whereis(Symphony.Supervisor)) do
@@ -119,6 +128,7 @@ defmodule Symphony.TestSupport do
           tracker_assignee: nil,
           tracker_required_labels: [],
           tracker_active_states: ["Todo", "In Progress"],
+          tracker_reviewable_states: ["Human Review"],
           tracker_terminal_states: ["Closed", "Cancelled", "Canceled", "Duplicate", "Done"],
           poll_interval_ms: 30_000,
           workspace_root: Path.join(System.tmp_dir!(), "symphony_workspaces"),
@@ -153,6 +163,7 @@ defmodule Symphony.TestSupport do
     tracker_assignee = Keyword.get(config, :tracker_assignee)
     tracker_required_labels = Keyword.get(config, :tracker_required_labels)
     tracker_active_states = Keyword.get(config, :tracker_active_states)
+    tracker_reviewable_states = Keyword.get(config, :tracker_reviewable_states)
     tracker_terminal_states = Keyword.get(config, :tracker_terminal_states)
     poll_interval_ms = Keyword.get(config, :poll_interval_ms)
     workspace_root = Keyword.get(config, :workspace_root)
@@ -191,6 +202,7 @@ defmodule Symphony.TestSupport do
         "  assignee: #{yaml_value(tracker_assignee)}",
         "  required_labels: #{yaml_value(tracker_required_labels)}",
         "  active_states: #{yaml_value(tracker_active_states)}",
+        "  reviewable_states: #{yaml_value(tracker_reviewable_states)}",
         "  terminal_states: #{yaml_value(tracker_terminal_states)}",
         "polling:",
         "  interval_ms: #{yaml_value(poll_interval_ms)}",

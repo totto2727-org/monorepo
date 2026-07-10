@@ -168,7 +168,7 @@ export default defineConfig({
     },
   },
   staged: {
-    '*': 'vp run fix',
+    '*': 'vp check --fix',
   },
   test: {
     dir: 'js/',

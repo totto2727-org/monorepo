@@ -16,6 +16,7 @@ defmodule Symphony.Orchestrator do
   alias Symphony.Linear.Issue
 
   @continuation_retry_delay_ms 1_000
+  @dependency_wait_retry_delay_ms 30_000
   @failure_retry_base_ms 10_000
   # Slightly above the dashboard render interval so "checking now…" can render.
   @poll_transition_render_delay_ms 20
@@ -265,8 +266,7 @@ defmodule Symphony.Orchestrator do
       |> reconcile_blocked_issues()
 
     with :ok <- Config.validate!(),
-         {:ok, issues} <- Tracker.fetch_candidate_issues(),
-         true <- available_slots(state) > 0 do
+         {:ok, issues} <- Tracker.fetch_candidate_issues() do
       choose_issues(issues, state)
     else
       {:error, :missing_linear_api_token} ->
@@ -305,9 +305,6 @@ defmodule Symphony.Orchestrator do
 
       {:error, reason} ->
         Logger.error("Failed to fetch from Linear: #{inspect(reason)}")
-        state
-
-      false ->
         state
     end
   end
@@ -407,7 +404,19 @@ defmodule Symphony.Orchestrator do
   @doc false
   @spec should_dispatch_issue_for_test(Issue.t(), term()) :: boolean()
   def should_dispatch_issue_for_test(%Issue{} = issue, %State{} = state) do
-    should_dispatch_issue?(issue, state, active_state_set(), terminal_state_set())
+    should_dispatch_issue?(
+      issue,
+      state,
+      active_state_set(),
+      terminal_state_set(),
+      reviewable_state_set()
+    )
+  end
+
+  @doc false
+  @spec choose_issues_for_test([Issue.t()], term()) :: term()
+  def choose_issues_for_test(issues, %State{} = state) when is_list(issues) do
+    choose_issues(issues, state)
   end
 
   @doc false
@@ -785,6 +794,14 @@ defmodule Symphony.Orchestrator do
   defp opencode_message_method(_message), do: nil
 
   defp terminate_task(pid) when is_pid(pid) do
+    if Process.whereis(Symphony.TaskSupervisor) do
+      terminate_supervised_task(pid)
+    else
+      Process.exit(pid, :shutdown)
+    end
+  end
+
+  defp terminate_supervised_task(pid) do
     case Task.Supervisor.terminate_child(Symphony.TaskSupervisor, pid) do
       :ok ->
         :ok
@@ -792,6 +809,9 @@ defmodule Symphony.Orchestrator do
       {:error, :not_found} ->
         Process.exit(pid, :shutdown)
     end
+  catch
+    :exit, {:noproc, _} ->
+      Process.exit(pid, :shutdown)
   end
 
   defp stop_running_task(pid, ref) do
@@ -838,14 +858,32 @@ defmodule Symphony.Orchestrator do
   defp choose_issues(issues, state) do
     active_states = active_state_set()
     terminal_states = terminal_state_set()
+    reviewable_states = reviewable_state_set()
 
     issues
     |> sort_issues_for_dispatch()
     |> Enum.reduce(state, fn issue, state_acc ->
-      if should_dispatch_issue?(issue, state_acc, active_states, terminal_states) do
-        dispatch_issue(state_acc, issue)
-      else
-        state_acc
+      cond do
+        should_dispatch_issue?(
+          issue,
+          state_acc,
+          active_states,
+          terminal_states,
+          reviewable_states
+        ) ->
+          dispatch_issue(state_acc, issue)
+
+        should_schedule_dependency_wait?(
+          issue,
+          state_acc,
+          active_states,
+          terminal_states,
+          reviewable_states
+        ) ->
+          schedule_dependency_wait(state_acc, issue, 1)
+
+        true ->
+          state_acc
       end
     end)
   end
@@ -875,19 +913,57 @@ defmodule Symphony.Orchestrator do
          %Issue{} = issue,
          %State{running: running, claimed: claimed, blocked: blocked} = state,
          active_states,
-         terminal_states
+         terminal_states,
+         reviewable_states
        ) do
     candidate_issue?(issue, active_states, terminal_states) and
-      !todo_issue_blocked_by_non_terminal?(issue, terminal_states) and
       !MapSet.member?(claimed, issue.id) and
       !Map.has_key?(running, issue.id) and
       !Map.has_key?(blocked, issue.id) and
+      !Map.has_key?(state.retry_attempts, issue.id) and
+      !todo_issue_waiting_for_dependency?(issue, terminal_states, reviewable_states) and
       available_slots(state) > 0 and
       state_slots_available?(issue, running) and
       worker_slots_available?(state)
   end
 
-  defp should_dispatch_issue?(_issue, _state, _active_states, _terminal_states), do: false
+  defp should_dispatch_issue?(
+         _issue,
+         _state,
+         _active_states,
+         _terminal_states,
+         _reviewable_states
+       ),
+       do: false
+
+  defp should_schedule_dependency_wait?(
+         %Issue{} = issue,
+         %State{
+           running: running,
+           claimed: claimed,
+           blocked: blocked,
+           retry_attempts: retry_attempts
+         },
+         active_states,
+         terminal_states,
+         reviewable_states
+       ) do
+    candidate_issue?(issue, active_states, terminal_states) and
+      !MapSet.member?(claimed, issue.id) and
+      !Map.has_key?(running, issue.id) and
+      !Map.has_key?(blocked, issue.id) and
+      !Map.has_key?(retry_attempts, issue.id) and
+      todo_issue_waiting_for_dependency?(issue, terminal_states, reviewable_states)
+  end
+
+  defp should_schedule_dependency_wait?(
+         _issue,
+         _state,
+         _active_states,
+         _terminal_states,
+         _reviewable_states
+       ),
+       do: false
 
   defp state_slots_available?(%Issue{state: issue_state}, running) when is_map(running) do
     limit = Config.max_concurrent_agents_for_state(issue_state)
@@ -931,22 +1007,50 @@ defmodule Symphony.Orchestrator do
     Issue.routable?(issue, Config.settings!().tracker.required_labels)
   end
 
-  defp todo_issue_blocked_by_non_terminal?(
+  defp todo_issue_waiting_for_dependency?(
          %Issue{state: issue_state, blocked_by: blockers},
-         terminal_states
+         terminal_states,
+         reviewable_states
        )
        when is_binary(issue_state) and is_list(blockers) do
     normalize_issue_state(issue_state) == "todo" and
       Enum.any?(blockers, fn
         %{state: blocker_state} when is_binary(blocker_state) ->
-          !terminal_issue_state?(blocker_state, terminal_states)
+          !terminal_issue_state?(blocker_state, terminal_states) and
+            !reviewable_issue_state?(blocker_state, reviewable_states)
 
         _ ->
           true
       end)
   end
 
-  defp todo_issue_blocked_by_non_terminal?(_issue, _terminal_states), do: false
+  defp todo_issue_waiting_for_dependency?(_issue, _terminal_states, _reviewable_states), do: false
+
+  defp dependency_wait_blockers(
+         %Issue{state: issue_state, blocked_by: blockers},
+         terminal_states,
+         reviewable_states
+       )
+       when is_binary(issue_state) and is_list(blockers) do
+    if normalize_issue_state(issue_state) == "todo" do
+      Enum.reject(blockers, fn
+        %{state: blocker_state} when is_binary(blocker_state) ->
+          terminal_issue_state?(blocker_state, terminal_states) or
+            reviewable_issue_state?(blocker_state, reviewable_states)
+
+        _ ->
+          false
+      end)
+    else
+      []
+    end
+  end
+
+  defp dependency_wait_blockers(_issue, _terminal_states, _reviewable_states), do: []
+
+  defp reviewable_issue_state?(state_name, reviewable_states) when is_binary(state_name) do
+    MapSet.member?(reviewable_states, normalize_issue_state(state_name))
+  end
 
   defp terminal_issue_state?(state_name, terminal_states) when is_binary(state_name) do
     MapSet.member?(terminal_states, normalize_issue_state(state_name))
@@ -976,35 +1080,54 @@ defmodule Symphony.Orchestrator do
     |> MapSet.new()
   end
 
+  defp reviewable_state_set do
+    Config.settings!().tracker.reviewable_states
+    |> Enum.map(&normalize_issue_state/1)
+    |> Enum.filter(&(&1 != ""))
+    |> MapSet.new()
+  end
+
   defp dispatch_issue(%State{} = state, issue, attempt \\ nil, preferred_worker_host \\ nil) do
+    case dispatch_issue_with_result(state, issue, attempt, preferred_worker_host) do
+      {:ok, updated_state} -> updated_state
+      {:error, _reason, updated_state} -> updated_state
+    end
+  end
+
+  defp dispatch_issue_with_result(
+         %State{} = state,
+         issue,
+         attempt,
+         preferred_worker_host
+       ) do
     case revalidate_issue_for_dispatch(
            issue,
            &Tracker.fetch_issue_states_by_ids/1,
            terminal_state_set()
          ) do
       {:ok, %Issue{} = refreshed_issue} ->
-        do_dispatch_issue(state, refreshed_issue, attempt, preferred_worker_host)
+        {:ok, do_dispatch_issue(state, refreshed_issue, attempt, preferred_worker_host)}
 
       {:skip, :missing} ->
         Logger.info(
           "Skipping dispatch; issue no longer active or visible: #{issue_context(issue)}"
         )
 
-        state
+        {:ok, state}
 
       {:skip, %Issue{} = refreshed_issue} ->
         Logger.info(
           "Skipping stale dispatch after issue refresh: #{issue_context(refreshed_issue)} state=#{inspect(refreshed_issue.state)} blocked_by=#{length(refreshed_issue.blocked_by)}"
         )
 
-        state
+        {:ok, state}
 
       {:error, reason} ->
         Logger.warning(
           "Skipping dispatch; issue refresh failed for #{issue_context(issue)}: #{inspect(reason)}"
         )
 
-        state
+        {:error, {:issue_refresh_failed, reason}, state}
     end
   end
 
@@ -1084,7 +1207,8 @@ defmodule Symphony.Orchestrator do
     case issue_fetcher.([issue_id]) do
       {:ok, [%Issue{} = refreshed_issue | _]} ->
         if retry_candidate_issue?(refreshed_issue, terminal_states) do
-          {:ok, refreshed_issue}
+          {:ok,
+           put_dependency_base_branch(refreshed_issue, terminal_states, reviewable_state_set())}
         else
           {:skip, refreshed_issue}
         end
@@ -1121,6 +1245,13 @@ defmodule Symphony.Orchestrator do
     worker_host = pick_retry_worker_host(previous_retry, metadata)
     workspace_path = pick_retry_workspace_path(previous_retry, metadata)
 
+    retry_metadata =
+      %{
+        delay_type: metadata[:delay_type] || Map.get(previous_retry, :delay_type),
+        blocker_details: metadata[:blocker_details] || Map.get(previous_retry, :blocker_details)
+      }
+      |> drop_nil_values()
+
     if is_reference(old_timer) do
       Process.cancel_timer(old_timer)
     end
@@ -1136,18 +1267,29 @@ defmodule Symphony.Orchestrator do
     %{
       state
       | retry_attempts:
-          Map.put(state.retry_attempts, issue_id, %{
-            attempt: next_attempt,
-            timer_ref: timer_ref,
-            retry_token: retry_token,
-            due_at_ms: due_at_ms,
-            identifier: identifier,
-            issue_url: issue_url,
-            error: error,
-            worker_host: worker_host,
-            workspace_path: workspace_path
-          })
+          Map.put(
+            state.retry_attempts,
+            issue_id,
+            Map.merge(
+              %{
+                attempt: next_attempt,
+                timer_ref: timer_ref,
+                retry_token: retry_token,
+                due_at_ms: due_at_ms,
+                identifier: identifier,
+                issue_url: issue_url,
+                error: error,
+                worker_host: worker_host,
+                workspace_path: workspace_path
+              },
+              retry_metadata
+            )
+          )
     }
+  end
+
+  defp drop_nil_values(map) when is_map(map) do
+    Map.reject(map, fn {_key, value} -> is_nil(value) end)
   end
 
   defp pop_retry_attempt_state(%State{} = state, issue_id, retry_token)
@@ -1158,6 +1300,8 @@ defmodule Symphony.Orchestrator do
           identifier: Map.get(retry_entry, :identifier),
           issue_url: Map.get(retry_entry, :issue_url),
           error: Map.get(retry_entry, :error),
+          delay_type: Map.get(retry_entry, :delay_type),
+          blocker_details: Map.get(retry_entry, :blocker_details),
           worker_host: Map.get(retry_entry, :worker_host),
           workspace_path: Map.get(retry_entry, :workspace_path)
         }
@@ -1203,6 +1347,10 @@ defmodule Symphony.Orchestrator do
 
         cleanup_issue_workspace(issue.identifier, metadata[:worker_host])
         {:noreply, release_issue_claim(state, issue_id)}
+
+      dependency_wait_retry?(metadata) and
+          todo_issue_waiting_for_dependency?(issue, terminal_states, reviewable_state_set()) ->
+        handle_dependency_wait_retry(state, issue, attempt, metadata)
 
       retry_candidate_issue?(issue, terminal_states) ->
         handle_active_retry(state, issue, attempt, metadata)
@@ -1259,10 +1407,36 @@ defmodule Symphony.Orchestrator do
   end
 
   defp handle_active_retry(state, issue, attempt, metadata) do
+    do_handle_active_retry(state, issue, attempt, clear_dependency_wait_metadata(metadata))
+  end
+
+  defp do_handle_active_retry(state, issue, attempt, dispatch_metadata) do
+    issue = put_dependency_base_branch(issue, terminal_state_set(), reviewable_state_set())
+
     if retry_candidate_issue?(issue, terminal_state_set()) and
          dispatch_slots_available?(issue, state) and
-         worker_slots_available?(state, metadata[:worker_host]) do
-      {:noreply, dispatch_issue(state, issue, attempt, metadata[:worker_host])}
+         worker_slots_available?(state, dispatch_metadata[:worker_host]) do
+      case dispatch_issue_with_result(state, issue, attempt, dispatch_metadata[:worker_host]) do
+        {:ok, dispatched_state} ->
+          {:noreply, dispatched_state}
+
+        {:error, {:issue_refresh_failed, reason}, dispatch_state} ->
+          Logger.warning(
+            "Retry dispatch revalidation failed for #{issue_context(issue)}: #{inspect(reason)}; retrying"
+          )
+
+          {:noreply,
+           schedule_issue_retry(
+             dispatch_state,
+             issue.id,
+             attempt + 1,
+             Map.merge(dispatch_metadata, %{
+               identifier: issue.identifier,
+               issue_url: issue.url,
+               error: "issue refresh failed: #{inspect(reason)}"
+             })
+           )}
+      end
     else
       Logger.debug("No available slots for retrying #{issue_context(issue)}; retrying again")
 
@@ -1271,13 +1445,54 @@ defmodule Symphony.Orchestrator do
          state,
          issue.id,
          attempt + 1,
-         Map.merge(metadata, %{
+         Map.merge(dispatch_metadata, %{
            identifier: issue.identifier,
            error: "no available orchestrator slots"
          })
        )}
     end
   end
+
+  defp handle_dependency_wait_retry(state, issue, attempt, metadata) do
+    Logger.debug("Dependency blockers still active for #{issue_context(issue)}; waiting again")
+
+    {:noreply,
+     schedule_dependency_wait(
+       state,
+       issue,
+       attempt + 1,
+       metadata
+       |> Map.take([:worker_host, :workspace_path])
+     )}
+  end
+
+  defp schedule_dependency_wait(state, issue, attempt, extra_metadata \\ %{}) do
+    terminal_states = terminal_state_set()
+    reviewable_states = reviewable_state_set()
+    blockers = dependency_wait_blockers(issue, terminal_states, reviewable_states)
+
+    metadata =
+      Map.merge(extra_metadata, %{
+        identifier: issue.identifier,
+        issue_url: issue.url,
+        delay_type: :dependency_wait,
+        error: dependency_wait_reason(blockers),
+        blocker_details: blocker_details(blockers)
+      })
+
+    state
+    |> Map.update!(:claimed, &MapSet.put(&1, issue.id))
+    |> schedule_issue_retry(issue.id, attempt, metadata)
+  end
+
+  defp dependency_wait_retry?(%{delay_type: :dependency_wait}), do: true
+  defp dependency_wait_retry?(_metadata), do: false
+
+  defp clear_dependency_wait_metadata(%{delay_type: :dependency_wait} = metadata) do
+    Map.drop(metadata, [:delay_type, :blocker_details])
+  end
+
+  defp clear_dependency_wait_metadata(metadata), do: metadata
 
   defp release_issue_claim(%State{} = state, issue_id) do
     %{
@@ -1293,8 +1508,16 @@ defmodule Symphony.Orchestrator do
     if metadata[:delay_type] == :continuation and attempt == 1 do
       @continuation_retry_delay_ms
     else
-      failure_retry_delay(attempt)
+      dependency_retry_delay(attempt, metadata)
     end
+  end
+
+  defp dependency_retry_delay(_attempt, %{delay_type: :dependency_wait}) do
+    min(@dependency_wait_retry_delay_ms, Config.settings!().agent.max_retry_backoff_ms)
+  end
+
+  defp dependency_retry_delay(attempt, _metadata) do
+    failure_retry_delay(attempt)
   end
 
   defp failure_retry_delay(attempt) do
@@ -1510,6 +1733,8 @@ defmodule Symphony.Orchestrator do
           identifier: Map.get(retry, :identifier),
           issue_url: Map.get(retry, :issue_url),
           error: Map.get(retry, :error),
+          delay_type: Map.get(retry, :delay_type),
+          blocker_details: Map.get(retry, :blocker_details),
           worker_host: Map.get(retry, :worker_host),
           workspace_path: Map.get(retry, :workspace_path)
         }
@@ -1707,8 +1932,58 @@ defmodule Symphony.Orchestrator do
 
   defp retry_candidate_issue?(%Issue{} = issue, terminal_states) do
     candidate_issue?(issue, active_state_set(), terminal_states) and
-      !todo_issue_blocked_by_non_terminal?(issue, terminal_states)
+      !todo_issue_waiting_for_dependency?(issue, terminal_states, reviewable_state_set())
   end
+
+  defp put_dependency_base_branch(%Issue{} = issue, terminal_states, reviewable_states) do
+    %{issue | base_branch_name: dependency_base_branch(issue, terminal_states, reviewable_states)}
+  end
+
+  defp dependency_base_branch(%Issue{blocked_by: blockers}, terminal_states, reviewable_states)
+       when is_list(blockers) do
+    blockers
+    |> Enum.filter(fn
+      %{state: blocker_state} when is_binary(blocker_state) ->
+        terminal_issue_state?(blocker_state, terminal_states) or
+          reviewable_issue_state?(blocker_state, reviewable_states)
+
+      _ ->
+        false
+    end)
+    |> Enum.sort_by(fn blocker -> {blocker[:identifier] || "", blocker[:id] || ""} end)
+    |> Enum.find_value(fn blocker -> normalize_branch_name(blocker[:branch_name]) end)
+  end
+
+  defp dependency_base_branch(_issue, _terminal_states, _reviewable_states), do: nil
+
+  defp dependency_wait_reason(blockers) when is_list(blockers) do
+    blockers
+    |> blocker_details()
+    |> Enum.map_join(", ", fn blocker ->
+      "#{blocker.identifier || blocker.id || "unknown"} (#{blocker.state || "unknown"})"
+    end)
+    |> then(&"waiting for dependency blocker #{&1}")
+  end
+
+  defp blocker_details(blockers) when is_list(blockers) do
+    Enum.map(blockers, fn blocker ->
+      %{
+        id: blocker[:id],
+        identifier: blocker[:identifier],
+        state: blocker[:state],
+        branch_name: normalize_branch_name(blocker[:branch_name])
+      }
+    end)
+  end
+
+  defp normalize_branch_name(branch_name) when is_binary(branch_name) do
+    case String.trim(branch_name) do
+      "" -> nil
+      normalized -> normalized
+    end
+  end
+
+  defp normalize_branch_name(_branch_name), do: nil
 
   defp dispatch_slots_available?(%Issue{} = issue, %State{} = state) do
     available_slots(state) > 0 and state_slots_available?(issue, state.running)
