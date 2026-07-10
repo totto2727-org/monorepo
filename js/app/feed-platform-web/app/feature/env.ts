@@ -33,7 +33,7 @@ export const makeLayer = (env: Type) => Layer.succeed(Service, env)
 export const prodLayer = Layer.sync(Service, () => HonoContext.get().env)
 
 export const devLayer = Layer.succeed(Service, {
-  BACKEND_BASE_URL: 'http://localhost:8788',
+  BACKEND_BASE_URL: 'http://127.0.0.1:8788',
   BETTER_AUTH_SECRET: '0123456789abcdef0123456789abcdef0123456789abcdef',
   DATABASE_AUTH_TOKEN: '',
   DATABASE_URL: 'http://127.0.0.1:8081',

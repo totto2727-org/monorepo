@@ -12,7 +12,7 @@ milestones:
     workflow_identifiers: []
   - depends_on: []
     id: ms-02-auth-passkey-magiclink
-    notes: Better Auth OAuth 2.1 + Passkey + Magic Link を提供する。auth-helper、IdP UI、web OAuth、backend JWT の境界を持ち、cross-app E2E は後続検証対象とする。
+    notes: Better Auth OAuth 2.1 + Passkey + Magic Link を提供する。auth、IdP UI、web OAuth、backend JWT の境界を持ち、cross-app E2E は後続検証対象とする。
     prs: []
     status: completed
     tasks: []

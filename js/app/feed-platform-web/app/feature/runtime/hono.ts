@@ -1,15 +1,11 @@
+import type { OptionalAuthVariables } from 'auth'
+
 import { factory } from '#@/feature/share/lib/hono/factory.ts'
 
 import * as Runtime from './server.ts'
 
-export interface Variables {
+export interface Variables extends OptionalAuthVariables {
   readonly runtime: Runtime.Runtime
-  readonly user: AuthUser | null
-}
-
-export interface AuthUser {
-  readonly email: string
-  readonly sub: string
 }
 
 export const middleware = factory.createMiddleware(async (ctx, next) => {

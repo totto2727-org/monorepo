@@ -156,6 +156,10 @@ const makeInstance = (db: BetterAuthDB.Instance, env: Env.Type, emailSender: Ema
           },
         },
         scopes: ['openid', 'profile', 'email', 'offline_access'],
+        selectAccount: {
+          page: '/login/select-account',
+          shouldRedirect: () => true,
+        },
         storeClientSecret: {
           hash: (clientSecret) => Promise.resolve(clientSecret),
           verify: (clientSecret, storedHash) => Promise.resolve(clientSecret === storedHash),

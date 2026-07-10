@@ -28,6 +28,26 @@ defmodule OpencodeClientTest do
 
       assert %{event: "session.idle", data: ~s({"type":"session.idle"})} = frame
     end
+
+    test "passes workspace location query params to the SSE endpoint" do
+      {:ok, server} = __MODULE__.EventServer.start(self())
+
+      assert {:ok, events} =
+               OpencodeClient.EventStream.stream(
+                 auth: :none,
+                 base_url: __MODULE__.EventServer.url(server),
+                 directory: "/tmp/symphony workspace",
+                 receive_timeout: 1_000,
+                 workspace: "workspace-id"
+               )
+
+      assert [%{type: "session.idle"}] = Enum.take(events, 1)
+
+      assert_receive {:event_server_request_path, path}, 1_000
+      assert path =~ "/event?"
+      assert path =~ "directory=%2Ftmp%2Fsymphony+workspace"
+      assert path =~ "workspace=workspace-id"
+    end
   end
 
   describe "OpenCode connection lifecycle" do
@@ -43,7 +63,9 @@ defmodule OpencodeClientTest do
       assert Keyword.get(connection.client, :base_url) == "http://127.0.0.1:5001"
       assert Keyword.get(connection.client, :auth) == {:bearer, "token"}
       assert Keyword.get(connection.client, :test_pid) == self()
-      assert OpencodeClient.Connection.metadata(connection).opencode_base_url == "http://127.0.0.1:5001"
+
+      assert OpencodeClient.Connection.metadata(connection).opencode_base_url ==
+               "http://127.0.0.1:5001"
     end
 
     test "starts a local OpenCode server when no base URL is configured" do
@@ -67,6 +89,47 @@ defmodule OpencodeClientTest do
                OpencodeClient.Connection.start(allow_server_start: false, base_url: nil)
     end
   end
+end
+
+defmodule OpencodeClientTest.EventServer do
+  @moduledoc false
+
+  defstruct [:listen_socket, :port, :task]
+
+  def start(test_pid) do
+    {:ok, listen_socket} =
+      :gen_tcp.listen(0, [:binary, active: false, packet: :raw, reuseaddr: true])
+
+    {:ok, {_address, port}} = :inet.sockname(listen_socket)
+
+    task =
+      Task.async(fn ->
+        {:ok, socket} = :gen_tcp.accept(listen_socket)
+        :gen_tcp.close(listen_socket)
+
+        {:ok, request} = :gen_tcp.recv(socket, 0, 1_000)
+        [request_line | _headers] = String.split(request, "\r\n")
+        ["GET", path, "HTTP/1.1"] = String.split(request_line, " ")
+        send(test_pid, {:event_server_request_path, path})
+
+        :ok =
+          :gen_tcp.send(socket, [
+            "HTTP/1.1 200 OK\r\n",
+            "content-type: text/event-stream\r\n",
+            "connection: close\r\n",
+            "\r\n",
+            "event: session.idle\n",
+            ~s(data: {"type":"session.idle"}),
+            "\n\n"
+          ])
+
+        :gen_tcp.close(socket)
+      end)
+
+    {:ok, %__MODULE__{listen_socket: listen_socket, port: port, task: task}}
+  end
+
+  def url(%__MODULE__{port: port}), do: "http://127.0.0.1:#{port}"
 end
 
 defmodule OpencodeClientTest.FakeServer do

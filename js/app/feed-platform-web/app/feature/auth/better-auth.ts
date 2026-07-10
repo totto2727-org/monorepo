@@ -22,6 +22,7 @@ const makeInstance = (env: Env.Type) =>
             clientSecret: env.OAUTH_CLIENT_SECRET,
             issuer: `${env.IDP_BASE_URL}/api/v1/auth`,
             pkce: true,
+            prompt: 'select_account',
             providerId: 'identity-provider',
             requireIssuerValidation: true,
             scopes: ['openid', 'profile', 'email'],

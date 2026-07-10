@@ -1,0 +1,18 @@
+{
+  "name": "auth",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "devDependencies": {
+    "@totto2727/fp": "workspace:*",
+    "effect": "catalog:effect",
+    "hono": "catalog:hono"
+  },
+  "peerDependencies": {
+    "effect": "catalog:effect",
+    "hono": "catalog:hono"
+  }
+}

@@ -18,7 +18,7 @@ defmodule OpencodeClient.Server do
   use GenServer
 
   @default_hostname "127.0.0.1"
-  @default_port 4096
+  @default_port 0
   @default_timeout 5_000
 
   defmodule State do
@@ -181,7 +181,12 @@ defmodule OpencodeClient.Server do
   end
 
   defp stop_port(port) when is_port(port) do
-    Port.close(port)
+    case :erlang.port_info(port) do
+      nil -> :ok
+      _info -> Port.close(port)
+    end
+  catch
+    :error, :badarg -> :ok
   end
 
   defp cancel_timer(nil), do: :ok

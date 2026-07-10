@@ -8,7 +8,8 @@
     "turso-cli@latest",
     "sqld@latest",
     "nixfmt@latest",
-    "github:NixOS/nixpkgs/nixos-26.05#beam29Packages.elixir_1_20"
+    "github:NixOS/nixpkgs/nixos-26.05#beam29Packages.elixir_1_20",
+    "github:NixOS/nixpkgs/nixos-26.05#beam29Packages.erlang"
   ],
   "shell": {
     "init_hook": ["command -v vp >/dev/null && vp config || true"]

@@ -63,12 +63,21 @@ let
   );
 
   macos-o = writeShellScriptBin "o" ''
+    export LINEAR_API_KEY="$(pass-cli get linear/api-key --quiet -f password)"
     exec opencode "$@"
   '';
 
   macos-work-c = writeShellScriptBin "c" ''
     export CLAUDE_CONFIG_DIR="$HOME/.claude-work"
     exec claude "$@"
+  '';
+
+  macos-linear-mcp = writeShellScriptBin "linear-mcp" ''
+    exec bunx mcp-remote \
+      https://mcp.linear.app/mcp \
+      --transport http-only \
+      --header "Authorization:Bearer ''${LINEAR_API_KEY}" \
+      "$@"
   '';
 
   # --- wrappers without pass-cli (sandbox, OpenShell injects env vars) ---
@@ -87,6 +96,14 @@ let
     exec opencode "$@"
   '';
 
+  sandbox-linear-mcp = writeShellScriptBin "linear-mcp" ''
+    exec bunx mcp-remote \
+      https://mcp.linear.app/mcp \
+      --transport http-only \
+      --header "Authorization:Bearer ''${LINEAR_API_KEY}" \
+      "$@"
+  '';
+
 in
 {
   macos = [
@@ -95,6 +112,7 @@ in
     macos-bx
     macos-bw
     macos-o
+    macos-linear-mcp
   ];
 
   macos-work = [
@@ -108,5 +126,6 @@ in
     sandbox-bx
     sandbox-bw
     sandbox-o
+    sandbox-linear-mcp
   ];
 }

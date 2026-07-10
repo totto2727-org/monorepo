@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@totto2727/fp": "workspace:*",
+    "auth": "workspace:*",
     "better-auth": "catalog:auth",
     "effect": "catalog:effect",
     "effect-hono": "workspace:*",

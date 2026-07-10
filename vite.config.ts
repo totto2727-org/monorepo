@@ -31,7 +31,6 @@ export default defineConfig({
     useTabs: false,
   },
   lint: {
-    // @ts-expect-error Vite+ v0.2.1/Ultracite preset typing is narrower than the runtime-accepted preset array.
     extends: [core, react, remix, oxlintPluginPreset],
     ignorePatterns: [...ignorePatterns, '**/skills/**', '**/.script/**'],
     options: {
@@ -170,7 +169,7 @@ export default defineConfig({
     },
   },
   staged: {
-    '*': 'vp run fix',
+    '*': 'vp check --fix',
   },
   test: {
     dir: 'js/',

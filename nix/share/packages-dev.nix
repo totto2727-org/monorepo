@@ -4,7 +4,7 @@ with pkgs;
   # Coding
   lefthook
   just
-  nixfmt-rfc-style
+  nixfmt
   duckdb
   # Runtime
   nodejs
@@ -17,4 +17,5 @@ with pkgs;
   uv
   go
   rustup
+  beamPackages.erlang
 ]
