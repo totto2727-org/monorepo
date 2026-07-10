@@ -130,7 +130,7 @@ async fn json_extract_options(
       _ => None
     },
     html: match matches.values.get(json_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
+      Some([path, ..]) => Some(@path.Path::from_cli(path).read_text())
       _ => None
     },
     wait_until: match matches.values.get(json_wait_until_option) {
@@ -143,7 +143,7 @@ async fn json_extract_options(
     },
     response_format: match matches.values.get(json_schema_option) {
       Some([path, ..]) => {
-        let schema = @json.parse(@fs.read_file(path).text()) catch {
+        let schema = @json.parse(@path.Path::from_cli(path).read_text()) catch {
           error => fail("Invalid JSON schema file: \{error}")
         }
         Some(

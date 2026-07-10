@@ -144,7 +144,7 @@ async fn links_options(matches : @argparse.Matches) -> LinksOptionsInput {
       _ => None
     },
     html: match matches.values.get(links_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
+      Some([path, ..]) => Some(@path.Path::from_cli(path).read_text())
       _ => None
     },
     wait_until: match matches.values.get(links_wait_until_option) {

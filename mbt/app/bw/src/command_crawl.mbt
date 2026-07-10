@@ -35,7 +35,7 @@ struct CrawlStartOptionsInput {
   url : String?
   html : String?
   wait_until : String?
-  output : String?
+  output : @path.Path?
   limit : Int?
   depth : Int?
   formats : Array[String]?
@@ -46,7 +46,7 @@ struct CrawlGetOptionsInput {
   account_id : String
   api_token : String
   id : String
-  output : String?
+  output : @path.Path?
 }
 
 ///|
@@ -225,7 +225,7 @@ async fn crawl_start_options(
       _ => None
     },
     html: match matches.values.get(crawl_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
+      Some([path, ..]) => Some(@path.Path::from_cli(path).read_text())
       _ => None
     },
     wait_until: match matches.values.get(crawl_wait_until_option) {
@@ -233,7 +233,7 @@ async fn crawl_start_options(
       _ => None
     },
     output: match matches.values.get(crawl_output_option) {
-      Some([value, ..]) => Some(value)
+      Some([value, ..]) => Some(@path.Path::from_cli(value))
       _ => None
     },
     limit: match matches.values.get(crawl_limit_option) {
@@ -315,7 +315,7 @@ fn crawl_get_options(matches : @argparse.Matches) -> CrawlGetOptionsInput raise 
       _ => fail("missing required option: id")
     },
     output: match matches.values.get(crawl_output_option) {
-      Some([value, ..]) => Some(value)
+      Some([value, ..]) => Some(@path.Path::from_cli(value))
       _ => None
     },
   }

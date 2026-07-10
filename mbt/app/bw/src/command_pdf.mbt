@@ -29,7 +29,7 @@ struct PdfOptionsInput {
   url : String?
   html : String?
   wait_until : String?
-  output : String
+  output : @path.Path
   landscape : Bool
   format : String?
 }
@@ -167,7 +167,7 @@ async fn pdf_options(matches : @argparse.Matches) -> PdfOptionsInput {
       _ => None
     },
     html: match matches.values.get(pdf_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
+      Some([path, ..]) => Some(@path.Path::from_cli(path).read_text())
       _ => None
     },
     wait_until: match matches.values.get(pdf_wait_until_option) {
@@ -175,7 +175,7 @@ async fn pdf_options(matches : @argparse.Matches) -> PdfOptionsInput {
       _ => None
     },
     output: match matches.values.get(pdf_output_option) {
-      Some([value, ..]) => value
+      Some([value, ..]) => @path.Path::from_cli(value)
       _ => fail("missing required option: output")
     },
     landscape: matches.flags.get(pdf_landscape_option).unwrap_or(false),

@@ -26,7 +26,7 @@ struct SnapshotOptionsInput {
   url : String?
   html : String?
   wait_until : String?
-  output : String
+  output : @path.Path
   full_page : Bool
 }
 
@@ -163,7 +163,7 @@ async fn snapshot_options(matches : @argparse.Matches) -> SnapshotOptionsInput {
       _ => None
     },
     html: match matches.values.get(snapshot_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
+      Some([path, ..]) => Some(@path.Path::from_cli(path).read_text())
       _ => None
     },
     wait_until: match matches.values.get(snapshot_wait_until_option) {
@@ -171,7 +171,7 @@ async fn snapshot_options(matches : @argparse.Matches) -> SnapshotOptionsInput {
       _ => None
     },
     output: match matches.values.get(snapshot_output_option) {
-      Some([value, ..]) => value
+      Some([value, ..]) => @path.Path::from_cli(value)
       _ => fail("missing required option: output")
     },
     full_page: matches.flags.get(snapshot_full_page_option).unwrap_or(false),

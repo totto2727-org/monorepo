@@ -1,44 +1,39 @@
 ///|
-async fn write_text_or_stdout(output : String?, text : String) -> Unit {
+async fn write_text_or_stdout(output : @path.Path?, text : String) -> Unit {
   match output {
     Some(path) => {
-      @fs.write_file(path, text, create_mode=CreateOrTruncate)
-      println("Written to \{path}")
+      let file_path = path.to_string()
+      @fs.write_file(file_path, text, create_mode=CreateOrTruncate)
+      println("Written to \{file_path}")
     }
     None => println(text)
   }
 }
 
 ///|
-async fn write_binary(path : String, data : &@io.Data, label : String) -> Unit {
-  @fs.write_file(path, data, create_mode=CreateOrTruncate)
-  println("\{label} saved to \{path}")
-}
-
-///|
-fn snapshot_base_name(output : String) -> String {
-  let base = output.trim_end(chars="/").to_owned()
-  if base == "" {
-    "snapshot"
-  } else {
-    match base.rev_find("/") {
-      Some(index) => base[index + 1:].to_owned()
-      None => base
-    }
-  }
+async fn write_binary(
+  path : @path.Path,
+  data : &@io.Data,
+  label : String,
+) -> Unit {
+  let file_path = path.to_string()
+  @fs.write_file(file_path, data, create_mode=CreateOrTruncate)
+  println("\{label} saved to \{file_path}")
 }
 
 ///|
 async fn write_snapshot(
-  output : String,
+  output : @path.Path,
   content : String,
   screenshot : Bytes,
 ) -> Unit {
-  let dir = output.trim_end(chars="/").to_owned()
-  let dir = if dir == "" { "snapshot" } else { dir }
-  let name = snapshot_base_name(output)
-  @fs.mkdir(dir, recursive=true)
-  @fs.write_file("\{dir}/\{name}.html", content, create_mode=CreateOrTruncate)
-  @fs.write_file("\{dir}/\{name}.png", screenshot, create_mode=CreateOrTruncate)
-  println("Snapshot saved to \{dir}/")
+  let dir = output.snapshot_dir()
+  let name = output.snapshot_base_name()
+  let html_path = dir.join("\{name}.html").to_string()
+  let screenshot_path = dir.join("\{name}.png").to_string()
+  let dir_path = dir.to_string()
+  @fs.mkdir(dir_path, recursive=true)
+  @fs.write_file(html_path, content, create_mode=CreateOrTruncate)
+  @fs.write_file(screenshot_path, screenshot, create_mode=CreateOrTruncate)
+  println("Snapshot saved to \{dir_path}/")
 }

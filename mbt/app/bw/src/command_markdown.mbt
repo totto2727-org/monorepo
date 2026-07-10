@@ -23,7 +23,7 @@ struct MarkdownOptions {
   url : String?
   html : String?
   wait_until : String?
-  output : String?
+  output : @path.Path?
 }
 
 ///|
@@ -128,7 +128,7 @@ async fn markdown_options(matches : @argparse.Matches) -> MarkdownOptions {
       _ => None
     },
     html: match matches.values.get(markdown_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
+      Some([path, ..]) => Some(@path.Path::from_cli(path).read_text())
       _ => None
     },
     wait_until: match matches.values.get(markdown_wait_until_option) {
@@ -136,7 +136,7 @@ async fn markdown_options(matches : @argparse.Matches) -> MarkdownOptions {
       _ => None
     },
     output: match matches.values.get(markdown_output_option) {
-      Some([value, ..]) => Some(value)
+      Some([value, ..]) => Some(@path.Path::from_cli(value))
       _ => None
     },
   }

@@ -134,7 +134,7 @@ async fn scrape_options(matches : @argparse.Matches) -> ScrapeOptionsInput {
       _ => None
     },
     html: match matches.values.get(scrape_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
+      Some([path, ..]) => Some(@path.Path::from_cli(path).read_text())
       _ => None
     },
     wait_until: match matches.values.get(scrape_wait_until_option) {

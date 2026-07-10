@@ -32,7 +32,7 @@ struct ScreenshotOptionsInput {
   url : String?
   html : String?
   wait_until : String?
-  output : String
+  output : @path.Path
   full_page : Bool
   width : Int?
   height : Int?
@@ -208,7 +208,7 @@ async fn screenshot_options(
       _ => None
     },
     html: match matches.values.get(screenshot_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
+      Some([path, ..]) => Some(@path.Path::from_cli(path).read_text())
       _ => None
     },
     wait_until: match matches.values.get(screenshot_wait_until_option) {
@@ -216,7 +216,7 @@ async fn screenshot_options(
       _ => None
     },
     output: match matches.values.get(screenshot_output_option) {
-      Some([value, ..]) => value
+      Some([value, ..]) => @path.Path::from_cli(value)
       _ => fail("missing required option: output")
     },
     full_page: matches.flags.get(screenshot_full_page_option).unwrap_or(false),

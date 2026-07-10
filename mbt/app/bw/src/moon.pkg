@@ -9,6 +9,7 @@ import {
   "moonbitlang/async/http",
   "moonbitlang/async/io",
   "gmlewis/base64",
+  "totto2727/bw/path",
 }
 
 supported_targets = "native"
