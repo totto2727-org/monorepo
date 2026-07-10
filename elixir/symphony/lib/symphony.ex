@@ -41,8 +41,21 @@ defmodule Symphony.Application do
   end
 
   @impl true
+  def prep_stop(state) do
+    stop_opencode_connection()
+    state
+  end
+
+  @impl true
   def stop(_state) do
     Symphony.StatusDashboard.render_offline_status()
     :ok
+  end
+
+  defp stop_opencode_connection do
+    case Process.whereis(Symphony.Opencode.ConnectionManager) do
+      nil -> :ok
+      _pid -> Symphony.Opencode.ConnectionManager.stop_connection()
+    end
   end
 end
