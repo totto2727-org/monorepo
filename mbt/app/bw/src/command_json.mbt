@@ -20,6 +20,16 @@ let json_prompt_option = "prompt"
 let json_schema_option = "schema"
 
 ///|
+let json_format_option = "format"
+
+///|
+enum JsonExtractOutputFormat {
+  RawJson
+  Markdown
+  Text
+}
+
+///|
 struct JsonExtractOptionsInput {
   account_id : String
   api_token : String
@@ -28,6 +38,7 @@ struct JsonExtractOptionsInput {
   wait_until : String?
   prompt : String
   response_format : Json?
+  output_format : JsonExtractOutputFormat
 }
 
 ///|
@@ -95,7 +106,24 @@ fn json_extract_command_def() -> @admiral.CommandDef {
       required=true,
     ),
     @admiral.string(json_schema_option, description="Path to JSON Schema file"),
+    @admiral.string(
+      json_format_option,
+      description="Output format: json, markdown, text",
+    ),
   ])
+}
+
+///|
+fn parse_json_extract_output_format(
+  value : String,
+) -> JsonExtractOutputFormat raise {
+  match value {
+    "json" => RawJson
+    "markdown" => Markdown
+    "text" => Text
+    _ =>
+      fail("Invalid --format value: \{value}. Expected json, markdown, or text")
+  }
 }
 
 ///|
@@ -152,6 +180,49 @@ async fn json_extract_options(
       }
       _ => None
     },
+    output_format: match matches.values.get(json_format_option) {
+      Some([value, ..]) => parse_json_extract_output_format(value)
+      _ => RawJson
+    },
+  }
+}
+
+///|
+fn json_extract_result(raw : String) -> Json raise {
+  let parsed = @json.parse(raw) catch {
+    error => fail("Invalid json response JSON: \{error}")
+  }
+  match parsed {
+    Object({ "success": True, "result": result, .. }) => result
+    _ => fail("Invalid json response")
+  }
+}
+
+///|
+fn json_extract_result_text(raw : String) -> String raise {
+  match json_extract_result(raw) {
+    String(value) => value
+    result => result.stringify()
+  }
+}
+
+///|
+fn json_extract_result_markdown(raw : String) -> String raise {
+  match json_extract_result(raw) {
+    String(value) => value
+    result => "```json\n\{result.stringify()}\n```"
+  }
+}
+
+///|
+fn format_json_extract_response(
+  raw : String,
+  output_format : JsonExtractOutputFormat,
+) -> String raise {
+  match output_format {
+    RawJson => raw
+    Markdown => json_extract_result_markdown(raw)
+    Text => json_extract_result_text(raw)
   }
 }
 
@@ -185,5 +256,5 @@ async fn run_json_extract(matches : @argparse.Matches) -> Unit {
     body.to_json(),
   )
   ensure_success(code, reason, data)
-  println(data.text())
+  println(format_json_extract_response(data.text(), options.output_format))
 }

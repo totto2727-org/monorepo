@@ -169,7 +169,7 @@ export default defineConfig({
     },
   },
   staged: {
-    '*': 'vp run fix',
+    '*': "sh -c 'vp run w:fix'",
   },
   test: {
     dir: 'js/',
