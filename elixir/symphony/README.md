@@ -111,8 +111,6 @@ hooks:
 agent:
   max_concurrent_agents: 10
   max_turns: 20
-display:
-  language: Japanese
 ---
 
 You are working on a Linear issue {{ issue.identifier }}.
@@ -135,9 +133,6 @@ Notes:
   the per-turn wait timeout.
 - `agent.max_turns` caps how many back-to-back OpenCode turns Symphony will run in a single agent
   invocation when a turn completes normally but the issue is still in an active state. Default: `20`.
-- `display.language` controls the target language for Linear comment output. Use a clear English
-  language name such as `Japanese` or `English`, not a language code or country code such as `ja`,
-  `jp`, or `ja-JP`.
 - If the Markdown body is blank, Symphony uses a default prompt template that includes the issue
   identifier, title, and body.
 - Use `hooks.after_create` to bootstrap a fresh workspace. For a Git-backed repo, you can run

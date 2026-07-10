@@ -8,7 +8,6 @@ defmodule Symphony.WorkspaceAndConfigTest do
   alias Ecto.Changeset
   alias Symphony.Config.Schema
   alias Symphony.Linear.Client
-  alias Symphony.{Linear.CommentTranslator, OpencodeFakes}
 
   test "workspace bootstrap can be implemented in after_create hook" do
     test_root =
@@ -487,11 +486,8 @@ defmodule Symphony.WorkspaceAndConfigTest do
     assert log =~ "Variable \\\"$ids\\\" got invalid value"
   end
 
-  test "linear client sends comment bodies through translation agent using front matter language before graphql post" do
-    write_workflow_file!(Workflow.workflow_file_path(),
-      tracker_api_token: "token",
-      display_language: "French"
-    )
+  test "linear client sends comment mutation bodies unchanged" do
+    write_workflow_file!(Workflow.workflow_file_path(), tracker_api_token: "token")
 
     mutation = """
     mutation Create($input: CommentCreateInput!) {
@@ -502,129 +498,14 @@ defmodule Symphony.WorkspaceAndConfigTest do
     body = "Progress update"
 
     assert {:ok, %{"data" => %{"commentCreate" => %{"success" => true}}}} =
-             Client.graphql(mutation, %{input: %{issueId: "issue-1", body: body}},
-               translation_agent_fun: fn ^body, language, _opts ->
-                 send(self(), {:translation_agent_called, language})
-                 {:ok, "Mise à jour"}
-               end,
-               request_fun: fn payload, _headers ->
-                 assert get_in(payload, ["variables", :input, :body]) == "Mise à jour"
+              Client.graphql(mutation, %{input: %{issueId: "issue-1", body: body}},
+                request_fun: fn payload, _headers ->
+                  assert get_in(payload, ["variables", :input, :body]) == body
 
-                 {:ok,
-                  %{status: 200, body: %{"data" => %{"commentCreate" => %{"success" => true}}}}}
-               end
-             )
-
-    assert_received {:translation_agent_called, "French"}
-  end
-
-  test "linear client still sends same-language comment bodies through translation agent" do
-    write_workflow_file!(Workflow.workflow_file_path(),
-      tracker_api_token: "token",
-      display_language: "English"
-    )
-
-    mutation = """
-    mutation Create($issueId: String!, $body: String!) {
-      commentCreate(input: {issueId: $issueId, body: $body}) { success }
-    }
-    """
-
-    body = "Already English"
-
-    assert {:ok, %{"data" => %{"commentCreate" => %{"success" => true}}}} =
-             Client.graphql(mutation, %{issueId: "issue-1", body: body},
-               translation_agent_fun: fn ^body, "English", _opts ->
-                 send(self(), :same_language_agent_called)
-                 {:ok, body}
-               end,
-               request_fun: fn payload, _headers ->
-                 assert get_in(payload, ["variables", :body]) == body
-
-                 {:ok,
-                  %{status: 200, body: %{"data" => %{"commentCreate" => %{"success" => true}}}}}
-               end
-             )
-
-    assert_received :same_language_agent_called
-  end
-
-  test "linear client retries translation agent failures then posts original comment body" do
-    write_workflow_file!(Workflow.workflow_file_path(),
-      tracker_api_token: "token",
-      display_language: "German"
-    )
-
-    mutation = """
-    mutation Update($body: String!) {
-      commentUpdate(id: "comment-1", input: {body: $body}) { success }
-    }
-    """
-
-    body = "Keep original after failures"
-
-    assert {:ok, %{"data" => %{"commentUpdate" => %{"success" => true}}}} =
-             Client.graphql(mutation, %{body: body},
-               translation_retry_attempts: 3,
-               translation_agent_fun: fn ^body, "German", _opts ->
-                 send(self(), :translation_attempt)
-                 {:error, :agent_unavailable}
-               end,
-               request_fun: fn payload, _headers ->
-                 assert get_in(payload, ["variables", :body]) == body
-
-                 {:ok,
-                  %{status: 200, body: %{"data" => %{"commentUpdate" => %{"success" => true}}}}}
-               end
-             )
-
-    assert_received :translation_attempt
-    assert_received :translation_attempt
-    assert_received :translation_attempt
-    refute_received :translation_attempt
-  end
-
-  test "comment translator can use an opencode agent run to produce translated body" do
-    test_root =
-      Path.join(
-        System.tmp_dir!(),
-        "symphony-comment-translator-#{System.unique_integer([:positive])}"
-      )
-
-    try do
-      workspace_root = Path.join(test_root, "workspaces")
-      write_workflow_file!(Workflow.workflow_file_path(), workspace_root: workspace_root)
-
-      events = [
-        %{
-          type: "message.part.delta",
-          data: %{"properties" => %{"sessionID" => "ses_translate", "delta" => "Bonjour"}}
-        },
-        OpencodeFakes.EventStream.idle_event("ses_translate")
-      ]
-
-      assert {:ok, "Bonjour"} =
-               CommentTranslator.run_translation_agent("Hello", "French",
-                 translation_agent_opts: [
-                   client_opts: [test_pid: self(), session_id: "ses_translate", events: events],
-                   event_stream: OpencodeFakes.EventStream,
-                   server_module: OpencodeFakes.Server,
-                   server_opts: [test_pid: self(), url: "http://127.0.0.1:4999"],
-                   session_api: OpencodeFakes.SessionApi,
-                   turn_timeout_ms: 1_000
-                 ]
-               )
-
-      assert_received {:opencode_prompt_async, "ses_translate",
-                       %{parts: [%{text: "Hello"}], system: system}, _client}
-
-      assert system =~ "**Target language:** `French`"
-      assert system =~ "**Task:** Translate the user's input into the **target language**."
-      assert system =~ "**Output:** Only the final comment body"
-      refute system =~ "Hello"
-    after
-      File.rm_rf(test_root)
-    end
+                  {:ok,
+                   %{status: 200, body: %{"data" => %{"commentCreate" => %{"success" => true}}}}}
+                end
+              )
   end
 
   test "orchestrator sorts dispatch by priority then oldest created_at" do
@@ -963,7 +844,6 @@ defmodule Symphony.WorkspaceAndConfigTest do
     assert config.worker.max_concurrent_agents_per_host == nil
     assert config.agent.max_concurrent_agents == 10
     assert config.opencode.model == nil
-    assert config.display.language == nil
 
     assert config.opencode.turn_timeout_ms == 3_600_000
     assert config.opencode.stall_timeout_ms == 300_000
@@ -982,10 +862,6 @@ defmodule Symphony.WorkspaceAndConfigTest do
     )
 
     assert Config.settings!().opencode.model == "openai/gpt-5.5"
-
-    write_workflow_file!(Workflow.workflow_file_path(), display_language: " Japanese ")
-    assert Config.settings!().display.language == "Japanese"
-    assert Config.linear_output_language() == "Japanese"
 
     write_workflow_file!(Workflow.workflow_file_path(), tracker_active_states: ",")
     assert {:error, {:invalid_workflow_config, message}} = Config.validate!()
