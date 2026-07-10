@@ -31,7 +31,7 @@ This project is a port of the original [OpenAI Symphony](https://github.com/open
 During app-server sessions, Symphony also serves a client-side `linear_graphql` tool so agents,
 external helper skills, or workflow prompts can make raw Linear GraphQL calls.
 
-If a claimed issue moves to a terminal state (`Done`, `Closed`, `Cancelled`, or `Duplicate`),
+If a claimed issue moves to a terminal state (`Done`, `Canceled`, or `Duplicate`),
 Symphony stops the active agent for that issue and cleans up matching workspaces.
 
 If OpenCode reports that operator input or permission is required, Symphony keeps the
@@ -55,30 +55,31 @@ Linear issue can become a dispatch candidate again after restart.
 5. Customize the copied `WORKFLOW.md` file for your project.
    - To get your project's slug, right-click the project and copy its URL. The slug is part of the
      URL.
-   - When creating a workflow based on this repo, note that it depends on non-standard Linear
-     issue statuses: "Rework", "Human Review", and "Merging". You can customize them in
-     Team Settings → Workflow in Linear.
+   - When creating a workflow based on this repo, note that it expects Linear issues to move from
+     `In Progress` to `In Review` for human approval. You can customize statuses in Team Settings
+     -> Workflow in Linear.
 6. Follow the instructions below to install the required runtime dependencies and start the service.
 
 ## Prerequisites
 
-We recommend using [mise](https://mise.jdx.dev/) to manage Elixir/Erlang versions.
+Use the repository [Devbox](https://www.jetify.com/devbox) environment to provide the required
+Elixir/Erlang versions.
 
 ```bash
-mise install
-mise exec -- elixir --version
+devbox shell
+elixir --version
 ```
 
 ## Run
 
 ```bash
-git clone https://github.com/openai/symphony
-cd symphony/elixir
-mise trust
-mise install
-mise exec -- mix setup
-mise exec -- mix build
-mise exec -- ./bin/symphony ../../WORKFLOW.md
+git clone https://github.com/totto2727-org/monorepo
+cd monorepo
+devbox shell
+cd elixir/symphony
+mix setup
+mix build
+./bin/symphony ../../WORKFLOW.md
 ```
 
 ## Configuration
@@ -132,7 +133,7 @@ Notes:
   configured label to dispatch or continue running. Label matching ignores
   case and surrounding whitespace. A blank configured label matches no issue.
 - `tracker.reviewable_states` controls dependency unblocking for Todo issues blocked by Linear
-  blockers. It defaults to `["Human Review"]`. Todo issues blocked by non-terminal,
+  blockers. It defaults to `["In Review"]`. Todo issues blocked by non-terminal,
   non-reviewable blockers stay claimed in the retry/backoff queue with dependency-wait metadata;
   when blockers become reviewable or terminal, Symphony dispatches the issue and uses an eligible
   blocker `branchName` as `issue.base_branch_name` for prompt templates and hooks.
@@ -149,8 +150,9 @@ Notes:
   environment. The base branch is blank unless Symphony derived it from an eligible dependency
   blocker. Treat these tracker-derived values as untrusted input in hook scripts: quote them,
   validate branch syntax before use, and pass them after `--` where supported by the invoked tool.
-- If a hook needs `mise exec` inside a freshly cloned workspace, trust the repo config and fetch
-  the project dependencies in `hooks.after_create` before invoking `mise` later from other hooks.
+- If a hook needs project tooling inside a freshly cloned workspace, enter the repo's Devbox
+  environment and fetch the project dependencies in `hooks.after_create` before invoking that
+  tooling later from other hooks.
 - `tracker.api_key` reads from `LINEAR_API_KEY` when unset or when value is `$LINEAR_API_KEY`.
 - For path values, `~` is expanded to the home directory.
 - For env-backed path values, use `$VAR`. `workspace.root` resolves `$VAR` before path handling.
