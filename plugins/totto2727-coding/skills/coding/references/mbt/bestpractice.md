@@ -22,7 +22,7 @@
 - **No Abbreviations**: Do not abbreviate variable names unless they are common abbreviations (e.g., `id`, `json`). Avoid `p` for `point`, `ls` for `line_string`, etc.
 - **Collections**: Use the `_array` suffix for array arguments/variables instead of plural names (e.g., `polygon_array` instead of `polygons`).
 - **Constructors**: Always define the default constructor as a toplevel `fn TypeName::TypeName(...)` (the constructor's own name is the type name itself). The deprecated `fn new(..)` declaration inside the struct body must not be used. Factory functions use `new_hoge`/`from_hoge` naming — never `::new`.
-- **Immutable operations use the past-participle form** (mirroring TypeScript Array's `toSorted`/`toReversed`, Swift's `sorted`/`reversed`/`appended`). The bare verb (`sort`, `reverse`, `push`, `append`) denotes the **mutating** form; the past participle (`sorted`, `reversed`, `pushed`, `appended`) denotes the **non-mutating** form that returns a new value and leaves the receiver untouched. This rule applies to every method that has a mutable / immutable pair — array helpers, collection wrappers, in-place vs. value-object updates. Examples:
+- **Immutable operations use the past-participle form**. The bare verb (`sort`, `reverse`, `push`, `append`) denotes the **mutating** form; the past participle (`sorted`, `reversed`, `pushed`, `appended`) denotes the **non-mutating** form that returns a new value and leaves the receiver untouched. This rule applies to every method that has a mutable / immutable pair, including array helpers, collection wrappers, and in-place vs. value-object updates. Examples:
   - `array.sort()` (mutates) ↔ `array.sorted()` (returns sorted copy)
   - `array.push(x)` (mutates) ↔ `array.pushed(x)` (returns extended copy)
   - `polygon.push_interior(ring)` (mutating) ↔ `polygon.pushed_interior(ring)` (returns new `Polygon`)
@@ -159,7 +159,7 @@ A library function that returns a sequence of transformed elements should choose
 
   ```mbt check
   // Eager: builds Array immutably via Array::makei (size known up-front).
-  // Avoid `for + push` — see §3.12 for the immutable-array rule.
+  // Avoid `for + push`. See §3.13 for the immutable-array rule.
   pub fn LineString::lines(self : LineString) -> Array[Line] {
     let n = self.coords.length()
     if n < 2 {
@@ -186,9 +186,30 @@ A library function that returns a sequence of transformed elements should choose
   }
   ```
 
-  Note: the eager form intentionally uses `Array::makei` — never `Array::new(capacity=…)` followed by a `for` + `push` loop. When the output length is known ahead of time, `makei` is both shorter and the immutable canonical form (see §3.12). The lazy form is the only place where local mutation (the `mut i` cursor) is appropriate, because that mutation is encapsulated inside the iterator closure and cannot be observed from outside.
+  Note: the eager form intentionally uses `Array::makei`, never `Array::new(capacity=…)` followed by a `for` + `push` loop. When the output length is known ahead of time, `makei` is both shorter and the immutable canonical form (see §3.13). The lazy form is the only place where local mutation (the `mut i` cursor) is appropriate, because that mutation is encapsulated inside the iterator closure and cannot be observed from outside.
 
-### 3.3 Error Handling
+### 3.3 Structural APIs and Boundaries
+
+Use structural APIs for structured data. Do not assemble paths, JSON, shell fragments, or domain payloads with string concatenation when a typed API exists.
+
+For paths, use `@path.Path::join` instead of joining strings by hand. For paths with more than two segments, write the construction as a pipeline so each segment is visible and ordered:
+
+```mbt check
+let skill_dir = root
+  |> @path.Path::join(".agents")
+  |> @path.Path::join("skills")
+  |> @path.Path::join(skill_name)
+```
+
+For JSON, work with `Json` values and `ToJson`. Never build JSON by concatenating strings. Prefer direct `Json::object({ ... })` construction, pattern matching for variants, and explicit `ToJson` implementations for boundary types.
+
+Use `Map[String, Json]` only when the wire format distinguishes omitted fields from explicit `Json::null()` values, or when a dynamic key set cannot be expressed directly with `Json::object({ ... })`. When omission is required by an external API, keep the map inside the one `to_json` implementation that needs it.
+
+Avoid meaningless thin wrappers. A helper that only renames one standard call, hides no domain rule, and has one call site should not exist. Keep a wrapper only when it captures a real invariant, owns domain discovery, or gives callers a typed boundary they could not otherwise express.
+
+Push domain discovery and resolution into libraries. CLIs, scripts, and application entry points should ask a library for resolved concepts rather than reimplementing filesystem walks, lock-file lookup, package discovery, or naming rules inline.
+
+### 3.4 Error Handling
 
 Use the `raise` effect for functions that can fail instead of returning `Result` types for synchronous logic.
 
@@ -209,7 +230,7 @@ suberror E3 {
 **Raising errors:**
 
 - Custom error: `raise DivError("division by zero")`
-- Generic failure: `fail("message")` — convenience function that raises `Failure` type with source location
+- Generic failure: `fail("message")`. Prefer `fail(...)` for generic failures because it uses the standard failure output and reports the call-site source location. Use it directly, never as `raise fail(...)`.
 
 **Function signatures:**
 
@@ -261,10 +282,12 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
 
 **Best practices:**
 
-- Prefer `raise` effect over `Result` for synchronous code
-- In tests, let errors propagate or use `guard` to assert success
+- Prefer `raise` effect over `Result` for synchronous code.
+- Use `fail("message")` for generic failures. It uses the standard failure output and reports the call-site source location.
+- Catch only failures the current scope can recover from. If the caller can make a better decision, let the error propagate.
+- In tests, let errors propagate or use `guard` to assert success.
 
-### 3.4 Pattern Matching & Guards
+### 3.5 Pattern Matching & Guards
 
 - **Avoid `if` for Validation**: Use `guard` instead:
 
@@ -276,7 +299,7 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
   - **General Code**: Always provide an explicit fallback using `else`:
 
     ```mbt check
-    guard hoge is Hoge(fuga) else { raise fail("Message") }
+    guard hoge is Hoge(fuga) else { fail("Message") }
     ```
 
   - **Tests**: Use `guard` without fallback for better readability:
@@ -286,6 +309,7 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
     ```
 
 - Use `match` for exhaustive handling of Enums.
+- Model finite states as enums with `derive(Eq)` when equality is meaningful, then compare states directly. Do not replace a finite state with strings, booleans, or wrapper structs unless the domain has extra data to carry.
 - Use **Labeled Arguments/Punners** (`~`) in patterns and constructors when variable names match field names:
 
   ```mbt check
@@ -294,7 +318,7 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
   }
   ```
 
-### 3.5 Functions
+### 3.6 Functions
 
 - **Anonymous Functions**: Prefer arrow syntax `args => body` over `fn` keyword `fn(args) { body }`.
 - **Local `fn` annotation**: Local `fn` definitions must explicitly annotate `raise`/`async` effects. Inference for local `fn` is deprecated. Arrow functions are unaffected.
@@ -306,7 +330,7 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
   }
   ```
 
-### 3.6 Structs & Enums
+### 3.7 Structs & Enums
 
 - **Enum Wrapping Structs**: Define independent Structs for each variant, then wrap them in the Enum. Use the same name for the Variant and the Struct.
 
@@ -328,13 +352,13 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
   struct MyStruct { ... } derive(Debug, Eq)
   ```
 
-- **Constructor qualified names**: Built-in constructors require qualified names (e.g., `Failure::Failure`). Constructors with arguments cannot be used as higher-order functions; use a wrapper:
+- **Constructor qualified names**: Built-in constructors require qualified names. Constructors with arguments cannot be used as higher-order functions; use a wrapper:
 
   ```mbt check
   let f = x => Some(x)
   ```
 
-### 3.7 Traits
+### 3.8 Traits
 
 - **Definition Notation**:
 
@@ -351,7 +375,7 @@ When `f` is `noraise`, `map` is also `noraise`. When `f` raises, `map` raises.
   2. **Trait Object Delegation**: When implementing a super-trait for a type that also implements a sub-trait, define the logic as a static function on the sub-trait's object and relay to it.
   3. **Direct Implementation**: If delegation is not possible or creates circular dependencies, implement the method directly on the type.
 
-### 3.8 Cascade Operator
+### 3.9 Cascade Operator
 
 `x..f()` is equivalent to `{ x.f(); x }` — for methods returning `Unit`.
 
@@ -365,7 +389,7 @@ let result = StringBuilder::new()
 
 Enables chaining mutable operations without modifying return types. Compiler warns if result is ignored.
 
-### 3.9 Range Syntax
+### 3.10 Range Syntax
 
 - `a..<b`: exclusive upper bound (increasing)
 - `a..<=b`: inclusive upper bound (increasing) — replaces deprecated `a..=b`
@@ -377,7 +401,7 @@ for i in 0..<10 { ... }
 for i in 10>=..0 { ... }
 ```
 
-### 3.10 Loop `nobreak`
+### 3.11 Loop `nobreak`
 
 Replaces old loop `else`. Executes when the loop condition becomes false.
 
@@ -392,7 +416,7 @@ let r = while i > 0 {
 
 `break` must provide a value matching the `nobreak` return type.
 
-### 3.11 `declare` Keyword
+### 3.12 `declare` Keyword
 
 Similar to Rust's `todo!` macro. Use `declare` before function definitions to indicate specification-only declarations. Missing implementations generate warnings (not errors).
 
@@ -400,7 +424,7 @@ Similar to Rust's `todo!` macro. Use `declare` before function definitions to in
 declare fn add(x : Int, y : Int) -> Int
 ```
 
-### 3.12 Array & Collection Operations
+### 3.13 Array & Collection Operations
 
 `Array[T]` in MoonBit is a growable, mutable buffer (Rust `Vec` equivalent). Its API exposes both mutating helpers (`push`, `append`, `sort`, `reverse`, `clear`, ...) and non-mutating helpers (`map`, `filter`, `iter()`, `Array::makei`, spread literals `[..a, x]`, etc.). **Default to the immutable form everywhere.** Mutation is a last-resort optimisation, not a default mode.
 
@@ -495,10 +519,10 @@ For sorting, prefer `array.sorted()` (or `iter().collect()` + a sorted-by combin
 Mutation is only legitimate inside **encapsulated, single-owner** contexts where it cannot escape:
 
 - **Iterator cursors** (e.g. `let mut i = 0` captured by a closure inside `Iter::new`). The mutation lives entirely inside the closure and is invisible to callers.
-- **Builder types** with mutable internals that only expose `set_*` (per §3.1) and a finalising `build()`. The mutable buffer is owned by the builder and never leaks.
-- **Measured hot paths** where profiling has shown that `Array::makei` + spread literals are too slow for the workload. Document the reason in a one-line comment, copy the input, mutate the copy, return the result — and never let the mutable buffer cross another function boundary.
+- **Builder types** with mutable internals that only expose `set_*` (per section 3.1) and a finalising `build()`. The mutable buffer is owned by the builder and never leaks.
+- **Measured hot paths** where profiling has shown that `Array::makei` + spread literals are too slow for the workload. Document the reason in a one-line comment, copy the input, mutate the copy, return the result, and never let the mutable buffer cross another function boundary.
 
-Outside these three cases, default to the immutable construction patterns above. **`for i = 0; i < n; i = i + 1 { result.push(...) }` is almost always rewritable with `Array::makei`** — reach for `makei` first and only fall back to a loop when the per-step logic genuinely cannot be expressed as a function of the index.
+Outside these three cases, default to the immutable construction patterns above. **`for i = 0; i < n; i = i + 1 { result.push(...) }` is almost always rewritable with `Array::makei`**. Reach for `makei` first and only fall back to a loop when the per-step logic genuinely cannot be expressed as a function of the index.
 
 #### Immutable collection refactor review checklist
 
@@ -580,4 +604,4 @@ See [MoonBit Testing Standards](../../../test/references/mbt/bestpractice.md) fo
 
 ## 7. CLI Applications
 
-See [MoonBit CLI Application Implementation](./cli-application.md) for the required command structure and JSON/request-body rules. Use `bw` as the reference implementation shape, while treating that guide as normative when it is stricter than existing code.
+See [MoonBit CLI Application Implementation](./cli-application.md) for the required command structure and JSON/request-body rules. Treat that guide as normative for CLI code; existing implementations should be updated when they disagree with it.
