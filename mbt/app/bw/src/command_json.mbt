@@ -100,16 +100,13 @@ fn json_extract_command_def() -> @admiral.CommandDef {
     @admiral.string(json_url_option, description="Target URL"),
     @admiral.string(json_html_option, description="Path to local HTML file"),
     @admiral.string(json_wait_until_option, description="Page load strategy"),
-    @admiral.string(
-      json_prompt_option,
-      description="Extraction prompt",
-      required=true,
-    ),
+    @admiral.string(json_prompt_option, description="Extraction prompt"),
     @admiral.string(json_schema_option, description="Path to JSON Schema file"),
     @admiral.string(
       json_format_option,
       description="Output format: json, markdown, text",
     ),
+    @admiral.string(config_option, description="Path to JSON config file"),
   ])
 }
 
@@ -130,58 +127,28 @@ fn parse_json_extract_output_format(
 async fn json_extract_options(
   matches : @argparse.Matches,
 ) -> JsonExtractOptionsInput {
+  let config = load_config(matches)
   {
-    account_id: match matches.values.get(json_account_id_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_account_id_env) {
-          Some(value) => value
-          None =>
-            fail(
-              "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
-            )
-        }
+    account_id: merged_account_id(matches, config),
+    api_token: merged_api_token(matches, config),
+    url: merge_string(cli_string(matches, json_url_option), config.url),
+    html: merged_html(matches, json_html_option, config),
+    wait_until: merge_string(
+      cli_string(matches, json_wait_until_option),
+      config.wait_until,
+    ),
+    prompt: required_value(
+      "prompt",
+      merge_string(cli_string(matches, json_prompt_option), config.prompt),
+    ),
+    response_format: match
+      merge_string(cli_string(matches, json_schema_option), config.schema) {
+      Some(path) => Some(schema_response_format(path))
+      None => None
     },
-    api_token: match matches.values.get(json_api_token_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_api_token_env) {
-          Some(value) => value
-          None =>
-            fail(
-              "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
-            )
-        }
-    },
-    url: match matches.values.get(json_url_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    html: match matches.values.get(json_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
-      _ => None
-    },
-    wait_until: match matches.values.get(json_wait_until_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    prompt: match matches.values.get(json_prompt_option) {
-      Some([value, ..]) => value
-      _ => fail("missing required option: prompt")
-    },
-    response_format: match matches.values.get(json_schema_option) {
-      Some([path, ..]) => {
-        let schema = @json.parse(@fs.read_file(path).text()) catch {
-          error => fail("Invalid JSON schema file: \{error}")
-        }
-        Some(
-          Json::object({ "schema": schema, "type": "json_schema".to_json() }),
-        )
-      }
-      _ => None
-    },
-    output_format: match matches.values.get(json_format_option) {
-      Some([value, ..]) => parse_json_extract_output_format(value)
+    output_format: match
+      merge_string(cli_string(matches, json_format_option), config.format) {
+      Some(value) => parse_json_extract_output_format(value)
       _ => RawJson
     },
   }
@@ -230,9 +197,7 @@ fn format_json_extract_response(
 fn JsonExtractBody::from_options(
   options : JsonExtractOptionsInput,
 ) -> JsonExtractBody raise {
-  guard options.url is Some(_) || options.html is Some(_) else {
-    fail("Either --url or --html is required")
-  }
+  required_body_source(options.url, options.html)
   {
     url: options.url,
     html: options.html,

@@ -95,58 +95,32 @@ fn markdown_command_def() -> @admiral.CommandDef {
       short='o',
       description="Output file path",
     ),
+    @admiral.string(config_option, description="Path to JSON config file"),
   ])
 }
 
 ///|
 async fn markdown_options(matches : @argparse.Matches) -> MarkdownOptions {
+  let config = load_config(matches)
   {
-    account_id: match matches.values.get(markdown_account_id_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_account_id_env) {
-          Some(value) => value
-          None =>
-            fail(
-              "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
-            )
-        }
-    },
-    api_token: match matches.values.get(markdown_api_token_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_api_token_env) {
-          Some(value) => value
-          None =>
-            fail(
-              "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
-            )
-        }
-    },
-    url: match matches.values.get(markdown_url_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    html: match matches.values.get(markdown_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
-      _ => None
-    },
-    wait_until: match matches.values.get(markdown_wait_until_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    output: match matches.values.get(markdown_output_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
+    account_id: merged_account_id(matches, config),
+    api_token: merged_api_token(matches, config),
+    url: merge_string(cli_string(matches, markdown_url_option), config.url),
+    html: merged_html(matches, markdown_html_option, config),
+    wait_until: merge_string(
+      cli_string(matches, markdown_wait_until_option),
+      config.wait_until,
+    ),
+    output: merge_string(
+      cli_string(matches, markdown_output_option),
+      config.output,
+    ),
   }
 }
 
 ///|
 fn MarkdownBody::from_options(options : MarkdownOptions) -> MarkdownBody raise {
-  guard options.url is Some(_) || options.html is Some(_) else {
-    fail("Either --url or --html is required")
-  }
+  required_body_source(options.url, options.html)
   {
     url: options.url,
     html: options.html,

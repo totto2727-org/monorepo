@@ -92,58 +92,32 @@ fn content_command_def() -> @admiral.CommandDef {
       short='o',
       description="Output file path",
     ),
+    @admiral.string(config_option, description="Path to JSON config file"),
   ])
 }
 
 ///|
 async fn content_options(matches : @argparse.Matches) -> ContentOptions {
+  let config = load_config(matches)
   {
-    account_id: match matches.values.get(content_account_id_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_account_id_env) {
-          Some(value) => value
-          None =>
-            fail(
-              "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
-            )
-        }
-    },
-    api_token: match matches.values.get(content_api_token_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_api_token_env) {
-          Some(value) => value
-          None =>
-            fail(
-              "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
-            )
-        }
-    },
-    url: match matches.values.get(content_url_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    html: match matches.values.get(content_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
-      _ => None
-    },
-    wait_until: match matches.values.get(content_wait_until_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    output: match matches.values.get(content_output_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
+    account_id: merged_account_id(matches, config),
+    api_token: merged_api_token(matches, config),
+    url: merge_string(cli_string(matches, content_url_option), config.url),
+    html: merged_html(matches, content_html_option, config),
+    wait_until: merge_string(
+      cli_string(matches, content_wait_until_option),
+      config.wait_until,
+    ),
+    output: merge_string(
+      cli_string(matches, content_output_option),
+      config.output,
+    ),
   }
 }
 
 ///|
 fn ContentBody::from_options(options : ContentOptions) -> ContentBody raise {
-  guard options.url is Some(_) || options.html is Some(_) else {
-    fail("Either --url or --html is required")
-  }
+  required_body_source(options.url, options.html)
   {
     url: options.url,
     html: options.html,

@@ -165,7 +165,6 @@ fn screenshot_command_def() -> @admiral.CommandDef {
       screenshot_output_option,
       short='o',
       description="Output file path",
-      required=true,
     ),
     @admiral.bool(
       screenshot_full_page_option,
@@ -173,6 +172,7 @@ fn screenshot_command_def() -> @admiral.CommandDef {
     ),
     @admiral.int(screenshot_width_option, description="Viewport width"),
     @admiral.int(screenshot_height_option, description="Viewport height"),
+    @admiral.string(config_option, description="Path to JSON config file"),
   ])
 }
 
@@ -180,54 +180,27 @@ fn screenshot_command_def() -> @admiral.CommandDef {
 async fn screenshot_options(
   matches : @argparse.Matches,
 ) -> ScreenshotOptionsInput {
+  let config = load_config(matches)
   {
-    account_id: match matches.values.get(screenshot_account_id_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_account_id_env) {
-          Some(value) => value
-          None =>
-            fail(
-              "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
-            )
-        }
-    },
-    api_token: match matches.values.get(screenshot_api_token_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_api_token_env) {
-          Some(value) => value
-          None =>
-            fail(
-              "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
-            )
-        }
-    },
-    url: match matches.values.get(screenshot_url_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    html: match matches.values.get(screenshot_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
-      _ => None
-    },
-    wait_until: match matches.values.get(screenshot_wait_until_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    output: match matches.values.get(screenshot_output_option) {
-      Some([value, ..]) => value
-      _ => fail("missing required option: output")
-    },
-    full_page: matches.flags.get(screenshot_full_page_option).unwrap_or(false),
-    width: match matches.values.get(screenshot_width_option) {
-      Some([value, ..]) => Some(@string.parse_int(value))
-      _ => None
-    },
-    height: match matches.values.get(screenshot_height_option) {
-      Some([value, ..]) => Some(@string.parse_int(value))
-      _ => None
-    },
+    account_id: merged_account_id(matches, config),
+    api_token: merged_api_token(matches, config),
+    url: merge_string(cli_string(matches, screenshot_url_option), config.url),
+    html: merged_html(matches, screenshot_html_option, config),
+    wait_until: merge_string(
+      cli_string(matches, screenshot_wait_until_option),
+      config.wait_until,
+    ),
+    output: required_value(
+      "output",
+      merge_string(cli_string(matches, screenshot_output_option), config.output),
+    ),
+    full_page: merge_bool(
+      matches.flags.get(screenshot_full_page_option).unwrap_or(false),
+      config.full_page,
+      false,
+    ),
+    width: merge_int(cli_int(matches, screenshot_width_option), config.width),
+    height: merge_int(cli_int(matches, screenshot_height_option), config.height),
   }
 }
 
@@ -235,9 +208,7 @@ async fn screenshot_options(
 fn ScreenshotBody::from_options(
   options : ScreenshotOptionsInput,
 ) -> ScreenshotBody raise {
-  guard options.url is Some(_) || options.html is Some(_) else {
-    fail("Either --url or --html is required")
-  }
+  required_body_source(options.url, options.html)
   {
     url: options.url,
     html: options.html,

@@ -123,58 +123,37 @@ fn snapshot_command_def() -> @admiral.CommandDef {
         snapshot_output_option,
         short='o',
         description="Output directory",
-        required=true,
       ),
       @admiral.bool(
         snapshot_full_page_option,
         description="Capture entire page",
       ),
+      @admiral.string(config_option, description="Path to JSON config file"),
     ],
   )
 }
 
 ///|
 async fn snapshot_options(matches : @argparse.Matches) -> SnapshotOptionsInput {
+  let config = load_config(matches)
   {
-    account_id: match matches.values.get(snapshot_account_id_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_account_id_env) {
-          Some(value) => value
-          None =>
-            fail(
-              "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
-            )
-        }
-    },
-    api_token: match matches.values.get(snapshot_api_token_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_api_token_env) {
-          Some(value) => value
-          None =>
-            fail(
-              "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
-            )
-        }
-    },
-    url: match matches.values.get(snapshot_url_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    html: match matches.values.get(snapshot_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
-      _ => None
-    },
-    wait_until: match matches.values.get(snapshot_wait_until_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    output: match matches.values.get(snapshot_output_option) {
-      Some([value, ..]) => value
-      _ => fail("missing required option: output")
-    },
-    full_page: matches.flags.get(snapshot_full_page_option).unwrap_or(false),
+    account_id: merged_account_id(matches, config),
+    api_token: merged_api_token(matches, config),
+    url: merge_string(cli_string(matches, snapshot_url_option), config.url),
+    html: merged_html(matches, snapshot_html_option, config),
+    wait_until: merge_string(
+      cli_string(matches, snapshot_wait_until_option),
+      config.wait_until,
+    ),
+    output: required_value(
+      "output",
+      merge_string(cli_string(matches, snapshot_output_option), config.output),
+    ),
+    full_page: merge_bool(
+      matches.flags.get(snapshot_full_page_option).unwrap_or(false),
+      config.full_page,
+      false,
+    ),
   }
 }
 
@@ -182,9 +161,7 @@ async fn snapshot_options(matches : @argparse.Matches) -> SnapshotOptionsInput {
 fn SnapshotBody::from_options(
   options : SnapshotOptionsInput,
 ) -> SnapshotBody raise {
-  guard options.url is Some(_) || options.html is Some(_) else {
-    fail("Either --url or --html is required")
-  }
+  required_body_source(options.url, options.html)
   {
     url: options.url,
     html: options.html,
