@@ -145,7 +145,7 @@ async fn with_timeout(timeout : Int, f : async () -> Unit) -> Unit {
   @async.with_task_group(group => {
     group.spawn_bg(no_wait=true, () => {
       @async.sleep(timeout)
-      raise Failure::Failure("timeout!")
+      fail("timeout!")
     })
     f()
   })

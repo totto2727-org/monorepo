@@ -1,0 +1,23 @@
+import {
+  "mizchi/admiral",
+  "package/target-file-discovery" @target_file_discovery,
+  "moonbitlang/core/argparse",
+  "moonbitlang/core/env",
+  "moonbitlang/core/json",
+  "moonbitlang/core/string",
+  "moonbitlang/x/path",
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/io",
+  "moonbitlang/async/process",
+}
+
+supported_targets = "native"
+
+import {
+  "totto2727/c-plugin/test_support",
+} for "wbtest"
+
+options(
+  "is-main": true,
+)
