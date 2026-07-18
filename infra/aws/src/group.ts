@@ -17,12 +17,4 @@ const createGroup = (name: string, displayName: string) =>
 
 export const admin = createGroup('admin', 'Admin')
 
-export const gitea = createGroup('gitea', 'Gitea')
-
-export const argocd = createGroup('argocd', 'Argo CD')
-
 export const cloudflareAccess = createGroup('cloudflare-access', 'Cloudflare Access')
-
-export const mcp = createGroup('mcp', 'MCP')
-
-export const portal = createGroup('portal', 'Portal')

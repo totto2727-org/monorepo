@@ -31,17 +31,6 @@ const createGroupMembership = ({
     },
   )
 
-export const giteaTotto2727 = createGroupMembership({
-  group: {
-    id: group.gitea.groupId,
-    name: 'gitea',
-  },
-  user: {
-    id: user.totto2727.userId,
-    name: 'totto2727',
-  },
-})
-
 export const adminTotto2727 = createGroupMembership({
   group: {
     id: group.admin.groupId,
@@ -53,42 +42,10 @@ export const adminTotto2727 = createGroupMembership({
   },
 })
 
-export const argocdTotto2727 = createGroupMembership({
-  group: {
-    id: group.argocd.groupId,
-    name: 'argocd',
-  },
-  user: {
-    id: user.totto2727.userId,
-    name: 'totto2727',
-  },
-})
 export const cloudflareAccessTotto2727 = createGroupMembership({
   group: {
     id: group.cloudflareAccess.groupId,
     name: 'cloudflare-access',
-  },
-  user: {
-    id: user.totto2727.userId,
-    name: 'totto2727',
-  },
-})
-
-export const mcpTotto2727 = createGroupMembership({
-  group: {
-    id: group.mcp.groupId,
-    name: 'mcp',
-  },
-  user: {
-    id: user.totto2727.userId,
-    name: 'totto2727',
-  },
-})
-
-export const portalTotto2727 = createGroupMembership({
-  group: {
-    id: group.portal.groupId,
-    name: 'portal',
   },
   user: {
     id: user.totto2727.userId,
