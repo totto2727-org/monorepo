@@ -36,13 +36,51 @@ export const pulumiRole = new aws.iam.Role(
       ],
       Version: '2012-10-17',
     },
-    managedPolicyArns: [
-      'arn:aws:iam::aws:policy/AWSOrganizationsFullAccess',
-      'arn:aws:iam::aws:policy/AWSSSODirectoryAdministrator',
-      'arn:aws:iam::aws:policy/AWSSSOMasterAccountAdministrator',
-      'arn:aws:iam::aws:policy/IAMFullAccess',
-    ],
     name: 'pulumi',
+  },
+  {
+    protect: true,
+  },
+)
+
+const policyArns = [
+  {
+    arn: 'arn:aws:iam::aws:policy/AWSOrganizationsFullAccess',
+    name: 'aws-organizations',
+  },
+  {
+    arn: 'arn:aws:iam::aws:policy/AWSSSODirectoryAdministrator',
+    name: 'sso-directory-administrator',
+  },
+  {
+    arn: 'arn:aws:iam::aws:policy/AWSSOMasterAccountAdministrator',
+    name: 'sso-master-account-administrator',
+  },
+  {
+    arn: 'arn:aws:iam::aws:policy/IAMFullAccess',
+    name: 'iam',
+  },
+] as const
+
+export const pulumiRolePolicies = policyArns.map(
+  ({ arn, name }) =>
+    new aws.iam.RolePolicyAttachment(
+      `pulumi-${name}`,
+      {
+        policyArn: arn,
+        role: pulumiRole.name,
+      },
+      {
+        protect: true,
+      },
+    ),
+)
+
+export const pulumiRolePoliciesExclusive = new aws.iam.RolePolicyAttachmentsExclusive(
+  'pulumi-policies-exclusive',
+  {
+    policyArns: policyArns.map(({ arn }) => arn),
+    roleName: pulumiRole.name,
   },
   {
     protect: true,
