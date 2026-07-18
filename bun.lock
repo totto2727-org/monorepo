@@ -31,9 +31,7 @@
         "@pulumi/aws": "catalog:pulumi",
         "@pulumi/pulumi": "catalog:pulumi",
         "@totto2727/fp": "workspace:*",
-        "@types/node": "catalog:types",
         "effect": "catalog:effect",
-        "typescript": "catalog:build",
       },
     },
     "infra/cloudflare": {
@@ -42,9 +40,7 @@
         "@pulumi/cloudflare": "catalog:pulumi",
         "@pulumi/pulumi": "catalog:pulumi",
         "@totto2727/fp": "workspace:*",
-        "@types/node": "catalog:types",
         "effect": "catalog:effect",
-        "typescript": "catalog:build",
       },
     },
     "js/app/feed-platform-backend": {

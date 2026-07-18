@@ -1,9 +1,6 @@
 name: cloudflare
 description: A minimal TypeScript Pulumi program
-runtime:
-  name: nodejs
-  options:
-    packagemanager: bun
+runtime: bun
 config:
   pulumi:tags:
     value:

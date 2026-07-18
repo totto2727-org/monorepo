@@ -9,7 +9,8 @@
     "mbt/app/*",
     "go/app/*",
     "nix",
-    "elixir/*"
+    "elixir/*",
+    "infra/*"
   ],
   "type": "module",
   "scripts": {},

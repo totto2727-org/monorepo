@@ -7,8 +7,6 @@
     "@pulumi/aws": "catalog:pulumi",
     "@pulumi/pulumi": "catalog:pulumi",
     "@totto2727/fp": "workspace:*",
-    "@types/node": "catalog:types",
-    "effect": "catalog:effect",
-    "typescript": "catalog:build"
+    "effect": "catalog:effect"
   }
 }

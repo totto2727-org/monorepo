@@ -5,6 +5,7 @@ This guide covers the deployment workflow for AWS and Cloudflare infrastructure 
 ## Prerequisites
 
 - Pulumi CLI installed
+  - `brew install pulumi`
 - AWS CLI configured
 - Cloudflare API token configured in Pulumi ESC
 
