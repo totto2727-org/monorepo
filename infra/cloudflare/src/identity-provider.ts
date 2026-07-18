@@ -3,7 +3,7 @@ import * as cloudflare from '@pulumi/cloudflare'
 import * as config from './config.ts'
 
 export const awsSaml = new cloudflare.ZeroTrustAccessIdentityProvider(
-  'aws-saml-identity-provider',
+  config.resourceName('aws-saml-identity-provider'),
   {
     accountId: config.accountID,
     config: {
@@ -12,36 +12,34 @@ export const awsSaml = new cloudflare.ZeroTrustAccessIdentityProvider(
       idpPublicCerts: [
         `
 -----BEGIN CERTIFICATE-----
-MIIDBzCCAe+gAwIBAgIFALZdmCYwDQYJKoZIhvcNAQELBQAwRTEWMBQGA1UEAwwN
-YW1hem9uYXdzLmNvbTENMAsGA1UECwwESURBUzEPMA0GA1UECgwGQW1hem9uMQsw
-CQYDVQQGEwJVUzAeFw0yNDAzMTkxMjQ2NTVaFw0yOTAzMTkxMjQ2NTVaMEUxFjAU
-BgNVBAMMDWFtYXpvbmF3cy5jb20xDTALBgNVBAsMBElEQVMxDzANBgNVBAoMBkFt
-YXpvbjELMAkGA1UEBhMCVVMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
-AQDF0OKkT45yJ63yTUJywjqFhijlYeMQY2C88Hf4NlhHIeYJVCz8rc2sfaEOSsIW
-MTCsuIN5KivwEdDFxAz210JrbLeeIWTF6TfMXC5Diqmv8DEca8VtcoPttpU2YkTC
-nq+1ftxQudKI1NuscvKk79f9DvDR1U5S69z6kZygNDaFxSwuq6IO6Bp3CBRCkErf
-WYqnpCJoOgq6OgoMWAFMh1pcf06c0ZGSB4468a9rRTlcWcA6yikXMPWiFj/QfXnW
-rBI2C0ENHuZc8nS91yX5CC0cSNS/Ud5HFyp513HHRZHm5DdYIuCgU34IS3CkcHt/
-CsLuYBxr87U9yhK248reJznpAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAJxY2Dna
-ORkbgCEHe82lziL0gM69Vw6HKP0QdyUcUdJcxWO4ayBEAxLjBkm4mkPlSDRhs+1s
-mYH6v7Bo86QCEMh/IfuX9GiYIkVSGjxpoP2T3TD2WiJUi+dau+qD0sSri/vYdtth
-l70gPQIcLsK37heTuRsA0opHyp/eO23zHZtkQbXgBvqrEEeh4YXuyPL9zNyiSN2c
-U9HV6tGa5p8dAWvI5wbK6026scmuWpiJwaI4cYOnNLUgN+vimXUQVqWs2TRiBzxU
-5CBJZLyoXg0yt9E9sN9MI5swaCU4+6yNpRDr3Qq2MoKRl5YQ4MuJBbznwPYA4TFA
-U14U+SF7/wpBQvc=
+MIIDBjCCAe6gAwIBAgIEPm9NETANBgkqhkiG9w0BAQsFADBFMRYwFAYDVQQDDA1h
+bWF6b25hd3MuY29tMQ0wCwYDVQQLDARJREFTMQ8wDQYDVQQKDAZBbWF6b24xCzAJ
+BgNVBAYTAlVTMB4XDTI2MDcxODEzNDg0N1oXDTMxMDcxODEzNDg0N1owRTEWMBQG
+A1UEAwwNYW1hem9uYXdzLmNvbTENMAsGA1UECwwESURBUzEPMA0GA1UECgwGQW1h
+em9uMQswCQYDVQQGEwJVUzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+ANdvichSyKxbrPO5ce904JgpVqfIFJgdaDM+TxA+AT4A4S0nfDUItlcDVjdIO3lV
+BYBMjUc3AvnRdGszfA7NAkBlaJXLIFeAApyJlW//OC3IUML6N/ka8//LdaAozg9P
+W+xSUL4yv6SNN+i/8B907/ghno8+vt8hKIVH/ODbnjRzVxuRgUwvjzDRQQtXG91h
+1+/tTVHWlTTMrzfmAsrlK/NuoGpQoJY1pRSnFAk1l3eciPs53q8fwxvijCn1GPgC
+lB+neIsZfanFvULibyZx8qu4++kymzB+YbRnrBYgA7d6L/vUN+K2eyJVEpJLWSeP
+kbAPBgBMxPphBh7Kdl7glLcCAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAGQJrSZ7K
+ztBOY4u5/4FR33PNfxMCxwuC6xHAnFDibjqSunC+S5qP/c2C05gmy9ycp6e7VnMT
+qI4kvYs1SGr8wQ9A2vAdh6zfNnXsGeoROS5URdDAWz5DAfojxiqBKE0fEdr6hJJD
+73eHJR+5PlHeVnRRDSc69YfjCgWRP0cASD6AoHokeYChYf+VfHeb66QzYnyZrdji
+XGZHPIDnBqP2k85Zu4iPrKgSON8500Yw4JnXSrk3YGlOGR1PGrB5kFHk2YPrgLab
+EcP2tKY+JBEwv6L8EgXxXSiqF69Hq6Y5F8v0pSvAY3oXQKa7YU/qhx/KR4isnbOG
+531fKCBCSCT/DQ==
 -----END CERTIFICATE-----
 `.trim(),
       ],
       issuerUrl:
-        'https://portal.sso.ap-northeast-1.amazonaws.com/saml/metadata/MjMzNDI4NDg2Njk0X2lucy1jZmM5ZWJlMDdkYTNkOTcz',
+        'https://portal.sso.ap-northeast-1.amazonaws.com/saml/assertion/MjMzNDI4NDg2Njk0X2lucy03NzU4NzI1ODU0MWUzZTUw',
       signRequest: true,
       ssoTargetUrl:
-        'https://portal.sso.ap-northeast-1.amazonaws.com/saml/assertion/MjMzNDI4NDg2Njk0X2lucy1jZmM5ZWJlMDdkYTNkOTcz',
+        'https://portal.sso.ap-northeast-1.api.aws/saml/assertion/MjMzNDI4NDg2Njk0X2lucy03NzU4NzI1ODU0MWUzZTUw',
     },
-    name: 'SAML（AWS IAM）',
+    name: config.resourceName('aws-saml'),
     type: 'saml',
   },
-  {
-    protect: true,
-  },
+  config.protectedResourceOptions('aws-saml-identity-provider'),
 )

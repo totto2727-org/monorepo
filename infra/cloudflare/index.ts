@@ -1,5 +1,3 @@
 import './src/access-group.ts'
 import './src/access-policy.ts'
 import './src/identity-provider.ts'
-import './src/argocd/access-application.ts'
-import './src/gitea/access-application.ts'

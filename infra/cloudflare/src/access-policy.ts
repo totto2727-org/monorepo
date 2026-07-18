@@ -4,7 +4,7 @@ import * as group from './access-group.ts'
 import * as config from './config.ts'
 
 export const allowSaml = new cloudflare.ZeroTrustAccessPolicy(
-  'must-authenticate-with-saml',
+  config.resourceName('must-authenticate-with-saml'),
   {
     accountId: config.accountID,
     decision: 'allow',
@@ -15,10 +15,8 @@ export const allowSaml = new cloudflare.ZeroTrustAccessPolicy(
         },
       },
     ],
-    name: 'Must authenticate with SAML',
+    name: config.resourceName('must-authenticate-with-saml'),
     sessionDuration: '24h',
   },
-  {
-    protect: true,
-  },
+  config.protectedResourceOptions('must-authenticate-with-saml'),
 )

@@ -4,7 +4,7 @@ import * as config from './config.ts'
 import * as identityCenter from './identity-provider.ts'
 
 export const saml = new cloudflare.ZeroTrustAccessGroup(
-  'saml-access-group',
+  config.resourceName('saml-access-group'),
   {
     accountId: config.accountID,
     includes: [
@@ -14,9 +14,7 @@ export const saml = new cloudflare.ZeroTrustAccessGroup(
         },
       },
     ],
-    name: 'SAML',
+    name: config.resourceName('saml'),
   },
-  {
-    protect: true,
-  },
+  config.protectedResourceOptions('saml-access-group'),
 )
