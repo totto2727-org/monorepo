@@ -17,9 +17,8 @@ async fn dispatch(matches : @argparse.Matches) -> Unit {
   match matches.subcommand {
     Some(("ls", command)) => run_ls(command)
     Some(("cleanup", command)) => run_cleanup(command)
-    Some((name, _)) => raise Failure::Failure("unknown command: \{name}")
-    None =>
-      raise Failure::Failure("no command specified. Use --help for usage.")
+    Some((name, _)) => fail("unknown command: \{name}")
+    None => fail("no command specified. Use --help for usage.")
   }
 }
 

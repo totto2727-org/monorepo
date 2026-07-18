@@ -82,10 +82,7 @@ async fn resolve_global_agents_dir() -> String {
 async fn resolve_agents_dir() -> String {
   match resolve_agents_dirs(false) {
     [agents, ..] => agents
-    [] =>
-      raise Failure::Failure(
-        "Could not find .agents directory with \{lock_file_name}",
-      )
+    [] => fail("Could not find .agents directory with \{lock_file_name}")
   }
 }
 
@@ -119,11 +116,11 @@ fn validate_github_source(source : String) -> Unit raise {
     !source.contains(":") &&
     !source.has_prefix("/") &&
     !source.has_suffix(".git") else {
-    raise Failure::Failure("GitHub source must be owner/repo")
+    fail("GitHub source must be owner/repo")
   }
   let parts = source.split("/").map(fn(part) { part.to_owned() }).collect()
   guard parts.length() == 2 && parts[0] != "" && parts[1] != "" else {
-    raise Failure::Failure("GitHub source must be owner/repo")
+    fail("GitHub source must be owner/repo")
   }
 }
 

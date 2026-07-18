@@ -38,11 +38,10 @@ async fn dispatch(matches : @argparse.Matches) -> Unit {
         Some(("start", command)) => run_crawl_start(command)
         Some(("status", command)) => run_crawl_get(command, "", false)
         Some(("results", command)) => run_crawl_get(command, "/results", true)
-        _ => raise Failure::Failure("missing crawl subcommand")
+        _ => fail("missing crawl subcommand")
       }
-    Some((name, _)) => raise Failure::Failure("unknown command: \{name}")
-    None =>
-      raise Failure::Failure("no command specified. Use --help for usage.")
+    Some((name, _)) => fail("unknown command: \{name}")
+    None => fail("no command specified. Use --help for usage.")
   }
 }
 

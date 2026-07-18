@@ -5,7 +5,7 @@ pub async fn find_home_target_file(
 ) -> String {
   let target_file = @path.Path::join(home_dir, file_name).to_string()
   guard @fs.exists(target_file) else {
-    raise Failure::Failure("Could not find home-level file: \{file_name}")
+    fail("Could not find home-level file: \{file_name}")
   }
   target_file
 }
@@ -32,13 +32,11 @@ async fn find_parent_target_file_from(
     return target_file
   }
   guard current_dir != boundary_dir else {
-    raise Failure::Failure("Could not find ancestor file: \{file_name}")
+    fail("Could not find ancestor file: \{file_name}")
   }
   let parent_dir = @path.Path::dirname(current_dir).to_string()
   guard parent_dir != current_dir else {
-    raise Failure::Failure(
-      "Reached filesystem root before top directory: \{boundary_dir}",
-    )
+    fail("Reached filesystem root before top directory: \{boundary_dir}")
   }
   find_parent_target_file_from(file_name, boundary_dir, parent_dir)
 }

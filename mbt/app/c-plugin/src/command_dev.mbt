@@ -96,12 +96,13 @@ impl ToJson for MarketplaceDocument with fn to_json(self) -> Json {
 fn dev_marketplace_sync_options(
   matches : @argparse.Matches,
 ) -> DevMarketplaceSyncOptions raise {
-  let values = matches.values
-    .get(base_kind_arg)
-    .unwrap_or_error(Failure::Failure("base kind is required"))
+  let values = match matches.values.get(base_kind_arg) {
+    Some(values) => values
+    None => fail("base kind is required")
+  }
   let value = match values {
     [value, ..] => value
-    [] => raise Failure::Failure("base kind is required")
+    [] => fail("base kind is required")
   }
   let kind = marketplace_kind_from_string(value)
   { kind, }
@@ -178,13 +179,12 @@ async fn sync_plugin_json(
 async fn run_dev_marketplace_sync(matches : @argparse.Matches) -> Unit {
   let options = dev_marketplace_sync_options(matches)
   let kind = options.kind
-  let info = detect_marketplace(current_working_dir()).unwrap_or_error(
-    Failure::Failure("No supported marketplace found"),
-  )
+  let info = match detect_marketplace(current_working_dir()) {
+    Some(info) => info
+    None => fail("No supported marketplace found")
+  }
   guard info.kind == kind else {
-    raise Failure::Failure(
-      "base marketplace \{marketplace_kind_to_string(kind)} not found",
-    )
+    fail("base marketplace \{marketplace_kind_to_string(kind)} not found")
   }
   let marketplace = parse_marketplace(@fs.read_file(info.path).text(), kind)
   for target_kind in marketplace_kinds() {

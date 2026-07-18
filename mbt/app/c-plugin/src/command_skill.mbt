@@ -110,7 +110,7 @@ fn skill_add_options(matches : @argparse.Matches) -> SkillAddOptions raise {
   let source = match (local_path, repo) {
     (Some(path), _) => {
       guard path.has_prefix("./") else {
-        raise Failure::Failure("--local path must start with ./")
+        fail("--local path must start with ./")
       }
       Local(path)
     }
@@ -118,8 +118,7 @@ fn skill_add_options(matches : @argparse.Matches) -> SkillAddOptions raise {
       validate_github_source(source)
       Github(source)
     }
-    _ =>
-      raise Failure::Failure("Either <repo> or --local <path> must be provided")
+    _ => fail("Either <repo> or --local <path> must be provided")
   }
   { global, source }
 }
@@ -136,12 +135,13 @@ fn skill_global_options(matches : @argparse.Matches) -> SkillGlobalOptions {
 fn skill_remove_options(
   matches : @argparse.Matches,
 ) -> SkillRemoveOptions raise {
-  let values = matches.values
-    .get(repo_arg)
-    .unwrap_or_error(Failure::Failure("source is required"))
+  let values = match matches.values.get(repo_arg) {
+    Some(values) => values
+    None => fail("source is required")
+  }
   let source = match values {
     [value, ..] => value
-    [] => raise Failure::Failure("source is required")
+    [] => fail("source is required")
   }
   { global: matches.flags.contains(global_option), source }
 }
@@ -156,9 +156,10 @@ async fn run_skill_add(matches : @argparse.Matches) -> Unit {
     Local(path) => (RepositoryLocal, path, local_source_path(path, root))
     Github(repo) => (RepositoryGithub, repo, ensure_repo(repo))
   }
-  let market = detect_marketplace(dir).unwrap_or_error(
-    Failure::Failure("No supported marketplace found in \{dir}"),
-  )
+  let market = match detect_marketplace(dir) {
+    Some(market) => market
+    None => fail("No supported marketplace found in \{dir}")
+  }
   let hash = match source_type {
     RepositoryGithub => Some(commit_hash(dir))
     RepositoryLocal => None

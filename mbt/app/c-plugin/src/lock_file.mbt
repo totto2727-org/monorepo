@@ -67,7 +67,7 @@ fn repository_source_type_from_string(
   match value {
     "local" => RepositoryLocal
     "github" => RepositoryGithub
-    _ => raise Failure::Failure("unsupported repository source type: \{value}")
+    _ => fail("unsupported repository source type: \{value}")
   }
 }
 

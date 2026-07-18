@@ -37,12 +37,13 @@ struct TargetOptions {
 
 ///|
 fn target_options(matches : @argparse.Matches) -> TargetOptions raise {
-  let values = matches.values
-    .get(target_dir_arg)
-    .unwrap_or_error(Failure::Failure("dir is required"))
+  let values = match matches.values.get(target_dir_arg) {
+    Some(values) => values
+    None => fail("dir is required")
+  }
   let dir = match values {
     [value, ..] => value
-    [] => raise Failure::Failure("dir is required")
+    [] => fail("dir is required")
   }
   { global: matches.flags.contains(global_option), dir }
 }
