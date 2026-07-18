@@ -51,31 +51,3 @@ export const totto2727AdminGroupBillingPermissionSet = new aws.ssoadmin.AccountA
     protect: true,
   },
 )
-
-export const administratorAccessPolicy = new aws.ssoadmin.ManagedPolicyAttachment(
-  'administrator-access-policy',
-  {
-    instanceArn: identityStore.arn,
-    managedPolicyArn: 'arn:aws:iam::aws:policy/AdministratorAccess',
-    permissionSetArn: permissionSet.administratorAccess.arn,
-    region: identityStore.region,
-  },
-  {
-    dependsOn: [totto2727AdminGroupAdministratorPermissionSet],
-    protect: true,
-  },
-)
-
-export const billingPolicy = new aws.ssoadmin.ManagedPolicyAttachment(
-  'billing-policy',
-  {
-    instanceArn: identityStore.arn,
-    managedPolicyArn: 'arn:aws:iam::aws:policy/job-function/Billing',
-    permissionSetArn: permissionSet.billing.arn,
-    region: identityStore.region,
-  },
-  {
-    dependsOn: [totto2727AdminGroupBillingPermissionSet],
-    protect: true,
-  },
-)

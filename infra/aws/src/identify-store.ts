@@ -1,22 +1,10 @@
 import * as aws from '@pulumi/aws'
-import { Predicate } from 'effect'
 
 const identifyStore = await aws.ssoadmin.getInstances({})
 
-export const { arn, id, region } = (() => {
-  const {
-    arns: [identityStoreArn],
-    identityStoreIds: [identityStoreID],
-    region: identityStoreRegion,
-  } = identifyStore
-
-  if (Predicate.isNullish(identityStoreID) || Predicate.isNullish(identityStoreArn)) {
-    throw new TypeError('AWS IAM Identity Center instance is required')
-  }
-
-  return {
-    arn: identityStoreArn,
-    id: identityStoreID,
-    region: identityStoreRegion,
-  }
-})()
+// oxlint-disable-next-line typescript/no-non-null-assertion -- restored implementation assumes the first Identity Center instance exists
+export const id = identifyStore.identityStoreIds[0]!
+// oxlint-disable-next-line prefer-destructuring -- preserve the restored implementation without changing its expression form
+export const region = identifyStore.region
+// oxlint-disable-next-line typescript/no-non-null-assertion -- restored implementation assumes the first Identity Center instance exists
+export const arn = identifyStore.arns[0]!
