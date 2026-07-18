@@ -24,19 +24,6 @@ export const r2LifeCycle = new cloudflare.R2BucketLifecycle('mcp-r2-lifecycle', 
   jurisdiction: r2.jurisdiction,
   rules: [
     {
-      conditions: {
-        prefix: '',
-      },
-      deleteObjectsTransition: {
-        condition: {
-          maxAge: 2 * secondsPerWeek,
-          type: 'Age',
-        },
-      },
-      enabled: true,
-      id: 'Auto Delete',
-    },
-    {
       abortMultipartUploadsTransition: {
         condition: {
           maxAge: secondsPerWeek,

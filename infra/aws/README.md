@@ -13,6 +13,8 @@ values:
           duration: 1h
           roleArn: ${role_arn} # Specify the ARN of the role created during deployment
           sessionName: pulumi-environments-session
+          subjectAttributes:
+            - currentEnvironment.name
   environmentVariables:
     AWS_ACCESS_KEY_ID: ${aws.login.accessKeyId}
     AWS_SECRET_ACCESS_KEY: ${aws.login.secretAccessKey}

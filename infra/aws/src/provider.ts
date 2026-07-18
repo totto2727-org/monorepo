@@ -2,6 +2,7 @@ import * as aws from '@pulumi/aws'
 
 const clientId = 'aws:totto2727'
 const domain = 'api.pulumi.com/oidc'
+const subject = 'pulumi:environments:pulumi.organization.login:totto2727:currentEnvironment.name:aws/production'
 export const pulumi = new aws.iam.OpenIdConnectProvider(
   'pulumi-oidc',
   {
@@ -22,7 +23,10 @@ export const pulumiRole = new aws.iam.Role(
         {
           Action: 'sts:AssumeRoleWithWebIdentity',
           Condition: {
-            StringEquals: { [`${domain}:aud`]: clientId },
+            StringEquals: {
+              [`${domain}:aud`]: clientId,
+              [`${domain}:sub`]: subject,
+            },
           },
           Effect: 'Allow',
           Principal: {
@@ -36,7 +40,6 @@ export const pulumiRole = new aws.iam.Role(
       'arn:aws:iam::aws:policy/AWSOrganizationsFullAccess',
       'arn:aws:iam::aws:policy/AWSSSODirectoryAdministrator',
       'arn:aws:iam::aws:policy/AWSSSOMasterAccountAdministrator',
-      'arn:aws:iam::aws:policy/AmazonS3FullAccess',
       'arn:aws:iam::aws:policy/IAMFullAccess',
     ],
     name: 'pulumi',

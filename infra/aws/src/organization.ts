@@ -14,8 +14,8 @@ export const passwordPolicy = new aws.iam.AccountPasswordPolicy(
   'password-policy',
   {
     allowUsersToChangePassword: false,
-    minimumPasswordLength: 8,
-    passwordReusePrevention: 5,
+    minimumPasswordLength: 14,
+    passwordReusePrevention: 24,
     requireLowercaseCharacters: true,
     requireNumbers: true,
     requireSymbols: true,
