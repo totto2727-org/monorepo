@@ -111,58 +111,38 @@ fn links_command_def() -> @admiral.CommandDef {
       links_internal_only_option,
       description="Only same-domain links",
     ),
+    @admiral.string(config_option, description="Path to JSON config file"),
   ])
 }
 
 ///|
 async fn links_options(matches : @argparse.Matches) -> LinksOptionsInput {
+  let config = load_config(matches)
   {
-    account_id: match matches.values.get(links_account_id_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_account_id_env) {
-          Some(value) => value
-          None =>
-            raise Failure::Failure(
-              "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
-            )
-        }
-    },
-    api_token: match matches.values.get(links_api_token_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_api_token_env) {
-          Some(value) => value
-          None =>
-            raise Failure::Failure(
-              "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
-            )
-        }
-    },
-    url: match matches.values.get(links_url_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    html: match matches.values.get(links_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
-      _ => None
-    },
-    wait_until: match matches.values.get(links_wait_until_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    visible_only: matches.flags.get(links_visible_only_option).unwrap_or(false),
-    internal_only: matches.flags
-    .get(links_internal_only_option)
-    .unwrap_or(false),
+    account_id: merged_account_id(matches, config),
+    api_token: merged_api_token(matches, config),
+    url: merge_string(cli_string(matches, links_url_option), config.url),
+    html: merged_html(matches, links_html_option, config),
+    wait_until: merge_string(
+      cli_string(matches, links_wait_until_option),
+      config.wait_until,
+    ),
+    visible_only: merge_bool(
+      matches.flags.get(links_visible_only_option).unwrap_or(false),
+      config.visible_only,
+      false,
+    ),
+    internal_only: merge_bool(
+      matches.flags.get(links_internal_only_option).unwrap_or(false),
+      config.internal_only,
+      false,
+    ),
   }
 }
 
 ///|
 fn LinksBody::from_options(options : LinksOptionsInput) -> LinksBody raise {
-  guard options.url is Some(_) || options.html is Some(_) else {
-    raise Failure::Failure("Either --url or --html is required")
-  }
+  required_body_source(options.url, options.html)
   {
     url: options.url,
     html: options.html,

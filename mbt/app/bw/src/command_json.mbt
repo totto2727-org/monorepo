@@ -20,6 +20,16 @@ let json_prompt_option = "prompt"
 let json_schema_option = "schema"
 
 ///|
+let json_format_option = "format"
+
+///|
+enum JsonExtractOutputFormat {
+  RawJson
+  Markdown
+  Text
+}
+
+///|
 struct JsonExtractOptionsInput {
   account_id : String
   api_token : String
@@ -28,6 +38,7 @@ struct JsonExtractOptionsInput {
   wait_until : String?
   prompt : String
   response_format : Json?
+  output_format : JsonExtractOutputFormat
 }
 
 ///|
@@ -89,72 +100,96 @@ fn json_extract_command_def() -> @admiral.CommandDef {
     @admiral.string(json_url_option, description="Target URL"),
     @admiral.string(json_html_option, description="Path to local HTML file"),
     @admiral.string(json_wait_until_option, description="Page load strategy"),
-    @admiral.string(
-      json_prompt_option,
-      description="Extraction prompt",
-      required=true,
-    ),
+    @admiral.string(json_prompt_option, description="Extraction prompt"),
     @admiral.string(json_schema_option, description="Path to JSON Schema file"),
+    @admiral.string(
+      json_format_option,
+      description="Output format: json, markdown, text",
+    ),
+    @admiral.string(config_option, description="Path to JSON config file"),
   ])
+}
+
+///|
+fn parse_json_extract_output_format(
+  value : String,
+) -> JsonExtractOutputFormat raise {
+  match value {
+    "json" => RawJson
+    "markdown" => Markdown
+    "text" => Text
+    _ =>
+      fail("Invalid --format value: \{value}. Expected json, markdown, or text")
+  }
 }
 
 ///|
 async fn json_extract_options(
   matches : @argparse.Matches,
 ) -> JsonExtractOptionsInput {
+  let config = load_config(matches)
   {
-    account_id: match matches.values.get(json_account_id_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_account_id_env) {
-          Some(value) => value
-          None =>
-            raise Failure::Failure(
-              "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
-            )
-        }
+    account_id: merged_account_id(matches, config),
+    api_token: merged_api_token(matches, config),
+    url: merge_string(cli_string(matches, json_url_option), config.url),
+    html: merged_html(matches, json_html_option, config),
+    wait_until: merge_string(
+      cli_string(matches, json_wait_until_option),
+      config.wait_until,
+    ),
+    prompt: required_value(
+      "prompt",
+      merge_string(cli_string(matches, json_prompt_option), config.prompt),
+    ),
+    response_format: match
+      merge_string(cli_string(matches, json_schema_option), config.schema) {
+      Some(path) => Some(schema_response_format(path))
+      None => None
     },
-    api_token: match matches.values.get(json_api_token_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_api_token_env) {
-          Some(value) => value
-          None =>
-            raise Failure::Failure(
-              "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
-            )
-        }
+    output_format: match
+      merge_string(cli_string(matches, json_format_option), config.format) {
+      Some(value) => parse_json_extract_output_format(value)
+      _ => RawJson
     },
-    url: match matches.values.get(json_url_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    html: match matches.values.get(json_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
-      _ => None
-    },
-    wait_until: match matches.values.get(json_wait_until_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    prompt: {
-      let values = matches.values
-        .get(json_prompt_option)
-        .unwrap_or_error(Failure::Failure("missing required option: prompt"))
-      match values {
-        [value, ..] => value
-        [] => raise Failure::Failure("missing required option: prompt")
-      }
-    },
-    response_format: match matches.values.get(json_schema_option) {
-      Some([path, ..]) => {
-        let schema = @json.parse(@fs.read_file(path).text())
-        Some(
-          Json::object({ "schema": schema, "type": "json_schema".to_json() }),
-        )
-      }
-      _ => None
-    },
+  }
+}
+
+///|
+fn json_extract_result(raw : String) -> Json raise {
+  let parsed = @json.parse(raw) catch {
+    error => fail("Invalid json response JSON: \{error}")
+  }
+  match parsed {
+    Object({ "success": True, "result": result, .. }) => result
+    _ => fail("Invalid json response")
+  }
+}
+
+///|
+fn json_extract_result_text(raw : String) -> String raise {
+  match json_extract_result(raw) {
+    String(value) => value
+    result => result.stringify()
+  }
+}
+
+///|
+fn json_extract_result_markdown(raw : String) -> String raise {
+  match json_extract_result(raw) {
+    String(value) => value
+    result => "```json\n\{result.stringify()}\n```"
+  }
+}
+
+///|
+fn format_json_extract_response(
+  raw : String,
+  output_format : JsonExtractOutputFormat,
+) -> String raise {
+  match output_format {
+    RawJson => raw
+    Markdown => json_extract_result_markdown(raw)
+    Text => json_extract_result_text(raw)
   }
 }
 
@@ -162,9 +197,7 @@ async fn json_extract_options(
 fn JsonExtractBody::from_options(
   options : JsonExtractOptionsInput,
 ) -> JsonExtractBody raise {
-  guard options.url is Some(_) || options.html is Some(_) else {
-    raise Failure::Failure("Either --url or --html is required")
-  }
+  required_body_source(options.url, options.html)
   {
     url: options.url,
     html: options.html,
@@ -188,5 +221,5 @@ async fn run_json_extract(matches : @argparse.Matches) -> Unit {
     body.to_json(),
   )
   ensure_success(code, reason, data)
-  println(data.text())
+  println(format_json_extract_response(data.text(), options.output_format))
 }

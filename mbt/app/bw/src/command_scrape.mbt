@@ -96,68 +96,33 @@ fn scrape_command_def() -> @admiral.CommandDef {
     @admiral.string(scrape_url_option, description="Target URL"),
     @admiral.string(scrape_html_option, description="Path to local HTML file"),
     @admiral.string(scrape_wait_until_option, description="Page load strategy"),
-    @admiral.string(
-      scrape_selector_option,
-      description="CSS selector",
-      required=true,
-    ),
+    @admiral.string(scrape_selector_option, description="CSS selector"),
+    @admiral.string(config_option, description="Path to JSON config file"),
   ])
 }
 
 ///|
 async fn scrape_options(matches : @argparse.Matches) -> ScrapeOptionsInput {
+  let config = load_config(matches)
   {
-    account_id: match matches.values.get(scrape_account_id_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_account_id_env) {
-          Some(value) => value
-          None =>
-            raise Failure::Failure(
-              "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
-            )
-        }
-    },
-    api_token: match matches.values.get(scrape_api_token_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_api_token_env) {
-          Some(value) => value
-          None =>
-            raise Failure::Failure(
-              "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
-            )
-        }
-    },
-    url: match matches.values.get(scrape_url_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    html: match matches.values.get(scrape_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
-      _ => None
-    },
-    wait_until: match matches.values.get(scrape_wait_until_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    selector: {
-      let values = matches.values
-        .get(scrape_selector_option)
-        .unwrap_or_error(Failure::Failure("missing required option: selector"))
-      match values {
-        [value, ..] => value
-        [] => raise Failure::Failure("missing required option: selector")
-      }
-    },
+    account_id: merged_account_id(matches, config),
+    api_token: merged_api_token(matches, config),
+    url: merge_string(cli_string(matches, scrape_url_option), config.url),
+    html: merged_html(matches, scrape_html_option, config),
+    wait_until: merge_string(
+      cli_string(matches, scrape_wait_until_option),
+      config.wait_until,
+    ),
+    selector: required_value(
+      "selector",
+      merge_string(cli_string(matches, scrape_selector_option), config.selector),
+    ),
   }
 }
 
 ///|
 fn ScrapeBody::from_options(options : ScrapeOptionsInput) -> ScrapeBody raise {
-  guard options.url is Some(_) || options.html is Some(_) else {
-    raise Failure::Failure("Either --url or --html is required")
-  }
+  required_body_source(options.url, options.html)
   {
     url: options.url,
     html: options.html,

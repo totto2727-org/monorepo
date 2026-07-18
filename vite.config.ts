@@ -10,25 +10,17 @@ const ignorePatterns = ['**/__fixtures__/**']
 export default defineConfig({
   fmt: {
     arrowParens: 'always',
-    bracketSameLine: false,
-    bracketSpacing: true,
-    endOfLine: 'lf',
     experimentalSortImports: {
       ignoreCase: true,
       newlinesBetween: true,
       order: 'asc',
     },
     experimentalSortPackageJson: true,
-    extends: [core, react, remix],
     ignorePatterns,
     jsxSingleQuote: true,
     printWidth: 120,
-    quoteProps: 'as-needed',
     semi: false,
     singleQuote: true,
-    tabWidth: 2,
-    trailingComma: 'all',
-    useTabs: false,
   },
   lint: {
     extends: [core, react, remix, oxlintPluginPreset],
@@ -169,7 +161,7 @@ export default defineConfig({
     },
   },
   staged: {
-    '*': 'vp check --fix',
+    '*': "sh -c 'vp run w:fix'",
   },
   test: {
     dir: 'js/',

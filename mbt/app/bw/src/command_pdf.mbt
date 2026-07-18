@@ -130,72 +130,41 @@ fn pdf_command_def() -> @admiral.CommandDef {
       pdf_output_option,
       short='o',
       description="Output file path",
-      required=true,
     ),
     @admiral.bool(pdf_landscape_option, description="Landscape orientation"),
     @admiral.string(pdf_format_option, description="Page format"),
+    @admiral.string(config_option, description="Path to JSON config file"),
   ])
 }
 
 ///|
 async fn pdf_options(matches : @argparse.Matches) -> PdfOptionsInput {
+  let config = load_config(matches)
   {
-    account_id: match matches.values.get(pdf_account_id_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_account_id_env) {
-          Some(value) => value
-          None =>
-            raise Failure::Failure(
-              "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
-            )
-        }
-    },
-    api_token: match matches.values.get(pdf_api_token_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_api_token_env) {
-          Some(value) => value
-          None =>
-            raise Failure::Failure(
-              "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
-            )
-        }
-    },
-    url: match matches.values.get(pdf_url_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    html: match matches.values.get(pdf_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
-      _ => None
-    },
-    wait_until: match matches.values.get(pdf_wait_until_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    output: {
-      let values = matches.values
-        .get(pdf_output_option)
-        .unwrap_or_error(Failure::Failure("missing required option: output"))
-      match values {
-        [value, ..] => value
-        [] => raise Failure::Failure("missing required option: output")
-      }
-    },
-    landscape: matches.flags.get(pdf_landscape_option).unwrap_or(false),
-    format: match matches.values.get(pdf_format_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
+    account_id: merged_account_id(matches, config),
+    api_token: merged_api_token(matches, config),
+    url: merge_string(cli_string(matches, pdf_url_option), config.url),
+    html: merged_html(matches, pdf_html_option, config),
+    wait_until: merge_string(
+      cli_string(matches, pdf_wait_until_option),
+      config.wait_until,
+    ),
+    output: required_value(
+      "output",
+      merge_string(cli_string(matches, pdf_output_option), config.output),
+    ),
+    landscape: merge_bool(
+      matches.flags.get(pdf_landscape_option).unwrap_or(false),
+      config.landscape,
+      false,
+    ),
+    format: merge_string(cli_string(matches, pdf_format_option), config.format),
   }
 }
 
 ///|
 fn PdfBody::from_options(options : PdfOptionsInput) -> PdfBody raise {
-  guard options.url is Some(_) || options.html is Some(_) else {
-    raise Failure::Failure("Either --url or --html is required")
-  }
+  required_body_source(options.url, options.html)
   {
     url: options.url,
     html: options.html,

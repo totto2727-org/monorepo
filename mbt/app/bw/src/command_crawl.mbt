@@ -149,6 +149,7 @@ fn crawl_command_def() -> @admiral.CommandDef {
         crawl_format_option,
         description="Output formats: html,markdown,json",
       ),
+      @admiral.string(config_option, description="Path to JSON config file"),
     ]),
     @admiral.command(name="status", description="Check crawl job status", options=[
       @admiral.string(
@@ -159,11 +160,8 @@ fn crawl_command_def() -> @admiral.CommandDef {
         crawl_api_token_option,
         description="Cloudflare API token",
       ),
-      @admiral.string(
-        crawl_id_option,
-        description="Crawl job ID",
-        required=true,
-      ),
+      @admiral.string(crawl_id_option, description="Crawl job ID"),
+      @admiral.string(config_option, description="Path to JSON config file"),
     ]),
     @admiral.command(name="results", description="Retrieve crawl results", options=[
       @admiral.string(
@@ -174,16 +172,13 @@ fn crawl_command_def() -> @admiral.CommandDef {
         crawl_api_token_option,
         description="Cloudflare API token",
       ),
-      @admiral.string(
-        crawl_id_option,
-        description="Crawl job ID",
-        required=true,
-      ),
+      @admiral.string(crawl_id_option, description="Crawl job ID"),
       @admiral.string(
         crawl_output_option,
         short='o',
         description="Output file path",
       ),
+      @admiral.string(config_option, description="Path to JSON config file"),
     ]),
   ])
 }
@@ -197,57 +192,29 @@ fn split_csv(value : String) -> Array[String] {
 async fn crawl_start_options(
   matches : @argparse.Matches,
 ) -> CrawlStartOptionsInput {
+  let config = load_config(matches)
   {
-    account_id: match matches.values.get(crawl_account_id_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_account_id_env) {
-          Some(value) => value
-          None =>
-            raise Failure::Failure(
-              "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
-            )
-        }
-    },
-    api_token: match matches.values.get(crawl_api_token_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_api_token_env) {
-          Some(value) => value
-          None =>
-            raise Failure::Failure(
-              "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
-            )
-        }
-    },
-    url: match matches.values.get(crawl_url_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    html: match matches.values.get(crawl_html_option) {
-      Some([path, ..]) => Some(@fs.read_file(path).text())
-      _ => None
-    },
-    wait_until: match matches.values.get(crawl_wait_until_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    output: match matches.values.get(crawl_output_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
-    limit: match matches.values.get(crawl_limit_option) {
-      Some([value, ..]) => Some(@string.parse_int(value))
-      _ => None
-    },
-    depth: match matches.values.get(crawl_depth_option) {
-      Some([value, ..]) => Some(@string.parse_int(value))
-      _ => None
-    },
-    formats: match matches.values.get(crawl_format_option) {
-      Some([value, ..]) => Some(split_csv(value))
-      _ => None
-    },
+    account_id: merged_account_id(matches, config),
+    api_token: merged_api_token(matches, config),
+    url: merge_string(cli_string(matches, crawl_url_option), config.url),
+    html: merged_html(matches, crawl_html_option, config),
+    wait_until: merge_string(
+      cli_string(matches, crawl_wait_until_option),
+      config.wait_until,
+    ),
+    output: merge_string(
+      cli_string(matches, crawl_output_option),
+      config.output,
+    ),
+    limit: merge_int(cli_int(matches, crawl_limit_option), config.limit),
+    depth: merge_int(cli_int(matches, crawl_depth_option), config.depth),
+    formats: merge_string_array(
+      match cli_string(matches, crawl_format_option) {
+        Some(value) => Some(split_csv(value))
+        None => None
+      },
+      config.formats,
+    ),
   }
 }
 
@@ -255,9 +222,7 @@ async fn crawl_start_options(
 fn CrawlStartBody::from_options(
   options : CrawlStartOptionsInput,
 ) -> CrawlStartBody raise {
-  guard options.url is Some(_) || options.html is Some(_) else {
-    raise Failure::Failure("Either --url or --html is required")
-  }
+  required_body_source(options.url, options.html)
   {
     url: options.url,
     html: options.html,
@@ -286,43 +251,19 @@ async fn run_crawl_start(matches : @argparse.Matches) -> Unit {
 }
 
 ///|
-fn crawl_get_options(matches : @argparse.Matches) -> CrawlGetOptionsInput raise {
+async fn crawl_get_options(matches : @argparse.Matches) -> CrawlGetOptionsInput {
+  let config = load_config(matches)
   {
-    account_id: match matches.values.get(crawl_account_id_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_account_id_env) {
-          Some(value) => value
-          None =>
-            raise Failure::Failure(
-              "account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id",
-            )
-        }
-    },
-    api_token: match matches.values.get(crawl_api_token_option) {
-      Some([value, ..]) => value
-      _ =>
-        match @env.get_env_var(cloudflare_api_token_env) {
-          Some(value) => value
-          None =>
-            raise Failure::Failure(
-              "api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token",
-            )
-        }
-    },
-    id: {
-      let values = matches.values
-        .get(crawl_id_option)
-        .unwrap_or_error(Failure::Failure("missing required option: id"))
-      match values {
-        [value, ..] => value
-        [] => raise Failure::Failure("missing required option: id")
-      }
-    },
-    output: match matches.values.get(crawl_output_option) {
-      Some([value, ..]) => Some(value)
-      _ => None
-    },
+    account_id: merged_account_id(matches, config),
+    api_token: merged_api_token(matches, config),
+    id: required_value(
+      "id",
+      merge_string(cli_string(matches, crawl_id_option), config.id),
+    ),
+    output: merge_string(
+      cli_string(matches, crawl_output_option),
+      config.output,
+    ),
   }
 }
 
