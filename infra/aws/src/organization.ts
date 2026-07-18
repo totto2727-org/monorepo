@@ -1,17 +1,17 @@
 import * as aws from '@pulumi/aws'
 
+import * as config from './config.ts'
+
 export const feature = new aws.iam.OrganizationsFeatures(
-  'organization-feature',
+  config.resourceName('organization-feature'),
   {
     enabledFeatures: ['RootSessions', 'RootCredentialsManagement'],
   },
-  {
-    protect: true,
-  },
+  config.protectedResourceOptions('organization-feature'),
 )
 
 export const passwordPolicy = new aws.iam.AccountPasswordPolicy(
-  'password-policy',
+  config.resourceName('password-policy'),
   {
     allowUsersToChangePassword: false,
     minimumPasswordLength: 8,
@@ -21,7 +21,5 @@ export const passwordPolicy = new aws.iam.AccountPasswordPolicy(
     requireSymbols: true,
     requireUppercaseCharacters: true,
   },
-  {
-    protect: true,
-  },
+  config.protectedResourceOptions('password-policy'),
 )

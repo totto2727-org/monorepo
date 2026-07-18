@@ -1,6 +1,7 @@
 import * as aws from '@pulumi/aws'
 import type * as pulumi from '@pulumi/pulumi'
 
+import * as config from './config.ts'
 import * as group from './group.ts'
 import * as identifyStore from './identify-store.ts'
 import * as user from './user.ts'
@@ -19,16 +20,14 @@ const createGroupMembership = ({
   }
 }) =>
   new aws.identitystore.GroupMembership(
-    `${membershipGroup.name}-${membershipUser.name}`,
+    config.resourceName(`${membershipGroup.name}-${membershipUser.name}`),
     {
       groupId: membershipGroup.id,
       identityStoreId: identifyStore.id,
       memberId: membershipUser.id,
       region: identifyStore.region,
     },
-    {
-      protect: true,
-    },
+    config.protectedResourceOptions(`${membershipGroup.name}-${membershipUser.name}`),
   )
 
 export const adminTotto2727 = createGroupMembership({

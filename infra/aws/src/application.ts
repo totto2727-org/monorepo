@@ -1,15 +1,16 @@
 import * as aws from '@pulumi/aws'
 
+import * as config from './config.ts'
 import * as group from './group.ts'
 import * as identityStore from './identify-store.ts'
 
 export const cloudflareAccess = new aws.ssoadmin.Application(
-  'cloudflare-access-application',
+  config.resourceName('cloudflare-access-application'),
   {
     applicationProviderArn: 'arn:aws:sso::aws:applicationProvider/custom-saml',
     description: 'Cloudflare Access',
     instanceArn: identityStore.arn,
-    name: 'Cloudflare Access',
+    name: config.resourceName('cloudflare-access'),
     portalOptions: {
       signInOptions: {
         origin: 'IDENTITY_CENTER',
@@ -19,20 +20,16 @@ export const cloudflareAccess = new aws.ssoadmin.Application(
     region: identityStore.region,
     status: 'ENABLED',
   },
-  {
-    protect: true,
-  },
+  config.protectedResourceOptions('cloudflare-access-application'),
 )
 
 export const cloudflareApplicationAssignment = new aws.ssoadmin.ApplicationAssignment(
-  'cloudflare-application-assignment',
+  config.resourceName('cloudflare-application-assignment'),
   {
     applicationArn: cloudflareAccess.arn,
     principalId: group.cloudflareAccess.groupId,
     principalType: 'GROUP',
     region: identityStore.region,
   },
-  {
-    protect: true,
-  },
+  config.protectedResourceOptions('cloudflare-application-assignment'),
 )

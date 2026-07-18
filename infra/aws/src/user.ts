@@ -1,9 +1,10 @@
 import * as aws from '@pulumi/aws'
 
+import * as config from './config.ts'
 import * as identifyStore from './identify-store.ts'
 
 export const totto2727 = new aws.identitystore.User(
-  'totto2727',
+  config.resourceName('totto2727'),
   {
     displayName: '土田 快斗',
     emails: {
@@ -19,13 +20,11 @@ export const totto2727 = new aws.identitystore.User(
     region: identifyStore.region,
     userName: 'totto2727',
   },
-  {
-    protect: true,
-  },
+  config.protectedResourceOptions('totto2727'),
 )
 
 export const test = new aws.identitystore.User(
-  'test',
+  config.resourceName('test'),
   {
     displayName: 'test',
     emails: {
@@ -41,7 +40,5 @@ export const test = new aws.identitystore.User(
     region: identifyStore.region,
     userName: 'test',
   },
-  {
-    protect: true,
-  },
+  config.protectedResourceOptions('test'),
 )

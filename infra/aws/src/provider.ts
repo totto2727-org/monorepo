@@ -1,21 +1,21 @@
 import * as aws from '@pulumi/aws'
 
+import * as config from './config.ts'
+
 const clientId = 'aws:totto2727'
 const domain = 'api.pulumi.com/oidc'
 export const pulumi = new aws.iam.OpenIdConnectProvider(
-  'pulumi-oidc',
+  config.resourceName('pulumi-oidc'),
   {
     clientIdLists: [clientId],
     thumbprintLists: ['06b25927c42a721631c1efd9431e648fa62e1e39'],
     url: `https://${domain}`,
   },
-  {
-    protect: true,
-  },
+  config.protectedResourceOptions('pulumi-oidc'),
 )
 
 export const pulumiRole = new aws.iam.Role(
-  'pulumi',
+  config.resourceName('pulumi'),
   {
     assumeRolePolicy: {
       Statement: [
@@ -39,9 +39,7 @@ export const pulumiRole = new aws.iam.Role(
       'arn:aws:iam::aws:policy/AmazonS3FullAccess',
       'arn:aws:iam::aws:policy/IAMFullAccess',
     ],
-    name: 'pulumi',
+    name: config.resourceName('pulumi'),
   },
-  {
-    protect: true,
-  },
+  config.protectedResourceOptions('pulumi'),
 )

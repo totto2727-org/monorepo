@@ -1,20 +1,19 @@
 import * as aws from '@pulumi/aws'
 
+import * as config from './config.ts'
 import * as identifyStore from './identify-store.ts'
 
 const createGroup = (name: string, displayName: string) =>
   new aws.identitystore.Group(
-    name,
+    config.resourceName(name),
     {
-      displayName,
+      displayName: config.resourceName(displayName),
       identityStoreId: identifyStore.id,
       region: identifyStore.region,
     },
-    {
-      protect: true,
-    },
+    config.protectedResourceOptions(name),
   )
 
-export const admin = createGroup('admin', 'Admin')
+export const admin = createGroup('admin', 'admin')
 
-export const cloudflareAccess = createGroup('cloudflare-access', 'Cloudflare Access')
+export const cloudflareAccess = createGroup('cloudflare-access', 'cloudflare-access')

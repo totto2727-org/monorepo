@@ -1,53 +1,46 @@
 import * as aws from '@pulumi/aws'
 
+import * as config from './config.ts'
 import * as identityStore from './identify-store.ts'
 
 export const billing = new aws.ssoadmin.PermissionSet(
-  'billing',
+  config.resourceName('billing'),
   {
     instanceArn: identityStore.arn,
-    name: 'Billing',
+    name: config.resourceName('billing'),
     region: identityStore.region,
   },
-  {
-    protect: true,
-  },
+  config.protectedResourceOptions('billing'),
 )
 
 export const billingPolicy = new aws.ssoadmin.ManagedPolicyAttachment(
-  'billing-policy',
+  config.resourceName('billing-policy'),
   {
     instanceArn: identityStore.arn,
     managedPolicyArn: 'arn:aws:iam::aws:policy/job-function/Billing',
     permissionSetArn: billing.arn,
     region: identityStore.region,
   },
-  {
-    protect: true,
-  },
+  config.protectedResourceOptions('billing-policy'),
 )
 
 export const administratorAccess = new aws.ssoadmin.PermissionSet(
-  'administrator-access',
+  config.resourceName('administrator-access'),
   {
     instanceArn: identityStore.arn,
-    name: 'AdministratorAccess',
+    name: config.resourceName('administrator-access'),
     region: identityStore.region,
   },
-  {
-    protect: true,
-  },
+  config.protectedResourceOptions('administrator-access'),
 )
 
 export const administratorAccessPolicy = new aws.ssoadmin.ManagedPolicyAttachment(
-  'administrator-access-policy',
+  config.resourceName('administrator-access-policy'),
   {
     instanceArn: identityStore.arn,
     managedPolicyArn: 'arn:aws:iam::aws:policy/AdministratorAccess',
     permissionSetArn: administratorAccess.arn,
     region: identityStore.region,
   },
-  {
-    protect: true,
-  },
+  config.protectedResourceOptions('administrator-access-policy'),
 )
