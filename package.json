@@ -2,6 +2,7 @@
   "name": "monorepo",
   "private": "true",
   "workspaces": [
+    "infra/*",
     "js/app/*",
     "js/package/*",
     "mbt/package/*",
