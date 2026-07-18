@@ -8,11 +8,10 @@ import * as permissionSet from './permission-set.ts'
 export const totto2727 = new aws.organizations.Account(
   'totto2727-account',
   {
-    // Enable on next create
-    // closeOnDeletion: false,
-    // createGovcloud: false,
-    // iamUserAccessToBilling: "ALLOW",
+    closeOnDeletion: false,
+    createGovcloud: false,
     email: 'kaihatu.totto2727@gmail.com',
+    iamUserAccessToBilling: 'ALLOW',
     name: 'totto2727',
     parentId: 'r-n63z',
   },

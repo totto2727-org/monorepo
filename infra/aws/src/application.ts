@@ -4,6 +4,9 @@ import * as config from './config.ts'
 import * as group from './group.ts'
 import * as identityStore from './identify-store.ts'
 
+// This application must be created manually in AWS IAM Identity Center.
+// Download the Cloudflare Access SAML metadata from:
+// https://totto2727.cloudflareaccess.com/cdn-cgi/access/saml-metadata
 export const cloudflareAccess = new aws.ssoadmin.Application(
   config.resourceName('cloudflare-access-application'),
   {
