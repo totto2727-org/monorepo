@@ -12,3 +12,18 @@ generate-secrets:
     openssl pkey -pubin -in ./secrets/jwt/public.pem -outform DER | openssl dgst -sha256 -binary | xxd -p -c 16 -l 16 > ./secrets/jwt/kid
     gchmod 600 ./secrets/jwt/signing.pem
     gchmod 644 ./secrets/jwt/public.pem ./secrets/jwt/kid
+
+sandbox-create:
+    openshell sandbox create --from ghcr.io/totto2727-org/monorepo/sandbox-monorepo:latest --policy policy.yaml
+
+docker-build-sandbox-base:
+    docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox-base:latest -f sandbox-base.Dockerfile .
+
+[working-directory: '../']
+docker-build-sandbox-dev: docker-build-sandbox-base
+    docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox-dev:latest -f sandbox-dev.Dockerfile .
+
+[working-directory: '../']
+docker-build-sandbox-monorepo: docker-build-sandbox-dev
+    docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox-monorepo:latest -f sandbox-monorepo.Dockerfile .
+

@@ -10,5 +10,3 @@ docker-build-sandbox-dev: docker-build-sandbox-base
 docker-build-sandbox-monorepo: docker-build-sandbox-dev
     docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox-monorepo:latest -f ./sandbox/sandbox-monorepo.Dockerfile ./sandbox
 
-sandbox-create:
-    uvx openshell sandbox create --from ghcr.io/totto2727-org/monorepo/sandbox-monorepo:latest --policy sandbox/policy.yaml

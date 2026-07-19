@@ -123,7 +123,7 @@
 
                                       GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"
 
-                                      if [[ -n "$CLAUDECODE" || ! -o interactive ]]; then
+                                      if [[ ! -o interactive ]]; then
                                         return
                                       fi
 
