@@ -1,0 +1,7 @@
+name: cloudflare
+description: A minimal TypeScript Pulumi program
+runtime: bun
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: cloudflare-typescript

@@ -1,0 +1,12 @@
+{
+  "name": "@infra/cloudflare",
+  "private": true,
+  "type": "module",
+  "main": "index.ts",
+  "devDependencies": {
+    "@pulumi/cloudflare": "catalog:pulumi",
+    "@pulumi/pulumi": "catalog:pulumi",
+    "@totto2727/fp": "workspace:*",
+    "effect": "catalog:effect"
+  }
+}

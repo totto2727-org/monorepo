@@ -1,0 +1,12 @@
+{
+  "name": "@infra/aws",
+  "private": true,
+  "type": "module",
+  "main": "index.ts",
+  "devDependencies": {
+    "@pulumi/aws": "catalog:pulumi",
+    "@pulumi/pulumi": "catalog:pulumi",
+    "@totto2727/fp": "workspace:*",
+    "effect": "catalog:effect"
+  }
+}

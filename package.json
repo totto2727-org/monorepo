@@ -2,13 +2,15 @@
   "name": "monorepo",
   "private": "true",
   "workspaces": [
+    "infra/*",
     "js/app/*",
     "js/package/*",
     "mbt/package/*",
     "mbt/app/*",
     "go/app/*",
     "nix",
-    "elixir/*"
+    "elixir/*",
+    "infra/*"
   ],
   "type": "module",
   "scripts": {},
