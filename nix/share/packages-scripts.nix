@@ -67,6 +67,11 @@ let
     exec opencode "$@"
   '';
 
+  macos-c = writeShellScriptBin "c" ''
+    export LINEAR_API_KEY="$(pass-cli get linear/api-key --quiet -f password)"
+    exec codex "$@"
+  '';
+
   macos-work-c = writeShellScriptBin "c" ''
     export CLAUDE_CONFIG_DIR="$HOME/.claude-work"
     exec claude "$@"
@@ -96,6 +101,10 @@ let
     exec opencode "$@"
   '';
 
+  sandbox-c = writeShellScriptBin "c" ''
+    exec codex "$@"
+  '';
+
   sandbox-linear-mcp = writeShellScriptBin "linear-mcp" ''
     exec bunx mcp-remote \
       https://mcp.linear.app/mcp \
@@ -112,6 +121,7 @@ in
     macos-bx
     macos-bw
     macos-o
+    macos-c
     macos-linear-mcp
   ];
 
@@ -126,6 +136,7 @@ in
     sandbox-bx
     sandbox-bw
     sandbox-o
+    sandbox-c
     sandbox-linear-mcp
   ];
 }

@@ -7,7 +7,7 @@
       packageName,
       version ? "latest",
       runtime ? "bun",
-      registry ? "https://npm.flatt.tech",
+      registry ? if runtime == "uv" then "https://pypi.flatt.tech/simple/" else "https://npm.flatt.tech",
       additionalArgs ? "",
     }:
     let
@@ -24,6 +24,12 @@
           export npm_config_registry=${registry}
           export PATH="${pkgs.lib.makeBinPath [ pkgs.bun ]}:$PATH"
           exec ${pkgs.bun}/bin/bunx --bun --yes ${additionalArgs} ${packageSpec} "$@"
+        '';
+        uv = ''
+          export RUST_LOG=uv=error
+          export UV_DEFAULT_INDEX=${registry}
+          export PATH="${pkgs.lib.makeBinPath [ pkgs.uv ]}:$PATH"
+          exec ${pkgs.uv}/bin/uvx ${additionalArgs} ${packageSpec} "$@"
         '';
       };
       script =

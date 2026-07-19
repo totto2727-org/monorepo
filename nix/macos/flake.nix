@@ -58,6 +58,8 @@
                   "incus"
                   "talosctl"
                   "anomalyco/tap/opencode"
+                  "cloudflared"
+                  "pulumi"
                 ];
                 casks = (import ../share/casks.nix) ++ [
                   # Browser
@@ -65,6 +67,7 @@
                   # Coding
                   "zed"
                   "orbstack"
+                  "codex"
                   # Game
                   "heroic"
                   # Utility

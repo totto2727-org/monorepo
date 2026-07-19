@@ -24,14 +24,6 @@ with pkgs;
     packageName = "ctx7";
   })
   (npm {
-    binName = "c-plugin";
-    packageName = "@totto2727/c-plugin";
-  })
-  (npm {
-    binName = "bw";
-    packageName = "@totto2727/bw";
-  })
-  (npm {
     binName = "wt";
     packageName = "@totto2727/wt";
   })
@@ -40,17 +32,8 @@ with pkgs;
     packageName = "@totto2727/mdt";
   })
   (npm {
-    binName = "roadmap";
-    packageName = "@totto2727/roadmap";
+    binName = "openshell";
+    runtime = "uv";
+    packageName = "openshell";
   })
-  (npm {
-    binName = "codex";
-    packageName = "@openai/codex";
-  })
-  # (npm {
-  #   binName = "comment-checker";
-  #   packageName = "@code-yeongyu/comment-checker";
-  #   runtime = "bun";
-  #   additionalArgs = "--bun";
-  # })
 ]
