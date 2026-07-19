@@ -16,3 +16,4 @@ deps/
 log/
 pkg.generated.mbti
 .omo/
+secrets/

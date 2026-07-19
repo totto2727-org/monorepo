@@ -1,0 +1,14 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+default:
+    @just --list
+
+generate-secrets:
+    if [[ -e ./secrets/jwt/signing.pem || -e ./secrets/jwt/public.pem || -e ./secrets/jwt/kid ]]; then echo "refusing to overwrite existing JWT key material" >&2; exit 1; fi
+    gmkdir -p ./secrets/jwt
+    gchmod 700 ./secrets ./secrets/jwt
+    umask 077; openssl genpkey -algorithm ED25519 -out ./secrets/jwt/signing.pem
+    openssl pkey -in ./secrets/jwt/signing.pem -pubout -out ./secrets/jwt/public.pem
+    openssl pkey -pubin -in ./secrets/jwt/public.pem -outform DER | openssl dgst -sha256 -binary | xxd -p -c 16 -l 16 > ./secrets/jwt/kid
+    gchmod 600 ./secrets/jwt/signing.pem
+    gchmod 644 ./secrets/jwt/public.pem ./secrets/jwt/kid
