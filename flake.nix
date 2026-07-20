@@ -40,6 +40,10 @@
         in
         {
           default = pkgs.mkShell {
+            env = pkgs.lib.optionalAttrs (system == "x86_64-linux") {
+              MOONBIT_NEW_NATIVE = "1";
+            };
+
             packages = [
               # JS
               pkgs.bun
