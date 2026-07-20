@@ -1,24 +1,14 @@
 # voronoi.mbt
 
-2D Voronoi diagram computed as the **dual of the Delaunay
-triangulation** produced by `delaunay.mbt`.
+2D Voronoi diagram computed as the **dual of the Delaunay triangulation** produced by `delaunay.mbt`.
 
 The construction is purely topological:
 
-1. Triangulate the input via `delaunay_triangulation`. Each Delaunay
-   triangle's circumcenter becomes a Voronoi vertex.
-2. Walk every triangle edge once, normalised so the smaller index
-   comes first. Edges that appear twice are interior — their two
-   adjacent circumcenters form a Voronoi edge. Edges that appear once
-   live on the convex hull and produce an unbounded Voronoi ray.
-3. Boundary rays start at the circumcenter and head outward along the
-   perpendicular bisector of the Delaunay edge, away from the triangle's
-   third vertex. They are clipped against a caller-supplied `bbox`.
+1. Triangulate the input via `delaunay_triangulation`. Each Delaunay triangle's circumcenter becomes a Voronoi vertex.
+2. Walk every triangle edge once, normalised so the smaller index comes first. Edges that appear twice are interior — their two adjacent circumcenters form a Voronoi edge. Edges that appear once live on the convex hull and produce an unbounded Voronoi ray.
+3. Boundary rays start at the circumcenter and head outward along the perpendicular bisector of the Delaunay edge, away from the triangle's third vertex. They are clipped against a caller-supplied `bbox`.
 
-Edge pairing is brute force (O(t²) over t triangles); good enough while
-the underlying Bowyer-Watson sweep is also O(n²). Polygonal Voronoi
-cells (sorted edge fans around each input point) and Liang-Barsky
-exact ray clipping are deferred to follow-up work.
+Edge pairing is brute force (O(t²) over t triangles); good enough while the underlying Bowyer-Watson sweep is also O(n²). Polygonal Voronoi cells (sorted edge fans around each input point) and Liang-Barsky exact ray clipping are deferred to follow-up work.
 
 ## Public API
 
@@ -35,8 +25,7 @@ exact ray clipping are deferred to follow-up work.
 | `points` | 3 collinear          | `None`                                                 |     |  ✓  |     |
 | `points` | 5×5 grid (25 points) | one vertex per Delaunay triangle (32 by Euler formula) |     |     |  ✓  |
 
-- Three non-collinear points produce exactly one Voronoi vertex — the
-  circumcenter of the triangle.
+- Three non-collinear points produce exactly one Voronoi vertex — the circumcenter of the triangle.
 
 ```mbt check
 ///|
@@ -58,8 +47,7 @@ test "voronoi_vertices - single triangle" {
 }
 ```
 
-- Collinear input has no Delaunay triangulation, hence no Voronoi
-  vertices.
+- Collinear input has no Delaunay triangulation, hence no Voronoi vertices.
 
 ```mbt check
 ///|
@@ -74,9 +62,7 @@ test "voronoi_vertices - collinear returns None" {
 }
 ```
 
-- The 5×5 axis-aligned grid produces 32 Delaunay triangles (Euler
-  `2N - h - 2 = 2·25 - 16 - 2`); each triangle contributes exactly one
-  Voronoi vertex.
+- The 5×5 axis-aligned grid produces 32 Delaunay triangles (Euler `2N - h - 2 = 2·25 - 16 - 2`); each triangle contributes exactly one Voronoi vertex.
 
 ```mbt check
 ///|
@@ -136,9 +122,7 @@ test "voronoi_diagram - collinear returns None" {
 ```
 
 - Three non-collinear points triangulate to a single Delaunay triangle.
-  Its three edges all sit on the convex hull, so the diagram is three
-  Voronoi rays — all starting at the single circumcenter `(1, 0.75)` —
-  heading outward to the bbox.
+  Its three edges all sit on the convex hull, so the diagram is three Voronoi rays — all starting at the single circumcenter `(1, 0.75)` — heading outward to the bbox.
 
 ```mbt check
 ///|
@@ -167,11 +151,7 @@ test "voronoi_diagram - single triangle" {
 }
 ```
 
-- The four square corners triangulate into two right triangles whose
-  shared diagonal hypotenuse has midpoint `(0.5, 0.5)` — i.e. both
-  circumcenters coincide and the interior Voronoi edge collapses to a
-  point. The four convex-hull edges yield four rays out to the bbox,
-  all anchored at `(0.5, 0.5)`.
+- The four square corners triangulate into two right triangles whose shared diagonal hypotenuse has midpoint `(0.5, 0.5)` — i.e. both circumcenters coincide and the interior Voronoi edge collapses to a point. The four convex-hull edges yield four rays out to the bbox, all anchored at `(0.5, 0.5)`.
 
 ```mbt check
 ///|
@@ -201,11 +181,7 @@ test "voronoi_diagram - square has 4 boundary rays" {
 }
 ```
 
-- Adding the center to the four square corners produces the canonical
-  fan of four right triangles with circumcenters at the four edge
-  midpoints `(0.5, 0)`, `(1, 0.5)`, `(0.5, 1)`, `(0, 0.5)`. Adjacent
-  fan triangles share a spoke edge → 4 interior Voronoi edges; the
-  four square sides give 4 boundary rays. Total: 8 edges.
+- Adding the center to the four square corners produces the canonical fan of four right triangles with circumcenters at the four edge midpoints `(0.5, 0)`, `(1, 0.5)`, `(0.5, 1)`, `(0, 0.5)`. Adjacent fan triangles share a spoke edge → 4 interior Voronoi edges; the four square sides give 4 boundary rays. Total: 8 edges.
 
 ```mbt check
 ///|

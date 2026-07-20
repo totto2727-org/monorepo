@@ -1,28 +1,15 @@
 # delaunay.mbt
 
-2D Delaunay triangulation via the **Bowyer-Watson incremental
-algorithm**. The `geo-mbt` v0.2.0 first cut targets a viable subset of
-[`spade`](https://github.com/Stoeoef/spade) — full DCEL, edge
-constraints, conforming Delaunay, and walk-based location are deferred
-to follow-up milestones (ms-28 Voronoi / ms-29 concave hull).
+2D Delaunay triangulation via the **Bowyer-Watson incremental algorithm**. The `geo-mbt` v0.2.0 first cut targets a viable subset of [`spade`](https://github.com/Stoeoef/spade) — full DCEL, edge constraints, conforming Delaunay, and walk-based location are deferred to follow-up milestones (ms-28 Voronoi / ms-29 concave hull).
 
 The core sweep:
 
 1. Build a "super-triangle" enclosing the input bounding box.
-2. For each input point, find every triangle whose circumcircle
-   contains the point ("bad triangles") via the existing robust
-   `incircle` predicate.
-3. Replace the polygon hole left by the bad triangles with new
-   triangles connecting the new point to each boundary edge, using
-   `orient2d` to enforce CCW orientation.
-4. After every input point is inserted, discard any triangle still
-   touching a super-triangle vertex.
+2. For each input point, find every triangle whose circumcircle contains the point ("bad triangles") via the existing robust `incircle` predicate.
+3. Replace the polygon hole left by the bad triangles with new triangles connecting the new point to each boundary edge, using `orient2d` to enforce CCW orientation.
+4. After every input point is inserted, discard any triangle still touching a super-triangle vertex.
 
-The "find bad triangles" step is brute force (O(n) per insertion,
-O(n²) total), acceptable for v0.2.0 — a spatial-index-backed walk is
-deferred. The `incircle` predicate currently uses Shewchuk's
-non-adaptive fast path (see `robust/incircle.mbt`); near-cocircular
-inputs may misclassify until the adaptive version is ported.
+The "find bad triangles" step is brute force (O(n) per insertion, O(n²) total), acceptable for v0.2.0 — a spatial-index-backed walk is deferred. The `incircle` predicate currently uses Shewchuk's non-adaptive fast path (see `robust/incircle.mbt`); near-cocircular inputs may misclassify until the adaptive version is ported.
 
 ## Public API
 
@@ -52,8 +39,7 @@ test "delaunay_triangulation - empty" {
 }
 ```
 
-- Three collinear points have no Delaunay triangulation; result is
-  `None`.
+- Three collinear points have no Delaunay triangulation; result is `None`.
 
 ```mbt check
 ///|
@@ -68,8 +54,7 @@ test "delaunay_triangulation - collinear returns None" {
 }
 ```
 
-- Three non-collinear points form exactly one triangle, and its three
-  vertex indices are a permutation of `{0, 1, 2}`.
+- Three non-collinear points form exactly one triangle, and its three vertex indices are a permutation of `{0, 1, 2}`.
 
 ```mbt check
 ///|
@@ -95,8 +80,7 @@ test "delaunay_triangulation - single triangle" {
 }
 ```
 
-- Four corners of a unit square produce exactly two triangles. Their
-  shared edge is one of the two diagonals.
+- Four corners of a unit square produce exactly two triangles. Their shared edge is one of the two diagonals.
 
 ```mbt check
 ///|
@@ -128,8 +112,7 @@ test "delaunay_triangulation - square -> 2 triangles" {
 ```
 
 - Square plus the center point: every triangle in the result fans from
-  the center vertex (index 4), and there are exactly four such
-  triangles.
+  the center vertex (index 4), and there are exactly four such triangles.
 
 ```mbt check
 ///|
@@ -156,11 +139,7 @@ test "delaunay_triangulation - square plus center fans from center" {
 }
 ```
 
-- A 5×5 axis-aligned grid (25 points, 16 on the convex hull) yields a
-  triangulation whose triangle count matches Euler's formula
-  `2N - h - 2 = 2·25 - 16 - 2 = 32`. (Holds in general position; the
-  grid is OK because the algorithm picks a consistent diagonal in each
-  unit square.)
+- A 5×5 axis-aligned grid (25 points, 16 on the convex hull) yields a triangulation whose triangle count matches Euler's formula `2N - h - 2 = 2·25 - 16 - 2 = 32`. (Holds in general position; the grid is OK because the algorithm picks a consistent diagonal in each unit square.)
 
 ```mbt check
 ///|

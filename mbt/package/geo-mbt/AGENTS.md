@@ -8,11 +8,9 @@
 
 - 2D only (Z coordinate is out of scope)
 - `Double` (`f64`) coordinates only — no generic `T: CoordNum`
-- Planar Euclidean and geographic (spherical/ellipsoidal) algorithms. Haversine, Vincenty,
-  and Rhumb metric spaces are available for distance/length/bearing/destination.
+- Planar Euclidean and geographic (spherical/ellipsoidal) algorithms. Haversine, Vincenty, and Rhumb metric spaces are available for distance/length/bearing/destination.
   Geodesic (Karney / geographiclib-rs) remains deferred.
-- Boolean ops, triangulation, R-tree spatial index, DE-9IM relate, and
-  Bentley-Ottmann sweep are available (Phase 2 complete).
+- Boolean ops, triangulation, R-tree spatial index, DE-9IM relate, and Bentley-Ottmann sweep are available (Phase 2 complete).
 
 ## Project Structure
 

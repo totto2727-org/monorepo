@@ -2,8 +2,7 @@
 
 ## What This Covers
 
-Patterns for declaring URLs, handling requests, and wiring routes to controllers. Read this when
-the task involves:
+Patterns for declaring URLs, handling requests, and wiring routes to controllers. Read this when the task involves:
 
 - Defining or changing the URL surface of the app
 - Writing or reorganizing controllers and actions
@@ -11,9 +10,7 @@ the task involves:
 - Returning a `Response` for HTML, redirects, JSON, or errors
 - Generating internal URLs with `.href()`
 
-The companion reference for shaping `Request` bodies, validating input, and dealing with persisted
-data is `data-and-validation.md`. For request lifecycle and middleware ordering, see
-`middleware-and-server.md`.
+The companion reference for shaping `Request` bodies, validating input, and dealing with persisted data is `data-and-validation.md`. For request lifecycle and middleware ordering, see `middleware-and-server.md`.
 
 ## Route Builders
 
@@ -21,10 +18,7 @@ Import all route builders from `remix/fetch-router/routes`.
 
 ### `route(prefix, map)` — nested route group
 
-Adds a URL prefix to all children. Can also be called as `route(map)` without a prefix for a
-top-level grouping. Inside `route(...)`, a nested map may be either a `route('prefix', { ... })`
-call (when you want a shared URL prefix) or a plain object literal (when each leaf already owns
-its absolute path).
+Adds a URL prefix to all children. Can also be called as `route(map)` without a prefix for a top-level grouping. Inside `route(...)`, a nested map may be either a `route('prefix', { ... })` call (when you want a shared URL prefix) or a plain object literal (when each leaf already owns its absolute path).
 
 ```typescript
 import { route, get, post } from 'remix/fetch-router/routes'
@@ -58,8 +52,7 @@ export const routes = route({
 
 ### `form(path, options?)` — form route
 
-Creates a GET + POST pair for HTML form workflows. Expands to an `index` (GET) and an `action`
-(POST) by default.
+Creates a GET + POST pair for HTML form workflows. Expands to an `index` (GET) and an `action` (POST) by default.
 
 ```typescript
 contact: form('contact')
@@ -126,8 +119,7 @@ router.get(routes.account, {
 
 ## Returning Responses
 
-An action returns a `Response`. The shape of that response is part of the route contract, and
-choosing it well saves a lot of glue elsewhere.
+An action returns a `Response`. The shape of that response is part of the route contract, and choosing it well saves a lot of glue elsewhere.
 
 ### Render HTML
 
@@ -143,8 +135,7 @@ async handler({ get }) {
 
 ### Redirect after a mutation
 
-For state-changing routes (POST, PUT, PATCH, DELETE), the canonical reply is a redirect to the
-resulting page. Pass `303` explicitly when you want a POST-redirect-GET flow:
+For state-changing routes (POST, PUT, PATCH, DELETE), the canonical reply is a redirect to the resulting page. Pass `303` explicitly when you want a POST-redirect-GET flow:
 
 ```typescript
 import { redirect } from 'remix/response/redirect'
@@ -163,13 +154,11 @@ async create({ get }) {
 }
 ```
 
-This pattern works without JavaScript and stays compatible with `clientEntry(...)` enhancements
-on top.
+This pattern works without JavaScript and stays compatible with `clientEntry(...)` enhancements on top.
 
 ### Return an error response
 
-For expected failures — validation, conflict, not found — return a `Response` directly. Reserve
-thrown errors for genuinely unexpected failures.
+For expected failures — validation, conflict, not found — return a `Response` directly. Reserve thrown errors for genuinely unexpected failures.
 
 ```typescript
 async show({ get, params }) {
@@ -194,9 +183,7 @@ if (!parsed.success) {
 
 ### Return JSON
 
-For routes consumed by client code rather than rendered as a page (autocomplete endpoints, polling
-APIs, inter-service calls), return a JSON `Response`. Use `remix/headers` for cache headers
-instead of hand-formatting strings:
+For routes consumed by client code rather than rendered as a page (autocomplete endpoints, polling APIs, inter-service calls), return a JSON `Response`. Use `remix/headers` for cache headers instead of hand-formatting strings:
 
 ```typescript
 import { CacheControl } from 'remix/headers'
@@ -209,16 +196,12 @@ return new Response(JSON.stringify({ results }), {
 })
 ```
 
-If you find yourself returning JSON for what is really a browser form submission, prefer the
-redirect-after-POST pattern instead. JSON-only mutation endpoints make it harder to support
-non-JS clients, harder to share rendering logic, and easier for the client to drift out of sync
-with the server.
+If you find yourself returning JSON for what is really a browser form submission, prefer the redirect-after-POST pattern instead. JSON-only mutation endpoints make it harder to support non-JS clients, harder to share rendering logic, and easier for the client to drift out of sync with the server.
 
 ## Controllers
 
 A controller mirrors a route map. Each key in `actions` matches a key in the route definition.
-Pass `AppContext` as the second generic to `Controller` so `get(Database)`, `get(Session)`,
-`get(Auth)`, etc. are typed against your middleware stack.
+Pass `AppContext` as the second generic to `Controller` so `get(Database)`, `get(Session)`, `get(Auth)`, etc. are typed against your middleware stack.
 
 ```typescript
 import type { Controller } from 'remix/fetch-router'
@@ -272,8 +255,7 @@ export default {
 
 ### Controller middleware
 
-The `middleware` array on a controller runs for every action in that subtree, before action-level
-middleware:
+The `middleware` array on a controller runs for every action in that subtree, before action-level middleware:
 
 ```typescript
 export default {

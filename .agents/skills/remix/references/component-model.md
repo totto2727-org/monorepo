@@ -2,18 +2,14 @@
 
 ## What This Covers
 
-How a Remix Component is shaped and how its state, lifecycle, and updates behave. Read this when
-the task involves:
+How a Remix Component is shaped and how its state, lifecycle, and updates behave. Read this when the task involves:
 
 - Writing a component (`handle` plus render function)
 - Managing component-local state, derived values, or post-render DOM work
-- Using `handle.props`, `handle.update()`, `handle.queueTask()`, `handle.signal`, `handle.id`, or
-  `handle.context`
+- Using `handle.props`, `handle.update()`, `handle.queueTask()`, `handle.signal`, `handle.id`, or `handle.context`
 - Listening to global events with cleanup tied to the component lifecycle
 
-For host-element behavior (event handlers, styles, refs, animations), see
-`mixins-styling-events.md`. For browser hydration, frames, and navigation, see
-`hydration-frames-navigation.md`.
+For host-element behavior (event handlers, styles, refs, animations), see `mixins-styling-events.md`. For browser hydration, frames, and navigation, see `hydration-frames-navigation.md`.
 
 ## Phases
 
@@ -43,9 +39,7 @@ function Counter(handle: Handle<{ initialCount?: number; label: string }>) {
 
 ## Props
 
-Components receive all JSX props through `handle.props`. The object identity is stable for the
-component lifetime, and its values are updated before each render. Put initialization inputs on
-normal JSX props and read them from `handle.props`:
+Components receive all JSX props through `handle.props`. The object identity is stable for the component lifetime, and its values are updated before each render. Put initialization inputs on normal JSX props and read them from `handle.props`:
 
 ```tsx
 function Timer(handle: Handle<{ initialSeconds: number; paused?: boolean }>) {
@@ -57,9 +51,7 @@ function Timer(handle: Handle<{ initialSeconds: number; paused?: boolean }>) {
 // Usage: <Timer initialSeconds={60} paused={false} />
 ```
 
-Because `handle.props` is stable, destructuring `let { props } = handle` is safe when helpers need
-to read current values later. Destructuring individual prop values is only a snapshot; prefer
-`handle.props.name` inside callbacks and render output when values can change.
+Because `handle.props` is stable, destructuring `let { props } = handle` is safe when helpers need to read current values later. Destructuring individual prop values is only a snapshot; prefer `handle.props.name` inside callbacks and render output when values can change.
 
 ## State Rules
 
@@ -84,8 +76,7 @@ function TodoList(handle: Handle) {
 
 ### `handle.update()`
 
-Schedules a rerender. Returns a promise that resolves with an `AbortSignal` after the update
-completes. Await it when you need the updated DOM before follow-up work:
+Schedules a rerender. Returns a promise that resolves with an `AbortSignal` after the update completes. Await it when you need the updated DOM before follow-up work:
 
 ```tsx
 on('click', async () => {
@@ -98,9 +89,7 @@ on('click', async () => {
 
 ### `handle.queueTask(task)`
 
-Schedules a task to run after the next update. The task receives an `AbortSignal` that aborts when
-the component re-renders or is removed. Use for post-render DOM work, reactive data loading, or
-hydration-sensitive setup:
+Schedules a task to run after the next update. The task receives an `AbortSignal` that aborts when the component re-renders or is removed. Use for post-render DOM work, reactive data loading, or hydration-sensitive setup:
 
 ```tsx
 let data = null
@@ -135,8 +124,7 @@ return () => {
 }
 ```
 
-Avoid creating intermediate state just to trigger `queueTask`. Do the work directly in the handler
-or the queued task.
+Avoid creating intermediate state just to trigger `queueTask`. Do the work directly in the handler or the queued task.
 
 ### `handle.signal`
 
@@ -259,8 +247,7 @@ function ThemedContent(handle: Handle) {
 
 ## Global Events
 
-Use `addEventListeners(target, handle.signal, listeners)` to listen to global targets with
-automatic cleanup when the component disconnects:
+Use `addEventListeners(target, handle.signal, listeners)` to listen to global targets with automatic cleanup when the component disconnects:
 
 ```tsx
 import { addEventListeners, type Handle } from 'remix/ui'

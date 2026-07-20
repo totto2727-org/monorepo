@@ -2,12 +2,8 @@
 
 ## Language Rules
 
-- Use English by default for repository-recorded artifacts, including source code,
-  configuration, documentation, generated files, commit messages, and other
-  committed outputs.
-- Use Japanese for human-facing collaboration interfaces, including pull request
-  titles/descriptions, pull request review discussions, Linear issues/comments,
-  and status handoff text.
+- Use English by default for repository-recorded artifacts, including source code, configuration, documentation, generated files, commit messages, and other committed outputs.
+- Use Japanese for human-facing collaboration interfaces, including pull request titles/descriptions, pull request review discussions, Linear issues/comments, and status handoff text.
 - Use Japanese for user-facing temporary outputs that are not final artifacts.
 
 ## Repository Structure
@@ -125,10 +121,7 @@ run: {
 }
 ```
 
-`@totto2727/fp/vite`'s `defineTaskInputFromOutput` centralises the
-self-output exclusion globs across `setup:*` and `build`. Vite+ rejects
-a task and a `package.json` script that share a name — when promoting
-a script to a task, drop the script.
+`@totto2727/fp/vite`'s `defineTaskInputFromOutput` centralises the self-output exclusion globs across `setup:*` and `build`. Vite+ rejects a task and a `package.json` script that share a name — when promoting a script to a task, drop the script.
 
 ## Architecture
 

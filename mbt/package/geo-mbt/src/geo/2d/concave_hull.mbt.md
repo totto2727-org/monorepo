@@ -1,32 +1,14 @@
 # concave_hull.mbt
 
-2D **concave hull** computation. The package ships two complementary
-ports of the upstream `geo` algorithms:
+2D **concave hull** computation. The package ships two complementary ports of the upstream `geo` algorithms:
 
-1. **`k_nearest_concave_hull`** — the Moreira-Santos (2007) k-nearest-
-   neighbour boundary walk. Anchored at the lowest input point, the
-   walk repeatedly picks the candidate among the `k` nearest unclaimed
-   points that makes the largest left-hand turn from the previous
-   segment without crossing the hull-so-far. When the walk gets stuck
-   `k` is grown by `max(k + 1, ceil(k * 1.5))` and the walk restarts;
-   once `k >= n` the result falls back to the convex hull.
+1. **`k_nearest_concave_hull`** — the Moreira-Santos (2007) k-nearest- neighbour boundary walk. Anchored at the lowest input point, the walk repeatedly picks the candidate among the `k` nearest unclaimed points that makes the largest left-hand turn from the previous segment without crossing the hull-so-far. When the walk gets stuck `k` is grown by `max(k + 1, ceil(k * 1.5))` and the walk restarts; once `k >= n` the result falls back to the convex hull.
 
-2. **`delaunay_concave_hull`** — an Edelsbrunner-style trim of the
-   ms-27 Delaunay triangulation. Triangles whose longest edge exceeds
-   `concavity × mean_edge_length` are discarded and the boundary of
-   the surviving triangle set is walked into a single closed ring.
+2. **`delaunay_concave_hull`** — an Edelsbrunner-style trim of the ms-27 Delaunay triangulation. Triangles whose longest edge exceeds `concavity × mean_edge_length` are discarded and the boundary of the surviving triangle set is walked into a single closed ring.
 
-Both return a closed `LineString` (first == last) or `None` for
-degenerate input (fewer than 3 distinct points / all collinear / the
-underlying Delaunay triangulation empty).
+Both return a closed `LineString` (first == last) or `None` for degenerate input (fewer than 3 distinct points / all collinear / the underlying Delaunay triangulation empty).
 
-The R\*-tree from `@rtree` backs the k-NN candidate query so each
-walk step costs `O(n)` brute-force collect + `n log n` sort
-(`nearest_neighbors` is currently brute force; see the TODO in
-`rtree/rtree_nearest.mbt`). The Delaunay variant inherits the
-`O(n²)` Bowyer-Watson sweep and brute-force edge-pairing from
-`delaunay.mbt`. Manifold-only boundary walking and ring-largest-
-component selection are deferred follow-ups.
+The R\*-tree from `@rtree` backs the k-NN candidate query so each walk step costs `O(n)` brute-force collect + `n log n` sort (`nearest_neighbors` is currently brute force; see the TODO in `rtree/rtree_nearest.mbt`). The Delaunay variant inherits the `O(n²)` Bowyer-Watson sweep and brute-force edge-pairing from `delaunay.mbt`. Manifold-only boundary walking and ring-largest- component selection are deferred follow-ups.
 
 ## Public API
 
@@ -70,8 +52,7 @@ test "k_nearest_concave_hull - collinear returns None" {
 }
 ```
 
-- Three non-collinear points trivially fall back to the convex hull
-  (k = 3 ≥ n = 3) and produce a closed triangle ring.
+- Three non-collinear points trivially fall back to the convex hull (k = 3 ≥ n = 3) and produce a closed triangle ring.
 
 ```mbt check
 ///|
@@ -116,9 +97,7 @@ test "k_nearest_concave_hull - square corners" {
 }
 ```
 
-- Square corners plus the center, with a large `k` (≥ n) falls back to
-  the convex hull — exactly four corners plus the closing entry, no
-  interior point.
+- Square corners plus the center, with a large `k` (≥ n) falls back to the convex hull — exactly four corners plus the closing entry, no interior point.
 
 ```mbt check
 ///|
@@ -207,8 +186,7 @@ test "delaunay_concave_hull - collinear returns None" {
 }
 ```
 
-- Three non-collinear points triangulate to a single triangle whose
-  three edges are all on the boundary, regardless of `concavity`.
+- Three non-collinear points triangulate to a single triangle whose three edges are all on the boundary, regardless of `concavity`.
 
 ```mbt check
 ///|
@@ -230,8 +208,7 @@ test "delaunay_concave_hull - 3 points form triangle" {
 }
 ```
 
-- A unit square with a generous `concavity` keeps both Delaunay
-  triangles, so the boundary is the full square.
+- A unit square with a generous `concavity` keeps both Delaunay triangles, so the boundary is the full square.
 
 ```mbt check
 ///|

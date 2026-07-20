@@ -1,16 +1,9 @@
 # kmeans.mbt
 
-K-means clustering — ported (in spirit) from georust/geo's
-[`algorithm::kmeans`](https://github.com/georust/geo/blob/main/geo/src/algorithm/kmeans/mod.rs).
-This port ships the textbook Lloyd loop with "first k points" seeding;
-k-means++ initialisation, Hamerly triangle-inequality bound pruning,
-empty-cluster recovery, and the `max_radius` post-split are deferred
-follow-ups (see `TODO ms-31-kmeans++` in `kmeans.mbt`).
+K-means clustering — ported (in spirit) from georust/geo's [`algorithm::kmeans`](https://github.com/georust/geo/blob/main/geo/src/algorithm/kmeans/mod.rs).
+This port ships the textbook Lloyd loop with "first k points" seeding; k-means++ initialisation, Hamerly triangle-inequality bound pruning, empty-cluster recovery, and the `max_radius` post-split are deferred follow-ups (see `TODO ms-31-kmeans++` in `kmeans.mbt`).
 
-The function returns `Some((centroids, labels))` on success, where
-`centroids[j]` is the final coordinate of cluster `j` and `labels[i]`
-is the cluster assignment for `points[i]`. Invalid configurations
-(`k <= 0`, `k > points.length()`, or empty input) return `None`.
+The function returns `Some((centroids, labels))` on success, where `centroids[j]` is the final coordinate of cluster `j` and `labels[i]` is the cluster assignment for `points[i]`. Invalid configurations (`k <= 0`, `k > points.length()`, or empty input) return `None`.
 
 ## Public API
 
@@ -29,8 +22,7 @@ is the cluster assignment for `points[i]`. Invalid configurations
 | `points` | 4 points around (1, 1), `k = 1` | sole centroid is the exact arithmetic mean |     |     |     |     |  ✓  |     |
 | `points` | 3 isolated points, `k = N`      | each point gets its own cluster            |     |     |     |     |     |  ✓  |
 
-- Empty input returns `None` (since any positive `k` exceeds
-  `points.length() == 0`).
+- Empty input returns `None` (since any positive `k` exceeds `points.length() == 0`).
 
 ```mbt check
 ///|
@@ -62,10 +54,7 @@ test "kmeans - k greater than N returns None" {
 }
 ```
 
-- Three well-separated clusters of three points each. The first three
-  inputs are placed in distinct clusters (one per cluster) so the
-  "first k points" seeding hits the correct local minimum, and Lloyd
-  converges to that minimum within `max_iter`.
+- Three well-separated clusters of three points each. The first three inputs are placed in distinct clusters (one per cluster) so the "first k points" seeding hits the correct local minimum, and Lloyd converges to that minimum within `max_iter`.
 
 ```mbt check
 ///|
@@ -109,8 +98,7 @@ test "kmeans - 3 well-separated clusters" {
 }
 ```
 
-- `k = 1` puts every point in cluster `0`, and the sole centroid is
-  the exact arithmetic mean of the input coordinates.
+- `k = 1` puts every point in cluster `0`, and the sole centroid is the exact arithmetic mean of the input coordinates.
 
 ```mbt check
 ///|
@@ -136,8 +124,7 @@ test "kmeans - k=1 centroid is the mean" {
 }
 ```
 
-- `k == N` partitions each point into its own cluster, so every label
-  is distinct.
+- `k == N` partitions each point into its own cluster, so every label is distinct.
 
 ```mbt check
 ///|

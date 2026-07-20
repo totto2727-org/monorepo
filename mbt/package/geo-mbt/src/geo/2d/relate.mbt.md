@@ -1,30 +1,15 @@
 # relate.mbt
 
-Direct-computation port of georust/geo's
-[`algorithm/relate`](https://github.com/georust/geo/blob/main/geo/src/algorithm/relate/),
-which builds the [DE-9IM](https://en.wikipedia.org/wiki/DE-9IM)
-intersection matrix for two geometries and exposes the OGC predicate
-masks (`is_contains`, `is_within`, `is_touches`, ...) on top of it.
+Direct-computation port of georust/geo's [`algorithm/relate`](https://github.com/georust/geo/blob/main/geo/src/algorithm/relate/), which builds the [DE-9IM](https://en.wikipedia.org/wiki/DE-9IM) intersection matrix for two geometries and exposes the OGC predicate masks (`is_contains`, `is_within`, `is_touches`, ...) on top of it.
 
-The full upstream implementation is built on a planar
-`geomgraph` that labels every edge endpoint and intersection node with
-side / position information; it is **not** ported here. Instead, this
-milestone uses pragmatic case analysis on the existing pairwise
-predicates (`contains`, `intersects`, `coord_position_for_polygon`,
-...) plus the segment-intersection helpers from `sweep.mbt`. The
-resulting matrix is exact for the common pairs:
+The full upstream implementation is built on a planar `geomgraph` that labels every edge endpoint and intersection node with side / position information; it is **not** ported here. Instead, this milestone uses pragmatic case analysis on the existing pairwise predicates (`contains`, `intersects`, `coord_position_for_polygon`, ...) plus the segment-intersection helpers from `sweep.mbt`. The resulting matrix is exact for the common pairs:
 
 - `Point × Point` / `Point × LineString` / `Point × Polygon`
 - `LineString × LineString`
 - `LineString × Polygon`
 - `Polygon × Polygon`
 
-Triangle / Rect / Line are reduced to Polygon / LineString first, so
-their relations route through the same code paths. Multi-\* and
-GeometryCollection fall through to a conservative
-`relate_default` that fills only the disjoint cells exactly — a
-follow-up cycle (`TODO ms-20-followup` in the source) will replace
-that with the full `geomgraph` construction.
+Triangle / Rect / Line are reduced to Polygon / LineString first, so their relations route through the same code paths. Multi-\* and GeometryCollection fall through to a conservative `relate_default` that fills only the disjoint cells exactly — a follow-up cycle (`TODO ms-20-followup` in the source) will replace that with the full `geomgraph` construction.
 
 ## Public API
 
@@ -32,14 +17,10 @@ that with the full `geomgraph` construction.
 - `IntersectionMatrix::empty`
 - `IntersectionMatrix::get`
 - Predicate methods on `IntersectionMatrix`: `is_disjoint`,
-  `is_intersects`, `is_contains`, `is_within`, `is_covers`,
-  `is_covered_by`, `is_equals`, `is_touches`, `is_crosses`,
-  `is_overlaps`
+  `is_intersects`, `is_contains`, `is_within`, `is_covers`, `is_covered_by`, `is_equals`, `is_touches`, `is_crosses`, `is_overlaps`
 - `relate` — compute the matrix
 - Convenience predicate functions: `relate_intersects`,
-  `relate_disjoint`, `relate_contains`, `relate_within`,
-  `relate_covers`, `relate_touches`, `relate_crosses`,
-  `relate_equals`, `relate_overlaps`
+  `relate_disjoint`, `relate_contains`, `relate_within`, `relate_covers`, `relate_touches`, `relate_crosses`, `relate_equals`, `relate_overlaps`
 
 ## Test
 
@@ -84,8 +65,7 @@ test "relate - equal points are equal" {
 }
 ```
 
-- A polygon `contains` (and therefore `covers`) a point in its
-  interior.
+- A polygon `contains` (and therefore `covers`) a point in its interior.
 
 ```mbt check
 ///|
@@ -109,8 +89,7 @@ test "relate - point inside polygon interior is contained" {
 }
 ```
 
-- A polygon `covers` (but does **not** `contains`, per OGC) a point on
-  its boundary.
+- A polygon `covers` (but does **not** `contains`, per OGC) a point on its boundary.
 
 ```mbt check
 ///|
@@ -134,8 +113,7 @@ test "relate - point on polygon boundary is covered, not contained" {
 }
 ```
 
-- Two diagonals of a unit square cross at their midpoints — proper
-  interior crossing.
+- Two diagonals of a unit square cross at their midpoints — proper interior crossing.
 
 ```mbt check
 ///|
@@ -170,8 +148,7 @@ test "relate - two equal polygons are equal" {
 }
 ```
 
-- A polygon strictly inside another (no boundary touch) is contained
-  by it.
+- A polygon strictly inside another (no boundary touch) is contained by it.
 
 ```mbt check
 ///|
@@ -205,8 +182,7 @@ test "relate - polygon inside polygon is contained" {
 }
 ```
 
-- Two polygons with disjoint bounding rectangles are disjoint and do
-  not intersect.
+- Two polygons with disjoint bounding rectangles are disjoint and do not intersect.
 
 ```mbt check
 ///|
@@ -241,8 +217,7 @@ test "relate - two well-separated polygons are disjoint" {
 }
 ```
 
-- Two polygons sharing exactly one boundary edge `touch` and do not
-  `overlap` — their interiors are disjoint.
+- Two polygons sharing exactly one boundary edge `touch` and do not `overlap` — their interiors are disjoint.
 
 ```mbt check
 ///|

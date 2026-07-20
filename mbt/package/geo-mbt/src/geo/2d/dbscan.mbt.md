@@ -1,22 +1,11 @@
 # dbscan.mbt
 
-Density-Based Spatial Clustering of Applications with Noise — ported
-(in spirit) from georust/geo's
-[`algorithm::dbscan`](https://github.com/georust/geo/blob/main/geo/src/algorithm/dbscan.rs).
-DBSCAN groups points whose `eps`-neighbourhoods contain at least
-`min_pts` neighbours (counting the point itself) and labels the rest as
-noise. The R\*-tree (`@rtree`) backs every per-point neighbour query so
-the sweep runs in `O(n log n)` for typical inputs instead of `O(n²)`.
+Density-Based Spatial Clustering of Applications with Noise — ported (in spirit) from georust/geo's [`algorithm::dbscan`](https://github.com/georust/geo/blob/main/geo/src/algorithm/dbscan.rs).
+DBSCAN groups points whose `eps`-neighbourhoods contain at least `min_pts` neighbours (counting the point itself) and labels the rest as noise. The R\*-tree (`@rtree`) backs every per-point neighbour query so the sweep runs in `O(n log n)` for typical inputs instead of `O(n²)`.
 
-The georust/geo crate also ships a separate `outlier_detection` module
-with the Local Outlier Factor (LOF) algorithm; that is **not** ported
-here. DBSCAN's noise label already answers "which points are
-outliers", so the small `dbscan_outliers` helper exposes that subset
-directly. Full LOF / ensemble outlier detection is a deferred
-follow-up.
+The georust/geo crate also ships a separate `outlier_detection` module with the Local Outlier Factor (LOF) algorithm; that is **not** ported here. DBSCAN's noise label already answers "which points are outliers", so the small `dbscan_outliers` helper exposes that subset directly. Full LOF / ensemble outlier detection is a deferred follow-up.
 
-Cluster IDs are 1-based; `0` is reserved for noise so the returned
-`Array[Int]` reads naturally without an `Option` wrapper.
+Cluster IDs are 1-based; `0` is reserved for noise so the returned `Array[Int]` reads naturally without an `Option` wrapper.
 
 ## Public API
 
@@ -45,8 +34,7 @@ test "dbscan - empty input" {
 }
 ```
 
-- Five well-separated clusters of three points each yield five distinct
-  cluster IDs in seed order, with no point labelled noise.
+- Five well-separated clusters of three points each yield five distinct cluster IDs in seed order, with no point labelled noise.
 
 ```mbt check
 ///|
@@ -116,8 +104,7 @@ test "dbscan - noise only when neighbourhoods are empty" {
 }
 ```
 
-- `eps == 0` makes every neighbourhood a singleton, so with
-  `min_pts = 2` every label is noise.
+- `eps == 0` makes every neighbourhood a singleton, so with `min_pts = 2` every label is noise.
 
 ```mbt check
 ///|
@@ -134,8 +121,7 @@ test "dbscan - eps zero gives all noise" {
 }
 ```
 
-- `min_pts == 1` makes every point a core point, so every label is
-  positive (no noise) — even when points are arbitrarily far apart.
+- `min_pts == 1` makes every point a core point, so every label is positive (no noise) — even when points are arbitrarily far apart.
 
 ```mbt check
 ///|

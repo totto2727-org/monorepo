@@ -21,8 +21,7 @@ This directory contains the Elixir agent orchestration service that polls Linear
 - Keep the implementation aligned with [`docs/SPEC.md`](docs/SPEC.md) where practical.
   - The implementation may be a superset of the spec.
   - The implementation must not conflict with the spec.
-  - If implementation changes meaningfully alter the intended behavior, update the spec in the same
-    change where practical so the spec stays current.
+  - If implementation changes meaningfully alter the intended behavior, update the spec in the same change where practical so the spec stays current.
 - Prefer adding config access through `Symphony.Config` instead of ad-hoc env reads.
 - Workspace safety is critical:
   - Never run agent turns in the source repo.

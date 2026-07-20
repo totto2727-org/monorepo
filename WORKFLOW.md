@@ -44,12 +44,8 @@ opencode:
 
 ## Language Rules
 
-- Use English by default for repository-recorded artifacts, including source code,
-  configuration, documentation, generated files, commit messages, and other
-  committed outputs.
-- Write all human-facing collaboration interfaces in Japanese, including PR
-  titles/descriptions, PR review discussions, Linear workpad comments, blocker
-  notes, issue comments, and status handoff text.
+- Use English by default for repository-recorded artifacts, including source code, configuration, documentation, generated files, commit messages, and other committed outputs.
+- Write all human-facing collaboration interfaces in Japanese, including PR titles/descriptions, PR review discussions, Linear workpad comments, blocker notes, issue comments, and status handoff text.
 - Preserve code, commands, identifiers, URLs, branch names, commit hashes, and quoted external text exactly as written.
 
 ## Linear Workflow
@@ -106,12 +102,7 @@ The agent should be able to talk to Linear, either via a configured Linear MCP s
 - Treat a single persistent Linear comment as the source of truth for progress.
 - Use that single workpad comment for all progress and handoff notes; do not post separate "done"/summary comments.
 - Treat any ticket-authored `Validation`, `Test Plan`, or `Testing` section as non-negotiable acceptance input: mirror it in the workpad and execute it before considering the work complete.
-- When meaningful out-of-scope improvements are discovered during execution,
-  file a separate Linear issue instead of expanding scope. The follow-up issue
-  must include a clear title, description, and acceptance criteria, be placed in
-  `Backlog`, be assigned to the same project as the current issue, link the
-  current issue as `related`, and use `blockedBy` when the follow-up depends on
-  the current issue.
+- When meaningful out-of-scope improvements are discovered during execution, file a separate Linear issue instead of expanding scope. The follow-up issue must include a clear title, description, and acceptance criteria, be placed in `Backlog`, be assigned to the same project as the current issue, link the current issue as `related`, and use `blockedBy` when the follow-up depends on the current issue.
 - Move status only when the matching quality bar is met.
 - Operate autonomously end-to-end unless blocked by missing requirements, secrets, or permissions.
 - Use the blocked-access escape hatch only for true external blockers (missing required tools/auth) after exhausting documented fallbacks.
@@ -306,11 +297,7 @@ Use this only when completion is blocked by missing required tools or missing au
 - Use exactly one persistent workpad comment (`## OpenCode Workpad`) per issue.
 - If comment editing is unavailable in-session, use the update script. Only report blocked if both MCP editing and script-based editing are unavailable.
 - Temporary proof edits are allowed only for local verification and must be reverted before commit.
-- If out-of-scope improvements are found, create a separate Backlog issue rather
-  than expanding current scope, and include a clear
-  title/description/acceptance criteria, same-project assignment, a `related`
-  link to the current issue, and `blockedBy` when the follow-up depends on the
-  current issue.
+- If out-of-scope improvements are found, create a separate Backlog issue rather than expanding current scope, and include a clear title/description/acceptance criteria, same-project assignment, a `related` link to the current issue, and `blockedBy` when the follow-up depends on the current issue.
 - Do not move to `Human Review` unless the `Completion bar before Human Review` is satisfied.
 - In `Human Review`, do not make changes; wait and poll.
 - If state is terminal (`Done`), do nothing and shut down.

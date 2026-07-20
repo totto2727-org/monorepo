@@ -1,8 +1,7 @@
 # bool_ops.mbt
 
 General-polygon boolean operations via the Greiner-Hörmann (1998) algorithm.
-Replaces the earlier Sutherland-Hodgman implementation, which only handled
-clipping against a convex polygon.
+Replaces the earlier Sutherland-Hodgman implementation, which only handled clipping against a convex polygon.
 
 ## Public API
 
@@ -389,8 +388,7 @@ test "polygon_intersection - L-shape ∩ horizontal strip" {
 
 ### Annulus union
 
-Identical annuli (outer ring with same inner hole). The union is the same
-annulus.
+Identical annuli (outer ring with same inner hole). The union is the same annulus.
 
 ```mbt check
 ///|
@@ -527,9 +525,7 @@ test "clip_line_string - segment straddling boundary is clipped" {
 
 ### Deprecated wrappers
 
-The two Sutherland-Hodgman entry points remain available; they delegate to
-`polygon_intersection` and return the first result polygon (or
-`Polygon::empty()` when the result is empty).
+The two Sutherland-Hodgman entry points remain available; they delegate to `polygon_intersection` and return the first result polygon (or `Polygon::empty()` when the result is empty).
 
 #### `intersection_polygon_rect`
 

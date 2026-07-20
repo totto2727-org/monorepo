@@ -1,17 +1,9 @@
 # indexed.mbt
 
-R\*-tree-backed query helpers ported from georust/geo's
-[`algorithm::indexed`](https://github.com/georust/geo/blob/main/geo/src/algorithm/indexed/).
-Each function builds an index from a fixed input collection once and
-returns a closure answering repeated spatial queries in roughly
-`O(log n + k)` instead of brute-force `O(n)` per query.
+R\*-tree-backed query helpers ported from georust/geo's [`algorithm::indexed`](https://github.com/georust/geo/blob/main/geo/src/algorithm/indexed/).
+Each function builds an index from a fixed input collection once and returns a closure answering repeated spatial queries in roughly `O(log n + k)` instead of brute-force `O(n)` per query.
 
-The georust crate ships `PreparedGeometry` (R\*-tree backed `Relate` /
-`Contains` / `Intersects`) and `IntervalTreeMultiPolygon` (1-D interval
-tree). The DE-9IM `Relate` machinery is out of scope for this port, so
-this module instead exposes the simpler "build once, query many times"
-pattern over the existing `contains` / `intersects` / `nearest`
-predicates already provided by the package.
+The georust crate ships `PreparedGeometry` (R\*-tree backed `Relate` / `Contains` / `Intersects`) and `IntervalTreeMultiPolygon` (1-D interval tree). The DE-9IM `Relate` machinery is out of scope for this port, so this module instead exposes the simpler "build once, query many times" pattern over the existing `contains` / `intersects` / `nearest` predicates already provided by the package.
 
 ## Public API
 

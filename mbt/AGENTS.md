@@ -31,8 +31,7 @@ moon coverage analyze > uncovered.log
 
 ## Immutable Collection Review
 
-MoonBit collection refactor rules live in
-`plugins/totto2727-coding/skills/coding/references/mbt/bestpractice.md`.
+MoonBit collection refactor rules live in `plugins/totto2727-coding/skills/coding/references/mbt/bestpractice.md`.
 Apply that guidance when writing or reviewing `.mbt` code.
 
 For immutable refactor reviews, start with this structural scan:
@@ -43,15 +42,10 @@ rg -n '\bmut\b|\bfor\b|\.push\(|\[[^]]+\]\s*=' mbt --glob '*.mbt'
 
 Classify every remaining hit instead of blindly removing all mutation or loops:
 
-- simple collection transformation that should become `map`, `filter`,
-  `filter_map`, `fold`, `flat_map`, `concat`, or `collect`
-- effectful traversal where independent I/O, Git, filesystem, network, or
-  process work must use `@async.all` or a task group; keep only true
-  dependencies and shared-resource mutations sequential
+- simple collection transformation that should become `map`, `filter`, `filter_map`, `fold`, `flat_map`, `concat`, or `collect`
+- effectful traversal where independent I/O, Git, filesystem, network, or process work must use `@async.all` or a task group; keep only true dependencies and shared-resource mutations sequential
 - algorithmic state machine where local `mut` is intrinsic to clarity
 - unavoidable mutable library object construction
 - test-only imperative setup
 
-Generated `docs-moonbit` skill files are upstream language references. Do not
-hand-edit them for repository coding rules; update the `coding` skill reference
-instead.
+Generated `docs-moonbit` skill files are upstream language references. Do not hand-edit them for repository coding rules; update the `coding` skill reference instead.
