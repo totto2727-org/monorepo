@@ -19,6 +19,51 @@ struct PrInfo {
 }
 
 ///|
+struct WorktreeStatus {
+  entry : WorktreeEntry
+  branch : String
+  pr : PrInfo
+  git : String
+}
+
+///|
+fn WorktreeStatus::WorktreeStatus(
+  entry~ : WorktreeEntry,
+  branch~ : String,
+  pr~ : PrInfo,
+  git~ : String,
+) -> WorktreeStatus {
+  WorktreeStatus::{ entry, branch, pr, git }
+}
+
+///|
+async fn collect_worktree_statuses(
+  entry_array : Array[WorktreeEntry],
+  fetch : async (WorktreeEntry) -> WorktreeStatus?,
+) -> Array[WorktreeStatus] {
+  let task_array = entry_array.map(entry => () => fetch(entry))
+  @async.all(task_array).filter_map(status => status)
+}
+
+///|
+async fn fetch_worktree_status(
+  slug : String,
+  entry : WorktreeEntry,
+) -> WorktreeStatus? {
+  match entry.branch {
+    Some(branch) => {
+      let (pr, git) = @async.with_task_group(group => {
+        let pr_task = group.spawn(() => pr_info(slug, branch, entry.is_main))
+        let git_task = group.spawn(() => git_status(entry.path))
+        (pr_task.wait(), git_task.wait())
+      })
+      Some(WorktreeStatus(entry~, branch~, pr~, git~))
+    }
+    None => None
+  }
+}
+
+///|
 fn format_pr(pr : PrInfo) -> String {
   match pr.state {
     "main" => "main"
@@ -89,32 +134,6 @@ fn parse_worktree_list(
     }
   }
   entries
-}
-
-///|
-async fn has_git_marker(path : String) -> Bool {
-  @fs.exists(path)
-}
-
-///|
-async fn discover_repos(base_dir : String) -> Array[String] {
-  let repos : Array[String] = []
-  if has_git_marker("\{base_dir}/.git") {
-    repos.push(base_dir)
-  }
-  let child_names = @fs.readdir(
-    base_dir,
-    include_hidden=false,
-    include_special=false,
-    sort=true,
-  )
-  for name in child_names {
-    let path = "\{base_dir}/\{name}"
-    if has_git_marker("\{path}/.git") {
-      repos.push(path)
-    }
-  }
-  repos
 }
 
 ///|

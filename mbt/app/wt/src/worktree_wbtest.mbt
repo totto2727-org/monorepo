@@ -42,6 +42,65 @@ test "parse_worktree_list ignores blocks without worktree line" {
 }
 
 ///|
+async test "fetch_repo_worktrees resolves a nested repository path" {
+  let root = @fs.tmpdir(prefix="wt-fetch-repo-worktrees-")
+  let nested = "\{root}/some/nested/directory"
+  @fs.mkdir(nested, recursive=true)
+  run_checked("git", ["init", root])
+  run_checked("git", [
+    "-C", root, "config", "remote.origin.url", "https://github.com/owner/repo.git",
+  ])
+  match fetch_repo_worktrees(nested) {
+    Some(result) => {
+      inspect(basename(result.repo_path), content=basename(root))
+      inspect(result.slug, content="owner/repo")
+      inspect(result.entries.length(), content="1")
+    }
+    None => inspect(false, content="true")
+  }
+  @fs.rmdir(root, recursive=true)
+}
+
+///|
+async test "collect_worktree_statuses - starts all fetches before awaiting results" {
+  let started = Ref(0)
+  let second_finished = Ref(false)
+  let entry_array = [
+    { path: "/repo/first", branch: Some("first"), is_main: false },
+    { path: "/repo/second", branch: Some("second"), is_main: false },
+  ]
+  async fn fetch(entry : WorktreeEntry) -> WorktreeStatus? {
+    started.val = started.val + 1
+    while started.val < entry_array.length() {
+      @async.pause()
+    }
+    if entry.path == "/repo/first" {
+      while !second_finished.val {
+        @async.pause()
+      }
+    } else {
+      second_finished.val = true
+    }
+    Some(
+      WorktreeStatus(
+        entry~,
+        branch=entry.branch.unwrap_or(""),
+        pr={ state: "none", number: None },
+        git="committed",
+      ),
+    )
+  }
+
+  let result = @async.with_timeout_opt(1000, () => {
+    collect_worktree_statuses(entry_array, fetch)
+  })
+  guard result is Some(status_array)
+  assert_true(started.val == entry_array.length())
+  assert_true(status_array[0].entry.path == "/repo/first")
+  assert_true(status_array[1].entry.path == "/repo/second")
+}
+
+///|
 test "format_pr matches original JS output" {
   inspect(format_pr({ state: "main", number: None }), content="main")
   inspect(format_pr({ state: "none", number: None }), content="none")
