@@ -25,7 +25,7 @@ async test "sync_all links only enabled skills from lock file" {
       },
     ],
   })
-  sync_all(agents)
+  sync_lock(agents, read_lock(agents))
   assert_true(
     @fs.exists(
       (agents |> @path.Path::join("skills") |> @path.Path::join("skill-a")).to_string(),
@@ -54,7 +54,10 @@ async test "create_skill_link creates primary and additional relative symlinks" 
   @fs.mkdir(target, recursive=true)
   create_skill_link(
     agents,
-    [@path.Path::join(root, "extra-skills").to_string()],
+    [
+      @path.Path::join(agents, "skills").to_string(),
+      @path.Path::join(root, "extra-skills").to_string(),
+    ],
     "my-skill",
     target,
   )
@@ -73,6 +76,47 @@ async test "create_skill_link creates primary and additional relative symlinks" 
     @fs.FileKind::SymLink,
   )
   @fs.rmdir(root, recursive=true)
+}
+
+///|
+test "sync conflict detection finds shared target roots" {
+  let shared = "/tmp/c-plugin-shared-skills"
+  let empty_lock : LockFile = { skill_dirs: [], repositories: [] }
+  assert_false(has_sync_conflicts([
+    { agents: "/tmp/project-a/.agents", lock: empty_lock },
+    { agents: "/tmp/project-b/.agents", lock: empty_lock },
+  ]))
+  assert_true(has_sync_conflicts([
+    {
+      agents: "/tmp/project-a/.agents",
+      lock: { skill_dirs: [shared], repositories: [] },
+    },
+    {
+      agents: "/tmp/project-b/.agents",
+      lock: { skill_dirs: [shared], repositories: [] },
+    },
+  ]))
+}
+
+///|
+test "update conflict detection finds shared Git repositories" {
+  let repository : LockRepository = {
+    source_type: RepositoryGithub,
+    source: "owner/repo",
+    marketplace_kind: Claude,
+    commit_hash: None,
+    plugins: [],
+  }
+  assert_true(has_update_conflicts([
+    {
+      agents: "/tmp/project-a/.agents",
+      lock: { skill_dirs: [], repositories: [repository] },
+    },
+    {
+      agents: "/tmp/project-b/.agents",
+      lock: { skill_dirs: [], repositories: [repository] },
+    },
+  ]))
 }
 
 ///|
@@ -119,5 +163,61 @@ async test "clear_managed_links removes only symlinks from managed skill dirs" {
       (agents |> @path.Path::join("skills") |> @path.Path::join("real-file")).to_string(),
     ),
   )
+  @fs.rmdir(root, recursive=true)
+}
+
+///|
+async test "sync_all keeps the last repository for duplicate skill names" {
+  let root = @fs.tmpdir(prefix="c-plugin-sync-duplicate-")
+  let agents = @path.Path::join(root, ".agents").to_string()
+  let first_repo = @path.Path::join(root, "repo-1").to_string()
+  let second_repo = @path.Path::join(root, "repo-2").to_string()
+  @fs.mkdir(agents, recursive=true)
+  @async
+  .all([
+    () => {
+      @test_support.write_claude_marketplace(first_repo)
+      @test_support.write_skill(first_repo, "shared-skill")
+    },
+    () => {
+      @test_support.write_claude_marketplace(second_repo)
+      @test_support.write_skill(second_repo, "shared-skill")
+    },
+  ])
+  |> ignore
+  let plugin : LockPlugin = {
+    name: "plugin-a",
+    path: "plugins/plugin-a",
+    enabled_skills: ["shared-skill"],
+  }
+  write_lock(agents, {
+    skill_dirs: [],
+    repositories: [
+      {
+        source_type: RepositoryLocal,
+        source: "./repo-1",
+        marketplace_kind: Claude,
+        commit_hash: None,
+        plugins: [plugin],
+      },
+      {
+        source_type: RepositoryLocal,
+        source: "./repo-2",
+        marketplace_kind: Claude,
+        commit_hash: None,
+        plugins: [plugin],
+      },
+    ],
+  })
+  sync_lock(agents, read_lock(agents))
+  let link = (agents
+  |> @path.Path::join("skills")
+  |> @path.Path::join("shared-skill")).to_string()
+  let expected = (second_repo
+  |> @path.Path::join("plugins")
+  |> @path.Path::join("plugin-a")
+  |> @path.Path::join("skills")
+  |> @path.Path::join("shared-skill")).to_string()
+  inspect(@fs.realpath(link), content=@fs.realpath(expected))
   @fs.rmdir(root, recursive=true)
 }

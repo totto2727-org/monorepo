@@ -146,19 +146,45 @@ test "merge_plugins preserves existing plugin and appends new enabled skills" {
 ///|
 async test "has_supported_plugin_format detects supported config directories" {
   let root = @fs.tmpdir(prefix="c-plugin-format-")
-  for kind in marketplace_kinds() {
-    let dir = @path.Path::join(root, marketplace_kind_to_string(kind)).to_string()
-    @fs.mkdir(
-      @path.Path::join(dir, marketplace_config_dir(kind)).to_string(),
-      recursive=true,
-    )
-    assert_true(has_supported_plugin_format(dir))
-  }
+  @async
+  .all(
+    marketplace_kinds().map(kind => () => {
+      let dir = @path.Path::join(
+        root,
+        marketplace_kind_to_string(kind),
+      ).to_string()
+      @fs.mkdir(
+        @path.Path::join(dir, marketplace_config_dir(kind)).to_string(),
+        recursive=true,
+      )
+      assert_true(has_supported_plugin_format(dir))
+    }),
+  )
+  |> ignore
   assert_false(
     has_supported_plugin_format(@path.Path::join(root, "empty").to_string()),
   )
   assert_false(
     has_supported_plugin_format(@path.Path::join(root, "missing").to_string()),
   )
+  @fs.rmdir(root, recursive=true)
+}
+
+///|
+async test "detect_marketplace preserves marketplace priority" {
+  let root = @fs.tmpdir(prefix="c-plugin-marketplace-priority-")
+  @async
+  .all(
+    marketplace_kinds().map(kind => () => {
+      @test_support.write_text(
+        @path.Path::join(root, marketplace_path(kind)).to_string(),
+        "{}\n",
+      )
+    }),
+  )
+  |> ignore
+  let info = detect_marketplace(root)
+  guard info is Some(info)
+  assert_true(info.kind == Claude)
   @fs.rmdir(root, recursive=true)
 }

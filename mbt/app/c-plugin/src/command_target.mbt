@@ -65,8 +65,12 @@ async fn run_target_add(context : @admiral.Context) -> Unit {
   } else {
     lock.skill_dirs.iter().concat([dir].iter()).collect()
   }
-  write_lock(agents, { skill_dirs, repositories: lock.repositories })
-  sync_all(agents)
+  let updated_lock : LockFile = {
+    skill_dirs,
+    repositories: lock.repositories,
+  }
+  write_lock(agents, updated_lock)
+  sync_lock(agents, updated_lock)
 }
 
 ///|
@@ -79,6 +83,10 @@ async fn run_target_remove(context : @admiral.Context) -> Unit {
     .iter()
     .filter(fn(item) { item != dir })
     .collect()
-  write_lock(agents, { skill_dirs, repositories: lock.repositories })
-  sync_all(agents)
+  let updated_lock : LockFile = {
+    skill_dirs,
+    repositories: lock.repositories,
+  }
+  write_lock(agents, updated_lock)
+  sync_lock(agents, updated_lock)
 }

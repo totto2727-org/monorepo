@@ -194,10 +194,45 @@ async fn sync_plugin_json(
 }
 
 ///|
+async fn sync_marketplace_target(
+  repo_dir : String,
+  base_kind : MarketplaceKind,
+  target_kind : MarketplaceKind,
+  marketplace : ParsedMarketplace,
+) -> Unit {
+  let path = @path.Path::join(repo_dir, marketplace_path(target_kind)).to_string()
+  println(
+    "Generating \{marketplace_kind_to_string(target_kind)} marketplace...",
+  )
+  let plugin_sources = marketplace.plugins
+    .iter()
+    .map(plugin => plugin.source)
+    .fold(init=[], fn(sources, source) {
+      if sources.contains(source) {
+        sources
+      } else {
+        sources.iter().concat([source].iter()).collect()
+      }
+    })
+  let tasks : Array[async () -> Unit] = [
+      () => write_json_file(path, marketplace_json(marketplace, target_kind)),
+    ]
+    .iter()
+    .concat(
+      plugin_sources.iter().map(source => () => {
+        sync_plugin_json(repo_dir, base_kind, target_kind, source)
+      }),
+    )
+    .collect()
+  @async.all(tasks) |> ignore
+}
+
+///|
 async fn run_dev_marketplace_sync(context : @admiral.Context) -> Unit {
   let options = dev_marketplace_sync_options(context)
   let kind = options.kind
-  let info = match detect_marketplace(current_working_dir()) {
+  let repo_dir = current_working_dir()
+  let info = match detect_marketplace(repo_dir) {
     Some(info) => info
     None => fail("No supported marketplace found")
   }
@@ -205,25 +240,16 @@ async fn run_dev_marketplace_sync(context : @admiral.Context) -> Unit {
     fail("base marketplace \{marketplace_kind_to_string(kind)} not found")
   }
   let marketplace = parse_marketplace(@fs.read_file(info.path).text(), kind)
-  for target_kind in marketplace_kinds() {
-    if target_kind != kind {
-      let path = @path.Path::join(
-        current_working_dir(),
-        marketplace_path(target_kind),
-      ).to_string()
-      println(
-        "Generating \{marketplace_kind_to_string(target_kind)} marketplace...",
-      )
-      write_json_file(path, marketplace_json(marketplace, target_kind))
-      for plugin in marketplace.plugins {
-        sync_plugin_json(
-          current_working_dir(),
-          kind,
-          target_kind,
-          plugin.source,
-        )
-      }
-    }
-  }
+  let target_kinds = marketplace_kinds()
+    .iter()
+    .filter(target_kind => target_kind != kind)
+    .collect()
+  @async
+  .all(
+    target_kinds.map(target_kind => () => {
+      sync_marketplace_target(repo_dir, kind, target_kind, marketplace)
+    }),
+  )
+  |> ignore
   println("Marketplace sync complete.")
 }

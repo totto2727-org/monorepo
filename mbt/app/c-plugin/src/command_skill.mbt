@@ -174,12 +174,17 @@ async fn run_skill_add(context : @admiral.Context) -> Unit {
     Some(market) => market
     None => fail("No supported marketplace found in \{dir}")
   }
-  let hash = match source_type {
-    RepositoryGithub => Some(commit_hash(dir))
-    RepositoryLocal => None
-  }
-  let lock = read_lock(agents)
-  let skills = resolve_skills(dir, market.kind)
+  let (hash, lock, skills) = @async.with_task_group(group => {
+    let hash_task = group.spawn(() => {
+      match source_type {
+        RepositoryGithub => Some(commit_hash(dir))
+        RepositoryLocal => None
+      }
+    })
+    let lock_task = group.spawn(() => read_lock(agents))
+    let skills_task = group.spawn(() => resolve_skills(dir, market.kind))
+    (hash_task.wait(), lock_task.wait(), skills_task.wait())
+  })
   let incoming_plugins = plugins_from_skills(skills)
   let repository : LockRepository = {
     source_type,
@@ -188,11 +193,12 @@ async fn run_skill_add(context : @admiral.Context) -> Unit {
     commit_hash: hash,
     plugins: incoming_plugins,
   }
-  write_lock(agents, {
+  let updated_lock : LockFile = {
     skill_dirs: lock.skill_dirs,
     repositories: upsert_repository(lock.repositories, repository),
-  })
-  sync_all(agents)
+  }
+  write_lock(agents, updated_lock)
+  sync_lock(agents, updated_lock)
   println("Added \{source}")
 }
 
@@ -229,9 +235,26 @@ async fn run_skill_sync(context : @admiral.Context) -> Unit {
   } else {
     resolve_agents_dirs(options.recursive)
   }
-  for agents in agents_dirs {
-    sync_all(agents)
-  }
+  sync_agents_locks(read_agents_locks(agents_dirs))
+}
+
+///|
+fn has_update_conflicts(agents_locks : Array[AgentsLock]) -> Bool {
+  let sources : Array[String] = agents_locks
+    .iter()
+    .flat_map(entry => {
+      entry.lock.repositories
+      .iter()
+      .filter_map(repo => {
+        match repo.source_type {
+          RepositoryGithub => Some(repo.source)
+          RepositoryLocal => None
+        }
+      })
+    })
+    .collect()
+  has_sync_conflicts(agents_locks) ||
+  unique_strings(sources).length() != sources.length()
 }
 
 ///|
@@ -242,40 +265,43 @@ async fn run_skill_update(context : @admiral.Context) -> Unit {
   } else {
     resolve_agents_dirs(options.recursive)
   }
-  for agents in agents_dirs {
-    let lock = read_lock(agents)
-    let updated = update_repositories(lock.repositories, 0)
-    write_lock(agents, { skill_dirs: lock.skill_dirs, repositories: updated })
-    sync_all(agents)
+  let agents_locks = read_agents_locks(agents_dirs)
+  let tasks = agents_locks.map(entry => () => {
+    let updated_lock : LockFile = {
+      skill_dirs: entry.lock.skill_dirs,
+      repositories: update_repositories(entry.lock.repositories),
+    }
+    write_lock(entry.agents, updated_lock)
+    sync_lock(entry.agents, updated_lock)
+  })
+  if has_update_conflicts(agents_locks) {
+    @async.all(tasks, max_concurrent=1) |> ignore
+  } else {
+    @async.all(tasks) |> ignore
   }
 }
 
 ///|
 async fn update_repositories(
   repositories : Array[LockRepository],
-  index : Int,
 ) -> Array[LockRepository] {
-  if index >= repositories.length() {
-    return []
-  }
-  let repo = repositories[index]
-  let current = match repo.source_type {
-    RepositoryGithub => {
-      let dir = update_repo(repo.source)
-      [
-        {
-          source_type: repo.source_type,
-          source: repo.source,
-          marketplace_kind: repo.marketplace_kind,
-          commit_hash: Some(commit_hash(dir)),
-          plugins: repo.plugins,
-        },
-      ]
-    }
-    RepositoryLocal => [repo]
-  }
-  let rest = update_repositories(repositories, index + 1)
-  current.iter().concat(rest.iter()).collect()
+  @async.all(
+    repositories.map(repo => () => {
+      match repo.source_type {
+        RepositoryGithub => {
+          let dir = update_repo(repo.source)
+          {
+            source_type: repo.source_type,
+            source: repo.source,
+            marketplace_kind: repo.marketplace_kind,
+            commit_hash: Some(commit_hash(dir)),
+            plugins: repo.plugins,
+          }
+        }
+        RepositoryLocal => repo
+      }
+    }),
+  )
 }
 
 ///|
@@ -288,7 +314,8 @@ async fn run_skill_remove(context : @admiral.Context) -> Unit {
     .iter()
     .filter(fn(repo) { repo.source != source })
     .collect()
-  write_lock(agents, { skill_dirs: lock.skill_dirs, repositories })
-  sync_all(agents)
+  let updated_lock : LockFile = { skill_dirs: lock.skill_dirs, repositories }
+  write_lock(agents, updated_lock)
+  sync_lock(agents, updated_lock)
   println("Removed \{source}")
 }

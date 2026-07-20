@@ -156,38 +156,29 @@ async fn detect_marketplace(repo_dir : String) -> MarketplaceInfo? {
   let claude = @path.Path::join(repo_dir, marketplace_path(Claude)).to_string()
   let cursor = @path.Path::join(repo_dir, marketplace_path(Cursor)).to_string()
   let codex = @path.Path::join(repo_dir, marketplace_path(Codex)).to_string()
-  if @fs.exists(claude) {
-    Some({ kind: Claude, path: claude })
-  } else if @fs.exists(cursor) {
-    Some({ kind: Cursor, path: cursor })
-  } else if @fs.exists(codex) {
-    Some({ kind: Codex, path: codex })
-  } else {
-    None
+  match @async.all([
+    () => @fs.exists(claude),
+    () => @fs.exists(cursor),
+    () => @fs.exists(codex),
+  ]) {
+    [true, _, _] => Some({ kind: Claude, path: claude })
+    [false, true, _] => Some({ kind: Cursor, path: cursor })
+    [false, false, true] => Some({ kind: Codex, path: codex })
+    _ => None
   }
 }
 
 ///|
 pub async fn has_supported_plugin_format(dir : String) -> Bool {
-  has_supported_plugin_format_from(dir, marketplace_kinds(), 0)
-}
-
-///|
-async fn has_supported_plugin_format_from(
-  dir : String,
-  kinds : Array[MarketplaceKind],
-  index : Int,
-) -> Bool {
-  if index >= kinds.length() {
-    return false
-  }
-  if @fs.exists(
-      @path.Path::join(dir, marketplace_config_dir(kinds[index])).to_string(),
-    ) {
-    true
-  } else {
-    has_supported_plugin_format_from(dir, kinds, index + 1)
-  }
+  @async
+  .all(
+    marketplace_kinds().map(kind => () => {
+      @fs.exists(
+        @path.Path::join(dir, marketplace_config_dir(kind)).to_string(),
+      )
+    }),
+  )
+  .any(value => value)
 }
 
 ///|
@@ -296,7 +287,6 @@ async fn resolve_skills(
   resolve_skills_from_plugins(
     repo_dir,
     normalized_plugins_from_json(text, kind),
-    0,
   )
 }
 
@@ -304,15 +294,12 @@ async fn resolve_skills(
 async fn resolve_skills_from_plugins(
   repo_dir : String,
   plugins : Array[NormalizedPlugin],
-  index : Int,
 ) -> Array[ResolvedSkill] {
-  if index >= plugins.length() {
-    return []
-  }
-  let plugin = plugins[index]
-  let current = resolve_plugin_skills(repo_dir, plugin)
-  let rest = resolve_skills_from_plugins(repo_dir, plugins, index + 1)
-  current.iter().concat(rest.iter()).collect()
+  @async
+  .all(plugins.map(plugin => () => resolve_plugin_skills(repo_dir, plugin)))
+  .iter()
+  .flat_map(skills => skills.iter())
+  .collect()
 }
 
 ///|
@@ -331,7 +318,7 @@ async fn resolve_plugin_skills(
   ) catch {
     _ => []
   }
-  resolve_skill_entries(plugin, skill_dir, entries, 0)
+  resolve_skill_entries(plugin, skill_dir, entries)
 }
 
 ///|
@@ -339,27 +326,26 @@ async fn resolve_skill_entries(
   plugin : NormalizedPlugin,
   skill_dir : String,
   entries : Array[String],
-  index : Int,
 ) -> Array[ResolvedSkill] {
-  if index >= entries.length() {
-    return []
-  }
-  let entry = entries[index]
-  let skill_path = @path.Path::join(skill_dir, entry).to_string()
-  let current = if @fs.exists(
-      @path.Path::join(skill_path, "SKILL.md").to_string(),
-    ) {
-    [
-      {
-        plugin_name: plugin.name,
-        plugin_path: plugin.source,
-        skill_name: entry,
-        skill_path,
-      },
-    ]
-  } else {
-    []
-  }
-  let rest = resolve_skill_entries(plugin, skill_dir, entries, index + 1)
-  current.iter().concat(rest.iter()).collect()
+  @async
+  .all(
+    entries.map(entry => () => {
+      let skill_path = @path.Path::join(skill_dir, entry).to_string()
+      if @fs.exists(
+          @path.Path::join(skill_path, "SKILL.md").to_string(),
+        ) {
+        Some({
+          plugin_name: plugin.name,
+          plugin_path: plugin.source,
+          skill_name: entry,
+          skill_path,
+        })
+      } else {
+        None
+      }
+    }),
+  )
+  .iter()
+  .filter_map(skill => skill)
+  .collect()
 }
