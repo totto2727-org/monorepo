@@ -19,20 +19,22 @@ BunワークスペースとVite+を使用したマルチ言語モノレポ（Typ
 
 ### 要件
 
-- `Devbox`: `https://www.jetify.com/docs/devbox/installing-devbox`
+- `Nix`: `https://nixos.org/download/`
+- `direnv`: `https://direnv.net/docs/installation.html`（任意）
 - `vite-plus(vp)`: `curl -fsSL https://vite.plus | bash`
-- `moonbit`: `curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash`
 - `atlas`: `curl -sSf https://atlasgo.sh | sh`
 
 ### インストール
 
 ```bash
 # 開発環境に入る
-devbox shell
+nix develop
 
 # 依存関係をインストール
 vp i
 ```
+
+開発環境を自動的に読み込む場合は、初回のみ `direnv allow` を実行します。
 
 ## 開発コマンド
 

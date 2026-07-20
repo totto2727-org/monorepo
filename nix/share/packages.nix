@@ -24,10 +24,6 @@ with pkgs;
     packageName = "ctx7";
   })
   (npm {
-    binName = "wt";
-    packageName = "@totto2727/wt";
-  })
-  (npm {
     binName = "mdt";
     packageName = "@totto2727/mdt";
   })

@@ -18,4 +18,6 @@ with pkgs;
   go
   rustup
   beamPackages.erlang
+  vite-plus
+  moonbit-bin.moonbit.latest
 ]

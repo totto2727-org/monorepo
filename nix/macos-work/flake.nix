@@ -15,6 +15,14 @@
       url = "path:../npm-package";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    moonbit-overlay = {
+      url = "github:moonbit-community/moonbit-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    vite-plus-overlay = {
+      url = "github:ryoppippi/nix-vite-plus";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -24,6 +32,8 @@
       npmpkgs,
       home-manager,
       nix-darwin,
+      moonbit-overlay,
+      vite-plus-overlay,
     }:
     let
       hostname = "AMADH5CQH14H3";
@@ -33,6 +43,10 @@
       system = "aarch64-darwin";
       pkgs = import nixpkgs {
         inherit system;
+        overlays = [
+          moonbit-overlay.overlays.default
+          vite-plus-overlay.overlays.default
+        ];
       };
       npm = npmpkgs.lib.${pkgs.system}.npmPackage;
     in
@@ -81,7 +95,9 @@
                   home.stateVersion = stateVersion;
 
                   home.packages =
-                    (import ../share/packages.nix { inherit pkgs npm; })
+                    (import ../share/packages.nix {
+                      inherit pkgs npm;
+                    })
                     ++ (import ../share/packages-dev.nix { inherit pkgs; })
                     ++ (import ../share/packages-macos.nix { inherit pkgs; })
                     ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).macos-work
@@ -96,9 +112,6 @@
                       zsh = (import ../share/zsh.nix { inherit pkgs; }) // {
                         initContent = ''
                                       eval "$(/opt/homebrew/bin/brew shellenv)"
-
-                                      # Vite+
-                                      [ -f "$HOME/.vite-plus/env" ] && . "$HOME/.vite-plus/env"
 
                                       GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)";
 

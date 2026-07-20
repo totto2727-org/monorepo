@@ -1,6 +1,7 @@
 node_modules/
 *.local.*
 .cache
+.direnv/
 .sisyphus/
 .claude/worktrees/
 .playwright-mcp/

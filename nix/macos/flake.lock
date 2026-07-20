@@ -19,6 +19,43 @@
         "url": "https://flakehub.com/f/nix-community/home-manager/0.1"
       }
     },
+    "moon-registry": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784505835,
+        "narHash": "sha256-iU8BgN0W9jfL1h//n0PCSyB6f+SIfMpLxEXtBdNaSpQ=",
+        "ref": "refs/heads/main",
+        "rev": "7893f0a8b043813da3a2b81004ed58b05e30581f",
+        "revCount": 11091,
+        "type": "git",
+        "url": "https://mooncakes.io/git/index"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://mooncakes.io/git/index"
+      }
+    },
+    "moonbit-overlay": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "treefmt-nix": "treefmt-nix"
+      },
+      "locked": {
+        "lastModified": 1784438763,
+        "narHash": "sha256-W1OUxgLSLyP4MXCg6t353BNzWF3Ef6lBjwWAVrr2wAQ=",
+        "owner": "moonbit-community",
+        "repo": "moonbit-overlay",
+        "rev": "0c2c2df95460589971983eed53f6265a89a53c08",
+        "type": "github"
+      },
+      "original": {
+        "owner": "moonbit-community",
+        "repo": "moonbit-overlay",
+        "type": "github"
+      }
+    },
     "nix-darwin": {
       "inputs": {
         "nixpkgs": [
@@ -26,12 +63,12 @@
         ]
       },
       "locked": {
-        "lastModified": 1784362797,
-        "narHash": "sha256-EP9b9b+OXDxHBPefFwMYCIaLq0fn3UkmrbfzbLUT7kQ=",
-        "rev": "b4cccbd4bc299c1f71ae185b79c3cf99aa82805c",
-        "revCount": 2396,
+        "lastModified": 1784500460,
+        "narHash": "sha256-UvORnAxTRHax7RG74W8Z2t4GvIkX6AjJ5kk0QlwZomo=",
+        "rev": "57a3171f94705599a2499248ca5758d5eb47c0e0",
+        "revCount": 2398,
         "type": "tarball",
-        "url": "https://api.flakehub.com/f/pinned/nix-darwin/nix-darwin/0.1.2396%2Brev-b4cccbd4bc299c1f71ae185b79c3cf99aa82805c/019f7483-ef28-70e0-bd50-d920aa7ad59d/source.tar.gz"
+        "url": "https://api.flakehub.com/f/pinned/nix-darwin/nix-darwin/0.1.2398%2Brev-57a3171f94705599a2499248ca5758d5eb47c0e0/019f7cab-fe1d-74f1-b00b-adcaaa7104ea/source.tar.gz"
       },
       "original": {
         "type": "tarball",
@@ -71,9 +108,32 @@
     "root": {
       "inputs": {
         "home-manager": "home-manager",
+        "moon-registry": "moon-registry",
+        "moonbit-overlay": "moonbit-overlay",
         "nix-darwin": "nix-darwin",
         "nixpkgs": "nixpkgs",
         "npmpkgs": "npmpkgs"
+      }
+    },
+    "treefmt-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "moonbit-overlay",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1780220602,
+        "narHash": "sha256-eynAfOmbmxJnkp7YewvCEbShNnnYJ9gLLqkzsYtBPeM=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "db947814a175b7ca6ded66e21383d938df01c227",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "type": "github"
       }
     }
   },

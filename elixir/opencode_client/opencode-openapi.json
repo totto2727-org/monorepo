@@ -12,7 +12,10 @@
             "description": "Successfully set authentication credentials",
             "content": {
               "application/json": {
-                "schema": { "type": "boolean", "description": "Successfully set authentication credentials" }
+                "schema": {
+                  "type": "boolean",
+                  "description": "Successfully set authentication credentials"
+                }
               }
             }
           },
@@ -32,7 +35,9 @@
         },
         "description": "Set authentication credentials",
         "summary": "Set auth credentials",
-        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Auth" } } } }
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Auth" } } }
+        }
       },
       "delete": {
         "tags": ["control"],
@@ -43,7 +48,10 @@
             "description": "Successfully removed authentication credentials",
             "content": {
               "application/json": {
-                "schema": { "type": "boolean", "description": "Successfully removed authentication credentials" }
+                "schema": {
+                  "type": "boolean",
+                  "description": "Successfully removed authentication credentials"
+                }
               }
             }
           },
@@ -77,7 +85,9 @@
           "200": {
             "description": "Log entry written successfully",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Log entry written successfully" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Log entry written successfully" }
+              }
             }
           },
           "400": {
@@ -103,7 +113,11 @@
                 "type": "object",
                 "properties": {
                   "service": { "type": "string", "description": "Service name for the log entry" },
-                  "level": { "type": "string", "enum": ["debug", "info", "error", "warn"], "description": "Log level" },
+                  "level": {
+                    "type": "string",
+                    "enum": ["debug", "info", "error", "warn"],
+                    "description": "Log level"
+                  },
                   "message": { "type": "string", "description": "Log message" },
                   "extra": { "type": "object" }
                 },
@@ -127,7 +141,10 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "healthy": { "type": "boolean", "enum": [true] }, "version": { "type": "string" } },
+                  "properties": {
+                    "healthy": { "type": "boolean", "enum": [true] },
+                    "version": { "type": "string" }
+                  },
                   "required": ["healthy", "version"],
                   "additionalProperties": false,
                   "description": "Health information"
@@ -137,7 +154,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get health information about the OpenCode server.",
@@ -152,11 +171,15 @@
         "responses": {
           "200": {
             "description": "Event stream",
-            "content": { "text/event-stream": { "schema": { "$ref": "#/components/schemas/GlobalEvent" } } }
+            "content": {
+              "text/event-stream": { "schema": { "$ref": "#/components/schemas/GlobalEvent" } }
+            }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Subscribe to global events from the OpenCode system using server-sent events.",
@@ -171,11 +194,15 @@
         "responses": {
           "200": {
             "description": "Get global config info",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Config" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Config" } }
+            }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Retrieve the current global OpenCode configuration settings and preferences.",
@@ -188,7 +215,9 @@
         "responses": {
           "200": {
             "description": "Successfully updated global config",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Config" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Config" } }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -206,7 +235,9 @@
         },
         "description": "Update global OpenCode configuration settings and preferences.",
         "summary": "Update global configuration",
-        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Config" } } } }
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Config" } } }
+        }
       }
     },
     "/global/dispose": {
@@ -217,11 +248,17 @@
         "responses": {
           "200": {
             "description": "Global disposed",
-            "content": { "application/json": { "schema": { "type": "boolean", "description": "Global disposed" } } }
+            "content": {
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Global disposed" }
+              }
+            }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Clean up and dispose all OpenCode instances, releasing all resources.",
@@ -304,7 +341,9 @@
         "responses": {
           "200": {
             "description": "Event stream",
-            "content": { "text/event-stream": { "schema": { "$ref": "#/components/schemas/Event" } } }
+            "content": {
+              "text/event-stream": { "schema": { "$ref": "#/components/schemas/Event" } }
+            }
           }
         },
         "description": "Get events",
@@ -322,11 +361,15 @@
         "responses": {
           "200": {
             "description": "Get config info",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Config" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Config" } }
+            }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Retrieve the current OpenCode configuration settings and preferences.",
@@ -342,7 +385,9 @@
         "responses": {
           "200": {
             "description": "Successfully updated config",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Config" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Config" } }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -360,7 +405,9 @@
         },
         "description": "Update OpenCode configuration settings and preferences.",
         "summary": "Update configuration",
-        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Config" } } } }
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Config" } } }
+        }
       }
     },
     "/config/providers": {
@@ -379,7 +426,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "providers": { "type": "array", "items": { "$ref": "#/components/schemas/Provider" } },
+                    "providers": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Provider" }
+                    },
                     "default": { "type": "object", "additionalProperties": { "type": "string" } }
                   },
                   "required": ["providers", "default"],
@@ -391,7 +441,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get a list of all configured AI providers and their default models.",
@@ -409,11 +461,15 @@
         "responses": {
           "200": {
             "description": "Active Console provider metadata",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ConsoleState" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ConsoleState" } }
+            }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           },
           "500": {
             "description": "InternalServerError",
@@ -470,7 +526,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           },
           "500": {
             "description": "InternalServerError",
@@ -496,7 +554,11 @@
         "responses": {
           "200": {
             "description": "Switch success",
-            "content": { "application/json": { "schema": { "type": "boolean", "description": "Switch success" } } }
+            "content": {
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Switch success" }
+              }
+            }
           }
         },
         "description": "Persist a new active Console account/org selection for the current local OpenCode state.",
@@ -528,7 +590,9 @@
         "responses": {
           "200": {
             "description": "Tools",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ToolList" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ToolList" } }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -559,7 +623,9 @@
         "responses": {
           "200": {
             "description": "Tool IDs",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ToolIDs" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ToolIDs" } }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -627,7 +693,9 @@
         "responses": {
           "200": {
             "description": "Worktree created",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Worktree" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Worktree" } }
+            }
           },
           "400": {
             "description": "WorktreeError | InvalidRequestError",
@@ -646,7 +714,9 @@
         "description": "Create a new git worktree for the current project and run any configured startup scripts.",
         "summary": "Create worktree",
         "requestBody": {
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/WorktreeCreateInput" } } }
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/WorktreeCreateInput" } }
+          }
         }
       },
       "delete": {
@@ -659,7 +729,11 @@
         "responses": {
           "200": {
             "description": "Worktree removed",
-            "content": { "application/json": { "schema": { "type": "boolean", "description": "Worktree removed" } } }
+            "content": {
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Worktree removed" }
+              }
+            }
           },
           "400": {
             "description": "WorktreeError | InvalidRequestError",
@@ -678,7 +752,9 @@
         "description": "Remove a git worktree and delete its branch.",
         "summary": "Remove worktree",
         "requestBody": {
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/WorktreeRemoveInput" } } }
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/WorktreeRemoveInput" } }
+          }
         }
       }
     },
@@ -693,7 +769,11 @@
         "responses": {
           "200": {
             "description": "Worktree reset",
-            "content": { "application/json": { "schema": { "type": "boolean", "description": "Worktree reset" } } }
+            "content": {
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Worktree reset" }
+              }
+            }
           },
           "400": {
             "description": "WorktreeError | InvalidRequestError",
@@ -712,7 +792,9 @@
         "description": "Reset a worktree branch to the primary default branch.",
         "summary": "Reset worktree",
         "requestBody": {
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/WorktreeResetInput" } } }
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/WorktreeResetInput" } }
+          }
         }
       }
     },
@@ -726,7 +808,9 @@
           {
             "name": "roots",
             "in": "query",
-            "schema": { "anyOf": [{ "type": "boolean" }, { "type": "string", "enum": ["true", "false"] }] },
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "string", "enum": ["true", "false"] }]
+            },
             "required": false
           },
           { "name": "start", "in": "query", "schema": { "type": "number" }, "required": false },
@@ -736,7 +820,9 @@
           {
             "name": "archived",
             "in": "query",
-            "schema": { "anyOf": [{ "type": "boolean" }, { "type": "string", "enum": ["true", "false"] }] },
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "string", "enum": ["true", "false"] }]
+            },
             "required": false
           }
         ],
@@ -755,7 +841,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get a list of all OpenCode sessions across projects, sorted by most recently updated. Archived sessions are excluded by default.",
@@ -785,7 +873,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get all available MCP resources from connected servers. Optionally filter by name.",
@@ -854,7 +944,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Search for text patterns across files in the project using ripgrep.",
@@ -893,13 +985,19 @@
             "description": "File paths",
             "content": {
               "application/json": {
-                "schema": { "type": "array", "items": { "type": "string" }, "description": "File paths" }
+                "schema": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "File paths"
+                }
               }
             }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Search for files or directories by name or pattern in the project directory.",
@@ -930,7 +1028,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Search for workspace symbols like functions, classes, and variables using LSP.",
@@ -961,7 +1061,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "List files and directories in a specified path.",
@@ -980,11 +1082,15 @@
         "responses": {
           "200": {
             "description": "File content",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FileContent" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/FileContent" } }
+            }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Read the content of a specified file.",
@@ -1014,7 +1120,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get the git status of all files in the project.",
@@ -1032,11 +1140,17 @@
         "responses": {
           "200": {
             "description": "Instance disposed",
-            "content": { "application/json": { "schema": { "type": "boolean", "description": "Instance disposed" } } }
+            "content": {
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Instance disposed" }
+              }
+            }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Clean up and dispose the current OpenCode instance, releasing all resources.",
@@ -1058,7 +1172,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Retrieve the current working directory and related path information for the OpenCode instance.",
@@ -1076,11 +1192,15 @@
         "responses": {
           "200": {
             "description": "VCS info",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/VcsInfo" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/VcsInfo" } }
+            }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Retrieve version control system (VCS) information for the current project, such as git branch.",
@@ -1110,7 +1230,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Retrieve changed files in the current working tree without patches.",
@@ -1130,7 +1252,12 @@
             "schema": { "type": "string", "enum": ["git", "branch"] },
             "required": true
           },
-          { "name": "context", "in": "query", "schema": { "type": "integer", "minimum": 0 }, "required": false }
+          {
+            "name": "context",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 0 },
+            "required": false
+          }
         ],
         "responses": {
           "200": {
@@ -1147,7 +1274,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Retrieve the current git diff for the working tree or against the default branch.",
@@ -1169,7 +1298,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Retrieve a raw patch for current uncommitted changes.",
@@ -1252,7 +1383,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get a list of all available commands in the OpenCode system.",
@@ -1282,7 +1415,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get a list of all available AI agents in the OpenCode system.",
@@ -1322,7 +1457,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get a list of all available skills in the OpenCode system.",
@@ -1352,7 +1489,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get LSP server status",
@@ -1382,7 +1521,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get formatter status",
@@ -1412,7 +1553,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get the status of all Model Context Protocol (MCP) servers.",
@@ -1492,7 +1635,10 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "authorizationUrl": { "type": "string" }, "oauthState": { "type": "string" } },
+                  "properties": {
+                    "authorizationUrl": { "type": "string" },
+                    "oauthState": { "type": "string" }
+                  },
                   "required": ["authorizationUrl", "oauthState"],
                   "additionalProperties": false,
                   "description": "OAuth flow started"
@@ -1515,7 +1661,11 @@
           },
           "404": {
             "description": "McpServerNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/McpServerNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/McpServerNotFoundError" }
+              }
+            }
           }
         },
         "description": "Start OAuth authentication flow for a Model Context Protocol (MCP) server.",
@@ -1546,11 +1696,17 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           },
           "404": {
             "description": "McpServerNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/McpServerNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/McpServerNotFoundError" }
+              }
+            }
           }
         },
         "description": "Remove OAuth credentials for an MCP server.",
@@ -1569,7 +1725,9 @@
         "responses": {
           "200": {
             "description": "OAuth authentication completed",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MCPStatus" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MCPStatus" } }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -1586,7 +1744,11 @@
           },
           "404": {
             "description": "McpServerNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/McpServerNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/McpServerNotFoundError" }
+              }
+            }
           }
         },
         "description": "Complete OAuth authentication for a Model Context Protocol (MCP) server using the authorization code.",
@@ -1617,7 +1779,9 @@
         "responses": {
           "200": {
             "description": "OAuth authentication completed",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MCPStatus" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MCPStatus" } }
+            }
           },
           "400": {
             "description": "McpUnsupportedOAuthError | InvalidRequestError",
@@ -1634,7 +1798,11 @@
           },
           "404": {
             "description": "McpServerNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/McpServerNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/McpServerNotFoundError" }
+              }
+            }
           }
         },
         "description": "Start OAuth flow and wait for callback (opens browser).",
@@ -1661,11 +1829,17 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           },
           "404": {
             "description": "McpServerNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/McpServerNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/McpServerNotFoundError" }
+              }
+            }
           }
         },
         "description": "Connect an MCP server."
@@ -1685,17 +1859,26 @@
             "description": "MCP server disconnected successfully",
             "content": {
               "application/json": {
-                "schema": { "type": "boolean", "description": "MCP server disconnected successfully" }
+                "schema": {
+                  "type": "boolean",
+                  "description": "MCP server disconnected successfully"
+                }
               }
             }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           },
           "404": {
             "description": "McpServerNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/McpServerNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/McpServerNotFoundError" }
+              }
+            }
           }
         },
         "description": "Disconnect an MCP server."
@@ -1724,7 +1907,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get a list of projects that have been opened with OpenCode.",
@@ -1742,11 +1927,15 @@
         "responses": {
           "200": {
             "description": "Current project information",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Project" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Project" } }
+            }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Retrieve the currently active project that OpenCode is working with.",
@@ -1764,11 +1953,15 @@
         "responses": {
           "200": {
             "description": "Project information after git initialization",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Project" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Project" } }
+            }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Create a git repository for the current project and return the refreshed project info.",
@@ -1787,7 +1980,9 @@
         "responses": {
           "200": {
             "description": "Updated project information",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Project" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Project" } }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -1804,7 +1999,11 @@
           },
           "404": {
             "description": "ProjectNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProjectNotFoundError" }
+              }
+            }
           }
         },
         "description": "Update project properties such as name, icon, and commands.",
@@ -1875,7 +2074,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get a list of available shells on the system.",
@@ -1905,7 +2106,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get a list of all active pseudo-terminal (PTY) sessions managed by OpenCode.",
@@ -1963,7 +2166,12 @@
         "tags": ["pty"],
         "operationId": "pty.get",
         "parameters": [
-          { "name": "ptyID", "in": "path", "schema": { "type": "string", "pattern": "^pty" }, "required": true },
+          {
+            "name": "ptyID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^pty" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -1974,11 +2182,15 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           },
           "404": {
             "description": "PtyNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PtyNotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/PtyNotFoundError" } }
+            }
           }
         },
         "description": "Retrieve detailed information about a specific pseudo-terminal (PTY) session.",
@@ -1988,7 +2200,12 @@
         "tags": ["pty"],
         "operationId": "pty.update",
         "parameters": [
-          { "name": "ptyID", "in": "path", "schema": { "type": "string", "pattern": "^pty" }, "required": true },
+          {
+            "name": "ptyID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^pty" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -2012,7 +2229,9 @@
           },
           "404": {
             "description": "PtyNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PtyNotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/PtyNotFoundError" } }
+            }
           }
         },
         "description": "Update properties of an existing pseudo-terminal (PTY) session.",
@@ -2044,22 +2263,35 @@
         "tags": ["pty"],
         "operationId": "pty.remove",
         "parameters": [
-          { "name": "ptyID", "in": "path", "schema": { "type": "string", "pattern": "^pty" }, "required": true },
+          {
+            "name": "ptyID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^pty" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
         "responses": {
           "200": {
             "description": "Session removed",
-            "content": { "application/json": { "schema": { "type": "boolean", "description": "Session removed" } } }
+            "content": {
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Session removed" }
+              }
+            }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           },
           "404": {
             "description": "PtyNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PtyNotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/PtyNotFoundError" } }
+            }
           }
         },
         "description": "Remove and terminate a specific pseudo-terminal (PTY) session.",
@@ -2071,7 +2303,12 @@
         "tags": ["pty"],
         "operationId": "pty.connectToken",
         "parameters": [
-          { "name": "ptyID", "in": "path", "schema": { "type": "string", "pattern": "^pty" }, "required": true },
+          {
+            "name": "ptyID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^pty" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -2095,15 +2332,21 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           },
           "403": {
             "description": "PtyForbiddenError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PtyForbiddenError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/PtyForbiddenError" } }
+            }
           },
           "404": {
             "description": "PtyNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PtyNotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/PtyNotFoundError" } }
+            }
           }
         },
         "description": "Create a short-lived ticket for opening a PTY WebSocket connection.",
@@ -2133,7 +2376,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get all pending question requests across all sessions.",
@@ -2145,7 +2390,12 @@
         "tags": ["question"],
         "operationId": "question.reply",
         "parameters": [
-          { "name": "requestID", "in": "path", "schema": { "type": "string", "pattern": "^que" }, "required": true },
+          {
+            "name": "requestID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^que" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -2153,7 +2403,9 @@
           "200": {
             "description": "Question answered successfully",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Question answered successfully" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Question answered successfully" }
+              }
             }
           },
           "400": {
@@ -2171,7 +2423,11 @@
           },
           "404": {
             "description": "QuestionNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/QuestionNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/QuestionNotFoundError" }
+              }
+            }
           }
         },
         "description": "Provide answers to a question request from the AI assistant.",
@@ -2201,7 +2457,12 @@
         "tags": ["question"],
         "operationId": "question.reject",
         "parameters": [
-          { "name": "requestID", "in": "path", "schema": { "type": "string", "pattern": "^que" }, "required": true },
+          {
+            "name": "requestID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^que" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -2209,7 +2470,9 @@
           "200": {
             "description": "Question rejected successfully",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Question rejected successfully" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Question rejected successfully" }
+              }
             }
           },
           "400": {
@@ -2227,7 +2490,11 @@
           },
           "404": {
             "description": "QuestionNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/QuestionNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/QuestionNotFoundError" }
+              }
+            }
           }
         },
         "description": "Reject a question request from the AI assistant.",
@@ -2257,7 +2524,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get all pending permission requests across all sessions.",
@@ -2269,7 +2538,12 @@
         "tags": ["permission"],
         "operationId": "permission.reply",
         "parameters": [
-          { "name": "requestID", "in": "path", "schema": { "type": "string", "pattern": "^per" }, "required": true },
+          {
+            "name": "requestID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^per" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -2297,7 +2571,11 @@
           },
           "404": {
             "description": "PermissionNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PermissionNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PermissionNotFoundError" }
+              }
+            }
           }
         },
         "description": "Approve or deny a permission request from the AI assistant.",
@@ -2335,7 +2613,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "all": { "type": "array", "items": { "$ref": "#/components/schemas/Provider" } },
+                    "all": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Provider" }
+                    },
                     "default": { "type": "object", "additionalProperties": { "type": "string" } },
                     "connected": { "type": "array", "items": { "type": "string" } }
                   },
@@ -2348,7 +2629,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get a list of all available AI providers, including both available and connected ones.",
@@ -2381,7 +2664,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Retrieve available authentication methods for all AI providers.",
@@ -2401,7 +2686,9 @@
           "200": {
             "description": "Authorization URL and method",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/ProviderAuthAuthorization" } }
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProviderAuthAuthorization" }
+              }
             }
           },
           "400": {
@@ -2451,7 +2738,10 @@
             "description": "OAuth callback processed successfully",
             "content": {
               "application/json": {
-                "schema": { "type": "boolean", "description": "OAuth callback processed successfully" }
+                "schema": {
+                  "type": "boolean",
+                  "description": "OAuth callback processed successfully"
+                }
               }
             }
           },
@@ -2495,12 +2785,19 @@
         "parameters": [
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false },
-          { "name": "scope", "in": "query", "schema": { "type": "string", "enum": ["project"] }, "required": false },
+          {
+            "name": "scope",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["project"] },
+            "required": false
+          },
           { "name": "path", "in": "query", "schema": { "type": "string" }, "required": false },
           {
             "name": "roots",
             "in": "query",
-            "schema": { "anyOf": [{ "type": "boolean" }, { "type": "string", "enum": ["true", "false"] }] },
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "string", "enum": ["true", "false"] }]
+            },
             "required": false
           },
           { "name": "start", "in": "query", "schema": { "type": "number" }, "required": false },
@@ -2522,7 +2819,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get a list of all OpenCode sessions, sorted by most recently updated.",
@@ -2538,7 +2837,9 @@
         "responses": {
           "200": {
             "description": "Successfully created session",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Session" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Session" } }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -2630,14 +2931,21 @@
         "tags": ["session"],
         "operationId": "session.get",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
         "responses": {
           "200": {
             "description": "Get session",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Session" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Session" } }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -2654,7 +2962,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Retrieve detailed information about a specific OpenCode session.",
@@ -2664,7 +2974,12 @@
         "tags": ["session"],
         "operationId": "session.delete",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -2672,7 +2987,9 @@
           "200": {
             "description": "Successfully deleted session",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Successfully deleted session" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Successfully deleted session" }
+              }
             }
           },
           "400": {
@@ -2690,7 +3007,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Delete a session and permanently remove all associated data, including messages and history.",
@@ -2700,14 +3019,21 @@
         "tags": ["session"],
         "operationId": "session.update",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
         "responses": {
           "200": {
             "description": "Successfully updated session",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Session" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Session" } }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -2724,7 +3050,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Update properties of an existing session, such as title or other metadata.",
@@ -2756,7 +3084,12 @@
         "tags": ["session"],
         "operationId": "session.children",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -2788,7 +3121,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Retrieve all child sessions that were forked from the specified parent session.",
@@ -2800,7 +3135,12 @@
         "tags": ["session"],
         "operationId": "session.todo",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -2832,7 +3172,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Retrieve the todo list associated with a specific session, showing tasks and action items.",
@@ -2844,10 +3186,20 @@
         "tags": ["session"],
         "operationId": "session.diff",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false },
-          { "name": "messageID", "in": "query", "schema": { "type": "string", "pattern": "^msg" }, "required": false }
+          {
+            "name": "messageID",
+            "in": "query",
+            "schema": { "type": "string", "pattern": "^msg" },
+            "required": false
+          }
         ],
         "responses": {
           "200": {
@@ -2864,7 +3216,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get the file changes (diff) that resulted from a specific user message in the session.",
@@ -2876,7 +3230,12 @@
         "tags": ["session"],
         "operationId": "session.messages",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false },
           {
@@ -2923,7 +3282,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Retrieve all messages in a session, including user prompts and AI responses.",
@@ -2933,7 +3294,12 @@
         "tags": ["session"],
         "operationId": "session.prompt",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -2968,7 +3334,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Create and send a new message to a session, streaming the AI response.",
@@ -2982,7 +3350,10 @@
                   "messageID": { "type": "string", "pattern": "^msg" },
                   "model": {
                     "type": "object",
-                    "properties": { "providerID": { "type": "string" }, "modelID": { "type": "string" } },
+                    "properties": {
+                      "providerID": { "type": "string" },
+                      "modelID": { "type": "string" }
+                    },
                     "required": ["providerID", "modelID"],
                     "additionalProperties": false
                   },
@@ -3017,8 +3388,18 @@
         "tags": ["session"],
         "operationId": "session.message",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
-          { "name": "messageID", "in": "path", "schema": { "type": "string", "pattern": "^msg" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
+          {
+            "name": "messageID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^msg" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -3055,7 +3436,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Retrieve a specific message from a session by its message ID.",
@@ -3065,8 +3448,18 @@
         "tags": ["session"],
         "operationId": "session.deleteMessage",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
-          { "name": "messageID", "in": "path", "schema": { "type": "string", "pattern": "^msg" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
+          {
+            "name": "messageID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^msg" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -3074,7 +3467,9 @@
           "200": {
             "description": "Successfully deleted message",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Successfully deleted message" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Successfully deleted message" }
+              }
             }
           },
           "400": {
@@ -3092,11 +3487,15 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           },
           "409": {
             "description": "SessionBusyError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SessionBusyError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/SessionBusyError" } }
+            }
           }
         },
         "description": "Permanently delete a specific message and all of its parts from a session without reverting file changes.",
@@ -3108,14 +3507,21 @@
         "tags": ["session"],
         "operationId": "session.fork",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
         "responses": {
           "200": {
             "description": "200",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Session" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Session" } }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -3132,7 +3538,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Create a new session by forking an existing session at a specific message point.",
@@ -3155,14 +3563,23 @@
         "tags": ["session"],
         "operationId": "session.abort",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
         "responses": {
           "200": {
             "description": "Aborted session",
-            "content": { "application/json": { "schema": { "type": "boolean", "description": "Aborted session" } } }
+            "content": {
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Aborted session" }
+              }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -3187,14 +3604,21 @@
         "tags": ["session"],
         "operationId": "session.init",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
         "responses": {
           "200": {
             "description": "200",
-            "content": { "application/json": { "schema": { "type": "boolean", "description": "200" } } }
+            "content": {
+              "application/json": { "schema": { "type": "boolean", "description": "200" } }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -3211,7 +3635,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Analyze the current application and create an AGENTS.md file with project-specific agent configurations.",
@@ -3239,22 +3665,33 @@
         "tags": ["session"],
         "operationId": "session.share",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
         "responses": {
           "200": {
             "description": "Successfully shared session",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Session" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Session" } }
+            }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           },
           "500": {
             "description": "InternalServerError",
@@ -3272,22 +3709,33 @@
         "tags": ["session"],
         "operationId": "session.unshare",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
         "responses": {
           "200": {
             "description": "Successfully unshared session",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Session" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Session" } }
+            }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           },
           "500": {
             "description": "InternalServerError",
@@ -3307,14 +3755,23 @@
         "tags": ["session"],
         "operationId": "session.summarize",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
         "responses": {
           "200": {
             "description": "Summarized session",
-            "content": { "application/json": { "schema": { "type": "boolean", "description": "Summarized session" } } }
+            "content": {
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Summarized session" }
+              }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -3331,7 +3788,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Generate a concise summary of the session using AI compaction to preserve key information.",
@@ -3359,7 +3818,12 @@
         "tags": ["session"],
         "operationId": "session.prompt_async",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -3380,7 +3844,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Create and send a new message to a session asynchronously, starting the session if needed and returning immediately.",
@@ -3394,7 +3860,10 @@
                   "messageID": { "type": "string", "pattern": "^msg" },
                   "model": {
                     "type": "object",
-                    "properties": { "providerID": { "type": "string" }, "modelID": { "type": "string" } },
+                    "properties": {
+                      "providerID": { "type": "string" },
+                      "modelID": { "type": "string" }
+                    },
                     "required": ["providerID", "modelID"],
                     "additionalProperties": false
                   },
@@ -3429,7 +3898,12 @@
         "tags": ["session"],
         "operationId": "session.command",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -3464,7 +3938,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Send a new command to a session for execution by the AI assistant.",
@@ -3511,7 +3987,12 @@
         "tags": ["session"],
         "operationId": "session.shell",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -3548,11 +4029,15 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           },
           "409": {
             "description": "SessionBusyError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SessionBusyError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/SessionBusyError" } }
+            }
           }
         },
         "description": "Execute a shell command within the session context and return the AI's response.",
@@ -3567,7 +4052,10 @@
                   "agent": { "type": "string" },
                   "model": {
                     "type": "object",
-                    "properties": { "providerID": { "type": "string" }, "modelID": { "type": "string" } },
+                    "properties": {
+                      "providerID": { "type": "string" },
+                      "modelID": { "type": "string" }
+                    },
                     "required": ["providerID", "modelID"],
                     "additionalProperties": false
                   },
@@ -3586,14 +4074,21 @@
         "tags": ["session"],
         "operationId": "session.revert",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
         "responses": {
           "200": {
             "description": "Updated session",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Session" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Session" } }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -3610,11 +4105,15 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           },
           "409": {
             "description": "SessionBusyError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SessionBusyError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/SessionBusyError" } }
+            }
           }
         },
         "description": "Revert a specific message in a session, undoing its effects and restoring the previous state.",
@@ -3641,14 +4140,21 @@
         "tags": ["session"],
         "operationId": "session.unrevert",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
         "responses": {
           "200": {
             "description": "Updated session",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Session" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Session" } }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -3665,11 +4171,15 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           },
           "409": {
             "description": "SessionBusyError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SessionBusyError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/SessionBusyError" } }
+            }
           }
         },
         "description": "Restore all previously reverted messages in a session.",
@@ -3681,8 +4191,18 @@
         "tags": ["session"],
         "operationId": "permission.respond",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
-          { "name": "permissionID", "in": "path", "schema": { "type": "string", "pattern": "^per" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
+          {
+            "name": "permissionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^per" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -3730,7 +4250,9 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "properties": { "response": { "type": "string", "enum": ["once", "always", "reject"] } },
+                "properties": {
+                  "response": { "type": "string", "enum": ["once", "always", "reject"] }
+                },
                 "required": ["response"],
                 "additionalProperties": false
               }
@@ -3744,9 +4266,24 @@
         "tags": ["session"],
         "operationId": "part.delete",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
-          { "name": "messageID", "in": "path", "schema": { "type": "string", "pattern": "^msg" }, "required": true },
-          { "name": "partID", "in": "path", "schema": { "type": "string", "pattern": "^prt" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
+          {
+            "name": "messageID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^msg" },
+            "required": true
+          },
+          {
+            "name": "partID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^prt" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -3754,7 +4291,9 @@
           "200": {
             "description": "Successfully deleted part",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Successfully deleted part" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Successfully deleted part" }
+              }
             }
           },
           "400": {
@@ -3772,7 +4311,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Delete a part from a message."
@@ -3781,9 +4322,24 @@
         "tags": ["session"],
         "operationId": "part.update",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
-          { "name": "messageID", "in": "path", "schema": { "type": "string", "pattern": "^msg" }, "required": true },
-          { "name": "partID", "in": "path", "schema": { "type": "string", "pattern": "^prt" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
+          {
+            "name": "messageID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^msg" },
+            "required": true
+          },
+          {
+            "name": "partID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^prt" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -3807,11 +4363,15 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Update a part in a message.",
-        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Part" } } } }
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Part" } } }
+        }
       }
     },
     "/sync/start": {
@@ -3826,12 +4386,16 @@
           "200": {
             "description": "Workspace sync started",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Workspace sync started" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Workspace sync started" }
+              }
             }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Start sync loops for workspaces in the current project that have active sessions.",
@@ -4013,7 +4577,10 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } }
+              "schema": {
+                "type": "object",
+                "additionalProperties": { "type": "integer", "minimum": 0 }
+              }
             }
           }
         }
@@ -4037,7 +4604,9 @@
           {
             "name": "roots",
             "in": "query",
-            "schema": { "anyOf": [{ "type": "boolean" }, { "type": "string", "enum": ["true", "false"] }] },
+            "schema": {
+              "anyOf": [{ "type": "boolean" }, { "type": "string", "enum": ["true", "false"] }]
+            },
             "required": false
           },
           { "name": "start", "in": "query", "schema": { "type": "number" }, "required": false },
@@ -4056,7 +4625,11 @@
         "responses": {
           "200": {
             "description": "V2SessionsResponse",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/V2SessionsResponse" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/V2SessionsResponse" }
+              }
+            }
           },
           "400": {
             "description": "InvalidCursorError | InvalidRequestError",
@@ -4074,7 +4647,9 @@
           },
           "401": {
             "description": "UnauthorizedError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } }
+            }
           }
         },
         "description": "Retrieve sessions in the requested order. Items keep that order across pages; use cursor.next or cursor.previous to move through the ordered list.",
@@ -4086,7 +4661,12 @@
         "tags": ["v2"],
         "operationId": "v2.session.prompt",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -4094,23 +4674,39 @@
         "responses": {
           "200": {
             "description": "Session.Message",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SessionMessage" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/SessionMessage" } }
+            }
           },
           "400": {
             "description": "InvalidRequestError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InvalidRequestError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InvalidRequestError" }
+              }
+            }
           },
           "401": {
             "description": "UnauthorizedError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } }
+            }
           },
           "404": {
             "description": "SessionNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SessionNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SessionNotFoundError" }
+              }
+            }
           },
           "503": {
             "description": "ServiceUnavailableError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceUnavailableError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ServiceUnavailableError" }
+              }
+            }
           }
         },
         "description": "Create a v2 session message and queue it for the agent loop.",
@@ -4137,7 +4733,12 @@
         "tags": ["v2"],
         "operationId": "v2.session.compact",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -4146,19 +4747,33 @@
           "204": { "description": "<No Content>" },
           "400": {
             "description": "InvalidRequestError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InvalidRequestError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InvalidRequestError" }
+              }
+            }
           },
           "401": {
             "description": "UnauthorizedError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } }
+            }
           },
           "404": {
             "description": "SessionNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SessionNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SessionNotFoundError" }
+              }
+            }
           },
           "503": {
             "description": "ServiceUnavailableError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceUnavailableError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ServiceUnavailableError" }
+              }
+            }
           }
         },
         "description": "Compact a v2 session conversation.",
@@ -4170,7 +4785,12 @@
         "tags": ["v2"],
         "operationId": "v2.session.wait",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -4179,19 +4799,33 @@
           "204": { "description": "<No Content>" },
           "400": {
             "description": "InvalidRequestError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InvalidRequestError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InvalidRequestError" }
+              }
+            }
           },
           "401": {
             "description": "UnauthorizedError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } }
+            }
           },
           "404": {
             "description": "SessionNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SessionNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SessionNotFoundError" }
+              }
+            }
           },
           "503": {
             "description": "ServiceUnavailableError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceUnavailableError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ServiceUnavailableError" }
+              }
+            }
           }
         },
         "description": "Wait for a v2 session agent loop to become idle.",
@@ -4203,7 +4837,12 @@
         "tags": ["v2"],
         "operationId": "v2.session.context",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
@@ -4213,25 +4852,40 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SessionMessage" } }
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/SessionMessage" }
+                }
               }
             }
           },
           "400": {
             "description": "InvalidRequestError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InvalidRequestError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InvalidRequestError" }
+              }
+            }
           },
           "401": {
             "description": "UnauthorizedError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } }
+            }
           },
           "404": {
             "description": "SessionNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SessionNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SessionNotFoundError" }
+              }
+            }
           },
           "500": {
             "description": "UnknownError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnknownError1" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UnknownError1" } }
+            }
           }
         },
         "description": "Retrieve the active context messages for a v2 session (all messages after the last compaction).",
@@ -4243,7 +4897,12 @@
         "tags": ["v2 messages"],
         "operationId": "v2.session.messages",
         "parameters": [
-          { "name": "sessionID", "in": "path", "schema": { "type": "string", "pattern": "^ses" }, "required": true },
+          {
+            "name": "sessionID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^ses" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "limit", "in": "query", "schema": { "type": "number" }, "required": false },
@@ -4268,7 +4927,9 @@
           "200": {
             "description": "V2SessionMessagesResponse",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/V2SessionMessagesResponse" } }
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/V2SessionMessagesResponse" }
+              }
             }
           },
           "400": {
@@ -4286,15 +4947,23 @@
           },
           "401": {
             "description": "UnauthorizedError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } }
+            }
           },
           "404": {
             "description": "SessionNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SessionNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SessionNotFoundError" }
+              }
+            }
           },
           "500": {
             "description": "UnknownError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnknownError1" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UnknownError1" } }
+            }
           }
         },
         "description": "Retrieve projected v2 messages for a session. Items keep the requested order across pages; use cursor.next or cursor.previous to move through the ordered timeline.",
@@ -4311,7 +4980,10 @@
             "in": "query",
             "schema": {
               "type": "object",
-              "properties": { "directory": { "type": "string" }, "workspace": { "type": "string" } },
+              "properties": {
+                "directory": { "type": "string" },
+                "workspace": { "type": "string" }
+              },
               "additionalProperties": false
             },
             "required": false,
@@ -4325,21 +4997,34 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/ModelV2Info" } }
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ModelV2Info" }
+                }
               }
             }
           },
           "400": {
             "description": "InvalidRequestError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InvalidRequestError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InvalidRequestError" }
+              }
+            }
           },
           "401": {
             "description": "UnauthorizedError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } }
+            }
           },
           "503": {
             "description": "ServiceUnavailableError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceUnavailableError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ServiceUnavailableError" }
+              }
+            }
           }
         },
         "description": "Retrieve available v2 models ordered by release date.",
@@ -4356,7 +5041,10 @@
             "in": "query",
             "schema": {
               "type": "object",
-              "properties": { "directory": { "type": "string" }, "workspace": { "type": "string" } },
+              "properties": {
+                "directory": { "type": "string" },
+                "workspace": { "type": "string" }
+              },
               "additionalProperties": false
             },
             "required": false,
@@ -4370,21 +5058,34 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/ProviderV2Info" } }
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ProviderV2Info" }
+                }
               }
             }
           },
           "400": {
             "description": "InvalidRequestError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InvalidRequestError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InvalidRequestError" }
+              }
+            }
           },
           "401": {
             "description": "UnauthorizedError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } }
+            }
           },
           "503": {
             "description": "ServiceUnavailableError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceUnavailableError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ServiceUnavailableError" }
+              }
+            }
           }
         },
         "description": "Retrieve active v2 AI providers so clients can show provider availability and configuration.",
@@ -4402,7 +5103,10 @@
             "in": "query",
             "schema": {
               "type": "object",
-              "properties": { "directory": { "type": "string" }, "workspace": { "type": "string" } },
+              "properties": {
+                "directory": { "type": "string" },
+                "workspace": { "type": "string" }
+              },
               "additionalProperties": false
             },
             "required": false,
@@ -4414,23 +5118,39 @@
         "responses": {
           "200": {
             "description": "ProviderV2.Info",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProviderV2Info" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ProviderV2Info" } }
+            }
           },
           "400": {
             "description": "InvalidRequestError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InvalidRequestError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InvalidRequestError" }
+              }
+            }
           },
           "401": {
             "description": "UnauthorizedError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UnauthorizedError" } }
+            }
           },
           "404": {
             "description": "ProviderNotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProviderNotFoundError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProviderNotFoundError" }
+              }
+            }
           },
           "503": {
             "description": "ServiceUnavailableError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceUnavailableError" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ServiceUnavailableError" }
+              }
+            }
           }
         },
         "description": "Retrieve a single v2 AI provider so clients can inspect its availability and endpoint settings.",
@@ -4449,7 +5169,9 @@
           "200": {
             "description": "Prompt processed successfully",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Prompt processed successfully" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Prompt processed successfully" }
+              }
             }
           },
           "400": {
@@ -4494,12 +5216,16 @@
           "200": {
             "description": "Help dialog opened successfully",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Help dialog opened successfully" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Help dialog opened successfully" }
+              }
             }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Open the help dialog in the TUI to display user assistance information.",
@@ -4525,7 +5251,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Open the session dialog.",
@@ -4544,12 +5272,16 @@
           "200": {
             "description": "Theme dialog opened successfully",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Theme dialog opened successfully" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Theme dialog opened successfully" }
+              }
             }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Open the theme dialog.",
@@ -4568,12 +5300,16 @@
           "200": {
             "description": "Model dialog opened successfully",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Model dialog opened successfully" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Model dialog opened successfully" }
+              }
             }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Open the model dialog.",
@@ -4592,12 +5328,16 @@
           "200": {
             "description": "Prompt submitted successfully",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Prompt submitted successfully" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Prompt submitted successfully" }
+              }
             }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Submit the prompt.",
@@ -4616,12 +5356,16 @@
           "200": {
             "description": "Prompt cleared successfully",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Prompt cleared successfully" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Prompt cleared successfully" }
+              }
             }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Clear the prompt.",
@@ -4640,7 +5384,9 @@
           "200": {
             "description": "Command executed successfully",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Command executed successfully" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Command executed successfully" }
+              }
             }
           },
           "400": {
@@ -4686,13 +5432,18 @@
             "description": "Toast notification shown successfully",
             "content": {
               "application/json": {
-                "schema": { "type": "boolean", "description": "Toast notification shown successfully" }
+                "schema": {
+                  "type": "boolean",
+                  "description": "Toast notification shown successfully"
+                }
               }
             }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Show a toast notification in the TUI.",
@@ -4728,7 +5479,9 @@
           "200": {
             "description": "Event published successfully",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Event published successfully" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Event published successfully" }
+              }
             }
           },
           "400": {
@@ -4775,7 +5528,9 @@
           "200": {
             "description": "Session selected successfully",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Session selected successfully" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Session selected successfully" }
+              }
             }
           },
           "400": {
@@ -4793,7 +5548,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Navigate the TUI to display the specified session.",
@@ -4804,7 +5561,11 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "sessionID": { "type": "string", "pattern": "^ses", "description": "Session ID to navigate to" }
+                  "sessionID": {
+                    "type": "string",
+                    "pattern": "^ses",
+                    "description": "Session ID to navigate to"
+                  }
                 },
                 "required": ["sessionID"],
                 "additionalProperties": false
@@ -4839,7 +5600,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Retrieve the next TUI request from the queue for processing.",
@@ -4858,12 +5621,16 @@
           "200": {
             "description": "Response submitted successfully",
             "content": {
-              "application/json": { "schema": { "type": "boolean", "description": "Response submitted successfully" } }
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Response submitted successfully" }
+              }
             }
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Submit a response to the TUI request queue to complete a pending request.",
@@ -4903,7 +5670,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "List all available workspace adapters for the current project.",
@@ -4933,7 +5702,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "List all workspaces.",
@@ -4949,7 +5720,9 @@
         "responses": {
           "200": {
             "description": "Workspace created",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Workspace" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Workspace" } }
+            }
           },
           "400": {
             "description": "WorkspaceCreateError | BadRequest | InvalidRequestError",
@@ -4999,7 +5772,9 @@
           "204": { "description": "Workspace list synced" },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Register missing workspaces returned by workspace adapters.",
@@ -5025,7 +5800,10 @@
                     "type": "object",
                     "properties": {
                       "workspaceID": { "type": "string", "pattern": "^wrk" },
-                      "status": { "type": "string", "enum": ["connected", "connecting", "disconnected", "error"] }
+                      "status": {
+                        "type": "string",
+                        "enum": ["connected", "connecting", "disconnected", "error"]
+                      }
                     },
                     "required": ["workspaceID", "status"],
                     "additionalProperties": false
@@ -5037,7 +5815,9 @@
           },
           "400": {
             "description": "Bad request",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BadRequestError" } }
+            }
           }
         },
         "description": "Get connection status for workspaces in the current project.",
@@ -5049,14 +5829,21 @@
         "tags": ["workspace"],
         "operationId": "experimental.workspace.remove",
         "parameters": [
-          { "name": "id", "in": "path", "schema": { "type": "string", "pattern": "^wrk" }, "required": true },
+          {
+            "name": "id",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^wrk" },
+            "required": true
+          },
           { "name": "directory", "in": "query", "schema": { "type": "string" }, "required": false },
           { "name": "workspace", "in": "query", "schema": { "type": "string" }, "required": false }
         ],
         "responses": {
           "200": {
             "description": "Workspace removed",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Workspace" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Workspace" } }
+            }
           },
           "400": {
             "description": "BadRequest | InvalidRequestError",
@@ -5102,7 +5889,9 @@
           },
           "404": {
             "description": "NotFoundError",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Move a session's sync history into the target workspace, or detach it to the local project.",
@@ -5130,7 +5919,12 @@
         "tags": ["pty"],
         "operationId": "pty.connect",
         "parameters": [
-          { "name": "ptyID", "in": "path", "schema": { "type": "string", "pattern": "^pty" }, "required": true },
+          {
+            "name": "ptyID",
+            "in": "path",
+            "schema": { "type": "string", "pattern": "^pty" },
+            "required": true
+          },
           { "in": "query", "name": "directory", "schema": { "type": "string" } },
           { "in": "query", "name": "workspace", "schema": { "type": "string" } },
           { "in": "query", "name": "cursor", "schema": { "type": "string" } },
@@ -5139,17 +5933,25 @@
         "responses": {
           "200": {
             "description": "Connected session",
-            "content": { "application/json": { "schema": { "type": "boolean", "description": "Connected session" } } }
+            "content": {
+              "application/json": {
+                "schema": { "type": "boolean", "description": "Connected session" }
+              }
+            }
           },
           "403": {
             "description": "Forbidden",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/effect_HttpApiError_Forbidden" } }
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/effect_HttpApiError_Forbidden" }
+              }
             }
           },
           "404": {
             "description": "Not found",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundError" } }
+            }
           }
         },
         "description": "Establish a WebSocket connection to interact with a pseudo-terminal (PTY) session in real-time.",
@@ -5335,7 +6137,10 @@
           "always": { "type": "array", "items": { "type": "string" } },
           "tool": {
             "type": "object",
-            "properties": { "messageID": { "type": "string", "pattern": "^msg" }, "callID": { "type": "string" } },
+            "properties": {
+              "messageID": { "type": "string", "pattern": "^msg" },
+              "callID": { "type": "string" }
+            },
             "required": ["messageID", "callID"],
             "additionalProperties": false
           }
@@ -5412,7 +6217,10 @@
           "name": { "type": "string", "enum": ["StructuredOutputError"] },
           "data": {
             "type": "object",
-            "properties": { "message": { "type": "string" }, "retries": { "type": "integer", "minimum": 0 } },
+            "properties": {
+              "message": { "type": "string" },
+              "retries": { "type": "integer", "minimum": 0 }
+            },
             "required": ["message", "retries"],
             "additionalProperties": false
           }
@@ -5540,7 +6348,11 @@
           "properties": {
             "type": "object",
             "properties": {
-              "sessionID": { "type": "string", "pattern": "^ses", "description": "Session ID to navigate to" }
+              "sessionID": {
+                "type": "string",
+                "pattern": "^ses",
+                "description": "Session ID to navigate to"
+              }
             },
             "required": ["sessionID"],
             "additionalProperties": false
@@ -5631,7 +6443,10 @@
       },
       "QuestionTool": {
         "type": "object",
-        "properties": { "messageID": { "type": "string", "pattern": "^msg" }, "callID": { "type": "string" } },
+        "properties": {
+          "messageID": { "type": "string", "pattern": "^msg" },
+          "callID": { "type": "string" }
+        },
         "required": ["messageID", "callID"],
         "additionalProperties": false
       },
@@ -5718,7 +6533,10 @@
             "type": "string",
             "description": "Current status of the task: pending, in_progress, completed, cancelled"
           },
-          "priority": { "type": "string", "description": "Priority level of the task: high, medium, low" }
+          "priority": {
+            "type": "string",
+            "description": "Priority level of the task: high, medium, low"
+          }
         },
         "required": ["content", "status", "priority"],
         "additionalProperties": false
@@ -5764,7 +6582,10 @@
             "properties": {
               "title": { "type": "string" },
               "body": { "type": "string" },
-              "diffs": { "type": "array", "items": { "$ref": "#/components/schemas/SnapshotFileDiff" } }
+              "diffs": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/SnapshotFileDiff" }
+              }
             },
             "required": ["diffs"],
             "additionalProperties": false
@@ -5877,7 +6698,10 @@
           "ignored": { "type": "boolean" },
           "time": {
             "type": "object",
-            "properties": { "start": { "type": "integer", "minimum": 0 }, "end": { "type": "integer", "minimum": 0 } },
+            "properties": {
+              "start": { "type": "integer", "minimum": 0 },
+              "end": { "type": "integer", "minimum": 0 }
+            },
             "required": ["start"],
             "additionalProperties": false
           },
@@ -5918,7 +6742,10 @@
           "metadata": { "type": "object" },
           "time": {
             "type": "object",
-            "properties": { "start": { "type": "integer", "minimum": 0 }, "end": { "type": "integer", "minimum": 0 } },
+            "properties": {
+              "start": { "type": "integer", "minimum": 0 },
+              "end": { "type": "integer", "minimum": 0 }
+            },
             "required": ["start"],
             "additionalProperties": false
           }
@@ -5928,7 +6755,11 @@
       },
       "FilePartSourceText": {
         "type": "object",
-        "properties": { "value": { "type": "string" }, "start": { "type": "number" }, "end": { "type": "number" } },
+        "properties": {
+          "value": { "type": "string" },
+          "start": { "type": "number" },
+          "end": { "type": "number" }
+        },
         "required": ["value", "start", "end"],
         "additionalProperties": false
       },
@@ -6072,7 +6903,10 @@
           "metadata": { "type": "object" },
           "time": {
             "type": "object",
-            "properties": { "start": { "type": "integer", "minimum": 0 }, "end": { "type": "integer", "minimum": 0 } },
+            "properties": {
+              "start": { "type": "integer", "minimum": 0 },
+              "end": { "type": "integer", "minimum": 0 }
+            },
             "required": ["start", "end"],
             "additionalProperties": false
           }
@@ -6253,7 +7087,10 @@
         "required": ["permission", "pattern", "action"],
         "additionalProperties": false
       },
-      "PermissionRuleset": { "type": "array", "items": { "$ref": "#/components/schemas/PermissionRule" } },
+      "PermissionRuleset": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/PermissionRule" }
+      },
       "Session": {
         "type": "object",
         "properties": {
@@ -6270,7 +7107,10 @@
               "additions": { "type": "number" },
               "deletions": { "type": "number" },
               "files": { "type": "number" },
-              "diffs": { "type": "array", "items": { "$ref": "#/components/schemas/SnapshotFileDiff" } }
+              "diffs": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/SnapshotFileDiff" }
+              }
             },
             "required": ["additions", "deletions", "files"],
             "additionalProperties": false
@@ -6343,9 +7183,18 @@
         "type": "object",
         "properties": {
           "text": { "type": "string" },
-          "files": { "type": "array", "items": { "$ref": "#/components/schemas/PromptFileAttachment" } },
-          "agents": { "type": "array", "items": { "$ref": "#/components/schemas/PromptAgentAttachment" } },
-          "references": { "type": "array", "items": { "$ref": "#/components/schemas/PromptReferenceAttachment" } }
+          "files": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PromptFileAttachment" }
+          },
+          "agents": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PromptAgentAttachment" }
+          },
+          "references": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PromptReferenceAttachment" }
+          }
         },
         "required": ["text"],
         "additionalProperties": false
@@ -6501,7 +7350,11 @@
         "required": ["directory", "payload"],
         "additionalProperties": false
       },
-      "LogLevel": { "type": "string", "enum": ["DEBUG", "INFO", "WARN", "ERROR"], "description": "Log level" },
+      "LogLevel": {
+        "type": "string",
+        "enum": ["DEBUG", "INFO", "WARN", "ERROR"],
+        "description": "Log level"
+      },
       "ServerConfig": {
         "type": "object",
         "properties": {
@@ -6602,7 +7455,10 @@
           "color": {
             "anyOf": [
               { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
-              { "type": "string", "enum": ["primary", "secondary", "accent", "success", "warning", "error", "info"] }
+              {
+                "type": "string",
+                "enum": ["primary", "secondary", "accent", "success", "warning", "error", "info"]
+              }
             ],
             "description": "Hex color code (e.g., #FF5733) or theme color (e.g., primary)"
           },
@@ -6666,7 +7522,10 @@
                     {
                       "type": "object",
                       "properties": {
-                        "field": { "type": "string", "enum": ["reasoning_content", "reasoning_details"] }
+                        "field": {
+                          "type": "string",
+                          "enum": ["reasoning_content", "reasoning_details"]
+                        }
                       },
                       "required": ["field"],
                       "additionalProperties": false
@@ -6710,11 +7569,17 @@
                   "properties": {
                     "input": {
                       "type": "array",
-                      "items": { "type": "string", "enum": ["text", "audio", "image", "video", "pdf"] }
+                      "items": {
+                        "type": "string",
+                        "enum": ["text", "audio", "image", "video", "pdf"]
+                      }
                     },
                     "output": {
                       "type": "array",
-                      "items": { "type": "string", "enum": ["text", "audio", "image", "video", "pdf"] }
+                      "items": {
+                        "type": "string",
+                        "enum": ["text", "audio", "image", "video", "pdf"]
+                      }
                     }
                   },
                   "additionalProperties": false
@@ -6747,7 +7612,11 @@
       "McpLocalConfig": {
         "type": "object",
         "properties": {
-          "type": { "type": "string", "enum": ["local"], "description": "Type of MCP server connection" },
+          "type": {
+            "type": "string",
+            "enum": ["local"],
+            "description": "Type of MCP server connection"
+          },
           "command": {
             "type": "array",
             "items": { "type": "string" },
@@ -6774,7 +7643,11 @@
       "McpRemoteConfig": {
         "type": "object",
         "properties": {
-          "type": { "type": "string", "enum": ["remote"], "description": "Type of MCP server connection" },
+          "type": {
+            "type": "string",
+            "enum": ["remote"],
+            "description": "Type of MCP server connection"
+          },
           "url": { "type": "string", "description": "URL of the remote MCP server" },
           "enabled": { "type": "boolean" },
           "headers": { "type": "object", "additionalProperties": { "type": "string" } },
@@ -6892,7 +7765,10 @@
             },
             "additionalProperties": { "$ref": "#/components/schemas/AgentConfig" }
           },
-          "provider": { "type": "object", "additionalProperties": { "$ref": "#/components/schemas/ProviderConfig" } },
+          "provider": {
+            "type": "object",
+            "additionalProperties": { "$ref": "#/components/schemas/ProviderConfig" }
+          },
           "mcp": {
             "type": "object",
             "additionalProperties": {
@@ -6918,7 +7794,10 @@
                   "properties": {
                     "disabled": { "type": "boolean" },
                     "command": { "type": "array", "items": { "type": "string" } },
-                    "environment": { "type": "object", "additionalProperties": { "type": "string" } },
+                    "environment": {
+                      "type": "object",
+                      "additionalProperties": { "type": "string" }
+                    },
                     "extensions": { "type": "array", "items": { "type": "string" } }
                   },
                   "additionalProperties": false
@@ -6996,7 +7875,10 @@
               "primary_tools": { "type": "array", "items": { "type": "string" } },
               "continue_loop_on_deny": { "type": "boolean" },
               "mcp_timeout": { "type": "integer", "exclusiveMinimum": 0 },
-              "policies": { "type": "array", "items": { "$ref": "#/components/schemas/ConfigV2ExperimentalPolicy" } }
+              "policies": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/ConfigV2ExperimentalPolicy" }
+              }
             },
             "additionalProperties": false
           }
@@ -7010,7 +7892,11 @@
           "providerID": { "type": "string" },
           "api": {
             "type": "object",
-            "properties": { "id": { "type": "string" }, "url": { "type": "string" }, "npm": { "type": "string" } },
+            "properties": {
+              "id": { "type": "string" },
+              "url": { "type": "string" },
+              "npm": { "type": "string" }
+            },
             "required": ["id", "url", "npm"],
             "additionalProperties": false
           },
@@ -7052,7 +7938,12 @@
                   { "type": "boolean" },
                   {
                     "type": "object",
-                    "properties": { "field": { "type": "string", "enum": ["reasoning_content", "reasoning_details"] } },
+                    "properties": {
+                      "field": {
+                        "type": "string",
+                        "enum": ["reasoning_content", "reasoning_details"]
+                      }
+                    },
                     "required": ["field"],
                     "additionalProperties": false
                   }
@@ -7088,7 +7979,10 @@
                     },
                     "tier": {
                       "type": "object",
-                      "properties": { "type": { "type": "string", "enum": ["context"] }, "size": { "type": "number" } },
+                      "properties": {
+                        "type": { "type": "string", "enum": ["context"] },
+                        "size": { "type": "number" }
+                      },
                       "required": ["type", "size"],
                       "additionalProperties": false
                     }
@@ -7156,7 +8050,10 @@
           "env": { "type": "array", "items": { "type": "string" } },
           "key": { "type": "string" },
           "options": { "type": "object" },
-          "models": { "type": "object", "additionalProperties": { "$ref": "#/components/schemas/Model" } }
+          "models": {
+            "type": "object",
+            "additionalProperties": { "$ref": "#/components/schemas/Model" }
+          }
         },
         "required": ["id", "name", "source", "env", "options", "models"],
         "additionalProperties": false
@@ -7179,7 +8076,11 @@
       },
       "ToolListItem": {
         "type": "object",
-        "properties": { "id": { "type": "string" }, "description": { "type": "string" }, "parameters": {} },
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" },
+          "parameters": {}
+        },
         "required": ["id", "description", "parameters"],
         "additionalProperties": false
       },
@@ -7245,7 +8146,11 @@
       },
       "ProjectSummary": {
         "type": "object",
-        "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "worktree": { "type": "string" } },
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "worktree": { "type": "string" }
+        },
         "required": ["id", "worktree"],
         "additionalProperties": false
       },
@@ -7265,7 +8170,10 @@
               "additions": { "type": "number" },
               "deletions": { "type": "number" },
               "files": { "type": "number" },
-              "diffs": { "type": "array", "items": { "$ref": "#/components/schemas/SnapshotFileDiff" } }
+              "diffs": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/SnapshotFileDiff" }
+              }
             },
             "required": ["additions", "deletions", "files"],
             "additionalProperties": false
@@ -7330,7 +8238,9 @@
             "required": ["messageID"],
             "additionalProperties": false
           },
-          "project": { "anyOf": [{ "$ref": "#/components/schemas/ProjectSummary" }, { "type": "null" }] }
+          "project": {
+            "anyOf": [{ "$ref": "#/components/schemas/ProjectSummary" }, { "type": "null" }]
+          }
         },
         "required": ["id", "slug", "projectID", "directory", "title", "version", "time", "project"],
         "additionalProperties": false
@@ -7354,7 +8264,10 @@
           "kind": { "type": "integer", "minimum": 0 },
           "location": {
             "type": "object",
-            "properties": { "uri": { "type": "string" }, "range": { "$ref": "#/components/schemas/Range" } },
+            "properties": {
+              "uri": { "type": "string" },
+              "range": { "$ref": "#/components/schemas/Range" }
+            },
             "required": ["uri", "range"],
             "additionalProperties": false
           }
@@ -7557,7 +8470,10 @@
       },
       "MCPStatusFailed": {
         "type": "object",
-        "properties": { "status": { "type": "string", "enum": ["failed"] }, "error": { "type": "string" } },
+        "properties": {
+          "status": { "type": "string", "enum": ["failed"] },
+          "error": { "type": "string" }
+        },
         "required": ["status", "error"],
         "additionalProperties": false
       },
@@ -7623,7 +8539,10 @@
       },
       "PtyForbiddenError": {
         "type": "object",
-        "properties": { "_tag": { "type": "string", "enum": ["PtyForbiddenError"] }, "message": { "type": "string" } },
+        "properties": {
+          "_tag": { "type": "string", "enum": ["PtyForbiddenError"] },
+          "message": { "type": "string" }
+        },
         "required": ["_tag", "message"],
         "additionalProperties": false
       },
@@ -7759,7 +8678,11 @@
         "required": ["name", "data"],
         "properties": {
           "name": { "type": "string", "enum": ["NotFoundError"] },
-          "data": { "type": "object", "required": ["message"], "properties": { "message": { "type": "string" } } }
+          "data": {
+            "type": "object",
+            "required": ["message"],
+            "properties": { "message": { "type": "string" } }
+          }
         }
       },
       "TextPartInput": {
@@ -7772,7 +8695,10 @@
           "ignored": { "type": "boolean" },
           "time": {
             "type": "object",
-            "properties": { "start": { "type": "integer", "minimum": 0 }, "end": { "type": "integer", "minimum": 0 } },
+            "properties": {
+              "start": { "type": "integer", "minimum": 0 },
+              "end": { "type": "integer", "minimum": 0 }
+            },
             "required": ["start"],
             "additionalProperties": false
           },
@@ -7858,13 +8784,19 @@
       },
       "InvalidCursorError": {
         "type": "object",
-        "properties": { "_tag": { "type": "string", "enum": ["InvalidCursorError"] }, "message": { "type": "string" } },
+        "properties": {
+          "_tag": { "type": "string", "enum": ["InvalidCursorError"] },
+          "message": { "type": "string" }
+        },
         "required": ["_tag", "message"],
         "additionalProperties": false
       },
       "UnauthorizedError": {
         "type": "object",
-        "properties": { "_tag": { "type": "string", "enum": ["UnauthorizedError"] }, "message": { "type": "string" } },
+        "properties": {
+          "_tag": { "type": "string", "enum": ["UnauthorizedError"] },
+          "message": { "type": "string" }
+        },
         "required": ["_tag", "message"],
         "additionalProperties": false
       },
@@ -8002,7 +8934,11 @@
           "properties": {
             "type": "object",
             "properties": {
-              "sessionID": { "type": "string", "pattern": "^ses", "description": "Session ID to navigate to" }
+              "sessionID": {
+                "type": "string",
+                "pattern": "^ses",
+                "description": "Session ID to navigate to"
+              }
             },
             "required": ["sessionID"],
             "additionalProperties": false
@@ -8193,10 +9129,14 @@
                   "id": { "anyOf": [{ "type": "string", "pattern": "^ses" }, { "type": "null" }] },
                   "slug": { "anyOf": [{ "type": "string" }, { "type": "null" }] },
                   "projectID": { "anyOf": [{ "type": "string" }, { "type": "null" }] },
-                  "workspaceID": { "anyOf": [{ "type": "string", "pattern": "^wrk" }, { "type": "null" }] },
+                  "workspaceID": {
+                    "anyOf": [{ "type": "string", "pattern": "^wrk" }, { "type": "null" }]
+                  },
                   "directory": { "anyOf": [{ "type": "string" }, { "type": "null" }] },
                   "path": { "anyOf": [{ "type": "string" }, { "type": "null" }] },
-                  "parentID": { "anyOf": [{ "type": "string", "pattern": "^ses" }, { "type": "null" }] },
+                  "parentID": {
+                    "anyOf": [{ "type": "string", "pattern": "^ses" }, { "type": "null" }]
+                  },
                   "summary": {
                     "anyOf": [
                       {
@@ -8205,7 +9145,10 @@
                           "additions": { "type": "number" },
                           "deletions": { "type": "number" },
                           "files": { "type": "number" },
-                          "diffs": { "type": "array", "items": { "$ref": "#/components/schemas/SnapshotFileDiff" } }
+                          "diffs": {
+                            "type": "array",
+                            "items": { "$ref": "#/components/schemas/SnapshotFileDiff" }
+                          }
                         },
                         "required": ["additions", "deletions", "files"],
                         "additionalProperties": false
@@ -8224,7 +9167,10 @@
                           "reasoning": { "type": "number" },
                           "cache": {
                             "type": "object",
-                            "properties": { "read": { "type": "number" }, "write": { "type": "number" } },
+                            "properties": {
+                              "read": { "type": "number" },
+                              "write": { "type": "number" }
+                            },
                             "required": ["read", "write"],
                             "additionalProperties": false
                           }
@@ -8237,7 +9183,9 @@
                   },
                   "share": {
                     "type": "object",
-                    "properties": { "url": { "anyOf": [{ "type": "string" }, { "type": "null" }] } },
+                    "properties": {
+                      "url": { "anyOf": [{ "type": "string" }, { "type": "null" }] }
+                    },
                     "additionalProperties": false
                   },
                   "title": { "anyOf": [{ "type": "string" }, { "type": "null" }] },
@@ -8262,14 +9210,22 @@
                   "time": {
                     "type": "object",
                     "properties": {
-                      "created": { "anyOf": [{ "type": "integer", "minimum": 0 }, { "type": "null" }] },
-                      "updated": { "anyOf": [{ "type": "integer", "minimum": 0 }, { "type": "null" }] },
-                      "compacting": { "anyOf": [{ "type": "integer", "minimum": 0 }, { "type": "null" }] },
+                      "created": {
+                        "anyOf": [{ "type": "integer", "minimum": 0 }, { "type": "null" }]
+                      },
+                      "updated": {
+                        "anyOf": [{ "type": "integer", "minimum": 0 }, { "type": "null" }]
+                      },
+                      "compacting": {
+                        "anyOf": [{ "type": "integer", "minimum": 0 }, { "type": "null" }]
+                      },
                       "archived": { "anyOf": [{ "type": "number" }, { "type": "null" }] }
                     },
                     "additionalProperties": false
                   },
-                  "permission": { "anyOf": [{ "$ref": "#/components/schemas/PermissionRuleset" }, { "type": "null" }] },
+                  "permission": {
+                    "anyOf": [{ "$ref": "#/components/schemas/PermissionRuleset" }, { "type": "null" }]
+                  },
                   "revert": {
                     "anyOf": [
                       {
@@ -8566,7 +9522,10 @@
           "aggregateID": { "type": "string", "enum": ["sessionID"] },
           "data": {
             "type": "object",
-            "properties": { "timestamp": { "type": "number" }, "sessionID": { "type": "string", "pattern": "^ses" } },
+            "properties": {
+              "timestamp": { "type": "number" },
+              "sessionID": { "type": "string", "pattern": "^ses" }
+            },
             "required": ["timestamp", "sessionID"],
             "additionalProperties": false
           }
@@ -8773,7 +9732,10 @@
               "input": { "type": "object" },
               "provider": {
                 "type": "object",
-                "properties": { "executed": { "type": "boolean" }, "metadata": { "type": "object" } },
+                "properties": {
+                  "executed": { "type": "boolean" },
+                  "metadata": { "type": "object" }
+                },
                 "required": ["executed"],
                 "additionalProperties": false
               }
@@ -8843,7 +9805,10 @@
               },
               "provider": {
                 "type": "object",
-                "properties": { "executed": { "type": "boolean" }, "metadata": { "type": "object" } },
+                "properties": {
+                  "executed": { "type": "boolean" },
+                  "metadata": { "type": "object" }
+                },
                 "required": ["executed"],
                 "additionalProperties": false
               }
@@ -8872,7 +9837,10 @@
               "error": { "$ref": "#/components/schemas/SessionErrorUnknown" },
               "provider": {
                 "type": "object",
-                "properties": { "executed": { "type": "boolean" }, "metadata": { "type": "object" } },
+                "properties": {
+                  "executed": { "type": "boolean" },
+                  "metadata": { "type": "object" }
+                },
                 "required": ["executed"],
                 "additionalProperties": false
               }
@@ -9073,7 +10041,10 @@
             "type": "object",
             "properties": {
               "sessionID": { "type": "string", "pattern": "^ses" },
-              "diff": { "type": "array", "items": { "$ref": "#/components/schemas/SnapshotFileDiff" } }
+              "diff": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/SnapshotFileDiff" }
+              }
             },
             "required": ["sessionID", "diff"],
             "additionalProperties": false
@@ -9474,7 +10445,10 @@
             "type": "object",
             "properties": {
               "workspaceID": { "type": "string", "pattern": "^wrk" },
-              "status": { "type": "string", "enum": ["connected", "connecting", "disconnected", "error"] }
+              "status": {
+                "type": "string",
+                "enum": ["connected", "connecting", "disconnected", "error"]
+              }
             },
             "required": ["workspaceID", "status"],
             "additionalProperties": false
@@ -9660,7 +10634,11 @@
       },
       "PromptSource": {
         "type": "object",
-        "properties": { "start": { "type": "number" }, "end": { "type": "number" }, "text": { "type": "string" } },
+        "properties": {
+          "start": { "type": "number" },
+          "end": { "type": "number" },
+          "text": { "type": "string" }
+        },
         "required": ["start", "end", "text"],
         "additionalProperties": false
       },
@@ -9678,7 +10656,10 @@
       },
       "PromptAgentAttachment": {
         "type": "object",
-        "properties": { "name": { "type": "string" }, "source": { "$ref": "#/components/schemas/PromptSource" } },
+        "properties": {
+          "name": { "type": "string" },
+          "source": { "$ref": "#/components/schemas/PromptSource" }
+        },
         "required": ["name"],
         "additionalProperties": false
       },
@@ -9845,7 +10826,10 @@
       },
       "SessionErrorUnknown": {
         "type": "object",
-        "properties": { "type": { "type": "string", "enum": ["unknown"] }, "message": { "type": "string" } },
+        "properties": {
+          "type": { "type": "string", "enum": ["unknown"] },
+          "message": { "type": "string" }
+        },
         "required": ["type", "message"],
         "additionalProperties": false
       },
@@ -9875,7 +10859,10 @@
           "type": { "type": "string", "enum": ["session.next.text.started"] },
           "properties": {
             "type": "object",
-            "properties": { "timestamp": { "type": "number" }, "sessionID": { "type": "string", "pattern": "^ses" } },
+            "properties": {
+              "timestamp": { "type": "number" },
+              "sessionID": { "type": "string", "pattern": "^ses" }
+            },
             "required": ["timestamp", "sessionID"],
             "additionalProperties": false
           }
@@ -10055,7 +11042,10 @@
               "input": { "type": "object" },
               "provider": {
                 "type": "object",
-                "properties": { "executed": { "type": "boolean" }, "metadata": { "type": "object" } },
+                "properties": {
+                  "executed": { "type": "boolean" },
+                  "metadata": { "type": "object" }
+                },
                 "required": ["executed"],
                 "additionalProperties": false
               }
@@ -10069,7 +11059,10 @@
       },
       "ToolTextContent": {
         "type": "object",
-        "properties": { "type": { "type": "string", "enum": ["text"] }, "text": { "type": "string" } },
+        "properties": {
+          "type": { "type": "string", "enum": ["text"] },
+          "text": { "type": "string" }
+        },
         "required": ["type", "text"],
         "additionalProperties": false
       },
@@ -10136,7 +11129,10 @@
               },
               "provider": {
                 "type": "object",
-                "properties": { "executed": { "type": "boolean" }, "metadata": { "type": "object" } },
+                "properties": {
+                  "executed": { "type": "boolean" },
+                  "metadata": { "type": "object" }
+                },
                 "required": ["executed"],
                 "additionalProperties": false
               }
@@ -10162,7 +11158,10 @@
               "error": { "$ref": "#/components/schemas/SessionErrorUnknown" },
               "provider": {
                 "type": "object",
-                "properties": { "executed": { "type": "boolean" }, "metadata": { "type": "object" } },
+                "properties": {
+                  "executed": { "type": "boolean" },
+                  "metadata": { "type": "object" }
+                },
                 "required": ["executed"],
                 "additionalProperties": false
               }
@@ -10345,13 +11344,17 @@
                     "anyOf": [
                       {
                         "type": "object",
-                        "properties": { "type": { "type": "string", "enum": ["reasoning_content"] } },
+                        "properties": {
+                          "type": { "type": "string", "enum": ["reasoning_content"] }
+                        },
                         "required": ["type"],
                         "additionalProperties": false
                       },
                       {
                         "type": "object",
-                        "properties": { "type": { "type": "string", "enum": ["reasoning_details"] } },
+                        "properties": {
+                          "type": { "type": "string", "enum": ["reasoning_details"] }
+                        },
                         "required": ["type"],
                         "additionalProperties": false
                       }
@@ -10418,7 +11421,10 @@
                 "body": { "type": "object" },
                 "aisdk": {
                   "type": "object",
-                  "properties": { "provider": { "type": "object" }, "request": { "type": "object" } },
+                  "properties": {
+                    "provider": { "type": "object" },
+                    "request": { "type": "object" }
+                  },
                   "required": ["provider", "request"],
                   "additionalProperties": false
                 }
@@ -10450,7 +11456,10 @@
               "properties": {
                 "tier": {
                   "type": "object",
-                  "properties": { "type": { "type": "string", "enum": ["context"] }, "size": { "type": "integer" } },
+                  "properties": {
+                    "type": { "type": "string", "enum": ["context"] },
+                    "size": { "type": "integer" }
+                  },
                   "required": ["type", "size"],
                   "additionalProperties": false
                 },
@@ -10717,9 +11726,18 @@
             "additionalProperties": false
           },
           "text": { "type": "string" },
-          "files": { "type": "array", "items": { "$ref": "#/components/schemas/PromptFileAttachment" } },
-          "agents": { "type": "array", "items": { "$ref": "#/components/schemas/PromptAgentAttachment" } },
-          "references": { "type": "array", "items": { "$ref": "#/components/schemas/PromptReferenceAttachment" } },
+          "files": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PromptFileAttachment" }
+          },
+          "agents": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PromptAgentAttachment" }
+          },
+          "references": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PromptReferenceAttachment" }
+          },
           "type": { "type": "string", "enum": ["user"] }
         },
         "required": ["id", "time", "text", "type"],
@@ -10764,7 +11782,10 @@
       },
       "SessionMessageAssistantText": {
         "type": "object",
-        "properties": { "type": { "type": "string", "enum": ["text"] }, "text": { "type": "string" } },
+        "properties": {
+          "type": { "type": "string", "enum": ["text"] },
+          "text": { "type": "string" }
+        },
         "required": ["type", "text"],
         "additionalProperties": false
       },
@@ -10780,7 +11801,10 @@
       },
       "SessionMessageToolStatePending": {
         "type": "object",
-        "properties": { "status": { "type": "string", "enum": ["pending"] }, "input": { "type": "string" } },
+        "properties": {
+          "status": { "type": "string", "enum": ["pending"] },
+          "input": { "type": "string" }
+        },
         "required": ["status", "input"],
         "additionalProperties": false
       },
@@ -10808,7 +11832,10 @@
         "properties": {
           "status": { "type": "string", "enum": ["completed"] },
           "input": { "type": "object" },
-          "attachments": { "type": "array", "items": { "$ref": "#/components/schemas/PromptFileAttachment" } },
+          "attachments": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PromptFileAttachment" }
+          },
           "content": {
             "type": "array",
             "items": {
@@ -10979,19 +12006,28 @@
               { "type": "boolean", "enum": [false] },
               {
                 "type": "object",
-                "properties": { "via": { "type": "string", "enum": ["env"] }, "name": { "type": "string" } },
+                "properties": {
+                  "via": { "type": "string", "enum": ["env"] },
+                  "name": { "type": "string" }
+                },
                 "required": ["via", "name"],
                 "additionalProperties": false
               },
               {
                 "type": "object",
-                "properties": { "via": { "type": "string", "enum": ["account"] }, "service": { "type": "string" } },
+                "properties": {
+                  "via": { "type": "string", "enum": ["account"] },
+                  "service": { "type": "string" }
+                },
                 "required": ["via", "service"],
                 "additionalProperties": false
               },
               {
                 "type": "object",
-                "properties": { "via": { "type": "string", "enum": ["custom"] }, "data": { "type": "object" } },
+                "properties": {
+                  "via": { "type": "string", "enum": ["custom"] },
+                  "data": { "type": "object" }
+                },
                 "required": ["via", "data"],
                 "additionalProperties": false
               }
@@ -11025,13 +12061,17 @@
                     "anyOf": [
                       {
                         "type": "object",
-                        "properties": { "type": { "type": "string", "enum": ["reasoning_content"] } },
+                        "properties": {
+                          "type": { "type": "string", "enum": ["reasoning_content"] }
+                        },
                         "required": ["type"],
                         "additionalProperties": false
                       },
                       {
                         "type": "object",
-                        "properties": { "type": { "type": "string", "enum": ["reasoning_details"] } },
+                        "properties": {
+                          "type": { "type": "string", "enum": ["reasoning_details"] }
+                        },
                         "required": ["type"],
                         "additionalProperties": false
                       }
@@ -11136,13 +12176,17 @@
                     "anyOf": [
                       {
                         "type": "object",
-                        "properties": { "type": { "type": "string", "enum": ["reasoning_content"] } },
+                        "properties": {
+                          "type": { "type": "string", "enum": ["reasoning_content"] }
+                        },
                         "required": ["type"],
                         "additionalProperties": false
                       },
                       {
                         "type": "object",
-                        "properties": { "type": { "type": "string", "enum": ["reasoning_details"] } },
+                        "properties": {
+                          "type": { "type": "string", "enum": ["reasoning_details"] }
+                        },
                         "required": ["type"],
                         "additionalProperties": false
                       }
@@ -11209,7 +12253,10 @@
                 "body": { "type": "object" },
                 "aisdk": {
                   "type": "object",
-                  "properties": { "provider": { "type": "object" }, "request": { "type": "object" } },
+                  "properties": {
+                    "provider": { "type": "object" },
+                    "request": { "type": "object" }
+                  },
                   "required": ["provider", "request"],
                   "additionalProperties": false
                 }
@@ -11240,7 +12287,10 @@
               "properties": {
                 "tier": {
                   "type": "object",
-                  "properties": { "type": { "type": "string", "enum": ["context"] }, "size": { "type": "integer" } },
+                  "properties": {
+                    "type": { "type": "string", "enum": ["context"] },
+                    "size": { "type": "integer" }
+                  },
                   "required": ["type", "size"],
                   "additionalProperties": false
                 },
@@ -11297,7 +12347,10 @@
             "required": ["message"],
             "properties": {
               "message": { "type": "string" },
-              "kind": { "type": "string", "enum": ["Params", "Headers", "Query", "Body", "Payload"] }
+              "kind": {
+                "type": "string",
+                "enum": ["Params", "Headers", "Query", "Body", "Payload"]
+              }
             }
           }
         }

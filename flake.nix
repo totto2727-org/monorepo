@@ -1,0 +1,64 @@
+{
+  inputs = {
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
+    moonbit-overlay = {
+      url = "github:moonbit-community/moonbit-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    vite-plus-overlay = {
+      url = "github:ryoppippi/nix-vite-plus";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs =
+    {
+      nixpkgs,
+      moonbit-overlay,
+      vite-plus-overlay,
+      ...
+    }:
+    let
+      supportedSystems = [
+        "aarch64-darwin"
+        "x86_64-darwin"
+        "x86_64-linux"
+      ];
+      forEachSystem = nixpkgs.lib.genAttrs supportedSystems;
+    in
+    {
+      devShells = forEachSystem (
+        system:
+        let
+          pkgs = import nixpkgs {
+            inherit system;
+            overlays = [ 
+              moonbit-overlay.overlays.default
+              vite-plus-overlay.overlays.default
+            ];
+          };
+        in
+        {
+          default = pkgs.mkShell {
+            packages = [
+              pkgs.bun
+              pkgs.deno
+              pkgs.go
+              pkgs.just
+              pkgs.nixfmt
+              pkgs.sqld
+              pkgs.turso-cli
+              pkgs.moonbit-bin.moonbit.latest
+              pkgs.beam29Packages.elixir_1_20
+              pkgs.beam29Packages.erlang
+              pkgs.vite-plus
+            ];
+
+            shellHook = ''
+              vp config
+            '';
+          };
+        }
+      );
+    };
+}

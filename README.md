@@ -19,20 +19,22 @@ A multi-language monorepo (TypeScript + MoonBit) using Bun workspaces and Vite+.
 
 ### Requirements
 
-- `Devbox`: `https://www.jetify.com/docs/devbox/installing-devbox`
+- `Nix`: `https://nixos.org/download/`
+- `direnv`: `https://direnv.net/docs/installation.html` (optional)
 - `vite-plus(vp)`: `curl -fsSL https://vite.plus | bash`
-- `moonbit`: `curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash`
 - `atlas`: `curl -sSf https://atlasgo.sh | sh`
 
 ### Installation
 
 ```bash
 # Enter development environment
-devbox shell
+nix develop
 
 # Install dependencies
 vp i
 ```
+
+Run `direnv allow` once to load the development environment automatically.
 
 ## Development Commands
 

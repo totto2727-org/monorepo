@@ -11,6 +11,14 @@
       url = "path:../npm-package";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    moonbit-overlay = {
+      url = "github:moonbit-community/moonbit-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    vite-plus-overlay = {
+      url = "github:ryoppippi/nix-vite-plus";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -19,6 +27,8 @@
       nixpkgs,
       npmpkgs,
       home-manager,
+      moonbit-overlay,
+      vite-plus-overlay,
     }:
     let
       username = "sandbox";
@@ -35,6 +45,10 @@
           pkgs = import nixpkgs {
             inherit system;
             config.allowUnfree = true;
+            overlays = [
+              moonbit-overlay.overlays.default
+              vite-plus-overlay.overlays.default
+            ];
           };
           npm = npmpkgs.lib.${system}.npmPackage;
         in
@@ -48,7 +62,9 @@
               home.homeDirectory = homedir;
 
               home.packages =
-                (import ../share/packages.nix { inherit pkgs npm; })
+                (import ../share/packages.nix {
+                  inherit pkgs npm;
+                })
                 ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).sandbox;
 
               programs = (import ../share/programs.nix) // {
@@ -56,7 +72,6 @@
                 zsh = (import ../share/zsh.nix { inherit pkgs; }) // {
                   initContent = ''
                             eval "$(devbox global shellenv --init-hook)"
-                            [ -f "$HOME/.vite-plus/env" ] && . "$HOME/.vite-plus/env"
                     	      '';
 
                   shellAliases = (import ../share/shell-aliases.nix) // {
