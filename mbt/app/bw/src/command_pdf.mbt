@@ -128,26 +128,36 @@ impl ToJson for PdfBody with fn to_json(self) -> Json {
 extend PdfBody with ToJson::{to_json}
 
 ///|
-fn pdf_command_def() -> @admiral.CommandDef {
-  @admiral.command(name="pdf", description="Generate a PDF", options=[
-    @admiral.string(pdf_account_id_option, description="Cloudflare account ID"),
-    @admiral.string(pdf_api_token_option, description="Cloudflare API token"),
-    @admiral.string(pdf_url_option, description="Target URL"),
-    @admiral.string(pdf_html_option, description="Path to local HTML file"),
-    @admiral.string(pdf_wait_until_option, description="Page load strategy"),
-    @admiral.string(
-      pdf_output_option,
-      short='o',
-      description="Output file path",
-    ),
-    @admiral.bool(pdf_landscape_option, description="Landscape orientation"),
-    @admiral.string(pdf_format_option, description="Page format"),
-    @admiral.string(config_option, description="Path to JSON config file"),
-  ])
+fn pdf_command_def(
+  run : async (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
+  @admiral.command(
+    name="pdf",
+    description="Generate a PDF",
+    options=[
+      @admiral.string(
+        pdf_account_id_option,
+        description="Cloudflare account ID",
+      ),
+      @admiral.string(pdf_api_token_option, description="Cloudflare API token"),
+      @admiral.string(pdf_url_option, description="Target URL"),
+      @admiral.string(pdf_html_option, description="Path to local HTML file"),
+      @admiral.string(pdf_wait_until_option, description="Page load strategy"),
+      @admiral.string(
+        pdf_output_option,
+        short='o',
+        description="Output file path",
+      ),
+      @admiral.bool(pdf_landscape_option, description="Landscape orientation"),
+      @admiral.string(pdf_format_option, description="Page format"),
+      @admiral.string(config_option, description="Path to JSON config file"),
+    ],
+    run=Some(run),
+  )
 }
 
 ///|
-async fn pdf_options(matches : @argparse.Matches) -> PdfOptionsInput {
+async fn pdf_options(matches : @admiral.Context) -> PdfOptionsInput {
   let config = load_config(matches)
   {
     account_id: merged_account_id(matches, config),
@@ -197,7 +207,7 @@ fn PdfBody::from_options(options : PdfOptionsInput) -> PdfBody raise {
 }
 
 ///|
-async fn run_pdf(matches : @argparse.Matches) -> Unit {
+async fn run_pdf(matches : @admiral.Context) -> Unit {
   let options = pdf_options(matches)
   let body = PdfBody::from_options(options)
   let (code, reason, data) = post_json(

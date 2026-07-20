@@ -99,21 +99,34 @@ impl ToJson for JsonExtractBody with fn to_json(self) -> Json {
 extend JsonExtractBody with ToJson::{to_json}
 
 ///|
-fn json_extract_command_def() -> @admiral.CommandDef {
-  @admiral.command(name="json", description="Extract structured data", options=[
-    @admiral.string(json_account_id_option, description="Cloudflare account ID"),
-    @admiral.string(json_api_token_option, description="Cloudflare API token"),
-    @admiral.string(json_url_option, description="Target URL"),
-    @admiral.string(json_html_option, description="Path to local HTML file"),
-    @admiral.string(json_wait_until_option, description="Page load strategy"),
-    @admiral.string(json_prompt_option, description="Extraction prompt"),
-    @admiral.string(json_schema_option, description="Path to JSON Schema file"),
-    @admiral.string(
-      json_format_option,
-      description="Output format: json, markdown, text",
-    ),
-    @admiral.string(config_option, description="Path to JSON config file"),
-  ])
+fn json_extract_command_def(
+  run : async (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
+  @admiral.command(
+    name="json",
+    description="Extract structured data",
+    options=[
+      @admiral.string(
+        json_account_id_option,
+        description="Cloudflare account ID",
+      ),
+      @admiral.string(json_api_token_option, description="Cloudflare API token"),
+      @admiral.string(json_url_option, description="Target URL"),
+      @admiral.string(json_html_option, description="Path to local HTML file"),
+      @admiral.string(json_wait_until_option, description="Page load strategy"),
+      @admiral.string(json_prompt_option, description="Extraction prompt"),
+      @admiral.string(
+        json_schema_option,
+        description="Path to JSON Schema file",
+      ),
+      @admiral.string(
+        json_format_option,
+        description="Output format: json, markdown, text",
+      ),
+      @admiral.string(config_option, description="Path to JSON config file"),
+    ],
+    run=Some(run),
+  )
 }
 
 ///|
@@ -131,7 +144,7 @@ fn parse_json_extract_output_format(
 
 ///|
 async fn json_extract_options(
-  matches : @argparse.Matches,
+  matches : @admiral.Context,
 ) -> JsonExtractOptionsInput {
   let config = load_config(matches)
   {
@@ -217,7 +230,7 @@ fn JsonExtractBody::from_options(
 }
 
 ///|
-async fn run_json_extract(matches : @argparse.Matches) -> Unit {
+async fn run_json_extract(matches : @admiral.Context) -> Unit {
   let options = json_extract_options(matches)
   let body = JsonExtractBody::from_options(options)
   let (code, reason, data) = post_json(

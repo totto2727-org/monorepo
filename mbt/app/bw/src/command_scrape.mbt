@@ -92,23 +92,36 @@ impl ToJson for ScrapeBody with fn to_json(self) -> Json {
 extend ScrapeBody with ToJson::{to_json}
 
 ///|
-fn scrape_command_def() -> @admiral.CommandDef {
-  @admiral.command(name="scrape", description="Extract elements", options=[
-    @admiral.string(
-      scrape_account_id_option,
-      description="Cloudflare account ID",
-    ),
-    @admiral.string(scrape_api_token_option, description="Cloudflare API token"),
-    @admiral.string(scrape_url_option, description="Target URL"),
-    @admiral.string(scrape_html_option, description="Path to local HTML file"),
-    @admiral.string(scrape_wait_until_option, description="Page load strategy"),
-    @admiral.string(scrape_selector_option, description="CSS selector"),
-    @admiral.string(config_option, description="Path to JSON config file"),
-  ])
+fn scrape_command_def(
+  run : async (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
+  @admiral.command(
+    name="scrape",
+    description="Extract elements",
+    options=[
+      @admiral.string(
+        scrape_account_id_option,
+        description="Cloudflare account ID",
+      ),
+      @admiral.string(
+        scrape_api_token_option,
+        description="Cloudflare API token",
+      ),
+      @admiral.string(scrape_url_option, description="Target URL"),
+      @admiral.string(scrape_html_option, description="Path to local HTML file"),
+      @admiral.string(
+        scrape_wait_until_option,
+        description="Page load strategy",
+      ),
+      @admiral.string(scrape_selector_option, description="CSS selector"),
+      @admiral.string(config_option, description="Path to JSON config file"),
+    ],
+    run=Some(run),
+  )
 }
 
 ///|
-async fn scrape_options(matches : @argparse.Matches) -> ScrapeOptionsInput {
+async fn scrape_options(matches : @admiral.Context) -> ScrapeOptionsInput {
   let config = load_config(matches)
   {
     account_id: merged_account_id(matches, config),
@@ -141,7 +154,7 @@ fn ScrapeBody::from_options(options : ScrapeOptionsInput) -> ScrapeBody raise {
 }
 
 ///|
-async fn run_scrape(matches : @argparse.Matches) -> Unit {
+async fn run_scrape(matches : @admiral.Context) -> Unit {
   let options = scrape_options(matches)
   let body = ScrapeBody::from_options(options)
   let (code, reason, data) = post_json(

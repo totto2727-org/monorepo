@@ -127,7 +127,7 @@ fn parse_config_object(object : Map[String, Json]) -> BwConfig raise {
 }
 
 ///|
-async fn load_config(matches : @argparse.Matches) -> BwConfig {
+async fn load_config(matches : @admiral.Context) -> BwConfig {
   match matches.values.get(config_option) {
     Some([path, ..]) => {
       let parsed = @json.parse(@fs.read_file(path).text()) catch {
@@ -143,7 +143,7 @@ async fn load_config(matches : @argparse.Matches) -> BwConfig {
 }
 
 ///|
-fn cli_string(matches : @argparse.Matches, option : String) -> String? {
+fn cli_string(matches : @admiral.Context, option : String) -> String? {
   match matches.values.get(option) {
     Some([value, ..]) => Some(value)
     _ => None
@@ -151,7 +151,7 @@ fn cli_string(matches : @argparse.Matches, option : String) -> String? {
 }
 
 ///|
-fn cli_int(matches : @argparse.Matches, option : String) -> Int? raise {
+fn cli_int(matches : @admiral.Context, option : String) -> Int? raise {
   match cli_string(matches, option) {
     Some(value) => Some(@string.parse_int(value))
     None => None
@@ -211,7 +211,7 @@ fn required_body_source(url : String?, html : String?) -> Unit raise {
 
 ///|
 fn merged_account_id(
-  matches : @argparse.Matches,
+  matches : @admiral.Context,
   config : BwConfig,
 ) -> String raise {
   match merge_string(cli_string(matches, "account-id"), config.account_id) {
@@ -229,7 +229,7 @@ fn merged_account_id(
 
 ///|
 fn merged_api_token(
-  matches : @argparse.Matches,
+  matches : @admiral.Context,
   config : BwConfig,
 ) -> String raise {
   match merge_string(cli_string(matches, "api-token"), config.api_token) {
@@ -247,7 +247,7 @@ fn merged_api_token(
 
 ///|
 async fn merged_html(
-  matches : @argparse.Matches,
+  matches : @admiral.Context,
   option : String,
   config : BwConfig,
 ) -> String? {

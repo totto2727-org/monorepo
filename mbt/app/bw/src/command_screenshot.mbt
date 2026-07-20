@@ -154,43 +154,50 @@ impl ToJson for ScreenshotBody with fn to_json(self) -> Json {
 extend ScreenshotBody with ToJson::{to_json}
 
 ///|
-fn screenshot_command_def() -> @admiral.CommandDef {
-  @admiral.command(name="screenshot", description="Capture a screenshot", options=[
-    @admiral.string(
-      screenshot_account_id_option,
-      description="Cloudflare account ID",
-    ),
-    @admiral.string(
-      screenshot_api_token_option,
-      description="Cloudflare API token",
-    ),
-    @admiral.string(screenshot_url_option, description="Target URL"),
-    @admiral.string(
-      screenshot_html_option,
-      description="Path to local HTML file",
-    ),
-    @admiral.string(
-      screenshot_wait_until_option,
-      description="Page load strategy",
-    ),
-    @admiral.string(
-      screenshot_output_option,
-      short='o',
-      description="Output file path",
-    ),
-    @admiral.bool(
-      screenshot_full_page_option,
-      description="Capture entire page",
-    ),
-    @admiral.int(screenshot_width_option, description="Viewport width"),
-    @admiral.int(screenshot_height_option, description="Viewport height"),
-    @admiral.string(config_option, description="Path to JSON config file"),
-  ])
+fn screenshot_command_def(
+  run : async (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
+  @admiral.command(
+    name="screenshot",
+    description="Capture a screenshot",
+    options=[
+      @admiral.string(
+        screenshot_account_id_option,
+        description="Cloudflare account ID",
+      ),
+      @admiral.string(
+        screenshot_api_token_option,
+        description="Cloudflare API token",
+      ),
+      @admiral.string(screenshot_url_option, description="Target URL"),
+      @admiral.string(
+        screenshot_html_option,
+        description="Path to local HTML file",
+      ),
+      @admiral.string(
+        screenshot_wait_until_option,
+        description="Page load strategy",
+      ),
+      @admiral.string(
+        screenshot_output_option,
+        short='o',
+        description="Output file path",
+      ),
+      @admiral.bool(
+        screenshot_full_page_option,
+        description="Capture entire page",
+      ),
+      @admiral.int(screenshot_width_option, description="Viewport width"),
+      @admiral.int(screenshot_height_option, description="Viewport height"),
+      @admiral.string(config_option, description="Path to JSON config file"),
+    ],
+    run=Some(run),
+  )
 }
 
 ///|
 async fn screenshot_options(
-  matches : @argparse.Matches,
+  matches : @admiral.Context,
 ) -> ScreenshotOptionsInput {
   let config = load_config(matches)
   {
@@ -242,7 +249,7 @@ fn ScreenshotBody::from_options(
 }
 
 ///|
-async fn run_screenshot(matches : @argparse.Matches) -> Unit {
+async fn run_screenshot(matches : @admiral.Context) -> Unit {
   let options = screenshot_options(matches)
   let body = ScreenshotBody::from_options(options)
   let (code, reason, data) = post_json(

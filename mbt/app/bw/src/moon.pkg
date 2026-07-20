@@ -1,6 +1,5 @@
 import {
-  "mizchi/admiral",
-  "moonbitlang/core/argparse",
+  "totto2727/admiral",
   "moonbitlang/core/env",
   "moonbitlang/core/json",
   "moonbitlang/core/string",

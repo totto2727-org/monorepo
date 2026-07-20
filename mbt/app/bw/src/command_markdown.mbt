@@ -80,33 +80,43 @@ impl ToJson for MarkdownBody with fn to_json(self) -> Json {
 extend MarkdownBody with ToJson::{to_json}
 
 ///|
-fn markdown_command_def() -> @admiral.CommandDef {
-  @admiral.command(name="markdown", description="Extract markdown", options=[
-    @admiral.string(
-      markdown_account_id_option,
-      description="Cloudflare account ID",
-    ),
-    @admiral.string(
-      markdown_api_token_option,
-      description="Cloudflare API token",
-    ),
-    @admiral.string(markdown_url_option, description="Target URL"),
-    @admiral.string(markdown_html_option, description="Path to local HTML file"),
-    @admiral.string(
-      markdown_wait_until_option,
-      description="Page load strategy",
-    ),
-    @admiral.string(
-      markdown_output_option,
-      short='o',
-      description="Output file path",
-    ),
-    @admiral.string(config_option, description="Path to JSON config file"),
-  ])
+fn markdown_command_def(
+  run : async (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
+  @admiral.command(
+    name="markdown",
+    description="Extract markdown",
+    options=[
+      @admiral.string(
+        markdown_account_id_option,
+        description="Cloudflare account ID",
+      ),
+      @admiral.string(
+        markdown_api_token_option,
+        description="Cloudflare API token",
+      ),
+      @admiral.string(markdown_url_option, description="Target URL"),
+      @admiral.string(
+        markdown_html_option,
+        description="Path to local HTML file",
+      ),
+      @admiral.string(
+        markdown_wait_until_option,
+        description="Page load strategy",
+      ),
+      @admiral.string(
+        markdown_output_option,
+        short='o',
+        description="Output file path",
+      ),
+      @admiral.string(config_option, description="Path to JSON config file"),
+    ],
+    run=Some(run),
+  )
 }
 
 ///|
-async fn markdown_options(matches : @argparse.Matches) -> MarkdownOptions {
+async fn markdown_options(matches : @admiral.Context) -> MarkdownOptions {
   let config = load_config(matches)
   {
     account_id: merged_account_id(matches, config),
@@ -138,7 +148,7 @@ fn MarkdownBody::from_options(options : MarkdownOptions) -> MarkdownBody raise {
 }
 
 ///|
-async fn run_markdown_command(matches : @argparse.Matches) -> Unit {
+async fn run_markdown_command(matches : @admiral.Context) -> Unit {
   let options = markdown_options(matches)
   let body = MarkdownBody::from_options(options)
   let (code, reason, data) = post_json(

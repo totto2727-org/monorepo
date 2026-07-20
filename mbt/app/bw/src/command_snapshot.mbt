@@ -106,7 +106,9 @@ impl ToJson for SnapshotBody with fn to_json(self) -> Json {
 extend SnapshotBody with ToJson::{to_json}
 
 ///|
-fn snapshot_command_def() -> @admiral.CommandDef {
+fn snapshot_command_def(
+  run : async (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
   @admiral.command(
     name="snapshot",
     description="Capture both HTML and screenshot",
@@ -139,11 +141,12 @@ fn snapshot_command_def() -> @admiral.CommandDef {
       ),
       @admiral.string(config_option, description="Path to JSON config file"),
     ],
+    run=Some(run),
   )
 }
 
 ///|
-async fn snapshot_options(matches : @argparse.Matches) -> SnapshotOptionsInput {
+async fn snapshot_options(matches : @admiral.Context) -> SnapshotOptionsInput {
   let config = load_config(matches)
   {
     account_id: merged_account_id(matches, config),
@@ -207,7 +210,7 @@ fn snapshot_result(data : &@io.Data) -> (String, Bytes) raise {
 }
 
 ///|
-async fn run_snapshot(matches : @argparse.Matches) -> Unit {
+async fn run_snapshot(matches : @admiral.Context) -> Unit {
   let options = snapshot_options(matches)
   let body = SnapshotBody::from_options(options)
   let (code, reason, data) = post_json(

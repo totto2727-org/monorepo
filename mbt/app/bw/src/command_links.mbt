@@ -102,27 +102,37 @@ impl ToJson for LinksBody with fn to_json(self) -> Json {
 extend LinksBody with ToJson::{to_json}
 
 ///|
-fn links_command_def() -> @admiral.CommandDef {
-  @admiral.command(name="links", description="Retrieve links", options=[
-    @admiral.string(
-      links_account_id_option,
-      description="Cloudflare account ID",
-    ),
-    @admiral.string(links_api_token_option, description="Cloudflare API token"),
-    @admiral.string(links_url_option, description="Target URL"),
-    @admiral.string(links_html_option, description="Path to local HTML file"),
-    @admiral.string(links_wait_until_option, description="Page load strategy"),
-    @admiral.bool(links_visible_only_option, description="Only visible links"),
-    @admiral.bool(
-      links_internal_only_option,
-      description="Only same-domain links",
-    ),
-    @admiral.string(config_option, description="Path to JSON config file"),
-  ])
+fn links_command_def(
+  run : async (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
+  @admiral.command(
+    name="links",
+    description="Retrieve links",
+    options=[
+      @admiral.string(
+        links_account_id_option,
+        description="Cloudflare account ID",
+      ),
+      @admiral.string(
+        links_api_token_option,
+        description="Cloudflare API token",
+      ),
+      @admiral.string(links_url_option, description="Target URL"),
+      @admiral.string(links_html_option, description="Path to local HTML file"),
+      @admiral.string(links_wait_until_option, description="Page load strategy"),
+      @admiral.bool(links_visible_only_option, description="Only visible links"),
+      @admiral.bool(
+        links_internal_only_option,
+        description="Only same-domain links",
+      ),
+      @admiral.string(config_option, description="Path to JSON config file"),
+    ],
+    run=Some(run),
+  )
 }
 
 ///|
-async fn links_options(matches : @argparse.Matches) -> LinksOptionsInput {
+async fn links_options(matches : @admiral.Context) -> LinksOptionsInput {
   let config = load_config(matches)
   {
     account_id: merged_account_id(matches, config),
@@ -170,7 +180,7 @@ fn LinksBody::from_options(options : LinksOptionsInput) -> LinksBody raise {
 }
 
 ///|
-async fn run_links(matches : @argparse.Matches) -> Unit {
+async fn run_links(matches : @admiral.Context) -> Unit {
   let options = links_options(matches)
   let body = LinksBody::from_options(options)
   let (code, reason, data) = post_json(

@@ -2,14 +2,21 @@
 let ls_dir_option = "dir"
 
 ///|
-fn ls_command_def() -> @admiral.CommandDef {
-  @admiral.command(name="ls", description="List git worktrees with PR status", positionals=[
-    @admiral.positional(
-      ls_dir_option,
-      description="Base directory",
-      required=false,
-    ),
-  ])
+fn ls_command_def(
+  run : async (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
+  @admiral.command(
+    name="ls",
+    description="List git worktrees with PR status",
+    positionals=[
+      @admiral.positional(
+        ls_dir_option,
+        description="Base directory",
+        required=false,
+      ),
+    ],
+    run=Some(run),
+  )
 }
 
 ///|
@@ -18,7 +25,7 @@ struct LsOptions {
 }
 
 ///|
-fn ls_options(matches : @argparse.Matches) -> LsOptions {
+fn ls_options(matches : @admiral.Context) -> LsOptions {
   let dir = match matches.values.get(ls_dir_option) {
     Some([value, ..]) => value
     _ => "."
@@ -27,7 +34,7 @@ fn ls_options(matches : @argparse.Matches) -> LsOptions {
 }
 
 ///|
-async fn run_ls(matches : @argparse.Matches) -> Unit {
+async fn run_ls(matches : @admiral.Context) -> Unit {
   let options = ls_options(matches)
   let dir = options.dir
   let base = if dir == "." { @env.current_dir().unwrap_or(".") } else { dir }

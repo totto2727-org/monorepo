@@ -80,30 +80,43 @@ impl ToJson for ContentBody with fn to_json(self) -> Json {
 extend ContentBody with ToJson::{to_json}
 
 ///|
-fn content_command_def() -> @admiral.CommandDef {
-  @admiral.command(name="content", description="Fetch rendered HTML", options=[
-    @admiral.string(
-      content_account_id_option,
-      description="Cloudflare account ID",
-    ),
-    @admiral.string(
-      content_api_token_option,
-      description="Cloudflare API token",
-    ),
-    @admiral.string(content_url_option, description="Target URL"),
-    @admiral.string(content_html_option, description="Path to local HTML file"),
-    @admiral.string(content_wait_until_option, description="Page load strategy"),
-    @admiral.string(
-      content_output_option,
-      short='o',
-      description="Output file path",
-    ),
-    @admiral.string(config_option, description="Path to JSON config file"),
-  ])
+fn content_command_def(
+  run : async (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
+  @admiral.command(
+    name="content",
+    description="Fetch rendered HTML",
+    options=[
+      @admiral.string(
+        content_account_id_option,
+        description="Cloudflare account ID",
+      ),
+      @admiral.string(
+        content_api_token_option,
+        description="Cloudflare API token",
+      ),
+      @admiral.string(content_url_option, description="Target URL"),
+      @admiral.string(
+        content_html_option,
+        description="Path to local HTML file",
+      ),
+      @admiral.string(
+        content_wait_until_option,
+        description="Page load strategy",
+      ),
+      @admiral.string(
+        content_output_option,
+        short='o',
+        description="Output file path",
+      ),
+      @admiral.string(config_option, description="Path to JSON config file"),
+    ],
+    run=Some(run),
+  )
 }
 
 ///|
-async fn content_options(matches : @argparse.Matches) -> ContentOptions {
+async fn content_options(matches : @admiral.Context) -> ContentOptions {
   let config = load_config(matches)
   {
     account_id: merged_account_id(matches, config),
@@ -135,7 +148,7 @@ fn ContentBody::from_options(options : ContentOptions) -> ContentBody raise {
 }
 
 ///|
-async fn run_content_command(matches : @argparse.Matches) -> Unit {
+async fn run_content_command(matches : @admiral.Context) -> Unit {
   let options = content_options(matches)
   let body = ContentBody::from_options(options)
   let (code, reason, data) = post_json(

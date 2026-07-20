@@ -130,62 +130,87 @@ impl ToJson for CrawlStartBody with fn to_json(self) -> Json {
 extend CrawlStartBody with ToJson::{to_json}
 
 ///|
-fn crawl_command_def() -> @admiral.CommandDef {
+fn crawl_command_def(
+  run_start : async (@admiral.Context) -> Unit,
+  run_status : async (@admiral.Context) -> Unit,
+  run_results : async (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
   @admiral.command(name="crawl", description="Manage async crawl jobs", subcommands=[
-    @admiral.command(name="start", description="Start a crawl job", options=[
-      @admiral.string(
-        crawl_account_id_option,
-        description="Cloudflare account ID",
-      ),
-      @admiral.string(
-        crawl_api_token_option,
-        description="Cloudflare API token",
-      ),
-      @admiral.string(crawl_url_option, description="Target URL"),
-      @admiral.string(crawl_html_option, description="Path to local HTML file"),
-      @admiral.string(crawl_wait_until_option, description="Page load strategy"),
-      @admiral.string(
-        crawl_output_option,
-        short='o',
-        description="Output file path",
-      ),
-      @admiral.int(crawl_limit_option, description="Max pages to crawl"),
-      @admiral.int(crawl_depth_option, description="Max link depth"),
-      @admiral.string(
-        crawl_format_option,
-        description="Output formats: html,markdown,json",
-      ),
-      @admiral.string(config_option, description="Path to JSON config file"),
-    ]),
-    @admiral.command(name="status", description="Check crawl job status", options=[
-      @admiral.string(
-        crawl_account_id_option,
-        description="Cloudflare account ID",
-      ),
-      @admiral.string(
-        crawl_api_token_option,
-        description="Cloudflare API token",
-      ),
-      @admiral.string(crawl_id_option, description="Crawl job ID"),
-      @admiral.string(config_option, description="Path to JSON config file"),
-    ]),
-    @admiral.command(name="results", description="Retrieve crawl results", options=[
-      @admiral.string(
-        crawl_account_id_option,
-        description="Cloudflare account ID",
-      ),
-      @admiral.string(
-        crawl_api_token_option,
-        description="Cloudflare API token",
-      ),
-      @admiral.string(crawl_id_option, description="Crawl job ID"),
-      @admiral.string(
-        crawl_output_option,
-        short='o',
-        description="Output file path",
-      ),
-      @admiral.string(config_option, description="Path to JSON config file"),
-    ]),
+    @admiral.command(
+      name="start",
+      description="Start a crawl job",
+      options=[
+        @admiral.string(
+          crawl_account_id_option,
+          description="Cloudflare account ID",
+        ),
+        @admiral.string(
+          crawl_api_token_option,
+          description="Cloudflare API token",
+        ),
+        @admiral.string(crawl_url_option, description="Target URL"),
+        @admiral.string(
+          crawl_html_option,
+          description="Path to local HTML file",
+        ),
+        @admiral.string(
+          crawl_wait_until_option,
+          description="Page load strategy",
+        ),
+        @admiral.string(
+          crawl_output_option,
+          short='o',
+          description="Output file path",
+        ),
+        @admiral.int(crawl_limit_option, description="Max pages to crawl"),
+        @admiral.int(crawl_depth_option, description="Max link depth"),
+        @admiral.string(
+          crawl_format_option,
+          description="Output formats: html,markdown,json",
+        ),
+        @admiral.string(config_option, description="Path to JSON config file"),
+      ],
+      run=Some(run_start),
+    ),
+    @admiral.command(
+      name="status",
+      description="Check crawl job status",
+      options=[
+        @admiral.string(
+          crawl_account_id_option,
+          description="Cloudflare account ID",
+        ),
+        @admiral.string(
+          crawl_api_token_option,
+          description="Cloudflare API token",
+        ),
+        @admiral.string(crawl_id_option, description="Crawl job ID"),
+        @admiral.string(config_option, description="Path to JSON config file"),
+      ],
+      run=Some(run_status),
+    ),
+    @admiral.command(
+      name="results",
+      description="Retrieve crawl results",
+      options=[
+        @admiral.string(
+          crawl_account_id_option,
+          description="Cloudflare account ID",
+        ),
+        @admiral.string(
+          crawl_api_token_option,
+          description="Cloudflare API token",
+        ),
+        @admiral.string(crawl_id_option, description="Crawl job ID"),
+        @admiral.string(
+          crawl_output_option,
+          short='o',
+          description="Output file path",
+        ),
+        @admiral.string(config_option, description="Path to JSON config file"),
+      ],
+      run=Some(run_results),
+    ),
   ])
 }
 
@@ -196,7 +221,7 @@ fn split_csv(value : String) -> Array[String] {
 
 ///|
 async fn crawl_start_options(
-  matches : @argparse.Matches,
+  matches : @admiral.Context,
 ) -> CrawlStartOptionsInput {
   let config = load_config(matches)
   {
@@ -243,7 +268,7 @@ fn CrawlStartBody::from_options(
 }
 
 ///|
-async fn run_crawl_start(matches : @argparse.Matches) -> Unit {
+async fn run_crawl_start(matches : @admiral.Context) -> Unit {
   let options = crawl_start_options(matches)
   let body = CrawlStartBody::from_options(options)
   let (code, reason, data) = post_json(
@@ -257,7 +282,7 @@ async fn run_crawl_start(matches : @argparse.Matches) -> Unit {
 }
 
 ///|
-async fn crawl_get_options(matches : @argparse.Matches) -> CrawlGetOptionsInput {
+async fn crawl_get_options(matches : @admiral.Context) -> CrawlGetOptionsInput {
   let config = load_config(matches)
   {
     account_id: merged_account_id(matches, config),
@@ -275,7 +300,7 @@ async fn crawl_get_options(matches : @argparse.Matches) -> CrawlGetOptionsInput 
 
 ///|
 async fn run_crawl_get(
-  matches : @argparse.Matches,
+  matches : @admiral.Context,
   suffix : String,
   output : Bool,
 ) -> Unit {
@@ -291,4 +316,14 @@ async fn run_crawl_get(
   } else {
     println(data.text())
   }
+}
+
+///|
+async fn run_crawl_status(matches : @admiral.Context) -> Unit {
+  run_crawl_get(matches, "", false)
+}
+
+///|
+async fn run_crawl_results(matches : @admiral.Context) -> Unit {
+  run_crawl_get(matches, "/results", true)
 }
