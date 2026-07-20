@@ -160,16 +160,27 @@ fn marketplace_plugin_json(
       {
         category: "Productivity",
         name: plugin.name,
-        policy: { authentication: "ON_INSTALL", installation: "AVAILABLE" },
+        policy: {
+          authentication: "ON_INSTALL",
+          installation: "INSTALLED_BY_DEFAULT",
+        },
         source: { path: "./\{plugin.source}", source: "local" },
       }.to_json()
-    _ => plugin.to_json()
+    _ =>
+      {
+        name: plugin.name,
+        source: "./\{plugin.source}",
+        description: plugin.description,
+      }.to_json()
   }
 }
 
 ///|
 async fn write_json_file(path : String, text : String) -> Unit {
-  @fs.mkdir(@path.Path::dirname(path).to_string(), recursive=true)
+  let parent = @path.Path::dirname(path).to_string()
+  if !@fs.exists(parent) {
+    @fs.mkdir(parent, recursive=true)
+  }
   @fs.write_file(path, text, create_mode=CreateOrTruncate)
 }
 

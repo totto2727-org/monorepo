@@ -6,10 +6,10 @@
       "name": "totto2727",
       "policy": {
         "authentication": "ON_INSTALL",
-        "installation": "AVAILABLE"
+        "installation": "INSTALLED_BY_DEFAULT"
       },
       "source": {
-        "path": "././plugins/totto2727",
+        "path": "./plugins/totto2727",
         "source": "local"
       }
     },
@@ -18,10 +18,10 @@
       "name": "totto2727-dev-flow",
       "policy": {
         "authentication": "ON_INSTALL",
-        "installation": "AVAILABLE"
+        "installation": "INSTALLED_BY_DEFAULT"
       },
       "source": {
-        "path": "././plugins/totto2727-dev-flow",
+        "path": "./plugins/totto2727-dev-flow",
         "source": "local"
       }
     },
@@ -30,10 +30,10 @@
       "name": "totto2727-coding",
       "policy": {
         "authentication": "ON_INSTALL",
-        "installation": "AVAILABLE"
+        "installation": "INSTALLED_BY_DEFAULT"
       },
       "source": {
-        "path": "././plugins/totto2727-coding",
+        "path": "./plugins/totto2727-coding",
         "source": "local"
       }
     },
@@ -42,10 +42,10 @@
       "name": "external-search",
       "policy": {
         "authentication": "ON_INSTALL",
-        "installation": "AVAILABLE"
+        "installation": "INSTALLED_BY_DEFAULT"
       },
       "source": {
-        "path": "././plugins/external-search",
+        "path": "./plugins/external-search",
         "source": "local"
       }
     }
