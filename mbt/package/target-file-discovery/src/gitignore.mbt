@@ -28,7 +28,10 @@ fn parse_ignore_patterns(content : String) -> Array[String] {
 ///|
 async fn read_ignore_rules(dir : String) -> IgnoreRuleSet? {
   let path = @path.Path::join(dir, ".gitignore").to_string()
-  let content = @fs.read_file(path).text() catch { _ => "" }
+  let content = @fs.read_file(path).text() catch {
+    error if @async.is_being_cancelled() => raise error
+    _ => ""
+  }
   if content.trim() == "" {
     None
   } else {

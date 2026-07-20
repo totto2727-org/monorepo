@@ -119,6 +119,28 @@ async test "collect_recursive_target_files collects start and descendants" {
 }
 
 ///|
+async test "collect_recursive_target_files preserves sorted depth-first order" {
+  let root = @fs.tmpdir(prefix="target-file-discovery-recursive-order-")
+  let root_target = write_target_file(root, "target.lock")
+  let first_target = write_target_file(
+    @path.Path::join(root, "a-first").to_string(),
+    "target.lock",
+  )
+  let nested_target = write_target_file(
+    (root |> @path.Path::join("a-first") |> @path.Path::join("nested")).to_string(),
+    "target.lock",
+  )
+  let second_target = write_target_file(
+    @path.Path::join(root, "b-second").to_string(),
+    "target.lock",
+  )
+  json_inspect(collect_recursive_target_files(root, "target.lock"), content=[
+    root_target, first_target, nested_target, second_target,
+  ])
+  @fs.rmdir(root, recursive=true)
+}
+
+///|
 async test "collect_recursive_target_files uses only gitignore rules for skip decisions" {
   let root = @fs.tmpdir(prefix="target-file-discovery-recursive-agents-")
   let root_target = write_target_file(root, "target.lock")

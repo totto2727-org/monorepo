@@ -56,21 +56,22 @@ async fn collect_recursive_target_files_from(
   inherited_ignore_rules : Array[IgnoreRuleSet],
 ) -> Array[String] {
   let target_file = @path.Path::join(dir, file_name).to_string()
-  let local_ignore_rules = read_ignore_rules(dir)
+  let (local_ignore_rules, has_target_file, entries) = @async.with_task_group(group => {
+    let ignore_task = group.spawn(() => read_ignore_rules(dir))
+    let target_task = group.spawn(() => @fs.exists(target_file))
+    let entries_task = group.spawn(() => {
+      @fs.readdir(dir, include_hidden=true, include_special=false, sort=true)
+    })
+    (ignore_task.wait(), target_task.wait(), entries_task.wait())
+  })
   let ignore_rules = match local_ignore_rules {
     Some(rules) =>
       inherited_ignore_rules.iter().concat([rules].iter()).collect()
     None => inherited_ignore_rules
   }
-  let local_files = if @fs.exists(target_file) { [target_file] } else { [] }
-  let entries = @fs.readdir(
-    dir,
-    include_hidden=true,
-    include_special=false,
-    sort=true,
-  )
+  let local_files = if has_target_file { [target_file] } else { [] }
   let descendant_files = collect_descendant_target_files(
-    entries, 0, dir, file_name, ignore_rules,
+    entries, dir, file_name, ignore_rules,
   )
   local_files.iter().concat(descendant_files.iter()).collect()
 }
@@ -78,27 +79,26 @@ async fn collect_recursive_target_files_from(
 ///|
 async fn collect_descendant_target_files(
   entries : Array[String],
-  entry_index : Int,
   dir : String,
   file_name : String,
   ignore_rules : Array[IgnoreRuleSet],
 ) -> Array[String] {
-  if entry_index >= entries.length() {
-    return []
-  }
-  let entry_path = @path.Path::join(dir, entries[entry_index]).to_string()
-  let current_files = if @fs.kind(entry_path) == @fs.FileKind::Directory &&
-    !is_ignored_directory(entry_path, ignore_rules) {
-    collect_recursive_target_files_from(entry_path, file_name, ignore_rules)
-  } else {
-    []
-  }
-  let remaining_files = collect_descendant_target_files(
-    entries,
-    entry_index + 1,
-    dir,
-    file_name,
-    ignore_rules,
+  @async.all(
+    entries.map(entry => {
+      () => {
+        let entry_path = @path.Path::join(dir, entry).to_string()
+        if @fs.kind(entry_path) == @fs.FileKind::Directory &&
+          !is_ignored_directory(entry_path, ignore_rules) {
+          collect_recursive_target_files_from(
+            entry_path, file_name, ignore_rules,
+          )
+        } else {
+          []
+        }
+      }
+    }),
   )
-  current_files.iter().concat(remaining_files.iter()).collect()
+  .iter()
+  .flat_map(files => files.iter())
+  .collect()
 }
