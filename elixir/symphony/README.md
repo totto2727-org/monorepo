@@ -43,8 +43,7 @@ If OpenCode reports that operator input or permission is required, Symphony keep
    These skills are adapted for OpenCode; `linear` uses configured Linear MCP tools or Symphony's `linear_graphql` app-server tool for raw Linear GraphQL operations.
 5. Customize the copied `WORKFLOW.md` file for your project.
    - To get your project's slug, right-click the project and copy its URL. The slug is part of the URL.
-   - When creating a workflow based on this repo, note that it depends on non-standard Linear issue statuses: "Rework", "Human Review", and "Merging". You can customize them in
-     Team Settings → Workflow in Linear.
+   - When creating a workflow based on this repo, note that it depends on non-standard Linear issue statuses: "Rework", "Human Review", and "Merging". You can customize them in Team Settings → Workflow in Linear.
 6. Follow the instructions below to install the required runtime dependencies and start the service.
 
 ## Prerequisites
