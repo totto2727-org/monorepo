@@ -38,7 +38,22 @@ async fn write_snapshot(
   let dir = if dir == "" { "snapshot" } else { dir }
   let name = snapshot_base_name(output)
   @fs.mkdir(dir, recursive=true)
-  @fs.write_file("\{dir}/\{name}.html", content, create_mode=CreateOrTruncate)
-  @fs.write_file("\{dir}/\{name}.png", screenshot, create_mode=CreateOrTruncate)
+  @async.all([
+    () => {
+      @fs.write_file(
+        "\{dir}/\{name}.html",
+        content,
+        create_mode=CreateOrTruncate,
+      )
+    },
+    () => {
+      @fs.write_file(
+        "\{dir}/\{name}.png",
+        screenshot,
+        create_mode=CreateOrTruncate,
+      )
+    },
+  ])
+  |> ignore
   println("Snapshot saved to \{dir}/")
 }

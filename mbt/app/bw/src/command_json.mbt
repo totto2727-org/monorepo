@@ -147,11 +147,24 @@ async fn json_extract_options(
   matches : @admiral.Context,
 ) -> JsonExtractOptionsInput {
   let config = load_config(matches)
+  let (html, response_format) = @async.with_task_group(group => {
+    let html_task = group.spawn(() => {
+      merged_html(matches, json_html_option, config)
+    })
+    let schema_task = group.spawn(() => {
+      match
+        merge_string(cli_string(matches, json_schema_option), config.schema) {
+        Some(path) => Some(schema_response_format(path))
+        None => None
+      }
+    })
+    (html_task.wait(), schema_task.wait())
+  })
   {
     account_id: merged_account_id(matches, config),
     api_token: merged_api_token(matches, config),
     url: merge_string(cli_string(matches, json_url_option), config.url),
-    html: merged_html(matches, json_html_option, config),
+    html,
     wait_until: merge_string(
       cli_string(matches, json_wait_until_option),
       config.wait_until,
@@ -160,11 +173,7 @@ async fn json_extract_options(
       "prompt",
       merge_string(cli_string(matches, json_prompt_option), config.prompt),
     ),
-    response_format: match
-      merge_string(cli_string(matches, json_schema_option), config.schema) {
-      Some(path) => Some(schema_response_format(path))
-      None => None
-    },
+    response_format,
     output_format: match
       merge_string(cli_string(matches, json_format_option), config.format) {
       Some(value) => parse_json_extract_output_format(value)

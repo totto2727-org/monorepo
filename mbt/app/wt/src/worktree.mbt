@@ -142,16 +142,21 @@ async fn fetch_repo_worktrees(repo : String) -> RepoWorktrees? {
   if top == "" {
     return None
   }
-  let remote = collect_or_empty("git", [
-    "-C", top, "config", "--get", "remote.origin.url",
-  ])
+  let (remote, output) = @async.with_task_group(group => {
+    let remote_task = group.spawn(() => {
+      collect_or_empty("git", [
+        "-C", top, "config", "--get", "remote.origin.url",
+      ])
+    })
+    let worktree_task = group.spawn(() => {
+      collect_or_empty("git", ["-C", top, "worktree", "list", "--porcelain"])
+    })
+    (remote_task.wait(), worktree_task.wait())
+  })
   let slug = match parse_github_remote(remote) {
     Some(value) => value
     None => return None
   }
-  let output = collect_or_empty("git", [
-    "-C", top, "worktree", "list", "--porcelain",
-  ])
   Some({ repo_path: top, slug, entries: parse_worktree_list(output, top) })
 }
 
@@ -160,16 +165,24 @@ async fn pr_info(slug : String, branch : String, is_main : Bool) -> PrInfo {
   if is_main {
     return { state: "main", number: None }
   }
-  let open_json = collect_or_empty("gh", [
-    "pr", "list", "--repo", slug, "--head", branch, "--state", "open", "--json",
-    "number,state",
-  ])
+  let (open_json, json) = @async.with_task_group(group => {
+    let open_task = group.spawn(() => {
+      collect_or_empty("gh", [
+        "pr", "list", "--repo", slug, "--head", branch, "--state", "open", "--json",
+        "number,state",
+      ])
+    })
+    let all_task = group.spawn(() => {
+      collect_or_empty("gh", [
+        "pr", "list", "--repo", slug, "--head", branch, "--state", "all", "--json",
+        "number,state",
+      ])
+    })
+    (open_task.wait(), all_task.wait())
+  })
   if open_json != "" && open_json != "[]" {
     return { state: "open", number: parse_pr_number(open_json) }
   }
-  let json = collect_or_empty("gh", [
-    "pr", "list", "--repo", slug, "--head", branch, "--state", "all", "--json", "number,state",
-  ])
   if json == "" {
     return { state: "unknown", number: None }
   }
@@ -213,13 +226,20 @@ fn parse_pr_number(json : String) -> String? {
 
 ///|
 async fn git_status(path : String) -> String {
-  let dirty = collect_or_empty("git", ["-C", path, "status", "--porcelain"])
+  let (dirty, upstream) = @async.with_task_group(group => {
+    let dirty_task = group.spawn(() => {
+      collect_or_empty("git", ["-C", path, "status", "--porcelain"])
+    })
+    let upstream_task = group.spawn(() => {
+      collect_or_empty("git", [
+        "-C", path, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}",
+      ])
+    })
+    (dirty_task.wait(), upstream_task.wait())
+  })
   if dirty != "" {
     return "dirty"
   }
-  let upstream = collect_or_empty("git", [
-    "-C", path, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}",
-  ])
   if upstream == "" {
     return "committed"
   }

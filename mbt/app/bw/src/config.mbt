@@ -131,6 +131,7 @@ async fn load_config(matches : @admiral.Context) -> BwConfig {
   match matches.values.get(config_option) {
     Some([path, ..]) => {
       let parsed = @json.parse(@fs.read_file(path).text()) catch {
+        error if @async.is_being_cancelled() => raise error
         error => fail("Invalid config JSON: \{error}")
       }
       match parsed {
@@ -260,6 +261,7 @@ async fn merged_html(
 ///|
 async fn schema_response_format(path : String) -> Json {
   let schema = @json.parse(@fs.read_file(path).text()) catch {
+    error if @async.is_being_cancelled() => raise error
     error => fail("Invalid JSON schema file: \{error}")
   }
   Json::object({ "schema": schema, "type": "json_schema".to_json() })

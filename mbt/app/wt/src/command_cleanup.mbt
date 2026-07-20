@@ -67,49 +67,57 @@ async fn run_cleanup(matches : @admiral.Context) -> Unit {
   let dir = options.dir
   let dry_run = options.dry_run
   let base = if dir == "." { @env.current_dir().unwrap_or(".") } else { dir }
-  let mut removed = 0
-  let mut skipped = 0
-  match fetch_repo_worktrees(base) {
+  let (removed, skipped) = match fetch_repo_worktrees(base) {
     Some(result) => {
       let status_array = collect_worktree_statuses(
         result.entries.filter(entry => !entry.is_main),
         entry => fetch_worktree_status(result.slug, entry),
       )
-      for status in status_array {
-        match removal_reason(status.pr, status.git) {
-          Some(reason) => {
-            let prefix = if dry_run {
-              "[dry-run] Would remove"
-            } else {
-              "Removing"
+      let count_array = @async.all(
+        status_array.map(status => {
+          () => {
+            match removal_reason(status.pr, status.git) {
+              Some(reason) => {
+                let prefix = if dry_run {
+                  "[dry-run] Would remove"
+                } else {
+                  "Removing"
+                }
+                println(
+                  "\{prefix}: \{status.entry.path} (\{status.branch}, \{reason})",
+                )
+                if !dry_run {
+                  run_checked("git", [
+                    "-C",
+                    result.repo_path,
+                    "worktree",
+                    "remove",
+                    status.entry.path,
+                  ])
+                  run_checked("git", [
+                    "-C",
+                    result.repo_path,
+                    "branch",
+                    "-d",
+                    status.branch,
+                  ])
+                }
+                (1, 0)
+              }
+              None => (0, 1)
             }
-            println(
-              "\{prefix}: \{status.entry.path} (\{status.branch}, \{reason})",
-            )
-            if !dry_run {
-              run_checked("git", [
-                "-C",
-                result.repo_path,
-                "worktree",
-                "remove",
-                status.entry.path,
-              ])
-              run_checked("git", [
-                "-C",
-                result.repo_path,
-                "branch",
-                "-d",
-                status.branch,
-              ])
-            }
-            removed = removed + 1
           }
-          None => skipped = skipped + 1
-        }
-      }
+        }),
+        max_concurrent=1,
+      )
       if !dry_run {
         run_checked("git", ["-C", result.repo_path, "worktree", "prune"])
       }
+      count_array
+      .iter()
+      .fold(init=(0, 0), fn(total, count) {
+        (total.0 + count.0, total.1 + count.1)
+      })
     }
     None => {
       println("No git repositories found.")
