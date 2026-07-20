@@ -14,8 +14,7 @@ For raw cookies that are not session-backed (theme, locale, dismissed-banner), s
 
 ## Sessions vs Plain Cookies
 
-Reach for `remix/session` when state is sensitive, must be tamper-resistant, or represents the identity of a request: who is logged in, which form a browser already submitted, what items are in
-a cart. Sessions sign or encrypt their backing cookie with a server-held secret and give you a typed `Session` object you can `get`, `set`, `flash`, `unset`, and `regenerateId`.
+Reach for `remix/session` when state is sensitive, must be tamper-resistant, or represents the identity of a request: who is logged in, which form a browser already submitted, what items are in a cart. Sessions sign or encrypt their backing cookie with a server-held secret and give you a typed `Session` object you can `get`, `set`, `flash`, `unset`, and `regenerateId`.
 
 Reach for `remix/cookie` directly when the browser is allowed to carry the value and the server does not need session semantics. This often means preferences (theme, locale, dismissed banner), but a signed cookie can also be fine for small low-risk values where you truly only need one cookie-shaped fact and do not need `Session` helpers.
 
@@ -107,8 +106,7 @@ async function handler({ get }) {
 
 ### Sessions for non-auth state
 
-Sessions are not just for login. They are the right place to store any tamper-sensitive per-browser fact: which form a browser already submitted, how many free actions are left in a
-trial, which feature flags a tester opted into, what items are in a cart.
+Sessions are not just for login. They are the right place to store any tamper-sensitive per-browser fact: which form a browser already submitted, how many free actions are left in a trial, which feature flags a tester opted into, what items are in a cart.
 
 ```typescript
 async function submit({ get }) {
