@@ -44,6 +44,9 @@ impl ToJson for MarkdownGotoOptions with fn to_json(self) -> Json {
 }
 
 ///|
+extend MarkdownGotoOptions with ToJson::{to_json}
+
+///|
 impl ToJson for MarkdownBody with fn to_json(self) -> Json {
   let object : Map[String, Json] = Map([])
   put_json_if_some(
@@ -72,6 +75,9 @@ impl ToJson for MarkdownBody with fn to_json(self) -> Json {
   )
   Json::object(object)
 }
+
+///|
+extend MarkdownBody with ToJson::{to_json}
 
 ///|
 fn markdown_command_def() -> @admiral.CommandDef {

@@ -16,6 +16,4 @@ keywords = [ "gis", "geo", "geography", "geospatial" ]
 
 description = "MoonBit port of georust/geo: 2D planar geospatial primitives and algorithms"
 
-options(
-  source: "./src",
-)
+source = "./src"

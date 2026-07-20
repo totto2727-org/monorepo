@@ -69,9 +69,15 @@ impl ToJson for ScreenshotGotoOptions with fn to_json(self) -> Json {
 }
 
 ///|
+extend ScreenshotGotoOptions with ToJson::{to_json}
+
+///|
 impl ToJson for ScreenshotCaptureOptions with fn to_json(self) -> Json {
   Json::object({ "fullPage": self.fullPage.to_json() })
 }
+
+///|
+extend ScreenshotCaptureOptions with ToJson::{to_json}
 
 ///|
 impl ToJson for ScreenshotViewport with fn to_json(self) -> Json {
@@ -94,6 +100,9 @@ impl ToJson for ScreenshotViewport with fn to_json(self) -> Json {
   )
   Json::object(object)
 }
+
+///|
+extend ScreenshotViewport with ToJson::{to_json}
 
 ///|
 impl ToJson for ScreenshotBody with fn to_json(self) -> Json {
@@ -140,6 +149,9 @@ impl ToJson for ScreenshotBody with fn to_json(self) -> Json {
   )
   Json::object(object)
 }
+
+///|
+extend ScreenshotBody with ToJson::{to_json}
 
 ///|
 fn screenshot_command_def() -> @admiral.CommandDef {

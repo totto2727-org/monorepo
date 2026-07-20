@@ -44,6 +44,9 @@ impl ToJson for ContentGotoOptions with fn to_json(self) -> Json {
 }
 
 ///|
+extend ContentGotoOptions with ToJson::{to_json}
+
+///|
 impl ToJson for ContentBody with fn to_json(self) -> Json {
   let object : Map[String, Json] = Map([])
   put_json_if_some(
@@ -72,6 +75,9 @@ impl ToJson for ContentBody with fn to_json(self) -> Json {
   )
   Json::object(object)
 }
+
+///|
+extend ContentBody with ToJson::{to_json}
 
 ///|
 fn content_command_def() -> @admiral.CommandDef {

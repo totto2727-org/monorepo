@@ -61,6 +61,9 @@ impl ToJson for LockFile with fn to_json(self) -> Json {
 }
 
 ///|
+extend LockFile with ToJson::{to_json}
+
+///|
 fn repository_source_type_from_string(
   value : String,
 ) -> RepositorySourceType raise {

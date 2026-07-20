@@ -50,6 +50,9 @@ impl ToJson for LinksGotoOptions with fn to_json(self) -> Json {
 }
 
 ///|
+extend LinksGotoOptions with ToJson::{to_json}
+
+///|
 impl ToJson for LinksBody with fn to_json(self) -> Json {
   let object : Map[String, Json] = Map([])
   put_json_if_some(
@@ -94,6 +97,9 @@ impl ToJson for LinksBody with fn to_json(self) -> Json {
   )
   Json::object(object)
 }
+
+///|
+extend LinksBody with ToJson::{to_json}
 
 ///|
 fn links_command_def() -> @admiral.CommandDef {

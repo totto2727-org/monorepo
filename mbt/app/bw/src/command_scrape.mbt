@@ -50,6 +50,9 @@ impl ToJson for ScrapeGotoOptions with fn to_json(self) -> Json {
 }
 
 ///|
+extend ScrapeGotoOptions with ToJson::{to_json}
+
+///|
 impl ToJson for ScrapeElement with fn to_json(self) -> Json {
   Json::object({ "selector": self.selector.to_json() })
 }
@@ -84,6 +87,9 @@ impl ToJson for ScrapeBody with fn to_json(self) -> Json {
   object.set("elements", self.elements.to_json())
   Json::object(object)
 }
+
+///|
+extend ScrapeBody with ToJson::{to_json}
 
 ///|
 fn scrape_command_def() -> @admiral.CommandDef {

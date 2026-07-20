@@ -54,9 +54,15 @@ impl ToJson for SnapshotGotoOptions with fn to_json(self) -> Json {
 }
 
 ///|
+extend SnapshotGotoOptions with ToJson::{to_json}
+
+///|
 impl ToJson for SnapshotCaptureOptions with fn to_json(self) -> Json {
   Json::object({ "fullPage": self.fullPage.to_json() })
 }
+
+///|
+extend SnapshotCaptureOptions with ToJson::{to_json}
 
 ///|
 impl ToJson for SnapshotBody with fn to_json(self) -> Json {
@@ -95,6 +101,9 @@ impl ToJson for SnapshotBody with fn to_json(self) -> Json {
   )
   Json::object(object)
 }
+
+///|
+extend SnapshotBody with ToJson::{to_json}
 
 ///|
 fn snapshot_command_def() -> @admiral.CommandDef {

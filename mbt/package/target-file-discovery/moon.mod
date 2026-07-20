@@ -21,6 +21,4 @@ keywords = [ "target-file-discovery", "filesystem", "gitignore" ]
 
 description = "MoonBit port of @package/target-file-discovery"
 
-options(
-  source: "./src",
-)
+source = "./src"

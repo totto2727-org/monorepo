@@ -21,6 +21,4 @@ keywords = [ "git", "worktree", "github", "cli" ]
 
 description = "Native MoonBit Git worktree manager with PR awareness"
 
-options(
-  source: "./src",
-)
+source = "./src"

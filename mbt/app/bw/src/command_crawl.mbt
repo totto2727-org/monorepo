@@ -70,6 +70,9 @@ impl ToJson for CrawlGotoOptions with fn to_json(self) -> Json {
 }
 
 ///|
+extend CrawlGotoOptions with ToJson::{to_json}
+
+///|
 impl ToJson for CrawlStartBody with fn to_json(self) -> Json {
   let object : Map[String, Json] = Map([])
   put_json_if_some(
@@ -122,6 +125,9 @@ impl ToJson for CrawlStartBody with fn to_json(self) -> Json {
   )
   Json::object(object)
 }
+
+///|
+extend CrawlStartBody with ToJson::{to_json}
 
 ///|
 fn crawl_command_def() -> @admiral.CommandDef {

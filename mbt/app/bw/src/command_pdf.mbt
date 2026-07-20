@@ -59,6 +59,9 @@ impl ToJson for PdfGotoOptions with fn to_json(self) -> Json {
 }
 
 ///|
+extend PdfGotoOptions with ToJson::{to_json}
+
+///|
 impl ToJson for PdfRenderOptions with fn to_json(self) -> Json {
   let object : Map[String, Json] = Map([])
   put_json_if_some(
@@ -79,6 +82,9 @@ impl ToJson for PdfRenderOptions with fn to_json(self) -> Json {
   )
   Json::object(object)
 }
+
+///|
+extend PdfRenderOptions with ToJson::{to_json}
 
 ///|
 impl ToJson for PdfBody with fn to_json(self) -> Json {
@@ -117,6 +123,9 @@ impl ToJson for PdfBody with fn to_json(self) -> Json {
   )
   Json::object(object)
 }
+
+///|
+extend PdfBody with ToJson::{to_json}
 
 ///|
 fn pdf_command_def() -> @admiral.CommandDef {

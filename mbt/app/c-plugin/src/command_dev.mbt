@@ -36,6 +36,9 @@ impl ToJson for NormalizedPlugin with fn to_json(self) -> Json {
 }
 
 ///|
+extend NormalizedPlugin with ToJson::{to_json}
+
+///|
 struct CodexMarketplacePolicy {
   authentication : String
   installation : String
@@ -50,6 +53,9 @@ impl ToJson for CodexMarketplacePolicy with fn to_json(self) -> Json {
 }
 
 ///|
+extend CodexMarketplacePolicy with ToJson::{to_json}
+
+///|
 struct CodexMarketplaceSource {
   path : String
   source : String
@@ -59,6 +65,9 @@ struct CodexMarketplaceSource {
 impl ToJson for CodexMarketplaceSource with fn to_json(self) -> Json {
   Json::object({ "path": self.path.to_json(), "source": self.source.to_json() })
 }
+
+///|
+extend CodexMarketplaceSource with ToJson::{to_json}
 
 ///|
 struct CodexMarketplacePlugin {
@@ -79,6 +88,9 @@ impl ToJson for CodexMarketplacePlugin with fn to_json(self) -> Json {
 }
 
 ///|
+extend CodexMarketplacePlugin with ToJson::{to_json}
+
+///|
 struct MarketplaceDocument {
   name : String
   plugins : Array[Json]
@@ -91,6 +103,9 @@ impl ToJson for MarketplaceDocument with fn to_json(self) -> Json {
     "plugins": self.plugins.to_json(),
   })
 }
+
+///|
+extend MarketplaceDocument with ToJson::{to_json}
 
 ///|
 fn dev_marketplace_sync_options(

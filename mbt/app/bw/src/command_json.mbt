@@ -61,6 +61,9 @@ impl ToJson for JsonGotoOptions with fn to_json(self) -> Json {
 }
 
 ///|
+extend JsonGotoOptions with ToJson::{to_json}
+
+///|
 impl ToJson for JsonExtractBody with fn to_json(self) -> Json {
   let object : Map[String, Json] = Map([])
   put_json_if_some(
@@ -91,6 +94,9 @@ impl ToJson for JsonExtractBody with fn to_json(self) -> Json {
   put_json_if_some(object, "response_format", self.response_format)
   Json::object(object)
 }
+
+///|
+extend JsonExtractBody with ToJson::{to_json}
 
 ///|
 fn json_extract_command_def() -> @admiral.CommandDef {
