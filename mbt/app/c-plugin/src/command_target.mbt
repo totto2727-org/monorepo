@@ -3,7 +3,7 @@ let target_dir_arg = "dir"
 
 ///|
 fn target_add_command_def(
-  run : (async (@admiral.Context) -> Unit),
+  run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="add",
@@ -20,7 +20,7 @@ fn target_add_command_def(
 
 ///|
 fn target_remove_command_def(
-  run : (async (@admiral.Context) -> Unit),
+  run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="remove",
@@ -65,10 +65,7 @@ async fn run_target_add(context : @admiral.Context) -> Unit {
   } else {
     lock.skill_dirs.iter().concat([dir].iter()).collect()
   }
-  let updated_lock : LockFile = {
-    skill_dirs,
-    repositories: lock.repositories,
-  }
+  let updated_lock : LockFile = { skill_dirs, repositories: lock.repositories }
   write_lock(agents, updated_lock)
   sync_lock(agents, updated_lock)
 }
@@ -83,10 +80,7 @@ async fn run_target_remove(context : @admiral.Context) -> Unit {
     .iter()
     .filter(fn(item) { item != dir })
     .collect()
-  let updated_lock : LockFile = {
-    skill_dirs,
-    repositories: lock.repositories,
-  }
+  let updated_lock : LockFile = { skill_dirs, repositories: lock.repositories }
   write_lock(agents, updated_lock)
   sync_lock(agents, updated_lock)
 }

@@ -156,11 +156,12 @@ async fn detect_marketplace(repo_dir : String) -> MarketplaceInfo? {
   let claude = @path.Path::join(repo_dir, marketplace_path(Claude)).to_string()
   let cursor = @path.Path::join(repo_dir, marketplace_path(Cursor)).to_string()
   let codex = @path.Path::join(repo_dir, marketplace_path(Codex)).to_string()
-  match @async.all([
-    () => @fs.exists(claude),
-    () => @fs.exists(cursor),
-    () => @fs.exists(codex),
-  ]) {
+  match
+    @async.all([
+      () => @fs.exists(claude),
+      () => @fs.exists(cursor),
+      () => @fs.exists(codex),
+    ]) {
     [true, _, _] => Some({ kind: Claude, path: claude })
     [false, true, _] => Some({ kind: Cursor, path: cursor })
     [false, false, true] => Some({ kind: Codex, path: codex })
@@ -170,15 +171,15 @@ async fn detect_marketplace(repo_dir : String) -> MarketplaceInfo? {
 
 ///|
 pub async fn has_supported_plugin_format(dir : String) -> Bool {
-  @async
-  .all(
-    marketplace_kinds().map(kind => () => {
-      @fs.exists(
-        @path.Path::join(dir, marketplace_config_dir(kind)).to_string(),
-      )
+  @async.all(
+    marketplace_kinds().map(kind => {
+      () => {
+        @fs.exists(
+          @path.Path::join(dir, marketplace_config_dir(kind)).to_string(),
+        )
+      }
     }),
-  )
-  .any(value => value)
+  ).any(value => value)
 }
 
 ///|
@@ -295,8 +296,9 @@ async fn resolve_skills_from_plugins(
   repo_dir : String,
   plugins : Array[NormalizedPlugin],
 ) -> Array[ResolvedSkill] {
-  @async
-  .all(plugins.map(plugin => () => resolve_plugin_skills(repo_dir, plugin)))
+  @async.all(
+    plugins.map(plugin => () => resolve_plugin_skills(repo_dir, plugin)),
+  )
   .iter()
   .flat_map(skills => skills.iter())
   .collect()
@@ -327,21 +329,20 @@ async fn resolve_skill_entries(
   skill_dir : String,
   entries : Array[String],
 ) -> Array[ResolvedSkill] {
-  @async
-  .all(
-    entries.map(entry => () => {
-      let skill_path = @path.Path::join(skill_dir, entry).to_string()
-      if @fs.exists(
-          @path.Path::join(skill_path, "SKILL.md").to_string(),
-        ) {
-        Some({
-          plugin_name: plugin.name,
-          plugin_path: plugin.source,
-          skill_name: entry,
-          skill_path,
-        })
-      } else {
-        None
+  @async.all(
+    entries.map(entry => {
+      () => {
+        let skill_path = @path.Path::join(skill_dir, entry).to_string()
+        if @fs.exists(@path.Path::join(skill_path, "SKILL.md").to_string()) {
+          Some({
+            plugin_name: plugin.name,
+            plugin_path: plugin.source,
+            skill_name: entry,
+            skill_path,
+          })
+        } else {
+          None
+        }
       }
     }),
   )

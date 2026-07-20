@@ -3,7 +3,7 @@ let base_kind_arg = "base-kind"
 
 ///|
 fn dev_marketplace_sync_command_def(
-  run : (async (@admiral.Context) -> Unit),
+  run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="sync",
@@ -219,8 +219,10 @@ async fn sync_marketplace_target(
     ]
     .iter()
     .concat(
-      plugin_sources.iter().map(source => () => {
-        sync_plugin_json(repo_dir, base_kind, target_kind, source)
+      plugin_sources
+      .iter()
+      .map(source => {
+        () => sync_plugin_json(repo_dir, base_kind, target_kind, source)
       }),
     )
     .collect()
@@ -244,10 +246,9 @@ async fn run_dev_marketplace_sync(context : @admiral.Context) -> Unit {
     .iter()
     .filter(target_kind => target_kind != kind)
     .collect()
-  @async
-  .all(
-    target_kinds.map(target_kind => () => {
-      sync_marketplace_target(repo_dir, kind, target_kind, marketplace)
+  @async.all(
+    target_kinds.map(target_kind => {
+      () => sync_marketplace_target(repo_dir, kind, target_kind, marketplace)
     }),
   )
   |> ignore

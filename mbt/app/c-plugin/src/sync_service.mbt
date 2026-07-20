@@ -62,7 +62,9 @@ struct AgentsLock {
 
 ///|
 fn unique_strings(values : Array[String]) -> Array[String] {
-  values.iter().fold(init=[], fn(unique, value) {
+  values
+  .iter()
+  .fold(init=[], fn(unique, value) {
     if unique.contains(value) {
       unique
     } else {
@@ -97,9 +99,7 @@ fn has_sync_conflicts(agents_locks : Array[AgentsLock]) -> Bool {
 ///|
 async fn read_agents_locks(agents_dirs : Array[String]) -> Array[AgentsLock] {
   @async.all(
-    agents_dirs.map(agents => () => {
-      { agents, lock: read_lock(agents) }
-    }),
+    agents_dirs.map(agents => () => { agents, lock: read_lock(agents) }),
   )
 }
 
@@ -134,10 +134,9 @@ async fn create_skill_link(
   skill_path : String,
 ) -> Unit {
   let target_roots = managed_skill_roots(agents, skill_dirs)
-  @async
-  .all(
-    target_roots.map(root => () => {
-      create_skill_link_in(root, skill_name, skill_path)
+  @async.all(
+    target_roots.map(root => {
+      () => create_skill_link_in(root, skill_name, skill_path)
     }),
   )
   |> ignore
@@ -153,16 +152,17 @@ async fn clear_skill_links(root : String) -> Unit {
   ) catch {
     _ => []
   }
-  @async
-  .all(
-    entries.map(entry => () => {
-      let path = @path.Path::join(root, entry).to_string()
-      let kind = @fs.kind(path, follow_symlink=false) catch {
-        _ => @fs.FileKind::Unknown
-      }
-      if kind == @fs.FileKind::SymLink {
-        @fs.remove(path) catch {
-          _ => ()
+  @async.all(
+    entries.map(entry => {
+      () => {
+        let path = @path.Path::join(root, entry).to_string()
+        let kind = @fs.kind(path, follow_symlink=false) catch {
+          _ => @fs.FileKind::Unknown
+        }
+        if kind == @fs.FileKind::SymLink {
+          @fs.remove(path) catch {
+            _ => ()
+          }
         }
       }
     }),
@@ -200,7 +200,9 @@ async fn resolve_enabled_skills(
 fn deduplicate_resolved_skills(
   skills : Array[ResolvedSkill],
 ) -> Array[ResolvedSkill] {
-  skills.iter().fold(init=[], fn(unique, incoming) {
+  skills
+  .iter()
+  .fold(init=[], fn(unique, incoming) {
     unique
     .iter()
     .filter(skill => skill.skill_name != incoming.skill_name)
@@ -212,14 +214,15 @@ fn deduplicate_resolved_skills(
 ///|
 async fn sync_lock(agents : String, lock : LockFile) -> Unit {
   clear_managed_links(agents, lock.skill_dirs)
-  let skills = @async
-    .all(
-      lock.repositories.map(repo => () => {
-        resolve_enabled_skills(agents, repo) catch {
-          err if @async.is_being_cancelled() => raise err
-          err => {
-            println("Skipped \{repo.source}: \{err}")
-            []
+  let skills = @async.all(
+      lock.repositories.map(repo => {
+        () => {
+          resolve_enabled_skills(agents, repo) catch {
+            err if @async.is_being_cancelled() => raise err
+            err => {
+              println("Skipped \{repo.source}: \{err}")
+              []
+            }
           }
         }
       }),
@@ -228,15 +231,16 @@ async fn sync_lock(agents : String, lock : LockFile) -> Unit {
     .flat_map(resolved => resolved.iter())
     .collect()
     |> deduplicate_resolved_skills
-  @async
-  .all(
-    skills.map(skill => () => {
-      create_skill_link(
-        agents,
-        lock.skill_dirs,
-        skill.skill_name,
-        skill.skill_path,
-      )
+  @async.all(
+    skills.map(skill => {
+      () => {
+        create_skill_link(
+          agents,
+          lock.skill_dirs,
+          skill.skill_name,
+          skill.skill_path,
+        )
+      }
     }),
   )
   |> ignore
@@ -244,9 +248,11 @@ async fn sync_lock(agents : String, lock : LockFile) -> Unit {
 
 ///|
 async fn sync_agents_locks(agents_locks : Array[AgentsLock]) -> Unit {
-  let tasks = agents_locks.map(entry => () => {
-    sync_lock(entry.agents, entry.lock)
-    write_lock(entry.agents, entry.lock)
+  let tasks = agents_locks.map(entry => {
+    () => {
+      sync_lock(entry.agents, entry.lock)
+      write_lock(entry.agents, entry.lock)
+    }
   })
   if has_sync_conflicts(agents_locks) {
     @async.all(tasks, max_concurrent=1) |> ignore

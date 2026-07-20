@@ -36,7 +36,7 @@ struct SkillRemoveOptions {
 
 ///|
 fn skill_add_command_def(
-  run : (async (@admiral.Context) -> Unit),
+  run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="add",
@@ -61,7 +61,7 @@ fn skill_add_command_def(
 
 ///|
 fn skill_sync_command_def(
-  run : (async (@admiral.Context) -> Unit),
+  run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="sync",
@@ -80,7 +80,7 @@ fn skill_sync_command_def(
 
 ///|
 fn skill_update_command_def(
-  run : (async (@admiral.Context) -> Unit),
+  run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="update",
@@ -99,7 +99,7 @@ fn skill_update_command_def(
 
 ///|
 fn skill_remove_command_def(
-  run : (async (@admiral.Context) -> Unit),
+  run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="remove",
@@ -266,13 +266,15 @@ async fn run_skill_update(context : @admiral.Context) -> Unit {
     resolve_agents_dirs(options.recursive)
   }
   let agents_locks = read_agents_locks(agents_dirs)
-  let tasks = agents_locks.map(entry => () => {
-    let updated_lock : LockFile = {
-      skill_dirs: entry.lock.skill_dirs,
-      repositories: update_repositories(entry.lock.repositories),
+  let tasks = agents_locks.map(entry => {
+    () => {
+      let updated_lock : LockFile = {
+        skill_dirs: entry.lock.skill_dirs,
+        repositories: update_repositories(entry.lock.repositories),
+      }
+      write_lock(entry.agents, updated_lock)
+      sync_lock(entry.agents, updated_lock)
     }
-    write_lock(entry.agents, updated_lock)
-    sync_lock(entry.agents, updated_lock)
   })
   if has_update_conflicts(agents_locks) {
     @async.all(tasks, max_concurrent=1) |> ignore
@@ -286,19 +288,21 @@ async fn update_repositories(
   repositories : Array[LockRepository],
 ) -> Array[LockRepository] {
   @async.all(
-    repositories.map(repo => () => {
-      match repo.source_type {
-        RepositoryGithub => {
-          let dir = update_repo(repo.source)
-          {
-            source_type: repo.source_type,
-            source: repo.source,
-            marketplace_kind: repo.marketplace_kind,
-            commit_hash: Some(commit_hash(dir)),
-            plugins: repo.plugins,
+    repositories.map(repo => {
+      () => {
+        match repo.source_type {
+          RepositoryGithub => {
+            let dir = update_repo(repo.source)
+            {
+              source_type: repo.source_type,
+              source: repo.source,
+              marketplace_kind: repo.marketplace_kind,
+              commit_hash: Some(commit_hash(dir)),
+              plugins: repo.plugins,
+            }
           }
+          RepositoryLocal => repo
         }
-        RepositoryLocal => repo
       }
     }),
   )

@@ -82,20 +82,24 @@ async test "create_skill_link creates primary and additional relative symlinks" 
 test "sync conflict detection finds shared target roots" {
   let shared = "/tmp/c-plugin-shared-skills"
   let empty_lock : LockFile = { skill_dirs: [], repositories: [] }
-  assert_false(has_sync_conflicts([
-    { agents: "/tmp/project-a/.agents", lock: empty_lock },
-    { agents: "/tmp/project-b/.agents", lock: empty_lock },
-  ]))
-  assert_true(has_sync_conflicts([
-    {
-      agents: "/tmp/project-a/.agents",
-      lock: { skill_dirs: [shared], repositories: [] },
-    },
-    {
-      agents: "/tmp/project-b/.agents",
-      lock: { skill_dirs: [shared], repositories: [] },
-    },
-  ]))
+  assert_false(
+    has_sync_conflicts([
+      { agents: "/tmp/project-a/.agents", lock: empty_lock },
+      { agents: "/tmp/project-b/.agents", lock: empty_lock },
+    ]),
+  )
+  assert_true(
+    has_sync_conflicts([
+      {
+        agents: "/tmp/project-a/.agents",
+        lock: { skill_dirs: [shared], repositories: [] },
+      },
+      {
+        agents: "/tmp/project-b/.agents",
+        lock: { skill_dirs: [shared], repositories: [] },
+      },
+    ]),
+  )
 }
 
 ///|
@@ -107,16 +111,18 @@ test "update conflict detection finds shared Git repositories" {
     commit_hash: None,
     plugins: [],
   }
-  assert_true(has_update_conflicts([
-    {
-      agents: "/tmp/project-a/.agents",
-      lock: { skill_dirs: [], repositories: [repository] },
-    },
-    {
-      agents: "/tmp/project-b/.agents",
-      lock: { skill_dirs: [], repositories: [repository] },
-    },
-  ]))
+  assert_true(
+    has_update_conflicts([
+      {
+        agents: "/tmp/project-a/.agents",
+        lock: { skill_dirs: [], repositories: [repository] },
+      },
+      {
+        agents: "/tmp/project-b/.agents",
+        lock: { skill_dirs: [], repositories: [repository] },
+      },
+    ]),
+  )
 }
 
 ///|
@@ -173,8 +179,7 @@ async test "sync_all keeps the last repository for duplicate skill names" {
   let first_repo = @path.Path::join(root, "repo-1").to_string()
   let second_repo = @path.Path::join(root, "repo-2").to_string()
   @fs.mkdir(agents, recursive=true)
-  @async
-  .all([
+  @async.all([
     () => {
       @test_support.write_claude_marketplace(first_repo)
       @test_support.write_skill(first_repo, "shared-skill")

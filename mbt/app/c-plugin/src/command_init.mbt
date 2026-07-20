@@ -1,6 +1,6 @@
 ///|
 fn init_command_def(
-  run : (async (@admiral.Context) -> Unit),
+  run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="init",
