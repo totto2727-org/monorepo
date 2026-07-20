@@ -7,7 +7,7 @@ with pkgs;
   nixfmt
   duckdb
   # Runtime
-  nodejs
+  nodejs_24
   bun
   deno
   typescript

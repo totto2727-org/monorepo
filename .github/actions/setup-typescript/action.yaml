@@ -1,15 +1,7 @@
 name: Setup TypeScript
-description: Set up Vite+ (vp) and run `vp install`. Devbox must be installed beforehand via the setup-devbox action.
+description: Install workspace packages with Vite+ from the root Nix development shell.
 
 inputs:
-  node-version-file:
-    description: Path to the Node version file used by setup-vp.
-    required: false
-    default: .node-version
-  cache:
-    description: Enable setup-vp cache.
-    required: false
-    default: 'true'
   install-args:
     description: |
       Extra arguments appended to `vp install`. Useful for narrowing the install graph
@@ -20,22 +12,10 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Setup vp
-      uses: voidzero-dev/setup-vp@4f5aa3e38c781f1b01e78fb9255527cee8a6efa6 # v1.8.0
-      with:
-        node-version-file: ${{ inputs.node-version-file }}
-        cache: ${{ inputs.cache }}
-
-    - name: Init vp config
-      shell: bash
-      run: |
-        eval "$(devbox shellenv)"
-        vp config
-
     - name: Install packages
       shell: bash
       env:
         VP_INSTALL_ARGS: ${{ inputs.install-args }}
       run: |
-        eval "$(devbox shellenv)"
+        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
         vp install $VP_INSTALL_ARGS

@@ -143,8 +143,7 @@ a script to a task, drop the script.
 
 ## Development Tools
 
-- **Nix flakes + direnv** - Local development environment
-- **Devbox** - Temporarily retained for CI and sandbox image provisioning
+- **Nix flakes + direnv** - Development environment for local use, CI, and sandbox images
 - **Vite+** (`vp`) - Unified toolchain wrapping Vite, Vitest, and monorepo task orchestration
 - **Ultracite** - Code quality (Oxlint + Oxfmt) — `ultracite check` / `ultracite fix`
 - **Grit** - Additional code analysis and auto-fixes

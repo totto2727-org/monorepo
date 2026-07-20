@@ -74,4 +74,4 @@ If content is needed by both audiences:
 Example:
 
 - README.md: `See [AGENTS.md](./AGENTS.md#development-commands) for full command reference.`
-- AGENTS.md: `Development environment is managed by devbox (see [README.md](./README.md#setup) for setup).`
+- AGENTS.md: `Development environment is managed by Nix flakes (see [README.md](./README.md#setup) for setup).`

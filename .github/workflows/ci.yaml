@@ -13,10 +13,13 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: ./.github/actions/setup-devbox
+      - uses: ./.github/actions/setup-nix
 
       - uses: ./.github/actions/setup-moonbit
 
@@ -27,6 +30,6 @@ jobs:
       - name: Run check, build, and test
         shell: bash
         run: |
-          eval "$(devbox shellenv)"
+          eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
           vp run w:setup
           vp run --parallel ci

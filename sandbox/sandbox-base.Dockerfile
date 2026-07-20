@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1
 
 # Base
-# https://github.com/jetify-com/devbox/blob/3ec20383af8deeb46c94972996d275b1593e63e2/internal/devbox/generate/tmpl/DevboxImageDockerfile
 # https://github.com/NVIDIA/OpenShell-Community/blob/6daeacdf199afdd49753ddd149a9c259921ab1a8/sandboxes/base/Dockerfile
 
 FROM ubuntu:26.04
@@ -52,7 +51,7 @@ EOF
 USER sandbox
 WORKDIR /sandbox
 ENV USER=sandbox
-ENV PATH="/sandbox/.nix-profile/bin:/sandbox/.moon/bin:/sandbox/.vite-plus/bin:/sandbox/.local/bin:$PATH"
+ENV PATH="/sandbox/.nix-profile/bin:/sandbox/.local/bin:$PATH"
 
 RUN <<EOF
 curl -fsSL https://nixos.org/nix/install | sh -s -- --no-daemon
@@ -60,16 +59,9 @@ curl -fsSL https://nixos.org/nix/install | sh -s -- --no-daemon
 
 nix run home-manager/release-25.11 -- init --switch
 
-nix shell nixpkgs#rustup nixpkgs#nodejs --command bash -c '
-rustup default stable
-curl -fsSL https://raw.githubusercontent.com/moonbitlang/moonbit-compiler/refs/heads/main/install.ts | node
-'
-moon upgrade -f && moon update
-
-curl -fsSL https://vite.plus | bash
 curl -fsSL https://opencode.ai/install | bash
 
-rm -rf ~/.rustup ~/.cargo ~/.npm ~/.cache /tmp/*
+rm -rf ~/.cache /tmp/*
 nix-collect-garbage -d
 EOF
 

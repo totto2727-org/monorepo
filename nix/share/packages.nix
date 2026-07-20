@@ -16,7 +16,7 @@ with pkgs;
   lazydocker
   yazi
   # Coding
-  devbox
+  codex
   chezmoi
   # npm
   (npm {

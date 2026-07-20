@@ -1,6 +1,6 @@
 # Monorepo
 
-A multi-language monorepo (TypeScript + MoonBit) using Bun workspaces and Vite+.
+A multi-language monorepo using Bun workspaces and Vite+.
 
 ## Project Structure
 
@@ -9,6 +9,10 @@ A multi-language monorepo (TypeScript + MoonBit) using Bun workspaces and Vite+.
 - `mbt/`: Moonbit Projects
 - `js/`: JavaScript Projects
 - `go/`: Go Projects
+- `nix/`: Nix Projects
+- `elixir/`: Elixir Projects
+- `infra/`: Pulumi Projects
+- `sandbox/`: Sandbox Config
 
 #### Workspace Structure
 
@@ -20,9 +24,8 @@ A multi-language monorepo (TypeScript + MoonBit) using Bun workspaces and Vite+.
 ### Requirements
 
 - `Nix`: `https://nixos.org/download/`
-- `direnv`: `https://direnv.net/docs/installation.html` (optional)
-- `vite-plus(vp)`: `curl -fsSL https://vite.plus | bash`
 - `atlas`: `curl -sSf https://atlasgo.sh | sh`
+- `pulumi`: `brew install pulumi`
 
 ### Installation
 
@@ -38,8 +41,8 @@ Run `direnv allow` once to load the development environment automatically.
 
 ## Development Commands
 
-[CLAUDE.md > Development Commands](./CLAUDE.md#development-commands)
+[AGENTS.md > Development Commands](./AGENTS.md#development-commands)
 
 ## License
 
-Private repository (`@totto2727/fp` is MIT licensed)
+Private repository (`@totto2727/monorepo` is MIT licensed)

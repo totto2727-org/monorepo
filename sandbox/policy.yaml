@@ -32,4 +32,3 @@ network_policies:
       - { host: codeload.github.com, port: 443, access: read-only }
     binaries:
       - path: '/nix/store/*/bin/nix'
-      - path: '/nix/store/*/bin/devbox'

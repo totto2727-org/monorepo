@@ -1,11 +1,11 @@
 name: Setup Elixir
-description: Install the Elixir toolchain and update the registry.
+description: Fetch Mix dependencies with the Nix-managed Elixir toolchain.
 
 runs:
   using: composite
   steps:
-    - name: Install mix
+    - name: Fetch Mix dependencies
       shell: bash
       run: |
-        eval "$(devbox shellenv)"
+        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
         mix deps.get

@@ -146,11 +146,11 @@ See [references/separation-principles.md](references/separation-principles.md) f
 
 ## Setup
 
-1. Install devbox
-2. Run `devbox shell`
+1. Install Nix
+2. Run `nix develop`
 ```
 
-**Fix**: Move setup to README.md. In AGENTS.md, reference: "Development environment is managed by devbox (see README.md for setup)."
+**Fix**: Move setup to README.md. In AGENTS.md, reference: "Development environment is managed by Nix flakes (see README.md for setup)."
 
 ### ❌ Separate CLAUDE.md and AGENTS.md with different content
 

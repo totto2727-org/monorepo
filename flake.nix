@@ -21,7 +21,7 @@
     let
       supportedSystems = [
         "aarch64-darwin"
-        "x86_64-darwin"
+        "aarch64-linux"
         "x86_64-linux"
       ];
       forEachSystem = nixpkgs.lib.genAttrs supportedSystems;
@@ -32,7 +32,7 @@
         let
           pkgs = import nixpkgs {
             inherit system;
-            overlays = [ 
+            overlays = [
               moonbit-overlay.overlays.default
               vite-plus-overlay.overlays.default
             ];
@@ -41,20 +41,29 @@
         {
           default = pkgs.mkShell {
             packages = [
+              # JS
               pkgs.bun
               pkgs.deno
+              pkgs.nodejs_24
+              pkgs.vite-plus
+              # Go
               pkgs.go
-              pkgs.just
+              # Nix
               pkgs.nixfmt
+              # SQL
               pkgs.sqld
               pkgs.turso-cli
+              # MoonBit
               pkgs.moonbit-bin.moonbit.latest
+              # Elixir
               pkgs.beam29Packages.elixir_1_20
               pkgs.beam29Packages.erlang
-              pkgs.vite-plus
+              # Util
+              pkgs.just
             ];
 
             shellHook = ''
+              # Enable Git Hook
               vp config
             '';
           };

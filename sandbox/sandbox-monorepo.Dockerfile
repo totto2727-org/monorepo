@@ -11,8 +11,7 @@ export GIT_CONFIG_GLOBAL=/dev/null
 git clone https://github.com/totto2727-org/monorepo.git ~/monorepo
 cd ~/monorepo
 
-devbox install
-eval "$(devbox shellenv)"
+nix develop --command true
 direnv allow
 EOF
 

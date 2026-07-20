@@ -176,7 +176,7 @@ The workflow support skills are repository-owned OpenCode skills under `.agents/
 4.  Start work by writing/updating a hierarchical plan in the workpad comment.
 5.  Ensure the workpad includes a compact environment stamp at the top as a code fence line:
     - Format: `<host>:<abs-workdir>@<short-sha>`
-    - Example: `devbox-01:/home/dev-user/code/symphony-workspaces/MT-32@7bdde33bc`
+    - Example: `workspace-01:/home/dev-user/code/symphony-workspaces/MT-32@7bdde33bc`
     - Do not include metadata already inferable from Linear issue fields (`issue ID`, `status`, `branch`, `PR link`).
 6.  Add explicit acceptance criteria and TODOs in checklist form in the same comment.
     - If changes are user-facing, include a UI walkthrough acceptance criterion that describes the end-to-end user path to validate.

@@ -19,7 +19,7 @@ runs:
       env:
         NPM_REGISTRY: ${{ inputs.registry }}
       run: |
-        eval "$(devbox shellenv)"
+        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
         ENCODED_NAME=$(bun --print "encodeURIComponent(require('./package.json').name)")
         LOCAL_VERSION=$(bun --print "require('./package.json').version")
         HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${NPM_REGISTRY}/${ENCODED_NAME}/${LOCAL_VERSION}")

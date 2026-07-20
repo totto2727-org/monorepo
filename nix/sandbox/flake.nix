@@ -70,10 +70,6 @@
               programs = (import ../share/programs.nix) // {
                 home-manager.enable = true;
                 zsh = (import ../share/zsh.nix { inherit pkgs; }) // {
-                  initContent = ''
-                            eval "$(devbox global shellenv --init-hook)"
-                    	      '';
-
                   shellAliases = (import ../share/shell-aliases.nix) // {
                     home-manager = "home-manager --flake ~/nix/sandbox#${username}-${system}";
                   };

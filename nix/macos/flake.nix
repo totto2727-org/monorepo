@@ -23,6 +23,10 @@
       url = "github:ryoppippi/nix-vite-plus";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    codex-overlay = {
+      url = "github:sadjow/codex-cli-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -34,6 +38,7 @@
       nix-darwin,
       moonbit-overlay,
       vite-plus-overlay,
+      codex-overlay,
     }:
     let
       hostname = "totto2727-macos";
@@ -46,6 +51,7 @@
         overlays = [
           moonbit-overlay.overlays.default
           vite-plus-overlay.overlays.default
+          codex-overlay.overlays.default
         ];
       };
       npm = npmpkgs.lib.${pkgs.system}.npmPackage;
@@ -81,7 +87,6 @@
                   # Coding
                   "zed"
                   "orbstack"
-                  "codex"
                   # Game
                   "heroic"
                   # Utility

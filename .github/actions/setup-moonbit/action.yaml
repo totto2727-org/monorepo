@@ -1,14 +1,11 @@
 name: Setup MoonBit
-description: Install the MoonBit toolchain and update the registry.
+description: Update the MoonBit registry with the Nix-managed toolchain.
 
 runs:
   using: composite
   steps:
-    - name: Install moonbit
-      uses: totto2727/setup-moonbit@fd52b0c75e10e5e9bdb9e17d8dedc520e93d1bd0 # fork of hustcer/setup-moonbit
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-
-    - name: Update moonbit registry
+    - name: Update MoonBit registry
       shell: bash
-      run: moon update
+      run: |
+        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
+        moon update
