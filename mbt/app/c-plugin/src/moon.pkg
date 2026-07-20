@@ -1,5 +1,5 @@
 import {
-  "mizchi/admiral",
+  "totto2727/admiral",
   "package/target-file-discovery" @target_file_discovery,
   "moonbitlang/core/env",
   "moonbitlang/core/json",

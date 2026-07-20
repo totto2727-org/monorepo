@@ -1,5 +1,7 @@
 ///|
-fn init_command_def(run : (@admiral.Context) -> Unit) -> @admiral.CommandDef {
+fn init_command_def(
+  run : (async (@admiral.Context) -> Unit),
+) -> @admiral.CommandDef {
   @admiral.command(
     name="init",
     description="Create an empty lock file in the current directory",

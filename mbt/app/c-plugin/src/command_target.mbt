@@ -3,7 +3,7 @@ let target_dir_arg = "dir"
 
 ///|
 fn target_add_command_def(
-  run : (@admiral.Context) -> Unit,
+  run : (async (@admiral.Context) -> Unit),
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="add",
@@ -20,7 +20,7 @@ fn target_add_command_def(
 
 ///|
 fn target_remove_command_def(
-  run : (@admiral.Context) -> Unit,
+  run : (async (@admiral.Context) -> Unit),
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="remove",

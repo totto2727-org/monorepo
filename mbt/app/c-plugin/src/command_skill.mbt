@@ -36,7 +36,7 @@ struct SkillRemoveOptions {
 
 ///|
 fn skill_add_command_def(
-  run : (@admiral.Context) -> Unit,
+  run : (async (@admiral.Context) -> Unit),
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="add",
@@ -61,7 +61,7 @@ fn skill_add_command_def(
 
 ///|
 fn skill_sync_command_def(
-  run : (@admiral.Context) -> Unit,
+  run : (async (@admiral.Context) -> Unit),
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="sync",
@@ -80,7 +80,7 @@ fn skill_sync_command_def(
 
 ///|
 fn skill_update_command_def(
-  run : (@admiral.Context) -> Unit,
+  run : (async (@admiral.Context) -> Unit),
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="update",
@@ -99,7 +99,7 @@ fn skill_update_command_def(
 
 ///|
 fn skill_remove_command_def(
-  run : (@admiral.Context) -> Unit,
+  run : (async (@admiral.Context) -> Unit),
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="remove",

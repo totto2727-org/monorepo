@@ -3,7 +3,7 @@ let base_kind_arg = "base-kind"
 
 ///|
 fn dev_marketplace_sync_command_def(
-  run : (@admiral.Context) -> Unit,
+  run : (async (@admiral.Context) -> Unit),
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="sync",
