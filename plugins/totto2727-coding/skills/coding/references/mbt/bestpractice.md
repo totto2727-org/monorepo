@@ -526,50 +526,24 @@ Outside these three cases, default to the immutable construction patterns above.
 
 #### Immutable collection refactor review checklist
 
-When reviewing MoonBit collection code, the smell is not `for` by itself. The
-review finding is a loop paired with mutable flags, mutable result arrays,
-`push`, `append`, local copies that are mutated, or array element reassignment
-to express a routine collection transformation.
+When reviewing MoonBit collection code, the smell is not `for` by itself. The review finding is a loop paired with mutable flags, mutable result arrays, `push`, `append`, local copies that are mutated, or array element reassignment to express a routine collection transformation.
 
 Use this checklist before approving collection refactors:
 
-- Simple transformation: use `map` or `Array::makei` when the output length is
-  known.
-- Simple filtering: use `filter`; use `filter_map` when the code maps and drops
-  missing values in one pass.
-- Membership checks: use `any`, `all`, or `contains`; never keep a manual
-  `mut found` flag for an existence test.
-- Accumulation, grouping, upsert, and merge: use `fold` plus small pure helpers
-  such as `upsert_*`, `append_*`, or `merge_*` that return new values.
-- Flattening nested arrays: use `flat_map`, `flatten`, or iterator
-  concatenation followed by `collect`.
-- Order preservation: when replacing upsert or merge logic, preserve
-  first-seen outer order and per-item order explicitly in tests or examples.
+- Simple transformation: use `map` or `Array::makei` when the output length is known.
+- Simple filtering: use `filter`; use `filter_map` when the code maps and drops missing values in one pass.
+- Membership checks: use `any`, `all`, or `contains`; never keep a manual `mut found` flag for an existence test.
+- Accumulation, grouping, upsert, and merge: use `fold` plus small pure helpers such as `upsert_*`, `append_*`, or `merge_*` that return new values.
+- Flattening nested arrays: use `flat_map`, `flatten`, or iterator concatenation followed by `collect`.
+- Order preservation: when replacing upsert or merge logic, preserve first-seen outer order and per-item order explicitly in tests or examples.
 
-Manual upsert flags are review findings. Code shaped like `let mut found =
-false`, a loop that toggles it, and a trailing `if !found { ... }` should become
-a pure helper that either maps over the existing collection or appends a new
-item when `any` reports no match.
+Manual upsert flags are review findings. Code shaped like `let mut found = false`, a loop that toggles it, and a trailing `if !found { ... }` should become a pure helper that either maps over the existing collection or appends a new item when `any` reports no match.
 
-Array element reassignment is also a review finding when it implements a
-collection update, for example `items[index] = updated`. Prefer `map` for
-same-length replacement and `fold` for replacement plus conditional append.
-Index assignment is acceptable only for genuinely mutable algorithms where the
-array is the algorithm's working state and an immutable rewrite would obscure
-the logic.
+Array element reassignment is also a review finding when it implements a collection update, for example `items[index] = updated`. Prefer `map` for same-length replacement and `fold` for replacement plus conditional append. Index assignment is acceptable only for genuinely mutable algorithms where the array is the algorithm's working state and an immutable rewrite would obscure the logic.
 
-Effectful traversal is not a blanket exception. Calling an async operation
-directly inside `for` waits for each iteration before starting the next one.
-Classify the operations by dependency: keep genuinely dependent work
-sequential, but execute independent filesystem, process, and network operations
-with the structured-concurrency rules in section 3.14. Do not replace an async
-loop with a recursive helper; that preserves the same sequential execution.
+Effectful traversal is not a blanket exception. Calling an async operation directly inside `for` waits for each iteration before starting the next one. Classify the operations by dependency: keep genuinely dependent work sequential, but execute independent filesystem, process, and network operations with the structured-concurrency rules in section 3.14. Do not replace an async loop with a recursive helper; that preserves the same sequential execution.
 
-Algorithmic state machines are the other exception. Local `mut` state may remain
-for wildcard matchers, parsers, graph walks, geometric kernels, or similar
-algorithms where the state is intrinsic and a functional rewrite would reduce
-clarity. Keep the mutable state local, document the reason when it is not
-obvious, and avoid letting mutable arrays cross function boundaries.
+Algorithmic state machines are the other exception. Local `mut` state may remain for wildcard matchers, parsers, graph walks, geometric kernels, or similar algorithms where the state is intrinsic and a functional rewrite would reduce clarity. Keep the mutable state local, document the reason when it is not obvious, and avoid letting mutable arrays cross function boundaries.
 
 For a structural review, start with this scan and classify every remaining hit:
 
@@ -577,30 +551,20 @@ For a structural review, start with this scan and classify every remaining hit:
 rg -n '\bmut\b|\bfor\b|\.push\(|\[[^]]+\]\s*=' mbt --glob '*.mbt'
 ```
 
-Classify each hit as one of: simple transformation needing refactor, effectful
-traversal, algorithmic state machine, unavoidable mutable library object
-construction, or test-only imperative setup. Do not approve an unclassified
-`mut found`, `push`-based map/filter/fold, or array reassignment used for a
-collection update.
+Classify each hit as one of: simple transformation needing refactor, effectful traversal, algorithmic state machine, unavoidable mutable library object construction, or test-only imperative setup. Do not approve an unclassified `mut found`, `push`-based map/filter/fold, or array reassignment used for a collection update.
 
 ### 3.14 Async I/O and Structured Concurrency
 
-An async call blocks its caller until it returns. Async syntax alone therefore
-does not make repeated I/O concurrent. Before writing a loop or a sequence of
-async calls, identify which operations are independent and start those
-operations together.
+An async call blocks its caller until it returns. Async syntax alone therefore does not make repeated I/O concurrent. Before writing a loop or a sequence of async calls, identify which operations are independent and start those operations together.
 
-The rules below follow the official `moonbitlang/async` implementation pinned
-by this repository:
+The rules below follow the official `moonbitlang/async` implementation pinned by this repository:
 
 - [`all` implementation and contract](https://github.com/moonbitlang/async/blob/v0.19.2/src/async.mbt)
 - [`all` ordering, concurrency-limit, failure, and cancellation tests](https://github.com/moonbitlang/async/blob/v0.19.2/src/all_any_test.mbt)
 
 #### Use `@async.all` for homogeneous independent work
 
-Map each input to an `async () -> T` task and pass the tasks to `@async.all`.
-It starts every task concurrently by default and returns results in input order,
-even when completion order differs.
+Map each input to an `async () -> T` task and pass the tasks to `@async.all`. It starts every task concurrently by default and returns results in input order, even when completion order differs.
 
 ```mbt check
 async fn read_documents(paths : Array[String]) -> Array[String] {
@@ -610,16 +574,11 @@ async fn read_documents(paths : Array[String]) -> Array[String] {
 }
 ```
 
-Use this shape for independent file reads or writes, directory checks, HTTP
-requests, subprocesses operating on distinct resources, and per-entry
-resolution. Flatten or filter the ordered result after `@async.all`; do not
-mutate a shared result array from the tasks.
+Use this shape for independent file reads or writes, directory checks, HTTP requests, subprocesses operating on distinct resources, and per-entry resolution. Flatten or filter the ordered result after `@async.all`; do not mutate a shared result array from the tasks.
 
 #### Use a task group for heterogeneous independent work
 
-When independent operations have different result types, spawn them in one
-`@async.with_task_group` and wait for each handle before returning from the
-group.
+When independent operations have different result types, spawn them in one `@async.with_task_group` and wait for each handle before returning from the group.
 
 ```mbt check
 async fn load_inputs(
@@ -634,14 +593,11 @@ async fn load_inputs(
 }
 ```
 
-Do not use a background task for work whose result or failure belongs to the
-current operation. Structured tasks must finish or be cancelled before their
-owning scope returns.
+Do not use a background task for work whose result or failure belongs to the current operation. Structured tasks must finish or be cancelled before their owning scope returns.
 
 #### Keep real dependencies sequential
 
-Parallelism is incorrect when one operation supplies state required by the
-next operation. Keep such steps visibly ordered:
+Parallelism is incorrect when one operation supplies state required by the next operation. Keep such steps visibly ordered:
 
 ```mbt check
 async fn resolve_revision(source : String) -> String {
@@ -650,37 +606,28 @@ async fn resolve_revision(source : String) -> String {
 }
 ```
 
-Typical dependencies include creating a directory before writing inside it,
-cloning a repository before reading its revision, and writing a lock file
-before invoking a consumer that reads that file.
+Typical dependencies include creating a directory before writing inside it, cloning a repository before reading its revision, and writing a lock file before invoking a consumer that reads that file.
 
 #### Prevent shared-resource races
 
-Tasks may run concurrently only when their writes cannot target the same
-mutable resource. Before creating tasks:
+Tasks may run concurrently only when their writes cannot target the same mutable resource. Before creating tasks:
 
 - deduplicate identical output paths
-- resolve and merge data concurrently, then apply deterministic conflict rules
-  such as first-wins or last-wins before writing
+- resolve and merge data concurrently, then apply deterministic conflict rules such as first-wins or last-wins before writing
 - partition work by output directory, lock file, Git checkout, or cache entry
 - serialize only the conflicting partition when order is part of the contract
 
-Use `max_concurrent` to limit resource pressure or to serialize a known
-conflicting batch:
+Use `max_concurrent` to limit resource pressure or to serialize a known conflicting batch:
 
 ```mbt check
 @async.all(tasks, max_concurrent=8) |> ignore
 ```
 
-Do not use a concurrency limit as a substitute for identifying races. A limit
-greater than one still permits conflicting tasks to overlap; a limit of one is
-appropriate only when the original order must be retained and the batch cannot
-be partitioned safely.
+Do not use a concurrency limit as a substitute for identifying races. A limit greater than one still permits conflicting tasks to overlap; a limit of one is appropriate only when the original order must be retained and the batch cannot be partitioned safely.
 
 #### Preserve failure and cancellation semantics
 
-`@async.all` propagates the first task failure and cancels other running tasks.
-Do not catch and discard cancellation while implementing per-item recovery.
+`@async.all` propagates the first task failure and cancels other running tasks. Do not catch and discard cancellation while implementing per-item recovery.
 
 ```mbt check
 let result = resolve_item(item) catch {
@@ -692,26 +639,20 @@ let result = resolve_item(item) catch {
 }
 ```
 
-Catch an ordinary item failure only when skipping that item is part of the
-operation's contract. Otherwise, let the error propagate so sibling tasks are
-cancelled and the caller observes the failure.
+Catch an ordinary item failure only when skipping that item is part of the operation's contract. Otherwise, let the error propagate so sibling tasks are cancelled and the caller observes the failure.
 
 #### Review and test the concurrency contract
 
 For every async traversal, verify all of the following:
 
-- independent work uses `@async.all` or a task group instead of sequential
-  `for` or recursive traversal
+- independent work uses `@async.all` or a task group instead of sequential `for` or recursive traversal
 - dependent work remains sequential
 - result ordering matches the input contract
 - duplicate or shared targets cannot race
-- concurrency is capped when the task count can be large or the external
-  resource has a known limit
+- concurrency is capped when the task count can be large or the external resource has a known limit
 - failure propagation and cancellation are preserved
 
-Tests should cover observable ordering, duplicate-target resolution, failure
-propagation, and any conflict path that intentionally falls back to sequential
-execution.
+Tests should cover observable ordering, duplicate-target resolution, failure propagation, and any conflict path that intentionally falls back to sequential execution.
 
 ## 4. Performance Optimization
 

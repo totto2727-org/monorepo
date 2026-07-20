@@ -4,12 +4,10 @@ Related skills: [effect-layer](./effect-layer.md), [effect-runtime](./effect-run
 
 ## Effect Handler Pattern
 
-Middleware and route handlers share the same structure: the Hono boundary is
-the only place that converts an `Effect` into a `Promise<Response | void>`.
+Middleware and route handlers share the same structure: the Hono boundary is the only place that converts an `Effect` into a `Promise<Response | void>`.
 
 1. Define the whole request workflow as one `Effect.gen`
-2. Define `programWithCatch` to handle errors separately when the endpoint has
-   typed recoverable errors
+2. Define `programWithCatch` to handle errors separately when the endpoint has typed recoverable errors
 3. Execute once with `c.var.runtime.runPromise(programWithCatch)`
 
 ```typescript
@@ -33,23 +31,15 @@ return c.var.runtime.runPromise(programWithCatch)
   - 0 when it is purely synchronous Hono code (`c.json`, simple redirects, etc.)
   - 1 when it performs any Effectful work
 - The single `runPromise` must wrap the **entire** endpoint / middleware workflow:
-  request parsing, service lookup, DB/API calls, cookie mutation, redirects,
-  JSX server-side rendering, and response construction all belong inside the
-  same `Effect.gen`.
+  request parsing, service lookup, DB/API calls, cookie mutation, redirects, JSX server-side rendering, and response construction all belong inside the same `Effect.gen`.
 - Do not write `async (c) => { ... await c.var.runtime.runPromise(partialEffect); ... }`.
   That splits the workflow and hides side effects outside Effect.
-- Do not create several nested or sequential `Effect.gen` / `runPromise` blocks
-  inside one Hono handler. Compose effects inside the single top-level program.
+- Do not create several nested or sequential `Effect.gen` / `runPromise` blocks inside one Hono handler. Compose effects inside the single top-level program.
 - Do not `Effect.provide(...)` route-local application layers inside handlers.
-  Services (`BackendClient`, DB, `HttpClient`, etc.) must be provided by the
-  request runtime assembled in `runtime/server.ts`. Route-level `provide` is
-  only for genuinely local, test-only, or explicitly scoped values.
-- Always separate `program` and `programWithCatch` when typed error recovery is
-  needed; otherwise a direct `c.var.runtime.runPromise(Effect.gen(...))` is
-  acceptable.
+  Services (`BackendClient`, DB, `HttpClient`, etc.) must be provided by the request runtime assembled in `runtime/server.ts`. Route-level `provide` is only for genuinely local, test-only, or explicitly scoped values.
+- Always separate `program` and `programWithCatch` when typed error recovery is needed; otherwise a direct `c.var.runtime.runPromise(Effect.gen(...))` is acceptable.
 - Always `Effect.tapError` before `catchTags` for logging.
-- Middleware: wrap `next()` with `Effect.tryPromise(next)` or
-  `Effect.promise(() => next())` inside the same program.
+- Middleware: wrap `next()` with `Effect.tryPromise(next)` or `Effect.promise(() => next())` inside the same program.
 
 ## Endpoint Boundary Shape
 
@@ -116,8 +106,7 @@ app.get('/me', (c) =>
 )
 ```
 
-Service implementations may require `HttpClient.HttpClient`, but they must not
-provide `FetchHttpClient.layer` internally. The request runtime provides it.
+Service implementations may require `HttpClient.HttpClient`, but they must not provide `FetchHttpClient.layer` internally. The request runtime provides it.
 
 ## Middleware
 
@@ -131,8 +120,7 @@ export const myMiddleware = factory.createMiddleware((c, next) => {
 })
 ```
 
-Middleware-specific state belongs in the shared Hono environment type, not in
-individual route files. Define variables in the runtime/context boundary:
+Middleware-specific state belongs in the shared Hono environment type, not in individual route files. Define variables in the runtime/context boundary:
 
 ```typescript
 // feature/runtime/hono.ts
@@ -150,38 +138,18 @@ export interface Env {
 }
 ```
 
-Route files should import this `Env`; they must not locally widen
-`Variables` with endpoint-specific intersections such as
-`Variables & { user: AuthUser | null }`.
+Route files should import this `Env`; they must not locally widen `Variables` with endpoint-specific intersections such as `Variables & { user: AuthUser | null }`.
 
 ### Auth middleware boundaries
 
-Keep route and app middleware focused on policy, not auth plumbing. Shared auth
-helpers should own session lookup, user decoding, and pass-through vs
-unauthenticated branching. App middleware should provide only app-specific
-responses such as redirects, return-to cookies, or JSON 401 responses.
+Keep route and app middleware focused on policy, not auth plumbing. Shared auth helpers should own session lookup, user decoding, and pass-through vs unauthenticated branching. App middleware should provide only app-specific responses such as redirects, return-to cookies, or JSON 401 responses.
 
-Platform-specific auth design notes live directly in the ms-02 milestone's
-current implementation section:
-[`docs/roadmap/feed-platform/milestones/ms-02-auth-passkey-magiclink.md`](../../../../../../docs/roadmap/feed-platform/milestones/ms-02-auth-passkey-magiclink.md#current-implementation-design).
-Historical context remains in the auth provider and cross-app session ADRs:
-[`docs/adr/2026-05-24-feed-platform-auth-provider.md`](../../../../../../docs/adr/2026-05-24-feed-platform-auth-provider.md)
-and
-[`docs/adr/2026-05-24-feed-platform-cross-app-session-strategy.md`](../../../../../../docs/adr/2026-05-24-feed-platform-cross-app-session-strategy.md).
+Platform-specific auth design notes live directly in the ms-02 milestone's current implementation section: [`docs/roadmap/feed-platform/milestones/ms-02-auth-passkey-magiclink.md`](../../../../../../docs/roadmap/feed-platform/milestones/ms-02-auth-passkey-magiclink.md#current-implementation-design). Historical context remains in the auth provider and cross-app session ADRs: [`docs/adr/2026-05-24-feed-platform-auth-provider.md`](../../../../../../docs/adr/2026-05-24-feed-platform-auth-provider.md) and [`docs/adr/2026-05-24-feed-platform-cross-app-session-strategy.md`](../../../../../../docs/adr/2026-05-24-feed-platform-cross-app-session-strategy.md).
 
-- Prefer source-native user fields in application auth types. Better Auth uses
-  `user.id`, so app-level shared users should expose `id`; reserve `sub` for
-  JWT/OIDC payload types and translate only at that protocol boundary.
-- Do not add app-specific `mapUser` callbacks to shared setup middleware for the
-  normal application user. Divergent UI or protocol shapes should be mapped at
-  the boundary that needs them.
-- Do not store long-lived services such as `auth` in `ctx.var`. Services belong
-  in the runtime/service layer; request context should contain request-scoped
-  values such as the resolved `user`.
-- Handlers behind require-auth middleware should trust the middleware contract
-  and avoid repeating `null` checks for `ctx.var.user`. If the type does not
-  express the guarantee, fix the shared helper or Hono context typing instead
-  of weakening every handler.
+- Prefer source-native user fields in application auth types. Better Auth uses `user.id`, so app-level shared users should expose `id`; reserve `sub` for JWT/OIDC payload types and translate only at that protocol boundary.
+- Do not add app-specific `mapUser` callbacks to shared setup middleware for the normal application user. Divergent UI or protocol shapes should be mapped at the boundary that needs them.
+- Do not store long-lived services such as `auth` in `ctx.var`. Services belong in the runtime/service layer; request context should contain request-scoped values such as the resolved `user`.
+- Handlers behind require-auth middleware should trust the middleware contract and avoid repeating `null` checks for `ctx.var.user`. If the type does not express the guarantee, fix the shared helper or Hono context typing instead of weakening every handler.
 
 ### Examples
 

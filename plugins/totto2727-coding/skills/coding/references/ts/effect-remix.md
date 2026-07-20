@@ -4,11 +4,7 @@ Related skills: [effect-layer](./effect-layer.md), [effect-runtime](./effect-run
 
 ## Client Event Boundary Pattern
 
-`remix/ui` event handlers are browser boundaries. When a handler performs
-Effectful work, the handler must execute exactly one whole workflow Effect.
-The outer callback should only establish the boundary with `Effect.runPromise`;
-form parsing, state mutation, `handle.update()`, HTTP calls, browser APIs,
-navigation, and error recovery all belong inside the same `Effect.gen`.
+`remix/ui` event handlers are browser boundaries. When a handler performs Effectful work, the handler must execute exactly one whole workflow Effect. The outer callback should only establish the boundary with `Effect.runPromise`; form parsing, state mutation, `handle.update()`, HTTP calls, browser APIs, navigation, and error recovery all belong inside the same `Effect.gen`.
 
 ```tsx
 <form
@@ -62,29 +58,15 @@ navigation, and error recovery all belong inside the same `Effect.gen`.
 
 - Each `on(...)` handler must contain **0 or 1 runtime execution**:
   - 0 for purely synchronous local UI behavior.
-  - 1 when it performs Effectful work such as HTTP, schema decoding,
-    WebAuthn, storage, or navigation coupled to Effect results.
+  - 1 when it performs Effectful work such as HTTP, schema decoding, WebAuthn, storage, or navigation coupled to Effect results.
 - Do not use `async` / `await` plus `try` / `catch` around a partial Effect.
-  Use Effect's `catch` operator, `catchTags`, or `tapError` inside the same
-  program. If oxlint confuses `Effect.catch` with Promise `.catch()`, add a
-  targeted `promise/prefer-await-to-then` disable explaining that the operator
-  is Effect, not Promise.
-- Do not mutate component state before or after the Effect boundary. Initial
-  loading state, validation errors, success state, failure state, and
-  `handle.update()` calls are part of the workflow and belong inside
-  `Effect.gen`.
+  Use Effect's `catch` operator, `catchTags`, or `tapError` inside the same program. If oxlint confuses `Effect.catch` with Promise `.catch()`, add a targeted `promise/prefer-await-to-then` disable explaining that the operator is Effect, not Promise.
+- Do not mutate component state before or after the Effect boundary. Initial loading state, validation errors, success state, failure state, and `handle.update()` calls are part of the workflow and belong inside `Effect.gen`.
 - Do not navigate outside the Effect after awaiting a partial program.
-  `window.location.href`, `history.pushState`, and Remix navigation helpers
-  belong inside the workflow that proved navigation is allowed.
-- Do not nest `Effect.gen` blocks to split one event workflow. Compose the
-  operations in a single top-level `Effect.gen` and use helper functions only
-  when they name reusable domain behavior.
-- Browser APIs that return promises, such as WebAuthn
-  `navigator.credentials.get/create`, should be wrapped with `Effect.promise`
-  in the same workflow.
-- `FetchHttpClient.layer` may be provided at the client event boundary when
-  the component is the browser runtime boundary. Do not hide that provision
-  inside domain service implementations.
+  `window.location.href`, `history.pushState`, and Remix navigation helpers belong inside the workflow that proved navigation is allowed.
+- Do not nest `Effect.gen` blocks to split one event workflow. Compose the operations in a single top-level `Effect.gen` and use helper functions only when they name reusable domain behavior.
+- Browser APIs that return promises, such as WebAuthn `navigator.credentials.get/create`, should be wrapped with `Effect.promise` in the same workflow.
+- `FetchHttpClient.layer` may be provided at the client event boundary when the component is the browser runtime boundary. Do not hide that provision inside domain service implementations.
 
 ## Forbidden Partial Boundary Shape
 
@@ -102,5 +84,4 @@ navigation, and error recovery all belong inside the same `Effect.gen`.
 />
 ```
 
-The failure mode is the same as Hono endpoint boundaries: the important side
-effects happen outside the program being typed, logged, recovered, and tested.
+The failure mode is the same as Hono endpoint boundaries: the important side effects happen outside the program being typed, logged, recovered, and tested.

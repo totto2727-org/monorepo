@@ -57,8 +57,7 @@ Thin wrappers that re-export external libraries:
 
 ## Error payload and propagation policy
 
-Use `@totto2727/fp/error` as the canonical shape for domain error payloads.
-`TaggedErrorBaseType` is the only allowed base type for custom `Data.TaggedError` payloads.
+Use `@totto2727/fp/error` as the canonical shape for domain error payloads. `TaggedErrorBaseType` is the only allowed base type for custom `Data.TaggedError` payloads.
 
 ```ts
 import type { TaggedErrorBaseType } from '@totto2727/fp/error'

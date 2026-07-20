@@ -45,8 +45,9 @@ Classify every remaining hit instead of blindly removing all mutation or loops:
 
 - simple collection transformation that should become `map`, `filter`,
   `filter_map`, `fold`, `flat_map`, `concat`, or `collect`
-- effectful traversal where `for` remains clearer because each iteration
-  performs I/O, Git, printing, symlink, network, or other async/effectful work
+- effectful traversal where independent I/O, Git, filesystem, network, or
+  process work must use `@async.all` or a task group; keep only true
+  dependencies and shared-resource mutations sequential
 - algorithmic state machine where local `mut` is intrinsic to clarity
 - unavoidable mutable library object construction
 - test-only imperative setup
