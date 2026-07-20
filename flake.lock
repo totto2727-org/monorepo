@@ -8,15 +8,15 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1784438763,
-        "narHash": "sha256-W1OUxgLSLyP4MXCg6t353BNzWF3Ef6lBjwWAVrr2wAQ=",
-        "owner": "moonbit-community",
+        "lastModified": 1784541274,
+        "narHash": "sha256-jtOcz5r6V/7U89ySbicd+0SWD+LqlWrWP9Qd+GZRQuI=",
+        "owner": "totto2727",
         "repo": "moonbit-overlay",
-        "rev": "0c2c2df95460589971983eed53f6265a89a53c08",
+        "rev": "bdae408fa509726dd819c962c4e712cc0d0380af",
         "type": "github"
       },
       "original": {
-        "owner": "moonbit-community",
+        "owner": "totto2727",
         "repo": "moonbit-overlay",
         "type": "github"
       }

@@ -12,7 +12,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     moonbit-overlay = {
-      url = "github:moonbit-community/moonbit-overlay";
+      url = "github:totto2727/moonbit-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     vite-plus-overlay = {
