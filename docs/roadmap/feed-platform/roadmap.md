@@ -73,7 +73,7 @@
 
 ### 規範的制約
 
-- 既存プロジェクト固有スキル (`effect-layer` / `effect-runtime` / `effect-hono` / `git-workflow` / `adr` / `script-rules` 等) のパターン優先
+- 既存プロジェクト固有スキル (`effect-layer` / `effect-runtime` / `effect-hono` / `adr` 等) のパターン優先
 - 認証認可基盤を他全領域 (永続化層を除く) の利用前提とする (順序依存制約)
 - 永続化基盤の Feed 共通データモデルを入出力アダプタの契約より先に確定する (依存制約)
 - 個人情報 / API キー / 共有トークン等の機密情報をリポジトリに保存しない
@@ -153,7 +153,7 @@ graph LR
 ## 関連リンク
 
 - 関連プロジェクト固有スキル: `effect-layer` / `effect-runtime` / `effect-hono` (採用ワークスペースが `js/` の場合の主要パターン)
-- 関連横断スキル: `git-workflow` / `adr` / `script-rules` / `totto2727-fp`
+- 関連横断スキル: `adr` / `totto2727-fp`
 - ms-02 認証の現行設計: `docs/roadmap/feed-platform/milestones/ms-02-auth-passkey-magiclink.md#current-implementation-design`
 - 関連実行サイクル: 各マイルストーンの `workflow_identifiers` で参照する execution cycle
 - 関連 ADR: `docs/adr/` 配下 (本ロードマップ着手時点で本ドメインに直接関連する ADR はなし。マイルストーン段階で必要に応じて新規 ADR 起票)

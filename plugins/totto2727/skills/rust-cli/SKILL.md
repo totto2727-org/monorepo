@@ -120,5 +120,5 @@ Extend the structure starting from [templates/main.rs](./templates/main.rs).
 - "Teach me about Rust ownership." → Not a CLI context
 - "I want to build an API server with Rust actix-web." → Server implementation, not CLI
 - "Please review this Rust code." → `code-reviewer` responsibility
-- "I want to build a CLI in Deno." → `deno-cli-tool` responsibility
+- "I want to build a CLI in Deno." → Outside Rust scope
 - "I want to write a short Rust script that only needs synchronous processing." → Outside async CLI scope (explicit negative trigger)

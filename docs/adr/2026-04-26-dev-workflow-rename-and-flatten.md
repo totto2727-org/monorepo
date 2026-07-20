@@ -72,7 +72,7 @@ Each step carries its own:
 - The artifact set (`intent-spec` / `research/*` / `design` / `task-plan` / `self-review-report` / `review/*` / `validation-report` / `retrospective` / `TODO` / `progress.yaml`).
 - The approval-gate locations (the same four user-approval points are retained, just no longer described as "phase gates").
 - The commit-per-step convention.
-- Project-specific skill integration (`effect-layer`, `effect-runtime`, `effect-hono`, `totto2727-fp`, `git-workflow`, etc.).
+- Project-specific skill integration (`effect-layer`, `effect-runtime`, `effect-hono`, `totto2727-fp`, etc.).
 - The `adr` skill remains the home for project-wide decisions discovered during a workflow cycle.
 
 ## Impact

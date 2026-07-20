@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "exocortex": {
-      "type": "stdio",
-      "command": "exocortex-mcp"
-    }
-  }
-}

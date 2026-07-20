@@ -218,7 +218,7 @@ completed`.
 
 ## Project-rule precedence
 
-`roadmap` inherits the `totto2727-dev-flow` policy: **the overall process structure (steps, artifact formats, gate decisions) follows this skill, while implementation patterns / test rules / commit conventions / naming conventions / platform-specific commands defer to project-specific skills** (`coding`, `git-workflow`, `macos-cli-rules`, etc.). See `totto2727-dev-flow/SKILL.md` "Relationship with project-specific rules" for the canonical statement.
+`roadmap` inherits the `totto2727-dev-flow` policy: **the overall process structure (steps, artifact formats, gate decisions) follows this skill, while implementation patterns / test rules / commit conventions / naming conventions / platform-specific commands defer to project-specific skills** (`coding`, `test`, `macos-cli-rules`, etc.). See `totto2727-dev-flow/SKILL.md` "Relationship with project-specific rules" for the canonical statement.
 
 Roadmap-specific notes:
 

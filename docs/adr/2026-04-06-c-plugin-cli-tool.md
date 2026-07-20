@@ -98,7 +98,7 @@ Locations:
         {
           "name": "totto2727",
           "path": "plugins/totto2727",
-          "enabledSkills": ["exocortex", "git-workflow"]
+          "enabledSkills": ["csv-analysis", "rust-cli"]
         },
         {
           "name": "moonbit",
@@ -137,7 +137,7 @@ Initial release supports only relative paths within the repository. Each plugin 
   .cache/                       # gitignored
     <owner>/<repo>/             # git clone
   skills/                       # gitignored (symlinks only)
-    exocortex -> ../.cache/<owner>/<repo>/plugins/<plugin>/skills/exocortex
+    csv-analysis -> ../.cache/<owner>/<repo>/plugins/<plugin>/skills/csv-analysis
 ```
 
 - Independent cache per `.agents/` directory (allows version separation between global and project)
