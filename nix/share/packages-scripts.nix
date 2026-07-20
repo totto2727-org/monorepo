@@ -78,6 +78,7 @@ let
   '';
 
   macos-linear-mcp = writeShellScriptBin "linear-mcp" ''
+    export LINEAR_API_KEY="$(pass-cli get linear/api-key --quiet -f password)"
     exec bunx mcp-remote \
       https://mcp.linear.app/mcp \
       --transport http-only \
