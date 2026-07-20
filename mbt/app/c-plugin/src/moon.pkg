@@ -1,7 +1,6 @@
 import {
   "mizchi/admiral",
   "package/target-file-discovery" @target_file_discovery,
-  "moonbitlang/core/argparse",
   "moonbitlang/core/env",
   "moonbitlang/core/json",
   "moonbitlang/core/string",

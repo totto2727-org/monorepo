@@ -35,7 +35,9 @@ struct SkillRemoveOptions {
 }
 
 ///|
-fn skill_add_command_def() -> @admiral.CommandDef {
+fn skill_add_command_def(
+  run : (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
   @admiral.command(
     name="add",
     description="Add a plugin marketplace",
@@ -53,23 +55,33 @@ fn skill_add_command_def() -> @admiral.CommandDef {
         description="Local marketplace root beginning with ./",
       ),
     ],
+    run=Some(run),
   )
 }
 
 ///|
-fn skill_sync_command_def() -> @admiral.CommandDef {
-  @admiral.command(name="sync", description="Re-create skill symlinks", options=[
-    @admiral.bool(global_option, short='g', description="Use ~/.agents"),
-    @admiral.bool(
-      recursive_option,
-      short='r',
-      description="Sync from the nearest lock file and descendant lock files",
-    ),
-  ])
+fn skill_sync_command_def(
+  run : (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
+  @admiral.command(
+    name="sync",
+    description="Re-create skill symlinks",
+    options=[
+      @admiral.bool(global_option, short='g', description="Use ~/.agents"),
+      @admiral.bool(
+        recursive_option,
+        short='r',
+        description="Sync from the nearest lock file and descendant lock files",
+      ),
+    ],
+    run=Some(run),
+  )
 }
 
 ///|
-fn skill_update_command_def() -> @admiral.CommandDef {
+fn skill_update_command_def(
+  run : (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
   @admiral.command(
     name="update",
     description="Update GitHub-sourced repos and sync",
@@ -81,11 +93,14 @@ fn skill_update_command_def() -> @admiral.CommandDef {
         description="Update from the nearest lock file and descendant lock files",
       ),
     ],
+    run=Some(run),
   )
 }
 
 ///|
-fn skill_remove_command_def() -> @admiral.CommandDef {
+fn skill_remove_command_def(
+  run : (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
   @admiral.command(
     name="remove",
     description="Remove a repository from the lockfile",
@@ -93,17 +108,18 @@ fn skill_remove_command_def() -> @admiral.CommandDef {
     options=[
       @admiral.bool(global_option, short='g', description="Use ~/.agents"),
     ],
+    run=Some(run),
   )
 }
 
 ///|
-fn skill_add_options(matches : @argparse.Matches) -> SkillAddOptions raise {
-  let global = matches.flags.contains(global_option)
-  let local_path = match matches.values.get(local_option) {
+fn skill_add_options(context : @admiral.Context) -> SkillAddOptions raise {
+  let global = context.flags.contains(global_option)
+  let local_path = match context.values.get(local_option) {
     Some([value, ..]) => Some(value)
     _ => None
   }
-  let repo = match matches.values.get(repo_arg) {
+  let repo = match context.values.get(repo_arg) {
     Some([value, ..]) => Some(value)
     _ => None
   }
@@ -124,18 +140,16 @@ fn skill_add_options(matches : @argparse.Matches) -> SkillAddOptions raise {
 }
 
 ///|
-fn skill_global_options(matches : @argparse.Matches) -> SkillGlobalOptions {
+fn skill_global_options(context : @admiral.Context) -> SkillGlobalOptions {
   {
-    global: matches.flags.contains(global_option),
-    recursive: matches.flags.contains(recursive_option),
+    global: context.flags.contains(global_option),
+    recursive: context.flags.contains(recursive_option),
   }
 }
 
 ///|
-fn skill_remove_options(
-  matches : @argparse.Matches,
-) -> SkillRemoveOptions raise {
-  let values = match matches.values.get(repo_arg) {
+fn skill_remove_options(context : @admiral.Context) -> SkillRemoveOptions raise {
+  let values = match context.values.get(repo_arg) {
     Some(values) => values
     None => fail("source is required")
   }
@@ -143,12 +157,12 @@ fn skill_remove_options(
     [value, ..] => value
     [] => fail("source is required")
   }
-  { global: matches.flags.contains(global_option), source }
+  { global: context.flags.contains(global_option), source }
 }
 
 ///|
-async fn run_skill_add(matches : @argparse.Matches) -> Unit {
-  let options = skill_add_options(matches)
+async fn run_skill_add(context : @admiral.Context) -> Unit {
+  let options = skill_add_options(context)
   let agents = command_agents_dir(options.global)
   ensure_lock(agents)
   let root = @path.Path::dirname(agents).to_string()
@@ -208,8 +222,8 @@ fn upsert_repository(
 }
 
 ///|
-async fn run_skill_sync(matches : @argparse.Matches) -> Unit {
-  let options = skill_global_options(matches)
+async fn run_skill_sync(context : @admiral.Context) -> Unit {
+  let options = skill_global_options(context)
   let agents_dirs = if options.global {
     [resolve_global_agents_dir()]
   } else {
@@ -221,8 +235,8 @@ async fn run_skill_sync(matches : @argparse.Matches) -> Unit {
 }
 
 ///|
-async fn run_skill_update(matches : @argparse.Matches) -> Unit {
-  let options = skill_global_options(matches)
+async fn run_skill_update(context : @admiral.Context) -> Unit {
+  let options = skill_global_options(context)
   let agents_dirs = if options.global {
     [resolve_global_agents_dir()]
   } else {
@@ -265,8 +279,8 @@ async fn update_repositories(
 }
 
 ///|
-async fn run_skill_remove(matches : @argparse.Matches) -> Unit {
-  let options = skill_remove_options(matches)
+async fn run_skill_remove(context : @admiral.Context) -> Unit {
+  let options = skill_remove_options(context)
   let agents = command_agents_dir(options.global)
   let source = options.source
   let lock = read_lock(agents)

@@ -1,8 +1,9 @@
 ///|
-fn init_command_def() -> @admiral.CommandDef {
+fn init_command_def(run : (@admiral.Context) -> Unit) -> @admiral.CommandDef {
   @admiral.command(
     name="init",
     description="Create an empty lock file in the current directory",
+    run=Some(run),
   )
 }
 
@@ -12,7 +13,7 @@ struct InitOptions {
 }
 
 ///|
-fn init_options(_matches : @argparse.Matches) -> InitOptions {
+fn init_options(_context : @admiral.Context) -> InitOptions {
   { global: false }
 }
 
@@ -29,8 +30,8 @@ async fn init_lock_file(project_root : String) -> String {
 }
 
 ///|
-async fn run_init(matches : @argparse.Matches) -> Unit {
-  let options = init_options(matches)
+async fn run_init(context : @admiral.Context) -> Unit {
+  let options = init_options(context)
   let project_root = if options.global {
     current_home_dir()
   } else {

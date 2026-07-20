@@ -2,7 +2,9 @@
 let target_dir_arg = "dir"
 
 ///|
-fn target_add_command_def() -> @admiral.CommandDef {
+fn target_add_command_def(
+  run : (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
   @admiral.command(
     name="add",
     description="Add skill symlink target directory",
@@ -12,11 +14,14 @@ fn target_add_command_def() -> @admiral.CommandDef {
     options=[
       @admiral.bool(global_option, short='g', description="Use ~/.agents"),
     ],
+    run=Some(run),
   )
 }
 
 ///|
-fn target_remove_command_def() -> @admiral.CommandDef {
+fn target_remove_command_def(
+  run : (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
   @admiral.command(
     name="remove",
     description="Remove skill symlink target directory",
@@ -26,6 +31,7 @@ fn target_remove_command_def() -> @admiral.CommandDef {
     options=[
       @admiral.bool(global_option, short='g', description="Use ~/.agents"),
     ],
+    run=Some(run),
   )
 }
 
@@ -36,8 +42,8 @@ struct TargetOptions {
 }
 
 ///|
-fn target_options(matches : @argparse.Matches) -> TargetOptions raise {
-  let values = match matches.values.get(target_dir_arg) {
+fn target_options(context : @admiral.Context) -> TargetOptions raise {
+  let values = match context.values.get(target_dir_arg) {
     Some(values) => values
     None => fail("dir is required")
   }
@@ -45,12 +51,12 @@ fn target_options(matches : @argparse.Matches) -> TargetOptions raise {
     [value, ..] => value
     [] => fail("dir is required")
   }
-  { global: matches.flags.contains(global_option), dir }
+  { global: context.flags.contains(global_option), dir }
 }
 
 ///|
-async fn run_target_add(matches : @argparse.Matches) -> Unit {
-  let options = target_options(matches)
+async fn run_target_add(context : @admiral.Context) -> Unit {
+  let options = target_options(context)
   let agents = command_agents_dir(options.global)
   let dir = options.dir
   let lock = read_lock(agents)
@@ -64,8 +70,8 @@ async fn run_target_add(matches : @argparse.Matches) -> Unit {
 }
 
 ///|
-async fn run_target_remove(matches : @argparse.Matches) -> Unit {
-  let options = target_options(matches)
+async fn run_target_remove(context : @admiral.Context) -> Unit {
+  let options = target_options(context)
   let agents = command_agents_dir(options.global)
   let dir = options.dir
   let lock = read_lock(agents)
