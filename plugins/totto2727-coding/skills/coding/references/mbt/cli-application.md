@@ -1,27 +1,46 @@
 # MoonBit CLI Application Implementation
 
-Use this guide when implementing MoonBit CLI applications. New CLIs use one
-command file per CLI command, `admiral` for argument definitions,
-`moonbitlang/async` for native async execution, explicit option/body types, and
-request code that only accepts typed data.
+Use this guide when implementing MoonBit CLI applications. Use the current
+`totto2727/admiral` API for the complete CLI lifecycle: command definition,
+argument parsing, help fallback, async callback execution, and error
+propagation. Do not combine Admiral definitions with a separate manual
+`argparse` dispatcher.
 
-This document is normative for new CLI work. If existing implementation details
-differ from this guide, prefer this guide and update the implementation.
+## Source-of-truth priority
+
+Apply CLI rules in this order:
+
+1. The `totto2727/admiral` version pinned by the target module and its current
+   public API.
+2. The current Admiral-based implementations under `mbt/app/c-plugin`,
+   `mbt/app/bw`, and `mbt/app/wt`.
+3. Examples in this guide.
+
+If this guide conflicts with the pinned Admiral API or those current
+implementations, follow Admiral and update this guide. Never restore direct
+`@argparse.Command` construction, manual parsing, or manual dispatch in
+`main.mbt` to preserve an older pattern.
+
+For the current repository baseline, depend on `totto2727/admiral@0.2.1`. Keep
+the package name and version consistent in `moon.mod`, `moon.pkg`, and any
+generated compatibility manifest such as `package.nix`.
 
 ## Required command pipeline
 
-Every command must follow this sequence:
+Every command must follow the first three steps. Request-backed commands also
+follow steps four and five:
 
 1. **Option name constants** — define every CLI option name once.
 2. **`admiral` command definition** — use only those constants in the option
    definitions.
-3. **Options struct** — convert `@argparse.Matches` into a typed command-local
+3. **Options struct** — convert `@admiral.Context` into a typed command-local
    options struct.
 4. **Body struct** — convert the options struct into the exact request body
    type.
 5. **Request** — send `body.to_json()` to the HTTP layer.
 
-Do not skip the options struct. Do not build JSON directly from `Matches`.
+Do not skip the options struct. Do not build JSON directly from
+`@admiral.Context`.
 
 ## File organization
 
@@ -29,7 +48,7 @@ Split CLI implementations by command:
 
 ```text
 src/
-  main.mbt                  # command list + dispatch only
+  main.mbt                  # Admiral app construction + app.run() only
   auth.mbt                  # environment variable names only
   http_client.mbt           # HTTP send / response status boundary
   output.mbt                # output writing helpers
@@ -39,15 +58,43 @@ src/
   ...
 ```
 
-`main.mbt` should stay small: build the command list, parse once, dispatch to a
-command runner. Command-specific parsing, validation, body construction, and
-request invocation belong in the command file.
+`main.mbt` should only construct the Admiral app and call `app.run()`. Admiral
+owns parsing and dispatch. Command-specific validation, options conversion,
+body construction, and execution belong in the command file.
+
+```moonbit
+///|
+async fn main {
+  let app = @admiral.cli(
+    name="myapp",
+    description="My CLI application",
+    commands=[
+      status_command_def(run_status),
+      @admiral.command(
+        name="config",
+        description="Manage configuration",
+        subcommands=[
+          config_show_command_def(run_config_show),
+          config_set_command_def(run_config_set),
+        ],
+      ),
+    ],
+  )
+  app.run()
+}
+```
+
+Do not add a task group, background spawn, explicit `@env.args()` help
+rewrite, `help_path`, manual parse function, or dispatch match around
+`app.run()`. Admiral displays the relevant help when no runnable command or
+required subcommand is supplied. Unknown commands, invalid options, and errors
+from command callbacks remain errors.
 
 ## Option constants
 
 Option names are part of the command contract. Define them as constants and use
 the constants everywhere: both in `admiral` definitions and when reading
-`Matches`.
+`@admiral.Context`.
 
 ```moonbit
 ///|
@@ -57,25 +104,58 @@ let screenshot_html_option = "html"
 let screenshot_output_option = "output"
 
 ///|
-fn screenshot_command_def() -> @admiral.CommandDef {
-  @admiral.command(name="screenshot", description="Capture a screenshot", options=[
-    @admiral.string(screenshot_account_id_option, description="Cloudflare account ID"),
-    @admiral.string(screenshot_url_option, description="Target URL"),
-    @admiral.string(screenshot_html_option, description="Path to local HTML file"),
-    @admiral.string(screenshot_output_option, short='o', description="Output file path", required=true),
-  ])
+fn screenshot_command_def(
+  run : async (@admiral.Context) -> Unit,
+) -> @admiral.CommandDef {
+  @admiral.command(
+    name="screenshot",
+    description="Capture a screenshot",
+    options=[
+      @admiral.string(
+        screenshot_account_id_option,
+        description="Cloudflare account ID",
+      ),
+      @admiral.string(screenshot_url_option, description="Target URL"),
+      @admiral.string(
+        screenshot_html_option,
+        description="Path to local HTML file",
+      ),
+      @admiral.string(
+        screenshot_output_option,
+        short='o',
+        description="Output file path",
+        required=true,
+      ),
+    ],
+    run=Some(run),
+  )
 }
 ```
 
-Do not scatter literal option strings through the file.
+Every runnable command definition accepts an async `@admiral.Context` callback
+and passes it as `run=Some(run)`. Every command runner is async, even when its
+current body performs no asynchronous operation. Group-only commands define
+`subcommands` and omit `run`; Admiral handles their help fallback.
+
+MoonBit reports `unused_async` when an explicitly async example has no async
+operation. For a deliberately synchronous demonstration callback, call
+`@async.sleep(0)` once rather than changing the callback back to a synchronous
+type. Production callbacks should normally become async through their real I/O.
+
+Do not scatter literal option strings through the file. Do not define a
+parallel dispatch table in `main.mbt`.
 
 ## Options struct conversion
 
 The options conversion function is the boundary from raw CLI/config/env input to
 typed data. It must:
 
-- read `@argparse.Matches` using option constants, and keep all raw `Matches`
+- read `@admiral.Context` using option constants, and keep all raw context
   access inside this command-local conversion step
+- prefer `get_bool`, `get_string`, `get_string_required`, `get_int`,
+  `get_int_required`, and `get_strings`; read `values` directly only when the
+  command must validate exact cardinality or distinguish a missing value from
+  an empty collection
 - resolve environment variable fallbacks such as credentials
 - raise immediately when a required value is missing or malformed
 - preserve user-provided values without domain processing
@@ -106,8 +186,10 @@ struct ScreenshotOptions {
 }
 
 ///|
-async fn screenshot_options(matches : @argparse.Matches) -> ScreenshotOptions {
-  let account_id = match matches.values.get(screenshot_account_id_option) {
+fn screenshot_options(
+  context : @admiral.Context,
+) -> ScreenshotOptions raise {
+  let account_id = match context.values.get(screenshot_account_id_option) {
     Some(values) => match values {
       [value] => value
       _ => fail("account-id accepts exactly one value")
@@ -117,7 +199,7 @@ async fn screenshot_options(matches : @argparse.Matches) -> ScreenshotOptions {
       None => fail("account-id is required. Set CLOUDFLARE_ACCOUNT_ID or pass --account-id")
     }
   }
-  let api_token = match matches.values.get(screenshot_api_token_option) {
+  let api_token = match context.values.get(screenshot_api_token_option) {
     Some(values) => match values {
       [value] => value
       _ => fail("api-token accepts exactly one value")
@@ -127,14 +209,17 @@ async fn screenshot_options(matches : @argparse.Matches) -> ScreenshotOptions {
       None => fail("api-token is required. Set CLOUDFLARE_API_TOKEN or pass --api-token")
     }
   }
-  let input = match (matches.values.get(screenshot_url_option), matches.values.get(screenshot_html_option)) {
+  let input = match (
+    context.values.get(screenshot_url_option),
+    context.values.get(screenshot_html_option),
+  ) {
     (Some([value]), _) => Url(value)
     (_, Some([path])) => HtmlFile(path)
     (Some(_), _) => fail("url accepts exactly one value")
     (_, Some(_)) => fail("html accepts exactly one value")
     _ => fail("Either --url or --html is required")
   }
-  let output_values = match matches.values.get(screenshot_output_option) {
+  let output_values = match context.values.get(screenshot_output_option) {
     Some(values) => values
     None => fail("missing required option: output")
   }
@@ -224,13 +309,8 @@ The runner should be straightforward:
 
 ```moonbit
 ///|
-async fn run_screenshot_command(matches : @argparse.Matches) -> Unit {
-  let options = screenshot_options(matches)
-  run_screenshot(options)
-}
-
-///|
-async fn run_screenshot(options : ScreenshotOptions) -> Unit {
+async fn run_screenshot(context : @admiral.Context) -> Unit {
+  let options = screenshot_options(context)
   let body = ScreenshotBody::from_options(options)
   let (code, reason, data) = post_json(
     options.account_id,
@@ -243,11 +323,12 @@ async fn run_screenshot(options : ScreenshotOptions) -> Unit {
 }
 ```
 
-Only the command entrypoint receives raw `@argparse.Matches`, and it should do
-so only long enough to call the command-local options conversion. The runner
-itself accepts typed options and body values. It must not re-resolve
-credentials, read raw matches, or re-validate required options. If a required
-value can be missing in the runner, the options conversion is too weak.
+Only the async command callback receives raw `@admiral.Context`, and it should
+pass that context directly to the command-local options conversion. After that
+conversion, request/body helpers accept typed options and body values. They
+must not re-resolve credentials, read raw context, or re-validate required
+options. If a required value can be missing after options conversion, the
+conversion is too weak.
 
 ## JSON responses
 
@@ -266,8 +347,14 @@ typed value inside the implementation.
 
 ## Anti-patterns
 
-- Directly constructing request JSON from `@argparse.Matches`.
-- Reading raw `@argparse.Matches` outside command-local options conversion.
+- Importing or constructing `@argparse.Command` in an Admiral-based CLI.
+- Calling `parse()` or manually matching subcommands in `main.mbt`.
+- Wrapping async command execution in a task group or background spawn.
+- Reimplementing root or subcommand help fallback around `app.run()`.
+- Using synchronous command callbacks; `run` callbacks are async by default.
+- Directly constructing request JSON from `@admiral.Context`.
+- Reading raw `@admiral.Context` outside command-local options conversion and
+  the async command entrypoint that invokes it.
 - Shared generic body builders like `add_bool_nested` or `add_string_nested`.
 - Keeping mutually exclusive states as several optional fields in `Options`.
 - Resolving environment variables in the runner instead of options conversion.

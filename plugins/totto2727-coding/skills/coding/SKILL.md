@@ -10,7 +10,8 @@ description: >-
   reading material. Common triggers: "coding conventions", "language
   conventions", "how should I write X in TypeScript / MoonBit", "look up
   totto2727 coding rules", "check the project coding style", "Effect Layer
-  patterns", "@totto2727/fp usage".
+  patterns", "@totto2727/fp usage", "MoonBit CLI", "admiral command",
+  "admiral Context", "async CLI callback".
   Do NOT use for: test-specific conventions (use the sibling `test` skill),
   CI / build / monorepo orchestration (use `vite-plus`), framework-specific
   application patterns (use `remix` or other dedicated skills).

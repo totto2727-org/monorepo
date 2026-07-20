@@ -604,4 +604,4 @@ See [MoonBit Testing Standards](../../../test/references/mbt/bestpractice.md) fo
 
 ## 7. CLI Applications
 
-See [MoonBit CLI Application Implementation](./cli-application.md) for the required command structure and JSON/request-body rules. Treat that guide as normative for CLI code; existing implementations should be updated when they disagree with it.
+See [MoonBit CLI Application Implementation](./cli-application.md) for the required command structure and JSON/request-body rules. The current `totto2727/admiral` API and the repository's Admiral-based implementations take priority over older rules and examples. Do not reintroduce direct `argparse` parsing or dispatch in `main.mbt`.
