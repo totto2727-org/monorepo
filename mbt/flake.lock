@@ -3,11 +3,11 @@
     "moon-registry": {
       "flake": false,
       "locked": {
-        "lastModified": 1784528637,
-        "narHash": "sha256-g1TEam+W8fL/Hu8k8LQOTKl1lga205S7XSoerindvdI=",
+        "lastModified": 1784538394,
+        "narHash": "sha256-BFcUS1oPK5BGFAIFjLujnmse0Ek5hlesb8BJ2iamUPE=",
         "ref": "refs/heads/main",
-        "rev": "e0007775efea700892e23574c6d3080058bde6ff",
-        "revCount": 11093,
+        "rev": "f9c5d0fd67d5aaff8be142601399d38855296f44",
+        "revCount": 11097,
         "type": "git",
         "url": "https://mooncakes.io/git/index"
       },
@@ -24,15 +24,15 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1784526220,
-        "narHash": "sha256-UXIwpIhu94EeCjhpqn77JiKNeRme0gvcawkG9gWFQFE=",
-        "owner": "moonbit-community",
+        "lastModified": 1784541274,
+        "narHash": "sha256-jtOcz5r6V/7U89ySbicd+0SWD+LqlWrWP9Qd+GZRQuI=",
+        "owner": "totto2727",
         "repo": "moonbit-overlay",
-        "rev": "4f9e6314a848b4ee7b6be0a54d1f1e564e4750ae",
+        "rev": "bdae408fa509726dd819c962c4e712cc0d0380af",
         "type": "github"
       },
       "original": {
-        "owner": "moonbit-community",
+        "owner": "totto2727",
         "repo": "moonbit-overlay",
         "type": "github"
       }

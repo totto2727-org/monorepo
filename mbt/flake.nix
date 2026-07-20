@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
     moonbit-overlay = {
-      url = "github:moonbit-community/moonbit-overlay";
+      url = "github:totto2727/moonbit-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     moon-registry = {
