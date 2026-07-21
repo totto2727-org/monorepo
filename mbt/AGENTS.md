@@ -25,4 +25,3 @@ moon info          # Update generated interface files (.mbti)
 moon test --update # Update snapshot tests
 moon coverage analyze > uncovered.log
 ```
-
