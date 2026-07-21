@@ -1,0 +1,288 @@
+///|
+import {
+  "moonbitlang/core/env",
+  "moonbitlang/async@0.20.2",
+  "moonbitlang/async@0.20.2/fs",
+  "moonbitlang/async@0.20.2/http",
+  "moonbitlang/async@0.20.2/io",
+  "moonbitlang/x@0.4.46/path",
+}
+
+///|
+struct DocEntry {
+  slug : String
+  title : String
+  description : String
+}
+
+///|
+const SITEMAP_URL : String = "https://www.components.build/sitemap.xml"
+
+///|
+const BASE_URL : String = "https://www.components.build"
+
+///|
+fn repository_root() -> @path.Path raise {
+  match @env.current_dir() {
+    Some(path) => path
+    None => fail("Unable to determine the current directory")
+  }
+}
+
+///|
+fn output_directory(root : @path.Path) -> @path.Path {
+  root
+  |> @path.Path::join("plugins")
+  |> @path.Path::join("totto2727-coding")
+  |> @path.Path::join("skills")
+  |> @path.Path::join("docs-components-build")
+}
+
+///|
+async fn fetch_text(url : String) -> (Int, String) {
+  let (response, data) = @http.get(url)
+  (response.code, data.text())
+}
+
+///|
+fn values_between(text : String, opening : String, closing : String) -> Array[String] {
+  let values : Array[String] = []
+  let mut remaining = text
+  while true {
+    match remaining.find(opening) {
+      None => break
+      Some(opening_index) => {
+        let after_opening = remaining[opening_index + opening.length():].to_owned()
+        match after_opening.find(closing) {
+          None => break
+          Some(closing_index) => {
+            values.push(after_opening[:closing_index].to_owned())
+            remaining = after_opening[closing_index + closing.length():].to_owned()
+          }
+        }
+      }
+    }
+  }
+  values
+}
+
+///|
+fn url_path(url : String) -> String {
+  match url.strip_prefix(BASE_URL) {
+    Some(path) => path.to_owned()
+    None => {
+      let after_scheme = match url.split_once("://") {
+        Some((_, rest)) => rest.to_owned()
+        None => url
+      }
+      match after_scheme.find("/") {
+        Some(index) => after_scheme[index:].to_owned()
+        None => "/"
+      }
+    }
+  }
+}
+
+///|
+fn trim_slashes(path : String) -> String {
+  let without_leading = match path.strip_prefix("/") {
+    Some(value) => value.to_owned()
+    None => path
+  }
+  match without_leading.strip_suffix("/") {
+    Some(value) => value.to_owned()
+    None => without_leading
+  }
+}
+
+///|
+fn sitemap_slugs(xml : String) -> Array[String] {
+  let slugs : Array[String] = []
+  for url in values_between(xml, "<loc>", "</loc>") {
+    let path = url_path(url)
+    if path != "/" && path != "" {
+      let slug = trim_slashes(path)
+      if slug != "" && !slug.contains("/") && !slugs.contains(slug) {
+        slugs.push(slug)
+      }
+    }
+  }
+  slugs.sort_by((left, right) => left.lexical_compare(right))
+  slugs
+}
+
+///|
+fn unquote(value : String) -> String {
+  let without_leading = if value.has_prefix("\"") || value.has_prefix("'") {
+    value[1:].to_owned()
+  } else {
+    value
+  }
+  if without_leading.has_suffix("\"") || without_leading.has_suffix("'") {
+    without_leading[:without_leading.length() - 1].to_owned()
+  } else {
+    without_leading
+  }
+}
+
+///|
+fn frontmatter_value(text : String, key : String) -> String? {
+  guard text.has_prefix("---\n") else { return None }
+  let body = text[4:].to_owned()
+  let end = match body.find("\n---") {
+    Some(index) => index
+    None => return None
+  }
+  for line in body[:end].split("\n") {
+    match line.split_once(":") {
+      Some((line_key, value)) if line_key.trim() == key =>
+        return Some(unquote(value.trim().to_owned()))
+      _ => ()
+    }
+  }
+  None
+}
+
+///|
+async fn fetch_entry(slug : String) -> DocEntry? {
+  let url = "\{BASE_URL}/llms.mdx/\{slug}"
+  let (code, text) = fetch_text(url) catch {
+    _ => {
+      println("Skipping \{slug}: request failed")
+      return None
+    }
+  }
+  if code < 200 || code >= 300 {
+    println("Skipping \{slug}: \{code}")
+    return None
+  }
+  let entry : DocEntry = {
+    slug,
+    title: frontmatter_value(text, "title").unwrap_or(slug),
+    description: frontmatter_value(text, "description").unwrap_or(""),
+  }
+  let title = if entry.title == slug { "(no title)" } else { entry.title }
+  println("  \{slug}: \{title}")
+  Some(entry)
+}
+
+///|
+fn skill_content(entries : Array[DocEntry]) -> String {
+  let output = StringBuilder()
+  let introduction =
+    #|---
+    #|name: docs-components-build
+    #|description: >-
+    #|  Open standard specification for building modern UI components (by Vercel).
+    #|  Covers composition, accessibility, polymorphism, state management, styling
+    #|  with Tailwind, design tokens, type-safe props, data attributes, and
+    #|  distribution via npm/registry/marketplace. Use when designing reusable
+    #|  component APIs, building design systems, or following component best practices.
+    #|  Common triggers: "component composition", "compound components", "asChild",
+    #|  "data-slot", "component registry", "design tokens", "components.build".
+    #|  Do NOT use for: general React questions unrelated to component design spec,
+    #|  specific library APIs (Radix, shadcn/ui installation).
+    #|metadata:
+    #|  author: totto2727
+    #|  version: 0.1.0
+    #|---
+    #|
+    #|<!-- Generated from https://www.components.build/sitemap.xml -->
+    #|<!-- Run mbt/scripts/generate-docs-components-build.mbtx to update -->
+    #|
+    #|## Overview
+    #|
+    #|components.build is an open-source specification established by Vercel for designing and building modern UI components. It defines a formal standard for creating composable, accessible, and adoptable components for the web.
+    #|
+    #|The specification is framework-agnostic in its principles but uses React for examples. It covers the full lifecycle of component development — from API design and composition patterns to styling, state management, accessibility, and distribution.
+    #|
+    #|### Key Principles
+    #|
+    #|- **Composability over inheritance** — Break monolithic components into small, focused subcomponents with clear APIs
+    #|- **Accessible by default** — Semantic HTML, keyboard navigation, ARIA patterns, and focus management
+    #|- **Transparency** — Developers should understand and be able to modify component internals
+    #|- **Theming via design tokens** — Semantic CSS variable layers that separate intent from appearance
+    #|
+    #|### Topics Covered
+    #|
+    #|- **Design**: Composition, polymorphism (`as`/`asChild`), type-safe props, data attributes
+    #|- **Behavior**: Controlled/uncontrolled state, accessibility patterns
+    #|- **Styling**: Tailwind + `cn` utility, Class Variance Authority, design tokens
+    #|- **Distribution**: NPM packages, component registries (source-code distribution), marketplaces
+    #|
+    #|## Related Skills
+    #|
+    #|- [vercel-composition-patterns](https://raw.githubusercontent.com/vercel-labs/agent-skills/refs/heads/main/skills/composition-patterns/SKILL.md) — React composition patterns (compound components, boolean prop avoidance, state lifting, React 19 APIs). Complements this spec's Composition and State topics with concrete Incorrect/Correct rule pairs for code generation and refactoring.
+    #|
+    #|## How to Use
+    #|
+    #|1. Fetch the relevant documentation with `curl` or WebFetch before answering questions about that topic.
+    #|2. If a specific slug returns 404 or is unavailable, fall back to the overview at `https://www.components.build/`.
+    #|3. For composition and state patterns, also fetch the Vercel AGENTS.md for concrete rule pairs.
+    #|
+    #|```
+    #|curl https://www.components.build/llms.mdx/{slug}
+    #|```
+    #|
+    #|```
+    #|curl https://raw.githubusercontent.com/vercel-labs/agent-skills/refs/heads/main/skills/composition-patterns/AGENTS.md
+    #|```
+    #|
+    #|## Documentation Links
+    #|
+    #|| Slug | Title | Description |
+    #||------|-------|-------------|
+  output.write_stringview(introduction)
+  output.write_stringview("\n")
+  for entry in entries {
+    output.write_stringview(
+      "| `\{entry.slug}` | \{entry.title} | \{entry.description} |\n",
+    )
+  }
+  let examples =
+    #|
+    #|## Triggering Examples
+    #|
+    #|Should trigger:
+    #|- "Tell me about components.build composition patterns"
+    #|- "How to use asChild on a component"
+    #|- "How to design design tokens"
+    #|- "Naming conventions for compound components"
+    #|- "How to create a component registry"
+    #|
+    #|Should NOT trigger:
+    #|- "How to use React's useState" (general React question)
+    #|- "How to install shadcn/ui" (specific library setup)
+    #|- "Radix UI Dialog API" (specific library API)
+  output.write_stringview(examples)
+  output.write_stringview("\n")
+  output.to_string()
+}
+
+///|
+async fn main {
+  guard @env.args().length() == 1 else {
+    fail("Usage: moon run mbt/scripts/generate-docs-components-build.mbtx")
+  }
+  let (code, sitemap_xml) = fetch_text(SITEMAP_URL)
+  guard code >= 200 && code < 300 else {
+    fail("Failed to fetch sitemap: {code}")
+  }
+  let slugs = sitemap_slugs(sitemap_xml)
+  println("Found \{slugs.length()} unique slugs")
+  let entries = @async.all(
+    slugs.map(slug => () => fetch_entry(slug)),
+    max_concurrent=1,
+  ).filter_map(entry => entry)
+  entries.sort_by((left, right) => left.slug.lexical_compare(right.slug))
+  let output_dir = output_directory(repository_root())
+  if !@fs.exists(output_dir.to_string()) {
+    @fs.mkdir(output_dir.to_string(), recursive=true)
+  }
+  @fs.write_file(
+    (output_dir |> @path.Path::join("SKILL.md")).to_string(),
+    skill_content(entries),
+    create_mode=CreateOrTruncate,
+  )
+  println("\nGenerated SKILL.md with \{entries.length()} links in \{output_dir}")
+}

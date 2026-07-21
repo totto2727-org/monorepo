@@ -76,3 +76,21 @@ Iterators are single-pass: once you call `next()` or consume them with methods
 like `each`, `fold`, or `collect`, their internal state advances and cannot be
 reset. If you need to traverse the sequence again, request a new `Iter` from
 the source.
+
+Use `[| ... |]` to construct an `Iter` explicitly. Elements, spread syntax,
+and comprehensions are supported inside the delimiters:
+
+```moonbit
+  let prefix = [| 1, 2, 3 |]
+  let values = [| ..prefix, 4, 5 |]
+  let squares = [| for x in 1..<=3 => x * x |]
+```
+
+In `[| x, y |]`, `x` and `y` are evaluated when the iterator literal is
+constructed. For `..xs`, evaluating `xs` happens immediately, while consuming
+the resulting iterator remains lazy. A comprehension `[| for ... |]` is fully
+lazy and runs as the outer iterator is consumed.
+
+Using an overloaded array literal such as `[x, ..xs]` to construct an `Iter`
+from its expected type is deprecated because the type would silently change
+evaluation order. Use `[| x, ..xs |]` instead.

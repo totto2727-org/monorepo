@@ -16,7 +16,7 @@ MoonBit provides convenient pipe syntaxes `x |> f(y)` and `f <| x`, which can be
 1
 |> add(5) // <=> add(1, 5)
 |> x => { x + 1 }
-|> ignore // <=> ignore(add(1, 5))
+|> ignore // <=> ignore(add(1, 5) + 1)
 ```
 
 The MoonBit code follows the _data-first_ style, meaning the function places its "subject" as the first argument.
@@ -114,9 +114,9 @@ contexts:
    ```moonbit
    fn g(x : Array[Int?]) -> Unit {
      if x is [v, .. rest] && v is Some(i) && i is (0..=10) {
-       println(v)
+       debug(v)
        println(i)
-       println(rest)
+       debug(rest)
      }
    }
    ```
@@ -150,7 +150,7 @@ fn j(x : Int) -> Int? {
 fn init {
   guard j(42) is (Some(a) as b)
   println(a)
-  println(b)
+  debug(b)
 }
 ```
 
@@ -323,13 +323,51 @@ In the example above, `head`, `ident`, `tail`, `before`, `after`, and `rest`
 have type `StringView`. The binder `ch` has type `Char`, because `re"."`
 matches exactly one character.
 
-#### Lexmatch
+#### Lexscan
+
+Use `lexscan` when matching one input against several regex cases. It accepts
+`String` and `StringView` inputs and returns the body of the selected case. The
+default strategy selects the first matching case. Add `with longest` to select
+the case that consumes the longest prefix instead. In v0.10.4, `lexscan` does
+not support `Bytes`, `BytesView`, or streaming scanner inputs.
+
+In longest-match mode, each regex case must be anchored at the start with `^`.
+Anchor it at the end with `$` when the whole input must match, or use `after=`
+to bind the unmatched suffix. `before=` is not supported in longest-match mode,
+and `lexscan` cases do not support guards. Put any additional condition inside
+the selected case body.
+
+```moonbit
+test {
+  let text = "xxabbbcyy"
+  if text =~ (re"a" + (re"b*" as b) + re"c", before~, after~) {
+    inspect(before, content="xx")
+    inspect(b, content="bbb")
+    inspect(after, content="yy")
+  } else {
+    fail("")
+  }
+
+  if text =~ (re"a" + (re"b*" as b) + re"c") && b.length() > 0 {
+    inspect(b, content="bbb")
+  }
+
+  let keyword = "iff"
+  lexscan keyword with longest {
+    (re"^(if|[a-z]*)$" as ident) => inspect(ident, content="iff")
+    _ => fail("")
+  }
+}
+```
+
+#### Lexmatch (deprecated)
 
 ##### WARNING
 
-`lexmatch` and `lexmatch?` are deprecated. Prefer
-[regex match expression]() in new code.
-This section is kept as reference for existing code.
+`lexmatch` and `lexmatch?` are deprecated. Use
+[regex match expressions]() for boolean and
+first-match checks, or [`lexscan`]() for case-based and longest-match
+scanning. This section is kept as reference for existing code.
 
 `lexmatch` matches a `String` against a regex pattern and lets you bind the
 pieces of a match. The search-mode pattern is `(before, regex pieces, after)`,
@@ -342,9 +380,26 @@ also bind a matched sub-pattern using `as`, such as `("b*" as b)`.
 `lexmatch?` is a boolean check similar to `is`, and it can introduce binders
 for use in the same contexts as `is` expressions.
 
+In old code, search-mode `lexmatch` looked like this:
+
+```moonbit
+lexmatch text {
+  (before, "a" ("b*" as b) "c", after) => ...
+  _ => ...
+}
+
+if text lexmatch? ("a" ("b*" as b) "c") && b.length() > 0 {
+  ...
+}
+```
+
+In new code, write those search-mode checks with `=~` instead.
+
 `lexmatch` also supports a lexer-style mode: `lexmatch <expr> with longest`,
 which picks the longest match among alternatives (for example, `if|[a-z]*`
-matches `iff` as `iff` in longest mode, while search mode matches `if` first).
+matches `iff` as `iff` in longest mode, while first-match search mode matches
+`if` first). Migrate this form to `lexscan <expr> with longest`, convert its
+patterns to regex literals, and anchor them at `^`.
 
 Regex literals support `\b` and `\B` as part of the regex syntax, but these
 word-boundary assertions are not currently available in `regex match expression` constant contexts. They do work when the regex is used as a
@@ -352,30 +407,6 @@ first-class `Regex` value, and this restriction is expected to be relaxed in
 the future. Regex literals also do not support `\d`, `\D`, `\s`, `\S`, `\w`,
 or `\W`. Use POSIX character classes like `[[:digit:]]` inside character
 classes instead.
-
-```moonbit
-test {
-  let text = "xxabbbcyy"
-  lexmatch text {
-    (before, "a" ("b*" as b) "c", after) => {
-      inspect(before, content="xx")
-      inspect(b, content="bbb")
-      inspect(after, content="yy")
-    }
-    _ => fail("")
-  }
-
-  if text lexmatch? ("a" ("b*" as b) "c") && b.length() > 0 {
-    inspect(b, content="bbb")
-  }
-
-  let keyword = "iff"
-  lexmatch keyword with longest {
-    ("if|[a-z]*" as ident) => inspect(ident, content="iff")
-    _ => fail("")
-  }
-}
-```
 
 #### Spread Operator
 
@@ -390,9 +421,23 @@ For example, we can use the spread operator to construct an array:
 test {
   let a1 : Array[Int] = [1, 2, 3]
   let a2 : FixedArray[Int] = [4, 5, 6]
-  let a3 : @list.List[Int] = @list.from_array([7, 8, 9])
+  let a3 : @list.List[Int] = @list.List([7, 8, 9])
   let a : Array[Int] = [..a1, ..a2, ..a3, 10]
-  inspect(a, content="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]")
+  debug_inspect(a, content="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]")
+}
+```
+
+A conditional spread `..if condition { sequence }` contributes the sequence
+only when the condition is true:
+
+```moonbit
+test {
+  let include_middle = true
+  let values = [1, ..if include_middle { [2, 3] }, 4]
+  assert_eq(values, [1, 2, 3, 4])
+
+  let without_middle = [1, ..if false { [2, 3] }, 4]
+  assert_eq(without_middle, [1, 4])
 }
 ```
 
@@ -413,7 +458,7 @@ sequence.
 
 ```moonbit
 test {
-  let b1 : Bytes = "hello"
+  let b1 : Bytes = b"hello"
   let b2 : BytesView = b1[1:4]
   let b : Bytes = [..b1, ..b2, 10]
   inspect(

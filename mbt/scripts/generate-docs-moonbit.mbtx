@@ -1,0 +1,273 @@
+///|
+import {
+  "moonbitlang/core/env",
+  "moonbitlang/async@0.20.2",
+  "moonbitlang/async@0.20.2/fs",
+  "moonbitlang/async@0.20.2/http",
+  "moonbitlang/async@0.20.2/io",
+  "moonbitlang/x@0.4.46/path",
+}
+
+///|
+struct Section {
+  path : String
+  content : String
+}
+
+///|
+struct GeneratedFile {
+  filename : String
+  content : String
+}
+
+///|
+const LICENSE_HEADER : String =
+  #|<!-- Derived from MoonBit documentation by moonbitlang -->
+  #|<!-- https://github.com/moonbitlang/moonbit-docs -->
+  #|<!-- Prose content (post July 4, 2024): CC BY-SA 4.0 -->
+  #|<!-- Code examples: Apache 2.0 -->
+  #|<!-- Modifications: Extracted and reformatted as Claude Code skill files -->
+
+///|
+const DOCS_ROOT : String = "https://docs.moonbitlang.com/en/latest"
+
+///|
+const LANGUAGE_INDEX_URL : String =
+  "https://docs.moonbitlang.com/en/latest/language/index.html"
+
+///|
+const TOOLCHAIN_INDEX_URL : String =
+  "https://docs.moonbitlang.com/en/latest/toolchain/index.html"
+
+///|
+fn repository_root() -> @path.Path raise {
+  match @env.current_dir() {
+    Some(path) => path
+    None => fail("Unable to determine the current directory")
+  }
+}
+
+///|
+fn output_directory(root : @path.Path) -> @path.Path {
+  root
+  |> @path.Path::join("plugins")
+  |> @path.Path::join("totto2727-coding")
+  |> @path.Path::join("skills")
+  |> @path.Path::join("docs-moonbit")
+}
+
+///|
+fn trim_trailing_whitespace(text : String) -> String {
+  text
+  .split("\n")
+  .map(line => line.trim_end(chars=" \t").to_owned())
+  .join("\n")
+}
+
+///|
+fn summary_download_url(index_html : String) -> String raise {
+  for part in index_html.split("href=\"") {
+    match part.split_once("\"") {
+      Some((href, _)) if
+        href.contains("_downloads/") && href.has_suffix("/summary.md") => {
+        let href = href.to_owned()
+        let start = match href.find("_downloads/") {
+          Some(index) => index
+          None => continue
+        }
+        return "\{DOCS_ROOT}/\{href[start:]}"
+      }
+      _ => ()
+    }
+  }
+  fail("The documentation index does not contain a summary.md download link")
+}
+
+///|
+fn parse_sections(text : String) -> Array[Section] {
+  let marker = "<!-- path: "
+  let parts = text.split(marker).to_array()
+  let sections : Array[Section] = []
+  for index = 1; index < parts.length(); index = index + 1 {
+    let part = parts[index].to_owned()
+    match part.split_once(" -->") {
+      Some((path, content)) =>
+        sections.push({
+          path: path.to_owned(),
+          content: trim_trailing_whitespace(content.trim().to_owned()),
+        })
+      None => ()
+    }
+  }
+  sections
+}
+
+///|
+fn to_kebab(heading : String) -> String {
+  let chars : Array[Char] = []
+  let mut separator_pending = false
+  for char in heading.to_lower() {
+    if char.is_ascii_alphabetic() || char.is_ascii_digit() || char == '-' {
+      if separator_pending && chars.length() > 0 && chars[chars.length() - 1] != '-' {
+        chars.push('-')
+      }
+      separator_pending = false
+      chars.push(char)
+    } else if char.is_whitespace() {
+      separator_pending = true
+    }
+  }
+  String::from_array(chars)
+}
+
+///|
+fn heading_positions(content : String, level : String) -> Array[(Int, String)] {
+  let prefix = level + " "
+  let lines = content.split("\n").to_array()
+  let positions : Array[(Int, String)] = []
+  let mut offset = 0
+  for line in lines {
+    let line = line.to_owned()
+    if line.has_prefix(prefix) {
+      positions.push((offset, line[prefix.length():].to_owned()))
+    }
+    offset = offset + line.length() + 1
+  }
+  positions
+}
+
+///|
+fn split_by_heading(
+  content : String,
+  base_filename : String,
+  level : String,
+) -> Array[GeneratedFile] {
+  let headings = heading_positions(content, level)
+  if headings.length() <= 1 {
+    return [{ filename: base_filename, content }]
+  }
+  let files : Array[GeneratedFile] = []
+  for index = 0; index < headings.length(); index = index + 1 {
+    let (start, title) = headings[index]
+    let end = if index + 1 < headings.length() {
+      headings[index + 1].0
+    } else {
+      content.length()
+    }
+    files.push({
+      filename: base_filename.replace(old=".md", new="-\{to_kebab(title)}.md"),
+      content: content[start:end].trim().to_owned(),
+    })
+  }
+  files
+}
+
+///|
+async fn fetch_text(url : String) -> String {
+  let (response, data) = @http.get(url)
+  guard response.code >= 200 && response.code < 300 else {
+    fail("Failed to fetch \{url}: \{response.code} \{response.reason}")
+  }
+  data.text()
+}
+
+///|
+async fn default_urls() -> Array[String] {
+  let language_url = summary_download_url(fetch_text(LANGUAGE_INDEX_URL))
+  let toolchain_url = summary_download_url(fetch_text(TOOLCHAIN_INDEX_URL))
+  [language_url, toolchain_url]
+}
+
+///|
+fn skill_content(introduction : String, links : String) -> String {
+  let output = StringBuilder()
+  let frontmatter =
+    #|---
+    #|name: docs-moonbit
+    #|description: >-
+    #|  MoonBit language reference covering syntax, types, functions, methods, and
+    #|  deriving. Use when writing MoonBit code, debugging MoonBit programs, or
+    #|  answering questions about MoonBit syntax and features.
+    #|---
+    #|
+  output.write_stringview(frontmatter)
+  output.write_stringview("\n")
+  output.write_stringview(LICENSE_HEADER)
+  let related_skills =
+    #|
+    #|
+    #|## Related Skills
+    #|
+    #|- [mbt-coding](../mbt-coding/SKILL.md) — concrete MoonBit coding practices.
+    #|
+  output.write_stringview(related_skills)
+  output.write_stringview("\n")
+  output.write_stringview(introduction)
+  let related_documentation =
+    #|
+    #|
+    #|## Related Documentation
+    #|
+  output.write_stringview(related_documentation)
+  output.write_stringview("\n")
+  output.write_stringview(links)
+  output.write_stringview("\n")
+  output.to_string()
+}
+
+///|
+async fn main {
+  let arguments = @env.args()
+  let urls = if arguments.length() > 1 {
+    arguments[1:].to_owned()
+  } else {
+    default_urls()
+  }
+  let root = repository_root()
+  let output_dir = output_directory(root)
+  let references_dir = output_dir |> @path.Path::join("references")
+  if @fs.exists(output_dir.to_string()) {
+    @fs.rmdir(output_dir.to_string(), recursive=true)
+  }
+  @fs.mkdir(references_dir.to_string(), recursive=true)
+  let sections : Array[Section] = []
+  for url in urls {
+    sections.push_iter(parse_sections(fetch_text(url)).iter())
+  }
+  let generated_files : Array[GeneratedFile] = []
+  let mut introduction = ""
+  for section in sections {
+    if section.path == "language/introduction.md" {
+      introduction = section.content
+    } else if section.path != "language/index.md" {
+      let base_filename = section.path
+        .replace(old=".md", new="")
+        .replace_all(old="/", new="-")
+        .replace_all(old="_", new="-") +
+        ".md"
+      let files = if section.path == "language/fundamentals.md" {
+        split_by_heading(section.content, base_filename, "###")
+      } else {
+        [{ filename: base_filename, content: section.content }]
+      }
+      for file in files {
+        generated_files.push(file)
+        let path = references_dir |> @path.Path::join(file.filename)
+        @fs.write_file(
+          path.to_string(),
+          LICENSE_HEADER + "\n\n" + file.content + "\n",
+          create_mode=CreateOrTruncate,
+        )
+      }
+    }
+  }
+  let links = generated_files
+    .map(file => "- [\{file.filename}](./references/\{file.filename})")
+    .join("\n")
+  @fs.write_file(
+    (output_dir |> @path.Path::join("SKILL.md")).to_string(),
+    skill_content(introduction, links),
+    create_mode=CreateOrTruncate,
+  )
+  println("Generated \{generated_files.length() + 1} files in \{output_dir}")
+}

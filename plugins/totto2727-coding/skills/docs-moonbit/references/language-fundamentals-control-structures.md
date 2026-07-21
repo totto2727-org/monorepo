@@ -64,7 +64,7 @@ fn guarded_get(array : Array[Int], index : Int) -> Int? {
 }
 
 test {
-  inspect(guarded_get([1, 2, 3], -1), content="None")
+  debug_inspect(guarded_get([1, 2, 3], -1), content="None")
 }
 ```
 
@@ -116,7 +116,7 @@ fn main {
 }
 ```
 
-```default
+```none
 5
 4
 3
@@ -142,7 +142,7 @@ fn main {
 }
 ```
 
-```default
+```none
 3
 2
 ```
@@ -161,7 +161,7 @@ fn main {
 }
 ```
 
-```default
+```none
 2
 1
 0
@@ -184,7 +184,7 @@ fn main {
 }
 ```
 
-```default
+```none
 5
 ```
 
@@ -200,7 +200,7 @@ fn main {
 }
 ```
 
-```default
+```none
 7
 ```
 
@@ -217,7 +217,7 @@ fn main {
 }
 ```
 
-```default
+```none
 0
 1
 2
@@ -266,7 +266,7 @@ fn main {
 }
 ```
 
-```default
+```none
 even: 2
 even: 4
 even: 6
@@ -324,7 +324,7 @@ fn main {
 }
 ```
 
-```default
+```none
 The 1-th element of the array is 4
 The 2-th element of the array is 5
 The 3-th element of the array is 6
@@ -347,7 +347,7 @@ fn main {
 }
 ```
 
-```default
+```none
 x, 1
 z, 3
 ```
@@ -366,7 +366,7 @@ fn main {
 }
 ```
 
-```default
+```none
 0
 1
 2
@@ -380,6 +380,55 @@ There are four kinds of range expressions available in `for .. in` loop:
 - `a..<=b`: iterate from `a` to `b` in increasing order, including `b`
 - `a>..b`: iterate from `a` to `b` in decreasing order, excluding `a`
 - `a>=..b`: iterate from `a` to `b` in decreasing order, including `a`
+
+#### List comprehension
+
+MoonBit supports list comprehension syntax for constructing a collection by
+iterating over another collection or range:
+
+```moonbit
+let squares = [ for x in 1..<=5 => x * x ]
+let even_numbers = [ for x in 0..<100 if x % 2 == 0 => x ]
+let labelled = [ for i, x in ["a", "b", "c"] => "\{i}: \{x}" ]
+let map = { 1: 2, 2: 4, 3: 8 }
+let present = [ for x in [1, 2, 3] if map.get(x) is Some(y) => y ]
+```
+
+The syntax is `[ for ... => ... ]`. The part before `=>` follows the same
+iteration rules as `for .. in`: one binder uses `Iter`, two binders use `Iter2`,
+and range expressions such as `0..<10` are supported. An optional `if` guard
+filters elements before evaluating the result expression. Names introduced by
+an `is` expression in the guard, such as `y` above, can be used in the result
+expression.
+
+The result defaults to `Array[T]` when there is no expected type. When the
+expected type is known, a list comprehension can also construct
+`FixedArray[T]`, `ReadOnlyArray[T]`, `String`, `Bytes`, or `Json`:
+
+```moonbit
+let text : String = [ for x in 0..<3 => (x + 'a').unsafe_to_char() ]
+let bytes : Bytes = [ for x in 0..<3 => x.to_byte() ]
+let fixed : FixedArray[_] = [ for x in 1..<=3 => x ]
+```
+
+For lazy or infinite sequences, create an `Iter[T]` directly. The following
+iterator keeps Fibonacci state in captured variables and is limited before
+collection:
+
+```moonbit
+let mut p1 = 1
+let mut p2 = 0
+let fib_numbers : Iter[Int] = Iter::new(fn() {
+  let next = p1
+  p1 = p1 + p2
+  p2 = next
+  Some(next)
+})
+let first_six = fib_numbers.take(6).collect()
+```
+
+Control flow operations such as `return`, `break`, and `continue` are not
+allowed inside list comprehensions.
 
 #### Labelled Continue/Break
 

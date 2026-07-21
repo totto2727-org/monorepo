@@ -138,7 +138,7 @@ cleaner. Note that in this case the `..` followed by string or bytes constant
 matches exact number of elements so its usage is not limited to once.
 
 ```moonbit
-const NO : Bytes = "no"
+const NO : Bytes = b"no"
 
 test {
   fn match_string(s : String) -> Bool {
@@ -301,7 +301,7 @@ match map {
 }
 ```
 
-- To match a data type `T` using map pattern, `T` must have a method `op_get(Self, K) -> Option[V]` for some type `K` and `V` (see [method and trait](methods.md)).
+- To match a data type `T` using map pattern, `T` must have a method `get(Self, K) -> Option[V]` for some type `K` and `V` (see [method and trait](methods.md)).
 - Currently, the key part of map pattern must be a literal or constant
 - Map patterns are always open: the unmatched keys are silently ignored, and `..` needs to be added to identify this nature
 - Map pattern will be compiled to efficient code: every key will be fetched at most once
@@ -317,6 +317,38 @@ match json {
   ...
 }
 ```
+
+#### Default bindings in or-patterns
+
+Every alternative of an or-pattern normally has to bind the same variables.
+Use `with` on an alternative to provide defaults for variables that it does not
+bind structurally:
+
+```moonbit
+fn option_value(value : Int?) -> Int {
+  match value {
+    Some(x) | (None with x = 0) => x
+  }
+}
+
+fn pair_value(value : (Int, Int)?) -> Int {
+  match value {
+    Some((x, y)) | (None with x = 0, y = 0) => x + y
+  }
+}
+
+test {
+  assert_eq(option_value(None), 0)
+  assert_eq(option_value(Some(42)), 42)
+  assert_eq(pair_value(None), 0)
+  assert_eq(pair_value(Some((20, 22))), 42)
+}
+```
+
+For multiple defaults, write `(Pattern with x = value, y = value)`. Parentheses
+make it clear which alternative receives a default. A default cannot refer to a
+binder from the complete pattern, and control flow such as `return`, `break`,
+`continue`, or `raise` is not allowed inside the default expression.
 
 #### Guard condition
 

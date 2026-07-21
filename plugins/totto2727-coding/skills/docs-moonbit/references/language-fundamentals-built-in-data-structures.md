@@ -118,8 +118,8 @@ let bigint : BigInt = 42
 
 ```moonbit
 let a = "兔rabbit"
-println(a.code_unit_at(0).to_char())
-println(a.code_unit_at(1).to_char())
+debug_inspect(a.code_unit_at(0).to_char(), content="Some('兔')")
+debug_inspect(a.code_unit_at(1).to_char(), content="Some('r')")
 let b =
   #| Hello
   #| MoonBit\n
@@ -127,9 +127,7 @@ let b =
 println(b)
 ```
 
-```default
-Some('兔')
-Some('r')
+```none
  Hello
  MoonBit\n
 
@@ -172,7 +170,7 @@ println(raw)
 println(interp)
 ```
 
-```default
+```none
  Hello
  ---
  \{lang}
@@ -247,7 +245,7 @@ fn main {
 }
 ```
 
-```default
+```none
 97
 255
 ```
@@ -261,6 +259,19 @@ test {
   assert_eq(b1, b2)
 }
 ```
+
+Bytes literals support interpolation with `b"...\{expression}"`. The
+interpolated string is encoded as UTF-8 to produce `Bytes`:
+
+```moonbit
+test {
+  let value = 42
+  let bytes : Bytes = b"value=\{value}"
+  assert_eq(bytes, b"value=42")
+}
+```
+
+Template-write syntax also accepts interpolated Bytes literals.
 
 The byte literal and bytes literal also support escape sequences, but different from those in string literals. The following table lists the supported escape sequences for byte and bytes literals:
 
@@ -277,19 +288,20 @@ You can use `@buffer.T` to construct bytes by writing various types of data. For
 
 ```moonbit
 test "buffer 1" {
-  let buf : @buffer.Buffer = @buffer.new()
+  let buf : @buffer.Buffer = Buffer()
   buf.write_bytes(b"Hello")
   buf.write_byte(b'!')
   assert_eq(buf.contents(), b"Hello!")
 }
 ```
 
-When the expected type is `Bytes`, the `b` prefix can be omitted. Array literals can also be overloaded to construct a `Bytes` sequence by specifying each byte in the sequence.
+Array literals can also be overloaded to construct a `Bytes` sequence by
+specifying each byte in the sequence.
 
 ```moonbit
 test {
-  let b : Byte = '\xFF'
-  let bs : Bytes = [b, '\x01']
+  let b : Byte = b'\xFF'
+  let bs : Bytes = [b, b'\x01']
   inspect(
     bs,
     content=(
@@ -355,7 +367,7 @@ fn main {
 }
 ```
 
-```default
+```none
 false 100 text 3.14
 ```
 
@@ -508,10 +520,10 @@ Both `start` and `end` indices can be omitted.
 test {
   let xs = [0, 1, 2, 3, 4, 5]
   let s1 : ArrayView[Int] = xs[2:]
-  inspect(s1, content="[2, 3, 4, 5]")
-  inspect(xs[:4], content="[0, 1, 2, 3]")
-  inspect(xs[2:5], content="[2, 3, 4]")
-  inspect(xs[:], content="[0, 1, 2, 3, 4, 5]")
+  @test.assert_eq(s1.to_owned(), [2, 3, 4, 5])
+  @test.assert_eq(xs[:4].to_owned(), [0, 1, 2, 3])
+  @test.assert_eq(xs[2:5].to_owned(), [2, 3, 4])
+  @test.assert_eq(xs[:].to_owned(), [0, 1, 2, 3, 4, 5])
   let mv : MutArrayView[Int] = xs.mut_view(start=1, end=3)
   mv[0] = 99
   inspect(xs[1], content="99")

@@ -83,6 +83,37 @@ test "derive eq_compare enum" {
 }
 ```
 
+### Debug
+
+`derive(Debug)` will generate a structural debugging implementation for the type.
+It is useful with `debug_inspect` in tests and `@debug.to_string` when formatting diagnostic messages.
+
+```moonbit
+struct DebugPoint {
+  x : Int
+  y : Int
+} derive(Debug)
+
+test "derive debug struct" {
+  let point = DebugPoint::{ x: 1, y: 2 }
+  debug_inspect(point, content="{ x: 1, y: 2 }")
+}
+```
+
+Enums can derive `Debug` as well:
+
+```moonbit
+enum DebugShape {
+  Circle(radius~ : Int)
+  Rect(width~ : Int, height~ : Int)
+} derive(Debug)
+
+test "derive debug enum" {
+  let shape = DebugShape::Rect(width=3, height=4)
+  debug_inspect(shape, content="Rect(width=3, height=4)")
+}
+```
+
 ### Default
 
 `derive(Default)` will generate a method that returns the default value of the type.
@@ -144,12 +175,12 @@ struct DeriveHash {
 } derive(Hash, Eq)
 
 test "derive hash struct" {
-  let hs = @hashset.new()
+  let hs = @hashset.HashSet([])
   hs.add(DeriveHash::{ x: 123, y: None })
   hs.add(DeriveHash::{ x: 123, y: None })
-  assert_eq(hs.length(), 1)
+  @test.assert_eq(hs.length(), 1)
   hs.add(DeriveHash::{ x: 123, y: Some("456") })
-  assert_eq(hs.length(), 2)
+  @test.assert_eq(hs.length(), 2)
 }
 ```
 
@@ -177,11 +208,11 @@ enum JsonTest2 {
 test "json basic" {
   let input = JsonTest1::{ x: 123, y: 456 }
   let expected : Json = { "x": 123, "y": 456 }
-  assert_eq(input.to_json(), expected)
+  @test.assert_eq(input.to_json(), expected)
   assert_true(@json.from_json(expected) == input)
   let input = JsonTest2::A(x=123)
   let expected : Json = { "$tag": "A", "x": 123 }
-  assert_eq(input.to_json(), expected)
+  @test.assert_eq(input.to_json(), expected)
   assert_true(@json.from_json(expected) == input)
 }
 ```
@@ -220,11 +251,11 @@ enum JsonTest4 {
 test "json args" {
   let input = JsonTest3::{ x: 123, y: 456 }
   let expected : Json = { "renamedX": 123, "y": 456 }
-  assert_eq(input.to_json(), expected)
+  @test.assert_eq(input.to_json(), expected)
   assert_true(@json.from_json(expected) == input)
   let input = JsonTest4::A(x=123)
   let expected : Json = ["A", { "x": 123 }]
-  assert_eq(input.to_json(), expected)
+  @test.assert_eq(input.to_json(), expected)
   assert_true(@json.from_json(expected) == input)
 }
 ```
@@ -245,7 +276,7 @@ enum E {
 
 With `derive(ToJson(style="legacy"))`, the enum is formatted into:
 
-```default
+```none
 E::One              => { "$tag": "One" }
 E::Uniform(2)       => { "$tag": "Uniform", "0": 2 }
 E::Axes(x=-1, y=1)  => { "$tag": "Axes", "x": -1, "y": 1 }
@@ -253,7 +284,7 @@ E::Axes(x=-1, y=1)  => { "$tag": "Axes", "x": -1, "y": 1 }
 
 With `derive(ToJson(style="flat"))`, the enum is formatted into:
 
-```default
+```none
 E::One              => "One"
 E::Uniform(2)       => [ "Uniform", 2 ]
 E::Axes(x=-1, y=1)  => [ "Axes", -1, 1 ]

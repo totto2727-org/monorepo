@@ -92,7 +92,7 @@ indicate that the function might raise an error during an execution. For
 example, the following function `div` might return an error of type `DivError`:
 
 ```moonbit
-suberror DivError { DivError(String) }
+suberror DivError { DivError(String) } derive(Debug)
 
 fn div(x : Int, y : Int) -> Int raise DivError {
   if y == 0 {
@@ -218,7 +218,7 @@ fn main {
 }
 ```
 
-```default
+```none
 division by zero
 ```
 
@@ -230,7 +230,7 @@ The `noraise` block can be omitted if no action is needed when no error is
 caught. For example:
 
 ```moonbit
-try { println(div(42, 0)) } catch {
+println(div(42, 0)) catch {
   _ => println("Error")
 }
 ```
@@ -245,19 +245,18 @@ println(a)
 
 #### Transforming to Result
 
-You can also catch the potential error and transform into a first-class value of
-the [`Result`](fundamentals.md#option-and-result) type, by using
-`try?` before an expression that may throw error:
+You can also catch the potential error and transform it into a first-class value
+of the [`Result`](fundamentals.md#option-and-result) type:
 
 ```moonbit
 test {
-  let res = try? (div(6, 0) * div(6, 3))
-  inspect(
-    res,
-    content=(
-      #|Err("division by zero")
-    ),
-  )
+  let res : Result[Int, DivError] = Ok(div(6, 0) * div(6, 3)) catch {
+    error => Err(error)
+  }
+  match res {
+    Err(DivError(message)) => @test.assert_eq(message, "division by zero")
+    Ok(_) => fail("expected division to fail")
+  }
 }
 ```
 

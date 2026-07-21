@@ -31,7 +31,7 @@ fn main {
 }
 ```
 
-```default
+```none
 0
 John Doe
 john@doe.name
@@ -70,32 +70,28 @@ fn main {
 }
 ```
 
-```default
+```none
 { id: 0, name: John Doe, email: john@doe.com }
 { id: 0, name: John Doe, email: john@doe.name }
 ```
 
-##### Custom constructor for struct
+##### Custom constructors
 
-MoonBit also supports defining a custom constructor for every `struct` type.
-The constructor for a `struct` is a special function that can be used to
-create value for the `struct` using the name of the struct,
-it can be declared as follows:
+MoonBit supports defining a custom constructor for any type. A constructor is a
+special method whose name is the same as its result type. The following
+examples start with a struct:
 
 ```moonbit
 struct IntBox {
   value : Int
-
-  fn new(value : Int) -> IntBox
 } derive(Debug)
 ```
 
-Here, the return value of the constructor must be the struct itself.
-The constructor should then be implemented by a `new` method (the name cannot be changed here)
-with exactly the same type:
+The constructor should then be implemented as a method whose name is the same as
+the struct type. Its return value must be the struct itself:
 
 ```moonbit
-fn IntBox::new(value : Int) -> IntBox {
+fn IntBox::IntBox(value : Int) -> IntBox {
   { value, }
 }
 ```
@@ -107,7 +103,8 @@ If a `struct` declares a constructor, it can be constructed by name directly:
   debug_inspect(box, content="{ value: 10 }")
 ```
 
-The constructor call follows the declared `new` signature, so unlabeled parameters can be written in the familiar `TypeName(value)` form.
+The constructor call follows the constructor method signature, so unlabeled
+parameters can be written in the familiar `TypeName(value)` form.
 
 Constructors may also use labeled and optional arguments, just like normal functions:
 
@@ -115,13 +112,11 @@ Constructors may also use labeled and optional arguments, just like normal funct
 struct StructWithConstr {
   x : Int
   y : Int
-
-  fn new(x~ : Int, y? : Int) -> StructWithConstr
 } derive(Debug)
 ```
 
 ```moonbit
-fn StructWithConstr::new(x~ : Int, y? : Int = x) -> StructWithConstr {
+fn StructWithConstr::StructWithConstr(x~ : Int, y? : Int = x) -> StructWithConstr {
   { x, y }
 }
 ```
@@ -140,35 +135,58 @@ suberror BuildError {
 
 struct Positive {
   value : Int
-
-  fn new(x : Int) -> Positive raise BuildError
 } derive(Debug)
 ```
 
 ```moonbit
-fn Positive::new(x : Int) -> Positive raise BuildError {
+fn Positive::Positive(x : Int) -> Positive raise BuildError {
   guard x >= 0 else { raise NegativeInput }
   { value: x }
 }
 ```
 
 ```moonbit
-  debug_inspect(try? Positive(10), content="Ok({ value: 10 })")
-  debug_inspect(try? Positive(-1), content="Err(NegativeInput)")
+  try Positive(10) catch {
+    error => debug_inspect(error, content="NegativeInput")
+  } noraise {
+    value => debug_inspect(value, content="{ value: 10 }")
+  }
+  try Positive(-1) catch {
+    error => debug_inspect(error, content="NegativeInput")
+  } noraise {
+    value => debug_inspect(value, content="{ value: -1 }")
+  }
 ```
 
-Asynchronous constructors are declared with `async fn new` and can be used inside async code:
+Other types can use the same `fn Type::Type(...) -> Type` form. A custom
+constructor cannot have the same name as an existing constructor of that type:
+
+```moonbit
+enum Endpoint {
+  Host(String, Int)
+} derive(Debug)
+
+fn Endpoint::Endpoint(host : String, port? : Int = 80) -> Endpoint {
+  Host(host, port)
+}
+
+test {
+  let endpoint = Endpoint("example.com", port=443)
+  debug_inspect(endpoint, content="Host(\"example.com\", 443)")
+}
+```
+
+Asynchronous constructors are declared with `async fn TypeName::TypeName` and
+can be used inside async code:
 
 ```moonbit
 struct AsyncBox {
   value : Int
-
-  async fn new(x : Int) -> AsyncBox
 } derive(Debug)
 ```
 
 ```moonbit
-async fn AsyncBox::new(x : Int) -> AsyncBox {
+async fn AsyncBox::AsyncBox(x : Int) -> AsyncBox {
   @async.sleep(0)
   { value: x }
 }
@@ -181,17 +199,17 @@ async test "struct constructor async" {
 }
 ```
 
-Creating value via `struct` constructor has exactly the same semantic as
+Creating a value via a custom constructor has exactly the same call semantics as
 [enum constructors](),
-except that `struct` constructors cannot be used for pattern matching.
+except that custom constructors cannot be used for pattern matching.
 For example, when creating a foreign `struct` using constructors,
 the package name can be omitted if the expected type of the expression is known.
 
-Since `struct` constructors are implemented by normal functions,
+Since custom constructors are implemented by normal functions,
 they may [raise error](error-handling.md) or [perform asynchronous operations](async-experimental.md).
-`struct` constructors also support [optional arguments]().
-Notice that the default value of optional arguments should be defined at the implementation of struct constructors,
-the declaration inside the `struct` should only contain a `label? : T` signature.
+Custom constructors also support [optional arguments]().
+Default values for optional arguments are written on the constructor
+implementation, just like normal function signatures.
 
 #### Enum
 
@@ -248,7 +266,7 @@ fn main {
 }
 ```
 
-```default
+```none
 smaller!
 equal!
 greater!
@@ -307,7 +325,7 @@ fn main {
 }
 ```
 
-```default
+```none
 false
 1,
 2,
@@ -346,7 +364,7 @@ fn main {
 }
 ```
 
-```default
+```none
 0!
 0
 ```
@@ -394,7 +412,7 @@ fn main {
 }
 ```
 
-```default
+```none
 5
 NotImplementedError
 ```
@@ -452,6 +470,74 @@ fn[X : Compare] Tree::insert(
 }
 ```
 
+##### Extensible enum
+
+An `extenum` defines an open enum type. Unlike a regular `enum`, an
+`extenum` can receive more constructors later, including from another package.
+This is useful when a package wants to define the shared event, message, or
+extension-point type, while other packages contribute their own cases.
+
+```moonbit
+pub(all) extenum LogEvent[T] {
+  Info(T)
+}
+```
+
+Use `extenum Type += { ... }` to add constructors to an extensible enum in the
+same package:
+
+```moonbit
+pub(all) extenum LogEvent[T] += {
+  Warning(T)
+  Critical(T, T)
+}
+```
+
+To extend an extensible enum from another package, qualify the target type with
+the package that defines the type:
+
+```moonbit
+pub(all) extenum @base.LogEvent[T] += {
+  Debug(T)
+}
+```
+
+Extensible enum constructors are qualified by the package that defines the
+constructor. For constructors from the current package, use the constructor name
+directly when the expected type is known. For constructors from another
+package, use `@pkg.Constructor` in expressions and patterns. When you want to
+make both the extensible enum type and the constructor origin explicit, write
+the constructor as `@type_pkg.Type::@constructor_pkg.Constructor`.
+
+When a package imports both the base package and an extension package, values
+from both packages have the same extensible enum type:
+
+```moonbit
+pub fn describe(event : @base.LogEvent[String]) -> String {
+  match event {
+    @base.Info(message) => "info: \{message}"
+    @base.Warning(message) => "warning: \{message}"
+    @base.Critical(code, message) => "critical \{code}: \{message}"
+    @plugin.Debug(message) => "debug: \{message}"
+    _ => "unknown"
+  }
+}
+
+pub fn debug_event(message : String) -> @base.LogEvent[String] {
+  @plugin.Debug(message)
+}
+
+pub fn qualified_debug_event(message : String) -> @base.LogEvent[String] {
+  @base.LogEvent::@plugin.Debug(message)
+}
+```
+
+Pattern matching must include a wildcard branch, because more constructors
+can be added outside the current declaration.
+
+Only `extenum` declarations can be extended. Regular `enum` declarations are
+closed.
+
 #### Tuple Struct
 
 MoonBit supports a special kind of struct called tuple struct:
@@ -475,7 +561,7 @@ fn main {
 }
 ```
 
-```default
+```none
 1
 John Doe
 ```
@@ -493,7 +579,7 @@ fn main {
 }
 ```
 
-```default
+```none
 1
 John Doe
 ```

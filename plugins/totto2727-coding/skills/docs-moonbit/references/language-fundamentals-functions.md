@@ -20,6 +20,33 @@ fn add3(x : Int, y : Int, z : Int) -> Int {
 
 Note that the arguments and return value of top-level functions require **explicit** type annotations.
 
+Top-level functions and methods can also be introduced with `declare`.
+A declared function has a signature but no body, and a later implementation must match that signature.
+This is useful when you want to make an API shape available before placing its implementation.
+
+```moonbit
+declare fn declared_add(x : Int, y : Int) -> Int
+
+fn declared_add(x : Int, y : Int) -> Int {
+  x + y
+}
+
+struct DeclaredCounter(Int)
+
+declare fn DeclaredCounter::value(self : Self) -> Int
+
+fn DeclaredCounter::value(self : Self) -> Int {
+  self.0
+}
+
+test "declared functions" {
+  @test.assert_eq(declared_add(1, 2), 3)
+  @test.assert_eq(DeclaredCounter(4).value(), 4)
+}
+```
+
+If a declared function has an implementation, the declaration and the implementation must agree on the function name, visibility, type parameters, parameters, return type, and effects.
+
 #### Local Functions
 
 Local functions can be named or anonymous. Type annotations can be omitted for local function definitions: they can be automatically inferred in most cases. For example:
@@ -70,7 +97,7 @@ fn local_2(x : Int) -> (Int, Int) {
 }
 
 test {
-  assert_eq(local_2(3), (4, 4))
+  @test.assert_eq(local_2(3), (4, 4))
 }
 ```
 
@@ -147,6 +174,10 @@ For example, `Array::fold(_, _, init=5)` is equivalent to `fn(x, y) { Array::fol
 
 The `_` operator can also be used in enum creation, dot style function calls and in the pipelines.
 
+##### WARNING
+
+The syntax `f(a, _, b)` for partial application is deprecated. Use `x => f(a, x, b)` instead.
+
 #### Labelled arguments
 
 **Top-level** functions can declare labelled argument with the syntax `label~ : Type`. `label` will also serve as parameter name inside function body:
@@ -192,11 +223,11 @@ fn incr(counter? : Ref[Int] = { val: 0 }) -> Ref[Int] {
 }
 
 test {
-  inspect(incr(), content="{val: 1}")
-  inspect(incr(), content="{val: 1}")
+  @test.assert_eq(incr().val, 1)
+  @test.assert_eq(incr().val, 1)
   let counter : Ref[Int] = { val: 0 }
-  inspect(incr(counter~), content="{val: 1}")
-  inspect(incr(counter~), content="{val: 2}")
+  @test.assert_eq(incr(counter~).val, 1)
+  @test.assert_eq(incr(counter~).val, 2)
 }
 ```
 
@@ -266,7 +297,7 @@ fn create_rectangle(a : Int, b? : Int = a) -> (Int, Int) {
 }
 
 test {
-  inspect(create_rectangle(10), content="(10, 10)")
+  debug_inspect(create_rectangle(10), content="(10, 10)")
 }
 ```
 
@@ -300,6 +331,8 @@ fn fixed_width_image(height? : Int) -> Image {
   image(width=1920, height?)
 }
 ```
+
+<a id="autofill-arguments"></a>
 
 #### Autofill arguments
 

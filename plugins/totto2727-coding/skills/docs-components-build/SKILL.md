@@ -16,7 +16,7 @@ metadata:
 ---
 
 <!-- Generated from https://www.components.build/sitemap.xml -->
-<!-- Run .script/generate-docs-components-build.ts to update -->
+<!-- Run mbt/scripts/generate-docs-components-build.mbtx to update -->
 
 ## Overview
 

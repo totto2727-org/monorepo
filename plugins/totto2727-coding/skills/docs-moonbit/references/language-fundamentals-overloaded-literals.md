@@ -7,6 +7,10 @@
 ### Overloaded Literals
 
 Overloaded literals allow you to use the same syntax to represent different types of values.
+
+An empty `{}` literal is ambiguous: it may mean an empty map, an empty JSON
+object, an empty record, or a block. Write the intended form explicitly:
+`Map([])`, `Json::empty_object()`, `Record::{}`, or `{ () }`, respectively.
 For example, you can use `1` to represent `UInt` or `Double` depending on the expected type. If the expected type is not known, the literal will be interpreted as `Int` by default.
 
 ```moonbit
@@ -26,8 +30,8 @@ The overloaded literals can be composed. If array literal can be overloaded to `
 | Overloaded literal                                          | Default type | Can be overloaded to                                                              |
 | ----------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------- |
 | `10`, `0xFF`, `0o377`, `10_000`                             | `Int`        | `UInt`, `Int64`, `UInt64`, `Int16`, `UInt16`, `Byte`, `Double`, `Float`, `BigInt` |
-| `"str"`                                                     | `String`     | `Bytes`                                                                           |
-| `'c'`                                                       | `Char`       | `Int` , `Byte`                                                                    |
+| `"str"`                                                     | `String`     | —                                                                                 |
+| `'c'`                                                       | `Char`       | `Int`                                                                             |
 | `3.14`                                                      | `Double`     | `Float`                                                                           |
 | `[a, b, c]` (where the types of literals a, b, and c are E) | `Array[E]`   | `FixedArray[E]`, `String` (if E is of type Char), `Bytes` (if E is of type Byte)  |
 

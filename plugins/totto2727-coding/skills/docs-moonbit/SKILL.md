@@ -14,7 +14,7 @@ description: >-
 
 ## Related Skills
 
-- [mbt-coding](../mbt-coding/SKILL.md) — concrete MoonBit coding practices
+- [mbt-coding](../mbt-coding/SKILL.md) — concrete MoonBit coding practices.
 
 ## Introduction
 
@@ -116,6 +116,7 @@ The following are the keywords and should not be used:
   "typealias",
   "struct",
   "enum",
+  "extenum",
   "trait",
   "traitalias",
   "derive",
@@ -130,6 +131,8 @@ The following are the keywords and should not be used:
   "catch",
   "pub",
   "priv",
+  "proof_assert",
+  "proof_let",
   "readonly",
   "true",
   "false",
@@ -148,7 +151,12 @@ The following are the keywords and should not be used:
   "letrec",
   "enumview",
   "noraise",
-  "defer"
+  "defer",
+  "lexmatch",
+  "lexscan",
+  "where",
+  "declare",
+  "nobreak"
 ]
 ```
 
@@ -166,7 +174,6 @@ They might be turned into keywords in the future.
   "super",
   "unsafe",
   "use",
-  "where",
   "await",
   "dyn",
   "abstract",
@@ -220,7 +227,9 @@ They might be turned into keywords in the future.
   "dynrec",
   "var",
   "finally",
-  "noasync"
+  "noasync",
+  "assume",
+  "extend"
 ]
 ```
 
@@ -263,9 +272,7 @@ The previous two code snippets will print the following at runtime:
 Only packages that are `main` packages can define such `main` function. Check out [build system tutorial](../toolchain/moon/tutorial.md) for detail. In current projects, this is configured in `moon.pkg`:
 
 ```text
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")
 ```
 
 #### `test`
@@ -276,7 +283,7 @@ There's also a top-level structure called `test` block. A `test` block defines i
 test "test_name" {
   assert_eq(1 + 1, 2)
   assert_eq(2 + 2, 4)
-  inspect([1, 2, 3], content="[1, 2, 3]")
+  debug_inspect([1, 2, 3], content="[1, 2, 3]")
 }
 ```
 
@@ -305,6 +312,7 @@ and we assume that all the `test` blocks pass unless stated otherwise.
 - [language-ffi.md](./references/language-ffi.md)
 - [language-async-experimental.md](./references/language-async-experimental.md)
 - [language-verification.md](./references/language-verification.md)
+- [language-lexical-conventions.md](./references/language-lexical-conventions.md)
 - [language-error-codes-index.md](./references/language-error-codes-index.md)
 - [toolchain-index.md](./references/toolchain-index.md)
 - [toolchain-moon-index.md](./references/toolchain-moon-index.md)
