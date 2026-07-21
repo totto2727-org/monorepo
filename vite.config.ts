@@ -123,6 +123,7 @@ export default defineConfig({
         ],
       },
       'mbt:test': {
+        // GitHub Actionsでmoonbit/asyncのエラーが発生するため
         command: 'LD_LIBRARY_PATH="$MOONBIT_OPENSSL_LIBRARY_PATH" moon test',
         env: ['MOONBIT_OPENSSL_LIBRARY_PATH'],
         input: [
