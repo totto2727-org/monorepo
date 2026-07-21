@@ -1,6 +1,6 @@
-name = "package/target-file-discovery"
+name = "totto2727/target-file-discovery"
 
-version = "0.0.0"
+version = "0.1.0"
 
 preferred_target = "native"
 
@@ -19,6 +19,6 @@ license = "MIT"
 
 keywords = [ "target-file-discovery", "filesystem", "gitignore" ]
 
-description = "MoonBit port of @package/target-file-discovery"
+description = "Reusable target file discovery for MoonBit"
 
 source = "./src"

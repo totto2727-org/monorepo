@@ -8,7 +8,7 @@ supported_targets = "native"
 
 import {
   "totto2727/admiral@0.2.1",
-  "package/target-file-discovery@0.0.0",
+  "totto2727/target-file-discovery@0.1.0",
   "moonbitlang/x@0.4.38",
   "moonbitlang/async@0.19.2",
 }

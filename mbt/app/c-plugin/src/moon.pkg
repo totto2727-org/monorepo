@@ -1,6 +1,6 @@
 import {
   "totto2727/admiral",
-  "package/target-file-discovery" @target_file_discovery,
+  "totto2727/target-file-discovery" @target_file_discovery,
   "moonbitlang/core/env",
   "moonbitlang/core/json",
   "moonbitlang/core/string",

@@ -1,4 +1,4 @@
-# @package/target-file-discovery
+# totto2727/target-file-discovery
 
 MoonBit port of the original `@package/target-file-discovery` local package.
 
