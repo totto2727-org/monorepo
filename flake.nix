@@ -40,9 +40,13 @@
         in
         {
           default = pkgs.mkShell {
-            env = pkgs.lib.optionalAttrs (system == "x86_64-linux") {
-              MOONBIT_NEW_NATIVE = "1";
-            };
+            env =
+              pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+                LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.openssl ];
+              }
+              // pkgs.lib.optionalAttrs (system == "x86_64-linux") {
+                MOONBIT_NEW_NATIVE = "1";
+              };
 
             packages = [
               # JS
