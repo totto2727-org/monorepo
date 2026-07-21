@@ -34,7 +34,6 @@ export class ProgressWriteError extends Data.TaggedError('ProgressWriteError')<
 export class ProgressValidationError extends Data.TaggedError('ProgressValidationError')<TaggedErrorBaseType> {}
 
 const HEADER_COMMENT = `# Roadmap progress tracking yaml managed by the \`roadmap\` CLI.
-# Schema reference: plugins/totto2727-dev-flow/skills/share-artifacts/references/roadmap-progress-yaml.md
 `
 
 export const progressFilePath = (dir: string, roadmapId: string): Effect.Effect<string, never, Path.Path> =>

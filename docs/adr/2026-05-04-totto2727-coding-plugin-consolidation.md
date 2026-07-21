@@ -20,3 +20,5 @@ Keep coding conventions and external coding references in `plugins/totto2727-cod
 ## Consequences
 
 The dev-flow plugin stays focused on roadmap governance and reusable document formats. Coding rules evolve independently and can be reused by oh-my-codingagent or other agents without importing workflow-level procedures.
+
+> Superseded by [Consolidate durable development guidance in totto2727-coding](2026-07-20-consolidate-development-guidance-in-coding-plugin.md)

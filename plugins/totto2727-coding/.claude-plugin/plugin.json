@@ -1,7 +1,7 @@
 {
   "name": "totto2727-coding",
-  "description": "totto2727's coding & test conventions and external spec references (TypeScript Effect / @totto2727/fp / MoonBit best practices, plus MoonBit language reference and Vercel components.build spec).",
-  "version": "0.1.0",
+  "description": "Shared coding and testing principles, JavaScript and MoonBit implementation practices, test design flow, ADR policy, and artifact templates.",
+  "version": "0.2.0",
   "author": {
     "name": "totto2727",
     "url": "https://github.com/totto2727",

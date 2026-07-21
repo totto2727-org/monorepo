@@ -19,3 +19,5 @@ Do not maintain a standalone self-review workflow step. Fold that responsibility
 ## Consequences
 
 Review orchestration stays smaller and easier to run. Workflow-level review orchestration belongs outside `totto2727-dev-flow`; this repository-level plugin keeps only the rule that holistic review is part of independent review rather than a separate self-review gate.
+
+> Superseded by [Consolidate durable development guidance in totto2727-coding](2026-07-20-consolidate-development-guidance-in-coding-plugin.md)

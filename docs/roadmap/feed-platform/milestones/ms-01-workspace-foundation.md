@@ -6,7 +6,7 @@
 - **Created at:** 2026-05-04T00:00:00Z
 - **Last updated:** 2026-05-07T03:55:00Z
 
-このドキュメントは `roadmap` の **Step 2 (Milestone Decomposition)** で `roadmap-planner` Specialist が起草する**1 マイルストーンの定義書**。1 ファイル = 1 マイルストーンを原則とし、`docs/roadmap/<roadmap-id>/milestones/<milestone-id>.md` に配置する。書き方の詳細は `plugins/totto2727-dev-flow/skills/share-artifacts/references/milestone.md` を参照。
+このドキュメントは 1 マイルストーンの定義書。1 ファイル = 1 マイルストーンを原則とし、`docs/roadmap/<roadmap-id>/milestones/<milestone-id>.md` に配置する。書き方は `plugins/totto2727-coding/skills/share-artifacts/references/milestone.md` (Milestone Authoring Guide) に従う。
 
 ## 目的
 

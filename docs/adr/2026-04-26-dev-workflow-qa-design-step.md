@@ -20,3 +20,5 @@ Introduce a dedicated QA design boundary between design and task decomposition:
 ## Consequences
 
 Behavioral acceptance is defined before task execution and remains easy to validate. `totto2727-dev-flow` preserves the QA document formats as shared artifacts; tactical QA orchestration belongs outside this repository-level plugin.
+
+> Superseded by [Consolidate durable development guidance in totto2727-coding](2026-07-20-consolidate-development-guidance-in-coding-plugin.md)

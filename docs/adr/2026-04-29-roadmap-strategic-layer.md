@@ -23,3 +23,5 @@ Maintain a roadmap layer with these responsibilities:
 ## Consequences
 
 `totto2727-dev-flow` keeps high-level roadmap governance. Direct progress YAML editing is avoided so schema updates, timestamps, tasks, and formatting stay controlled by the roadmap CLI.
+
+> Superseded by [Consolidate durable development guidance in totto2727-coding](2026-07-20-consolidate-development-guidance-in-coding-plugin.md)

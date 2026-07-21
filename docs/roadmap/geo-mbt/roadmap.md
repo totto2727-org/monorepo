@@ -7,7 +7,7 @@
 - **Status:** active <!-- planned | active | completed (`progress.yaml.status` と一致) -->
   - **Phase 1 (ms-01〜ms-15) は 2026-05-06 に completed**。後述 "Phase 2 マイルストーン一覧" に列挙する ms-16 以降の大規模 port / scope 拡張作業のため、ロードマップ全体としては再度 active 扱いに復帰している
 
-このドキュメントは `dev-roadmap` の **Step 1 (Roadmap Intent)** で起草され、**Step 2 (Milestone Decomposition)** でマイルストーン一覧と依存グラフが追記されて確定する**戦略層の不変な計画書**。1 サイクルの `dev-workflow` では収まらない複数サイクル規模の開発を束ねる。書き方の詳細は `share-artifacts/references/roadmap.md` を参照。
+このドキュメントは、1 サイクルの `dev-workflow` では収まらない複数サイクル規模の開発を束ねる戦略計画。ロードマップの意図、マイルストーン一覧、依存グラフを一体で保持する。書き方は `plugins/totto2727-coding/skills/share-artifacts/references/roadmap.md` (Roadmap Authoring Guide) に従う。
 
 ## 背景
 

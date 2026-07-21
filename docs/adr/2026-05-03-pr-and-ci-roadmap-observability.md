@@ -20,3 +20,5 @@ Use PR and CI state as derived observability around execution:
 ## Consequences
 
 Roadmap documents stay concise while still allowing PR links and notes. Tactical PR/CI lifecycle details belong outside `totto2727-dev-flow`.
+
+> Superseded by [Consolidate durable development guidance in totto2727-coding](2026-07-20-consolidate-development-guidance-in-coding-plugin.md)

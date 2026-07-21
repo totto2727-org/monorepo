@@ -6,7 +6,7 @@
 - **Created at:** 2026-05-04T00:00:00Z
 - **Last updated:** 2026-05-04T00:00:00Z
 
-このドキュメントは `roadmap` の **Step 2 (Milestone Decomposition)** で `roadmap-planner` Specialist が起草する**1 マイルストーンの定義書**。本マイルストーンは「最終マイルストーン = 統合検証マイルストーン」のパターン (`plugins/totto2727-dev-flow/skills/share-artifacts/references/milestone.md` 参照) で配置されている。
+このドキュメントは 1 マイルストーンの定義書。本マイルストーンは `plugins/totto2727-coding/skills/share-artifacts/references/milestone.md` (Milestone Authoring Guide) の「Integration milestone」パターンで配置されている。
 
 ## 目的
 
@@ -52,7 +52,7 @@
 
 1 (推奨)
 
-検証中心の小規模サイクル。`plugins/totto2727-dev-flow/skills/share-artifacts/references/milestone.md` の「最終マイルストーン = 統合検証マイルストーン」配置パターンに従い、通常の oh-my-codingagent execution サイクル (本ファイルテンプレート) で表現する。
+検証中心の小規模サイクル。`plugins/totto2727-coding/skills/share-artifacts/references/milestone.md` (Milestone Authoring Guide) の「Integration milestone」パターンに従い、通常の oh-my-codingagent execution サイクルで表現する。
 
 ## 補足 / 留意事項
 

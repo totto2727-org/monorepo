@@ -23,3 +23,5 @@ Adopt an artifact-driven plugin structure with these durable rules:
 ## Consequences
 
 Workflow state remains resumable and reviewable because it is stored in explicit artifacts. `totto2727-dev-flow` owns reusable artifact formats and authoring conventions; tactical execution orchestration belongs outside this repository-level plugin.
+
+> Superseded by [Consolidate durable development guidance in totto2727-coding](2026-07-20-consolidate-development-guidance-in-coding-plugin.md)

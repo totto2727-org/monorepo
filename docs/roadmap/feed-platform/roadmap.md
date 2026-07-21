@@ -6,7 +6,7 @@
 - **Last updated:** 2026-07-10T00:00:00Z
 - **Status:** active <!-- planned | active | completed (`progress.yaml.status` と一致させる) -->
 
-このドキュメントは、1 サイクルの oh-my-codingagent execution では収まらない複数サイクル規模の開発を束ねる**戦略層の不変な計画書**。ロードマップの意図、マイルストーン一覧、依存グラフを一体で保持する。書き方の詳細は `plugins/totto2727-dev-flow/skills/share-artifacts/references/roadmap.md` を参照。
+このドキュメントは、1 サイクルの oh-my-codingagent execution では収まらない複数サイクル規模の開発を束ねる戦略計画。ロードマップの意図、マイルストーン一覧、依存グラフを一体で保持する。書き方は `plugins/totto2727-coding/skills/share-artifacts/references/roadmap.md` (Roadmap Authoring Guide) に従う。
 
 ## 背景
 
@@ -101,7 +101,7 @@
 - **6 領域 → 10 マイルストーン**: Intent スコープ境界の 6 領域 (認証認可 / 永続化 / 入力プラグイン / 出力プラグイン / 定期実行 / AI 要約) のうち、認証認可は単一サイクルでは過大 (Intent 未解決事項記載) のため 3 マイルストーンに分割 (Passkey + Magic Link / RBAC + Organization / 期間限定共有)。永続化を 1 マイルストーン、入出力プラグインを各 1 マイルストーンずつ、定期実行と AI 要約を各 1 マイルストーンとし、最後にロードマップ全体の統合検証マイルストーンを配置 (合計 10)
 - **永続化と入出力プラグイン契約の境界面 (Intent 未解決事項)**: 永続化マイルストーン (`ms-05`) 内で入出力プラグイン契約スケルトン (interface のみ) を先行確定する方針を採用。これにより `ms-06` / `ms-07` は「契約準拠 + 1 つの参照アダプタ実装」に専念可能となり単一サイクル粒度に収まる
 - **採用ワークスペース確定 (Intent 未解決事項)**: 全領域共通の前提のため、最初の独立マイルストーン `ms-01-workspace-foundation` として切り出し。配下 oh-my-codingagent execution サイクル Step 1〜2 で確定する
-- **最終統合検証マイルストーン**: `plugins/totto2727-dev-flow/skills/share-artifacts/references/milestone.md` の「最終マイルストーン = 統合検証マイルストーン」配置パターンに従い、6 領域横断の End-to-End シナリオ動作確認とコードレベル契約による拡張可能性の実証を目的として `ms-10-integration-verification` を配置
+- **最終統合検証マイルストーン**: `plugins/totto2727-coding/skills/share-artifacts/references/milestone.md` (Milestone Authoring Guide) の「Integration milestone」パターンに従い、6 領域横断の End-to-End シナリオ動作確認とコードレベル契約による拡張可能性の実証を目的として `ms-10-integration-verification` を配置
 
 ## 依存グラフ
 

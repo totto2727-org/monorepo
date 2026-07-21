@@ -136,7 +136,7 @@ const links = otherFiles.map((f) => `- [${f.title}](./references/${f.filename})`
 
 const relatedSkillsBlock = `## Related Skills
 
-- [mbt-bestpractice](../coding/references/mbt-bestpractice.md) — MoonBit coding standards in the new \`coding\` skill.`
+- [mbt-coding](../mbt-coding/SKILL.md) — concrete MoonBit coding practices.`
 
 const skillContent = `---
 name: docs-moonbit

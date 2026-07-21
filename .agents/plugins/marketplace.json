@@ -15,18 +15,6 @@
     },
     {
       "category": "Productivity",
-      "name": "totto2727-dev-flow",
-      "policy": {
-        "authentication": "ON_INSTALL",
-        "installation": "INSTALLED_BY_DEFAULT"
-      },
-      "source": {
-        "path": "./plugins/totto2727-dev-flow",
-        "source": "local"
-      }
-    },
-    {
-      "category": "Productivity",
       "name": "totto2727-coding",
       "policy": {
         "authentication": "ON_INSTALL",

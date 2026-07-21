@@ -14,7 +14,7 @@ description: >-
 
 ## Related Skills
 
-- [bestpractice](../coding/references/mbt/bestpractice.md) — MoonBit coding standards in the new `coding` skill
+- [mbt-coding](../mbt-coding/SKILL.md) — concrete MoonBit coding practices
 
 ## Introduction
 

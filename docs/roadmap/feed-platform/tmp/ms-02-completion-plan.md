@@ -1003,11 +1003,11 @@ PR-A → PR-C (or PR-D) → PR-E
   **References**:
   - `feat/ms-02-pr8-adr-progress-v2` 差分 (要 git diff main..pr8 で内容確認)
   - `docs/adr/` 既存 ADR (フォーマット参考)
-  - `plugins/oh-my-codingagent execution/skills/share-artifacts/references/adr.md` (ADR 書き方ガイド)
-  - `plugins/oh-my-codingagent execution/skills/share-artifacts/templates/adr.md` (テンプレ)
+  - `plugins/totto2727-coding/skills/share-artifacts/references/adr.md` (ADR Authoring Guide)
+  - `plugins/totto2727-coding/skills/share-artifacts/templates/adr.md` (ADR template)
 
   **WHY Each Reference Matters**:
-  - oh-my-codingagent execution plugin に ADR フォーマットが標準化されている (status: proposed/accepted/confirmed/rejected/superseded 等)
+  - `share-artifacts` に ADR の内容要件とテンプレートが定義されている
   - pr8 ブランチに drafted ADR があるはず (未確認 → executor が PR-E 着手時に確認 + 統合)
 
   **Acceptance Criteria**:
@@ -1038,7 +1038,7 @@ PR-A → PR-C (or PR-D) → PR-E
     - 目標達成度 (定性 / 定量)
     - 学び: pr5 conflation の反省、auth-helper "abandoned" 反省、`/oauth/consent` 欠落の反省
     - 後続マイルストーン (ms-03 RBAC + Organization) への引き継ぎ事項
-  - oh-my-codingagent execution plugin の retrospective テンプレに準拠
+  - 先行 retrospective と同じ構造で、観測事実、原因、引き継ぎを記録
 
   **Recommended Agent Profile**:
   - **Category**: `writing`
@@ -1051,7 +1051,6 @@ PR-A → PR-C (or PR-D) → PR-E
 
   **References**:
   - `docs/retrospective/feed-platform-ms-01-workspace-foundation.md` — 先行 retrospective の形
-  - `plugins/oh-my-codingagent execution/skills/share-artifacts/references/retrospective.md`
 
   **Acceptance Criteria**:
   - [ ] retrospective ファイル存在
