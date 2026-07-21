@@ -123,7 +123,8 @@ export default defineConfig({
         ],
       },
       'mbt:test': {
-        command: 'moon test',
+        command: 'LD_LIBRARY_PATH="$MOONBIT_OPENSSL_LIBRARY_PATH" moon test',
+        env: ['MOONBIT_OPENSSL_LIBRARY_PATH'],
         input: [
           { auto: true },
           // これを除外しないとキャッシュできない？毎回変更している？暇なら詳細を調べること
