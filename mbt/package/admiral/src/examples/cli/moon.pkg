@@ -1,0 +1,9 @@
+supported_targets = "native"
+
+import {
+  "totto2727/admiral",
+  "moonbitlang/core/env",
+  "moonbitlang/async",
+}
+
+pkgtype(kind: "executable")

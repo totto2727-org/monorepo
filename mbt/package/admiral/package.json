@@ -1,0 +1,8 @@
+{
+  "name": "@totto2727/admiral",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "vite-plus": "catalog:"
+  }
+}
