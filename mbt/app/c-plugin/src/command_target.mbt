@@ -1,5 +1,8 @@
 ///|
-let target_dir_arg = "dir"
+let target_dir_arg : @admiral.PositionDef[String] = @admiral.position_string(
+  "dir",
+  description="Target directory",
+)
 
 ///|
 fn target_add_command_def(
@@ -8,12 +11,8 @@ fn target_add_command_def(
   @admiral.command(
     name="add",
     description="Add skill symlink target directory",
-    positionals=[
-      @admiral.positional(target_dir_arg, description="Target directory"),
-    ],
-    options=[
-      @admiral.bool(global_option, short='g', description="Use ~/.agents"),
-    ],
+    positionals=[target_dir_arg],
+    options=[global_option],
     run=Some(run),
   )
 }
@@ -25,12 +24,8 @@ fn target_remove_command_def(
   @admiral.command(
     name="remove",
     description="Remove skill symlink target directory",
-    positionals=[
-      @admiral.positional(target_dir_arg, description="Target directory"),
-    ],
-    options=[
-      @admiral.bool(global_option, short='g', description="Use ~/.agents"),
-    ],
+    positionals=[target_dir_arg],
+    options=[global_option],
     run=Some(run),
   )
 }
@@ -43,15 +38,8 @@ struct TargetOptions {
 
 ///|
 fn target_options(context : @admiral.Context) -> TargetOptions raise {
-  let values = match context.values.get(target_dir_arg) {
-    Some(values) => values
-    None => fail("dir is required")
-  }
-  let dir = match values {
-    [value, ..] => value
-    [] => fail("dir is required")
-  }
-  { global: context.flags.contains(global_option), dir }
+  let dir = context.get_string_required(target_dir_arg)
+  { global: context.get_bool(global_option), dir }
 }
 
 ///|

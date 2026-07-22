@@ -1,20 +1,26 @@
 ///|
-let scrape_account_id_option = "account-id"
+let scrape_url_option : @admiral.OptionDef[String] = @admiral.string(
+  "url",
+  description="Target URL",
+)
 
 ///|
-let scrape_api_token_option = "api-token"
+let scrape_html_option : @admiral.OptionDef[String] = @admiral.string(
+  "html",
+  description="Path to local HTML file",
+)
 
 ///|
-let scrape_url_option = "url"
+let scrape_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
+  "wait-until",
+  description="Page load strategy",
+)
 
 ///|
-let scrape_html_option = "html"
-
-///|
-let scrape_wait_until_option = "wait-until"
-
-///|
-let scrape_selector_option = "selector"
+let scrape_selector_option : @admiral.OptionDef[String] = @admiral.string(
+  "selector",
+  description="CSS selector",
+)
 
 ///|
 struct ScrapeOptionsInput {
@@ -99,42 +105,28 @@ fn scrape_command_def(
     name="scrape",
     description="Extract elements",
     options=[
-      @admiral.string(
-        scrape_account_id_option,
-        description="Cloudflare account ID",
-      ),
-      @admiral.string(
-        scrape_api_token_option,
-        description="Cloudflare API token",
-      ),
-      @admiral.string(scrape_url_option, description="Target URL"),
-      @admiral.string(scrape_html_option, description="Path to local HTML file"),
-      @admiral.string(
-        scrape_wait_until_option,
-        description="Page load strategy",
-      ),
-      @admiral.string(scrape_selector_option, description="CSS selector"),
-      @admiral.string(config_option, description="Path to JSON config file"),
+      account_id_option, api_token_option, scrape_url_option, scrape_html_option,
+      scrape_wait_until_option, scrape_selector_option, config_option,
     ],
     run=Some(run),
   )
 }
 
 ///|
-async fn scrape_options(matches : @admiral.Context) -> ScrapeOptionsInput {
-  let config = load_config(matches)
+async fn scrape_options(context : @admiral.Context) -> ScrapeOptionsInput {
+  let config = load_config(context)
   {
-    account_id: merged_account_id(matches, config),
-    api_token: merged_api_token(matches, config),
-    url: merge_string(cli_string(matches, scrape_url_option), config.url),
-    html: merged_html(matches, scrape_html_option, config),
+    account_id: merged_account_id(context, config),
+    api_token: merged_api_token(context, config),
+    url: merge_string(cli_string(context, scrape_url_option), config.url),
+    html: merged_html(context, scrape_html_option, config),
     wait_until: merge_string(
-      cli_string(matches, scrape_wait_until_option),
+      cli_string(context, scrape_wait_until_option),
       config.wait_until,
     ),
     selector: required_value(
       "selector",
-      merge_string(cli_string(matches, scrape_selector_option), config.selector),
+      merge_string(cli_string(context, scrape_selector_option), config.selector),
     ),
   }
 }
@@ -154,8 +146,8 @@ fn ScrapeBody::from_options(options : ScrapeOptionsInput) -> ScrapeBody raise {
 }
 
 ///|
-async fn run_scrape(matches : @admiral.Context) -> Unit {
-  let options = scrape_options(matches)
+async fn run_scrape(context : @admiral.Context) -> Unit {
+  let options = scrape_options(context)
   let body = ScrapeBody::from_options(options)
   let (code, reason, data) = post_json(
     options.account_id,

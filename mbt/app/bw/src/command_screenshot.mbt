@@ -1,29 +1,45 @@
 ///|
-let screenshot_account_id_option = "account-id"
+let screenshot_url_option : @admiral.OptionDef[String] = @admiral.string(
+  "url",
+  description="Target URL",
+)
 
 ///|
-let screenshot_api_token_option = "api-token"
+let screenshot_html_option : @admiral.OptionDef[String] = @admiral.string(
+  "html",
+  description="Path to local HTML file",
+)
 
 ///|
-let screenshot_url_option = "url"
+let screenshot_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
+  "wait-until",
+  description="Page load strategy",
+)
 
 ///|
-let screenshot_html_option = "html"
+let screenshot_output_option : @admiral.OptionDef[String] = @admiral.string(
+  "output",
+  short='o',
+  description="Output file path",
+)
 
 ///|
-let screenshot_wait_until_option = "wait-until"
+let screenshot_full_page_option : @admiral.OptionDef[Bool] = @admiral.bool(
+  "full-page",
+  description="Capture entire page",
+)
 
 ///|
-let screenshot_output_option = "output"
+let screenshot_width_option : @admiral.OptionDef[Int] = @admiral.int(
+  "width",
+  description="Viewport width",
+)
 
 ///|
-let screenshot_full_page_option = "full-page"
-
-///|
-let screenshot_width_option = "width"
-
-///|
-let screenshot_height_option = "height"
+let screenshot_height_option : @admiral.OptionDef[Int] = @admiral.int(
+  "height",
+  description="Viewport height",
+)
 
 ///|
 struct ScreenshotOptionsInput {
@@ -161,35 +177,9 @@ fn screenshot_command_def(
     name="screenshot",
     description="Capture a screenshot",
     options=[
-      @admiral.string(
-        screenshot_account_id_option,
-        description="Cloudflare account ID",
-      ),
-      @admiral.string(
-        screenshot_api_token_option,
-        description="Cloudflare API token",
-      ),
-      @admiral.string(screenshot_url_option, description="Target URL"),
-      @admiral.string(
-        screenshot_html_option,
-        description="Path to local HTML file",
-      ),
-      @admiral.string(
-        screenshot_wait_until_option,
-        description="Page load strategy",
-      ),
-      @admiral.string(
-        screenshot_output_option,
-        short='o',
-        description="Output file path",
-      ),
-      @admiral.bool(
-        screenshot_full_page_option,
-        description="Capture entire page",
-      ),
-      @admiral.int(screenshot_width_option, description="Viewport width"),
-      @admiral.int(screenshot_height_option, description="Viewport height"),
-      @admiral.string(config_option, description="Path to JSON config file"),
+      account_id_option, api_token_option, screenshot_url_option, screenshot_html_option,
+      screenshot_wait_until_option, screenshot_output_option, screenshot_full_page_option,
+      screenshot_width_option, screenshot_height_option, config_option,
     ],
     run=Some(run),
   )
@@ -197,29 +187,29 @@ fn screenshot_command_def(
 
 ///|
 async fn screenshot_options(
-  matches : @admiral.Context,
+  context : @admiral.Context,
 ) -> ScreenshotOptionsInput {
-  let config = load_config(matches)
+  let config = load_config(context)
   {
-    account_id: merged_account_id(matches, config),
-    api_token: merged_api_token(matches, config),
-    url: merge_string(cli_string(matches, screenshot_url_option), config.url),
-    html: merged_html(matches, screenshot_html_option, config),
+    account_id: merged_account_id(context, config),
+    api_token: merged_api_token(context, config),
+    url: merge_string(cli_string(context, screenshot_url_option), config.url),
+    html: merged_html(context, screenshot_html_option, config),
     wait_until: merge_string(
-      cli_string(matches, screenshot_wait_until_option),
+      cli_string(context, screenshot_wait_until_option),
       config.wait_until,
     ),
     output: required_value(
       "output",
-      merge_string(cli_string(matches, screenshot_output_option), config.output),
+      merge_string(cli_string(context, screenshot_output_option), config.output),
     ),
     full_page: merge_bool(
-      matches.flags.get(screenshot_full_page_option).unwrap_or(false),
+      context.get_bool(screenshot_full_page_option),
       config.full_page,
       false,
     ),
-    width: merge_int(cli_int(matches, screenshot_width_option), config.width),
-    height: merge_int(cli_int(matches, screenshot_height_option), config.height),
+    width: merge_int(cli_int(context, screenshot_width_option), config.width),
+    height: merge_int(cli_int(context, screenshot_height_option), config.height),
   }
 }
 
@@ -249,8 +239,8 @@ fn ScreenshotBody::from_options(
 }
 
 ///|
-async fn run_screenshot(matches : @admiral.Context) -> Unit {
-  let options = screenshot_options(matches)
+async fn run_screenshot(context : @admiral.Context) -> Unit {
+  let options = screenshot_options(context)
   let body = ScreenshotBody::from_options(options)
   let (code, reason, data) = post_json(
     options.account_id,

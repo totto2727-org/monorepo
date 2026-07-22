@@ -1,26 +1,38 @@
 ///|
-let json_account_id_option = "account-id"
+let json_url_option : @admiral.OptionDef[String] = @admiral.string(
+  "url",
+  description="Target URL",
+)
 
 ///|
-let json_api_token_option = "api-token"
+let json_html_option : @admiral.OptionDef[String] = @admiral.string(
+  "html",
+  description="Path to local HTML file",
+)
 
 ///|
-let json_url_option = "url"
+let json_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
+  "wait-until",
+  description="Page load strategy",
+)
 
 ///|
-let json_html_option = "html"
+let json_prompt_option : @admiral.OptionDef[String] = @admiral.string(
+  "prompt",
+  description="Extraction prompt",
+)
 
 ///|
-let json_wait_until_option = "wait-until"
+let json_schema_option : @admiral.OptionDef[String] = @admiral.string(
+  "schema",
+  description="Path to JSON Schema file",
+)
 
 ///|
-let json_prompt_option = "prompt"
-
-///|
-let json_schema_option = "schema"
-
-///|
-let json_format_option = "format"
+let json_format_option : @admiral.OptionDef[String] = @admiral.string(
+  "format",
+  description="Output format: json, markdown, text",
+)
 
 ///|
 enum JsonExtractOutputFormat {
@@ -106,24 +118,8 @@ fn json_extract_command_def(
     name="json",
     description="Extract structured data",
     options=[
-      @admiral.string(
-        json_account_id_option,
-        description="Cloudflare account ID",
-      ),
-      @admiral.string(json_api_token_option, description="Cloudflare API token"),
-      @admiral.string(json_url_option, description="Target URL"),
-      @admiral.string(json_html_option, description="Path to local HTML file"),
-      @admiral.string(json_wait_until_option, description="Page load strategy"),
-      @admiral.string(json_prompt_option, description="Extraction prompt"),
-      @admiral.string(
-        json_schema_option,
-        description="Path to JSON Schema file",
-      ),
-      @admiral.string(
-        json_format_option,
-        description="Output format: json, markdown, text",
-      ),
-      @admiral.string(config_option, description="Path to JSON config file"),
+      account_id_option, api_token_option, json_url_option, json_html_option, json_wait_until_option,
+      json_prompt_option, json_schema_option, json_format_option, config_option,
     ],
     run=Some(run),
   )
@@ -144,16 +140,16 @@ fn parse_json_extract_output_format(
 
 ///|
 async fn json_extract_options(
-  matches : @admiral.Context,
+  context : @admiral.Context,
 ) -> JsonExtractOptionsInput {
-  let config = load_config(matches)
+  let config = load_config(context)
   let (html, response_format) = @async.with_task_group(group => {
     let html_task = group.spawn(() => {
-      merged_html(matches, json_html_option, config)
+      merged_html(context, json_html_option, config)
     })
     let schema_task = group.spawn(() => {
       match
-        merge_string(cli_string(matches, json_schema_option), config.schema) {
+        merge_string(cli_string(context, json_schema_option), config.schema) {
         Some(path) => Some(schema_response_format(path))
         None => None
       }
@@ -161,21 +157,21 @@ async fn json_extract_options(
     (html_task.wait(), schema_task.wait())
   })
   {
-    account_id: merged_account_id(matches, config),
-    api_token: merged_api_token(matches, config),
-    url: merge_string(cli_string(matches, json_url_option), config.url),
+    account_id: merged_account_id(context, config),
+    api_token: merged_api_token(context, config),
+    url: merge_string(cli_string(context, json_url_option), config.url),
     html,
     wait_until: merge_string(
-      cli_string(matches, json_wait_until_option),
+      cli_string(context, json_wait_until_option),
       config.wait_until,
     ),
     prompt: required_value(
       "prompt",
-      merge_string(cli_string(matches, json_prompt_option), config.prompt),
+      merge_string(cli_string(context, json_prompt_option), config.prompt),
     ),
     response_format,
     output_format: match
-      merge_string(cli_string(matches, json_format_option), config.format) {
+      merge_string(cli_string(context, json_format_option), config.format) {
       Some(value) => parse_json_extract_output_format(value)
       _ => RawJson
     },
@@ -239,8 +235,8 @@ fn JsonExtractBody::from_options(
 }
 
 ///|
-async fn run_json_extract(matches : @admiral.Context) -> Unit {
-  let options = json_extract_options(matches)
+async fn run_json_extract(context : @admiral.Context) -> Unit {
+  let options = json_extract_options(context)
   let body = JsonExtractBody::from_options(options)
   let (code, reason, data) = post_json(
     options.account_id,

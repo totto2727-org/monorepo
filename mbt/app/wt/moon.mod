@@ -7,7 +7,7 @@ preferred_target = "native"
 supported_targets = "native"
 
 import {
-  "totto2727/admiral@0.2.1",
+  "totto2727/admiral@0.3.0",
   "moonbitlang/async@0.19.2",
 }
 

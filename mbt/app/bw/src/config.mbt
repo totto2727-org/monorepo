@@ -1,5 +1,20 @@
 ///|
-let config_option = "config"
+let account_id_option : @admiral.OptionDef[String] = @admiral.string(
+  "account-id",
+  description="Cloudflare account ID",
+)
+
+///|
+let api_token_option : @admiral.OptionDef[String] = @admiral.string(
+  "api-token",
+  description="Cloudflare API token",
+)
+
+///|
+let config_option : @admiral.OptionDef[String] = @admiral.string(
+  "config",
+  description="Path to JSON config file",
+)
 
 ///|
 struct BwConfig {
@@ -127,9 +142,9 @@ fn parse_config_object(object : Map[String, Json]) -> BwConfig raise {
 }
 
 ///|
-async fn load_config(matches : @admiral.Context) -> BwConfig {
-  match matches.values.get(config_option) {
-    Some([path, ..]) => {
+async fn load_config(context : @admiral.Context) -> BwConfig {
+  match context.get_string(config_option) {
+    Some(path) => {
       let parsed = @json.parse(@fs.read_file(path).text()) catch {
         error if @async.is_being_cancelled() => raise error
         error => fail("Invalid config JSON: \{error}")
@@ -144,18 +159,26 @@ async fn load_config(matches : @admiral.Context) -> BwConfig {
 }
 
 ///|
-fn cli_string(matches : @admiral.Context, option : String) -> String? {
-  match matches.values.get(option) {
-    Some([value, ..]) => Some(value)
-    _ => None
-  }
+fn cli_string(
+  context : @admiral.Context,
+  option : @admiral.OptionDef[String],
+) -> String? {
+  context.get_string(option)
 }
 
 ///|
-fn cli_int(matches : @admiral.Context, option : String) -> Int? raise {
-  match cli_string(matches, option) {
-    Some(value) => Some(@string.parse_int(value))
-    None => None
+fn cli_int(
+  context : @admiral.Context,
+  option : @admiral.OptionDef[Int],
+) -> Int? raise {
+  match context.get_int(option) {
+    Some(value) => Some(value)
+    None =>
+      if context.values.contains(option.name) {
+        fail("Invalid --\{option.name} value: expected an integer")
+      } else {
+        None
+      }
   }
 }
 
@@ -212,10 +235,11 @@ fn required_body_source(url : String?, html : String?) -> Unit raise {
 
 ///|
 fn merged_account_id(
-  matches : @admiral.Context,
+  context : @admiral.Context,
   config : BwConfig,
 ) -> String raise {
-  match merge_string(cli_string(matches, "account-id"), config.account_id) {
+  match
+    merge_string(cli_string(context, account_id_option), config.account_id) {
     Some(value) => value
     None =>
       match @env.get_env_var(cloudflare_account_id_env) {
@@ -230,10 +254,10 @@ fn merged_account_id(
 
 ///|
 fn merged_api_token(
-  matches : @admiral.Context,
+  context : @admiral.Context,
   config : BwConfig,
 ) -> String raise {
-  match merge_string(cli_string(matches, "api-token"), config.api_token) {
+  match merge_string(cli_string(context, api_token_option), config.api_token) {
     Some(value) => value
     None =>
       match @env.get_env_var(cloudflare_api_token_env) {
@@ -248,11 +272,11 @@ fn merged_api_token(
 
 ///|
 async fn merged_html(
-  matches : @admiral.Context,
-  option : String,
+  context : @admiral.Context,
+  option : @admiral.OptionDef[String],
   config : BwConfig,
 ) -> String? {
-  match merge_string(cli_string(matches, option), config.html) {
+  match merge_string(cli_string(context, option), config.html) {
     Some(path) => Some(@fs.read_file(path).text())
     None => None
   }

@@ -1,14 +1,42 @@
 ///|
-let global_option = "global"
+let global_option : @admiral.OptionDef[Bool] = @admiral.bool(
+  "global",
+  short='g',
+  description="Use ~/.agents",
+)
 
 ///|
-let local_option = "local"
+let local_option : @admiral.OptionDef[String] = @admiral.string(
+  "local",
+  description="Local marketplace root beginning with ./",
+)
 
 ///|
-let recursive_option = "recursive"
+let sync_recursive_option : @admiral.OptionDef[Bool] = @admiral.bool(
+  "recursive",
+  short='r',
+  description="Sync from the nearest lock file and descendant lock files",
+)
 
 ///|
-let repo_arg = "repo"
+let update_recursive_option : @admiral.OptionDef[Bool] = @admiral.bool(
+  "recursive",
+  short='r',
+  description="Update from the nearest lock file and descendant lock files",
+)
+
+///|
+let add_repo_arg : @admiral.PositionDef[String] = @admiral.position_string(
+  "repo",
+  description="GitHub owner/repo",
+  required=false,
+)
+
+///|
+let remove_repo_arg : @admiral.PositionDef[String] = @admiral.position_string(
+  "repo",
+  description="Repository source",
+)
 
 ///|
 enum SkillAddSource {
@@ -41,20 +69,8 @@ fn skill_add_command_def(
   @admiral.command(
     name="add",
     description="Add a plugin marketplace",
-    positionals=[
-      @admiral.positional(
-        repo_arg,
-        description="GitHub owner/repo",
-        required=false,
-      ),
-    ],
-    options=[
-      @admiral.bool(global_option, short='g', description="Use ~/.agents"),
-      @admiral.string(
-        local_option,
-        description="Local marketplace root beginning with ./",
-      ),
-    ],
+    positionals=[add_repo_arg],
+    options=[global_option, local_option],
     run=Some(run),
   )
 }
@@ -66,14 +82,7 @@ fn skill_sync_command_def(
   @admiral.command(
     name="sync",
     description="Re-create skill symlinks",
-    options=[
-      @admiral.bool(global_option, short='g', description="Use ~/.agents"),
-      @admiral.bool(
-        recursive_option,
-        short='r',
-        description="Sync from the nearest lock file and descendant lock files",
-      ),
-    ],
+    options=[global_option, sync_recursive_option],
     run=Some(run),
   )
 }
@@ -85,14 +94,7 @@ fn skill_update_command_def(
   @admiral.command(
     name="update",
     description="Update GitHub-sourced repos and sync",
-    options=[
-      @admiral.bool(global_option, short='g', description="Use ~/.agents"),
-      @admiral.bool(
-        recursive_option,
-        short='r',
-        description="Update from the nearest lock file and descendant lock files",
-      ),
-    ],
+    options=[global_option, update_recursive_option],
     run=Some(run),
   )
 }
@@ -104,25 +106,17 @@ fn skill_remove_command_def(
   @admiral.command(
     name="remove",
     description="Remove a repository from the lockfile",
-    positionals=[@admiral.positional(repo_arg, description="Repository source")],
-    options=[
-      @admiral.bool(global_option, short='g', description="Use ~/.agents"),
-    ],
+    positionals=[remove_repo_arg],
+    options=[global_option],
     run=Some(run),
   )
 }
 
 ///|
 fn skill_add_options(context : @admiral.Context) -> SkillAddOptions raise {
-  let global = context.flags.contains(global_option)
-  let local_path = match context.values.get(local_option) {
-    Some([value, ..]) => Some(value)
-    _ => None
-  }
-  let repo = match context.values.get(repo_arg) {
-    Some([value, ..]) => Some(value)
-    _ => None
-  }
+  let global = context.get_bool(global_option)
+  let local_path = context.get_string(local_option)
+  let repo = context.get_string(add_repo_arg)
   let source = match (local_path, repo) {
     (Some(path), _) => {
       guard path.has_prefix("./") else {
@@ -140,24 +134,20 @@ fn skill_add_options(context : @admiral.Context) -> SkillAddOptions raise {
 }
 
 ///|
-fn skill_global_options(context : @admiral.Context) -> SkillGlobalOptions {
+fn skill_global_options(
+  context : @admiral.Context,
+  recursive_option : @admiral.OptionDef[Bool],
+) -> SkillGlobalOptions {
   {
-    global: context.flags.contains(global_option),
-    recursive: context.flags.contains(recursive_option),
+    global: context.get_bool(global_option),
+    recursive: context.get_bool(recursive_option),
   }
 }
 
 ///|
 fn skill_remove_options(context : @admiral.Context) -> SkillRemoveOptions raise {
-  let values = match context.values.get(repo_arg) {
-    Some(values) => values
-    None => fail("source is required")
-  }
-  let source = match values {
-    [value, ..] => value
-    [] => fail("source is required")
-  }
-  { global: context.flags.contains(global_option), source }
+  let source = context.get_string_required(remove_repo_arg)
+  { global: context.get_bool(global_option), source }
 }
 
 ///|
@@ -229,7 +219,7 @@ fn upsert_repository(
 
 ///|
 async fn run_skill_sync(context : @admiral.Context) -> Unit {
-  let options = skill_global_options(context)
+  let options = skill_global_options(context, sync_recursive_option)
   let agents_dirs = if options.global {
     [resolve_global_agents_dir()]
   } else {
@@ -259,7 +249,7 @@ fn has_update_conflicts(agents_locks : Array[AgentsLock]) -> Bool {
 
 ///|
 async fn run_skill_update(context : @admiral.Context) -> Unit {
-  let options = skill_global_options(context)
+  let options = skill_global_options(context, update_recursive_option)
   let agents_dirs = if options.global {
     [resolve_global_agents_dir()]
   } else {

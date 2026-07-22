@@ -1,23 +1,33 @@
 ///|
-let snapshot_account_id_option = "account-id"
+let snapshot_url_option : @admiral.OptionDef[String] = @admiral.string(
+  "url",
+  description="Target URL",
+)
 
 ///|
-let snapshot_api_token_option = "api-token"
+let snapshot_html_option : @admiral.OptionDef[String] = @admiral.string(
+  "html",
+  description="Path to local HTML file",
+)
 
 ///|
-let snapshot_url_option = "url"
+let snapshot_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
+  "wait-until",
+  description="Page load strategy",
+)
 
 ///|
-let snapshot_html_option = "html"
+let snapshot_output_option : @admiral.OptionDef[String] = @admiral.string(
+  "output",
+  short='o',
+  description="Output directory",
+)
 
 ///|
-let snapshot_wait_until_option = "wait-until"
-
-///|
-let snapshot_output_option = "output"
-
-///|
-let snapshot_full_page_option = "full-page"
+let snapshot_full_page_option : @admiral.OptionDef[Bool] = @admiral.bool(
+  "full-page",
+  description="Capture entire page",
+)
 
 ///|
 struct SnapshotOptionsInput {
@@ -113,56 +123,32 @@ fn snapshot_command_def(
     name="snapshot",
     description="Capture both HTML and screenshot",
     options=[
-      @admiral.string(
-        snapshot_account_id_option,
-        description="Cloudflare account ID",
-      ),
-      @admiral.string(
-        snapshot_api_token_option,
-        description="Cloudflare API token",
-      ),
-      @admiral.string(snapshot_url_option, description="Target URL"),
-      @admiral.string(
-        snapshot_html_option,
-        description="Path to local HTML file",
-      ),
-      @admiral.string(
-        snapshot_wait_until_option,
-        description="Page load strategy",
-      ),
-      @admiral.string(
-        snapshot_output_option,
-        short='o',
-        description="Output directory",
-      ),
-      @admiral.bool(
-        snapshot_full_page_option,
-        description="Capture entire page",
-      ),
-      @admiral.string(config_option, description="Path to JSON config file"),
+      account_id_option, api_token_option, snapshot_url_option, snapshot_html_option,
+      snapshot_wait_until_option, snapshot_output_option, snapshot_full_page_option,
+      config_option,
     ],
     run=Some(run),
   )
 }
 
 ///|
-async fn snapshot_options(matches : @admiral.Context) -> SnapshotOptionsInput {
-  let config = load_config(matches)
+async fn snapshot_options(context : @admiral.Context) -> SnapshotOptionsInput {
+  let config = load_config(context)
   {
-    account_id: merged_account_id(matches, config),
-    api_token: merged_api_token(matches, config),
-    url: merge_string(cli_string(matches, snapshot_url_option), config.url),
-    html: merged_html(matches, snapshot_html_option, config),
+    account_id: merged_account_id(context, config),
+    api_token: merged_api_token(context, config),
+    url: merge_string(cli_string(context, snapshot_url_option), config.url),
+    html: merged_html(context, snapshot_html_option, config),
     wait_until: merge_string(
-      cli_string(matches, snapshot_wait_until_option),
+      cli_string(context, snapshot_wait_until_option),
       config.wait_until,
     ),
     output: required_value(
       "output",
-      merge_string(cli_string(matches, snapshot_output_option), config.output),
+      merge_string(cli_string(context, snapshot_output_option), config.output),
     ),
     full_page: merge_bool(
-      matches.flags.get(snapshot_full_page_option).unwrap_or(false),
+      context.get_bool(snapshot_full_page_option),
       config.full_page,
       false,
     ),
@@ -210,8 +196,8 @@ fn snapshot_result(data : &@io.Data) -> (String, Bytes) raise {
 }
 
 ///|
-async fn run_snapshot(matches : @admiral.Context) -> Unit {
-  let options = snapshot_options(matches)
+async fn run_snapshot(context : @admiral.Context) -> Unit {
+  let options = snapshot_options(context)
   let body = SnapshotBody::from_options(options)
   let (code, reason, data) = post_json(
     options.account_id,

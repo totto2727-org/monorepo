@@ -1,5 +1,9 @@
 ///|
-let ls_dir_option = "dir"
+let ls_dir_option : @admiral.PositionDef[String] = @admiral.position_string(
+  "dir",
+  description="Base directory",
+  required=false,
+)
 
 ///|
 fn ls_command_def(
@@ -8,13 +12,7 @@ fn ls_command_def(
   @admiral.command(
     name="ls",
     description="List git worktrees with PR status",
-    positionals=[
-      @admiral.positional(
-        ls_dir_option,
-        description="Base directory",
-        required=false,
-      ),
-    ],
+    positionals=[ls_dir_option],
     run=Some(run),
   )
 }
@@ -25,17 +23,17 @@ struct LsOptions {
 }
 
 ///|
-fn ls_options(matches : @admiral.Context) -> LsOptions {
-  let dir = match matches.values.get(ls_dir_option) {
-    Some([value, ..]) => value
-    _ => "."
+fn ls_options(context : @admiral.Context) -> LsOptions {
+  let dir = match context.get_string(ls_dir_option) {
+    Some(value) => value
+    None => "."
   }
   { dir, }
 }
 
 ///|
-async fn run_ls(matches : @admiral.Context) -> Unit {
-  let options = ls_options(matches)
+async fn run_ls(context : @admiral.Context) -> Unit {
+  let options = ls_options(context)
   let dir = options.dir
   let base = if dir == "." { @env.current_dir().unwrap_or(".") } else { dir }
   match fetch_repo_worktrees(base) {

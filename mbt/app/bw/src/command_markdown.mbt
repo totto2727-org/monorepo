@@ -1,20 +1,27 @@
 ///|
-let markdown_account_id_option = "account-id"
+let markdown_url_option : @admiral.OptionDef[String] = @admiral.string(
+  "url",
+  description="Target URL",
+)
 
 ///|
-let markdown_api_token_option = "api-token"
+let markdown_html_option : @admiral.OptionDef[String] = @admiral.string(
+  "html",
+  description="Path to local HTML file",
+)
 
 ///|
-let markdown_url_option = "url"
+let markdown_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
+  "wait-until",
+  description="Page load strategy",
+)
 
 ///|
-let markdown_html_option = "html"
-
-///|
-let markdown_wait_until_option = "wait-until"
-
-///|
-let markdown_output_option = "output"
+let markdown_output_option : @admiral.OptionDef[String] = @admiral.string(
+  "output",
+  short='o',
+  description="Output file path",
+)
 
 ///|
 struct MarkdownOptions {
@@ -87,48 +94,27 @@ fn markdown_command_def(
     name="markdown",
     description="Extract markdown",
     options=[
-      @admiral.string(
-        markdown_account_id_option,
-        description="Cloudflare account ID",
-      ),
-      @admiral.string(
-        markdown_api_token_option,
-        description="Cloudflare API token",
-      ),
-      @admiral.string(markdown_url_option, description="Target URL"),
-      @admiral.string(
-        markdown_html_option,
-        description="Path to local HTML file",
-      ),
-      @admiral.string(
-        markdown_wait_until_option,
-        description="Page load strategy",
-      ),
-      @admiral.string(
-        markdown_output_option,
-        short='o',
-        description="Output file path",
-      ),
-      @admiral.string(config_option, description="Path to JSON config file"),
+      account_id_option, api_token_option, markdown_url_option, markdown_html_option,
+      markdown_wait_until_option, markdown_output_option, config_option,
     ],
     run=Some(run),
   )
 }
 
 ///|
-async fn markdown_options(matches : @admiral.Context) -> MarkdownOptions {
-  let config = load_config(matches)
+async fn markdown_options(context : @admiral.Context) -> MarkdownOptions {
+  let config = load_config(context)
   {
-    account_id: merged_account_id(matches, config),
-    api_token: merged_api_token(matches, config),
-    url: merge_string(cli_string(matches, markdown_url_option), config.url),
-    html: merged_html(matches, markdown_html_option, config),
+    account_id: merged_account_id(context, config),
+    api_token: merged_api_token(context, config),
+    url: merge_string(cli_string(context, markdown_url_option), config.url),
+    html: merged_html(context, markdown_html_option, config),
     wait_until: merge_string(
-      cli_string(matches, markdown_wait_until_option),
+      cli_string(context, markdown_wait_until_option),
       config.wait_until,
     ),
     output: merge_string(
-      cli_string(matches, markdown_output_option),
+      cli_string(context, markdown_output_option),
       config.output,
     ),
   }
@@ -148,8 +134,8 @@ fn MarkdownBody::from_options(options : MarkdownOptions) -> MarkdownBody raise {
 }
 
 ///|
-async fn run_markdown_command(matches : @admiral.Context) -> Unit {
-  let options = markdown_options(matches)
+async fn run_markdown_command(context : @admiral.Context) -> Unit {
+  let options = markdown_options(context)
   let body = MarkdownBody::from_options(options)
   let (code, reason, data) = post_json(
     options.account_id,

@@ -1,23 +1,32 @@
 ///|
-let links_account_id_option = "account-id"
+let links_url_option : @admiral.OptionDef[String] = @admiral.string(
+  "url",
+  description="Target URL",
+)
 
 ///|
-let links_api_token_option = "api-token"
+let links_html_option : @admiral.OptionDef[String] = @admiral.string(
+  "html",
+  description="Path to local HTML file",
+)
 
 ///|
-let links_url_option = "url"
+let links_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
+  "wait-until",
+  description="Page load strategy",
+)
 
 ///|
-let links_html_option = "html"
+let links_visible_only_option : @admiral.OptionDef[Bool] = @admiral.bool(
+  "visible-only",
+  description="Only visible links",
+)
 
 ///|
-let links_wait_until_option = "wait-until"
-
-///|
-let links_visible_only_option = "visible-only"
-
-///|
-let links_internal_only_option = "internal-only"
+let links_internal_only_option : @admiral.OptionDef[Bool] = @admiral.bool(
+  "internal-only",
+  description="Only same-domain links",
+)
 
 ///|
 struct LinksOptionsInput {
@@ -109,47 +118,32 @@ fn links_command_def(
     name="links",
     description="Retrieve links",
     options=[
-      @admiral.string(
-        links_account_id_option,
-        description="Cloudflare account ID",
-      ),
-      @admiral.string(
-        links_api_token_option,
-        description="Cloudflare API token",
-      ),
-      @admiral.string(links_url_option, description="Target URL"),
-      @admiral.string(links_html_option, description="Path to local HTML file"),
-      @admiral.string(links_wait_until_option, description="Page load strategy"),
-      @admiral.bool(links_visible_only_option, description="Only visible links"),
-      @admiral.bool(
-        links_internal_only_option,
-        description="Only same-domain links",
-      ),
-      @admiral.string(config_option, description="Path to JSON config file"),
+      account_id_option, api_token_option, links_url_option, links_html_option, links_wait_until_option,
+      links_visible_only_option, links_internal_only_option, config_option,
     ],
     run=Some(run),
   )
 }
 
 ///|
-async fn links_options(matches : @admiral.Context) -> LinksOptionsInput {
-  let config = load_config(matches)
+async fn links_options(context : @admiral.Context) -> LinksOptionsInput {
+  let config = load_config(context)
   {
-    account_id: merged_account_id(matches, config),
-    api_token: merged_api_token(matches, config),
-    url: merge_string(cli_string(matches, links_url_option), config.url),
-    html: merged_html(matches, links_html_option, config),
+    account_id: merged_account_id(context, config),
+    api_token: merged_api_token(context, config),
+    url: merge_string(cli_string(context, links_url_option), config.url),
+    html: merged_html(context, links_html_option, config),
     wait_until: merge_string(
-      cli_string(matches, links_wait_until_option),
+      cli_string(context, links_wait_until_option),
       config.wait_until,
     ),
     visible_only: merge_bool(
-      matches.flags.get(links_visible_only_option).unwrap_or(false),
+      context.get_bool(links_visible_only_option),
       config.visible_only,
       false,
     ),
     internal_only: merge_bool(
-      matches.flags.get(links_internal_only_option).unwrap_or(false),
+      context.get_bool(links_internal_only_option),
       config.internal_only,
       false,
     ),
@@ -180,8 +174,8 @@ fn LinksBody::from_options(options : LinksOptionsInput) -> LinksBody raise {
 }
 
 ///|
-async fn run_links(matches : @admiral.Context) -> Unit {
-  let options = links_options(matches)
+async fn run_links(context : @admiral.Context) -> Unit {
+  let options = links_options(context)
   let body = LinksBody::from_options(options)
   let (code, reason, data) = post_json(
     options.account_id,

@@ -1,8 +1,16 @@
 ///|
-let cleanup_dir_option = "dir"
+let cleanup_dir_option : @admiral.PositionDef[String] = @admiral.position_string(
+  "dir",
+  description="Base directory",
+  required=false,
+)
 
 ///|
-let cleanup_dry_run_option = "dry-run"
+let cleanup_dry_run_option : @admiral.OptionDef[Bool] = @admiral.bool(
+  "dry-run",
+  short='n',
+  description="Print removals without changing files",
+)
 
 ///|
 fn cleanup_command_def(
@@ -11,20 +19,8 @@ fn cleanup_command_def(
   @admiral.command(
     name="cleanup",
     description="Remove worktrees with merged or no PR",
-    positionals=[
-      @admiral.positional(
-        cleanup_dir_option,
-        description="Base directory",
-        required=false,
-      ),
-    ],
-    options=[
-      @admiral.bool(
-        cleanup_dry_run_option,
-        short='n',
-        description="Print removals without changing files",
-      ),
-    ],
+    positionals=[cleanup_dir_option],
+    options=[cleanup_dry_run_option],
     run=Some(run),
   )
 }
@@ -36,12 +32,12 @@ struct CleanupOptions {
 }
 
 ///|
-fn cleanup_options(matches : @admiral.Context) -> CleanupOptions {
-  let dir = match matches.values.get(cleanup_dir_option) {
-    Some([value, ..]) => value
-    _ => "."
+fn cleanup_options(context : @admiral.Context) -> CleanupOptions {
+  let dir = match context.get_string(cleanup_dir_option) {
+    Some(value) => value
+    None => "."
   }
-  { dir, dry_run: matches.flags.contains(cleanup_dry_run_option) }
+  { dir, dry_run: context.get_bool(cleanup_dry_run_option) }
 }
 
 ///|
@@ -62,8 +58,8 @@ fn removal_reason(pr : PrInfo, git : String) -> String? {
 }
 
 ///|
-async fn run_cleanup(matches : @admiral.Context) -> Unit {
-  let options = cleanup_options(matches)
+async fn run_cleanup(context : @admiral.Context) -> Unit {
+  let options = cleanup_options(context)
   let dir = options.dir
   let dry_run = options.dry_run
   let base = if dir == "." { @env.current_dir().unwrap_or(".") } else { dir }

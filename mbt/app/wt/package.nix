@@ -27,7 +27,7 @@ let
       name = "totto2727/wt";
       version = "0.1.0";
       deps = {
-        "totto2727/admiral" = "0.2.1";
+        "totto2727/admiral" = "0.3.0";
         "moonbitlang/async" = "0.19.2";
       };
       description = "Native MoonBit Git worktree manager with PR awareness";

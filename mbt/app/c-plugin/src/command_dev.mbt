@@ -1,5 +1,8 @@
 ///|
-let base_kind_arg = "base-kind"
+let base_kind_arg : @admiral.PositionDef[String] = @admiral.position_string(
+  "base-kind",
+  description="claude, cursor, or codex",
+)
 
 ///|
 fn dev_marketplace_sync_command_def(
@@ -8,9 +11,7 @@ fn dev_marketplace_sync_command_def(
   @admiral.command(
     name="sync",
     description="Regenerate marketplace manifests from a base kind",
-    positionals=[
-      @admiral.positional(base_kind_arg, description="claude, cursor, or codex"),
-    ],
+    positionals=[base_kind_arg],
     run=Some(run),
   )
 }
@@ -114,14 +115,7 @@ extend MarketplaceDocument with ToJson::{to_json}
 fn dev_marketplace_sync_options(
   context : @admiral.Context,
 ) -> DevMarketplaceSyncOptions raise {
-  let values = match context.values.get(base_kind_arg) {
-    Some(values) => values
-    None => fail("base kind is required")
-  }
-  let value = match values {
-    [value, ..] => value
-    [] => fail("base kind is required")
-  }
+  let value = context.get_string_required(base_kind_arg)
   let kind = marketplace_kind_from_string(value)
   { kind, }
 }

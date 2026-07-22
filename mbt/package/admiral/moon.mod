@@ -20,4 +20,6 @@ preferred_target = "native"
 
 source = "src"
 
-options(exclude: ["package.json", "vite.config.ts"])
+options(
+  exclude: [ "package.json", "vite.config.ts" ],
+)

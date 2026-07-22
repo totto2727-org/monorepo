@@ -1,20 +1,27 @@
 ///|
-let content_account_id_option = "account-id"
+let content_url_option : @admiral.OptionDef[String] = @admiral.string(
+  "url",
+  description="Target URL",
+)
 
 ///|
-let content_api_token_option = "api-token"
+let content_html_option : @admiral.OptionDef[String] = @admiral.string(
+  "html",
+  description="Path to local HTML file",
+)
 
 ///|
-let content_url_option = "url"
+let content_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
+  "wait-until",
+  description="Page load strategy",
+)
 
 ///|
-let content_html_option = "html"
-
-///|
-let content_wait_until_option = "wait-until"
-
-///|
-let content_output_option = "output"
+let content_output_option : @admiral.OptionDef[String] = @admiral.string(
+  "output",
+  short='o',
+  description="Output file path",
+)
 
 ///|
 struct ContentOptions {
@@ -87,48 +94,27 @@ fn content_command_def(
     name="content",
     description="Fetch rendered HTML",
     options=[
-      @admiral.string(
-        content_account_id_option,
-        description="Cloudflare account ID",
-      ),
-      @admiral.string(
-        content_api_token_option,
-        description="Cloudflare API token",
-      ),
-      @admiral.string(content_url_option, description="Target URL"),
-      @admiral.string(
-        content_html_option,
-        description="Path to local HTML file",
-      ),
-      @admiral.string(
-        content_wait_until_option,
-        description="Page load strategy",
-      ),
-      @admiral.string(
-        content_output_option,
-        short='o',
-        description="Output file path",
-      ),
-      @admiral.string(config_option, description="Path to JSON config file"),
+      account_id_option, api_token_option, content_url_option, content_html_option,
+      content_wait_until_option, content_output_option, config_option,
     ],
     run=Some(run),
   )
 }
 
 ///|
-async fn content_options(matches : @admiral.Context) -> ContentOptions {
-  let config = load_config(matches)
+async fn content_options(context : @admiral.Context) -> ContentOptions {
+  let config = load_config(context)
   {
-    account_id: merged_account_id(matches, config),
-    api_token: merged_api_token(matches, config),
-    url: merge_string(cli_string(matches, content_url_option), config.url),
-    html: merged_html(matches, content_html_option, config),
+    account_id: merged_account_id(context, config),
+    api_token: merged_api_token(context, config),
+    url: merge_string(cli_string(context, content_url_option), config.url),
+    html: merged_html(context, content_html_option, config),
     wait_until: merge_string(
-      cli_string(matches, content_wait_until_option),
+      cli_string(context, content_wait_until_option),
       config.wait_until,
     ),
     output: merge_string(
-      cli_string(matches, content_output_option),
+      cli_string(context, content_output_option),
       config.output,
     ),
   }
@@ -148,8 +134,8 @@ fn ContentBody::from_options(options : ContentOptions) -> ContentBody raise {
 }
 
 ///|
-async fn run_content_command(matches : @admiral.Context) -> Unit {
-  let options = content_options(matches)
+async fn run_content_command(context : @admiral.Context) -> Unit {
+  let options = content_options(context)
   let body = ContentBody::from_options(options)
   let (code, reason, data) = post_json(
     options.account_id,
