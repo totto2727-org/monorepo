@@ -4,7 +4,10 @@ fn has_short(opt : StoredOption) -> Bool {
 }
 
 ///|
-fn build_option_to_flag(opt : StoredOption) -> @argparse.FlagArg {
+fn build_option_to_flag(
+  opt : StoredOption,
+  global? : Bool = false,
+) -> @argparse.FlagArg {
   let metadata = opt.metadata
   let env = metadata.env.map(fn(value) { value[:] })
   if has_short(opt) {
@@ -13,14 +16,18 @@ fn build_option_to_flag(opt : StoredOption) -> @argparse.FlagArg {
       short=metadata.short,
       about=metadata.description,
       env?,
+      global~,
     )
   } else {
-    @argparse.FlagArg(opt.name, about=metadata.description, env?)
+    @argparse.FlagArg(opt.name, about=metadata.description, env?, global~)
   }
 }
 
 ///|
-fn build_option_to_option_arg(opt : StoredOption) -> @argparse.OptionArg {
+fn build_option_to_option_arg(
+  opt : StoredOption,
+  global? : Bool = false,
+) -> @argparse.OptionArg {
   let metadata = opt.metadata
   let env = metadata.env.map(fn(value) { value[:] })
   let action = if metadata.multiple {
@@ -36,6 +43,7 @@ fn build_option_to_option_arg(opt : StoredOption) -> @argparse.OptionArg {
         about=metadata.description,
         action~,
         env?,
+        global~,
         default_values=[dv],
       )
     (true, None, true) =>
@@ -45,6 +53,7 @@ fn build_option_to_option_arg(opt : StoredOption) -> @argparse.OptionArg {
         about=metadata.description,
         action~,
         env?,
+        global~,
         required=true,
       )
     (true, None, false) =>
@@ -54,21 +63,34 @@ fn build_option_to_option_arg(opt : StoredOption) -> @argparse.OptionArg {
         about=metadata.description,
         action~,
         env?,
+        global~,
       )
     (false, Some(dv), _) =>
-      @argparse.OptionArg(opt.name, about=metadata.description, action~, env?, default_values=[
-        dv,
-      ])
+      @argparse.OptionArg(
+        opt.name,
+        about=metadata.description,
+        action~,
+        env?,
+        global~,
+        default_values=[dv],
+      )
     (false, None, true) =>
       @argparse.OptionArg(
         opt.name,
         about=metadata.description,
         action~,
         env?,
+        global~,
         required=true,
       )
     (false, None, false) =>
-      @argparse.OptionArg(opt.name, about=metadata.description, action~, env?)
+      @argparse.OptionArg(
+        opt.name,
+        about=metadata.description,
+        action~,
+        env?,
+        global~,
+      )
   }
 }
 

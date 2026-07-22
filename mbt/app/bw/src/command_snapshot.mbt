@@ -2,18 +2,21 @@
 let snapshot_url_option : @admiral.OptionDef[String] = @admiral.string(
   "url",
   description="Target URL",
+  env=url_config_env,
 )
 
 ///|
 let snapshot_html_option : @admiral.OptionDef[String] = @admiral.string(
   "html",
   description="Path to local HTML file",
+  env=html_config_env,
 )
 
 ///|
 let snapshot_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
   "wait-until",
   description="Page load strategy",
+  env=wait_until_config_env,
 )
 
 ///|
@@ -21,12 +24,15 @@ let snapshot_output_option : @admiral.OptionDef[String] = @admiral.string(
   "output",
   short='o',
   description="Output directory",
+  env=output_config_env,
+  required=true,
 )
 
 ///|
 let snapshot_full_page_option : @admiral.OptionDef[Bool] = @admiral.bool(
   "full-page",
   description="Capture entire page",
+  env=full_page_config_env,
 )
 
 ///|
@@ -125,7 +131,6 @@ fn snapshot_command_def(
     options=[
       account_id_option, api_token_option, snapshot_url_option, snapshot_html_option,
       snapshot_wait_until_option, snapshot_output_option, snapshot_full_page_option,
-      config_option,
     ],
     run=Some(run),
   )
@@ -133,25 +138,14 @@ fn snapshot_command_def(
 
 ///|
 async fn snapshot_options(context : @admiral.Context) -> SnapshotOptionsInput {
-  let config = load_config(context)
   {
-    account_id: merged_account_id(context, config),
-    api_token: merged_api_token(context, config),
-    url: merge_string(cli_string(context, snapshot_url_option), config.url),
-    html: merged_html(context, snapshot_html_option, config),
-    wait_until: merge_string(
-      cli_string(context, snapshot_wait_until_option),
-      config.wait_until,
-    ),
-    output: required_value(
-      "output",
-      merge_string(cli_string(context, snapshot_output_option), config.output),
-    ),
-    full_page: merge_bool(
-      context.get_bool(snapshot_full_page_option),
-      config.full_page,
-      false,
-    ),
+    account_id: context.get_string_required(account_id_option),
+    api_token: context.get_string_required(api_token_option),
+    url: context.get_string(snapshot_url_option),
+    html: read_optional_file(context.get_string(snapshot_html_option)),
+    wait_until: context.get_string(snapshot_wait_until_option),
+    output: context.get_string_required(snapshot_output_option),
+    full_page: context.get_bool(snapshot_full_page_option),
   }
 }
 

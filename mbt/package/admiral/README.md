@@ -159,6 +159,8 @@ The generated schema contains only the configured environment variable name; it 
 Each helper returns a typed, read-only definition such as `OptionDef[String]`, `OptionDef[Bool]`, or `OptionDef[Int]`.
 Pass the same definition to `command` or `cli` and to the matching `Context` getter; this makes the option name a single source of truth and causes mismatched getters to fail at compile time.
 
+Options passed to `cli(options=[...])` are global. They may appear before or after a subcommand, are inherited by nested subcommands, and are available through the same typed definition in the selected leaf command's `Context`.
+
 ### Configuration
 
 Pass an optional argument-less `load_config` callback to `cli`.
@@ -489,7 +491,7 @@ myapp completion --shell fish > ~/.config/fish/completions/myapp.fish
 | Function                                                                             | Description                                                 |
 | ------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
 | `command(name, description?, options?, positionals?, examples?, subcommands?, run?)` | Define a command or subcommand with an async `run` callback |
-| `cli(name, version?, description?, options?, commands?)`                             | Create a CLI app                                            |
+| `cli(name, version?, description?, options?, commands?, load_config?)`               | Create a CLI app with global options                        |
 
 ### Context Methods
 

@@ -459,6 +459,44 @@ async test "config load failure propagates before command execution" {
 }
 
 ///|
+async test "CliApp run - root option is available in subcommand context" {
+  let captured = Ref("")
+  let config = string("config")
+  let app = cli(name="test-app", options=[config], commands=[
+    command(
+      name="show",
+      run=Some(fn(ctx) { captured.val = ctx.get_string(config).unwrap_or("") }),
+    ),
+  ])
+  app.run(argv=Some(["show", "--config", "after-command.json"]), env=Map([]))
+  inspect(captured.val, content="after-command.json")
+}
+
+///|
+async test "CliApp run - root option propagates through nested subcommands" {
+  let captured = Ref("")
+  let config = string("config")
+  let app = cli(name="test-app", options=[config], commands=[
+    command(name="group", subcommands=[
+      command(
+        name="show",
+        run=Some(fn(ctx) { captured.val = ctx.get_string(config).unwrap_or("") }),
+      ),
+    ]),
+  ])
+  app.run(
+    argv=Some(["--config", "before-command.json", "group", "show"]),
+    env=Map([]),
+  )
+  inspect(captured.val, content="before-command.json")
+  app.run(
+    argv=Some(["group", "show", "--config", "after-command.json"]),
+    env=Map([]),
+  )
+  inspect(captured.val, content="after-command.json")
+}
+
+///|
 async test "cli run with bool flag" {
   let was_verbose = Ref(false)
   let verbose = bool("verbose", short='v', description="Verbose")

@@ -2,30 +2,35 @@
 let links_url_option : @admiral.OptionDef[String] = @admiral.string(
   "url",
   description="Target URL",
+  env=url_config_env,
 )
 
 ///|
 let links_html_option : @admiral.OptionDef[String] = @admiral.string(
   "html",
   description="Path to local HTML file",
+  env=html_config_env,
 )
 
 ///|
 let links_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
   "wait-until",
   description="Page load strategy",
+  env=wait_until_config_env,
 )
 
 ///|
 let links_visible_only_option : @admiral.OptionDef[Bool] = @admiral.bool(
   "visible-only",
   description="Only visible links",
+  env=visible_only_config_env,
 )
 
 ///|
 let links_internal_only_option : @admiral.OptionDef[Bool] = @admiral.bool(
   "internal-only",
   description="Only same-domain links",
+  env=internal_only_config_env,
 )
 
 ///|
@@ -119,7 +124,7 @@ fn links_command_def(
     description="Retrieve links",
     options=[
       account_id_option, api_token_option, links_url_option, links_html_option, links_wait_until_option,
-      links_visible_only_option, links_internal_only_option, config_option,
+      links_visible_only_option, links_internal_only_option,
     ],
     run=Some(run),
   )
@@ -127,26 +132,14 @@ fn links_command_def(
 
 ///|
 async fn links_options(context : @admiral.Context) -> LinksOptionsInput {
-  let config = load_config(context)
   {
-    account_id: merged_account_id(context, config),
-    api_token: merged_api_token(context, config),
-    url: merge_string(cli_string(context, links_url_option), config.url),
-    html: merged_html(context, links_html_option, config),
-    wait_until: merge_string(
-      cli_string(context, links_wait_until_option),
-      config.wait_until,
-    ),
-    visible_only: merge_bool(
-      context.get_bool(links_visible_only_option),
-      config.visible_only,
-      false,
-    ),
-    internal_only: merge_bool(
-      context.get_bool(links_internal_only_option),
-      config.internal_only,
-      false,
-    ),
+    account_id: context.get_string_required(account_id_option),
+    api_token: context.get_string_required(api_token_option),
+    url: context.get_string(links_url_option),
+    html: read_optional_file(context.get_string(links_html_option)),
+    wait_until: context.get_string(links_wait_until_option),
+    visible_only: context.get_bool(links_visible_only_option),
+    internal_only: context.get_bool(links_internal_only_option),
   }
 }
 

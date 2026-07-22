@@ -2,18 +2,21 @@
 let crawl_url_option : @admiral.OptionDef[String] = @admiral.string(
   "url",
   description="Target URL",
+  env=url_config_env,
 )
 
 ///|
 let crawl_html_option : @admiral.OptionDef[String] = @admiral.string(
   "html",
   description="Path to local HTML file",
+  env=html_config_env,
 )
 
 ///|
 let crawl_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
   "wait-until",
   description="Page load strategy",
+  env=wait_until_config_env,
 )
 
 ///|
@@ -21,30 +24,36 @@ let crawl_output_option : @admiral.OptionDef[String] = @admiral.string(
   "output",
   short='o',
   description="Output file path",
+  env=output_config_env,
 )
 
 ///|
 let crawl_limit_option : @admiral.OptionDef[Int] = @admiral.int(
   "limit",
   description="Max pages to crawl",
+  env=limit_config_env,
 )
 
 ///|
 let crawl_depth_option : @admiral.OptionDef[Int] = @admiral.int(
   "depth",
   description="Max link depth",
+  env=depth_config_env,
 )
 
 ///|
-let crawl_format_option : @admiral.OptionDef[String] = @admiral.string(
+let crawl_format_option : @admiral.OptionDef[Array[String]] = @admiral.strings(
   "format",
   description="Output formats: html,markdown,json",
+  env=formats_config_env,
 )
 
 ///|
 let crawl_id_option : @admiral.OptionDef[String] = @admiral.string(
   "id",
   description="Crawl job ID",
+  env=id_config_env,
+  required=true,
 )
 
 ///|
@@ -161,16 +170,14 @@ fn crawl_command_def(
       options=[
         account_id_option, api_token_option, crawl_url_option, crawl_html_option,
         crawl_wait_until_option, crawl_output_option, crawl_limit_option, crawl_depth_option,
-        crawl_format_option, config_option,
+        crawl_format_option,
       ],
       run=Some(run_start),
     ),
     @admiral.command(
       name="status",
       description="Check crawl job status",
-      options=[
-        account_id_option, api_token_option, crawl_id_option, config_option,
-      ],
+      options=[account_id_option, api_token_option, crawl_id_option],
       run=Some(run_status),
     ),
     @admiral.command(
@@ -178,7 +185,6 @@ fn crawl_command_def(
       description="Retrieve crawl results",
       options=[
         account_id_option, api_token_option, crawl_id_option, crawl_output_option,
-        config_option,
       ],
       run=Some(run_results),
     ),
@@ -194,29 +200,20 @@ fn split_csv(value : String) -> Array[String] {
 async fn crawl_start_options(
   context : @admiral.Context,
 ) -> CrawlStartOptionsInput {
-  let config = load_config(context)
   {
-    account_id: merged_account_id(context, config),
-    api_token: merged_api_token(context, config),
-    url: merge_string(cli_string(context, crawl_url_option), config.url),
-    html: merged_html(context, crawl_html_option, config),
-    wait_until: merge_string(
-      cli_string(context, crawl_wait_until_option),
-      config.wait_until,
-    ),
-    output: merge_string(
-      cli_string(context, crawl_output_option),
-      config.output,
-    ),
-    limit: merge_int(cli_int(context, crawl_limit_option), config.limit),
-    depth: merge_int(cli_int(context, crawl_depth_option), config.depth),
-    formats: merge_string_array(
-      match cli_string(context, crawl_format_option) {
-        Some(value) => Some(split_csv(value))
-        None => None
-      },
-      config.formats,
-    ),
+    account_id: context.get_string_required(account_id_option),
+    api_token: context.get_string_required(api_token_option),
+    url: context.get_string(crawl_url_option),
+    html: read_optional_file(context.get_string(crawl_html_option)),
+    wait_until: context.get_string(crawl_wait_until_option),
+    output: context.get_string(crawl_output_option),
+    limit: context.get_int(crawl_limit_option),
+    depth: context.get_int(crawl_depth_option),
+    formats: context
+    .get_strings(crawl_format_option)
+    .map(fn(values) {
+      values.iter().flat_map(fn(value) { split_csv(value).iter() }).collect()
+    }),
   }
 }
 
@@ -253,19 +250,12 @@ async fn run_crawl_start(context : @admiral.Context) -> Unit {
 }
 
 ///|
-async fn crawl_get_options(context : @admiral.Context) -> CrawlGetOptionsInput {
-  let config = load_config(context)
+fn crawl_get_options(context : @admiral.Context) -> CrawlGetOptionsInput raise {
   {
-    account_id: merged_account_id(context, config),
-    api_token: merged_api_token(context, config),
-    id: required_value(
-      "id",
-      merge_string(cli_string(context, crawl_id_option), config.id),
-    ),
-    output: merge_string(
-      cli_string(context, crawl_output_option),
-      config.output,
-    ),
+    account_id: context.get_string_required(account_id_option),
+    api_token: context.get_string_required(api_token_option),
+    id: context.get_string_required(crawl_id_option),
+    output: context.get_string(crawl_output_option),
   }
 }
 
