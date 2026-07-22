@@ -1,17 +1,14 @@
 ///|
-test "parse_config_object - converts typed values to Admiral environment values" {
+test "parse_config_object - converts scalar properties and ignores arrays" {
   let raw =
     #|{
-    #|  "account_id": "acct",
-    #|  "api_token": "token",
-    #|  "url": "https://example.com",
-    #|  "wait_until": "networkidle",
-    #|  "output": "out.png",
-    #|  "full_page": true,
-    #|  "width": 1024,
-    #|  "height": 768,
-    #|  "format": "markdown",
-    #|  "formats": ["html", "markdown"]
+    #|  "CLOUDFLARE_ACCOUNT_ID": "acct",
+    #|  "BW_URL": "https://example.com",
+    #|  "BW_FULL_PAGE": true,
+    #|  "BW_WIDTH": 1024,
+    #|  "BW_CRAWL_FORMATS": ["html", "markdown"],
+    #|  "CUSTOM_OBJECT": { "enabled": true },
+    #|  "CUSTOM_NULL": null
     #|}
   let parsed = @json.parse(raw)
   let config = match parsed {
@@ -19,15 +16,12 @@ test "parse_config_object - converts typed values to Admiral environment values"
     _ => fail("expected object")
   }
   assert_eq(config.get(account_id_config_env), Some("acct"))
-  assert_eq(config.get(api_token_config_env), Some("token"))
   assert_eq(config.get(url_config_env), Some("https://example.com"))
-  assert_eq(config.get(wait_until_config_env), Some("networkidle"))
-  assert_eq(config.get(output_config_env), Some("out.png"))
   assert_eq(config.get(full_page_config_env), Some("true"))
   assert_eq(config.get(width_config_env), Some("1024"))
-  assert_eq(config.get(height_config_env), Some("768"))
-  assert_eq(config.get(format_config_env), Some("markdown"))
-  assert_eq(config.get(formats_config_env), Some("html,markdown"))
+  assert_eq(config.get(formats_config_env), None)
+  assert_eq(config.get("CUSTOM_OBJECT"), Some("{\"enabled\":true}"))
+  assert_eq(config.get("CUSTOM_NULL"), Some("null"))
 }
 
 ///|

@@ -120,94 +120,24 @@ fn config_loader_args(process_args : Array[String]) -> ConfigLoaderArgs {
 }
 
 ///|
-fn insert_config_string(
-  values : Map[String, String],
-  object : Map[String, Json],
-  key : String,
-  env : String,
-) -> Unit raise {
-  match object.get(key) {
-    Some(String(value)) => values[env] = value
-    Some(_) => fail("config key '\{key}' must be a string")
-    None => ()
+fn config_value_to_string(value : Json) -> String? {
+  match value {
+    Array(_) => None
+    String(value) => Some(value)
+    _ => Some(value.stringify())
   }
 }
 
 ///|
-fn insert_config_bool(
-  values : Map[String, String],
-  object : Map[String, Json],
-  key : String,
-  env : String,
-) -> Unit raise {
-  match object.get(key) {
-    Some(True) => values[env] = "true"
-    Some(False) => values[env] = "false"
-    Some(_) => fail("config key '\{key}' must be a boolean")
-    None => ()
-  }
-}
-
-///|
-fn insert_config_int(
-  values : Map[String, String],
-  object : Map[String, Json],
-  key : String,
-  env : String,
-) -> Unit raise {
-  match object.get(key) {
-    Some(Number(value, ..)) => values[env] = value.to_int().to_string()
-    Some(_) => fail("config key '\{key}' must be a number")
-    None => ()
-  }
-}
-
-///|
-fn insert_config_strings(
-  values : Map[String, String],
-  object : Map[String, Json],
-  key : String,
-  env : String,
-) -> Unit raise {
-  match object.get(key) {
-    Some(Array(items)) => {
-      let strings : Array[String] = []
-      for item in items {
-        match item {
-          String(value) => strings.push(value)
-          _ => fail("config key '\{key}' must contain only strings")
-        }
-      }
-      values[env] = strings.join(",")
-    }
-    Some(_) => fail("config key '\{key}' must be an array of strings")
-    None => ()
-  }
-}
-
-///|
-fn parse_config_object(object : Map[String, Json]) -> Map[String, String] raise {
+fn parse_config_object(object : Map[String, Json]) -> Map[String, String] {
   let values : Map[String, String] = Map([])
-  insert_config_string(values, object, "account_id", account_id_config_env)
-  insert_config_string(values, object, "api_token", api_token_config_env)
-  insert_config_string(values, object, "url", url_config_env)
-  insert_config_string(values, object, "html", html_config_env)
-  insert_config_string(values, object, "wait_until", wait_until_config_env)
-  insert_config_string(values, object, "output", output_config_env)
-  insert_config_bool(values, object, "full_page", full_page_config_env)
-  insert_config_int(values, object, "width", width_config_env)
-  insert_config_int(values, object, "height", height_config_env)
-  insert_config_bool(values, object, "landscape", landscape_config_env)
-  insert_config_string(values, object, "format", format_config_env)
-  insert_config_string(values, object, "selector", selector_config_env)
-  insert_config_string(values, object, "prompt", prompt_config_env)
-  insert_config_string(values, object, "schema", schema_config_env)
-  insert_config_string(values, object, "id", id_config_env)
-  insert_config_int(values, object, "limit", limit_config_env)
-  insert_config_int(values, object, "depth", depth_config_env)
-  insert_config_strings(values, object, "formats", formats_config_env)
-  insert_config_bool(values, object, "visible_only", visible_only_config_env)
-  insert_config_bool(values, object, "internal_only", internal_only_config_env)
+  for entry in object.iter() {
+    let (key, value) = entry
+    match config_value_to_string(value) {
+      Some(value) => values[key] = value
+      None => ()
+    }
+  }
   values
 }
 
@@ -256,10 +186,7 @@ async fn load_config(
       )
   }
   match parsed {
-    Object(object) =>
-      parse_config_object(object) catch {
-        error => raise @admiral.ConfigLoadFailure(error.to_string())
-      }
+    Object(object) => parse_config_object(object)
     _ =>
       raise @admiral.ConfigLoadFailure("config file must contain a JSON object")
   }

@@ -23,22 +23,22 @@ Configuration is loaded through Admiral's environment-backed config map. Values 
 
 Credentials use `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. Other config-backed options use `BW_URL`, `BW_HTML`, `BW_WAIT_UNTIL`, `BW_OUTPUT`, `BW_FULL_PAGE`, `BW_WIDTH`, `BW_HEIGHT`, `BW_LANDSCAPE`, `BW_FORMAT`, `BW_SELECTOR`, `BW_PROMPT`, `BW_SCHEMA`, `BW_CRAWL_ID`, `BW_CRAWL_LIMIT`, `BW_CRAWL_DEPTH`, `BW_CRAWL_FORMATS`, `BW_VISIBLE_ONLY`, and `BW_INTERNAL_ONLY`.
 
-Config keys use snake_case names matching the CLI options. `html` and `schema` are file paths, the same as their CLI options.
-The `formats` config array is normalized through the same plural option path as repeated `--format` values; comma-separated values remain supported.
+Config keys are the environment-variable names declared by the CLI options. Values are converted mechanically to Admiral's `Map[String, String]`: strings are preserved, arrays are ignored because argparse does not accept array-valued environment input, and other JSON values use their compact JSON representation. Unknown keys are preserved without application-specific handling. `BW_HTML` and `BW_SCHEMA` are file paths, the same as their CLI options.
+For multiple crawl formats, use a comma-separated scalar string such as `"BW_CRAWL_FORMATS": "html,markdown"` or repeat `--format` on the command line.
 
 `json` prints the Cloudflare JSON response by default. Use `--format markdown` or `--format text` to print the extracted `result` as unstyled plain text for redirection.
 
 ```json
 {
-  "account_id": "your-account-id",
-  "api_token": "your-api-token",
-  "url": "https://example.com",
-  "wait_until": "networkidle",
-  "output": "page.png",
-  "full_page": true,
-  "width": 1280,
-  "height": 720,
-  "format": "markdown",
-  "formats": ["html", "markdown"]
+  "CLOUDFLARE_ACCOUNT_ID": "your-account-id",
+  "CLOUDFLARE_API_TOKEN": "your-api-token",
+  "BW_URL": "https://example.com",
+  "BW_WAIT_UNTIL": "networkidle",
+  "BW_OUTPUT": "page.png",
+  "BW_FULL_PAGE": true,
+  "BW_WIDTH": 1280,
+  "BW_HEIGHT": 720,
+  "BW_FORMAT": "markdown",
+  "BW_CRAWL_FORMATS": "html,markdown"
 }
 ```
