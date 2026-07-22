@@ -87,6 +87,7 @@
                   # Coding
                   "zed"
                   "orbstack"
+                  "chatgpt"
                   # Game
                   "heroic"
                   # Utility
