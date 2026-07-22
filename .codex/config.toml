@@ -1,3 +1,4 @@
 [mcp_servers.linear]
 command = "linear-mcp"
 args = []
+
