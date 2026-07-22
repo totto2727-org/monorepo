@@ -282,6 +282,13 @@
         "vite-plus": "catalog:",
       },
     },
+    "mbt/package/admiral": {
+      "name": "@totto2727/admiral",
+      "version": "0.0.0",
+      "devDependencies": {
+        "vite-plus": "catalog:",
+      },
+    },
     "mbt/package/geo-mbt": {
       "name": "@totto2727/geo-mbt",
       "version": "0.0.0",
@@ -1146,6 +1153,8 @@
     "@testing-library/dom": ["@testing-library/dom@10.4.1", "https://npm.flatt.tech/@testing-library/dom/-/dom-10.4.1.tgz", { "dependencies": { "@babel/code-frame": "^7.10.4", "@babel/runtime": "^7.12.5", "@types/aria-query": "^5.0.1", "aria-query": "5.3.0", "dom-accessibility-api": "^0.5.9", "lz-string": "^1.5.0", "picocolors": "1.1.1", "pretty-format": "^27.0.2" } }, "sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg=="],
 
     "@testing-library/user-event": ["@testing-library/user-event@14.6.1", "https://npm.flatt.tech/@testing-library/user-event/-/user-event-14.6.1.tgz", { "peerDependencies": { "@testing-library/dom": ">=7.21.4" } }, "sha512-vq7fv0rnt+QTXgPxr5Hjc210p6YKq2kmdziLgnsZGgLJ9e6VAShx1pACLuRjd/AS/sr7phAR58OIIpf0LlmQNw=="],
+
+    "@totto2727/admiral": ["@totto2727/admiral@workspace:mbt/package/admiral"],
 
     "@totto2727/bw": ["@totto2727/bw@workspace:mbt/app/bw"],
 
