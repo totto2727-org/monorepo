@@ -1,4 +1,5 @@
 members = [
+  "./mbt/package/admiral",
   "./mbt/package/geo-mbt",
   "./mbt/package/target-file-discovery",
   "./mbt/app/bw",
