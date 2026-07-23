@@ -27,7 +27,7 @@ Pick assertion APIs deliberately. Mixing styles without a rule produces tests th
 | Bool predicate (`is_X`, `has_X`, `contains_X`, derived `==` / `!=`) | `assert_true(predicate)` / `assert_false(...)` | Reads as "the predicate holds"                                                                |
 | Equality of a value whose type lacks `Show` and `Debug` derives     | `assert_true(actual == expected)`              | Last resort; prefer adding `Debug` to the type if you control it                              |
 | Function intended to panic / abort                                  | `panic_` test prefix + `expr \|> ignore`       | The runner only passes if the panic actually fires                                            |
-| Raising function expected to fail                                   | `panic_` prefix + `try! (expr \|> ignore)`     | `try!` converts the raised error to the panic required by the test runner                      |
+| Raising function expected to fail                                   | `panic_` prefix + `try! (expr \|> ignore)`     | `try!` converts the raised error to the panic required by the test runner                     |
 
 ### Direct results and raised errors
 

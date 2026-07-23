@@ -464,21 +464,21 @@ myapp completion --shell fish > ~/.config/fish/completions/myapp.fish
 
 ### Option Helpers
 
-| Function                                                                          | Description                                     |
-| --------------------------------------------------------------------------------- | ----------------------------------------------- |
-| `string(name, short?, description?, env?, config?, required?, default?)`          | String option (`--name value`)                  |
-| `strings(name, short?, description?, env?, config?, required?)`                   | Repeated string option                          |
-| `bool(name, short?, description?, env?, config?)`                                 | Boolean flag (`--verbose`)                      |
-| `int(name, short?, description?, env?, config?, required?, default?)`             | Integer option (`--port 8080`)                  |
-| `ints(name, short?, description?, env?, config?, required?)`                      | Repeated integer option                         |
-| `int64(name, short?, description?, env?, config?, required?, default?)`           | 64-bit signed integer option                    |
-| `int64s(name, short?, description?, env?, config?, required?)`                    | Repeated 64-bit signed integer option           |
-| `uint(name, short?, description?, env?, config?, required?, default?)`            | Unsigned integer option                         |
-| `uints(name, short?, description?, env?, config?, required?)`                     | Repeated unsigned integer option                |
-| `uint64(name, short?, description?, env?, config?, required?, default?)`          | 64-bit unsigned integer option                  |
-| `uint64s(name, short?, description?, env?, config?, required?)`                   | Repeated 64-bit unsigned integer option         |
-| `double(name, short?, description?, env?, config?, required?, default?)`          | Double-precision floating-point option          |
-| `doubles(name, short?, description?, env?, config?, required?)`                   | Repeated double-precision floating-point option |
+| Function                                                                 | Description                                     |
+| ------------------------------------------------------------------------ | ----------------------------------------------- |
+| `string(name, short?, description?, env?, config?, required?, default?)` | String option (`--name value`)                  |
+| `strings(name, short?, description?, env?, config?, required?)`          | Repeated string option                          |
+| `bool(name, short?, description?, env?, config?)`                        | Boolean flag (`--verbose`)                      |
+| `int(name, short?, description?, env?, config?, required?, default?)`    | Integer option (`--port 8080`)                  |
+| `ints(name, short?, description?, env?, config?, required?)`             | Repeated integer option                         |
+| `int64(name, short?, description?, env?, config?, required?, default?)`  | 64-bit signed integer option                    |
+| `int64s(name, short?, description?, env?, config?, required?)`           | Repeated 64-bit signed integer option           |
+| `uint(name, short?, description?, env?, config?, required?, default?)`   | Unsigned integer option                         |
+| `uints(name, short?, description?, env?, config?, required?)`            | Repeated unsigned integer option                |
+| `uint64(name, short?, description?, env?, config?, required?, default?)` | 64-bit unsigned integer option                  |
+| `uint64s(name, short?, description?, env?, config?, required?)`          | Repeated 64-bit unsigned integer option         |
+| `double(name, short?, description?, env?, config?, required?, default?)` | Double-precision floating-point option          |
+| `doubles(name, short?, description?, env?, config?, required?)`          | Repeated double-precision floating-point option |
 
 ### Position Helpers
 
