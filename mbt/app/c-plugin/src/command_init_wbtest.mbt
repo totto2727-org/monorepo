@@ -1,4 +1,16 @@
 ///|
+test "init_options - reads the global flag" {
+  let context : @admiral.Context = {
+    flags: { "global": true },
+    values: Map([]),
+    sources: Map([]),
+    config: Map([]),
+    subcommand: None,
+  }
+  inspect(init_options(context).global, content="true")
+}
+
+///|
 async test "init_lock_file creates agents directory and empty lock file" {
   let root = @fs.tmpdir(prefix="c-plugin-init-test-")
   let lock_path = init_lock_file(root)

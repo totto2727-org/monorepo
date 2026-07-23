@@ -2,21 +2,24 @@
 let screenshot_url_option : @admiral.OptionDef[String] = @admiral.string(
   "url",
   description="Target URL",
-  env=url_config_env,
+  env=url_env,
+  config="url",
 )
 
 ///|
 let screenshot_html_option : @admiral.OptionDef[String] = @admiral.string(
   "html",
   description="Path to local HTML file",
-  env=html_config_env,
+  env=html_env,
+  config="html",
 )
 
 ///|
 let screenshot_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
   "wait-until",
   description="Page load strategy",
-  env=wait_until_config_env,
+  env=wait_until_env,
+  config="wait_until",
 )
 
 ///|
@@ -24,7 +27,8 @@ let screenshot_output_option : @admiral.OptionDef[String] = @admiral.string(
   "output",
   short='o',
   description="Output file path",
-  env=output_config_env,
+  env=output_env,
+  config="output",
   required=true,
 )
 
@@ -32,21 +36,24 @@ let screenshot_output_option : @admiral.OptionDef[String] = @admiral.string(
 let screenshot_full_page_option : @admiral.OptionDef[Bool] = @admiral.bool(
   "full-page",
   description="Capture entire page",
-  env=full_page_config_env,
+  env=full_page_env,
+  config="full_page",
 )
 
 ///|
 let screenshot_width_option : @admiral.OptionDef[Int] = @admiral.int(
   "width",
   description="Viewport width",
-  env=width_config_env,
+  env=width_env,
+  config="width",
 )
 
 ///|
 let screenshot_height_option : @admiral.OptionDef[Int] = @admiral.int(
   "height",
   description="Viewport height",
-  env=height_config_env,
+  env=height_env,
+  config="height",
 )
 
 ///|

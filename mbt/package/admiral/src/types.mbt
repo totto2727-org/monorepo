@@ -44,6 +44,7 @@ pub struct PositionMetadata {
 ///|
 pub struct ArgDef[_, Metadata] {
   name : String
+  config : String?
   metadata : Metadata
 } derive(Debug)
 
@@ -52,6 +53,13 @@ pub type OptionDef[T] = ArgDef[T, OptionMetadata]
 
 ///|
 pub type PositionDef[T] = ArgDef[T, PositionMetadata]
+
+///|
+pub struct NonEmptyArray[T] {
+  first : T
+  rest : ArrayView[T]
+  all : Array[T]
+} derive(Debug)
 
 ///|
 type StoredOption = ArgDef[Unit, OptionMetadata]
@@ -68,7 +76,7 @@ trait ToStoredOption {
 pub impl[T] ToStoredOption for ArgDef[T, OptionMetadata] with fn to_stored_option(
   self,
 ) {
-  { name: self.name, metadata: self.metadata }
+  { name: self.name, config: self.config, metadata: self.metadata }
 }
 
 ///|
@@ -80,7 +88,7 @@ trait ToStoredPosition {
 pub impl[T] ToStoredPosition for ArgDef[T, PositionMetadata] with fn to_stored_position(
   self,
 ) {
-  { name: self.name, metadata: self.metadata }
+  { name: self.name, config: self.config, metadata: self.metadata }
 }
 
 ///|
@@ -110,6 +118,8 @@ pub impl Show for ConfigLoadFailure with fn output(self, logger) {
 pub(all) struct Context {
   flags : Map[String, Bool]
   values : Map[String, Array[String]]
+  sources : Map[String, @argparse.ValueSource]
+  config : Map[String, Json]
   subcommand : (String, Context)?
 }
 
@@ -120,5 +130,5 @@ pub(all) struct CliApp {
   description : String
   root_options : Array[StoredOption]
   commands : Array[CommandDef]
-  load_config : (() -> Map[String, String] raise ConfigLoadFailure)?
+  load_config : (() -> Map[String, Json] raise ConfigLoadFailure)?
 }

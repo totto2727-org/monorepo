@@ -7,7 +7,7 @@ This package is a fork of [mizchi/admiral](https://github.com/mizchi/admiral). I
 A native-first wrapper around `moonbitlang/core/argparse` that provides:
 
 - Typed option helpers (`string`, `bool`, `int`, `int64`, `uint`, `uint64`, `double`, `positional`)
-- Optional configuration loading through the standard env path
+- Optional configuration loading through independent config keys
 - Async `run` callbacks for commands and nested subcommands
 - Structured JSON schema output for AI agent integration
 - Shell completion generation (bash, zsh, fish)
@@ -19,7 +19,7 @@ Add to `moon.mod`:
 
 ```moonbit
 import {
-  "totto2727/admiral@0.3.0",
+  "totto2727/admiral@0.4.0",
   "moonbitlang/async@0.19.2",
 }
 
@@ -44,6 +44,7 @@ async fn main {
     short='n',
     description="Name to greet",
     env="ADMIRAL_NAME",
+    config="name",
     required=true,
   )
   let verbose = @admiral.bool("verbose", short='v', description="Verbose output")
@@ -107,22 +108,22 @@ Options and positions use the same value types and `Context` getters:
 
 ```moonbit
 // String option: --name value or -n value
-@admiral.string("name", short='n', description="User name", env="MYAPP_NAME", required=true)
+@admiral.string("name", short='n', description="User name", env="MYAPP_NAME", config="name", required=true)
 
 // Bool flag: --verbose or -v
-@admiral.bool("verbose", short='v', description="Verbose output", env="MYAPP_VERBOSE")
+@admiral.bool("verbose", short='v', description="Verbose output", env="MYAPP_VERBOSE", config="verbose")
 
 // Int option: --port 8080 or -p 8080
-@admiral.int("port", short='p', description="Port number", env="MYAPP_PORT", default=Some(3000))
+@admiral.int("port", short='p', description="Port number", env="MYAPP_PORT", config="port", default=Some(3000))
 
 // Scalar position: file
-@admiral.position_string("file", description="Input file", required=true)
+@admiral.position_string("file", description="Input file", config="input", required=true)
 
 // Variadic position: file...
 @admiral.position_strings("files", description="Input files")
 ```
 
-`short` and `env` are optional. Omit `short` to only allow the long form (`--name`); set `env` to allow the option to read from that environment variable.
+`short`, `env`, and `config` are optional. Omit `short` to only allow the long form (`--name`); set `env` to read an environment variable and `config` to read a separately named configuration key.
 
 ### Environment Variables
 
@@ -150,27 +151,26 @@ app.run(argv=Some(["serve"]), env=Map([]))
 ```
 
 Values resolve in the order `argv > env > default_values`. Environment-backed boolean flags accept `1`, `0`, `true`, `false`, `yes`, `no`, `on`, and `off`.
-Precedence is defined by [`moonbitlang/core/argparse`](https://github.com/moonbitlang/core/blob/497e1dc951b493cb7788f7a156e3aff45e0514f6/argparse/command.mbt#L97-L115).
-Boolean literals are handled by its [`bool` environment parser](https://github.com/moonbitlang/core/blob/497e1dc951b493cb7788f7a156e3aff45e0514f6/argparse/parser_values.mbt#L275-L313).
+Precedence is defined by [`moonbitlang/core/argparse`](https://github.com/moonbitlang/core/blob/1332a066d4143511c1b7db58877bc99991f548d6/argparse/command.mbt#L97-L115).
+Boolean literals are handled by its [`bool` environment parser](https://github.com/moonbitlang/core/blob/1332a066d4143511c1b7db58877bc99991f548d6/argparse/parser_values.mbt#L293-L305).
 The default process map comes from [`moonbitlang/core/env`](https://mooncakes.io/docs/moonbitlang/core/env).
 
-The generated schema contains only the configured environment variable name; it never resolves or embeds the variable's runtime value.
+The generated schema contains only configured environment-variable names and config keys; it never resolves or embeds runtime values.
 
 Each helper returns a typed, read-only definition such as `OptionDef[String]`, `OptionDef[Bool]`, or `OptionDef[Int]`.
 Pass the same definition to `command` or `cli` and to the matching `Context` getter; this makes the option name a single source of truth and causes mismatched getters to fail at compile time.
 
-Options passed to `cli(options=[...])` are global. They may appear before or after a subcommand, are inherited by nested subcommands, and are available through the same typed definition in the selected leaf command's `Context`.
-
 ### Configuration
 
 Pass an optional argument-less `load_config` callback to `cli`.
-The callback can read any configuration format, but must return a `Map[String, String]` whose keys are the environment-variable names configured on options:
+The callback can read any configuration format, but must return a `Map[String, Json]` whose keys match the independent `config` names declared on options or positions:
 
 ```moonbit
-fn load_config() -> Map[String, String] raise @admiral.ConfigLoadFailure {
+fn load_config() -> Map[String, Json] raise @admiral.ConfigLoadFailure {
   {
-    "MYAPP_PORT": "7000",
-    "MYAPP_VERBOSE": "true",
+    "port": (7000).to_json(),
+    "verbose": (true).to_json(),
+    "tags": ["release", "signed"].to_json(),
   }
 }
 
@@ -181,22 +181,29 @@ let app = @admiral.cli(
 )
 ```
 
-`CliApp::run` merges the config map first and the real env map second, so real environment variables overwrite config values.
-The merged map is passed directly to `core/argparse`; admiral does not implement a separate config value resolver.
+`CliApp::run` passes only the real environment map to `core/argparse` and stores the loaded configuration map separately in each command `Context`.
+Each `Context` getter inspects the parser's [`ValueSource`](https://github.com/moonbitlang/core/blob/1332a066d4143511c1b7db58877bc99991f548d6/argparse/matches.mbt#L15-L41).
+Each getter first decides whether config should be used.
+An `Argv` or `Env` source skips config and continues with the existing value parsing; a `Default` or absent source first checks the definition's `config` key and decodes an available JSON value with `FromJson`, then falls back to parsing the declared default or missing-value behavior only when that config key is unavailable.
 
 Values resolve in the order `argv > env > config > default`.
-Config values are available only to options that declare the corresponding `env` name.
-Required validation and scalar conversion are handled by `core/argparse` in the same way as ordinary env values.
+Option names, environment-variable names, and config keys are independent.
+Config values are available to options and positions that declare `config`.
+When a loaded config key satisfies a required argument, admiral relaxes the corresponding parser requirement; when it is absent, ordinary `core/argparse` required validation remains active.
 
-Both env and config values are scalar strings.
-Values such as `"a,b"` remain one string and are not split into arrays.
+Environment values remain scalar strings and continue to use `core/argparse` parsing.
+Config values are decoded by the matching MoonBit [`FromJson`](https://github.com/moonbitlang/core/blob/1332a066d4143511c1b7db58877bc99991f548d6/json/from_json.mbt) implementation inside each getter.
+Plural definitions such as `strings` and `ints` require a JSON array and preserve its elements.
+An active config value that cannot be decoded raises `JsonDecodeError` instead of falling back to a declared default; scalar getters use `None` for an unavailable value, while plural getters return an empty array.
+Numeric parsing failures from argv, environment variables, or declared defaults also propagate as errors instead of returning `None`.
+Required plural getters return `NonEmptyArray[T]`, exposing `first: T`, `rest: ArrayView[T]`, and `all: Array[T]`; they raise when the resolved array is empty.
 Return `Map([])` when no configuration values are available.
 
 `ConfigLoadFailure` is the typed error for the callback.
 For example, a loader can report `raise @admiral.ConfigLoadFailure("config file is unreadable")`.
 
 `CliApp` is a public record.
-Direct struct-literal callers must add `load_config` to `CliApp`.
+Direct struct-literal callers must add `load_config` to `CliApp`, and direct `Context` literals must include `sources` and `config`.
 Calls through `cli` remain source-compatible because `load_config` is optional.
 
 ### Reading Values from Context
@@ -319,7 +326,7 @@ let files = @admiral.position_strings("files", description="Files to concatenate
   description="Concatenate files",
   positionals=[files],
   run=Some(async fn(ctx) {
-    let file_values = ctx.get_strings(files).unwrap_or([])
+    let file_values = ctx.get_strings(files)
     for file in file_values {
       println("Reading: " + file)
     }
@@ -457,34 +464,34 @@ myapp completion --shell fish > ~/.config/fish/completions/myapp.fish
 
 ### Option Helpers
 
-| Function                                                        | Description                                     |
-| --------------------------------------------------------------- | ----------------------------------------------- |
-| `string(name, short?, description?, env?, required?, default?)` | String option (`--name value`)                  |
-| `strings(name, short?, description?, env?, required?)`          | Repeated string option                          |
-| `bool(name, short?, description?, env?)`                        | Boolean flag (`--verbose`)                      |
-| `int(name, short?, description?, env?, required?, default?)`    | Integer option (`--port 8080`)                  |
-| `ints(name, short?, description?, env?, required?)`             | Repeated integer option                         |
-| `int64(name, short?, description?, env?, required?, default?)`  | 64-bit signed integer option                    |
-| `int64s(name, short?, description?, env?, required?)`           | Repeated 64-bit signed integer option           |
-| `uint(name, short?, description?, env?, required?, default?)`   | Unsigned integer option                         |
-| `uints(name, short?, description?, env?, required?)`            | Repeated unsigned integer option                |
-| `uint64(name, short?, description?, env?, required?, default?)` | 64-bit unsigned integer option                  |
-| `uint64s(name, short?, description?, env?, required?)`          | Repeated 64-bit unsigned integer option         |
-| `double(name, short?, description?, env?, required?, default?)` | Double-precision floating-point option          |
-| `doubles(name, short?, description?, env?, required?)`          | Repeated double-precision floating-point option |
+| Function                                                                 | Description                                     |
+| ------------------------------------------------------------------------ | ----------------------------------------------- |
+| `string(name, short?, description?, env?, config?, required?, default?)` | String option (`--name value`)                  |
+| `strings(name, short?, description?, env?, config?, required?)`          | Repeated string option                          |
+| `bool(name, short?, description?, env?, config?)`                        | Boolean flag (`--verbose`)                      |
+| `int(name, short?, description?, env?, config?, required?, default?)`    | Integer option (`--port 8080`)                  |
+| `ints(name, short?, description?, env?, config?, required?)`             | Repeated integer option                         |
+| `int64(name, short?, description?, env?, config?, required?, default?)`  | 64-bit signed integer option                    |
+| `int64s(name, short?, description?, env?, config?, required?)`           | Repeated 64-bit signed integer option           |
+| `uint(name, short?, description?, env?, config?, required?, default?)`   | Unsigned integer option                         |
+| `uints(name, short?, description?, env?, config?, required?)`            | Repeated unsigned integer option                |
+| `uint64(name, short?, description?, env?, config?, required?, default?)` | 64-bit unsigned integer option                  |
+| `uint64s(name, short?, description?, env?, config?, required?)`          | Repeated 64-bit unsigned integer option         |
+| `double(name, short?, description?, env?, config?, required?, default?)` | Double-precision floating-point option          |
+| `doubles(name, short?, description?, env?, config?, required?)`          | Repeated double-precision floating-point option |
 
 ### Position Helpers
 
-| Function                                          | Result type                                          |
-| ------------------------------------------------- | ---------------------------------------------------- |
-| `position_string(name, description?, required?)`  | `PositionDef[String]`                                |
-| `position_strings(name, description?, required?)` | `PositionDef[Array[String]]`                         |
-| `position_int(name, description?, required?)`     | `PositionDef[Int]`                                   |
-| `position_ints(name, description?, required?)`    | `PositionDef[Array[Int]]`                            |
-| `position_int64` / `position_int64s`              | `PositionDef[Int64]` / `PositionDef[Array[Int64]]`   |
-| `position_uint` / `position_uints`                | `PositionDef[UInt]` / `PositionDef[Array[UInt]]`     |
-| `position_uint64` / `position_uint64s`            | `PositionDef[UInt64]` / `PositionDef[Array[UInt64]]` |
-| `position_double` / `position_doubles`            | `PositionDef[Double]` / `PositionDef[Array[Double]]` |
+| Function                                                   | Result type                                          |
+| ---------------------------------------------------------- | ---------------------------------------------------- |
+| `position_string(name, description?, config?, required?)`  | `PositionDef[String]`                                |
+| `position_strings(name, description?, config?, required?)` | `PositionDef[Array[String]]`                         |
+| `position_int(name, description?, config?, required?)`     | `PositionDef[Int]`                                   |
+| `position_ints(name, description?, config?, required?)`    | `PositionDef[Array[Int]]`                            |
+| `position_int64` / `position_int64s`                       | `PositionDef[Int64]` / `PositionDef[Array[Int64]]`   |
+| `position_uint` / `position_uints`                         | `PositionDef[UInt]` / `PositionDef[Array[UInt]]`     |
+| `position_uint64` / `position_uint64s`                     | `PositionDef[UInt64]` / `PositionDef[Array[UInt64]]` |
+| `position_double` / `position_doubles`                     | `PositionDef[Double]` / `PositionDef[Array[Double]]` |
 
 ### Command Definition
 
@@ -506,10 +513,10 @@ myapp completion --shell fish > ~/.config/fish/completions/myapp.fish
 | `get_uint` / `get_uint_required`                           | `UInt?` / `UInt raise`         | Unsigned integer value                          |
 | `get_uint64` / `get_uint64_required`                       | `UInt64?` / `UInt64 raise`     | 64-bit unsigned integer value                   |
 | `get_double` / `get_double_required`                       | `Double?` / `Double raise`     | Double-precision floating-point value           |
-| `get_strings(ArgDef[Array[String], M])`                    | `Array[String]?`               | Repeated string values                          |
-| `get_ints(ArgDef[Array[Int], M])`                          | `Array[Int]?`                  | Repeated parsed integer values                  |
-| `get_int64s` / `get_uints` / `get_uint64s` / `get_doubles` | corresponding `Array[T]?`      | Repeated parsed numeric values                  |
-| plural getter with `_required` suffix                      | corresponding `Array[T] raise` | Required repeated values                        |
+| `get_strings(ArgDef[Array[String], M])`                    | `Array[String]`                | Repeated string values, empty when unavailable  |
+| `get_ints(ArgDef[Array[Int], M])`                          | `Array[Int] raise`             | Repeated parsed integer values                  |
+| `get_int64s` / `get_uints` / `get_uint64s` / `get_doubles` | corresponding `Array[T] raise` | Repeated parsed numeric values                  |
+| plural getter with `_required` suffix                      | `NonEmptyArray[T] raise`       | Required non-empty repeated values              |
 | `get_subcommand()`                                         | `(String, Context)?`           | Selected subcommand name and context            |
 
 ### Schema & Completion

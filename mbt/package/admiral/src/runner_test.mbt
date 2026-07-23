@@ -35,7 +35,7 @@ async test "explicit argv preserves configured defaults" {
     command(
       name="greet",
       options=[name],
-      run=Some(fn(ctx) {
+      run=Some(ctx => {
         captured.val = ctx.get_string_required(name) catch { _ => "error" }
       }),
     ),
@@ -54,7 +54,7 @@ async test "env supplies string int and bool options" {
     command(
       name="serve",
       options=[name, port, verbose],
-      run=Some(fn(ctx) {
+      run=Some(ctx => {
         captured.val = "\{ctx.get_string(name).unwrap_or("")}:\{ctx.get_int(port).unwrap_or(0)}:\{ctx.get_bool(verbose)}"
       }),
     ),
@@ -81,7 +81,7 @@ async test "argv supplies all supported numeric option types" {
       options=[
         int_option, int64_option, uint_option, uint64_option, double_option,
       ],
-      run=Some(fn(ctx) {
+      run=Some(ctx => {
         captured.val = [
           ctx
           .get_int(int_option)
@@ -131,7 +131,7 @@ async test "argv overrides env and configured default" {
     command(
       name="greet",
       options=[name],
-      run=Some(fn(ctx) {
+      run=Some(ctx => {
         captured.val = ctx.get_string_required(name) catch { _ => "error" }
       }),
     ),
@@ -154,7 +154,7 @@ async test "env overrides configured default" {
     command(
       name="greet",
       options=[name],
-      run=Some(fn(ctx) {
+      run=Some(ctx => {
         captured.val = ctx.get_string_required(name) catch { _ => "error" }
       }),
     ),
@@ -175,7 +175,7 @@ async test "configured default applies when argv and env omit option" {
     command(
       name="greet",
       options=[name],
-      run=Some(fn(ctx) {
+      run=Some(ctx => {
         captured.val = ctx.get_string_required(name) catch { _ => "error" }
       }),
     ),
@@ -192,7 +192,7 @@ async test "env satisfies a required option" {
     command(
       name="greet",
       options=[name],
-      run=Some(fn(ctx) {
+      run=Some(ctx => {
         captured.val = ctx.get_string_required(name) catch { _ => "error" }
       }),
     ),
@@ -263,7 +263,7 @@ async test "explicit empty env isolates parsing from ambient environment" {
     command(
       name="greet",
       options=[name],
-      run=Some(fn(ctx) {
+      run=Some(ctx => {
         captured.val = ctx.get_string_required(name) catch { _ => "error" }
       }),
     ),
@@ -281,7 +281,7 @@ async test "env reaches nested command options" {
       command(
         name="greet",
         options=[name],
-        run=Some(fn(ctx) {
+        run=Some(ctx => {
           captured.val = ctx.get_string_required(name) catch { _ => "error" }
         }),
       ),
@@ -294,27 +294,27 @@ async test "env reaches nested command options" {
 }
 
 ///|
-async test "config supplies scalar options through argparse env" {
+async test "config supplies scalar options through independent keys" {
   let loaded = Ref(0)
   let captured = Ref("")
-  let name = string("name", env="ADMIRAL_CONFIG_NAME", required=true)
-  let port = int("port", env="ADMIRAL_CONFIG_PORT", default=Some(3000))
-  let verbose = bool("verbose", env="ADMIRAL_CONFIG_VERBOSE")
+  let name = string("name", env="ADMIRAL_NAME", config="name", required=true)
+  let port = int("port", env="ADMIRAL_PORT", config="port", default=Some(3000))
+  let verbose = bool("verbose", env="ADMIRAL_VERBOSE", config="verbose")
   let app = cli(
     name="test-app",
     load_config=Some(fn() {
       loaded.val = loaded.val + 1
       {
-        "ADMIRAL_CONFIG_NAME": "config-name",
-        "ADMIRAL_CONFIG_PORT": "7000",
-        "ADMIRAL_CONFIG_VERBOSE": "true",
+        "name": "config-name".to_json(),
+        "port": (7000).to_json(),
+        "verbose": true.to_json(),
       }
     }),
     commands=[
       command(
         name="serve",
         options=[name, port, verbose],
-        run=Some(fn(ctx) {
+        run=Some(ctx => {
           captured.val = "\{ctx.get_string(name).unwrap_or("")}:\{ctx.get_int(port).unwrap_or(0)}:\{ctx.get_bool(verbose)}"
         }),
       ),
@@ -330,17 +330,20 @@ async test "config precedence is below argv and real env and above defaults" {
   let captured = Ref("")
   let argv_value = string(
     "argv-value",
-    env="ADMIRAL_CONFIG_ARGV",
+    env="ADMIRAL_ARGV_VALUE",
+    config="argv",
     default=Some("default-argv"),
   )
   let env_value = string(
     "env-value",
-    env="ADMIRAL_CONFIG_ENV",
+    env="ADMIRAL_ENV_VALUE",
+    config="env",
     default=Some("default-env"),
   )
   let config_value = string(
     "config-value",
-    env="ADMIRAL_CONFIG_ONLY",
+    env="ADMIRAL_CONFIG_VALUE",
+    config="config",
     default=Some("default-config"),
   )
   let default_value = string("default-value", default=Some("default-only"))
@@ -348,16 +351,16 @@ async test "config precedence is below argv and real env and above defaults" {
     name="test-app",
     load_config=Some(fn() {
       {
-        "ADMIRAL_CONFIG_ARGV": "config-argv",
-        "ADMIRAL_CONFIG_ENV": "config-env",
-        "ADMIRAL_CONFIG_ONLY": "config-only",
+        "argv": "config-argv".to_json(),
+        "env": "config-env".to_json(),
+        "config": "config-only".to_json(),
       }
     }),
     commands=[
       command(
         name="show",
         options=[argv_value, env_value, config_value, default_value],
-        run=Some(fn(ctx) {
+        run=Some(ctx => {
           captured.val = [
             ctx.get_string(argv_value).unwrap_or(""),
             ctx.get_string(env_value).unwrap_or(""),
@@ -369,8 +372,8 @@ async test "config precedence is below argv and real env and above defaults" {
     ],
   )
   app.run(argv=Some(["show", "--argv-value", "argv-only"]), env={
-    "ADMIRAL_CONFIG_ARGV": "env-argv",
-    "ADMIRAL_CONFIG_ENV": "env-only",
+    "ADMIRAL_ARGV_VALUE": "env-argv",
+    "ADMIRAL_ENV_VALUE": "env-only",
   })
   inspect(captured.val, content="argv-only:env-only:config-only:default-only")
 }
@@ -378,15 +381,15 @@ async test "config precedence is below argv and real env and above defaults" {
 ///|
 async test "config satisfies required option through argparse" {
   let captured = Ref("")
-  let name = string("name", env="ADMIRAL_CONFIG_REQUIRED", required=true)
+  let name = string("name", config="name", required=true)
   let app = cli(
     name="test-app",
-    load_config=Some(fn() { { "ADMIRAL_CONFIG_REQUIRED": "config-required" } }),
+    load_config=Some(fn() { { "name": "config-required".to_json() } }),
     commands=[
       command(
         name="run",
         options=[name],
-        run=Some(fn(ctx) { captured.val = ctx.get_string(name).unwrap_or("") }),
+        run=Some(ctx => captured.val = ctx.get_string(name).unwrap_or("")),
       ),
     ],
   )
@@ -395,12 +398,35 @@ async test "config satisfies required option through argparse" {
 }
 
 ///|
+async test "config supplies a required position and argv overrides it" {
+  let captured = Ref("")
+  let input = position_string("input", config="input", required=true)
+  let app = cli(
+    name="test-app",
+    load_config=Some(fn() { { "input": "config.txt".to_json() } }),
+    commands=[
+      command(
+        name="run",
+        positionals=[input],
+        run=Some(ctx => {
+          captured.val = ctx.get_string_required(input) catch { _ => "error" }
+        }),
+      ),
+    ],
+  )
+  app.run(argv=Some(["run"]), env=Map([]))
+  inspect(captured.val, content="config.txt")
+  app.run(argv=Some(["run", "argv.txt"]), env=Map([]))
+  inspect(captured.val, content="argv.txt")
+}
+
+///|
 async test "empty config keeps argparse required validation" {
   let called = Ref(false)
   let app = cli(name="test-app", load_config=Some(fn() { Map([]) }), commands=[
     command(
       name="run",
-      options=[string("name", env="ADMIRAL_CONFIG_MISSING", required=true)],
+      options=[string("name", config="name", required=true)],
       run=Some(fn(_) { called.val = true }),
     ),
   ])
@@ -418,26 +444,94 @@ async test "empty config keeps argparse required validation" {
 }
 
 ///|
-async test "config env value remains a single string" {
+async test "config preserves arrays while env remains a scalar string" {
   let captured : Ref[Array[String]] = Ref([])
-  let tags = strings("tags", env="ADMIRAL_CONFIG_TAGS")
+  let tags = strings("tags", env="ADMIRAL_TAGS", config="tags")
   let app = cli(
     name="test-app",
-    load_config=Some(fn() { { "ADMIRAL_CONFIG_TAGS": "a,b" } }),
+    load_config=Some(fn() { { "tags": ["a", "b"].to_json() } }),
     commands=[
       command(
         name="show",
         options=[tags],
-        run=Some(fn(ctx) { captured.val = ctx.get_strings(tags).unwrap_or([]) }),
+        run=Some(ctx => captured.val = ctx.get_strings(tags)),
       ),
     ],
   )
   app.run(argv=Some(["show"]), env=Map([]))
-  inspect(captured.val.length(), content="1")
-  inspect(captured.val[0], content="a,b")
-  app.run(argv=Some(["show"]), env={ "ADMIRAL_CONFIG_TAGS": "x,y" })
+  inspect(captured.val.length(), content="2")
+  inspect(captured.val[0], content="a")
+  inspect(captured.val[1], content="b")
+  app.run(argv=Some(["show"]), env={ "ADMIRAL_TAGS": "x,y" })
   inspect(captured.val.length(), content="1")
   inspect(captured.val[0], content="x,y")
+}
+
+///|
+async test "config decodes numeric arrays" {
+  let captured : Ref[Array[Int]] = Ref([])
+  let retries = ints("retry", config="retries")
+  let app = cli(
+    name="test-app",
+    load_config=Some(fn() { { "retries": [1, 2, 3].to_json() } }),
+    commands=[
+      command(
+        name="run",
+        options=[retries],
+        run=Some(ctx => captured.val = ctx.get_ints(retries)),
+      ),
+    ],
+  )
+  app.run(argv=Some(["run"]), env=Map([]))
+  debug_inspect(captured.val, content="[1, 2, 3]")
+}
+
+///|
+async test "invalid bool config value fails when read" {
+  let called = Ref(false)
+  let verbose = bool("verbose", config="verbose")
+  let app = cli(
+    name="test-app",
+    load_config=Some(fn() { { "verbose": "invalid".to_json() } }),
+    commands=[
+      command(
+        name="show",
+        options=[verbose],
+        run=Some(ctx => {
+          ctx.get_bool(verbose) |> ignore
+          called.val = true
+        }),
+      ),
+    ],
+  )
+  let error_message = Ref("")
+  app.run(argv=Some(["show"]), env=Map([])) catch {
+    error => error_message.val = error.to_string()
+  }
+  inspect(
+    error_message.val.contains("Bool::from_json: expected boolean"),
+    content="true",
+  )
+  inspect(called.val, content="false")
+}
+
+///|
+async test "env overrides an incompatible config value" {
+  let captured = Ref(false)
+  let verbose = bool("verbose", env="ADMIRAL_VERBOSE", config="verbose")
+  let app = cli(
+    name="test-app",
+    load_config=Some(fn() { { "verbose": "invalid".to_json() } }),
+    commands=[
+      command(
+        name="show",
+        options=[verbose],
+        run=Some(ctx => captured.val = ctx.get_bool(verbose)),
+      ),
+    ],
+  )
+  app.run(argv=Some(["show"]), env={ "ADMIRAL_VERBOSE": "true" })
+  inspect(captured.val, content="true")
 }
 
 ///|
@@ -445,7 +539,7 @@ async test "config load failure propagates before command execution" {
   let called = Ref(false)
   let app = cli(
     name="test-app",
-    load_config=Some(fn() -> Map[String, String] raise ConfigLoadFailure {
+    load_config=Some(fn() -> Map[String, Json] raise ConfigLoadFailure {
       raise ConfigLoadFailure("cannot load config")
     }),
     commands=[command(name="run", run=Some(fn(_) { called.val = true }))],
@@ -465,7 +559,7 @@ async test "CliApp run - root option is available in subcommand context" {
   let app = cli(name="test-app", options=[config], commands=[
     command(
       name="show",
-      run=Some(fn(ctx) { captured.val = ctx.get_string(config).unwrap_or("") }),
+      run=Some(ctx => captured.val = ctx.get_string(config).unwrap_or("")),
     ),
   ])
   app.run(argv=Some(["show", "--config", "after-command.json"]), env=Map([]))
@@ -480,7 +574,7 @@ async test "CliApp run - root option propagates through nested subcommands" {
     command(name="group", subcommands=[
       command(
         name="show",
-        run=Some(fn(ctx) { captured.val = ctx.get_string(config).unwrap_or("") }),
+        run=Some(ctx => captured.val = ctx.get_string(config).unwrap_or("")),
       ),
     ]),
   ])
@@ -505,7 +599,7 @@ async test "cli run with bool flag" {
       name="build",
       description="Build project",
       options=[verbose],
-      run=Some(fn(ctx) { was_verbose.val = ctx.get_bool(verbose) }),
+      run=Some(ctx => was_verbose.val = ctx.get_bool(verbose)),
     ),
   ])
   app.run(argv=Some(["build", "--verbose"]))
@@ -521,7 +615,7 @@ async test "cli run with int option" {
       name="serve",
       description="Start server",
       options=[port],
-      run=Some(fn(ctx) {
+      run=Some(ctx => {
         port_val.val = match ctx.get_int(port) {
           Some(p) => p
           None => 0
@@ -543,7 +637,7 @@ async test "cli run with nested async subcommand" {
         name="migrate",
         description="Run migrations",
         options=[dry_run],
-        run=Some(fn(ctx) {
+        run=Some(ctx => {
           result.val = if ctx.get_bool(dry_run) { "dry" } else { "real" }
         }),
       ),

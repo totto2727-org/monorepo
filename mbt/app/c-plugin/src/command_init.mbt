@@ -4,7 +4,8 @@ fn init_command_def(
 ) -> @admiral.CommandDef {
   @admiral.command(
     name="init",
-    description="Create an empty lock file in the current directory",
+    description="Create an empty lock file",
+    options=[global_option],
     run=Some(run),
   )
 }
@@ -15,8 +16,8 @@ struct InitOptions {
 }
 
 ///|
-fn init_options(_context : @admiral.Context) -> InitOptions {
-  { global: false }
+fn init_options(context : @admiral.Context) -> InitOptions raise {
+  { global: context.get_bool(global_option) }
 }
 
 ///|

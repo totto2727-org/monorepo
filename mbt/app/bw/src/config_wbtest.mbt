@@ -1,36 +1,39 @@
 ///|
-test "parse_config_object - converts scalar properties and ignores arrays" {
-  let raw =
-    #|{
-    #|  "CLOUDFLARE_ACCOUNT_ID": "acct",
-    #|  "BW_URL": "https://example.com",
-    #|  "BW_FULL_PAGE": true,
-    #|  "BW_WIDTH": 1024,
-    #|  "BW_CRAWL_FORMATS": ["html", "markdown"],
-    #|  "CUSTOM_OBJECT": { "enabled": true },
-    #|  "CUSTOM_NULL": null
-    #|}
-  let parsed = @json.parse(raw)
-  let config = match parsed {
-    Object(object) => parse_config_object(object)
-    _ => fail("expected object")
-  }
-  assert_eq(config.get(account_id_config_env), Some("acct"))
-  assert_eq(config.get(url_config_env), Some("https://example.com"))
-  assert_eq(config.get(full_page_config_env), Some("true"))
-  assert_eq(config.get(width_config_env), Some("1024"))
-  assert_eq(config.get(formats_config_env), None)
-  assert_eq(config.get("CUSTOM_OBJECT"), Some("{\"enabled\":true}"))
-  assert_eq(config.get("CUSTOM_NULL"), Some("null"))
-}
-
-///|
 async test "load_config - reads an explicitly selected config file" {
   let config = load_config(process_args=[
     "bw", "markdown", "--config", "src/testdata/config.json",
   ])
-  assert_eq(config.get(url_config_env), Some("https://example.com"))
-  assert_eq(config.get(full_page_config_env), Some("false"))
+  assert_eq(config.get("url"), Some("https://example.com".to_json()))
+  assert_eq(config.get("full_page"), Some(false.to_json()))
+  assert_eq(config.get("width"), Some((1024).to_json()))
+  assert_eq(config.get("formats"), Some(["html", "markdown"].to_json()))
+  assert_eq(
+    config.get("custom_object"),
+    Some(Json::object({ "enabled": true.to_json() })),
+  )
+  assert_eq(config.get("custom_null"), Some(Json::null()))
+}
+
+///|
+async test "config keys and environment names resolve independently" {
+  let captured = Ref("")
+  let app = @admiral.cli(
+    name="test-app",
+    load_config=Some(fn() { { "url": "config-url".to_json() } }),
+    commands=[
+      @admiral.command(
+        name="show",
+        options=[content_url_option],
+        run=Some(ctx => {
+          captured.val = ctx.get_string_required(content_url_option)
+        }),
+      ),
+    ],
+  )
+  app.run(argv=Some(["show"]), env=Map([]))
+  inspect(captured.val, content="config-url")
+  app.run(argv=Some(["show"]), env={ "BW_URL": "env-url" })
+  inspect(captured.val, content="env-url")
 }
 
 ///|

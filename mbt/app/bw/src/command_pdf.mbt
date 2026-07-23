@@ -2,21 +2,24 @@
 let pdf_url_option : @admiral.OptionDef[String] = @admiral.string(
   "url",
   description="Target URL",
-  env=url_config_env,
+  env=url_env,
+  config="url",
 )
 
 ///|
 let pdf_html_option : @admiral.OptionDef[String] = @admiral.string(
   "html",
   description="Path to local HTML file",
-  env=html_config_env,
+  env=html_env,
+  config="html",
 )
 
 ///|
 let pdf_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
   "wait-until",
   description="Page load strategy",
-  env=wait_until_config_env,
+  env=wait_until_env,
+  config="wait_until",
 )
 
 ///|
@@ -24,7 +27,8 @@ let pdf_output_option : @admiral.OptionDef[String] = @admiral.string(
   "output",
   short='o',
   description="Output file path",
-  env=output_config_env,
+  env=output_env,
+  config="output",
   required=true,
 )
 
@@ -32,14 +36,16 @@ let pdf_output_option : @admiral.OptionDef[String] = @admiral.string(
 let pdf_landscape_option : @admiral.OptionDef[Bool] = @admiral.bool(
   "landscape",
   description="Landscape orientation",
-  env=landscape_config_env,
+  env=landscape_env,
+  config="landscape",
 )
 
 ///|
 let pdf_format_option : @admiral.OptionDef[String] = @admiral.string(
   "format",
   description="Page format",
-  env=format_config_env,
+  env=format_env,
+  config="format",
 )
 
 ///|

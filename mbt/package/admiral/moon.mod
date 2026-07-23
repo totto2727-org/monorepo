@@ -1,6 +1,6 @@
 name = "totto2727/admiral"
 
-version = "0.3.0"
+version = "0.4.0"
 
 readme = "README.md"
 

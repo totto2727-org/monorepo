@@ -6,7 +6,7 @@
 
 Visualize the test cases from `qa-design.md` as Mermaid flowcharts. The goal is reviewer comprehension: a human should be able to scan the diagrams and understand which branches are tested, skipped, or deferred.
 
-Every leaf must be one of:
+In a standalone `qa-flow.md`, every leaf must be one of:
 
 - `TC-NNN: <label>`
 - `TC-IMPL-NNN: <label>`
@@ -25,6 +25,19 @@ When maintaining an existing workflow directory, place it beside `qa-design.md`.
 ## File format
 
 A Markdown file containing one or more Mermaid `flowchart TD` code blocks. For complex systems, split diagrams by concern. GitHub renders Mermaid natively in Markdown.
+
+## Embedded executable function flows
+
+Apply these rules when a flowchart is embedded beside executable tests instead of emitted as a standalone `qa-flow.md`:
+
+- Create a separate test section for each function or method and include a Mermaid `flowchart TD` even when the section has only one test case.
+- Use the flowchart instead of a test-case matrix or table.
+- Number leaves locally as `1: <label>`, `2: <label>`, and so on, restarting from `1` in each function or method section.
+- Include the function and local number in the corresponding executable test title as `<function> <number>`. Separate the function and number with a space, never a hyphen.
+- Aggregate multiple assertions into one case only when one system-under-test invocation with the same input produces all observed facts, and show those observation paths converging on the same numbered leaf.
+- Use separate numbered leaves and executable tests when verification invokes the system under test with different arguments or input, even when those invocations share a fixture.
+- A documented family-conformance exception may use one numbered leaf for multiple related functions that intentionally share the same branch contract. Name the shared contract as the section scope, show the family invocation in the flow, and exclude conversion or type-specific behavior from that case.
+- Split a complex function flow into separate diagrams by concern. Hierarchical leaves such as `1-1`, `1-2`, `2-1`, and `2-2` are allowed only after the flow is split, with one diagram for each top-level number.
 
 ## Section structure
 
@@ -108,6 +121,23 @@ flowchart TD
   R -->|greater than 1000| TC23[TC-023: high-value confirmation flow]
 ```
 
+### Aggregated assertions
+
+Use one test case for multiple assertions only when a single system-under-test invocation with the same input produces all observed facts. Show each asserted fact as an observation node and converge those nodes on the same test case leaf:
+
+```mermaid
+flowchart TD
+  Start([invoke once with the same input]) --> Result[returned aggregate]
+  Result --> First[first value matches]
+  Result --> Rest[rest view matches]
+  Result --> All[all values match]
+  First --> TC30[TC-030: exposes first, rest, and all]
+  Rest --> TC30
+  All --> TC30
+```
+
+If verification requires another invocation with different arguments or input, draw a separate numbered leaf using the artifact's numbering scheme. Reusing the same fixture does not make the invocations one test case.
+
 ## Split guidelines
 
 - Keep one Mermaid block to roughly 15-20 nodes or fewer.
@@ -117,7 +147,12 @@ flowchart TD
 
 ## Review checklist
 
-- Every `TC-NNN` in `qa-design.md` appears in at least one diagram unless there is a documented reason.
-- Every diagram leaf is a TC ID or `skip` with rationale.
+- In a standalone `qa-flow.md`, every `TC-NNN` in `qa-design.md` appears in at least one diagram unless there is a documented reason.
+- In a standalone `qa-flow.md`, every diagram leaf is a TC ID or `skip` with rationale.
+- In an embedded function flow, every function has its own section and local numbering restarts from `1`.
+- Aggregated assertion paths visibly converge on one numbered leaf.
+- Invocations with different arguments or input use separate numbered leaves.
+- Executable test titles include the scoped numbers of their corresponding leaves.
+- Hierarchical local numbers are used only when the flow is split into matching top-level diagrams.
 - Every section lists covered success criteria.
 - Diagrams are small enough for a human reviewer to scan.

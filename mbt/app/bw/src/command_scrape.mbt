@@ -2,28 +2,32 @@
 let scrape_url_option : @admiral.OptionDef[String] = @admiral.string(
   "url",
   description="Target URL",
-  env=url_config_env,
+  env=url_env,
+  config="url",
 )
 
 ///|
 let scrape_html_option : @admiral.OptionDef[String] = @admiral.string(
   "html",
   description="Path to local HTML file",
-  env=html_config_env,
+  env=html_env,
+  config="html",
 )
 
 ///|
 let scrape_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
   "wait-until",
   description="Page load strategy",
-  env=wait_until_config_env,
+  env=wait_until_env,
+  config="wait_until",
 )
 
 ///|
 let scrape_selector_option : @admiral.OptionDef[String] = @admiral.string(
   "selector",
   description="CSS selector",
-  env=selector_config_env,
+  env=selector_env,
+  config="selector",
   required=true,
 )
 

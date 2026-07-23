@@ -137,7 +137,7 @@ fn skill_add_options(context : @admiral.Context) -> SkillAddOptions raise {
 fn skill_global_options(
   context : @admiral.Context,
   recursive_option : @admiral.OptionDef[Bool],
-) -> SkillGlobalOptions {
+) -> SkillGlobalOptions raise {
   {
     global: context.get_bool(global_option),
     recursive: context.get_bool(recursive_option),

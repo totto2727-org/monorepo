@@ -2,21 +2,24 @@
 let crawl_url_option : @admiral.OptionDef[String] = @admiral.string(
   "url",
   description="Target URL",
-  env=url_config_env,
+  env=url_env,
+  config="url",
 )
 
 ///|
 let crawl_html_option : @admiral.OptionDef[String] = @admiral.string(
   "html",
   description="Path to local HTML file",
-  env=html_config_env,
+  env=html_env,
+  config="html",
 )
 
 ///|
 let crawl_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
   "wait-until",
   description="Page load strategy",
-  env=wait_until_config_env,
+  env=wait_until_env,
+  config="wait_until",
 )
 
 ///|
@@ -24,35 +27,40 @@ let crawl_output_option : @admiral.OptionDef[String] = @admiral.string(
   "output",
   short='o',
   description="Output file path",
-  env=output_config_env,
+  env=output_env,
+  config="output",
 )
 
 ///|
 let crawl_limit_option : @admiral.OptionDef[Int] = @admiral.int(
   "limit",
   description="Max pages to crawl",
-  env=limit_config_env,
+  env=limit_env,
+  config="limit",
 )
 
 ///|
 let crawl_depth_option : @admiral.OptionDef[Int] = @admiral.int(
   "depth",
   description="Max link depth",
-  env=depth_config_env,
+  env=depth_env,
+  config="depth",
 )
 
 ///|
 let crawl_format_option : @admiral.OptionDef[Array[String]] = @admiral.strings(
   "format",
   description="Output formats: html,markdown,json",
-  env=formats_config_env,
+  env=formats_env,
+  config="formats",
 )
 
 ///|
 let crawl_id_option : @admiral.OptionDef[String] = @admiral.string(
   "id",
   description="Crawl job ID",
-  env=id_config_env,
+  env=id_env,
+  config="id",
   required=true,
 )
 
@@ -200,6 +208,11 @@ fn split_csv(value : String) -> Array[String] {
 async fn crawl_start_options(
   context : @admiral.Context,
 ) -> CrawlStartOptionsInput {
+  let format_values = context.get_strings(crawl_format_option)
+  let formats : Array[String] = format_values
+    .iter()
+    .flat_map(fn(value) { split_csv(value).iter() })
+    .collect()
   {
     account_id: context.get_string_required(account_id_option),
     api_token: context.get_string_required(api_token_option),
@@ -209,11 +222,11 @@ async fn crawl_start_options(
     output: context.get_string(crawl_output_option),
     limit: context.get_int(crawl_limit_option),
     depth: context.get_int(crawl_depth_option),
-    formats: context
-    .get_strings(crawl_format_option)
-    .map(fn(values) {
-      values.iter().flat_map(fn(value) { split_csv(value).iter() }).collect()
-    }),
+    formats: if formats.is_empty() {
+      None
+    } else {
+      Some(formats)
+    },
   }
 }
 

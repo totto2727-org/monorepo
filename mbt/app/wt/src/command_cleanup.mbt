@@ -32,7 +32,7 @@ struct CleanupOptions {
 }
 
 ///|
-fn cleanup_options(context : @admiral.Context) -> CleanupOptions {
+fn cleanup_options(context : @admiral.Context) -> CleanupOptions raise {
   let dir = match context.get_string(cleanup_dir_option) {
     Some(value) => value
     None => "."

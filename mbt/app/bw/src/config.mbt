@@ -2,70 +2,71 @@
 let default_config_path : String = "bw-config.json"
 
 ///|
-let account_id_config_env : String = cloudflare_account_id_env
+let account_id_env : String = cloudflare_account_id_env
 
 ///|
-let api_token_config_env : String = cloudflare_api_token_env
+let api_token_env : String = cloudflare_api_token_env
 
 ///|
-let url_config_env = "BW_URL"
+let url_env = "BW_URL"
 
 ///|
-let html_config_env = "BW_HTML"
+let html_env = "BW_HTML"
 
 ///|
-let wait_until_config_env = "BW_WAIT_UNTIL"
+let wait_until_env = "BW_WAIT_UNTIL"
 
 ///|
-let output_config_env = "BW_OUTPUT"
+let output_env = "BW_OUTPUT"
 
 ///|
-let full_page_config_env = "BW_FULL_PAGE"
+let full_page_env = "BW_FULL_PAGE"
 
 ///|
-let width_config_env = "BW_WIDTH"
+let width_env = "BW_WIDTH"
 
 ///|
-let height_config_env = "BW_HEIGHT"
+let height_env = "BW_HEIGHT"
 
 ///|
-let landscape_config_env = "BW_LANDSCAPE"
+let landscape_env = "BW_LANDSCAPE"
 
 ///|
-let format_config_env = "BW_FORMAT"
+let format_env = "BW_FORMAT"
 
 ///|
-let selector_config_env = "BW_SELECTOR"
+let selector_env = "BW_SELECTOR"
 
 ///|
-let prompt_config_env = "BW_PROMPT"
+let prompt_env = "BW_PROMPT"
 
 ///|
-let schema_config_env = "BW_SCHEMA"
+let schema_env = "BW_SCHEMA"
 
 ///|
-let id_config_env = "BW_CRAWL_ID"
+let id_env = "BW_CRAWL_ID"
 
 ///|
-let limit_config_env = "BW_CRAWL_LIMIT"
+let limit_env = "BW_CRAWL_LIMIT"
 
 ///|
-let depth_config_env = "BW_CRAWL_DEPTH"
+let depth_env = "BW_CRAWL_DEPTH"
 
 ///|
-let formats_config_env = "BW_CRAWL_FORMATS"
+let formats_env = "BW_CRAWL_FORMATS"
 
 ///|
-let visible_only_config_env = "BW_VISIBLE_ONLY"
+let visible_only_env = "BW_VISIBLE_ONLY"
 
 ///|
-let internal_only_config_env = "BW_INTERNAL_ONLY"
+let internal_only_env = "BW_INTERNAL_ONLY"
 
 ///|
 let account_id_option : @admiral.OptionDef[String] = @admiral.string(
   "account-id",
   description="Cloudflare account ID",
-  env=account_id_config_env,
+  env=account_id_env,
+  config="account_id",
   required=true,
 )
 
@@ -73,7 +74,8 @@ let account_id_option : @admiral.OptionDef[String] = @admiral.string(
 let api_token_option : @admiral.OptionDef[String] = @admiral.string(
   "api-token",
   description="Cloudflare API token",
-  env=api_token_config_env,
+  env=api_token_env,
+  config="api_token",
   required=true,
 )
 
@@ -120,31 +122,9 @@ fn config_loader_args(process_args : Array[String]) -> ConfigLoaderArgs {
 }
 
 ///|
-fn config_value_to_string(value : Json) -> String? {
-  match value {
-    Array(_) => None
-    String(value) => Some(value)
-    _ => Some(value.stringify())
-  }
-}
-
-///|
-fn parse_config_object(object : Map[String, Json]) -> Map[String, String] {
-  let values : Map[String, String] = Map([])
-  for entry in object.iter() {
-    let (key, value) = entry
-    match config_value_to_string(value) {
-      Some(value) => values[key] = value
-      None => ()
-    }
-  }
-  values
-}
-
-///|
 async fn load_config(
   process_args? : Array[String] = @env.args(),
-) -> Map[String, String] raise @admiral.ConfigLoadFailure {
+) -> Map[String, Json] raise @admiral.ConfigLoadFailure {
   let loader_args = config_loader_args(process_args)
   let config_path = Ref(default_config_path)
   let loader = @admiral.cli(name="bw-config-loader", commands=[
@@ -186,7 +166,7 @@ async fn load_config(
       )
   }
   match parsed {
-    Object(object) => parse_config_object(object)
+    Object(object) => object
     _ =>
       raise @admiral.ConfigLoadFailure("config file must contain a JSON object")
   }

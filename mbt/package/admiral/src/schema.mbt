@@ -29,6 +29,10 @@ fn option_def_to_json(opt : StoredOption) -> Json {
     Some(name) => m["env"] = name.to_json()
     None => ()
   }
+  match opt.config {
+    Some(key) => m["config"] = key.to_json()
+    None => ()
+  }
   match metadata.default_value {
     Some(v) => m["default"] = v.to_json()
     None => ()
@@ -44,6 +48,10 @@ fn position_def_to_json(position : StoredPosition) -> Json {
   m["description"] = metadata.description.to_json()
   m["required"] = metadata.required.to_json()
   m["multiple"] = metadata.multiple.to_json()
+  match position.config {
+    Some(key) => m["config"] = key.to_json()
+    None => ()
+  }
   Json::object(m)
 }
 

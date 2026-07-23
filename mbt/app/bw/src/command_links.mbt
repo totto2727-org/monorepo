@@ -2,35 +2,40 @@
 let links_url_option : @admiral.OptionDef[String] = @admiral.string(
   "url",
   description="Target URL",
-  env=url_config_env,
+  env=url_env,
+  config="url",
 )
 
 ///|
 let links_html_option : @admiral.OptionDef[String] = @admiral.string(
   "html",
   description="Path to local HTML file",
-  env=html_config_env,
+  env=html_env,
+  config="html",
 )
 
 ///|
 let links_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
   "wait-until",
   description="Page load strategy",
-  env=wait_until_config_env,
+  env=wait_until_env,
+  config="wait_until",
 )
 
 ///|
 let links_visible_only_option : @admiral.OptionDef[Bool] = @admiral.bool(
   "visible-only",
   description="Only visible links",
-  env=visible_only_config_env,
+  env=visible_only_env,
+  config="visible_only",
 )
 
 ///|
 let links_internal_only_option : @admiral.OptionDef[Bool] = @admiral.bool(
   "internal-only",
   description="Only same-domain links",
-  env=internal_only_config_env,
+  env=internal_only_env,
+  config="internal_only",
 )
 
 ///|
