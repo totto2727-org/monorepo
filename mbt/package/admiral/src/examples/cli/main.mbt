@@ -138,7 +138,7 @@ async fn main {
         run=Some(async fn(ctx) {
           @async.sleep(0)
           let value = ctx.get_int_required(inspect_value) catch { _ => return }
-          let labels = ctx.get_strings(inspect_labels).unwrap_or([])
+          let labels = ctx.get_strings(inspect_labels)
           println("value=" + value.to_string())
           println("labels=" + labels.join(","))
         }),

@@ -16,7 +16,7 @@ struct InitOptions {
 }
 
 ///|
-fn init_options(context : @admiral.Context) -> InitOptions {
+fn init_options(context : @admiral.Context) -> InitOptions raise {
   { global: context.get_bool(global_option) }
 }
 

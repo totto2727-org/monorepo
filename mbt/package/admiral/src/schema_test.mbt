@@ -132,6 +132,18 @@ test "render_schema omits env for unconfigured options" {
 }
 
 ///|
+test "render_schema includes config keys for options and positions" {
+  let app = cli(name="test", commands=[
+    command(name="run", options=[string("name", config="name")], positionals=[
+      position_string("input", config="input"),
+    ]),
+  ])
+  let schema = app.render_schema()
+  inspect(schema.contains("\"config\":\"name\""), content="true")
+  inspect(schema.contains("\"config\":\"input\""), content="true")
+}
+
+///|
 test "render_schema does not expose resolved environment values" {
   let key = "ADMIRAL_SCHEMA_NAME"
   let sentinel = "SCHEMA_FAKE_RESOLVED_VALUE_7C9F"

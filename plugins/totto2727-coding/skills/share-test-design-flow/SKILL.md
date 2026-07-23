@@ -18,7 +18,7 @@ This skill owns framework-agnostic test design and human-facing reporting. Testi
 ## Artifact pairs
 
 - QA design: [guide](references/qa-design.md) and [template](templates/qa-design.md).
-- QA flow: [guide](references/qa-flow.md) and [template](templates/qa-flow.md).
+- QA flow: [guide](references/qa-flow.md) for standalone and embedded executable flows, and [template](templates/qa-flow.md) for standalone artifacts.
 
 Produce qa-design.md and qa-flow.md together unless the user explicitly narrows the requested output. Present the artifacts themselves for human review.
 

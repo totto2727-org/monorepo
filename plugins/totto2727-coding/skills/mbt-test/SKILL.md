@@ -13,9 +13,9 @@ Apply [`share-test`](../share-test/SKILL.md), then load only the reference requi
 ## References
 
 - [`execution.md`](references/execution.md) — supported Vite+ and `moon test` commands and their boundary.
-- [`assertions.md`](references/assertions.md) — assertion selection, inspection, and package setup.
+- [`assertions.md`](references/assertions.md) — assertion selection, direct-result inspection, raised-error expectations, and package setup.
 - [`names.md`](references/names.md) — test-case naming.
-- [`markdown-tests.md`](references/markdown-tests.md) — executable `.mbt.md` structure.
+- [`markdown-tests.md`](references/markdown-tests.md) — executable `.mbt.md` structure with per-function test-design flowcharts.
 
 ## Related skills
 

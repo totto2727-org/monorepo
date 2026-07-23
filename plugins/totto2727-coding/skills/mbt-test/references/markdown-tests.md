@@ -30,9 +30,13 @@ For `.mbt.md` files, follow the structure below.
   - Nest trait implementations under the type they belong to using a bulleted list.
   - Only list traits that are explicitly implemented in the file (ignore defaults).
 - Each section should contain:
-  1. **Test Case Matrix**: A table summarizing conditions and cases. **(Optional if there is only 1 test case)**
-     - **Variable**: Must use the **Argument Name** of the function (e.g., `arg1`, `arg2`). For instance methods, use `self`.
-     - **NO Method Row**: Do not include a row identifying the method itself used as a condition. The H3 header already serves this purpose.
+  1. **Test Design Flow**: One or more Mermaid `flowchart TD` diagrams summarizing conditions and cases. Include a flowchart even when the function has only one test case.
+     - Follow the [`share-test-design-flow` embedded function-flow rules](../../share-test-design-flow/references/qa-flow.md#embedded-executable-function-flows) for case boundaries, local numbering, assertion aggregation, title mapping, and split-flow hierarchy.
+     - Do not use a test case matrix or table.
+     - Use the function's argument names such as `arg1`, `arg2`, or `self` in decision nodes when identifying input conditions.
+     - Use the function named by the H3 header as the start node instead of adding a redundant method condition.
+     - Follow [`names.md`](names.md) for the MoonBit test-title syntax and required `panic_` prefix.
+     - Follow [`assertions.md`](assertions.md#direct-results-and-raised-errors) to use inspection APIs for direct results and `try!` plus a `panic_` title for expected raised errors.
   2. **Implementation**: Code blocks with test implementations.
 - **Order matching**: The order of tests in the `## Test` section must strictly follow the order of the corresponding items in the `## Public API` section.
 
@@ -55,38 +59,43 @@ For `.mbt.md` files, follow the structure below.
 
 ### [Function Name]
 
-| Variable | State   | Note |  1  |  2  |  3  |
-| :------- | :------ | :--- | :-: | :-: | :-: |
-| `arg1`   | `Empty` |      |  ✓  |     |  -  |
-| `arg1`   | `Valid` |      |     |  ✓  |  -  |
-| `arg2`   | `True`  |      |  -  |  -  |  ✓  |
-| `arg2`   | `False` |      |  -  |  -  |     |
+```mermaid
+flowchart TD
+  Start(["Function Name"]) --> Arg1{"arg1 state?"}
+  Arg1 -->|valid| Arg2{"arg2?"}
+  Arg2 -->|true| Invoke["Invoke once"]
+  Invoke --> Value["value matches"]
+  Invoke --> Metadata["metadata matches"]
+  Value --> Case1["1: valid true input returns the result"]
+  Metadata --> Case1
+  Arg2 -->|false| Case2["2: valid false input returns the result"]
+  Arg1 -->|empty| Case3["3: empty input returns the fallback"]
+  Arg1 -->|invalid| Case4["4: invalid input panics"]
+```
 
 ```mbt check
-test "Function Name - scenario 1" {
-  // Primary constructor → debug_inspect to surface the struct shape
-  let value = StructName::StructName(1.0, 2.0)
-  debug_inspect(
-    value,
-    content=(
-      #|{ x: 1, y: 2 }
-    ),
-  )
+///|
+test "Function Name 1 - valid true input returns the result" {
+  // One invocation, multiple observations
+  let result = func1(valid_arg1, true)
+  inspect(result.value, content="expected value")
+  debug_inspect(result.metadata, content="ExpectedMetadata")
 }
 
-test "Function Name - scenario 2" {
-  // Equality of Eq + Debug values → @test.assert_eq
-  @test.assert_eq(func1(arg), expected)
+///|
+test "Function Name 2 - valid false input returns the result" {
+  // A different input uses a separate test block
+  debug_inspect(func1(valid_arg1, false), content="Expected")
 }
 
-test "Function Name - scenario 3" {
-  // Bool predicate → assert_true / assert_false
-  assert_true(value.is_zero())
+///|
+test "Function Name 3 - empty input returns the fallback" {
+  debug_inspect(func1(empty_arg1, false), content="Fallback")
 }
 
-test "panic_Function Name - invalid input" {
-  // Panic path → panic_ prefix + |> ignore
-  func1(invalid) |> ignore
+///|
+test "panic_Function Name 4 - invalid input panics" {
+  try! (func1(invalid_arg1, false) |> ignore)
 }
 ```
 
@@ -94,9 +103,15 @@ test "panic_Function Name - invalid input" {
 
 #### [method_name]
 
+```mermaid
+flowchart TD
+  Start(["TraitName::method_name"]) --> Case1["1: returns the expected value"]
+```
+
 ```mbt check
-test "StructName TraitName::method_name - scenario" {
-  @test.assert_eq(trait_method(...), expected)
+///|
+test "StructName TraitName::method_name 1 - returns the expected value" {
+  debug_inspect(trait_method(...), content="Expected")
 }
 ```
 ````
