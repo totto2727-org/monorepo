@@ -10,6 +10,8 @@ import * as EmailSender from '#@/feature/email/sender.ts'
 import * as Env from '#@/feature/env.ts'
 import * as HonoContext from '#@/feature/share/lib/hono/context.ts'
 
+import { initialUserName } from './user-name.ts'
+
 const makeInstance = (db: BetterAuthDB.Instance, env: Env.Type, emailSender: EmailSender.EmailSender, origin: string) =>
   betterAuth({
     account: {

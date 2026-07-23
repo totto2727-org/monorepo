@@ -2,8 +2,14 @@
 -- Idempotent: updates existing local rows so repeated runs repair stale dev values.
 
 -- 1) Dev user (required by oauth_application.user_id FK)
-INSERT OR IGNORE INTO `user` (`id`, `name`, `email`, `email_verified`, `image`, `created_at`, `updated_at`)
-VALUES ('dev-user-id', 'Dev User', 'dev@example.com', 1, NULL, datetime('now'), datetime('now'));
+INSERT INTO `user` (`id`, `name`, `email`, `email_verified`, `image`, `created_at`, `updated_at`)
+VALUES ('dev-user-id', 'Dev User', 'dev@example.com', 1, NULL, datetime('now'), datetime('now'))
+ON CONFLICT(`id`) DO UPDATE SET
+  `name` = excluded.`name`,
+  `email` = excluded.`email`,
+  `email_verified` = excluded.`email_verified`,
+  `image` = excluded.`image`,
+  `updated_at` = excluded.`updated_at`;
 
 -- 2) OAuth client for feed-platform-web
 INSERT INTO `oauth_application` (`id`, `name`, `client_id`, `client_secret`, `skip_consent`, `redirect_uris`, `user_id`, `created_at`, `updated_at`)

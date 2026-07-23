@@ -4,7 +4,7 @@
 - **Roadmap ID:** feed-platform
 - **Status:** completed
 - **Created at:** 2026-05-04T00:00:00Z
-- **Last updated:** 2026-07-10T00:00:00Z
+- **Last updated:** 2026-07-23T00:00:00Z
 
 このドキュメントは `roadmap` の **Step 2 (Milestone Decomposition)** で `roadmap-planner` Specialist が起草する**1 マイルストーンの定義書**。
 
@@ -14,7 +14,7 @@
 
 ## 到達点 (定性)
 
-- ユーザーが Passkey でサインアップ・ログインできる (実際の Web UI 上で動作確認可能)
+- ユーザーが Magic Link で初回登録後に Passkey を登録し、次回以降は Passkey でログインできる (実際の Web UI 上で動作確認可能)
 - ユーザーが Magic Link でサインアップ・ログインできる (発行されたリンクを踏むとセッションが確立する)
 - セッション管理 (発行 / 検証 / 失効) が実装され、後続マイルストーンが「現在のユーザー識別子」を取得できる API 表面が用意されている
 - 認証フローのテストケース (正常系・異常系) が成立し、`vp test` で green を維持している
@@ -79,6 +79,8 @@ roadmap-level source for the latest codebase state.
   unauthenticated policy, and the app user shape uses `id`.
 - The package rename from `auth-helper` to `auth` is now part of the current
   baseline and should be reflected in new docs and coding guidance.
+- New users created through Better Auth receive a non-empty initial name before insertion. When the upstream identity has no name, the IdP derives it from the email local part. This removes the need for an onboarding status or a separate name-entry page.
+- The local OAuth seed upserts the development user with the non-empty `Dev User` name, so rerunning the seed repairs an existing empty or stale development-user row. Existing non-seed users with empty names are not backfilled.
 - Remaining future auth design work should treat historical ADRs as context and
   place new implementation-state corrections in roadmap progress notes rather
   than rewriting adopted ADRs.
