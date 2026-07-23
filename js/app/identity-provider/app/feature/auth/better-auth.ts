@@ -4,6 +4,7 @@ import { betterAuth } from 'better-auth'
 import { jwt, magicLink } from 'better-auth/plugins'
 import { Context, Effect, Layer, Predicate } from 'effect'
 
+import { initialUserName } from '#@/feature/auth/user-name.ts'
 import * as BetterAuthDB from '#@/feature/db/better-auth-kysely.ts'
 import * as EmailSender from '#@/feature/email/sender.ts'
 import * as Env from '#@/feature/env.ts'
@@ -32,6 +33,13 @@ const makeInstance = (db: BetterAuthDB.Instance, env: Env.Type, emailSender: Ema
     basePath: '/api/v1/auth',
     baseURL: origin,
     database: { db, type: 'sqlite' },
+    databaseHooks: {
+      user: {
+        create: {
+          before: (user) => Promise.resolve({ data: { ...user, name: initialUserName(user) } }),
+        },
+      },
+    },
     plugins: [
       passkey({
         origin,
