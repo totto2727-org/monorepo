@@ -2,70 +2,10 @@
 let default_config_path : String = "bw-config.json"
 
 ///|
-let account_id_env : String = cloudflare_account_id_env
-
-///|
-let api_token_env : String = cloudflare_api_token_env
-
-///|
-let url_env = "BW_URL"
-
-///|
-let html_env = "BW_HTML"
-
-///|
-let wait_until_env = "BW_WAIT_UNTIL"
-
-///|
-let output_env = "BW_OUTPUT"
-
-///|
-let full_page_env = "BW_FULL_PAGE"
-
-///|
-let width_env = "BW_WIDTH"
-
-///|
-let height_env = "BW_HEIGHT"
-
-///|
-let landscape_env = "BW_LANDSCAPE"
-
-///|
-let format_env = "BW_FORMAT"
-
-///|
-let selector_env = "BW_SELECTOR"
-
-///|
-let prompt_env = "BW_PROMPT"
-
-///|
-let schema_env = "BW_SCHEMA"
-
-///|
-let id_env = "BW_CRAWL_ID"
-
-///|
-let limit_env = "BW_CRAWL_LIMIT"
-
-///|
-let depth_env = "BW_CRAWL_DEPTH"
-
-///|
-let formats_env = "BW_CRAWL_FORMATS"
-
-///|
-let visible_only_env = "BW_VISIBLE_ONLY"
-
-///|
-let internal_only_env = "BW_INTERNAL_ONLY"
-
-///|
 let account_id_option : @admiral.OptionDef[String] = @admiral.string(
   "account-id",
   description="Cloudflare account ID",
-  env=account_id_env,
+  env="CLOUDFLARE_ACCOUNT_ID",
   config="account_id",
   required=true,
 )
@@ -74,7 +14,7 @@ let account_id_option : @admiral.OptionDef[String] = @admiral.string(
 let api_token_option : @admiral.OptionDef[String] = @admiral.string(
   "api-token",
   description="Cloudflare API token",
-  env=api_token_env,
+  env="CLOUDFLARE_API_TOKEN",
   config="api_token",
   required=true,
 )

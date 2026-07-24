@@ -2,7 +2,7 @@
 let crawl_url_option : @admiral.OptionDef[String] = @admiral.string(
   "url",
   description="Target URL",
-  env=url_env,
+  env="BW_URL",
   config="url",
 )
 
@@ -10,7 +10,7 @@ let crawl_url_option : @admiral.OptionDef[String] = @admiral.string(
 let crawl_html_option : @admiral.OptionDef[String] = @admiral.string(
   "html",
   description="Path to local HTML file",
-  env=html_env,
+  env="BW_HTML",
   config="html",
 )
 
@@ -18,7 +18,7 @@ let crawl_html_option : @admiral.OptionDef[String] = @admiral.string(
 let crawl_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
   "wait-until",
   description="Page load strategy",
-  env=wait_until_env,
+  env="BW_WAIT_UNTIL",
   config="wait_until",
 )
 
@@ -27,7 +27,7 @@ let crawl_output_option : @admiral.OptionDef[String] = @admiral.string(
   "output",
   short='o',
   description="Output file path",
-  env=output_env,
+  env="BW_OUTPUT",
   config="output",
 )
 
@@ -35,7 +35,7 @@ let crawl_output_option : @admiral.OptionDef[String] = @admiral.string(
 let crawl_limit_option : @admiral.OptionDef[Int] = @admiral.int(
   "limit",
   description="Max pages to crawl",
-  env=limit_env,
+  env="BW_CRAWL_LIMIT",
   config="limit",
 )
 
@@ -43,7 +43,7 @@ let crawl_limit_option : @admiral.OptionDef[Int] = @admiral.int(
 let crawl_depth_option : @admiral.OptionDef[Int] = @admiral.int(
   "depth",
   description="Max link depth",
-  env=depth_env,
+  env="BW_CRAWL_DEPTH",
   config="depth",
 )
 
@@ -51,7 +51,7 @@ let crawl_depth_option : @admiral.OptionDef[Int] = @admiral.int(
 let crawl_format_option : @admiral.OptionDef[Array[String]] = @admiral.strings(
   "format",
   description="Output formats: html,markdown,json",
-  env=formats_env,
+  env="BW_CRAWL_FORMATS",
   config="formats",
 )
 
@@ -59,7 +59,7 @@ let crawl_format_option : @admiral.OptionDef[Array[String]] = @admiral.strings(
 let crawl_id_option : @admiral.OptionDef[String] = @admiral.string(
   "id",
   description="Crawl job ID",
-  env=id_env,
+  env="BW_CRAWL_ID",
   config="id",
   required=true,
 )

@@ -2,7 +2,7 @@
 let content_url_option : @admiral.OptionDef[String] = @admiral.string(
   "url",
   description="Target URL",
-  env=url_env,
+  env="BW_URL",
   config="url",
 )
 
@@ -10,7 +10,7 @@ let content_url_option : @admiral.OptionDef[String] = @admiral.string(
 let content_html_option : @admiral.OptionDef[String] = @admiral.string(
   "html",
   description="Path to local HTML file",
-  env=html_env,
+  env="BW_HTML",
   config="html",
 )
 
@@ -18,7 +18,7 @@ let content_html_option : @admiral.OptionDef[String] = @admiral.string(
 let content_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
   "wait-until",
   description="Page load strategy",
-  env=wait_until_env,
+  env="BW_WAIT_UNTIL",
   config="wait_until",
 )
 
@@ -27,7 +27,7 @@ let content_output_option : @admiral.OptionDef[String] = @admiral.string(
   "output",
   short='o',
   description="Output file path",
-  env=output_env,
+  env="BW_OUTPUT",
   config="output",
 )
 

@@ -2,7 +2,7 @@
 let json_url_option : @admiral.OptionDef[String] = @admiral.string(
   "url",
   description="Target URL",
-  env=url_env,
+  env="BW_URL",
   config="url",
 )
 
@@ -10,7 +10,7 @@ let json_url_option : @admiral.OptionDef[String] = @admiral.string(
 let json_html_option : @admiral.OptionDef[String] = @admiral.string(
   "html",
   description="Path to local HTML file",
-  env=html_env,
+  env="BW_HTML",
   config="html",
 )
 
@@ -18,7 +18,7 @@ let json_html_option : @admiral.OptionDef[String] = @admiral.string(
 let json_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
   "wait-until",
   description="Page load strategy",
-  env=wait_until_env,
+  env="BW_WAIT_UNTIL",
   config="wait_until",
 )
 
@@ -26,7 +26,7 @@ let json_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
 let json_prompt_option : @admiral.OptionDef[String] = @admiral.string(
   "prompt",
   description="Extraction prompt",
-  env=prompt_env,
+  env="BW_PROMPT",
   config="prompt",
   required=true,
 )
@@ -35,7 +35,7 @@ let json_prompt_option : @admiral.OptionDef[String] = @admiral.string(
 let json_schema_option : @admiral.OptionDef[String] = @admiral.string(
   "schema",
   description="Path to JSON Schema file",
-  env=schema_env,
+  env="BW_SCHEMA",
   config="schema",
 )
 
@@ -43,7 +43,7 @@ let json_schema_option : @admiral.OptionDef[String] = @admiral.string(
 let json_format_option : @admiral.OptionDef[String] = @admiral.string(
   "format",
   description="Output format: json, markdown, text",
-  env=format_env,
+  env="BW_FORMAT",
   config="format",
 )
 
