@@ -13,7 +13,7 @@ keywords = [ "cli", "argparse", "moonbit" ]
 description = "Async-first declarative CLI builder for MoonBit, inspired by gunshi"
 
 import {
-  "moonbitlang/async@0.19.2",
+  "moonbitlang/async@0.20.1",
 }
 
 preferred_target = "native"

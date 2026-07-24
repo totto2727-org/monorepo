@@ -24,3 +24,21 @@ The server lifecycle follows the handwritten TypeScript SDK contract. The SDK re
 ```
 
 The task group must outlive the returned server. Call `Server::close` inside the task-group body on both success and failure; task-group defers run only after child tasks finish, while the managed server is itself a long-lived child task.
+
+## CLI examples
+
+The example executable starts a managed OpenCode server, uses the SDK's `moonllm_config` builder, and closes the server before its task group exits. OpenCode uses the provider and model configured in the user's environment.
+
+Translate text into English without allowing any tools:
+
+```bash
+moon run --target native mbt/package/opencode-sdk/src/examples/cli -- translate 'MoonBitでOpenCode SDKを実装しています。'
+```
+
+Fetch an HTTP or HTTPS page with OpenCode's `webfetch` tool and summarize it as Markdown:
+
+```bash
+moon run --target native mbt/package/opencode-sdk/src/examples/cli -- summarize-url https://example.com
+```
+
+The translation session denies every tool. The URL summarization session also denies every tool by default, then allows only `webfetch` through OpenCode's [permission rules](https://opencode.ai/docs/permissions/).

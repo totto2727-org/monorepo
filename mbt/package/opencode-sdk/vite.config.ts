@@ -5,7 +5,7 @@ export default defineConfig({
     tasks: {
       build: {
         command: 'moon build --target native',
-        input: ['moon.mod', '**/*.mbt'],
+        input: ['moon.mod', '**/moon.pkg', '**/*.mbt'],
       },
     },
   },
