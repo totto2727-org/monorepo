@@ -23,7 +23,9 @@ fn translate_command_def(
     name="translate",
     description="Translate text into English without tools",
     positionals=[translate_text_argument],
-    examples=["opencode-example translate 'MoonBitでSDKを実装しています。'"],
+    examples=[
+      "opencode-example translate 'MoonBitでSDKを実装しています。'",
+    ],
     run=Some(run),
   )
 }
@@ -34,8 +36,7 @@ async fn run_translate(context : @admiral.Context) -> Unit {
   let output = run_prompt({
     title: "English translation",
     tool_access: NoTools,
-    system:
-      "You are a professional translator. Translate the user's text into natural English. Preserve its meaning, tone, names, and formatting. Return only the English translation with no commentary.",
+    system: "You are a professional translator. Translate the user's text into natural English. Preserve its meaning, tone, names, and formatting. Return only the English translation with no commentary.",
     text: options.text,
   })
   println(output)

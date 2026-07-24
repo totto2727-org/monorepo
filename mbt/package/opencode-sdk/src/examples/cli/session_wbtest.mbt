@@ -9,9 +9,7 @@ test "SessionCreateBody ToJson 1 - disables every tool" {
   }
   json_inspect(ToJson::to_json(body), content={
     "title": "English translation",
-    "permission": [
-      { "permission": "*", "pattern": "*", "action": "deny" },
-    ],
+    "permission": [{ "permission": "*", "pattern": "*", "action": "deny" }],
   })
 }
 
@@ -55,18 +53,9 @@ test "decode_assistant_text 1 - concatenates text parts only" {
       Json::object({
         "info": Json::empty_object(),
         "parts": Json::array([
-          Json::object({
-            "type": "tool".to_json(),
-            "text": "ignored".to_json(),
-          }),
-          Json::object({
-            "type": "text".to_json(),
-            "text": "Hello ".to_json(),
-          }),
-          Json::object({
-            "type": "text".to_json(),
-            "text": "world".to_json(),
-          }),
+          Json::object({ "type": "tool".to_json(), "text": "ignored".to_json() }),
+          Json::object({ "type": "text".to_json(), "text": "Hello ".to_json() }),
+          Json::object({ "type": "text".to_json(), "text": "world".to_json() }),
         ]),
       }),
     ),
@@ -76,20 +65,18 @@ test "decode_assistant_text 1 - concatenates text parts only" {
 
 ///|
 test "panic_decode_assistant_text 2 - rejects assistant errors" {
-  try! (
-    decode_assistant_text(
-      Json::object({
-        "info": Json::object({
-          "error": Json::object({
-            "name": "UnknownError".to_json(),
-            "data": Json::object({ "message": "failed".to_json() }),
-          }),
+  try! (decode_assistant_text(
+    Json::object({
+      "info": Json::object({
+        "error": Json::object({
+          "name": "UnknownError".to_json(),
+          "data": Json::object({ "message": "failed".to_json() }),
         }),
-        "parts": Json::array([]),
       }),
-    )
-    |> ignore
+      "parts": Json::array([]),
+    }),
   )
+  |> ignore)
 }
 
 ///|
