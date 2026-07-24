@@ -492,14 +492,19 @@ async test "Codex run - throws TurnFailed on turn failures" {
       "{\"type\":\"turn.started\"}",
       "{\"type\":\"turn.failed\",\"error\":{\"message\":\"rate limit exceeded\"}}",
     ].join("\n")
+    let environment = fixture.environment([events])
+    environment.set("FAKE_CODEX_PAUSE", "1")
     let thread = fixture
-      .client(fixture.environment([events]))
+      .client(environment)
       .start_thread()
     let message = try {
-      thread.run(Prompt("fail")) |> ignore
+      @async.with_timeout(2000, async fn() {
+        thread.run(Prompt("fail")) |> ignore
+      })
       "no error"
     } catch {
       CodexSdkError::TurnFailed(message~) => message
+      @async.TimeoutError => "timed out"
       error => "unexpected:\{error}"
     }
     inspect(message, content="rate limit exceeded")

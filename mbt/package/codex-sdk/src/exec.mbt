@@ -33,6 +33,8 @@ const MOONBIT_SDK_ORIGINATOR : String = "codex_sdk_mbt"
 
 ///| Executes the Codex CLI and streams its JSONL output.
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L63-L67
+///| Runtime type difference: the upstream type stores `pathDirs` for directories bundled in the npm platform package; this MoonBit package has no npm optional-package resolver, so that property is intentionally absent.
+///| Upstream path type and bundled-directory resolution: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L58-L65 and https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L412-L430
 struct CodexExec {
   executable_path : @path.Path
   env_override : Map[String, String]?
@@ -48,6 +50,8 @@ fn CodexExec::CodexExec(
   config_overrides : CodexConfigObject?,
 ) -> CodexExec {
   {
+    // Runtime default-resolution difference: the upstream implementation resolves its npm platform package and bundled executable, whereas MoonBit resolves `codex` through the process PATH when no override is supplied.
+    // Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L69-L81 and https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L334-L410
     executable_path: executable_path.unwrap_or(@path.Path("codex")),
     env_override: env,
     config_overrides,
@@ -56,12 +60,12 @@ fn CodexExec::CodexExec(
 
 ///| Runs the CLI with the same argument ordering, environment behavior, and process lifecycle as the upstream generator.
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L86-L243
-///| Async type difference: MoonBit has no AsyncGenerator, so each output line is delivered to an async callback.
+///| Async type difference: MoonBit has no AsyncGenerator, so each output line is delivered to an async callback returning whether iteration should continue.
 ///| Cancellation type difference: cancelling the owning MoonBit task replaces the upstream AbortSignal.
 async fn CodexExec::run(
   self : CodexExec,
   args : CodexExecArgs,
-  on_line : async (String) -> Unit,
+  on_line : async (String) -> Bool,
 ) -> Unit raise {
   let command_args = ["exec", "--experimental-json"]
   if self.config_overrides is Some(config) {
@@ -153,8 +157,11 @@ async fn CodexExec::run(
   if args.api_key is Some(value) {
     environment.set("CODEX_API_KEY", value)
   }
+  // Runtime PATH difference: the upstream implementation prepends its bundled `pathDirs` here; MoonBit performs no equivalent mutation because it neither resolves nor stores npm-bundled directories.
+  // Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L177-L179
   let inherit_environment = self.env_override is None
 
+  let moonbit_internal_stop_requested = Ref(false)
   @async.with_task_group(fn(group) {
     let (child_input, input_writer) = @process.write_to_process()
     let (output_reader, child_output) = @process.read_from_process()
@@ -167,12 +174,6 @@ async fn CodexExec::run(
       defer error_reader.close()
       error_reader.read_all().text()
     })
-    let stdout_task = group.spawn(fn() {
-      defer output_reader.close()
-      while output_reader.read_until("\n") is Some(line) {
-        on_line(line)
-      }
-    })
     let child = @process.spawn(
       group,
       "\{self.executable_path}",
@@ -182,11 +183,26 @@ async fn CodexExec::run(
       stdin=child_input,
       stdout=child_output,
       stderr=child_error,
+      // Runtime difference: MoonBit's default process cancellation waits up to five seconds before escalation, while the upstream generator cleanup terminates before returning control to the consumer.
+      // Upstream generator cleanup: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L235-L242
+      cancel_handler=@process.hard_cancel(),
     )
+    let stdout_task = group.spawn(fn() {
+      defer output_reader.close()
+      while output_reader.read_until("\n") is Some(line) {
+        if !on_line(line) {
+          moonbit_internal_stop_requested.val = true
+          // Async type difference: cancelling the process explicitly replaces AsyncGenerator cleanup when the upstream consumer stops iteration.
+          // Upstream generator cleanup: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L235-L242
+          child.cancel()
+          break
+        }
+      }
+    })
     let code = child.wait()
     // Runtime difference: MoonBit pipe reads are separate tasks. Cancel the reader after an early nonzero exit so a descendant holding stdout cannot block error delivery.
     // Upstream lifecycle: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L208-L243
-    if code != 0 {
+    if code != 0 && !moonbit_internal_stop_requested.val {
       stdout_task.cancel()
       try stdout_task.wait() catch {
         error =>
@@ -197,8 +213,21 @@ async fn CodexExec::run(
     } else {
       stdout_task.wait()
     }
-    let stderr = stderr_task.wait()
-    if code != 0 {
+    let stderr = if moonbit_internal_stop_requested.val {
+      // Runtime difference: a descendant can retain the stderr pipe after the CLI process is terminated, so callback-requested generator cleanup also cancels the MoonBit reader task.
+      // Upstream generator cleanup: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L235-L242
+      stderr_task.cancel()
+      try stderr_task.wait() |> ignore catch {
+        error =>
+          if !@async.is_cancellation_error(error) {
+            raise error
+          }
+      }
+      ""
+    } else {
+      stderr_task.wait()
+    }
+    if code != 0 && !moonbit_internal_stop_requested.val {
       raise ExecFailed(code=code, stderr=stderr)
     }
   })
