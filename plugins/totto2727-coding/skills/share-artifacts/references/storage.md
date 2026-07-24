@@ -14,7 +14,7 @@ docs/roadmap/<roadmap-id>/
 `-- progress.yaml
 ```
 
-`progress.yaml` is CLI-managed state, not a document template. Implementation-specific artifacts stay with their owning implementation effort and may be linked through `progress.yaml.milestones[].workflow_identifiers[]` when identifiers exist.
+`progress.yaml` is machine-readable state, not a document template. Implementation-specific artifacts stay with their owning implementation effort and may be linked through `progress.yaml.milestones[].workflow_identifiers[]` when identifiers exist.
 
 Choose a stable project-specific `<roadmap-id>`, such as a strategic objective, dated slug, or ticket ID. Avoid collisions with identifiers used by implementation efforts.
 

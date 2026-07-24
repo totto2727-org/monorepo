@@ -30,7 +30,7 @@ List every milestone that must complete first and give a short reason. Use `(non
 
 ### Implementation links
 
-`progress.yaml.milestones[].workflow_identifiers[]` is the primary record for linked implementation efforts. A milestone may repeat those identifiers as a human-readable aid, but must not contradict the CLI-managed state.
+`progress.yaml.milestones[].workflow_identifiers[]` is the primary record for linked implementation efforts. A milestone may repeat those identifiers as a human-readable aid, but must not contradict the progress state.
 
 ### Estimated effort count
 
@@ -48,7 +48,7 @@ A roadmap may use its final milestone for integration verification across earlie
 
 - The purpose is qualitative and implementation-neutral.
 - Scope and exclusions prevent overlap with sibling milestones.
-- Dependency IDs match the roadmap and CLI-managed state.
+- Dependency IDs match the roadmap and `progress.yaml`.
 - One file describes exactly one milestone.
 - Any multi-effort split has a concrete rationale.
 

@@ -12,6 +12,6 @@
 
 ## Persistence
 
-Commit an approved artifact with the work that establishes it. Use the owning CLI for machine-managed state such as `progress.yaml`.
+Commit an approved artifact with the work that establishes it. Update `progress.yaml` in the same change when roadmap state must move with the artifact.
 
-When resuming roadmap work, restore context from `roadmap.md`, `milestones/`, applicable ADRs, the roadmap retrospective when present, and CLI-managed state.
+When resuming roadmap work, restore context from `roadmap.md`, `milestones/`, applicable ADRs, the roadmap retrospective when present, and `progress.yaml`.

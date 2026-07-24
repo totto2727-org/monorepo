@@ -11,7 +11,7 @@
 ## Linking
 
 - Link an ADR from the design, roadmap, or milestone that depends on it.
-- When roadmap state tracks ADR paths, update that state through its owning CLI.
+- When roadmap state tracks ADR paths, update the owning `progress.yaml` in the same change.
 - During roadmap definition or milestone decomposition, file a Roadmap ADR for a durable premise shared within that roadmap.
 - During a retrospective, extract a durable cross-effort decision into an ADR; keep observations and improvement ideas in the retrospective.
 
