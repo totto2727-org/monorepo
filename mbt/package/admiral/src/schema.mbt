@@ -114,6 +114,13 @@ pub fn CliApp::render_schema_json(self : CliApp) -> Json {
     }
     m["options"] = Json::object(opts)
   }
+  if self.root_positionals.length() > 0 {
+    let positionals : Map[String, Json] = Map([])
+    for position in self.root_positionals {
+      positionals[position.name] = position_def_to_json(position)
+    }
+    m["positionals"] = Json::object(positionals)
+  }
   if self.commands.length() > 0 {
     let cmds : Map[String, Json] = Map([])
     for cmd in self.commands {
