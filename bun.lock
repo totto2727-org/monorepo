@@ -112,22 +112,6 @@
         "wrangler": "catalog:cloudflare",
       },
     },
-    "js/app/mdt": {
-      "name": "@totto2727/mdt",
-      "version": "0.1.2",
-      "bin": {
-        "mdt": "./dist/bin.mjs",
-      },
-      "dependencies": {
-        "@effect/platform-node": "catalog:effect",
-        "@opencode-ai/sdk": "catalog:opencode",
-        "effect": "catalog:effect",
-      },
-      "devDependencies": {
-        "@totto2727/fp": "workspace:*",
-        "vite-plus": "catalog:",
-      },
-    },
     "js/app/roadmap": {
       "name": "@totto2727/roadmap",
       "version": "0.4.0",
@@ -276,6 +260,12 @@
         "vite-plus": "catalog:",
       },
     },
+    "mbt/app/mdt": {
+      "name": "@totto2727/mdt",
+      "devDependencies": {
+        "vite-plus": "catalog:",
+      },
+    },
     "mbt/app/wt": {
       "name": "@totto2727/wt",
       "devDependencies": {
@@ -291,6 +281,13 @@
     },
     "mbt/package/geo-mbt": {
       "name": "@totto2727/geo-mbt",
+      "version": "0.0.0",
+      "devDependencies": {
+        "vite-plus": "catalog:",
+      },
+    },
+    "mbt/package/opencode-sdk": {
+      "name": "@totto2727/opencode-sdk",
       "version": "0.0.0",
       "devDependencies": {
         "vite-plus": "catalog:",
@@ -365,9 +362,6 @@
     },
     "lint": {
       "ultracite": "7.8.4",
-    },
-    "opencode": {
-      "@opencode-ai/sdk": "^1.15.12",
     },
     "pulumi": {
       "@pulumi/aws": "^7.0.0",
@@ -683,8 +677,6 @@
     "@npmcli/redact": ["@npmcli/redact@4.0.0", "https://npm.flatt.tech/@npmcli/redact/-/redact-4.0.0.tgz", {}, "sha512-gOBg5YHMfZy+TfHArfVogwgfBeQnKbbGo3pSUyK/gSI0AVu+pEiDVcKlQb0D8Mg1LNRZILZ6XG8I5dJ4KuAd9Q=="],
 
     "@npmcli/run-script": ["@npmcli/run-script@10.0.4", "https://npm.flatt.tech/@npmcli/run-script/-/run-script-10.0.4.tgz", { "dependencies": { "@npmcli/node-gyp": "^5.0.0", "@npmcli/package-json": "^7.0.0", "@npmcli/promise-spawn": "^9.0.0", "node-gyp": "^12.1.0", "proc-log": "^6.0.0" } }, "sha512-mGUWr1uMnf0le2TwfOZY4SFxZGXGfm4Jtay/nwAa2FLNAKXUoUwaGwBMNH36UHPtinWfTSJ3nqFQr0091CxVGg=="],
-
-    "@opencode-ai/sdk": ["@opencode-ai/sdk@1.17.18", "https://npm.flatt.tech/@opencode-ai/sdk/-/sdk-1.17.18.tgz", { "dependencies": { "cross-spawn": "7.0.6" } }, "sha512-c/C9PhY8PrbcxDY+JIYtOZsrmMD0KzoVvxq+RGUrZ6LQp57SuVBbT4lfwA2G8Se5RNC1N5JtYjiuaXeECnF2SQ=="],
 
     "@opentelemetry/api": ["@opentelemetry/api@1.9.1", "https://npm.flatt.tech/@opentelemetry/api/-/api-1.9.1.tgz", {}, "sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q=="],
 
@@ -1164,7 +1156,9 @@
 
     "@totto2727/geo-mbt": ["@totto2727/geo-mbt@workspace:mbt/package/geo-mbt"],
 
-    "@totto2727/mdt": ["@totto2727/mdt@workspace:js/app/mdt"],
+    "@totto2727/mdt": ["@totto2727/mdt@workspace:mbt/app/mdt"],
+
+    "@totto2727/opencode-sdk": ["@totto2727/opencode-sdk@workspace:mbt/package/opencode-sdk"],
 
     "@totto2727/roadmap": ["@totto2727/roadmap@workspace:js/app/roadmap"],
 

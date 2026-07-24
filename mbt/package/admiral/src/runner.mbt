@@ -23,13 +23,27 @@ pub fn cli(
   version? : String = "0.0.0",
   description? : String = "",
   options? : Array[&ToStoredOption] = [],
+  positionals? : Array[&ToStoredPosition] = [],
   commands? : Array[CommandDef] = [],
+  run? : (async (Context) -> Unit)? = None,
   load_config? : (() -> Map[String, Json] raise ConfigLoadFailure)? = None,
 ) -> CliApp {
   let root_options = options.map(fn(option) {
     ToStoredOption::to_stored_option(option)
   })
-  { name, version, description, root_options, commands, load_config }
+  let root_positionals = positionals.map(fn(position) {
+    ToStoredPosition::to_stored_position(position)
+  })
+  {
+    name,
+    version,
+    description,
+    root_options,
+    root_positionals,
+    commands,
+    run,
+    load_config,
+  }
 }
 
 ///|
@@ -59,6 +73,47 @@ fn find_command_def(commands : Array[CommandDef], name : String) -> CommandDef? 
     }
   }
   None
+}
+
+///|
+fn build_root_command(
+  app : CliApp,
+  config : Map[String, Json],
+) -> @argparse.Command {
+  let flags : Array[@argparse.FlagArg] = []
+  let options : Array[@argparse.OptionArg] = []
+  for opt in app.root_options {
+    match opt.metadata.type_ {
+      BoolOpt => flags.push(build_option_to_flag(opt, global=true))
+      StringOpt | IntOpt | Int64Opt | UIntOpt | UInt64Opt | DoubleOpt =>
+        options.push(build_option_to_option_arg(opt, config, global=true))
+    }
+  }
+  let subcommands = app.commands.map(fn(c) {
+    build_command_with_config(c, config)
+  })
+  let positionals = app.root_positionals.map(fn(position) {
+    build_position(position, config)
+  })
+  @argparse.Command(
+    app.name,
+    about=app.description,
+    version=app.version,
+    flags~,
+    options~,
+    positionals~,
+    subcommands~,
+    arg_required_else_help=app.run is None,
+  )
+}
+
+///|
+fn print_help(command : @argparse.Command) -> Unit {
+  let help = command.render_help()
+  match help.strip_suffix("\n") {
+    Some(text) => println(text)
+    None => println(help)
+  }
 }
 
 ///|
@@ -96,31 +151,15 @@ pub async fn CliApp::run(
     Some(load_config) => load_config()
     None => Map([])
   }
-  let flags : Array[@argparse.FlagArg] = []
-  let options : Array[@argparse.OptionArg] = []
-  for opt in self.root_options {
-    match opt.metadata.type_ {
-      BoolOpt => flags.push(build_option_to_flag(opt, global=true))
-      StringOpt | IntOpt | Int64Opt | UIntOpt | UInt64Opt | DoubleOpt =>
-        options.push(build_option_to_option_arg(opt, config, global=true))
-    }
-  }
-  let subcommands = self.commands.map(fn(c) {
-    build_command_with_config(c, config)
-  })
-  let argparse_cmd = @argparse.Command(
-    self.name,
-    about=self.description,
-    version=self.version,
-    flags~,
-    options~,
-    subcommands~,
-    arg_required_else_help=true,
-  )
+  let argparse_cmd = build_root_command(self, config)
   let matches = match argv {
     Some(args) => argparse_cmd.parse(argv=args, env~)
     None => argparse_cmd.parse(env~)
   }
   let ctx = matches_to_context(matches, config)
-  execute_command(self.commands, ctx)
+  match (ctx.subcommand, self.run) {
+    (Some(_), _) => execute_command(self.commands, ctx)
+    (None, Some(run)) => run(ctx)
+    (None, None) => print_help(argparse_cmd)
+  }
 }

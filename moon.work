@@ -7,4 +7,5 @@ members = [
   "./mbt/app/bw",
   "./mbt/app/wt",
   "./mbt/app/c-plugin",
+  "./mbt/app/mdt",
 ]

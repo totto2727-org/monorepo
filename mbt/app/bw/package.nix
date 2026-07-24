@@ -28,7 +28,7 @@ let
       version = "0.1.7";
       deps = {
         "gmlewis/base64" = "0.16.10";
-        "totto2727/admiral" = "0.4.0";
+        "totto2727/admiral" = "0.5.0";
         "moonbitlang/async" = "0.19.2";
         "moonbitlang/x" = "0.4.38";
       };

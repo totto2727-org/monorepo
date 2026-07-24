@@ -74,9 +74,6 @@
     "lint": {
       "ultracite": "7.8.4"
     },
-    "opencode": {
-      "@opencode-ai/sdk": "^1.15.12"
-    },
     "pulumi": {
       "@pulumi/aws": "^7.0.0",
       "@pulumi/awsx": "^3.0.0",
