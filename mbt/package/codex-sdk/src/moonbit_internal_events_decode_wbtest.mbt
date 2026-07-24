@@ -3,10 +3,12 @@
 // Event shapes under test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/events.ts#L5-L84
 // This file is intentionally prefixed moonbit_internal_ because upstream relies on a TypeScript cast and has no decoder test module.
 
+///|
 fn moonbit_internal_decode_event(source : String) -> ThreadEvent raise {
   moonbit_internal_thread_event_from_json(@json.parse(source))
 }
 
+///|
 fn moonbit_internal_event_decode_error(source : String) -> String {
   try {
     moonbit_internal_decode_event(source) |> ignore
@@ -19,9 +21,10 @@ fn moonbit_internal_event_decode_error(source : String) -> String {
 
 ///|
 test "MoonBit event decoder - decodes thread started" {
-  match moonbit_internal_decode_event(
-    "{\"type\":\"thread.started\",\"thread_id\":\"thread-1\"}",
-  ) {
+  match
+    moonbit_internal_decode_event(
+      "{\"type\":\"thread.started\",\"thread_id\":\"thread-1\"}",
+    ) {
     ThreadStarted(event) => inspect(event.thread_id, content="thread-1")
     _ => fail("expected thread started")
   }
@@ -37,9 +40,10 @@ test "MoonBit event decoder - decodes turn started" {
 
 ///|
 test "MoonBit event decoder - decodes completed turn usage" {
-  match moonbit_internal_decode_event(
-    "{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":10,\"cached_input_tokens\":2,\"cache_write_input_tokens\":3,\"output_tokens\":4,\"reasoning_output_tokens\":1}}",
-  ) {
+  match
+    moonbit_internal_decode_event(
+      "{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":10,\"cached_input_tokens\":2,\"cache_write_input_tokens\":3,\"output_tokens\":4,\"reasoning_output_tokens\":1}}",
+    ) {
     TurnCompleted(event) => {
       inspect(event.usage.input_tokens, content="10")
       inspect(event.usage.cached_input_tokens, content="2")
@@ -49,9 +53,10 @@ test "MoonBit event decoder - decodes completed turn usage" {
     }
     _ => fail("expected turn completed")
   }
-  match moonbit_internal_decode_event(
-    "{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":10,\"cached_input_tokens\":2,\"output_tokens\":4,\"reasoning_output_tokens\":1}}",
-  ) {
+  match
+    moonbit_internal_decode_event(
+      "{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":10,\"cached_input_tokens\":2,\"output_tokens\":4,\"reasoning_output_tokens\":1}}",
+    ) {
     TurnCompleted(event) =>
       inspect(event.usage.cache_write_input_tokens, content="0")
     _ => fail("expected turn completed")
@@ -60,9 +65,10 @@ test "MoonBit event decoder - decodes completed turn usage" {
 
 ///|
 test "MoonBit event decoder - decodes turn failed" {
-  match moonbit_internal_decode_event(
-    "{\"type\":\"turn.failed\",\"error\":{\"message\":\"rate limited\"}}",
-  ) {
+  match
+    moonbit_internal_decode_event(
+      "{\"type\":\"turn.failed\",\"error\":{\"message\":\"rate limited\"}}",
+    ) {
     TurnFailed(event) => inspect(event.error.message, content="rate limited")
     _ => fail("expected turn failed")
   }
@@ -70,9 +76,10 @@ test "MoonBit event decoder - decodes turn failed" {
 
 ///|
 test "MoonBit event decoder - decodes item started" {
-  match moonbit_internal_decode_event(
-    "{\"type\":\"item.started\",\"item\":{\"id\":\"reasoning-1\",\"type\":\"reasoning\",\"text\":\"thinking\"}}",
-  ) {
+  match
+    moonbit_internal_decode_event(
+      "{\"type\":\"item.started\",\"item\":{\"id\":\"reasoning-1\",\"type\":\"reasoning\",\"text\":\"thinking\"}}",
+    ) {
     ItemStarted(event) =>
       match event.item {
         Reasoning(item) => inspect(item.text, content="thinking")
@@ -84,9 +91,10 @@ test "MoonBit event decoder - decodes item started" {
 
 ///|
 test "MoonBit event decoder - decodes item updated" {
-  match moonbit_internal_decode_event(
-    "{\"type\":\"item.updated\",\"item\":{\"id\":\"command-1\",\"type\":\"command_execution\",\"command\":\"pwd\",\"aggregated_output\":\"/tmp\\n\",\"exit_code\":null,\"status\":\"in_progress\"}}",
-  ) {
+  match
+    moonbit_internal_decode_event(
+      "{\"type\":\"item.updated\",\"item\":{\"id\":\"command-1\",\"type\":\"command_execution\",\"command\":\"pwd\",\"aggregated_output\":\"/tmp\\n\",\"exit_code\":null,\"status\":\"in_progress\"}}",
+    ) {
     ItemUpdated(event) =>
       match event.item {
         CommandExecution(item) => {
@@ -101,9 +109,10 @@ test "MoonBit event decoder - decodes item updated" {
 
 ///|
 test "MoonBit event decoder - decodes item completed" {
-  match moonbit_internal_decode_event(
-    "{\"type\":\"item.completed\",\"item\":{\"id\":\"message-1\",\"type\":\"agent_message\",\"text\":\"done\"}}",
-  ) {
+  match
+    moonbit_internal_decode_event(
+      "{\"type\":\"item.completed\",\"item\":{\"id\":\"message-1\",\"type\":\"agent_message\",\"text\":\"done\"}}",
+    ) {
     ItemCompleted(event) =>
       match event.item {
         AgentMessage(item) => inspect(item.text, content="done")
@@ -115,9 +124,10 @@ test "MoonBit event decoder - decodes item completed" {
 
 ///|
 test "MoonBit event decoder - decodes stream errors" {
-  match moonbit_internal_decode_event(
-    "{\"type\":\"error\",\"message\":\"stream unavailable\"}",
-  ) {
+  match
+    moonbit_internal_decode_event(
+      "{\"type\":\"error\",\"message\":\"stream unavailable\"}",
+    ) {
     StreamError(event) => inspect(event.message, content="stream unavailable")
     _ => fail("expected stream error")
   }
@@ -164,10 +174,9 @@ async test "MoonBit event decoder - wraps malformed JSONL input" {
       .client(fixture.environment(["{not-json"]))
       .start_thread()
     let message = try {
-      thread.run_streamed(
-        Prompt("invalid event"),
-        async fn(_) { @async.pause() },
-      )
+      thread.run_streamed(Prompt("invalid event"), async fn(_) {
+        @async.pause()
+      })
       "no error"
     } catch {
       CodexSdkError::InvalidEvent(message~) => message

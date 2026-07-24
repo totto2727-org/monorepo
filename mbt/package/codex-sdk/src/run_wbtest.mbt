@@ -1,7 +1,8 @@
 // Direct test port of https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts
 // allow: SIZE_OK — this file intentionally preserves the upstream run.test.ts case grouping.
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L20
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L20
 async test "Codex run - returns thread events" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -29,7 +30,8 @@ async test "Codex run - returns thread events" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L53
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L53
 async test "Codex run - sends previous items when called twice" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -47,7 +49,8 @@ async test "Codex run - sends previous items when called twice" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L96
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L96
 async test "Codex run - continues the thread when called twice with options" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -71,7 +74,8 @@ async test "Codex run - continues the thread when called twice with options" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L140
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L140
 async test "Codex resumeThread - resumes thread by ID" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -87,16 +91,13 @@ async test "Codex resumeThread - resumes thread by ID" {
     assert_eq(resumed.id(), Some("thread-1"))
     inspect(turn.final_response, content="Second response")
     assert_true(
-      contains_pair(
-        fixture.recorded_lines("args", 2),
-        "resume",
-        "thread-1",
-      ),
+      contains_pair(fixture.recorded_lines("args", 2), "resume", "thread-1"),
     )
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L187
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L187
 async test "Codex run - passes turn options to exec" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -119,7 +120,8 @@ async test "Codex run - passes turn options to exec" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L226
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L226
 async test "Codex run - passes modelReasoningEffort to exec" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -143,7 +145,8 @@ async test "Codex run - passes modelReasoningEffort to exec" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L257
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L257
 async test "Codex run - passes networkAccessEnabled to exec" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -167,7 +170,8 @@ async test "Codex run - passes networkAccessEnabled to exec" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L288
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L288
 async test "Codex run - passes webSearchEnabled to exec" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -176,9 +180,7 @@ async test "Codex run - passes webSearchEnabled to exec" {
       ]),
     )
     client
-    .start_thread(
-      options=ThreadOptions::ThreadOptions(web_search_enabled=true),
-    )
+    .start_thread(options=ThreadOptions::ThreadOptions(web_search_enabled=true))
     .run(Prompt("apply web search"))
     |> ignore
     assert_true(
@@ -191,7 +193,8 @@ async test "Codex run - passes webSearchEnabled to exec" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L319
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L319
 async test "Codex run - passes webSearchMode to exec" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -200,9 +203,7 @@ async test "Codex run - passes webSearchMode to exec" {
       ]),
     )
     client
-    .start_thread(
-      options=ThreadOptions::ThreadOptions(web_search_mode=Cached),
-    )
+    .start_thread(options=ThreadOptions::ThreadOptions(web_search_mode=Cached))
     .run(Prompt("apply web search mode"))
     |> ignore
     assert_true(
@@ -215,7 +216,8 @@ async test "Codex run - passes webSearchMode to exec" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L350
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L350
 async test "Codex run - passes webSearchEnabled false to exec" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -239,7 +241,8 @@ async test "Codex run - passes webSearchEnabled false to exec" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L381
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L381
 async test "Codex run - passes approvalPolicy to exec" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -263,7 +266,8 @@ async test "Codex run - passes approvalPolicy to exec" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L412
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L412
 async test "Codex run - passes CodexOptions config overrides as TOML flags" {
   with_fake_codex(async fn(fixture) {
     let config : CodexConfigObject = {
@@ -282,26 +286,22 @@ async test "Codex run - passes CodexOptions config overrides as TOML flags" {
     let client = Codex::Codex(
       options=CodexOptions::CodexOptions(
         codex_path_override=fixture.executable,
-        config=config,
+        config~,
         env=fixture.environment([
           completed_events("thread-1", "item-1", "Config applied"),
         ]),
       ),
     )
     client.start_thread().run(Prompt("apply config")) |> ignore
-    json_inspect(
-      values_after(fixture.recorded_lines("args", 1), "--config"),
-      content=[
-        "approval_policy=\"never\"",
-        "sandbox_workspace_write.network_access=true",
-        "retry_budget=3",
-        "tool_rules.allow=[\"git status\", \"git diff\"]",
-      ],
-    )
+    json_inspect(values_after(fixture.recorded_lines("args", 1), "--config"), content=[
+      "approval_policy=\"never\"", "sandbox_workspace_write.network_access=true",
+      "retry_budget=3", "tool_rules.allow=[\"git status\", \"git diff\"]",
+    ])
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L453
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L453
 async test "Codex run - lets thread options override CodexOptions config" {
   with_fake_codex(async fn(fixture) {
     let config : CodexConfigObject = {
@@ -310,7 +310,7 @@ async test "Codex run - lets thread options override CodexOptions config" {
     let client = Codex::Codex(
       options=CodexOptions::CodexOptions(
         codex_path_override=fixture.executable,
-        config=config,
+        config~,
         env=fixture.environment([
           completed_events("thread-1", "item-1", "Override applied"),
         ]),
@@ -322,14 +322,14 @@ async test "Codex run - lets thread options override CodexOptions config" {
     )
     .run(Prompt("apply override"))
     |> ignore
-    json_inspect(
-      values_after(fixture.recorded_lines("args", 1), "--config"),
-      content=["approval_policy=\"never\"", "approval_policy=\"on-request\""],
-    )
+    json_inspect(values_after(fixture.recorded_lines("args", 1), "--config"), content=[
+      "approval_policy=\"never\"", "approval_policy=\"on-request\"",
+    ])
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L490
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L490
 async test "Codex run - passes additionalDirectories as repeated flags" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -346,14 +346,14 @@ async test "Codex run - passes additionalDirectories as repeated flags" {
     )
     .run(Prompt("apply directories"))
     |> ignore
-    json_inspect(
-      values_after(fixture.recorded_lines("args", 1), "--add-dir"),
-      content=["/tmp/one", "/tmp/two"],
-    )
+    json_inspect(values_after(fixture.recorded_lines("args", 1), "--add-dir"), content=[
+      "/tmp/one", "/tmp/two",
+    ])
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L532
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L532
 async test "Codex run - writes output schema to a temporary file and forwards it" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -376,7 +376,8 @@ async test "Codex run - writes output schema to a temporary file and forwards it
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L589
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L589
 async test "Codex run - combines structured text input segments" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -386,10 +387,12 @@ async test "Codex run - combines structured text input segments" {
     )
     client
     .start_thread()
-    .run(UserInputs([
-      Text("Describe file changes"),
-      Text("Focus on impacted tests"),
-    ]))
+    .run(
+      UserInputs([
+        Text("Describe file changes"),
+        Text("Focus on impacted tests"),
+      ]),
+    )
     |> ignore
     inspect(
       fixture.recorded_text("input", 1),
@@ -398,7 +401,8 @@ async test "Codex run - combines structured text input segments" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L618
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L618
 async test "Codex run - forwards images to exec" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -408,11 +412,13 @@ async test "Codex run - forwards images to exec" {
     )
     client
     .start_thread()
-    .run(UserInputs([
-      Text("describe the images"),
-      LocalImage(@path.Path("first.png")),
-      LocalImage(@path.Path("second.jpg")),
-    ]))
+    .run(
+      UserInputs([
+        Text("describe the images"),
+        LocalImage(@path.Path("first.png")),
+        LocalImage(@path.Path("second.jpg")),
+      ]),
+    )
     |> ignore
     inspect(
       values_after(fixture.recorded_lines("args", 1), "--image").join(","),
@@ -421,7 +427,8 @@ async test "Codex run - forwards images to exec" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L665
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L665
 async test "Codex run - runs in provided working directory" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -444,7 +451,8 @@ async test "Codex run - runs in provided working directory" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L701
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L701
 async test "Codex run - throws when working directory is untrusted" {
   with_fake_codex(async fn(fixture) {
     let environment = fixture.environment([])
@@ -467,13 +475,12 @@ async test "Codex run - throws when working directory is untrusted" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L732
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L732
 async test "Codex run - sets the Codex SDK originator" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
-      fixture.environment([
-        completed_events("thread-1", "item-1", "Hi!"),
-      ]),
+      fixture.environment([completed_events("thread-1", "item-1", "Hi!")]),
     )
     client.start_thread().run(Prompt("Hello, originator!")) |> ignore
     assert_true(
@@ -484,19 +491,17 @@ async test "Codex run - sets the Codex SDK originator" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L755
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L755
 async test "Codex run - throws TurnFailed on turn failures" {
   with_fake_codex(async fn(fixture) {
     let events = [
-      "{\"type\":\"thread.started\",\"thread_id\":\"thread-1\"}",
-      "{\"type\":\"turn.started\"}",
+      "{\"type\":\"thread.started\",\"thread_id\":\"thread-1\"}", "{\"type\":\"turn.started\"}",
       "{\"type\":\"turn.failed\",\"error\":{\"message\":\"rate limit exceeded\"}}",
     ].join("\n")
     let environment = fixture.environment([events])
     environment.set("FAKE_CODEX_PAUSE", "1")
-    let thread = fixture
-      .client(environment)
-      .start_thread()
+    let thread = fixture.client(environment).start_thread()
     let message = try {
       @async.with_timeout(2000, async fn() {
         thread.run(Prompt("fail")) |> ignore

@@ -2,6 +2,7 @@
 // Corresponding upstream parse/cast: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L96-L109
 // This file is intentionally prefixed moonbit_internal_ because no equivalent decoder module exists upstream.
 
+///|
 fn moonbit_internal_json_object(
   json : Json,
   context : String,
@@ -12,6 +13,7 @@ fn moonbit_internal_json_object(
   }
 }
 
+///|
 fn moonbit_internal_required_json(
   object : Map[String, Json],
   key : String,
@@ -23,6 +25,7 @@ fn moonbit_internal_required_json(
   }
 }
 
+///|
 fn moonbit_internal_required_string(
   object : Map[String, Json],
   key : String,
@@ -34,6 +37,7 @@ fn moonbit_internal_required_string(
   }
 }
 
+///|
 fn moonbit_internal_required_int(
   object : Map[String, Json],
   key : String,
@@ -45,6 +49,7 @@ fn moonbit_internal_required_int(
   }
 }
 
+///|
 fn moonbit_internal_required_bool(
   object : Map[String, Json],
   key : String,
@@ -57,6 +62,7 @@ fn moonbit_internal_required_bool(
   }
 }
 
+///|
 fn moonbit_internal_required_array(
   object : Map[String, Json],
   key : String,
@@ -68,6 +74,7 @@ fn moonbit_internal_required_array(
   }
 }
 
+///|
 fn moonbit_internal_optional_int(
   object : Map[String, Json],
   key : String,
@@ -80,6 +87,7 @@ fn moonbit_internal_optional_int(
   }
 }
 
+///|
 fn moonbit_internal_optional_json(
   object : Map[String, Json],
   key : String,

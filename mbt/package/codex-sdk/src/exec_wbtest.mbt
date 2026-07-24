@@ -1,6 +1,7 @@
 // Direct test port of https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/exec.test.ts
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/exec.test.ts#L47
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/exec.test.ts#L47
 async test "CodexExec run - rejects when exit happens before stdout closes" {
   with_fake_codex(async fn(fixture) {
     let environment = fixture.environment([])
@@ -14,8 +15,7 @@ async test "CodexExec run - rejects when exit happens before stdout closes" {
       })
       "no error"
     } catch {
-      CodexSdkError::ExecFailed(code~, stderr~) =>
-        "\{code}:\{stderr.trim()}"
+      CodexSdkError::ExecFailed(code~, stderr~) => "\{code}:\{stderr.trim()}"
       error =>
         if @async.is_cancellation_error(error) {
           "timed out"
@@ -27,7 +27,8 @@ async test "CodexExec run - rejects when exit happens before stdout closes" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/exec.test.ts#L74
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/exec.test.ts#L74
 async test "CodexExec run - places resume args before image args" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -35,22 +36,23 @@ async test "CodexExec run - places resume args before image args" {
     )
     client
     .resume_thread("thread-1")
-    .run(UserInputs([
-      Text("describe"),
-      LocalImage(@path.Path("first.png")),
-      LocalImage(@path.Path("second.jpg")),
-    ]))
+    .run(
+      UserInputs([
+        Text("describe"),
+        LocalImage(@path.Path("first.png")),
+        LocalImage(@path.Path("second.jpg")),
+      ]),
+    )
     |> ignore
     let args = fixture.recorded_lines("args", 1).join(",")
     assert_true(
-      args.contains(
-        "resume,thread-1,--image,first.png,--image,second.jpg",
-      ),
+      args.contains("resume,thread-1,--image,first.png,--image,second.jpg"),
     )
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/exec.test.ts#L100
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/exec.test.ts#L100
 async test "CodexExec env - allows overriding environment passed to CLI" {
   with_fake_codex(async fn(fixture) {
     let environment = fixture.environment([
@@ -85,8 +87,11 @@ async test "CodexExec env - allows overriding environment passed to CLI" {
 }
 
 ///| Runtime substitution for the upstream Node package-layout test.
+
 ///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/exec.test.ts#L149
-///| Runtime difference: MoonBit has no Node optional-package layout, so this proves the corresponding explicit executable override and process launch.
+
+///|
+/// Runtime difference: MoonBit has no Node optional-package layout, so this proves the corresponding explicit executable override and process launch.
 async test "CodexExec path - launches the explicit executable override" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -98,16 +103,22 @@ async test "CodexExec path - launches the explicit executable override" {
 }
 
 ///| Runtime substitution for the upstream legacy package-layout fallback test.
+
 ///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/exec.test.ts#L166
-///| Runtime difference: MoonBit resolves the unqualified `codex` executable through PATH.
+
+///|
+/// Runtime difference: MoonBit resolves the unqualified `codex` executable through PATH.
 test "CodexExec path - falls back to the PATH executable" {
   let exec = CodexExec::CodexExec(None, None, None)
   inspect(exec.executable_path.to_string(), content="codex")
 }
 
 ///| Runtime substitution for the upstream package PATH-prepend test.
+
 ///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/exec.test.ts#L182
-///| Runtime difference: without Node vendor directories, MoonBit passes the caller-provided PATH through unchanged.
+
+///|
+/// Runtime difference: without Node vendor directories, MoonBit passes the caller-provided PATH through unchanged.
 async test "CodexExec env - preserves caller PATH entries without rewriting them" {
   with_fake_codex(async fn(fixture) {
     let environment = fixture.environment([
@@ -115,20 +126,17 @@ async test "CodexExec env - preserves caller PATH entries without rewriting them
     ])
     let path = "/opt/codex/bin:/usr/bin:/opt/codex/bin"
     environment.set("PATH", path)
-    fixture
-    .client(environment)
-    .start_thread()
-    .run(Prompt("Hello"))
-    |> ignore
-    assert_true(
-      fixture.recorded_lines("env", 1).contains("PATH=\{path}"),
-    )
+    fixture.client(environment).start_thread().run(Prompt("Hello")) |> ignore
+    assert_true(fixture.recorded_lines("env", 1).contains("PATH=\{path}"))
   })
 }
 
 ///| Runtime substitution for the upstream Windows Path-key test.
+
 ///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/exec.test.ts#L192
-///| Runtime difference: without Node PATH prepending, MoonBit preserves the supplied key verbatim.
+
+///|
+/// Runtime difference: without Node PATH prepending, MoonBit preserves the supplied key verbatim.
 async test "CodexExec env - preserves the Windows Path key" {
   with_fake_codex(async fn(fixture) {
     let environment = fixture.environment([
@@ -136,15 +144,9 @@ async test "CodexExec env - preserves the Windows Path key" {
     ])
     environment.remove("PATH")
     environment.set("Path", "C:\\Windows\\System32")
-    fixture
-    .client(environment)
-    .start_thread()
-    .run(Prompt("Hello"))
-    |> ignore
+    fixture.client(environment).start_thread().run(Prompt("Hello")) |> ignore
     let recorded_environment = fixture.recorded_lines("env", 1)
-    assert_true(
-      recorded_environment.contains("Path=C:\\Windows\\System32"),
-    )
+    assert_true(recorded_environment.contains("Path=C:\\Windows\\System32"))
     assert_true(
       !recorded_environment.iter().any(line => line.has_prefix("PATH=")),
     )

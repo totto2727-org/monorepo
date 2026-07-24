@@ -75,18 +75,18 @@ The public event, item, option, thread, and turn models follow the official Type
 
 The source layout follows the upstream files using MoonBit snake-case filenames:
 
-| Upstream TypeScript | MoonBit |
-| --- | --- |
-| `codex.ts` | `codex.mbt` |
-| `codexOptions.ts` | `codex_options.mbt` |
-| `events.ts` | `events.mbt` |
-| `exec.ts` | `exec.mbt` |
-| `index.ts` | `index.mbt` |
-| `items.ts` | `items.mbt` |
+| Upstream TypeScript   | MoonBit                  |
+| --------------------- | ------------------------ |
+| `codex.ts`            | `codex.mbt`              |
+| `codexOptions.ts`     | `codex_options.mbt`      |
+| `events.ts`           | `events.mbt`             |
+| `exec.ts`             | `exec.mbt`               |
+| `index.ts`            | `index.mbt`              |
+| `items.ts`            | `items.mbt`              |
 | `outputSchemaFile.ts` | `output_schema_file.mbt` |
-| `thread.ts` | `thread.mbt` |
-| `threadOptions.ts` | `thread_options.mbt` |
-| `turnOptions.ts` | `turn_options.mbt` |
+| `thread.ts`           | `thread.mbt`             |
+| `threadOptions.ts`    | `thread_options.mbt`     |
+| `turnOptions.ts`      | `turn_options.mbt`       |
 
 Files prefixed with `moonbit_internal_` have no direct upstream module and exist only for MoonBit language or test-runtime requirements. Each such file documents the corresponding upstream process and the reason the independent implementation is required.
 

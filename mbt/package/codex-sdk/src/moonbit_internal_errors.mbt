@@ -5,7 +5,9 @@
 // This file is intentionally prefixed moonbit_internal_ because MoonBit requires declared error variants.
 
 ///| Errors raised by the Codex SDK at configuration, protocol, and process boundaries.
-///| Type difference: named variants retain upstream failure boundaries while satisfying MoonBit's typed error system.
+
+///|
+/// Type difference: named variants retain upstream failure boundaries while satisfying MoonBit's typed error system.
 pub(all) suberror CodexSdkError {
   InvalidConfig(path~ : String, message~ : String)
   InvalidOutputSchema(message~ : String)

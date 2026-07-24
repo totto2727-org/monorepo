@@ -2,7 +2,8 @@
 
 // MoonBit-only deterministic synchronization for the upstream setTimeout-based execution test.
 // Corresponding upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L82
-async fn moonbit_internal_wait_for_test_file(path : String) -> Unit raise {
+///|
+async fn moonbit_internal_wait_for_test_file(path : String) -> Unit {
   @async.with_timeout(2000, async fn() {
     while !@fs.exists(path) {
       @async.pause()
@@ -12,6 +13,8 @@ async fn moonbit_internal_wait_for_test_file(path : String) -> Unit raise {
 
 // MoonBit-only assertion adapter for AbortSignal rejection semantics.
 // Corresponding upstream cancellation assertions: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L21-L140
+
+///|
 async fn moonbit_internal_wait_for_cancellation(
   task : @async.Task[Unit],
 ) -> Bool {
@@ -23,7 +26,8 @@ async fn moonbit_internal_wait_for_cancellation(
   }
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L21
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L21
 async test "Codex run - cancels when task is cancelled" {
   with_fake_codex(async fn(fixture) {
     let environment = fixture.environment([
@@ -42,7 +46,8 @@ async test "Codex run - cancels when task is cancelled" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L43
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L43
 async test "Codex runStreamed - cancels when task is cancelled" {
   with_fake_codex(async fn(fixture) {
     let environment = fixture.environment([
@@ -54,13 +59,10 @@ async test "Codex runStreamed - cancels when task is cancelled" {
     @async.with_task_group(async fn(group) {
       let task = group.spawn(
         async fn() {
-          thread.run_streamed(
-            Prompt("Hello"),
-            async fn(event) {
-              events.push(event)
-              @async.pause()
-            },
-          )
+          thread.run_streamed(Prompt("Hello"), async fn(event) {
+            events.push(event)
+            @async.pause()
+          })
         },
         allow_failure=true,
       )
@@ -71,7 +73,8 @@ async test "Codex runStreamed - cancels when task is cancelled" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L82
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L82
 async test "Codex run - cancels during execution" {
   with_fake_codex(async fn(fixture) {
     let environment = fixture.environment([
@@ -91,29 +94,23 @@ async test "Codex run - cancels during execution" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L108
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L108
 async test "Codex runStreamed - cancels during iteration" {
   with_fake_codex(async fn(fixture) {
     let environment = fixture.environment([
       completed_events("thread-1", "item-1", "Hi!"),
     ])
-    let started : @aqueue.Queue[Unit] = @aqueue.Queue(
-      kind=@aqueue.Unbounded,
-    )
-    let release : @aqueue.Queue[Unit] = @aqueue.Queue(
-      kind=@aqueue.Unbounded,
-    )
+    let started : @aqueue.Queue[Unit] = @aqueue.Queue(kind=@aqueue.Unbounded)
+    let release : @aqueue.Queue[Unit] = @aqueue.Queue(kind=@aqueue.Unbounded)
     let thread = fixture.client(environment).start_thread()
     @async.with_task_group(async fn(group) {
       let task = group.spawn(
         async fn() {
-          thread.run_streamed(
-            Prompt("Hello"),
-            async fn(_) {
-              started.put(())
-              release.get()
-            },
-          )
+          thread.run_streamed(Prompt("Hello"), async fn(_) {
+            started.put(())
+            release.get()
+          })
         },
         allow_failure=true,
       )
@@ -124,7 +121,8 @@ async test "Codex runStreamed - cancels during iteration" {
   })
 }
 
-///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L143
+///|
+/// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L143
 async test "Codex run - completes normally when task is not cancelled" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(

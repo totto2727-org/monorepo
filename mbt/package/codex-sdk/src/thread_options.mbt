@@ -1,8 +1,11 @@
 // Direct port of https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/threadOptions.ts
 
 ///| Controls when Codex may request command approval.
+
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/threadOptions.ts#L1
-///| Type difference: MoonBit uses an enum instead of a string-literal union.
+
+///|
+/// Type difference: MoonBit uses an enum instead of a string-literal union.
 pub(all) enum ApprovalMode {
   Never
   OnRequest
@@ -11,8 +14,11 @@ pub(all) enum ApprovalMode {
 } derive(Debug, Eq)
 
 ///| Returns the upstream CLI string for an approval mode.
+
 ///| Upstream values: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/threadOptions.ts#L1
-///| Type difference: the explicit conversion is required for the MoonBit enum.
+
+///|
+/// Type difference: the explicit conversion is required for the MoonBit enum.
 pub fn ApprovalMode::to_string(self : ApprovalMode) -> String {
   match self {
     Never => "never"
@@ -23,8 +29,11 @@ pub fn ApprovalMode::to_string(self : ApprovalMode) -> String {
 }
 
 ///| Selects the filesystem sandbox applied to a thread.
+
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/threadOptions.ts#L3
-///| Type difference: MoonBit uses an enum instead of a string-literal union.
+
+///|
+/// Type difference: MoonBit uses an enum instead of a string-literal union.
 pub(all) enum SandboxMode {
   ReadOnly
   WorkspaceWrite
@@ -32,8 +41,11 @@ pub(all) enum SandboxMode {
 } derive(Debug, Eq)
 
 ///| Returns the upstream CLI string for a sandbox mode.
+
 ///| Upstream values: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/threadOptions.ts#L3
-///| Type difference: the explicit conversion is required for the MoonBit enum.
+
+///|
+/// Type difference: the explicit conversion is required for the MoonBit enum.
 pub fn SandboxMode::to_string(self : SandboxMode) -> String {
   match self {
     ReadOnly => "read-only"
@@ -43,8 +55,11 @@ pub fn SandboxMode::to_string(self : SandboxMode) -> String {
 }
 
 ///| Selects the model reasoning effort for a thread.
+
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/threadOptions.ts#L5
-///| Type difference: MoonBit uses an enum instead of a string-literal union.
+
+///|
+/// Type difference: MoonBit uses an enum instead of a string-literal union.
 pub(all) enum ModelReasoningEffort {
   Minimal
   Low
@@ -54,11 +69,12 @@ pub(all) enum ModelReasoningEffort {
 } derive(Debug, Eq)
 
 ///| Returns the upstream CLI string for a reasoning effort.
+
 ///| Upstream values: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/threadOptions.ts#L5
-///| Type difference: the explicit conversion is required for the MoonBit enum.
-pub fn ModelReasoningEffort::to_string(
-  self : ModelReasoningEffort,
-) -> String {
+
+///|
+/// Type difference: the explicit conversion is required for the MoonBit enum.
+pub fn ModelReasoningEffort::to_string(self : ModelReasoningEffort) -> String {
   match self {
     Minimal => "minimal"
     Low => "low"
@@ -69,8 +85,11 @@ pub fn ModelReasoningEffort::to_string(
 }
 
 ///| Selects the web-search source used by a thread.
+
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/threadOptions.ts#L7
-///| Type difference: MoonBit uses an enum instead of a string-literal union.
+
+///|
+/// Type difference: MoonBit uses an enum instead of a string-literal union.
 pub(all) enum WebSearchMode {
   Disabled
   Cached
@@ -78,8 +97,11 @@ pub(all) enum WebSearchMode {
 } derive(Debug, Eq)
 
 ///| Returns the upstream CLI string for a web-search mode.
+
 ///| Upstream values: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/threadOptions.ts#L7
-///| Type difference: the explicit conversion is required for the MoonBit enum.
+
+///|
+/// Type difference: the explicit conversion is required for the MoonBit enum.
 pub fn WebSearchMode::to_string(self : WebSearchMode) -> String {
   match self {
     Disabled => "disabled"
@@ -89,8 +111,11 @@ pub fn WebSearchMode::to_string(self : WebSearchMode) -> String {
 }
 
 ///| Controls one persisted thread.
+
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/threadOptions.ts#L9-L20
-///| Type difference: filesystem strings are represented by Path.
+
+///|
+/// Type difference: filesystem strings are represented by Path.
 pub(all) struct ThreadOptions {
   model : String?
   sandbox_mode : SandboxMode?
@@ -105,8 +130,11 @@ pub(all) struct ThreadOptions {
 } derive(Eq)
 
 ///| Constructs the same optional ThreadOptions fields as the upstream object type.
+
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/threadOptions.ts#L9-L20
-///| Type difference: MoonBit structs require a constructor to provide the upstream empty-object defaults.
+
+///|
+/// Type difference: MoonBit structs require a constructor to provide the upstream empty-object defaults.
 pub fn ThreadOptions::ThreadOptions(
   model? : String,
   sandbox_mode? : SandboxMode,

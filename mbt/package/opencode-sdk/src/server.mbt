@@ -167,12 +167,13 @@ async fn wait_for_server(
       Some(url) => return url
       None => ()
     }
-    match (process.try_wait() catch {
-      err =>
-        raise StartFailed(
-          "failed to inspect server process: \{@debug.to_string(err)}",
-        )
-    }) {
+    match
+      (process.try_wait() catch {
+        err =>
+          raise StartFailed(
+            "failed to inspect server process: \{@debug.to_string(err)}",
+          )
+      }) {
       Some(code) => {
         let output = combined_output(stdout_path, stderr_path)
         raise ServerExited(code~, output~)
@@ -290,9 +291,7 @@ pub async fn[X] create_opencode_server(
 pub fn Server::moonllm_config(self : Server) -> @moonllm.ClientBuilder {
   // Adapted from the OpenCode TypeScript SDK's URL-bound client composition:
   // https://github.com/anomalyco/opencode/blob/66495a2a22cd0a57efcc4f721e65532f0987b4e8/packages/sdk/js/src/index.ts#L8-L20
-  @moonllm.ClientBuilder::new()
-    .base_url(self.url)
-    .auth(@moonllm.NoAuth)
+  @moonllm.ClientBuilder::new().base_url(self.url).auth(@moonllm.NoAuth)
 }
 
 ///|

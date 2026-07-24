@@ -1,7 +1,9 @@
 // Direct port of https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts
 
 ///| A completed agent turn.
-///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L9-L14
+
+///|
+/// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L9-L14
 pub(all) struct Turn {
   items : Array[ThreadItem]
   final_response : String
@@ -9,36 +11,51 @@ pub(all) struct Turn {
 } derive(Eq)
 
 ///| Alias describing the result returned by `Thread::run`.
-///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L16-L17
+
+///|
+/// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L16-L17
 pub type RunResult = Turn
 
 ///| The result type returned after a streamed callback completes.
+
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L19-L25
-///| Async type difference: MoonBit has no AsyncGenerator, so streamed events are consumed by the callback and the result is Unit.
+
+///|
+/// Async type difference: MoonBit has no AsyncGenerator, so streamed events are consumed by the callback and the result is Unit.
 pub type StreamedTurn = Unit
 
 ///| Alias describing the result returned by `Thread::run_streamed`.
-///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L24-L25
+
+///|
+/// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L24-L25
 pub type RunStreamedResult = StreamedTurn
 
 ///| One structured input entry sent to the agent.
+
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L27-L36
-///| Type difference: MoonBit uses an enum instead of a discriminated object union, and Path replaces filesystem strings.
+
+///|
+/// Type difference: MoonBit uses an enum instead of a discriminated object union, and Path replaces filesystem strings.
 pub(all) enum UserInput {
   Text(String)
   LocalImage(@path.Path)
 } derive(Eq)
 
 ///| Input accepted by a thread turn.
+
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L38
-///| Type difference: MoonBit uses an enum instead of the TypeScript string-or-array union.
+
+///|
+/// Type difference: MoonBit uses an enum instead of the TypeScript string-or-array union.
 pub(all) enum Input {
   Prompt(String)
   UserInputs(Array[UserInput])
 } derive(Eq)
 
 ///| Represents one persisted conversation with the Codex agent.
-///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L40-L45
+
+///|
+/// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L40-L45
 pub struct Thread {
   priv exec : CodexExec
   priv options : CodexOptions
@@ -47,13 +64,17 @@ pub struct Thread {
 }
 
 ///| Returns the persisted thread identifier after the first turn starts.
-///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L47-L50
+
+///|
+/// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L47-L50
 pub fn Thread::id(self : Thread) -> String? {
   self.id_value
 }
 
 ///| Constructs the same internal thread state as the upstream constructor.
-///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L52-L63
+
+///|
+/// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L52-L63
 fn Thread::Thread(
   exec : CodexExec,
   options : CodexOptions,
@@ -66,33 +87,35 @@ fn Thread::Thread(
 ///| Runs one turn and forwards each structured event as it is produced.
 ///
 /// The callback is the MoonBit equivalent of consuming the TypeScript SDK's async event generator.
+
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L65-L68
-///| Async type difference: the callback parameter replaces StreamedTurn.events because MoonBit has no AsyncGenerator.
+
+///|
+/// Async type difference: the callback parameter replaces StreamedTurn.events because MoonBit has no AsyncGenerator.
 pub async fn Thread::run_streamed(
   self : Thread,
   input : Input,
   on_event : async (ThreadEvent) -> Unit,
   turn_options? : TurnOptions = TurnOptions::TurnOptions(),
-) -> Unit raise {
-  self.run_streamed_internal(
-    input,
-    turn_options,
-    async fn(event) {
-      on_event(event)
-      true
-    },
-  )
+) -> Unit {
+  self.run_streamed_internal(input, turn_options, async fn(event) {
+    on_event(event)
+    true
+  })
 }
 
 ///| Implements the upstream runStreamedInternal process and cleanup order.
+
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L70-L114
-///| Async type difference: event delivery uses a callback returning whether iteration should continue; explicit JSON decoding is isolated behind a moonbit_internal_ function.
+
+///|
+/// Async type difference: event delivery uses a callback returning whether iteration should continue; explicit JSON decoding is isolated behind a moonbit_internal_ function.
 async fn Thread::run_streamed_internal(
   self : Thread,
   input : Input,
   turn_options : TurnOptions,
   on_event : async (ThreadEvent) -> Bool,
-) -> Unit raise {
+) -> Unit {
   let schema_file = create_output_schema_file(turn_options.output_schema)
   let normalized = normalize_input(input)
   let options = self.thread_options
@@ -147,46 +170,44 @@ async fn Thread::run_streamed_internal(
 }
 
 ///| Runs one turn and buffers completed items, the final response, and token usage.
-///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L116-L140
+
+///|
+/// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L116-L140
 pub async fn Thread::run(
   self : Thread,
   input : Input,
   turn_options? : TurnOptions = TurnOptions::TurnOptions(),
-) -> Turn raise {
+) -> Turn {
   let items : Array[ThreadItem] = []
   let mut final_response = ""
   let mut usage : Usage? = None
   let mut turn_failure : ThreadError? = None
-  self.run_streamed_internal(
-    input,
-    turn_options,
-    async fn(event) {
-      match event {
-        ItemCompleted(completed) => {
-          if completed.item is AgentMessage(message) {
-            final_response = message.text
-          }
-          items.push(completed.item)
-          true
+  self.run_streamed_internal(input, turn_options, async fn(event) {
+    match event {
+      ItemCompleted(completed) => {
+        if completed.item is AgentMessage(message) {
+          final_response = message.text
         }
-        TurnCompleted(completed) => {
-          usage = Some(completed.usage)
-          true
-        }
-        TurnFailed(failed) => {
-          turn_failure = Some(failed.error)
-          // Async type difference: returning false is the MoonBit callback equivalent of the upstream consumer's `break`, which closes the generator and terminates the CLI.
-          // Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L133-L135
-          false
-        }
-        ThreadStarted(_) |
-        TurnStarted(_) |
-        ItemStarted(_) |
-        ItemUpdated(_) |
-        StreamError(_) => true
+        items.push(completed.item)
+        true
       }
-    },
-  )
+      TurnCompleted(completed) => {
+        usage = Some(completed.usage)
+        true
+      }
+      TurnFailed(failed) => {
+        turn_failure = Some(failed.error)
+        // Async type difference: returning false is the MoonBit callback equivalent of the upstream consumer's `break`, which closes the generator and terminates the CLI.
+        // Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L133-L135
+        false
+      }
+      ThreadStarted(_)
+      | TurnStarted(_)
+      | ItemStarted(_)
+      | ItemUpdated(_)
+      | StreamError(_) => true
+    }
+  })
   if turn_failure is Some(error) {
     raise CodexSdkError::TurnFailed(message=error.message)
   }
@@ -195,32 +216,38 @@ pub async fn Thread::run(
 
 // Type difference: MoonBit requires a named type for the upstream normalizeInput return object.
 // Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L143-L157
+
+///|
 priv struct MoonBitInternalNormalizedInput {
   prompt : String
   images : Array[@path.Path]
 }
 
 ///| Separates prompt text and image paths with the same order and joining behavior as upstream normalizeInput.
-///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L143-L157
+
+///|
+/// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L143-L157
 fn normalize_input(input : Input) -> MoonBitInternalNormalizedInput {
   match input {
     Prompt(prompt) => { prompt, images: [] }
     UserInputs(items) => {
       let prompt = items
         .iter()
-        .filter_map(item =>
+        .filter_map(item => {
           match item {
             Text(text) => Some(text)
             LocalImage(_) => None
-          })
+          }
+        })
         .join("\n\n")
       let images = items
         .iter()
-        .filter_map(item =>
+        .filter_map(item => {
           match item {
             Text(_) => None
             LocalImage(path) => Some(path)
-          })
+          }
+        })
         .collect()
       { prompt, images }
     }

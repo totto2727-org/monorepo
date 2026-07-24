@@ -3,10 +3,12 @@
 // Item shapes under test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L5-L128
 // This file is intentionally prefixed moonbit_internal_ because upstream relies on a TypeScript cast and has no decoder test module.
 
+///|
 fn moonbit_internal_decode_item(source : String) -> ThreadItem raise {
   moonbit_internal_thread_item_from_json(@json.parse(source))
 }
 
+///|
 fn moonbit_internal_item_decode_error(source : String) -> String {
   try {
     moonbit_internal_decode_item(source) |> ignore
@@ -19,9 +21,10 @@ fn moonbit_internal_item_decode_error(source : String) -> String {
 
 ///|
 test "MoonBit item decoder - decodes agent messages" {
-  match moonbit_internal_decode_item(
-    "{\"id\":\"message-1\",\"type\":\"agent_message\",\"text\":\"hello\"}",
-  ) {
+  match
+    moonbit_internal_decode_item(
+      "{\"id\":\"message-1\",\"type\":\"agent_message\",\"text\":\"hello\"}",
+    ) {
     AgentMessage(item) => {
       inspect(item.id, content="message-1")
       inspect(item.text, content="hello")
@@ -32,9 +35,10 @@ test "MoonBit item decoder - decodes agent messages" {
 
 ///|
 test "MoonBit item decoder - decodes reasoning items" {
-  match moonbit_internal_decode_item(
-    "{\"id\":\"reasoning-1\",\"type\":\"reasoning\",\"text\":\"analysis\"}",
-  ) {
+  match
+    moonbit_internal_decode_item(
+      "{\"id\":\"reasoning-1\",\"type\":\"reasoning\",\"text\":\"analysis\"}",
+    ) {
     Reasoning(item) => {
       inspect(item.id, content="reasoning-1")
       inspect(item.text, content="analysis")
@@ -45,9 +49,10 @@ test "MoonBit item decoder - decodes reasoning items" {
 
 ///|
 test "MoonBit item decoder - decodes command executions" {
-  match moonbit_internal_decode_item(
-    "{\"id\":\"command-1\",\"type\":\"command_execution\",\"command\":\"pwd\",\"aggregated_output\":\"/tmp\\n\",\"exit_code\":0,\"status\":\"completed\"}",
-  ) {
+  match
+    moonbit_internal_decode_item(
+      "{\"id\":\"command-1\",\"type\":\"command_execution\",\"command\":\"pwd\",\"aggregated_output\":\"/tmp\\n\",\"exit_code\":0,\"status\":\"completed\"}",
+    ) {
     CommandExecution(item) => {
       inspect(item.id, content="command-1")
       inspect(item.command, content="pwd")
@@ -57,9 +62,10 @@ test "MoonBit item decoder - decodes command executions" {
     }
     _ => fail("expected command execution")
   }
-  match moonbit_internal_decode_item(
-    "{\"id\":\"command-2\",\"type\":\"command_execution\",\"command\":\"sleep 1\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}",
-  ) {
+  match
+    moonbit_internal_decode_item(
+      "{\"id\":\"command-2\",\"type\":\"command_execution\",\"command\":\"sleep 1\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}",
+    ) {
     CommandExecution(item) => {
       assert_eq(item.exit_code, None)
       assert_eq(item.status, InProgress)
@@ -70,9 +76,10 @@ test "MoonBit item decoder - decodes command executions" {
 
 ///|
 test "MoonBit item decoder - decodes file changes" {
-  match moonbit_internal_decode_item(
-    "{\"id\":\"patch-1\",\"type\":\"file_change\",\"changes\":[{\"path\":\"new.txt\",\"kind\":\"add\"},{\"path\":\"old.txt\",\"kind\":\"delete\"},{\"path\":\"same.txt\",\"kind\":\"update\"}],\"status\":\"failed\"}",
-  ) {
+  match
+    moonbit_internal_decode_item(
+      "{\"id\":\"patch-1\",\"type\":\"file_change\",\"changes\":[{\"path\":\"new.txt\",\"kind\":\"add\"},{\"path\":\"old.txt\",\"kind\":\"delete\"},{\"path\":\"same.txt\",\"kind\":\"update\"}],\"status\":\"failed\"}",
+    ) {
     FileChange(item) => {
       inspect(item.id, content="patch-1")
       assert_eq(item.status, PatchFailed)
@@ -88,9 +95,10 @@ test "MoonBit item decoder - decodes file changes" {
 
 ///|
 test "MoonBit item decoder - decodes successful MCP tool calls" {
-  match moonbit_internal_decode_item(
-    "{\"id\":\"mcp-1\",\"type\":\"mcp_tool_call\",\"server\":\"docs\",\"tool\":\"search\",\"arguments\":{\"query\":\"MoonBit\"},\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"result\"}],\"_meta\":{\"source\":\"official\"},\"structured_content\":{\"count\":1}},\"error\":null,\"status\":\"completed\"}",
-  ) {
+  match
+    moonbit_internal_decode_item(
+      "{\"id\":\"mcp-1\",\"type\":\"mcp_tool_call\",\"server\":\"docs\",\"tool\":\"search\",\"arguments\":{\"query\":\"MoonBit\"},\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"result\"}],\"_meta\":{\"source\":\"official\"},\"structured_content\":{\"count\":1}},\"error\":null,\"status\":\"completed\"}",
+    ) {
     McpToolCall(item) => {
       inspect(item.id, content="mcp-1")
       inspect(item.server, content="docs")
@@ -120,9 +128,10 @@ test "MoonBit item decoder - decodes successful MCP tool calls" {
 
 ///|
 test "MoonBit item decoder - decodes failed MCP tool calls" {
-  match moonbit_internal_decode_item(
-    "{\"id\":\"mcp-2\",\"type\":\"mcp_tool_call\",\"server\":\"docs\",\"tool\":\"search\",\"arguments\":{},\"result\":null,\"error\":{\"message\":\"unavailable\"},\"status\":\"failed\"}",
-  ) {
+  match
+    moonbit_internal_decode_item(
+      "{\"id\":\"mcp-2\",\"type\":\"mcp_tool_call\",\"server\":\"docs\",\"tool\":\"search\",\"arguments\":{},\"result\":null,\"error\":{\"message\":\"unavailable\"},\"status\":\"failed\"}",
+    ) {
     McpToolCall(item) => {
       assert_eq(item.status, McpFailed)
       assert_eq(item.result, None)
@@ -137,9 +146,10 @@ test "MoonBit item decoder - decodes failed MCP tool calls" {
 
 ///|
 test "MoonBit item decoder - decodes web searches" {
-  match moonbit_internal_decode_item(
-    "{\"id\":\"search-1\",\"type\":\"web_search\",\"query\":\"MoonBit async\"}",
-  ) {
+  match
+    moonbit_internal_decode_item(
+      "{\"id\":\"search-1\",\"type\":\"web_search\",\"query\":\"MoonBit async\"}",
+    ) {
     WebSearch(item) => {
       inspect(item.id, content="search-1")
       inspect(item.query, content="MoonBit async")
@@ -150,9 +160,10 @@ test "MoonBit item decoder - decodes web searches" {
 
 ///|
 test "MoonBit item decoder - decodes todo lists" {
-  match moonbit_internal_decode_item(
-    "{\"id\":\"todo-1\",\"type\":\"todo_list\",\"items\":[{\"text\":\"port SDK\",\"completed\":true},{\"text\":\"test decoder\",\"completed\":false}]}",
-  ) {
+  match
+    moonbit_internal_decode_item(
+      "{\"id\":\"todo-1\",\"type\":\"todo_list\",\"items\":[{\"text\":\"port SDK\",\"completed\":true},{\"text\":\"test decoder\",\"completed\":false}]}",
+    ) {
     TodoList(item) => {
       inspect(item.id, content="todo-1")
       inspect(item.items.length(), content="2")
@@ -166,9 +177,10 @@ test "MoonBit item decoder - decodes todo lists" {
 
 ///|
 test "MoonBit item decoder - decodes error items" {
-  match moonbit_internal_decode_item(
-    "{\"id\":\"error-1\",\"type\":\"error\",\"message\":\"recoverable\"}",
-  ) {
+  match
+    moonbit_internal_decode_item(
+      "{\"id\":\"error-1\",\"type\":\"error\",\"message\":\"recoverable\"}",
+    ) {
     Error(item) => {
       inspect(item.id, content="error-1")
       inspect(item.message, content="recoverable")
