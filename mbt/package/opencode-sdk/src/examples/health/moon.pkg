@@ -1,0 +1,10 @@
+import {
+  "DC-Z-lab/moonllm",
+  "totto2727/opencode-sdk" @opencode,
+  "moonbitlang/async",
+  "moonbitlang/core/debug",
+}
+
+supported_targets = "native"
+
+pkgtype(kind: "executable")

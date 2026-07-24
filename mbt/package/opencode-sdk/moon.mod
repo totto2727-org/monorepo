@@ -1,6 +1,6 @@
-name = "totto2727/admiral"
+name = "totto2727/opencode-sdk"
 
-version = "0.4.0"
+version = "0.1.0"
 
 readme = "README.md"
 
@@ -8,12 +8,14 @@ repository = "https://github.com/totto2727-org/monorepo"
 
 license = "MIT"
 
-keywords = [ "cli", "argparse", "moonbit" ]
+keywords = [ "opencode", "sdk", "server", "process" ]
 
-description = "Async-first declarative CLI builder for MoonBit, inspired by gunshi"
+description = "Native MoonBit SDK for starting and managing an OpenCode server"
 
 import {
+  "DC-Z-lab/moonllm@0.1.0",
   "moonbitlang/async@0.20.1",
+  "totto2727/admiral@0.4.0",
 }
 
 preferred_target = "native"
