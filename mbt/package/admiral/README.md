@@ -498,7 +498,7 @@ myapp completion --shell fish > ~/.config/fish/completions/myapp.fish
 | Function                                                                             | Description                                                 |
 | ------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
 | `command(name, description?, options?, positionals?, examples?, subcommands?, run?)` | Define a command or subcommand with an async `run` callback |
-| `cli(name, version?, description?, options?, commands?, load_config?)`               | Create a CLI app                                            |
+| `cli(name, version?, description?, options?, commands?, load_config?)`               | Create a CLI app with global options                        |
 
 ### Context Methods
 

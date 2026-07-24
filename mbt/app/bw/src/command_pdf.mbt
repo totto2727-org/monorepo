@@ -2,18 +2,24 @@
 let pdf_url_option : @admiral.OptionDef[String] = @admiral.string(
   "url",
   description="Target URL",
+  env="BW_URL",
+  config="url",
 )
 
 ///|
 let pdf_html_option : @admiral.OptionDef[String] = @admiral.string(
   "html",
   description="Path to local HTML file",
+  env="BW_HTML",
+  config="html",
 )
 
 ///|
 let pdf_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
   "wait-until",
   description="Page load strategy",
+  env="BW_WAIT_UNTIL",
+  config="wait_until",
 )
 
 ///|
@@ -21,18 +27,25 @@ let pdf_output_option : @admiral.OptionDef[String] = @admiral.string(
   "output",
   short='o',
   description="Output file path",
+  env="BW_OUTPUT",
+  config="output",
+  required=true,
 )
 
 ///|
 let pdf_landscape_option : @admiral.OptionDef[Bool] = @admiral.bool(
   "landscape",
   description="Landscape orientation",
+  env="BW_LANDSCAPE",
+  config="landscape",
 )
 
 ///|
 let pdf_format_option : @admiral.OptionDef[String] = @admiral.string(
   "format",
   description="Page format",
+  env="BW_FORMAT",
+  config="format",
 )
 
 ///|
@@ -149,7 +162,7 @@ fn pdf_command_def(
     description="Generate a PDF",
     options=[
       account_id_option, api_token_option, pdf_url_option, pdf_html_option, pdf_wait_until_option,
-      pdf_output_option, pdf_landscape_option, pdf_format_option, config_option,
+      pdf_output_option, pdf_landscape_option, pdf_format_option,
     ],
     run=Some(run),
   )
@@ -157,26 +170,15 @@ fn pdf_command_def(
 
 ///|
 async fn pdf_options(context : @admiral.Context) -> PdfOptionsInput {
-  let config = load_config(context)
   {
-    account_id: merged_account_id(context, config),
-    api_token: merged_api_token(context, config),
-    url: merge_string(cli_string(context, pdf_url_option), config.url),
-    html: merged_html(context, pdf_html_option, config),
-    wait_until: merge_string(
-      cli_string(context, pdf_wait_until_option),
-      config.wait_until,
-    ),
-    output: required_value(
-      "output",
-      merge_string(cli_string(context, pdf_output_option), config.output),
-    ),
-    landscape: merge_bool(
-      context.get_bool(pdf_landscape_option),
-      config.landscape,
-      false,
-    ),
-    format: merge_string(cli_string(context, pdf_format_option), config.format),
+    account_id: context.get_string_required(account_id_option),
+    api_token: context.get_string_required(api_token_option),
+    url: context.get_string(pdf_url_option),
+    html: read_optional_file(context.get_string(pdf_html_option)),
+    wait_until: context.get_string(pdf_wait_until_option),
+    output: context.get_string_required(pdf_output_option),
+    landscape: context.get_bool(pdf_landscape_option),
+    format: context.get_string(pdf_format_option),
   }
 }
 

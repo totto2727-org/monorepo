@@ -1,8 +1,11 @@
 ///|
 async fn main {
+  let config = load_config()
   let app = @admiral.cli(
     name="bw",
     description="Native MoonBit CLI for Cloudflare Browser Rendering API",
+    options=[config_option],
+    load_config=Some(fn() { config }),
     commands=[
       content_command_def(run_content_command),
       markdown_command_def(run_markdown_command),

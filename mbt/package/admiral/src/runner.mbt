@@ -100,9 +100,9 @@ pub async fn CliApp::run(
   let options : Array[@argparse.OptionArg] = []
   for opt in self.root_options {
     match opt.metadata.type_ {
-      BoolOpt => flags.push(build_option_to_flag(opt))
+      BoolOpt => flags.push(build_option_to_flag(opt, global=true))
       StringOpt | IntOpt | Int64Opt | UIntOpt | UInt64Opt | DoubleOpt =>
-        options.push(build_option_to_option_arg(opt, config))
+        options.push(build_option_to_option_arg(opt, config, global=true))
     }
   }
   let subcommands = self.commands.map(fn(c) {
