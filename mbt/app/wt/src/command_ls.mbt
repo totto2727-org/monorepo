@@ -23,7 +23,7 @@ struct LsOptions {
 }
 
 ///|
-fn ls_options(context : @admiral.Context) -> LsOptions {
+fn ls_options(context : @admiral.Context) -> LsOptions raise {
   let dir = match context.get_string(ls_dir_option) {
     Some(value) => value
     None => "."

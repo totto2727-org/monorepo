@@ -76,6 +76,17 @@ test "option helpers retain environment variable metadata" {
 }
 
 ///|
+test "option helpers retain independent config keys" {
+  let name = string("name", env="APP_NAME", config="display_name")
+  let verbose = bool("verbose", config="debug")
+  let port = int("port", config="listen_port")
+  debug_inspect(name.config, content="Some(\"display_name\")")
+  debug_inspect(verbose.config, content="Some(\"debug\")")
+  debug_inspect(port.config, content="Some(\"listen_port\")")
+  debug_inspect(name.metadata.env, content="Some(\"APP_NAME\")")
+}
+
+///|
 test "plural option helpers encode Array result types" {
   let names : OptionDef[Array[String]] = strings("name")
   let counts : OptionDef[Array[Int]] = ints("count")

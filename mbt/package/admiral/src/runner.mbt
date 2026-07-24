@@ -24,7 +24,7 @@ pub fn cli(
   description? : String = "",
   options? : Array[&ToStoredOption] = [],
   commands? : Array[CommandDef] = [],
-  load_config? : (() -> Map[String, String] raise ConfigLoadFailure)? = None,
+  load_config? : (() -> Map[String, Json] raise ConfigLoadFailure)? = None,
 ) -> CliApp {
   let root_options = options.map(fn(option) {
     ToStoredOption::to_stored_option(option)
@@ -33,12 +33,22 @@ pub fn cli(
 }
 
 ///|
-fn matches_to_context(m : @argparse.Matches) -> Context {
+fn matches_to_context(
+  m : @argparse.Matches,
+  config : Map[String, Json],
+) -> Context {
   let sub = match m.subcommand {
-    Some((name, sub_matches)) => Some((name, matches_to_context(sub_matches)))
+    Some((name, sub_matches)) =>
+      Some((name, matches_to_context(sub_matches, config)))
     None => None
   }
-  { flags: m.flags, values: m.values, subcommand: sub }
+  {
+    flags: m.flags,
+    values: m.values,
+    sources: m.sources,
+    config,
+    subcommand: sub,
+  }
 }
 
 ///|
@@ -82,16 +92,22 @@ pub async fn CliApp::run(
   argv? : Array[String]? = None,
   env? : Map[String, String] = @env.get_env_vars(),
 ) -> Unit {
+  let config = match self.load_config {
+    Some(load_config) => load_config()
+    None => Map([])
+  }
   let flags : Array[@argparse.FlagArg] = []
   let options : Array[@argparse.OptionArg] = []
   for opt in self.root_options {
     match opt.metadata.type_ {
       BoolOpt => flags.push(build_option_to_flag(opt))
       StringOpt | IntOpt | Int64Opt | UIntOpt | UInt64Opt | DoubleOpt =>
-        options.push(build_option_to_option_arg(opt))
+        options.push(build_option_to_option_arg(opt, config))
     }
   }
-  let subcommands = self.commands.map(fn(c) { build_command(c) })
+  let subcommands = self.commands.map(fn(c) {
+    build_command_with_config(c, config)
+  })
   let argparse_cmd = @argparse.Command(
     self.name,
     about=self.description,
@@ -101,14 +117,10 @@ pub async fn CliApp::run(
     subcommands~,
     arg_required_else_help=true,
   )
-  let effective_env = match self.load_config {
-    Some(load_config) => load_config().merge(env)
-    None => env
-  }
   let matches = match argv {
-    Some(args) => argparse_cmd.parse(argv=args, env=effective_env)
-    None => argparse_cmd.parse(env=effective_env)
+    Some(args) => argparse_cmd.parse(argv=args, env~)
+    None => argparse_cmd.parse(env~)
   }
-  let ctx = matches_to_context(matches)
+  let ctx = matches_to_context(matches, config)
   execute_command(self.commands, ctx)
 }

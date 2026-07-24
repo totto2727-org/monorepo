@@ -18,14 +18,42 @@ Pick assertion APIs deliberately. Mixing styles without a rule produces tests th
 
 | Use case                                                            | API                                            | Notes                                                                                         |
 | :------------------------------------------------------------------ | :--------------------------------------------- | :-------------------------------------------------------------------------------------------- |
+| Direct function return value                                        | `inspect`, `debug_inspect`, or `json_inspect`  | Select the inspection API supported by the returned type                                      |
 | Primary constructor — verify struct layout at a glance              | `debug_inspect(value, content="...")`          | Snapshot the literal struct so the field order and types are visible without leaving the test |
 | Large / complex object — happy-path verification                    | `debug_inspect(value, content="...")`          | Use when the type has many properties, changes often, or individual asserts would miss fields |
 | `ToJson` derive — snapshot the serialized form                      | `json_inspect(value, content=...)`             | Preferred over manual string comparison                                                       |
-| Equality of two values where the type derives `Eq + Debug`          | `@test.assert_eq(actual, expected)`            | Failure message prints both sides                                                             |
+| Equality of two secondary observations with `Eq + Debug`            | `@test.assert_eq(actual, expected)`            | Use after one invocation when comparing derived observations; failure prints both sides       |
 | Inequality of two values where the type derives `Eq + Debug`        | `@test.assert_not_eq(actual, expected)`        | Same diagnostics as `assert_eq`                                                               |
 | Bool predicate (`is_X`, `has_X`, `contains_X`, derived `==` / `!=`) | `assert_true(predicate)` / `assert_false(...)` | Reads as "the predicate holds"                                                                |
 | Equality of a value whose type lacks `Show` and `Debug` derives     | `assert_true(actual == expected)`              | Last resort; prefer adding `Debug` to the type if you control it                              |
 | Function intended to panic / abort                                  | `panic_` test prefix + `expr \|> ignore`       | The runner only passes if the panic actually fires                                            |
+| Raising function expected to fail                                   | `panic_` prefix + `try! (expr \|> ignore)`     | `try!` converts the raised error to the panic required by the test runner                     |
+
+### Direct results and raised errors
+
+- Verify a function's direct input/output behavior with the appropriate `inspect`, `debug_inspect`, or `json_inspect` API. This rule takes precedence over the equality and predicate rows when the expression is the direct return value.
+- Verify that a raising function fails with `try!` inside a test whose title starts with `panic_`. The `try!` converts the raised error into the panic required for the test to pass.
+- Do not implement an occurrence-only error check with mutable sentinel state such as `let mut raised = false`, `try`/`catch`, and `inspect(raised, ...)`.
+- Use `try`/`catch` only when the error identity, variant, payload, or message is itself part of the observable contract. Convert the error to an inspectable value and assert that value directly.
+- In a documented family-conformance test that must continue after each expected error, handle every call with `try`/`catch`/`noraise`: return `Unit` from `catch` and panic from `noraise`. This verifies each family member without temporary mutable state; do not use it for a single expected error.
+
+```moonbit
+///|
+test "Context get_value - invalid input" {
+  // Bad: mutable state and catch-only bookkeeping obscure the expected failure.
+  let mut raised = false
+  try context.get_value(invalid_definition) |> ignore catch {
+    _ => raised = true
+  }
+  inspect(raised, content="true")
+}
+
+///|
+test "panic_Context get_value - invalid input panics" {
+  // Good: try! converts the raised error into the panic required by the test.
+  try! (context.get_value(invalid_definition) |> ignore)
+}
+```
 
 ### `debug_inspect`
 

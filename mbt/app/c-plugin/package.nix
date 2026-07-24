@@ -30,7 +30,7 @@ let
       name = "totto2727/c-plugin";
       version = "0.1.0";
       deps = {
-        "totto2727/admiral" = "0.3.0";
+        "totto2727/admiral" = "0.4.0";
         "moonbitlang/async" = "0.19.2";
         "moonbitlang/x" = "0.4.38";
       };

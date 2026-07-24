@@ -17,6 +17,14 @@ test "position helpers encode scalar and array result types" {
 }
 
 ///|
+test "position helpers retain config keys" {
+  let input = position_string("input", config="input_path")
+  let files = position_strings("files", config="input_files")
+  debug_inspect(input.config, content="Some(\"input_path\")")
+  debug_inspect(files.config, content="Some(\"input_files\")")
+}
+
+///|
 async test "same integer getters accept option and position definitions" {
   let limit = int("limit", required=true)
   let value = position_int("value", required=true)
@@ -92,7 +100,7 @@ async test "array position preserves values and reserves a trailing scalar" {
       positionals=[files, target],
       run=Some(ctx => {
         captured.val = (
-          ctx.get_strings_required(files),
+          ctx.get_strings_required(files).all,
           ctx.get_string_required(target),
         )
       }),

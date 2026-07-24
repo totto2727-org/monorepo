@@ -6,7 +6,7 @@ async test "array option appends and parses repeated values" {
     command(
       name="collect",
       options=[values],
-      run=Some(ctx => captured.val = ctx.get_ints_required(values)),
+      run=Some(ctx => captured.val = ctx.get_ints_required(values).all),
     ),
   ])
   app.run(

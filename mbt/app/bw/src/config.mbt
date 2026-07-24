@@ -162,7 +162,7 @@ async fn load_config(context : @admiral.Context) -> BwConfig {
 fn cli_string(
   context : @admiral.Context,
   option : @admiral.OptionDef[String],
-) -> String? {
+) -> String? raise {
   context.get_string(option)
 }
 
