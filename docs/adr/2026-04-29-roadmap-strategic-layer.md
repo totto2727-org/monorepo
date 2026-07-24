@@ -26,6 +26,6 @@ Maintain a roadmap layer with these responsibilities:
 
 ## 2026-07-25 Update
 
-The repository-owned roadmap CLI has been retired. `progress.yaml` remains the progress source and is now maintained directly with schema, timestamp, task, and formatting consistency preserved during review.
+The repository-owned roadmap CLI has been retired. The CLI-specific statements in the Decision and Consequences sections above are historical and no longer apply. `progress.yaml` remains the progress source and is now maintained directly with schema, timestamp, task, and formatting consistency preserved during review.
 
 > Superseded by [Consolidate durable development guidance in totto2727-coding](2026-07-20-consolidate-development-guidance-in-coding-plugin.md)

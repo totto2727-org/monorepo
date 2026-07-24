@@ -38,7 +38,7 @@ Record how many independent implementation efforts are expected. One is preferre
 
 ### Notes
 
-Include only milestone-specific context that is not represented in `progress.yaml`. Do not duplicate machine-managed state.
+Include only milestone-specific context that is not represented in `progress.yaml`. Do not duplicate canonical progress state.
 
 ## Integration milestone
 

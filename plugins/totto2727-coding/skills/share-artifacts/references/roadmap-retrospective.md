@@ -14,7 +14,7 @@ Write the report to `docs/retrospective/roadmap-<roadmap-id>.md`. The `roadmap-`
 
 - `docs/roadmap/<roadmap-id>/roadmap.md`
 - Every milestone file under `docs/roadmap/<roadmap-id>/milestones/`
-- Final CLI-managed `progress.yaml`
+- Final `progress.yaml`
 - Retrospectives or summaries for linked implementation efforts
 
 ## Content
