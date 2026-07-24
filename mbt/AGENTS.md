@@ -25,3 +25,7 @@ moon info          # Update generated interface files (.mbti)
 moon test --update # Update snapshot tests
 moon coverage analyze > uncovered.log
 ```
+
+## README Files
+
+Use `README.mbt.md` as the source README for every MoonBit project, and keep `README.md` as a relative symbolic link to `README.mbt.md`.
