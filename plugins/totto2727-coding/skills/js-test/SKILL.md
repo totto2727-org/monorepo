@@ -12,7 +12,7 @@ Apply [`share-test`](../share-test/SKILL.md), then use the implementation refere
 
 ## References
 
-- [`vitest.md`](references/vitest.md) — supported Vite+ commands, semantic assertions, exception expectations, and Vitest implementation practices.
+- [`vitest.md`](references/vitest.md) — supported Vite+ commands and Vitest implementation practices.
 
 ## Related skills
 
