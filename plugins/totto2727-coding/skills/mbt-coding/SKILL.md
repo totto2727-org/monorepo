@@ -18,7 +18,7 @@ All references below are concrete MoonBit implementation guidance. Conceptual gu
 
 ## Language conventions
 
-- [`style.md`](references/style.md) — documentation, identifiers, callbacks, and ignored results.
+- [`style.md`](references/style.md) — documentation, project README layout, identifiers, callbacks, and ignored results.
 - [`constructors.md`](references/constructors.md) — canonical constructors and factories.
 - [`updates.md`](references/updates.md) — immutable value updates and mutable builder updates.
 - [`sequences.md`](references/sequences.md) — Array and Iter return shapes.
