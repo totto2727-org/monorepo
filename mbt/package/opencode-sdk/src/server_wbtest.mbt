@@ -46,10 +46,7 @@ async fn fixture_pid(root : String) -> Int {
 
 ///|
 async fn process_is_running(pid : Int) -> Bool {
-  let (code, _, _) = @process.collect_output(
-    "kill",
-    ["-0", pid.to_string()],
-  )
+  let (code, _, _) = @process.collect_output("kill", ["-0", pid.to_string()])
   code == 0
 }
 
@@ -94,9 +91,7 @@ test "Server parse_server_url 1 - accepts accumulated readiness output" {
 
 ///|
 test "panic_Server parse_server_url 2 - rejects malformed readiness output" {
-  try! (
-    parse_server_url("opencode server listening without a url") |> ignore
-  )
+  try! (parse_server_url("opencode server listening without a url") |> ignore)
 }
 
 ///|
@@ -128,10 +123,10 @@ async test "Server create 1 - starts from readiness and closes idempotently" {
         #|
       ),
     )
-    json_inspect(
-      @json.parse(@fs.read_file("\{root}/config").text()),
-      content={ "logLevel": "debug", "model": "test/model" },
-    )
+    json_inspect(@json.parse(@fs.read_file("\{root}/config").text()), content={
+      "logLevel": "debug",
+      "model": "test/model",
+    })
     let pid = fixture_pid(root)
     assert_true(process_is_running(pid))
     server.close()
