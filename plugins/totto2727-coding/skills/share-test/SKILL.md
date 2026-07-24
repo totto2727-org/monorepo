@@ -24,6 +24,7 @@ Catch an error explicitly only when its identity, variant, payload, message, or 
 
 Follow the language-specific implementation guides for executable examples:
 
+- [`js-test`](../js-test/SKILL.md) — use semantic Vitest matchers, `toThrow`, and awaited `rejects`.
 - [`mbt-test`](../mbt-test/SKILL.md) — use inspection APIs for direct results and `panic_` plus `try!` for raised errors.
 
 ## Independence
