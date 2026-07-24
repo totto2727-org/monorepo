@@ -22,8 +22,7 @@ fn validated_http_url(url : String) -> String raise {
 fn summarize_url_options(
   context : @admiral.Context,
 ) -> SummarizeUrlOptions raise {
-  let url = context
-    .get_string_required(summarize_url_argument)
+  let url = context.get_string_required(summarize_url_argument)
     |> validated_http_url
   { url, }
 }
@@ -47,8 +46,7 @@ async fn run_summarize_url(context : @admiral.Context) -> Unit {
   let output = run_prompt({
     title: "URL summary",
     tool_access: WebFetchOnly,
-    system:
-      "Use the webfetch tool to fetch the URL supplied by the user. Summarize the page accurately as Markdown with a title, a concise overview, key points, and a source link. Do not use any tool other than webfetch. Return only Markdown.",
+    system: "Use the webfetch tool to fetch the URL supplied by the user. Summarize the page accurately as Markdown with a title, a concise overview, key points, and a source link. Do not use any tool other than webfetch. Return only Markdown.",
     text: "Fetch and summarize this URL: \{options.url}",
   })
   println(output)

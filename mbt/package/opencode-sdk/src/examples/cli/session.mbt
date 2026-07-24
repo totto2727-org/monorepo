@@ -33,10 +33,8 @@ fn ToolAccess::permission_rules(self : ToolAccess) -> Array[PermissionRule] {
   }
   match self {
     NoTools => [deny_all]
-    WebFetchOnly => [
-      deny_all,
-      { permission: "webfetch", pattern: "*", action: "allow" },
-    ]
+    WebFetchOnly =>
+      [deny_all, { permission: "webfetch", pattern: "*", action: "allow" }]
   }
 }
 
@@ -74,10 +72,7 @@ impl ToJson for PromptBody with fn to_json(self) -> Json {
     "format": Json::object({ "type": "text".to_json() }),
     "system": self.system.to_json(),
     "parts": Json::array([
-      Json::object({
-        "type": "text".to_json(),
-        "text": self.text.to_json(),
-      }),
+      Json::object({ "type": "text".to_json(), "text": self.text.to_json() }),
     ]),
   })
 }
@@ -119,8 +114,7 @@ fn decode_assistant_text(response : Json) -> String raise {
   }
   match info.get("error") {
     None | Some(Json::Null) => ()
-    Some(error) =>
-      fail("OpenCode assistant failed: \{@debug.to_string(error)}")
+    Some(error) => fail("OpenCode assistant failed: \{@debug.to_string(error)}")
   }
   guard fields.get("parts") is Some(Json::Array(parts)) else {
     fail("OpenCode prompt response is missing message parts")
@@ -139,21 +133,16 @@ fn decode_assistant_text(response : Json) -> String raise {
       _ => ()
     }
   }
-  guard !texts.is_empty() else {
-    fail("OpenCode assistant returned no text")
-  }
+  guard !texts.is_empty() else { fail("OpenCode assistant returned no text") }
   texts.join("")
 }
 
 ///|
-async fn run_prompt(request : PromptRequest) -> String raise {
+async fn run_prompt(request : PromptRequest) -> String {
   @async.with_task_group() <| group => {
     let server = @opencode.create_opencode_server(group)
     let result = try {
-      let client = server
-        .moonllm_config()
-        .timeout_ms(180000)
-        .build()
+      let client = server.moonllm_config().timeout_ms(180000).build()
       // These paths mirror the OpenCode SDK session create and prompt calls:
       // https://github.com/anomalyco/opencode/blob/66495a2a22cd0a57efcc4f721e65532f0987b4e8/packages/sdk/js/src/v2/gen/sdk.gen.ts#L3410-L3457
       // https://github.com/anomalyco/opencode/blob/66495a2a22cd0a57efcc4f721e65532f0987b4e8/packages/sdk/js/src/v2/gen/sdk.gen.ts#L3742-L3794
