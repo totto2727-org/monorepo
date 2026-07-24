@@ -2,18 +2,24 @@
 let markdown_url_option : @admiral.OptionDef[String] = @admiral.string(
   "url",
   description="Target URL",
+  env="BW_URL",
+  config="url",
 )
 
 ///|
 let markdown_html_option : @admiral.OptionDef[String] = @admiral.string(
   "html",
   description="Path to local HTML file",
+  env="BW_HTML",
+  config="html",
 )
 
 ///|
 let markdown_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
   "wait-until",
   description="Page load strategy",
+  env="BW_WAIT_UNTIL",
+  config="wait_until",
 )
 
 ///|
@@ -21,6 +27,8 @@ let markdown_output_option : @admiral.OptionDef[String] = @admiral.string(
   "output",
   short='o',
   description="Output file path",
+  env="BW_OUTPUT",
+  config="output",
 )
 
 ///|
@@ -95,7 +103,7 @@ fn markdown_command_def(
     description="Extract markdown",
     options=[
       account_id_option, api_token_option, markdown_url_option, markdown_html_option,
-      markdown_wait_until_option, markdown_output_option, config_option,
+      markdown_wait_until_option, markdown_output_option,
     ],
     run=Some(run),
   )
@@ -103,20 +111,13 @@ fn markdown_command_def(
 
 ///|
 async fn markdown_options(context : @admiral.Context) -> MarkdownOptions {
-  let config = load_config(context)
   {
-    account_id: merged_account_id(context, config),
-    api_token: merged_api_token(context, config),
-    url: merge_string(cli_string(context, markdown_url_option), config.url),
-    html: merged_html(context, markdown_html_option, config),
-    wait_until: merge_string(
-      cli_string(context, markdown_wait_until_option),
-      config.wait_until,
-    ),
-    output: merge_string(
-      cli_string(context, markdown_output_option),
-      config.output,
-    ),
+    account_id: context.get_string_required(account_id_option),
+    api_token: context.get_string_required(api_token_option),
+    url: context.get_string(markdown_url_option),
+    html: read_optional_file(context.get_string(markdown_html_option)),
+    wait_until: context.get_string(markdown_wait_until_option),
+    output: context.get_string(markdown_output_option),
   }
 }
 

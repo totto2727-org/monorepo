@@ -2,24 +2,33 @@
 let scrape_url_option : @admiral.OptionDef[String] = @admiral.string(
   "url",
   description="Target URL",
+  env="BW_URL",
+  config="url",
 )
 
 ///|
 let scrape_html_option : @admiral.OptionDef[String] = @admiral.string(
   "html",
   description="Path to local HTML file",
+  env="BW_HTML",
+  config="html",
 )
 
 ///|
 let scrape_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
   "wait-until",
   description="Page load strategy",
+  env="BW_WAIT_UNTIL",
+  config="wait_until",
 )
 
 ///|
 let scrape_selector_option : @admiral.OptionDef[String] = @admiral.string(
   "selector",
   description="CSS selector",
+  env="BW_SELECTOR",
+  config="selector",
+  required=true,
 )
 
 ///|
@@ -106,7 +115,7 @@ fn scrape_command_def(
     description="Extract elements",
     options=[
       account_id_option, api_token_option, scrape_url_option, scrape_html_option,
-      scrape_wait_until_option, scrape_selector_option, config_option,
+      scrape_wait_until_option, scrape_selector_option,
     ],
     run=Some(run),
   )
@@ -114,20 +123,13 @@ fn scrape_command_def(
 
 ///|
 async fn scrape_options(context : @admiral.Context) -> ScrapeOptionsInput {
-  let config = load_config(context)
   {
-    account_id: merged_account_id(context, config),
-    api_token: merged_api_token(context, config),
-    url: merge_string(cli_string(context, scrape_url_option), config.url),
-    html: merged_html(context, scrape_html_option, config),
-    wait_until: merge_string(
-      cli_string(context, scrape_wait_until_option),
-      config.wait_until,
-    ),
-    selector: required_value(
-      "selector",
-      merge_string(cli_string(context, scrape_selector_option), config.selector),
-    ),
+    account_id: context.get_string_required(account_id_option),
+    api_token: context.get_string_required(api_token_option),
+    url: context.get_string(scrape_url_option),
+    html: read_optional_file(context.get_string(scrape_html_option)),
+    wait_until: context.get_string(scrape_wait_until_option),
+    selector: context.get_string_required(scrape_selector_option),
   }
 }
 

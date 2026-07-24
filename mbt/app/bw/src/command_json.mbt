@@ -2,36 +2,49 @@
 let json_url_option : @admiral.OptionDef[String] = @admiral.string(
   "url",
   description="Target URL",
+  env="BW_URL",
+  config="url",
 )
 
 ///|
 let json_html_option : @admiral.OptionDef[String] = @admiral.string(
   "html",
   description="Path to local HTML file",
+  env="BW_HTML",
+  config="html",
 )
 
 ///|
 let json_wait_until_option : @admiral.OptionDef[String] = @admiral.string(
   "wait-until",
   description="Page load strategy",
+  env="BW_WAIT_UNTIL",
+  config="wait_until",
 )
 
 ///|
 let json_prompt_option : @admiral.OptionDef[String] = @admiral.string(
   "prompt",
   description="Extraction prompt",
+  env="BW_PROMPT",
+  config="prompt",
+  required=true,
 )
 
 ///|
 let json_schema_option : @admiral.OptionDef[String] = @admiral.string(
   "schema",
   description="Path to JSON Schema file",
+  env="BW_SCHEMA",
+  config="schema",
 )
 
 ///|
 let json_format_option : @admiral.OptionDef[String] = @admiral.string(
   "format",
   description="Output format: json, markdown, text",
+  env="BW_FORMAT",
+  config="format",
 )
 
 ///|
@@ -119,7 +132,7 @@ fn json_extract_command_def(
     description="Extract structured data",
     options=[
       account_id_option, api_token_option, json_url_option, json_html_option, json_wait_until_option,
-      json_prompt_option, json_schema_option, json_format_option, config_option,
+      json_prompt_option, json_schema_option, json_format_option,
     ],
     run=Some(run),
   )
@@ -142,14 +155,12 @@ fn parse_json_extract_output_format(
 async fn json_extract_options(
   context : @admiral.Context,
 ) -> JsonExtractOptionsInput {
-  let config = load_config(context)
   let (html, response_format) = @async.with_task_group(group => {
     let html_task = group.spawn(() => {
-      merged_html(context, json_html_option, config)
+      read_optional_file(context.get_string(json_html_option))
     })
     let schema_task = group.spawn(() => {
-      match
-        merge_string(cli_string(context, json_schema_option), config.schema) {
+      match context.get_string(json_schema_option) {
         Some(path) => Some(schema_response_format(path))
         None => None
       }
@@ -157,21 +168,14 @@ async fn json_extract_options(
     (html_task.wait(), schema_task.wait())
   })
   {
-    account_id: merged_account_id(context, config),
-    api_token: merged_api_token(context, config),
-    url: merge_string(cli_string(context, json_url_option), config.url),
+    account_id: context.get_string_required(account_id_option),
+    api_token: context.get_string_required(api_token_option),
+    url: context.get_string(json_url_option),
     html,
-    wait_until: merge_string(
-      cli_string(context, json_wait_until_option),
-      config.wait_until,
-    ),
-    prompt: required_value(
-      "prompt",
-      merge_string(cli_string(context, json_prompt_option), config.prompt),
-    ),
+    wait_until: context.get_string(json_wait_until_option),
+    prompt: context.get_string_required(json_prompt_option),
     response_format,
-    output_format: match
-      merge_string(cli_string(context, json_format_option), config.format) {
+    output_format: match context.get_string(json_format_option) {
       Some(value) => parse_json_extract_output_format(value)
       _ => RawJson
     },
