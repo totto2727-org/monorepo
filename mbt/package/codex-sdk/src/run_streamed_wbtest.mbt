@@ -1,4 +1,8 @@
-fn streamed_event_summary(event : ThreadEvent) -> String {
+// Direct test port of https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts
+
+// MoonBit-only assertion adapter for comparing callback events without TypeScript object matchers.
+// Corresponding upstream assertion: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts#L24-L55
+fn moonbit_internal_streamed_event_summary(event : ThreadEvent) -> String {
   match event {
     ThreadStarted(started) => "thread.started:\{started.thread_id}"
     TurnStarted(_) => "turn.started"
@@ -14,7 +18,7 @@ fn streamed_event_summary(event : ThreadEvent) -> String {
   }
 }
 
-///|
+///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts#L15
 async test "Codex runStreamed - returns thread events" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -25,7 +29,7 @@ async test "Codex runStreamed - returns thread events" {
     thread.run_streamed(
       Prompt("Hello, world!"),
       async fn(event) {
-        events.push(streamed_event_summary(event))
+        events.push(moonbit_internal_streamed_event_summary(event))
         @async.pause()
       },
     )
@@ -39,7 +43,7 @@ async test "Codex runStreamed - returns thread events" {
   })
 }
 
-///|
+///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts#L65
 async test "Codex runStreamed - sends previous items when called twice" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -63,7 +67,7 @@ async test "Codex runStreamed - sends previous items when called twice" {
   })
 }
 
-///|
+///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts#L111
 async test "Codex runStreamed - resumes thread by ID" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(
@@ -93,7 +97,7 @@ async test "Codex runStreamed - resumes thread by ID" {
   })
 }
 
-///|
+///| Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts#L159
 async test "Codex runStreamed - applies output schema turn options" {
   with_fake_codex(async fn(fixture) {
     let client = fixture.client(

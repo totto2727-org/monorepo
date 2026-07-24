@@ -1,3 +1,10 @@
+// MoonBit-only native fake replacing the upstream Jest child-process spy, HTTP responses proxy, test client, and CODEX_HOME hooks.
+// Upstream child-process spy: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/codexExecSpy.ts
+// Upstream responses proxy: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/responsesProxy.ts
+// Upstream test client: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/testCodex.ts
+// Upstream CODEX_HOME hooks: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/setupCodexHome.ts
+// This file is intentionally prefixed moonbit_internal_ because MoonBit tests cannot use the upstream Node/Jest and HTTP proxy machinery.
+
 priv struct FakeCodex {
   root : String
   executable : @path.Path
