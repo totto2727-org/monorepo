@@ -1,5 +1,6 @@
 members = [
   "./mbt/package/admiral",
+  "./mbt/package/codex-sdk",
   "./mbt/package/opencode-sdk",
   "./mbt/package/geo-mbt",
   "./mbt/package/target-file-discovery",
