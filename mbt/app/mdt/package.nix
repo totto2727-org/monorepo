@@ -10,31 +10,34 @@ let
     fileset = lib.fileset.unions [
       ./moon.mod
       ./src
-      ../../package/target-file-discovery/moon.mod
-      ../../package/target-file-discovery/src
+      ../../package/admiral/moon.mod
+      ../../package/admiral/src
+      ../../package/opencode-sdk/moon.mod
+      ../../package/opencode-sdk/src
     ];
   };
-  moonWork = builtins.toFile "c-plugin-moon.work" ''
+  moonWork = builtins.toFile "mdt-moon.work" ''
     members = [
-      "./app/c-plugin",
-      "./package/target-file-discovery",
+      "./app/mdt",
+      "./package/admiral",
+      "./package/opencode-sdk",
     ]
   '';
-  src = runCommand "c-plugin-moonbit-workspace-source" { } ''
+  src = runCommand "mdt-moonbit-workspace-source" { } ''
     mkdir -p "$out"
     cp -R ${packageSrc}/. "$out/"
     cp ${moonWork} "$out/moon.work"
   '';
-  moonModJson = builtins.toFile "c-plugin-moon.mod.json" (
+  moonModJson = builtins.toFile "mdt-moon.mod.json" (
     builtins.toJSON {
-      name = "totto2727/c-plugin";
-      version = "0.1.0";
+      name = "totto2727/mdt";
+      version = "0.1.2";
       deps = {
-        "totto2727/admiral" = "0.5.0";
-        "moonbitlang/async" = "0.19.2";
+        "DC-Z-lab/moonllm" = "0.1.0";
+        "moonbitlang/async" = "0.20.1";
         "moonbitlang/x" = "0.4.38";
       };
-      description = "Native MoonBit Claude/Cursor/Codex plugin skill manager";
+      description = "Native MoonBit CLI for translating Markdown with OpenCode";
       license = "MIT";
       "preferred-target" = "native";
       repository = "https://github.com/totto2727-org/monorepo";
@@ -45,7 +48,7 @@ let
 in
 moonPlatform.buildMoonPackage {
   inherit src moonModJson moonRegistryIndex;
-  moonFlags = [ "app/c-plugin/src" ];
+  moonFlags = [ "app/mdt/src" ];
   doCheck = false;
-  meta.mainProgram = "c-plugin";
+  meta.mainProgram = "mdt";
 }

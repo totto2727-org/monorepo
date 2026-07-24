@@ -129,6 +129,8 @@ pub(all) struct CliApp {
   version : String
   description : String
   root_options : Array[StoredOption]
+  root_positionals : Array[StoredPosition]
   commands : Array[CommandDef]
+  run : (async (Context) -> Unit)?
   load_config : (() -> Map[String, Json] raise ConfigLoadFailure)?
 }
