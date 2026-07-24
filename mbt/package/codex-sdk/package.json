@@ -1,0 +1,7 @@
+{
+  "name": "@package/codex-sdk",
+  "private": true,
+  "devDependencies": {
+    "vite-plus": "catalog:"
+  }
+}
