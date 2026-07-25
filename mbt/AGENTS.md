@@ -9,20 +9,18 @@ Before editing MoonBit production code under `mbt/`, read [`mbt-coding`](../plug
 MoonBit uses the repository-root `moon.work`. Root MoonBit tasks are Vite+ tasks defined in the repository-root `vite.config.ts`.
 
 ```bash
+vp run mbt:build # moon build
 vp run mbt:check # moon check
 vp run mbt:fix   # moon fmt
 vp run mbt:test  # moon test
 ```
 
-Build remains a project-level task and is collected by `vp run w:build`.
-
-## Moon Commands
-
-Use `moon` directly for MoonBit subcommands that are not Vite+ tasks:
+MoonBit packages do not define project-level Vite+ tasks. Use `moon` directly only when a command must target a specific package or has no root task:
 
 ```bash
-moon info          # Update generated interface files (.mbti)
-moon test --update # Update snapshot tests
+moon info mbt/package/admiral
+moon test mbt/package/codex-sdk/src
+moon test --update
 moon coverage analyze > uncovered.log
 ```
 

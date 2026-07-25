@@ -18,7 +18,7 @@ eza --tree -L 2 -D js mbt go
 
 - **Never use `npx` or `bunx`** — always use `vp run`, `vp exec`, or `vpx` in that order
 - All commands must be run from the repository root unless noted otherwise
-- The task runner is always Vite+ (`vp`) regardless of language. Use Vite+ tasks for JavaScript, MoonBit, Go, and any future language-specific automation.
+- The task runner is Vite+ (`vp`) for every language. MoonBit tasks run `moon` once from the repository root.
 - Basic task names are `setup`, `fix`, `check`, `build`, and `test`. A project may omit tasks that are not needed.
 - All tasks are defined in `vite.config.ts`. The `--cache` flag is no longer required — caching is on by default.
 
@@ -46,6 +46,7 @@ Languages whose toolchains support workspace-root execution expose root tasks as
 vp run js:check
 vp run js:fix
 vp run js:test
+vp run mbt:build
 vp run mbt:check
 vp run mbt:fix
 vp run mbt:test
@@ -78,6 +79,8 @@ vp run --parallel ci          # Run check / test / build across the workspace ig
 ```
 
 Run `vp run w:setup` first when generated outputs must exist before parallel CI-style execution.
+
+MoonBit packages do not define project-level Vite+ tasks and are not part of workspace fan-out. Use the root `mbt:*` tasks so Moon handles the full `moon.work` workspace once.
 
 ### Targeting a single package
 

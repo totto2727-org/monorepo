@@ -28,10 +28,10 @@ module.en.mbt.md  -> module.ja.mbt.md
 Run from the repository root:
 
 ```bash
-vp run --filter @totto2727/mdt build
+vp run mbt:build
 ```
 
-The native executable is written to `mbt/app/mdt/dist/mdt`.
+The native executable is written under the repository-root `_build/` tree.
 
 ## How it works
 

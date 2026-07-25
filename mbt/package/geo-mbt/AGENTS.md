@@ -22,9 +22,9 @@ Each directory contains a `moon.pkg.json` listing dependencies, source files (`*
 
 ## Commands
 
-MoonBit workspace-level commands live in `mbt/AGENTS.md`. This package keeps only `build` because `w:build` fans out to package build tasks.
+MoonBit workspace-level commands live in `mbt/AGENTS.md`.
 
-- `vp run w:build` — includes this package's `moon build`
+- `vp run mbt:build` — builds the repository-root MoonBit workspace
 
 ## Workflow
 

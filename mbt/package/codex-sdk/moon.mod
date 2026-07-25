@@ -24,5 +24,5 @@ description = "MoonBit SDK for embedding the Codex agent in workflows and applic
 source = "./src"
 
 options(
-  exclude: [ "package.json", "vite.config.ts" ],
+  exclude: [ "package.json" ],
 )
