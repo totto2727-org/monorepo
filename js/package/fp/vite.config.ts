@@ -14,7 +14,7 @@ export default defineConfig({
       //   command: "deno doc --lint 'src/**/*.ts'",
       // },
       'check:slowtype': {
-        command: 'vpx jsr publish --dry-run --allow-dirty',
+        command: 'jsr publish --dry-run --allow-dirty',
       },
     },
   },

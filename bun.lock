@@ -4,6 +4,9 @@
   "workspaces": {
     "": {
       "name": "monorepo",
+      "dependencies": {
+        "jsr": "^0.14.3",
+      },
       "devDependencies": {
         "@types/node": "catalog:types",
         "@vitest/coverage-v8": "4.1.10",
@@ -257,6 +260,12 @@
     "mbt/package/admiral": {
       "name": "@totto2727/admiral",
       "version": "0.0.0",
+      "devDependencies": {
+        "vite-plus": "catalog:",
+      },
+    },
+    "mbt/package/codex-sdk": {
+      "name": "@totto2727/codex-sdk",
       "devDependencies": {
         "vite-plus": "catalog:",
       },
@@ -1132,6 +1141,8 @@
 
     "@totto2727/c-plugin": ["@totto2727/c-plugin@workspace:mbt/app/c-plugin"],
 
+    "@totto2727/codex-sdk": ["@totto2727/codex-sdk@workspace:mbt/package/codex-sdk"],
+
     "@totto2727/fp": ["@totto2727/fp@workspace:js/package/fp"],
 
     "@totto2727/geo-mbt": ["@totto2727/geo-mbt@workspace:mbt/package/geo-mbt"],
@@ -1432,6 +1443,8 @@
 
     "jsonparse": ["jsonparse@1.3.1", "https://npm.flatt.tech/jsonparse/-/jsonparse-1.3.1.tgz", {}, "sha512-POQXvpdL69+CluYsillJ7SUhKvytYjW9vG/GKpnf+xP8UWgYEM/RaMzHHofbALDiKbbP1W8UEYmgGl39WkPZsg=="],
 
+    "jsr": ["jsr@0.14.3", "https://npm.flatt.tech/jsr/-/jsr-0.14.3.tgz", { "dependencies": { "node-stream-zip": "^1.15.0", "semiver": "^1.1.0" }, "bin": { "jsr": "dist/bin.js" } }, "sha512-PGxnDepx7vwJoZQe2SHbyBiFfpGwsOKmX4kn/wZZqfMafV7fjXqTxSaX6lp9QHYkSTLKkER+P/wmrZY3gVJNzg=="],
+
     "just-diff": ["just-diff@6.0.2", "https://npm.flatt.tech/just-diff/-/just-diff-6.0.2.tgz", {}, "sha512-S59eriX5u3/QhMNq3v/gm8Kd0w8OS6Tz2FS1NG4blv+z0MuQcBRJyFWjdovM0Rad4/P4aUPFtnkNjMjyMlMSYA=="],
 
     "just-diff-apply": ["just-diff-apply@5.5.0", "https://npm.flatt.tech/just-diff-apply/-/just-diff-apply-5.5.0.tgz", {}, "sha512-OYTthRfSh55WOItVqwpefPtNt2VdKsq5AnAK6apdtR6yCH8pr0CmSr710J0Mf+WdQy7K/OzMy7K2MgAfdQURDw=="],
@@ -1537,6 +1550,8 @@
     "node-gyp": ["node-gyp@12.4.0", "https://npm.flatt.tech/node-gyp/-/node-gyp-12.4.0.tgz", { "dependencies": { "env-paths": "^2.2.0", "exponential-backoff": "^3.1.1", "graceful-fs": "^4.2.6", "nopt": "^9.0.0", "proc-log": "^6.0.0", "semver": "^7.3.5", "tar": "^7.5.4", "tinyglobby": "^0.2.12", "undici": "^6.25.0", "which": "^6.0.0" }, "bin": { "node-gyp": "bin/node-gyp.js" } }, "sha512-OMcPNvqTCFUnNaBlmdgq+lfNqY7gTiSmNRDjY3uAXRyudeKZEZxu3CLtjMQrx4zZxCX2b/mpNqTtwuCJgXhHkw=="],
 
     "node-gyp-build-optional-packages": ["node-gyp-build-optional-packages@5.2.2", "https://npm.flatt.tech/node-gyp-build-optional-packages/-/node-gyp-build-optional-packages-5.2.2.tgz", { "dependencies": { "detect-libc": "^2.0.1" }, "bin": { "node-gyp-build-optional-packages": "bin.js", "node-gyp-build-optional-packages-optional": "optional.js", "node-gyp-build-optional-packages-test": "build-test.js" } }, "sha512-s+w+rBWnpTMwSFbaE0UXsRlg7hU4FjekKU4eyAih5T8nJuNZT1nNsskXpxmeqSK9UzkBl6UgRlnKc8hz8IEqOw=="],
+
+    "node-stream-zip": ["node-stream-zip@1.16.0", "https://npm.flatt.tech/node-stream-zip/-/node-stream-zip-1.16.0.tgz", {}, "sha512-ObaRrRoR8T68wF6suxHd7R4XQNamij6ZQHrwG7Dx1D2zeHcDNLsIOBcWrIwtDm7AsCXBguaPHgXhcjxDa2szrg=="],
 
     "nopt": ["nopt@9.0.0", "https://npm.flatt.tech/nopt/-/nopt-9.0.0.tgz", { "dependencies": { "abbrev": "^4.0.0" }, "bin": { "nopt": "bin/nopt.js" } }, "sha512-Zhq3a+yFKrYwSBluL4H9XP3m3y5uvQkB/09CwDruCiRmR/UJYnn9W4R48ry0uGC70aeTPKLynBtscP9efFFcPw=="],
 
@@ -1655,6 +1670,8 @@
     "safer-buffer": ["safer-buffer@2.1.2", "https://npm.flatt.tech/safer-buffer/-/safer-buffer-2.1.2.tgz", {}, "sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg=="],
 
     "seedrandom": ["seedrandom@3.0.5", "https://npm.flatt.tech/seedrandom/-/seedrandom-3.0.5.tgz", {}, "sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg=="],
+
+    "semiver": ["semiver@1.1.0", "https://npm.flatt.tech/semiver/-/semiver-1.1.0.tgz", {}, "sha512-QNI2ChmuioGC1/xjyYwyZYADILWyW6AmS1UH6gDj/SFUUUS4MBAWs/7mxnkRPc/F4iHezDP+O8t0dO8WHiEOdg=="],
 
     "semver": ["semver@7.8.5", "https://npm.flatt.tech/semver/-/semver-7.8.5.tgz", { "bin": { "semver": "bin/semver.js" } }, "sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA=="],
 

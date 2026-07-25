@@ -2,6 +2,7 @@
 
 // MoonBit-only assertion adapter for comparing callback events without TypeScript object matchers.
 // Corresponding upstream assertion: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts#L24-L55
+
 ///|
 fn moonbit_internal_streamed_event_summary(event : ThreadEvent) -> String {
   match event {
