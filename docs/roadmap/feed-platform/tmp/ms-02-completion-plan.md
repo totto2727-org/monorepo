@@ -84,7 +84,7 @@ ms-02-auth-passkey-magiclink を `completed` にする。具体的には、Bette
 
 - 5 PR (PR-A〜PR-E) すべてマージ済
 - 任意 PR-F (E2E) は別 milestone でも可
-- `roadmap status feed-platform` で ms-02 が `completed` 表示
+- `progress.yaml` records ms-02 as `completed`
 - ADR 3 本確定 (`docs/adr/`)
 - retrospective 1 本 (`docs/retrospective/feed-platform-ms-02-auth-passkey-magiclink.md`)
 
@@ -143,7 +143,7 @@ ms-02-auth-passkey-magiclink を `completed` にする。具体的には、Bette
 - IdP UI (PR-B), web (PR-C): **playwright-cli** (Chromium、WebAuthn virtual authenticator 利用可)
 - backend (PR-D): **Bash + curl**
 - auth-helper (PR-A): 単体テストのみ (agent QA 不要)
-- ADR / progress (PR-E): markdown / yaml validation + roadmap CLI
+- ADR / progress (PR-E): Markdown / YAML validation and direct state review
 
 ---
 
@@ -1073,9 +1073,7 @@ PR-A → PR-C (or PR-D) → PR-E
 - [ ] **E3. progress.yaml + milestone .md status 更新** (PR-E / Wave 3)
 
   **What to do**:
-  - roadmap CLI で:
-    - `bun js/app/roadmap/dist/bin.mjs milestone set status feed-platform ms-02-auth-passkey-magiclink completed`
-    - `bun js/app/roadmap/dist/bin.mjs milestone set note feed-platform ms-02-auth-passkey-magiclink "<retrospective 要約>"`
+  - Set the ms-02 status and retrospective summary directly in `docs/roadmap/feed-platform/progress.yaml`.
   - `docs/roadmap/feed-platform/milestones/ms-02-auth-passkey-magiclink.md` の `Status: planned` → `completed` 手動更新
   - milestone .md の "関連 oh-my-codingagent execution サイクル" 表に実際のサイクル ID を記入 (該当する場合)
 
@@ -1091,10 +1089,9 @@ PR-A → PR-C (or PR-D) → PR-E
   **References**:
   - `docs/roadmap/feed-platform/progress.yaml`
   - `docs/roadmap/feed-platform/milestones/ms-02-auth-passkey-magiclink.md`
-  - `js/app/roadmap/dist/bin.mjs` — roadmap CLI
 
   **Acceptance Criteria**:
-  - [ ] `roadmap status feed-platform` で ms-02 = completed
+  - [ ] `progress.yaml` records ms-02 as completed
   - [ ] milestone .md の Status 行が completed
 
   **QA Scenarios**:
@@ -1103,8 +1100,8 @@ PR-A → PR-C (or PR-D) → PR-E
   Scenario: progress.yaml 反映
     Tool: Bash
     Steps:
-      1. bun js/app/roadmap/dist/bin.mjs status feed-platform
-    Expected Result: stdout に "ms-02-auth-passkey-magiclink (completed)" を含む
+      1. Inspect the `ms-02-auth-passkey-magiclink` entry in `docs/roadmap/feed-platform/progress.yaml`.
+    Expected Result: the entry has `status: completed`
     Evidence: .sisyphus/evidence/feed-platform-ms-02/pr-e/e3-status.txt
   ```
 
@@ -1211,8 +1208,8 @@ vp test --filter identity-provider      # PR-B
 vp test --filter feed-platform-web      # PR-C
 vp test --filter feed-platform-backend  # PR-D
 
-# Roadmap CLI
-bun js/app/roadmap/dist/bin.mjs status feed-platform   # ms-02 status: completed
+# Roadmap progress
+rg -n -A 8 'id: ms-02-auth-passkey-magiclink' docs/roadmap/feed-platform/progress.yaml
 
 # Cross-app E2E (PR-F が無くても playwright-cli で手動検証)
 curl -sw '%{http_code}\n' http://localhost:8788/api/v1/me   # 401
@@ -1225,7 +1222,7 @@ curl -H "Authorization: Bearer <token>" http://localhost:8788/api/v1/me   # 200
 - [ ] PR-A〜PR-E 全マージ
 - [ ] `vp run -r ci` PASS
 - [ ] cross-app login (magic link + passkey) 全通し
-- [ ] `roadmap status feed-platform` で ms-02 = completed
+- [ ] `progress.yaml` records ms-02 as completed
 - [ ] ADR 3 本確定 + retrospective 確定
 - [ ] auth-helper を consumer が import している (インライン無し)
 - [ ] `js/app/identity-provider/app/ui/oauth-consent.tsx` 存在
