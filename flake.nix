@@ -1,6 +1,10 @@
 {
   inputs = {
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
+    fsl = {
+      url = "path:./nix/package/fsl";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     moonbit-overlay = {
       url = "github:totto2727/moonbit-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -14,6 +18,7 @@
   outputs =
     {
       nixpkgs,
+      fsl,
       moonbit-overlay,
       vite-plus-overlay,
       ...
@@ -21,7 +26,6 @@
     let
       supportedSystems = [
         "aarch64-darwin"
-        "aarch64-linux"
         "x86_64-linux"
       ];
       forEachSystem = nixpkgs.lib.genAttrs supportedSystems;
@@ -33,6 +37,7 @@
           pkgs = import nixpkgs {
             inherit system;
             overlays = [
+              fsl.overlays.default
               moonbit-overlay.overlays.default
               vite-plus-overlay.overlays.default
             ];
@@ -41,11 +46,12 @@
         {
           default = pkgs.mkShell {
             env = pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
-                MOONBIT_OPENSSL_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.openssl ];
-                MOONBIT_NEW_NATIVE = "1";
-              };
+              MOONBIT_OPENSSL_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.openssl ];
+              MOONBIT_NEW_NATIVE = "1";
+            };
 
             packages = [
+              pkgs.fslc
               # JS
               pkgs.bun
               pkgs.deno
