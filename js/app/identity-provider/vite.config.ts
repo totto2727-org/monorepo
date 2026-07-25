@@ -9,9 +9,20 @@ import { defineConfig } from 'vite-plus'
 const taskInput = defineTaskInputFromOutput({
   setup: {
     cloudflare: ['.wrangler/**', 'worker-configuration.d.ts'],
+    fsl: ['specs/generated/return-to-session.scenarios.json'],
     kysely: ['app/feature/db/generated.ts'],
   },
 })
+
+const fslCheckInput = [
+  '../../../flake.lock',
+  '../../../flake.nix',
+  '../../../nix/package/fsl/flake.lock',
+  '../../../nix/package/fsl/flake.nix',
+  'specs/return-to-session.fsl',
+  'vite.config.ts',
+]
+const fslSetupInput = [...fslCheckInput, 'specs/generate-scenarios.ts']
 
 // @cloudflare/vite-plugin rejects resolve.external injected by Vite+ in vitest mode.
 // Unit tests use mocked services (no live bindings) so the plugin is not needed.
@@ -31,20 +42,32 @@ export default defineConfig({
       },
       check: {
         command: 'vp check',
-        dependsOn: ['setup'],
+        dependsOn: ['setup', 'check:fsl'],
+      },
+      'check:fsl': {
+        command: 'nix develop --command fslc check specs/return-to-session.fsl',
+        input: fslCheckInput,
       },
       setup: {
         command: '',
-        dependsOn: ['setup:cloudflare', 'setup:kysely'],
+        dependsOn: ['setup:cloudflare', 'setup:fsl', 'setup:kysely'],
       },
       'setup:cloudflare': {
         command: 'wrangler types',
         input: taskInput.setup.cloudflare,
       },
+      'setup:fsl': {
+        command: 'nix develop --command bun specs/generate-scenarios.ts',
+        input: fslSetupInput,
+      },
       'setup:kysely': {
         command:
           'mkdir -p app/feature/db && go run github.com/totto2727-org/monorepo/go/app/atlas-to-kysely@22cc648211cc6a73d004eb332c12d78a021ba4ec -i db/schema.hcl -o app/feature/db/generated.ts --camel-case',
         input: taskInput.setup.kysely,
+      },
+      test: {
+        command: 'vp test run',
+        dependsOn: ['setup', 'check:fsl'],
       },
     },
   },

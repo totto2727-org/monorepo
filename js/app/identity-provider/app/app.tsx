@@ -34,6 +34,11 @@ const api = factory.createApp().all('/auth/*', (ctx) =>
 const loginRoutes = factory
   .createApp()
   .get('/', (ctx) => {
+    ctx.res = ctx.render(
+      <Document title='ログイン'>
+        <LoginPage />
+      </Document>,
+    )
     const parsedUrl = new URL(ctx.req.url)
     if (ctx.req.query(preserveReturnToQueryParameterName) !== preserveReturnToQueryParameterValue) {
       if (parsedUrl.searchParams.has('client_id') && parsedUrl.searchParams.has('redirect_uri')) {
@@ -42,11 +47,7 @@ const loginRoutes = factory
         deleteLoginReturnToCookie()
       }
     }
-    return ctx.render(
-      <Document title='ログイン'>
-        <LoginPage />
-      </Document>,
-    )
+    return ctx.res
   })
   .get('/passkey', (ctx) =>
     ctx.render(
