@@ -120,7 +120,7 @@ async fn Thread::run_streamed_internal(
   let normalized = normalize_input(input)
   let options = self.thread_options
   let moonbit_internal_stop_requested = Ref(false)
-  let result = try? self.exec.run(
+  let result = Ok(self.exec.run(
     {
       input: normalized.prompt,
       base_url: self.options.base_url,
@@ -155,8 +155,10 @@ async fn Thread::run_streamed_internal(
       }
       should_continue
     },
-  )
-  @async.protect_from_cancel(fn() { schema_file.cleanup() })
+  )) catch {
+    error => Err(error)
+  }
+  @async.protect_from_cancel(async fn() { schema_file.cleanup() })
   match result {
     Ok(_) => ()
     Err(error) =>
@@ -182,7 +184,7 @@ pub async fn Thread::run(
   let mut final_response = ""
   let mut usage : Usage? = None
   let mut turn_failure : ThreadError? = None
-  self.run_streamed_internal(input, turn_options, async fn(event) {
+  self.run_streamed_internal(input, turn_options, fn(event) {
     match event {
       ItemCompleted(completed) => {
         if completed.item is AgentMessage(message) {

@@ -24,18 +24,18 @@ async fn create_output_schema_file(schema : Json?) -> OutputSchemaFile {
       let schema_directory = @fs.tmpdir(prefix="codex-output-schema-")
       let schema_path = @path.Path(schema_directory)
         |> @path.Path::join(@path.Path("schema.json"))
-      let write_result = try? @fs.write_file(
-        "\{schema_path}",
-        schema.stringify(),
-        create_mode=CreateOrTruncate,
-      )
-      match write_result {
-        Ok(_) =>
-          {
-            schema_path: Some(schema_path),
-            schema_directory: Some(schema_directory),
-          }
-        Err(error) => {
+      try {
+        @fs.write_file(
+          "\{schema_path}",
+          schema.stringify(),
+          create_mode=CreateOrTruncate,
+        )
+        {
+          schema_path: Some(schema_path),
+          schema_directory: Some(schema_directory),
+        }
+      } catch {
+        error => {
           @fs.rmdir(schema_directory, recursive=true) catch {
             _ => ()
           }
