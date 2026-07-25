@@ -23,5 +23,5 @@ preferred_target = "native"
 source = "src"
 
 options(
-  exclude: [ "package.json", "vite.config.ts" ],
+  exclude: [ "package.json" ],
 )

@@ -92,10 +92,10 @@ Files prefixed with `moonbit_internal_` have no direct upstream module and exist
 
 ## Tests
 
-Run the native package suite through the repository task runner:
+Run the native package suite from the repository root:
 
 ```sh
-vp run --filter @totto2727/codex-sdk test
+moon test --target native mbt/package/codex-sdk/src
 ```
 
 The 37 upstream `abort`, `exec`, `run`, and `runStreamed` cases are ported one-for-one against a native fake Codex executable that records arguments, environment variables, stdin, schemas, JSONL events, process exits, and cancellation. Another 26 `moonbit_internal_` cases cover the explicit MoonBit item and event decoders, including every discriminated union branch, malformed payloads, unknown variants, and invalid JSONL. The Node-only optional-package layout cases are represented by documented MoonBit-runtime substitutions for an explicit executable override, `PATH` executable fallback, exact caller-provided `PATH`, and preservation of the Windows `Path` key.

@@ -4,12 +4,10 @@
   "workspaces": {
     "": {
       "name": "monorepo",
-      "dependencies": {
-        "jsr": "^0.14.3",
-      },
       "devDependencies": {
         "@types/node": "catalog:types",
         "@vitest/coverage-v8": "4.1.10",
+        "jsr": "^0.14.3",
         "ultracite": "catalog:lint",
         "vite-plus": "catalog:",
         "vitest": "4.1.10",
@@ -235,60 +233,33 @@
     },
     "mbt/app/bw": {
       "name": "@totto2727/bw",
-      "devDependencies": {
-        "vite-plus": "catalog:",
-      },
     },
     "mbt/app/c-plugin": {
       "name": "@totto2727/c-plugin",
-      "devDependencies": {
-        "vite-plus": "catalog:",
-      },
     },
     "mbt/app/mdt": {
       "name": "@totto2727/mdt",
-      "devDependencies": {
-        "vite-plus": "catalog:",
-      },
     },
     "mbt/app/wt": {
       "name": "@totto2727/wt",
-      "devDependencies": {
-        "vite-plus": "catalog:",
-      },
     },
     "mbt/package/admiral": {
       "name": "@totto2727/admiral",
       "version": "0.0.0",
-      "devDependencies": {
-        "vite-plus": "catalog:",
-      },
     },
     "mbt/package/codex-sdk": {
       "name": "@totto2727/codex-sdk",
-      "devDependencies": {
-        "vite-plus": "catalog:",
-      },
     },
     "mbt/package/geo-mbt": {
       "name": "@totto2727/geo-mbt",
       "version": "0.0.0",
-      "devDependencies": {
-        "vite-plus": "catalog:",
-      },
     },
     "mbt/package/opencode-sdk": {
       "name": "@totto2727/opencode-sdk",
       "version": "0.0.0",
-      "devDependencies": {
-        "vite-plus": "catalog:",
-      },
     },
     "mbt/package/target-file-discovery": {
       "name": "@package/target-file-discovery",
-      "devDependencies": {
-        "vite-plus": "catalog:",
-      },
     },
     "nix": {
       "name": "@app/nix",

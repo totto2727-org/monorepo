@@ -1,7 +1,4 @@
 {
   "name": "@package/target-file-discovery",
-  "private": true,
-  "devDependencies": {
-    "vite-plus": "catalog:"
-  }
+  "private": true
 }

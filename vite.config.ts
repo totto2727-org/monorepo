@@ -51,6 +51,10 @@ export default defineConfig({
   },
   run: {
     tasks: {
+      build: {
+        command: '',
+        dependsOn: ['mbt:build'],
+      },
       check: {
         command: '',
         dependsOn: [
@@ -103,6 +107,10 @@ export default defineConfig({
       },
       'js:test': {
         command: 'vp test',
+      },
+      'mbt:build': {
+        command: 'moon build',
+        input: [{ auto: true }, '!moon.work', '!**/_build/**'],
       },
       'mbt:check': {
         command: 'moon check',
