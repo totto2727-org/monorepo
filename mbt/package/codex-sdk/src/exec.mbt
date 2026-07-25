@@ -180,15 +180,15 @@ async fn CodexExec::run(
   let inherit_environment = self.env_override is None
 
   let moonbit_internal_stop_requested = Ref(false)
-  @async.with_task_group(fn(group) {
+  @async.with_task_group(async fn(group) {
     let (child_input, input_writer) = @process.write_to_process()
     let (output_reader, child_output) = @process.read_from_process()
     let (error_reader, child_error) = @process.read_from_process()
-    group.spawn_bg(fn() {
+    group.spawn_bg(async fn() {
       defer input_writer.close()
       input_writer.write(args.input)
     })
-    let stderr_task = group.spawn(fn() {
+    let stderr_task = group.spawn(async fn() {
       defer error_reader.close()
       error_reader.read_all().text()
     })
@@ -205,7 +205,7 @@ async fn CodexExec::run(
       // Upstream generator cleanup: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L235-L242
       cancel_handler=@process.hard_cancel(),
     )
-    let stdout_task = group.spawn(fn() {
+    let stdout_task = group.spawn(async fn() {
       defer output_reader.close()
       while output_reader.read_until("\n") is Some(line) {
         if !on_line(line) {

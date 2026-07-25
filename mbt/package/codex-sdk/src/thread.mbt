@@ -120,43 +120,47 @@ async fn Thread::run_streamed_internal(
   let normalized = normalize_input(input)
   let options = self.thread_options
   let moonbit_internal_stop_requested = Ref(false)
-  let result = try? self.exec.run(
-    {
-      input: normalized.prompt,
-      base_url: self.options.base_url,
-      api_key: self.options.api_key,
-      thread_id: self.id_value,
-      images: normalized.images,
-      model: options.model,
-      sandbox_mode: options.sandbox_mode,
-      working_directory: options.working_directory,
-      additional_directories: options.additional_directories,
-      skip_git_repo_check: options.skip_git_repo_check,
-      output_schema_file: schema_file.schema_path,
-      model_reasoning_effort: options.model_reasoning_effort,
-      network_access_enabled: options.network_access_enabled,
-      web_search_mode: options.web_search_mode,
-      web_search_enabled: options.web_search_enabled,
-      approval_policy: options.approval_policy,
-    },
-    async fn(line) {
-      let event = moonbit_internal_thread_event_from_json(@json.parse(line)) catch {
-        error =>
-          raise InvalidEvent(
-            message="Failed to parse item: \{line}; cause: \{error}",
-          )
-      }
-      if event is ThreadStarted(started) {
-        self.id_value = Some(started.thread_id)
-      }
-      let should_continue = on_event(event)
-      if !should_continue {
-        moonbit_internal_stop_requested.val = true
-      }
-      should_continue
-    },
-  )
-  @async.protect_from_cancel(fn() { schema_file.cleanup() })
+  let result = Ok(
+    self.exec.run(
+      {
+        input: normalized.prompt,
+        base_url: self.options.base_url,
+        api_key: self.options.api_key,
+        thread_id: self.id_value,
+        images: normalized.images,
+        model: options.model,
+        sandbox_mode: options.sandbox_mode,
+        working_directory: options.working_directory,
+        additional_directories: options.additional_directories,
+        skip_git_repo_check: options.skip_git_repo_check,
+        output_schema_file: schema_file.schema_path,
+        model_reasoning_effort: options.model_reasoning_effort,
+        network_access_enabled: options.network_access_enabled,
+        web_search_mode: options.web_search_mode,
+        web_search_enabled: options.web_search_enabled,
+        approval_policy: options.approval_policy,
+      },
+      async fn(line) {
+        let event = moonbit_internal_thread_event_from_json(@json.parse(line)) catch {
+          error =>
+            raise InvalidEvent(
+              message="Failed to parse item: \{line}; cause: \{error}",
+            )
+        }
+        if event is ThreadStarted(started) {
+          self.id_value = Some(started.thread_id)
+        }
+        let should_continue = on_event(event)
+        if !should_continue {
+          moonbit_internal_stop_requested.val = true
+        }
+        should_continue
+      },
+    ),
+  ) catch {
+    error => Err(error)
+  }
+  @async.protect_from_cancel(async fn() { schema_file.cleanup() })
   match result {
     Ok(_) => ()
     Err(error) =>
@@ -182,7 +186,7 @@ pub async fn Thread::run(
   let mut final_response = ""
   let mut usage : Usage? = None
   let mut turn_failure : ThreadError? = None
-  self.run_streamed_internal(input, turn_options, async fn(event) {
+  self.run_streamed_internal(input, turn_options, fn(event) {
     match event {
       ItemCompleted(completed) => {
         if completed.item is AgentMessage(message) {
