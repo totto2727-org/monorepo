@@ -80,11 +80,6 @@ pub(all) struct EventSink {
 }
 
 ///|
-pub struct RuntimeResourceStore {
-  resources : Map[ResourceKey, Unit]
-} derive(Default)
-
-///|
 pub fn EventSink::EventSink(emit : (GraphEvent) -> Unit raise) -> EventSink {
   EventSink::{ emit, }
 }
@@ -99,11 +94,6 @@ pub fn EventSink::try_emit(self : EventSink, event : GraphEvent) -> Unit {
   (self.emit)(event) catch {
     _ => ()
   }
-}
-
-///|
-pub fn RuntimeResourceStore::RuntimeResourceStore() -> RuntimeResourceStore {
-  RuntimeResourceStore::{ resources: Map([]) }
 }
 
 ///|
