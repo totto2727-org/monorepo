@@ -1,0 +1,15 @@
+import {
+  "DC-Z-lab/moonllm",
+  "moonbitlang/async",
+  "moonbitlang/core/json",
+  "moonbitlang/x/path",
+  "totto2727/moon-agent-graph/core",
+  "totto2727/opencode-sdk" @sdk,
+}
+
+import {
+  "moonbitlang/async/fs",
+  "moonbitlang/async/process",
+} for "test"
+
+supported_targets = "native"
