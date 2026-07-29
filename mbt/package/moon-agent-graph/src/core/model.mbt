@@ -76,13 +76,35 @@ pub(all) enum GraphEvent {
 
 ///|
 pub(all) struct EventSink {
-  emit : (GraphEvent) -> Unit
+  emit : (GraphEvent) -> Unit raise
 }
 
 ///|
 pub struct RuntimeResourceStore {
   resources : Map[ResourceKey, Unit]
 } derive(Default)
+
+///|
+pub fn EventSink::EventSink(emit : (GraphEvent) -> Unit raise) -> EventSink {
+  EventSink::{ emit, }
+}
+
+///|
+pub fn EventSink::discard() -> EventSink {
+  EventSink(fn(_) { () })
+}
+
+///|
+pub fn EventSink::try_emit(self : EventSink, event : GraphEvent) -> Unit {
+  (self.emit)(event) catch {
+    _ => ()
+  }
+}
+
+///|
+pub fn RuntimeResourceStore::RuntimeResourceStore() -> RuntimeResourceStore {
+  RuntimeResourceStore::{ resources: Map([]) }
+}
 
 ///|
 pub(all) struct NodeContext {
@@ -96,10 +118,40 @@ pub(all) struct NodeContext {
 }
 
 ///|
+pub fn NodeContext::NodeContext(
+  run_id : RunId,
+  node_id : NodeId,
+  step : Int,
+  task_group : @async.TaskGroup[Unit],
+  events? : EventSink = EventSink::discard(),
+  resources? : RuntimeResourceStore = RuntimeResourceStore(),
+  deadline_ms? : Int64,
+) -> NodeContext {
+  NodeContext::{
+    run_id,
+    node_id,
+    step,
+    deadline_ms,
+    task_group,
+    events,
+    resources,
+  }
+}
+
+///|
 pub(all) struct Node[S, P] {
   id : NodeId
   metadata : NodeMetadata
   execute : async (NodeContext, S) -> NodeOutput[P]
+}
+
+///|
+pub fn[S, P] function_node(
+  id : NodeId,
+  metadata : NodeMetadata,
+  execute : async (NodeContext, S) -> NodeOutput[P],
+) -> Node[S, P] {
+  Node::{ id, metadata, execute }
 }
 
 ///|
