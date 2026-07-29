@@ -3,7 +3,7 @@
 ///
 /// `Valid` carries no decoded value. Use the original typed lenses to read the
 /// document after validation succeeds.
-pub(all) enum Validation {
+pub enum Validation {
   Valid
   Invalid(Array[Issue])
 } derive(Eq, Debug)

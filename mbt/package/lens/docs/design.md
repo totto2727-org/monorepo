@@ -392,13 +392,15 @@ Aggregate validation remains value based. `validate` catches `LensError(issue)` 
 ### Validation
 
 ```moonbit
-pub(all) enum Validation {
+pub enum Validation {
   Valid
   Invalid(Array[Issue])
 }
 ```
 
 `Invalid` must always contain at least one issue. The implementation should enforce this invariant through private construction helpers. A dedicated non-empty collection type is optional and should not be introduced solely for this invariant unless it improves the rest of the package.
+
+`Validation` is readonly outside the package. Consumers can destructure it through pattern matching, but only this package can construct `Valid` or `Invalid`, which prevents external construction of `Invalid([])`.
 
 `Valid` carries no decoded value. Validation establishes only that every supplied check succeeded for that invocation.
 
