@@ -293,7 +293,9 @@ mbt/package/moon-agent-graph/
     │   ├── codex/
     │   └── opencode/
     ├── testing/
-    └── e2e/
+    ├── e2e/
+    └── examples/
+        └── basic/
 ```
 
 `core` contains IDs, graph compilation, node and router callback containers, reducer semantics, run events, run resources, and the sequential runtime.
@@ -307,6 +309,8 @@ The two adapter packages import `coding_agent` plus their concrete SDK.
 `testing` contains reusable fakes and recorders.
 
 `e2e` contains deterministic end-to-end workflow support and tests that consume public packages and local fakes.
+
+`examples/basic` is a runnable native example that imports only the public `core` package.
 
 The module, Codex SDK, OpenCode SDK, and MoonLLM resolve `moonbitlang/async@0.20.1`; the Codex SDK and graph module resolve `moonbitlang/x@0.4.38`. No async-runtime version alignment work remains for the implemented adapters.
 
