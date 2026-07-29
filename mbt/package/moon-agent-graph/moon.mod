@@ -13,6 +13,7 @@ keywords = [ "agent", "graph", "runtime", "moonbit" ]
 description = "Native asynchronous agent graph runtime"
 
 import {
+  "DC-Z-lab/moonllm@0.1.0",
   "moonbitlang/async@0.20.1",
   "moonbitlang/x@0.4.38",
 }

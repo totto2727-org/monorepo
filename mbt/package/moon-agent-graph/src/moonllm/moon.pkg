@@ -1,0 +1,13 @@
+import {
+  "DC-Z-lab/moonllm" @llm,
+  "totto2727/moon-agent-graph/core",
+}
+
+import {
+  "moonbitlang/async",
+  "moonbitlang/async/http",
+  "moonbitlang/async/io",
+  "moonbitlang/async/socket",
+} for "test"
+
+supported_targets = "native"
