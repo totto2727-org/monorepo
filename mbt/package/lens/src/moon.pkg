@@ -1,0 +1,6 @@
+import {
+  "moonbitlang/core/double",
+  "moonbitlang/core/int",
+  "moonbitlang/core/json",
+  "moonbitlang/core/string",
+}
