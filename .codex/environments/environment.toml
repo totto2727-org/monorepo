@@ -6,5 +6,9 @@ name = "monorepo"
 script = '''
 direnv allow
 vp config
-vp i
-'''
+vp i'''
+
+[[actions]]
+name = "zed"
+icon = "run"
+command = "zed ."
