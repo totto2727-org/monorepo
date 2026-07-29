@@ -51,15 +51,15 @@ async fn process_is_running(pid : Int) -> Bool {
 }
 
 ///|
-// Upstream contract:
-// https://github.com/anomalyco/opencode/blob/66495a2a22cd0a57efcc4f721e65532f0987b4e8/packages/sdk/js/src/server.ts#L22-L99
-test "ServerOptions ServerOptions 1 - applies TypeScript SDK defaults" {
+// OpenCode automatic port selection:
+// https://github.com/anomalyco/opencode/blob/7565e03536d19e850f9996c407f9bf5e932b5f7a/packages/opencode/src/server/server.ts#L117-L122
+test "ServerOptions ServerOptions 1 - selects an available port by default" {
   debug_inspect(
     ServerOptions::ServerOptions(),
     content=(
       #|{
       #|  hostname: "127.0.0.1",
-      #|  port: 4096,
+      #|  port: 0,
       #|  timeout_ms: 5000,
       #|  config: Object({}),
       #|}
@@ -118,7 +118,7 @@ async test "Server create 1 - starts from readiness and closes idempotently" {
       content=(
         #|serve
         #|--hostname=127.0.0.1
-        #|--port=4096
+        #|--port=0
         #|--log-level=debug
         #|
       ),
