@@ -2,11 +2,17 @@
 
 ## Status
 
-This document is the reviewed architecture baseline for the Moon Agent Graph Runtime MVP.
+This document records the reviewed architecture baseline and the current implementation status for the Moon Agent Graph Runtime MVP.
 
-The review baseline is MoonBit compiler `v0.10.4`, Moon `0.1.20260713`, `moonbitlang/async@0.20.1`, `DC-Z-lab/moonllm@0.1.0`, the repository's native Codex SDK, and the repository's native OpenCode SDK.
+The implementation baseline is MoonBit compiler `v0.10.4`, Moon `0.1.20260713`, `moonbitlang/async@0.20.1`, `moonbitlang/x@0.4.38`, `DC-Z-lab/moonllm@0.1.0`, `totto2727/codex-sdk@0.0.0`, and `totto2727/opencode-sdk@0.0.0`.
 
 The runtime is native-only and asynchronous.
+
+## Implementation Status
+
+The native implementation includes the core graph compiler and sequential runtime, run and node resource lifecycle management, function nodes, the MoonLLM callback node, the coding-agent node, Codex and OpenCode adapters, deterministic testing helpers, and deterministic end-to-end workflow tests.
+
+Deferred work includes parallel node scheduling, persistent checkpoints or durable execution, human approval suspension, subgraphs, distributed workers, application-scoped servers, and real credentialed provider end-to-end tests.
 
 ## Purpose
 
@@ -205,6 +211,8 @@ A function node wraps an async MoonBit callback.
 
 It may perform I/O, but routing-only logic belongs in the router.
 
+`NodeContext.deadline_ms` is `None` when no node timeout is configured and otherwise contains the configured node timeout duration in milliseconds as `Int64`; it is metadata for the current node attempt, not an absolute wall-clock deadline. The runtime enforces the same configured duration with `@async.with_timeout`.
+
 ### LLM Node
 
 An LLM node:
@@ -212,7 +220,8 @@ An LLM node:
 - Builds a typed MoonLLM request from state.
 - Calls a supplied async MoonLLM boundary.
 - Decodes the response into a node output.
-- Preserves MoonLLM usage information in artifacts or events.
+
+The callback receives the full MoonLLM response, so its decoder can preserve usage information in artifacts or events when the graph author needs it; the current generic node does not automatically emit usage.
 
 The integration package owns the concrete `@moonllm.Client`.
 
@@ -260,7 +269,11 @@ The adapter creates a session through `POST /session` and sends work through the
 
 The MoonLLM client is an HTTP transport for those OpenCode endpoints in the current repository implementation.
 
-The adapter closes the server before the task-group body exits, including all partial-startup and request-failure paths.
+The adapter creates sessions with an official title-only body and sends official text-only message parts. It represents the workspace and supplied context files honestly as text instead of sending an unencoded workspace query or unattached file URLs.
+
+The adapter merges configured extra environment variables with the open context environment before launching the server, with caller-supplied context values taking precedence.
+
+If session creation fails after the server starts, the adapter protects `server.close()` from cancellation before re-raising; it does not discard a cleanup failure. MoonLLM can expose an interrupted HTTP request as `LLMError::Transport`, so both session creation and message execution restore active cancellation at an unprotected `@async.pause()` point before preserving ordinary errors. The adapter therefore closes the server before the task-group body exits, including partial-open and request-failure paths, without converting cancellation into a transport failure.
 
 ## Package Layout
 
@@ -280,7 +293,7 @@ mbt/package/moon-agent-graph/
     │   ├── codex/
     │   └── opencode/
     ├── testing/
-    └── examples/
+    └── e2e/
 ```
 
 `core` contains IDs, graph compilation, node and router callback containers, reducer semantics, run events, run resources, and the sequential runtime.
@@ -293,11 +306,9 @@ The two adapter packages import `coding_agent` plus their concrete SDK.
 
 `testing` contains reusable fakes and recorders.
 
-Examples depend on public packages only.
+`e2e` contains deterministic end-to-end workflow support and tests that consume public packages and local fakes.
 
-The Codex SDK currently pins `moonbitlang/async@0.19.2` and `moonbitlang/x@0.4.38`, while OpenCode SDK and MoonLLM pin `moonbitlang/async@0.20.1`.
-
-The implementation must align these dependencies before the new module imports both adapters.
+The module, Codex SDK, OpenCode SDK, and MoonLLM resolve `moonbitlang/async@0.20.1`; the Codex SDK and graph module resolve `moonbitlang/x@0.4.38`. No async-runtime version alignment work remains for the implemented adapters.
 
 ## MVP Scope
 
@@ -313,6 +324,7 @@ The MVP includes:
 - Run-scoped and node-scoped coding-agent sessions.
 - In-memory events and state.
 - Codex and OpenCode adapters.
+- Deterministic testing helpers and end-to-end workflow coverage.
 
 The MVP excludes:
 
@@ -323,6 +335,7 @@ The MVP excludes:
 - Subgraphs.
 - Distributed workers.
 - Application-scoped servers.
+- Real credentialed provider end-to-end tests.
 
 ## References
 

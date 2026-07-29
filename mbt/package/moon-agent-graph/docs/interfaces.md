@@ -4,7 +4,7 @@
 
 This document defines the reviewed public contract for the native asynchronous MVP.
 
-The snippets are API shapes to be locked by a compile spike in implementation workstream W0.
+The snippets record the implemented and verified public contract for the native asynchronous MVP.
 
 The implementation uses current MoonBit conventions:
 
@@ -110,8 +110,12 @@ This keeps event ordering deterministic and avoids introducing an async operatio
 
 ```moonbit
 pub(all) struct EventSink {
-  emit : (GraphEvent) -> Unit
+  emit : (GraphEvent) -> Unit raise
 }
+
+pub fn EventSink::EventSink(emit : (GraphEvent) -> Unit raise) -> EventSink
+pub fn EventSink::discard() -> EventSink
+pub fn EventSink::try_emit(self : EventSink, event : GraphEvent) -> Unit
 ```
 
 An external asynchronous telemetry adapter may buffer events and drain them in a separately owned task.
@@ -130,7 +134,19 @@ pub(all) struct NodeContext {
   events : EventSink
   resources : RuntimeResourceStore
 }
+
+pub fn NodeContext::NodeContext(
+  run_id : RunId,
+  node_id : NodeId,
+  step : Int,
+  task_group : @async.TaskGroup[Unit],
+  events? : EventSink = EventSink::discard(),
+  resources? : RuntimeResourceStore = RuntimeResourceStore(),
+  deadline_ms? : Int64,
+) -> NodeContext
 ```
+
+The runtime supplies `deadline_ms` as the configured node-timeout hint in milliseconds when one exists; it does not enforce the timeout through this field.
 
 There is no custom cancellation token in the MVP.
 
@@ -301,6 +317,14 @@ pub fn RunOptions::RunOptions(
 ) -> RunOptions raise RunConfigurationError
 ```
 
+```moonbit
+pub(all) suberror RunConfigurationError {
+  MaxStepsMustBePositive(Int)
+  NodeTimeoutMustBePositive(Int)
+  CleanupTimeoutMustBePositive(Int)
+} derive(Debug)
+```
+
 `max_steps` must be positive.
 
 Timeout values must be positive when present.
@@ -330,6 +354,10 @@ pub fn[S, P] GraphRuntime::GraphRuntime(
   events? : EventSink = EventSink::discard(),
 ) -> GraphRuntime[S, P]
 
+pub fn[S, P] GraphRuntime::fresh_run_id(
+  self : GraphRuntime[S, P],
+) -> RunId
+
 pub async fn[S, P] GraphRuntime::invoke(
   self : GraphRuntime[S, P],
   initial_state : S,
@@ -356,6 +384,7 @@ pub(all) struct RunFailure {
 } derive(Debug)
 
 pub(all) suberror GraphRuntimeError {
+  NodeTimedOut(node_id~ : NodeId, step~ : Int, timeout_ms~ : Int)
   NodeFailed(node_id~ : NodeId, step~ : Int, cause~ : Error)
   ReduceFailed(node_id~ : NodeId, step~ : Int, cause~ : Error)
   RouteFailed(node_id~ : NodeId, step~ : Int, cause~ : Error)
@@ -363,12 +392,12 @@ pub(all) suberror GraphRuntimeError {
   StepLimitExceeded(limit~ : Int)
   ExplicitFailure(node_id~ : NodeId, message~ : String)
   ResourceCleanupFailed(failure~ : RunFailure)
+  NodeNotFound(NodeId)
+  RouterNotFound(NodeId)
 } derive(Debug)
 ```
 
 Adapters define their own `suberror` types and allow the runtime to preserve them as causes.
-
-Display implementations redact credentials, environment secrets, and raw authorization headers.
 
 ## Graph Events
 
@@ -490,7 +519,7 @@ The common session interface is non-generic and uses an async trait object.
 
 ```moonbit
 pub(open) trait CodingAgentSession {
-  id(Self) -> SessionId?
+  fn id(Self) -> SessionId?
   async fn execute(Self, CodingAgentRequest) -> CodingAgentResponse
   async fn close(Self) -> Unit
 }
@@ -517,11 +546,14 @@ pub(all) enum ResourceScope {
 
 pub struct RuntimeResourceStore
 
+pub fn RuntimeResourceStore::RuntimeResourceStore() -> RuntimeResourceStore
+
 pub async fn RuntimeResourceStore::acquire_agent_session(
   self : RuntimeResourceStore,
   key : ResourceKey,
   scope : ResourceScope,
   open : async () -> &CodingAgentSession,
+  owner? : NodeId,
 ) -> &CodingAgentSession
 
 pub async fn RuntimeResourceStore::release_node(
@@ -532,6 +564,20 @@ pub async fn RuntimeResourceStore::release_node(
 pub async fn RuntimeResourceStore::close_all(
   self : RuntimeResourceStore,
 ) -> Unit
+
+pub async fn RuntimeResourceStore::finalize(
+  self : RuntimeResourceStore,
+  timeout_ms : Int,
+) -> Unit
+```
+
+```moonbit
+pub(all) suberror ResourceStoreError {
+  NodeOwnerRequired(ResourceKey)
+  InvalidCleanupTimeout(Int)
+  CleanupTimedOut(Int)
+  CloseFailed(errors~ : Array[Error])
+} derive(Debug)
 ```
 
 The MVP store is deliberately specialized to the common coding-agent session interface.
@@ -540,7 +586,7 @@ A heterogeneous arbitrary-resource container is deferred until MoonBit has a con
 
 Run-scoped sessions are reused by resource key inside one invocation.
 
-Node-scoped sessions close after that node attempt.
+Node-scoped sessions require `owner` and close after that node attempt; run-scoped sessions omit the owner and are reused by key.
 
 Open failures are never inserted into the store.
 
@@ -565,30 +611,186 @@ pub fn[S, P] coding_agent_node(
 ) -> Node[S, P]
 ```
 
-## Codex Adapter Contract
+## Codex Adapter
 
-The Codex adapter:
+```moonbit
+pub(all) struct CodexAgentOptions {
+  codex_path_override : @path.Path?
+  base_url : String?
+  api_key : String?
+  config : @codex_sdk.CodexConfigObject?
+  resume_thread_id : String?
+  model : String?
+  sandbox : @codex_sdk.SandboxMode?
+  skip_git : Bool?
+  reasoning : @codex_sdk.ModelReasoningEffort?
+  web_search : @codex_sdk.WebSearchMode?
+}
 
-- Creates `@codex_sdk.Codex` with environment and executable options.
-- Starts or resumes a `Thread`.
-- Maps workspace, additional directories, sandbox, approval, network, web-search, and model options to `ThreadOptions`.
-- Calls `Thread::run` or `Thread::run_streamed`.
-- Uses `Thread::id` as the continuation ID.
-- Relies on task cancellation to cancel the native CLI process.
-- Implements session close as an idempotent no-op after in-flight work has terminated because the current SDK has no persistent client process to close.
+pub fn CodexAgentOptions::CodexAgentOptions(
+  codex_path_override? : @path.Path,
+  base_url? : String,
+  api_key? : String,
+  config? : @codex_sdk.CodexConfigObject,
+  resume_thread_id? : String,
+  model? : String,
+  sandbox? : @codex_sdk.SandboxMode,
+  skip_git? : Bool,
+  reasoning? : @codex_sdk.ModelReasoningEffort,
+  web_search? : @codex_sdk.WebSearchMode,
+) -> CodexAgentOptions
 
-## OpenCode Adapter Contract
+pub(all) suberror CodexAdapterError {
+  SessionClosed
+} derive(Debug)
 
-The OpenCode adapter:
+pub fn codex_agent(
+  id : CodingAgentId,
+  options : CodexAgentOptions,
+) -> CodingAgent
+```
 
-- Receives the invocation's `TaskGroup[Unit]` through `CodingAgentOpenContext`.
-- Starts `@opencode.create_opencode_server(group, options)`.
-- Builds a client from `server.moonllm_config()`.
-- Creates an OpenCode session with `POST /session`.
-- Sends instructions through the session message endpoint.
-- Preserves the OpenCode session ID as the continuation ID.
-- Closes the server explicitly on every terminal path.
-- Does not expose the server URL through the common coding-agent API.
+The adapter maps context environment, workspace root, additional writable roots, approval, network, and supplied options to the pinned Codex SDK. It returns the thread final response as `summary`, the SDK thread ID as `continuation_id`, discovered completed patch paths as `changed_files`, no artifacts, and no raw output. Closing a session makes later execution raise `CodexAdapterError::SessionClosed`.
+
+## OpenCode Adapter
+
+```moonbit
+pub(all) struct OpenCodeAgentOptions {
+  server_options : @opencode_sdk.ServerOptions
+  command : String
+  extra_env : Map[String, String]
+  request_timeout_ms : Int
+}
+
+pub fn OpenCodeAgentOptions::OpenCodeAgentOptions(
+  server_options? : @opencode_sdk.ServerOptions = @opencode_sdk.ServerOptions(),
+  command? : String = "opencode",
+  extra_env? : Map[String, String] = Map([]),
+  request_timeout_ms? : Int = 180000,
+) -> OpenCodeAgentOptions
+
+pub(all) suberror OpenCodeAdapterError {
+  InvalidSessionResponse
+  InvalidMessageResponse
+  MessageFailed(String)
+  SessionClosed
+} derive(Debug)
+
+pub fn opencode_agent(
+  id : CodingAgentId,
+  options : OpenCodeAgentOptions,
+) -> CodingAgent
+```
+
+The adapter starts `@opencode_sdk.create_opencode_server` with the open context task group and a merged environment where caller entries override adapter entries. It creates an OpenCode session with `POST /session`, represents the workspace root in the session title, and sends each instruction through `POST /session/{id}/message`. Context file paths are included as text and explicitly marked as not attached. Successful responses preserve the OpenCode session ID as `continuation_id`, concatenate text parts into an optional `summary`, preserve the raw response JSON, and return empty `changed_files` and artifacts. The server URL remains private. Session close explicitly closes the server; malformed responses, message errors, and execution after close raise `OpenCodeAdapterError`.
+
+## Testing Fixtures
+
+```moonbit
+pub(all) struct FakeCodingAgentOpenCall {
+  context : CodingAgentOpenContext
+}
+
+pub(all) struct FakeCodingAgentRequestCall {
+  session_id : SessionId?
+  request : CodingAgentRequest
+}
+
+pub struct FakeCodingAgentSession
+pub fn FakeCodingAgentSession::requests(self : FakeCodingAgentSession) -> ReadOnlyArray[FakeCodingAgentRequestCall]
+pub fn FakeCodingAgentSession::is_closed(self : FakeCodingAgentSession) -> Bool
+
+pub struct FakeCodingAgent
+pub fn fake_coding_agent(
+  response : CodingAgentResponse,
+  session_id? : SessionId,
+  open_error? : Error,
+  execute_error? : Error,
+) -> FakeCodingAgent
+pub fn FakeCodingAgent::agent(self : FakeCodingAgent) -> CodingAgent
+pub fn FakeCodingAgent::open_calls(self : FakeCodingAgent) -> ReadOnlyArray[FakeCodingAgentOpenCall]
+pub fn FakeCodingAgent::request_calls(self : FakeCodingAgent) -> ReadOnlyArray[FakeCodingAgentRequestCall]
+pub fn FakeCodingAgent::session_ids(self : FakeCodingAgent) -> ReadOnlyArray[SessionId?]
+pub fn FakeCodingAgent::close_order(self : FakeCodingAgent) -> ReadOnlyArray[SessionId?]
+
+pub struct FakeMoonLlmInvoke
+pub fn fake_moonllm_invoke(
+  response : @moonllm.ChatResponse,
+  error? : Error,
+) -> FakeMoonLlmInvoke
+pub fn FakeMoonLlmInvoke::callback(
+  self : FakeMoonLlmInvoke,
+) -> async (@moonllm.ChatRequest) -> @moonllm.ChatResponse
+pub fn FakeMoonLlmInvoke::requests(
+  self : FakeMoonLlmInvoke,
+) -> ReadOnlyArray[@moonllm.ChatRequest]
+
+pub(all) struct ScriptedNodeCall[S] {
+  context : NodeContext
+  state : S
+}
+
+pub struct ScriptedNode[S, P]
+pub fn[S, P] scripted_node(
+  id : NodeId,
+  metadata : NodeMetadata,
+  execute : async (NodeContext, S) -> NodeOutput[P],
+) -> ScriptedNode[S, P]
+pub fn[S, P] ScriptedNode::node(self : ScriptedNode[S, P]) -> Node[S, P]
+pub fn[S, P] ScriptedNode::calls(self : ScriptedNode[S, P]) -> ReadOnlyArray[ScriptedNodeCall[S]]
+
+pub(all) struct ScriptedRouterCall[S] {
+  state : S
+  completion : NodeCompletion
+}
+
+pub struct ScriptedRouter[S]
+pub fn[S] scripted_router(
+  declared_targets : ReadOnlyArray[NodeId],
+  evaluate : (S, NodeCompletion) -> Route raise,
+) -> ScriptedRouter[S]
+pub fn[S] ScriptedRouter::router(self : ScriptedRouter[S]) -> Router[S]
+pub fn[S] ScriptedRouter::calls(self : ScriptedRouter[S]) -> ReadOnlyArray[ScriptedRouterCall[S]]
+
+pub(all) struct RecordingReducerCall[S, P] {
+  state : S
+  patch : P
+}
+
+pub struct RecordingReducer[S, P]
+pub fn[S, P] recording_reducer(apply : (S, P) -> S raise) -> RecordingReducer[S, P]
+pub fn[S, P] RecordingReducer::reducer(self : RecordingReducer[S, P]) -> Reducer[S, P]
+pub fn[S, P] RecordingReducer::calls(self : RecordingReducer[S, P]) -> ReadOnlyArray[RecordingReducerCall[S, P]]
+
+pub struct RecordingEventSink
+pub fn recording_event_sink() -> RecordingEventSink
+pub fn RecordingEventSink::event_sink(self : RecordingEventSink) -> EventSink
+pub fn RecordingEventSink::events(self : RecordingEventSink) -> ReadOnlyArray[GraphEvent]
+
+pub(all) suberror NativeTestHelperError {
+  EventuallyTimedOut(timeout_ms~ : Int)
+  InvalidEventuallyInterval(timeout_ms~ : Int, poll_ms~ : Int)
+} derive(Debug)
+
+pub struct TemporaryWorkspace
+pub fn TemporaryWorkspace::root(self : TemporaryWorkspace) -> @path.Path
+pub async fn temporary_workspace(
+  prefix? : String = "moon-agent-graph-test-",
+) -> TemporaryWorkspace
+pub async fn TemporaryWorkspace::close(self : TemporaryWorkspace) -> Unit
+pub async fn eventually(
+  timeout_ms : Int,
+  predicate : async () -> Bool,
+  poll_ms? : Int = 10,
+) -> Unit
+pub async fn process_is_running(pid : Int) -> Bool
+pub async fn localhost_port_is_open(
+  port : Int,
+  timeout_ms? : Int = 250,
+) -> Bool
+```
+
+The fixture accessors return snapshots so tests cannot mutate their histories.
 
 ## Fixed MVP Decisions
 
@@ -600,7 +802,7 @@ The OpenCode adapter:
 6. State is invocation-local and updated only through a reducer.
 7. Cancellation uses task cancellation.
 8. Async cleanup is explicit, cancellation-protected, and timeout-bounded.
-9. OpenCode defaults to run-scoped reuse.
+9. Resource scope is selected by each coding-agent node specification.
 10. Codex and OpenCode are separate adapters behind one session contract.
 11. Parallel nodes, checkpointing, durable state, and application-scoped resources are deferred.
 

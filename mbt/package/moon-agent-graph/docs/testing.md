@@ -1,132 +1,76 @@
-# Moon Agent Graph Runtime Test Plan
+# Moon Agent Graph Runtime Test Coverage
 
-## Purpose
+## Purpose and Status
 
-This document defines the minimum unit, integration, and end-to-end coverage for the reviewed native async MVP.
+This document reconciles the reviewed MVP test plan with the deterministic native test suite implemented in `mbt/package/moon-agent-graph`.
 
-The plan tests public behavior first and keeps SDK-dependent tests deterministic.
+The suite is native-only, uses no provider credentials, and exercises public graph, runtime, node, coding-agent, MoonLLM, Codex, and OpenCode boundaries with deterministic fakes or local processes.
 
-Real remote-model calls are manual and are not part of normal CI.
+At this reconciliation point, the module contains 106 MoonBit test blocks: 56 core tests, 7 MoonLLM tests, 7 coding-agent-node tests, 10 shared-testing tests, 8 workflow E2E tests, 7 Codex-adapter tests, and 11 OpenCode-adapter tests.
+
+The identifiers below remain useful acceptance traceability from the original plan. “Automated” means a deterministic native test currently covers the described public behavior. “Deferred” means the behavior still needs a manual or credentialed remote-provider exercise and is not claimed by normal CI.
 
 ## MoonBit Test Conventions
 
-- Use `*_test.mbt` black-box tests for public contracts.
-- Use `*_wbtest.mbt` only for private state-machine and cleanup details that cannot be observed through public APIs.
-- Use `async test` for async behavior.
-- Assume async tests may run in parallel.
-- Allocate a unique temporary directory and port for every process test.
-- Never depend on test execution order.
-- Use `@async.with_timeout` around waits that could otherwise hang.
-- Use caller task cancellation to test cancellation behavior.
-- Preserve the original raised error and inspect its concrete `suberror` shape.
-- Do not add a second cancellation-token fake.
+- Use `*_test.mbt` for public contracts and deterministic integration surfaces.
+- Use `*_wbtest.mbt` only for package-local wire or decoder details that cannot be observed adequately through the public API.
+- Use `async test` for async behavior and preserve cancellation errors instead of converting them into ordinary failures.
+- Assume async tests may run in parallel, so every native-process test owns a unique temporary directory and ephemeral localhost port.
+- Bound polling with `@testing.eventually` or `@async.with_timeout` and do not depend on execution order.
+- Inspect typed errors and observable event order rather than internal implementation details.
+- Keep real remote-model and credentialed-provider checks outside normal CI.
 
 ## Test Layers
 
-| Layer | Purpose | Normal CI |
+| Layer | Current deterministic surface | Normal CI |
 |---|---|---:|
-| Unit | One public component with callbacks or fakes | Yes |
-| Runtime integration | Compiled graph, reducer, runtime, events, and resource store | Yes |
-| MoonLLM adapter integration | Real MoonLLM client against a local mock HTTP server | Yes |
-| Codex adapter integration | Real repository SDK against a fake Codex executable | Yes |
-| OpenCode adapter integration | Real repository SDK against a fake OpenCode executable and local endpoint | Yes |
-| Workflow E2E | Full graph with deterministic local boundaries | Yes |
-| Real remote-agent E2E | Actual provider credentials and model | Manual |
+| Core unit and runtime | IDs, graph compilation, nodes, events, resources, lifecycle, sequential runtime | Yes |
+| MoonLLM node | Typed callback fake plus local OpenAI-compatible HTTP server | Yes |
+| Coding-agent node | Fake session lifecycle, scope, retry, cancellation, and response decoding | Yes |
+| Codex adapter | Repository SDK against a native fake executable | Yes |
+| OpenCode adapter | Repository SDK against native fake OpenCode HTTP servers | Yes |
+| Workflow E2E | Function, fake coding-agent, fake MoonLLM, routing, retry, failure, and cancellation graphs | Yes |
+| Real remote-agent E2E | Actual provider credentials, model behavior, and user workspace effects | Manual and deferred |
 
-## Shared Test Fixtures
+## Shared Deterministic Fixtures
 
-The `testing` package provides:
+The `testing` package currently provides the following fixtures and helpers:
 
-- `scripted_node`
-- `scripted_router`
-- `recording_reducer`
-- `recording_event_sink`
-- `fake_coding_agent`
-- `fake_coding_agent_session`
-- `fake_moonllm_invoke`
-- `temporary_workspace`
-- `eventually` with a mandatory timeout
-- process and port leak assertions
+- `scripted_node` records a node’s public context and state inputs.
+- `scripted_router` records router state and completion inputs.
+- `recording_reducer` records state and patch inputs.
+- `recording_event_sink` records the exact emitted `GraphEvent` sequence.
+- `fake_coding_agent` records opens, requests, session IDs, and close order while optionally raising injected open or execute errors.
+- `fake_moonllm_invoke` records typed `@llm.ChatRequest` values while optionally raising an injected error.
+- `temporary_workspace` creates a unique temporary root and removes it idempotently through `close`.
+- `eventually` polls an async predicate with a mandatory bounded timeout.
+- `process_is_running` and `localhost_port_is_open` observe native process and localhost-port cleanup without shell parsing in product tests.
 
-Fixture state belongs to one test.
+Fixture state belongs to one test. Tests that coordinate child tasks keep mutation in one owner task or use the async mutex exposed by the production boundary.
 
-If a fixture is accessed by multiple child tasks, protect its mutable state with the async mutex or confine all mutation to one owner task.
+## Plan ID Traceability
 
-## Identifier Tests
-
-| ID | Scenario | Expected result |
+| ID family | Current status | Deterministic evidence |
 |---|---|---|
-| ID-001 | Parse a non-empty node ID | Value is created |
-| ID-002 | Parse an empty node ID | `EmptyId` is raised |
-| ID-003 | Compare IDs created from equal strings | Equal |
-| ID-004 | Compare IDs created from different strings | Not equal |
-| ID-005 | Use an ID as a `Map` key | Value is retrieved |
-| ID-006 | Convert an ID to text | Original text is returned |
+| `ID-*` | Automated | Parsing, equality, hash-map use, text conversion, and empty-ID errors in `src/core/identifiers_test.mbt` |
+| `GRAPH-*` | Automated | Duplicate, missing, unknown, cyclic, unreachable, snapshot-copy, and undeclared-route behavior in `src/core/graph_test.mbt` |
+| `FN-*`, `ROUTER-*`, `REDUCER-*`, `EVENT-*` | Automated | Function-node context and cancellation, reducer/router ordering, lifecycle events, and sink failure isolation in `src/core/*_test.mbt` |
+| `RESOURCE-*` | Automated | Run/node ownership, cache behavior, reverse close order, close-once, aggregated cleanup errors, timeout, and cancellation protection in `src/core/resources*_test.mbt` |
+| `RUNTIME-*` | Automated | Sequential execution, state reduction, route contract, explicit failure, step limit, timeout, cancellation, cleanup composition, and invocation isolation in `src/core/runtime*_test.mbt` |
+| `LLM-*` | Automated except remote-provider behavior | Callback boundary, typed request capture, response decoding, usage artifact, build/decode/invoke errors, cancellation, and local mock HTTP integration in `src/moonllm/*_test.mbt` |
+| `AGENT-*`, `AGENTNODE-*` | Automated | Common contract, run/node scope, continuation, retry, failure phase, cancellation, and close semantics in `src/coding_agent/*_test.mbt` and `src/testing/fakes*_test.mbt` |
+| `CODEX-*` | Automated for local adapter boundary | Fake native executable covers mapped input, continuation reuse, SDK failure propagation, cancellation, and cleanup in `src/integrations/codex/*_test.mbt` |
+| `OPENCODE-*` | Automated for local adapter boundary | Fake executable/server covers session and message success, HTTP failures, cancellation restoration, distinct opens, PID/port cleanup, and closed-session behavior in `src/integrations/opencode/*_test.mbt` |
+| `E2E-*` | Automated for deterministic graph workflows | MoonLLM-plan-to-function verification, function, agent retry, branch selection, bounded loop, planning failure, and cancellation workflows in `src/e2e/*_test.mbt` |
+| Real provider-specific behavior | Deferred | Run manually with explicit credentials and a disposable workspace; it is not part of normal CI |
 
-## Graph Definition and Compilation Tests
+## Core and Runtime Coverage
 
-| ID | Scenario | Expected result |
-|---|---|---|
-| GRAPH-001 | Add one node, router, and entry | Compilation succeeds |
-| GRAPH-002 | Add the same node ID twice | `DuplicateNode` |
-| GRAPH-003 | Add two routers for one node | `DuplicateRouter` |
-| GRAPH-004 | Compile without an entry | `MissingEntry` |
-| GRAPH-005 | Entry references an unknown node | `UnknownEntry` |
-| GRAPH-006 | Node has no router | `MissingRouter` |
-| GRAPH-007 | Router declares an unknown destination | `UnknownDestination` |
-| GRAPH-008 | Graph contains a node unreachable from entry | `UnreachableNode` |
-| GRAPH-009 | A routes to B and B routes to A | Compilation succeeds |
-| GRAPH-010 | Single node routes to `End` | Compilation succeeds |
-| GRAPH-011 | Mutate definition after compilation | Compiled snapshot is unchanged |
-| GRAPH-012 | Mutate a returned query collection | Compiled internals are unchanged |
-| GRAPH-013 | Router returns an existing but undeclared target | Runtime contract error |
+The core suite proves identifier validation, graph compilation, compiled-graph snapshot isolation, node context construction, synchronous sink ordering, resource ownership, and sequential runtime behavior.
 
-## Function Node Tests
+The runtime tests cover successful one-node and multi-node graphs, reducer-before-router ordering, no-patch behavior, undeclared target rejection, explicit `Route::Fail`, invalid options, exact step-limit attempts, timeout, cancellation, cleanup error composition, and isolated repeated invocation.
 
-| ID | Scenario | Expected result |
-|---|---|---|
-| FN-001 | Callback succeeds | Output is returned |
-| FN-002 | Callback reads state | Correct state is observed |
-| FN-003 | Callback reads run ID, node ID, and step | Correct context is observed |
-| FN-004 | Callback raises a domain error | Same error is preserved as runtime cause |
-| FN-005 | Execute once | Callback count is one |
-| FN-006 | Executing task is cancelled during async I/O | Cancellation propagates |
-
-## Router Tests
-
-| ID | Scenario | Expected result |
-|---|---|---|
-| ROUTER-001 | Condition selects A | `To(A)` |
-| ROUTER-002 | Condition selects B | `To(B)` |
-| ROUTER-003 | Completion condition holds | `End` |
-| ROUTER-004 | Domain failure condition holds | `Fail(message)` |
-| ROUTER-005 | Router raises | Runtime wraps the error with node and step |
-| ROUTER-006 | Router reads node completion value | Expected route |
-| ROUTER-007 | Router returns undeclared target | `RouteContractViolated` |
-| ROUTER-008 | Router callback has no async effect | Type and lint checks stay clean |
-
-## Reducer Tests
-
-| ID | Scenario | Expected result |
-|---|---|---|
-| REDUCER-001 | Apply a set-value patch | New state contains the value |
-| REDUCER-002 | Apply an increment patch | Counter increments once |
-| REDUCER-003 | Apply an invalid patch | Domain error is raised |
-| REDUCER-004 | Apply equal state and patch twice | Equal results |
-| REDUCER-005 | Apply patch after node completion | Router observes reduced state |
-
-## Event Sink Tests
-
-| ID | Scenario | Expected result |
-|---|---|---|
-| EVENT-001 | Emit three events | Recorder preserves order |
-| EVENT-002 | Sink callback raises | Run continues |
-| EVENT-003 | Successful one-node run | Exact lifecycle sequence |
-| EVENT-004 | Node failure | `RunFailed` is terminal |
-| EVENT-005 | Caller cancellation | `RunCancelled` is terminal |
-| EVENT-006 | Cleanup failure | One terminal failure event |
-
-The expected successful sequence is:
+The expected successful lifecycle remains:
 
 ```text
 RunStarted
@@ -137,241 +81,48 @@ RouteSelected
 RunCompleted
 ```
 
-## Resource Store Tests
+Failure and cancellation tests additionally verify exactly one terminal event after `RunStarted`.
 
-| ID | Scenario | Expected result |
-|---|---|---|
-| RESOURCE-001 | Acquire one run-scoped session twice | Open once and return same session |
-| RESOURCE-002 | Acquire one node-scoped session twice in separate attempts | Open twice |
-| RESOURCE-003 | Session open raises | Nothing is cached |
-| RESOURCE-004 | Close all run resources | Every session closes |
-| RESOURCE-005 | Close all twice | Session close is invoked once |
-| RESOURCE-006 | First close raises | Remaining sessions still close |
-| RESOURCE-007 | Multiple resources close | Reverse acquisition order |
-| RESOURCE-008 | Release one node | Only that node's scoped sessions close |
-| RESOURCE-009 | Run task is cancelled during close | Protected cleanup completes or hits its hard timeout |
-| RESOURCE-010 | Cleanup timeout expires | Timeout is retained as cleanup failure |
+## MoonLLM Node Coverage
 
-The OpenCode lifecycle test must prove that server close occurs before the owning task-group body returns.
+`src/moonllm/llm_node_test.mbt` covers the narrow `LlmNodeSpec` boundary with a typed `ChatRequest` built from state, one async fake invocation, decoded patch/value/artifact output, usage metadata, runtime state application, builder failure, preserved `LLMError`, decoder failure without reducer execution, and cancellation of a paused callback.
 
-## Runtime Unit Tests
+`src/moonllm/llm_node_integration_test.mbt` uses a local OpenAI-compatible mock server and the real MoonLLM client to verify request mapping, response decoding, state update, and usage-artifact preservation.
 
-| ID | Scenario | Expected result |
-|---|---|---|
-| RUNTIME-001 | Entry routes to end | One node and successful result |
-| RUNTIME-002 | A routes to B, then end | A and B execute in order |
-| RUNTIME-003 | Node returns a patch | Reducer runs once |
-| RUNTIME-004 | Patch changes route condition | Router sees reduced state |
-| RUNTIME-005 | Node raises | Later router and nodes do not run |
-| RUNTIME-006 | Reducer raises | Router does not run |
-| RUNTIME-007 | Router raises | Next node does not run |
-| RUNTIME-008 | Self-loop never ends | Exactly `max_steps` attempts, then failure |
-| RUNTIME-009 | Invalid zero step limit | Run configuration error before entry |
-| RUNTIME-010 | Explicit `Route::Fail` | Explicit runtime failure |
-| RUNTIME-011 | Node timeout | Node task is cancelled and timeout is raised |
-| RUNTIME-012 | Caller cancels during node execution | Cancellation is re-raised after cleanup |
-| RUNTIME-013 | Success plus cleanup failure | Cleanup failure becomes run failure |
-| RUNTIME-014 | Primary and cleanup both fail | Primary error remains primary |
-| RUNTIME-015 | Node returns no patch | Reducer is not called |
-| RUNTIME-016 | Two runs use the same compiled graph | State and resources are isolated |
+Structured-output behavior beyond the current chat-completion boundary remains a future adapter-specific test, not an implemented claim.
 
-## MoonLLM Node Tests
+## Coding-Agent and Adapter Coverage
 
-The unit boundary is the `invoke` callback in `LlmNodeSpec`.
+The coding-agent-node tests use deterministic sessions to verify run-scoped reuse, node-scoped close behavior, builder and execute failure boundaries, decoder failure without state update, continuation propagation, retry after failed open, and caller cancellation cleanup.
 
-| ID | Scenario | Expected result |
-|---|---|---|
-| LLM-001 | Request build and invoke succeed | Decoded output |
-| LLM-002 | Request builder raises | Invoke callback is not called |
-| LLM-003 | Invoke raises `LLMError` | Runtime preserves it as cause |
-| LLM-004 | Decoder raises | State is not updated |
-| LLM-005 | State determines prompt | Fake records expected request |
-| LLM-006 | Response includes usage | Artifact or event preserves usage |
-| LLM-007 | Task is cancelled during request | MoonLLM request is cancelled |
-| LLM-008 | Node timeout expires | Request task terminates |
+The Codex adapter integration uses a fake native executable and the repository SDK. It verifies option and workspace mapping, start-versus-resume continuation behavior, streamed summary and changed-file mapping, `turn.failed` propagation, cancellation, subprocess termination, and cleanup.
 
-## Coding-Agent Contract Tests
+The OpenCode adapter integration uses a fake executable that prints the official readiness shape and hosts local session endpoints. It verifies session creation, repeated messages through one session, environment/config/request mapping, local HTTP 503 and 500 propagation as exact `@moonllm.ApiError` values, no message request after failed session creation, and `SessionClosed` after a public close.
 
-| ID | Scenario | Expected result |
-|---|---|---|
-| AGENT-001 | Open succeeds | Session trait object returned |
-| AGENT-002 | Open raises | No session cached |
-| AGENT-003 | Execute succeeds | Common response returned |
-| AGENT-004 | Execute raises | Error preserved |
-| AGENT-005 | Close requested twice | Adapter cleanup happens once |
-| AGENT-006 | Execute after close | Session-closed error |
-| AGENT-007 | Two sessions | Continuation state is isolated |
-| AGENT-008 | Cancel executing task | Adapter terminates in-flight process work |
+OpenCode cancellation has a deliberately explicit restoration contract: cancelling an in-flight message request proves the message response does not finish while the owned server remains available for explicit cleanup; the test then calls public `session.close()` and proves the server PID is dead, the bound localhost port is closed, and the temporary fixture root is removed. Independent opens prove that one close does not stop another session’s server.
 
-## Coding-Agent Node Tests
+The OpenCode SDK’s dedicated startup tests cover malformed readiness output, startup timeout, and early process exit. Those startup conditions are not duplicated as graph-adapter tests.
 
-| ID | Scenario | Expected result |
-|---|---|---|
-| AGENTNODE-001 | First run-scoped execution | Open once, execute once |
-| AGENTNODE-002 | Two executions in one run | Open once, execute twice |
-| AGENTNODE-003 | Node-scoped execution twice | Open twice, close twice |
-| AGENTNODE-004 | Open-context builder raises | Session is not opened |
-| AGENTNODE-005 | Request builder raises | Session execute is not called |
-| AGENTNODE-006 | Execute raises | Coding-agent cause preserved |
-| AGENTNODE-007 | Response decoder raises | State is not updated |
-| AGENTNODE-008 | Response contains continuation ID | Patch receives expected ID |
-| AGENTNODE-009 | Task cancellation during execute | Cancellation propagates and session closes |
+## Workflow E2E Coverage
 
-## Codex Adapter Tests
+`src/e2e/happy_workflow_test.mbt` covers deterministic function-only order, a typed MoonLLM-plan-to-function-verify path, and Codex-labelled and OpenCode-labelled fake-agent workflows. The MoonLLM-plan-to-function path records the typed request, applies the plan patch, verifies the final state and lifecycle, and requires no provider credentials. The retry workflow proves run-scoped session reuse and exact request count without requiring a real adapter process.
 
-Use the same native fake Codex executable pattern already used by `mbt/package/codex-sdk`.
+`src/e2e/routing_failure_test.mbt` covers both branch inputs, proves the unselected fake agent has zero opens and zero requests, verifies exact bounded-loop attempts and `StepLimitExceeded`, and proves an injected LLM planning failure leaves the agent unopened and the initial workflow state unchanged.
 
-| ID | Scenario | Expected result |
-|---|---|---|
-| CODEX-001 | Open a new session | New `Thread` |
-| CODEX-002 | Resume continuation ID | `resume_thread` receives ID |
-| CODEX-003 | Map workspace and additional roots | Correct `ThreadOptions` |
-| CODEX-004 | Map approval and sandbox policy | Correct SDK enums |
-| CODEX-005 | Successful turn | `Succeeded` response and summary |
-| CODEX-006 | `turn.failed` event | Adapter raises with original message |
-| CODEX-007 | Thread starts | Continuation ID comes from `Thread::id` |
-| CODEX-008 | Cancel during turn | Native Codex subprocess exits |
-| CODEX-009 | SDK exposes no reliable change list | Empty `changed_files`, not fabricated data |
-| CODEX-010 | Close session | Idempotent after in-flight turn ends |
+`src/e2e/cancellation_workflow_test.mbt` cancels a blocked coding-agent workflow and proves no later LLM node runs, the session closes once, and the runtime emits one `RunCancelled` event.
 
-## OpenCode Adapter Tests
-
-Use a fake executable that announces a unique local URL and implements the required session endpoints.
-
-| ID | Scenario | Expected result |
-|---|---|---|
-| OPENCODE-001 | Open succeeds | Server starts and session is created |
-| OPENCODE-002 | Process spawn fails | Client and session are not created |
-| OPENCODE-003 | Readiness times out | Process is terminated and logs removed |
-| OPENCODE-004 | Client build fails | Server closes |
-| OPENCODE-005 | Session creation fails | Server closes |
-| OPENCODE-006 | Execute succeeds | Session message endpoint called once |
-| OPENCODE-007 | Two executions in one run | Server start count remains one |
-| OPENCODE-008 | Close | Server stops and temporary logs are removed |
-| OPENCODE-009 | Close requested twice | Stop occurs once |
-| OPENCODE-010 | Cancel during message request | Request terminates and server closes at run end |
-| OPENCODE-011 | Server exits between messages | Server-unavailable error |
-| OPENCODE-012 | Workspace and policy mapping | Expected server/session request data |
-| OPENCODE-013 | OpenCode response contains error | Adapter raises without losing response cause |
-| OPENCODE-014 | Task-group body exits | No server process remains |
-
-## Runtime Integration Scenarios
-
-### INT-RUNTIME-001: Sequential Workflow
-
-```text
-prepare -> execute -> end
-```
-
-Verify node order, accumulated patches, final state, event order, and step count.
-
-### INT-RUNTIME-002: Conditional Branch
-
-```text
-check -> success
-      -> failure
-```
-
-Run both initial-state variants and verify that only the selected node executes.
-
-### INT-RUNTIME-003: Bounded Loop
-
-```text
-increment -> route -> increment
-                 \-> end
-```
-
-Verify exactly three increments and successful completion before the configured limit.
-
-### INT-RUNTIME-004: Step Limit
-
-Run a non-terminating self-loop and verify the exact execution count, terminal event, and cleanup.
-
-### INT-RUNTIME-005: Failure Cleanup
-
-Open a run-scoped fake session, fail a later node, and verify close count one.
-
-### INT-RUNTIME-006: Caller Cancellation
-
-Cancel a task while a function node waits on async I/O and verify cancellation propagation, terminal event, and cleanup.
-
-## Adapter Integration Scenarios
-
-### INT-LLM-001: Chat Completion
-
-Connect a real MoonLLM client to a local OpenAI-compatible mock server and verify request mapping, response decoding, patch application, and route selection.
-
-### INT-LLM-002: Structured Output
-
-Return valid and invalid structured payloads and verify that invalid output does not update state.
-
-### INT-CODEX-001: Native Fake Turn
-
-Connect the adapter to the repository's fake Codex executable and verify a complete turn, continuation ID, and subprocess cleanup.
-
-### INT-CODEX-002: Cancellation
-
-Cancel a long-running fake turn and verify that its subprocess exits.
-
-### INT-OPENCODE-001: Server Lifecycle
-
-Start a fake OpenCode server, create a session, execute two messages, close the run, and verify one start, one stop, and no remaining process or bound port.
-
-### INT-OPENCODE-002: Partial Startup Failures
-
-Exercise spawn failure, malformed readiness output, readiness timeout, client creation failure, and session creation failure.
-
-## End-to-End Workflows
-
-### E2E-001: Plan, Codex, Test
+The original real-adapter workflow diagrams remain useful as manual acceptance scenarios, but normal CI currently uses deterministic local boundaries instead of real provider credentials or a user workspace.
 
 ```mermaid
 flowchart LR
-  Plan["MoonLLM plan"] --> Implement["Codex coding agent"]
+  Plan["MoonLLM plan"] --> Implement["Coding agent"]
   Implement --> Test["Function test"]
   Test -->|"pass"| End(("End"))
-  Test -->|"fail and retries remain"| Implement
-  Test -->|"retry limit"| Fail(("Fail"))
+  Test -->|"retry remains"| Implement
+  Test -->|"limit reached"| Fail(("Fail"))
 ```
 
-Verify state handoff, Codex continuation reuse, bounded retries, and cleanup.
-
-### E2E-002: Plan, OpenCode, Test
-
-Use the same graph shape with the OpenCode adapter.
-
-Verify one server start for the run, session reuse through the retry loop, and explicit server shutdown.
-
-### E2E-003: Agent Selection
-
-Route to exactly one of Codex or OpenCode from initial state.
-
-Verify that the unselected adapter is never opened.
-
-### E2E-004: Planning Failure
-
-Fail the LLM node before the coding-agent node.
-
-Verify that no workspace session is opened and no workspace file changes.
-
-### E2E-005: Run Cancellation
-
-Cancel while either coding agent is executing.
-
-Verify no later node executes and no child process survives the run.
-
-## Non-Functional Checks
-
-| ID | Scenario | Expected result |
-|---|---|---|
-| NF-001 | Repeat OpenCode workflow | No process, port, or temporary-log leak |
-| NF-002 | Run two graphs concurrently | State, session, workspace, and event IDs are isolated |
-| NF-003 | Repeat a function-only graph | Equal final state and route sequence |
-| NF-004 | Raise detailed adapter error | Cause survives runtime wrapping |
-| NF-005 | Error contains credentials | Display text is redacted |
-| NF-006 | Cancel during cleanup | Cleanup finishes or reaches bounded timeout |
-
-## Repository Commands
+## Native Commands
 
 Run commands from the repository root.
 
@@ -382,23 +133,32 @@ vp run mbt:build
 vp run mbt:test
 ```
 
-During implementation, use a focused command only when a file- or package-specific check is necessary.
+Use a selected-file command while developing a focused test, then run its package before relying on a module-wide gate.
 
 ```bash
-moon test --target native mbt/package/moon-agent-graph/src/core
+moon test mbt/package/moon-agent-graph/src/e2e/routing_failure_test.mbt --target native --deny-warn
+moon check mbt/package/moon-agent-graph/src/e2e/routing_failure_test.mbt --target native --deny-warn
+moon test mbt/package/moon-agent-graph/src/e2e --target native --deny-warn
+moon test mbt/package/moon-agent-graph/src/integrations/opencode --target native --deny-warn
 ```
 
-The final implementation gate includes the root MoonBit checks and at least one runnable native example.
+The final implementation gate runs the root MoonBit check, build, and test tasks. A focused test result does not replace that gate.
+
+## Deferred Manual Checks
+
+- Run a real MoonLLM provider against a disposable account and confirm provider-specific model behavior.
+- Run Codex and OpenCode against disposable real workspaces and verify their external process behavior under the installed versions.
+- Validate structured-output APIs if a future node uses a request/response pair other than `ChatRequest` and `ChatResponse`.
+- Perform credential-redaction review against real provider error payloads without recording credentials in test artifacts.
 
 ## Acceptance Criteria
 
-- All unit and deterministic integration tests pass on the native target.
-- No async test can hang without an enclosing timeout.
-- Cancellation is tested with real task cancellation.
-- Every process-owning failure path proves cleanup.
-- The OpenCode server is closed before its task-group body returns.
+- All deterministic native tests pass through the root MoonBit gate.
+- Every process-owning failure or close path proves PID, port, and temporary-root cleanup on its matching local surface.
+- Cancellation tests use real task cancellation and preserve cancellation semantics.
 - No test fabricates SDK fields that the SDK does not expose.
-- Real provider credentials are not required for normal CI.
+- Normal CI requires no provider credentials.
+- Deferred remote checks remain explicitly manual until a credentialed test environment is intentionally added.
 
 ## References
 

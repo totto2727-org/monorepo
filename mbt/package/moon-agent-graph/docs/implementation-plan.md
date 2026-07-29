@@ -1,26 +1,24 @@
-# Moon Agent Graph Runtime Implementation Plan
+# Moon Agent Graph Runtime Implementation Record
 
 ## Objective
 
-Implement the reviewed native asynchronous MVP without introducing unsupported durability, parallel scheduling, or arbitrary resource abstractions.
+The reviewed native asynchronous MVP is implemented without unsupported durability, parallel scheduling, or arbitrary resource abstractions.
 
-The plan freezes contracts early, keeps concrete SDK dependencies behind adapter packages, and integrates through deterministic fakes before real local processes.
+The implementation froze contracts early, kept concrete SDK dependencies behind adapter packages, and validated deterministic fakes before real local processes.
 
 ## Delivery Baseline
 
-The implementation targets:
+The implemented baseline is:
 
-- MoonBit compiler `v0.10.4` or the repository-pinned successor.
+- MoonBit compiler `v0.10.4+2cc641edf` through the repository-pinned `moon 0.1.20260713`.
 - Native backend only.
-- `moonbitlang/async@0.20.1` as the initial common async baseline.
-- `moonbitlang/x@0.4.38` as the initial path-type baseline.
+- `moonbitlang/async@0.20.1`.
+- `moonbitlang/x@0.4.38`.
 - `DC-Z-lab/moonllm@0.1.0`.
-- `totto2727/codex-sdk` from this workspace.
-- `totto2727/opencode-sdk` from this workspace.
+- `totto2727/codex-sdk@0.0.0` from this workspace.
+- `totto2727/opencode-sdk@0.0.0` from this workspace.
 
-Before feature implementation, align the Codex SDK's current `moonbitlang/async@0.19.2` dependency with the common baseline or prove that the workspace resolver and public APIs are compatible.
-
-Do not allow the new module to depend on two unreviewed async-runtime versions.
+The graph module, Codex SDK, and OpenCode SDK all resolve `moonbitlang/async@0.20.1`; there is no second async-runtime version in the implemented workspace contract.
 
 ## Module Layout
 
@@ -38,7 +36,7 @@ mbt/package/moon-agent-graph/
     │   ├── codex/
     │   └── opencode/
     ├── testing/
-    └── examples/
+    └── e2e/
 ```
 
 Every source package has one `moon.pkg`.
@@ -58,37 +56,42 @@ flowchart TD
   MoonLLMNode["moonllm"] --> Core
   MoonLLMNode --> MoonLLMSDK["DC-Z-lab/moonllm"]
   Agent["coding_agent"] --> Core
-  Codex["integrations/codex"] --> Agent
+  Codex["integrations/codex"] --> Core
   Codex --> CodexSDK["totto2727/codex-sdk"]
-  OpenCode["integrations/opencode"] --> Agent
+  OpenCode["integrations/opencode"] --> Core
   OpenCode --> OpenCodeSDK["totto2727/opencode-sdk"]
+  OpenCode --> MoonLLMSDK
   Testing["testing"] --> Core
-  Testing --> Agent
-  Examples["examples"] --> MoonLLMNode
-  Examples --> Codex
-  Examples --> OpenCode
+  Testing --> MoonLLMSDK
+  Basic["examples/basic"] --> Core
+  E2E["e2e"] --> Core
+  E2E --> MoonLLMNode
+  E2E --> Agent
+  E2E --> Testing
 ```
 
 No package may import an example or testing package from production code.
 
 ## Workstream Summary
 
-| ID | Deliverable | Depends on |
-|---|---|---|
-| W0 | Toolchain, dependency, and compile-spike baseline | None |
-| W1 | Core IDs, graph definition, routers, and compilation | W0 |
-| W2 | Node, reducer, events, and function node | W0 |
-| W3 | Resource store and native async lifecycle | W0 |
-| W4 | Sequential graph runtime | W1, W2, W3 |
-| W5 | MoonLLM node integration | W2 |
-| W6 | Coding-agent abstraction and node | W2, W3 |
-| W7 | Codex adapter | W6 |
-| W8 | OpenCode adapter | W6 |
-| W9 | Shared test kit | W1 interfaces, W2 interfaces, W6 interfaces |
-| W10 | Deterministic integration workflows | W4, W5, W7, W8, W9 |
-| W11 | Examples, API review, and documentation reconciliation | W10 |
+| ID | Deliverable | Depends on | Status |
+|---|---|---|---|
+| W0 | Toolchain, dependency, and compile-spike baseline | None | Complete |
+| W1 | Core IDs, graph definition, routers, and compilation | W0 | Complete |
+| W2 | Node, reducer, events, and function node | W0 | Complete |
+| W3 | Resource store and native async lifecycle | W0 | Complete |
+| W4 | Sequential graph runtime | W1, W2, W3 | Complete |
+| W5 | MoonLLM node integration | W2 | Complete |
+| W6 | Coding-agent abstraction and node | W2, W3 | Complete |
+| W7 | Codex adapter | W6 | Complete |
+| W8 | OpenCode adapter | W6 | Complete |
+| W9 | Shared test kit | W1 interfaces, W2 interfaces, W6 interfaces | Complete |
+| W10 | Deterministic integration workflows | W4, W5, W7, W8, W9 | Complete |
+| W11 | Examples, API review, and documentation reconciliation | W10 | Final reconciliation |
 
 ## W0: Toolchain and Contract Spike
+
+Status: Complete.
 
 ### Deliverables
 
@@ -114,9 +117,7 @@ Prove these shapes with the actual compiler:
 
 ### Async Dependency Gate
 
-Inspect the Codex SDK against `moonbitlang/async@0.20.1`.
-
-If a source change is required, keep it in the Codex SDK and validate its existing focused tests before adding the graph module dependency.
+The Codex SDK, OpenCode SDK, and graph module were aligned on `moonbitlang/async@0.20.1`, and their focused native tests validate the shared runtime contract.
 
 ### Acceptance
 
@@ -126,6 +127,8 @@ If a source change is required, keep it in the Codex SDK and validate its existi
 - No deprecated `moon.mod.json`, `moon.pkg.json`, implicit trait-method attachment, or old `suberror` syntax is introduced.
 
 ## W1: Graph Model and Compiler
+
+Status: Complete.
 
 ### Deliverables
 
@@ -154,6 +157,8 @@ If a source change is required, keep it in the Codex SDK and validate its existi
 - Runtime lookup has no mutable public aliases.
 
 ## W2: Node, Reducer, Events, and Function Node
+
+Status: Complete.
 
 ### Deliverables
 
@@ -184,6 +189,8 @@ If a source change is required, keep it in the Codex SDK and validate its existi
 
 ## W3: Resource Store and Native Async Lifecycle
 
+Status: Complete.
+
 ### Deliverables
 
 - `ResourceScope`.
@@ -213,6 +220,8 @@ If a source change is required, keep it in the Codex SDK and validate its existi
 - Cancellation cannot leave an OpenCode server or Codex subprocess running.
 
 ## W4: Sequential Graph Runtime
+
+Status: Complete.
 
 ### Deliverables
 
@@ -269,6 +278,8 @@ flowchart TD
 
 ## W5: MoonLLM Node
 
+Status: Complete.
+
 ### Deliverables
 
 - `LlmNodeSpec[S, P]`.
@@ -293,6 +304,8 @@ flowchart TD
 - A real MoonLLM client works against the local mock server.
 
 ## W6: Coding-Agent Abstraction
+
+Status: Complete.
 
 ### Deliverables
 
@@ -320,6 +333,8 @@ flowchart TD
 
 ## W7: Codex Adapter
 
+Status: Complete.
+
 ### Deliverables
 
 - Common policy to `ThreadOptions` mapping.
@@ -346,6 +361,8 @@ flowchart TD
 
 ## W8: OpenCode Adapter
 
+Status: Complete.
+
 ### Deliverables
 
 - Server and session internal state.
@@ -364,7 +381,7 @@ flowchart TD
 - Close the server on every partial-startup failure.
 - Close the server before the owning task-group body returns.
 - Keep the server URL private.
-- Default to run scope.
+- Select run scope in the calling `CodingAgentNodeSpec` when one opened OpenCode session should be reused for the invocation.
 
 ### Acceptance
 
@@ -373,6 +390,8 @@ flowchart TD
 - No server process, port, or temporary log directory remains after the test.
 
 ## W9: Test Kit
+
+Status: Complete.
 
 ### Deliverables
 
@@ -397,6 +416,8 @@ flowchart TD
 
 ## W10: Deterministic Integration
 
+Status: Complete.
+
 ### Deliverables
 
 - Function-only graph.
@@ -417,6 +438,8 @@ flowchart TD
 
 ## W11: Examples and API Review
 
+Status: Final reconciliation.
+
 ### Deliverables
 
 - Minimal runnable native examples.
@@ -432,43 +455,59 @@ flowchart TD
 - No future feature is described as implemented.
 - English source documents and Japanese translations remain paired.
 
-## Recommended Phases
+## Exported API Reconciliation
+
+- `GraphRuntime::invoke` is an async method with `initial_state` as its only required positional argument and `options? : RunOptions` as a labelled optional argument.
+- `RunOptions::RunOptions` validates `max_steps`, `node_timeout_ms?`, and `cleanup_timeout_ms`; the runtime stores no global invocation state.
+- `NodeContext` carries the invocation `TaskGroup[Unit]`, synchronous `EventSink`, invocation-local `RuntimeResourceStore`, and optional deadline.
+- `CodingAgentSession` is a `pub(open)` async trait with `id`, `execute`, and `close`; `CodingAgent.open` receives `CodingAgentOpenContext`.
+- `CodingAgentNodeSpec` exposes raising `open_context`, `build_request`, and `decode_response` callbacks and selects `ResourceScope` explicitly.
+- `LlmNodeSpec` accepts a typed MoonLLM request builder, a narrow async invoke callback, and a response decoder.
+- `RuntimeResourceStore` is intentionally specialized to `CodingAgentSession`; it is not a heterogeneous resource container.
+- `codex_agent` and `opencode_agent` expose adapter option records while keeping SDK-specific session and process state private.
+- Public collection snapshots use `ReadOnlyArray`; owned mutable arrays and maps remain private to graph definitions, runtimes, resources, and test fixtures.
+
+## Known MVP Limitations
+
+- Execution is sequential and native-only.
+- State is invocation-local and in memory; checkpointing, suspend/resume, durable state, and pluggable state stores are not implemented.
+- Parallel nodes, application-scoped resources, arbitrary typed resource downcasting, and dynamic undeclared routes are not implemented.
+- One router is supported per node, and every possible `To` destination must be declared before compilation.
+- `EventSink` is synchronous and best-effort; sink failures do not fail the graph run.
+- Coding-agent `changed_files` may be empty when the underlying SDK cannot prove a reliable change set.
+- The Codex adapter reports only data exposed by the current SDK and does not invent stdout, stderr, commands, or changed-file records.
+- The OpenCode adapter owns one local server per opened session and uses MoonLLM only as its HTTP transport; `coding_agent_node` and its `ResourceScope` selection determine whether that session is reused for a run or reopened for each node attempt.
+- Cleanup is bounded by `cleanup_timeout_ms`; a cleanup timeout or close failure is reported through the runtime error model.
+
+## Completed Implementation Phases
 
 ### Phase 0: Baseline
 
-Complete W0.
-
-Do not start broad implementation before the async version and API compile spikes are resolved.
+W0 established the toolchain, dependency versions, and API compile spikes before feature implementation.
 
 ### Phase 1: Core Contracts
 
-Run W1, W2, the interface portion of W3, and the interface portion of W9.
-
-Freeze IDs, node output, router declarations, event order, error preservation, and resource scope.
+W1, W2, the interface portion of W3, and the interface portion of W9 froze IDs, node output, router declarations, event order, error preservation, and resource scope.
 
 ### Phase 2: Runtime and Abstract Integrations
 
-Run W4, W5, and W6 against fakes.
-
-The exit criterion is a complete graph run without concrete coding-agent processes.
+W4, W5, and W6 established complete graph runs against fakes without concrete coding-agent processes.
 
 ### Phase 3: Concrete Adapters
 
-Run W7 and W8 independently after W6.
-
-Use deterministic fake executables before full workflow integration.
+W7 and W8 used deterministic fake executables before full workflow integration.
 
 ### Phase 4: Workflows
 
-Run W10 and reconcile lifecycle behavior across all packages.
+W10 reconciled lifecycle behavior across all packages through deterministic native workflows.
 
 ### Phase 5: Stabilization
 
-Run W11, root verification, native manual examples, and documentation reconciliation.
+W11 is the final root verification, native example, API review, and documentation reconciliation stage.
 
-## Contract Freeze Points
+## Frozen Contracts
 
-Freeze these before parallel implementation:
+The implementation froze:
 
 1. The exact async dependency version.
 2. Generic node and router callback signatures.
@@ -501,9 +540,9 @@ moon test --target native mbt/package/moon-agent-graph/src/integrations/codex
 moon test --target native mbt/package/moon-agent-graph/src/integrations/opencode
 ```
 
-The final manual gate runs at least one function-only example and one deterministic coding-agent workflow through its native executable surface.
+The final manual gate covers at least one function-only example and one deterministic coding-agent workflow through its native executable surface.
 
-## Definition of Done
+## Implemented MVP Record
 
 - The module is native-only and async.
 - One common async runtime version is used across the graph and adapters.

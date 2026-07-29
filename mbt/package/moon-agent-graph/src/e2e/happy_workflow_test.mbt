@@ -88,6 +88,70 @@ async test "function-only workflow completes in exact order" {
 }
 
 ///|
+async test "MoonLLM plan to function verify workflow records typed request" {
+  let plan = @core.NodeId::parse("llm-plan")
+  let verify = @core.NodeId::parse("llm-verify")
+  let planner = @testing.fake_moonllm_invoke(fake_plan_response("llm"))
+  let events = @testing.recording_event_sink()
+  let graph = build_workflow(
+    workflow_reducer(),
+    [
+      @moonllm_node.llm_node(plan, workflow_metadata("plan", kind=@core.Llm), @moonllm_node.LlmNodeSpec::{
+        build_request: fn(_context, _state) {
+          @llm.ChatRequest::new("workflow-planner", [
+            @llm.Message::user("plan deterministic verification"),
+          ])
+        },
+        invoke: planner.callback(),
+        decode_response: fn(_state, _response) {
+          @core.NodeOutput::{
+            patch: Some({ label: "plan", continuation: None }),
+            value: None,
+            artifacts: [],
+          }
+        },
+      }),
+      workflow_function_node(verify, "verify"),
+    ],
+    [
+      (plan, @core.router([verify], fn(_, _) { @core.To(verify) })),
+      (verify, @core.router([], fn(_, _) { @core.End })),
+    ],
+    plan,
+  )
+  let result = @core.GraphRuntime::GraphRuntime(
+    graph,
+    events=events.event_sink(),
+  ).invoke(workflow_initial_state())
+  inspect(planner.requests().length(), content="1")
+  inspect(planner.requests()[0].model, content="workflow-planner")
+  inspect(
+    planner.requests()[0].messages[0].content.to_text(),
+    content="plan deterministic verification",
+  )
+  debug_inspect(result.final_state.order, content="[\"plan\", \"verify\"]")
+  debug_inspect(result.final_state.continuation, content="None")
+  inspect(result.steps, content="2")
+  debug_inspect(
+    event_names(events.events()),
+    content=(
+      #|[
+      #|  "run-started",
+      #|  "start:llm-plan",
+      #|  "complete:llm-plan",
+      #|  "state:llm-plan",
+      #|  "route:llm-plan",
+      #|  "start:llm-verify",
+      #|  "complete:llm-verify",
+      #|  "state:llm-verify",
+      #|  "route:llm-verify",
+      #|  "run-completed",
+      #|]
+    ),
+  )
+}
+
+///|
 async fn exercise_agent_workflow(label : String, retry : Bool) -> Unit {
   let plan = @core.NodeId::parse("\{label}-plan")
   let agent_id = @core.NodeId::parse("\{label}-agent")
