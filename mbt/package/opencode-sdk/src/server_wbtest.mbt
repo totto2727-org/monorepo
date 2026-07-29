@@ -104,11 +104,11 @@ async test "Server create 1 - starts from readiness and closes idempotently" {
       "logLevel": "debug".to_json(),
       "model": "test/model".to_json(),
     })
-    let server = create_opencode_server_with_command(
+    let server = create_opencode_server(
       group,
-      ServerOptions::ServerOptions(timeout_ms=1000, config~),
-      command,
-      fixture_env(root, "ready"),
+      options=ServerOptions::ServerOptions(timeout_ms=1000, config~),
+      command~,
+      extra_env=fixture_env(root, "ready"),
     )
     inspect(server.url(), content="http://127.0.0.1:43210")
     let moonllm_config : @moonllm.ClientBuilder = server.moonllm_config()
