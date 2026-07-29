@@ -8,7 +8,7 @@ supported_targets = "native"
 
 import {
   "moonbitlang/x@0.4.38",
-  "moonbitlang/async@0.19.2",
+  "moonbitlang/async@0.20.1",
 }
 
 readme = "README.md"
