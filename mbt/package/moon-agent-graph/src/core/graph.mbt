@@ -23,6 +23,7 @@ pub(all) struct RunFailure {
 
 ///|
 pub(all) suberror GraphRuntimeError {
+  NodeTimedOut(node_id~ : NodeId, step~ : Int, timeout_ms~ : Int)
   NodeFailed(node_id~ : NodeId, step~ : Int, cause~ : Error)
   ReduceFailed(node_id~ : NodeId, step~ : Int, cause~ : Error)
   RouteFailed(node_id~ : NodeId, step~ : Int, cause~ : Error)
