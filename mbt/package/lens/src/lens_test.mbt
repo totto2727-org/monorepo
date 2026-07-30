@@ -10,6 +10,20 @@ fn[T] get_issue(lens : @lens.Lens[T], document : Json) -> @lens.Issue raise {
 }
 
 ///|
+fn get_object_issue(
+  lens : @lens.ObjectLens,
+  document : Json,
+) -> @lens.Issue raise {
+  try {
+    lens.get(document) |> ignore
+    fail("expected LensError")
+  } catch {
+    @lens.LensError::LensError(issue) => issue
+    _ => fail("unexpected error")
+  }
+}
+
+///|
 fn assert_type_mismatch(
   issue : @lens.Issue,
   pointer : String,
@@ -25,6 +39,43 @@ fn assert_type_mismatch(
     }
     _ => fail("expected TypeMismatch")
   }
+}
+
+///|
+test "ObjectLens get - reads the selected object" {
+  let document = @json.parse(
+    "{\"user\":{\"name\":\"Ada\",\"metadata\":{\"role\":\"admin\"}}}",
+  )
+  debug_inspect(
+    @lens.object("user").get(document),
+    content=(
+      #|{
+      #|  "name": String("Ada"),
+      #|  "metadata": Object({ "role": String("admin") }),
+      #|}
+    ),
+  )
+}
+
+///|
+test "ObjectLens get - isolates the returned map from the document" {
+  let document = @json.parse("{\"user\":{\"name\":\"Ada\"}}")
+  let user = @lens.object("user")
+  let selected = user.get(document)
+  selected.set("name", @json.parse("\"Grace\""))
+  inspect(user.string("name").get(document), content="Ada")
+}
+
+///|
+test "ObjectLens get - reports a selected non-object pointer" {
+  let document = @json.parse("{\"user\":{\"profile\":\"invalid\"}}")
+  let issue = get_object_issue(@lens.object("user").object("profile"), document)
+  assert_type_mismatch(
+    issue,
+    "/user/profile",
+    @lens.JsonKind::Object,
+    @lens.JsonKind::String,
+  )
 }
 
 ///|

@@ -2,7 +2,7 @@
 
 Reusable typed access and aggregate validation for MoonBit JSON values.
 
-The package keeps static types on `Lens[T]`. Validation only reports whether every requested read succeeds; it does not infer or construct application types from runtime definitions. After successful validation, read values through the original typed lenses.
+The package keeps static types on `Lens[T]`, while `ObjectLens` reads selected objects as `Map[String, Json]`. The returned map is copied so top-level mutations do not change the source document; nested `Json` values retain their normal sharing semantics. Validation only reports whether every requested read succeeds; it does not infer or construct application types from runtime definitions. After successful validation, read values through the original lenses.
 
 ## Typed access
 
@@ -40,7 +40,7 @@ test {
 
 ## Validation
 
-Convert heterogeneous typed lenses to `Check` values when only success or failure is needed. Every check runs, and failures are returned in input order.
+`LensTrait` exposes only the type-erased `check` operation required by aggregate validation. `Lens[T]` and `ObjectLens` implement it, so heterogeneous lenses can be passed directly to `validate`. Every check runs, and failures are returned in input order.
 
 ```mbt check
 test {
@@ -51,7 +51,7 @@ test {
   let name_lens = user.string("name")
   let age_lens = user.int("age")
 
-  match validate(document, [name_lens.check(), age_lens.check()]) {
+  match validate(document, [user, name_lens, age_lens]) {
     Valid => {
       let name : String = name_lens.get(document)
       let age : Int = age_lens.get(document)
