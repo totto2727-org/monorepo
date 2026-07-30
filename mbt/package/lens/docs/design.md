@@ -12,12 +12,12 @@ This review targets MoonBit 0.10.4 and `moonbitlang/core` 0.10.4.
 
 - Start with a read-only typed JSON lens and validation library.
 - Model a lens as a package-owned JSON Pointer plus a value decoder.
-- Use `Lens[T]` for the public typed abstraction and `ObjectLens` for paths that may create child property lenses.
+- Use `Lens[T]` for typed values and `ObjectLens` for typed object values and paths that may create child property lenses.
 - Keep the package's pointer representation independent from `@json.JsonPath`.
 - Raise `LensError` from one lens and return a non-generic `Validation` from aggregate checks.
 - Preserve missing properties and explicit JSON `null` as different states.
-- Keep all static result types on `Lens[T]`; validation only reports success or accumulated issues.
-- Erase a lens's result type explicitly with `Lens::check` when composing heterogeneous validation checks.
+- Keep static result types on `Lens[T]` and `ObjectLens`; validation only reports success or accumulated issues.
+- Use a check-only `LensTrait` trait object to erase concrete lens types only at the aggregate validation boundary.
 - Start with object properties and primitive decoders.
 - Delegate numeric parsing and conversion to MoonBit core APIs; do not maintain a package-specific number parser.
 - Add optionality, arrays, refinements, transformations, and alternatives only after the foundation is stable.
@@ -32,6 +32,9 @@ MoonBit's standard `Json` type represents JSON values and its `FromJson` trait d
 The core model is:
 
 ```text
+ObjectLens
+└── object accessor: Lens[Map[String, Json]]
+
 Lens[T]
 ├── location: Pointer
 └── value interpretation: Decoder[T]
@@ -80,7 +83,7 @@ The name `CustomError` is too generic for a public package API. `LensError(Issue
 
 MoonBit cannot derive a compile-time result type from a runtime collection of validation definitions in the way TypeScript libraries can infer a type from a Zod schema expression. The validation API must not imitate that model with `Schema[T]`, fixed-arity builders, or a value-producing validation result.
 
-`Lens[T]` is the source of static type information. Aggregate validation explicitly erases each result type to `Check`, evaluates all checks, and returns only success or accumulated issues. After successful validation, callers continue to read values through their original typed lenses.
+`Lens[T]` is the source of static type information for primitive and raw JSON values. `ObjectLens` owns a `Lens[Map[String, Json]]`, so it also provides statically typed object access. Aggregate validation accepts both through the check-only `LensTrait` trait object, evaluates all checks, and returns only success or accumulated issues. Callers do not perform an explicit conversion. After successful validation, they continue to read values through their original lenses.
 
 This deliberately means that validation followed by access performs traversal and decoding again. Avoiding that duplication would require a heterogeneous typed cache or generated application-specific code, neither of which belongs in the initial package.
 
@@ -132,7 +135,7 @@ Only value alternatives belong to the initial validation roadmap.
 
 ### Unknown-field validation requires object metadata
 
-A validator composed only from independent `Check` closures does not know the complete set of allowed properties for an object. Consequently, rejecting unknown fields cannot be added correctly as a simple option on the initial aggregate validator.
+A validator composed only from independent `LensTrait` checks does not know the complete set of allowed properties for an object. Consequently, rejecting unknown fields cannot be added correctly as a simple option on the initial aggregate validator.
 
 Unknown-field validation must wait for an explicit object-check representation that records the object boundary and declared keys. `strip_unknown` and `passthrough` transform or return data, so they do not belong to a validation-only API.
 
@@ -185,15 +188,15 @@ Primitive decoders should perform JSON variant dispatch directly so the package 
 
 ### Object lens
 
-`ObjectLens` represents a location from which child properties may be declared.
+`ObjectLens` represents a typed object location from which child properties may be declared. It delegates traversal and object decoding to an internal `Lens[Map[String, Json]]`.
 
 ```moonbit
 pub struct ObjectLens {
-  priv pointer : Pointer
+  priv lens : Lens[Map[String, Json]]
 }
 ```
 
-It prevents invalid APIs such as creating a child string property from a `Lens[String]`.
+It returns the selected object through `ObjectLens::get` and prevents invalid APIs such as creating a child string property from a `Lens[String]`.
 
 ### Typed lens
 
@@ -249,6 +252,11 @@ pub fn ObjectLens::json(
   Self,
   String,
 ) -> Lens[Json]
+
+pub fn ObjectLens::get(
+  Self,
+  Json,
+) -> Map[String, Json] raise LensError
 
 pub fn Lens::get[T](
   Self[T],
@@ -394,26 +402,28 @@ pub enum Validation {
 `Valid` carries no decoded value. Validation establishes only that every supplied check succeeded for that invocation.
 
 ```moonbit
-pub struct Check {
-  priv run_ : (Json) -> Unit raise LensError
+pub(open) trait LensTrait {
+  fn check(Self, Json) -> Unit raise LensError
 }
 
-pub fn Lens::check[T](Self[T]) -> Check
+pub impl[T] LensTrait for Lens[T]
+
+pub impl LensTrait for ObjectLens
 
 pub fn validate(
   Json,
-  Array[Check],
+  Array[&LensTrait],
 ) -> Validation
 ```
 
-`Check` is the intentional type-erasure boundary. It runs a lens's traversal and decoder, discards the successful value, and preserves a raised `Issue` for aggregation.
+`LensTrait` is the intentional type-erasure boundary. Its only method runs a lens's traversal and decoder, discards the successful value, and preserves a raised `Issue` for aggregation. MoonBit cannot express a type-parameterized trait object that retains each heterogeneous result type, so typed `get` remains on `Lens[T]` and `ObjectLens`.
 
 ```moonbit
 let user = object("user")
 let name_lens = user.string("name")
 let age_lens = user.int("age")
 
-match validate(document, [name_lens.check(), age_lens.check()]) {
+match validate(document, [user, name_lens, age_lens]) {
   Valid => {
     let name : String = name_lens.get(document)
     let age : Int = age_lens.get(document)
@@ -491,7 +501,7 @@ The `Lens` name is retained because lawful mutation may be added later. Before e
 - How an out-of-bounds array index behaves.
 - How optional and nullable lenses interact with writes.
 
-If mutation is implemented, `get`, `set`, and `modify` should remain operations on the same `Lens[T]` abstraction. The internal write implementation may live in separate source files, while `Check` and `Validation` remain validation-only.
+If mutation is implemented, `get`, `set`, and `modify` should remain operations on the same `Lens[T]` abstraction. The internal write implementation may live in separate source files, while `LensTrait` and `Validation` remain validation-only.
 
 For every successfully traversable source, tests should cover the standard lens laws:
 
@@ -510,7 +520,7 @@ Failure behavior for missing or incompatible paths is part of the API contract a
 - Opaque `Pointer` with RFC 6901 rendering.
 - `JsonKind`, `IssueCode`, `Issue`, and `LensError`.
 - Key-only lookup with exact failure locations.
-- `Decoder[T]`, `ObjectLens`, and `Lens[T]`.
+- `Decoder[T]`, `ObjectLens` backed by `Lens[Map[String, Json]]`, and `Lens[T]`.
 - String, boolean, number, integer, and raw JSON decoders.
 - `Lens::get`.
 
@@ -525,8 +535,8 @@ Exit criteria:
 ### Milestone 2: Aggregate validation
 
 - Non-generic `Validation`.
-- Type-erased `Check`.
-- `Lens::check` and aggregate `validate`.
+- Check-only `LensTrait` implemented by `Lens[T]` and `ObjectLens`.
+- Trait-object aggregate `validate`.
 - Deterministic error ordering.
 - Refinement with stable constraint codes.
 

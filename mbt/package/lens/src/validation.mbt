@@ -9,13 +9,13 @@ pub enum Validation {
 } derive(Eq, Debug)
 
 ///|
-/// Runs every check and returns all issues in input order.
+/// Runs every lens check and returns all issues in input order.
 ///
 /// This function never constructs or returns application values.
-pub fn validate(document : Json, checks : Array[Check]) -> Validation {
+pub fn validate(document : Json, lenses : Array[&LensTrait]) -> Validation {
   let issues : Array[Issue] = []
-  for check in checks {
-    (check.run_)(document) catch {
+  for lens in lenses {
+    LensTrait::check(lens, document) catch {
       LensError(issue) => issues.push(issue)
     }
   }

@@ -1,5 +1,5 @@
 ///|
-test "validate - reports success without constructing typed values" {
+test "validate - accepts heterogeneous lenses without conversion" {
   let document = @json.parse(
     "{\"user\":{\"name\":\"Ada\",\"age\":37,\"active\":true}}",
   )
@@ -7,12 +7,7 @@ test "validate - reports success without constructing typed values" {
   let name_lens = user.string("name")
   let age_lens = user.int("age")
   let active_lens = user.bool("active")
-  match
-    @lens.validate(document, [
-      name_lens.check(),
-      age_lens.check(),
-      active_lens.check(),
-    ]) {
+  match @lens.validate(document, [user, name_lens, age_lens, active_lens]) {
     @lens.Validation::Valid => {
       inspect(name_lens.get(document), content="Ada")
       inspect(age_lens.get(document), content="37")
@@ -27,9 +22,10 @@ test "validate - collects all issues in check order" {
   let document = @json.parse("{\"user\":{\"age\":\"old\",\"active\":\"yes\"}}")
   let user = @lens.object("user")
   let validation = @lens.validate(document, [
-    user.string("name").check(),
-    user.int("age").check(),
-    user.bool("active").check(),
+    user,
+    user.string("name"),
+    user.int("age"),
+    user.bool("active"),
   ])
   match validation {
     @lens.Validation::Invalid(issues) => {

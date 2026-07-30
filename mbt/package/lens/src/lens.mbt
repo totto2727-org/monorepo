@@ -1,7 +1,7 @@
 ///|
 /// A location in a JSON document from which typed child lenses can be created.
 pub struct ObjectLens {
-  priv pointer : Pointer
+  priv lens : Lens[Map[String, Json]]
 }
 
 ///|
@@ -14,7 +14,9 @@ pub struct Lens[T] {
 ///|
 /// Returns an object lens positioned at the document root.
 pub fn root() -> ObjectLens {
-  ObjectLens::{ pointer: Pointer::root() }
+  ObjectLens::{
+    lens: Lens::{ pointer: Pointer::root(), decoder: object_decoder() },
+  }
 }
 
 ///|
@@ -26,37 +28,51 @@ pub fn object(key : String) -> ObjectLens {
 ///|
 /// Returns an object lens positioned at a child property.
 pub fn ObjectLens::object(self : ObjectLens, key : String) -> ObjectLens {
-  ObjectLens::{ pointer: self.pointer.key(key) }
+  ObjectLens::{
+    lens: Lens::{
+      pointer: self.lens.pointer.key(key),
+      decoder: object_decoder(),
+    },
+  }
 }
 
 ///|
 /// Returns a string lens positioned at a child property.
 pub fn ObjectLens::string(self : ObjectLens, key : String) -> Lens[String] {
-  Lens::{ pointer: self.pointer.key(key), decoder: string_decoder() }
+  Lens::{ pointer: self.lens.pointer.key(key), decoder: string_decoder() }
 }
 
 ///|
 /// Returns a boolean lens positioned at a child property.
 pub fn ObjectLens::bool(self : ObjectLens, key : String) -> Lens[Bool] {
-  Lens::{ pointer: self.pointer.key(key), decoder: bool_decoder() }
+  Lens::{ pointer: self.lens.pointer.key(key), decoder: bool_decoder() }
 }
 
 ///|
 /// Returns a finite-number lens positioned at a child property.
 pub fn ObjectLens::number(self : ObjectLens, key : String) -> Lens[Double] {
-  Lens::{ pointer: self.pointer.key(key), decoder: number_decoder() }
+  Lens::{ pointer: self.lens.pointer.key(key), decoder: number_decoder() }
 }
 
 ///|
 /// Returns an integer lens that delegates conversion to `Double::to_int`.
 pub fn ObjectLens::int(self : ObjectLens, key : String) -> Lens[Int] {
-  Lens::{ pointer: self.pointer.key(key), decoder: int_decoder() }
+  Lens::{ pointer: self.lens.pointer.key(key), decoder: int_decoder() }
 }
 
 ///|
 /// Returns a raw JSON lens positioned at a child property.
 pub fn ObjectLens::json(self : ObjectLens, key : String) -> Lens[Json] {
-  Lens::{ pointer: self.pointer.key(key), decoder: json_decoder() }
+  Lens::{ pointer: self.lens.pointer.key(key), decoder: json_decoder() }
+}
+
+///|
+/// Reads this object lens from a JSON document.
+pub fn ObjectLens::get(
+  self : ObjectLens,
+  document : Json,
+) -> Map[String, Json] raise LensError {
+  self.lens.get(document)
 }
 
 ///|
