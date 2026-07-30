@@ -9,6 +9,7 @@ import {
   "moonbitlang/async",
   "moonbitlang/async/fs",
   "totto2727/agent-cli-sdk" @agent_cli,
+  "totto2727/lens",
 }
 
 import {

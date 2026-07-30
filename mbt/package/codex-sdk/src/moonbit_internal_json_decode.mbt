@@ -7,8 +7,7 @@ fn moonbit_internal_json_object(
   json : Json,
   context : String,
 ) -> Map[String, Json] raise CodexSdkError {
-  match json {
-    Json::Object(object) => object
+  @lens.root().get(json) catch {
     _ => raise InvalidEvent(message="\{context} must be an object")
   }
 }
@@ -19,9 +18,8 @@ fn moonbit_internal_required_json(
   key : String,
   context : String,
 ) -> Json raise CodexSdkError {
-  match object.get(key) {
-    Some(value) => value
-    None => raise InvalidEvent(message="\{context} is missing \{key}")
+  @lens.root().json(key).get(Json::object(object)) catch {
+    _ => raise InvalidEvent(message="\{context} is missing \{key}")
   }
 }
 
@@ -31,8 +29,10 @@ fn moonbit_internal_required_string(
   key : String,
   context : String,
 ) -> String raise CodexSdkError {
-  match moonbit_internal_required_json(object, key, context) {
-    Json::String(value) => value
+  @lens.root().string(key).get(Json::object(object)) catch {
+    @lens.LensError::LensError(issue) if issue.code ==
+      @lens.IssueCode::MissingProperty =>
+      raise InvalidEvent(message="\{context} is missing \{key}")
     _ => raise InvalidEvent(message="\{context}.\{key} must be a string")
   }
 }
@@ -43,8 +43,10 @@ fn moonbit_internal_required_int(
   key : String,
   context : String,
 ) -> Int raise CodexSdkError {
-  match moonbit_internal_required_json(object, key, context) {
-    Json::Number(value, ..) => value.to_int()
+  @lens.root().int(key).get(Json::object(object)) catch {
+    @lens.LensError::LensError(issue) if issue.code ==
+      @lens.IssueCode::MissingProperty =>
+      raise InvalidEvent(message="\{context} is missing \{key}")
     _ => raise InvalidEvent(message="\{context}.\{key} must be a number")
   }
 }
@@ -55,9 +57,10 @@ fn moonbit_internal_required_bool(
   key : String,
   context : String,
 ) -> Bool raise CodexSdkError {
-  match moonbit_internal_required_json(object, key, context) {
-    Json::True => true
-    Json::False => false
+  @lens.root().bool(key).get(Json::object(object)) catch {
+    @lens.LensError::LensError(issue) if issue.code ==
+      @lens.IssueCode::MissingProperty =>
+      raise InvalidEvent(message="\{context} is missing \{key}")
     _ => raise InvalidEvent(message="\{context}.\{key} must be a boolean")
   }
 }
@@ -68,8 +71,10 @@ fn moonbit_internal_required_array(
   key : String,
   context : String,
 ) -> Array[Json] raise CodexSdkError {
-  match moonbit_internal_required_json(object, key, context) {
-    Json::Array(value) => value
+  @lens.root().json(key).array().get(Json::object(object)) catch {
+    @lens.LensError::LensError(issue) if issue.code ==
+      @lens.IssueCode::MissingProperty =>
+      raise InvalidEvent(message="\{context} is missing \{key}")
     _ => raise InvalidEvent(message="\{context}.\{key} must be an array")
   }
 }
@@ -80,10 +85,8 @@ fn moonbit_internal_optional_int(
   key : String,
   context : String,
 ) -> Int? raise CodexSdkError {
-  match object.get(key) {
-    None | Some(Json::Null) => None
-    Some(Json::Number(value, ..)) => Some(value.to_int())
-    Some(_) => raise InvalidEvent(message="\{context}.\{key} must be a number")
+  @lens.root().int(key).nullish().get(Json::object(object)) catch {
+    _ => raise InvalidEvent(message="\{context}.\{key} must be a number")
   }
 }
 
@@ -92,8 +95,23 @@ fn moonbit_internal_optional_json(
   object : Map[String, Json],
   key : String,
 ) -> Json? {
-  match object.get(key) {
-    None | Some(Json::Null) => None
-    Some(value) => Some(value)
+  @lens.root().json(key).nullish().get(Json::object(object)) catch {
+    _ => None
+  }
+}
+
+///|
+fn moonbit_internal_int_or_missing_default(
+  object : Map[String, Json],
+  key : String,
+  context : String,
+  fallback : Int,
+) -> Int raise CodexSdkError {
+  let value = @lens.root().int(key).optional().get(Json::object(object)) catch {
+      _ => raise InvalidEvent(message="\{context}.\{key} must be a number")
+    }
+  match value {
+    Some(value) => value
+    None => fallback
   }
 }

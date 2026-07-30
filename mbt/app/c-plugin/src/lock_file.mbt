@@ -91,31 +91,21 @@ fn empty_lock_file() -> LockFile {
 
 ///|
 fn lock_plugin_from_json(json : Json) -> LockPlugin? {
-  match json {
-    Json::Object(object) => {
-      let name = match object.get("name") {
-        Some(Json::String(value)) => value
-        _ => "plugin"
-      }
-      let path = match object.get("path") {
-        Some(Json::String(value)) => value
-        _ => name
-      }
-      let enabled_skills = match object.get("enabledSkills") {
-        Some(Json::Array(values)) => strings_from_json_array(values)
-        _ => []
-      }
-      Some({ name, path, enabled_skills })
+  let _ = @lens.root().get(json) catch { _ => return None }
+  let name = @lens.root().string("name").get(json) catch { _ => "plugin" }
+  let path = @lens.root().string("path").get(json) catch { _ => name }
+  let enabled_skills_json = @lens.root().json("enabledSkills").array().get(json) catch {
+      _ => []
     }
-    _ => None
-  }
+  let enabled_skills = strings_from_json_array(enabled_skills_json)
+  Some({ name, path, enabled_skills })
 }
 
 ///|
 fn strings_from_json_array(values : Array[Json]) -> Array[String] {
   values
   .iter()
-  .filter_map(fn(value) {
+  .filter_map(value => {
     match value {
       Json::String(text) => Some(text)
       _ => None
@@ -139,39 +129,29 @@ fn repositories_from_json_array(values : Array[Json]) -> Array[LockRepository] {
 
 ///|
 fn lock_repository_from_json(json : Json) -> LockRepository? raise {
-  match json {
-    Json::Object(object) => {
-      let source = match object.get("source") {
-        Some(Json::String(value)) => value
-        _ => ""
-      }
-      guard source != "" else { return None }
-      let source_type = match object.get("sourceType") {
-        Some(Json::String(value)) => value
-        _ => "local"
-      }
-      let marketplace_kind = match object.get("marketplaceKind") {
-        Some(Json::String(value)) => value
-        _ => "claude"
-      }
-      let commit_hash = match object.get("commitHash") {
-        Some(Json::String(value)) => Some(value)
-        _ => None
-      }
-      let plugins = match object.get("plugins") {
-        Some(Json::Array(values)) => lock_plugins_from_json(values)
-        _ => []
-      }
-      Some({
-        source_type: repository_source_type_from_string(source_type),
-        source,
-        marketplace_kind: marketplace_kind_from_string(marketplace_kind),
-        commit_hash,
-        plugins,
-      })
+  let _ = @lens.root().get(json) catch { _ => return None }
+  let source = @lens.root().string("source").get(json) catch { _ => "" }
+  guard source != "" else { return None }
+  let source_type = @lens.root().string("sourceType").get(json) catch {
+      _ => "local"
     }
-    _ => None
-  }
+  let marketplace_kind = @lens.root().string("marketplaceKind").get(json) catch {
+      _ => "claude"
+    }
+  let commit_hash = @lens.root().string("commitHash").optional().get(json) catch {
+      _ => None
+    }
+  let plugins_json = @lens.root().json("plugins").array().get(json) catch {
+      _ => []
+    }
+  let plugins = lock_plugins_from_json(plugins_json)
+  Some({
+    source_type: repository_source_type_from_string(source_type),
+    source,
+    marketplace_kind: marketplace_kind_from_string(marketplace_kind),
+    commit_hash,
+    plugins,
+  })
 }
 
 ///|
@@ -204,21 +184,20 @@ async fn read_lock(agents : String) -> LockFile {
   } else {
     empty_lock_text()
   }
-  let object = match (@json.parse(text) catch { _ => Json::null() }) {
-    Json::Object(object) => object
-    _ => return empty_lock_file()
-  }
-  guard object.get("version") == Some(Json::number(1.0, repr="1")) else {
-    return empty_lock_file()
-  }
-  let skill_dirs = match object.get("skillDirs") {
-    Some(Json::Array(values)) => strings_from_json_array(values)
-    _ => []
-  }
-  let repositories = match object.get("repositories") {
-    Some(Json::Array(values)) => repositories_from_json_array(values)
-    _ => []
-  }
+  let document = @json.parse(text) catch { _ => return empty_lock_file() }
+  let version = @lens.root().number("version").get(document) catch { _ => 0.0 }
+  guard version == 1.0 else { return empty_lock_file() }
+  let skill_dirs_json = @lens.root().json("skillDirs").array().get(document) catch {
+      _ => []
+    }
+  let repositories_json = @lens.root()
+    .json("repositories")
+    .array()
+    .get(document) catch {
+      _ => []
+    }
+  let skill_dirs = strings_from_json_array(skill_dirs_json)
+  let repositories = repositories_from_json_array(repositories_json)
   { skill_dirs, repositories }
 }
 

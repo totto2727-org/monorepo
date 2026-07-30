@@ -1,6 +1,8 @@
 import {
   "totto2727/admiral",
+  "totto2727/lens",
   "moonbitlang/core/env",
+  "moonbitlang/core/json",
   "moonbitlang/core/string",
   "moonbitlang/async",
   "moonbitlang/async/io",

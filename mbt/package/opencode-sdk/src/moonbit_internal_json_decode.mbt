@@ -3,8 +3,7 @@ fn moonbit_internal_json_object(
   json : Json,
   context : String,
 ) -> Map[String, Json] raise OpenCodeSdkError {
-  match json {
-    Json::Object(object) => object
+  @lens.root().get(json) catch {
     _ => raise InvalidEvent(message="\{context} must be an object")
   }
 }
@@ -15,9 +14,8 @@ fn moonbit_internal_required_json(
   key : String,
   context : String,
 ) -> Json raise OpenCodeSdkError {
-  match object.get(key) {
-    Some(value) => value
-    None => raise InvalidEvent(message="\{context}.\{key} is required")
+  @lens.root().json(key).get(Json::object(object)) catch {
+    _ => raise InvalidEvent(message="\{context}.\{key} is required")
   }
 }
 
@@ -27,10 +25,11 @@ fn moonbit_internal_required_string(
   key : String,
   context : String,
 ) -> String raise OpenCodeSdkError {
-  match object.get(key) {
-    Some(Json::String(value)) => value
-    Some(_) => raise InvalidEvent(message="\{context}.\{key} must be a string")
-    None => raise InvalidEvent(message="\{context}.\{key} is required")
+  @lens.root().string(key).get(Json::object(object)) catch {
+    @lens.LensError::LensError(issue) if issue.code ==
+      @lens.IssueCode::MissingProperty =>
+      raise InvalidEvent(message="\{context}.\{key} is required")
+    _ => raise InvalidEvent(message="\{context}.\{key} must be a string")
   }
 }
 
@@ -40,10 +39,11 @@ fn moonbit_internal_required_double(
   key : String,
   context : String,
 ) -> Double raise OpenCodeSdkError {
-  match object.get(key) {
-    Some(Json::Number(value, ..)) => value
-    Some(_) => raise InvalidEvent(message="\{context}.\{key} must be a number")
-    None => raise InvalidEvent(message="\{context}.\{key} is required")
+  @lens.root().number(key).get(Json::object(object)) catch {
+    @lens.LensError::LensError(issue) if issue.code ==
+      @lens.IssueCode::MissingProperty =>
+      raise InvalidEvent(message="\{context}.\{key} is required")
+    _ => raise InvalidEvent(message="\{context}.\{key} must be a number")
   }
 }
 
@@ -53,5 +53,10 @@ fn moonbit_internal_required_int(
   key : String,
   context : String,
 ) -> Int raise OpenCodeSdkError {
-  moonbit_internal_required_double(object, key, context).to_int()
+  @lens.root().int(key).get(Json::object(object)) catch {
+    @lens.LensError::LensError(issue) if issue.code ==
+      @lens.IssueCode::MissingProperty =>
+      raise InvalidEvent(message="\{context}.\{key} is required")
+    _ => raise InvalidEvent(message="\{context}.\{key} must be a number")
+  }
 }

@@ -187,25 +187,28 @@ fn json_extract_result(raw : String) -> Json raise {
   let parsed = @json.parse(raw) catch {
     error => fail("Invalid json response JSON: \{error}")
   }
-  match parsed {
-    Object({ "success": True, "result": result, .. }) => result
+  let success = @lens.root().bool("success").get(parsed) catch { _ => false }
+  guard success else { fail("Invalid json response") }
+  @lens.root().json("result").get(parsed) catch {
     _ => fail("Invalid json response")
   }
 }
 
 ///|
 fn json_extract_result_text(raw : String) -> String raise {
-  match json_extract_result(raw) {
-    String(value) => value
-    result => result.stringify()
+  let result = json_extract_result(raw)
+  match result {
+    Json::String(value) => value
+    _ => result.stringify()
   }
 }
 
 ///|
 fn json_extract_result_markdown(raw : String) -> String raise {
-  match json_extract_result(raw) {
-    String(value) => value
-    result => "```json\n\{result.stringify()}\n```"
+  let result = json_extract_result(raw)
+  match result {
+    Json::String(value) => value
+    _ => "```json\n\{result.stringify()}\n```"
   }
 }
 
