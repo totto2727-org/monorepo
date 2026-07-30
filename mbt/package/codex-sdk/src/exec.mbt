@@ -83,7 +83,7 @@ fn CodexExec::CodexExec(
 async fn CodexExec::run(
   self : CodexExec,
   args : CodexExecArgs,
-  on_line : async (String) -> Bool,
+  on_line : async (@agent_cli.JsonLine) -> Bool,
 ) -> Unit {
   let command_args = ["exec", "--experimental-json"]
   if self.config_overrides is Some(config) {
@@ -179,70 +179,27 @@ async fn CodexExec::run(
   // Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L177-L179
   let inherit_environment = self.env_override is None
 
-  let moonbit_internal_stop_requested = Ref(false)
-  @async.with_task_group(async fn(group) {
-    let (child_input, input_writer) = @process.write_to_process()
-    let (output_reader, child_output) = @process.read_from_process()
-    let (error_reader, child_error) = @process.read_from_process()
-    group.spawn_bg(async fn() {
-      defer input_writer.close()
-      input_writer.write(args.input)
-    })
-    let stderr_task = group.spawn(async fn() {
-      defer error_reader.close()
-      error_reader.read_all().text()
-    })
-    let child = @process.spawn(
-      group,
-      "\{self.executable_path}",
-      command_args,
-      extra_env=environment,
-      inherit_env=inherit_environment,
-      stdin=child_input,
-      stdout=child_output,
-      stderr=child_error,
-      // Runtime difference: MoonBit's default process cancellation waits up to five seconds before escalation, while the upstream generator cleanup terminates before returning control to the consumer.
-      // Upstream generator cleanup: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L235-L242
-      cancel_handler=@process.hard_cancel(),
-    )
-    let stdout_task = group.spawn(async fn() {
-      defer output_reader.close()
-      while output_reader.read_until("\n") is Some(line) {
-        if !on_line(line) {
-          moonbit_internal_stop_requested.val = true
-          // Async type difference: cancelling the process explicitly replaces AsyncGenerator cleanup when the upstream consumer stops iteration.
-          // Upstream generator cleanup: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L235-L242
-          child.cancel()
-          break
-        }
-      }
-    })
-    let code = child.wait()
-    // Runtime difference: MoonBit pipe reads are separate tasks. Cancel the reader after an early nonzero exit so a descendant holding stdout cannot block error delivery.
-    // Upstream lifecycle: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L208-L243
-    if code != 0 && !moonbit_internal_stop_requested.val {
-      stdout_task.cancel()
-      stdout_task.wait() catch {
-        error => if !@async.is_cancellation_error(error) { raise error }
-      }
-    } else {
-      stdout_task.wait()
-    }
-    let stderr = if moonbit_internal_stop_requested.val {
-      // Runtime difference: a descendant can retain the stderr pipe after the CLI process is terminated, so callback-requested generator cleanup also cancels the MoonBit reader task.
-      // Upstream generator cleanup: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L235-L242
-      stderr_task.cancel()
-      try stderr_task.wait() |> ignore catch {
-        error => if !@async.is_cancellation_error(error) { raise error }
-      }
-      ""
-    } else {
-      stderr_task.wait()
-    }
-    if code != 0 && !moonbit_internal_stop_requested.val {
+  let result = @agent_cli.run(
+    @agent_cli.Invocation::new(
+      command=self.executable_path.to_string(),
+      arguments=command_args,
+      environment~,
+      inherit_environment~,
+      input=args.input,
+    ),
+    on_line,
+  ) catch {
+    @agent_cli.AgentCliError::InvalidJson(line~, cause~) =>
+      raise InvalidEvent(
+        message="Failed to parse item: \{line}; cause: \{cause}",
+      )
+    error => raise error
+  }
+  match result {
+    @agent_cli.RunResult::Completed | @agent_cli.RunResult::Stopped => ()
+    @agent_cli.RunResult::Failed(code~, stderr~) =>
       raise ExecFailed(code~, stderr~)
-    }
-  })
+  }
 }
 
 ///| Serializes global config overrides before per-thread arguments.

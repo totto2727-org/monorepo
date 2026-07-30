@@ -1,17 +1,16 @@
 supported_targets = "native"
 
 import {
-  "moonbitlang/core/env",
+  "moonbitlang/core/debug",
   "moonbitlang/core/json",
   "moonbitlang/core/string",
   "moonbitlang/x/path",
-  "moonbitlang/async",
-  "moonbitlang/async/io",
-  "moonbitlang/async/process",
+  "totto2727/agent-cli-sdk" @agent_cli,
 }
 
 import {
-  "moonbitlang/core/debug",
   "moonbitlang/core/test",
+  "moonbitlang/async",
   "moonbitlang/async/fs",
+  "moonbitlang/async/process",
 } for "wbtest"
