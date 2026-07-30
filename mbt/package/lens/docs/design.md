@@ -88,7 +88,7 @@ This deliberately means that validation followed by access performs traversal an
 
 The package should own JSON traversal, type selection, and structured error mapping, but it should not own decimal, exponent, sign, overflow, or rounding algorithms.
 
-For a `Json::Number`, use the `Double` value already produced by MoonBit core. Do not reparse its retained source text. Convert that value with standard methods such as `Double::to_int`, and use standard predicates, limits, and reverse conversions to validate the result.
+For a `Json::Number`, use the `Double` value already produced by MoonBit core. Do not reparse its retained source text. When an `Int` is requested, delegate directly to `Double::to_int()` and inherit its standard conversion behavior without package-level validation.
 
 If a later decoder accepts numeric text, delegate parsing to the current non-deprecated standard entry points such as `@string.from_str`, `@string.parse_double`, or `@string.parse_int`, then translate the raised standard error into `DecodeProblem`. The reviewed toolchain still exposes `@strconv.parse_*` as deprecated compatibility APIs; new package code should use their supported `@string` replacements.
 
@@ -317,10 +317,6 @@ pub(all) enum IssueCode {
     expected~ : JsonKind,
     actual~ : JsonKind,
   )
-  InvalidInteger
-  NumberOutOfRange(
-    target~ : String,
-  )
   IndexOutOfBounds(
     index~ : Int,
     length~ : Int,
@@ -362,20 +358,13 @@ Accept only `Json::True` and `Json::False`.
 
 ### Number
 
-Accept only `Json::Number` values that can be represented by the selected MoonBit target.
+Accept only `Json::Number`.
 
-The phase 1 `number` decoder returns the `Double` already stored by `Json::Number`. It does not inspect or reparse the retained textual representation. Use the standard `Double::is_nan` and `Double::is_inf` predicates to reject non-finite results with `NumberOutOfRange`.
+The phase 1 `number` decoder returns the `Double` already stored by `Json::Number` without finite or range validation. It does not inspect or reparse the retained textual representation.
 
 ### Integer
 
-JSON has a number type, not a distinct integer type. The `int` decoder starts from the `Double` already stored by `Json::Number` and uses standard conversions:
-
-1. Reject `Double::is_nan()` and `Double::is_inf()`.
-2. Compare against `@int.MIN_VALUE.to_double()` and `@int.MAX_VALUE.to_double()` to classify out-of-range values.
-3. Convert with `Double::to_int()`.
-4. Convert the resulting `Int` back with `Int::to_double()` and require equality with the original value. A mismatch identifies a fractional or otherwise non-exact conversion.
-
-This sequence relies on MoonBit's standard saturation, truncation, and representation behavior while preserving the package's `InvalidInteger` and `NumberOutOfRange` classifications. The package must not parse the JSON number text itself.
+JSON has a number type, not a distinct integer type. The `int` decoder applies `Double::to_int()` directly to the `Double` already stored by `Json::Number`. It performs no finite, range, or integer-exactness validation and therefore inherits MoonBit's standard truncation, saturation, and special-value behavior. The package must not parse the JSON number text itself.
 
 ### Raw JSON
 
@@ -530,7 +519,7 @@ Exit criteria:
 - Public examples compile.
 - Primitive success and failure behavior is tested.
 - Every traversal failure reports the exact failing pointer.
-- Fractional and out-of-range integer cases are covered.
+- Fractional, out-of-range, and non-finite integer cases follow `Double::to_int()` semantics.
 - Numeric tests exercise the boundaries of the delegated standard conversions rather than a package-specific parser.
 
 ### Milestone 2: Aggregate validation
@@ -612,11 +601,11 @@ Add `check.mbt` and `validation.mbt` in milestone 2. Add files for optionality, 
 - String type mismatch.
 - Boolean type mismatch.
 - Number type mismatch.
-- Non-finite or unrepresentable number.
-- Fractional value passed to `int`.
-- Positive and negative `Int` overflow.
+- Non-finite number passed through by `number`.
+- Fractional value converted by `Double::to_int()`.
+- Positive and negative overflow saturated by `Double::to_int()`.
+- Non-finite values converted by `Double::to_int()`.
 - Exact `@int.MIN_VALUE` and `@int.MAX_VALUE` conversion.
-- Standard numeric conversion failures mapped to stable `IssueCode` values.
 - Explicit `null` passed to every primitive decoder.
 - JSON Pointer escaping for `~`, `/`, and the empty key.
 - Correct pointer for every traversal and decoding failure.

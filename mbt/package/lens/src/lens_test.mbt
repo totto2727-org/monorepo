@@ -148,7 +148,7 @@ test "Lens get - classifies primitive type mismatches" {
 }
 
 ///|
-test "Lens get - reads finite numbers and exact integers" {
+test "Lens get - reads numbers and standard-converted integers" {
   let document = @json.parse(
     "{\"ratio\":42.5,\"maximum\":2147483647,\"minimum\":-2147483648}",
   )
@@ -158,43 +158,28 @@ test "Lens get - reads finite numbers and exact integers" {
 }
 
 ///|
-test "Lens get - rejects fractional integers" {
-  let document = @json.parse("{\"age\":42.5}")
-  let issue = get_issue(@lens.root().int("age"), document)
-  inspect(issue.pointer.to_string(), content="/age")
-  match issue.code {
-    @lens.IssueCode::InvalidInteger => ()
-    _ => fail("expected InvalidInteger")
-  }
+test "Lens get - delegates fractional conversion to Double::to_int" {
+  let document = @json.parse("{\"positive\":42.5,\"negative\":-42.5}")
+  inspect(@lens.root().int("positive").get(document), content="42")
+  inspect(@lens.root().int("negative").get(document), content="-42")
 }
 
 ///|
-test "Lens get - rejects integers outside the Int range" {
+test "Lens get - delegates saturating conversion to Double::to_int" {
   let document = @json.parse(
     "{\"positive\":2147483648,\"negative\":-2147483649}",
   )
-  let positive = get_issue(@lens.root().int("positive"), document)
-  inspect(positive.pointer.to_string(), content="/positive")
-  match positive.code {
-    @lens.IssueCode::NumberOutOfRange(target~) => inspect(target, content="Int")
-    _ => fail("expected NumberOutOfRange")
-  }
-  let negative = get_issue(@lens.root().int("negative"), document)
-  inspect(negative.pointer.to_string(), content="/negative")
-  match negative.code {
-    @lens.IssueCode::NumberOutOfRange(target~) => inspect(target, content="Int")
-    _ => fail("expected NumberOutOfRange")
-  }
+  inspect(@lens.root().int("positive").get(document), content="2147483647")
+  inspect(@lens.root().int("negative").get(document), content="-2147483648")
 }
 
 ///|
-test "Lens get - rejects non-finite numbers" {
-  let document = @json.parse("{\"ratio\":1e999}")
-  let issue = get_issue(@lens.root().number("ratio"), document)
-  inspect(issue.pointer.to_string(), content="/ratio")
-  match issue.code {
-    @lens.IssueCode::NumberOutOfRange(target~) =>
-      inspect(target, content="Double")
-    _ => fail("expected NumberOutOfRange")
-  }
+test "Lens get - passes through non-finite numbers" {
+  let document = @json.parse("{\"positive\":1e999,\"negative\":-1e999}")
+  inspect(
+    @lens.root().number("positive").get(document).is_inf(),
+    content="true",
+  )
+  inspect(@lens.root().int("positive").get(document), content="2147483647")
+  inspect(@lens.root().int("negative").get(document), content="-2147483648")
 }

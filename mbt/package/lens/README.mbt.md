@@ -66,10 +66,10 @@ test {
 
 ## Numeric behavior
 
-`number` reads the existing `Double` stored in `Json::Number` and rejects non-finite values. `int` uses MoonBit's standard `Double::to_int` and `Int::to_double` conversions together with the standard `Int` bounds; it rejects fractional and out-of-range values. The package never reparses the retained JSON number text.
+`number` returns the existing `Double` stored in `Json::Number` without further validation, including non-finite values. `int` delegates directly to MoonBit's standard `Double::to_int` conversion without package-level validation, inheriting its truncation, saturation, and special-value behavior. The package never reparses the retained JSON number text.
 
 ## Current scope
 
-The initial API supports object-property traversal and `String`, `Bool`, finite `Double`, exact `Int`, and raw `Json` values. Array traversal, refinements, alternatives, optional and nullable combinators, and mutation such as `set` are reserved for later phases.
+The initial API supports object-property traversal and `String`, `Bool`, `Double`, standard-converted `Int`, and raw `Json` values. Array traversal, refinements, alternatives, optional and nullable combinators, and mutation such as `set` are reserved for later phases.
 
 See [the design document](docs/design.md) for the detailed contract and roadmap. A Japanese translation is available at [docs/design.ja.md](docs/design.ja.md).

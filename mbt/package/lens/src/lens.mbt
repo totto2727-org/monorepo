@@ -48,7 +48,7 @@ pub fn ObjectLens::number(self : ObjectLens, key : String) -> Lens[Double] {
 }
 
 ///|
-/// Returns an exact 32-bit integer lens positioned at a child property.
+/// Returns an integer lens that delegates conversion to `Double::to_int`.
 pub fn ObjectLens::int(self : ObjectLens, key : String) -> Lens[Int] {
   Lens::{ pointer: self.pointer.key(key), decoder: int_decoder() }
 }

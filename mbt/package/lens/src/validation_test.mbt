@@ -24,7 +24,7 @@ test "validate - reports success without constructing typed values" {
 
 ///|
 test "validate - collects all issues in check order" {
-  let document = @json.parse("{\"user\":{\"age\":42.5,\"active\":\"yes\"}}")
+  let document = @json.parse("{\"user\":{\"age\":\"old\",\"active\":\"yes\"}}")
   let user = @lens.object("user")
   let validation = @lens.validate(document, [
     user.string("name").check(),
@@ -40,7 +40,10 @@ test "validate - collects all issues in check order" {
       match (issues[0].code, issues[1].code, issues[2].code) {
         (
           @lens.IssueCode::MissingProperty,
-          @lens.IssueCode::InvalidInteger,
+          @lens.IssueCode::TypeMismatch(
+            expected=@lens.JsonKind::Number,
+            actual=@lens.JsonKind::String
+          ),
           @lens.IssueCode::TypeMismatch(
             expected=@lens.JsonKind::Boolean,
             actual=@lens.JsonKind::String

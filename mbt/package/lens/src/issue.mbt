@@ -14,8 +14,6 @@ pub(all) enum JsonKind {
 pub(all) enum IssueCode {
   MissingProperty
   TypeMismatch(expected~ : JsonKind, actual~ : JsonKind)
-  InvalidInteger
-  NumberOutOfRange(target~ : String)
   IndexOutOfBounds(index~ : Int, length~ : Int)
   ConstraintViolation(code~ : String)
   ExternalDecode
