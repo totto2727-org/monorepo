@@ -77,6 +77,18 @@ fn json_decoder() -> Decoder[Json] {
 }
 
 ///|
+fn object_decoder() -> Decoder[Map[String, Json]] {
+  Decoder::{
+    decode_: fn(value) -> Map[String, Json] raise DecodeProblem {
+      match value {
+        Json::Object(properties) => properties.copy()
+        _ => raise type_mismatch(JsonKind::Object, value)
+      }
+    },
+  }
+}
+
+///|
 fn[T] array_decoder(item_decoder : Decoder[T]) -> Decoder[Array[T]] {
   Decoder::{
     decode_: fn(value) -> Array[T] raise DecodeProblem {
