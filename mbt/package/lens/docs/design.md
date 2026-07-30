@@ -99,10 +99,10 @@ Hand-written digit loops, regular expressions that duplicate a numeric grammar, 
 Missing and `null` are distinct:
 
 | Input state | Required string | Optional string | Nullable string | Optional nullable string |
-|---|---:|---:|---:|---:|
-| Missing | error | `None` | error | `None` |
-| `null` | type error | type error | `None` | `None` |
-| String | value | `Some(value)` | `Some(value)` | `Some(value)` |
+| ----------- | --------------: | --------------: | --------------: | -----------------------: |
+| Missing     |           error |          `None` |           error |                   `None` |
+| `null`      |      type error |      type error |          `None` |                   `None` |
+| String      |           value |   `Some(value)` |   `Some(value)` |            `Some(value)` |
 
 Do not implement optional nullable values as `lens.optional().nullable()`. Both operations change the output to an option, so naive chaining produces nested option types or ambiguous semantics. Use three explicit combinators:
 
@@ -474,8 +474,8 @@ This feature belongs to typed lens decoding, not to aggregate validation. It sho
 
 Unknown-field rejection belongs to a future declarative object check:
 
-| Policy | Behavior |
-|---|---|
+| Policy   | Behavior                |
+| -------- | ----------------------- |
 | `strict` | Reject undeclared keys. |
 
 `strip_unknown` and `passthrough` are transformation policies, not validation policies. If they are ever needed, they require a separate API with an explicit transformed output and must not change the meaning of `Validation`.

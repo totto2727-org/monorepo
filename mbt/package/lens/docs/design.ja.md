@@ -99,10 +99,10 @@ MoonBit は、TypeScriptライブラリがZodスキーマ式から型を推論�
 欠損と `null` は異なります：
 
 | 入力状態 | 必須文字列 | オプション文字列 | null許容文字列 | オプションnull許容文字列 |
-|---|---:|---:|---:|---:|
-| Missing | error | `None` | error | `None` |
-| `null` | type error | type error | `None` | `None` |
-| String | value | `Some(value)` | `Some(value)` | `Some(value)` |
+| -------- | ---------: | ---------------: | -------------: | -----------------------: |
+| Missing  |      error |           `None` |          error |                   `None` |
+| `null`   | type error |       type error |         `None` |                   `None` |
+| String   |      value |    `Some(value)` |  `Some(value)` |            `Some(value)` |
 
 オプションのnull許容値を `lens.optional().nullable()` として実装しないでください。どちらの操作も出力をオプションに変更するため、単純な連鎖はネストされたオプション型または曖昧なセマンティクスを生成します。3つの明示的なコンビネータを使用します：
 
@@ -474,8 +474,8 @@ Decoder[A] + (A -> B raise DecodeProblem) -> Decoder[B]
 
 未知フィールドの拒否は、将来の宣言的オブジェクトチェックに属します：
 
-| ポリシー | 動作 |
-|---|---|
+| ポリシー | 動作                             |
+| -------- | -------------------------------- |
 | `strict` | 宣言されていないキーを拒否する。 |
 
 `strip_unknown` と `passthrough` は変換ポリシーであり、バリデーションポリシーではありません。それらが将来必要になった場合、明示的な変換出力を持つ別のAPIが必要であり、`Validation` の意味を変更してはいけません。
