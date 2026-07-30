@@ -1,9 +1,6 @@
 import {
-  "DC-Z-lab/moonllm",
   "moonbitlang/async",
   "moonbitlang/async/fs",
-  "moonbitlang/core/debug",
-  "moonbitlang/core/json",
   "moonbitlang/core/string",
   "moonbitlang/x/path",
   "totto2727/admiral",

@@ -258,6 +258,10 @@
       "name": "@totto2727/opencode-sdk",
       "version": "0.0.0",
     },
+    "mbt/package/opencode-server-sdk": {
+      "name": "@totto2727/opencode-server-sdk",
+      "version": "0.0.0",
+    },
     "mbt/package/target-file-discovery": {
       "name": "@package/target-file-discovery",
     },
@@ -1121,6 +1125,8 @@
     "@totto2727/mdt": ["@totto2727/mdt@workspace:mbt/app/mdt"],
 
     "@totto2727/opencode-sdk": ["@totto2727/opencode-sdk@workspace:mbt/package/opencode-sdk"],
+
+    "@totto2727/opencode-server-sdk": ["@totto2727/opencode-server-sdk@workspace:mbt/package/opencode-server-sdk"],
 
     "@totto2727/wt": ["@totto2727/wt@workspace:mbt/app/wt"],
 
