@@ -16,7 +16,8 @@ The implemented baseline is:
 - `moonbitlang/x@0.4.38`.
 - `DC-Z-lab/moonllm@0.1.0`.
 - `totto2727/codex-sdk@0.0.0` from this workspace.
-- `totto2727/opencode-sdk@0.0.0` from this workspace.
+- `totto2727/agent-cli-sdk@0.1.0` from this workspace.
+- `totto2727/opencode-sdk@0.1.1` from this workspace.
 
 The graph module, Codex SDK, and OpenCode SDK all resolve `moonbitlang/async@0.20.1`; there is no second async-runtime version in the implemented workspace contract.
 
@@ -60,7 +61,7 @@ flowchart TD
   Codex --> CodexSDK["totto2727/codex-sdk"]
   OpenCode["integrations/opencode"] --> Core
   OpenCode --> OpenCodeSDK["totto2727/opencode-sdk"]
-  OpenCode --> MoonLLMSDK
+  OpenCodeSDK --> AgentCLI["totto2727/agent-cli-sdk"]
   Testing["testing"] --> Core
   Testing --> MoonLLMSDK
   Basic["examples/basic"] --> Core
@@ -74,20 +75,20 @@ No package may import an example or testing package from production code.
 
 ## Workstream Summary
 
-| ID | Deliverable | Depends on | Status |
-|---|---|---|---|
-| W0 | Toolchain, dependency, and compile-spike baseline | None | Complete |
-| W1 | Core IDs, graph definition, routers, and compilation | W0 | Complete |
-| W2 | Node, reducer, events, and function node | W0 | Complete |
-| W3 | Resource store and native async lifecycle | W0 | Complete |
-| W4 | Sequential graph runtime | W1, W2, W3 | Complete |
-| W5 | MoonLLM node integration | W2 | Complete |
-| W6 | Coding-agent abstraction and node | W2, W3 | Complete |
-| W7 | Codex adapter | W6 | Complete |
-| W8 | OpenCode adapter | W6 | Complete |
-| W9 | Shared test kit | W1 interfaces, W2 interfaces, W6 interfaces | Complete |
-| W10 | Deterministic integration workflows | W4, W5, W7, W8, W9 | Complete |
-| W11 | Examples, API review, and documentation reconciliation | W10 | Final reconciliation |
+| ID  | Deliverable                                            | Depends on                                  | Status               |
+| --- | ------------------------------------------------------ | ------------------------------------------- | -------------------- |
+| W0  | Toolchain, dependency, and compile-spike baseline      | None                                        | Complete             |
+| W1  | Core IDs, graph definition, routers, and compilation   | W0                                          | Complete             |
+| W2  | Node, reducer, events, and function node               | W0                                          | Complete             |
+| W3  | Resource store and native async lifecycle              | W0                                          | Complete             |
+| W4  | Sequential graph runtime                               | W1, W2, W3                                  | Complete             |
+| W5  | MoonLLM node integration                               | W2                                          | Complete             |
+| W6  | Coding-agent abstraction and node                      | W2, W3                                      | Complete             |
+| W7  | Codex adapter                                          | W6                                          | Complete             |
+| W8  | OpenCode adapter                                       | W6                                          | Complete             |
+| W9  | Shared test kit                                        | W1 interfaces, W2 interfaces, W6 interfaces | Complete             |
+| W10 | Deterministic integration workflows                    | W4, W5, W7, W8, W9                          | Complete             |
+| W11 | Examples, API review, and documentation reconciliation | W10                                         | Final reconciliation |
 
 ## W0: Toolchain and Contract Spike
 
@@ -217,7 +218,7 @@ Status: Complete.
 - Run-scoped sessions are reused within one run.
 - Node-scoped sessions close after each attempt.
 - Open and close failures preserve their causes.
-- Cancellation cannot leave an OpenCode server or Codex subprocess running.
+- Cancellation cannot leave an OpenCode or Codex CLI subprocess running.
 
 ## W4: Sequential Graph Runtime
 
@@ -365,29 +366,29 @@ Status: Complete.
 
 ### Deliverables
 
-- Server and session internal state.
-- Open function that consumes the run's `TaskGroup[Unit]` from the common open context.
-- MoonLLM HTTP client creation from `Server::moonllm_config`.
-- OpenCode session creation.
-- Session message execution.
-- Response decoding.
-- Explicit close.
-- Integration tests with a fake OpenCode executable and local HTTP server.
+- CLI thread and logical session state.
+- Open function that maps workspace, environment, and SDK-specific options.
+- New and resumed OpenCode sessions.
+- Typed prompt and local-file input mapping.
+- CLI turn execution and final-text response mapping.
+- Idempotent logical close.
+- Integration tests with a fake `opencode run --format json` executable.
 
 ### Implementation Rules
 
-- Treat MoonLLM as the HTTP client used to call OpenCode endpoints.
-- Do not map an OpenCode coding request to a generic MoonLLM chat-completion request.
-- Close the server on every partial-startup failure.
-- Close the server before the owning task-group body returns.
-- Keep the server URL private.
-- Select run scope in the calling `CodingAgentNodeSpec` when one opened OpenCode session should be reused for the invocation.
+- Use `totto2727/opencode-sdk` for CLI execution and keep `totto2727/opencode-server-sdk` outside the graph adapter.
+- Resolve relative context files against the workspace root and pass them as typed local-file inputs.
+- Preserve inherited environment variables, then apply adapter and caller overrides in that order.
+- Preserve concrete SDK process, JSONL, and turn errors.
+- Let each `Thread::run` invocation own and clean up its native child process.
+- Select run scope in the calling `CodingAgentNodeSpec` when one logical OpenCode session ID should be reused for the invocation.
 
 ### Acceptance
 
-- One run starts one server and reuses it.
-- Startup failure, malformed readiness, timeout, session failure, request failure, crash, and cancellation all clean up.
-- No server process, port, or temporary log directory remains after the test.
+- New and resumed sessions pass the correct session ID to the CLI.
+- Model, agent, directory, file, variant, title, thinking, prompt, and environment mappings are observable.
+- Process failure and cancellation propagate after child cleanup.
+- No CLI child process remains after cancellation.
 
 ## W9: Test Kit
 
@@ -476,7 +477,7 @@ Status: Final reconciliation.
 - `EventSink` is synchronous and best-effort; sink failures do not fail the graph run.
 - Coding-agent `changed_files` may be empty when the underlying SDK cannot prove a reliable change set.
 - The Codex adapter reports only data exposed by the current SDK and does not invent stdout, stderr, commands, or changed-file records.
-- The OpenCode adapter owns one local server per opened session and uses MoonLLM only as its HTTP transport; `coding_agent_node` and its `ResourceScope` selection determine whether that session is reused for a run or reopened for each node attempt.
+- The OpenCode adapter stores only a logical CLI thread between requests; `coding_agent_node` and its `ResourceScope` selection determine whether that session ID is reused for a run or reopened for each node attempt.
 - Cleanup is bounded by `cleanup_timeout_ms`; a cleanup timeout or close failure is reported through the runtime error model.
 
 ## Completed Implementation Phases
@@ -519,7 +520,7 @@ The implementation froze:
 8. Event order and terminal-event rule.
 9. Node timeout versus caller cancellation.
 10. Primary versus cleanup error preservation.
-11. OpenCode server ownership by the run task group.
+11. OpenCode per-turn CLI subprocess ownership and cancellation.
 
 ## Validation Commands
 
@@ -552,11 +553,11 @@ The final manual gate covers at least one function-only example and one determin
 - State updates only through the reducer.
 - Infinite loops stop at `max_steps`.
 - Node timeouts and caller cancellation terminate owned work.
-- OpenCode reuses one server per run and closes it explicitly.
+- OpenCode reuses one logical session ID while each turn owns a short-lived CLI subprocess.
 - Codex subprocess cancellation is observed.
 - Primary and cleanup errors remain distinguishable.
 - Unit and deterministic integration tests pass.
-- No child process, port, or temporary-log leak remains.
+- No child process or temporary-fixture leak remains.
 - Native examples build and run.
 - Public API documentation matches implementation.
 
@@ -570,4 +571,5 @@ The final manual gate covers at least one function-only example and one determin
 - [moonbitlang/async package](https://mooncakes.io/docs/moonbitlang/async)
 - [MoonLLM](https://github.com/DC-Z-lab/moonllm)
 - [Codex SDK source reference](https://github.com/openai/codex/tree/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript)
-- [OpenCode SDK source reference](https://github.com/anomalyco/opencode/tree/66495a2a22cd0a57efcc4f721e65532f0987b4e8/packages/sdk/js)
+- [OpenCode CLI documentation](https://opencode.ai/docs/cli/)
+- [OpenCode `run` JSONL implementation](https://github.com/anomalyco/opencode/blob/1e17856ba4b5b052650c8115060852f3f023844e/packages/opencode/src/cli/cmd/run.ts)

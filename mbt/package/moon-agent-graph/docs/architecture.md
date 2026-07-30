@@ -4,7 +4,7 @@
 
 This document records the reviewed architecture baseline and the current implementation status for the Moon Agent Graph Runtime MVP.
 
-The implementation baseline is MoonBit compiler `v0.10.4`, Moon `0.1.20260713`, `moonbitlang/async@0.20.1`, `moonbitlang/x@0.4.38`, `DC-Z-lab/moonllm@0.1.0`, `totto2727/codex-sdk@0.0.0`, and `totto2727/opencode-sdk@0.0.0`.
+The implementation baseline is MoonBit compiler `v0.10.4`, Moon `0.1.20260713`, `moonbitlang/async@0.20.1`, `moonbitlang/x@0.4.38`, `DC-Z-lab/moonllm@0.1.0`, `totto2727/agent-cli-sdk@0.1.0`, `totto2727/codex-sdk@0.0.0`, and `totto2727/opencode-sdk@0.1.1`.
 
 The runtime is native-only and asynchronous.
 
@@ -12,7 +12,7 @@ The runtime is native-only and asynchronous.
 
 The native implementation includes the core graph compiler and sequential runtime, run and node resource lifecycle management, function nodes, the MoonLLM callback node, the coding-agent node, Codex and OpenCode adapters, deterministic testing helpers, and deterministic end-to-end workflow tests.
 
-Deferred work includes parallel node scheduling, persistent checkpoints or durable execution, human approval suspension, subgraphs, distributed workers, application-scoped servers, and real credentialed provider end-to-end tests.
+Deferred work includes parallel node scheduling, persistent checkpoints or durable execution, human approval suspension, subgraphs, distributed workers, provider-complete permission mapping, and real credentialed provider end-to-end tests.
 
 ## Purpose
 
@@ -40,8 +40,8 @@ The original design direction is retained with the following corrections.
 8. A node has at most one router in the MVP, which removes ordering ambiguity between multiple outgoing edges.
 9. A router declares all possible destination node IDs so compilation can validate reachability and destinations.
 10. In-memory run state is owned directly by an invocation; a durable or pluggable state store is deferred until checkpointing is designed.
-11. OpenCode is a coding-agent adapter, but the current repository adapter calls OpenCode session HTTP endpoints through a MoonLLM HTTP client rather than treating OpenCode as a generic chat-completion model.
-12. OpenCode server shutdown happens before the run task-group body returns; it must not rely on a task-group defer that runs only after child tasks have terminated.
+11. OpenCode is a coding-agent adapter backed by the repository's CLI SDK, which runs `opencode run --format json`; the separate `opencode-server-sdk` is not part of the graph adapter.
+12. Every Codex or OpenCode turn owns its CLI subprocess through structured concurrency, and caller cancellation must stop and await that child before returning.
 
 ## Component Model
 
@@ -59,8 +59,8 @@ flowchart TD
   Runtime --> AgentNode["Coding-agent node"]
   AgentNode --> Codex["Codex session adapter"]
   AgentNode --> OpenCode["OpenCode session adapter"]
-  OpenCode --> Server["OpenCode server"]
-  OpenCode --> MoonLLMHTTP["MoonLLM HTTP client"]
+  OpenCode --> OpenCodeSDK["OpenCode CLI SDK"]
+  OpenCodeSDK --> AgentCLI["Shared agent CLI process runtime"]
 ```
 
 The core runtime does not import Codex, OpenCode, or MoonLLM concrete types.
@@ -79,7 +79,7 @@ The task group owns:
 
 - Node work spawned by the runtime.
 - Codex subprocesses started during turns.
-- The OpenCode server process.
+- OpenCode subprocesses started during turns.
 - Timeout helper tasks.
 - Any adapter background readers.
 
@@ -256,24 +256,20 @@ The adapter must not promise stdout, stderr, or changed-file data unless the cur
 
 The OpenCode adapter owns:
 
-- The OpenCode server process.
-- Readiness detection.
-- The server URL.
-- The MoonLLM client built from `Server::moonllm_config`.
-- The OpenCode session ID.
-- Explicit server shutdown.
+- One repository `@opencode_sdk.Thread`.
+- The working directory and thread options applied to each turn.
+- The logical OpenCode session ID learned from JSONL events or supplied for resume.
+- A session mutex and logical closed state.
 
-The server must be created with the run's `TaskGroup[Unit]`, which is supplied through the coding-agent open context.
+The repository's `totto2727/opencode-sdk` is the OpenCode CLI SDK. It invokes `opencode run --format json`, while `totto2727/opencode-server-sdk` separately owns optional `opencode serve` lifecycle and is not imported by Moon Agent Graph.
 
-The adapter creates a session through `POST /session` and sends work through the session message endpoint.
+The adapter creates or resumes a CLI thread at open time. Each `execute` invokes `Thread::run`, which starts one native subprocess, parses typed JSONL events, captures the final text, and persists the emitted session ID for the next turn.
 
-The MoonLLM client is an HTTP transport for those OpenCode endpoints in the current repository implementation.
+Relative context files are resolved against the workspace root and passed as typed local-file inputs, so the SDK emits repeated `--file` flags. The instruction remains the CLI prompt instead of embedding file paths in text.
 
-The adapter creates sessions with an official title-only body and sends official text-only message parts. It represents the workspace and supplied context files honestly as text instead of sending an unencoded workspace query or unattached file URLs.
+The adapter snapshots the inherited process environment, applies configured adapter variables, then applies the open context environment with caller values taking precedence. It maps executable path, typed config, resume ID, model, agent, working directory, variant, title, and thinking options to the CLI SDK.
 
-The adapter merges configured extra environment variables with the open context environment before launching the server, with caller-supplied context values taking precedence.
-
-If session creation fails after the server starts, the adapter protects `server.close()` from cancellation before re-raising; it does not discard a cleanup failure. MoonLLM can expose an interrupted HTTP request as `LLMError::Transport`, so both session creation and message execution restore active cancellation at an unprotected `@async.pause()` point before preserving ordinary errors. The adapter therefore closes the server before the task-group body exits, including partial-open and request-failure paths, without converting cancellation into a transport failure.
+Session close is logical because no persistent subprocess belongs to an idle thread. In-flight execution owns its child inside `agent-cli-sdk`; cancellation hard-stops and awaits that child, while CLI exit, JSONL, and turn failures retain the concrete `OpenCodeSdkError`. A closed session raises `OpenCodeAdapterError::SessionClosed`.
 
 ## Package Layout
 
@@ -312,7 +308,7 @@ The two adapter packages import `coding_agent` plus their concrete SDK.
 
 `examples/basic` is a runnable native example that imports only the public `core` package.
 
-The module, Codex SDK, OpenCode SDK, and MoonLLM resolve `moonbitlang/async@0.20.1`; the Codex SDK and graph module resolve `moonbitlang/x@0.4.38`. No async-runtime version alignment work remains for the implemented adapters.
+The module, shared agent CLI SDK, Codex SDK, OpenCode SDK, and MoonLLM resolve `moonbitlang/async@0.20.1`; the Codex SDK and graph module resolve `moonbitlang/x@0.4.38`. No async-runtime version alignment work remains for the implemented adapters.
 
 ## MVP Scope
 
@@ -338,7 +334,7 @@ The MVP excludes:
 - Human approval suspension.
 - Subgraphs.
 - Distributed workers.
-- Application-scoped servers.
+- Provider-complete permission mapping.
 - Real credentialed provider end-to-end tests.
 
 ## References
@@ -351,4 +347,5 @@ The MVP excludes:
 - [moonbitlang/async package documentation](https://mooncakes.io/docs/moonbitlang/async)
 - [MoonLLM repository](https://github.com/DC-Z-lab/moonllm)
 - [Codex TypeScript SDK reference pinned by the repository port](https://github.com/openai/codex/tree/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript)
-- [OpenCode SDK reference pinned by the repository adapter](https://github.com/anomalyco/opencode/tree/66495a2a22cd0a57efcc4f721e65532f0987b4e8/packages/sdk/js)
+- [OpenCode CLI documentation](https://opencode.ai/docs/cli/)
+- [OpenCode `run` JSONL implementation pinned by the repository CLI SDK](https://github.com/anomalyco/opencode/blob/1e17856ba4b5b052650c8115060852f3f023844e/packages/opencode/src/cli/cmd/run.ts)

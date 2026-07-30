@@ -509,7 +509,7 @@ pub(all) struct CodingAgentOpenContext {
 } derive(Debug)
 ```
 
-Environment and policy are session-open settings because the current Codex and OpenCode adapters apply several of them when creating the client, thread, or server.
+Environment and policy are session-open settings because the current Codex and OpenCode adapters apply supported values when creating their clients and threads.
 
 Adapter-specific options remain in adapter constructors.
 
@@ -656,23 +656,30 @@ The adapter maps context environment, workspace root, additional writable roots,
 
 ```moonbit
 pub(all) struct OpenCodeAgentOptions {
-  server_options : @opencode_sdk.ServerOptions
-  command : String
+  opencode_path_override : @path.Path?
+  config : @opencode_sdk.OpenCodeConfigObject?
+  resume_thread_id : String?
+  model : String?
+  agent : String?
+  variant : String?
+  title : String?
+  thinking : Bool
   extra_env : Map[String, String]
-  request_timeout_ms : Int
 }
 
 pub fn OpenCodeAgentOptions::OpenCodeAgentOptions(
-  server_options? : @opencode_sdk.ServerOptions = @opencode_sdk.ServerOptions(),
-  command? : String = "opencode",
+  opencode_path_override? : @path.Path,
+  config? : @opencode_sdk.OpenCodeConfigObject,
+  resume_thread_id? : String,
+  model? : String,
+  agent? : String,
+  variant? : String,
+  title? : String,
+  thinking? : Bool = false,
   extra_env? : Map[String, String] = Map([]),
-  request_timeout_ms? : Int = 180000,
 ) -> OpenCodeAgentOptions
 
 pub(all) suberror OpenCodeAdapterError {
-  InvalidSessionResponse
-  InvalidMessageResponse
-  MessageFailed(String)
   SessionClosed
 } derive(Debug)
 
@@ -682,7 +689,7 @@ pub fn opencode_agent(
 ) -> CodingAgent
 ```
 
-The adapter starts `@opencode_sdk.create_opencode_server` with the open context task group and a merged environment where caller entries override adapter entries. It creates an OpenCode session with `POST /session`, represents the workspace root in the session title, and sends each instruction through `POST /session/{id}/message`. Context file paths are included as text and explicitly marked as not attached. Successful responses preserve the OpenCode session ID as `continuation_id`, concatenate text parts into an optional `summary`, preserve the raw response JSON, and return empty `changed_files` and artifacts. The server URL remains private. Session close explicitly closes the server; malformed responses, message errors, and execution after close raise `OpenCodeAdapterError`.
+The adapter uses `totto2727/opencode-sdk` as a CLI SDK and does not import the separately maintained `opencode-server-sdk`. It starts or resumes an SDK thread, runs each instruction through `opencode run --format json`, resolves relative context files against the workspace root, and forwards them as repeated CLI file inputs. The inherited process environment is retained, adapter entries are applied next, and caller context entries take precedence. Successful turns return final text as `summary`, the SDK thread ID as `continuation_id`, and empty `changed_files`, artifacts, and raw output because the current OpenCode event model exposes no reliable file-change set or generic raw JSON value at this boundary. Each turn owns its subprocess; cancellation and concrete `OpenCodeSdkError` values propagate from the CLI SDK. Closing the logical session is idempotent and later execution raises `OpenCodeAdapterError::SessionClosed`.
 
 ## Testing Fixtures
 

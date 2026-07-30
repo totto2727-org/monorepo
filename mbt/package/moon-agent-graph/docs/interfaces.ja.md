@@ -2,7 +2,7 @@
 
 ## ステータスと規約
 
-本ドキュメントは、ネイティブ非同期MVPのレビュー済み公開契約を定義するものです。
+このドキュメントは、ネイティブ非同期MVPのレビュー済み公開契約を定義します。
 
 スニペットは、ネイティブ非同期MVPの実装済みかつ検証済みの公開契約を記録しています。
 
@@ -10,12 +10,12 @@
 
 - `moon.mod` と `moon.pkg` が設定フォーマットです。
 - `preferred_target = "native"` と `supported_targets = "native"` は必須です。
-- 公開識別子ラッパーは `Eq`、`Hash`、`Debug` を導出します。
+- パブリックな識別子ラッパーは `Eq`、`Hash`、`Debug` を導出します。
 - 同期バリデーションとルーティングは明示的な `raise` アノテーションを使用します。
 - 非同期関数は暗黙的に raise します。
 - ジェネリックなランタイム動作は型付き関数フィールドを使用します。
 - 非ジェネリックなランタイムポリモーフィズムは `pub(open) trait` とトレイトオブジェクトを使用する場合があります。
-- 公開コレクションは、コンパイル済み内部コレクションの可変エイリアスとして返されません。
+- パブリックなコレクションは、内部コレクションのコンパイル済みミュータブルエイリアスとして返されません。
 
 ## 識別子
 
@@ -27,7 +27,7 @@ pub struct CodingAgentId(String) derive(Eq, Hash, Debug)
 pub struct SessionId(String) derive(Eq, Hash, Debug)
 ```
 
-各識別子にはバリデーション付きコンストラクタまたはパーサがあります。
+各識別子にはバリデーション付きのコンストラクタまたはパーサーがあります。
 
 ```moonbit
 pub(all) suberror IdError {
@@ -40,7 +40,7 @@ pub fn NodeId::to_string(self : NodeId) -> String
 
 他の識別子型にも同等のAPIが提供されます。
 
-マップキー型は `Eq` と `Hash` の両方を導出します。
+マップのキー型は `Eq` と `Hash` の両方を導出します。
 
 ## Route
 
@@ -98,15 +98,15 @@ pub(all) struct NodeOutput[P] {
 } derive(Debug)
 ```
 
-ノード出力には第2のイベントキューは含まれません。
+ノード出力には、2番目のイベントキューは含まれません。
 
-ノードは必要なときにコンテキストを通じてライブイベントを発行し、ランタイムはそれ自体でライフサイクルイベントを発行します。
+ノードは必要に応じてコンテキストを通じてライブイベントを発行し、ランタイムは自身でライフサイクルイベントを発行します。
 
 ## イベントシンク
 
-MVPのイベントシンクは同期式です。
+MVPのイベントシンクは同期です。
 
-これによりイベントの順序が決定論的に保たれ、ランタイムの各遷移の間に非同期処理が挿入されることを防ぎます。
+これによりイベントの順序が決定論的に保たれ、ランタイムの各遷移間に非同期処理が入ることを防ぎます。
 
 ```moonbit
 pub(all) struct EventSink {
@@ -118,9 +118,9 @@ pub fn EventSink::discard() -> EventSink
 pub fn EventSink::try_emit(self : EventSink, event : GraphEvent) -> Unit
 ```
 
-外部の非同期テレメトリアダプタはイベントをバッファリングし、別に所有するタスクで排出することができます。
+外部の非同期テレメトリアダプターはイベントをバッファリングし、個別に所有するタスクで排出することができます。
 
-イベントシンクの失敗は、ベストエフォートの診断報告後、ランタイムによってキャッチされ無視されます。
+イベントシンクの失敗は、ベストエフォートの診断報告後にランタイムによってキャッチされ無視されます。
 
 ## ノードコンテキスト
 
@@ -146,13 +146,13 @@ pub fn NodeContext::NodeContext(
 ) -> NodeContext
 ```
 
-ランタイムは `deadline_ms` を、設定されている場合のノードタイムアウトヒント（ミリ秒）として提供します。ランタイムはこのフィールドを通じてタイムアウトを強制しません。
+ランタイムは `deadline_ms` を、設定されている場合のノードタイムアウトヒント（ミリ秒単位）として提供します。このフィールドを通じてタイムアウトを強制することはありません。
 
 MVPにはカスタムキャンセレーショントークンはありません。
 
 非同期ノードコードは、通常の非同期呼び出しと `moonbitlang/async` のタスク状態を通じてキャンセレーションを監視します。
 
-キャッチオールループは、`@async.is_being_cancelled()` が真になった時点で停止しなければなりません。
+キャッチオールループは、`@async.is_being_cancelled()` が `true` のときに停止しなければなりません。
 
 ## Node
 
@@ -166,7 +166,7 @@ pub(all) struct Node[S, P] {
 }
 ```
 
-非同期コールバックは、ドメイン `suberror` または下位レベルのエラーを raise する場合があります。
+非同期コールバックはドメインの `suberror` または低レベルのエラーを raise する場合があります。
 
 ランタイムはそのエラーをキャッチし、ノードIDとステップでラップします。
 
@@ -180,7 +180,7 @@ pub fn[S, P] function_node(
 
 ## Router
 
-MVPではノードごとに1つのルーターを許可します。
+MVPでは、ノードごとに1つのルーターを許可します。
 
 ```moonbit
 pub(all) struct Router[S] {
@@ -195,13 +195,13 @@ pub(all) struct NodeCompletion {
 } derive(Debug)
 ```
 
-`declared_targets` には、`evaluate` が `Route::To` を通じて返す可能性のある全てのノードIDが含まれます。
+`declared_targets` には、`evaluate` が `Route::To` を通じて返す可能性のあるすべてのノードIDが含まれます。
 
-コンパイル時には、宣言されたターゲットが出力先のバリデーションと到達可能性に使用されます。
+コンパイル時には、宣言されたターゲットを使用して宛先の検証と到達可能性のチェックが行われます。
 
-実行時に、宣言されていないターゲットを返した場合、そのノードが存在していても契約違反となります。
+実行時に、宣言されていないターゲットを返すことは、そのノードが存在する場合でも契約違反となります。
 
-ルーターは同期式であり、I/Oの実行、モデルの呼び出し、コマンドの実行、または状態の変更を行ってはいけません。
+ルーターは同期的であり、I/Oの実行、モデルの呼び出し、コマンドの実行、状態の変更を行ってはなりません。
 
 ```moonbit
 pub fn[S] router(
@@ -218,11 +218,11 @@ pub(all) struct Reducer[S, P] {
 }
 ```
 
-リデューサーは唯一のランタイム状態更新パスです。
+Reducerは唯一のランタイム状態更新パスです。
 
-リデューサーは同じ状態とパッチに対して決定論的でなければなりません。
+Reducerは同じ状態とパッチに対して決定論的でなければなりません。
 
-グラフ固有のコードは、状態値が永続的なスタイルの値であるか、制御された可変フィールドを含むかを決定します。
+グラフ固有のコードは、状態値が永続的スタイルの値であるか、制御されたミュータブルフィールドを含むかを決定します。
 
 コアランタイムは任意のジェネリック状態をクローンしません。
 
@@ -273,7 +273,7 @@ pub(all) suberror GraphValidationError {
 } derive(Debug)
 ```
 
-グラフの変更メソッドは、ローカルな重複を即座に拒否します。
+グラフの変更メソッドは、ローカルの重複を即座に拒否します。
 
 クロスリファレンスと到達可能性の失敗は `compile` によって報告されます。
 
@@ -297,9 +297,9 @@ pub fn[S, P] CompiledGraph::get_router(
 ) -> Router[S] raise GraphRuntimeError
 ```
 
-コンパイルは定義マップとノードごとの配列を、分離されたプライベートストレージにコピーします。
+コンパイルは定義マップとノードごとの配列を分離されたプライベートストレージにコピーします。
 
-クエリメソッドはそのストレージの可変エイリアスを公開しません。
+クエリメソッドはそのストレージのミュータブルエイリアスを公開しません。
 
 ## ランタイムオプションと結果
 
@@ -325,9 +325,9 @@ pub(all) suberror RunConfigurationError {
 } derive(Debug)
 ```
 
-`max_steps` は正の数でなければなりません。
+`max_steps` は正の値でなければなりません。
 
-タイムアウト値は指定される場合、正の数でなければなりません。
+タイムアウト値は、指定する場合は正の値でなければなりません。
 
 ```moonbit
 pub(all) struct RunResult[S] {
@@ -337,7 +337,7 @@ pub(all) struct RunResult[S] {
 } derive(Debug)
 ```
 
-`RunResult` は成功完了のみを表します。
+`RunResult` は正常完了のみを表します。
 
 失敗とキャンセルは raise されます。
 
@@ -367,7 +367,7 @@ pub async fn[S, P] GraphRuntime::invoke(
 
 `invoke` は実行ごとのリソースストアとネストされた `TaskGroup[Unit]` を作成します。
 
-固定の `Unit` グループ結果は、ネイティブプロセスの所有権ハンドルをグラフ状態型から独立させつつ、ランタイムがグループ終了まで成功した `RunResult[S]` を呼び出し内部に保持できるようにします。
+固定の `Unit` グループ結果により、ネイティブプロセス所有権ハンドルをグラフの状態型から独立させつつ、ランタイムはグループが終了するまで呼び出し内部に成功した `RunResult[S]` を保持します。
 
 呼び出し元は、`invoke` を実行するタスクをキャンセルすることでキャンセレーションを制御します。
 
@@ -397,7 +397,7 @@ pub(all) suberror GraphRuntimeError {
 } derive(Debug)
 ```
 
-アダプタは独自の `suberror` 型を定義し、ランタイムがそれらを原因として保持できるようにします。
+アダプターは独自の `suberror` 型を定義し、ランタイムがそれらを原因として保持できるようにします。
 
 ## グラフイベント
 
@@ -446,9 +446,9 @@ pub fn[S, P] llm_node(
 ) -> Node[S, P]
 ```
 
-コールバック境界により、パラレルなMoonLLMクライアント階層を発明することなく、決定論的なフェイクが可能になります。
+コールバック境界により、並列のMoonLLMクライアント階層を考案することなく、決定論的なフェイクが可能になります。
 
-構造化出力ノードは、MoonLLMのResponses APIが適切なインターフェースである場合、異なるリクエスト/レスポンスペアを使用する場合があります。
+構造化出力ノードは、MoonLLMのResponses APIが適切なインターフェースである場合に、異なるリクエスト/レスポンスペアを使用する場合があります。
 
 ## コーディングエージェントのリクエストとレスポンス
 
@@ -481,7 +481,7 @@ pub(all) struct CodingAgentResponse {
 
 キャンセルは、成功した `Cancelled` レスポンスではなく、raise されたタスクキャンセルエラーによって表現されます。
 
-アダプタは、そのSDKが信頼できる変更セットを公開しない場合、空の `changed_files` 配列を返すことがあります。
+アダプターは、そのSDKが信頼できる変更セットを公開しない場合、空の `changed_files` 配列を返すことがあります。
 
 ## コーディングエージェントポリシー
 
@@ -509,9 +509,9 @@ pub(all) struct CodingAgentOpenContext {
 } derive(Debug)
 ```
 
-環境とポリシーはセッションオープン時の設定です。現在のCodexおよびOpenCodeアダプタは、クライアント、スレッド、またはサーバーを作成する際にこれらのいくつかを適用するためです。
+現在のCodexおよびOpenCodeアダプターがクライアントとスレッドを作成する際にサポートされている値を適用するため、環境とポリシーはセッションオープン時の設定です。
 
-アダプタ固有のオプションはアダプタのコンストラクタに残ります。
+アダプター固有のオプションはアダプターのコンストラクタに残ります。
 
 ## コーディングエージェントセッション
 
@@ -530,9 +530,9 @@ pub(all) struct CodingAgent {
 }
 ```
 
-ランタイムは、あるアダプタによって作成されたセッションを別のアダプタに渡すことはありません。
+ランタイムは、あるアダプターによって作成されたセッションを別のアダプターに渡すことは決してありません。
 
-`close` はセッション境界でべき等であり、リソースストアはそれを最大でも1回だけ呼び出します。
+`close` はセッション境界で冪等であり、リソースストアはそれを最大でも1回だけ呼び出します。
 
 実行中のセッションは、タスクキャンセルに応答して、非同期呼び出しが終了する前に、所有するプロセス作業を終了またはキャンセルします。
 
@@ -580,17 +580,17 @@ pub(all) suberror ResourceStoreError {
 } derive(Debug)
 ```
 
-MVPストアは意図的に、一般的なコーディングエージェントセッションインターフェースに特化しています。
+MVPストアは意図的に一般的なコーディングエージェントセッションインターフェースに特化しています。
 
-異種の任意リソースコンテナは、MoonBitが取得のための具体的な型付きユースケースを持つまで延期されます。
+異種の任意リソースコンテナは、MoonBitが取得のための具体的な型付きユースケースを持つまで先送りされます。
 
 実行スコープのセッションは、1回の呼び出し内でリソースキーによって再利用されます。
 
-ノードスコープのセッションは `owner` を必要とし、そのノードの試行後にクローズされます。実行スコープのセッションは所有者を省略し、キーによって再利用されます。
+ノードスコープのセッションは `owner` が必要であり、そのノード試行後にクローズされます。実行スコープのセッションはオーナーを省略し、キーによって再利用されます。
 
-オープン失敗はストアに挿入されることはありません。
+オープンに失敗したものはストアに挿入されることはありません。
 
-リソースは取得順序の逆順でクローズされます。
+リソースは取得の逆順でクローズされます。
 
 ## コーディングエージェントノード
 
@@ -611,7 +611,7 @@ pub fn[S, P] coding_agent_node(
 ) -> Node[S, P]
 ```
 
-## Codexアダプタ
+## Codexアダプター
 
 ```moonbit
 pub(all) struct CodexAgentOptions {
@@ -650,29 +650,36 @@ pub fn codex_agent(
 ) -> CodingAgent
 ```
 
-アダプタは、コンテキスト環境、ワークスペースルート、追加の書き込み可能ルート、承認、ネットワーク、および指定されたオプションを、固定されたCodex SDKにマッピングします。スレッドの最終レスポンスを `summary` として、SDKスレッドIDを `continuation_id` として、検出された完了パッチパスを `changed_files` として返します。アーティファクトと生の出力は返しません。セッションをクローズすると、以降の実行は `CodexAdapterError::SessionClosed` をraiseします。
+アダプターは、コンテキスト環境、ワークスペースルート、追加の書き込み可能ルート、承認、ネットワーク、および指定されたオプションを、固定されたCodex SDKにマッピングします。スレッドの最終レスポンスを `summary` として、SDKスレッドIDを `continuation_id` として、検出された完了パッチパスを `changed_files` として返し、アーティファクトはなく、生の出力もありません。セッションをクローズすると、以降の実行は `CodexAdapterError::SessionClosed` を raise します。
 
-## OpenCodeアダプタ
+## OpenCodeアダプター
 
 ```moonbit
 pub(all) struct OpenCodeAgentOptions {
-  server_options : @opencode_sdk.ServerOptions
-  command : String
+  opencode_path_override : @path.Path?
+  config : @opencode_sdk.OpenCodeConfigObject?
+  resume_thread_id : String?
+  model : String?
+  agent : String?
+  variant : String?
+  title : String?
+  thinking : Bool
   extra_env : Map[String, String]
-  request_timeout_ms : Int
 }
 
 pub fn OpenCodeAgentOptions::OpenCodeAgentOptions(
-  server_options? : @opencode_sdk.ServerOptions = @opencode_sdk.ServerOptions(),
-  command? : String = "opencode",
+  opencode_path_override? : @path.Path,
+  config? : @opencode_sdk.OpenCodeConfigObject,
+  resume_thread_id? : String,
+  model? : String,
+  agent? : String,
+  variant? : String,
+  title? : String,
+  thinking? : Bool = false,
   extra_env? : Map[String, String] = Map([]),
-  request_timeout_ms? : Int = 180000,
 ) -> OpenCodeAgentOptions
 
 pub(all) suberror OpenCodeAdapterError {
-  InvalidSessionResponse
-  InvalidMessageResponse
-  MessageFailed(String)
   SessionClosed
 } derive(Debug)
 
@@ -682,7 +689,7 @@ pub fn opencode_agent(
 ) -> CodingAgent
 ```
 
-アダプタは、オープンコンテキストのタスクグループと、呼び出し元のエントリがアダプタのエントリを上書きするマージされた環境を使用して `@opencode_sdk.create_opencode_server` を起動します。`POST /session` でOpenCodeセッションを作成し、セッションタイトルにワークスペースルートを表現し、各指示を `POST /session/{id}/message` を通じて送信します。コンテキストファイルパスはテキストとして含まれ、添付なしと明示的にマークされます。成功したレスポンスは、OpenCodeセッションIDを `continuation_id` として保持し、テキスト部分をオプションの `summary` に結合し、生のレスポンスJSONを保持し、空の `changed_files` とアーティファクトを返します。サーバーURLは非公開のままです。セッションクローズは明示的にサーバーをクローズします。不正なレスポンス、メッセージエラー、およびクローズ後の実行は `OpenCodeAdapterError` をraiseします。
+アダプターは `totto2727/opencode-sdk` をCLI SDKとして使用し、別途管理されている `opencode-server-sdk` をインポートしません。SDKスレッドを開始または再開し、各指示を `opencode run --format json` を通じて実行し、相対コンテキストファイルをワークスペースルートに対して解決し、それらを繰り返しのCLIファイル入力として転送します。継承されたプロセス環境は保持され、アダプターのエントリが次に適用され、呼び出し元のコンテキストエントリが優先されます。正常なターンは、最終テキストを `summary` として、SDKスレッドIDを `continuation_id` として返し、`changed_files`、アーティファクト、生の出力は空になります。これは、現在のOpenCodeイベントモデルがこの境界で信頼性のあるファイル変更セットや汎用の生JSON値を公開しないためです。各ターンは独自のサブプロセスを所有し、キャンセルおよび具体的な `OpenCodeSdkError` 値はCLI SDKから伝播されます。論理セッションのクローズは冪等であり、以降の実行は `OpenCodeAdapterError::SessionClosed` を raise します。
 
 ## テストフィクスチャ
 
@@ -792,21 +799,21 @@ pub async fn localhost_port_is_open(
 
 フィクスチャのアクセサはスナップショットを返すため、テストはその履歴を変更できません。
 
-## 確定済みMVP設計判断
+## 確定したMVPの設計判断
 
-1. 実行はネイティブのみで非同期です。
-2. グラフ実行は逐次です。
-3. 循環は許可され、`max_steps` によって制限されます。
+1. 実行はネイティブ専用かつ非同期です。
+2. グラフの実行は逐次的です。
+3. サイクルは許可され、`max_steps` によって制限されます。
 4. 各ノードには正確に1つのルーターがあります。
-5. ルーターの出力先は宣言され、コンパイル時に検証されます。
-6. 状態は呼び出しローカルであり、リデューサーを通じてのみ更新されます。
+5. ルーターの宛先は宣言され、コンパイル時に検証されます。
+6. 状態は呼び出しローカルであり、reducerを通じてのみ更新されます。
 7. キャンセルはタスクキャンセルを使用します。
-8. 非同期クリーンアップは明示的で、キャンセルから保護され、タイムアウトで制限されます。
+8. 非同期クリーンアップは明示的であり、キャンセルから保護され、タイムアウトで制限されます。
 9. リソーススコープは各コーディングエージェントノードの仕様によって選択されます。
-10. CodexとOpenCodeは、1つのセッション契約の背後にある別個のアダプタです。
-11. 並列ノード、チェックポイント、永続状態、およびアプリケーションスコープのリソースは延期されました。
+10. CodexとOpenCodeは、1つのセッション契約の背後にある別個のアダプターです。
+11. 並列ノード、チェックポイント、永続状態、アプリケーションスコープのリソースは先送りされます。
 
-## 参考資料
+## 参考文献
 
 - [MoonBit async programming](https://docs.moonbitlang.com/en/latest/language/async-experimental.html)
 - [MoonBit error handling](https://docs.moonbitlang.com/en/latest/language/error-handling.html)

@@ -1,7 +1,6 @@
 import {
-  "DC-Z-lab/moonllm",
   "moonbitlang/async",
-  "moonbitlang/core/json",
+  "moonbitlang/core/env",
   "moonbitlang/x/path",
   "totto2727/moon-agent-graph/core",
   "totto2727/opencode-sdk" @sdk,
@@ -10,6 +9,7 @@ import {
 import {
   "moonbitlang/async/fs",
   "moonbitlang/async/process",
+  "moonbitlang/core/string",
 } for "test"
 
 supported_targets = "native"

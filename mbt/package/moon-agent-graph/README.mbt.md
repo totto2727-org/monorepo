@@ -12,7 +12,7 @@ The sequential native runtime, MoonLLM boundary, common coding-agent node, Codex
 - [`moonllm`](src/moonllm): typed MoonLLM node boundary.
 - [`coding_agent`](src/coding_agent): shared coding-agent graph node.
 - [`integrations/codex`](src/integrations/codex): Codex SDK adapter.
-- [`integrations/opencode`](src/integrations/opencode): OpenCode SDK adapter.
+- [`integrations/opencode`](src/integrations/opencode): OpenCode CLI SDK adapter.
 - [`testing`](src/testing): deterministic public fixtures and native test helpers.
 - [`e2e`](src/e2e): credential-free workflow tests.
 
