@@ -9,7 +9,7 @@ let startup_poll_interval_ms = 10
 ///|
 /// Options for starting an OpenCode server.
 ///
-/// Defaults match the official TypeScript SDK.
+/// When `port` is omitted, OpenCode selects an available port.
 pub struct ServerOptions {
   hostname : String
   port : Int
@@ -18,15 +18,15 @@ pub struct ServerOptions {
 } derive(Debug)
 
 ///|
-/// Construct server options using the official SDK defaults.
+/// Construct server options.
 pub fn ServerOptions::ServerOptions(
   hostname? : String = "127.0.0.1",
-  port? : Int = 4096,
+  port? : Int = 0,
   timeout_ms? : Int = 5000,
   config? : Json = Json::empty_object(),
 ) -> ServerOptions {
-  // Copied from the OpenCode TypeScript SDK defaults:
-  // https://github.com/anomalyco/opencode/blob/66495a2a22cd0a57efcc4f721e65532f0987b4e8/packages/sdk/js/src/server.ts#L22-L30
+  // OpenCode treats port 0 as automatic port selection:
+  // https://github.com/anomalyco/opencode/blob/7565e03536d19e850f9996c407f9bf5e932b5f7a/packages/opencode/src/server/server.ts#L117-L122
   { hostname, port, timeout_ms, config }
 }
 
@@ -283,17 +283,6 @@ pub async fn[X] create_opencode_server(
   // Copied from the OpenCode TypeScript SDK executable selection:
   // https://github.com/anomalyco/opencode/blob/66495a2a22cd0a57efcc4f721e65532f0987b4e8/packages/sdk/js/src/server.ts#L32-L40
   create_opencode_server_with_command(group, options, command, extra_env)
-}
-
-///|
-/// Return moonllm client configuration for this server.
-///
-/// The builder is bound to the announced server URL and uses no automatic
-/// authentication. Callers may add timeout or header settings before `build`.
-pub fn Server::moonllm_config(self : Server) -> @moonllm.ClientBuilder {
-  // Adapted from the OpenCode TypeScript SDK's URL-bound client composition:
-  // https://github.com/anomalyco/opencode/blob/66495a2a22cd0a57efcc4f721e65532f0987b4e8/packages/sdk/js/src/index.ts#L8-L20
-  @moonllm.ClientBuilder::new().base_url(self.url).auth(@moonllm.NoAuth)
 }
 
 ///|

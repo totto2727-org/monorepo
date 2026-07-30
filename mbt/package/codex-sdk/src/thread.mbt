@@ -141,10 +141,10 @@ async fn Thread::run_streamed_internal(
         approval_policy: options.approval_policy,
       },
       async fn(line) {
-        let event = moonbit_internal_thread_event_from_json(@json.parse(line)) catch {
+        let event = moonbit_internal_thread_event_from_json(line.value) catch {
           error =>
             raise InvalidEvent(
-              message="Failed to parse item: \{line}; cause: \{error}",
+              message="Failed to parse item: \{line.raw}; cause: \{@debug.to_string(error)}",
             )
         }
         if event is ThreadStarted(started) {

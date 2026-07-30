@@ -1,6 +1,6 @@
 # mdt
 
-A native MoonBit CLI that translates one Markdown file through [OpenCode](https://opencode.ai/docs/server/). It starts an isolated OpenCode server through `totto2727/opencode-sdk`, sends requests with [`DC-Z-lab/moonllm`](https://mooncakes.io/docs/DC-Z-lab/moonllm@0.1.0), reuses the user's existing OpenCode providers and authentication, and denies every tool in the translation session.
+A native MoonBit CLI that translates one Markdown file through [`opencode run --format json`](https://dev.opencode.ai/docs/cli/). It uses `totto2727/opencode-sdk` to run the installed OpenCode CLI, reuses the user's existing providers and authentication, and denies every tool through `OPENCODE_CONFIG_CONTENT`.
 
 ## Usage
 
@@ -37,9 +37,9 @@ The native executable is written under the repository-root `_build/` tree.
 
 1. Admiral parses the input path and options into typed command data.
 2. The CLI refuses to overwrite an existing output before starting OpenCode unless `--force` is present.
-3. `totto2727/opencode-sdk` starts a managed local OpenCode server.
-4. The CLI creates a session whose permission rules deny every tool.
-5. `moonllm` posts the Markdown and translation instructions to the OpenCode session endpoint.
-6. The returned text parts are joined and written to the resolved output path.
+3. `totto2727/opencode-sdk` starts `opencode run --format json` with the selected model.
+4. The SDK sends a deny-all OpenCode permission configuration through `OPENCODE_CONFIG_CONTENT`.
+5. The translation instructions and Markdown are written to the OpenCode process through stdin.
+6. Typed JSONL text events are joined and written to the resolved output path.
 
 The CLI sends the whole file in one prompt. A file larger than the selected model's context window is not chunked.

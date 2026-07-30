@@ -1,44 +1,68 @@
-# opencode-sdk
+# OpenCode SDK for MoonBit
 
-Native MoonBit SDK for starting and managing an [OpenCode server](https://opencode.ai/docs/server/).
+Embed the OpenCode agent in MoonBit workflows and applications through the installed [`opencode run --format json`](https://dev.opencode.ai/docs/cli/) command.
 
-The server lifecycle follows the handwritten TypeScript SDK contract. The SDK returns a configured [`DC-Z-lab/moonllm`](https://mooncakes.io/docs/DC-Z-lab/moonllm@0.1.0) builder when an application needs to communicate with the managed server, but it does not own or wrap the HTTP client.
+The public client shape intentionally follows `totto2727/codex-sdk`: create an `OpenCode` client, start or resume a `Thread`, then call `run` or `run_streamed`. Provider-specific options and events remain OpenCode-native because the CLIs do not share a wire protocol.
 
 ## Usage
 
-```mbt
-@async.with_task_group() <| group => {
-  let server = @opencode.create_opencode_server(group)
-  try {
-    let client = server.moonllm_config().build()
-    let health = client.get_json("/global/health")
-    println(@debug.to_string(health))
-  } catch {
-    err => {
-      server.close()
-      raise err
-    }
-  }
-  server.close()
+```mbt check
+///|
+async fn example {
+  let opencode = @opencode_sdk.OpenCode::OpenCode()
+  let thread = opencode.start_thread(
+    options=@opencode_sdk.ThreadOptions::ThreadOptions(
+      model="opencode-go/deepseek-v4-flash",
+    ),
+  )
+  let turn = thread.run(
+    @opencode_sdk.Input::Prompt("Explain this repository in one paragraph."),
+  )
+  println(turn.final_response)
 }
 ```
 
-The task group must outlive the returned server. Call `Server::close` inside the task-group body on both success and failure; task-group defers run only after child tasks finish, while the managed server is itself a long-lived child task.
+Add the package to a MoonBit project and import it with an alias:
 
-## CLI examples
-
-The example executable starts a managed OpenCode server, uses the SDK's `moonllm_config` builder, and closes the server before its task group exits. OpenCode uses the provider and model configured in the user's environment.
-
-Translate text into English without allowing any tools:
-
-```bash
-moon run --target native mbt/package/opencode-sdk/src/examples/cli -- translate 'MoonBitでOpenCode SDKを実装しています。'
+```mbt
+import {
+  "totto2727/opencode-sdk@0.1.0",
+}
 ```
 
-Fetch an HTTP or HTTPS page with OpenCode's `webfetch` tool and summarize it as Markdown:
-
-```bash
-moon run --target native mbt/package/opencode-sdk/src/examples/cli -- summarize-url https://example.com
+```mbt
+import {
+  "totto2727/opencode-sdk" @opencode_sdk,
+}
 ```
 
-The translation session denies every tool. The URL summarization session also denies every tool by default, then allows only `webfetch` through OpenCode's [permission rules](https://opencode.ai/docs/permissions/).
+## Streaming
+
+MoonBit uses an asynchronous callback in place of an async generator.
+
+```mbt check
+///|
+async fn stream_example {
+  let thread = @opencode_sdk.OpenCode::OpenCode().start_thread()
+  thread.run_streamed(
+    @opencode_sdk.Input::Prompt("Summarize the current changes."),
+    async fn(event) {
+      match event {
+        @opencode_sdk.Text(text) => println(text.text)
+        _ => ()
+      }
+      @async.pause()
+    },
+  )
+}
+```
+
+`ThreadEvent` models the JSONL events emitted by the OpenCode CLI: completed text and reasoning parts, completed or failed tool calls, step start and finish records, and stream errors. Step-finish events retain cost and token usage, while `Thread::run` joins completed text parts into `Turn::final_response`.
+
+## Options and lifecycle
+
+`OpenCodeOptions` accepts an explicit executable path, an environment map, and recursively typed configuration serialized to `OPENCODE_CONFIG_CONTENT`. `ThreadOptions` forwards model, agent, working directory, variant, title, and thinking output through the corresponding official CLI flags, while `UserInputs` forwards local files with repeated `--file` flags.
+
+The task that calls `run` or `run_streamed` owns the OpenCode subprocess. Cancelling that task hard-cancels and waits for the child process before control returns.
+
+The managed-server implementation remains available separately as `totto2727/opencode-server-sdk`.

@@ -16,41 +16,25 @@ test "panic_parse_model 3 - rejects a missing model ID" {
 }
 
 ///|
-test "PromptBody ToJson 1 - sends the selected model and text format" {
-  let body : PromptBody = {
-    model: parse_model("anthropic/claude-sonnet-4-6"),
-    system: "System",
-    text: "Input",
+test "ModelSelection to_string 1 - returns the CLI model ID" {
+  inspect(
+    parse_model("anthropic/claude-sonnet-4-6").to_string(),
+    content="anthropic/claude-sonnet-4-6",
+  )
+}
+
+///|
+test "translation_opencode_config 1 - denies every tool" {
+  match translation_opencode_config().get("permission") {
+    Some(@opencode.ConfigString(value)) => inspect(value, content="deny")
+    _ => fail("expected deny-all OpenCode configuration")
   }
-  json_inspect(ToJson::to_json(body), content={
-    "model": { "providerID": "anthropic", "modelID": "claude-sonnet-4-6" },
-    "format": { "type": "text" },
-    "system": "System",
-    "parts": [{ "type": "text", "text": "Input" }],
-  })
 }
 
 ///|
-test "SessionCreateBody ToJson 1 - denies every tool" {
-  let body : SessionCreateBody = { title: "mdt-translate" }
-  json_inspect(ToJson::to_json(body), content={
-    "title": "mdt-translate",
-    "permission": [{ "permission": "*", "pattern": "*", "action": "deny" }],
-  })
-}
-
-///|
-test "decode_assistant_text 1 - joins text parts" {
-  let raw =
-    #|{"info":{"role":"assistant"},"parts":[{"type":"text","text":"Hello"},{"type":"step-finish"},{"type":"text","text":" world"}]}
-  let response = @json.parse(raw)
-  inspect(decode_assistant_text(response), content="Hello world")
-}
-
-///|
-test "panic_decode_assistant_text 2 - rejects an assistant error" {
-  let raw =
-    #|{"info":{"role":"assistant","error":{"name":"ProviderError"}},"parts":[]}
-  let response = @json.parse(raw)
-  try! (decode_assistant_text(response) |> ignore)
+test "translation_prompt 1 - combines instructions and Markdown" {
+  let prompt = translation_prompt("ja", "# Hello")
+  assert_true(prompt.contains("Translate the user's input markdown to ja."))
+  assert_true(prompt.contains("# Hello"))
+  assert_true(prompt.contains("Output ONLY the translated markdown."))
 }

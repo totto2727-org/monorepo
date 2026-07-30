@@ -9,6 +9,7 @@ supported_targets = "native"
 import {
   "moonbitlang/x@0.4.38",
   "moonbitlang/async@0.20.1",
+  "totto2727/agent-cli-sdk@0.1.0",
 }
 
 readme = "README.md"

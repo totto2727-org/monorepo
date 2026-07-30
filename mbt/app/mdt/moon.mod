@@ -1,17 +1,16 @@
 name = "totto2727/mdt"
 
-version = "0.1.2"
+version = "0.1.3"
 
 preferred_target = "native"
 
 supported_targets = "native"
 
 import {
-  "DC-Z-lab/moonllm@0.1.0",
   "moonbitlang/async@0.20.1",
   "moonbitlang/x@0.4.38",
   "totto2727/admiral@0.5.0",
-  "totto2727/opencode-sdk@0.1.0",
+  "totto2727/opencode-sdk@0.1.1",
 }
 
 readme = "README.md"
