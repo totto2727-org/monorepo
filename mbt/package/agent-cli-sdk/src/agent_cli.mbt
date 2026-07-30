@@ -42,6 +42,12 @@ pub(all) suberror AgentCliError {
 } derive(Debug, Eq)
 
 ///|
+priv enum ChildExit {
+  Exited(Int)
+  CancelledForStop
+}
+
+///|
 /// Run an agent CLI, write its stdin, and stream parsed JSONL events in order.
 ///
 /// Returning `false` from `on_event` terminates the child and returns `Stopped`.
@@ -88,11 +94,23 @@ pub async fn run(
         }
       }
     })
-    let code = child.wait() catch {
-      error if stop_requested.val && @async.is_cancellation_error(error) => -1
+    let child_exit = try {
+      let code = child.wait()
+      if stop_requested.val {
+        CancelledForStop
+      } else {
+        Exited(code)
+      }
+    } catch {
+      error if stop_requested.val && @async.is_cancellation_error(error) =>
+        CancelledForStop
       error => raise error
     }
-    if code != 0 && !stop_requested.val {
+    let exited_with_failure = match child_exit {
+      Exited(code) => code != 0
+      CancelledForStop => false
+    }
+    if exited_with_failure {
       stdout_task.cancel()
       stdout_task.wait() catch {
         error => if !@async.is_cancellation_error(error) { raise error }
@@ -109,12 +127,10 @@ pub async fn run(
     } else {
       stderr_task.wait()
     }
-    if stop_requested.val {
-      Stopped
-    } else if code == 0 {
-      Completed
-    } else {
-      Failed(code~, stderr~)
+    match child_exit {
+      Exited(0) => Completed
+      Exited(code) => Failed(code~, stderr~)
+      CancelledForStop => Stopped
     }
   })
 }
