@@ -145,14 +145,11 @@ fn moonbit_internal_thread_event_from_json(
         "name",
         "\{event_type}.error",
       )
-      let message = match error.get("data") {
-        Some(Json::Object(data)) =>
-          match data.get("message") {
-            Some(Json::String(message)) => message
-            _ => name
-          }
-        _ => name
-      }
+      let message = @lens.object("data")
+        .string("message")
+        .get(Json::object(error)) catch {
+          _ => name
+        }
       StreamError({ session_id: Some(session_id), message })
     }
     _ =>

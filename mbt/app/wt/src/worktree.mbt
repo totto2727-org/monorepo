@@ -181,7 +181,13 @@ async fn pr_info(slug : String, branch : String, is_main : Bool) -> PrInfo {
     (open_task.wait(), all_task.wait())
   })
   if open_json != "" && open_json != "[]" {
-    return { state: "open", number: parse_pr_number(open_json) }
+    return {
+      state: "open",
+      number: match parse_pr_json(open_json) {
+        Some(pr) => pr.number
+        None => None
+      },
+    }
   }
   if json == "" {
     return { state: "unknown", number: None }
@@ -189,39 +195,37 @@ async fn pr_info(slug : String, branch : String, is_main : Bool) -> PrInfo {
   if json == "[]" {
     return { state: "none", number: None }
   }
-  let state = if json.contains("\"MERGED\"") {
-    "merged"
-  } else if json.contains("\"OPEN\"") {
-    "open"
-  } else if json.contains("\"CLOSED\"") {
-    "closed"
-  } else {
-    "none"
+  match parse_pr_json(json) {
+    Some(pr) => pr
+    None => { state: "none", number: None }
   }
-  { state, number: parse_pr_number(json) }
 }
 
 ///|
-fn parse_pr_number(json : String) -> String? {
-  let mut number : String? = None
-  match json.find("\"number\":") {
-    Some(start) => {
-      let tail = json[start + "\"number\":".length():]
-      let digits : Array[String] = []
-      for ch in tail.iter() {
-        if ch >= '0' && ch <= '9' {
-          digits.push(ch.to_string())
-        } else {
-          break
-        }
-      }
-      if digits.length() > 0 {
-        number = Some(digits.join(""))
-      }
-    }
-    None => ()
+fn parse_pr_json(source : String) -> PrInfo? {
+  let document = @json.parse(source) catch { _ => return None }
+  let entries = match document {
+    Json::Array(entries) => entries
+    _ => return None
   }
-  number
+  guard entries is [entry, ..] else { return None }
+  let number_value = @lens.root().int("number").optional().get(entry) catch {
+      _ => None
+    }
+  let number = match number_value {
+    Some(value) => Some(value.to_string())
+    None => None
+  }
+  let state_value = @lens.root().string("state").optional().get(entry) catch {
+      _ => None
+    }
+  let state = match state_value {
+    Some("MERGED") => "merged"
+    Some("OPEN") => "open"
+    Some("CLOSED") => "closed"
+    _ => "none"
+  }
+  Some({ state, number })
 }
 
 ///|

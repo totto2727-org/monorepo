@@ -179,19 +179,18 @@ fn snapshot_result(data : &@io.Data) -> (String, Bytes) raise {
   let parsed = @json.parse(data.text()) catch {
     error => fail("Invalid snapshot response JSON: \{error}")
   }
-  match parsed {
-    Object({ "success": True, "result": Object(result), .. }) =>
-      match (result.get("content"), result.get("screenshot")) {
-        (Some(String(content)), Some(String(screenshot))) => {
-          let screenshot_bytes = @base64.std_decode2bytes(screenshot) catch {
-            error => fail("Invalid snapshot screenshot data: \{error}")
-          }
-          (content, screenshot_bytes)
-        }
-        _ => fail("Invalid snapshot response: missing content or screenshot")
-      }
-    _ => fail("Invalid snapshot response")
+  let success = @lens.root().bool("success").get(parsed) catch { _ => false }
+  guard success else { fail("Invalid snapshot response") }
+  let content = @lens.object("result").string("content").get(parsed) catch {
+      _ => fail("Invalid snapshot response: missing content or screenshot")
+    }
+  let screenshot = @lens.object("result").string("screenshot").get(parsed) catch {
+      _ => fail("Invalid snapshot response: missing content or screenshot")
+    }
+  let screenshot_bytes = @base64.std_decode2bytes(screenshot) catch {
+    error => fail("Invalid snapshot screenshot data: \{error}")
   }
+  (content, screenshot_bytes)
 }
 
 ///|
