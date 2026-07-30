@@ -111,8 +111,6 @@ async test "Server create 1 - starts from readiness and closes idempotently" {
       fixture_env(root, "ready"),
     )
     inspect(server.url(), content="http://127.0.0.1:43210")
-    let moonllm_config : @moonllm.ClientBuilder = server.moonllm_config()
-    moonllm_config.build() |> ignore
     inspect(
       @fs.read_file("\{root}/args").text(),
       content=(

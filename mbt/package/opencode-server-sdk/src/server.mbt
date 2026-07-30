@@ -284,17 +284,6 @@ pub async fn[X] create_opencode_server(
 }
 
 ///|
-/// Return moonllm client configuration for this server.
-///
-/// The builder is bound to the announced server URL and uses no automatic
-/// authentication. Callers may add timeout or header settings before `build`.
-pub fn Server::moonllm_config(self : Server) -> @moonllm.ClientBuilder {
-  // Adapted from the OpenCode TypeScript SDK's URL-bound client composition:
-  // https://github.com/anomalyco/opencode/blob/66495a2a22cd0a57efcc4f721e65532f0987b4e8/packages/sdk/js/src/index.ts#L8-L20
-  @moonllm.ClientBuilder::new().base_url(self.url).auth(@moonllm.NoAuth)
-}
-
-///|
 /// Stop the server, wait for its process, and remove its temporary logs.
 ///
 /// Calling `close` again after a successful close has no effect.
