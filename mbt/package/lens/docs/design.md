@@ -188,7 +188,7 @@ Primitive decoders should perform JSON variant dispatch directly so the package 
 
 ### Object lens
 
-`ObjectLens` represents a typed object location from which child properties may be declared. It delegates traversal and object decoding to an internal `Lens[Map[String, Json]]`.
+`ObjectLens` represents a typed object location from which child properties may be declared. It delegates traversal and object decoding to an internal `Lens[Map[String, Json]]`. Object decoding copies the selected top-level map so mutations through the returned map do not alter the source document; nested `Json` values retain their standard sharing semantics.
 
 ```moonbit
 pub struct ObjectLens {
@@ -402,7 +402,7 @@ pub enum Validation {
 `Valid` carries no decoded value. Validation establishes only that every supplied check succeeded for that invocation.
 
 ```moonbit
-pub(open) trait LensTrait {
+pub trait LensTrait {
   fn check(Self, Json) -> Unit raise LensError
 }
 
@@ -416,7 +416,7 @@ pub fn validate(
 ) -> Validation
 ```
 
-`LensTrait` is the intentional type-erasure boundary. Its only method runs a lens's traversal and decoder, discards the successful value, and preserves a raised `Issue` for aggregation. MoonBit cannot express a type-parameterized trait object that retains each heterogeneous result type, so typed `get` remains on `Lens[T]` and `ObjectLens`.
+`LensTrait` is the intentional type-erasure boundary. It is readonly and sealed so only this package can define implementations. Its only method runs a lens's traversal and decoder, discards the successful value, and preserves a raised `Issue` for aggregation. MoonBit cannot express a type-parameterized trait object that retains each heterogeneous result type, so typed `get` remains on `Lens[T]` and `ObjectLens`.
 
 ```moonbit
 let user = object("user")

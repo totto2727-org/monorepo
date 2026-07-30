@@ -2,7 +2,7 @@
 
 Reusable typed access and aggregate validation for MoonBit JSON values.
 
-The package keeps static types on `Lens[T]`, while `ObjectLens` reads selected objects as `Map[String, Json]`. Validation only reports whether every requested read succeeds; it does not infer or construct application types from runtime definitions. After successful validation, read values through the original lenses.
+The package keeps static types on `Lens[T]`, while `ObjectLens` reads selected objects as `Map[String, Json]`. The returned map is copied so top-level mutations do not change the source document; nested `Json` values retain their normal sharing semantics. Validation only reports whether every requested read succeeds; it does not infer or construct application types from runtime definitions. After successful validation, read values through the original lenses.
 
 ## Typed access
 

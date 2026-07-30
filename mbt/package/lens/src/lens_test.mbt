@@ -58,6 +58,15 @@ test "ObjectLens get - reads the selected object" {
 }
 
 ///|
+test "ObjectLens get - isolates the returned map from the document" {
+  let document = @json.parse("{\"user\":{\"name\":\"Ada\"}}")
+  let user = @lens.object("user")
+  let selected = user.get(document)
+  selected.set("name", @json.parse("\"Grace\""))
+  inspect(user.string("name").get(document), content="Ada")
+}
+
+///|
 test "ObjectLens get - reports a selected non-object pointer" {
   let document = @json.parse("{\"user\":{\"profile\":\"invalid\"}}")
   let issue = get_object_issue(@lens.object("user").object("profile"), document)

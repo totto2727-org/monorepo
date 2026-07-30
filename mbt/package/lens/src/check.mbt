@@ -1,6 +1,6 @@
 ///|
 /// A type-erased lens read used only for aggregate validation.
-pub(open) trait LensTrait {
+pub trait LensTrait {
   fn check(Self, Json) -> Unit raise LensError
 }
 
