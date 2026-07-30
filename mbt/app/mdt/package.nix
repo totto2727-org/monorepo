@@ -31,7 +31,7 @@ let
   moonModJson = builtins.toFile "mdt-moon.mod.json" (
     builtins.toJSON {
       name = "totto2727/mdt";
-      version = "0.1.2";
+      version = "0.1.3";
       deps = {
         "DC-Z-lab/moonllm" = "0.1.0";
         "moonbitlang/async" = "0.20.1";
