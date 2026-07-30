@@ -1,8 +1,10 @@
 import {
   "DC-Z-lab/moonllm",
-  "totto2727/opencode-sdk" @opencode,
   "moonbitlang/async",
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+  "totto2727/admiral",
+  "totto2727/opencode-server-sdk" @opencode,
 }
 
 supported_targets = "native"
