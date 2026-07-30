@@ -26,6 +26,16 @@ fn Pointer::index(self : Pointer, index : Int) -> Pointer {
 }
 
 ///|
+fn Pointer::append(self : Pointer, suffix : Pointer) -> Pointer {
+  Pointer::{ segments: [..self.segments, ..suffix.segments] }
+}
+
+///|
+fn Pointer::prepend_index(self : Pointer, index : Int) -> Pointer {
+  Pointer::root().index(index).append(self)
+}
+
+///|
 fn escape_pointer_key(key : String) -> String {
   key.replace_all(old="~", new="~0").replace_all(old="/", new="~1")
 }

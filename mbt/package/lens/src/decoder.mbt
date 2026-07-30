@@ -1,6 +1,6 @@
 ///|
 priv suberror DecodeProblem {
-  DecodeProblem(IssueCode, String?)
+  DecodeProblem(Pointer, IssueCode, String?)
 }
 
 ///|
@@ -16,6 +16,7 @@ fn[T] Decoder::decode(self : Decoder[T], value : Json) -> T raise DecodeProblem 
 ///|
 fn type_mismatch(expected : JsonKind, value : Json) -> DecodeProblem {
   DecodeProblem(
+    Pointer::root(),
     IssueCode::TypeMismatch(expected~, actual=json_kind(value)),
     None,
   )
@@ -73,4 +74,41 @@ fn int_decoder() -> Decoder[Int] {
 ///|
 fn json_decoder() -> Decoder[Json] {
   Decoder::{ decode_: fn(value) { value } }
+}
+
+///|
+fn[T] array_decoder(item_decoder : Decoder[T]) -> Decoder[Array[T]] {
+  Decoder::{
+    decode_: fn(value) -> Array[T] raise DecodeProblem {
+      match value {
+        Json::Array(items) =>
+          items.mapi((index, item) => {
+            item_decoder.decode(item) catch {
+              DecodeProblem(pointer, code, message) =>
+                raise DecodeProblem(pointer.prepend_index(index), code, message)
+            }
+          })
+        _ => raise type_mismatch(JsonKind::Array, value)
+      }
+    },
+  }
+}
+
+///|
+fn[T] optional_decoder(decoder : Decoder[T]) -> Decoder[T?] {
+  Decoder::{
+    decode_: fn(value) -> T? raise DecodeProblem { Some(decoder.decode(value)) },
+  }
+}
+
+///|
+fn[T] nullable_decoder(decoder : Decoder[T]) -> Decoder[T?] {
+  Decoder::{
+    decode_: fn(value) -> T? raise DecodeProblem {
+      match value {
+        Json::Null => None
+        _ => Some(decoder.decode(value))
+      }
+    },
+  }
 }

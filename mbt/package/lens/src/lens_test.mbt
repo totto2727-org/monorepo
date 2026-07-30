@@ -183,3 +183,136 @@ test "Lens get - passes through non-finite numbers" {
   inspect(@lens.root().int("positive").get(document), content="2147483647")
   inspect(@lens.root().int("negative").get(document), content="-2147483648")
 }
+
+///|
+test "Lens array - decodes every item" {
+  let document = @json.parse("{\"names\":[\"Ada\",\"Grace\"]}")
+  debug_inspect(
+    @lens.root().string("names").array().get(document),
+    content="[\"Ada\", \"Grace\"]",
+  )
+}
+
+///|
+test "Lens array - reports an item pointer" {
+  let document = @json.parse("{\"names\":[\"Ada\",false]}")
+  let issue = get_issue(@lens.root().string("names").array(), document)
+  assert_type_mismatch(
+    issue,
+    "/names/1",
+    @lens.JsonKind::String,
+    @lens.JsonKind::Boolean,
+  )
+}
+
+///|
+test "Lens array - rejects a non-array value" {
+  let document = @json.parse("{\"names\":\"Ada\"}")
+  let issue = get_issue(@lens.root().string("names").array(), document)
+  assert_type_mismatch(
+    issue,
+    "/names",
+    @lens.JsonKind::Array,
+    @lens.JsonKind::String,
+  )
+}
+
+///|
+test "Lens nullable - returns None for JSON null" {
+  let document = @json.parse("{\"name\":null}")
+  debug_inspect(
+    @lens.root().string("name").nullable().get(document),
+    content="None",
+  )
+}
+
+///|
+test "Lens nullable - returns Some for a decoded value" {
+  let document = @json.parse("{\"name\":\"Ada\"}")
+  debug_inspect(
+    @lens.root().string("name").nullable().get(document),
+    content="Some(\"Ada\")",
+  )
+}
+
+///|
+test "Lens nullable - preserves missing-property errors" {
+  let document = @json.parse("{}")
+  let issue = get_issue(@lens.root().string("name").nullable(), document)
+  inspect(issue.pointer.to_string(), content="/name")
+  match issue.code {
+    @lens.IssueCode::MissingProperty => ()
+    _ => fail("expected MissingProperty")
+  }
+}
+
+///|
+test "Lens optional - returns None for a missing path" {
+  let document = @json.parse("{}")
+  debug_inspect(
+    @lens.root().string("name").optional().get(document),
+    content="None",
+  )
+}
+
+///|
+test "Lens optional - returns Some for a decoded value" {
+  let document = @json.parse("{\"name\":\"Ada\"}")
+  debug_inspect(
+    @lens.root().string("name").optional().get(document),
+    content="Some(\"Ada\")",
+  )
+}
+
+///|
+test "Lens optional - preserves a missing intermediate error" {
+  let document = @json.parse("{}")
+  let issue = get_issue(
+    @lens.object("user").string("name").optional(),
+    document,
+  )
+  inspect(issue.pointer.to_string(), content="/user")
+  match issue.code {
+    @lens.IssueCode::MissingProperty => ()
+    _ => fail("expected MissingProperty")
+  }
+}
+
+///|
+test "Lens optional - rejects JSON null" {
+  let document = @json.parse("{\"name\":null}")
+  let issue = get_issue(@lens.root().string("name").optional(), document)
+  assert_type_mismatch(
+    issue,
+    "/name",
+    @lens.JsonKind::String,
+    @lens.JsonKind::Null,
+  )
+}
+
+///|
+test "Lens nullish - returns None for a missing path" {
+  let document = @json.parse("{}")
+  debug_inspect(
+    @lens.root().string("name").nullish().get(document),
+    content="None",
+  )
+}
+
+///|
+test "Lens nullish - returns None for JSON null" {
+  let document = @json.parse("{\"name\":null}")
+  debug_inspect(
+    @lens.root().string("name").nullish().get(document),
+    content="None",
+  )
+}
+
+///|
+test "Lens nullish - returns Some for a decoded value" {
+  let document = @json.parse("{\"name\":\"Ada\"}")
+  debug_inspect(
+    @lens.root().string("name").nullish().get(document),
+    content="Some(\"Ada\")",
+  )
+}
