@@ -6,7 +6,7 @@ This guide is for programmers who are comfortable reading typed code and have an
 
 It explains how the `core` package models a graph workflow, validates its structure, executes nodes, updates state, selects routes, owns resources, and reports failures.
 
-The quoted code is taken from the current implementation under `src/core`.
+The quoted code is taken from the current implementation under `src/core`, and an explicit `// ...` marker identifies any omitted implementation lines.
 
 Provider-specific MoonLLM, Codex, and OpenCode details are outside this guide because the core depends only on generic callbacks and coding-agent contracts.
 
@@ -166,7 +166,7 @@ The context carries execution capabilities rather than global variables.
 - `run_id`, `node_id`, and `step` identify the current attempt.
 - `deadline_ms` exposes the configured node timeout.
 - `task_group` gives adapters structured ownership of child tasks and processes.
-- `events` exposes non-blocking observability.
+- `events` exposes synchronous best-effort observability.
 - `resources` owns node-scoped and run-scoped sessions.
 
 The same invocation-level task group is passed to every node, so cancellation propagates through the complete run.
@@ -229,7 +229,11 @@ while pending.pop() is Some(node_id) {
 
 This is depth-first search when `pending` behaves as a stack.
 
-For `V` nodes and `E` declared edges, its time complexity is `O(V + E)` and its additional space complexity is `O(V)`.
+For `V` nodes and `E` declared edges, its time complexity is `O(V + E)`.
+
+The `reachable` set uses `O(V)` space, while `pending` may contain duplicate entries for a node reached by several edges and therefore uses `O(E)` space in the worst case.
+
+The total additional space bound is consequently `O(V + E)`.
 
 The traversal uses declared targets, not actual runtime routes, because the actual route depends on future state.
 
@@ -306,7 +310,11 @@ The `max_steps` guard is necessary because a valid directed graph may contain cy
 
 Without the guard, a router that repeatedly selects a cycle could run forever.
 
-If node lookup and router lookup are treated as average `O(1)` map operations, the control overhead for a run of `K` steps is `O(K)`, excluding user node, reducer, router, and cleanup work.
+If node lookup and router lookup are treated as average `O(1)` map operations, a `To` transition still scans the current router's declared targets.
+
+For `K` steps and maximum declared out-degree `D`, the worst-case control overhead is `O(KD)`, excluding user node, reducer, router, and cleanup work.
+
+When `D` is bounded by a small constant, this behaves as `O(K)`.
 
 ## Timeouts, Cancellation, and Structured Concurrency
 
@@ -335,7 +343,7 @@ The invocation itself runs inside `@async.with_task_group`.
 @async.with_task_group() <| group => {
   let resources = RuntimeResourceStore::RuntimeResourceStore()
   self.events.try_emit(RunStarted(run_id))
-  // Run the graph, finalize resources, and publish the terminal event.
+  // ... implementation omitted ...
 }
 ```
 
@@ -360,8 +368,8 @@ pub(all) enum ResourceScope {
 
 Source: `src/core/resources.mbt`
 
-- A `Node` session is opened for one node attempt and closed after that node.
-- A `Run` session is cached by `ResourceKey` and reused until the invocation ends.
+- A `Node` session is opened for one node attempt, and closing it is attempted after that node.
+- A `Run` session is cached by `ResourceKey` and reused until invocation finalization attempts to close it.
 
 ```moonbit
 match scope {
@@ -502,8 +510,8 @@ The current core guarantees the following properties for a compiled graph.
 - Every node has a router.
 - A dynamic `To` route is rejected unless it was declared.
 - A run stops after at most `max_steps` node attempts.
-- Node-scoped resources are released after each attempt.
-- Run-scoped resources are finalized on success, failure, or cancellation.
+- Node-scoped resource cleanup is attempted after each node attempt, and cleanup failures are surfaced.
+- Run-scoped finalization is invoked on success, failure, or cancellation, while close failures and cleanup timeouts are surfaced instead of being reported as successful cleanup.
 - Ordinary node, reducer, and router errors retain node and step context.
 - Simultaneous primary and cleanup errors are both retained.
 - Event observer failures do not alter execution.
