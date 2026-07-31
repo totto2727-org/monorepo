@@ -277,10 +277,12 @@ async fn[X] create_opencode_server_with_command(
 pub async fn[X] create_opencode_server(
   group : @async.TaskGroup[X],
   options? : ServerOptions = ServerOptions::ServerOptions(),
+  command? : String = "opencode",
+  extra_env? : Map[String, String] = Map([]),
 ) -> Server raise ServerError {
   // Copied from the OpenCode TypeScript SDK executable selection:
   // https://github.com/anomalyco/opencode/blob/66495a2a22cd0a57efcc4f721e65532f0987b4e8/packages/sdk/js/src/server.ts#L32-L40
-  create_opencode_server_with_command(group, options, "opencode", Map([]))
+  create_opencode_server_with_command(group, options, command, extra_env)
 }
 
 ///|

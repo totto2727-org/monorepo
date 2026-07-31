@@ -1,0 +1,24 @@
+[formatter.elixir]
+command = "mix"
+options = ["format"]
+includes = ["*.ex", "*.exs"]
+
+[formatter.go]
+command = "gofmt"
+options = ["-w"]
+includes = ["*.go"]
+
+[formatter.moonbit]
+command = "moon"
+options = ["fmt"]
+includes = ["*.mbt", "*.mbt.md", "*.mbti", "*.mbtx", "*/moon.mod", "*/moon.pkg", "moon.mod", "moon.pkg", "moon.work"]
+
+[formatter.nix]
+command = "nixfmt"
+includes = ["*.nix"]
+
+[formatter.vite-plus]
+command = "vp"
+options = ["check", "--no-error-on-unmatched-pattern", "--fix"]
+includes = ["*"]
+excludes = ["*.mbt.md"]

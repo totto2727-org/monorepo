@@ -1,0 +1,14 @@
+import {
+  "totto2727/moon-agent-graph/core",
+  "totto2727/codex-sdk" @sdk,
+  "moonbitlang/async",
+  "moonbitlang/x/path",
+}
+
+import {
+  "totto2727/moon-agent-graph/coding_agent",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/process",
+} for "test"
+
+supported_targets = "native"

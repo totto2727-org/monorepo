@@ -171,7 +171,7 @@ export default defineConfig({
     },
   },
   staged: {
-    '*': "sh -c 'vp run w:fix'",
+    '*': 'treefmt',
   },
   test: {
     dir: 'js/',

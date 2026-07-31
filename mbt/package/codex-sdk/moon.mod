@@ -8,7 +8,7 @@ supported_targets = "native"
 
 import {
   "moonbitlang/x@0.4.38",
-  "moonbitlang/async@0.19.2",
+  "moonbitlang/async@0.20.1",
   "totto2727/agent-cli-sdk@0.1.0",
   "totto2727/lens@0.1.0",
 }

@@ -26,7 +26,7 @@ Add the package to a MoonBit project and import it with an alias:
 
 ```mbt
 import {
-  "totto2727/opencode-sdk@0.1.0",
+  "totto2727/opencode-sdk@0.1.1",
 }
 ```
 
