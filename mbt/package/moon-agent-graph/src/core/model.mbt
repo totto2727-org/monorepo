@@ -22,6 +22,16 @@ pub(all) struct NodeMetadata {
 } derive(Debug)
 
 ///|
+pub impl @copy.Copy for NodeMetadata with fn copy(self) {
+  NodeMetadata::{
+    name: self.name,
+    description: self.description,
+    kind: self.kind,
+    tags: @copy.Copy::copy(self.tags),
+  }
+}
+
+///|
 pub(all) enum ArtifactKind {
   File
   Directory
@@ -136,6 +146,16 @@ pub(all) struct Node[S, P] {
 }
 
 ///|
+/// Copies node-owned data while retaining the callback that defines its behavior.
+pub impl[S, P] @copy.Copy for Node[S, P] with fn copy(self) {
+  Node::{
+    id: self.id,
+    metadata: @copy.Copy::copy(self.metadata),
+    execute: self.execute,
+  }
+}
+
+///|
 pub fn[S, P] function_node(
   id : NodeId,
   metadata : NodeMetadata,
@@ -151,14 +171,20 @@ pub(all) struct Router[S] {
 }
 
 ///|
+/// Copies router-owned data while retaining the callback that defines its behavior.
+pub impl[S] @copy.Copy for Router[S] with fn copy(self) {
+  Router::{
+    declared_targets: @copy.Copy::copy(self.declared_targets),
+    evaluate: self.evaluate,
+  }
+}
+
+///|
 pub fn[S] router(
   declared_targets : ReadOnlyArray[NodeId],
   evaluate : (S, NodeCompletion) -> Route raise,
 ) -> Router[S] {
-  Router::{
-    declared_targets: ReadOnlyArray::from_array([..declared_targets]),
-    evaluate,
-  }
+  Router::{ declared_targets: @copy.Copy::copy(declared_targets), evaluate }
 }
 
 ///|

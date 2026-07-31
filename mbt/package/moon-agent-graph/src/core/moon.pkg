@@ -3,6 +3,7 @@ import {
   "moonbitlang/core/random",
   "moonbitlang/async",
   "moonbitlang/x/path",
+  "totto2727/copy",
 }
 
 supported_targets = "native"
