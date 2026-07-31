@@ -1,0 +1,27 @@
+name: Measure command performance
+description: Measure CPU, memory, and I/O usage while running a command on Ubuntu.
+
+inputs:
+  command:
+    description: Bash command to run and measure.
+    required: true
+  sampling-interval:
+    description: Sampling interval in seconds.
+    required: false
+    default: "1"
+
+runs:
+  using: composite
+  steps:
+    - name: Install performance tools
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes --no-install-recommends sysstat time
+
+    - name: Run command with performance measurement
+      shell: bash
+      env:
+        PERFORMANCE_COMMAND: ${{ inputs.command }}
+        PERFORMANCE_INTERVAL_SECONDS: ${{ inputs.sampling-interval }}
+      run: bash "$GITHUB_ACTION_PATH/measure.sh"
