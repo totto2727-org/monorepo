@@ -22,6 +22,16 @@ pub(all) struct NodeMetadata {
 } derive(Debug)
 
 ///|
+pub impl @copy.Copy for NodeMetadata with fn copy(self) {
+  NodeMetadata::{
+    name: self.name,
+    description: self.description,
+    kind: self.kind,
+    tags: @copy.Copy::copy(self.tags),
+  }
+}
+
+///|
 pub(all) enum ArtifactKind {
   File
   Directory
@@ -155,10 +165,7 @@ pub fn[S] router(
   declared_targets : ReadOnlyArray[NodeId],
   evaluate : (S, NodeCompletion) -> Route raise,
 ) -> Router[S] {
-  Router::{
-    declared_targets: ReadOnlyArray::from_array([..declared_targets]),
-    evaluate,
-  }
+  Router::{ declared_targets: @copy.Copy::copy(declared_targets), evaluate }
 }
 
 ///|

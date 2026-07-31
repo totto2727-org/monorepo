@@ -78,7 +78,7 @@ async fn OpenCodeExec::run(
   }
 
   let environment = match self.env_override {
-    Some(environment_override) => environment_override.copy()
+    Some(environment_override) => @copy.Copy::copy(environment_override)
     None => Map([])
   }
   if self.config is Some(config) {

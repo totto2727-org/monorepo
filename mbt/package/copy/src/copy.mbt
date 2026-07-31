@@ -67,10 +67,9 @@ pub impl[T : Copy] Copy for T? with fn copy(self) {
 }
 
 ///|
-pub impl[Value : Copy, CopyError : Copy] Copy for Result[
-  Value,
-  CopyError,
-] with fn copy(self) {
+pub impl[Value : Copy, CopyError : Copy] Copy for Result[Value, CopyError] with fn copy(
+  self,
+) {
   match self {
     Ok(value) => Ok(Copy::copy(value))
     Err(error) => Err(Copy::copy(error))
@@ -85,6 +84,25 @@ pub impl[T : Copy] Copy for Array[T] with fn copy(self) {
 ///|
 pub impl[T : Copy] Copy for FixedArray[T] with fn copy(self) {
   self.map(value => Copy::copy(value))
+}
+
+///|
+pub impl[T : Copy] Copy for ReadOnlyArray[T] with fn copy(self) {
+  ReadOnlyArray::from_iter(self.iter().map(value => Copy::copy(value)))
+}
+
+///|
+pub impl[Key : Hash + Eq + Copy, Value : Copy] Copy for Map[Key, Value] with fn copy(
+  self,
+) {
+  Map::from_iter(
+    self
+    .iter()
+    .map(entry => {
+      let (key, value) = entry
+      (Copy::copy(key), Copy::copy(value))
+    }),
+  )
 }
 
 ///|

@@ -18,7 +18,7 @@ test {
 }
 ```
 
-The package implements `Copy` for primitive and immutable scalar values, `Option`, `Result`, `Array`, `FixedArray`, and two- and three-element tuples. Composite implementations require their contained values to implement `Copy`.
+The package implements `Copy` for primitive and immutable scalar values, `Option`, `Result`, `Array`, `FixedArray`, `ReadOnlyArray`, `Map`, and two- and three-element tuples. Composite implementations require their contained values to implement `Copy`; map keys must also implement `Hash` and `Eq`.
 
 ## Custom mutable values
 

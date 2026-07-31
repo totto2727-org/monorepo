@@ -160,7 +160,7 @@ async fn CodexExec::run(
   }
 
   let environment = match self.env_override {
-    Some(environment_override) => environment_override.copy()
+    Some(environment_override) => @copy.Copy::copy(environment_override)
     None => Map([])
   }
   let inherited_originator = if self.env_override is None {

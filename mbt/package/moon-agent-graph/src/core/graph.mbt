@@ -87,12 +87,7 @@ fn[S] copy_router(value : Router[S]) -> Router[S] {
 fn[S, P] copy_node(value : Node[S, P]) -> Node[S, P] {
   Node::{
     id: value.id,
-    metadata: NodeMetadata::{
-      name: value.metadata.name,
-      description: value.metadata.description,
-      kind: value.metadata.kind,
-      tags: ReadOnlyArray::from_array([..value.metadata.tags]),
-    },
+    metadata: @copy.Copy::copy(value.metadata),
     execute: value.execute,
   }
 }
