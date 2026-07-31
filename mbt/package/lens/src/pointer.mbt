@@ -31,6 +31,16 @@ fn Pointer::append(self : Pointer, suffix : Pointer) -> Pointer {
 }
 
 ///|
+fn Pointer::prefix(self : Pointer, length : Int) -> Pointer {
+  Pointer::{ segments: self.segments[:length].to_owned() }
+}
+
+///|
+fn Pointer::length(self : Pointer) -> Int {
+  self.segments.length()
+}
+
+///|
 fn Pointer::prepend_index(self : Pointer, index : Int) -> Pointer {
   Pointer::root().index(index).append(self)
 }

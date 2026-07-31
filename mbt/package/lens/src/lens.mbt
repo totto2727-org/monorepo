@@ -144,17 +144,19 @@ pub fn ObjectLens::get(
 ///|
 /// Reads and decodes this lens from a JSON document.
 pub fn[T] Lens::get(self : Lens[T], document : Json) -> T raise LensError {
-  let selected = lookup(document, self.pointer) catch {
-    LensError(issue) =>
-      match (issue.code, self.on_missing) {
-        (MissingProperty, Some(on_missing)) =>
-          if issue.pointer == self.pointer {
-            return on_missing()
-          } else {
-            raise LensError(issue)
-          }
-        _ => raise LensError(issue)
+  let selected = match lookup(document, self.pointer) {
+    Some(value) => value
+    None => {
+      match self.on_missing {
+        Some(on_missing) => return on_missing()
+        None => ()
       }
+      raise LensError(Issue::{
+        pointer: self.pointer,
+        code: MissingProperty,
+        message: None,
+      })
+    }
   }
   self.decoder.decode(selected) catch {
     DecodeProblem(pointer, code, message) =>

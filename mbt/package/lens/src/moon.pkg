@@ -3,3 +3,7 @@ import {
   "moonbitlang/core/json",
   "moonbitlang/core/string",
 }
+
+import {
+  "moonbitlang/core/bench",
+} for "test"
