@@ -4,7 +4,7 @@ Native asynchronous graph execution for MoonBit with typed state patches, determ
 
 ## Status
 
-The sequential native runtime, MoonLLM boundary, common coding-agent node, Codex adapter, OpenCode adapter, deterministic test kit, and local E2E workflows are implemented. See the [architecture](docs/architecture.md), [interfaces](docs/interfaces.md), and [test plan](docs/testing.md).
+The sequential native runtime, MoonLLM boundary, common coding-agent node, Codex adapter, OpenCode adapter, deterministic test kit, and local E2E workflows are implemented. See the [architecture](docs/architecture.md), [core guide](docs/core-guide.md), [interfaces](docs/interfaces.md), and [test plan](docs/testing.md).
 
 ## Packages
 
