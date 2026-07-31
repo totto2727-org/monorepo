@@ -1,0 +1,15 @@
+import {
+  "moonbitlang/async",
+  "moonbitlang/core/env",
+  "moonbitlang/x/path",
+  "totto2727/moon-agent-graph/core",
+  "totto2727/opencode-sdk" @sdk,
+}
+
+import {
+  "moonbitlang/async/fs",
+  "moonbitlang/async/process",
+  "moonbitlang/core/string",
+} for "test"
+
+supported_targets = "native"
