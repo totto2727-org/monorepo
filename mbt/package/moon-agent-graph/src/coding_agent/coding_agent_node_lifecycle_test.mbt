@@ -134,7 +134,10 @@ fn w6_lifecycle_runtime(
   )
   definition.set_router(
     node_id,
-    @core.router([node_id], fn(state, _completion) {
+    @core.router([@core.DeclaredRoute::DeclaredRoute(node_id)], fn(
+      state,
+      _completion,
+    ) {
       if state < 2 {
         @core.To(node_id)
       } else {

@@ -134,12 +134,13 @@ pub(all) enum Route {
 
 ```moonbit
 pub(all) struct Router[S] {
-  declared_targets : ReadOnlyArray[NodeId]
+  metadata : RouterMetadata
+  declared_routes : ReadOnlyArray[DeclaredRoute]
   evaluate : (S, NodeCompletion) -> Route raise
 }
 ```
 
-`declared_targets` は、`evaluate` が返す可能性のあるすべての `To` 結果の静的な過大近似です。
+各 `DeclaredRoute` は実行用の宛先とオプションの `DeclaredRouteMetadata` を組み合わせます。`declared_routes` は、`evaluate` が返す可能性のあるすべての `To` 結果の静的な過大近似です。
 
 これは、ノードが実行される前に宛先と到達可能性を検証するために必要な情報をコンパイラに提供します。
 
@@ -220,9 +221,9 @@ let pending = [entry]
 while pending.pop() is Some(node_id) {
   if reachable.add_and_check(node_id) {
     let value = routers[node_id]
-    for target in value.declared_targets {
-      if !reachable.contains(target) {
-        pending.push(target)
+    for route in value.declared_routes {
+      if !reachable.contains(route.target) {
+        pending.push(route.target)
       }
     }
   }
@@ -266,7 +267,7 @@ let mut steps = 0
 7. `NodeCompleted` を発行する。
 8. オプションのパッチを適用する。
 9. 更新された状態に対してルーターを評価する。
-10. 動的なルートを `declared_targets` に対してチェックする。
+10. 動的なルートを `declared_routes` に対してチェックする。
 11. 継続、復帰、または失敗する。
 
 状態の更新はルート評価の前に行われます。
@@ -296,7 +297,7 @@ let route = (router.evaluate)(state, completion) catch {
 ```moonbit
 match route {
   To(target) => {
-    guard is_declared_target(router.declared_targets, target) else {
+    guard is_declared_target(router.declared_routes, target) else {
       raise RouteContractViolated(from=current, to=target)
     }
     current = target

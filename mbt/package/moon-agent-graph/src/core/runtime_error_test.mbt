@@ -122,7 +122,9 @@ async test "GraphRuntime invoke 3 - stops before the next node when routing fail
   )
   definition.set_router(
     a,
-    router([b], (_state, _completion) => raise Failed("route-detail")),
+    router([DeclaredRoute::DeclaredRoute(b)], (_state, _completion) => {
+      raise Failed("route-detail")
+    }),
   )
   definition.set_router(b, router([], fn(_state, _completion) { End }))
   definition.set_entry(a)
@@ -152,8 +154,14 @@ async test "GraphRuntime invoke 4 - rejects an undeclared existing route target"
       }),
     )
   }
-  definition.set_router(a, router([b], fn(_state, _completion) { To(c) }))
-  definition.set_router(b, router([c], fn(_state, _completion) { To(c) }))
+  definition.set_router(
+    a,
+    router([DeclaredRoute::DeclaredRoute(b)], fn(_state, _completion) { To(c) }),
+  )
+  definition.set_router(
+    b,
+    router([DeclaredRoute::DeclaredRoute(c)], fn(_state, _completion) { To(c) }),
+  )
   definition.set_router(c, router([], fn(_state, _completion) { End }))
   definition.set_entry(a)
   let runtime = GraphRuntime::GraphRuntime(definition.compile())
@@ -179,7 +187,7 @@ async test "GraphRuntime invoke 5 - enforces the step limit after exactly that m
       @async.pause()
       NodeOutput::{ patch: None, value: None, artifacts: [] }
     }),
-    router([a], fn(_state, _completion) { To(a) }),
+    router([DeclaredRoute::DeclaredRoute(a)], fn(_state, _completion) { To(a) }),
   )
   let options = RunOptions::RunOptions(max_steps=3)
   let detail = (runtime.invoke(0, options~) |> @debug.to_string) catch {

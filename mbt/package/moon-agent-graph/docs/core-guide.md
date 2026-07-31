@@ -134,12 +134,13 @@ pub(all) enum Route {
 
 ```moonbit
 pub(all) struct Router[S] {
-  declared_targets : ReadOnlyArray[NodeId]
+  metadata : RouterMetadata
+  declared_routes : ReadOnlyArray[DeclaredRoute]
   evaluate : (S, NodeCompletion) -> Route raise
 }
 ```
 
-`declared_targets` is a static over-approximation of every `To` result that `evaluate` may return.
+Each `DeclaredRoute` combines an execution target with optional `DeclaredRouteMetadata`; `declared_routes` is a static over-approximation of every `To` result that `evaluate` may return.
 
 It gives the compiler enough information to validate destinations and reachability before any node is executed.
 
@@ -220,9 +221,9 @@ let pending = [entry]
 while pending.pop() is Some(node_id) {
   if reachable.add_and_check(node_id) {
     let value = routers[node_id]
-    for target in value.declared_targets {
-      if !reachable.contains(target) {
-        pending.push(target)
+    for route in value.declared_routes {
+      if !reachable.contains(route.target) {
+        pending.push(route.target)
       }
     }
   }
@@ -266,7 +267,7 @@ Each iteration performs the following transition.
 7. Emit `NodeCompleted`.
 8. Apply the optional patch.
 9. Evaluate the router against the updated state.
-10. Check the dynamic route against `declared_targets`.
+10. Check the dynamic route against `declared_routes`.
 11. Continue, return, or fail.
 
 The state update happens before route evaluation.
@@ -296,7 +297,7 @@ The runtime then enforces the router's static contract.
 ```moonbit
 match route {
   To(target) => {
-    guard is_declared_target(router.declared_targets, target) else {
+    guard is_declared_target(router.declared_routes, target) else {
       raise RouteContractViolated(from=current, to=target)
     }
     current = target

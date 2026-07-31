@@ -183,8 +183,22 @@ pub fn[S, P] function_node(
 MVPでは、ノードごとに1つのルーターを許可します。
 
 ```moonbit
+pub(all) struct DeclaredRouteMetadata {
+  label : String?
+}
+
+pub(all) struct DeclaredRoute {
+  target : NodeId
+  metadata : DeclaredRouteMetadata
+}
+
+pub(all) struct RouterMetadata {
+  description : String?
+}
+
 pub(all) struct Router[S] {
-  declared_targets : ReadOnlyArray[NodeId]
+  metadata : RouterMetadata
+  declared_routes : ReadOnlyArray[DeclaredRoute]
   evaluate : (S, NodeCompletion) -> Route raise
 }
 
@@ -195,7 +209,7 @@ pub(all) struct NodeCompletion {
 } derive(Debug)
 ```
 
-`declared_targets` には、`evaluate` が `Route::To` を通じて返す可能性のあるすべてのノードIDが含まれます。
+`declared_routes` には、`evaluate` が `Route::To` を通じて返す可能性のあるすべてのノードIDと、オプションの表示用メタデータが含まれます。
 
 コンパイル時には、宣言されたターゲットを使用して宛先の検証と到達可能性のチェックが行われます。
 
@@ -203,10 +217,13 @@ pub(all) struct NodeCompletion {
 
 ルーターは同期的であり、I/Oの実行、モデルの呼び出し、コマンドの実行、状態の変更を行ってはなりません。
 
+`RouterMetadata.description` と `DeclaredRouteMetadata.label` は、検査ツール向けのオプションの表示ヒントです。ルート評価には影響しません。
+
 ```moonbit
 pub fn[S] router(
-  declared_targets : ReadOnlyArray[NodeId],
+  declared_routes : ReadOnlyArray[DeclaredRoute],
   evaluate : (S, NodeCompletion) -> Route raise,
+  metadata? : RouterMetadata = RouterMetadata::RouterMetadata(),
 ) -> Router[S]
 ```
 

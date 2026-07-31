@@ -96,7 +96,9 @@ async test "GraphRuntime invoke 2 - executes sequential routes in order" {
   )
   definition.set_router(
     first,
-    router([second], fn(_state, _completion) { To(second) }),
+    router([DeclaredRoute::DeclaredRoute(second)], fn(_state, _completion) {
+      To(second)
+    }),
   )
   definition.set_router(second, success_end_router())
   definition.set_entry(first)
@@ -220,7 +222,7 @@ async test "GraphRuntime invoke 6 - exits a self loop when the reduced state rea
   )
   definition.set_router(
     entry,
-    router([entry], fn(state, _completion) {
+    router([DeclaredRoute::DeclaredRoute(entry)], fn(state, _completion) {
       if state < 3 {
         To(entry)
       } else {

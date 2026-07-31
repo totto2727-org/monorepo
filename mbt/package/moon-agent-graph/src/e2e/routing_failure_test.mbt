@@ -72,13 +72,19 @@ async fn routing_exercise_branch(selector : String) -> Unit {
     [
       (
         entry,
-        @core.router([left, right], fn(state, _) {
-          if state.order[0] == "left" {
-            @core.To(left)
-          } else {
-            @core.To(right)
-          }
-        }),
+        @core.router(
+          [
+            @core.DeclaredRoute::DeclaredRoute(left),
+            @core.DeclaredRoute::DeclaredRoute(right),
+          ],
+          fn(state, _) {
+            if state.order[0] == "left" {
+              @core.To(left)
+            } else {
+              @core.To(right)
+            }
+          },
+        ),
       ),
       (left, @core.router([], fn(_, _) { @core.End })),
       (right, @core.router([], fn(_, _) { @core.End })),
@@ -139,7 +145,14 @@ async test "routing failure 2 - retry loop has exact attempts before configured 
         }
       }),
     ],
-    [(retry, @core.router([retry], fn(_, _) { @core.To(retry) }))],
+    [
+      (
+        retry,
+        @core.router([@core.DeclaredRoute::DeclaredRoute(retry)], fn(_, _) {
+          @core.To(retry)
+        }),
+      ),
+    ],
     retry,
   )
   let outcome = try {
@@ -203,7 +216,12 @@ async test "routing failure 3 - planning failure leaves agent and workflow state
       workflow_agent_node(agent_id, "agent", agent.agent()),
     ],
     [
-      (plan, @core.router([agent_id], fn(_, _) { @core.To(agent_id) })),
+      (
+        plan,
+        @core.router([@core.DeclaredRoute::DeclaredRoute(agent_id)], fn(_, _) {
+          @core.To(agent_id)
+        }),
+      ),
       (agent_id, @core.router([], fn(_, _) { @core.End })),
     ],
     plan,

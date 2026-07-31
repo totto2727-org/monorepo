@@ -1,7 +1,10 @@
 ///|
-fn is_declared_target(targets : ReadOnlyArray[NodeId], target : NodeId) -> Bool {
-  for declared in targets {
-    if declared == target {
+fn is_declared_target(
+  routes : ReadOnlyArray[DeclaredRoute],
+  target : NodeId,
+) -> Bool {
+  for route in routes {
+    if route.target == target {
       return true
     }
   }
@@ -144,7 +147,7 @@ async fn[S, P] run_sequential(
     runtime.events.try_emit(RouteSelected(run_id~, from=current, route~))
     match route {
       To(target) => {
-        guard is_declared_target(router.declared_targets, target) else {
+        guard is_declared_target(router.declared_routes, target) else {
           raise RouteContractViolated(from=current, to=target)
         }
         current = target

@@ -145,18 +145,63 @@ pub fn[S, P] function_node(
 }
 
 ///|
+/// Contains optional display metadata for one statically declared route.
+pub(all) struct DeclaredRouteMetadata {
+  label : String?
+} derive(Debug)
+
+///|
+/// Creates display metadata for a statically declared route.
+pub fn DeclaredRouteMetadata::DeclaredRouteMetadata(
+  label? : String,
+) -> DeclaredRouteMetadata {
+  DeclaredRouteMetadata::{ label, }
+}
+
+///|
+/// Declares one possible runtime destination and its optional metadata.
+pub(all) struct DeclaredRoute {
+  target : NodeId
+  metadata : DeclaredRouteMetadata
+} derive(Debug)
+
+///|
+/// Declares a possible runtime destination.
+pub fn DeclaredRoute::DeclaredRoute(
+  target : NodeId,
+  metadata? : DeclaredRouteMetadata = DeclaredRouteMetadata::DeclaredRouteMetadata(),
+) -> DeclaredRoute {
+  DeclaredRoute::{ target, metadata }
+}
+
+///|
+/// Contains optional display metadata for a router.
+pub(all) struct RouterMetadata {
+  description : String?
+} derive(Debug)
+
+///|
+/// Creates display metadata for a router.
+pub fn RouterMetadata::RouterMetadata(description? : String) -> RouterMetadata {
+  RouterMetadata::{ description, }
+}
+
+///|
 pub(all) struct Router[S] {
-  declared_targets : ReadOnlyArray[NodeId]
+  metadata : RouterMetadata
+  declared_routes : ReadOnlyArray[DeclaredRoute]
   evaluate : (S, NodeCompletion) -> Route raise
 }
 
 ///|
 pub fn[S] router(
-  declared_targets : ReadOnlyArray[NodeId],
+  declared_routes : ReadOnlyArray[DeclaredRoute],
   evaluate : (S, NodeCompletion) -> Route raise,
+  metadata? : RouterMetadata = RouterMetadata::RouterMetadata(),
 ) -> Router[S] {
   Router::{
-    declared_targets: ReadOnlyArray::from_array([..declared_targets]),
+    metadata,
+    declared_routes: ReadOnlyArray::from_array([..declared_routes]),
     evaluate,
   }
 }

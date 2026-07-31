@@ -57,7 +57,12 @@ async test "function-only workflow completes in exact order" {
       workflow_function_node(verify, "verify"),
     ],
     [
-      (plan, @core.router([verify], fn(_, _) { @core.To(verify) })),
+      (
+        plan,
+        @core.router([@core.DeclaredRoute::DeclaredRoute(verify)], fn(_, _) {
+          @core.To(verify)
+        }),
+      ),
       (verify, @core.router([], fn(_, _) { @core.End })),
     ],
     plan,
@@ -114,7 +119,12 @@ async test "MoonLLM plan to function verify workflow records typed request" {
       workflow_function_node(verify, "verify"),
     ],
     [
-      (plan, @core.router([verify], fn(_, _) { @core.To(verify) })),
+      (
+        plan,
+        @core.router([@core.DeclaredRoute::DeclaredRoute(verify)], fn(_, _) {
+          @core.To(verify)
+        }),
+      ),
       (verify, @core.router([], fn(_, _) { @core.End })),
     ],
     plan,
@@ -165,9 +175,12 @@ async fn exercise_agent_workflow(label : String, retry : Bool) -> Unit {
   let events = @testing.recording_event_sink()
   let agent_router = @core.router(
     if retry {
-      [agent_id, verify]
+      [
+        @core.DeclaredRoute::DeclaredRoute(agent_id),
+        @core.DeclaredRoute::DeclaredRoute(verify),
+      ]
     } else {
-      [verify]
+      [@core.DeclaredRoute::DeclaredRoute(verify)]
     },
     fn(state : WorkflowState, _) {
       if retry && state.order.filter(value => value == label).length() == 1 {
@@ -199,7 +212,12 @@ async fn exercise_agent_workflow(label : String, retry : Bool) -> Unit {
       workflow_function_node(verify, "verify"),
     ],
     [
-      (plan, @core.router([agent_id], fn(_, _) { @core.To(agent_id) })),
+      (
+        plan,
+        @core.router([@core.DeclaredRoute::DeclaredRoute(agent_id)], fn(_, _) {
+          @core.To(agent_id)
+        }),
+      ),
       (agent_id, agent_router),
       (verify, @core.router([], fn(_, _) { @core.End })),
     ],

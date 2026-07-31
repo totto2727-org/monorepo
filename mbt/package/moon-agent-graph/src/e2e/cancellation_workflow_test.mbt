@@ -96,7 +96,15 @@ async test "coding-agent workflow cancellation stops before the later node and c
       workflow_reducer(),
       [workflow_agent_node(agent_id, "cancel-agent", agent), later],
       [
-        (agent_id, @core.router([later_id], fn(_, _) { @core.To(later_id) })),
+        (
+          agent_id,
+          @core.router([@core.DeclaredRoute::DeclaredRoute(later_id)], fn(
+            _,
+            _,
+          ) {
+            @core.To(later_id)
+          }),
+        ),
         (later_id, @core.router([], fn(_, _) { @core.End })),
       ],
       agent_id,

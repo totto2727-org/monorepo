@@ -227,7 +227,10 @@ async test "coding_agent_node 2 - reuses a run session through two GraphRuntime 
   definition.add_node(node)
   definition.set_router(
     node_id,
-    @core.router([node_id], fn(state, _completion) {
+    @core.router([@core.DeclaredRoute::DeclaredRoute(node_id)], fn(
+      state,
+      _completion,
+    ) {
       if state < 2 {
         @core.To(node_id)
       } else {

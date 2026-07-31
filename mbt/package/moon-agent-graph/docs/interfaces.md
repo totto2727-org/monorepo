@@ -183,8 +183,22 @@ pub fn[S, P] function_node(
 The MVP permits one router per node.
 
 ```moonbit
+pub(all) struct DeclaredRouteMetadata {
+  label : String?
+}
+
+pub(all) struct DeclaredRoute {
+  target : NodeId
+  metadata : DeclaredRouteMetadata
+}
+
+pub(all) struct RouterMetadata {
+  description : String?
+}
+
 pub(all) struct Router[S] {
-  declared_targets : ReadOnlyArray[NodeId]
+  metadata : RouterMetadata
+  declared_routes : ReadOnlyArray[DeclaredRoute]
   evaluate : (S, NodeCompletion) -> Route raise
 }
 
@@ -195,7 +209,7 @@ pub(all) struct NodeCompletion {
 } derive(Debug)
 ```
 
-`declared_targets` contains every node ID that `evaluate` may return through `Route::To`.
+`declared_routes` contains every node ID that `evaluate` may return through `Route::To`, together with optional display metadata.
 
 Compilation uses declared targets for destination validation and reachability.
 
@@ -203,10 +217,13 @@ At runtime, returning an undeclared target is a contract error even if that node
 
 Routers are synchronous and must not perform I/O, invoke models, execute commands, or mutate state.
 
+`RouterMetadata.description` and `DeclaredRouteMetadata.label` are optional presentation hints for inspection tools. They do not affect route evaluation.
+
 ```moonbit
 pub fn[S] router(
-  declared_targets : ReadOnlyArray[NodeId],
+  declared_routes : ReadOnlyArray[DeclaredRoute],
   evaluate : (S, NodeCompletion) -> Route raise,
+  metadata? : RouterMetadata = RouterMetadata::RouterMetadata(),
 ) -> Router[S]
 ```
 
