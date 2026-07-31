@@ -406,7 +406,7 @@ Protection does not mean cleanup may run forever because the cleanup timeout rem
 
 ## Primary and Cleanup Failures
 
-Execution and cleanup can fail at the same time.
+Ordinary non-cancellation execution and cleanup can fail at the same time.
 
 Discarding either failure would make diagnosis incomplete, so the runtime retains both.
 
@@ -427,6 +427,10 @@ Source: `src/core/graph.mbt`
 `attach_cleanup` preserves the original failure as `primary` and appends cleanup failures.
 
 If only cleanup fails, that cleanup error becomes the primary error of `ResourceCleanupFailed`.
+
+Cancellation has different precedence.
+
+The runtime attempts bounded cleanup and then re-raises cancellation, so a cleanup error that occurs on the cancellation path may be suppressed.
 
 This is more informative than allowing a `finally`-style cleanup failure to overwrite the node or routing failure.
 
@@ -510,10 +514,11 @@ The current core guarantees the following properties for a compiled graph.
 - Every node has a router.
 - A dynamic `To` route is rejected unless it was declared.
 - A run stops after at most `max_steps` node attempts.
-- Node-scoped resource cleanup is attempted after each node attempt, and cleanup failures are surfaced.
-- Run-scoped finalization is invoked on success, failure, or cancellation, while close failures and cleanup timeouts are surfaced instead of being reported as successful cleanup.
+- Node-scoped resource cleanup is attempted after each node attempt, and cleanup failures are surfaced on ordinary non-cancellation paths.
+- Run-scoped finalization is invoked on success, failure, or cancellation.
+- Close failures and cleanup timeouts are surfaced on ordinary non-cancellation paths, while cancellation is re-raised after the cleanup attempt and may suppress its cleanup error.
 - Ordinary node, reducer, and router errors retain node and step context.
-- Simultaneous primary and cleanup errors are both retained.
+- Simultaneous non-cancellation primary and cleanup errors are both retained.
 - Event observer failures do not alter execution.
 
 The current core does not guarantee parallel scheduling, durable checkpoints, distributed execution, or durable event delivery.
