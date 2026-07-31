@@ -314,7 +314,9 @@ Without the guard, a router that repeatedly selects a cycle could run forever.
 
 If node lookup and router lookup are treated as average `O(1)` map operations, a `To` transition still scans the current router's declared targets.
 
-For `K` steps and maximum declared out-degree `D`, the worst-case control overhead is `O(KD)`, excluding user node, reducer, router, and cleanup work.
+For `K` steps, let `D` be the maximum number of declared targets on any router.
+
+The worst-case control overhead is `O(KD)`, excluding user node, reducer, router, and cleanup work.
 
 When `D` is bounded by a small constant, this behaves as `O(K)`.
 
