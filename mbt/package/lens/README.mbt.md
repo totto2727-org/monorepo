@@ -38,6 +38,30 @@ test {
 }
 ```
 
+## Arrays and presence
+
+Compose an item lens with `array` to decode every array element. Item failures include their zero-based index in the reported JSON Pointer.
+
+```mbt check
+test {
+  let document = @json.parse("{\"names\":[\"Ada\",\"Grace\"]}")
+  debug_inspect(
+    root().string("names").array().get(document),
+    content="[\"Ada\", \"Grace\"]",
+  )
+}
+```
+
+`nullable`, `optional`, and `nullish` keep missing properties distinct from explicit JSON `null`:
+
+| Input state | Required string | `nullable` | `optional` | `nullish` |
+| ----------- | --------------: | ---------: | ---------: | --------: |
+| Missing     |           error |      error |     `None` |    `None` |
+| `null`      |      type error |     `None` | type error |    `None` |
+| String      |           value |  `Some(T)` |  `Some(T)` | `Some(T)` |
+
+Here, missing means that the selected leaf property is absent. A missing intermediate object remains an error so optional values cannot hide an invalid surrounding structure.
+
 ## Validation
 
 `LensTrait` exposes only the type-erased `check` operation required by aggregate validation. `Lens[T]` and `ObjectLens` implement it, so heterogeneous lenses can be passed directly to `validate`. Every check runs, and failures are returned in input order.
@@ -70,6 +94,6 @@ test {
 
 ## Current scope
 
-The initial API supports object-property traversal and `String`, `Bool`, `Double`, standard-converted `Int`, and raw `Json` values. Array traversal, refinements, alternatives, optional and nullable combinators, and mutation such as `set` are reserved for later phases.
+The API supports object-property traversal; `String`, `Bool`, `Double`, standard-converted `Int`, and raw `Json` values; typed arrays; and nullable, optional, and nullish values. Refinements, alternatives, and mutation such as `set` are reserved for later phases.
 
 See [the design document](docs/design.md) for the detailed contract and roadmap. A Japanese translation is available at [docs/design.ja.md](docs/design.ja.md).

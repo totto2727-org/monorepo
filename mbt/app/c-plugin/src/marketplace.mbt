@@ -191,27 +191,17 @@ fn normalize_plugin_source(value : String?) -> String? {
 }
 
 ///|
-fn plugin_source_from_json(
-  plugin : Map[String, Json],
-  kind : MarketplaceKind,
-) -> String? {
+fn plugin_source_from_json(plugin : Json, kind : MarketplaceKind) -> String? {
   match kind {
     Codex =>
-      match plugin.get("source") {
-        Some(Json::Object(source)) =>
-          normalize_plugin_source(
-            match source.get("path") {
-              Some(Json::String(value)) => Some(value)
-              _ => None
-            },
-          )
-        None => None
-        _ => None
-      }
+      normalize_plugin_source(
+        @lens.object("source").string("path").optional().get(plugin) catch {
+          _ => None
+        },
+      )
     _ =>
       normalize_plugin_source(
-        match plugin.get("source") {
-          Some(Json::String(value)) => Some(value)
+        @lens.root().string("source").optional().get(plugin) catch {
           _ => None
         },
       )
@@ -223,41 +213,29 @@ fn normalized_plugins_from_json(
   text : String,
   kind : MarketplaceKind,
 ) -> Array[NormalizedPlugin] {
-  let object = match (@json.parse(text) catch { _ => Json::null() }) {
-    Json::Object(object) => object
-    _ => Map([])
-  }
-  match object.get("plugins") {
-    Some(Json::Array(values)) =>
-      values
-      .iter()
-      .filter_map(fn(value) {
-        match value {
-          Json::Object(plugin) => normalized_plugin_from_json(plugin, kind)
-          _ => None
-        }
-      })
-      .collect()
-    _ => []
-  }
+  let document = @json.parse(text) catch { _ => return [] }
+  let plugins = @lens.root().json("plugins").array().get(document) catch {
+      _ => []
+    }
+  plugins
+  .iter()
+  .filter_map(plugin => normalized_plugin_from_json(plugin, kind))
+  .collect()
 }
 
 ///|
 fn normalized_plugin_from_json(
-  plugin : Map[String, Json],
+  plugin : Json,
   kind : MarketplaceKind,
 ) -> NormalizedPlugin? {
-  let name = match plugin.get("name") {
-    Some(Json::String(value)) => value
-    _ => "plugin"
-  }
+  let _ = @lens.root().get(plugin) catch { _ => return None }
+  let name = @lens.root().string("name").get(plugin) catch { _ => "plugin" }
   let source = plugin_source_from_json(plugin, kind).unwrap_or(name)
   if is_relative_plugin_path(source) {
     Some({
       name,
       source,
-      description: match plugin.get("description") {
-        Some(Json::String(value)) => Some(value)
+      description: @lens.root().string("description").optional().get(plugin) catch {
         _ => None
       },
     })
@@ -268,12 +246,8 @@ fn normalized_plugin_from_json(
 
 ///|
 fn marketplace_name_from_json(text : String) -> String {
-  match (@json.parse(text) catch { _ => Json::null() }) {
-    Json::Object(object) =>
-      match object.get("name") {
-        Some(Json::String(value)) => value
-        _ => "marketplace"
-      }
+  let document = @json.parse(text) catch { _ => return "marketplace" }
+  @lens.root().string("name").get(document) catch {
     _ => "marketplace"
   }
 }

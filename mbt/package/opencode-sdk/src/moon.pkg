@@ -6,6 +6,7 @@ import {
   "moonbitlang/core/string",
   "moonbitlang/x/path",
   "totto2727/agent-cli-sdk" @agent_cli,
+  "totto2727/lens",
 }
 
 import {

@@ -42,6 +42,13 @@ test "parse_worktree_list ignores blocks without worktree line" {
 }
 
 ///|
+test "parse_pr_json - reads the first GitHub pull request" {
+  let pr = parse_pr_json("[{\"number\":42,\"state\":\"MERGED\"}]").unwrap()
+  inspect(pr.state, content="merged")
+  debug_inspect(pr.number, content="Some(\"42\")")
+}
+
+///|
 async test "fetch_repo_worktrees resolves a nested repository path" {
   let root = @fs.tmpdir(prefix="wt-fetch-repo-worktrees-")
   let nested = "\{root}/some/nested/directory"

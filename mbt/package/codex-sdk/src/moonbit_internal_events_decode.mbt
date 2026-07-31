@@ -11,14 +11,9 @@ fn moonbit_internal_usage_from_json(json : Json) -> Usage raise CodexSdkError {
     cached_input_tokens: moonbit_internal_required_int(
       object, "cached_input_tokens", "usage",
     ),
-    cache_write_input_tokens: match object.get("cache_write_input_tokens") {
-      Some(Json::Number(value, ..)) => value.to_int()
-      None => 0
-      Some(_) =>
-        raise InvalidEvent(
-          message="usage.cache_write_input_tokens must be a number",
-        )
-    },
+    cache_write_input_tokens: moonbit_internal_int_or_missing_default(
+      object, "cache_write_input_tokens", "usage", 0,
+    ),
     output_tokens: moonbit_internal_required_int(
       object, "output_tokens", "usage",
     ),
