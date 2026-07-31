@@ -6,7 +6,7 @@ This guide is for programmers who are comfortable reading typed code and have an
 
 It explains how the `core` package models a graph workflow, validates its structure, executes nodes, updates state, selects routes, owns resources, and reports failures.
 
-The quoted code is taken from the current implementation under `src/core`, and an explicit `// ...` marker identifies any omitted implementation lines.
+Each quoted definition or continuous excerpt is taken verbatim from the current implementation under `src/core`, and an explicit `// ...` marker identifies omitted lines inside an excerpt.
 
 Provider-specific MoonLLM, Codex, and OpenCode details are outside this guide because the core depends only on generic callbacks and coding-agent contracts.
 
@@ -125,16 +125,18 @@ The reducer is the only operation that turns `(state, patch)` into the next stat
 Routing is also a separate function.
 
 ```moonbit
-pub(all) struct Router[S] {
-  declared_targets : ReadOnlyArray[NodeId]
-  evaluate : (S, NodeCompletion) -> Route raise
-}
-
 pub(all) enum Route {
   To(NodeId)
   End
   Fail(String)
 } derive(Debug)
+```
+
+```moonbit
+pub(all) struct Router[S] {
+  declared_targets : ReadOnlyArray[NodeId]
+  evaluate : (S, NodeCompletion) -> Route raise
+}
 ```
 
 `declared_targets` is a static over-approximation of every `To` result that `evaluate` may return.
@@ -444,6 +446,8 @@ The runtime sends events through a callback.
 pub(all) struct EventSink {
   emit : (GraphEvent) -> Unit raise
 }
+
+// ... constructors omitted ...
 
 pub fn EventSink::try_emit(self : EventSink, event : GraphEvent) -> Unit {
   (self.emit)(event) catch {
