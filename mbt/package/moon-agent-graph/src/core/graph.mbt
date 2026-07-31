@@ -66,7 +66,7 @@ pub fn[S, P] GraphDefinition::set_router(
   value : Router[S],
 ) -> Unit raise GraphBuildError {
   guard !self.routers.contains(from) else { raise DuplicateRouter(from) }
-  self.routers[from] = router(value.declared_targets, value.evaluate)
+  self.routers[from] = @copy.Copy::copy(value)
 }
 
 ///|
@@ -76,20 +76,6 @@ pub fn[S, P] GraphDefinition::set_entry(
 ) -> Unit raise GraphBuildError {
   guard !entry.to_string().is_empty() else { raise InvalidId("NodeId") }
   self.entry = Some(entry)
-}
-
-///|
-fn[S] copy_router(value : Router[S]) -> Router[S] {
-  router(value.declared_targets, value.evaluate)
-}
-
-///|
-fn[S, P] copy_node(value : Node[S, P]) -> Node[S, P] {
-  Node::{
-    id: value.id,
-    metadata: @copy.Copy::copy(value.metadata),
-    execute: value.execute,
-  }
 }
 
 ///|
@@ -135,8 +121,8 @@ pub fn[S, P] GraphDefinition::compile(
 ) -> CompiledGraph[S, P] raise GraphValidationError {
   let entry = self.entry.unwrap_or_error(MissingEntry)
   validate_graph(self.nodes, self.routers, entry)
-  let nodes = self.nodes.map((_id, value) => copy_node(value))
-  let routers = self.routers.map((_source, value) => copy_router(value))
+  let nodes = self.nodes.map((_id, value) => @copy.Copy::copy(value))
+  let routers = self.routers.map((_source, value) => @copy.Copy::copy(value))
   CompiledGraph::{ reducer: self.reducer, nodes, routers, entry }
 }
 
@@ -166,5 +152,5 @@ pub fn[S, P] CompiledGraph::get_router(
   self : CompiledGraph[S, P],
   id : NodeId,
 ) -> Router[S] raise GraphRuntimeError {
-  copy_router(self.routers.get(id).unwrap_or_error(RouterNotFound(id)))
+  @copy.Copy::copy(self.routers.get(id).unwrap_or_error(RouterNotFound(id)))
 }
