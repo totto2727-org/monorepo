@@ -1,9 +1,9 @@
 import {
   "moonbitlang/async",
-  "moonbitlang/core/env",
-  "moonbitlang/x/path",
   "totto2727/moon-agent-graph/core",
-  "totto2727/opencode-sdk" @sdk,
+  "totto2727/moon-agent-graph/visualization" @renderer,
 }
 
 supported_targets = "native"
+
+pkgtype(kind: "executable")

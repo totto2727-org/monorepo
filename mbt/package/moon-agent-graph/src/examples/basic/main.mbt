@@ -32,7 +32,12 @@ async fn main {
   definition.add_node(example_node(verify, "test"))
   definition.set_router(
     plan,
-    @core.router([verify], fn(_state, _completion) { @core.To(verify) }),
+    @core.router([@core.DeclaredRoute::DeclaredRoute(verify)], fn(
+      _state,
+      _completion,
+    ) {
+      @core.To(verify)
+    }),
   )
   definition.set_router(
     verify,

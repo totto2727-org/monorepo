@@ -37,7 +37,12 @@ mbt/package/moon-agent-graph/
     │   ├── codex/
     │   └── opencode/
     ├── testing/
-    └── e2e/
+    ├── visualization/
+    ├── examples/
+    │   ├── basic/
+    │   └── visualization/
+    ├── e2e/
+    └── test/
 ```
 
 すべてのソースパッケージは1つの `moon.pkg` を持ちます。
@@ -64,11 +69,21 @@ flowchart TD
   OpenCodeSDK --> AgentCLI["totto2727/agent-cli-sdk"]
   Testing["testing"] --> Core
   Testing --> MoonLLMSDK
+  Visualization["visualization"] --> Core
   Basic["examples/basic"] --> Core
+  VisualizationExample["examples/visualization"] --> Core
+  VisualizationExample --> Visualization
   E2E["e2e"] --> Core
   E2E --> MoonLLMNode
   E2E --> Agent
   E2E --> Testing
+  IntegrationTest["test"] --> Core
+  IntegrationTest --> MoonLLMNode
+  IntegrationTest --> Agent
+  IntegrationTest --> Codex
+  IntegrationTest --> OpenCode
+  IntegrationTest --> Testing
+  IntegrationTest --> E2E
 ```
 
 本番コードからexampleやtestingパッケージをインポートしてはいけません。
@@ -146,7 +161,7 @@ Codex SDK、OpenCode SDK、グラフモジュールは `moonbitlang/async@0.20.1
 - ノードあたり1つのルーターを許可する
 - サイクルを許可する
 - 宣言されていない、または不明な宛先を拒否する
-- コンパイル時に定義コレクションをコピーする
+- コンパイル時に不変の定義値を永続 HashMap に格納する
 - コンパイル済みコレクションはプライベートに保つ
 - 並列エッジの順序付けセマンティクスを追加しない
 
@@ -539,6 +554,7 @@ vp run mbt:test
 moon test --target native mbt/package/moon-agent-graph/src/core
 moon test --target native mbt/package/moon-agent-graph/src/integrations/codex
 moon test --target native mbt/package/moon-agent-graph/src/integrations/opencode
+moon test --target native mbt/package/moon-agent-graph/src/test
 ```
 
 最終的な手動ゲートは、少なくとも1つの関数のみの例と1つの決定論的コーディングエージェントワークフローを、そのネイティブ実行可能ファイルの表面を通じてカバーします。

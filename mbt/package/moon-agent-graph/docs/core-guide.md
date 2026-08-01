@@ -100,7 +100,7 @@ The node receives a read-only value of the current state and returns data descri
 pub(all) struct NodeOutput[P] {
   patch : P?
   value : Json?
-  artifacts : Array[Artifact]
+  artifacts : ReadOnlyArray[Artifact]
 }
 ```
 
@@ -134,12 +134,13 @@ pub(all) enum Route {
 
 ```moonbit
 pub(all) struct Router[S] {
-  declared_targets : ReadOnlyArray[NodeId]
+  metadata : RouterMetadata
+  declared_routes : ReadOnlyArray[DeclaredRoute]
   evaluate : (S, NodeCompletion) -> Route raise
 }
 ```
 
-`declared_targets` is a static over-approximation of every `To` result that `evaluate` may return.
+Each `DeclaredRoute` combines an execution target with optional `DeclaredRouteMetadata`; `declared_routes` is a static over-approximation of every `To` result that `evaluate` may return.
 
 It gives the compiler enough information to validate destinations and reachability before any node is executed.
 
@@ -190,7 +191,7 @@ Source: `src/core/graph.mbt`
 
 `add_node`, `set_router`, and `set_entry` reject duplicate definitions and invalid identifiers.
 
-`compile` performs structural validation and then copies the node and router maps into an immutable `CompiledGraph[S, P]`.
+`compile` performs structural validation and then stores the immutable node and router values in persistent hash maps owned by `CompiledGraph[S, P]`.
 
 ```moonbit
 pub fn[S, P] GraphDefinition::compile(
@@ -198,8 +199,8 @@ pub fn[S, P] GraphDefinition::compile(
 ) -> CompiledGraph[S, P] raise GraphValidationError {
   let entry = self.entry.unwrap_or_error(MissingEntry)
   validate_graph(self.nodes, self.routers, entry)
-  let nodes = self.nodes.map((_id, value) => @copy.Copy::copy(value))
-  let routers = self.routers.map((_source, value) => @copy.Copy::copy(value))
+  let nodes = @immut_hashmap.from_iter(self.nodes.iter())
+  let routers = @immut_hashmap.from_iter(self.routers.iter())
   CompiledGraph::{ reducer: self.reducer, nodes, routers, entry }
 }
 ```
@@ -220,9 +221,9 @@ let pending = [entry]
 while pending.pop() is Some(node_id) {
   if reachable.add_and_check(node_id) {
     let value = routers[node_id]
-    for target in value.declared_targets {
-      if !reachable.contains(target) {
-        pending.push(target)
+    for route in value.declared_routes {
+      if !reachable.contains(route.target) {
+        pending.push(route.target)
       }
     }
   }
@@ -266,7 +267,7 @@ Each iteration performs the following transition.
 7. Emit `NodeCompleted`.
 8. Apply the optional patch.
 9. Evaluate the router against the updated state.
-10. Check the dynamic route against `declared_targets`.
+10. Check the dynamic route against `declared_routes`.
 11. Continue, return, or fail.
 
 The state update happens before route evaluation.
@@ -296,7 +297,7 @@ The runtime then enforces the router's static contract.
 ```moonbit
 match route {
   To(target) => {
-    guard is_declared_target(router.declared_targets, target) else {
+    guard is_declared_target(router.declared_routes, target) else {
       raise RouteContractViolated(from=current, to=target)
     }
     current = target
@@ -417,7 +418,7 @@ Discarding either failure would make diagnosis incomplete, so the runtime retain
 ```moonbit
 pub(all) struct RunFailure {
   primary : Error
-  cleanup : Array[Error]
+  cleanup : ReadOnlyArray[Error]
 } derive(Debug)
 
 pub(all) suberror GraphRuntimeError {

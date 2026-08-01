@@ -4,8 +4,6 @@ import {
 
 import {
   "moonbitlang/async",
-  "moonbitlang/core/immut/hashmap" @immut_hashmap,
-  "moonbitlang/x/path",
 } for "test"
 
 supported_targets = "native"
