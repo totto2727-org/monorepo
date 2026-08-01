@@ -312,11 +312,39 @@ pub fn[S, P] CompiledGraph::get_router(
   self : CompiledGraph[S, P],
   id : NodeId,
 ) -> Router[S] raise GraphRuntimeError
+
+pub(all) struct CompiledNodeSnapshot {
+  id : NodeId
+  metadata : NodeMetadata
+  router_metadata : RouterMetadata
+  declared_routes : ReadOnlyArray[DeclaredRoute]
+}
+
+pub(all) struct CompiledGraphSnapshot {
+  entry : NodeId
+  nodes : ReadOnlyArray[CompiledNodeSnapshot]
+}
+
+pub fn[S, P] CompiledGraph::snapshot(
+  self : CompiledGraph[S, P],
+) -> CompiledGraphSnapshot
 ```
 
-Compilation copies definition maps and per-node arrays into detached private storage.
+Compilation stores immutable node and router values in private persistent hash maps. Builder mutations after compilation cannot alter the compiled structure.
 
 Query methods do not expose mutable aliases of that storage.
+
+`snapshot` returns the deterministic callback-free structure used by inspection tools.
+
+## Visualization
+
+The optional `totto2727/moon-agent-graph/visualization` package renders a compiled graph as Mermaid without exposing runtime callbacks.
+
+```moonbit
+pub fn[S, P] to_mermaid(graph : CompiledGraph[S, P]) -> String
+```
+
+The renderer uses node descriptions, router descriptions, and declared route labels from `core` metadata. It does not infer runtime-only conditions or `End` and `Fail` outcomes.
 
 ## Runtime Options and Result
 

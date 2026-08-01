@@ -2,9 +2,6 @@
 pub struct NodeId(String) derive(Eq, Hash, Debug)
 
 ///|
-pub impl @copy.Copy for NodeId
-
-///|
 pub struct RunId(String) derive(Eq, Hash, Debug)
 
 ///|

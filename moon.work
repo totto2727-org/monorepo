@@ -8,7 +8,6 @@ members = [
   "./mbt/package/geo-mbt",
   "./mbt/package/target-file-discovery",
   "./mbt/package/moon-agent-graph",
-  "./mbt/package/moon-agent-graph-visualization",
   "./mbt/package/lens",
   "./mbt/app/bw",
   "./mbt/app/wt",

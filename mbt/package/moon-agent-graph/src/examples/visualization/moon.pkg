@@ -1,7 +1,7 @@
 import {
   "moonbitlang/async",
   "totto2727/moon-agent-graph/core",
-  "totto2727/moon-agent-graph-visualization" @visualization,
+  "totto2727/moon-agent-graph/visualization" @renderer,
 }
 
 supported_targets = "native"

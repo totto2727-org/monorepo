@@ -191,7 +191,7 @@ Source: `src/core/graph.mbt`
 
 `add_node`, `set_router`, and `set_entry` reject duplicate definitions and invalid identifiers.
 
-`compile` performs structural validation and then copies the node and router maps into an immutable `CompiledGraph[S, P]`.
+`compile` performs structural validation and then stores the immutable node and router values in persistent hash maps owned by `CompiledGraph[S, P]`.
 
 ```moonbit
 pub fn[S, P] GraphDefinition::compile(
@@ -199,8 +199,8 @@ pub fn[S, P] GraphDefinition::compile(
 ) -> CompiledGraph[S, P] raise GraphValidationError {
   let entry = self.entry.unwrap_or_error(MissingEntry)
   validate_graph(self.nodes, self.routers, entry)
-  let nodes = self.nodes.map((_id, value) => @copy.Copy::copy(value))
-  let routers = self.routers.map((_source, value) => @copy.Copy::copy(value))
+  let nodes = @immut_hashmap.from_iter(self.nodes.iter())
+  let routers = @immut_hashmap.from_iter(self.routers.iter())
   CompiledGraph::{ reducer: self.reducer, nodes, routers, entry }
 }
 ```

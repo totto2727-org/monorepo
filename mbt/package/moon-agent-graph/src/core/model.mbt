@@ -22,16 +22,6 @@ pub(all) struct NodeMetadata {
 } derive(Debug)
 
 ///|
-pub impl @copy.Copy for NodeMetadata with fn copy(self) {
-  NodeMetadata::{
-    name: self.name,
-    description: self.description,
-    kind: self.kind,
-    tags: @copy.Copy::copy(self.tags),
-  }
-}
-
-///|
 pub(all) enum ArtifactKind {
   File
   Directory
@@ -146,16 +136,6 @@ pub(all) struct Node[S, P] {
 }
 
 ///|
-/// Copies node-owned data while retaining the callback that defines its behavior.
-pub impl[S, P] @copy.Copy for Node[S, P] with fn copy(self) {
-  Node::{
-    id: self.id,
-    metadata: @copy.Copy::copy(self.metadata),
-    execute: self.execute,
-  }
-}
-
-///|
 pub fn[S, P] function_node(
   id : NodeId,
   metadata : NodeMetadata,
@@ -169,9 +149,6 @@ pub fn[S, P] function_node(
 pub(all) struct DeclaredRouteMetadata {
   label : String?
 } derive(Debug)
-
-///|
-pub impl @copy.Copy for DeclaredRouteMetadata
 
 ///|
 /// Creates display metadata for a statically declared route.
@@ -189,9 +166,6 @@ pub(all) struct DeclaredRoute {
 } derive(Debug)
 
 ///|
-pub impl @copy.Copy for DeclaredRoute
-
-///|
 /// Declares a possible runtime destination.
 pub fn DeclaredRoute::DeclaredRoute(
   target : NodeId,
@@ -207,9 +181,6 @@ pub(all) struct RouterMetadata {
 } derive(Debug)
 
 ///|
-pub impl @copy.Copy for RouterMetadata
-
-///|
 /// Creates display metadata for a router.
 pub fn RouterMetadata::RouterMetadata(description? : String) -> RouterMetadata {
   RouterMetadata::{ description, }
@@ -223,26 +194,12 @@ pub(all) struct Router[S] {
 }
 
 ///|
-/// Copies router-owned data while retaining the callback that defines its behavior.
-pub impl[S] @copy.Copy for Router[S] with fn copy(self) {
-  Router::{
-    metadata: @copy.Copy::copy(self.metadata),
-    declared_routes: @copy.Copy::copy(self.declared_routes),
-    evaluate: self.evaluate,
-  }
-}
-
-///|
 pub fn[S] router(
   declared_routes : ReadOnlyArray[DeclaredRoute],
   evaluate : (S, NodeCompletion) -> Route raise,
   metadata? : RouterMetadata = RouterMetadata::RouterMetadata(),
 ) -> Router[S] {
-  Router::{
-    metadata: @copy.Copy::copy(metadata),
-    declared_routes: @copy.Copy::copy(declared_routes),
-    evaluate,
-  }
+  Router::{ metadata, declared_routes, evaluate }
 }
 
 ///|

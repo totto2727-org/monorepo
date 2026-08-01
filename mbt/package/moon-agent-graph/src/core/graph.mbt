@@ -66,7 +66,7 @@ pub fn[S, P] GraphDefinition::set_router(
   value : Router[S],
 ) -> Unit raise GraphBuildError {
   guard !self.routers.contains(from) else { raise DuplicateRouter(from) }
-  self.routers[from] = @copy.Copy::copy(value)
+  self.routers[from] = value
 }
 
 ///|
@@ -121,16 +121,16 @@ pub fn[S, P] GraphDefinition::compile(
 ) -> CompiledGraph[S, P] raise GraphValidationError {
   let entry = self.entry.unwrap_or_error(MissingEntry)
   validate_graph(self.nodes, self.routers, entry)
-  let nodes = self.nodes.map((_id, value) => @copy.Copy::copy(value))
-  let routers = self.routers.map((_source, value) => @copy.Copy::copy(value))
+  let nodes = @immut_hashmap.from_iter(self.nodes.iter())
+  let routers = @immut_hashmap.from_iter(self.routers.iter())
   CompiledGraph::{ reducer: self.reducer, nodes, routers, entry }
 }
 
 ///|
 pub struct CompiledGraph[S, P] {
   reducer : Reducer[S, P]
-  nodes : Map[NodeId, Node[S, P]]
-  routers : Map[NodeId, Router[S]]
+  nodes : @immut_hashmap.HashMap[NodeId, Node[S, P]]
+  routers : @immut_hashmap.HashMap[NodeId, Router[S]]
   entry : NodeId
 }
 
@@ -168,7 +168,7 @@ pub fn[S, P] CompiledGraph::get_router(
   self : CompiledGraph[S, P],
   id : NodeId,
 ) -> Router[S] raise GraphRuntimeError {
-  @copy.Copy::copy(self.routers.get(id).unwrap_or_error(RouterNotFound(id)))
+  self.routers.get(id).unwrap_or_error(RouterNotFound(id))
 }
 
 ///|
@@ -187,8 +187,8 @@ pub fn[S, P] CompiledGraph::snapshot(
     })
     CompiledNodeSnapshot::{
       id: node_id,
-      metadata: @copy.Copy::copy(node.metadata),
-      router_metadata: @copy.Copy::copy(router.metadata),
+      metadata: node.metadata,
+      router_metadata: router.metadata,
       declared_routes: ReadOnlyArray::from_array(routes),
     }
   })

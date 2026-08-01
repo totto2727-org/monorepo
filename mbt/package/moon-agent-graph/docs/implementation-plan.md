@@ -37,6 +37,10 @@ mbt/package/moon-agent-graph/
     │   ├── codex/
     │   └── opencode/
     ├── testing/
+    ├── visualization/
+    ├── examples/
+    │   ├── basic/
+    │   └── visualization/
     └── e2e/
 ```
 
@@ -64,7 +68,10 @@ flowchart TD
   OpenCodeSDK --> AgentCLI["totto2727/agent-cli-sdk"]
   Testing["testing"] --> Core
   Testing --> MoonLLMSDK
+  Visualization["visualization"] --> Core
   Basic["examples/basic"] --> Core
+  VisualizationExample["examples/visualization"] --> Core
+  VisualizationExample --> Visualization
   E2E["e2e"] --> Core
   E2E --> MoonLLMNode
   E2E --> Agent
@@ -146,7 +153,7 @@ Status: Complete.
 - Permit one router per node.
 - Allow cycles.
 - Reject undeclared or unknown destinations.
-- Copy definition collections during compilation.
+- Store immutable definition values in persistent hash maps during compilation.
 - Keep compiled collections private.
 - Do not add parallel-edge ordering semantics.
 

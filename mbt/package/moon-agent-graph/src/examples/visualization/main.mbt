@@ -139,5 +139,5 @@ async fn main {
     @core.router([], fn(_state, _completion) { @core.End }),
   )
   definition.set_entry(plan)
-  println(@visualization.to_mermaid(definition.compile()))
+  println(@renderer.to_mermaid(definition.compile()))
 }

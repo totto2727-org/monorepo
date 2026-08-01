@@ -312,11 +312,39 @@ pub fn[S, P] CompiledGraph::get_router(
   self : CompiledGraph[S, P],
   id : NodeId,
 ) -> Router[S] raise GraphRuntimeError
+
+pub(all) struct CompiledNodeSnapshot {
+  id : NodeId
+  metadata : NodeMetadata
+  router_metadata : RouterMetadata
+  declared_routes : ReadOnlyArray[DeclaredRoute]
+}
+
+pub(all) struct CompiledGraphSnapshot {
+  entry : NodeId
+  nodes : ReadOnlyArray[CompiledNodeSnapshot]
+}
+
+pub fn[S, P] CompiledGraph::snapshot(
+  self : CompiledGraph[S, P],
+) -> CompiledGraphSnapshot
 ```
 
-コンパイルは定義マップとノードごとの配列を分離されたプライベートストレージにコピーします。
+コンパイルは不変のノードとルーターの値をプライベートな永続 HashMap に格納します。コンパイル後にビルダーを変更しても、コンパイル済みの構造は変更されません。
 
 クエリメソッドはそのストレージのミュータブルエイリアスを公開しません。
+
+`snapshot` は、検査ツールが使用する決定論的でコールバックを含まない構造を返します。
+
+## 可視化
+
+オプションの `totto2727/moon-agent-graph/visualization` パッケージは、ランタイムコールバックを公開せずにコンパイル済みグラフを Mermaid としてレンダリングします。
+
+```moonbit
+pub fn[S, P] to_mermaid(graph : CompiledGraph[S, P]) -> String
+```
+
+レンダラーは `core` メタデータのノード説明、ルーター説明、宣言済みルートラベルを使用します。ランタイムでのみ判定できる条件や `End`、`Fail` の結果は推論しません。
 
 ## ランタイムオプションと結果
 

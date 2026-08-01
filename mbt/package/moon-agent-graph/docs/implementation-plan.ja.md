@@ -37,6 +37,10 @@ mbt/package/moon-agent-graph/
     │   ├── codex/
     │   └── opencode/
     ├── testing/
+    ├── visualization/
+    ├── examples/
+    │   ├── basic/
+    │   └── visualization/
     └── e2e/
 ```
 
@@ -64,7 +68,10 @@ flowchart TD
   OpenCodeSDK --> AgentCLI["totto2727/agent-cli-sdk"]
   Testing["testing"] --> Core
   Testing --> MoonLLMSDK
+  Visualization["visualization"] --> Core
   Basic["examples/basic"] --> Core
+  VisualizationExample["examples/visualization"] --> Core
+  VisualizationExample --> Visualization
   E2E["e2e"] --> Core
   E2E --> MoonLLMNode
   E2E --> Agent
@@ -146,7 +153,7 @@ Codex SDK、OpenCode SDK、グラフモジュールは `moonbitlang/async@0.20.1
 - ノードあたり1つのルーターを許可する
 - サイクルを許可する
 - 宣言されていない、または不明な宛先を拒否する
-- コンパイル時に定義コレクションをコピーする
+- コンパイル時に不変の定義値を永続 HashMap に格納する
 - コンパイル済みコレクションはプライベートに保つ
 - 並列エッジの順序付けセマンティクスを追加しない
 
