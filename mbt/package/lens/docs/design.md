@@ -1,17 +1,17 @@
-# Typed JSON Lens and Validation for MoonBit
+# Typed JSON Lens, Builder, and Validation for MoonBit
 
 ## Status
 
-This document is the reviewed design direction for a future `lens` package.
+This document records the reviewed design and implemented direction of the `lens` package.
 
-The proposal is viable after the corrections recorded below. Its primary public abstraction is `Lens[T]`. The first release exposes only the read side, while the name deliberately reserves a future lawful `set` and `modify` API.
+The primary public abstraction is `Lens[T]`. A lens reads typed values from an existing `Json` document and writes typed values to a separate `JsonBuilder`. Builder writes construct outbound JSON and do not mutate or persistently update an input document.
 
 This review targets MoonBit 0.10.4 and `moonbitlang/core` 0.10.4.
 
 ## Decision summary
 
-- Start with a read-only typed JSON lens and validation library.
-- Model a lens as a package-owned JSON Pointer plus a value decoder.
+- Provide typed JSON access, builder construction, and aggregate validation.
+- Model a lens as a package-owned JSON Pointer plus a value decoder and encoder.
 - Use `Lens[T]` for typed values and `ObjectLens` for typed object values and paths that may create child property lenses.
 - Keep the package's pointer representation independent from `@json.JsonPath`.
 - Raise `LensError` from one lens and return a non-generic `Validation` from aggregate checks.
@@ -20,14 +20,16 @@ This review targets MoonBit 0.10.4 and `moonbitlang/core` 0.10.4.
 - Use a check-only `LensTrait` trait object to erase concrete lens types only at the aggregate validation boundary.
 - Start with object properties and primitive decoders.
 - Delegate numeric parsing and conversion to MoonBit core APIs; do not maintain a package-specific number parser.
+- Build outbound objects through a mutable `JsonBuilder` that implements `ToJson`.
+- Define `Lens::set` as a builder-targeted write that creates missing object parents and never updates an existing JSON document.
 - Add optionality, arrays, refinements, transformations, and alternatives only after the foundation is stable.
 - Do not promise JSON Schema or OpenAPI generation from opaque decoder closures.
-- Reserve `set` and `modify` for a later milestone with explicit write policies and lens-law tests.
+- Keep source-document mutation outside the builder API and validation API.
 - Do not add value construction, type inference, or mutation operations to the validation API.
 
 ## Problem statement
 
-MoonBit's standard `Json` type represents JSON values and its `FromJson` trait decodes a complete value into a MoonBit type. This package addresses a different use case: repeatedly selecting known locations from one JSON document, decoding each selected value, and optionally collecting all independent failures into one validation result.
+MoonBit's standard `Json` type represents JSON values, its `FromJson` trait decodes a complete value into a MoonBit type, and its `ToJson` trait encodes a complete value. This package addresses two related use cases: repeatedly selecting known locations from one JSON document, and reusing those typed locations to construct an outbound JSON object without hand-maintaining a `Map[String, Json]` inside each caller.
 
 The core model is:
 
@@ -37,18 +39,22 @@ ObjectLens
 
 Lens[T]
 ├── location: Pointer
-└── value interpretation: Decoder[T]
+├── value interpretation: Decoder[T]
+└── output encoding: Encoder[T]
+
+JsonBuilder
+└── generated object path tree
 ```
 
-The first release is deliberately not a general JSON query language, a complete Haskell lens implementation, or a replacement for `FromJson` derivation. It establishes the read side of a future JSON lens while keeping mutation out of the initial scope.
+The package is deliberately not a general JSON query language, a complete Haskell lens implementation, or a replacement for `FromJson` and `ToJson` derivation. Builder writes reuse lens pointers and typed encoders, while source-document mutation remains out of scope.
 
 ## Review findings that change the original proposal
 
-### Retain `Lens` as the public abstraction
+### Retain `Lens` as the shared typed location
 
-A conventional lens supports both reading and lawful updating. The first milestone implements only reading and decoding, but future `set` and `modify` operations are part of the intended design space.
+A conventional lens supports both reading and lawful updating. This package instead reuses one typed location for input decoding and output construction. `Lens::set` targets a mutable `JsonBuilder`, so it is a builder setter rather than a source-document update.
 
-The package and public type should therefore use `lens` and `Lens[T]`. The documentation must state clearly which operations are currently available so the name does not imply that mutation already exists.
+The package and public type retain `lens` and `Lens[T]`, while the method signature and documentation make the target explicit. Existing JSON documents remain immutable from the package's perspective.
 
 ### Own the pointer representation
 
@@ -186,6 +192,27 @@ pub struct Decoder[T] {
 
 Primitive decoders should perform JSON variant dispatch directly so the package can provide stable structured error codes. Numeric parsing and conversion inside those decoders must delegate to MoonBit core. A later `Decoder::from_json[T : FromJson]` bridge may catch `JsonDecodeError`, but it should classify the failure as an external decode failure because core's human-readable message is not a stable structured error code.
 
+### Encoder
+
+`Encoder[T]` converts a typed value into one JSON leaf or an omission request. Primitive encoders delegate to MoonBit core JSON constructors. Array encoders encode every item, while optional omission inside an array is rejected because JSON arrays cannot contain a missing element.
+
+Presence combinators have explicit builder behavior:
+
+| Lens                        | `Some(value)`     | `None`             |
+| --------------------------- | ----------------- | ------------------ |
+| `nullable`                  | Encode the value. | Write JSON `null`. |
+| `optional`                  | Encode the value. | Omit the property. |
+| `nullish()`                 | Encode the value. | Omit the property. |
+| `nullish(encode_mode=Null)` | Encode the value. | Write JSON `null`. |
+
+`NullishEncodeMode` makes the outbound representation explicit when JSON `null` is required, while defaulting to omission. The implementation selects the existing optional or nullable encoder instead of maintaining a separate nullish encoder.
+
+### JSON builder
+
+`JsonBuilder` is a mutable outbound-object builder whose internal nodes distinguish encoded JSON leaves from generated object parents. `Lens::set` walks its package-owned pointer, creates missing object parents, and writes the encoded leaf. Writing the same pointer again replaces its value. An encoded leaf used as an intermediate node raises `JsonBuildError` at the exact conflicting pointer.
+
+`optional(None)` removes an earlier value at the same pointer and prunes empty generated parents. `BuildNode` implements `ToJson`; generated object nodes delegate directly to `Map[String, BuildNode]::to_json`, while encoded leaves pass through unchanged. Every conversion creates fresh maps for generated object nodes, so later builder writes cannot mutate an earlier result.
+
 ### Object lens
 
 `ObjectLens` represents a typed object location from which child properties may be declared. It delegates traversal and object decoding to an internal `Lens[Map[String, Json]]`. Object decoding copies the selected top-level map so mutations through the returned map do not alter the source document; nested `Json` values retain their standard sharing semantics.
@@ -204,6 +231,7 @@ It returns the selected object through `ObjectLens::get` and prevents invalid AP
 pub struct Lens[T] {
   priv pointer : Pointer
   priv decoder : Decoder[T]
+  priv encoder : Encoder[T]
 }
 ```
 
@@ -213,6 +241,8 @@ pub struct Lens[T] {
 2. Decode the selected value with its decoder.
 
 Traversal and decoding failures are normalized into the same public `Issue` value and raised as `LensError`.
+
+`Lens::set` encodes a value and writes it to a `JsonBuilder`. Encoding and construction failures are normalized into `JsonBuildIssue` and raised as `JsonBuildError` without changing the read-side `LensError` contract.
 
 ## Phase 1 public API
 
@@ -262,6 +292,26 @@ pub fn Lens::get[T](
   Self[T],
   Json,
 ) -> T raise LensError
+
+pub(all) enum NullishEncodeMode {
+  Omit
+  Null
+}
+
+pub fn Lens::nullish[T](
+  Self[T],
+  encode_mode? : NullishEncodeMode,
+) -> Lens[T?]
+
+pub fn JsonBuilder::JsonBuilder() -> JsonBuilder
+
+pub impl ToJson for JsonBuilder
+
+pub fn Lens::set[T](
+  Self[T],
+  JsonBuilder,
+  T,
+) -> Unit raise JsonBuildError
 ```
 
 `object("user")` is a convenience alias for `root().object("user")`.
@@ -490,28 +540,11 @@ Unknown-field rejection belongs to a future declarative object check:
 
 `strip_unknown` and `passthrough` are transformation policies, not validation policies. If they are ever needed, they require a separate API with an explicit transformed output and must not change the meaning of `Validation`.
 
-## Mutation is deferred, not excluded
+## Construction is separate from source mutation
 
-Phase 1 does not provide `set` or `modify`.
+`Lens::set` mutates only its `JsonBuilder` target. It does not accept an existing `Json`, so missing parents are unambiguously created as builder-owned object nodes and no source aliasing policy is required.
 
-The `Lens` name is retained because lawful mutation may be added later. Before exposing writes, the design must resolve:
-
-- Whether missing intermediate objects are created.
-- Whether updates are persistent or in place.
-- How an out-of-bounds array index behaves.
-- How optional and nullable lenses interact with writes.
-
-If mutation is implemented, `get`, `set`, and `modify` should remain operations on the same `Lens[T]` abstraction. The internal write implementation may live in separate source files, while `LensTrait` and `Validation` remain validation-only.
-
-For every successfully traversable source, tests should cover the standard lens laws:
-
-```text
-get(set(source, value)) = value
-set(source, get(source)) = source
-set(set(source, first), second) = set(source, second)
-```
-
-Failure behavior for missing or incompatible paths is part of the API contract and must be specified before these laws are applied.
+This builder contract deliberately replaces the previously proposed source-mutation milestone. If source-document updates are ever required, they need a separately named API with persistent-update policies and lens-law tests; they must not change the meaning of builder-targeted `Lens::set`.
 
 ## Delivery roadmap
 
@@ -570,15 +603,21 @@ Exit criteria:
 
 JSON Schema and OpenAPI generation remain separate proposals that require declarative metadata for every supported constraint.
 
-### Future milestone: Lawful mutation
+### Milestone 5: Typed output construction
 
-- `Lens::set`.
-- `Lens::modify`.
-- Explicit missing-path, incompatible-path, and array-index write policies.
-- A documented choice between persistent and in-place updates.
-- Lens-law tests for every writable lens category.
+- `Encoder[T]` paired with every supported decoder.
+- Mutable `JsonBuilder` implementing `ToJson`.
+- Builder-targeted `Lens::set` with generated object parents.
+- Explicit optional omission, nullable null, and configurable nullish behavior.
+- Structured failures for path conflicts and unrepresentable omissions.
 
-This milestone is optional until a real caller requires mutation, but the public naming and internal pointer model must not prevent it.
+Exit criteria:
+
+- Primitive, array, optional, and nullable values produce the documented JSON output.
+- Repeated writes use the latest value.
+- Optional removal prunes empty generated parents.
+- Path and encoding failures report exact pointers without partially changing the builder.
+- JSON produced before a later builder write remains unchanged.
 
 ## Initial package layout
 
@@ -593,8 +632,10 @@ lens/
     ├── pointer.mbt
     ├── issue.mbt
     ├── decoder.mbt
+    ├── encoder.mbt
     ├── lens.mbt
-    └── lookup.mbt
+    ├── lookup.mbt
+    └── builder.mbt
 ```
 
 Add `check.mbt` and `validation.mbt` in milestone 2. Add files for optionality, arrays, and alternatives only when those features are implemented.

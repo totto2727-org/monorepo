@@ -213,7 +213,9 @@ async test "Codex run - passes webSearchMode to exec" {
       ]),
     )
     client
-    .start_thread(options=ThreadOptions::ThreadOptions(web_search_mode=@codex.Cached))
+    .start_thread(
+      options=ThreadOptions::ThreadOptions(web_search_mode=@codex.Cached),
+    )
     .run(@codex.Prompt("apply web search mode"))
     |> ignore
     assert_true(
@@ -771,8 +773,12 @@ async test "Codex runStreamed - sends previous items when called twice" {
       ]),
     )
     let thread = client.start_thread()
-    thread.run_streamed(@codex.Prompt("first input"), async fn(_) { @async.pause() })
-    thread.run_streamed(@codex.Prompt("second input"), async fn(_) { @async.pause() })
+    thread.run_streamed(@codex.Prompt("first input"), async fn(_) {
+      @async.pause()
+    })
+    thread.run_streamed(@codex.Prompt("second input"), async fn(_) {
+      @async.pause()
+    })
     let second_args = fixture.recorded_lines("args", 2)
     assert_true(contains_pair(second_args, "resume", "thread-1"))
     inspect(fixture.recorded_text("input", 2), content="second input")
@@ -790,9 +796,13 @@ async test "Codex runStreamed - resumes thread by ID" {
       ]),
     )
     let original = client.start_thread()
-    original.run_streamed(@codex.Prompt("first input"), async fn(_) { @async.pause() })
+    original.run_streamed(@codex.Prompt("first input"), async fn(_) {
+      @async.pause()
+    })
     let resumed = client.resume_thread(original.id().unwrap_or(""))
-    resumed.run_streamed(@codex.Prompt("second input"), async fn(_) { @async.pause() })
+    resumed.run_streamed(@codex.Prompt("second input"), async fn(_) {
+      @async.pause()
+    })
     assert_true(
       contains_pair(fixture.recorded_lines("args", 2), "resume", "thread-1"),
     )

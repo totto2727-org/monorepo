@@ -116,7 +116,8 @@ async test "CodexExec env - preserves caller PATH entries without rewriting them
     ])
     let path = "/opt/codex/bin:/usr/bin:/opt/codex/bin"
     environment.set("PATH", path)
-    fixture.client(environment).start_thread().run(@codex.Prompt("Hello")) |> ignore
+    fixture.client(environment).start_thread().run(@codex.Prompt("Hello"))
+    |> ignore
     assert_true(fixture.recorded_lines("env", 1).contains("PATH=\{path}"))
   })
 }
@@ -134,7 +135,8 @@ async test "CodexExec env - preserves the Windows Path key" {
     ])
     environment.remove("PATH")
     environment.set("Path", "C:\\Windows\\System32")
-    fixture.client(environment).start_thread().run(@codex.Prompt("Hello")) |> ignore
+    fixture.client(environment).start_thread().run(@codex.Prompt("Hello"))
+    |> ignore
     let recorded_environment = fixture.recorded_lines("env", 1)
     assert_true(recorded_environment.contains("Path=C:\\Windows\\System32"))
     assert_true(

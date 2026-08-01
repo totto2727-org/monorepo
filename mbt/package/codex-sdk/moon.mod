@@ -1,6 +1,6 @@
 name = "totto2727/codex-sdk"
 
-version = "0.0.0"
+version = "0.1.0"
 
 preferred_target = "native"
 
@@ -9,9 +9,9 @@ supported_targets = "native"
 import {
   "moonbitlang/x@0.4.38",
   "moonbitlang/async@0.20.1",
-  "totto2727/agent-cli-sdk@0.1.0",
-  "totto2727/copy@0.1.0",
-  "totto2727/lens@0.1.0",
+  "totto2727/agent-cli-sdk@0.1.1",
+  "totto2727/copy@0.2.0",
+  "totto2727/lens@0.3.0",
 }
 
 readme = "README.md"
