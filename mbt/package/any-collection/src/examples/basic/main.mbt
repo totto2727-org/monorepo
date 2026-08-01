@@ -36,19 +36,21 @@ fn main {
   let request_context : @any_collection.AnyRef[String, RequestContext] = @any_collection.AnyRef::AnyRef(
     "request_context",
   )
-  let mutable = @any_collection.AnyMutableMap::AnyMutableMap()
-  mutable.set(request_id, "mutable-request")
-  mutable.set(retry_count, 2)
-  mutable.set(request_context, RequestContext::{
-    request_id: "mutable-custom",
-    retry_count: 3,
-  })
-  let immutable = @any_collection.AnyImmutableHashMap::AnyImmutableHashMap()
-    .added(request_id, "immutable-request")
-    .added(request_context, RequestContext::{
+  let mutable = @any_collection.AnyMutableMap::AnyMutableMap([
+    request_id.entry("mutable-request"),
+    retry_count.entry(2),
+    request_context.entry(RequestContext::{
+      request_id: "mutable-custom",
+      retry_count: 3,
+    }),
+  ])
+  let immutable = @any_collection.AnyImmutableHashMap::AnyImmutableHashMap([
+    request_id.entry("immutable-request"),
+    request_context.entry(RequestContext::{
       request_id: "immutable-custom",
       retry_count: 4,
-    })
+    }),
+  ])
   guard mutable.map.contains(request_id.key) else {
     abort("missing mutable request ID key")
   }

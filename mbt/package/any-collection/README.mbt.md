@@ -12,9 +12,10 @@ test {
   let retry_count : @any_collection.AnyRef[String, Int] =
     @any_collection.AnyRef::AnyRef("retry_count")
 
-  let mutable = @any_collection.AnyMutableMap::AnyMutableMap()
-  mutable.set(request_id, "request-1")
-  mutable.set(retry_count, 2)
+  let mutable = @any_collection.AnyMutableMap::AnyMutableMap([
+    request_id.entry("request-1"),
+    retry_count.entry(2),
+  ])
   debug_inspect(mutable.get(request_id), content="Some(\"request-1\")")
   debug_inspect(mutable.get(retry_count), content="Some(2)")
   let retry_text : @any_collection.AnyRef[String, String] =
@@ -23,13 +24,15 @@ test {
   debug_inspect(mutable.get_or_none(retry_text), content="None")
   inspect(mutable.map.length(), content="2")
 
-  let immutable =
-    @any_collection.AnyImmutableHashMap::AnyImmutableHashMap()
-    .added(request_id, "request-2")
+  let immutable = @any_collection.AnyImmutableHashMap::AnyImmutableHashMap([
+    request_id.entry("request-2"),
+  ])
   debug_inspect(immutable.get(request_id), content="Some(\"request-2\")")
   inspect(immutable.map.contains(request_id.key), content="true")
 }
 ```
+
+The constructors mirror the underlying collection interfaces: `AnyMutableMap(entries, capacity?)` delegates to `Map(entries, capacity?)`, while `AnyImmutableHashMap(entries)` delegates to `@immut.HashMap(entries)`. Pass `[]` to create an empty collection. Use `AnyRef::entry` to create a `(K, Yoorkin/any.Any)` constructor entry without handling `Any` directly. Raw `Any` entries remain accepted.
 
 `AnyMutableMap::set` mutates its map. `AnyImmutableHashMap::added` returns a new map and preserves its source map. Both map types accept the same `AnyRef[K, T]` instance.
 

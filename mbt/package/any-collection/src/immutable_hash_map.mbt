@@ -6,9 +6,11 @@ pub(all) struct AnyImmutableHashMap[K] {
 }
 
 ///|
-/// Creates an empty immutable any hash map.
-pub fn[K] AnyImmutableHashMap::AnyImmutableHashMap() -> AnyImmutableHashMap[K] {
-  { map: @immut.new() }
+/// Creates an immutable any hash map from key-value pairs.
+pub fn[K : Hash + Eq] AnyImmutableHashMap::AnyImmutableHashMap(
+  entries : ArrayView[(K, @any.Any)],
+) -> AnyImmutableHashMap[K] {
+  { map: @immut.HashMap::HashMap(entries) }
 }
 
 ///|

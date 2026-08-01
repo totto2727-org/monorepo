@@ -5,9 +5,12 @@ pub(all) struct AnyMutableMap[K] {
 }
 
 ///|
-/// Creates an empty mutable any map.
-pub fn[K : Hash + Eq] AnyMutableMap::AnyMutableMap() -> AnyMutableMap[K] {
-  { map: Map([]) }
+/// Creates a mutable any map from key-value pairs.
+pub fn[K : Hash + Eq] AnyMutableMap::AnyMutableMap(
+  entries : ArrayView[(K, @any.Any)],
+  capacity? : Int,
+) -> AnyMutableMap[K] {
+  { map: Map(entries, capacity?) }
 }
 
 ///|
