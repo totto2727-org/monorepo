@@ -1,9 +1,9 @@
 import {
   "moonbitlang/core/debug",
+  "moonbitlang/core/immut/hashmap" @immut_hashmap,
   "moonbitlang/core/random",
   "moonbitlang/async",
   "moonbitlang/x/path",
-  "totto2727/copy",
 }
 
 supported_targets = "native"

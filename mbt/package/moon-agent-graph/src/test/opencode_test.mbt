@@ -1,7 +1,3 @@
-// OpenCode CLI and JSONL contracts:
-// https://opencode.ai/docs/cli/
-// https://github.com/anomalyco/opencode/blob/1e17856ba4b5b052650c8115060852f3f023844e/packages/opencode/src/cli/cmd/run.ts#L416-L428
-
 ///|
 struct OpenCodeCliFixture {
   root : String
@@ -49,6 +45,7 @@ fn OpenCodeCliFixture::environment(
 ) -> Map[String, String] {
   let environment : Map[String, String] = {
     "FAKE_OPENCODE_RECORD_DIR": self.record_directory,
+    "ADAPTER": "enabled",
     "SHARED": "adapter",
   }
   for index, events in events_by_call {
@@ -156,7 +153,7 @@ fn opencode_cli_context(
     },
     approval: @core.Never,
     network: @core.Disabled,
-    environment,
+    environment: @immut_hashmap.HashMap(environment.to_array()),
     events: @core.EventSink::discard(),
   }
 }
@@ -167,11 +164,11 @@ fn opencode_cli_agent(
   environment : Map[String, String],
   resume_thread_id? : String,
 ) -> @core.CodingAgent {
-  opencode_agent(
+  @opencode.opencode_agent(
     @core.CodingAgentId::parse("opencode-cli") catch {
       _ => abort("fixture agent ID must be valid")
     },
-    OpenCodeAgentOptions::OpenCodeAgentOptions(
+    @opencode.OpenCodeAgentOptions::OpenCodeAgentOptions(
       opencode_path_override=fixture.executable,
       resume_thread_id?,
       model="test/model",
@@ -197,6 +194,67 @@ async fn opencode_cli_wait_for_file(path : String) -> Unit {
 async fn opencode_cli_process_is_running(pid : Int) -> Bool {
   let (code, _, _) = @process.collect_output("kill", ["-0", pid.to_string()])
   code == 0
+}
+
+///|
+async test "opencode_agent 2 - merges adapter and caller environment through the public agent" {
+  with_opencode_cli_fixture(async fn(fixture) {
+    @async.with_task_group(async fn(group) {
+      let environment = fixture.environment([
+        opencode_cli_completed_events("session-env", "Environment"),
+      ])
+      let session = (opencode_cli_agent(fixture, environment).open)(
+        opencode_cli_context(fixture, group, environment={
+          "CALLER": "active",
+          "SHARED": "caller",
+        }),
+      )
+      session.execute(@core.CodingAgentRequest::{
+        instruction: "inspect environment",
+        context_files: [],
+      })
+      |> ignore
+      let recorded_env = fixture.recorded_lines("env", 1)
+      assert_true(recorded_env.contains("ADAPTER=enabled"))
+      assert_true(recorded_env.contains("ADAPTER=enabled"))
+      assert_true(recorded_env.contains("CALLER=active"))
+      assert_true(recorded_env.contains("SHARED=caller"))
+      assert_true(recorded_env.iter().any(line => line.has_prefix("PATH=")))
+      session.close()
+    })
+  })
+}
+
+///|
+async test "opencode_agent 3 - maps context files through the public agent" {
+  with_opencode_cli_fixture(async fn(fixture) {
+    @async.with_task_group(async fn(group) {
+      let environment = fixture.environment([
+        opencode_cli_completed_events("session-files", "Files"),
+      ])
+      let session = (opencode_cli_agent(fixture, environment).open)(
+        opencode_cli_context(fixture, group),
+      )
+      session.execute(@core.CodingAgentRequest::{
+        instruction: "fix the issue",
+        context_files: [@path.Path("README.md"), @path.Path("/shared/guide.md")],
+      })
+      |> ignore
+      let args = fixture.recorded_lines("args", 1)
+      assert_true(
+        opencode_cli_contains_pair(
+          args,
+          "--file",
+          @path.Path(fixture.root).join(@path.Path("README.md")).to_string(),
+        ),
+      )
+      assert_true(
+        opencode_cli_contains_pair(args, "--file", "/shared/guide.md"),
+      )
+      assert_eq(fixture.recorded_text("input", 1), "fix the issue")
+      session.close()
+    })
+  })
 }
 
 ///|
@@ -275,7 +333,7 @@ async test "opencode_agent CLI integration 1 - maps requests and reuses the sess
         |> ignore
         false
       } catch {
-        OpenCodeAdapterError::SessionClosed => true
+        @opencode.OpenCodeAdapterError::SessionClosed => true
         _ => false
       }
       assert_true(closed)
@@ -331,7 +389,8 @@ async test "opencode_agent CLI integration 3 - preserves process failure" {
         |> ignore
         "no error"
       } catch {
-        @sdk.OpenCodeSdkError::ExecFailed(code~, stderr~) => "\{code}:\{stderr}"
+        @opencode_sdk.OpenCodeSdkError::ExecFailed(code~, stderr~) =>
+          "\{code}:\{stderr}"
         error => "unexpected: \{error}"
       }
       assert_eq(message, "17:cli failed")

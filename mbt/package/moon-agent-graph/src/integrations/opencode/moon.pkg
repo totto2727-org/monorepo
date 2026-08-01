@@ -6,10 +6,4 @@ import {
   "totto2727/opencode-sdk" @sdk,
 }
 
-import {
-  "moonbitlang/async/fs",
-  "moonbitlang/async/process",
-  "moonbitlang/core/string",
-} for "test"
-
 supported_targets = "native"

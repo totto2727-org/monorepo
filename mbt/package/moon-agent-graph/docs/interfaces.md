@@ -94,7 +94,7 @@ pub(all) struct Artifact {
 pub(all) struct NodeOutput[P] {
   patch : P?
   value : Json?
-  artifacts : Array[Artifact]
+  artifacts : ReadOnlyArray[Artifact]
 } derive(Debug)
 ```
 
@@ -183,8 +183,22 @@ pub fn[S, P] function_node(
 The MVP permits one router per node.
 
 ```moonbit
+pub(all) struct DeclaredRouteMetadata {
+  label : String?
+}
+
+pub(all) struct DeclaredRoute {
+  target : NodeId
+  metadata : DeclaredRouteMetadata
+}
+
+pub(all) struct RouterMetadata {
+  description : String?
+}
+
 pub(all) struct Router[S] {
-  declared_targets : ReadOnlyArray[NodeId]
+  metadata : RouterMetadata
+  declared_routes : ReadOnlyArray[DeclaredRoute]
   evaluate : (S, NodeCompletion) -> Route raise
 }
 
@@ -195,7 +209,7 @@ pub(all) struct NodeCompletion {
 } derive(Debug)
 ```
 
-`declared_targets` contains every node ID that `evaluate` may return through `Route::To`.
+`declared_routes` contains every node ID that `evaluate` may return through `Route::To`, together with optional display metadata.
 
 Compilation uses declared targets for destination validation and reachability.
 
@@ -203,10 +217,13 @@ At runtime, returning an undeclared target is a contract error even if that node
 
 Routers are synchronous and must not perform I/O, invoke models, execute commands, or mutate state.
 
+`RouterMetadata.description` and `DeclaredRouteMetadata.label` are optional presentation hints for inspection tools. They do not affect route evaluation.
+
 ```moonbit
 pub fn[S] router(
-  declared_targets : ReadOnlyArray[NodeId],
+  declared_routes : ReadOnlyArray[DeclaredRoute],
   evaluate : (S, NodeCompletion) -> Route raise,
+  metadata? : RouterMetadata = RouterMetadata::RouterMetadata(),
 ) -> Router[S]
 ```
 
@@ -295,11 +312,39 @@ pub fn[S, P] CompiledGraph::get_router(
   self : CompiledGraph[S, P],
   id : NodeId,
 ) -> Router[S] raise GraphRuntimeError
+
+pub(all) struct CompiledNodeSnapshot {
+  id : NodeId
+  metadata : NodeMetadata
+  router_metadata : RouterMetadata
+  declared_routes : ReadOnlyArray[DeclaredRoute]
+}
+
+pub(all) struct CompiledGraphSnapshot {
+  entry : NodeId
+  nodes : ReadOnlyArray[CompiledNodeSnapshot]
+}
+
+pub fn[S, P] CompiledGraph::snapshot(
+  self : CompiledGraph[S, P],
+) -> CompiledGraphSnapshot
 ```
 
-Compilation copies definition maps and per-node arrays into detached private storage.
+Compilation stores immutable node and router values in private persistent hash maps. Builder mutations after compilation cannot alter the compiled structure.
 
 Query methods do not expose mutable aliases of that storage.
+
+`snapshot` returns the deterministic callback-free structure used by inspection tools.
+
+## Visualization
+
+The optional `totto2727/moon-agent-graph/visualization` package renders a compiled graph as Mermaid without exposing runtime callbacks.
+
+```moonbit
+pub fn[S, P] to_mermaid(graph : CompiledGraph[S, P]) -> String
+```
+
+The renderer uses node descriptions, router descriptions, and declared route labels from `core` metadata. It does not infer runtime-only conditions or `End` and `Fail` outcomes.
 
 ## Runtime Options and Result
 
@@ -380,7 +425,7 @@ The cancellation error is re-raised after cleanup and best-effort event emission
 ```moonbit
 pub(all) struct RunFailure {
   primary : Error
-  cleanup : Array[Error]
+  cleanup : ReadOnlyArray[Error]
 } derive(Debug)
 
 pub(all) suberror GraphRuntimeError {
@@ -455,12 +500,12 @@ Structured-output nodes may use a different request/response pair when MoonLLM's
 ```moonbit
 pub(all) struct WorkspaceRef {
   root : @path.Path
-  additional_writable_roots : Array[@path.Path]
+  additional_writable_roots : ReadOnlyArray[@path.Path]
 } derive(Debug, Eq)
 
 pub(all) struct CodingAgentRequest {
   instruction : String
-  context_files : Array[@path.Path]
+  context_files : ReadOnlyArray[@path.Path]
 } derive(Debug, Eq)
 
 pub(all) enum CodingAgentStatus {
@@ -473,8 +518,8 @@ pub(all) struct CodingAgentResponse {
   status : CodingAgentStatus
   summary : String?
   continuation_id : String?
-  changed_files : Array[@path.Path]
-  artifacts : Array[Artifact]
+  changed_files : ReadOnlyArray[@path.Path]
+  artifacts : ReadOnlyArray[Artifact]
   raw_output : Json?
 } derive(Debug)
 ```
@@ -504,7 +549,7 @@ pub(all) struct CodingAgentOpenContext {
   workspace : WorkspaceRef
   approval : ApprovalPolicy
   network : NetworkPolicy
-  environment : Map[String, String]
+  environment : @immut_hashmap.HashMap[String, String]
   events : EventSink
 } derive(Debug)
 ```
@@ -576,7 +621,7 @@ pub(all) suberror ResourceStoreError {
   NodeOwnerRequired(ResourceKey)
   InvalidCleanupTimeout(Int)
   CleanupTimedOut(Int)
-  CloseFailed(errors~ : Array[Error])
+  CloseFailed(errors~ : ReadOnlyArray[Error])
 } derive(Debug)
 ```
 

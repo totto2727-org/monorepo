@@ -94,7 +94,7 @@ pub(all) struct Artifact {
 pub(all) struct NodeOutput[P] {
   patch : P?
   value : Json?
-  artifacts : Array[Artifact]
+  artifacts : ReadOnlyArray[Artifact]
 } derive(Debug)
 ```
 
@@ -183,8 +183,22 @@ pub fn[S, P] function_node(
 MVPでは、ノードごとに1つのルーターを許可します。
 
 ```moonbit
+pub(all) struct DeclaredRouteMetadata {
+  label : String?
+}
+
+pub(all) struct DeclaredRoute {
+  target : NodeId
+  metadata : DeclaredRouteMetadata
+}
+
+pub(all) struct RouterMetadata {
+  description : String?
+}
+
 pub(all) struct Router[S] {
-  declared_targets : ReadOnlyArray[NodeId]
+  metadata : RouterMetadata
+  declared_routes : ReadOnlyArray[DeclaredRoute]
   evaluate : (S, NodeCompletion) -> Route raise
 }
 
@@ -195,7 +209,7 @@ pub(all) struct NodeCompletion {
 } derive(Debug)
 ```
 
-`declared_targets` には、`evaluate` が `Route::To` を通じて返す可能性のあるすべてのノードIDが含まれます。
+`declared_routes` には、`evaluate` が `Route::To` を通じて返す可能性のあるすべてのノードIDと、オプションの表示用メタデータが含まれます。
 
 コンパイル時には、宣言されたターゲットを使用して宛先の検証と到達可能性のチェックが行われます。
 
@@ -203,10 +217,13 @@ pub(all) struct NodeCompletion {
 
 ルーターは同期的であり、I/Oの実行、モデルの呼び出し、コマンドの実行、状態の変更を行ってはなりません。
 
+`RouterMetadata.description` と `DeclaredRouteMetadata.label` は、検査ツール向けのオプションの表示ヒントです。ルート評価には影響しません。
+
 ```moonbit
 pub fn[S] router(
-  declared_targets : ReadOnlyArray[NodeId],
+  declared_routes : ReadOnlyArray[DeclaredRoute],
   evaluate : (S, NodeCompletion) -> Route raise,
+  metadata? : RouterMetadata = RouterMetadata::RouterMetadata(),
 ) -> Router[S]
 ```
 
@@ -295,11 +312,39 @@ pub fn[S, P] CompiledGraph::get_router(
   self : CompiledGraph[S, P],
   id : NodeId,
 ) -> Router[S] raise GraphRuntimeError
+
+pub(all) struct CompiledNodeSnapshot {
+  id : NodeId
+  metadata : NodeMetadata
+  router_metadata : RouterMetadata
+  declared_routes : ReadOnlyArray[DeclaredRoute]
+}
+
+pub(all) struct CompiledGraphSnapshot {
+  entry : NodeId
+  nodes : ReadOnlyArray[CompiledNodeSnapshot]
+}
+
+pub fn[S, P] CompiledGraph::snapshot(
+  self : CompiledGraph[S, P],
+) -> CompiledGraphSnapshot
 ```
 
-コンパイルは定義マップとノードごとの配列を分離されたプライベートストレージにコピーします。
+コンパイルは不変のノードとルーターの値をプライベートな永続 HashMap に格納します。コンパイル後にビルダーを変更しても、コンパイル済みの構造は変更されません。
 
 クエリメソッドはそのストレージのミュータブルエイリアスを公開しません。
+
+`snapshot` は、検査ツールが使用する決定論的でコールバックを含まない構造を返します。
+
+## 可視化
+
+オプションの `totto2727/moon-agent-graph/visualization` パッケージは、ランタイムコールバックを公開せずにコンパイル済みグラフを Mermaid としてレンダリングします。
+
+```moonbit
+pub fn[S, P] to_mermaid(graph : CompiledGraph[S, P]) -> String
+```
+
+レンダラーは `core` メタデータのノード説明、ルーター説明、宣言済みルートラベルを使用します。ランタイムでのみ判定できる条件や `End`、`Fail` の結果は推論しません。
 
 ## ランタイムオプションと結果
 
@@ -380,7 +425,7 @@ pub async fn[S, P] GraphRuntime::invoke(
 ```moonbit
 pub(all) struct RunFailure {
   primary : Error
-  cleanup : Array[Error]
+  cleanup : ReadOnlyArray[Error]
 } derive(Debug)
 
 pub(all) suberror GraphRuntimeError {
@@ -455,12 +500,12 @@ pub fn[S, P] llm_node(
 ```moonbit
 pub(all) struct WorkspaceRef {
   root : @path.Path
-  additional_writable_roots : Array[@path.Path]
+  additional_writable_roots : ReadOnlyArray[@path.Path]
 } derive(Debug, Eq)
 
 pub(all) struct CodingAgentRequest {
   instruction : String
-  context_files : Array[@path.Path]
+  context_files : ReadOnlyArray[@path.Path]
 } derive(Debug, Eq)
 
 pub(all) enum CodingAgentStatus {
@@ -473,8 +518,8 @@ pub(all) struct CodingAgentResponse {
   status : CodingAgentStatus
   summary : String?
   continuation_id : String?
-  changed_files : Array[@path.Path]
-  artifacts : Array[Artifact]
+  changed_files : ReadOnlyArray[@path.Path]
+  artifacts : ReadOnlyArray[Artifact]
   raw_output : Json?
 } derive(Debug)
 ```
@@ -504,7 +549,7 @@ pub(all) struct CodingAgentOpenContext {
   workspace : WorkspaceRef
   approval : ApprovalPolicy
   network : NetworkPolicy
-  environment : Map[String, String]
+  environment : @immut_hashmap.HashMap[String, String]
   events : EventSink
 } derive(Debug)
 ```
@@ -576,7 +621,7 @@ pub(all) suberror ResourceStoreError {
   NodeOwnerRequired(ResourceKey)
   InvalidCleanupTimeout(Int)
   CleanupTimedOut(Int)
-  CloseFailed(errors~ : Array[Error])
+  CloseFailed(errors~ : ReadOnlyArray[Error])
 } derive(Debug)
 ```
 

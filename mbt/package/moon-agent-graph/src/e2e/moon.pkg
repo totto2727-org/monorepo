@@ -2,15 +2,8 @@ import {
   "totto2727/moon-agent-graph/core",
   "totto2727/moon-agent-graph/coding_agent",
   "moonbitlang/async",
+  "moonbitlang/core/immut/hashmap" @immut_hashmap,
   "moonbitlang/x/path",
 }
-
-import {
-  "totto2727/moon-agent-graph/moonllm" @moonllm_node,
-  "totto2727/moon-agent-graph/testing",
-  "DC-Z-lab/moonllm" @llm,
-  "moonbitlang/core/json",
-  "moonbitlang/core/test",
-} for "test"
 
 supported_targets = "native"

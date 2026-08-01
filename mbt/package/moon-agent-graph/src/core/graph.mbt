@@ -18,7 +18,7 @@ pub(all) suberror GraphValidationError {
 ///|
 pub(all) struct RunFailure {
   primary : Error
-  cleanup : Array[Error]
+  cleanup : ReadOnlyArray[Error]
 } derive(Debug)
 
 ///|
@@ -66,7 +66,7 @@ pub fn[S, P] GraphDefinition::set_router(
   value : Router[S],
 ) -> Unit raise GraphBuildError {
   guard !self.routers.contains(from) else { raise DuplicateRouter(from) }
-  self.routers[from] = @copy.Copy::copy(value)
+  self.routers[from] = value
 }
 
 ///|
@@ -92,9 +92,9 @@ fn[S, P] validate_graph(
     guard routers.contains(node_id) else { raise MissingRouter(node_id) }
   }
   for source, value in routers {
-    for target in value.declared_targets {
-      guard nodes.contains(target) else {
-        raise UnknownDestination(from=source, to=target)
+    for route in value.declared_routes {
+      guard nodes.contains(route.target) else {
+        raise UnknownDestination(from=source, to=route.target)
       }
     }
   }
@@ -103,9 +103,9 @@ fn[S, P] validate_graph(
   while pending.pop() is Some(node_id) {
     if reachable.add_and_check(node_id) {
       let value = routers[node_id]
-      for target in value.declared_targets {
-        if !reachable.contains(target) {
-          pending.push(target)
+      for route in value.declared_routes {
+        if !reachable.contains(route.target) {
+          pending.push(route.target)
         }
       }
     }
@@ -121,18 +121,34 @@ pub fn[S, P] GraphDefinition::compile(
 ) -> CompiledGraph[S, P] raise GraphValidationError {
   let entry = self.entry.unwrap_or_error(MissingEntry)
   validate_graph(self.nodes, self.routers, entry)
-  let nodes = self.nodes.map((_id, value) => @copy.Copy::copy(value))
-  let routers = self.routers.map((_source, value) => @copy.Copy::copy(value))
+  let nodes = @immut_hashmap.from_iter(self.nodes.iter())
+  let routers = @immut_hashmap.from_iter(self.routers.iter())
   CompiledGraph::{ reducer: self.reducer, nodes, routers, entry }
 }
 
 ///|
 pub struct CompiledGraph[S, P] {
   reducer : Reducer[S, P]
-  nodes : Map[NodeId, Node[S, P]]
-  routers : Map[NodeId, Router[S]]
+  nodes : @immut_hashmap.HashMap[NodeId, Node[S, P]]
+  routers : @immut_hashmap.HashMap[NodeId, Router[S]]
   entry : NodeId
 }
+
+///|
+/// Describes one node in a compiled graph without exposing its callbacks.
+pub(all) struct CompiledNodeSnapshot {
+  id : NodeId
+  metadata : NodeMetadata
+  router_metadata : RouterMetadata
+  declared_routes : ReadOnlyArray[DeclaredRoute]
+} derive(Debug)
+
+///|
+/// Contains the callback-free static structure of a compiled graph.
+pub(all) struct CompiledGraphSnapshot {
+  entry : NodeId
+  nodes : ReadOnlyArray[CompiledNodeSnapshot]
+} derive(Debug)
 
 ///|
 pub fn[S, P] CompiledGraph::entry(self : CompiledGraph[S, P]) -> NodeId {
@@ -152,5 +168,32 @@ pub fn[S, P] CompiledGraph::get_router(
   self : CompiledGraph[S, P],
   id : NodeId,
 ) -> Router[S] raise GraphRuntimeError {
-  @copy.Copy::copy(self.routers.get(id).unwrap_or_error(RouterNotFound(id)))
+  self.routers.get(id).unwrap_or_error(RouterNotFound(id))
+}
+
+///|
+/// Returns a deterministic, callback-free snapshot for inspection and tooling.
+pub fn[S, P] CompiledGraph::snapshot(
+  self : CompiledGraph[S, P],
+) -> CompiledGraphSnapshot {
+  let node_ids = self.nodes.keys().to_array()
+  node_ids.sort_by((left, right) => left.to_string().compare(right.to_string()))
+  let nodes = node_ids.map(node_id => {
+    let node = self.nodes[node_id]
+    let router = self.routers[node_id]
+    let routes = [..router.declared_routes]
+    routes.sort_by((left, right) => {
+      left.target.to_string().compare(right.target.to_string())
+    })
+    CompiledNodeSnapshot::{
+      id: node_id,
+      metadata: node.metadata,
+      router_metadata: router.metadata,
+      declared_routes: ReadOnlyArray::from_array(routes),
+    }
+  })
+  CompiledGraphSnapshot::{
+    entry: self.entry,
+    nodes: ReadOnlyArray::from_array(nodes),
+  }
 }
