@@ -19,6 +19,16 @@ struct PrInfo {
 }
 
 ///|
+let github_pr_number_lens : @lens.Lens[Int?] = @lens.root()
+  .int("number")
+  .optional()
+
+///|
+let github_pr_state_lens : @lens.Lens[String?] = @lens.root()
+  .string("state")
+  .optional()
+
+///|
 struct GitHubPrWireEntry {
   number : Int?
   state : String?
@@ -26,12 +36,8 @@ struct GitHubPrWireEntry {
 
 ///|
 impl FromJson for GitHubPrWireEntry with fn from_json(json, _path) {
-  let number = @lens.root().int("number").optional().get(json) catch {
-      _ => None
-    }
-  let state = @lens.root().string("state").optional().get(json) catch {
-      _ => None
-    }
+  let number = github_pr_number_lens.get(json) catch { _ => None }
+  let state = github_pr_state_lens.get(json) catch { _ => None }
   { number, state }
 }
 

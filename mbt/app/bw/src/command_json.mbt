@@ -48,6 +48,16 @@ let json_format_option : @admiral.OptionDef[String] = @admiral.string(
 )
 
 ///|
+let json_extract_response_success_lens : @lens.Lens[Bool?] = @lens.root()
+  .bool("success")
+  .optional()
+
+///|
+let json_extract_response_result_lens : @lens.Lens[Json?] = @lens.root()
+  .json("result")
+  .optional()
+
+///|
 enum JsonExtractOutputFormat {
   RawJson
   Markdown
@@ -88,16 +98,14 @@ struct JsonExtractResponse {
 
 ///|
 impl FromJson for JsonExtractResponse with fn from_json(json, _path) {
-  let success_value = @lens.root().bool("success").optional().get(json) catch {
-      _ => None
-    }
+  let success_value = json_extract_response_success_lens.get(json) catch {
+    _ => None
+  }
   let success = match success_value {
     Some(value) => value
     None => false
   }
-  let result = @lens.root().json("result").optional().get(json) catch {
-      _ => None
-    }
+  let result = json_extract_response_result_lens.get(json) catch { _ => None }
   { success, result }
 }
 

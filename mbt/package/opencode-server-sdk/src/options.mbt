@@ -1,13 +1,16 @@
 ///|
+let server_log_level_lens : @lens.Lens[String?] = @lens.root()
+  .string("logLevel")
+  .optional()
+
+///|
 priv struct ServerConfig {
   log_level : String?
 }
 
 ///|
 impl FromJson for ServerConfig with fn from_json(json, _path) {
-  let log_level = @lens.root().string("logLevel").optional().get(json) catch {
-      _ => None
-    }
+  let log_level = server_log_level_lens.get(json) catch { _ => None }
   { log_level, }
 }
 

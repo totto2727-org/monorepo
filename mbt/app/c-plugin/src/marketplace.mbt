@@ -191,6 +191,36 @@ fn normalize_plugin_source(value : String?) -> String? {
 }
 
 ///|
+let marketplace_source_path_lens : @lens.Lens[Json?] = @lens.root()
+  .json("path")
+  .optional()
+
+///|
+let marketplace_plugin_name_lens : @lens.Lens[Json?] = @lens.root()
+  .json("name")
+  .optional()
+
+///|
+let marketplace_plugin_source_lens : @lens.Lens[Json?] = @lens.root()
+  .json("source")
+  .optional()
+
+///|
+let marketplace_plugin_description_lens : @lens.Lens[Json?] = @lens.root()
+  .json("description")
+  .optional()
+
+///|
+let marketplace_name_lens : @lens.Lens[Json?] = @lens.root()
+  .json("name")
+  .optional()
+
+///|
+let marketplace_plugins_lens : @lens.Lens[Json?] = @lens.root()
+  .json("plugins")
+  .optional()
+
+///|
 struct MarketplaceSourceWire {
   wire_string : String?
   wire_path : String?
@@ -201,9 +231,9 @@ impl FromJson for MarketplaceSourceWire with fn from_json(json, _path) {
   match json {
     Json::String(value) => { wire_string: Some(value), wire_path: None }
     _ => {
-      let path_value = @lens.root().json("path").optional().get(json) catch {
-          _ => None
-        }
+      let path_value = marketplace_source_path_lens.get(json) catch {
+        _ => None
+      }
       let wire_path = match path_value {
         Some(value) =>
           Some((@json.from_json(value) : String)) catch {
@@ -230,15 +260,14 @@ impl FromJson for MarketplacePluginWire with fn from_json(json, path) {
       (path, "MarketplacePluginWire: expected object"),
     )
   }
-  let root = @lens.root()
-  let name_value = root.json("name").optional().get(json) catch { _ => None }
+  let name_value = marketplace_plugin_name_lens.get(json) catch { _ => None }
   let wire_name = match name_value {
     Some(value) => Some((@json.from_json(value) : String)) catch { _ => None }
     None => None
   }
-  let source_value = root.json("source").optional().get(json) catch {
-      _ => None
-    }
+  let source_value = marketplace_plugin_source_lens.get(json) catch {
+    _ => None
+  }
   let wire_source = match source_value {
     Some(value) =>
       Some((@json.from_json(value) : MarketplaceSourceWire)) catch {
@@ -246,9 +275,9 @@ impl FromJson for MarketplacePluginWire with fn from_json(json, path) {
       }
     None => None
   }
-  let description_value = root.json("description").optional().get(json) catch {
-      _ => None
-    }
+  let description_value = marketplace_plugin_description_lens.get(json) catch {
+    _ => None
+  }
   let wire_description = match description_value {
     Some(value) => Some((@json.from_json(value) : String)) catch { _ => None }
     None => None
@@ -264,15 +293,12 @@ struct MarketplaceWire {
 
 ///|
 impl FromJson for MarketplaceWire with fn from_json(json, _path) {
-  let root = @lens.root()
-  let name_value = root.json("name").optional().get(json) catch { _ => None }
+  let name_value = marketplace_name_lens.get(json) catch { _ => None }
   let wire_name = match name_value {
     Some(value) => Some((@json.from_json(value) : String)) catch { _ => None }
     None => None
   }
-  let plugins_value = root.json("plugins").optional().get(json) catch {
-      _ => None
-    }
+  let plugins_value = marketplace_plugins_lens.get(json) catch { _ => None }
   let wire_plugins = match plugins_value {
     Some(Json::Array(values)) =>
       Some(

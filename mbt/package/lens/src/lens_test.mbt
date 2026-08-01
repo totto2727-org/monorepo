@@ -1,4 +1,100 @@
 ///|
+let lens_test_user_object : @lens.ObjectLens = @lens.object("user")
+
+///|
+let lens_test_user_profile_object : @lens.ObjectLens = @lens.object("user").object(
+  "profile",
+)
+
+///|
+let lens_test_user_profile_name : @lens.Lens[String] = @lens.object("user")
+  .object("profile")
+  .string("name")
+
+///|
+let lens_test_user_profile_active : @lens.Lens[Bool] = @lens.object("user")
+  .object("profile")
+  .bool("active")
+
+///|
+let lens_test_user_profile_metadata : @lens.Lens[Json] = @lens.object("user")
+  .object("profile")
+  .json("metadata")
+
+///|
+let lens_test_user_name : @lens.Lens[String] = @lens.object("user").string(
+  "name",
+)
+
+///|
+let lens_test_root_name : @lens.Lens[String] = @lens.root().string("name")
+
+///|
+let lens_test_escaped_key : @lens.Lens[String] = @lens.object("a/b").string(
+  "~key",
+)
+
+///|
+let lens_test_empty_key : @lens.Lens[String] = @lens.root().string("")
+
+///|
+let lens_test_text : @lens.Lens[String] = @lens.root().string("text")
+
+///|
+let lens_test_flag : @lens.Lens[Bool] = @lens.root().bool("flag")
+
+///|
+let lens_test_number : @lens.Lens[Double] = @lens.root().number("number")
+
+///|
+let lens_test_integer : @lens.Lens[Int] = @lens.root().int("integer")
+
+///|
+let lens_test_ratio : @lens.Lens[Double] = @lens.root().number("ratio")
+
+///|
+let lens_test_maximum : @lens.Lens[Int] = @lens.root().int("maximum")
+
+///|
+let lens_test_minimum : @lens.Lens[Int] = @lens.root().int("minimum")
+
+///|
+let lens_test_positive_int : @lens.Lens[Int] = @lens.root().int("positive")
+
+///|
+let lens_test_negative_int : @lens.Lens[Int] = @lens.root().int("negative")
+
+///|
+let lens_test_positive_number : @lens.Lens[Double] = @lens.root().number(
+  "positive",
+)
+
+///|
+let lens_test_names_array : @lens.Lens[Array[String]] = @lens.root()
+  .string("names")
+  .array()
+
+///|
+let lens_test_name_nullable : @lens.Lens[String?] = @lens.root()
+  .string("name")
+  .nullable()
+
+///|
+let lens_test_name_optional : @lens.Lens[String?] = @lens.root()
+  .string("name")
+  .optional()
+
+///|
+let lens_test_user_name_optional : @lens.Lens[String?] = @lens.object("user")
+  .string("name")
+  .optional()
+
+///|
+let lens_test_name_nullish : @lens.Lens[String?] = @lens.root()
+  .string("name")
+  .nullish()
+
+///|
 fn[T] get_issue(lens : @lens.Lens[T], document : Json) -> @lens.Issue raise {
   try {
     lens.get(document) |> ignore
@@ -47,7 +143,7 @@ test "ObjectLens get - reads the selected object" {
     "{\"user\":{\"name\":\"Ada\",\"metadata\":{\"role\":\"admin\"}}}",
   )
   debug_inspect(
-    @lens.object("user").get(document),
+    lens_test_user_object.get(document),
     content=(
       #|{
       #|  "name": String("Ada"),
@@ -60,16 +156,15 @@ test "ObjectLens get - reads the selected object" {
 ///|
 test "ObjectLens get - isolates the returned map from the document" {
   let document = @json.parse("{\"user\":{\"name\":\"Ada\"}}")
-  let user = @lens.object("user")
-  let selected = user.get(document)
+  let selected = lens_test_user_object.get(document)
   selected.set("name", @json.parse("\"Grace\""))
-  inspect(user.string("name").get(document), content="Ada")
+  inspect(lens_test_user_name.get(document), content="Ada")
 }
 
 ///|
 test "ObjectLens get - reports a selected non-object pointer" {
   let document = @json.parse("{\"user\":{\"profile\":\"invalid\"}}")
-  let issue = get_object_issue(@lens.object("user").object("profile"), document)
+  let issue = get_object_issue(lens_test_user_profile_object, document)
   assert_type_mismatch(
     issue,
     "/user/profile",
@@ -83,31 +178,26 @@ test "Lens get - reads nested typed values" {
   let document = @json.parse(
     "{\"user\":{\"profile\":{\"name\":\"Ada\",\"active\":true,\"metadata\":{\"role\":\"admin\"}}}}",
   )
-  let profile = @lens.object("user").object("profile")
-  inspect(profile.string("name").get(document), content="Ada")
-  inspect(profile.bool("active").get(document), content="true")
+  inspect(lens_test_user_profile_name.get(document), content="Ada")
+  inspect(lens_test_user_profile_active.get(document), content="true")
   inspect(
-    profile.json("metadata").get(document).stringify(),
+    lens_test_user_profile_metadata.get(document).stringify(),
     content="{\"role\":\"admin\"}",
   )
 }
 
 ///|
 test "Lens get - reuses one lens across documents" {
-  let name_lens = @lens.object("user").string("name")
   let first = @json.parse("{\"user\":{\"name\":\"Ada\"}}")
   let second = @json.parse("{\"user\":{\"name\":\"Grace\"}}")
-  inspect(name_lens.get(first), content="Ada")
-  inspect(name_lens.get(second), content="Grace")
+  inspect(lens_test_user_name.get(first), content="Ada")
+  inspect(lens_test_user_name.get(second), content="Grace")
 }
 
 ///|
 test "Lens get - reports a missing leaf pointer" {
   let document = @json.parse("{\"user\":{\"profile\":{}}}")
-  let issue = get_issue(
-    @lens.object("user").object("profile").string("name"),
-    document,
-  )
+  let issue = get_issue(lens_test_user_profile_name, document)
   inspect(issue.pointer.to_string(), content="/user/profile/name")
   match issue.code {
     @lens.IssueCode::MissingProperty => ()
@@ -118,10 +208,7 @@ test "Lens get - reports a missing leaf pointer" {
 ///|
 test "Lens get - reports an incompatible intermediate pointer" {
   let document = @json.parse("{\"user\":{\"profile\":\"invalid\"}}")
-  let issue = get_issue(
-    @lens.object("user").object("profile").string("name"),
-    document,
-  )
+  let issue = get_issue(lens_test_user_profile_name, document)
   inspect(issue.pointer.to_string(), content="/user/profile")
   match issue.code {
     @lens.IssueCode::TypeMismatch(expected~, actual~) => {
@@ -135,10 +222,7 @@ test "Lens get - reports an incompatible intermediate pointer" {
 ///|
 test "Lens get - reports a missing intermediate pointer" {
   let document = @json.parse("{\"user\":{}}")
-  let issue = get_issue(
-    @lens.object("user").object("profile").string("name"),
-    document,
-  )
+  let issue = get_issue(lens_test_user_profile_name, document)
   inspect(issue.pointer.to_string(), content="/user/profile")
   match issue.code {
     @lens.IssueCode::MissingProperty => ()
@@ -149,21 +233,21 @@ test "Lens get - reports a missing intermediate pointer" {
 ///|
 test "Lens get - reports a non-object root at the root pointer" {
   let document = @json.parse("[]")
-  let issue = get_issue(@lens.root().string("name"), document)
+  let issue = get_issue(lens_test_root_name, document)
   assert_type_mismatch(issue, "", @lens.JsonKind::Object, @lens.JsonKind::Array)
 }
 
 ///|
 test "Lens get - escapes JSON Pointer keys in errors" {
   let document = @json.parse("{\"a/b\":{}}")
-  let issue = get_issue(@lens.object("a/b").string("~key"), document)
+  let issue = get_issue(lens_test_escaped_key, document)
   inspect(issue.pointer.to_string(), content="/a~1b/~0key")
 }
 
 ///|
 test "Lens get - renders an empty key as one pointer segment" {
   let document = @json.parse("{}")
-  let issue = get_issue(@lens.root().string(""), document)
+  let issue = get_issue(lens_test_empty_key, document)
   inspect(issue.pointer.to_string(), content="/")
 }
 
@@ -173,25 +257,25 @@ test "Lens get - classifies primitive type mismatches" {
     "{\"text\":false,\"flag\":0,\"number\":\"0\",\"integer\":null}",
   )
   assert_type_mismatch(
-    get_issue(@lens.root().string("text"), document),
+    get_issue(lens_test_text, document),
     "/text",
     @lens.JsonKind::String,
     @lens.JsonKind::Boolean,
   )
   assert_type_mismatch(
-    get_issue(@lens.root().bool("flag"), document),
+    get_issue(lens_test_flag, document),
     "/flag",
     @lens.JsonKind::Boolean,
     @lens.JsonKind::Number,
   )
   assert_type_mismatch(
-    get_issue(@lens.root().number("number"), document),
+    get_issue(lens_test_number, document),
     "/number",
     @lens.JsonKind::Number,
     @lens.JsonKind::String,
   )
   assert_type_mismatch(
-    get_issue(@lens.root().int("integer"), document),
+    get_issue(lens_test_integer, document),
     "/integer",
     @lens.JsonKind::Number,
     @lens.JsonKind::Null,
@@ -203,16 +287,16 @@ test "Lens get - reads numbers and standard-converted integers" {
   let document = @json.parse(
     "{\"ratio\":42.5,\"maximum\":2147483647,\"minimum\":-2147483648}",
   )
-  inspect(@lens.root().number("ratio").get(document), content="42.5")
-  inspect(@lens.root().int("maximum").get(document), content="2147483647")
-  inspect(@lens.root().int("minimum").get(document), content="-2147483648")
+  inspect(lens_test_ratio.get(document), content="42.5")
+  inspect(lens_test_maximum.get(document), content="2147483647")
+  inspect(lens_test_minimum.get(document), content="-2147483648")
 }
 
 ///|
 test "Lens get - delegates fractional conversion to Double::to_int" {
   let document = @json.parse("{\"positive\":42.5,\"negative\":-42.5}")
-  inspect(@lens.root().int("positive").get(document), content="42")
-  inspect(@lens.root().int("negative").get(document), content="-42")
+  inspect(lens_test_positive_int.get(document), content="42")
+  inspect(lens_test_negative_int.get(document), content="-42")
 }
 
 ///|
@@ -220,26 +304,23 @@ test "Lens get - delegates saturating conversion to Double::to_int" {
   let document = @json.parse(
     "{\"positive\":2147483648,\"negative\":-2147483649}",
   )
-  inspect(@lens.root().int("positive").get(document), content="2147483647")
-  inspect(@lens.root().int("negative").get(document), content="-2147483648")
+  inspect(lens_test_positive_int.get(document), content="2147483647")
+  inspect(lens_test_negative_int.get(document), content="-2147483648")
 }
 
 ///|
 test "Lens get - passes through non-finite numbers" {
   let document = @json.parse("{\"positive\":1e999,\"negative\":-1e999}")
-  inspect(
-    @lens.root().number("positive").get(document).is_inf(),
-    content="true",
-  )
-  inspect(@lens.root().int("positive").get(document), content="2147483647")
-  inspect(@lens.root().int("negative").get(document), content="-2147483648")
+  inspect(lens_test_positive_number.get(document).is_inf(), content="true")
+  inspect(lens_test_positive_int.get(document), content="2147483647")
+  inspect(lens_test_negative_int.get(document), content="-2147483648")
 }
 
 ///|
 test "Lens array - decodes every item" {
   let document = @json.parse("{\"names\":[\"Ada\",\"Grace\"]}")
   debug_inspect(
-    @lens.root().string("names").array().get(document),
+    lens_test_names_array.get(document),
     content="[\"Ada\", \"Grace\"]",
   )
 }
@@ -247,7 +328,7 @@ test "Lens array - decodes every item" {
 ///|
 test "Lens array - reports an item pointer" {
   let document = @json.parse("{\"names\":[\"Ada\",false]}")
-  let issue = get_issue(@lens.root().string("names").array(), document)
+  let issue = get_issue(lens_test_names_array, document)
   assert_type_mismatch(
     issue,
     "/names/1",
@@ -259,7 +340,7 @@ test "Lens array - reports an item pointer" {
 ///|
 test "Lens array - rejects a non-array value" {
   let document = @json.parse("{\"names\":\"Ada\"}")
-  let issue = get_issue(@lens.root().string("names").array(), document)
+  let issue = get_issue(lens_test_names_array, document)
   assert_type_mismatch(
     issue,
     "/names",
@@ -271,25 +352,19 @@ test "Lens array - rejects a non-array value" {
 ///|
 test "Lens nullable - returns None for JSON null" {
   let document = @json.parse("{\"name\":null}")
-  debug_inspect(
-    @lens.root().string("name").nullable().get(document),
-    content="None",
-  )
+  debug_inspect(lens_test_name_nullable.get(document), content="None")
 }
 
 ///|
 test "Lens nullable - returns Some for a decoded value" {
   let document = @json.parse("{\"name\":\"Ada\"}")
-  debug_inspect(
-    @lens.root().string("name").nullable().get(document),
-    content="Some(\"Ada\")",
-  )
+  debug_inspect(lens_test_name_nullable.get(document), content="Some(\"Ada\")")
 }
 
 ///|
 test "Lens nullable - preserves missing-property errors" {
   let document = @json.parse("{}")
-  let issue = get_issue(@lens.root().string("name").nullable(), document)
+  let issue = get_issue(lens_test_name_nullable, document)
   inspect(issue.pointer.to_string(), content="/name")
   match issue.code {
     @lens.IssueCode::MissingProperty => ()
@@ -300,28 +375,19 @@ test "Lens nullable - preserves missing-property errors" {
 ///|
 test "Lens optional - returns None for a missing path" {
   let document = @json.parse("{}")
-  debug_inspect(
-    @lens.root().string("name").optional().get(document),
-    content="None",
-  )
+  debug_inspect(lens_test_name_optional.get(document), content="None")
 }
 
 ///|
 test "Lens optional - returns Some for a decoded value" {
   let document = @json.parse("{\"name\":\"Ada\"}")
-  debug_inspect(
-    @lens.root().string("name").optional().get(document),
-    content="Some(\"Ada\")",
-  )
+  debug_inspect(lens_test_name_optional.get(document), content="Some(\"Ada\")")
 }
 
 ///|
 test "Lens optional - preserves a missing intermediate error" {
   let document = @json.parse("{}")
-  let issue = get_issue(
-    @lens.object("user").string("name").optional(),
-    document,
-  )
+  let issue = get_issue(lens_test_user_name_optional, document)
   inspect(issue.pointer.to_string(), content="/user")
   match issue.code {
     @lens.IssueCode::MissingProperty => ()
@@ -332,7 +398,7 @@ test "Lens optional - preserves a missing intermediate error" {
 ///|
 test "Lens optional - rejects JSON null" {
   let document = @json.parse("{\"name\":null}")
-  let issue = get_issue(@lens.root().string("name").optional(), document)
+  let issue = get_issue(lens_test_name_optional, document)
   assert_type_mismatch(
     issue,
     "/name",
@@ -344,26 +410,17 @@ test "Lens optional - rejects JSON null" {
 ///|
 test "Lens nullish - returns None for a missing path" {
   let document = @json.parse("{}")
-  debug_inspect(
-    @lens.root().string("name").nullish().get(document),
-    content="None",
-  )
+  debug_inspect(lens_test_name_nullish.get(document), content="None")
 }
 
 ///|
 test "Lens nullish - returns None for JSON null" {
   let document = @json.parse("{\"name\":null}")
-  debug_inspect(
-    @lens.root().string("name").nullish().get(document),
-    content="None",
-  )
+  debug_inspect(lens_test_name_nullish.get(document), content="None")
 }
 
 ///|
 test "Lens nullish - returns Some for a decoded value" {
   let document = @json.parse("{\"name\":\"Ada\"}")
-  debug_inspect(
-    @lens.root().string("name").nullish().get(document),
-    content="Some(\"Ada\")",
-  )
+  debug_inspect(lens_test_name_nullish.get(document), content="Some(\"Ada\")")
 }

@@ -41,6 +41,26 @@ let snapshot_full_page_option : @admiral.OptionDef[Bool] = @admiral.bool(
 )
 
 ///|
+let snapshot_response_content_lens : @lens.Lens[String?] = @lens.root()
+  .string("content")
+  .optional()
+
+///|
+let snapshot_response_screenshot_lens : @lens.Lens[String?] = @lens.root()
+  .string("screenshot")
+  .optional()
+
+///|
+let snapshot_response_success_lens : @lens.Lens[Bool?] = @lens.root()
+  .bool("success")
+  .optional()
+
+///|
+let snapshot_response_result_lens : @lens.Lens[Json?] = @lens.root()
+  .json("result")
+  .optional()
+
+///|
 struct SnapshotOptionsInput {
   account_id : String
   api_token : String
@@ -77,12 +97,10 @@ struct SnapshotResponseResult {
 
 ///|
 impl FromJson for SnapshotResponseResult with fn from_json(json, _path) {
-  let content = @lens.root().string("content").optional().get(json) catch {
-      _ => None
-    }
-  let screenshot = @lens.root().string("screenshot").optional().get(json) catch {
-      _ => None
-    }
+  let content = snapshot_response_content_lens.get(json) catch { _ => None }
+  let screenshot = snapshot_response_screenshot_lens.get(json) catch {
+    _ => None
+  }
   { content, screenshot }
 }
 
@@ -94,16 +112,14 @@ struct SnapshotResponse {
 
 ///|
 impl FromJson for SnapshotResponse with fn from_json(json, _path) {
-  let success_value = @lens.root().bool("success").optional().get(json) catch {
-      _ => None
-    }
+  let success_value = snapshot_response_success_lens.get(json) catch {
+    _ => None
+  }
   let success = match success_value {
     Some(value) => value
     None => false
   }
-  let result_value = @lens.root().json("result").optional().get(json) catch {
-      _ => None
-    }
+  let result_value = snapshot_response_result_lens.get(json) catch { _ => None }
   let result = match result_value {
     Some(value) => Some((@json.from_json(value) : SnapshotResponseResult))
     None => None

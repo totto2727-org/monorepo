@@ -16,6 +16,8 @@ Use `Map[String, Json]` only when the wire format distinguishes omitted fields f
 
 Use `totto2727/lens` to select known object fields inside a manual `FromJson` implementation, or inside a private helper called exclusively by `FromJson` implementations. Translate `LensError` into the standard `JsonDecodeError` while retaining the incoming `JsonPath`. Do not expose `LensError` as the type's JSON decoding contract. Direct `@json.from_json` or pattern matching remains appropriate for scalar wrappers and discriminators.
 
+Define each complete lens at the top level with an explicit type annotation. Function bodies may call `get` on these prebuilt lenses, but must not construct lenses with `@lens.root`, `@lens.object`, or lens combinators such as `json`, `string`, `optional`, and `nullish`; rebuilding lens paths and decoders on every call adds avoidable runtime work. When a path is genuinely dynamic and cannot be predefined, access the unstructured `Json` directly instead of constructing a lens inside the function.
+
 Outside `FromJson`, lens access is allowed when a value intentionally remains `Json` because its shape is dynamic, schema-less, or otherwise cannot be represented by one stable type. Do not use this exception for a known structure that should implement `FromJson`; commands, services, and transport handlers should prefer the typed boundary whenever one exists.
 
 See [`boundary-conversion.md`](boundary-conversion.md) for the full ingress, domain, and egress pipeline.

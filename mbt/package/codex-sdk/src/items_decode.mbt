@@ -3,6 +3,74 @@
 // Item shapes being decoded: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L5-L128
 
 ///|
+let item_id_lens : @lens.Lens[Json] = @lens.root().json("id")
+
+///|
+let command_execution_command_lens : @lens.Lens[Json] = @lens.root().json(
+  "command",
+)
+
+///|
+let command_execution_aggregated_output_lens : @lens.Lens[Json] = @lens.root().json(
+  "aggregated_output",
+)
+
+///|
+let command_execution_exit_code_lens : @lens.Lens[Json?] = @lens.root()
+  .json("exit_code")
+  .nullish()
+
+///|
+let item_status_lens : @lens.Lens[Json] = @lens.root().json("status")
+
+///|
+let file_update_path_lens : @lens.Lens[Json] = @lens.root().json("path")
+
+///|
+let file_update_kind_lens : @lens.Lens[Json] = @lens.root().json("kind")
+
+///|
+let mcp_result_content_lens : @lens.Lens[Json] = @lens.root().json("content")
+
+///|
+let mcp_result_meta_lens : @lens.Lens[Json?] = @lens.root()
+  .json("_meta")
+  .nullish()
+
+///|
+let mcp_result_structured_content_lens : @lens.Lens[Json] = @lens.root().json(
+  "structured_content",
+)
+
+///|
+let mcp_item_server_lens : @lens.Lens[Json] = @lens.root().json("server")
+
+///|
+let mcp_item_tool_lens : @lens.Lens[Json] = @lens.root().json("tool")
+
+///|
+let mcp_item_arguments_lens : @lens.Lens[Json] = @lens.root().json("arguments")
+
+///|
+let mcp_item_result_lens : @lens.Lens[Json?] = @lens.root()
+  .json("result")
+  .nullish()
+
+///|
+let mcp_item_error_lens : @lens.Lens[Json?] = @lens.root()
+  .json("error")
+  .nullish()
+
+///|
+let file_change_changes_lens : @lens.Lens[Json] = @lens.root().json("changes")
+
+///|
+let todo_list_items_lens : @lens.Lens[Json] = @lens.root().json("items")
+
+///|
+let thread_item_type_lens : @lens.Lens[Json] = @lens.root().json("type")
+
+///|
 pub impl @json.FromJson for CommandExecutionStatus with fn from_json(json, path) {
   let value : String = @json.from_json(json, path~)
   match value {
@@ -62,9 +130,8 @@ pub impl @json.FromJson for CommandExecutionItem with fn from_json(json, path) {
   guard json is Json::Object(_) else {
     raise @json.JsonDecodeError((path, "command_execution must be an object"))
   }
-  let root = @lens.root()
   let id : String = @json.from_json(
-    root.json("id").get(json) catch {
+    item_id_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("id"), "command_execution is missing id"),
@@ -73,7 +140,7 @@ pub impl @json.FromJson for CommandExecutionItem with fn from_json(json, path) {
     path=path.add_key("id"),
   )
   let command : String = @json.from_json(
-    root.json("command").get(json) catch {
+    command_execution_command_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("command"), "command_execution is missing command"),
@@ -82,7 +149,7 @@ pub impl @json.FromJson for CommandExecutionItem with fn from_json(json, path) {
     path=path.add_key("command"),
   )
   let aggregated_output : String = @json.from_json(
-    root.json("aggregated_output").get(json) catch {
+    command_execution_aggregated_output_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (
@@ -93,18 +160,18 @@ pub impl @json.FromJson for CommandExecutionItem with fn from_json(json, path) {
     },
     path=path.add_key("aggregated_output"),
   )
-  let exit_code_value = root.json("exit_code").nullish().get(json) catch {
-      _ =>
-        raise @json.JsonDecodeError(
-          (path.add_key("exit_code"), "command_execution is missing exit_code"),
-        )
-    }
+  let exit_code_value = command_execution_exit_code_lens.get(json) catch {
+    _ =>
+      raise @json.JsonDecodeError(
+        (path.add_key("exit_code"), "command_execution is missing exit_code"),
+      )
+  }
   let exit_code = match exit_code_value {
     Some(value) => Some(@json.from_json(value, path=path.add_key("exit_code")))
     None => None
   }
   let status : CommandExecutionStatus = @json.from_json(
-    root.json("status").get(json) catch {
+    item_status_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("status"), "command_execution is missing status"),
@@ -120,9 +187,8 @@ pub impl @json.FromJson for FileUpdateChange with fn from_json(json, path) {
   guard json is Json::Object(_) else {
     raise @json.JsonDecodeError((path, "file update must be an object"))
   }
-  let root = @lens.root()
   let path_value : String = @json.from_json(
-    root.json("path").get(json) catch {
+    file_update_path_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("path"), "file update is missing path"),
@@ -131,7 +197,7 @@ pub impl @json.FromJson for FileUpdateChange with fn from_json(json, path) {
     path=path.add_key("path"),
   )
   let kind : PatchChangeKind = @json.from_json(
-    root.json("kind").get(json) catch {
+    file_update_kind_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("kind"), "file update is missing kind"),
@@ -147,9 +213,8 @@ pub impl @json.FromJson for McpToolCallResult with fn from_json(json, path) {
   guard json is Json::Object(_) else {
     raise @json.JsonDecodeError((path, "MCP tool result must be an object"))
   }
-  let root = @lens.root()
   let content : Array[Json] = @json.from_json(
-    root.json("content").get(json) catch {
+    mcp_result_content_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("content"), "MCP tool result is missing content"),
@@ -157,9 +222,9 @@ pub impl @json.FromJson for McpToolCallResult with fn from_json(json, path) {
     },
     path=path.add_key("content"),
   )
-  let meta = root.json("_meta").nullish().get(json) catch { _ => None }
+  let meta = mcp_result_meta_lens.get(json) catch { _ => None }
   let structured_content : Json = @json.from_json(
-    root.json("structured_content").get(json) catch {
+    mcp_result_structured_content_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (
@@ -178,9 +243,8 @@ pub impl @json.FromJson for McpToolCallItem with fn from_json(json, path) {
   guard json is Json::Object(_) else {
     raise @json.JsonDecodeError((path, "mcp_tool_call must be an object"))
   }
-  let root = @lens.root()
   let id : String = @json.from_json(
-    root.json("id").get(json) catch {
+    item_id_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("id"), "mcp_tool_call is missing id"),
@@ -189,7 +253,7 @@ pub impl @json.FromJson for McpToolCallItem with fn from_json(json, path) {
     path=path.add_key("id"),
   )
   let server : String = @json.from_json(
-    root.json("server").get(json) catch {
+    mcp_item_server_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("server"), "mcp_tool_call is missing server"),
@@ -198,7 +262,7 @@ pub impl @json.FromJson for McpToolCallItem with fn from_json(json, path) {
     path=path.add_key("server"),
   )
   let tool : String = @json.from_json(
-    root.json("tool").get(json) catch {
+    mcp_item_tool_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("tool"), "mcp_tool_call is missing tool"),
@@ -207,7 +271,7 @@ pub impl @json.FromJson for McpToolCallItem with fn from_json(json, path) {
     path=path.add_key("tool"),
   )
   let arguments : Json = @json.from_json(
-    root.json("arguments").get(json) catch {
+    mcp_item_arguments_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("arguments"), "mcp_tool_call is missing arguments"),
@@ -215,18 +279,18 @@ pub impl @json.FromJson for McpToolCallItem with fn from_json(json, path) {
     },
     path=path.add_key("arguments"),
   )
-  let result_value = root.json("result").nullish().get(json) catch { _ => None }
+  let result_value = mcp_item_result_lens.get(json) catch { _ => None }
   let result = match result_value {
     Some(value) => Some(@json.from_json(value, path=path.add_key("result")))
     None => None
   }
-  let error_value = root.json("error").nullish().get(json) catch { _ => None }
+  let error_value = mcp_item_error_lens.get(json) catch { _ => None }
   let error = match error_value {
     Some(value) => Some(@json.from_json(value, path=path.add_key("error")))
     None => None
   }
   let status : McpToolCallStatus = @json.from_json(
-    root.json("status").get(json) catch {
+    item_status_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("status"), "mcp_tool_call is missing status"),
@@ -242,9 +306,8 @@ pub impl @json.FromJson for FileChangeItem with fn from_json(json, path) {
   guard json is Json::Object(_) else {
     raise @json.JsonDecodeError((path, "file_change must be an object"))
   }
-  let root = @lens.root()
   let id : String = @json.from_json(
-    root.json("id").get(json) catch {
+    item_id_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("id"), "file_change is missing id"),
@@ -253,7 +316,7 @@ pub impl @json.FromJson for FileChangeItem with fn from_json(json, path) {
     path=path.add_key("id"),
   )
   let changes : Array[FileUpdateChange] = @json.from_json(
-    root.json("changes").get(json) catch {
+    file_change_changes_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("changes"), "file_change is missing changes"),
@@ -262,7 +325,7 @@ pub impl @json.FromJson for FileChangeItem with fn from_json(json, path) {
     path=path.add_key("changes"),
   )
   let status : PatchApplyStatus = @json.from_json(
-    root.json("status").get(json) catch {
+    item_status_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("status"), "file_change is missing status"),
@@ -278,9 +341,8 @@ pub impl @json.FromJson for TodoListItem with fn from_json(json, path) {
   guard json is Json::Object(_) else {
     raise @json.JsonDecodeError((path, "todo_list must be an object"))
   }
-  let root = @lens.root()
   let id : String = @json.from_json(
-    root.json("id").get(json) catch {
+    item_id_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("id"), "todo_list is missing id"),
@@ -289,7 +351,7 @@ pub impl @json.FromJson for TodoListItem with fn from_json(json, path) {
     path=path.add_key("id"),
   )
   let items : Array[TodoItem] = @json.from_json(
-    root.json("items").get(json) catch {
+    todo_list_items_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("items"), "todo_list is missing items"),
@@ -306,7 +368,7 @@ pub impl @json.FromJson for ThreadItem with fn from_json(json, path) {
     raise @json.JsonDecodeError((path, "thread item must be an object"))
   }
   let item_type : String = @json.from_json(
-    @lens.root().json("type").get(json) catch {
+    thread_item_type_lens.get(json) catch {
       _ =>
         raise @json.JsonDecodeError(
           (path.add_key("type"), "thread item is missing type"),
