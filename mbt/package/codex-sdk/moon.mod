@@ -18,7 +18,7 @@ readme = "README.md"
 
 repository = "https://github.com/totto2727-org/monorepo"
 
-license = "Apache-2.0"
+license = "MIT"
 
 keywords = [ "openai", "codex", "sdk", "moonbit" ]
 
