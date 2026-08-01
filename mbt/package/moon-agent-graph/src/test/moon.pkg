@@ -1,0 +1,24 @@
+import {
+  "DC-Z-lab/moonllm" @llm,
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/http",
+  "moonbitlang/async/io",
+  "moonbitlang/async/process",
+  "moonbitlang/async/socket",
+  "moonbitlang/core/immut/hashmap" @immut_hashmap,
+  "moonbitlang/core/json",
+  "moonbitlang/core/string",
+  "moonbitlang/x/path",
+  "totto2727/codex-sdk" @codex_sdk,
+  "totto2727/moon-agent-graph/coding_agent",
+  "totto2727/moon-agent-graph/core",
+  "totto2727/moon-agent-graph/e2e",
+  "totto2727/moon-agent-graph/integrations/codex",
+  "totto2727/moon-agent-graph/integrations/opencode",
+  "totto2727/moon-agent-graph/moonllm" @moonllm_node,
+  "totto2727/moon-agent-graph/testing",
+  "totto2727/opencode-sdk" @opencode_sdk,
+} for "test"
+
+supported_targets = "native"

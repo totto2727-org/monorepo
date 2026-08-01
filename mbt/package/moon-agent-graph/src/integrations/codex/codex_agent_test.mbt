@@ -195,3 +195,6 @@ async test "codex_agent 4 - preserves turn failures and rejects execution after 
     },
   )
 }
+
+// The native fake follows the pinned upstream Codex SDK executable-spy pattern:
+// https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/codexExecSpy.ts

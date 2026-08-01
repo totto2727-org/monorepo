@@ -44,15 +44,15 @@ async test "llm_node integration 1 - maps a local chat completion into graph sta
       timeout_ms=1000,
     )
     let entry = @core.NodeId::parse("local-llm")
-    let node = llm_node(
+    let node = @moonllm_node.llm_node(
       entry,
       @core.NodeMetadata::{
         name: "local-llm",
         description: Some("Deterministic local MoonLLM integration"),
-        kind: Llm,
+        kind: @core.Llm,
         tags: ["integration"],
       },
-      LlmNodeSpec::{
+      @moonllm_node.LlmNodeSpec::{
         build_request: fn(_context, state : LocalLlmState) {
           @llm.ChatRequest::new("local-test-model", [
             @llm.Message::system("Return the deterministic result."),
@@ -69,7 +69,7 @@ async test "llm_node integration 1 - maps a local chat completion into graph sta
             value: Some(Json::string(response.text())),
             artifacts: [
               @core.Artifact::{
-                kind: Json,
+                kind: @core.Json,
                 name: "moonllm-usage",
                 uri: None,
                 metadata: response.usage.map(fn(usage) { usage.to_json() }),
@@ -96,7 +96,7 @@ async test "llm_node integration 1 - maps a local chat completion into graph sta
           fail("missing usage metadata")
         }
         usage_artifacts.push(metadata.stringify())
-        End
+        @core.End
       }),
     )
     definition.set_entry(entry)

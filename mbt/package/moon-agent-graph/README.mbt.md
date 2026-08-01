@@ -15,7 +15,8 @@ The sequential native runtime, MoonLLM boundary, common coding-agent node, Codex
 - [`integrations/opencode`](src/integrations/opencode): OpenCode CLI SDK adapter.
 - [`testing`](src/testing): deterministic public fixtures and native test helpers.
 - [`visualization`](src/visualization): deterministic Mermaid rendering for compiled graphs.
-- [`e2e`](src/e2e): credential-free workflow tests.
+- [`e2e`](src/e2e): reusable credential-free workflow support.
+- [`test`](src/test): native cross-package integration tests.
 
 ## Basic example
 

@@ -6,12 +6,4 @@ import {
   "moonbitlang/x/path",
 }
 
-import {
-  "totto2727/moon-agent-graph/moonllm" @moonllm_node,
-  "totto2727/moon-agent-graph/testing",
-  "DC-Z-lab/moonllm" @llm,
-  "moonbitlang/core/json",
-  "moonbitlang/core/test",
-} for "test"
-
 supported_targets = "native"

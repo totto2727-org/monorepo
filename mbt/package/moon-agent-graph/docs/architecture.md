@@ -291,6 +291,7 @@ mbt/package/moon-agent-graph/
     ├── testing/
     ├── visualization/
     ├── e2e/
+    ├── test/
     └── examples/
         ├── basic/
         └── visualization/
@@ -308,7 +309,9 @@ The two adapter packages import `coding_agent` plus their concrete SDK.
 
 `visualization` imports `core` and renders callback-free compiled graph snapshots as deterministic Mermaid flowcharts.
 
-`e2e` contains deterministic end-to-end workflow support and tests that consume public packages and local fakes.
+`e2e` contains reusable deterministic end-to-end workflow support.
+
+`test` contains native black-box integration tests that connect the public `core`, `moonllm`, `coding_agent`, adapter, `testing`, and `e2e` package surfaces.
 
 `examples/basic` is a runnable native example that imports only the public `core` package.
 

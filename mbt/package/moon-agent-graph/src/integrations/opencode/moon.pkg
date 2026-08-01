@@ -6,15 +6,4 @@ import {
   "totto2727/opencode-sdk" @sdk,
 }
 
-import {
-  "moonbitlang/async/fs",
-  "moonbitlang/async/process",
-  "moonbitlang/core/immut/hashmap" @immut_hashmap,
-  "moonbitlang/core/string",
-} for "test"
-
-import {
-  "moonbitlang/core/immut/hashmap" @immut_hashmap,
-} for "wbtest"
-
 supported_targets = "native"

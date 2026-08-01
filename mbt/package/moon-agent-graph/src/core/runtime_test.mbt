@@ -283,3 +283,558 @@ async test "GraphRuntime invoke 7 - isolates state resources and run IDs across 
   inspect(closed.join(","), content="session-0,session-1")
   assert_true(run_ids[0] != run_ids[1])
 }
+
+///|
+suberror RuntimeErrorTestError {
+  Failed(String)
+} derive(Debug)
+
+///|
+fn w4_error_metadata(name : String) -> NodeMetadata {
+  NodeMetadata::{ name, description: None, kind: Function, tags: [] }
+}
+
+///|
+fn w4_error_node(
+  id : NodeId,
+  execute : async (NodeContext, Int) -> NodeOutput[Int],
+) -> Node[Int, Int] {
+  function_node(id, w4_error_metadata(id.to_string()), execute)
+}
+
+///|
+fn w4_error_runtime_for_single_node(
+  reducer : Reducer[Int, Int],
+  node : Node[Int, Int],
+  value : Router[Int],
+) -> GraphRuntime[Int, Int] raise {
+  let definition = GraphDefinition::GraphDefinition(reducer)
+  definition.add_node(node)
+  definition.set_router(node.id, value)
+  definition.set_entry(node.id)
+  GraphRuntime::GraphRuntime(definition.compile())
+}
+
+///|
+async test "GraphRuntime error 1 - preserves a node cause without routing afterward" {
+  let a = NodeId::parse("node-failure")
+  let mut router_calls = 0
+  let runtime = w4_error_runtime_for_single_node(
+    Reducer::{ apply: fn(state, patch) { state + patch } },
+    w4_error_node(a, async fn(_context, _state) {
+      @async.pause()
+      raise Failed("node-detail")
+    }),
+    router([], fn(_state, _completion) {
+      router_calls = router_calls + 1
+      End
+    }),
+  )
+  let detail = (runtime.invoke(0) |> @debug.to_string) catch {
+    error => @debug.to_string(error)
+  }
+  inspect(detail.contains("NodeFailed("), content="true")
+  inspect(detail.contains("node-failure"), content="true")
+  inspect(detail.contains("node-detail"), content="true")
+  inspect(router_calls, content="0")
+}
+
+///|
+async test "GraphRuntime error 2 - stops before routing when reduction fails" {
+  let a = NodeId::parse("reduce-failure")
+  let mut router_calls = 0
+  let runtime = w4_error_runtime_for_single_node(
+    Reducer::{ apply: (_state, _patch) => raise Failed("reduce-detail") },
+    w4_error_node(a, async fn(_context, _state) {
+      @async.pause()
+      NodeOutput::{ patch: Some(1), value: None, artifacts: [] }
+    }),
+    router([], fn(_state, _completion) {
+      router_calls = router_calls + 1
+      End
+    }),
+  )
+  let detail = (runtime.invoke(0) |> @debug.to_string) catch {
+    error => @debug.to_string(error)
+  }
+  inspect(detail.contains("ReduceFailed("), content="true")
+  inspect(detail.contains("reduce-failure"), content="true")
+  inspect(detail.contains("reduce-detail"), content="true")
+  inspect(router_calls, content="0")
+}
+
+///|
+async test "GraphRuntime error 3 - stops before the next node when routing fails" {
+  let a = NodeId::parse("route-failure")
+  let b = NodeId::parse("next-node")
+  let mut next_node_calls = 0
+  let definition = GraphDefinition::GraphDefinition(Reducer::{
+    apply: fn(state, patch) { state + patch },
+  })
+  definition.add_node(
+    w4_error_node(a, async fn(_context, _state) {
+      @async.pause()
+      NodeOutput::{ patch: None, value: None, artifacts: [] }
+    }),
+  )
+  definition.add_node(
+    w4_error_node(b, async fn(_context, _state) {
+      next_node_calls = next_node_calls + 1
+      @async.pause()
+      NodeOutput::{ patch: None, value: None, artifacts: [] }
+    }),
+  )
+  definition.set_router(
+    a,
+    router([DeclaredRoute::DeclaredRoute(b)], (_state, _completion) => {
+      raise Failed("route-detail")
+    }),
+  )
+  definition.set_router(b, router([], fn(_state, _completion) { End }))
+  definition.set_entry(a)
+  let runtime = GraphRuntime::GraphRuntime(definition.compile())
+  let detail = (runtime.invoke(0) |> @debug.to_string) catch {
+    error => @debug.to_string(error)
+  }
+  inspect(detail.contains("RouteFailed("), content="true")
+  inspect(detail.contains("route-failure"), content="true")
+  inspect(detail.contains("route-detail"), content="true")
+  inspect(next_node_calls, content="0")
+}
+
+///|
+async test "GraphRuntime error 4 - rejects an undeclared existing route target" {
+  let a = NodeId::parse("source")
+  let b = NodeId::parse("declared")
+  let c = NodeId::parse("undeclared")
+  let definition = GraphDefinition::GraphDefinition(Reducer::{
+    apply: fn(state, patch) { state + patch },
+  })
+  for id in [a, b, c] {
+    definition.add_node(
+      w4_error_node(id, async fn(_context, _state) {
+        @async.pause()
+        NodeOutput::{ patch: None, value: None, artifacts: [] }
+      }),
+    )
+  }
+  definition.set_router(
+    a,
+    router([DeclaredRoute::DeclaredRoute(b)], fn(_state, _completion) { To(c) }),
+  )
+  definition.set_router(
+    b,
+    router([DeclaredRoute::DeclaredRoute(c)], fn(_state, _completion) { To(c) }),
+  )
+  definition.set_router(c, router([], fn(_state, _completion) { End }))
+  definition.set_entry(a)
+  let runtime = GraphRuntime::GraphRuntime(definition.compile())
+  let detail = (runtime.invoke(0) |> @debug.to_string) catch {
+    error => @debug.to_string(error)
+  }
+  inspect(
+    detail.contains(
+      "RouteContractViolated(from=NodeId(\"source\"), to=NodeId(\"undeclared\"))",
+    ),
+    content="true",
+  )
+}
+
+///|
+async test "GraphRuntime error 5 - enforces the step limit after exactly that many attempts" {
+  let a = NodeId::parse("self-loop")
+  let mut attempts = 0
+  let runtime = w4_error_runtime_for_single_node(
+    Reducer::{ apply: fn(state, patch) { state + patch } },
+    w4_error_node(a, async fn(_context, _state) {
+      attempts = attempts + 1
+      @async.pause()
+      NodeOutput::{ patch: None, value: None, artifacts: [] }
+    }),
+    router([DeclaredRoute::DeclaredRoute(a)], fn(_state, _completion) { To(a) }),
+  )
+  let options = RunOptions::RunOptions(max_steps=3)
+  let detail = (runtime.invoke(0, options~) |> @debug.to_string) catch {
+    error => @debug.to_string(error)
+  }
+  inspect(detail.contains("StepLimitExceeded(limit=3)"), content="true")
+  inspect(attempts, content="3")
+}
+
+///|
+async test "GraphRuntime error 6 - exposes a route failure message" {
+  let a = NodeId::parse("explicit-failure")
+  let runtime = w4_error_runtime_for_single_node(
+    Reducer::{ apply: fn(state, patch) { state + patch } },
+    w4_error_node(a, async fn(_context, _state) {
+      @async.pause()
+      NodeOutput::{ patch: None, value: None, artifacts: [] }
+    }),
+    router([], fn(_state, _completion) { Fail("stop-now") }),
+  )
+  let detail = (runtime.invoke(0) |> @debug.to_string) catch {
+    error => @debug.to_string(error)
+  }
+  inspect(detail.contains("ExplicitFailure("), content="true")
+  inspect(detail.contains("explicit-failure"), content="true")
+  inspect(detail.contains("stop-now"), content="true")
+}
+
+///|
+async test "GraphRuntime error 7 - cancels a timed out node before its second token" {
+  let a = NodeId::parse("timeout")
+  let tokens : Array[String] = []
+  let runtime = w4_error_runtime_for_single_node(
+    Reducer::{ apply: fn(state, patch) { state + patch } },
+    w4_error_node(a, async fn(_context, _state) {
+      tokens.push("started")
+      @async.sleep(100)
+      tokens.push("finished")
+      NodeOutput::{ patch: None, value: None, artifacts: [] }
+    }),
+    router([], fn(_state, _completion) { End }),
+  )
+  let options = RunOptions::RunOptions(node_timeout_ms=5)
+  let detail = (runtime.invoke(0, options~) |> @debug.to_string) catch {
+    error => @debug.to_string(error)
+  }
+  inspect(
+    detail.contains(
+      "NodeTimedOut(node_id=NodeId(\"timeout\"), step=1, timeout_ms=5)",
+    ),
+    content="true",
+  )
+  inspect(tokens.join(","), content="started")
+}
+
+///|
+suberror W4LifecycleTestError {
+  W4NodeFailed(String)
+  W4ReduceFailed(String)
+  W4RouteFailed(String)
+  W4CloseFailed(String)
+} derive(Debug)
+
+///|
+enum W4ClosePlan {
+  W4CloseSucceeds
+  W4CloseFails(String)
+}
+
+///|
+struct W4LifecycleSession {
+  closed : Array[String]
+  plan : W4ClosePlan
+}
+
+///|
+impl CodingAgentSession for W4LifecycleSession with fn id(_self) {
+  None
+}
+
+///|
+impl CodingAgentSession for W4LifecycleSession with fn execute(_self, _request) {
+  @async.pause()
+  CodingAgentResponse::{
+    status: Succeeded,
+    summary: None,
+    continuation_id: None,
+    changed_files: [],
+    artifacts: [],
+    raw_output: None,
+  }
+}
+
+///|
+impl CodingAgentSession for W4LifecycleSession with fn close(self) {
+  match self.plan {
+    W4CloseSucceeds => self.closed.push("closed")
+    W4CloseFails(message) => {
+      self.closed.push("closed")
+      raise W4CloseFailed(message)
+    }
+  }
+}
+
+///|
+fn w4_lifecycle_session(
+  closed : Array[String],
+  plan : W4ClosePlan,
+) -> &CodingAgentSession {
+  let session = W4LifecycleSession::{ closed, plan }
+  (session : &CodingAgentSession)
+}
+
+///|
+fn w4_lifecycle_graph(
+  execute : async (NodeContext, Int) -> NodeOutput[Int],
+  reduce : (Int, Int) -> Int raise,
+  route : (Int, NodeCompletion) -> Route raise,
+) -> CompiledGraph[Int, Int] raise {
+  let node_id = NodeId::parse("lifecycle")
+  let definition = GraphDefinition::GraphDefinition(Reducer::{ apply: reduce })
+  definition.add_node(
+    function_node(
+      node_id,
+      NodeMetadata::{
+        name: "lifecycle",
+        description: None,
+        kind: Function,
+        tags: [],
+      },
+      execute,
+    ),
+  )
+  definition.set_router(node_id, router([], route))
+  definition.set_entry(node_id)
+  definition.compile()
+}
+
+///|
+fn w4_terminal_counts(events : Array[GraphEvent]) -> (Int, Int, Int) {
+  let mut completed = 0
+  let mut failed = 0
+  let mut cancelled = 0
+  for event in events {
+    match event {
+      RunCompleted(_) => completed = completed + 1
+      RunFailed(_) => failed = failed + 1
+      RunCancelled(_) => cancelled = cancelled + 1
+      _ => ()
+    }
+  }
+  (completed, failed, cancelled)
+}
+
+///|
+async test "GraphRuntime lifecycle 1 - cancellation closes resources and stops children before re-raising" {
+  @async.with_task_group() <| caller_group => {
+    let closed : Array[String] = []
+    let child_tokens : Array[String] = []
+    let node_ready : Array[String] = []
+    let events : Array[GraphEvent] = []
+    let graph = w4_lifecycle_graph(
+      async fn(context, _state) {
+        context.resources.acquire_agent_session(
+          ResourceKey::parse("cancelled-session"),
+          Node,
+          async fn() {
+            @async.pause()
+            w4_lifecycle_session(closed, W4CloseSucceeds)
+          },
+          owner=context.node_id,
+        )
+        |> ignore
+        context.task_group.spawn(async fn() {
+          child_tokens.push("started")
+          while true {
+            @async.pause()
+          } nobreak {
+            child_tokens.push("finished")
+          }
+        })
+        |> ignore
+        node_ready.push("acquired")
+        while true {
+          @async.pause()
+        } nobreak {
+          NodeOutput::{ patch: None, value: None, artifacts: [] }
+        }
+      },
+      fn(state, patch) { state + patch },
+      fn(_state, _completion) { End },
+    )
+    let runtime = GraphRuntime::GraphRuntime(
+      graph,
+      events=EventSink::EventSink(fn(event) { events.push(event) }),
+    )
+    let task = caller_group.spawn(
+      async fn() { runtime.invoke(0) |> ignore },
+      allow_failure=true,
+    )
+    let mut wait_attempts = 0
+    while (node_ready.is_empty() || child_tokens.is_empty()) &&
+          wait_attempts < 20 {
+      @async.pause()
+      wait_attempts = wait_attempts + 1
+    }
+    inspect(node_ready.join(","), content="acquired")
+    inspect(child_tokens.join(","), content="started")
+    task.cancel()
+    let cancellation = try {
+      task.wait()
+      false
+    } catch {
+      error => @async.is_cancellation_error(error)
+    }
+    inspect(closed.join(","), content="closed")
+    inspect(child_tokens.join(","), content="started")
+    let (completed, failed, cancelled) = w4_terminal_counts(events)
+    inspect(completed, content="0")
+    inspect(failed, content="0")
+    inspect(cancelled, content="1")
+    inspect(cancellation, content="true")
+  }
+}
+
+///|
+async fn w4_assert_one_failed_terminal(
+  graph : CompiledGraph[Int, Int],
+  expected : String,
+) -> Unit {
+  let events : Array[GraphEvent] = []
+  let runtime = GraphRuntime::GraphRuntime(
+    graph,
+    events=EventSink::EventSink(fn(event) { events.push(event) }),
+  )
+  let detail = try {
+    runtime.invoke(0) |> ignore
+    ""
+  } catch {
+    error => @debug.to_string(error)
+  }
+  inspect(detail.contains(expected), content="true")
+  let (completed, failed, cancelled) = w4_terminal_counts(events)
+  inspect(completed, content="0")
+  inspect(failed, content="1")
+  inspect(cancelled, content="0")
+}
+
+///|
+async test "GraphRuntime lifecycle 2 - node reducer and router failures each emit one RunFailed" {
+  w4_assert_one_failed_terminal(
+    w4_lifecycle_graph(
+      async fn(_context, _state) {
+        @async.pause()
+        raise W4NodeFailed("node")
+      },
+      fn(state, patch) { state + patch },
+      fn(_state, _completion) { End },
+    ),
+    "NodeFailed",
+  )
+  w4_assert_one_failed_terminal(
+    w4_lifecycle_graph(
+      async fn(_context, _state) {
+        @async.pause()
+        NodeOutput::{ patch: Some(1), value: None, artifacts: [] }
+      },
+      fn(_state, _patch) raise { raise W4ReduceFailed("reducer") },
+      fn(_state, _completion) { End },
+    ),
+    "ReduceFailed",
+  )
+  w4_assert_one_failed_terminal(
+    w4_lifecycle_graph(
+      async fn(_context, _state) {
+        @async.pause()
+        NodeOutput::{ patch: None, value: None, artifacts: [] }
+      },
+      fn(state, patch) { state + patch },
+      fn(_state, _completion) raise { raise W4RouteFailed("router") },
+    ),
+    "RouteFailed",
+  )
+}
+
+///|
+async test "GraphRuntime lifecycle 3 - cleanup-only failure becomes ResourceCleanupFailed" {
+  let closed : Array[String] = []
+  let events : Array[GraphEvent] = []
+  let graph = w4_lifecycle_graph(
+    async fn(context, _state) {
+      context.resources.acquire_agent_session(
+        ResourceKey::parse("cleanup-only"),
+        Run,
+        async fn() {
+          @async.pause()
+          w4_lifecycle_session(closed, W4CloseFails("cleanup-only"))
+        },
+      )
+      |> ignore
+      NodeOutput::{ patch: None, value: None, artifacts: [] }
+    },
+    fn(state, patch) { state + patch },
+    fn(_state, _completion) { End },
+  )
+  let runtime = GraphRuntime::GraphRuntime(
+    graph,
+    events=EventSink::EventSink(fn(event) { events.push(event) }),
+  )
+  let detail = try {
+    runtime.invoke(0) |> ignore
+    ""
+  } catch {
+    error => @debug.to_string(error)
+  }
+  inspect(detail.contains("ResourceCleanupFailed"), content="true")
+  inspect(detail.contains("W4CloseFailed(\"cleanup-only\")"), content="true")
+  inspect(closed.join(","), content="closed")
+  let (completed, failed, cancelled) = w4_terminal_counts(events)
+  inspect(completed, content="0")
+  inspect(failed, content="1")
+  inspect(cancelled, content="0")
+}
+
+///|
+async test "GraphRuntime lifecycle 4 - primary and cleanup failures remain distinguishable" {
+  let closed : Array[String] = []
+  let events : Array[GraphEvent] = []
+  let graph = w4_lifecycle_graph(
+    async fn(context, _state) {
+      context.resources.acquire_agent_session(
+        ResourceKey::parse("primary-and-cleanup"),
+        Run,
+        async fn() {
+          @async.pause()
+          w4_lifecycle_session(closed, W4CloseFails("secondary"))
+        },
+      )
+      |> ignore
+      raise W4NodeFailed("primary")
+    },
+    fn(state, patch) { state + patch },
+    fn(_state, _completion) { End },
+  )
+  let runtime = GraphRuntime::GraphRuntime(
+    graph,
+    events=EventSink::EventSink(fn(event) { events.push(event) }),
+  )
+  let detail = try {
+    runtime.invoke(0) |> ignore
+    ""
+  } catch {
+    error => @debug.to_string(error)
+  }
+  inspect(detail.contains("ResourceCleanupFailed"), content="true")
+  inspect(detail.contains("W4NodeFailed(\"primary\")"), content="true")
+  inspect(detail.contains("W4CloseFailed(\"secondary\")"), content="true")
+  inspect(closed.join(","), content="closed")
+  let (completed, failed, cancelled) = w4_terminal_counts(events)
+  inspect(completed, content="0")
+  inspect(failed, content="1")
+  inspect(cancelled, content="0")
+}
+
+///|
+async test "GraphRuntime lifecycle 5 - success emits exactly one RunCompleted" {
+  let events : Array[GraphEvent] = []
+  let graph = w4_lifecycle_graph(
+    async fn(_context, _state) {
+      @async.pause()
+      NodeOutput::{ patch: None, value: None, artifacts: [] }
+    },
+    fn(state, patch) { state + patch },
+    fn(_state, _completion) { End },
+  )
+  let result = GraphRuntime::GraphRuntime(
+    graph,
+    events=EventSink::EventSink(fn(event) { events.push(event) }),
+  ).invoke(7)
+  inspect(result.final_state, content="7")
+  inspect(result.steps, content="1")
+  let (completed, failed, cancelled) = w4_terminal_counts(events)
+  inspect(completed, content="1")
+  inspect(failed, content="0")
+  inspect(cancelled, content="0")
+}

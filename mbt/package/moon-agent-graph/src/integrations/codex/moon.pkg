@@ -6,9 +6,7 @@ import {
 }
 
 import {
-  "totto2727/moon-agent-graph/coding_agent",
   "moonbitlang/async/fs",
-  "moonbitlang/async/process",
   "moonbitlang/core/immut/hashmap" @immut_hashmap,
 } for "test"
 

@@ -291,6 +291,7 @@ mbt/package/moon-agent-graph/
     ├── testing/
     ├── visualization/
     ├── e2e/
+    ├── test/
     └── examples/
         ├── basic/
         └── visualization/
@@ -308,7 +309,9 @@ mbt/package/moon-agent-graph/
 
 `visualization` は `core` をインポートし、コールバックを含まないコンパイル済みグラフのスナップショットを、決定論的な Mermaid フローチャートとしてレンダリングします。
 
-`e2e` には、決定論的エンドツーエンドワークフローのサポートと、公開パッケージとローカル偽装を消費するテストが含まれます。
+`e2e` には、再利用可能な決定論的エンドツーエンドワークフローのサポートが含まれます。
+
+`test` には、公開された `core`、`moonllm`、`coding_agent`、アダプター、`testing`、`e2e` の各パッケージ面を接続するネイティブのブラックボックス統合テストが含まれます。
 
 `examples/basic` は、公開されている `core` パッケージのみをインポートする実行可能なネイティブの例です。
 

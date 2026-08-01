@@ -41,7 +41,8 @@ mbt/package/moon-agent-graph/
     ├── examples/
     │   ├── basic/
     │   └── visualization/
-    └── e2e/
+    ├── e2e/
+    └── test/
 ```
 
 Every source package has one `moon.pkg`.
@@ -76,6 +77,13 @@ flowchart TD
   E2E --> MoonLLMNode
   E2E --> Agent
   E2E --> Testing
+  IntegrationTest["test"] --> Core
+  IntegrationTest --> MoonLLMNode
+  IntegrationTest --> Agent
+  IntegrationTest --> Codex
+  IntegrationTest --> OpenCode
+  IntegrationTest --> Testing
+  IntegrationTest --> E2E
 ```
 
 No package may import an example or testing package from production code.
@@ -546,6 +554,7 @@ Use focused native tests during development.
 moon test --target native mbt/package/moon-agent-graph/src/core
 moon test --target native mbt/package/moon-agent-graph/src/integrations/codex
 moon test --target native mbt/package/moon-agent-graph/src/integrations/opencode
+moon test --target native mbt/package/moon-agent-graph/src/test
 ```
 
 The final manual gate covers at least one function-only example and one deterministic coding-agent workflow through its native executable surface.

@@ -41,7 +41,8 @@ mbt/package/moon-agent-graph/
     ├── examples/
     │   ├── basic/
     │   └── visualization/
-    └── e2e/
+    ├── e2e/
+    └── test/
 ```
 
 すべてのソースパッケージは1つの `moon.pkg` を持ちます。
@@ -76,6 +77,13 @@ flowchart TD
   E2E --> MoonLLMNode
   E2E --> Agent
   E2E --> Testing
+  IntegrationTest["test"] --> Core
+  IntegrationTest --> MoonLLMNode
+  IntegrationTest --> Agent
+  IntegrationTest --> Codex
+  IntegrationTest --> OpenCode
+  IntegrationTest --> Testing
+  IntegrationTest --> E2E
 ```
 
 本番コードからexampleやtestingパッケージをインポートしてはいけません。
@@ -546,6 +554,7 @@ vp run mbt:test
 moon test --target native mbt/package/moon-agent-graph/src/core
 moon test --target native mbt/package/moon-agent-graph/src/integrations/codex
 moon test --target native mbt/package/moon-agent-graph/src/integrations/opencode
+moon test --target native mbt/package/moon-agent-graph/src/test
 ```
 
 最終的な手動ゲートは、少なくとも1つの関数のみの例と1つの決定論的コーディングエージェントワークフローを、そのネイティブ実行可能ファイルの表面を通じてカバーします。
