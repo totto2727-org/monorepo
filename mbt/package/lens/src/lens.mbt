@@ -160,6 +160,25 @@ pub fn[T] Lens::nullish(
 }
 
 ///|
+/// Appends this lens's pointer to an existing JSON path.
+pub fn[T] Lens::add_to_json_path(
+  self : Lens[T],
+  path : @json.JsonPath,
+) -> @json.JsonPath {
+  self.pointer.add_to_json_path(path)
+}
+
+///|
+/// Creates a standard JSON decode error at this lens's location under an existing path.
+pub fn[T] Lens::json_decode_error(
+  self : Lens[T],
+  path : @json.JsonPath,
+  message : String,
+) -> @json.JsonDecodeError {
+  self.pointer.json_decode_error(path, message)
+}
+
+///|
 /// Reads this object lens from a JSON document.
 pub fn ObjectLens::get(
   self : ObjectLens,
@@ -192,5 +211,18 @@ pub fn[T] Lens::get(self : Lens[T], document : Json) -> T raise LensError {
         code,
         message,
       })
+  }
+}
+
+///|
+/// Reads this lens and translates a lens failure into a standard JSON decode error.
+pub fn[T] Lens::get_or_json_decode_error(
+  self : Lens[T],
+  document : Json,
+  path : @json.JsonPath,
+) -> T raise @json.JsonDecodeError {
+  self.get(document) catch {
+    LensError(issue) =>
+      raise issue.pointer.json_decode_error(path, repr(LensError(issue)))
   }
 }
