@@ -53,7 +53,7 @@
                     starship.enable = true;
                     zoxide.enable = true;
                     git = import ../share/git.nix;
-                    gh = import ../share/gh.nix;
+                    gh = import ../share/gh.nix { inherit pkgs; };
                     zsh = {
                       enable = true;
                       enableCompletion = true;
