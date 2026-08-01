@@ -1,12 +1,6 @@
 ///|
 test "init_options - reads the global flag" {
-  let context : @admiral.Context = {
-    flags: { "global": true },
-    values: Map([]),
-    sources: Map([]),
-    config: Map([]),
-    subcommand: None,
-  }
+  let context = @admiral.Context(flags={ "global": true })
   inspect(init_options(context).global, content="true")
 }
 

@@ -1,7 +1,7 @@
 ///|
 /// A completed OpenCode turn.
 pub(all) struct Turn {
-  events : Array[ThreadEvent]
+  events : ReadOnlyArray[ThreadEvent]
   final_response : String
 } derive(Debug, Eq)
 
@@ -132,7 +132,10 @@ pub async fn Thread::run(self : Thread, input : Input) -> Turn {
     }
     true
   })
-  { events, final_response: texts.join("") }
+  {
+    events: ReadOnlyArray::from_array(events),
+    final_response: texts.join(""),
+  }
 }
 
 ///|

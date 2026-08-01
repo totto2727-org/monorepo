@@ -73,13 +73,11 @@ test "Context scalar resolution 1-1 - parser values supply all getters" {
   let matches = @argparse.Command("test", flags=[@argparse.FlagArg("flag")], options=[
     @argparse.OptionArg("value"),
   ]).parse(argv=["--flag", "--value", "1"], env=Map([]))
-  let ctx : Context = {
-    flags: matches.flags,
-    values: matches.values,
-    sources: matches.sources,
-    config: Map([]),
-    subcommand: None,
-  }
+  let ctx = Context::Context(
+    flags=matches.flags,
+    values=matches.values,
+    sources=matches.sources,
+  )
   let string_value = string("value", required=true)
   let int_value = int("value", required=true)
   let int64_value = int64("value", required=true)
@@ -103,11 +101,7 @@ test "Context scalar resolution 1-1 - parser values supply all getters" {
 
 ///|
 test "Context scalar resolution 1-2 - config values supply all getters" {
-  let ctx : Context = {
-    flags: Map([]),
-    values: Map([]),
-    sources: Map([]),
-    config: {
+  let ctx = Context::Context(config={
       "bool": true.to_json(),
       "string": "1".to_json(),
       "int": (1).to_json(),
@@ -115,9 +109,7 @@ test "Context scalar resolution 1-2 - config values supply all getters" {
       "uint": 1U.to_json(),
       "uint64": 1UL.to_json(),
       "double": 1.0.to_json(),
-    },
-    subcommand: None,
-  }
+    })
   let string_value = string("value", config="string", required=true)
   let int_value = int("value", config="int", required=true)
   let int64_value = int64("value", config="int64", required=true)
@@ -141,13 +133,7 @@ test "Context scalar resolution 1-2 - config values supply all getters" {
 
 ///|
 test "Context scalar resolution 1-3 - missing values use fallback behavior" {
-  let ctx : Context = {
-    flags: Map([]),
-    values: Map([]),
-    sources: Map([]),
-    config: Map([]),
-    subcommand: None,
-  }
+  let ctx = Context::Context()
   let string_value = string("value", required=true)
   let int_value = int("value", required=true)
   let int64_value = int64("value", required=true)
@@ -198,11 +184,11 @@ test "Context scalar resolution 2-1 - non-default parser values override config"
   let matches = @argparse.Command("test", flags=[@argparse.FlagArg("flag")], options=[
     @argparse.OptionArg("value"),
   ]).parse(argv=["--flag", "--value", "2"], env=Map([]))
-  let ctx : Context = {
-    flags: matches.flags,
-    values: matches.values,
-    sources: matches.sources,
-    config: {
+  let ctx = Context::Context(
+    flags=matches.flags,
+    values=matches.values,
+    sources=matches.sources,
+    config={
       "bool": false.to_json(),
       "string": "1".to_json(),
       "int": (1).to_json(),
@@ -211,8 +197,7 @@ test "Context scalar resolution 2-1 - non-default parser values override config"
       "uint64": 1UL.to_json(),
       "double": 1.0.to_json(),
     },
-    subcommand: None,
-  }
+  )
   let string_value = string("value", config="string", required=true)
   let int_value = int("value", config="int", required=true)
   let int64_value = int64("value", config="int64", required=true)
@@ -239,11 +224,10 @@ test "Context scalar resolution 2-2 - config overrides parser defaults" {
   let matches = @argparse.Command("test", options=[
     @argparse.OptionArg("value", default_values=["1"]),
   ]).parse(argv=[], env=Map([]))
-  let ctx : Context = {
-    flags: Map([]),
-    values: matches.values,
-    sources: matches.sources,
-    config: {
+  let ctx = Context::Context(
+    values=matches.values,
+    sources=matches.sources,
+    config={
       "bool": true.to_json(),
       "string": "2".to_json(),
       "int": (2).to_json(),
@@ -252,8 +236,7 @@ test "Context scalar resolution 2-2 - config overrides parser defaults" {
       "uint64": 2UL.to_json(),
       "double": 2.0.to_json(),
     },
-    subcommand: None,
-  }
+  )
   let string_value = string("value", config="string", required=true)
   let int_value = int("value", config="int", required=true)
   let int64_value = int64("value", config="int64", required=true)
@@ -281,13 +264,7 @@ test "Context scalar resolution 3-1 - invalid parser values raise" {
     argv=["--value", "invalid"],
     env=Map([]),
   )
-  let ctx : Context = {
-    flags: Map([]),
-    values: matches.values,
-    sources: matches.sources,
-    config: Map([]),
-    subcommand: None,
-  }
+  let ctx = Context::Context(values=matches.values, sources=matches.sources)
   try ctx.get_int(int("value")) |> ignore catch {
     _ => ()
   } noraise {
@@ -317,11 +294,7 @@ test "Context scalar resolution 3-1 - invalid parser values raise" {
 
 ///|
 test "Context scalar resolution 3-2 - invalid config values raise" {
-  let ctx : Context = {
-    flags: Map([]),
-    values: Map([]),
-    sources: Map([]),
-    config: {
+  let ctx = Context::Context(config={
       "bool": "invalid".to_json(),
       "string": true.to_json(),
       "int": "invalid".to_json(),
@@ -329,9 +302,7 @@ test "Context scalar resolution 3-2 - invalid config values raise" {
       "uint": (-1).to_json(),
       "uint64": (1).to_json(),
       "double": "invalid".to_json(),
-    },
-    subcommand: None,
-  }
+    })
   try ctx.get_bool(bool("flag", config="bool")) |> ignore catch {
     _ => ()
   } noraise {
@@ -385,20 +356,8 @@ flowchart TD
 ///|
 test "Context get_subcommand 1 - returns nested context" {
   let port = string("port")
-  let sub_ctx : Context = {
-    flags: Map([]),
-    values: { "port": ["8080"] },
-    sources: Map([]),
-    config: Map([]),
-    subcommand: None,
-  }
-  let ctx : Context = {
-    flags: Map([]),
-    values: Map([]),
-    sources: Map([]),
-    config: Map([]),
-    subcommand: Some(("serve", sub_ctx)),
-  }
+  let sub_ctx = Context::Context(values={ "port": ["8080"] })
+  let ctx = Context::Context(subcommand=Some(("serve", sub_ctx)))
   match ctx.get_subcommand() {
     Some((name, sub)) => {
       inspect(name, content="serve")

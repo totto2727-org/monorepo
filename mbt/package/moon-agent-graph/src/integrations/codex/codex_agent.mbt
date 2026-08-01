@@ -87,7 +87,7 @@ fn request_input(request : @core.CodingAgentRequest) -> @sdk.Input {
 }
 
 ///|
-fn changed_files(items : Array[@sdk.ThreadItem]) -> Array[@path.Path] {
+fn changed_files(items : ReadOnlyArray[@sdk.ThreadItem]) -> Array[@path.Path] {
   let files : Array[@path.Path] = []
   for item in items {
     match item {

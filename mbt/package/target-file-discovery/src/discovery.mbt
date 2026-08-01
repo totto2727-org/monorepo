@@ -45,8 +45,10 @@ async fn find_parent_target_file_from(
 pub async fn collect_recursive_target_files(
   start_dir : String,
   file_name : String,
-) -> Array[String] {
-  collect_recursive_target_files_from(start_dir, file_name, [])
+) -> ReadOnlyArray[String] {
+  ReadOnlyArray::from_array(
+    collect_recursive_target_files_from(start_dir, file_name, []),
+  )
 }
 
 ///|

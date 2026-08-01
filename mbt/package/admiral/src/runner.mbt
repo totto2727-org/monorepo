@@ -56,13 +56,13 @@ fn matches_to_context(
       Some((name, matches_to_context(sub_matches, config)))
     None => None
   }
-  {
-    flags: m.flags,
-    values: m.values,
-    sources: m.sources,
-    config,
-    subcommand: sub,
-  }
+  Context(
+    flags=m.flags,
+    values=m.values,
+    sources=m.sources,
+    config~,
+    subcommand=sub,
+  )
 }
 
 ///|

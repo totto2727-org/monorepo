@@ -86,8 +86,8 @@ fn moonbit_internal_mcp_tool_call_result_from_json(
 ) -> McpToolCallResult raise CodexSdkError {
   let object = moonbit_internal_json_object(json, "MCP tool result")
   {
-    content: moonbit_internal_required_array(
-      object, "content", "MCP tool result",
+    content: ReadOnlyArray::from_array(
+      moonbit_internal_required_array(object, "content", "MCP tool result"),
     ),
     meta: moonbit_internal_optional_json(object, "_meta"),
     structured_content: moonbit_internal_required_json(
@@ -142,8 +142,10 @@ fn moonbit_internal_thread_item_from_object(
     "file_change" =>
       FileChange({
         id,
-        changes: moonbit_internal_required_array(object, "changes", item_type).map(
-          moonbit_internal_file_update_change_from_json,
+        changes: ReadOnlyArray::from_array(
+          moonbit_internal_required_array(object, "changes", item_type).map(
+            moonbit_internal_file_update_change_from_json,
+          ),
         ),
         status: moonbit_internal_patch_apply_status_from_string(
           moonbit_internal_required_string(object, "status", item_type),
@@ -179,8 +181,10 @@ fn moonbit_internal_thread_item_from_object(
     "todo_list" =>
       TodoList({
         id,
-        items: moonbit_internal_required_array(object, "items", item_type).map(
-          moonbit_internal_todo_item_from_json,
+        items: ReadOnlyArray::from_array(
+          moonbit_internal_required_array(object, "items", item_type).map(
+            moonbit_internal_todo_item_from_json,
+          ),
         ),
       })
     "error" =>
