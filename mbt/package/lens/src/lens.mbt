@@ -9,8 +9,16 @@ pub struct ObjectLens {
 pub struct Lens[T] {
   priv pointer : Pointer
   priv decoder : Decoder[T]
+  priv encoder : Encoder[T]
   priv on_missing : (() -> T)?
 }
+
+///|
+/// Controls how a `nullish` lens encodes `None`.
+pub(all) enum NullishEncodeMode {
+  Omit
+  Null
+} derive(Eq, Debug)
 
 ///|
 /// Returns an object lens positioned at the document root.
@@ -19,6 +27,7 @@ pub fn root() -> ObjectLens {
     lens: Lens::{
       pointer: Pointer::root(),
       decoder: object_decoder(),
+      encoder: object_encoder(),
       on_missing: None,
     },
   }
@@ -37,6 +46,7 @@ pub fn ObjectLens::object(self : ObjectLens, key : String) -> ObjectLens {
     lens: Lens::{
       pointer: self.lens.pointer.key(key),
       decoder: object_decoder(),
+      encoder: object_encoder(),
       on_missing: None,
     },
   }
@@ -48,6 +58,7 @@ pub fn ObjectLens::string(self : ObjectLens, key : String) -> Lens[String] {
   Lens::{
     pointer: self.lens.pointer.key(key),
     decoder: string_decoder(),
+    encoder: string_encoder(),
     on_missing: None,
   }
 }
@@ -58,6 +69,7 @@ pub fn ObjectLens::bool(self : ObjectLens, key : String) -> Lens[Bool] {
   Lens::{
     pointer: self.lens.pointer.key(key),
     decoder: bool_decoder(),
+    encoder: bool_encoder(),
     on_missing: None,
   }
 }
@@ -68,6 +80,7 @@ pub fn ObjectLens::number(self : ObjectLens, key : String) -> Lens[Double] {
   Lens::{
     pointer: self.lens.pointer.key(key),
     decoder: number_decoder(),
+    encoder: number_encoder(),
     on_missing: None,
   }
 }
@@ -78,6 +91,7 @@ pub fn ObjectLens::int(self : ObjectLens, key : String) -> Lens[Int] {
   Lens::{
     pointer: self.lens.pointer.key(key),
     decoder: int_decoder(),
+    encoder: int_encoder(),
     on_missing: None,
   }
 }
@@ -88,6 +102,7 @@ pub fn ObjectLens::json(self : ObjectLens, key : String) -> Lens[Json] {
   Lens::{
     pointer: self.lens.pointer.key(key),
     decoder: json_decoder(),
+    encoder: json_encoder(),
     on_missing: None,
   }
 }
@@ -98,6 +113,7 @@ pub fn[T] Lens::array(self : Lens[T]) -> Lens[Array[T]] {
   Lens::{
     pointer: self.pointer,
     decoder: array_decoder(self.decoder),
+    encoder: array_encoder(self.encoder),
     on_missing: None,
   }
 }
@@ -108,6 +124,7 @@ pub fn[T] Lens::nullable(self : Lens[T]) -> Lens[T?] {
   Lens::{
     pointer: self.pointer,
     decoder: nullable_decoder(self.decoder),
+    encoder: nullable_encoder(self.encoder),
     on_missing: None,
   }
 }
@@ -118,16 +135,26 @@ pub fn[T] Lens::optional(self : Lens[T]) -> Lens[T?] {
   Lens::{
     pointer: self.pointer,
     decoder: optional_decoder(self.decoder),
+    encoder: optional_encoder(self.encoder),
     on_missing: Some(() => None),
   }
 }
 
 ///|
 /// Returns `None` for either a missing selected path or JSON `null`.
-pub fn[T] Lens::nullish(self : Lens[T]) -> Lens[T?] {
+///
+/// `None` is omitted by default. Pass `encode_mode=Null` to write JSON `null` instead.
+pub fn[T] Lens::nullish(
+  self : Lens[T],
+  encode_mode? : NullishEncodeMode,
+) -> Lens[T?] {
   Lens::{
     pointer: self.pointer,
     decoder: nullable_decoder(self.decoder),
+    encoder: match encode_mode {
+      Some(Null) => nullable_encoder(self.encoder)
+      Some(Omit) | None => optional_encoder(self.encoder)
+    },
     on_missing: Some(() => None),
   }
 }

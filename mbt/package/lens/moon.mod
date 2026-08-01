@@ -1,6 +1,6 @@
 name = "totto2727/lens"
 
-version = "0.2.0"
+version = "0.3.0"
 
 readme = "README.mbt.md"
 
@@ -10,6 +10,6 @@ license = "MIT"
 
 keywords = [ "json", "lens", "validation", "moonbit" ]
 
-description = "Typed JSON lenses and aggregate validation for MoonBit"
+description = "Typed JSON lenses, builders, and aggregate validation for MoonBit"
 
 source = "./src"

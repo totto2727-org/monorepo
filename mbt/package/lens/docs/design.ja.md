@@ -1,113 +1,119 @@
-# MoonBit向け型付きJSON Lensとバリデーション
+# MoonBit向け型付きJSON Lens、Builder、検証
 
-## ステータス
+## Status
 
-このドキュメントは、将来の `lens` パッケージに向けたレビュー済み設計方針です。
+この文書は、`lens`パッケージについてレビュー済みの設計と実装方針を記録するものです。
 
-この提案は、以下に記録された修正を反映した上で有効です。主要な公開抽象化は `Lens[T]` です。最初のリリースでは読み取り専用の機能のみを公開し、名前は将来の正当な `set` および `modify` APIのために意図的に予約されています。
+主な公開抽象化は`Lens[T]`です。lensは既存の`Json`ドキュメントから型付きの値を読み取り、別の`JsonBuilder`へ型付きの値を書き込みます。builderへの書き込みは送信用JSONを構築するものであり、入力ドキュメントを変更したり永続的に更新したりするものではありません。
 
-このレビューは MoonBit 0.10.4 および `moonbitlang/core` 0.10.4 を対象としています。
+このレビューはMoonBit 0.10.4および`moonbitlang/core` 0.10.4を対象とします。
 
-## 決定の概要
+## 決定事項の概要
 
-- 読み取り専用の型付きJSONレンズとバリデーションライブラリから開始する。
-- レンズを、パッケージが所有するJSONポインタと値デコーダとしてモデル化する。
-- 型付き値には `Lens[T]` を、型付きオブジェクト値および子プロパティレンズを生成可能なパスには `ObjectLens` を使用する。
-- パッケージのポインタ表現は `@json.JsonPath` から独立させる。
-- 単一のレンズからは `LensError` を発生させ、集約チェックからは非ジェネリックな `Validation` を返す。
-- 欠落プロパティと明示的なJSON `null` を異なる状態として保持する。
-- `Lens[T]` と `ObjectLens` に静的な結果型を保持し、バリデーションは成功または蓄積された問題のみを報告する。
-- チェック専用の `LensTrait` トレイトオブジェクトを使用して、集約バリデーションの境界でのみ具象レンズ型を消去する。
-- オブジェクトプロパティとプリミティブデコーダから開始する。
-- 数値のパースと変換はMoonBitコアAPIに委譲し、パッケージ固有の数値パーサーは維持しない。
-- オプショナリティ、配列、リファインメント、変換、代替は、基盤が安定した後にのみ追加する。
-- 不透明なデコーダクロージャからのJSON SchemaやOpenAPIの生成は保証しない。
-- `set` と `modify` は、明示的な書き込みポリシーとレンズ則テストを伴う将来のマイルストーンに留保する。
-- バリデーションAPIに値の構築、型推論、またはミューテーション操作を追加しない。
+- 型付きJSONアクセス、builderによる構築、集約検証を提供する。
+- lensを、パッケージが所有するJSON Pointerと値デコーダーおよびエンコーダーとしてモデル化する。
+- `Lens[T]`を型付き値に、`ObjectLens`を型付きオブジェクト値および子プロパティlensを作成できるパスに使用する。
+- パッケージ独自のpointer表現を`@json.JsonPath`から独立させる。
+- 1つのlensからは`LensError`を発生させ、集約チェックからは非ジェネリックな`Validation`を返す。
+- 欠落プロパティと明示的なJSON`null`を異なる状態として保持する。
+- `Lens[T]`と`ObjectLens`に静的な結果型を保持し、検証は成功または蓄積された問題のみを報告する。
+- 具体的なlens型を集約検証の境界で消去するため、チェック専用の`LensTrait`トレイトオブジェクトを使用する。
+- まずオブジェクトプロパティとプリミティブデコーダーから開始する。
+- 数値の解析と変換はMoonBit core APIに委譲し、パッケージ独自の数値パーサーは持たない。
+- 可変な`JsonBuilder`を通じて送信用オブジェクトを構築し、`ToJson`を実装する。
+- `Lens::set`はbuilderを対象とする書き込みとし、欠落しているオブジェクト親を作成するが、既存のJSONドキュメントは更新しない。
+- optionality、配列、refinement、変換、alternativeは基盤が安定してから追加する。
+- 不透明なデコーダークロージャからJSON SchemaやOpenAPIを生成できるとは約束しない。
+- ソースドキュメントの変更はbuilder APIと検証APIの外部に置く。
+- 検証APIに値の構築、型推論、変更操作を追加しない。
 
 ## 問題の定義
 
-MoonBitの標準 `Json` 型はJSON値を表現し、その `FromJson` トレイトは完全な値をMoonBit型にデコードします。このパッケージは別のユースケースに対処します。すなわち、1つのJSONドキュメントから既知の位置を繰り返し選択し、選択した各値をデコードし、オプションですべての独立した失敗を1つのバリデーション結果に収集することです。
+MoonBitの標準`Json`型はJSON値を表し、`FromJson`トレイトは完全な値をMoonBit型へデコードし、`ToJson`トレイトは完全な値をエンコードします。このパッケージは、1つのJSONドキュメントから既知の場所を繰り返し選択する用途と、各呼び出し側で`Map[String, Json]`を手作業で管理せずに、型付きの場所を再利用して送信用JSONオブジェクトを構築する用途に対応します。
 
-コアモデルは次のとおりです。
+中核モデルは次のとおりです。
 
 ```text
 ObjectLens
-└── オブジェクトアクセサ: Lens[Map[String, Json]]
+└── object accessor: Lens[Map[String, Json]]
 
 Lens[T]
-├── 位置: Pointer
-└── 値の解釈: Decoder[T]
+├── location: Pointer
+├── value interpretation: Decoder[T]
+└── output encoding: Encoder[T]
+
+JsonBuilder
+└── generated object path tree
 ```
 
-最初のリリースは、意図的に汎用JSONクエリ言語、完全なHaskellレンズ実装、または `FromJson` 導出の置き換えではありません。将来のJSONレンズの読み取り側を確立し、ミューテーションを初期スコープから除外します。
+このパッケージは、汎用JSONクエリ言語、完全なHaskell lens実装、`FromJson`や`ToJson`導出の置き換えを意図していません。builderへの書き込みはlensのpointerと型付きエンコーダーを再利用しますが、ソースドキュメントの変更は対象外です。
 
 ## 元の提案を変更するレビュー結果
 
-### 公開抽象化として `Lens` を維持する
+### 共有型付きロケーションとして`Lens`を維持する
 
-従来のレンズは読み取りと正当な更新の両方をサポートします。最初のマイルストーンでは読み取りとデコードのみを実装しますが、将来の `set` および `modify` 操作は意図された設計空間の一部です。
+従来のlensは読み取りと規則的な更新の両方をサポートします。しかしこのパッケージでは、1つの型付きロケーションを入力デコードと出力構築に再利用します。`Lens::set`は可変な`JsonBuilder`を対象とするため、builder setterであり、ソースドキュメントの更新ではありません。
 
-したがって、パッケージと公開型は `lens` と `Lens[T]` を使用する必要があります。ドキュメントには、現在どの操作が利用可能かを明確に記載し、名前がミューテーションが既に存在することを暗示しないようにする必要があります。
+パッケージと公開型では`lens`と`Lens[T]`を維持し、メソッドシグネチャとドキュメントで対象を明示します。既存のJSONドキュメントは、パッケージの観点では不変のままです。
 
-### ポインタ表現を所有する
+### pointer表現を所有する
 
-現在の `@json.JsonPath` インターフェースは抽象的な `JsonPath` 型と追加メソッドを公開していますが、公開されたルートコンストラクタは公開していません。主に `FromJson` と `JsonDecodeError` のために設計されています。
+現在の`@json.JsonPath`インターフェースは抽象`JsonPath`型とappendメソッドを公開しますが、公開されたrootコンストラクターはありません。主に`FromJson`と`JsonDecodeError`向けに設計されています。
 
-したがって、パッケージは独自の不透明な `Pointer` 型を必要とします。これはRFC 6901 JSON Pointerとしてレンダリングされ、安全な構築操作と検査操作のみを公開する必要があります。`@json.JsonPath` に依存すると、パッケージがルートパスを構築できなくなり、公開エラーモデルがコア内部に結合されてしまいます。
+そのため、パッケージには独自の不透明な`Pointer`型が必要です。内部ではRFC 6901 JSON Pointerとして表示し、安全な構築および検査操作だけを公開します。`@json.JsonPath`に依存すると、パッケージはroot pathを構築できず、公開エラーモデルをcore内部実装に結び付けることになります。
 
-### トラバーサルが失敗した位置を報告する
+### トラバーサルに失敗した場所を報告する
 
-ルックアップは、要求されたポインタと正常にトラバースされたプレフィックスの両方を追跡する必要があります。
+lookupでは、要求されたpointerと、正常にトラバーサルできたprefixの両方を追跡する必要があります。
 
-`/user/profile/name` へのリクエストの場合:
+`/user/profile/name`を要求した場合:
 
-- `name` が欠落している場合、`/user/profile/name` を報告する。
-- `profile` が文字列の場合、`/user/profile` で型不一致を報告する。
-- `user` が欠落している場合、`/user` を報告する。
+- `name`が存在しなければ、`/user/profile/name`を報告する。
+- `profile`が文字列なら、`/user/profile`で型不一致を報告する。
+- `user`が存在しなければ、`/user`を報告する。
 
-すべての失敗に対して要求された完全なポインタを報告すると、中間の型エラーが誤って識別されます。
+すべての失敗で要求された完全なpointerを報告すると、中間値の型エラーを誤った場所として示すことになります。
 
-### 発生するエラーとバリデーションデータを分離する
+### 発生するエラーと検証データを分離する
 
-`Lens::get` は `Result` を返すのではなく、パッケージ固有の `LensError` を発生させる必要があります。エラーは1つの `Issue` を保持します。`Issue` はプレーンな構造化値のままであるため、集約バリデーションは例外を収集手段として使用せずに多数の問題を保持できます。
+`Lens::get`は`Result`を返すのではなく、パッケージ固有の`LensError`を発生させるべきです。このエラーは1つの`Issue`を保持します。`Issue`は単純な構造化値として保持し、例外をコレクションとして使わずに集約検証で多くの問題を保持できるようにします。
 
-この分離により、各型に1つの役割が与えられます:
+この分離により、各型に1つの役割を持たせられます。
 
-- `LensError` は、`raise` および `catch` で使用される型付き制御フロー境界です。
-- `Issue` は、ポインタ、安定したコード、およびオプションのメッセージを含む、検査可能な診断データです。
+- `LensError`は`raise`と`catch`で使う型付き制御フロー境界である。
+- `Issue`はpointer、安定したコード、任意のメッセージを含む検査可能な診断データである。
 
-`CustomError` という名前は公開パッケージAPIとしては汎用的すぎます。`LensError(Issue)` は、所有する抽象化と再利用可能な診断ペイロードの両方を識別します。
+`CustomError`は公開パッケージAPIとして汎用的すぎます。`LensError(Issue)`は、所有する抽象化と再利用可能な診断ペイロードの両方を示します。
 
-### レンズに静的な型を保持する
+### lensの静的型を維持する
 
-MoonBitは、TypeScriptライブラリがZodスキーマ式から型を推論できるように、バリデーション定義の実行時コレクションからコンパイル時の結果型を導出することはできません。バリデーションAPIは、`Schema[T]`、固定アリティビルダー、または値を生成するバリデーション結果を使用してそのモデルを模倣してはなりません。
+MoonBitは、TypeScriptライブラリがZodスキーマ式から型を推論するように、実行時コレクションに含まれる検証定義からコンパイル時の結果型を導出できません。検証APIは、`Schema[T]`、固定個数builder、値を生成する検証結果によってそのモデルを模倣すべきではありません。
 
-`Lens[T]` は、プリミティブ値および生のJSON値の静的な型情報のソースです。`ObjectLens` は `Lens[Map[String, Json]]` を所有するため、静的に型付けされたオブジェクトアクセスも提供します。集約バリデーションは、チェック専用の `LensTrait` トレイトオブジェクトを通じて両方を受け入れ、すべてのチェックを評価し、成功または蓄積された問題のみを返します。呼び出し元は明示的な変換を実行しません。バリデーション成功後も、元のレンズを通じて値を読み取り続けます。
+`Lens[T]`はプリミティブ値とraw JSON値の静的型情報の源です。`ObjectLens`は`Lens[Map[String, Json]]`を所有するため、静的に型付けされたオブジェクトアクセスも提供します。集約検証はチェック専用の`LensTrait`トレイトオブジェクトを通じて両方を受け取り、すべてのチェックを評価し、成功または蓄積された問題だけを返します。呼び出し側で明示的な変換を行う必要はありません。検証成功後は、元のlensを通じて値を読み続けます。
 
-これは意図的に、バリデーション後にアクセスするとトラバーサルとデコードが再度実行されることを意味します。その重複を回避するには、異種型付きキャッシュまたはアプリケーション固有の生成コードが必要になりますが、そのどちらも初期パッケージには含めるべきではありません。
+この設計では、検証後のアクセスでトラバーサルとデコードが再度行われます。この重複を避けるには、異種型付きキャッシュまたはアプリケーションごとに生成されたコードが必要ですが、どちらも初期パッケージには属しません。
 
-### 数値変換をMoonBitコアに委譲する
+### 数値変換をMoonBit coreに委譲する
 
-パッケージはJSONトラバーサル、型選択、および構造化エラーマッピングを所有する必要がありますが、小数、指数、符号、オーバーフロー、または丸めアルゴリズムを所有するべきではありません。
+パッケージはJSONトラバーサル、型選択、構造化エラーマッピングを所有すべきですが、小数、指数、符号、オーバーフロー、丸めのアルゴリズムを所有すべきではありません。
 
-`Json::Number` には、MoonBitコアが既に生成する `Double` 値を使用します。保持されているソーステキストを再パースしないでください。`Int` が要求された場合は、直接 `Double::to_int()` に委譲し、パッケージレベルのバリデーションなしでその標準的な変換動作を継承します。
+`Json::Number`ではMoonBit coreがすでに生成した`Double`値を使います。保持された元テキストを再解析してはいけません。`Int`が要求された場合は、`Double::to_int()`に直接委譲し、パッケージレベルの検証なしに標準変換の動作を継承します。
 
-後でデコーダが数値テキストを受け入れる場合は、`@string.from_str`、`@string.parse_double`、または `@string.parse_int` などの現在非推奨ではない標準エントリポイントにパースを委譲し、発生した標準エラーを `DecodeProblem` に変換します。レビュー済みのツールチェーンは、依然として `@strconv.parse_*` を非推奨の互換性APIとして公開しています。新しいパッケージコードは、サポートされている `@string` の代替を使用する必要があります。
+後から数値テキストを受け付けるデコーダーを追加する場合は、`@string.from_str`、`@string.parse_double`、`@string.parse_int`など、現在サポートされている非deprecated標準エントリポイントに解析を委譲し、発生した標準エラーを`DecodeProblem`へ変換します。レビュー対象のツールチェーンでは、`@strconv.parse_*`がdeprecatedな互換APIとして引き続き公開されています。新しいパッケージコードでは、サポートされている`@string`の置き換えを使うべきです。
 
-手書きの数字ループ、数値文法を複製する正規表現、およびパッケージ固有の小数または指数パーサーは対象外です。これにより、標準ライブラリのセマンティクスとメンテナンスの重複を回避します。
+手書きの数字ループ、数値文法を重複させる正規表現、パッケージ固有の小数または指数パーサーは対象外です。これにより、標準ライブラリの意味と保守を重複させずに済みます。
 
-### オプショナリティを公開する前にプレゼンスセマンティクスを設計する
+### optionalityを公開する前に存在意味論を設計する
 
-欠落と `null` は区別されます:
+欠落と`null`は異なります。
 
-| 入力状態 | 必須文字列 | オプション文字列 | Nullable文字列 | オプションNullable文字列 |
-| -------- | ---------: | ---------------: | -------------: | -----------------------: |
-| 欠落     |     エラー |           `None` |         エラー |                   `None` |
-| `null`   |   型エラー |         型エラー |         `None` |                   `None` |
-| 文字列   |         値 |    `Some(value)` |  `Some(value)` |            `Some(value)` |
+| 入力状態 | 必須文字列 | Optional文字列 | Nullable文字列 | Optional nullable文字列 |
+| -------- | ---------: | -------------: | -------------: | ----------------------: |
+| 欠落     |     エラー |         `None` |         エラー |                  `None` |
+| `null`   |   型エラー |       型エラー |         `None` |                  `None` |
+| 文字列   |         値 |  `Some(value)` |  `Some(value)` |           `Some(value)` |
 
-オプションのNullable値を `lens.optional().nullable()` として実装しないでください。どちらの操作も出力をオプションに変更するため、単純な連鎖ではネストされたオプション型または曖昧なセマンティクスが生成されます。3つの明示的なコンビネータを使用します:
+Optional nullable値を`lens.optional().nullable()`として実装してはいけません。どちらの操作も出力をoptionに変更するため、単純なチェーンではネストしたoption型または曖昧な意味になります。次の3つの明示的なcombinatorを使用します。
 
 ```moonbit
 lens.optional()
@@ -115,41 +121,41 @@ lens.nullable()
 lens.optional_nullable()
 ```
 
-これらの操作は、正確なMoonBitシグネチャがコンパイルおよびテストされるまで延期されます。
+これらの操作は、正確なMoonBitシグネチャをコンパイルしてテストするまで延期します。
 
-### 値の代替を位置のフォールバックから分離する
+### 値のalternativeとロケーションfallbackを分離する
 
-`or` 操作は曖昧です。次のいずれかを意味する可能性があります:
+`or`操作は曖昧です。次のどちらも意味し得ます。
 
-- 同じ選択されたJSON値に対して別のデコーダを試す。
-- 最初のレンズが失敗した場合に別の位置を試す。
+- 同じ選択済みJSON値に対して別のデコーダーを試す。
+- 最初のlensが失敗した場合に別のロケーションを試す。
 
-設計では別々の名前を使用する必要があります:
+設計では別の名前を使用する必要があります。
 
 ```text
-Decoder::one_of2     1つの値に対する代替
-Lens::or_else        別の位置へのフォールバック（この機能が必要な場合）
+Decoder::one_of2     alternatives for one value
+Lens::or_else        fallback to another location, if this feature is needed
 ```
 
-初期のバリデーションロードマップに属するのは値の代替のみです。
+初期検証ロードマップに属するのは、値のalternativeだけです。
 
-### 未知フィールドのバリデーションにはオブジェクトメタデータが必要
+### unknown-field検証にはオブジェクトメタデータが必要
 
-独立した `LensTrait` チェックのみで構成されたバリデータは、オブジェクトに許可されるプロパティの完全なセットを認識しません。その結果、未知フィールドの拒否を初期の集約バリデータの単純なオプションとして正しく追加することはできません。
+独立した`LensTrait`チェックだけで構成されたvalidatorは、オブジェクトで許可されるプロパティの完全な集合を知りません。そのため、unknown fieldの拒否を初期の集約validatorの単純なオプションとして正しく追加することはできません。
 
-未知フィールドのバリデーションは、オブジェクトの境界と宣言されたキーを記録する明示的なオブジェクトチェック表現を待つ必要があります。`strip_unknown` と `passthrough` はデータを変換または返すため、バリデーション専用のAPIには属しません。
+unknown-field検証は、オブジェクト境界と宣言されたキーを記録する明示的なobject-check表現を待つ必要があります。`strip_unknown`と`passthrough`はデータを変換または返すため、検証専用APIには属しません。
 
-### スキーマ生成には宣言的デコーダメタデータが必要
+### スキーマ生成には宣言的なデコーダーメタデータが必要
 
-不透明な述語および変換クロージャは、JSON SchemaやOpenAPIに確実に変換できません。ポインタとデコーダの分離は実装構造を改善しますが、スキーマ生成には十分ではありません。
+不透明なpredicateおよびtransformクロージャをJSON SchemaやOpenAPIへ確実に変換することはできません。pointerとdecoderの分離は実装構造を改善しますが、スキーマ生成には不十分です。
 
-スキーマ生成は、将来の設計で宣言的な制約モデルが導入されない限り、非目標です。
+後から宣言的な制約モデルが導入されない限り、スキーマ生成は非目標です。
 
 ## アーキテクチャ
 
 ### Pointer
 
-`Pointer` は不透明なパッケージ型です。内部では順序付けられたパスセグメントを格納します。
+`Pointer`はパッケージの不透明型です。内部では順序付きのpath segmentを保持します。
 
 ```moonbit
 priv enum PointerSegment {
@@ -162,19 +168,19 @@ pub struct Pointer {
 }
 ```
 
-フェーズ1ではキートラバーサルのみが公開されます。インデックストラバーサルは配列サポートとともに公開されます。
+フェーズ1ではキーによるトラバーサルだけを公開します。配列サポートでindexトラバーサルを公開します。
 
-文字列形式はRFC 6901に従います:
+文字列表現はRFC 6901に従います。
 
-- ルートは空の文字列としてレンダリングされます。
-- キーは `/key` を追加します。
-- `~` は `~0` としてエスケープされます。
-- `/` は `~1` としてエスケープされます。
-- 配列インデックスはその10進表現を追加します。
+- rootは空文字列として表示する。
+- キーは`/key`を追加する。
+- `~`は`~0`としてエスケープする。
+- `/`は`~1`としてエスケープする。
+- 配列indexは10進表現を追加する。
 
 ### Decoder
 
-`Decoder[T]` は、既に選択された1つのJSON値を解釈します。ドキュメントのトラバーサルは実行しません。
+`Decoder[T]`は、すでに選択された1つのJSON値を解釈します。ドキュメントのトラバーサルは行いません。
 
 ```moonbit
 pub struct Decoder[T] {
@@ -182,13 +188,34 @@ pub struct Decoder[T] {
 }
 ```
 
-`DecodeProblem` は、パスに依存しない失敗情報を含むパッケージプライベートなサブエラーです。`Lens::get` はそれをキャッチし、選択されたポインタをアタッチして公開の `Issue` を生成し、`LensError(issue)` を発生させます。
+`DecodeProblem`は、pathに依存しない失敗情報を含むパッケージ非公開のサブエラーです。`Lens::get`はこれを捕捉し、選択されたpointerを付加して公開`Issue`を生成し、`LensError(issue)`を発生させます。
 
-プリミティブデコーダはJSONバリアントディスパッチを直接実行する必要があり、パッケージが安定した構造化エラーコードを提供できるようにします。これらのデコーダ内部の数値パースと変換はMoonBitコアに委譲する必要があります。後で `Decoder::from_json[T : FromJson]` ブリッジが `JsonDecodeError` をキャッチする可能性がありますが、コアの人間可読メッセージは安定した構造化エラーコードではないため、その失敗は外部デコード失敗として分類する必要があります。
+プリミティブデコーダーはJSON variant dispatchを直接行い、パッケージが安定した構造化エラーコードを提供できるようにします。デコーダー内の数値解析と変換はMoonBit coreに委譲する必要があります。後の`Decoder::from_json[T : FromJson]` bridgeでは`JsonDecodeError`を捕捉できますが、coreの人間向けメッセージは安定した構造化エラーコードではないため、失敗は外部デコード失敗として分類すべきです。
 
-### オブジェクトレンズ
+### Encoder
 
-`ObjectLens` は、子プロパティが宣言される型付きオブジェクト位置を表します。トラバーサルとオブジェクトデコードを内部の `Lens[Map[String, Json]]` に委譲します。オブジェクトデコードは選択されたトップレベルのマップをコピーするため、返されたマップを通じたミューテーションはソースドキュメントを変更しません。ネストされた `Json` 値は標準の共有セマンティクスを保持します。
+`Encoder[T]`は、型付き値を1つのJSON leafまたは省略要求へ変換します。プリミティブエンコーダーはMoonBit coreのJSONコンストラクターに委譲します。配列エンコーダーはすべての項目をエンコードしますが、配列内のoptional省略はJSON配列に欠落要素を含められないため拒否します。
+
+presence combinatorには明示的なbuilder動作があります。
+
+| Lens                        | `Some(value)`        | `None`                  |
+| --------------------------- | -------------------- | ----------------------- |
+| `nullable`                  | 値をエンコードする。 | JSON `null`を書き込む。 |
+| `optional`                  | 値をエンコードする。 | プロパティを省略する。  |
+| `nullish()`                 | 値をエンコードする。 | プロパティを省略する。  |
+| `nullish(encode_mode=Null)` | 値をエンコードする。 | JSON `null`を書き込む。 |
+
+`NullishEncodeMode`は、JSON`null`が必要な場合の送信表現を明示し、デフォルトでは省略します。実装では独立したnullish encoderを保持せず、既存のoptionalまたはnullable encoderを選択します。
+
+### JSON builder
+
+`JsonBuilder`は可変な送信用オブジェクトbuilderです。内部ノードは、エンコード済みJSON leafと生成されたオブジェクト親を区別します。`Lens::set`はパッケージ所有のpointerをたどり、欠落しているオブジェクト親を作成し、エンコード済みleafを書き込みます。同じpointerへの再書き込みは値を置き換えます。エンコード済みleafを中間ノードとして使用すると、正確な競合pointerで`JsonBuildError`を発生させます。
+
+`optional(None)`は同じpointerにある以前の値を削除し、空になった生成親をpruneします。`BuildNode`は`ToJson`を実装します。生成オブジェクトノードは`Map[String, BuildNode]::to_json`へ直接委譲し、エンコード済みleafは変更せずに通過させます。各変換は生成オブジェクトノード用に新しいmapを作成するため、後のbuilder書き込みが以前の結果を変更することはありません。
+
+### Object lens
+
+`ObjectLens`は、子プロパティを宣言できる型付きオブジェクトロケーションを表します。内部の`Lens[Map[String, Json]]`へトラバーサルとオブジェクトデコードを委譲します。オブジェクトデコードは選択されたトップレベルmapをコピーするため、返されたmapへの変更がソースドキュメントに影響することはありません。ネストされた`Json`値は標準的な共有意味論を保持します。
 
 ```moonbit
 pub struct ObjectLens {
@@ -196,27 +223,30 @@ pub struct ObjectLens {
 }
 ```
 
-選択されたオブジェクトを `ObjectLens::get` を通じて返し、`Lens[String]` から子文字列プロパティを作成するなどの無効なAPIを防ぎます。
+`ObjectLens::get`を通じて選択されたオブジェクトを返し、`Lens[String]`から子文字列プロパティを作成するような不正なAPIを防ぎます。
 
-### 型付きレンズ
+### 型付きlens
 
 ```moonbit
 pub struct Lens[T] {
   priv pointer : Pointer
   priv decoder : Decoder[T]
+  priv encoder : Encoder[T]
 }
 ```
 
-`Lens::get` は2つの操作を実行します:
+`Lens::get`は2つの操作を行います。
 
-1. ドキュメントをレンズのポインタまでトラバースする。
-2. 選択された値をそのデコーダでデコードする。
+1. lensのpointerまでドキュメントをトラバースする。
+2. 選択された値をdecoderでデコードする。
 
-トラバーサルとデコードの失敗は、同じ公開 `Issue` 値に正規化され、`LensError` として発生します。
+トラバーサルとデコードの失敗は同じ公開`Issue`値へ正規化され、`LensError`として発生します。
+
+`Lens::set`は値をエンコードし、`JsonBuilder`へ書き込みます。エンコードと構築の失敗は`JsonBuildIssue`へ正規化され、`JsonBuildError`として発生します。読み取り側の`LensError`契約は変更しません。
 
 ## フェーズ1の公開API
 
-実装中に正確な宣言構文を確認する必要がありますが、意図されたAPIサーフェスは次のとおりです:
+正確な宣言構文は実装時に確認する必要がありますが、意図するAPIの範囲は次のとおりです。
 
 ```moonbit
 pub fn root() -> ObjectLens
@@ -262,9 +292,29 @@ pub fn Lens::get[T](
   Self[T],
   Json,
 ) -> T raise LensError
+
+pub(all) enum NullishEncodeMode {
+  Omit
+  Null
+}
+
+pub fn Lens::nullish[T](
+  Self[T],
+  encode_mode? : NullishEncodeMode,
+) -> Lens[T?]
+
+pub fn JsonBuilder::JsonBuilder() -> JsonBuilder
+
+pub impl ToJson for JsonBuilder
+
+pub fn Lens::set[T](
+  Self[T],
+  JsonBuilder,
+  T,
+) -> Unit raise JsonBuildError
 ```
 
-`object("user")` は `root().object("user")` の便利なエイリアスです。
+`object("user")`は`root().object("user")`の便利な別名です。
 
 例:
 
@@ -276,11 +326,11 @@ fn read_name(document : Json) -> String raise LensError {
 let name : String = read_name(document)
 ```
 
-## ルックアップセマンティクス
+## Lookupの意味論
 
-ルックアップはルートから開始され、正常なセグメントごとにトラバースされたポインタを記録します。
+Lookupはrootから進み、各segmentが成功するたびにトラバース済みpointerを記録します。
 
-概念的には:
+概念的には次のとおりです。
 
 ```text
 lookup(document, requested_pointer)
@@ -303,11 +353,11 @@ lookup(document, requested_pointer)
   return current
 ```
 
-フェーズ1ではキーセグメントのみを構築しますが、内部の失敗位置ルールは既にテストでカバーされている必要があります。
+フェーズ1ではキーsegmentだけを構築しますが、内部の失敗位置ルールはすでにテストでカバーする必要があります。
 
 ## エラーモデル
 
-エラーは構造化データであり、事前にフォーマットされた文字列ではありません。
+エラーは構造化データであり、あらかじめ整形された文字列ではありません。
 
 ```moonbit
 pub(all) enum JsonKind {
@@ -346,45 +396,45 @@ pub(all) suberror LensError {
 }
 ```
 
-最終的な可視性モードは制限される可能性がありますが、コンシューマーはテキストをパースせずにポインタとコードを検査できなければなりません。
+最終的な公開範囲は狭めても構いませんが、利用者はテキストを解析せずにpointerとcodeを検査できなければなりません。
 
-`message` フィールドはオプションの診断コンテキストです。プログラムロジックは `message` ではなく `IssueCode` で分岐する必要があります。
+`message`フィールドは任意の診断コンテキストです。プログラムのロジックは`message`ではなく`IssueCode`に基づいて分岐すべきです。
 
-ポインタは既に欠落プロパティを識別するため、エラーに冗長なプロパティ名フィールドは必要ありません。
+pointerは欠落プロパティをすでに識別するため、エラーに重複したプロパティ名フィールドは必要ありません。
 
-`Issue` 自体はサブエラーではありません。`LensError` のペイロードとして保持することで、`Validation::Invalid` は `Array[Issue]` を直接格納でき、`Lens::get` の呼び出し元は引き続きMoonBitの型付きエラー伝播を使用できます。
+`Issue`自体はサブエラーではありません。これを`LensError`のペイロードとして保持することで、`Validation::Invalid`は`Array[Issue]`を直接保存でき、`Lens::get`の呼び出し側はMoonBitの型付きエラー伝播を利用できます。
 
-## プリミティブデコードセマンティクス
+## プリミティブデコードの意味論
 
-### 文字列
+### String
 
-`Json::String` のみを受け入れます。
+`Json::String`だけを受け付けます。
 
-### 真偽値
+### Boolean
 
-`Json::True` と `Json::False` のみを受け入れます。
+`Json::True`と`Json::False`だけを受け付けます。
 
-### 数値
+### Number
 
-`Json::Number` のみを受け入れます。
+`Json::Number`だけを受け付けます。
 
-フェーズ1の `number` デコーダは、有限性や範囲のバリデーションなしで、`Json::Number` によって既に格納されている `Double` を返します。保持されているテキスト表現を検査または再パースしません。
+フェーズ1の`number` decoderは、`Json::Number`にすでに保存されている`Double`を返します。有限性や範囲の検証は行いません。保持されたテキスト表現を調査または再解析することもありません。
 
-### 整数
+### Integer
 
-JSONには数値型があり、個別の整数型はありません。`int` デコーダは、`Json::Number` によって既に格納されている `Double` に `Double::to_int()` を直接適用します。有限性、範囲、または整数精度のバリデーションは実行しないため、MoonBitの標準的な切り捨て、飽和、および特殊値の動作を継承します。パッケージはJSON数値テキスト自体をパースしてはなりません。
+JSONには独立した整数型はなく、数値型があります。`int` decoderは、`Json::Number`にすでに保存された`Double`に対して直接`Double::to_int()`を適用します。有限性、範囲、整数としての正確性は検証せず、MoonBitの標準的な切り捨て、飽和、特殊値の動作を継承します。パッケージはJSON数値テキストを解析してはいけません。
 
-### 生のJSON
+### Raw JSON
 
-`json` デコーダは常に選択された値で成功します。
+`json` decoderは選択された値で常に成功します。
 
-## 1つのレンズが `LensError` を発生させる理由
+## 1つのlensが`LensError`を発生させる理由
 
-MoonBitはパッケージ定義のサブエラーに型付きの `raise` および `catch` 動作を提供します。`Lens::get` はそのネイティブ制御フローを使用するため、通常の読み取りは呼び出し元に `Result` のアンラップを強制せずに1つの失敗を伝播します。
+MoonBitでは、パッケージ定義のsuberrorに対して型付きの`raise`と`catch`動作が提供されます。`Lens::get`はこのネイティブな制御フローを使い、通常の読み取りで1つの失敗を伝播させながら、呼び出し側に`Result`のunwrapを強制しません。
 
-集約バリデーションは値ベースのままです。`validate` は各チェックごとに独立して `LensError(issue)` をキャッチし、含まれている `Issue` を保持し、収集されたすべての問題を `Validation::Invalid` で返します。1つのチェックの失敗が他の独立したチェックの評価を妨げてはなりません。
+集約検証は値ベースのままです。`validate`は各チェックごとに`LensError(issue)`を捕捉し、含まれる`Issue`を保持し、収集したすべての問題を`Validation::Invalid`として返します。1つのチェックの失敗が、他の独立したチェックの評価を妨げてはいけません。
 
-## フェーズ2: 集約バリデーション
+## フェーズ2の集約検証
 
 ### Validation
 
@@ -395,11 +445,11 @@ pub enum Validation {
 }
 ```
 
-`Invalid` は常に少なくとも1つの問題を含まなければなりません。実装はプライベートな構築ヘルパーを通じてこの不変条件を強制する必要があります。専用の非空コレクション型はオプションであり、パッケージの他の部分を改善しない限り、この不変条件のみのために導入すべきではありません。
+`Invalid`には常に少なくとも1つのissueが含まれていなければなりません。実装ではprivateな構築ヘルパーによってこの不変条件を保証すべきです。この不変条件だけを目的として専用の非空コレクション型を導入する必要はありません。ただし、パッケージの他の部分も改善するなら導入しても構いません。
 
-`Validation` はパッケージ外部では読み取り専用です。コンシューマーはパターンマッチングを通じて分解できますが、このパッケージのみが `Valid` または `Invalid` を構築でき、`Invalid([])` の外部構築を防ぎます。
+`Validation`はパッケージ外からreadonlyです。利用者はパターンマッチングで分解できますが、`Valid`または`Invalid`を構築できるのはこのパッケージだけです。これにより、外部で`Invalid([])`を構築することを防げます。
 
-`Valid` はデコードされた値を保持しません。バリデーションは、その呼び出しに対して提供されたすべてのチェックが成功したことのみを確立します。
+`Valid`はデコード済みの値を保持しません。検証は、その呼び出しにおいて指定されたすべてのチェックが成功したことだけを確立します。
 
 ```moonbit
 pub trait LensTrait {
@@ -416,7 +466,7 @@ pub fn validate(
 ) -> Validation
 ```
 
-`LensTrait` は意図的な型消去境界です。読み取り専用かつ封印されているため、このパッケージのみが実装を定義できます。その唯一のメソッドはレンズのトラバーサルとデコーダを実行し、成功した値を破棄し、発生した `Issue` を集約のために保持します。MoonBitは各異種結果型を保持する型パラメータ化されたトレイトオブジェクトを表現できないため、型付きの `get` は `Lens[T]` と `ObjectLens` に残ります。
+`LensTrait`は意図的な型消去境界です。readonlyかつsealedであり、このパッケージだけが実装を定義できます。その唯一のメソッドはlensのトラバーサルとdecoderを実行し、成功した値を破棄し、発生した`Issue`を集約用に保持します。MoonBitは各異種結果型を保持する型パラメーター付きtrait objectを表現できないため、型付き`get`は`Lens[T]`と`ObjectLens]`に残ります。
 
 ```moonbit
 let user = object("user")
@@ -433,156 +483,147 @@ match validate(document, [user, name_lens, age_lens]) {
 }
 ```
 
-バリデータはチェックを配列順に評価し、同じ決定論的な順序で問題を返します。MoonBitの構造体、タプル、列挙型、またはその他のアプリケーション値を構築することはありません。
+validatorは配列順にチェックを評価し、同じ決定的な順序でissueを返します。MoonBitのstruct、tuple、enum、その他のアプリケーション値を構築することはありません。
 
-## 将来のコンビネータ
+## 後続のcombinator
 
-### リファインメント
+### Refinement
 
-リファインメントはデコードされた型を保持し、値の制約を追加します:
+Refinementはデコードされた型を維持し、値の制約を追加します。
 
 ```text
 Decoder[T] + (T -> Bool) -> Decoder[T]
 ```
 
-公開APIは安定した制約コードを要求し、診断メッセージを受け入れる場合があります。
+公開APIでは安定した制約コードを必須とし、診断メッセージを受け付けても構いません。
 
-### 変換
+### Transformation
 
-変換はデコードされた型を変更します:
+Transformationはデコードされた型を変更します。
 
 ```text
 Decoder[A] + (A -> B raise DecodeProblem) -> Decoder[B]
 ```
 
-変換は `Decoder` に属し、使用感を実質的に改善する場合にのみ `Lens` に転送の便宜を提供します。
+Transformationは`Decoder`に属し、利用価値が明確に向上する場合に限り`Lens`上の転送用便利APIを提供します。
 
-### 配列
+### Arrays
 
-配列サポートには以下が必要です:
+配列サポートには次が必要です。
 
-- `Array[T]` 用のデコーダ。
-- インデックスを含むアイテムレベルのポインタ。
-- 最小、最大、および非空の制約。
-- フェイルファストなアイテムデコードと全アイテム問題の蓄積の間の明確な選択。
+- `Array[T]`用のdecoder。
+- indexを含むitem-level pointer。
+- 最小、最大、空でない制約。
+- すべてのitem issueを蓄積するか、最初の失敗で停止するかの明確な選択。
 
-推奨されるデフォルトは、パッケージが既にバリデーションユースケースを対象としているため、インデックス順にすべての独立したアイテム問題を蓄積することです。
+推奨されるデフォルトは、index順に独立したitem issueをすべて蓄積することです。このパッケージはすでに検証用途を対象としているためです。
 
-### 値の代替
+### Value alternatives
 
-`Decoder::one_of2` は、同じ選択された値に複数のデコーダを適用します。すべての代替が失敗した場合、代替ごとにグループ化された失敗を保持し、区別できないリストにフラット化しないでください。
+`Decoder::one_of2`は、同じ選択済み値に複数のdecoderを適用します。すべてのalternativeが失敗した場合は、失敗をalternativeごとにグループ化し、区別できないリストに平坦化しないようにします。
 
-異なる出力型は、組み合わせの前に明示的なMoonBit列挙型にマッピングする必要があります。
+異なる出力型は、組み合わせる前に明示的なMoonBit enumへマッピングする必要があります。
 
-### 判別共用体
+### Discriminated unions
 
-判別共用体デコーダは、判別子を1回デコードし、1つの同種の `Case[T]` を選択する必要があります。すべてのケースは同じ出力型（通常はアプリケーションの列挙型）を生成する必要があるため、結果の `Lens[T]` は静的に型付けされたままになります。
+Discriminated-union decoderはdiscriminatorを一度デコードし、同一の型を出力する1つの`Case[T]`を選択します。各caseは同じ出力型を生成しなければなりません。通常はアプリケーションenumであり、その結果の`Lens[T]`は静的に型付けされたままです。
 
-この機能は型付きレンズデコードに属し、集約バリデーションには属しません。通常のオブジェクトレンズが存在した後に設計する必要があります。なぜなら、ケース選択には明示的なオブジェクト境界が必要だからです。
+この機能は型付きlens decodingに属し、集約検証には属しません。case選択には明示的なオブジェクト境界が必要なため、通常のobject lensが存在した後に設計すべきです。
 
-### 未知フィールド
+### Unknown fields
 
-未知フィールドの拒否は、将来の宣言的オブジェクトチェックに属します:
+Unknown-field拒否は、将来の宣言的object checkに属します。
 
-| ポリシー | 動作                             |
-| -------- | -------------------------------- |
-| `strict` | 宣言されていないキーを拒否する。 |
+| Policy   | Behavior                 |
+| -------- | ------------------------ |
+| `strict` | 未宣言のキーを拒否する。 |
 
-`strip_unknown` と `passthrough` はバリデーションポリシーではなく、変換ポリシーです。もし将来必要になった場合、明示的な変換出力を持つ別個のAPIが必要であり、`Validation` の意味を変更してはなりません。
+`strip_unknown`と`passthrough`は変換ポリシーであり、検証ポリシーではありません。必要になった場合は、明示的な変換後出力を持つ別APIが必要であり、`Validation`の意味を変更してはいけません。
 
-## ミューテーションは延期されるが、除外されない
+JSON SchemaとOpenAPIの生成は、サポートされる制約ごとに宣言的メタデータが必要な別提案として扱います。
 
-フェーズ1は `set` または `modify` を提供しません。
+## 構築とソース変更の分離
 
-`Lens` という名前は、正当なミューテーションが後で追加される可能性があるため保持されます。書き込みを公開する前に、設計は以下を解決する必要があります:
+`Lens::set`が変更するのは`JsonBuilder`の対象だけです。既存の`Json`を受け付けないため、欠落した親はbuilder所有のオブジェクトノードとして明確に作成され、ソースのaliasingポリシーは不要です。
 
-- 欠落している中間オブジェクトを作成するかどうか。
-- 更新が永続的かインプレースか。
-- 範囲外の配列インデックスの動作。
-- オプションおよびNullableレンズが書き込みとどのように相互作用するか。
-
-ミューテーションが実装される場合、`get`、`set`、および `modify` は同じ `Lens[T]` 抽象化の操作として残るべきです。内部の書き込み実装は別のソースファイルに存在してもよく、`LensTrait` と `Validation` はバリデーション専用のままです。
-
-正常にトラバース可能なすべてのソースについて、テストは標準のレンズ則をカバーする必要があります:
-
-```text
-get(set(source, value)) = value
-set(source, get(source)) = source
-set(set(source, first), second) = set(source, second)
-```
-
-欠落または互換性のないパスに対する失敗動作はAPI契約の一部であり、これらの法則が適用される前に指定する必要があります。
+このbuilder契約は、以前に提案されたソース変更マイルストーンを意図的に置き換えます。ソースドキュメントの更新が必要になった場合は、永続更新ポリシーとlens-lawテストを備えた、別名のAPIが必要です。builder対象の`Lens::set`の意味を変更してはいけません。
 
 ## 提供ロードマップ
 
-### マイルストーン1: 選択の基盤
+### マイルストーン1: Selection foundation
 
-- RFC 6901レンダリングを備えた不透明な `Pointer`。
-- `JsonKind`、`IssueCode`、`Issue`、および `LensError`。
-- 正確な失敗位置を備えたキー専用ルックアップ。
-- `Decoder[T]`、`Lens[Map[String, Json]]` によってバックアップされた `ObjectLens`、および `Lens[T]`。
-- 文字列、真偽値、数値、整数、および生のJSONデコーダ。
+- RFC 6901表示を備えた不透明な`Pointer`。
+- `JsonKind`、`IssueCode`、`Issue`、`LensError`。
+- 正確な失敗位置を持つキー専用lookup。
+- `Decoder[T]`、`Lens[Map[String, Json]]`を内部に持つ`ObjectLens`、`Lens[T]`。
+- 文字列、boolean、number、integer、raw JSON decoder。
 - `Lens::get`。
 
-終了基準:
+終了条件:
 
-- 公開サンプルがコンパイルされる。
-- プリミティブの成功および失敗動作がテストされている。
-- すべてのトラバーサル失敗が正確な失敗ポインタを報告する。
-- 小数、範囲外、および非有限の整数ケースが `Double::to_int()` セマンティクスに従う。
-- 数値テストは、パッケージ固有のパーサーではなく、委譲された標準変換の境界をテストする。
+- 公開例がコンパイルできる。
+- プリミティブの成功と失敗の動作がテストされている。
+- すべてのトラバーサル失敗が正確な失敗pointerを報告する。
+- fractional、範囲外、非有限の整数ケースが`Double::to_int()`の意味論に従う。
+- 数値テストはパッケージ固有のparserではなく、委譲された標準変換の境界を検証する。
 
-### マイルストーン2: 集約バリデーション
+### マイルストーン2: Aggregate validation
 
-- 非ジェネリックな `Validation`。
-- `Lens[T]` および `ObjectLens` によって実装されたチェック専用の `LensTrait`。
-- トレイトオブジェクトの集約 `validate`。
-- 決定論的なエラー順序。
-- 安定した制約コードを備えたリファインメント。
+- 非ジェネリックな`Validation`。
+- `Lens[T]`と`ObjectLens`が実装するチェック専用`LensTrait`。
+- trait-object aggregate `validate`。
+- 決定的なエラー順序。
+- 安定した制約コードを持つrefinement。
 
-終了基準:
+終了条件:
 
-- 各チェックがバリデーション呼び出しごとに1回評価される。
-- 複数の独立したフィールド問題が一緒に返される。
-- 成功したバリデーションは、型付き値を構築またはキャッシュせずに `Valid` を返す。
-- 呼び出し元は、正常にバリデーションされたデータに元の `Lens[T]` 値を介して引き続きアクセスする。
+- すべてのチェックが検証呼び出しごとに1回評価される。
+- 複数の独立したフィールドissueがまとめて返される。
+- 成功した検証は、型付き値を構築またはキャッシュせずに`Valid`を返す。
+- 呼び出し側は、元の`Lens[T]`値を通じて検証済みデータへアクセスし続ける。
 
-### マイルストーン3: プレゼンスとコレクション
+### マイルストーン3: Presence and collections
 
-- `optional`、`nullable`、および `optional_nullable`。
-- `default`（デフォルトでは欠落値にのみ適用）。
-- インデックス付きポインタを使用した配列アイテムデコード。
+- `optional`、`nullable`、`optional_nullable`。
+- デフォルトでは欠落値にだけ適用される`default`。
+- index付きpointerを持つ配列item decoding。
 - 配列長制約。
-- 変換。
+- Transformation。
 
-終了基準:
+終了条件:
 
-- 欠落/nullの真理値表がカバーされている。
-- 配列の問題順序が決定論的である。
-- デフォルトが明示的な `null` や無効な存在値を隠さない。
+- 欠落/null truth tableがカバーされる。
+- 配列issueの順序が決定的である。
+- defaultが明示的な`null`や無効な存在値を隠さない。
 
-### マイルストーン4: 代替とオブジェクトチェック
+### マイルストーン4: Alternatives and object checks
 
 - `Decoder::one_ofN`。
-- 判別共用体。
-- 宣言的なオブジェクト境界。
-- 未知フィールドの拒否。
+- Discriminated unions。
+- 宣言的オブジェクト境界。
+- Unknown-field拒否。
 
-JSON SchemaとOpenAPIの生成は、サポートされるすべての制約に対して宣言的メタデータを必要とする別個の提案のままです。
+JSON SchemaとOpenAPI生成は、サポートするすべての制約に宣言的メタデータが必要な、別の提案として扱います。
 
-### 将来のマイルストーン: 正当なミューテーション
+### マイルストーン5: Typed output construction
 
-- `Lens::set`。
-- `Lens::modify`。
-- 明示的な欠落パス、互換性のないパス、および配列インデックス書き込みポリシー。
-- 永続的更新とインプレース更新の間の文書化された選択。
-- 書き込み可能なすべてのレンズカテゴリに対するレンズ則テスト。
+- サポートされる各decoderに対応する`Encoder[T]`。
+- `ToJson`を実装する可変`JsonBuilder`。
+- 生成されたオブジェクト親を備えたbuilder対象`Lens::set`。
+- 明示的なoptional省略、nullable null、設定可能なnullish動作。
+- path競合と表現できない省略に対する構造化失敗。
 
-このマイルストーンは、実際の呼び出し元がミューテーションを必要とするまではオプションですが、公開の命名と内部ポインタモデルがそれを妨げないようにする必要があります。
+終了条件:
 
-## 初期パッケージレイアウト
+- プリミティブ、配列、optional、nullable値が文書化されたJSON出力を生成する。
+- 繰り返し書き込みでは最新の値が使われる。
+- optionalの削除が空の生成親をpruneする。
+- pathとencodingの失敗が、builderを部分的に変更せず正確なpointerを報告する。
+- 後のbuilder書き込み前に生成されたJSONが変更されない。
 
-最初の実装は小さく保ちます:
+## 初期パッケージ構成
+
+最初の実装は小さく保ちます。
 
 ```text
 lens/
@@ -593,53 +634,55 @@ lens/
     ├── pointer.mbt
     ├── issue.mbt
     ├── decoder.mbt
+    ├── encoder.mbt
     ├── lens.mbt
-    └── lookup.mbt
+    ├── lookup.mbt
+    └── builder.mbt
 ```
 
-マイルストーン2で `check.mbt` と `validation.mbt` を追加します。オプショナリティ、配列、および代替のためのファイルは、それらの機能が実装されたときにのみ追加します。
+マイルストーン2で`check.mbt`と`validation.mbt`を追加します。optionality、配列、alternative用のファイルは、各機能を実装するときにだけ追加します。
 
-## マイルストーン1のテストマトリックス
+## マイルストーン1のテストマトリクス
 
-- ルートプロパティ成功。
-- ネストされたプロパティ成功。
-- 欠落しているルートプロパティ。
-- 欠落している中間プロパティ。
-- 欠落しているリーフプロパティ。
-- キーレンズに対する非オブジェクトルート。
-- 非オブジェクト中間値。
-- 文字列型不一致。
-- 真偽値型不一致。
-- 数値型不一致。
-- `number` によって通過する非有限数値。
-- `Double::to_int()` によって変換される小数値。
-- `Double::to_int()` によって飽和される正および負のオーバーフロー。
-- `Double::to_int()` によって変換される非有限値。
-- 正確な `@int.MIN_VALUE` および `@int.MAX_VALUE` 変換。
-- すべてのプリミティブデコーダに渡される明示的な `null`。
-- `~`、`/`、および空キーのJSON Pointerエスケープ。
-- すべてのトラバーサルおよびデコード失敗に対する正しいポインタ。
-- 複数のドキュメントに対する1つのレンズの再利用。
+- root propertyの成功。
+- nested propertyの成功。
+- root propertyの欠落。
+- intermediate propertyの欠落。
+- leaf propertyの欠落。
+- key lensに対するnon-object root。
+- non-object intermediate value。
+- 文字列の型不一致。
+- booleanの型不一致。
+- numberの型不一致。
+- `number`を通過する非有限数。
+- `Double::to_int()`で変換されるfractional value。
+- `Double::to_int()`で飽和する正負のoverflow。
+- `Double::to_int()`で変換される非有限値。
+- 正確な`@int.MIN_VALUE`と`@int.MAX_VALUE`の変換。
+- すべてのプリミティブdecoderに明示的な`null`を渡す。
+- `~`、`/`、空キーのJSON Pointer escaping。
+- すべてのトラバーサルおよびデコード失敗について正しいpointer。
+- 1つのlensを複数のドキュメントで再利用する。
 
-## 延期された決定
+## 保留中の決定
 
-以下の選択はマイルストーン1をブロックせず、実装の証拠をもって解決されるべきです:
+次の選択はマイルストーン1を妨げないため、実装上の証拠に基づいて解決します。
 
-- `Issue`、`IssueCode`、`JsonKind`、および `LensError` のペイロードを完全公開にするか読み取り専用にするか。
-- `Pointer` がセグメントを公開するか、反復と文字列変換のみを公開するか。
-- 配列アイテムバリデーションがデフォルトで失敗を蓄積するか、蓄積モードとフェイルファストモードの両方を公開するか。
-- `FromJson` ブリッジが、その構造化されていないエラー分類にもかかわらず十分に有用か。
-- 将来の書き込みが永続的更新とインプレース更新のどちらを使用するか。
-- 欠落している中間オブジェクトがエラーであるか、明示的な書き込みポリシーによって作成できるか。
-- 書き込みが欠落または `null` 値を対象とする場合のオプションおよびNullableレンズの動作。
+- `Issue`、`IssueCode`、`JsonKind`、`LensError`のpayloadを完全に公開するかreadonlyにするか。
+- `Pointer`がsegmentを公開するか、iterationと文字列変換だけを公開するか。
+- 配列item検証がデフォルトで失敗を蓄積するか、蓄積モードとfail-fastモードの両方を公開するか。
+- 構造化されていないエラー分類にもかかわらず、`FromJson` bridgeが十分有用か。
+- 将来の書き込みでpersistent updateまたはin-place updateを使うか。
+- 欠落した中間オブジェクトをエラーとするか、明示的なwrite policyによって作成可能にするか。
+- 書き込みが欠落値または`null`値を対象とする場合のoptionalおよびnullable lensの動作。
 
-## 参考文献
+## References
 
-- [MoonBitのメソッドとトレイトに関するドキュメント](https://docs.moonbitlang.com/en/stable/language/methods.html)
-- [MoonBitのエラーハンドリングに関するドキュメント](https://docs.moonbitlang.com/en/stable/language/error-handling.html)
-- [MoonBitの導出に関するドキュメント](https://docs.moonbitlang.com/en/stable/language/derive.html)
-- [MoonBitコアJSON API](https://mooncakes.io/docs/moonbitlang/core/json)
-- [MoonBitコア文字列パースAPI](https://mooncakes.io/docs/moonbitlang/core/string)
-- [MoonBit `Double::to_int` の実装とセマンティクス](https://mooncakes.io/assets/moonbitlang/core/builtin/double_to_int_wasm.mbt.html)
-- [MoonBitコアAPIインデックス](https://mooncakes.io/docs/moonbitlang/core/)
+- [MoonBit method and trait documentation](https://docs.moonbitlang.com/en/stable/language/methods.html)
+- [MoonBit error handling documentation](https://docs.moonbitlang.com/en/stable/language/error-handling.html)
+- [MoonBit deriving documentation](https://docs.moonbitlang.com/en/stable/language/derive.html)
+- [MoonBit core JSON API](https://mooncakes.io/docs/moonbitlang/core/json)
+- [MoonBit core string parsing API](https://mooncakes.io/docs/moonbitlang/core/string)
+- [MoonBit `Double::to_int` implementation and semantics](https://mooncakes.io/assets/moonbitlang/core/builtin/double_to_int_wasm.mbt.html)
+- [MoonBit core API index](https://mooncakes.io/docs/moonbitlang/core/)
 - [RFC 6901: JSON Pointer](https://www.rfc-editor.org/rfc/rfc6901)

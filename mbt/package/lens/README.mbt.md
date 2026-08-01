@@ -1,8 +1,8 @@
 # lens
 
-Reusable typed access and aggregate validation for MoonBit JSON values.
+Reusable typed access, construction, and aggregate validation for MoonBit JSON values.
 
-The package keeps static types on `Lens[T]`, while `ObjectLens` reads selected objects as `Map[String, Json]`. The returned map is copied so top-level mutations do not change the source document; nested `Json` values retain their normal sharing semantics. Validation only reports whether every requested read succeeds; it does not infer or construct application types from runtime definitions. After successful validation, read values through the original lenses.
+The package keeps static types on `Lens[T]`, while `ObjectLens` reads selected objects as `Map[String, Json]`. The returned map is copied so top-level mutations do not change the source document; nested `Json` values retain their normal sharing semantics. A `JsonBuilder` accepts typed values through the same lenses and implements `ToJson`. Validation only reports whether every requested read succeeds; it does not infer or construct application types from runtime definitions. After successful validation, read values through the original lenses.
 
 ## Typed access
 
@@ -37,6 +37,34 @@ test {
   }
 }
 ```
+
+## Typed construction
+
+`JsonBuilder` constructs an output object without requiring an existing `Json` document. `Lens::set` encodes its typed value, creates missing object parents, and writes it at the lens pointer. Repeated writes to the same pointer use the latest value.
+
+```mbt check
+test {
+  let builder = JsonBuilder::JsonBuilder()
+  let user = object("user")
+  user.string("name").set(builder, "Ada")
+  user.int("age").set(builder, 37)
+  user.bool("active").set(builder, true)
+  user.string("roles").array().set(builder, ["admin", "reviewer"])
+
+  @json.json_inspect(builder, content={
+    "user": {
+      "name": "Ada",
+      "age": 37,
+      "active": true,
+      "roles": ["admin", "reviewer"],
+    },
+  })
+}
+```
+
+`nullable(None)` writes JSON `null`, while `optional(None)` omits the property and removes a previous value at the same pointer. `nullish(None)` omits the property by default; pass `encode_mode=NullishEncodeMode::Null` to write JSON `null` instead. Omission inside an array is rejected; use `Null` mode or a nullable item lens when JSON `null` is intended.
+
+`Lens::set` raises `JsonBuildError(JsonBuildIssue)` for an encoded leaf that blocks a nested object path or an omission requested inside an array. The issue contains the exact output pointer and a structured `JsonBuildIssueCode`. The builder is unchanged when value encoding fails.
 
 ## Arrays and presence
 
@@ -94,6 +122,6 @@ test {
 
 ## Current scope
 
-The API supports object-property traversal; `String`, `Bool`, `Double`, standard-converted `Int`, and raw `Json` values; typed arrays; and nullable, optional, and nullish values. Refinements, alternatives, and mutation such as `set` are reserved for later phases.
+The API supports object-property traversal and builder construction; `String`, `Bool`, `Double`, standard-converted `Int`, and raw `Json` values; typed arrays; and nullable, optional, and nullish values. `Lens::set` writes to `JsonBuilder`; it does not mutate or copy an existing JSON document. Refinements, alternatives, and source-document mutation remain outside the current scope.
 
 See [the design document](docs/design.md) for the detailed contract and roadmap. A Japanese translation is available at [docs/design.ja.md](docs/design.ja.md).
