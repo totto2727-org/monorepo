@@ -5,7 +5,7 @@
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L9-L14
 pub(all) struct Turn {
-  items : Array[ThreadItem]
+  items : ReadOnlyArray[ThreadItem]
   final_response : String
   usage : Usage?
 } derive(Eq)
@@ -215,7 +215,7 @@ pub async fn Thread::run(
   if turn_failure is Some(error) {
     raise CodexSdkError::TurnFailed(message=error.message)
   }
-  { items, final_response, usage }
+  { items: ReadOnlyArray::from_array(items), final_response, usage }
 }
 
 // Type difference: MoonBit requires a named type for the upstream normalizeInput return object.

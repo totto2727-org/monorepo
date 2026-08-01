@@ -15,7 +15,7 @@ pub fn Context::get_bool(
       None => ()
     }
   }
-  self.flags.get(option.name).unwrap_or(false)
+  self.flags.contains(option.name)
 }
 
 ///|

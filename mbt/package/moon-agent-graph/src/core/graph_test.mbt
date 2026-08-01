@@ -27,7 +27,9 @@ fn end_router() -> Router[Int] {
 
 ///|
 fn to_router(target : NodeId) -> Router[Int] {
-  router([target], fn(_state, _completion) { To(target) })
+  router([DeclaredRoute::DeclaredRoute(target)], fn(_state, _completion) {
+    To(target)
+  })
 }
 
 ///|
@@ -189,34 +191,34 @@ test "GraphDefinition compile GRAPH-011 - compiled snapshot ignores builder muta
 test "CompiledGraph queries GRAPH-012 - router targets and node tags have no mutable aliases" {
   let a = NodeId::parse("A")
   let b = NodeId::parse("B")
-  let declared_targets = [b]
+  let declared_routes = [DeclaredRoute::DeclaredRoute(b)]
   let tags = ["original"]
   let definition = GraphDefinition::GraphDefinition(test_reducer())
   definition.add_node(test_node(a, ReadOnlyArray::from_array(tags)))
   definition.add_node(test_node(b, []))
   definition.set_router(
     a,
-    router(ReadOnlyArray::from_array(declared_targets), fn(
-      _state,
-      _completion,
-    ) {
+    router(ReadOnlyArray::from_array(declared_routes), fn(_state, _completion) {
       To(b)
     }),
   )
   definition.set_router(b, end_router())
   definition.set_entry(a)
   let compiled = definition.compile()
-  declared_targets[0] = a
+  declared_routes[0] = DeclaredRoute::DeclaredRoute(a)
   tags[0] = "mutated"
   let queried_router = compiled.get_router(a)
   let queried_node = compiled.get_node(a)
-  inspect(queried_router.declared_targets[0].to_string(), content="B")
+  inspect(queried_router.declared_routes[0].target.to_string(), content="B")
   inspect(queried_node.metadata.tags[0], content="original")
-  let returned_targets = [..queried_router.declared_targets]
+  let returned_routes = [..queried_router.declared_routes]
   let returned_tags = [..queried_node.metadata.tags]
-  returned_targets[0] = a
+  returned_routes[0] = DeclaredRoute::DeclaredRoute(a)
   returned_tags[0] = "returned mutation"
-  inspect(compiled.get_router(a).declared_targets[0].to_string(), content="B")
+  inspect(
+    compiled.get_router(a).declared_routes[0].target.to_string(),
+    content="B",
+  )
   inspect(compiled.get_node(a).metadata.tags[0], content="original")
 }
 
@@ -235,4 +237,49 @@ test "GraphDefinition compile - unknown router source" {
   } noraise {
     _ => fail("expected UnknownRouterSource")
   }
+}
+
+///|
+test "CompiledGraph snapshot - returns sorted callback-free structure" {
+  let a = NodeId::parse("A")
+  let b = NodeId::parse("B")
+  let definition = GraphDefinition::GraphDefinition(test_reducer())
+  definition.add_node(test_node(b, ["second"]))
+  definition.add_node(test_node(a, ["first"]))
+  definition.set_router(b, end_router())
+  definition.set_router(a, to_router(b))
+  definition.set_entry(a)
+  debug_inspect(
+    definition.compile().snapshot(),
+    content=(
+      #|{
+      #|  entry: NodeId("A"),
+      #|  nodes: <ReadOnlyArray:
+      #|    [
+      #|      {
+      #|        id: NodeId("A"),
+      #|        metadata: {
+      #|          name: "A",
+      #|          description: None,
+      #|          kind: Function,
+      #|          tags: <ReadOnlyArray: ["first"]>,
+      #|        },
+      #|        router_metadata: { description: None },
+      #|        declared_routes: <ReadOnlyArray: [{ target: NodeId("B"), metadata: { label: None } }]>,
+      #|      },
+      #|      {
+      #|        id: NodeId("B"),
+      #|        metadata: {
+      #|          name: "B",
+      #|          description: None,
+      #|          kind: Function,
+      #|          tags: <ReadOnlyArray: ["second"]>,
+      #|        },
+      #|        router_metadata: { description: None },
+      #|        declared_routes: <ReadOnlyArray: []>,
+      #|      },
+      #|    ]>,
+      #|}
+    ),
+  )
 }

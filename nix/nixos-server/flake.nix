@@ -139,7 +139,7 @@
                     docker
                   ]);
 
-                programs = (import ../share/programs.nix) // {
+                programs = (import ../share/programs.nix { inherit pkgs; }) // {
                   home-manager.enable = true;
                   zsh = (import ../share/zsh.nix { inherit pkgs; }) // {
                     initContent = ''

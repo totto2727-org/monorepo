@@ -37,7 +37,12 @@ mbt/package/moon-agent-graph/
     │   ├── codex/
     │   └── opencode/
     ├── testing/
-    └── e2e/
+    ├── visualization/
+    ├── examples/
+    │   ├── basic/
+    │   └── visualization/
+    ├── e2e/
+    └── test/
 ```
 
 Every source package has one `moon.pkg`.
@@ -64,11 +69,21 @@ flowchart TD
   OpenCodeSDK --> AgentCLI["totto2727/agent-cli-sdk"]
   Testing["testing"] --> Core
   Testing --> MoonLLMSDK
+  Visualization["visualization"] --> Core
   Basic["examples/basic"] --> Core
+  VisualizationExample["examples/visualization"] --> Core
+  VisualizationExample --> Visualization
   E2E["e2e"] --> Core
   E2E --> MoonLLMNode
   E2E --> Agent
   E2E --> Testing
+  IntegrationTest["test"] --> Core
+  IntegrationTest --> MoonLLMNode
+  IntegrationTest --> Agent
+  IntegrationTest --> Codex
+  IntegrationTest --> OpenCode
+  IntegrationTest --> Testing
+  IntegrationTest --> E2E
 ```
 
 No package may import an example or testing package from production code.
@@ -146,7 +161,7 @@ Status: Complete.
 - Permit one router per node.
 - Allow cycles.
 - Reject undeclared or unknown destinations.
-- Copy definition collections during compilation.
+- Store immutable definition values in persistent hash maps during compilation.
 - Keep compiled collections private.
 - Do not add parallel-edge ordering semantics.
 
@@ -539,6 +554,7 @@ Use focused native tests during development.
 moon test --target native mbt/package/moon-agent-graph/src/core
 moon test --target native mbt/package/moon-agent-graph/src/integrations/codex
 moon test --target native mbt/package/moon-agent-graph/src/integrations/opencode
+moon test --target native mbt/package/moon-agent-graph/src/test
 ```
 
 The final manual gate covers at least one function-only example and one deterministic coding-agent workflow through its native executable surface.

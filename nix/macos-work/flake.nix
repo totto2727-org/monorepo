@@ -106,7 +106,7 @@
                     ]);
 
                   programs =
-                    (import ../share/programs.nix)
+                    (import ../share/programs.nix { inherit pkgs; })
                     // (import ../share/programs-macos.nix { inherit pkgs; }).programs
                     // {
                       zsh = (import ../share/zsh.nix { inherit pkgs; }) // {

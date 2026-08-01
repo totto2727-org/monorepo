@@ -67,7 +67,7 @@
                 })
                 ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).sandbox;
 
-              programs = (import ../share/programs.nix) // {
+              programs = (import ../share/programs.nix { inherit pkgs; }) // {
                 home-manager.enable = true;
                 zsh = (import ../share/zsh.nix { inherit pkgs; }) // {
                   shellAliases = (import ../share/shell-aliases.nix) // {

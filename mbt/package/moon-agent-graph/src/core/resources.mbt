@@ -9,7 +9,7 @@ pub(all) suberror ResourceStoreError {
   NodeOwnerRequired(ResourceKey)
   InvalidCleanupTimeout(Int)
   CleanupTimedOut(Int)
-  CloseFailed(errors~ : Array[Error])
+  CloseFailed(errors~ : ReadOnlyArray[Error])
 } derive(Debug)
 
 ///|
@@ -92,7 +92,7 @@ pub async fn RuntimeResourceStore::release_node(
     index = index - 1
   }
   if !errors.is_empty() {
-    raise CloseFailed(errors~)
+    raise CloseFailed(errors=ReadOnlyArray::from_array(errors))
   }
 }
 
@@ -107,7 +107,7 @@ pub async fn RuntimeResourceStore::close_all(
     index = index - 1
   }
   if !errors.is_empty() {
-    raise CloseFailed(errors~)
+    raise CloseFailed(errors=ReadOnlyArray::from_array(errors))
   }
 }
 

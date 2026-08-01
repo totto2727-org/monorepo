@@ -62,7 +62,10 @@ pub fn[S] scripted_router(
   evaluate : (S, @core.NodeCompletion) -> @core.Route raise,
 ) -> ScriptedRouter[S] {
   let calls : Array[ScriptedRouterCall[S]] = []
-  let value = @core.router(declared_targets, (state, completion) => {
+  let declared_routes = declared_targets.map(target => {
+    @core.DeclaredRoute::DeclaredRoute(target)
+  })
+  let value = @core.router(declared_routes, (state, completion) => {
     calls.push({ state, completion })
     evaluate(state, completion)
   })

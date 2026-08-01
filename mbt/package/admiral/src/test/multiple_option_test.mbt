@@ -13,7 +13,7 @@ using @admiral {
 ///|
 async test "array option appends and parses repeated values" {
   let values = ints("value", required=true)
-  let captured : Ref[Array[Int]] = Ref([])
+  let captured : Ref[ReadOnlyArray[Int]] = Ref([])
   let app = cli(name="test", commands=[
     command(
       name="collect",

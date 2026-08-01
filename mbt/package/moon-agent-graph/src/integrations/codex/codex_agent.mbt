@@ -87,7 +87,9 @@ fn request_input(request : @core.CodingAgentRequest) -> @sdk.Input {
 }
 
 ///|
-fn changed_files(items : Array[@sdk.ThreadItem]) -> Array[@path.Path] {
+fn changed_files(
+  items : ReadOnlyArray[@sdk.ThreadItem],
+) -> ReadOnlyArray[@path.Path] {
   let files : Array[@path.Path] = []
   for item in items {
     match item {
@@ -100,7 +102,7 @@ fn changed_files(items : Array[@sdk.ThreadItem]) -> Array[@path.Path] {
       _ => ()
     }
   }
-  files
+  ReadOnlyArray::from_array(files)
 }
 
 ///|
@@ -162,7 +164,7 @@ pub fn codex_agent(
           base_url?=options.base_url,
           api_key?=options.api_key,
           config?=options.config,
-          env=context.environment,
+          env=Map(context.environment.to_array()),
         ),
       )
       let thread_options = @sdk.ThreadOptions::ThreadOptions(
@@ -174,7 +176,7 @@ pub fn codex_agent(
         network_access_enabled=network_enabled(context.network),
         web_search_mode?=options.web_search,
         approval_policy=approval_mode(context.approval),
-        additional_directories=context.workspace.additional_writable_roots,
+        additional_directories=[..context.workspace.additional_writable_roots],
       )
       let thread = match options.resume_thread_id {
         Some(thread_id) =>

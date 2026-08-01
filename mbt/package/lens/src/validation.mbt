@@ -5,7 +5,7 @@
 /// document after validation succeeds.
 pub enum Validation {
   Valid
-  Invalid(Array[Issue])
+  Invalid(ReadOnlyArray[Issue])
 } derive(Eq, Debug)
 
 ///|
@@ -22,6 +22,6 @@ pub fn validate(document : Json, lenses : Array[&LensTrait]) -> Validation {
   if issues.is_empty() {
     Valid
   } else {
-    Invalid(issues)
+    Invalid(ReadOnlyArray::from_array(issues))
   }
 }

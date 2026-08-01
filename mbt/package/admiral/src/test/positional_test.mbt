@@ -67,7 +67,7 @@ async test "scalar positions reject an extra value" {
 async test "array position preserves values and reserves a trailing scalar" {
   let files = position_strings("files", required=true)
   let target = position_string("target", required=true)
-  let captured = Ref(([], ""))
+  let captured : Ref[(ReadOnlyArray[String], String)] = Ref(([], ""))
   let app = cli(name="test", commands=[
     command(
       name="pack",

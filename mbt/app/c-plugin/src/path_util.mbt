@@ -65,7 +65,7 @@ async fn resolve_agents_dirs(recursive : Bool) -> Array[String] {
   @target_file_discovery.collect_recursive_target_files(
     @path.Path::dirname(nearest_lock_file).to_string(),
     lock_file_name,
-  ).map(agents_dir_from_lock_file)
+  )[:].map(agents_dir_from_lock_file)
 }
 
 ///|

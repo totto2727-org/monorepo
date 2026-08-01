@@ -171,7 +171,7 @@ The runtime continues closing remaining resources after one close operation fail
 
 A graph definition is mutable while being assembled.
 
-Compilation creates a detached snapshot with private internal collections.
+Compilation stores the graph's transitively immutable structural values in private persistent hash maps. Later mutations of the definition can replace builder entries but cannot mutate values already reachable from the compiled graph.
 
 Compilation validates:
 
@@ -289,9 +289,12 @@ mbt/package/moon-agent-graph/
     │   ├── codex/
     │   └── opencode/
     ├── testing/
+    ├── visualization/
     ├── e2e/
+    ├── test/
     └── examples/
-        └── basic/
+        ├── basic/
+        └── visualization/
 ```
 
 `core` contains IDs, graph compilation, node and router callback containers, reducer semantics, run events, run resources, and the sequential runtime.
@@ -304,9 +307,15 @@ The two adapter packages import `coding_agent` plus their concrete SDK.
 
 `testing` contains reusable fakes and recorders.
 
-`e2e` contains deterministic end-to-end workflow support and tests that consume public packages and local fakes.
+`visualization` imports `core` and renders callback-free compiled graph snapshots as deterministic Mermaid flowcharts.
+
+`e2e` contains reusable deterministic end-to-end workflow support.
+
+`test` contains native black-box integration tests that connect the public `core`, `moonllm`, `coding_agent`, adapter, `testing`, and `e2e` package surfaces.
 
 `examples/basic` is a runnable native example that imports only the public `core` package.
+
+`examples/visualization` demonstrates router descriptions and labeled conditional branches through the public `core` and `visualization` packages.
 
 The module, shared agent CLI SDK, Codex SDK, OpenCode SDK, and MoonLLM resolve `moonbitlang/async@0.20.1`; the Codex SDK and graph module resolve `moonbitlang/x@0.4.38`. No async-runtime version alignment work remains for the implemented adapters.
 

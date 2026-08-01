@@ -1,6 +1,3 @@
-// The native fake follows the pinned upstream Codex SDK executable-spy pattern:
-// https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/codexExecSpy.ts
-
 ///|
 struct CodexIntegrationFixture {
   root : String
@@ -107,12 +104,12 @@ fn codex_integration_context(
     },
     approval: @core.OnRequest,
     network: @core.Enabled,
-    environment: {
-      "PATH": "/usr/bin:/bin",
-      "FAKE_CODEX_RECORDS": fixture.records,
-      "FAKE_CODEX_MODE": mode,
-      "MAPPED_ENV": "present",
-    },
+    environment: @immut_hashmap.HashMap([
+      ("PATH", "/usr/bin:/bin"),
+      ("FAKE_CODEX_RECORDS", fixture.records),
+      ("FAKE_CODEX_MODE", mode),
+      ("MAPPED_ENV", "present"),
+    ]),
     events: @core.EventSink::discard(),
   }
 }
@@ -121,18 +118,18 @@ fn codex_integration_context(
 fn codex_integration_agent(
   fixture : CodexIntegrationFixture,
 ) -> @core.CodingAgent {
-  codex_agent(
+  @codex.codex_agent(
     @core.CodingAgentId::parse("codex-integration") catch {
       _ => abort("integration agent ID must be valid")
     },
-    CodexAgentOptions::CodexAgentOptions(
+    @codex.CodexAgentOptions::CodexAgentOptions(
       codex_path_override=fixture.executable,
       api_key="test-key",
       model="codex-test",
-      sandbox=@sdk.WorkspaceWrite,
+      sandbox=@codex_sdk.WorkspaceWrite,
       skip_git=true,
-      reasoning=@sdk.High,
-      web_search=@sdk.Cached,
+      reasoning=@codex_sdk.High,
+      web_search=@codex_sdk.Cached,
     ),
   )
 }
@@ -207,7 +204,7 @@ async test "codex_agent integration 2 - propagates turn.failed without waiting f
         })
         "no error"
       } catch {
-        @sdk.CodexSdkError::TurnFailed(message~) => message
+        @codex_sdk.CodexSdkError::TurnFailed(message~) => message
         @async.TimeoutError => "timed out"
         error => "unexpected:\{error}"
       }

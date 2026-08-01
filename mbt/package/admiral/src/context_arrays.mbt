@@ -2,12 +2,13 @@
 pub fn[Metadata] Context::get_strings(
   self : Context,
   argument : ArgDef[Array[String], Metadata],
-) -> Array[String] raise @json.JsonDecodeError {
+) -> ReadOnlyArray[String] raise @json.JsonDecodeError {
   if should_use_config(self.sources.get(argument.name)) {
     match argument.config {
       Some(key) =>
         match self.config.get(key) {
-          Some(value) => return @json.from_json(value)
+          Some(value) =>
+            return ReadOnlyArray::from_array(@json.from_json(value))
           None => ()
         }
       None => ()
@@ -35,12 +36,13 @@ pub fn[Metadata] Context::get_strings_required(
 pub fn[Metadata] Context::get_ints(
   self : Context,
   argument : ArgDef[Array[Int], Metadata],
-) -> Array[Int] raise {
+) -> ReadOnlyArray[Int] raise {
   if should_use_config(self.sources.get(argument.name)) {
     match argument.config {
       Some(key) =>
         match self.config.get(key) {
-          Some(value) => return @json.from_json(value)
+          Some(value) =>
+            return ReadOnlyArray::from_array(@json.from_json(value))
           None => ()
         }
       None => ()
@@ -68,12 +70,13 @@ pub fn[Metadata] Context::get_ints_required(
 pub fn[Metadata] Context::get_int64s(
   self : Context,
   argument : ArgDef[Array[Int64], Metadata],
-) -> Array[Int64] raise {
+) -> ReadOnlyArray[Int64] raise {
   if should_use_config(self.sources.get(argument.name)) {
     match argument.config {
       Some(key) =>
         match self.config.get(key) {
-          Some(value) => return @json.from_json(value)
+          Some(value) =>
+            return ReadOnlyArray::from_array(@json.from_json(value))
           None => ()
         }
       None => ()
@@ -101,12 +104,13 @@ pub fn[Metadata] Context::get_int64s_required(
 pub fn[Metadata] Context::get_uints(
   self : Context,
   argument : ArgDef[Array[UInt], Metadata],
-) -> Array[UInt] raise {
+) -> ReadOnlyArray[UInt] raise {
   if should_use_config(self.sources.get(argument.name)) {
     match argument.config {
       Some(key) =>
         match self.config.get(key) {
-          Some(value) => return @json.from_json(value)
+          Some(value) =>
+            return ReadOnlyArray::from_array(@json.from_json(value))
           None => ()
         }
       None => ()
@@ -134,12 +138,13 @@ pub fn[Metadata] Context::get_uints_required(
 pub fn[Metadata] Context::get_uint64s(
   self : Context,
   argument : ArgDef[Array[UInt64], Metadata],
-) -> Array[UInt64] raise {
+) -> ReadOnlyArray[UInt64] raise {
   if should_use_config(self.sources.get(argument.name)) {
     match argument.config {
       Some(key) =>
         match self.config.get(key) {
-          Some(value) => return @json.from_json(value)
+          Some(value) =>
+            return ReadOnlyArray::from_array(@json.from_json(value))
           None => ()
         }
       None => ()
@@ -167,12 +172,13 @@ pub fn[Metadata] Context::get_uint64s_required(
 pub fn[Metadata] Context::get_doubles(
   self : Context,
   argument : ArgDef[Array[Double], Metadata],
-) -> Array[Double] raise {
+) -> ReadOnlyArray[Double] raise {
   if should_use_config(self.sources.get(argument.name)) {
     match argument.config {
       Some(key) =>
         match self.config.get(key) {
-          Some(value) => return @json.from_json(value)
+          Some(value) =>
+            return ReadOnlyArray::from_array(@json.from_json(value))
           None => ()
         }
       None => ()
