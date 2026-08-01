@@ -2,7 +2,10 @@
 pub struct NodeId(String) derive(Eq, Hash, Debug)
 
 ///|
-pub impl @copy.Copy for NodeId
+pub impl @copy.Copy for NodeId with fn copy(self) {
+  let NodeId(value) = self
+  NodeId(@copy.Copy::copy(value))
+}
 
 ///|
 pub struct RunId(String) derive(Eq, Hash, Debug)
