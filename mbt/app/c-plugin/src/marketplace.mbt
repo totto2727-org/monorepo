@@ -201,7 +201,10 @@ impl FromJson for MarketplaceSourceWire with fn from_json(json, _path) {
   match json {
     Json::String(value) => { wire_string: Some(value), wire_path: None }
     _ => {
-      let wire_path = match optional_json_field(json, "path") {
+      let path_value = @lens.root().json("path").optional().get(json) catch {
+          _ => None
+        }
+      let wire_path = match path_value {
         Some(value) =>
           Some((@json.from_json(value) : String)) catch {
             _ => None
@@ -222,19 +225,31 @@ struct MarketplacePluginWire {
 
 ///|
 impl FromJson for MarketplacePluginWire with fn from_json(json, path) {
-  require_object(json, path, "MarketplacePluginWire: expected object")
-  let wire_name = match optional_json_field(json, "name") {
+  guard json is Json::Object(_) else {
+    raise @json.JsonDecodeError(
+      (path, "MarketplacePluginWire: expected object"),
+    )
+  }
+  let root = @lens.root()
+  let name_value = root.json("name").optional().get(json) catch { _ => None }
+  let wire_name = match name_value {
     Some(value) => Some((@json.from_json(value) : String)) catch { _ => None }
     None => None
   }
-  let wire_source = match optional_json_field(json, "source") {
+  let source_value = root.json("source").optional().get(json) catch {
+      _ => None
+    }
+  let wire_source = match source_value {
     Some(value) =>
       Some((@json.from_json(value) : MarketplaceSourceWire)) catch {
         _ => None
       }
     None => None
   }
-  let wire_description = match optional_json_field(json, "description") {
+  let description_value = root.json("description").optional().get(json) catch {
+      _ => None
+    }
+  let wire_description = match description_value {
     Some(value) => Some((@json.from_json(value) : String)) catch { _ => None }
     None => None
   }
@@ -249,11 +264,16 @@ struct MarketplaceWire {
 
 ///|
 impl FromJson for MarketplaceWire with fn from_json(json, _path) {
-  let wire_name = match optional_json_field(json, "name") {
+  let root = @lens.root()
+  let name_value = root.json("name").optional().get(json) catch { _ => None }
+  let wire_name = match name_value {
     Some(value) => Some((@json.from_json(value) : String)) catch { _ => None }
     None => None
   }
-  let wire_plugins = match optional_json_field(json, "plugins") {
+  let plugins_value = root.json("plugins").optional().get(json) catch {
+      _ => None
+    }
+  let wire_plugins = match plugins_value {
     Some(Json::Array(values)) =>
       Some(
         values

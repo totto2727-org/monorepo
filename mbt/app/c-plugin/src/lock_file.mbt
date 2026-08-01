@@ -50,35 +50,25 @@ impl FromJson for MarketplaceKind with fn from_json(json, path) {
 }
 
 ///|
-fn optional_json_field(document : Json, key : String) -> Json? {
-  @lens.root().json(key).optional().get(document) catch {
-    _ => None
-  }
-}
-
-///|
-fn require_object(
-  document : Json,
-  path : @json.JsonPath,
-  message : String,
-) -> Unit raise @json.JsonDecodeError {
-  let _ = @lens.root().get(document) catch {
-    _ => raise @json.JsonDecodeError((path, message))
-  }
-}
-
-///|
 impl FromJson for LockPlugin with fn from_json(json, path) {
-  require_object(json, path, "expected lock plugin object")
-  let name = match optional_json_field(json, "name") {
+  guard json is Json::Object(_) else {
+    raise @json.JsonDecodeError((path, "expected lock plugin object"))
+  }
+  let root = @lens.root()
+  let name_value = root.json("name").optional().get(json) catch { _ => None }
+  let name = match name_value {
     Some(value) => @json.from_json(value) catch { _ => "plugin" }
     None => "plugin"
   }
-  let path = match optional_json_field(json, "path") {
+  let path_value = root.json("path").optional().get(json) catch { _ => None }
+  let path = match path_value {
     Some(value) => @json.from_json(value) catch { _ => name }
     None => name
   }
-  let enabled_skills = match optional_json_field(json, "enabledSkills") {
+  let enabled_skills_value = root.json("enabledSkills").optional().get(json) catch {
+      _ => None
+    }
+  let enabled_skills = match enabled_skills_value {
     Some(Json::Array(values)) =>
       values
       .iter()
@@ -95,15 +85,24 @@ impl FromJson for LockPlugin with fn from_json(json, path) {
 
 ///|
 impl FromJson for LockRepository with fn from_json(json, path) {
-  require_object(json, path, "expected lock repository object")
-  let source = match optional_json_field(json, "source") {
+  guard json is Json::Object(_) else {
+    raise @json.JsonDecodeError((path, "expected lock repository object"))
+  }
+  let root = @lens.root()
+  let source_value = root.json("source").optional().get(json) catch {
+      _ => None
+    }
+  let source = match source_value {
     Some(value) => @json.from_json(value) catch { _ => "" }
     None => ""
   }
   guard source != "" else {
     raise @json.JsonDecodeError((path, "lock repository source is required"))
   }
-  let source_type = match optional_json_field(json, "sourceType") {
+  let source_type_value = root.json("sourceType").optional().get(json) catch {
+      _ => None
+    }
+  let source_type = match source_type_value {
     Some(value) =>
       match value {
         Json::String(_) =>
@@ -112,7 +111,10 @@ impl FromJson for LockRepository with fn from_json(json, path) {
       }
     None => RepositoryLocal
   }
-  let marketplace_kind = match optional_json_field(json, "marketplaceKind") {
+  let marketplace_kind_value = root.json("marketplaceKind").optional().get(json) catch {
+      _ => None
+    }
+  let marketplace_kind = match marketplace_kind_value {
     Some(value) =>
       match value {
         Json::String(_) =>
@@ -121,11 +123,17 @@ impl FromJson for LockRepository with fn from_json(json, path) {
       }
     None => Claude
   }
-  let commit_hash = match optional_json_field(json, "commitHash") {
+  let commit_hash_value = root.json("commitHash").optional().get(json) catch {
+      _ => None
+    }
+  let commit_hash = match commit_hash_value {
     Some(value) => Some((@json.from_json(value) : String)) catch { _ => None }
     None => None
   }
-  let plugins = match optional_json_field(json, "plugins") {
+  let plugins_value = root.json("plugins").optional().get(json) catch {
+      _ => None
+    }
+  let plugins = match plugins_value {
     Some(Json::Array(values)) =>
       values
       .iter()
@@ -204,15 +212,24 @@ struct LockFile {
 
 ///|
 impl FromJson for LockFile with fn from_json(json, path) {
-  require_object(json, path, "expected lock file object")
-  let version = match optional_json_field(json, "version") {
+  guard json is Json::Object(_) else {
+    raise @json.JsonDecodeError((path, "expected lock file object"))
+  }
+  let root = @lens.root()
+  let version_value = root.json("version").optional().get(json) catch {
+      _ => None
+    }
+  let version = match version_value {
     Some(Json::Number(value, ..)) => value
     _ => 0.0
   }
   guard version == 1.0 else {
     raise @json.JsonDecodeError((path, "unsupported lock file version"))
   }
-  let skill_dirs = match optional_json_field(json, "skillDirs") {
+  let skill_dirs_value = root.json("skillDirs").optional().get(json) catch {
+      _ => None
+    }
+  let skill_dirs = match skill_dirs_value {
     Some(Json::Array(values)) =>
       values
       .iter()
@@ -224,7 +241,10 @@ impl FromJson for LockFile with fn from_json(json, path) {
       .collect()
     _ => []
   }
-  let repositories = match optional_json_field(json, "repositories") {
+  let repositories_value = root.json("repositories").optional().get(json) catch {
+      _ => None
+    }
+  let repositories = match repositories_value {
     Some(Json::Array(values)) =>
       values
       .iter()
