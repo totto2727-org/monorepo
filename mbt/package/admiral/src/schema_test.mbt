@@ -160,3 +160,17 @@ test "render_schema does not expose resolved environment values" {
   inspect(schema.contains("\"env\":\"ADMIRAL_SCHEMA_NAME\""), content="true")
   inspect(schema.contains(sentinel), content="false")
 }
+
+///|
+test "render_schema includes typed position metadata" {
+  let input = position_int("input", description="Input number", required=true)
+  let rest = position_strings("rest")
+  let app = cli(name="test", commands=[
+    command(name="collect", positionals=[input, rest]),
+  ])
+  let schema = app.render_schema()
+  inspect(schema.contains("\"positionals\""), content="true")
+  inspect(schema.contains("\"input\""), content="true")
+  inspect(schema.contains("\"type\":\"int\""), content="true")
+  inspect(schema.contains("\"multiple\":true"), content="true")
+}

@@ -5,11 +5,8 @@ import {
   "moonbitlang/core/json",
   "moonbitlang/core/string",
   "moonbitlang/x/path",
-  "totto2727/agent-cli-sdk" @agent_cli,
-  "totto2727/copy",
-  "totto2727/lens",
-}
-
-import {
-  "moonbitlang/core/test",
-} for "wbtest"
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/process",
+  "totto2727/opencode-sdk" @opencode,
+} for "test"
