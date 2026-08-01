@@ -46,6 +46,30 @@ fn Pointer::prepend_index(self : Pointer, index : Int) -> Pointer {
 }
 
 ///|
+fn Pointer::add_to_json_path(
+  self : Pointer,
+  path : @json.JsonPath,
+) -> @json.JsonPath {
+  let mut result = path
+  for segment in self.segments {
+    result = match segment {
+      Key(key) => result.add_key(key)
+      Index(index) => result.add_index(index)
+    }
+  }
+  result
+}
+
+///|
+fn Pointer::json_decode_error(
+  self : Pointer,
+  path : @json.JsonPath,
+  message : String,
+) -> @json.JsonDecodeError {
+  @json.JsonDecodeError::JsonDecodeError((self.add_to_json_path(path), message))
+}
+
+///|
 fn escape_pointer_key(key : String) -> String {
   key.replace_all(old="~", new="~0").replace_all(old="/", new="~1")
 }

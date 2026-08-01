@@ -42,6 +42,67 @@ fn assert_type_mismatch(
 }
 
 ///|
+fn root_json_path() -> @json.JsonPath raise {
+  try {
+    let _ : Bool = @json.from_json(Json::null())
+    fail("expected JsonDecodeError")
+  } catch {
+    @json.JsonDecodeError::JsonDecodeError((path, _)) => path
+    _ => fail("unexpected error")
+  }
+}
+
+///|
+test "Lens add_to_json_path - appends the lens pointer to the existing path" {
+  let path = root_json_path().add_key("request")
+  inspect(
+    @lens.object("user").string("name").add_to_json_path(path),
+    content="/request/user/name",
+  )
+}
+
+///|
+test "Lens json_decode_error - prefixes the path and preserves the message" {
+  let path = root_json_path().add_key("request")
+  let name_lens = @lens.object("user").string("name")
+  let @json.JsonDecodeError::JsonDecodeError((error_path, message)) = name_lens.json_decode_error(
+    path, "expected string",
+  )
+  inspect(error_path, content="/request/user/name")
+  inspect(message, content="expected string")
+}
+
+///|
+test "Lens get_or_json_decode_error - returns the decoded value" {
+  let document = @json.parse("{\"user\":{\"name\":\"Ada\"}}")
+  let path = root_json_path().add_key("request")
+  inspect(
+    @lens.object("user").string("name").get_or_json_decode_error(document, path),
+    content="Ada",
+  )
+}
+
+///|
+test "Lens get_or_json_decode_error - converts a lens failure" {
+  let document = @json.parse("{\"user\":{\"profile\":false}}")
+  let path = root_json_path().add_key("request")
+  try {
+    @lens.object("user")
+    .object("profile")
+    .string("name")
+    .get_or_json_decode_error(document, path)
+    |> ignore
+    fail("expected JsonDecodeError")
+  } catch {
+    @json.JsonDecodeError::JsonDecodeError((error_path, message)) => {
+      inspect(error_path, content="/request/user/profile")
+      assert_true(message.contains("TypeMismatch"))
+    }
+    _ => fail("unexpected error")
+  }
+}
+
+///|
 test "ObjectLens get - reads the selected object" {
   let document = @json.parse(
     "{\"user\":{\"name\":\"Ada\",\"metadata\":{\"role\":\"admin\"}}}",
