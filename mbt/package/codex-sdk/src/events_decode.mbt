@@ -36,60 +36,31 @@ pub impl @json.FromJson for Usage with fn from_json(json, path) {
     raise @json.JsonDecodeError((path, "usage must be an object"))
   }
   let input_tokens : Int = @json.from_json(
-    usage_input_tokens_lens.get(json) catch {
-      _ =>
-        raise @json.JsonDecodeError(
-          (path.add_key("input_tokens"), "usage is missing input_tokens"),
-        )
-    },
-    path=path.add_key("input_tokens"),
+    usage_input_tokens_lens.get_or_json_decode_error(json, path),
+    path=usage_input_tokens_lens.add_to_json_path(path),
   )
   let cached_input_tokens : Int = @json.from_json(
-    usage_cached_input_tokens_lens.get(json) catch {
-      _ =>
-        raise @json.JsonDecodeError(
-          (
-            path.add_key("cached_input_tokens"),
-            "usage is missing cached_input_tokens",
-          ),
-        )
-    },
-    path=path.add_key("cached_input_tokens"),
+    usage_cached_input_tokens_lens.get_or_json_decode_error(json, path),
+    path=usage_cached_input_tokens_lens.add_to_json_path(path),
   )
-  let cache_write_value = usage_cache_write_input_tokens_lens.get(json) catch {
-    _ =>
-      raise @json.JsonDecodeError(
-        (
-          path.add_key("cache_write_input_tokens"),
-          "usage.cache_write_input_tokens must be a number",
-        ),
-      )
-  }
+  let cache_write_value = usage_cache_write_input_tokens_lens.get_or_json_decode_error(
+    json, path,
+  )
   let cache_write_input_tokens = match cache_write_value {
     Some(value) =>
-      @json.from_json(value, path=path.add_key("cache_write_input_tokens"))
+      @json.from_json(
+        value,
+        path=usage_cache_write_input_tokens_lens.add_to_json_path(path),
+      )
     None => 0
   }
   let output_tokens : Int = @json.from_json(
-    usage_output_tokens_lens.get(json) catch {
-      _ =>
-        raise @json.JsonDecodeError(
-          (path.add_key("output_tokens"), "usage is missing output_tokens"),
-        )
-    },
-    path=path.add_key("output_tokens"),
+    usage_output_tokens_lens.get_or_json_decode_error(json, path),
+    path=usage_output_tokens_lens.add_to_json_path(path),
   )
   let reasoning_output_tokens : Int = @json.from_json(
-    usage_reasoning_output_tokens_lens.get(json) catch {
-      _ =>
-        raise @json.JsonDecodeError(
-          (
-            path.add_key("reasoning_output_tokens"),
-            "usage is missing reasoning_output_tokens",
-          ),
-        )
-    },
-    path=path.add_key("reasoning_output_tokens"),
+    usage_reasoning_output_tokens_lens.get_or_json_decode_error(json, path),
+    path=usage_reasoning_output_tokens_lens.add_to_json_path(path),
   )
   {
     input_tokens,
@@ -106,13 +77,8 @@ pub impl @json.FromJson for ThreadEvent with fn from_json(json, path) {
     raise @json.JsonDecodeError((path, "thread event must be an object"))
   }
   let event_type : String = @json.from_json(
-    thread_event_type_lens.get(json) catch {
-      _ =>
-        raise @json.JsonDecodeError(
-          (path.add_key("type"), "thread event is missing type"),
-        )
-    },
-    path=path.add_key("type"),
+    thread_event_type_lens.get_or_json_decode_error(json, path),
+    path=thread_event_type_lens.add_to_json_path(path),
   )
   match event_type {
     "thread.started" => ThreadStarted(@json.from_json(json, path~))
@@ -124,8 +90,9 @@ pub impl @json.FromJson for ThreadEvent with fn from_json(json, path) {
     "item.completed" => ItemCompleted(@json.from_json(json, path~))
     "error" => StreamError(@json.from_json(json, path~))
     _ =>
-      raise @json.JsonDecodeError(
-        (path.add_key("type"), "unsupported thread event type: \{event_type}"),
+      raise thread_event_type_lens.json_decode_error(
+        path,
+        "unsupported thread event type: \{event_type}",
       )
   }
 }
