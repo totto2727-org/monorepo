@@ -1,6 +1,6 @@
 ///|
 test "AnyRef - is shared by mutable and immutable maps" {
-  let request_id : AnyRef[String] = AnyRef::AnyRef("request_id")
+  let request_id : AnyRef[String, String] = AnyRef::AnyRef("request_id")
   let mutable = AnyMutableMap::AnyMutableMap()
   let immutable = AnyImmutableHashMap::AnyImmutableHashMap().added(
     request_id, "immutable-request",

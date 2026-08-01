@@ -1,4 +1,4 @@
 import {
+  "Yoorkin/any",
   "moonbitlang/core/immut/hashmap" @immut,
-  "tonyfettes/any",
 }

@@ -1,24 +1,29 @@
 ///|
-/// A reusable typed reference to one named value in an any collection.
+/// A reusable typed reference to one keyed value in an any collection.
 ///
 /// The same reference can be used with both `AnyMutableMap` and
 /// `AnyImmutableHashMap`.
-pub struct AnyRef[T] {
-  priv name : String
+pub struct AnyRef[K, T] {
+  key : K
   priv encode : (T) -> @any.Any
   priv decode : (@any.Any) -> T?
 }
 
 ///|
-/// Creates a typed reference for `name`.
+/// Creates a typed reference for `key`.
 ///
-/// Callers should define one shared reference per name and value type. Creating
-/// references with the same name but different value types makes mismatched
+/// Callers should define one shared reference per key and value type. Creating
+/// references with the same key but different value types makes mismatched
 /// reads return `None`.
-pub fn[T] AnyRef::AnyRef(name : String) -> AnyRef[T] {
+pub fn[K, T : @any.Anyable] AnyRef::AnyRef(key : K) -> AnyRef[K, T] {
   {
-    name,
-    encode: value => @any.of(value),
-    decode: value => value.try_to(),
+    key,
+    encode: value => @any.Any::Any(value),
+    decode: value =>
+      try {
+        Some((value.dyn_cast() : T))
+      } catch {
+        _ => None
+      },
   }
 }

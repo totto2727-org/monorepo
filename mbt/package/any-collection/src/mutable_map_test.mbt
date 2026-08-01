@@ -1,7 +1,7 @@
 ///|
 test "AnyMutableMap get - returns values through typed references" {
-  let request_id : AnyRef[String] = AnyRef::AnyRef("request_id")
-  let retry_count : AnyRef[Int] = AnyRef::AnyRef("retry_count")
+  let request_id : AnyRef[String, String] = AnyRef::AnyRef("request_id")
+  let retry_count : AnyRef[String, Int] = AnyRef::AnyRef("retry_count")
   let context = AnyMutableMap::AnyMutableMap()
   context.set(request_id, "request-1")
   context.set(retry_count, 2)
@@ -11,21 +11,21 @@ test "AnyMutableMap get - returns values through typed references" {
 
 ///|
 test "AnyMutableMap get - rejects a mismatched reference type" {
-  let count : AnyRef[Int] = AnyRef::AnyRef("value")
-  let text : AnyRef[String] = AnyRef::AnyRef("value")
+  let count : AnyRef[Int, Int] = AnyRef::AnyRef(1)
+  let text : AnyRef[Int, String] = AnyRef::AnyRef(1)
   let context = AnyMutableMap::AnyMutableMap()
   context.set(count, 2)
   debug_inspect(context.get(text), content="None")
 }
 
 ///|
-test "AnyMutableMap remove - removes the referenced value" {
-  let request_id : AnyRef[String] = AnyRef::AnyRef("request_id")
+test "AnyMutableMap map - exposes operations without typed conversion" {
+  let request_id : AnyRef[String, String] = AnyRef::AnyRef("request_id")
   let context = AnyMutableMap::AnyMutableMap()
   context.set(request_id, "request-1")
-  context.remove(request_id)
+  context.map.remove(request_id.key)
   debug_inspect(context.get(request_id), content="None")
-  inspect(context.contains(request_id), content="false")
-  inspect(context.length(), content="0")
-  inspect(context.is_empty(), content="true")
+  inspect(context.map.contains(request_id.key), content="false")
+  inspect(context.map.length(), content="0")
+  inspect(context.map.is_empty(), content="true")
 }

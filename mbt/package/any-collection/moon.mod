@@ -3,7 +3,7 @@ name = "totto2727/any-collection"
 version = "0.1.0"
 
 import {
-  "tonyfettes/any@0.1.5",
+  "Yoorkin/any@0.2.1",
 }
 
 readme = "README.mbt.md"
