@@ -8,7 +8,14 @@ repository = "https://github.com/totto2727-org/monorepo"
 
 license = "MIT"
 
-keywords = [ "agent", "graph", "runtime", "visualization", "mermaid", "moonbit" ]
+keywords = [
+  "agent",
+  "graph",
+  "runtime",
+  "visualization",
+  "mermaid",
+  "moonbit",
+]
 
 description = "Native asynchronous agent graph runtime with Mermaid visualization"
 
