@@ -64,7 +64,7 @@ pub(all) enum PatchApplyStatus {
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L34-L42
 pub(all) struct FileChangeItem {
   id : String
-  changes : Array[FileUpdateChange]
+  changes : ReadOnlyArray[FileUpdateChange]
   status : PatchApplyStatus
 } derive(Eq)
 
@@ -87,7 +87,7 @@ pub(all) enum McpToolCallStatus {
 ///|
 /// Type difference: explicit structs replace inline TypeScript object types.
 pub(all) struct McpToolCallResult {
-  content : Array[Json]
+  content : ReadOnlyArray[Json]
   meta : Json?
   structured_content : Json
 } derive(Debug, Eq)
@@ -167,7 +167,7 @@ pub(all) struct TodoItem {
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L109-L117
 pub(all) struct TodoListItem {
   id : String
-  items : Array[TodoItem]
+  items : ReadOnlyArray[TodoItem]
 } derive(Debug, Eq)
 
 ///| Canonical union of thread items and their type-specific payloads.

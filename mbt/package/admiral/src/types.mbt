@@ -58,7 +58,7 @@ pub type PositionDef[T] = ArgDef[T, PositionMetadata]
 pub struct NonEmptyArray[T] {
   first : T
   rest : ArrayView[T]
-  all : Array[T]
+  all : ReadOnlyArray[T]
 } derive(Debug)
 
 ///|
@@ -116,11 +116,35 @@ pub impl Show for ConfigLoadFailure with fn output(self, logger) {
 
 ///|
 pub(all) struct Context {
-  flags : Map[String, Bool]
-  values : Map[String, Array[String]]
-  sources : Map[String, @argparse.ValueSource]
-  config : Map[String, Json]
+  flags : @immut_hashmap.HashMap[String, Bool]
+  values : @immut_hashmap.HashMap[String, ReadOnlyArray[String]]
+  sources : @immut_hashmap.HashMap[String, @argparse.ValueSource]
+  config : @immut_hashmap.HashMap[String, Json]
   subcommand : (String, Context)?
+}
+
+///|
+pub fn Context::Context(
+  flags? : Map[String, Bool] = Map([]),
+  values? : Map[String, Array[String]] = Map([]),
+  sources? : Map[String, @argparse.ValueSource] = Map([]),
+  config? : Map[String, Json] = Map([]),
+  subcommand? : (String, Context)? = None,
+) -> Context {
+  Context::{
+    flags: @immut_hashmap.from_iter(flags.iter()),
+    values: @immut_hashmap.from_iter(
+      values
+      .iter()
+      .map(fn(entry) {
+        let (key, items) = entry
+        (key, ReadOnlyArray::from_array(items))
+      }),
+    ),
+    sources: @immut_hashmap.from_iter(sources.iter()),
+    config: @immut_hashmap.from_iter(config.iter()),
+    subcommand,
+  }
 }
 
 ///|

@@ -196,7 +196,7 @@ Config values are decoded by the matching MoonBit [`FromJson`](https://github.co
 Plural definitions such as `strings` and `ints` require a JSON array and preserve its elements.
 An active config value that cannot be decoded raises `JsonDecodeError` instead of falling back to a declared default; scalar getters use `None` for an unavailable value, while plural getters return an empty array.
 Numeric parsing failures from argv, environment variables, or declared defaults also propagate as errors instead of returning `None`.
-Required plural getters return `NonEmptyArray[T]`, exposing `first: T`, `rest: ArrayView[T]`, and `all: Array[T]`; they raise when the resolved array is empty.
+Required plural getters return `NonEmptyArray[T]`, exposing `first: T`, `rest: ArrayView[T]`, and `all: ReadOnlyArray[T]`; they raise when the resolved array is empty.
 Return `Map([])` when no configuration values are available.
 
 `ConfigLoadFailure` is the typed error for the callback.

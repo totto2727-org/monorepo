@@ -46,7 +46,7 @@ pub fn[K : Hash + Eq, T] AnyImmutableHashMap::get_or(
   reference : AnyRef[K, T],
   default : T,
 ) -> T {
-  try self.get(reference).unwrap_or(default) catch {
+  self.get(reference).unwrap_or(default) catch {
     _ => default
   }
 }
@@ -57,7 +57,7 @@ pub fn[K : Hash + Eq, T] AnyImmutableHashMap::get_or_none(
   self : AnyImmutableHashMap[K],
   reference : AnyRef[K, T],
 ) -> T? {
-  try self.get(reference) catch {
+  self.get(reference) catch {
     _ => None
   }
 }

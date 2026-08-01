@@ -445,7 +445,7 @@ async test "empty config keeps argparse required validation" {
 
 ///|
 async test "config preserves arrays while env remains a scalar string" {
-  let captured : Ref[Array[String]] = Ref([])
+  let captured : Ref[ReadOnlyArray[String]] = Ref([])
   let tags = strings("tags", env="ADMIRAL_TAGS", config="tags")
   let app = cli(
     name="test-app",
@@ -469,7 +469,7 @@ async test "config preserves arrays while env remains a scalar string" {
 
 ///|
 async test "config decodes numeric arrays" {
-  let captured : Ref[Array[Int]] = Ref([])
+  let captured : Ref[ReadOnlyArray[Int]] = Ref([])
   let retries = ints("retry", config="retries")
   let app = cli(
     name="test-app",
@@ -483,7 +483,12 @@ async test "config decodes numeric arrays" {
     ],
   )
   app.run(argv=Some(["run"]), env=Map([]))
-  debug_inspect(captured.val, content="[1, 2, 3]")
+  debug_inspect(
+    captured.val,
+    content=(
+      #|<ReadOnlyArray: [1, 2, 3]>
+    ),
+  )
 }
 
 ///|
