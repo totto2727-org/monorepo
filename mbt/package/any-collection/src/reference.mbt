@@ -25,9 +25,6 @@ pub fn[K, T : @any.Anyable] AnyRef::AnyRef(key : K) -> AnyRef[K, T] {
 
 ///|
 /// Creates a key-value entry for collection initialization.
-pub fn[K, T] AnyRef::entry(
-  self : AnyRef[K, T],
-  value : T,
-) -> (K, @any.Any) {
+pub fn[K, T] AnyRef::entry(self : AnyRef[K, T], value : T) -> (K, @any.Any) {
   (self.key, (self.encode)(value))
 }

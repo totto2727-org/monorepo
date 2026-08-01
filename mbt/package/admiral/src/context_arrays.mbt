@@ -27,11 +27,7 @@ pub fn[Metadata] Context::get_strings_required(
 ) -> NonEmptyArray[String] raise {
   let all = self.get_strings(argument)
   match all {
-    [first, ..] => {
-      first,
-      rest: all[1:],
-      all,
-    }
+    [first, ..] => { first, rest: all[1:], all }
     [] => fail("missing required argument: " + argument.name)
   }
 }
@@ -65,11 +61,7 @@ pub fn[Metadata] Context::get_ints_required(
 ) -> NonEmptyArray[Int] raise {
   let all = self.get_ints(argument)
   match all {
-    [first, ..] => {
-      first,
-      rest: all[1:],
-      all,
-    }
+    [first, ..] => { first, rest: all[1:], all }
     [] => fail("missing required argument: " + argument.name)
   }
 }
@@ -103,11 +95,7 @@ pub fn[Metadata] Context::get_int64s_required(
 ) -> NonEmptyArray[Int64] raise {
   let all = self.get_int64s(argument)
   match all {
-    [first, ..] => {
-      first,
-      rest: all[1:],
-      all,
-    }
+    [first, ..] => { first, rest: all[1:], all }
     [] => fail("missing required argument: " + argument.name)
   }
 }
@@ -141,11 +129,7 @@ pub fn[Metadata] Context::get_uints_required(
 ) -> NonEmptyArray[UInt] raise {
   let all = self.get_uints(argument)
   match all {
-    [first, ..] => {
-      first,
-      rest: all[1:],
-      all,
-    }
+    [first, ..] => { first, rest: all[1:], all }
     [] => fail("missing required argument: " + argument.name)
   }
 }
@@ -179,11 +163,7 @@ pub fn[Metadata] Context::get_uint64s_required(
 ) -> NonEmptyArray[UInt64] raise {
   let all = self.get_uint64s(argument)
   match all {
-    [first, ..] => {
-      first,
-      rest: all[1:],
-      all,
-    }
+    [first, ..] => { first, rest: all[1:], all }
     [] => fail("missing required argument: " + argument.name)
   }
 }
@@ -217,11 +197,7 @@ pub fn[Metadata] Context::get_doubles_required(
 ) -> NonEmptyArray[Double] raise {
   let all = self.get_doubles(argument)
   match all {
-    [first, ..] => {
-      first,
-      rest: all[1:],
-      all,
-    }
+    [first, ..] => { first, rest: all[1:], all }
     [] => fail("missing required argument: " + argument.name)
   }
 }

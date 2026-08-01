@@ -134,7 +134,9 @@ pub fn Context::Context(
   Context::{
     flags: @immut_hashmap.from_iter(flags.iter()),
     values: @immut_hashmap.from_iter(
-      values.iter().map(fn(entry) {
+      values
+      .iter()
+      .map(fn(entry) {
         let (key, items) = entry
         (key, ReadOnlyArray::from_array(items))
       }),

@@ -483,9 +483,12 @@ async test "config decodes numeric arrays" {
     ],
   )
   app.run(argv=Some(["run"]), env=Map([]))
-  debug_inspect(captured.val, content=(
-    #|<ReadOnlyArray: [1, 2, 3]>
-  ))
+  debug_inspect(
+    captured.val,
+    content=(
+      #|<ReadOnlyArray: [1, 2, 3]>
+    ),
+  )
 }
 
 ///|

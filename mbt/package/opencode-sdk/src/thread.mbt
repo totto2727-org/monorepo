@@ -132,10 +132,7 @@ pub async fn Thread::run(self : Thread, input : Input) -> Turn {
     }
     true
   })
-  {
-    events: ReadOnlyArray::from_array(events),
-    final_response: texts.join(""),
-  }
+  { events: ReadOnlyArray::from_array(events), final_response: texts.join("") }
 }
 
 ///|

@@ -102,14 +102,14 @@ test "Context scalar resolution 1-1 - parser values supply all getters" {
 ///|
 test "Context scalar resolution 1-2 - config values supply all getters" {
   let ctx = Context::Context(config={
-      "bool": true.to_json(),
-      "string": "1".to_json(),
-      "int": (1).to_json(),
-      "int64": 1L.to_json(),
-      "uint": 1U.to_json(),
-      "uint64": 1UL.to_json(),
-      "double": 1.0.to_json(),
-    })
+    "bool": true.to_json(),
+    "string": "1".to_json(),
+    "int": (1).to_json(),
+    "int64": 1L.to_json(),
+    "uint": 1U.to_json(),
+    "uint64": 1UL.to_json(),
+    "double": 1.0.to_json(),
+  })
   let string_value = string("value", config="string", required=true)
   let int_value = int("value", config="int", required=true)
   let int64_value = int64("value", config="int64", required=true)
@@ -224,19 +224,15 @@ test "Context scalar resolution 2-2 - config overrides parser defaults" {
   let matches = @argparse.Command("test", options=[
     @argparse.OptionArg("value", default_values=["1"]),
   ]).parse(argv=[], env=Map([]))
-  let ctx = Context::Context(
-    values=matches.values,
-    sources=matches.sources,
-    config={
-      "bool": true.to_json(),
-      "string": "2".to_json(),
-      "int": (2).to_json(),
-      "int64": 2L.to_json(),
-      "uint": 2U.to_json(),
-      "uint64": 2UL.to_json(),
-      "double": 2.0.to_json(),
-    },
-  )
+  let ctx = Context::Context(values=matches.values, sources=matches.sources, config={
+    "bool": true.to_json(),
+    "string": "2".to_json(),
+    "int": (2).to_json(),
+    "int64": 2L.to_json(),
+    "uint": 2U.to_json(),
+    "uint64": 2UL.to_json(),
+    "double": 2.0.to_json(),
+  })
   let string_value = string("value", config="string", required=true)
   let int_value = int("value", config="int", required=true)
   let int64_value = int64("value", config="int64", required=true)
@@ -295,14 +291,14 @@ test "Context scalar resolution 3-1 - invalid parser values raise" {
 ///|
 test "Context scalar resolution 3-2 - invalid config values raise" {
   let ctx = Context::Context(config={
-      "bool": "invalid".to_json(),
-      "string": true.to_json(),
-      "int": "invalid".to_json(),
-      "int64": (1).to_json(),
-      "uint": (-1).to_json(),
-      "uint64": (1).to_json(),
-      "double": "invalid".to_json(),
-    })
+    "bool": "invalid".to_json(),
+    "string": true.to_json(),
+    "int": "invalid".to_json(),
+    "int64": (1).to_json(),
+    "uint": (-1).to_json(),
+    "uint64": (1).to_json(),
+    "double": "invalid".to_json(),
+  })
   try ctx.get_bool(bool("flag", config="bool")) |> ignore catch {
     _ => ()
   } noraise {
