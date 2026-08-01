@@ -43,7 +43,7 @@ pub(all) struct Artifact {
 pub(all) struct NodeOutput[P] {
   patch : P?
   value : Json?
-  artifacts : Array[Artifact]
+  artifacts : ReadOnlyArray[Artifact]
 } derive(Debug)
 
 ///|

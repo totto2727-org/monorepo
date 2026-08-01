@@ -2,6 +2,7 @@ import {
   "totto2727/moon-agent-graph/core",
   "totto2727/moon-agent-graph/coding_agent",
   "moonbitlang/async",
+  "moonbitlang/core/immut/hashmap" @immut_hashmap,
   "moonbitlang/x/path",
 }
 

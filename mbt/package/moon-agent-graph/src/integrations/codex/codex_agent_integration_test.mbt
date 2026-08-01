@@ -107,12 +107,12 @@ fn codex_integration_context(
     },
     approval: @core.OnRequest,
     network: @core.Enabled,
-    environment: {
-      "PATH": "/usr/bin:/bin",
-      "FAKE_CODEX_RECORDS": fixture.records,
-      "FAKE_CODEX_MODE": mode,
-      "MAPPED_ENV": "present",
-    },
+    environment: @immut_hashmap.HashMap([
+      ("PATH", "/usr/bin:/bin"),
+      ("FAKE_CODEX_RECORDS", fixture.records),
+      ("FAKE_CODEX_MODE", mode),
+      ("MAPPED_ENV", "present"),
+    ]),
     events: @core.EventSink::discard(),
   }
 }

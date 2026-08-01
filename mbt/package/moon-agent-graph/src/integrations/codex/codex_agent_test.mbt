@@ -26,7 +26,7 @@ fn codex_agent_test_context(
     },
     approval: @core.OnRequest,
     network: @core.Enabled,
-    environment,
+    environment: @immut_hashmap.HashMap(environment.to_array()),
     events: @core.EventSink::discard(),
   }
 }

@@ -9,6 +9,7 @@ import {
 import {
   "moonbitlang/async/fs",
   "moonbitlang/async/process",
+  "moonbitlang/core/immut/hashmap" @immut_hashmap,
   "moonbitlang/core/string",
 } for "test"
 

@@ -1,13 +1,13 @@
 ///|
 pub(all) struct WorkspaceRef {
   root : @path.Path
-  additional_writable_roots : Array[@path.Path]
+  additional_writable_roots : ReadOnlyArray[@path.Path]
 } derive(Debug, Eq)
 
 ///|
 pub(all) struct CodingAgentRequest {
   instruction : String
-  context_files : Array[@path.Path]
+  context_files : ReadOnlyArray[@path.Path]
 } derive(Debug, Eq)
 
 ///|
@@ -22,8 +22,8 @@ pub(all) struct CodingAgentResponse {
   status : CodingAgentStatus
   summary : String?
   continuation_id : String?
-  changed_files : Array[@path.Path]
-  artifacts : Array[Artifact]
+  changed_files : ReadOnlyArray[@path.Path]
+  artifacts : ReadOnlyArray[Artifact]
   raw_output : Json?
 } derive(Debug)
 
@@ -48,7 +48,7 @@ pub(all) struct CodingAgentOpenContext {
   workspace : WorkspaceRef
   approval : ApprovalPolicy
   network : NetworkPolicy
-  environment : Map[String, String]
+  environment : @immut_hashmap.HashMap[String, String]
   events : EventSink
 }
 

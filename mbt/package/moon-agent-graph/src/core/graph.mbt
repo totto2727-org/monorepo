@@ -18,7 +18,7 @@ pub(all) suberror GraphValidationError {
 ///|
 pub(all) struct RunFailure {
   primary : Error
-  cleanup : Array[Error]
+  cleanup : ReadOnlyArray[Error]
 } derive(Debug)
 
 ///|

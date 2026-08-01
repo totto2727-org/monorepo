@@ -85,7 +85,7 @@ pub fn workflow_agent_node(
           },
           approval: @core.Never,
           network: @core.Disabled,
-          environment: Map([]),
+          environment: @immut_hashmap.new(),
           events: context.events,
         }
       },

@@ -100,7 +100,7 @@ pub(all) struct Node[S, P] {
 pub(all) struct NodeOutput[P] {
   patch : P?
   value : Json?
-  artifacts : Array[Artifact]
+  artifacts : ReadOnlyArray[Artifact]
 }
 ```
 
@@ -418,7 +418,7 @@ let session = open()
 ```moonbit
 pub(all) struct RunFailure {
   primary : Error
-  cleanup : Array[Error]
+  cleanup : ReadOnlyArray[Error]
 } derive(Debug)
 
 pub(all) suberror GraphRuntimeError {

@@ -94,7 +94,7 @@ pub(all) struct Artifact {
 pub(all) struct NodeOutput[P] {
   patch : P?
   value : Json?
-  artifacts : Array[Artifact]
+  artifacts : ReadOnlyArray[Artifact]
 } derive(Debug)
 ```
 
@@ -425,7 +425,7 @@ The cancellation error is re-raised after cleanup and best-effort event emission
 ```moonbit
 pub(all) struct RunFailure {
   primary : Error
-  cleanup : Array[Error]
+  cleanup : ReadOnlyArray[Error]
 } derive(Debug)
 
 pub(all) suberror GraphRuntimeError {
@@ -500,12 +500,12 @@ Structured-output nodes may use a different request/response pair when MoonLLM's
 ```moonbit
 pub(all) struct WorkspaceRef {
   root : @path.Path
-  additional_writable_roots : Array[@path.Path]
+  additional_writable_roots : ReadOnlyArray[@path.Path]
 } derive(Debug, Eq)
 
 pub(all) struct CodingAgentRequest {
   instruction : String
-  context_files : Array[@path.Path]
+  context_files : ReadOnlyArray[@path.Path]
 } derive(Debug, Eq)
 
 pub(all) enum CodingAgentStatus {
@@ -518,8 +518,8 @@ pub(all) struct CodingAgentResponse {
   status : CodingAgentStatus
   summary : String?
   continuation_id : String?
-  changed_files : Array[@path.Path]
-  artifacts : Array[Artifact]
+  changed_files : ReadOnlyArray[@path.Path]
+  artifacts : ReadOnlyArray[Artifact]
   raw_output : Json?
 } derive(Debug)
 ```
@@ -549,7 +549,7 @@ pub(all) struct CodingAgentOpenContext {
   workspace : WorkspaceRef
   approval : ApprovalPolicy
   network : NetworkPolicy
-  environment : Map[String, String]
+  environment : @immut_hashmap.HashMap[String, String]
   events : EventSink
 } derive(Debug)
 ```
@@ -621,7 +621,7 @@ pub(all) suberror ResourceStoreError {
   NodeOwnerRequired(ResourceKey)
   InvalidCleanupTimeout(Int)
   CleanupTimedOut(Int)
-  CloseFailed(errors~ : Array[Error])
+  CloseFailed(errors~ : ReadOnlyArray[Error])
 } derive(Debug)
 ```
 

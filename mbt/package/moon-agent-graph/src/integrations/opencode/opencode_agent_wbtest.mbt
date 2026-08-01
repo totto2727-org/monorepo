@@ -14,7 +14,7 @@ fn opencode_test_context(
     },
     approval: @core.Never,
     network: @core.Disabled,
-    environment,
+    environment: @immut_hashmap.HashMap(environment.to_array()),
     events: @core.EventSink::discard(),
   }
 }

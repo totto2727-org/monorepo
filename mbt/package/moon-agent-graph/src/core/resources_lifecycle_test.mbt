@@ -151,7 +151,7 @@ async test "RuntimeResourceStore lifecycle 3 - aggregates one close error after 
       let rendered = @debug.to_string(error)
       inspect(
         rendered.contains(
-          "CloseFailed(errors=[LifecycleCloseFailed(\"close-detail\")])",
+          "CloseFailed(errors=<ReadOnlyArray: [LifecycleCloseFailed(\"close-detail\")]>)",
         ),
         content="true",
       )

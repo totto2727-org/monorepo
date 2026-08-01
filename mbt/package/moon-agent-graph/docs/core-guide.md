@@ -100,7 +100,7 @@ The node receives a read-only value of the current state and returns data descri
 pub(all) struct NodeOutput[P] {
   patch : P?
   value : Json?
-  artifacts : Array[Artifact]
+  artifacts : ReadOnlyArray[Artifact]
 }
 ```
 
@@ -418,7 +418,7 @@ Discarding either failure would make diagnosis incomplete, so the runtime retain
 ```moonbit
 pub(all) struct RunFailure {
   primary : Error
-  cleanup : Array[Error]
+  cleanup : ReadOnlyArray[Error]
 } derive(Debug)
 
 pub(all) suberror GraphRuntimeError {

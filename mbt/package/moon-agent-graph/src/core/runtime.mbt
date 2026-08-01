@@ -17,7 +17,7 @@ fn attach_cleanup(primary : Error, cleanup : Error) -> Error {
     ResourceCleanupFailed(failure~) =>
       ResourceCleanupFailed(failure=RunFailure::{
         primary: failure.primary,
-        cleanup: [..failure.cleanup, cleanup],
+        cleanup: ReadOnlyArray::from_array([..failure.cleanup, cleanup]),
       })
     _ =>
       ResourceCleanupFailed(failure=RunFailure::{ primary, cleanup: [cleanup] })
@@ -124,7 +124,7 @@ async fn[S, P] run_sequential(
     let completion = NodeCompletion::{
       node_id: current,
       value: output.value,
-      artifacts: ReadOnlyArray::from_array([..output.artifacts]),
+      artifacts: output.artifacts,
     }
     runtime.events.try_emit(
       NodeCompleted(run_id~, node_id=current, step=steps, completion~),

@@ -79,7 +79,7 @@ fn w6_open_context(
     },
     approval: @core.Never,
     network: @core.Disabled,
-    environment: Map([]),
+    environment: @immut_hashmap.new(),
     events: context.events,
   }
 }
