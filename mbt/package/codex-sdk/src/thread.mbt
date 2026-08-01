@@ -109,7 +109,7 @@ pub async fn Thread::run_streamed(
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L70-L114
 
 ///|
-/// Async type difference: event delivery uses a callback returning whether iteration should continue; explicit JSON decoding is isolated behind a moonbit_internal_ function.
+/// Async type difference: event delivery uses a callback returning whether iteration should continue; event JSON is decoded through the standard FromJson implementation.
 async fn Thread::run_streamed_internal(
   self : Thread,
   input : Input,
