@@ -20,10 +20,10 @@ async test "OpenCodeExec run 1 - reports nonzero exits" {
     environment["FAKE_OPENCODE_STDERR"] = "cli failed"
     environment["FAKE_OPENCODE_EXIT_CODE"] = "17"
     let message = try {
-      fixture.client(environment).start_thread().run(Prompt("fail")) |> ignore
+      fixture.client(environment).start_thread().run(@opencode.Prompt("fail")) |> ignore
       "no error"
     } catch {
-      ExecFailed(code~, stderr~) => "\{code}:\{stderr}"
+      @opencode.OpenCodeSdkError::ExecFailed(code~, stderr~) => "\{code}:\{stderr}"
       error => "unexpected: \{error}"
     }
     inspect(message, content="17:cli failed")
@@ -37,11 +37,11 @@ async test "OpenCodeExec run 2 - rejects malformed JSONL" {
       fixture
       .client(fixture.environment(["{not-json"]))
       .start_thread()
-      .run(Prompt("malformed"))
+      .run(@opencode.Prompt("malformed"))
       |> ignore
       "no error"
     } catch {
-      InvalidEvent(message~) => message
+      @opencode.OpenCodeSdkError::InvalidEvent(message~) => message
       error => "unexpected: \{error}"
     }
     assert_true(message.has_prefix("Failed to parse OpenCode event: {not-json"))
@@ -56,11 +56,11 @@ async test "OpenCodeExec run 3 - raises a turn failure from an error event" {
       fixture
       .client(fixture.environment([events]))
       .start_thread()
-      .run(Prompt("error"))
+      .run(@opencode.Prompt("error"))
       |> ignore
       "no error"
     } catch {
-      TurnFailed(message~) => message
+      @opencode.OpenCodeSdkError::TurnFailed(message~) => message
       error => "unexpected: \{error}"
     }
     inspect(message, content="provider failed")
@@ -75,7 +75,7 @@ async test "OpenCodeExec run 4 - stops the child when cancelled" {
     let thread = fixture.client(environment).start_thread()
     @async.with_task_group(async fn(group) {
       let task = group.spawn(
-        async fn() { thread.run(Prompt("pause")) |> ignore },
+        async fn() { thread.run(@opencode.Prompt("pause")) |> ignore },
         allow_failure=true,
       )
       let pid_path = "\{fixture.record_directory}/pid.1"
