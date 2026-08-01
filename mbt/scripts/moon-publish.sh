@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+moon update
+
 publish_log="$(mktemp)"
 trap 'rm -f "$publish_log"' EXIT
 
