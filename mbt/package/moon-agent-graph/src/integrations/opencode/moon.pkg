@@ -13,4 +13,8 @@ import {
   "moonbitlang/core/string",
 } for "test"
 
+import {
+  "moonbitlang/core/immut/hashmap" @immut_hashmap,
+} for "wbtest"
+
 supported_targets = "native"

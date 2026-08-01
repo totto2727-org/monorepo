@@ -4,6 +4,8 @@ An explicit copy trait for MoonBit values.
 
 MoonBit does not move values when they are passed to a function, so this package is not a marker for Rust-style move semantics. `Copy::copy` instead creates an independent logical copy. Composite implementations recursively copy their contents, while immutable storage may be shared when it cannot expose mutation.
 
+`Copy` has no blanket or default implementation. Every custom type must explicitly define how its independent logical copy is constructed so mutable fields and collections cannot be shared accidentally.
+
 ## Generic copying
 
 Use a `Copy` bound when an operation must produce a logically independent value:
