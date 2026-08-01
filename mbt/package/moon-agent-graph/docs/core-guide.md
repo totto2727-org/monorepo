@@ -199,8 +199,8 @@ pub fn[S, P] GraphDefinition::compile(
 ) -> CompiledGraph[S, P] raise GraphValidationError {
   let entry = self.entry.unwrap_or_error(MissingEntry)
   validate_graph(self.nodes, self.routers, entry)
-  let nodes = self.nodes.map((_id, value) => copy_node(value))
-  let routers = self.routers.map((_source, value) => copy_router(value))
+  let nodes = self.nodes.map((_id, value) => @copy.Copy::copy(value))
+  let routers = self.routers.map((_source, value) => @copy.Copy::copy(value))
   CompiledGraph::{ reducer: self.reducer, nodes, routers, entry }
 }
 ```
