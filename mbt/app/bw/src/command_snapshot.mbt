@@ -70,6 +70,48 @@ struct SnapshotBody {
 }
 
 ///|
+struct SnapshotResponseResult {
+  content : String?
+  screenshot : String?
+}
+
+///|
+impl FromJson for SnapshotResponseResult with fn from_json(json, _path) {
+  let content = @lens.root().string("content").optional().get(json) catch {
+      _ => None
+    }
+  let screenshot = @lens.root().string("screenshot").optional().get(json) catch {
+      _ => None
+    }
+  { content, screenshot }
+}
+
+///|
+struct SnapshotResponse {
+  success : Bool
+  result : SnapshotResponseResult?
+}
+
+///|
+impl FromJson for SnapshotResponse with fn from_json(json, _path) {
+  let success_value = @lens.root().bool("success").optional().get(json) catch {
+      _ => None
+    }
+  let success = match success_value {
+    Some(value) => value
+    None => false
+  }
+  let result_value = @lens.root().json("result").optional().get(json) catch {
+      _ => None
+    }
+  let result = match result_value {
+    Some(value) => Some((@json.from_json(value) : SnapshotResponseResult))
+    None => None
+  }
+  { success, result }
+}
+
+///|
 impl ToJson for SnapshotGotoOptions with fn to_json(self) -> Json {
   Json::object({ "waitUntil": self.waitUntil.to_json() })
 }
@@ -176,21 +218,44 @@ fn SnapshotBody::from_options(
 
 ///|
 fn snapshot_result(data : &@io.Data) -> (String, Bytes) raise {
-  let parsed = @json.parse(data.text()) catch {
+  let document = @json.parse(data.text()) catch {
     error => fail("Invalid snapshot response JSON: \{error}")
   }
-  let success = @lens.root().bool("success").get(parsed) catch { _ => false }
-  guard success else { fail("Invalid snapshot response") }
-  let content = @lens.object("result").string("content").get(parsed) catch {
-      _ => fail("Invalid snapshot response: missing content or screenshot")
-    }
-  let screenshot = @lens.object("result").string("screenshot").get(parsed) catch {
-      _ => fail("Invalid snapshot response: missing content or screenshot")
-    }
+  let response : SnapshotResponse = @json.from_json(document) catch {
+    _ => fail("Invalid snapshot response")
+  }
+  guard response.success else { fail("Invalid snapshot response") }
+  let result = match response.result {
+    Some(value) => value
+    None => fail("Invalid snapshot response: missing content or screenshot")
+  }
+  let content = match result.content {
+    Some(value) => value
+    None => fail("Invalid snapshot response: missing content or screenshot")
+  }
+  let screenshot = match result.screenshot {
+    Some(value) => value
+    None => fail("Invalid snapshot response: missing content or screenshot")
+  }
   let screenshot_bytes = @base64.std_decode2bytes(screenshot) catch {
     error => fail("Invalid snapshot screenshot data: \{error}")
   }
   (content, screenshot_bytes)
+}
+
+///|
+test "SnapshotResponse FromJson - decodes content and screenshot" {
+  let response : SnapshotResponse = @json.from_json(
+    @json.parse(
+      "{\"success\":true,\"result\":{\"content\":\"<html />\",\"screenshot\":\"aGVsbG8=\"}}",
+    ),
+  )
+  inspect(response.success, content="true")
+  debug_inspect(response.result.unwrap().content, content="Some(\"<html />\")")
+  debug_inspect(
+    response.result.unwrap().screenshot,
+    content="Some(\"aGVsbG8=\")",
+  )
 }
 
 ///|

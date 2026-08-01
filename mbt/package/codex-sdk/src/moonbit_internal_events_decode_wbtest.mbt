@@ -1,11 +1,11 @@
-// MoonBit-only tests for the explicit event decoder required by the language type system.
+// MoonBit-only tests for the standard FromJson implementations required by the language type system.
 // Corresponding upstream parse/cast: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L96-L109
 // Event shapes under test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/events.ts#L5-L84
 // This file is intentionally prefixed moonbit_internal_ because upstream relies on a TypeScript cast and has no decoder test module.
 
 ///|
 fn moonbit_internal_decode_event(source : String) -> ThreadEvent raise {
-  moonbit_internal_thread_event_from_json(@json.parse(source))
+  @json.from_json(@json.parse(source))
 }
 
 ///|
@@ -14,7 +14,7 @@ fn moonbit_internal_event_decode_error(source : String) -> String {
     moonbit_internal_decode_event(source) |> ignore
     "no error"
   } catch {
-    CodexSdkError::InvalidEvent(message~) => message
+    @json.JsonDecodeError((_, message)) => message
     error => "unexpected:\{error}"
   }
 }

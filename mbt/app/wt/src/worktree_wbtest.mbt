@@ -49,6 +49,13 @@ test "parse_pr_json - reads the first GitHub pull request" {
 }
 
 ///|
+test "GitHubPrWireEntry FromJson - tolerates absent GitHub fields" {
+  let entry : GitHubPrWireEntry = @json.from_json(@json.parse("{}"))
+  debug_inspect(entry.number, content="None")
+  debug_inspect(entry.state, content="None")
+}
+
+///|
 async test "fetch_repo_worktrees resolves a nested repository path" {
   let root = @fs.tmpdir(prefix="wt-fetch-repo-worktrees-")
   let nested = "\{root}/some/nested/directory"

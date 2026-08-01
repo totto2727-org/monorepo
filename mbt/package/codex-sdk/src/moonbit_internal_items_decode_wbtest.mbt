@@ -5,7 +5,8 @@
 
 ///|
 fn moonbit_internal_decode_item(source : String) -> ThreadItem raise {
-  moonbit_internal_thread_item_from_json(@json.parse(source))
+  let item : ThreadItem = @json.from_json(@json.parse(source))
+  item
 }
 
 ///|
@@ -14,7 +15,7 @@ fn moonbit_internal_item_decode_error(source : String) -> String {
     moonbit_internal_decode_item(source) |> ignore
     "no error"
   } catch {
-    CodexSdkError::InvalidEvent(message~) => message
+    @json.JsonDecodeError((_, message)) => message
     error => "unexpected:\{error}"
   }
 }

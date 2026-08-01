@@ -1,207 +1,265 @@
-// MoonBit-only implementation of the explicit item decoding required by the language type system.
+// MoonBit-only FromJson implementations required because TypeScript casts parsed JSON to ThreadItem.
 // Corresponding upstream cast: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L96-L103
 // Item shapes being decoded: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L5-L128
 // This file is intentionally prefixed moonbit_internal_ because no equivalent decoder module exists upstream.
 
 ///|
-fn moonbit_internal_command_execution_status_from_string(
-  value : String,
-) -> CommandExecutionStatus raise CodexSdkError {
+pub impl @json.FromJson for CommandExecutionStatus with fn from_json(json, path) {
+  let value : String = @json.from_json(json, path~)
   match value {
     "in_progress" => InProgress
     "completed" => Completed
     "failed" => Failed
     _ =>
-      raise InvalidEvent(
-        message="unsupported command execution status: \{value}",
+      moonbit_internal_decode_error(
+        path,
+        "unsupported command execution status: \{value}",
       )
   }
 }
 
 ///|
-fn moonbit_internal_patch_change_kind_from_string(
-  value : String,
-) -> PatchChangeKind raise CodexSdkError {
+pub impl @json.FromJson for PatchChangeKind with fn from_json(json, path) {
+  let value : String = @json.from_json(json, path~)
   match value {
     "add" => Add
     "delete" => Delete
     "update" => Update
-    _ => raise InvalidEvent(message="unsupported patch change kind: \{value}")
+    _ =>
+      moonbit_internal_decode_error(
+        path,
+        "unsupported patch change kind: \{value}",
+      )
   }
 }
 
 ///|
-fn moonbit_internal_patch_apply_status_from_string(
-  value : String,
-) -> PatchApplyStatus raise CodexSdkError {
+pub impl @json.FromJson for PatchApplyStatus with fn from_json(json, path) {
+  let value : String = @json.from_json(json, path~)
   match value {
     "completed" => PatchCompleted
     "failed" => PatchFailed
-    _ => raise InvalidEvent(message="unsupported patch apply status: \{value}")
+    _ =>
+      moonbit_internal_decode_error(
+        path,
+        "unsupported patch apply status: \{value}",
+      )
   }
 }
 
 ///|
-fn moonbit_internal_mcp_tool_call_status_from_string(
-  value : String,
-) -> McpToolCallStatus raise CodexSdkError {
+pub impl @json.FromJson for McpToolCallStatus with fn from_json(json, path) {
+  let value : String = @json.from_json(json, path~)
   match value {
     "in_progress" => McpInProgress
     "completed" => McpCompleted
     "failed" => McpFailed
     _ =>
-      raise InvalidEvent(message="unsupported MCP tool call status: \{value}")
+      moonbit_internal_decode_error(
+        path,
+        "unsupported MCP tool call status: \{value}",
+      )
   }
 }
 
 ///|
-fn moonbit_internal_file_update_change_from_json(
-  json : Json,
-) -> FileUpdateChange raise CodexSdkError {
-  let object = moonbit_internal_json_object(json, "file update")
+pub impl @json.FromJson for FileUpdateChange with fn from_json(json, path) {
+  let object = moonbit_internal_json_object(json, path, "file update")
   {
     path: @path.Path(
-      moonbit_internal_required_string(object, "path", "file update"),
+      moonbit_internal_required_string(object, "path", path, "file update"),
     ),
-    kind: moonbit_internal_patch_change_kind_from_string(
-      moonbit_internal_required_string(object, "kind", "file update"),
+    kind: @json.from_json(
+      moonbit_internal_required_json(object, "kind", path, "file update"),
+      path=path.add_key("kind"),
     ),
   }
 }
 
 ///|
-fn moonbit_internal_todo_item_from_json(
-  json : Json,
-) -> TodoItem raise CodexSdkError {
-  let object = moonbit_internal_json_object(json, "todo item")
+pub impl @json.FromJson for TodoItem with fn from_json(json, path) {
+  let object = moonbit_internal_json_object(json, path, "todo item")
   {
-    text: moonbit_internal_required_string(object, "text", "todo item"),
-    completed: moonbit_internal_required_bool(object, "completed", "todo item"),
+    text: moonbit_internal_required_string(object, "text", path, "todo item"),
+    completed: moonbit_internal_required_bool(
+      object, "completed", path, "todo item",
+    ),
   }
 }
 
 ///|
-fn moonbit_internal_mcp_tool_call_result_from_json(
-  json : Json,
-) -> McpToolCallResult raise CodexSdkError {
-  let object = moonbit_internal_json_object(json, "MCP tool result")
+pub impl @json.FromJson for McpToolCallResult with fn from_json(json, path) {
+  let object = moonbit_internal_json_object(json, path, "MCP tool result")
   {
     content: ReadOnlyArray::from_array(
-      moonbit_internal_required_array(object, "content", "MCP tool result"),
+      moonbit_internal_required_array(
+        object, "content", path, "MCP tool result",
+      ),
     ),
     meta: moonbit_internal_optional_json(object, "_meta"),
     structured_content: moonbit_internal_required_json(
-      object, "structured_content", "MCP tool result",
+      object, "structured_content", path, "MCP tool result",
     ),
   }
 }
 
 ///|
-fn moonbit_internal_mcp_tool_call_error_from_json(
-  json : Json,
-) -> McpToolCallError raise CodexSdkError {
-  let object = moonbit_internal_json_object(json, "MCP tool error")
+pub impl @json.FromJson for McpToolCallError with fn from_json(json, path) {
+  let object = moonbit_internal_json_object(json, path, "MCP tool error")
   {
     message: moonbit_internal_required_string(
-      object, "message", "MCP tool error",
+      object, "message", path, "MCP tool error",
     ),
   }
 }
 
 ///|
-fn moonbit_internal_thread_item_from_object(
-  object : Map[String, Json],
-) -> ThreadItem raise CodexSdkError {
-  let item_type = moonbit_internal_required_string(
-    object, "type", "thread item",
-  )
-  let id = moonbit_internal_required_string(object, "id", item_type)
-  match item_type {
-    "agent_message" =>
-      AgentMessage({
-        id,
-        text: moonbit_internal_required_string(object, "text", item_type),
-      })
-    "reasoning" =>
-      Reasoning({
-        id,
-        text: moonbit_internal_required_string(object, "text", item_type),
-      })
-    "command_execution" =>
-      CommandExecution({
-        id,
-        command: moonbit_internal_required_string(object, "command", item_type),
-        aggregated_output: moonbit_internal_required_string(
-          object, "aggregated_output", item_type,
-        ),
-        exit_code: moonbit_internal_optional_int(object, "exit_code", item_type),
-        status: moonbit_internal_command_execution_status_from_string(
-          moonbit_internal_required_string(object, "status", item_type),
-        ),
-      })
-    "file_change" =>
-      FileChange({
-        id,
-        changes: ReadOnlyArray::from_array(
-          moonbit_internal_required_array(object, "changes", item_type).map(
-            moonbit_internal_file_update_change_from_json,
-          ),
-        ),
-        status: moonbit_internal_patch_apply_status_from_string(
-          moonbit_internal_required_string(object, "status", item_type),
-        ),
-      })
-    "mcp_tool_call" =>
-      McpToolCall({
-        id,
-        server: moonbit_internal_required_string(object, "server", item_type),
-        tool: moonbit_internal_required_string(object, "tool", item_type),
-        arguments: moonbit_internal_required_json(
-          object, "arguments", item_type,
-        ),
-        result: match moonbit_internal_optional_json(object, "result") {
-          Some(value) =>
-            Some(moonbit_internal_mcp_tool_call_result_from_json(value))
-          None => None
-        },
-        error: match moonbit_internal_optional_json(object, "error") {
-          Some(value) =>
-            Some(moonbit_internal_mcp_tool_call_error_from_json(value))
-          None => None
-        },
-        status: moonbit_internal_mcp_tool_call_status_from_string(
-          moonbit_internal_required_string(object, "status", item_type),
-        ),
-      })
-    "web_search" =>
-      WebSearch({
-        id,
-        query: moonbit_internal_required_string(object, "query", item_type),
-      })
-    "todo_list" =>
-      TodoList({
-        id,
-        items: ReadOnlyArray::from_array(
-          moonbit_internal_required_array(object, "items", item_type).map(
-            moonbit_internal_todo_item_from_json,
-          ),
-        ),
-      })
-    "error" =>
-      Error({
-        id,
-        message: moonbit_internal_required_string(object, "message", item_type),
-      })
-    _ =>
-      raise InvalidEvent(message="unsupported thread item type: \{item_type}")
+pub impl @json.FromJson for AgentMessageItem with fn from_json(json, path) {
+  let object = moonbit_internal_json_object(json, path, "agent_message")
+  {
+    id: moonbit_internal_required_string(object, "id", path, "agent_message"),
+    text: moonbit_internal_required_string(
+      object, "text", path, "agent_message",
+    ),
   }
 }
 
 ///|
-fn moonbit_internal_thread_item_from_json(
-  json : Json,
-) -> ThreadItem raise CodexSdkError {
-  moonbit_internal_thread_item_from_object(
-    moonbit_internal_json_object(json, "thread item"),
+pub impl @json.FromJson for ReasoningItem with fn from_json(json, path) {
+  let object = moonbit_internal_json_object(json, path, "reasoning")
+  {
+    id: moonbit_internal_required_string(object, "id", path, "reasoning"),
+    text: moonbit_internal_required_string(object, "text", path, "reasoning"),
+  }
+}
+
+///|
+pub impl @json.FromJson for CommandExecutionItem with fn from_json(json, path) {
+  let object = moonbit_internal_json_object(json, path, "command_execution")
+  {
+    id: moonbit_internal_required_string(
+      object, "id", path, "command_execution",
+    ),
+    command: moonbit_internal_required_string(
+      object, "command", path, "command_execution",
+    ),
+    aggregated_output: moonbit_internal_required_string(
+      object, "aggregated_output", path, "command_execution",
+    ),
+    exit_code: moonbit_internal_optional_int(
+      object, "exit_code", path, "command_execution",
+    ),
+    status: @json.from_json(
+      moonbit_internal_required_json(
+        object, "status", path, "command_execution",
+      ),
+      path=path.add_key("status"),
+    ),
+  }
+}
+
+///|
+pub impl @json.FromJson for FileChangeItem with fn from_json(json, path) {
+  let object = moonbit_internal_json_object(json, path, "file_change")
+  let changes = moonbit_internal_required_array(
+    object, "changes", path, "file_change",
   )
+  {
+    id: moonbit_internal_required_string(object, "id", path, "file_change"),
+    changes: ReadOnlyArray::from_array(
+      changes.mapi((index, value) => {
+        @json.from_json(value, path=path.add_key("changes").add_index(index))
+      }),
+    ),
+    status: @json.from_json(
+      moonbit_internal_required_json(object, "status", path, "file_change"),
+      path=path.add_key("status"),
+    ),
+  }
+}
+
+///|
+pub impl @json.FromJson for McpToolCallItem with fn from_json(json, path) {
+  let object = moonbit_internal_json_object(json, path, "mcp_tool_call")
+  {
+    id: moonbit_internal_required_string(object, "id", path, "mcp_tool_call"),
+    server: moonbit_internal_required_string(
+      object, "server", path, "mcp_tool_call",
+    ),
+    tool: moonbit_internal_required_string(
+      object, "tool", path, "mcp_tool_call",
+    ),
+    arguments: moonbit_internal_required_json(
+      object, "arguments", path, "mcp_tool_call",
+    ),
+    result: match moonbit_internal_optional_json(object, "result") {
+      Some(value) => Some(@json.from_json(value, path=path.add_key("result")))
+      None => None
+    },
+    error: match moonbit_internal_optional_json(object, "error") {
+      Some(value) => Some(@json.from_json(value, path=path.add_key("error")))
+      None => None
+    },
+    status: @json.from_json(
+      moonbit_internal_required_json(object, "status", path, "mcp_tool_call"),
+      path=path.add_key("status"),
+    ),
+  }
+}
+
+///|
+pub impl @json.FromJson for WebSearchItem with fn from_json(json, path) {
+  let object = moonbit_internal_json_object(json, path, "web_search")
+  {
+    id: moonbit_internal_required_string(object, "id", path, "web_search"),
+    query: moonbit_internal_required_string(object, "query", path, "web_search"),
+  }
+}
+
+///|
+pub impl @json.FromJson for TodoListItem with fn from_json(json, path) {
+  let object = moonbit_internal_json_object(json, path, "todo_list")
+  let items = moonbit_internal_required_array(
+    object, "items", path, "todo_list",
+  )
+  {
+    id: moonbit_internal_required_string(object, "id", path, "todo_list"),
+    items: ReadOnlyArray::from_array(
+      items.mapi((index, value) => {
+        @json.from_json(value, path=path.add_key("items").add_index(index))
+      }),
+    ),
+  }
+}
+
+///|
+pub impl @json.FromJson for ErrorItem with fn from_json(json, path) {
+  let object = moonbit_internal_json_object(json, path, "error")
+  {
+    id: moonbit_internal_required_string(object, "id", path, "error"),
+    message: moonbit_internal_required_string(object, "message", path, "error"),
+  }
+}
+
+///|
+pub impl @json.FromJson for ThreadItem with fn from_json(json, path) {
+  let object = moonbit_internal_json_object(json, path, "thread item")
+  let item_type = moonbit_internal_required_string(
+    object, "type", path, "thread item",
+  )
+  match item_type {
+    "agent_message" => AgentMessage(@json.from_json(json, path~))
+    "reasoning" => Reasoning(@json.from_json(json, path~))
+    "command_execution" => CommandExecution(@json.from_json(json, path~))
+    "file_change" => FileChange(@json.from_json(json, path~))
+    "mcp_tool_call" => McpToolCall(@json.from_json(json, path~))
+    "web_search" => WebSearch(@json.from_json(json, path~))
+    "todo_list" => TodoList(@json.from_json(json, path~))
+    "error" => Error(@json.from_json(json, path~))
+    _ =>
+      moonbit_internal_decode_error(
+        path.add_key("type"),
+        "unsupported thread item type: \{item_type}",
+      )
+  }
 }

@@ -90,10 +90,10 @@ async fn Thread::run_streamed_internal(
         thinking: options.thinking,
       },
       async fn(line) {
-        let event = moonbit_internal_thread_event_from_json(line.value) catch {
-          error =>
+        let event : ThreadEvent = @json.from_json(line.value) catch {
+          @json.JsonDecodeError((_, message)) =>
             raise InvalidEvent(
-              message="Failed to parse OpenCode event: \{line.raw}; cause: \{@debug.to_string(error)}",
+              message="Failed to parse OpenCode event: \{line.raw}; cause: \{message}",
             )
         }
         if self.id_value is None && event.session_id() is Some(session_id) {
