@@ -3,6 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "publish": "moon publish"
+    "publish": "bash ../../scripts/moon-publish.sh"
   }
 }

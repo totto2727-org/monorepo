@@ -2,6 +2,6 @@
   "name": "@totto2727/geo-mbt",
   "version": "0.0.0",
   "scripts": {
-    "publish": "moon publish"
+    "publish": "bash ../../scripts/moon-publish.sh"
   }
 }

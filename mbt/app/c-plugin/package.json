@@ -2,7 +2,7 @@
   "name": "@totto2727/c-plugin",
   "private": true,
   "scripts": {
-    "publish": "moon publish"
+    "publish": "bash ../../scripts/moon-publish.sh"
   },
   "devDependencies": {
     "@totto2727/admiral": "workspace:*",
