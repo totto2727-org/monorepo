@@ -20,10 +20,12 @@ async test "OpenCodeExec run 1 - reports nonzero exits" {
     environment["FAKE_OPENCODE_STDERR"] = "cli failed"
     environment["FAKE_OPENCODE_EXIT_CODE"] = "17"
     let message = try {
-      fixture.client(environment).start_thread().run(@opencode.Prompt("fail")) |> ignore
+      fixture.client(environment).start_thread().run(@opencode.Prompt("fail"))
+      |> ignore
       "no error"
     } catch {
-      @opencode.OpenCodeSdkError::ExecFailed(code~, stderr~) => "\{code}:\{stderr}"
+      @opencode.OpenCodeSdkError::ExecFailed(code~, stderr~) =>
+        "\{code}:\{stderr}"
       error => "unexpected: \{error}"
     }
     inspect(message, content="17:cli failed")
