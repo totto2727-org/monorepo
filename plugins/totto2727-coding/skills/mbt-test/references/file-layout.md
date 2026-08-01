@@ -4,13 +4,15 @@
 
 ## Unit tests
 
-A unit-test file under `src/**` must correspond to exactly one implementation file in the same directory. For an implementation named `src/**/foo.mbt`, use `src/**/foo_test.mbt` for black-box tests or `src/**/foo_wbtest.mbt` for white-box tests.
+A unit-test file under `src/**` must correspond to exactly one implementation file in the same directory, except for the benchmark-file exception below. For an implementation named `src/**/foo.mbt`, use `src/**/foo_test.mbt` for black-box tests or `src/**/foo_wbtest.mbt` for white-box tests.
 
 Choose `_test.mbt` when the test needs only the implementation's public contract. Choose `_wbtest.mbt` only when the test must access package-private declarations. The visibility suffix does not change the implementation-aligned stem.
 
-Do not insert a scenario, suite, lifecycle, benchmark, or other qualifier between the implementation stem and the test suffix. Names such as `foo_integration_test.mbt`, `foo_lifecycle_test.mbt`, `foo_bench_test.mbt`, and `test_fixture_wbtest.mbt` are not allowed under `src/**`.
+Do not insert a scenario, suite, lifecycle, or other qualifier between the implementation stem and the test suffix. Names such as `foo_integration_test.mbt`, `foo_lifecycle_test.mbt`, and `test_fixture_wbtest.mbt` are not allowed under `src/**`.
 
-Keep `bench` blocks in the corresponding `foo_test.mbt` or `foo_wbtest.mbt`; run them with `moon bench` without changing the implementation-aligned file stem.
+## Benchmark-file exception
+
+Leave benchmark test files matching `*_bench_*test.mbt` unchanged. They are exempt from the implementation-aligned stem rule and may contain `bench` blocks that run with `moon bench`.
 
 ## Integration tests
 
