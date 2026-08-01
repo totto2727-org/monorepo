@@ -10,12 +10,24 @@ test "AnyMutableMap get - returns values through typed references" {
 }
 
 ///|
-test "AnyMutableMap get - rejects a mismatched reference type" {
+test "AnyMutableMap get variants - handle conversion errors explicitly" {
   let count : AnyRef[Int, Int] = AnyRef::AnyRef(1)
   let text : AnyRef[Int, String] = AnyRef::AnyRef(1)
+  let missing : AnyRef[Int, String] = AnyRef::AnyRef(2)
   let context = AnyMutableMap::AnyMutableMap()
   context.set(count, 2)
-  debug_inspect(context.get(text), content="None")
+  let mismatch_raised = try {
+    context.get(text) |> ignore
+    false
+  } catch {
+    Failure::Failure(_) => true
+    _ => false
+  }
+  inspect(mismatch_raised, content="true")
+  inspect(context.get_or(text, "fallback"), content="fallback")
+  inspect(context.get_or(missing, "fallback"), content="fallback")
+  debug_inspect(context.get_or_none(text), content="None")
+  debug_inspect(context.get_or_none(missing), content="None")
 }
 
 ///|

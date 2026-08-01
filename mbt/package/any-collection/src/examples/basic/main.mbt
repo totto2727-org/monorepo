@@ -55,19 +55,17 @@ fn main {
   guard immutable.map.contains(request_id.key) else {
     abort("missing immutable request ID key")
   }
-  guard mutable.get(request_id) is Some(mutable_request_id) else {
+  guard mutable.get_or_none(request_id) is Some(mutable_request_id) else {
     abort("missing mutable request ID")
   }
-  guard mutable.get(retry_count) is Some(retries) else {
-    abort("missing retry count")
-  }
-  guard immutable.get(request_id) is Some(immutable_request_id) else {
+  let retries = mutable.get_or(retry_count, 0)
+  guard immutable.get_or_none(request_id) is Some(immutable_request_id) else {
     abort("missing immutable request ID")
   }
-  guard mutable.get(request_context) is Some(mutable_context) else {
+  guard mutable.get_or_none(request_context) is Some(mutable_context) else {
     abort("missing mutable custom context")
   }
-  guard immutable.get(request_context) is Some(immutable_context) else {
+  guard immutable.get_or_none(request_context) is Some(immutable_context) else {
     abort("missing immutable custom context")
   }
   println(

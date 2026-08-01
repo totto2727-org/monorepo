@@ -6,7 +6,7 @@
 pub struct AnyRef[K, T] {
   key : K
   priv encode : (T) -> @any.Any
-  priv decode : (@any.Any) -> T?
+  priv decode : (@any.Any) -> T raise
 }
 
 ///|
@@ -14,16 +14,11 @@ pub struct AnyRef[K, T] {
 ///
 /// Callers should define one shared reference per key and value type. Creating
 /// references with the same key but different value types makes mismatched
-/// reads return `None`.
+/// reads raise the conversion error unless a fallback getter is used.
 pub fn[K, T : @any.Anyable] AnyRef::AnyRef(key : K) -> AnyRef[K, T] {
   {
     key,
     encode: value => @any.Any::Any(value),
-    decode: value =>
-      try {
-        Some((value.dyn_cast() : T))
-      } catch {
-        _ => None
-      },
+    decode: value => (value.dyn_cast() : T),
   }
 }

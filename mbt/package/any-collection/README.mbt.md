@@ -17,6 +17,10 @@ test {
   mutable.set(retry_count, 2)
   debug_inspect(mutable.get(request_id), content="Some(\"request-1\")")
   debug_inspect(mutable.get(retry_count), content="Some(2)")
+  let retry_text : @any_collection.AnyRef[String, String] =
+    @any_collection.AnyRef::AnyRef("retry_count")
+  inspect(mutable.get_or(retry_text, "fallback"), content="fallback")
+  debug_inspect(mutable.get_or_none(retry_text), content="None")
   inspect(mutable.map.length(), content="2")
 
   let immutable =
@@ -31,6 +35,8 @@ test {
 
 The wrappers only provide the operations that require a typed reference and value conversion. Use the public `map` field directly for operations such as `contains`, `remove`, `length`, `is_empty`, iteration, and merging. Direct insertion of `Any` values is allowed.
 
-`get` returns `None` when a key is absent or when the stored runtime type does not match the reference's type. Define one shared `AnyRef[K, T]` for each key and value type so mismatched references cannot be introduced accidentally.
+`get` returns `None` when a key is absent and raises the original `Yoorkin/any` conversion error when the stored runtime type does not match the reference's type. `get_or` replaces both absence and conversion errors with its default value. `get_or_none` preserves successful and missing results while replacing conversion errors with `None`.
+
+Define one shared `AnyRef[K, T]` for each key and value type so mismatched references cannot be introduced accidentally.
 
 Value types must implement `Yoorkin/any.Anyable`. The dependency provides implementations for MoonBit core types. Custom types must extend `Yoorkin/any.Payload` and implement `Anyable`; see `src/examples/basic/main.mbt` for a complete example.
