@@ -1,4 +1,16 @@
 ///|
+using @admiral {
+  cli,
+  command,
+  int,
+  ints,
+  position_int,
+  position_string,
+  position_strings,
+  string,
+}
+
+///|
 async test "array option appends and parses repeated values" {
   let values = ints("value", required=true)
   let captured : Ref[ReadOnlyArray[Int]] = Ref([])

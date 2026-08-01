@@ -1,8 +1,8 @@
 {
-  "name": "@totto2727/mdt",
+  "name": "@totto2727/moon-agent-graph",
   "private": true,
   "devDependencies": {
-    "@totto2727/admiral": "workspace:*",
+    "@totto2727/codex-sdk": "workspace:*",
     "@totto2727/opencode-sdk": "workspace:*"
   }
 }

@@ -1,3 +1,68 @@
+///|
+using @opencode {
+  type OpenCode,
+  type OpenCodeOptions,
+  type ThreadEvent,
+  type ThreadOptions,
+}
+
+///|
+async test "OpenCode run 1 - returns a completed turn" {
+  with_fake_opencode(async fn(fixture) {
+    let client = fixture.client(
+      fixture.environment([completed_events("session-1", "Hello!")]),
+    )
+    let thread = client.start_thread(
+      options=ThreadOptions::ThreadOptions(model="test/model"),
+    )
+    let turn = thread.run(@opencode.Prompt("Say hello"))
+    assert_eq(thread.id(), Some("session-1"))
+    inspect(turn.final_response, content="Hello!")
+    inspect(turn.events.length(), content="3")
+    let args = fixture.recorded_lines("args", 1)
+    assert_true(args[0] == "run")
+    assert_true(contains_pair(args, "--format", "json"))
+    assert_true(contains_pair(args, "--model", "test/model"))
+    inspect(fixture.recorded_text("input", 1), content="Say hello")
+  })
+}
+
+///|
+async test "OpenCode run 2 - continues the session on a second turn" {
+  with_fake_opencode(async fn(fixture) {
+    let thread = fixture
+      .client(
+        fixture.environment([
+          completed_events("session-1", "First"),
+          completed_events("session-1", "Second"),
+        ]),
+      )
+      .start_thread()
+    thread.run(@opencode.Prompt("first")) |> ignore
+    let turn = thread.run(@opencode.Prompt("second"))
+    inspect(turn.final_response, content="Second")
+    assert_true(
+      contains_pair(fixture.recorded_lines("args", 2), "--session", "session-1"),
+    )
+    inspect(fixture.recorded_text("input", 2), content="second")
+  })
+}
+
+///|
+async test "OpenCode resume_thread - resumes a session by ID" {
+  with_fake_opencode(async fn(fixture) {
+    let thread = fixture
+      .client(fixture.environment([completed_events("session-7", "Resumed")]))
+      .resume_thread("session-7")
+    let turn = thread.run(@opencode.Prompt("continue"))
+    assert_eq(thread.id(), Some("session-7"))
+    inspect(turn.final_response, content="Resumed")
+    assert_true(
+      contains_pair(fixture.recorded_lines("args", 1), "--session", "session-7"),
+    )
+  })
+}
+
 // MoonBit-only fake executable for the OpenCode CLI JSONL contract.
 // Official CLI: https://dev.opencode.ai/docs/cli/
 // Canonical JSONL emitter: https://github.com/anomalyco/opencode/blob/1e17856ba4b5b052650c8115060852f3f023844e/packages/opencode/src/cli/cmd/run.ts#L678-L691
@@ -142,5 +207,28 @@ fn contains_pair(args : Array[String], key : String, value : String) -> Bool {
   .any(fn(entry) {
     let (index, item) = entry
     item == key && args.get(index + 1) == Some(value)
+  })
+}
+
+///|
+async test "OpenCode run_streamed - emits typed events" {
+  with_fake_opencode(async fn(fixture) {
+    let thread = fixture
+      .client(fixture.environment([completed_events("session-1", "Streamed")]))
+      .start_thread()
+    let events : Array[ThreadEvent] = []
+    thread.run_streamed(@opencode.Prompt("stream"), async fn(event) {
+      events.push(event)
+      @async.pause()
+    })
+    assert_eq(thread.id(), Some("session-1"))
+    inspect(events.length(), content="3")
+    match events[1] {
+      @opencode.Text(event) => {
+        inspect(event.session_id, content="session-1")
+        inspect(event.text, content="Streamed")
+      }
+      _ => fail("expected text event")
+    }
   })
 }

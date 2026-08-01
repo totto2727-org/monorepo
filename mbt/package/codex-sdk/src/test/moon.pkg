@@ -1,16 +1,13 @@
 supported_targets = "native"
 
 import {
-  "moonbitlang/core/json",
-  "moonbitlang/async",
-  "moonbitlang/async/io",
-  "moonbitlang/async/process",
-}
-
-import {
   "moonbitlang/core/debug",
+  "moonbitlang/core/env",
+  "moonbitlang/core/json",
   "moonbitlang/core/string",
-  "moonbitlang/core/test",
+  "moonbitlang/x/path",
+  "moonbitlang/async",
   "moonbitlang/async/aqueue",
   "moonbitlang/async/fs",
+  "totto2727/codex-sdk" @codex,
 } for "test"
