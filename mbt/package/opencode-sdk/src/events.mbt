@@ -6,40 +6,20 @@ pub(all) struct TextEvent {
 } derive(Debug, Eq)
 
 ///|
-fn moonbit_internal_json_field(
-  lens : @lens.Lens[Json],
-  json : Json,
-  path : @json.JsonPath,
-  message : String,
-) -> Json raise @json.JsonDecodeError {
-  lens.get(json) catch {
-    @lens.LensError::LensError(_) =>
-      raise @json.JsonDecodeError((path, message))
-  }
-}
-
-///|
 pub impl @json.FromJson for TextEvent with fn from_json(json, path) {
   let message = "TextEvent::from_json: expected text event"
+  let session_id_path = path.add_key("sessionID")
+  let text_path = path.add_key("part").add_key("text")
+  let root = @lens.root()
+  let session_id_value = root.json("sessionID").get(json) catch {
+      _ => raise @json.JsonDecodeError((session_id_path, message))
+    }
+  let text_value = root.object("part").json("text").get(json) catch {
+      _ => raise @json.JsonDecodeError((text_path, message))
+    }
   {
-    session_id: @json.FromJson::from_json(
-      moonbit_internal_json_field(
-        @lens.root().json("sessionID"),
-        json,
-        path,
-        message,
-      ),
-      path.add_key("sessionID"),
-    ),
-    text: @json.FromJson::from_json(
-      moonbit_internal_json_field(
-        @lens.root().object("part").json("text"),
-        json,
-        path,
-        message,
-      ),
-      path.add_key("part").add_key("text"),
-    ),
+    session_id: @json.FromJson::from_json(session_id_value, session_id_path),
+    text: @json.FromJson::from_json(text_value, text_path),
   }
 }
 
@@ -53,25 +33,18 @@ pub(all) struct ReasoningEvent {
 ///|
 pub impl @json.FromJson for ReasoningEvent with fn from_json(json, path) {
   let message = "ReasoningEvent::from_json: expected reasoning event"
+  let session_id_path = path.add_key("sessionID")
+  let text_path = path.add_key("part").add_key("text")
+  let root = @lens.root()
+  let session_id_value = root.json("sessionID").get(json) catch {
+      _ => raise @json.JsonDecodeError((session_id_path, message))
+    }
+  let text_value = root.object("part").json("text").get(json) catch {
+      _ => raise @json.JsonDecodeError((text_path, message))
+    }
   {
-    session_id: @json.FromJson::from_json(
-      moonbit_internal_json_field(
-        @lens.root().json("sessionID"),
-        json,
-        path,
-        message,
-      ),
-      path.add_key("sessionID"),
-    ),
-    text: @json.FromJson::from_json(
-      moonbit_internal_json_field(
-        @lens.root().object("part").json("text"),
-        json,
-        path,
-        message,
-      ),
-      path.add_key("part").add_key("text"),
-    ),
+    session_id: @json.FromJson::from_json(session_id_value, session_id_path),
+    text: @json.FromJson::from_json(text_value, text_path),
   }
 }
 
@@ -106,34 +79,29 @@ pub(all) struct ToolUseEvent {
 ///|
 pub impl @json.FromJson for ToolUseEvent with fn from_json(json, path) {
   let message = "ToolUseEvent::from_json: expected tool-use event"
-  let part = @lens.root().object("part")
+  let session_id_path = path.add_key("sessionID")
+  let call_id_path = path.add_key("part").add_key("callID")
+  let tool_path = path.add_key("part").add_key("tool")
+  let status_path = path.add_key("part").add_key("state").add_key("status")
+  let root = @lens.root()
+  let part = root.object("part")
+  let session_id_value = root.json("sessionID").get(json) catch {
+      _ => raise @json.JsonDecodeError((session_id_path, message))
+    }
+  let call_id_value = part.json("callID").get(json) catch {
+      _ => raise @json.JsonDecodeError((call_id_path, message))
+    }
+  let tool_value = part.json("tool").get(json) catch {
+      _ => raise @json.JsonDecodeError((tool_path, message))
+    }
+  let status_value = part.object("state").json("status").get(json) catch {
+      _ => raise @json.JsonDecodeError((status_path, message))
+    }
   {
-    session_id: @json.FromJson::from_json(
-      moonbit_internal_json_field(
-        @lens.root().json("sessionID"),
-        json,
-        path,
-        message,
-      ),
-      path.add_key("sessionID"),
-    ),
-    call_id: @json.FromJson::from_json(
-      moonbit_internal_json_field(part.json("callID"), json, path, message),
-      path.add_key("part").add_key("callID"),
-    ),
-    tool: @json.FromJson::from_json(
-      moonbit_internal_json_field(part.json("tool"), json, path, message),
-      path.add_key("part").add_key("tool"),
-    ),
-    status: @json.FromJson::from_json(
-      moonbit_internal_json_field(
-        part.object("state").json("status"),
-        json,
-        path,
-        message,
-      ),
-      path.add_key("part").add_key("state").add_key("status"),
-    ),
+    session_id: @json.FromJson::from_json(session_id_value, session_id_path),
+    call_id: @json.FromJson::from_json(call_id_value, call_id_path),
+    tool: @json.FromJson::from_json(tool_value, tool_path),
+    status: @json.FromJson::from_json(status_value, status_path),
   }
 }
 
@@ -146,17 +114,11 @@ pub(all) struct StepStartEvent {
 ///|
 pub impl @json.FromJson for StepStartEvent with fn from_json(json, path) {
   let message = "StepStartEvent::from_json: expected step-start event"
-  {
-    session_id: @json.FromJson::from_json(
-      moonbit_internal_json_field(
-        @lens.root().json("sessionID"),
-        json,
-        path,
-        message,
-      ),
-      path.add_key("sessionID"),
-    ),
-  }
+  let session_id_path = path.add_key("sessionID")
+  let session_id_value = @lens.root().json("sessionID").get(json) catch {
+      _ => raise @json.JsonDecodeError((session_id_path, message))
+    }
+  { session_id: @json.FromJson::from_json(session_id_value, session_id_path) }
 }
 
 ///|
@@ -174,26 +136,35 @@ pub impl @json.FromJson for Usage with fn from_json(json, path) {
   let message = "Usage::from_json: expected usage"
   let root = @lens.root()
   let cache = root.object("cache")
+  let input_path = path.add_key("input")
+  let output_path = path.add_key("output")
+  let reasoning_path = path.add_key("reasoning")
+  let cache_read_path = path.add_key("cache").add_key("read")
+  let cache_write_path = path.add_key("cache").add_key("write")
+  let input_value = root.json("input").get(json) catch {
+      _ => raise @json.JsonDecodeError((input_path, message))
+    }
+  let output_value = root.json("output").get(json) catch {
+      _ => raise @json.JsonDecodeError((output_path, message))
+    }
+  let reasoning_value = root.json("reasoning").get(json) catch {
+      _ => raise @json.JsonDecodeError((reasoning_path, message))
+    }
+  let cache_read_value = cache.json("read").get(json) catch {
+      _ => raise @json.JsonDecodeError((cache_read_path, message))
+    }
+  let cache_write_value = cache.json("write").get(json) catch {
+      _ => raise @json.JsonDecodeError((cache_write_path, message))
+    }
   {
-    input_tokens: @json.FromJson::from_json(
-      moonbit_internal_json_field(root.json("input"), json, path, message),
-      path.add_key("input"),
-    ),
-    output_tokens: @json.FromJson::from_json(
-      moonbit_internal_json_field(root.json("output"), json, path, message),
-      path.add_key("output"),
-    ),
-    reasoning_tokens: @json.FromJson::from_json(
-      moonbit_internal_json_field(root.json("reasoning"), json, path, message),
-      path.add_key("reasoning"),
-    ),
+    input_tokens: @json.FromJson::from_json(input_value, input_path),
+    output_tokens: @json.FromJson::from_json(output_value, output_path),
+    reasoning_tokens: @json.FromJson::from_json(reasoning_value, reasoning_path),
     cache_read_tokens: @json.FromJson::from_json(
-      moonbit_internal_json_field(cache.json("read"), json, path, message),
-      path.add_key("cache").add_key("read"),
+      cache_read_value, cache_read_path,
     ),
     cache_write_tokens: @json.FromJson::from_json(
-      moonbit_internal_json_field(cache.json("write"), json, path, message),
-      path.add_key("cache").add_key("write"),
+      cache_write_value, cache_write_path,
     ),
   }
 }
@@ -210,29 +181,29 @@ pub(all) struct StepFinishEvent {
 ///|
 pub impl @json.FromJson for StepFinishEvent with fn from_json(json, path) {
   let message = "StepFinishEvent::from_json: expected step-finish event"
-  let part = @lens.root().object("part")
+  let root = @lens.root()
+  let part = root.object("part")
+  let session_id_path = path.add_key("sessionID")
+  let reason_path = path.add_key("part").add_key("reason")
+  let cost_path = path.add_key("part").add_key("cost")
+  let usage_path = path.add_key("part").add_key("tokens")
+  let session_id_value = root.json("sessionID").get(json) catch {
+      _ => raise @json.JsonDecodeError((session_id_path, message))
+    }
+  let reason_value = part.json("reason").get(json) catch {
+      _ => raise @json.JsonDecodeError((reason_path, message))
+    }
+  let cost_value = part.json("cost").get(json) catch {
+      _ => raise @json.JsonDecodeError((cost_path, message))
+    }
+  let usage_value = part.json("tokens").get(json) catch {
+      _ => raise @json.JsonDecodeError((usage_path, message))
+    }
   {
-    session_id: @json.FromJson::from_json(
-      moonbit_internal_json_field(
-        @lens.root().json("sessionID"),
-        json,
-        path,
-        message,
-      ),
-      path.add_key("sessionID"),
-    ),
-    reason: @json.FromJson::from_json(
-      moonbit_internal_json_field(part.json("reason"), json, path, message),
-      path.add_key("part").add_key("reason"),
-    ),
-    cost: @json.FromJson::from_json(
-      moonbit_internal_json_field(part.json("cost"), json, path, message),
-      path.add_key("part").add_key("cost"),
-    ),
-    usage: @json.FromJson::from_json(
-      moonbit_internal_json_field(part.json("tokens"), json, path, message),
-      path.add_key("part").add_key("tokens"),
-    ),
+    session_id: @json.FromJson::from_json(session_id_value, session_id_path),
+    reason: @json.FromJson::from_json(reason_value, reason_path),
+    cost: @json.FromJson::from_json(cost_value, cost_path),
+    usage: @json.FromJson::from_json(usage_value, usage_path),
   }
 }
 
@@ -248,26 +219,24 @@ pub impl @json.FromJson for ThreadErrorEvent with fn from_json(json, path) {
   let message = "ThreadErrorEvent::from_json: expected error event"
   let root = @lens.root()
   let error = root.object("error")
-  let name = moonbit_internal_json_field(
-    error.json("name"),
-    json,
-    path,
-    message,
-  )
+  let name_path = path.add_key("error").add_key("name")
+  let session_id_path = path.add_key("sessionID")
+  let name = error.json("name").get(json) catch {
+      _ => raise @json.JsonDecodeError((name_path, message))
+    }
   let data_message = error.object("data").json("message").get(json) catch {
       @lens.LensError::LensError(_) => name
     }
+  let session_id_value = root.json("sessionID").get(json) catch {
+      _ => raise @json.JsonDecodeError((session_id_path, message))
+    }
   {
     session_id: Some(
-      @json.FromJson::from_json(
-        moonbit_internal_json_field(root.json("sessionID"), json, path, message),
-        path.add_key("sessionID"),
-      ),
+      @json.FromJson::from_json(session_id_value, session_id_path),
     ),
     message: match data_message {
       String(message) => message
-      _ =>
-        @json.FromJson::from_json(name, path.add_key("error").add_key("name"))
+      _ => @json.FromJson::from_json(name, name_path)
     },
   }
 }
@@ -285,15 +254,14 @@ pub(all) enum ThreadEvent {
 
 ///|
 pub impl @json.FromJson for ThreadEvent with fn from_json(json, path) {
-  let event_type : String = @json.FromJson::from_json(
-    moonbit_internal_json_field(
-      @lens.root().json("type"),
-      json,
-      path,
-      "ThreadEvent::from_json: expected thread event",
-    ),
-    path.add_key("type"),
-  )
+  let type_path = path.add_key("type")
+  let type_value = @lens.root().json("type").get(json) catch {
+      _ =>
+        raise @json.JsonDecodeError(
+          (type_path, "ThreadEvent::from_json: expected thread event"),
+        )
+    }
+  let event_type : String = @json.FromJson::from_json(type_value, type_path)
   match event_type {
     "text" => Text(@json.FromJson::from_json(json, path))
     "reasoning" => Reasoning(@json.FromJson::from_json(json, path))

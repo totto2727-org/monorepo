@@ -100,7 +100,7 @@ pub(all) struct McpToolCallResult {
 /// Type difference: explicit structs replace inline TypeScript object types.
 pub(all) struct McpToolCallError {
   message : String
-} derive(Debug, Eq)
+} derive(Debug, Eq, FromJson)
 
 ///| A call dispatched to an MCP server.
 
@@ -123,7 +123,7 @@ pub(all) struct McpToolCallItem {
 pub(all) struct AgentMessageItem {
   id : String
   text : String
-} derive(Debug, Eq)
+} derive(Debug, Eq, FromJson)
 
 ///| An agent reasoning summary.
 
@@ -132,7 +132,7 @@ pub(all) struct AgentMessageItem {
 pub(all) struct ReasoningItem {
   id : String
   text : String
-} derive(Debug, Eq)
+} derive(Debug, Eq, FromJson)
 
 ///| A web search request made by the agent.
 
@@ -141,7 +141,7 @@ pub(all) struct ReasoningItem {
 pub(all) struct WebSearchItem {
   id : String
   query : String
-} derive(Debug, Eq)
+} derive(Debug, Eq, FromJson)
 
 ///| A non-fatal error surfaced as a thread item.
 
@@ -150,7 +150,7 @@ pub(all) struct WebSearchItem {
 pub(all) struct ErrorItem {
   id : String
   message : String
-} derive(Debug, Eq)
+} derive(Debug, Eq, FromJson)
 
 ///| One entry in the agent's running to-do list.
 
@@ -159,7 +159,7 @@ pub(all) struct ErrorItem {
 pub(all) struct TodoItem {
   text : String
   completed : Bool
-} derive(Debug, Eq)
+} derive(Debug, Eq, FromJson)
 
 ///| The agent's current running to-do list.
 
