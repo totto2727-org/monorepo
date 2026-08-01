@@ -1,4 +1,7 @@
 {
   "name": "@package/target-file-discovery",
-  "private": true
+  "private": true,
+  "scripts": {
+    "publish": "moon publish"
+  }
 }

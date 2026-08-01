@@ -1,4 +1,7 @@
 {
   "name": "@totto2727/c-plugin",
-  "private": true
+  "private": true,
+  "scripts": {
+    "publish": "moon publish"
+  }
 }

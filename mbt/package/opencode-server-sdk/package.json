@@ -1,5 +1,8 @@
 {
   "name": "@totto2727/opencode-server-sdk",
   "version": "0.0.0",
-  "private": true
+  "private": true,
+  "scripts": {
+    "publish": "moon publish"
+  }
 }

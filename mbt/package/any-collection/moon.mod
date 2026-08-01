@@ -1,6 +1,6 @@
 name = "totto2727/any-collection"
 
-version = "0.1.0"
+version = "0.2.0"
 
 import {
   "Yoorkin/any@0.2.1",

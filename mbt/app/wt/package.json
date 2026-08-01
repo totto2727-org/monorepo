@@ -1,4 +1,7 @@
 {
   "name": "@totto2727/wt",
-  "private": true
+  "private": true,
+  "scripts": {
+    "publish": "moon publish"
+  }
 }
