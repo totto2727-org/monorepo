@@ -1,0 +1,61 @@
+///|
+struct RequestContext {
+  request_id : String
+  retry_count : Int
+} derive(Debug, Eq)
+
+///|
+fn main {
+  let request_id : @any_collection.AnyRef[String] = @any_collection.AnyRef::AnyRef(
+    "request_id",
+  )
+  let retry_count : @any_collection.AnyRef[Int] = @any_collection.AnyRef::AnyRef(
+    "retry_count",
+  )
+  let request_context : @any_collection.AnyRef[RequestContext] = @any_collection.AnyRef::AnyRef(
+    "request_context",
+  )
+  let mutable = @any_collection.AnyMutableMap::AnyMutableMap()
+  mutable.set(request_id, "mutable-request")
+  mutable.set(retry_count, 2)
+  mutable.set(request_context, RequestContext::{
+    request_id: "mutable-custom",
+    retry_count: 3,
+  })
+  let immutable = @any_collection.AnyImmutableHashMap::AnyImmutableHashMap()
+    .added(request_id, "immutable-request")
+    .added(request_context, RequestContext::{
+      request_id: "immutable-custom",
+      retry_count: 4,
+    })
+  guard mutable.get(request_id) is Some(mutable_request_id) else {
+    abort("missing mutable request ID")
+  }
+  guard mutable.get(retry_count) is Some(retries) else {
+    abort("missing retry count")
+  }
+  guard immutable.get(request_id) is Some(immutable_request_id) else {
+    abort("missing immutable request ID")
+  }
+  guard mutable.get(request_context) is Some(mutable_context) else {
+    abort("missing mutable custom context")
+  }
+  guard immutable.get(request_context) is Some(immutable_context) else {
+    abort("missing immutable custom context")
+  }
+  println(
+    mutable_request_id +
+    "," +
+    retries.to_string() +
+    "," +
+    immutable_request_id +
+    "," +
+    mutable_context.request_id +
+    ":" +
+    mutable_context.retry_count.to_string() +
+    "," +
+    immutable_context.request_id +
+    ":" +
+    immutable_context.retry_count.to_string(),
+  )
+}
