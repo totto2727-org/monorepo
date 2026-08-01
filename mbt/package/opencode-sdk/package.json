@@ -4,5 +4,10 @@
   "private": true,
   "scripts": {
     "publish": "moon publish"
+  },
+  "devDependencies": {
+    "@totto2727/agent-cli-sdk": "workspace:*",
+    "@totto2727/copy": "workspace:*",
+    "@totto2727/lens": "workspace:*"
   }
 }

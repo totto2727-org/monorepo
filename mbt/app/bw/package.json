@@ -3,5 +3,9 @@
   "private": true,
   "scripts": {
     "publish": "moon publish"
+  },
+  "devDependencies": {
+    "@totto2727/admiral": "workspace:*",
+    "@totto2727/lens": "workspace:*"
   }
 }
