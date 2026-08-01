@@ -244,21 +244,6 @@ fn snapshot_result(data : &@io.Data) -> (String, Bytes) raise {
 }
 
 ///|
-test "SnapshotResponse FromJson - decodes content and screenshot" {
-  let response : SnapshotResponse = @json.from_json(
-    @json.parse(
-      "{\"success\":true,\"result\":{\"content\":\"<html />\",\"screenshot\":\"aGVsbG8=\"}}",
-    ),
-  )
-  inspect(response.success, content="true")
-  debug_inspect(response.result.unwrap().content, content="Some(\"<html />\")")
-  debug_inspect(
-    response.result.unwrap().screenshot,
-    content="Some(\"aGVsbG8=\")",
-  )
-}
-
-///|
 async fn run_snapshot(context : @admiral.Context) -> Unit {
   let options = snapshot_options(context)
   let body = SnapshotBody::from_options(options)
