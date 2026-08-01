@@ -1,6 +1,6 @@
 name = "totto2727/agent-cli-sdk"
 
-version = "0.1.0"
+version = "0.1.1"
 
 preferred_target = "native"
 

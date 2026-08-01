@@ -1,4 +1,7 @@
 {
   "name": "@totto2727/any-collection",
-  "private": true
+  "private": true,
+  "scripts": {
+    "publish": "bash ../../scripts/moon-publish.sh"
+  }
 }
