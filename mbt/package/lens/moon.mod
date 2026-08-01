@@ -10,6 +10,6 @@ license = "MIT"
 
 keywords = [ "json", "lens", "validation", "moonbit" ]
 
-description = "Typed JSON lenses and aggregate validation for MoonBit"
+description = "Typed JSON lenses, builders, and aggregate validation for MoonBit"
 
 source = "./src"
