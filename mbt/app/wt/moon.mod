@@ -8,7 +8,7 @@ supported_targets = "native"
 
 import {
   "totto2727/admiral@0.6.0",
-  "totto2727/lens@0.2.0",
+  "totto2727/lens@0.3.0",
   "moonbitlang/async@0.19.2",
 }
 
