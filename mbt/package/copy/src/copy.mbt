@@ -5,58 +5,83 @@
 /// implementation may share immutable internal storage when doing so cannot
 /// expose mutation through the returned value.
 pub(open) trait Copy {
-  fn copy(Self) -> Self = _
+  fn copy(Self) -> Self
 }
 
 ///|
-impl Copy with fn copy(self) {
+pub impl Copy for Unit with fn copy(self) {
   self
 }
 
 ///|
-pub impl Copy for Unit
+pub impl Copy for Bool with fn copy(self) {
+  self
+}
 
 ///|
-pub impl Copy for Bool
+pub impl Copy for Byte with fn copy(self) {
+  self
+}
 
 ///|
-pub impl Copy for Byte
+pub impl Copy for Char with fn copy(self) {
+  self
+}
 
 ///|
-pub impl Copy for Char
+pub impl Copy for Int16 with fn copy(self) {
+  self
+}
 
 ///|
-pub impl Copy for Int16
+pub impl Copy for Int with fn copy(self) {
+  self
+}
 
 ///|
-pub impl Copy for Int
+pub impl Copy for Int64 with fn copy(self) {
+  self
+}
 
 ///|
-pub impl Copy for Int64
+pub impl Copy for UInt16 with fn copy(self) {
+  self
+}
 
 ///|
-pub impl Copy for UInt16
+pub impl Copy for UInt with fn copy(self) {
+  self
+}
 
 ///|
-pub impl Copy for UInt
+pub impl Copy for UInt64 with fn copy(self) {
+  self
+}
 
 ///|
-pub impl Copy for UInt64
+pub impl Copy for Float with fn copy(self) {
+  self
+}
 
 ///|
-pub impl Copy for Float
+pub impl Copy for Double with fn copy(self) {
+  self
+}
 
 ///|
-pub impl Copy for Double
+pub impl Copy for BigInt with fn copy(self) {
+  self
+}
 
 ///|
-pub impl Copy for BigInt
+pub impl Copy for String with fn copy(self) {
+  self
+}
 
 ///|
-pub impl Copy for String
-
-///|
-pub impl Copy for Bytes
+pub impl Copy for Bytes with fn copy(self) {
+  self
+}
 
 ///|
 pub impl[T : Copy] Copy for T? with fn copy(self) {
