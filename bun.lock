@@ -233,15 +233,32 @@
     },
     "mbt/app/bw": {
       "name": "@totto2727/bw",
+      "devDependencies": {
+        "@totto2727/admiral": "workspace:*",
+        "@totto2727/lens": "workspace:*",
+      },
     },
     "mbt/app/c-plugin": {
       "name": "@totto2727/c-plugin",
+      "devDependencies": {
+        "@totto2727/admiral": "workspace:*",
+        "@totto2727/lens": "workspace:*",
+        "@totto2727/target-file-discovery": "workspace:*",
+      },
     },
     "mbt/app/mdt": {
       "name": "@totto2727/mdt",
+      "devDependencies": {
+        "@totto2727/admiral": "workspace:*",
+        "@totto2727/opencode-sdk": "workspace:*",
+      },
     },
     "mbt/app/wt": {
       "name": "@totto2727/wt",
+      "devDependencies": {
+        "@totto2727/admiral": "workspace:*",
+        "@totto2727/lens": "workspace:*",
+      },
     },
     "mbt/package/admiral": {
       "name": "@totto2727/admiral",
@@ -251,23 +268,52 @@
       "name": "@totto2727/agent-cli-sdk",
       "version": "0.0.0",
     },
+    "mbt/package/any-collection": {
+      "name": "@totto2727/any-collection",
+    },
     "mbt/package/codex-sdk": {
       "name": "@totto2727/codex-sdk",
+      "devDependencies": {
+        "@totto2727/agent-cli-sdk": "workspace:*",
+        "@totto2727/copy": "workspace:*",
+        "@totto2727/lens": "workspace:*",
+      },
+    },
+    "mbt/package/copy": {
+      "name": "@totto2727/copy",
     },
     "mbt/package/geo-mbt": {
       "name": "@totto2727/geo-mbt",
       "version": "0.0.0",
     },
+    "mbt/package/lens": {
+      "name": "@totto2727/lens",
+    },
+    "mbt/package/moon-agent-graph": {
+      "name": "@totto2727/moon-agent-graph",
+      "devDependencies": {
+        "@totto2727/codex-sdk": "workspace:*",
+        "@totto2727/opencode-sdk": "workspace:*",
+      },
+    },
     "mbt/package/opencode-sdk": {
       "name": "@totto2727/opencode-sdk",
       "version": "0.0.0",
+      "devDependencies": {
+        "@totto2727/agent-cli-sdk": "workspace:*",
+        "@totto2727/copy": "workspace:*",
+        "@totto2727/lens": "workspace:*",
+      },
     },
     "mbt/package/opencode-server-sdk": {
       "name": "@totto2727/opencode-server-sdk",
       "version": "0.0.0",
+      "devDependencies": {
+        "@totto2727/lens": "workspace:*",
+      },
     },
     "mbt/package/target-file-discovery": {
-      "name": "@package/target-file-discovery",
+      "name": "@totto2727/target-file-discovery",
     },
     "nix": {
       "name": "@app/nix",
@@ -936,8 +982,6 @@
 
     "@package/oxlint-plugin": ["@package/oxlint-plugin@workspace:js/package/oxlint-plugin"],
 
-    "@package/target-file-discovery": ["@package/target-file-discovery@workspace:mbt/package/target-file-discovery"],
-
     "@peculiar/asn1-android": ["@peculiar/asn1-android@2.8.0", "https://npm.flatt.tech/@peculiar/asn1-android/-/asn1-android-2.8.0.tgz", { "dependencies": { "@peculiar/asn1-schema": "^2.8.0", "asn1js": "^3.0.10", "tslib": "^2.8.1" } }, "sha512-skLbS+IOGv1lUgDqtChr8xvtvEr3HMse/JGBaL2r1J1o/n7a8wqOrovMtlRq/UXLhxvmLaONP67hwtshgzwfzA=="],
 
     "@peculiar/asn1-cms": ["@peculiar/asn1-cms@2.8.0", "https://npm.flatt.tech/@peculiar/asn1-cms/-/asn1-cms-2.8.0.tgz", { "dependencies": { "@peculiar/asn1-schema": "^2.8.0", "@peculiar/asn1-x509": "^2.8.0", "@peculiar/asn1-x509-attr": "^2.8.0", "asn1js": "^3.0.10", "tslib": "^2.8.1" } }, "sha512-NgekZOrSJFSBFLFoLfwePguAWAx7z1+f2TEsWFUMyiqqfntZ4+S/S5hzqME3q4pCA0iOsFKdwiQ35dwY24eVqA=="],
@@ -1118,21 +1162,31 @@
 
     "@totto2727/agent-cli-sdk": ["@totto2727/agent-cli-sdk@workspace:mbt/package/agent-cli-sdk"],
 
+    "@totto2727/any-collection": ["@totto2727/any-collection@workspace:mbt/package/any-collection"],
+
     "@totto2727/bw": ["@totto2727/bw@workspace:mbt/app/bw"],
 
     "@totto2727/c-plugin": ["@totto2727/c-plugin@workspace:mbt/app/c-plugin"],
 
     "@totto2727/codex-sdk": ["@totto2727/codex-sdk@workspace:mbt/package/codex-sdk"],
 
+    "@totto2727/copy": ["@totto2727/copy@workspace:mbt/package/copy"],
+
     "@totto2727/fp": ["@totto2727/fp@workspace:js/package/fp"],
 
     "@totto2727/geo-mbt": ["@totto2727/geo-mbt@workspace:mbt/package/geo-mbt"],
 
+    "@totto2727/lens": ["@totto2727/lens@workspace:mbt/package/lens"],
+
     "@totto2727/mdt": ["@totto2727/mdt@workspace:mbt/app/mdt"],
+
+    "@totto2727/moon-agent-graph": ["@totto2727/moon-agent-graph@workspace:mbt/package/moon-agent-graph"],
 
     "@totto2727/opencode-sdk": ["@totto2727/opencode-sdk@workspace:mbt/package/opencode-sdk"],
 
     "@totto2727/opencode-server-sdk": ["@totto2727/opencode-server-sdk@workspace:mbt/package/opencode-server-sdk"],
+
+    "@totto2727/target-file-discovery": ["@totto2727/target-file-discovery@workspace:mbt/package/target-file-discovery"],
 
     "@totto2727/wt": ["@totto2727/wt@workspace:mbt/app/wt"],
 

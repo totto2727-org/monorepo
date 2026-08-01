@@ -1,4 +1,8 @@
 {
   "name": "@totto2727/bw",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@totto2727/admiral": "workspace:*",
+    "@totto2727/lens": "workspace:*"
+  }
 }
