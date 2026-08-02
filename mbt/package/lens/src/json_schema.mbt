@@ -109,19 +109,137 @@ fn[T] Lens::schema_fragment(self : Lens[T]) -> Json {
 }
 
 ///|
+fn schema_type_names(value : Json) -> Array[String]? {
+  match value {
+    Json::String(name) => Some([name])
+    Json::Array(values) => {
+      let names : Array[String] = []
+      for value in values {
+        guard value is Json::String(name) else { return None }
+        names.push(name)
+      }
+      Some(names)
+    }
+    _ => None
+  }
+}
+
+///|
+fn intersect_schema_types(left : Json, right : Json) -> Json? {
+  guard schema_type_names(left) is Some(left_names) else { return None }
+  guard schema_type_names(right) is Some(right_names) else { return None }
+  match left_names.filter(name => right_names.contains(name)) {
+    [] => None
+    [name] => Some(name.to_json())
+    names => Some(Json::array(names.map(name => name.to_json())))
+  }
+}
+
+///|
+fn required_names(value : Json) -> Array[String]? {
+  guard value is Json::Array(values) else { return None }
+  let names : Array[String] = []
+  for value in values {
+    guard value is Json::String(name) else { return None }
+    names.push(name)
+  }
+  Some(names)
+}
+
+///|
+fn merge_required(left : Json, right : Json) -> Json? {
+  guard required_names(left) is Some(left_names) else { return None }
+  guard required_names(right) is Some(right_names) else { return None }
+  let names = right_names.fold(init=left_names, (names, name) => {
+    if names.contains(name) {
+      names
+    } else {
+      [..names, name]
+    }
+  })
+  Some(Json::array(names.map(name => name.to_json())))
+}
+
+///|
+fn merge_property_schemas(left : Json, right : Json) -> Json {
+  guard left is Json::Object(left_properties) else {
+    return Json::boolean(false)
+  }
+  guard right is Json::Object(right_properties) else {
+    return Json::boolean(false)
+  }
+  let properties = left_properties.copy()
+  for key, right_schema in right_properties {
+    properties[key] = match properties.get(key) {
+      Some(left_schema) => merge_schemas(left_schema, right_schema)
+      None => right_schema
+    }
+  }
+  Json::object(properties)
+}
+
+///|
+fn merge_schema_values(key : String, left : Json, right : Json) -> Json? {
+  match key {
+    "type" => intersect_schema_types(left, right)
+    "properties" => Some(merge_property_schemas(left, right))
+    "required" => merge_required(left, right)
+    "items" => Some(merge_schemas(left, right))
+    _ => if left == right { Some(left) } else { None }
+  }
+}
+
+///|
+fn merge_schema_objects(
+  left_properties : Map[String, Json],
+  right_properties : Map[String, Json],
+) -> Json {
+  let properties = left_properties.copy()
+  for key, right_value in right_properties {
+    match properties.get(key) {
+      None => properties[key] = right_value
+      Some(left_value) => {
+        guard merge_schema_values(key, left_value, right_value) is Some(value) else {
+          return Json::boolean(false)
+        }
+        properties[key] = value
+      }
+    }
+  }
+  Json::object(properties)
+}
+
+///|
+fn merge_schemas(left : Json, right : Json) -> Json {
+  match (left, right) {
+    (Json::False, _) | (_, Json::False) => Json::boolean(false)
+    (Json::True, schema) | (schema, Json::True) => schema
+    (Json::Object(left_properties), Json::Object(right_properties)) =>
+      merge_schema_objects(left_properties, right_properties)
+    _ => Json::boolean(false)
+  }
+}
+
+///|
 /// Generates a Draft 2020-12 JSON Schema for the same heterogeneous lens set
 /// accepted by `validate`.
 ///
-/// Each lens contributes one conjunct so incompatible duplicate declarations
-/// remain incompatible instead of overwriting one another.
+/// Compatible paths are merged into one object schema. Incompatible duplicate
+/// declarations become a `false` property schema.
 pub fn json_schema(lenses : Array[&LensTrait]) -> Json {
   let schema : Map[String, Json] = {
     "$schema": "https://json-schema.org/draft/2020-12/schema".to_json(),
   }
-  if !lenses.is_empty() {
-    schema["allOf"] = Json::array(
-      lenses.map(lens => LensTrait::to_json_schema(lens)),
-    )
+  let merged = lenses.fold(init=Json::empty_object(), (merged, lens) => {
+    merge_schemas(merged, LensTrait::to_json_schema(lens))
+  })
+  match merged {
+    Json::Object(properties) =>
+      for key, value in properties {
+        schema[key] = value
+      }
+    Json::False => return Json::boolean(false)
+    _ => ()
   }
   Json::object(schema)
 }

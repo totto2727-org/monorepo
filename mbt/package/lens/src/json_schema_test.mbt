@@ -37,40 +37,19 @@ test "json_schema - combines heterogeneous validator checks" {
     ]),
     content={
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "allOf": [
-        {
+      "type": "object",
+      "properties": {
+        "user": {
           "type": "object",
           "properties": {
-            "user": {
-              "type": "object",
-              "properties": { "name": { "type": "string" } },
-              "required": ["name"],
-            },
+            "name": { "type": "string" },
+            "age": { "type": "number" },
+            "active": { "type": ["boolean", "null"] },
           },
-          "required": ["user"],
+          "required": ["name", "age"],
         },
-        {
-          "type": "object",
-          "properties": {
-            "user": {
-              "type": "object",
-              "properties": { "age": { "type": "number" } },
-              "required": ["age"],
-            },
-          },
-          "required": ["user"],
-        },
-        {
-          "type": "object",
-          "properties": {
-            "user": {
-              "type": "object",
-              "properties": { "active": { "type": ["boolean", "null"] } },
-            },
-          },
-          "required": ["user"],
-        },
-      ],
+      },
+      "required": ["user"],
     },
   )
 }
@@ -82,18 +61,37 @@ test "json_schema - renders object and unconstrained raw JSON checks" {
     @lens.json_schema([root.object("payload"), root.json("metadata")]),
     content={
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "allOf": [
-        {
-          "type": "object",
-          "properties": { "payload": { "type": "object" } },
-          "required": ["payload"],
-        },
-        {
-          "type": "object",
-          "properties": { "metadata": Json::empty_object() },
-          "required": ["metadata"],
-        },
-      ],
+      "type": "object",
+      "properties": {
+        "payload": { "type": "object" },
+        "metadata": Json::empty_object(),
+      },
+      "required": ["payload", "metadata"],
+    },
+  )
+}
+
+///|
+test "json_schema - intersects compatible declarations at one property" {
+  let name = @lens.root().string("name")
+  @json.json_inspect(@lens.json_schema([name.nullable(), name]), content={
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "name": { "type": "string" } },
+    "required": ["name"],
+  })
+}
+
+///|
+test "json_schema - renders incompatible declarations as false" {
+  let root = @lens.root()
+  @json.json_inspect(
+    @lens.json_schema([root.string("value"), root.bool("value")]),
+    content={
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": { "value": false },
+      "required": ["value"],
     },
   )
 }

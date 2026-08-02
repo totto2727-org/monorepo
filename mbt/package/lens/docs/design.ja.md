@@ -145,11 +145,11 @@ Lens::or_else        fallback to another location, if this feature is needed
 
 unknown-field検証は、オブジェクト境界と宣言されたキーを記録する明示的なobject-check表現を待つ必要があります。`strip_unknown`と`passthrough`はデータを変換または返すため、検証専用APIには属しません。
 
-### スキーマ生成には宣言的なデコーダーメタデータが必要
+### スキーマ生成では宣言的なデコーダーメタデータを使用する
 
 不透明なpredicateおよびtransformクロージャをJSON SchemaやOpenAPIへ確実に変換することはできません。pointerとdecoderの分離は実装構造を改善しますが、スキーマ生成には不十分です。
 
-後から宣言的な制約モデルが導入されない限り、スキーマ生成は非目標です。
+そのため、組み込みlens constructorはdecoderおよびencoderとともに最小限の宣言的schema shapeを保持します。これにより、object path、プリミティブJSON kind、配列、required property、nullable値をサポートします。将来のpredicate、alternative、transform APIでは、schema生成で表現する前に対応するメタデータを追加する必要があります。
 
 ## アーキテクチャ
 
@@ -606,7 +606,7 @@ JSON SchemaとOpenAPIの生成は、サポートされる制約ごとに宣言�
 - 宣言的オブジェクト境界。
 - Unknown-field拒否。
 
-JSON SchemaとOpenAPI生成は、サポートするすべての制約に宣言的メタデータが必要な、別の提案として扱います。
+OpenAPI生成とより豊富なJSON Schema制約は、サポートするすべての制約に宣言的メタデータが必要な、別の提案として扱います。
 
 ### マイルストーン5: Typed output construction
 

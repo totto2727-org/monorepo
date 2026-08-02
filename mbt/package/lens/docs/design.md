@@ -145,11 +145,11 @@ A validator composed only from independent `LensTrait` checks does not know the 
 
 Unknown-field validation must wait for an explicit object-check representation that records the object boundary and declared keys. `strip_unknown` and `passthrough` transform or return data, so they do not belong to a validation-only API.
 
-### Schema generation requires declarative decoder metadata
+### Schema generation uses declarative decoder metadata
 
 Opaque predicate and transform closures cannot be translated reliably into JSON Schema or OpenAPI. Pointer and decoder separation improves implementation structure, but it is not sufficient for schema generation.
 
-Schema generation is a non-goal unless a later design introduces a declarative constraint model.
+The built-in lens constructors therefore retain a minimal declarative schema shape alongside their decoder and encoder. This supports object paths, primitive JSON kinds, arrays, required properties, and nullable values. Future predicate, alternative, or transform APIs must add corresponding metadata before schema generation can represent them.
 
 ## Architecture
 
@@ -604,7 +604,7 @@ Exit criteria:
 - Declarative object boundaries.
 - Unknown-field rejection.
 
-JSON Schema and OpenAPI generation remain separate proposals that require declarative metadata for every supported constraint.
+OpenAPI generation and richer JSON Schema constraints remain separate proposals that require declarative metadata for every supported constraint.
 
 ### Milestone 5: Typed output construction
 

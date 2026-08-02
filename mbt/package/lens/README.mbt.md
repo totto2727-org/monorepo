@@ -118,7 +118,7 @@ test {
 
 ## JSON Schema
 
-Every `Lens[T]` and `ObjectLens` implements `LensTrait::to_json_schema`. The result is a Draft 2020-12 schema fragment that includes the lens's complete path. Pass the same heterogeneous lens array accepted by `validate` to `json_schema` to produce a complete schema. Aggregate checks are emitted as `allOf` entries because validation requires every lens to succeed.
+Every `Lens[T]` and `ObjectLens` implements `LensTrait::to_json_schema`. The result is a Draft 2020-12 schema fragment that includes the lens's complete path. Pass the same heterogeneous lens array accepted by `validate` to `json_schema` to produce one object schema. Compatible paths are merged recursively, required names retain their first-seen order, and incompatible declarations at the same path produce a `false` property schema.
 
 ```mbt check
 test {
