@@ -260,21 +260,34 @@ pub fn[T] PresenceLens::get(
   self : PresenceLens[T],
   document : Json,
 ) -> T? raise LensError {
-  let selected = match lookup(document, self.lens.pointer) {
-    Some(value) => value
-    None =>
-      match self.mode {
-        Optional | Nullish(_) => return None
-        Nullable => raise missing_property(self.lens.pointer)
-      }
-  }
   match self.mode {
-    Optional => Some(self.lens.decode_selected(selected))
-    Nullable | Nullish(_) =>
+    Optional => {
+      let selected = match lookup(document, self.lens.pointer) {
+        Some(value) => value
+        None => return None
+      }
+      Some(self.lens.decode_selected(selected))
+    }
+    Nullable => {
+      let selected = match lookup(document, self.lens.pointer) {
+        Some(value) => value
+        None => raise missing_property(self.lens.pointer)
+      }
       match selected {
         Json::Null => None
         _ => Some(self.lens.decode_selected(selected))
       }
+    }
+    Nullish(_) => {
+      let selected = match lookup(document, self.lens.pointer) {
+        Some(value) => value
+        None => return None
+      }
+      match selected {
+        Json::Null => None
+        _ => Some(self.lens.decode_selected(selected))
+      }
+    }
   }
 }
 
