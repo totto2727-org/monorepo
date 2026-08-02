@@ -38,11 +38,11 @@ fn OpenCodeExec::OpenCodeExec(
 }
 
 ///|
-/// Execute the OpenCode CLI and deliver each JSONL line to `on_line`.
+/// Execute the OpenCode CLI and deliver each decoded event to `on_event`.
 async fn OpenCodeExec::run(
   self : OpenCodeExec,
   args : OpenCodeExecArgs,
-  on_line : async (@agent_cli.JsonLine) -> Bool,
+  on_event : async (ThreadEvent) -> Bool,
 ) -> Unit {
   let command_args = ["run", "--format", "json"]
   if args.session_id is Some(session_id) {
@@ -93,7 +93,7 @@ async fn OpenCodeExec::run(
       inherit_environment~,
       input=args.input,
     ),
-    on_line,
+    on_event,
   ) catch {
     @agent_cli.AgentCliError::InvalidJson(line~, cause~) =>
       raise InvalidEvent(
