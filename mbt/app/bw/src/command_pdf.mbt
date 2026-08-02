@@ -85,32 +85,32 @@ let pdf_goto_wait_until_lens : @lens.Lens[String] = @lens.root().string(
 )
 
 ///|
-let pdf_options_landscape_lens : @lens.Lens[Bool?] = @lens.root()
+let pdf_options_landscape_lens : @lens.PresenceLens[Bool] = @lens.root()
   .bool("landscape")
   .optional()
 
 ///|
-let pdf_options_format_lens : @lens.Lens[String?] = @lens.root()
+let pdf_options_format_lens : @lens.PresenceLens[String] = @lens.root()
   .string("format")
   .optional()
 
 ///|
-let pdf_body_url_lens : @lens.Lens[String?] = @lens.root()
+let pdf_body_url_lens : @lens.PresenceLens[String] = @lens.root()
   .string("url")
   .optional()
 
 ///|
-let pdf_body_html_lens : @lens.Lens[String?] = @lens.root()
+let pdf_body_html_lens : @lens.PresenceLens[String] = @lens.root()
   .string("html")
   .optional()
 
 ///|
-let pdf_body_goto_options_lens : @lens.Lens[Json?] = @lens.root()
+let pdf_body_goto_options_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("gotoOptions")
   .optional()
 
 ///|
-let pdf_body_pdf_options_lens : @lens.Lens[Json?] = @lens.root()
+let pdf_body_pdf_options_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("pdfOptions")
   .optional()
 

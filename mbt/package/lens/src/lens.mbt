@@ -10,7 +10,20 @@ pub struct Lens[T] {
   priv pointer : Pointer
   priv decoder : Decoder[T]
   priv encoder : Encoder[T]
-  priv on_missing : (() -> T)?
+}
+
+///|
+/// A typed accessor whose missing and `null` behavior can be replaced without nesting options.
+pub struct PresenceLens[T] {
+  priv lens : Lens[T]
+  priv mode : PresenceMode
+}
+
+///|
+priv enum PresenceMode {
+  Nullable
+  Optional
+  Nullish(NullishEncodeMode)
 }
 
 ///|
@@ -28,7 +41,6 @@ pub fn root() -> ObjectLens {
       pointer: Pointer::root(),
       decoder: object_decoder(),
       encoder: object_encoder(),
-      on_missing: None,
     },
   }
 }
@@ -47,7 +59,6 @@ pub fn ObjectLens::object(self : ObjectLens, key : String) -> ObjectLens {
       pointer: self.lens.pointer.key(key),
       decoder: object_decoder(),
       encoder: object_encoder(),
-      on_missing: None,
     },
   }
 }
@@ -59,7 +70,6 @@ pub fn ObjectLens::string(self : ObjectLens, key : String) -> Lens[String] {
     pointer: self.lens.pointer.key(key),
     decoder: string_decoder(),
     encoder: string_encoder(),
-    on_missing: None,
   }
 }
 
@@ -70,7 +80,6 @@ pub fn ObjectLens::bool(self : ObjectLens, key : String) -> Lens[Bool] {
     pointer: self.lens.pointer.key(key),
     decoder: bool_decoder(),
     encoder: bool_encoder(),
-    on_missing: None,
   }
 }
 
@@ -81,7 +90,6 @@ pub fn ObjectLens::number(self : ObjectLens, key : String) -> Lens[Double] {
     pointer: self.lens.pointer.key(key),
     decoder: number_decoder(),
     encoder: number_encoder(),
-    on_missing: None,
   }
 }
 
@@ -92,7 +100,6 @@ pub fn ObjectLens::int(self : ObjectLens, key : String) -> Lens[Int] {
     pointer: self.lens.pointer.key(key),
     decoder: int_decoder(),
     encoder: int_encoder(),
-    on_missing: None,
   }
 }
 
@@ -103,7 +110,6 @@ pub fn ObjectLens::json(self : ObjectLens, key : String) -> Lens[Json] {
     pointer: self.lens.pointer.key(key),
     decoder: json_decoder(),
     encoder: json_encoder(),
-    on_missing: None,
   }
 }
 
@@ -114,30 +120,19 @@ pub fn[T] Lens::array(self : Lens[T]) -> Lens[Array[T]] {
     pointer: self.pointer,
     decoder: array_decoder(self.decoder),
     encoder: array_encoder(self.encoder),
-    on_missing: None,
   }
 }
 
 ///|
 /// Returns `None` for JSON `null` while preserving missing-property errors.
-pub fn[T] Lens::nullable(self : Lens[T]) -> Lens[T?] {
-  Lens::{
-    pointer: self.pointer,
-    decoder: nullable_decoder(self.decoder),
-    encoder: nullable_encoder(self.encoder),
-    on_missing: None,
-  }
+pub fn[T] Lens::nullable(self : Lens[T]) -> PresenceLens[T] {
+  PresenceLens::{ lens: self, mode: Nullable }
 }
 
 ///|
 /// Returns `None` for a missing selected path while rejecting JSON `null`.
-pub fn[T] Lens::optional(self : Lens[T]) -> Lens[T?] {
-  Lens::{
-    pointer: self.pointer,
-    decoder: optional_decoder(self.decoder),
-    encoder: optional_encoder(self.encoder),
-    on_missing: Some(() => None),
-  }
+pub fn[T] Lens::optional(self : Lens[T]) -> PresenceLens[T] {
+  PresenceLens::{ lens: self, mode: Optional }
 }
 
 ///|
@@ -147,15 +142,38 @@ pub fn[T] Lens::optional(self : Lens[T]) -> Lens[T?] {
 pub fn[T] Lens::nullish(
   self : Lens[T],
   encode_mode? : NullishEncodeMode,
-) -> Lens[T?] {
+) -> PresenceLens[T] {
+  PresenceLens::{ lens: self, mode: Nullish(encode_mode.unwrap_or(Omit)) }
+}
+
+///|
+/// Replaces the current presence policy with nullable semantics.
+pub fn[T] PresenceLens::nullable(self : PresenceLens[T]) -> PresenceLens[T] {
+  PresenceLens::{ lens: self.lens, mode: Nullable }
+}
+
+///|
+/// Replaces the current presence policy with optional semantics.
+pub fn[T] PresenceLens::optional(self : PresenceLens[T]) -> PresenceLens[T] {
+  PresenceLens::{ lens: self.lens, mode: Optional }
+}
+
+///|
+/// Replaces the current presence policy with nullish semantics.
+pub fn[T] PresenceLens::nullish(
+  self : PresenceLens[T],
+  encode_mode? : NullishEncodeMode,
+) -> PresenceLens[T] {
+  PresenceLens::{ lens: self.lens, mode: Nullish(encode_mode.unwrap_or(Omit)) }
+}
+
+///|
+/// Returns a lens that treats every array item as nullable.
+pub fn[T] PresenceLens::array(self : PresenceLens[T]) -> Lens[Array[T?]] {
   Lens::{
-    pointer: self.pointer,
-    decoder: nullable_decoder(self.decoder),
-    encoder: match encode_mode {
-      Some(Null) => nullable_encoder(self.encoder)
-      Some(Omit) | None => optional_encoder(self.encoder)
-    },
-    on_missing: Some(() => None),
+    pointer: self.lens.pointer,
+    decoder: array_decoder(nullable_decoder(self.lens.decoder)),
+    encoder: array_encoder(nullable_encoder(self.lens.encoder)),
   }
 }
 
@@ -169,6 +187,15 @@ pub fn[T] Lens::add_to_json_path(
 }
 
 ///|
+/// Appends this lens's pointer to an existing JSON path.
+pub fn[T] PresenceLens::add_to_json_path(
+  self : PresenceLens[T],
+  path : @json.JsonPath,
+) -> @json.JsonPath {
+  self.lens.pointer.add_to_json_path(path)
+}
+
+///|
 /// Creates a standard JSON decode error at this lens's location under an existing path.
 pub fn[T] Lens::json_decode_error(
   self : Lens[T],
@@ -176,6 +203,16 @@ pub fn[T] Lens::json_decode_error(
   message : String,
 ) -> @json.JsonDecodeError {
   self.pointer.json_decode_error(path, message)
+}
+
+///|
+/// Creates a standard JSON decode error at this lens's location under an existing path.
+pub fn[T] PresenceLens::json_decode_error(
+  self : PresenceLens[T],
+  path : @json.JsonPath,
+  message : String,
+) -> @json.JsonDecodeError {
+  self.lens.pointer.json_decode_error(path, message)
 }
 
 ///|
@@ -192,18 +229,21 @@ pub fn ObjectLens::get(
 pub fn[T] Lens::get(self : Lens[T], document : Json) -> T raise LensError {
   let selected = match lookup(document, self.pointer) {
     Some(value) => value
-    None => {
-      match self.on_missing {
-        Some(on_missing) => return on_missing()
-        None => ()
-      }
-      raise LensError(Issue::{
-        pointer: self.pointer,
-        code: MissingProperty,
-        message: None,
-      })
-    }
+    None => raise missing_property(self.pointer)
   }
+  self.decode_selected(selected)
+}
+
+///|
+fn missing_property(pointer : Pointer) -> LensError {
+  LensError(Issue::{ pointer, code: MissingProperty, message: None })
+}
+
+///|
+fn[T] Lens::decode_selected(
+  self : Lens[T],
+  selected : Json,
+) -> T raise LensError {
   self.decoder.decode(selected) catch {
     DecodeProblem(pointer, code, message) =>
       raise LensError(Issue::{
@@ -215,12 +255,49 @@ pub fn[T] Lens::get(self : Lens[T], document : Json) -> T raise LensError {
 }
 
 ///|
+/// Reads and decodes this presence-aware lens from a JSON document.
+pub fn[T] PresenceLens::get(
+  self : PresenceLens[T],
+  document : Json,
+) -> T? raise LensError {
+  let selected = match lookup(document, self.lens.pointer) {
+    Some(value) => value
+    None =>
+      match self.mode {
+        Optional | Nullish(_) => return None
+        Nullable => raise missing_property(self.lens.pointer)
+      }
+  }
+  match self.mode {
+    Optional => Some(self.lens.decode_selected(selected))
+    Nullable | Nullish(_) =>
+      match selected {
+        Json::Null => None
+        _ => Some(self.lens.decode_selected(selected))
+      }
+  }
+}
+
+///|
 /// Reads this lens and translates a lens failure into a standard JSON decode error.
 pub fn[T] Lens::get_or_json_decode_error(
   self : Lens[T],
   document : Json,
   path : @json.JsonPath,
 ) -> T raise @json.JsonDecodeError {
+  self.get(document) catch {
+    LensError(issue) =>
+      raise issue.pointer.json_decode_error(path, repr(LensError(issue)))
+  }
+}
+
+///|
+/// Reads this lens and translates a lens failure into a standard JSON decode error.
+pub fn[T] PresenceLens::get_or_json_decode_error(
+  self : PresenceLens[T],
+  document : Json,
+  path : @json.JsonPath,
+) -> T? raise @json.JsonDecodeError {
   self.get(document) catch {
     LensError(issue) =>
       raise issue.pointer.json_decode_error(path, repr(LensError(issue)))

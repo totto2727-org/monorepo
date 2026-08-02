@@ -1,55 +1,55 @@
 ///|
-let lock_plugin_name_lens : @lens.Lens[Json?] = @lens.root()
+let lock_plugin_name_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("name")
   .optional()
 
 ///|
-let lock_plugin_path_lens : @lens.Lens[Json?] = @lens.root()
+let lock_plugin_path_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("path")
   .optional()
 
 ///|
-let lock_plugin_enabled_skills_lens : @lens.Lens[Json?] = @lens.root()
+let lock_plugin_enabled_skills_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("enabledSkills")
   .optional()
 
 ///|
-let lock_repository_source_lens : @lens.Lens[Json?] = @lens.root()
+let lock_repository_source_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("source")
   .optional()
 
 ///|
-let lock_repository_source_type_lens : @lens.Lens[Json?] = @lens.root()
+let lock_repository_source_type_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("sourceType")
   .optional()
 
 ///|
-let lock_repository_marketplace_kind_lens : @lens.Lens[Json?] = @lens.root()
+let lock_repository_marketplace_kind_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("marketplaceKind")
   .optional()
 
 ///|
-let lock_repository_commit_hash_lens : @lens.Lens[Json?] = @lens.root()
+let lock_repository_commit_hash_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("commitHash")
   .optional()
 
 ///|
-let lock_repository_plugins_lens : @lens.Lens[Json?] = @lens.root()
+let lock_repository_plugins_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("plugins")
   .optional()
 
 ///|
-let lock_file_version_lens : @lens.Lens[Json?] = @lens.root()
+let lock_file_version_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("version")
   .optional()
 
 ///|
-let lock_file_skill_dirs_lens : @lens.Lens[Json?] = @lens.root()
+let lock_file_skill_dirs_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("skillDirs")
   .optional()
 
 ///|
-let lock_file_repositories_lens : @lens.Lens[Json?] = @lens.root()
+let lock_file_repositories_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("repositories")
   .optional()
 

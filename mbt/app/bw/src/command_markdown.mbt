@@ -59,17 +59,17 @@ let markdown_goto_wait_until_lens : @lens.Lens[String] = @lens.root().string(
 )
 
 ///|
-let markdown_body_url_lens : @lens.Lens[String?] = @lens.root()
+let markdown_body_url_lens : @lens.PresenceLens[String] = @lens.root()
   .string("url")
   .optional()
 
 ///|
-let markdown_body_html_lens : @lens.Lens[String?] = @lens.root()
+let markdown_body_html_lens : @lens.PresenceLens[String] = @lens.root()
   .string("html")
   .optional()
 
 ///|
-let markdown_body_goto_options_lens : @lens.Lens[Json?] = @lens.root()
+let markdown_body_goto_options_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("gotoOptions")
   .optional()
 

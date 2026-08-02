@@ -70,17 +70,17 @@ let scrape_element_selector_lens : @lens.Lens[String] = @lens.root().string(
 )
 
 ///|
-let scrape_body_url_lens : @lens.Lens[String?] = @lens.root()
+let scrape_body_url_lens : @lens.PresenceLens[String] = @lens.root()
   .string("url")
   .optional()
 
 ///|
-let scrape_body_html_lens : @lens.Lens[String?] = @lens.root()
+let scrape_body_html_lens : @lens.PresenceLens[String] = @lens.root()
   .string("html")
   .optional()
 
 ///|
-let scrape_body_goto_options_lens : @lens.Lens[Json?] = @lens.root()
+let scrape_body_goto_options_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("gotoOptions")
   .optional()
 

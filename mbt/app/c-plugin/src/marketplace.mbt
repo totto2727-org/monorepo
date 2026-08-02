@@ -191,32 +191,32 @@ fn normalize_plugin_source(value : String?) -> String? {
 }
 
 ///|
-let marketplace_source_path_lens : @lens.Lens[Json?] = @lens.root()
+let marketplace_source_path_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("path")
   .optional()
 
 ///|
-let marketplace_plugin_name_lens : @lens.Lens[Json?] = @lens.root()
+let marketplace_plugin_name_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("name")
   .optional()
 
 ///|
-let marketplace_plugin_source_lens : @lens.Lens[Json?] = @lens.root()
+let marketplace_plugin_source_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("source")
   .optional()
 
 ///|
-let marketplace_plugin_description_lens : @lens.Lens[Json?] = @lens.root()
+let marketplace_plugin_description_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("description")
   .optional()
 
 ///|
-let marketplace_name_lens : @lens.Lens[Json?] = @lens.root()
+let marketplace_name_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("name")
   .optional()
 
 ///|
-let marketplace_plugins_lens : @lens.Lens[Json?] = @lens.root()
+let marketplace_plugins_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("plugins")
   .optional()
 

@@ -69,10 +69,7 @@ test "Lens set - reports a conflicting intermediate value" {
     @lens.object("user").string("name").set(builder, "Ada")
   })
   inspect(issue.pointer.to_string(), content="/user")
-  match issue.code {
-    @lens.JsonBuildIssueCode::PathConflict => ()
-    _ => fail("expected PathConflict")
-  }
+  debug_inspect(issue.code, content="PathConflict")
   @json.json_inspect(builder, content={ "user": "invalid" })
 }
 
@@ -90,20 +87,34 @@ test "Lens set - selects how nullish None is encoded" {
 }
 
 ///|
-test "Lens set - rejects omission inside an array" {
+test "PresenceLens set - the last presence policy controls None" {
   let builder = @lens.JsonBuilder::JsonBuilder()
-  @lens.root().string("status").set(builder, "ready")
-  let issue = get_build_issue(() => {
-    @lens.root()
-    .string("names")
-    .optional()
-    .array()
-    .set(builder, [Some("Ada"), None])
+  let root = @lens.root()
+  root.string("optionalThenNullable").optional().nullable().set(builder, None)
+  root.string("nullishThenNullable").nullish().nullable().set(builder, None)
+  root.string("nullableThenOptional").nullable().optional().set(builder, None)
+  root
+  .string("optionalThenNullish")
+  .optional()
+  .nullish(encode_mode=@lens.NullishEncodeMode::Null)
+  .set(builder, None)
+  @json.json_inspect(builder, content={
+    "optionalThenNullable": null,
+    "nullishThenNullable": null,
+    "optionalThenNullish": null,
   })
-  inspect(issue.pointer.to_string(), content="/names/1")
-  match issue.code {
-    @lens.JsonBuildIssueCode::OmissionNotAllowed => ()
-    _ => fail("expected OmissionNotAllowed")
-  }
-  @json.json_inspect(builder, content={ "status": "ready" })
+}
+
+///|
+test "PresenceLens array - encodes None as null for every presence policy" {
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  let root = @lens.root()
+  root.string("optional").optional().array().set(builder, [Some("Ada"), None])
+  root.string("nullable").nullable().array().set(builder, [Some("Ada"), None])
+  root.string("nullish").nullish().array().set(builder, [Some("Ada"), None])
+  @json.json_inspect(builder, content={
+    "optional": ["Ada", null],
+    "nullable": ["Ada", null],
+    "nullish": ["Ada", null],
+  })
 }

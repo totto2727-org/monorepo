@@ -107,13 +107,6 @@ fn[T] array_decoder(item_decoder : Decoder[T]) -> Decoder[Array[T]] {
 }
 
 ///|
-fn[T] optional_decoder(decoder : Decoder[T]) -> Decoder[T?] {
-  Decoder::{
-    decode_: fn(value) -> T? raise DecodeProblem { Some(decoder.decode(value)) },
-  }
-}
-
-///|
 fn[T] nullable_decoder(decoder : Decoder[T]) -> Decoder[T?] {
   Decoder::{
     decode_: fn(value) -> T? raise DecodeProblem {

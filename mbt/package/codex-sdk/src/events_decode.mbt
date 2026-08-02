@@ -13,7 +13,7 @@ let usage_cached_input_tokens_lens : @lens.Lens[Json] = @lens.root().json(
 )
 
 ///|
-let usage_cache_write_input_tokens_lens : @lens.Lens[Json?] = @lens.root()
+let usage_cache_write_input_tokens_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("cache_write_input_tokens")
   .optional()
 

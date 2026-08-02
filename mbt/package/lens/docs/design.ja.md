@@ -16,7 +16,7 @@
 - パッケージ独自のpointer表現を`@json.JsonPath`から独立させる。
 - 1つのlensからは`LensError`を発生させ、集約チェックからは非ジェネリックな`Validation`を返す。
 - 欠落プロパティと明示的なJSON`null`を異なる状態として保持する。
-- `Lens[T]`と`ObjectLens`に静的な結果型を保持し、検証は成功または蓄積された問題のみを報告する。
+- `Lens[T]`、`PresenceLens[T]`、`ObjectLens`に静的な結果型を保持し、検証は成功または蓄積された問題のみを報告する。
 - 具体的なlens型を集約検証の境界で消去するため、チェック専用の`LensTrait`トレイトオブジェクトを使用する。
 - まずオブジェクトプロパティとプリミティブデコーダーから開始する。
 - 数値の解析と変換はMoonBit core APIに委譲し、パッケージ独自の数値パーサーは持たない。
@@ -113,15 +113,16 @@ MoonBitは、TypeScriptライブラリがZodスキーマ式から型を推論す
 | `null`   |   型エラー |       型エラー |         `None` |                  `None` |
 | 文字列   |         値 |  `Some(value)` |  `Some(value)` |           `Some(value)` |
 
-Optional nullable値を`lens.optional().nullable()`として実装してはいけません。どちらの操作も出力をoptionに変更するため、単純なチェーンではネストしたoption型または曖昧な意味になります。次の3つの明示的なcombinatorを使用します。
+presence combinatorを適用すると`PresenceLens[T]`になり、decodeおよびencodeする値の型は`T?`になります。別のpresence combinatorを適用してもoption型はネストせず、後のpolicyが前のpolicyを置き換えます。最後の呼び出しが欠落値とJSON `null`の両方の動作を決定します。
 
 ```moonbit
 lens.optional()
 lens.nullable()
-lens.optional_nullable()
+lens.nullish()
+lens.optional().nullable() // lens.nullable()と同等
 ```
 
-これらの操作は、正確なMoonBitシグネチャをコンパイルしてテストするまで延期します。
+特に`optional().nullable()`と`nullish().nullable()`はnullishではなくnullableです。プロパティの欠落はエラーになり、JSON `null`は`None`へdecodeされ、`None`はJSON `null`としてencodeされます。
 
 ### 値のalternativeとロケーションfallbackを分離する
 
@@ -194,7 +195,7 @@ pub struct Decoder[T] {
 
 ### Encoder
 
-`Encoder[T]`は、型付き値を1つのJSON leafまたは省略要求へ変換します。プリミティブエンコーダーはMoonBit coreのJSONコンストラクターに委譲します。配列エンコーダーはすべての項目をエンコードしますが、配列内のoptional省略はJSON配列に欠落要素を含められないため拒否します。
+`Encoder[T]`は、型付き値を1つの具体的なJSON値へ変換します。プリミティブエンコーダーはMoonBit coreのJSONコンストラクターに委譲し、プロパティ省略は`Encoder`ではなく`PresenceLens::set`が担当します。JSON配列は後続indexをずらさずに欠落要素を含められないため、`PresenceLens::array`はすべてのpresence modeをencode/decodeともにnullableな項目意味論へ正規化します。JSON `null`は`None`へデコードされ、`None`はJSON `null`としてエンコードされます。
 
 presence combinatorには明示的なbuilder動作があります。
 
@@ -301,7 +302,7 @@ pub(all) enum NullishEncodeMode {
 pub fn Lens::nullish[T](
   Self[T],
   encode_mode? : NullishEncodeMode,
-) -> Lens[T?]
+) -> PresenceLens[T]
 
 pub fn JsonBuilder::JsonBuilder() -> JsonBuilder
 
@@ -466,7 +467,7 @@ pub fn validate(
 ) -> Validation
 ```
 
-`LensTrait`は意図的な型消去境界です。readonlyかつsealedであり、このパッケージだけが実装を定義できます。その唯一のメソッドはlensのトラバーサルとdecoderを実行し、成功した値を破棄し、発生した`Issue`を集約用に保持します。MoonBitは各異種結果型を保持する型パラメーター付きtrait objectを表現できないため、型付き`get`は`Lens[T]`と`ObjectLens]`に残ります。
+`LensTrait`は意図的な型消去境界です。readonlyかつsealedであり、このパッケージだけが実装を定義できます。その唯一のメソッドはlensのトラバーサルとdecoderを実行し、成功した値を破棄し、発生した`Issue`を集約用に保持します。MoonBitは各異種結果型を保持する型パラメーター付きtrait objectを表現できないため、型付き`get`は`Lens[T]`、`PresenceLens[T]`、`ObjectLens`に残ります。
 
 ```moonbit
 let user = object("user")
@@ -570,7 +571,7 @@ JSON SchemaとOpenAPIの生成は、サポートされる制約ごとに宣言�
 ### マイルストーン2: Aggregate validation
 
 - 非ジェネリックな`Validation`。
-- `Lens[T]`と`ObjectLens`が実装するチェック専用`LensTrait`。
+- `Lens[T]`、`PresenceLens[T]`、`ObjectLens`が実装するチェック専用`LensTrait`。
 - trait-object aggregate `validate`。
 - 決定的なエラー順序。
 - 安定した制約コードを持つrefinement。
@@ -584,7 +585,7 @@ JSON SchemaとOpenAPIの生成は、サポートされる制約ごとに宣言�
 
 ### マイルストーン3: Presence and collections
 
-- `optional`、`nullable`、`optional_nullable`。
+- `optional`、`nullable`、`nullish`。
 - デフォルトでは欠落値にだけ適用される`default`。
 - index付きpointerを持つ配列item decoding。
 - 配列長制約。

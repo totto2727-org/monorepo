@@ -10,7 +10,7 @@ Keep `Json`, `@admiral.Context`, environment strings, and weak library values in
 Json -> external response type -> validated domain type -> external request type -> Json
 ```
 
-An external response type mirrors the remote contract and can use the optional and primitive fields that the source actually sends. A domain constructor validates identifiers, enum cases, units, ranges, required relationships, and cross-field invariants before returning the internal type. An external request type mirrors the outbound contract and owns its only `T -> Json` interface as a standard `ToJson::to_json` implementation. For a known object shape, define complete output lenses at the top level and populate a `JsonBuilder` through those lenses' `set_or_abort` operations inside `to_json`. Do not expose a separate encoder helper or method that returns `Json`.
+An external response type mirrors the remote contract and can use the optional and primitive fields that the source actually sends. A domain constructor validates identifiers, enum cases, units, ranges, required relationships, and cross-field invariants before returning the internal type. An external request type mirrors the outbound contract and owns its only `T -> Json` interface as a standard `ToJson::to_json` implementation. For a known object shape, define complete output lenses at the top level and populate a `JsonBuilder` through those lenses' `set_or_abort` operations inside `to_json`. Required output lenses use `Lens[T]`; lenses configured with `nullable`, `optional`, or `nullish` use `PresenceLens[T]`, where `T` is the underlying non-option type. Do not expose a separate encoder helper or method that returns `Json`.
 
 ## JSON ingress
 

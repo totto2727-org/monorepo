@@ -2,7 +2,6 @@
 /// A machine-readable reason why a typed value could not be written to a JSON builder.
 pub(all) enum JsonBuildIssueCode {
   PathConflict
-  OmissionNotAllowed
 } derive(Eq, Debug)
 
 ///|
@@ -120,14 +119,41 @@ pub fn[T] Lens::set(
   builder : JsonBuilder,
   value : T,
 ) -> Unit raise JsonBuildError {
-  let encoded = self.encoder.encode(value) catch {
-    EncodeProblem(pointer, code) =>
-      raise build_error(self.pointer.append(pointer), code)
-  }
-  match encoded {
-    Present(value) =>
-      set_build_value(builder.properties, self.pointer, 0, value)
-    Omitted => remove_build_value(builder.properties, self.pointer, 0)
+  set_build_value(
+    builder.properties,
+    self.pointer,
+    0,
+    self.encoder.encode(value),
+  )
+}
+
+///|
+/// Writes an optional typed value using this lens's current presence policy.
+pub fn[T] PresenceLens::set(
+  self : PresenceLens[T],
+  builder : JsonBuilder,
+  value : T?,
+) -> Unit raise JsonBuildError {
+  match value {
+    Some(value) =>
+      set_build_value(
+        builder.properties,
+        self.lens.pointer,
+        0,
+        self.lens.encoder.encode(value),
+      )
+    None =>
+      match self.mode {
+        Nullable | Nullish(Null) =>
+          set_build_value(
+            builder.properties,
+            self.lens.pointer,
+            0,
+            Json::null(),
+          )
+        Optional | Nullish(Omit) =>
+          remove_build_value(builder.properties, self.lens.pointer, 0)
+      }
   }
 }
 
@@ -139,6 +165,18 @@ pub fn[T] Lens::set_or_abort(
   self : Lens[T],
   builder : JsonBuilder,
   value : T,
+) -> Unit {
+  self.set(builder, value) catch {
+    error => abort("invalid lens-based ToJson implementation: \{repr(error)}")
+  }
+}
+
+///|
+/// Writes an optional typed value for an infallible serialization contract.
+pub fn[T] PresenceLens::set_or_abort(
+  self : PresenceLens[T],
+  builder : JsonBuilder,
+  value : T?,
 ) -> Unit {
   self.set(builder, value) catch {
     error => abort("invalid lens-based ToJson implementation: \{repr(error)}")

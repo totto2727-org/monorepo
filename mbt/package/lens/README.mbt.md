@@ -2,7 +2,7 @@
 
 Reusable typed access, construction, and aggregate validation for MoonBit JSON values.
 
-The package keeps static types on `Lens[T]`, while `ObjectLens` reads selected objects as `Map[String, Json]`. The returned map is copied so top-level mutations do not change the source document; nested `Json` values retain their normal sharing semantics. A `JsonBuilder` accepts typed values through the same lenses and implements `ToJson`. Validation only reports whether every requested read succeeds; it does not infer or construct application types from runtime definitions. After successful validation, read values through the original lenses.
+The package keeps static types on `Lens[T]`. Applying `nullable`, `optional`, or `nullish` produces `PresenceLens[T]`, whose reads and writes use `T?` without nesting options. `ObjectLens` reads selected objects as `Map[String, Json]`. The returned map is copied so top-level mutations do not change the source document; nested `Json` values retain their normal sharing semantics. A `JsonBuilder` accepts typed values through the same lenses and implements `ToJson`. Validation only reports whether every requested read succeeds; it does not infer or construct application types from runtime definitions. After successful validation, read values through the original lenses.
 
 ## Typed access
 
@@ -62,9 +62,9 @@ test {
 }
 ```
 
-`nullable(None)` writes JSON `null`, while `optional(None)` omits the property and removes a previous value at the same pointer. `nullish(None)` omits the property by default; pass `encode_mode=NullishEncodeMode::Null` to write JSON `null` instead. Omission inside an array is rejected; use `Null` mode or a nullable item lens when JSON `null` is intended.
+`nullable(None)` writes JSON `null`, while `optional(None)` omits the property and removes a previous value at the same pointer. `nullish(None)` omits the property by default; pass `encode_mode=NullishEncodeMode::Null` to write JSON `null` instead. Repeated presence combinators use the last call, so both `optional().nullable()` and `nullish().nullable()` have nullable semantics: `None` writes JSON `null`, and a missing property remains an error. Array items cannot be omitted without changing later indices, so `PresenceLens::array()` always treats its items as nullable for both encoding and decoding.
 
-`Lens::set` raises `JsonBuildError(JsonBuildIssue)` for an encoded leaf that blocks a nested object path or an omission requested inside an array. The issue contains the exact output pointer and a structured `JsonBuildIssueCode`. The builder is unchanged when value encoding fails.
+`Lens::set` raises `JsonBuildError(JsonBuildIssue)` when an encoded leaf blocks a nested object path. The issue contains the exact output pointer and a structured `JsonBuildIssueCode`. The builder is unchanged when construction fails.
 
 ## Arrays and presence
 
@@ -90,9 +90,13 @@ test {
 
 Here, missing means that the selected leaf property is absent. A missing intermediate object remains an error so optional values cannot hide an invalid surrounding structure.
 
+`PresenceLens::array()` is a normalization boundary: regardless of whether it was created from `optional`, `nullable`, or `nullish`, every item uses nullable semantics. JSON `null` decodes to `None`, and `None` encodes as JSON `null`, preserving array indices and matching JavaScript JSON array serialization. This differs from `primitive.array().optional()`, where `optional` applies to the whole array property rather than its items.
+
+Presence combinators can be replaced without changing the value type. Each call returns `PresenceLens[T]`, and the final call determines both decoding and encoding behavior. For example, `nullable().optional()` accepts a missing property but rejects JSON `null`, while `optional().nullable()` rejects a missing property but accepts and writes JSON `null`.
+
 ## Validation
 
-`LensTrait` exposes only the type-erased `check` operation required by aggregate validation. `Lens[T]` and `ObjectLens` implement it, so heterogeneous lenses can be passed directly to `validate`. Every check runs, and failures are returned in input order.
+`LensTrait` exposes only the type-erased `check` operation required by aggregate validation. `Lens[T]`, `PresenceLens[T]`, and `ObjectLens` implement it, so heterogeneous lenses can be passed directly to `validate`. Every check runs, and failures are returned in input order.
 
 ```mbt check
 test {

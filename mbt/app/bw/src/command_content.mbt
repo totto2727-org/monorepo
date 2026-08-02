@@ -59,17 +59,17 @@ let content_goto_wait_until_lens : @lens.Lens[String] = @lens.root().string(
 )
 
 ///|
-let content_body_url_lens : @lens.Lens[String?] = @lens.root()
+let content_body_url_lens : @lens.PresenceLens[String] = @lens.root()
   .string("url")
   .optional()
 
 ///|
-let content_body_html_lens : @lens.Lens[String?] = @lens.root()
+let content_body_html_lens : @lens.PresenceLens[String] = @lens.root()
   .string("html")
   .optional()
 
 ///|
-let content_body_goto_options_lens : @lens.Lens[Json?] = @lens.root()
+let content_body_goto_options_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("gotoOptions")
   .optional()
 

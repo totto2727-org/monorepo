@@ -131,17 +131,17 @@ let simple_array_lens : @lens.Lens[Array[String]] = @lens.root()
   .array()
 
 ///|
-let simple_nullable_lens : @lens.Lens[String?] = @lens.root()
+let simple_nullable_lens : @lens.PresenceLens[String] = @lens.root()
   .string("nullable")
   .nullable()
 
 ///|
-let simple_optional_lens : @lens.Lens[String?] = @lens.root()
+let simple_optional_lens : @lens.PresenceLens[String] = @lens.root()
   .string("optional")
   .optional()
 
 ///|
-let simple_nullish_lens : @lens.Lens[String?] = @lens.root()
+let simple_nullish_lens : @lens.PresenceLens[String] = @lens.root()
   .string("nullish")
   .nullish()
 

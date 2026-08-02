@@ -11,6 +11,12 @@ pub impl[T] LensTrait for Lens[T] with fn check(self, document) {
 }
 
 ///|
+/// Erases this presence-aware lens's successful value while preserving its typed failure.
+pub impl[T] LensTrait for PresenceLens[T] with fn check(self, document) {
+  self.get(document) |> ignore
+}
+
+///|
 /// Erases this object lens's successful value while preserving its failure.
 pub impl LensTrait for ObjectLens with fn check(self, document) {
   self.get(document) |> ignore
