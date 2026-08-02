@@ -1,17 +1,32 @@
 ///|
+let validation_user_lens : @lens.ObjectLens = @lens.object("user")
+
+///|
+let validation_name_lens : @lens.Lens[String] = @lens.object("user").string(
+  "name",
+)
+
+///|
+let validation_age_lens : @lens.Lens[Int] = @lens.object("user").int("age")
+
+///|
+let validation_active_lens : @lens.Lens[Bool] = @lens.object("user").bool(
+  "active",
+)
+
+///|
 test "validate - accepts heterogeneous lenses without conversion" {
   let document = @json.parse(
     "{\"user\":{\"name\":\"Ada\",\"age\":37,\"active\":true}}",
   )
-  let user = @lens.object("user")
-  let name_lens = user.string("name")
-  let age_lens = user.int("age")
-  let active_lens = user.bool("active")
-  match @lens.validate(document, [user, name_lens, age_lens, active_lens]) {
+  match
+    @lens.validate(document, [
+      validation_user_lens, validation_name_lens, validation_age_lens, validation_active_lens,
+    ]) {
     @lens.Validation::Valid => {
-      inspect(name_lens.get(document), content="Ada")
-      inspect(age_lens.get(document), content="37")
-      inspect(active_lens.get(document), content="true")
+      inspect(validation_name_lens.get(document), content="Ada")
+      inspect(validation_age_lens.get(document), content="37")
+      inspect(validation_active_lens.get(document), content="true")
     }
     @lens.Validation::Invalid(_) => fail("expected Valid")
   }
@@ -20,12 +35,8 @@ test "validate - accepts heterogeneous lenses without conversion" {
 ///|
 test "validate - collects all issues in check order" {
   let document = @json.parse("{\"user\":{\"age\":\"old\",\"active\":\"yes\"}}")
-  let user = @lens.object("user")
   let validation = @lens.validate(document, [
-    user,
-    user.string("name"),
-    user.int("age"),
-    user.bool("active"),
+    validation_user_lens, validation_name_lens, validation_age_lens, validation_active_lens,
   ])
   match validation {
     @lens.Validation::Invalid(issues) => {

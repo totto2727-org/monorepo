@@ -19,6 +19,29 @@ struct PrInfo {
 }
 
 ///|
+let github_pr_number_lens : @lens.Lens[Int?] = @lens.root()
+  .int("number")
+  .optional()
+
+///|
+let github_pr_state_lens : @lens.Lens[String?] = @lens.root()
+  .string("state")
+  .optional()
+
+///|
+struct GitHubPrWireEntry {
+  number : Int?
+  state : String?
+}
+
+///|
+impl FromJson for GitHubPrWireEntry with fn from_json(json, _path) {
+  let number = github_pr_number_lens.get(json) catch { _ => None }
+  let state = github_pr_state_lens.get(json) catch { _ => None }
+  { number, state }
+}
+
+///|
 struct WorktreeStatus {
   entry : WorktreeEntry
   branch : String
@@ -204,22 +227,15 @@ async fn pr_info(slug : String, branch : String, is_main : Bool) -> PrInfo {
 ///|
 fn parse_pr_json(source : String) -> PrInfo? {
   let document = @json.parse(source) catch { _ => return None }
-  let entries = match document {
-    Json::Array(entries) => entries
+  let entries : Array[GitHubPrWireEntry] = @json.from_json(document) catch {
     _ => return None
   }
   guard entries is [entry, ..] else { return None }
-  let number_value = @lens.root().int("number").optional().get(entry) catch {
-      _ => None
-    }
-  let number = match number_value {
+  let number = match entry.number {
     Some(value) => Some(value.to_string())
     None => None
   }
-  let state_value = @lens.root().string("state").optional().get(entry) catch {
-      _ => None
-    }
-  let state = match state_value {
+  let state = match entry.state {
     Some("MERGED") => "merged"
     Some("OPEN") => "open"
     Some("CLOSED") => "closed"

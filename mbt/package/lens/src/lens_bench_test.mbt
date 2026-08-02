@@ -108,34 +108,64 @@ struct ComplexLenses {
 }
 
 ///|
+let simple_object_lens : @lens.ObjectLens = @lens.root().object("object")
+
+///|
+let simple_string_lens : @lens.Lens[String] = @lens.root().string("string")
+
+///|
+let simple_bool_lens : @lens.Lens[Bool] = @lens.root().bool("bool")
+
+///|
+let simple_number_lens : @lens.Lens[Double] = @lens.root().number("number")
+
+///|
+let simple_int_lens : @lens.Lens[Int] = @lens.root().int("int")
+
+///|
+let simple_json_lens : @lens.Lens[Json] = @lens.root().json("json")
+
+///|
+let simple_array_lens : @lens.Lens[Array[String]] = @lens.root()
+  .string("array")
+  .array()
+
+///|
+let simple_nullable_lens : @lens.Lens[String?] = @lens.root()
+  .string("nullable")
+  .nullable()
+
+///|
+let simple_optional_lens : @lens.Lens[String?] = @lens.root()
+  .string("optional")
+  .optional()
+
+///|
+let simple_nullish_lens : @lens.Lens[String?] = @lens.root()
+  .string("nullish")
+  .nullish()
+
+///|
+let complex_lenses : ComplexLenses = {
+  request_id: @lens.root().string("requestId"),
+  version: @lens.root().int("version"),
+  user_name: @lens.root().object("user").string("name"),
+  user_active: @lens.root().object("user").bool("active"),
+  user_age: @lens.root().object("user").int("age"),
+  user_score: @lens.root().object("user").number("score"),
+  tags: @lens.root().object("user").object("metadata").string("tags").array(),
+  project_id: @lens.root().object("project").string("id"),
+  project_archived: @lens.root().object("project").bool("archived"),
+  latency_ms: @lens.root().object("metrics").number("latencyMs"),
+  attempts: @lens.root().object("metrics").int("attempts"),
+  payload_title: @lens.root().object("payload").string("title"),
+}
+
+///|
 fn complex_document() -> Json raise {
   @json.parse(
     "{\"requestId\":\"req-2026-0001\",\"version\":7,\"timestamp\":\"2026-07-31T12:00:00Z\",\"region\":\"ap-northeast-1\",\"environment\":\"production\",\"user\":{\"id\":\"user-42\",\"name\":\"Ada Lovelace\",\"active\":true,\"age\":37,\"score\":98.75,\"email\":\"ada@example.com\",\"role\":\"admin\",\"locale\":\"en-GB\",\"timezone\":\"Europe/London\",\"metadata\":{\"team\":\"compiler\",\"plan\":\"enterprise\",\"tags\":[\"owner\",\"reviewer\",\"operator\"]}},\"project\":{\"id\":\"project-7\",\"name\":\"Lens benchmark\",\"archived\":false,\"visibility\":\"private\",\"memberCount\":24},\"metrics\":{\"latencyMs\":12.5,\"attempts\":3,\"cached\":true,\"bytes\":65536},\"payload\":{\"title\":\"Benchmark payload\",\"kind\":\"analysis\",\"items\":[{\"id\":1,\"value\":\"alpha\"},{\"id\":2,\"value\":\"beta\"},{\"id\":3,\"value\":\"gamma\"}],\"checksum\":\"sha256:0123456789abcdef\"},\"flags\":{\"trace\":false,\"preview\":true,\"audit\":true}}",
   )
-}
-
-///|
-fn complex_lenses() -> ComplexLenses {
-  let root = @lens.root()
-  let user = root.object("user")
-  let metadata = user.object("metadata")
-  let project = root.object("project")
-  let metrics = root.object("metrics")
-  let payload = root.object("payload")
-  ComplexLenses::{
-    request_id: root.string("requestId"),
-    version: root.int("version"),
-    user_name: user.string("name"),
-    user_active: user.bool("active"),
-    user_age: user.int("age"),
-    user_score: user.number("score"),
-    tags: metadata.string("tags").array(),
-    project_id: project.string("id"),
-    project_archived: project.bool("archived"),
-    latency_ms: metrics.number("latencyMs"),
-    attempts: metrics.int("attempts"),
-    payload_title: payload.string("title"),
-  }
 }
 
 ///|
@@ -188,7 +218,7 @@ test "Lens benchmark fixtures - both decoders produce the same complex result" {
   let document = complex_document()
   inspect(
     decode_complex_with_patterns(document) ==
-    decode_complex_with_lenses(complex_lenses(), document),
+    decode_complex_with_lenses(complex_lenses, document),
     content="true",
   )
 }
@@ -196,71 +226,69 @@ test "Lens benchmark fixtures - both decoders produce the same complex result" {
 ///|
 test "bench: simple lens output types" (b : @bench.T) {
   let document = simple_document()
-  let root = @lens.root()
-  let object_lens = root.object("object")
-  let string_lens = root.string("string")
-  let bool_lens = root.bool("bool")
-  let number_lens = root.number("number")
-  let int_lens = root.int("int")
-  let json_lens = root.json("json")
-  let array_lens = root.string("array").array()
-  let nullable_lens = root.string("nullable").nullable()
-  let optional_lens = root.string("optional").optional()
-  let nullish_lens = root.string("nullish").nullish()
   b.bench(name="pattern_match/object", fn() {
     b.keep(try! match_object(match_root_property(document, "object")).copy())
   })
-  b.bench(name="lens/object", fn() { b.keep(try! object_lens.get(document)) })
+  b.bench(name="lens/object", fn() {
+    b.keep(try! simple_object_lens.get(document))
+  })
   b.bench(name="pattern_match/string", fn() {
     b.keep(try! match_string(match_root_property(document, "string")))
   })
-  b.bench(name="lens/string", fn() { b.keep(try! string_lens.get(document)) })
+  b.bench(name="lens/string", fn() {
+    b.keep(try! simple_string_lens.get(document))
+  })
   b.bench(name="pattern_match/bool", fn() {
     b.keep(try! match_bool(match_root_property(document, "bool")))
   })
-  b.bench(name="lens/bool", fn() { b.keep(try! bool_lens.get(document)) })
+  b.bench(name="lens/bool", fn() { b.keep(try! simple_bool_lens.get(document)) })
   b.bench(name="pattern_match/number", fn() {
     b.keep(try! match_number(match_root_property(document, "number")))
   })
-  b.bench(name="lens/number", fn() { b.keep(try! number_lens.get(document)) })
+  b.bench(name="lens/number", fn() {
+    b.keep(try! simple_number_lens.get(document))
+  })
   b.bench(name="pattern_match/int", fn() {
     b.keep(try! match_number(match_root_property(document, "int")).to_int())
   })
-  b.bench(name="lens/int", fn() { b.keep(try! int_lens.get(document)) })
+  b.bench(name="lens/int", fn() { b.keep(try! simple_int_lens.get(document)) })
   b.bench(name="pattern_match/json", fn() {
     b.keep(try! match_root_property(document, "json"))
   })
-  b.bench(name="lens/json", fn() { b.keep(try! json_lens.get(document)) })
+  b.bench(name="lens/json", fn() { b.keep(try! simple_json_lens.get(document)) })
   b.bench(name="pattern_match/array", fn() {
     b.keep(try! match_string_array(match_root_property(document, "array")))
   })
-  b.bench(name="lens/array", fn() { b.keep(try! array_lens.get(document)) })
+  b.bench(name="lens/array", fn() {
+    b.keep(try! simple_array_lens.get(document))
+  })
   b.bench(name="pattern_match/nullable", fn() {
     b.keep(try! match_nullable_string(document, "nullable"))
   })
   b.bench(name="lens/nullable", fn() {
-    b.keep(try! nullable_lens.get(document))
+    b.keep(try! simple_nullable_lens.get(document))
   })
   b.bench(name="pattern_match/optional", fn() {
     b.keep(try! match_optional_string(document, "optional"))
   })
   b.bench(name="lens/optional", fn() {
-    b.keep(try! optional_lens.get(document))
+    b.keep(try! simple_optional_lens.get(document))
   })
   b.bench(name="pattern_match/nullish", fn() {
     b.keep(try! match_nullish_string(document, "nullish"))
   })
-  b.bench(name="lens/nullish", fn() { b.keep(try! nullish_lens.get(document)) })
+  b.bench(name="lens/nullish", fn() {
+    b.keep(try! simple_nullish_lens.get(document))
+  })
 }
 
 ///|
 test "bench: 33-property nested document with 12 typed reads" (b : @bench.T) {
   let document = complex_document()
-  let lenses = complex_lenses()
   b.bench(name="pattern_match", fn() {
     b.keep(try! decode_complex_with_patterns(document))
   })
   b.bench(name="lens", fn() {
-    b.keep(try! decode_complex_with_lenses(lenses, document))
+    b.keep(try! decode_complex_with_lenses(complex_lenses, document))
   })
 }

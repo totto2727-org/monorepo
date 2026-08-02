@@ -191,21 +191,162 @@ fn normalize_plugin_source(value : String?) -> String? {
 }
 
 ///|
-fn plugin_source_from_json(plugin : Json, kind : MarketplaceKind) -> String? {
-  match kind {
-    Codex =>
-      normalize_plugin_source(
-        @lens.object("source").string("path").optional().get(plugin) catch {
-          _ => None
-        },
-      )
-    _ =>
-      normalize_plugin_source(
-        @lens.root().string("source").optional().get(plugin) catch {
-          _ => None
-        },
-      )
+let marketplace_source_path_lens : @lens.Lens[Json?] = @lens.root()
+  .json("path")
+  .optional()
+
+///|
+let marketplace_plugin_name_lens : @lens.Lens[Json?] = @lens.root()
+  .json("name")
+  .optional()
+
+///|
+let marketplace_plugin_source_lens : @lens.Lens[Json?] = @lens.root()
+  .json("source")
+  .optional()
+
+///|
+let marketplace_plugin_description_lens : @lens.Lens[Json?] = @lens.root()
+  .json("description")
+  .optional()
+
+///|
+let marketplace_name_lens : @lens.Lens[Json?] = @lens.root()
+  .json("name")
+  .optional()
+
+///|
+let marketplace_plugins_lens : @lens.Lens[Json?] = @lens.root()
+  .json("plugins")
+  .optional()
+
+///|
+struct MarketplaceSourceWire {
+  wire_string : String?
+  wire_path : String?
+}
+
+///|
+impl FromJson for MarketplaceSourceWire with fn from_json(json, path) {
+  match json {
+    Json::String(value) => { wire_string: Some(value), wire_path: None }
+    _ => {
+      let source_path = marketplace_source_path_lens.add_to_json_path(path)
+      let path_value = marketplace_source_path_lens.get(json) catch {
+        _ => None
+      }
+      let wire_path = match path_value {
+        Some(value) =>
+          Some((@json.from_json(value, path=source_path) : String)) catch {
+            _ => None
+          }
+        None => None
+      }
+      { wire_string: None, wire_path }
+    }
   }
+}
+
+///|
+struct MarketplacePluginWire {
+  wire_name : String?
+  wire_source : MarketplaceSourceWire?
+  wire_description : String?
+}
+
+///|
+impl FromJson for MarketplacePluginWire with fn from_json(json, path) {
+  guard json is Json::Object(_) else {
+    raise @json.JsonDecodeError(
+      (path, "MarketplacePluginWire: expected object"),
+    )
+  }
+  let name_path = marketplace_plugin_name_lens.add_to_json_path(path)
+  let source_path = marketplace_plugin_source_lens.add_to_json_path(path)
+  let description_path = marketplace_plugin_description_lens.add_to_json_path(
+    path,
+  )
+  let name_value = marketplace_plugin_name_lens.get(json) catch { _ => None }
+  let wire_name = match name_value {
+    Some(value) =>
+      Some((@json.from_json(value, path=name_path) : String)) catch {
+        _ => None
+      }
+    None => None
+  }
+  let source_value = marketplace_plugin_source_lens.get(json) catch {
+    _ => None
+  }
+  let wire_source = match source_value {
+    Some(value) =>
+      Some((@json.from_json(value, path=source_path) : MarketplaceSourceWire)) catch {
+        _ => None
+      }
+    None => None
+  }
+  let description_value = marketplace_plugin_description_lens.get(json) catch {
+    _ => None
+  }
+  let wire_description = match description_value {
+    Some(value) =>
+      Some((@json.from_json(value, path=description_path) : String)) catch {
+        _ => None
+      }
+    None => None
+  }
+  { wire_name, wire_source, wire_description }
+}
+
+///|
+struct MarketplaceWire {
+  wire_name : String?
+  wire_plugins : Array[MarketplacePluginWire]?
+}
+
+///|
+impl FromJson for MarketplaceWire with fn from_json(json, path) {
+  let name_path = marketplace_name_lens.add_to_json_path(path)
+  let plugins_path = marketplace_plugins_lens.add_to_json_path(path)
+  let name_value = marketplace_name_lens.get(json) catch { _ => None }
+  let wire_name = match name_value {
+    Some(value) =>
+      Some((@json.from_json(value, path=name_path) : String)) catch {
+        _ => None
+      }
+    None => None
+  }
+  let plugins_value = marketplace_plugins_lens.get(json) catch { _ => None }
+  let wire_plugins = match plugins_value {
+    Some(Json::Array(values)) =>
+      Some(
+        values
+        .iter()
+        .filter_map(value => {
+          Some(
+            (@json.from_json(value, path=plugins_path) : MarketplacePluginWire),
+          ) catch {
+            _ => None
+          }
+        })
+        .collect(),
+      )
+    _ => None
+  }
+  { wire_name, wire_plugins }
+}
+
+///|
+fn plugin_source_from_wire(
+  plugin : MarketplacePluginWire,
+  kind : MarketplaceKind,
+) -> String? {
+  let source = match (kind, plugin.wire_source) {
+    (Codex, Some(source)) => source.wire_path
+    (Codex, None) => None
+    (_, Some(source)) => source.wire_string
+    (_, None) => None
+  }
+  normalize_plugin_source(source)
 }
 
 ///|
@@ -214,31 +355,28 @@ fn normalized_plugins_from_json(
   kind : MarketplaceKind,
 ) -> Array[NormalizedPlugin] {
   let document = @json.parse(text) catch { _ => return [] }
-  let plugins = @lens.root().json("plugins").array().get(document) catch {
-      _ => []
-    }
-  plugins
-  .iter()
-  .filter_map(plugin => normalized_plugin_from_json(plugin, kind))
-  .collect()
+  let marketplace : MarketplaceWire = @json.from_json(document) catch {
+    _ => return []
+  }
+  match marketplace.wire_plugins {
+    Some(plugins) =>
+      plugins
+      .iter()
+      .filter_map(plugin => normalized_plugin_from_wire(plugin, kind))
+      .collect()
+    None => []
+  }
 }
 
 ///|
-fn normalized_plugin_from_json(
-  plugin : Json,
+fn normalized_plugin_from_wire(
+  plugin : MarketplacePluginWire,
   kind : MarketplaceKind,
 ) -> NormalizedPlugin? {
-  let _ = @lens.root().get(plugin) catch { _ => return None }
-  let name = @lens.root().string("name").get(plugin) catch { _ => "plugin" }
-  let source = plugin_source_from_json(plugin, kind).unwrap_or(name)
+  let name = plugin.wire_name.unwrap_or("plugin")
+  let source = plugin_source_from_wire(plugin, kind).unwrap_or(name)
   if is_relative_plugin_path(source) {
-    Some({
-      name,
-      source,
-      description: @lens.root().string("description").optional().get(plugin) catch {
-        _ => None
-      },
-    })
+    Some({ name, source, description: plugin.wire_description })
   } else {
     None
   }
@@ -247,9 +385,10 @@ fn normalized_plugin_from_json(
 ///|
 fn marketplace_name_from_json(text : String) -> String {
   let document = @json.parse(text) catch { _ => return "marketplace" }
-  @lens.root().string("name").get(document) catch {
-    _ => "marketplace"
+  let marketplace : MarketplaceWire = @json.from_json(document) catch {
+    _ => return "marketplace"
   }
+  marketplace.wire_name.unwrap_or("marketplace")
 }
 
 ///|

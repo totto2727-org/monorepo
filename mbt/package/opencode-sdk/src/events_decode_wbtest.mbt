@@ -1,12 +1,11 @@
 ///|
-fn decode_event_for_test(source : String) -> ThreadEvent raise {
-  moonbit_internal_thread_event_from_json(@json.parse(source))
-}
 
 ///|
 test "ThreadEvent decode 1 - decodes completed reasoning" {
-  let event = decode_event_for_test(
-    "{\"type\":\"reasoning\",\"timestamp\":1,\"sessionID\":\"session-1\",\"part\":{\"type\":\"reasoning\",\"text\":\"Thought\"}}",
+  let event : ThreadEvent = @json.from_json(
+    @json.parse(
+      "{\"type\":\"reasoning\",\"timestamp\":1,\"sessionID\":\"session-1\",\"part\":{\"type\":\"reasoning\",\"text\":\"Thought\"}}",
+    ),
   )
   match event {
     Reasoning(reasoning) => {
@@ -19,8 +18,10 @@ test "ThreadEvent decode 1 - decodes completed reasoning" {
 
 ///|
 test "ThreadEvent decode 2 - decodes completed tool use" {
-  let event = decode_event_for_test(
-    "{\"type\":\"tool_use\",\"timestamp\":1,\"sessionID\":\"session-1\",\"part\":{\"type\":\"tool\",\"callID\":\"call-1\",\"tool\":\"bash\",\"state\":{\"status\":\"completed\"}}}",
+  let event : ThreadEvent = @json.from_json(
+    @json.parse(
+      "{\"type\":\"tool_use\",\"timestamp\":1,\"sessionID\":\"session-1\",\"part\":{\"type\":\"tool\",\"callID\":\"call-1\",\"tool\":\"bash\",\"state\":{\"status\":\"completed\"}}}",
+    ),
   )
   match event {
     ToolUse(tool) => {
@@ -35,8 +36,10 @@ test "ThreadEvent decode 2 - decodes completed tool use" {
 
 ///|
 test "ThreadEvent decode 3 - decodes failed tool use" {
-  let event = decode_event_for_test(
-    "{\"type\":\"tool_use\",\"timestamp\":1,\"sessionID\":\"session-1\",\"part\":{\"type\":\"tool\",\"callID\":\"call-2\",\"tool\":\"bash\",\"state\":{\"status\":\"error\"}}}",
+  let event : ThreadEvent = @json.from_json(
+    @json.parse(
+      "{\"type\":\"tool_use\",\"timestamp\":1,\"sessionID\":\"session-1\",\"part\":{\"type\":\"tool\",\"callID\":\"call-2\",\"tool\":\"bash\",\"state\":{\"status\":\"error\"}}}",
+    ),
   )
   match event {
     ToolUse(tool) => debug_inspect(tool.status, content="Failed")
@@ -46,8 +49,10 @@ test "ThreadEvent decode 3 - decodes failed tool use" {
 
 ///|
 test "ThreadEvent decode 4 - decodes step usage" {
-  let event = decode_event_for_test(
-    "{\"type\":\"step_finish\",\"timestamp\":1,\"sessionID\":\"session-1\",\"part\":{\"type\":\"step-finish\",\"reason\":\"stop\",\"cost\":0.5,\"tokens\":{\"total\":14,\"input\":10,\"output\":3,\"reasoning\":1,\"cache\":{\"read\":2,\"write\":1}}}}",
+  let event : ThreadEvent = @json.from_json(
+    @json.parse(
+      "{\"type\":\"step_finish\",\"timestamp\":1,\"sessionID\":\"session-1\",\"part\":{\"type\":\"step-finish\",\"reason\":\"stop\",\"cost\":0.5,\"tokens\":{\"total\":14,\"input\":10,\"output\":3,\"reasoning\":1,\"cache\":{\"read\":2,\"write\":1}}}}",
+    ),
   )
   match event {
     StepFinish(step) => {
@@ -72,8 +77,10 @@ test "ThreadEvent decode 4 - decodes step usage" {
 
 ///|
 test "ThreadEvent decode 5 - decodes stream errors" {
-  let event = decode_event_for_test(
-    "{\"type\":\"error\",\"timestamp\":1,\"sessionID\":\"session-1\",\"error\":{\"name\":\"UnknownError\",\"data\":{\"message\":\"provider failed\"}}}",
+  let event : ThreadEvent = @json.from_json(
+    @json.parse(
+      "{\"type\":\"error\",\"timestamp\":1,\"sessionID\":\"session-1\",\"error\":{\"name\":\"UnknownError\",\"data\":{\"message\":\"provider failed\"}}}",
+    ),
   )
   match event {
     StreamError(error) => {
@@ -87,13 +94,14 @@ test "ThreadEvent decode 5 - decodes stream errors" {
 ///|
 test "ThreadEvent decode 6 - rejects an unknown event type" {
   let message = try {
-    decode_event_for_test(
-      "{\"type\":\"future_event\",\"timestamp\":1,\"sessionID\":\"session-1\"}",
+    let _ : ThreadEvent = @json.from_json(
+      @json.parse(
+        "{\"type\":\"future_event\",\"timestamp\":1,\"sessionID\":\"session-1\"}",
+      ),
     )
-    |> ignore
     "no error"
   } catch {
-    InvalidEvent(message~) => message
+    @json.JsonDecodeError((_, message)) => message
     error => "unexpected: \{@debug.to_string(error)}"
   }
   inspect(message, content="unsupported thread event type: future_event")

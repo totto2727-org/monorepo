@@ -105,7 +105,8 @@ async fn load_config(
         "invalid config JSON in '\{config_path.val}': \{error}",
       )
   }
-  @lens.root().get(parsed) catch {
+  match parsed {
+    Json::Object(object) => object
     _ =>
       raise @admiral.ConfigLoadFailure("config file must contain a JSON object")
   }
