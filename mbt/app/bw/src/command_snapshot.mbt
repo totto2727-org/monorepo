@@ -128,8 +128,40 @@ impl FromJson for SnapshotResponse with fn from_json(json, _path) {
 }
 
 ///|
+let snapshot_goto_wait_until_lens : @lens.Lens[String] = @lens.root().string(
+  "waitUntil",
+)
+
+///|
+let snapshot_capture_full_page_lens : @lens.Lens[Bool] = @lens.root().bool(
+  "fullPage",
+)
+
+///|
+let snapshot_body_url_lens : @lens.Lens[String?] = @lens.root()
+  .string("url")
+  .optional()
+
+///|
+let snapshot_body_html_lens : @lens.Lens[String?] = @lens.root()
+  .string("html")
+  .optional()
+
+///|
+let snapshot_body_goto_options_lens : @lens.Lens[Json?] = @lens.root()
+  .json("gotoOptions")
+  .optional()
+
+///|
+let snapshot_body_screenshot_options_lens : @lens.Lens[Json?] = @lens.root()
+  .json("screenshotOptions")
+  .optional()
+
+///|
 impl ToJson for SnapshotGotoOptions with fn to_json(self) -> Json {
-  Json::object({ "waitUntil": self.waitUntil.to_json() })
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  snapshot_goto_wait_until_lens.set_or_abort(builder, self.waitUntil)
+  builder.to_json()
 }
 
 ///|
@@ -137,7 +169,9 @@ extend SnapshotGotoOptions with ToJson::{to_json}
 
 ///|
 impl ToJson for SnapshotCaptureOptions with fn to_json(self) -> Json {
-  Json::object({ "fullPage": self.fullPage.to_json() })
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  snapshot_capture_full_page_lens.set_or_abort(builder, self.fullPage)
+  builder.to_json()
 }
 
 ///|
@@ -145,40 +179,18 @@ extend SnapshotCaptureOptions with ToJson::{to_json}
 
 ///|
 impl ToJson for SnapshotBody with fn to_json(self) -> Json {
-  let object : Map[String, Json] = Map([])
-  put_json_if_some(
-    object,
-    "url",
-    match self.url {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  snapshot_body_url_lens.set_or_abort(builder, self.url)
+  snapshot_body_html_lens.set_or_abort(builder, self.html)
+  snapshot_body_goto_options_lens.set_or_abort(
+    builder,
+    self.gotoOptions.map(fn(value) { value.to_json() }),
   )
-  put_json_if_some(
-    object,
-    "html",
-    match self.html {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
+  snapshot_body_screenshot_options_lens.set_or_abort(
+    builder,
+    self.screenshotOptions.map(fn(value) { value.to_json() }),
   )
-  put_json_if_some(
-    object,
-    "gotoOptions",
-    match self.gotoOptions {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
-  put_json_if_some(
-    object,
-    "screenshotOptions",
-    match self.screenshotOptions {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
-  Json::object(object)
+  builder.to_json()
 }
 
 ///|

@@ -72,7 +72,7 @@ struct JsonExtractOptionsInput {
   html : String?
   wait_until : String?
   prompt : String
-  response_format : Json?
+  response_format : SchemaResponseFormat?
   output_format : JsonExtractOutputFormat
 }
 
@@ -87,7 +87,7 @@ struct JsonExtractBody {
   html : String?
   gotoOptions : JsonGotoOptions?
   prompt : String
-  response_format : Json?
+  response_format : SchemaResponseFormat?
 }
 
 ///|
@@ -110,8 +110,40 @@ impl FromJson for JsonExtractResponse with fn from_json(json, _path) {
 }
 
 ///|
+let json_goto_wait_until_lens : @lens.Lens[String] = @lens.root().string(
+  "waitUntil",
+)
+
+///|
+let json_extract_body_url_lens : @lens.Lens[String?] = @lens.root()
+  .string("url")
+  .optional()
+
+///|
+let json_extract_body_html_lens : @lens.Lens[String?] = @lens.root()
+  .string("html")
+  .optional()
+
+///|
+let json_extract_body_goto_options_lens : @lens.Lens[Json?] = @lens.root()
+  .json("gotoOptions")
+  .optional()
+
+///|
+let json_extract_body_prompt_lens : @lens.Lens[String] = @lens.root().string(
+  "prompt",
+)
+
+///|
+let json_extract_body_response_format_lens : @lens.Lens[Json?] = @lens.root()
+  .json("response_format")
+  .optional()
+
+///|
 impl ToJson for JsonGotoOptions with fn to_json(self) -> Json {
-  Json::object({ "waitUntil": self.waitUntil.to_json() })
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  json_goto_wait_until_lens.set_or_abort(builder, self.waitUntil)
+  builder.to_json()
 }
 
 ///|
@@ -119,34 +151,19 @@ extend JsonGotoOptions with ToJson::{to_json}
 
 ///|
 impl ToJson for JsonExtractBody with fn to_json(self) -> Json {
-  let object : Map[String, Json] = Map([])
-  put_json_if_some(
-    object,
-    "url",
-    match self.url {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  json_extract_body_url_lens.set_or_abort(builder, self.url)
+  json_extract_body_html_lens.set_or_abort(builder, self.html)
+  json_extract_body_goto_options_lens.set_or_abort(
+    builder,
+    self.gotoOptions.map(fn(value) { value.to_json() }),
   )
-  put_json_if_some(
-    object,
-    "html",
-    match self.html {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
+  json_extract_body_prompt_lens.set_or_abort(builder, self.prompt)
+  json_extract_body_response_format_lens.set_or_abort(
+    builder,
+    self.response_format.map(fn(value) { value.to_json() }),
   )
-  put_json_if_some(
-    object,
-    "gotoOptions",
-    match self.gotoOptions {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
-  object.set("prompt", self.prompt.to_json())
-  put_json_if_some(object, "response_format", self.response_format)
-  Json::object(object)
+  builder.to_json()
 }
 
 ///|

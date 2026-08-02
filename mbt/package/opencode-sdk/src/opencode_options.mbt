@@ -32,22 +32,13 @@ pub fn OpenCodeOptions::OpenCodeOptions(
 }
 
 ///|
-fn config_value_to_json(value : OpenCodeConfigValue) -> Json {
-  match value {
+impl ToJson for OpenCodeConfigValue with fn to_json(self) -> Json {
+  match self {
     ConfigString(value) => value.to_json()
     ConfigInt(value) => value.to_json()
     ConfigDouble(value) => value.to_json()
     ConfigBool(value) => value.to_json()
-    ConfigArray(values) => Json::array(values.map(config_value_to_json))
-    ConfigObject(values) => config_object_to_json(values)
+    ConfigArray(values) => values.to_json()
+    ConfigObject(values) => values.to_json()
   }
-}
-
-///|
-fn config_object_to_json(config : OpenCodeConfigObject) -> Json {
-  let object : Map[String, Json] = Map([])
-  for key, value in config {
-    object[key] = config_value_to_json(value)
-  }
-  Json::object(object)
 }

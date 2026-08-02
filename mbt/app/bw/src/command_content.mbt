@@ -54,8 +54,30 @@ struct ContentBody {
 }
 
 ///|
+let content_goto_wait_until_lens : @lens.Lens[String] = @lens.root().string(
+  "waitUntil",
+)
+
+///|
+let content_body_url_lens : @lens.Lens[String?] = @lens.root()
+  .string("url")
+  .optional()
+
+///|
+let content_body_html_lens : @lens.Lens[String?] = @lens.root()
+  .string("html")
+  .optional()
+
+///|
+let content_body_goto_options_lens : @lens.Lens[Json?] = @lens.root()
+  .json("gotoOptions")
+  .optional()
+
+///|
 impl ToJson for ContentGotoOptions with fn to_json(self) -> Json {
-  Json::object({ "waitUntil": self.waitUntil.to_json() })
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  content_goto_wait_until_lens.set_or_abort(builder, self.waitUntil)
+  builder.to_json()
 }
 
 ///|
@@ -63,32 +85,14 @@ extend ContentGotoOptions with ToJson::{to_json}
 
 ///|
 impl ToJson for ContentBody with fn to_json(self) -> Json {
-  let object : Map[String, Json] = Map([])
-  put_json_if_some(
-    object,
-    "url",
-    match self.url {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  content_body_url_lens.set_or_abort(builder, self.url)
+  content_body_html_lens.set_or_abort(builder, self.html)
+  content_body_goto_options_lens.set_or_abort(
+    builder,
+    self.gotoOptions.map(fn(value) { value.to_json() }),
   )
-  put_json_if_some(
-    object,
-    "html",
-    match self.html {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
-  put_json_if_some(
-    object,
-    "gotoOptions",
-    match self.gotoOptions {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
-  Json::object(object)
+  builder.to_json()
 }
 
 ///|

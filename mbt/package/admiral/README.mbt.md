@@ -359,7 +359,7 @@ admiral can output the full CLI definition as JSON — useful for AI agents, doc
 
 ```moonbit
 println(app.render_schema())         // -> JSON string
-let json = app.render_schema_json()  // -> Json value
+let json = ToJson::to_json(app)      // -> Json value
 ```
 
 Example output:
@@ -524,7 +524,7 @@ myapp completion --shell fish > ~/.config/fish/completions/myapp.fish
 | Method                     | Return   | Description                        |
 | -------------------------- | -------- | ---------------------------------- |
 | `render_schema()`          | `String` | Full CLI definition as JSON string |
-| `render_schema_json()`     | `Json`   | Full CLI definition as Json value  |
+| `ToJson::to_json(app)`     | `Json`   | Full CLI definition as Json value  |
 | `render_bash_completion()` | `String` | Bash completion script             |
 | `render_zsh_completion()`  | `String` | Zsh completion script              |
 | `render_fish_completion()` | `String` | Fish completion script             |

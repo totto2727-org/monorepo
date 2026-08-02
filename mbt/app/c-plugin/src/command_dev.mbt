@@ -28,15 +28,27 @@ struct ParsedMarketplace {
 }
 
 ///|
+let normalized_plugin_description_lens : @lens.Lens[String?] = @lens.root()
+  .string("description")
+  .optional()
+
+///|
+let normalized_plugin_name_lens : @lens.Lens[String] = @lens.root().string(
+  "name",
+)
+
+///|
+let normalized_plugin_source_lens : @lens.Lens[String] = @lens.root().string(
+  "source",
+)
+
+///|
 impl ToJson for NormalizedPlugin with fn to_json(self) -> Json {
-  let object : Map[String, Json] = Map([])
-  match self.description {
-    Some(value) => object.set("description", value.to_json())
-    None => ()
-  }
-  object.set("name", self.name.to_json())
-  object.set("source", self.source.to_json())
-  Json::object(object)
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  normalized_plugin_description_lens.set_or_abort(builder, self.description)
+  normalized_plugin_name_lens.set_or_abort(builder, self.name)
+  normalized_plugin_source_lens.set_or_abort(builder, self.source)
+  builder.to_json()
 }
 
 ///|
@@ -49,11 +61,21 @@ struct CodexMarketplacePolicy {
 }
 
 ///|
+let codex_policy_authentication_lens : @lens.Lens[String] = @lens.root().string(
+  "authentication",
+)
+
+///|
+let codex_policy_installation_lens : @lens.Lens[String] = @lens.root().string(
+  "installation",
+)
+
+///|
 impl ToJson for CodexMarketplacePolicy with fn to_json(self) -> Json {
-  Json::object({
-    "authentication": self.authentication.to_json(),
-    "installation": self.installation.to_json(),
-  })
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  codex_policy_authentication_lens.set_or_abort(builder, self.authentication)
+  codex_policy_installation_lens.set_or_abort(builder, self.installation)
+  builder.to_json()
 }
 
 ///|
@@ -66,8 +88,19 @@ struct CodexMarketplaceSource {
 }
 
 ///|
+let codex_source_path_lens : @lens.Lens[String] = @lens.root().string("path")
+
+///|
+let codex_source_source_lens : @lens.Lens[String] = @lens.root().string(
+  "source",
+)
+
+///|
 impl ToJson for CodexMarketplaceSource with fn to_json(self) -> Json {
-  Json::object({ "path": self.path.to_json(), "source": self.source.to_json() })
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  codex_source_path_lens.set_or_abort(builder, self.path)
+  codex_source_source_lens.set_or_abort(builder, self.source)
+  builder.to_json()
 }
 
 ///|
@@ -82,30 +115,71 @@ struct CodexMarketplacePlugin {
 }
 
 ///|
+let codex_plugin_category_lens : @lens.Lens[String] = @lens.root().string(
+  "category",
+)
+
+///|
+let codex_plugin_name_lens : @lens.Lens[String] = @lens.root().string("name")
+
+///|
+let codex_plugin_policy_lens : @lens.Lens[Json] = @lens.root().json("policy")
+
+///|
+let codex_plugin_source_lens : @lens.Lens[Json] = @lens.root().json("source")
+
+///|
 impl ToJson for CodexMarketplacePlugin with fn to_json(self) -> Json {
-  Json::object({
-    "category": self.category.to_json(),
-    "name": self.name.to_json(),
-    "policy": self.policy.to_json(),
-    "source": self.source.to_json(),
-  })
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  codex_plugin_category_lens.set_or_abort(builder, self.category)
+  codex_plugin_name_lens.set_or_abort(builder, self.name)
+  codex_plugin_policy_lens.set_or_abort(builder, self.policy.to_json())
+  codex_plugin_source_lens.set_or_abort(builder, self.source.to_json())
+  builder.to_json()
 }
 
 ///|
 extend CodexMarketplacePlugin with ToJson::{to_json}
 
 ///|
-struct MarketplaceDocument {
-  name : String
-  plugins : Array[Json]
+enum MarketplacePlugin {
+  DefaultMarketplacePlugin(NormalizedPlugin)
+  CodexPlugin(CodexMarketplacePlugin)
 }
 
 ///|
+impl ToJson for MarketplacePlugin with fn to_json(self) -> Json {
+  match self {
+    DefaultMarketplacePlugin(plugin) => plugin.to_json()
+    CodexPlugin(plugin) => plugin.to_json()
+  }
+}
+
+///|
+struct MarketplaceDocument {
+  name : String
+  plugins : Array[MarketplacePlugin]
+}
+
+///|
+let marketplace_document_name_lens : @lens.Lens[String] = @lens.root().string(
+  "name",
+)
+
+///|
+let marketplace_document_plugins_lens : @lens.Lens[Json] = @lens.root().json(
+  "plugins",
+)
+
+///|
 impl ToJson for MarketplaceDocument with fn to_json(self) -> Json {
-  Json::object({
-    "name": self.name.to_json(),
-    "plugins": self.plugins.to_json(),
-  })
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  marketplace_document_name_lens.set_or_abort(builder, self.name)
+  marketplace_document_plugins_lens.set_or_abort(
+    builder,
+    self.plugins.to_json(),
+  )
+  builder.to_json()
 }
 
 ///|
@@ -136,22 +210,22 @@ fn marketplace_json(
   marketplace : ParsedMarketplace,
   kind : MarketplaceKind,
 ) -> String {
-  let plugins : Array[Json] = marketplace.plugins
+  let plugins : Array[MarketplacePlugin] = marketplace.plugins
     .iter()
-    .map(fn(plugin) { marketplace_plugin_json(plugin, kind) })
+    .map(fn(plugin) { marketplace_plugin(plugin, kind) })
     .collect()
   let document : MarketplaceDocument = { name: marketplace.name, plugins }
   document.to_json().stringify(indent=2) + "\n"
 }
 
 ///|
-fn marketplace_plugin_json(
+fn marketplace_plugin(
   plugin : NormalizedPlugin,
   kind : MarketplaceKind,
-) -> Json {
+) -> MarketplacePlugin {
   match kind {
     Codex =>
-      {
+      CodexPlugin({
         category: "Productivity",
         name: plugin.name,
         policy: {
@@ -159,13 +233,13 @@ fn marketplace_plugin_json(
           installation: "INSTALLED_BY_DEFAULT",
         },
         source: { path: "./\{plugin.source}", source: "local" },
-      }.to_json()
+      })
     _ =>
-      {
+      DefaultMarketplacePlugin({
         name: plugin.name,
         source: "./\{plugin.source}",
         description: plugin.description,
-      }.to_json()
+      })
   }
 }
 

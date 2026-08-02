@@ -128,10 +128,36 @@ async fn read_optional_file(path : String?) -> String? {
 }
 
 ///|
-async fn schema_response_format(path : String) -> Json {
+struct SchemaResponseFormat {
+  schema : Json
+}
+
+///|
+let schema_response_format_schema_lens : @lens.Lens[Json] = @lens.root().json(
+  "schema",
+)
+
+///|
+let schema_response_format_type_lens : @lens.Lens[String] = @lens.root().string(
+  "type",
+)
+
+///|
+impl ToJson for SchemaResponseFormat with fn to_json(self) -> Json {
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  schema_response_format_schema_lens.set_or_abort(builder, self.schema)
+  schema_response_format_type_lens.set_or_abort(builder, "json_schema")
+  builder.to_json()
+}
+
+///|
+extend SchemaResponseFormat with ToJson::{to_json}
+
+///|
+async fn schema_response_format(path : String) -> SchemaResponseFormat {
   let schema = @json.parse(@fs.read_file(path).text()) catch {
     error if @async.is_being_cancelled() => raise error
     error => fail("Invalid JSON schema file: \{error}")
   }
-  Json::object({ "schema": schema, "type": "json_schema".to_json() })
+  { schema, }
 }
