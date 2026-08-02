@@ -11,13 +11,13 @@ This review targets MoonBit 0.10.4 and `moonbitlang/core` 0.10.4.
 ## Decision summary
 
 - Provide typed JSON access, builder construction, and aggregate validation.
-- Model a lens as a package-owned JSON Pointer plus a value decoder and encoder.
+- Model a lens as a package-owned JSON Pointer plus a value decoder, encoder, and minimal JSON Schema shape.
 - Use `Lens[T]` for typed values and `ObjectLens` for typed object values and paths that may create child property lenses.
 - Keep the package's pointer representation independent from `@json.JsonPath`.
 - Raise `LensError` from one lens and return a non-generic `Validation` from aggregate checks.
 - Preserve missing properties and explicit JSON `null` as different states.
 - Keep static result types on `Lens[T]` and `ObjectLens`; validation only reports success or accumulated issues.
-- Use a check-only `LensTrait` trait object to erase concrete lens types only at the aggregate validation boundary.
+- Use `LensTrait` to erase concrete lens types at the aggregate validation and JSON Schema boundaries.
 - Start with object properties and primitive decoders.
 - Delegate numeric parsing and conversion to MoonBit core APIs; do not maintain a package-specific number parser.
 - Build outbound objects through a mutable `JsonBuilder` that implements `ToJson`.
@@ -89,7 +89,7 @@ The name `CustomError` is too generic for a public package API. `LensError(Issue
 
 MoonBit cannot derive a compile-time result type from a runtime collection of validation definitions in the way TypeScript libraries can infer a type from a Zod schema expression. The validation API must not imitate that model with `Schema[T]`, fixed-arity builders, or a value-producing validation result.
 
-`Lens[T]` is the source of static type information for primitive and raw JSON values. `ObjectLens` owns a `Lens[Map[String, Json]]`, so it also provides statically typed object access. Aggregate validation accepts both through the check-only `LensTrait` trait object, evaluates all checks, and returns only success or accumulated issues. Callers do not perform an explicit conversion. After successful validation, they continue to read values through their original lenses.
+`Lens[T]` is the source of static type information for primitive and raw JSON values. `ObjectLens` owns a `Lens[Map[String, Json]]`, so it also provides statically typed object access. Aggregate validation and JSON Schema generation accept both through the type-erased `LensTrait` trait object. Validation evaluates all checks and returns only success or accumulated issues. Callers do not perform an explicit conversion. After successful validation, they continue to read values through their original lenses.
 
 This deliberately means that validation followed by access performs traversal and decoding again. Avoiding that duplication would require a heterogeneous typed cache or generated application-specific code, neither of which belongs in the initial package.
 
@@ -454,6 +454,7 @@ pub enum Validation {
 ```moonbit
 pub trait LensTrait {
   fn check(Self, Json) -> Unit raise LensError
+  fn to_json_schema(Self) -> Json
 }
 
 pub impl[T] LensTrait for Lens[T]
@@ -464,9 +465,11 @@ pub fn validate(
   Json,
   Array[&LensTrait],
 ) -> Validation
+
+pub fn json_schema(Array[&LensTrait]) -> Json
 ```
 
-`LensTrait` is the intentional type-erasure boundary. It is readonly and sealed so only this package can define implementations. Its only method runs a lens's traversal and decoder, discards the successful value, and preserves a raised `Issue` for aggregation. MoonBit cannot express a type-parameterized trait object that retains each heterogeneous result type, so typed `get` remains on `Lens[T]` and `ObjectLens`.
+`LensTrait` is the intentional type-erasure boundary. It is readonly and sealed so only this package can define implementations. `check` runs a lens's traversal and decoder, discards the successful value, and preserves a raised `Issue` for aggregation. `to_json_schema` renders the lens path and the schema shape retained when the lens is constructed. MoonBit cannot express a type-parameterized trait object that retains each heterogeneous result type, so typed `get` remains on `Lens[T]` and `ObjectLens`.
 
 ```moonbit
 let user = object("user")

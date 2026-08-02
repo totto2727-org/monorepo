@@ -92,7 +92,7 @@ Here, missing means that the selected leaf property is absent. A missing interme
 
 ## Validation
 
-`LensTrait` exposes only the type-erased `check` operation required by aggregate validation. `Lens[T]` and `ObjectLens` implement it, so heterogeneous lenses can be passed directly to `validate`. Every check runs, and failures are returned in input order.
+`LensTrait` exposes the type-erased operations required by aggregate validation and JSON Schema generation. `Lens[T]` and `ObjectLens` implement it, so heterogeneous lenses can be passed directly to `validate` and `json_schema`. Every validation check runs, and failures are returned in input order.
 
 ```mbt check
 test {
@@ -116,12 +116,31 @@ test {
 
 `Validation::Valid` carries no decoded value. `Validation::Invalid` carries only `Array[Issue]`.
 
+## JSON Schema
+
+Every `Lens[T]` and `ObjectLens` implements `LensTrait::to_json_schema`. The result is a Draft 2020-12 schema fragment that includes the lens's complete path. Pass the same heterogeneous lens array accepted by `validate` to `json_schema` to produce a complete schema. Aggregate checks are emitted as `allOf` entries because validation requires every lens to succeed.
+
+```mbt check
+test {
+  let user = object("user")
+  let schema = json_schema([
+    user.string("name"),
+    user.int("age"),
+    user.string("tags").array().optional(),
+  ])
+
+  inspect(schema is Json::Object(_), content="true")
+}
+```
+
+The generated schema includes only the constraints represented by the current lens API: object paths, primitive JSON kinds, array items, missing-property requirements, and nullable values. A raw `json` lens contributes an unconstrained `{}` value schema. An `int` lens contributes `{ "type": "number" }` because the current decoder accepts every JSON number and applies `Double::to_int`; emitting `integer` would be stricter than runtime validation. Unknown object properties remain allowed.
+
 ## Numeric behavior
 
 `number` returns the existing `Double` stored in `Json::Number` without further validation, including non-finite values. `int` delegates directly to MoonBit's standard `Double::to_int` conversion without package-level validation, inheriting its truncation, saturation, and special-value behavior. The package never reparses the retained JSON number text.
 
 ## Current scope
 
-The API supports object-property traversal and builder construction; `String`, `Bool`, `Double`, standard-converted `Int`, and raw `Json` values; typed arrays; and nullable, optional, and nullish values. `Lens::set` writes to `JsonBuilder`; it does not mutate or copy an existing JSON document. Refinements, alternatives, and source-document mutation remain outside the current scope.
+The API supports object-property traversal and builder construction; `String`, `Bool`, `Double`, standard-converted `Int`, and raw `Json` values; typed arrays; nullable, optional, and nullish values; aggregate validation; and minimal JSON Schema generation. `Lens::set` writes to `JsonBuilder`; it does not mutate or copy an existing JSON document. Refinements, alternatives, descriptions, and source-document mutation remain outside the current scope.
 
 See [the design document](docs/design.md) for the detailed contract and roadmap. A Japanese translation is available at [docs/design.ja.md](docs/design.ja.md).

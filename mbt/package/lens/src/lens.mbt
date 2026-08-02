@@ -11,6 +11,8 @@ pub struct Lens[T] {
   priv decoder : Decoder[T]
   priv encoder : Encoder[T]
   priv on_missing : (() -> T)?
+  priv schema_shape : SchemaShape
+  priv schema_required : Bool
 }
 
 ///|
@@ -29,6 +31,8 @@ pub fn root() -> ObjectLens {
       decoder: object_decoder(),
       encoder: object_encoder(),
       on_missing: None,
+      schema_shape: ObjectSchema,
+      schema_required: true,
     },
   }
 }
@@ -48,6 +52,8 @@ pub fn ObjectLens::object(self : ObjectLens, key : String) -> ObjectLens {
       decoder: object_decoder(),
       encoder: object_encoder(),
       on_missing: None,
+      schema_shape: ObjectSchema,
+      schema_required: true,
     },
   }
 }
@@ -60,6 +66,8 @@ pub fn ObjectLens::string(self : ObjectLens, key : String) -> Lens[String] {
     decoder: string_decoder(),
     encoder: string_encoder(),
     on_missing: None,
+    schema_shape: StringSchema,
+    schema_required: true,
   }
 }
 
@@ -71,6 +79,8 @@ pub fn ObjectLens::bool(self : ObjectLens, key : String) -> Lens[Bool] {
     decoder: bool_decoder(),
     encoder: bool_encoder(),
     on_missing: None,
+    schema_shape: BooleanSchema,
+    schema_required: true,
   }
 }
 
@@ -82,6 +92,8 @@ pub fn ObjectLens::number(self : ObjectLens, key : String) -> Lens[Double] {
     decoder: number_decoder(),
     encoder: number_encoder(),
     on_missing: None,
+    schema_shape: NumberSchema,
+    schema_required: true,
   }
 }
 
@@ -93,6 +105,9 @@ pub fn ObjectLens::int(self : ObjectLens, key : String) -> Lens[Int] {
     decoder: int_decoder(),
     encoder: int_encoder(),
     on_missing: None,
+    // The decoder accepts every JSON number and applies Double::to_int.
+    schema_shape: NumberSchema,
+    schema_required: true,
   }
 }
 
@@ -104,6 +119,8 @@ pub fn ObjectLens::json(self : ObjectLens, key : String) -> Lens[Json] {
     decoder: json_decoder(),
     encoder: json_encoder(),
     on_missing: None,
+    schema_shape: AnySchema,
+    schema_required: true,
   }
 }
 
@@ -115,6 +132,8 @@ pub fn[T] Lens::array(self : Lens[T]) -> Lens[Array[T]] {
     decoder: array_decoder(self.decoder),
     encoder: array_encoder(self.encoder),
     on_missing: None,
+    schema_shape: ArraySchema(self.schema_shape),
+    schema_required: true,
   }
 }
 
@@ -126,6 +145,8 @@ pub fn[T] Lens::nullable(self : Lens[T]) -> Lens[T?] {
     decoder: nullable_decoder(self.decoder),
     encoder: nullable_encoder(self.encoder),
     on_missing: None,
+    schema_shape: self.schema_shape.nullable(),
+    schema_required: true,
   }
 }
 
@@ -137,6 +158,8 @@ pub fn[T] Lens::optional(self : Lens[T]) -> Lens[T?] {
     decoder: optional_decoder(self.decoder),
     encoder: optional_encoder(self.encoder),
     on_missing: Some(() => None),
+    schema_shape: self.schema_shape,
+    schema_required: false,
   }
 }
 
@@ -156,6 +179,8 @@ pub fn[T] Lens::nullish(
       Some(Omit) | None => optional_encoder(self.encoder)
     },
     on_missing: Some(() => None),
+    schema_shape: self.schema_shape.nullable(),
+    schema_required: false,
   }
 }
 

@@ -11,13 +11,13 @@
 ## 決定事項の概要
 
 - 型付きJSONアクセス、builderによる構築、集約検証を提供する。
-- lensを、パッケージが所有するJSON Pointerと値デコーダーおよびエンコーダーとしてモデル化する。
+- lensを、パッケージが所有するJSON Pointerと値デコーダー、エンコーダー、最小限のJSON Schema shapeとしてモデル化する。
 - `Lens[T]`を型付き値に、`ObjectLens`を型付きオブジェクト値および子プロパティlensを作成できるパスに使用する。
 - パッケージ独自のpointer表現を`@json.JsonPath`から独立させる。
 - 1つのlensからは`LensError`を発生させ、集約チェックからは非ジェネリックな`Validation`を返す。
 - 欠落プロパティと明示的なJSON`null`を異なる状態として保持する。
 - `Lens[T]`と`ObjectLens`に静的な結果型を保持し、検証は成功または蓄積された問題のみを報告する。
-- 具体的なlens型を集約検証の境界で消去するため、チェック専用の`LensTrait`トレイトオブジェクトを使用する。
+- 集約検証とJSON Schemaの境界で具体的なlens型を消去するため、`LensTrait`トレイトオブジェクトを使用する。
 - まずオブジェクトプロパティとプリミティブデコーダーから開始する。
 - 数値の解析と変換はMoonBit core APIに委譲し、パッケージ独自の数値パーサーは持たない。
 - 可変な`JsonBuilder`を通じて送信用オブジェクトを構築し、`ToJson`を実装する。
@@ -89,7 +89,7 @@ lookupでは、要求されたpointerと、正常にトラバーサルできたp
 
 MoonBitは、TypeScriptライブラリがZodスキーマ式から型を推論するように、実行時コレクションに含まれる検証定義からコンパイル時の結果型を導出できません。検証APIは、`Schema[T]`、固定個数builder、値を生成する検証結果によってそのモデルを模倣すべきではありません。
 
-`Lens[T]`はプリミティブ値とraw JSON値の静的型情報の源です。`ObjectLens`は`Lens[Map[String, Json]]`を所有するため、静的に型付けされたオブジェクトアクセスも提供します。集約検証はチェック専用の`LensTrait`トレイトオブジェクトを通じて両方を受け取り、すべてのチェックを評価し、成功または蓄積された問題だけを返します。呼び出し側で明示的な変換を行う必要はありません。検証成功後は、元のlensを通じて値を読み続けます。
+`Lens[T]`はプリミティブ値とraw JSON値の静的型情報の源です。`ObjectLens`は`Lens[Map[String, Json]]`を所有するため、静的に型付けされたオブジェクトアクセスも提供します。集約検証とJSON Schema生成は、型消去された`LensTrait`トレイトオブジェクトを通じて両方を受け取ります。検証はすべてのチェックを評価し、成功または蓄積された問題だけを返します。呼び出し側で明示的な変換を行う必要はありません。検証成功後は、元のlensを通じて値を読み続けます。
 
 この設計では、検証後のアクセスでトラバーサルとデコードが再度行われます。この重複を避けるには、異種型付きキャッシュまたはアプリケーションごとに生成されたコードが必要ですが、どちらも初期パッケージには属しません。
 
@@ -454,6 +454,7 @@ pub enum Validation {
 ```moonbit
 pub trait LensTrait {
   fn check(Self, Json) -> Unit raise LensError
+  fn to_json_schema(Self) -> Json
 }
 
 pub impl[T] LensTrait for Lens[T]
@@ -464,9 +465,11 @@ pub fn validate(
   Json,
   Array[&LensTrait],
 ) -> Validation
+
+pub fn json_schema(Array[&LensTrait]) -> Json
 ```
 
-`LensTrait`は意図的な型消去境界です。readonlyかつsealedであり、このパッケージだけが実装を定義できます。その唯一のメソッドはlensのトラバーサルとdecoderを実行し、成功した値を破棄し、発生した`Issue`を集約用に保持します。MoonBitは各異種結果型を保持する型パラメーター付きtrait objectを表現できないため、型付き`get`は`Lens[T]`と`ObjectLens]`に残ります。
+`LensTrait`は意図的な型消去境界です。readonlyかつsealedであり、このパッケージだけが実装を定義できます。`check`はlensのトラバーサルとdecoderを実行し、成功した値を破棄し、発生した`Issue`を集約用に保持します。`to_json_schema`はlensのパスと、lens構築時に保持されたschema shapeを描画します。MoonBitは各異種結果型を保持する型パラメーター付きtrait objectを表現できないため、型付き`get`は`Lens[T]`と`ObjectLens]`に残ります。
 
 ```moonbit
 let user = object("user")
