@@ -135,6 +135,60 @@ struct UnusedLenses {
 }
 
 ///|
+let simple_object_lens : @lens.ObjectLens = @lens.root().object("object")
+
+///|
+let simple_string_lens : @lens.Lens[String] = @lens.root().string("string")
+
+///|
+let simple_bool_lens : @lens.Lens[Bool] = @lens.root().bool("bool")
+
+///|
+let simple_number_lens : @lens.Lens[Double] = @lens.root().number("number")
+
+///|
+let simple_int_lens : @lens.Lens[Int] = @lens.root().int("int")
+
+///|
+let simple_json_lens : @lens.Lens[Json] = @lens.root().json("json")
+
+///|
+let simple_array_lens : @lens.Lens[Array[String]] = @lens.root()
+  .string("array")
+  .array()
+
+///|
+let simple_nullable_lens : @lens.Lens[String?] = @lens.root()
+  .string("nullable")
+  .nullable()
+
+///|
+let simple_optional_lens : @lens.Lens[String?] = @lens.root()
+  .string("optional")
+  .optional()
+
+///|
+let simple_nullish_lens : @lens.Lens[String?] = @lens.root()
+  .string("nullish")
+  .nullish()
+
+///|
+let complex_lenses : ComplexLenses = {
+  request_id: @lens.root().string("requestId"),
+  version: @lens.root().int("version"),
+  user_name: @lens.root().object("user").string("name"),
+  user_active: @lens.root().object("user").bool("active"),
+  user_age: @lens.root().object("user").int("age"),
+  user_score: @lens.root().object("user").number("score"),
+  tags: @lens.root().object("user").object("metadata").string("tags").array(),
+  project_id: @lens.root().object("project").string("id"),
+  project_archived: @lens.root().object("project").bool("archived"),
+  latency_ms: @lens.root().object("metrics").number("latencyMs"),
+  attempts: @lens.root().object("metrics").int("attempts"),
+  payload_title: @lens.root().object("payload").string("title"),
+}
+
+///|
 fn complex_document() -> Json raise {
   @json.parse(
     "{\"requestId\":\"req-2026-0001\",\"version\":7,\"timestamp\":\"2026-07-31T12:00:00Z\",\"region\":\"ap-northeast-1\",\"environment\":\"production\",\"user\":{\"id\":\"user-42\",\"name\":\"Ada Lovelace\",\"active\":true,\"age\":37,\"score\":98.75,\"email\":\"ada@example.com\",\"role\":\"admin\",\"locale\":\"en-GB\",\"timezone\":\"Europe/London\",\"metadata\":{\"team\":\"compiler\",\"plan\":\"enterprise\",\"tags\":[\"owner\",\"reviewer\",\"operator\"]}},\"project\":{\"id\":\"project-7\",\"name\":\"Lens benchmark\",\"archived\":false,\"visibility\":\"private\",\"memberCount\":24},\"metrics\":{\"latencyMs\":12.5,\"attempts\":3,\"cached\":true,\"bytes\":65536},\"payload\":{\"title\":\"Benchmark payload\",\"kind\":\"analysis\",\"items\":[{\"id\":1,\"value\":\"alpha\"},{\"id\":2,\"value\":\"beta\"},{\"id\":3,\"value\":\"gamma\"}],\"checksum\":\"sha256:0123456789abcdef\"},\"flags\":{\"trace\":false,\"preview\":true,\"audit\":true}}",
@@ -142,7 +196,7 @@ fn complex_document() -> Json raise {
 }
 
 ///|
-fn complex_lenses() -> ComplexLenses {
+fn build_complex_lenses() -> ComplexLenses {
   let root = @lens.root()
   let user = root.object("user")
   let metadata = user.object("metadata")
@@ -344,17 +398,19 @@ fn encode_complex_with_lenses(
 ///|
 test "Lens benchmark fixtures - standard API and lens operations agree" {
   let document = complex_document()
-  let lenses = complex_lenses()
   let value = decode_complex_with_patterns(document)
-  inspect(value == decode_complex_with_lenses(lenses, document), content="true")
+  inspect(
+    value == decode_complex_with_lenses(complex_lenses, document),
+    content="true",
+  )
   inspect(
     validate_complex_with_standard_api(document) &&
-    validate_complex_with_lenses(complex_checks(lenses), document),
+    validate_complex_with_lenses(complex_checks(complex_lenses), document),
     content="true",
   )
   inspect(
     encode_complex_with_standard_api(value) ==
-    encode_complex_with_lenses(lenses, value),
+    encode_complex_with_lenses(complex_lenses, value),
     content="true",
   )
 }
@@ -362,109 +418,108 @@ test "Lens benchmark fixtures - standard API and lens operations agree" {
 ///|
 test "bench: simple lens output types" (b : @bench.T) {
   let document = simple_document()
-  let root = @lens.root()
-  let object_lens = root.object("object")
-  let string_lens = root.string("string")
-  let bool_lens = root.bool("bool")
-  let number_lens = root.number("number")
-  let int_lens = root.int("int")
-  let json_lens = root.json("json")
-  let array_lens = root.string("array").array()
-  let nullable_lens = root.string("nullable").nullable()
-  let optional_lens = root.string("optional").optional()
-  let nullish_lens = root.string("nullish").nullish()
   b.bench(name="pattern_match/object", fn() {
     b.keep(try! match_object(match_root_property(document, "object")).copy())
   })
-  b.bench(name="lens/object", fn() { b.keep(try! object_lens.get(document)) })
+  b.bench(name="lens/object", fn() {
+    b.keep(try! simple_object_lens.get(document))
+  })
   b.bench(name="pattern_match/string", fn() {
     b.keep(try! match_string(match_root_property(document, "string")))
   })
-  b.bench(name="lens/string", fn() { b.keep(try! string_lens.get(document)) })
+  b.bench(name="lens/string", fn() {
+    b.keep(try! simple_string_lens.get(document))
+  })
   b.bench(name="pattern_match/bool", fn() {
     b.keep(try! match_bool(match_root_property(document, "bool")))
   })
-  b.bench(name="lens/bool", fn() { b.keep(try! bool_lens.get(document)) })
+  b.bench(name="lens/bool", fn() { b.keep(try! simple_bool_lens.get(document)) })
   b.bench(name="pattern_match/number", fn() {
     b.keep(try! match_number(match_root_property(document, "number")))
   })
-  b.bench(name="lens/number", fn() { b.keep(try! number_lens.get(document)) })
+  b.bench(name="lens/number", fn() {
+    b.keep(try! simple_number_lens.get(document))
+  })
   b.bench(name="pattern_match/int", fn() {
     b.keep(try! match_number(match_root_property(document, "int")).to_int())
   })
-  b.bench(name="lens/int", fn() { b.keep(try! int_lens.get(document)) })
+  b.bench(name="lens/int", fn() { b.keep(try! simple_int_lens.get(document)) })
   b.bench(name="pattern_match/json", fn() {
     b.keep(try! match_root_property(document, "json"))
   })
-  b.bench(name="lens/json", fn() { b.keep(try! json_lens.get(document)) })
+  b.bench(name="lens/json", fn() { b.keep(try! simple_json_lens.get(document)) })
   b.bench(name="pattern_match/array", fn() {
     b.keep(try! match_string_array(match_root_property(document, "array")))
   })
-  b.bench(name="lens/array", fn() { b.keep(try! array_lens.get(document)) })
+  b.bench(name="lens/array", fn() {
+    b.keep(try! simple_array_lens.get(document))
+  })
   b.bench(name="pattern_match/nullable", fn() {
     b.keep(try! match_nullable_string(document, "nullable"))
   })
   b.bench(name="lens/nullable", fn() {
-    b.keep(try! nullable_lens.get(document))
+    b.keep(try! simple_nullable_lens.get(document))
   })
   b.bench(name="pattern_match/optional", fn() {
     b.keep(try! match_optional_string(document, "optional"))
   })
   b.bench(name="lens/optional", fn() {
-    b.keep(try! optional_lens.get(document))
+    b.keep(try! simple_optional_lens.get(document))
   })
   b.bench(name="pattern_match/nullish", fn() {
     b.keep(try! match_nullish_string(document, "nullish"))
   })
-  b.bench(name="lens/nullish", fn() { b.keep(try! nullish_lens.get(document)) })
+  b.bench(name="lens/nullish", fn() {
+    b.keep(try! simple_nullish_lens.get(document))
+  })
 }
 
 ///|
 test "bench: complex lens initialization" (b : @bench.T) {
   b.bench(name="access_generation/eager_all", fn() {
-    b.keep((complex_lenses(), unused_lenses()))
+    b.keep((build_complex_lenses(), unused_lenses()))
   })
   b.bench(name="access_generation/lazy_deferred_all", fn() {
-    b.keep((@lazy.Lazy(complex_lenses), @lazy.Lazy(unused_lenses)))
+    b.keep((@lazy.Lazy(build_complex_lenses), @lazy.Lazy(unused_lenses)))
   })
   b.bench(name="access_generation/lazy_force_used", fn() {
-    let used = @lazy.Lazy(complex_lenses)
+    let used = @lazy.Lazy(build_complex_lenses)
     let unused = @lazy.Lazy(unused_lenses)
     b.keep((used.force(), unused))
   })
   b.bench(name="access_generation/lazy_force_all", fn() {
-    let used = @lazy.Lazy(complex_lenses)
+    let used = @lazy.Lazy(build_complex_lenses)
     let unused = @lazy.Lazy(unused_lenses)
     b.keep((used.force(), unused.force()))
   })
-  let cached_lenses = @lazy.Lazy(complex_lenses)
+  let cached_lenses = @lazy.Lazy(build_complex_lenses)
   let deferred_unused_lenses = @lazy.Lazy(unused_lenses)
   cached_lenses.force() |> ignore
   b.bench(name="access_generation/lazy_cached_force", fn() {
     b.keep((cached_lenses.force(), deferred_unused_lenses))
   })
   b.bench(name="validation/eager_all", fn() {
-    b.keep((complex_checks(complex_lenses()), unused_lenses()))
+    b.keep((complex_checks(build_complex_lenses()), unused_lenses()))
   })
   b.bench(name="validation/lazy_deferred_all", fn() {
     b.keep(
       (
-        @lazy.Lazy(() => complex_checks(complex_lenses())),
+        @lazy.Lazy(() => complex_checks(build_complex_lenses())),
         @lazy.Lazy(unused_lenses),
       ),
     )
   })
   b.bench(name="validation/lazy_force_used", fn() {
-    let used = @lazy.Lazy(() => complex_checks(complex_lenses()))
+    let used = @lazy.Lazy(() => complex_checks(build_complex_lenses()))
     let unused = @lazy.Lazy(unused_lenses)
     b.keep((used.force(), unused))
   })
   b.bench(name="validation/lazy_force_all", fn() {
-    let used = @lazy.Lazy(() => complex_checks(complex_lenses()))
+    let used = @lazy.Lazy(() => complex_checks(build_complex_lenses()))
     let unused = @lazy.Lazy(unused_lenses)
     b.keep((used.force(), unused.force()))
   })
-  let cached_checks = @lazy.Lazy(() => complex_checks(complex_lenses()))
+  let cached_checks = @lazy.Lazy(() => complex_checks(build_complex_lenses()))
   let deferred_unused_checks = @lazy.Lazy(unused_lenses)
   cached_checks.force() |> ignore
   b.bench(name="validation/lazy_cached_force", fn() {
@@ -475,24 +530,26 @@ test "bench: complex lens initialization" (b : @bench.T) {
 ///|
 test "bench: 33-property nested document with 12 typed reads" (b : @bench.T) {
   let document = complex_document()
-  let lenses = complex_lenses()
-  let lazy_lenses = @lazy.Lazy(() => lenses)
+  let lazy_lenses = @lazy.Lazy(() => complex_lenses)
   let lazy_unused = @lazy.Lazy(unused_lenses)
   lazy_lenses.force() |> ignore
   b.bench(name="standard_api", fn() {
     b.keep(try! decode_complex_with_patterns(document))
   })
   b.bench(name="lens/prebuilt", fn() {
-    b.keep(try! decode_complex_with_lenses(lenses, document))
+    b.keep(try! decode_complex_with_lenses(complex_lenses, document))
   })
   b.bench(name="lens/eager_init", fn() {
     let unused = unused_lenses()
     b.keep(
-      (try! decode_complex_with_lenses(complex_lenses(), document), unused),
+      (
+        try! decode_complex_with_lenses(build_complex_lenses(), document),
+        unused,
+      ),
     )
   })
   b.bench(name="lens/lazy_first_use", fn() {
-    let deferred_lenses = @lazy.Lazy(complex_lenses)
+    let deferred_lenses = @lazy.Lazy(build_complex_lenses)
     let deferred_unused = @lazy.Lazy(unused_lenses)
     b.keep(
       (
@@ -516,7 +573,7 @@ test "bench: 33-property nested document with 12 validation checks" (
   b : @bench.T,
 ) {
   let document = complex_document()
-  let checks = complex_checks(complex_lenses())
+  let checks = complex_checks(complex_lenses)
   let lazy_checks = @lazy.Lazy(() => checks)
   let lazy_unused = @lazy.Lazy(unused_lenses)
   lazy_checks.force() |> ignore
@@ -530,13 +587,18 @@ test "bench: 33-property nested document with 12 validation checks" (
     let unused = unused_lenses()
     b.keep(
       (
-        validate_complex_with_lenses(complex_checks(complex_lenses()), document),
+        validate_complex_with_lenses(
+          complex_checks(build_complex_lenses()),
+          document,
+        ),
         unused,
       ),
     )
   })
   b.bench(name="lens/lazy_first_use", fn() {
-    let deferred_checks = @lazy.Lazy(() => complex_checks(complex_lenses()))
+    let deferred_checks = @lazy.Lazy(() => {
+      complex_checks(build_complex_lenses())
+    })
     let deferred_unused = @lazy.Lazy(unused_lenses)
     b.keep(
       (
@@ -556,7 +618,7 @@ test "bench: 33-property nested document with 12 validation checks" (
 test "bench: 12-field nested JSON generation" (b : @bench.T) {
   let document = complex_document()
   let value = decode_complex_with_patterns(document)
-  let lenses = complex_lenses()
+  let lenses = complex_lenses
   let lazy_lenses = @lazy.Lazy(() => lenses)
   let lazy_unused = @lazy.Lazy(unused_lenses)
   lazy_lenses.force() |> ignore
@@ -568,10 +630,12 @@ test "bench: 12-field nested JSON generation" (b : @bench.T) {
   })
   b.bench(name="lens/eager_init", fn() {
     let unused = unused_lenses()
-    b.keep((try! encode_complex_with_lenses(complex_lenses(), value), unused))
+    b.keep(
+      (try! encode_complex_with_lenses(build_complex_lenses(), value), unused),
+    )
   })
   b.bench(name="lens/lazy_first_use", fn() {
-    let deferred_lenses = @lazy.Lazy(complex_lenses)
+    let deferred_lenses = @lazy.Lazy(build_complex_lenses)
     let deferred_unused = @lazy.Lazy(unused_lenses)
     b.keep(
       (

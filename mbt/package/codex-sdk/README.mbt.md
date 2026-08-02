@@ -88,7 +88,7 @@ The source layout follows the upstream files using MoonBit snake-case filenames:
 | `threadOptions.ts`    | `thread_options.mbt`     |
 | `turnOptions.ts`      | `turn_options.mbt`       |
 
-Files prefixed with `moonbit_internal_` have no direct upstream module and exist only for MoonBit language or test-runtime requirements. Each such file documents the corresponding upstream process and the reason the independent implementation is required.
+MoonBit-only files without a direct upstream module use descriptive names and document the corresponding upstream process and language or test-runtime requirement.
 
 ## Tests
 
@@ -98,4 +98,4 @@ Run the native package suite from the repository root:
 moon test --target native mbt/package/codex-sdk/src
 ```
 
-The 37 upstream `abort`, `exec`, `run`, and `runStreamed` cases are ported one-for-one against a native fake Codex executable that records arguments, environment variables, stdin, schemas, JSONL events, process exits, and cancellation. Another 26 `moonbit_internal_` cases cover the explicit MoonBit item and event decoders, including every discriminated union branch, malformed payloads, unknown variants, and invalid JSONL. The Node-only optional-package layout cases are represented by documented MoonBit-runtime substitutions for an explicit executable override, `PATH` executable fallback, exact caller-provided `PATH`, and preservation of the Windows `Path` key.
+The 37 upstream `abort`, `exec`, `run`, and `runStreamed` cases are ported one-for-one against a native fake Codex executable that records arguments, environment variables, stdin, schemas, JSONL events, process exits, and cancellation. Another 26 cases cover the explicit MoonBit item and event decoders, including every discriminated union branch, malformed payloads, unknown variants, and invalid JSONL. The Node-only optional-package layout cases are represented by documented MoonBit-runtime substitutions for an explicit executable override, `PATH` executable fallback, exact caller-provided `PATH`, and preservation of the Windows `Path` key.

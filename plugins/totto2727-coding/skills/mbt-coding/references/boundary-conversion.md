@@ -14,7 +14,9 @@ An external response type mirrors the remote contract and can use the optional a
 
 ## JSON ingress
 
-Parse and decode JSON into an external response type at the transport boundary. Use `FromJson`, explicit pattern matching, or a dedicated decoder according to the remote format. Do not let a raw `Json`, `Map[String, Json]`, or partially decoded response type enter internal services.
+Parse JSON text into the standard `Json` type and decode it into an external response type through that type's standard `FromJson` implementation. Use `derive(FromJson)` when the generated format matches the wire contract and a manual `FromJson` implementation otherwise. Do not replace the trait with a dedicated `Json -> T` decoder. A transport boundary may translate `JsonDecodeError` into its own typed error after `@json.from_json` fails.
+
+Inside a manual `FromJson` implementation, use `totto2727/lens` for known object-field selection. Define complete lenses once at the top level with explicit types and never construct or compose a lens in a function body. Keep lens reads in the `FromJson` implementation or in a private implementation-only helper. Use `Lens::get_or_json_decode_error(document, path)` for ordinary selection failures, then pass `path=lens.add_to_json_path(path)` when the selected `Json` is decoded through `@json.from_json`. Use `Lens::json_decode_error(path, message)` only when a custom validation error belongs to the selected location. Use direct `Lens::get` with `catch` only for intentional recovery or fallback behavior, and never operate on `Pointer` directly. Use direct `@json.from_json` or pattern matching for scalar wrappers and discriminators. Outside `FromJson`, lens access is allowed only for values intentionally kept as unstructured `Json` because their shape is dynamic or lacks a stable type. A known structure must still cross the boundary through `FromJson`.
 
 Keep response and request types separate even when their current fields are similar. They belong to different external contracts and may evolve independently.
 

@@ -21,11 +21,10 @@ async fn create_output_schema_file(schema : Json?) -> OutputSchemaFile {
   match schema {
     None => { schema_path: None, schema_directory: None }
     Some(schema) => {
-      let _ = @lens.root().get(schema) catch {
-        _ =>
-          raise InvalidOutputSchema(
-            message="output_schema must be a plain JSON object",
-          )
+      guard schema is Json::Object(_) else {
+        raise InvalidOutputSchema(
+          message="output_schema must be a plain JSON object",
+        )
       }
       let schema_directory = @fs.tmpdir(prefix="codex-output-schema-")
       let schema_path = @path.Path(schema_directory)

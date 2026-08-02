@@ -48,6 +48,16 @@ let json_format_option : @admiral.OptionDef[String] = @admiral.string(
 )
 
 ///|
+let json_extract_response_success_lens : @lens.Lens[Bool?] = @lens.root()
+  .bool("success")
+  .optional()
+
+///|
+let json_extract_response_result_lens : @lens.Lens[Json?] = @lens.root()
+  .json("result")
+  .optional()
+
+///|
 enum JsonExtractOutputFormat {
   RawJson
   Markdown
@@ -78,6 +88,25 @@ struct JsonExtractBody {
   gotoOptions : JsonGotoOptions?
   prompt : String
   response_format : Json?
+}
+
+///|
+struct JsonExtractResponse {
+  success : Bool
+  result : Json?
+}
+
+///|
+impl FromJson for JsonExtractResponse with fn from_json(json, _path) {
+  let success_value = json_extract_response_success_lens.get(json) catch {
+    _ => None
+  }
+  let success = match success_value {
+    Some(value) => value
+    None => false
+  }
+  let result = json_extract_response_result_lens.get(json) catch { _ => None }
+  { success, result }
 }
 
 ///|
@@ -184,13 +213,16 @@ async fn json_extract_options(
 
 ///|
 fn json_extract_result(raw : String) -> Json raise {
-  let parsed = @json.parse(raw) catch {
+  let document = @json.parse(raw) catch {
     error => fail("Invalid json response JSON: \{error}")
   }
-  let success = @lens.root().bool("success").get(parsed) catch { _ => false }
-  guard success else { fail("Invalid json response") }
-  @lens.root().json("result").get(parsed) catch {
+  let response : JsonExtractResponse = @json.from_json(document) catch {
     _ => fail("Invalid json response")
+  }
+  guard response.success else { fail("Invalid json response") }
+  match response.result {
+    Some(result) => result
+    None => fail("Invalid json response")
   }
 }
 

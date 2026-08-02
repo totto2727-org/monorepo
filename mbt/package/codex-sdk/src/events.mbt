@@ -6,13 +6,13 @@
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/events.ts#L5-L10
 pub(all) struct ThreadStartedEvent {
   thread_id : String
-} derive(Debug, Eq)
+} derive(Debug, Eq, FromJson)
 
 ///| Emitted when a turn starts.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/events.ts#L12-L18
-pub(all) struct TurnStartedEvent {} derive(Debug, Eq)
+pub(all) struct TurnStartedEvent {} derive(Debug, Eq, FromJson)
 
 ///| Token usage reported for a completed turn.
 
@@ -32,7 +32,7 @@ pub(all) struct Usage {
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/events.ts#L34-L38
 pub(all) struct TurnCompletedEvent {
   usage : Usage
-} derive(Debug, Eq)
+} derive(Debug, Eq, FromJson)
 
 ///| A fatal error attached to a failed turn.
 
@@ -40,7 +40,7 @@ pub(all) struct TurnCompletedEvent {
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/events.ts#L64-L67
 pub(all) struct ThreadError {
   message : String
-} derive(Debug, Eq)
+} derive(Debug, Eq, FromJson)
 
 ///| Emitted when a turn fails.
 
@@ -48,7 +48,7 @@ pub(all) struct ThreadError {
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/events.ts#L40-L44
 pub(all) struct TurnFailedEvent {
   error : ThreadError
-} derive(Debug, Eq)
+} derive(Debug, Eq, FromJson)
 
 ///| Emitted when a new item is added to a thread.
 
@@ -56,7 +56,7 @@ pub(all) struct TurnFailedEvent {
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/events.ts#L46-L50
 pub(all) struct ItemStartedEvent {
   item : ThreadItem
-} derive(Eq)
+} derive(Eq, FromJson)
 
 ///| Emitted when an existing item changes.
 
@@ -64,7 +64,7 @@ pub(all) struct ItemStartedEvent {
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/events.ts#L52-L56
 pub(all) struct ItemUpdatedEvent {
   item : ThreadItem
-} derive(Eq)
+} derive(Eq, FromJson)
 
 ///| Emitted when an item reaches a terminal state.
 
@@ -72,7 +72,7 @@ pub(all) struct ItemUpdatedEvent {
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/events.ts#L58-L62
 pub(all) struct ItemCompletedEvent {
   item : ThreadItem
-} derive(Eq)
+} derive(Eq, FromJson)
 
 ///| An unrecoverable error emitted directly by the event stream.
 
@@ -80,7 +80,7 @@ pub(all) struct ItemCompletedEvent {
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/events.ts#L69-L73
 pub(all) struct ThreadErrorEvent {
   message : String
-} derive(Debug, Eq)
+} derive(Debug, Eq, FromJson)
 
 ///| Top-level JSONL event emitted by `codex exec`.
 

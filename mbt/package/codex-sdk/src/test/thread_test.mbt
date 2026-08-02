@@ -534,7 +534,7 @@ async test "Codex run - throws TurnFailed on turn failures" {
 // Upstream responses proxy: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/responsesProxy.ts
 // Upstream test client: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/testCodex.ts
 // Upstream CODEX_HOME hooks: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/setupCodexHome.ts
-// This file is intentionally prefixed moonbit_internal_ because MoonBit tests cannot use the upstream Node/Jest and HTTP proxy machinery.
+// This native white-box suite replaces the upstream Node/Jest and HTTP proxy machinery.
 
 ///|
 priv struct FakeCodex {
@@ -726,7 +726,7 @@ fn values_after(args : Array[String], key : String) -> Array[String] {
 // Corresponding upstream assertion: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts#L24-L55
 
 ///|
-fn moonbit_internal_streamed_event_summary(event : ThreadEvent) -> String {
+fn streamed_event_summary(event : ThreadEvent) -> String {
   match event {
     @codex.ThreadStarted(started) => "thread.started:\{started.thread_id}"
     @codex.TurnStarted(_) => "turn.started"
@@ -752,7 +752,7 @@ async test "Codex runStreamed - returns thread events" {
     let thread = client.start_thread()
     let events : Array[String] = []
     thread.run_streamed(@codex.Prompt("Hello, world!"), async fn(event) {
-      events.push(moonbit_internal_streamed_event_summary(event))
+      events.push(streamed_event_summary(event))
       @async.pause()
     })
     json_inspect(events, content=[
@@ -841,7 +841,7 @@ async test "Codex runStreamed - applies output schema turn options" {
 // Corresponding upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L82
 
 ///|
-async fn moonbit_internal_wait_for_test_file(path : String) -> Unit {
+async fn wait_for_test_file(path : String) -> Unit {
   @async.with_timeout(2000, async fn() {
     while !@fs.exists(path) {
       @async.pause()
@@ -853,9 +853,7 @@ async fn moonbit_internal_wait_for_test_file(path : String) -> Unit {
 // Corresponding upstream cancellation assertions: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L21-L140
 
 ///|
-async fn moonbit_internal_wait_for_cancellation(
-  task : @async.Task[Unit],
-) -> Bool {
+async fn wait_for_cancellation(task : @async.Task[Unit]) -> Bool {
   try {
     task.wait()
     false
@@ -879,7 +877,7 @@ async test "Codex run - cancels when task is cancelled" {
         allow_failure=true,
       )
       task.cancel()
-      assert_true(moonbit_internal_wait_for_cancellation(task))
+      assert_true(wait_for_cancellation(task))
     })
   })
 }
@@ -905,7 +903,7 @@ async test "Codex runStreamed - cancels when task is cancelled" {
         allow_failure=true,
       )
       task.cancel()
-      assert_true(moonbit_internal_wait_for_cancellation(task))
+      assert_true(wait_for_cancellation(task))
     })
     assert_eq(events.length(), 0)
   })
@@ -925,9 +923,9 @@ async test "Codex run - cancels during execution" {
         async fn() { thread.run(@codex.Prompt("Hello")) |> ignore },
         allow_failure=true,
       )
-      moonbit_internal_wait_for_test_file("\{fixture.record_directory}/args.1")
+      wait_for_test_file("\{fixture.record_directory}/args.1")
       task.cancel()
-      assert_true(moonbit_internal_wait_for_cancellation(task))
+      assert_true(wait_for_cancellation(task))
     })
   })
 }
@@ -954,7 +952,7 @@ async test "Codex runStreamed - cancels during iteration" {
       )
       started.get()
       task.cancel()
-      assert_true(moonbit_internal_wait_for_cancellation(task))
+      assert_true(wait_for_cancellation(task))
     })
   })
 }

@@ -32,6 +32,48 @@ async test "lock file preserves plugin enabledSkills" {
 }
 
 ///|
+test "LockFile ToJson roundtrips through standard FromJson" {
+  let expected : LockFile = {
+    skill_dirs: ["/custom/dir"],
+    repositories: [
+      {
+        source_type: RepositoryGithub,
+        source: "test/repo",
+        marketplace_kind: Codex,
+        commit_hash: Some("def456"),
+        plugins: [
+          {
+            name: "test-plugin",
+            path: "plugins/test-plugin",
+            enabled_skills: ["skill-x", "skill-y"],
+          },
+        ],
+      },
+    ],
+  }
+  let actual : LockFile = @json.from_json(expected.to_json())
+  inspect(actual.skill_dirs.join(","), content="/custom/dir")
+  inspect(actual.repositories.length(), content="1")
+  inspect(
+    repository_source_type_to_string(actual.repositories[0].source_type),
+    content="github",
+  )
+  inspect(actual.repositories[0].source, content="test/repo")
+  inspect(
+    marketplace_kind_to_string(actual.repositories[0].marketplace_kind),
+    content="codex",
+  )
+  inspect(actual.repositories[0].commit_hash.unwrap_or(""), content="def456")
+  inspect(actual.repositories[0].plugins.length(), content="1")
+  inspect(actual.repositories[0].plugins[0].name, content="test-plugin")
+  inspect(actual.repositories[0].plugins[0].path, content="plugins/test-plugin")
+  inspect(
+    actual.repositories[0].plugins[0].enabled_skills.join(","),
+    content="skill-x,skill-y",
+  )
+}
+
+///|
 async test "read_lock returns empty lock file when file does not exist" {
   let root = @fs.tmpdir(prefix="c-plugin-lock-missing-")
   let agents = @path.Path::join(root, ".agents").to_string()
@@ -52,6 +94,45 @@ async test "read_lock returns empty lock file for corrupt JSON" {
   inspect(lock.skill_dirs.length(), content="0")
   inspect(lock.repositories.length(), content="0")
   @fs.rmdir(root, recursive=true)
+}
+
+///|
+test "LockFile FromJson tolerates defaults and filters invalid repositories" {
+  let lock : LockFile = @json.from_json(
+    @json.parse(
+      (
+        #|{
+        #|  "version": 1,
+        #|  "skillDirs": ["/custom/dir", 1],
+        #|  "repositories": [
+        #|    {
+        #|      "source": "./repo",
+        #|      "plugins": [
+        #|        { "name": "plugin-a", "enabledSkills": ["skill-a", 1] },
+        #|        { "path": 1 },
+        #|        42
+        #|      ]
+        #|    },
+        #|    { "source": "" },
+        #|    { "source": "./invalid", "sourceType": "unsupported" }
+        #|  ]
+        #|}
+      ),
+    ),
+  )
+  inspect(lock.skill_dirs.join(","), content="/custom/dir")
+  inspect(lock.repositories.length(), content="1")
+  inspect(
+    repository_source_type_to_string(lock.repositories[0].source_type),
+    content="local",
+  )
+  inspect(lock.repositories[0].plugins.length(), content="2")
+  inspect(
+    lock.repositories[0].plugins[0].enabled_skills.join(","),
+    content="skill-a",
+  )
+  inspect(lock.repositories[0].plugins[1].name, content="plugin")
+  inspect(lock.repositories[0].plugins[1].path, content="plugin")
 }
 
 ///|

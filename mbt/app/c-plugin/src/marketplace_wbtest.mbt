@@ -87,6 +87,40 @@ async test "resolve_skills returns empty when plugin has no skills directory" {
 }
 
 ///|
+test "normalized_plugins_from_json decodes wire sources and filters unsafe paths" {
+  let text =
+    #|{
+    #|  "plugins": [
+    #|    { "name": "plain", "source": "./plugins/plain", "description": "plain plugin" },
+    #|    { "name": "codex", "source": { "path": "./plugins/codex" } },
+    #|    { "name": "unsafe", "source": "../outside" },
+    #|    1
+    #|  ]
+    #|}
+  let claude_plugins = normalized_plugins_from_json(text, Claude)
+  inspect(claude_plugins.length(), content="2")
+  inspect(claude_plugins[0].source, content="plugins/plain")
+  inspect(claude_plugins[0].description.unwrap_or(""), content="plain plugin")
+  inspect(claude_plugins[1].source, content="codex")
+  let codex_plugins = normalized_plugins_from_json(text, Codex)
+  inspect(codex_plugins.length(), content="3")
+  inspect(
+    codex_plugins.map(plugin => plugin.source).join(","),
+    content="plain,plugins/codex,unsafe",
+  )
+}
+
+///|
+test "marketplace_name_from_json falls back for malformed names" {
+  inspect(
+    marketplace_name_from_json("{\"name\": \"plugins\"}"),
+    content="plugins",
+  )
+  inspect(marketplace_name_from_json("{\"name\": 1}"), content="marketplace")
+  inspect(marketplace_name_from_json("invalid"), content="marketplace")
+}
+
+///|
 test "plugins_from_skills groups enabled skills by plugin without duplicates" {
   let plugins = plugins_from_skills([
     {

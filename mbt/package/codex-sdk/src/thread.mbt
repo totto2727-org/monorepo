@@ -109,7 +109,7 @@ pub async fn Thread::run_streamed(
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L70-L114
 
 ///|
-/// Async type difference: event delivery uses a callback returning whether iteration should continue; explicit JSON decoding is isolated behind a moonbit_internal_ function.
+/// Async type difference: event delivery uses a callback returning whether iteration should continue; event JSON is decoded through the standard FromJson implementation.
 async fn Thread::run_streamed_internal(
   self : Thread,
   input : Input,
@@ -119,7 +119,7 @@ async fn Thread::run_streamed_internal(
   let schema_file = create_output_schema_file(turn_options.output_schema)
   let normalized = normalize_input(input)
   let options = self.thread_options
-  let moonbit_internal_stop_requested = Ref(false)
+  let stop_requested = Ref(false)
   let result = Ok(
     self.exec.run(
       {
@@ -141,7 +141,7 @@ async fn Thread::run_streamed_internal(
         approval_policy: options.approval_policy,
       },
       async fn(line) {
-        let event = moonbit_internal_thread_event_from_json(line.value) catch {
+        let event : ThreadEvent = @json.from_json(line.value) catch {
           error =>
             raise InvalidEvent(
               message="Failed to parse item: \{line.raw}; cause: \{@debug.to_string(error)}",
@@ -152,7 +152,7 @@ async fn Thread::run_streamed_internal(
         }
         let should_continue = on_event(event)
         if !should_continue {
-          moonbit_internal_stop_requested.val = true
+          stop_requested.val = true
         }
         should_continue
       },
@@ -166,8 +166,7 @@ async fn Thread::run_streamed_internal(
     Err(error) =>
       // Async type difference: cancelling the MoonBit process task surfaces as cancellation after cleanup; the upstream generator closes normally when its consumer breaks.
       // Upstream generator cleanup: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L235-L242
-      if !moonbit_internal_stop_requested.val ||
-        !@async.is_cancellation_error(error) {
+      if !stop_requested.val || !@async.is_cancellation_error(error) {
         raise error
       }
   }

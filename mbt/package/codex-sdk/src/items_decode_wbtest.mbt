@@ -1,30 +1,27 @@
 // MoonBit-only tests for the explicit item decoder required by the language type system.
 // Corresponding upstream cast: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L96-L103
 // Item shapes under test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L5-L128
-// This file is intentionally prefixed moonbit_internal_ because upstream relies on a TypeScript cast and has no decoder test module.
 
 ///|
-fn moonbit_internal_decode_item(source : String) -> ThreadItem raise {
-  moonbit_internal_thread_item_from_json(@json.parse(source))
-}
-
-///|
-fn moonbit_internal_item_decode_error(source : String) -> String {
+fn item_decode_error(source : String) -> String {
   try {
-    moonbit_internal_decode_item(source) |> ignore
+    let item : ThreadItem = @json.from_json(@json.parse(source))
+    item |> ignore
     "no error"
   } catch {
-    CodexSdkError::InvalidEvent(message~) => message
+    @json.JsonDecodeError((_, message)) => message
     error => "unexpected:\{error}"
   }
 }
 
 ///|
 test "MoonBit item decoder - decodes agent messages" {
-  match
-    moonbit_internal_decode_item(
+  let item : ThreadItem = @json.from_json(
+    @json.parse(
       "{\"id\":\"message-1\",\"type\":\"agent_message\",\"text\":\"hello\"}",
-    ) {
+    ),
+  )
+  match item {
     AgentMessage(item) => {
       inspect(item.id, content="message-1")
       inspect(item.text, content="hello")
@@ -35,10 +32,12 @@ test "MoonBit item decoder - decodes agent messages" {
 
 ///|
 test "MoonBit item decoder - decodes reasoning items" {
-  match
-    moonbit_internal_decode_item(
+  let item : ThreadItem = @json.from_json(
+    @json.parse(
       "{\"id\":\"reasoning-1\",\"type\":\"reasoning\",\"text\":\"analysis\"}",
-    ) {
+    ),
+  )
+  match item {
     Reasoning(item) => {
       inspect(item.id, content="reasoning-1")
       inspect(item.text, content="analysis")
@@ -49,10 +48,12 @@ test "MoonBit item decoder - decodes reasoning items" {
 
 ///|
 test "MoonBit item decoder - decodes command executions" {
-  match
-    moonbit_internal_decode_item(
+  let completed_item : ThreadItem = @json.from_json(
+    @json.parse(
       "{\"id\":\"command-1\",\"type\":\"command_execution\",\"command\":\"pwd\",\"aggregated_output\":\"/tmp\\n\",\"exit_code\":0,\"status\":\"completed\"}",
-    ) {
+    ),
+  )
+  match completed_item {
     CommandExecution(item) => {
       inspect(item.id, content="command-1")
       inspect(item.command, content="pwd")
@@ -62,10 +63,12 @@ test "MoonBit item decoder - decodes command executions" {
     }
     _ => fail("expected command execution")
   }
-  match
-    moonbit_internal_decode_item(
+  let in_progress_item : ThreadItem = @json.from_json(
+    @json.parse(
       "{\"id\":\"command-2\",\"type\":\"command_execution\",\"command\":\"sleep 1\",\"aggregated_output\":\"\",\"exit_code\":null,\"status\":\"in_progress\"}",
-    ) {
+    ),
+  )
+  match in_progress_item {
     CommandExecution(item) => {
       assert_eq(item.exit_code, None)
       assert_eq(item.status, InProgress)
@@ -76,10 +79,12 @@ test "MoonBit item decoder - decodes command executions" {
 
 ///|
 test "MoonBit item decoder - decodes file changes" {
-  match
-    moonbit_internal_decode_item(
+  let item : ThreadItem = @json.from_json(
+    @json.parse(
       "{\"id\":\"patch-1\",\"type\":\"file_change\",\"changes\":[{\"path\":\"new.txt\",\"kind\":\"add\"},{\"path\":\"old.txt\",\"kind\":\"delete\"},{\"path\":\"same.txt\",\"kind\":\"update\"}],\"status\":\"failed\"}",
-    ) {
+    ),
+  )
+  match item {
     FileChange(item) => {
       inspect(item.id, content="patch-1")
       assert_eq(item.status, PatchFailed)
@@ -95,10 +100,12 @@ test "MoonBit item decoder - decodes file changes" {
 
 ///|
 test "MoonBit item decoder - decodes successful MCP tool calls" {
-  match
-    moonbit_internal_decode_item(
+  let item : ThreadItem = @json.from_json(
+    @json.parse(
       "{\"id\":\"mcp-1\",\"type\":\"mcp_tool_call\",\"server\":\"docs\",\"tool\":\"search\",\"arguments\":{\"query\":\"MoonBit\"},\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"result\"}],\"_meta\":{\"source\":\"official\"},\"structured_content\":{\"count\":1}},\"error\":null,\"status\":\"completed\"}",
-    ) {
+    ),
+  )
+  match item {
     McpToolCall(item) => {
       inspect(item.id, content="mcp-1")
       inspect(item.server, content="docs")
@@ -128,10 +135,12 @@ test "MoonBit item decoder - decodes successful MCP tool calls" {
 
 ///|
 test "MoonBit item decoder - decodes failed MCP tool calls" {
-  match
-    moonbit_internal_decode_item(
+  let item : ThreadItem = @json.from_json(
+    @json.parse(
       "{\"id\":\"mcp-2\",\"type\":\"mcp_tool_call\",\"server\":\"docs\",\"tool\":\"search\",\"arguments\":{},\"result\":null,\"error\":{\"message\":\"unavailable\"},\"status\":\"failed\"}",
-    ) {
+    ),
+  )
+  match item {
     McpToolCall(item) => {
       assert_eq(item.status, McpFailed)
       assert_eq(item.result, None)
@@ -146,10 +155,12 @@ test "MoonBit item decoder - decodes failed MCP tool calls" {
 
 ///|
 test "MoonBit item decoder - decodes web searches" {
-  match
-    moonbit_internal_decode_item(
+  let item : ThreadItem = @json.from_json(
+    @json.parse(
       "{\"id\":\"search-1\",\"type\":\"web_search\",\"query\":\"MoonBit async\"}",
-    ) {
+    ),
+  )
+  match item {
     WebSearch(item) => {
       inspect(item.id, content="search-1")
       inspect(item.query, content="MoonBit async")
@@ -160,10 +171,12 @@ test "MoonBit item decoder - decodes web searches" {
 
 ///|
 test "MoonBit item decoder - decodes todo lists" {
-  match
-    moonbit_internal_decode_item(
+  let item : ThreadItem = @json.from_json(
+    @json.parse(
       "{\"id\":\"todo-1\",\"type\":\"todo_list\",\"items\":[{\"text\":\"port SDK\",\"completed\":true},{\"text\":\"test decoder\",\"completed\":false}]}",
-    ) {
+    ),
+  )
+  match item {
     TodoList(item) => {
       inspect(item.id, content="todo-1")
       inspect(item.items.length(), content="2")
@@ -177,10 +190,12 @@ test "MoonBit item decoder - decodes todo lists" {
 
 ///|
 test "MoonBit item decoder - decodes error items" {
-  match
-    moonbit_internal_decode_item(
+  let item : ThreadItem = @json.from_json(
+    @json.parse(
       "{\"id\":\"error-1\",\"type\":\"error\",\"message\":\"recoverable\"}",
-    ) {
+    ),
+  )
+  match item {
     Error(item) => {
       inspect(item.id, content="error-1")
       inspect(item.message, content="recoverable")
@@ -192,9 +207,7 @@ test "MoonBit item decoder - decodes error items" {
 ///|
 test "MoonBit item decoder - rejects unknown item types" {
   inspect(
-    moonbit_internal_item_decode_error(
-      "{\"id\":\"unknown-1\",\"type\":\"unknown\"}",
-    ),
+    item_decode_error("{\"id\":\"unknown-1\",\"type\":\"unknown\"}"),
     content="unsupported thread item type: unknown",
   )
 }
@@ -202,7 +215,7 @@ test "MoonBit item decoder - rejects unknown item types" {
 ///|
 test "MoonBit item decoder - rejects unknown item statuses" {
   inspect(
-    moonbit_internal_item_decode_error(
+    item_decode_error(
       "{\"id\":\"command-1\",\"type\":\"command_execution\",\"command\":\"pwd\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"queued\"}",
     ),
     content="unsupported command execution status: queued",
@@ -212,17 +225,12 @@ test "MoonBit item decoder - rejects unknown item statuses" {
 ///|
 test "MoonBit item decoder - rejects missing required fields" {
   inspect(
-    moonbit_internal_item_decode_error(
-      "{\"id\":\"message-1\",\"type\":\"agent_message\"}",
-    ),
-    content="agent_message is missing text",
+    item_decode_error("{\"id\":\"message-1\",\"type\":\"agent_message\"}"),
+    content="Missing field text",
   )
 }
 
 ///|
 test "MoonBit item decoder - rejects non-object items" {
-  inspect(
-    moonbit_internal_item_decode_error("[]"),
-    content="thread item must be an object",
-  )
+  inspect(item_decode_error("[]"), content="thread item must be an object")
 }

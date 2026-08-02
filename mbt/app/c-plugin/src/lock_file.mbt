@@ -1,4 +1,57 @@
 ///|
+let lock_plugin_name_lens : @lens.Lens[Json?] = @lens.root()
+  .json("name")
+  .optional()
+
+///|
+let lock_plugin_path_lens : @lens.Lens[Json?] = @lens.root()
+  .json("path")
+  .optional()
+
+///|
+let lock_plugin_enabled_skills_lens : @lens.Lens[Json?] = @lens.root()
+  .json("enabledSkills")
+  .optional()
+
+///|
+let lock_repository_source_lens : @lens.Lens[Json?] = @lens.root()
+  .json("source")
+  .optional()
+
+///|
+let lock_repository_source_type_lens : @lens.Lens[Json?] = @lens.root()
+  .json("sourceType")
+  .optional()
+
+///|
+let lock_repository_marketplace_kind_lens : @lens.Lens[Json?] = @lens.root()
+  .json("marketplaceKind")
+  .optional()
+
+///|
+let lock_repository_commit_hash_lens : @lens.Lens[Json?] = @lens.root()
+  .json("commitHash")
+  .optional()
+
+///|
+let lock_repository_plugins_lens : @lens.Lens[Json?] = @lens.root()
+  .json("plugins")
+  .optional()
+
+///|
+let lock_file_version_lens : @lens.Lens[Json?] = @lens.root()
+  .json("version")
+  .optional()
+
+///|
+let lock_file_skill_dirs_lens : @lens.Lens[Json?] = @lens.root()
+  .json("skillDirs")
+  .optional()
+
+///|
+let lock_file_repositories_lens : @lens.Lens[Json?] = @lens.root()
+  .json("repositories")
+  .optional()
 
 ///|
 struct LockPlugin {
@@ -20,6 +73,144 @@ struct LockRepository {
 enum RepositorySourceType {
   RepositoryLocal
   RepositoryGithub
+}
+
+///|
+impl FromJson for RepositorySourceType with fn from_json(json, path) {
+  let value : String = @json.from_json(json, path~)
+  match value {
+    "local" => RepositoryLocal
+    "github" => RepositoryGithub
+    _ =>
+      raise @json.JsonDecodeError(
+        (path, "unsupported repository source type: \{value}"),
+      )
+  }
+}
+
+///|
+impl FromJson for MarketplaceKind with fn from_json(json, path) {
+  let value : String = @json.from_json(json, path~)
+  match value {
+    "claude" => Claude
+    "cursor" => Cursor
+    "codex" => Codex
+    _ =>
+      raise @json.JsonDecodeError(
+        (path, "unsupported marketplace kind: \{value}"),
+      )
+  }
+}
+
+///|
+impl FromJson for LockPlugin with fn from_json(json, path) {
+  guard json is Json::Object(_) else {
+    raise @json.JsonDecodeError((path, "expected lock plugin object"))
+  }
+  let name_path = lock_plugin_name_lens.add_to_json_path(path)
+  let plugin_path = lock_plugin_path_lens.add_to_json_path(path)
+  let enabled_skills_path = lock_plugin_enabled_skills_lens.add_to_json_path(
+    path,
+  )
+  let name_value = lock_plugin_name_lens.get(json) catch { _ => None }
+  let name = match name_value {
+    Some(value) =>
+      @json.from_json(value, path=name_path) catch {
+        _ => "plugin"
+      }
+    None => "plugin"
+  }
+  let path_value = lock_plugin_path_lens.get(json) catch { _ => None }
+  let path = match path_value {
+    Some(value) => @json.from_json(value, path=plugin_path) catch { _ => name }
+    None => name
+  }
+  let enabled_skills_value = lock_plugin_enabled_skills_lens.get(json) catch {
+    _ => None
+  }
+  let enabled_skills = match enabled_skills_value {
+    Some(Json::Array(values)) =>
+      values
+      .iter()
+      .filter_map(fn(value) {
+        Some((@json.from_json(value, path=enabled_skills_path) : String)) catch {
+          _ => None
+        }
+      })
+      .collect()
+    _ => []
+  }
+  { name, path, enabled_skills }
+}
+
+///|
+impl FromJson for LockRepository with fn from_json(json, path) {
+  guard json is Json::Object(_) else {
+    raise @json.JsonDecodeError((path, "expected lock repository object"))
+  }
+  let source_path = lock_repository_source_lens.add_to_json_path(path)
+  let source_type_path = lock_repository_source_type_lens.add_to_json_path(path)
+  let marketplace_kind_path = lock_repository_marketplace_kind_lens.add_to_json_path(
+    path,
+  )
+  let commit_hash_path = lock_repository_commit_hash_lens.add_to_json_path(path)
+  let plugins_path = lock_repository_plugins_lens.add_to_json_path(path)
+  let source_value = lock_repository_source_lens.get(json) catch { _ => None }
+  let source = match source_value {
+    Some(value) => @json.from_json(value, path=source_path) catch { _ => "" }
+    None => ""
+  }
+  guard source != "" else {
+    raise lock_repository_source_lens.json_decode_error(
+      path, "lock repository source is required",
+    )
+  }
+  let source_type_value = lock_repository_source_type_lens.get(json) catch {
+    _ => None
+  }
+  let source_type = match source_type_value {
+    Some(value) =>
+      match value {
+        Json::String(_) => @json.from_json(value, path=source_type_path)
+        _ => RepositoryLocal
+      }
+    None => RepositoryLocal
+  }
+  let marketplace_kind_value = lock_repository_marketplace_kind_lens.get(json) catch {
+    _ => None
+  }
+  let marketplace_kind = match marketplace_kind_value {
+    Some(value) =>
+      match value {
+        Json::String(_) => @json.from_json(value, path=marketplace_kind_path)
+        _ => Claude
+      }
+    None => Claude
+  }
+  let commit_hash_value = lock_repository_commit_hash_lens.get(json) catch {
+    _ => None
+  }
+  let commit_hash = match commit_hash_value {
+    Some(value) =>
+      Some((@json.from_json(value, path=commit_hash_path) : String)) catch {
+        _ => None
+      }
+    None => None
+  }
+  let plugins_value = lock_repository_plugins_lens.get(json) catch { _ => None }
+  let plugins = match plugins_value {
+    Some(Json::Array(values)) =>
+      values
+      .iter()
+      .filter_map(fn(value) {
+        Some((@json.from_json(value, path=plugins_path) : LockPlugin)) catch {
+          _ => None
+        }
+      })
+      .collect()
+    _ => []
+  }
+  { source_type, source, marketplace_kind, commit_hash, plugins }
 }
 
 ///|
@@ -64,17 +255,6 @@ impl ToJson for LockFile with fn to_json(self) -> Json {
 extend LockFile with ToJson::{to_json}
 
 ///|
-fn repository_source_type_from_string(
-  value : String,
-) -> RepositorySourceType raise {
-  match value {
-    "local" => RepositoryLocal
-    "github" => RepositoryGithub
-    _ => fail("unsupported repository source type: \{value}")
-  }
-}
-
-///|
 fn repository_source_type_to_string(
   source_type : RepositorySourceType,
 ) -> String {
@@ -90,74 +270,57 @@ fn empty_lock_file() -> LockFile {
 }
 
 ///|
-fn lock_plugin_from_json(json : Json) -> LockPlugin? {
-  let _ = @lens.root().get(json) catch { _ => return None }
-  let name = @lens.root().string("name").get(json) catch { _ => "plugin" }
-  let path = @lens.root().string("path").get(json) catch { _ => name }
-  let enabled_skills_json = @lens.root().json("enabledSkills").array().get(json) catch {
-      _ => []
-    }
-  let enabled_skills = strings_from_json_array(enabled_skills_json)
-  Some({ name, path, enabled_skills })
-}
-
-///|
-fn strings_from_json_array(values : Array[Json]) -> Array[String] {
-  values
-  .iter()
-  .filter_map(value => {
-    match value {
-      Json::String(text) => Some(text)
-      _ => None
-    }
-  })
-  .collect()
-}
-
-///|
-fn lock_plugins_from_json(json : Array[Json]) -> Array[LockPlugin] {
-  json.iter().filter_map(lock_plugin_from_json).collect()
-}
-
-///|
-fn repositories_from_json_array(values : Array[Json]) -> Array[LockRepository] {
-  values
-  .iter()
-  .filter_map(fn(value) { lock_repository_from_json(value) catch { _ => None } })
-  .collect()
-}
-
-///|
-fn lock_repository_from_json(json : Json) -> LockRepository? raise {
-  let _ = @lens.root().get(json) catch { _ => return None }
-  let source = @lens.root().string("source").get(json) catch { _ => "" }
-  guard source != "" else { return None }
-  let source_type = @lens.root().string("sourceType").get(json) catch {
-      _ => "local"
-    }
-  let marketplace_kind = @lens.root().string("marketplaceKind").get(json) catch {
-      _ => "claude"
-    }
-  let commit_hash = @lens.root().string("commitHash").optional().get(json) catch {
-      _ => None
-    }
-  let plugins_json = @lens.root().json("plugins").array().get(json) catch {
-      _ => []
-    }
-  let plugins = lock_plugins_from_json(plugins_json)
-  Some({
-    source_type: repository_source_type_from_string(source_type),
-    source,
-    marketplace_kind: marketplace_kind_from_string(marketplace_kind),
-    commit_hash,
-    plugins,
-  })
-}
-
-///|
 struct LockFile {
   skill_dirs : Array[String]
   repositories : Array[LockRepository]
+}
+
+///|
+impl FromJson for LockFile with fn from_json(json, path) {
+  guard json is Json::Object(_) else {
+    raise @json.JsonDecodeError((path, "expected lock file object"))
+  }
+  let skill_dirs_path = lock_file_skill_dirs_lens.add_to_json_path(path)
+  let repositories_path = lock_file_repositories_lens.add_to_json_path(path)
+  let version_value = lock_file_version_lens.get(json) catch { _ => None }
+  let version = match version_value {
+    Some(Json::Number(value, ..)) => value
+    _ => 0.0
+  }
+  guard version == 1.0 else {
+    raise lock_file_version_lens.json_decode_error(
+      path, "unsupported lock file version",
+    )
+  }
+  let skill_dirs_value = lock_file_skill_dirs_lens.get(json) catch { _ => None }
+  let skill_dirs = match skill_dirs_value {
+    Some(Json::Array(values)) =>
+      values
+      .iter()
+      .filter_map(fn(value) {
+        Some((@json.from_json(value, path=skill_dirs_path) : String)) catch {
+          _ => None
+        }
+      })
+      .collect()
+    _ => []
+  }
+  let repositories_value = lock_file_repositories_lens.get(json) catch {
+    _ => None
+  }
+  let repositories = match repositories_value {
+    Some(Json::Array(values)) =>
+      values
+      .iter()
+      .filter_map(fn(value) {
+        Some((@json.from_json(value, path=repositories_path) : LockRepository)) catch {
+          _ => None
+        }
+      })
+      .collect()
+    _ => []
+  }
+  { skill_dirs, repositories }
 }
 
 ///|
@@ -185,20 +348,9 @@ async fn read_lock(agents : String) -> LockFile {
     empty_lock_text()
   }
   let document = @json.parse(text) catch { _ => return empty_lock_file() }
-  let version = @lens.root().number("version").get(document) catch { _ => 0.0 }
-  guard version == 1.0 else { return empty_lock_file() }
-  let skill_dirs_json = @lens.root().json("skillDirs").array().get(document) catch {
-      _ => []
-    }
-  let repositories_json = @lens.root()
-    .json("repositories")
-    .array()
-    .get(document) catch {
-      _ => []
-    }
-  let skill_dirs = strings_from_json_array(skill_dirs_json)
-  let repositories = repositories_from_json_array(repositories_json)
-  { skill_dirs, repositories }
+  (@json.from_json(document) : LockFile) catch {
+    _ => empty_lock_file()
+  }
 }
 
 ///|
