@@ -113,15 +113,16 @@ Missing and `null` are distinct:
 | `null`      |      type error |      type error |          `None` |                   `None` |
 | String      |           value |   `Some(value)` |   `Some(value)` |            `Some(value)` |
 
-Do not implement optional nullable values as `lens.optional().nullable()`. Both operations change the output to an option, so naive chaining produces nested option types or ambiguous semantics. Use three explicit combinators:
+Applying a presence combinator produces `PresenceLens[T]`, whose decoded and encoded value type is `T?`. Applying another presence combinator replaces the policy without nesting the option type. The last call determines both missing-value and JSON `null` behavior:
 
 ```moonbit
 lens.optional()
 lens.nullable()
-lens.optional_nullable()
+lens.nullish()
+lens.optional().nullable() // equivalent to lens.nullable()
 ```
 
-These operations are deferred until their exact MoonBit signatures are compiled and tested.
+In particular, `optional().nullable()` and `nullish().nullable()` are nullable, not nullish: a missing property is an error, while JSON `null` decodes to `None` and `None` encodes as JSON `null`.
 
 ### Separate value alternatives from location fallback
 
@@ -194,7 +195,7 @@ Primitive decoders should perform JSON variant dispatch directly so the package 
 
 ### Encoder
 
-`Encoder[T]` converts a typed value into one JSON leaf or an omission request. Primitive encoders delegate to MoonBit core JSON constructors. Array encoders encode every item, while optional omission inside an array is rejected because JSON arrays cannot contain a missing element.
+`Encoder[T]` converts a typed value into one concrete JSON value. Primitive encoders delegate to MoonBit core JSON constructors. Property omission belongs to `PresenceLens::set` rather than `Encoder`. JSON arrays cannot contain a missing element without shifting later indices, so `PresenceLens::array` normalizes every presence mode to nullable item semantics for both encoding and decoding.
 
 Presence combinators have explicit builder behavior:
 
@@ -212,6 +213,16 @@ Presence combinators have explicit builder behavior:
 `JsonBuilder` is a mutable outbound-object builder whose internal nodes distinguish encoded JSON leaves from generated object parents. `Lens::set` walks its package-owned pointer, creates missing object parents, and writes the encoded leaf. Writing the same pointer again replaces its value. An encoded leaf used as an intermediate node raises `JsonBuildError` at the exact conflicting pointer.
 
 `optional(None)` removes an earlier value at the same pointer and prunes empty generated parents. `BuildNode` implements `ToJson`; generated object nodes delegate directly to `Map[String, BuildNode]::to_json`, while encoded leaves pass through unchanged. Every conversion creates fresh maps for generated object nodes, so later builder writes cannot mutate an earlier result.
+
+### Current composition constraints and future directions
+
+The current API does not own a schema registry, so independently declared lenses may resolve to the same property without a declaration-time error. Repeated writes to the exact same pointer use the latest value, while writing through a child pointer after its parent has become an encoded leaf raises `JsonBuildError(PathConflict)`. Callers should treat one typed lens as the canonical definition of each known property. A future declarative layer may detect duplicate property definitions or require an explicit override policy before construction begins.
+
+Presence combinators use a normalized last-call-wins policy. Repeating or mixing `nullable`, `optional`, and `nullish` keeps the type as `PresenceLens[T]` and replaces the earlier missing and `null` behavior instead of creating nested options.
+
+An array can contain JSON values, including explicit `null`, but it cannot contain an omitted element. `PresenceLens::array` is therefore a normalization boundary: `primitive.optional().array()`, `primitive.nullable().array()`, and `primitive.nullish().array()` all decode JSON `null` as `None` and encode `None` as JSON `null`. The original property-level presence mode no longer applies after `array`, because an array item has no missing-property state. In contrast, `primitive.array().optional()` applies optionality to the entire array property.
+
+The duplicate-path rule is a current composition constraint rather than a permanent exclusion. Any future support should preserve unambiguous JSON output, exact error pointers, and the distinction between omission and explicit `null`.
 
 ### Object lens
 
@@ -301,7 +312,7 @@ pub(all) enum NullishEncodeMode {
 pub fn Lens::nullish[T](
   Self[T],
   encode_mode? : NullishEncodeMode,
-) -> Lens[T?]
+) -> PresenceLens[T]
 
 pub fn JsonBuilder::JsonBuilder() -> JsonBuilder
 
@@ -568,7 +579,7 @@ Exit criteria:
 ### Milestone 2: Aggregate validation
 
 - Non-generic `Validation`.
-- Check-only `LensTrait` implemented by `Lens[T]` and `ObjectLens`.
+- Check-only `LensTrait` implemented by `Lens[T]`, `PresenceLens[T]`, and `ObjectLens`.
 - Trait-object aggregate `validate`.
 - Deterministic error ordering.
 - Refinement with stable constraint codes.
@@ -582,7 +593,7 @@ Exit criteria:
 
 ### Milestone 3: Presence and collections
 
-- `optional`, `nullable`, and `optional_nullable`.
+- `optional`, `nullable`, and `nullish`.
 - `default`, applied to missing values only by default.
 - Array item decoding with indexed pointers.
 - Array length constraints.

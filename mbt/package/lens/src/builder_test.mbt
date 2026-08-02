@@ -27,12 +27,16 @@ let builder_test_user_roles : @lens.Lens[Array[String]] = @lens.object("user")
   .array()
 
 ///|
-let builder_test_user_nickname : @lens.Lens[String?] = @lens.object("user")
+let builder_test_user_nickname : @lens.PresenceLens[String] = @lens.object(
+    "user",
+  )
   .string("nickname")
   .optional()
 
 ///|
-let builder_test_user_biography : @lens.Lens[String?] = @lens.object("user")
+let builder_test_user_biography : @lens.PresenceLens[String] = @lens.object(
+    "user",
+  )
   .string("biography")
   .nullable()
 
@@ -43,27 +47,60 @@ let builder_test_root_name : @lens.Lens[String] = @lens.root().string("name")
 let builder_test_root_user : @lens.Lens[Json] = @lens.root().json("user")
 
 ///|
-let builder_test_omitted : @lens.Lens[String?] = @lens.root()
+let builder_test_omitted : @lens.PresenceLens[String] = @lens.root()
   .string("omitted")
   .nullish()
 
 ///|
-let builder_test_null : @lens.Lens[String?] = @lens.root()
+let builder_test_null : @lens.PresenceLens[String] = @lens.root()
   .string("null")
   .nullish(encode_mode=@lens.NullishEncodeMode::Null)
 
 ///|
-let builder_test_nullish_name : @lens.Lens[String?] = @lens.root()
+let builder_test_nullish_name : @lens.PresenceLens[String] = @lens.root()
   .string("name")
   .nullish()
 
 ///|
-let builder_test_status : @lens.Lens[String] = @lens.root().string("status")
+let builder_test_optional_then_nullable : @lens.PresenceLens[String] = @lens.root()
+  .string("optionalThenNullable")
+  .optional()
+  .nullable()
 
 ///|
-let builder_test_optional_names : @lens.Lens[Array[String?]] = @lens.root()
-  .string("names")
+let builder_test_nullish_then_nullable : @lens.PresenceLens[String] = @lens.root()
+  .string("nullishThenNullable")
+  .nullish()
+  .nullable()
+
+///|
+let builder_test_nullable_then_optional : @lens.PresenceLens[String] = @lens.root()
+  .string("nullableThenOptional")
+  .nullable()
   .optional()
+
+///|
+let builder_test_optional_then_nullish : @lens.PresenceLens[String] = @lens.root()
+  .string("optionalThenNullish")
+  .optional()
+  .nullish(encode_mode=@lens.NullishEncodeMode::Null)
+
+///|
+let builder_test_optional_array : @lens.Lens[Array[String?]] = @lens.root()
+  .string("optional")
+  .optional()
+  .array()
+
+///|
+let builder_test_nullable_array : @lens.Lens[Array[String?]] = @lens.root()
+  .string("nullable")
+  .nullable()
+  .array()
+
+///|
+let builder_test_nullish_array : @lens.Lens[Array[String?]] = @lens.root()
+  .string("nullish")
+  .nullish()
   .array()
 
 ///|
@@ -130,10 +167,7 @@ test "Lens set - reports a conflicting intermediate value" {
   builder_test_root_user.set(builder, Json::string("invalid"))
   let issue = get_build_issue(() => builder_test_user_name.set(builder, "Ada"))
   inspect(issue.pointer.to_string(), content="/user")
-  match issue.code {
-    @lens.JsonBuildIssueCode::PathConflict => ()
-    _ => fail("expected PathConflict")
-  }
+  debug_inspect(issue.code, content="PathConflict")
   @json.json_inspect(builder, content={ "user": "invalid" })
 }
 
@@ -147,16 +181,28 @@ test "Lens set - selects how nullish None is encoded" {
 }
 
 ///|
-test "Lens set - rejects omission inside an array" {
+test "PresenceLens set - the last presence policy controls None" {
   let builder = @lens.JsonBuilder::JsonBuilder()
-  builder_test_status.set(builder, "ready")
-  let issue = get_build_issue(() => {
-    builder_test_optional_names.set(builder, [Some("Ada"), None])
+  builder_test_optional_then_nullable.set(builder, None)
+  builder_test_nullish_then_nullable.set(builder, None)
+  builder_test_nullable_then_optional.set(builder, None)
+  builder_test_optional_then_nullish.set(builder, None)
+  @json.json_inspect(builder, content={
+    "optionalThenNullable": null,
+    "nullishThenNullable": null,
+    "optionalThenNullish": null,
   })
-  inspect(issue.pointer.to_string(), content="/names/1")
-  match issue.code {
-    @lens.JsonBuildIssueCode::OmissionNotAllowed => ()
-    _ => fail("expected OmissionNotAllowed")
-  }
-  @json.json_inspect(builder, content={ "status": "ready" })
+}
+
+///|
+test "PresenceLens array - encodes None as null for every presence policy" {
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  builder_test_optional_array.set(builder, [Some("Ada"), None])
+  builder_test_nullable_array.set(builder, [Some("Ada"), None])
+  builder_test_nullish_array.set(builder, [Some("Ada"), None])
+  @json.json_inspect(builder, content={
+    "optional": ["Ada", null],
+    "nullable": ["Ada", null],
+    "nullish": ["Ada", null],
+  })
 }

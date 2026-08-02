@@ -1,5 +1,5 @@
 ///|
-let server_log_level_lens : @lens.Lens[String?] = @lens.root()
+let server_log_level_lens : @lens.PresenceLens[String] = @lens.root()
   .string("logLevel")
   .optional()
 

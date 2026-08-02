@@ -28,7 +28,7 @@ struct ParsedMarketplace {
 }
 
 ///|
-let normalized_plugin_description_lens : @lens.Lens[String?] = @lens.root()
+let normalized_plugin_description_lens : @lens.PresenceLens[String] = @lens.root()
   .string("description")
   .optional()
 

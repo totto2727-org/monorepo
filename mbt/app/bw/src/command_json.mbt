@@ -48,12 +48,12 @@ let json_format_option : @admiral.OptionDef[String] = @admiral.string(
 )
 
 ///|
-let json_extract_response_success_lens : @lens.Lens[Bool?] = @lens.root()
+let json_extract_response_success_lens : @lens.PresenceLens[Bool] = @lens.root()
   .bool("success")
   .optional()
 
 ///|
-let json_extract_response_result_lens : @lens.Lens[Json?] = @lens.root()
+let json_extract_response_result_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("result")
   .optional()
 
@@ -115,17 +115,17 @@ let json_goto_wait_until_lens : @lens.Lens[String] = @lens.root().string(
 )
 
 ///|
-let json_extract_body_url_lens : @lens.Lens[String?] = @lens.root()
+let json_extract_body_url_lens : @lens.PresenceLens[String] = @lens.root()
   .string("url")
   .optional()
 
 ///|
-let json_extract_body_html_lens : @lens.Lens[String?] = @lens.root()
+let json_extract_body_html_lens : @lens.PresenceLens[String] = @lens.root()
   .string("html")
   .optional()
 
 ///|
-let json_extract_body_goto_options_lens : @lens.Lens[Json?] = @lens.root()
+let json_extract_body_goto_options_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("gotoOptions")
   .optional()
 
@@ -135,7 +135,7 @@ let json_extract_body_prompt_lens : @lens.Lens[String] = @lens.root().string(
 )
 
 ///|
-let json_extract_body_response_format_lens : @lens.Lens[Json?] = @lens.root()
+let json_extract_body_response_format_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("response_format")
   .optional()
 

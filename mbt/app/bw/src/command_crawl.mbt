@@ -106,32 +106,32 @@ let crawl_goto_wait_until_lens : @lens.Lens[String] = @lens.root().string(
 )
 
 ///|
-let crawl_body_url_lens : @lens.Lens[String?] = @lens.root()
+let crawl_body_url_lens : @lens.PresenceLens[String] = @lens.root()
   .string("url")
   .optional()
 
 ///|
-let crawl_body_html_lens : @lens.Lens[String?] = @lens.root()
+let crawl_body_html_lens : @lens.PresenceLens[String] = @lens.root()
   .string("html")
   .optional()
 
 ///|
-let crawl_body_goto_options_lens : @lens.Lens[Json?] = @lens.root()
+let crawl_body_goto_options_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("gotoOptions")
   .optional()
 
 ///|
-let crawl_body_limit_lens : @lens.Lens[Int?] = @lens.root()
+let crawl_body_limit_lens : @lens.PresenceLens[Int] = @lens.root()
   .int("limit")
   .optional()
 
 ///|
-let crawl_body_depth_lens : @lens.Lens[Int?] = @lens.root()
+let crawl_body_depth_lens : @lens.PresenceLens[Int] = @lens.root()
   .int("depth")
   .optional()
 
 ///|
-let crawl_body_formats_lens : @lens.Lens[Array[String]?] = @lens.root()
+let crawl_body_formats_lens : @lens.PresenceLens[Array[String]] = @lens.root()
   .string("formats")
   .array()
   .optional()

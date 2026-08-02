@@ -16,7 +16,7 @@ let command_execution_aggregated_output_lens : @lens.Lens[Json] = @lens.root().j
 )
 
 ///|
-let command_execution_exit_code_lens : @lens.Lens[Json?] = @lens.root()
+let command_execution_exit_code_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("exit_code")
   .nullish()
 
@@ -33,7 +33,7 @@ let file_update_kind_lens : @lens.Lens[Json] = @lens.root().json("kind")
 let mcp_result_content_lens : @lens.Lens[Json] = @lens.root().json("content")
 
 ///|
-let mcp_result_meta_lens : @lens.Lens[Json?] = @lens.root()
+let mcp_result_meta_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("_meta")
   .nullish()
 
@@ -52,12 +52,12 @@ let mcp_item_tool_lens : @lens.Lens[Json] = @lens.root().json("tool")
 let mcp_item_arguments_lens : @lens.Lens[Json] = @lens.root().json("arguments")
 
 ///|
-let mcp_item_result_lens : @lens.Lens[Json?] = @lens.root()
+let mcp_item_result_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("result")
   .nullish()
 
 ///|
-let mcp_item_error_lens : @lens.Lens[Json?] = @lens.root()
+let mcp_item_error_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("error")
   .nullish()
 

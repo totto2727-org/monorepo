@@ -35,27 +35,27 @@ let option_schema_multiple_lens : @lens.Lens[Bool] = @lens.root().bool(
 )
 
 ///|
-let option_schema_style_lens : @lens.Lens[String?] = @lens.root()
+let option_schema_style_lens : @lens.PresenceLens[String] = @lens.root()
   .string("style")
   .optional()
 
 ///|
-let option_schema_short_lens : @lens.Lens[String?] = @lens.root()
+let option_schema_short_lens : @lens.PresenceLens[String] = @lens.root()
   .string("short")
   .optional()
 
 ///|
-let option_schema_env_lens : @lens.Lens[String?] = @lens.root()
+let option_schema_env_lens : @lens.PresenceLens[String] = @lens.root()
   .string("env")
   .optional()
 
 ///|
-let option_schema_config_lens : @lens.Lens[String?] = @lens.root()
+let option_schema_config_lens : @lens.PresenceLens[String] = @lens.root()
   .string("config")
   .optional()
 
 ///|
-let option_schema_default_lens : @lens.Lens[String?] = @lens.root()
+let option_schema_default_lens : @lens.PresenceLens[String] = @lens.root()
   .string("default")
   .optional()
 
@@ -120,7 +120,7 @@ let position_schema_multiple_lens : @lens.Lens[Bool] = @lens.root().bool(
 )
 
 ///|
-let position_schema_config_lens : @lens.Lens[String?] = @lens.root()
+let position_schema_config_lens : @lens.PresenceLens[String] = @lens.root()
   .string("config")
   .optional()
 
@@ -166,23 +166,23 @@ let command_schema_description_lens : @lens.Lens[String] = @lens.root().string(
 )
 
 ///|
-let command_schema_options_lens : @lens.Lens[Json?] = @lens.root()
+let command_schema_options_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("options")
   .optional()
 
 ///|
-let command_schema_positionals_lens : @lens.Lens[Json?] = @lens.root()
+let command_schema_positionals_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("positionals")
   .optional()
 
 ///|
-let command_schema_examples_lens : @lens.Lens[Array[String]?] = @lens.root()
+let command_schema_examples_lens : @lens.PresenceLens[Array[String]] = @lens.root()
   .string("examples")
   .array()
   .optional()
 
 ///|
-let command_schema_commands_lens : @lens.Lens[Json?] = @lens.root()
+let command_schema_commands_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("commands")
   .optional()
 
@@ -260,17 +260,17 @@ let cli_schema_description_lens : @lens.Lens[String] = @lens.root().string(
 )
 
 ///|
-let cli_schema_options_lens : @lens.Lens[Json?] = @lens.root()
+let cli_schema_options_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("options")
   .optional()
 
 ///|
-let cli_schema_positionals_lens : @lens.Lens[Json?] = @lens.root()
+let cli_schema_positionals_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("positionals")
   .optional()
 
 ///|
-let cli_schema_commands_lens : @lens.Lens[Json?] = @lens.root()
+let cli_schema_commands_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("commands")
   .optional()
 

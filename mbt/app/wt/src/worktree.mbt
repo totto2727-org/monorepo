@@ -19,12 +19,12 @@ struct PrInfo {
 }
 
 ///|
-let github_pr_number_lens : @lens.Lens[Int?] = @lens.root()
+let github_pr_number_lens : @lens.PresenceLens[Int] = @lens.root()
   .int("number")
   .optional()
 
 ///|
-let github_pr_state_lens : @lens.Lens[String?] = @lens.root()
+let github_pr_state_lens : @lens.PresenceLens[String] = @lens.root()
   .string("state")
   .optional()
 

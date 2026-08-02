@@ -105,37 +105,37 @@ let screenshot_capture_full_page_lens : @lens.Lens[Bool] = @lens.root().bool(
 )
 
 ///|
-let screenshot_viewport_width_lens : @lens.Lens[Int?] = @lens.root()
+let screenshot_viewport_width_lens : @lens.PresenceLens[Int] = @lens.root()
   .int("width")
   .optional()
 
 ///|
-let screenshot_viewport_height_lens : @lens.Lens[Int?] = @lens.root()
+let screenshot_viewport_height_lens : @lens.PresenceLens[Int] = @lens.root()
   .int("height")
   .optional()
 
 ///|
-let screenshot_body_url_lens : @lens.Lens[String?] = @lens.root()
+let screenshot_body_url_lens : @lens.PresenceLens[String] = @lens.root()
   .string("url")
   .optional()
 
 ///|
-let screenshot_body_html_lens : @lens.Lens[String?] = @lens.root()
+let screenshot_body_html_lens : @lens.PresenceLens[String] = @lens.root()
   .string("html")
   .optional()
 
 ///|
-let screenshot_body_goto_options_lens : @lens.Lens[Json?] = @lens.root()
+let screenshot_body_goto_options_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("gotoOptions")
   .optional()
 
 ///|
-let screenshot_body_screenshot_options_lens : @lens.Lens[Json?] = @lens.root()
+let screenshot_body_screenshot_options_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("screenshotOptions")
   .optional()
 
 ///|
-let screenshot_body_viewport_lens : @lens.Lens[Json?] = @lens.root()
+let screenshot_body_viewport_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("viewport")
   .optional()
 

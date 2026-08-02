@@ -41,22 +41,22 @@ let snapshot_full_page_option : @admiral.OptionDef[Bool] = @admiral.bool(
 )
 
 ///|
-let snapshot_response_content_lens : @lens.Lens[String?] = @lens.root()
+let snapshot_response_content_lens : @lens.PresenceLens[String] = @lens.root()
   .string("content")
   .optional()
 
 ///|
-let snapshot_response_screenshot_lens : @lens.Lens[String?] = @lens.root()
+let snapshot_response_screenshot_lens : @lens.PresenceLens[String] = @lens.root()
   .string("screenshot")
   .optional()
 
 ///|
-let snapshot_response_success_lens : @lens.Lens[Bool?] = @lens.root()
+let snapshot_response_success_lens : @lens.PresenceLens[Bool] = @lens.root()
   .bool("success")
   .optional()
 
 ///|
-let snapshot_response_result_lens : @lens.Lens[Json?] = @lens.root()
+let snapshot_response_result_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("result")
   .optional()
 
@@ -145,22 +145,22 @@ let snapshot_capture_full_page_lens : @lens.Lens[Bool] = @lens.root().bool(
 )
 
 ///|
-let snapshot_body_url_lens : @lens.Lens[String?] = @lens.root()
+let snapshot_body_url_lens : @lens.PresenceLens[String] = @lens.root()
   .string("url")
   .optional()
 
 ///|
-let snapshot_body_html_lens : @lens.Lens[String?] = @lens.root()
+let snapshot_body_html_lens : @lens.PresenceLens[String] = @lens.root()
   .string("html")
   .optional()
 
 ///|
-let snapshot_body_goto_options_lens : @lens.Lens[Json?] = @lens.root()
+let snapshot_body_goto_options_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("gotoOptions")
   .optional()
 
 ///|
-let snapshot_body_screenshot_options_lens : @lens.Lens[Json?] = @lens.root()
+let snapshot_body_screenshot_options_lens : @lens.PresenceLens[Json] = @lens.root()
   .json("screenshotOptions")
   .optional()
 

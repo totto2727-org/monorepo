@@ -75,27 +75,79 @@ let lens_test_names_array : @lens.Lens[Array[String]] = @lens.root()
   .array()
 
 ///|
-let lens_test_name_nullable : @lens.Lens[String?] = @lens.root()
+let lens_test_optional_names_array : @lens.Lens[Array[String?]] = @lens.root()
+  .string("names")
+  .optional()
+  .array()
+
+///|
+let lens_test_nullable_names_array : @lens.Lens[Array[String?]] = @lens.root()
+  .string("names")
+  .nullable()
+  .array()
+
+///|
+let lens_test_nullish_names_array : @lens.Lens[Array[String?]] = @lens.root()
+  .string("names")
+  .nullish()
+  .array()
+
+///|
+let lens_test_name_nullable : @lens.PresenceLens[String] = @lens.root()
   .string("name")
   .nullable()
 
 ///|
-let lens_test_name_optional : @lens.Lens[String?] = @lens.root()
+let lens_test_name_optional : @lens.PresenceLens[String] = @lens.root()
   .string("name")
   .optional()
 
 ///|
-let lens_test_user_name_optional : @lens.Lens[String?] = @lens.object("user")
+let lens_test_user_name_optional : @lens.PresenceLens[String] = @lens.object(
+    "user",
+  )
   .string("name")
   .optional()
 
 ///|
-let lens_test_name_nullish : @lens.Lens[String?] = @lens.root()
+let lens_test_name_nullish : @lens.PresenceLens[String] = @lens.root()
   .string("name")
   .nullish()
 
 ///|
+let lens_test_optional_then_nullable : @lens.PresenceLens[String] = @lens.root()
+  .string("name")
+  .optional()
+  .nullable()
+
+///|
+let lens_test_nullish_then_nullable : @lens.PresenceLens[String] = @lens.root()
+  .string("name")
+  .nullish()
+  .nullable()
+
+///|
+let lens_test_nullable_then_optional : @lens.PresenceLens[String] = @lens.root()
+  .string("name")
+  .nullable()
+  .optional()
+
+///|
 fn[T] get_issue(lens : @lens.Lens[T], document : Json) -> @lens.Issue raise {
+  try {
+    lens.get(document) |> ignore
+    fail("expected LensError")
+  } catch {
+    @lens.LensError::LensError(issue) => issue
+    _ => fail("unexpected error")
+  }
+}
+
+///|
+fn[T] get_presence_issue(
+  lens : @lens.PresenceLens[T],
+  document : Json,
+) -> @lens.Issue raise {
   try {
     lens.get(document) |> ignore
     fail("expected LensError")
@@ -407,6 +459,17 @@ test "Lens array - rejects a non-array value" {
 }
 
 ///|
+test "PresenceLens array - decodes JSON null for every presence policy" {
+  let document = @json.parse("{\"names\":[\"Ada\",null]}")
+  for
+    lens in [
+      lens_test_optional_names_array, lens_test_nullable_names_array, lens_test_nullish_names_array,
+    ] {
+    debug_inspect(lens.get(document), content="[Some(\"Ada\"), None]")
+  }
+}
+
+///|
 test "Lens nullable - returns None for JSON null" {
   let document = @json.parse("{\"name\":null}")
   debug_inspect(lens_test_name_nullable.get(document), content="None")
@@ -421,7 +484,7 @@ test "Lens nullable - returns Some for a decoded value" {
 ///|
 test "Lens nullable - preserves missing-property errors" {
   let document = @json.parse("{}")
-  let issue = get_issue(lens_test_name_nullable, document)
+  let issue = get_presence_issue(lens_test_name_nullable, document)
   inspect(issue.pointer.to_string(), content="/name")
   match issue.code {
     @lens.IssueCode::MissingProperty => ()
@@ -444,7 +507,7 @@ test "Lens optional - returns Some for a decoded value" {
 ///|
 test "Lens optional - preserves a missing intermediate error" {
   let document = @json.parse("{}")
-  let issue = get_issue(lens_test_user_name_optional, document)
+  let issue = get_presence_issue(lens_test_user_name_optional, document)
   inspect(issue.pointer.to_string(), content="/user")
   match issue.code {
     @lens.IssueCode::MissingProperty => ()
@@ -455,7 +518,7 @@ test "Lens optional - preserves a missing intermediate error" {
 ///|
 test "Lens optional - rejects JSON null" {
   let document = @json.parse("{\"name\":null}")
-  let issue = get_issue(lens_test_name_optional, document)
+  let issue = get_presence_issue(lens_test_name_optional, document)
   assert_type_mismatch(
     issue,
     "/name",
@@ -468,6 +531,41 @@ test "Lens optional - rejects JSON null" {
 test "Lens nullish - returns None for a missing path" {
   let document = @json.parse("{}")
   debug_inspect(lens_test_name_nullish.get(document), content="None")
+}
+
+///|
+test "PresenceLens nullable - replaces earlier optional and nullish policies" {
+  let null_document = @json.parse("{\"name\":null}")
+  let missing_document = @json.parse("{}")
+  for
+    lens in [lens_test_optional_then_nullable, lens_test_nullish_then_nullable] {
+    debug_inspect(lens.get(null_document), content="None")
+    let issue = get_presence_issue(lens, missing_document)
+    inspect(issue.pointer.to_string(), content="/name")
+    match issue.code {
+      @lens.IssueCode::MissingProperty => ()
+      _ => fail("expected MissingProperty")
+    }
+  }
+}
+
+///|
+test "PresenceLens optional - replaces an earlier nullable policy" {
+  let missing_document = @json.parse("{}")
+  let null_document = @json.parse("{\"name\":null}")
+  debug_inspect(
+    lens_test_nullable_then_optional.get(missing_document),
+    content="None",
+  )
+  let issue = get_presence_issue(
+    lens_test_nullable_then_optional, null_document,
+  )
+  assert_type_mismatch(
+    issue,
+    "/name",
+    @lens.JsonKind::String,
+    @lens.JsonKind::Null,
+  )
 }
 
 ///|
