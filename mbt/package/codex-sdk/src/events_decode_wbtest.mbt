@@ -153,7 +153,7 @@ test "MoonBit event decoder - rejects unknown event types" {
 
 ///|
 test "MoonBit event decoder - rejects missing event types" {
-  inspect(event_decode_error("{}"), content="thread event is missing type")
+  assert_true(event_decode_error("{}").contains("MissingProperty"))
 }
 
 ///|

@@ -79,15 +79,12 @@ pub(all) struct TextEvent {
 
 ///|
 pub impl @json.FromJson for TextEvent with fn from_json(json, path) {
-  let message = "TextEvent::from_json: expected text event"
-  let session_id_path = path.add_key("sessionID")
-  let text_path = path.add_key("part").add_key("text")
-  let session_id_value = event_session_id_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((session_id_path, message))
-  }
-  let text_value = event_part_text_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((text_path, message))
-  }
+  let session_id_path = event_session_id_lens.add_to_json_path(path)
+  let text_path = event_part_text_lens.add_to_json_path(path)
+  let session_id_value = event_session_id_lens.get_or_json_decode_error(
+    json, path,
+  )
+  let text_value = event_part_text_lens.get_or_json_decode_error(json, path)
   {
     session_id: @json.FromJson::from_json(session_id_value, session_id_path),
     text: @json.FromJson::from_json(text_value, text_path),
@@ -103,15 +100,12 @@ pub(all) struct ReasoningEvent {
 
 ///|
 pub impl @json.FromJson for ReasoningEvent with fn from_json(json, path) {
-  let message = "ReasoningEvent::from_json: expected reasoning event"
-  let session_id_path = path.add_key("sessionID")
-  let text_path = path.add_key("part").add_key("text")
-  let session_id_value = event_session_id_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((session_id_path, message))
-  }
-  let text_value = event_part_text_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((text_path, message))
-  }
+  let session_id_path = event_session_id_lens.add_to_json_path(path)
+  let text_path = event_part_text_lens.add_to_json_path(path)
+  let session_id_value = event_session_id_lens.get_or_json_decode_error(
+    json, path,
+  )
+  let text_value = event_part_text_lens.get_or_json_decode_error(json, path)
   {
     session_id: @json.FromJson::from_json(session_id_value, session_id_path),
     text: @json.FromJson::from_json(text_value, text_path),
@@ -148,23 +142,18 @@ pub(all) struct ToolUseEvent {
 
 ///|
 pub impl @json.FromJson for ToolUseEvent with fn from_json(json, path) {
-  let message = "ToolUseEvent::from_json: expected tool-use event"
-  let session_id_path = path.add_key("sessionID")
-  let call_id_path = path.add_key("part").add_key("callID")
-  let tool_path = path.add_key("part").add_key("tool")
-  let status_path = path.add_key("part").add_key("state").add_key("status")
-  let session_id_value = event_session_id_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((session_id_path, message))
-  }
-  let call_id_value = event_part_call_id_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((call_id_path, message))
-  }
-  let tool_value = event_part_tool_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((tool_path, message))
-  }
-  let status_value = event_part_status_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((status_path, message))
-  }
+  let session_id_path = event_session_id_lens.add_to_json_path(path)
+  let call_id_path = event_part_call_id_lens.add_to_json_path(path)
+  let tool_path = event_part_tool_lens.add_to_json_path(path)
+  let status_path = event_part_status_lens.add_to_json_path(path)
+  let session_id_value = event_session_id_lens.get_or_json_decode_error(
+    json, path,
+  )
+  let call_id_value = event_part_call_id_lens.get_or_json_decode_error(
+    json, path,
+  )
+  let tool_value = event_part_tool_lens.get_or_json_decode_error(json, path)
+  let status_value = event_part_status_lens.get_or_json_decode_error(json, path)
   {
     session_id: @json.FromJson::from_json(session_id_value, session_id_path),
     call_id: @json.FromJson::from_json(call_id_value, call_id_path),
@@ -181,11 +170,10 @@ pub(all) struct StepStartEvent {
 
 ///|
 pub impl @json.FromJson for StepStartEvent with fn from_json(json, path) {
-  let message = "StepStartEvent::from_json: expected step-start event"
-  let session_id_path = path.add_key("sessionID")
-  let session_id_value = event_session_id_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((session_id_path, message))
-  }
+  let session_id_path = event_session_id_lens.add_to_json_path(path)
+  let session_id_value = event_session_id_lens.get_or_json_decode_error(
+    json, path,
+  )
   { session_id: @json.FromJson::from_json(session_id_value, session_id_path) }
 }
 
@@ -201,27 +189,22 @@ pub(all) struct Usage {
 
 ///|
 pub impl @json.FromJson for Usage with fn from_json(json, path) {
-  let message = "Usage::from_json: expected usage"
-  let input_path = path.add_key("input")
-  let output_path = path.add_key("output")
-  let reasoning_path = path.add_key("reasoning")
-  let cache_read_path = path.add_key("cache").add_key("read")
-  let cache_write_path = path.add_key("cache").add_key("write")
-  let input_value = usage_input_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((input_path, message))
-  }
-  let output_value = usage_output_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((output_path, message))
-  }
-  let reasoning_value = usage_reasoning_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((reasoning_path, message))
-  }
-  let cache_read_value = usage_cache_read_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((cache_read_path, message))
-  }
-  let cache_write_value = usage_cache_write_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((cache_write_path, message))
-  }
+  let input_path = usage_input_lens.add_to_json_path(path)
+  let output_path = usage_output_lens.add_to_json_path(path)
+  let reasoning_path = usage_reasoning_lens.add_to_json_path(path)
+  let cache_read_path = usage_cache_read_lens.add_to_json_path(path)
+  let cache_write_path = usage_cache_write_lens.add_to_json_path(path)
+  let input_value = usage_input_lens.get_or_json_decode_error(json, path)
+  let output_value = usage_output_lens.get_or_json_decode_error(json, path)
+  let reasoning_value = usage_reasoning_lens.get_or_json_decode_error(
+    json, path,
+  )
+  let cache_read_value = usage_cache_read_lens.get_or_json_decode_error(
+    json, path,
+  )
+  let cache_write_value = usage_cache_write_lens.get_or_json_decode_error(
+    json, path,
+  )
   {
     input_tokens: @json.FromJson::from_json(input_value, input_path),
     output_tokens: @json.FromJson::from_json(output_value, output_path),
@@ -246,23 +229,16 @@ pub(all) struct StepFinishEvent {
 
 ///|
 pub impl @json.FromJson for StepFinishEvent with fn from_json(json, path) {
-  let message = "StepFinishEvent::from_json: expected step-finish event"
-  let session_id_path = path.add_key("sessionID")
-  let reason_path = path.add_key("part").add_key("reason")
-  let cost_path = path.add_key("part").add_key("cost")
-  let usage_path = path.add_key("part").add_key("tokens")
-  let session_id_value = event_session_id_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((session_id_path, message))
-  }
-  let reason_value = event_part_reason_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((reason_path, message))
-  }
-  let cost_value = event_part_cost_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((cost_path, message))
-  }
-  let usage_value = event_part_tokens_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((usage_path, message))
-  }
+  let session_id_path = event_session_id_lens.add_to_json_path(path)
+  let reason_path = event_part_reason_lens.add_to_json_path(path)
+  let cost_path = event_part_cost_lens.add_to_json_path(path)
+  let usage_path = event_part_tokens_lens.add_to_json_path(path)
+  let session_id_value = event_session_id_lens.get_or_json_decode_error(
+    json, path,
+  )
+  let reason_value = event_part_reason_lens.get_or_json_decode_error(json, path)
+  let cost_value = event_part_cost_lens.get_or_json_decode_error(json, path)
+  let usage_value = event_part_tokens_lens.get_or_json_decode_error(json, path)
   {
     session_id: @json.FromJson::from_json(session_id_value, session_id_path),
     reason: @json.FromJson::from_json(reason_value, reason_path),
@@ -280,18 +256,15 @@ pub(all) struct ThreadErrorEvent {
 
 ///|
 pub impl @json.FromJson for ThreadErrorEvent with fn from_json(json, path) {
-  let message = "ThreadErrorEvent::from_json: expected error event"
-  let name_path = path.add_key("error").add_key("name")
-  let session_id_path = path.add_key("sessionID")
-  let name = event_error_name_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((name_path, message))
-  }
+  let name_path = event_error_name_lens.add_to_json_path(path)
+  let session_id_path = event_session_id_lens.add_to_json_path(path)
+  let name = event_error_name_lens.get_or_json_decode_error(json, path)
   let data_message = event_error_message_lens.get(json) catch {
     @lens.LensError::LensError(_) => name
   }
-  let session_id_value = event_session_id_lens.get(json) catch {
-    _ => raise @json.JsonDecodeError((session_id_path, message))
-  }
+  let session_id_value = event_session_id_lens.get_or_json_decode_error(
+    json, path,
+  )
   {
     session_id: Some(
       @json.FromJson::from_json(session_id_value, session_id_path),
@@ -316,13 +289,8 @@ pub(all) enum ThreadEvent {
 
 ///|
 pub impl @json.FromJson for ThreadEvent with fn from_json(json, path) {
-  let type_path = path.add_key("type")
-  let type_value = thread_event_type_lens.get(json) catch {
-    _ =>
-      raise @json.JsonDecodeError(
-        (type_path, "ThreadEvent::from_json: expected thread event"),
-      )
-  }
+  let type_path = thread_event_type_lens.add_to_json_path(path)
+  let type_value = thread_event_type_lens.get_or_json_decode_error(json, path)
   let event_type : String = @json.FromJson::from_json(type_value, type_path)
   match event_type {
     "text" => Text(@json.FromJson::from_json(json, path))
@@ -332,8 +300,9 @@ pub impl @json.FromJson for ThreadEvent with fn from_json(json, path) {
     "step_finish" => StepFinish(@json.FromJson::from_json(json, path))
     "error" => StreamError(@json.FromJson::from_json(json, path))
     _ =>
-      raise @json.JsonDecodeError(
-        (path.add_key("type"), "unsupported thread event type: \{event_type}"),
+      raise thread_event_type_lens.json_decode_error(
+        path,
+        "unsupported thread event type: \{event_type}",
       )
   }
 }

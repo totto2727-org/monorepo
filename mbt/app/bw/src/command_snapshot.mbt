@@ -111,7 +111,7 @@ struct SnapshotResponse {
 }
 
 ///|
-impl FromJson for SnapshotResponse with fn from_json(json, _path) {
+impl FromJson for SnapshotResponse with fn from_json(json, path) {
   let success_value = snapshot_response_success_lens.get(json) catch {
     _ => None
   }
@@ -121,7 +121,14 @@ impl FromJson for SnapshotResponse with fn from_json(json, _path) {
   }
   let result_value = snapshot_response_result_lens.get(json) catch { _ => None }
   let result = match result_value {
-    Some(value) => Some((@json.from_json(value) : SnapshotResponseResult))
+    Some(value) =>
+      Some(
+        (
+          @json.from_json(
+            value,
+            path=snapshot_response_result_lens.add_to_json_path(path),
+          ) : SnapshotResponseResult),
+      )
     None => None
   }
   { success, result }

@@ -28,6 +28,24 @@ Use `totto2727/lens` to select known object fields inside a manual `FromJson` im
 
 Define each complete lens at the top level with an explicit type annotation. Use `Lens[T]` for required values and `PresenceLens[T]` for values configured with `nullable`, `optional`, or `nullish`; the `PresenceLens` type parameter is the underlying `T`, not `T?`. Function bodies may call `get` on these prebuilt lenses, but must not construct lenses with `@lens.root`, `@lens.object`, or lens combinators such as `json`, `string`, `optional`, and `nullish`; rebuilding lens paths and decoders on every call adds avoidable runtime work. When a path is genuinely dynamic and cannot be predefined, access the unstructured `Json` directly instead of constructing a lens inside the function.
 
+Use `Lens::get_or_json_decode_error(document, path)` for the normal case where a failed selection must become a standard `JsonDecodeError`. When the selected value still needs standard decoding, pass `path=lens.add_to_json_path(path)` to `@json.from_json` so nested failures retain the complete location. Use `Lens::json_decode_error(path, message)` only for a custom validation or discriminator error that belongs to the selected lens location. Direct `Lens::get` with `catch` is reserved for intentional recovery such as a fallback or tolerant optional interpretation; do not use it merely to translate a failed read into `JsonDecodeError`.
+
+Do not operate on `Pointer` directly. Pointer path conversion is an implementation detail used by the lens JSON-decoding helpers.
+
+```mbt
+///|
+let response_status_lens : @lens.Lens[Json] = @lens.root().json("status")
+
+///|
+pub impl @json.FromJson for Response with fn from_json(json, path) {
+  let status : Status = @json.from_json(
+    response_status_lens.get_or_json_decode_error(json, path),
+    path=response_status_lens.add_to_json_path(path),
+  )
+  { status }
+}
+```
+
 Outside `FromJson`, lens access is allowed when a value intentionally remains `Json` because its shape is dynamic, schema-less, or otherwise cannot be represented by one stable type. Do not use this exception for a known structure that should implement `FromJson`; commands, services, and transport handlers should prefer the typed boundary whenever one exists.
 
 See [`boundary-conversion.md`](boundary-conversion.md) for the full ingress, domain, and egress pipeline.
