@@ -132,6 +132,20 @@ pub fn[T] Lens::set(
 }
 
 ///|
+/// Writes a typed value for an infallible serialization contract.
+///
+/// Use this from `ToJson::to_json`, whose trait signature cannot propagate `JsonBuildError`. A failure indicates a conflicting static output schema or another serializer implementation defect and aborts the process.
+pub fn[T] Lens::set_or_abort(
+  self : Lens[T],
+  builder : JsonBuilder,
+  value : T,
+) -> Unit {
+  self.set(builder, value) catch {
+    error => abort("invalid lens-based ToJson implementation: \{repr(error)}")
+  }
+}
+
+///|
 pub impl ToJson for JsonBuilder with fn to_json(self) -> Json {
   self.properties.to_json()
 }

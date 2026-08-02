@@ -100,13 +100,13 @@ test "render_schema auto-generates examples for nested commands" {
 }
 
 ///|
-test "render_schema_json returns Json value" {
+test "CliApp ToJson::to_json returns Json value" {
   let app = cli(name="test", version="0.1.0", description="Test", commands=[
     command(name="hello", description="Say hello", options=[
       string("name", description="Name", required=true),
     ]),
   ])
-  let json = app.render_schema_json()
+  let json = app.to_json()
   // Json can be converted back to string
   let s = json.stringify()
   inspect(s.contains("\"hello\""), content="true")

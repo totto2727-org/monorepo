@@ -6,11 +6,21 @@ Keep the standard `Json` type at the serialization boundary. Every type construc
 
 Decode incoming JSON into an external response type, convert that response into a validated domain type, and expose only the domain type to internal application layers. For outbound data, convert the domain type into a dedicated request type and call its `ToJson` implementation at the wire boundary.
 
-Never pass a generic `Json` value, `Map[String, Json]`, or serialized JSON string through internal services when the structure is known. Never build JSON by concatenating strings. Prefer direct `Json::object({ ... })` construction, pattern matching for variants, and explicit `ToJson` implementations for external request types.
+Never pass a generic `Json` value, `Map[String, Json]`, or serialized JSON string through internal services when the structure is known. Never build JSON by concatenating strings. A conversion interface from a known type `T` to `Json` must be that type's standard `ToJson::to_json` implementation; do not add helpers or methods such as `encode_T`, `T_to_json`, or `render_T_json` whose contract is `T -> Json`. Pattern matching inside `to_json` remains appropriate for scalar and variant representations.
 
 Whenever adding `ToJson` to a type, verify the inverse contract with an executable round-trip test: serialize an instance with `to_json`, decode that `Json` through the same type's standard `FromJson` implementation, and assert that the decoded value preserves the original instance. Do not treat a JSON snapshot alone as proof that encoding and decoding agree.
 
-Use `Map[String, Json]` only when the wire format distinguishes omitted fields from explicit `Json::null()` values, or when a dynamic key set cannot be expressed directly with `Json::object({ ... })`. When omission is required by an external API, keep the map inside the one `to_json` implementation that needs it.
+Use `Map[String, Json]` only for a dynamic key set that cannot be expressed by static lenses. Keep the map inside the one `to_json` implementation that needs it, and serialize it through its standard `ToJson` implementation.
+
+## Lens-assisted encoding
+
+Use `totto2727/lens` to construct every known object shape inside a manual `ToJson` implementation. Define each complete output lens once at the top level with an explicit type annotation. Inside `to_json`, create a `JsonBuilder`, write values through the prebuilt lenses' `set_or_abort` operations, and return `builder.to_json()`. `ToJson::to_json` cannot propagate `JsonBuildError`; an encoding failure here is a conflicting static schema or serializer implementation defect. Keep ordinary fallible builder operations on `set`. Do not construct or compose a lens in `to_json` or another function body.
+
+Use typed primitive and array lenses directly. For a nested request type, convert the nested value only through its own `ToJson::to_json` implementation and write that result through a raw `Json` lens. Optional output fields use an `optional` or `nullish` lens according to the wire contract so omission and explicit `null` remain distinct.
+
+Static lenses do not model dynamic object keys, scalar roots, or enum discriminators. Those representations may use standard `ToJson` conversion or direct `Json` variants inside the owning `to_json` implementation. This exception does not permit a separate `T -> Json` helper.
+
+Parsing JSON text or selecting a schema-less portion of an existing `Json` document may still return `Json`; that operation does not encode a known type. Do not use this exception for a stable request, response, configuration, or domain shape.
 
 ## Lens-assisted decoding
 

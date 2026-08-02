@@ -6,6 +6,7 @@ import {
   "moonbitlang/core/immut/hashmap" @immut_hashmap,
   "moonbitlang/core/json",
   "moonbitlang/core/string",
+  "totto2727/lens",
 }
 
 import {

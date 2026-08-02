@@ -80,8 +80,45 @@ struct PdfBody {
 }
 
 ///|
+let pdf_goto_wait_until_lens : @lens.Lens[String] = @lens.root().string(
+  "waitUntil",
+)
+
+///|
+let pdf_options_landscape_lens : @lens.Lens[Bool?] = @lens.root()
+  .bool("landscape")
+  .optional()
+
+///|
+let pdf_options_format_lens : @lens.Lens[String?] = @lens.root()
+  .string("format")
+  .optional()
+
+///|
+let pdf_body_url_lens : @lens.Lens[String?] = @lens.root()
+  .string("url")
+  .optional()
+
+///|
+let pdf_body_html_lens : @lens.Lens[String?] = @lens.root()
+  .string("html")
+  .optional()
+
+///|
+let pdf_body_goto_options_lens : @lens.Lens[Json?] = @lens.root()
+  .json("gotoOptions")
+  .optional()
+
+///|
+let pdf_body_pdf_options_lens : @lens.Lens[Json?] = @lens.root()
+  .json("pdfOptions")
+  .optional()
+
+///|
 impl ToJson for PdfGotoOptions with fn to_json(self) -> Json {
-  Json::object({ "waitUntil": self.waitUntil.to_json() })
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  pdf_goto_wait_until_lens.set_or_abort(builder, self.waitUntil)
+  builder.to_json()
 }
 
 ///|
@@ -89,24 +126,10 @@ extend PdfGotoOptions with ToJson::{to_json}
 
 ///|
 impl ToJson for PdfRenderOptions with fn to_json(self) -> Json {
-  let object : Map[String, Json] = Map([])
-  put_json_if_some(
-    object,
-    "landscape",
-    match self.landscape {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
-  put_json_if_some(
-    object,
-    "format",
-    match self.format {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
-  Json::object(object)
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  pdf_options_landscape_lens.set_or_abort(builder, self.landscape)
+  pdf_options_format_lens.set_or_abort(builder, self.format)
+  builder.to_json()
 }
 
 ///|
@@ -114,40 +137,18 @@ extend PdfRenderOptions with ToJson::{to_json}
 
 ///|
 impl ToJson for PdfBody with fn to_json(self) -> Json {
-  let object : Map[String, Json] = Map([])
-  put_json_if_some(
-    object,
-    "url",
-    match self.url {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  pdf_body_url_lens.set_or_abort(builder, self.url)
+  pdf_body_html_lens.set_or_abort(builder, self.html)
+  pdf_body_goto_options_lens.set_or_abort(
+    builder,
+    self.gotoOptions.map(fn(value) { value.to_json() }),
   )
-  put_json_if_some(
-    object,
-    "html",
-    match self.html {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
+  pdf_body_pdf_options_lens.set_or_abort(
+    builder,
+    self.pdfOptions.map(fn(value) { value.to_json() }),
   )
-  put_json_if_some(
-    object,
-    "gotoOptions",
-    match self.gotoOptions {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
-  put_json_if_some(
-    object,
-    "pdfOptions",
-    match self.pdfOptions {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
-  Json::object(object)
+  builder.to_json()
 }
 
 ///|

@@ -82,7 +82,7 @@ async fn OpenCodeExec::run(
     None => Map([])
   }
   if self.config is Some(config) {
-    environment["OPENCODE_CONFIG_CONTENT"] = config_object_to_json(config).stringify()
+    environment["OPENCODE_CONFIG_CONTENT"] = config.to_json().stringify()
   }
   let inherit_environment = self.env_override is None
   let result = @agent_cli.run(

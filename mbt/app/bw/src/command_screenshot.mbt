@@ -95,8 +95,55 @@ struct ScreenshotBody {
 }
 
 ///|
+let screenshot_goto_wait_until_lens : @lens.Lens[String] = @lens.root().string(
+  "waitUntil",
+)
+
+///|
+let screenshot_capture_full_page_lens : @lens.Lens[Bool] = @lens.root().bool(
+  "fullPage",
+)
+
+///|
+let screenshot_viewport_width_lens : @lens.Lens[Int?] = @lens.root()
+  .int("width")
+  .optional()
+
+///|
+let screenshot_viewport_height_lens : @lens.Lens[Int?] = @lens.root()
+  .int("height")
+  .optional()
+
+///|
+let screenshot_body_url_lens : @lens.Lens[String?] = @lens.root()
+  .string("url")
+  .optional()
+
+///|
+let screenshot_body_html_lens : @lens.Lens[String?] = @lens.root()
+  .string("html")
+  .optional()
+
+///|
+let screenshot_body_goto_options_lens : @lens.Lens[Json?] = @lens.root()
+  .json("gotoOptions")
+  .optional()
+
+///|
+let screenshot_body_screenshot_options_lens : @lens.Lens[Json?] = @lens.root()
+  .json("screenshotOptions")
+  .optional()
+
+///|
+let screenshot_body_viewport_lens : @lens.Lens[Json?] = @lens.root()
+  .json("viewport")
+  .optional()
+
+///|
 impl ToJson for ScreenshotGotoOptions with fn to_json(self) -> Json {
-  Json::object({ "waitUntil": self.waitUntil.to_json() })
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  screenshot_goto_wait_until_lens.set_or_abort(builder, self.waitUntil)
+  builder.to_json()
 }
 
 ///|
@@ -104,7 +151,9 @@ extend ScreenshotGotoOptions with ToJson::{to_json}
 
 ///|
 impl ToJson for ScreenshotCaptureOptions with fn to_json(self) -> Json {
-  Json::object({ "fullPage": self.fullPage.to_json() })
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  screenshot_capture_full_page_lens.set_or_abort(builder, self.fullPage)
+  builder.to_json()
 }
 
 ///|
@@ -112,24 +161,10 @@ extend ScreenshotCaptureOptions with ToJson::{to_json}
 
 ///|
 impl ToJson for ScreenshotViewport with fn to_json(self) -> Json {
-  let object : Map[String, Json] = Map([])
-  put_json_if_some(
-    object,
-    "width",
-    match self.width {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
-  put_json_if_some(
-    object,
-    "height",
-    match self.height {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
-  Json::object(object)
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  screenshot_viewport_width_lens.set_or_abort(builder, self.width)
+  screenshot_viewport_height_lens.set_or_abort(builder, self.height)
+  builder.to_json()
 }
 
 ///|
@@ -137,48 +172,22 @@ extend ScreenshotViewport with ToJson::{to_json}
 
 ///|
 impl ToJson for ScreenshotBody with fn to_json(self) -> Json {
-  let object : Map[String, Json] = Map([])
-  put_json_if_some(
-    object,
-    "url",
-    match self.url {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  screenshot_body_url_lens.set_or_abort(builder, self.url)
+  screenshot_body_html_lens.set_or_abort(builder, self.html)
+  screenshot_body_goto_options_lens.set_or_abort(
+    builder,
+    self.gotoOptions.map(fn(value) { value.to_json() }),
   )
-  put_json_if_some(
-    object,
-    "html",
-    match self.html {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
+  screenshot_body_screenshot_options_lens.set_or_abort(
+    builder,
+    self.screenshotOptions.map(fn(value) { value.to_json() }),
   )
-  put_json_if_some(
-    object,
-    "gotoOptions",
-    match self.gotoOptions {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
+  screenshot_body_viewport_lens.set_or_abort(
+    builder,
+    self.viewport.map(fn(value) { value.to_json() }),
   )
-  put_json_if_some(
-    object,
-    "screenshotOptions",
-    match self.screenshotOptions {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
-  put_json_if_some(
-    object,
-    "viewport",
-    match self.viewport {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
-  Json::object(object)
+  builder.to_json()
 }
 
 ///|

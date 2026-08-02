@@ -60,8 +60,38 @@ struct ScrapeBody {
 }
 
 ///|
+let scrape_goto_wait_until_lens : @lens.Lens[String] = @lens.root().string(
+  "waitUntil",
+)
+
+///|
+let scrape_element_selector_lens : @lens.Lens[String] = @lens.root().string(
+  "selector",
+)
+
+///|
+let scrape_body_url_lens : @lens.Lens[String?] = @lens.root()
+  .string("url")
+  .optional()
+
+///|
+let scrape_body_html_lens : @lens.Lens[String?] = @lens.root()
+  .string("html")
+  .optional()
+
+///|
+let scrape_body_goto_options_lens : @lens.Lens[Json?] = @lens.root()
+  .json("gotoOptions")
+  .optional()
+
+///|
+let scrape_body_elements_lens : @lens.Lens[Json] = @lens.root().json("elements")
+
+///|
 impl ToJson for ScrapeGotoOptions with fn to_json(self) -> Json {
-  Json::object({ "waitUntil": self.waitUntil.to_json() })
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  scrape_goto_wait_until_lens.set_or_abort(builder, self.waitUntil)
+  builder.to_json()
 }
 
 ///|
@@ -69,38 +99,22 @@ extend ScrapeGotoOptions with ToJson::{to_json}
 
 ///|
 impl ToJson for ScrapeElement with fn to_json(self) -> Json {
-  Json::object({ "selector": self.selector.to_json() })
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  scrape_element_selector_lens.set_or_abort(builder, self.selector)
+  builder.to_json()
 }
 
 ///|
 impl ToJson for ScrapeBody with fn to_json(self) -> Json {
-  let object : Map[String, Json] = Map([])
-  put_json_if_some(
-    object,
-    "url",
-    match self.url {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  scrape_body_url_lens.set_or_abort(builder, self.url)
+  scrape_body_html_lens.set_or_abort(builder, self.html)
+  scrape_body_goto_options_lens.set_or_abort(
+    builder,
+    self.gotoOptions.map(fn(value) { value.to_json() }),
   )
-  put_json_if_some(
-    object,
-    "html",
-    match self.html {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
-  put_json_if_some(
-    object,
-    "gotoOptions",
-    match self.gotoOptions {
-      Some(value) => Some(value.to_json())
-      None => None
-    },
-  )
-  object.set("elements", self.elements.to_json())
-  Json::object(object)
+  scrape_body_elements_lens.set_or_abort(builder, self.elements.to_json())
+  builder.to_json()
 }
 
 ///|

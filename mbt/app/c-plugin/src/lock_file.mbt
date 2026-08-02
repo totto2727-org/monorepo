@@ -215,40 +215,55 @@ impl FromJson for LockRepository with fn from_json(json, path) {
 
 ///|
 impl ToJson for LockPlugin with fn to_json(self) -> Json {
-  Json::object({
-    "name": self.name.to_json(),
-    "path": self.path.to_json(),
-    "enabledSkills": self.enabled_skills.to_json(),
-  })
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  lock_plugin_name_lens.set_or_abort(builder, Some(self.name.to_json()))
+  lock_plugin_path_lens.set_or_abort(builder, Some(self.path.to_json()))
+  lock_plugin_enabled_skills_lens.set_or_abort(
+    builder,
+    Some(self.enabled_skills.to_json()),
+  )
+  builder.to_json()
 }
 
 ///|
 impl ToJson for LockRepository with fn to_json(self) -> Json {
-  let object : Map[String, Json] = Map([])
-  object.set(
-    "sourceType",
-    repository_source_type_to_string(self.source_type).to_json(),
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  lock_repository_source_type_lens.set_or_abort(
+    builder,
+    Some(repository_source_type_to_string(self.source_type).to_json()),
   )
-  object.set("source", self.source.to_json())
-  match self.commit_hash {
-    Some(value) => object.set("commitHash", value.to_json())
-    None => ()
-  }
-  object.set(
-    "marketplaceKind",
-    marketplace_kind_to_string(self.marketplace_kind).to_json(),
+  lock_repository_source_lens.set_or_abort(builder, Some(self.source.to_json()))
+  lock_repository_commit_hash_lens.set_or_abort(
+    builder,
+    self.commit_hash.map(fn(value) { value.to_json() }),
   )
-  object.set("plugins", self.plugins.to_json())
-  Json::object(object)
+  lock_repository_marketplace_kind_lens.set_or_abort(
+    builder,
+    Some(marketplace_kind_to_string(self.marketplace_kind).to_json()),
+  )
+  lock_repository_plugins_lens.set_or_abort(
+    builder,
+    Some(self.plugins.to_json()),
+  )
+  builder.to_json()
 }
 
 ///|
 impl ToJson for LockFile with fn to_json(self) -> Json {
-  Json::object({
-    "version": Json::number(1.0, repr="1"),
-    "skillDirs": self.skill_dirs.to_json(),
-    "repositories": self.repositories.to_json(),
-  })
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  lock_file_version_lens.set_or_abort(
+    builder,
+    Some(Json::number(1.0, repr="1")),
+  )
+  lock_file_skill_dirs_lens.set_or_abort(
+    builder,
+    Some(self.skill_dirs.to_json()),
+  )
+  lock_file_repositories_lens.set_or_abort(
+    builder,
+    Some(self.repositories.to_json()),
+  )
+  builder.to_json()
 }
 
 ///|
