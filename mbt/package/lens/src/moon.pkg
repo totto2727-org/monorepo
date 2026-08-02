@@ -6,4 +6,5 @@ import {
 
 import {
   "moonbitlang/core/bench",
+  "moonbitlang/core/lazy",
 } for "test"
