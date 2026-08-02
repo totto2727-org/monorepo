@@ -48,4 +48,29 @@ pub impl @json.FromJson for Response with fn from_json(json, path) {
 
 Outside `FromJson`, lens access is allowed when a value intentionally remains `Json` because its shape is dynamic, schema-less, or otherwise cannot be represented by one stable type. Do not use this exception for a known structure that should implement `FromJson`; commands, services, and transport handlers should prefer the typed boundary whenever one exists.
 
+### Deferred initialization for large lens sets
+
+Eager lens construction is normally negligible in a small application, so keep the straightforward top-level definition unless startup measurements identify it as a bottleneck.
+
+An application that defines hundreds of lenses may spend a meaningful part of its startup time constructing lens paths that are not used in every run. When measurements show that lens initialization is a startup bottleneck, split the lenses into independently used groups, define each group as a top-level [`@lazy.Lazy`](https://mooncakes.io/docs/moonbitlang/core/lazy), and call `force` at the group's first use. This defers construction and leaves groups that are never used uninitialized.
+
+```mbt
+struct UserLenses {
+  name : @lens.Lens[String]
+  age : @lens.Lens[Int]
+}
+
+let user_lenses : @lazy.Lazy[UserLenses] = @lazy.Lazy(() => {
+  let user = @lens.object("user")
+  UserLenses::{ name: user.string("name"), age: user.int("age") }
+})
+
+fn read_user(document : Json) -> User raise {
+  let lenses = user_lenses.force()
+  User::{ name: lenses.name.get(document), age: lenses.age.get(document) }
+}
+```
+
+Do not introduce `Lazy` solely because lenses are present. It adds deferred-cell and `force` overhead, and it does not reduce startup work when every lens group is forced immediately. Group lenses by independent first-use boundaries instead of wrapping every lens separately.
+
 See [`boundary-conversion.md`](boundary-conversion.md) for the full ingress, domain, and egress pipeline.

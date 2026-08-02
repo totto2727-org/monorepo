@@ -853,9 +853,7 @@ async fn wait_for_test_file(path : String) -> Unit {
 // Corresponding upstream cancellation assertions: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L21-L140
 
 ///|
-async fn wait_for_cancellation(
-  task : @async.Task[Unit],
-) -> Bool {
+async fn wait_for_cancellation(task : @async.Task[Unit]) -> Bool {
   try {
     task.wait()
     false
