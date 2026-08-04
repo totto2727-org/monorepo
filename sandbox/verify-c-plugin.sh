@@ -218,6 +218,7 @@ cache_safety_mode() {
   git -C "$ROOT/cache/mbt/acme/market" remote set-url origin file:///unexpected
   expect_success c-plugin skill sync
   [[ "$LAST_OUT" == *'Skipped acme/market:'* && "$LAST_OUT" == *'Repository cache origin mismatch:'* ]] && pass 'origin mismatch reported as skipped' || fail 'origin mismatch skip was not reported'
+  assert_symlink .agents/skills/alpha
   assert_file "$ROOT/cache/mbt/acme/market/sentinel"
 
   rm -rf "$ROOT/cache"
@@ -226,6 +227,7 @@ cache_safety_mode() {
   ln -s "$ROOT/cache-victim" "$ROOT/cache"
   expect_success c-plugin skill sync
   [[ "$LAST_OUT" == *'Skipped acme/market:'* && "$LAST_OUT" == *'Refusing symlinked repository cache path:'* ]] && pass 'symlinked cache reported as skipped' || fail 'symlinked cache skip was not reported'
+  assert_symlink .agents/skills/alpha
   [[ "$(cat "$ROOT/cache-victim/sentinel")" == victim ]] && pass 'symlinked cache parent victim preserved' || fail 'symlinked cache parent victim changed'
 }
 
@@ -297,6 +299,7 @@ collision_case() {
   target="$ROOT/$project/target"
   mkdir -p "$target"
   expect_success c-plugin skill target add "$target"
+  cp c-plugin-lock.json lock-before.json
   case "$kind" in
     file) printf 'preserve-file\n' >"$target/local-skill" ;;
     dir) mkdir "$target/local-skill"; printf 'preserve-dir\n' >"$target/local-skill/sentinel" ;;
@@ -308,6 +311,7 @@ collision_case() {
     assert_symlink "$target/local-skill"
   else
     (( LAST_RC != 0 )) && pass "existing $kind collision rejected" || fail "existing $kind collision unexpectedly succeeded"
+    assert_same_bytes c-plugin-lock.json lock-before.json
     if [[ "$kind" == file ]]; then
       [[ "$(cat "$target/local-skill")" == preserve-file ]] && pass 'existing file preserved' || fail 'existing file changed'
     else
@@ -358,6 +362,7 @@ edge_mode() {
   malformed_lock_case edge-malformed-skill-dirs '{"version":1,"skillDirs":["target",1],"repositories":[]}'
   malformed_lock_case edge-malformed-repositories '{"version":1,"skillDirs":[],"repositories":[42]}'
   malformed_lock_case edge-malformed-enabled-skills '{"version":1,"skillDirs":[],"repositories":[{"source":"./repo","plugins":[{"name":"plugin-a","enabledSkills":["skill-a",1]}]}]}'
+  malformed_lock_case edge-unsafe-enabled-skill '{"version":1,"skillDirs":[],"repositories":[{"source":"./repo","plugins":[{"name":"plugin-a","enabledSkills":["../../victim"]}]}]}'
   relative_target_mode
   unavailable_source_mode
   cache_safety_mode

@@ -61,6 +61,15 @@ struct LockPlugin {
 }
 
 ///|
+fn is_safe_skill_name(name : String) -> Bool {
+  name != "" &&
+  name != "." &&
+  name != ".." &&
+  !name.contains("/") &&
+  !name.contains("\\")
+}
+
+///|
 struct LockRepository {
   source_type : RepositorySourceType
   source : String
@@ -128,6 +137,15 @@ impl FromJson for LockPlugin with fn from_json(json, path) {
   let enabled_skills = match enabled_skills_value {
     Some(value) => @json.from_json(value, path=enabled_skills_path)
     None => []
+  }
+  for skill_name in enabled_skills {
+    guard is_safe_skill_name(skill_name) else {
+      raise @json.JsonDecodeError(
+        (
+          enabled_skills_path, "enabled skill must be a non-empty filename component",
+        ),
+      )
+    }
   }
   { name, path, enabled_skills }
 }

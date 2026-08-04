@@ -31,8 +31,8 @@ async fn ensure_repo_dir(
   }
   if @fs.exists(@path.Path::join(dir, ".git").to_string()) {
     let git_dir = @path.Path::join(dir, ".git").to_string()
-    guard @fs.kind(git_dir, follow_symlink=false) != @fs.FileKind::SymLink else {
-      fail("Refusing symlinked Git metadata: \{git_dir}")
+    guard @fs.kind(git_dir, follow_symlink=false) == @fs.FileKind::Directory else {
+      fail("Refusing non-directory Git metadata: \{git_dir}")
     }
     let origin = collect_or_empty("git", [
       "-C", dir, "config", "--get", "remote.origin.url",
@@ -108,6 +108,12 @@ async fn commit_hash(repo_dir : String) -> String {
 struct AgentsLock {
   agents : String
   lock : LockFile
+}
+
+///|
+struct ResolvedRepository {
+  repository : LockRepository
+  skills : Array[ResolvedSkill]
 }
 
 ///|
@@ -192,7 +198,7 @@ async fn create_skill_link_in(
   if !@fs.exists(root) {
     @fs.mkdir(root, recursive=true)
   }
-  let link = @path.Path::join(root, skill_name).to_string()
+  let link = managed_skill_link_path(root, skill_name)
   let kind = @fs.kind(link, follow_symlink=false) catch {
     _ => @fs.FileKind::Unknown
   }
@@ -204,6 +210,21 @@ async fn create_skill_link_in(
     fail("Refusing to replace non-symlink path: \{link}")
   }
   @fs.symlink(target=relative_path(root, skill_path), link)
+}
+
+///|
+fn managed_skill_link_path(root : String, skill_name : String) -> String raise {
+  guard is_safe_skill_name(skill_name) else {
+    fail("Refusing unsafe managed skill name: \{skill_name}")
+  }
+  let normalized_root = @path.Path::normalize(root).to_string()
+  let link = @path.Path::join(normalized_root, skill_name)
+    .normalize()
+    .to_string()
+  guard @path.Path::dirname(link).to_string() == normalized_root else {
+    fail("Managed skill path escapes its root: \{link}")
+  }
+  link
 }
 
 ///|
@@ -223,6 +244,25 @@ async fn create_skill_link(
 }
 
 ///|
+async fn preflight_skill_links(
+  agents : String,
+  skill_dirs : Array[String],
+  skills : Array[ResolvedSkill],
+) -> Unit {
+  for root in managed_skill_roots(agents, skill_dirs) {
+    for skill in skills {
+      let link = managed_skill_link_path(root, skill.skill_name)
+      let kind = @fs.kind(link, follow_symlink=false) catch {
+        _ => @fs.FileKind::Unknown
+      }
+      if kind != @fs.FileKind::SymLink && @fs.exists(link) {
+        fail("Refusing to replace non-symlink path: \{link}")
+      }
+    }
+  }
+}
+
+///|
 async fn remove_named_skill_links(
   root : String,
   skill_names : Array[String],
@@ -230,7 +270,7 @@ async fn remove_named_skill_links(
   @async.all(
     skill_names.map(skill_name => {
       () => {
-        let link = @path.Path::join(root, skill_name).to_string()
+        let link = managed_skill_link_path(root, skill_name)
         let kind = @fs.kind(link, follow_symlink=false) catch {
           _ => @fs.FileKind::Unknown
         }
@@ -291,28 +331,36 @@ fn deduplicate_resolved_skills(
 
 ///|
 async fn sync_lock(agents : String, lock : LockFile) -> Unit {
-  remove_named_skill_links_from_roots(
-    agents,
-    lock.skill_dirs,
-    repository_skill_names(lock.repositories),
-  )
-  let skills = @async.all(
+  let resolved_repositories : Array[ResolvedRepository] = @async.all(
       lock.repositories.map(repo => {
         () => {
-          resolve_enabled_skills(agents, repo) catch {
+          let skills = resolve_enabled_skills(agents, repo) catch {
             err if @async.is_being_cancelled() => raise err
             err => {
               println("Skipped \{repo.source}: \{err}")
-              []
+              return None
             }
           }
+          Some({ repository: repo, skills })
         }
       }),
     )
     .iter()
-    .flat_map(resolved => resolved.iter())
+    .filter_map(resolved => resolved)
+    .collect()
+  let skills = resolved_repositories
+    .iter()
+    .flat_map(resolved => resolved.skills.iter())
     .collect()
     |> deduplicate_resolved_skills
+  preflight_skill_links(agents, lock.skill_dirs, skills)
+  remove_named_skill_links_from_roots(
+    agents,
+    lock.skill_dirs,
+    repository_skill_names(
+      resolved_repositories.map(resolved => resolved.repository),
+    ),
+  )
   @async.all(
     skills.map(skill => {
       () => {

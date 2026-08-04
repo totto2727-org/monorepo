@@ -50,6 +50,79 @@ async test "sync_all links only enabled skills from lock file" {
 }
 
 ///|
+async test "sync_lock preserves managed links for a skipped repository" {
+  let root = @fs.tmpdir(prefix="c-plugin-sync-skipped-")
+  let agents = @path.Path::join(root, ".agents").to_string()
+  let links = @path.Path::join(agents, "skills").to_string()
+  let source = @path.Path::join(root, "last-usable").to_string()
+  let link = @path.Path::join(links, "preserved").to_string()
+  @fs.mkdir(source, recursive=true)
+  @fs.mkdir(links, recursive=true)
+  @fs.symlink(target=source, link)
+  let repository : LockRepository = {
+    source_type: RepositoryLocal,
+    source: "./missing-repo",
+    marketplace_kind: Claude,
+    commit_hash: None,
+    plugins: [
+      {
+        name: "plugin-a",
+        path: "plugins/plugin-a",
+        enabled_skills: ["preserved"],
+      },
+    ],
+  }
+  sync_lock(agents, { skill_dirs: [], repositories: [repository] })
+  assert_true(@fs.kind(link, follow_symlink=false) == @fs.FileKind::SymLink)
+  inspect(@fs.realpath(link), content=@fs.realpath(source))
+  @fs.rmdir(root, recursive=true)
+}
+
+///|
+async test "sync_lock preflights collisions before replacing managed links" {
+  let root = @fs.tmpdir(prefix="c-plugin-sync-preflight-")
+  let agents = @path.Path::join(root, ".agents").to_string()
+  let repo = @path.Path::join(root, "repo").to_string()
+  let links = @path.Path::join(agents, "skills").to_string()
+  let preserved_source = @path.Path::join(root, "preserved-source").to_string()
+  let preserved_link = @path.Path::join(links, "preserved").to_string()
+  @test_support.write_claude_marketplace(repo)
+  @test_support.write_skill(repo, "preserved")
+  @test_support.write_skill(repo, "collision")
+  @fs.mkdir(preserved_source, recursive=true)
+  @fs.mkdir(links, recursive=true)
+  @fs.symlink(target=preserved_source, preserved_link)
+  @test_support.write_text(
+    @path.Path::join(links, "collision").to_string(),
+    "keep",
+  )
+  let repository : LockRepository = {
+    source_type: RepositoryLocal,
+    source: "./repo",
+    marketplace_kind: Claude,
+    commit_hash: None,
+    plugins: [
+      {
+        name: "plugin-a",
+        path: "plugins/plugin-a",
+        enabled_skills: ["preserved", "collision"],
+      },
+    ],
+  }
+  try sync_lock(agents, { skill_dirs: [], repositories: [repository] }) catch {
+    _ => ()
+  } noraise {
+    _ => fail("expected sync_lock to reject the collision")
+  }
+  inspect(@fs.realpath(preserved_link), content=@fs.realpath(preserved_source))
+  inspect(
+    @fs.read_file(@path.Path::join(links, "collision").to_string()).text(),
+    content="keep",
+  )
+  @fs.rmdir(root, recursive=true)
+}
+
+///|
 async test "create_skill_link creates primary and additional relative symlinks" {
   let root = @fs.tmpdir(prefix="c-plugin-link-")
   let agents = @path.Path::join(root, ".agents").to_string()
@@ -306,6 +379,54 @@ async test "ensure_repo_dir - rejects a cache beneath a symlinked parent" {
   @fs.rmdir(root, recursive=true)
   inspect(outcome, content="raised")
   inspect(preserved_head, content=head)
+  assert_true(preserved_kind == @fs.FileKind::SymLink)
+}
+
+///|
+async test "ensure_repo_dir - rejects a Git metadata file" {
+  let root = @fs.tmpdir(prefix="c-plugin-cache-gitfile-")
+  let (remote, _, _) = create_test_remote(root)
+  let cache = @path.Path::join(root, "cache").to_string()
+  let external_git = @path.Path::join(root, "external.git").to_string()
+  run_checked("git", [
+    "clone",
+    "--separate-git-dir",
+    external_git,
+    "file://\{remote}",
+    cache,
+  ])
+  let sentinel = @path.Path::join(external_git, "sentinel").to_string()
+  @test_support.write_text(sentinel, "keep")
+  let outcome = try {
+    ensure_repo_dir(cache, "file://\{remote}", root) |> ignore
+    "returned"
+  } catch {
+    _ => "raised"
+  }
+  let preserved = @fs.read_file(sentinel).text()
+  @fs.rmdir(root, recursive=true)
+  inspect(outcome, content="raised")
+  inspect(preserved, content="keep")
+}
+
+///|
+async test "remove_named_skill_links rejects traversal and preserves outside symlinks" {
+  let root = @fs.tmpdir(prefix="c-plugin-skill-name-traversal-")
+  let managed_root = @path.Path::join(root, "nested/skills").to_string()
+  let target = @path.Path::join(root, "target").to_string()
+  let victim = @path.Path::join(root, "victim").to_string()
+  @fs.mkdir(managed_root, recursive=true)
+  @fs.mkdir(target, recursive=true)
+  @fs.symlink(target~, victim)
+  let outcome = try {
+    remove_named_skill_links(managed_root, ["../../victim"])
+    "returned"
+  } catch {
+    _ => "raised"
+  }
+  let preserved_kind = @fs.kind(victim, follow_symlink=false)
+  @fs.rmdir(root, recursive=true)
+  inspect(outcome, content="raised")
   assert_true(preserved_kind == @fs.FileKind::SymLink)
 }
 
