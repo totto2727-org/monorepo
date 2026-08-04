@@ -25,7 +25,7 @@ fn node_context(
     3,
     group,
     events=EventSink::discard(),
-    resources=RuntimeResourceStore::RuntimeResourceStore(),
+    resources=ResourceStore::ResourceStore(),
     deadline_ms=500,
   )
 }

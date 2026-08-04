@@ -21,8 +21,10 @@ description = "Native asynchronous agent graph runtime with Mermaid visualizatio
 
 import {
   "DC-Z-lab/moonllm@0.1.0",
+  "Yoorkin/any@0.2.1",
   "moonbitlang/async@0.20.1",
   "moonbitlang/x@0.4.38",
+  "totto2727/any-collection@0.2.0",
   "totto2727/codex-sdk@0.1.1",
   "totto2727/opencode-sdk@0.2.1",
 }
