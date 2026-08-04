@@ -20,7 +20,7 @@ No `c-plugin` flow required interactive input, so a `mizchi/tui` prompt was not 
 - Dockerfile: `sandbox/c-plugin.Dockerfile`.
 - Scenario harness: `sandbox/verify-c-plugin.sh`.
 - Scoped build-context exclusions: `sandbox/c-plugin.Dockerfile.dockerignore`.
-- Evidence image: `c-plugin-validation:atomicity-green`, image ID `sha256:52b65d25a6225afab2797dfcd951e04d8642f8f0721d16a02ed53c482ceff4d3`.
+- Evidence image: `c-plugin-validation:lock-first-green`, image ID `sha256:3b25d7d97e8b02aca864046e3c5deb8122d60a62fb78bc1bc30f2201107d3f1d`.
 - Runtime identity assertions: `PASS: running as non-root` and `PASS: HOME=/sandbox`.
 
 The image builds `path:/src#c-plugin` with Nix, installs the binary at `/sandbox/.local/bin/c-plugin`, and makes the harness its entry point. Fixtures use a local bare Git repository and a Git URL rewrite, so lifecycle verification is deterministic and does not depend on a live GitHub repository.
@@ -30,10 +30,10 @@ The image builds `path:/src#c-plugin` with Nix, installs the binary at `/sandbox
 The repository-root commands used for the current post-review Docker verification were:
 
 ```bash
-docker build --no-cache --platform linux/amd64 --file sandbox/c-plugin.Dockerfile --tag c-plugin-validation:atomicity-green .
-docker run --rm --platform linux/amd64 c-plugin-validation:atomicity-green lifecycle
-docker run --rm --platform linux/amd64 c-plugin-validation:atomicity-green edge
-docker run --rm --platform linux/amd64 c-plugin-validation:atomicity-green all
+docker build --no-cache --platform linux/amd64 --file sandbox/c-plugin.Dockerfile --tag c-plugin-validation:lock-first-green .
+docker run --rm --platform linux/amd64 c-plugin-validation:lock-first-green lifecycle
+docker run --rm --platform linux/amd64 c-plugin-validation:lock-first-green edge
+docker run --rm --platform linux/amd64 c-plugin-validation:lock-first-green all
 ```
 
 The lifecycle, edge, and combined evidence ended with:
@@ -44,7 +44,7 @@ SUMMARY: mode=edge failures=0 expected-current-red=0
 SUMMARY: mode=all failures=0 expected-current-red=0
 ```
 
-The final combined output is retained as `docker-all-atomicity-green.log` in the ULW evidence directory for this task. The failing old-binary comparison is retained as `docker-atomicity-security-red.log`.
+The final combined output is retained as `docker-all-lock-first-green.log` in the ULW evidence directory for this task. Failing old-binary comparisons are retained as `docker-atomicity-security-red.log` and `docker-lock-first-red.log`.
 
 The harness prints every command and its exit status. Representative successful output was:
 
@@ -87,7 +87,7 @@ moon test -p totto2727/c-plugin --target native --no-parallelize
 Observed results:
 
 ```text
-Total tests: 52, passed: 52, failed: 0.
+Total tests: 54, passed: 54, failed: 0.
 ```
 
 The repository-wide validation commands were:
@@ -101,7 +101,7 @@ vp run mbt:build
 ```text
 vp run mbt:check: exit 0
 Total tests: 579, passed: 579, failed: 0. [wasm-gc]
-Total tests: 382, passed: 382, failed: 0. [native]
+Total tests: 384, passed: 384, failed: 0. [native]
 vp run mbt:test: exit 0
 vp run mbt:build: exit 0
 ```
@@ -116,8 +116,8 @@ The shell harness also passed syntax validation:
 The validation image was removed after evidence collection. The cleanup commands and observed result were:
 
 ```bash
-docker image rm c-plugin-validation:atomicity-green
-docker ps -a --filter ancestor=c-plugin-validation:atomicity-green --format '{{.ID}}'
+docker image rm c-plugin-validation:lock-first-green
+docker ps -a --filter ancestor=c-plugin-validation:lock-first-green --format '{{.ID}}'
 docker images --format '{{.Repository}}:{{.Tag}}' | rg '^c-plugin-validation:'
 ```
 
@@ -189,6 +189,8 @@ The validation was intentionally run RED before production changes. It found the
 14. Add, target add, and update persisted lock changes before sync collision checks, so a failed operation could leave changed lock bytes or partially updated links.
 15. An unsafe `enabledSkills` filename component such as `../../victim` could escape a managed target during link cleanup.
 16. A regular `.git` gitfile could redirect cache operations to Git metadata outside the validated cache path.
+17. An option-like `commitHash` such as `-f` could be passed to `git checkout` and force-discard dirty cache changes.
+18. Writing the lock after link application meant a read-only lock could reject persistence after unrecorded target links had already been created.
 
 Commit `59e03983` (`fix(c-plugin): harden skill lifecycle handling`) added regression coverage for the initial runtime defects by validating source containment/exclusivity, propagating lock parse errors, cleaning removed targets, and updating cached repositories. It also exposed the package version to Admiral: the initial binary printed `0.0.0`; the corrected application declares `0.2.0`.
 
@@ -200,9 +202,11 @@ Commit `a391ef14` (`test(c-plugin): add Docker lifecycle validation`) added the 
 
 Commit `93240a79` (`test(c-plugin): cover managed state boundaries`) extended the Docker matrix with pinned-revision recovery, unrelated-link preservation, relative-target resolution, targeted removal with an unavailable remaining source, malformed-lock preservation, cache-origin validation, and symlinked-cache victim preservation.
 
-Commit `d112f6ed` (`fix(c-plugin): preserve state on sync failure`) changed sync to resolve and preflight successful repositories before mutation, retained existing links for skipped sources, wrote locks only after successful synchronization, rejected unsafe skill-name components and non-directory Git metadata, and added Docker assertions for lock/link preservation.
+Commit `d112f6ed` (`fix(c-plugin): preserve state on sync failure`) changed sync to resolve and preflight successful repositories before mutation, retained existing links for skipped sources, rejected unsafe skill-name components and non-directory Git metadata, and added Docker assertions for lock/link preservation.
 
-The current focused regression run is GREEN at 52 of 52 tests. The cache-history behavior is covered by a dedicated Git fixture regression test and by the Docker fresh-cache pinned-revision and remote-advance scenarios.
+Commit `46c2661f` (`fix(c-plugin): validate sync plans before persistence`) separated planning from link application so collisions are detected before lock persistence and links are applied only after a successful lock write. It also validates hexadecimal Git object IDs, uses detached checkout, and refuses pinned checkout from a dirty cache.
+
+The current focused regression run is GREEN at 54 of 54 tests. The cache-history behavior is covered by dedicated Git fixture regression tests and by the Docker fresh-cache pinned-revision and remote-advance scenarios.
 
 ## Implementation notes and official references
 
@@ -214,4 +218,4 @@ The current focused regression run is GREEN at 52 of 52 tests. The cache-history
 
 ## Final assessment
 
-The combined Docker matrix, the 52-test focused native suite, and the repository-wide MoonBit checks, tests, and build are green. The observed behavior demonstrates isolated local/global state, safe repeated operations, failure-atomic lock handling for preflighted collisions, managed-only link cleanup, preservation of links for skipped sources, lock-root-relative targets, targeted source removal, strict malformed-lock rejection, full-history pinned-revision recovery, and cache origin/path safeguards. All validation containers and task-specific images were removed after evidence collection. c-plugin is healthy for the exercised parser-visible command surface and filesystem boundary cases.
+The combined Docker matrix, the 54-test focused native suite, and the repository-wide MoonBit checks, tests, and build are green. The observed behavior demonstrates isolated local/global state, safe repeated operations, collision preflight followed by lock-first persistence, no link mutation when lock writing fails, managed-only link cleanup, preservation of links for skipped sources, lock-root-relative targets, targeted source removal, strict malformed-lock rejection, full-history pinned-revision recovery, safe pinned checkout, and cache origin/path safeguards. All validation containers and task-specific images were removed after evidence collection. c-plugin is healthy for the exercised parser-visible command surface and filesystem boundary cases.
