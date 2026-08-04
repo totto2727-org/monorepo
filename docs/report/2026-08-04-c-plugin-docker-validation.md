@@ -20,8 +20,8 @@ No `c-plugin` flow required interactive input, so a `mizchi/tui` prompt was not 
 - Dockerfile: `sandbox/c-plugin.Dockerfile`.
 - Scenario harness: `sandbox/verify-c-plugin.sh`.
 - Scoped build-context exclusions: `sandbox/c-plugin.Dockerfile.dockerignore`.
-- Evidence source commit: `e34ba84f6d114c557a3e7baf1f0d6910e291879d`.
-- Evidence image: `c-plugin-validation:final-post-merge`, image ID `sha256:a53903734aa5c9bbf81a4a02c06069fdb316f05129bde6cadf2b281d047eb011`.
+- Evidence source commit: `575db7b451aa0931221a60183916300dab94f2f6`.
+- Evidence image: `c-plugin-validation:official-source-green`, image ID `sha256:f96907f3d491bff71ff549df535589a00f08c221a2b82727912f3c475d3e8c68`.
 - Runtime identity assertions: `PASS: running as non-root` and `PASS: HOME=/sandbox`.
 
 The image builds `path:/src#c-plugin` with Nix, installs the binary at `/sandbox/.local/bin/c-plugin`, and makes the harness its entry point. Fixtures use a local bare Git repository and a Git URL rewrite, so lifecycle verification is deterministic and does not depend on a live GitHub repository.
@@ -31,9 +31,9 @@ The image builds `path:/src#c-plugin` with Nix, installs the binary at `/sandbox
 The repository-root commands used for the current post-review Docker verification were:
 
 ```bash
-docker build --no-cache --platform linux/amd64 --file sandbox/c-plugin.Dockerfile --tag c-plugin-validation:final-post-merge .
-docker image inspect c-plugin-validation:final-post-merge --format '{{.Id}}'
-docker run --rm --platform linux/amd64 c-plugin-validation:final-post-merge all
+docker build --no-cache --platform linux/amd64 --file sandbox/c-plugin.Dockerfile --tag c-plugin-validation:official-source-green .
+docker image inspect c-plugin-validation:official-source-green --format '{{.Id}}'
+docker run --rm --platform linux/amd64 c-plugin-validation:official-source-green all
 ```
 
 The final combined evidence ended with:
@@ -43,7 +43,7 @@ SUMMARY: mode=all failures=0 expected-current-red=0
 EXIT=0
 ```
 
-The final combined output is retained as `docker-all-final-post-merge.log` in the ULW evidence directory for this task. Failing old-binary comparisons are retained as `docker-atomicity-security-red.log`, `docker-lock-first-red.log`, `docker-remove-lock-first-red.log`, and `docker-lock-symlink-red.log`.
+The final combined output is retained as `docker-all-official-source-green.log` in the ULW evidence directory for this task. Failing old-binary comparisons are retained as `docker-atomicity-security-red.log`, `docker-lock-first-red.log`, `docker-remove-lock-first-red.log`, and `docker-lock-symlink-red.log`.
 
 The harness prints every command and its exit status. Representative successful output was:
 
@@ -132,18 +132,17 @@ images-after=0
 EXIT=0
 ```
 
-After merging the latest `origin/main`, the package was rebuilt from the merged tree and the two new validation images were removed separately:
+After merging the latest `origin/main`, the package was rebuilt from the merged tree and its post-merge validation images were removed. The final official-source evidence image was removed with:
 
 ```bash
-docker image rm c-plugin-validation:post-merge-green c-plugin-validation:final-post-merge
+docker image rm c-plugin-validation:official-source-green
 container_count=$(docker ps -a --format '{{.Image}}' | rg '^c-plugin-validation:' | wc -l | tr -d ' ')
 image_count=$(docker images --format '{{.Repository}}:{{.Tag}}' | rg '^c-plugin-validation:' | wc -l | tr -d ' ')
 printf 'containers-after=%s\nimages-after=%s\n' "$container_count" "$image_count"
 ```
 
 ```text
-Deleted: sha256:0e42ba229f44f70580836d1785b6725395709805736c69b468589b711dfdb1dc
-Deleted: sha256:a53903734aa5c9bbf81a4a02c06069fdb316f05129bde6cadf2b281d047eb011
+Deleted: sha256:f96907f3d491bff71ff549df535589a00f08c221a2b82727912f3c475d3e8c68
 containers-after=0
 images-after=0
 EXIT=0
@@ -220,7 +219,7 @@ The validation was intentionally run RED before production changes. It found the
 18. Writing the lock after link application meant a read-only lock could reject persistence after unrecorded target links had already been created.
 19. Skill and target removal deleted links before persisting the lock, while pure sync redundantly rewrote an unchanged lock after relinking; read-only locks could therefore produce mutation-before-failure behavior.
 20. Lock initialization, reading, and writing followed a `c-plugin-lock.json` symlink. A broken link could create a file outside the project during `init`, while a link to an existing valid lock could allow lifecycle commands to overwrite external bytes.
-21. Merging the latest `origin/main` changed Nix packages to parse native `moon.mod`, exposing the invalid top-level `source = "src"` spelling. The overlay converter rejected it with `Invalid moon.mod config: unexpected key source`.
+21. Merging the latest `origin/main` changed Nix packages to parse native `moon.mod`. The pinned overlay converter uses `moon_config@0.3.8` and rejected the current documented `source = "src"` field with `Invalid moon.mod config: unexpected key source`, so the Nix-only metadata must avoid that converter mismatch while the real module keeps the official syntax.
 22. The native Nix metadata initially exposed unpublished workspace dependencies to the external Moon registry resolver. Docker then failed with `attribute '"0.4.0"' missing` for Lens even though Lens was supplied locally through `moon.work`.
 
 Commit `59e03983` (`fix(c-plugin): harden skill lifecycle handling`) added regression coverage for the initial runtime defects by validating source containment/exclusivity, propagating lock parse errors, cleaning removed targets, and updating cached repositories. It also exposed the package version to Admiral: the initial binary printed `0.0.0`; the corrected application declares `0.2.0`.
@@ -241,7 +240,7 @@ Commit `d580c1d2` (`fix(c-plugin): persist removals before unlinking`) made skil
 
 Commit `2ac87337` (`fix(c-plugin): reject symlinked lock files`) requires the lock path to be a regular file or absent without following symlinks. `init`, reads, and writes reject both broken and live lock symlinks before touching their targets.
 
-Commit `4a26098e` (`fix(c-plugin): use valid moon.mod source syntax`) uses the documented native form `options(source: "src")`. Commit `e34ba84f` (`fix(c-plugin): keep local Nix dependencies in workspace`) keeps Admiral and Lens in the generated `moon.work` while restricting Nix registry metadata to external async/x dependencies. The first post-merge Docker builds reproduced both failures; the final no-cache build and `all` run passed from the merged tree.
+Commit `e34ba84f` (`fix(c-plugin): keep local Nix dependencies in workspace`) keeps Admiral and Lens in the generated `moon.work` while restricting converter-compatible Nix registry metadata to external async/x dependencies. Commit `575db7b4` (`fix(c-plugin): restore documented moon.mod syntax`) restores the real module's documented `source = "src"` syntax; the generated Nix metadata deliberately omits `source` because it is only used for metadata and dependency resolution. The first post-merge Docker builds reproduced both failures; the final no-cache build and `all` run passed from the merged tree.
 
 The current focused regression run is GREEN at 56 of 56 tests. The cache-history behavior is covered by dedicated Git fixture regression tests and by the Docker fresh-cache pinned-revision and remote-advance scenarios.
 
@@ -252,7 +251,7 @@ The current focused regression run is GREEN at 56 of 56 tests. The cache-history
 - Validation containers use `--rm` for automatic cleanup: [`docker run --rm`](https://docs.docker.com/reference/cli/docker/container/run/#clean-up---rm).
 - The non-root user, `HOME`, working directory, and copied harness follow the documented Dockerfile semantics: [Dockerfile reference](https://docs.docker.com/reference/dockerfile/).
 - Repository-cache behavior was evaluated against [git-clone](https://git-scm.com/docs/git-clone), [git-checkout](https://git-scm.com/docs/git-checkout), [git-clean](https://git-scm.com/docs/git-clean), and [git-fetch](https://git-scm.com/docs/git-fetch). The final implementation retains full history, validates cache provenance and path safety before use, rejects dirty caches, and deliberately avoids destructive hard reset and clean operations.
-- The native source-directory spelling follows the official [`moon.mod` module configuration](https://docs.moonbitlang.com/en/latest/toolchain/moon/module.html), which documents `options(source: "src")` for the new format.
+- The real module's source-directory spelling follows the official [`moon.mod` module configuration](https://docs.moonbitlang.com/en/latest/toolchain/moon/module.html#source-directory), which documents `source = "src"` for the current format. Nix-only generated metadata omits this field to remain compatible with the pinned overlay converter.
 
 ## Final assessment
 
