@@ -23,4 +23,4 @@ keywords = [ "markdown", "translation", "opencode", "cli" ]
 
 description = "Native MoonBit CLI for translating Markdown with OpenCode"
 
-source = "./src"
+source = "src"
