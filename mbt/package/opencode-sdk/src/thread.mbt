@@ -89,13 +89,7 @@ async fn Thread::run_streamed_internal(
         title: options.title,
         thinking: options.thinking,
       },
-      async fn(line) {
-        let event : ThreadEvent = @json.from_json(line.value) catch {
-          @json.JsonDecodeError((_, message)) =>
-            raise InvalidEvent(
-              message="Failed to parse OpenCode event: \{line.raw}; cause: \{message}",
-            )
-        }
+      async fn(event) {
         if self.id_value is None && event.session_id() is Some(session_id) {
           self.id_value = Some(session_id)
         }
