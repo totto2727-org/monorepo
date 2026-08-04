@@ -85,6 +85,35 @@ async test "read_lock returns empty lock file when file does not exist" {
 }
 
 ///|
+async test "read_lock and write_lock reject a lock symlink and preserve its target" {
+  let root = @fs.tmpdir(prefix="c-plugin-lock-symlink-")
+  let agents = @path.Path::join(root, ".agents").to_string()
+  let victim = @path.Path::join(root, "outside/victim.json").to_string()
+  let lock_path = lock_path_from_agents(agents)
+  let original = empty_lock_text()
+  @fs.mkdir(@path.Path::dirname(victim).to_string(), recursive=true)
+  @test_support.write_text(victim, original)
+  @fs.symlink(target=victim, lock_path)
+  let read_outcome = try {
+    read_lock(agents) |> ignore
+    "returned"
+  } catch {
+    _ => "raised"
+  }
+  let write_outcome = try {
+    write_lock(agents, { skill_dirs: ["changed"], repositories: [] })
+    "returned"
+  } catch {
+    _ => "raised"
+  }
+  let preserved = @fs.read_file(victim).text()
+  @fs.rmdir(root, recursive=true)
+  inspect(read_outcome, content="raised")
+  inspect(write_outcome, content="raised")
+  inspect(preserved, content=original)
+}
+
+///|
 async fn run_sync_with_lock_text(lock_text : String) -> (String, String) {
   let root = @fs.tmpdir(prefix="c-plugin-lock-corrupt-")
   let agents = @path.Path::join(root, ".agents").to_string()

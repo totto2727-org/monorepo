@@ -337,12 +337,28 @@ fn empty_lock_text() -> String {
 }
 
 ///|
+async fn lock_entry_kind(path : String) -> @fs.FileKind {
+  @fs.kind(path, follow_symlink=false) catch {
+    _ => @fs.FileKind::Unknown
+  }
+}
+
+///|
+async fn require_regular_or_missing_lock(path : String) -> @fs.FileKind {
+  let kind = lock_entry_kind(path)
+  guard kind == @fs.FileKind::Unknown || kind == @fs.FileKind::Regular else {
+    fail("Refusing non-regular lock file path: \{path}")
+  }
+  kind
+}
+
+///|
 async fn ensure_lock(agents : String) -> Unit {
   if !@fs.exists(agents) {
     @fs.mkdir(agents, recursive=true)
   }
   let path = lock_path_from_agents(agents)
-  if !@fs.exists(path) {
+  if require_regular_or_missing_lock(path) == @fs.FileKind::Unknown {
     @fs.write_file(path, empty_lock_text(), create_mode=CreateOrTruncate)
   }
 }
@@ -350,7 +366,7 @@ async fn ensure_lock(agents : String) -> Unit {
 ///|
 async fn read_lock(agents : String) -> LockFile {
   let path = lock_path_from_agents(agents)
-  if @fs.exists(path) {
+  if require_regular_or_missing_lock(path) == @fs.FileKind::Regular {
     let document = @json.parse(@fs.read_file(path).text())
     @json.from_json(document)
   } else {
@@ -360,6 +376,7 @@ async fn read_lock(agents : String) -> LockFile {
 
 ///|
 async fn write_lock(agents : String, lock : LockFile) -> Unit {
+  require_regular_or_missing_lock(lock_path_from_agents(agents)) |> ignore
   @fs.write_file(
     lock_path_from_agents(agents),
     lock.to_json().stringify(indent=2) + "\n",

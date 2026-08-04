@@ -257,6 +257,27 @@ lock_write_failure_mode() {
   assert_absent "$ROOT/readonly-target/local-skill"
 }
 
+lock_symlink_mode() {
+  reset_root
+  mkdir -p "$ROOT/broken-lock/project" "$ROOT/broken-lock/outside"
+  cd "$ROOT/broken-lock/project"
+  ln -s "$ROOT/broken-lock/outside/victim.json" c-plugin-lock.json
+  expect_failure c-plugin init
+  assert_symlink c-plugin-lock.json
+  assert_absent "$ROOT/broken-lock/outside/victim.json"
+
+  mkdir -p "$ROOT/linked-lock/project" "$ROOT/linked-lock/outside"
+  cp -R "$ROOT/local" "$ROOT/linked-lock/project/marketplace"
+  printf '%s\n' '{"version":1,"skillDirs":[],"repositories":[]}' >"$ROOT/linked-lock/outside/victim.json"
+  cp "$ROOT/linked-lock/outside/victim.json" "$ROOT/linked-lock/outside/victim-before.json"
+  cd "$ROOT/linked-lock/project"
+  ln -s "$ROOT/linked-lock/outside/victim.json" c-plugin-lock.json
+  expect_failure c-plugin skill add --local ./marketplace
+  assert_symlink c-plugin-lock.json
+  assert_same_bytes "$ROOT/linked-lock/outside/victim.json" "$ROOT/linked-lock/outside/victim-before.json"
+  assert_absent .agents/skills/local-skill
+}
+
 global_mode() {
   reset_root
   prepare_local_project global-project
@@ -394,6 +415,7 @@ edge_mode() {
   unavailable_source_mode
   cache_safety_mode
   lock_write_failure_mode
+  lock_symlink_mode
 }
 
 set -e
