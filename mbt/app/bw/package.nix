@@ -22,27 +22,10 @@ let
     cp -R ${packageSrc}/. "$out/"
     cp ${moonWork} "$out/moon.work"
   '';
-  moonModJson = builtins.toFile "bw-moon.mod.json" (
-    builtins.toJSON {
-      name = "totto2727/bw";
-      version = "0.1.7";
-      deps = {
-        "gmlewis/base64" = "0.16.10";
-        "totto2727/admiral" = "0.5.0";
-        "moonbitlang/async" = "0.19.2";
-        "moonbitlang/x" = "0.4.38";
-      };
-      description = "Native MoonBit CLI for Cloudflare Browser Rendering API";
-      license = "MIT";
-      "preferred-target" = "native";
-      repository = "https://github.com/totto2727-org/monorepo";
-      source = "src";
-      "supported-targets" = "native";
-    }
-  );
 in
 moonPlatform.buildMoonPackage {
-  inherit src moonModJson moonRegistryIndex;
+  inherit src moonRegistryIndex;
+  moonMod = ./moon.mod;
   moonFlags = [ "app/bw/src" ];
   doCheck = false;
   meta.mainProgram = "bw";

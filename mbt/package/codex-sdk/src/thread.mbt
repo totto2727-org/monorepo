@@ -140,13 +140,7 @@ async fn Thread::run_streamed_internal(
         web_search_enabled: options.web_search_enabled,
         approval_policy: options.approval_policy,
       },
-      async fn(line) {
-        let event : ThreadEvent = @json.from_json(line.value) catch {
-          error =>
-            raise InvalidEvent(
-              message="Failed to parse item: \{line.raw}; cause: \{@debug.to_string(error)}",
-            )
-        }
+      async fn(event) {
         if event is ThreadStarted(started) {
           self.id_value = Some(started.thread_id)
         }

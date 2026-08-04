@@ -31,25 +31,10 @@ let
     cp -R ${packageSrc}/. "$out/"
     cp ${moonWork} "$out/moon.work"
   '';
-  moonModJson = builtins.toFile "c-plugin-moon.mod.json" (
-    builtins.toJSON {
-      name = "totto2727/c-plugin";
-      version = "0.2.0";
-      deps = {
-        "moonbitlang/async" = "0.20.1";
-        "moonbitlang/x" = "0.4.38";
-      };
-      description = "Native MoonBit Claude/Cursor/Codex plugin skill manager";
-      license = "MIT";
-      "preferred-target" = "native";
-      repository = "https://github.com/totto2727-org/monorepo";
-      source = "src";
-      "supported-targets" = "native";
-    }
-  );
 in
 moonPlatform.buildMoonPackage {
-  inherit src moonModJson moonRegistryIndex;
+  inherit src moonRegistryIndex;
+  moonMod = ./moon.mod;
   moonFlags = [ "app/c-plugin/src" ];
   doCheck = false;
   meta.mainProgram = "c-plugin";

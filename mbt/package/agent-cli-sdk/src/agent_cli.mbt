@@ -21,13 +21,6 @@ pub fn Invocation::new(
 }
 
 ///|
-/// One JSONL record with both its original text and parsed JSON value.
-pub(all) struct JsonLine {
-  raw : String
-  value : Json
-} derive(Debug, Eq)
-
-///|
 /// The process-level outcome of an agent CLI invocation.
 pub(all) enum RunResult {
   Completed
@@ -36,7 +29,7 @@ pub(all) enum RunResult {
 } derive(Debug, Eq)
 
 ///|
-/// Errors raised while reading the JSONL protocol.
+/// Errors raised while reading or decoding the JSONL protocol.
 pub(all) suberror AgentCliError {
   InvalidJson(line~ : String, cause~ : String)
 } derive(Debug, Eq)
@@ -48,14 +41,14 @@ priv enum ChildExit {
 }
 
 ///|
-/// Run an agent CLI, write its stdin, and stream parsed JSONL events in order.
+/// Run an agent CLI, write its stdin, and stream decoded JSONL events in order.
 ///
 /// Returning `false` from `on_event` terminates the child and returns `Stopped`.
 /// A nonzero child exit is returned as `Failed`; process and callback errors are
 /// raised after all child resources have been cleaned up.
-pub async fn run(
+pub async fn[T : @json.FromJson] run(
   invocation : Invocation,
-  on_event : async (JsonLine) -> Bool,
+  on_event : async (T) -> Bool,
 ) -> RunResult {
   let stop_requested = Ref(false)
   @async.with_task_group(async fn(group) {
@@ -84,10 +77,13 @@ pub async fn run(
     let stdout_task = group.spawn(async fn() {
       defer output_reader.close()
       while output_reader.read_until("\n") is Some(line) {
-        let event = @json.parse(line) catch {
+        let json = @json.parse(line) catch {
           error => raise AgentCliError::InvalidJson(line~, cause="\{error}")
         }
-        if !on_event({ raw: line, value: event }) {
+        let event : T = @json.from_json(json) catch {
+          error => raise AgentCliError::InvalidJson(line~, cause="\{error}")
+        }
+        if !on_event(event) {
           stop_requested.val = true
           child.cancel()
           break

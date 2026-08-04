@@ -24,4 +24,4 @@ keywords = [ "cloudflare", "browser-rendering", "cli" ]
 
 description = "Native MoonBit CLI for Cloudflare Browser Rendering API"
 
-source = "./src"
+source = "src"
