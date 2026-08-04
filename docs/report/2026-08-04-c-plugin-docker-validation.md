@@ -20,7 +20,7 @@ No `c-plugin` flow required interactive input, so a `mizchi/tui` prompt was not 
 - Dockerfile: `sandbox/c-plugin.Dockerfile`.
 - Scenario harness: `sandbox/verify-c-plugin.sh`.
 - Scoped build-context exclusions: `sandbox/c-plugin.Dockerfile.dockerignore`.
-- Evidence image: `c-plugin-validation:lock-first-green`, image ID `sha256:3b25d7d97e8b02aca864046e3c5deb8122d60a62fb78bc1bc30f2201107d3f1d`.
+- Evidence image: `c-plugin-validation:remove-lock-first-green`, image ID `sha256:52a497adc92e39a48be694b37ea584443dcbf940a32834261ab719ea729790c3`.
 - Runtime identity assertions: `PASS: running as non-root` and `PASS: HOME=/sandbox`.
 
 The image builds `path:/src#c-plugin` with Nix, installs the binary at `/sandbox/.local/bin/c-plugin`, and makes the harness its entry point. Fixtures use a local bare Git repository and a Git URL rewrite, so lifecycle verification is deterministic and does not depend on a live GitHub repository.
@@ -30,10 +30,10 @@ The image builds `path:/src#c-plugin` with Nix, installs the binary at `/sandbox
 The repository-root commands used for the current post-review Docker verification were:
 
 ```bash
-docker build --no-cache --platform linux/amd64 --file sandbox/c-plugin.Dockerfile --tag c-plugin-validation:lock-first-green .
-docker run --rm --platform linux/amd64 c-plugin-validation:lock-first-green lifecycle
-docker run --rm --platform linux/amd64 c-plugin-validation:lock-first-green edge
-docker run --rm --platform linux/amd64 c-plugin-validation:lock-first-green all
+docker build --no-cache --platform linux/amd64 --file sandbox/c-plugin.Dockerfile --tag c-plugin-validation:remove-lock-first-green .
+docker run --rm --platform linux/amd64 c-plugin-validation:remove-lock-first-green lifecycle
+docker run --rm --platform linux/amd64 c-plugin-validation:remove-lock-first-green edge
+docker run --rm --platform linux/amd64 c-plugin-validation:remove-lock-first-green all
 ```
 
 The lifecycle, edge, and combined evidence ended with:
@@ -44,7 +44,7 @@ SUMMARY: mode=edge failures=0 expected-current-red=0
 SUMMARY: mode=all failures=0 expected-current-red=0
 ```
 
-The final combined output is retained as `docker-all-lock-first-green.log` in the ULW evidence directory for this task. Failing old-binary comparisons are retained as `docker-atomicity-security-red.log` and `docker-lock-first-red.log`.
+The final combined output is retained as `docker-all-remove-lock-first-green.log` in the ULW evidence directory for this task. Failing old-binary comparisons are retained as `docker-atomicity-security-red.log`, `docker-lock-first-red.log`, and `docker-remove-lock-first-red.log`.
 
 The harness prints every command and its exit status. Representative successful output was:
 
@@ -116,8 +116,8 @@ The shell harness also passed syntax validation:
 The validation image was removed after evidence collection. The cleanup commands and observed result were:
 
 ```bash
-docker image rm c-plugin-validation:lock-first-green
-docker ps -a --filter ancestor=c-plugin-validation:lock-first-green --format '{{.ID}}'
+docker image rm c-plugin-validation:remove-lock-first-green
+docker ps -a --filter ancestor=c-plugin-validation:remove-lock-first-green --format '{{.ID}}'
 docker images --format '{{.Repository}}:{{.Tag}}' | rg '^c-plugin-validation:'
 ```
 
@@ -191,6 +191,7 @@ The validation was intentionally run RED before production changes. It found the
 16. A regular `.git` gitfile could redirect cache operations to Git metadata outside the validated cache path.
 17. An option-like `commitHash` such as `-f` could be passed to `git checkout` and force-discard dirty cache changes.
 18. Writing the lock after link application meant a read-only lock could reject persistence after unrecorded target links had already been created.
+19. Skill and target removal deleted links before persisting the lock, while pure sync redundantly rewrote an unchanged lock after relinking; read-only locks could therefore produce mutation-before-failure behavior.
 
 Commit `59e03983` (`fix(c-plugin): harden skill lifecycle handling`) added regression coverage for the initial runtime defects by validating source containment/exclusivity, propagating lock parse errors, cleaning removed targets, and updating cached repositories. It also exposed the package version to Admiral: the initial binary printed `0.0.0`; the corrected application declares `0.2.0`.
 
@@ -205,6 +206,8 @@ Commit `93240a79` (`test(c-plugin): cover managed state boundaries`) extended th
 Commit `d112f6ed` (`fix(c-plugin): preserve state on sync failure`) changed sync to resolve and preflight successful repositories before mutation, retained existing links for skipped sources, rejected unsafe skill-name components and non-directory Git metadata, and added Docker assertions for lock/link preservation.
 
 Commit `46c2661f` (`fix(c-plugin): validate sync plans before persistence`) separated planning from link application so collisions are detected before lock persistence and links are applied only after a successful lock write. It also validates hexadecimal Git object IDs, uses detached checkout, and refuses pinned checkout from a dirty cache.
+
+Commit `d580c1d2` (`fix(c-plugin): persist removals before unlinking`) made skill and target removal persist their updated lock before deleting links and removed the unnecessary same-content lock rewrite from pure sync. Docker now verifies read-only lock behavior for sync, target add/remove, and skill remove with byte and link preservation assertions.
 
 The current focused regression run is GREEN at 54 of 54 tests. The cache-history behavior is covered by dedicated Git fixture regression tests and by the Docker fresh-cache pinned-revision and remote-advance scenarios.
 
