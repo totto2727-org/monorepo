@@ -4,7 +4,7 @@ Date: 2026-08-04
 
 ## Result
 
-`c-plugin` passed the complete Docker validation matrix as the non-root `sandbox` user, including project-local and global state, repeated operations, repository updates, recursive operations, marketplace conversion, malformed input, and pre-existing filesystem objects. The final harness result was:
+The post-review combined `all` Docker matrix passed as the non-root `sandbox` user. It covers project-local and global state, repeated operations, repository updates, recursive operations, marketplace conversion, malformed input, pre-existing filesystem objects, managed-link ownership, relative targets, targeted source removal, and repository-cache safety.
 
 ```text
 SUMMARY: mode=all failures=0 expected-current-red=0
@@ -20,28 +20,31 @@ No `c-plugin` flow required interactive input, so a `mizchi/tui` prompt was not 
 - Dockerfile: `sandbox/c-plugin.Dockerfile`.
 - Scenario harness: `sandbox/verify-c-plugin.sh`.
 - Scoped build-context exclusions: `sandbox/c-plugin.Dockerfile.dockerignore`.
-- Final recorded image: `sha256:64c782b8df5525f3a4a1f1a85ff85cd3e753133df518b37ab870da37f60c679b` (`c-plugin-validation:final`).
+- Evidence image: `c-plugin-validation:review-fixes`, image ID `sha256:20045e0e6a821b178f914cb15bc306776ee9bb18213f0241727a9bae5311a1fe`.
 - Runtime identity assertions: `PASS: running as non-root` and `PASS: HOME=/sandbox`.
 
 The image builds `path:/src#c-plugin` with Nix, installs the binary at `/sandbox/.local/bin/c-plugin`, and makes the harness its entry point. Fixtures use a local bare Git repository and a Git URL rewrite, so lifecycle verification is deterministic and does not depend on a live GitHub repository.
 
 ## Commands and observed output
 
-The repository-root commands used for the final Docker verification were:
+The repository-root commands used for the current post-review Docker verification were:
 
 ```bash
-docker build --platform linux/amd64 --file sandbox/c-plugin.Dockerfile --tag c-plugin-validation:final .
-docker run --rm --platform linux/amd64 --name c-plugin-validation-final c-plugin-validation:final all
+docker build --platform linux/amd64 --file sandbox/c-plugin.Dockerfile --tag c-plugin-validation:review-fixes .
+docker run --rm --platform linux/amd64 c-plugin-validation:review-fixes lifecycle
+docker run --rm --platform linux/amd64 c-plugin-validation:review-fixes edge
+docker run --rm --platform linux/amd64 c-plugin-validation:review-fixes all
 ```
 
-Relevant build output:
+The lifecycle, edge, and combined evidence ended with:
 
 ```text
-#8 [stage-0 3/4] RUN --mount=type=bind,source=mbt,target=/src,readonly ...
-#10 writing image sha256:64c782b8df5525f3a4a1f1a85ff85cd3e753133df518b37ab870da37f60c679b done
-#10 naming to docker.io/library/c-plugin-validation:final done
-DOCKER_BUILD_EXIT=0
+SUMMARY: mode=lifecycle failures=0 expected-current-red=0
+SUMMARY: mode=edge failures=0 expected-current-red=0
+SUMMARY: mode=all failures=0 expected-current-red=0
 ```
+
+The raw outputs are retained as `docker-lifecycle-review-fixes.log`, `docker-edge-review-fixes-3.log`, and `docker-all-final-pre-report.log` in the ULW evidence directory for this task.
 
 The harness prints every command and its exit status. Representative successful output was:
 
@@ -63,11 +66,10 @@ PASS: c-plugin skill update
 + c-plugin skill target remove /tmp/c-plugin-validation/target
 [exit 0]
 PASS: target remove deleted managed links
-SUMMARY: mode=all failures=0 expected-current-red=0
-DOCKER_RUN_EXIT=0
+SUMMARY: mode=lifecycle failures=0 expected-current-red=0
 ```
 
-The final version check printed `0.2.0` and the harness asserted the exact value:
+The current version check printed `0.2.0` and the harness asserted the exact value:
 
 ```text
 + c-plugin --version
@@ -76,7 +78,19 @@ The final version check printed `0.2.0` and the harness asserted the exact value
 PASS: version is 0.2.0
 ```
 
-MoonBit validation was run from the repository root:
+The focused c-plugin regression suite passed after the post-review fixes:
+
+```bash
+moon test -p totto2727/c-plugin --target native --no-parallelize
+```
+
+Observed results:
+
+```text
+Total tests: 47, passed: 47, failed: 0.
+```
+
+The repository-wide validation commands were:
 
 ```bash
 vp run mbt:check
@@ -84,25 +98,12 @@ vp run mbt:test
 vp run mbt:build
 ```
 
-Observed results:
-
 ```text
-MBT_CHECK_EXIT=0
+vp run mbt:check: exit 0
 Total tests: 579, passed: 579, failed: 0. [wasm-gc]
-Total tests: 367, passed: 367, failed: 0. [native]
-MBT_TEST_EXIT=0
-MBT_BUILD_EXIT=0
-```
-
-The defect-focused regression command also passed after the fixes:
-
-```bash
-moon test --no-parallelize mbt/app/c-plugin/src/command_skill_wbtest.mbt mbt/app/c-plugin/src/command_target_wbtest.mbt mbt/app/c-plugin/src/lock_file_wbtest.mbt mbt/app/c-plugin/src/sync_service_wbtest.mbt mbt/app/c-plugin/src/main_wbtest.mbt
-```
-
-```text
-Total tests: 19, passed: 19, failed: 0.
-MOON_TEST_EXIT=0
+Total tests: 377, passed: 377, failed: 0. [native]
+vp run mbt:test: exit 0
+vp run mbt:build: exit 0
 ```
 
 The shell harness also passed syntax validation:
@@ -112,15 +113,16 @@ The shell harness also passed syntax validation:
 [exit 0]
 ```
 
-After evidence capture, all validation containers and task-specific images were removed:
+The validation image was removed after evidence collection. The cleanup commands and observed result were:
 
 ```bash
-docker image rm c-plugin-validation:working c-plugin-validation:green c-plugin-validation:final
-docker ps -a --filter name=c-plugin-validation --format '{{.ID}}'
+docker image rm c-plugin-validation:review-fixes
+docker ps -a --filter ancestor=c-plugin-validation:review-fixes --format '{{.ID}}'
 docker images --format '{{.Repository}}:{{.Tag}}' | rg '^c-plugin-validation:'
 ```
 
 ```text
+image-rm-exit=0
 containers-after=0
 images-after=0
 ```
@@ -132,16 +134,17 @@ images-after=0
 | Discovery | `c-plugin --help`, `--version`, `help`, and help for every parser-exposed subcommand | Exit 0; all command surfaces present |
 | Initialization | `init`, repeated `init`, `init -g`, repeated `init --global`; pre-existing `.agents` sentinel | First initialization succeeded; re-initialization failed safely without changing the lock or sentinel |
 | Project-local source | `skill add --local ./marketplace`, re-add, and `skill sync` | Exit 0; deterministic symlink created and retained |
-| GitHub source | `skill add acme/market`, re-add after remote advance, `skill update` | Exit 0; cache created, remote tip installed, newly added `beta` skill linked |
+| GitHub source | `skill add acme/market`, sync an older pinned revision into a fresh cache, re-add after remote advance, `skill update` | Exit 0; full-history cache honored the pinned revision, then update installed the remote tip and linked the newly added `beta` skill |
 | Recursive operation | `skill sync -r`, `skill update --recursive` from nested lock trees | Exit 0 |
-| Removal | Repeated `skill remove acme/market` and `skill remove ./marketplace` | Exit 0; idempotent and all managed links removed |
+| Removal | Repeated `skill remove acme/market` and `skill remove ./marketplace`; remove one of two local sources while the remaining source is temporarily unavailable | Exit 0; removal was targeted to the selected source, idempotent, and preserved the remaining source's managed link |
 | Global operation | GitHub add with `-g`; local add and sync with `--global`; update with `-g`; removal with both forms | Global lock at `/sandbox/c-plugin-lock.json`; global and project-local targets remained isolated |
-| Targets | Repeated local/global `skill target add` and `skill target remove` | Idempotent; removed targets were cleaned of managed links |
+| Targets | Repeated local/global `skill target add` and `skill target remove`; relative target invoked from a nested working directory | Idempotent; relative paths resolved from the lock root, removed targets lost only lock-owned links, and an unrelated symlink survived sync and removal |
 | Marketplace development | `dev marketplace sync claude`, `cursor`, and `codex` | Exit 0; Claude, Cursor, Codex marketplace and plugin manifests generated |
 | No lock and malformed input | Sync without a reachable lock; invalid/missing repo and target arguments; unsupported marketplace kind; absent local marketplace | Non-zero exit with no state corruption |
 | Source ambiguity and containment | `--local ./../outside/marketplace`, repo plus `--local`, `.`, and absolute paths | Non-zero exit; traversal and mutually exclusive inputs rejected |
 | Existing filesystem state | Existing lock, `.agents`, regular file, directory, and symlink at a target | File/directory collisions rejected and preserved; managed symlink refreshed safely |
-| Corrupt lock | Invalid JSON followed by `skill sync` | Non-zero exit; byte-for-byte lock preservation confirmed |
+| Corrupt lock | Invalid JSON and syntactically valid malformed `skillDirs`, repository, and `enabledSkills` values followed by `skill sync` | Non-zero exit; byte-for-byte lock preservation confirmed for every case |
+| Repository cache safety | Cached repository with a mismatched `origin`; symlinked cache-root path pointing at a victim directory | Source was skipped with an explicit diagnostic; sentinel files and the symlink target were preserved |
 
 Selected failure-path evidence:
 
@@ -158,6 +161,12 @@ PASS: existing file collision rejected
 PASS: existing file preserved
 [exit 1]
 PASS: corrupt lock rejected and preserved
+PASS: malformed enabledSkills rejected and preserved
+PASS: symlink exists: .../relative-target/unrelated-link
+PASS: origin mismatch reported as skipped
+PASS: file exists: .../cache/mbt/acme/market/sentinel
+PASS: symlinked cache reported as skipped
+PASS: symlinked cache parent victim preserved
 ```
 
 ## Defects found and fixed
@@ -170,12 +179,24 @@ The validation was intentionally run RED before production changes. It found the
 4. A corrupt lock file was interpreted as an empty lock and could be overwritten.
 5. `skill target remove` removed the target from the lock but left managed symlinks behind.
 6. `skill update` used `pull --ff-only`; a normal remote advance could not replace a divergent depth-one cache.
+7. Sync and target removal deleted every symlink in a target, including links not owned by the lock.
+8. Relative `skillDirs` were resolved from the caller's current working directory rather than the lock-file root.
+9. `skill remove` performed a full sync, so removing one source could delete a remaining source's link when that remaining source was unavailable.
+10. A fresh depth-one clone could not check out an older revision pinned by the lock.
+11. Existing repository caches were modified with destructive reset/clean operations without first proving their origin and path safety.
+12. Syntactically valid but structurally malformed lock values were silently filtered or defaulted instead of being rejected.
 
-Commit `59e03983` (`fix(c-plugin): harden skill lifecycle handling`) added regression coverage and fixed those five runtime defects by validating source containment/exclusivity, propagating lock parse errors, cleaning removed targets, and deterministically resetting/checkout/cleaning the cached repository to the fetched remote tip. It also exposed the package version to Admiral: the initial binary printed `0.0.0`; the corrected application declares `0.2.0`.
+Commit `59e03983` (`fix(c-plugin): harden skill lifecycle handling`) added regression coverage for the initial runtime defects by validating source containment/exclusivity, propagating lock parse errors, cleaning removed targets, and updating cached repositories. It also exposed the package version to Admiral: the initial binary printed `0.0.0`; the corrected application declares `0.2.0`.
+
+Commit `a3198235` (`fix(c-plugin): reject malformed lock data`) made the lock decoder strict for present values while preserving defaults for absent optional fields. Invalid arrays, repository records, and nested `enabledSkills` values now fail without changing the original lock bytes.
+
+Commit `25aaff92` (`fix(c-plugin): preserve managed lifecycle state`) restricted link cleanup to lock-owned skill names, resolved relative targets from the lock root, made source removal targeted, changed repository caches to retain full history so pinned revisions remain reachable, and rejected unsafe caches with mismatched origins, symlinked path components, or dirty worktrees. Cache operations no longer use destructive hard reset or clean commands.
 
 Commit `a391ef14` (`test(c-plugin): add Docker lifecycle validation`) added the reusable Dockerfile, scoped build context, and comprehensive harness.
 
-The focused regression run was RED before the fixes (four command/lock/target tests failed) and GREEN afterwards. The cache-divergence behavior is covered by a dedicated Git fixture regression test and by the Docker remote-advance scenario.
+Commit `93240a79` (`test(c-plugin): cover managed state boundaries`) extended the Docker matrix with pinned-revision recovery, unrelated-link preservation, relative-target resolution, targeted removal with an unavailable remaining source, malformed-lock preservation, cache-origin validation, and symlinked-cache victim preservation.
+
+The current focused regression run is GREEN at 47 of 47 tests. The cache-history behavior is covered by a dedicated Git fixture regression test and by the Docker fresh-cache pinned-revision and remote-advance scenarios.
 
 ## Implementation notes and official references
 
@@ -183,8 +204,8 @@ The focused regression run was RED before the fixes (four command/lock/target te
 - The build uses a read-only BuildKit bind mount for the MoonBit source: [Docker bind mounts](https://docs.docker.com/engine/storage/bind-mounts/).
 - Validation containers use `--rm` for automatic cleanup: [`docker run --rm`](https://docs.docker.com/reference/cli/docker/container/run/#clean-up---rm).
 - The non-root user, `HOME`, working directory, and copied harness follow the documented Dockerfile semantics: [Dockerfile reference](https://docs.docker.com/reference/dockerfile/).
-- Deterministic cached-repository replacement uses branch checkout, removal of untracked files, and fetched remote references according to [git-checkout](https://git-scm.com/docs/git-checkout), [git-clean](https://git-scm.com/docs/git-clean), and [git-fetch](https://git-scm.com/docs/git-fetch).
+- Repository-cache behavior was evaluated against [git-clone](https://git-scm.com/docs/git-clone), [git-checkout](https://git-scm.com/docs/git-checkout), [git-clean](https://git-scm.com/docs/git-clean), and [git-fetch](https://git-scm.com/docs/git-fetch). The final implementation retains full history, validates cache provenance and path safety before use, rejects dirty caches, and deliberately avoids destructive hard reset and clean operations.
 
 ## Final assessment
 
-The final Docker matrix and both MoonBit backends are green. Local and global state remain isolated, repeated operations are idempotent or fail safely as designed, managed symlink behavior is deterministic, user-owned file and directory collisions are preserved, corrupt lock data is not silently replaced, and Git-backed skills update to the remote tip. The tested `c-plugin` lifecycle is healthy.
+The combined Docker matrix, the 47-test focused native suite, and the repository-wide MoonBit checks, tests, and build are green. The observed behavior demonstrates isolated local/global state, safe repeated operations, managed-only link cleanup, lock-root-relative targets, targeted source removal, strict malformed-lock rejection, full-history pinned-revision recovery, and cache origin/path safeguards. All validation containers and task-specific images were removed after evidence collection. c-plugin is healthy for the exercised parser-visible command surface and filesystem boundary cases.
