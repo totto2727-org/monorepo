@@ -10,6 +10,10 @@ let
     fileset = lib.fileset.unions [
       ./moon.mod
       ./src
+      ../../package/admiral/moon.mod
+      ../../package/admiral/src
+      ../../package/lens/moon.mod
+      ../../package/lens/src
       ../../package/target-file-discovery/moon.mod
       ../../package/target-file-discovery/src
     ];
@@ -17,6 +21,8 @@ let
   moonWork = builtins.toFile "c-plugin-moon.work" ''
     members = [
       "./app/c-plugin",
+      "./package/admiral",
+      "./package/lens",
       "./package/target-file-discovery",
     ]
   '';
@@ -28,10 +34,9 @@ let
   moonModJson = builtins.toFile "c-plugin-moon.mod.json" (
     builtins.toJSON {
       name = "totto2727/c-plugin";
-      version = "0.1.0";
+      version = "0.2.0";
       deps = {
-        "totto2727/admiral" = "0.5.0";
-        "moonbitlang/async" = "0.19.2";
+        "moonbitlang/async" = "0.20.1";
         "moonbitlang/x" = "0.4.38";
       };
       description = "Native MoonBit Claude/Cursor/Codex plugin skill manager";
