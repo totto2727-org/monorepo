@@ -7,14 +7,16 @@ export C_PLUGIN_CACHE_ROOT="$ROOT/cache"
 FAILURES=0
 RED_FAILURES=0
 LAST_RC=0
+LAST_OUT=
 
 log_command() { printf '+ '; printf '%q ' "$@"; printf '\n'; }
 run() {
   log_command "$@"
   set +e
-  "$@"
+  LAST_OUT=$("$@" 2>&1)
   LAST_RC=$?
   set -e
+  [[ -z "$LAST_OUT" ]] || printf '%s\n' "$LAST_OUT"
   printf '[exit %d]\n' "$LAST_RC"
 }
 pass() { printf 'PASS: %s\n' "$*"; }
@@ -25,6 +27,7 @@ expect_failure() { run "$@"; (( LAST_RC != 0 )) && pass "rejected safely: $*" ||
 assert_file() { [[ -f "$1" ]] && pass "file exists: $1" || fail "missing file: $1"; }
 assert_symlink() { [[ -L "$1" ]] && pass "symlink exists: $1" || fail "missing symlink: $1"; }
 assert_absent() { [[ ! -e "$1" && ! -L "$1" ]] && pass "absent: $1" || fail "still exists: $1"; }
+assert_same_bytes() { cmp -s "$1" "$2" && pass "bytes preserved: $1" || fail "bytes changed: $1"; }
 
 reset_root() {
   cd /sandbox
@@ -106,6 +109,8 @@ lifecycle_mode() {
   expect_success c-plugin skill add acme/market
   assert_symlink .agents/skills/alpha
   assert_file "$ROOT/cache/mbt/acme/market/.git/HEAD"
+  local pinned_commit
+  pinned_commit=$(git -C "$ROOT/cache/mbt/acme/market" rev-parse HEAD)
 
   git clone -q "$ROOT/remotes/acme/market.git" "$ROOT/publisher"
   git -C "$ROOT/publisher" config user.email fixture@example.invalid
@@ -115,6 +120,10 @@ lifecycle_mode() {
   git -C "$ROOT/publisher" add .
   git -C "$ROOT/publisher" commit -qm update
   git -C "$ROOT/publisher" push -q origin main
+  rm -rf "$ROOT/cache/mbt/acme/market"
+  expect_success c-plugin skill sync
+  [[ "$(git -C "$ROOT/cache/mbt/acme/market" rev-parse HEAD)" == "$pinned_commit" ]] && pass 'sync restored lock-pinned commit after cache deletion' || fail 'sync did not restore lock-pinned commit'
+  assert_absent .agents/skills/beta
   run c-plugin skill update
   if (( LAST_RC == 0 )); then
     pass 'c-plugin skill update'
@@ -153,6 +162,71 @@ lifecycle_mode() {
   expect_success c-plugin skill remove ./marketplace
   expect_success c-plugin skill remove ./marketplace
   assert_absent .agents/skills/local-skill
+}
+
+relative_target_mode() {
+  reset_root
+  prepare_local_project relative-target-project
+  expect_success c-plugin skill add --local ./marketplace
+  mkdir -p relative-target "$ROOT/unrelated"
+  ln -s "$ROOT/unrelated" relative-target/unrelated-link
+  expect_success c-plugin skill target add relative-target
+  assert_symlink relative-target/local-skill
+  mkdir -p nested/deeper; cd nested/deeper
+  expect_success c-plugin skill sync
+  assert_symlink "$ROOT/relative-target-project/relative-target/local-skill"
+  assert_symlink "$ROOT/relative-target-project/relative-target/unrelated-link"
+  expect_success c-plugin skill target remove relative-target
+  assert_absent "$ROOT/relative-target-project/relative-target/local-skill"
+  assert_symlink "$ROOT/relative-target-project/relative-target/unrelated-link"
+}
+
+unavailable_source_mode() {
+  reset_root
+  mkdir -p "$ROOT/remove-project/market-a" "$ROOT/remove-project/market-b/plugins/b/skills/b-skill" \
+    "$ROOT/remove-project/market-b/.claude-plugin"
+  cp -R "$ROOT/local/." "$ROOT/remove-project/market-a/"
+  printf '%s\n' '# B' >"$ROOT/remove-project/market-b/plugins/b/skills/b-skill/SKILL.md"
+  printf '%s\n' '{"name":"b-fixture","plugins":[{"name":"b","description":"fixture","source":"./plugins/b"}]}' >"$ROOT/remove-project/market-b/.claude-plugin/marketplace.json"
+  cd "$ROOT/remove-project"
+  expect_success c-plugin init
+  expect_success c-plugin skill add --local ./market-a
+  expect_success c-plugin skill add --local ./market-b
+  assert_symlink .agents/skills/local-skill
+  assert_symlink .agents/skills/b-skill
+  mv market-b "$ROOT/unavailable-market-b"
+  expect_success c-plugin skill remove ./market-a
+  assert_absent .agents/skills/local-skill
+  assert_symlink .agents/skills/b-skill
+}
+
+malformed_lock_case() {
+  local name=$1 content=$2
+  mkdir -p "$ROOT/$name"; cd "$ROOT/$name"
+  printf '%s\n' "$content" >c-plugin-lock.json
+  cp c-plugin-lock.json lock-before.json
+  expect_failure c-plugin skill sync
+  assert_same_bytes c-plugin-lock.json lock-before.json
+}
+
+cache_safety_mode() {
+  reset_root
+  mkdir -p "$ROOT/cache-origin"; cd "$ROOT/cache-origin"
+  expect_success c-plugin init
+  expect_success c-plugin skill add acme/market
+  printf 'sentinel\n' >"$ROOT/cache/mbt/acme/market/sentinel"
+  git -C "$ROOT/cache/mbt/acme/market" remote set-url origin file:///unexpected
+  expect_success c-plugin skill sync
+  [[ "$LAST_OUT" == *'Skipped acme/market:'* && "$LAST_OUT" == *'Repository cache origin mismatch:'* ]] && pass 'origin mismatch reported as skipped' || fail 'origin mismatch skip was not reported'
+  assert_file "$ROOT/cache/mbt/acme/market/sentinel"
+
+  rm -rf "$ROOT/cache"
+  mkdir -p "$ROOT/cache-victim"
+  printf 'victim\n' >"$ROOT/cache-victim/sentinel"
+  ln -s "$ROOT/cache-victim" "$ROOT/cache"
+  expect_success c-plugin skill sync
+  [[ "$LAST_OUT" == *'Skipped acme/market:'* && "$LAST_OUT" == *'Refusing symlinked repository cache path:'* ]] && pass 'symlinked cache reported as skipped' || fail 'symlinked cache skip was not reported'
+  [[ "$(cat "$ROOT/cache-victim/sentinel")" == victim ]] && pass 'symlinked cache parent victim preserved' || fail 'symlinked cache parent victim changed'
 }
 
 global_mode() {
@@ -280,6 +354,13 @@ edge_mode() {
   else
     red_fail 'corrupt lock was accepted or changed'
   fi
+
+  malformed_lock_case edge-malformed-skill-dirs '{"version":1,"skillDirs":["target",1],"repositories":[]}'
+  malformed_lock_case edge-malformed-repositories '{"version":1,"skillDirs":[],"repositories":[42]}'
+  malformed_lock_case edge-malformed-enabled-skills '{"version":1,"skillDirs":[],"repositories":[{"source":"./repo","plugins":[{"name":"plugin-a","enabledSkills":["skill-a",1]}]}]}'
+  relative_target_mode
+  unavailable_source_mode
+  cache_safety_mode
 }
 
 set -e
