@@ -306,12 +306,21 @@ async fn run_skill_remove(context : @admiral.Context) -> Unit {
   let agents = command_agents_dir(options.global)
   let source = options.source
   let lock = read_lock(agents)
+  let removed_repositories = lock.repositories
+    .iter()
+    .filter(fn(repo) { repo.source == source })
+    .collect()
   let repositories = lock.repositories
     .iter()
     .filter(fn(repo) { repo.source != source })
     .collect()
   let updated_lock : LockFile = { skill_dirs: lock.skill_dirs, repositories }
+  let remaining_names = repository_skill_names(repositories)
+  let removed_names = repository_skill_names(removed_repositories)
+    .iter()
+    .filter(fn(name) { !remaining_names.contains(name) })
+    .collect()
+  remove_named_skill_links_from_roots(agents, lock.skill_dirs, removed_names)
   write_lock(agents, updated_lock)
-  sync_lock(agents, updated_lock)
   println("Removed \{source}")
 }

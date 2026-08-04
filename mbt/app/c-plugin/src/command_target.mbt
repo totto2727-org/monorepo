@@ -73,7 +73,11 @@ async fn run_target_remove(context : @admiral.Context) -> Unit {
       skill_dirs,
       repositories: lock.repositories,
     }
+    let removed_root = resolve_skill_dir_from_lock(agents, dir)
+    remove_named_skill_links(
+      removed_root,
+      repository_skill_names(lock.repositories),
+    )
     write_lock(agents, updated_lock)
-    clear_skill_links(expand_home(dir))
   }
 }
