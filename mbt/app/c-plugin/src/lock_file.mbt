@@ -114,31 +114,20 @@ impl FromJson for LockPlugin with fn from_json(json, path) {
   )
   let name_value = lock_plugin_name_lens.get(json) catch { _ => None }
   let name = match name_value {
-    Some(value) =>
-      @json.from_json(value, path=name_path) catch {
-        _ => "plugin"
-      }
+    Some(value) => @json.from_json(value, path=name_path)
     None => "plugin"
   }
   let path_value = lock_plugin_path_lens.get(json) catch { _ => None }
   let path = match path_value {
-    Some(value) => @json.from_json(value, path=plugin_path) catch { _ => name }
+    Some(value) => @json.from_json(value, path=plugin_path)
     None => name
   }
   let enabled_skills_value = lock_plugin_enabled_skills_lens.get(json) catch {
     _ => None
   }
   let enabled_skills = match enabled_skills_value {
-    Some(Json::Array(values)) =>
-      values
-      .iter()
-      .filter_map(fn(value) {
-        Some((@json.from_json(value, path=enabled_skills_path) : String)) catch {
-          _ => None
-        }
-      })
-      .collect()
-    _ => []
+    Some(value) => @json.from_json(value, path=enabled_skills_path)
+    None => []
   }
   { name, path, enabled_skills }
 }
@@ -157,7 +146,7 @@ impl FromJson for LockRepository with fn from_json(json, path) {
   let plugins_path = lock_repository_plugins_lens.add_to_json_path(path)
   let source_value = lock_repository_source_lens.get(json) catch { _ => None }
   let source = match source_value {
-    Some(value) => @json.from_json(value, path=source_path) catch { _ => "" }
+    Some(value) => @json.from_json(value, path=source_path)
     None => ""
   }
   guard source != "" else {
@@ -169,46 +158,27 @@ impl FromJson for LockRepository with fn from_json(json, path) {
     _ => None
   }
   let source_type = match source_type_value {
-    Some(value) =>
-      match value {
-        Json::String(_) => @json.from_json(value, path=source_type_path)
-        _ => RepositoryLocal
-      }
+    Some(value) => @json.from_json(value, path=source_type_path)
     None => RepositoryLocal
   }
   let marketplace_kind_value = lock_repository_marketplace_kind_lens.get(json) catch {
     _ => None
   }
   let marketplace_kind = match marketplace_kind_value {
-    Some(value) =>
-      match value {
-        Json::String(_) => @json.from_json(value, path=marketplace_kind_path)
-        _ => Claude
-      }
+    Some(value) => @json.from_json(value, path=marketplace_kind_path)
     None => Claude
   }
   let commit_hash_value = lock_repository_commit_hash_lens.get(json) catch {
     _ => None
   }
   let commit_hash = match commit_hash_value {
-    Some(value) =>
-      Some((@json.from_json(value, path=commit_hash_path) : String)) catch {
-        _ => None
-      }
+    Some(value) => Some(@json.from_json(value, path=commit_hash_path))
     None => None
   }
   let plugins_value = lock_repository_plugins_lens.get(json) catch { _ => None }
   let plugins = match plugins_value {
-    Some(Json::Array(values)) =>
-      values
-      .iter()
-      .filter_map(fn(value) {
-        Some((@json.from_json(value, path=plugins_path) : LockPlugin)) catch {
-          _ => None
-        }
-      })
-      .collect()
-    _ => []
+    Some(value) => @json.from_json(value, path=plugins_path)
+    None => []
   }
   { source_type, source, marketplace_kind, commit_hash, plugins }
 }
@@ -309,31 +279,15 @@ impl FromJson for LockFile with fn from_json(json, path) {
   }
   let skill_dirs_value = lock_file_skill_dirs_lens.get(json) catch { _ => None }
   let skill_dirs = match skill_dirs_value {
-    Some(Json::Array(values)) =>
-      values
-      .iter()
-      .filter_map(fn(value) {
-        Some((@json.from_json(value, path=skill_dirs_path) : String)) catch {
-          _ => None
-        }
-      })
-      .collect()
-    _ => []
+    Some(value) => @json.from_json(value, path=skill_dirs_path)
+    None => []
   }
   let repositories_value = lock_file_repositories_lens.get(json) catch {
     _ => None
   }
   let repositories = match repositories_value {
-    Some(Json::Array(values)) =>
-      values
-      .iter()
-      .filter_map(fn(value) {
-        Some((@json.from_json(value, path=repositories_path) : LockRepository)) catch {
-          _ => None
-        }
-      })
-      .collect()
-    _ => []
+    Some(value) => @json.from_json(value, path=repositories_path)
+    None => []
   }
   { skill_dirs, repositories }
 }

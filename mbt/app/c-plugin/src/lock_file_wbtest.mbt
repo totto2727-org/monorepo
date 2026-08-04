@@ -85,13 +85,12 @@ async test "read_lock returns empty lock file when file does not exist" {
 }
 
 ///|
-async test "run_skill_sync - rejects and preserves a corrupt lock file" {
+async fn run_sync_with_lock_text(lock_text : String) -> (String, String) {
   let root = @fs.tmpdir(prefix="c-plugin-lock-corrupt-")
   let agents = @path.Path::join(root, ".agents").to_string()
   @fs.mkdir(agents, recursive=true)
-  let corrupt = "{ invalid json }}}"
   let lock_path = lock_path_from_agents(agents)
-  @test_support.write_text(lock_path, corrupt)
+  @test_support.write_text(lock_path, lock_text)
   let previous_pwd = @env.get_env_var("PWD")
   let previous_home = @env.get_env_var("HOME")
   @env.set_env_var("PWD", root)
@@ -112,47 +111,68 @@ async test "run_skill_sync - rejects and preserves a corrupt lock file" {
     None => @env.unset_env_var("HOME")
   }
   @fs.rmdir(root, recursive=true)
+  (outcome, contents)
+}
+
+///|
+async test "run_skill_sync - rejects and preserves a corrupt lock file" {
+  let corrupt = "{ invalid json }}}"
+  let (outcome, contents) = run_sync_with_lock_text(corrupt)
   inspect(outcome, content="raised")
   inspect(contents, content=corrupt)
 }
 
 ///|
-test "LockFile FromJson tolerates defaults and filters invalid repositories" {
+test "LockFile FromJson - defaults absent optional fields" {
   let lock : LockFile = @json.from_json(
     @json.parse(
       (
         #|{
         #|  "version": 1,
-        #|  "skillDirs": ["/custom/dir", 1],
         #|  "repositories": [
-        #|    {
-        #|      "source": "./repo",
-        #|      "plugins": [
-        #|        { "name": "plugin-a", "enabledSkills": ["skill-a", 1] },
-        #|        { "path": 1 },
-        #|        42
-        #|      ]
-        #|    },
-        #|    { "source": "" },
-        #|    { "source": "./invalid", "sourceType": "unsupported" }
+        #|    { "source": "./repo", "plugins": [{}] }
         #|  ]
         #|}
       ),
     ),
   )
-  inspect(lock.skill_dirs.join(","), content="/custom/dir")
+  inspect(lock.skill_dirs.join(","), content="")
   inspect(lock.repositories.length(), content="1")
   inspect(
     repository_source_type_to_string(lock.repositories[0].source_type),
     content="local",
   )
-  inspect(lock.repositories[0].plugins.length(), content="2")
-  inspect(
-    lock.repositories[0].plugins[0].enabled_skills.join(","),
-    content="skill-a",
-  )
-  inspect(lock.repositories[0].plugins[1].name, content="plugin")
-  inspect(lock.repositories[0].plugins[1].path, content="plugin")
+  inspect(lock.repositories[0].plugins.length(), content="1")
+  inspect(lock.repositories[0].plugins[0].name, content="plugin")
+  inspect(lock.repositories[0].plugins[0].path, content="plugin")
+  debug_inspect(lock.repositories[0].plugins[0].enabled_skills, content="[]")
+}
+
+///|
+async test "run_skill_sync - rejects and preserves malformed skillDirs" {
+  let malformed =
+    #|{"version":1,"skillDirs":["/custom/dir",1],"repositories":[]}
+  let (outcome, contents) = run_sync_with_lock_text(malformed)
+  inspect(outcome, content="raised")
+  inspect(contents, content=malformed)
+}
+
+///|
+async test "run_skill_sync - rejects and preserves malformed repositories" {
+  let malformed =
+    #|{"version":1,"skillDirs":[],"repositories":[42]}
+  let (outcome, contents) = run_sync_with_lock_text(malformed)
+  inspect(outcome, content="raised")
+  inspect(contents, content=malformed)
+}
+
+///|
+async test "run_skill_sync - rejects and preserves malformed nested plugins" {
+  let malformed =
+    #|{"version":1,"skillDirs":[],"repositories":[{"source":"./repo","plugins":[{"name":"plugin-a","enabledSkills":["skill-a",1]}]}]}
+  let (outcome, contents) = run_sync_with_lock_text(malformed)
+  inspect(outcome, content="raised")
+  inspect(contents, content=malformed)
 }
 
 ///|
