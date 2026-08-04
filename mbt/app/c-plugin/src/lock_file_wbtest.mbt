@@ -85,15 +85,35 @@ async test "read_lock returns empty lock file when file does not exist" {
 }
 
 ///|
-async test "read_lock returns empty lock file for corrupt JSON" {
+async test "run_skill_sync - rejects and preserves a corrupt lock file" {
   let root = @fs.tmpdir(prefix="c-plugin-lock-corrupt-")
   let agents = @path.Path::join(root, ".agents").to_string()
   @fs.mkdir(agents, recursive=true)
-  @test_support.write_text(lock_path_from_agents(agents), "{ invalid json }}}")
-  let lock = read_lock(agents)
-  inspect(lock.skill_dirs.length(), content="0")
-  inspect(lock.repositories.length(), content="0")
+  let corrupt = "{ invalid json }}}"
+  let lock_path = lock_path_from_agents(agents)
+  @test_support.write_text(lock_path, corrupt)
+  let previous_pwd = @env.get_env_var("PWD")
+  let previous_home = @env.get_env_var("HOME")
+  @env.set_env_var("PWD", root)
+  @env.set_env_var("HOME", root)
+  let outcome = try {
+    run_skill_sync(@admiral.Context())
+    "returned"
+  } catch {
+    _ => "raised"
+  }
+  let contents = @fs.read_file(lock_path).text()
+  match previous_pwd {
+    Some(old) => @env.set_env_var("PWD", old)
+    None => @env.unset_env_var("PWD")
+  }
+  match previous_home {
+    Some(old) => @env.set_env_var("HOME", old)
+    None => @env.unset_env_var("HOME")
+  }
   @fs.rmdir(root, recursive=true)
+  inspect(outcome, content="raised")
+  inspect(contents, content=corrupt)
 }
 
 ///|

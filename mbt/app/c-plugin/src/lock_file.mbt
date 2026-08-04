@@ -357,14 +357,11 @@ async fn ensure_lock(agents : String) -> Unit {
 ///|
 async fn read_lock(agents : String) -> LockFile {
   let path = lock_path_from_agents(agents)
-  let text = if @fs.exists(path) {
-    @fs.read_file(path).text()
+  if @fs.exists(path) {
+    let document = @json.parse(@fs.read_file(path).text())
+    @json.from_json(document)
   } else {
-    empty_lock_text()
-  }
-  let document = @json.parse(text) catch { _ => return empty_lock_file() }
-  (@json.from_json(document) : LockFile) catch {
-    _ => empty_lock_file()
+    empty_lock_file()
   }
 }
 

@@ -64,11 +64,16 @@ async fn run_target_remove(context : @admiral.Context) -> Unit {
   let agents = command_agents_dir(options.global)
   let dir = options.dir
   let lock = read_lock(agents)
-  let skill_dirs = lock.skill_dirs
-    .iter()
-    .filter(fn(item) { item != dir })
-    .collect()
-  let updated_lock : LockFile = { skill_dirs, repositories: lock.repositories }
-  write_lock(agents, updated_lock)
-  sync_lock(agents, updated_lock)
+  if lock.skill_dirs.contains(dir) {
+    let skill_dirs = lock.skill_dirs
+      .iter()
+      .filter(fn(item) { item != dir })
+      .collect()
+    let updated_lock : LockFile = {
+      skill_dirs,
+      repositories: lock.repositories,
+    }
+    write_lock(agents, updated_lock)
+    clear_skill_links(expand_home(dir))
+  }
 }

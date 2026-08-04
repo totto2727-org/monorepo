@@ -118,12 +118,14 @@ fn skill_add_options(context : @admiral.Context) -> SkillAddOptions raise {
   let local_path = context.get_string(local_option)
   let repo = context.get_string(add_repo_arg)
   let source = match (local_path, repo) {
-    (Some(path), _) => {
-      guard path.has_prefix("./") else {
-        fail("--local path must start with ./")
+    (Some(path), None) => {
+      guard path.has_prefix("./") && is_relative_plugin_path(path) else {
+        fail("--local path must start with ./ and stay within its root")
       }
       Local(path)
     }
+    (Some(_), Some(_)) =>
+      fail("Provide either <repo> or --local <path>, not both")
     (None, Some(source)) => {
       validate_github_source(source)
       Github(source)

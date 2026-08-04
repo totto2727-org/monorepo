@@ -18,8 +18,7 @@ async fn ensure_repo(source : String) -> String {
 }
 
 ///|
-async fn update_repo(source : String) -> String {
-  let dir = ensure_repo(source)
+async fn update_repo_dir(dir : String) -> String {
   let default_ref = collect_or_empty("git", [
     "-C", dir, "symbolic-ref", "--short", "refs/remotes/origin/HEAD",
   ])
@@ -28,9 +27,15 @@ async fn update_repo(source : String) -> String {
   } else {
     "main"
   }
-  run_checked("git", ["-C", dir, "checkout", branch])
-  run_checked("git", ["-C", dir, "pull", "--ff-only", "origin", branch])
+  run_checked("git", ["-C", dir, "reset", "--hard"])
+  run_checked("git", ["-C", dir, "checkout", "-B", branch, "origin/\{branch}"])
+  run_checked("git", ["-C", dir, "clean", "-fdx"])
   dir
+}
+
+///|
+async fn update_repo(source : String) -> String {
+  update_repo_dir(ensure_repo(source))
 }
 
 ///|

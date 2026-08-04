@@ -173,6 +173,66 @@ async test "clear_managed_links removes only symlinks from managed skill dirs" {
 }
 
 ///|
+async test "update_repo - replaces a divergent shallow cache with the remote tip" {
+  let root = @fs.tmpdir(prefix="c-plugin-update-repo-")
+  let remote = @path.Path::join(root, "remote.git").to_string()
+  let seed = @path.Path::join(root, "seed").to_string()
+  let cache = @path.Path::join(root, "cache").to_string()
+  run_checked("git", ["init", "--bare", remote])
+  run_checked("git", ["init", "-b", "main", seed])
+  @test_support.write_text(
+    @path.Path::join(seed, "state.txt").to_string(),
+    "one",
+  )
+  run_checked("git", ["-C", seed, "add", "state.txt"])
+  run_checked("git", [
+    "-C", seed, "-c", "user.name=c-plugin test", "-c", "user.email=c-plugin@example.invalid",
+    "commit", "-m", "initial",
+  ])
+  run_checked("git", ["-C", seed, "remote", "add", "origin", remote])
+  run_checked("git", ["-C", seed, "push", "-u", "origin", "main"])
+  run_checked("git", [
+    "--git-dir", remote, "symbolic-ref", "HEAD", "refs/heads/main",
+  ])
+  run_checked("git", ["clone", "--depth", "1", "file://\{remote}", cache])
+  @test_support.write_text(
+    @path.Path::join(cache, "cache-only.txt").to_string(),
+    "divergent",
+  )
+  run_checked("git", ["-C", cache, "add", "cache-only.txt"])
+  run_checked("git", [
+    "-C", cache, "-c", "user.name=c-plugin test", "-c", "user.email=c-plugin@example.invalid",
+    "commit", "-m", "cache divergence",
+  ])
+  @test_support.write_text(
+    @path.Path::join(cache, "untracked.txt").to_string(),
+    "untracked",
+  )
+  @test_support.write_text(
+    @path.Path::join(seed, "state.txt").to_string(),
+    "two",
+  )
+  run_checked("git", ["-C", seed, "add", "state.txt"])
+  run_checked("git", [
+    "-C", seed, "-c", "user.name=c-plugin test", "-c", "user.email=c-plugin@example.invalid",
+    "commit", "-m", "advance remote",
+  ])
+  run_checked("git", ["-C", seed, "push", "origin", "main"])
+  let expected = collect_or_empty("git", ["-C", seed, "rev-parse", "HEAD"])
+  run_checked("git", ["-C", cache, "fetch", "--depth", "1", "origin"])
+  let updated = update_repo_dir(cache)
+  inspect(
+    collect_or_empty("git", ["-C", updated, "rev-parse", "HEAD"]),
+    content=expected,
+  )
+  assert_false(
+    @fs.exists(@path.Path::join(cache, "cache-only.txt").to_string()),
+  )
+  assert_false(@fs.exists(@path.Path::join(cache, "untracked.txt").to_string()))
+  @fs.rmdir(root, recursive=true)
+}
+
+///|
 async test "sync_all keeps the last repository for duplicate skill names" {
   let root = @fs.tmpdir(prefix="c-plugin-sync-duplicate-")
   let agents = @path.Path::join(root, ".agents").to_string()
