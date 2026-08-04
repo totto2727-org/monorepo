@@ -115,9 +115,15 @@ The shell harness also passed syntax validation:
 The validation image was removed after evidence collection. The cleanup commands and observed result were:
 
 ```bash
-docker image rm c-plugin-validation:final
-docker ps -a --filter ancestor=c-plugin-validation:final --format '{{.ID}}'
-docker images --format '{{.Repository}}:{{.Tag}}' | rg '^c-plugin-validation:'
+docker image rm \
+  c-plugin-validation:atomicity-green \
+  c-plugin-validation:final \
+  c-plugin-validation:lock-first-green \
+  c-plugin-validation:remove-lock-first-green \
+  c-plugin-validation:lock-symlink-green
+container_count=$(docker ps -a --format '{{.Image}}' | rg '^c-plugin-validation:' | wc -l | tr -d ' ')
+image_count=$(docker images --format '{{.Repository}}:{{.Tag}}' | rg '^c-plugin-validation:' | wc -l | tr -d ' ')
+printf 'containers-after=%s\nimages-after=%s\n' "$container_count" "$image_count"
 ```
 
 ```text
