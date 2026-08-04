@@ -322,7 +322,7 @@ async fn run_skill_remove(context : @admiral.Context) -> Unit {
     .iter()
     .filter(fn(name) { !remaining_names.contains(name) })
     .collect()
-  remove_named_skill_links_from_roots(agents, lock.skill_dirs, removed_names)
   write_lock(agents, updated_lock)
+  remove_named_skill_links_from_roots(agents, lock.skill_dirs, removed_names)
   println("Removed \{source}")
 }

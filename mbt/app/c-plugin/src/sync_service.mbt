@@ -407,10 +407,7 @@ async fn sync_lock(agents : String, lock : LockFile) -> Unit {
 ///|
 async fn sync_agents_locks(agents_locks : Array[AgentsLock]) -> Unit {
   let tasks = agents_locks.map(entry => {
-    () => {
-      sync_lock(entry.agents, entry.lock)
-      write_lock(entry.agents, entry.lock)
-    }
+    () => sync_lock(entry.agents, entry.lock)
   })
   if has_sync_conflicts(agents_locks) {
     @async.all(tasks, max_concurrent=1) |> ignore

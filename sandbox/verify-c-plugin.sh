@@ -235,8 +235,21 @@ lock_write_failure_mode() {
   reset_root
   prepare_local_project readonly-lock-project
   expect_success c-plugin skill add --local ./marketplace
+  expect_success c-plugin skill target add "$ROOT/configured-readonly-target"
+  assert_symlink "$ROOT/configured-readonly-target/local-skill"
   cp c-plugin-lock.json lock-before.json
   chmod 0444 c-plugin-lock.json
+  expect_success c-plugin skill sync
+  assert_same_bytes c-plugin-lock.json lock-before.json
+  assert_symlink .agents/skills/local-skill
+  assert_symlink "$ROOT/configured-readonly-target/local-skill"
+  expect_failure c-plugin skill target remove "$ROOT/configured-readonly-target"
+  assert_same_bytes c-plugin-lock.json lock-before.json
+  assert_symlink "$ROOT/configured-readonly-target/local-skill"
+  expect_failure c-plugin skill remove ./marketplace
+  assert_same_bytes c-plugin-lock.json lock-before.json
+  assert_symlink .agents/skills/local-skill
+  assert_symlink "$ROOT/configured-readonly-target/local-skill"
   expect_failure c-plugin skill target add "$ROOT/readonly-target"
   chmod 0644 c-plugin-lock.json
   assert_same_bytes c-plugin-lock.json lock-before.json
