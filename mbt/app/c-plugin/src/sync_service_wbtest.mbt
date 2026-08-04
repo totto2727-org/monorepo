@@ -455,6 +455,27 @@ async test "update_repo_dir - rejects and preserves a dirty cache" {
 }
 
 ///|
+async test "checkout_pinned_repo_dir - rejects and preserves a dirty cache" {
+  let root = @fs.tmpdir(prefix="c-plugin-dirty-pinned-cache-")
+  let (remote, _, _) = create_test_remote(root)
+  let cache = @path.Path::join(root, "cache").to_string()
+  ensure_repo_dir(cache, "file://\{remote}", root) |> ignore
+  let head = collect_or_empty("git", ["-C", cache, "rev-parse", "HEAD"])
+  let tracked = @path.Path::join(cache, "state.txt").to_string()
+  @test_support.write_text(tracked, "dirty\n")
+  let outcome = try {
+    checkout_pinned_repo_dir(cache, head)
+    "returned"
+  } catch {
+    _ => "raised"
+  }
+  let preserved = @fs.read_file(tracked).text()
+  @fs.rmdir(root, recursive=true)
+  inspect(outcome, content="raised")
+  inspect(preserved, content="dirty\n")
+}
+
+///|
 async test "sync_all keeps the last repository for duplicate skill names" {
   let root = @fs.tmpdir(prefix="c-plugin-sync-duplicate-")
   let agents = @path.Path::join(root, ".agents").to_string()

@@ -84,6 +84,14 @@ async fn update_repo(source : String) -> String {
 }
 
 ///|
+async fn checkout_pinned_repo_dir(dir : String, hash : String) -> Unit {
+  guard collect_or_empty("git", ["-C", dir, "status", "--porcelain"]) == "" else {
+    fail("Refusing to check out a dirty repository cache: \{dir}")
+  }
+  run_checked("git", ["-C", dir, "checkout", "--detach", hash])
+}
+
+///|
 async fn repo_dir_for(lock_path : String, repo : LockRepository) -> String {
   match repo.source_type {
     RepositoryLocal =>
@@ -91,7 +99,7 @@ async fn repo_dir_for(lock_path : String, repo : LockRepository) -> String {
     RepositoryGithub => {
       let dir = ensure_repo(repo.source)
       match repo.commit_hash {
-        Some(hash) => run_checked("git", ["-C", dir, "checkout", hash])
+        Some(hash) => checkout_pinned_repo_dir(dir, hash)
         None => ()
       }
       dir
@@ -113,6 +121,12 @@ struct AgentsLock {
 ///|
 struct ResolvedRepository {
   repository : LockRepository
+  skills : Array[ResolvedSkill]
+}
+
+///|
+struct SyncPlan {
+  resolved_repositories : Array[ResolvedRepository]
   skills : Array[ResolvedSkill]
 }
 
@@ -330,7 +344,7 @@ fn deduplicate_resolved_skills(
 }
 
 ///|
-async fn sync_lock(agents : String, lock : LockFile) -> Unit {
+async fn plan_sync_lock(agents : String, lock : LockFile) -> SyncPlan {
   let resolved_repositories : Array[ResolvedRepository] = @async.all(
       lock.repositories.map(repo => {
         () => {
@@ -354,15 +368,24 @@ async fn sync_lock(agents : String, lock : LockFile) -> Unit {
     .collect()
     |> deduplicate_resolved_skills
   preflight_skill_links(agents, lock.skill_dirs, skills)
+  { resolved_repositories, skills }
+}
+
+///|
+async fn apply_sync_plan(
+  agents : String,
+  lock : LockFile,
+  plan : SyncPlan,
+) -> Unit {
   remove_named_skill_links_from_roots(
     agents,
     lock.skill_dirs,
     repository_skill_names(
-      resolved_repositories.map(resolved => resolved.repository),
+      plan.resolved_repositories.map(resolved => resolved.repository),
     ),
   )
   @async.all(
-    skills.map(skill => {
+    plan.skills.map(skill => {
       () => {
         create_skill_link(
           agents,
@@ -374,6 +397,11 @@ async fn sync_lock(agents : String, lock : LockFile) -> Unit {
     }),
   )
   |> ignore
+}
+
+///|
+async fn sync_lock(agents : String, lock : LockFile) -> Unit {
+  apply_sync_plan(agents, lock, plan_sync_lock(agents, lock))
 }
 
 ///|

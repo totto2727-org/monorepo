@@ -231,6 +231,19 @@ cache_safety_mode() {
   [[ "$(cat "$ROOT/cache-victim/sentinel")" == victim ]] && pass 'symlinked cache parent victim preserved' || fail 'symlinked cache parent victim changed'
 }
 
+lock_write_failure_mode() {
+  reset_root
+  prepare_local_project readonly-lock-project
+  expect_success c-plugin skill add --local ./marketplace
+  cp c-plugin-lock.json lock-before.json
+  chmod 0444 c-plugin-lock.json
+  expect_failure c-plugin skill target add "$ROOT/readonly-target"
+  chmod 0644 c-plugin-lock.json
+  assert_same_bytes c-plugin-lock.json lock-before.json
+  assert_symlink .agents/skills/local-skill
+  assert_absent "$ROOT/readonly-target/local-skill"
+}
+
 global_mode() {
   reset_root
   prepare_local_project global-project
@@ -363,9 +376,11 @@ edge_mode() {
   malformed_lock_case edge-malformed-repositories '{"version":1,"skillDirs":[],"repositories":[42]}'
   malformed_lock_case edge-malformed-enabled-skills '{"version":1,"skillDirs":[],"repositories":[{"source":"./repo","plugins":[{"name":"plugin-a","enabledSkills":["skill-a",1]}]}]}'
   malformed_lock_case edge-unsafe-enabled-skill '{"version":1,"skillDirs":[],"repositories":[{"source":"./repo","plugins":[{"name":"plugin-a","enabledSkills":["../../victim"]}]}]}'
+  malformed_lock_case edge-option-like-commit-hash '{"version":1,"skillDirs":[],"repositories":[{"sourceType":"github","source":"acme/market","commitHash":"-f","plugins":[]}]}'
   relative_target_mode
   unavailable_source_mode
   cache_safety_mode
+  lock_write_failure_mode
 }
 
 set -e

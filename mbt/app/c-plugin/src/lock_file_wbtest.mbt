@@ -188,6 +188,14 @@ async test "run_skill_sync - rejects and preserves unsafe enabled skill names" {
 }
 
 ///|
+async test "run_skill_sync - rejects and preserves an option-like commit hash" {
+  let malformed = "{\"version\":1,\"skillDirs\":[],\"repositories\":[{\"sourceType\":\"github\",\"source\":\"owner/repo\",\"commitHash\":\"-f\",\"plugins\":[]}]}"
+  let (outcome, contents) = run_sync_with_lock_text(malformed)
+  inspect(outcome, content="raised")
+  inspect(contents, content=malformed)
+}
+
+///|
 async test "write_lock creates parent directory and roundtrips github repository" {
   let root = @fs.tmpdir(prefix="c-plugin-lock-roundtrip-")
   let agents = @path.Path::join(root, ".agents").to_string()

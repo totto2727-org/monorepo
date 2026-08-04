@@ -54,8 +54,9 @@ async fn run_target_add(context : @admiral.Context) -> Unit {
     lock.skill_dirs.iter().concat([dir].iter()).collect()
   }
   let updated_lock : LockFile = { skill_dirs, repositories: lock.repositories }
-  sync_lock(agents, updated_lock)
+  let sync_plan = plan_sync_lock(agents, updated_lock)
   write_lock(agents, updated_lock)
+  apply_sync_plan(agents, updated_lock, sync_plan)
 }
 
 ///|

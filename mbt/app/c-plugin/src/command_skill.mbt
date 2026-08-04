@@ -189,8 +189,9 @@ async fn run_skill_add(context : @admiral.Context) -> Unit {
     skill_dirs: lock.skill_dirs,
     repositories: upsert_repository(lock.repositories, repository),
   }
-  sync_lock(agents, updated_lock)
+  let sync_plan = plan_sync_lock(agents, updated_lock)
   write_lock(agents, updated_lock)
+  apply_sync_plan(agents, updated_lock, sync_plan)
   println("Added \{source}")
 }
 
@@ -264,8 +265,9 @@ async fn run_skill_update(context : @admiral.Context) -> Unit {
         skill_dirs: entry.lock.skill_dirs,
         repositories: update_repositories(entry.lock.repositories),
       }
-      sync_lock(entry.agents, updated_lock)
+      let sync_plan = plan_sync_lock(entry.agents, updated_lock)
       write_lock(entry.agents, updated_lock)
+      apply_sync_plan(entry.agents, updated_lock, sync_plan)
     }
   })
   if has_update_conflicts(agents_locks) {

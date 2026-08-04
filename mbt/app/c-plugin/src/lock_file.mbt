@@ -70,6 +70,17 @@ fn is_safe_skill_name(name : String) -> Bool {
 }
 
 ///|
+fn is_git_object_id(value : String) -> Bool {
+  value.length() >= 4 &&
+  value.length() <= 64 &&
+  value.all(char => {
+    char.is_ascii_digit() ||
+    (char >= 'a' && char <= 'f') ||
+    (char >= 'A' && char <= 'F')
+  })
+}
+
+///|
 struct LockRepository {
   source_type : RepositorySourceType
   source : String
@@ -192,6 +203,16 @@ impl FromJson for LockRepository with fn from_json(json, path) {
   let commit_hash = match commit_hash_value {
     Some(value) => Some(@json.from_json(value, path=commit_hash_path))
     None => None
+  }
+  match commit_hash {
+    Some(hash) => {
+      guard is_git_object_id(hash) else {
+        raise @json.JsonDecodeError(
+          (commit_hash_path, "commitHash must be a hexadecimal Git object ID"),
+        )
+      }
+    }
+    None => ()
   }
   let plugins_value = lock_repository_plugins_lens.get(json) catch { _ => None }
   let plugins = match plugins_value {
