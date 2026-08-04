@@ -24,4 +24,4 @@ keywords = [ "claude", "cursor", "codex", "plugin", "cli" ]
 
 description = "Native MoonBit Claude/Cursor/Codex plugin skill manager"
 
-source = "src"
+options(source: "src")
