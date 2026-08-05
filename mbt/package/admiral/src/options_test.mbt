@@ -21,6 +21,12 @@ test "string() with default value" {
 }
 
 ///|
+test "string() retains interactive input metadata" {
+  let opt = string("project", interactive=true)
+  inspect(opt.metadata.interactive, content="true")
+}
+
+///|
 test "bool() creates BoolOpt OptionDef" {
   let opt = bool("verbose", short='v', description="Verbose output")
   inspect(opt.metadata.type_, content="BoolOpt")

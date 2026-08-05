@@ -1,104 +1,129 @@
 ///|
-struct ScopeFakeSession {
-  id : SessionId
+struct ResourceStoreTestValue {
   label : String
-  closed : Array[String]
+  counter : Ref[Int]
+} derive(Debug)
+
+///|
+extenum @any.Payload += {
+  ResourceStoreTestValue(ResourceStoreTestValue)
 }
 
 ///|
-impl CodingAgentSession for ScopeFakeSession with fn id(self) {
-  Some(self.id)
-}
-
-///|
-impl CodingAgentSession for ScopeFakeSession with fn execute(self, _request) {
-  @async.pause()
-  CodingAgentResponse::{
-    status: Succeeded,
-    summary: Some(self.label),
-    continuation_id: None,
-    changed_files: [],
-    artifacts: [],
-    raw_output: None,
+impl @any.Anyable for ResourceStoreTestValue with fn iso() {
+  {
+    id: @any.TypeId::TypeId(
+      "totto2727/moon-agent-graph/core",
+      "ResourceStoreTestValue",
+      [],
+    ),
+    box: resource => ResourceStoreTestValue(resource),
+    unbox: payload => {
+      guard payload is ResourceStoreTestValue(resource)
+      resource
+    },
   }
 }
 
 ///|
-impl CodingAgentSession for ScopeFakeSession with fn close(self) {
-  @async.pause()
-  self.closed.push(self.label)
+test "ResourceStore values 1 - stores and removes a typed in-memory value" {
+  let store = ResourceStore::ResourceStore()
+  let key = ResourceKey::parse("counter")
+  let resource_ref : @any_collection.AnyRef[ResourceKey, ResourceStoreTestValue] = @any_collection.AnyRef::AnyRef(
+    key,
+  )
+  let wrong_ref : @any_collection.AnyRef[ResourceKey, String] = @any_collection.AnyRef::AnyRef(
+    key,
+  )
+  let counter = Ref(1)
+  store.set(resource_ref, ResourceStoreTestValue::{ label: "counter", counter })
+  guard store.get(resource_ref) is Some(stored) else {
+    fail("expected the typed runtime value")
+  }
+  stored.counter.val = stored.counter.val + 1
+  inspect(counter.val, content="2")
+  let mismatch_raised = try {
+    store.get(wrong_ref) |> ignore
+    false
+  } catch {
+    Failure::Failure(_) => true
+    _ => false
+  }
+  inspect(mismatch_raised, content="true")
+  store.remove(resource_ref)
+  inspect(store.get(resource_ref) is None, content="true")
 }
 
 ///|
-async test "RuntimeResourceStore acquire_agent_session 1 - reuses run resources and closes node resources by owner" {
-  let store = RuntimeResourceStore::RuntimeResourceStore()
+async test "ResourceStore acquire_resource 1 - reuses run resources and closes node resources by owner" {
+  let store = ResourceStore::ResourceStore()
   let opened : Array[String] = []
   let closed : Array[String] = []
-  let run_key = ResourceKey::parse("run-agent")
-  let node_key = ResourceKey::parse("node-agent")
+  let run_ref : @any_collection.AnyRef[ResourceKey, ResourceStoreTestValue] = @any_collection.AnyRef::AnyRef(
+    ResourceKey::parse("run-resource"),
+  )
+  let node_ref : @any_collection.AnyRef[ResourceKey, ResourceStoreTestValue] = @any_collection.AnyRef::AnyRef(
+    ResourceKey::parse("node-resource"),
+  )
   let first_node = NodeId::parse("first")
   let second_node = NodeId::parse("second")
-  let run_session = store.acquire_agent_session(run_key, Run, async fn() {
+  let close = async fn(resource : ResourceStoreTestValue) {
     @async.pause()
-    opened.push("run")
-    let session = ScopeFakeSession::{
-      id: SessionId::parse("run-session"),
-      label: "run",
-      closed,
-    }
-    (session : &CodingAgentSession)
-  })
-  let reused_run_session = store.acquire_agent_session(run_key, Run, async fn() {
-    @async.pause()
-    opened.push("unexpected")
-    let session = ScopeFakeSession::{
-      id: SessionId::parse("unexpected-session"),
-      label: "unexpected",
-      closed,
-    }
-    (session : &CodingAgentSession)
-  })
-  let first_node_session = store.acquire_agent_session(
-    node_key,
+    closed.push(resource.label)
+  }
+  let run_resource = store.acquire_resource(
+    run_ref,
+    Run,
+    async fn() {
+      @async.pause()
+      opened.push("run")
+      ResourceStoreTestValue::{ label: "run", counter: Ref(1) }
+    },
+    close,
+  )
+  let reused_run_resource = store.acquire_resource(
+    run_ref,
+    Run,
+    async fn() {
+      @async.pause()
+      opened.push("unexpected")
+      ResourceStoreTestValue::{ label: "unexpected", counter: Ref(2) }
+    },
+    close,
+  )
+  let first_node_resource = store.acquire_resource(
+    node_ref,
     Node,
     async fn() {
       @async.pause()
       opened.push("node-first")
-      let session = ScopeFakeSession::{
-        id: SessionId::parse("node-first-session"),
-        label: "node-first",
-        closed,
-      }
-      (session : &CodingAgentSession)
+      ResourceStoreTestValue::{ label: "node-first", counter: Ref(3) }
     },
+    close,
     owner=first_node,
   )
-  let second_node_session = store.acquire_agent_session(
-    node_key,
+  store.release_node(first_node)
+  let second_node_resource = store.acquire_resource(
+    node_ref,
     Node,
     async fn() {
       @async.pause()
       opened.push("node-second")
-      let session = ScopeFakeSession::{
-        id: SessionId::parse("node-second-session"),
-        label: "node-second",
-        closed,
-      }
-      (session : &CodingAgentSession)
+      ResourceStoreTestValue::{ label: "node-second", counter: Ref(4) }
     },
+    close,
     owner=second_node,
   )
   debug_inspect(
     [
-      run_session.id(),
-      reused_run_session.id(),
-      first_node_session.id(),
-      second_node_session.id(),
+      run_resource.label,
+      reused_run_resource.label,
+      first_node_resource.label,
+      second_node_resource.label,
     ],
-    content="[\n  Some(SessionId(\"run-session\")),\n  Some(SessionId(\"run-session\")),\n  Some(SessionId(\"node-first-session\")),\n  Some(SessionId(\"node-second-session\")),\n]",
+    content="[\"run\", \"run\", \"node-first\", \"node-second\"]",
   )
   inspect(opened.join(","), content="run,node-first,node-second")
-  store.release_node(first_node)
   inspect(closed.join(","), content="node-first")
   store.release_node(first_node)
   store.close_all()
@@ -121,69 +146,82 @@ enum LifecycleClosePlan {
 } derive(Debug)
 
 ///|
-struct LifecycleSession {
-  id : SessionId?
+struct LifecycleResource {
   label : String
   closed : Array[String]
   plan : LifecycleClosePlan
+} derive(Debug)
+
+///|
+extenum @any.Payload += {
+  LifecycleResource(LifecycleResource)
 }
 
 ///|
-impl CodingAgentSession for LifecycleSession with fn id(self) {
-  self.id
-}
-
-///|
-impl CodingAgentSession for LifecycleSession with fn execute(self, _request) {
-  @async.pause()
-  CodingAgentResponse::{
-    status: Succeeded,
-    summary: Some(self.label),
-    continuation_id: None,
-    changed_files: [],
-    artifacts: [],
-    raw_output: None,
+impl @any.Anyable for LifecycleResource with fn iso() {
+  {
+    id: @any.TypeId::TypeId(
+      "totto2727/moon-agent-graph/core",
+      "LifecycleResource",
+      [],
+    ),
+    box: resource => LifecycleResource(resource),
+    unbox: payload => {
+      guard payload is LifecycleResource(resource)
+      resource
+    },
   }
 }
 
 ///|
-impl CodingAgentSession for LifecycleSession with fn close(self) {
-  match self.plan {
-    Succeeds => self.closed.push(self.label)
+async fn close_lifecycle_resource(resource : LifecycleResource) -> Unit {
+  match resource.plan {
+    Succeeds => resource.closed.push(resource.label)
     Fails(message) => {
-      self.closed.push(self.label)
+      resource.closed.push(resource.label)
       raise LifecycleCloseFailed(message)
     }
     Sleeps(milliseconds) => {
-      self.closed.push("\{self.label}:started")
+      resource.closed.push("\{resource.label}:started")
       @async.sleep(milliseconds)
-      self.closed.push("\{self.label}:finished")
+      resource.closed.push("\{resource.label}:finished")
     }
   }
 }
 
 ///|
-fn lifecycle_session(
+fn lifecycle_resource(
   label : String,
   closed : Array[String],
   plan : LifecycleClosePlan,
-) -> &CodingAgentSession {
-  let session = LifecycleSession::{ id: None, label, closed, plan }
-  (session : &CodingAgentSession)
+) -> LifecycleResource {
+  LifecycleResource::{ label, closed, plan }
 }
 
 ///|
-async test "RuntimeResourceStore lifecycle 1 - preserves an open error and retries a later acquisition" {
-  let store = RuntimeResourceStore::RuntimeResourceStore()
+fn lifecycle_resource_ref(
+  key : ResourceKey,
+) -> @any_collection.AnyRef[ResourceKey, LifecycleResource] {
+  @any_collection.AnyRef::AnyRef(key)
+}
+
+///|
+async test "ResourceStore lifecycle 1 - preserves an open error and retries a later acquisition" {
+  let store = ResourceStore::ResourceStore()
   let closed : Array[String] = []
   let mut opens = 0
   let key = ResourceKey::parse("retry-open")
   let first_error = try {
-    store.acquire_agent_session(key, Run, async fn() {
-      @async.pause()
-      opens = opens + 1
-      raise LifecycleOpenFailed("first")
-    })
+    store.acquire_resource(
+      lifecycle_resource_ref(key),
+      Run,
+      async fn() {
+        @async.pause()
+        opens = opens + 1
+        raise LifecycleOpenFailed("first")
+      },
+      close_lifecycle_resource,
+    )
     |> ignore
     false
   } catch {
@@ -197,24 +235,34 @@ async test "RuntimeResourceStore lifecycle 1 - preserves an open error and retri
     }
   }
   inspect(first_error, content="true")
-  let session = store.acquire_agent_session(key, Run, async fn() {
-    @async.pause()
-    opens = opens + 1
-    lifecycle_session("retry", closed, Succeeds)
-  })
-  debug_inspect(session.id(), content="None")
+  let resource = store.acquire_resource(
+    lifecycle_resource_ref(key),
+    Run,
+    async fn() {
+      @async.pause()
+      opens = opens + 1
+      lifecycle_resource("retry", closed, Succeeds)
+    },
+    close_lifecycle_resource,
+  )
+  inspect(resource.label, content="retry")
   inspect(opens, content="2")
 }
 
 ///|
-async test "RuntimeResourceStore lifecycle 2 - rejects a node session without its owner" {
-  let store = RuntimeResourceStore::RuntimeResourceStore()
+async test "ResourceStore lifecycle 2 - rejects a node resource without its owner" {
+  let store = ResourceStore::ResourceStore()
   let key = ResourceKey::parse("owner-required")
   let detail = try {
-    store.acquire_agent_session(key, Node, async fn() {
-      @async.pause()
-      fail("node open must not run without an owner")
-    })
+    store.acquire_resource(
+      lifecycle_resource_ref(key),
+      Node,
+      async fn() {
+        @async.pause()
+        fail("node open must not run without an owner")
+      },
+      close_lifecycle_resource,
+    )
     |> ignore
     false
   } catch {
@@ -231,26 +279,41 @@ async test "RuntimeResourceStore lifecycle 2 - rejects a node session without it
 }
 
 ///|
-async test "RuntimeResourceStore lifecycle 3 - aggregates one close error after reverse cleanup without double close" {
-  let store = RuntimeResourceStore::RuntimeResourceStore()
+async test "ResourceStore lifecycle 3 - aggregates one close error after reverse cleanup without double close" {
+  let store = ResourceStore::ResourceStore()
   let closed : Array[String] = []
   let first = ResourceKey::parse("first")
   let failed = ResourceKey::parse("failed")
   let last = ResourceKey::parse("last")
-  store.acquire_agent_session(first, Run, async fn() {
-    @async.pause()
-    lifecycle_session("first", closed, Succeeds)
-  })
+  store.acquire_resource(
+    lifecycle_resource_ref(first),
+    Run,
+    async fn() {
+      @async.pause()
+      lifecycle_resource("first", closed, Succeeds)
+    },
+    close_lifecycle_resource,
+  )
   |> ignore
-  store.acquire_agent_session(failed, Run, async fn() {
-    @async.pause()
-    lifecycle_session("failed", closed, Fails("close-detail"))
-  })
+  store.acquire_resource(
+    lifecycle_resource_ref(failed),
+    Run,
+    async fn() {
+      @async.pause()
+      lifecycle_resource("failed", closed, Fails("close-detail"))
+    },
+    close_lifecycle_resource,
+  )
   |> ignore
-  store.acquire_agent_session(last, Run, async fn() {
-    @async.pause()
-    lifecycle_session("last", closed, Succeeds)
-  })
+  store.acquire_resource(
+    lifecycle_resource_ref(last),
+    Run,
+    async fn() {
+      @async.pause()
+      lifecycle_resource("last", closed, Succeeds)
+    },
+    close_lifecycle_resource,
+  )
   |> ignore
   let detail = try {
     store.close_all()
@@ -274,8 +337,8 @@ async test "RuntimeResourceStore lifecycle 3 - aggregates one close error after 
 }
 
 ///|
-async test "RuntimeResourceStore finalize 1 - rejects a non-positive timeout" {
-  let store = RuntimeResourceStore::RuntimeResourceStore()
+async test "ResourceStore finalize 1 - rejects a non-positive timeout" {
+  let store = ResourceStore::ResourceStore()
   let detail = try {
     store.finalize(0)
     false
@@ -290,15 +353,20 @@ async test "RuntimeResourceStore finalize 1 - rejects a non-positive timeout" {
 }
 
 ///|
-async test "RuntimeResourceStore finalize 2 - completes a suspended close before caller cancellation propagates" {
+async test "ResourceStore finalize 2 - completes a suspended close before caller cancellation propagates" {
   @async.with_task_group() <| group => {
-    let store = RuntimeResourceStore::RuntimeResourceStore()
+    let store = ResourceStore::ResourceStore()
     let closed : Array[String] = []
     let key = ResourceKey::parse("cancel-close")
-    store.acquire_agent_session(key, Run, async fn() {
-      @async.pause()
-      lifecycle_session("cancel-close", closed, Sleeps(50))
-    })
+    store.acquire_resource(
+      lifecycle_resource_ref(key),
+      Run,
+      async fn() {
+        @async.pause()
+        lifecycle_resource("cancel-close", closed, Sleeps(50))
+      },
+      close_lifecycle_resource,
+    )
     |> ignore
     let task = group.spawn(
       async fn() { store.finalize(500) },
@@ -321,14 +389,19 @@ async test "RuntimeResourceStore finalize 2 - completes a suspended close before
 }
 
 ///|
-async test "RuntimeResourceStore finalize 3 - raises the configured hard timeout" {
-  let store = RuntimeResourceStore::RuntimeResourceStore()
+async test "ResourceStore finalize 3 - raises the configured hard timeout" {
+  let store = ResourceStore::ResourceStore()
   let closed : Array[String] = []
   let key = ResourceKey::parse("timeout-close")
-  store.acquire_agent_session(key, Run, async fn() {
-    @async.pause()
-    lifecycle_session("timeout-close", closed, Sleeps(100))
-  })
+  store.acquire_resource(
+    lifecycle_resource_ref(key),
+    Run,
+    async fn() {
+      @async.pause()
+      lifecycle_resource("timeout-close", closed, Sleeps(100))
+    },
+    close_lifecycle_resource,
+  )
   |> ignore
   let detail = try {
     store.finalize(5)

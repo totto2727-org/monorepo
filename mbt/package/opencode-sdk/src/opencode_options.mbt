@@ -15,7 +15,7 @@ pub type OpenCodeConfigObject = Map[String, OpenCodeConfigValue]
 
 ///|
 /// Options shared by every thread created from an OpenCode client.
-pub(all) struct OpenCodeOptions {
+pub struct OpenCodeOptions {
   opencode_path_override : @path.Path?
   config : OpenCodeConfigObject?
   env : Map[String, String]?

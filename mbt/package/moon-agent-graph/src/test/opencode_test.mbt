@@ -142,20 +142,17 @@ fn opencode_cli_context(
   group : @async.TaskGroup[Unit],
   environment? : Map[String, String] = Map([]),
 ) -> @core.CodingAgentOpenContext {
-  @core.CodingAgentOpenContext::{
-    run_id: @core.RunId::parse("opencode-cli-integration") catch {
+  @core.CodingAgentOpenContext::CodingAgentOpenContext(
+    run_id=@core.RunId::parse("opencode-cli-integration") catch {
       _ => abort("fixture run ID must be valid")
     },
-    task_group: group,
-    workspace: @core.WorkspaceRef::{
-      root: @path.Path(fixture.root),
-      additional_writable_roots: [],
-    },
-    approval: @core.Never,
-    network: @core.Disabled,
-    environment: @immut_hashmap.HashMap(environment.to_array()),
-    events: @core.EventSink::discard(),
-  }
+    task_group=group,
+    workspace=@core.WorkspaceRef::WorkspaceRef(@path.Path(fixture.root), []),
+    approval=@core.Never,
+    network=@core.Disabled,
+    environment=@immut_hashmap.HashMap(environment.to_array()),
+    events=@core.EventSink::discard(),
+  )
 }
 
 ///|
@@ -209,10 +206,9 @@ async test "opencode_agent 2 - merges adapter and caller environment through the
           "SHARED": "caller",
         }),
       )
-      session.execute(@core.CodingAgentRequest::{
-        instruction: "inspect environment",
-        context_files: [],
-      })
+      session.execute(
+        @core.CodingAgentRequest::CodingAgentRequest("inspect environment", []),
+      )
       |> ignore
       let recorded_env = fixture.recorded_lines("env", 1)
       assert_true(recorded_env.contains("ADAPTER=enabled"))
@@ -235,10 +231,12 @@ async test "opencode_agent 3 - maps context files through the public agent" {
       let session = (opencode_cli_agent(fixture, environment).open)(
         opencode_cli_context(fixture, group),
       )
-      session.execute(@core.CodingAgentRequest::{
-        instruction: "fix the issue",
-        context_files: [@path.Path("README.md"), @path.Path("/shared/guide.md")],
-      })
+      session.execute(
+        @core.CodingAgentRequest::CodingAgentRequest("fix the issue", [
+          @path.Path("README.md"),
+          @path.Path("/shared/guide.md"),
+        ]),
+      )
       |> ignore
       let args = fixture.recorded_lines("args", 1)
       assert_true(
@@ -272,19 +270,20 @@ async test "opencode_agent CLI integration 1 - maps requests and reuses the sess
         }),
       )
       assert_eq(session.id(), None)
-      let first = session.execute(@core.CodingAgentRequest::{
-        instruction: "first",
-        context_files: [@path.Path("README.md"), @path.Path("/shared/guide.md")],
-      })
+      let first = session.execute(
+        @core.CodingAgentRequest::CodingAgentRequest("first", [
+          @path.Path("README.md"),
+          @path.Path("/shared/guide.md"),
+        ]),
+      )
       assert_eq(first.summary, Some("First"))
       assert_eq(first.continuation_id, Some("session-1"))
       assert_eq(first.changed_files, [])
       assert_eq(first.artifacts.length(), 0)
       assert_eq(first.raw_output, None)
-      let second = session.execute(@core.CodingAgentRequest::{
-        instruction: "second",
-        context_files: [],
-      })
+      let second = session.execute(
+        @core.CodingAgentRequest::CodingAgentRequest("second", []),
+      )
       assert_eq(second.summary, Some("Second"))
       assert_eq(session.id().map(id => id.to_string()), Some("session-1"))
 
@@ -326,10 +325,9 @@ async test "opencode_agent CLI integration 1 - maps requests and reuses the sess
       session.close()
       session.close()
       let closed = try {
-        session.execute(@core.CodingAgentRequest::{
-          instruction: "after close",
-          context_files: [],
-        })
+        session.execute(
+          @core.CodingAgentRequest::CodingAgentRequest("after close", []),
+        )
         |> ignore
         false
       } catch {
@@ -354,10 +352,9 @@ async test "opencode_agent CLI integration 2 - resumes a configured session" {
         resume_thread_id="session-7",
       ).open)(opencode_cli_context(fixture, group))
       assert_eq(session.id().map(id => id.to_string()), Some("session-7"))
-      let response = session.execute(@core.CodingAgentRequest::{
-        instruction: "continue",
-        context_files: [],
-      })
+      let response = session.execute(
+        @core.CodingAgentRequest::CodingAgentRequest("continue", []),
+      )
       assert_eq(response.summary, Some("Resumed"))
       assert_true(
         opencode_cli_contains_pair(
@@ -382,10 +379,9 @@ async test "opencode_agent CLI integration 3 - preserves process failure" {
         opencode_cli_context(fixture, group),
       )
       let message = try {
-        session.execute(@core.CodingAgentRequest::{
-          instruction: "fail",
-          context_files: [],
-        })
+        session.execute(
+          @core.CodingAgentRequest::CodingAgentRequest("fail", []),
+        )
         |> ignore
         "no error"
       } catch {
@@ -410,10 +406,9 @@ async test "opencode_agent CLI integration 4 - cancellation stops the child proc
       )
       let task = group.spawn(
         async fn() {
-          session.execute(@core.CodingAgentRequest::{
-            instruction: "pause",
-            context_files: [],
-          })
+          session.execute(
+            @core.CodingAgentRequest::CodingAgentRequest("pause", []),
+          )
           |> ignore
         },
         allow_failure=true,

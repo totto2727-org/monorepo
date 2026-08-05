@@ -1,5 +1,5 @@
 ///|
-pub(all) suberror NativeTestHelperError {
+pub suberror NativeTestHelperError {
   EventuallyTimedOut(timeout_ms~ : Int)
   InvalidEventuallyInterval(timeout_ms~ : Int, poll_ms~ : Int)
 } derive(Debug)

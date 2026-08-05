@@ -1,6 +1,6 @@
 ///|
 test "build_command converts simple command" {
-  let cmd = command(
+  let cmd = CommandDef::CommandDef(
     name="greet",
     description="Greet someone",
     options=[
@@ -28,13 +28,15 @@ test "build_command converts simple command" {
 
 ///|
 test "build_command converts nested subcommands" {
-  let sub = command(
+  let sub = CommandDef::CommandDef(
     name="serve",
     description="Start server",
     options=[int("port", short='p', description="Port")],
     run=Some(fn(_ctx) { () }),
   )
-  let root = command(name="app", description="My app", subcommands=[sub])
+  let root = CommandDef::CommandDef(name="app", description="My app", subcommands=[
+    sub,
+  ])
   let argparse_cmd = build_command(root)
   let help = argparse_cmd.render_help()
   inspect(help.contains("serve"), content="true")
@@ -42,7 +44,7 @@ test "build_command converts nested subcommands" {
 
 ///|
 test "build_command exposes configured option environment variables in help" {
-  let cmd = command(
+  let cmd = CommandDef::CommandDef(
     name="greet",
     description="Greet someone",
     options=[

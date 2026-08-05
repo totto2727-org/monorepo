@@ -23,3 +23,9 @@ test "position helpers retain config keys" {
   debug_inspect(input.config, content="Some(\"input_path\")")
   debug_inspect(files.config, content="Some(\"input_files\")")
 }
+
+///|
+test "position_string() retains interactive input metadata" {
+  let input = position_string("input", interactive=true)
+  inspect(input.metadata.interactive, content="true")
+}

@@ -27,7 +27,7 @@ pub type CodexConfigObject = Map[String, CodexConfigValue]
 
 ///|
 /// Type difference: filesystem strings are represented by Path.
-pub(all) struct CodexOptions {
+pub struct CodexOptions {
   codex_path_override : @path.Path?
   base_url : String?
   api_key : String?

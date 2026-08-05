@@ -132,7 +132,7 @@ pub(all) struct NodeContext {
   deadline_ms : Int64?
   task_group : @async.TaskGroup[Unit]
   events : EventSink
-  resources : RuntimeResourceStore
+  resources : ResourceStore
 }
 
 pub fn NodeContext::NodeContext(
@@ -141,7 +141,7 @@ pub fn NodeContext::NodeContext(
   step : Int,
   task_group : @async.TaskGroup[Unit],
   events? : EventSink = EventSink::discard(),
-  resources? : RuntimeResourceStore = RuntimeResourceStore(),
+  resources? : ResourceStore = ResourceStore(),
   deadline_ms? : Int64,
 ) -> NodeContext
 ```
@@ -171,7 +171,7 @@ pub(all) struct Node[S, P] {
 ランタイムはそのエラーをキャッチし、ノードIDとステップでラップします。
 
 ```moonbit
-pub fn[S, P] function_node(
+pub fn[S, P] Node::Node(
   id : NodeId,
   metadata : NodeMetadata,
   execute : async (NodeContext, S) -> NodeOutput[P],
@@ -577,7 +577,7 @@ pub(all) struct CodingAgent {
 
 ランタイムは、あるアダプターによって作成されたセッションを別のアダプターに渡すことは決してありません。
 
-`close` はセッション境界で冪等であり、リソースストアはそれを最大でも1回だけ呼び出します。
+`close` はセッション境界で冪等であり、CodingAgentリソースは通常のcleanupコールバックとして登録し、最大でも1回だけ実行します。
 
 実行中のセッションは、タスクキャンセルに応答して、非同期呼び出しが終了する前に、所有するプロセス作業を終了またはキャンセルします。
 
@@ -589,32 +589,51 @@ pub(all) enum ResourceScope {
   Run
 } derive(Debug, Eq)
 
-pub struct RuntimeResourceStore
+pub struct ResourceStore
 
-pub fn RuntimeResourceStore::RuntimeResourceStore() -> RuntimeResourceStore
+pub fn ResourceStore::ResourceStore() -> ResourceStore
 
-pub async fn RuntimeResourceStore::acquire_agent_session(
-  self : RuntimeResourceStore,
-  key : ResourceKey,
+pub fn[T] ResourceStore::set(
+  self : ResourceStore,
+  reference : @any_collection.AnyRef[ResourceKey, T],
+  value : T,
+) -> Unit
+
+pub fn[T] ResourceStore::get(
+  self : ResourceStore,
+  reference : @any_collection.AnyRef[ResourceKey, T],
+) -> T? raise
+
+pub fn[T] ResourceStore::remove(
+  self : ResourceStore,
+  reference : @any_collection.AnyRef[ResourceKey, T],
+) -> Unit
+
+pub async fn[T] ResourceStore::acquire_resource(
+  self : ResourceStore,
+  reference : @any_collection.AnyRef[ResourceKey, T],
   scope : ResourceScope,
-  open : async () -> &CodingAgentSession,
+  open : async () -> T,
+  cleanup : async (T) -> Unit,
   owner? : NodeId,
-) -> &CodingAgentSession
+) -> T
 
-pub async fn RuntimeResourceStore::release_node(
-  self : RuntimeResourceStore,
+pub async fn ResourceStore::release_node(
+  self : ResourceStore,
   node_id : NodeId,
 ) -> Unit
 
-pub async fn RuntimeResourceStore::close_all(
-  self : RuntimeResourceStore,
+pub async fn ResourceStore::close_all(
+  self : ResourceStore,
 ) -> Unit
 
-pub async fn RuntimeResourceStore::finalize(
-  self : RuntimeResourceStore,
+pub async fn ResourceStore::finalize(
+  self : ResourceStore,
   timeout_ms : Int,
 ) -> Unit
 ```
+
+ストアは、グラフの `Json` stateでは表現できない可変のプロセスローカルリソースを含む、任意の `@any.Anyable` 値を受け入れます。`set`、`get`、`remove` は通常の値を管理し、`acquire_resource` は任意のリソース型へ同じNodeまたはRunスコープのライフサイクルを追加します。
 
 ```moonbit
 pub(all) suberror ResourceStoreError {
@@ -625,17 +644,13 @@ pub(all) suberror ResourceStoreError {
 } derive(Debug)
 ```
 
-MVPストアは意図的に一般的なコーディングエージェントセッションインターフェースに特化しています。
+Runスコープのリソースは、1回の呼び出し内で型付き参照によって再利用されます。
 
-異種の任意リソースコンテナは、MoonBitが取得のための具体的な型付きユースケースを持つまで先送りされます。
-
-実行スコープのセッションは、1回の呼び出し内でリソースキーによって再利用されます。
-
-ノードスコープのセッションは `owner` が必要であり、そのノード試行後にクローズされます。実行スコープのセッションはオーナーを省略し、キーによって再利用されます。
+Nodeスコープのリソースは `owner` が必要であり、そのノード試行後に登録済みcleanupを実行します。Runスコープのリソースはownerを省略し、finalizeまで保持されます。
 
 オープンに失敗したものはストアに挿入されることはありません。
 
-リソースは取得の逆順でクローズされます。
+管理対象リソースは取得の逆順でcleanupを実行します。CodingAgentプロセスも通常の型付きリソースとして保存され、同じ取得・cleanup経路を使用します。
 
 ## コーディングエージェントノード
 

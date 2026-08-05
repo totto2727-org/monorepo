@@ -8,7 +8,7 @@ let base_kind_arg : @admiral.PositionDef[String] = @admiral.position_string(
 fn dev_marketplace_sync_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="sync",
     description="Regenerate marketplace manifests from a base kind",
     positionals=[base_kind_arg],

@@ -170,32 +170,36 @@ fn crawl_command_def(
   run_status : async (@admiral.Context) -> Unit,
   run_results : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(name="crawl", description="Manage async crawl jobs", subcommands=[
-    @admiral.command(
-      name="start",
-      description="Start a crawl job",
-      options=[
-        account_id_option, api_token_option, crawl_url_option, crawl_html_option,
-        crawl_wait_until_option, crawl_output_option, crawl_limit_option, crawl_depth_option,
-        crawl_format_option,
-      ],
-      run=Some(run_start),
-    ),
-    @admiral.command(
-      name="status",
-      description="Check crawl job status",
-      options=[account_id_option, api_token_option, crawl_id_option],
-      run=Some(run_status),
-    ),
-    @admiral.command(
-      name="results",
-      description="Retrieve crawl results",
-      options=[
-        account_id_option, api_token_option, crawl_id_option, crawl_output_option,
-      ],
-      run=Some(run_results),
-    ),
-  ])
+  @admiral.CommandDef::CommandDef(
+    name="crawl",
+    description="Manage async crawl jobs",
+    subcommands=[
+      @admiral.CommandDef::CommandDef(
+        name="start",
+        description="Start a crawl job",
+        options=[
+          account_id_option, api_token_option, crawl_url_option, crawl_html_option,
+          crawl_wait_until_option, crawl_output_option, crawl_limit_option, crawl_depth_option,
+          crawl_format_option,
+        ],
+        run=Some(run_start),
+      ),
+      @admiral.CommandDef::CommandDef(
+        name="status",
+        description="Check crawl job status",
+        options=[account_id_option, api_token_option, crawl_id_option],
+        run=Some(run_status),
+      ),
+      @admiral.CommandDef::CommandDef(
+        name="results",
+        description="Retrieve crawl results",
+        options=[
+          account_id_option, api_token_option, crawl_id_option, crawl_output_option,
+        ],
+        run=Some(run_results),
+      ),
+    ],
+  )
 }
 
 ///|
