@@ -16,7 +16,7 @@ let cleanup_dry_run_option : @admiral.OptionDef[Bool] = @admiral.bool(
 fn cleanup_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="cleanup",
     description="Remove worktrees with merged or no PR",
     positionals=[cleanup_dir_option],

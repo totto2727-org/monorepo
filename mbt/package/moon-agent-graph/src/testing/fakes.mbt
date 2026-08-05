@@ -1,10 +1,10 @@
 ///|
-pub(all) struct FakeCodingAgentOpenCall {
+pub struct FakeCodingAgentOpenCall {
   context : @core.CodingAgentOpenContext
 }
 
 ///|
-pub(all) struct FakeCodingAgentRequestCall {
+pub struct FakeCodingAgentRequestCall {
   session_id : @core.SessionId?
   request : @core.CodingAgentRequest
 }
@@ -79,11 +79,11 @@ pub fn fake_coding_agent(
   let request_calls : Array[FakeCodingAgentRequestCall] = []
   let session_ids : Array[@core.SessionId?] = []
   let close_order : Array[@core.SessionId?] = []
-  let value = @core.CodingAgent::{
-    id: @core.CodingAgentId::parse("fake-coding-agent") catch {
+  let value = @core.CodingAgent::CodingAgent(
+    @core.CodingAgentId::parse("fake-coding-agent") catch {
       _ => abort("static fake agent ID must be valid")
     },
-    open: async fn(context) {
+    async fn(context) {
       @async.pause()
       open_calls.push(FakeCodingAgentOpenCall::{ context, })
       match open_error {
@@ -101,7 +101,7 @@ pub fn fake_coding_agent(
       }
       (session : &@core.CodingAgentSession)
     },
-  }
+  )
   FakeCodingAgent::{
     value,
     open_calls_value: open_calls,

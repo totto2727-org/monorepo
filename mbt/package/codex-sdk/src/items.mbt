@@ -6,7 +6,7 @@
 
 ///|
 /// Type difference: MoonBit uses an enum instead of a string-literal union.
-pub(all) enum CommandExecutionStatus {
+pub enum CommandExecutionStatus {
   InProgress
   Completed
   Failed
@@ -16,7 +16,7 @@ pub(all) enum CommandExecutionStatus {
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L8-L20
-pub(all) struct CommandExecutionItem {
+pub struct CommandExecutionItem {
   id : String
   command : String
   aggregated_output : String
@@ -30,7 +30,7 @@ pub(all) struct CommandExecutionItem {
 
 ///|
 /// Type difference: MoonBit uses an enum instead of a string-literal union.
-pub(all) enum PatchChangeKind {
+pub enum PatchChangeKind {
   Add
   Delete
   Update
@@ -42,7 +42,7 @@ pub(all) enum PatchChangeKind {
 
 ///|
 /// Type difference: filesystem strings are represented by Path.
-pub(all) struct FileUpdateChange {
+pub struct FileUpdateChange {
   path : @path.Path
   kind : PatchChangeKind
 } derive(Eq)
@@ -53,7 +53,7 @@ pub(all) struct FileUpdateChange {
 
 ///|
 /// Type difference: MoonBit uses an enum instead of a string-literal union.
-pub(all) enum PatchApplyStatus {
+pub enum PatchApplyStatus {
   PatchCompleted
   PatchFailed
 } derive(Debug, Eq)
@@ -62,7 +62,7 @@ pub(all) enum PatchApplyStatus {
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L34-L42
-pub(all) struct FileChangeItem {
+pub struct FileChangeItem {
   id : String
   changes : ReadOnlyArray[FileUpdateChange]
   status : PatchApplyStatus
@@ -74,7 +74,7 @@ pub(all) struct FileChangeItem {
 
 ///|
 /// Type difference: MoonBit uses an enum instead of a string-literal union.
-pub(all) enum McpToolCallStatus {
+pub enum McpToolCallStatus {
   McpInProgress
   McpCompleted
   McpFailed
@@ -86,7 +86,7 @@ pub(all) enum McpToolCallStatus {
 
 ///|
 /// Type difference: explicit structs replace inline TypeScript object types.
-pub(all) struct McpToolCallResult {
+pub struct McpToolCallResult {
   content : ReadOnlyArray[Json]
   meta : Json?
   structured_content : Json
@@ -98,7 +98,7 @@ pub(all) struct McpToolCallResult {
 
 ///|
 /// Type difference: explicit structs replace inline TypeScript object types.
-pub(all) struct McpToolCallError {
+pub struct McpToolCallError {
   message : String
 } derive(Debug, Eq, FromJson)
 
@@ -106,7 +106,7 @@ pub(all) struct McpToolCallError {
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L47-L72
-pub(all) struct McpToolCallItem {
+pub struct McpToolCallItem {
   id : String
   server : String
   tool : String
@@ -120,7 +120,7 @@ pub(all) struct McpToolCallItem {
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L74-L80
-pub(all) struct AgentMessageItem {
+pub struct AgentMessageItem {
   id : String
   text : String
 } derive(Debug, Eq, FromJson)
@@ -129,7 +129,7 @@ pub(all) struct AgentMessageItem {
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L82-L87
-pub(all) struct ReasoningItem {
+pub struct ReasoningItem {
   id : String
   text : String
 } derive(Debug, Eq, FromJson)
@@ -138,7 +138,7 @@ pub(all) struct ReasoningItem {
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L89-L94
-pub(all) struct WebSearchItem {
+pub struct WebSearchItem {
   id : String
   query : String
 } derive(Debug, Eq, FromJson)
@@ -147,7 +147,7 @@ pub(all) struct WebSearchItem {
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L96-L101
-pub(all) struct ErrorItem {
+pub struct ErrorItem {
   id : String
   message : String
 } derive(Debug, Eq, FromJson)
@@ -156,7 +156,7 @@ pub(all) struct ErrorItem {
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L103-L107
-pub(all) struct TodoItem {
+pub struct TodoItem {
   text : String
   completed : Bool
 } derive(Debug, Eq, FromJson)
@@ -165,7 +165,7 @@ pub(all) struct TodoItem {
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L109-L117
-pub(all) struct TodoListItem {
+pub struct TodoListItem {
   id : String
   items : ReadOnlyArray[TodoItem]
 } derive(Debug, Eq)
@@ -176,7 +176,7 @@ pub(all) struct TodoListItem {
 
 ///|
 /// Type difference: MoonBit uses an enum instead of a discriminated object union.
-pub(all) enum ThreadItem {
+pub enum ThreadItem {
   AgentMessage(AgentMessageItem)
   Reasoning(ReasoningItem)
   CommandExecution(CommandExecutionItem)

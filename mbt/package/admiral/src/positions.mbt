@@ -6,8 +6,13 @@ fn[T] position_def(
   description : String,
   required : Bool,
   multiple : Bool,
+  interactive : Bool,
 ) -> PositionDef[T] {
-  { name, config, metadata: { type_, description, required, multiple } }
+  {
+    name,
+    config,
+    metadata: { type_, description, required, multiple, interactive },
+  }
 }
 
 ///|
@@ -16,8 +21,17 @@ pub fn position_string(
   description? : String = "",
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> PositionDef[String] {
-  position_def(name, config, StringOpt, description, required, false)
+  position_def(
+    name,
+    config,
+    StringOpt,
+    description,
+    required,
+    false,
+    interactive,
+  )
 }
 
 ///|
@@ -26,8 +40,17 @@ pub fn position_strings(
   description? : String = "",
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> PositionDef[Array[String]] {
-  position_def(name, config, StringOpt, description, required, true)
+  position_def(
+    name,
+    config,
+    StringOpt,
+    description,
+    required,
+    true,
+    interactive,
+  )
 }
 
 ///|
@@ -36,8 +59,9 @@ pub fn position_int(
   description? : String = "",
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> PositionDef[Int] {
-  position_def(name, config, IntOpt, description, required, false)
+  position_def(name, config, IntOpt, description, required, false, interactive)
 }
 
 ///|
@@ -46,8 +70,9 @@ pub fn position_ints(
   description? : String = "",
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> PositionDef[Array[Int]] {
-  position_def(name, config, IntOpt, description, required, true)
+  position_def(name, config, IntOpt, description, required, true, interactive)
 }
 
 ///|
@@ -56,8 +81,17 @@ pub fn position_int64(
   description? : String = "",
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> PositionDef[Int64] {
-  position_def(name, config, Int64Opt, description, required, false)
+  position_def(
+    name,
+    config,
+    Int64Opt,
+    description,
+    required,
+    false,
+    interactive,
+  )
 }
 
 ///|
@@ -66,8 +100,9 @@ pub fn position_int64s(
   description? : String = "",
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> PositionDef[Array[Int64]] {
-  position_def(name, config, Int64Opt, description, required, true)
+  position_def(name, config, Int64Opt, description, required, true, interactive)
 }
 
 ///|
@@ -76,8 +111,9 @@ pub fn position_uint(
   description? : String = "",
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> PositionDef[UInt] {
-  position_def(name, config, UIntOpt, description, required, false)
+  position_def(name, config, UIntOpt, description, required, false, interactive)
 }
 
 ///|
@@ -86,8 +122,9 @@ pub fn position_uints(
   description? : String = "",
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> PositionDef[Array[UInt]] {
-  position_def(name, config, UIntOpt, description, required, true)
+  position_def(name, config, UIntOpt, description, required, true, interactive)
 }
 
 ///|
@@ -96,8 +133,17 @@ pub fn position_uint64(
   description? : String = "",
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> PositionDef[UInt64] {
-  position_def(name, config, UInt64Opt, description, required, false)
+  position_def(
+    name,
+    config,
+    UInt64Opt,
+    description,
+    required,
+    false,
+    interactive,
+  )
 }
 
 ///|
@@ -106,8 +152,17 @@ pub fn position_uint64s(
   description? : String = "",
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> PositionDef[Array[UInt64]] {
-  position_def(name, config, UInt64Opt, description, required, true)
+  position_def(
+    name,
+    config,
+    UInt64Opt,
+    description,
+    required,
+    true,
+    interactive,
+  )
 }
 
 ///|
@@ -116,8 +171,17 @@ pub fn position_double(
   description? : String = "",
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> PositionDef[Double] {
-  position_def(name, config, DoubleOpt, description, required, false)
+  position_def(
+    name,
+    config,
+    DoubleOpt,
+    description,
+    required,
+    false,
+    interactive,
+  )
 }
 
 ///|
@@ -126,6 +190,15 @@ pub fn position_doubles(
   description? : String = "",
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> PositionDef[Array[Double]] {
-  position_def(name, config, DoubleOpt, description, required, true)
+  position_def(
+    name,
+    config,
+    DoubleOpt,
+    description,
+    required,
+    true,
+    interactive,
+  )
 }

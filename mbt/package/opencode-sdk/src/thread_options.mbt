@@ -1,6 +1,6 @@
 ///|
 /// Options applied to every turn in one OpenCode session.
-pub(all) struct ThreadOptions {
+pub struct ThreadOptions {
   model : String?
   agent : String?
   working_directory : @path.Path?

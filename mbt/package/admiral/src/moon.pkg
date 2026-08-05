@@ -6,9 +6,14 @@ import {
   "moonbitlang/core/immut/hashmap" @immut_hashmap,
   "moonbitlang/core/json",
   "moonbitlang/core/string",
+  "mizchi/tui/io" @tui_io,
   "totto2727/lens",
 }
 
 import {
   "moonbitlang/async",
 } for "test"
+
+import {
+  "moonbitlang/async",
+} for "wbtest"

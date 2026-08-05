@@ -116,7 +116,7 @@ pub fn WebSearchMode::to_string(self : WebSearchMode) -> String {
 
 ///|
 /// Type difference: filesystem strings are represented by Path.
-pub(all) struct ThreadOptions {
+pub struct ThreadOptions {
   model : String?
   sandbox_mode : SandboxMode?
   working_directory : @path.Path?

@@ -19,18 +19,18 @@ Functional equivalence includes preserving the public `c-plugin skill` namespace
 
 ## Technology stack
 
-| Concern | Decision |
-| --- | --- |
-| Language and target | MoonBit, native target only |
-| CLI parsing | `totto2727/admiral` |
-| Interactive input | `mizchi/tui` |
-| Git | The `mizchi/bit` module used as a library, primarily through its library packages such as `mizchi/bit_lib`; never spawn `git` or the `bit` CLI |
-| Paths | `moonbitlang/x/path.Path` |
-| Lock discovery | `totto2727/target-file-discovery` |
-| JSON | `totto2727/lens` plus the standard `FromJson` and `ToJson` traits |
-| Async I/O | `moonbitlang/async` |
-| Unit tests | MoonBit black-box and white-box tests using per-test temporary roots |
-| E2E tests | Shell-driven Docker tests under `src/e2e/` |
+| Concern             | Decision                                                                                                                                       |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Language and target | MoonBit, native target only                                                                                                                    |
+| CLI parsing         | `totto2727/admiral`                                                                                                                            |
+| Interactive input   | `mizchi/tui`                                                                                                                                   |
+| Git                 | The `mizchi/bit` module used as a library, primarily through its library packages such as `mizchi/bit_lib`; never spawn `git` or the `bit` CLI |
+| Paths               | `moonbitlang/x/path.Path`                                                                                                                      |
+| Lock discovery      | `totto2727/target-file-discovery`                                                                                                              |
+| JSON                | `totto2727/lens` plus the standard `FromJson` and `ToJson` traits                                                                              |
+| Async I/O           | `moonbitlang/async`                                                                                                                            |
+| Unit tests          | MoonBit black-box and white-box tests using per-test temporary roots                                                                           |
+| E2E tests           | Shell-driven Docker tests under `src/e2e/`                                                                                                     |
 
 All dependencies must be pinned to exact compatible versions. The first implementation gate is a minimal native build importing Admiral, TUI, bit, Lens, target-file-discovery, async, and `moonbitlang/x/path` together. Implementation must not proceed on an unverified dependency combination.
 
@@ -58,16 +58,16 @@ c-plugin
 
 The leaf-command contract is:
 
-| Command | Contract |
-| --- | --- |
-| `c-plugin init [-g]` | Exclusively create an empty lock file. Fail without modifying it if it already exists. |
-| `c-plugin skill add [<owner/repo> | --local <./path>] [-g] [--kind <kind>] [--skill <plugin/skill>...]` | Add a GitHub or local marketplace, select its marketplace kind and enabled skills, pin GitHub state, write the lock, and synchronize links. Exactly one of the GitHub positional or `--local` is accepted. |
-| `c-plugin skill remove [-g] [--skill <repo/plugin/skill>...]` | Remove selected installed skills. Remove an empty plugin entry, an empty repository entry, and the disposable Git cache only after its final skill is removed. |
-| `c-plugin skill sync [-g | -r]` | Reconcile managed links from lock state without changing Git pins. |
-| `c-plugin skill update [-g | -r]` | Fetch GitHub repositories, advance pins, rewrite the lock, and synchronize links. Local repositories are not fetched. |
-| `c-plugin skill target add <path> [-g]` | Register an additional skill-link root and synchronize it. Duplicate resolved paths are a successful no-op. |
-| `c-plugin skill target remove [-g] [--target <path>...]` | Remove selected additional roots from lock state and remove only c-plugin-managed links from those roots. |
-| `c-plugin dev marketplace sync <claude|cursor|codex>` | Use the selected marketplace kind as the source and regenerate the other marketplace manifests and available per-plugin `plugin.json` files. |
+| Command                                                                                                  | Contract                                                                                                                                                                                                   |
+| -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `c-plugin init [-g]`                                                                                     | Exclusively create an empty lock file. Fail without modifying it if it already exists.                                                                                                                     |
+| `c-plugin skill add [<owner/repo> \| --local <./path>] [-g] [--kind <kind>] [--skill <plugin/skill>...]` | Add a GitHub or local marketplace, select its marketplace kind and enabled skills, pin GitHub state, write the lock, and synchronize links. Exactly one of the GitHub positional or `--local` is accepted. |
+| `c-plugin skill remove [-g] [--skill <repo/plugin/skill>...]`                                            | Remove selected installed skills. Remove an empty plugin entry, an empty repository entry, and the disposable Git cache only after its final skill is removed.                                             |
+| `c-plugin skill sync [-g \| -r]`                                                                         | Reconcile managed links from lock state without changing Git pins.                                                                                                                                         |
+| `c-plugin skill update [-g \| -r]`                                                                       | Fetch GitHub repositories, advance pins, rewrite the lock, and synchronize links. Local repositories are not fetched.                                                                                      |
+| `c-plugin skill target add <path> [-g]`                                                                  | Register an additional skill-link root and synchronize it. Duplicate resolved paths are a successful no-op.                                                                                                |
+| `c-plugin skill target remove [-g] [--target <path>...]`                                                 | Remove selected additional roots from lock state and remove only c-plugin-managed links from those roots.                                                                                                  |
+| `c-plugin dev marketplace sync <claude\|cursor\|codex>`                                                  | Use the selected marketplace kind as the source and regenerate the other marketplace manifests and available per-plugin `plugin.json` files.                                                               |
 
 `-g` and `-r` are mutually exclusive. Recursive mode applies only to `sync` and `update`.
 
@@ -114,10 +114,10 @@ A migration path may be added later as a separate, explicitly approved milestone
 
 The lock filename remains `c-plugin-lock.json`.
 
-| Scope | Lock path | Primary managed skill root |
-| --- | --- | --- |
-| Project | Nearest ancestor `<root>/c-plugin-lock.json`, bounded by the user's home | `<root>/.agents/skills` |
-| Global (`-g`) | `~/c-plugin-lock.json` exactly | `~/.agents/skills` |
+| Scope         | Lock path                                                                | Primary managed skill root |
+| ------------- | ------------------------------------------------------------------------ | -------------------------- |
+| Project       | Nearest ancestor `<root>/c-plugin-lock.json`, bounded by the user's home | `<root>/.agents/skills`    |
+| Global (`-g`) | `~/c-plugin-lock.json` exactly                                           | `~/.agents/skills`         |
 
 The global lock file is deliberately not stored under `~/.agents/`.
 
@@ -190,10 +190,10 @@ All other operations follow `mkdir -p` semantics:
 
 A symlink does not carry reliable metadata identifying the process that created it. The lock records desired portable state, so it cannot by itself identify links that became stale after another person edited the lock. c-plugin therefore maintains a separate machine-local ownership file for materialized links:
 
-| Scope | Ownership state path |
-| --- | --- |
-| Project | `<root>/.agents/c-plugin-state.json` |
-| Global (`-g`) | `~/.agents/c-plugin-state.json` |
+| Scope         | Ownership state path                 |
+| ------------- | ------------------------------------ |
+| Project       | `<root>/.agents/c-plugin-state.json` |
+| Global (`-g`) | `~/.agents/c-plugin-state.json`      |
 
 The ownership state is generated runtime state, not shared configuration and not a second source of desired state. Each entry records the absolute link path, the literal target written into the symlink, the normalized resolved target, and the source repository, plugin, and skill identity. It also retains links in target roots that were later removed from the lock.
 
@@ -356,15 +356,15 @@ c-plugin v2 is implemented as a sequence of independently reviewable milestones,
 
 Milestone 0 is this completed design contract. Milestones 1 through 7 use the following stable atomic-unit IDs. Commas in one wave are the only planned overlap; arrows are hard ordering constraints. The atomic unit `M1` belongs to Milestone 3 and is distinct from the Milestone 1 parent issue.
 
-| Milestone | Atomic units | Dependency and parallel waves |
-| --- | --- | --- |
-| 1. Bootstrap | `B0` v1 coexistence identity/layout contract; `B1` prove native dependency compatibility and the exact `mizchi/bit` API, then create the CLI skeleton, help, and version; `B2` add the `c-plugin-v2` Nix package | `B0 -> B1 -> B2` |
-| 2. State foundation | `F0` runtime paths; `F1` domain/lock model; `F2` lock codec; `F3` ownership codec; `F4` atomic stores; `F5` cache scope; `F6` discovery; `F7` runtime composition; `C-init` init; `E0` Docker/init E2E | `F0,F1 -> F2,F3,F5,F6 -> F4,F7 -> C-init -> E0` |
-| 3. Local lifecycle | `M0` marketplace parsing; `M1` local/skill resolution; `R1` reconciliation; `C-sync`; `A1` `persist_and_sync`; `C-sync-r`; `C-add-local`; `C-remove`; `C-target-add`; `C-target-remove` | `M0,M1 -> R1 -> C-sync -> A1,C-sync-r -> C-add-local,C-target-add -> C-remove,C-target-remove` |
-| 4. GitHub lifecycle | `G0` frozen bit contract/adapter precondition; `G1` clone/checkout/HEAD; `G2` fetch/default branch; `G-add`; `G-update`; `G-update-r`; `G-cleanup` | `G0 -> G1 -> G2 -> G-add,G-cleanup -> G-update -> G-update-r` |
-| 5. Interactive input | `I1` selection state/TUI adapter; `I2` TTY policy; `I-add-kind`; `I-add-skill`; `I-remove`; `I-target-remove` | `I1 -> I2 -> I-add-kind,I-add-skill,I-remove,I-target-remove` |
-| 6. Marketplace authoring | `D0` common read model; `D1` format conversion; `D2` deterministic writes; `C-dev-sync` | `D0 -> D1 -> D2 -> C-dev-sync` |
-| 7. Final parity and cutover | `P1` full parity matrix; `P2` documentation/parity audit; `P3` cutover | `P1 -> P2 -> explicit cutover approval -> P3` |
+| Milestone                   | Atomic units                                                                                                                                                                                                     | Dependency and parallel waves                                                                  |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| 1. Bootstrap                | `B0` v1 coexistence identity/layout contract; `B1` prove native dependency compatibility and the exact `mizchi/bit` API, then create the CLI skeleton, help, and version; `B2` add the `c-plugin-v2` Nix package | `B0 -> B1 -> B2`                                                                               |
+| 2. State foundation         | `F0` runtime paths; `F1` domain/lock model; `F2` lock codec; `F3` ownership codec; `F4` atomic stores; `F5` cache scope; `F6` discovery; `F7` runtime composition; `C-init` init; `E0` Docker/init E2E           | `F0,F1 -> F2,F3,F5,F6 -> F4,F7 -> C-init -> E0`                                                |
+| 3. Local lifecycle          | `M0` marketplace parsing; `M1` local/skill resolution; `R1` reconciliation; `C-sync`; `A1` `persist_and_sync`; `C-sync-r`; `C-add-local`; `C-remove`; `C-target-add`; `C-target-remove`                          | `M0,M1 -> R1 -> C-sync -> A1,C-sync-r -> C-add-local,C-target-add -> C-remove,C-target-remove` |
+| 4. GitHub lifecycle         | `G0` frozen bit contract/adapter precondition; `G1` clone/checkout/HEAD; `G2` fetch/default branch; `G-add`; `G-update`; `G-update-r`; `G-cleanup`                                                               | `G0 -> G1 -> G2 -> G-add,G-cleanup -> G-update -> G-update-r`                                  |
+| 5. Interactive input        | `I1` selection state/TUI adapter; `I2` TTY policy; `I-add-kind`; `I-add-skill`; `I-remove`; `I-target-remove`                                                                                                    | `I1 -> I2 -> I-add-kind,I-add-skill,I-remove,I-target-remove`                                  |
+| 6. Marketplace authoring    | `D0` common read model; `D1` format conversion; `D2` deterministic writes; `C-dev-sync`                                                                                                                          | `D0 -> D1 -> D2 -> C-dev-sync`                                                                 |
+| 7. Final parity and cutover | `P1` full parity matrix; `P2` documentation/parity audit; `P3` cutover                                                                                                                                           | `P1 -> P2 -> explicit cutover approval -> P3`                                                  |
 
 ### Per-unit verification contract
 
