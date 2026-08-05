@@ -4,16 +4,13 @@ export default defineConfig({
   run: {
     tasks: {
       build: {
-        command: 'mkdir -p build && go build -o build/atlas-kysely-gen .',
+        command: 'go build ./...',
       },
       check: {
         command: 'golangci-lint run ./...',
       },
       fix: {
         command: 'golangci-lint run --fix ./...',
-      },
-      test: {
-        command: 'go test -race -shuffle=on -count=1 ./...',
       },
     },
   },

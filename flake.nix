@@ -53,6 +53,7 @@
               pkgs.vite-plus
               # Go
               pkgs.go
+              pkgs.golangci-lint
               # Nix
               pkgs.nixfmt
               # SQL
