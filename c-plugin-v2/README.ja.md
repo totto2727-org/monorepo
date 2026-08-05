@@ -19,18 +19,18 @@
 
 ## 技術スタック
 
-| 対象 | 方針 |
-| --- | --- |
-| 言語とターゲット | MoonBit、nativeターゲットのみ |
-| CLI解析 | `totto2727/admiral` |
-| 対話入力 | `mizchi/tui` |
-| Git | `mizchi/bit`モジュールをライブラリとして使用し、主に`mizchi/bit_lib`などのライブラリパッケージを利用する。`git`や`bit` CLIは起動しない |
-| パス | `moonbitlang/x/path.Path` |
-| ロック探索 | `totto2727/target-file-discovery` |
-| JSON | `totto2727/lens`と標準の`FromJson`、`ToJson`トレイト |
-| 非同期I/O | `moonbitlang/async` |
-| 単体テスト | テストごとの一時ルートを使用するMoonBitブラックボックス・ホワイトボックステスト |
-| E2Eテスト | `src/e2e/`以下のShell駆動Dockerテスト |
+| 対象             | 方針                                                                                                                                   |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| 言語とターゲット | MoonBit、nativeターゲットのみ                                                                                                          |
+| CLI解析          | `totto2727/admiral`                                                                                                                    |
+| 対話入力         | `mizchi/tui`                                                                                                                           |
+| Git              | `mizchi/bit`モジュールをライブラリとして使用し、主に`mizchi/bit_lib`などのライブラリパッケージを利用する。`git`や`bit` CLIは起動しない |
+| パス             | `moonbitlang/x/path.Path`                                                                                                              |
+| ロック探索       | `totto2727/target-file-discovery`                                                                                                      |
+| JSON             | `totto2727/lens`と標準の`FromJson`、`ToJson`トレイト                                                                                   |
+| 非同期I/O        | `moonbitlang/async`                                                                                                                    |
+| 単体テスト       | テストごとの一時ルートを使用するMoonBitブラックボックス・ホワイトボックステスト                                                        |
+| E2Eテスト        | `src/e2e/`以下のShell駆動Dockerテスト                                                                                                  |
 
 すべての依存関係は、互換性を確認した正確なバージョンに固定します。最初の実装ゲートでは、Admiral、TUI、bit、Lens、target-file-discovery、async、`moonbitlang/x/path`を同時にimportする最小構成のnativeビルドを行います。未検証の依存関係の組み合わせでは実装を進めません。
 
@@ -58,16 +58,16 @@ c-plugin
 
 末端コマンドの契約は次のとおりです。
 
-| コマンド | 契約 |
-| --- | --- |
-| `c-plugin init [-g]` | 空のロックファイルを排他的に作成する。すでに存在する場合は変更せず失敗する。 |
-| `c-plugin skill add [<owner/repo> | --local <./path>] [-g] [--kind <kind>] [--skill <plugin/skill>...]` | GitHubまたはローカルのマーケットプレイスを追加し、マーケットプレイス種別と有効化するスキルを選択し、GitHubの状態を固定し、ロックを書き込んでリンクを同期する。GitHubの位置引数と`--local`のどちらか一方だけを受け付ける。 |
-| `c-plugin skill remove [-g] [--skill <repo/plugin/skill>...]` | 選択したインストール済みスキルを削除する。最後のスキルを削除した後に、空になったプラグインエントリ、空になったリポジトリエントリ、破棄可能なGitキャッシュを削除する。 |
-| `c-plugin skill sync [-g | -r]` | Gitの固定状態を変更せず、ロックの状態から管理対象リンクを調整する。 |
-| `c-plugin skill update [-g | -r]` | GitHubリポジトリをfetchし、固定状態を進め、ロックを書き換えてリンクを同期する。ローカルリポジトリはfetchしない。 |
-| `c-plugin skill target add <path> [-g]` | 追加のスキルリンクルートを登録して同期する。解決後のパスが重複している場合は正常なno-opとする。 |
-| `c-plugin skill target remove [-g] [--target <path>...]` | 選択した追加ルートをロックの状態から削除し、そのルートからc-plugin管理下のリンクだけを削除する。 |
-| `c-plugin dev marketplace sync <claude|cursor|codex>` | 選択したマーケットプレイス種別を入力元として、他のマーケットプレイスmanifestと、存在するプラグインごとの`plugin.json`を再生成する。 |
+| コマンド                                                                                                 | 契約                                                                                                                                                                                                                      |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `c-plugin init [-g]`                                                                                     | 空のロックファイルを排他的に作成する。すでに存在する場合は変更せず失敗する。                                                                                                                                              |
+| `c-plugin skill add [<owner/repo> \| --local <./path>] [-g] [--kind <kind>] [--skill <plugin/skill>...]` | GitHubまたはローカルのマーケットプレイスを追加し、マーケットプレイス種別と有効化するスキルを選択し、GitHubの状態を固定し、ロックを書き込んでリンクを同期する。GitHubの位置引数と`--local`のどちらか一方だけを受け付ける。 |
+| `c-plugin skill remove [-g] [--skill <repo/plugin/skill>...]`                                            | 選択したインストール済みスキルを削除する。最後のスキルを削除した後に、空になったプラグインエントリ、空になったリポジトリエントリ、破棄可能なGitキャッシュを削除する。                                                     |
+| `c-plugin skill sync [-g \| -r]`                                                                         | Gitの固定状態を変更せず、ロックの状態から管理対象リンクを調整する。                                                                                                                                                       |
+| `c-plugin skill update [-g \| -r]`                                                                       | GitHubリポジトリをfetchし、固定状態を進め、ロックを書き換えてリンクを同期する。ローカルリポジトリはfetchしない。                                                                                                          |
+| `c-plugin skill target add <path> [-g]`                                                                  | 追加のスキルリンクルートを登録して同期する。解決後のパスが重複している場合は正常なno-opとする。                                                                                                                           |
+| `c-plugin skill target remove [-g] [--target <path>...]`                                                 | 選択した追加ルートをロックの状態から削除し、そのルートからc-plugin管理下のリンクだけを削除する。                                                                                                                          |
+| `c-plugin dev marketplace sync <claude\|cursor\|codex>`                                                  | 選択したマーケットプレイス種別を入力元として、他のマーケットプレイスmanifestと、存在するプラグインごとの`plugin.json`を再生成する。                                                                                       |
 
 `-g`と`-r`は同時に指定できません。再帰モードは`sync`と`update`だけに適用します。
 
@@ -114,10 +114,10 @@ TUIは選択状態を扱うアダプターであり、コマンドのビジネ�
 
 ロックファイル名は`c-plugin-lock.json`のまま維持します。
 
-| スコープ | ロックパス | 主な管理対象スキルルート |
-| --- | --- | --- |
-| プロジェクト | ユーザーのhomeを境界として探索した最も近い祖先の`<root>/c-plugin-lock.json` | `<root>/.agents/skills` |
-| グローバル（`-g`） | 厳密に`~/c-plugin-lock.json` | `~/.agents/skills` |
+| スコープ           | ロックパス                                                                  | 主な管理対象スキルルート |
+| ------------------ | --------------------------------------------------------------------------- | ------------------------ |
+| プロジェクト       | ユーザーのhomeを境界として探索した最も近い祖先の`<root>/c-plugin-lock.json` | `<root>/.agents/skills`  |
+| グローバル（`-g`） | 厳密に`~/c-plugin-lock.json`                                                | `~/.agents/skills`       |
 
 グローバルロックファイルは意図的に`~/.agents/`以下へ配置しません。
 
@@ -190,10 +190,10 @@ GitHubのownerとrepository componentは、それぞれのdomain constructorで�
 
 シンボリックリンク自体には、作成したprocessを識別できる信頼性のあるmetadataがありません。ロックは共有可能な望ましい状態を記録するため、他者がロックを変更した後に古くなったリンクを、ロックだけから識別することはできません。そのため、c-pluginは生成したリンクについて、ロックとは別にmachine-localな所有stateを維持します。
 
-| スコープ | 所有stateのパス |
-| --- | --- |
-| プロジェクト | `<root>/.agents/c-plugin-state.json` |
-| グローバル（`-g`） | `~/.agents/c-plugin-state.json` |
+| スコープ           | 所有stateのパス                      |
+| ------------------ | ------------------------------------ |
+| プロジェクト       | `<root>/.agents/c-plugin-state.json` |
+| グローバル（`-g`） | `~/.agents/c-plugin-state.json`      |
 
 所有stateは生成されたruntime stateであり、共有設定でも、望ましい状態を表す第2のsource of truthでもありません。各entryには、絶対link path、シンボリックリンクへ書き込んだliteral target、正規化済みresolved target、source repository、plugin、skill identityを記録します。後からロックから削除されたtarget root内のリンクも維持します。
 
@@ -356,15 +356,15 @@ c-plugin v2は一度に全面的に書き換えず、独立してレビュー可
 
 Milestone 0は完了済みの本設計契約です。Milestone 1から7では、次の安定した原子的単位IDを使用します。同じwave内のcomma区切りだけを並行化候補とし、arrowは厳密な順序制約とします。原子的単位`M1`はMilestone 3に属し、Milestone 1のparent issueとは別です。
 
-| マイルストーン | 原子的な単位 | 依存関係と並行wave |
-| --- | --- | --- |
-| 1. Bootstrap | `B0` v1共存identity/layout契約、`B1` native dependency compatibilityと正確な`mizchi/bit` APIを証明してからCLI skeleton・help・versionを作成、`B2` `c-plugin-v2` Nix packageを追加 | `B0 -> B1 -> B2` |
-| 2. 状態基盤 | `F0` runtime path、`F1` domain/lock model、`F2` lock codec、`F3` ownership codec、`F4` atomic store、`F5` cache scope、`F6` discovery、`F7` runtime composition、`C-init` init、`E0` Docker/init E2E | `F0,F1 -> F2,F3,F5,F6 -> F4,F7 -> C-init -> E0` |
-| 3. ローカルライフサイクル | `M0` marketplace解析、`M1` local/skill解決、`R1` reconciliation、`C-sync`、`A1` `persist_and_sync`、`C-sync-r`、`C-add-local`、`C-remove`、`C-target-add`、`C-target-remove` | `M0,M1 -> R1 -> C-sync -> A1,C-sync-r -> C-add-local,C-target-add -> C-remove,C-target-remove` |
-| 4. GitHubライフサイクル | `G0` freeze済みbit contract/adapterの前提条件、`G1` clone/checkout/HEAD、`G2` fetch/default branch、`G-add`、`G-update`、`G-update-r`、`G-cleanup` | `G0 -> G1 -> G2 -> G-add,G-cleanup -> G-update -> G-update-r` |
-| 5. 対話入力 | `I1` selection state/TUI adapter、`I2` TTY方針、`I-add-kind`、`I-add-skill`、`I-remove`、`I-target-remove` | `I1 -> I2 -> I-add-kind,I-add-skill,I-remove,I-target-remove` |
-| 6. マーケットプレイス作者向け機能 | `D0` 共通read model、`D1` format変換、`D2` 決定論的write、`C-dev-sync` | `D0 -> D1 -> D2 -> C-dev-sync` |
-| 7. 最終等価性とcutover | `P1` 完全parity matrix、`P2` 文書/parity audit、`P3` cutover | `P1 -> P2 -> 明示的なcutover承認 -> P3` |
+| マイルストーン                    | 原子的な単位                                                                                                                                                                                         | 依存関係と並行wave                                                                             |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| 1. Bootstrap                      | `B0` v1共存identity/layout契約、`B1` native dependency compatibilityと正確な`mizchi/bit` APIを証明してからCLI skeleton・help・versionを作成、`B2` `c-plugin-v2` Nix packageを追加                    | `B0 -> B1 -> B2`                                                                               |
+| 2. 状態基盤                       | `F0` runtime path、`F1` domain/lock model、`F2` lock codec、`F3` ownership codec、`F4` atomic store、`F5` cache scope、`F6` discovery、`F7` runtime composition、`C-init` init、`E0` Docker/init E2E | `F0,F1 -> F2,F3,F5,F6 -> F4,F7 -> C-init -> E0`                                                |
+| 3. ローカルライフサイクル         | `M0` marketplace解析、`M1` local/skill解決、`R1` reconciliation、`C-sync`、`A1` `persist_and_sync`、`C-sync-r`、`C-add-local`、`C-remove`、`C-target-add`、`C-target-remove`                         | `M0,M1 -> R1 -> C-sync -> A1,C-sync-r -> C-add-local,C-target-add -> C-remove,C-target-remove` |
+| 4. GitHubライフサイクル           | `G0` freeze済みbit contract/adapterの前提条件、`G1` clone/checkout/HEAD、`G2` fetch/default branch、`G-add`、`G-update`、`G-update-r`、`G-cleanup`                                                   | `G0 -> G1 -> G2 -> G-add,G-cleanup -> G-update -> G-update-r`                                  |
+| 5. 対話入力                       | `I1` selection state/TUI adapter、`I2` TTY方針、`I-add-kind`、`I-add-skill`、`I-remove`、`I-target-remove`                                                                                           | `I1 -> I2 -> I-add-kind,I-add-skill,I-remove,I-target-remove`                                  |
+| 6. マーケットプレイス作者向け機能 | `D0` 共通read model、`D1` format変換、`D2` 決定論的write、`C-dev-sync`                                                                                                                               | `D0 -> D1 -> D2 -> C-dev-sync`                                                                 |
+| 7. 最終等価性とcutover            | `P1` 完全parity matrix、`P2` 文書/parity audit、`P3` cutover                                                                                                                                         | `P1 -> P2 -> 明示的なcutover承認 -> P3`                                                        |
 
 ### 単位ごとの検証契約
 
