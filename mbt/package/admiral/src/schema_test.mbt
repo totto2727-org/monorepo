@@ -28,6 +28,7 @@ test "render_schema outputs JSON for simple command" {
   inspect(schema.contains("\"type\":\"double\""), content="true")
   inspect(schema.contains("\"default\":\"3\""), content="true")
   inspect(schema.contains("\"short\":\"n\""), content="true")
+  inspect(schema.contains("\"interactive\":false"), content="true")
 }
 
 ///|
@@ -173,4 +174,15 @@ test "render_schema includes typed position metadata" {
   inspect(schema.contains("\"input\""), content="true")
   inspect(schema.contains("\"type\":\"int\""), content="true")
   inspect(schema.contains("\"multiple\":true"), content="true")
+}
+
+///|
+test "render_schema includes interactive option and position metadata" {
+  let app = cli(name="test", commands=[
+    command(name="select", options=[string("query", interactive=true)], positionals=[
+      position_string("project", interactive=true),
+    ]),
+  ])
+  let schema = app.render_schema()
+  inspect(schema.contains("\"interactive\":true"), content="true")
 }
