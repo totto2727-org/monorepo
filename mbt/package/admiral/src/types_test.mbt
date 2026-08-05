@@ -20,6 +20,7 @@ test "CommandDef holds subcommands" {
     positionals: [],
     examples: [],
     subcommands: [],
+    interactive: None,
     run: Some(fn(_ctx) { () }),
   }
   let cmd : @admiral.CommandDef = {
@@ -29,6 +30,7 @@ test "CommandDef holds subcommands" {
     positionals: [],
     examples: [],
     subcommands: [sub],
+    interactive: None,
     run: None,
   }
   inspect(cmd.subcommands.length(), content="1")

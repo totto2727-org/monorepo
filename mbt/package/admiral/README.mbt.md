@@ -9,6 +9,7 @@ A native-first wrapper around `moonbitlang/core/argparse` that provides:
 - Typed option helpers (`string`, `bool`, `int`, `int64`, `uint`, `uint64`, `double`, `positional`)
 - Optional configuration loading through independent config keys
 - Async `run` callbacks for commands and nested subcommands
+- TTY-gated interactive input callbacks with typed value overrides
 - Structured JSON schema output for AI agent integration
 - Shell completion generation (bash, zsh, fish)
 - Auto-generated `--help` / `--version`, including help for incomplete command paths
@@ -19,7 +20,7 @@ Add to `moon.mod`:
 
 ```moonbit
 import {
-  "totto2727/admiral@0.5.0",
+  "totto2727/admiral@0.6.0",
   "moonbitlang/async@0.19.2",
 }
 
@@ -160,6 +161,49 @@ The generated schema contains only configured environment-variable names and con
 Each helper returns a typed, read-only definition such as `OptionDef[String]`, `OptionDef[Bool]`, or `OptionDef[Int]`.
 Pass the same definition to `command` or `cli` and to the matching `Context` getter; this makes the option name a single source of truth and causes mismatched getters to fail at compile time.
 
+### Interactive Input
+
+Set `interactive=true` on each option or position that participates in interactive input, then pass one async `interactive` callback to the owning `command` or root `cli`.
+Admiral invokes the callback only when at least one registered definition opts in and `mizchi/tui` reports that standard input is a TTY.
+Outside a TTY, Admiral skips the callback and preserves ordinary parsing and required-value validation.
+
+```moonbit
+let project = @admiral.position_string(
+  "project",
+  required=true,
+  interactive=true,
+)
+let query = @admiral.string(
+  "query",
+  env="ADMIRAL_PROJECT_QUERY",
+  default=Some(""),
+  interactive=true,
+)
+
+let app = @admiral.cli(
+  name="project-search",
+  positionals=[project],
+  options=[query],
+  interactive=Some(input => {
+    let initial = input.to_context()
+    let selected = run_project_search_tui(
+      initial.get_string(project),
+      initial.get_string(query).unwrap_or(""),
+    )
+    input.set_string(project, selected)
+  }),
+  run=Some(ctx => println(ctx.get_string_required(project))),
+)
+```
+
+`InteractiveContext::to_context()` resolves initial values through the same `argv > env > config > default` rules as the final command callback.
+The typed `set_bool`, `set_string`, `set_strings`, numeric scalar, and numeric array methods replace selected values before `run` executes.
+Required interactive definitions are deferred until the callback only in an interactive environment, so a search selector can supply an otherwise missing required value.
+
+The callback owns the entire interaction rather than a single component.
+It can perform asynchronous discovery, maintain search state, run multiple screens, or mount a complete [`mizchi/tui`](https://github.com/mizchi/tui.mbt) event loop.
+See [`src/examples/interactive`](src/examples/interactive) for a native searchable project selector based on the official `mizchi/tui` virtual DOM, keyboard input, and terminal APIs.
+
 ### Configuration
 
 Pass an optional argument-less `load_config` callback to `cli`.
@@ -203,8 +247,8 @@ Return `Map([])` when no configuration values are available.
 For example, a loader can report `raise @admiral.ConfigLoadFailure("config file is unreadable")`.
 
 `CliApp` is a public record.
-Direct struct-literal callers must add `load_config` to `CliApp`, and direct `Context` literals must include `sources` and `config`.
-Calls through `cli` remain source-compatible because `load_config` is optional.
+Direct struct-literal callers must include `interactive` and `load_config` in `CliApp`; direct `CommandDef` literals must include `interactive`; and direct `Context` literals must include `sources`, `config`, `interactive_flags`, and `interactive_values`.
+Calls through `cli`, `command`, and `Context::Context` remain source-compatible because the new inputs are optional or initialized internally.
 
 ### Reading Values from Context
 
