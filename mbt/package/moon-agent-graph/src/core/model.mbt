@@ -24,10 +24,10 @@ pub struct NodeMetadata {
 ///|
 /// Creates metadata describing a graph node.
 pub fn NodeMetadata::NodeMetadata(
-  name : String,
-  description : String?,
-  kind : NodeKind,
-  tags : ReadOnlyArray[String],
+  name~ : String,
+  description~ : String?,
+  kind~ : NodeKind,
+  tags~ : ReadOnlyArray[String],
 ) -> NodeMetadata {
   NodeMetadata::{ name, description, kind, tags }
 }
@@ -53,10 +53,10 @@ pub struct Artifact {
 ///|
 /// Creates an artifact emitted by a graph node.
 pub fn Artifact::Artifact(
-  kind : ArtifactKind,
-  name : String,
-  uri : String?,
-  metadata : Json?,
+  kind~ : ArtifactKind,
+  name~ : String,
+  uri~ : String?,
+  metadata~ : Json?,
 ) -> Artifact {
   Artifact::{ kind, name, uri, metadata }
 }

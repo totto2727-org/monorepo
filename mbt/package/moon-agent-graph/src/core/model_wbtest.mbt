@@ -6,7 +6,12 @@ suberror NodeTestError {
 ///|
 /// White-box coverage may construct runtime-owned events directly.
 fn node_metadata() -> NodeMetadata {
-  NodeMetadata::NodeMetadata("increment", None, Function, ["test"])
+  NodeMetadata::NodeMetadata(
+    name="increment",
+    description=None,
+    kind=Function,
+    tags=["test"],
+  )
 }
 
 ///|
@@ -166,10 +171,10 @@ test "EventSink discard is a no-op W2-C003" {
 ///|
 test "NodeOutput contains patch value and artifacts W2-C003" {
   let artifact = Artifact::Artifact(
-    Text,
-    "result.txt",
-    Some("file:///result.txt"),
-    None,
+    kind=Text,
+    name="result.txt",
+    uri=Some("file:///result.txt"),
+    metadata=None,
   )
   let output : NodeOutput[Int] = NodeOutput::NodeOutput(
     Some(42),

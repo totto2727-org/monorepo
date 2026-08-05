@@ -47,10 +47,10 @@ async test "llm_node integration 1 - maps a local chat completion into graph sta
     let node = @moonllm_node.llm_node(
       entry,
       @core.NodeMetadata::NodeMetadata(
-        "local-llm",
-        Some("Deterministic local MoonLLM integration"),
-        @core.Llm,
-        ["integration"],
+        name="local-llm",
+        description=Some("Deterministic local MoonLLM integration"),
+        kind=@core.Llm,
+        tags=["integration"],
       ),
       @moonllm_node.LlmNodeSpec::LlmNodeSpec(
         fn(_context, state : LocalLlmState) {
@@ -69,10 +69,10 @@ async test "llm_node integration 1 - maps a local chat completion into graph sta
             Some(Json::string(response.text())),
             [
               @core.Artifact::Artifact(
-                @core.Json,
-                "moonllm-usage",
-                None,
-                response.usage.map(fn(usage) { usage.to_json() }),
+                kind=@core.Json,
+                name="moonllm-usage",
+                uri=None,
+                metadata=response.usage.map(fn(usage) { usage.to_json() }),
               ),
             ],
           )

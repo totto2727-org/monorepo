@@ -134,12 +134,12 @@ impl @core.CodingAgentSession for CodexAgentSession with fn execute(
     Err(error) => raise error
   }
   @core.CodingAgentResponse::CodingAgentResponse(
-    @core.Succeeded,
-    Some(turn.final_response),
-    self.thread.id(),
-    changed_files(turn.items),
-    [],
-    None,
+    status=@core.Succeeded,
+    summary=Some(turn.final_response),
+    continuation_id=self.thread.id(),
+    changed_files=changed_files(turn.items),
+    artifacts=[],
+    raw_output=None,
   )
 }
 

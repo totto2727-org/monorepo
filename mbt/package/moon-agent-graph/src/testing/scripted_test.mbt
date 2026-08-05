@@ -1,6 +1,11 @@
 ///|
 fn testing_metadata() -> @core.NodeMetadata {
-  @core.NodeMetadata::NodeMetadata("scripted", None, @core.Function, [])
+  @core.NodeMetadata::NodeMetadata(
+    name="scripted",
+    description=None,
+    kind=@core.Function,
+    tags=[],
+  )
 }
 
 ///|

@@ -1,12 +1,12 @@
 ///|
 fn fake_agent_response(label : String) -> @core.CodingAgentResponse {
   @core.CodingAgentResponse::CodingAgentResponse(
-    @core.Succeeded,
-    Some("\{label} done"),
-    Some("\{label}-continuation"),
-    [],
-    [],
-    None,
+    status=@core.Succeeded,
+    summary=Some("\{label} done"),
+    continuation_id=Some("\{label}-continuation"),
+    changed_files=[],
+    artifacts=[],
+    raw_output=None,
   )
 }
 
@@ -289,12 +289,12 @@ async test "OpenCode-labelled plan-agent-test workflow completes once" {
 ///|
 fn routing_fake_response(label : String) -> @core.CodingAgentResponse {
   @core.CodingAgentResponse::CodingAgentResponse(
-    @core.Succeeded,
-    Some(label),
-    Some("\{label}-session"),
-    [],
-    [],
-    None,
+    status=@core.Succeeded,
+    summary=Some(label),
+    continuation_id=Some("\{label}-session"),
+    changed_files=[],
+    artifacts=[],
+    raw_output=None,
   )
 }
 
@@ -570,12 +570,12 @@ impl @core.CodingAgentSession for CancellationWorkflowSession with fn execute(
   }
   self.finished.push("finished")
   @core.CodingAgentResponse::CodingAgentResponse(
-    @core.Succeeded,
-    None,
-    Some("cancellation-workflow-session"),
-    [],
-    [],
-    None,
+    status=@core.Succeeded,
+    summary=None,
+    continuation_id=Some("cancellation-workflow-session"),
+    changed_files=[],
+    artifacts=[],
+    raw_output=None,
   )
 }
 

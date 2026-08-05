@@ -18,15 +18,15 @@ fn codex_agent_test_context(
   environment : Map[String, String],
 ) -> @core.CodingAgentOpenContext {
   @core.CodingAgentOpenContext::CodingAgentOpenContext(
-    codex_agent_test_run_id(),
-    group,
-    @core.WorkspaceRef::WorkspaceRef(@path.Path("/workspace"), [
+    run_id=codex_agent_test_run_id(),
+    task_group=group,
+    workspace=@core.WorkspaceRef::WorkspaceRef(@path.Path("/workspace"), [
       @path.Path("/workspace/extra"),
     ]),
-    @core.OnRequest,
-    @core.Enabled,
-    @immut_hashmap.HashMap(environment.to_array()),
-    @core.EventSink::discard(),
+    approval=@core.OnRequest,
+    network=@core.Enabled,
+    environment=@immut_hashmap.HashMap(environment.to_array()),
+    events=@core.EventSink::discard(),
   )
 }
 

@@ -7,7 +7,12 @@ fn test_reducer() -> Reducer[Int, Int] {
 fn test_node(id : NodeId, tags : ReadOnlyArray[String]) -> Node[Int, Int] {
   Node::Node(
     id,
-    NodeMetadata::NodeMetadata(id.to_string(), None, Function, tags),
+    NodeMetadata::NodeMetadata(
+      name=id.to_string(),
+      description=None,
+      kind=Function,
+      tags~,
+    ),
     async fn(_context, _state) {
       @async.pause()
       NodeOutput::NodeOutput(None, None, [])

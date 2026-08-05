@@ -6,7 +6,12 @@ suberror LlmNodeTestError {
 
 ///|
 fn llm_node_metadata() -> @core.NodeMetadata {
-  @core.NodeMetadata::NodeMetadata("plan", None, @core.Llm, ["llm-node-test"])
+  @core.NodeMetadata::NodeMetadata(
+    name="plan",
+    description=None,
+    kind=@core.Llm,
+    tags=["llm-node-test"],
+  )
 }
 
 ///|
@@ -78,10 +83,10 @@ async test "llm_node 1 - builds a typed request and decodes its response" {
             Some(Json::string(response.text())),
             [
               @core.Artifact::Artifact(
-                @core.Text,
-                "moonllm-usage",
-                None,
-                Some(Json::number(response.total_tokens().to_double())),
+                kind=@core.Text,
+                name="moonllm-usage",
+                uri=None,
+                metadata=Some(Json::number(response.total_tokens().to_double())),
               ),
             ],
           )

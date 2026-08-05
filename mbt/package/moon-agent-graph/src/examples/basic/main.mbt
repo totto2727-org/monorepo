@@ -57,7 +57,12 @@ fn example_id(value : String) -> @core.NodeId {
 
 ///|
 fn example_metadata(name : String) -> @core.NodeMetadata {
-  @core.NodeMetadata::NodeMetadata(name, None, @core.Function, [])
+  @core.NodeMetadata::NodeMetadata(
+    name~,
+    description=None,
+    kind=@core.Function,
+    tags=[],
+  )
 }
 
 ///|

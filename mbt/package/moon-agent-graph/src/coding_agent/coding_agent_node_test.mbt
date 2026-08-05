@@ -53,19 +53,19 @@ impl @core.CodingAgentSession for CodingAgentNodeFakeSession with fn execute(
     raise ExecuteFailed
   }
   @core.CodingAgentResponse::CodingAgentResponse(
-    @core.Succeeded,
-    Some("completed"),
-    Some("continue-42"),
-    [@path.Path("src/changed.mbt")],
-    [
+    status=@core.Succeeded,
+    summary=Some("completed"),
+    continuation_id=Some("continue-42"),
+    changed_files=[@path.Path("src/changed.mbt")],
+    artifacts=[
       @core.Artifact::Artifact(
-        @core.Text,
-        "agent-output",
-        None,
-        Some(Json::string("recorded")),
+        kind=@core.Text,
+        name="agent-output",
+        uri=None,
+        metadata=Some(Json::string("recorded")),
       ),
     ],
-    Some(Json::string("raw")),
+    raw_output=Some(Json::string("raw")),
   )
 }
 
@@ -77,9 +77,12 @@ impl @core.CodingAgentSession for CodingAgentNodeFakeSession with fn close(self)
 
 ///|
 fn coding_agent_node_metadata(name : String) -> @core.NodeMetadata {
-  @core.NodeMetadata::NodeMetadata(name, None, @core.CodingAgent, [
-    "coding-agent-node-test",
-  ])
+  @core.NodeMetadata::NodeMetadata(
+    name~,
+    description=None,
+    kind=@core.CodingAgent,
+    tags=["coding-agent-node-test"],
+  )
 }
 
 ///|
@@ -102,13 +105,13 @@ fn coding_agent_open_context(
   group : @async.TaskGroup[Unit],
 ) -> @core.CodingAgentOpenContext {
   @core.CodingAgentOpenContext::CodingAgentOpenContext(
-    coding_agent_node_test_run_id("coding-agent-open-run"),
-    group,
-    @core.WorkspaceRef::WorkspaceRef(@path.Path("/workspace"), []),
-    @core.Never,
-    @core.Disabled,
-    @immut_hashmap.new(),
-    @core.EventSink::discard(),
+    run_id=coding_agent_node_test_run_id("coding-agent-open-run"),
+    task_group=group,
+    workspace=@core.WorkspaceRef::WorkspaceRef(@path.Path("/workspace"), []),
+    approval=@core.Never,
+    network=@core.Disabled,
+    environment=@immut_hashmap.new(),
+    events=@core.EventSink::discard(),
   )
 }
 
@@ -423,12 +426,12 @@ impl @core.CodingAgentSession for W6LifecycleSession with fn execute(
     }
   }
   @core.CodingAgentResponse::CodingAgentResponse(
-    @core.Succeeded,
-    None,
-    Some("session-\{self.number}"),
-    [],
-    [],
-    None,
+    status=@core.Succeeded,
+    summary=None,
+    continuation_id=Some("session-\{self.number}"),
+    changed_files=[],
+    artifacts=[],
+    raw_output=None,
   )
 }
 
@@ -440,10 +443,10 @@ impl @core.CodingAgentSession for W6LifecycleSession with fn close(self) {
 ///|
 fn w6_lifecycle_metadata() -> @core.NodeMetadata {
   @core.NodeMetadata::NodeMetadata(
-    "coding-agent-lifecycle",
-    None,
-    @core.CodingAgent,
-    [],
+    name="coding-agent-lifecycle",
+    description=None,
+    kind=@core.CodingAgent,
+    tags=[],
   )
 }
 
@@ -453,13 +456,13 @@ fn w6_open_context(
   _state : Int,
 ) -> @core.CodingAgentOpenContext raise {
   @core.CodingAgentOpenContext::CodingAgentOpenContext(
-    @core.RunId::parse(context.run_id.to_string()),
-    context.task_group,
-    @core.WorkspaceRef::WorkspaceRef(@path.Path("."), []),
-    @core.Never,
-    @core.Disabled,
-    @immut_hashmap.new(),
-    context.events,
+    run_id=@core.RunId::parse(context.run_id.to_string()),
+    task_group=context.task_group,
+    workspace=@core.WorkspaceRef::WorkspaceRef(@path.Path("."), []),
+    approval=@core.Never,
+    network=@core.Disabled,
+    environment=@immut_hashmap.new(),
+    events=context.events,
   )
 }
 

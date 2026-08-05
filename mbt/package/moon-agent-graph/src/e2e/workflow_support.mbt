@@ -56,7 +56,7 @@ pub fn workflow_metadata(
   name : String,
   kind? : @core.NodeKind = @core.Function,
 ) -> @core.NodeMetadata {
-  @core.NodeMetadata::NodeMetadata(name, None, kind, [])
+  @core.NodeMetadata::NodeMetadata(name~, description=None, kind~, tags=[])
 }
 
 ///|
@@ -93,13 +93,13 @@ pub fn workflow_agent_node(
       @core.Run,
       fn(context, _state) {
         @core.CodingAgentOpenContext::CodingAgentOpenContext(
-          context.run_id,
-          context.task_group,
-          @core.WorkspaceRef::WorkspaceRef(@path.Path("."), []),
-          @core.Never,
-          @core.Disabled,
-          @immut_hashmap.new(),
-          context.events,
+          run_id=context.run_id,
+          task_group=context.task_group,
+          workspace=@core.WorkspaceRef::WorkspaceRef(@path.Path("."), []),
+          approval=@core.Never,
+          network=@core.Disabled,
+          environment=@immut_hashmap.new(),
+          events=context.events,
         )
       },
       fn(_context, state) {

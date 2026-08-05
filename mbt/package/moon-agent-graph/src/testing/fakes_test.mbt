@@ -1,12 +1,12 @@
 ///|
 fn fake_response() -> @core.CodingAgentResponse {
   @core.CodingAgentResponse::CodingAgentResponse(
-    @core.Succeeded,
-    Some("done"),
-    Some("continue-1"),
-    [],
-    [],
-    None,
+    status=@core.Succeeded,
+    summary=Some("done"),
+    continuation_id=Some("continue-1"),
+    changed_files=[],
+    artifacts=[],
+    raw_output=None,
   )
 }
 
@@ -15,15 +15,15 @@ fn fake_open_context(
   group : @async.TaskGroup[Unit],
 ) -> @core.CodingAgentOpenContext {
   @core.CodingAgentOpenContext::CodingAgentOpenContext(
-    @core.RunId::parse("fake-run") catch {
+    run_id=@core.RunId::parse("fake-run") catch {
       _ => abort("static fake run ID must be valid")
     },
-    group,
-    @core.WorkspaceRef::WorkspaceRef(@path.Path("/workspace"), []),
-    @core.Never,
-    @core.Disabled,
-    @immut_hashmap.new(),
-    @core.EventSink::discard(),
+    task_group=group,
+    workspace=@core.WorkspaceRef::WorkspaceRef(@path.Path("/workspace"), []),
+    approval=@core.Never,
+    network=@core.Disabled,
+    environment=@immut_hashmap.new(),
+    events=@core.EventSink::discard(),
   )
 }
 

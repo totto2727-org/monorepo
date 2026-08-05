@@ -94,22 +94,22 @@ fn codex_integration_context(
   mode : String,
 ) -> @core.CodingAgentOpenContext {
   @core.CodingAgentOpenContext::CodingAgentOpenContext(
-    @core.RunId::parse("codex-integration-run") catch {
+    run_id=@core.RunId::parse("codex-integration-run") catch {
       _ => abort("integration run ID must be valid")
     },
-    group,
-    @core.WorkspaceRef::WorkspaceRef(@path.Path(fixture.root), [
+    task_group=group,
+    workspace=@core.WorkspaceRef::WorkspaceRef(@path.Path(fixture.root), [
       @path.Path("\{fixture.root}/extra"),
     ]),
-    @core.OnRequest,
-    @core.Enabled,
-    @immut_hashmap.HashMap([
+    approval=@core.OnRequest,
+    network=@core.Enabled,
+    environment=@immut_hashmap.HashMap([
       ("PATH", "/usr/bin:/bin"),
       ("FAKE_CODEX_RECORDS", fixture.records),
       ("FAKE_CODEX_MODE", mode),
       ("MAPPED_ENV", "present"),
     ]),
-    @core.EventSink::discard(),
+    events=@core.EventSink::discard(),
   )
 }
 
@@ -226,10 +226,10 @@ async test "codex_agent integration 3 - caller cancellation kills the started su
         @coding_agent.coding_agent_node(
           node_id,
           @core.NodeMetadata::NodeMetadata(
-            "codex-cancel",
-            None,
-            @core.CodingAgent,
-            ["integration"],
+            name="codex-cancel",
+            description=None,
+            kind=@core.CodingAgent,
+            tags=["integration"],
           ),
           @coding_agent.CodingAgentNodeSpec::CodingAgentNodeSpec(
             codex_integration_agent(fixture),

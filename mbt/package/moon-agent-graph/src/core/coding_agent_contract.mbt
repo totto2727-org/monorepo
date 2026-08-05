@@ -48,12 +48,12 @@ pub struct CodingAgentResponse {
 ///|
 /// Creates one coding-agent response.
 pub fn CodingAgentResponse::CodingAgentResponse(
-  status : CodingAgentStatus,
-  summary : String?,
-  continuation_id : String?,
-  changed_files : ReadOnlyArray[@path.Path],
-  artifacts : ReadOnlyArray[Artifact],
-  raw_output : Json?,
+  status~ : CodingAgentStatus,
+  summary~ : String?,
+  continuation_id~ : String?,
+  changed_files~ : ReadOnlyArray[@path.Path],
+  artifacts~ : ReadOnlyArray[Artifact],
+  raw_output~ : Json?,
 ) -> CodingAgentResponse {
   CodingAgentResponse::{
     status,
@@ -93,13 +93,13 @@ pub struct CodingAgentOpenContext {
 ///|
 /// Creates the runtime context used to open a coding-agent session.
 pub fn CodingAgentOpenContext::CodingAgentOpenContext(
-  run_id : RunId,
-  task_group : @async.TaskGroup[Unit],
-  workspace : WorkspaceRef,
-  approval : ApprovalPolicy,
-  network : NetworkPolicy,
-  environment : @immut_hashmap.HashMap[String, String],
-  events : EventSink,
+  run_id~ : RunId,
+  task_group~ : @async.TaskGroup[Unit],
+  workspace~ : WorkspaceRef,
+  approval~ : ApprovalPolicy,
+  network~ : NetworkPolicy,
+  environment~ : @immut_hashmap.HashMap[String, String],
+  events~ : EventSink,
 ) -> CodingAgentOpenContext {
   CodingAgentOpenContext::{
     run_id,

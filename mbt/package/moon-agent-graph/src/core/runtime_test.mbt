@@ -1,6 +1,8 @@
 ///|
 fn success_runtime_metadata(name : String) -> NodeMetadata {
-  NodeMetadata::NodeMetadata(name, None, Function, ["runtime-test"])
+  NodeMetadata::NodeMetadata(name~, description=None, kind=Function, tags=[
+    "runtime-test",
+  ])
 }
 
 ///|
@@ -300,7 +302,7 @@ suberror RuntimeErrorTestError {
 
 ///|
 fn w4_error_metadata(name : String) -> NodeMetadata {
-  NodeMetadata::NodeMetadata(name, None, Function, [])
+  NodeMetadata::NodeMetadata(name~, description=None, kind=Function, tags=[])
 }
 
 ///|
@@ -599,7 +601,12 @@ fn w4_lifecycle_graph(
   definition.add_node(
     Node::Node(
       node_id,
-      NodeMetadata::NodeMetadata("lifecycle", None, Function, []),
+      NodeMetadata::NodeMetadata(
+        name="lifecycle",
+        description=None,
+        kind=Function,
+        tags=[],
+      ),
       execute,
     ),
   )

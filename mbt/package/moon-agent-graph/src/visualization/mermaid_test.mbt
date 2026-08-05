@@ -7,7 +7,7 @@ fn test_node(
 ) -> @core.Node[Int, Unit] {
   @core.Node::Node(
     id,
-    @core.NodeMetadata::NodeMetadata(name, description, kind, []),
+    @core.NodeMetadata::NodeMetadata(name~, description~, kind~, tags=[]),
     async fn(_context, _state) {
       @async.pause()
       @core.NodeOutput::NodeOutput(None, None, [])

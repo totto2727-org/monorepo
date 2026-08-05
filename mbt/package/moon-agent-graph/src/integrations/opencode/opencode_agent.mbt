@@ -118,12 +118,12 @@ impl @core.CodingAgentSession for OpenCodeAgentSession with fn execute(
     Err(error) => raise error
   }
   @core.CodingAgentResponse::CodingAgentResponse(
-    @core.Succeeded,
-    Some(turn.final_response),
-    self.thread.id(),
-    [],
-    [],
-    None,
+    status=@core.Succeeded,
+    summary=Some(turn.final_response),
+    continuation_id=self.thread.id(),
+    changed_files=[],
+    artifacts=[],
+    raw_output=None,
   )
 }
 
