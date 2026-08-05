@@ -1,4 +1,4 @@
-module github.com/totto2727-org/monorepo/go/e2e/example
+module github.com/totto2727-org/monorepo/go/e2e
 
 go 1.25.0
 
