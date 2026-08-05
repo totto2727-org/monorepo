@@ -27,13 +27,13 @@ fn node_context(
 }
 
 ///|
-async test "function_node 1 - receives state and complete context" {
+async test "Node::Node 1 - receives state and complete context" {
   @async.with_task_group() <| group => {
     let run_id = RunId::parse("run-1")
     let node_id = NodeId::parse("increment")
     let context = node_context(group, run_id, node_id)
     let mut task_group_was_usable = false
-    let node = function_node(node_id, node_metadata(), async fn(
+    let node = Node::Node(node_id, node_metadata(), async fn(
       callback_context,
       state,
     ) {
@@ -64,11 +64,11 @@ test "Reducer apply 1 - returns the updated state" {
 }
 
 ///|
-async test "function_node 2 - propagates the callback suberror unchanged" {
+async test "Node::Node 2 - propagates the callback suberror unchanged" {
   @async.with_task_group() <| group => {
     let run_id = RunId::parse("run-2")
     let node_id = NodeId::parse("failure")
-    let node : Node[Int, Unit] = function_node(node_id, node_metadata(), async fn(
+    let node : Node[Int, Unit] = Node::Node(node_id, node_metadata(), async fn(
       _context,
       _state : Int,
     ) {
@@ -87,12 +87,12 @@ async test "function_node 2 - propagates the callback suberror unchanged" {
 }
 
 ///|
-async test "function_node 3 - cancellation preserves the cancellation error" {
+async test "Node::Node 3 - cancellation preserves the cancellation error" {
   @async.with_task_group() <| group => {
     let run_id = RunId::parse("run-3")
     let node_id = NodeId::parse("pause")
     let mut tokens = 0
-    let node : Node[Int, Unit] = function_node(node_id, node_metadata(), async fn(
+    let node : Node[Int, Unit] = Node::Node(node_id, node_metadata(), async fn(
       _context,
       _state : Int,
     ) {

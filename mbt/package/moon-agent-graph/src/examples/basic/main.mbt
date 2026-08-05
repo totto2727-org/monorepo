@@ -65,7 +65,7 @@ fn example_node(
   id : @core.NodeId,
   label : String,
 ) -> @core.Node[ExampleState, String] {
-  @core.function_node(id, example_metadata(label), async fn(context, _state) {
+  @core.Node::Node(id, example_metadata(label), async fn(context, _state) {
     @async.pause()
     let reference = example_runtime_resource_ref()
     let resource = match context.resources.get(reference) {

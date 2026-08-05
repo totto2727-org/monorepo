@@ -347,7 +347,7 @@ async fn routing_exercise_branch(selector : String) -> Unit {
   let graph = @e2e.build_workflow(
     @e2e.workflow_reducer(),
     [
-      @core.function_node(entry, @e2e.workflow_metadata("branch-entry"), async fn(
+      @core.Node::Node(entry, @e2e.workflow_metadata("branch-entry"), async fn(
         _context,
         _state,
       ) {
@@ -420,7 +420,7 @@ async test "routing failure 2 - retry loop has exact attempts before configured 
   let graph = @e2e.build_workflow(
     @e2e.workflow_reducer(),
     [
-      @core.function_node(retry, @e2e.workflow_metadata("retry"), async fn(
+      @core.Node::Node(retry, @e2e.workflow_metadata("retry"), async fn(
         _context,
         _state,
       ) {

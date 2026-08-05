@@ -22,7 +22,7 @@ pub fn[S, P] llm_node(
   metadata : @core.NodeMetadata,
   spec : LlmNodeSpec[S, P],
 ) -> @core.Node[S, P] {
-  @core.function_node(id, metadata, async fn(context, state) {
+  @core.Node::Node(id, metadata, async fn(context, state) {
     let request = (spec.build_request)(context, state)
     let response = (spec.invoke)(request)
     (spec.decode_response)(state, response)

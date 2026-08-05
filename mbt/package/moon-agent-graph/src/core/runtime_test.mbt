@@ -55,7 +55,7 @@ async test "GraphRuntime invoke 1 - runs one entry node through End" {
     Reducer::Reducer(fn(state : Int, patch : Int) { state + patch }),
   )
   definition.add_node(
-    function_node(entry, success_runtime_metadata("entry"), async fn(
+    Node::Node(entry, success_runtime_metadata("entry"), async fn(
       _context,
       _state : Int,
     ) {
@@ -80,7 +80,7 @@ async test "GraphRuntime invoke 2 - executes sequential routes in order" {
     Reducer::Reducer(fn(state : Int, patch : Int) { state + patch }),
   )
   definition.add_node(
-    function_node(first, success_runtime_metadata("first"), async fn(
+    Node::Node(first, success_runtime_metadata("first"), async fn(
       _context,
       state : Int,
     ) {
@@ -90,7 +90,7 @@ async test "GraphRuntime invoke 2 - executes sequential routes in order" {
     }),
   )
   definition.add_node(
-    function_node(second, success_runtime_metadata("second"), async fn(
+    Node::Node(second, success_runtime_metadata("second"), async fn(
       _context,
       state : Int,
     ) {
@@ -124,7 +124,7 @@ async test "GraphRuntime invoke 3 - reduces a patch once before routing" {
     }),
   )
   definition.add_node(
-    function_node(entry, success_runtime_metadata("entry"), async fn(
+    Node::Node(entry, success_runtime_metadata("entry"), async fn(
       _context,
       _state : Int,
     ) {
@@ -156,7 +156,7 @@ async test "GraphRuntime invoke 4 - skips the reducer when a node has no patch" 
     }),
   )
   definition.add_node(
-    function_node(entry, success_runtime_metadata("entry"), async fn(
+    Node::Node(entry, success_runtime_metadata("entry"), async fn(
       _context,
       _state : Int,
     ) {
@@ -190,7 +190,7 @@ async test "GraphRuntime invoke 5 - emits the successful lifecycle in order" {
     Reducer::Reducer(fn(state : Int, patch : Int) { state + patch }),
   )
   definition.add_node(
-    function_node(entry, success_runtime_metadata("entry"), async fn(
+    Node::Node(entry, success_runtime_metadata("entry"), async fn(
       _context,
       _state : Int,
     ) {
@@ -216,7 +216,7 @@ async test "GraphRuntime invoke 6 - exits a self loop when the reduced state rea
     Reducer::Reducer(fn(state : Int, patch : Int) { state + patch }),
   )
   definition.add_node(
-    function_node(entry, success_runtime_metadata("loop"), async fn(
+    Node::Node(entry, success_runtime_metadata("loop"), async fn(
       _context,
       state : Int,
     ) {
@@ -260,7 +260,7 @@ async test "GraphRuntime invoke 7 - isolates state resources and run IDs across 
     Reducer::Reducer(fn(state : Int, patch : Int) { state + patch }),
   )
   definition.add_node(
-    function_node(entry, success_runtime_metadata("entry"), async fn(
+    Node::Node(entry, success_runtime_metadata("entry"), async fn(
       context,
       _state : Int,
     ) {
@@ -308,7 +308,7 @@ fn w4_error_node(
   id : NodeId,
   execute : async (NodeContext, Int) -> NodeOutput[Int],
 ) -> Node[Int, Int] {
-  function_node(id, w4_error_metadata(id.to_string()), execute)
+  Node::Node(id, w4_error_metadata(id.to_string()), execute)
 }
 
 ///|
@@ -597,7 +597,7 @@ fn w4_lifecycle_graph(
   let node_id = NodeId::parse("lifecycle")
   let definition = GraphDefinition::GraphDefinition(Reducer::Reducer(reduce))
   definition.add_node(
-    function_node(
+    Node::Node(
       node_id,
       NodeMetadata::NodeMetadata("lifecycle", None, Function, []),
       execute,

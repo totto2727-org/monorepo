@@ -73,7 +73,7 @@ pub fn[S, P] coding_agent_node(
   metadata : @core.NodeMetadata,
   spec : CodingAgentNodeSpec[S, P],
 ) -> @core.Node[S, P] {
-  @core.function_node(id, metadata, async fn(context, state) {
+  @core.Node::Node(id, metadata, async fn(context, state) {
     let open_context = (spec.open_context)(context, state)
     let reference = coding_agent_resource_ref(spec.resource_key)
     let resource = match spec.resource_scope {

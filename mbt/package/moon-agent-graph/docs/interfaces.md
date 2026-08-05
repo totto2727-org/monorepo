@@ -171,7 +171,7 @@ The async callback may raise a domain `suberror` or a lower-level error.
 The runtime catches and wraps that error with the node ID and step.
 
 ```moonbit
-pub fn[S, P] function_node(
+pub fn[S, P] Node::Node(
   id : NodeId,
   metadata : NodeMetadata,
   execute : async (NodeContext, S) -> NodeOutput[P],

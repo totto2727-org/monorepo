@@ -20,7 +20,7 @@ pub fn[S, P] scripted_node(
   execute : async (@core.NodeContext, S) -> @core.NodeOutput[P],
 ) -> ScriptedNode[S, P] {
   let calls : Array[ScriptedNodeCall[S]] = []
-  let value = @core.function_node(id, metadata, async fn(context, state) {
+  let value = @core.Node::Node(id, metadata, async fn(context, state) {
     calls.push({ context, state })
     execute(context, state)
   })

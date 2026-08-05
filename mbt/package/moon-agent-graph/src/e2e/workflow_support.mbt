@@ -65,7 +65,7 @@ pub fn workflow_function_node(
   id : @core.NodeId,
   label : String,
 ) -> @core.Node[WorkflowState, WorkflowPatch] {
-  @core.function_node(id, workflow_metadata(label), async fn(_context, _state) {
+  @core.Node::Node(id, workflow_metadata(label), async fn(_context, _state) {
     @async.pause()
     @core.NodeOutput::NodeOutput(
       Some(WorkflowPatch::WorkflowPatch(label, None)),

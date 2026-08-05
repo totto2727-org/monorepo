@@ -5,7 +5,7 @@ fn test_node(
   kind : @core.NodeKind,
   description? : String,
 ) -> @core.Node[Int, Unit] {
-  @core.function_node(
+  @core.Node::Node(
     id,
     @core.NodeMetadata::NodeMetadata(name, description, kind, []),
     async fn(_context, _state) {
