@@ -4,6 +4,9 @@
 /// Implementations for composite values recursively copy their contents. An
 /// implementation may share immutable internal storage when doing so cannot
 /// expose mutation through the returned value.
+///
+/// This trait is open so downstream value types can define their own copy
+/// semantics.
 pub(open) trait Copy {
   fn copy(Self) -> Self
 }

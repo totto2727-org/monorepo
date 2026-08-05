@@ -1,6 +1,6 @@
 ///|
 async fn main {
-  let app = @admiral.cli(
+  let app = @admiral.CliApp::CliApp(
     name="mdt",
     version="0.1.2",
     description="Translate a Markdown file via OpenCode",

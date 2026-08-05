@@ -4,7 +4,7 @@
 
 ## Canonical constructor
 
-Give each domain type one canonical `TypeName::TypeName(...)` constructor. Put validation and normalization there so every normally constructed instance satisfies the same invariants.
+Give each struct one canonical `TypeName::TypeName(...)` constructor. Put validation and normalization there so every normally constructed instance satisfies the same invariants. Follow [`visibility.md`](visibility.md) for enum and suberror construction.
 
 ```mbt check
 pub fn Rect::Rect(x~ : Double, y~ : Double, width~ : Double, height~ : Double) -> Rect raise {

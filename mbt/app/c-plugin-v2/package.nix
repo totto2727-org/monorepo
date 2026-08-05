@@ -38,8 +38,8 @@ let
       "mizchi/bit_lib" = "0.45.6";
       "mizchi/bit_osfs" = "0.45.6";
       "mizchi/tui" = "0.10.0";
-      "moonbitlang/async" = "0.20.1";
-      "moonbitlang/x" = "0.4.45";
+      "moonbitlang/async" = "0.20.3";
+      "moonbitlang/x" = "0.4.47";
       "shu-kitamura/sha256" = "0.1.1";
     };
   };

@@ -1,19 +1,19 @@
 ///|
 /// A machine-readable reason why a typed value could not be written to a JSON builder.
-pub(all) enum JsonBuildIssueCode {
+pub enum JsonBuildIssueCode {
   PathConflict
 } derive(Eq, Debug)
 
 ///|
 /// A structured JSON construction failure at an exact output pointer.
-pub(all) struct JsonBuildIssue {
+pub struct JsonBuildIssue {
   pointer : Pointer
   code : JsonBuildIssueCode
 } derive(Eq, Debug)
 
 ///|
 /// The typed error raised when a lens cannot write a value to a JSON builder.
-pub(all) suberror JsonBuildError {
+pub suberror JsonBuildError {
   JsonBuildError(JsonBuildIssue)
 } derive(Eq, Debug)
 

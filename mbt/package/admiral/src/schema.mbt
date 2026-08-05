@@ -35,6 +35,11 @@ let option_schema_multiple_lens : @lens.Lens[Bool] = @lens.root().bool(
 )
 
 ///|
+let option_schema_interactive_lens : @lens.Lens[Bool] = @lens.root().bool(
+  "interactive",
+)
+
+///|
 let option_schema_style_lens : @lens.PresenceLens[String] = @lens.root()
   .string("style")
   .optional()
@@ -71,6 +76,7 @@ impl ToJson for OptionSchema with fn to_json(self) -> Json {
   option_schema_description_lens.set_or_abort(builder, metadata.description)
   option_schema_required_lens.set_or_abort(builder, metadata.required)
   option_schema_multiple_lens.set_or_abort(builder, metadata.multiple)
+  option_schema_interactive_lens.set_or_abort(builder, metadata.interactive)
   option_schema_style_lens.set_or_abort(
     builder,
     if metadata.type_ == BoolOpt {
@@ -120,6 +126,11 @@ let position_schema_multiple_lens : @lens.Lens[Bool] = @lens.root().bool(
 )
 
 ///|
+let position_schema_interactive_lens : @lens.Lens[Bool] = @lens.root().bool(
+  "interactive",
+)
+
+///|
 let position_schema_config_lens : @lens.PresenceLens[String] = @lens.root()
   .string("config")
   .optional()
@@ -136,6 +147,7 @@ impl ToJson for PositionSchema with fn to_json(self) -> Json {
   position_schema_description_lens.set_or_abort(builder, metadata.description)
   position_schema_required_lens.set_or_abort(builder, metadata.required)
   position_schema_multiple_lens.set_or_abort(builder, metadata.multiple)
+  position_schema_interactive_lens.set_or_abort(builder, metadata.interactive)
   position_schema_config_lens.set_or_abort(builder, position.config)
   builder.to_json()
 }

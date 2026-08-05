@@ -14,7 +14,7 @@ pub struct CodingAgentId(String) derive(Eq, Hash, Debug)
 pub struct SessionId(String) derive(Eq, Hash, Debug)
 
 ///|
-pub(all) suberror IdError {
+pub suberror IdError {
   EmptyId(kind~ : String)
 } derive(Debug)
 

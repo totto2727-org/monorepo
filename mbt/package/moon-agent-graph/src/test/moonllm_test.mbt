@@ -46,14 +46,14 @@ async test "llm_node integration 1 - maps a local chat completion into graph sta
     let entry = @core.NodeId::parse("local-llm")
     let node = @moonllm_node.llm_node(
       entry,
-      @core.NodeMetadata::{
-        name: "local-llm",
-        description: Some("Deterministic local MoonLLM integration"),
-        kind: @core.Llm,
-        tags: ["integration"],
-      },
-      @moonllm_node.LlmNodeSpec::{
-        build_request: fn(_context, state : LocalLlmState) {
+      @core.NodeMetadata::NodeMetadata(
+        name="local-llm",
+        description=Some("Deterministic local MoonLLM integration"),
+        kind=@core.Llm,
+        tags=["integration"],
+      ),
+      @moonllm_node.LlmNodeSpec::LlmNodeSpec(
+        fn(_context, state : LocalLlmState) {
           @llm.ChatRequest::new("local-test-model", [
             @llm.Message::system("Return the deterministic result."),
             @llm.Message::user(state.prompt),
@@ -61,33 +61,33 @@ async test "llm_node integration 1 - maps a local chat completion into graph sta
           .temperature(0.0)
           .max_tokens(8)
         },
-        invoke: async fn(request) { client.chat(request) },
-        decode_response: fn(_state, response) {
+        async fn(request) { client.chat(request) },
+        fn(_state, response) {
           let total_tokens = response.total_tokens()
-          @core.NodeOutput::{
-            patch: Some(LocalLlmPatch::{ answer: response.text(), total_tokens }),
-            value: Some(Json::string(response.text())),
-            artifacts: [
-              @core.Artifact::{
-                kind: @core.Json,
-                name: "moonllm-usage",
-                uri: None,
-                metadata: response.usage.map(fn(usage) { usage.to_json() }),
-              },
+          @core.NodeOutput::NodeOutput(
+            Some(LocalLlmPatch::{ answer: response.text(), total_tokens }),
+            Some(Json::string(response.text())),
+            [
+              @core.Artifact::Artifact(
+                kind=@core.Json,
+                name="moonllm-usage",
+                uri=None,
+                metadata=response.usage.map(fn(usage) { usage.to_json() }),
+              ),
             ],
-          }
+          )
         },
-      },
+      ),
     )
-    let definition = @core.GraphDefinition::GraphDefinition(@core.Reducer::{
-      apply: fn(state : LocalLlmState, patch : LocalLlmPatch) {
+    let definition = @core.GraphDefinition::GraphDefinition(
+      @core.Reducer::Reducer(fn(state : LocalLlmState, patch : LocalLlmPatch) {
         LocalLlmState::{
           prompt: state.prompt,
           answer: patch.answer,
           total_tokens: patch.total_tokens,
         }
-      },
-    })
+      }),
+    )
     definition.add_node(node)
     definition.set_router(
       entry,

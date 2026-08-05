@@ -1,14 +1,14 @@
 name = "totto2727/target-file-discovery"
 
-version = "0.2.0"
+version = "0.2.1"
 
 preferred_target = "native"
 
 supported_targets = "native"
 
 import {
-  "moonbitlang/x@0.4.38",
-  "moonbitlang/async@0.19.2",
+  "moonbitlang/x@0.4.47",
+  "moonbitlang/async@0.20.3",
 }
 
 readme = "README.md"
