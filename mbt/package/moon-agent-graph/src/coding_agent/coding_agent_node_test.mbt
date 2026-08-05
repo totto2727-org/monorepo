@@ -86,7 +86,7 @@ fn coding_agent_node_metadata(name : String) -> @core.NodeMetadata {
 fn coding_agent_node_context(
   group : @async.TaskGroup[Unit],
   node_id : @core.NodeId,
-  resources : @core.RuntimeResourceStore,
+  resources : @core.ResourceStore,
 ) -> @core.NodeContext {
   @core.NodeContext::NodeContext(
     coding_agent_node_test_run_id("coding-agent-node-run"),
@@ -116,7 +116,7 @@ fn coding_agent_open_context(
 async test "coding_agent_node 1 - executes and decodes continuation and changed files" {
   @async.with_task_group() <| group => {
     let node_id = @core.NodeId::parse("coding-agent-success")
-    let resources = @core.RuntimeResourceStore::RuntimeResourceStore()
+    let resources = @core.ResourceStore::ResourceStore()
     let opens : Array[String] = []
     let executions : Array[String] = []
     let closed : Array[String] = []
@@ -237,7 +237,7 @@ async fn coding_agent_node_assert_phase(
 ) -> Unit {
   @async.with_task_group() <| group => {
     let node_id = @core.NodeId::parse("coding-agent-phase")
-    let resources = @core.RuntimeResourceStore::RuntimeResourceStore()
+    let resources = @core.ResourceStore::ResourceStore()
     let calls : Array[String] = []
     let node : @core.Node[Int, Int] = coding_agent_node(
       node_id,
@@ -324,7 +324,7 @@ async test "coding_agent_node 3 - preserves every phase failure and stops later 
 async test "coding_agent_node 4 - retries an open failure without caching it" {
   @async.with_task_group() <| group => {
     let node_id = @core.NodeId::parse("coding-agent-open-retry")
-    let resources = @core.RuntimeResourceStore::RuntimeResourceStore()
+    let resources = @core.ResourceStore::ResourceStore()
     let mut opens = 0
     let executions : Array[String] = []
     let closed : Array[String] = []

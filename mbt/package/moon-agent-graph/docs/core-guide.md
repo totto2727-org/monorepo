@@ -158,7 +158,7 @@ pub(all) struct NodeContext {
   deadline_ms : Int64?
   task_group : @async.TaskGroup[Unit]
   events : EventSink
-  resources : RuntimeResourceStore
+  resources : ResourceStore
 }
 ```
 
@@ -170,7 +170,7 @@ The context carries execution capabilities rather than global variables.
 - `deadline_ms` exposes the configured node timeout.
 - `task_group` gives adapters structured ownership of child tasks and processes.
 - `events` exposes synchronous best-effort observability.
-- `resources` owns node-scoped and run-scoped sessions.
+- `resources` exposes the invocation's typed heterogeneous resource store.
 
 The same invocation-level task group is passed to every node, so cancellation propagates through the complete run.
 
@@ -346,7 +346,7 @@ The invocation itself runs inside `@async.with_task_group`.
 
 ```moonbit
 @async.with_task_group() <| group => {
-  let resources = RuntimeResourceStore::RuntimeResourceStore()
+  let resources = ResourceStore::ResourceStore()
   self.events.try_emit(RunStarted(run_id))
   // ... implementation omitted ...
 }
@@ -362,7 +362,7 @@ This follows the official MoonBit async model, where tasks are spawned in task g
 
 ## Resource Ownership
 
-The resource store currently owns coding-agent sessions.
+The invocation owns one heterogeneous resource store backed by `any-collection`. Graph state remains typed and serializable independently; resources may contain arbitrary process-local values.
 
 ```moonbit
 pub(all) enum ResourceScope {
@@ -373,27 +373,27 @@ pub(all) enum ResourceScope {
 
 Source: `src/core/resources.mbt`
 
-- A `Node` session is opened for one node attempt, and closing it is attempted after that node.
-- A `Run` session is cached by `ResourceKey` and reused until invocation finalization attempts to close it.
+- A `Node` resource is opened for one node attempt, and its registered cleanup runs after that node.
+- A `Run` resource is cached by typed reference and reused until invocation finalization runs its registered cleanup.
 
 ```moonbit
-match scope {
-  Run =>
-    match self.run_entries.get(key) {
-      Some(index) if !self.sessions[index].closed =>
-        return self.sessions[index].session
-      _ => ()
-    }
-  Node => if owner is None { raise NodeOwnerRequired(key) }
-}
-let session = open()
+pub async fn[T] ResourceStore::acquire_resource(
+  self : ResourceStore,
+  reference : @any_collection.AnyRef[ResourceKey, T],
+  scope : ResourceScope,
+  open : async () -> T,
+  cleanup : async (T) -> Unit,
+  owner? : NodeId,
+) -> T
 ```
 
-Sessions are closed in reverse acquisition order.
+Managed resources run cleanup in reverse acquisition order.
 
 Reverse-order cleanup is important when a later resource depends on an earlier resource.
 
-The store marks a session closed before invoking its close method, which makes repeated cleanup idempotent from the store's perspective.
+The store marks each cleanup record closed before invoking it, which makes repeated cleanup idempotent from the store's perspective.
+
+Coding-agent processes are ordinary `CodingAgentResource` values stored through `AnyRef`; they use `acquire_resource` exactly like every other managed resource.
 
 Final cleanup is cancellation-protected and bounded.
 

@@ -6,6 +6,11 @@ priv struct FakeAgentCli {
 }
 
 ///|
+priv struct SequenceEvent {
+  sequence : Int
+} derive(FromJson)
+
+///|
 async fn create_fake_agent_cli() -> FakeAgentCli {
   let root = @fs.tmpdir(prefix="agent-cli-sdk-test-")
   let executable = "\{root}/agent"
@@ -89,21 +94,18 @@ fn fake_agent_cli_script() -> String {
 }
 
 ///|
-async test "run streams ordered JSON events and preserves invocation data" {
+async test "run decodes ordered JSON events and preserves invocation data" {
   with_fake_agent_cli(async fn(fixture) {
     let events = ["{\"sequence\":1}", "{\"sequence\":2}"].join("\n")
-    let received : Array[String] = []
+    let received : Array[Int] = []
     let result = run(fixture.invocation(events, { "CUSTOM_ENV": "custom" }), fn(
-      event,
+      event : SequenceEvent,
     ) {
-      received.push(event.value.stringify())
+      received.push(event.sequence)
       true
     })
     debug_inspect(result, content="Completed")
-    debug_inspect(
-      received,
-      content="[\"{\\\"sequence\\\":1}\", \"{\\\"sequence\\\":2}\"]",
-    )
+    debug_inspect(received, content="[1, 2]")
     let expected_arguments =
       #|run
       #|--format
@@ -133,7 +135,7 @@ async test "run returns nonzero exit status and stderr" {
         "FAKE_AGENT_STDERR": "agent failed",
         "FAKE_AGENT_EXIT_CODE": "17",
       }),
-      fn(_) { true },
+      fn(_ : Json) { true },
     )
     debug_inspect(result, content="Failed(code=17, stderr=\"agent failed\")")
   })
@@ -144,7 +146,7 @@ async test "run rejects malformed JSONL and terminates the child" {
   with_fake_agent_cli(async fn(fixture) {
     let invocation = fixture.invocation("{not-json", { "FAKE_AGENT_PAUSE": "1" })
     let message = try {
-      run(invocation, fn(_) { true }) |> ignore
+      run(invocation, fn(_ : Json) { true }) |> ignore
       "no error"
     } catch {
       AgentCliError::InvalidJson(line~, cause~) => "\{line}:\{cause}"
@@ -160,13 +162,35 @@ async test "run rejects malformed JSONL and terminates the child" {
 }
 
 ///|
+async test "run rejects JSON events that do not match the requested type" {
+  with_fake_agent_cli(async fn(fixture) {
+    let invocation = fixture.invocation("{\"unexpected\":true}", {
+      "FAKE_AGENT_PAUSE": "1",
+    })
+    let message = try {
+      run(invocation, fn(_ : SequenceEvent) { true }) |> ignore
+      "no error"
+    } catch {
+      AgentCliError::InvalidJson(line~, cause~) => "\{line}:\{cause}"
+      error => "unexpected: \{error}"
+    }
+    assert_true(message.has_prefix("{\"unexpected\":true}:"))
+    let pid = @string.parse_int(
+      @fs.read_file("\{fixture.record_directory}/pid").text().trim(),
+      base=10,
+    )
+    assert_false(process_is_running(pid))
+  })
+}
+
+///|
 async test "run stops the child when the callback returns false" {
   with_fake_agent_cli(async fn(fixture) {
     let result = run(
       fixture.invocation("{\"sequence\":1}\n{\"sequence\":2}", {
         "FAKE_AGENT_PAUSE": "1",
       }),
-      fn(_) { false },
+      fn(_ : Json) { false },
     )
     debug_inspect(result, content="Stopped")
     let pid = @string.parse_int(
@@ -186,7 +210,7 @@ async test "run cancellation terminates the child" {
         async fn() {
           run(
             fixture.invocation("{\"started\":true}", { "FAKE_AGENT_PAUSE": "1" }),
-            async fn(_) {
+            async fn(_ : Json) {
               started.put(())
               true
             },

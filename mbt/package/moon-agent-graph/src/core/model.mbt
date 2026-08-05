@@ -176,7 +176,7 @@ pub struct NodeContext {
   deadline_ms : Int64?
   task_group : @async.TaskGroup[Unit]
   events : EventSink
-  resources : RuntimeResourceStore
+  resources : ResourceStore
 }
 
 ///|
@@ -186,7 +186,7 @@ pub fn NodeContext::NodeContext(
   step : Int,
   task_group : @async.TaskGroup[Unit],
   events? : EventSink = EventSink::discard(),
-  resources? : RuntimeResourceStore = RuntimeResourceStore(),
+  resources? : ResourceStore = ResourceStore(),
   deadline_ms? : Int64,
 ) -> NodeContext {
   NodeContext::{

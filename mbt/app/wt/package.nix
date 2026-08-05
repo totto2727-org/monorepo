@@ -22,25 +22,10 @@ let
     cp -R ${packageSrc}/. "$out/"
     cp ${moonWork} "$out/moon.work"
   '';
-  moonModJson = builtins.toFile "wt-moon.mod.json" (
-    builtins.toJSON {
-      name = "totto2727/wt";
-      version = "0.1.0";
-      deps = {
-        "totto2727/admiral" = "0.5.0";
-        "moonbitlang/async" = "0.19.2";
-      };
-      description = "Native MoonBit Git worktree manager with PR awareness";
-      license = "MIT";
-      "preferred-target" = "native";
-      repository = "https://github.com/totto2727-org/monorepo";
-      source = "src";
-      "supported-targets" = "native";
-    }
-  );
 in
 moonPlatform.buildMoonPackage {
-  inherit src moonModJson moonRegistryIndex;
+  inherit src moonRegistryIndex;
+  moonMod = ./moon.mod;
   moonFlags = [ "app/wt/src" ];
   doCheck = false;
   meta.mainProgram = "wt";

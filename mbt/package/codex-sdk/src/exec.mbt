@@ -76,14 +76,14 @@ fn CodexExec::CodexExec(
 
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L86-L243
 
-///| Async type difference: MoonBit has no AsyncGenerator, so each output line is delivered to an async callback returning whether iteration should continue.
+///| Async type difference: MoonBit has no AsyncGenerator, so each decoded event is delivered to an async callback returning whether iteration should continue.
 
 ///|
 /// Cancellation type difference: cancelling the owning MoonBit task replaces the upstream AbortSignal.
 async fn CodexExec::run(
   self : CodexExec,
   args : CodexExecArgs,
-  on_line : async (@agent_cli.JsonLine) -> Bool,
+  on_event : async (ThreadEvent) -> Bool,
 ) -> Unit {
   let command_args = ["exec", "--experimental-json"]
   if self.config_overrides is Some(config) {
@@ -187,7 +187,7 @@ async fn CodexExec::run(
       inherit_environment~,
       input=args.input,
     ),
-    on_line,
+    on_event,
   ) catch {
     @agent_cli.AgentCliError::InvalidJson(line~, cause~) =>
       raise InvalidEvent(

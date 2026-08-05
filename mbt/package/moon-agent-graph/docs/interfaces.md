@@ -132,7 +132,7 @@ pub(all) struct NodeContext {
   deadline_ms : Int64?
   task_group : @async.TaskGroup[Unit]
   events : EventSink
-  resources : RuntimeResourceStore
+  resources : ResourceStore
 }
 
 pub fn NodeContext::NodeContext(
@@ -141,7 +141,7 @@ pub fn NodeContext::NodeContext(
   step : Int,
   task_group : @async.TaskGroup[Unit],
   events? : EventSink = EventSink::discard(),
-  resources? : RuntimeResourceStore = RuntimeResourceStore(),
+  resources? : ResourceStore = ResourceStore(),
   deadline_ms? : Int64,
 ) -> NodeContext
 ```
@@ -577,7 +577,7 @@ pub(all) struct CodingAgent {
 
 The runtime never passes a session created by one adapter into another adapter.
 
-`close` is idempotent at the session boundary, and the resource store invokes it at most once.
+`close` is idempotent at the session boundary, and the coding-agent resource registers it as an ordinary cleanup callback that runs at most once.
 
 An executing session responds to task cancellation by terminating or cancelling its owned process work before the async call exits.
 
@@ -589,32 +589,51 @@ pub(all) enum ResourceScope {
   Run
 } derive(Debug, Eq)
 
-pub struct RuntimeResourceStore
+pub struct ResourceStore
 
-pub fn RuntimeResourceStore::RuntimeResourceStore() -> RuntimeResourceStore
+pub fn ResourceStore::ResourceStore() -> ResourceStore
 
-pub async fn RuntimeResourceStore::acquire_agent_session(
-  self : RuntimeResourceStore,
-  key : ResourceKey,
+pub fn[T] ResourceStore::set(
+  self : ResourceStore,
+  reference : @any_collection.AnyRef[ResourceKey, T],
+  value : T,
+) -> Unit
+
+pub fn[T] ResourceStore::get(
+  self : ResourceStore,
+  reference : @any_collection.AnyRef[ResourceKey, T],
+) -> T? raise
+
+pub fn[T] ResourceStore::remove(
+  self : ResourceStore,
+  reference : @any_collection.AnyRef[ResourceKey, T],
+) -> Unit
+
+pub async fn[T] ResourceStore::acquire_resource(
+  self : ResourceStore,
+  reference : @any_collection.AnyRef[ResourceKey, T],
   scope : ResourceScope,
-  open : async () -> &CodingAgentSession,
+  open : async () -> T,
+  cleanup : async (T) -> Unit,
   owner? : NodeId,
-) -> &CodingAgentSession
+) -> T
 
-pub async fn RuntimeResourceStore::release_node(
-  self : RuntimeResourceStore,
+pub async fn ResourceStore::release_node(
+  self : ResourceStore,
   node_id : NodeId,
 ) -> Unit
 
-pub async fn RuntimeResourceStore::close_all(
-  self : RuntimeResourceStore,
+pub async fn ResourceStore::close_all(
+  self : ResourceStore,
 ) -> Unit
 
-pub async fn RuntimeResourceStore::finalize(
-  self : RuntimeResourceStore,
+pub async fn ResourceStore::finalize(
+  self : ResourceStore,
   timeout_ms : Int,
 ) -> Unit
 ```
+
+The store accepts any `@any.Anyable` value, including mutable process-local resources that cannot be represented in graph `Json` state. `set`, `get`, and `remove` manage plain values. `acquire_resource` adds the same optional Node- or Run-scoped lifecycle to any resource type.
 
 ```moonbit
 pub(all) suberror ResourceStoreError {
@@ -625,17 +644,13 @@ pub(all) suberror ResourceStoreError {
 } derive(Debug)
 ```
 
-The MVP store is deliberately specialized to the common coding-agent session interface.
+Run-scoped resources are reused through their typed reference inside one invocation.
 
-A heterogeneous arbitrary-resource container is deferred until MoonBit has a concrete typed use case for retrieval.
-
-Run-scoped sessions are reused by resource key inside one invocation.
-
-Node-scoped sessions require `owner` and close after that node attempt; run-scoped sessions omit the owner and are reused by key.
+Node-scoped resources require `owner` and run their registered cleanup after that node attempt; run-scoped resources omit the owner and remain until finalization.
 
 Open failures are never inserted into the store.
 
-Resources close in reverse acquisition order.
+Managed resources run cleanup in reverse acquisition order. A coding-agent process is stored as an ordinary typed resource and uses this same acquisition and cleanup path.
 
 ## Coding-Agent Node
 

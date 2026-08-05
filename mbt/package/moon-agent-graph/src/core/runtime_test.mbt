@@ -9,26 +9,43 @@ fn success_end_router() -> Router[Int] {
 }
 
 ///|
-struct RuntimeTestSession {
+struct RuntimeTestResource {
   label : String
   closed : Array[String]
+} derive(Debug)
+
+///|
+extenum @any.Payload += {
+  RuntimeTestResource(RuntimeTestResource)
 }
 
 ///|
-impl CodingAgentSession for RuntimeTestSession with fn id(_self) {
-  None
+impl @any.Anyable for RuntimeTestResource with fn iso() {
+  {
+    id: @any.TypeId::TypeId(
+      "totto2727/moon-agent-graph/core/runtime-test",
+      "RuntimeTestResource",
+      [],
+    ),
+    box: resource => RuntimeTestResource(resource),
+    unbox: payload => {
+      guard payload is RuntimeTestResource(resource)
+      resource
+    },
+  }
 }
 
 ///|
-impl CodingAgentSession for RuntimeTestSession with fn execute(_self, _request) {
+fn runtime_test_resource_ref(
+  key : ResourceKey,
+) -> @any_collection.AnyRef[ResourceKey, RuntimeTestResource] {
+  @any_collection.AnyRef::AnyRef(key)
+}
+
+///|
+async fn close_runtime_test_resource(resource : RuntimeTestResource) -> Unit {
   @async.pause()
-  CodingAgentResponse::CodingAgentResponse(Succeeded, None, None, [], [], None)
-}
-
-///|
-impl CodingAgentSession for RuntimeTestSession with fn close(self) {
-  @async.pause()
-  self.closed.push(self.label)
+  resource.closed.push(resource.label)
 }
 
 ///|
@@ -248,12 +265,16 @@ async test "GraphRuntime invoke 7 - isolates state resources and run IDs across 
       _state : Int,
     ) {
       let label = "session-\{opened.length()}"
-      context.resources.acquire_agent_session(resource_key, Run, async fn() {
-        @async.pause()
-        opened.push(label)
-        let session = RuntimeTestSession::{ label, closed }
-        (session : &CodingAgentSession)
-      })
+      context.resources.acquire_resource(
+        runtime_test_resource_ref(resource_key),
+        Run,
+        async fn() {
+          @async.pause()
+          opened.push(label)
+          RuntimeTestResource::{ label, closed }
+        },
+        close_runtime_test_resource,
+      )
       |> ignore
       run_ids.push(context.run_id.to_string())
       @async.pause()
@@ -507,27 +528,42 @@ suberror W4LifecycleTestError {
 enum W4ClosePlan {
   W4CloseSucceeds
   W4CloseFails(String)
+} derive(Debug)
+
+///|
+trait W4ResourceLifecycle {
+  async fn close(Self) -> Unit
 }
 
 ///|
-struct W4LifecycleSession {
+struct W4LifecycleResource {
   closed : Array[String]
   plan : W4ClosePlan
+} derive(Debug)
+
+///|
+extenum @any.Payload += {
+  W4LifecycleResource(W4LifecycleResource)
 }
 
 ///|
-impl CodingAgentSession for W4LifecycleSession with fn id(_self) {
-  None
+impl @any.Anyable for W4LifecycleResource with fn iso() {
+  {
+    id: @any.TypeId::TypeId(
+      "totto2727/moon-agent-graph/core/runtime-test",
+      "W4LifecycleResource",
+      [],
+    ),
+    box: resource => W4LifecycleResource(resource),
+    unbox: payload => {
+      guard payload is W4LifecycleResource(resource)
+      resource
+    },
+  }
 }
 
 ///|
-impl CodingAgentSession for W4LifecycleSession with fn execute(_self, _request) {
-  @async.pause()
-  CodingAgentResponse::CodingAgentResponse(Succeeded, None, None, [], [], None)
-}
-
-///|
-impl CodingAgentSession for W4LifecycleSession with fn close(self) {
+impl W4ResourceLifecycle for W4LifecycleResource with fn close(self) {
   match self.plan {
     W4CloseSucceeds => self.closed.push("closed")
     W4CloseFails(message) => {
@@ -538,12 +574,18 @@ impl CodingAgentSession for W4LifecycleSession with fn close(self) {
 }
 
 ///|
-fn w4_lifecycle_session(
+fn w4_lifecycle_resource(
   closed : Array[String],
   plan : W4ClosePlan,
-) -> &CodingAgentSession {
-  let session = W4LifecycleSession::{ closed, plan }
-  (session : &CodingAgentSession)
+) -> W4LifecycleResource {
+  W4LifecycleResource::{ closed, plan }
+}
+
+///|
+fn w4_lifecycle_resource_ref(
+  key : ResourceKey,
+) -> @any_collection.AnyRef[ResourceKey, W4LifecycleResource] {
+  @any_collection.AnyRef::AnyRef(key)
 }
 
 ///|
@@ -591,13 +633,14 @@ async test "GraphRuntime lifecycle 1 - cancellation closes resources and stops c
     let events : Array[GraphEvent] = []
     let graph = w4_lifecycle_graph(
       async fn(context, _state) {
-        context.resources.acquire_agent_session(
-          ResourceKey::parse("cancelled-session"),
+        context.resources.acquire_resource(
+          w4_lifecycle_resource_ref(ResourceKey::parse("cancelled-resource")),
           Node,
           async fn() {
             @async.pause()
-            w4_lifecycle_session(closed, W4CloseSucceeds)
+            w4_lifecycle_resource(closed, W4CloseSucceeds)
           },
+          W4ResourceLifecycle::close,
           owner=context.node_id,
         )
         |> ignore
@@ -719,13 +762,14 @@ async test "GraphRuntime lifecycle 3 - cleanup-only failure becomes ResourceClea
   let events : Array[GraphEvent] = []
   let graph = w4_lifecycle_graph(
     async fn(context, _state) {
-      context.resources.acquire_agent_session(
-        ResourceKey::parse("cleanup-only"),
+      context.resources.acquire_resource(
+        w4_lifecycle_resource_ref(ResourceKey::parse("cleanup-only")),
         Run,
         async fn() {
           @async.pause()
-          w4_lifecycle_session(closed, W4CloseFails("cleanup-only"))
+          w4_lifecycle_resource(closed, W4CloseFails("cleanup-only"))
         },
+        W4ResourceLifecycle::close,
       )
       |> ignore
       NodeOutput::NodeOutput(None, None, [])
@@ -758,13 +802,14 @@ async test "GraphRuntime lifecycle 4 - primary and cleanup failures remain disti
   let events : Array[GraphEvent] = []
   let graph = w4_lifecycle_graph(
     async fn(context, _state) {
-      context.resources.acquire_agent_session(
-        ResourceKey::parse("primary-and-cleanup"),
+      context.resources.acquire_resource(
+        w4_lifecycle_resource_ref(ResourceKey::parse("primary-and-cleanup")),
         Run,
         async fn() {
           @async.pause()
-          w4_lifecycle_session(closed, W4CloseFails("secondary"))
+          w4_lifecycle_resource(closed, W4CloseFails("secondary"))
         },
+        W4ResourceLifecycle::close,
       )
       |> ignore
       raise W4NodeFailed("primary")

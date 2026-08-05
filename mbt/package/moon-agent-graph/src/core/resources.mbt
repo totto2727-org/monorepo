@@ -13,61 +13,101 @@ pub suberror ResourceStoreError {
 } derive(Debug)
 
 ///|
-struct StoredSession {
-  session : &CodingAgentSession
+struct StoredResourceCleanup {
+  key : ResourceKey
   scope : ResourceScope
   owner : NodeId?
+  cleanup : async () -> Unit
   mut closed : Bool
 }
 
 ///|
-pub struct RuntimeResourceStore {
-  sessions : Array[StoredSession]
-  run_entries : Map[ResourceKey, Int]
+pub struct ResourceStore {
+  values : @any_collection.AnyMutableMap[ResourceKey]
+  cleanups : Array[StoredResourceCleanup]
 }
 
 ///|
-pub fn RuntimeResourceStore::RuntimeResourceStore() -> RuntimeResourceStore {
-  RuntimeResourceStore::{ sessions: [], run_entries: Map([]) }
+pub fn ResourceStore::ResourceStore() -> ResourceStore {
+  ResourceStore::{
+    values: @any_collection.AnyMutableMap::AnyMutableMap([]),
+    cleanups: [],
+  }
 }
 
 ///|
-pub async fn RuntimeResourceStore::acquire_agent_session(
-  self : RuntimeResourceStore,
-  key : ResourceKey,
+/// Stores an invocation-local value through a typed resource reference.
+pub fn[T] ResourceStore::set(
+  self : ResourceStore,
+  reference : @any_collection.AnyRef[ResourceKey, T],
+  value : T,
+) -> Unit {
+  self.values.set(reference, value)
+}
+
+///|
+/// Returns an invocation-local value through its typed resource reference.
+///
+/// A missing key returns `None`; reusing a key with a different value type
+/// raises the conversion error from `AnyRef`.
+pub fn[T] ResourceStore::get(
+  self : ResourceStore,
+  reference : @any_collection.AnyRef[ResourceKey, T],
+) -> T? raise {
+  self.values.get(reference)
+}
+
+///|
+/// Removes the invocation-local value selected by `reference`.
+pub fn[T] ResourceStore::remove(
+  self : ResourceStore,
+  reference : @any_collection.AnyRef[ResourceKey, T],
+) -> Unit {
+  self.values.map.remove(reference.key)
+}
+
+///|
+/// Acquires any typed resource and records its cleanup independently of the
+/// resource's concrete type.
+pub async fn[T] ResourceStore::acquire_resource(
+  self : ResourceStore,
+  reference : @any_collection.AnyRef[ResourceKey, T],
   scope : ResourceScope,
-  open : async () -> &CodingAgentSession,
+  open : async () -> T,
+  cleanup : async (T) -> Unit,
   owner? : NodeId,
-) -> &CodingAgentSession {
+) -> T {
   match scope {
     Run =>
-      match self.run_entries.get(key) {
-        Some(index) if !self.sessions[index].closed =>
-          return self.sessions[index].session
+      match self.get(reference) {
+        Some(resource) => return resource
         _ => ()
       }
-    Node => if owner is None { raise NodeOwnerRequired(key) }
+    Node => if owner is None { raise NodeOwnerRequired(reference.key) }
   }
-  let session = open()
-  let index = self.sessions.length()
-  self.sessions.push(StoredSession::{ session, scope, owner, closed: false })
-  if scope == Run {
-    self.run_entries[key] = index
-  }
-  session
+  let resource = open()
+  self.set(reference, resource)
+  self.cleanups.push(StoredResourceCleanup::{
+    key: reference.key,
+    scope,
+    owner,
+    cleanup: async fn() { cleanup(resource) },
+    closed: false,
+  })
+  resource
 }
 
 ///|
-async fn RuntimeResourceStore::close_session(
-  self : RuntimeResourceStore,
+async fn ResourceStore::close_resource(
+  self : ResourceStore,
   index : Int,
   errors : Array[Error],
 ) -> Unit {
-  if self.sessions[index].closed {
+  if self.cleanups[index].closed {
     return
   }
-  self.sessions[index].closed = true
-  self.sessions[index].session.close() catch {
+  self.cleanups[index].closed = true
+  (self.cleanups[index].cleanup)() catch {
     error =>
       if @async.is_cancellation_error(error) {
         raise error
@@ -75,19 +115,20 @@ async fn RuntimeResourceStore::close_session(
         errors.push(error)
       }
   }
+  self.values.map.remove(self.cleanups[index].key)
 }
 
 ///|
-pub async fn RuntimeResourceStore::release_node(
-  self : RuntimeResourceStore,
+pub async fn ResourceStore::release_node(
+  self : ResourceStore,
   node_id : NodeId,
 ) -> Unit {
   let errors : Array[Error] = []
-  let mut index = self.sessions.length() - 1
+  let mut index = self.cleanups.length() - 1
   while index >= 0 {
-    let stored = self.sessions[index]
+    let stored = self.cleanups[index]
     if stored.scope == Node && stored.owner == Some(node_id) {
-      self.close_session(index, errors)
+      self.close_resource(index, errors)
     }
     index = index - 1
   }
@@ -97,13 +138,11 @@ pub async fn RuntimeResourceStore::release_node(
 }
 
 ///|
-pub async fn RuntimeResourceStore::close_all(
-  self : RuntimeResourceStore,
-) -> Unit {
+pub async fn ResourceStore::close_all(self : ResourceStore) -> Unit {
   let errors : Array[Error] = []
-  let mut index = self.sessions.length() - 1
+  let mut index = self.cleanups.length() - 1
   while index >= 0 {
-    self.close_session(index, errors)
+    self.close_resource(index, errors)
     index = index - 1
   }
   if !errors.is_empty() {
@@ -112,8 +151,8 @@ pub async fn RuntimeResourceStore::close_all(
 }
 
 ///|
-pub async fn RuntimeResourceStore::finalize(
-  self : RuntimeResourceStore,
+pub async fn ResourceStore::finalize(
+  self : ResourceStore,
   timeout_ms : Int,
 ) -> Unit {
   if timeout_ms <= 0 {
