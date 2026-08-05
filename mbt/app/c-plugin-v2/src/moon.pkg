@@ -1,0 +1,19 @@
+import {
+  "moonbitlang/async",
+  "totto2727/admiral",
+}
+
+import {
+  "mizchi/bit_lib",
+  "mizchi/bit_lib/native" @bit_native,
+  "mizchi/bit_osfs",
+  "mizchi/tui",
+  "moonbitlang/async/fs",
+  "moonbitlang/x/path",
+  "totto2727/lens",
+  "totto2727/target-file-discovery" @target_file_discovery,
+} for "wbtest"
+
+supported_targets = "native"
+
+pkgtype(kind: "executable")
