@@ -1,37 +1,53 @@
 ///|
 /// Shared deterministic workflow state.
-pub(all) struct WorkflowState {
+pub struct WorkflowState {
   order : Array[String]
   continuation : String?
 }
 
 ///|
+/// Creates deterministic workflow state for E2E scenarios.
+pub fn WorkflowState::WorkflowState(
+  order : Array[String],
+  continuation : String?,
+) -> WorkflowState {
+  WorkflowState::{ order, continuation }
+}
+
+///|
 /// Shared deterministic workflow patch.
-pub(all) struct WorkflowPatch {
+pub struct WorkflowPatch {
   label : String
   continuation : String?
 }
 
 ///|
+/// Creates one deterministic workflow patch for E2E scenarios.
+pub fn WorkflowPatch::WorkflowPatch(
+  label : String,
+  continuation : String?,
+) -> WorkflowPatch {
+  WorkflowPatch::{ label, continuation }
+}
+
+///|
 /// Creates empty workflow state.
 pub fn workflow_initial_state() -> WorkflowState {
-  { order: [], continuation: None }
+  WorkflowState::WorkflowState([], None)
 }
 
 ///|
 /// Applies one observable workflow step.
 pub fn workflow_reducer() -> @core.Reducer[WorkflowState, WorkflowPatch] {
-  {
-    apply: fn(state, patch) {
-      {
-        order: [..state.order, patch.label],
-        continuation: match patch.continuation {
-          Some(value) => Some(value)
-          None => state.continuation
-        },
-      }
-    },
-  }
+  @core.Reducer::Reducer(fn(state, patch) {
+    WorkflowState::WorkflowState(
+      [..state.order, patch.label],
+      match patch.continuation {
+        Some(value) => Some(value)
+        None => state.continuation
+      },
+    )
+  })
 }
 
 ///|
@@ -40,7 +56,7 @@ pub fn workflow_metadata(
   name : String,
   kind? : @core.NodeKind = @core.Function,
 ) -> @core.NodeMetadata {
-  { name, description: None, kind, tags: [] }
+  @core.NodeMetadata::NodeMetadata(name, None, kind, [])
 }
 
 ///|
@@ -51,11 +67,11 @@ pub fn workflow_function_node(
 ) -> @core.Node[WorkflowState, WorkflowPatch] {
   @core.function_node(id, workflow_metadata(label), async fn(_context, _state) {
     @async.pause()
-    @core.NodeOutput::{
-      patch: Some({ label, continuation: None }),
-      value: None,
-      artifacts: [],
-    }
+    @core.NodeOutput::NodeOutput(
+      Some(WorkflowPatch::WorkflowPatch(label, None)),
+      None,
+      [],
+    )
   })
 }
 
@@ -69,40 +85,37 @@ pub fn workflow_agent_node(
   @coding_agent.coding_agent_node(
     id,
     workflow_metadata(label, kind=@core.CodingAgent),
-    @coding_agent.CodingAgentNodeSpec::{
+    @coding_agent.CodingAgentNodeSpec::CodingAgentNodeSpec(
       agent,
-      resource_key: @core.ResourceKey::parse("workflow-\{label}") catch {
+      @core.ResourceKey::parse("workflow-\{label}") catch {
         _ => abort("workflow resource key must be valid")
       },
-      resource_scope: @core.Run,
-      open_context: fn(context, _state) {
-        @core.CodingAgentOpenContext::{
-          run_id: context.run_id,
-          task_group: context.task_group,
-          workspace: @core.WorkspaceRef::{
-            root: @path.Path("."),
-            additional_writable_roots: [],
-          },
-          approval: @core.Never,
-          network: @core.Disabled,
-          environment: @immut_hashmap.new(),
-          events: context.events,
-        }
+      @core.Run,
+      fn(context, _state) {
+        @core.CodingAgentOpenContext::CodingAgentOpenContext(
+          context.run_id,
+          context.task_group,
+          @core.WorkspaceRef::WorkspaceRef(@path.Path("."), []),
+          @core.Never,
+          @core.Disabled,
+          @immut_hashmap.new(),
+          context.events,
+        )
       },
-      build_request: fn(_context, state) {
-        @core.CodingAgentRequest::{
-          instruction: "\{label} request \{state.order.length() + 1}",
-          context_files: [],
-        }
+      fn(_context, state) {
+        @core.CodingAgentRequest::CodingAgentRequest(
+          "\{label} request \{state.order.length() + 1}",
+          [],
+        )
       },
-      decode_response: fn(_state, response) {
-        @core.NodeOutput::{
-          patch: Some({ label, continuation: response.continuation_id }),
-          value: None,
-          artifacts: [],
-        }
+      fn(_state, response) {
+        @core.NodeOutput::NodeOutput(
+          Some(WorkflowPatch::WorkflowPatch(label, response.continuation_id)),
+          None,
+          [],
+        )
       },
-    },
+    ),
   )
 }
 

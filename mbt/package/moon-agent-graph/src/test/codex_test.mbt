@@ -93,25 +93,24 @@ fn codex_integration_context(
   group : @async.TaskGroup[Unit],
   mode : String,
 ) -> @core.CodingAgentOpenContext {
-  @core.CodingAgentOpenContext::{
-    run_id: @core.RunId::parse("codex-integration-run") catch {
+  @core.CodingAgentOpenContext::CodingAgentOpenContext(
+    @core.RunId::parse("codex-integration-run") catch {
       _ => abort("integration run ID must be valid")
     },
-    task_group: group,
-    workspace: @core.WorkspaceRef::{
-      root: @path.Path(fixture.root),
-      additional_writable_roots: [@path.Path("\{fixture.root}/extra")],
-    },
-    approval: @core.OnRequest,
-    network: @core.Enabled,
-    environment: @immut_hashmap.HashMap([
+    group,
+    @core.WorkspaceRef::WorkspaceRef(@path.Path(fixture.root), [
+      @path.Path("\{fixture.root}/extra"),
+    ]),
+    @core.OnRequest,
+    @core.Enabled,
+    @immut_hashmap.HashMap([
       ("PATH", "/usr/bin:/bin"),
       ("FAKE_CODEX_RECORDS", fixture.records),
       ("FAKE_CODEX_MODE", mode),
       ("MAPPED_ENV", "present"),
     ]),
-    events: @core.EventSink::discard(),
-  }
+    @core.EventSink::discard(),
+  )
 }
 
 ///|
@@ -141,14 +140,14 @@ async test "codex_agent integration 1 - starts then resumes with mapped CLI opti
       let session = (codex_integration_agent(fixture).open)(
         codex_integration_context(fixture, group, "success"),
       )
-      let first = session.execute(@core.CodingAgentRequest::{
-        instruction: "first instruction",
-        context_files: [@path.Path("README.md")],
-      })
-      let second = session.execute(@core.CodingAgentRequest::{
-        instruction: "second instruction",
-        context_files: [],
-      })
+      let first = session.execute(
+        @core.CodingAgentRequest::CodingAgentRequest("first instruction", [
+          @path.Path("README.md"),
+        ]),
+      )
+      let second = session.execute(
+        @core.CodingAgentRequest::CodingAgentRequest("second instruction", []),
+      )
       debug_inspect(first.summary, content="Some(\"summary-1\")")
       debug_inspect(first.continuation_id, content="Some(\"thread-1\")")
       inspect(first.changed_files[0].to_string(), content="src/success.mbt")
@@ -196,10 +195,9 @@ async test "codex_agent integration 2 - propagates turn.failed without waiting f
       )
       let message = try {
         @async.with_timeout(2000, async fn() {
-          session.execute(@core.CodingAgentRequest::{
-            instruction: "fail",
-            context_files: [],
-          })
+          session.execute(
+            @core.CodingAgentRequest::CodingAgentRequest("fail", []),
+          )
           |> ignore
         })
         "no error"
@@ -221,35 +219,32 @@ async test "codex_agent integration 3 - caller cancellation kills the started su
     @async.with_task_group() <| group => {
       let node_id = @core.NodeId::parse("codex-cancel")
       let events : Array[@core.GraphEvent] = []
-      let definition = @core.GraphDefinition::GraphDefinition(@core.Reducer::{
-        apply: fn(state : Int, patch : Int) { state + patch },
-      })
+      let definition = @core.GraphDefinition::GraphDefinition(
+        @core.Reducer::Reducer(fn(state : Int, patch : Int) { state + patch }),
+      )
       definition.add_node(
         @coding_agent.coding_agent_node(
           node_id,
-          @core.NodeMetadata::{
-            name: "codex-cancel",
-            description: None,
-            kind: @core.CodingAgent,
-            tags: ["integration"],
-          },
-          @coding_agent.CodingAgentNodeSpec::{
-            agent: codex_integration_agent(fixture),
-            resource_key: @core.ResourceKey::parse("codex-cancel"),
-            resource_scope: @core.Run,
-            open_context: fn(context, _state) {
+          @core.NodeMetadata::NodeMetadata(
+            "codex-cancel",
+            None,
+            @core.CodingAgent,
+            ["integration"],
+          ),
+          @coding_agent.CodingAgentNodeSpec::CodingAgentNodeSpec(
+            codex_integration_agent(fixture),
+            @core.ResourceKey::parse("codex-cancel"),
+            @core.Run,
+            fn(context, _state) {
               codex_integration_context(fixture, context.task_group, "pause")
             },
-            build_request: fn(_context, _state) {
-              @core.CodingAgentRequest::{
-                instruction: "cancel",
-                context_files: [],
-              }
+            fn(_context, _state) {
+              @core.CodingAgentRequest::CodingAgentRequest("cancel", [])
             },
-            decode_response: fn(_state, _response) {
-              @core.NodeOutput::{ patch: Some(1), value: None, artifacts: [] }
+            fn(_state, _response) {
+              @core.NodeOutput::NodeOutput(Some(1), None, [])
             },
-          },
+          ),
         ),
       )
       definition.set_router(

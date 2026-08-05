@@ -13,14 +13,14 @@ impl CodingAgentSession for ScopeFakeSession with fn id(self) {
 ///|
 impl CodingAgentSession for ScopeFakeSession with fn execute(self, _request) {
   @async.pause()
-  CodingAgentResponse::{
-    status: Succeeded,
-    summary: Some(self.label),
-    continuation_id: None,
-    changed_files: [],
-    artifacts: [],
-    raw_output: None,
-  }
+  CodingAgentResponse::CodingAgentResponse(
+    Succeeded,
+    Some(self.label),
+    None,
+    [],
+    [],
+    None,
+  )
 }
 
 ///|
@@ -136,14 +136,14 @@ impl CodingAgentSession for LifecycleSession with fn id(self) {
 ///|
 impl CodingAgentSession for LifecycleSession with fn execute(self, _request) {
   @async.pause()
-  CodingAgentResponse::{
-    status: Succeeded,
-    summary: Some(self.label),
-    continuation_id: None,
-    changed_files: [],
-    artifacts: [],
-    raw_output: None,
-  }
+  CodingAgentResponse::CodingAgentResponse(
+    Succeeded,
+    Some(self.label),
+    None,
+    [],
+    [],
+    None,
+  )
 }
 
 ///|

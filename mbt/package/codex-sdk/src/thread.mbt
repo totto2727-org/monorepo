@@ -4,7 +4,7 @@
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L9-L14
-pub(all) struct Turn {
+pub struct Turn {
   items : ReadOnlyArray[ThreadItem]
   final_response : String
   usage : Usage?

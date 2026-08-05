@@ -32,7 +32,7 @@ pub fn ServerOptions::ServerOptions(
 
 ///|
 /// Failures that can occur while starting or stopping an OpenCode server.
-pub(all) suberror ServerError {
+pub suberror ServerError {
   /// The server process or its log files could not be created.
   StartFailed(String)
   /// The server did not announce readiness before the configured timeout.

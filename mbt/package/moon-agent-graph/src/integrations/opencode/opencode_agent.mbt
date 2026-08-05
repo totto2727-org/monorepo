@@ -1,6 +1,6 @@
 ///|
 /// Configuration shared by every OpenCode CLI session opened by this adapter.
-pub(all) struct OpenCodeAgentOptions {
+pub struct OpenCodeAgentOptions {
   opencode_path_override : @path.Path?
   config : @sdk.OpenCodeConfigObject?
   resume_thread_id : String?
@@ -40,7 +40,7 @@ pub fn OpenCodeAgentOptions::OpenCodeAgentOptions(
 
 ///|
 /// Raised when execution is requested after a session has closed.
-pub(all) suberror OpenCodeAdapterError {
+pub suberror OpenCodeAdapterError {
   SessionClosed
 } derive(Debug)
 
@@ -117,14 +117,14 @@ impl @core.CodingAgentSession for OpenCodeAgentSession with fn execute(
     Ok(turn) => turn
     Err(error) => raise error
   }
-  @core.CodingAgentResponse::{
-    status: @core.Succeeded,
-    summary: Some(turn.final_response),
-    continuation_id: self.thread.id(),
-    changed_files: [],
-    artifacts: [],
-    raw_output: None,
-  }
+  @core.CodingAgentResponse::CodingAgentResponse(
+    @core.Succeeded,
+    Some(turn.final_response),
+    self.thread.id(),
+    [],
+    [],
+    None,
+  )
 }
 
 ///|
@@ -140,37 +140,33 @@ pub fn opencode_agent(
   id : @core.CodingAgentId,
   options : OpenCodeAgentOptions,
 ) -> @core.CodingAgent {
-  {
-    id,
-    open: async fn(context) {
-      @async.pause()
-      let client = @sdk.OpenCode::OpenCode(
-        options=@sdk.OpenCodeOptions::OpenCodeOptions(
-          opencode_path_override?=options.opencode_path_override,
-          config?=options.config,
-          env=merged_environment(options, context),
-        ),
-      )
-      let thread_options = @sdk.ThreadOptions::ThreadOptions(
-        model?=options.model,
-        agent?=options.agent,
-        working_directory=context.workspace.root,
-        variant?=options.variant,
-        title?=options.title,
-        thinking=options.thinking,
-      )
-      let thread = match options.resume_thread_id {
-        Some(thread_id) =>
-          client.resume_thread(thread_id, options=thread_options)
-        None => client.start_thread(options=thread_options)
-      }
-      let session = OpenCodeAgentSession::{
-        thread,
-        workspace_root: context.workspace.root,
-        mutex: @async.Mutex::Mutex(),
-        closed: false,
-      }
-      (session : &@core.CodingAgentSession)
-    },
-  }
+  @core.CodingAgent::CodingAgent(id, async fn(context) {
+    @async.pause()
+    let client = @sdk.OpenCode::OpenCode(
+      options=@sdk.OpenCodeOptions::OpenCodeOptions(
+        opencode_path_override?=options.opencode_path_override,
+        config?=options.config,
+        env=merged_environment(options, context),
+      ),
+    )
+    let thread_options = @sdk.ThreadOptions::ThreadOptions(
+      model?=options.model,
+      agent?=options.agent,
+      working_directory=context.workspace.root,
+      variant?=options.variant,
+      title?=options.title,
+      thinking=options.thinking,
+    )
+    let thread = match options.resume_thread_id {
+      Some(thread_id) => client.resume_thread(thread_id, options=thread_options)
+      None => client.start_thread(options=thread_options)
+    }
+    let session = OpenCodeAgentSession::{
+      thread,
+      workspace_root: context.workspace.root,
+      mutex: @async.Mutex::Mutex(),
+      closed: false,
+    }
+    (session : &@core.CodingAgentSession)
+  })
 }

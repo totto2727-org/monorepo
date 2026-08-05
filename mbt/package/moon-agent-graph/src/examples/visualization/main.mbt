@@ -5,19 +5,14 @@ fn example_node(
   kind : @core.NodeKind,
   description : String,
 ) -> @core.Node[Int, Unit] {
-  @core.Node::{
+  @core.function_node(
     id,
-    metadata: @core.NodeMetadata::{
-      name,
-      description: Some(description),
-      kind,
-      tags: [],
-    },
-    execute: async fn(_context, _state) {
+    @core.NodeMetadata::NodeMetadata(name, Some(description), kind, []),
+    async fn(_context, _state) {
       @async.pause()
-      @core.NodeOutput::{ patch: None, value: None, artifacts: [] }
+      @core.NodeOutput::NodeOutput(None, None, [])
     },
-  }
+  )
 }
 
 ///|
@@ -29,9 +24,9 @@ async fn main {
   let fix = @core.NodeId::parse("04-fix")
   let review = @core.NodeId::parse("05-review")
   let release = @core.NodeId::parse("06-release")
-  let definition = @core.GraphDefinition::GraphDefinition(@core.Reducer::{
-    apply: fn(state, _patch) { state },
-  })
+  let definition = @core.GraphDefinition::GraphDefinition(
+    @core.Reducer::Reducer(fn(state, _patch) { state }),
+  )
   definition.add_node(example_node(plan, "Plan", @core.Llm, "Create a plan"))
   definition.add_node(
     example_node(implement, "Implement", @core.CodingAgent, "Write the change"),

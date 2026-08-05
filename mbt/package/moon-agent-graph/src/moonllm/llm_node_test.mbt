@@ -6,12 +6,7 @@ suberror LlmNodeTestError {
 
 ///|
 fn llm_node_metadata() -> @core.NodeMetadata {
-  @core.NodeMetadata::{
-    name: "plan",
-    description: None,
-    kind: @core.Llm,
-    tags: ["llm-node-test"],
-  }
+  @core.NodeMetadata::NodeMetadata("plan", None, @core.Llm, ["llm-node-test"])
 }
 
 ///|
@@ -63,32 +58,36 @@ async test "llm_node 1 - builds a typed request and decodes its response" {
   @async.with_task_group() <| group => {
     let node_id = @core.NodeId::parse("plan")
     let requests : Array[String] = []
-    let node : @core.Node[Int, Int] = llm_node(node_id, llm_node_metadata(), LlmNodeSpec::{
-      build_request: fn(_context, state : Int) {
-        @llm.ChatRequest::new("fake-model", [
-          @llm.Message::user("state=\{state}"),
-        ])
-      },
-      invoke: async fn(request) {
-        requests.push(request.messages[0].content.to_text())
-        @async.pause()
-        fake_response("apply-2")
-      },
-      decode_response: fn(_state, response) {
-        @core.NodeOutput::{
-          patch: Some(2),
-          value: Some(Json::string(response.text())),
-          artifacts: [
-            @core.Artifact::{
-              kind: @core.Text,
-              name: "moonllm-usage",
-              uri: None,
-              metadata: Some(Json::number(response.total_tokens().to_double())),
-            },
-          ],
-        }
-      },
-    })
+    let node : @core.Node[Int, Int] = llm_node(
+      node_id,
+      llm_node_metadata(),
+      LlmNodeSpec::LlmNodeSpec(
+        fn(_context, state : Int) {
+          @llm.ChatRequest::new("fake-model", [
+            @llm.Message::user("state=\{state}"),
+          ])
+        },
+        async fn(request) {
+          requests.push(request.messages[0].content.to_text())
+          @async.pause()
+          fake_response("apply-2")
+        },
+        fn(_state, response) {
+          @core.NodeOutput::NodeOutput(
+            Some(2),
+            Some(Json::string(response.text())),
+            [
+              @core.Artifact::Artifact(
+                @core.Text,
+                "moonllm-usage",
+                None,
+                Some(Json::number(response.total_tokens().to_double())),
+              ),
+            ],
+          )
+        },
+      ),
+    )
     let output = (node.execute)(test_context(group, node_id), 7)
     inspect(requests.join(","), content="state=7")
     debug_inspect(output.patch, content="Some(2)")
@@ -109,25 +108,29 @@ async test "llm_node 1 - builds a typed request and decodes its response" {
 async test "llm_node 2 - applies a decoded patch through GraphRuntime" {
   let node_id = @core.NodeId::parse("plan")
   let mut invokes = 0
-  let definition = @core.GraphDefinition::GraphDefinition(@core.Reducer::{
-    apply: fn(state : Int, patch : Int) { state + patch },
-  })
+  let definition = @core.GraphDefinition::GraphDefinition(
+    @core.Reducer::Reducer(fn(state : Int, patch : Int) { state + patch }),
+  )
   definition.add_node(
-    llm_node(node_id, llm_node_metadata(), LlmNodeSpec::{
-      build_request: fn(_context, state : Int) {
-        @llm.ChatRequest::new("fake-model", [
-          @llm.Message::user("state=\{state}"),
-        ])
-      },
-      invoke: async fn(_request) {
-        invokes = invokes + 1
-        @async.pause()
-        fake_response("increment")
-      },
-      decode_response: fn(_state, _response) {
-        @core.NodeOutput::{ patch: Some(3), value: None, artifacts: [] }
-      },
-    }),
+    llm_node(
+      node_id,
+      llm_node_metadata(),
+      LlmNodeSpec::LlmNodeSpec(
+        fn(_context, state : Int) {
+          @llm.ChatRequest::new("fake-model", [
+            @llm.Message::user("state=\{state}"),
+          ])
+        },
+        async fn(_request) {
+          invokes = invokes + 1
+          @async.pause()
+          fake_response("increment")
+        },
+        fn(_state, _response) {
+          @core.NodeOutput::NodeOutput(Some(3), None, [])
+        },
+      ),
+    ),
   )
   definition.set_router(
     node_id,
@@ -146,20 +149,22 @@ async test "llm_node 3 - stops before invocation when request building fails" {
     let node_id = @core.NodeId::parse("build-failure")
     let mut invokes = 0
     let mut decodes = 0
-    let node : @core.Node[Int, Int] = llm_node(node_id, llm_node_metadata(), LlmNodeSpec::{
-      build_request: fn(_context, _state : Int) raise {
-        raise RequestBuildFailed
-      },
-      invoke: async fn(_request) {
-        invokes = invokes + 1
-        @async.pause()
-        fake_response("unreachable")
-      },
-      decode_response: fn(_state, _response) {
-        decodes = decodes + 1
-        @core.NodeOutput::{ patch: None, value: None, artifacts: [] }
-      },
-    })
+    let node : @core.Node[Int, Int] = llm_node(
+      node_id,
+      llm_node_metadata(),
+      LlmNodeSpec::LlmNodeSpec(
+        fn(_context, _state : Int) raise { raise RequestBuildFailed },
+        async fn(_request) {
+          invokes = invokes + 1
+          @async.pause()
+          fake_response("unreachable")
+        },
+        fn(_state, _response) {
+          decodes = decodes + 1
+          @core.NodeOutput::NodeOutput(None, None, [])
+        },
+      ),
+    )
     let observed = try {
       (node.execute)(test_context(group, node_id), 0) |> ignore
       "no error"
@@ -178,19 +183,23 @@ async test "llm_node 4 - preserves MoonLLM invocation errors without decoding" {
   @async.with_task_group() <| group => {
     let node_id = @core.NodeId::parse("invoke-failure")
     let mut decodes = 0
-    let node : @core.Node[Int, Int] = llm_node(node_id, llm_node_metadata(), LlmNodeSpec::{
-      build_request: fn(_context, _state : Int) {
-        @llm.ChatRequest::new("fake-model", [@llm.Message::user("go")])
-      },
-      invoke: async fn(_request) {
-        @async.pause()
-        raise @llm.Transport("offline")
-      },
-      decode_response: fn(_state, _response) {
-        decodes = decodes + 1
-        @core.NodeOutput::{ patch: None, value: None, artifacts: [] }
-      },
-    })
+    let node : @core.Node[Int, Int] = llm_node(
+      node_id,
+      llm_node_metadata(),
+      LlmNodeSpec::LlmNodeSpec(
+        fn(_context, _state : Int) {
+          @llm.ChatRequest::new("fake-model", [@llm.Message::user("go")])
+        },
+        async fn(_request) {
+          @async.pause()
+          raise @llm.Transport("offline")
+        },
+        fn(_state, _response) {
+          decodes = decodes + 1
+          @core.NodeOutput::NodeOutput(None, None, [])
+        },
+      ),
+    )
     let observed = try {
       (node.execute)(test_context(group, node_id), 0) |> ignore
       "no error"
@@ -207,25 +216,27 @@ async test "llm_node 4 - preserves MoonLLM invocation errors without decoding" {
 async test "llm_node 5 - decoder failure leaves runtime state unchanged" {
   let node_id = @core.NodeId::parse("decode-failure")
   let mut reductions = 0
-  let definition = @core.GraphDefinition::GraphDefinition(@core.Reducer::{
-    apply: fn(state : Int, patch : Int) {
+  let definition = @core.GraphDefinition::GraphDefinition(
+    @core.Reducer::Reducer(fn(state : Int, patch : Int) {
       reductions = reductions + 1
       state + patch
-    },
-  })
-  definition.add_node(
-    llm_node(node_id, llm_node_metadata(), LlmNodeSpec::{
-      build_request: fn(_context, _state : Int) {
-        @llm.ChatRequest::new("fake-model", [@llm.Message::user("go")])
-      },
-      invoke: async fn(_request) {
-        @async.pause()
-        fake_response("invalid")
-      },
-      decode_response: fn(_state, _response) raise {
-        raise ResponseDecodeFailed
-      },
     }),
+  )
+  definition.add_node(
+    llm_node(
+      node_id,
+      llm_node_metadata(),
+      LlmNodeSpec::LlmNodeSpec(
+        fn(_context, _state : Int) {
+          @llm.ChatRequest::new("fake-model", [@llm.Message::user("go")])
+        },
+        async fn(_request) {
+          @async.pause()
+          fake_response("invalid")
+        },
+        fn(_state, _response) raise { raise ResponseDecodeFailed },
+      ),
+    ),
   )
   definition.set_router(
     node_id,
@@ -250,20 +261,22 @@ async test "llm_node 6 - cancellation stops the in-flight invoke callback" {
     let node_id = @core.NodeId::parse("cancel")
     let mut started = false
     let mut completed = false
-    let node : @core.Node[Int, Int] = llm_node(node_id, llm_node_metadata(), LlmNodeSpec::{
-      build_request: fn(_context, _state : Int) {
-        @llm.ChatRequest::new("fake-model", [@llm.Message::user("go")])
-      },
-      invoke: async fn(_request) {
-        started = true
-        @async.pause()
-        completed = true
-        fake_response("unreachable")
-      },
-      decode_response: fn(_state, _response) {
-        @core.NodeOutput::{ patch: None, value: None, artifacts: [] }
-      },
-    })
+    let node : @core.Node[Int, Int] = llm_node(
+      node_id,
+      llm_node_metadata(),
+      LlmNodeSpec::LlmNodeSpec(
+        fn(_context, _state : Int) {
+          @llm.ChatRequest::new("fake-model", [@llm.Message::user("go")])
+        },
+        async fn(_request) {
+          started = true
+          @async.pause()
+          completed = true
+          fake_response("unreachable")
+        },
+        fn(_state, _response) { @core.NodeOutput::NodeOutput(None, None, []) },
+      ),
+    )
     let task = group.spawn(
       async fn() { (node.execute)(test_context(group, node_id), 0) |> ignore },
       allow_failure=true,

@@ -1,5 +1,5 @@
 ///|
-pub(all) enum OptionType {
+pub enum OptionType {
   StringOpt
   BoolOpt
   IntOpt
@@ -92,7 +92,7 @@ pub impl[T] ToStoredPosition for ArgDef[T, PositionMetadata] with fn to_stored_p
 }
 
 ///|
-pub(all) struct CommandDef {
+pub struct CommandDef {
   name : String
   description : String
   options : Array[StoredOption]
@@ -103,9 +103,15 @@ pub(all) struct CommandDef {
 }
 
 ///|
-pub(all) suberror ConfigLoadFailure {
+pub suberror ConfigLoadFailure {
   ConfigLoadFailure(String)
 } derive(Debug, Eq)
+
+///|
+/// Creates a configuration-loading failure for a `load_config` callback.
+pub fn config_load_failure(message : String) -> ConfigLoadFailure {
+  ConfigLoadFailure(message)
+}
 
 ///|
 pub impl Show for ConfigLoadFailure with fn output(self, logger) {
@@ -115,7 +121,7 @@ pub impl Show for ConfigLoadFailure with fn output(self, logger) {
 }
 
 ///|
-pub(all) struct Context {
+pub struct Context {
   flags : @immut_hashmap.HashMap[String, Bool]
   values : @immut_hashmap.HashMap[String, ReadOnlyArray[String]]
   sources : @immut_hashmap.HashMap[String, @argparse.ValueSource]
@@ -148,7 +154,7 @@ pub fn Context::Context(
 }
 
 ///|
-pub(all) struct CliApp {
+pub struct CliApp {
   name : String
   version : String
   description : String

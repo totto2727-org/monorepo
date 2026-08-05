@@ -1,23 +1,18 @@
 ///|
 fn test_reducer() -> Reducer[Int, Int] {
-  Reducer::{ apply: fn(state, patch) { state + patch } }
+  Reducer::Reducer(fn(state, patch) { state + patch })
 }
 
 ///|
 fn test_node(id : NodeId, tags : ReadOnlyArray[String]) -> Node[Int, Int] {
-  Node::{
+  function_node(
     id,
-    metadata: NodeMetadata::{
-      name: id.to_string(),
-      description: None,
-      kind: Function,
-      tags,
-    },
-    execute: async fn(_context, _state) {
+    NodeMetadata::NodeMetadata(id.to_string(), None, Function, tags),
+    async fn(_context, _state) {
       @async.pause()
-      NodeOutput::{ patch: None, value: None, artifacts: [] }
+      NodeOutput::NodeOutput(None, None, [])
     },
-  }
+  )
 }
 
 ///|

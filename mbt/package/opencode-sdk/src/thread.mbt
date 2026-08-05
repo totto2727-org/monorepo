@@ -1,6 +1,6 @@
 ///|
 /// A completed OpenCode turn.
-pub(all) struct Turn {
+pub struct Turn {
   events : ReadOnlyArray[ThreadEvent]
   final_response : String
 } derive(Debug, Eq)

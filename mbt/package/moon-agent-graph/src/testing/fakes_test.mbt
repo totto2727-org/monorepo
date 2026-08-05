@@ -1,33 +1,30 @@
 ///|
 fn fake_response() -> @core.CodingAgentResponse {
-  @core.CodingAgentResponse::{
-    status: @core.Succeeded,
-    summary: Some("done"),
-    continuation_id: Some("continue-1"),
-    changed_files: [],
-    artifacts: [],
-    raw_output: None,
-  }
+  @core.CodingAgentResponse::CodingAgentResponse(
+    @core.Succeeded,
+    Some("done"),
+    Some("continue-1"),
+    [],
+    [],
+    None,
+  )
 }
 
 ///|
 fn fake_open_context(
   group : @async.TaskGroup[Unit],
 ) -> @core.CodingAgentOpenContext {
-  @core.CodingAgentOpenContext::{
-    run_id: @core.RunId::parse("fake-run") catch {
+  @core.CodingAgentOpenContext::CodingAgentOpenContext(
+    @core.RunId::parse("fake-run") catch {
       _ => abort("static fake run ID must be valid")
     },
-    task_group: group,
-    workspace: @core.WorkspaceRef::{
-      root: @path.Path("/workspace"),
-      additional_writable_roots: [],
-    },
-    approval: @core.Never,
-    network: @core.Disabled,
-    environment: @immut_hashmap.new(),
-    events: @core.EventSink::discard(),
-  }
+    group,
+    @core.WorkspaceRef::WorkspaceRef(@path.Path("/workspace"), []),
+    @core.Never,
+    @core.Disabled,
+    @immut_hashmap.new(),
+    @core.EventSink::discard(),
+  )
 }
 
 ///|
@@ -50,10 +47,10 @@ async test "fake_coding_agent records exact open request and idempotent close or
     let fixture = fake_coding_agent(fake_response(), session_id~)
     let agent = fixture.agent()
     let session = (agent.open)(fake_open_context(group))
-    let request = @core.CodingAgentRequest::{
-      instruction: "update fixture",
-      context_files: [@path.Path("README.md")],
-    }
+    let request = @core.CodingAgentRequest::CodingAgentRequest(
+      "update fixture",
+      [@path.Path("README.md")],
+    )
     let response = session.execute(request)
     session.close()
     session.close()
@@ -103,10 +100,7 @@ async test "fake_coding_agent preserves scripted open and execute errors" {
     )
     let session = (execute_fixture.agent().open)(fake_open_context(group))
     let execute_error = try {
-      session.execute(@core.CodingAgentRequest::{
-        instruction: "fail",
-        context_files: [],
-      })
+      session.execute(@core.CodingAgentRequest::CodingAgentRequest("fail", []))
       |> ignore
       "no error"
     } catch {

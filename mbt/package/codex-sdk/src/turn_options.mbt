@@ -6,7 +6,7 @@
 
 ///|
 /// Type difference: Json replaces TypeScript unknown, and cancelling the owning MoonBit task replaces AbortSignal.
-pub(all) struct TurnOptions {
+pub struct TurnOptions {
   output_schema : Json?
 } derive(Debug, Eq)
 

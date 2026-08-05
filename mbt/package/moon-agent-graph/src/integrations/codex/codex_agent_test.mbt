@@ -17,18 +17,17 @@ fn codex_agent_test_context(
   group : @async.TaskGroup[Unit],
   environment : Map[String, String],
 ) -> @core.CodingAgentOpenContext {
-  @core.CodingAgentOpenContext::{
-    run_id: codex_agent_test_run_id(),
-    task_group: group,
-    workspace: @core.WorkspaceRef::{
-      root: @path.Path("/workspace"),
-      additional_writable_roots: [@path.Path("/workspace/extra")],
-    },
-    approval: @core.OnRequest,
-    network: @core.Enabled,
-    environment: @immut_hashmap.HashMap(environment.to_array()),
-    events: @core.EventSink::discard(),
-  }
+  @core.CodingAgentOpenContext::CodingAgentOpenContext(
+    codex_agent_test_run_id(),
+    group,
+    @core.WorkspaceRef::WorkspaceRef(@path.Path("/workspace"), [
+      @path.Path("/workspace/extra"),
+    ]),
+    @core.OnRequest,
+    @core.Enabled,
+    @immut_hashmap.HashMap(environment.to_array()),
+    @core.EventSink::discard(),
+  )
 }
 
 ///|
@@ -101,10 +100,11 @@ async test "codex_agent 2 - maps request context and normalizes a successful SDK
         CodexAgentOptions::CodexAgentOptions(codex_path_override=executable),
       )
       let session = (agent.open)(codex_agent_test_context(group, environment))
-      let response = session.execute(@core.CodingAgentRequest::{
-        instruction: "apply the patch",
-        context_files: [@path.Path("README.md")],
-      })
+      let response = session.execute(
+        @core.CodingAgentRequest::CodingAgentRequest("apply the patch", [
+          @path.Path("README.md"),
+        ]),
+      )
       debug_inspect(response.status, content="Succeeded")
       debug_inspect(response.summary, content="Some(\"completed response\")")
       debug_inspect(response.continuation_id, content="Some(\"thread-42\")")
@@ -139,10 +139,12 @@ async test "codex_agent 3 - keeps unproven file changes empty" {
           CodexAgentOptions::CodexAgentOptions(codex_path_override=executable),
         )
         let session = (agent.open)(codex_agent_test_context(group, environment))
-        let response = session.execute(@core.CodingAgentRequest::{
-          instruction: "inspect unproven files",
-          context_files: [],
-        })
+        let response = session.execute(
+          @core.CodingAgentRequest::CodingAgentRequest(
+            "inspect unproven files",
+            [],
+          ),
+        )
         inspect(response.changed_files.length(), content="0")
         inspect(response.artifacts.length(), content="0")
         debug_inspect(response.raw_output, content="None")
@@ -167,10 +169,9 @@ async test "codex_agent 4 - preserves turn failures and rejects execution after 
         )
         let session = (agent.open)(codex_agent_test_context(group, environment))
         let turn_failed = try {
-          session.execute(@core.CodingAgentRequest::{
-            instruction: "fail",
-            context_files: [],
-          })
+          session.execute(
+            @core.CodingAgentRequest::CodingAgentRequest("fail", []),
+          )
           |> ignore
           false
         } catch {
@@ -180,10 +181,9 @@ async test "codex_agent 4 - preserves turn failures and rejects execution after 
         inspect(turn_failed, content="true")
         session.close()
         let closed = try {
-          session.execute(@core.CodingAgentRequest::{
-            instruction: "after-close",
-            context_files: [],
-          })
+          session.execute(
+            @core.CodingAgentRequest::CodingAgentRequest("after-close", []),
+          )
           |> ignore
           false
         } catch {

@@ -77,17 +77,17 @@ async fn load_config(
     ),
   ])
   loader.run(argv=Some(loader_args.argv), env=Map([])) catch {
-    error => raise @admiral.ConfigLoadFailure(error.to_string())
+    error => raise @admiral.config_load_failure(error.to_string())
   }
   let config_exists = @fs.exists(config_path.val) catch {
     error =>
-      raise @admiral.ConfigLoadFailure(
+      raise @admiral.config_load_failure(
         "failed to inspect config file '\{config_path.val}': \{error}",
       )
   }
   if !config_exists {
     if loader_args.explicit_path {
-      raise @admiral.ConfigLoadFailure(
+      raise @admiral.config_load_failure(
         "config file does not exist: \{config_path.val}",
       )
     }
@@ -95,20 +95,22 @@ async fn load_config(
   }
   let text = @fs.read_file(config_path.val).text() catch {
     error =>
-      raise @admiral.ConfigLoadFailure(
+      raise @admiral.config_load_failure(
         "failed to read config file '\{config_path.val}': \{error}",
       )
   }
   let parsed = @json.parse(text) catch {
     error =>
-      raise @admiral.ConfigLoadFailure(
+      raise @admiral.config_load_failure(
         "invalid config JSON in '\{config_path.val}': \{error}",
       )
   }
   match parsed {
     Json::Object(object) => object
     _ =>
-      raise @admiral.ConfigLoadFailure("config file must contain a JSON object")
+      raise @admiral.config_load_failure(
+        "config file must contain a JSON object",
+      )
   }
 }
 

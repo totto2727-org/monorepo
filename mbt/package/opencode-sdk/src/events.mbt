@@ -72,7 +72,7 @@ let thread_event_type_lens : @lens.Lens[Json] = @lens.root().json("type")
 
 ///|
 /// A completed text part emitted by OpenCode.
-pub(all) struct TextEvent {
+pub struct TextEvent {
   session_id : String
   text : String
 } derive(Debug, Eq)
@@ -93,7 +93,7 @@ pub impl @json.FromJson for TextEvent with fn from_json(json, path) {
 
 ///|
 /// A completed reasoning part emitted when thinking output is enabled.
-pub(all) struct ReasoningEvent {
+pub struct ReasoningEvent {
   session_id : String
   text : String
 } derive(Debug, Eq)
@@ -114,7 +114,7 @@ pub impl @json.FromJson for ReasoningEvent with fn from_json(json, path) {
 
 ///|
 /// The terminal or active state of an OpenCode tool call.
-pub(all) enum ToolUseStatus {
+pub enum ToolUseStatus {
   Completed
   Failed
 } derive(Debug, Eq)
@@ -133,7 +133,7 @@ pub impl @json.FromJson for ToolUseStatus with fn from_json(json, path) {
 
 ///|
 /// A tool-use part emitted by OpenCode.
-pub(all) struct ToolUseEvent {
+pub struct ToolUseEvent {
   session_id : String
   call_id : String
   tool : String
@@ -164,7 +164,7 @@ pub impl @json.FromJson for ToolUseEvent with fn from_json(json, path) {
 
 ///|
 /// A marker emitted when OpenCode begins a model step.
-pub(all) struct StepStartEvent {
+pub struct StepStartEvent {
   session_id : String
 } derive(Debug, Eq)
 
@@ -179,7 +179,7 @@ pub impl @json.FromJson for StepStartEvent with fn from_json(json, path) {
 
 ///|
 /// Token usage reported when OpenCode finishes a model step.
-pub(all) struct Usage {
+pub struct Usage {
   input_tokens : Int
   output_tokens : Int
   reasoning_tokens : Int
@@ -220,7 +220,7 @@ pub impl @json.FromJson for Usage with fn from_json(json, path) {
 
 ///|
 /// A marker and usage payload emitted when OpenCode finishes a model step.
-pub(all) struct StepFinishEvent {
+pub struct StepFinishEvent {
   session_id : String
   reason : String
   cost : Double
@@ -249,7 +249,7 @@ pub impl @json.FromJson for StepFinishEvent with fn from_json(json, path) {
 
 ///|
 /// A fatal error emitted by the OpenCode event stream.
-pub(all) struct ThreadErrorEvent {
+pub struct ThreadErrorEvent {
   session_id : String?
   message : String
 } derive(Debug, Eq)
@@ -278,7 +278,7 @@ pub impl @json.FromJson for ThreadErrorEvent with fn from_json(json, path) {
 
 ///|
 /// One typed JSONL event emitted by `opencode run --format json`.
-pub(all) enum ThreadEvent {
+pub enum ThreadEvent {
   Text(TextEvent)
   Reasoning(ReasoningEvent)
   ToolUse(ToolUseEvent)

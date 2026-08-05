@@ -1,6 +1,6 @@
 ///|
 /// A complete invocation of a JSONL-emitting agent CLI.
-pub(all) struct Invocation {
+pub struct Invocation {
   command : String
   arguments : Array[String]
   environment : Map[String, String]
@@ -22,14 +22,14 @@ pub fn Invocation::new(
 
 ///|
 /// One JSONL record with both its original text and parsed JSON value.
-pub(all) struct JsonLine {
+pub struct JsonLine {
   raw : String
   value : Json
 } derive(Debug, Eq)
 
 ///|
 /// The process-level outcome of an agent CLI invocation.
-pub(all) enum RunResult {
+pub enum RunResult {
   Completed
   Stopped
   Failed(code~ : Int, stderr~ : String)
@@ -37,7 +37,7 @@ pub(all) enum RunResult {
 
 ///|
 /// Errors raised while reading the JSONL protocol.
-pub(all) suberror AgentCliError {
+pub suberror AgentCliError {
   InvalidJson(line~ : String, cause~ : String)
 } derive(Debug, Eq)
 

@@ -5,23 +5,23 @@ fn test_node(
   kind : @core.NodeKind,
   description? : String,
 ) -> @core.Node[Int, Unit] {
-  @core.Node::{
+  @core.function_node(
     id,
-    metadata: @core.NodeMetadata::{ name, description, kind, tags: [] },
-    execute: async fn(_context, _state) {
+    @core.NodeMetadata::NodeMetadata(name, description, kind, []),
+    async fn(_context, _state) {
       @async.pause()
-      @core.NodeOutput::{ patch: None, value: None, artifacts: [] }
+      @core.NodeOutput::NodeOutput(None, None, [])
     },
-  }
+  )
 }
 
 ///|
 test "to_mermaid - renders escaped metadata and declared routes deterministically" {
   let first = @core.NodeId::parse("a#node")
   let second = @core.NodeId::parse("b-node")
-  let definition = @core.GraphDefinition::GraphDefinition(@core.Reducer::{
-    apply: fn(state, _patch) { state },
-  })
+  let definition = @core.GraphDefinition::GraphDefinition(
+    @core.Reducer::Reducer(fn(state, _patch) { state }),
+  )
   definition.add_node(
     test_node(second, "Review <result>", @core.Custom("human & agent")),
   )
@@ -70,9 +70,9 @@ test "to_mermaid - renders a multi-target router as a branch" {
   let first = @core.NodeId::parse("a")
   let second = @core.NodeId::parse("b")
   let third = @core.NodeId::parse("c")
-  let definition = @core.GraphDefinition::GraphDefinition(@core.Reducer::{
-    apply: fn(state, _patch) { state },
-  })
+  let definition = @core.GraphDefinition::GraphDefinition(
+    @core.Reducer::Reducer(fn(state, _patch) { state }),
+  )
   definition.add_node(test_node(third, "Third", @core.Function))
   definition.add_node(test_node(first, "First", @core.Llm))
   definition.add_node(test_node(second, "Second", @core.CodingAgent))

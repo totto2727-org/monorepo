@@ -1,6 +1,6 @@
 ///|
 fn testing_metadata() -> @core.NodeMetadata {
-  { name: "scripted", description: None, kind: @core.Function, tags: [] }
+  @core.NodeMetadata::NodeMetadata("scripted", None, @core.Function, [])
 }
 
 ///|
@@ -13,11 +13,7 @@ async test "scripted_node records exact state and context order" {
       state : Int,
     ) {
       @async.pause()
-      @core.NodeOutput::{
-        patch: Some(state + context.step),
-        value: None,
-        artifacts: [],
-      }
+      @core.NodeOutput::NodeOutput(Some(state + context.step), None, [])
     })
     let node = fixture.node()
     let first = (node.execute)(
@@ -49,7 +45,7 @@ async test "scripted_node records exact state and context order" {
 ///|
 test "scripted_router records exact state and completion order" {
   let node_id = @core.NodeId::parse("router-source")
-  let completion = @core.NodeCompletion::{ node_id, value: None, artifacts: [] }
+  let completion = @core.NodeCompletion::NodeCompletion(node_id, None, [])
   let fixture = scripted_router([], fn(state : Int, _completion) {
     if state == 1 {
       @core.End
@@ -83,8 +79,8 @@ test "recording_event_sink records exact event order" {
   let fixture = recording_event_sink()
   let sink = fixture.event_sink()
   let run_id = @core.RunId::parse("run-events")
-  (sink.emit)(@core.RunStarted(run_id))
-  (sink.emit)(@core.RunCompleted(run_id~, steps=2))
+  (sink.emit)(@core.run_started_event(run_id))
+  (sink.emit)(@core.run_completed_event(run_id, 2))
   let events = fixture.events()
   inspect(events.length(), content="2")
   match events[0] {

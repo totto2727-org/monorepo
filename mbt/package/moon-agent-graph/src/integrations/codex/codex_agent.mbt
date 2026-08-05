@@ -1,6 +1,6 @@
 ///|
 /// Configuration shared by every Codex session opened by this adapter.
-pub(all) struct CodexAgentOptions {
+pub struct CodexAgentOptions {
   codex_path_override : @path.Path?
   base_url : String?
   api_key : String?
@@ -43,7 +43,7 @@ pub fn CodexAgentOptions::CodexAgentOptions(
 
 ///|
 /// Raised when execution is requested after a session has closed.
-pub(all) suberror CodexAdapterError {
+pub suberror CodexAdapterError {
   SessionClosed
 } derive(Debug)
 
@@ -94,10 +94,12 @@ fn changed_files(
   for item in items {
     match item {
       @sdk.FileChange(change) =>
-        if change.status == @sdk.PatchCompleted {
-          for update in change.changes {
-            files.push(update.path)
-          }
+        match change.status {
+          @sdk.PatchCompleted =>
+            for update in change.changes {
+              files.push(update.path)
+            }
+          _ => ()
         }
       _ => ()
     }
@@ -131,14 +133,14 @@ impl @core.CodingAgentSession for CodexAgentSession with fn execute(
     Ok(turn) => turn
     Err(error) => raise error
   }
-  @core.CodingAgentResponse::{
-    status: @core.Succeeded,
-    summary: Some(turn.final_response),
-    continuation_id: self.thread.id(),
-    changed_files: changed_files(turn.items),
-    artifacts: [],
-    raw_output: None,
-  }
+  @core.CodingAgentResponse::CodingAgentResponse(
+    @core.Succeeded,
+    Some(turn.final_response),
+    self.thread.id(),
+    changed_files(turn.items),
+    [],
+    None,
+  )
 }
 
 ///|
@@ -154,41 +156,37 @@ pub fn codex_agent(
   id : @core.CodingAgentId,
   options : CodexAgentOptions,
 ) -> @core.CodingAgent {
-  {
-    id,
-    open: async fn(context) {
-      @async.pause()
-      let client = @sdk.Codex::Codex(
-        options=@sdk.CodexOptions::CodexOptions(
-          codex_path_override?=options.codex_path_override,
-          base_url?=options.base_url,
-          api_key?=options.api_key,
-          config?=options.config,
-          env=Map(context.environment.to_array()),
-        ),
-      )
-      let thread_options = @sdk.ThreadOptions::ThreadOptions(
-        model?=options.model,
-        sandbox_mode?=options.sandbox,
-        working_directory=context.workspace.root,
-        skip_git_repo_check?=options.skip_git,
-        model_reasoning_effort?=options.reasoning,
-        network_access_enabled=network_enabled(context.network),
-        web_search_mode?=options.web_search,
-        approval_policy=approval_mode(context.approval),
-        additional_directories=[..context.workspace.additional_writable_roots],
-      )
-      let thread = match options.resume_thread_id {
-        Some(thread_id) =>
-          client.resume_thread(thread_id, options=thread_options)
-        None => client.start_thread(options=thread_options)
-      }
-      let session = CodexAgentSession::{
-        thread,
-        mutex: @async.Mutex::Mutex(),
-        closed: false,
-      }
-      (session : &@core.CodingAgentSession)
-    },
-  }
+  @core.CodingAgent::CodingAgent(id, async fn(context) {
+    @async.pause()
+    let client = @sdk.Codex::Codex(
+      options=@sdk.CodexOptions::CodexOptions(
+        codex_path_override?=options.codex_path_override,
+        base_url?=options.base_url,
+        api_key?=options.api_key,
+        config?=options.config,
+        env=Map(context.environment.to_array()),
+      ),
+    )
+    let thread_options = @sdk.ThreadOptions::ThreadOptions(
+      model?=options.model,
+      sandbox_mode?=options.sandbox,
+      working_directory=context.workspace.root,
+      skip_git_repo_check?=options.skip_git,
+      model_reasoning_effort?=options.reasoning,
+      network_access_enabled=network_enabled(context.network),
+      web_search_mode?=options.web_search,
+      approval_policy=approval_mode(context.approval),
+      additional_directories=[..context.workspace.additional_writable_roots],
+    )
+    let thread = match options.resume_thread_id {
+      Some(thread_id) => client.resume_thread(thread_id, options=thread_options)
+      None => client.start_thread(options=thread_options)
+    }
+    let session = CodexAgentSession::{
+      thread,
+      mutex: @async.Mutex::Mutex(),
+      closed: false,
+    }
+    (session : &@core.CodingAgentSession)
+  })
 }

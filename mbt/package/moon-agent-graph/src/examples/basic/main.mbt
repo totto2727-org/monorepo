@@ -7,7 +7,7 @@ fn example_id(value : String) -> @core.NodeId {
 
 ///|
 fn example_metadata(name : String) -> @core.NodeMetadata {
-  { name, description: None, kind: @core.Function, tags: [] }
+  @core.NodeMetadata::NodeMetadata(name, None, @core.Function, [])
 }
 
 ///|
@@ -17,7 +17,7 @@ fn example_node(
 ) -> @core.Node[Array[String], String] {
   @core.function_node(id, example_metadata(label), async fn(_context, _state) {
     @async.pause()
-    @core.NodeOutput::{ patch: Some(label), value: None, artifacts: [] }
+    @core.NodeOutput::NodeOutput(Some(label), None, [])
   })
 }
 
@@ -25,9 +25,9 @@ fn example_node(
 async fn main {
   let plan = example_id("plan")
   let verify = example_id("test")
-  let definition = @core.GraphDefinition::GraphDefinition(@core.Reducer::{
-    apply: fn(state, patch) { [..state, patch] },
-  })
+  let definition = @core.GraphDefinition::GraphDefinition(
+    @core.Reducer::Reducer(fn(state, patch) { [..state, patch] }),
+  )
   definition.add_node(example_node(plan, "plan"))
   definition.add_node(example_node(verify, "test"))
   definition.set_router(

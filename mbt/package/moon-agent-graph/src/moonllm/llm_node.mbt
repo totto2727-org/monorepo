@@ -1,8 +1,18 @@
 ///|
-pub(all) struct LlmNodeSpec[S, P] {
+pub struct LlmNodeSpec[S, P] {
   build_request : (@core.NodeContext, S) -> @llm.ChatRequest raise
   invoke : async (@llm.ChatRequest) -> @llm.ChatResponse
   decode_response : (S, @llm.ChatResponse) -> @core.NodeOutput[P] raise
+}
+
+///|
+/// Creates the callbacks used by a MoonLLM graph node.
+pub fn[S, P] LlmNodeSpec::LlmNodeSpec(
+  build_request : (@core.NodeContext, S) -> @llm.ChatRequest raise,
+  invoke : async (@llm.ChatRequest) -> @llm.ChatResponse,
+  decode_response : (S, @llm.ChatResponse) -> @core.NodeOutput[P] raise,
+) -> LlmNodeSpec[S, P] {
+  LlmNodeSpec::{ build_request, invoke, decode_response }
 }
 
 ///|
