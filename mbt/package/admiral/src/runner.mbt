@@ -244,7 +244,7 @@ async fn CliApp::run_with_interactive_environment(
 
 ///|
 /// Parses inputs and runs the selected callback, invoking interactive input only
-/// when at least one selected definition opts in and standard input is a TTY.
+/// when at least one selected definition opts in and an input TTY is available.
 pub async fn CliApp::run(
   self : CliApp,
   argv? : Array[String]? = None,

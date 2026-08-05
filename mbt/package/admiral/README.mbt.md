@@ -164,8 +164,9 @@ Pass the same definition to `command` or `cli` and to the matching `Context` get
 ### Interactive Input
 
 Set `interactive=true` on each option or position that participates in interactive input, then pass one async `interactive` callback to the owning `command` or root `cli`.
-Admiral invokes the callback only when at least one registered definition opts in and `mizchi/tui` reports that standard input is a TTY.
-Outside a TTY, Admiral skips the callback and preserves ordinary parsing and required-value validation.
+Admiral invokes the callback only when at least one registered definition opts in and `mizchi/tui` reports that an input TTY is available.
+On native platforms, `mizchi/tui` treats either TTY-backed standard input or an available controlling terminal (`/dev/tty` or `CONIN$`) as interactive.
+When no input TTY is available, Admiral skips the callback and preserves ordinary parsing and required-value validation.
 
 ```moonbit
 let project = @admiral.position_string(

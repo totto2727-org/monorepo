@@ -90,7 +90,7 @@ async test "CliApp run_with_interactive_environment 2 - lets interactive input s
 }
 
 ///|
-async test "CliApp run_with_interactive_environment 3 - skips interactive callback outside a TTY" {
+async test "CliApp run_with_interactive_environment 3 - skips interactive callback outside an interactive environment" {
   let project = position_string("project", interactive=true)
   let callback_called = Ref(false)
   let selected_project = Ref("")
