@@ -13,24 +13,16 @@ test "OptionDef holds string option metadata" {
 
 ///|
 test "CommandDef holds subcommands" {
-  let sub : @admiral.CommandDef = {
-    name: "sub",
-    description: "A subcommand",
-    options: [],
-    positionals: [],
-    examples: [],
-    subcommands: [],
-    run: Some(fn(_ctx) { () }),
-  }
-  let cmd : @admiral.CommandDef = {
-    name: "app",
-    description: "An app",
-    options: [],
-    positionals: [],
-    examples: [],
-    subcommands: [sub],
-    run: None,
-  }
+  let sub : @admiral.CommandDef = @admiral.CommandDef::CommandDef(
+    name="sub",
+    description="A subcommand",
+    run=Some(fn(_ctx) { () }),
+  )
+  let cmd : @admiral.CommandDef = @admiral.CommandDef::CommandDef(
+    name="app",
+    description="An app",
+    subcommands=[sub],
+  )
   inspect(cmd.subcommands.length(), content="1")
   inspect(cmd.subcommands[0].name, content="sub")
 }

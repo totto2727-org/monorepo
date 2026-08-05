@@ -1,13 +1,13 @@
 ///|
 fn fake_agent_response(label : String) -> @core.CodingAgentResponse {
-  {
-    status: @core.Succeeded,
-    summary: Some("\{label} done"),
-    continuation_id: Some("\{label}-continuation"),
-    changed_files: [],
-    artifacts: [],
-    raw_output: None,
-  }
+  @core.CodingAgentResponse::CodingAgentResponse(
+    status=@core.Succeeded,
+    summary=Some("\{label} done"),
+    continuation_id=Some("\{label}-continuation"),
+    changed_files=[],
+    artifacts=[],
+    raw_output=None,
+  )
 }
 
 ///|
@@ -104,21 +104,21 @@ async test "MoonLLM plan to function verify workflow records typed request" {
       @moonllm_node.llm_node(
         plan,
         @e2e.workflow_metadata("plan", kind=@core.Llm),
-        @moonllm_node.LlmNodeSpec::{
-          build_request: fn(_context, _state) {
+        @moonllm_node.LlmNodeSpec::LlmNodeSpec(
+          fn(_context, _state) {
             @llm.ChatRequest::new("workflow-planner", [
               @llm.Message::user("plan deterministic verification"),
             ])
           },
-          invoke: planner.callback(),
-          decode_response: fn(_state, _response) {
-            @core.NodeOutput::{
-              patch: Some({ label: "plan", continuation: None }),
-              value: None,
-              artifacts: [],
-            }
+          planner.callback(),
+          fn(_state, _response) {
+            @core.NodeOutput::NodeOutput(
+              Some(@e2e.WorkflowPatch::WorkflowPatch("plan", None)),
+              None,
+              [],
+            )
           },
-        },
+        ),
       ),
       @e2e.workflow_function_node(verify, "verify"),
     ],
@@ -200,21 +200,21 @@ async fn exercise_agent_workflow(label : String, retry : Bool) -> Unit {
       @moonllm_node.llm_node(
         plan,
         @e2e.workflow_metadata("plan", kind=@core.Llm),
-        @moonllm_node.LlmNodeSpec::{
-          build_request: fn(_context, _state) {
+        @moonllm_node.LlmNodeSpec::LlmNodeSpec(
+          fn(_context, _state) {
             @llm.ChatRequest::new("workflow-planner", [
               @llm.Message::user("\{label} plan"),
             ])
           },
-          invoke: planner.callback(),
-          decode_response: fn(_state, _response) {
-            @core.NodeOutput::{
-              patch: Some({ label: "plan", continuation: None }),
-              value: None,
-              artifacts: [],
-            }
+          planner.callback(),
+          fn(_state, _response) {
+            @core.NodeOutput::NodeOutput(
+              Some(@e2e.WorkflowPatch::WorkflowPatch("plan", None)),
+              None,
+              [],
+            )
           },
-        },
+        ),
       ),
       @e2e.workflow_agent_node(agent_id, label, agent.agent()),
       @e2e.workflow_function_node(verify, "verify"),
@@ -288,14 +288,14 @@ async test "OpenCode-labelled plan-agent-test workflow completes once" {
 
 ///|
 fn routing_fake_response(label : String) -> @core.CodingAgentResponse {
-  @core.CodingAgentResponse::{
-    status: @core.Succeeded,
-    summary: Some(label),
-    continuation_id: Some("\{label}-session"),
-    changed_files: [],
-    artifacts: [],
-    raw_output: None,
-  }
+  @core.CodingAgentResponse::CodingAgentResponse(
+    status=@core.Succeeded,
+    summary=Some(label),
+    continuation_id=Some("\{label}-session"),
+    changed_files=[],
+    artifacts=[],
+    raw_output=None,
+  )
 }
 
 ///|
@@ -347,12 +347,12 @@ async fn routing_exercise_branch(selector : String) -> Unit {
   let graph = @e2e.build_workflow(
     @e2e.workflow_reducer(),
     [
-      @core.function_node(entry, @e2e.workflow_metadata("branch-entry"), async fn(
+      @core.Node::Node(entry, @e2e.workflow_metadata("branch-entry"), async fn(
         _context,
         _state,
       ) {
         @async.pause()
-        @core.NodeOutput::{ patch: None, value: None, artifacts: [] }
+        @core.NodeOutput::NodeOutput(None, None, [])
       }),
       @e2e.workflow_agent_node(left, "left", left_agent.agent()),
       @e2e.workflow_agent_node(right, "right", right_agent.agent()),
@@ -382,7 +382,7 @@ async fn routing_exercise_branch(selector : String) -> Unit {
   let result = @core.GraphRuntime::GraphRuntime(
     graph,
     events=events.event_sink(),
-  ).invoke(@e2e.WorkflowState::{ order: [selector], continuation: None })
+  ).invoke(@e2e.WorkflowState::WorkflowState([selector], None))
   let selected = if selector == "left" { "left" } else { "right" }
   let unselected = if selector == "left" { "right" } else { "left" }
   let selected_node = "branch-\{selected}"
@@ -420,17 +420,17 @@ async test "routing failure 2 - retry loop has exact attempts before configured 
   let graph = @e2e.build_workflow(
     @e2e.workflow_reducer(),
     [
-      @core.function_node(retry, @e2e.workflow_metadata("retry"), async fn(
+      @core.Node::Node(retry, @e2e.workflow_metadata("retry"), async fn(
         _context,
         _state,
       ) {
         attempts = attempts + 1
         @async.pause()
-        @core.NodeOutput::{
-          patch: Some(@e2e.WorkflowPatch::{ label: "retry", continuation: None }),
-          value: None,
-          artifacts: [],
-        }
+        @core.NodeOutput::NodeOutput(
+          Some(@e2e.WorkflowPatch::WorkflowPatch("retry", None)),
+          None,
+          [],
+        )
       }),
     ],
     [
@@ -491,22 +491,19 @@ async test "routing failure 3 - planning failure leaves agent and workflow state
       @moonllm_node.llm_node(
         plan,
         @e2e.workflow_metadata("plan", kind=@core.Llm),
-        @moonllm_node.LlmNodeSpec::{
-          build_request: fn(_context, _state) {
+        @moonllm_node.LlmNodeSpec::LlmNodeSpec(
+          fn(_context, _state) {
             @llm.ChatRequest::new("fake-model", [@llm.Message::user("plan")])
           },
-          invoke: planner.callback(),
-          decode_response: fn(_state, _response) {
-            @core.NodeOutput::{
-              patch: Some(@e2e.WorkflowPatch::{
-                label: "planned",
-                continuation: None,
-              }),
-              value: None,
-              artifacts: [],
-            }
+          planner.callback(),
+          fn(_state, _response) {
+            @core.NodeOutput::NodeOutput(
+              Some(@e2e.WorkflowPatch::WorkflowPatch("planned", None)),
+              None,
+              [],
+            )
           },
-        },
+        ),
       ),
       @e2e.workflow_agent_node(agent_id, "agent", agent.agent()),
     ],
@@ -572,14 +569,14 @@ impl @core.CodingAgentSession for CancellationWorkflowSession with fn execute(
     @async.pause()
   }
   self.finished.push("finished")
-  @core.CodingAgentResponse::{
-    status: @core.Succeeded,
-    summary: None,
-    continuation_id: Some("cancellation-workflow-session"),
-    changed_files: [],
-    artifacts: [],
-    raw_output: None,
-  }
+  @core.CodingAgentResponse::CodingAgentResponse(
+    status=@core.Succeeded,
+    summary=None,
+    continuation_id=Some("cancellation-workflow-session"),
+    changed_files=[],
+    artifacts=[],
+    raw_output=None,
+  )
 }
 
 ///|
@@ -600,9 +597,9 @@ async test "coding-agent workflow cancellation stops before the later node and c
     let closes : Array[String] = []
     let later_calls : Array[String] = []
     let events = @testing.recording_event_sink()
-    let agent = @core.CodingAgent::{
-      id: @core.CodingAgentId::parse("cancellation-workflow-agent"),
-      open: async fn(_context) {
+    let agent = @core.CodingAgent::CodingAgent(
+      @core.CodingAgentId::parse("cancellation-workflow-agent"),
+      async fn(_context) {
         @async.pause()
         let session = CancellationWorkflowSession::{
           started,
@@ -612,32 +609,29 @@ async test "coding-agent workflow cancellation stops before the later node and c
         }
         (session : &@core.CodingAgentSession)
       },
-    }
+    )
     let later = @moonllm_node.llm_node(
       later_id,
       @e2e.workflow_metadata("later-test", kind=@core.Llm),
-      @moonllm_node.LlmNodeSpec::{
-        build_request: fn(_context, _state : @e2e.WorkflowState) {
+      @moonllm_node.LlmNodeSpec::LlmNodeSpec(
+        fn(_context, _state : @e2e.WorkflowState) {
           later_calls.push("called")
           @llm.ChatRequest::new("unreachable", [
             @llm.Message::user("must not run"),
           ])
         },
-        invoke: async fn(_request) {
+        async fn(_request) {
           @async.pause()
           abort("later LLM node must not invoke")
         },
-        decode_response: fn(_state, _response) {
-          @core.NodeOutput::{
-            patch: Some(@e2e.WorkflowPatch::{
-              label: "later-test",
-              continuation: None,
-            }),
-            value: None,
-            artifacts: [],
-          }
+        fn(_state, _response) {
+          @core.NodeOutput::NodeOutput(
+            Some(@e2e.WorkflowPatch::WorkflowPatch("later-test", None)),
+            None,
+            [],
+          )
         },
-      },
+      ),
     )
     let graph = @e2e.build_workflow(
       @e2e.workflow_reducer(),

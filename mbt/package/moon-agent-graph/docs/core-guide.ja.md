@@ -158,7 +158,7 @@ pub(all) struct NodeContext {
   deadline_ms : Int64?
   task_group : @async.TaskGroup[Unit]
   events : EventSink
-  resources : RuntimeResourceStore
+  resources : ResourceStore
 }
 ```
 
@@ -170,7 +170,7 @@ pub(all) struct NodeContext {
 - `deadline_ms` は設定されたノードタイムアウトを公開します。
 - `task_group` はアダプターに子タスクとプロセスの構造化された所有権を提供します。
 - `events` は同期のベストエフォートな可観測性を公開します。
-- `resources` はノードスコープと実行スコープのセッションを所有します。
+- `resources` は呼び出しの型付き異種リソースストアを公開します。
 
 同じ呼び出しレベルのタスクグループがすべてのノードに渡されるため、キャンセルは実行全体に伝播します。
 
@@ -346,7 +346,7 @@ let execute = async fn() {
 
 ```moonbit
 @async.with_task_group() <| group => {
-  let resources = RuntimeResourceStore::RuntimeResourceStore()
+  let resources = ResourceStore::ResourceStore()
   self.events.try_emit(RunStarted(run_id))
   // ... implementation omitted ...
 }
@@ -362,7 +362,7 @@ let execute = async fn() {
 
 ## リソース所有権
 
-リソースストアは現在、コーディングエージェントセッションを所有しています。
+呼び出しは、`any-collection`を基盤とする異種リソースストアを1つ所有します。グラフstateは独立して型付きかつシリアライズ可能なままであり、リソースには任意のプロセスローカル値を保持できます。
 
 ```moonbit
 pub(all) enum ResourceScope {
@@ -373,27 +373,27 @@ pub(all) enum ResourceScope {
 
 出典: `src/core/resources.mbt`
 
-- `Node` セッションは 1 回のノード試行のために開かれ、そのノードの後に閉じることが試みられます。
-- `Run` セッションは `ResourceKey` によってキャッシュされ、呼び出しのファイナライズがそれを閉じることを試みるまで再利用されます。
+- `Node` リソースは1回のノード試行のために開かれ、そのノードの後に登録済みcleanupを実行します。
+- `Run` リソースは型付き参照によってキャッシュされ、呼び出しのfinalizeが登録済みcleanupを実行するまで再利用されます。
 
 ```moonbit
-match scope {
-  Run =>
-    match self.run_entries.get(key) {
-      Some(index) if !self.sessions[index].closed =>
-        return self.sessions[index].session
-      _ => ()
-    }
-  Node => if owner is None { raise NodeOwnerRequired(key) }
-}
-let session = open()
+pub async fn[T] ResourceStore::acquire_resource(
+  self : ResourceStore,
+  reference : @any_collection.AnyRef[ResourceKey, T],
+  scope : ResourceScope,
+  open : async () -> T,
+  cleanup : async (T) -> Unit,
+  owner? : NodeId,
+) -> T
 ```
 
-セッションは取得順序の逆順で閉じられます。
+管理対象リソースは取得順序の逆順でcleanupを実行します。
 
 後のリソースが前のリソースに依存する場合、逆順のクリーンアップが重要です。
 
-ストアは close メソッドを呼び出す前にセッションを閉じ済みとしてマークするため、ストアの観点から繰り返しのクリーンアップが冪等になります。
+ストアは各cleanup記録を実行前に閉じ済みとしてマークするため、ストアの観点から繰り返しのcleanupが冪等になります。
+
+CodingAgentプロセスは通常の `CodingAgentResource` 値として `AnyRef` 経由で保存され、他の管理対象リソースと同じ `acquire_resource` を使用します。
 
 最終クリーンアップはキャンセルから保護され、時間制限があります。
 

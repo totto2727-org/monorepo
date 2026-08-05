@@ -3,6 +3,10 @@ pub fn[Metadata] Context::get_strings(
   self : Context,
   argument : ArgDef[Array[String], Metadata],
 ) -> ReadOnlyArray[String] raise @json.JsonDecodeError {
+  match self.interactive_values.get(argument.name) {
+    Some(values) => return values
+    None => ()
+  }
   if should_use_config(self.sources.get(argument.name)) {
     match argument.config {
       Some(key) =>
@@ -37,6 +41,13 @@ pub fn[Metadata] Context::get_ints(
   self : Context,
   argument : ArgDef[Array[Int], Metadata],
 ) -> ReadOnlyArray[Int] raise {
+  match self.interactive_values.get(argument.name) {
+    Some(values) =>
+      return ReadOnlyArray::from_array(
+        values.map(value => @string.parse_int(value, base=10)),
+      )
+    None => ()
+  }
   if should_use_config(self.sources.get(argument.name)) {
     match argument.config {
       Some(key) =>
@@ -71,6 +82,13 @@ pub fn[Metadata] Context::get_int64s(
   self : Context,
   argument : ArgDef[Array[Int64], Metadata],
 ) -> ReadOnlyArray[Int64] raise {
+  match self.interactive_values.get(argument.name) {
+    Some(values) =>
+      return ReadOnlyArray::from_array(
+        values.map(value => @string.parse_int64(value, base=10)),
+      )
+    None => ()
+  }
   if should_use_config(self.sources.get(argument.name)) {
     match argument.config {
       Some(key) =>
@@ -105,6 +123,13 @@ pub fn[Metadata] Context::get_uints(
   self : Context,
   argument : ArgDef[Array[UInt], Metadata],
 ) -> ReadOnlyArray[UInt] raise {
+  match self.interactive_values.get(argument.name) {
+    Some(values) =>
+      return ReadOnlyArray::from_array(
+        values.map(value => @string.parse_uint(value, base=10)),
+      )
+    None => ()
+  }
   if should_use_config(self.sources.get(argument.name)) {
     match argument.config {
       Some(key) =>
@@ -139,6 +164,13 @@ pub fn[Metadata] Context::get_uint64s(
   self : Context,
   argument : ArgDef[Array[UInt64], Metadata],
 ) -> ReadOnlyArray[UInt64] raise {
+  match self.interactive_values.get(argument.name) {
+    Some(values) =>
+      return ReadOnlyArray::from_array(
+        values.map(value => @string.parse_uint64(value, base=10)),
+      )
+    None => ()
+  }
   if should_use_config(self.sources.get(argument.name)) {
     match argument.config {
       Some(key) =>
@@ -173,6 +205,13 @@ pub fn[Metadata] Context::get_doubles(
   self : Context,
   argument : ArgDef[Array[Double], Metadata],
 ) -> ReadOnlyArray[Double] raise {
+  match self.interactive_values.get(argument.name) {
+    Some(values) =>
+      return ReadOnlyArray::from_array(
+        values.map(value => @string.parse_double(value)),
+      )
+    None => ()
+  }
   if should_use_config(self.sources.get(argument.name)) {
     match argument.config {
       Some(key) =>

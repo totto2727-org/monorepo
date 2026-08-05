@@ -3,8 +3,8 @@ async test "same integer getters accept option and position definitions" {
   let limit = int("limit", required=true)
   let value = position_int("value", required=true)
   let captured = Ref((0, 0))
-  let app = cli(name="test", commands=[
-    command(
+  let app = CliApp::CliApp(name="test", commands=[
+    CommandDef::CommandDef(
       name="number",
       options=[limit],
       positionals=[value],
@@ -26,8 +26,8 @@ async test "scalar positions consume one value in declaration order" {
   let input = position_string("input", required=true)
   let output = position_string("output")
   let captured = Ref(("", ""))
-  let app = cli(name="test", commands=[
-    command(
+  let app = CliApp::CliApp(name="test", commands=[
+    CommandDef::CommandDef(
       name="copy",
       positionals=[input, output],
       run=Some(ctx => {
@@ -48,8 +48,8 @@ async test "scalar positions reject an extra value" {
   let input = position_string("input", required=true)
   let output = position_string("output")
   let called = Ref(false)
-  let app = cli(name="test", commands=[
-    command(
+  let app = CliApp::CliApp(name="test", commands=[
+    CommandDef::CommandDef(
       name="copy",
       positionals=[input, output],
       run=Some(fn(_ctx) { called.val = true }),
@@ -68,8 +68,8 @@ async test "array position preserves values and reserves a trailing scalar" {
   let files = position_strings("files", required=true)
   let target = position_string("target", required=true)
   let captured : Ref[(ReadOnlyArray[String], String)] = Ref(([], ""))
-  let app = cli(name="test", commands=[
-    command(
+  let app = CliApp::CliApp(name="test", commands=[
+    CommandDef::CommandDef(
       name="pack",
       positionals=[files, target],
       run=Some(ctx => {

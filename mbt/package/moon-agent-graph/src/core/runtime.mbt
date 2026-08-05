@@ -65,7 +65,7 @@ async fn[S, P] run_sequential(
   options : RunOptions,
   run_id : RunId,
   group : @async.TaskGroup[Unit],
-  resources : RuntimeResourceStore,
+  resources : ResourceStore,
 ) -> RunResult[S] {
   let mut state = initial_state
   let mut current = runtime.graph.entry()
@@ -169,7 +169,7 @@ pub async fn[S, P] GraphRuntime::invoke(
   let run_id = self.fresh_run_id()
   let stored_result : Ref[RunResult[S]?] = Ref(None)
   @async.with_task_group() <| group => {
-    let resources = RuntimeResourceStore::RuntimeResourceStore()
+    let resources = ResourceStore::ResourceStore()
     self.events.try_emit(RunStarted(run_id))
     let mut result : RunResult[S]? = None
     let mut primary : Error? = None

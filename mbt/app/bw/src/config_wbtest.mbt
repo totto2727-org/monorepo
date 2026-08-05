@@ -17,11 +17,11 @@ async test "load_config - reads an explicitly selected config file" {
 ///|
 async test "config keys and environment names resolve independently" {
   let captured = Ref("")
-  let app = @admiral.cli(
+  let app = @admiral.CliApp::CliApp(
     name="test-app",
     load_config=Some(fn() { { "url": "config-url".to_json() } }),
     commands=[
-      @admiral.command(
+      @admiral.CommandDef::CommandDef(
         name="show",
         options=[content_url_option],
         run=Some(ctx => {

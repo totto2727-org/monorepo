@@ -1,6 +1,6 @@
 ///|
 /// One invocation recorded by a scripted node.
-pub(all) struct ScriptedNodeCall[S] {
+pub struct ScriptedNodeCall[S] {
   context : @core.NodeContext
   state : S
 }
@@ -20,7 +20,7 @@ pub fn[S, P] scripted_node(
   execute : async (@core.NodeContext, S) -> @core.NodeOutput[P],
 ) -> ScriptedNode[S, P] {
   let calls : Array[ScriptedNodeCall[S]] = []
-  let value = @core.function_node(id, metadata, async fn(context, state) {
+  let value = @core.Node::Node(id, metadata, async fn(context, state) {
     calls.push({ context, state })
     execute(context, state)
   })
@@ -43,7 +43,7 @@ pub fn[S, P] ScriptedNode::calls(
 
 ///|
 /// One invocation recorded by a scripted router.
-pub(all) struct ScriptedRouterCall[S] {
+pub struct ScriptedRouterCall[S] {
   state : S
   completion : @core.NodeCompletion
 }
@@ -88,7 +88,7 @@ pub fn[S] ScriptedRouter::calls(
 
 ///|
 /// One invocation recorded by a reducer.
-pub(all) struct RecordingReducerCall[S, P] {
+pub struct RecordingReducerCall[S, P] {
   state : S
   patch : P
 }
@@ -106,12 +106,10 @@ pub fn[S, P] recording_reducer(
   apply : (S, P) -> S raise,
 ) -> RecordingReducer[S, P] {
   let calls : Array[RecordingReducerCall[S, P]] = []
-  let value = @core.Reducer::{
-    apply: (state, patch) => {
-      calls.push({ state, patch })
-      apply(state, patch)
-    },
-  }
+  let value = @core.Reducer::Reducer((state, patch) => {
+    calls.push({ state, patch })
+    apply(state, patch)
+  })
   { value, calls_value: calls }
 }
 

@@ -158,7 +158,7 @@ extend PdfBody with ToJson::{to_json}
 fn pdf_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="pdf",
     description="Generate a PDF",
     options=[

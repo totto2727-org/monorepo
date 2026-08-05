@@ -1,12 +1,12 @@
 ///|
-pub(all) suberror RunConfigurationError {
+pub suberror RunConfigurationError {
   MaxStepsMustBePositive(Int)
   NodeTimeoutMustBePositive(Int)
   CleanupTimeoutMustBePositive(Int)
 } derive(Debug)
 
 ///|
-pub(all) struct RunOptions {
+pub struct RunOptions {
   max_steps : Int
   node_timeout_ms : Int?
   cleanup_timeout_ms : Int
@@ -31,7 +31,7 @@ pub fn RunOptions::RunOptions(
 }
 
 ///|
-pub(all) struct RunResult[S] {
+pub struct RunResult[S] {
   run_id : RunId
   final_state : S
   steps : Int

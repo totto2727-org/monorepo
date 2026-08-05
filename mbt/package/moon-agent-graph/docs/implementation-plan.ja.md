@@ -129,7 +129,7 @@ flowchart TD
 - エラーを発生させる関数フィールド
 - 公開エラーレコードに原因として保存される `Error`
 - 公開クエリ境界での `ReadOnlyArray`
-- マップに格納されるコーディングエージェントセッショントレイトオブジェクト
+- 型付き `AnyRef` を通じてラップ・保存されるコーディングエージェントセッショントレイトオブジェクト
 
 ### 非同期依存関係ゲート
 
@@ -210,7 +210,7 @@ Codex SDK、OpenCode SDK、グラフモジュールは `moonbitlang/async@0.20.1
 ### 成果物
 
 - `ResourceScope`
-- コーディングエージェントセッションに特化した実行ローカルリソースストア
+- 型付き `any-collection` 参照を使用する、実行ローカルの異種リソースストア
 - 実行スコープとノードスコープの取得
 - 逆順でのクローズ
 - 一度だけクローズする動作
@@ -475,11 +475,12 @@ flowchart TD
 
 - `GraphRuntime::invoke` は非同期メソッドであり、`initial_state` を唯一の必須位置引数とし、`options? : RunOptions` をラベル付きオプション引数とする
 - `RunOptions::RunOptions` は `max_steps`、`node_timeout_ms?`、`cleanup_timeout_ms` を検証する。ランタイムはグローバルな呼び出し状態を保存しない
-- `NodeContext` は呼び出しの `TaskGroup[Unit]`、同期 `EventSink`、呼び出しローカルの `RuntimeResourceStore`、オプションのデッドラインを持つ
+- `NodeContext` は呼び出しの `TaskGroup[Unit]`、同期 `EventSink`、呼び出しローカルの `ResourceStore`、オプションのデッドラインを持つ
 - `CodingAgentSession` は `pub(open)` の非同期トレイトであり、`id`、`execute`、`close` を持つ。`CodingAgent.open` は `CodingAgentOpenContext` を受け取る
 - `CodingAgentNodeSpec` は `open_context`、`build_request`、`decode_response` のコールバックを発生させ、`ResourceScope` を明示的に選択する
 - `LlmNodeSpec` は型付きMoonLLMリクエストビルダー、狭い非同期呼び出しコールバック、レスポンスデコーダーを受け入れる
-- `RuntimeResourceStore` は意図的に `CodingAgentSession` に特化されており、異種リソースコンテナではない
+- `ResourceStore` は任意の非シリアライズ値を保持する単一の呼び出しローカルストアであり、型付き取得とcleanupは具体的なリソース型に依存しない
+- `CodingAgentSession` プロセスは通常の型付きリソースとしてラップされ、ストア固有のAPIや保存経路を持たない
 - `codex_agent` と `opencode_agent` はアダプターオプションレコードを公開する一方で、SDK固有のセッションおよびプロセス状態をプライベートに保つ
 - 公開コレクションのスナップショットは `ReadOnlyArray` を使用する。所有された可変配列とマップは、グラフ定義、ランタイム、リソース、テストフィクスチャに対してプライベートのままである
 
