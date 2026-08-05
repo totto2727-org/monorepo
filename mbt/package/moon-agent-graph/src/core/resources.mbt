@@ -5,7 +5,7 @@ pub(all) enum ResourceScope {
 } derive(Debug, Eq)
 
 ///|
-pub(all) suberror ResourceStoreError {
+pub suberror ResourceStoreError {
   NodeOwnerRequired(ResourceKey)
   InvalidCleanupTimeout(Int)
   CleanupTimedOut(Int)

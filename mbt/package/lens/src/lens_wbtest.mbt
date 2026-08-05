@@ -1,186 +1,174 @@
 ///|
-let lens_test_user_object : @lens.ObjectLens = @lens.object("user")
+/// White-box coverage may construct read-only diagnostic variants.
+let lens_test_user_object : ObjectLens = object("user")
 
 ///|
-let lens_test_user_profile_object : @lens.ObjectLens = @lens.object("user").object(
+let lens_test_user_profile_object : ObjectLens = object("user").object(
   "profile",
 )
 
 ///|
-let lens_test_user_profile_name : @lens.Lens[String] = @lens.object("user")
+let lens_test_user_profile_name : Lens[String] = object("user")
   .object("profile")
   .string("name")
 
 ///|
-let lens_test_user_profile_active : @lens.Lens[Bool] = @lens.object("user")
+let lens_test_user_profile_active : Lens[Bool] = object("user")
   .object("profile")
   .bool("active")
 
 ///|
-let lens_test_user_profile_metadata : @lens.Lens[Json] = @lens.object("user")
+let lens_test_user_profile_metadata : Lens[Json] = object("user")
   .object("profile")
   .json("metadata")
 
 ///|
-let lens_test_user_name : @lens.Lens[String] = @lens.object("user").string(
-  "name",
-)
+let lens_test_user_name : Lens[String] = object("user").string("name")
 
 ///|
-let lens_test_root_name : @lens.Lens[String] = @lens.root().string("name")
+let lens_test_root_name : Lens[String] = root().string("name")
 
 ///|
-let lens_test_escaped_key : @lens.Lens[String] = @lens.object("a/b").string(
-  "~key",
-)
+let lens_test_escaped_key : Lens[String] = object("a/b").string("~key")
 
 ///|
-let lens_test_empty_key : @lens.Lens[String] = @lens.root().string("")
+let lens_test_empty_key : Lens[String] = root().string("")
 
 ///|
-let lens_test_text : @lens.Lens[String] = @lens.root().string("text")
+let lens_test_text : Lens[String] = root().string("text")
 
 ///|
-let lens_test_flag : @lens.Lens[Bool] = @lens.root().bool("flag")
+let lens_test_flag : Lens[Bool] = root().bool("flag")
 
 ///|
-let lens_test_number : @lens.Lens[Double] = @lens.root().number("number")
+let lens_test_number : Lens[Double] = root().number("number")
 
 ///|
-let lens_test_integer : @lens.Lens[Int] = @lens.root().int("integer")
+let lens_test_integer : Lens[Int] = root().int("integer")
 
 ///|
-let lens_test_ratio : @lens.Lens[Double] = @lens.root().number("ratio")
+let lens_test_ratio : Lens[Double] = root().number("ratio")
 
 ///|
-let lens_test_maximum : @lens.Lens[Int] = @lens.root().int("maximum")
+let lens_test_maximum : Lens[Int] = root().int("maximum")
 
 ///|
-let lens_test_minimum : @lens.Lens[Int] = @lens.root().int("minimum")
+let lens_test_minimum : Lens[Int] = root().int("minimum")
 
 ///|
-let lens_test_positive_int : @lens.Lens[Int] = @lens.root().int("positive")
+let lens_test_positive_int : Lens[Int] = root().int("positive")
 
 ///|
-let lens_test_negative_int : @lens.Lens[Int] = @lens.root().int("negative")
+let lens_test_negative_int : Lens[Int] = root().int("negative")
 
 ///|
-let lens_test_positive_number : @lens.Lens[Double] = @lens.root().number(
-  "positive",
-)
+let lens_test_positive_number : Lens[Double] = root().number("positive")
 
 ///|
-let lens_test_names_array : @lens.Lens[Array[String]] = @lens.root()
-  .string("names")
-  .array()
+let lens_test_names_array : Lens[Array[String]] = root().string("names").array()
 
 ///|
-let lens_test_optional_names_array : @lens.Lens[Array[String?]] = @lens.root()
+let lens_test_optional_names_array : Lens[Array[String?]] = root()
   .string("names")
   .optional()
   .array()
 
 ///|
-let lens_test_nullable_names_array : @lens.Lens[Array[String?]] = @lens.root()
+let lens_test_nullable_names_array : Lens[Array[String?]] = root()
   .string("names")
   .nullable()
   .array()
 
 ///|
-let lens_test_nullish_names_array : @lens.Lens[Array[String?]] = @lens.root()
+let lens_test_nullish_names_array : Lens[Array[String?]] = root()
   .string("names")
   .nullish()
   .array()
 
 ///|
-let lens_test_name_nullable : @lens.PresenceLens[String] = @lens.root()
+let lens_test_name_nullable : PresenceLens[String] = root()
   .string("name")
   .nullable()
 
 ///|
-let lens_test_name_optional : @lens.PresenceLens[String] = @lens.root()
+let lens_test_name_optional : PresenceLens[String] = root()
   .string("name")
   .optional()
 
 ///|
-let lens_test_user_name_optional : @lens.PresenceLens[String] = @lens.object(
-    "user",
-  )
+let lens_test_user_name_optional : PresenceLens[String] = object("user")
   .string("name")
   .optional()
 
 ///|
-let lens_test_name_nullish : @lens.PresenceLens[String] = @lens.root()
+let lens_test_name_nullish : PresenceLens[String] = root()
   .string("name")
   .nullish()
 
 ///|
-let lens_test_optional_then_nullable : @lens.PresenceLens[String] = @lens.root()
+let lens_test_optional_then_nullable : PresenceLens[String] = root()
   .string("name")
   .optional()
   .nullable()
 
 ///|
-let lens_test_nullish_then_nullable : @lens.PresenceLens[String] = @lens.root()
+let lens_test_nullish_then_nullable : PresenceLens[String] = root()
   .string("name")
   .nullish()
   .nullable()
 
 ///|
-let lens_test_nullable_then_optional : @lens.PresenceLens[String] = @lens.root()
+let lens_test_nullable_then_optional : PresenceLens[String] = root()
   .string("name")
   .nullable()
   .optional()
 
 ///|
-fn[T] get_issue(lens : @lens.Lens[T], document : Json) -> @lens.Issue raise {
+fn[T] get_issue(lens : Lens[T], document : Json) -> Issue raise {
   try {
     lens.get(document) |> ignore
     fail("expected LensError")
   } catch {
-    @lens.LensError::LensError(issue) => issue
+    LensError::LensError(issue) => issue
     _ => fail("unexpected error")
   }
 }
 
 ///|
 fn[T] get_presence_issue(
-  lens : @lens.PresenceLens[T],
+  lens : PresenceLens[T],
   document : Json,
-) -> @lens.Issue raise {
+) -> Issue raise {
   try {
     lens.get(document) |> ignore
     fail("expected LensError")
   } catch {
-    @lens.LensError::LensError(issue) => issue
+    LensError::LensError(issue) => issue
     _ => fail("unexpected error")
   }
 }
 
 ///|
-fn get_object_issue(
-  lens : @lens.ObjectLens,
-  document : Json,
-) -> @lens.Issue raise {
+fn get_object_issue(lens : ObjectLens, document : Json) -> Issue raise {
   try {
     lens.get(document) |> ignore
     fail("expected LensError")
   } catch {
-    @lens.LensError::LensError(issue) => issue
+    LensError::LensError(issue) => issue
     _ => fail("unexpected error")
   }
 }
 
 ///|
 fn assert_type_mismatch(
-  issue : @lens.Issue,
+  issue : Issue,
   pointer : String,
-  expected : @lens.JsonKind,
-  actual : @lens.JsonKind,
+  expected : JsonKind,
+  actual : JsonKind,
 ) -> Unit raise {
   inspect(issue.pointer.to_string(), content=pointer)
   match issue.code {
-    @lens.IssueCode::TypeMismatch(expected=found_expected, actual=found_actual) => {
+    IssueCode::TypeMismatch(expected=found_expected, actual=found_actual) => {
       guard found_expected == expected && found_actual == actual else {
         fail("unexpected JSON kinds")
       }
@@ -277,8 +265,8 @@ test "ObjectLens get - reports a selected non-object pointer" {
   assert_type_mismatch(
     issue,
     "/user/profile",
-    @lens.JsonKind::Object,
-    @lens.JsonKind::String,
+    JsonKind::Object,
+    JsonKind::String,
   )
 }
 
@@ -309,7 +297,7 @@ test "Lens get - reports a missing leaf pointer" {
   let issue = get_issue(lens_test_user_profile_name, document)
   inspect(issue.pointer.to_string(), content="/user/profile/name")
   match issue.code {
-    @lens.IssueCode::MissingProperty => ()
+    IssueCode::MissingProperty => ()
     _ => fail("expected MissingProperty")
   }
 }
@@ -320,7 +308,7 @@ test "Lens get - reports an incompatible intermediate pointer" {
   let issue = get_issue(lens_test_user_profile_name, document)
   inspect(issue.pointer.to_string(), content="/user/profile")
   match issue.code {
-    @lens.IssueCode::TypeMismatch(expected~, actual~) => {
+    IssueCode::TypeMismatch(expected~, actual~) => {
       debug_inspect(expected, content="Object")
       debug_inspect(actual, content="String")
     }
@@ -334,7 +322,7 @@ test "Lens get - reports a missing intermediate pointer" {
   let issue = get_issue(lens_test_user_profile_name, document)
   inspect(issue.pointer.to_string(), content="/user/profile")
   match issue.code {
-    @lens.IssueCode::MissingProperty => ()
+    IssueCode::MissingProperty => ()
     _ => fail("expected MissingProperty")
   }
 }
@@ -343,7 +331,7 @@ test "Lens get - reports a missing intermediate pointer" {
 test "Lens get - reports a non-object root at the root pointer" {
   let document = @json.parse("[]")
   let issue = get_issue(lens_test_root_name, document)
-  assert_type_mismatch(issue, "", @lens.JsonKind::Object, @lens.JsonKind::Array)
+  assert_type_mismatch(issue, "", JsonKind::Object, JsonKind::Array)
 }
 
 ///|
@@ -368,26 +356,26 @@ test "Lens get - classifies primitive type mismatches" {
   assert_type_mismatch(
     get_issue(lens_test_text, document),
     "/text",
-    @lens.JsonKind::String,
-    @lens.JsonKind::Boolean,
+    JsonKind::String,
+    JsonKind::Boolean,
   )
   assert_type_mismatch(
     get_issue(lens_test_flag, document),
     "/flag",
-    @lens.JsonKind::Boolean,
-    @lens.JsonKind::Number,
+    JsonKind::Boolean,
+    JsonKind::Number,
   )
   assert_type_mismatch(
     get_issue(lens_test_number, document),
     "/number",
-    @lens.JsonKind::Number,
-    @lens.JsonKind::String,
+    JsonKind::Number,
+    JsonKind::String,
   )
   assert_type_mismatch(
     get_issue(lens_test_integer, document),
     "/integer",
-    @lens.JsonKind::Number,
-    @lens.JsonKind::Null,
+    JsonKind::Number,
+    JsonKind::Null,
   )
 }
 
@@ -438,24 +426,14 @@ test "Lens array - decodes every item" {
 test "Lens array - reports an item pointer" {
   let document = @json.parse("{\"names\":[\"Ada\",false]}")
   let issue = get_issue(lens_test_names_array, document)
-  assert_type_mismatch(
-    issue,
-    "/names/1",
-    @lens.JsonKind::String,
-    @lens.JsonKind::Boolean,
-  )
+  assert_type_mismatch(issue, "/names/1", JsonKind::String, JsonKind::Boolean)
 }
 
 ///|
 test "Lens array - rejects a non-array value" {
   let document = @json.parse("{\"names\":\"Ada\"}")
   let issue = get_issue(lens_test_names_array, document)
-  assert_type_mismatch(
-    issue,
-    "/names",
-    @lens.JsonKind::Array,
-    @lens.JsonKind::String,
-  )
+  assert_type_mismatch(issue, "/names", JsonKind::Array, JsonKind::String)
 }
 
 ///|
@@ -487,7 +465,7 @@ test "Lens nullable - preserves missing-property errors" {
   let issue = get_presence_issue(lens_test_name_nullable, document)
   inspect(issue.pointer.to_string(), content="/name")
   match issue.code {
-    @lens.IssueCode::MissingProperty => ()
+    IssueCode::MissingProperty => ()
     _ => fail("expected MissingProperty")
   }
 }
@@ -510,7 +488,7 @@ test "Lens optional - preserves a missing intermediate error" {
   let issue = get_presence_issue(lens_test_user_name_optional, document)
   inspect(issue.pointer.to_string(), content="/user")
   match issue.code {
-    @lens.IssueCode::MissingProperty => ()
+    IssueCode::MissingProperty => ()
     _ => fail("expected MissingProperty")
   }
 }
@@ -519,12 +497,7 @@ test "Lens optional - preserves a missing intermediate error" {
 test "Lens optional - rejects JSON null" {
   let document = @json.parse("{\"name\":null}")
   let issue = get_presence_issue(lens_test_name_optional, document)
-  assert_type_mismatch(
-    issue,
-    "/name",
-    @lens.JsonKind::String,
-    @lens.JsonKind::Null,
-  )
+  assert_type_mismatch(issue, "/name", JsonKind::String, JsonKind::Null)
 }
 
 ///|
@@ -543,7 +516,7 @@ test "PresenceLens nullable - replaces earlier optional and nullish policies" {
     let issue = get_presence_issue(lens, missing_document)
     inspect(issue.pointer.to_string(), content="/name")
     match issue.code {
-      @lens.IssueCode::MissingProperty => ()
+      IssueCode::MissingProperty => ()
       _ => fail("expected MissingProperty")
     }
   }
@@ -560,12 +533,7 @@ test "PresenceLens optional - replaces an earlier nullable policy" {
   let issue = get_presence_issue(
     lens_test_nullable_then_optional, null_document,
   )
-  assert_type_mismatch(
-    issue,
-    "/name",
-    @lens.JsonKind::String,
-    @lens.JsonKind::Null,
-  )
+  assert_type_mismatch(issue, "/name", JsonKind::String, JsonKind::Null)
 }
 
 ///|

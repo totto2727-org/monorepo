@@ -14,12 +14,23 @@ pub(all) enum NodeKind {
 } derive(Debug, Eq)
 
 ///|
-pub(all) struct NodeMetadata {
+pub struct NodeMetadata {
   name : String
   description : String?
   kind : NodeKind
   tags : ReadOnlyArray[String]
 } derive(Debug)
+
+///|
+/// Creates metadata describing a graph node.
+pub fn NodeMetadata::NodeMetadata(
+  name~ : String,
+  description~ : String?,
+  kind~ : NodeKind,
+  tags~ : ReadOnlyArray[String],
+) -> NodeMetadata {
+  NodeMetadata::{ name, description, kind, tags }
+}
 
 ///|
 pub(all) enum ArtifactKind {
@@ -32,7 +43,7 @@ pub(all) enum ArtifactKind {
 } derive(Debug, Eq)
 
 ///|
-pub(all) struct Artifact {
+pub struct Artifact {
   kind : ArtifactKind
   name : String
   uri : String?
@@ -40,21 +51,52 @@ pub(all) struct Artifact {
 } derive(Debug)
 
 ///|
-pub(all) struct NodeOutput[P] {
+/// Creates an artifact emitted by a graph node.
+pub fn Artifact::Artifact(
+  kind~ : ArtifactKind,
+  name~ : String,
+  uri~ : String?,
+  metadata~ : Json?,
+) -> Artifact {
+  Artifact::{ kind, name, uri, metadata }
+}
+
+///|
+pub struct NodeOutput[P] {
   patch : P?
   value : Json?
   artifacts : ReadOnlyArray[Artifact]
 } derive(Debug)
 
 ///|
-pub(all) struct NodeCompletion {
+/// Creates the output produced by a graph node.
+pub fn[P] NodeOutput::NodeOutput(
+  patch : P?,
+  value : Json?,
+  artifacts : ReadOnlyArray[Artifact],
+) -> NodeOutput[P] {
+  NodeOutput::{ patch, value, artifacts }
+}
+
+///|
+pub struct NodeCompletion {
   node_id : NodeId
   value : Json?
   artifacts : ReadOnlyArray[Artifact]
 } derive(Debug)
 
 ///|
-pub(all) enum GraphEvent {
+/// Creates the completion value passed to a router.
+pub fn NodeCompletion::NodeCompletion(
+  node_id : NodeId,
+  value : Json?,
+  artifacts : ReadOnlyArray[Artifact],
+) -> NodeCompletion {
+  NodeCompletion::{ node_id, value, artifacts }
+}
+
+///|
+pub enum GraphEvent {
   RunStarted(RunId)
   RunCompleted(run_id~ : RunId, steps~ : Int)
   RunFailed(run_id~ : RunId, cause~ : Error)
@@ -75,7 +117,37 @@ pub(all) enum GraphEvent {
 } derive(Debug)
 
 ///|
-pub(all) struct EventSink {
+/// Creates the event emitted when a run starts.
+pub fn run_started_event(run_id : RunId) -> GraphEvent {
+  RunStarted(run_id)
+}
+
+///|
+/// Creates the event emitted when a run completes.
+pub fn run_completed_event(run_id : RunId, steps : Int) -> GraphEvent {
+  RunCompleted(run_id~, steps~)
+}
+
+///|
+/// Creates the event emitted before a runtime resource is opened.
+pub fn resource_opening_event(run_id : RunId, key : ResourceKey) -> GraphEvent {
+  ResourceOpening(run_id~, key~)
+}
+
+///|
+/// Creates the event emitted after a runtime resource is opened.
+pub fn resource_opened_event(run_id : RunId, key : ResourceKey) -> GraphEvent {
+  ResourceOpened(run_id~, key~)
+}
+
+///|
+/// Creates the event emitted after a runtime resource is closed.
+pub fn resource_closed_event(run_id : RunId, key : ResourceKey) -> GraphEvent {
+  ResourceClosed(run_id~, key~)
+}
+
+///|
+pub struct EventSink {
   emit : (GraphEvent) -> Unit raise
 }
 
@@ -97,7 +169,7 @@ pub fn EventSink::try_emit(self : EventSink, event : GraphEvent) -> Unit {
 }
 
 ///|
-pub(all) struct NodeContext {
+pub struct NodeContext {
   run_id : RunId
   node_id : NodeId
   step : Int
@@ -129,14 +201,14 @@ pub fn NodeContext::NodeContext(
 }
 
 ///|
-pub(all) struct Node[S, P] {
+pub struct Node[S, P] {
   id : NodeId
   metadata : NodeMetadata
   execute : async (NodeContext, S) -> NodeOutput[P]
 }
 
 ///|
-pub fn[S, P] function_node(
+pub fn[S, P] Node::Node(
   id : NodeId,
   metadata : NodeMetadata,
   execute : async (NodeContext, S) -> NodeOutput[P],
@@ -146,7 +218,7 @@ pub fn[S, P] function_node(
 
 ///|
 /// Contains optional display metadata for one statically declared route.
-pub(all) struct DeclaredRouteMetadata {
+pub struct DeclaredRouteMetadata {
   label : String?
 } derive(Debug)
 
@@ -160,7 +232,7 @@ pub fn DeclaredRouteMetadata::DeclaredRouteMetadata(
 
 ///|
 /// Declares one possible runtime destination and its optional metadata.
-pub(all) struct DeclaredRoute {
+pub struct DeclaredRoute {
   target : NodeId
   metadata : DeclaredRouteMetadata
 } derive(Debug)
@@ -176,7 +248,7 @@ pub fn DeclaredRoute::DeclaredRoute(
 
 ///|
 /// Contains optional display metadata for a router.
-pub(all) struct RouterMetadata {
+pub struct RouterMetadata {
   description : String?
 } derive(Debug)
 
@@ -187,7 +259,7 @@ pub fn RouterMetadata::RouterMetadata(description? : String) -> RouterMetadata {
 }
 
 ///|
-pub(all) struct Router[S] {
+pub struct Router[S] {
   metadata : RouterMetadata
   declared_routes : ReadOnlyArray[DeclaredRoute]
   evaluate : (S, NodeCompletion) -> Route raise
@@ -203,6 +275,12 @@ pub fn[S] router(
 }
 
 ///|
-pub(all) struct Reducer[S, P] {
+pub struct Reducer[S, P] {
   apply : (S, P) -> S raise
+}
+
+///|
+/// Creates a state reducer from its transition function.
+pub fn[S, P] Reducer::Reducer(apply : (S, P) -> S raise) -> Reducer[S, P] {
+  Reducer::{ apply, }
 }

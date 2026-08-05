@@ -171,7 +171,7 @@ pub(all) struct Node[S, P] {
 ランタイムはそのエラーをキャッチし、ノードIDとステップでラップします。
 
 ```moonbit
-pub fn[S, P] function_node(
+pub fn[S, P] Node::Node(
   id : NodeId,
   metadata : NodeMetadata,
   execute : async (NodeContext, S) -> NodeOutput[P],

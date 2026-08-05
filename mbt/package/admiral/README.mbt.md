@@ -50,12 +50,12 @@ async fn main {
   )
   let verbose = @admiral.bool("verbose", short='v', description="Verbose output")
   let count = @admiral.int("count", short='c', description="Repeat count", default=Some(1))
-  let app = @admiral.cli(
+  let app = @admiral.CliApp::CliApp(
     name="myapp",
     version="1.0.0",
     description="My CLI tool",
     commands=[
-      @admiral.command(
+      @admiral.CommandDef::CommandDef(
         name="greet",
         description="Greet someone",
         options=[name, verbose, count],
@@ -181,7 +181,7 @@ let query = @admiral.string(
   interactive=true,
 )
 
-let app = @admiral.cli(
+let app = @admiral.CliApp::CliApp(
   name="project-search",
   positionals=[project],
   options=[query],
@@ -219,7 +219,7 @@ fn load_config() -> Map[String, Json] raise @admiral.ConfigLoadFailure {
   }
 }
 
-let app = @admiral.cli(
+let app = @admiral.CliApp::CliApp(
   name="myapp",
   load_config=Some(load_config),
   commands=[...],
@@ -261,7 +261,7 @@ let name = @admiral.string("name", required=true)
 let port = @admiral.int("port", required=true)
 let input = @admiral.position_int("input", required=true)
 
-// Register definitions with command(options=[verbose, name, port], positionals=[input]).
+// Register definitions with CommandDef::CommandDef(options=[verbose, name, port], positionals=[input]).
 run=Some(async fn(ctx) {
   // Bool — returns false if not specified
   let is_verbose = ctx.get_bool(verbose)
@@ -293,18 +293,18 @@ let up_steps = @admiral.int("steps", short='s', description="Number of steps")
 let down_steps = @admiral.int("steps", short='s', description="Steps to rollback", default=Some(1))
 let seed_file = @admiral.string("file", short='f', description="Seed file", default=Some("seeds/default.sql"))
 
-let app = @admiral.cli(
+let app = @admiral.CliApp::CliApp(
   name="myapp",
   commands=[
-    @admiral.command(
+    @admiral.CommandDef::CommandDef(
       name="db",
       description="Database commands",
       subcommands=[
-        @admiral.command(
+        @admiral.CommandDef::CommandDef(
           name="migrate",
           description="Run migrations",
           subcommands=[
-            @admiral.command(
+            @admiral.CommandDef::CommandDef(
               name="up",
               description="Apply pending migrations",
               options=[dry_run, up_steps],
@@ -324,7 +324,7 @@ let app = @admiral.cli(
                 }
               }),
             ),
-            @admiral.command(
+            @admiral.CommandDef::CommandDef(
               name="down",
               description="Rollback migrations",
               options=[down_steps],
@@ -335,7 +335,7 @@ let app = @admiral.cli(
             ),
           ],
         ),
-        @admiral.command(
+        @admiral.CommandDef::CommandDef(
           name="seed",
           description="Seed the database",
           options=[seed_file],
@@ -366,7 +366,7 @@ Seeding from: custom.sql
 ```moonbit
 let files = @admiral.position_strings("files", description="Files to concatenate")
 
-@admiral.command(
+@admiral.CommandDef::CommandDef(
   name="cat",
   description="Concatenate files",
   positionals=[files],
@@ -479,7 +479,7 @@ let shell = @admiral.string(
   required=true,
 )
 
-@admiral.command(
+@admiral.CommandDef::CommandDef(
   name="completion",
   description="Generate shell completion script",
   options=[shell],
@@ -540,10 +540,10 @@ myapp completion --shell fish > ~/.config/fish/completions/myapp.fish
 
 ### Command Definition
 
-| Function                                                                             | Description                                                 |
-| ------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
-| `command(name, description?, options?, positionals?, examples?, subcommands?, run?)` | Define a command or subcommand with an async `run` callback |
-| `cli(name, version?, description?, options?, commands?, load_config?)`               | Create a CLI app with global options                        |
+| Function                                                                                            | Description                                                 |
+| --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `CommandDef::CommandDef(name, description?, options?, positionals?, examples?, subcommands?, run?)` | Define a command or subcommand with an async `run` callback |
+| `CliApp::CliApp(name, version?, description?, options?, commands?, load_config?)`                   | Create a CLI app with global options                        |
 
 ### Context Methods
 

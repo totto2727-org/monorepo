@@ -207,7 +207,7 @@ extend SnapshotBody with ToJson::{to_json}
 fn snapshot_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="snapshot",
     description="Capture both HTML and screenshot",
     options=[

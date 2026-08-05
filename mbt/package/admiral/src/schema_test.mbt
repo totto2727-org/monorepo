@@ -1,16 +1,21 @@
 ///|
 test "render_schema outputs JSON for simple command" {
-  let app = cli(name="myapp", version="1.0.0", description="Test app", commands=[
-    command(name="greet", description="Greet someone", options=[
-      string("name", short='n', description="Name to greet", required=true),
-      bool("verbose", short='v', description="Verbose output"),
-      int("count", description="Repeat count", default=Some(3)),
-      int64("offset"),
-      uint("retries"),
-      uint64("limit"),
-      double("ratio"),
-    ]),
-  ])
+  let app = CliApp::CliApp(
+    name="myapp",
+    version="1.0.0",
+    description="Test app",
+    commands=[
+      CommandDef::CommandDef(name="greet", description="Greet someone", options=[
+        string("name", short='n', description="Name to greet", required=true),
+        bool("verbose", short='v', description="Verbose output"),
+        int("count", description="Repeat count", default=Some(3)),
+        int64("offset"),
+        uint("retries"),
+        uint64("limit"),
+        double("ratio"),
+      ]),
+    ],
+  )
   let schema = app.render_schema()
   // Verify key parts exist in JSON output
   inspect(schema.contains("\"name\":\"myapp\""), content="true")
@@ -33,15 +38,20 @@ test "render_schema outputs JSON for simple command" {
 
 ///|
 test "render_schema outputs nested subcommands" {
-  let app = cli(name="db-tool", version="0.1.0", description="DB tool", commands=[
-    command(name="db", description="Database commands", subcommands=[
-      command(name="migrate", description="Migrations", subcommands=[
-        command(name="up", description="Apply migrations", options=[
-          bool("dry-run", description="Dry run"),
+  let app = CliApp::CliApp(
+    name="db-tool",
+    version="0.1.0",
+    description="DB tool",
+    commands=[
+      CommandDef::CommandDef(name="db", description="Database commands", subcommands=[
+        CommandDef::CommandDef(name="migrate", description="Migrations", subcommands=[
+          CommandDef::CommandDef(name="up", description="Apply migrations", options=[
+            bool("dry-run", description="Dry run"),
+          ]),
         ]),
       ]),
-    ]),
-  ])
+    ],
+  )
   let schema = app.render_schema()
   inspect(schema.contains("\"db\""), content="true")
   inspect(schema.contains("\"migrate\""), content="true")
@@ -52,8 +62,8 @@ test "render_schema outputs nested subcommands" {
 
 ///|
 test "render_schema auto-generates examples when not provided" {
-  let app = cli(name="myapp", version="0.1.0", description="Test", commands=[
-    command(
+  let app = CliApp::CliApp(name="myapp", version="0.1.0", description="Test", commands=[
+    CommandDef::CommandDef(
       name="greet",
       description="Greet someone",
       options=[
@@ -72,8 +82,8 @@ test "render_schema auto-generates examples when not provided" {
 
 ///|
 test "render_schema does not override provided examples" {
-  let app = cli(name="myapp", version="0.1.0", description="Test", commands=[
-    command(
+  let app = CliApp::CliApp(name="myapp", version="0.1.0", description="Test", commands=[
+    CommandDef::CommandDef(
       name="greet",
       description="Greet someone",
       options=[string("name", description="Name", required=true)],
@@ -86,9 +96,9 @@ test "render_schema does not override provided examples" {
 
 ///|
 test "render_schema auto-generates examples for nested commands" {
-  let app = cli(name="myapp", version="0.1.0", description="Test", commands=[
-    command(name="db", description="DB", subcommands=[
-      command(
+  let app = CliApp::CliApp(name="myapp", version="0.1.0", description="Test", commands=[
+    CommandDef::CommandDef(name="db", description="DB", subcommands=[
+      CommandDef::CommandDef(
         name="migrate",
         description="Migrate",
         options=[bool("dry-run", description="Dry")],
@@ -102,8 +112,8 @@ test "render_schema auto-generates examples for nested commands" {
 
 ///|
 test "CliApp ToJson::to_json returns Json value" {
-  let app = cli(name="test", version="0.1.0", description="Test", commands=[
-    command(name="hello", description="Say hello", options=[
+  let app = CliApp::CliApp(name="test", version="0.1.0", description="Test", commands=[
+    CommandDef::CommandDef(name="hello", description="Say hello", options=[
       string("name", description="Name", required=true),
     ]),
   ])
@@ -116,8 +126,10 @@ test "CliApp ToJson::to_json returns Json value" {
 
 ///|
 test "render_schema includes configured environment variable name" {
-  let app = cli(name="test", commands=[
-    command(name="hello", options=[string("name", env="ADMIRAL_SCHEMA_NAME")]),
+  let app = CliApp::CliApp(name="test", commands=[
+    CommandDef::CommandDef(name="hello", options=[
+      string("name", env="ADMIRAL_SCHEMA_NAME"),
+    ]),
   ])
   let schema = app.render_schema()
   inspect(schema.contains("\"env\":\"ADMIRAL_SCHEMA_NAME\""), content="true")
@@ -125,8 +137,8 @@ test "render_schema includes configured environment variable name" {
 
 ///|
 test "render_schema omits env for unconfigured options" {
-  let app = cli(name="test", commands=[
-    command(name="hello", options=[string("name")]),
+  let app = CliApp::CliApp(name="test", commands=[
+    CommandDef::CommandDef(name="hello", options=[string("name")]),
   ])
   let schema = app.render_schema()
   inspect(schema.contains("\"env\""), content="false")
@@ -134,10 +146,12 @@ test "render_schema omits env for unconfigured options" {
 
 ///|
 test "render_schema includes config keys for options and positions" {
-  let app = cli(name="test", commands=[
-    command(name="run", options=[string("name", config="name")], positionals=[
-      position_string("input", config="input"),
-    ]),
+  let app = CliApp::CliApp(name="test", commands=[
+    CommandDef::CommandDef(
+      name="run",
+      options=[string("name", config="name")],
+      positionals=[position_string("input", config="input")],
+    ),
   ])
   let schema = app.render_schema()
   inspect(schema.contains("\"config\":\"name\""), content="true")
@@ -150,8 +164,8 @@ test "render_schema does not expose resolved environment values" {
   let sentinel = "SCHEMA_FAKE_RESOLVED_VALUE_7C9F"
   let previous = @env.get_env_var(key)
   @env.set_env_var(key, sentinel)
-  let app = cli(name="test", commands=[
-    command(name="hello", options=[string("name", env=key)]),
+  let app = CliApp::CliApp(name="test", commands=[
+    CommandDef::CommandDef(name="hello", options=[string("name", env=key)]),
   ])
   let schema = app.render_schema()
   match previous {
@@ -166,8 +180,8 @@ test "render_schema does not expose resolved environment values" {
 test "render_schema includes typed position metadata" {
   let input = position_int("input", description="Input number", required=true)
   let rest = position_strings("rest")
-  let app = cli(name="test", commands=[
-    command(name="collect", positionals=[input, rest]),
+  let app = CliApp::CliApp(name="test", commands=[
+    CommandDef::CommandDef(name="collect", positionals=[input, rest]),
   ])
   let schema = app.render_schema()
   inspect(schema.contains("\"positionals\""), content="true")
@@ -178,10 +192,12 @@ test "render_schema includes typed position metadata" {
 
 ///|
 test "render_schema includes interactive option and position metadata" {
-  let app = cli(name="test", commands=[
-    command(name="select", options=[string("query", interactive=true)], positionals=[
-      position_string("project", interactive=true),
-    ]),
+  let app = CliApp::CliApp(name="test", commands=[
+    CommandDef::CommandDef(
+      name="select",
+      options=[string("query", interactive=true)],
+      positionals=[position_string("project", interactive=true)],
+    ),
   ])
   let schema = app.render_schema()
   inspect(schema.contains("\"interactive\":true"), content="true")

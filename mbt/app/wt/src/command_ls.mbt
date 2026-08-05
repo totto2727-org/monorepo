@@ -9,7 +9,7 @@ let ls_dir_option : @admiral.PositionDef[String] = @admiral.position_string(
 fn ls_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="ls",
     description="List git worktrees with PR status",
     positionals=[ls_dir_option],

@@ -4,13 +4,14 @@ suberror NodeTestError {
 } derive(Debug)
 
 ///|
+/// White-box coverage may construct runtime-owned events directly.
 fn node_metadata() -> NodeMetadata {
-  NodeMetadata::{
-    name: "increment",
-    description: None,
-    kind: Function,
-    tags: ["test"],
-  }
+  NodeMetadata::NodeMetadata(
+    name="increment",
+    description=None,
+    kind=Function,
+    tags=["test"],
+  )
 }
 
 ///|
@@ -31,13 +32,13 @@ fn node_context(
 }
 
 ///|
-async test "function_node 1 - receives state and complete context" {
+async test "Node::Node 1 - receives state and complete context" {
   @async.with_task_group() <| group => {
     let run_id = RunId::parse("run-1")
     let node_id = NodeId::parse("increment")
     let context = node_context(group, run_id, node_id)
     let mut task_group_was_usable = false
-    let node = function_node(node_id, node_metadata(), async fn(
+    let node = Node::Node(node_id, node_metadata(), async fn(
       callback_context,
       state,
     ) {
@@ -51,7 +52,7 @@ async test "function_node 1 - receives state and complete context" {
       })
       task.wait()
       @async.pause()
-      NodeOutput::{ patch: Some(state + 1), value: None, artifacts: [] }
+      NodeOutput::NodeOutput(Some(state + 1), None, [])
     })
     let output = (node.execute)(context, 41)
     debug_inspect(output.patch, content="Some(42)")
@@ -63,18 +64,16 @@ async test "function_node 1 - receives state and complete context" {
 
 ///|
 test "Reducer apply 1 - returns the updated state" {
-  let reducer = Reducer::{
-    apply: fn(state : Int, patch : Int) { state + patch },
-  }
+  let reducer = Reducer::Reducer(fn(state : Int, patch : Int) { state + patch })
   inspect((reducer.apply)(10, 5), content="15")
 }
 
 ///|
-async test "function_node 2 - propagates the callback suberror unchanged" {
+async test "Node::Node 2 - propagates the callback suberror unchanged" {
   @async.with_task_group() <| group => {
     let run_id = RunId::parse("run-2")
     let node_id = NodeId::parse("failure")
-    let node : Node[Int, Unit] = function_node(node_id, node_metadata(), async fn(
+    let node : Node[Int, Unit] = Node::Node(node_id, node_metadata(), async fn(
       _context,
       _state : Int,
     ) {
@@ -93,19 +92,19 @@ async test "function_node 2 - propagates the callback suberror unchanged" {
 }
 
 ///|
-async test "function_node 3 - cancellation preserves the cancellation error" {
+async test "Node::Node 3 - cancellation preserves the cancellation error" {
   @async.with_task_group() <| group => {
     let run_id = RunId::parse("run-3")
     let node_id = NodeId::parse("pause")
     let mut tokens = 0
-    let node : Node[Int, Unit] = function_node(node_id, node_metadata(), async fn(
+    let node : Node[Int, Unit] = Node::Node(node_id, node_metadata(), async fn(
       _context,
       _state : Int,
     ) {
       tokens = tokens + 1
       @async.pause()
       tokens = tokens + 1
-      NodeOutput::{ patch: None, value: None, artifacts: [] }
+      NodeOutput::NodeOutput(None, None, [])
     })
     let task = group.spawn(
       async fn() {
@@ -171,17 +170,17 @@ test "EventSink discard is a no-op W2-C003" {
 
 ///|
 test "NodeOutput contains patch value and artifacts W2-C003" {
-  let artifact = Artifact::{
-    kind: Text,
-    name: "result.txt",
-    uri: Some("file:///result.txt"),
-    metadata: None,
-  }
-  let output : NodeOutput[Int] = NodeOutput::{
-    patch: Some(42),
-    value: Some(Json::string("done")),
-    artifacts: [artifact],
-  }
+  let artifact = Artifact::Artifact(
+    kind=Text,
+    name="result.txt",
+    uri=Some("file:///result.txt"),
+    metadata=None,
+  )
+  let output : NodeOutput[Int] = NodeOutput::NodeOutput(
+    Some(42),
+    Some(Json::string("done")),
+    [artifact],
+  )
   guard output.patch is Some(42) else { fail("missing patch") }
   guard output.value is Some(Json::String("done")) else {
     fail("missing value")

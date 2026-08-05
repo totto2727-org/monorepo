@@ -1,11 +1,31 @@
 ///|
-pub(all) struct CodingAgentNodeSpec[S, P] {
+pub struct CodingAgentNodeSpec[S, P] {
   agent : @core.CodingAgent
   resource_key : @core.ResourceKey
   resource_scope : @core.ResourceScope
   open_context : (@core.NodeContext, S) -> @core.CodingAgentOpenContext raise
   build_request : (@core.NodeContext, S) -> @core.CodingAgentRequest raise
   decode_response : (S, @core.CodingAgentResponse) -> @core.NodeOutput[P] raise
+}
+
+///|
+/// Creates the callbacks and resource policy used by a coding-agent node.
+pub fn[S, P] CodingAgentNodeSpec::CodingAgentNodeSpec(
+  agent : @core.CodingAgent,
+  resource_key : @core.ResourceKey,
+  resource_scope : @core.ResourceScope,
+  open_context : (@core.NodeContext, S) -> @core.CodingAgentOpenContext raise,
+  build_request : (@core.NodeContext, S) -> @core.CodingAgentRequest raise,
+  decode_response : (S, @core.CodingAgentResponse) -> @core.NodeOutput[P] raise,
+) -> CodingAgentNodeSpec[S, P] {
+  CodingAgentNodeSpec::{
+    agent,
+    resource_key,
+    resource_scope,
+    open_context,
+    build_request,
+    decode_response,
+  }
 }
 
 ///|
@@ -53,7 +73,7 @@ pub fn[S, P] coding_agent_node(
   metadata : @core.NodeMetadata,
   spec : CodingAgentNodeSpec[S, P],
 ) -> @core.Node[S, P] {
-  @core.function_node(id, metadata, async fn(context, state) {
+  @core.Node::Node(id, metadata, async fn(context, state) {
     let open_context = (spec.open_context)(context, state)
     let reference = coding_agent_resource_ref(spec.resource_key)
     let resource = match spec.resource_scope {

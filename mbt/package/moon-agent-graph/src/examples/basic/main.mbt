@@ -43,9 +43,9 @@ fn example_runtime_resource_ref() -> @any_collection.AnyRef[
 
 ///|
 fn example_reducer() -> @core.Reducer[ExampleState, String] {
-  @core.Reducer::{
-    apply: fn(state, patch) { { labels: [..state.labels, patch] } },
-  }
+  @core.Reducer::Reducer(fn(state, patch) {
+    { labels: [..state.labels, patch] }
+  })
 }
 
 ///|
@@ -57,7 +57,12 @@ fn example_id(value : String) -> @core.NodeId {
 
 ///|
 fn example_metadata(name : String) -> @core.NodeMetadata {
-  { name, description: None, kind: @core.Function, tags: [] }
+  @core.NodeMetadata::NodeMetadata(
+    name~,
+    description=None,
+    kind=@core.Function,
+    tags=[],
+  )
 }
 
 ///|
@@ -65,7 +70,7 @@ fn example_node(
   id : @core.NodeId,
   label : String,
 ) -> @core.Node[ExampleState, String] {
-  @core.function_node(id, example_metadata(label), async fn(context, _state) {
+  @core.Node::Node(id, example_metadata(label), async fn(context, _state) {
     @async.pause()
     let reference = example_runtime_resource_ref()
     let resource = match context.resources.get(reference) {
@@ -77,11 +82,11 @@ fn example_node(
       }
     }
     resource.visits.val = resource.visits.val + 1
-    @core.NodeOutput::{
-      patch: Some("\{label}:\{resource.visits.val}"),
-      value: None,
-      artifacts: [],
-    }
+    @core.NodeOutput::NodeOutput(
+      Some("\{label}:\{resource.visits.val}"),
+      None,
+      [],
+    )
   })
 }
 

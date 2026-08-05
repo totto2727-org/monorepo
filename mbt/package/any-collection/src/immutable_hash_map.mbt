@@ -1,7 +1,7 @@
 ///|
 /// An immutable hash map of dynamically typed values accessed through
 /// `AnyRef`.
-pub(all) struct AnyImmutableHashMap[K] {
+pub struct AnyImmutableHashMap[K] {
   map : @immut.HashMap[K, @any.Any]
 }
 

@@ -127,7 +127,7 @@ extend LinksBody with ToJson::{to_json}
 fn links_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="links",
     description="Retrieve links",
     options=[

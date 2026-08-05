@@ -1,5 +1,5 @@
 ///|
-pub(all) enum OptionType {
+pub enum OptionType {
   StringOpt
   BoolOpt
   IntOpt
@@ -94,7 +94,7 @@ pub impl[T] ToStoredPosition for ArgDef[T, PositionMetadata] with fn to_stored_p
 }
 
 ///|
-pub(all) struct CommandDef {
+pub struct CommandDef {
   name : String
   description : String
   options : Array[StoredOption]
@@ -118,7 +118,7 @@ pub impl Show for ConfigLoadFailure with fn output(self, logger) {
 }
 
 ///|
-pub(all) struct Context {
+pub struct Context {
   flags : @immut_hashmap.HashMap[String, Bool]
   values : @immut_hashmap.HashMap[String, ReadOnlyArray[String]]
   sources : @immut_hashmap.HashMap[String, @argparse.ValueSource]
@@ -342,7 +342,7 @@ fn InteractiveContext::InteractiveContext(
 }
 
 ///|
-pub(all) struct CliApp {
+pub struct CliApp {
   name : String
   version : String
   description : String
