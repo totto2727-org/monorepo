@@ -1,5 +1,6 @@
 import {
   "moonbitlang/async",
+  "moonbitlang/x/path",
   "totto2727/admiral",
 }
 
@@ -9,7 +10,6 @@ import {
   "mizchi/bit_osfs",
   "mizchi/tui",
   "moonbitlang/async/fs",
-  "moonbitlang/x/path",
   "totto2727/lens",
   "totto2727/target-file-discovery" @target_file_discovery,
 } for "wbtest"
