@@ -14,6 +14,7 @@ description = "Async-first declarative CLI builder for MoonBit, inspired by guns
 
 import {
   "moonbitlang/async@0.20.1",
+  "mizchi/tui@0.10.0",
   "totto2727/lens@0.4.0",
 }
 
