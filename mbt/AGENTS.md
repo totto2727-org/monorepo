@@ -27,12 +27,3 @@ moon coverage analyze > uncovered.log
 ## README Files
 
 Use `README.mbt.md` as the source README for every MoonBit project, and keep `README.md` as a relative symbolic link to `README.mbt.md`.
-
-## Visibility and Construction
-
-- Declare structs as `pub` by default and expose canonical `TypeName::TypeName` constructors. Use `pub(all)` only when direct external literals are an intentional API requirement, and document that requirement next to the declaration.
-- An enum or suberror that only wraps primitive values or structs without validation, normalization, or cross-field rules may use `pub(all)` and direct `TypeName::VariantName` construction.
-- Declare an enum or suberror as `pub` when valid construction follows any rule. Expose the allowed construction paths as type-associated functions with snake_case names, and do not add package-level wrapper functions that merely rename variant construction.
-- Use `extenum` only when an existing open union must be extended and an ordinary enum, trait, or closed wrapper cannot express the required integration.
-- Declare traits as `pub` by default. Use `pub(open)` only when downstream packages must provide implementations, and document that requirement next to the trait.
-- Do not widen type or trait visibility for test convenience. Use the production constructor or factory, or move implementation-detail tests to white-box scope.
