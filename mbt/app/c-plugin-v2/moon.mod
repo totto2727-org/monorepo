@@ -20,9 +20,9 @@ import {
   "mizchi/bit_lib@0.45.6",
   "mizchi/bit_osfs@0.45.6",
   "mizchi/tui@0.10.0",
-  "moonbitlang/async@0.20.1",
-  "moonbitlang/x@0.4.45",
-  "totto2727/admiral@0.6.0",
+  "moonbitlang/async@0.20.3",
+  "moonbitlang/x@0.4.47",
+  "totto2727/admiral@0.6.1",
   "totto2727/lens@0.4.0",
-  "totto2727/target-file-discovery@0.2.0",
+  "totto2727/target-file-discovery@0.2.1",
 }
