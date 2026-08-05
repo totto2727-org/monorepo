@@ -1,12 +1,12 @@
 ///|
 test "bash completion contains commands and options" {
-  let app = cli(name="myapp", version="0.1.0", description="Test", commands=[
-    command(name="greet", description="Greet someone", options=[
+  let app = CliApp::CliApp(name="myapp", version="0.1.0", description="Test", commands=[
+    CommandDef::CommandDef(name="greet", description="Greet someone", options=[
       string("name", short='n', description="Name", required=true),
       bool("verbose", short='v', description="Verbose"),
     ]),
-    command(name="db", description="Database", subcommands=[
-      command(name="migrate", description="Migrations"),
+    CommandDef::CommandDef(name="db", description="Database", subcommands=[
+      CommandDef::CommandDef(name="migrate", description="Migrations"),
     ]),
   ])
   let bash = app.render_bash_completion()
@@ -21,8 +21,8 @@ test "bash completion contains commands and options" {
 
 ///|
 test "zsh completion contains commands and options" {
-  let app = cli(name="myapp", version="0.1.0", description="Test", commands=[
-    command(name="greet", description="Greet someone", options=[
+  let app = CliApp::CliApp(name="myapp", version="0.1.0", description="Test", commands=[
+    CommandDef::CommandDef(name="greet", description="Greet someone", options=[
       string("name", short='n', description="Name", required=true),
     ]),
   ])
@@ -34,13 +34,13 @@ test "zsh completion contains commands and options" {
 
 ///|
 test "fish completion contains commands and options" {
-  let app = cli(name="myapp", version="0.1.0", description="Test", commands=[
-    command(name="greet", description="Greet someone", options=[
+  let app = CliApp::CliApp(name="myapp", version="0.1.0", description="Test", commands=[
+    CommandDef::CommandDef(name="greet", description="Greet someone", options=[
       string("name", short='n', description="Name", required=true),
       bool("verbose", short='v', description="Verbose"),
     ]),
-    command(name="db", description="Database", subcommands=[
-      command(name="migrate", description="Migrations", options=[
+    CommandDef::CommandDef(name="db", description="Database", subcommands=[
+      CommandDef::CommandDef(name="migrate", description="Migrations", options=[
         bool("dry-run", description="Dry run"),
       ]),
     ]),

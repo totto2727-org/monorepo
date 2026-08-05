@@ -1,12 +1,12 @@
 ///|
-pub(all) suberror GraphBuildError {
+pub suberror GraphBuildError {
   DuplicateNode(NodeId)
   DuplicateRouter(NodeId)
   InvalidId(String)
 } derive(Debug)
 
 ///|
-pub(all) suberror GraphValidationError {
+pub suberror GraphValidationError {
   MissingEntry
   UnknownEntry(NodeId)
   MissingRouter(NodeId)
@@ -16,13 +16,13 @@ pub(all) suberror GraphValidationError {
 } derive(Debug)
 
 ///|
-pub(all) struct RunFailure {
+pub struct RunFailure {
   primary : Error
   cleanup : ReadOnlyArray[Error]
 } derive(Debug)
 
 ///|
-pub(all) suberror GraphRuntimeError {
+pub suberror GraphRuntimeError {
   NodeTimedOut(node_id~ : NodeId, step~ : Int, timeout_ms~ : Int)
   NodeFailed(node_id~ : NodeId, step~ : Int, cause~ : Error)
   ReduceFailed(node_id~ : NodeId, step~ : Int, cause~ : Error)
@@ -136,7 +136,7 @@ pub struct CompiledGraph[S, P] {
 
 ///|
 /// Describes one node in a compiled graph without exposing its callbacks.
-pub(all) struct CompiledNodeSnapshot {
+pub struct CompiledNodeSnapshot {
   id : NodeId
   metadata : NodeMetadata
   router_metadata : RouterMetadata
@@ -145,7 +145,7 @@ pub(all) struct CompiledNodeSnapshot {
 
 ///|
 /// Contains the callback-free static structure of a compiled graph.
-pub(all) struct CompiledGraphSnapshot {
+pub struct CompiledGraphSnapshot {
   entry : NodeId
   nodes : ReadOnlyArray[CompiledNodeSnapshot]
 } derive(Debug)

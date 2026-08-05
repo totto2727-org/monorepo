@@ -1,15 +1,15 @@
 name = "totto2727/wt"
 
-version = "0.1.1"
+version = "0.1.2"
 
 preferred_target = "native"
 
 supported_targets = "native"
 
 import {
-  "totto2727/admiral@0.6.0",
+  "totto2727/admiral@0.6.1",
   "totto2727/lens@0.4.0",
-  "moonbitlang/async@0.19.2",
+  "moonbitlang/async@0.20.3",
 }
 
 readme = "README.md"

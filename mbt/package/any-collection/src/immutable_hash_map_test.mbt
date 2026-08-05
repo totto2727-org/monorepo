@@ -17,9 +17,9 @@ test "AnyImmutableHashMap map - exposes persistent operations" {
   let populated = AnyImmutableHashMap::AnyImmutableHashMap([
     request_id.entry("request-1"),
   ])
-  let removed : AnyImmutableHashMap[String] = {
-    map: populated.map.remove(request_id.key),
-  }
+  let removed = AnyImmutableHashMap::AnyImmutableHashMap(
+    populated.map.remove(request_id.key).to_array(),
+  )
   debug_inspect(populated.get(request_id), content="Some(\"request-1\")")
   debug_inspect(removed.get(request_id), content="None")
   inspect(removed.map.length(), content="0")

@@ -1,11 +1,11 @@
 ///|
 async fn main {
-  let app = @admiral.cli(
+  let app = @admiral.CliApp::CliApp(
     name="c-plugin",
     description="CLI to manage Claude Code Plugin resources",
     commands=[
       init_command_def(run_init),
-      @admiral.command(
+      @admiral.CommandDef::CommandDef(
         name="skill",
         description="Manage skills from plugin repositories",
         subcommands=[
@@ -13,7 +13,7 @@ async fn main {
           skill_sync_command_def(run_skill_sync),
           skill_update_command_def(run_skill_update),
           skill_remove_command_def(run_skill_remove),
-          @admiral.command(
+          @admiral.CommandDef::CommandDef(
             name="target",
             description="Manage skill symlink target directories",
             subcommands=[
@@ -23,11 +23,11 @@ async fn main {
           ),
         ],
       ),
-      @admiral.command(
+      @admiral.CommandDef::CommandDef(
         name="dev",
         description="Development tools for plugin authors",
         subcommands=[
-          @admiral.command(
+          @admiral.CommandDef::CommandDef(
             name="marketplace",
             description="Marketplace development tools",
             subcommands=[

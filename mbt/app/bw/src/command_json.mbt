@@ -173,7 +173,7 @@ extend JsonExtractBody with ToJson::{to_json}
 fn json_extract_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="json",
     description="Extract structured data",
     options=[

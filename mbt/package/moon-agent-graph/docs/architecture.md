@@ -232,7 +232,7 @@ The core package receives an async callback so tests can supply deterministic fa
 A coding-agent node:
 
 - Builds a common coding-agent request.
-- Acquires or reuses a session according to resource scope.
+- Stores the process as an ordinary typed resource and acquires or reuses it according to resource scope.
 - Executes the request.
 - Converts the response into a patch and artifacts.
 
@@ -330,7 +330,7 @@ The MVP includes:
 - Cycles with a step limit.
 - Node timeout.
 - Task cancellation.
-- Run-scoped and node-scoped coding-agent sessions.
+- Run-scoped and node-scoped heterogeneous resources, including coding-agent processes.
 - In-memory events and state.
 - Codex and OpenCode adapters.
 - Deterministic testing helpers and end-to-end workflow coverage.

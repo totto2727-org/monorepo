@@ -1,6 +1,6 @@
 ///|
 /// A mutable map of dynamically typed values accessed through `AnyRef`.
-pub(all) struct AnyMutableMap[K] {
+pub struct AnyMutableMap[K] {
   map : Map[K, @any.Any]
 }
 

@@ -129,7 +129,7 @@ Prove these shapes with the actual compiler:
 - Function fields that raise errors.
 - `Error` stored as a cause in a public error record.
 - `ReadOnlyArray` at public query boundaries.
-- A coding-agent session trait object stored in a map.
+- A coding-agent session trait object wrapped and stored through a typed `AnyRef`.
 
 ### Async Dependency Gate
 
@@ -210,7 +210,7 @@ Status: Complete.
 ### Deliverables
 
 - `ResourceScope`.
-- Run-local resource store specialized to coding-agent sessions.
+- Run-local heterogeneous resource store backed by typed `any-collection` references.
 - Run- and node-scoped acquisition.
 - Reverse-order close.
 - Close-once behavior.
@@ -475,11 +475,12 @@ Status: Final reconciliation.
 
 - `GraphRuntime::invoke` is an async method with `initial_state` as its only required positional argument and `options? : RunOptions` as a labelled optional argument.
 - `RunOptions::RunOptions` validates `max_steps`, `node_timeout_ms?`, and `cleanup_timeout_ms`; the runtime stores no global invocation state.
-- `NodeContext` carries the invocation `TaskGroup[Unit]`, synchronous `EventSink`, invocation-local `RuntimeResourceStore`, and optional deadline.
+- `NodeContext` carries the invocation `TaskGroup[Unit]`, synchronous `EventSink`, invocation-local `ResourceStore`, and optional deadline.
 - `CodingAgentSession` is a `pub(open)` async trait with `id`, `execute`, and `close`; `CodingAgent.open` receives `CodingAgentOpenContext`.
 - `CodingAgentNodeSpec` exposes raising `open_context`, `build_request`, and `decode_response` callbacks and selects `ResourceScope` explicitly.
 - `LlmNodeSpec` accepts a typed MoonLLM request builder, a narrow async invoke callback, and a response decoder.
-- `RuntimeResourceStore` is intentionally specialized to `CodingAgentSession`; it is not a heterogeneous resource container.
+- `ResourceStore` is the single invocation-local store for arbitrary non-serializable values; typed acquisition and cleanup are independent of the concrete resource type.
+- A `CodingAgentSession` process is wrapped as an ordinary typed resource and receives no store-specific API or storage path.
 - `codex_agent` and `opencode_agent` expose adapter option records while keeping SDK-specific session and process state private.
 - Public collection snapshots use `ReadOnlyArray`; owned mutable arrays and maps remain private to graph definitions, runtimes, resources, and test fixtures.
 

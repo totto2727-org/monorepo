@@ -7,7 +7,7 @@
 
 ///|
 /// Type difference: named variants retain upstream failure boundaries while satisfying MoonBit's typed error system.
-pub(all) suberror CodexSdkError {
+pub suberror CodexSdkError {
   InvalidConfig(path~ : String, message~ : String)
   InvalidOutputSchema(message~ : String)
   InvalidEvent(message~ : String)
