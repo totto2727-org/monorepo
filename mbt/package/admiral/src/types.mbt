@@ -103,15 +103,9 @@ pub struct CommandDef {
 }
 
 ///|
-pub suberror ConfigLoadFailure {
+pub(all) suberror ConfigLoadFailure {
   ConfigLoadFailure(String)
 } derive(Debug, Eq)
-
-///|
-/// Creates a configuration-loading failure for a `load_config` callback.
-pub fn config_load_failure(message : String) -> ConfigLoadFailure {
-  ConfigLoadFailure(message)
-}
 
 ///|
 pub impl Show for ConfigLoadFailure with fn output(self, logger) {

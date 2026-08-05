@@ -113,6 +113,10 @@ pub fn CodingAgentOpenContext::CodingAgentOpenContext(
 }
 
 ///|
+/// Represents a live provider-specific coding-agent session.
+///
+/// This trait is open so downstream integrations can provide session
+/// implementations for additional coding-agent providers.
 pub(open) trait CodingAgentSession {
   fn id(Self) -> SessionId?
   async fn execute(Self, CodingAgentRequest) -> CodingAgentResponse

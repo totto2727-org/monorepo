@@ -545,7 +545,7 @@ async test "config load failure propagates before command execution" {
   let app = cli(
     name="test-app",
     load_config=Some(fn() -> Map[String, Json] raise ConfigLoadFailure {
-      raise config_load_failure("cannot load config")
+      raise ConfigLoadFailure::ConfigLoadFailure("cannot load config")
     }),
     commands=[command(name="run", run=Some(fn(_) { called.val = true }))],
   )
