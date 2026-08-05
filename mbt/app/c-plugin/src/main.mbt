@@ -1,7 +1,8 @@
 ///|
-async fn main {
-  let app = @admiral.cli(
+fn c_plugin_app() -> @admiral.CliApp {
+  @admiral.cli(
     name="c-plugin",
+    version="0.2.0",
     description="CLI to manage Claude Code Plugin resources",
     commands=[
       init_command_def(run_init),
@@ -38,5 +39,9 @@ async fn main {
       ),
     ],
   )
-  app.run()
+}
+
+///|
+async fn main {
+  c_plugin_app().run()
 }

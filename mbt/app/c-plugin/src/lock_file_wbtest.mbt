@@ -85,54 +85,143 @@ async test "read_lock returns empty lock file when file does not exist" {
 }
 
 ///|
-async test "read_lock returns empty lock file for corrupt JSON" {
-  let root = @fs.tmpdir(prefix="c-plugin-lock-corrupt-")
+async test "read_lock and write_lock reject a lock symlink and preserve its target" {
+  let root = @fs.tmpdir(prefix="c-plugin-lock-symlink-")
   let agents = @path.Path::join(root, ".agents").to_string()
-  @fs.mkdir(agents, recursive=true)
-  @test_support.write_text(lock_path_from_agents(agents), "{ invalid json }}}")
-  let lock = read_lock(agents)
-  inspect(lock.skill_dirs.length(), content="0")
-  inspect(lock.repositories.length(), content="0")
+  let victim = @path.Path::join(root, "outside/victim.json").to_string()
+  let lock_path = lock_path_from_agents(agents)
+  let original = empty_lock_text()
+  @fs.mkdir(@path.Path::dirname(victim).to_string(), recursive=true)
+  @test_support.write_text(victim, original)
+  @fs.symlink(target=victim, lock_path)
+  let read_outcome = try {
+    read_lock(agents) |> ignore
+    "returned"
+  } catch {
+    _ => "raised"
+  }
+  let write_outcome = try {
+    write_lock(agents, { skill_dirs: ["changed"], repositories: [] })
+    "returned"
+  } catch {
+    _ => "raised"
+  }
+  let preserved = @fs.read_file(victim).text()
   @fs.rmdir(root, recursive=true)
+  inspect(read_outcome, content="raised")
+  inspect(write_outcome, content="raised")
+  inspect(preserved, content=original)
 }
 
 ///|
-test "LockFile FromJson tolerates defaults and filters invalid repositories" {
+async fn run_sync_with_lock_text(lock_text : String) -> (String, String) {
+  let root = @fs.tmpdir(prefix="c-plugin-lock-corrupt-")
+  let agents = @path.Path::join(root, ".agents").to_string()
+  @fs.mkdir(agents, recursive=true)
+  let lock_path = lock_path_from_agents(agents)
+  @test_support.write_text(lock_path, lock_text)
+  let previous_pwd = @env.get_env_var("PWD")
+  let previous_home = @env.get_env_var("HOME")
+  @env.set_env_var("PWD", root)
+  @env.set_env_var("HOME", root)
+  let outcome = try {
+    run_skill_sync(@admiral.Context())
+    "returned"
+  } catch {
+    _ => "raised"
+  }
+  let contents = @fs.read_file(lock_path).text()
+  match previous_pwd {
+    Some(old) => @env.set_env_var("PWD", old)
+    None => @env.unset_env_var("PWD")
+  }
+  match previous_home {
+    Some(old) => @env.set_env_var("HOME", old)
+    None => @env.unset_env_var("HOME")
+  }
+  @fs.rmdir(root, recursive=true)
+  (outcome, contents)
+}
+
+///|
+async test "run_skill_sync - rejects and preserves a corrupt lock file" {
+  let corrupt = "{ invalid json }}}"
+  let (outcome, contents) = run_sync_with_lock_text(corrupt)
+  inspect(outcome, content="raised")
+  inspect(contents, content=corrupt)
+}
+
+///|
+test "LockFile FromJson - defaults absent optional fields" {
   let lock : LockFile = @json.from_json(
     @json.parse(
       (
         #|{
         #|  "version": 1,
-        #|  "skillDirs": ["/custom/dir", 1],
         #|  "repositories": [
-        #|    {
-        #|      "source": "./repo",
-        #|      "plugins": [
-        #|        { "name": "plugin-a", "enabledSkills": ["skill-a", 1] },
-        #|        { "path": 1 },
-        #|        42
-        #|      ]
-        #|    },
-        #|    { "source": "" },
-        #|    { "source": "./invalid", "sourceType": "unsupported" }
+        #|    { "source": "./repo", "plugins": [{}] }
         #|  ]
         #|}
       ),
     ),
   )
-  inspect(lock.skill_dirs.join(","), content="/custom/dir")
+  inspect(lock.skill_dirs.join(","), content="")
   inspect(lock.repositories.length(), content="1")
   inspect(
     repository_source_type_to_string(lock.repositories[0].source_type),
     content="local",
   )
-  inspect(lock.repositories[0].plugins.length(), content="2")
-  inspect(
-    lock.repositories[0].plugins[0].enabled_skills.join(","),
-    content="skill-a",
-  )
-  inspect(lock.repositories[0].plugins[1].name, content="plugin")
-  inspect(lock.repositories[0].plugins[1].path, content="plugin")
+  inspect(lock.repositories[0].plugins.length(), content="1")
+  inspect(lock.repositories[0].plugins[0].name, content="plugin")
+  inspect(lock.repositories[0].plugins[0].path, content="plugin")
+  debug_inspect(lock.repositories[0].plugins[0].enabled_skills, content="[]")
+}
+
+///|
+async test "run_skill_sync - rejects and preserves malformed skillDirs" {
+  let malformed =
+    #|{"version":1,"skillDirs":["/custom/dir",1],"repositories":[]}
+  let (outcome, contents) = run_sync_with_lock_text(malformed)
+  inspect(outcome, content="raised")
+  inspect(contents, content=malformed)
+}
+
+///|
+async test "run_skill_sync - rejects and preserves malformed repositories" {
+  let malformed =
+    #|{"version":1,"skillDirs":[],"repositories":[42]}
+  let (outcome, contents) = run_sync_with_lock_text(malformed)
+  inspect(outcome, content="raised")
+  inspect(contents, content=malformed)
+}
+
+///|
+async test "run_skill_sync - rejects and preserves malformed nested plugins" {
+  let malformed =
+    #|{"version":1,"skillDirs":[],"repositories":[{"source":"./repo","plugins":[{"name":"plugin-a","enabledSkills":["skill-a",1]}]}]}
+  let (outcome, contents) = run_sync_with_lock_text(malformed)
+  inspect(outcome, content="raised")
+  inspect(contents, content=malformed)
+}
+
+///|
+async test "run_skill_sync - rejects and preserves unsafe enabled skill names" {
+  for
+    skill_name in ["", ".", "..", "../../victim", "/tmp/victim", "dir\\victim"] {
+    let encoded_skill_name = skill_name.to_json().stringify()
+    let malformed = "{\"version\":1,\"skillDirs\":[],\"repositories\":[{\"source\":\"./repo\",\"plugins\":[{\"name\":\"plugin-a\",\"enabledSkills\":[\{encoded_skill_name}]}]}]}"
+    let (outcome, contents) = run_sync_with_lock_text(malformed)
+    inspect(outcome, content="raised")
+    inspect(contents, content=malformed)
+  }
+}
+
+///|
+async test "run_skill_sync - rejects and preserves an option-like commit hash" {
+  let malformed = "{\"version\":1,\"skillDirs\":[],\"repositories\":[{\"sourceType\":\"github\",\"source\":\"owner/repo\",\"commitHash\":\"-f\",\"plugins\":[]}]}"
+  let (outcome, contents) = run_sync_with_lock_text(malformed)
+  inspect(outcome, content="raised")
+  inspect(contents, content=malformed)
 }
 
 ///|

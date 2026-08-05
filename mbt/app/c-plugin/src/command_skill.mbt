@@ -118,12 +118,14 @@ fn skill_add_options(context : @admiral.Context) -> SkillAddOptions raise {
   let local_path = context.get_string(local_option)
   let repo = context.get_string(add_repo_arg)
   let source = match (local_path, repo) {
-    (Some(path), _) => {
-      guard path.has_prefix("./") else {
-        fail("--local path must start with ./")
+    (Some(path), None) => {
+      guard path.has_prefix("./") && is_relative_plugin_path(path) else {
+        fail("--local path must start with ./ and stay within its root")
       }
       Local(path)
     }
+    (Some(_), Some(_)) =>
+      fail("Provide either <repo> or --local <path>, not both")
     (None, Some(source)) => {
       validate_github_source(source)
       Github(source)
@@ -187,8 +189,9 @@ async fn run_skill_add(context : @admiral.Context) -> Unit {
     skill_dirs: lock.skill_dirs,
     repositories: upsert_repository(lock.repositories, repository),
   }
+  let sync_plan = plan_sync_lock(agents, updated_lock)
   write_lock(agents, updated_lock)
-  sync_lock(agents, updated_lock)
+  apply_sync_plan(agents, updated_lock, sync_plan)
   println("Added \{source}")
 }
 
@@ -262,8 +265,9 @@ async fn run_skill_update(context : @admiral.Context) -> Unit {
         skill_dirs: entry.lock.skill_dirs,
         repositories: update_repositories(entry.lock.repositories),
       }
+      let sync_plan = plan_sync_lock(entry.agents, updated_lock)
       write_lock(entry.agents, updated_lock)
-      sync_lock(entry.agents, updated_lock)
+      apply_sync_plan(entry.agents, updated_lock, sync_plan)
     }
   })
   if has_update_conflicts(agents_locks) {
@@ -304,12 +308,21 @@ async fn run_skill_remove(context : @admiral.Context) -> Unit {
   let agents = command_agents_dir(options.global)
   let source = options.source
   let lock = read_lock(agents)
+  let removed_repositories = lock.repositories
+    .iter()
+    .filter(fn(repo) { repo.source == source })
+    .collect()
   let repositories = lock.repositories
     .iter()
     .filter(fn(repo) { repo.source != source })
     .collect()
   let updated_lock : LockFile = { skill_dirs: lock.skill_dirs, repositories }
+  let remaining_names = repository_skill_names(repositories)
+  let removed_names = repository_skill_names(removed_repositories)
+    .iter()
+    .filter(fn(name) { !remaining_names.contains(name) })
+    .collect()
   write_lock(agents, updated_lock)
-  sync_lock(agents, updated_lock)
+  remove_named_skill_links_from_roots(agents, lock.skill_dirs, removed_names)
   println("Removed \{source}")
 }

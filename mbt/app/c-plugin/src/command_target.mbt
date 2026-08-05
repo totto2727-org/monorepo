@@ -54,8 +54,9 @@ async fn run_target_add(context : @admiral.Context) -> Unit {
     lock.skill_dirs.iter().concat([dir].iter()).collect()
   }
   let updated_lock : LockFile = { skill_dirs, repositories: lock.repositories }
+  let sync_plan = plan_sync_lock(agents, updated_lock)
   write_lock(agents, updated_lock)
-  sync_lock(agents, updated_lock)
+  apply_sync_plan(agents, updated_lock, sync_plan)
 }
 
 ///|
@@ -64,11 +65,20 @@ async fn run_target_remove(context : @admiral.Context) -> Unit {
   let agents = command_agents_dir(options.global)
   let dir = options.dir
   let lock = read_lock(agents)
-  let skill_dirs = lock.skill_dirs
-    .iter()
-    .filter(fn(item) { item != dir })
-    .collect()
-  let updated_lock : LockFile = { skill_dirs, repositories: lock.repositories }
-  write_lock(agents, updated_lock)
-  sync_lock(agents, updated_lock)
+  if lock.skill_dirs.contains(dir) {
+    let skill_dirs = lock.skill_dirs
+      .iter()
+      .filter(fn(item) { item != dir })
+      .collect()
+    let updated_lock : LockFile = {
+      skill_dirs,
+      repositories: lock.repositories,
+    }
+    let removed_root = resolve_skill_dir_from_lock(agents, dir)
+    write_lock(agents, updated_lock)
+    remove_named_skill_links(
+      removed_root,
+      repository_skill_names(lock.repositories),
+    )
+  }
 }

@@ -61,6 +61,26 @@ struct LockPlugin {
 }
 
 ///|
+fn is_safe_skill_name(name : String) -> Bool {
+  name != "" &&
+  name != "." &&
+  name != ".." &&
+  !name.contains("/") &&
+  !name.contains("\\")
+}
+
+///|
+fn is_git_object_id(value : String) -> Bool {
+  value.length() >= 4 &&
+  value.length() <= 64 &&
+  value.all(char => {
+    char.is_ascii_digit() ||
+    (char >= 'a' && char <= 'f') ||
+    (char >= 'A' && char <= 'F')
+  })
+}
+
+///|
 struct LockRepository {
   source_type : RepositorySourceType
   source : String
@@ -114,31 +134,29 @@ impl FromJson for LockPlugin with fn from_json(json, path) {
   )
   let name_value = lock_plugin_name_lens.get(json) catch { _ => None }
   let name = match name_value {
-    Some(value) =>
-      @json.from_json(value, path=name_path) catch {
-        _ => "plugin"
-      }
+    Some(value) => @json.from_json(value, path=name_path)
     None => "plugin"
   }
   let path_value = lock_plugin_path_lens.get(json) catch { _ => None }
   let path = match path_value {
-    Some(value) => @json.from_json(value, path=plugin_path) catch { _ => name }
+    Some(value) => @json.from_json(value, path=plugin_path)
     None => name
   }
   let enabled_skills_value = lock_plugin_enabled_skills_lens.get(json) catch {
     _ => None
   }
   let enabled_skills = match enabled_skills_value {
-    Some(Json::Array(values)) =>
-      values
-      .iter()
-      .filter_map(fn(value) {
-        Some((@json.from_json(value, path=enabled_skills_path) : String)) catch {
-          _ => None
-        }
-      })
-      .collect()
-    _ => []
+    Some(value) => @json.from_json(value, path=enabled_skills_path)
+    None => []
+  }
+  for skill_name in enabled_skills {
+    guard is_safe_skill_name(skill_name) else {
+      raise @json.JsonDecodeError(
+        (
+          enabled_skills_path, "enabled skill must be a non-empty filename component",
+        ),
+      )
+    }
   }
   { name, path, enabled_skills }
 }
@@ -157,7 +175,7 @@ impl FromJson for LockRepository with fn from_json(json, path) {
   let plugins_path = lock_repository_plugins_lens.add_to_json_path(path)
   let source_value = lock_repository_source_lens.get(json) catch { _ => None }
   let source = match source_value {
-    Some(value) => @json.from_json(value, path=source_path) catch { _ => "" }
+    Some(value) => @json.from_json(value, path=source_path)
     None => ""
   }
   guard source != "" else {
@@ -169,46 +187,37 @@ impl FromJson for LockRepository with fn from_json(json, path) {
     _ => None
   }
   let source_type = match source_type_value {
-    Some(value) =>
-      match value {
-        Json::String(_) => @json.from_json(value, path=source_type_path)
-        _ => RepositoryLocal
-      }
+    Some(value) => @json.from_json(value, path=source_type_path)
     None => RepositoryLocal
   }
   let marketplace_kind_value = lock_repository_marketplace_kind_lens.get(json) catch {
     _ => None
   }
   let marketplace_kind = match marketplace_kind_value {
-    Some(value) =>
-      match value {
-        Json::String(_) => @json.from_json(value, path=marketplace_kind_path)
-        _ => Claude
-      }
+    Some(value) => @json.from_json(value, path=marketplace_kind_path)
     None => Claude
   }
   let commit_hash_value = lock_repository_commit_hash_lens.get(json) catch {
     _ => None
   }
   let commit_hash = match commit_hash_value {
-    Some(value) =>
-      Some((@json.from_json(value, path=commit_hash_path) : String)) catch {
-        _ => None
-      }
+    Some(value) => Some(@json.from_json(value, path=commit_hash_path))
     None => None
+  }
+  match commit_hash {
+    Some(hash) => {
+      guard is_git_object_id(hash) else {
+        raise @json.JsonDecodeError(
+          (commit_hash_path, "commitHash must be a hexadecimal Git object ID"),
+        )
+      }
+    }
+    None => ()
   }
   let plugins_value = lock_repository_plugins_lens.get(json) catch { _ => None }
   let plugins = match plugins_value {
-    Some(Json::Array(values)) =>
-      values
-      .iter()
-      .filter_map(fn(value) {
-        Some((@json.from_json(value, path=plugins_path) : LockPlugin)) catch {
-          _ => None
-        }
-      })
-      .collect()
-    _ => []
+    Some(value) => @json.from_json(value, path=plugins_path)
+    None => []
   }
   { source_type, source, marketplace_kind, commit_hash, plugins }
 }
@@ -309,31 +318,15 @@ impl FromJson for LockFile with fn from_json(json, path) {
   }
   let skill_dirs_value = lock_file_skill_dirs_lens.get(json) catch { _ => None }
   let skill_dirs = match skill_dirs_value {
-    Some(Json::Array(values)) =>
-      values
-      .iter()
-      .filter_map(fn(value) {
-        Some((@json.from_json(value, path=skill_dirs_path) : String)) catch {
-          _ => None
-        }
-      })
-      .collect()
-    _ => []
+    Some(value) => @json.from_json(value, path=skill_dirs_path)
+    None => []
   }
   let repositories_value = lock_file_repositories_lens.get(json) catch {
     _ => None
   }
   let repositories = match repositories_value {
-    Some(Json::Array(values)) =>
-      values
-      .iter()
-      .filter_map(fn(value) {
-        Some((@json.from_json(value, path=repositories_path) : LockRepository)) catch {
-          _ => None
-        }
-      })
-      .collect()
-    _ => []
+    Some(value) => @json.from_json(value, path=repositories_path)
+    None => []
   }
   { skill_dirs, repositories }
 }
@@ -344,12 +337,28 @@ fn empty_lock_text() -> String {
 }
 
 ///|
+async fn lock_entry_kind(path : String) -> @fs.FileKind {
+  @fs.kind(path, follow_symlink=false) catch {
+    _ => @fs.FileKind::Unknown
+  }
+}
+
+///|
+async fn require_regular_or_missing_lock(path : String) -> @fs.FileKind {
+  let kind = lock_entry_kind(path)
+  guard kind == @fs.FileKind::Unknown || kind == @fs.FileKind::Regular else {
+    fail("Refusing non-regular lock file path: \{path}")
+  }
+  kind
+}
+
+///|
 async fn ensure_lock(agents : String) -> Unit {
   if !@fs.exists(agents) {
     @fs.mkdir(agents, recursive=true)
   }
   let path = lock_path_from_agents(agents)
-  if !@fs.exists(path) {
+  if require_regular_or_missing_lock(path) == @fs.FileKind::Unknown {
     @fs.write_file(path, empty_lock_text(), create_mode=CreateOrTruncate)
   }
 }
@@ -357,19 +366,17 @@ async fn ensure_lock(agents : String) -> Unit {
 ///|
 async fn read_lock(agents : String) -> LockFile {
   let path = lock_path_from_agents(agents)
-  let text = if @fs.exists(path) {
-    @fs.read_file(path).text()
+  if require_regular_or_missing_lock(path) == @fs.FileKind::Regular {
+    let document = @json.parse(@fs.read_file(path).text())
+    @json.from_json(document)
   } else {
-    empty_lock_text()
-  }
-  let document = @json.parse(text) catch { _ => return empty_lock_file() }
-  (@json.from_json(document) : LockFile) catch {
-    _ => empty_lock_file()
+    empty_lock_file()
   }
 }
 
 ///|
 async fn write_lock(agents : String, lock : LockFile) -> Unit {
+  require_regular_or_missing_lock(lock_path_from_agents(agents)) |> ignore
   @fs.write_file(
     lock_path_from_agents(agents),
     lock.to_json().stringify(indent=2) + "\n",

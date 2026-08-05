@@ -27,7 +27,9 @@ async fn init_lock_file(project_root : String) -> String {
     @fs.mkdir(agents, recursive=true)
   }
   let path = lock_path_from_agents(agents)
-  guard !@fs.exists(path) else { fail("lock file already exists: \{path}") }
+  guard lock_entry_kind(path) == @fs.FileKind::Unknown else {
+    fail("lock file already exists: \{path}")
+  }
   @fs.write_file(path, empty_lock_text(), create_mode=CreateOrTruncate)
   path
 }

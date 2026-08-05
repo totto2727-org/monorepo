@@ -7,6 +7,13 @@ async test "sync_all links only enabled skills from lock file" {
   @test_support.write_claude_marketplace(repo)
   @test_support.write_skill(repo, "skill-a")
   @test_support.write_skill(repo, "skill-b")
+  let unrelated_source = @path.Path::join(root, "unrelated-source").to_string()
+  let unrelated_link = (agents
+  |> @path.Path::join("skills")
+  |> @path.Path::join("unrelated")).to_string()
+  @fs.mkdir(unrelated_source, recursive=true)
+  @fs.mkdir(@path.Path::dirname(unrelated_link).to_string(), recursive=true)
+  @fs.symlink(target=unrelated_source, unrelated_link)
   write_lock(agents, {
     skill_dirs: [],
     repositories: [
@@ -35,6 +42,82 @@ async test "sync_all links only enabled skills from lock file" {
     @fs.exists(
       (agents |> @path.Path::join("skills") |> @path.Path::join("skill-b")).to_string(),
     ),
+  )
+  assert_true(
+    @fs.kind(unrelated_link, follow_symlink=false) == @fs.FileKind::SymLink,
+  )
+  @fs.rmdir(root, recursive=true)
+}
+
+///|
+async test "sync_lock preserves managed links for a skipped repository" {
+  let root = @fs.tmpdir(prefix="c-plugin-sync-skipped-")
+  let agents = @path.Path::join(root, ".agents").to_string()
+  let links = @path.Path::join(agents, "skills").to_string()
+  let source = @path.Path::join(root, "last-usable").to_string()
+  let link = @path.Path::join(links, "preserved").to_string()
+  @fs.mkdir(source, recursive=true)
+  @fs.mkdir(links, recursive=true)
+  @fs.symlink(target=source, link)
+  let repository : LockRepository = {
+    source_type: RepositoryLocal,
+    source: "./missing-repo",
+    marketplace_kind: Claude,
+    commit_hash: None,
+    plugins: [
+      {
+        name: "plugin-a",
+        path: "plugins/plugin-a",
+        enabled_skills: ["preserved"],
+      },
+    ],
+  }
+  sync_lock(agents, { skill_dirs: [], repositories: [repository] })
+  assert_true(@fs.kind(link, follow_symlink=false) == @fs.FileKind::SymLink)
+  inspect(@fs.realpath(link), content=@fs.realpath(source))
+  @fs.rmdir(root, recursive=true)
+}
+
+///|
+async test "sync_lock preflights collisions before replacing managed links" {
+  let root = @fs.tmpdir(prefix="c-plugin-sync-preflight-")
+  let agents = @path.Path::join(root, ".agents").to_string()
+  let repo = @path.Path::join(root, "repo").to_string()
+  let links = @path.Path::join(agents, "skills").to_string()
+  let preserved_source = @path.Path::join(root, "preserved-source").to_string()
+  let preserved_link = @path.Path::join(links, "preserved").to_string()
+  @test_support.write_claude_marketplace(repo)
+  @test_support.write_skill(repo, "preserved")
+  @test_support.write_skill(repo, "collision")
+  @fs.mkdir(preserved_source, recursive=true)
+  @fs.mkdir(links, recursive=true)
+  @fs.symlink(target=preserved_source, preserved_link)
+  @test_support.write_text(
+    @path.Path::join(links, "collision").to_string(),
+    "keep",
+  )
+  let repository : LockRepository = {
+    source_type: RepositoryLocal,
+    source: "./repo",
+    marketplace_kind: Claude,
+    commit_hash: None,
+    plugins: [
+      {
+        name: "plugin-a",
+        path: "plugins/plugin-a",
+        enabled_skills: ["preserved", "collision"],
+      },
+    ],
+  }
+  try sync_lock(agents, { skill_dirs: [], repositories: [repository] }) catch {
+    _ => ()
+  } noraise {
+    _ => fail("expected sync_lock to reject the collision")
+  }
+  inspect(@fs.realpath(preserved_link), content=@fs.realpath(preserved_source))
+  inspect(
+    @fs.read_file(@path.Path::join(links, "collision").to_string()).text(),
+    content="keep",
   )
   @fs.rmdir(root, recursive=true)
 }
@@ -103,6 +186,14 @@ test "sync conflict detection finds shared target roots" {
 }
 
 ///|
+test "managed_skill_roots resolves relative targets from the lock root" {
+  debug_inspect(
+    managed_skill_roots("/tmp/project/.agents", ["nested/skills"]),
+    content="[\"/tmp/project/.agents/skills\", \"/tmp/project/nested/skills\"]",
+  )
+}
+
+///|
 test "update conflict detection finds shared Git repositories" {
   let repository : LockRepository = {
     source_type: RepositoryGithub,
@@ -146,30 +237,242 @@ async test "create_skill_link overwrites existing symlink" {
 }
 
 ///|
-async test "clear_managed_links removes only symlinks from managed skill dirs" {
-  let root = @fs.tmpdir(prefix="c-plugin-link-clear-")
-  let agents = @path.Path::join(root, ".agents").to_string()
-  let extra = @path.Path::join(root, "extra-skills").to_string()
-  let target = @path.Path::join(agents, "target").to_string()
-  @fs.mkdir(target, recursive=true)
-  create_skill_link(agents, [extra], "my-skill", target)
+async fn create_test_remote(root : String) -> (String, String, String) {
+  let remote = @path.Path::join(root, "remote.git").to_string()
+  let seed = @path.Path::join(root, "seed").to_string()
+  run_checked("git", ["init", "--bare", remote])
+  run_checked("git", ["init", "-b", "main", seed])
   @test_support.write_text(
-    (agents |> @path.Path::join("skills") |> @path.Path::join("real-file")).to_string(),
-    "keep",
+    @path.Path::join(seed, "state.txt").to_string(),
+    "one",
   )
-  clear_managed_links(agents, [extra])
-  assert_false(
-    @fs.exists(
-      (agents |> @path.Path::join("skills") |> @path.Path::join("my-skill")).to_string(),
-    ),
+  run_checked("git", ["-C", seed, "add", "state.txt"])
+  run_checked("git", [
+    "-C", seed, "-c", "user.name=c-plugin test", "-c", "user.email=c-plugin@example.invalid",
+    "commit", "-m", "initial",
+  ])
+  run_checked("git", ["-C", seed, "remote", "add", "origin", remote])
+  run_checked("git", ["-C", seed, "push", "-u", "origin", "main"])
+  run_checked("git", [
+    "--git-dir", remote, "symbolic-ref", "HEAD", "refs/heads/main",
+  ])
+  let first = collect_or_empty("git", ["-C", seed, "rev-parse", "HEAD"])
+  @test_support.write_text(
+    @path.Path::join(seed, "state.txt").to_string(),
+    "two",
   )
-  assert_false(@fs.exists(@path.Path::join(extra, "my-skill").to_string()))
-  assert_true(
-    @fs.exists(
-      (agents |> @path.Path::join("skills") |> @path.Path::join("real-file")).to_string(),
-    ),
+  run_checked("git", ["-C", seed, "add", "state.txt"])
+  run_checked("git", [
+    "-C", seed, "-c", "user.name=c-plugin test", "-c", "user.email=c-plugin@example.invalid",
+    "commit", "-m", "advance remote",
+  ])
+  run_checked("git", ["-C", seed, "push", "origin", "main"])
+  (remote, seed, first)
+}
+
+///|
+async test "ensure_repo_dir - fresh cache retains pinned history" {
+  let root = @fs.tmpdir(prefix="c-plugin-repo-history-")
+  let (remote, _, first) = create_test_remote(root)
+  let cache = @path.Path::join(root, "cache").to_string()
+  ensure_repo_dir(cache, "file://\{remote}", root) |> ignore
+  run_checked("git", ["-C", cache, "checkout", first])
+  inspect(
+    collect_or_empty("git", ["-C", cache, "rev-parse", "HEAD"]),
+    content=first,
   )
   @fs.rmdir(root, recursive=true)
+}
+
+///|
+async test "ensure_repo_dir - migrates an existing shallow cache" {
+  let root = @fs.tmpdir(prefix="c-plugin-repo-unshallow-")
+  let (remote, _, first) = create_test_remote(root)
+  let cache = @path.Path::join(root, "cache").to_string()
+  run_checked("git", ["clone", "--depth", "1", "file://\{remote}", cache])
+  ensure_repo_dir(cache, "file://\{remote}", root) |> ignore
+  inspect(
+    collect_or_empty("git", [
+      "-C", cache, "rev-parse", "--is-shallow-repository",
+    ]),
+    content="false",
+  )
+  run_checked("git", ["-C", cache, "checkout", first])
+  @fs.rmdir(root, recursive=true)
+}
+
+///|
+async test "update_repo_dir - fast-forwards a clean cache" {
+  let root = @fs.tmpdir(prefix="c-plugin-update-repo-")
+  let (remote, seed, _) = create_test_remote(root)
+  let cache = @path.Path::join(root, "cache").to_string()
+  ensure_repo_dir(cache, "file://\{remote}", root) |> ignore
+  @test_support.write_text(
+    @path.Path::join(seed, "state.txt").to_string(),
+    "three",
+  )
+  run_checked("git", ["-C", seed, "add", "state.txt"])
+  run_checked("git", [
+    "-C", seed, "-c", "user.name=c-plugin test", "-c", "user.email=c-plugin@example.invalid",
+    "commit", "-m", "advance again",
+  ])
+  run_checked("git", ["-C", seed, "push", "origin", "main"])
+  let expected = collect_or_empty("git", ["-C", seed, "rev-parse", "HEAD"])
+  ensure_repo_dir(cache, "file://\{remote}", root) |> ignore
+  update_repo_dir(cache) |> ignore
+  inspect(
+    collect_or_empty("git", ["-C", cache, "rev-parse", "HEAD"]),
+    content=expected,
+  )
+  @fs.rmdir(root, recursive=true)
+}
+
+///|
+async test "ensure_repo_dir - rejects mismatched origin without changing the cache" {
+  let root = @fs.tmpdir(prefix="c-plugin-origin-mismatch-")
+  let (remote, _, _) = create_test_remote(root)
+  let cache = @path.Path::join(root, "cache").to_string()
+  ensure_repo_dir(cache, "file://\{remote}", root) |> ignore
+  run_checked("git", [
+    "-C", cache, "remote", "set-url", "origin", "file:///unexpected",
+  ])
+  let head = collect_or_empty("git", ["-C", cache, "rev-parse", "HEAD"])
+  let outcome = try {
+    ensure_repo_dir(cache, "file://\{remote}", root) |> ignore
+    "returned"
+  } catch {
+    _ => "raised"
+  }
+  let preserved_head = collect_or_empty("git", [
+    "-C", cache, "rev-parse", "HEAD",
+  ])
+  let preserved_origin = collect_or_empty("git", [
+    "-C", cache, "config", "--get", "remote.origin.url",
+  ])
+  @fs.rmdir(root, recursive=true)
+  inspect(outcome, content="raised")
+  inspect(preserved_head, content=head)
+  inspect(preserved_origin, content="file:///unexpected")
+}
+
+///|
+async test "ensure_repo_dir - rejects a cache beneath a symlinked parent" {
+  let root = @fs.tmpdir(prefix="c-plugin-cache-symlink-")
+  let (remote, _, _) = create_test_remote(root)
+  let actual_parent = @path.Path::join(root, "actual-parent").to_string()
+  let actual = @path.Path::join(actual_parent, "cache").to_string()
+  let linked_parent = @path.Path::join(root, "linked-parent").to_string()
+  let cache = @path.Path::join(linked_parent, "cache").to_string()
+  ensure_repo_dir(actual, "file://\{remote}", root) |> ignore
+  @fs.symlink(target=actual_parent, linked_parent)
+  let head = collect_or_empty("git", ["-C", actual, "rev-parse", "HEAD"])
+  let outcome = try {
+    ensure_repo_dir(cache, "file://\{remote}", root) |> ignore
+    "returned"
+  } catch {
+    _ => "raised"
+  }
+  let preserved_head = collect_or_empty("git", [
+    "-C", actual, "rev-parse", "HEAD",
+  ])
+  let preserved_kind = @fs.kind(linked_parent, follow_symlink=false)
+  @fs.rmdir(root, recursive=true)
+  inspect(outcome, content="raised")
+  inspect(preserved_head, content=head)
+  assert_true(preserved_kind == @fs.FileKind::SymLink)
+}
+
+///|
+async test "ensure_repo_dir - rejects a Git metadata file" {
+  let root = @fs.tmpdir(prefix="c-plugin-cache-gitfile-")
+  let (remote, _, _) = create_test_remote(root)
+  let cache = @path.Path::join(root, "cache").to_string()
+  let external_git = @path.Path::join(root, "external.git").to_string()
+  run_checked("git", [
+    "clone",
+    "--separate-git-dir",
+    external_git,
+    "file://\{remote}",
+    cache,
+  ])
+  let sentinel = @path.Path::join(external_git, "sentinel").to_string()
+  @test_support.write_text(sentinel, "keep")
+  let outcome = try {
+    ensure_repo_dir(cache, "file://\{remote}", root) |> ignore
+    "returned"
+  } catch {
+    _ => "raised"
+  }
+  let preserved = @fs.read_file(sentinel).text()
+  @fs.rmdir(root, recursive=true)
+  inspect(outcome, content="raised")
+  inspect(preserved, content="keep")
+}
+
+///|
+async test "remove_named_skill_links rejects traversal and preserves outside symlinks" {
+  let root = @fs.tmpdir(prefix="c-plugin-skill-name-traversal-")
+  let managed_root = @path.Path::join(root, "nested/skills").to_string()
+  let target = @path.Path::join(root, "target").to_string()
+  let victim = @path.Path::join(root, "victim").to_string()
+  @fs.mkdir(managed_root, recursive=true)
+  @fs.mkdir(target, recursive=true)
+  @fs.symlink(target~, victim)
+  let outcome = try {
+    remove_named_skill_links(managed_root, ["../../victim"])
+    "returned"
+  } catch {
+    _ => "raised"
+  }
+  let preserved_kind = @fs.kind(victim, follow_symlink=false)
+  @fs.rmdir(root, recursive=true)
+  inspect(outcome, content="raised")
+  assert_true(preserved_kind == @fs.FileKind::SymLink)
+}
+
+///|
+async test "update_repo_dir - rejects and preserves a dirty cache" {
+  let root = @fs.tmpdir(prefix="c-plugin-dirty-cache-")
+  let (remote, _, _) = create_test_remote(root)
+  let cache = @path.Path::join(root, "cache").to_string()
+  ensure_repo_dir(cache, "file://\{remote}", root) |> ignore
+  @test_support.write_text(
+    @path.Path::join(cache, "untracked.txt").to_string(),
+    "keep",
+  )
+  let outcome = try {
+    update_repo_dir(cache) |> ignore
+    "returned"
+  } catch {
+    _ => "raised"
+  }
+  let preserved = @fs.read_file(
+    @path.Path::join(cache, "untracked.txt").to_string(),
+  ).text()
+  @fs.rmdir(root, recursive=true)
+  inspect(outcome, content="raised")
+  inspect(preserved, content="keep")
+}
+
+///|
+async test "checkout_pinned_repo_dir - rejects and preserves a dirty cache" {
+  let root = @fs.tmpdir(prefix="c-plugin-dirty-pinned-cache-")
+  let (remote, _, _) = create_test_remote(root)
+  let cache = @path.Path::join(root, "cache").to_string()
+  ensure_repo_dir(cache, "file://\{remote}", root) |> ignore
+  let head = collect_or_empty("git", ["-C", cache, "rev-parse", "HEAD"])
+  let tracked = @path.Path::join(cache, "state.txt").to_string()
+  @test_support.write_text(tracked, "dirty\n")
+  let outcome = try {
+    checkout_pinned_repo_dir(cache, head)
+    "returned"
+  } catch {
+    _ => "raised"
+  }
+  let preserved = @fs.read_file(tracked).text()
+  @fs.rmdir(root, recursive=true)
+  inspect(outcome, content="raised")
+  inspect(preserved, content="dirty\n")
 }
 
 ///|
