@@ -1,6 +1,9 @@
 import {
-  "totto2727/moon-agent-graph/core",
+  "Yoorkin/any",
   "moonbitlang/async",
+  "moonbitlang/core/json",
+  "totto2727/any-collection" @any_collection,
+  "totto2727/moon-agent-graph/core",
 }
 
 supported_targets = "native"

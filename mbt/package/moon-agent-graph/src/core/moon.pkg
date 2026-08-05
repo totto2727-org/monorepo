@@ -4,6 +4,11 @@ import {
   "moonbitlang/core/random",
   "moonbitlang/async",
   "moonbitlang/x/path",
+  "totto2727/any-collection" @any_collection,
 }
+
+import {
+  "Yoorkin/any",
+} for "test"
 
 supported_targets = "native"
