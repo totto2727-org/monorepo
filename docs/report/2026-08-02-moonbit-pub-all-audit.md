@@ -8,12 +8,12 @@ The audit scope contains 126 `pub(all)` type declarations across eight MoonBit m
 
 The recommended default is therefore `pub`, not `pub(all)`. Use `pub(all)` only when direct construction of every representable value is intentionally part of the public contract and there is no invariant, normalization, ownership, lifecycle, or compatibility boundary to preserve.
 
-| Recommendation | Count | Meaning |
-| --- | ---: | --- |
-| Keep `pub(all)` | 18 | Direct enum-variant construction is an intentional input contract. |
-| Change to `pub`; keep an existing constructor or factory | 21 | External construction is valid, but callers should use the canonical path already present. |
-| Change to `pub`; add a constructor or factory | 16 | External construction is valid, but the package needs a canonical path before visibility is reduced. |
-| Change to readonly `pub`; do not expose external construction | 71 | The type is an output, error, runtime-owned value, or test observation. |
+| Recommendation                                                | Count | Meaning                                                                                              |
+| ------------------------------------------------------------- | ----: | ---------------------------------------------------------------------------------------------------- |
+| Keep `pub(all)`                                               |    18 | Direct enum-variant construction is an intentional input contract.                                   |
+| Change to `pub`; keep an existing constructor or factory      |    21 | External construction is valid, but callers should use the canonical path already present.           |
+| Change to `pub`; add a constructor or factory                 |    16 | External construction is valid, but the package needs a canonical path before visibility is reduced. |
+| Change to readonly `pub`; do not expose external construction |    71 | The type is an output, error, runtime-owned value, or test observation.                              |
 
 These recommendations were applied on 2026-08-04. Excluding `geo-mbt`, only the 18 intentional input enums remain `pub(all)`; other construction now goes through constructors, narrowly scoped factories, or package-internal code.
 
@@ -69,17 +69,17 @@ Representative sources: [`codex-sdk/events.mbt`](../../mbt/package/codex-sdk/src
 
 ## Module inventory
 
-| Module | Total | Keep `pub(all)` | Existing construction path | Add construction path | Readonly only |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `totto2727/any-collection` | 2 | 0 | 2 | 0 | 0 |
-| `totto2727/agent-cli-sdk` | 4 | 0 | 1 | 0 | 3 |
-| `totto2727/admiral` | 5 | 0 | 3 | 1 | 1 |
-| `totto2727/codex-sdk` | 40 | 7 | 3 | 0 | 30 |
-| `totto2727/lens` | 8 | 1 | 0 | 0 | 7 |
-| `totto2727/moon-agent-graph` | 50 | 7 | 10 | 15 | 18 |
-| `totto2727/opencode-sdk` | 16 | 3 | 2 | 0 | 11 |
-| `totto2727/opencode-server-sdk` | 1 | 0 | 0 | 0 | 1 |
-| **Total** | **126** | **18** | **21** | **16** | **71** |
+| Module                          |   Total | Keep `pub(all)` | Existing construction path | Add construction path | Readonly only |
+| ------------------------------- | ------: | --------------: | -------------------------: | --------------------: | ------------: |
+| `totto2727/any-collection`      |       2 |               0 |                          2 |                     0 |             0 |
+| `totto2727/agent-cli-sdk`       |       4 |               0 |                          1 |                     0 |             3 |
+| `totto2727/admiral`             |       5 |               0 |                          3 |                     1 |             1 |
+| `totto2727/codex-sdk`           |      40 |               7 |                          3 |                     0 |            30 |
+| `totto2727/lens`                |       8 |               1 |                          0 |                     0 |             7 |
+| `totto2727/moon-agent-graph`    |      50 |               7 |                         10 |                    15 |            18 |
+| `totto2727/opencode-sdk`        |      16 |               3 |                          2 |                     0 |            11 |
+| `totto2727/opencode-server-sdk` |       1 |               0 |                          0 |                     0 |             1 |
+| **Total**                       | **126** |          **18** |                     **21** |                **16** |        **71** |
 
 ### `totto2727/any-collection`
 
