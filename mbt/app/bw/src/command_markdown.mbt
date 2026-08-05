@@ -102,7 +102,7 @@ extend MarkdownBody with ToJson::{to_json}
 fn markdown_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="markdown",
     description="Extract markdown",
     options=[
