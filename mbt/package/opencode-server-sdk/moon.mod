@@ -1,6 +1,6 @@
 name = "totto2727/opencode-server-sdk"
 
-version = "0.2.0"
+version = "0.2.1"
 
 readme = "README.md"
 
@@ -13,7 +13,7 @@ keywords = [ "opencode", "sdk", "server", "process" ]
 description = "Native MoonBit SDK for starting and managing an OpenCode server"
 
 import {
-  "moonbitlang/async@0.20.1",
+  "moonbitlang/async@0.20.3",
   "totto2727/lens@0.4.0",
 }
 
