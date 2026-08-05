@@ -66,7 +66,7 @@ struct SkillRemoveOptions {
 fn skill_add_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="add",
     description="Add a plugin marketplace",
     positionals=[add_repo_arg],
@@ -79,7 +79,7 @@ fn skill_add_command_def(
 fn skill_sync_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="sync",
     description="Re-create skill symlinks",
     options=[global_option, sync_recursive_option],
@@ -91,7 +91,7 @@ fn skill_sync_command_def(
 fn skill_update_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="update",
     description="Update GitHub-sourced repos and sync",
     options=[global_option, update_recursive_option],
@@ -103,7 +103,7 @@ fn skill_update_command_def(
 fn skill_remove_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="remove",
     description="Remove a repository from the lockfile",
     positionals=[remove_repo_arg],

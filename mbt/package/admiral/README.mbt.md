@@ -9,6 +9,7 @@ A native-first wrapper around `moonbitlang/core/argparse` that provides:
 - Typed option helpers (`string`, `bool`, `int`, `int64`, `uint`, `uint64`, `double`, `positional`)
 - Optional configuration loading through independent config keys
 - Async `run` callbacks for commands and nested subcommands
+- TTY-gated interactive input callbacks with typed value overrides
 - Structured JSON schema output for AI agent integration
 - Shell completion generation (bash, zsh, fish)
 - Auto-generated `--help` / `--version`, including help for incomplete command paths
@@ -19,8 +20,8 @@ Add to `moon.mod`:
 
 ```moonbit
 import {
-  "totto2727/admiral@0.5.0",
-  "moonbitlang/async@0.19.2",
+  "totto2727/admiral@0.6.1",
+  "moonbitlang/async@0.20.3",
 }
 
 preferred_target = "native"
@@ -49,12 +50,12 @@ async fn main {
   )
   let verbose = @admiral.bool("verbose", short='v', description="Verbose output")
   let count = @admiral.int("count", short='c', description="Repeat count", default=Some(1))
-  let app = @admiral.cli(
+  let app = @admiral.CliApp::CliApp(
     name="myapp",
     version="1.0.0",
     description="My CLI tool",
     commands=[
-      @admiral.command(
+      @admiral.CommandDef::CommandDef(
         name="greet",
         description="Greet someone",
         options=[name, verbose, count],
@@ -160,6 +161,50 @@ The generated schema contains only configured environment-variable names and con
 Each helper returns a typed, read-only definition such as `OptionDef[String]`, `OptionDef[Bool]`, or `OptionDef[Int]`.
 Pass the same definition to `command` or `cli` and to the matching `Context` getter; this makes the option name a single source of truth and causes mismatched getters to fail at compile time.
 
+### Interactive Input
+
+Set `interactive=true` on each option or position that participates in interactive input, then pass one async `interactive` callback to the owning `command` or root `cli`.
+Admiral invokes the callback only when at least one registered definition opts in and `mizchi/tui` reports that an input TTY is available.
+On native platforms, `mizchi/tui` treats either TTY-backed standard input or an available controlling terminal (`/dev/tty` or `CONIN$`) as interactive.
+When no input TTY is available, Admiral skips the callback and preserves ordinary parsing and required-value validation.
+
+```moonbit
+let project = @admiral.position_string(
+  "project",
+  required=true,
+  interactive=true,
+)
+let query = @admiral.string(
+  "query",
+  env="ADMIRAL_PROJECT_QUERY",
+  default=Some(""),
+  interactive=true,
+)
+
+let app = @admiral.CliApp::CliApp(
+  name="project-search",
+  positionals=[project],
+  options=[query],
+  interactive=Some(input => {
+    let initial = input.to_context()
+    let selected = run_project_search_tui(
+      initial.get_string(project),
+      initial.get_string(query).unwrap_or(""),
+    )
+    input.set_string(project, selected)
+  }),
+  run=Some(ctx => println(ctx.get_string_required(project))),
+)
+```
+
+`InteractiveContext::to_context()` resolves initial values through the same `argv > env > config > default` rules as the final command callback.
+The typed `set_bool`, `set_string`, `set_strings`, numeric scalar, and numeric array methods replace selected values before `run` executes.
+Required interactive definitions are deferred until the callback only in an interactive environment, so a search selector can supply an otherwise missing required value.
+
+The callback owns the entire interaction rather than a single component.
+It can perform asynchronous discovery, maintain search state, run multiple screens, or mount a complete [`mizchi/tui`](https://github.com/mizchi/tui.mbt) event loop.
+See [`src/examples/interactive`](src/examples/interactive) for a native searchable project selector based on the official `mizchi/tui` virtual DOM, keyboard input, and terminal APIs.
+
 ### Configuration
 
 Pass an optional argument-less `load_config` callback to `cli`.
@@ -174,7 +219,7 @@ fn load_config() -> Map[String, Json] raise @admiral.ConfigLoadFailure {
   }
 }
 
-let app = @admiral.cli(
+let app = @admiral.CliApp::CliApp(
   name="myapp",
   load_config=Some(load_config),
   commands=[...],
@@ -203,8 +248,8 @@ Return `Map([])` when no configuration values are available.
 For example, a loader can report `raise @admiral.ConfigLoadFailure("config file is unreadable")`.
 
 `CliApp` is a public record.
-Direct struct-literal callers must add `load_config` to `CliApp`, and direct `Context` literals must include `sources` and `config`.
-Calls through `cli` remain source-compatible because `load_config` is optional.
+Direct struct-literal callers must include `interactive` and `load_config` in `CliApp`; direct `CommandDef` literals must include `interactive`; and direct `Context` literals must include `sources`, `config`, `interactive_flags`, and `interactive_values`.
+Calls through `cli`, `command`, and `Context::Context` remain source-compatible because the new inputs are optional or initialized internally.
 
 ### Reading Values from Context
 
@@ -216,7 +261,7 @@ let name = @admiral.string("name", required=true)
 let port = @admiral.int("port", required=true)
 let input = @admiral.position_int("input", required=true)
 
-// Register definitions with command(options=[verbose, name, port], positionals=[input]).
+// Register definitions with CommandDef::CommandDef(options=[verbose, name, port], positionals=[input]).
 run=Some(async fn(ctx) {
   // Bool — returns false if not specified
   let is_verbose = ctx.get_bool(verbose)
@@ -248,18 +293,18 @@ let up_steps = @admiral.int("steps", short='s', description="Number of steps")
 let down_steps = @admiral.int("steps", short='s', description="Steps to rollback", default=Some(1))
 let seed_file = @admiral.string("file", short='f', description="Seed file", default=Some("seeds/default.sql"))
 
-let app = @admiral.cli(
+let app = @admiral.CliApp::CliApp(
   name="myapp",
   commands=[
-    @admiral.command(
+    @admiral.CommandDef::CommandDef(
       name="db",
       description="Database commands",
       subcommands=[
-        @admiral.command(
+        @admiral.CommandDef::CommandDef(
           name="migrate",
           description="Run migrations",
           subcommands=[
-            @admiral.command(
+            @admiral.CommandDef::CommandDef(
               name="up",
               description="Apply pending migrations",
               options=[dry_run, up_steps],
@@ -279,7 +324,7 @@ let app = @admiral.cli(
                 }
               }),
             ),
-            @admiral.command(
+            @admiral.CommandDef::CommandDef(
               name="down",
               description="Rollback migrations",
               options=[down_steps],
@@ -290,7 +335,7 @@ let app = @admiral.cli(
             ),
           ],
         ),
-        @admiral.command(
+        @admiral.CommandDef::CommandDef(
           name="seed",
           description="Seed the database",
           options=[seed_file],
@@ -321,7 +366,7 @@ Seeding from: custom.sql
 ```moonbit
 let files = @admiral.position_strings("files", description="Files to concatenate")
 
-@admiral.command(
+@admiral.CommandDef::CommandDef(
   name="cat",
   description="Concatenate files",
   positionals=[files],
@@ -434,7 +479,7 @@ let shell = @admiral.string(
   required=true,
 )
 
-@admiral.command(
+@admiral.CommandDef::CommandDef(
   name="completion",
   description="Generate shell completion script",
   options=[shell],
@@ -495,10 +540,10 @@ myapp completion --shell fish > ~/.config/fish/completions/myapp.fish
 
 ### Command Definition
 
-| Function                                                                             | Description                                                 |
-| ------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
-| `command(name, description?, options?, positionals?, examples?, subcommands?, run?)` | Define a command or subcommand with an async `run` callback |
-| `cli(name, version?, description?, options?, commands?, load_config?)`               | Create a CLI app with global options                        |
+| Function                                                                                            | Description                                                 |
+| --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `CommandDef::CommandDef(name, description?, options?, positionals?, examples?, subcommands?, run?)` | Define a command or subcommand with an async `run` callback |
+| `CliApp::CliApp(name, version?, description?, options?, commands?, load_config?)`                   | Create a CLI app with global options                        |
 
 ### Context Methods
 

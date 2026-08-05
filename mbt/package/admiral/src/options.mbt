@@ -13,6 +13,7 @@ fn[T] option_def(
   required : Bool,
   default_value : String?,
   multiple : Bool,
+  interactive : Bool,
 ) -> OptionDef[T] {
   {
     name,
@@ -25,6 +26,7 @@ fn[T] option_def(
       required,
       default_value,
       multiple,
+      interactive,
     },
   }
 }
@@ -38,6 +40,7 @@ pub fn string(
   config? : String,
   required? : Bool = false,
   default? : String? = None,
+  interactive? : Bool = false,
 ) -> OptionDef[String] {
   option_def(
     name,
@@ -49,6 +52,7 @@ pub fn string(
     default is None && required,
     default,
     false,
+    interactive,
   )
 }
 
@@ -60,6 +64,7 @@ pub fn strings(
   env? : String,
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> OptionDef[Array[String]] {
   option_def(
     name,
@@ -71,6 +76,7 @@ pub fn strings(
     required,
     None,
     true,
+    interactive,
   )
 }
 
@@ -81,8 +87,20 @@ pub fn bool(
   description? : String = "",
   env? : String,
   config? : String,
+  interactive? : Bool = false,
 ) -> OptionDef[Bool] {
-  option_def(name, config, BoolOpt, short, description, env, false, None, false)
+  option_def(
+    name,
+    config,
+    BoolOpt,
+    short,
+    description,
+    env,
+    false,
+    None,
+    false,
+    interactive,
+  )
 }
 
 ///|
@@ -94,6 +112,7 @@ pub fn int(
   config? : String,
   required? : Bool = false,
   default? : Int? = None,
+  interactive? : Bool = false,
 ) -> OptionDef[Int] {
   option_def(
     name,
@@ -105,6 +124,7 @@ pub fn int(
     default is None && required,
     default.map(fn(value) { value.to_string() }),
     false,
+    interactive,
   )
 }
 
@@ -116,6 +136,7 @@ pub fn ints(
   env? : String,
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> OptionDef[Array[Int]] {
   option_def(
     name,
@@ -127,6 +148,7 @@ pub fn ints(
     required,
     None,
     true,
+    interactive,
   )
 }
 
@@ -139,6 +161,7 @@ pub fn int64(
   config? : String,
   required? : Bool = false,
   default? : Int64? = None,
+  interactive? : Bool = false,
 ) -> OptionDef[Int64] {
   option_def(
     name,
@@ -150,6 +173,7 @@ pub fn int64(
     default is None && required,
     default.map(fn(value) { value.to_string() }),
     false,
+    interactive,
   )
 }
 
@@ -161,6 +185,7 @@ pub fn int64s(
   env? : String,
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> OptionDef[Array[Int64]] {
   option_def(
     name,
@@ -172,6 +197,7 @@ pub fn int64s(
     required,
     None,
     true,
+    interactive,
   )
 }
 
@@ -184,6 +210,7 @@ pub fn uint(
   config? : String,
   required? : Bool = false,
   default? : UInt? = None,
+  interactive? : Bool = false,
 ) -> OptionDef[UInt] {
   option_def(
     name,
@@ -195,6 +222,7 @@ pub fn uint(
     default is None && required,
     default.map(fn(value) { value.to_string() }),
     false,
+    interactive,
   )
 }
 
@@ -206,6 +234,7 @@ pub fn uints(
   env? : String,
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> OptionDef[Array[UInt]] {
   option_def(
     name,
@@ -217,6 +246,7 @@ pub fn uints(
     required,
     None,
     true,
+    interactive,
   )
 }
 
@@ -229,6 +259,7 @@ pub fn uint64(
   config? : String,
   required? : Bool = false,
   default? : UInt64? = None,
+  interactive? : Bool = false,
 ) -> OptionDef[UInt64] {
   option_def(
     name,
@@ -240,6 +271,7 @@ pub fn uint64(
     default is None && required,
     default.map(fn(value) { value.to_string() }),
     false,
+    interactive,
   )
 }
 
@@ -251,6 +283,7 @@ pub fn uint64s(
   env? : String,
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> OptionDef[Array[UInt64]] {
   option_def(
     name,
@@ -262,6 +295,7 @@ pub fn uint64s(
     required,
     None,
     true,
+    interactive,
   )
 }
 
@@ -274,6 +308,7 @@ pub fn double(
   config? : String,
   required? : Bool = false,
   default? : Double? = None,
+  interactive? : Bool = false,
 ) -> OptionDef[Double] {
   option_def(
     name,
@@ -285,6 +320,7 @@ pub fn double(
     default is None && required,
     default.map(fn(value) { value.to_string() }),
     false,
+    interactive,
   )
 }
 
@@ -296,6 +332,7 @@ pub fn doubles(
   env? : String,
   config? : String,
   required? : Bool = false,
+  interactive? : Bool = false,
 ) -> OptionDef[Array[Double]] {
   option_def(
     name,
@@ -307,5 +344,6 @@ pub fn doubles(
     required,
     None,
     true,
+    interactive,
   )
 }

@@ -124,7 +124,7 @@ extend ScrapeBody with ToJson::{to_json}
 fn scrape_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="scrape",
     description="Extract elements",
     options=[

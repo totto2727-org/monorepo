@@ -1,6 +1,6 @@
 ///|
 /// The JSON value category used by structured lens diagnostics.
-pub(all) enum JsonKind {
+pub enum JsonKind {
   Null
   Boolean
   Number
@@ -11,7 +11,7 @@ pub(all) enum JsonKind {
 
 ///|
 /// A machine-readable reason why a lens or validation check failed.
-pub(all) enum IssueCode {
+pub enum IssueCode {
   MissingProperty
   TypeMismatch(expected~ : JsonKind, actual~ : JsonKind)
   IndexOutOfBounds(index~ : Int, length~ : Int)
@@ -21,7 +21,7 @@ pub(all) enum IssueCode {
 
 ///|
 /// A structured diagnostic containing the exact pointer and failure reason.
-pub(all) struct Issue {
+pub struct Issue {
   pointer : Pointer
   code : IssueCode
   message : String?
@@ -29,6 +29,6 @@ pub(all) struct Issue {
 
 ///|
 /// The typed error raised when a lens cannot read its selected value.
-pub(all) suberror LensError {
+pub suberror LensError {
   LensError(Issue)
 } derive(Eq, Debug)

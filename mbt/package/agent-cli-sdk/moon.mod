@@ -1,13 +1,13 @@
 name = "totto2727/agent-cli-sdk"
 
-version = "0.2.0"
+version = "0.2.1"
 
 preferred_target = "native"
 
 supported_targets = "native"
 
 import {
-  "moonbitlang/async@0.20.1",
+  "moonbitlang/async@0.20.3",
 }
 
 readme = "README.md"

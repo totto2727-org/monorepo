@@ -27,11 +27,14 @@ fn build_option_to_flag(
 fn build_option_to_option_arg(
   opt : StoredOption,
   config : Map[String, Json],
+  interactive? : Bool = false,
   global? : Bool = false,
 ) -> @argparse.OptionArg {
   let metadata = opt.metadata
   let env = metadata.env.map(fn(value) { value[:] })
-  let required = metadata.required && !config_contains_argument(config, opt)
+  let required = metadata.required &&
+    !config_contains_argument(config, opt) &&
+    !(interactive && metadata.interactive)
   let action = if metadata.multiple {
     @argparse.OptionAction::Append
   } else {
@@ -100,10 +103,12 @@ fn build_option_to_option_arg(
 fn build_position(
   position : StoredPosition,
   config : Map[String, Json],
+  interactive? : Bool = false,
 ) -> @argparse.PositionArg {
   let metadata = position.metadata
   let required = metadata.required &&
-    !config_contains_argument(config, position)
+    !config_contains_argument(config, position) &&
+    !(interactive && metadata.interactive)
   let num_args = match (required, metadata.multiple) {
     (true, false) => @argparse.ValueRange::single()
     (false, false) => @argparse.ValueRange(lower=0, upper=1)
@@ -133,21 +138,23 @@ fn fallback_to_help_when_no_match(cmd : CommandDef) -> Bool {
 fn build_command_with_config(
   cmd : CommandDef,
   config : Map[String, Json],
+  interactive_environment? : Bool = false,
 ) -> @argparse.Command {
+  let interactive = interactive_environment && cmd.interactive is Some(_)
   let flags : Array[@argparse.FlagArg] = []
   let options : Array[@argparse.OptionArg] = []
   for opt in cmd.options {
     match opt.metadata.type_ {
       BoolOpt => flags.push(build_option_to_flag(opt))
       StringOpt | IntOpt | Int64Opt | UIntOpt | UInt64Opt | DoubleOpt =>
-        options.push(build_option_to_option_arg(opt, config))
+        options.push(build_option_to_option_arg(opt, config, interactive~))
     }
   }
   let positionals = cmd.positionals.map(fn(position) {
-    build_position(position, config)
+    build_position(position, config, interactive~)
   })
   let subcommands = cmd.subcommands.map(fn(sub) {
-    build_command_with_config(sub, config)
+    build_command_with_config(sub, config, interactive_environment~)
   })
   @argparse.Command(
     cmd.name,

@@ -197,7 +197,7 @@ extend ScreenshotBody with ToJson::{to_json}
 fn screenshot_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="screenshot",
     description="Capture a screenshot",
     options=[

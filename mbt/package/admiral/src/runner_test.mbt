@@ -3,12 +3,12 @@ async test "cli creates CliApp and run executes async command" {
   let called = Ref(false)
   let captured_name = Ref("")
   let name = string("name", short='n', description="Name", required=true)
-  let app = cli(
+  let app = CliApp::CliApp(
     name="test-app",
     version="1.0.0",
     description="Test application",
     commands=[
-      command(
+      CommandDef::CommandDef(
         name="greet",
         description="Greet someone",
         options=[name],
@@ -31,8 +31,8 @@ async test "cli creates CliApp and run executes async command" {
 async test "explicit argv preserves configured defaults" {
   let captured = Ref("")
   let name = string("name", default=Some("fallback"))
-  let app = cli(name="test-app", commands=[
-    command(
+  let app = CliApp::CliApp(name="test-app", commands=[
+    CommandDef::CommandDef(
       name="greet",
       options=[name],
       run=Some(ctx => {
@@ -50,8 +50,8 @@ async test "env supplies string int and bool options" {
   let name = string("name", env="ADMIRAL_TEST_NAME")
   let port = int("port", env="ADMIRAL_TEST_PORT")
   let verbose = bool("verbose", env="ADMIRAL_TEST_VERBOSE")
-  let app = cli(name="test-app", commands=[
-    command(
+  let app = CliApp::CliApp(name="test-app", commands=[
+    CommandDef::CommandDef(
       name="serve",
       options=[name, port, verbose],
       run=Some(ctx => {
@@ -75,8 +75,8 @@ async test "argv supplies all supported numeric option types" {
   let uint_option = uint("uint")
   let uint64_option = uint64("uint64")
   let double_option = double("double")
-  let app = cli(name="test-app", commands=[
-    command(
+  let app = CliApp::CliApp(name="test-app", commands=[
+    CommandDef::CommandDef(
       name="numbers",
       options=[
         int_option, int64_option, uint_option, uint64_option, double_option,
@@ -127,8 +127,8 @@ async test "argv overrides env and configured default" {
     env="ADMIRAL_TEST_PRECEDENCE",
     default=Some("default-name"),
   )
-  let app = cli(name="test-app", commands=[
-    command(
+  let app = CliApp::CliApp(name="test-app", commands=[
+    CommandDef::CommandDef(
       name="greet",
       options=[name],
       run=Some(ctx => {
@@ -150,8 +150,8 @@ async test "env overrides configured default" {
     env="ADMIRAL_TEST_ENV_DEFAULT",
     default=Some("default-name"),
   )
-  let app = cli(name="test-app", commands=[
-    command(
+  let app = CliApp::CliApp(name="test-app", commands=[
+    CommandDef::CommandDef(
       name="greet",
       options=[name],
       run=Some(ctx => {
@@ -171,8 +171,8 @@ async test "configured default applies when argv and env omit option" {
     env="ADMIRAL_TEST_MISSING_DEFAULT",
     default=Some("default-name"),
   )
-  let app = cli(name="test-app", commands=[
-    command(
+  let app = CliApp::CliApp(name="test-app", commands=[
+    CommandDef::CommandDef(
       name="greet",
       options=[name],
       run=Some(ctx => {
@@ -188,8 +188,8 @@ async test "configured default applies when argv and env omit option" {
 async test "env satisfies a required option" {
   let captured = Ref("")
   let name = string("name", env="ADMIRAL_TEST_REQUIRED", required=true)
-  let app = cli(name="test-app", commands=[
-    command(
+  let app = CliApp::CliApp(name="test-app", commands=[
+    CommandDef::CommandDef(
       name="greet",
       options=[name],
       run=Some(ctx => {
@@ -204,8 +204,8 @@ async test "env satisfies a required option" {
 ///|
 async test "missing required option still fails without argv or env" {
   let called = Ref(false)
-  let app = cli(name="test-app", commands=[
-    command(
+  let app = CliApp::CliApp(name="test-app", commands=[
+    CommandDef::CommandDef(
       name="greet",
       options=[
         string("name", env="ADMIRAL_TEST_REQUIRED_MISSING", required=true),
@@ -229,8 +229,8 @@ async test "missing required option still fails without argv or env" {
 ///|
 async test "invalid bool env value propagates parse failure" {
   let called = Ref(false)
-  let app = cli(name="test-app", commands=[
-    command(
+  let app = CliApp::CliApp(name="test-app", commands=[
+    CommandDef::CommandDef(
       name="build",
       options=[bool("verbose", env="ADMIRAL_TEST_INVALID_BOOL")],
       run=Some(fn(_ctx) { called.val = true }),
@@ -259,8 +259,8 @@ async test "explicit empty env isolates parsing from ambient environment" {
     env="ADMIRAL_TEST_ISOLATED_NAME",
     default=Some("isolated-default"),
   )
-  let app = cli(name="test-app", commands=[
-    command(
+  let app = CliApp::CliApp(name="test-app", commands=[
+    CommandDef::CommandDef(
       name="greet",
       options=[name],
       run=Some(ctx => {
@@ -276,9 +276,9 @@ async test "explicit empty env isolates parsing from ambient environment" {
 async test "env reaches nested command options" {
   let captured = Ref("")
   let name = string("name", env="ADMIRAL_TEST_NESTED")
-  let app = cli(name="test-app", commands=[
-    command(name="admin", subcommands=[
-      command(
+  let app = CliApp::CliApp(name="test-app", commands=[
+    CommandDef::CommandDef(name="admin", subcommands=[
+      CommandDef::CommandDef(
         name="greet",
         options=[name],
         run=Some(ctx => {
@@ -300,7 +300,7 @@ async test "config supplies scalar options through independent keys" {
   let name = string("name", env="ADMIRAL_NAME", config="name", required=true)
   let port = int("port", env="ADMIRAL_PORT", config="port", default=Some(3000))
   let verbose = bool("verbose", env="ADMIRAL_VERBOSE", config="verbose")
-  let app = cli(
+  let app = CliApp::CliApp(
     name="test-app",
     load_config=Some(fn() {
       loaded.val = loaded.val + 1
@@ -311,7 +311,7 @@ async test "config supplies scalar options through independent keys" {
       }
     }),
     commands=[
-      command(
+      CommandDef::CommandDef(
         name="serve",
         options=[name, port, verbose],
         run=Some(ctx => {
@@ -347,7 +347,7 @@ async test "config precedence is below argv and real env and above defaults" {
     default=Some("default-config"),
   )
   let default_value = string("default-value", default=Some("default-only"))
-  let app = cli(
+  let app = CliApp::CliApp(
     name="test-app",
     load_config=Some(fn() {
       {
@@ -357,7 +357,7 @@ async test "config precedence is below argv and real env and above defaults" {
       }
     }),
     commands=[
-      command(
+      CommandDef::CommandDef(
         name="show",
         options=[argv_value, env_value, config_value, default_value],
         run=Some(ctx => {
@@ -382,11 +382,11 @@ async test "config precedence is below argv and real env and above defaults" {
 async test "config satisfies required option through argparse" {
   let captured = Ref("")
   let name = string("name", config="name", required=true)
-  let app = cli(
+  let app = CliApp::CliApp(
     name="test-app",
     load_config=Some(fn() { { "name": "config-required".to_json() } }),
     commands=[
-      command(
+      CommandDef::CommandDef(
         name="run",
         options=[name],
         run=Some(ctx => captured.val = ctx.get_string(name).unwrap_or("")),
@@ -401,11 +401,11 @@ async test "config satisfies required option through argparse" {
 async test "config supplies a required position and argv overrides it" {
   let captured = Ref("")
   let input = position_string("input", config="input", required=true)
-  let app = cli(
+  let app = CliApp::CliApp(
     name="test-app",
     load_config=Some(fn() { { "input": "config.txt".to_json() } }),
     commands=[
-      command(
+      CommandDef::CommandDef(
         name="run",
         positionals=[input],
         run=Some(ctx => {
@@ -423,13 +423,17 @@ async test "config supplies a required position and argv overrides it" {
 ///|
 async test "empty config keeps argparse required validation" {
   let called = Ref(false)
-  let app = cli(name="test-app", load_config=Some(fn() { Map([]) }), commands=[
-    command(
-      name="run",
-      options=[string("name", config="name", required=true)],
-      run=Some(fn(_) { called.val = true }),
-    ),
-  ])
+  let app = CliApp::CliApp(
+    name="test-app",
+    load_config=Some(fn() { Map([]) }),
+    commands=[
+      CommandDef::CommandDef(
+        name="run",
+        options=[string("name", config="name", required=true)],
+        run=Some(fn(_) { called.val = true }),
+      ),
+    ],
+  )
   let error_message = Ref("")
   app.run(argv=Some(["run"]), env=Map([])) catch {
     error => error_message.val = error.to_string()
@@ -447,11 +451,11 @@ async test "empty config keeps argparse required validation" {
 async test "config preserves arrays while env remains a scalar string" {
   let captured : Ref[ReadOnlyArray[String]] = Ref([])
   let tags = strings("tags", env="ADMIRAL_TAGS", config="tags")
-  let app = cli(
+  let app = CliApp::CliApp(
     name="test-app",
     load_config=Some(fn() { { "tags": ["a", "b"].to_json() } }),
     commands=[
-      command(
+      CommandDef::CommandDef(
         name="show",
         options=[tags],
         run=Some(ctx => captured.val = ctx.get_strings(tags)),
@@ -471,11 +475,11 @@ async test "config preserves arrays while env remains a scalar string" {
 async test "config decodes numeric arrays" {
   let captured : Ref[ReadOnlyArray[Int]] = Ref([])
   let retries = ints("retry", config="retries")
-  let app = cli(
+  let app = CliApp::CliApp(
     name="test-app",
     load_config=Some(fn() { { "retries": [1, 2, 3].to_json() } }),
     commands=[
-      command(
+      CommandDef::CommandDef(
         name="run",
         options=[retries],
         run=Some(ctx => captured.val = ctx.get_ints(retries)),
@@ -495,11 +499,11 @@ async test "config decodes numeric arrays" {
 async test "invalid bool config value fails when read" {
   let called = Ref(false)
   let verbose = bool("verbose", config="verbose")
-  let app = cli(
+  let app = CliApp::CliApp(
     name="test-app",
     load_config=Some(fn() { { "verbose": "invalid".to_json() } }),
     commands=[
-      command(
+      CommandDef::CommandDef(
         name="show",
         options=[verbose],
         run=Some(ctx => {
@@ -524,11 +528,11 @@ async test "invalid bool config value fails when read" {
 async test "env overrides an incompatible config value" {
   let captured = Ref(false)
   let verbose = bool("verbose", env="ADMIRAL_VERBOSE", config="verbose")
-  let app = cli(
+  let app = CliApp::CliApp(
     name="test-app",
     load_config=Some(fn() { { "verbose": "invalid".to_json() } }),
     commands=[
-      command(
+      CommandDef::CommandDef(
         name="show",
         options=[verbose],
         run=Some(ctx => captured.val = ctx.get_bool(verbose)),
@@ -542,12 +546,14 @@ async test "env overrides an incompatible config value" {
 ///|
 async test "config load failure propagates before command execution" {
   let called = Ref(false)
-  let app = cli(
+  let app = CliApp::CliApp(
     name="test-app",
     load_config=Some(fn() -> Map[String, Json] raise ConfigLoadFailure {
-      raise ConfigLoadFailure("cannot load config")
+      raise ConfigLoadFailure::ConfigLoadFailure("cannot load config")
     }),
-    commands=[command(name="run", run=Some(fn(_) { called.val = true }))],
+    commands=[
+      CommandDef::CommandDef(name="run", run=Some(fn(_) { called.val = true })),
+    ],
   )
   let error_message = Ref("")
   app.run(argv=Some(["run"]), env=Map([])) catch {
@@ -561,8 +567,8 @@ async test "config load failure propagates before command execution" {
 async test "CliApp run - root option is available in subcommand context" {
   let captured = Ref("")
   let config = string("config")
-  let app = cli(name="test-app", options=[config], commands=[
-    command(
+  let app = CliApp::CliApp(name="test-app", options=[config], commands=[
+    CommandDef::CommandDef(
       name="show",
       run=Some(ctx => captured.val = ctx.get_string(config).unwrap_or("")),
     ),
@@ -575,9 +581,9 @@ async test "CliApp run - root option is available in subcommand context" {
 async test "CliApp run - root option propagates through nested subcommands" {
   let captured = Ref("")
   let config = string("config")
-  let app = cli(name="test-app", options=[config], commands=[
-    command(name="group", subcommands=[
-      command(
+  let app = CliApp::CliApp(name="test-app", options=[config], commands=[
+    CommandDef::CommandDef(name="group", subcommands=[
+      CommandDef::CommandDef(
         name="show",
         run=Some(ctx => captured.val = ctx.get_string(config).unwrap_or("")),
       ),
@@ -599,14 +605,19 @@ async test "CliApp run - root option propagates through nested subcommands" {
 async test "cli run with bool flag" {
   let was_verbose = Ref(false)
   let verbose = bool("verbose", short='v', description="Verbose")
-  let app = cli(name="test-app", version="0.1.0", description="Test", commands=[
-    command(
-      name="build",
-      description="Build project",
-      options=[verbose],
-      run=Some(ctx => was_verbose.val = ctx.get_bool(verbose)),
-    ),
-  ])
+  let app = CliApp::CliApp(
+    name="test-app",
+    version="0.1.0",
+    description="Test",
+    commands=[
+      CommandDef::CommandDef(
+        name="build",
+        description="Build project",
+        options=[verbose],
+        run=Some(ctx => was_verbose.val = ctx.get_bool(verbose)),
+      ),
+    ],
+  )
   app.run(argv=Some(["build", "--verbose"]))
   inspect(was_verbose.val, content="true")
 }
@@ -615,19 +626,24 @@ async test "cli run with bool flag" {
 async test "cli run with int option" {
   let port_val = Ref(0)
   let port = int("port", short='p', description="Port", default=Some(3000))
-  let app = cli(name="test-app", version="0.1.0", description="Test", commands=[
-    command(
-      name="serve",
-      description="Start server",
-      options=[port],
-      run=Some(ctx => {
-        port_val.val = match ctx.get_int(port) {
-          Some(p) => p
-          None => 0
-        }
-      }),
-    ),
-  ])
+  let app = CliApp::CliApp(
+    name="test-app",
+    version="0.1.0",
+    description="Test",
+    commands=[
+      CommandDef::CommandDef(
+        name="serve",
+        description="Start server",
+        options=[port],
+        run=Some(ctx => {
+          port_val.val = match ctx.get_int(port) {
+            Some(p) => p
+            None => 0
+          }
+        }),
+      ),
+    ],
+  )
   app.run(argv=Some(["serve", "--port", "8080"]))
   inspect(port_val.val, content="8080")
 }
@@ -636,26 +652,34 @@ async test "cli run with int option" {
 async test "cli run with nested async subcommand" {
   let result = Ref("")
   let dry_run = bool("dry-run", description="Dry run")
-  let app = cli(name="test-app", version="0.1.0", description="Test", commands=[
-    command(name="db", description="Database commands", subcommands=[
-      command(
-        name="migrate",
-        description="Run migrations",
-        options=[dry_run],
-        run=Some(ctx => {
-          result.val = if ctx.get_bool(dry_run) { "dry" } else { "real" }
-        }),
-      ),
-    ]),
-  ])
+  let app = CliApp::CliApp(
+    name="test-app",
+    version="0.1.0",
+    description="Test",
+    commands=[
+      CommandDef::CommandDef(name="db", description="Database commands", subcommands=[
+        CommandDef::CommandDef(
+          name="migrate",
+          description="Run migrations",
+          options=[dry_run],
+          run=Some(ctx => {
+            result.val = if ctx.get_bool(dry_run) { "dry" } else { "real" }
+          }),
+        ),
+      ]),
+    ],
+  )
   app.run(argv=Some(["db", "migrate", "--dry-run"]))
   inspect(result.val, content="dry")
 }
 
 ///|
 async test "command errors still propagate" {
-  let app = cli(name="test-app", commands=[
-    command(name="fail", run=Some(_ctx => fail("command failed"))),
+  let app = CliApp::CliApp(name="test-app", commands=[
+    CommandDef::CommandDef(
+      name="fail",
+      run=Some(_ctx => fail("command failed")),
+    ),
   ])
   let error_propagated = Ref(false)
   app.run(argv=Some(["fail"])) catch {
@@ -666,8 +690,8 @@ async test "command errors still propagate" {
 
 ///|
 async test "unknown commands still fail" {
-  let app = cli(name="test-app", commands=[
-    command(name="run", run=Some(fn(_ctx) { () })),
+  let app = CliApp::CliApp(name="test-app", commands=[
+    CommandDef::CommandDef(name="run", run=Some(fn(_ctx) { () })),
   ])
   let error_propagated = Ref(false)
   app.run(argv=Some(["unknown"])) catch {
@@ -678,8 +702,8 @@ async test "unknown commands still fail" {
 
 ///|
 async test "invalid options still fail" {
-  let app = cli(name="test-app", commands=[
-    command(name="run", run=Some(fn(_ctx) { () })),
+  let app = CliApp::CliApp(name="test-app", commands=[
+    CommandDef::CommandDef(name="run", run=Some(fn(_ctx) { () })),
   ])
   let error_propagated = Ref(false)
   app.run(argv=Some(["run", "--unknown"])) catch {
