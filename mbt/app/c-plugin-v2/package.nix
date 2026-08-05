@@ -40,6 +40,7 @@ let
       "mizchi/tui" = "0.10.0";
       "moonbitlang/async" = "0.20.1";
       "moonbitlang/x" = "0.4.45";
+      "shu-kitamura/sha256" = "0.1.1";
     };
   };
   moonHome = moonPlatform.bundleWithRegistry { inherit cachedRegistry; };

@@ -1,7 +1,9 @@
 import {
   "moonbitlang/async",
+  "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/json",
   "moonbitlang/x/path",
+  "shu-kitamura/sha256",
   "totto2727/admiral",
   "totto2727/lens",
 }
