@@ -2,7 +2,7 @@
 fn init_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="init",
     description="Create an empty lock file",
     options=[global_option],

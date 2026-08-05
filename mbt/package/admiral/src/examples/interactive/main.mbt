@@ -176,7 +176,7 @@ async fn main {
     default=Some(""),
     interactive=true,
   )
-  let app = @admiral.cli(
+  let app = @admiral.CliApp::CliApp(
     name="interactive-project",
     version="0.1.0",
     description="Admiral interactive project search example",

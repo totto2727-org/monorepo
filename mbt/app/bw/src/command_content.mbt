@@ -102,7 +102,7 @@ extend ContentBody with ToJson::{to_json}
 fn content_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="content",
     description="Fetch rendered HTML",
     options=[

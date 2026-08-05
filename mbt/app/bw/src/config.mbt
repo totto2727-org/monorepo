@@ -67,8 +67,8 @@ async fn load_config(
 ) -> Map[String, Json] raise @admiral.ConfigLoadFailure {
   let loader_args = config_loader_args(process_args)
   let config_path = Ref(default_config_path)
-  let loader = @admiral.cli(name="bw-config-loader", commands=[
-    @admiral.command(
+  let loader = @admiral.CliApp::CliApp(name="bw-config-loader", commands=[
+    @admiral.CommandDef::CommandDef(
       name="load",
       options=[config_option],
       run=Some(context => {

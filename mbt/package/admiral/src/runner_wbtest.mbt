@@ -1,8 +1,11 @@
 ///|
 test "root without run renders generated help after parsing root options" {
   let verbose = bool("verbose", description="Show verbose output")
-  let serve = command(name="serve", description="Start the server")
-  let app = cli(
+  let serve = CommandDef::CommandDef(
+    name="serve",
+    description="Start the server",
+  )
+  let app = CliApp::CliApp(
     name="demo",
     description="Demo application",
     options=[verbose],
@@ -40,8 +43,8 @@ async test "CliApp run_with_interactive_environment 1 - passes resolved initial 
   let limit = int("limit", default=Some(10), interactive=true)
   let initial_values = Ref("")
   let selected_project = Ref("")
-  let app = cli(name="demo", commands=[
-    command(
+  let app = CliApp::CliApp(name="demo", commands=[
+    CommandDef::CommandDef(
       name="select",
       options=[query, profile, limit],
       positionals=[project],
@@ -73,8 +76,8 @@ async test "CliApp run_with_interactive_environment 1 - passes resolved initial 
 async test "CliApp run_with_interactive_environment 2 - lets interactive input satisfy a required value" {
   let project = position_string("project", required=true, interactive=true)
   let selected_project = Ref("")
-  let app = cli(name="demo", commands=[
-    command(
+  let app = CliApp::CliApp(name="demo", commands=[
+    CommandDef::CommandDef(
       name="select",
       positionals=[project],
       interactive=Some(input => input.set_string(project, "chosen")),
@@ -94,8 +97,8 @@ async test "CliApp run_with_interactive_environment 3 - skips interactive callba
   let project = position_string("project", interactive=true)
   let callback_called = Ref(false)
   let selected_project = Ref("")
-  let app = cli(name="demo", commands=[
-    command(
+  let app = CliApp::CliApp(name="demo", commands=[
+    CommandDef::CommandDef(
       name="select",
       positionals=[project],
       interactive=Some(input => {
@@ -120,8 +123,8 @@ async test "CliApp run_with_interactive_environment 3 - skips interactive callba
 async test "CliApp run_with_interactive_environment 4 - requires an opted-in definition" {
   let project = position_string("project")
   let callback_called = Ref(false)
-  let app = cli(name="demo", commands=[
-    command(
+  let app = CliApp::CliApp(name="demo", commands=[
+    CommandDef::CommandDef(
       name="select",
       positionals=[project],
       interactive=Some(_ => callback_called.val = true),
@@ -140,12 +143,12 @@ async test "CliApp run_with_interactive_environment 4 - requires an opted-in def
 async test "CliApp run_with_interactive_environment 5 - propagates root interactive values to a subcommand" {
   let profile = string("profile", interactive=true)
   let selected_profile = Ref("")
-  let app = cli(
+  let app = CliApp::CliApp(
     name="demo",
     options=[profile],
     interactive=Some(input => input.set_string(profile, "interactive-profile")),
     commands=[
-      command(
+      CommandDef::CommandDef(
         name="show",
         run=Some(ctx => {
           selected_profile.val = ctx.get_string(profile).unwrap_or("")

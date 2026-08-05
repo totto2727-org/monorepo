@@ -1,5 +1,5 @@
 ///|
-pub fn command(
+pub fn CommandDef::CommandDef(
   name~ : String,
   description? : String = "",
   options? : Array[&ToStoredOption] = [],
@@ -28,7 +28,7 @@ pub fn command(
 }
 
 ///|
-pub fn cli(
+pub fn CliApp::CliApp(
   name~ : String,
   version? : String = "0.0.0",
   description? : String = "",

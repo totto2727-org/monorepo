@@ -4,7 +4,7 @@
 
 ## Package surface
 
-Keep package-level functions minimal. Associate construction and behavior with the type that owns the contract instead of adding a free function that merely wraps a standard literal or variant.
+Keep package-level functions minimal. Prefer type-associated functions whenever a natural owning type exists, even when a free function would be shorter or more DSL-like. Use a package-level function only when no single type owns the operation. Do not keep aliases that merely shorten a type-associated operation.
 
 ## Structs
 

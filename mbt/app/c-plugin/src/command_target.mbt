@@ -8,7 +8,7 @@ let target_dir_arg : @admiral.PositionDef[String] = @admiral.position_string(
 fn target_add_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="add",
     description="Add skill symlink target directory",
     positionals=[target_dir_arg],
@@ -21,7 +21,7 @@ fn target_add_command_def(
 fn target_remove_command_def(
   run : async (@admiral.Context) -> Unit,
 ) -> @admiral.CommandDef {
-  @admiral.command(
+  @admiral.CommandDef::CommandDef(
     name="remove",
     description="Remove skill symlink target directory",
     positionals=[target_dir_arg],
