@@ -1,4 +1,7 @@
 import {
+  "Yoorkin/any",
+  "moonbitlang/core/debug",
+  "totto2727/any-collection" @any_collection,
   "totto2727/moon-agent-graph/core",
 }
 
