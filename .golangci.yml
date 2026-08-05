@@ -1,7 +1,7 @@
 version: '2'
 
 run:
-  allow-parallel-runners: true
+  allow-serial-runners: true
 
 formatters:
   enable:
