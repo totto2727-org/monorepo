@@ -26,17 +26,6 @@ let
       "./package/target-file-discovery",
     ]
   '';
-  registryExcludedManifestEntries = [
-    ''source = "src"''
-    ''"totto2727/admiral@0.6.1",''
-    ''"totto2727/lens@0.4.0",''
-    ''"totto2727/target-file-discovery@0.2.1",''
-  ];
-  moonMod = builtins.toFile "c-plugin-v2.moon.mod" (
-    builtins.replaceStrings registryExcludedManifestEntries
-      (lib.replicate (builtins.length registryExcludedManifestEntries) "")
-      (builtins.readFile ./moon.mod)
-  );
   src = runCommand "c-plugin-v2-moonbit-workspace-source" { } ''
     mkdir -p "$out"
     cp -R ${packageSrc}/. "$out/"
@@ -44,7 +33,8 @@ let
   '';
 in
 moonPlatform.buildMoonPackage {
-  inherit src moonMod moonRegistryIndex;
+  inherit src moonRegistryIndex;
+  moonMod = ./moon.mod;
   moonFlags = [ "app/c-plugin-v2/src" ];
   doCheck = false;
   meta.mainProgram = "c-plugin-v2";
