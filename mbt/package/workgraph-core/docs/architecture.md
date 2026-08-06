@@ -227,6 +227,10 @@ The caller owns provider construction and target-specific transport configuratio
 
 Tests can supply any deterministic implementation of the open mizchi/llm `Provider` trait.
 
+`workgraph-llm` yields once after request construction and before provider invocation so queued cancellation can stop the node before transport starts. In `mizchi/llm@0.3.1`, `Provider::stream` is synchronous; after transport starts, interruption depends on the provider's configured timeout rather than the core task timeout.
+
+The injected provider is trusted application code. Its stream-error message is retained in `LlmNodeError::ProviderFailed` for the caller's diagnostics; applications that expose graph failures to untrusted clients must redact them at that boundary. Response size and transport duration must be bounded through the provider's token and timeout configuration because the synchronous provider call cannot be isolated by the graph runtime.
+
 ### Coding-Agent Node
 
 A coding-agent node:

@@ -82,8 +82,9 @@ pub fn[S, P] llm_node(
   metadata : @core.NodeMetadata,
   spec : LlmNodeSpec[S, P],
 ) -> @core.Node[S, P] {
-  @core.Node::Node(id, metadata, fn(context, state) raise {
+  @core.Node::Node(id, metadata, async fn(context, state) {
     let request = (spec.build_request)(context, state)
+    @async.pause()
     let response = collect_response(spec.provider, request)
     (spec.decode_response)(state, response)
   })

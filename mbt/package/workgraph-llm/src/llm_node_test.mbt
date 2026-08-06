@@ -299,3 +299,39 @@ async test "llm_node 6 - collects tools, finish reason, and missing usage" {
     inspect(provider.tool_counts[0], content="1")
   }
 }
+
+///|
+async test "llm_node 7 - cancellation before provider invocation skips provider" {
+  @async.with_task_group() <| group => {
+    let node_id = @core.NodeId::NodeId("cancel-before-provider")
+    let provider = llm_node_test_provider("unreachable")
+    let mut request_built = false
+    let node : @core.Node[Int, Int] = llm_node(
+      node_id,
+      llm_node_metadata(),
+      LlmNodeSpec::LlmNodeSpec(
+        @llm.BoxedProvider::new(provider),
+        fn(_context, _state : Int) {
+          request_built = true
+          LlmRequest::LlmRequest([@llm.Message::user("go")])
+        },
+        fn(_state, _response) { @core.NodeOutput::NodeOutput(None, None) },
+      ),
+    )
+    let task = group.spawn(
+      async fn() { (node.execute)(test_context(group, node_id), 0) |> ignore },
+      allow_failure=true,
+    )
+    @async.pause()
+    inspect(request_built, content="true")
+    task.cancel()
+    let cancelled = try {
+      task.wait() |> ignore
+      false
+    } catch {
+      error => @async.is_cancellation_error(error)
+    }
+    inspect(cancelled, content="true")
+    inspect(provider.calls, content="0")
+  }
+}

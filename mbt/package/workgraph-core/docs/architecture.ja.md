@@ -227,6 +227,10 @@ LLM ノードは以下を実行します。
 
 テストはopenなmizchi/llm `Provider` traitの任意の決定論的実装を渡せます。
 
+`workgraph-llm` はrequest構築後かつprovider呼び出し前に一度yieldし、待機中のcancellationがtransport開始前にnodeを停止できるようにします。`mizchi/llm@0.3.1` の `Provider::stream` は同期APIのため、transport開始後の中断はcore task timeoutではなくproviderに設定したtimeoutに依存します。
+
+注入するproviderは、appが管理する信頼済みコードとして扱います。stream errorのmessageは呼び出し側の診断用に `LlmNodeError::ProviderFailed` へ保持するため、graph failureを信頼できないclientへ公開するappは、その境界でredactする必要があります。同期provider呼び出しはgraph runtimeで隔離できないため、response sizeとtransport durationはproviderのtoken設定とtimeout設定で制限する必要があります。
+
 ### コーディングエージェントノード
 
 コーディングエージェントノードは以下を実行します。
