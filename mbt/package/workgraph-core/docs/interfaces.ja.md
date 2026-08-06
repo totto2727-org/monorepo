@@ -455,7 +455,7 @@ pub(all) enum GraphEvent {
 
 ## LLMノード境界
 
-統合パッケージは `mizchi/llm` のメッセージ、ツール、結果型を狭いコールバックに適応させます。
+統合パッケージは `mizchi/llm` のメッセージ、ツール、provider、結果型をprovider-backed graph nodeに適応させます。
 
 ```moonbit
 pub(all) struct LlmRequest {

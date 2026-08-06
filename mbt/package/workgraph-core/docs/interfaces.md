@@ -455,7 +455,7 @@ pub(all) enum GraphEvent {
 
 ## LLM Node Boundary
 
-The integration package adapts `mizchi/llm` message, tool, and result types to a narrow callback.
+The integration package adapts `mizchi/llm` message, tool, provider, and result types to a provider-backed graph node.
 
 ```moonbit
 pub(all) struct LlmRequest {

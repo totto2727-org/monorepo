@@ -4,14 +4,14 @@
 
 Each module owns its tests.
 
-| Module                    | Tests                                                              | Targets    |
-| ------------------------- | ------------------------------------------------------------------ | ---------- |
-| `workgraph-core`          | Graph compilation, runtime, state, resources, events, identifiers  | native, js |
-| `workgraph-agent-cli`     | Coding-agent session scope, lifecycle, errors, cancellation        | native     |
-| `workgraph-llm`           | Callback boundary and public `mizchi/llm.MockProvider` integration | native, js |
-| `workgraph-visualization` | Deterministic Mermaid rendering                                    | native, js |
-| `workgraph-codex-cli`     | Adapter mapping and fake native Codex process integration          | native     |
-| `workgraph-opencode-cli`  | Adapter mapping and fake native OpenCode process integration       | native     |
+| Module                    | Tests                                                               | Targets    |
+| ------------------------- | ------------------------------------------------------------------- | ---------- |
+| `workgraph-core`          | Graph compilation, runtime, state, resources, events, identifiers   | native, js |
+| `workgraph-agent-cli`     | Coding-agent session scope, lifecycle, errors, cancellation         | native     |
+| `workgraph-llm`           | Provider execution and public `mizchi/llm.MockProvider` integration | native, js |
+| `workgraph-visualization` | Deterministic Mermaid rendering                                     | native, js |
+| `workgraph-codex-cli`     | Adapter mapping and fake native Codex process integration           | native     |
+| `workgraph-opencode-cli`  | Adapter mapping and fake native OpenCode process integration        | native     |
 
 The deleted cross-module E2E workflow and shared testing package are not part of the current suite. Remote provider calls remain manual because normal tests require no credentials.
 
