@@ -34,7 +34,7 @@ fn node_context(
 ///|
 async test "Node::Node 1 - receives state and complete context" {
   @async.with_task_group() <| group => {
-    let run_id = RunId::parse("run-1")
+    let run_id = RunId::RunId("run-1")
     let node_id = NodeId::NodeId("increment")
     let context = node_context(group, run_id, node_id)
     let mut task_group_was_usable = false
@@ -70,7 +70,7 @@ test "Reducer apply 1 - returns the updated state" {
 ///|
 async test "Node::Node 2 - propagates the callback suberror unchanged" {
   @async.with_task_group() <| group => {
-    let run_id = RunId::parse("run-2")
+    let run_id = RunId::RunId("run-2")
     let node_id = NodeId::NodeId("failure")
     let node : Node[Int, Unit] = Node::Node(node_id, node_metadata(), async fn(
       _context,
@@ -93,7 +93,7 @@ async test "Node::Node 2 - propagates the callback suberror unchanged" {
 ///|
 async test "Node::Node 3 - cancellation preserves the cancellation error" {
   @async.with_task_group() <| group => {
-    let run_id = RunId::parse("run-3")
+    let run_id = RunId::RunId("run-3")
     let node_id = NodeId::NodeId("pause")
     let mut tokens = 0
     let node : Node[Int, Unit] = Node::Node(node_id, node_metadata(), async fn(
@@ -132,7 +132,7 @@ suberror TestObserverError {
 
 ///|
 test "EventSink emits synchronous events in declaration order W2-C003" {
-  let run_id = RunId::parse("run-events")
+  let run_id = RunId::RunId("run-events")
   let labels : Array[String] = []
   let sink = EventSink::EventSink(fn(event) {
     match event {
@@ -155,14 +155,14 @@ test "EventSink safely ignores a raising observer W2-C003" {
     attempts.push(1)
     raise TestObserverError
   })
-  sink.try_emit(GraphEvent::RunStarted(RunId::parse("run-error")))
+  sink.try_emit(GraphEvent::RunStarted(RunId::RunId("run-error")))
   inspect(attempts.length(), content="1")
 }
 
 ///|
 test "EventSink discard is a no-op W2-C003" {
   EventSink::discard().try_emit(
-    GraphEvent::RunStarted(RunId::parse("run-discard")),
+    GraphEvent::RunStarted(RunId::RunId("run-discard")),
   )
   inspect(true, content="true")
 }

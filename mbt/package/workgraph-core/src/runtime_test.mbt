@@ -254,7 +254,7 @@ async test "GraphRuntime invoke 6 - exits a self loop when the reduced state rea
 ///|
 async test "GraphRuntime invoke 7 - isolates state resources and run IDs across invocations" {
   let entry = NodeId::NodeId("entry")
-  let resource_key = ResourceKey::parse("per-run")
+  let resource_key = ResourceKey::ResourceKey("per-run")
   let opened : Array[String] = []
   let closed : Array[String] = []
   let run_ids : Array[String] = []
@@ -641,7 +641,9 @@ async test "GraphRuntime lifecycle 1 - cancellation closes resources and stops c
     let graph = w4_lifecycle_graph(
       async fn(context, _state) {
         context.resources.acquire_resource(
-          w4_lifecycle_resource_ref(ResourceKey::parse("cancelled-resource")),
+          w4_lifecycle_resource_ref(
+            ResourceKey::ResourceKey("cancelled-resource"),
+          ),
           Node,
           async fn() {
             @async.pause()
@@ -770,7 +772,7 @@ async test "GraphRuntime lifecycle 3 - cleanup-only failure becomes ResourceClea
   let graph = w4_lifecycle_graph(
     async fn(context, _state) {
       context.resources.acquire_resource(
-        w4_lifecycle_resource_ref(ResourceKey::parse("cleanup-only")),
+        w4_lifecycle_resource_ref(ResourceKey::ResourceKey("cleanup-only")),
         Run,
         async fn() {
           @async.pause()
@@ -810,7 +812,9 @@ async test "GraphRuntime lifecycle 4 - primary and cleanup failures remain disti
   let graph = w4_lifecycle_graph(
     async fn(context, _state) {
       context.resources.acquire_resource(
-        w4_lifecycle_resource_ref(ResourceKey::parse("primary-and-cleanup")),
+        w4_lifecycle_resource_ref(
+          ResourceKey::ResourceKey("primary-and-cleanup"),
+        ),
         Run,
         async fn() {
           @async.pause()

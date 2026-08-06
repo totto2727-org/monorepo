@@ -36,7 +36,7 @@ async fn main {
     ),
     @coding.CodingAgentNodeSpec::CodingAgentNodeSpec(
       agent,
-      @core.ResourceKey::parse("codex-session") catch {
+      @core.ResourceKey::ResourceKey("codex-session") catch {
         _ => abort("static Codex resource key must be valid")
       },
       @core.Run,

@@ -55,7 +55,7 @@ pub fn[S, P] GraphRuntime::GraphRuntime(
 ///|
 pub fn[S, P] GraphRuntime::fresh_run_id(self : GraphRuntime[S, P]) -> RunId {
   let value = "run-\{self.ids.int64().to_string()}"
-  RunId::parse(value) catch {
+  RunId::RunId(value) catch {
     _ => abort("generated run ID must be nonempty")
   }
 }

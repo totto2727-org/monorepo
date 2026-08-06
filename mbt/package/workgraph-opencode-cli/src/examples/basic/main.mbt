@@ -34,7 +34,7 @@ async fn main {
     ),
     @coding.CodingAgentNodeSpec::CodingAgentNodeSpec(
       agent,
-      @core.ResourceKey::parse("opencode-session") catch {
+      @core.ResourceKey::ResourceKey("opencode-session") catch {
         _ => abort("static OpenCode resource key must be valid")
       },
       @core.Run,

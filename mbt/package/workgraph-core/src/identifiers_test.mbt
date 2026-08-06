@@ -47,9 +47,9 @@ test "NodeId to_string ID-006 - returns the original text" {
 
 ///|
 test "Identifier family parse - non-empty strings round trip through every wrapper" {
-  inspect(RunId::parse("run-alpha").to_string(), content="run-alpha")
+  inspect(RunId::RunId("run-alpha").to_string(), content="run-alpha")
   inspect(
-    ResourceKey::parse("resource-alpha").to_string(),
+    ResourceKey::ResourceKey("resource-alpha").to_string(),
     content="resource-alpha",
   )
 }
@@ -57,13 +57,13 @@ test "Identifier family parse - non-empty strings round trip through every wrapp
 ///|
 test "Identifier family parse - empty strings report each wrapper kind" {
   let run_error = try {
-    RunId::parse("") |> ignore
+    RunId::RunId("") |> ignore
     "no error"
   } catch {
     EmptyId(kind~) => "EmptyId:\{kind}"
   }
   let resource_error = try {
-    ResourceKey::parse("") |> ignore
+    ResourceKey::ResourceKey("") |> ignore
     "no error"
   } catch {
     EmptyId(kind~) => "EmptyId:\{kind}"

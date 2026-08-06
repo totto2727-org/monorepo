@@ -1,6 +1,6 @@
 ///|
 fn codex_agent_test_run_id() -> @core.RunId {
-  @core.RunId::parse("codex-agent-test-run") catch {
+  @core.RunId::RunId("codex-agent-test-run") catch {
     _ => abort("test run ID must be valid")
   }
 }

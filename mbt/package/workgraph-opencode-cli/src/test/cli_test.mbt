@@ -143,7 +143,7 @@ fn opencode_cli_context(
   environment? : Map[String, String] = Map([]),
 ) -> @coding_agent.CodingAgentOpenContext {
   @coding_agent.CodingAgentOpenContext::CodingAgentOpenContext(
-    run_id=@core.RunId::parse("opencode-cli-integration") catch {
+    run_id=@core.RunId::RunId("opencode-cli-integration") catch {
       _ => abort("fixture run ID must be valid")
     },
     task_group=group,

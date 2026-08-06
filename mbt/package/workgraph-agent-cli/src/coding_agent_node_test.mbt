@@ -25,7 +25,7 @@ struct CodingAgentNodeFakeSession {
 
 ///|
 fn coding_agent_node_test_run_id(value : String) -> @core.RunId {
-  @core.RunId::parse(value) catch {
+  @core.RunId::RunId(value) catch {
     _ => abort("test run ID must be valid")
   }
 }
@@ -131,7 +131,7 @@ async test "coding_agent_node 1 - executes and decodes continuation and changed 
           }
           (session : &CodingAgentSession)
         }),
-        @core.ResourceKey::parse("coding-agent-success"),
+        @core.ResourceKey::ResourceKey("coding-agent-success"),
         @core.Node,
         fn(_context, _state) { coding_agent_open_context(group) },
         fn(_context, state) {
@@ -189,7 +189,7 @@ async test "coding_agent_node 2 - reuses a run session through two GraphRuntime 
         }
         (session : &CodingAgentSession)
       }),
-      @core.ResourceKey::parse("coding-agent-run"),
+      @core.ResourceKey::ResourceKey("coding-agent-run"),
       @core.Run,
       fn(context, _state) { coding_agent_open_context(context.task_group) },
       fn(_context, state) {
@@ -251,7 +251,7 @@ async fn coding_agent_node_assert_phase(
           }
           (session : &CodingAgentSession)
         }),
-        @core.ResourceKey::parse("coding-agent-phase"),
+        @core.ResourceKey::ResourceKey("coding-agent-phase"),
         @core.Node,
         (_context, _state) => {
           calls.push("open-context")
@@ -339,7 +339,7 @@ async test "coding_agent_node 4 - retries an open failure without caching it" {
           }
           (session : &CodingAgentSession)
         }),
-        @core.ResourceKey::parse("coding-agent-open-retry"),
+        @core.ResourceKey::ResourceKey("coding-agent-open-retry"),
         @core.Run,
         fn(_context, _state) { coding_agent_open_context(group) },
         fn(_context, _state) {
@@ -437,7 +437,7 @@ fn w6_open_context(
   _state : Int,
 ) -> CodingAgentOpenContext raise {
   CodingAgentOpenContext::CodingAgentOpenContext(
-    run_id=@core.RunId::parse(context.run_id.to_string()),
+    run_id=@core.RunId::RunId(context.run_id.to_string()),
     task_group=context.task_group,
     workspace=WorkspaceRef::WorkspaceRef(@path.Path("."), []),
     approval=Never,
@@ -484,7 +484,7 @@ fn w6_lifecycle_runtime(
       w6_lifecycle_metadata(),
       CodingAgentNodeSpec::CodingAgentNodeSpec(
         agent,
-        @core.ResourceKey::parse("lifecycle-session"),
+        @core.ResourceKey::ResourceKey("lifecycle-session"),
         scope,
         w6_open_context,
         fn(_context, state : Int) {

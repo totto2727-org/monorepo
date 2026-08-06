@@ -4,10 +4,14 @@ pub struct NodeId {
 } derive(Eq, Hash, Debug)
 
 ///|
-pub struct RunId(String) derive(Eq, Hash, Debug)
+pub struct RunId {
+  value : String
+} derive(Eq, Hash, Debug)
 
 ///|
-pub struct ResourceKey(String) derive(Eq, Hash, Debug)
+pub struct ResourceKey {
+  value : String
+} derive(Eq, Hash, Debug)
 
 ///|
 pub suberror IdError {
@@ -31,23 +35,21 @@ pub fn NodeId::to_string(self : NodeId) -> String {
 }
 
 ///|
-pub fn RunId::parse(value : String) -> RunId raise IdError {
-  RunId(parse_id(value, "RunId"))
+pub fn RunId::RunId(value : String) -> RunId raise IdError {
+  RunId::{ value: parse_id(value, "RunId") }
 }
 
 ///|
 pub fn RunId::to_string(self : RunId) -> String {
-  let RunId(value) = self
-  value
+  self.value
 }
 
 ///|
-pub fn ResourceKey::parse(value : String) -> ResourceKey raise IdError {
-  ResourceKey(parse_id(value, "ResourceKey"))
+pub fn ResourceKey::ResourceKey(value : String) -> ResourceKey raise IdError {
+  ResourceKey::{ value: parse_id(value, "ResourceKey") }
 }
 
 ///|
 pub fn ResourceKey::to_string(self : ResourceKey) -> String {
-  let ResourceKey(value) = self
-  value
+  self.value
 }

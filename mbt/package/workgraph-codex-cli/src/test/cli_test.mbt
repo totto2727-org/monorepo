@@ -94,7 +94,7 @@ fn codex_integration_context(
   mode : String,
 ) -> @coding_agent.CodingAgentOpenContext {
   @coding_agent.CodingAgentOpenContext::CodingAgentOpenContext(
-    run_id=@core.RunId::parse("codex-integration-run") catch {
+    run_id=@core.RunId::RunId("codex-integration-run") catch {
       _ => abort("integration run ID must be valid")
     },
     task_group=group,
@@ -238,7 +238,7 @@ async test "codex_agent integration 3 - caller cancellation kills the started su
           ),
           @coding_agent.CodingAgentNodeSpec::CodingAgentNodeSpec(
             codex_integration_agent(fixture),
-            @core.ResourceKey::parse("codex-cancel"),
+            @core.ResourceKey::ResourceKey("codex-cancel"),
             @core.Run,
             fn(context, _state) {
               codex_integration_context(fixture, context.task_group, "pause")

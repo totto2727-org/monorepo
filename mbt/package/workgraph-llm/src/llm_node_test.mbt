@@ -31,7 +31,7 @@ fn test_context(
   node_id : @core.NodeId,
 ) -> @core.NodeContext {
   @core.NodeContext::NodeContext(
-    @core.RunId::parse("llm-run") catch {
+    @core.RunId::RunId("llm-run") catch {
       _ => abort("test run ID must be valid")
     },
     node_id,

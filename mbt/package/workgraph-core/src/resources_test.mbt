@@ -28,7 +28,7 @@ impl @any.Anyable for ResourceStoreTestValue with fn iso() {
 ///|
 test "ResourceStore values 1 - stores and removes a typed in-memory value" {
   let store = ResourceStore::ResourceStore()
-  let key = ResourceKey::parse("counter")
+  let key = ResourceKey::ResourceKey("counter")
   let resource_ref : @any_collection.AnyRef[ResourceKey, ResourceStoreTestValue] = @any_collection.AnyRef::AnyRef(
     key,
   )
@@ -60,10 +60,10 @@ async test "ResourceStore acquire_resource 1 - reuses run resources and closes n
   let opened : Array[String] = []
   let closed : Array[String] = []
   let run_ref : @any_collection.AnyRef[ResourceKey, ResourceStoreTestValue] = @any_collection.AnyRef::AnyRef(
-    ResourceKey::parse("run-resource"),
+    ResourceKey::ResourceKey("run-resource"),
   )
   let node_ref : @any_collection.AnyRef[ResourceKey, ResourceStoreTestValue] = @any_collection.AnyRef::AnyRef(
-    ResourceKey::parse("node-resource"),
+    ResourceKey::ResourceKey("node-resource"),
   )
   let first_node = NodeId::NodeId("first")
   let second_node = NodeId::NodeId("second")
@@ -206,7 +206,7 @@ async test "ResourceStore lifecycle 1 - preserves an open error and retries a la
   let store = ResourceStore::ResourceStore()
   let closed : Array[String] = []
   let mut opens = 0
-  let key = ResourceKey::parse("retry-open")
+  let key = ResourceKey::ResourceKey("retry-open")
   let first_error = try {
     store.acquire_resource(
       lifecycle_resource_ref(key),
@@ -248,7 +248,7 @@ async test "ResourceStore lifecycle 1 - preserves an open error and retries a la
 ///|
 async test "ResourceStore lifecycle 2 - rejects a node resource without its owner" {
   let store = ResourceStore::ResourceStore()
-  let key = ResourceKey::parse("owner-required")
+  let key = ResourceKey::ResourceKey("owner-required")
   let detail = try {
     store.acquire_resource(
       lifecycle_resource_ref(key),
@@ -278,9 +278,9 @@ async test "ResourceStore lifecycle 2 - rejects a node resource without its owne
 async test "ResourceStore lifecycle 3 - aggregates one close error after reverse cleanup without double close" {
   let store = ResourceStore::ResourceStore()
   let closed : Array[String] = []
-  let first = ResourceKey::parse("first")
-  let failed = ResourceKey::parse("failed")
-  let last = ResourceKey::parse("last")
+  let first = ResourceKey::ResourceKey("first")
+  let failed = ResourceKey::ResourceKey("failed")
+  let last = ResourceKey::ResourceKey("last")
   store.acquire_resource(
     lifecycle_resource_ref(first),
     Run,
@@ -353,7 +353,7 @@ async test "ResourceStore finalize 2 - completes a suspended close before caller
   @async.with_task_group() <| group => {
     let store = ResourceStore::ResourceStore()
     let closed : Array[String] = []
-    let key = ResourceKey::parse("cancel-close")
+    let key = ResourceKey::ResourceKey("cancel-close")
     store.acquire_resource(
       lifecycle_resource_ref(key),
       Run,
@@ -388,7 +388,7 @@ async test "ResourceStore finalize 2 - completes a suspended close before caller
 async test "ResourceStore finalize 3 - raises the configured hard timeout" {
   let store = ResourceStore::ResourceStore()
   let closed : Array[String] = []
-  let key = ResourceKey::parse("timeout-close")
+  let key = ResourceKey::ResourceKey("timeout-close")
   store.acquire_resource(
     lifecycle_resource_ref(key),
     Run,

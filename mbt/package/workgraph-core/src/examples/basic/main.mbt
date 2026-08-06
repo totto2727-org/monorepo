@@ -35,7 +35,7 @@ fn example_runtime_resource_ref() -> @any_collection.AnyRef[
   ExampleRuntimeResource,
 ] {
   @any_collection.AnyRef::AnyRef(
-    @core.ResourceKey::parse("example-runtime-resource") catch {
+    @core.ResourceKey::ResourceKey("example-runtime-resource") catch {
       _ => abort("static example resource key must be valid")
     },
   )
