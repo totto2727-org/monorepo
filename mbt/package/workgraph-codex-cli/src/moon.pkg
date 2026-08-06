@@ -1,0 +1,13 @@
+import {
+  "totto2727/workgraph-core" @core,
+  "totto2727/codex-sdk" @sdk,
+  "moonbitlang/async",
+  "moonbitlang/x/path",
+}
+
+import {
+  "moonbitlang/async/fs",
+  "moonbitlang/core/immut/hashmap" @immut_hashmap,
+} for "test"
+
+supported_targets = "native"

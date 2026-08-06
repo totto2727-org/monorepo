@@ -289,13 +289,6 @@
     "mbt/package/lens": {
       "name": "@totto2727/lens",
     },
-    "mbt/package/moon-agent-graph": {
-      "name": "@totto2727/moon-agent-graph",
-      "devDependencies": {
-        "@totto2727/codex-sdk": "workspace:*",
-        "@totto2727/opencode-sdk": "workspace:*",
-      },
-    },
     "mbt/package/opencode-sdk": {
       "name": "@totto2727/opencode-sdk",
       "version": "0.0.0",
@@ -314,6 +307,47 @@
     },
     "mbt/package/target-file-discovery": {
       "name": "@totto2727/target-file-discovery",
+    },
+    "mbt/package/workgraph-agent-cli": {
+      "name": "@totto2727/workgraph-agent-cli",
+      "devDependencies": {
+        "@totto2727/any-collection": "workspace:*",
+        "@totto2727/workgraph-core": "workspace:*",
+      },
+    },
+    "mbt/package/workgraph-codex-cli": {
+      "name": "@totto2727/workgraph-codex-cli",
+      "devDependencies": {
+        "@totto2727/codex-sdk": "workspace:*",
+        "@totto2727/workgraph-agent-cli": "workspace:*",
+        "@totto2727/workgraph-core": "workspace:*",
+      },
+    },
+    "mbt/package/workgraph-core": {
+      "name": "@totto2727/workgraph-core",
+      "devDependencies": {
+        "@totto2727/any-collection": "workspace:*",
+      },
+    },
+    "mbt/package/workgraph-llm": {
+      "name": "@totto2727/workgraph-llm",
+      "devDependencies": {
+        "@totto2727/workgraph-core": "workspace:*",
+      },
+    },
+    "mbt/package/workgraph-opencode-cli": {
+      "name": "@totto2727/workgraph-opencode-cli",
+      "devDependencies": {
+        "@totto2727/opencode-sdk": "workspace:*",
+        "@totto2727/workgraph-agent-cli": "workspace:*",
+        "@totto2727/workgraph-core": "workspace:*",
+      },
+    },
+    "mbt/package/workgraph-visualization": {
+      "name": "@totto2727/workgraph-visualization",
+      "devDependencies": {
+        "@totto2727/workgraph-core": "workspace:*",
+      },
     },
     "nix": {
       "name": "@app/nix",
@@ -1180,13 +1214,23 @@
 
     "@totto2727/mdt": ["@totto2727/mdt@workspace:mbt/app/mdt"],
 
-    "@totto2727/moon-agent-graph": ["@totto2727/moon-agent-graph@workspace:mbt/package/moon-agent-graph"],
-
     "@totto2727/opencode-sdk": ["@totto2727/opencode-sdk@workspace:mbt/package/opencode-sdk"],
 
     "@totto2727/opencode-server-sdk": ["@totto2727/opencode-server-sdk@workspace:mbt/package/opencode-server-sdk"],
 
     "@totto2727/target-file-discovery": ["@totto2727/target-file-discovery@workspace:mbt/package/target-file-discovery"],
+
+    "@totto2727/workgraph-agent-cli": ["@totto2727/workgraph-agent-cli@workspace:mbt/package/workgraph-agent-cli"],
+
+    "@totto2727/workgraph-codex-cli": ["@totto2727/workgraph-codex-cli@workspace:mbt/package/workgraph-codex-cli"],
+
+    "@totto2727/workgraph-core": ["@totto2727/workgraph-core@workspace:mbt/package/workgraph-core"],
+
+    "@totto2727/workgraph-llm": ["@totto2727/workgraph-llm@workspace:mbt/package/workgraph-llm"],
+
+    "@totto2727/workgraph-opencode-cli": ["@totto2727/workgraph-opencode-cli@workspace:mbt/package/workgraph-opencode-cli"],
+
+    "@totto2727/workgraph-visualization": ["@totto2727/workgraph-visualization@workspace:mbt/package/workgraph-visualization"],
 
     "@totto2727/wt": ["@totto2727/wt@workspace:mbt/app/wt"],
 

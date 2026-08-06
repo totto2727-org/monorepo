@@ -1,0 +1,10 @@
+import {
+  "mizchi/llm",
+  "totto2727/workgraph-core" @core,
+}
+
+import {
+  "moonbitlang/async",
+} for "test"
+
+supported_targets = "+native+js"

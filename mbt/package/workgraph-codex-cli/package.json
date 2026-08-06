@@ -1,0 +1,12 @@
+{
+  "name": "@totto2727/workgraph-codex-cli",
+  "private": true,
+  "scripts": {
+    "publish": "bash ../../scripts/moon-publish.sh"
+  },
+  "devDependencies": {
+    "@totto2727/codex-sdk": "workspace:*",
+    "@totto2727/workgraph-agent-cli": "workspace:*",
+    "@totto2727/workgraph-core": "workspace:*"
+  }
+}
