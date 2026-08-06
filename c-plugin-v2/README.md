@@ -240,7 +240,7 @@ The v2 lock is strict and uses a top-level discriminator for data-carrying enum 
 
 ```json
 {
-  "version": 2,
+  "version": "2",
   "targets": ["~/.claude/skills"],
   "repositories": [
     {
@@ -268,6 +268,7 @@ The v2 lock is strict and uses a top-level discriminator for data-carrying enum 
 
 JSON rules:
 
+- Encode the required lock `version` as the exact string `"2"`; JSON numbers are not accepted because binary floating-point parsing cannot preserve precision-sensitive version tokens for strict validation.
 - Define every lock field with Lens.
 - Decode Lens-selected values through standard `FromJson` with the Lens-derived `JsonPath`.
 - Encode with standard `ToJson`, Lens `JsonBuilder`, and `set_or_abort`.

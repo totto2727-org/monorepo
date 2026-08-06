@@ -225,11 +225,11 @@ pub impl ToJson for LockRepository with fn to_json(self) -> Json {
 
 ///|
 pub impl @json.FromJson for Lock with fn from_json(json, path) {
-  let version : Double = @json.from_json(
+  let version : String = @json.from_json(
     lock_version_lens.get_or_json_decode_error(json, path),
     path=lock_version_lens.add_to_json_path(path),
   )
-  guard version == 2.0 else {
+  guard version == "2" else {
     raise lock_version_lens.json_decode_error(
       path,
       "unsupported lock version: \{version}",
@@ -251,7 +251,7 @@ pub impl @json.FromJson for Lock with fn from_json(json, path) {
 ///|
 pub impl ToJson for Lock with fn to_json(self) -> Json {
   let builder = @lens.JsonBuilder::JsonBuilder()
-  lock_version_lens.set_or_abort(builder, self.version.to_json())
+  lock_version_lens.set_or_abort(builder, self.version.to_string().to_json())
   lock_targets_lens.set_or_abort(builder, self.targets.to_json())
   lock_repositories_lens.set_or_abort(builder, self.repositories.to_json())
   builder.to_json()

@@ -13,7 +13,7 @@ fn expect_lock_json_rejection(
 ///|
 let canonical_lock_json =
   #|{
-  #|  "version": 2,
+  #|  "version": "2",
   #|  "targets": [
   #|    ".agents/skills",
   #|    ".cursor/skills"
@@ -63,7 +63,7 @@ test "Lock FromJson and ToJson - canonical round trip preserves order" {
 
 ///|
 test "Lock FromJson - nested failure preserves JSON path" {
-  let invalid_text = "{\"version\":2,\"targets\":[],\"repositories\":[{\"type\":\"github\",\"repository\":\"openai/codex\",\"marketplaceKind\":\"codex\",\"commit\":\"0123456789abcdef0123456789abcdef01234567\",\"plugins\":[{\"name\":\"c-plugin\",\"path\":\"plugins/c-plugin\",\"enabledSkills\":[1]}]}]}"
+  let invalid_text = "{\"version\":\"2\",\"targets\":[],\"repositories\":[{\"type\":\"github\",\"repository\":\"openai/codex\",\"marketplaceKind\":\"codex\",\"commit\":\"0123456789abcdef0123456789abcdef01234567\",\"plugins\":[{\"name\":\"c-plugin\",\"path\":\"plugins/c-plugin\",\"enabledSkills\":[1]}]}]}"
   let invalid = @json.parse(invalid_text)
   try {
     let _ : Lock = @json.from_json(invalid)
@@ -80,7 +80,7 @@ test "Lock FromJson - nested failure preserves JSON path" {
 
 ///|
 test "Lock FromJson - unsupported version preserves input" {
-  let text = "{\"version\":3,\"targets\":[],\"repositories\":[]}"
+  let text = "{\"version\":\"3\",\"targets\":[],\"repositories\":[]}"
   let json = @json.parse(text)
   try {
     let _ : Lock = @json.from_json(json)
@@ -117,24 +117,38 @@ test "LockRepository FromJson - dispatches each top-level type" {
 test "lock FromJson - rejects strict schema failures" {
   expect_lock_json_rejection(
     fn() -> Unit raise {
-      let text = "{\"version\":2,\"targets\":[],\"repositories\":[{\"type\":\"gitlab\"}]}"
+      let text = "{\"version\":\"2\",\"targets\":[],\"repositories\":[{\"type\":\"gitlab\"}]}"
       (@json.from_json(@json.parse(text)) : Lock) |> ignore
     },
     "unknown repository type",
   )
   expect_lock_json_rejection(
     fn() -> Unit raise {
-      let text = "{\"version\":2,\"targets\":[],\"repositories\":[{\"type\":1}]}"
+      let text = "{\"version\":\"2\",\"targets\":[],\"repositories\":[{\"type\":1}]}"
       (@json.from_json(@json.parse(text)) : Lock) |> ignore
     },
     "repository type with wrong JSON type",
   )
   expect_lock_json_rejection(
     fn() -> Unit raise {
-      let text = "{\"version\":2.5,\"targets\":[],\"repositories\":[]}"
+      let text = "{\"version\":2,\"targets\":[],\"repositories\":[]}"
+      (@json.from_json(@json.parse(text)) : Lock) |> ignore
+    },
+    "numeric lock version",
+  )
+  expect_lock_json_rejection(
+    fn() -> Unit raise {
+      let text = "{\"version\":\"2.5\",\"targets\":[],\"repositories\":[]}"
       (@json.from_json(@json.parse(text)) : Lock) |> ignore
     },
     "fractional lock version",
+  )
+  expect_lock_json_rejection(
+    fn() -> Unit raise {
+      let text = "{\"version\":\"2.0000000000000001\",\"targets\":[],\"repositories\":[]}"
+      (@json.from_json(@json.parse(text)) : Lock) |> ignore
+    },
+    "precision-sensitive lock version",
   )
   expect_lock_json_rejection(
     fn() -> Unit raise {
@@ -159,7 +173,7 @@ test "lock FromJson - rejects strict schema failures" {
   expect_lock_json_rejection(
     fn() -> Unit raise {
       let text =
-        #|{"version":2,"targets":[],"repositories":[{"type":"github","repository":"OpenAI/Codex","marketplaceKind":"codex","commit":"0123456789abcdef0123456789abcdef01234567","plugins":[]},{"type":"github","repository":"openai/codex","marketplaceKind":"claude","commit":"fedcba9876543210fedcba9876543210fedcba98","plugins":[]}]}
+        #|{"version":"2","targets":[],"repositories":[{"type":"github","repository":"OpenAI/Codex","marketplaceKind":"codex","commit":"0123456789abcdef0123456789abcdef01234567","plugins":[]},{"type":"github","repository":"openai/codex","marketplaceKind":"claude","commit":"fedcba9876543210fedcba9876543210fedcba98","plugins":[]}]}
       (@json.from_json(@json.parse(text)) : Lock) |> ignore
     },
     "duplicate repository identity",

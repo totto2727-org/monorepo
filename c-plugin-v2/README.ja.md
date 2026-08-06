@@ -240,7 +240,7 @@ v2ロックは厳格に扱い、データを持つEnum variantには最上位の
 
 ```json
 {
-  "version": 2,
+  "version": "2",
   "targets": ["~/.claude/skills"],
   "repositories": [
     {
@@ -268,6 +268,7 @@ v2ロックは厳格に扱い、データを持つEnum variantには最上位の
 
 JSONの規則は次のとおりです。
 
+- 必須のlock `version`は厳密な文字列`"2"`としてエンコードする。binary floating-point parsingではprecision-sensitiveなversion tokenを厳密な検証のために維持できないため、JSON numberは受け付けない。
 - すべてのロックフィールドをLensで定義する。
 - Lensで選択した値は、Lensから導出した`JsonPath`を渡して標準の`FromJson`でデコードする。
 - 標準の`ToJson`、Lensの`JsonBuilder`、`set_or_abort`でエンコードする。
