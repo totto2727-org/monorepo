@@ -1,0 +1,9 @@
+{
+  "name": "@go/e2e-example",
+  "private": true,
+  "scripts": {},
+  "devDependencies": {
+    "@go/e2e": "workspace:*",
+    "vite-plus": "catalog:"
+  }
+}
