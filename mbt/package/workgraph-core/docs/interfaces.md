@@ -23,8 +23,6 @@ The implementation uses current MoonBit conventions:
 pub struct NodeId(String) derive(Eq, Hash, Debug)
 pub struct RunId(String) derive(Eq, Hash, Debug)
 pub struct ResourceKey(String) derive(Eq, Hash, Debug)
-pub struct CodingAgentId(String) derive(Eq, Hash, Debug)
-pub struct SessionId(String) derive(Eq, Hash, Debug)
 ```
 
 Each identifier has a validating constructor or parser.
@@ -75,26 +73,9 @@ pub(all) struct NodeMetadata {
 ```
 
 ```moonbit
-pub(all) enum ArtifactKind {
-  File
-  Directory
-  Text
-  Json
-  CommandLog
-  Custom(String)
-} derive(Debug, Eq)
-
-pub(all) struct Artifact {
-  kind : ArtifactKind
-  name : String
-  uri : String?
-  metadata : Json?
-} derive(Debug)
-
 pub(all) struct NodeOutput[P] {
   patch : P?
   value : Json?
-  artifacts : ReadOnlyArray[Artifact]
 } derive(Debug)
 ```
 
@@ -205,7 +186,6 @@ pub(all) struct Router[S] {
 pub(all) struct NodeCompletion {
   node_id : NodeId
   value : Json?
-  artifacts : ReadOnlyArray[Artifact]
 } derive(Debug)
 ```
 
@@ -502,7 +482,12 @@ Provider errors raised by the callback remain graph node failures; `mizchi/llm` 
 
 ## Coding-Agent Request and Response
 
+These interfaces belong to `workgraph-agent-cli`; core does not import them.
+
 ```moonbit
+pub struct CodingAgentId(String) derive(Eq, Hash, Debug)
+pub struct SessionId(String) derive(Eq, Hash, Debug)
+
 pub(all) struct WorkspaceRef {
   root : @path.Path
   additional_writable_roots : ReadOnlyArray[@path.Path]
@@ -524,8 +509,6 @@ pub(all) struct CodingAgentResponse {
   summary : String?
   continuation_id : String?
   changed_files : ReadOnlyArray[@path.Path]
-  artifacts : ReadOnlyArray[Artifact]
-  raw_output : Json?
 } derive(Debug)
 ```
 
@@ -715,7 +698,7 @@ pub fn codex_agent(
 ) -> CodingAgent
 ```
 
-The adapter maps context environment, workspace root, additional writable roots, approval, network, and supplied options to the pinned Codex SDK. It returns the thread final response as `summary`, the SDK thread ID as `continuation_id`, discovered completed patch paths as `changed_files`, no artifacts, and no raw output. Closing a session makes later execution raise `CodexAdapterError::SessionClosed`.
+The adapter maps context environment, workspace root, additional writable roots, approval, network, and supplied options to the pinned Codex SDK. It returns the thread final response as `summary`, the SDK thread ID as `continuation_id`, and discovered completed patch paths as `changed_files`. Closing a session makes later execution raise `CodexAdapterError::SessionClosed`.
 
 ## OpenCode Adapter
 
@@ -754,7 +737,7 @@ pub fn opencode_agent(
 ) -> CodingAgent
 ```
 
-The adapter uses `totto2727/opencode-sdk` as a CLI SDK and does not import the separately maintained `opencode-server-sdk`. It starts or resumes an SDK thread, runs each instruction through `opencode run --format json`, resolves relative context files against the workspace root, and forwards them as repeated CLI file inputs. The inherited process environment is retained, adapter entries are applied next, and caller context entries take precedence. Successful turns return final text as `summary`, the SDK thread ID as `continuation_id`, and empty `changed_files`, artifacts, and raw output because the current OpenCode event model exposes no reliable file-change set or generic raw JSON value at this boundary. Each turn owns its subprocess; cancellation and concrete `OpenCodeSdkError` values propagate from the CLI SDK. Closing the logical session is idempotent and later execution raises `OpenCodeAdapterError::SessionClosed`.
+The adapter uses `totto2727/opencode-sdk` as a CLI SDK and does not import the separately maintained `opencode-server-sdk`. It starts or resumes an SDK thread, runs each instruction through `opencode run --format json`, resolves relative context files against the workspace root, and forwards them as repeated CLI file inputs. The inherited process environment is retained, adapter entries are applied next, and caller context entries take precedence. Successful turns return final text as `summary`, the SDK thread ID as `continuation_id`, and an empty `changed_files` array because the current OpenCode event model exposes no reliable file-change set at this boundary. Each turn owns its subprocess; cancellation and concrete `OpenCodeSdkError` values propagate from the CLI SDK. Closing the logical session is idempotent and later execution raises `OpenCodeAdapterError::SessionClosed`.
 
 ## Fixed MVP Decisions
 

@@ -15,7 +15,7 @@ fn test_node(id : NodeId, tags : ReadOnlyArray[String]) -> Node[Int, Int] {
     ),
     async fn(_context, _state) {
       @async.pause()
-      NodeOutput::NodeOutput(None, None, [])
+      NodeOutput::NodeOutput(None, None)
     },
   )
 }

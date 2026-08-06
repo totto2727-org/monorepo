@@ -6,8 +6,8 @@ fn codex_agent_test_run_id() -> @core.RunId {
 }
 
 ///|
-fn codex_agent_test_id() -> @core.CodingAgentId {
-  @core.CodingAgentId::parse("codex-agent-test") catch {
+fn codex_agent_test_id() -> @coding.CodingAgentId {
+  @coding.CodingAgentId::parse("codex-agent-test") catch {
     _ => abort("test coding-agent ID must be valid")
   }
 }
@@ -16,15 +16,15 @@ fn codex_agent_test_id() -> @core.CodingAgentId {
 fn codex_agent_test_context(
   group : @async.TaskGroup[Unit],
   environment : Map[String, String],
-) -> @core.CodingAgentOpenContext {
-  @core.CodingAgentOpenContext::CodingAgentOpenContext(
+) -> @coding.CodingAgentOpenContext {
+  @coding.CodingAgentOpenContext::CodingAgentOpenContext(
     run_id=codex_agent_test_run_id(),
     task_group=group,
-    workspace=@core.WorkspaceRef::WorkspaceRef(@path.Path("/workspace"), [
+    workspace=@coding.WorkspaceRef::WorkspaceRef(@path.Path("/workspace"), [
       @path.Path("/workspace/extra"),
     ]),
-    approval=@core.OnRequest,
-    network=@core.Enabled,
+    approval=@coding.OnRequest,
+    network=@coding.Enabled,
     environment=@immut_hashmap.HashMap(environment.to_array()),
     events=@core.EventSink::discard(),
   )
@@ -101,7 +101,7 @@ async test "codex_agent 2 - maps request context and normalizes a successful SDK
       )
       let session = (agent.open)(codex_agent_test_context(group, environment))
       let response = session.execute(
-        @core.CodingAgentRequest::CodingAgentRequest("apply the patch", [
+        @coding.CodingAgentRequest::CodingAgentRequest("apply the patch", [
           @path.Path("README.md"),
         ]),
       )
@@ -112,8 +112,6 @@ async test "codex_agent 2 - maps request context and normalizes a successful SDK
         response.changed_files.map(fn(path) { path.to_string() }).join(","),
         content="src/new.mbt,src/old.mbt",
       )
-      inspect(response.artifacts.length(), content="0")
-      debug_inspect(response.raw_output, content="None")
       inspect(
         @fs.read_file(input_path).text(),
         content="apply the patch\n\nContext files supplied by the caller:\nREADME.md",
@@ -140,14 +138,12 @@ async test "codex_agent 3 - keeps unproven file changes empty" {
         )
         let session = (agent.open)(codex_agent_test_context(group, environment))
         let response = session.execute(
-          @core.CodingAgentRequest::CodingAgentRequest(
+          @coding.CodingAgentRequest::CodingAgentRequest(
             "inspect unproven files",
             [],
           ),
         )
         inspect(response.changed_files.length(), content="0")
-        inspect(response.artifacts.length(), content="0")
-        debug_inspect(response.raw_output, content="None")
         session.close()
       }
     },
@@ -170,7 +166,7 @@ async test "codex_agent 4 - preserves turn failures and rejects execution after 
         let session = (agent.open)(codex_agent_test_context(group, environment))
         let turn_failed = try {
           session.execute(
-            @core.CodingAgentRequest::CodingAgentRequest("fail", []),
+            @coding.CodingAgentRequest::CodingAgentRequest("fail", []),
           )
           |> ignore
           false
@@ -182,7 +178,7 @@ async test "codex_agent 4 - preserves turn failures and rejects execution after 
         session.close()
         let closed = try {
           session.execute(
-            @core.CodingAgentRequest::CodingAgentRequest("after-close", []),
+            @coding.CodingAgentRequest::CodingAgentRequest("after-close", []),
           )
           |> ignore
           false

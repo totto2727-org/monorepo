@@ -8,7 +8,7 @@ It explains how the `core` package models a graph workflow, validates its struct
 
 Each quoted definition or continuous excerpt is taken verbatim from the current implementation under `src/core`, and an explicit `// ...` marker identifies omitted lines inside an excerpt.
 
-Provider-specific LLM, Codex, and OpenCode details are outside this guide because the core depends only on generic callbacks and coding-agent contracts.
+Provider-specific LLM, Codex, and OpenCode details are outside this guide because core depends only on generic node callbacks, patches, and values.
 
 ## Mental Model
 
@@ -53,8 +53,6 @@ The package does not pass every identifier as an undifferentiated `String`.
 pub struct NodeId(String) derive(Eq, Hash, Debug)
 pub struct RunId(String) derive(Eq, Hash, Debug)
 pub struct ResourceKey(String) derive(Eq, Hash, Debug)
-pub struct CodingAgentId(String) derive(Eq, Hash, Debug)
-pub struct SessionId(String) derive(Eq, Hash, Debug)
 ```
 
 Source: `src/identifiers.mbt`
@@ -100,15 +98,13 @@ The node receives a read-only value of the current state and returns data descri
 pub(all) struct NodeOutput[P] {
   patch : P?
   value : Json?
-  artifacts : ReadOnlyArray[Artifact]
 }
 ```
 
-The three output fields have different purposes.
+The two output fields have different purposes.
 
 - `patch` is the typed state transition proposal.
 - `value` is an optional untyped result for routing, observability, or integration payloads.
-- `artifacts` records produced files, directories, text, JSON, or command logs.
 
 State mutation is centralized in the reducer.
 
@@ -469,7 +465,7 @@ The trade-off is that callers requiring durable audit logs must provide persiste
 
 ## Coding-Agent Boundary
 
-The core package exposes a provider-neutral session trait.
+The `workgraph-agent-cli` package exposes a provider-neutral session trait.
 
 ```moonbit
 pub(open) trait CodingAgentSession {
@@ -484,13 +480,13 @@ pub(all) struct CodingAgent {
 }
 ```
 
-Source: `src/coding_agent_contract.mbt`
+Source: `../workgraph-agent-cli/src/coding_agent_contract.mbt`
 
 The graph runtime and common coding-agent node therefore do not need to know whether the session is implemented by Codex, OpenCode, or another provider.
 
 The `open` callback receives the run task group, workspace policy, approval policy, network policy, environment, and event sink.
 
-This is dependency inversion at the package boundary: core defines the capability it needs, and integration packages implement it.
+This is dependency inversion at the package boundary: `workgraph-agent-cli` defines the capability, provider integration packages implement it, and core remains unaware of coding-agent details.
 
 ## Worked Transition
 

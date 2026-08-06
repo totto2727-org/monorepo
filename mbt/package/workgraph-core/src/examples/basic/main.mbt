@@ -82,11 +82,7 @@ fn example_node(
       }
     }
     resource.visits.val = resource.visits.val + 1
-    @core.NodeOutput::NodeOutput(
-      Some("\{label}:\{resource.visits.val}"),
-      None,
-      [],
-    )
+    @core.NodeOutput::NodeOutput(Some("\{label}:\{resource.visits.val}"), None)
   })
 }
 

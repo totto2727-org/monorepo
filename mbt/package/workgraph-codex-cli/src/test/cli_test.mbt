@@ -92,17 +92,18 @@ fn codex_integration_context(
   fixture : CodexIntegrationFixture,
   group : @async.TaskGroup[Unit],
   mode : String,
-) -> @core.CodingAgentOpenContext {
-  @core.CodingAgentOpenContext::CodingAgentOpenContext(
+) -> @coding_agent.CodingAgentOpenContext {
+  @coding_agent.CodingAgentOpenContext::CodingAgentOpenContext(
     run_id=@core.RunId::parse("codex-integration-run") catch {
       _ => abort("integration run ID must be valid")
     },
     task_group=group,
-    workspace=@core.WorkspaceRef::WorkspaceRef(@path.Path(fixture.root), [
-      @path.Path("\{fixture.root}/extra"),
-    ]),
-    approval=@core.OnRequest,
-    network=@core.Enabled,
+    workspace=@coding_agent.WorkspaceRef::WorkspaceRef(
+      @path.Path(fixture.root),
+      [@path.Path("\{fixture.root}/extra")],
+    ),
+    approval=@coding_agent.OnRequest,
+    network=@coding_agent.Enabled,
     environment=@immut_hashmap.HashMap([
       ("PATH", "/usr/bin:/bin"),
       ("FAKE_CODEX_RECORDS", fixture.records),
@@ -116,9 +117,9 @@ fn codex_integration_context(
 ///|
 fn codex_integration_agent(
   fixture : CodexIntegrationFixture,
-) -> @core.CodingAgent {
+) -> @coding_agent.CodingAgent {
   @codex.codex_agent(
-    @core.CodingAgentId::parse("codex-integration") catch {
+    @coding_agent.CodingAgentId::parse("codex-integration") catch {
       _ => abort("integration agent ID must be valid")
     },
     @codex.CodexAgentOptions::CodexAgentOptions(
@@ -141,12 +142,16 @@ async test "codex_agent integration 1 - starts then resumes with mapped CLI opti
         codex_integration_context(fixture, group, "success"),
       )
       let first = session.execute(
-        @core.CodingAgentRequest::CodingAgentRequest("first instruction", [
-          @path.Path("README.md"),
-        ]),
+        @coding_agent.CodingAgentRequest::CodingAgentRequest(
+          "first instruction",
+          [@path.Path("README.md")],
+        ),
       )
       let second = session.execute(
-        @core.CodingAgentRequest::CodingAgentRequest("second instruction", []),
+        @coding_agent.CodingAgentRequest::CodingAgentRequest(
+          "second instruction",
+          [],
+        ),
       )
       debug_inspect(first.summary, content="Some(\"summary-1\")")
       debug_inspect(first.continuation_id, content="Some(\"thread-1\")")
@@ -196,7 +201,7 @@ async test "codex_agent integration 2 - propagates turn.failed without waiting f
       let message = try {
         @async.with_timeout(2000, async fn() {
           session.execute(
-            @core.CodingAgentRequest::CodingAgentRequest("fail", []),
+            @coding_agent.CodingAgentRequest::CodingAgentRequest("fail", []),
           )
           |> ignore
         })
@@ -239,10 +244,10 @@ async test "codex_agent integration 3 - caller cancellation kills the started su
               codex_integration_context(fixture, context.task_group, "pause")
             },
             fn(_context, _state) {
-              @core.CodingAgentRequest::CodingAgentRequest("cancel", [])
+              @coding_agent.CodingAgentRequest::CodingAgentRequest("cancel", [])
             },
             fn(_state, _response) {
-              @core.NodeOutput::NodeOutput(Some(1), None, [])
+              @core.NodeOutput::NodeOutput(Some(1), None)
             },
           ),
         ),

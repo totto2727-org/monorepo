@@ -8,7 +8,7 @@
 
 引用された各定義または連続した抜粋は、`src/core` 配下の現在の実装からそのまま引用されており、明示的な `// ...` マーカーは抜粋内の省略された行を示します。
 
-プロバイダー固有のLLM、Codex、OpenCodeの詳細は、コアが汎用コールバックとコーディングエージェント契約のみに依存しているため、このガイドの範囲外です。
+provider固有のLLM、Codex、OpenCodeの詳細は、coreが汎用node callback、patch、valueだけに依存するため、このガイドの範囲外です。
 
 ## メンタルモデル
 
@@ -53,8 +53,6 @@ flowchart LR
 pub struct NodeId(String) derive(Eq, Hash, Debug)
 pub struct RunId(String) derive(Eq, Hash, Debug)
 pub struct ResourceKey(String) derive(Eq, Hash, Debug)
-pub struct CodingAgentId(String) derive(Eq, Hash, Debug)
-pub struct SessionId(String) derive(Eq, Hash, Debug)
 ```
 
 出典: `src/identifiers.mbt`
@@ -100,15 +98,13 @@ pub(all) struct Node[S, P] {
 pub(all) struct NodeOutput[P] {
   patch : P?
   value : Json?
-  artifacts : ReadOnlyArray[Artifact]
 }
 ```
 
-3 つの出力フィールドには異なる目的があります。
+2 つの出力フィールドには異なる目的があります。
 
 - `patch` は型付きの状態遷移の提案です。
 - `value` はルーティング、可観測性、または統合ペイロードのためのオプションの型なしの結果です。
-- `artifacts` は生成されたファイル、ディレクトリ、テキスト、JSON、またはコマンドログを記録します。
 
 状態の変更はリデューサーに集中化されています。
 
@@ -469,7 +465,7 @@ pub fn EventSink::try_emit(self : EventSink, event : GraphEvent) -> Unit {
 
 ## コーディングエージェント境界
 
-コアパッケージはプロバイダに依存しないセッショントレイトを公開します。
+`workgraph-agent-cli`パッケージはプロバイダに依存しないセッショントレイトを公開します。
 
 ```moonbit
 pub(open) trait CodingAgentSession {
@@ -484,13 +480,13 @@ pub(all) struct CodingAgent {
 }
 ```
 
-出典: `src/coding_agent_contract.mbt`
+出典: `../workgraph-agent-cli/src/coding_agent_contract.mbt`
 
 したがって、グラフランタイムと共通のコーディングエージェントノードは、セッションが Codex、OpenCode、または別のプロバイダーによって実装されているかを知る必要はありません。
 
 `open` コールバックは、実行タスクグループ、ワークスペースポリシー、承認ポリシー、ネットワークポリシー、環境、イベントシンクを受け取ります。
 
-これはパッケージ境界での依存性逆転です。コアが必要とする能力を定義し、統合パッケージがそれを実装します。
+これはパッケージ境界での依存性逆転です。`workgraph-agent-cli`が能力を定義し、provider integrationパッケージが実装し、coreはcoding-agentの詳細を認識しません。
 
 ## 動作する遷移の例
 

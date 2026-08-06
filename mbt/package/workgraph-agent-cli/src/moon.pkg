@@ -1,14 +1,11 @@
 import {
   "Yoorkin/any",
+  "moonbitlang/async",
   "moonbitlang/core/debug",
+  "moonbitlang/core/immut/hashmap" @immut_hashmap,
+  "moonbitlang/x/path",
   "totto2727/any-collection" @any_collection,
   "totto2727/workgraph-core" @core,
 }
-
-import {
-  "moonbitlang/async",
-  "moonbitlang/core/immut/hashmap" @immut_hashmap,
-  "moonbitlang/x/path",
-} for "test"
 
 supported_targets = "native"

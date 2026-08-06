@@ -1,22 +1,22 @@
 ///|
 pub struct CodingAgentNodeSpec[S, P] {
-  agent : @core.CodingAgent
+  agent : CodingAgent
   resource_key : @core.ResourceKey
   resource_scope : @core.ResourceScope
-  open_context : (@core.NodeContext, S) -> @core.CodingAgentOpenContext raise
-  build_request : (@core.NodeContext, S) -> @core.CodingAgentRequest raise
-  decode_response : (S, @core.CodingAgentResponse) -> @core.NodeOutput[P] raise
+  open_context : (@core.NodeContext, S) -> CodingAgentOpenContext raise
+  build_request : (@core.NodeContext, S) -> CodingAgentRequest raise
+  decode_response : (S, CodingAgentResponse) -> @core.NodeOutput[P] raise
 }
 
 ///|
 /// Creates the callbacks and resource policy used by a coding-agent node.
 pub fn[S, P] CodingAgentNodeSpec::CodingAgentNodeSpec(
-  agent : @core.CodingAgent,
+  agent : CodingAgent,
   resource_key : @core.ResourceKey,
   resource_scope : @core.ResourceScope,
-  open_context : (@core.NodeContext, S) -> @core.CodingAgentOpenContext raise,
-  build_request : (@core.NodeContext, S) -> @core.CodingAgentRequest raise,
-  decode_response : (S, @core.CodingAgentResponse) -> @core.NodeOutput[P] raise,
+  open_context : (@core.NodeContext, S) -> CodingAgentOpenContext raise,
+  build_request : (@core.NodeContext, S) -> CodingAgentRequest raise,
+  decode_response : (S, CodingAgentResponse) -> @core.NodeOutput[P] raise,
 ) -> CodingAgentNodeSpec[S, P] {
   CodingAgentNodeSpec::{
     agent,
@@ -30,7 +30,7 @@ pub fn[S, P] CodingAgentNodeSpec::CodingAgentNodeSpec(
 
 ///|
 priv struct CodingAgentResource {
-  session : &@core.CodingAgentSession
+  session : &CodingAgentSession
 }
 
 ///|

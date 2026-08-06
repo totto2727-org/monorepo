@@ -15,7 +15,7 @@ fn example_node(
     ),
     async fn(_context, _state) {
       @async.pause()
-      @core.NodeOutput::NodeOutput(None, None, [])
+      @core.NodeOutput::NodeOutput(None, None)
     },
   )
 }

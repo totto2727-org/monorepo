@@ -52,12 +52,11 @@ async test "Node::Node 1 - receives state and complete context" {
       })
       task.wait()
       @async.pause()
-      NodeOutput::NodeOutput(Some(state + 1), None, [])
+      NodeOutput::NodeOutput(Some(state + 1), None)
     })
     let output = (node.execute)(context, 41)
     debug_inspect(output.patch, content="Some(42)")
     debug_inspect(output.value, content="None")
-    inspect(output.artifacts.length(), content="0")
     inspect(task_group_was_usable, content="true")
   }
 }
@@ -104,7 +103,7 @@ async test "Node::Node 3 - cancellation preserves the cancellation error" {
       tokens = tokens + 1
       @async.pause()
       tokens = tokens + 1
-      NodeOutput::NodeOutput(None, None, [])
+      NodeOutput::NodeOutput(None, None)
     })
     let task = group.spawn(
       async fn() {
@@ -169,22 +168,13 @@ test "EventSink discard is a no-op W2-C003" {
 }
 
 ///|
-test "NodeOutput contains patch value and artifacts W2-C003" {
-  let artifact = Artifact::Artifact(
-    kind=Text,
-    name="result.txt",
-    uri=Some("file:///result.txt"),
-    metadata=None,
-  )
+test "NodeOutput contains patch and value W2-C003" {
   let output : NodeOutput[Int] = NodeOutput::NodeOutput(
     Some(42),
     Some(Json::string("done")),
-    [artifact],
   )
   guard output.patch is Some(42) else { fail("missing patch") }
   guard output.value is Some(Json::String("done")) else {
     fail("missing value")
   }
-  inspect(output.artifacts.length(), content="1")
-  inspect(output.artifacts[0].name, content="result.txt")
 }

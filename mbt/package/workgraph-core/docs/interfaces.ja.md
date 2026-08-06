@@ -23,8 +23,6 @@
 pub struct NodeId(String) derive(Eq, Hash, Debug)
 pub struct RunId(String) derive(Eq, Hash, Debug)
 pub struct ResourceKey(String) derive(Eq, Hash, Debug)
-pub struct CodingAgentId(String) derive(Eq, Hash, Debug)
-pub struct SessionId(String) derive(Eq, Hash, Debug)
 ```
 
 各識別子にはバリデーション付きのコンストラクタまたはパーサーがあります。
@@ -75,26 +73,9 @@ pub(all) struct NodeMetadata {
 ```
 
 ```moonbit
-pub(all) enum ArtifactKind {
-  File
-  Directory
-  Text
-  Json
-  CommandLog
-  Custom(String)
-} derive(Debug, Eq)
-
-pub(all) struct Artifact {
-  kind : ArtifactKind
-  name : String
-  uri : String?
-  metadata : Json?
-} derive(Debug)
-
 pub(all) struct NodeOutput[P] {
   patch : P?
   value : Json?
-  artifacts : ReadOnlyArray[Artifact]
 } derive(Debug)
 ```
 
@@ -205,7 +186,6 @@ pub(all) struct Router[S] {
 pub(all) struct NodeCompletion {
   node_id : NodeId
   value : Json?
-  artifacts : ReadOnlyArray[Artifact]
 } derive(Debug)
 ```
 
@@ -502,7 +482,12 @@ pub fn[S, P] llm_node(
 
 ## コーディングエージェントのリクエストとレスポンス
 
+これらのinterfaceは`workgraph-agent-cli`に属し、coreはimportしません。
+
 ```moonbit
+pub struct CodingAgentId(String) derive(Eq, Hash, Debug)
+pub struct SessionId(String) derive(Eq, Hash, Debug)
+
 pub(all) struct WorkspaceRef {
   root : @path.Path
   additional_writable_roots : ReadOnlyArray[@path.Path]
@@ -524,8 +509,6 @@ pub(all) struct CodingAgentResponse {
   summary : String?
   continuation_id : String?
   changed_files : ReadOnlyArray[@path.Path]
-  artifacts : ReadOnlyArray[Artifact]
-  raw_output : Json?
 } derive(Debug)
 ```
 
@@ -715,7 +698,7 @@ pub fn codex_agent(
 ) -> CodingAgent
 ```
 
-アダプターは、コンテキスト環境、ワークスペースルート、追加の書き込み可能ルート、承認、ネットワーク、および指定されたオプションを、固定されたCodex SDKにマッピングします。スレッドの最終レスポンスを `summary` として、SDKスレッドIDを `continuation_id` として、検出された完了パッチパスを `changed_files` として返し、アーティファクトはなく、生の出力もありません。セッションをクローズすると、以降の実行は `CodexAdapterError::SessionClosed` を raise します。
+adapterはcontext environment、workspace root、追加のwritable root、approval、network、および指定されたoptionを固定されたCodex SDKへmapします。threadの最終responseを`summary`、SDK thread IDを`continuation_id`、検出された完了patch pathを`changed_files`として返します。sessionをcloseすると、以降の実行は`CodexAdapterError::SessionClosed`をraiseします。
 
 ## OpenCodeアダプター
 
@@ -754,7 +737,7 @@ pub fn opencode_agent(
 ) -> CodingAgent
 ```
 
-アダプターは `totto2727/opencode-sdk` をCLI SDKとして使用し、別途管理されている `opencode-server-sdk` をインポートしません。SDKスレッドを開始または再開し、各指示を `opencode run --format json` を通じて実行し、相対コンテキストファイルをワークスペースルートに対して解決し、それらを繰り返しのCLIファイル入力として転送します。継承されたプロセス環境は保持され、アダプターのエントリが次に適用され、呼び出し元のコンテキストエントリが優先されます。正常なターンは、最終テキストを `summary` として、SDKスレッドIDを `continuation_id` として返し、`changed_files`、アーティファクト、生の出力は空になります。これは、現在のOpenCodeイベントモデルがこの境界で信頼性のあるファイル変更セットや汎用の生JSON値を公開しないためです。各ターンは独自のサブプロセスを所有し、キャンセルおよび具体的な `OpenCodeSdkError` 値はCLI SDKから伝播されます。論理セッションのクローズは冪等であり、以降の実行は `OpenCodeAdapterError::SessionClosed` を raise します。
+adapterは`totto2727/opencode-sdk`をCLI SDKとして使用し、別途管理される`opencode-server-sdk`をimportしません。SDK threadを開始または再開し、各instructionを`opencode run --format json`で実行し、相対context fileをworkspace rootに対して解決して繰り返しのCLI file inputとして転送します。継承されたprocess environmentは保持され、adapter entryが次に適用され、callerのcontext entryが優先されます。正常なturnは最終textを`summary`、SDK thread IDを`continuation_id`として返し、現在のOpenCode event modelが信頼できる変更setを公開しないため`changed_files`は空です。各turnは独自のsubprocessを所有し、cancellationと具体的な`OpenCodeSdkError`はCLI SDKから伝播されます。論理sessionのcloseはidempotentであり、以降の実行は`OpenCodeAdapterError::SessionClosed`をraiseします。
 
 ## 確定したMVPの設計判断
 

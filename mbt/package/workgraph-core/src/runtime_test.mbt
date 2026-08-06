@@ -62,7 +62,7 @@ async test "GraphRuntime invoke 1 - runs one entry node through End" {
       _state : Int,
     ) {
       @async.pause()
-      NodeOutput::NodeOutput(None, None, [])
+      NodeOutput::NodeOutput(None, None)
     }),
   )
   definition.set_router(entry, success_end_router())
@@ -88,7 +88,7 @@ async test "GraphRuntime invoke 2 - executes sequential routes in order" {
     ) {
       calls.push("first:\{state}")
       @async.pause()
-      NodeOutput::NodeOutput(None, None, [])
+      NodeOutput::NodeOutput(None, None)
     }),
   )
   definition.add_node(
@@ -98,7 +98,7 @@ async test "GraphRuntime invoke 2 - executes sequential routes in order" {
     ) {
       calls.push("second:\{state}")
       @async.pause()
-      NodeOutput::NodeOutput(None, None, [])
+      NodeOutput::NodeOutput(None, None)
     }),
   )
   definition.set_router(
@@ -131,7 +131,7 @@ async test "GraphRuntime invoke 3 - reduces a patch once before routing" {
       _state : Int,
     ) {
       @async.pause()
-      NodeOutput::NodeOutput(Some(2), None, [])
+      NodeOutput::NodeOutput(Some(2), None)
     }),
   )
   definition.set_router(
@@ -163,7 +163,7 @@ async test "GraphRuntime invoke 4 - skips the reducer when a node has no patch" 
       _state : Int,
     ) {
       @async.pause()
-      NodeOutput::NodeOutput(None, None, [])
+      NodeOutput::NodeOutput(None, None)
     }),
   )
   definition.set_router(entry, success_end_router())
@@ -197,7 +197,7 @@ async test "GraphRuntime invoke 5 - emits the successful lifecycle in order" {
       _state : Int,
     ) {
       @async.pause()
-      NodeOutput::NodeOutput(Some(1), None, [])
+      NodeOutput::NodeOutput(Some(1), None)
     }),
   )
   definition.set_router(entry, success_end_router())
@@ -224,7 +224,7 @@ async test "GraphRuntime invoke 6 - exits a self loop when the reduced state rea
     ) {
       states.push(state)
       @async.pause()
-      NodeOutput::NodeOutput(Some(1), None, [])
+      NodeOutput::NodeOutput(Some(1), None)
     }),
   )
   definition.set_router(
@@ -280,7 +280,7 @@ async test "GraphRuntime invoke 7 - isolates state resources and run IDs across 
       |> ignore
       run_ids.push(context.run_id.to_string())
       @async.pause()
-      NodeOutput::NodeOutput(Some(1), None, [])
+      NodeOutput::NodeOutput(Some(1), None)
     }),
   )
   definition.set_router(entry, success_end_router())
@@ -358,7 +358,7 @@ async test "GraphRuntime error 2 - stops before routing when reduction fails" {
     Reducer::Reducer((_state, _patch) => raise Failed("reduce-detail")),
     w4_error_node(a, async fn(_context, _state) {
       @async.pause()
-      NodeOutput::NodeOutput(Some(1), None, [])
+      NodeOutput::NodeOutput(Some(1), None)
     }),
     router([], fn(_state, _completion) {
       router_calls = router_calls + 1
@@ -385,14 +385,14 @@ async test "GraphRuntime error 3 - stops before the next node when routing fails
   definition.add_node(
     w4_error_node(a, async fn(_context, _state) {
       @async.pause()
-      NodeOutput::NodeOutput(None, None, [])
+      NodeOutput::NodeOutput(None, None)
     }),
   )
   definition.add_node(
     w4_error_node(b, async fn(_context, _state) {
       next_node_calls = next_node_calls + 1
       @async.pause()
-      NodeOutput::NodeOutput(None, None, [])
+      NodeOutput::NodeOutput(None, None)
     }),
   )
   definition.set_router(
@@ -425,7 +425,7 @@ async test "GraphRuntime error 4 - rejects an undeclared existing route target" 
     definition.add_node(
       w4_error_node(id, async fn(_context, _state) {
         @async.pause()
-        NodeOutput::NodeOutput(None, None, [])
+        NodeOutput::NodeOutput(None, None)
       }),
     )
   }
@@ -460,7 +460,7 @@ async test "GraphRuntime error 5 - enforces the step limit after exactly that ma
     w4_error_node(a, async fn(_context, _state) {
       attempts = attempts + 1
       @async.pause()
-      NodeOutput::NodeOutput(None, None, [])
+      NodeOutput::NodeOutput(None, None)
     }),
     router([DeclaredRoute::DeclaredRoute(a)], fn(_state, _completion) { To(a) }),
   )
@@ -479,7 +479,7 @@ async test "GraphRuntime error 6 - exposes a route failure message" {
     Reducer::Reducer(fn(state, patch) { state + patch }),
     w4_error_node(a, async fn(_context, _state) {
       @async.pause()
-      NodeOutput::NodeOutput(None, None, [])
+      NodeOutput::NodeOutput(None, None)
     }),
     router([], fn(_state, _completion) { Fail("stop-now") }),
   )
@@ -501,7 +501,7 @@ async test "GraphRuntime error 7 - cancels a timed out node before its second to
       tokens.push("started")
       @async.sleep(100)
       tokens.push("finished")
-      NodeOutput::NodeOutput(None, None, [])
+      NodeOutput::NodeOutput(None, None)
     }),
     router([], fn(_state, _completion) { End }),
   )
@@ -664,7 +664,7 @@ async test "GraphRuntime lifecycle 1 - cancellation closes resources and stops c
         while true {
           @async.pause()
         } nobreak {
-          NodeOutput::NodeOutput(None, None, [])
+          NodeOutput::NodeOutput(None, None)
         }
       },
       fn(state, patch) { state + patch },
@@ -743,7 +743,7 @@ async test "GraphRuntime lifecycle 2 - node reducer and router failures each emi
     w4_lifecycle_graph(
       async fn(_context, _state) {
         @async.pause()
-        NodeOutput::NodeOutput(Some(1), None, [])
+        NodeOutput::NodeOutput(Some(1), None)
       },
       fn(_state, _patch) raise { raise W4ReduceFailed("reducer") },
       fn(_state, _completion) { End },
@@ -754,7 +754,7 @@ async test "GraphRuntime lifecycle 2 - node reducer and router failures each emi
     w4_lifecycle_graph(
       async fn(_context, _state) {
         @async.pause()
-        NodeOutput::NodeOutput(None, None, [])
+        NodeOutput::NodeOutput(None, None)
       },
       fn(state, patch) { state + patch },
       fn(_state, _completion) raise { raise W4RouteFailed("router") },
@@ -779,7 +779,7 @@ async test "GraphRuntime lifecycle 3 - cleanup-only failure becomes ResourceClea
         W4ResourceLifecycle::close,
       )
       |> ignore
-      NodeOutput::NodeOutput(None, None, [])
+      NodeOutput::NodeOutput(None, None)
     },
     fn(state, patch) { state + patch },
     fn(_state, _completion) { End },
@@ -850,7 +850,7 @@ async test "GraphRuntime lifecycle 5 - success emits exactly one RunCompleted" {
   let graph = w4_lifecycle_graph(
     async fn(_context, _state) {
       @async.pause()
-      NodeOutput::NodeOutput(None, None, [])
+      NodeOutput::NodeOutput(None, None)
     },
     fn(state, patch) { state + patch },
     fn(_state, _completion) { End },

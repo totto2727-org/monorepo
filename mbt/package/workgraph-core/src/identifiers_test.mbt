@@ -52,14 +52,6 @@ test "Identifier family parse - non-empty strings round trip through every wrapp
     ResourceKey::parse("resource-alpha").to_string(),
     content="resource-alpha",
   )
-  inspect(
-    CodingAgentId::parse("agent-alpha").to_string(),
-    content="agent-alpha",
-  )
-  inspect(
-    SessionId::parse("session-alpha").to_string(),
-    content="session-alpha",
-  )
 }
 
 ///|
@@ -76,20 +68,6 @@ test "Identifier family parse - empty strings report each wrapper kind" {
   } catch {
     EmptyId(kind~) => "EmptyId:\{kind}"
   }
-  let agent_error = try {
-    CodingAgentId::parse("") |> ignore
-    "no error"
-  } catch {
-    EmptyId(kind~) => "EmptyId:\{kind}"
-  }
-  let session_error = try {
-    SessionId::parse("") |> ignore
-    "no error"
-  } catch {
-    EmptyId(kind~) => "EmptyId:\{kind}"
-  }
   inspect(run_error, content="EmptyId:RunId")
   inspect(resource_error, content="EmptyId:ResourceKey")
-  inspect(agent_error, content="EmptyId:CodingAgentId")
-  inspect(session_error, content="EmptyId:SessionId")
 }

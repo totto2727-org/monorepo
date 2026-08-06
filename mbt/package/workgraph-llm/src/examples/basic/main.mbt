@@ -90,7 +90,6 @@ async fn main {
         @core.NodeOutput::NodeOutput(
           Some(LlmExamplePatch::{ answer: response.text, total_tokens }),
           None,
-          [],
         )
       },
     ),

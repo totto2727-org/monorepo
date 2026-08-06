@@ -33,56 +33,21 @@ pub fn NodeMetadata::NodeMetadata(
 }
 
 ///|
-pub(all) enum ArtifactKind {
-  File
-  Directory
-  Text
-  Json
-  CommandLog
-  Custom(String)
-} derive(Debug, Eq)
-
-///|
-pub struct Artifact {
-  kind : ArtifactKind
-  name : String
-  uri : String?
-  metadata : Json?
-} derive(Debug)
-
-///|
-/// Creates an artifact emitted by a graph node.
-pub fn Artifact::Artifact(
-  kind~ : ArtifactKind,
-  name~ : String,
-  uri~ : String?,
-  metadata~ : Json?,
-) -> Artifact {
-  Artifact::{ kind, name, uri, metadata }
-}
-
-///|
 pub struct NodeOutput[P] {
   patch : P?
   value : Json?
-  artifacts : ReadOnlyArray[Artifact]
 } derive(Debug)
 
 ///|
 /// Creates the output produced by a graph node.
-pub fn[P] NodeOutput::NodeOutput(
-  patch : P?,
-  value : Json?,
-  artifacts : ReadOnlyArray[Artifact],
-) -> NodeOutput[P] {
-  NodeOutput::{ patch, value, artifacts }
+pub fn[P] NodeOutput::NodeOutput(patch : P?, value : Json?) -> NodeOutput[P] {
+  NodeOutput::{ patch, value }
 }
 
 ///|
 pub struct NodeCompletion {
   node_id : NodeId
   value : Json?
-  artifacts : ReadOnlyArray[Artifact]
 } derive(Debug)
 
 ///|
@@ -90,9 +55,8 @@ pub struct NodeCompletion {
 pub fn NodeCompletion::NodeCompletion(
   node_id : NodeId,
   value : Json?,
-  artifacts : ReadOnlyArray[Artifact],
 ) -> NodeCompletion {
-  NodeCompletion::{ node_id, value, artifacts }
+  NodeCompletion::{ node_id, value }
 }
 
 ///|

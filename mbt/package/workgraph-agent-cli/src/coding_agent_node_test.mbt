@@ -31,19 +31,19 @@ fn coding_agent_node_test_run_id(value : String) -> @core.RunId {
 }
 
 ///|
-fn coding_agent_node_test_session_id() -> @core.SessionId {
-  @core.SessionId::parse("coding-agent-node-session") catch {
+fn coding_agent_node_test_session_id() -> SessionId {
+  SessionId::parse("coding-agent-node-session") catch {
     _ => abort("test session ID must be valid")
   }
 }
 
 ///|
-impl @core.CodingAgentSession for CodingAgentNodeFakeSession with fn id(_self) {
+impl CodingAgentSession for CodingAgentNodeFakeSession with fn id(_self) {
   Some(coding_agent_node_test_session_id())
 }
 
 ///|
-impl @core.CodingAgentSession for CodingAgentNodeFakeSession with fn execute(
+impl CodingAgentSession for CodingAgentNodeFakeSession with fn execute(
   self,
   request,
 ) {
@@ -52,25 +52,16 @@ impl @core.CodingAgentSession for CodingAgentNodeFakeSession with fn execute(
   if self.fail_execute {
     raise ExecuteFailed
   }
-  @core.CodingAgentResponse::CodingAgentResponse(
-    status=@core.Succeeded,
+  CodingAgentResponse::CodingAgentResponse(
+    status=Succeeded,
     summary=Some("completed"),
     continuation_id=Some("continue-42"),
     changed_files=[@path.Path("src/changed.mbt")],
-    artifacts=[
-      @core.Artifact::Artifact(
-        kind=@core.Text,
-        name="agent-output",
-        uri=None,
-        metadata=Some(Json::string("recorded")),
-      ),
-    ],
-    raw_output=Some(Json::string("raw")),
   )
 }
 
 ///|
-impl @core.CodingAgentSession for CodingAgentNodeFakeSession with fn close(self) {
+impl CodingAgentSession for CodingAgentNodeFakeSession with fn close(self) {
   @async.pause()
   self.closed.push("closed")
 }
@@ -103,13 +94,13 @@ fn coding_agent_node_context(
 ///|
 fn coding_agent_open_context(
   group : @async.TaskGroup[Unit],
-) -> @core.CodingAgentOpenContext {
-  @core.CodingAgentOpenContext::CodingAgentOpenContext(
+) -> CodingAgentOpenContext {
+  CodingAgentOpenContext::CodingAgentOpenContext(
     run_id=coding_agent_node_test_run_id("coding-agent-open-run"),
     task_group=group,
-    workspace=@core.WorkspaceRef::WorkspaceRef(@path.Path("/workspace"), []),
-    approval=@core.Never,
-    network=@core.Disabled,
+    workspace=WorkspaceRef::WorkspaceRef(@path.Path("/workspace"), []),
+    approval=Never,
+    network=Disabled,
     environment=@immut_hashmap.new(),
     events=@core.EventSink::discard(),
   )
@@ -128,7 +119,7 @@ async test "coding_agent_node 1 - executes and decodes continuation and changed 
       node_id,
       coding_agent_node_metadata("coding-agent-success"),
       CodingAgentNodeSpec::CodingAgentNodeSpec(
-        @core.CodingAgent::CodingAgent(@core.CodingAgentId::parse("fake"), async fn(
+        CodingAgent::CodingAgent(CodingAgentId::parse("fake"), async fn(
           _context,
         ) {
           @async.pause()
@@ -138,25 +129,24 @@ async test "coding_agent_node 1 - executes and decodes continuation and changed 
             closed,
             fail_execute: false,
           }
-          (session : &@core.CodingAgentSession)
+          (session : &CodingAgentSession)
         }),
         @core.ResourceKey::parse("coding-agent-success"),
         @core.Node,
         fn(_context, _state) { coding_agent_open_context(group) },
         fn(_context, state) {
-          @core.CodingAgentRequest::CodingAgentRequest("apply-\{state}", [
+          CodingAgentRequest::CodingAgentRequest("apply-\{state}", [
             @path.Path("README.md"),
           ])
         },
         fn(_state, response) {
           let continuation = response.continuation_id.unwrap_or("missing")
           decoded.push(
-            "\{continuation}:\{response.changed_files[0].to_string()}:\{response.artifacts[0].name}",
+            "\{continuation}:\{response.changed_files[0].to_string()}",
           )
           @core.NodeOutput::NodeOutput(
             Some(3),
-            response.raw_output,
-            response.artifacts,
+            response.summary.map(Json::string),
           )
         },
       ),
@@ -168,11 +158,11 @@ async test "coding_agent_node 1 - executes and decodes continuation and changed 
     resources.release_node(node_id)
     inspect(opens.join(","), content="open")
     inspect(executions.join(","), content="apply-7")
-    inspect(
-      decoded.join(","),
-      content="continue-42:src/changed.mbt:agent-output",
-    )
+    inspect(decoded.join(","), content="continue-42:src/changed.mbt")
     debug_inspect(output.patch, content="Some(3)")
+    guard output.value is Some(Json::String("completed")) else {
+      fail("decoded response must preserve the summary value")
+    }
     inspect(closed.join(","), content="closed")
   }
 }
@@ -187,7 +177,7 @@ async test "coding_agent_node 2 - reuses a run session through two GraphRuntime 
     node_id,
     coding_agent_node_metadata("coding-agent-run"),
     CodingAgentNodeSpec::CodingAgentNodeSpec(
-      @core.CodingAgent::CodingAgent(@core.CodingAgentId::parse("fake-run"), async fn(
+      CodingAgent::CodingAgent(CodingAgentId::parse("fake-run"), async fn(
         _context,
       ) {
         @async.pause()
@@ -197,15 +187,15 @@ async test "coding_agent_node 2 - reuses a run session through two GraphRuntime 
           closed,
           fail_execute: false,
         }
-        (session : &@core.CodingAgentSession)
+        (session : &CodingAgentSession)
       }),
       @core.ResourceKey::parse("coding-agent-run"),
       @core.Run,
       fn(context, _state) { coding_agent_open_context(context.task_group) },
       fn(_context, state) {
-        @core.CodingAgentRequest::CodingAgentRequest("step-\{state}", [])
+        CodingAgentRequest::CodingAgentRequest("step-\{state}", [])
       },
-      fn(_state, _response) { @core.NodeOutput::NodeOutput(Some(1), None, []) },
+      fn(_state, _response) { @core.NodeOutput::NodeOutput(Some(1), None) },
     ),
   )
   let definition = @core.GraphDefinition::GraphDefinition(
@@ -246,22 +236,21 @@ async fn coding_agent_node_assert_phase(
       node_id,
       coding_agent_node_metadata("coding-agent-phase"),
       CodingAgentNodeSpec::CodingAgentNodeSpec(
-        @core.CodingAgent::CodingAgent(
-          @core.CodingAgentId::parse("fake-phase"),
-          async fn(_context) {
-            @async.pause()
-            calls.push("open")
-            if phase == Open {
-              raise OpenFailed
-            }
-            let session = CodingAgentNodeFakeSession::{
-              executions: calls,
-              closed: calls,
-              fail_execute: phase == Execute,
-            }
-            (session : &@core.CodingAgentSession)
-          },
-        ),
+        CodingAgent::CodingAgent(CodingAgentId::parse("fake-phase"), async fn(
+          _context,
+        ) {
+          @async.pause()
+          calls.push("open")
+          if phase == Open {
+            raise OpenFailed
+          }
+          let session = CodingAgentNodeFakeSession::{
+            executions: calls,
+            closed: calls,
+            fail_execute: phase == Execute,
+          }
+          (session : &CodingAgentSession)
+        }),
         @core.ResourceKey::parse("coding-agent-phase"),
         @core.Node,
         (_context, _state) => {
@@ -276,14 +265,14 @@ async fn coding_agent_node_assert_phase(
           if phase == Request {
             raise RequestBuildFailed
           }
-          @core.CodingAgentRequest::CodingAgentRequest("phase", [])
+          CodingAgentRequest::CodingAgentRequest("phase", [])
         },
         (_state, _response) => {
           calls.push("decode")
           if phase == Decode {
             raise DecodeFailed
           }
-          @core.NodeOutput::NodeOutput(None, None, [])
+          @core.NodeOutput::NodeOutput(None, None)
         },
       ),
     )
@@ -335,31 +324,28 @@ async test "coding_agent_node 4 - retries an open failure without caching it" {
       node_id,
       coding_agent_node_metadata("coding-agent-open-retry"),
       CodingAgentNodeSpec::CodingAgentNodeSpec(
-        @core.CodingAgent::CodingAgent(
-          @core.CodingAgentId::parse("fake-retry"),
-          async fn(_context) {
-            @async.pause()
-            opens = opens + 1
-            if opens == 1 {
-              raise OpenFailed
-            }
-            let session = CodingAgentNodeFakeSession::{
-              executions,
-              closed,
-              fail_execute: false,
-            }
-            (session : &@core.CodingAgentSession)
-          },
-        ),
+        CodingAgent::CodingAgent(CodingAgentId::parse("fake-retry"), async fn(
+          _context,
+        ) {
+          @async.pause()
+          opens = opens + 1
+          if opens == 1 {
+            raise OpenFailed
+          }
+          let session = CodingAgentNodeFakeSession::{
+            executions,
+            closed,
+            fail_execute: false,
+          }
+          (session : &CodingAgentSession)
+        }),
         @core.ResourceKey::parse("coding-agent-open-retry"),
         @core.Run,
         fn(_context, _state) { coding_agent_open_context(group) },
         fn(_context, _state) {
-          @core.CodingAgentRequest::CodingAgentRequest("retry", [])
+          CodingAgentRequest::CodingAgentRequest("retry", [])
         },
-        fn(_state, _response) {
-          @core.NodeOutput::NodeOutput(Some(1), None, [])
-        },
+        fn(_state, _response) { @core.NodeOutput::NodeOutput(Some(1), None) },
       ),
     )
     let first = try {
@@ -394,19 +380,16 @@ struct W6LifecycleSession {
 }
 
 ///|
-impl @core.CodingAgentSession for W6LifecycleSession with fn id(self) {
+impl CodingAgentSession for W6LifecycleSession with fn id(self) {
   Some(
-    @core.SessionId::parse("session-\{self.number}") catch {
+    SessionId::parse("session-\{self.number}") catch {
       _ => abort("test session ID must be valid")
     },
   )
 }
 
 ///|
-impl @core.CodingAgentSession for W6LifecycleSession with fn execute(
-  self,
-  _request,
-) {
+impl CodingAgentSession for W6LifecycleSession with fn execute(self, _request) {
   self.lifecycle.push("execute-\{self.number}")
   self.execute_started.push("started")
   if self.suspend_execute {
@@ -425,18 +408,16 @@ impl @core.CodingAgentSession for W6LifecycleSession with fn execute(
       self.execute_started.push("finished")
     }
   }
-  @core.CodingAgentResponse::CodingAgentResponse(
-    status=@core.Succeeded,
+  CodingAgentResponse::CodingAgentResponse(
+    status=Succeeded,
     summary=None,
     continuation_id=Some("session-\{self.number}"),
     changed_files=[],
-    artifacts=[],
-    raw_output=None,
   )
 }
 
 ///|
-impl @core.CodingAgentSession for W6LifecycleSession with fn close(self) {
+impl CodingAgentSession for W6LifecycleSession with fn close(self) {
   self.lifecycle.push("close-\{self.number}")
 }
 
@@ -454,13 +435,13 @@ fn w6_lifecycle_metadata() -> @core.NodeMetadata {
 fn w6_open_context(
   context : @core.NodeContext,
   _state : Int,
-) -> @core.CodingAgentOpenContext raise {
-  @core.CodingAgentOpenContext::CodingAgentOpenContext(
+) -> CodingAgentOpenContext raise {
+  CodingAgentOpenContext::CodingAgentOpenContext(
     run_id=@core.RunId::parse(context.run_id.to_string()),
     task_group=context.task_group,
-    workspace=@core.WorkspaceRef::WorkspaceRef(@path.Path("."), []),
-    approval=@core.Never,
-    network=@core.Disabled,
+    workspace=WorkspaceRef::WorkspaceRef(@path.Path("."), []),
+    approval=Never,
+    network=Disabled,
     environment=@immut_hashmap.new(),
     events=context.events,
   )
@@ -477,23 +458,22 @@ fn w6_lifecycle_runtime(
 ) -> @core.GraphRuntime[Int, Int] raise {
   let node_id = @core.NodeId::parse("coding-agent-lifecycle")
   let mut opened = 0
-  let agent = @core.CodingAgent::CodingAgent(
-    @core.CodingAgentId::parse("fake-agent"),
-    async fn(context) {
-      @async.pause()
-      opened = opened + 1
-      lifecycle.push("open-\{opened}")
-      let session = W6LifecycleSession::{
-        number: opened,
-        group: context.task_group,
-        lifecycle,
-        execute_started,
-        child_tokens,
-        suspend_execute,
-      }
-      (session : &@core.CodingAgentSession)
-    },
-  )
+  let agent = CodingAgent::CodingAgent(CodingAgentId::parse("fake-agent"), async fn(
+    context,
+  ) {
+    @async.pause()
+    opened = opened + 1
+    lifecycle.push("open-\{opened}")
+    let session = W6LifecycleSession::{
+      number: opened,
+      group: context.task_group,
+      lifecycle,
+      execute_started,
+      child_tokens,
+      suspend_execute,
+    }
+    (session : &CodingAgentSession)
+  })
   let definition = @core.GraphDefinition::GraphDefinition(
     @core.Reducer::Reducer(fn(state : Int, patch : Int) { state + patch }),
   )
@@ -507,11 +487,9 @@ fn w6_lifecycle_runtime(
         scope,
         w6_open_context,
         fn(_context, state : Int) {
-          @core.CodingAgentRequest::CodingAgentRequest("state=\{state}", [])
+          CodingAgentRequest::CodingAgentRequest("state=\{state}", [])
         },
-        fn(_state, _response) {
-          @core.NodeOutput::NodeOutput(Some(1), None, [])
-        },
+        fn(_state, _response) { @core.NodeOutput::NodeOutput(Some(1), None) },
       ),
     ),
   )

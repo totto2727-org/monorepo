@@ -26,14 +26,6 @@ fn fake_response(text : String) -> @llm.CollectResult {
 }
 
 ///|
-fn total_tokens(response : @llm.CollectResult) -> Int {
-  match response.usage {
-    Some(usage) => usage.input_tokens + usage.output_tokens
-    None => 0
-  }
-}
-
-///|
 fn test_context(
   group : @async.TaskGroup[Unit],
   node_id : @core.NodeId,
@@ -69,14 +61,6 @@ async test "llm_node 1 - builds a typed request and decodes its response" {
           @core.NodeOutput::NodeOutput(
             Some(2),
             Some(Json::string(response.text)),
-            [
-              @core.Artifact::Artifact(
-                kind=@core.Text,
-                name="llm-usage",
-                uri=None,
-                metadata=Some(Json::number(total_tokens(response).to_double())),
-              ),
-            ],
           )
         },
       ),
@@ -87,12 +71,6 @@ async test "llm_node 1 - builds a typed request and decodes its response" {
     match output.value {
       Some(value) => json_inspect(value, content="apply-2")
       None => abort("decoded response must include a value")
-    }
-    inspect(output.artifacts[0].name, content="llm-usage")
-    debug_inspect(output.artifacts[0].kind, content="Text")
-    match output.artifacts[0].metadata {
-      Some(metadata) => json_inspect(metadata, content=5)
-      None => abort("decoded response must preserve usage metadata")
     }
   }
 }
@@ -117,9 +95,7 @@ async test "llm_node 2 - applies a decoded patch through GraphRuntime" {
           @async.pause()
           fake_response("increment")
         },
-        fn(_state, _response) {
-          @core.NodeOutput::NodeOutput(Some(3), None, [])
-        },
+        fn(_state, _response) { @core.NodeOutput::NodeOutput(Some(3), None) },
       ),
     ),
   )
@@ -152,7 +128,7 @@ async test "llm_node 3 - stops before invocation when request building fails" {
         },
         fn(_state, _response) {
           decodes = decodes + 1
-          @core.NodeOutput::NodeOutput(None, None, [])
+          @core.NodeOutput::NodeOutput(None, None)
         },
       ),
     )
@@ -187,7 +163,7 @@ async test "llm_node 4 - preserves invocation errors without decoding" {
         },
         fn(_state, _response) {
           decodes = decodes + 1
-          @core.NodeOutput::NodeOutput(None, None, [])
+          @core.NodeOutput::NodeOutput(None, None)
         },
       ),
     )
@@ -265,7 +241,7 @@ async test "llm_node 6 - cancellation stops the in-flight invoke callback" {
           completed = true
           fake_response("unreachable")
         },
-        fn(_state, _response) { @core.NodeOutput::NodeOutput(None, None, []) },
+        fn(_state, _response) { @core.NodeOutput::NodeOutput(None, None) },
       ),
     )
     let task = group.spawn(

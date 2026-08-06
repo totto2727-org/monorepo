@@ -221,7 +221,7 @@ An LLM node:
 - Calls a supplied async provider boundary.
 - Decodes the response into a node output.
 
-The callback returns a mizchi/llm `CollectResult`, so its decoder can preserve text, tool calls, finish reason, and usage information in artifacts or events when the graph author needs it; the node does not automatically emit usage.
+The callback returns a mizchi/llm `CollectResult`, so its decoder can preserve text, tool calls, finish reason, and usage information in the typed patch, graph state, or optional node value; the node does not automatically emit usage.
 
 The caller owns provider construction and target-specific transport behavior.
 
@@ -234,7 +234,7 @@ A coding-agent node:
 - Builds a common coding-agent request.
 - Stores the process as an ordinary typed resource and acquires or reuses it according to resource scope.
 - Executes the request.
-- Converts the response into a patch and artifacts.
+- Converts the response into a patch and optional value.
 
 Codex and OpenCode share session semantics but keep SDK-specific options inside their adapters.
 

@@ -55,25 +55,25 @@ priv struct CodexAgentSession {
 }
 
 ///|
-fn approval_mode(policy : @core.ApprovalPolicy) -> @sdk.ApprovalMode {
+fn approval_mode(policy : @coding.ApprovalPolicy) -> @sdk.ApprovalMode {
   match policy {
-    @core.Never => @sdk.Never
-    @core.OnRequest => @sdk.OnRequest
-    @core.OnFailure => @sdk.OnFailure
-    @core.Untrusted => @sdk.Untrusted
+    @coding.Never => @sdk.Never
+    @coding.OnRequest => @sdk.OnRequest
+    @coding.OnFailure => @sdk.OnFailure
+    @coding.Untrusted => @sdk.Untrusted
   }
 }
 
 ///|
-fn network_enabled(policy : @core.NetworkPolicy) -> Bool {
+fn network_enabled(policy : @coding.NetworkPolicy) -> Bool {
   match policy {
-    @core.Disabled => false
-    @core.Enabled => true
+    @coding.Disabled => false
+    @coding.Enabled => true
   }
 }
 
 ///|
-fn request_input(request : @core.CodingAgentRequest) -> @sdk.Input {
+fn request_input(request : @coding.CodingAgentRequest) -> @sdk.Input {
   if request.context_files.is_empty() {
     return @sdk.Prompt(request.instruction)
   }
@@ -108,15 +108,15 @@ fn changed_files(
 }
 
 ///|
-impl @core.CodingAgentSession for CodexAgentSession with fn id(self) {
+impl @coding.CodingAgentSession for CodexAgentSession with fn id(self) {
   match self.thread.id() {
-    Some(id) => Some(@core.SessionId::parse(id) catch { _ => return None })
+    Some(id) => Some(@coding.SessionId::parse(id) catch { _ => return None })
     None => None
   }
 }
 
 ///|
-impl @core.CodingAgentSession for CodexAgentSession with fn execute(
+impl @coding.CodingAgentSession for CodexAgentSession with fn execute(
   self,
   request,
 ) {
@@ -133,18 +133,16 @@ impl @core.CodingAgentSession for CodexAgentSession with fn execute(
     Ok(turn) => turn
     Err(error) => raise error
   }
-  @core.CodingAgentResponse::CodingAgentResponse(
-    status=@core.Succeeded,
+  @coding.CodingAgentResponse::CodingAgentResponse(
+    status=@coding.Succeeded,
     summary=Some(turn.final_response),
     continuation_id=self.thread.id(),
     changed_files=changed_files(turn.items),
-    artifacts=[],
-    raw_output=None,
   )
 }
 
 ///|
-impl @core.CodingAgentSession for CodexAgentSession with fn close(self) {
+impl @coding.CodingAgentSession for CodexAgentSession with fn close(self) {
   self.mutex.acquire()
   self.closed = true
   self.mutex.release()
@@ -153,10 +151,10 @@ impl @core.CodingAgentSession for CodexAgentSession with fn close(self) {
 ///|
 /// Creates a coding agent backed by the pinned Codex SDK.
 pub fn codex_agent(
-  id : @core.CodingAgentId,
+  id : @coding.CodingAgentId,
   options : CodexAgentOptions,
-) -> @core.CodingAgent {
-  @core.CodingAgent::CodingAgent(id, async fn(context) {
+) -> @coding.CodingAgent {
+  @coding.CodingAgent::CodingAgent(id, async fn(context) {
     @async.pause()
     let client = @sdk.Codex::Codex(
       options=@sdk.CodexOptions::CodexOptions(
@@ -187,6 +185,6 @@ pub fn codex_agent(
       mutex: @async.Mutex::Mutex(),
       closed: false,
     }
-    (session : &@core.CodingAgentSession)
+    (session : &@coding.CodingAgentSession)
   })
 }

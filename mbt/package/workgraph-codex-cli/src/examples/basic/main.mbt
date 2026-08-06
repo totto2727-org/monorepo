@@ -15,7 +15,7 @@ async fn main {
     _ => abort("static Codex node ID must be valid")
   }
   let agent = @codex.codex_agent(
-    @core.CodingAgentId::parse("codex-cli") catch {
+    @coding.CodingAgentId::parse("codex-cli") catch {
       _ => abort("static Codex agent ID must be valid")
     },
     @codex.CodexAgentOptions::CodexAgentOptions(
@@ -41,25 +41,24 @@ async fn main {
       },
       @core.Run,
       fn(context, _state) {
-        @core.CodingAgentOpenContext::CodingAgentOpenContext(
+        @coding.CodingAgentOpenContext::CodingAgentOpenContext(
           run_id=context.run_id,
           task_group=context.task_group,
-          workspace=@core.WorkspaceRef::WorkspaceRef(workspace, []),
-          approval=@core.Never,
-          network=@core.Disabled,
+          workspace=@coding.WorkspaceRef::WorkspaceRef(workspace, []),
+          approval=@coding.Never,
+          network=@coding.Disabled,
           environment~,
           events=context.events,
         )
       },
       fn(_context, state : CodexExampleState) {
-        @core.CodingAgentRequest::CodingAgentRequest(state.instruction, [])
+        @coding.CodingAgentRequest::CodingAgentRequest(state.instruction, [])
       },
       fn(_state, response) {
         let summary = response.summary.unwrap_or("")
         @core.NodeOutput::NodeOutput(
           Some(CodexExamplePatch::{ summary, }),
           Some(Json::string(summary)),
-          response.artifacts,
         )
       },
     ),

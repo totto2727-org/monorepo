@@ -41,8 +41,6 @@ pub struct CodingAgentResponse {
   summary : String?
   continuation_id : String?
   changed_files : ReadOnlyArray[@path.Path]
-  artifacts : ReadOnlyArray[Artifact]
-  raw_output : Json?
 } derive(Debug)
 
 ///|
@@ -52,17 +50,8 @@ pub fn CodingAgentResponse::CodingAgentResponse(
   summary~ : String?,
   continuation_id~ : String?,
   changed_files~ : ReadOnlyArray[@path.Path],
-  artifacts~ : ReadOnlyArray[Artifact],
-  raw_output~ : Json?,
 ) -> CodingAgentResponse {
-  CodingAgentResponse::{
-    status,
-    summary,
-    continuation_id,
-    changed_files,
-    artifacts,
-    raw_output,
-  }
+  CodingAgentResponse::{ status, summary, continuation_id, changed_files }
 }
 
 ///|
@@ -81,25 +70,25 @@ pub(all) enum NetworkPolicy {
 
 ///|
 pub struct CodingAgentOpenContext {
-  run_id : RunId
+  run_id : @core.RunId
   task_group : @async.TaskGroup[Unit]
   workspace : WorkspaceRef
   approval : ApprovalPolicy
   network : NetworkPolicy
   environment : @immut_hashmap.HashMap[String, String]
-  events : EventSink
+  events : @core.EventSink
 }
 
 ///|
 /// Creates the runtime context used to open a coding-agent session.
 pub fn CodingAgentOpenContext::CodingAgentOpenContext(
-  run_id~ : RunId,
+  run_id~ : @core.RunId,
   task_group~ : @async.TaskGroup[Unit],
   workspace~ : WorkspaceRef,
   approval~ : ApprovalPolicy,
   network~ : NetworkPolicy,
   environment~ : @immut_hashmap.HashMap[String, String],
-  events~ : EventSink,
+  events~ : @core.EventSink,
 ) -> CodingAgentOpenContext {
   CodingAgentOpenContext::{
     run_id,

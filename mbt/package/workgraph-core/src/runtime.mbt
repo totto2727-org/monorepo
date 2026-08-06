@@ -121,11 +121,7 @@ async fn[S, P] run_sequential(
       Some(output) => output
       None => abort("node attempt completed without output or error")
     }
-    let completion = NodeCompletion::{
-      node_id: current,
-      value: output.value,
-      artifacts: output.artifacts,
-    }
+    let completion = NodeCompletion::{ node_id: current, value: output.value }
     runtime.events.try_emit(
       NodeCompleted(run_id~, node_id=current, step=steps, completion~),
     )

@@ -17,14 +17,6 @@ suberror LocalLlmError {
 } derive(Debug)
 
 ///|
-fn usage_json(usage : @llm.Usage) -> Json {
-  {
-    "input_tokens": usage.input_tokens.to_json(),
-    "output_tokens": usage.output_tokens.to_json(),
-  }
-}
-
-///|
 fn collect_provider(
   provider : @llm.BoxedProvider,
   request : @workgraph_llm.LlmRequest,
@@ -64,7 +56,7 @@ fn collect_provider(
 ///|
 async test "llm_node integration 1 - maps a mizchi/llm provider result into graph state" {
   let requests : Array[@workgraph_llm.LlmRequest] = []
-  let usage_artifacts : Array[String] = []
+  let completion_values : Array[String] = []
   let provider = @llm.MockProvider::new([
     [
       @llm.MessageStart,
@@ -104,14 +96,6 @@ async test "llm_node integration 1 - maps a mizchi/llm provider result into grap
         @core.NodeOutput::NodeOutput(
           Some(LocalLlmPatch::{ answer: response.text, total_tokens }),
           Some(Json::string(response.text)),
-          [
-            @core.Artifact::Artifact(
-              kind=@core.Json,
-              name="llm-usage",
-              uri=None,
-              metadata=response.usage.map(usage_json),
-            ),
-          ],
         )
       },
     ),
@@ -129,10 +113,10 @@ async test "llm_node integration 1 - maps a mizchi/llm provider result into grap
   definition.set_router(
     entry,
     @core.router([], fn(_state, completion) raise {
-      guard completion.artifacts[0].metadata is Some(metadata) else {
-        fail("missing usage metadata")
+      guard completion.value is Some(Json::String(value)) else {
+        fail("missing completion value")
       }
-      usage_artifacts.push(metadata.stringify())
+      completion_values.push(value)
       @core.End
     }),
   )
@@ -157,8 +141,5 @@ async test "llm_node integration 1 - maps a mizchi/llm provider result into grap
   )
   inspect(requests[0].messages[1].get_text(), content="local prompt")
   inspect(requests[0].tools.length(), content="0")
-  inspect(
-    usage_artifacts.join(","),
-    content="{\"input_tokens\":4,\"output_tokens\":2}",
-  )
+  inspect(completion_values.join(","), content="completed")
 }

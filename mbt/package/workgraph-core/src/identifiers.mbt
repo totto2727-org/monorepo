@@ -8,12 +8,6 @@ pub struct RunId(String) derive(Eq, Hash, Debug)
 pub struct ResourceKey(String) derive(Eq, Hash, Debug)
 
 ///|
-pub struct CodingAgentId(String) derive(Eq, Hash, Debug)
-
-///|
-pub struct SessionId(String) derive(Eq, Hash, Debug)
-
-///|
 pub suberror IdError {
   EmptyId(kind~ : String)
 } derive(Debug)
@@ -54,27 +48,5 @@ pub fn ResourceKey::parse(value : String) -> ResourceKey raise IdError {
 ///|
 pub fn ResourceKey::to_string(self : ResourceKey) -> String {
   let ResourceKey(value) = self
-  value
-}
-
-///|
-pub fn CodingAgentId::parse(value : String) -> CodingAgentId raise IdError {
-  CodingAgentId(parse_id(value, "CodingAgentId"))
-}
-
-///|
-pub fn CodingAgentId::to_string(self : CodingAgentId) -> String {
-  let CodingAgentId(value) = self
-  value
-}
-
-///|
-pub fn SessionId::parse(value : String) -> SessionId raise IdError {
-  SessionId(parse_id(value, "SessionId"))
-}
-
-///|
-pub fn SessionId::to_string(self : SessionId) -> String {
-  let SessionId(value) = self
   value
 }

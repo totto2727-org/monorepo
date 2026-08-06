@@ -55,7 +55,7 @@ priv struct OpenCodeAgentSession {
 ///|
 fn request_input(
   workspace_root : @path.Path,
-  request : @core.CodingAgentRequest,
+  request : @coding.CodingAgentRequest,
 ) -> @sdk.Input {
   if request.context_files.is_empty() {
     return @sdk.Prompt(request.instruction)
@@ -78,7 +78,7 @@ fn request_input(
 ///|
 fn merged_environment(
   options : OpenCodeAgentOptions,
-  context : @core.CodingAgentOpenContext,
+  context : @coding.CodingAgentOpenContext,
 ) -> Map[String, String] {
   let environment = @env.get_env_vars()
   for key, value in options.extra_env {
@@ -92,15 +92,15 @@ fn merged_environment(
 }
 
 ///|
-impl @core.CodingAgentSession for OpenCodeAgentSession with fn id(self) {
+impl @coding.CodingAgentSession for OpenCodeAgentSession with fn id(self) {
   match self.thread.id() {
-    Some(id) => Some(@core.SessionId::parse(id) catch { _ => return None })
+    Some(id) => Some(@coding.SessionId::parse(id) catch { _ => return None })
     None => None
   }
 }
 
 ///|
-impl @core.CodingAgentSession for OpenCodeAgentSession with fn execute(
+impl @coding.CodingAgentSession for OpenCodeAgentSession with fn execute(
   self,
   request,
 ) {
@@ -117,18 +117,16 @@ impl @core.CodingAgentSession for OpenCodeAgentSession with fn execute(
     Ok(turn) => turn
     Err(error) => raise error
   }
-  @core.CodingAgentResponse::CodingAgentResponse(
-    status=@core.Succeeded,
+  @coding.CodingAgentResponse::CodingAgentResponse(
+    status=@coding.Succeeded,
     summary=Some(turn.final_response),
     continuation_id=self.thread.id(),
     changed_files=[],
-    artifacts=[],
-    raw_output=None,
   )
 }
 
 ///|
-impl @core.CodingAgentSession for OpenCodeAgentSession with fn close(self) {
+impl @coding.CodingAgentSession for OpenCodeAgentSession with fn close(self) {
   self.mutex.acquire()
   self.closed = true
   self.mutex.release()
@@ -137,10 +135,10 @@ impl @core.CodingAgentSession for OpenCodeAgentSession with fn close(self) {
 ///|
 /// Creates a coding agent backed by the OpenCode CLI SDK.
 pub fn opencode_agent(
-  id : @core.CodingAgentId,
+  id : @coding.CodingAgentId,
   options : OpenCodeAgentOptions,
-) -> @core.CodingAgent {
-  @core.CodingAgent::CodingAgent(id, async fn(context) {
+) -> @coding.CodingAgent {
+  @coding.CodingAgent::CodingAgent(id, async fn(context) {
     @async.pause()
     let client = @sdk.OpenCode::OpenCode(
       options=@sdk.OpenCodeOptions::OpenCodeOptions(
@@ -167,6 +165,6 @@ pub fn opencode_agent(
       mutex: @async.Mutex::Mutex(),
       closed: false,
     }
-    (session : &@core.CodingAgentSession)
+    (session : &@coding.CodingAgentSession)
   })
 }
