@@ -7,7 +7,7 @@ fn codex_agent_test_run_id() -> @core.RunId {
 
 ///|
 fn codex_agent_test_id() -> @coding.CodingAgentId {
-  @coding.CodingAgentId::parse("codex-agent-test") catch {
+  @coding.CodingAgentId::CodingAgentId("codex-agent-test") catch {
     _ => abort("test coding-agent ID must be valid")
   }
 }

@@ -165,7 +165,7 @@ fn opencode_cli_agent(
   resume_thread_id? : String,
 ) -> @coding_agent.CodingAgent {
   @opencode.opencode_agent(
-    @coding_agent.CodingAgentId::parse("opencode-cli") catch {
+    @coding_agent.CodingAgentId::CodingAgentId("opencode-cli") catch {
       _ => abort("fixture agent ID must be valid")
     },
     @opencode.OpenCodeAgentOptions::OpenCodeAgentOptions(

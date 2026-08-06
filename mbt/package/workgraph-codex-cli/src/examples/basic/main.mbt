@@ -15,7 +15,7 @@ async fn main {
     _ => abort("static Codex node ID must be valid")
   }
   let agent = @codex.codex_agent(
-    @coding.CodingAgentId::parse("codex-cli") catch {
+    @coding.CodingAgentId::CodingAgentId("codex-cli") catch {
       _ => abort("static Codex agent ID must be valid")
     },
     @codex.CodexAgentOptions::CodexAgentOptions(

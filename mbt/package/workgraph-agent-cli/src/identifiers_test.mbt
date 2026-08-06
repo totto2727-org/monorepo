@@ -1,7 +1,7 @@
 ///|
 test "Coding agent identifiers - non-empty strings round trip" {
   inspect(
-    CodingAgentId::parse("agent-alpha").to_string(),
+    CodingAgentId::CodingAgentId("agent-alpha").to_string(),
     content="agent-alpha",
   )
   inspect(
@@ -13,7 +13,7 @@ test "Coding agent identifiers - non-empty strings round trip" {
 ///|
 test "Coding agent identifiers - empty strings report each wrapper kind" {
   let agent_error = try {
-    CodingAgentId::parse("") |> ignore
+    CodingAgentId::CodingAgentId("") |> ignore
     "no error"
   } catch {
     EmptyId(kind~) => "EmptyId:\{kind}"

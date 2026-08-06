@@ -119,7 +119,7 @@ async test "coding_agent_node 1 - executes and decodes continuation and changed 
       node_id,
       coding_agent_node_metadata("coding-agent-success"),
       CodingAgentNodeSpec::CodingAgentNodeSpec(
-        CodingAgent::CodingAgent(CodingAgentId::parse("fake"), async fn(
+        CodingAgent::CodingAgent(CodingAgentId::CodingAgentId("fake"), async fn(
           _context,
         ) {
           @async.pause()
@@ -177,7 +177,7 @@ async test "coding_agent_node 2 - reuses a run session through two GraphRuntime 
     node_id,
     coding_agent_node_metadata("coding-agent-run"),
     CodingAgentNodeSpec::CodingAgentNodeSpec(
-      CodingAgent::CodingAgent(CodingAgentId::parse("fake-run"), async fn(
+      CodingAgent::CodingAgent(CodingAgentId::CodingAgentId("fake-run"), async fn(
         _context,
       ) {
         @async.pause()
@@ -236,7 +236,7 @@ async fn coding_agent_node_assert_phase(
       node_id,
       coding_agent_node_metadata("coding-agent-phase"),
       CodingAgentNodeSpec::CodingAgentNodeSpec(
-        CodingAgent::CodingAgent(CodingAgentId::parse("fake-phase"), async fn(
+        CodingAgent::CodingAgent(CodingAgentId::CodingAgentId("fake-phase"), async fn(
           _context,
         ) {
           @async.pause()
@@ -324,7 +324,7 @@ async test "coding_agent_node 4 - retries an open failure without caching it" {
       node_id,
       coding_agent_node_metadata("coding-agent-open-retry"),
       CodingAgentNodeSpec::CodingAgentNodeSpec(
-        CodingAgent::CodingAgent(CodingAgentId::parse("fake-retry"), async fn(
+        CodingAgent::CodingAgent(CodingAgentId::CodingAgentId("fake-retry"), async fn(
           _context,
         ) {
           @async.pause()
@@ -458,22 +458,23 @@ fn w6_lifecycle_runtime(
 ) -> @core.GraphRuntime[Int, Int] raise {
   let node_id = @core.NodeId::parse("coding-agent-lifecycle")
   let mut opened = 0
-  let agent = CodingAgent::CodingAgent(CodingAgentId::parse("fake-agent"), async fn(
-    context,
-  ) {
-    @async.pause()
-    opened = opened + 1
-    lifecycle.push("open-\{opened}")
-    let session = W6LifecycleSession::{
-      number: opened,
-      group: context.task_group,
-      lifecycle,
-      execute_started,
-      child_tokens,
-      suspend_execute,
-    }
-    (session : &CodingAgentSession)
-  })
+  let agent = CodingAgent::CodingAgent(
+    CodingAgentId::CodingAgentId("fake-agent"),
+    async fn(context) {
+      @async.pause()
+      opened = opened + 1
+      lifecycle.push("open-\{opened}")
+      let session = W6LifecycleSession::{
+        number: opened,
+        group: context.task_group,
+        lifecycle,
+        execute_started,
+        child_tokens,
+        suspend_execute,
+      }
+      (session : &CodingAgentSession)
+    },
+  )
   let definition = @core.GraphDefinition::GraphDefinition(
     @core.Reducer::Reducer(fn(state : Int, patch : Int) { state + patch }),
   )

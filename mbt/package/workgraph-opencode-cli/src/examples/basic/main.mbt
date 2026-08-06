@@ -15,7 +15,7 @@ async fn main {
     _ => abort("static OpenCode node ID must be valid")
   }
   let agent = @opencode.opencode_agent(
-    @coding.CodingAgentId::parse("opencode-cli") catch {
+    @coding.CodingAgentId::CodingAgentId("opencode-cli") catch {
       _ => abort("static OpenCode agent ID must be valid")
     },
     @opencode.OpenCodeAgentOptions::OpenCodeAgentOptions(

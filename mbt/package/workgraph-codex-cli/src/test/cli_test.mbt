@@ -119,7 +119,7 @@ fn codex_integration_agent(
   fixture : CodexIntegrationFixture,
 ) -> @coding_agent.CodingAgent {
   @codex.codex_agent(
-    @coding_agent.CodingAgentId::parse("codex-integration") catch {
+    @coding_agent.CodingAgentId::CodingAgentId("codex-integration") catch {
       _ => abort("integration agent ID must be valid")
     },
     @codex.CodexAgentOptions::CodexAgentOptions(
