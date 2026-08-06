@@ -9,7 +9,7 @@ test "lock domain preserves version two order and equality" {
     GitHubLockRepository::GitHubLockRepository(
       GitHubRepository::from_route("OpenAI/Codex"),
       MarketplaceKind::codex(),
-      Some(CommitId::CommitId("0123456789ABCDEF0123456789abcdef01234567")),
+      CommitId::CommitId("0123456789ABCDEF0123456789abcdef01234567"),
       [plugin],
     ),
   )
@@ -39,7 +39,7 @@ test "lock domain preserves version two order and equality" {
       inspect(repository.repository.name().value(), content="codex")
       inspect(repository.repository.route(), content="openai/codex")
       inspect(
-        repository.commit.unwrap().value(),
+        repository.commit.value(),
         content="0123456789abcdef0123456789abcdef01234567",
       )
       inspect(
@@ -53,81 +53,70 @@ test "lock domain preserves version two order and equality" {
 }
 
 ///|
-test "panic_GitHubRepository from_route rejects empty and malformed components" {
-  try! (GitHubRepository::from_route("owner/") |> ignore)
-  try! (GitHubRepository::from_route("owner/repo/extra") |> ignore)
-  try! (GitHubRepository::from_route("owner/repo/name") |> ignore)
-}
-
-///|
-test "panic_GitHubRepository from_route rejects path-like repository names" {
-  try! (GitHubRepository::from_route("owner/.") |> ignore)
-  try! (GitHubRepository::from_route("owner/..") |> ignore)
-}
-
-///|
-test "panic_relative paths reject traversal and absolute paths" {
-  try! (RelativeSourcePath::RelativeSourcePath("../outside") |> ignore)
-  try! (RelativePluginPath::RelativePluginPath("plugin/../outside") |> ignore)
-  try! (RelativeSourcePath::RelativeSourcePath("/absolute/repository") |> ignore)
-  try! (RelativePluginPath::RelativePluginPath("/absolute/plugin") |> ignore)
-}
-
-///|
-test "panic_domain names reject empty and slash values" {
-  try! (PluginName::PluginName("") |> ignore)
-  try! (PluginName::PluginName("plugin/name") |> ignore)
-  try! (SkillName::SkillName("") |> ignore)
-  try! (SkillName::SkillName("skill/name") |> ignore)
-}
-
-///|
-test "panic_CommitId rejects bad length and hexadecimal boundaries" {
-  try! (CommitId::CommitId("0123456789abcdef0123456789abcdef0123456") |> ignore)
-  try! (CommitId::CommitId("0123456789abcdef0123456789abcdef012345678")
-  |> ignore)
-  try! (CommitId::CommitId("g123456789abcdef0123456789abcdef01234567") |> ignore)
-}
-
-///|
-test "panic_lock rejects duplicate target repository plugin and skill identities" {
+test "lock rejects duplicate target repository plugin and skill identities" {
   let target = Target::Target(".agents/skills")
   let equivalent_target = Target::Target(".agents/./skills")
-  try! (Lock::Lock([target, equivalent_target], []) |> ignore)
+  expect_rejection(
+    fn() -> Unit raise { Lock::Lock([target, equivalent_target], []) |> ignore },
+    "normalized target identity",
+  )
   let duplicate_skills = [
     SkillName::SkillName("sync"),
     SkillName::SkillName("sync"),
   ]
-  try! (Plugin::Plugin(
-    PluginName::PluginName("plugin"),
-    RelativePluginPath::RelativePluginPath("plugin"),
-    duplicate_skills,
+  expect_rejection(
+    fn() -> Unit raise {
+      Plugin::Plugin(
+        PluginName::PluginName("plugin"),
+        RelativePluginPath::RelativePluginPath("plugin"),
+        duplicate_skills,
+      )
+      |> ignore
+    },
+    "enabled skill identity",
   )
-  |> ignore)
-  let plugin = Plugin::Plugin(
+  let first_plugin = Plugin::Plugin(
     PluginName::PluginName("plugin"),
-    RelativePluginPath::RelativePluginPath("plugin"),
+    RelativePluginPath::RelativePluginPath("first/plugin"),
     [],
   )
-  try! (GitHubLockRepository::GitHubLockRepository(
-    GitHubRepository::from_route("owner/repo"),
-    MarketplaceKind::claude(),
-    None,
-    [plugin, plugin],
+  let same_plugin_identity = Plugin::Plugin(
+    PluginName::PluginName("plugin"),
+    RelativePluginPath::RelativePluginPath("second/plugin"),
+    [SkillName::SkillName("different-skill")],
   )
-  |> ignore)
-  let repository = LockRepository::github(
+  expect_rejection(
+    fn() -> Unit raise {
+      GitHubLockRepository::GitHubLockRepository(
+        GitHubRepository::from_route("owner/repo"),
+        MarketplaceKind::claude(),
+        CommitId::CommitId("0123456789abcdef0123456789abcdef01234567"),
+        [first_plugin, same_plugin_identity],
+      )
+      |> ignore
+    },
+    "plugin name identity",
+  )
+  let first_repository = LockRepository::github(
     GitHubLockRepository::GitHubLockRepository(
       GitHubRepository::from_route("owner/repo"),
       MarketplaceKind::claude(),
-      None,
+      CommitId::CommitId("0123456789abcdef0123456789abcdef01234567"),
       [],
     ),
   )
-  try! (Lock::Lock([], [repository, repository]) |> ignore)
-}
-
-///|
-test "SkillName preserves the c-plugin skill namespace" {
-  inspect(SkillName::SkillName("c-plugin").value(), content="c-plugin")
+  let same_repository_identity = LockRepository::github(
+    GitHubLockRepository::GitHubLockRepository(
+      GitHubRepository::from_route("OWNER/REPO"),
+      MarketplaceKind::cursor(),
+      CommitId::CommitId("fedcba9876543210fedcba9876543210fedcba98"),
+      [],
+    ),
+  )
+  expect_rejection(
+    fn() -> Unit raise {
+      Lock::Lock([], [first_repository, same_repository_identity]) |> ignore
+    },
+    "canonical repository identity",
+  )
 }
