@@ -32,7 +32,7 @@ fn coding_agent_node_test_run_id(value : String) -> @core.RunId {
 
 ///|
 fn coding_agent_node_test_session_id() -> SessionId {
-  SessionId::parse("coding-agent-node-session") catch {
+  SessionId::SessionId("coding-agent-node-session") catch {
     _ => abort("test session ID must be valid")
   }
 }
@@ -109,7 +109,7 @@ fn coding_agent_open_context(
 ///|
 async test "coding_agent_node 1 - executes and decodes continuation and changed files" {
   @async.with_task_group() <| group => {
-    let node_id = @core.NodeId::parse("coding-agent-success")
+    let node_id = @core.NodeId::NodeId("coding-agent-success")
     let resources = @core.ResourceStore::ResourceStore()
     let opens : Array[String] = []
     let executions : Array[String] = []
@@ -169,7 +169,7 @@ async test "coding_agent_node 1 - executes and decodes continuation and changed 
 
 ///|
 async test "coding_agent_node 2 - reuses a run session through two GraphRuntime attempts" {
-  let node_id = @core.NodeId::parse("coding-agent-run")
+  let node_id = @core.NodeId::NodeId("coding-agent-run")
   let opens : Array[String] = []
   let executions : Array[String] = []
   let closed : Array[String] = []
@@ -229,7 +229,7 @@ async fn coding_agent_node_assert_phase(
   phase : CodingAgentNodeFailurePhase,
 ) -> Unit {
   @async.with_task_group() <| group => {
-    let node_id = @core.NodeId::parse("coding-agent-phase")
+    let node_id = @core.NodeId::NodeId("coding-agent-phase")
     let resources = @core.ResourceStore::ResourceStore()
     let calls : Array[String] = []
     let node : @core.Node[Int, Int] = coding_agent_node(
@@ -315,7 +315,7 @@ async test "coding_agent_node 3 - preserves every phase failure and stops later 
 ///|
 async test "coding_agent_node 4 - retries an open failure without caching it" {
   @async.with_task_group() <| group => {
-    let node_id = @core.NodeId::parse("coding-agent-open-retry")
+    let node_id = @core.NodeId::NodeId("coding-agent-open-retry")
     let resources = @core.ResourceStore::ResourceStore()
     let mut opens = 0
     let executions : Array[String] = []
@@ -382,7 +382,7 @@ struct W6LifecycleSession {
 ///|
 impl CodingAgentSession for W6LifecycleSession with fn id(self) {
   Some(
-    SessionId::parse("session-\{self.number}") catch {
+    SessionId::SessionId("session-\{self.number}") catch {
       _ => abort("test session ID must be valid")
     },
   )
@@ -456,7 +456,7 @@ fn w6_lifecycle_runtime(
   suspend_execute : Bool,
   events? : @core.EventSink = @core.EventSink::discard(),
 ) -> @core.GraphRuntime[Int, Int] raise {
-  let node_id = @core.NodeId::parse("coding-agent-lifecycle")
+  let node_id = @core.NodeId::NodeId("coding-agent-lifecycle")
   let mut opened = 0
   let agent = CodingAgent::CodingAgent(
     CodingAgentId::CodingAgentId("fake-agent"),

@@ -11,7 +11,7 @@ struct CodexExamplePatch {
 
 ///|
 async fn main {
-  let entry = @core.NodeId::parse("codex") catch {
+  let entry = @core.NodeId::NodeId("codex") catch {
     _ => abort("static Codex node ID must be valid")
   }
   let agent = @codex.codex_agent(

@@ -222,7 +222,7 @@ async test "codex_agent integration 2 - propagates turn.failed without waiting f
 async test "codex_agent integration 3 - caller cancellation kills the started subprocess and leaves no finish marker" {
   let root = with_codex_integration_fixture(async fn(fixture) {
     @async.with_task_group() <| group => {
-      let node_id = @core.NodeId::parse("codex-cancel")
+      let node_id = @core.NodeId::NodeId("codex-cancel")
       let events : Array[@core.GraphEvent] = []
       let definition = @core.GraphDefinition::GraphDefinition(
         @core.Reducer::Reducer(fn(state : Int, patch : Int) { state + patch }),

@@ -67,7 +67,7 @@ async test "llm_node integration 1 - maps a mizchi/llm provider result into grap
       ),
     ],
   ]).boxed()
-  let entry = @core.NodeId::parse("local-llm")
+  let entry = @core.NodeId::NodeId("local-llm")
   let node = @workgraph_llm.llm_node(
     entry,
     @core.NodeMetadata::NodeMetadata(

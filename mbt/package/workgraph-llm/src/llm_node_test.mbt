@@ -43,7 +43,7 @@ fn test_context(
 ///|
 async test "llm_node 1 - builds a typed request and decodes its response" {
   @async.with_task_group() <| group => {
-    let node_id = @core.NodeId::parse("plan")
+    let node_id = @core.NodeId::NodeId("plan")
     let requests : Array[String] = []
     let node : @core.Node[Int, Int] = llm_node(
       node_id,
@@ -77,7 +77,7 @@ async test "llm_node 1 - builds a typed request and decodes its response" {
 
 ///|
 async test "llm_node 2 - applies a decoded patch through GraphRuntime" {
-  let node_id = @core.NodeId::parse("plan")
+  let node_id = @core.NodeId::NodeId("plan")
   let mut invokes = 0
   let definition = @core.GraphDefinition::GraphDefinition(
     @core.Reducer::Reducer(fn(state : Int, patch : Int) { state + patch }),
@@ -113,7 +113,7 @@ async test "llm_node 2 - applies a decoded patch through GraphRuntime" {
 ///|
 async test "llm_node 3 - stops before invocation when request building fails" {
   @async.with_task_group() <| group => {
-    let node_id = @core.NodeId::parse("build-failure")
+    let node_id = @core.NodeId::NodeId("build-failure")
     let mut invokes = 0
     let mut decodes = 0
     let node : @core.Node[Int, Int] = llm_node(
@@ -148,7 +148,7 @@ async test "llm_node 3 - stops before invocation when request building fails" {
 ///|
 async test "llm_node 4 - preserves invocation errors without decoding" {
   @async.with_task_group() <| group => {
-    let node_id = @core.NodeId::parse("invoke-failure")
+    let node_id = @core.NodeId::NodeId("invoke-failure")
     let mut decodes = 0
     let node : @core.Node[Int, Int] = llm_node(
       node_id,
@@ -181,7 +181,7 @@ async test "llm_node 4 - preserves invocation errors without decoding" {
 
 ///|
 async test "llm_node 5 - decoder failure leaves runtime state unchanged" {
-  let node_id = @core.NodeId::parse("decode-failure")
+  let node_id = @core.NodeId::NodeId("decode-failure")
   let mut reductions = 0
   let definition = @core.GraphDefinition::GraphDefinition(
     @core.Reducer::Reducer(fn(state : Int, patch : Int) {
@@ -225,7 +225,7 @@ async test "llm_node 5 - decoder failure leaves runtime state unchanged" {
 ///|
 async test "llm_node 6 - cancellation stops the in-flight invoke callback" {
   @async.with_task_group() <| group => {
-    let node_id = @core.NodeId::parse("cancel")
+    let node_id = @core.NodeId::NodeId("cancel")
     let mut started = false
     let mut completed = false
     let node : @core.Node[Int, Int] = llm_node(

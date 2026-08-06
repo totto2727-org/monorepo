@@ -60,7 +60,7 @@ async fn main {
       ),
     ],
   ]).boxed()
-  let entry = @core.NodeId::parse("llm") catch {
+  let entry = @core.NodeId::NodeId("llm") catch {
     _ => abort("static LLM node ID must be valid")
   }
   let node = @workgraph_llm.llm_node(

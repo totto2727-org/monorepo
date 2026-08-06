@@ -110,7 +110,8 @@ fn changed_files(
 ///|
 impl @coding.CodingAgentSession for CodexAgentSession with fn id(self) {
   match self.thread.id() {
-    Some(id) => Some(@coding.SessionId::parse(id) catch { _ => return None })
+    Some(id) =>
+      Some(@coding.SessionId::SessionId(id) catch { _ => return None })
     None => None
   }
 }

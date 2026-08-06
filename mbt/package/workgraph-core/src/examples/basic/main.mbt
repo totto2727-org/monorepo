@@ -50,7 +50,7 @@ fn example_reducer() -> @core.Reducer[ExampleState, String] {
 
 ///|
 fn example_id(value : String) -> @core.NodeId {
-  @core.NodeId::parse(value) catch {
+  @core.NodeId::NodeId(value) catch {
     _ => abort("static example node ID must be valid")
   }
 }

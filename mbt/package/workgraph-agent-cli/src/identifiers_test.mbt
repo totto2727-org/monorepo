@@ -5,7 +5,7 @@ test "Coding agent identifiers - non-empty strings round trip" {
     content="agent-alpha",
   )
   inspect(
-    SessionId::parse("session-alpha").to_string(),
+    SessionId::SessionId("session-alpha").to_string(),
     content="session-alpha",
   )
 }
@@ -19,7 +19,7 @@ test "Coding agent identifiers - empty strings report each wrapper kind" {
     EmptyId(kind~) => "EmptyId:\{kind}"
   }
   let session_error = try {
-    SessionId::parse("") |> ignore
+    SessionId::SessionId("") |> ignore
     "no error"
   } catch {
     EmptyId(kind~) => "EmptyId:\{kind}"

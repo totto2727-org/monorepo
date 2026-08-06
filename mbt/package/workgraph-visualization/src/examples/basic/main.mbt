@@ -23,12 +23,12 @@ fn example_node(
 ///|
 async fn main {
   @async.pause()
-  let plan = @core.NodeId::parse("01-plan")
-  let implement = @core.NodeId::parse("02-implement")
-  let verify = @core.NodeId::parse("03-test")
-  let fix = @core.NodeId::parse("04-fix")
-  let review = @core.NodeId::parse("05-review")
-  let release = @core.NodeId::parse("06-release")
+  let plan = @core.NodeId::NodeId("01-plan")
+  let implement = @core.NodeId::NodeId("02-implement")
+  let verify = @core.NodeId::NodeId("03-test")
+  let fix = @core.NodeId::NodeId("04-fix")
+  let review = @core.NodeId::NodeId("05-review")
+  let release = @core.NodeId::NodeId("06-release")
   let definition = @core.GraphDefinition::GraphDefinition(
     @core.Reducer::Reducer(fn(state, _patch) { state }),
   )

@@ -4,7 +4,9 @@ pub struct CodingAgentId {
 } derive(Eq, Hash, Debug)
 
 ///|
-pub struct SessionId(String) derive(Eq, Hash, Debug)
+pub struct SessionId {
+  value : String
+} derive(Eq, Hash, Debug)
 
 ///|
 pub suberror IdError {
@@ -30,12 +32,11 @@ pub fn CodingAgentId::to_string(self : CodingAgentId) -> String {
 }
 
 ///|
-pub fn SessionId::parse(value : String) -> SessionId raise IdError {
-  SessionId(parse_id(value, "SessionId"))
+pub fn SessionId::SessionId(value : String) -> SessionId raise IdError {
+  SessionId::{ value: parse_id(value, "SessionId") }
 }
 
 ///|
 pub fn SessionId::to_string(self : SessionId) -> String {
-  let SessionId(value) = self
-  value
+  self.value
 }

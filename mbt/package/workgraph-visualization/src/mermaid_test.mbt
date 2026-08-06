@@ -17,8 +17,8 @@ fn test_node(
 
 ///|
 test "to_mermaid - renders escaped metadata and declared routes deterministically" {
-  let first = @core.NodeId::parse("a#node")
-  let second = @core.NodeId::parse("b-node")
+  let first = @core.NodeId::NodeId("a#node")
+  let second = @core.NodeId::NodeId("b-node")
   let definition = @core.GraphDefinition::GraphDefinition(
     @core.Reducer::Reducer(fn(state, _patch) { state }),
   )
@@ -67,9 +67,9 @@ test "to_mermaid - renders escaped metadata and declared routes deterministicall
 
 ///|
 test "to_mermaid - renders a multi-target router as a branch" {
-  let first = @core.NodeId::parse("a")
-  let second = @core.NodeId::parse("b")
-  let third = @core.NodeId::parse("c")
+  let first = @core.NodeId::NodeId("a")
+  let second = @core.NodeId::NodeId("b")
+  let third = @core.NodeId::NodeId("c")
   let definition = @core.GraphDefinition::GraphDefinition(
     @core.Reducer::Reducer(fn(state, _patch) { state }),
   )

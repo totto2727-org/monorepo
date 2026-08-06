@@ -1,5 +1,7 @@
 ///|
-pub struct NodeId(String) derive(Eq, Hash, Debug)
+pub struct NodeId {
+  value : String
+} derive(Eq, Hash, Debug)
 
 ///|
 pub struct RunId(String) derive(Eq, Hash, Debug)
@@ -19,14 +21,13 @@ fn parse_id(value : String, kind : String) -> String raise IdError {
 }
 
 ///|
-pub fn NodeId::parse(value : String) -> NodeId raise IdError {
-  NodeId(parse_id(value, "NodeId"))
+pub fn NodeId::NodeId(value : String) -> NodeId raise IdError {
+  NodeId::{ value: parse_id(value, "NodeId") }
 }
 
 ///|
 pub fn NodeId::to_string(self : NodeId) -> String {
-  let NodeId(value) = self
-  value
+  self.value
 }
 
 ///|

@@ -34,7 +34,7 @@ fn to_router(target : NodeId) -> Router[Int] {
 
 ///|
 test "GraphDefinition compile GRAPH-001 - one node, router, and entry" {
-  let a = NodeId::parse("A")
+  let a = NodeId::NodeId("A")
   let definition = GraphDefinition::GraphDefinition(test_reducer())
   definition.add_node(test_node(a, []))
   definition.set_router(a, end_router())
@@ -44,7 +44,7 @@ test "GraphDefinition compile GRAPH-001 - one node, router, and entry" {
 
 ///|
 test "GraphDefinition add_node GRAPH-002 - duplicate node" {
-  let a = NodeId::parse("A")
+  let a = NodeId::NodeId("A")
   let definition = GraphDefinition::GraphDefinition(test_reducer())
   definition.add_node(test_node(a, []))
   try definition.add_node(test_node(a, [])) catch {
@@ -57,7 +57,7 @@ test "GraphDefinition add_node GRAPH-002 - duplicate node" {
 
 ///|
 test "GraphDefinition set_router GRAPH-003 - duplicate router" {
-  let a = NodeId::parse("A")
+  let a = NodeId::NodeId("A")
   let definition = GraphDefinition::GraphDefinition(test_reducer())
   definition.set_router(a, end_router())
   try definition.set_router(a, end_router()) catch {
@@ -81,7 +81,7 @@ test "GraphDefinition compile GRAPH-004 - missing entry" {
 
 ///|
 test "GraphDefinition compile GRAPH-005 - unknown entry" {
-  let unknown = NodeId::parse("unknown")
+  let unknown = NodeId::NodeId("unknown")
   let definition = GraphDefinition::GraphDefinition(test_reducer())
   definition.set_entry(unknown)
   try definition.compile() catch {
@@ -94,7 +94,7 @@ test "GraphDefinition compile GRAPH-005 - unknown entry" {
 
 ///|
 test "GraphDefinition compile GRAPH-006 - missing router" {
-  let a = NodeId::parse("A")
+  let a = NodeId::NodeId("A")
   let definition = GraphDefinition::GraphDefinition(test_reducer())
   definition.add_node(test_node(a, []))
   definition.set_entry(a)
@@ -108,8 +108,8 @@ test "GraphDefinition compile GRAPH-006 - missing router" {
 
 ///|
 test "GraphDefinition compile GRAPH-007 - unknown destination" {
-  let a = NodeId::parse("A")
-  let unknown = NodeId::parse("unknown")
+  let a = NodeId::NodeId("A")
+  let unknown = NodeId::NodeId("unknown")
   let definition = GraphDefinition::GraphDefinition(test_reducer())
   definition.add_node(test_node(a, []))
   definition.set_router(a, to_router(unknown))
@@ -127,8 +127,8 @@ test "GraphDefinition compile GRAPH-007 - unknown destination" {
 
 ///|
 test "GraphDefinition compile GRAPH-008 - unreachable node" {
-  let a = NodeId::parse("A")
-  let b = NodeId::parse("B")
+  let a = NodeId::NodeId("A")
+  let b = NodeId::NodeId("B")
   let definition = GraphDefinition::GraphDefinition(test_reducer())
   definition.add_node(test_node(a, []))
   definition.add_node(test_node(b, []))
@@ -145,8 +145,8 @@ test "GraphDefinition compile GRAPH-008 - unreachable node" {
 
 ///|
 test "GraphDefinition compile GRAPH-009 - cyclic graph" {
-  let a = NodeId::parse("A")
-  let b = NodeId::parse("B")
+  let a = NodeId::NodeId("A")
+  let b = NodeId::NodeId("B")
   let definition = GraphDefinition::GraphDefinition(test_reducer())
   definition.add_node(test_node(a, []))
   definition.add_node(test_node(b, []))
@@ -158,7 +158,7 @@ test "GraphDefinition compile GRAPH-009 - cyclic graph" {
 
 ///|
 test "GraphDefinition compile GRAPH-010 - single node routes to end" {
-  let a = NodeId::parse("A")
+  let a = NodeId::NodeId("A")
   let definition = GraphDefinition::GraphDefinition(test_reducer())
   definition.add_node(test_node(a, []))
   definition.set_router(a, end_router())
@@ -168,8 +168,8 @@ test "GraphDefinition compile GRAPH-010 - single node routes to end" {
 
 ///|
 test "GraphDefinition compile GRAPH-011 - compiled snapshot ignores builder mutation" {
-  let a = NodeId::parse("A")
-  let b = NodeId::parse("B")
+  let a = NodeId::NodeId("A")
+  let b = NodeId::NodeId("B")
   let definition = GraphDefinition::GraphDefinition(test_reducer())
   definition.add_node(test_node(a, []))
   definition.set_router(a, end_router())
@@ -189,8 +189,8 @@ test "GraphDefinition compile GRAPH-011 - compiled snapshot ignores builder muta
 
 ///|
 test "CompiledGraph queries GRAPH-012 - router targets and node tags have no mutable aliases" {
-  let a = NodeId::parse("A")
-  let b = NodeId::parse("B")
+  let a = NodeId::NodeId("A")
+  let b = NodeId::NodeId("B")
   let declared_routes = [DeclaredRoute::DeclaredRoute(b)]
   let tags = ["original"]
   let definition = GraphDefinition::GraphDefinition(test_reducer())
@@ -224,8 +224,8 @@ test "CompiledGraph queries GRAPH-012 - router targets and node tags have no mut
 
 ///|
 test "GraphDefinition compile - unknown router source" {
-  let a = NodeId::parse("A")
-  let unknown = NodeId::parse("unknown")
+  let a = NodeId::NodeId("A")
+  let unknown = NodeId::NodeId("unknown")
   let definition = GraphDefinition::GraphDefinition(test_reducer())
   definition.add_node(test_node(a, []))
   definition.set_router(a, end_router())
@@ -241,8 +241,8 @@ test "GraphDefinition compile - unknown router source" {
 
 ///|
 test "CompiledGraph snapshot - returns sorted callback-free structure" {
-  let a = NodeId::parse("A")
-  let b = NodeId::parse("B")
+  let a = NodeId::NodeId("A")
+  let b = NodeId::NodeId("B")
   let definition = GraphDefinition::GraphDefinition(test_reducer())
   definition.add_node(test_node(b, ["second"]))
   definition.add_node(test_node(a, ["first"]))

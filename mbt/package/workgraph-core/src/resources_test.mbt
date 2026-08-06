@@ -65,8 +65,8 @@ async test "ResourceStore acquire_resource 1 - reuses run resources and closes n
   let node_ref : @any_collection.AnyRef[ResourceKey, ResourceStoreTestValue] = @any_collection.AnyRef::AnyRef(
     ResourceKey::parse("node-resource"),
   )
-  let first_node = NodeId::parse("first")
-  let second_node = NodeId::parse("second")
+  let first_node = NodeId::NodeId("first")
+  let second_node = NodeId::NodeId("second")
   let close = async fn(resource : ResourceStoreTestValue) {
     @async.pause()
     closed.push(resource.label)

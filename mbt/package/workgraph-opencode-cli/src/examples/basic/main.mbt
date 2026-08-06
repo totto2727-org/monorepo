@@ -11,7 +11,7 @@ struct OpenCodeExamplePatch {
 
 ///|
 async fn main {
-  let entry = @core.NodeId::parse("opencode") catch {
+  let entry = @core.NodeId::NodeId("opencode") catch {
     _ => abort("static OpenCode node ID must be valid")
   }
   let agent = @opencode.opencode_agent(
