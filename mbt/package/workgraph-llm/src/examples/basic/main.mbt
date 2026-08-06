@@ -12,43 +12,6 @@ struct LlmExamplePatch {
 }
 
 ///|
-fn collect_result(
-  provider : @llm.BoxedProvider,
-  request : @workgraph_llm.LlmRequest,
-) -> @llm.CollectResult raise {
-  let text = StringBuilder::new()
-  let tool_calls : Array[@llm.ToolCall] = []
-  let finish_reason : Ref[@llm.FinishReason] = Ref(@llm.Stop)
-  let usage : Ref[@llm.Usage?] = Ref(None)
-  let failure : Ref[String?] = Ref(None)
-  provider.stream(request.messages, request.tools, @llm.StreamHandler::{
-    on_event: event => {
-      match event {
-        @llm.TextDelta(value) => text.write_string(value)
-        @llm.ToolCallEnd(id~, name~, input~) =>
-          tool_calls.push(@llm.ToolCall::{ id, name, input })
-        @llm.MessageEnd(finish_reason=reason, usage=reported_usage) => {
-          finish_reason.val = reason
-          usage.val = reported_usage
-        }
-        @llm.Error(message) => failure.val = Some(message)
-        _ => ()
-      }
-    },
-  })
-  match failure.val {
-    Some(message) => fail(message)
-    None =>
-      @llm.CollectResult::{
-        text: text.to_string(),
-        tool_calls,
-        finish_reason: finish_reason.val,
-        usage: usage.val,
-      }
-  }
-}
-
-///|
 async fn main {
   let provider = @llm.MockProvider::new([
     [
@@ -72,15 +35,12 @@ async fn main {
       tags=["example"],
     ),
     @workgraph_llm.LlmNodeSpec::LlmNodeSpec(
+      provider,
       fn(_context, state : LlmExampleState) {
         @workgraph_llm.LlmRequest::LlmRequest([
           @llm.Message::system("Return the configured response."),
           @llm.Message::user(state.prompt),
         ])
-      },
-      async fn(request) {
-        @async.pause()
-        collect_result(provider, request)
       },
       fn(_state, response) {
         let total_tokens = match response.usage {

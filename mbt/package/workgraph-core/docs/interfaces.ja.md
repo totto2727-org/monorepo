@@ -463,9 +463,9 @@ pub(all) struct LlmRequest {
   tools : Array[@llm.ToolDef]
 }
 
-pub(all) struct LlmNodeSpec[S, P] {
+pub struct LlmNodeSpec[S, P] {
+  provider : @llm.BoxedProvider
   build_request : (NodeContext, S) -> LlmRequest raise
-  invoke : async (LlmRequest) -> @llm.CollectResult
   decode_response : (S, @llm.CollectResult) -> NodeOutput[P] raise
 }
 
@@ -476,9 +476,9 @@ pub fn[S, P] llm_node(
 ) -> Node[S, P]
 ```
 
-コールバック境界により、プロバイダー生成とターゲット固有のトランスポートをグラフパッケージの外に保ちながら、決定論的なフェイクを利用できます。
+呼び出し側は任意の `mizchi/llm` プロバイダーを構築し、provider packageが公開するadapterでbox化してspecificationへ渡します。`workgraph-llm` がプロバイダーを呼び出してstreamを収集し、2つのcallbackはapp固有のstateからrequestへの変換とresponseからoutputへの変換だけを保持します。
 
-コールバックがraiseしたプロバイダーエラーはグラフノード失敗として保持されます。`mizchi/llm` のストリームエラーはコールバック実装で明示的に変換する必要があります。
+`mizchi/llm` のstream errorは `LlmNodeError::ProviderFailed` へ変換され、graph node failureとして保持されます。
 
 ## コーディングエージェントのリクエストとレスポンス
 

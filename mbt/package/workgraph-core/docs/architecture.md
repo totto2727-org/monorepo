@@ -21,7 +21,7 @@ The runtime executes a typed state machine whose transitions form a validated di
 The MVP supports three execution semantics:
 
 - A function node runs an arbitrary MoonBit callback.
-- An LLM node invokes a supplied async callback using mizchi/llm request and result types.
+- An LLM node invokes a supplied mizchi/llm provider and collects its result.
 - A coding-agent node delegates workspace work to either Codex or OpenCode.
 
 Node categories are based on execution semantics rather than transport.
@@ -218,14 +218,14 @@ It may perform I/O, but routing-only logic belongs in the router.
 An LLM node:
 
 - Builds a typed `LlmRequest` from state using mizchi/llm message and tool types.
-- Calls a supplied async provider boundary.
+- Invokes the configured provider and collects its stream.
 - Decodes the response into a node output.
 
-The callback returns a mizchi/llm `CollectResult`, so its decoder can preserve text, tool calls, finish reason, and usage information in the typed patch, graph state, or optional node value; the node does not automatically emit usage.
+The node produces a mizchi/llm `CollectResult`, so its decoder can preserve text, tool calls, finish reason, and usage information in the typed patch, graph state, or optional node value; the node does not automatically emit usage.
 
-The caller owns provider construction and target-specific transport behavior.
+The caller owns provider construction and target-specific transport configuration, while `workgraph-llm` owns invocation, stream collection, and stream-error conversion.
 
-The core package receives an async callback so tests can supply deterministic fakes.
+Tests can supply any deterministic implementation of the open mizchi/llm `Provider` trait.
 
 ### Coding-Agent Node
 

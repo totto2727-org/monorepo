@@ -16,32 +16,75 @@ pub fn LlmRequest::LlmRequest(
 
 ///|
 pub struct LlmNodeSpec[S, P] {
+  provider : @llm.BoxedProvider
   build_request : (@core.NodeContext, S) -> LlmRequest raise
-  invoke : async (LlmRequest) -> @llm.CollectResult
   decode_response : (S, @llm.CollectResult) -> @core.NodeOutput[P] raise
 }
 
 ///|
-/// Creates the callbacks used by an LLM graph node.
-pub fn[S, P] LlmNodeSpec::LlmNodeSpec(
-  build_request : (@core.NodeContext, S) -> LlmRequest raise,
-  invoke : async (LlmRequest) -> @llm.CollectResult,
-  decode_response : (S, @llm.CollectResult) -> @core.NodeOutput[P] raise,
-) -> LlmNodeSpec[S, P] {
-  LlmNodeSpec::{ build_request, invoke, decode_response }
+/// Raised when an LLM provider reports a stream failure.
+pub suberror LlmNodeError {
+  ProviderFailed(String)
+} derive(Debug)
+
+///|
+fn collect_response(
+  provider : @llm.BoxedProvider,
+  request : LlmRequest,
+) -> @llm.CollectResult raise LlmNodeError {
+  let text = StringBuilder::new()
+  let tool_calls : Array[@llm.ToolCall] = []
+  let finish_reason : Ref[@llm.FinishReason] = Ref(@llm.Stop)
+  let usage : Ref[@llm.Usage?] = Ref(None)
+  let failure : Ref[String?] = Ref(None)
+  provider.stream(request.messages, request.tools, @llm.StreamHandler::{
+    on_event: event => {
+      match event {
+        @llm.TextDelta(value) => text.write_string(value)
+        @llm.ToolCallEnd(id~, name~, input~) =>
+          tool_calls.push(@llm.ToolCall::{ id, name, input })
+        @llm.MessageEnd(finish_reason=reason, usage=reported_usage) => {
+          finish_reason.val = reason
+          usage.val = reported_usage
+        }
+        @llm.Error(message) => failure.val = Some(message)
+        _ => ()
+      }
+    },
+  })
+  match failure.val {
+    Some(message) => raise ProviderFailed(message)
+    None =>
+      @llm.CollectResult::{
+        text: text.to_string(),
+        tool_calls,
+        finish_reason: finish_reason.val,
+        usage: usage.val,
+      }
+  }
 }
 
 ///|
-/// Create a graph node that builds an LLM request, invokes a provider callback,
-/// and decodes its result.
+/// Creates a provider-backed LLM graph-node specification.
+pub fn[S, P] LlmNodeSpec::LlmNodeSpec(
+  provider : @llm.BoxedProvider,
+  build_request : (@core.NodeContext, S) -> LlmRequest raise,
+  decode_response : (S, @llm.CollectResult) -> @core.NodeOutput[P] raise,
+) -> LlmNodeSpec[S, P] {
+  LlmNodeSpec::{ provider, build_request, decode_response }
+}
+
+///|
+/// Creates a graph node that builds a request, invokes its provider, and
+/// decodes the collected response.
 pub fn[S, P] llm_node(
   id : @core.NodeId,
   metadata : @core.NodeMetadata,
   spec : LlmNodeSpec[S, P],
 ) -> @core.Node[S, P] {
-  @core.Node::Node(id, metadata, async fn(context, state) {
+  @core.Node::Node(id, metadata, fn(context, state) raise {
     let request = (spec.build_request)(context, state)
-    let response = (spec.invoke)(request)
+    let response = collect_response(spec.provider, request)
     (spec.decode_response)(state, response)
   })
 }

@@ -21,7 +21,7 @@ core runtime、LLM node、visualizationモジュールはnativeとJavaScript tar
 MVP は次の3つの実行セマンティクスをサポートします。
 
 - ファンクションノードは、任意の MoonBit コールバックを実行します。
-- LLMノードは、mizchi/llmのリクエスト型と結果型を使用して、注入された非同期コールバックを呼び出します。
+- LLMノードは、注入されたmizchi/llm providerを呼び出してresultを収集します。
 - コーディングエージェントノードは、Codex または OpenCode のいずれかにワークスペース作業を委任します。
 
 ノードカテゴリは、トランスポートではなく実行セマンティクスに基づいています。
@@ -218,14 +218,14 @@ I/O を実行することもありますが、ルーティングのみのロジ�
 LLM ノードは以下を実行します。
 
 - 状態からmizchi/llmのメッセージ型とツール型を使用した型付き `LlmRequest` を構築します。
-- 注入された非同期プロバイダー境界を呼び出します。
+- 設定されたproviderを呼び出してstreamを収集します。
 - レスポンスをノード出力にデコードします。
 
-コールバックはmizchi/llm `CollectResult` を返すため、グラフ作成者が必要とする場合、そのデコーダーはテキスト、ツール呼び出し、終了理由、使用量を型付きpatch、graph state、またはoptional node valueに保持できます。ノードは使用量を自動的には出力しません。
+ノードはmizchi/llm `CollectResult` を生成するため、グラフ作成者が必要とする場合、そのデコーダーはテキスト、ツール呼び出し、終了理由、使用量を型付きpatch、graph state、またはoptional node valueに保持できます。ノードは使用量を自動的には出力しません。
 
-呼び出し側がプロバイダー生成とtarget固有のトランスポート動作を所有します。
+呼び出し側がproviderの生成とtarget固有のtransport設定を所有し、`workgraph-llm` が呼び出し、stream収集、stream error変換を所有します。
 
-コアパッケージは非同期コールバックを受け取るため、テストは決定論的な偽装を提供できます。
+テストはopenなmizchi/llm `Provider` traitの任意の決定論的実装を渡せます。
 
 ### コーディングエージェントノード
 

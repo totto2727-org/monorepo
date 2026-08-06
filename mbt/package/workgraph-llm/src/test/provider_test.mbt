@@ -12,50 +12,7 @@ struct LocalLlmPatch {
 } derive(Debug)
 
 ///|
-suberror LocalLlmError {
-  ProviderFailed(String)
-} derive(Debug)
-
-///|
-fn collect_provider(
-  provider : @llm.BoxedProvider,
-  request : @workgraph_llm.LlmRequest,
-) -> @llm.CollectResult raise {
-  let text = StringBuilder::new()
-  let tool_calls : Array[@llm.ToolCall] = []
-  let finish_reason : Ref[@llm.FinishReason] = Ref(@llm.Stop)
-  let usage : Ref[@llm.Usage?] = Ref(None)
-  let failure : Ref[String?] = Ref(None)
-  provider.stream(request.messages, request.tools, @llm.StreamHandler::{
-    on_event: event => {
-      match event {
-        @llm.TextDelta(value) => text.write_string(value)
-        @llm.ToolCallEnd(id~, name~, input~) =>
-          tool_calls.push(@llm.ToolCall::{ id, name, input })
-        @llm.MessageEnd(finish_reason=reason, usage=reported_usage) => {
-          finish_reason.val = reason
-          usage.val = reported_usage
-        }
-        @llm.Error(message) => failure.val = Some(message)
-        _ => ()
-      }
-    },
-  })
-  match failure.val {
-    Some(message) => raise ProviderFailed(message)
-    None =>
-      @llm.CollectResult::{
-        text: text.to_string(),
-        tool_calls,
-        finish_reason: finish_reason.val,
-        usage: usage.val,
-      }
-  }
-}
-
-///|
 async test "llm_node integration 1 - maps a mizchi/llm provider result into graph state" {
-  let requests : Array[@workgraph_llm.LlmRequest] = []
   let completion_values : Array[String] = []
   let provider = @llm.MockProvider::new([
     [
@@ -77,16 +34,12 @@ async test "llm_node integration 1 - maps a mizchi/llm provider result into grap
       tags=["integration"],
     ),
     @workgraph_llm.LlmNodeSpec::LlmNodeSpec(
+      provider,
       fn(_context, state : LocalLlmState) {
         @workgraph_llm.LlmRequest::LlmRequest([
           @llm.Message::system("Return the deterministic result."),
           @llm.Message::user(state.prompt),
         ])
-      },
-      async fn(request) {
-        requests.push(request)
-        @async.pause()
-        collect_provider(provider, request)
       },
       fn(_state, response) {
         let total_tokens = match response.usage {
@@ -133,13 +86,5 @@ async test "llm_node integration 1 - maps a mizchi/llm provider result into grap
   inspect(result.final_state.answer, content="completed")
   inspect(result.final_state.total_tokens, content="6")
   inspect(result.steps, content="1")
-  inspect(requests.length(), content="1")
-  inspect(requests[0].messages.length(), content="2")
-  inspect(
-    requests[0].messages[0].get_text(),
-    content="Return the deterministic result.",
-  )
-  inspect(requests[0].messages[1].get_text(), content="local prompt")
-  inspect(requests[0].tools.length(), content="0")
   inspect(completion_values.join(","), content="completed")
 }

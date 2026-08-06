@@ -463,9 +463,9 @@ pub(all) struct LlmRequest {
   tools : Array[@llm.ToolDef]
 }
 
-pub(all) struct LlmNodeSpec[S, P] {
+pub struct LlmNodeSpec[S, P] {
+  provider : @llm.BoxedProvider
   build_request : (NodeContext, S) -> LlmRequest raise
-  invoke : async (LlmRequest) -> @llm.CollectResult
   decode_response : (S, @llm.CollectResult) -> NodeOutput[P] raise
 }
 
@@ -476,9 +476,9 @@ pub fn[S, P] llm_node(
 ) -> Node[S, P]
 ```
 
-The callback boundary keeps provider construction and target-specific transport outside the graph package while allowing deterministic fakes.
+The caller constructs any `mizchi/llm` provider, boxes it with the provider package's public adapter, and passes it to the specification. `workgraph-llm` invokes the provider and collects its stream, while the two callbacks retain only application-specific state-to-request and response-to-output mapping.
 
-Provider errors raised by the callback remain graph node failures; `mizchi/llm` stream errors must be mapped explicitly by the callback implementation.
+`mizchi/llm` stream errors are converted to `LlmNodeError::ProviderFailed` and remain graph node failures.
 
 ## Coding-Agent Request and Response
 
