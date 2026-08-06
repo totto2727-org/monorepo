@@ -247,7 +247,7 @@ v2ロックは厳格に扱い、データを持つEnum variantには最上位の
       "type": "github",
       "repository": "totto2727-org/monorepo",
       "marketplaceKind": "claude",
-      "commit": "0123456789abcdef",
+      "commit": "0123456789abcdef0123456789abcdef01234567",
       "plugins": [
         {
           "name": "totto2727-coding",

@@ -247,7 +247,7 @@ The v2 lock is strict and uses a top-level discriminator for data-carrying enum 
       "type": "github",
       "repository": "totto2727-org/monorepo",
       "marketplaceKind": "claude",
-      "commit": "0123456789abcdef",
+      "commit": "0123456789abcdef0123456789abcdef01234567",
       "plugins": [
         {
           "name": "totto2727-coding",
