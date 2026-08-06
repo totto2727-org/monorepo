@@ -1,11 +1,9 @@
-//go:build e2e
-
 package example
 
 import (
 	"testing"
 
-	"github.com/totto2727-org/monorepo/go/e2e/cli"
+	"github.com/totto2727-org/monorepo/go/package/e2e/cli"
 )
 
 func TestCLI(t *testing.T) {
