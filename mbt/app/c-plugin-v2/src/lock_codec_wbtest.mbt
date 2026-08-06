@@ -1,4 +1,16 @@
 ///|
+fn expect_lock_json_rejection(
+  action : () -> Unit raise,
+  detail : String,
+) -> Unit raise {
+  try action() catch {
+    _ => ()
+  } noraise {
+    _ => fail("expected JSON rejection: \{detail}")
+  }
+}
+
+///|
 let canonical_lock_json =
   #|{
   #|  "version": 2,
@@ -67,18 +79,6 @@ test "Lock FromJson - nested failure preserves JSON path" {
 }
 
 ///|
-test "panic_Lock FromJson - unknown repository type is rejected" {
-  let text = "{\"version\":2,\"targets\":[],\"repositories\":[{\"type\":\"gitlab\"}]}"
-  try! ((@json.from_json(@json.parse(text)) : Lock) |> ignore)
-}
-
-///|
-test "panic_Lock FromJson - repository type has wrong JSON type" {
-  let text = "{\"version\":2,\"targets\":[],\"repositories\":[{\"type\":1}]}"
-  try! ((@json.from_json(@json.parse(text)) : Lock) |> ignore)
-}
-
-///|
 test "Lock FromJson - unsupported version preserves input" {
   let text = "{\"version\":3,\"targets\":[],\"repositories\":[]}"
   let json = @json.parse(text)
@@ -114,26 +114,54 @@ test "LockRepository FromJson - dispatches each top-level type" {
 }
 
 ///|
-test "panic_GitHubLockRepository FromJson - missing commit is rejected" {
-  let text = "{\"type\":\"github\",\"repository\":\"openai/codex\",\"marketplaceKind\":\"codex\",\"plugins\":[]}"
-  try! ((@json.from_json(@json.parse(text)) : GitHubLockRepository) |> ignore)
-}
-
-///|
-test "panic_GitHubLockRepository FromJson - null commit is rejected" {
-  let text = "{\"type\":\"github\",\"repository\":\"openai/codex\",\"marketplaceKind\":\"codex\",\"commit\":null,\"plugins\":[]}"
-  try! ((@json.from_json(@json.parse(text)) : GitHubLockRepository) |> ignore)
-}
-
-///|
-test "panic_MarketplaceKind FromJson - unknown value is rejected" {
-  try! ((@json.from_json(@json.parse("\"unknown\"")) : MarketplaceKind)
-  |> ignore)
-}
-
-///|
-test "panic_Lock FromJson - duplicate repository identity is rejected" {
-  let text =
-    #|{"version":2,"targets":[],"repositories":[{"type":"github","repository":"OpenAI/Codex","marketplaceKind":"codex","commit":"0123456789abcdef0123456789abcdef01234567","plugins":[]},{"type":"github","repository":"openai/codex","marketplaceKind":"claude","commit":"fedcba9876543210fedcba9876543210fedcba98","plugins":[]}]}
-  try! ((@json.from_json(@json.parse(text)) : Lock) |> ignore)
+test "lock FromJson - rejects strict schema failures" {
+  expect_lock_json_rejection(
+    fn() -> Unit raise {
+      let text = "{\"version\":2,\"targets\":[],\"repositories\":[{\"type\":\"gitlab\"}]}"
+      (@json.from_json(@json.parse(text)) : Lock) |> ignore
+    },
+    "unknown repository type",
+  )
+  expect_lock_json_rejection(
+    fn() -> Unit raise {
+      let text = "{\"version\":2,\"targets\":[],\"repositories\":[{\"type\":1}]}"
+      (@json.from_json(@json.parse(text)) : Lock) |> ignore
+    },
+    "repository type with wrong JSON type",
+  )
+  expect_lock_json_rejection(
+    fn() -> Unit raise {
+      let text = "{\"version\":2.5,\"targets\":[],\"repositories\":[]}"
+      (@json.from_json(@json.parse(text)) : Lock) |> ignore
+    },
+    "fractional lock version",
+  )
+  expect_lock_json_rejection(
+    fn() -> Unit raise {
+      let text = "{\"type\":\"github\",\"repository\":\"openai/codex\",\"marketplaceKind\":\"codex\",\"plugins\":[]}"
+      (@json.from_json(@json.parse(text)) : GitHubLockRepository) |> ignore
+    },
+    "missing GitHub commit",
+  )
+  expect_lock_json_rejection(
+    fn() -> Unit raise {
+      let text = "{\"type\":\"github\",\"repository\":\"openai/codex\",\"marketplaceKind\":\"codex\",\"commit\":null,\"plugins\":[]}"
+      (@json.from_json(@json.parse(text)) : GitHubLockRepository) |> ignore
+    },
+    "null GitHub commit",
+  )
+  expect_lock_json_rejection(
+    fn() -> Unit raise {
+      (@json.from_json(@json.parse("\"unknown\"")) : MarketplaceKind) |> ignore
+    },
+    "unknown marketplace kind",
+  )
+  expect_lock_json_rejection(
+    fn() -> Unit raise {
+      let text =
+        #|{"version":2,"targets":[],"repositories":[{"type":"github","repository":"OpenAI/Codex","marketplaceKind":"codex","commit":"0123456789abcdef0123456789abcdef01234567","plugins":[]},{"type":"github","repository":"openai/codex","marketplaceKind":"claude","commit":"fedcba9876543210fedcba9876543210fedcba98","plugins":[]}]}
+      (@json.from_json(@json.parse(text)) : Lock) |> ignore
+    },
+    "duplicate repository identity",
+  )
 }
