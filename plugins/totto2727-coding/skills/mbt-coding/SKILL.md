@@ -19,7 +19,7 @@ All references below are concrete MoonBit implementation guidance. Conceptual gu
 ## Language conventions
 
 - [`style.md`](references/style.md) — documentation, project README layout, identifiers, callbacks, and ignored results.
-- [`visibility.md`](references/visibility.md) — public type construction, open extension boundaries, and test visibility.
+- [`visibility.md`](references/visibility.md) — public type construction, direct readonly field access, `priv` exceptions, open extension boundaries, and test visibility.
 - [`constructors.md`](references/constructors.md) — canonical constructors and factories.
 - [`updates.md`](references/updates.md) — immutable value updates and mutable builder updates.
 - [`sequences.md`](references/sequences.md) — Array and Iter return shapes.
