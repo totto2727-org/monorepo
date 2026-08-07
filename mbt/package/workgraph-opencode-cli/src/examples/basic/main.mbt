@@ -33,12 +33,12 @@ async fn main {
       tags=["example", "opencode"],
     ),
     @coding.CodingAgentNodeSpec::CodingAgentNodeSpec(
-      agent,
-      @core.ResourceKey::ResourceKey("opencode-session") catch {
+      agent~,
+      resource_key=@core.ResourceKey::ResourceKey("opencode-session") catch {
         _ => abort("static OpenCode resource key must be valid")
       },
-      @core.Run,
-      fn(context, _state) {
+      resource_scope=@core.Run,
+      open_context=fn(context, _state) {
         @coding.CodingAgentOpenContext::CodingAgentOpenContext(
           run_id=context.run_id,
           task_group=context.task_group,
@@ -49,10 +49,10 @@ async fn main {
           events=context.events,
         )
       },
-      fn(_context, state : OpenCodeExampleState) {
+      build_request=fn(_context, state : OpenCodeExampleState) {
         @coding.CodingAgentRequest::CodingAgentRequest(state.instruction, [])
       },
-      fn(_state, response) {
+      decode_response=fn(_state, response) {
         let summary = response.summary.unwrap_or("")
         @core.NodeOutput::NodeOutput(
           Some(OpenCodeExamplePatch::{ summary, }),

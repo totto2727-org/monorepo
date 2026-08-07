@@ -237,16 +237,16 @@ async test "codex_agent integration 3 - caller cancellation kills the started su
             tags=["integration"],
           ),
           @coding_agent.CodingAgentNodeSpec::CodingAgentNodeSpec(
-            codex_integration_agent(fixture),
-            @core.ResourceKey::ResourceKey("codex-cancel"),
-            @core.Run,
-            fn(context, _state) {
+            agent=codex_integration_agent(fixture),
+            resource_key=@core.ResourceKey::ResourceKey("codex-cancel"),
+            resource_scope=@core.Run,
+            open_context=fn(context, _state) {
               codex_integration_context(fixture, context.task_group, "pause")
             },
-            fn(_context, _state) {
+            build_request=fn(_context, _state) {
               @coding_agent.CodingAgentRequest::CodingAgentRequest("cancel", [])
             },
-            fn(_state, _response) {
+            decode_response=fn(_state, _response) {
               @core.NodeOutput::NodeOutput(Some(1), None)
             },
           ),

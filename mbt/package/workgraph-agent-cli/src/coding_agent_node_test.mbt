@@ -119,7 +119,7 @@ async test "coding_agent_node 1 - executes and decodes continuation and changed 
       node_id,
       coding_agent_node_metadata("coding-agent-success"),
       CodingAgentNodeSpec::CodingAgentNodeSpec(
-        CodingAgent::CodingAgent(CodingAgentId::CodingAgentId("fake"), async fn(
+        agent=CodingAgent::CodingAgent(CodingAgentId::CodingAgentId("fake"), async fn(
           _context,
         ) {
           @async.pause()
@@ -131,15 +131,15 @@ async test "coding_agent_node 1 - executes and decodes continuation and changed 
           }
           (session : &CodingAgentSession)
         }),
-        @core.ResourceKey::ResourceKey("coding-agent-success"),
-        @core.Node,
-        fn(_context, _state) { coding_agent_open_context(group) },
-        fn(_context, state) {
+        resource_key=@core.ResourceKey::ResourceKey("coding-agent-success"),
+        resource_scope=@core.Node,
+        open_context=fn(_context, _state) { coding_agent_open_context(group) },
+        build_request=fn(_context, state) {
           CodingAgentRequest::CodingAgentRequest("apply-\{state}", [
             @path.Path("README.md"),
           ])
         },
-        fn(_state, response) {
+        decode_response=fn(_state, response) {
           let continuation = response.continuation_id.unwrap_or("missing")
           decoded.push(
             "\{continuation}:\{response.changed_files[0].to_string()}",
@@ -177,7 +177,7 @@ async test "coding_agent_node 2 - reuses a run session through two GraphRuntime 
     node_id,
     coding_agent_node_metadata("coding-agent-run"),
     CodingAgentNodeSpec::CodingAgentNodeSpec(
-      CodingAgent::CodingAgent(CodingAgentId::CodingAgentId("fake-run"), async fn(
+      agent=CodingAgent::CodingAgent(CodingAgentId::CodingAgentId("fake-run"), async fn(
         _context,
       ) {
         @async.pause()
@@ -189,13 +189,17 @@ async test "coding_agent_node 2 - reuses a run session through two GraphRuntime 
         }
         (session : &CodingAgentSession)
       }),
-      @core.ResourceKey::ResourceKey("coding-agent-run"),
-      @core.Run,
-      fn(context, _state) { coding_agent_open_context(context.task_group) },
-      fn(_context, state) {
+      resource_key=@core.ResourceKey::ResourceKey("coding-agent-run"),
+      resource_scope=@core.Run,
+      open_context=fn(context, _state) {
+        coding_agent_open_context(context.task_group)
+      },
+      build_request=fn(_context, state) {
         CodingAgentRequest::CodingAgentRequest("step-\{state}", [])
       },
-      fn(_state, _response) { @core.NodeOutput::NodeOutput(Some(1), None) },
+      decode_response=fn(_state, _response) {
+        @core.NodeOutput::NodeOutput(Some(1), None)
+      },
     ),
   )
   let definition = @core.GraphDefinition::GraphDefinition(
@@ -236,38 +240,39 @@ async fn coding_agent_node_assert_phase(
       node_id,
       coding_agent_node_metadata("coding-agent-phase"),
       CodingAgentNodeSpec::CodingAgentNodeSpec(
-        CodingAgent::CodingAgent(CodingAgentId::CodingAgentId("fake-phase"), async fn(
-          _context,
-        ) {
-          @async.pause()
-          calls.push("open")
-          if phase == Open {
-            raise OpenFailed
-          }
-          let session = CodingAgentNodeFakeSession::{
-            executions: calls,
-            closed: calls,
-            fail_execute: phase == Execute,
-          }
-          (session : &CodingAgentSession)
-        }),
-        @core.ResourceKey::ResourceKey("coding-agent-phase"),
-        @core.Node,
-        (_context, _state) => {
+        agent=CodingAgent::CodingAgent(
+          CodingAgentId::CodingAgentId("fake-phase"),
+          async fn(_context) {
+            @async.pause()
+            calls.push("open")
+            if phase == Open {
+              raise OpenFailed
+            }
+            let session = CodingAgentNodeFakeSession::{
+              executions: calls,
+              closed: calls,
+              fail_execute: phase == Execute,
+            }
+            (session : &CodingAgentSession)
+          },
+        ),
+        resource_key=@core.ResourceKey::ResourceKey("coding-agent-phase"),
+        resource_scope=@core.Node,
+        open_context=(_context, _state) => {
           calls.push("open-context")
           if phase == OpenContext {
             raise OpenContextFailed
           }
           coding_agent_open_context(group)
         },
-        (_context, _state) => {
+        build_request=(_context, _state) => {
           calls.push("request")
           if phase == Request {
             raise RequestBuildFailed
           }
           CodingAgentRequest::CodingAgentRequest("phase", [])
         },
-        (_state, _response) => {
+        decode_response=(_state, _response) => {
           calls.push("decode")
           if phase == Decode {
             raise DecodeFailed
@@ -324,28 +329,31 @@ async test "coding_agent_node 4 - retries an open failure without caching it" {
       node_id,
       coding_agent_node_metadata("coding-agent-open-retry"),
       CodingAgentNodeSpec::CodingAgentNodeSpec(
-        CodingAgent::CodingAgent(CodingAgentId::CodingAgentId("fake-retry"), async fn(
-          _context,
-        ) {
-          @async.pause()
-          opens = opens + 1
-          if opens == 1 {
-            raise OpenFailed
-          }
-          let session = CodingAgentNodeFakeSession::{
-            executions,
-            closed,
-            fail_execute: false,
-          }
-          (session : &CodingAgentSession)
-        }),
-        @core.ResourceKey::ResourceKey("coding-agent-open-retry"),
-        @core.Run,
-        fn(_context, _state) { coding_agent_open_context(group) },
-        fn(_context, _state) {
+        agent=CodingAgent::CodingAgent(
+          CodingAgentId::CodingAgentId("fake-retry"),
+          async fn(_context) {
+            @async.pause()
+            opens = opens + 1
+            if opens == 1 {
+              raise OpenFailed
+            }
+            let session = CodingAgentNodeFakeSession::{
+              executions,
+              closed,
+              fail_execute: false,
+            }
+            (session : &CodingAgentSession)
+          },
+        ),
+        resource_key=@core.ResourceKey::ResourceKey("coding-agent-open-retry"),
+        resource_scope=@core.Run,
+        open_context=fn(_context, _state) { coding_agent_open_context(group) },
+        build_request=fn(_context, _state) {
           CodingAgentRequest::CodingAgentRequest("retry", [])
         },
-        fn(_state, _response) { @core.NodeOutput::NodeOutput(Some(1), None) },
+        decode_response=fn(_state, _response) {
+          @core.NodeOutput::NodeOutput(Some(1), None)
+        },
       ),
     )
     let first = try {
@@ -483,14 +491,16 @@ fn w6_lifecycle_runtime(
       node_id,
       w6_lifecycle_metadata(),
       CodingAgentNodeSpec::CodingAgentNodeSpec(
-        agent,
-        @core.ResourceKey::ResourceKey("lifecycle-session"),
-        scope,
-        w6_open_context,
-        fn(_context, state : Int) {
+        agent~,
+        resource_key=@core.ResourceKey::ResourceKey("lifecycle-session"),
+        resource_scope=scope,
+        open_context=w6_open_context,
+        build_request=fn(_context, state : Int) {
           CodingAgentRequest::CodingAgentRequest("state=\{state}", [])
         },
-        fn(_state, _response) { @core.NodeOutput::NodeOutput(Some(1), None) },
+        decode_response=fn(_state, _response) {
+          @core.NodeOutput::NodeOutput(Some(1), None)
+        },
       ),
     ),
   )

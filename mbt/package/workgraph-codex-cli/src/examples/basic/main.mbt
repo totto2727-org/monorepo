@@ -35,12 +35,12 @@ async fn main {
       tags=["example", "codex"],
     ),
     @coding.CodingAgentNodeSpec::CodingAgentNodeSpec(
-      agent,
-      @core.ResourceKey::ResourceKey("codex-session") catch {
+      agent~,
+      resource_key=@core.ResourceKey::ResourceKey("codex-session") catch {
         _ => abort("static Codex resource key must be valid")
       },
-      @core.Run,
-      fn(context, _state) {
+      resource_scope=@core.Run,
+      open_context=fn(context, _state) {
         @coding.CodingAgentOpenContext::CodingAgentOpenContext(
           run_id=context.run_id,
           task_group=context.task_group,
@@ -51,10 +51,10 @@ async fn main {
           events=context.events,
         )
       },
-      fn(_context, state : CodexExampleState) {
+      build_request=fn(_context, state : CodexExampleState) {
         @coding.CodingAgentRequest::CodingAgentRequest(state.instruction, [])
       },
-      fn(_state, response) {
+      decode_response=fn(_state, response) {
         let summary = response.summary.unwrap_or("")
         @core.NodeOutput::NodeOutput(
           Some(CodexExamplePatch::{ summary, }),
