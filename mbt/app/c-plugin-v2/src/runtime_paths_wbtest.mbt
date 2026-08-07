@@ -3,12 +3,9 @@ test "RuntimePaths RuntimePaths - normalizes injected synthetic roots" {
   let paths = RuntimePaths::RuntimePaths(
     "/synthetic/home/./workspace/..", "/synthetic/work/../work/project", "/synthetic/cache/./repositories",
   )
-  inspect(paths.home().to_string(), content="/synthetic/home")
-  inspect(paths.cwd().to_string(), content="/synthetic/work/project")
-  inspect(
-    paths.cache_root().to_string(),
-    content="/synthetic/cache/repositories",
-  )
+  inspect(paths.home.to_string(), content="/synthetic/home")
+  inspect(paths.cwd.to_string(), content="/synthetic/work/project")
+  inspect(paths.cache_root.to_string(), content="/synthetic/cache/repositories")
 }
 
 ///|
@@ -55,10 +52,7 @@ test "RuntimePaths RuntimePaths - retains the injected cache root" {
   let paths = RuntimePaths::RuntimePaths(
     "/synthetic/home", "/synthetic/work", "/synthetic/cache/repositories",
   )
-  inspect(
-    paths.cache_root().to_string(),
-    content="/synthetic/cache/repositories",
-  )
+  inspect(paths.cache_root.to_string(), content="/synthetic/cache/repositories")
 }
 
 ///|
