@@ -56,7 +56,7 @@ test "identity FromJson - rejects invalid boundary values" {
 ///|
 test "Target FromJson and ToJson - preserves Path value" {
   let target : Target = @json.from_json(@json.parse("\".agents/skills\""))
-  inspect(target.path().to_string(), content=".agents/skills")
+  inspect(target.path.to_string(), content=".agents/skills")
   let decoded : Target = @json.from_json(target.to_json())
   inspect(decoded == target, content="true")
 }
@@ -101,11 +101,11 @@ test "Lock FromJson and ToJson - canonical round trip preserves order" {
   inspect(lock.to_pretty_json(), content=canonical_lock_json + "\n")
   let decoded : Lock = @json.from_json(lock.to_json())
   inspect(decoded == lock, content="true")
-  inspect(decoded.targets[0].path().to_string(), content=".agents/skills")
-  match decoded.repositories[0] {
+  inspect(decoded.targets()[0].path.to_string(), content=".agents/skills")
+  match decoded.repositories()[0] {
     GitHub(repository) =>
       inspect(
-        repository.plugins[0].enabled_skills[0].value(),
+        repository.plugins()[0].enabled_skills()[0].value,
         content="install",
       )
     Local(_) => fail("first repository must remain GitHub")

@@ -8,7 +8,7 @@ pub impl @json.FromJson for GitHubOwner with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for GitHubOwner with fn to_json(self) -> Json {
-  self.value().to_json()
+  self.value.to_json()
 }
 
 ///|
@@ -21,7 +21,7 @@ pub impl @json.FromJson for GitHubRepositoryName with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for GitHubRepositoryName with fn to_json(self) -> Json {
-  self.value().to_json()
+  self.value.to_json()
 }
 
 ///|
@@ -47,7 +47,7 @@ pub impl @json.FromJson for Target with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for Target with fn to_json(self) -> Json {
-  self.path().to_string().to_json()
+  self.path.to_string().to_json()
 }
 
 ///|
@@ -60,7 +60,7 @@ pub impl @json.FromJson for RelativeSourcePath with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for RelativeSourcePath with fn to_json(self) -> Json {
-  self.path().to_string().to_json()
+  self.path.to_string().to_json()
 }
 
 ///|
@@ -73,7 +73,7 @@ pub impl @json.FromJson for RelativePluginPath with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for RelativePluginPath with fn to_json(self) -> Json {
-  self.path().to_string().to_json()
+  self.path.to_string().to_json()
 }
 
 ///|
@@ -86,7 +86,7 @@ pub impl @json.FromJson for PluginName with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for PluginName with fn to_json(self) -> Json {
-  self.value().to_json()
+  self.value.to_json()
 }
 
 ///|
@@ -99,7 +99,7 @@ pub impl @json.FromJson for SkillName with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for SkillName with fn to_json(self) -> Json {
-  self.value().to_json()
+  self.value.to_json()
 }
 
 ///|
@@ -112,7 +112,7 @@ pub impl @json.FromJson for CommitId with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for CommitId with fn to_json(self) -> Json {
-  self.value().to_json()
+  self.value.to_json()
 }
 
 ///|
