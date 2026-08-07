@@ -19,11 +19,6 @@ pub fn GitHubOwner::GitHubOwner(value : String) -> GitHubOwner raise {
 }
 
 ///|
-pub fn GitHubOwner::value(self : GitHubOwner) -> String {
-  self.value
-}
-
-///|
 pub struct GitHubRepositoryName {
   value : String
 } derive(Eq)
@@ -46,11 +41,6 @@ pub fn GitHubRepositoryName::GitHubRepositoryName(
     fail("GitHub repository name contains an unsupported character")
   }
   { value: value.to_lower() }
-}
-
-///|
-pub fn GitHubRepositoryName::value(self : GitHubRepositoryName) -> String {
-  self.value
 }
 
 ///|
@@ -83,18 +73,8 @@ pub fn GitHubRepository::from_route(route : String) -> GitHubRepository raise {
 }
 
 ///|
-pub fn GitHubRepository::owner(self : GitHubRepository) -> GitHubOwner {
-  self.owner
-}
-
-///|
-pub fn GitHubRepository::name(self : GitHubRepository) -> GitHubRepositoryName {
-  self.name
-}
-
-///|
 pub fn GitHubRepository::route(self : GitHubRepository) -> String {
-  "\{self.owner.value()}/\{self.name.value()}"
+  "\{self.owner.value}/\{self.name.value}"
 }
 
 ///|
@@ -106,11 +86,6 @@ pub struct Target {
 pub fn Target::Target(path : @path.Path) -> Target raise {
   guard path.to_string() != "" else { fail("target path must not be empty") }
   { path: path.normalize() }
-}
-
-///|
-pub fn Target::path(self : Target) -> @path.Path {
-  self.path
 }
 
 ///|
@@ -127,11 +102,6 @@ pub fn RelativeSourcePath::RelativeSourcePath(
 }
 
 ///|
-pub fn RelativeSourcePath::path(self : RelativeSourcePath) -> @path.Path {
-  self.path
-}
-
-///|
 pub struct RelativePluginPath {
   path : @path.Path
 } derive(Eq)
@@ -142,11 +112,6 @@ pub fn RelativePluginPath::RelativePluginPath(
 ) -> RelativePluginPath raise {
   validate_relative_path(path, "plugin path")
   { path: path.normalize() }
-}
-
-///|
-pub fn RelativePluginPath::path(self : RelativePluginPath) -> @path.Path {
-  self.path
 }
 
 ///|
@@ -176,11 +141,6 @@ pub fn PluginName::PluginName(value : String) -> PluginName raise {
 }
 
 ///|
-pub fn PluginName::value(self : PluginName) -> String {
-  self.value
-}
-
-///|
 pub struct SkillName {
   value : String
 } derive(Eq)
@@ -189,11 +149,6 @@ pub struct SkillName {
 pub fn SkillName::SkillName(value : String) -> SkillName raise {
   validate_item_name(value, "skill name")
   { value, }
-}
-
-///|
-pub fn SkillName::value(self : SkillName) -> String {
-  self.value
 }
 
 ///|
@@ -218,11 +173,6 @@ pub fn CommitId::CommitId(value : String) -> CommitId raise {
     fail("commit ID must be a 40-character hexadecimal object ID")
   }
   { value: value.to_lower() }
-}
-
-///|
-pub fn CommitId::value(self : CommitId) -> String {
-  self.value
 }
 
 ///|

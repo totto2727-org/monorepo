@@ -41,10 +41,7 @@ test "GitHubRepository from_route rejects path-like repository names" {
 
 ///|
 test "GitHubOwner enforces GitHub component boundaries" {
-  inspect(
-    GitHubOwner::GitHubOwner("a".repeat(39)).value().length(),
-    content="39",
-  )
+  inspect(GitHubOwner::GitHubOwner("a".repeat(39)).value.length(), content="39")
   expect_rejection(
     fn() -> Unit raise { GitHubOwner::GitHubOwner("-owner") |> ignore },
     "leading hyphen",
@@ -66,7 +63,7 @@ test "GitHubOwner enforces GitHub component boundaries" {
 ///|
 test "GitHubRepositoryName enforces GitHub length boundary" {
   inspect(
-    GitHubRepositoryName::GitHubRepositoryName("a".repeat(100)).value().length(),
+    GitHubRepositoryName::GitHubRepositoryName("a".repeat(100)).value.length(),
     content="100",
   )
   expect_rejection(
@@ -149,7 +146,7 @@ test "CommitId rejects bad length and hexadecimal boundaries" {
 
 ///|
 test "SkillName preserves the c-plugin skill namespace" {
-  inspect(SkillName::SkillName("c-plugin").value(), content="c-plugin")
+  inspect(SkillName::SkillName("c-plugin").value, content="c-plugin")
 }
 
 ///|
@@ -189,17 +186,14 @@ test "lock domain preserves version two order and equality" {
   inspect(lock.repositories[0] == github, content="true")
   match lock.repositories[0] {
     LockRepository::GitHub(repository) => {
-      inspect(repository.repository.owner().value(), content="openai")
-      inspect(repository.repository.name().value(), content="codex")
+      inspect(repository.repository.owner.value, content="openai")
+      inspect(repository.repository.name.value, content="codex")
       inspect(repository.repository.route(), content="openai/codex")
       inspect(
-        repository.commit.value(),
+        repository.commit.value,
         content="0123456789abcdef0123456789abcdef01234567",
       )
-      inspect(
-        repository.plugins[0].enabled_skills[0].value(),
-        content="install",
-      )
+      inspect(repository.plugins[0].enabled_skills[0].value, content="install")
     }
     LockRepository::Local(_) =>
       fail("first repository must preserve GitHub order")
