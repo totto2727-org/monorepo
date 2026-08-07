@@ -208,7 +208,7 @@ pub fn MarketplaceKind::codex() -> MarketplaceKind {
 pub struct Plugin {
   name : PluginName
   path : RelativePluginPath
-  enabled_skills : Array[SkillName]
+  priv enabled_skills : Array[SkillName]
 } derive(Eq)
 
 ///|
@@ -224,11 +224,16 @@ pub fn Plugin::Plugin(
 }
 
 ///|
+pub fn Plugin::enabled_skills(self : Plugin) -> ReadOnlyArray[SkillName] {
+  ReadOnlyArray::from_array([..self.enabled_skills])
+}
+
+///|
 pub struct GitHubLockRepository {
   repository : GitHubRepository
   marketplace_kind : MarketplaceKind
   commit : CommitId
-  plugins : Array[Plugin]
+  priv plugins : Array[Plugin]
 } derive(Eq)
 
 ///|
@@ -245,10 +250,17 @@ pub fn GitHubLockRepository::GitHubLockRepository(
 }
 
 ///|
+pub fn GitHubLockRepository::plugins(
+  self : GitHubLockRepository,
+) -> ReadOnlyArray[Plugin] {
+  ReadOnlyArray::from_array([..self.plugins])
+}
+
+///|
 pub struct LocalLockRepository {
   path : RelativeSourcePath
   marketplace_kind : MarketplaceKind
-  plugins : Array[Plugin]
+  priv plugins : Array[Plugin]
 } derive(Eq)
 
 ///|
@@ -261,6 +273,13 @@ pub fn LocalLockRepository::LocalLockRepository(
     fail("repository plugin names must be unique")
   }
   { path, marketplace_kind, plugins: [..plugins] }
+}
+
+///|
+pub fn LocalLockRepository::plugins(
+  self : LocalLockRepository,
+) -> ReadOnlyArray[Plugin] {
+  ReadOnlyArray::from_array([..self.plugins])
 }
 
 ///|
@@ -286,8 +305,8 @@ pub fn LockRepository::from_local(
 ///|
 pub struct Lock {
   version : Int
-  targets : Array[Target]
-  repositories : Array[LockRepository]
+  priv targets : Array[Target]
+  priv repositories : Array[LockRepository]
 } derive(Eq)
 
 ///|
@@ -302,6 +321,16 @@ pub fn Lock::Lock(
     fail("lock repositories must be unique")
   }
   { version: 2, targets: [..targets], repositories: [..repositories] }
+}
+
+///|
+pub fn Lock::targets(self : Lock) -> ReadOnlyArray[Target] {
+  ReadOnlyArray::from_array([..self.targets])
+}
+
+///|
+pub fn Lock::repositories(self : Lock) -> ReadOnlyArray[LockRepository] {
+  ReadOnlyArray::from_array([..self.repositories])
 }
 
 ///|

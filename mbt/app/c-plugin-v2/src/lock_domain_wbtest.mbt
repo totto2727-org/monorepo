@@ -182,9 +182,9 @@ test "lock domain preserves version two order and equality" {
     [github, local_repository],
   )
   inspect(lock.version, content="2")
-  inspect(lock.targets[0].path.to_string(), content=".agents/skills")
-  inspect(lock.repositories[0] == github, content="true")
-  match lock.repositories[0] {
+  inspect(lock.targets()[0].path.to_string(), content=".agents/skills")
+  inspect(lock.repositories()[0] == github, content="true")
+  match lock.repositories()[0] {
     LockRepository::GitHub(repository) => {
       inspect(repository.repository.owner.value, content="openai")
       inspect(repository.repository.name.value, content="codex")
@@ -193,11 +193,69 @@ test "lock domain preserves version two order and equality" {
         repository.commit.value,
         content="0123456789abcdef0123456789abcdef01234567",
       )
-      inspect(repository.plugins[0].enabled_skills[0].value, content="install")
+      inspect(
+        repository.plugins()[0].enabled_skills()[0].value,
+        content="install",
+      )
     }
     LockRepository::Local(_) =>
       fail("first repository must preserve GitHub order")
   }
+}
+
+///|
+test "mutable aggregate fields expose detached readonly snapshots" {
+  let plugin = Plugin::Plugin(
+    PluginName::PluginName("plugin"),
+    RelativePluginPath::RelativePluginPath("plugin"),
+    [SkillName::SkillName("install")],
+  )
+  let enabled_skills = plugin.enabled_skills()
+  plugin.enabled_skills.push(SkillName::SkillName("sync"))
+  inspect(enabled_skills.length(), content="1")
+  inspect(plugin.enabled_skills().length(), content="2")
+  let github = GitHubLockRepository::GitHubLockRepository(
+    GitHubRepository::from_route("openai/codex"),
+    MarketplaceKind::codex(),
+    CommitId::CommitId("0123456789abcdef0123456789abcdef01234567"),
+    [plugin],
+  )
+  let github_plugins = github.plugins()
+  github.plugins.push(
+    Plugin::Plugin(
+      PluginName::PluginName("github-extra"),
+      RelativePluginPath::RelativePluginPath("github-extra"),
+      [],
+    ),
+  )
+  inspect(github_plugins.length(), content="1")
+  inspect(github.plugins().length(), content="2")
+  let local_repository = LocalLockRepository::LocalLockRepository(
+    RelativeSourcePath::RelativeSourcePath("vendor/plugin"),
+    MarketplaceKind::claude(),
+    [plugin],
+  )
+  let local_plugins = local_repository.plugins()
+  local_repository.plugins.push(
+    Plugin::Plugin(
+      PluginName::PluginName("local-extra"),
+      RelativePluginPath::RelativePluginPath("local-extra"),
+      [],
+    ),
+  )
+  inspect(local_plugins.length(), content="1")
+  inspect(local_repository.plugins().length(), content="2")
+  let lock = Lock::Lock([Target::Target(".agents/skills")], [
+    LockRepository::github(github),
+  ])
+  let targets = lock.targets()
+  let repositories = lock.repositories()
+  lock.targets.push(Target::Target(".cursor/skills"))
+  lock.repositories.push(LockRepository::from_local(local_repository))
+  inspect(targets.length(), content="1")
+  inspect(repositories.length(), content="1")
+  inspect(lock.targets().length(), content="2")
+  inspect(lock.repositories().length(), content="2")
 }
 
 ///|
