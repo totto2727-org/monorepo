@@ -58,6 +58,26 @@ test "OwnershipState ToJson::to_json - round trips ownership metadata" {
 }
 
 ///|
+test "OwnershipState ToJson::to_json - round trips local ownership metadata" {
+  let source = OwnershipSource::from_local(
+    LocalOwnershipSource::LocalOwnershipSource(
+      RelativeSourcePath::RelativeSourcePath("vendor/c-plugin"),
+      PluginName::PluginName("c-plugin"),
+      SkillName::SkillName("sync"),
+    ),
+  )
+  let state = OwnershipState::OwnershipState([
+    OwnershipEntry::OwnershipEntry(
+      "/home/alice/project/.agents/skills/sync", "../../../vendor/c-plugin/skills/sync",
+      "/home/alice/project/vendor/c-plugin/skills/sync", "/home/alice/project/.agents/skills",
+      source,
+    ),
+  ])
+  let decoded : OwnershipState = @json.from_json(ToJson::to_json(state))
+  inspect(decoded == state, content="true")
+}
+
+///|
 test "OwnershipEntry OwnershipEntry - normalizes absolute paths but preserves symlink target" {
   let entry = ownership_entry(
     "/home/alice/project/.agents/skills/../skills/sync",
@@ -220,6 +240,36 @@ test "OwnershipEntry FromJson::from_json - reports invalid absolute fields at th
   } catch {
     @json.JsonDecodeError::JsonDecodeError((error_path, _)) =>
       inspect(error_path, content="/managedRoot")
+    _ => fail("unexpected error")
+  }
+}
+
+///|
+test "OwnershipEntry FromJson::from_json - reports a relative link at its exact path" {
+  let json = @json.parse(
+    "{\"link\":\".agents/skills/sync\",\"symlinkTarget\":\"../../../cache/skills/sync\",\"resolvedTarget\":\"/home/alice/.cache/c-plugin/skills/sync\",\"managedRoot\":\"/home/alice/project/.agents/skills\",\"source\":{\"type\":\"github\",\"repository\":\"OpenAI/Codex\",\"plugin\":\"c-plugin\",\"skill\":\"sync\"}}",
+  )
+  try {
+    let _ : OwnershipEntry = @json.from_json(json)
+    fail("expected JsonDecodeError")
+  } catch {
+    @json.JsonDecodeError::JsonDecodeError((error_path, _)) =>
+      inspect(error_path, content="/link")
+    _ => fail("unexpected error")
+  }
+}
+
+///|
+test "OwnershipEntry FromJson::from_json - reports a managed-root direct-child violation at the link path" {
+  let json = @json.parse(
+    "{\"link\":\"/home/alice/project/.agents/skills/nested/sync\",\"symlinkTarget\":\"../../../../cache/skills/sync\",\"resolvedTarget\":\"/home/alice/.cache/c-plugin/skills/sync\",\"managedRoot\":\"/home/alice/project/.agents/skills\",\"source\":{\"type\":\"github\",\"repository\":\"OpenAI/Codex\",\"plugin\":\"c-plugin\",\"skill\":\"sync\"}}",
+  )
+  try {
+    let _ : OwnershipEntry = @json.from_json(json)
+    fail("expected JsonDecodeError")
+  } catch {
+    @json.JsonDecodeError::JsonDecodeError((error_path, _)) =>
+      inspect(error_path, content="/link")
     _ => fail("unexpected error")
   }
 }
