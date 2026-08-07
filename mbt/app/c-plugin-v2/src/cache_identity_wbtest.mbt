@@ -22,18 +22,18 @@ test "CacheScope scopes the normalized absolute lock path with the exact SHA-256
     "/synthetic/work/project/./nested/../c-plugin-lock.json",
   )
   inspect(
-    scope.scope_key(),
+    scope.scope_key,
     content="0998fb40de7b50184fd504e4df5d3a4199773315e8ff95b52ba45e518deac3db",
   )
-  inspect(scope.scope_key().length(), content="64")
+  inspect(scope.scope_key.length(), content="64")
   inspect(
-    scope
-    .scope_key()
-    .all(char => char.is_ascii_digit() || (char >= 'a' && char <= 'f')),
+    scope.scope_key.all(char => {
+      char.is_ascii_digit() || (char >= 'a' && char <= 'f')
+    }),
     content="true",
   )
   inspect(
-    scope.lock_path().to_string(),
+    scope.lock_path.to_string(),
     content="/synthetic/work/project/c-plugin-lock.json",
   )
 }
@@ -47,7 +47,7 @@ test "CacheScope gives moved lock files separate cache paths for the same reposi
   let second_scope = CacheScope::CacheScope(
     "/synthetic/work/project-b/c-plugin-lock.json",
   )
-  inspect(first_scope.scope_key() == second_scope.scope_key(), content="false")
+  inspect(first_scope.scope_key == second_scope.scope_key, content="false")
   inspect(
     first_scope.cache_path("/synthetic/cache", repository).to_string(),
     content="/synthetic/cache/9cf8eac041ac21c0a38688ed3b1d93bd19e088832111658920c40d2918f1d431/openai/codex",
@@ -89,7 +89,7 @@ test "CacheScope metadata rejects missing and mismatched lock identities distinc
     scope.validate_metadata(None)
     "no error"
   } catch {
-    MissingMetadata(expected~) => "missing:\{expected.lock_path().to_string()}"
+    MissingMetadata(expected~) => "missing:\{expected.lock_path.to_string()}"
     _ => "wrong error"
   }
   let mismatch_detail = try {
@@ -97,7 +97,7 @@ test "CacheScope metadata rejects missing and mismatched lock identities distinc
     "no error"
   } catch {
     MetadataMismatch(expected~, actual~) =>
-      "mismatch:\{expected.lock_path().to_string()}:\{actual.lock_path().to_string()}"
+      "mismatch:\{expected.lock_path.to_string()}:\{actual.lock_path.to_string()}"
     _ => "wrong error"
   }
   inspect(
@@ -124,34 +124,74 @@ test "CacheScopeMetadata FromJson and ToJson - round trips the normalized lock i
 }
 
 ///|
-test "panic_CacheScopeMetadata FromJson - rejects an unsupported version" {
+test "CacheScopeMetadata FromJson - rejects an unsupported version" {
   let json = @json.parse(
     "{\"version\":2,\"lockPath\":\"/synthetic/work/c-plugin-lock.json\"}",
   )
-  try! ((@json.from_json(json) : CacheScopeMetadata) |> ignore)
+  try {
+    let _ : CacheScopeMetadata = @json.from_json(json)
+  } catch {
+    @json.JsonDecodeError::JsonDecodeError((error_path, _)) =>
+      inspect(error_path, content="/version")
+  } noraise {
+    _ => fail("expected unsupported metadata version to fail")
+  }
 }
 
 ///|
-test "panic_CacheScopeMetadata FromJson - rejects a relative lock path" {
+test "CacheScopeMetadata FromJson - rejects a relative lock path" {
   let json = @json.parse(
     "{\"version\":1,\"lockPath\":\"synthetic/work/c-plugin-lock.json\"}",
   )
-  try! ((@json.from_json(json) : CacheScopeMetadata) |> ignore)
+  try {
+    let _ : CacheScopeMetadata = @json.from_json(json)
+  } catch {
+    @json.JsonDecodeError::JsonDecodeError((error_path, _)) =>
+      inspect(error_path, content="/lockPath")
+  } noraise {
+    _ => fail("expected relative metadata lock path to fail")
+  }
 }
 
 ///|
-test "panic_CacheScope validates metadata versions and absolute paths" {
-  try! (CacheScopeMetadata::CacheScopeMetadata(
-    2, "/synthetic/work/project/c-plugin-lock.json",
-  )
-  |> ignore)
-  try! (CacheScope::CacheScope("synthetic/work/c-plugin-lock.json") |> ignore)
+test "CacheScope validates metadata versions and absolute paths" {
+  try
+    CacheScopeMetadata::CacheScopeMetadata(
+      2, "/synthetic/work/project/c-plugin-lock.json",
+    )
+    |> ignore
+  catch {
+    UnsupportedMetadataVersion(version~) => inspect(version, content="2")
+    _ => fail("expected UnsupportedMetadataVersion")
+  } noraise {
+    _ => fail("expected unsupported metadata version to fail")
+  }
+  try
+    CacheScope::CacheScope("synthetic/work/c-plugin-lock.json") |> ignore
+  catch {
+    RelativePath(name~, path~) =>
+      inspect(
+        "\{name}:\{path}",
+        content="lock path:synthetic/work/c-plugin-lock.json",
+      )
+    _ => fail("expected RelativePath")
+  } noraise {
+    _ => fail("expected relative lock path to fail")
+  }
   let scope = CacheScope::CacheScope(
     "/synthetic/work/project/c-plugin-lock.json",
   )
-  try! (scope.cache_path(
-    "synthetic/cache",
-    GitHubRepository::from_route("owner/repository"),
-  )
-  |> ignore)
+  try
+    scope.cache_path(
+      "synthetic/cache",
+      GitHubRepository::from_route("owner/repository"),
+    )
+    |> ignore
+  catch {
+    RelativePath(name~, path~) =>
+      inspect("\{name}:\{path}", content="cache root:synthetic/cache")
+    _ => fail("expected RelativePath")
+  } noraise {
+    _ => fail("expected relative cache root to fail")
+  }
 }

@@ -32,16 +32,6 @@ pub fn CacheScopeMetadata::CacheScopeMetadata(
 }
 
 ///|
-pub fn CacheScopeMetadata::version(self : CacheScopeMetadata) -> Int {
-  self.version
-}
-
-///|
-pub fn CacheScopeMetadata::lock_path(self : CacheScopeMetadata) -> @path.Path {
-  self.lock_path
-}
-
-///|
 pub impl FromJson for CacheScopeMetadata with fn from_json(json, path) {
   let version = cache_scope_metadata_version_lens.get_or_json_decode_error(
     json, path,
@@ -91,16 +81,6 @@ pub fn CacheScope::CacheScope(
 }
 
 ///|
-pub fn CacheScope::lock_path(self : CacheScope) -> @path.Path {
-  self.lock_path
-}
-
-///|
-pub fn CacheScope::scope_key(self : CacheScope) -> String {
-  self.scope_key
-}
-
-///|
 pub fn CacheScope::cache_path(
   self : CacheScope,
   cache_root : @path.Path,
@@ -108,8 +88,8 @@ pub fn CacheScope::cache_path(
 ) -> @path.Path raise CacheIdentityError {
   normalized_absolute_path("cache root", cache_root)
   .join(self.scope_key)
-  .join(repository.owner().value())
-  .join(repository.name().value())
+  .join(repository.owner.value)
+  .join(repository.name.value)
 }
 
 ///|
