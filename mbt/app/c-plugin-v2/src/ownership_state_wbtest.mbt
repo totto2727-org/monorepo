@@ -63,21 +63,34 @@ test "OwnershipEntry OwnershipEntry - normalizes absolute paths but preserves sy
     "/home/alice/project/.agents/skills/../skills/sync",
   )
   inspect(
-    entry.link().to_string(),
+    entry.link.to_string(),
     content="/home/alice/project/.agents/skills/sync",
   )
   inspect(
-    entry.symlink_target().to_string(),
+    entry.symlink_target.to_string(),
     content="../../../cache/skills/sync",
   )
   inspect(
-    entry.resolved_target().to_string(),
+    entry.resolved_target.to_string(),
     content="/home/alice/.cache/c-plugin/skills/sync",
   )
   inspect(
-    entry.managed_root().to_string(),
+    entry.managed_root.to_string(),
     content="/home/alice/project/.agents/skills",
   )
+}
+
+///|
+test "OwnershipState entries - returns a detached readonly snapshot" {
+  let state = OwnershipState::OwnershipState([
+    ownership_entry("/home/alice/project/.agents/skills/sync"),
+  ])
+  let entries = state.entries()
+  state.entries.push(
+    ownership_entry("/home/alice/project/.agents/skills/install"),
+  )
+  inspect(entries.length(), content="1")
+  inspect(state.entries().length(), content="2")
 }
 
 ///|

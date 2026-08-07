@@ -90,34 +90,9 @@ pub fn OwnershipEntry::OwnershipEntry(
 }
 
 ///|
-pub fn OwnershipEntry::link(self : OwnershipEntry) -> @path.Path {
-  self.link
-}
-
-///|
-pub fn OwnershipEntry::symlink_target(self : OwnershipEntry) -> @path.Path {
-  self.symlink_target
-}
-
-///|
-pub fn OwnershipEntry::resolved_target(self : OwnershipEntry) -> @path.Path {
-  self.resolved_target
-}
-
-///|
-pub fn OwnershipEntry::managed_root(self : OwnershipEntry) -> @path.Path {
-  self.managed_root
-}
-
-///|
-pub fn OwnershipEntry::source(self : OwnershipEntry) -> OwnershipSource {
-  self.source
-}
-
-///|
 pub struct OwnershipState {
   version : Int
-  entries : Array[OwnershipEntry]
+  priv entries : Array[OwnershipEntry]
 } derive(Eq)
 
 ///|
@@ -140,11 +115,8 @@ pub fn OwnershipState::OwnershipState(
 }
 
 ///|
-pub fn OwnershipState::version(self : OwnershipState) -> Int {
-  self.version
-}
-
-///|
-pub fn OwnershipState::entries(self : OwnershipState) -> Array[OwnershipEntry] {
-  [..self.entries]
+pub fn OwnershipState::entries(
+  self : OwnershipState,
+) -> ReadOnlyArray[OwnershipEntry] {
+  ReadOnlyArray::from_array(self.entries)
 }
