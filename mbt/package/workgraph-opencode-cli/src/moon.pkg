@@ -1,0 +1,9 @@
+import {
+  "moonbitlang/async",
+  "moonbitlang/core/env",
+  "moonbitlang/x/path",
+  "totto2727/workgraph-agent-cli" @coding,
+  "totto2727/opencode-sdk" @sdk,
+}
+
+supported_targets = "native"
