@@ -225,7 +225,7 @@ pub fn Plugin::Plugin(
 
 ///|
 pub fn Plugin::enabled_skills(self : Plugin) -> ReadOnlyArray[SkillName] {
-  ReadOnlyArray::from_array([..self.enabled_skills])
+  ReadOnlyArray::from_array(self.enabled_skills)
 }
 
 ///|
@@ -253,7 +253,7 @@ pub fn GitHubLockRepository::GitHubLockRepository(
 pub fn GitHubLockRepository::plugins(
   self : GitHubLockRepository,
 ) -> ReadOnlyArray[Plugin] {
-  ReadOnlyArray::from_array([..self.plugins])
+  ReadOnlyArray::from_array(self.plugins)
 }
 
 ///|
@@ -279,7 +279,7 @@ pub fn LocalLockRepository::LocalLockRepository(
 pub fn LocalLockRepository::plugins(
   self : LocalLockRepository,
 ) -> ReadOnlyArray[Plugin] {
-  ReadOnlyArray::from_array([..self.plugins])
+  ReadOnlyArray::from_array(self.plugins)
 }
 
 ///|
@@ -325,12 +325,12 @@ pub fn Lock::Lock(
 
 ///|
 pub fn Lock::targets(self : Lock) -> ReadOnlyArray[Target] {
-  ReadOnlyArray::from_array([..self.targets])
+  ReadOnlyArray::from_array(self.targets)
 }
 
 ///|
 pub fn Lock::repositories(self : Lock) -> ReadOnlyArray[LockRepository] {
-  ReadOnlyArray::from_array([..self.repositories])
+  ReadOnlyArray::from_array(self.repositories)
 }
 
 ///|
