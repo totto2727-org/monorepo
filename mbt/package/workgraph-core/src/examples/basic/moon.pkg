@@ -1,0 +1,11 @@
+import {
+  "Yoorkin/any",
+  "moonbitlang/async",
+  "moonbitlang/core/json",
+  "totto2727/any-collection" @any_collection,
+  "totto2727/workgraph-core" @core,
+}
+
+supported_targets = "+native+js"
+
+pkgtype(kind: "executable")
