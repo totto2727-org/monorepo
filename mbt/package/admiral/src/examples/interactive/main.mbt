@@ -9,7 +9,7 @@ let projects : Array[Project] = [
   { name: "admiral", description: "Declarative CLI builder" },
   { name: "codex-sdk", description: "Codex SDK for MoonBit" },
   { name: "lens", description: "Typed JSON lenses" },
-  { name: "moon-agent-graph", description: "Agent workflow runtime" },
+  { name: "workgraph-core", description: "Agent workflow runtime" },
   { name: "opencode-sdk", description: "OpenCode SDK for MoonBit" },
 ]
 

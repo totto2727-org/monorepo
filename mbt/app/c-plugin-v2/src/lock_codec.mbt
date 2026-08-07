@@ -1,56 +1,4 @@
 ///|
-let lock_version_lens : @lens.Lens[Int] = @lens.root().int("version")
-
-///|
-let lock_targets_lens : @lens.Lens[Json] = @lens.root().json("targets")
-
-///|
-let lock_repositories_lens : @lens.Lens[Json] = @lens.root().json(
-  "repositories",
-)
-
-///|
-let repository_type_lens : @lens.Lens[String] = @lens.root().string("type")
-
-///|
-let github_repository_lens : @lens.Lens[Json] = @lens.root().json("repository")
-
-///|
-let github_marketplace_kind_lens : @lens.Lens[Json] = @lens.root().json(
-  "marketplaceKind",
-)
-
-///|
-let github_commit_lens : @lens.PresenceLens[Json] = @lens.root()
-  .json("commit")
-  .nullable()
-
-///|
-let github_plugins_lens : @lens.Lens[Json] = @lens.root().json("plugins")
-
-///|
-let local_path_lens : @lens.Lens[Json] = @lens.root().json("path")
-
-///|
-let local_marketplace_kind_lens : @lens.Lens[Json] = @lens.root().json(
-  "marketplaceKind",
-)
-
-///|
-let local_plugins_lens : @lens.Lens[Json] = @lens.root().json("plugins")
-
-///|
-let plugin_name_lens : @lens.Lens[Json] = @lens.root().json("name")
-
-///|
-let plugin_path_lens : @lens.Lens[Json] = @lens.root().json("path")
-
-///|
-let plugin_enabled_skills_lens : @lens.Lens[Json] = @lens.root().json(
-  "enabledSkills",
-)
-
-///|
 pub impl @json.FromJson for GitHubOwner with fn from_json(json, path) {
   let value : String = @json.from_json(json, path~)
   GitHubOwner(value) catch {
@@ -60,7 +8,7 @@ pub impl @json.FromJson for GitHubOwner with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for GitHubOwner with fn to_json(self) -> Json {
-  self.value().to_json()
+  self.value.to_json()
 }
 
 ///|
@@ -73,7 +21,7 @@ pub impl @json.FromJson for GitHubRepositoryName with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for GitHubRepositoryName with fn to_json(self) -> Json {
-  self.value().to_json()
+  self.value.to_json()
 }
 
 ///|
@@ -99,7 +47,7 @@ pub impl @json.FromJson for Target with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for Target with fn to_json(self) -> Json {
-  self.path().to_string().to_json()
+  self.path.to_string().to_json()
 }
 
 ///|
@@ -112,7 +60,7 @@ pub impl @json.FromJson for RelativeSourcePath with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for RelativeSourcePath with fn to_json(self) -> Json {
-  self.path().to_string().to_json()
+  self.path.to_string().to_json()
 }
 
 ///|
@@ -125,7 +73,7 @@ pub impl @json.FromJson for RelativePluginPath with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for RelativePluginPath with fn to_json(self) -> Json {
-  self.path().to_string().to_json()
+  self.path.to_string().to_json()
 }
 
 ///|
@@ -138,7 +86,7 @@ pub impl @json.FromJson for PluginName with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for PluginName with fn to_json(self) -> Json {
-  self.value().to_json()
+  self.value.to_json()
 }
 
 ///|
@@ -151,7 +99,7 @@ pub impl @json.FromJson for SkillName with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for SkillName with fn to_json(self) -> Json {
-  self.value().to_json()
+  self.value.to_json()
 }
 
 ///|
@@ -164,8 +112,58 @@ pub impl @json.FromJson for CommitId with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for CommitId with fn to_json(self) -> Json {
-  self.value().to_json()
+  self.value.to_json()
 }
+
+///|
+let lock_version_lens : @lens.Lens[Json] = @lens.root().json("version")
+
+///|
+let lock_targets_lens : @lens.Lens[Json] = @lens.root().json("targets")
+
+///|
+let lock_repositories_lens : @lens.Lens[Json] = @lens.root().json(
+  "repositories",
+)
+
+///|
+let repository_type_lens : @lens.Lens[String] = @lens.root().string("type")
+
+///|
+let github_repository_lens : @lens.Lens[Json] = @lens.root().json("repository")
+
+///|
+let github_marketplace_kind_lens : @lens.Lens[Json] = @lens.root().json(
+  "marketplaceKind",
+)
+
+///|
+let github_commit_lens : @lens.Lens[Json] = @lens.root().json("commit")
+
+///|
+let github_plugins_lens : @lens.Lens[Json] = @lens.root().json("plugins")
+
+///|
+let local_path_lens : @lens.Lens[Json] = @lens.root().json("path")
+
+///|
+let local_marketplace_kind_lens : @lens.Lens[Json] = @lens.root().json(
+  "marketplaceKind",
+)
+
+///|
+let local_plugins_lens : @lens.Lens[Json] = @lens.root().json("plugins")
+
+///|
+let plugin_name_lens : @lens.Lens[Json] = @lens.root().json("name")
+
+///|
+let plugin_path_lens : @lens.Lens[Json] = @lens.root().json("path")
+
+///|
+let plugin_enabled_skills_lens : @lens.Lens[Json] = @lens.root().json(
+  "enabledSkills",
+)
 
 ///|
 pub impl @json.FromJson for MarketplaceKind with fn from_json(json, path) {
@@ -234,13 +232,10 @@ fn decode_github_repository_payload(
     github_marketplace_kind_lens.get_or_json_decode_error(json, path),
     path=github_marketplace_kind_lens.add_to_json_path(path),
   )
-  let commit = match github_commit_lens.get_or_json_decode_error(json, path) {
-    Some(value) =>
-      Some(
-        @json.from_json(value, path=github_commit_lens.add_to_json_path(path)),
-      )
-    None => None
-  }
+  let commit : CommitId = @json.from_json(
+    github_commit_lens.get_or_json_decode_error(json, path),
+    path=github_commit_lens.add_to_json_path(path),
+  )
   let plugins : Array[Plugin] = @json.from_json(
     github_plugins_lens.get_or_json_decode_error(json, path),
     path=github_plugins_lens.add_to_json_path(path),
@@ -270,10 +265,7 @@ pub impl ToJson for GitHubLockRepository with fn to_json(self) -> Json {
     builder,
     self.marketplace_kind.to_json(),
   )
-  github_commit_lens.set_or_abort(
-    builder,
-    self.commit.map(fn(value) { value.to_json() }),
-  )
+  github_commit_lens.set_or_abort(builder, self.commit.to_json())
   github_plugins_lens.set_or_abort(builder, self.plugins.to_json())
   builder.to_json()
 }
@@ -350,8 +342,11 @@ pub impl ToJson for LockRepository with fn to_json(self) -> Json {
 
 ///|
 pub impl @json.FromJson for Lock with fn from_json(json, path) {
-  let version = lock_version_lens.get_or_json_decode_error(json, path)
-  guard version == 2 else {
+  let version : String = @json.from_json(
+    lock_version_lens.get_or_json_decode_error(json, path),
+    path=lock_version_lens.add_to_json_path(path),
+  )
+  guard version == "2" else {
     raise lock_version_lens.json_decode_error(
       path,
       "unsupported lock version: \{version}",
@@ -373,7 +368,7 @@ pub impl @json.FromJson for Lock with fn from_json(json, path) {
 ///|
 pub impl ToJson for Lock with fn to_json(self) -> Json {
   let builder = @lens.JsonBuilder::JsonBuilder()
-  lock_version_lens.set_or_abort(builder, self.version)
+  lock_version_lens.set_or_abort(builder, self.version.to_string().to_json())
   lock_targets_lens.set_or_abort(builder, self.targets.to_json())
   lock_repositories_lens.set_or_abort(builder, self.repositories.to_json())
   builder.to_json()

@@ -6,17 +6,16 @@ pub struct GitHubOwner {
 ///|
 pub fn GitHubOwner::GitHubOwner(value : String) -> GitHubOwner raise {
   guard value != "" &&
+    value.length() <= 39 &&
+    !value.has_prefix("-") &&
+    !value.has_suffix("-") &&
+    !value.contains("--") &&
     value.all(char => {
       char.is_ascii_alphabetic() || char.is_ascii_digit() || char == '-'
     }) else {
-    fail("GitHub owner must contain only letters, digits, or hyphens")
+    fail("GitHub owner must be a valid GitHub account component")
   }
   { value: value.to_lower() }
-}
-
-///|
-pub fn GitHubOwner::value(self : GitHubOwner) -> String {
-  self.value
 }
 
 ///|
@@ -29,6 +28,7 @@ pub fn GitHubRepositoryName::GitHubRepositoryName(
   value : String,
 ) -> GitHubRepositoryName raise {
   guard value != "" &&
+    value.length() <= 100 &&
     value != "." &&
     value != ".." &&
     value.all(char => {
@@ -41,11 +41,6 @@ pub fn GitHubRepositoryName::GitHubRepositoryName(
     fail("GitHub repository name contains an unsupported character")
   }
   { value: value.to_lower() }
-}
-
-///|
-pub fn GitHubRepositoryName::value(self : GitHubRepositoryName) -> String {
-  self.value
 }
 
 ///|
@@ -78,18 +73,8 @@ pub fn GitHubRepository::from_route(route : String) -> GitHubRepository raise {
 }
 
 ///|
-pub fn GitHubRepository::owner(self : GitHubRepository) -> GitHubOwner {
-  self.owner
-}
-
-///|
-pub fn GitHubRepository::name(self : GitHubRepository) -> GitHubRepositoryName {
-  self.name
-}
-
-///|
 pub fn GitHubRepository::route(self : GitHubRepository) -> String {
-  "\{self.owner.value()}/\{self.name.value()}"
+  "\{self.owner.value}/\{self.name.value}"
 }
 
 ///|
@@ -101,11 +86,6 @@ pub struct Target {
 pub fn Target::Target(path : @path.Path) -> Target raise {
   guard path.to_string() != "" else { fail("target path must not be empty") }
   { path: path.normalize() }
-}
-
-///|
-pub fn Target::path(self : Target) -> @path.Path {
-  self.path
 }
 
 ///|
@@ -122,11 +102,6 @@ pub fn RelativeSourcePath::RelativeSourcePath(
 }
 
 ///|
-pub fn RelativeSourcePath::path(self : RelativeSourcePath) -> @path.Path {
-  self.path
-}
-
-///|
 pub struct RelativePluginPath {
   path : @path.Path
 } derive(Eq)
@@ -137,11 +112,6 @@ pub fn RelativePluginPath::RelativePluginPath(
 ) -> RelativePluginPath raise {
   validate_relative_path(path, "plugin path")
   { path: path.normalize() }
-}
-
-///|
-pub fn RelativePluginPath::path(self : RelativePluginPath) -> @path.Path {
-  self.path
 }
 
 ///|
@@ -171,11 +141,6 @@ pub fn PluginName::PluginName(value : String) -> PluginName raise {
 }
 
 ///|
-pub fn PluginName::value(self : PluginName) -> String {
-  self.value
-}
-
-///|
 pub struct SkillName {
   value : String
 } derive(Eq)
@@ -184,11 +149,6 @@ pub struct SkillName {
 pub fn SkillName::SkillName(value : String) -> SkillName raise {
   validate_item_name(value, "skill name")
   { value, }
-}
-
-///|
-pub fn SkillName::value(self : SkillName) -> String {
-  self.value
 }
 
 ///|
@@ -213,11 +173,6 @@ pub fn CommitId::CommitId(value : String) -> CommitId raise {
     fail("commit ID must be a 40-character hexadecimal object ID")
   }
   { value: value.to_lower() }
-}
-
-///|
-pub fn CommitId::value(self : CommitId) -> String {
-  self.value
 }
 
 ///|
@@ -253,7 +208,7 @@ pub fn MarketplaceKind::codex() -> MarketplaceKind {
 pub struct Plugin {
   name : PluginName
   path : RelativePluginPath
-  enabled_skills : Array[SkillName]
+  priv enabled_skills : Array[SkillName]
 } derive(Eq)
 
 ///|
@@ -269,18 +224,23 @@ pub fn Plugin::Plugin(
 }
 
 ///|
+pub fn Plugin::enabled_skills(self : Plugin) -> ReadOnlyArray[SkillName] {
+  ReadOnlyArray::from_array(self.enabled_skills)
+}
+
+///|
 pub struct GitHubLockRepository {
   repository : GitHubRepository
   marketplace_kind : MarketplaceKind
-  commit : CommitId?
-  plugins : Array[Plugin]
+  commit : CommitId
+  priv plugins : Array[Plugin]
 } derive(Eq)
 
 ///|
 pub fn GitHubLockRepository::GitHubLockRepository(
   repository : GitHubRepository,
   marketplace_kind : MarketplaceKind,
-  commit : CommitId?,
+  commit : CommitId,
   plugins : Array[Plugin],
 ) -> GitHubLockRepository raise {
   guard unique_plugin_count(plugins) == plugins.length() else {
@@ -290,10 +250,17 @@ pub fn GitHubLockRepository::GitHubLockRepository(
 }
 
 ///|
+pub fn GitHubLockRepository::plugins(
+  self : GitHubLockRepository,
+) -> ReadOnlyArray[Plugin] {
+  ReadOnlyArray::from_array(self.plugins)
+}
+
+///|
 pub struct LocalLockRepository {
   path : RelativeSourcePath
   marketplace_kind : MarketplaceKind
-  plugins : Array[Plugin]
+  priv plugins : Array[Plugin]
 } derive(Eq)
 
 ///|
@@ -306,6 +273,13 @@ pub fn LocalLockRepository::LocalLockRepository(
     fail("repository plugin names must be unique")
   }
   { path, marketplace_kind, plugins: [..plugins] }
+}
+
+///|
+pub fn LocalLockRepository::plugins(
+  self : LocalLockRepository,
+) -> ReadOnlyArray[Plugin] {
+  ReadOnlyArray::from_array(self.plugins)
 }
 
 ///|
@@ -331,8 +305,8 @@ pub fn LockRepository::from_local(
 ///|
 pub struct Lock {
   version : Int
-  targets : Array[Target]
-  repositories : Array[LockRepository]
+  priv targets : Array[Target]
+  priv repositories : Array[LockRepository]
 } derive(Eq)
 
 ///|
@@ -347,6 +321,16 @@ pub fn Lock::Lock(
     fail("lock repositories must be unique")
   }
   { version: 2, targets: [..targets], repositories: [..repositories] }
+}
+
+///|
+pub fn Lock::targets(self : Lock) -> ReadOnlyArray[Target] {
+  ReadOnlyArray::from_array(self.targets)
+}
+
+///|
+pub fn Lock::repositories(self : Lock) -> ReadOnlyArray[LockRepository] {
+  ReadOnlyArray::from_array(self.repositories)
 }
 
 ///|

@@ -1,0 +1,13 @@
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/immut/hashmap" @immut_hashmap,
+  "moonbitlang/core/random",
+  "moonbitlang/async",
+  "totto2727/any-collection" @any_collection,
+}
+
+import {
+  "Yoorkin/any",
+} for "test"
+
+supported_targets = "+native+js"

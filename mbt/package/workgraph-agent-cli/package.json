@@ -1,0 +1,11 @@
+{
+  "name": "@totto2727/workgraph-agent-cli",
+  "private": true,
+  "scripts": {
+    "publish": "bash ../../scripts/moon-publish.sh"
+  },
+  "devDependencies": {
+    "@totto2727/any-collection": "workspace:*",
+    "@totto2727/workgraph-core": "workspace:*"
+  }
+}
