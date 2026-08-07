@@ -1,5 +1,5 @@
 ///|
-fn expect_lock_json_rejection(
+fn expect_json_rejection(
   action : () -> Unit raise,
   detail : String,
 ) -> Unit raise {
@@ -8,6 +8,57 @@ fn expect_lock_json_rejection(
   } noraise {
     _ => fail("expected JSON rejection: \{detail}")
   }
+}
+
+///|
+test "GitHubRepository FromJson and ToJson - canonicalizes route" {
+  let repository : GitHubRepository = @json.from_json(
+    @json.parse("\"OpenAI/Codex\""),
+  )
+  inspect(repository.route(), content="openai/codex")
+  let decoded : GitHubRepository = @json.from_json(repository.to_json())
+  inspect(decoded == repository, content="true")
+}
+
+///|
+test "identity FromJson - rejects invalid boundary values" {
+  expect_json_rejection(
+    fn() -> Unit raise {
+      (@json.from_json(@json.parse("\"-owner/repository\"")) : GitHubRepository)
+      |> ignore
+    },
+    "invalid GitHub owner boundary",
+  )
+  let repository_name = "r".repeat(101)
+  expect_json_rejection(
+    fn() -> Unit raise {
+      (@json.from_json(repository_name.to_json()) : GitHubRepositoryName)
+      |> ignore
+    },
+    "overlong GitHub repository name",
+  )
+  expect_json_rejection(
+    fn() -> Unit raise {
+      (@json.from_json(@json.parse("\"../marketplace\"")) : RelativeSourcePath)
+      |> ignore
+    },
+    "relative source path traversal",
+  )
+  expect_json_rejection(
+    fn() -> Unit raise {
+      (@json.from_json(@json.parse("\"0123456789abcdef\"")) : CommitId)
+      |> ignore
+    },
+    "invalid commit length",
+  )
+}
+
+///|
+test "Target FromJson and ToJson - preserves Path value" {
+  let target : Target = @json.from_json(@json.parse("\".agents/skills\""))
+  inspect(target.path.to_string(), content=".agents/skills")
+  let decoded : Target = @json.from_json(target.to_json())
+  inspect(decoded == target, content="true")
 }
 
 ///|
@@ -50,11 +101,11 @@ test "Lock FromJson and ToJson - canonical round trip preserves order" {
   inspect(lock.to_pretty_json(), content=canonical_lock_json + "\n")
   let decoded : Lock = @json.from_json(lock.to_json())
   inspect(decoded == lock, content="true")
-  inspect(decoded.targets[0].path().to_string(), content=".agents/skills")
-  match decoded.repositories[0] {
+  inspect(decoded.targets()[0].path.to_string(), content=".agents/skills")
+  match decoded.repositories()[0] {
     GitHub(repository) =>
       inspect(
-        repository.plugins[0].enabled_skills[0].value(),
+        repository.plugins()[0].enabled_skills()[0].value,
         content="install",
       )
     Local(_) => fail("first repository must remain GitHub")
@@ -115,62 +166,62 @@ test "LockRepository FromJson - dispatches each top-level type" {
 
 ///|
 test "lock FromJson - rejects strict schema failures" {
-  expect_lock_json_rejection(
+  expect_json_rejection(
     fn() -> Unit raise {
       let text = "{\"version\":\"2\",\"targets\":[],\"repositories\":[{\"type\":\"gitlab\"}]}"
       (@json.from_json(@json.parse(text)) : Lock) |> ignore
     },
     "unknown repository type",
   )
-  expect_lock_json_rejection(
+  expect_json_rejection(
     fn() -> Unit raise {
       let text = "{\"version\":\"2\",\"targets\":[],\"repositories\":[{\"type\":1}]}"
       (@json.from_json(@json.parse(text)) : Lock) |> ignore
     },
     "repository type with wrong JSON type",
   )
-  expect_lock_json_rejection(
+  expect_json_rejection(
     fn() -> Unit raise {
       let text = "{\"version\":2,\"targets\":[],\"repositories\":[]}"
       (@json.from_json(@json.parse(text)) : Lock) |> ignore
     },
     "numeric lock version",
   )
-  expect_lock_json_rejection(
+  expect_json_rejection(
     fn() -> Unit raise {
       let text = "{\"version\":\"2.5\",\"targets\":[],\"repositories\":[]}"
       (@json.from_json(@json.parse(text)) : Lock) |> ignore
     },
     "fractional lock version",
   )
-  expect_lock_json_rejection(
+  expect_json_rejection(
     fn() -> Unit raise {
       let text = "{\"version\":\"2.0000000000000001\",\"targets\":[],\"repositories\":[]}"
       (@json.from_json(@json.parse(text)) : Lock) |> ignore
     },
     "precision-sensitive lock version",
   )
-  expect_lock_json_rejection(
+  expect_json_rejection(
     fn() -> Unit raise {
       let text = "{\"type\":\"github\",\"repository\":\"openai/codex\",\"marketplaceKind\":\"codex\",\"plugins\":[]}"
       (@json.from_json(@json.parse(text)) : GitHubLockRepository) |> ignore
     },
     "missing GitHub commit",
   )
-  expect_lock_json_rejection(
+  expect_json_rejection(
     fn() -> Unit raise {
       let text = "{\"type\":\"github\",\"repository\":\"openai/codex\",\"marketplaceKind\":\"codex\",\"commit\":null,\"plugins\":[]}"
       (@json.from_json(@json.parse(text)) : GitHubLockRepository) |> ignore
     },
     "null GitHub commit",
   )
-  expect_lock_json_rejection(
+  expect_json_rejection(
     fn() -> Unit raise {
       (@json.from_json(@json.parse("\"unknown\"")) : MarketplaceKind) |> ignore
     },
     "unknown marketplace kind",
   )
-  expect_lock_json_rejection(
+  expect_json_rejection(
     fn() -> Unit raise {
       let text =
         #|{"version":"2","targets":[],"repositories":[{"type":"github","repository":"OpenAI/Codex","marketplaceKind":"codex","commit":"0123456789abcdef0123456789abcdef01234567","plugins":[]},{"type":"github","repository":"openai/codex","marketplaceKind":"claude","commit":"fedcba9876543210fedcba9876543210fedcba98","plugins":[]}]}
