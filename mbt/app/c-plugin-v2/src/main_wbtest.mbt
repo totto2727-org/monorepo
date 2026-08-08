@@ -1,7 +1,12 @@
 ///|
-test "app identity uses c-plugin version 0.1.0 without commands" {
-  let cli = app()
+test "CliApp app - exposes the init command" {
+  let paths = RuntimePaths::RuntimePaths(
+    "/tmp/c-plugin-v2-main-home", "/tmp/c-plugin-v2-main-cwd", "/tmp/c-plugin-v2-main-cache",
+  )
+  let runtime = runtime_for_init(paths)
+  let cli = app(runtime)
   inspect(cli.name, content="c-plugin")
   inspect(cli.version, content="0.1.0")
-  inspect(cli.commands.length(), content="0")
+  inspect(cli.commands.length(), content="1")
+  inspect(cli.commands[0].name, content="init")
 }
