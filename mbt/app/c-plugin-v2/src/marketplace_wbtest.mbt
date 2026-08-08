@@ -41,6 +41,27 @@ test "Marketplace FromJson - normalizes Claude Cursor and Codex plugin sources i
 }
 
 ///|
+test "format-specific marketplace models decode complete validated values" {
+  let string_source_text =
+    #|{"name":"test","plugins":[{"name":"first","source":"./plugins/first"}]}
+  let codex_text =
+    #|{"name":"test","plugins":[{"name":"first","source":{"source":"local","path":"./plugins/first"}}]}
+  let claude : ClaudeMarketplace = @json.from_json(
+    @json.parse(string_source_text),
+  )
+  let cursor : CursorMarketplace = @json.from_json(
+    @json.parse(string_source_text),
+  )
+  let codex : CodexMarketplace = @json.from_json(@json.parse(codex_text))
+  inspect(claude.plugins.length(), content="1")
+  inspect(cursor.plugins.length(), content="1")
+  inspect(
+    codex.plugins[0].source.path.path.to_string(),
+    content="plugins/first",
+  )
+}
+
+///|
 test "Marketplace FromJson - malformed required field preserves JSON path" {
   let text =
     #|{"name":"test","plugins":[{"source":"./plugins/first"}]}
@@ -64,6 +85,17 @@ test "Marketplace FromJson - relative plugin path rejects parent traversal" {
   catch {
     @json.JsonDecodeError::JsonDecodeError((path, _)) =>
       inspect(path.to_string(), content="/plugins/0/source")
+    _ => fail("expected JsonDecodeError")
+  }
+}
+
+///|
+test "CodexMarketplace FromJson - relative plugin path rejects parent traversal" {
+  let text =
+    #|{"name":"test","plugins":[{"name":"first","source":{"source":"local","path":"../outside"}}]}
+  try (@json.from_json(@json.parse(text)) : CodexMarketplace) |> ignore catch {
+    @json.JsonDecodeError::JsonDecodeError((path, _)) =>
+      inspect(path.to_string(), content="/plugins/0/source/path")
     _ => fail("expected JsonDecodeError")
   }
 }
