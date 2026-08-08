@@ -2,4 +2,5 @@ dist/
 .wrangler/
 worker-configuration.d.ts
 generated.ts
+specs/generated/return-to-session.scenarios.json
 .dev.vars
