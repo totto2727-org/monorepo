@@ -96,12 +96,12 @@ pub struct OwnershipState {
 } derive(Eq)
 
 ///|
-struct OwnershipLinkIdentity {
+pub struct OwnershipLinkIdentity {
   path : @path.Path
 } derive(Eq)
 
 ///|
-fn OwnershipLinkIdentity::OwnershipLinkIdentity(
+pub fn OwnershipLinkIdentity::OwnershipLinkIdentity(
   path : @path.Path,
 ) -> OwnershipLinkIdentity {
   { path: path.normalize() }

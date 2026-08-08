@@ -331,13 +331,13 @@ pub fn Lock::Lock(
 }
 
 ///|
-enum RepositoryIdentity {
+pub enum RepositoryIdentity {
   GitHubIdentity(GitHubRepository)
   LocalIdentity(RelativeSourcePath)
 } derive(Eq, Hash)
 
 ///|
-fn LockRepository::identity(self : LockRepository) -> RepositoryIdentity {
+pub fn LockRepository::identity(self : LockRepository) -> RepositoryIdentity {
   match self {
     GitHub(repository) => GitHubIdentity(repository.repository)
     Local(repository) => LocalIdentity(repository.path)
