@@ -66,7 +66,7 @@ pub impl FromJson for OwnershipSource with fn from_json(json, path) {
         ownership_source_skill_lens.get_or_json_decode_error(json, path),
         path=ownership_source_skill_lens.add_to_json_path(path),
       )
-      OwnershipSource::github(
+      OwnershipSource::from_github(
         GitHubOwnershipSource::GitHubOwnershipSource(repository, plugin, skill),
       )
     }

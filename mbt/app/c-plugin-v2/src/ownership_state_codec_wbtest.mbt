@@ -33,7 +33,7 @@ test "OwnershipState ToJson::to_json - round trips ownership metadata" {
       OwnershipManagedRoot::OwnershipManagedRoot(
         "/home/alice/project/.agents/skills",
       ),
-      OwnershipSource::github(
+      OwnershipSource::from_github(
         GitHubOwnershipSource::GitHubOwnershipSource(
           GitHubRepository::from_route("OpenAI/Codex"),
           PluginName::PluginName("c-plugin"),
