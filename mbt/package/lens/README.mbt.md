@@ -38,6 +38,21 @@ test {
 }
 ```
 
+A raw JSON lens can decode any type implementing the standard `FromJson` trait while preserving the selected path in nested decode errors.
+
+```mbt check
+struct Repository {
+  owner : String
+} derive(FromJson)
+
+fn decode_repository(
+  document : Json,
+  path : @json.JsonPath,
+) -> Repository raise @json.JsonDecodeError {
+  root().json("repository").decode_from_json(document, path)
+}
+```
+
 ## Typed construction
 
 `JsonBuilder` constructs an output object without requiring an existing `Json` document. `Lens::set` encodes its typed value, creates missing object parents, and writes it at the lens pointer. Repeated writes to the same pointer use the latest value.
