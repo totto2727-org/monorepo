@@ -106,6 +106,22 @@ test "OwnershipSource FromJson::from_json - reports an invalid plugin at its exa
 }
 
 ///|
+test "OwnershipSource FromJson::from_json - preserves a prefixed local repository path" {
+  let json = @json.parse(
+    "{\"type\":\"local\",\"repository\":\"../outside\",\"plugin\":\"c-plugin\",\"skill\":\"sync\"}",
+  )
+  let path = ownership_root_json_path().add_key("source")
+  try {
+    let _ : OwnershipSource = @json.from_json(json, path~)
+    fail("expected JsonDecodeError")
+  } catch {
+    @json.JsonDecodeError::JsonDecodeError((error_path, _)) =>
+      inspect(error_path.to_string(), content="/source/repository")
+    _ => fail("unexpected error")
+  }
+}
+
+///|
 test "OwnershipEntry FromJson::from_json - reports invalid absolute fields at their exact paths" {
   let resolved_target_json = @json.parse(
     "{\"link\":\"/home/alice/project/.agents/skills/sync\",\"symlinkTarget\":\"../../../cache/skills/sync\",\"resolvedTarget\":\"cache/skills/sync\",\"managedRoot\":\"/home/alice/project/.agents/skills\",\"source\":{\"type\":\"github\",\"repository\":\"OpenAI/Codex\",\"plugin\":\"c-plugin\",\"skill\":\"sync\"}}",

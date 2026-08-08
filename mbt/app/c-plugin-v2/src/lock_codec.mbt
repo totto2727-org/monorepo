@@ -228,10 +228,13 @@ fn sorted_plugins_for_json(
 }
 
 ///|
-fn decode_github_repository_payload(
-  json : Json,
-  path : @json.JsonPath,
-) -> GitHubLockRepository raise @json.JsonDecodeError {
+pub impl @json.FromJson for GitHubLockRepository with fn from_json(json, path) {
+  let type_ = repository_type_lens.get_or_json_decode_error(json, path)
+  guard type_ == "github" else {
+    raise repository_type_lens.json_decode_error(
+      path, "expected repository type github",
+    )
+  }
   let repository : GitHubRepository = @json.from_json(
     github_repository_lens.get_or_json_decode_error(json, path),
     path=github_repository_lens.add_to_json_path(path),
@@ -254,17 +257,6 @@ fn decode_github_repository_payload(
 }
 
 ///|
-pub impl @json.FromJson for GitHubLockRepository with fn from_json(json, path) {
-  let type_ = repository_type_lens.get_or_json_decode_error(json, path)
-  guard type_ == "github" else {
-    raise repository_type_lens.json_decode_error(
-      path, "expected repository type github",
-    )
-  }
-  decode_github_repository_payload(json, path)
-}
-
-///|
 pub impl ToJson for GitHubLockRepository with fn to_json(self) -> Json {
   let builder = @lens.JsonBuilder::JsonBuilder()
   repository_type_lens.set_or_abort(builder, "github")
@@ -282,10 +274,13 @@ pub impl ToJson for GitHubLockRepository with fn to_json(self) -> Json {
 }
 
 ///|
-fn decode_local_repository_payload(
-  json : Json,
-  path : @json.JsonPath,
-) -> LocalLockRepository raise @json.JsonDecodeError {
+pub impl @json.FromJson for LocalLockRepository with fn from_json(json, path) {
+  let type_ = repository_type_lens.get_or_json_decode_error(json, path)
+  guard type_ == "local" else {
+    raise repository_type_lens.json_decode_error(
+      path, "expected repository type local",
+    )
+  }
   let source_path : RelativeSourcePath = @json.from_json(
     local_path_lens.get_or_json_decode_error(json, path),
     path=local_path_lens.add_to_json_path(path),
@@ -301,17 +296,6 @@ fn decode_local_repository_payload(
   LocalLockRepository(source_path, marketplace_kind, plugins) catch {
     error => raise @json.JsonDecodeError((path, error.to_string()))
   }
-}
-
-///|
-pub impl @json.FromJson for LocalLockRepository with fn from_json(json, path) {
-  let type_ = repository_type_lens.get_or_json_decode_error(json, path)
-  guard type_ == "local" else {
-    raise repository_type_lens.json_decode_error(
-      path, "expected repository type local",
-    )
-  }
-  decode_local_repository_payload(json, path)
 }
 
 ///|
@@ -334,10 +318,14 @@ pub impl ToJson for LocalLockRepository with fn to_json(self) -> Json {
 pub impl @json.FromJson for LockRepository with fn from_json(json, path) {
   let type_ = repository_type_lens.get_or_json_decode_error(json, path)
   match type_ {
-    "github" =>
-      LockRepository::github(decode_github_repository_payload(json, path))
-    "local" =>
-      LockRepository::from_local(decode_local_repository_payload(json, path))
+    "github" => {
+      let repository : GitHubLockRepository = @json.from_json(json, path~)
+      LockRepository::github(repository)
+    }
+    "local" => {
+      let repository : LocalLockRepository = @json.from_json(json, path~)
+      LockRepository::from_local(repository)
+    }
     _ =>
       raise repository_type_lens.json_decode_error(
         path,
