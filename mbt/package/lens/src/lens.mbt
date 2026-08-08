@@ -305,6 +305,19 @@ pub fn[T] Lens::get_or_json_decode_error(
 }
 
 ///|
+/// Selects raw JSON and delegates its typed decoding to the standard `FromJson` implementation.
+pub fn[T : @json.FromJson] Lens::decode_from_json(
+  self : Lens[Json],
+  document : Json,
+  path : @json.JsonPath,
+) -> T raise @json.JsonDecodeError {
+  @json.from_json(
+    self.get_or_json_decode_error(document, path),
+    path=self.add_to_json_path(path),
+  )
+}
+
+///|
 /// Reads this lens and translates a lens failure into a standard JSON decode error.
 pub fn[T] PresenceLens::get_or_json_decode_error(
   self : PresenceLens[T],
