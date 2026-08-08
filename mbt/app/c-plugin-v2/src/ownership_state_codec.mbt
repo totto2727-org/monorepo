@@ -259,9 +259,8 @@ pub impl FromJson for OwnershipState with fn from_json(json, path) {
 ///|
 pub impl ToJson for OwnershipState with fn to_json(self) -> Json {
   let builder = @lens.JsonBuilder::JsonBuilder()
-  let stored_entries = self.entries.to_array()
-  stored_entries.sort_by((left, right) => left.0.compare(right.0))
-  let entries = stored_entries.map(entry => entry.1)
+  let entries = self.entries.values().collect()
+  entries.sort()
   ownership_state_version_lens.set_or_abort(
     builder,
     self.version.to_string().to_json(),

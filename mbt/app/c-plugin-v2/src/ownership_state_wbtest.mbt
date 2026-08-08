@@ -44,16 +44,73 @@ fn github_ownership_source() -> OwnershipSource raise {
 
 ///|
 fn ownership_entry(link : @path.Path) -> OwnershipEntry raise {
+  ownership_entry_with(
+    link,
+    "../../../cache/skills/sync",
+    "/home/alice/.cache/c-plugin/skills/sync",
+    github_ownership_source(),
+  )
+}
+
+///|
+fn ownership_entry_with(
+  link : @path.Path,
+  symlink_target : @path.Path,
+  resolved_target : @path.Path,
+  source : OwnershipSource,
+) -> OwnershipEntry raise {
   OwnershipEntry::OwnershipEntry(
     OwnershipLink::OwnershipLink(link),
-    "../../../cache/skills/sync",
-    OwnershipResolvedTarget::OwnershipResolvedTarget(
-      "/home/alice/.cache/c-plugin/skills/sync",
-    ),
+    symlink_target,
+    OwnershipResolvedTarget::OwnershipResolvedTarget(resolved_target),
     OwnershipManagedRoot::OwnershipManagedRoot(
       "/home/alice/project/.agents/skills",
     ),
-    github_ownership_source(),
+    source,
+  )
+}
+
+///|
+test "OwnershipEntry Compare::compare - uses every Eq field as a tie breaker" {
+  let link = "/home/alice/project/.agents/skills/sync"
+  let base = ownership_entry(link)
+  let changed_symlink = ownership_entry_with(
+    link,
+    "../../../other-cache/skills/sync",
+    base.resolved_target.path,
+    base.source,
+  )
+  let changed_target = ownership_entry_with(
+    link,
+    base.symlink_target,
+    "/home/alice/.cache/c-plugin/skills/other-sync",
+    base.source,
+  )
+  let changed_source = ownership_entry_with(
+    link,
+    base.symlink_target,
+    base.resolved_target.path,
+    OwnershipSource::from_local(
+      LocalOwnershipSource::LocalOwnershipSource(
+        RelativeSourcePath::RelativeSourcePath("vendor/c-plugin"),
+        PluginName::PluginName("c-plugin"),
+        SkillName::SkillName("sync"),
+      ),
+    ),
+  )
+  inspect(base.compare(base), content="0")
+  inspect(base.compare(changed_symlink) != 0, content="true")
+  inspect(base.compare(changed_target) != 0, content="true")
+  inspect(base.compare(changed_source) != 0, content="true")
+  inspect(base != changed_symlink, content="true")
+  inspect(base != changed_target, content="true")
+  inspect(base != changed_source, content="true")
+  inspect(
+    OwnershipManagedRoot::OwnershipManagedRoot("/workspace/a").compare(
+      OwnershipManagedRoot::OwnershipManagedRoot("/workspace/b"),
+    ) !=
+    0,
+    content="true",
   )
 }
 

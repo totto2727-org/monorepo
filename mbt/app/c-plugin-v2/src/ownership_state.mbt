@@ -15,6 +15,21 @@ pub fn GitHubOwnershipSource::GitHubOwnershipSource(
 }
 
 ///|
+pub impl Compare for GitHubOwnershipSource with fn compare(self, other) {
+  let repository = self.repository.compare(other.repository)
+  if repository != 0 {
+    repository
+  } else {
+    let plugin = self.plugin.compare(other.plugin)
+    if plugin != 0 {
+      plugin
+    } else {
+      self.skill.compare(other.skill)
+    }
+  }
+}
+
+///|
 pub struct LocalOwnershipSource {
   repository : RelativeSourcePath
   plugin : PluginName
@@ -31,10 +46,35 @@ pub fn LocalOwnershipSource::LocalOwnershipSource(
 }
 
 ///|
+pub impl Compare for LocalOwnershipSource with fn compare(self, other) {
+  let repository = self.repository.compare(other.repository)
+  if repository != 0 {
+    repository
+  } else {
+    let plugin = self.plugin.compare(other.plugin)
+    if plugin != 0 {
+      plugin
+    } else {
+      self.skill.compare(other.skill)
+    }
+  }
+}
+
+///|
 pub enum OwnershipSource {
   GitHub(GitHubOwnershipSource)
   Local(LocalOwnershipSource)
 } derive(Eq)
+
+///|
+pub impl Compare for OwnershipSource with fn compare(self, other) {
+  match (self, other) {
+    (GitHub(left), GitHub(right)) => left.compare(right)
+    (GitHub(_), Local(_)) => -1
+    (Local(_), GitHub(_)) => 1
+    (Local(left), Local(right)) => left.compare(right)
+  }
+}
 
 ///|
 pub fn OwnershipSource::from_github(
@@ -62,6 +102,11 @@ pub fn OwnershipLink::OwnershipLink(path : @path.Path) -> OwnershipLink raise {
 }
 
 ///|
+pub impl Compare for OwnershipLink with fn compare(self, other) {
+  self.path.to_string().lexical_compare(other.path.to_string())
+}
+
+///|
 pub struct OwnershipResolvedTarget {
   path : @path.Path
 } derive(Eq)
@@ -77,6 +122,11 @@ pub fn OwnershipResolvedTarget::OwnershipResolvedTarget(
 }
 
 ///|
+pub impl Compare for OwnershipResolvedTarget with fn compare(self, other) {
+  self.path.to_string().lexical_compare(other.path.to_string())
+}
+
+///|
 pub struct OwnershipManagedRoot {
   path : @path.Path
 } derive(Eq)
@@ -89,6 +139,11 @@ pub fn OwnershipManagedRoot::OwnershipManagedRoot(
     fail("ownership managed root must be absolute")
   }
   { path: path.normalize() }
+}
+
+///|
+pub impl Compare for OwnershipManagedRoot with fn compare(self, other) {
+  self.path.to_string().lexical_compare(other.path.to_string())
 }
 
 ///|
@@ -112,6 +167,33 @@ pub fn OwnershipEntry::OwnershipEntry(
     fail("ownership link must be a direct child of its managed root")
   }
   { link, symlink_target, resolved_target, managed_root, source }
+}
+
+///|
+pub impl Compare for OwnershipEntry with fn compare(self, other) {
+  let link = self.link.compare(other.link)
+  if link != 0 {
+    link
+  } else {
+    let symlink_target = self.symlink_target
+      .to_string()
+      .lexical_compare(other.symlink_target.to_string())
+    if symlink_target != 0 {
+      symlink_target
+    } else {
+      let resolved_target = self.resolved_target.compare(other.resolved_target)
+      if resolved_target != 0 {
+        resolved_target
+      } else {
+        let managed_root = self.managed_root.compare(other.managed_root)
+        if managed_root != 0 {
+          managed_root
+        } else {
+          self.source.compare(other.source)
+        }
+      }
+    }
+  }
 }
 
 ///|
