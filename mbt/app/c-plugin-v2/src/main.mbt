@@ -1,4 +1,17 @@
 ///|
+fn runtime_for_init(paths : RuntimePaths) -> Runtime {
+  Runtime::Runtime(
+    paths~,
+    discover_locks_api=discover_locks,
+    load_lock~,
+    create_lock_exclusive~,
+    write_lock_atomic~,
+    load_ownership_state~,
+    write_ownership_state_atomic~,
+  )
+}
+
+///|
 fn app(runtime : Runtime) -> @admiral.CliApp {
   @admiral.CliApp::CliApp(
     name="c-plugin",
