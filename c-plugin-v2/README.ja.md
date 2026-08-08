@@ -310,7 +310,7 @@ src/
 - 単体テストでbitを使用する場合は、一時ルート以下の破棄可能なリポジトリだけを操作する。
 - lockのround trip、厳格な失敗、最上位Enum dispatch、canonical ordering、JSON error pathをテストする。
 - 未対応のlock versionが、ロックの正確なbytesを維持し、link、cache、ownership stateを変更しないことをテストする。
-- Pathの正規化、project/global/recursive discovery、local sourceの制約、targetの重複排除、ロックスコープキーの導出、スコープmetadata不一致の拒否、同じリポジトリを異なるcommitに固定する2つのロック間のcache分離をテストする。
+- Pathの正規化、project/global/recursive discovery、local sourceの制約、targetの重複排除、ロックスコープキーの導出、スコープmetadataの生成とcodec検証、同じリポジトリを異なるcommitに固定する2つのロック間のcache分離をテストする。永続化したmetadataを利用するcache storage adapterを追加する時点で、metadata不一致の拒否をテストする。
 - 純粋なTUI selection stateをテストし、command testにはscripted selectionを注入する。
 - 冪等なコマンド再実行、管理外パスとの衝突、管理対象リンクの置換、skill重複時の優先順位、一部リポジトリの失敗、永続化前の状態維持をテストする。
 - 既存ロックを変更するすべての経路が永続化した候補を`sync`へ渡し、`init`、キャンセル、意味的なno-opでは不要な調整を実行しないことをテストする。
@@ -369,7 +369,7 @@ Milestone 0は完了済みの本設計契約です。Milestone 1から7では、
 
 ### 単位ごとの検証契約
 
-各原子的な単位では、動作とテストを同じ変更に含めます。`B0`では文書化したv1/v2のpathとidentity、v1が未変更であること、両versionが同じlock scopeを共有しないことを検証します。`B1`では固定した全dependencyと正確な`mizchi/bit` APIを使用するnative buildを証明してから、対象を絞ったcheck・format・parser test・native buildを実行し、実際の`--help`/`--version`とAdmiral名`c-plugin`を確認します。`B2`では`c-plugin-v2` Nix packageをbuild/evaluateし、そのexecutableが動作してv1 packageが未変更であることを検証します。`F0`と`F1`ではconstructor・normalization・拒否・仮home、`F2`ではcanonical round trip・JSON path・strict failure・未対応versionのbyte維持・最上位dispatch、`F3`では厳格なownership-state round trip、`F4`ではexclusive create・temporary-sibling rename・永続化前後の失敗、`F5`では完全SHA-256 vector・metadata不一致・canonicalization・lock移動・2ロックcache分離、`F6`ではnearest project・exact global・ignore/recursive descendant・home境界・`-g`/`-r`、`F7`では全runtime boundaryの注入と実ユーザーpathの非使用をテストします。`C-init`ではproject/global正常系・既存fileのbyte維持・不正scope・繰り返しをテストし、`E0`ではimage/executableを1回だけbuildして、分離したproject/global initのstatus・output・lock JSON・host stateをassertします。
+各原子的な単位では、動作とテストを同じ変更に含めます。`B0`では文書化したv1/v2のpathとidentity、v1が未変更であること、両versionが同じlock scopeを共有しないことを検証します。`B1`では固定した全dependencyと正確な`mizchi/bit` APIを使用するnative buildを証明してから、対象を絞ったcheck・format・parser test・native buildを実行し、実際の`--help`/`--version`とAdmiral名`c-plugin`を確認します。`B2`では`c-plugin-v2` Nix packageをbuild/evaluateし、そのexecutableが動作してv1 packageが未変更であることを検証します。`F0`と`F1`ではconstructor・normalization・拒否・仮home、`F2`ではcanonical round trip・JSON path・strict failure・未対応versionのbyte維持・最上位dispatch、`F3`では厳格なownership-state round trip、`F4`ではexclusive create・temporary-sibling rename・永続化前後の失敗、`F5`では完全SHA-256 vector・検証済みmetadataの生成とround trip・canonicalization・lock移動・2ロックcache分離をテストします。metadata不一致の拒否は、永続化metadataを利用する将来のcache storage adapter testでその利用境界に対して検証します。`F6`ではnearest project・exact global・ignore/recursive descendant・home境界・`-g`/`-r`、`F7`では全runtime boundaryの注入と実ユーザーpathの非使用をテストします。`C-init`ではproject/global正常系・既存fileのbyte維持・不正scope・繰り返しをテストし、`E0`ではimage/executableを1回だけbuildして、分離したproject/global initのstatus・output・lock JSON・host stateをassertします。
 
 `M0`と`M1`ではClaude/Cursor/Codexとlocal fixtureを使い、明示的なkind/skill選択・重複ID・ordering・不正manifest・正規化pathをテストします。`R1`では不足・古い・管理外・置換済み・壊れたlink、欠落/破損ownership state、優先順位、削除target、一部失敗、冪等性、ロック間分離を網羅します。`C-sync`と`C-sync-r`ではunit flowとclean-container E2Eを追加し、外部編集したlockとignore対象のrecursive descendantも検証します。`A1`では成功した全mutationが永続化済みcandidateと同じ値をsyncし、cancel/no-opはwriteもsyncも行わず、write後のsync失敗から復旧できることを証明します。`C-add-local`、`C-remove`、`C-target-add`、`C-target-remove`は、それぞれunitと独立したclean-container E2Eで、該当するstatus/output、canonical lock、link/state、繰り返しまたは選択、cleanup、管理外path維持をassertします。
 
