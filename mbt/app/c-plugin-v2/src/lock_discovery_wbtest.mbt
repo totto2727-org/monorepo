@@ -5,6 +5,36 @@ struct LockDiscoveryFixture {
 }
 
 ///|
+test "path_is_within - accepts a normalized base itself" {
+  let base : @path.Path = "/synthetic/home/workspace/./package"
+  let target : @path.Path = "/synthetic/home/workspace/package"
+  assert_true(path_is_within(base, target))
+}
+
+///|
+test "path_is_within - accepts direct and deep normalized descendants" {
+  let base : @path.Path = "/synthetic/home/workspace/package"
+  let direct : @path.Path = "/synthetic/home/workspace/package/child"
+  let deep : @path.Path = "/synthetic/home/workspace/package/child/../nested/deep"
+  assert_true(path_is_within(base, direct))
+  assert_true(path_is_within(base, deep))
+}
+
+///|
+test "path_is_within - rejects a common lexical prefix sibling" {
+  let base : @path.Path = "/synthetic/home/foo"
+  let sibling : @path.Path = "/synthetic/home/foobar"
+  assert_false(path_is_within(base, sibling))
+}
+
+///|
+test "path_is_within - rejects a normalized escape" {
+  let base : @path.Path = "/synthetic/home/workspace/package"
+  let escaped : @path.Path = "/synthetic/home/workspace/package/../../outside"
+  assert_false(path_is_within(base, escaped))
+}
+
+///|
 async fn with_lock_discovery_fixture(
   action : async (LockDiscoveryFixture) -> Unit,
 ) -> Unit {
