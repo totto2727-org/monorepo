@@ -1,7 +1,9 @@
 import {
   "moonbitlang/async",
+  "moonbitlang/core/json",
   "moonbitlang/x/path",
   "totto2727/admiral",
+  "totto2727/lens",
 }
 
 import {
@@ -10,7 +12,6 @@ import {
   "mizchi/bit_osfs",
   "mizchi/tui",
   "moonbitlang/async/fs",
-  "totto2727/lens",
   "totto2727/target-file-discovery" @target_file_discovery,
 } for "wbtest"
 
