@@ -15,6 +15,16 @@ description: >-
 
 Express invariants in the type system whenever possible. Preserve paths, identifiers, commands, and domain payloads as specific structural values while they cross application layers. Keep generic JSON at serialization boundaries, and convert structural values to text only when an external protocol or display requires it.
 
+## Collection invariants
+
+Do not construct a unique array with manual `contains`, `filter`, `fold`, or a local deduplication helper. When uniqueness is a domain invariant, store the values in a collection whose type guarantees uniqueness. Prefer the language's `Set` or a library set such as Effect `HashSet` for TypeScript and `@immut/hashset` or `@immut/sorted_set` for MoonBit. Convert the set to an array only at a consumer or API boundary that requires a sequence, such as serialization, presentation, interoperability, or a detached public snapshot.
+
+Choose the collection by its observable semantics as well as uniqueness: insertion order versus comparison order, `Eq` and `Hash` identity, and mutable versus persistent updates. Do not replace an order-preserving representation with a sorted collection unless the domain contract explicitly requires sorted order.
+
+When duplicate input is invalid, reject it at the boundary before collection construction can collapse it. Silently deduplicate only when deduplication is the explicit domain behavior.
+
+If a private array exists only to stop callers from mutating it, prefer a readonly or persistent immutable collection. Keep a mutable private collection only when controlled mutation is part of the implementation's behavior.
+
 ## Strict boundary conversion
 
 Keep untrusted or weakly typed values at the boundary where they enter or leave the program. Convert an external response into a wire model, convert the wire model into a validated domain model, convert the domain model into an outbound request model, and serialize only that request model. Apply the same rule to library values whose types are too broad to preserve domain invariants. Do not pass `any`, generic JSON, stringly typed identifiers, or parser contexts through internal application layers.
