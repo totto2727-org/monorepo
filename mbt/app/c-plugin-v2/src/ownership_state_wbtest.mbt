@@ -33,7 +33,7 @@ test "panic_OwnershipManagedRoot OwnershipManagedRoot - rejects a relative path"
 
 ///|
 fn github_ownership_source() -> OwnershipSource raise {
-  OwnershipSource::github(
+  OwnershipSource::from_github(
     GitHubOwnershipSource::GitHubOwnershipSource(
       GitHubRepository::from_route("OpenAI/Codex"),
       PluginName::PluginName("c-plugin"),
