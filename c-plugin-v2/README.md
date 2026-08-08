@@ -99,7 +99,7 @@ The rewrite is complete only when it preserves these capabilities:
 - Nearest-parent project lock discovery, exact home-level global lock discovery, and recursive descendant lock discovery.
 - `.gitignore`-aware recursive traversal through `totto2727/target-file-discovery`.
 - Tolerant multi-repository synchronization: one unavailable repository is reported and skipped without preventing independent repositories from being synchronized.
-- Deterministic duplicate skill-name resolution using the last repository entry in lock order, matching the current behavior.
+- Deterministic duplicate skill-name resolution using the last repository in canonical repository order at reconciliation time, independent of JSON input order and internal collection iteration order.
 - Marketplace conversion among Claude, Cursor, and Codex formats.
 - Codex local source objects with normalized `./plugins/...` paths and `policy.installation = "INSTALLED_BY_DEFAULT"`.
 - Copying a base-kind plugin's `plugin.json` to target kinds when the base file exists.
@@ -278,7 +278,7 @@ JSON rules:
 - Scalar closed enums such as `MarketplaceKind` may use a strict string representation.
 - Missing required fields, unknown enum values, wrong types, malformed paths, invalid repository names, duplicate identities, and unsupported versions are errors.
 - Never treat corrupt JSON as an empty lock, silently filter invalid repository entries, or replace invalid values with permissive defaults.
-- Preserve repository, plugin, skill, and target ordering for deterministic output and duplicate resolution.
+- Store unique aggregates in immutable hash sets and maps without retaining JSON input order. Sort only at the boundary that needs ordering: canonical JSON sorts targets by normalized path, repositories by source kind and identity, plugins by name, enabled skills by name, and ownership entries by normalized link path, using lexicographical code-unit order.
 
 The lock codec has one round-trip property: decoding the canonical encoded form returns the same domain value. Pretty output uses two-space indentation and a trailing newline.
 

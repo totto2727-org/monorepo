@@ -252,13 +252,14 @@ pub impl FromJson for OwnershipState with fn from_json(json, path) {
 ///|
 pub impl ToJson for OwnershipState with fn to_json(self) -> Json {
   let builder = @lens.JsonBuilder::JsonBuilder()
+  let entries = self.entries.values().to_array()
+  entries.sort_by((left, right) => {
+    left.link.to_string().lexical_compare(right.link.to_string())
+  })
   ownership_state_version_lens.set_or_abort(
     builder,
     self.version.to_string().to_json(),
   )
-  ownership_state_entries_lens.set_or_abort(
-    builder,
-    self.entries.values().collect().to_json(),
-  )
+  ownership_state_entries_lens.set_or_abort(builder, entries.to_json())
   builder.to_json()
 }

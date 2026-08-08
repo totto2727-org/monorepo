@@ -4,6 +4,8 @@ import {
   "moonbitlang/async/os_error",
   "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/env",
+  "moonbitlang/core/immut/hashmap" @immut_hashmap,
+  "moonbitlang/core/immut/hashset" @immut_hashset,
   "moonbitlang/core/json",
   "moonbitlang/x/path",
   "shu-kitamura/sha256",

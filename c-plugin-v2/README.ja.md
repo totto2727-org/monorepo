@@ -99,7 +99,7 @@ TUIは選択状態を扱うアダプターであり、コマンドのビジネ�
 - 最も近い親のプロジェクトロック探索、home直下のグローバルロック探索、再帰的な子孫ロック探索。
 - `totto2727/target-file-discovery`による`.gitignore`を考慮した再帰探索。
 - 複数リポジトリ同期の耐障害性。1つのリポジトリが利用できない場合は報告してスキップし、独立した他のリポジトリの同期を妨げない。
-- 現在の動作と同じく、ロック順で最後のリポジトリエントリを採用する決定論的なスキル名重複解決。
+- JSON入力順や内部collectionの反復順に依存せず、同期時にcanonical repository順で最後のリポジトリを採用する決定論的なスキル名重複解決。
 - Claude、Cursor、Codex形式間のマーケットプレイス変換。
 - 正規化された`./plugins/...`パスと`policy.installation = "INSTALLED_BY_DEFAULT"`を持つCodexのローカルsource object。
 - 入力元種別のプラグインに`plugin.json`が存在する場合、対象種別へコピーする。
@@ -278,7 +278,7 @@ JSONの規則は次のとおりです。
 - `MarketplaceKind`のようなscalar closed enumは、厳格な文字列表現を使用してよい。
 - 必須フィールドの欠落、未知のEnum値、不正な型、不正なパス、無効なリポジトリ名、identityの重複、未対応バージョンはエラーとする。
 - 壊れたJSONを空のロックとして扱ったり、不正なリポジトリエントリを暗黙に除外したり、不正な値を寛容な既定値へ置き換えたりしない。
-- 決定論的な出力と重複解決のため、repository、plugin、skill、targetの順序を維持する。
+- 一意なaggregateはimmutable hash set/mapに保持し、JSON入力順を内部状態に残さない。順序が必要な境界だけでsortし、canonical JSONではcode unitの辞書順を用いて、targetを正規化path、repositoryをsource kindとidentity、pluginをname、enabled skillをname、ownership entryを正規化link pathで並べる。
 
 ロックcodecには、canonical encodingをデコードすると同じドメイン値へ戻るという1つのround-trip propertyを持たせます。整形出力は2スペースindentと末尾の改行を使用します。
 

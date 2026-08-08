@@ -170,7 +170,7 @@ test "path identity Hash::hash - matches normalized equality" {
 }
 
 ///|
-test "lock domain preserves version two order and equality" {
+test "lock domain equality ignores collection input order" {
   let plugin = Plugin::Plugin(
     PluginName::PluginName("c-plugin"),
     RelativePluginPath::RelativePluginPath("plugins/c-plugin"),
@@ -206,7 +206,7 @@ test "lock domain preserves version two order and equality" {
     RelativePluginPath::RelativePluginPath("plugins/c-plugin"),
     [SkillName::SkillName("sync"), SkillName::SkillName("install")],
   )
-  inspect(plugin == reordered_plugin, content="false")
+  inspect(plugin == reordered_plugin, content="true")
   let second_plugin = Plugin::Plugin(
     PluginName::PluginName("second"),
     RelativePluginPath::RelativePluginPath("plugins/second"),
@@ -224,7 +224,7 @@ test "lock domain preserves version two order and equality" {
     CommitId::CommitId("0123456789abcdef0123456789abcdef01234567"),
     [second_plugin, plugin],
   )
-  inspect(ordered_github == reordered_github, content="false")
+  inspect(ordered_github == reordered_github, content="true")
   let ordered_local = LocalLockRepository::LocalLockRepository(
     RelativeSourcePath::RelativeSourcePath("vendor/plugin"),
     MarketplaceKind::claude(),
@@ -235,21 +235,23 @@ test "lock domain preserves version two order and equality" {
     MarketplaceKind::claude(),
     [second_plugin, plugin],
   )
-  inspect(ordered_local == reordered_local, content="false")
+  inspect(ordered_local == reordered_local, content="true")
   let target_reordered_lock = Lock::Lock(
     [Target::Target(".cursor/skills"), Target::Target(".agents/skills")],
     [github, local_repository],
   )
-  inspect(lock == target_reordered_lock, content="false")
+  inspect(lock == target_reordered_lock, content="true")
   let repository_reordered_lock = Lock::Lock(
     [Target::Target(".agents/skills"), Target::Target(".cursor/skills")],
     [local_repository, github],
   )
-  inspect(lock == repository_reordered_lock, content="false")
+  inspect(lock == repository_reordered_lock, content="true")
   inspect(lock.version, content="2")
-  inspect(lock.targets()[0].path.to_string(), content=".agents/skills")
-  inspect(lock.repositories()[0] == github, content="true")
-  match lock.repositories()[0] {
+  inspect(
+    lock.targets.contains(Target::Target(".agents/skills")),
+    content="true",
+  )
+  match lock.repositories[github.identity()] {
     LockRepository::GitHub(repository) => {
       inspect(repository.repository.owner.value, content="openai")
       inspect(repository.repository.name.value, content="codex")
@@ -259,67 +261,72 @@ test "lock domain preserves version two order and equality" {
         content="0123456789abcdef0123456789abcdef01234567",
       )
       inspect(
-        repository.plugins()[0].enabled_skills()[0].value,
-        content="install",
+        repository.plugins[plugin.name].enabled_skills.contains(
+          SkillName::SkillName("install"),
+        ),
+        content="true",
       )
     }
-    LockRepository::Local(_) =>
-      fail("first repository must preserve GitHub order")
+    LockRepository::Local(_) => fail("expected GitHub repository")
   }
 }
 
 ///|
-test "mutable aggregate fields expose detached readonly snapshots" {
+test "aggregate collections are immutable values" {
   let plugin = Plugin::Plugin(
     PluginName::PluginName("plugin"),
     RelativePluginPath::RelativePluginPath("plugin"),
     [SkillName::SkillName("install")],
   )
-  let enabled_skills = plugin.enabled_skills()
-  plugin.enabled_skills.add(SkillName::SkillName("sync"))
-  inspect(enabled_skills.length(), content="1")
-  inspect(plugin.enabled_skills().length(), content="2")
+  let expanded_skills = plugin.enabled_skills.add(SkillName::SkillName("sync"))
+  inspect(plugin.enabled_skills.length(), content="1")
+  inspect(expanded_skills.length(), content="2")
   let github = GitHubLockRepository::GitHubLockRepository(
     GitHubRepository::from_route("openai/codex"),
     MarketplaceKind::codex(),
     CommitId::CommitId("0123456789abcdef0123456789abcdef01234567"),
     [plugin],
   )
-  let github_plugins = github.plugins()
   let github_extra = Plugin::Plugin(
     PluginName::PluginName("github-extra"),
     RelativePluginPath::RelativePluginPath("github-extra"),
     [],
   )
-  github.plugins[github_extra.name] = github_extra
-  inspect(github_plugins.length(), content="1")
-  inspect(github.plugins().length(), content="2")
+  let expanded_github_plugins = github.plugins.add(
+    github_extra.name,
+    github_extra,
+  )
+  inspect(github.plugins.length(), content="1")
+  inspect(expanded_github_plugins.length(), content="2")
   let local_repository = LocalLockRepository::LocalLockRepository(
     RelativeSourcePath::RelativeSourcePath("vendor/plugin"),
     MarketplaceKind::claude(),
     [plugin],
   )
-  let local_plugins = local_repository.plugins()
   let local_extra = Plugin::Plugin(
     PluginName::PluginName("local-extra"),
     RelativePluginPath::RelativePluginPath("local-extra"),
     [],
   )
-  local_repository.plugins[local_extra.name] = local_extra
-  inspect(local_plugins.length(), content="1")
-  inspect(local_repository.plugins().length(), content="2")
+  let expanded_local_plugins = local_repository.plugins.add(
+    local_extra.name,
+    local_extra,
+  )
+  inspect(local_repository.plugins.length(), content="1")
+  inspect(expanded_local_plugins.length(), content="2")
   let lock = Lock::Lock([Target::Target(".agents/skills")], [
     LockRepository::github(github),
   ])
-  let targets = lock.targets()
-  let repositories = lock.repositories()
-  lock.targets.add(Target::Target(".cursor/skills"))
+  let expanded_targets = lock.targets.add(Target::Target(".cursor/skills"))
   let added_repository = LockRepository::from_local(local_repository)
-  lock.repositories[added_repository.identity()] = added_repository
-  inspect(targets.length(), content="1")
-  inspect(repositories.length(), content="1")
-  inspect(lock.targets().length(), content="2")
-  inspect(lock.repositories().length(), content="2")
+  let expanded_repositories = lock.repositories.add(
+    added_repository.identity(),
+    added_repository,
+  )
+  inspect(lock.targets.length(), content="1")
+  inspect(lock.repositories.length(), content="1")
+  inspect(expanded_targets.length(), content="2")
+  inspect(expanded_repositories.length(), content="2")
 }
 
 ///|

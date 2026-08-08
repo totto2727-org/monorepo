@@ -68,15 +68,13 @@ test "OwnershipState ToJson::to_json - round trips local ownership metadata" {
 }
 
 ///|
-test "OwnershipState ToJson::to_json - preserves non-sorted entry order" {
+test "OwnershipState ToJson::to_json - sorts entries by link" {
   let text =
     #|{"version":"1","entries":[{"link":"/home/alice/project/.agents/skills/z-last","symlinkTarget":"../../../cache/skills/z-last","resolvedTarget":"/home/alice/.cache/c-plugin/skills/z-last","managedRoot":"/home/alice/project/.agents/skills","source":{"type":"github","repository":"openai/codex","plugin":"c-plugin","skill":"z-last"}},{"link":"/home/alice/project/.agents/skills/a-first","symlinkTarget":"../../../cache/skills/a-first","resolvedTarget":"/home/alice/.cache/c-plugin/skills/a-first","managedRoot":"/home/alice/project/.agents/skills","source":{"type":"github","repository":"openai/codex","plugin":"c-plugin","skill":"a-first"}}]}
   let state : OwnershipState = @json.from_json(@json.parse(text))
-  inspect(
-    state.entries()[0].link.to_string(),
-    content="/home/alice/project/.agents/skills/z-last",
-  )
-  inspect(ToJson::to_json(state).stringify(), content=text)
+  let expected =
+    #|{"version":"1","entries":[{"link":"/home/alice/project/.agents/skills/a-first","symlinkTarget":"../../../cache/skills/a-first","resolvedTarget":"/home/alice/.cache/c-plugin/skills/a-first","managedRoot":"/home/alice/project/.agents/skills","source":{"type":"github","repository":"openai/codex","plugin":"c-plugin","skill":"a-first"}},{"link":"/home/alice/project/.agents/skills/z-last","symlinkTarget":"../../../cache/skills/z-last","resolvedTarget":"/home/alice/.cache/c-plugin/skills/z-last","managedRoot":"/home/alice/project/.agents/skills","source":{"type":"github","repository":"openai/codex","plugin":"c-plugin","skill":"z-last"}}]}
+  inspect(ToJson::to_json(state).stringify(), content=expected)
 }
 
 ///|

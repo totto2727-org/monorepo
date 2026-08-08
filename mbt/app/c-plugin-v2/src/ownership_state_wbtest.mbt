@@ -44,26 +44,29 @@ test "OwnershipEntry OwnershipEntry - normalizes absolute paths but preserves sy
 }
 
 ///|
-test "OwnershipState entries - returns a detached readonly snapshot" {
+test "OwnershipState entries - stores an immutable hash map" {
   let state = OwnershipState::OwnershipState([
     ownership_entry("/home/alice/project/.agents/skills/sync"),
   ])
-  let entries = state.entries()
+  let entries = state.entries
   let added_entry = ownership_entry(
     "/home/alice/project/.agents/skills/install",
   )
-  state.entries[OwnershipLinkIdentity(added_entry.link)] = added_entry
+  let expanded_entries = state.entries.add(
+    OwnershipLinkIdentity(added_entry.link),
+    added_entry,
+  )
   inspect(entries.length(), content="1")
-  inspect(state.entries().length(), content="2")
+  inspect(expanded_entries.length(), content="2")
 }
 
 ///|
-test "OwnershipState equality - preserves entry order" {
+test "OwnershipState equality - ignores entry order" {
   let sync = ownership_entry("/home/alice/project/.agents/skills/sync")
   let install = ownership_entry("/home/alice/project/.agents/skills/install")
   let state = OwnershipState::OwnershipState([sync, install])
   let reordered = OwnershipState::OwnershipState([install, sync])
-  inspect(state == reordered, content="false")
+  inspect(state == reordered, content="true")
 }
 
 ///|
