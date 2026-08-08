@@ -2,8 +2,6 @@
 pub(all) suberror CacheIdentityError {
   RelativePath(name~ : String, path~ : @path.Path)
   UnsupportedMetadataVersion(version~ : Int)
-  MissingMetadata(expected~ : CacheScopeMetadata)
-  MetadataMismatch(expected~ : CacheScopeMetadata, actual~ : CacheScopeMetadata)
 } derive(Debug)
 
 ///|
@@ -95,23 +93,10 @@ pub fn CacheScope::cache_path(
 }
 
 ///|
-pub fn CacheScope::metadata(self : CacheScope) -> CacheScopeMetadata {
-  { version: 1, lock_path: self.lock_path }
-}
-
-///|
-pub fn CacheScope::validate_metadata(
+pub fn CacheScope::metadata(
   self : CacheScope,
-  metadata : CacheScopeMetadata?,
-) -> Unit raise CacheIdentityError {
-  let expected = self.metadata()
-  match metadata {
-    None => raise MissingMetadata(expected~)
-    Some(actual) => {
-      let matches_scope = actual == expected
-      guard matches_scope else { raise MetadataMismatch(expected~, actual~) }
-    }
-  }
+) -> CacheScopeMetadata raise CacheIdentityError {
+  CacheScopeMetadata::CacheScopeMetadata(1, self.lock_path)
 }
 
 ///|
