@@ -1,5 +1,7 @@
 import {
   "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/os_error",
   "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/json",
   "moonbitlang/x/path",
@@ -14,7 +16,6 @@ import {
   "mizchi/bit_lib/native" @bit_native,
   "mizchi/bit_osfs",
   "mizchi/tui",
-  "moonbitlang/async/fs",
 } for "wbtest"
 
 supported_targets = "native"
