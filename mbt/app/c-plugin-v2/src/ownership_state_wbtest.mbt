@@ -49,11 +49,21 @@ test "OwnershipState entries - returns a detached readonly snapshot" {
     ownership_entry("/home/alice/project/.agents/skills/sync"),
   ])
   let entries = state.entries()
-  state.entries.push(
-    ownership_entry("/home/alice/project/.agents/skills/install"),
+  let added_entry = ownership_entry(
+    "/home/alice/project/.agents/skills/install",
   )
+  state.entries[OwnershipLinkIdentity(added_entry.link)] = added_entry
   inspect(entries.length(), content="1")
   inspect(state.entries().length(), content="2")
+}
+
+///|
+test "OwnershipState equality - preserves entry order" {
+  let sync = ownership_entry("/home/alice/project/.agents/skills/sync")
+  let install = ownership_entry("/home/alice/project/.agents/skills/install")
+  let state = OwnershipState::OwnershipState([sync, install])
+  let reordered = OwnershipState::OwnershipState([install, sync])
+  inspect(state == reordered, content="false")
 }
 
 ///|

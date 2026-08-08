@@ -256,6 +256,9 @@ pub impl ToJson for OwnershipState with fn to_json(self) -> Json {
     builder,
     self.version.to_string().to_json(),
   )
-  ownership_state_entries_lens.set_or_abort(builder, self.entries.to_json())
+  ownership_state_entries_lens.set_or_abort(
+    builder,
+    self.entries.values().collect().to_json(),
+  )
   builder.to_json()
 }

@@ -1,7 +1,7 @@
 ///|
 pub struct GitHubOwner {
   value : String
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///|
 pub fn GitHubOwner::GitHubOwner(value : String) -> GitHubOwner raise {
@@ -21,7 +21,7 @@ pub fn GitHubOwner::GitHubOwner(value : String) -> GitHubOwner raise {
 ///|
 pub struct GitHubRepositoryName {
   value : String
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///|
 pub fn GitHubRepositoryName::GitHubRepositoryName(
@@ -47,7 +47,7 @@ pub fn GitHubRepositoryName::GitHubRepositoryName(
 pub struct GitHubRepository {
   owner : GitHubOwner
   name : GitHubRepositoryName
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///|
 pub fn GitHubRepository::GitHubRepository(
@@ -83,6 +83,11 @@ pub struct Target {
 } derive(Eq)
 
 ///|
+pub impl Hash for Target with fn hash_combine(self, hasher) {
+  self.path.to_string().hash_combine(hasher)
+}
+
+///|
 pub fn Target::Target(path : @path.Path) -> Target raise {
   guard path.to_string() != "" else { fail("target path must not be empty") }
   { path: path.normalize() }
@@ -92,6 +97,11 @@ pub fn Target::Target(path : @path.Path) -> Target raise {
 pub struct RelativeSourcePath {
   path : @path.Path
 } derive(Eq)
+
+///|
+pub impl Hash for RelativeSourcePath with fn hash_combine(self, hasher) {
+  self.path.to_string().hash_combine(hasher)
+}
 
 ///|
 pub fn RelativeSourcePath::RelativeSourcePath(
@@ -105,6 +115,11 @@ pub fn RelativeSourcePath::RelativeSourcePath(
 pub struct RelativePluginPath {
   path : @path.Path
 } derive(Eq)
+
+///|
+pub impl Hash for RelativePluginPath with fn hash_combine(self, hasher) {
+  self.path.to_string().hash_combine(hasher)
+}
 
 ///|
 pub fn RelativePluginPath::RelativePluginPath(
@@ -132,7 +147,7 @@ fn validate_relative_path(path : @path.Path, kind : String) -> Unit raise {
 ///|
 pub struct PluginName {
   value : String
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///|
 pub fn PluginName::PluginName(value : String) -> PluginName raise {
@@ -143,7 +158,7 @@ pub fn PluginName::PluginName(value : String) -> PluginName raise {
 ///|
 pub struct SkillName {
   value : String
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///|
 pub fn SkillName::SkillName(value : String) -> SkillName raise {
@@ -208,8 +223,20 @@ pub fn MarketplaceKind::codex() -> MarketplaceKind {
 pub struct Plugin {
   name : PluginName
   path : RelativePluginPath
-  priv enabled_skills : Array[SkillName]
-} derive(Eq)
+  priv enabled_skills : Set[SkillName]
+}
+
+///|
+pub impl Eq for Plugin with fn equal(self, other) {
+  self.name == other.name &&
+  self.path == other.path &&
+  ordered_iter_equal(
+    self.enabled_skills.iter(),
+    other.enabled_skills.iter(),
+    self.enabled_skills.length(),
+    other.enabled_skills.length(),
+  )
+}
 
 ///|
 pub fn Plugin::Plugin(
@@ -217,15 +244,18 @@ pub fn Plugin::Plugin(
   path : RelativePluginPath,
   enabled_skills : Array[SkillName],
 ) -> Plugin raise {
-  guard unique_skill_count(enabled_skills) == enabled_skills.length() else {
-    fail("plugin enabled skills must be unique")
+  let stored_skills : Set[SkillName] = Set::default()
+  for skill in enabled_skills {
+    guard stored_skills.add_and_check(skill) else {
+      fail("plugin enabled skills must be unique")
+    }
   }
-  { name, path, enabled_skills: [..enabled_skills] }
+  { name, path, enabled_skills: stored_skills }
 }
 
 ///|
 pub fn Plugin::enabled_skills(self : Plugin) -> ReadOnlyArray[SkillName] {
-  ReadOnlyArray::from_array(self.enabled_skills)
+  ReadOnlyArray::from_array(self.enabled_skills.to_array())
 }
 
 ///|
@@ -233,8 +263,21 @@ pub struct GitHubLockRepository {
   repository : GitHubRepository
   marketplace_kind : MarketplaceKind
   commit : CommitId
-  priv plugins : Array[Plugin]
-} derive(Eq)
+  priv plugins : Map[PluginName, Plugin]
+}
+
+///|
+pub impl Eq for GitHubLockRepository with fn equal(self, other) {
+  self.repository == other.repository &&
+  self.marketplace_kind == other.marketplace_kind &&
+  self.commit == other.commit &&
+  ordered_iter_equal(
+    self.plugins.values(),
+    other.plugins.values(),
+    self.plugins.length(),
+    other.plugins.length(),
+  )
+}
 
 ///|
 pub fn GitHubLockRepository::GitHubLockRepository(
@@ -243,25 +286,41 @@ pub fn GitHubLockRepository::GitHubLockRepository(
   commit : CommitId,
   plugins : Array[Plugin],
 ) -> GitHubLockRepository raise {
-  guard unique_plugin_count(plugins) == plugins.length() else {
-    fail("repository plugin names must be unique")
+  let stored_plugins : Map[PluginName, Plugin] = Map([])
+  for plugin in plugins {
+    guard !stored_plugins.contains(plugin.name) else {
+      fail("repository plugin names must be unique")
+    }
+    stored_plugins[plugin.name] = plugin
   }
-  { repository, marketplace_kind, commit, plugins: [..plugins] }
+  { repository, marketplace_kind, commit, plugins: stored_plugins }
 }
 
 ///|
 pub fn GitHubLockRepository::plugins(
   self : GitHubLockRepository,
 ) -> ReadOnlyArray[Plugin] {
-  ReadOnlyArray::from_array(self.plugins)
+  ReadOnlyArray::from_array(self.plugins.values().collect())
 }
 
 ///|
 pub struct LocalLockRepository {
   path : RelativeSourcePath
   marketplace_kind : MarketplaceKind
-  priv plugins : Array[Plugin]
-} derive(Eq)
+  priv plugins : Map[PluginName, Plugin]
+}
+
+///|
+pub impl Eq for LocalLockRepository with fn equal(self, other) {
+  self.path == other.path &&
+  self.marketplace_kind == other.marketplace_kind &&
+  ordered_iter_equal(
+    self.plugins.values(),
+    other.plugins.values(),
+    self.plugins.length(),
+    other.plugins.length(),
+  )
+}
 
 ///|
 pub fn LocalLockRepository::LocalLockRepository(
@@ -269,17 +328,21 @@ pub fn LocalLockRepository::LocalLockRepository(
   marketplace_kind : MarketplaceKind,
   plugins : Array[Plugin],
 ) -> LocalLockRepository raise {
-  guard unique_plugin_count(plugins) == plugins.length() else {
-    fail("repository plugin names must be unique")
+  let stored_plugins : Map[PluginName, Plugin] = Map([])
+  for plugin in plugins {
+    guard !stored_plugins.contains(plugin.name) else {
+      fail("repository plugin names must be unique")
+    }
+    stored_plugins[plugin.name] = plugin
   }
-  { path, marketplace_kind, plugins: [..plugins] }
+  { path, marketplace_kind, plugins: stored_plugins }
 }
 
 ///|
 pub fn LocalLockRepository::plugins(
   self : LocalLockRepository,
 ) -> ReadOnlyArray[Plugin] {
-  ReadOnlyArray::from_array(self.plugins)
+  ReadOnlyArray::from_array(self.plugins.values().collect())
 }
 
 ///|
@@ -305,96 +368,80 @@ pub fn LockRepository::from_local(
 ///|
 pub struct Lock {
   version : Int
-  priv targets : Array[Target]
-  priv repositories : Array[LockRepository]
-} derive(Eq)
+  priv targets : Set[Target]
+  priv repositories : Map[RepositoryIdentity, LockRepository]
+}
+
+///|
+pub impl Eq for Lock with fn equal(self, other) {
+  self.version == other.version &&
+  ordered_iter_equal(
+    self.targets.iter(),
+    other.targets.iter(),
+    self.targets.length(),
+    other.targets.length(),
+  ) &&
+  ordered_iter_equal(
+    self.repositories.values(),
+    other.repositories.values(),
+    self.repositories.length(),
+    other.repositories.length(),
+  )
+}
 
 ///|
 pub fn Lock::Lock(
   targets : Array[Target],
   repositories : Array[LockRepository],
 ) -> Lock raise {
-  guard unique_target_count(targets) == targets.length() else {
-    fail("lock targets must be unique")
+  let stored_targets : Set[Target] = Set::default()
+  for target in targets {
+    guard stored_targets.add_and_check(target) else {
+      fail("lock targets must be unique")
+    }
   }
-  guard unique_repository_count(repositories) == repositories.length() else {
-    fail("lock repositories must be unique")
+  let stored_repositories : Map[RepositoryIdentity, LockRepository] = Map([])
+  for repository in repositories {
+    let identity = repository.identity()
+    guard !stored_repositories.contains(identity) else {
+      fail("lock repositories must be unique")
+    }
+    stored_repositories[identity] = repository
   }
-  { version: 2, targets: [..targets], repositories: [..repositories] }
+  { version: 2, targets: stored_targets, repositories: stored_repositories }
 }
 
 ///|
 pub fn Lock::targets(self : Lock) -> ReadOnlyArray[Target] {
-  ReadOnlyArray::from_array(self.targets)
+  ReadOnlyArray::from_array(self.targets.to_array())
 }
 
 ///|
 pub fn Lock::repositories(self : Lock) -> ReadOnlyArray[LockRepository] {
-  ReadOnlyArray::from_array(self.repositories)
-}
-
-///|
-fn unique_skill_count(skills : Array[SkillName]) -> Int {
-  skills
-  .iter()
-  .fold(init=[], fn(unique, skill) {
-    if unique.contains(skill) {
-      unique
-    } else {
-      [..unique, skill]
-    }
-  })
-  .length()
-}
-
-///|
-fn unique_plugin_count(plugins : Array[Plugin]) -> Int {
-  plugins
-  .iter()
-  .fold(init=[], fn(unique, plugin) {
-    if unique.contains(plugin.name) {
-      unique
-    } else {
-      [..unique, plugin.name]
-    }
-  })
-  .length()
-}
-
-///|
-fn unique_target_count(targets : Array[Target]) -> Int {
-  targets
-  .iter()
-  .fold(init=[], fn(unique, target) {
-    if unique.contains(target) {
-      unique
-    } else {
-      [..unique, target]
-    }
-  })
-  .length()
+  ReadOnlyArray::from_array(self.repositories.values().collect())
 }
 
 ///|
 enum RepositoryIdentity {
   GitHubIdentity(GitHubRepository)
   LocalIdentity(RelativeSourcePath)
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///|
-fn unique_repository_count(repositories : Array[LockRepository]) -> Int {
-  repositories
-  .iter()
-  .fold(init=[], fn(unique, repository) {
-    let identity = match repository {
-      GitHub(repository) => GitHubIdentity(repository.repository)
-      Local(repository) => LocalIdentity(repository.path)
-    }
-    if unique.contains(identity) {
-      unique
-    } else {
-      [..unique, identity]
-    }
-  })
-  .length()
+fn LockRepository::identity(self : LockRepository) -> RepositoryIdentity {
+  match self {
+    GitHub(repository) => GitHubIdentity(repository.repository)
+    Local(repository) => LocalIdentity(repository.path)
+  }
+}
+
+///|
+fn[X : Eq] ordered_iter_equal(
+  left : Iter[X],
+  right : Iter[X],
+  left_length : Int,
+  right_length : Int,
+) -> Bool {
+  left_length == right_length &&
+  left.zip(right).all(fn(pair) { pair.0 == pair.1 })
 }

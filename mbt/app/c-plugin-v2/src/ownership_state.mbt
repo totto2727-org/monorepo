@@ -92,31 +92,55 @@ pub fn OwnershipEntry::OwnershipEntry(
 ///|
 pub struct OwnershipState {
   version : Int
-  priv entries : Array[OwnershipEntry]
+  priv entries : Map[OwnershipLinkIdentity, OwnershipEntry]
+}
+
+///|
+pub impl Eq for OwnershipState with fn equal(self, other) {
+  self.version == other.version &&
+  ordered_iter_equal(
+    self.entries.values(),
+    other.entries.values(),
+    self.entries.length(),
+    other.entries.length(),
+  )
+}
+
+///|
+struct OwnershipLinkIdentity {
+  path : @path.Path
 } derive(Eq)
+
+///|
+fn OwnershipLinkIdentity::OwnershipLinkIdentity(
+  path : @path.Path,
+) -> OwnershipLinkIdentity {
+  { path: path.normalize() }
+}
+
+///|
+impl Hash for OwnershipLinkIdentity with fn hash_combine(self, hasher) {
+  self.path.to_string().hash_combine(hasher)
+}
 
 ///|
 pub fn OwnershipState::OwnershipState(
   entries : Array[OwnershipEntry],
 ) -> OwnershipState raise {
-  let unique_links = entries
-    .iter()
-    .fold(init=[], fn(unique, entry) {
-      if unique.contains(entry.link) {
-        unique
-      } else {
-        [..unique, entry.link]
-      }
-    })
-  guard unique_links.length() == entries.length() else {
-    fail("ownership links must be unique")
+  let stored_entries : Map[OwnershipLinkIdentity, OwnershipEntry] = Map([])
+  for entry in entries {
+    let identity = OwnershipLinkIdentity(entry.link)
+    guard !stored_entries.contains(identity) else {
+      fail("ownership links must be unique")
+    }
+    stored_entries[identity] = entry
   }
-  { version: 1, entries: [..entries] }
+  { version: 1, entries: stored_entries }
 }
 
 ///|
 pub fn OwnershipState::entries(
   self : OwnershipState,
 ) -> ReadOnlyArray[OwnershipEntry] {
-  ReadOnlyArray::from_array(self.entries)
+  ReadOnlyArray::from_array(self.entries.values().collect())
 }

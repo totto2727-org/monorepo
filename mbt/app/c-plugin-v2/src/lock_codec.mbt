@@ -214,7 +214,7 @@ pub impl ToJson for Plugin with fn to_json(self) -> Json {
   plugin_path_lens.set_or_abort(builder, self.path.to_json())
   plugin_enabled_skills_lens.set_or_abort(
     builder,
-    self.enabled_skills.to_json(),
+    self.enabled_skills.to_array().to_json(),
   )
   builder.to_json()
 }
@@ -266,7 +266,10 @@ pub impl ToJson for GitHubLockRepository with fn to_json(self) -> Json {
     self.marketplace_kind.to_json(),
   )
   github_commit_lens.set_or_abort(builder, self.commit.to_json())
-  github_plugins_lens.set_or_abort(builder, self.plugins.to_json())
+  github_plugins_lens.set_or_abort(
+    builder,
+    self.plugins.values().collect().to_json(),
+  )
   builder.to_json()
 }
 
@@ -312,7 +315,10 @@ pub impl ToJson for LocalLockRepository with fn to_json(self) -> Json {
     builder,
     self.marketplace_kind.to_json(),
   )
-  local_plugins_lens.set_or_abort(builder, self.plugins.to_json())
+  local_plugins_lens.set_or_abort(
+    builder,
+    self.plugins.values().collect().to_json(),
+  )
   builder.to_json()
 }
 
@@ -369,8 +375,11 @@ pub impl @json.FromJson for Lock with fn from_json(json, path) {
 pub impl ToJson for Lock with fn to_json(self) -> Json {
   let builder = @lens.JsonBuilder::JsonBuilder()
   lock_version_lens.set_or_abort(builder, self.version.to_string().to_json())
-  lock_targets_lens.set_or_abort(builder, self.targets.to_json())
-  lock_repositories_lens.set_or_abort(builder, self.repositories.to_json())
+  lock_targets_lens.set_or_abort(builder, self.targets.to_array().to_json())
+  lock_repositories_lens.set_or_abort(
+    builder,
+    self.repositories.values().collect().to_json(),
+  )
   builder.to_json()
 }
 
