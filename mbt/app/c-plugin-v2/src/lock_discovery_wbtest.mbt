@@ -52,10 +52,7 @@ async test "discover_locks - finds the nearest project lock below the synthetic 
     )
     let locks = discover_locks(
       fixture.paths,
-      LockDiscoveryOptions::LockDiscoveryOptions(
-        LockDiscoveryScope::Project,
-        false,
-      ),
+      LockDiscoveryOptions::Project(false),
     )
     inspect(locks[0].to_string(), content=nearest_lock.to_string())
     assert_false(locks.contains(outer_lock))
@@ -72,13 +69,7 @@ async test "discover_locks - resolves the global lock exactly below the syntheti
       .join("package")
       .join("c-plugin-lock.json"),
     )
-    let locks = discover_locks(
-      fixture.paths,
-      LockDiscoveryOptions::LockDiscoveryOptions(
-        LockDiscoveryScope::Global,
-        false,
-      ),
-    )
+    let locks = discover_locks(fixture.paths, LockDiscoveryOptions::Global)
     inspect(locks[0].to_string(), content=global_lock.to_string())
   })
 }
@@ -109,10 +100,7 @@ async test "discover_locks - includes the nearest project lock and visible desce
     )
     let locks = discover_locks(
       fixture.paths,
-      LockDiscoveryOptions::LockDiscoveryOptions(
-        LockDiscoveryScope::Project,
-        true,
-      ),
+      LockDiscoveryOptions::Project(true),
     )
     assert_true(locks.contains(nearest_lock))
     assert_true(locks.contains(child_lock))
@@ -138,10 +126,7 @@ async test "discover_locks - excludes descendants in gitignored directories" {
     )
     let locks = discover_locks(
       fixture.paths,
-      LockDiscoveryOptions::LockDiscoveryOptions(
-        LockDiscoveryScope::Project,
-        true,
-      ),
+      LockDiscoveryOptions::Project(true),
     )
     assert_true(locks.contains(nearest_lock))
     assert_true(locks.contains(visible_lock))
@@ -154,13 +139,7 @@ async test "discover_locks - does not search for project locks above the synthet
   with_lock_discovery_fixture(async fn(fixture) {
     let outside_lock = write_lock(fixture.root.join("c-plugin-lock.json"))
     let detail = try {
-      discover_locks(
-        fixture.paths,
-        LockDiscoveryOptions::LockDiscoveryOptions(
-          LockDiscoveryScope::Project,
-          false,
-        ),
-      )
+      discover_locks(fixture.paths, LockDiscoveryOptions::Project(false))
       |> ignore
       "no error"
     } catch {
@@ -173,37 +152,10 @@ async test "discover_locks - does not search for project locks above the synthet
 }
 
 ///|
-async test "discover_locks - rejects global recursive discovery before reading locks" {
-  with_lock_discovery_fixture(async fn(fixture) {
-    let detail = try {
-      discover_locks(
-        fixture.paths,
-        LockDiscoveryOptions::LockDiscoveryOptions(
-          LockDiscoveryScope::Global,
-          true,
-        ),
-      )
-      |> ignore
-      "no error"
-    } catch {
-      GlobalRecursiveUnsupported => "global recursive unsupported"
-      _ => "wrong error"
-    }
-    inspect(detail, content="global recursive unsupported")
-  })
-}
-
-///|
 async test "discover_locks - reports a typed error when no project lock exists" {
   with_lock_discovery_fixture(async fn(fixture) {
     let detail = try {
-      discover_locks(
-        fixture.paths,
-        LockDiscoveryOptions::LockDiscoveryOptions(
-          LockDiscoveryScope::Project,
-          false,
-        ),
-      )
+      discover_locks(fixture.paths, LockDiscoveryOptions::Project(false))
       |> ignore
       "no error"
     } catch {
@@ -228,14 +180,7 @@ async test "discover_locks - rejects a cwd outside the synthetic home" {
       fixture.paths.cache_root,
     )
     let detail = try {
-      discover_locks(
-        paths,
-        LockDiscoveryOptions::LockDiscoveryOptions(
-          LockDiscoveryScope::Project,
-          false,
-        ),
-      )
-      |> ignore
+      discover_locks(paths, LockDiscoveryOptions::Project(false)) |> ignore
       "no error"
     } catch {
       LockFileNotFound(scope=Project, boundary~) => boundary.to_string()
@@ -250,14 +195,7 @@ async test "discover_locks - rejects a cwd outside the synthetic home" {
 async test "discover_locks - reports a typed error when no global lock exists" {
   with_lock_discovery_fixture(async fn(fixture) {
     let detail = try {
-      discover_locks(
-        fixture.paths,
-        LockDiscoveryOptions::LockDiscoveryOptions(
-          LockDiscoveryScope::Global,
-          false,
-        ),
-      )
-      |> ignore
+      discover_locks(fixture.paths, LockDiscoveryOptions::Global) |> ignore
       "no error"
     } catch {
       LockFileNotFound(scope=Global, boundary~) => boundary.to_string()
