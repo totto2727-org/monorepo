@@ -51,42 +51,67 @@ pub fn OwnershipSource::from_local(
 }
 
 ///|
+pub struct OwnershipLink {
+  path : @path.Path
+} derive(Eq)
+
+///|
+pub fn OwnershipLink::OwnershipLink(path : @path.Path) -> OwnershipLink raise {
+  guard path.is_absolute() else { fail("ownership link must be absolute") }
+  { path: path.normalize() }
+}
+
+///|
+pub struct OwnershipResolvedTarget {
+  path : @path.Path
+} derive(Eq)
+
+///|
+pub fn OwnershipResolvedTarget::OwnershipResolvedTarget(
+  path : @path.Path,
+) -> OwnershipResolvedTarget raise {
+  guard path.is_absolute() else {
+    fail("ownership resolved target must be absolute")
+  }
+  { path: path.normalize() }
+}
+
+///|
+pub struct OwnershipManagedRoot {
+  path : @path.Path
+} derive(Eq)
+
+///|
+pub fn OwnershipManagedRoot::OwnershipManagedRoot(
+  path : @path.Path,
+) -> OwnershipManagedRoot raise {
+  guard path.is_absolute() else {
+    fail("ownership managed root must be absolute")
+  }
+  { path: path.normalize() }
+}
+
+///|
 pub struct OwnershipEntry {
-  link : @path.Path
+  link : OwnershipLink
   symlink_target : @path.Path
-  resolved_target : @path.Path
-  managed_root : @path.Path
+  resolved_target : OwnershipResolvedTarget
+  managed_root : OwnershipManagedRoot
   source : OwnershipSource
 } derive(Eq)
 
 ///|
 pub fn OwnershipEntry::OwnershipEntry(
-  link : @path.Path,
+  link : OwnershipLink,
   symlink_target : @path.Path,
-  resolved_target : @path.Path,
-  managed_root : @path.Path,
+  resolved_target : OwnershipResolvedTarget,
+  managed_root : OwnershipManagedRoot,
   source : OwnershipSource,
 ) -> OwnershipEntry raise {
-  guard link.is_absolute() else { fail("ownership link must be absolute") }
-  guard resolved_target.is_absolute() else {
-    fail("ownership resolved target must be absolute")
-  }
-  guard managed_root.is_absolute() else {
-    fail("ownership managed root must be absolute")
-  }
-  let normalized_link = link.normalize()
-  let normalized_resolved_target = resolved_target.normalize()
-  let normalized_managed_root = managed_root.normalize()
-  guard normalized_link.dirname() == normalized_managed_root else {
+  guard link.path.dirname() == managed_root.path else {
     fail("ownership link must be a direct child of its managed root")
   }
-  {
-    link: normalized_link,
-    symlink_target,
-    resolved_target: normalized_resolved_target,
-    managed_root: normalized_managed_root,
-    source,
-  }
+  { link, symlink_target, resolved_target, managed_root, source }
 }
 
 ///|
@@ -122,7 +147,7 @@ pub fn OwnershipState::OwnershipState(
   entries : Array[OwnershipEntry],
 ) -> OwnershipState raise {
   let stored_entries = @immut_hashmap.HashMap(
-    entries.map(entry => (OwnershipLinkIdentity(entry.link), entry)),
+    entries.map(entry => (OwnershipLinkIdentity(entry.link.path), entry)),
   )
   guard stored_entries.length() == entries.length() else {
     fail("ownership links must be unique")

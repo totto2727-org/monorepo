@@ -1,4 +1,37 @@
 ///|
+test "Ownership path values OwnershipLink - normalize absolute paths" {
+  inspect(
+    OwnershipLink::OwnershipLink("/workspace/skills/./sync").path.to_string(),
+    content="/workspace/skills/sync",
+  )
+  inspect(
+    OwnershipResolvedTarget::OwnershipResolvedTarget(
+      "/cache/skills/../skills/sync",
+    ).path.to_string(),
+    content="/cache/skills/sync",
+  )
+  inspect(
+    OwnershipManagedRoot::OwnershipManagedRoot("/workspace/./skills").path.to_string(),
+    content="/workspace/skills",
+  )
+}
+
+///|
+test "panic_OwnershipLink OwnershipLink - rejects a relative path" {
+  try! (OwnershipLink::OwnershipLink("skills/sync") |> ignore)
+}
+
+///|
+test "panic_OwnershipResolvedTarget OwnershipResolvedTarget - rejects a relative path" {
+  try! (OwnershipResolvedTarget::OwnershipResolvedTarget("cache/sync") |> ignore)
+}
+
+///|
+test "panic_OwnershipManagedRoot OwnershipManagedRoot - rejects a relative path" {
+  try! (OwnershipManagedRoot::OwnershipManagedRoot("workspace/skills") |> ignore)
+}
+
+///|
 fn github_ownership_source() -> OwnershipSource raise {
   OwnershipSource::github(
     GitHubOwnershipSource::GitHubOwnershipSource(
@@ -12,10 +45,14 @@ fn github_ownership_source() -> OwnershipSource raise {
 ///|
 fn ownership_entry(link : @path.Path) -> OwnershipEntry raise {
   OwnershipEntry::OwnershipEntry(
-    link,
+    OwnershipLink::OwnershipLink(link),
     "../../../cache/skills/sync",
-    "/home/alice/.cache/c-plugin/skills/sync",
-    "/home/alice/project/.agents/skills",
+    OwnershipResolvedTarget::OwnershipResolvedTarget(
+      "/home/alice/.cache/c-plugin/skills/sync",
+    ),
+    OwnershipManagedRoot::OwnershipManagedRoot(
+      "/home/alice/project/.agents/skills",
+    ),
     github_ownership_source(),
   )
 }
@@ -26,7 +63,7 @@ test "OwnershipEntry OwnershipEntry - normalizes absolute paths but preserves sy
     "/home/alice/project/.agents/skills/../skills/sync",
   )
   inspect(
-    entry.link.to_string(),
+    entry.link.path.to_string(),
     content="/home/alice/project/.agents/skills/sync",
   )
   inspect(
@@ -34,11 +71,11 @@ test "OwnershipEntry OwnershipEntry - normalizes absolute paths but preserves sy
     content="../../../cache/skills/sync",
   )
   inspect(
-    entry.resolved_target.to_string(),
+    entry.resolved_target.path.to_string(),
     content="/home/alice/.cache/c-plugin/skills/sync",
   )
   inspect(
-    entry.managed_root.to_string(),
+    entry.managed_root.path.to_string(),
     content="/home/alice/project/.agents/skills",
   )
 }
@@ -53,7 +90,7 @@ test "OwnershipState entries - stores an immutable hash map" {
     "/home/alice/project/.agents/skills/install",
   )
   let expanded_entries = state.entries.add(
-    OwnershipLinkIdentity(added_entry.link),
+    OwnershipLinkIdentity(added_entry.link.path),
     added_entry,
   )
   inspect(entries.length(), content="1")
@@ -76,48 +113,6 @@ test "OwnershipLinkIdentity Compare::compare - uses normalized lexical path orde
   )
   let last = OwnershipLinkIdentity("/home/alice/project/.agents/skills/z")
   inspect(first.compare(last), content="-1")
-}
-
-///|
-test "OwnershipEntry OwnershipEntry - rejects a relative link" {
-  expect_ownership_rejection(
-    fn() -> Unit raise { ownership_entry(".agents/skills/sync") |> ignore },
-    "relative link",
-  )
-}
-
-///|
-test "OwnershipEntry OwnershipEntry - rejects a relative resolved target" {
-  expect_ownership_rejection(
-    fn() -> Unit raise {
-      OwnershipEntry::OwnershipEntry(
-        "/home/alice/project/.agents/skills/sync",
-        "../../../cache/skills/sync",
-        "cache/skills/sync",
-        "/home/alice/project/.agents/skills",
-        github_ownership_source(),
-      )
-      |> ignore
-    },
-    "relative resolved target",
-  )
-}
-
-///|
-test "OwnershipEntry OwnershipEntry - rejects a relative managed root" {
-  expect_ownership_rejection(
-    fn() -> Unit raise {
-      OwnershipEntry::OwnershipEntry(
-        "/home/alice/project/.agents/skills/sync",
-        "../../../cache/skills/sync",
-        "/home/alice/.cache/c-plugin/skills/sync",
-        ".agents",
-        github_ownership_source(),
-      )
-      |> ignore
-    },
-    "relative managed root",
-  )
 }
 
 ///|
