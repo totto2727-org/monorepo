@@ -259,6 +259,14 @@
         "@totto2727/target-file-discovery": "workspace:*",
       },
     },
+    "mbt/app/c-plugin-v2": {
+      "name": "@totto2727/c-plugin-v2",
+      "devDependencies": {
+        "@totto2727/admiral": "workspace:*",
+        "@totto2727/lens": "workspace:*",
+        "@totto2727/target-file-discovery": "workspace:*",
+      },
+    },
     "mbt/app/mdt": {
       "name": "@totto2727/mdt",
       "devDependencies": {
@@ -1218,6 +1226,8 @@
     "@totto2727/bw": ["@totto2727/bw@workspace:mbt/app/bw"],
 
     "@totto2727/c-plugin": ["@totto2727/c-plugin@workspace:mbt/app/c-plugin"],
+
+    "@totto2727/c-plugin-v2": ["@totto2727/c-plugin-v2@workspace:mbt/app/c-plugin-v2"],
 
     "@totto2727/codex-sdk": ["@totto2727/codex-sdk@workspace:mbt/package/codex-sdk"],
 
