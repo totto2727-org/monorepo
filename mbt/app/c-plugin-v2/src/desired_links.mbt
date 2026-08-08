@@ -1,0 +1,171 @@
+///|
+pub struct ManagedSkillRoot {
+  path : @path.Path
+} derive(Eq)
+
+///|
+pub impl Hash for ManagedSkillRoot with fn hash_combine(self, hasher) {
+  self.path.to_string().hash_combine(hasher)
+}
+
+///|
+pub fn ManagedSkillRoot::ManagedSkillRoot(
+  path : @path.Path,
+) -> ManagedSkillRoot raise {
+  guard path.is_absolute() else { fail("managed skill root must be absolute") }
+  { path: path.normalize() }
+}
+
+///|
+pub(all) enum RepositorySkillResolution {
+  Available(
+    repository~ : LockRepository,
+    skills~ : ReadOnlyArray[ResolvedSkill]
+  )
+  Unavailable(repository~ : LockRepository, reason~ : String)
+}
+
+///|
+pub(all) struct RepositoryUnavailable {
+  repository : RepositoryIdentity
+  reason : String
+}
+
+///|
+pub(all) struct DesiredLinkPlan {
+  ownership_state : OwnershipState
+  unavailable_repositories : @immut_hashmap.HashMap[
+    RepositoryIdentity,
+    RepositoryUnavailable,
+  ]
+}
+
+///|
+pub(all) suberror DesiredLinkPlanningError {
+  RepositoryIdentityMismatch(
+    expected~ : RepositoryIdentity,
+    actual~ : RepositoryIdentity
+  )
+}
+
+///|
+struct DesiredLinkCandidate {
+  repository : RepositoryIdentity
+  entry : OwnershipEntry
+}
+
+///|
+fn enabled_plugin(
+  repository : LockRepository,
+  skill : ResolvedSkill,
+) -> Plugin? {
+  match repository {
+    GitHub(repository) => repository.plugins.get(skill.plugin_name)
+    Local(repository) => repository.plugins.get(skill.plugin_name)
+  }
+}
+
+///|
+fn ownership_source(
+  repository : LockRepository,
+  skill : ResolvedSkill,
+) -> OwnershipSource {
+  match repository {
+    GitHub(repository) =>
+      OwnershipSource::github(
+        GitHubOwnershipSource::GitHubOwnershipSource(
+          repository.repository,
+          skill.plugin_name,
+          skill.skill_name,
+        ),
+      )
+    Local(repository) =>
+      OwnershipSource::from_local(
+        LocalOwnershipSource::LocalOwnershipSource(
+          repository.path,
+          skill.plugin_name,
+          skill.skill_name,
+        ),
+      )
+  }
+}
+
+///|
+fn desired_entry(
+  root : ManagedSkillRoot,
+  repository : LockRepository,
+  skill : ResolvedSkill,
+) -> OwnershipEntry {
+  let link = root.path.join(skill.skill_name.value)
+  try! OwnershipEntry::OwnershipEntry(
+    link,
+    skill.skill_path.relative(base=root.path),
+    skill.skill_path,
+    root.path,
+    ownership_source(repository, skill),
+  )
+}
+
+///|
+pub fn plan_desired_skill_links(
+  managed_roots : @immut_hashset.HashSet[ManagedSkillRoot],
+  repositories : @immut_hashmap.HashMap[
+    RepositoryIdentity,
+    RepositorySkillResolution,
+  ],
+) -> DesiredLinkPlan raise DesiredLinkPlanningError {
+  for pair in repositories.to_array() {
+    let actual = match pair.1 {
+      Available(repository~, skills=_) | Unavailable(repository~, reason=_) =>
+        repository.identity()
+    }
+    guard pair.0 == actual else {
+      raise RepositoryIdentityMismatch(expected=pair.0, actual~)
+    }
+  }
+  let mut candidates : @immut_hashmap.HashMap[
+    OwnershipLinkIdentity,
+    DesiredLinkCandidate,
+  ] = @immut_hashmap.HashMap([])
+  let mut unavailable : @immut_hashmap.HashMap[
+    RepositoryIdentity,
+    RepositoryUnavailable,
+  ] = @immut_hashmap.HashMap([])
+  for pair in repositories.to_array() {
+    match pair.1 {
+      Unavailable(repository~, reason~) => {
+        let identity = repository.identity()
+        unavailable = unavailable.add(identity, { repository: identity, reason })
+      }
+      Available(repository~, skills~) => {
+        let identity = repository.identity()
+        for skill in skills {
+          match enabled_plugin(repository, skill) {
+            Some(plugin) if plugin.enabled_skills.contains(skill.skill_name) =>
+              for root in managed_roots {
+                let entry = desired_entry(root, repository, skill)
+                let link_identity = OwnershipLinkIdentity::OwnershipLinkIdentity(
+                  entry.link,
+                )
+                match candidates.get(link_identity) {
+                  Some(existing) if identity.compare(existing.repository) < 0 =>
+                    ()
+                  _ =>
+                    candidates = candidates.add(link_identity, {
+                      repository: identity,
+                      entry,
+                    })
+                }
+              }
+            _ => ()
+          }
+        }
+      }
+    }
+  }
+  let entries = candidates.to_array().map(pair => pair.1.entry)
+  {
+    ownership_state: try! OwnershipState::OwnershipState(entries),
+    unavailable_repositories: unavailable,
+  }
+}
