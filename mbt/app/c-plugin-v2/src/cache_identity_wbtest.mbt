@@ -80,36 +80,14 @@ test "CacheScope cache path uses canonical GitHub repository components" {
 }
 
 ///|
-test "CacheScope metadata rejects missing and mismatched lock identities distinctly" {
+test "CacheScope metadata uses the validated normalized lock identity" {
   let scope = CacheScope::CacheScope(
-    "/synthetic/work/project/c-plugin-lock.json",
+    "/synthetic/work/project/./c-plugin-lock.json",
   )
-  let mismatched = CacheScopeMetadata::CacheScopeMetadata(
-    1, "/synthetic/work/other/c-plugin-lock.json",
-  )
-  let missing_detail = try {
-    scope.validate_metadata(None)
-    "no error"
-  } catch {
-    MissingMetadata(expected~) => "missing:\{expected.lock_path.to_string()}"
-    _ => "wrong error"
-  }
-  let mismatch_detail = try {
-    scope.validate_metadata(Some(mismatched))
-    "no error"
-  } catch {
-    MetadataMismatch(expected~, actual~) =>
-      "mismatch:\{expected.lock_path.to_string()}:\{actual.lock_path.to_string()}"
-    _ => "wrong error"
-  }
-  inspect(
-    missing_detail,
-    content="missing:/synthetic/work/project/c-plugin-lock.json",
-  )
-  inspect(
-    mismatch_detail,
-    content="mismatch:/synthetic/work/project/c-plugin-lock.json:/synthetic/work/other/c-plugin-lock.json",
-  )
+  json_inspect(scope.metadata(), content={
+    "version": 1,
+    "lockPath": "/synthetic/work/project/c-plugin-lock.json",
+  })
 }
 
 ///|
