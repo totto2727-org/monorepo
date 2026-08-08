@@ -134,45 +134,67 @@ pub impl ToJson for OwnershipSource with fn to_json(self) -> Json {
 }
 
 ///|
+pub impl FromJson for OwnershipLink with fn from_json(json, path) {
+  let value : String = @json.from_json(json, path~)
+  OwnershipLink::OwnershipLink(@path.Path(value)) catch {
+    _ => raise @json.JsonDecodeError((path, "ownership link must be absolute"))
+  }
+}
+
+///|
+pub impl ToJson for OwnershipLink with fn to_json(self) -> Json {
+  self.path.to_string().to_json()
+}
+
+///|
+pub impl FromJson for OwnershipResolvedTarget with fn from_json(json, path) {
+  let value : String = @json.from_json(json, path~)
+  OwnershipResolvedTarget::OwnershipResolvedTarget(@path.Path(value)) catch {
+    _ =>
+      raise @json.JsonDecodeError(
+        (path, "ownership resolved target must be absolute"),
+      )
+  }
+}
+
+///|
+pub impl ToJson for OwnershipResolvedTarget with fn to_json(self) -> Json {
+  self.path.to_string().to_json()
+}
+
+///|
+pub impl FromJson for OwnershipManagedRoot with fn from_json(json, path) {
+  let value : String = @json.from_json(json, path~)
+  OwnershipManagedRoot::OwnershipManagedRoot(@path.Path(value)) catch {
+    _ =>
+      raise @json.JsonDecodeError(
+        (path, "ownership managed root must be absolute"),
+      )
+  }
+}
+
+///|
+pub impl ToJson for OwnershipManagedRoot with fn to_json(self) -> Json {
+  self.path.to_string().to_json()
+}
+
+///|
 pub impl FromJson for OwnershipEntry with fn from_json(json, path) {
-  let link_value : String = @json.from_json(
-    ownership_entry_link_lens.get_or_json_decode_error(json, path),
-    path=ownership_entry_link_lens.add_to_json_path(path),
+  let link : OwnershipLink = ownership_entry_link_lens.decode_from_json(
+    json, path,
   )
-  let symlink_target_value : String = @json.from_json(
-    ownership_entry_symlink_target_lens.get_or_json_decode_error(json, path),
-    path=ownership_entry_symlink_target_lens.add_to_json_path(path),
+  let symlink_target_value : String = ownership_entry_symlink_target_lens.decode_from_json(
+    json, path,
   )
-  let resolved_target_value : String = @json.from_json(
-    ownership_entry_resolved_target_lens.get_or_json_decode_error(json, path),
-    path=ownership_entry_resolved_target_lens.add_to_json_path(path),
+  let resolved_target : OwnershipResolvedTarget = ownership_entry_resolved_target_lens.decode_from_json(
+    json, path,
   )
-  let managed_root_value : String = @json.from_json(
-    ownership_entry_managed_root_lens.get_or_json_decode_error(json, path),
-    path=ownership_entry_managed_root_lens.add_to_json_path(path),
+  let managed_root : OwnershipManagedRoot = ownership_entry_managed_root_lens.decode_from_json(
+    json, path,
   )
-  let source : OwnershipSource = @json.from_json(
-    ownership_entry_source_lens.get_or_json_decode_error(json, path),
-    path=ownership_entry_source_lens.add_to_json_path(path),
+  let source : OwnershipSource = ownership_entry_source_lens.decode_from_json(
+    json, path,
   )
-  let link = @path.Path(link_value)
-  guard link.is_absolute() else {
-    raise ownership_entry_link_lens.json_decode_error(
-      path, "ownership link must be absolute",
-    )
-  }
-  let resolved_target = @path.Path(resolved_target_value)
-  guard resolved_target.is_absolute() else {
-    raise ownership_entry_resolved_target_lens.json_decode_error(
-      path, "ownership resolved target must be absolute",
-    )
-  }
-  let managed_root = @path.Path(managed_root_value)
-  guard managed_root.is_absolute() else {
-    raise ownership_entry_managed_root_lens.json_decode_error(
-      path, "ownership managed root must be absolute",
-    )
-  }
   OwnershipEntry::OwnershipEntry(
     link,
     @path.Path(symlink_target_value),
@@ -190,21 +212,18 @@ pub impl FromJson for OwnershipEntry with fn from_json(json, path) {
 ///|
 pub impl ToJson for OwnershipEntry with fn to_json(self) -> Json {
   let builder = @lens.JsonBuilder::JsonBuilder()
-  ownership_entry_link_lens.set_or_abort(
-    builder,
-    self.link.to_string().to_json(),
-  )
+  ownership_entry_link_lens.set_or_abort(builder, ToJson::to_json(self.link))
   ownership_entry_symlink_target_lens.set_or_abort(
     builder,
     self.symlink_target.to_string().to_json(),
   )
   ownership_entry_resolved_target_lens.set_or_abort(
     builder,
-    self.resolved_target.to_string().to_json(),
+    ToJson::to_json(self.resolved_target),
   )
   ownership_entry_managed_root_lens.set_or_abort(
     builder,
-    self.managed_root.to_string().to_json(),
+    ToJson::to_json(self.managed_root),
   )
   ownership_entry_source_lens.set_or_abort(
     builder,

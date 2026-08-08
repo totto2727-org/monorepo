@@ -25,10 +25,14 @@ fn expect_ownership_rejection(
 test "OwnershipState ToJson::to_json - round trips ownership metadata" {
   let state = OwnershipState::OwnershipState([
     OwnershipEntry::OwnershipEntry(
-      "/home/alice/project/.agents/skills/./sync",
+      OwnershipLink::OwnershipLink("/home/alice/project/.agents/skills/./sync"),
       "../../../cache/skills/sync",
-      "/home/alice/.cache/c-plugin/skills/sync",
-      "/home/alice/project/.agents/skills",
+      OwnershipResolvedTarget::OwnershipResolvedTarget(
+        "/home/alice/.cache/c-plugin/skills/sync",
+      ),
+      OwnershipManagedRoot::OwnershipManagedRoot(
+        "/home/alice/project/.agents/skills",
+      ),
       OwnershipSource::github(
         GitHubOwnershipSource::GitHubOwnershipSource(
           GitHubRepository::from_route("OpenAI/Codex"),
@@ -58,8 +62,14 @@ test "OwnershipState ToJson::to_json - round trips local ownership metadata" {
   )
   let state = OwnershipState::OwnershipState([
     OwnershipEntry::OwnershipEntry(
-      "/home/alice/project/.agents/skills/sync", "../../../vendor/c-plugin/skills/sync",
-      "/home/alice/project/vendor/c-plugin/skills/sync", "/home/alice/project/.agents/skills",
+      OwnershipLink::OwnershipLink("/home/alice/project/.agents/skills/sync"),
+      "../../../vendor/c-plugin/skills/sync",
+      OwnershipResolvedTarget::OwnershipResolvedTarget(
+        "/home/alice/project/vendor/c-plugin/skills/sync",
+      ),
+      OwnershipManagedRoot::OwnershipManagedRoot(
+        "/home/alice/project/.agents/skills",
+      ),
       source,
     ),
   ])
