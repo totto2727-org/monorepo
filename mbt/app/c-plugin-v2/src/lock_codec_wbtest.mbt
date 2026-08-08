@@ -96,20 +96,25 @@ let canonical_lock_json =
   #|}
 
 ///|
-test "Lock FromJson and ToJson - canonical round trip preserves order" {
+test "Lock FromJson and ToJson - canonical round trip is sorted" {
   let lock : Lock = @json.parse(canonical_lock_json) |> @json.from_json
   inspect(lock.to_pretty_json(), content=canonical_lock_json + "\n")
   let decoded : Lock = @json.from_json(lock.to_json())
   inspect(decoded == lock, content="true")
-  inspect(decoded.targets()[0].path.to_string(), content=".agents/skills")
-  match decoded.repositories()[0] {
-    GitHub(repository) =>
-      inspect(
-        repository.plugins()[0].enabled_skills()[0].value,
-        content="install",
-      )
-    Local(_) => fail("first repository must remain GitHub")
-  }
+  inspect(
+    decoded.targets.contains(Target::Target(".agents/skills")),
+    content="true",
+  )
+}
+
+///|
+test "Lock FromJson and ToJson - sorts collections at the JSON boundary" {
+  let text =
+    #|{"version":"2","targets":[".cursor/skills",".agents/skills"],"repositories":[{"type":"local","path":"vendor/z-last","marketplaceKind":"claude","plugins":[{"name":"z-plugin","path":"plugins/z","enabledSkills":["sync","install"]},{"name":"a-plugin","path":"plugins/a","enabledSkills":[]}]},{"type":"github","repository":"a-owner/a-repo","marketplaceKind":"codex","commit":"0123456789abcdef0123456789abcdef01234567","plugins":[]}]}
+  let lock : Lock = @json.from_json(@json.parse(text))
+  let expected =
+    #|{"version":"2","targets":[".agents/skills",".cursor/skills"],"repositories":[{"type":"github","repository":"a-owner/a-repo","marketplaceKind":"codex","commit":"0123456789abcdef0123456789abcdef01234567","plugins":[]},{"type":"local","path":"vendor/z-last","marketplaceKind":"claude","plugins":[{"name":"a-plugin","path":"plugins/a","enabledSkills":[]},{"name":"z-plugin","path":"plugins/z","enabledSkills":["install","sync"]}]}]}
+  inspect(lock.to_json().stringify(), content=expected)
 }
 
 ///|
@@ -166,6 +171,30 @@ test "LockRepository FromJson - dispatches each top-level type" {
 
 ///|
 test "lock FromJson - rejects strict schema failures" {
+  expect_json_rejection(
+    fn() -> Unit raise {
+      let text =
+        #|{"version":"2","targets":[".agents/skills",".agents/./skills"],"repositories":[]}
+      (@json.from_json(@json.parse(text)) : Lock) |> ignore
+    },
+    "duplicate normalized target identity",
+  )
+  expect_json_rejection(
+    fn() -> Unit raise {
+      let text =
+        #|{"version":"2","targets":[],"repositories":[{"type":"local","path":"vendor/plugin","marketplaceKind":"claude","plugins":[{"name":"plugin","path":"plugins/first","enabledSkills":["sync","sync"]}]}]}
+      (@json.from_json(@json.parse(text)) : Lock) |> ignore
+    },
+    "duplicate enabled skill identity",
+  )
+  expect_json_rejection(
+    fn() -> Unit raise {
+      let text =
+        #|{"version":"2","targets":[],"repositories":[{"type":"local","path":"vendor/plugin","marketplaceKind":"claude","plugins":[{"name":"plugin","path":"plugins/first","enabledSkills":[]},{"name":"plugin","path":"plugins/second","enabledSkills":[]}]}]}
+      (@json.from_json(@json.parse(text)) : Lock) |> ignore
+    },
+    "duplicate plugin name identity",
+  )
   expect_json_rejection(
     fn() -> Unit raise {
       let text = "{\"version\":\"2\",\"targets\":[],\"repositories\":[{\"type\":\"gitlab\"}]}"

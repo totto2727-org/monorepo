@@ -1,7 +1,7 @@
 ///|
 pub struct GitHubOwner {
   value : String
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///|
 pub fn GitHubOwner::GitHubOwner(value : String) -> GitHubOwner raise {
@@ -21,7 +21,7 @@ pub fn GitHubOwner::GitHubOwner(value : String) -> GitHubOwner raise {
 ///|
 pub struct GitHubRepositoryName {
   value : String
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///|
 pub fn GitHubRepositoryName::GitHubRepositoryName(
@@ -47,7 +47,12 @@ pub fn GitHubRepositoryName::GitHubRepositoryName(
 pub struct GitHubRepository {
   owner : GitHubOwner
   name : GitHubRepositoryName
-} derive(Eq)
+} derive(Eq, Hash)
+
+///|
+pub impl Compare for GitHubRepository with fn compare(self, other) {
+  self.route().lexical_compare(other.route())
+}
 
 ///|
 pub fn GitHubRepository::GitHubRepository(
@@ -83,6 +88,16 @@ pub struct Target {
 } derive(Eq)
 
 ///|
+pub impl Compare for Target with fn compare(self, other) {
+  self.path.to_string().lexical_compare(other.path.to_string())
+}
+
+///|
+pub impl Hash for Target with fn hash_combine(self, hasher) {
+  self.path.to_string().hash_combine(hasher)
+}
+
+///|
 pub fn Target::Target(path : @path.Path) -> Target raise {
   guard path.to_string() != "" else { fail("target path must not be empty") }
   { path: path.normalize() }
@@ -92,6 +107,16 @@ pub fn Target::Target(path : @path.Path) -> Target raise {
 pub struct RelativeSourcePath {
   path : @path.Path
 } derive(Eq)
+
+///|
+pub impl Compare for RelativeSourcePath with fn compare(self, other) {
+  self.path.to_string().lexical_compare(other.path.to_string())
+}
+
+///|
+pub impl Hash for RelativeSourcePath with fn hash_combine(self, hasher) {
+  self.path.to_string().hash_combine(hasher)
+}
 
 ///|
 pub fn RelativeSourcePath::RelativeSourcePath(
@@ -105,6 +130,11 @@ pub fn RelativeSourcePath::RelativeSourcePath(
 pub struct RelativePluginPath {
   path : @path.Path
 } derive(Eq)
+
+///|
+pub impl Hash for RelativePluginPath with fn hash_combine(self, hasher) {
+  self.path.to_string().hash_combine(hasher)
+}
 
 ///|
 pub fn RelativePluginPath::RelativePluginPath(
@@ -132,7 +162,12 @@ fn validate_relative_path(path : @path.Path, kind : String) -> Unit raise {
 ///|
 pub struct PluginName {
   value : String
-} derive(Eq)
+} derive(Eq, Hash)
+
+///|
+pub impl Compare for PluginName with fn compare(self, other) {
+  self.value.lexical_compare(other.value)
+}
 
 ///|
 pub fn PluginName::PluginName(value : String) -> PluginName raise {
@@ -143,7 +178,12 @@ pub fn PluginName::PluginName(value : String) -> PluginName raise {
 ///|
 pub struct SkillName {
   value : String
-} derive(Eq)
+} derive(Eq, Hash)
+
+///|
+pub impl Compare for SkillName with fn compare(self, other) {
+  self.value.lexical_compare(other.value)
+}
 
 ///|
 pub fn SkillName::SkillName(value : String) -> SkillName raise {
@@ -208,7 +248,7 @@ pub fn MarketplaceKind::codex() -> MarketplaceKind {
 pub struct Plugin {
   name : PluginName
   path : RelativePluginPath
-  priv enabled_skills : Array[SkillName]
+  enabled_skills : @immut_hashset.HashSet[SkillName]
 } derive(Eq)
 
 ///|
@@ -217,15 +257,11 @@ pub fn Plugin::Plugin(
   path : RelativePluginPath,
   enabled_skills : Array[SkillName],
 ) -> Plugin raise {
-  guard unique_skill_count(enabled_skills) == enabled_skills.length() else {
+  let stored_skills = @immut_hashset.HashSet(enabled_skills)
+  guard stored_skills.length() == enabled_skills.length() else {
     fail("plugin enabled skills must be unique")
   }
-  { name, path, enabled_skills: [..enabled_skills] }
-}
-
-///|
-pub fn Plugin::enabled_skills(self : Plugin) -> ReadOnlyArray[SkillName] {
-  ReadOnlyArray::from_array(self.enabled_skills)
+  { name, path, enabled_skills: stored_skills }
 }
 
 ///|
@@ -233,7 +269,7 @@ pub struct GitHubLockRepository {
   repository : GitHubRepository
   marketplace_kind : MarketplaceKind
   commit : CommitId
-  priv plugins : Array[Plugin]
+  plugins : @immut_hashmap.HashMap[PluginName, Plugin]
 } derive(Eq)
 
 ///|
@@ -243,24 +279,20 @@ pub fn GitHubLockRepository::GitHubLockRepository(
   commit : CommitId,
   plugins : Array[Plugin],
 ) -> GitHubLockRepository raise {
-  guard unique_plugin_count(plugins) == plugins.length() else {
+  let stored_plugins = @immut_hashmap.HashMap(
+    plugins.map(plugin => (plugin.name, plugin)),
+  )
+  guard stored_plugins.length() == plugins.length() else {
     fail("repository plugin names must be unique")
   }
-  { repository, marketplace_kind, commit, plugins: [..plugins] }
-}
-
-///|
-pub fn GitHubLockRepository::plugins(
-  self : GitHubLockRepository,
-) -> ReadOnlyArray[Plugin] {
-  ReadOnlyArray::from_array(self.plugins)
+  { repository, marketplace_kind, commit, plugins: stored_plugins }
 }
 
 ///|
 pub struct LocalLockRepository {
   path : RelativeSourcePath
   marketplace_kind : MarketplaceKind
-  priv plugins : Array[Plugin]
+  plugins : @immut_hashmap.HashMap[PluginName, Plugin]
 } derive(Eq)
 
 ///|
@@ -269,17 +301,13 @@ pub fn LocalLockRepository::LocalLockRepository(
   marketplace_kind : MarketplaceKind,
   plugins : Array[Plugin],
 ) -> LocalLockRepository raise {
-  guard unique_plugin_count(plugins) == plugins.length() else {
+  let stored_plugins = @immut_hashmap.HashMap(
+    plugins.map(plugin => (plugin.name, plugin)),
+  )
+  guard stored_plugins.length() == plugins.length() else {
     fail("repository plugin names must be unique")
   }
-  { path, marketplace_kind, plugins: [..plugins] }
-}
-
-///|
-pub fn LocalLockRepository::plugins(
-  self : LocalLockRepository,
-) -> ReadOnlyArray[Plugin] {
-  ReadOnlyArray::from_array(self.plugins)
+  { path, marketplace_kind, plugins: stored_plugins }
 }
 
 ///|
@@ -305,8 +333,8 @@ pub fn LockRepository::from_local(
 ///|
 pub struct Lock {
   version : Int
-  priv targets : Array[Target]
-  priv repositories : Array[LockRepository]
+  targets : @immut_hashset.HashSet[Target]
+  repositories : @immut_hashmap.HashMap[RepositoryIdentity, LockRepository]
 } derive(Eq)
 
 ///|
@@ -314,87 +342,39 @@ pub fn Lock::Lock(
   targets : Array[Target],
   repositories : Array[LockRepository],
 ) -> Lock raise {
-  guard unique_target_count(targets) == targets.length() else {
+  let stored_targets = @immut_hashset.HashSet(targets)
+  guard stored_targets.length() == targets.length() else {
     fail("lock targets must be unique")
   }
-  guard unique_repository_count(repositories) == repositories.length() else {
+  let stored_repositories = @immut_hashmap.HashMap(
+    repositories.map(repository => (repository.identity(), repository)),
+  )
+  guard stored_repositories.length() == repositories.length() else {
     fail("lock repositories must be unique")
   }
-  { version: 2, targets: [..targets], repositories: [..repositories] }
+  { version: 2, targets: stored_targets, repositories: stored_repositories }
 }
 
 ///|
-pub fn Lock::targets(self : Lock) -> ReadOnlyArray[Target] {
-  ReadOnlyArray::from_array(self.targets)
-}
-
-///|
-pub fn Lock::repositories(self : Lock) -> ReadOnlyArray[LockRepository] {
-  ReadOnlyArray::from_array(self.repositories)
-}
-
-///|
-fn unique_skill_count(skills : Array[SkillName]) -> Int {
-  skills
-  .iter()
-  .fold(init=[], fn(unique, skill) {
-    if unique.contains(skill) {
-      unique
-    } else {
-      [..unique, skill]
-    }
-  })
-  .length()
-}
-
-///|
-fn unique_plugin_count(plugins : Array[Plugin]) -> Int {
-  plugins
-  .iter()
-  .fold(init=[], fn(unique, plugin) {
-    if unique.contains(plugin.name) {
-      unique
-    } else {
-      [..unique, plugin.name]
-    }
-  })
-  .length()
-}
-
-///|
-fn unique_target_count(targets : Array[Target]) -> Int {
-  targets
-  .iter()
-  .fold(init=[], fn(unique, target) {
-    if unique.contains(target) {
-      unique
-    } else {
-      [..unique, target]
-    }
-  })
-  .length()
-}
-
-///|
-enum RepositoryIdentity {
+pub enum RepositoryIdentity {
   GitHubIdentity(GitHubRepository)
   LocalIdentity(RelativeSourcePath)
-} derive(Eq)
+} derive(Eq, Hash)
 
 ///|
-fn unique_repository_count(repositories : Array[LockRepository]) -> Int {
-  repositories
-  .iter()
-  .fold(init=[], fn(unique, repository) {
-    let identity = match repository {
-      GitHub(repository) => GitHubIdentity(repository.repository)
-      Local(repository) => LocalIdentity(repository.path)
-    }
-    if unique.contains(identity) {
-      unique
-    } else {
-      [..unique, identity]
-    }
-  })
-  .length()
+pub impl Compare for RepositoryIdentity with fn compare(self, other) {
+  match (self, other) {
+    (GitHubIdentity(left), GitHubIdentity(right)) => left.compare(right)
+    (GitHubIdentity(_), LocalIdentity(_)) => -1
+    (LocalIdentity(_), GitHubIdentity(_)) => 1
+    (LocalIdentity(left), LocalIdentity(right)) => left.compare(right)
+  }
+}
+
+///|
+pub fn LockRepository::identity(self : LockRepository) -> RepositoryIdentity {
+  match self {
+    GitHub(repository) => GitHubIdentity(repository.repository)
+    Local(repository) => LocalIdentity(repository.path)
+  }
 }

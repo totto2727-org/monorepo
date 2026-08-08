@@ -44,16 +44,38 @@ test "OwnershipEntry OwnershipEntry - normalizes absolute paths but preserves sy
 }
 
 ///|
-test "OwnershipState entries - returns a detached readonly snapshot" {
+test "OwnershipState entries - stores an immutable hash map" {
   let state = OwnershipState::OwnershipState([
     ownership_entry("/home/alice/project/.agents/skills/sync"),
   ])
-  let entries = state.entries()
-  state.entries.push(
-    ownership_entry("/home/alice/project/.agents/skills/install"),
+  let entries = state.entries
+  let added_entry = ownership_entry(
+    "/home/alice/project/.agents/skills/install",
+  )
+  let expanded_entries = state.entries.add(
+    OwnershipLinkIdentity(added_entry.link),
+    added_entry,
   )
   inspect(entries.length(), content="1")
-  inspect(state.entries().length(), content="2")
+  inspect(expanded_entries.length(), content="2")
+}
+
+///|
+test "OwnershipState equality - ignores entry order" {
+  let sync = ownership_entry("/home/alice/project/.agents/skills/sync")
+  let install = ownership_entry("/home/alice/project/.agents/skills/install")
+  let state = OwnershipState::OwnershipState([sync, install])
+  let reordered = OwnershipState::OwnershipState([install, sync])
+  inspect(state == reordered, content="true")
+}
+
+///|
+test "OwnershipLinkIdentity Compare::compare - uses normalized lexical path order" {
+  let first = OwnershipLinkIdentity(
+    "/home/alice/project/.agents/skills/other/../alpha",
+  )
+  let last = OwnershipLinkIdentity("/home/alice/project/.agents/skills/z")
+  inspect(first.compare(last), content="-1")
 }
 
 ///|

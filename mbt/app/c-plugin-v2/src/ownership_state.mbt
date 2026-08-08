@@ -92,31 +92,40 @@ pub fn OwnershipEntry::OwnershipEntry(
 ///|
 pub struct OwnershipState {
   version : Int
-  priv entries : Array[OwnershipEntry]
+  entries : @immut_hashmap.HashMap[OwnershipLinkIdentity, OwnershipEntry]
 } derive(Eq)
+
+///|
+pub struct OwnershipLinkIdentity {
+  path : @path.Path
+} derive(Eq)
+
+///|
+pub impl Compare for OwnershipLinkIdentity with fn compare(self, other) {
+  self.path.to_string().lexical_compare(other.path.to_string())
+}
+
+///|
+pub fn OwnershipLinkIdentity::OwnershipLinkIdentity(
+  path : @path.Path,
+) -> OwnershipLinkIdentity {
+  { path: path.normalize() }
+}
+
+///|
+pub impl Hash for OwnershipLinkIdentity with fn hash_combine(self, hasher) {
+  self.path.to_string().hash_combine(hasher)
+}
 
 ///|
 pub fn OwnershipState::OwnershipState(
   entries : Array[OwnershipEntry],
 ) -> OwnershipState raise {
-  let unique_links = entries
-    .iter()
-    .fold(init=[], fn(unique, entry) {
-      if unique.contains(entry.link) {
-        unique
-      } else {
-        [..unique, entry.link]
-      }
-    })
-  guard unique_links.length() == entries.length() else {
+  let stored_entries = @immut_hashmap.HashMap(
+    entries.map(entry => (OwnershipLinkIdentity(entry.link), entry)),
+  )
+  guard stored_entries.length() == entries.length() else {
     fail("ownership links must be unique")
   }
-  { version: 1, entries: [..entries] }
-}
-
-///|
-pub fn OwnershipState::entries(
-  self : OwnershipState,
-) -> ReadOnlyArray[OwnershipEntry] {
-  ReadOnlyArray::from_array(self.entries)
+  { version: 1, entries: stored_entries }
 }

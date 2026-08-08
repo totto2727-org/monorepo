@@ -123,6 +123,42 @@ test "domain names reject empty and slash values" {
 }
 
 ///|
+test "PluginName Compare::compare - uses lexical order" {
+  let alpha = PluginName::PluginName("alpha")
+  let z = PluginName::PluginName("z")
+  inspect(alpha.compare(z), content="-1")
+}
+
+///|
+test "SkillName Compare::compare - uses lexical order" {
+  let install = SkillName::SkillName("install")
+  let sync = SkillName::SkillName("sync")
+  inspect(install.compare(sync), content="-1")
+}
+
+///|
+test "Target Compare::compare - uses normalized lexical path order" {
+  let agents = Target::Target("project/other/../.agents")
+  let cursor = Target::Target("project/.cursor")
+  inspect(agents.compare(cursor), content="-1")
+}
+
+///|
+test "RepositoryIdentity Compare::compare - orders type then identity" {
+  let github = RepositoryIdentity::GitHubIdentity(
+    GitHubRepository::from_route("alpha/z"),
+  )
+  let later_github = RepositoryIdentity::GitHubIdentity(
+    GitHubRepository::from_route("z/a"),
+  )
+  let local_repository = RepositoryIdentity::LocalIdentity(
+    RelativeSourcePath::RelativeSourcePath("alpha"),
+  )
+  inspect(github.compare(later_github), content="-1")
+  inspect(later_github.compare(local_repository), content="-1")
+}
+
+///|
 test "CommitId rejects bad length and hexadecimal boundaries" {
   expect_rejection(
     fn() -> Unit raise {
@@ -150,7 +186,27 @@ test "SkillName preserves the c-plugin skill namespace" {
 }
 
 ///|
-test "lock domain preserves version two order and equality" {
+test "path identity Hash::hash - matches normalized equality" {
+  let target = Target::Target(".agents/skills")
+  let equivalent_target = Target::Target(".agents/./skills")
+  inspect(target == equivalent_target, content="true")
+  inspect(target.hash() == equivalent_target.hash(), content="true")
+  let source = RelativeSourcePath::RelativeSourcePath("vendor/plugin")
+  let equivalent_source = RelativeSourcePath::RelativeSourcePath(
+    "vendor/./plugin",
+  )
+  inspect(source == equivalent_source, content="true")
+  inspect(source.hash() == equivalent_source.hash(), content="true")
+  let plugin_path = RelativePluginPath::RelativePluginPath("plugins/example")
+  let equivalent_plugin_path = RelativePluginPath::RelativePluginPath(
+    "plugins/./example",
+  )
+  inspect(plugin_path == equivalent_plugin_path, content="true")
+  inspect(plugin_path.hash() == equivalent_plugin_path.hash(), content="true")
+}
+
+///|
+test "lock domain equality ignores collection input order" {
   let plugin = Plugin::Plugin(
     PluginName::PluginName("c-plugin"),
     RelativePluginPath::RelativePluginPath("plugins/c-plugin"),
@@ -181,10 +237,57 @@ test "lock domain preserves version two order and equality" {
     [Target::Target(".agents/skills"), Target::Target(".cursor/skills")],
     [github, local_repository],
   )
+  let reordered_plugin = Plugin::Plugin(
+    PluginName::PluginName("c-plugin"),
+    RelativePluginPath::RelativePluginPath("plugins/c-plugin"),
+    [SkillName::SkillName("sync"), SkillName::SkillName("install")],
+  )
+  inspect(plugin == reordered_plugin, content="true")
+  let second_plugin = Plugin::Plugin(
+    PluginName::PluginName("second"),
+    RelativePluginPath::RelativePluginPath("plugins/second"),
+    [],
+  )
+  let ordered_github = GitHubLockRepository::GitHubLockRepository(
+    GitHubRepository::from_route("openai/codex"),
+    MarketplaceKind::codex(),
+    CommitId::CommitId("0123456789abcdef0123456789abcdef01234567"),
+    [plugin, second_plugin],
+  )
+  let reordered_github = GitHubLockRepository::GitHubLockRepository(
+    GitHubRepository::from_route("openai/codex"),
+    MarketplaceKind::codex(),
+    CommitId::CommitId("0123456789abcdef0123456789abcdef01234567"),
+    [second_plugin, plugin],
+  )
+  inspect(ordered_github == reordered_github, content="true")
+  let ordered_local = LocalLockRepository::LocalLockRepository(
+    RelativeSourcePath::RelativeSourcePath("vendor/plugin"),
+    MarketplaceKind::claude(),
+    [plugin, second_plugin],
+  )
+  let reordered_local = LocalLockRepository::LocalLockRepository(
+    RelativeSourcePath::RelativeSourcePath("vendor/plugin"),
+    MarketplaceKind::claude(),
+    [second_plugin, plugin],
+  )
+  inspect(ordered_local == reordered_local, content="true")
+  let target_reordered_lock = Lock::Lock(
+    [Target::Target(".cursor/skills"), Target::Target(".agents/skills")],
+    [github, local_repository],
+  )
+  inspect(lock == target_reordered_lock, content="true")
+  let repository_reordered_lock = Lock::Lock(
+    [Target::Target(".agents/skills"), Target::Target(".cursor/skills")],
+    [local_repository, github],
+  )
+  inspect(lock == repository_reordered_lock, content="true")
   inspect(lock.version, content="2")
-  inspect(lock.targets()[0].path.to_string(), content=".agents/skills")
-  inspect(lock.repositories()[0] == github, content="true")
-  match lock.repositories()[0] {
+  inspect(
+    lock.targets.contains(Target::Target(".agents/skills")),
+    content="true",
+  )
+  match lock.repositories[github.identity()] {
     LockRepository::GitHub(repository) => {
       inspect(repository.repository.owner.value, content="openai")
       inspect(repository.repository.name.value, content="codex")
@@ -194,68 +297,72 @@ test "lock domain preserves version two order and equality" {
         content="0123456789abcdef0123456789abcdef01234567",
       )
       inspect(
-        repository.plugins()[0].enabled_skills()[0].value,
-        content="install",
+        repository.plugins[plugin.name].enabled_skills.contains(
+          SkillName::SkillName("install"),
+        ),
+        content="true",
       )
     }
-    LockRepository::Local(_) =>
-      fail("first repository must preserve GitHub order")
+    LockRepository::Local(_) => fail("expected GitHub repository")
   }
 }
 
 ///|
-test "mutable aggregate fields expose detached readonly snapshots" {
+test "aggregate collections are immutable values" {
   let plugin = Plugin::Plugin(
     PluginName::PluginName("plugin"),
     RelativePluginPath::RelativePluginPath("plugin"),
     [SkillName::SkillName("install")],
   )
-  let enabled_skills = plugin.enabled_skills()
-  plugin.enabled_skills.push(SkillName::SkillName("sync"))
-  inspect(enabled_skills.length(), content="1")
-  inspect(plugin.enabled_skills().length(), content="2")
+  let expanded_skills = plugin.enabled_skills.add(SkillName::SkillName("sync"))
+  inspect(plugin.enabled_skills.length(), content="1")
+  inspect(expanded_skills.length(), content="2")
   let github = GitHubLockRepository::GitHubLockRepository(
     GitHubRepository::from_route("openai/codex"),
     MarketplaceKind::codex(),
     CommitId::CommitId("0123456789abcdef0123456789abcdef01234567"),
     [plugin],
   )
-  let github_plugins = github.plugins()
-  github.plugins.push(
-    Plugin::Plugin(
-      PluginName::PluginName("github-extra"),
-      RelativePluginPath::RelativePluginPath("github-extra"),
-      [],
-    ),
+  let github_extra = Plugin::Plugin(
+    PluginName::PluginName("github-extra"),
+    RelativePluginPath::RelativePluginPath("github-extra"),
+    [],
   )
-  inspect(github_plugins.length(), content="1")
-  inspect(github.plugins().length(), content="2")
+  let expanded_github_plugins = github.plugins.add(
+    github_extra.name,
+    github_extra,
+  )
+  inspect(github.plugins.length(), content="1")
+  inspect(expanded_github_plugins.length(), content="2")
   let local_repository = LocalLockRepository::LocalLockRepository(
     RelativeSourcePath::RelativeSourcePath("vendor/plugin"),
     MarketplaceKind::claude(),
     [plugin],
   )
-  let local_plugins = local_repository.plugins()
-  local_repository.plugins.push(
-    Plugin::Plugin(
-      PluginName::PluginName("local-extra"),
-      RelativePluginPath::RelativePluginPath("local-extra"),
-      [],
-    ),
+  let local_extra = Plugin::Plugin(
+    PluginName::PluginName("local-extra"),
+    RelativePluginPath::RelativePluginPath("local-extra"),
+    [],
   )
-  inspect(local_plugins.length(), content="1")
-  inspect(local_repository.plugins().length(), content="2")
+  let expanded_local_plugins = local_repository.plugins.add(
+    local_extra.name,
+    local_extra,
+  )
+  inspect(local_repository.plugins.length(), content="1")
+  inspect(expanded_local_plugins.length(), content="2")
   let lock = Lock::Lock([Target::Target(".agents/skills")], [
     LockRepository::github(github),
   ])
-  let targets = lock.targets()
-  let repositories = lock.repositories()
-  lock.targets.push(Target::Target(".cursor/skills"))
-  lock.repositories.push(LockRepository::from_local(local_repository))
-  inspect(targets.length(), content="1")
-  inspect(repositories.length(), content="1")
-  inspect(lock.targets().length(), content="2")
-  inspect(lock.repositories().length(), content="2")
+  let expanded_targets = lock.targets.add(Target::Target(".cursor/skills"))
+  let added_repository = LockRepository::from_local(local_repository)
+  let expanded_repositories = lock.repositories.add(
+    added_repository.identity(),
+    added_repository,
+  )
+  inspect(lock.targets.length(), content="1")
+  inspect(lock.repositories.length(), content="1")
+  inspect(expanded_targets.length(), content="2")
+  inspect(expanded_repositories.length(), content="2")
 }
 
 ///|

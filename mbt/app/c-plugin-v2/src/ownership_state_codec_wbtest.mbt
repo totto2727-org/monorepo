@@ -68,6 +68,16 @@ test "OwnershipState ToJson::to_json - round trips local ownership metadata" {
 }
 
 ///|
+test "OwnershipState ToJson::to_json - sorts entries by link" {
+  let text =
+    #|{"version":"1","entries":[{"link":"/home/alice/project/.agents/skills/z-last","symlinkTarget":"../../../cache/skills/z-last","resolvedTarget":"/home/alice/.cache/c-plugin/skills/z-last","managedRoot":"/home/alice/project/.agents/skills","source":{"type":"github","repository":"openai/codex","plugin":"c-plugin","skill":"z-last"}},{"link":"/home/alice/project/.agents/skills/a-first","symlinkTarget":"../../../cache/skills/a-first","resolvedTarget":"/home/alice/.cache/c-plugin/skills/a-first","managedRoot":"/home/alice/project/.agents/skills","source":{"type":"github","repository":"openai/codex","plugin":"c-plugin","skill":"a-first"}}]}
+  let state : OwnershipState = @json.from_json(@json.parse(text))
+  let expected =
+    #|{"version":"1","entries":[{"link":"/home/alice/project/.agents/skills/a-first","symlinkTarget":"../../../cache/skills/a-first","resolvedTarget":"/home/alice/.cache/c-plugin/skills/a-first","managedRoot":"/home/alice/project/.agents/skills","source":{"type":"github","repository":"openai/codex","plugin":"c-plugin","skill":"a-first"}},{"link":"/home/alice/project/.agents/skills/z-last","symlinkTarget":"../../../cache/skills/z-last","resolvedTarget":"/home/alice/.cache/c-plugin/skills/z-last","managedRoot":"/home/alice/project/.agents/skills","source":{"type":"github","repository":"openai/codex","plugin":"c-plugin","skill":"z-last"}}]}
+  inspect(ToJson::to_json(state).stringify(), content=expected)
+}
+
+///|
 test "OwnershipSource FromJson::from_json - rejects an invalid discriminator" {
   expect_ownership_rejection(
     fn() -> Unit raise {
@@ -175,6 +185,18 @@ test "OwnershipState FromJson::from_json - rejects unsupported version shapes" {
       (@json.from_json(json) : OwnershipState) |> ignore
     },
     "precision-sensitive version",
+  )
+}
+
+///|
+test "OwnershipState FromJson::from_json - rejects duplicate normalized links" {
+  let text =
+    #|{"version":"1","entries":[{"link":"/home/alice/project/.agents/skills/sync","symlinkTarget":"../../../cache/skills/sync","resolvedTarget":"/home/alice/.cache/c-plugin/skills/sync","managedRoot":"/home/alice/project/.agents/skills","source":{"type":"github","repository":"openai/codex","plugin":"c-plugin","skill":"sync"}},{"link":"/home/alice/project/.agents/skills/./sync","symlinkTarget":"../../../cache/skills/sync","resolvedTarget":"/home/alice/.cache/c-plugin/skills/sync","managedRoot":"/home/alice/project/.agents/skills","source":{"type":"github","repository":"openai/codex","plugin":"c-plugin","skill":"sync"}}]}
+  expect_ownership_rejection(
+    fn() -> Unit raise {
+      (@json.from_json(@json.parse(text)) : OwnershipState) |> ignore
+    },
+    "duplicate normalized ownership link",
   )
 }
 
