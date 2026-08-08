@@ -20,16 +20,15 @@ let lock_file_name = "c-plugin-lock.json"
 
 ///|
 fn path_is_within(base : @path.Path, target : @path.Path) -> Bool {
-  let normalized_base = base.normalize()
-  let mut current = target.normalize()
-  while current != normalized_base {
-    let parent = current.dirname()
-    if parent == current {
-      return false
-    }
-    current = parent
+  let normalized_base = base.normalize().to_string()
+  let normalized_target = target.normalize().to_string()
+  let base_prefix = if normalized_base == "/" {
+    normalized_base
+  } else {
+    "\{normalized_base}/"
   }
-  true
+  normalized_target == normalized_base ||
+  normalized_target.has_prefix(base_prefix)
 }
 
 ///|
