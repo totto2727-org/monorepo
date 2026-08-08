@@ -108,7 +108,7 @@ pub fn OwnershipLinkIdentity::OwnershipLinkIdentity(
 }
 
 ///|
-impl Hash for OwnershipLinkIdentity with fn hash_combine(self, hasher) {
+pub impl Hash for OwnershipLinkIdentity with fn hash_combine(self, hasher) {
   self.path.to_string().hash_combine(hasher)
 }
 
