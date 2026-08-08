@@ -50,6 +50,11 @@ pub struct GitHubRepository {
 } derive(Eq, Hash)
 
 ///|
+pub impl Compare for GitHubRepository with fn compare(self, other) {
+  self.route().lexical_compare(other.route())
+}
+
+///|
 pub fn GitHubRepository::GitHubRepository(
   owner : GitHubOwner,
   name : GitHubRepositoryName,
@@ -83,6 +88,11 @@ pub struct Target {
 } derive(Eq)
 
 ///|
+pub impl Compare for Target with fn compare(self, other) {
+  self.path.to_string().lexical_compare(other.path.to_string())
+}
+
+///|
 pub impl Hash for Target with fn hash_combine(self, hasher) {
   self.path.to_string().hash_combine(hasher)
 }
@@ -97,6 +107,11 @@ pub fn Target::Target(path : @path.Path) -> Target raise {
 pub struct RelativeSourcePath {
   path : @path.Path
 } derive(Eq)
+
+///|
+pub impl Compare for RelativeSourcePath with fn compare(self, other) {
+  self.path.to_string().lexical_compare(other.path.to_string())
+}
 
 ///|
 pub impl Hash for RelativeSourcePath with fn hash_combine(self, hasher) {
@@ -150,6 +165,11 @@ pub struct PluginName {
 } derive(Eq, Hash)
 
 ///|
+pub impl Compare for PluginName with fn compare(self, other) {
+  self.value.lexical_compare(other.value)
+}
+
+///|
 pub fn PluginName::PluginName(value : String) -> PluginName raise {
   validate_item_name(value, "plugin name")
   { value, }
@@ -159,6 +179,11 @@ pub fn PluginName::PluginName(value : String) -> PluginName raise {
 pub struct SkillName {
   value : String
 } derive(Eq, Hash)
+
+///|
+pub impl Compare for SkillName with fn compare(self, other) {
+  self.value.lexical_compare(other.value)
+}
 
 ///|
 pub fn SkillName::SkillName(value : String) -> SkillName raise {
@@ -335,6 +360,16 @@ pub enum RepositoryIdentity {
   GitHubIdentity(GitHubRepository)
   LocalIdentity(RelativeSourcePath)
 } derive(Eq, Hash)
+
+///|
+pub impl Compare for RepositoryIdentity with fn compare(self, other) {
+  match (self, other) {
+    (GitHubIdentity(left), GitHubIdentity(right)) => left.compare(right)
+    (GitHubIdentity(_), LocalIdentity(_)) => -1
+    (LocalIdentity(_), GitHubIdentity(_)) => 1
+    (LocalIdentity(left), LocalIdentity(right)) => left.compare(right)
+  }
+}
 
 ///|
 pub fn LockRepository::identity(self : LockRepository) -> RepositoryIdentity {

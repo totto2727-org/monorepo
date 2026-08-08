@@ -70,6 +70,15 @@ test "OwnershipState equality - ignores entry order" {
 }
 
 ///|
+test "OwnershipLinkIdentity Compare::compare - uses normalized lexical path order" {
+  let first = OwnershipLinkIdentity(
+    "/home/alice/project/.agents/skills/other/../alpha",
+  )
+  let last = OwnershipLinkIdentity("/home/alice/project/.agents/skills/z")
+  inspect(first.compare(last), content="-1")
+}
+
+///|
 test "OwnershipEntry OwnershipEntry - rejects a relative link" {
   expect_ownership_rejection(
     fn() -> Unit raise { ownership_entry(".agents/skills/sync") |> ignore },

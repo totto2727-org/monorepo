@@ -211,9 +211,7 @@ pub impl @json.FromJson for Plugin with fn from_json(json, path) {
 pub impl ToJson for Plugin with fn to_json(self) -> Json {
   let builder = @lens.JsonBuilder::JsonBuilder()
   let enabled_skills = self.enabled_skills.iter().to_array()
-  enabled_skills.sort_by((left, right) => {
-    left.value.lexical_compare(right.value)
-  })
+  enabled_skills.sort()
   plugin_name_lens.set_or_abort(builder, self.name.to_json())
   plugin_path_lens.set_or_abort(builder, self.path.to_json())
   plugin_enabled_skills_lens.set_or_abort(builder, enabled_skills.to_json())
@@ -224,11 +222,9 @@ pub impl ToJson for Plugin with fn to_json(self) -> Json {
 fn sorted_plugins_for_json(
   plugins : @immut_hashmap.HashMap[PluginName, Plugin],
 ) -> Array[Plugin] {
-  let result = plugins.values().to_array()
-  result.sort_by((left, right) => {
-    left.name.value.lexical_compare(right.name.value)
-  })
-  result
+  let entries = plugins.to_array()
+  entries.sort_by((left, right) => left.0.compare(right.0))
+  entries.map(entry => entry.1)
 }
 
 ///|
@@ -359,21 +355,6 @@ pub impl ToJson for LockRepository with fn to_json(self) -> Json {
 }
 
 ///|
-fn compare_repositories_for_json(
-  left : LockRepository,
-  right : LockRepository,
-) -> Int {
-  match (left, right) {
-    (GitHub(left), GitHub(right)) =>
-      left.repository.route().lexical_compare(right.repository.route())
-    (GitHub(_), Local(_)) => -1
-    (Local(_), GitHub(_)) => 1
-    (Local(left), Local(right)) =>
-      left.path.path.to_string().lexical_compare(right.path.path.to_string())
-  }
-}
-
-///|
 pub impl @json.FromJson for Lock with fn from_json(json, path) {
   let version : String = @json.from_json(
     lock_version_lens.get_or_json_decode_error(json, path),
@@ -402,11 +383,10 @@ pub impl @json.FromJson for Lock with fn from_json(json, path) {
 pub impl ToJson for Lock with fn to_json(self) -> Json {
   let builder = @lens.JsonBuilder::JsonBuilder()
   let targets = self.targets.iter().to_array()
-  targets.sort_by((left, right) => {
-    left.path.to_string().lexical_compare(right.path.to_string())
-  })
-  let repositories = self.repositories.values().to_array()
-  repositories.sort_by(compare_repositories_for_json)
+  targets.sort()
+  let repository_entries = self.repositories.to_array()
+  repository_entries.sort_by((left, right) => left.0.compare(right.0))
+  let repositories = repository_entries.map(entry => entry.1)
   lock_version_lens.set_or_abort(builder, self.version.to_string().to_json())
   lock_targets_lens.set_or_abort(builder, targets.to_json())
   lock_repositories_lens.set_or_abort(builder, repositories.to_json())

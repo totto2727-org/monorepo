@@ -123,6 +123,42 @@ test "domain names reject empty and slash values" {
 }
 
 ///|
+test "PluginName Compare::compare - uses lexical order" {
+  let alpha = PluginName::PluginName("alpha")
+  let z = PluginName::PluginName("z")
+  inspect(alpha.compare(z), content="-1")
+}
+
+///|
+test "SkillName Compare::compare - uses lexical order" {
+  let install = SkillName::SkillName("install")
+  let sync = SkillName::SkillName("sync")
+  inspect(install.compare(sync), content="-1")
+}
+
+///|
+test "Target Compare::compare - uses normalized lexical path order" {
+  let agents = Target::Target("project/other/../.agents")
+  let cursor = Target::Target("project/.cursor")
+  inspect(agents.compare(cursor), content="-1")
+}
+
+///|
+test "RepositoryIdentity Compare::compare - orders type then identity" {
+  let github = RepositoryIdentity::GitHubIdentity(
+    GitHubRepository::from_route("alpha/z"),
+  )
+  let later_github = RepositoryIdentity::GitHubIdentity(
+    GitHubRepository::from_route("z/a"),
+  )
+  let local_repository = RepositoryIdentity::LocalIdentity(
+    RelativeSourcePath::RelativeSourcePath("alpha"),
+  )
+  inspect(github.compare(later_github), content="-1")
+  inspect(later_github.compare(local_repository), content="-1")
+}
+
+///|
 test "CommitId rejects bad length and hexadecimal boundaries" {
   expect_rejection(
     fn() -> Unit raise {

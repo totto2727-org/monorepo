@@ -101,6 +101,11 @@ pub struct OwnershipLinkIdentity {
 } derive(Eq)
 
 ///|
+pub impl Compare for OwnershipLinkIdentity with fn compare(self, other) {
+  self.path.to_string().lexical_compare(other.path.to_string())
+}
+
+///|
 pub fn OwnershipLinkIdentity::OwnershipLinkIdentity(
   path : @path.Path,
 ) -> OwnershipLinkIdentity {
