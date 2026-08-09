@@ -64,10 +64,10 @@ pub fn RuntimePaths::project_ownership_state_path(
 ///|
 pub fn RuntimePaths::global_ownership_state_path(
   self : RuntimePaths,
-) -> OwnershipStatePath {
-  OwnershipStatePath::{
-    path: self.home.join(".agents").join("c-plugin-state.json"),
-  }
+) -> OwnershipStatePath raise {
+  OwnershipStatePath::OwnershipStatePath(
+    self.home.join(".agents").join("c-plugin-state.json"),
+  )
 }
 
 ///|
