@@ -52,7 +52,7 @@ async test "discover_locks - finds the nearest project lock below the synthetic 
     )
     let locks = discover_locks(
       fixture.paths,
-      LockDiscoveryOptions::Project(false),
+      LockDiscoveryOptions::Project(recursive=false),
     )
     inspect(locks[0].to_string(), content=nearest_lock.to_string())
     assert_false(locks.contains(outer_lock))
@@ -100,7 +100,7 @@ async test "discover_locks - includes the nearest project lock and visible desce
     )
     let locks = discover_locks(
       fixture.paths,
-      LockDiscoveryOptions::Project(true),
+      LockDiscoveryOptions::Project(recursive=true),
     )
     assert_true(locks.contains(nearest_lock))
     assert_true(locks.contains(child_lock))
@@ -126,7 +126,7 @@ async test "discover_locks - excludes descendants in gitignored directories" {
     )
     let locks = discover_locks(
       fixture.paths,
-      LockDiscoveryOptions::Project(true),
+      LockDiscoveryOptions::Project(recursive=true),
     )
     assert_true(locks.contains(nearest_lock))
     assert_true(locks.contains(visible_lock))
@@ -139,7 +139,10 @@ async test "discover_locks - does not search for project locks above the synthet
   with_lock_discovery_fixture(async fn(fixture) {
     let outside_lock = write_lock(fixture.root.join("c-plugin-lock.json"))
     let detail = try {
-      discover_locks(fixture.paths, LockDiscoveryOptions::Project(false))
+      discover_locks(
+        fixture.paths,
+        LockDiscoveryOptions::Project(recursive=false),
+      )
       |> ignore
       "no error"
     } catch {
@@ -155,7 +158,10 @@ async test "discover_locks - does not search for project locks above the synthet
 async test "discover_locks - reports a typed error when no project lock exists" {
   with_lock_discovery_fixture(async fn(fixture) {
     let detail = try {
-      discover_locks(fixture.paths, LockDiscoveryOptions::Project(false))
+      discover_locks(
+        fixture.paths,
+        LockDiscoveryOptions::Project(recursive=false),
+      )
       |> ignore
       "no error"
     } catch {
@@ -180,7 +186,8 @@ async test "discover_locks - rejects a cwd outside the synthetic home" {
       fixture.paths.cache_root,
     )
     let detail = try {
-      discover_locks(paths, LockDiscoveryOptions::Project(false)) |> ignore
+      discover_locks(paths, LockDiscoveryOptions::Project(recursive=false))
+      |> ignore
       "no error"
     } catch {
       LockFileNotFound(scope=Project, boundary~) => boundary.to_string()

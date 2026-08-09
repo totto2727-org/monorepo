@@ -7,7 +7,7 @@ pub(all) enum LockDiscoveryScope {
 ///|
 pub(all) enum LockDiscoveryOptions {
   Global
-  Project(Bool)
+  Project(recursive~ : Bool)
 } derive(Debug, Eq)
 
 ///|
@@ -91,7 +91,7 @@ pub async fn discover_locks(
 ) -> ReadOnlyArray[@path.Path] raise LockDiscoveryError {
   match options {
     Global => ReadOnlyArray::from_array([find_global_lock(paths.home)])
-    Project(recursive) => {
+    Project(recursive~) => {
       let nearest_lock = find_project_lock(paths.home, paths.cwd)
       if recursive {
         find_recursive_project_locks(paths.home, nearest_lock)

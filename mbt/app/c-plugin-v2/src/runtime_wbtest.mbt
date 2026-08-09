@@ -23,7 +23,9 @@ async test "Runtime discover_locks - injects synthetic runtime paths" {
     write_ownership_state_atomic=fn(_path, _state) { () },
   )
 
-  let discovered = runtime.discover_locks(LockDiscoveryOptions::Project(false))
+  let discovered = runtime.discover_locks(
+    LockDiscoveryOptions::Project(recursive=false),
+  )
 
   inspect(received[0].to_string(), content="/synthetic/home")
   inspect(received[1].to_string(), content="/synthetic/work/project")
