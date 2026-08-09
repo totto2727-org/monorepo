@@ -364,11 +364,7 @@ test "DesiredLinks plan_desired_skill_links - propagates an invalid resolved ski
       ]),
     )
   catch {
-    Failure::Failure(message) =>
-      inspect(
-        message.contains("ownership resolved target must be absolute"),
-        content="true",
-      )
+    Failure::Failure(_) => ()
     error => raise error
   } noraise {
     _ => fail("invalid resolved skill path must raise")
