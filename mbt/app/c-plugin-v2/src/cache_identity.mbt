@@ -2,8 +2,6 @@
 pub(all) suberror CacheIdentityError {
   RelativePath(name~ : String, path~ : @path.Path)
   UnsupportedMetadataVersion(version~ : Int)
-  MissingMetadata(expected~ : CacheScopeMetadata)
-  MetadataMismatch(expected~ : CacheScopeMetadata, actual~ : CacheScopeMetadata)
 } derive(Debug)
 
 ///|
@@ -74,8 +72,10 @@ pub fn CacheScope::CacheScope(
   lock_path : @path.Path,
 ) -> CacheScope raise CacheIdentityError {
   let normalized_lock_path = normalized_absolute_path("lock path", lock_path)
-  let scope_key = @sha256.sha256_hexdigest(
-    @utf8.encode("lock\u{0000}\{normalized_lock_path.to_string()}"),
+  let scope_key = @crypto.bytes_to_hex_string(
+    @crypto.sha256(
+      @utf8.encode("lock\u{0000}\{normalized_lock_path.to_string()}"),
+    ),
   )
   { lock_path: normalized_lock_path, scope_key }
 }
@@ -93,23 +93,10 @@ pub fn CacheScope::cache_path(
 }
 
 ///|
-pub fn CacheScope::metadata(self : CacheScope) -> CacheScopeMetadata {
-  { version: 1, lock_path: self.lock_path }
-}
-
-///|
-pub fn CacheScope::validate_metadata(
+pub fn CacheScope::metadata(
   self : CacheScope,
-  metadata : CacheScopeMetadata?,
-) -> Unit raise CacheIdentityError {
-  let expected = self.metadata()
-  match metadata {
-    None => raise MissingMetadata(expected~)
-    Some(actual) => {
-      let matches_scope = actual == expected
-      guard matches_scope else { raise MetadataMismatch(expected~, actual~) }
-    }
-  }
+) -> CacheScopeMetadata raise CacheIdentityError {
+  CacheScopeMetadata::CacheScopeMetadata(1, self.lock_path)
 }
 
 ///|
