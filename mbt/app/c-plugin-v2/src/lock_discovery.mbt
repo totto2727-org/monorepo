@@ -5,22 +5,13 @@ pub(all) enum LockDiscoveryScope {
 } derive(Debug, Eq)
 
 ///|
-pub struct LockDiscoveryOptions {
-  scope : LockDiscoveryScope
-  recursive : Bool
-}
-
-///|
-pub fn LockDiscoveryOptions::LockDiscoveryOptions(
-  scope : LockDiscoveryScope,
-  recursive : Bool,
-) -> LockDiscoveryOptions {
-  { scope, recursive }
-}
+pub(all) enum LockDiscoveryOptions {
+  Global
+  Project(recursive~ : Bool)
+} derive(Debug, Eq)
 
 ///|
 pub(all) suberror LockDiscoveryError {
-  GlobalRecursiveUnsupported
   LockFileNotFound(scope~ : LockDiscoveryScope, boundary~ : @path.Path)
 } derive(Debug)
 
@@ -98,14 +89,11 @@ pub async fn discover_locks(
   paths : RuntimePaths,
   options : LockDiscoveryOptions,
 ) -> ReadOnlyArray[@path.Path] raise LockDiscoveryError {
-  match options.scope {
-    Global => {
-      guard !options.recursive else { raise GlobalRecursiveUnsupported }
-      ReadOnlyArray::from_array([find_global_lock(paths.home)])
-    }
-    Project => {
+  match options {
+    Global => ReadOnlyArray::from_array([find_global_lock(paths.home)])
+    Project(recursive~) => {
       let nearest_lock = find_project_lock(paths.home, paths.cwd)
-      if options.recursive {
+      if recursive {
         find_recursive_project_locks(paths.home, nearest_lock)
       } else {
         ReadOnlyArray::from_array([nearest_lock])
