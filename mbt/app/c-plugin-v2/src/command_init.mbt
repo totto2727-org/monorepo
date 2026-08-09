@@ -18,19 +18,6 @@ fn init_options(
 }
 
 ///|
-fn runtime_for_init(paths : RuntimePaths) -> Runtime {
-  Runtime::Runtime(
-    paths~,
-    discover_locks_api=discover_locks,
-    load_lock~,
-    create_lock_exclusive~,
-    write_lock_atomic~,
-    load_ownership_state~,
-    write_ownership_state_atomic~,
-  )
-}
-
-///|
 /// Create an empty project or global v2 lock without replacing existing bytes.
 async fn init_lock(runtime : Runtime, options : InitOptions) -> @path.Path {
   let lock_path = if options.global {
