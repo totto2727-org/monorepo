@@ -74,8 +74,10 @@ pub fn CacheScope::CacheScope(
   lock_path : @path.Path,
 ) -> CacheScope raise CacheIdentityError {
   let normalized_lock_path = normalized_absolute_path("lock path", lock_path)
-  let scope_key = @sha256.sha256_hexdigest(
-    @utf8.encode("lock\u{0000}\{normalized_lock_path.to_string()}"),
+  let scope_key = @crypto.bytes_to_hex_string(
+    @crypto.sha256(
+      @utf8.encode("lock\u{0000}\{normalized_lock_path.to_string()}"),
+    ),
   )
   { lock_path: normalized_lock_path, scope_key }
 }
