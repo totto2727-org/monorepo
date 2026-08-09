@@ -37,7 +37,7 @@ pub enum OwnershipSource {
 } derive(Eq)
 
 ///|
-pub fn OwnershipSource::github(
+pub fn OwnershipSource::from_github(
   source : GitHubOwnershipSource,
 ) -> OwnershipSource {
   GitHub(source)
