@@ -31,6 +31,11 @@ struct FromJsonRepository {
 } derive(Debug, FromJson, ToJson)
 
 ///|
+struct FromJsonOnlyRepository {
+  owner : String
+} derive(Debug, FromJson)
+
+///|
 enum FromJsonKind {
   Stable
   Preview
@@ -470,6 +475,26 @@ test "ObjectLens custom get - reports external decode at the selected pointer" {
   )
   inspect(issue.pointer.to_string(), content="/repository")
   debug_inspect(issue.code, content="ExternalDecode")
+}
+
+///|
+test "Lens decode_from_json - preserves the FromJson-only read bridge" {
+  let repository_lens : Lens[Json] = root().json("repository")
+  let path = root_json_path().add_key("request")
+  let repository : FromJsonOnlyRepository = repository_lens.decode_from_json(
+    @json.parse("{\"repository\":{\"owner\":\"totto2727\"}}"),
+    path,
+  )
+  debug_inspect(repository, content="{ owner: \"totto2727\" }")
+  inspect(
+    from_json_test_error_path(() => {
+      let _ : FromJsonOnlyRepository = repository_lens.decode_from_json(
+        @json.parse("{\"repository\":{\"owner\":false}}"),
+        path,
+      )
+    }),
+    content="/request/repository/owner",
+  )
 }
 
 ///|

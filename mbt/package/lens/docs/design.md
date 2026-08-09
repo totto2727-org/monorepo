@@ -295,6 +295,11 @@ pub fn ObjectLens::json(
   String,
 ) -> Lens[Json]
 
+pub fn ObjectLens::custom[T : FromJson + ToJson](
+  Self,
+  String,
+) -> Lens[T]
+
 pub fn ObjectLens::get(
   Self,
   Json,
