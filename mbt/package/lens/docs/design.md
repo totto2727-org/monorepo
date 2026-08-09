@@ -186,16 +186,17 @@ The string form follows RFC 6901:
 ```moonbit
 pub struct Decoder[T] {
   priv decode_ : (Json) -> T raise DecodeProblem
+  priv decode_with_path_ : ((Json, JsonPath) -> T raise JsonDecodeError)?
 }
 ```
 
 `DecodeProblem` is a package-private suberror containing path-independent failure information. `Lens::get` catches it, attaches the selected pointer to produce a public `Issue`, and raises `LensError(issue)`.
 
-Primitive decoders perform JSON variant dispatch directly so the package can provide stable structured error codes. Numeric parsing and conversion inside those decoders delegate to MoonBit core. For application types, `Lens[Json]::decode_from_json[T : FromJson]` selects raw JSON and delegates directly to standard `FromJson` with the selected `JsonPath`. It is intentionally a read bridge rather than a `Lens[T]` constructor because `Lens[T]` also requires an encoder.
+Primitive decoders perform JSON variant dispatch directly so the package can provide stable structured error codes. Numeric parsing and conversion inside those decoders delegate to MoonBit core. `ObjectLens::custom[T : FromJson + ToJson]` creates an application-type lens whose path-aware decoder delegates directly to standard `FromJson` with the selected `JsonPath`. Its ordinary `Lens::get` path reports a standard decoder failure as `ExternalDecode` at the selected lens pointer because `JsonPath` is opaque, while `get_or_json_decode_error` preserves the exact nested standard path. Array and presence combinators propagate the path-aware decoder. `ObjectLens::json` remains the raw `Json` accessor, and `Lens[Json]::decode_from_json` remains a read-only bridge for types without `ToJson`.
 
 ### Encoder
 
-`Encoder[T]` converts a typed value into one concrete JSON value. Primitive encoders delegate to MoonBit core JSON constructors. Property omission belongs to `PresenceLens::set` rather than `Encoder`. JSON arrays cannot contain a missing element without shifting later indices, so `PresenceLens::array` normalizes every presence mode to nullable item semantics for both encoding and decoding.
+`Encoder[T]` converts a typed value into one concrete JSON value. Primitive encoders delegate to MoonBit core JSON constructors, while a custom lens delegates to standard `ToJson`. Property omission belongs to `PresenceLens::set` rather than `Encoder`. JSON arrays cannot contain a missing element without shifting later indices, so `PresenceLens::array` normalizes every presence mode to nullable item semantics for both encoding and decoding.
 
 Presence combinators have explicit builder behavior:
 

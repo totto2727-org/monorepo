@@ -34,6 +34,11 @@ fn json_encoder() -> Encoder[Json] {
 }
 
 ///|
+fn[T : ToJson] custom_encoder() -> Encoder[T] {
+  Encoder::{ encode_: value => ToJson::to_json(value) }
+}
+
+///|
 fn object_encoder() -> Encoder[Map[String, Json]] {
   Encoder::{ encode_: value => Json::object(value.copy()) }
 }

@@ -114,6 +114,19 @@ pub fn ObjectLens::json(self : ObjectLens, key : String) -> Lens[Json] {
 }
 
 ///|
+/// Returns a typed lens that delegates decoding and encoding to standard JSON traits.
+pub fn[T : @json.FromJson + ToJson] ObjectLens::custom(
+  self : ObjectLens,
+  key : String,
+) -> Lens[T] {
+  Lens::{
+    pointer: self.lens.pointer.key(key),
+    decoder: custom_decoder(),
+    encoder: custom_encoder(),
+  }
+}
+
+///|
 /// Returns a lens that decodes every array item with this lens's decoder.
 pub fn[T] Lens::array(self : Lens[T]) -> Lens[Array[T]] {
   Lens::{
@@ -240,6 +253,18 @@ fn missing_property(pointer : Pointer) -> LensError {
 }
 
 ///|
+fn lookup_or_json_decode_error(
+  document : Json,
+  pointer : Pointer,
+  path : @json.JsonPath,
+) -> Json? raise @json.JsonDecodeError {
+  lookup(document, pointer) catch {
+    LensError(issue) =>
+      raise issue.pointer.json_decode_error(path, repr(LensError(issue)))
+  }
+}
+
+///|
 fn[T] Lens::decode_selected(
   self : Lens[T],
   selected : Json,
@@ -298,14 +323,31 @@ pub fn[T] Lens::get_or_json_decode_error(
   document : Json,
   path : @json.JsonPath,
 ) -> T raise @json.JsonDecodeError {
-  self.get(document) catch {
-    LensError(issue) =>
-      raise issue.pointer.json_decode_error(path, repr(LensError(issue)))
+  match self.decoder.decode_with_path_ {
+    Some(_) => {
+      let selected = match
+        lookup_or_json_decode_error(document, self.pointer, path) {
+        Some(value) => value
+        None => {
+          let LensError(issue) = missing_property(self.pointer)
+          raise issue.pointer.json_decode_error(path, repr(LensError(issue)))
+        }
+      }
+      self.decoder.decode_with_path(
+        selected,
+        self.pointer.add_to_json_path(path),
+      )
+    }
+    None =>
+      self.get(document) catch {
+        LensError(issue) =>
+          raise issue.pointer.json_decode_error(path, repr(LensError(issue)))
+      }
   }
 }
 
 ///|
-/// Selects raw JSON and delegates its typed decoding to the standard `FromJson` implementation.
+/// Selects raw JSON and delegates read-only decoding to standard `FromJson`.
 pub fn[T : @json.FromJson] Lens::decode_from_json(
   self : Lens[Json],
   document : Json,
@@ -324,8 +366,38 @@ pub fn[T] PresenceLens::get_or_json_decode_error(
   document : Json,
   path : @json.JsonPath,
 ) -> T? raise @json.JsonDecodeError {
-  self.get(document) catch {
-    LensError(issue) =>
-      raise issue.pointer.json_decode_error(path, repr(LensError(issue)))
+  match self.lens.decoder.decode_with_path_ {
+    Some(_) => {
+      let selected = match
+        lookup_or_json_decode_error(document, self.lens.pointer, path) {
+        Some(value) => value
+        None =>
+          match self.mode {
+            Optional | Nullish(_) => return None
+            Nullable => {
+              let LensError(issue) = missing_property(self.lens.pointer)
+              raise issue.pointer.json_decode_error(
+                path,
+                repr(LensError(issue)),
+              )
+            }
+          }
+      }
+      match (self.mode, selected) {
+        (Nullable | Nullish(_), Json::Null) => None
+        _ =>
+          Some(
+            self.lens.decoder.decode_with_path(
+              selected,
+              self.lens.pointer.add_to_json_path(path),
+            ),
+          )
+      }
+    }
+    None =>
+      self.get(document) catch {
+        LensError(issue) =>
+          raise issue.pointer.json_decode_error(path, repr(LensError(issue)))
+      }
   }
 }
