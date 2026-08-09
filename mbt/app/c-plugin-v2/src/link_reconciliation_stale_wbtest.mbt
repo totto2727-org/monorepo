@@ -53,7 +53,9 @@ async test "LinkReconciliation reconcile_skill_links 3 - reconciles trusted stal
     @fs.write_file(neighbor.to_string(), "keep", create_mode=CreateNew)
     let previous_state = OwnershipState::OwnershipState(entries)
     let desired_state = OwnershipState::OwnershipState([])
-    let state_path = root.join("ownership-state.json")
+    let state_path = reconciliation_state_path(
+      root.join("ownership-state.json"),
+    )
     let mut checkpoint_count = 0
     let mut checkpoint_state = None
 
@@ -132,7 +134,7 @@ async test "LinkReconciliation reconcile_skill_links 8 - isolates stale deletion
     )
     let desired_state = OwnershipState::OwnershipState([])
     let result_a = reconcile_skill_links(
-      state_path=root.join("state-a.json"),
+      state_path=reconciliation_state_path(root.join("state-a.json")),
       desired_state~,
       previous_ownership=Trusted(OwnershipState::OwnershipState([entry_a])),
       checkpoint_ownership_state=fn(_path, _state) { () },
@@ -150,7 +152,7 @@ async test "LinkReconciliation reconcile_skill_links 8 - isolates stale deletion
       content="SymLink",
     )
     let result_b = reconcile_skill_links(
-      state_path=root.join("state-b.json"),
+      state_path=reconciliation_state_path(root.join("state-b.json")),
       desired_state~,
       previous_ownership=Trusted(OwnershipState::OwnershipState([entry_b])),
       checkpoint_ownership_state=fn(_path, _state) { () },
@@ -183,7 +185,7 @@ async test "LinkReconciliation reconcile_skill_links 11 - retries stale omission
     )
     let previous = OwnershipState::OwnershipState([entry])
     let desired_state = OwnershipState::OwnershipState([])
-    let state_path = root.join("state.json")
+    let state_path = reconciliation_state_path(root.join("state.json"))
     let fail_checkpoint : async (@path.Path, OwnershipState) -> Unit raise StateStoreError = (
       path,
       _state,
@@ -238,7 +240,7 @@ async test "LinkReconciliation reconcile_skill_links 13 - rejects a replaced sta
     let previous = OwnershipState::OwnershipState([entry])
     let mut checkpointed = false
     let result = reconcile_skill_links(
-      state_path=root.join("state.json"),
+      state_path=reconciliation_state_path(root.join("state.json")),
       desired_state=OwnershipState::OwnershipState([]),
       previous_ownership=Trusted(previous),
       checkpoint_ownership_state=fn(_path, _state) { checkpointed = true },
@@ -307,7 +309,7 @@ async test "LinkReconciliation reconcile_skill_links 16 - preserves a foreign re
     }
     let result = reconcile_skill_links_with_io(
       io,
-      root.join("state.json"),
+      reconciliation_state_path(root.join("state.json")),
       OwnershipState::OwnershipState([]),
       Trusted(OwnershipState::OwnershipState([entry])),
     )

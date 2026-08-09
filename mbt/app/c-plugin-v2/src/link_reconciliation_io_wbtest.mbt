@@ -47,7 +47,7 @@ async test "LinkReconciliation reconcile_skill_links 14 - continues independent 
     }
     let result = reconcile_skill_links_with_io(
       io,
-      root.join("state.json"),
+      reconciliation_state_path(root.join("state.json")),
       OwnershipState::OwnershipState(entries),
       Trusted(OwnershipState::OwnershipState([])),
     )
@@ -124,7 +124,7 @@ async test "LinkReconciliation reconcile_skill_links 15 - retains failed stale r
     }
     let result = reconcile_skill_links_with_io(
       io,
-      root.join("state.json"),
+      reconciliation_state_path(root.join("state.json")),
       OwnershipState::OwnershipState([]),
       Trusted(OwnershipState::OwnershipState(entries)),
     )

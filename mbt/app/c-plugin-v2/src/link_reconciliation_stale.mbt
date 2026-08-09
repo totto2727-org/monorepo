@@ -1,7 +1,7 @@
 ///|
 async fn reconcile_stale_entries(
   io~ : LinkReconciliationIO,
-  state_path~ : @path.Path,
+  state_path~ : OwnershipStatePath,
   desired_state~ : OwnershipState,
   durable_state~ : OwnershipState,
   notices~ : Array[LinkReconciliationNotice],
@@ -29,7 +29,7 @@ async fn reconcile_stale_entries(
     match recorded_root_kind {
       None => {
         let checkpointed_state = state_without_entry(durable_state, identity)
-        (io.checkpoint)(state_path, checkpointed_state) catch {
+        (io.checkpoint)(state_path.path, checkpointed_state) catch {
           error => {
             notices.push(
               CheckpointFailed(
@@ -174,7 +174,7 @@ async fn reconcile_stale_entries(
     }
     if omit_ownership {
       let checkpointed_state = state_without_entry(durable_state, identity)
-      (io.checkpoint)(state_path, checkpointed_state) catch {
+      (io.checkpoint)(state_path.path, checkpointed_state) catch {
         error => {
           notices.push(
             CheckpointFailed(

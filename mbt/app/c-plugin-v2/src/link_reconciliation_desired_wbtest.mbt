@@ -20,7 +20,9 @@ async test "LinkReconciliation reconcile_skill_links 2 - preserves every unrecor
       let link = managed_root.join("install")
       let target = root.join("cache").join("skills").join("install")
       let other_target = root.join("cache").join("skills").join("other")
-      let state_path = root.join(".agents").join("c-plugin-state.json")
+      let state_path = reconciliation_state_path(
+        root.join(".agents").join("c-plugin-state.json"),
+      )
       @fs.mkdir(managed_root.to_string(), recursive=true)
       @fs.mkdir(target.to_string(), recursive=true)
       @fs.mkdir(other_target.to_string(), recursive=true)
@@ -130,7 +132,7 @@ async test "LinkReconciliation reconcile_skill_links 4 - refreshes same-target o
     let desired_state = OwnershipState::OwnershipState([desired])
     let checkpoints = []
     let result = reconcile_skill_links(
-      state_path=root.join("state.json"),
+      state_path=reconciliation_state_path(root.join("state.json")),
       desired_state~,
       previous_ownership=Trusted(OwnershipState::OwnershipState([recorded])),
       checkpoint_ownership_state=fn(_path, state) { checkpoints.push(state) },
@@ -170,7 +172,7 @@ async test "LinkReconciliation reconcile_skill_links 5 - replaces a verified own
     let desired_state = OwnershipState::OwnershipState([desired])
     let checkpoints = []
     let result = reconcile_skill_links(
-      state_path=root.join("state.json"),
+      state_path=reconciliation_state_path(root.join("state.json")),
       desired_state~,
       previous_ownership=Trusted(OwnershipState::OwnershipState([recorded])),
       checkpoint_ownership_state=fn(_path, state) { checkpoints.push(state) },
@@ -214,7 +216,7 @@ async test "LinkReconciliation reconcile_skill_links 6 - preserves replaced and 
       let desired_state = OwnershipState::OwnershipState([entry])
       let checkpoints = []
       let result = reconcile_skill_links(
-        state_path=root.join("state.json"),
+        state_path=reconciliation_state_path(root.join("state.json")),
         desired_state~,
         previous_ownership=Trusted(OwnershipState::OwnershipState([entry])),
         checkpoint_ownership_state=fn(_path, state) { checkpoints.push(state) },

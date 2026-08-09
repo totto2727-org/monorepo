@@ -8,7 +8,7 @@ enum DesiredLinkCreationResult {
 ///|
 async fn create_desired_link(
   io : LinkReconciliationIO,
-  state_path : @path.Path,
+  state_path : OwnershipStatePath,
   durable_state : OwnershipState,
   desired_entry : OwnershipEntry,
   notices : Array[LinkReconciliationNotice],

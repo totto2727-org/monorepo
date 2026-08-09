@@ -1,4 +1,9 @@
 ///|
+fn reconciliation_state_path(path : @path.Path) -> OwnershipStatePath raise {
+  OwnershipStatePath::OwnershipStatePath(path)
+}
+
+///|
 async test "LinkReconciliation reconcile_skill_links 1 - creates a missing desired link and checkpoints ownership" {
   @async.with_task_group() <| group => {
     let temporary_root : @path.Path = @fs.tmpdir(
@@ -9,7 +14,9 @@ async test "LinkReconciliation reconcile_skill_links 1 - creates a missing desir
     let managed_root = root.join(".agents").join("skills")
     let link = managed_root.join("install")
     let target = root.join("cache").join("skills").join("install")
-    let state_path = root.join(".agents").join("c-plugin-state.json")
+    let state_path = reconciliation_state_path(
+      root.join(".agents").join("c-plugin-state.json"),
+    )
     @fs.mkdir(target.to_string(), recursive=true)
     let entry = OwnershipEntry::OwnershipEntry(
       OwnershipLink::OwnershipLink(link),
@@ -49,7 +56,7 @@ async test "LinkReconciliation reconcile_skill_links 1 - creates a missing desir
       @fs.realpath(link.to_string()),
       content=@fs.realpath(target.to_string()),
     )
-    inspect(checkpoint_path == Some(state_path), content="true")
+    inspect(checkpoint_path == Some(state_path.path), content="true")
     inspect(checkpoint_state == Some(desired_state), content="true")
     debug_inspect(result.status, content="Complete")
     inspect(result.durable_state == desired_state, content="true")
@@ -146,9 +153,10 @@ async test "LinkReconciliation reconcile_skill_links 7 - distinguishes unavailab
         collision.link.path.to_string(),
       )
       let desired_state = OwnershipState::OwnershipState([collision, absent])
+      let state_path = reconciliation_state_path(root.join("state.json"))
       let checkpoints = []
       let result = reconcile_skill_links(
-        state_path=root.join("state.json"),
+        state_path~,
         desired_state~,
         previous_ownership=mode,
         checkpoint_ownership_state=fn(_path, state) { checkpoints.push(state) },
@@ -165,8 +173,10 @@ async test "LinkReconciliation reconcile_skill_links 7 - distinguishes unavailab
       )
       inspect(result.notices.length(), content="2")
       match (mode, result.notices[0]) {
-        (PreviousOwnership::Missing, PreviousOwnershipMissing(_)) => ()
-        (Corrupt(_), PreviousOwnershipCorrupt(_)) => ()
+        (PreviousOwnership::Missing, PreviousOwnershipMissing(path~)) =>
+          inspect(path == state_path, content="true")
+        (Corrupt(_), PreviousOwnershipCorrupt(path~, reason=_)) =>
+          inspect(path == state_path, content="true")
         _ => fail("expected distinct unavailable ownership notice")
       }
       inspect(
@@ -196,7 +206,7 @@ async test "LinkReconciliation reconcile_skill_links 9 - rejects a symlink manag
     let entry = desired_owned_entry(managed_root, target, "vendor/repo")
     let mut checkpointed = false
     let result = reconcile_skill_links(
-      state_path=root.join("state.json"),
+      state_path=reconciliation_state_path(root.join("state.json")),
       desired_state=OwnershipState::OwnershipState([entry]),
       previous_ownership=Trusted(OwnershipState::OwnershipState([])),
       checkpoint_ownership_state=fn(_path, _state) { checkpointed = true },

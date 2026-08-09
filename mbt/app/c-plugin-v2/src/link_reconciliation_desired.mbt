@@ -1,7 +1,7 @@
 ///|
 async fn reconcile_desired_entries(
   io~ : LinkReconciliationIO,
-  state_path~ : @path.Path,
+  state_path~ : OwnershipStatePath,
   desired_state~ : OwnershipState,
   durable_state~ : OwnershipState,
   notices~ : Array[LinkReconciliationNotice],

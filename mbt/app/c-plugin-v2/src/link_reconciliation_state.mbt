@@ -37,12 +37,12 @@ fn state_store_error_reason(error : StateStoreError) -> String {
 ///|
 async fn checkpoint_ownership(
   io : LinkReconciliationIO,
-  state_path : @path.Path,
+  state_path : OwnershipStatePath,
   durable_state : OwnershipState,
   checkpointed_state : OwnershipState,
   notices : Array[LinkReconciliationNotice],
 ) -> OwnershipCheckpointResult {
-  (io.checkpoint)(state_path, checkpointed_state) catch {
+  (io.checkpoint)(state_path.path, checkpointed_state) catch {
     error => {
       notices.push(
         CheckpointFailed(

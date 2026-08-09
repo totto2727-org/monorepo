@@ -12,7 +12,7 @@ async test "LinkReconciliation reconcile_skill_links 10 - hard-stops after a cre
     let entry_a = stale_reconciliation_entry(managed_root, "a", target_a)
     let entry_b = stale_reconciliation_entry(managed_root, "b", target_b)
     let desired_state = OwnershipState::OwnershipState([entry_b, entry_a])
-    let state_path = root.join("state.json")
+    let state_path = reconciliation_state_path(root.join("state.json"))
     let empty = OwnershipState::OwnershipState([])
     let fail_checkpoint : async (@path.Path, OwnershipState) -> Unit raise StateStoreError = (
       path,
@@ -106,7 +106,7 @@ async test "LinkReconciliation reconcile_skill_links 12 - preserves an injected 
     let empty = OwnershipState::OwnershipState([])
     let result = reconcile_skill_links_with_io(
       io,
-      root.join("state.json"),
+      reconciliation_state_path(root.join("state.json")),
       OwnershipState::OwnershipState([entry]),
       Trusted(empty),
     )
@@ -166,7 +166,7 @@ async test "LinkReconciliation reconcile_skill_links 17 - hard-stops after succe
     let empty = OwnershipState::OwnershipState([])
     let result = reconcile_skill_links_with_io(
       io,
-      root.join("state.json"),
+      reconciliation_state_path(root.join("state.json")),
       OwnershipState::OwnershipState([entry_b, entry_a]),
       Trusted(empty),
     )

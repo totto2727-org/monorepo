@@ -91,6 +91,21 @@ pub fn OwnershipSource::from_local(
 }
 
 ///|
+pub struct OwnershipStatePath {
+  path : @path.Path
+} derive(Eq)
+
+///|
+pub fn OwnershipStatePath::OwnershipStatePath(
+  path : @path.Path,
+) -> OwnershipStatePath raise {
+  guard path.is_absolute() else {
+    fail("ownership state path must be absolute")
+  }
+  { path: path.normalize() }
+}
+
+///|
 pub struct OwnershipLink {
   path : @path.Path
 } derive(Eq)
