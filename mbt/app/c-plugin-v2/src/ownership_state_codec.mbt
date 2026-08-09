@@ -48,57 +48,45 @@ let ownership_state_entries_lens : @lens.Lens[Json] = @lens.root().json(
 )
 
 ///|
-fn decode_github_ownership_source(
-  json : Json,
-  path : @json.JsonPath,
-) -> OwnershipSource raise @json.JsonDecodeError {
-  let repository : GitHubRepository = @json.from_json(
-    ownership_source_repository_lens.get_or_json_decode_error(json, path),
-    path=ownership_source_repository_lens.add_to_json_path(path),
-  )
-  let plugin : PluginName = @json.from_json(
-    ownership_source_plugin_lens.get_or_json_decode_error(json, path),
-    path=ownership_source_plugin_lens.add_to_json_path(path),
-  )
-  let skill : SkillName = @json.from_json(
-    ownership_source_skill_lens.get_or_json_decode_error(json, path),
-    path=ownership_source_skill_lens.add_to_json_path(path),
-  )
-  OwnershipSource::github(
-    GitHubOwnershipSource::GitHubOwnershipSource(repository, plugin, skill),
-  )
-}
-
-///|
-fn decode_local_ownership_source(
-  json : Json,
-  path : @json.JsonPath,
-) -> OwnershipSource raise @json.JsonDecodeError {
-  let repository : RelativeSourcePath = @json.from_json(
-    ownership_source_repository_lens.get_or_json_decode_error(json, path),
-    path=ownership_source_repository_lens.add_to_json_path(path),
-  )
-  let plugin : PluginName = @json.from_json(
-    ownership_source_plugin_lens.get_or_json_decode_error(json, path),
-    path=ownership_source_plugin_lens.add_to_json_path(path),
-  )
-  let skill : SkillName = @json.from_json(
-    ownership_source_skill_lens.get_or_json_decode_error(json, path),
-    path=ownership_source_skill_lens.add_to_json_path(path),
-  )
-  OwnershipSource::from_local(
-    LocalOwnershipSource::LocalOwnershipSource(repository, plugin, skill),
-  )
-}
-
-///|
 pub impl FromJson for OwnershipSource with fn from_json(json, path) {
   let source_type = ownership_source_type_lens.get_or_json_decode_error(
     json, path,
   )
   match source_type {
-    "github" => decode_github_ownership_source(json, path)
-    "local" => decode_local_ownership_source(json, path)
+    "github" => {
+      let repository : GitHubRepository = @json.from_json(
+        ownership_source_repository_lens.get_or_json_decode_error(json, path),
+        path=ownership_source_repository_lens.add_to_json_path(path),
+      )
+      let plugin : PluginName = @json.from_json(
+        ownership_source_plugin_lens.get_or_json_decode_error(json, path),
+        path=ownership_source_plugin_lens.add_to_json_path(path),
+      )
+      let skill : SkillName = @json.from_json(
+        ownership_source_skill_lens.get_or_json_decode_error(json, path),
+        path=ownership_source_skill_lens.add_to_json_path(path),
+      )
+      OwnershipSource::github(
+        GitHubOwnershipSource::GitHubOwnershipSource(repository, plugin, skill),
+      )
+    }
+    "local" => {
+      let repository : RelativeSourcePath = @json.from_json(
+        ownership_source_repository_lens.get_or_json_decode_error(json, path),
+        path=ownership_source_repository_lens.add_to_json_path(path),
+      )
+      let plugin : PluginName = @json.from_json(
+        ownership_source_plugin_lens.get_or_json_decode_error(json, path),
+        path=ownership_source_plugin_lens.add_to_json_path(path),
+      )
+      let skill : SkillName = @json.from_json(
+        ownership_source_skill_lens.get_or_json_decode_error(json, path),
+        path=ownership_source_skill_lens.add_to_json_path(path),
+      )
+      OwnershipSource::from_local(
+        LocalOwnershipSource::LocalOwnershipSource(repository, plugin, skill),
+      )
+    }
     _ =>
       raise ownership_source_type_lens.json_decode_error(
         path,
