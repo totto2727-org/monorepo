@@ -413,6 +413,55 @@ test "ObjectLens custom presence - preserves nested decode paths" {
 }
 
 ///|
+test "ObjectLens custom presence - preserves missing and null policies" {
+  let optional : PresenceLens[FromJsonRepository] = root()
+    .custom("repository")
+    .optional()
+  let nullable : PresenceLens[FromJsonRepository] = root()
+    .custom("repository")
+    .nullable()
+  let nullish : PresenceLens[FromJsonRepository] = root()
+    .custom("repository")
+    .nullish()
+  let path = root_json_path().add_key("request")
+  debug_inspect(
+    optional.get_or_json_decode_error(@json.parse("{}"), path),
+    content="None",
+  )
+  inspect(
+    from_json_test_error_path(() => {
+      optional.get_or_json_decode_error(
+        @json.parse("{\"repository\":null}"),
+        path,
+      )
+      |> ignore
+    }),
+    content="/request/repository",
+  )
+  inspect(
+    from_json_test_error_path(() => {
+      nullable.get_or_json_decode_error(@json.parse("{}"), path) |> ignore
+    }),
+    content="/request/repository",
+  )
+  debug_inspect(
+    nullable.get_or_json_decode_error(
+      @json.parse("{\"repository\":null}"),
+      path,
+    ),
+    content="None",
+  )
+  debug_inspect(
+    nullish.get_or_json_decode_error(@json.parse("{}"), path),
+    content="None",
+  )
+  debug_inspect(
+    nullish.get_or_json_decode_error(@json.parse("{\"repository\":null}"), path),
+    content="None",
+  )
+}
+
+///|
 test "ObjectLens custom get - reports external decode at the selected pointer" {
   let repository : Lens[FromJsonRepository] = root().custom("repository")
   let issue = get_issue(
