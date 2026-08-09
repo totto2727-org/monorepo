@@ -12,10 +12,10 @@ async test "LinkReconciliation reconcile_skill_links 1 - creates a missing desir
     let state_path = root.join(".agents").join("c-plugin-state.json")
     @fs.mkdir(target.to_string(), recursive=true)
     let entry = OwnershipEntry::OwnershipEntry(
-      link,
+      OwnershipLink::OwnershipLink(link),
       target.relative(base=managed_root),
-      target,
-      managed_root,
+      OwnershipResolvedTarget::OwnershipResolvedTarget(target),
+      OwnershipManagedRoot::OwnershipManagedRoot(managed_root),
       OwnershipSource::from_local(
         LocalOwnershipSource::LocalOwnershipSource(
           RelativeSourcePath::RelativeSourcePath(
@@ -85,10 +85,10 @@ fn stale_reconciliation_entry(
   target : @path.Path,
 ) -> OwnershipEntry raise {
   OwnershipEntry::OwnershipEntry(
-    managed_root.join(name),
+    OwnershipLink::OwnershipLink(managed_root.join(name)),
     target.relative(base=managed_root),
-    target,
-    managed_root,
+    OwnershipResolvedTarget::OwnershipResolvedTarget(target),
+    OwnershipManagedRoot::OwnershipManagedRoot(managed_root),
     OwnershipSource::from_local(
       LocalOwnershipSource::LocalOwnershipSource(
         RelativeSourcePath::RelativeSourcePath(@path.Path("vendor/repository")),
@@ -106,10 +106,10 @@ fn desired_owned_entry(
   repository : String,
 ) -> OwnershipEntry raise {
   OwnershipEntry::OwnershipEntry(
-    managed_root.join("install"),
+    OwnershipLink::OwnershipLink(managed_root.join("install")),
     target.relative(base=managed_root),
-    target,
-    managed_root,
+    OwnershipResolvedTarget::OwnershipResolvedTarget(target),
+    OwnershipManagedRoot::OwnershipManagedRoot(managed_root),
     OwnershipSource::from_local(
       LocalOwnershipSource::LocalOwnershipSource(
         RelativeSourcePath::RelativeSourcePath(@path.Path(repository)),
@@ -143,7 +143,7 @@ async test "LinkReconciliation reconcile_skill_links 7 - distinguishes unavailab
       )
       @fs.symlink(
         target=foreign_target.relative(base=managed_root).to_string(),
-        collision.link.to_string(),
+        collision.link.path.to_string(),
       )
       let desired_state = OwnershipState::OwnershipState([collision, absent])
       let checkpoints = []
@@ -158,7 +158,7 @@ async test "LinkReconciliation reconcile_skill_links 7 - distinguishes unavailab
       inspect(result.durable_state.entries.length(), content="1")
       inspect(
         result.durable_state.entries.get(
-          OwnershipLinkIdentity::OwnershipLinkIdentity(absent.link),
+          OwnershipLinkIdentity::OwnershipLinkIdentity(absent.link.path),
         ) ==
         Some(absent),
         content="true",
@@ -170,11 +170,11 @@ async test "LinkReconciliation reconcile_skill_links 7 - distinguishes unavailab
         _ => fail("expected distinct unavailable ownership notice")
       }
       inspect(
-        @fs.realpath(collision.link.to_string()),
+        @fs.realpath(collision.link.path.to_string()),
         content=@fs.realpath(foreign_target.to_string()),
       )
       inspect(
-        @fs.realpath(absent.link.to_string()),
+        @fs.realpath(absent.link.path.to_string()),
         content=@fs.realpath(absent_target.to_string()),
       )
     }

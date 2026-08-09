@@ -41,10 +41,10 @@ async test "LinkReconciliation reconcile_skill_links 2 - preserves every unrecor
         BrokenSymlink => @fs.symlink(target="missing-target", link.to_string())
       }
       let entry = OwnershipEntry::OwnershipEntry(
-        link,
+        OwnershipLink::OwnershipLink(link),
         target.relative(base=managed_root),
-        target,
-        managed_root,
+        OwnershipResolvedTarget::OwnershipResolvedTarget(target),
+        OwnershipManagedRoot::OwnershipManagedRoot(managed_root),
         OwnershipSource::from_local(
           LocalOwnershipSource::LocalOwnershipSource(
             RelativeSourcePath::RelativeSourcePath(
@@ -125,7 +125,7 @@ async test "LinkReconciliation reconcile_skill_links 4 - refreshes same-target o
     let desired = desired_owned_entry(managed_root, target, "vendor/new")
     @fs.symlink(
       target=recorded.symlink_target.to_string(),
-      recorded.link.to_string(),
+      recorded.link.path.to_string(),
     )
     let desired_state = OwnershipState::OwnershipState([desired])
     let checkpoints = []
@@ -139,11 +139,11 @@ async test "LinkReconciliation reconcile_skill_links 4 - refreshes same-target o
     inspect(checkpoints.length(), content="1")
     inspect(checkpoints[0] == desired_state, content="true")
     debug_inspect(
-      @fs.kind(desired.link.to_string(), follow_symlink=false),
+      @fs.kind(desired.link.path.to_string(), follow_symlink=false),
       content="SymLink",
     )
     inspect(
-      @fs.realpath(desired.link.to_string()),
+      @fs.realpath(desired.link.path.to_string()),
       content=@fs.realpath(target.to_string()),
     )
   }
@@ -165,7 +165,7 @@ async test "LinkReconciliation reconcile_skill_links 5 - replaces a verified own
     let desired = desired_owned_entry(managed_root, new_target, "vendor/repo")
     @fs.symlink(
       target=recorded.symlink_target.to_string(),
-      recorded.link.to_string(),
+      recorded.link.path.to_string(),
     )
     let desired_state = OwnershipState::OwnershipState([desired])
     let checkpoints = []
@@ -181,7 +181,7 @@ async test "LinkReconciliation reconcile_skill_links 5 - replaces a verified own
     inspect(checkpoints[1] == desired_state, content="true")
     inspect(result.durable_state == desired_state, content="true")
     inspect(
-      @fs.realpath(desired.link.to_string()),
+      @fs.realpath(desired.link.path.to_string()),
       content=@fs.realpath(new_target.to_string()),
     )
   }
@@ -206,10 +206,10 @@ async test "LinkReconciliation reconcile_skill_links 6 - preserves replaced and 
       if fixture == "replaced" {
         @fs.symlink(
           target=other.relative(base=managed_root).to_string(),
-          entry.link.to_string(),
+          entry.link.path.to_string(),
         )
       } else {
-        @fs.symlink(target="missing-target", entry.link.to_string())
+        @fs.symlink(target="missing-target", entry.link.path.to_string())
       }
       let desired_state = OwnershipState::OwnershipState([entry])
       let checkpoints = []
@@ -224,12 +224,12 @@ async test "LinkReconciliation reconcile_skill_links 6 - preserves replaced and 
       inspect(checkpoints.length(), content="1")
       inspect(checkpoints[0].entries.length(), content="0")
       debug_inspect(
-        @fs.kind(entry.link.to_string(), follow_symlink=false),
+        @fs.kind(entry.link.path.to_string(), follow_symlink=false),
         content="SymLink",
       )
       if fixture == "replaced" {
         inspect(
-          @fs.realpath(entry.link.to_string()),
+          @fs.realpath(entry.link.path.to_string()),
           content=@fs.realpath(other.to_string()),
         )
       }

@@ -63,13 +63,10 @@ async fn reconcile_skill_links_with_io(
   let (initial_state, initial_notices) = match previous_ownership {
     Trusted(state) => (state, [])
     Missing =>
-      (
-        try! OwnershipState::OwnershipState([]),
-        [PreviousOwnershipMissing(path=state_path)],
-      )
+      (OwnershipState::empty(), [PreviousOwnershipMissing(path=state_path)])
     Corrupt(reason~) =>
       (
-        try! OwnershipState::OwnershipState([]),
+        OwnershipState::empty(),
         [PreviousOwnershipCorrupt(path=state_path, reason~)],
       )
   }

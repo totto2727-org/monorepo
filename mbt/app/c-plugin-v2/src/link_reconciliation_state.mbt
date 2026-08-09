@@ -9,11 +9,13 @@ fn state_with_entry(
   state : OwnershipState,
   entry : OwnershipEntry,
 ) -> OwnershipState {
-  let entries = state.entries
-    .add(OwnershipLinkIdentity::OwnershipLinkIdentity(entry.link), entry)
-    .to_array()
-    .map(pair => pair.1)
-  try! OwnershipState::OwnershipState(entries)
+  {
+    version: state.version,
+    entries: state.entries.add(
+      OwnershipLinkIdentity::OwnershipLinkIdentity(entry.link.path),
+      entry,
+    ),
+  }
 }
 
 ///|
@@ -21,8 +23,7 @@ fn state_without_entry(
   state : OwnershipState,
   identity : OwnershipLinkIdentity,
 ) -> OwnershipState {
-  let entries = state.entries.remove(identity).to_array().map(pair => pair.1)
-  try! OwnershipState::OwnershipState(entries)
+  { version: state.version, entries: state.entries.remove(identity) }
 }
 
 ///|

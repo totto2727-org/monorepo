@@ -236,3 +236,8 @@ pub fn OwnershipState::OwnershipState(
   }
   { version: 1, entries: stored_entries }
 }
+
+///|
+pub fn OwnershipState::empty() -> OwnershipState {
+  { version: 1, entries: @immut_hashmap.HashMap([]) }
+}

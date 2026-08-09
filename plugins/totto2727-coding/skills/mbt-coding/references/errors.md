@@ -31,7 +31,7 @@ Do not catch merely to log, rename, stringify, or rethrow the same failure. Fina
 
 When translating an error, retain the original failure as structured context when the target error type supports it. Do not replace an unknown error with a generic string that loses its identity.
 
-Use `try?` only when `Result` is the required boundary contract. Avoid `try!` in production paths unless the invariant making failure impossible is local and evident.
+Use `try?` only when `Result` is the required boundary contract. Do not use `try!` outside tests: call the raising operation directly so the `raise` effect remains visible and propagates, or remove the failure path with a non-raising construction whose invariant is represented by its inputs. If production code cannot avoid `try!`, add an adjacent comment explaining why failure is impossible and why the function cannot expose or propagate the error; an undocumented production use is prohibited.
 
 Do not define a new `suberror` merely to replace a generic message with another name. A custom error is justified when a caller branches on its variants or needs typed context such as a path, identifier, status, or original failure.
 
