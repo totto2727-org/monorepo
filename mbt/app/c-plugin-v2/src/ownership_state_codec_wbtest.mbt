@@ -25,11 +25,15 @@ fn expect_ownership_rejection(
 test "OwnershipState ToJson::to_json - round trips ownership metadata" {
   let state = OwnershipState::OwnershipState([
     OwnershipEntry::OwnershipEntry(
-      "/home/alice/project/.agents/skills/./sync",
+      OwnershipLink::OwnershipLink("/home/alice/project/.agents/skills/./sync"),
       "../../../cache/skills/sync",
-      "/home/alice/.cache/c-plugin/skills/sync",
-      "/home/alice/project/.agents/skills",
-      OwnershipSource::github(
+      OwnershipResolvedTarget::OwnershipResolvedTarget(
+        "/home/alice/.cache/c-plugin/skills/sync",
+      ),
+      OwnershipManagedRoot::OwnershipManagedRoot(
+        "/home/alice/project/.agents/skills",
+      ),
+      OwnershipSource::from_github(
         GitHubOwnershipSource::GitHubOwnershipSource(
           GitHubRepository::from_route("OpenAI/Codex"),
           PluginName::PluginName("c-plugin"),
@@ -58,8 +62,14 @@ test "OwnershipState ToJson::to_json - round trips local ownership metadata" {
   )
   let state = OwnershipState::OwnershipState([
     OwnershipEntry::OwnershipEntry(
-      "/home/alice/project/.agents/skills/sync", "../../../vendor/c-plugin/skills/sync",
-      "/home/alice/project/vendor/c-plugin/skills/sync", "/home/alice/project/.agents/skills",
+      OwnershipLink::OwnershipLink("/home/alice/project/.agents/skills/sync"),
+      "../../../vendor/c-plugin/skills/sync",
+      OwnershipResolvedTarget::OwnershipResolvedTarget(
+        "/home/alice/project/vendor/c-plugin/skills/sync",
+      ),
+      OwnershipManagedRoot::OwnershipManagedRoot(
+        "/home/alice/project/.agents/skills",
+      ),
       source,
     ),
   ])
@@ -101,6 +111,22 @@ test "OwnershipSource FromJson::from_json - reports an invalid plugin at its exa
   } catch {
     @json.JsonDecodeError::JsonDecodeError((error_path, _)) =>
       inspect(error_path, content="/plugin")
+    _ => fail("unexpected error")
+  }
+}
+
+///|
+test "OwnershipSource FromJson::from_json - preserves a prefixed local repository path" {
+  let json = @json.parse(
+    "{\"type\":\"local\",\"repository\":\"../outside\",\"plugin\":\"c-plugin\",\"skill\":\"sync\"}",
+  )
+  let path = ownership_root_json_path().add_key("source")
+  try {
+    let _ : OwnershipSource = @json.from_json(json, path~)
+    fail("expected JsonDecodeError")
+  } catch {
+    @json.JsonDecodeError::JsonDecodeError((error_path, _)) =>
+      inspect(error_path.to_string(), content="/source/repository")
     _ => fail("unexpected error")
   }
 }

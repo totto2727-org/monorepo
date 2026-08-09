@@ -191,7 +191,7 @@ pub struct Decoder[T] {
 
 `DecodeProblem` is a package-private suberror containing path-independent failure information. `Lens::get` catches it, attaches the selected pointer to produce a public `Issue`, and raises `LensError(issue)`.
 
-Primitive decoders should perform JSON variant dispatch directly so the package can provide stable structured error codes. Numeric parsing and conversion inside those decoders must delegate to MoonBit core. A later `Decoder::from_json[T : FromJson]` bridge may catch `JsonDecodeError`, but it should classify the failure as an external decode failure because core's human-readable message is not a stable structured error code.
+Primitive decoders perform JSON variant dispatch directly so the package can provide stable structured error codes. Numeric parsing and conversion inside those decoders delegate to MoonBit core. For application types, `Lens[Json]::decode_from_json[T : FromJson]` selects raw JSON and delegates directly to standard `FromJson` with the selected `JsonPath`. It is intentionally a read bridge rather than a `Lens[T]` constructor because `Lens[T]` also requires an encoder.
 
 ### Encoder
 
@@ -680,7 +680,7 @@ The following choices do not block milestone 1 and should be resolved with imple
 - Whether `Issue`, `IssueCode`, `JsonKind`, and the payload of `LensError` should be fully public or read-only.
 - Whether `Pointer` should expose its segments or only iteration and string conversion.
 - Whether array item validation accumulates failures by default or exposes both accumulating and fail-fast modes.
-- Whether a `FromJson` bridge is useful enough despite its less structured error classification.
+- Whether additional read-only bridges are useful without expanding `Lens[T]`'s encoder contract.
 - Whether future writes use persistent or in-place updates.
 - Whether a missing intermediate object is an error or may be created by an explicit write policy.
 - How optional and nullable lenses behave when a write targets a missing or `null` value.

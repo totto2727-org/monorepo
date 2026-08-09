@@ -191,7 +191,7 @@ pub struct Decoder[T] {
 
 `DecodeProblem`は、pathに依存しない失敗情報を含むパッケージ非公開のサブエラーです。`Lens::get`はこれを捕捉し、選択されたpointerを付加して公開`Issue`を生成し、`LensError(issue)`を発生させます。
 
-プリミティブデコーダーはJSON variant dispatchを直接行い、パッケージが安定した構造化エラーコードを提供できるようにします。デコーダー内の数値解析と変換はMoonBit coreに委譲する必要があります。後の`Decoder::from_json[T : FromJson]` bridgeでは`JsonDecodeError`を捕捉できますが、coreの人間向けメッセージは安定した構造化エラーコードではないため、失敗は外部デコード失敗として分類すべきです。
+プリミティブデコーダーはJSON variant dispatchを直接行い、パッケージが安定した構造化エラーコードを提供できるようにします。デコーダー内の数値解析と変換はMoonBit coreに委譲します。application型では、`Lens[Json]::decode_from_json[T : FromJson]`がraw JSONを選択し、選択位置の`JsonPath`とともに標準`FromJson`へ直接委譲します。`Lens[T]`にはencoderも必要なため、このAPIは`Lens[T]` constructorではなくread bridgeです。
 
 ### Encoder
 
@@ -672,7 +672,7 @@ lens/
 - `Issue`、`IssueCode`、`JsonKind`、`LensError`のpayloadを完全に公開するかreadonlyにするか。
 - `Pointer`がsegmentを公開するか、iterationと文字列変換だけを公開するか。
 - 配列item検証がデフォルトで失敗を蓄積するか、蓄積モードとfail-fastモードの両方を公開するか。
-- 構造化されていないエラー分類にもかかわらず、`FromJson` bridgeが十分有用か。
+- `Lens[T]`のencoder contractを広げずに、追加のread-only bridgeが有用か。
 - 将来の書き込みでpersistent updateまたはin-place updateを使うか。
 - 欠落した中間オブジェクトをエラーとするか、明示的なwrite policyによって作成可能にするか。
 - 書き込みが欠落値または`null`値を対象とする場合のoptionalおよびnullable lensの動作。
