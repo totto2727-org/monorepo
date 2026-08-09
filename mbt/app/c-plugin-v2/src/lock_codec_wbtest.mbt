@@ -1,4 +1,15 @@
 ///|
+fn lock_root_json_path() -> @json.JsonPath raise {
+  try {
+    let _ : Bool = @json.from_json(Json::null())
+    fail("expected JsonDecodeError")
+  } catch {
+    @json.JsonDecodeError::JsonDecodeError((path, _)) => path
+    _ => fail("unexpected error")
+  }
+}
+
+///|
 fn expect_json_rejection(
   action : () -> Unit raise,
   detail : String,
@@ -166,6 +177,33 @@ test "LockRepository FromJson - dispatches each top-level type" {
   match local_repository {
     Local(_) => inspect(true, content="true")
     GitHub(_) => fail("expected local repository")
+  }
+}
+
+///|
+test "LockRepository FromJson - preserves variant and nested error paths" {
+  let prefixed_path = lock_root_json_path().add_key("request")
+  try {
+    let json = @json.parse(
+      "{\"type\":\"local\",\"repository\":\"openai/codex\",\"marketplaceKind\":\"codex\",\"commit\":\"0123456789abcdef0123456789abcdef01234567\",\"plugins\":[]}",
+    )
+    let _ : GitHubLockRepository = @json.from_json(json, path=prefixed_path)
+    fail("expected GitHub repository type mismatch")
+  } catch {
+    @json.JsonDecodeError::JsonDecodeError((path, _)) =>
+      inspect(path.to_string(), content="/request/type")
+    _ => fail("expected JsonDecodeError")
+  }
+  try {
+    let json = @json.parse(
+      "{\"type\":\"github\",\"repository\":\"openai/codex\",\"marketplaceKind\":\"codex\",\"commit\":\"invalid\",\"plugins\":[]}",
+    )
+    let _ : LockRepository = @json.from_json(json, path=prefixed_path)
+    fail("expected nested commit rejection")
+  } catch {
+    @json.JsonDecodeError::JsonDecodeError((path, _)) =>
+      inspect(path.to_string(), content="/request/commit")
+    _ => fail("expected JsonDecodeError")
   }
 }
 
