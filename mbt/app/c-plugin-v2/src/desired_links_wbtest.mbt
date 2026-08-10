@@ -84,6 +84,47 @@ test "ManagedSkillRoot::ManagedSkillRoot - normalizes absolute path and rejects 
 }
 
 ///|
+test "RepositorySkillResolutions RepositorySkillResolutions - stores available and unavailable repositories" {
+  let available = desired_links_local_repository_at("vendor/available", [])
+  let unavailable = desired_links_local_repository_at("vendor/unavailable", [])
+  let resolutions = RepositorySkillResolutions::RepositorySkillResolutions([
+    Available(repository=available, skills=ReadOnlyArray::from_array([])),
+    Unavailable(repository=unavailable, reason="offline"),
+  ])
+  inspect(resolutions.entries.length(), content="2")
+  match resolutions.entries.get(available.identity()) {
+    Some(Available(repository~, skills~)) => {
+      inspect(repository.identity() == available.identity(), content="true")
+      inspect(skills.length(), content="0")
+    }
+    _ => fail("expected available repository resolution")
+  }
+  match resolutions.entries.get(unavailable.identity()) {
+    Some(Unavailable(repository~, reason~)) => {
+      inspect(repository.identity() == unavailable.identity(), content="true")
+      inspect(reason, content="offline")
+    }
+    _ => fail("expected unavailable repository resolution")
+  }
+}
+
+///|
+test "RepositorySkillResolutions RepositorySkillResolutions - rejects duplicate repository identities" {
+  let repository = desired_links_local_repository([])
+  try
+    RepositorySkillResolutions::RepositorySkillResolutions([
+      Available(repository~, skills=ReadOnlyArray::from_array([])),
+      Unavailable(repository~, reason="offline"),
+    ])
+  catch {
+    DuplicateRepositoryIdentity(identity~) =>
+      inspect(identity == repository.identity(), content="true")
+  } noraise {
+    _ => fail("duplicate repository identity must fail")
+  }
+}
+
+///|
 async test "DesiredLinks plan_desired_skill_links - expands one enabled skill" {
   @async.with_task_group() <| group => {
     let root : @path.Path = @fs.tmpdir(prefix="c-plugin-v2-desired-links-")
@@ -96,15 +137,12 @@ async test "DesiredLinks plan_desired_skill_links - expands one enabled skill" {
         ManagedSkillRoot::ManagedSkillRoot(root.join(".agents/skills")),
         ManagedSkillRoot::ManagedSkillRoot(root.join(".cursor/skills")),
       ]),
-      @immut_hashmap.HashMap([
-        (
-          repository.identity(),
-          RepositorySkillResolution::Available(
-            repository~,
-            skills=ReadOnlyArray::from_array([
-              desired_links_resolved_skill(root, "install"),
-            ]),
-          ),
+      RepositorySkillResolutions::RepositorySkillResolutions([
+        RepositorySkillResolution::Available(
+          repository~,
+          skills=ReadOnlyArray::from_array([
+            desired_links_resolved_skill(root, "install"),
+          ]),
         ),
       ]),
     )
@@ -131,15 +169,12 @@ test "DesiredLinks plan_desired_skill_links - excludes disabled skill" {
     @immut_hashset.HashSet([
       ManagedSkillRoot::ManagedSkillRoot(@path.Path("/tmp/managed")),
     ]),
-    @immut_hashmap.HashMap([
-      (
-        repository.identity(),
-        Available(
-          repository~,
-          skills=ReadOnlyArray::from_array([
-            desired_links_resolved_skill(@path.Path("/tmp"), "disabled"),
-          ]),
-        ),
+    RepositorySkillResolutions::RepositorySkillResolutions([
+      Available(
+        repository~,
+        skills=ReadOnlyArray::from_array([
+          desired_links_resolved_skill(@path.Path("/tmp"), "disabled"),
+        ]),
       ),
     ]),
   )
@@ -159,16 +194,16 @@ test "DesiredLinks plan_desired_skill_links - canonical repository wins independ
   ])
   let forward = plan_desired_skill_links(
     roots,
-    @immut_hashmap.HashMap([
-      (first.identity(), Available(repository=first, skills=resolved)),
-      (last.identity(), Available(repository=last, skills=resolved)),
+    RepositorySkillResolutions::RepositorySkillResolutions([
+      Available(repository=first, skills=resolved),
+      Available(repository=last, skills=resolved),
     ]),
   )
   let reverse = plan_desired_skill_links(
     roots,
-    @immut_hashmap.HashMap([
-      (last.identity(), Available(repository=last, skills=resolved)),
-      (first.identity(), Available(repository=first, skills=resolved)),
+    RepositorySkillResolutions::RepositorySkillResolutions([
+      Available(repository=last, skills=resolved),
+      Available(repository=first, skills=resolved),
     ]),
   )
   inspect(forward.ownership_state == reverse.ownership_state, content="true")
@@ -190,11 +225,8 @@ test "DesiredLinks plan_desired_skill_links - later candidate in one repository 
     @immut_hashset.HashSet([
       ManagedSkillRoot::ManagedSkillRoot(@path.Path("/tmp/managed")),
     ]),
-    @immut_hashmap.HashMap([
-      (
-        repository.identity(),
-        Available(repository~, skills=ReadOnlyArray::from_array([first, last])),
-      ),
+    RepositorySkillResolutions::RepositorySkillResolutions([
+      Available(repository~, skills=ReadOnlyArray::from_array([first, last])),
     ]),
   )
   inspect(
@@ -212,20 +244,14 @@ test "DesiredLinks plan_desired_skill_links - unavailable repository reports wit
     @immut_hashset.HashSet([
       ManagedSkillRoot::ManagedSkillRoot(@path.Path("/tmp/managed")),
     ]),
-    @immut_hashmap.HashMap([
-      (
-        available.identity(),
-        Available(
-          repository=available,
-          skills=ReadOnlyArray::from_array([
-            desired_links_resolved_skill(@path.Path("/tmp"), "shared"),
-          ]),
-        ),
+    RepositorySkillResolutions::RepositorySkillResolutions([
+      Available(
+        repository=available,
+        skills=ReadOnlyArray::from_array([
+          desired_links_resolved_skill(@path.Path("/tmp"), "shared"),
+        ]),
       ),
-      (
-        unavailable.identity(),
-        Unavailable(repository=unavailable, reason="offline"),
-      ),
+      Unavailable(repository=unavailable, reason="offline"),
     ]),
   )
   inspect(plan.ownership_state.entries.length(), content="1")
@@ -246,24 +272,18 @@ test "DesiredLinks plan_desired_skill_links - preserves GitHub and local provena
     @immut_hashset.HashSet([
       ManagedSkillRoot::ManagedSkillRoot(@path.Path("/tmp/managed")),
     ]),
-    @immut_hashmap.HashMap([
-      (
-        github.identity(),
-        Available(
-          repository=github,
-          skills=ReadOnlyArray::from_array([
-            desired_links_resolved_skill(@path.Path("/tmp"), "github"),
-          ]),
-        ),
+    RepositorySkillResolutions::RepositorySkillResolutions([
+      Available(
+        repository=github,
+        skills=ReadOnlyArray::from_array([
+          desired_links_resolved_skill(@path.Path("/tmp"), "github"),
+        ]),
       ),
-      (
-        local_repository.identity(),
-        Available(
-          repository=local_repository,
-          skills=ReadOnlyArray::from_array([
-            desired_links_resolved_skill(@path.Path("/tmp"), "local"),
-          ]),
-        ),
+      Available(
+        repository=local_repository,
+        skills=ReadOnlyArray::from_array([
+          desired_links_resolved_skill(@path.Path("/tmp"), "local"),
+        ]),
       ),
     ]),
   )
@@ -289,50 +309,24 @@ test "DesiredLinks plan_desired_skill_links - preserves GitHub and local provena
 test "DesiredLinks plan_desired_skill_links - empty roots or repositories produce empty plan" {
   let empty = plan_desired_skill_links(
     @immut_hashset.HashSet([]),
-    @immut_hashmap.HashMap([]),
+    RepositorySkillResolutions::RepositorySkillResolutions([]),
   )
   let repository = desired_links_local_repository([])
   let no_roots = plan_desired_skill_links(
     @immut_hashset.HashSet([]),
-    @immut_hashmap.HashMap([
-      (
-        repository.identity(),
-        Available(repository~, skills=ReadOnlyArray::from_array([])),
-      ),
+    RepositorySkillResolutions::RepositorySkillResolutions([
+      Available(repository~, skills=ReadOnlyArray::from_array([])),
     ]),
   )
   let no_repositories = plan_desired_skill_links(
     @immut_hashset.HashSet([
       ManagedSkillRoot::ManagedSkillRoot(@path.Path("/tmp/managed")),
     ]),
-    @immut_hashmap.HashMap([]),
+    RepositorySkillResolutions::RepositorySkillResolutions([]),
   )
   for plan in [empty, no_roots, no_repositories] {
     inspect(plan.ownership_state.entries.length(), content="0")
     inspect(plan.unavailable_repositories.length(), content="0")
-  }
-}
-
-///|
-test "DesiredLinks plan_desired_skill_links - rejects repository identity mismatch" {
-  let repository = desired_links_local_repository([])
-  let expected = desired_links_local_repository_at("vendor/other", []).identity()
-  try
-    plan_desired_skill_links(
-      @immut_hashset.HashSet([]),
-      @immut_hashmap.HashMap([
-        (expected, Available(repository~, skills=ReadOnlyArray::from_array([]))),
-      ]),
-    )
-  catch {
-    RepositoryIdentityMismatch(expected=error_expected, actual=error_actual) =>
-      inspect(
-        error_expected == expected && error_actual == repository.identity(),
-        content="true",
-      )
-    error => raise error
-  } noraise {
-    _ => fail("identity mismatch must fail")
   }
 }
 
@@ -353,13 +347,10 @@ test "DesiredLinks plan_desired_skill_links - propagates an invalid resolved ski
       @immut_hashset.HashSet([
         ManagedSkillRoot::ManagedSkillRoot(@path.Path("/tmp/managed")),
       ]),
-      @immut_hashmap.HashMap([
-        (
-          repository.identity(),
-          Available(
-            repository~,
-            skills=ReadOnlyArray::from_array([invalid_skill]),
-          ),
+      RepositorySkillResolutions::RepositorySkillResolutions([
+        Available(
+          repository~,
+          skills=ReadOnlyArray::from_array([invalid_skill]),
         ),
       ]),
     )
