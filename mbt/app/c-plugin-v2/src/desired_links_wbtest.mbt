@@ -335,3 +335,38 @@ test "DesiredLinks plan_desired_skill_links - rejects repository identity mismat
     _ => fail("identity mismatch must fail")
   }
 }
+
+///|
+test "DesiredLinks plan_desired_skill_links - propagates an invalid resolved skill path" {
+  let skill_name = SkillName::SkillName("install")
+  let repository = desired_links_local_repository([skill_name])
+  let invalid_skill : ResolvedSkill = {
+    plugin_name: PluginName::PluginName("plugin"),
+    plugin_path: RelativePluginPath::RelativePluginPath(
+      @path.Path("plugins/plugin"),
+    ),
+    skill_name,
+    skill_path: @path.Path("relative/skill"),
+  }
+  try
+    plan_desired_skill_links(
+      @immut_hashset.HashSet([
+        ManagedSkillRoot::ManagedSkillRoot(@path.Path("/tmp/managed")),
+      ]),
+      @immut_hashmap.HashMap([
+        (
+          repository.identity(),
+          Available(
+            repository~,
+            skills=ReadOnlyArray::from_array([invalid_skill]),
+          ),
+        ),
+      ]),
+    )
+  catch {
+    Failure::Failure(_) => ()
+    error => raise error
+  } noraise {
+    _ => fail("invalid resolved skill path must raise")
+  }
+}
