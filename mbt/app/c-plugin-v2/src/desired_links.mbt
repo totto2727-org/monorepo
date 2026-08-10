@@ -72,7 +72,7 @@ fn ownership_source(
 ) -> OwnershipSource {
   match repository {
     GitHub(repository) =>
-      OwnershipSource::github(
+      OwnershipSource::from_github(
         GitHubOwnershipSource::GitHubOwnershipSource(
           repository.repository,
           skill.plugin_name,
@@ -95,13 +95,15 @@ fn desired_entry(
   root : ManagedSkillRoot,
   repository : LockRepository,
   skill : ResolvedSkill,
-) -> OwnershipEntry {
-  let link = root.path.join(skill.skill_name.value)
-  try! OwnershipEntry::OwnershipEntry(
+) -> OwnershipEntry raise {
+  let link = OwnershipLink::OwnershipLink(
+    root.path.join(skill.skill_name.value),
+  )
+  OwnershipEntry::OwnershipEntry(
     link,
     skill.skill_path.relative(base=root.path),
-    skill.skill_path,
-    root.path,
+    OwnershipResolvedTarget::OwnershipResolvedTarget(skill.skill_path),
+    OwnershipManagedRoot::OwnershipManagedRoot(root.path),
     ownership_source(repository, skill),
   )
 }
@@ -113,7 +115,7 @@ pub fn plan_desired_skill_links(
     RepositoryIdentity,
     RepositorySkillResolution,
   ],
-) -> DesiredLinkPlan raise DesiredLinkPlanningError {
+) -> DesiredLinkPlan raise {
   for pair in repositories.to_array() {
     let actual = match pair.1 {
       Available(repository~, skills=_) | Unavailable(repository~, reason=_) =>
@@ -145,7 +147,7 @@ pub fn plan_desired_skill_links(
               for root in managed_roots {
                 let entry = desired_entry(root, repository, skill)
                 let link_identity = OwnershipLinkIdentity::OwnershipLinkIdentity(
-                  entry.link,
+                  entry.link.path,
                 )
                 match candidates.get(link_identity) {
                   Some(existing) if identity.compare(existing.repository) < 0 =>
@@ -165,7 +167,7 @@ pub fn plan_desired_skill_links(
   }
   let entries = candidates.to_array().map(pair => pair.1.entry)
   {
-    ownership_state: try! OwnershipState::OwnershipState(entries),
+    ownership_state: OwnershipState::OwnershipState(entries),
     unavailable_repositories: unavailable,
   }
 }

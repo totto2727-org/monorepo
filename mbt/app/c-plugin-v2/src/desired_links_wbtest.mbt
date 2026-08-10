@@ -113,12 +113,12 @@ async test "DesiredLinks plan_desired_skill_links - expands one enabled skill" {
       managed_root in [root.join(".agents/skills"), root.join(".cursor/skills")] {
       let entry = desired_links_entry(plan, managed_root.join("install"))
       inspect(
-        entry.link.to_string(),
+        entry.link.path.to_string(),
         content=managed_root.join("install").to_string(),
       )
       inspect(
         managed_root.join(entry.symlink_target).normalize().to_string(),
-        content=entry.resolved_target.to_string(),
+        content=entry.resolved_target.path.to_string(),
       )
     }
   }
@@ -198,7 +198,7 @@ test "DesiredLinks plan_desired_skill_links - later candidate in one repository 
     ]),
   )
   inspect(
-    desired_links_entry(plan, @path.Path("/tmp/managed/shared")).resolved_target.to_string(),
+    desired_links_entry(plan, @path.Path("/tmp/managed/shared")).resolved_target.path.to_string(),
     content=last.skill_path.to_string(),
   )
 }
@@ -330,6 +330,7 @@ test "DesiredLinks plan_desired_skill_links - rejects repository identity mismat
         error_expected == expected && error_actual == repository.identity(),
         content="true",
       )
+    error => raise error
   } noraise {
     _ => fail("identity mismatch must fail")
   }
