@@ -478,6 +478,21 @@ test "ObjectLens custom get - reports external decode at the selected pointer" {
 }
 
 ///|
+test "ObjectLens custom array get - reports external decode at the item pointer" {
+  let repositories : Lens[Array[FromJsonRepository]] = root()
+    .custom("repositories")
+    .array()
+  let issue = get_issue(
+    repositories,
+    @json.parse(
+      "{\"repositories\":[{\"owner\":\"totto2727\"},{\"owner\":false}]}",
+    ),
+  )
+  inspect(issue.pointer.to_string(), content="/repositories/1")
+  debug_inspect(issue.code, content="ExternalDecode")
+}
+
+///|
 test "Lens decode_from_json - preserves the FromJson-only read bridge" {
   let repository_lens : Lens[Json] = root().json("repository")
   let path = root_json_path().add_key("request")

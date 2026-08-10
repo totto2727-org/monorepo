@@ -269,13 +269,21 @@ fn[T] Lens::decode_selected(
   self : Lens[T],
   selected : Json,
 ) -> T raise LensError {
-  self.decoder.decode(selected) catch {
-    DecodeProblem(pointer, code, message) =>
+  self.decoder.decode(selected, None) catch {
+    Structured(pointer~, code~, message~) =>
       raise LensError(Issue::{
         pointer: self.pointer.append(pointer),
         code,
         message,
       })
+    External(pointer~, error~) => {
+      let @json.JsonDecodeError::JsonDecodeError((path, message)) = error
+      raise LensError(Issue::{
+        pointer: self.pointer.append(pointer),
+        code: ExternalDecode,
+        message: Some("\{path}: \{message}"),
+      })
+    }
   }
 }
 
@@ -323,26 +331,17 @@ pub fn[T] Lens::get_or_json_decode_error(
   document : Json,
   path : @json.JsonPath,
 ) -> T raise @json.JsonDecodeError {
-  match self.decoder.decode_with_path_ {
-    Some(_) => {
-      let selected = match
-        lookup_or_json_decode_error(document, self.pointer, path) {
-        Some(value) => value
-        None => {
-          let LensError(issue) = missing_property(self.pointer)
-          raise issue.pointer.json_decode_error(path, repr(LensError(issue)))
-        }
-      }
-      self.decoder.decode_with_path(
-        selected,
-        self.pointer.add_to_json_path(path),
-      )
+  let selected = match
+    lookup_or_json_decode_error(document, self.pointer, path) {
+    Some(value) => value
+    None => {
+      let LensError(issue) = missing_property(self.pointer)
+      raise issue.pointer.json_decode_error(path, repr(LensError(issue)))
     }
-    None =>
-      self.get(document) catch {
-        LensError(issue) =>
-          raise issue.pointer.json_decode_error(path, repr(LensError(issue)))
-      }
+  }
+  let selected_path = self.pointer.add_to_json_path(path)
+  self.decoder.decode(selected, Some(selected_path)) catch {
+    problem => raise problem.json_decode_error(selected_path)
   }
 }
 
@@ -366,38 +365,27 @@ pub fn[T] PresenceLens::get_or_json_decode_error(
   document : Json,
   path : @json.JsonPath,
 ) -> T? raise @json.JsonDecodeError {
-  match self.lens.decoder.decode_with_path_ {
-    Some(_) => {
-      let selected = match
-        lookup_or_json_decode_error(document, self.lens.pointer, path) {
-        Some(value) => value
-        None =>
-          match self.mode {
-            Optional | Nullish(_) => return None
-            Nullable => {
-              let LensError(issue) = missing_property(self.lens.pointer)
-              raise issue.pointer.json_decode_error(
-                path,
-                repr(LensError(issue)),
-              )
-            }
-          }
-      }
-      match (self.mode, selected) {
-        (Nullable | Nullish(_), Json::Null) => None
-        _ =>
-          Some(
-            self.lens.decoder.decode_with_path(
-              selected,
-              self.lens.pointer.add_to_json_path(path),
-            ),
-          )
-      }
-    }
+  let selected = match
+    lookup_or_json_decode_error(document, self.lens.pointer, path) {
+    Some(value) => value
     None =>
-      self.get(document) catch {
-        LensError(issue) =>
+      match self.mode {
+        Optional | Nullish(_) => return None
+        Nullable => {
+          let LensError(issue) = missing_property(self.lens.pointer)
           raise issue.pointer.json_decode_error(path, repr(LensError(issue)))
+        }
       }
+  }
+  match (self.mode, selected) {
+    (Nullable | Nullish(_), Json::Null) => None
+    _ => {
+      let selected_path = self.lens.pointer.add_to_json_path(path)
+      Some(
+        self.lens.decoder.decode(selected, Some(selected_path)) catch {
+          problem => raise problem.json_decode_error(selected_path)
+        },
+      )
+    }
   }
 }
