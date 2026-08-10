@@ -1003,8 +1003,8 @@ PR-A → PR-C (or PR-D) → PR-E
   **References**:
   - `feat/ms-02-pr8-adr-progress-v2` 差分 (要 git diff main..pr8 で内容確認)
   - `docs/adr/` 既存 ADR (フォーマット参考)
-  - `plugins/totto2727-coding/skills/share-artifacts/references/adr.md` (ADR Authoring Guide)
-  - `plugins/totto2727-coding/skills/share-artifacts/templates/adr.md` (ADR template)
+  - [`adr.md`](https://github.com/totto2727-org/agent/blob/main/plugins/totto2727-coding/skills/share-artifacts/references/adr.md) (ADR Authoring Guide)
+  - [`adr.md`](https://github.com/totto2727-org/agent/blob/main/plugins/totto2727-coding/skills/share-artifacts/templates/adr.md) (ADR template)
 
   **WHY Each Reference Matters**:
   - `share-artifacts` に ADR の内容要件とテンプレートが定義されている

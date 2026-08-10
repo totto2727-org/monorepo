@@ -2,7 +2,7 @@
 
 ## Required Skills
 
-Before editing MoonBit production code under `mbt/`, read [`mbt-coding`](../plugins/totto2727-coding/skills/mbt-coding/SKILL.md). Before editing MoonBit tests, also read [`mbt-test`](../plugins/totto2727-coding/skills/mbt-test/SKILL.md). These language skills route to the required shared principles and focused references; do not substitute the generated `docs-moonbit` skill for them.
+Before editing MoonBit production code under `mbt/`, read [`mbt-coding`](https://github.com/totto2727-org/agent/blob/main/plugins/totto2727-coding/skills/mbt-coding/SKILL.md). Before editing MoonBit tests, also read [`mbt-test`](https://github.com/totto2727-org/agent/blob/main/plugins/totto2727-coding/skills/mbt-test/SKILL.md). These language skills are maintained in the external `totto2727-org/agent` plugin repository and route to the required shared principles and focused references; do not substitute the generated `docs-moonbit` skill for them.
 
 ## Commands
 

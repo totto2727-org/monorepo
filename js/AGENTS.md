@@ -2,7 +2,7 @@
 
 ## Required Skills
 
-Before editing JavaScript or TypeScript production code under `js/`, read [`js-coding`](../plugins/totto2727-coding/skills/js-coding/SKILL.md). Before editing JavaScript or TypeScript tests, also read [`js-test`](../plugins/totto2727-coding/skills/js-test/SKILL.md). These language skills route to the required shared principles and focused references; do not substitute a generated documentation skill for them.
+Before editing JavaScript or TypeScript production code under `js/`, read [`js-coding`](https://github.com/totto2727-org/agent/blob/main/plugins/totto2727-coding/skills/js-coding/SKILL.md). Before editing JavaScript or TypeScript tests, also read [`js-test`](https://github.com/totto2727-org/agent/blob/main/plugins/totto2727-coding/skills/js-test/SKILL.md). These language skills are maintained in the external `totto2727-org/agent` plugin repository and route to the required shared principles and focused references; do not substitute a generated documentation skill for them.
 
 ## Commands
 

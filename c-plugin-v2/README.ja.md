@@ -245,14 +245,14 @@ v2ロックは厳格に扱い、データを持つEnum variantには最上位の
   "repositories": [
     {
       "type": "github",
-      "repository": "totto2727-org/monorepo",
+      "repository": "totto2727-org/agent",
       "marketplaceKind": "claude",
       "commit": "0123456789abcdef0123456789abcdef01234567",
       "plugins": [
         {
-          "name": "totto2727-coding",
-          "path": "plugins/totto2727-coding",
-          "enabledSkills": ["c-plugin"]
+          "name": "symphony",
+          "path": "plugins/symphony",
+          "enabledSkills": ["commit"]
         }
       ]
     },
