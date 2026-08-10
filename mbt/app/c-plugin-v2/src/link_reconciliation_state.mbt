@@ -9,11 +9,13 @@ fn state_with_entry(
   state : OwnershipState,
   entry : OwnershipEntry,
 ) -> OwnershipState {
-  let entries = state.entries
-    .add(OwnershipLinkIdentity::OwnershipLinkIdentity(entry.link), entry)
-    .to_array()
-    .map(pair => pair.1)
-  try! OwnershipState::OwnershipState(entries)
+  {
+    version: state.version,
+    entries: state.entries.add(
+      OwnershipLinkIdentity::OwnershipLinkIdentity(entry.link.path),
+      entry,
+    ),
+  }
 }
 
 ///|
@@ -21,8 +23,7 @@ fn state_without_entry(
   state : OwnershipState,
   identity : OwnershipLinkIdentity,
 ) -> OwnershipState {
-  let entries = state.entries.remove(identity).to_array().map(pair => pair.1)
-  try! OwnershipState::OwnershipState(entries)
+  { version: state.version, entries: state.entries.remove(identity) }
 }
 
 ///|
@@ -36,12 +37,12 @@ fn state_store_error_reason(error : StateStoreError) -> String {
 ///|
 async fn checkpoint_ownership(
   io : LinkReconciliationIO,
-  state_path : @path.Path,
+  state_path : OwnershipStatePath,
   durable_state : OwnershipState,
   checkpointed_state : OwnershipState,
   notices : Array[LinkReconciliationNotice],
 ) -> OwnershipCheckpointResult {
-  (io.checkpoint)(state_path, checkpointed_state) catch {
+  (io.checkpoint)(state_path.path, checkpointed_state) catch {
     error => {
       notices.push(
         CheckpointFailed(

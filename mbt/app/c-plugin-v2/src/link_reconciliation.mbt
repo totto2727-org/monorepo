@@ -28,8 +28,8 @@ pub(all) enum LinkReconciliationOperation {
 ///|
 /// Describes a path that was preserved or an operation that could not complete.
 pub(all) enum LinkReconciliationNotice {
-  PreviousOwnershipMissing(path~ : @path.Path)
-  PreviousOwnershipCorrupt(path~ : @path.Path, reason~ : String)
+  PreviousOwnershipMissing(path~ : OwnershipStatePath)
+  PreviousOwnershipCorrupt(path~ : OwnershipStatePath, reason~ : String)
   UnmanagedPathPreserved(path~ : @path.Path)
   BrokenOwnedLinkPreserved(path~ : @path.Path)
   ReplacedOwnedPathPreserved(path~ : @path.Path)
@@ -40,7 +40,7 @@ pub(all) enum LinkReconciliationNotice {
   )
   CheckpointFailed(
     operation~ : LinkReconciliationOperation,
-    path~ : @path.Path,
+    path~ : OwnershipStatePath,
     reason~ : String
   )
 }
@@ -56,20 +56,17 @@ pub struct LinkReconciliationResult {
 ///|
 async fn reconcile_skill_links_with_io(
   io : LinkReconciliationIO,
-  state_path : @path.Path,
+  state_path : OwnershipStatePath,
   desired_state : OwnershipState,
   previous_ownership : PreviousOwnership,
 ) -> LinkReconciliationResult {
   let (initial_state, initial_notices) = match previous_ownership {
     Trusted(state) => (state, [])
     Missing =>
-      (
-        try! OwnershipState::OwnershipState([]),
-        [PreviousOwnershipMissing(path=state_path)],
-      )
+      (OwnershipState::empty(), [PreviousOwnershipMissing(path=state_path)])
     Corrupt(reason~) =>
       (
-        try! OwnershipState::OwnershipState([]),
+        OwnershipState::empty(),
         [PreviousOwnershipCorrupt(path=state_path, reason~)],
       )
   }
@@ -117,18 +114,15 @@ async fn reconcile_skill_links_with_io(
 ///|
 /// Reconciles desired skill links and checkpoints each ownership mutation.
 ///
-/// The caller must pass a normalized absolute state path and an atomic checkpoint
-/// callback. Repository resolution and ownership-state loading remain outside this
-/// filesystem boundary.
+/// The ownership state path is validated when its value object is constructed.
+/// Repository resolution and ownership-state loading remain outside this filesystem
+/// boundary.
 pub async fn reconcile_skill_links(
-  state_path~ : @path.Path,
+  state_path~ : OwnershipStatePath,
   desired_state~ : OwnershipState,
   previous_ownership~ : PreviousOwnership,
   checkpoint_ownership_state~ : async (@path.Path, OwnershipState) -> Unit raise StateStoreError,
 ) -> LinkReconciliationResult {
-  guard state_path.is_absolute() && state_path.normalize() == state_path else {
-    fail("ownership state path must be normalized and absolute")
-  }
   reconcile_skill_links_with_io(
     production_link_reconciliation_io(checkpoint_ownership_state),
     state_path,

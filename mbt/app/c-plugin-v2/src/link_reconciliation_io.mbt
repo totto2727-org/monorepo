@@ -55,8 +55,8 @@ async fn is_physically_contained(
   io : LinkReconciliationIO,
   entry : OwnershipEntry,
 ) -> Bool {
-  let physical_root = (io.realpath)(entry.managed_root).normalize()
-  let physical_parent = (io.realpath)(entry.link.dirname()).normalize()
+  let physical_root = (io.realpath)(entry.managed_root.path).normalize()
+  let physical_parent = (io.realpath)(entry.link.path.dirname()).normalize()
   physical_parent == physical_root
 }
 
@@ -65,7 +65,7 @@ async fn recheck_stale_link(
   io : LinkReconciliationIO,
   entry : OwnershipEntry,
 ) -> StaleLinkRecheck {
-  let root_kind = (io.kind)(entry.managed_root) catch {
+  let root_kind = (io.kind)(entry.managed_root.path) catch {
     error =>
       return Failed(operation=VerifyContainment, reason=error.to_string())
   }
@@ -85,18 +85,18 @@ async fn recheck_stale_link(
       reason="physical containment changed",
     )
   }
-  let kind = classify_link(io, entry.link) catch {
+  let kind = classify_link(io, entry.link.path) catch {
     error => return Failed(operation=ClassifyLink, reason=error.to_string())
   }
   match kind {
     None => Missing
     Some(@fs.FileKind::SymLink) =>
-      try (io.realpath)(entry.link) catch {
+      try (io.realpath)(entry.link.path) catch {
         @os_error.OSError(_) as error if error.is_ENOENT() => Replaced
         error => Failed(operation=ClassifyLink, reason=error.to_string())
       } noraise {
         target =>
-          if target.normalize() == entry.resolved_target {
+          if target.normalize() == entry.resolved_target.path {
             Matching
           } else {
             Replaced

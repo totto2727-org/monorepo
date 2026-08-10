@@ -17,6 +17,16 @@ test "Ownership path values OwnershipLink - normalize absolute paths" {
 }
 
 ///|
+test "OwnershipStatePath OwnershipStatePath - normalizes an absolute path" {
+  inspect(
+    OwnershipStatePath::OwnershipStatePath(
+      "/workspace/project/.agents/./c-plugin-state.json",
+    ).path.to_string(),
+    content="/workspace/project/.agents/c-plugin-state.json",
+  )
+}
+
+///|
 test "panic_OwnershipLink OwnershipLink - rejects a relative path" {
   try! (OwnershipLink::OwnershipLink("skills/sync") |> ignore)
 }
@@ -29,6 +39,12 @@ test "panic_OwnershipResolvedTarget OwnershipResolvedTarget - rejects a relative
 ///|
 test "panic_OwnershipManagedRoot OwnershipManagedRoot - rejects a relative path" {
   try! (OwnershipManagedRoot::OwnershipManagedRoot("workspace/skills") |> ignore)
+}
+
+///|
+test "panic_OwnershipStatePath OwnershipStatePath - rejects a relative path" {
+  try! (OwnershipStatePath::OwnershipStatePath(".agents/c-plugin-state.json")
+  |> ignore)
 }
 
 ///|

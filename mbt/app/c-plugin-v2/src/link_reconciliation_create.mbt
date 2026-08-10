@@ -8,21 +8,21 @@ enum DesiredLinkCreationResult {
 ///|
 async fn create_desired_link(
   io : LinkReconciliationIO,
-  state_path : @path.Path,
+  state_path : OwnershipStatePath,
   durable_state : OwnershipState,
   desired_entry : OwnershipEntry,
   notices : Array[LinkReconciliationNotice],
 ) -> DesiredLinkCreationResult {
-  (io.symlink)(desired_entry.symlink_target, desired_entry.link) catch {
+  (io.symlink)(desired_entry.symlink_target, desired_entry.link.path) catch {
     @os_error.OSError(_) as error if error.is_EEXIST() => {
-      notices.push(UnmanagedPathPreserved(path=desired_entry.link))
+      notices.push(UnmanagedPathPreserved(path=desired_entry.link.path))
       return Skipped
     }
     error => {
       notices.push(
         OperationFailed(
           operation=CreateLink,
-          path=desired_entry.link,
+          path=desired_entry.link.path,
           reason=error.to_string(),
         ),
       )
@@ -30,11 +30,11 @@ async fn create_desired_link(
     }
   }
   let verified = try {
-    let live_kind = (io.kind)(desired_entry.link)
-    let live_target = (io.realpath)(desired_entry.link).normalize()
+    let live_kind = (io.kind)(desired_entry.link.path)
+    let live_target = (io.realpath)(desired_entry.link.path).normalize()
     let still_contained = is_physically_contained(io, desired_entry)
     live_kind == @fs.FileKind::SymLink &&
-    live_target == desired_entry.resolved_target &&
+    live_target == desired_entry.resolved_target.path &&
     still_contained
   } catch {
     _ => false
@@ -45,7 +45,7 @@ async fn create_desired_link(
     notices.push(
       OperationFailed(
         operation=VerifyCreatedLink,
-        path=desired_entry.link,
+        path=desired_entry.link.path,
         reason="created link could not be verified",
       ),
     )
@@ -62,9 +62,9 @@ async fn create_desired_link(
     HardStop(_) => {
       let mut rollback_check_failed = false
       let rollback_verified = try
-        (io.kind)(desired_entry.link) == @fs.FileKind::SymLink &&
-        (io.realpath)(desired_entry.link).normalize() ==
-        desired_entry.resolved_target &&
+        (io.kind)(desired_entry.link.path) == @fs.FileKind::SymLink &&
+        (io.realpath)(desired_entry.link.path).normalize() ==
+        desired_entry.resolved_target.path &&
         is_physically_contained(io, desired_entry)
       catch {
         error => {
@@ -72,7 +72,7 @@ async fn create_desired_link(
           notices.push(
             OperationFailed(
               operation=VerifyCreatedLink,
-              path=desired_entry.link,
+              path=desired_entry.link.path,
               reason=error.to_string(),
             ),
           )
@@ -82,19 +82,19 @@ async fn create_desired_link(
         value => value
       }
       if rollback_verified {
-        (io.remove)(desired_entry.link) catch {
+        (io.remove)(desired_entry.link.path) catch {
           @os_error.OSError(_) as error if error.is_ENOENT() => ()
           error =>
             notices.push(
               OperationFailed(
                 operation=RemoveLink,
-                path=desired_entry.link,
+                path=desired_entry.link.path,
                 reason=error.to_string(),
               ),
             )
         }
       } else if !rollback_check_failed {
-        notices.push(UnmanagedPathPreserved(path=desired_entry.link))
+        notices.push(UnmanagedPathPreserved(path=desired_entry.link.path))
       }
       CreationHardStop({
         status: Partial,

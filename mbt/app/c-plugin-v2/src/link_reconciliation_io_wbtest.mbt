@@ -16,7 +16,7 @@ async test "LinkReconciliation reconcile_skill_links 14 - continues independent 
     let checkpoints = []
     let io : LinkReconciliationIO = {
       mkdir: async fn(path) {
-        if path == entries[0].managed_root {
+        if path == entries[0].managed_root.path {
           fail("mkdir failed")
         }
         @fs.mkdir(path.to_string(), recursive=true) catch {
@@ -25,19 +25,19 @@ async test "LinkReconciliation reconcile_skill_links 14 - continues independent 
         }
       },
       kind: async fn(path) {
-        if path == entries[2].link {
+        if path == entries[2].link.path {
           fail("kind failed")
         }
         @fs.kind(path.to_string(), follow_symlink=false)
       },
       realpath: async fn(path) {
-        if path == entries[1].managed_root {
+        if path == entries[1].managed_root.path {
           fail("realpath failed")
         }
         @path.Path(@fs.realpath(path.to_string()))
       },
       symlink: async fn(target, link) {
-        if link == entries[3].link {
+        if link == entries[3].link.path {
           fail("create failed")
         }
         @fs.symlink(target=target.to_string(), link.to_string())
@@ -47,7 +47,7 @@ async test "LinkReconciliation reconcile_skill_links 14 - continues independent 
     }
     let result = reconcile_skill_links_with_io(
       io,
-      root.join("state.json"),
+      reconciliation_state_path(root.join("state.json")),
       OwnershipState::OwnershipState(entries),
       Trusted(OwnershipState::OwnershipState([])),
     )
@@ -64,9 +64,9 @@ async test "LinkReconciliation reconcile_skill_links 14 - continues independent 
         OperationFailed(operation~, path~, reason=_) => {
           inspect(operation == expected_operation, content="true")
           let expected_path = if index == 0 {
-            entries[index].managed_root
+            entries[index].managed_root.path
           } else {
-            entries[index].link
+            entries[index].link.path
           }
           inspect(path == expected_path, content="true")
         }
@@ -77,7 +77,7 @@ async test "LinkReconciliation reconcile_skill_links 14 - continues independent 
     inspect(result.durable_state.entries.length(), content="1")
     inspect(
       result.durable_state.entries.get(
-        OwnershipLinkIdentity::OwnershipLinkIdentity(entries[4].link),
+        OwnershipLinkIdentity::OwnershipLinkIdentity(entries[4].link.path),
       ) ==
       Some(entries[4]),
       content="true",
@@ -102,7 +102,7 @@ async test "LinkReconciliation reconcile_skill_links 15 - retains failed stale r
       let entry = stale_reconciliation_entry(managed_root, "install", target)
       @fs.symlink(
         target=entry.symlink_target.to_string(),
-        entry.link.to_string(),
+        entry.link.path.to_string(),
       )
       entries.push(entry)
     }
@@ -115,7 +115,7 @@ async test "LinkReconciliation reconcile_skill_links 15 - retains failed stale r
         @fs.symlink(target=target.to_string(), link.to_string())
       },
       remove: async fn(path) {
-        if path == entries[0].link {
+        if path == entries[0].link.path {
           fail("remove failed")
         }
         @fs.remove(path.to_string())
@@ -124,7 +124,7 @@ async test "LinkReconciliation reconcile_skill_links 15 - retains failed stale r
     }
     let result = reconcile_skill_links_with_io(
       io,
-      root.join("state.json"),
+      reconciliation_state_path(root.join("state.json")),
       OwnershipState::OwnershipState([]),
       Trusted(OwnershipState::OwnershipState(entries)),
     )
@@ -133,14 +133,17 @@ async test "LinkReconciliation reconcile_skill_links 15 - retains failed stale r
     inspect(checkpoints.length(), content="1")
     match result.notices[0] {
       OperationFailed(operation=RemoveLink, path~, reason=_) =>
-        inspect(path == entries[0].link, content="true")
+        inspect(path == entries[0].link.path, content="true")
       _ => fail("expected stale remove failure")
     }
     debug_inspect(
-      @fs.kind(entries[0].link.to_string(), follow_symlink=false),
+      @fs.kind(entries[0].link.path.to_string(), follow_symlink=false),
       content="SymLink",
     )
-    let removed = @fs.kind(entries[1].link.to_string(), follow_symlink=false) catch {
+    let removed = @fs.kind(
+      entries[1].link.path.to_string(),
+      follow_symlink=false,
+    ) catch {
       _ => @fs.FileKind::Unknown
     }
     debug_inspect(removed, content="Unknown")
