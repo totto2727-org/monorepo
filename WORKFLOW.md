@@ -109,14 +109,14 @@ The agent should be able to talk to Linear, either via a configured Linear MCP s
 
 ## Workflow support requirements
 
-The workflow support skills are repository-owned OpenCode skills under `.agents/skills/`:
+The workflow support skills are provided by the installed Symphony plugin:
 
 - `linear`: interact with Linear.
 - `commit`: produce clean, logical commits during implementation.
 - `push`: keep remote branch current and publish updates.
 - `pull`: keep branch updated with the current base branch before handoff.
 - Sync operations must target the current base branch: `Dependency base branch` when present, otherwise latest `origin/main`.
-- `land`: when ticket reaches `Merging`, explicitly open and follow `.agents/skills/land/SKILL.md`, which includes the `land` loop.
+- `land`: when the ticket reaches `Merging`, run the installed `land` skill, which includes the `land` loop.
 
 ### Status map
 
@@ -139,7 +139,7 @@ The workflow support skills are repository-owned OpenCode skills under `.agents/
      - If PR is already attached, start by reviewing all open PR comments and deciding required changes vs explicit pushback responses.
    - `In Progress` -> continue execution flow from current scratchpad comment.
    - `Human Review` -> wait and poll for decision/review updates.
-   - `Merging` -> on entry, open and follow `.agents/skills/land/SKILL.md`; do not call `gh pr merge` directly.
+   - `Merging` -> on entry, run the installed `land` skill; do not call `gh pr merge` directly.
    - `Rework` -> run rework flow.
    - `Done` -> do nothing and shut down.
 4. Check whether a PR already exists for the current branch and whether it is closed.
@@ -263,7 +263,7 @@ Use this only when completion is blocked by missing required tools or missing au
 2. Poll for updates as needed, including GitHub PR review comments from humans and bots.
 3. If review feedback requires changes, move the issue to `Rework` and follow the rework flow.
 4. If approved, human moves the issue to `Merging`.
-5. When the issue is in `Merging`, open and follow `.agents/skills/land/SKILL.md`, then run the `land` skill in a loop until the PR is merged. Do not call `gh pr merge` directly.
+5. When the issue is in `Merging`, run the installed `land` skill in a loop until the PR is merged. Do not call `gh pr merge` directly.
 6. After merge is complete, move the issue to `Done`.
 
 ### Step 4: Rework handling

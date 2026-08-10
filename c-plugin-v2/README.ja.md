@@ -245,14 +245,14 @@ v2ロックは厳格に扱い、データを持つEnum variantには最上位の
   "repositories": [
     {
       "type": "github",
-      "repository": "totto2727-org/monorepo",
+      "repository": "totto2727-org/agent",
       "marketplaceKind": "claude",
       "commit": "0123456789abcdef0123456789abcdef01234567",
       "plugins": [
         {
-          "name": "totto2727-coding",
-          "path": "plugins/totto2727-coding",
-          "enabledSkills": ["c-plugin"]
+          "name": "symphony",
+          "path": "plugins/symphony",
+          "enabledSkills": ["commit"]
         }
       ]
     },
@@ -310,7 +310,7 @@ src/
 - 単体テストでbitを使用する場合は、一時ルート以下の破棄可能なリポジトリだけを操作する。
 - lockのround trip、厳格な失敗、最上位Enum dispatch、canonical ordering、JSON error pathをテストする。
 - 未対応のlock versionが、ロックの正確なbytesを維持し、link、cache、ownership stateを変更しないことをテストする。
-- Pathの正規化、project/global/recursive discovery、local sourceの制約、targetの重複排除、ロックスコープキーの導出、スコープmetadata不一致の拒否、同じリポジトリを異なるcommitに固定する2つのロック間のcache分離をテストする。
+- Pathの正規化、project/global/recursive discovery、local sourceの制約、targetの重複排除、ロックスコープキーの導出、スコープmetadataの生成とcodec検証、同じリポジトリを異なるcommitに固定する2つのロック間のcache分離をテストする。永続化したmetadataを利用するcache storage adapterを追加する時点で、metadata不一致の拒否をテストする。
 - 純粋なTUI selection stateをテストし、command testにはscripted selectionを注入する。
 - 冪等なコマンド再実行、管理外パスとの衝突、管理対象リンクの置換、skill重複時の優先順位、一部リポジトリの失敗、永続化前の状態維持をテストする。
 - 既存ロックを変更するすべての経路が永続化した候補を`sync`へ渡し、`init`、キャンセル、意味的なno-opでは不要な調整を実行しないことをテストする。
@@ -357,21 +357,21 @@ c-plugin v2は一度に全面的に書き換えず、独立してレビュー可
 
 Milestone 0は完了済みの本設計契約です。Milestone 1から7では、次の安定した原子的単位IDを使用します。同じwave内のcomma区切りだけを並行化候補とし、arrowは厳密な順序制約とします。原子的単位`M1`はMilestone 3に属し、Milestone 1のparent issueとは別です。
 
-| マイルストーン                    | 原子的な単位                                                                                                                                                                                         | 依存関係と並行wave                                                                             |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| 1. Bootstrap                      | `B0` v1共存identity/layout契約、`B1` native dependency compatibilityと正確な`mizchi/bit` APIを証明してからCLI skeleton・help・versionを作成、`B2` `c-plugin-v2` Nix packageを追加                    | `B0 -> B1 -> B2`                                                                               |
-| 2. 状態基盤                       | `F0` runtime path、`F1` domain/lock model、`F2` lock codec、`F3` ownership codec、`F4` atomic store、`F5` cache scope、`F6` discovery、`F7` runtime composition、`C-init` init、`E0` Docker/init E2E | `F0,F1 -> F2,F3,F5,F6 -> F4,F7 -> C-init -> E0`                                                |
-| 3. ローカルライフサイクル         | `M0` marketplace解析、`M1` local/skill解決、`R1` reconciliation、`C-sync`、`A1` `persist_and_sync`、`C-sync-r`、`C-add-local`、`C-remove`、`C-target-add`、`C-target-remove`                         | `M0,M1 -> R1 -> C-sync -> A1,C-sync-r -> C-add-local,C-target-add -> C-remove,C-target-remove` |
-| 4. GitHubライフサイクル           | `G0` freeze済みbit contract/adapterの前提条件、`G1` clone/checkout/HEAD、`G2` fetch/default branch、`G-add`、`G-update`、`G-update-r`、`G-cleanup`                                                   | `G0 -> G1 -> G2 -> G-add,G-cleanup -> G-update -> G-update-r`                                  |
-| 5. 対話入力                       | `I1` selection state/TUI adapter、`I2` TTY方針、`I-add-kind`、`I-add-skill`、`I-remove`、`I-target-remove`                                                                                           | `I1 -> I2 -> I-add-kind,I-add-skill,I-remove,I-target-remove`                                  |
-| 6. マーケットプレイス作者向け機能 | `D0` 共通read model、`D1` format変換、`D2` 決定論的write、`C-dev-sync`                                                                                                                               | `D0 -> D1 -> D2 -> C-dev-sync`                                                                 |
-| 7. 最終等価性とcutover            | `P1` 完全parity matrix、`P2` 文書/parity audit、`P3` cutover                                                                                                                                         | `P1 -> P2 -> 明示的なcutover承認 -> P3`                                                        |
+| マイルストーン                    | 原子的な単位                                                                                                                                                                                                                            | 依存関係と並行wave                                                                                        |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 1. Bootstrap                      | `B0` v1共存identity/layout契約、`B1` native dependency compatibilityと正確な`mizchi/bit` APIを証明してからCLI skeleton・help・versionを作成、`B2` `c-plugin-v2` Nix packageを追加                                                       | `B0 -> B1 -> B2`                                                                                          |
+| 2. 状態基盤                       | `F0` runtime path、`F1` domain/lock model、`F2` lock codec、`F3` ownership codec、`F4` atomic store、`F5` cache scope、`F6` discovery、`F7` runtime composition、`C-init` init、`E0` Docker/init E2E                                    | `F0,F1 -> F2,F3,F5,F6 -> F4,F7 -> C-init -> E0`                                                           |
+| 3. ローカルライフサイクル         | `M0` marketplace解析、`M1` local/skill解決、`R1-P` desired-link planning、`R1-FS` ownership-safe filesystem reconciliation、`C-sync`、`A1` `persist_and_sync`、`C-sync-r`、`C-add-local`、`C-remove`、`C-target-add`、`C-target-remove` | `M0,M1 -> R1-P -> R1-FS -> C-sync -> A1,C-sync-r -> C-add-local,C-target-add -> C-remove,C-target-remove` |
+| 4. GitHubライフサイクル           | `G0` freeze済みbit contract/adapterの前提条件、`G1` clone/checkout/HEAD、`G2` fetch/default branch、`G-add`、`G-update`、`G-update-r`、`G-cleanup`                                                                                      | `G0 -> G1 -> G2 -> G-add,G-cleanup -> G-update -> G-update-r`                                             |
+| 5. 対話入力                       | `I1` selection state/TUI adapter、`I2` TTY方針、`I-add-kind`、`I-add-skill`、`I-remove`、`I-target-remove`                                                                                                                              | `I1 -> I2 -> I-add-kind,I-add-skill,I-remove,I-target-remove`                                             |
+| 6. マーケットプレイス作者向け機能 | `D0` 共通read model、`D1` format変換、`D2` 決定論的write、`C-dev-sync`                                                                                                                                                                  | `D0 -> D1 -> D2 -> C-dev-sync`                                                                            |
+| 7. 最終等価性とcutover            | `P1` 完全parity matrix、`P2` 文書/parity audit、`P3` cutover                                                                                                                                                                            | `P1 -> P2 -> 明示的なcutover承認 -> P3`                                                                   |
 
 ### 単位ごとの検証契約
 
-各原子的な単位では、動作とテストを同じ変更に含めます。`B0`では文書化したv1/v2のpathとidentity、v1が未変更であること、両versionが同じlock scopeを共有しないことを検証します。`B1`では固定した全dependencyと正確な`mizchi/bit` APIを使用するnative buildを証明してから、対象を絞ったcheck・format・parser test・native buildを実行し、実際の`--help`/`--version`とAdmiral名`c-plugin`を確認します。`B2`では`c-plugin-v2` Nix packageをbuild/evaluateし、そのexecutableが動作してv1 packageが未変更であることを検証します。`F0`と`F1`ではconstructor・normalization・拒否・仮home、`F2`ではcanonical round trip・JSON path・strict failure・未対応versionのbyte維持・最上位dispatch、`F3`では厳格なownership-state round trip、`F4`ではexclusive create・temporary-sibling rename・永続化前後の失敗、`F5`では完全SHA-256 vector・metadata不一致・canonicalization・lock移動・2ロックcache分離、`F6`ではnearest project・exact global・ignore/recursive descendant・home境界・`-g`/`-r`、`F7`では全runtime boundaryの注入と実ユーザーpathの非使用をテストします。`C-init`ではproject/global正常系・既存fileのbyte維持・不正scope・繰り返しをテストし、`E0`ではimage/executableを1回だけbuildして、分離したproject/global initのstatus・output・lock JSON・host stateをassertします。
+各原子的な単位では、動作とテストを同じ変更に含めます。`B0`では文書化したv1/v2のpathとidentity、v1が未変更であること、両versionが同じlock scopeを共有しないことを検証します。`B1`では固定した全dependencyと正確な`mizchi/bit` APIを使用するnative buildを証明してから、対象を絞ったcheck・format・parser test・native buildを実行し、実際の`--help`/`--version`とAdmiral名`c-plugin`を確認します。`B2`では`c-plugin-v2` Nix packageをbuild/evaluateし、そのexecutableが動作してv1 packageが未変更であることを検証します。`F0`と`F1`ではconstructor・normalization・拒否・仮home、`F2`ではcanonical round trip・JSON path・strict failure・未対応versionのbyte維持・最上位dispatch、`F3`では厳格なownership-state round trip、`F4`ではexclusive create・temporary-sibling rename・永続化前後の失敗、`F5`では完全SHA-256 vector・検証済みmetadataの生成とround trip・canonicalization・lock移動・2ロックcache分離をテストします。metadata不一致の拒否は、永続化metadataを利用する将来のcache storage adapter testでその利用境界に対して検証します。`F6`ではnearest project・exact global・ignore/recursive descendant・home境界・`-g`/`-r`、`F7`では全runtime boundaryの注入と実ユーザーpathの非使用をテストします。`C-init`ではproject/global正常系・既存fileのbyte維持・不正scope・繰り返しをテストし、`E0`ではimage/executableを1回だけbuildして、分離したproject/global initのstatus・output・lock JSON・host stateをassertします。
 
-`M0`と`M1`ではClaude/Cursor/Codexとlocal fixtureを使い、明示的なkind/skill選択・重複ID・ordering・不正manifest・正規化pathをテストします。`R1`では不足・古い・管理外・置換済み・壊れたlink、欠落/破損ownership state、優先順位、削除target、一部失敗、冪等性、ロック間分離を網羅します。`C-sync`と`C-sync-r`ではunit flowとclean-container E2Eを追加し、外部編集したlockとignore対象のrecursive descendantも検証します。`A1`では成功した全mutationが永続化済みcandidateと同じ値をsyncし、cancel/no-opはwriteもsyncも行わず、write後のsync失敗から復旧できることを証明します。`C-add-local`、`C-remove`、`C-target-add`、`C-target-remove`は、それぞれunitと独立したclean-container E2Eで、該当するstatus/output、canonical lock、link/state、繰り返しまたは選択、cleanup、管理外path維持をassertします。
+`M0`と`M1`ではClaude/Cursor/Codexとlocal fixtureを使い、明示的なkind/skill選択・重複ID・ordering・不正manifest・正規化pathをテストします。`R1-P`ではfilesystemを変更せず、enabled skill filtering、不変なdesired ownership、canonical repository precedence、provenance、unavailable repository、正規化link pathを網羅します。`R1-FS`では不足・古い・管理外・置換済み・壊れたlink、欠落/破損ownership state、削除target、一部失敗、冪等性、ロック間分離を網羅します。`C-sync`と`C-sync-r`ではunit flowとclean-container E2Eを追加し、外部編集したlockとignore対象のrecursive descendantも検証します。`A1`では成功した全mutationが永続化済みcandidateと同じ値をsyncし、cancel/no-opはwriteもsyncも行わず、write後のsync失敗から復旧できることを証明します。`C-add-local`、`C-remove`、`C-target-add`、`C-target-remove`は、それぞれunitと独立したclean-container E2Eで、該当するstatus/output、canonical lock、link/state、繰り返しまたは選択、cleanup、管理外path維持をassertします。
 
 `G0`では`B1`で証明済みの正確なAPIを使用し、bit adapter contractをfreezeして、その型付きboundaryと注入したfailure behaviorをテストします。Dependency/API compatibilityの証明は繰り返しません。`G1`と`G2`ではscoped serialization、pin、fetch/default branch、一部失敗、2ロック分離をテストします。`G-add`では実際のbit-backed `totto2727-org/monorepo` unit/E2Eでlock・cache・link・output・statusをassertします。`G-update`と`G-update-r`ではpin更新、local source非fetch、recursive/failure分離、永続化済み状態のsync、兄弟lock/cache/link不変のunit/E2Eを追加します。`G-cleanup`ではlink調整後に所有lockの最終参照だけがcacheを削除することを証明します。
 

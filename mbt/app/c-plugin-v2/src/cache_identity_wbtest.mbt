@@ -1,16 +1,18 @@
 ///|
 test "CacheScope SHA-256 dependency conforms to FIPS 180-4 vectors" {
   inspect(
-    @sha256.sha256_hexdigest(@utf8.encode("")),
+    @crypto.bytes_to_hex_string(@crypto.sha256(@utf8.encode(""))),
     content="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   )
   inspect(
-    @sha256.sha256_hexdigest(@utf8.encode("abc")),
+    @crypto.bytes_to_hex_string(@crypto.sha256(@utf8.encode("abc"))),
     content="ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
   )
   inspect(
-    @sha256.sha256_hexdigest(
-      @utf8.encode("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
+    @crypto.bytes_to_hex_string(
+      @crypto.sha256(
+        @utf8.encode("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
+      ),
     ),
     content="248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1",
   )
@@ -78,36 +80,14 @@ test "CacheScope cache path uses canonical GitHub repository components" {
 }
 
 ///|
-test "CacheScope metadata rejects missing and mismatched lock identities distinctly" {
+test "CacheScope metadata uses the validated normalized lock identity" {
   let scope = CacheScope::CacheScope(
-    "/synthetic/work/project/c-plugin-lock.json",
+    "/synthetic/work/project/./c-plugin-lock.json",
   )
-  let mismatched = CacheScopeMetadata::CacheScopeMetadata(
-    1, "/synthetic/work/other/c-plugin-lock.json",
-  )
-  let missing_detail = try {
-    scope.validate_metadata(None)
-    "no error"
-  } catch {
-    MissingMetadata(expected~) => "missing:\{expected.lock_path.to_string()}"
-    _ => "wrong error"
-  }
-  let mismatch_detail = try {
-    scope.validate_metadata(Some(mismatched))
-    "no error"
-  } catch {
-    MetadataMismatch(expected~, actual~) =>
-      "mismatch:\{expected.lock_path.to_string()}:\{actual.lock_path.to_string()}"
-    _ => "wrong error"
-  }
-  inspect(
-    missing_detail,
-    content="missing:/synthetic/work/project/c-plugin-lock.json",
-  )
-  inspect(
-    mismatch_detail,
-    content="mismatch:/synthetic/work/project/c-plugin-lock.json:/synthetic/work/other/c-plugin-lock.json",
-  )
+  json_inspect(scope.metadata(), content={
+    "version": 1,
+    "lockPath": "/synthetic/work/project/c-plugin-lock.json",
+  })
 }
 
 ///|

@@ -52,18 +52,22 @@ pub fn RuntimePaths::global_lock_path(self : RuntimePaths) -> @path.Path {
 pub fn RuntimePaths::project_ownership_state_path(
   self : RuntimePaths,
   project_root : @path.Path,
-) -> @path.Path raise RuntimePathsError {
+) -> OwnershipStatePath raise {
   ignore(self)
-  normalized_absolute_root("project root", project_root)
-  .join(".agents")
-  .join("c-plugin-state.json")
+  OwnershipStatePath::OwnershipStatePath(
+    normalized_absolute_root("project root", project_root)
+    .join(".agents")
+    .join("c-plugin-state.json"),
+  )
 }
 
 ///|
 pub fn RuntimePaths::global_ownership_state_path(
   self : RuntimePaths,
-) -> @path.Path {
-  self.home.join(".agents").join("c-plugin-state.json")
+) -> OwnershipStatePath raise {
+  OwnershipStatePath::OwnershipStatePath(
+    self.home.join(".agents").join("c-plugin-state.json"),
+  )
 }
 
 ///|

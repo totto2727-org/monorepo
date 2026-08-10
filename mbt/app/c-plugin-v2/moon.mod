@@ -22,8 +22,7 @@ import {
   "mizchi/tui@0.10.0",
   "moonbitlang/async@0.20.3",
   "moonbitlang/x@0.4.47",
-  "shu-kitamura/sha256@0.1.1",
-  "totto2727/admiral@0.6.2",
+  "totto2727/admiral@0.6.1",
   "totto2727/lens@0.4.0",
   "totto2727/target-file-discovery@0.2.1",
 }

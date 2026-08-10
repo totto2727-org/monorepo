@@ -1,61 +1,75 @@
 ---
 name: commit
-description: Create a clean git commit from current changes using OpenCode session context, repository conventions, and local validation evidence.
+description: |-
+  Create a well-formed git commit from current changes using session history for
+  rationale and summary; use when asked to commit, prepare a commit message, or
+  finalize staged work.
 ---
-
-<!--
-This file adapts the Apache-2.0 licensed OpenAI Symphony commit skill for this
-repository's OpenCode workflow.
-Original source: https://github.com/openai/symphony/tree/main/.codex/skills/commit
--->
 
 # Commit
 
-Use this skill when asked to commit, prepare a commit message, or finalize staged work.
-
 ## Goals
 
-- Produce one logical commit that reflects the actual repository changes.
-- Follow this repository's git workflow and commit-message conventions.
-- Include enough message detail for reviewers to understand what changed, why it changed, and how it was validated.
+- Produce a commit that reflects the actual code changes and the session
+  context.
+- Follow common git conventions (type prefix, short subject, wrapped body).
+- Include both summary and rationale in the body.
 
 ## Inputs
 
-- OpenCode session context for intent and rationale.
+- Codex session history for intent and rationale.
 - `git status`, `git diff`, and `git diff --staged` for actual changes.
-- Repository instructions in `AGENTS.md`, package-local `AGENTS.md`, and recent commit history.
+- Repo-specific commit conventions if documented.
 
 ## Steps
 
-1. Inspect recent commit style with `git log --oneline -10` before choosing a message.
-2. Inspect the working tree and staged changes with `git status`, `git diff`, and `git diff --staged`.
-3. Stage only intended files. Do not stage unrelated user or merge artifacts.
-4. Sanity-check newly added files. If build outputs, logs, temp files, secrets, or unrelated files appear, stop and fix the index before committing.
-5. Run the validation required for the change before committing, or record a precise blocker if validation cannot run.
-6. Choose a Conventional Commits subject such as `feat(scope): ...`, `fix(scope): ...`, or `docs(scope): ...`.
-7. Keep the subject imperative, at most 72 characters, and without a trailing period.
-8. Write a body that records:
-   - Summary of key changes.
-   - Rationale and trade-offs.
-   - Tests or validation run.
-9. Create the message with a temp file and commit with `git commit -F <file>` so newlines are literal.
-10. Do not amend an existing commit unless the user explicitly requested an amend.
+1. Read session history to identify scope, intent, and rationale.
+2. Inspect the working tree and staged changes (`git status`, `git diff`,
+   `git diff --staged`).
+3. Stage intended changes, including new files (`git add -A`) after confirming
+   scope.
+4. Sanity-check newly added files; if anything looks random or likely ignored
+   (build artifacts, logs, temp files), flag it to the user before committing.
+5. If staging is incomplete or includes unrelated files, fix the index or ask
+   for confirmation.
+6. Choose a conventional type and optional scope that match the change (e.g.,
+   `feat(scope): ...`, `fix(scope): ...`, `refactor(scope): ...`).
+7. Write a subject line in imperative mood, <= 72 characters, no trailing
+   period.
+8. Write a body that includes:
+   - Summary of key changes (what changed).
+   - Rationale and trade-offs (why it changed).
+   - Tests or validation run (or explicit note if not run).
+9. Append a `Co-authored-by` trailer for Codex using `Codex <codex@openai.com>`
+   unless the user explicitly requests a different identity.
+10. Wrap body lines at 72 characters.
+11. Create the commit message with a here-doc or temp file and use
+    `git commit -F <file>` so newlines are literal (avoid `-m` with `\n`).
+12. Commit only when the message matches the staged changes: if the staged diff
+    includes unrelated files or the message describes work that isn't staged,
+    fix the index or revise the message before committing.
 
 ## Output
 
-- A single git commit whose staged diff, message, and validation evidence match.
+- A single commit created with `git commit` whose message reflects the session.
 
 ## Template
 
-```text
+Type and scope are examples only; adjust to fit the repo and changes.
+
+```
 <type>(<scope>): <short summary>
 
 Summary:
 - <what changed>
+- <what changed>
 
 Rationale:
-- <why it changed>
+- <why>
+- <why>
 
 Tests:
-- <command and result>
+- <command or "not run (reason)">
+
+Co-authored-by: Codex <codex@openai.com>
 ```

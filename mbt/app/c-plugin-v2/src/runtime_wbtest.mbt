@@ -24,10 +24,7 @@ async test "Runtime discover_locks - injects synthetic runtime paths" {
   )
 
   let discovered = runtime.discover_locks(
-    LockDiscoveryOptions::LockDiscoveryOptions(
-      LockDiscoveryScope::Project,
-      false,
-    ),
+    LockDiscoveryOptions::Project(recursive=false),
   )
 
   inspect(received[0].to_string(), content="/synthetic/home")

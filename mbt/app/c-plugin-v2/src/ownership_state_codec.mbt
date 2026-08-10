@@ -4,92 +4,59 @@ let ownership_source_type_lens : @lens.Lens[String] = @lens.root().string(
 )
 
 ///|
-let ownership_source_repository_lens : @lens.Lens[Json] = @lens.root().json(
+let ownership_source_github_repository_lens : @lens.Lens[GitHubRepository] = @lens.root().custom(
   "repository",
 )
 
 ///|
-let ownership_source_plugin_lens : @lens.Lens[Json] = @lens.root().json(
+let ownership_source_local_repository_lens : @lens.Lens[RelativeSourcePath] = @lens.root().custom(
+  "repository",
+)
+
+///|
+let ownership_source_plugin_lens : @lens.Lens[PluginName] = @lens.root().custom(
   "plugin",
 )
 
 ///|
-let ownership_source_skill_lens : @lens.Lens[Json] = @lens.root().json("skill")
+let ownership_source_skill_lens : @lens.Lens[SkillName] = @lens.root().custom(
+  "skill",
+)
 
 ///|
-let ownership_entry_link_lens : @lens.Lens[Json] = @lens.root().json("link")
+let ownership_entry_link_lens : @lens.Lens[OwnershipLink] = @lens.root().custom(
+  "link",
+)
 
 ///|
-let ownership_entry_symlink_target_lens : @lens.Lens[Json] = @lens.root().json(
+let ownership_entry_symlink_target_lens : @lens.Lens[String] = @lens.root().string(
   "symlinkTarget",
 )
 
 ///|
-let ownership_entry_resolved_target_lens : @lens.Lens[Json] = @lens.root().json(
+let ownership_entry_resolved_target_lens : @lens.Lens[OwnershipResolvedTarget] = @lens.root().custom(
   "resolvedTarget",
 )
 
 ///|
-let ownership_entry_managed_root_lens : @lens.Lens[Json] = @lens.root().json(
+let ownership_entry_managed_root_lens : @lens.Lens[OwnershipManagedRoot] = @lens.root().custom(
   "managedRoot",
 )
 
 ///|
-let ownership_entry_source_lens : @lens.Lens[Json] = @lens.root().json("source")
+let ownership_entry_source_lens : @lens.Lens[OwnershipSource] = @lens.root().custom(
+  "source",
+)
 
 ///|
-let ownership_state_version_lens : @lens.Lens[Json] = @lens.root().json(
+let ownership_state_version_lens : @lens.Lens[String] = @lens.root().string(
   "version",
 )
 
 ///|
-let ownership_state_entries_lens : @lens.Lens[Json] = @lens.root().json(
-  "entries",
-)
-
-///|
-fn decode_github_ownership_source(
-  json : Json,
-  path : @json.JsonPath,
-) -> OwnershipSource raise @json.JsonDecodeError {
-  let repository : GitHubRepository = @json.from_json(
-    ownership_source_repository_lens.get_or_json_decode_error(json, path),
-    path=ownership_source_repository_lens.add_to_json_path(path),
-  )
-  let plugin : PluginName = @json.from_json(
-    ownership_source_plugin_lens.get_or_json_decode_error(json, path),
-    path=ownership_source_plugin_lens.add_to_json_path(path),
-  )
-  let skill : SkillName = @json.from_json(
-    ownership_source_skill_lens.get_or_json_decode_error(json, path),
-    path=ownership_source_skill_lens.add_to_json_path(path),
-  )
-  OwnershipSource::github(
-    GitHubOwnershipSource::GitHubOwnershipSource(repository, plugin, skill),
-  )
-}
-
-///|
-fn decode_local_ownership_source(
-  json : Json,
-  path : @json.JsonPath,
-) -> OwnershipSource raise @json.JsonDecodeError {
-  let repository : RelativeSourcePath = @json.from_json(
-    ownership_source_repository_lens.get_or_json_decode_error(json, path),
-    path=ownership_source_repository_lens.add_to_json_path(path),
-  )
-  let plugin : PluginName = @json.from_json(
-    ownership_source_plugin_lens.get_or_json_decode_error(json, path),
-    path=ownership_source_plugin_lens.add_to_json_path(path),
-  )
-  let skill : SkillName = @json.from_json(
-    ownership_source_skill_lens.get_or_json_decode_error(json, path),
-    path=ownership_source_skill_lens.add_to_json_path(path),
-  )
-  OwnershipSource::from_local(
-    LocalOwnershipSource::LocalOwnershipSource(repository, plugin, skill),
-  )
-}
+let ownership_state_entries_lens : @lens.Lens[Array[OwnershipEntry]] = @lens.root()
+  .custom("entries")
+  .array()
 
 ///|
 pub impl FromJson for OwnershipSource with fn from_json(json, path) {
@@ -97,8 +64,34 @@ pub impl FromJson for OwnershipSource with fn from_json(json, path) {
     json, path,
   )
   match source_type {
-    "github" => decode_github_ownership_source(json, path)
-    "local" => decode_local_ownership_source(json, path)
+    "github" => {
+      let repository = ownership_source_github_repository_lens.get_or_json_decode_error(
+        json, path,
+      )
+      let plugin = ownership_source_plugin_lens.get_or_json_decode_error(
+        json, path,
+      )
+      let skill = ownership_source_skill_lens.get_or_json_decode_error(
+        json, path,
+      )
+      OwnershipSource::from_github(
+        GitHubOwnershipSource::GitHubOwnershipSource(repository, plugin, skill),
+      )
+    }
+    "local" => {
+      let repository = ownership_source_local_repository_lens.get_or_json_decode_error(
+        json, path,
+      )
+      let plugin = ownership_source_plugin_lens.get_or_json_decode_error(
+        json, path,
+      )
+      let skill = ownership_source_skill_lens.get_or_json_decode_error(
+        json, path,
+      )
+      OwnershipSource::from_local(
+        LocalOwnershipSource::LocalOwnershipSource(repository, plugin, skill),
+      )
+    }
     _ =>
       raise ownership_source_type_lens.json_decode_error(
         path,
@@ -113,78 +106,84 @@ pub impl ToJson for OwnershipSource with fn to_json(self) -> Json {
   match self {
     GitHub(source) => {
       ownership_source_type_lens.set_or_abort(builder, "github")
-      ownership_source_repository_lens.set_or_abort(
+      ownership_source_github_repository_lens.set_or_abort(
         builder,
-        ToJson::to_json(source.repository),
+        source.repository,
       )
-      ownership_source_plugin_lens.set_or_abort(
-        builder,
-        ToJson::to_json(source.plugin),
-      )
-      ownership_source_skill_lens.set_or_abort(
-        builder,
-        ToJson::to_json(source.skill),
-      )
+      ownership_source_plugin_lens.set_or_abort(builder, source.plugin)
+      ownership_source_skill_lens.set_or_abort(builder, source.skill)
     }
     Local(source) => {
       ownership_source_type_lens.set_or_abort(builder, "local")
-      ownership_source_repository_lens.set_or_abort(
+      ownership_source_local_repository_lens.set_or_abort(
         builder,
-        ToJson::to_json(source.repository),
+        source.repository,
       )
-      ownership_source_plugin_lens.set_or_abort(
-        builder,
-        ToJson::to_json(source.plugin),
-      )
-      ownership_source_skill_lens.set_or_abort(
-        builder,
-        ToJson::to_json(source.skill),
-      )
+      ownership_source_plugin_lens.set_or_abort(builder, source.plugin)
+      ownership_source_skill_lens.set_or_abort(builder, source.skill)
     }
   }
   builder.to_json()
 }
 
 ///|
+pub impl FromJson for OwnershipLink with fn from_json(json, path) {
+  let value : String = @json.from_json(json, path~)
+  OwnershipLink::OwnershipLink(@path.Path(value)) catch {
+    _ => raise @json.JsonDecodeError((path, "ownership link must be absolute"))
+  }
+}
+
+///|
+pub impl ToJson for OwnershipLink with fn to_json(self) -> Json {
+  self.path.to_string().to_json()
+}
+
+///|
+pub impl FromJson for OwnershipResolvedTarget with fn from_json(json, path) {
+  let value : String = @json.from_json(json, path~)
+  OwnershipResolvedTarget::OwnershipResolvedTarget(@path.Path(value)) catch {
+    _ =>
+      raise @json.JsonDecodeError(
+        (path, "ownership resolved target must be absolute"),
+      )
+  }
+}
+
+///|
+pub impl ToJson for OwnershipResolvedTarget with fn to_json(self) -> Json {
+  self.path.to_string().to_json()
+}
+
+///|
+pub impl FromJson for OwnershipManagedRoot with fn from_json(json, path) {
+  let value : String = @json.from_json(json, path~)
+  OwnershipManagedRoot::OwnershipManagedRoot(@path.Path(value)) catch {
+    _ =>
+      raise @json.JsonDecodeError(
+        (path, "ownership managed root must be absolute"),
+      )
+  }
+}
+
+///|
+pub impl ToJson for OwnershipManagedRoot with fn to_json(self) -> Json {
+  self.path.to_string().to_json()
+}
+
+///|
 pub impl FromJson for OwnershipEntry with fn from_json(json, path) {
-  let link_value : String = @json.from_json(
-    ownership_entry_link_lens.get_or_json_decode_error(json, path),
-    path=ownership_entry_link_lens.add_to_json_path(path),
+  let link = ownership_entry_link_lens.get_or_json_decode_error(json, path)
+  let symlink_target_value = ownership_entry_symlink_target_lens.get_or_json_decode_error(
+    json, path,
   )
-  let symlink_target_value : String = @json.from_json(
-    ownership_entry_symlink_target_lens.get_or_json_decode_error(json, path),
-    path=ownership_entry_symlink_target_lens.add_to_json_path(path),
+  let resolved_target = ownership_entry_resolved_target_lens.get_or_json_decode_error(
+    json, path,
   )
-  let resolved_target_value : String = @json.from_json(
-    ownership_entry_resolved_target_lens.get_or_json_decode_error(json, path),
-    path=ownership_entry_resolved_target_lens.add_to_json_path(path),
+  let managed_root = ownership_entry_managed_root_lens.get_or_json_decode_error(
+    json, path,
   )
-  let managed_root_value : String = @json.from_json(
-    ownership_entry_managed_root_lens.get_or_json_decode_error(json, path),
-    path=ownership_entry_managed_root_lens.add_to_json_path(path),
-  )
-  let source : OwnershipSource = @json.from_json(
-    ownership_entry_source_lens.get_or_json_decode_error(json, path),
-    path=ownership_entry_source_lens.add_to_json_path(path),
-  )
-  let link = @path.Path(link_value)
-  guard link.is_absolute() else {
-    raise ownership_entry_link_lens.json_decode_error(
-      path, "ownership link must be absolute",
-    )
-  }
-  let resolved_target = @path.Path(resolved_target_value)
-  guard resolved_target.is_absolute() else {
-    raise ownership_entry_resolved_target_lens.json_decode_error(
-      path, "ownership resolved target must be absolute",
-    )
-  }
-  let managed_root = @path.Path(managed_root_value)
-  guard managed_root.is_absolute() else {
-    raise ownership_entry_managed_root_lens.json_decode_error(
-      path, "ownership managed root must be absolute",
-    )
-  }
+  let source = ownership_entry_source_lens.get_or_json_decode_error(json, path)
   OwnershipEntry::OwnershipEntry(
     link,
     @path.Path(symlink_target_value),
@@ -202,34 +201,24 @@ pub impl FromJson for OwnershipEntry with fn from_json(json, path) {
 ///|
 pub impl ToJson for OwnershipEntry with fn to_json(self) -> Json {
   let builder = @lens.JsonBuilder::JsonBuilder()
-  ownership_entry_link_lens.set_or_abort(
-    builder,
-    self.link.to_string().to_json(),
-  )
+  ownership_entry_link_lens.set_or_abort(builder, self.link)
   ownership_entry_symlink_target_lens.set_or_abort(
     builder,
-    self.symlink_target.to_string().to_json(),
+    self.symlink_target.to_string(),
   )
   ownership_entry_resolved_target_lens.set_or_abort(
     builder,
-    self.resolved_target.to_string().to_json(),
+    self.resolved_target,
   )
-  ownership_entry_managed_root_lens.set_or_abort(
-    builder,
-    self.managed_root.to_string().to_json(),
-  )
-  ownership_entry_source_lens.set_or_abort(
-    builder,
-    ToJson::to_json(self.source),
-  )
+  ownership_entry_managed_root_lens.set_or_abort(builder, self.managed_root)
+  ownership_entry_source_lens.set_or_abort(builder, self.source)
   builder.to_json()
 }
 
 ///|
 pub impl FromJson for OwnershipState with fn from_json(json, path) {
-  let version : String = @json.from_json(
-    ownership_state_version_lens.get_or_json_decode_error(json, path),
-    path=ownership_state_version_lens.add_to_json_path(path),
+  let version = ownership_state_version_lens.get_or_json_decode_error(
+    json, path,
   )
   guard version == "1" else {
     raise ownership_state_version_lens.json_decode_error(
@@ -237,9 +226,8 @@ pub impl FromJson for OwnershipState with fn from_json(json, path) {
       "unsupported ownership state version: \{version}",
     )
   }
-  let entries : Array[OwnershipEntry] = @json.from_json(
-    ownership_state_entries_lens.get_or_json_decode_error(json, path),
-    path=ownership_state_entries_lens.add_to_json_path(path),
+  let entries = ownership_state_entries_lens.get_or_json_decode_error(
+    json, path,
   )
   OwnershipState::OwnershipState(entries) catch {
     _ =>
@@ -252,13 +240,9 @@ pub impl FromJson for OwnershipState with fn from_json(json, path) {
 ///|
 pub impl ToJson for OwnershipState with fn to_json(self) -> Json {
   let builder = @lens.JsonBuilder::JsonBuilder()
-  let stored_entries = self.entries.to_array()
-  stored_entries.sort_by((left, right) => left.0.compare(right.0))
-  let entries = stored_entries.map(entry => entry.1)
-  ownership_state_version_lens.set_or_abort(
-    builder,
-    self.version.to_string().to_json(),
-  )
-  ownership_state_entries_lens.set_or_abort(builder, entries.to_json())
+  let entries = self.entries.values().collect()
+  entries.sort()
+  ownership_state_version_lens.set_or_abort(builder, self.version.to_string())
+  ownership_state_entries_lens.set_or_abort(builder, entries)
   builder.to_json()
 }
