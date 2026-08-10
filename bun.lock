@@ -26,16 +26,16 @@
         "vite-plus": "catalog:",
       },
     },
-    "go/e2e/example": {
-      "name": "@go/e2e-example",
-      "devDependencies": {
-        "@go/e2e": "workspace:*",
-        "vite-plus": "catalog:",
-      },
-    },
     "go/package/e2e": {
       "name": "@go/e2e",
       "devDependencies": {
+        "vite-plus": "catalog:",
+      },
+    },
+    "go/package/e2e/e2e/example": {
+      "name": "@go/e2e-example",
+      "devDependencies": {
+        "@go/e2e": "workspace:*",
         "vite-plus": "catalog:",
       },
     },
@@ -591,7 +591,7 @@
 
     "@go/e2e": ["@go/e2e@workspace:go/package/e2e"],
 
-    "@go/e2e-example": ["@go/e2e-example@workspace:go/e2e/example"],
+    "@go/e2e-example": ["@go/e2e-example@workspace:go/package/e2e/e2e/example"],
 
     "@grpc/grpc-js": ["@grpc/grpc-js@1.14.4", "https://npm.flatt.tech/@grpc/grpc-js/-/grpc-js-1.14.4.tgz", { "dependencies": { "@grpc/proto-loader": "^0.8.0", "@js-sdsl/ordered-map": "^4.4.2" } }, "sha512-k9Dj3DV/itK9D06Y8f190Qgop7/Ui+D0njFV3LHMPwPT75DpXLQohE9Wmz0QElrJnzsjB7KPWiKJbOl7IPDArQ=="],
 

@@ -1,4 +1,4 @@
-module github.com/totto2727-org/monorepo/go/e2e/example
+module github.com/totto2727-org/monorepo/go/package/e2e/e2e/example
 
 go 1.25.0
 
@@ -58,4 +58,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/totto2727-org/monorepo/go/package/e2e => ../../package/e2e
+replace github.com/totto2727-org/monorepo/go/package/e2e => ../..

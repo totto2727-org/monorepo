@@ -9,7 +9,7 @@
     "mbt/app/*",
     "go/app/*",
     "go/package/*",
-    "go/e2e/*",
+    "go/package/*/e2e/example",
     "nix",
     "elixir/*",
     "infra/*"
