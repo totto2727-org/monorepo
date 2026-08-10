@@ -245,14 +245,14 @@ The v2 lock is strict and uses a top-level discriminator for data-carrying enum 
   "repositories": [
     {
       "type": "github",
-      "repository": "totto2727-org/monorepo",
+      "repository": "totto2727-org/agent",
       "marketplaceKind": "claude",
       "commit": "0123456789abcdef0123456789abcdef01234567",
       "plugins": [
         {
-          "name": "totto2727-coding",
-          "path": "plugins/totto2727-coding",
-          "enabledSkills": ["c-plugin"]
+          "name": "symphony",
+          "path": "plugins/symphony",
+          "enabledSkills": ["commit"]
         }
       ]
     },
