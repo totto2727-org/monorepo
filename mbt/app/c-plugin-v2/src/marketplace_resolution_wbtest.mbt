@@ -27,6 +27,25 @@ fn test_marketplace(plugins : Array[(String, String)]) -> Marketplace raise {
 }
 
 ///|
+test "RepositoryRoot RepositoryRoot - normalizes an absolute path" {
+  let root = RepositoryRoot::RepositoryRoot(
+    @path.Path("/synthetic/repository/./plugins/.."),
+  )
+  inspect(root.path.to_string(), content="/synthetic/repository")
+}
+
+///|
+test "RepositoryRoot RepositoryRoot - reports a normalized relative path" {
+  let relative = @path.Path("repository/../relative")
+  try RepositoryRoot::RepositoryRoot(relative) catch {
+    RepositoryRootError::RelativeRepositoryRoot(path~) =>
+      inspect(path.to_string(), content="relative")
+  } noraise {
+    _ => fail("relative repository root must fail")
+  }
+}
+
+///|
 async test "MarketplaceResolution resolve_marketplace_skills - preserves plugin and sorted skill order" {
   @async.with_task_group() <| group => {
     let root : @path.Path = @fs.tmpdir(prefix="c-plugin-v2-resolution-")
@@ -38,7 +57,10 @@ async test "MarketplaceResolution resolve_marketplace_skills - preserves plugin 
       ("plugin-b", "plugins/b"),
       ("plugin-a", "plugins/a"),
     ])
-    let resolved = resolve_marketplace_skills(root, marketplace)
+    let resolved = resolve_marketplace_skills(
+      RepositoryRoot::RepositoryRoot(root),
+      marketplace,
+    )
     debug_inspect(
       resolved.map(skill => {
         "\{skill.plugin_name.value}|\{skill.plugin_path.path.to_string()}|\{skill.skill_name.value}|\{skill.skill_path.to_string()}"
@@ -66,15 +88,15 @@ async test "MarketplaceResolution resolve_marketplace_skills - consumes every M0
     let codex =
       #|{"name":"test","plugins":[{"name":"plugin","source":{"source":"local","path":"plugins/p"}}]}
     let claude = resolve_marketplace_skills(
-      root,
+      RepositoryRoot::RepositoryRoot(root),
       Marketplace::from_json(MarketplaceKind::claude(), @json.parse(strings)),
     )
     let cursor = resolve_marketplace_skills(
-      root,
+      RepositoryRoot::RepositoryRoot(root),
       Marketplace::from_json(MarketplaceKind::cursor(), @json.parse(strings)),
     )
     let codex_result = resolve_marketplace_skills(
-      root,
+      RepositoryRoot::RepositoryRoot(root),
       Marketplace::from_json(MarketplaceKind::codex(), @json.parse(codex)),
     )
     inspect(claude == cursor && cursor == codex_result, content="true")
@@ -88,7 +110,7 @@ async test "MarketplaceResolution resolve_marketplace_skills - missing skills di
     group.add_defer(() => @fs.rmdir(root.to_string(), recursive=true))
     create_test_skill(root, "plugins/later", "valid")
     let resolved = resolve_marketplace_skills(
-      root,
+      RepositoryRoot::RepositoryRoot(root),
       test_marketplace([
         ("missing", "plugins/missing"),
         ("later", "plugins/later"),
@@ -114,7 +136,7 @@ async test "MarketplaceResolution resolve_marketplace_skills - filters non-skill
       create_mode=CreateNew,
     )
     let resolved = resolve_marketplace_skills(
-      root,
+      RepositoryRoot::RepositoryRoot(root),
       test_marketplace([("plugin", "plugins/p")]),
     )
     inspect(resolved.length(), content="1")
@@ -130,7 +152,7 @@ async test "MarketplaceResolution resolve_marketplace_skills - shared names acro
     create_test_skill(root, "plugins/a", "shared")
     create_test_skill(root, "plugins/b", "shared")
     let resolved = resolve_marketplace_skills(
-      root,
+      RepositoryRoot::RepositoryRoot(root),
       test_marketplace([("a", "plugins/a"), ("b", "plugins/b")]),
     )
     debug_inspect(
@@ -149,7 +171,7 @@ async test "MarketplaceResolution resolve_marketplace_skills - invalid discovere
     let candidate = root.join("plugins/p/skills").join("bad\\name")
     try
       resolve_marketplace_skills(
-        root,
+        RepositoryRoot::RepositoryRoot(root),
         test_marketplace([("plugin", "plugins/p")]),
       )
     catch {
@@ -172,7 +194,7 @@ async test "MarketplaceResolution resolve_marketplace_skills - file at skills pa
     @fs.write_file(skills.to_string(), "file", create_mode=CreateNew)
     try
       resolve_marketplace_skills(
-        root,
+        RepositoryRoot::RepositoryRoot(root),
         test_marketplace([("plugin", "plugins/p")]),
       )
     catch {
@@ -198,7 +220,10 @@ async test "MarketplaceResolution resolve_marketplace_skills - input and output 
       ),
     ]
     let marketplace = Marketplace::Marketplace("test", caller)
-    let resolved = resolve_marketplace_skills(root, marketplace)
+    let resolved = resolve_marketplace_skills(
+      RepositoryRoot::RepositoryRoot(root),
+      marketplace,
+    )
     caller.clear()
     inspect(marketplace.plugins.length(), content="1")
     inspect(resolved.length(), content="1")
@@ -214,8 +239,14 @@ async test "MarketplaceResolution resolve_marketplace_skills - normalizes dotted
     create_test_skill(root, "plugins/p", "stable")
     let marketplace = test_marketplace([("plugin", "plugins/p")])
     inspect(
-      resolve_marketplace_skills(root, marketplace) ==
-      resolve_marketplace_skills(root.join("."), marketplace),
+      resolve_marketplace_skills(
+        RepositoryRoot::RepositoryRoot(root),
+        marketplace,
+      ) ==
+      resolve_marketplace_skills(
+        RepositoryRoot::RepositoryRoot(root.join(".")),
+        marketplace,
+      ),
       content="true",
     )
   }
@@ -232,7 +263,7 @@ async test "MarketplaceResolution resolve_marketplace_skills - does not suppress
     @fs.write_file(invalid.to_string(), "file", create_mode=CreateNew)
     try
       resolve_marketplace_skills(
-        root,
+        RepositoryRoot::RepositoryRoot(root),
         test_marketplace([("good", "plugins/good"), ("bad", "plugins/bad")]),
       )
     catch {
@@ -242,17 +273,5 @@ async test "MarketplaceResolution resolve_marketplace_skills - does not suppress
     } noraise {
       _ => fail("IO must not become partial success")
     }
-  }
-}
-
-///|
-async test "MarketplaceResolution resolve_marketplace_skills - rejects relative repository root" {
-  let relative = @path.Path("relative/repository")
-  try resolve_marketplace_skills(relative, test_marketplace([])) catch {
-    SkillResolutionError::RelativeRepositoryRoot(path~) =>
-      inspect(path == relative, content="true")
-    _ => fail("expected RelativeRepositoryRoot")
-  } noraise {
-    _ => fail("relative root must fail")
   }
 }
