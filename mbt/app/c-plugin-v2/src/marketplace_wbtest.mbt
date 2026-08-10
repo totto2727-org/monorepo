@@ -62,6 +62,69 @@ test "format-specific marketplace models decode complete validated values" {
 }
 
 ///|
+test "ClaudeMarketplace ToJson - emits canonical minimal JSON and roundtrips in declaration order" {
+  let text =
+    #|{"plugins":[{"source":"./plugins/first","name":"first"},{"source":"plugins/second","name":"second"}],"name":"test","description":"ignored"}
+  let marketplace : ClaudeMarketplace = @json.from_json(@json.parse(text))
+  let encoded = ToJson::to_json(marketplace)
+  @json.json_inspect(encoded, content={
+    "name": "test",
+    "plugins": [
+      { "name": "first", "source": "plugins/first" },
+      { "name": "second", "source": "plugins/second" },
+    ],
+  })
+  let decoded : ClaudeMarketplace = @json.from_json(encoded)
+  @json.json_inspect(ToJson::to_json(decoded), content={
+    "name": "test",
+    "plugins": [
+      { "name": "first", "source": "plugins/first" },
+      { "name": "second", "source": "plugins/second" },
+    ],
+  })
+}
+
+///|
+test "CursorMarketplace ToJson - emits canonical minimal JSON and roundtrips" {
+  let text =
+    #|{"name":"test","plugins":[{"name":"first","source":"plugins/first"}]}
+  let marketplace : CursorMarketplace = @json.from_json(@json.parse(text))
+  let encoded = ToJson::to_json(marketplace)
+  let decoded : CursorMarketplace = @json.from_json(encoded)
+  @json.json_inspect(ToJson::to_json(decoded), content={
+    "name": "test",
+    "plugins": [{ "name": "first", "source": "plugins/first" }],
+  })
+}
+
+///|
+test "CodexMarketplace ToJson - emits canonical minimal JSON and roundtrips" {
+  let text =
+    #|{"plugins":[{"source":{"path":"./plugins/first","source":"local"},"name":"first","category":"ignored"}],"name":"test"}
+  let marketplace : CodexMarketplace = @json.from_json(@json.parse(text))
+  let encoded = ToJson::to_json(marketplace)
+  @json.json_inspect(encoded, content={
+    "name": "test",
+    "plugins": [
+      {
+        "name": "first",
+        "source": { "source": "local", "path": "plugins/first" },
+      },
+    ],
+  })
+  let decoded : CodexMarketplace = @json.from_json(encoded)
+  @json.json_inspect(ToJson::to_json(decoded), content={
+    "name": "test",
+    "plugins": [
+      {
+        "name": "first",
+        "source": { "source": "local", "path": "plugins/first" },
+      },
+    ],
+  })
+}
+
+///|
 test "Marketplace FromJson - malformed required field preserves JSON path" {
   let text =
     #|{"name":"test","plugins":[{"source":"./plugins/first"}]}
