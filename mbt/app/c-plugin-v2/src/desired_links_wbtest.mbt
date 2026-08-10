@@ -331,7 +331,7 @@ test "DesiredLinks plan_desired_skill_links - empty roots or repositories produc
 }
 
 ///|
-test "DesiredLinks plan_desired_skill_links - propagates an invalid resolved skill path" {
+test "DesiredLinks plan_desired_skill_links - reports invalid resolved skill path context" {
   let skill_name = SkillName::SkillName("install")
   let repository = desired_links_local_repository([skill_name])
   let invalid_skill : ResolvedSkill = {
@@ -355,9 +355,41 @@ test "DesiredLinks plan_desired_skill_links - propagates an invalid resolved ski
       ]),
     )
   catch {
-    Failure::Failure(_) => ()
+    InvalidDesiredEntry(
+      stage~,
+      repository=actual_repository,
+      managed_root~,
+      skill=actual_skill,
+      skill_path~
+    ) => {
+      inspect(
+        stage == DesiredEntryConstructionStage::ResolvedTarget,
+        content="true",
+      )
+      inspect(actual_repository == repository.identity(), content="true")
+      inspect(managed_root.to_string(), content="/tmp/managed")
+      inspect(actual_skill == skill_name, content="true")
+      inspect(skill_path.to_string(), content="relative/skill")
+    }
     error => raise error
   } noraise {
     _ => fail("invalid resolved skill path must raise")
+  }
+}
+
+///|
+test "DesiredLinks desired_ownership_state - reports invalid ownership state link context" {
+  let root = ManagedSkillRoot::ManagedSkillRoot(@path.Path("/tmp/managed"))
+  let repository = desired_links_local_repository([
+    SkillName::SkillName("install"),
+  ])
+  let skill = desired_links_resolved_skill(@path.Path("/tmp"), "install")
+  let entry = desired_entry(root, repository, skill)
+  try desired_ownership_state([entry, entry]) catch {
+    InvalidOwnershipState(link~) =>
+      inspect(link.to_string(), content="/tmp/managed/install")
+    error => raise error
+  } noraise {
+    _ => fail("duplicate desired ownership link must raise")
   }
 }

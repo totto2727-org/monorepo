@@ -67,6 +67,34 @@ pub enum OwnershipSource {
 } derive(Eq)
 
 ///|
+pub(all) suberror OwnershipLinkError {
+  RelativeOwnershipLink(path~ : @path.Path)
+}
+
+///|
+pub(all) suberror OwnershipResolvedTargetError {
+  RelativeOwnershipResolvedTarget(path~ : @path.Path)
+}
+
+///|
+pub(all) suberror OwnershipManagedRootError {
+  RelativeOwnershipManagedRoot(path~ : @path.Path)
+}
+
+///|
+pub(all) suberror OwnershipEntryError {
+  OwnershipLinkOutsideManagedRoot(
+    link~ : @path.Path,
+    managed_root~ : @path.Path
+  )
+}
+
+///|
+pub(all) suberror OwnershipStateError {
+  DuplicateOwnershipLink(link~ : @path.Path)
+}
+
+///|
 pub impl Compare for OwnershipSource with fn compare(self, other) {
   match (self, other) {
     (GitHub(left), GitHub(right)) => left.compare(right)
@@ -111,8 +139,10 @@ pub struct OwnershipLink {
 } derive(Eq)
 
 ///|
-pub fn OwnershipLink::OwnershipLink(path : @path.Path) -> OwnershipLink raise {
-  guard path.is_absolute() else { fail("ownership link must be absolute") }
+pub fn OwnershipLink::OwnershipLink(
+  path : @path.Path,
+) -> OwnershipLink raise OwnershipLinkError {
+  guard path.is_absolute() else { raise RelativeOwnershipLink(path~) }
   { path: path.normalize() }
 }
 
@@ -129,10 +159,8 @@ pub struct OwnershipResolvedTarget {
 ///|
 pub fn OwnershipResolvedTarget::OwnershipResolvedTarget(
   path : @path.Path,
-) -> OwnershipResolvedTarget raise {
-  guard path.is_absolute() else {
-    fail("ownership resolved target must be absolute")
-  }
+) -> OwnershipResolvedTarget raise OwnershipResolvedTargetError {
+  guard path.is_absolute() else { raise RelativeOwnershipResolvedTarget(path~) }
   { path: path.normalize() }
 }
 
@@ -149,10 +177,8 @@ pub struct OwnershipManagedRoot {
 ///|
 pub fn OwnershipManagedRoot::OwnershipManagedRoot(
   path : @path.Path,
-) -> OwnershipManagedRoot raise {
-  guard path.is_absolute() else {
-    fail("ownership managed root must be absolute")
-  }
+) -> OwnershipManagedRoot raise OwnershipManagedRootError {
+  guard path.is_absolute() else { raise RelativeOwnershipManagedRoot(path~) }
   { path: path.normalize() }
 }
 
@@ -177,9 +203,12 @@ pub fn OwnershipEntry::OwnershipEntry(
   resolved_target : OwnershipResolvedTarget,
   managed_root : OwnershipManagedRoot,
   source : OwnershipSource,
-) -> OwnershipEntry raise {
+) -> OwnershipEntry raise OwnershipEntryError {
   guard link.path.dirname() == managed_root.path else {
-    fail("ownership link must be a direct child of its managed root")
+    raise OwnershipLinkOutsideManagedRoot(
+      link=link.path,
+      managed_root=managed_root.path,
+    )
   }
   { link, symlink_target, resolved_target, managed_root, source }
 }
@@ -242,12 +271,17 @@ pub impl Hash for OwnershipLinkIdentity with fn hash_combine(self, hasher) {
 ///|
 pub fn OwnershipState::OwnershipState(
   entries : Array[OwnershipEntry],
-) -> OwnershipState raise {
-  let stored_entries = @immut_hashmap.HashMap(
-    entries.map(entry => (OwnershipLinkIdentity(entry.link.path), entry)),
-  )
-  guard stored_entries.length() == entries.length() else {
-    fail("ownership links must be unique")
+) -> OwnershipState raise OwnershipStateError {
+  let mut stored_entries : @immut_hashmap.HashMap[
+    OwnershipLinkIdentity,
+    OwnershipEntry,
+  ] = @immut_hashmap.HashMap([])
+  for entry in entries {
+    let identity = OwnershipLinkIdentity(entry.link.path)
+    guard stored_entries.get(identity) is None else {
+      raise DuplicateOwnershipLink(link=entry.link.path)
+    }
+    stored_entries = stored_entries.add(identity, entry)
   }
   { version: 1, entries: stored_entries }
 }

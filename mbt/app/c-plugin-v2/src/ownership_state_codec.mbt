@@ -137,7 +137,8 @@ pub impl ToJson for OwnershipSource with fn to_json(self) -> Json {
 pub impl FromJson for OwnershipLink with fn from_json(json, path) {
   let value : String = @json.from_json(json, path~)
   OwnershipLink::OwnershipLink(@path.Path(value)) catch {
-    _ => raise @json.JsonDecodeError((path, "ownership link must be absolute"))
+    RelativeOwnershipLink(_) =>
+      raise @json.JsonDecodeError((path, "ownership link must be absolute"))
   }
 }
 
@@ -150,7 +151,7 @@ pub impl ToJson for OwnershipLink with fn to_json(self) -> Json {
 pub impl FromJson for OwnershipResolvedTarget with fn from_json(json, path) {
   let value : String = @json.from_json(json, path~)
   OwnershipResolvedTarget::OwnershipResolvedTarget(@path.Path(value)) catch {
-    _ =>
+    RelativeOwnershipResolvedTarget(_) =>
       raise @json.JsonDecodeError(
         (path, "ownership resolved target must be absolute"),
       )
@@ -166,7 +167,7 @@ pub impl ToJson for OwnershipResolvedTarget with fn to_json(self) -> Json {
 pub impl FromJson for OwnershipManagedRoot with fn from_json(json, path) {
   let value : String = @json.from_json(json, path~)
   OwnershipManagedRoot::OwnershipManagedRoot(@path.Path(value)) catch {
-    _ =>
+    RelativeOwnershipManagedRoot(_) =>
       raise @json.JsonDecodeError(
         (path, "ownership managed root must be absolute"),
       )
@@ -202,7 +203,7 @@ pub impl FromJson for OwnershipEntry with fn from_json(json, path) {
     managed_root,
     source,
   ) catch {
-    _ =>
+    OwnershipLinkOutsideManagedRoot(..) =>
       raise ownership_entry_link_lens.json_decode_error(
         path, "ownership link must be a direct child of its managed root",
       )
@@ -249,7 +250,7 @@ pub impl FromJson for OwnershipState with fn from_json(json, path) {
     path=ownership_state_entries_lens.add_to_json_path(path),
   )
   OwnershipState::OwnershipState(entries) catch {
-    _ =>
+    DuplicateOwnershipLink(_) =>
       raise ownership_state_entries_lens.json_decode_error(
         path, "ownership links must be unique",
       )

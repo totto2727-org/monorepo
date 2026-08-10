@@ -75,6 +75,26 @@ pub(all) struct DesiredLinkPlan {
 }
 
 ///|
+pub(all) enum DesiredEntryConstructionStage {
+  Link
+  ResolvedTarget
+  ManagedRoot
+  Entry
+} derive(Debug, Eq)
+
+///|
+pub(all) suberror DesiredLinkPlanningError {
+  InvalidDesiredEntry(
+    stage~ : DesiredEntryConstructionStage,
+    repository~ : RepositoryIdentity,
+    managed_root~ : @path.Path,
+    skill~ : SkillName,
+    skill_path~ : @path.Path
+  )
+  InvalidOwnershipState(link~ : @path.Path)
+}
+
+///|
 struct DesiredLinkCandidate {
   repository : RepositoryIdentity
   entry : OwnershipEntry
@@ -121,24 +141,73 @@ fn desired_entry(
   root : ManagedSkillRoot,
   repository : LockRepository,
   skill : ResolvedSkill,
-) -> OwnershipEntry raise {
-  let link = OwnershipLink::OwnershipLink(
-    root.path.join(skill.skill_name.value),
-  )
+) -> OwnershipEntry raise DesiredLinkPlanningError {
+  let repository_identity = repository.identity()
+  let link_path = root.path.join(skill.skill_name.value)
+  let link = OwnershipLink::OwnershipLink(link_path) catch {
+    RelativeOwnershipLink(_) =>
+      raise InvalidDesiredEntry(
+        stage=Link,
+        repository=repository_identity,
+        managed_root=root.path,
+        skill=skill.skill_name,
+        skill_path=skill.skill_path,
+      )
+  }
+  let resolved_target = OwnershipResolvedTarget::OwnershipResolvedTarget(
+    skill.skill_path,
+  ) catch {
+    RelativeOwnershipResolvedTarget(_) =>
+      raise InvalidDesiredEntry(
+        stage=ResolvedTarget,
+        repository=repository_identity,
+        managed_root=root.path,
+        skill=skill.skill_name,
+        skill_path=skill.skill_path,
+      )
+  }
+  let managed_root = OwnershipManagedRoot::OwnershipManagedRoot(root.path) catch {
+    RelativeOwnershipManagedRoot(_) =>
+      raise InvalidDesiredEntry(
+        stage=ManagedRoot,
+        repository=repository_identity,
+        managed_root=root.path,
+        skill=skill.skill_name,
+        skill_path=skill.skill_path,
+      )
+  }
   OwnershipEntry::OwnershipEntry(
     link,
     skill.skill_path.relative(base=root.path),
-    OwnershipResolvedTarget::OwnershipResolvedTarget(skill.skill_path),
-    OwnershipManagedRoot::OwnershipManagedRoot(root.path),
+    resolved_target,
+    managed_root,
     ownership_source(repository, skill),
-  )
+  ) catch {
+    OwnershipLinkOutsideManagedRoot(..) =>
+      raise InvalidDesiredEntry(
+        stage=Entry,
+        repository=repository_identity,
+        managed_root=root.path,
+        skill=skill.skill_name,
+        skill_path=skill.skill_path,
+      )
+  }
+}
+
+///|
+fn desired_ownership_state(
+  entries : Array[OwnershipEntry],
+) -> OwnershipState raise DesiredLinkPlanningError {
+  OwnershipState::OwnershipState(entries) catch {
+    DuplicateOwnershipLink(link~) => raise InvalidOwnershipState(link~)
+  }
 }
 
 ///|
 pub fn plan_desired_skill_links(
   managed_roots : @immut_hashset.HashSet[ManagedSkillRoot],
   repositories : RepositorySkillResolutions,
-) -> DesiredLinkPlan raise {
+) -> DesiredLinkPlan raise DesiredLinkPlanningError {
   let mut candidates : @immut_hashmap.HashMap[
     OwnershipLinkIdentity,
     DesiredLinkCandidate,
@@ -181,7 +250,7 @@ pub fn plan_desired_skill_links(
   }
   let entries = candidates.to_array().map(pair => pair.1.entry)
   {
-    ownership_state: OwnershipState::OwnershipState(entries),
+    ownership_state: desired_ownership_state(entries),
     unavailable_repositories: unavailable,
   }
 }
