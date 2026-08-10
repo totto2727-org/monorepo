@@ -14,12 +14,15 @@ test "RuntimePaths project paths - derive lock ownership state and managed skill
     "/synthetic/home", "/synthetic/work", "/synthetic/cache/repositories",
   )
   let project_root : @path.Path = "/synthetic/work/project/./plugin"
+  let ownership_state_path : OwnershipStatePath = paths.project_ownership_state_path(
+    project_root,
+  )
   inspect(
     paths.project_lock_path(project_root).to_string(),
     content="/synthetic/work/project/plugin/c-plugin-lock.json",
   )
   inspect(
-    paths.project_ownership_state_path(project_root).to_string(),
+    ownership_state_path.path.to_string(),
     content="/synthetic/work/project/plugin/.agents/c-plugin-state.json",
   )
   inspect(
@@ -33,12 +36,13 @@ test "RuntimePaths global paths - derive all paths below synthetic home" {
   let paths = RuntimePaths::RuntimePaths(
     "/synthetic/home/./user", "/synthetic/work", "/synthetic/cache/repositories",
   )
+  let ownership_state_path : OwnershipStatePath = paths.global_ownership_state_path()
   inspect(
     paths.global_lock_path().to_string(),
     content="/synthetic/home/user/c-plugin-lock.json",
   )
   inspect(
-    paths.global_ownership_state_path().to_string(),
+    ownership_state_path.path.to_string(),
     content="/synthetic/home/user/.agents/c-plugin-state.json",
   )
   inspect(
