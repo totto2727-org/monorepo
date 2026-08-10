@@ -15,6 +15,12 @@ description: >-
 
 Express invariants in the type system whenever possible. Preserve paths, identifiers, commands, and domain payloads as specific structural values while they cross application layers. Keep generic JSON at serialization boundaries, and convert structural values to text only when an external protocol or display requires it.
 
+## Single-value invariants
+
+When a value must satisfy a condition independently of other values, consider representing that condition with a dedicated type. Validate and normalize raw input in the type's constructor or an equivalent factory, then pass the validated value through internal layers. Examples include an integer constrained to a fixed range and a path that must always be absolute. Do not repeat the same validation in each function that consumes the value; scattered checks reduce readability and make omissions likely.
+
+Keep rules that describe a relationship between multiple values in the function or domain policy that owns that relationship. Do not force a contextual relationship into a type that represents only one value.
+
 ## Collection invariants
 
 Do not construct a unique array with manual `contains`, `filter`, `fold`, or a local deduplication helper. When uniqueness is a domain invariant, store the values in a collection whose type guarantees uniqueness. Prefer the language's `Set` or a library set such as Effect `HashSet` for TypeScript and `@immut/hashset` or `@immut/sorted_set` for MoonBit. Convert the set to an array only at a consumer or API boundary that requires a sequence, such as serialization, presentation, interoperability, or a detached public snapshot.
@@ -28,6 +34,26 @@ If a private array exists only to stop callers from mutating it, prefer a readon
 ## Strict boundary conversion
 
 Keep untrusted or weakly typed values at the boundary where they enter or leave the program. Convert an external response into a wire model, convert the wire model into a validated domain model, convert the domain model into an outbound request model, and serialize only that request model. Apply the same rule to library values whose types are too broad to preserve domain invariants. Do not pass `any`, generic JSON, stringly typed identifiers, or parser contexts through internal application layers.
+
+## Path form invariants
+
+When internal code expects a specific path form, validate and normalize external raw paths or strings in a constructor or equivalent factory before passing them into internal layers. Represent relative paths such as `./...` or `../...`, absolute paths, and URI forms such as `file://...` with types that preserve their distinct invariants. Keep filesystem paths and URIs separate; validate a URI scheme before constructing its domain type. Do not repeat checks such as `is_absolute` in terminal functions.
+
+For example, normalize a MoonBit `Path` before checking and storing its absolute-path invariant:
+
+```mbt check
+pub struct AbsolutePath {
+  path : @path.Path
+}
+
+pub fn AbsolutePath::AbsolutePath(path : @path.Path) -> AbsolutePath raise {
+  let normalized = path.normalize()
+  guard normalized.is_absolute() else {
+    fail("absolute path required")
+  }
+  { path: normalized }
+}
+```
 
 ## State models
 
