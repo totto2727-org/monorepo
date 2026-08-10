@@ -30,6 +30,7 @@ fn state_without_entry(
 fn state_store_error_reason(error : StateStoreError) -> String {
   match error {
     AlreadyExists(path~) => "already exists: \{path.to_string()}"
+    NotFound(path~) => "not found: \{path.to_string()}"
     Decode(reason~, path=_) | IO(reason~, path=_) => reason
   }
 }

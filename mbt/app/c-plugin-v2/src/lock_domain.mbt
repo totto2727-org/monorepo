@@ -99,7 +99,7 @@ pub impl Hash for Target with fn hash_combine(self, hasher) {
 
 ///|
 pub fn Target::Target(path : @path.Path) -> Target raise {
-  guard path.to_string() != "" else { fail("target path must not be empty") }
+  validate_relative_path(path, "target path")
   { path: path.normalize() }
 }
 
