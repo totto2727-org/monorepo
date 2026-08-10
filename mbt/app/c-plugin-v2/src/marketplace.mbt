@@ -76,6 +76,18 @@ impl @json.FromJson for ClaudeMarketplace with fn from_json(json, path) {
 }
 
 ///|
+/// Encode the canonical minimal Claude/Cursor marketplace shape. Plugin declaration order is preserved and unmodeled input metadata is omitted.
+pub impl ToJson for ClaudeMarketplace with fn to_json(self) {
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  marketplace_name_lens.set_or_abort(builder, self.name.to_json())
+  marketplace_plugins_lens.set_or_abort(
+    builder,
+    self.plugins.iter().to_array().to_json(),
+  )
+  builder.to_json()
+}
+
+///|
 #alias(CursorMarketplacePlugin)
 struct ClaudeMarketplacePlugin {
   name : PluginName
@@ -91,6 +103,14 @@ impl @json.FromJson for ClaudeMarketplacePlugin with fn from_json(json, path) {
     json, path,
   )
   { name, source }
+}
+
+///|
+pub impl ToJson for ClaudeMarketplacePlugin with fn to_json(self) {
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  marketplace_plugin_name_lens.set_or_abort(builder, self.name.to_json())
+  marketplace_plugin_source_lens.set_or_abort(builder, self.source.to_json())
+  builder.to_json()
 }
 
 ///|
@@ -118,6 +138,18 @@ impl @json.FromJson for CodexMarketplace with fn from_json(json, path) {
 }
 
 ///|
+/// Encode the canonical minimal Codex marketplace shape. Plugin declaration order is preserved and unmodeled input metadata is omitted.
+pub impl ToJson for CodexMarketplace with fn to_json(self) {
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  marketplace_name_lens.set_or_abort(builder, self.name.to_json())
+  marketplace_plugins_lens.set_or_abort(
+    builder,
+    self.plugins.iter().to_array().to_json(),
+  )
+  builder.to_json()
+}
+
+///|
 struct CodexMarketplacePlugin {
   name : PluginName
   source : CodexMarketplaceSource
@@ -132,6 +164,17 @@ impl @json.FromJson for CodexMarketplacePlugin with fn from_json(json, path) {
     json, path,
   )
   { name, source }
+}
+
+///|
+pub impl ToJson for CodexMarketplacePlugin with fn to_json(self) {
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  marketplace_plugin_name_lens.set_or_abort(builder, self.name.to_json())
+  marketplace_plugin_source_lens.set_or_abort(
+    builder,
+    ToJson::to_json(self.source),
+  )
+  builder.to_json()
 }
 
 ///|
@@ -158,6 +201,13 @@ impl @json.FromJson for CodexMarketplaceSourceKind with fn from_json(json, path)
 }
 
 ///|
+pub impl ToJson for CodexMarketplaceSourceKind with fn to_json(self) {
+  match self {
+    CodexMarketplaceSourceKind::Local => "local".to_json()
+  }
+}
+
+///|
 impl @json.FromJson for CodexMarketplaceSource with fn from_json(json, path) {
   let source : CodexMarketplaceSourceKind = codex_source_kind_lens.decode_from_json(
     json, path,
@@ -166,6 +216,14 @@ impl @json.FromJson for CodexMarketplaceSource with fn from_json(json, path) {
     json, path,
   )
   { source, path: plugin_path }
+}
+
+///|
+pub impl ToJson for CodexMarketplaceSource with fn to_json(self) {
+  let builder = @lens.JsonBuilder::JsonBuilder()
+  codex_source_kind_lens.set_or_abort(builder, ToJson::to_json(self.source))
+  codex_source_path_lens.set_or_abort(builder, self.path.to_json())
+  builder.to_json()
 }
 
 ///|
