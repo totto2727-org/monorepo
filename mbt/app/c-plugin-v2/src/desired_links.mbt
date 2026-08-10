@@ -26,6 +26,40 @@ pub(all) enum RepositorySkillResolution {
 }
 
 ///|
+pub struct RepositorySkillResolutions {
+  entries : @immut_hashmap.HashMap[
+    RepositoryIdentity,
+    RepositorySkillResolution,
+  ]
+}
+
+///|
+pub(all) suberror RepositorySkillResolutionsError {
+  DuplicateRepositoryIdentity(identity~ : RepositoryIdentity)
+}
+
+///|
+pub fn RepositorySkillResolutions::RepositorySkillResolutions(
+  resolutions : Array[RepositorySkillResolution],
+) -> RepositorySkillResolutions raise RepositorySkillResolutionsError {
+  let mut entries : @immut_hashmap.HashMap[
+    RepositoryIdentity,
+    RepositorySkillResolution,
+  ] = @immut_hashmap.HashMap([])
+  for resolution in resolutions {
+    let identity = match resolution {
+      Available(repository~, skills=_) | Unavailable(repository~, reason=_) =>
+        repository.identity()
+    }
+    guard entries.get(identity) is None else {
+      raise DuplicateRepositoryIdentity(identity~)
+    }
+    entries = entries.add(identity, resolution)
+  }
+  { entries, }
+}
+
+///|
 pub(all) struct RepositoryUnavailable {
   repository : RepositoryIdentity
   reason : String
@@ -38,14 +72,6 @@ pub(all) struct DesiredLinkPlan {
     RepositoryIdentity,
     RepositoryUnavailable,
   ]
-}
-
-///|
-pub(all) suberror DesiredLinkPlanningError {
-  RepositoryIdentityMismatch(
-    expected~ : RepositoryIdentity,
-    actual~ : RepositoryIdentity
-  )
 }
 
 ///|
@@ -111,20 +137,8 @@ fn desired_entry(
 ///|
 pub fn plan_desired_skill_links(
   managed_roots : @immut_hashset.HashSet[ManagedSkillRoot],
-  repositories : @immut_hashmap.HashMap[
-    RepositoryIdentity,
-    RepositorySkillResolution,
-  ],
+  repositories : RepositorySkillResolutions,
 ) -> DesiredLinkPlan raise {
-  for pair in repositories.to_array() {
-    let actual = match pair.1 {
-      Available(repository~, skills=_) | Unavailable(repository~, reason=_) =>
-        repository.identity()
-    }
-    guard pair.0 == actual else {
-      raise RepositoryIdentityMismatch(expected=pair.0, actual~)
-    }
-  }
   let mut candidates : @immut_hashmap.HashMap[
     OwnershipLinkIdentity,
     DesiredLinkCandidate,
@@ -133,7 +147,7 @@ pub fn plan_desired_skill_links(
     RepositoryIdentity,
     RepositoryUnavailable,
   ] = @immut_hashmap.HashMap([])
-  for pair in repositories.to_array() {
+  for pair in repositories.entries.to_array() {
     match pair.1 {
       Unavailable(repository~, reason~) => {
         let identity = repository.identity()
