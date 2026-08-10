@@ -1,4 +1,25 @@
 ///|
+pub(all) suberror RepositoryRootError {
+  RelativeRepositoryRoot(path~ : @path.Path)
+} derive(Debug, Eq)
+
+///|
+pub struct RepositoryRoot {
+  path : @path.Path
+} derive(Eq)
+
+///|
+pub fn RepositoryRoot::RepositoryRoot(
+  path : @path.Path,
+) -> RepositoryRoot raise RepositoryRootError {
+  let normalized = path.normalize()
+  guard normalized.is_absolute() else {
+    raise RelativeRepositoryRoot(path=normalized)
+  }
+  { path: normalized }
+}
+
+///|
 pub struct ResolvedSkill {
   plugin_name : PluginName
   plugin_path : RelativePluginPath
@@ -8,23 +29,18 @@ pub struct ResolvedSkill {
 
 ///|
 pub(all) suberror SkillResolutionError {
-  RelativeRepositoryRoot(path~ : @path.Path)
   IO(path~ : @path.Path, reason~ : String)
   InvalidSkillName(path~ : @path.Path, reason~ : String)
 } derive(Debug, Eq)
 
 ///|
 pub async fn resolve_marketplace_skills(
-  repository_root : @path.Path,
+  repository_root : RepositoryRoot,
   marketplace : Marketplace,
 ) -> ReadOnlyArray[ResolvedSkill] raise SkillResolutionError {
-  guard repository_root.is_absolute() else {
-    raise RelativeRepositoryRoot(path=repository_root)
-  }
-  let normalized_root = repository_root.normalize()
   let resolved = []
   for plugin in marketplace.plugins {
-    let plugin_skills = resolve_plugin_skills(normalized_root, plugin)
+    let plugin_skills = resolve_plugin_skills(repository_root, plugin)
     resolved.push_iter(plugin_skills.iter())
   }
   ReadOnlyArray::from_array(resolved)
@@ -32,10 +48,12 @@ pub async fn resolve_marketplace_skills(
 
 ///|
 async fn resolve_plugin_skills(
-  repository_root : @path.Path,
+  repository_root : RepositoryRoot,
   plugin : MarketplacePlugin,
 ) -> Array[ResolvedSkill] raise SkillResolutionError {
-  let skills_directory = repository_root.join(plugin.path.path).join("skills")
+  let skills_directory = repository_root.path
+    .join(plugin.path.path)
+    .join("skills")
   let entries = @fs.readdir(
     skills_directory.to_string(),
     include_hidden=false,
