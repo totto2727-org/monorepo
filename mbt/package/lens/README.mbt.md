@@ -38,20 +38,23 @@ test {
 }
 ```
 
-A raw JSON lens can decode any type implementing the standard `FromJson` trait while preserving the selected path in nested decode errors.
+A custom lens can read and write any type implementing the standard `FromJson` and `ToJson` traits. `get_or_json_decode_error` preserves the selected path in nested decode errors, and `set` delegates serialization to `ToJson`.
 
 ```mbt check
 struct Repository {
   owner : String
-} derive(FromJson)
+} derive(FromJson, ToJson)
 
 fn decode_repository(
   document : Json,
   path : @json.JsonPath,
 ) -> Repository raise @json.JsonDecodeError {
-  root().json("repository").decode_from_json(document, path)
+  let repository : Lens[Repository] = root().custom("repository")
+  repository.get_or_json_decode_error(document, path)
 }
 ```
+
+Use `ObjectLens::json` when the selected value must remain raw `Json`. Use `ObjectLens::custom` when the application type owns both its standard JSON decoding and encoding contract. `Lens[Json]::decode_from_json` remains available for read-only types that implement `FromJson` but not `ToJson`.
 
 ## Typed construction
 

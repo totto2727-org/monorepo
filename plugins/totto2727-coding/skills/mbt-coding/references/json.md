@@ -16,7 +16,7 @@ Use `Map[String, Json]` only for a dynamic key set that cannot be expressed by s
 
 Use `totto2727/lens` to construct every known object shape inside a manual `ToJson` implementation. Define each complete output lens once at the top level with an explicit type annotation. Inside `to_json`, create a `JsonBuilder`, write values through the prebuilt lenses' `set_or_abort` operations, and return `builder.to_json()`. `ToJson::to_json` cannot propagate `JsonBuildError`; an encoding failure here is a conflicting static schema or serializer implementation defect. Keep ordinary fallible builder operations on `set`. Do not construct or compose a lens in `to_json` or another function body.
 
-Use typed primitive and array lenses directly. For a nested request type, convert the nested value only through its own `ToJson::to_json` implementation and write that result through a raw `Json` lens. Optional output fields use an `optional` or `nullish` lens according to the wire contract so omission and explicit `null` remain distinct. Applying `nullable`, `optional`, or `nullish` produces `PresenceLens[T]`; repeated presence combinators use the last call and must not be represented as nested option types. `PresenceLens::array()` always normalizes every item to nullable semantics: JSON `null` decodes to `None`, and `None` encodes as JSON `null` so the item index is preserved. Apply `optional` after `array` only when the entire array property is optional.
+Use typed primitive, array, and custom lenses directly. For a nested type implementing both `FromJson` and `ToJson`, define `Lens[T]` with `ObjectLens::custom` and write the typed value without manually converting it to `Json`. Use a raw `Json` lens only when the value intentionally remains unstructured or when an encoding-only type implements `ToJson` but not `FromJson`; in the latter case, convert the value only through `ToJson::to_json`. Optional output fields use an `optional` or `nullish` lens according to the wire contract so omission and explicit `null` remain distinct. Applying `nullable`, `optional`, or `nullish` produces `PresenceLens[T]`; repeated presence combinators use the last call and must not be represented as nested option types. `PresenceLens::array()` always normalizes every item to nullable semantics: JSON `null` decodes to `None`, and `None` encodes as JSON `null` so the item index is preserved. Apply `optional` after `array` only when the entire array property is optional.
 
 Static lenses do not model dynamic object keys, scalar roots, or enum discriminators. Those representations may use standard `ToJson` conversion or direct `Json` variants inside the owning `to_json` implementation. This exception does not permit a separate `T -> Json` helper.
 
@@ -28,19 +28,19 @@ Use `totto2727/lens` to select known object fields inside a manual `FromJson` im
 
 Define each complete lens at the top level with an explicit type annotation. Use `Lens[T]` for required values and `PresenceLens[T]` for values configured with `nullable`, `optional`, or `nullish`; the `PresenceLens` type parameter is the underlying `T`, not `T?`. Function bodies may call `get` on these prebuilt lenses, but must not construct lenses with `@lens.root`, `@lens.object`, or lens combinators such as `json`, `string`, `optional`, and `nullish`; rebuilding lens paths and decoders on every call adds avoidable runtime work. When a path is genuinely dynamic and cannot be predefined, access the unstructured `Json` directly instead of constructing a lens inside the function.
 
-Use `Lens::get_or_json_decode_error(document, path)` for the normal case where a failed selection must become a standard `JsonDecodeError`. When the selected value still needs standard decoding, pass `path=lens.add_to_json_path(path)` to `@json.from_json` so nested failures retain the complete location. Use `Lens::json_decode_error(path, message)` only for a custom validation or discriminator error that belongs to the selected lens location. Direct `Lens::get` with `catch` is reserved for intentional recovery such as a fallback or tolerant optional interpretation; do not use it merely to translate a failed read into `JsonDecodeError`.
+Use `ObjectLens::custom` and `Lens::get_or_json_decode_error(document, path)` when the selected type implements both `FromJson` and `ToJson`. The custom lens delegates decoding to standard `FromJson` with the complete selected path and delegates encoding to standard `ToJson`. For a read-only type implementing `FromJson` but not `ToJson`, use a raw `Lens[Json]` and call `Lens::decode_from_json(document, path)` so nested failures retain the complete location. Do not manually combine `get_or_json_decode_error`, `add_to_json_path`, and `@json.from_json` for either case. Use `Lens::json_decode_error(path, message)` only for a custom validation or discriminator error that belongs to the selected lens location. Direct `Lens::get` with `catch` is reserved for intentional recovery such as a fallback or tolerant optional interpretation; do not use it merely to translate a failed read into `JsonDecodeError`.
 
 Do not operate on `Pointer` directly. Pointer path conversion is an implementation detail used by the lens JSON-decoding helpers.
 
 ```mbt
 ///|
-let response_status_lens : @lens.Lens[Json] = @lens.root().json("status")
+let response_status_lens : @lens.Lens[Status] = @lens.root().custom("status")
 
 ///|
 pub impl @json.FromJson for Response with fn from_json(json, path) {
-  let status : Status = @json.from_json(
-    response_status_lens.get_or_json_decode_error(json, path),
-    path=response_status_lens.add_to_json_path(path),
+  let status = response_status_lens.get_or_json_decode_error(
+    json,
+    path,
   )
   { status }
 }

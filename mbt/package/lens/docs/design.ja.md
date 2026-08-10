@@ -185,17 +185,17 @@ pub struct Pointer {
 
 ```moonbit
 pub struct Decoder[T] {
-  priv decode_ : (Json) -> T raise DecodeProblem
+  priv decode_ : (Json, JsonPath?) -> T raise DecodeProblem
 }
 ```
 
-`DecodeProblem`は、pathに依存しない失敗情報を含むパッケージ非公開のサブエラーです。`Lens::get`はこれを捕捉し、選択されたpointerを付加して公開`Issue`を生成し、`LensError(issue)`を発生させます。
+すべてのdecoderは必須のoptional pathを受け取ります。`Lens::get`は`None`を渡し、JSON decode entry pointは`Some(selected_path)`を渡します。`DecodeProblem`は、構造化されたlens failureまたは標準`JsonDecodeError`のいずれかを保持するパッケージ非公開のsuberrorです。`Lens::get`はこれを公開`Issue`へ変換し、`get_or_json_decode_error`は保持した標準errorを返すか、構造化されたfailureを選択位置のpathで変換します。
 
-プリミティブデコーダーはJSON variant dispatchを直接行い、パッケージが安定した構造化エラーコードを提供できるようにします。デコーダー内の数値解析と変換はMoonBit coreに委譲します。application型では、`Lens[Json]::decode_from_json[T : FromJson]`がraw JSONを選択し、選択位置の`JsonPath`とともに標準`FromJson`へ直接委譲します。`Lens[T]`にはencoderも必要なため、このAPIは`Lens[T]` constructorではなくread bridgeです。
+プリミティブデコーダーはJSON variant dispatchを直接行い、パッケージが安定した構造化エラーコードを提供できるようにします。デコーダー内の数値解析と変換はMoonBit coreに委譲します。`ObjectLens::custom[T : FromJson + ToJson]`は標準`FromJson`へ委譲し、同じdecoder callbackを通じて選択位置のoptional `JsonPath`を転送します。通常の`Lens::get`では`JsonPath`がopaqueであるため、標準デコード失敗を選択済みLens pointerの`ExternalDecode`として報告します。一方、`get_or_json_decode_error`は標準デコーダーが返す正確な入れ子pathを保持します。arrayとpresence combinatorも、この単一callbackを通じてoptional pathを転送します。`ObjectLens::json`はraw `Json` accessorとして残し、`Lens[Json]::decode_from_json`は`ToJson`を持たない型向けのread-only bridgeとして残します。
 
 ### Encoder
 
-`Encoder[T]`は、型付き値を1つの具体的なJSON値へ変換します。プリミティブエンコーダーはMoonBit coreのJSONコンストラクターに委譲し、プロパティ省略は`Encoder`ではなく`PresenceLens::set`が担当します。JSON配列は後続indexをずらさずに欠落要素を含められないため、`PresenceLens::array`はすべてのpresence modeをencode/decodeともにnullableな項目意味論へ正規化します。JSON `null`は`None`へデコードされ、`None`はJSON `null`としてエンコードされます。
+`Encoder[T]`は、型付き値を1つの具体的なJSON値へ変換します。プリミティブエンコーダーはMoonBit coreのJSONコンストラクターへ、custom lensは標準`ToJson`へ委譲し、プロパティ省略は`Encoder`ではなく`PresenceLens::set`が担当します。JSON配列は後続indexをずらさずに欠落要素を含められないため、`PresenceLens::array`はすべてのpresence modeをencode/decodeともにnullableな項目意味論へ正規化します。JSON `null`は`None`へデコードされ、`None`はJSON `null`としてエンコードされます。
 
 presence combinatorには明示的なbuilder動作があります。
 
@@ -283,6 +283,11 @@ pub fn ObjectLens::json(
   Self,
   String,
 ) -> Lens[Json]
+
+pub fn ObjectLens::custom[T : FromJson + ToJson](
+  Self,
+  String,
+) -> Lens[T]
 
 pub fn ObjectLens::get(
   Self,
