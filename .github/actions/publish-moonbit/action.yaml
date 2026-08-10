@@ -18,7 +18,7 @@ inputs:
     description: >
       If true, runs `moon publish --dry-run` instead of `moon publish`.
     required: false
-    default: "false"
+    default: 'false'
 
 runs:
   using: composite
