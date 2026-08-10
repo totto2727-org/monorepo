@@ -1,0 +1,86 @@
+# Based on https://github.com/cogna-dev/moonbit-actions/blob/11d02666d9a2577ab0e692ea8f9e68507d0669a5/publish/action.yml
+name: Publish MoonBit package
+description: Publish a MoonBit package to the mooncakes.io registry, skipping an already-published version.
+
+inputs:
+  token:
+    description: >
+      API token for the mooncakes.io registry. Store this as a repository
+      secret and pass it as `secrets.MOONCAKES_TOKEN`.
+    required: true
+  package-path:
+    description: >
+      Path to the package directory that contains moon.pkg.
+      Defaults to the repository root.
+    required: false
+    default: .
+  dry-run:
+    description: >
+      If true, runs `moon publish --dry-run` instead of `moon publish`.
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Save credentials and publish package
+      shell: bash
+      working-directory: ${{ inputs.package-path }}
+      env:
+        MOONCAKES_TOKEN: ${{ inputs.token }}
+        PUBLISH_DRY_RUN: ${{ inputs.dry-run }}
+      run: |
+        set -euo pipefail
+
+        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
+
+        mkdir -p ~/.moon
+        tmp_credentials="$(mktemp -p ~/.moon credentials.json.XXXXXX)"
+        publish_log="$(mktemp)"
+        trap 'rm -f ~/.moon/credentials.json "$tmp_credentials" "$publish_log"' EXIT
+
+        chmod 600 "$tmp_credentials"
+        printf '%s' "$MOONCAKES_TOKEN" | base64 -d > "$tmp_credentials" || { echo "Failed to decode MOONCAKES_TOKEN (expected base64-encoded credentials)" >&2; exit 1; }
+        test -s "$tmp_credentials" || { echo "Decoded credentials file is empty" >&2; exit 1; }
+        mv -f "$tmp_credentials" ~/.moon/credentials.json
+
+        moon whoami
+        moon update
+
+        publish_args=()
+        case "${PUBLISH_DRY_RUN,,}" in
+          true|1|yes)
+            publish_args+=(--dry-run)
+            ;;
+          false|0|no|'')
+            ;;
+          *)
+            echo "Invalid dry-run value: '$PUBLISH_DRY_RUN'. Use true/false." >&2
+            exit 1
+            ;;
+        esac
+
+        set +e
+        moon publish "${publish_args[@]}" 2>&1 | tee "$publish_log"
+        pipeline_status=("${PIPESTATUS[@]}")
+        set -e
+
+        moon_status="${pipeline_status[0]}"
+        tee_status="${pipeline_status[1]}"
+
+        if [[ "$tee_status" -ne 0 ]]; then
+          exit "$tee_status"
+        fi
+
+        if [[ "$moon_status" -eq 0 ]]; then
+          exit 0
+        fi
+
+        if grep -Fq "409 Conflict" "$publish_log" &&
+          grep -Fq "Version Error:" "$publish_log" &&
+          grep -Fq "is duplicated with an existing version" "$publish_log"; then
+          echo "MoonBit module version is already published; continuing."
+          exit 0
+        fi
+
+        exit "$moon_status"
