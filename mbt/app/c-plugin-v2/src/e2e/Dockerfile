@@ -41,8 +41,9 @@ WORKDIR /sandbox
 COPY --from=builder --chown=sandbox:sandbox /sandbox/.local/bin/c-plugin-v2 /sandbox/.local/bin/c-plugin-v2
 COPY --chown=sandbox:sandbox mbt/app/c-plugin-v2/src/e2e/init.sh /sandbox/e2e/init.sh
 COPY --chown=sandbox:sandbox mbt/app/c-plugin-v2/src/e2e/sync.sh /sandbox/e2e/sync.sh
+COPY --chown=sandbox:sandbox mbt/app/c-plugin-v2/src/e2e/sync_recursive.sh /sandbox/e2e/sync_recursive.sh
 
-RUN chmod +x /sandbox/.local/bin/c-plugin-v2 /sandbox/e2e/init.sh /sandbox/e2e/sync.sh && \
+RUN chmod +x /sandbox/.local/bin/c-plugin-v2 /sandbox/e2e/init.sh /sandbox/e2e/sync.sh /sandbox/e2e/sync_recursive.sh && \
     ln -s /sandbox/.local/bin/c-plugin-v2 /sandbox/.local/bin/c-plugin
 
 ENTRYPOINT ["/sandbox/e2e/init.sh"]

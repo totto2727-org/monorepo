@@ -6,15 +6,26 @@ let sync_global_option : @admiral.OptionDef[Bool] = @admiral.bool(
 )
 
 ///|
+let sync_recursive_option : @admiral.OptionDef[Bool] = @admiral.bool(
+  "recursive",
+  short='r',
+  description="Sync the nearest project lock and visible descendants",
+)
+
+///|
 struct SyncOptions {
   global : Bool
+  recursive : Bool
 }
 
 ///|
 fn sync_options(
   context : @admiral.Context,
 ) -> SyncOptions raise @json.JsonDecodeError {
-  { global: context.get_bool(sync_global_option) }
+  {
+    global: context.get_bool(sync_global_option),
+    recursive: context.get_bool(sync_recursive_option),
+  }
 }
 
 ///|
@@ -100,10 +111,15 @@ async fn sync_locks(
   runtime : Runtime,
   options : SyncOptions,
 ) -> ReadOnlyArray[SyncLockResult] {
+  guard !(options.global && options.recursive) else {
+    raise SyncError::Planning(
+      reason="--global cannot be combined with --recursive",
+    )
+  }
   let discovery_options = if options.global {
     LockDiscoveryOptions::Global
   } else {
-    LockDiscoveryOptions::Project(recursive=false)
+    LockDiscoveryOptions::Project(recursive=options.recursive)
   }
   let lock_paths = runtime.discover_locks(discovery_options)
   let results = []
@@ -138,7 +154,7 @@ fn sync_command_def(
   @admiral.CommandDef::CommandDef(
     name="sync",
     description="Reconcile managed skill links from the lock file",
-    options=[sync_global_option],
+    options=[sync_global_option, sync_recursive_option],
     run=Some(run),
   )
 }

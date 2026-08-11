@@ -65,6 +65,9 @@ docker run --rm "${platform_args[@]}" "$image" global
 docker run --rm "${platform_args[@]}" \
   --entrypoint /sandbox/e2e/sync.sh \
   "$image"
+docker run --rm "${platform_args[@]}" \
+  --entrypoint /sandbox/e2e/sync_recursive.sh \
+  "$image"
 
 snapshot_host_state >"$after_state"
 if ! cmp -s "$before_state" "$after_state"; then
