@@ -142,3 +142,28 @@ async test "Add local command 3 - resolves local root from project and global lo
     None => fail("add command did not run")
   }
 }
+
+///|
+async test "Add local command 4 - parses both force aliases" {
+  for flag in ["-f", "--force"] {
+    let mut captured : AddLocalOptions? = None
+    let cli = @admiral.CliApp::CliApp(name="c-plugin", commands=[
+      @admiral.CommandDef::CommandDef(name="skill", subcommands=[
+        add_local_command_def(context => {
+          captured = Some(add_local_options(context))
+        }),
+      ]),
+    ])
+    cli.run(
+      argv=Some([
+        "skill", "add", "--local", "./marketplace", "--kind", "claude", "--skill",
+        "demo/alpha", flag,
+      ]),
+      env=Map([]),
+    )
+    match captured {
+      Some(options) => inspect(options.force, content="true")
+      None => fail("add command did not run")
+    }
+  }
+}

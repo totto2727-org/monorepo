@@ -149,3 +149,66 @@ async test "LinkReconciliation reconcile_skill_links 15 - retains failed stale r
     debug_inspect(removed, content="Unknown")
   }
 }
+
+///|
+async test "LinkReconciliation reconcile_skill_links 19 - reports a forced collision removal failure without mutation" {
+  @async.with_task_group() <| group => {
+    let temporary : @path.Path = @fs.tmpdir(
+      prefix="c-plugin-v2-force-remove-failure-",
+    )
+    group.add_defer(() => @fs.rmdir(temporary.to_string(), recursive=true))
+    let root : @path.Path = @fs.realpath(temporary.to_string())
+    let managed_root = root.join("skills")
+    let target = root.join("target")
+    let entry = stale_reconciliation_entry(managed_root, "install", target)
+    let neighbor = managed_root.join("neighbor")
+    @fs.mkdir(managed_root.to_string(), recursive=true)
+    @fs.mkdir(target.to_string(), recursive=true)
+    @fs.write_file(
+      entry.link.path.to_string(),
+      "collision",
+      create_mode=CreateNew,
+    )
+    @fs.write_file(neighbor.to_string(), "neighbor", create_mode=CreateNew)
+    let checkpoints : Array[OwnershipState] = []
+    let io : LinkReconciliationIO = {
+      mkdir: async fn(path) {
+        @fs.mkdir(path.to_string(), recursive=true) catch {
+          @os_error.OSError(_) as error if error.is_EEXIST() => ()
+          error => raise error
+        }
+      },
+      kind: async fn(path) { @fs.kind(path.to_string(), follow_symlink=false) },
+      realpath: async fn(path) { @path.Path(@fs.realpath(path.to_string())) },
+      symlink: async fn(target, link) {
+        @fs.symlink(target=target.to_string(), link.to_string())
+      },
+      remove: async fn(_path) {
+        @fs.read_file(neighbor.to_string()) |> ignore
+        fail("remove failed")
+      },
+      checkpoint: fn(_path, state) { checkpoints.push(state) },
+    }
+    let result = reconcile_skill_links_with_io(
+      io,
+      reconciliation_state_path(root.join("state.json")),
+      OwnershipState::OwnershipState([entry]),
+      Trusted(OwnershipState::empty()),
+      collision_policy=ReplaceNonDirectory,
+    )
+    debug_inspect(result.status, content="Partial")
+    inspect(result.durable_state.entries.length(), content="0")
+    inspect(checkpoints.length(), content="0")
+    inspect(result.notices.length(), content="1")
+    match result.notices[0] {
+      OperationFailed(operation=RemoveLink, path~, reason=_) =>
+        inspect(path == entry.link.path, content="true")
+      _ => fail("expected forced remove failure")
+    }
+    inspect(
+      @fs.read_file(entry.link.path.to_string()).text(),
+      content="collision",
+    )
+    inspect(@fs.read_file(neighbor.to_string()).text(), content="neighbor")
+  }
+}
