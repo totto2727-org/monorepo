@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "fsl": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./nix/package/fsl",
+        "type": "path"
+      },
+      "original": {
+        "path": "./nix/package/fsl",
+        "type": "path"
+      },
+      "parent": []
+    },
     "moonbit-overlay": {
       "inputs": {
         "nixpkgs": [
@@ -37,6 +53,7 @@
     },
     "root": {
       "inputs": {
+        "fsl": "fsl",
         "moonbit-overlay": "moonbit-overlay",
         "nixpkgs": "nixpkgs",
         "vite-plus-overlay": "vite-plus-overlay"

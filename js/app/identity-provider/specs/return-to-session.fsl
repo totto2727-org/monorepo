@@ -1,0 +1,128 @@
+spec ReturnToSession {
+  enum Session {
+    Absent,
+    Present
+  }
+
+  enum StoredTarget {
+    NoTarget,
+    InternalTarget,
+    OAuthAuthorizeTarget
+  }
+
+  enum RequestCategory {
+    NoRequest,
+    ProtectedWithoutSession,
+    ProtectedWithSession,
+    OpenLoginPreserve,
+    OpenLoginOAuth,
+    OpenLoginUnrelated,
+    CallbackWithoutSession,
+    CallbackWithSession,
+    CallbackAfterConsumption
+  }
+
+  enum Outcome {
+    Idle,
+    LoginRedirect,
+    ProtectedPassThrough,
+    LoginRendered,
+    SessionRequired,
+    InternalRedirect,
+    AccountFallback,
+    ExternalRedirect
+  }
+
+  state {
+    session: Session,
+    stored_target: StoredTarget,
+    request_category: RequestCategory,
+    outcome: Outcome
+  }
+
+  init {
+    session = Absent
+    stored_target = NoTarget
+    request_category = NoRequest
+    outcome = Idle
+  }
+
+  action request_protected_without_session() {
+    session = Absent
+    stored_target = InternalTarget
+    request_category = ProtectedWithoutSession
+    outcome = LoginRedirect
+  }
+
+  action request_protected_with_session() {
+    session = Present
+    request_category = ProtectedWithSession
+    outcome = ProtectedPassThrough
+  }
+
+  action open_login_preserve() {
+    request_category = OpenLoginPreserve
+    outcome = LoginRendered
+  }
+
+  action open_login_oauth() {
+    stored_target = OAuthAuthorizeTarget
+    request_category = OpenLoginOAuth
+    outcome = LoginRendered
+  }
+
+  action open_login_unrelated() {
+    stored_target = NoTarget
+    request_category = OpenLoginUnrelated
+    outcome = LoginRendered
+  }
+
+  action callback_without_session() {
+    session = Absent
+    request_category = CallbackWithoutSession
+    outcome = SessionRequired
+  }
+
+  action callback_with_session() {
+    requires stored_target != NoTarget
+    session = Present
+    stored_target = NoTarget
+    request_category = CallbackWithSession
+    outcome = InternalRedirect
+  }
+
+  action callback_after_consumption() {
+    requires session == Present
+    requires stored_target == NoTarget
+    request_category = CallbackAfterConsumption
+    outcome = AccountFallback
+  }
+
+  invariant NoExternalRedirect {
+    outcome != ExternalRedirect
+  }
+
+  trans PreserveDoesNotOverwrite {
+    request_category == OpenLoginPreserve => stored_target == old(stored_target)
+  }
+
+  invariant UnrelatedLoginClearsTarget {
+    request_category == OpenLoginUnrelated => stored_target == NoTarget
+  }
+
+  trans NoSessionDoesNotConsume {
+    request_category == CallbackWithoutSession => stored_target == old(stored_target)
+  }
+
+  trans AuthenticatedCallbackConsumesExactlyOnce {
+    (request_category == CallbackWithSession =>
+      old(stored_target) != NoTarget and stored_target == NoTarget) and
+    (request_category == CallbackAfterConsumption =>
+      old(stored_target) == NoTarget and stored_target == NoTarget)
+  }
+
+  invariant SessionRequiredPassThrough {
+    request_category == ProtectedWithSession =>
+      session == Present and outcome == ProtectedPassThrough
+  }
+}

@@ -178,6 +178,60 @@ sign-out response headers by reading their names dynamically from the
 Current logout is local to the feed web Better Auth session and does not perform
 OIDC RP-Initiated Logout at the IdP.
 
+## FSL conformance boundary
+
+The `identity-provider` package owns the return-to/session model at `js/app/identity-provider/specs/return-to-session.fsl`.
+That file is the formal source of truth for the modeled state machine.
+The generated action-coverage scenarios at `js/app/identity-provider/specs/generated/return-to-session.scenarios.json` are an ignored derived artifact owned by the package's `setup:fsl` task, not a reviewed or committed source artifact.
+Regenerate the scenarios from the repository root with:
+
+```bash
+vp run --no-cache --filter identity-provider setup:fsl
+```
+
+The model defines these eight canonical actions and binds them to repository-owned runtime behavior:
+
+| FSL action                          | Runtime boundary                                                                                                 |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `request_protected_without_session` | The protected-route middleware stores the local request path and redirects to `/login?preserve_return_to=true`.  |
+| `request_protected_with_session`    | The protected-route middleware passes an authenticated request to the route.                                     |
+| `open_login_preserve`               | The login route renders without changing an existing return-to cookie.                                           |
+| `open_login_oauth`                  | The login route stores the reconstructed local `/api/v1/auth/oauth2/authorize?...` target.                       |
+| `open_login_unrelated`              | The login route clears a stale return-to cookie when no preserve flag or OAuth authorize parameters are present. |
+| `callback_without_session`          | The callback session guard redirects to `/login` without consuming the stored target.                            |
+| `callback_with_session`             | The authenticated callback normalizes the stored target to a local path, deletes the cookie, and redirects once. |
+| `callback_after_consumption`        | A repeated authenticated callback with no stored target redirects to `/app/account`.                             |
+
+The model checks six named properties:
+
+| FSL property                               | Modeled guarantee                                                                                     |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `NoExternalRedirect`                       | A modeled transition never produces the `ExternalRedirect` outcome.                                   |
+| `PreserveDoesNotOverwrite`                 | Opening the preserve login route leaves the stored target unchanged.                                  |
+| `UnrelatedLoginClearsTarget`               | Opening an unrelated login route leaves no stored target.                                             |
+| `NoSessionDoesNotConsume`                  | A callback without a session leaves the stored target unchanged.                                      |
+| `AuthenticatedCallbackConsumesExactlyOnce` | An authenticated callback consumes a stored target, and a callback after consumption keeps it absent. |
+| `SessionRequiredPassThrough`               | A protected request with a session has a present session and the pass-through outcome.                |
+
+Run the exact bounded verification from the repository root with:
+
+```bash
+nix develop --command fslc verify js/app/identity-provider/specs/return-to-session.fsl --engine bmc --depth 8 --no-cache
+```
+
+For FSL v3.1.0, a successful result from that command is `verified` with `completeness: "bounded"` and means that no modeled violation was found through depth 8.
+It is not an unbounded proof.
+FSL's separate k-induction engine is selected with `--engine induction`; only a `proved` result with `completeness: "unbounded"` supports an unbounded interpretation for the invariants that the result identifies.
+The bounded depth-8 BMC result remains the conformance guarantee documented here.
+
+Runtime conformance is a separate executable bridge.
+The package's generated-scenario Vitest runner executes the emitted action-coverage traces through the Hono routes, middleware, return-to normalization, and cookie helpers, then compares the observed post-step state with the generated expected state.
+The focused Hono and helper tests additionally pin request status, `Location`, and `Set-Cookie` behavior.
+These tests show that the covered runtime observations match the modeled scenarios; they do not prove that every possible implementation trace conforms to the FSL model.
+
+This boundary explicitly excludes Better Auth session validation and all OAuth/OIDC provider internals, including authorization state, PKCE, consent, callback protocol processing, authorization-code or token issuance, refresh behavior, and provider-side client or redirect-URI validation.
+`OAuthAuthorizeTarget` represents the IdP-local authorize route stored by repository code; it does not model the external OAuth client redirect.
+
 ## OAuth 2.0 and OIDC compliance status
 
 The references used for this status are OAuth 2.0 Authorization Framework

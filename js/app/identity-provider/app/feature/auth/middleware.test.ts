@@ -21,7 +21,7 @@ const makeProtectedApp = (user: Env['Variables']['user'] | null) =>
     .get('/app/account', requireAuthMiddleware, (ctx) => ctx.text(ctx.var.user?.email ?? 'missing'))
 
 describe('requireAuthMiddleware', () => {
-  it('redirects unauthenticated app requests to login with a return-to cookie', async () => {
+  it('request_protected_without_session redirects to login with a return-to cookie', async () => {
     const app = makeProtectedApp(null)
 
     const res = await app.request('/app/account?tab=security')
@@ -31,7 +31,7 @@ describe('requireAuthMiddleware', () => {
     expect(res.headers.get('set-cookie')).toContain(`${loginReturnToCookieName}=%2Fapp%2Faccount%3Ftab%3Dsecurity`)
   })
 
-  it('passes authenticated app requests through', async () => {
+  it('request_protected_with_session passes the request through', async () => {
     const app = makeProtectedApp({
       email: 'test@example.com',
       id: 'user-123',
