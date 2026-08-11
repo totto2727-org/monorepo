@@ -24,10 +24,6 @@ with pkgs;
     packageName = "ctx7";
   })
   (npm {
-    binName = "mdt";
-    packageName = "@totto2727/mdt";
-  })
-  (npm {
     binName = "openshell";
     runtime = "uv";
     packageName = "openshell";

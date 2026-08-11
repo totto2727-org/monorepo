@@ -1,8 +1,0 @@
-{
-  "url": "https://example.com",
-  "full_page": false,
-  "width": 1024,
-  "formats": ["html", "markdown"],
-  "custom_object": { "enabled": true },
-  "custom_null": null
-}

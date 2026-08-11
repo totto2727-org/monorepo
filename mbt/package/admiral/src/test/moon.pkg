@@ -1,6 +1,0 @@
-supported_targets = "native"
-
-import {
-  "moonbitlang/async",
-  "totto2727/admiral",
-} for "test"
