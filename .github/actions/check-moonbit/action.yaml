@@ -19,4 +19,4 @@ runs:
         moon fmt --check
         moon check --deny-warn
         moon build
-        moon test
+        LD_LIBRARY_PATH="${MOONBIT_OPENSSL_LIBRARY_PATH:-}" moon test --no-parallelize
