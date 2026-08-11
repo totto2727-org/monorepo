@@ -46,17 +46,17 @@ const Layout = (handle: Handle<LayoutProps>) => () => (
   <Document title={handle.props.title}>
     <header mix={headerStyle}>
       <nav mix={navStyle}>
-        <helpers.FrameLink href='/' rmx-target={'content'} rmx-src='/'>
+        <helpers.FrameLink href='/' rmx-target='content' rmx-src='/'>
           Counter
         </helpers.FrameLink>
-        <helpers.FrameLink href='/todo' rmx-target={'content'} rmx-src='/todo'>
+        <helpers.FrameLink href='/todo' rmx-target='content' rmx-src='/todo'>
           TODO
         </helpers.FrameLink>
       </nav>
     </header>
     <main mix={mainStyle}>
       <Counter initial={0} />
-      <Frame name={'content'} src={getContext().req.url} />
+      <Frame name='content' src={getContext().req.url} />
     </main>
   </Document>
 )

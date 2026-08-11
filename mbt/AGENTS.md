@@ -19,7 +19,6 @@ MoonBit packages do not define project-level Vite+ tasks. Use `moon` directly on
 
 ```bash
 moon info mbt/package/admiral
-moon test mbt/package/codex-sdk/src
 moon test --update
 moon coverage analyze > uncovered.log
 ```

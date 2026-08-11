@@ -1,3 +1,2 @@
-import app from './app.tsx'
-
-export default app
+// oxlint-disable-next-line oxc/no-barrel-file -- worker entry
+export * as app from './app.tsx'

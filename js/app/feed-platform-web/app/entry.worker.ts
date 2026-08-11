@@ -1,3 +1,1 @@
-import app from './app.tsx'
-
-export default app
+export * as app from './app.tsx'
