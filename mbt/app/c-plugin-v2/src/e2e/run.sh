@@ -72,6 +72,9 @@ docker run --rm "${platform_args[@]}" \
   --entrypoint /sandbox/e2e/add.sh \
   "$image"
 docker run --rm "${platform_args[@]}" \
+  --entrypoint /sandbox/e2e/remove.sh \
+  "$image"
+docker run --rm "${platform_args[@]}" \
   --entrypoint /sandbox/e2e/target_add.sh \
   "$image"
 docker run --rm "${platform_args[@]}" \
