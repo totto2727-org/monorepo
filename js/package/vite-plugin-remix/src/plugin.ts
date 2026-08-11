@@ -47,7 +47,7 @@ export const remix = (options: RemixPluginOptions): Plugin => {
             build: {
               manifest: true,
               outDir: clientOutDir,
-              rollupOptions: {
+              rolldownOptions: {
                 input: clientEntry,
                 output: {
                   assetFileNames: 'assets/[name]-[hash][extname]',

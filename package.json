@@ -24,12 +24,12 @@
     "wrangler": "latest"
   },
   "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.4"
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.8"
   },
   "packageManager": "bun@1.3.13",
   "catalog": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.4",
-    "vite-plus": "0.2.4"
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.8",
+    "vite-plus": "0.2.8"
   },
   "catalogs": {
     "auth": {
@@ -73,7 +73,7 @@
       "@inlang/paraglide-js": "^2.18.1"
     },
     "lint": {
-      "ultracite": "7.8.4"
+      "ultracite": "7.10.2"
     },
     "pulumi": {
       "@pulumi/aws": "^7.0.0",

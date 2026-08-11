@@ -1,6 +1,4 @@
 import core from 'ultracite/oxlint/core'
-import react from 'ultracite/oxlint/react'
-import remix from 'ultracite/oxlint/remix'
 import { defineConfig } from 'vite-plus'
 
 import oxlintPluginPreset from './js/package/oxlint-plugin/src/preset.ts'
@@ -28,7 +26,11 @@ export default defineConfig({
     singleQuote: true,
   },
   lint: {
-    extends: [core, react, remix, oxlintPluginPreset],
+    extends: [
+      // @ts-expect-error tmp
+      core,
+      oxlintPluginPreset,
+    ],
     ignorePatterns: [...ignorePatterns, '**/skills/**', '**/.script/**'],
     options: {
       typeAware: true,

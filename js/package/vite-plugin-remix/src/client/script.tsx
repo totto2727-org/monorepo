@@ -30,4 +30,4 @@ export interface ScriptProps {
 export const Script =
   () =>
   // oxlint-disable-next-line rules/no-jsx-script-tag -- This component exists solely to emit a bare HTML <script> tag for Vite-powered SSR entry injection
-  ({ devSrc, prodSrc }: ScriptProps) => <script type='module' src={import.meta.env.DEV ? devSrc : prodSrc}></script>
+  ({ devSrc, prodSrc }: ScriptProps) => <script type='module' src={import.meta.env.DEV ? devSrc : prodSrc} />
