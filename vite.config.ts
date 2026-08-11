@@ -26,11 +26,7 @@ export default defineConfig({
     singleQuote: true,
   },
   lint: {
-    extends: [
-      // @ts-expect-error tmp
-      core,
-      oxlintPluginPreset,
-    ],
+    extends: [core, oxlintPluginPreset],
     ignorePatterns: [...ignorePatterns, '**/skills/**', '**/.script/**'],
     options: {
       typeAware: true,
