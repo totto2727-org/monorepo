@@ -1,5 +1,5 @@
-name: Setup MoonBit
-description: Update the MoonBit registry with the Nix-managed toolchain.
+name: Check MoonBit
+description: Check the MoonBit workspace with the Nix-managed toolchain.
 
 inputs:
   dev-shell:
@@ -10,10 +10,13 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Update MoonBit registry
+    - name: Check MoonBit workspace
       shell: bash
       env:
         NIX_DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
         eval "$(nix print-dev-env "$GITHUB_WORKSPACE#$NIX_DEV_SHELL")"
-        moon update
+        moon fmt --check
+        moon check --deny-warn
+        moon build
+        moon test
