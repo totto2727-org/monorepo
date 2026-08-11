@@ -1,0 +1,16 @@
+name: Publish to FlakeHub
+description: Publish the repository root flake as a public rolling release.
+
+runs:
+  using: composite
+  steps:
+    - name: Publish root flake
+      uses: DeterminateSystems/flakehub-push@abcff4fb351e63f852f5fb2b9af0ae4e69de07d4 # main
+      with:
+        name: ${{ github.repository }}
+        rolling: true
+        visibility: public
+        # Limit pre-publish evaluation to the runner system because cross-system cache inputs are unavailable.
+        my-flake-is-too-big: true
+        # Do not register individual output paths for the flake.
+        include-output-paths: false

@@ -5,8 +5,6 @@
     "infra/*",
     "js/app/*",
     "js/package/*",
-    "mbt/package/*",
-    "mbt/app/*",
     "go/app/*",
     "go/package/*",
     "go/e2e/*",

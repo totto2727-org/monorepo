@@ -38,26 +38,18 @@
           };
         in
         {
-          bw = pkgs.callPackage ./app/bw/package.nix {
-            moonRegistryIndex = moon-registry;
-          };
           c-plugin = pkgs.callPackage ./app/c-plugin/package.nix {
             moonRegistryIndex = moon-registry;
           };
           c-plugin-v2 = pkgs.callPackage ./app/c-plugin-v2/package.nix {
             moonRegistryIndex = moon-registry;
           };
-          wt = pkgs.callPackage ./app/wt/package.nix {
-            moonRegistryIndex = moon-registry;
-          };
         }
       );
 
       overlays.default = _final: prev: {
-        bw = self.packages.${prev.stdenv.hostPlatform.system}.bw;
         c-plugin = self.packages.${prev.stdenv.hostPlatform.system}.c-plugin;
         c-plugin-v2 = self.packages.${prev.stdenv.hostPlatform.system}.c-plugin-v2;
-        wt = self.packages.${prev.stdenv.hostPlatform.system}.wt;
       };
     };
 }
