@@ -14,6 +14,13 @@ pub(all) enum LinkReconciliationStatus {
 } derive(Debug, Eq)
 
 ///|
+/// Controls how desired-link collisions are handled after containment checks.
+pub(all) enum DesiredLinkCollisionPolicy {
+  PreserveExisting
+  ReplaceNonDirectory
+} derive(Debug, Eq)
+
+///|
 /// Identifies the filesystem or durability boundary associated with a notice.
 pub(all) enum LinkReconciliationOperation {
   EnsureManagedRoot
@@ -59,6 +66,7 @@ async fn reconcile_skill_links_with_io(
   state_path : OwnershipStatePath,
   desired_state : OwnershipState,
   previous_ownership : PreviousOwnership,
+  collision_policy? : DesiredLinkCollisionPolicy = PreserveExisting,
 ) -> LinkReconciliationResult {
   let (initial_state, initial_notices) = match previous_ownership {
     Trusted(state) => (state, [])
@@ -82,6 +90,7 @@ async fn reconcile_skill_links_with_io(
     desired_state~,
     durable_state~,
     notices~,
+    collision_policy~,
   )
   match desired_hard_stop {
     Some(result) => return result
@@ -121,6 +130,7 @@ pub async fn reconcile_skill_links(
   state_path~ : OwnershipStatePath,
   desired_state~ : OwnershipState,
   previous_ownership~ : PreviousOwnership,
+  collision_policy? : DesiredLinkCollisionPolicy = PreserveExisting,
   checkpoint_ownership_state~ : async (@path.Path, OwnershipState) -> Unit raise StateStoreError,
 ) -> LinkReconciliationResult {
   reconcile_skill_links_with_io(
@@ -128,5 +138,6 @@ pub async fn reconcile_skill_links(
     state_path,
     desired_state,
     previous_ownership,
+    collision_policy~,
   )
 }

@@ -6,6 +6,13 @@ let add_global_option : @admiral.OptionDef[Bool] = @admiral.bool(
 )
 
 ///|
+let add_force_option : @admiral.OptionDef[Bool] = @admiral.bool(
+  "force",
+  short='f',
+  description="Replace existing non-directory skill paths",
+)
+
+///|
 let add_local_option : @admiral.OptionDef[String] = @admiral.string(
   "local",
   description="Local marketplace root beginning with ./",
@@ -29,6 +36,7 @@ let add_skill_option : @admiral.OptionDef[Array[String]] = @admiral.strings(
 ///|
 struct AddLocalOptions {
   global : Bool
+  force : Bool
   source : RelativeSourcePath
   kind : MarketplaceKind
   selections : ReadOnlyArray[String]
@@ -77,6 +85,7 @@ fn add_local_options(context : @admiral.Context) -> AddLocalOptions raise {
   }
   {
     global: context.get_bool(add_global_option),
+    force: context.get_bool(add_force_option),
     source: source_path,
     kind: add_marketplace_kind(context.get_string_required(add_kind_option)),
     selections: context.get_strings_required(add_skill_option).all,
@@ -213,7 +222,18 @@ async fn add_local(
     persist=lock => runtime.write_lock_atomic(lock_path, lock),
     sync=lock => {
       try {
-        sync_result = Some(sync_loaded_lock(runtime, lock_path, lock))
+        sync_result = Some(
+          sync_loaded_lock(
+            runtime,
+            lock_path,
+            lock,
+            collision_policy=if options.force {
+              ReplaceNonDirectory
+            } else {
+              PreserveExisting
+            },
+          ),
+        )
       } catch {
         SyncError::Store(cause~) => raise SyncError::Store(cause~)
         SyncError::InvalidPath(path~, reason~) =>
@@ -264,7 +284,7 @@ fn add_local_command_def(
     name="add",
     description="Add a local plugin marketplace",
     options=[
-      add_global_option, add_local_option, add_kind_option, add_skill_option,
+      add_global_option, add_force_option, add_local_option, add_kind_option, add_skill_option,
     ],
     run=Some(run),
   )
