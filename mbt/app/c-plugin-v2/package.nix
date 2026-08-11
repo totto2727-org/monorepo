@@ -14,7 +14,7 @@ let
     "moonbitlang/x" = "0.4.47";
     "shu-kitamura/sha256" = "0.1.1";
     "totto2727/admiral" = "0.6.2";
-    "totto2727/lens" = "0.4.0";
+    "totto2727/lens" = "0.4.2";
     "totto2727/target-file-discovery" = "0.2.1";
   };
   cachedRegistry = moonPlatform.buildCachedRegistry {
