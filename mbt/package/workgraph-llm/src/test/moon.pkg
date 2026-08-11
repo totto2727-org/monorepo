@@ -1,9 +1,0 @@
-import {
-  "mizchi/llm",
-  "moonbitlang/async",
-  "moonbitlang/core/json",
-  "totto2727/workgraph-core" @core,
-  "totto2727/workgraph-llm" @workgraph_llm,
-} for "test"
-
-supported_targets = "+native+js"

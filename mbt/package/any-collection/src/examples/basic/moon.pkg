@@ -1,6 +1,0 @@
-import {
-  "Yoorkin/any",
-  "totto2727/any-collection" @any_collection,
-}
-
-pkgtype(kind: "executable")

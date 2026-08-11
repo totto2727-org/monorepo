@@ -5,8 +5,6 @@
     "infra/*",
     "js/app/*",
     "js/package/*",
-    "mbt/package/*",
-    "mbt/app/*",
     "nix",
     "elixir/*",
     "infra/*"

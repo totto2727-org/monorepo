@@ -16,7 +16,12 @@ export default defineConfig({
       order: 'asc',
     },
     experimentalSortPackageJson: true,
-    ignorePatterns,
+    ignorePatterns: [
+      ...ignorePatterns,
+      // oxlint-disable-next-line eslint/no-warning-comments -- This exclusion is intentionally temporary.
+      // TODO: Remove this temporary exclusion once `.agents` is formatter-compatible.
+      '.agents/**',
+    ],
     jsxSingleQuote: true,
     printWidth: 120,
     semi: false,
