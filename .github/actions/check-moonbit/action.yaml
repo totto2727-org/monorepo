@@ -1,0 +1,14 @@
+name: Check MoonBit
+description: Check the MoonBit workspace with the Nix-managed toolchain.
+
+runs:
+  using: composite
+  steps:
+    - name: Check MoonBit workspace
+      shell: bash
+      run: |
+        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
+        moon fmt --check
+        moon check --deny-warn
+        moon build
+        moon test
