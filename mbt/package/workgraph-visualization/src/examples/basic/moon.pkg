@@ -1,9 +1,0 @@
-import {
-  "moonbitlang/async",
-  "totto2727/workgraph-core" @core,
-  "totto2727/workgraph-visualization" @renderer,
-}
-
-supported_targets = "+native+js"
-
-pkgtype(kind: "executable")

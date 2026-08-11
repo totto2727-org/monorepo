@@ -3,11 +3,6 @@
 let
   inherit (pkgs) lib writeShellScriptBin;
 
-  bw-pkg = npm {
-    binName = "bw";
-    packageName = "@totto2727/bw";
-  };
-
   # --- shared wrappers (no secrets) ---
 
   exocortex-mcp = writeShellScriptBin "exocortex-mcp" ''
@@ -54,14 +49,6 @@ let
     exec $HOME/.local/bin/bx "$@"
   '';
 
-  macos-bw = lib.hiPrio (
-    writeShellScriptBin "bw" ''
-      export CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
-      export CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
-      exec ${bw-pkg}/bin/bw "$@"
-    ''
-  );
-
   macos-o = writeShellScriptBin "o" ''
     export LINEAR_API_KEY="$(pass-cli get linear/api-key --quiet -f password)"
     exec opencode "$@"
@@ -92,12 +79,6 @@ let
     exec $HOME/.local/bin/bx "$@"
   '';
 
-  sandbox-bw = lib.hiPrio (
-    writeShellScriptBin "bw" ''
-      exec ${bw-pkg}/bin/bw "$@"
-    ''
-  );
-
   sandbox-o = writeShellScriptBin "o" ''
     exec opencode "$@"
   '';
@@ -120,7 +101,6 @@ in
     exocortex-mcp
     docker-credential-gh
     macos-bx
-    macos-bw
     macos-o
     macos-c
     macos-linear-mcp
@@ -135,7 +115,6 @@ in
     exocortex-mcp
     docker-credential-gh
     sandbox-bx
-    sandbox-bw
     sandbox-o
     sandbox-c
     sandbox-linear-mcp
