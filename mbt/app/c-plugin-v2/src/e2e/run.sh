@@ -71,6 +71,9 @@ docker run --rm "${platform_args[@]}" \
 docker run --rm "${platform_args[@]}" \
   --entrypoint /sandbox/e2e/add.sh \
   "$image"
+docker run --rm "${platform_args[@]}" \
+  --entrypoint /sandbox/e2e/target_add.sh \
+  "$image"
 
 snapshot_host_state >"$after_state"
 if ! cmp -s "$before_state" "$after_state"; then
