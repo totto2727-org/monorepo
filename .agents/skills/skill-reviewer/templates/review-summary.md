@@ -22,6 +22,14 @@
 
 ### Overall Score: ?/A
 
+### Testing Evidence
+
+| Area        | Status                                         | Cases | Context / Baseline | Evidence | Result |
+| ----------- | ---------------------------------------------- | ----- | ------------------ | -------- | ------ |
+| Triggering  | Executed / Designed / Not applicable / Missing | ...   | ...                | ...      | ...    |
+| Functional  | Executed / Designed / Not applicable / Missing | ...   | ...                | ...      | ...    |
+| Performance | Executed / Designed / Not applicable / Missing | ...   | ...                | ...      | ...    |
+
 ### Improvement Proposals by Priority
 
 1. [Most important improvement]
