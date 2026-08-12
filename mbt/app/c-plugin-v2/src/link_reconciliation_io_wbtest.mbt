@@ -16,7 +16,7 @@ async test "LinkReconciliation reconcile_skill_links 14 - continues independent 
     let checkpoints = []
     let io : LinkReconciliationIO = {
       mkdir: async fn(path) {
-        if path == entries[0].managed_root.path {
+        if path == entries[0].managed_root.path.path {
           fail("mkdir failed")
         }
         @fs.mkdir(path.to_string(), recursive=true) catch {
@@ -25,19 +25,19 @@ async test "LinkReconciliation reconcile_skill_links 14 - continues independent 
         }
       },
       kind: async fn(path) {
-        if path == entries[2].link.path {
+        if path == entries[2].link.path.path {
           fail("kind failed")
         }
         @fs.kind(path.to_string(), follow_symlink=false)
       },
       realpath: async fn(path) {
-        if path == entries[1].managed_root.path {
+        if path == entries[1].managed_root.path.path {
           fail("realpath failed")
         }
         @path.Path(@fs.realpath(path.to_string()))
       },
       symlink: async fn(target, link) {
-        if link == entries[3].link.path {
+        if link == entries[3].link.path.path {
           fail("create failed")
         }
         @fs.symlink(target=target.to_string(), link.to_string())
@@ -64,9 +64,9 @@ async test "LinkReconciliation reconcile_skill_links 14 - continues independent 
         OperationFailed(operation~, path~, reason=_) => {
           inspect(operation == expected_operation, content="true")
           let expected_path = if index == 0 {
-            entries[index].managed_root.path
+            entries[index].managed_root.path.path
           } else {
-            entries[index].link.path
+            entries[index].link.path.path
           }
           inspect(path == expected_path, content="true")
         }
@@ -102,7 +102,7 @@ async test "LinkReconciliation reconcile_skill_links 15 - retains failed stale r
       let entry = stale_reconciliation_entry(managed_root, "install", target)
       @fs.symlink(
         target=entry.symlink_target.to_string(),
-        entry.link.path.to_string(),
+        entry.link.path.path.to_string(),
       )
       entries.push(entry)
     }
@@ -115,7 +115,7 @@ async test "LinkReconciliation reconcile_skill_links 15 - retains failed stale r
         @fs.symlink(target=target.to_string(), link.to_string())
       },
       remove: async fn(path) {
-        if path == entries[0].link.path {
+        if path == entries[0].link.path.path {
           fail("remove failed")
         }
         @fs.remove(path.to_string())
@@ -133,15 +133,15 @@ async test "LinkReconciliation reconcile_skill_links 15 - retains failed stale r
     inspect(checkpoints.length(), content="1")
     match result.notices[0] {
       OperationFailed(operation=RemoveLink, path~, reason=_) =>
-        inspect(path == entries[0].link.path, content="true")
+        inspect(path == entries[0].link.path.path, content="true")
       _ => fail("expected stale remove failure")
     }
     debug_inspect(
-      @fs.kind(entries[0].link.path.to_string(), follow_symlink=false),
+      @fs.kind(entries[0].link.path.path.to_string(), follow_symlink=false),
       content="SymLink",
     )
     let removed = @fs.kind(
-      entries[1].link.path.to_string(),
+      entries[1].link.path.path.to_string(),
       follow_symlink=false,
     ) catch {
       _ => @fs.FileKind::Unknown
@@ -165,7 +165,7 @@ async test "LinkReconciliation reconcile_skill_links 19 - reports a forced colli
     @fs.mkdir(managed_root.to_string(), recursive=true)
     @fs.mkdir(target.to_string(), recursive=true)
     @fs.write_file(
-      entry.link.path.to_string(),
+      entry.link.path.path.to_string(),
       "collision",
       create_mode=CreateNew,
     )
@@ -202,11 +202,11 @@ async test "LinkReconciliation reconcile_skill_links 19 - reports a forced colli
     inspect(result.notices.length(), content="1")
     match result.notices[0] {
       OperationFailed(operation=RemoveLink, path~, reason=_) =>
-        inspect(path == entry.link.path, content="true")
+        inspect(path == entry.link.path.path, content="true")
       _ => fail("expected forced remove failure")
     }
     inspect(
-      @fs.read_file(entry.link.path.to_string()).text(),
+      @fs.read_file(entry.link.path.path.to_string()).text(),
       content="collision",
     )
     inspect(@fs.read_file(neighbor.to_string()).text(), content="neighbor")

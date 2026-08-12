@@ -8,7 +8,7 @@ fn managed_skill_roots_for_sync(
     ManagedSkillRoot::ManagedSkillRoot(lock_root.join(".agents").join("skills")),
   ]
   for target in lock.targets {
-    let path = lock_root.join(target.path).normalize()
+    let path = lock_root.join(target.path.path).normalize()
     roots.push(ManagedSkillRoot::ManagedSkillRoot(path))
   }
   @immut_hashset.HashSet(roots)
@@ -19,9 +19,10 @@ async fn validate_managed_root_for_sync(
   lock_root : @path.Path,
   managed_root : ManagedSkillRoot,
 ) -> Unit {
-  guard path_is_within(lock_root, managed_root.path) else {
+  let managed_root_path = managed_root.path.path
+  guard path_is_within(lock_root, managed_root_path) else {
     raise SyncError::InvalidPath(
-      path=managed_root.path,
+      path=managed_root_path,
       reason="managed root must remain below the lock root",
     )
   }
@@ -29,7 +30,7 @@ async fn validate_managed_root_for_sync(
     error =>
       raise SyncError::InvalidPath(path=lock_root, reason=error.to_string())
   }
-  let mut existing_path = managed_root.path
+  let mut existing_path = managed_root_path
   while true {
     let kind = try
       @fs.kind(existing_path.to_string(), follow_symlink=false)
@@ -38,7 +39,7 @@ async fn validate_managed_root_for_sync(
         let parent = existing_path.dirname()
         guard parent != existing_path else {
           raise SyncError::InvalidPath(
-            path=managed_root.path,
+            path=managed_root_path,
             reason="managed root has no existing directory ancestor",
           )
         }
@@ -68,7 +69,7 @@ async fn validate_managed_root_for_sync(
     }
     guard path_is_within(physical_lock_root, physical_existing) else {
       raise SyncError::InvalidPath(
-        path=managed_root.path,
+        path=managed_root_path,
         reason="managed root resolves outside the lock root",
       )
     }
@@ -100,7 +101,7 @@ async fn load_previous_ownership_for_sync(
   runtime : Runtime,
   state_path : OwnershipStatePath,
 ) -> PreviousOwnership {
-  try runtime.load_ownership_state(state_path.path) catch {
+  try runtime.load_ownership_state(state_path.path.path) catch {
     StateStoreError::NotFound(_) => PreviousOwnership::Missing
     StateStoreError::Decode(path=_, reason~) =>
       PreviousOwnership::Corrupt(reason~)
@@ -120,7 +121,7 @@ async fn validate_previous_ownership_for_sync(
       for pair in state.entries.to_array() {
         let entry = pair.1
         let managed_root = ManagedSkillRoot::ManagedSkillRoot(
-          entry.managed_root.path,
+          entry.managed_root.path.path,
         ) catch {
           error =>
             return Corrupt(reason="invalid recorded managed root: \{error}")

@@ -43,7 +43,7 @@ async fn checkpoint_ownership(
   checkpointed_state : OwnershipState,
   notices : Array[LinkReconciliationNotice],
 ) -> OwnershipCheckpointResult {
-  (io.checkpoint)(state_path.path, checkpointed_state) catch {
+  (io.checkpoint)(state_path.path.path, checkpointed_state) catch {
     error => {
       notices.push(
         CheckpointFailed(

@@ -56,7 +56,7 @@ async test "LinkReconciliation reconcile_skill_links 1 - creates a missing desir
       @fs.realpath(link.to_string()),
       content=@fs.realpath(target.to_string()),
     )
-    inspect(checkpoint_path == Some(state_path.path), content="true")
+    inspect(checkpoint_path == Some(state_path.path.path), content="true")
     inspect(checkpoint_state == Some(desired_state), content="true")
     debug_inspect(result.status, content="Complete")
     inspect(result.durable_state == desired_state, content="true")
@@ -150,7 +150,7 @@ async test "LinkReconciliation reconcile_skill_links 7 - distinguishes unavailab
       )
       @fs.symlink(
         target=foreign_target.relative(base=managed_root).to_string(),
-        collision.link.path.to_string(),
+        collision.link.path.path.to_string(),
       )
       let desired_state = OwnershipState::OwnershipState([collision, absent])
       let state_path = reconciliation_state_path(root.join("state.json"))
@@ -180,11 +180,11 @@ async test "LinkReconciliation reconcile_skill_links 7 - distinguishes unavailab
         _ => fail("expected distinct unavailable ownership notice")
       }
       inspect(
-        @fs.realpath(collision.link.path.to_string()),
+        @fs.realpath(collision.link.path.path.to_string()),
         content=@fs.realpath(foreign_target.to_string()),
       )
       inspect(
-        @fs.realpath(absent.link.path.to_string()),
+        @fs.realpath(absent.link.path.path.to_string()),
         content=@fs.realpath(absent_target.to_string()),
       )
     }

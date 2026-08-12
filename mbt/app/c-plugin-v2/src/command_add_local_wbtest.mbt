@@ -15,13 +15,17 @@ fn add_local_test_resolved() -> ReadOnlyArray[ResolvedSkill] raise {
       plugin_name: PluginName::PluginName("demo"),
       plugin_path: RelativePluginPath::RelativePluginPath("plugins/demo"),
       skill_name: SkillName::SkillName("alpha"),
-      skill_path: "/marketplace/plugins/demo/skills/alpha",
+      skill_path: @x_path.AbsolutePath::AbsolutePath(
+        "/marketplace/plugins/demo/skills/alpha",
+      ),
     },
     {
       plugin_name: PluginName::PluginName("demo"),
       plugin_path: RelativePluginPath::RelativePluginPath("plugins/demo"),
       skill_name: SkillName::SkillName("beta"),
-      skill_path: "/marketplace/plugins/demo/skills/beta",
+      skill_path: @x_path.AbsolutePath::AbsolutePath(
+        "/marketplace/plugins/demo/skills/beta",
+      ),
     },
   ]
 }

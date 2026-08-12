@@ -25,14 +25,14 @@ Functional equivalence includes preserving the public `c-plugin skill` namespace
 | CLI parsing         | `totto2727/admiral`                                                                                                                            |
 | Interactive input   | `mizchi/tui`                                                                                                                                   |
 | Git                 | The `mizchi/bit` module used as a library, primarily through its library packages such as `mizchi/bit_lib`; never spawn `git` or the `bit` CLI |
-| Paths               | `moonbitlang/x/path.Path`                                                                                                                      |
+| Paths               | `moonbitlang/x/path.Path` at filesystem boundaries, with `totto2727/x@0.3.0/path.AbsolutePath` and `RelativePath` for validated domain values  |
 | Lock discovery      | `totto2727/target-file-discovery`                                                                                                              |
 | JSON                | `totto2727/lens` plus the standard `FromJson` and `ToJson` traits                                                                              |
 | Async I/O           | `moonbitlang/async`                                                                                                                            |
 | Unit tests          | MoonBit black-box and white-box tests using per-test temporary roots                                                                           |
 | E2E tests           | Shell-driven Docker tests under `src/e2e/`                                                                                                     |
 
-All dependencies must be pinned to exact compatible versions. The first implementation gate is a minimal native build importing Admiral, TUI, bit, Lens, target-file-discovery, async, and `moonbitlang/x/path` together. Implementation must not proceed on an unverified dependency combination.
+All dependencies must be pinned to exact compatible versions. The first implementation gate is a minimal native build importing Admiral, TUI, bit, Lens, target-file-discovery, async, `moonbitlang/x/path`, and `totto2727/x@0.3.0/path` together. Implementation must not proceed on an unverified dependency combination.
 
 `mizchi/bit` currently describes itself as experimental and warns about possible repository corruption. c-plugin therefore treats cached clones as disposable data, pins the dependency, and tests the exact clone, fetch, checkout, and HEAD-resolution APIs it uses.
 
@@ -446,6 +446,7 @@ The report must state that work stopped at the milestone boundary. It must not d
 
 - MoonBit toolchain and `moon install`: https://docs.moonbitlang.com/en/latest/toolchain/moon/commands.html
 - `moonbitlang/x/path.Path` public API: https://github.com/moonbitlang/x/blob/main/path/pkg.generated.mbti
+- `totto2727/x@0.3.0/path` validated path values: https://mooncakes.io/docs/totto2727/x@0.3.0/path
 - Admiral: https://github.com/totto2727/admiral
 - mizchi/tui: https://github.com/mizchi/tui.mbt
 - mizchi/bit: https://github.com/bit-vcs/bit

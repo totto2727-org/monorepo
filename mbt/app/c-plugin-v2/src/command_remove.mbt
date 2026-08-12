@@ -75,7 +75,7 @@ fn parse_remove_skill_selection(
 fn remove_skill_selection_text(selection : RemoveSkillSelection) -> String {
   match selection.repository {
     LocalIdentity(source) =>
-      "\{source.path}/\{selection.plugin_name.value}/\{selection.skill_name.value}"
+      "\{@x_path.Path::to_string(source.path)}/\{selection.plugin_name.value}/\{selection.skill_name.value}"
     GitHubIdentity(repository) =>
       "\{repository.route()}/\{selection.plugin_name.value}/\{selection.skill_name.value}"
   }

@@ -56,7 +56,9 @@ fn desired_links_resolved_skill(
       @path.Path("plugins/plugin"),
     ),
     skill_name: SkillName::SkillName(name),
-    skill_path: root.join("repository/plugins/plugin/skills").join(name),
+    skill_path: @x_path.AbsolutePath::AbsolutePath(
+      root.join("repository/plugins/plugin/skills").join(name),
+    ),
   }
 }
 
@@ -64,9 +66,13 @@ fn desired_links_resolved_skill(
 fn desired_links_entry(
   plan : DesiredLinkPlan,
   link : @path.Path,
-) -> OwnershipEntry {
+) -> OwnershipEntry raise {
   plan.ownership_state.entries
-  .get(OwnershipLinkIdentity::OwnershipLinkIdentity(link))
+  .get(
+    OwnershipLinkIdentity::OwnershipLinkIdentity(
+      OwnershipLink::OwnershipLink(link).path,
+    ),
+  )
   .unwrap()
 }
 
@@ -151,12 +157,12 @@ async test "DesiredLinks plan_desired_skill_links - expands one enabled skill" {
       managed_root in [root.join(".agents/skills"), root.join(".cursor/skills")] {
       let entry = desired_links_entry(plan, managed_root.join("install"))
       inspect(
-        entry.link.path.to_string(),
+        entry.link.path.path.to_string(),
         content=managed_root.join("install").to_string(),
       )
       inspect(
         managed_root.join(entry.symlink_target).normalize().to_string(),
-        content=entry.resolved_target.path.to_string(),
+        content=entry.resolved_target.path.path.to_string(),
       )
     }
   }
@@ -230,8 +236,8 @@ test "DesiredLinks plan_desired_skill_links - later candidate in one repository 
     ]),
   )
   inspect(
-    desired_links_entry(plan, @path.Path("/tmp/managed/shared")).resolved_target.path.to_string(),
-    content=last.skill_path.to_string(),
+    desired_links_entry(plan, @path.Path("/tmp/managed/shared")).resolved_target.path.path.to_string(),
+    content=last.skill_path.path.to_string(),
   )
 }
 
@@ -331,33 +337,3 @@ test "DesiredLinks plan_desired_skill_links - empty roots or repositories produc
 }
 
 ///|
-test "DesiredLinks plan_desired_skill_links - propagates an invalid resolved skill path" {
-  let skill_name = SkillName::SkillName("install")
-  let repository = desired_links_local_repository([skill_name])
-  let invalid_skill : ResolvedSkill = {
-    plugin_name: PluginName::PluginName("plugin"),
-    plugin_path: RelativePluginPath::RelativePluginPath(
-      @path.Path("plugins/plugin"),
-    ),
-    skill_name,
-    skill_path: @path.Path("relative/skill"),
-  }
-  try
-    plan_desired_skill_links(
-      @immut_hashset.HashSet([
-        ManagedSkillRoot::ManagedSkillRoot(@path.Path("/tmp/managed")),
-      ]),
-      RepositorySkillResolutions::RepositorySkillResolutions([
-        Available(
-          repository~,
-          skills=ReadOnlyArray::from_array([invalid_skill]),
-        ),
-      ]),
-    )
-  catch {
-    Failure::Failure(_) => ()
-    error => raise error
-  } noraise {
-    _ => fail("invalid resolved skill path must raise")
-  }
-}

@@ -16,6 +16,7 @@ let
     "totto2727/admiral" = "0.6.2";
     "totto2727/lens" = "0.4.2";
     "totto2727/target-file-discovery" = "0.2.1";
+    "totto2727/x" = "0.3.0";
   };
   cachedRegistry = moonPlatform.buildCachedRegistry {
     moonModDepsSet = dependencies;

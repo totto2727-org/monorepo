@@ -5,18 +5,17 @@ pub(all) suberror RepositoryRootError {
 
 ///|
 pub struct RepositoryRoot {
-  path : @path.Path
+  path : @x_path.AbsolutePath
 } derive(Eq)
 
 ///|
 pub fn RepositoryRoot::RepositoryRoot(
   path : @path.Path,
 ) -> RepositoryRoot raise RepositoryRootError {
-  let normalized = path.normalize()
-  guard normalized.is_absolute() else {
-    raise RelativeRepositoryRoot(path=normalized)
+  let absolute = @x_path.AbsolutePath::AbsolutePath(path) catch {
+    _ => raise RelativeRepositoryRoot(path=path.normalize())
   }
-  { path: normalized }
+  { path: absolute }
 }
 
 ///|
@@ -24,13 +23,14 @@ pub struct ResolvedSkill {
   plugin_name : PluginName
   plugin_path : RelativePluginPath
   skill_name : SkillName
-  skill_path : @path.Path
+  skill_path : @x_path.AbsolutePath
 } derive(Eq)
 
 ///|
 pub(all) suberror SkillResolutionError {
   IO(path~ : @path.Path, reason~ : String)
   InvalidSkillName(path~ : @path.Path, reason~ : String)
+  InvalidSkillPath(path~ : @path.Path, reason~ : String)
 } derive(Debug, Eq)
 
 ///|
@@ -51,8 +51,8 @@ async fn resolve_plugin_skills(
   repository_root : RepositoryRoot,
   plugin : MarketplacePlugin,
 ) -> Array[ResolvedSkill] raise SkillResolutionError {
-  let skills_directory = repository_root.path
-    .join(plugin.path.path)
+  let skills_directory = repository_root.path.path
+    .join(plugin.path.path.path)
     .join("skills")
   let entries = @fs.readdir(
     skills_directory.to_string(),
@@ -85,6 +85,9 @@ async fn resolve_plugin_skills(
     plugin_name: plugin.name,
     plugin_path: plugin.path,
     skill_name: candidate.0,
-    skill_path: candidate.1,
+    skill_path: @x_path.AbsolutePath::AbsolutePath(candidate.1) catch {
+      error =>
+        raise InvalidSkillPath(path=candidate.1, reason=error.to_string())
+    },
   })
 }

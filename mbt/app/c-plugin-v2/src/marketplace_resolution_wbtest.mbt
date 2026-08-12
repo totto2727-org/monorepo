@@ -63,7 +63,7 @@ async test "MarketplaceResolution resolve_marketplace_skills - preserves plugin 
     )
     debug_inspect(
       resolved.map(skill => {
-        "\{skill.plugin_name.value}|\{skill.plugin_path.path.to_string()}|\{skill.skill_name.value}|\{skill.skill_path.to_string()}"
+        "\{skill.plugin_name.value}|\{skill.plugin_path.path.to_string()}|\{skill.skill_name.value}|\{skill.skill_path.path.to_string()}"
       }),
       content=(
         #|<ReadOnlyArray:

@@ -34,14 +34,14 @@ async test "LinkReconciliation reconcile_skill_links 10 - hard-stops after a cre
       _ => fail("expected checkpoint failure")
     }
     let first_kind = @fs.kind(
-      entry_a.link.path.to_string(),
+      entry_a.link.path.path.to_string(),
       follow_symlink=false,
     ) catch {
       _ => @fs.FileKind::Unknown
     }
     debug_inspect(first_kind, content="Unknown")
     let second_kind = @fs.kind(
-      entry_b.link.path.to_string(),
+      entry_b.link.path.path.to_string(),
       follow_symlink=false,
     ) catch {
       _ => @fs.FileKind::Unknown
@@ -59,11 +59,11 @@ async test "LinkReconciliation reconcile_skill_links 10 - hard-stops after a cre
     inspect(checkpoints.length(), content="2")
     inspect(retried.durable_state == desired_state, content="true")
     inspect(
-      @fs.realpath(entry_a.link.path.to_string()),
+      @fs.realpath(entry_a.link.path.path.to_string()),
       content=@fs.realpath(target_a.to_string()),
     )
     inspect(
-      @fs.realpath(entry_b.link.path.to_string()),
+      @fs.realpath(entry_b.link.path.path.to_string()),
       content=@fs.realpath(target_b.to_string()),
     )
   }
@@ -115,11 +115,11 @@ async test "LinkReconciliation reconcile_skill_links 12 - preserves an injected 
     inspect(checkpointed, content="false")
     match result.notices[0] {
       UnmanagedPathPreserved(path~) =>
-        inspect(path == entry.link.path, content="true")
+        inspect(path == entry.link.path.path, content="true")
       _ => fail("expected unmanaged EEXIST winner notice")
     }
     inspect(
-      @fs.realpath(entry.link.path.to_string()),
+      @fs.realpath(entry.link.path.path.to_string()),
       content=@fs.realpath(foreign_target.to_string()),
     )
   }
@@ -151,7 +151,7 @@ async test "LinkReconciliation reconcile_skill_links 17 - hard-stops after succe
       kind: async fn(path) { @fs.kind(path.to_string(), follow_symlink=false) },
       realpath: async fn(path) { @path.Path(@fs.realpath(path.to_string())) },
       symlink: async fn(target, link) {
-        if link == entry_a.link.path {
+        if link == entry_a.link.path.path {
           @fs.symlink(
             target=wrong_target.relative(base=managed_root).to_string(),
             link.to_string(),
@@ -175,15 +175,15 @@ async test "LinkReconciliation reconcile_skill_links 17 - hard-stops after succe
     inspect(checkpointed, content="false")
     match result.notices[0] {
       OperationFailed(operation=VerifyCreatedLink, path~, reason=_) =>
-        inspect(path == entry_a.link.path, content="true")
+        inspect(path == entry_a.link.path.path, content="true")
       _ => fail("expected created-link verification failure")
     }
     inspect(
-      @fs.realpath(entry_a.link.path.to_string()),
+      @fs.realpath(entry_a.link.path.path.to_string()),
       content=@fs.realpath(wrong_target.to_string()),
     )
     let later_kind = @fs.kind(
-      entry_b.link.path.to_string(),
+      entry_b.link.path.path.to_string(),
       follow_symlink=false,
     ) catch {
       _ => @fs.FileKind::Unknown

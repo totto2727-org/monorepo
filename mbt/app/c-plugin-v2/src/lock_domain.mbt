@@ -84,70 +84,108 @@ pub fn GitHubRepository::route(self : GitHubRepository) -> String {
 
 ///|
 pub struct Target {
-  path : @path.Path
+  path : @x_path.RelativePath
 } derive(Eq)
 
 ///|
 pub impl Compare for Target with fn compare(self, other) {
-  self.path.to_string().lexical_compare(other.path.to_string())
+  @x_path.Path::to_string(self.path).lexical_compare(
+    @x_path.Path::to_string(other.path),
+  )
 }
 
 ///|
 pub impl Hash for Target with fn hash_combine(self, hasher) {
-  self.path.to_string().hash_combine(hasher)
+  Hash::hash_combine(@x_path.Path::to_string(self.path), hasher)
 }
 
 ///|
 pub fn Target::Target(path : @path.Path) -> Target raise {
-  validate_relative_path(path, "target path")
-  { path: path.normalize() }
+  Target::from_relative(restricted_relative_path(path, "target path"))
+}
+
+///|
+fn Target::from_relative(path : @x_path.RelativePath) -> Target {
+  { path, }
 }
 
 ///|
 pub struct RelativeSourcePath {
-  path : @path.Path
+  path : @x_path.RelativePath
 } derive(Eq)
 
 ///|
 pub impl Compare for RelativeSourcePath with fn compare(self, other) {
-  self.path.to_string().lexical_compare(other.path.to_string())
+  @x_path.Path::to_string(self.path).lexical_compare(
+    @x_path.Path::to_string(other.path),
+  )
 }
 
 ///|
 pub impl Hash for RelativeSourcePath with fn hash_combine(self, hasher) {
-  self.path.to_string().hash_combine(hasher)
+  Hash::hash_combine(@x_path.Path::to_string(self.path), hasher)
 }
 
 ///|
 pub fn RelativeSourcePath::RelativeSourcePath(
   path : @path.Path,
 ) -> RelativeSourcePath raise {
-  validate_relative_path(path, "local repository path")
-  { path: path.normalize() }
+  RelativeSourcePath::from_relative(
+    restricted_relative_path(path, "local repository path"),
+  )
+}
+
+///|
+fn RelativeSourcePath::from_relative(
+  path : @x_path.RelativePath,
+) -> RelativeSourcePath {
+  { path, }
 }
 
 ///|
 pub struct RelativePluginPath {
-  path : @path.Path
+  path : @x_path.RelativePath
 } derive(Eq)
 
 ///|
 pub impl Hash for RelativePluginPath with fn hash_combine(self, hasher) {
-  self.path.to_string().hash_combine(hasher)
+  Hash::hash_combine(@x_path.Path::to_string(self.path), hasher)
 }
 
 ///|
 pub fn RelativePluginPath::RelativePluginPath(
   path : @path.Path,
 ) -> RelativePluginPath raise {
-  validate_relative_path(path, "plugin path")
-  { path: path.normalize() }
+  RelativePluginPath::from_relative(
+    restricted_relative_path(path, "plugin path"),
+  )
 }
 
 ///|
-fn validate_relative_path(path : @path.Path, kind : String) -> Unit raise {
+fn RelativePluginPath::from_relative(
+  path : @x_path.RelativePath,
+) -> RelativePluginPath {
+  { path, }
+}
+
+///|
+fn restricted_relative_path(
+  path : @path.Path,
+  kind : String,
+) -> @x_path.RelativePath raise {
   let value = path.to_string()
-  guard value != "" && !path.is_absolute() && !value.contains("\\") else {
+  validate_restricted_relative_path_value(value, kind)
+  @x_path.RelativePath::RelativePath(path) catch {
+    _ => fail("\{kind} must be a relative path")
+  }
+}
+
+///|
+fn validate_restricted_relative_path_value(
+  value : String,
+  kind : String,
+) -> Unit raise {
+  guard value != "" && !value.contains("\\") else {
     fail("\{kind} must be a relative path")
   }
   let segments = value

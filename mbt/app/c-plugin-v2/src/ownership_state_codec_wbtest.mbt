@@ -78,6 +78,21 @@ test "OwnershipState ToJson::to_json - round trips local ownership metadata" {
 }
 
 ///|
+test "OwnershipState ToJson::to_json - preserves literal symlink targets" {
+  for target in ["a/../b", "/absolute/target"] {
+    let text = "{\"version\":\"1\",\"entries\":[{" +
+      "\"link\":\"/home/alice/project/.agents/skills/sync\"," +
+      "\"symlinkTarget\":\"\{target}\"," +
+      "\"resolvedTarget\":\"/home/alice/.cache/c-plugin/skills/sync\"," +
+      "\"managedRoot\":\"/home/alice/project/.agents/skills\"," +
+      "\"source\":{\"type\":\"github\",\"repository\":\"openai/codex\"," +
+      "\"plugin\":\"c-plugin\",\"skill\":\"sync\"}}]}"
+    let state : OwnershipState = @json.from_json(@json.parse(text))
+    inspect(ToJson::to_json(state).stringify(), content=text)
+  }
+}
+
+///|
 test "OwnershipState ToJson::to_json - sorts entries by link" {
   let text =
     #|{"version":"1","entries":[{"link":"/home/alice/project/.agents/skills/z-last","symlinkTarget":"../../../cache/skills/z-last","resolvedTarget":"/home/alice/.cache/c-plugin/skills/z-last","managedRoot":"/home/alice/project/.agents/skills","source":{"type":"github","repository":"openai/codex","plugin":"c-plugin","skill":"z-last"}},{"link":"/home/alice/project/.agents/skills/a-first","symlinkTarget":"../../../cache/skills/a-first","resolvedTarget":"/home/alice/.cache/c-plugin/skills/a-first","managedRoot":"/home/alice/project/.agents/skills","source":{"type":"github","repository":"openai/codex","plugin":"c-plugin","skill":"a-first"}}]}

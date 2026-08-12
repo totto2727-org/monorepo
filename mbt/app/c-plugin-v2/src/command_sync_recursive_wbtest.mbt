@@ -16,7 +16,7 @@ async test "Sync command recursive 1 - routes the short recursive option to recu
       root.join("cache"),
     )
     let empty_lock = Lock::Lock([], [])
-    let project_lock = paths.project_lock_path(paths.cwd)
+    let project_lock = paths.project_lock_path(paths.cwd.path)
     let mut discovered_options = None
     let runtime = Runtime::Runtime(
       paths~,
@@ -86,7 +86,7 @@ async test "Sync command recursive 3 - keeps completed lock ownership isolated w
       root.join("project"),
       root.join("cache"),
     )
-    let project = paths.cwd
+    let project = paths.cwd.path
     create_sync_marketplace(project.join("marketplace"))
     let parent_lock_path = project.join("c-plugin-lock.json")
     let child_lock_path = project.join("child").join("c-plugin-lock.json")
