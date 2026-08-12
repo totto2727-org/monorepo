@@ -41,7 +41,7 @@ pub fn Runtime::Runtime(
 pub fn Runtime::project_lock_path(
   self : Runtime,
 ) -> @path.Path raise RuntimePathsError {
-  self.paths.project_lock_path(self.paths.cwd)
+  self.paths.project_lock_path(self.paths.cwd.path)
 }
 
 ///|

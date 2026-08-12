@@ -89,11 +89,11 @@ pub async fn discover_locks(
   options : LockDiscoveryOptions,
 ) -> ReadOnlyArray[@path.Path] raise LockDiscoveryError {
   match options {
-    Global => ReadOnlyArray::from_array([find_global_lock(paths.home)])
+    Global => ReadOnlyArray::from_array([find_global_lock(paths.home.path)])
     Project(recursive~) => {
-      let nearest_lock = find_project_lock(paths.home, paths.cwd)
+      let nearest_lock = find_project_lock(paths.home.path, paths.cwd.path)
       if recursive {
-        find_recursive_project_locks(paths.home, nearest_lock)
+        find_recursive_project_locks(paths.home.path, nearest_lock)
       } else {
         ReadOnlyArray::from_array([nearest_lock])
       }

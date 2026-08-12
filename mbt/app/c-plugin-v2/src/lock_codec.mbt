@@ -40,40 +40,46 @@ pub impl ToJson for GitHubRepository with fn to_json(self) -> Json {
 ///|
 pub impl @json.FromJson for Target with fn from_json(json, path) {
   let value : String = @json.from_json(json, path~)
-  Target(@path.Path(value)) catch {
+  validate_restricted_relative_path_value(value, "target path") catch {
     error => raise @json.JsonDecodeError((path, error.to_string()))
   }
+  let relative : @x_path.RelativePath = @json.from_json(json, path~)
+  Target::from_relative(relative)
 }
 
 ///|
 pub impl ToJson for Target with fn to_json(self) -> Json {
-  self.path.to_string().to_json()
+  self.path.to_json()
 }
 
 ///|
 pub impl @json.FromJson for RelativeSourcePath with fn from_json(json, path) {
   let value : String = @json.from_json(json, path~)
-  RelativeSourcePath(@path.Path(value)) catch {
+  validate_restricted_relative_path_value(value, "local repository path") catch {
     error => raise @json.JsonDecodeError((path, error.to_string()))
   }
+  let relative : @x_path.RelativePath = @json.from_json(json, path~)
+  RelativeSourcePath::from_relative(relative)
 }
 
 ///|
 pub impl ToJson for RelativeSourcePath with fn to_json(self) -> Json {
-  self.path.to_string().to_json()
+  self.path.to_json()
 }
 
 ///|
 pub impl @json.FromJson for RelativePluginPath with fn from_json(json, path) {
   let value : String = @json.from_json(json, path~)
-  RelativePluginPath(@path.Path(value)) catch {
+  validate_restricted_relative_path_value(value, "plugin path") catch {
     error => raise @json.JsonDecodeError((path, error.to_string()))
   }
+  let relative : @x_path.RelativePath = @json.from_json(json, path~)
+  RelativePluginPath::from_relative(relative)
 }
 
 ///|
 pub impl ToJson for RelativePluginPath with fn to_json(self) -> Json {
-  self.path.to_string().to_json()
+  self.path.to_json()
 }
 
 ///|

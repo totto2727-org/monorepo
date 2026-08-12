@@ -157,7 +157,7 @@ async test "Sync sync_lock 2 - rebuilds ownership conservatively from corrupt st
     inspect(result.reconciliation.notices.length(), content="1")
     match result.reconciliation.notices[0] {
       PreviousOwnershipCorrupt(path~, reason=_) =>
-        inspect(path.path == state_path, content="true")
+        inspect(path.path.path == state_path, content="true")
       _ => fail("expected PreviousOwnershipCorrupt")
     }
     inspect(result.reconciliation.durable_state.entries.length(), content="2")
@@ -302,7 +302,7 @@ async test "Sync sync_lock 5 - distrusts ownership roots outside the lock scope"
     debug_inspect(result.reconciliation.status, content="Partial")
     match result.reconciliation.notices[0] {
       PreviousOwnershipCorrupt(path~, reason=_) =>
-        inspect(path.path == state_path, content="true")
+        inspect(path.path.path == state_path, content="true")
       _ => fail("expected unsafe ownership to become corrupt")
     }
     debug_inspect(

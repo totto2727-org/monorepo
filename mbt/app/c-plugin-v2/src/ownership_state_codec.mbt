@@ -128,21 +128,21 @@ pub impl ToJson for OwnershipSource with fn to_json(self) -> Json {
 
 ///|
 pub impl FromJson for OwnershipLink with fn from_json(json, path) {
-  let value : String = @json.from_json(json, path~)
-  OwnershipLink::OwnershipLink(@path.Path(value)) catch {
+  let absolute : @x_path.AbsolutePath = @json.from_json(json, path~)
+  OwnershipLink::OwnershipLink(absolute.path) catch {
     _ => raise @json.JsonDecodeError((path, "ownership link must be absolute"))
   }
 }
 
 ///|
 pub impl ToJson for OwnershipLink with fn to_json(self) -> Json {
-  self.path.to_string().to_json()
+  self.path.to_json()
 }
 
 ///|
 pub impl FromJson for OwnershipResolvedTarget with fn from_json(json, path) {
-  let value : String = @json.from_json(json, path~)
-  OwnershipResolvedTarget::OwnershipResolvedTarget(@path.Path(value)) catch {
+  let absolute : @x_path.AbsolutePath = @json.from_json(json, path~)
+  OwnershipResolvedTarget::OwnershipResolvedTarget(absolute.path) catch {
     _ =>
       raise @json.JsonDecodeError(
         (path, "ownership resolved target must be absolute"),
@@ -152,13 +152,13 @@ pub impl FromJson for OwnershipResolvedTarget with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for OwnershipResolvedTarget with fn to_json(self) -> Json {
-  self.path.to_string().to_json()
+  self.path.to_json()
 }
 
 ///|
 pub impl FromJson for OwnershipManagedRoot with fn from_json(json, path) {
-  let value : String = @json.from_json(json, path~)
-  OwnershipManagedRoot::OwnershipManagedRoot(@path.Path(value)) catch {
+  let absolute : @x_path.AbsolutePath = @json.from_json(json, path~)
+  OwnershipManagedRoot::OwnershipManagedRoot(absolute.path) catch {
     _ =>
       raise @json.JsonDecodeError(
         (path, "ownership managed root must be absolute"),
@@ -168,7 +168,7 @@ pub impl FromJson for OwnershipManagedRoot with fn from_json(json, path) {
 
 ///|
 pub impl ToJson for OwnershipManagedRoot with fn to_json(self) -> Json {
-  self.path.to_string().to_json()
+  self.path.to_json()
 }
 
 ///|

@@ -14,24 +14,24 @@ async fn reconcile_desired_entries(
   for pair in desired_entries {
     let identity = pair.0
     let desired_entry = pair.1
-    (io.mkdir)(desired_entry.managed_root.path) catch {
+    (io.mkdir)(desired_entry.managed_root.path.path) catch {
       error => {
         notices.push(
           OperationFailed(
             operation=EnsureManagedRoot,
-            path=desired_entry.managed_root.path,
+            path=desired_entry.managed_root.path.path,
             reason=error.to_string(),
           ),
         )
         continue
       }
     }
-    let managed_root_kind = (io.kind)(desired_entry.managed_root.path) catch {
+    let managed_root_kind = (io.kind)(desired_entry.managed_root.path.path) catch {
       error => {
         notices.push(
           OperationFailed(
             operation=VerifyContainment,
-            path=desired_entry.managed_root.path,
+            path=desired_entry.managed_root.path.path,
             reason=error.to_string(),
           ),
         )
@@ -42,7 +42,7 @@ async fn reconcile_desired_entries(
       notices.push(
         OperationFailed(
           operation=VerifyContainment,
-          path=desired_entry.managed_root.path,
+          path=desired_entry.managed_root.path.path,
           reason="managed root must be a physical directory",
         ),
       )
@@ -53,7 +53,7 @@ async fn reconcile_desired_entries(
         notices.push(
           OperationFailed(
             operation=VerifyContainment,
-            path=desired_entry.link.path,
+            path=desired_entry.link.path.path,
             reason=error.to_string(),
           ),
         )
@@ -64,18 +64,18 @@ async fn reconcile_desired_entries(
       notices.push(
         OperationFailed(
           operation=VerifyContainment,
-          path=desired_entry.link.path,
+          path=desired_entry.link.path.path,
           reason="link parent resolves outside the managed root",
         ),
       )
       continue
     }
-    let kind = classify_link(io, desired_entry.link.path) catch {
+    let kind = classify_link(io, desired_entry.link.path.path) catch {
       error => {
         notices.push(
           OperationFailed(
             operation=ClassifyLink,
-            path=desired_entry.link.path,
+            path=desired_entry.link.path.path,
             reason=error.to_string(),
           ),
         )
@@ -105,13 +105,13 @@ async fn reconcile_desired_entries(
         }
         None => ()
       }
-      (io.remove)(desired_entry.link.path) catch {
+      (io.remove)(desired_entry.link.path.path) catch {
         @os_error.OSError(_) as error if error.is_ENOENT() => ()
         error => {
           notices.push(
             OperationFailed(
               operation=RemoveLink,
-              path=desired_entry.link.path,
+              path=desired_entry.link.path.path,
               reason=error.to_string(),
             ),
           )
@@ -132,7 +132,9 @@ async fn reconcile_desired_entries(
       None =>
         match kind {
           Some(_) =>
-            notices.push(UnmanagedPathPreserved(path=desired_entry.link.path))
+            notices.push(
+              UnmanagedPathPreserved(path=desired_entry.link.path.path),
+            )
           None => should_create = true
         }
       Some(recorded_entry) =>
@@ -151,7 +153,7 @@ async fn reconcile_desired_entries(
           Some(@fs.FileKind::SymLink) => {
             let mut broken = false
             let live_target = try
-              (io.realpath)(recorded_entry.link.path)
+              (io.realpath)(recorded_entry.link.path.path)
             catch {
               @os_error.OSError(_) as error if error.is_ENOENT() => {
                 broken = true
@@ -161,7 +163,7 @@ async fn reconcile_desired_entries(
                 notices.push(
                   OperationFailed(
                     operation=ClassifyLink,
-                    path=recorded_entry.link.path,
+                    path=recorded_entry.link.path.path,
                     reason=error.to_string(),
                   ),
                 )
@@ -172,7 +174,7 @@ async fn reconcile_desired_entries(
             }
             if broken {
               notices.push(
-                BrokenOwnedLinkPreserved(path=recorded_entry.link.path),
+                BrokenOwnedLinkPreserved(path=recorded_entry.link.path.path),
               )
               let omitted = state_without_entry(durable_state, identity)
               match
@@ -184,9 +186,10 @@ async fn reconcile_desired_entries(
               }
             } else {
               match live_target {
-                Some(target) if target == recorded_entry.resolved_target.path =>
-                  if desired_entry.resolved_target.path ==
-                    recorded_entry.resolved_target.path {
+                Some(target) if target ==
+                  recorded_entry.resolved_target.path.path =>
+                  if desired_entry.resolved_target.path.path ==
+                    recorded_entry.resolved_target.path.path {
                     if desired_entry != recorded_entry {
                       let refreshed = state_with_entry(
                         durable_state, desired_entry,
@@ -202,14 +205,14 @@ async fn reconcile_desired_entries(
                   } else {
                     match recheck_stale_link(io, recorded_entry) {
                       Matching => {
-                        (io.remove)(recorded_entry.link.path) catch {
+                        (io.remove)(recorded_entry.link.path.path) catch {
                           @os_error.OSError(_) as error if error.is_ENOENT() =>
                             ()
                           error => {
                             notices.push(
                               OperationFailed(
                                 operation=RemoveLink,
-                                path=recorded_entry.link.path,
+                                path=recorded_entry.link.path.path,
                                 reason=error.to_string(),
                               ),
                             )
@@ -246,7 +249,7 @@ async fn reconcile_desired_entries(
                       Replaced => {
                         notices.push(
                           ReplacedOwnedPathPreserved(
-                            path=recorded_entry.link.path,
+                            path=recorded_entry.link.path.path,
                           ),
                         )
                         let omitted = state_without_entry(
@@ -265,7 +268,7 @@ async fn reconcile_desired_entries(
                         notices.push(
                           OperationFailed(
                             operation~,
-                            path=recorded_entry.link.path,
+                            path=recorded_entry.link.path.path,
                             reason~,
                           ),
                         )
@@ -273,7 +276,9 @@ async fn reconcile_desired_entries(
                   }
                 Some(_) => {
                   notices.push(
-                    ReplacedOwnedPathPreserved(path=recorded_entry.link.path),
+                    ReplacedOwnedPathPreserved(
+                      path=recorded_entry.link.path.path,
+                    ),
                   )
                   let omitted = state_without_entry(durable_state, identity)
                   match
@@ -290,7 +295,7 @@ async fn reconcile_desired_entries(
           }
           Some(_) => {
             notices.push(
-              ReplacedOwnedPathPreserved(path=recorded_entry.link.path),
+              ReplacedOwnedPathPreserved(path=recorded_entry.link.path.path),
             )
             let omitted = state_without_entry(durable_state, identity)
             match

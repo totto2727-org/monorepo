@@ -10,11 +10,13 @@ async test "Runtime discover_locks - injects synthetic runtime paths" {
     paths~,
     discover_locks_api=fn(runtime_paths, _options) {
       received = [
-        runtime_paths.home,
-        runtime_paths.cwd,
-        runtime_paths.cache_root,
+        runtime_paths.home.path,
+        runtime_paths.cwd.path,
+        runtime_paths.cache_root.path,
       ]
-      ReadOnlyArray::from_array([runtime_paths.cwd.join("c-plugin-lock.json")])
+      ReadOnlyArray::from_array([
+        runtime_paths.cwd.path.join("c-plugin-lock.json"),
+      ])
     },
     load_lock=fn(_path) { lock },
     create_lock_exclusive=fn(_path, _lock) { () },

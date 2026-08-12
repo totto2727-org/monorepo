@@ -93,7 +93,7 @@ test "OwnershipEntry Compare::compare - uses every Eq field as a tie breaker" {
   let changed_symlink = ownership_entry_with(
     link,
     "../../../other-cache/skills/sync",
-    base.resolved_target.path,
+    base.resolved_target.path.path,
     base.source,
   )
   let changed_target = ownership_entry_with(
@@ -105,7 +105,7 @@ test "OwnershipEntry Compare::compare - uses every Eq field as a tie breaker" {
   let changed_source = ownership_entry_with(
     link,
     base.symlink_target,
-    base.resolved_target.path,
+    base.resolved_target.path.path,
     OwnershipSource::from_local(
       LocalOwnershipSource::LocalOwnershipSource(
         RelativeSourcePath::RelativeSourcePath("vendor/c-plugin"),
@@ -136,7 +136,7 @@ test "OwnershipEntry OwnershipEntry - normalizes absolute paths but preserves sy
     "/home/alice/project/.agents/skills/../skills/sync",
   )
   inspect(
-    entry.link.path.to_string(),
+    entry.link.path.path.to_string(),
     content="/home/alice/project/.agents/skills/sync",
   )
   inspect(
@@ -144,11 +144,11 @@ test "OwnershipEntry OwnershipEntry - normalizes absolute paths but preserves sy
     content="../../../cache/skills/sync",
   )
   inspect(
-    entry.resolved_target.path.to_string(),
+    entry.resolved_target.path.path.to_string(),
     content="/home/alice/.cache/c-plugin/skills/sync",
   )
   inspect(
-    entry.managed_root.path.to_string(),
+    entry.managed_root.path.path.to_string(),
     content="/home/alice/project/.agents/skills",
   )
 }
@@ -182,9 +182,13 @@ test "OwnershipState equality - ignores entry order" {
 ///|
 test "OwnershipLinkIdentity Compare::compare - uses normalized lexical path order" {
   let first = OwnershipLinkIdentity(
-    "/home/alice/project/.agents/skills/other/../alpha",
+    OwnershipLink::OwnershipLink(
+      "/home/alice/project/.agents/skills/other/../alpha",
+    ).path,
   )
-  let last = OwnershipLinkIdentity("/home/alice/project/.agents/skills/z")
+  let last = OwnershipLinkIdentity(
+    OwnershipLink::OwnershipLink("/home/alice/project/.agents/skills/z").path,
+  )
   inspect(first.compare(last), content="-1")
 }
 

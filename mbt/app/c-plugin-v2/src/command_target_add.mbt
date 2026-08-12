@@ -116,10 +116,12 @@ async fn target_add(
 async fn run_target_add(runtime : Runtime, context : @admiral.Context) -> Unit {
   match target_add(runtime, target_add_options(context)) {
     AlreadyPresent(target~, lock_path~) =>
-      println("Target \{target.path} already registered in \{lock_path}")
+      println(
+        "Target \{@x_path.Path::to_string(target.path)} already registered in \{lock_path}",
+      )
     Added(target~, sync_result~) =>
       println(
-        "Added target \{target.path} to \{sync_result.lock_path}: \{sync_status_text(sync_result.reconciliation.status)} (\{sync_result.reconciliation.notices.length()} notices, \{sync_result.unavailable_repositories.length()} unavailable repositories)",
+        "Added target \{@x_path.Path::to_string(target.path)} to \{sync_result.lock_path}: \{sync_status_text(sync_result.reconciliation.status)} (\{sync_result.reconciliation.notices.length()} notices, \{sync_result.unavailable_repositories.length()} unavailable repositories)",
       )
   }
 }

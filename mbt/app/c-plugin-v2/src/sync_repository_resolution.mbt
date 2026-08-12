@@ -30,6 +30,8 @@ fn skill_resolution_error_reason(error : SkillResolutionError) -> String {
     IO(path~, reason~) => "skill resolution I/O at \{path}: \{reason}"
     InvalidSkillName(path~, reason~) =>
       "invalid skill name at \{path}: \{reason}"
+    InvalidSkillPath(path~, reason~) =>
+      "invalid skill path at \{path}: \{reason}"
   }
 }
 
@@ -47,7 +49,7 @@ async fn resolve_repository_for_sync(
     Local(local_repository) => {
       let repository_path = lock_path
         .dirname()
-        .join(local_repository.path.path)
+        .join(local_repository.path.path.path)
         .normalize()
       let repository_root = RepositoryRoot::RepositoryRoot(repository_path) catch {
         error =>

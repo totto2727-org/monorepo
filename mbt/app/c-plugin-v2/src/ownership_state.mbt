@@ -92,73 +92,81 @@ pub fn OwnershipSource::from_local(
 
 ///|
 pub struct OwnershipStatePath {
-  path : @path.Path
+  path : @x_path.AbsolutePath
 } derive(Eq)
 
 ///|
 pub fn OwnershipStatePath::OwnershipStatePath(
   path : @path.Path,
 ) -> OwnershipStatePath raise {
-  guard path.is_absolute() else {
-    fail("ownership state path must be absolute")
+  let absolute = @x_path.AbsolutePath::AbsolutePath(path) catch {
+    _ => fail("ownership state path must be absolute")
   }
-  { path: path.normalize() }
+  { path: absolute }
 }
 
 ///|
 pub struct OwnershipLink {
-  path : @path.Path
+  path : @x_path.AbsolutePath
 } derive(Eq)
 
 ///|
 pub fn OwnershipLink::OwnershipLink(path : @path.Path) -> OwnershipLink raise {
-  guard path.is_absolute() else { fail("ownership link must be absolute") }
-  { path: path.normalize() }
+  let absolute = @x_path.AbsolutePath::AbsolutePath(path) catch {
+    _ => fail("ownership link must be absolute")
+  }
+  { path: absolute }
 }
 
 ///|
 pub impl Compare for OwnershipLink with fn compare(self, other) {
-  self.path.to_string().lexical_compare(other.path.to_string())
+  @x_path.Path::to_string(self.path).lexical_compare(
+    @x_path.Path::to_string(other.path),
+  )
 }
 
 ///|
 pub struct OwnershipResolvedTarget {
-  path : @path.Path
+  path : @x_path.AbsolutePath
 } derive(Eq)
 
 ///|
 pub fn OwnershipResolvedTarget::OwnershipResolvedTarget(
   path : @path.Path,
 ) -> OwnershipResolvedTarget raise {
-  guard path.is_absolute() else {
-    fail("ownership resolved target must be absolute")
+  let absolute = @x_path.AbsolutePath::AbsolutePath(path) catch {
+    _ => fail("ownership resolved target must be absolute")
   }
-  { path: path.normalize() }
+  { path: absolute }
 }
 
 ///|
 pub impl Compare for OwnershipResolvedTarget with fn compare(self, other) {
-  self.path.to_string().lexical_compare(other.path.to_string())
+  @x_path.Path::to_string(self.path).lexical_compare(
+    @x_path.Path::to_string(other.path),
+  )
 }
 
 ///|
 pub struct OwnershipManagedRoot {
-  path : @path.Path
+  path : @x_path.AbsolutePath
 } derive(Eq)
 
 ///|
 pub fn OwnershipManagedRoot::OwnershipManagedRoot(
   path : @path.Path,
 ) -> OwnershipManagedRoot raise {
-  guard path.is_absolute() else {
-    fail("ownership managed root must be absolute")
+  let absolute = @x_path.AbsolutePath::AbsolutePath(path) catch {
+    _ => fail("ownership managed root must be absolute")
   }
-  { path: path.normalize() }
+  { path: absolute }
 }
 
 ///|
 pub impl Compare for OwnershipManagedRoot with fn compare(self, other) {
-  self.path.to_string().lexical_compare(other.path.to_string())
+  @x_path.Path::to_string(self.path).lexical_compare(
+    @x_path.Path::to_string(other.path),
+  )
 }
 
 ///|
@@ -178,7 +186,7 @@ pub fn OwnershipEntry::OwnershipEntry(
   managed_root : OwnershipManagedRoot,
   source : OwnershipSource,
 ) -> OwnershipEntry raise {
-  guard link.path.dirname() == managed_root.path else {
+  guard link.path.path.dirname() == managed_root.path.path else {
     fail("ownership link must be a direct child of its managed root")
   }
   { link, symlink_target, resolved_target, managed_root, source }
@@ -219,24 +227,26 @@ pub struct OwnershipState {
 
 ///|
 pub struct OwnershipLinkIdentity {
-  path : @path.Path
+  path : @x_path.AbsolutePath
 } derive(Eq)
 
 ///|
 pub impl Compare for OwnershipLinkIdentity with fn compare(self, other) {
-  self.path.to_string().lexical_compare(other.path.to_string())
+  @x_path.Path::to_string(self.path).lexical_compare(
+    @x_path.Path::to_string(other.path),
+  )
 }
 
 ///|
 pub fn OwnershipLinkIdentity::OwnershipLinkIdentity(
-  path : @path.Path,
+  path : @x_path.AbsolutePath,
 ) -> OwnershipLinkIdentity {
-  { path: path.normalize() }
+  { path, }
 }
 
 ///|
 pub impl Hash for OwnershipLinkIdentity with fn hash_combine(self, hasher) {
-  self.path.to_string().hash_combine(hasher)
+  Hash::hash_combine(@x_path.Path::to_string(self.path), hasher)
 }
 
 ///|

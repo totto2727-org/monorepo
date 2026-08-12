@@ -1,19 +1,21 @@
 ///|
 pub struct ManagedSkillRoot {
-  path : @path.Path
+  path : @x_path.AbsolutePath
 } derive(Eq)
 
 ///|
 pub impl Hash for ManagedSkillRoot with fn hash_combine(self, hasher) {
-  self.path.to_string().hash_combine(hasher)
+  Hash::hash_combine(@x_path.Path::to_string(self.path), hasher)
 }
 
 ///|
 pub fn ManagedSkillRoot::ManagedSkillRoot(
   path : @path.Path,
 ) -> ManagedSkillRoot raise {
-  guard path.is_absolute() else { fail("managed skill root must be absolute") }
-  { path: path.normalize() }
+  let absolute = @x_path.AbsolutePath::AbsolutePath(path) catch {
+    _ => fail("managed skill root must be absolute")
+  }
+  { path: absolute }
 }
 
 ///|
@@ -123,13 +125,13 @@ fn desired_entry(
   skill : ResolvedSkill,
 ) -> OwnershipEntry raise {
   let link = OwnershipLink::OwnershipLink(
-    root.path.join(skill.skill_name.value),
+    root.path.path.join(skill.skill_name.value),
   )
   OwnershipEntry::OwnershipEntry(
     link,
-    skill.skill_path.relative(base=root.path),
-    OwnershipResolvedTarget::OwnershipResolvedTarget(skill.skill_path),
-    OwnershipManagedRoot::OwnershipManagedRoot(root.path),
+    skill.skill_path.path.relative(base=root.path.path),
+    OwnershipResolvedTarget::OwnershipResolvedTarget(skill.skill_path.path),
+    OwnershipManagedRoot::OwnershipManagedRoot(root.path.path),
     ownership_source(repository, skill),
   )
 }
