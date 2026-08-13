@@ -15,8 +15,7 @@
 - Keeping mutually exclusive states as several optional fields in `Options`.
 - Resolving environment variables in the runner instead of options conversion.
 - Parsing files or domain payloads while creating the options struct.
-- Using `derive(ToJson)` for request body wire types.
-- Using `Map[String, Json]` as the default JSON construction strategy.
+- Duplicating JSON or Lens policy here instead of following [`json.md`](json.md).
 - Replacing explicit required-value handling or meaningful fallback chains with opaque error-extraction helpers.
 - Destructuring required option arrays with `[value, ..]` after extraction.
 - Adding aliases (`#alias` or type aliases) unless the alternate name is actually part of the public API and used by callers.

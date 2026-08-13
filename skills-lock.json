@@ -31,12 +31,6 @@
       "skillPath": "plugins/totto2727-coding/skills/docs-moonbit/SKILL.md",
       "computedHash": "3970d5c8bb4b36cb5a749661f8501736c42eedf004486ab6299b7ebe2fb1cbf1"
     },
-    "docs-structure": {
-      "source": "totto2727-org/agent",
-      "sourceType": "github",
-      "skillPath": "plugins/totto2727/skills/docs-structure/SKILL.md",
-      "computedHash": "e08dfbdedf5c09bbb76d9d08e7e2c921ca8e4416a7a2974b2d41f2c2c9ff44de"
-    },
     "html-doc": {
       "source": "totto2727-org/agent",
       "sourceType": "github",
@@ -77,7 +71,7 @@
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/totto2727-coding/skills/mbt-coding/SKILL.md",
-      "computedHash": "403c06a72f9f96eef74b5743c5d595e37f63f283105969c4b2d7d84c2bbd042e"
+      "computedHash": "977ab025172dab3218a2e33532aca041dee99e5c4d5db6edd77a790adb967417"
     },
     "mbt-test": {
       "source": "totto2727-org/agent",
@@ -103,23 +97,11 @@
       "skillPath": "plugins/totto2727/skills/realpath/SKILL.md",
       "computedHash": "6aad2fa9c78d2b39a810a89a480bc234891f8cb02ffc8b1d5f46b036b5025b9e"
     },
-    "share-adr": {
-      "source": "totto2727-org/agent",
-      "sourceType": "github",
-      "skillPath": "plugins/totto2727-coding/skills/share-adr/SKILL.md",
-      "computedHash": "aca01391c9ecbbb4be095b3a53e7c5872d074cfb4cf751c27721750c04d3c9bd"
-    },
-    "share-artifacts": {
-      "source": "totto2727-org/agent",
-      "sourceType": "github",
-      "skillPath": "plugins/totto2727-coding/skills/share-artifacts/SKILL.md",
-      "computedHash": "da198b8cb0523065fb9152cda755e93045ec10c485c2f075f2c6fec577f04673"
-    },
     "share-coding": {
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/totto2727-coding/skills/share-coding/SKILL.md",
-      "computedHash": "0adc971c1df4615685c7442534749d399452d94aa25872ed2a31d7a1149e6c8c"
+      "computedHash": "880c209b2775a404a6f8a6bd1e8f710f7edc289a08008b62a3060cea06f84b82"
     },
     "share-test": {
       "source": "totto2727-org/agent",

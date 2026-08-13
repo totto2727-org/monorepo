@@ -2,34 +2,6 @@
 
 > Document type: concrete MoonBit CLI implementation guidance.
 
-## `ToJson` implementation
+Keep request bodies separate from command input, response types, and domain values. Construct a request body only after command input has been validated and converted to the domain operation's output. Do not pass `@admiral.Context` or a command input struct into serialization code, and do not construct request JSON while reading CLI options.
 
-Every request body type must implement `ToJson` explicitly as a trait implementation. Do not use `derive(ToJson)` for request bodies.
-
-Construct the request body from validated domain values. Do not pass `@admiral.Context`, command input structs, response DTOs, or generic `Json` into the request encoder.
-
-Preferred order:
-
-1. Express the JSON shape directly with `Json::object({ ... })` and Json-related types.
-2. Use pattern matching plus Json-related types when variants are required.
-3. Use `Map[String, Json]` only when omission vs. explicit `Json::null()` matters or when dynamic keys are unavoidable.
-
-Example:
-
-```moonbit
-///|
-impl ToJson for ScreenshotBody with fn to_json(self) -> Json {
-  Json::object({
-    "url": match self.url {
-      Some(value) => value.to_json()
-      None => Json::null()
-    },
-    "html": match self.html {
-      Some(value) => value.to_json()
-      None => Json::null()
-    },
-  })
-}
-```
-
-If the remote API requires omission rather than `null`, isolate the unavoidable `Map[String, Json]` inside that one `to_json` implementation and document the API reason in a short comment. Do not introduce shared Map-building helpers.
+Follow [`json.md`](json.md) for the authoritative rules on `ToJson`, Lens-based construction, omission versus `null`, dynamic keys, raw `Json`, and codec validation. The CLI layer owns orchestration only; the request type owns its wire contract.
