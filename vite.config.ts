@@ -26,7 +26,11 @@ export default defineConfig({
     singleQuote: true,
   },
   lint: {
-    extends: [core, oxlintPluginPreset],
+    extends: [
+      // @ts-expect-error ignore type error for now, because the type of `extends` is not correct in `ultracite/oxlint/core`
+      core,
+      oxlintPluginPreset,
+    ],
     ignorePatterns: [...ignorePatterns, '**/skills/**', '**/.script/**'],
     options: {
       typeAware: true,
