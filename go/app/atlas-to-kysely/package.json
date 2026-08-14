@@ -1,8 +1,0 @@
-{
-  "name": "@app/atlas-to-kysely",
-  "private": true,
-  "scripts": {},
-  "devDependencies": {
-    "vite-plus": "catalog:"
-  }
-}

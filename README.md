@@ -8,7 +8,6 @@ A multi-language monorepo using Bun workspaces and Vite+.
 
 - `mbt/`: Moonbit Projects
 - `js/`: JavaScript Projects
-- `go/`: Go Projects
 - `nix/`: Nix Projects
 - `elixir/`: Elixir Projects
 - `infra/`: Pulumi Projects

@@ -20,25 +20,6 @@
     "elixir/symphony": {
       "name": "symphony",
     },
-    "go/app/atlas-to-kysely": {
-      "name": "@app/atlas-to-kysely",
-      "devDependencies": {
-        "vite-plus": "catalog:",
-      },
-    },
-    "go/e2e/example": {
-      "name": "@go/e2e-example",
-      "devDependencies": {
-        "@go/e2e": "workspace:*",
-        "vite-plus": "catalog:",
-      },
-    },
-    "go/package/e2e": {
-      "name": "@go/e2e",
-      "devDependencies": {
-        "vite-plus": "catalog:",
-      },
-    },
     "infra/aws": {
       "name": "@infra/aws",
       "devDependencies": {
@@ -325,8 +306,6 @@
     },
   },
   "packages": {
-    "@app/atlas-to-kysely": ["@app/atlas-to-kysely@workspace:go/app/atlas-to-kysely"],
-
     "@app/nix": ["@app/nix@workspace:nix"],
 
     "@app/rss-graphql": ["@app/rss-graphql@workspace:js/app/rss-graphql"],
@@ -462,10 +441,6 @@
     "@formatjs/intl-localematcher": ["@formatjs/intl-localematcher@0.8.13", "https://npm.flatt.tech/@formatjs/intl-localematcher/-/intl-localematcher-0.8.13.tgz", { "dependencies": { "@formatjs/fast-memoize": "3.1.7" } }, "sha512-kHEAFOkeJSPNi7c5PaKaRjxcBrJwzzt81ifUu+8uve1EDW/VJl83KsxmqgqNZLzcFEhSliZGvx3+pk/RH0IOmg=="],
 
     "@gar/promise-retry": ["@gar/promise-retry@1.0.3", "https://npm.flatt.tech/@gar/promise-retry/-/promise-retry-1.0.3.tgz", {}, "sha512-GmzA9ckNokPypTg10pgpeHNQe7ph+iIKKmhKu3Ob9ANkswreCx7R3cKmY781K8QK3AqVL3xVh9A42JvIAbkkSA=="],
-
-    "@go/e2e": ["@go/e2e@workspace:go/package/e2e"],
-
-    "@go/e2e-example": ["@go/e2e-example@workspace:go/e2e/example"],
 
     "@grpc/grpc-js": ["@grpc/grpc-js@1.14.4", "https://npm.flatt.tech/@grpc/grpc-js/-/grpc-js-1.14.4.tgz", { "dependencies": { "@grpc/proto-loader": "^0.8.0", "@js-sdsl/ordered-map": "^4.4.2" } }, "sha512-k9Dj3DV/itK9D06Y8f190Qgop7/Ui+D0njFV3LHMPwPT75DpXLQohE9Wmz0QElrJnzsjB7KPWiKJbOl7IPDArQ=="],
 
