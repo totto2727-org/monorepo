@@ -97,6 +97,12 @@
       "skillPath": "plugins/totto2727/skills/realpath/SKILL.md",
       "computedHash": "6aad2fa9c78d2b39a810a89a480bc234891f8cb02ffc8b1d5f46b036b5025b9e"
     },
+    "share-artifact": {
+      "source": "totto2727-org/agent",
+      "sourceType": "github",
+      "skillPath": "plugins/totto2727-coding/skills/share-artifact/SKILL.md",
+      "computedHash": "ab6d3ec03b0821197c2ac6fbb3c7d7d5db8c95db3ee197b5763371b0b11bce55"
+    },
     "share-coding": {
       "source": "totto2727-org/agent",
       "sourceType": "github",
