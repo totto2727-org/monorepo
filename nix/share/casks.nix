@@ -10,5 +10,4 @@
   # Utility
   "thaw"
   "macs-fan-control"
-  "fuwasegu/tap/airlingua"
 ]

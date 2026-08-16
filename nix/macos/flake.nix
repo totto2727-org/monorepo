@@ -77,7 +77,6 @@
                   "tailscale"
                   "incus"
                   "talosctl"
-                  "anomalyco/tap/opencode"
                   "cloudflared"
                   "pulumi"
                 ];
@@ -129,6 +128,12 @@
                     ++ (with pkgs; [
                       gopls
                       air
+                      (npm {
+                        binName = "opencode";
+                        packageName = "@opencode-ai/cli";
+                        version = "beta";
+                        runtime = "node";
+                      })
                     ]);
 
                   programs =

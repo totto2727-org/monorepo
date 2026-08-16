@@ -84,6 +84,7 @@
                   # Utility
                   "slack"
                   "karabiner-elements"
+                  "fuwasegu/tap/airlingua"
                 ];
               };
             }
