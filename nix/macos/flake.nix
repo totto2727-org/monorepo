@@ -134,6 +134,11 @@
                         version = "beta";
                         runtime = "node";
                       })
+                      (npm {
+                        binName = "omo";
+                        packageName = "omo-ai";
+                        version = "beta";
+                      })
                     ]);
 
                   programs =
