@@ -30,7 +30,7 @@
 | JSON             | `totto2727/lens`と標準の`FromJson`、`ToJson`トレイト                                                                                   |
 | 非同期I/O        | `moonbitlang/async`                                                                                                                    |
 | 単体テスト       | テストごとの一時ルートを使用するMoonBitブラックボックス・ホワイトボックステスト                                                        |
-| E2Eテスト        | `src/e2e/`以下のShell駆動Dockerテスト                                                                                                  |
+| E2Eテスト        | Go/Testcontainersによる制御、fixture、assertion、シナリオごとの独立container                                                           |
 
 すべての依存関係は、互換性を確認した正確なバージョンに固定します。最初の実装ゲートでは、Admiral、TUI、bit、Lens、target-file-discovery、async、`moonbitlang/x/path`、`totto2727/x@0.3.0/path`を同時にimportする最小構成のnativeビルドを行います。未検証の依存関係の組み合わせでは実装を進めません。
 
@@ -294,7 +294,7 @@ src/
 ├── command/        Add, remove, sync, update, target, init, and dev workflows
 ├── domain/         Lock, repository, marketplace, skill, target, and validated identifier types
 ├── adapter/        Lens lock and ownership-state stores, target discovery, bit Git, async filesystem, and symlinks
-├── e2e/            Dockerfile, one shell test per leaf command, and an explicit runner
+├── e2e/            callerがビルドするE2E image用Dockerfile
 └── main/           Executable entry point
 ```
 
@@ -320,37 +320,34 @@ src/
 
 ## E2Eテスト方針
 
-E2Eテストは必須とし、`src/e2e/`以下へ配置し、`vp test`と`moon test`のどちらからも除外します。
+E2Eテストは必須とします。image setup、fixture、command execution、assertionは`go/e2e/c-plugin-v2/`へ配置し、独立したE2E ShellScriptは使用しません。E2E packageは`vp test`と`moon test`から除外し、Vite+ workspace task経由で収集します。
 
 ```text
 src/e2e/
-├── Dockerfile
-├── run.sh
-├── init.sh
-├── add.sh
-├── remove.sh
-├── sync.sh
-├── update.sh
-├── target_add.sh
-├── target_remove.sh
-└── dev_marketplace_sync.sh
+└── Dockerfile
+
+go/e2e/c-plugin-v2/
+├── e2e_test.go
+├── scenario_helpers_test.go
+├── *_test.go
+└── vite.config.ts
 ```
 
-`src/e2e/`には`moon.pkg`を配置せず、E2EファイルにMoonBitのテストsuffixを使用しません。E2Eは`src/e2e/run.sh`または明示的に命名したCI taskからのみ実行します。
+`src/e2e/`には`moon.pkg`を配置せず、E2EファイルにMoonBitのテストsuffixを使用しません。Go E2E packageのVite+ test taskはrepository CIにも収集されます。
 
 runnerの契約は次のとおりです。
 
-1. リポジトリルートからDocker imageを1つビルドする。
+1. Go testの実行前に、Vite+ setup taskが軽量な`c-plugin-v2-e2e-image` Just recipeを実行し、現在のrepository contextからcaller所有の`c-plugin-v2-e2e:local` imageをビルドする。
 2. image内で`moon install`を1回実行し、実際のnative c-plugin executableを1回だけビルドする。
-3. テスト対象の動作を迂回しない範囲で、再利用可能なJSONとrepository fixtureをimage内に用意する。
-4. そのimageから末端コマンドのテストごとに個別の`docker run --rm` containerを実行する。
-5. コマンドテスト内でexecutableを再ビルドしない。
+3. Goシナリオは共通E2E helper関数を通してJSON、repository、filesystem fixtureを作成する。Testcontainersで必要なinfrastructure commandはhelper内だけで許可し、シナリオからShellScriptをdispatchしない。
+4. Go packageはビルド済みのlocal imageとともに共通の`totto2727-org/e2e` libraryを呼び出し、libraryは末端コマンドのシナリオごとに個別の破棄可能なTestcontainers containerを実行する。
+5. 共通libraryまたはコマンドテスト内でimageのビルドや削除を行わない。callerが所有するimageはsuite完了後も維持される。
 
 すべてのテストcontainerは、分離された一時`HOME`、working directory、cache root、target directoryを使用します。したがって、global modeのcaseがhost userへ影響することはありません。
 
 通常のE2E coverageで使用するGitHub marketplace sourceは`totto2727-org/monorepo`自身とします。少なくとも`add`と`update`は実際のbit-backed GitHub pathを実行します。他のコマンドテストは、テスト契約で許可されているとおり、事前構築したcanonical lock JSONと再利用可能なcached repository fixtureから開始しても構いません。
 
-各末端コマンドファイルは少なくとも1つの正常系を扱い、そのコマンドに関連するfilesystem state、lock JSON、command output、exit statusをassertします。`sync.sh`では、生成済みのロックを外部から編集し、古くなった所有linkが削除されることと、置換された管理外pathが維持されることを検証します。`update.sh`では、同じリポジトリを異なるcommitに固定した2つのプロジェクトロックを使用し、一方のロックをupdateしても他方のロックのcacheとlinkが変化しないことを検証します。対話状態は主に単体テストで検証し、Docker実行を決定論的にするため、E2Eでは明示的な非対話selection optionを使用します。
+各末端コマンドのGoシナリオは少なくとも1つの正常系を扱い、そのコマンドに関連するfilesystem state、lock JSON、command output、exit statusをassertします。syncシナリオでは、生成済みのロックを外部から編集し、古くなった所有linkが削除されることと、置換された管理外pathが維持されることを検証します。updateシナリオでは、同じリポジトリを異なるcommitに固定した2つのプロジェクトロックを使用し、一方のロックをupdateしても他方のロックのcacheとlinkが変化しないことを検証します。対話状態は主に単体テストで検証し、Docker実行を決定論的にするため、E2Eでは明示的な非対話selection optionを使用します。
 
 ## 段階的な提供方針
 

@@ -30,7 +30,7 @@ Functional equivalence includes preserving the public `c-plugin skill` namespace
 | JSON                | `totto2727/lens` plus the standard `FromJson` and `ToJson` traits                                                                              |
 | Async I/O           | `moonbitlang/async`                                                                                                                            |
 | Unit tests          | MoonBit black-box and white-box tests using per-test temporary roots                                                                           |
-| E2E tests           | Shell-driven Docker tests under `src/e2e/`                                                                                                     |
+| E2E tests           | Go/Testcontainers orchestration, fixtures, assertions, and one isolated container per scenario                                                 |
 
 All dependencies must be pinned to exact compatible versions. The first implementation gate is a minimal native build importing Admiral, TUI, bit, Lens, target-file-discovery, async, `moonbitlang/x/path`, and `totto2727/x@0.3.0/path` together. Implementation must not proceed on an unverified dependency combination.
 
@@ -294,7 +294,7 @@ src/
 ├── command/        Add, remove, sync, update, target, init, and dev workflows
 ├── domain/         Lock, repository, marketplace, skill, target, and validated identifier types
 ├── adapter/        Lens lock and ownership-state stores, target discovery, bit Git, async filesystem, and symlinks
-├── e2e/            Dockerfile, one shell test per leaf command, and an explicit runner
+├── e2e/            Dockerfile for the caller-built E2E image
 └── main/           Executable entry point
 ```
 
@@ -320,37 +320,34 @@ Unit tests are mandatory and run through normal MoonBit test commands.
 
 ## E2E-test policy
 
-E2E tests are mandatory, live under `src/e2e/`, and are excluded from both `vp test` and `moon test`.
+E2E tests are mandatory. Image setup, fixtures, command execution, and assertions live under `go/e2e/c-plugin-v2/`; standalone E2E shell scripts are not used. The E2E package is excluded from `vp test` and `moon test` and is collected through its Vite+ workspace task.
 
 ```text
 src/e2e/
-├── Dockerfile
-├── run.sh
-├── init.sh
-├── add.sh
-├── remove.sh
-├── sync.sh
-├── update.sh
-├── target_add.sh
-├── target_remove.sh
-└── dev_marketplace_sync.sh
+└── Dockerfile
+
+go/e2e/c-plugin-v2/
+├── e2e_test.go
+├── scenario_helpers_test.go
+├── *_test.go
+└── vite.config.ts
 ```
 
-There is no `moon.pkg` in `src/e2e/`, and E2E files do not use MoonBit test suffixes. E2E runs only through `src/e2e/run.sh` or an explicitly named CI task.
+There is no `moon.pkg` in `src/e2e/`, and E2E files do not use MoonBit test suffixes. The Go E2E package's Vite+ test task is collected by repository CI.
 
 The runner contract is:
 
-1. Build one Docker image from the repository root.
+1. Before Go tests run, the Vite+ setup task runs the lightweight `c-plugin-v2-e2e-image` Just recipe, which builds the caller-owned `c-plugin-v2-e2e:local` image from the current repository context.
 2. Inside the image, run `moon install` once and build the actual native c-plugin executable once.
-3. Prepare reusable JSON and repository fixtures in the image where doing so does not bypass the behavior under test.
-4. Run every leaf-command test with a separate `docker run --rm` container from that image.
-5. Never rebuild the executable inside a command test.
+3. The Go scenarios create JSON, repository, and filesystem fixtures through shared E2E helper functions. Testcontainers-required infrastructure commands are allowed only behind those helpers; scenarios do not dispatch shell scripts.
+4. The Go package calls the shared `totto2727-org/e2e` library with the prebuilt local image, and the library runs every leaf-command scenario in a separate disposable Testcontainers container.
+5. Never build or remove the image inside the shared library or a command test. The caller-owned image remains after the suite.
 
 Every test container uses an isolated temporary `HOME`, working directory, cache root, and target directories. Global-mode cases therefore cannot affect the host user.
 
 The GitHub marketplace source for normal E2E coverage is `totto2727-org/monorepo` itself. At least `add` and `update` exercise the real bit-backed GitHub path. Other command tests may start from preconstructed canonical lock JSON and a reusable cached-repository fixture, as allowed by the test contract.
 
-Each leaf-command file covers at least one successful flow and asserts filesystem state, lock JSON, command output, and exit status relevant to that command. The `sync.sh` scenario must edit a previously materialized lock externally, verify stale owned links are removed, and verify replaced foreign paths are preserved. The `update.sh` scenario must use two project locks that pin the same repository differently and verify that updating one lock does not change the other lock's cache or links. Interactive state is primarily unit-tested; E2E uses explicit non-interactive selection options so Docker runs are deterministic.
+Each leaf-command Go scenario covers at least one successful flow and asserts filesystem state, lock JSON, command output, and exit status relevant to that command. The sync scenario must edit a previously materialized lock externally, verify stale owned links are removed, and verify replaced foreign paths are preserved. The update scenario must use two project locks that pin the same repository differently and verify that updating one lock does not change the other lock's cache or links. Interactive state is primarily unit-tested; E2E uses explicit non-interactive selection options so Docker runs are deterministic.
 
 ## Incremental delivery policy
 
