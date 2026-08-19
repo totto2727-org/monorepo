@@ -26,7 +26,6 @@ with pkgs;
   (npm {
     binName = "cf";
     packageName = "cf";
-    runtime = "node";
   })
   (npm {
     binName = "openshell";

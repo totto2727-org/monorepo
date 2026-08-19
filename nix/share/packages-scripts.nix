@@ -59,7 +59,6 @@ let
       npm {
         binName = "cf";
         packageName = "cf";
-        runtime = "node";
       }
     }/bin/cf "$@"
   '';
