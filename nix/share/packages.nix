@@ -24,6 +24,11 @@ with pkgs;
     packageName = "ctx7";
   })
   (npm {
+    binName = "cf";
+    packageName = "cf";
+    runtime = "node";
+  })
+  (npm {
     binName = "openshell";
     runtime = "uv";
     packageName = "openshell";

@@ -49,6 +49,21 @@ let
     exec $HOME/.local/bin/bx "$@"
   '';
 
+  macos-cf = writeShellScriptBin "cf" ''
+    set -e
+
+    CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
+    CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
+    export CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_API_TOKEN
+    exec ${
+      npm {
+        binName = "cf";
+        packageName = "cf";
+        runtime = "node";
+      }
+    }/bin/cf "$@"
+  '';
+
   macos-o = writeShellScriptBin "o" ''
     export LINEAR_API_KEY="$(pass-cli get linear/api-key --quiet -f password)"
     exec opencode "$@"
@@ -101,6 +116,7 @@ in
     exocortex-mcp
     docker-credential-gh
     macos-bx
+    (lib.hiPrio macos-cf)
     macos-o
     macos-c
     macos-linear-mcp
