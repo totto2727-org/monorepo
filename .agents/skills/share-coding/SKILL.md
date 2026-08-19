@@ -83,6 +83,10 @@ Prefer small local changes and composable units. Extract a shared abstraction on
 
 Choose explicit control flow over compact cleverness. Comments explain non-obvious reasons and constraints; the code itself explains what it does.
 
+## Just defaults
+
+When a repository uses Just, make the default recipe display the available recipes with a recipe body that runs `@just --list`. Do not make the default recipe run checks, builds, tests, setup, or any other operational command.
+
 ## Consistency
 
 Look for prior art in the same package before introducing a new pattern. Record the reason close to the decision when a deliberate divergence is necessary.
