@@ -2,8 +2,9 @@
 name: share-test
 description: >-
   Language-independent testing philosophy. Use when deciding what makes a test
-  trustworthy and meaningful. Load js-test or mbt-test for executable test
-  implementation. Use share-test-design-flow for concrete plans and reports.
+  trustworthy and meaningful. Load js-test, mbt-test, or rust-test for
+  executable test implementation. Use share-test-design-flow for concrete
+  plans and reports.
 ---
 
 # Shared Testing Philosophy
@@ -26,6 +27,7 @@ Follow the language-specific implementation guides for executable examples:
 
 - [`js-test`](../js-test/SKILL.md) — use semantic Vitest matchers, `toThrow`, and awaited `rejects`.
 - [`mbt-test`](../mbt-test/SKILL.md) — use inspection APIs for direct results and `panic_` plus `try!` for raised errors.
+- [`rust-test`](../rust-test/SKILL.md) — place white-box tests beside source, black-box tests in the repository-root `tests/`, and examples in rustdoc tests.
 
 ## Independence
 
@@ -61,6 +63,7 @@ Tests are consumers of the production contract. Do not weaken types, bypass cons
 
 - [`js-test`](../js-test/SKILL.md) — tests executable through Vite+ and Vitest.
 - [`mbt-test`](../mbt-test/SKILL.md) — tests executable through repository Vite+ tasks or `moon test`.
+- [`rust-test`](../rust-test/SKILL.md) — Rust unit, integration, black-box, and documentation tests.
 
 ## Concrete design flow
 

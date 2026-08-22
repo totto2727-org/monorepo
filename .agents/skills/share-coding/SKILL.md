@@ -87,6 +87,10 @@ Choose explicit control flow over compact cleverness. Comments explain non-obvio
 
 Look for prior art in the same package before introducing a new pattern. Record the reason close to the decision when a deliberate divergence is necessary.
 
+## Just defaults
+
+When a repository uses Just, make the default recipe display the available recipes with a recipe body that runs `@just --list`. Do not make the default recipe run checks, builds, tests, setup, or any other operational command.
+
 ## Abstractions
 
 Keep a wrapper only when it owns a real invariant, reusable policy, or typed boundary. A helper that merely renames one standard operation and has one call site adds indirection without preserving knowledge.
@@ -99,10 +103,11 @@ Place discovery, resolution, and domain rules in the library that owns the conce
 
 - [`js-coding`](../js-coding/SKILL.md) — TypeScript, Effect, Hono, Remix, and `@totto2727/fp`.
 - [`mbt-coding`](../mbt-coding/SKILL.md) — MoonBit language and CLI implementation practices.
+- [`rust-coding`](../rust-coding/SKILL.md) — Rust web, workflow, LLM, validation, and library-selection practices.
 
 ## Related skills
 
-- [`share-test`](../share-test/SKILL.md), [`js-test`](../js-test/SKILL.md), and [`mbt-test`](../mbt-test/SKILL.md) — testing philosophy and executable tests.
+- [`share-test`](../share-test/SKILL.md), [`js-test`](../js-test/SKILL.md), [`mbt-test`](../mbt-test/SKILL.md), and [`rust-test`](../rust-test/SKILL.md) — testing philosophy and executable tests.
 - [`share-test-design-flow`](../share-test-design-flow/SKILL.md) — concrete test design and human-facing reporting.
 - [`docs-moonbit`](../docs-moonbit/SKILL.md) and [`docs-components-build`](../docs-components-build/SKILL.md) — generated external specifications.
 - [`share-artifact`](../share-artifact/SKILL.md) — durable README, AGENTS, and ADR authoring.

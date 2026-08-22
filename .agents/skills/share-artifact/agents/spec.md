@@ -6,13 +6,13 @@ This specification defines the AI-agent and developer-facing document. Its compa
 
 `AGENTS.md` tells AI agents and developers how to work correctly in the repository. Use the AI-agent test: if an agent needs the information to modify, build, test, or operate the project safely, it belongs here. Information that an end user needs to understand, install, or use the project belongs in [the README specification](../readme/spec.md).
 
-| Content                                                                                                        | README.md                   | AGENTS.md                                     | Decision                                         |
-| -------------------------------------------------------------------------------------------------------------- | --------------------------- | --------------------------------------------- | ------------------------------------------------ |
-| End-user overview, usage, features, prerequisites, setup, external user documentation, and license             | Yes                         | No                                            | Keep the user-facing explanation in README.      |
-| Build, test, lint, format, deploy, CI, task, package-targeting, and contributor commands                       | No                          | Yes                                           | Give AI agents the complete executable guidance. |
-| Repository structure, architecture, package management, aliases, conventions, tools, and execution constraints | No                          | Yes                                           | These are the repository’s operating rules.      |
-| Detailed command reference                                                                                     | Brief summary and link only | Yes                                           | AGENTS is the canonical operational reference.   |
-| Shared setup or cross-reference                                                                                | Brief summary and link      | Brief link to the end-user source when needed | Keep detailed content with its primary audience. |
+| Content                                                                                                        | README.md              | AGENTS.md                                     | Decision                                         |
+| -------------------------------------------------------------------------------------------------------------- | ---------------------- | --------------------------------------------- | ------------------------------------------------ |
+| End-user overview, usage, features, prerequisites, setup, external user documentation, and license             | Yes                    | No                                            | Keep the user-facing explanation in README.      |
+| Build, test, lint, format, deploy, CI, task, package-targeting, and contributor commands                       | No                     | Yes                                           | Give AI agents the complete executable guidance. |
+| Repository structure, architecture, package management, aliases, conventions, tools, and execution constraints | No                     | Yes                                           | These are the repository’s operating rules.      |
+| Repository development and operation command reference                                                         | No                     | Yes                                           | AGENTS is the canonical developer reference.     |
+| Shared setup or cross-reference                                                                                | Brief summary and link | Brief link to the end-user source when needed | Keep detailed content with its primary audience. |
 
 ## Required output and minimum order
 
@@ -44,7 +44,7 @@ The repository-root `AGENTS.md` is the canonical shared AI context. Create a pac
 
 ## Shared content and updates
 
-For content serving both audiences, keep the detailed version with its primary audience and add a short relative link elsewhere. For example, AGENTS may say that the development environment uses Nix and link to `./README.md#setup`; README links to `./AGENTS.md#development-commands` for the complete command reference.
+For content serving both audiences, keep the detailed version with its primary audience and add a short relative link elsewhere. For example, AGENTS may link to `./README.md#setup` for consumer installation, while README may link to `./AGENTS.md#development-commands` for repository development commands. End-user CLI commands and generated help remain governed by the README specification; AGENTS documents only commands for modifying, building, testing, or operating the repository.
 
 When updating an existing project:
 
