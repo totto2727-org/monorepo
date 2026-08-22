@@ -16,6 +16,7 @@ All references below are concrete TypeScript implementation guidance or an expli
 - [`boundary-conversion.md`](references/boundary-conversion.md) — decode weak external values into wire models, validate domain models, and encode request models.
 - [`state-modeling.md`](references/state-modeling.md) — discriminated unions, exhaustive transitions, and impossible-state elimination.
 - [`error-handling.md`](references/error-handling.md) — typed Effect failures, propagation, recovery, and error translation.
+- [`collections.md`](references/collections.md) — unique collection choices and boundary conversion.
 
 ## Effect
 

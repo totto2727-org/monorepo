@@ -4,7 +4,9 @@ This specification defines an end-user-facing project, module, or package entry 
 
 ## Audience and decision rule
 
-`README.md` serves end users first: it explains what the project does and how to use it. Use the end-user test: if a person who only wants to use the project needs the information, it belongs here. If an AI agent or contributor needs it to modify, build, test, or operate the repository, it belongs in [the AGENTS specification](../agents/spec.md).
+`README.md` serves end users first: it explains what the project does and how to use it. Organize and word it around user value; never distort it for implementation structure, generated-artifact layout, or maintainer convenience. Use the end-user test: if a person who only wants to use the project needs the information, it belongs here. If an AI agent or contributor needs it to modify, build, test, or operate the repository, it belongs in [the AGENTS specification](../agents/spec.md).
+
+A developer can still be an end user of developer tooling. Show the user's tooling task in README, such as invoking an installed skill to improve the user's own project. Put instructions for maintaining the tool's own repository, manifests, generated artifacts, canonical files, or symlinks in AGENTS instead; the subject of the operation, not whether the user writes code, determines the audience.
 
 | Content                                                                                                                        | README.md                              | AGENTS.md                              | Decision                                                              |
 | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------- | -------------------------------------- | --------------------------------------------------------------------- |
@@ -19,7 +21,7 @@ This specification defines an end-user-facing project, module, or package entry 
 
 ## Required output and minimum order
 
-Render the sibling [template.md](template.md) as the project `README.md` unless the MoonBit exception below applies. The minimum form uses this order:
+Set `entry_scope` to `root`, `independent`, or `nested`, then render the sibling [template.md](template.md) as the end-user README content. `root` is the repository-level consumer entrypoint. `independent` is a nested package, directory, or standalone example that users genuinely acquire, configure, or enter separately. Both use this full minimum order:
 
 1. Title and one-paragraph overview
 2. Usage
@@ -30,27 +32,36 @@ Render the sibling [template.md](template.md) as the project `README.md` unless 
 7. Development — one short link to `AGENTS.md`, without operational detail
 8. License
 
-The minimum form may be extended with purpose-specific end-user sections, provided the required sections remain in this order, `License` stays the final section, and the extension does not introduce developer, contributor, AI, or internal-operation guidance. An extension must not replace the sibling template or sample with an old role-based template path.
+The full minimum form may be extended with purpose-specific end-user sections, provided the required sections remain in this order, `License` stays the final section, and the extension does not introduce developer, contributor, AI, or internal-operation guidance. A `nested` entry follows the compact form defined in the hierarchy policy below. An extension must not replace the sibling template or sample with an old role-based template path.
 
 ## Setup policy
 
-`Setup` is the smallest supported acquisition or installation path that lets an end user use the project from a consumer environment. Prefer a registry or package-manager dependency, an install command, a published release artifact, or a supported project-creation mechanism such as a repository template. A source checkout and build may appear only when building from source is itself a supported end-user distribution path; include only the steps needed to produce and use the distributed artifact.
+`Setup` is the smallest supported acquisition or installation path that lets an end user use the project from a consumer environment. It contains only acquisition, installation, dependency declarations, imports, and aliases. Prefer a registry or package-manager dependency, an install command, a published release artifact, or a supported project-creation mechanism such as a repository template.
 
-Do not satisfy `Setup` with repository preparation such as `git clone`, entering a developer shell, dependency synchronization for contributors, code generation, build verification, tests, lint, CI, or publishing commands. Move that material to `AGENTS.md`. When an end user needs no acquisition or installation step, pass an empty `setup_steps` list so the template renders `No setup is required.` instead of inventing a command.
+Do not put product execution, behavior verification, authentication flows, or repository preparation such as `git clone`, entering a developer shell, dependency synchronization for contributors, code generation, build verification, tests, lint, CI, or publishing commands in `Setup`. Put end-user execution, output, effects, and authentication in `Usage` or another appropriate end-user section; move repository build, test, and operation material to `AGENTS.md`. When an end user needs no acquisition or installation step, pass an empty `setup_steps` list so the template renders `No setup is required.` instead of inventing a command.
 
 Keep `Prerequisites` limited to requirements a consumer must satisfy before setup, such as a runtime, supported target, account, credential, or external service. Put contributor-only toolchains and repository-development environments in `AGENTS.md`. When no prerequisite exists, pass an empty `prerequisites` list so the template renders `No prerequisites.` instead of inventing one. The overview must state the user outcome, and the usage example must exercise the installed or otherwise acquired public interface. Document user-visible constraints and actionable error behavior in `Usage`, `API`, or a purpose-specific end-user section whenever they are necessary for successful use; do not misclassify them as prerequisites.
 
 ## Usage policy
 
-Put dependency declarations, imports, aliases, and other acquisition wiring in `Setup`; they do not satisfy `Usage` by themselves. Classify Usage by product surface and set the template's `usage_surface` to exactly one of the following values:
+Put dependency declarations, imports, aliases, and other acquisition wiring in `Setup`; they do not satisfy `Usage` by themselves. Every Usage must state a plausible user goal, use representative input, exercise the product's primary public operation, and show a user-relevant outcome or effect. Reject constructor-only, initialization-only, identifier round-trip, and default-field inspection examples even when they produce observable output or assertions; those are interface smoke tests, not real use cases. Classify Usage by product surface and set the template's `usage_surface` to exactly one of the following values:
 
-1. `library` — show a small public API code example that demonstrates the main feature and an observable return value, assertion, state change, or effect. When inline code would be misleading or too large, pass an empty `usage_examples` list and set `usage_guide.title`, `usage_guide.path`, and `usage_guide.summary` to link directly to a concrete runnable or checked example.
+1. `library` — show a small public API code example that demonstrates a real use case and an observable return value, assertion, state change, or effect. Each `usage_examples` entry states its user goal in `summary`, then demonstrates it in `code`. When inline code would be misleading or too large, pass an empty `usage_examples` list and set `usage_guide.title`, `usage_guide.path`, and `usage_guide.summary` to link directly to a concrete runnable or checked example. An interface-only library may use this fallback to explain its role and link directly to a concrete implementation's Usage section only when the linked example demonstrates real integration under the same goal, input, operation, and outcome requirements.
 2. `cli` — show an installed command and a representative expected stdout, stderr, file, or state result. A command without its expected result does not satisfy Usage.
-3. `gui` — show a current real screenshot or image of the primary user-visible state, followed by a short description of the interaction and its result. A mock, concept image, or stale screenshot does not satisfy Usage.
+3. `agent` — for an installed coding-agent skill or plugin, show a concrete post-install prompt that states the user's goal and a representative expected user-facing output or effect. A prompt that only installs, regenerates, or maintains the tool itself does not satisfy Usage.
+4. `gui` — show a current real screenshot or image of the primary user-visible state, followed by a short description of the interaction and its result. A mock, concept image, or stale screenshot does not satisfy Usage.
 
 Reject any other surface. The direct example-link fallback applies only to `library`; reject a generic package page, project homepage, or API reference as the Usage destination for any surface.
 
-After `License`, append this exact artifact-specific provenance footer without a heading:
+## Entry README hierarchy policy
+
+In a repository with root, module, or package entry READMEs, publish the complete consumer `Usage` and `Setup` once at the repository root by default. Set `entry_scope` to `nested` for a directory or package README that is part of that same consumer flow. Its compact form contains only the title, that directory or package's distinct role, an optional direct link to the canonical runnable example through `usage_guide`, its uniquely owned API, and the required artifact-provenance footer. It inherits Development and License information from the root and does not repeat those sections.
+
+Set `entry_scope` to `independent` and repeat the full form only when the nested package, directory, or standalone example is independently acquired or configured, or is a genuinely distinct consumer entrypoint with its own Usage and Setup. Do not create both a root README and `src/README.md` when their consumer meaning would be identical.
+
+Never duplicate commands, examples, feature lists, API prose, Development links, or License text across the README hierarchy. Keep each detail in one source of truth at the nearest owning entrypoint, and use direct relative links from other READMEs. The root may briefly summarize and navigate to package-owned APIs, while a nested README may link to root Usage or a concrete runnable example; neither may copy the source text.
+
+After `License` in the full form, or after `API` in the compact `nested` form, append this exact artifact-specific provenance footer without a heading:
 
 ```markdown
 _This README was generated from the [share-artifact skill](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/SKILL.md) and [README template](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/readme/template.md)._
@@ -87,10 +98,4 @@ When updating an existing project:
 
 ## Corrections for common mistakes
 
-Do not add AI rules such as “never use npx” to README; move them to `AGENTS.md` and retain only the Development link. Do not put repository cloning, developer-shell entry, dependency synchronization, code generation, build verification, test, lint, CI, publishing, or contributor setup commands in README; those commands fail the end-user test and belong in `AGENTS.md`, except for the narrow supported source-distribution case in the Setup policy. Do not add repository architecture or directory structure to README merely because it is useful to developers. Do not replace meaningful API usage with a symbol dump, an incomplete shortlist, or a bare link to a non-API package page. Do not move user-facing CLI reference material or required runtime constraints into `AGENTS.md`.
-
-## MoonBit exception
-
-For a MoonBit project, render the sibling [template.md](template.md) to canonical `README.mbt.md`, then make `README.md` a relative symlink: `README.md -> README.mbt.md`. Keep the Markdown and its supported MoonBit code blocks valid for `moon check README.mbt.md` and `moon test README.mbt.md`. Do not maintain a second independently authored README.
-
-This layout follows MoonBit’s official literate Markdown documentation: <https://docs.moonbitlang.com/en/latest/language/docs.html>. The relative symlink layout is documented in the official MoonBit tutorial: <https://docs.moonbitlang.com/en/latest/toolchain/moon/tutorial.html>.
+Do not add AI rules such as “never use npx” to README; move them to `AGENTS.md` and retain only the Development link. Do not put repository cloning, developer-shell entry, dependency synchronization, code generation, build, test, lint, CI, publishing, or contributor setup commands in README; those commands fail the end-user test and belong in `AGENTS.md`. Do not expose canonical source-file selection, symlink layout, template rendering, or other generated-artifact maintenance in README; those are maintainer rules for `AGENTS.md`. Do not add repository architecture or directory structure to README merely because it is useful to developers. Do not replace meaningful API usage with a symbol dump, an incomplete shortlist, a constructor or default-value smoke test, or a bare link to a non-API package page. Do not move user-facing CLI reference material or required runtime constraints into `AGENTS.md`.

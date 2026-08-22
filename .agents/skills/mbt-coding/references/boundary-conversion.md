@@ -16,6 +16,10 @@ An external response type mirrors the remote contract and can use the optional a
 
 Parse and convert incoming JSON inside the transport adapter, then expose the typed external response to the next layer. A transport boundary may translate a JSON decoding failure into its own typed error. Follow [`json.md`](json.md) for codec traits, typed Lens selection, raw-JSON exceptions, and error-path handling.
 
+For a known shape, decode standard `Json` through `FromJson`; use Lens inside a manual implementation when typed paths and precise decode errors are required. Keep representation-level checks in `FromJson`. When decoding a domain type directly, route the decoded fields through the canonical constructor described in [`constructors.md`](constructors.md) so deserialization cannot bypass domain invariants.
+
+When a TOML parser can produce `Json`, convert the document once and reuse the same `FromJson` and Lens boundary instead of maintaining a second untyped traversal. Otherwise, convert its parser-owned value promptly into an explicit wire type. Apply the same rule to each CSV row or another parser result; do not force it through `Json` when that adds no useful contract. Keep syntax, structural decoding, and domain-validation failures distinguishable.
+
 Keep response and request types separate even when their current fields are similar. They belong to different external contracts and may evolve independently.
 
 ## Admiral ingress

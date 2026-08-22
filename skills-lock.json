@@ -5,7 +5,7 @@
       "source": "vercel/components.build",
       "sourceType": "github",
       "skillPath": "skills/building-components/SKILL.md",
-      "computedHash": "ca96444b70257eb3f4f4c76dfdd4a32312c835fe3c8755d2e3d75ac78d384bfd"
+      "computedHash": "20889af7cb9b3abca1e38824f7fffaa873eb0cc4d45187967b97bd85462cf934"
     },
     "commit": {
       "source": "totto2727-org/agent",
@@ -35,13 +35,13 @@
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/totto2727-coding/skills/js-coding/SKILL.md",
-      "computedHash": "d8c1a49f1cd8552d9d44f5a69c9825b0a4a6d1afa8ab05a23a11936c0827bf6d"
+      "computedHash": "a8210f1d76554368baca9b0dc527299f51d3638de58318371f74916824e39182"
     },
     "js-test": {
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/totto2727-coding/skills/js-test/SKILL.md",
-      "computedHash": "10fa4cec2bcb94c9a602cd6d02bdecfb8fc7338ee8198a948ced6a56d1d7f61b"
+      "computedHash": "b1a34bdc97d15dbd4542a5b8ecc536e924329de398587c990e4fb93f631fdb7a"
     },
     "land": {
       "source": "totto2727-org/agent",
@@ -65,13 +65,13 @@
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/totto2727-coding/skills/mbt-coding/SKILL.md",
-      "computedHash": "89a58b9bbf81a3b02ee8925bff6e3dd11af46b9d8e72f6c463839fe45ebdb528"
+      "computedHash": "ec2cdda7191f7bfc76cbc5fa908b1edb029ef2779d20835dfcce49bbe1ea0169"
     },
     "mbt-test": {
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/totto2727-coding/skills/mbt-test/SKILL.md",
-      "computedHash": "57a88ed5a7aa6bf671ee362b489534436fb220df35c16b6ee027e06c67497897"
+      "computedHash": "9175a3cea1d69777936438a4eab54e612a19fe653c89e67ece5aad28d3871d2e"
     },
     "moonbit-orientation": {
       "source": "moonbitlang/skills",
@@ -101,31 +101,31 @@
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/totto2727-coding/skills/rust-coding/SKILL.md",
-      "computedHash": "dc0c1ca193577446bd5225dbd75ffec8eafc1459692384a4616b046e8974be14"
+      "computedHash": "be2841c90d5164bec5701a052d459bb740cda2e6b127e61a202671e24a19f9b9"
     },
     "rust-test": {
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/totto2727-coding/skills/rust-test/SKILL.md",
-      "computedHash": "d76c43cde35fb887830fe107c359036deb0a1d0aa7d6bc7512a3f01e3e4ee5af"
+      "computedHash": "eb39948370705e1d4b48868396934a4d84ace7fb4de24f6b39fca400fd2b8972"
     },
     "share-artifact": {
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/totto2727-coding/skills/share-artifact/SKILL.md",
-      "computedHash": "736b3c5358d7dcd7297381b1934816aa04a2b98b1cca5b8e8c6ac7451c347e54"
+      "computedHash": "83fed034253a7f131189b186a3db965ddb9069dc728e6328b821ae87888f9890"
     },
     "share-coding": {
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/totto2727-coding/skills/share-coding/SKILL.md",
-      "computedHash": "9e1aeac1d8e9b149cb371d089a272b2811238fc26382ebce253999260bc24a5a"
+      "computedHash": "502abf5460b4a40910113fa6d04d14d08b3225d851eea01b95c54e7bb55bf5af"
     },
     "share-test": {
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/totto2727-coding/skills/share-test/SKILL.md",
-      "computedHash": "ee3664a46f60e45340be35a0d7705669be2261e7f9e86cb66482f5066a4ae5cf"
+      "computedHash": "f29e3ce35674fd59e011a5547bc9211f3e10d2eba036d728c18d34570473a8ea"
     },
     "share-test-design-flow": {
       "source": "totto2727-org/agent",

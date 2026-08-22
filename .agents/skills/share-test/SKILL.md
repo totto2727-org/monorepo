@@ -17,25 +17,35 @@ Test the contract visible to a caller, not private implementation steps. Prefer 
 
 ## Assertion and expectation APIs
 
-Use the narrowest language- or framework-provided assertion, matcher, snapshot, or expected-failure notation that directly expresses the observable contract. Do not reimplement an available assertion with boolean comparisons, mutable control state, or manual bookkeeping.
+Use the language- or framework-provided assertion, matcher, snapshot, or expected-failure notation that most directly expresses the observable contract and produces useful failure diagnostics. Do not reimplement an available assertion with boolean comparisons, mutable control state, or manual bookkeeping.
+
+Assert the complete value when the whole value is the contract. Use a subset or property matcher only when omitted fields are intentionally outside the test's scope. Use predicate assertions for named boolean properties, but do not reduce value equality or an error variant to a boolean when a structural assertion can report actual and expected values. Use a snapshot only when the complete stable structure or serialized representation is the contract and the snapshot remains reviewable.
 
 Use the test framework's native error, exception, rejection, or panic expectation instead of assigning occurrence or a caught exception to a temporary variable. Treat mutable sentinel state and catch-only bookkeeping as anti-patterns because they obscure the expected behavior and can let an unintended execution path pass.
 
-Catch an error explicitly only when its identity, variant, payload, message, or another property is itself part of the observable contract and the framework cannot assert it directly. Assert the captured property rather than using the catch merely to control whether the test passes.
+Catch an error explicitly only when its identity, variant, payload, message, or another property is itself part of the observable contract and the framework cannot assert it directly. Assert the failure type or variant and relevant payload instead of rendered text unless the text itself is the contract. Assert the captured property rather than using the catch merely to control whether the test passes.
 
 Follow the language-specific implementation guides for executable examples:
 
 - [`js-test`](../js-test/SKILL.md) — use semantic Vitest matchers, `toThrow`, and awaited `rejects`.
 - [`mbt-test`](../mbt-test/SKILL.md) — use inspection APIs for direct results and `panic_` plus `try!` for raised errors.
-- [`rust-test`](../rust-test/SKILL.md) — place white-box tests beside source, black-box tests in the repository-root `tests/`, and examples in rustdoc tests.
+- [`rust-test`](../rust-test/SKILL.md) — use structural Rust assertions and place white-box, black-box, and rustdoc tests correctly.
 
 ## Independence
 
 Every test establishes its own state and remains valid in isolation, in a different order, and under parallel execution. Tests never depend on another test's side effects.
 
+Use controlled substitutes at external boundaries such as time, randomness, network, storage, process execution, or a database. Do not mock private collaborators merely to assert internal call order. The test or fixture that creates mutable state or a resource owns its cleanup in the same scope.
+
 ## Determinism
 
 Control time, randomness, network access, and external state at the boundary. A result that depends on timing or ambient machine state is not reliable evidence.
+
+Wait for every asynchronous operation and assertion whose result belongs to the tested contract. A test must not pass while relevant work remains unobserved.
+
+## End-to-end test scope
+
+Use [`github.com/totto2727-org/e2e`](https://github.com/totto2727-org/e2e) to implement CLI end-to-end tests. This skill does not yet specify a shared implementation approach for non-CLI end-to-end tests.
 
 ## Behavior scope
 

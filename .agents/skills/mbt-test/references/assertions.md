@@ -6,7 +6,7 @@
 
 - Use `test "description" { ... }` blocks for all tests.
 - Do not ignore compilation warnings; fix them (e.g., unused variables).
-- Group related tests in the same file or dedicated `_test.mbt` files.
+- Follow [`file-layout.md`](file-layout.md) for executable test placement and implementation-aligned file names.
 - **Ambiguity Resolution**: If a method call in a test is ambiguous (e.g. `to_json` which exists in both a Trait and as a struct method), use the fully qualified Trait syntax: `TraitName::method_name(object, ...)`.
 - **Constructor Calls in Doctests**: In `.mbt.md` doctest scope, the bare-name call `Foo(args)` for a constructor `Foo::Foo` is unresolved (`The value identifier Foo is unbound`). Use the fully qualified `Foo::Foo(args)` form. `Foo::method(...)` calls and instance method dispatch (`x.method()`) work with the bare names.
 
@@ -32,7 +32,8 @@ Pick assertion APIs deliberately. Mixing styles without a rule produces tests th
 ### Direct results and raised errors
 
 - Verify a function's direct input/output behavior with the appropriate `inspect`, `debug_inspect`, or `json_inspect` API. This rule takes precedence over the equality and predicate rows when the expression is the direct return value.
-- Verify that a raising function fails with `try!` inside a test whose title starts with `panic_`. The `try!` converts the raised error into the panic required for the test to pass.
+- When only one property of a structured result is intentionally part of the contract, bind the result once and use `@test.assert_eq` or a predicate assertion on that property. Do not snapshot unrelated fields. The direct-result inspection rule applies when the whole returned value is the contract.
+- Verify a direct panic or abort with the expression itself inside a `panic_` test. Verify that a raising function fails with `try!` inside a `panic_` test; `try!` converts the raised error into the panic required for the test to pass.
 - Do not implement an occurrence-only error check with mutable sentinel state such as `let mut raised = false`, `try`/`catch`, and `inspect(raised, ...)`.
 - Use `try`/`catch` only when the error identity, variant, payload, or message is itself part of the observable contract. Convert the error to an inspectable value and assert that value directly.
 - In a documented family-conformance test that must continue after each expected error, handle every call with `try`/`catch`/`noraise`: return `Unit` from `catch` and panic from `noraise`. This verifies each family member without temporary mutable state; do not use it for a single expected error.

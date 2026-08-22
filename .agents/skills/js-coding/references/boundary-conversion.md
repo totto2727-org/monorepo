@@ -16,6 +16,8 @@ The external response model mirrors the source contract closely enough to decode
 
 Use an Effect Schema decoder such as `Schema.decodeUnknownEffect` at an untyped ingress. Return a typed failure from that adapter instead of asserting the value with `as` or widening it to `any`.
 
+For JSON, TOML, CSV, form data, or another external format, run the format-specific parser inside the adapter and treat its output as `unknown`. Decode that output with Effect Schema, then use a constructor or domain conversion for invariants the wire schema does not represent. Keep format parsing, schema decoding, and domain-invariant failures distinguishable even when one Effect workflow composes all three steps.
+
 ```ts
 const decodeHogeResponse = Schema.decodeUnknownEffect(HogeResponse);
 

@@ -25,6 +25,10 @@ let extended = [..coords, origin]
 
 Do not implement a routine map, filter, membership check, or append with a mutable result array and a manual loop.
 
+## Unique collections
+
+When uniqueness is a domain invariant, use `@immut/hashset` or `@immut/sorted_set` according to the required equality and ordering semantics. Reject duplicate input before set construction when duplicates are invalid; do not let collection construction silently erase an invalid duplicate. Convert to `Array` only at a boundary that requires a sequence, and make any required ordering explicit there.
+
 ## Ownership boundary
 
 Arrays are shared references. Treat an array received from a caller as read-only unless the function contract explicitly transfers mutable ownership.

@@ -1,20 +1,20 @@
-{# Extensions may add end-user sections if they preserve this order, keep License last, retain the MoonBit canonical-output and relative-symlink rule when applicable, and do not add developer, contributor, AI, or internal-operation guidance. -#}
+{# Organize content around user value, not implementation or generated-artifact maintenance. Extensions may add end-user sections if they preserve this order, keep License last, and do not add developer, contributor, AI, or internal-operation guidance. -#}
 
 # {{ project_name }}
 
 {# State the end-user outcome, not the repository implementation. -#}
 {{ overview }}
 
-{% if is_moonbit -%}
-This document is canonical `README.mbt.md`; maintain `README.md` as the relative symlink `README.md -> README.mbt.md`.
-{%- endif %}
+{# Use root for the repository consumer entrypoint, independent only for a genuinely separate consumer entrypoint, and nested for a compact non-duplicating package or directory entry. -#}
+{% if entry_scope == "root" or entry_scope == "independent" -%}
 
 ## Usage
 
-{# Imports and dependency declarations belong in Setup. Select exactly one surface: library, cli, or gui. -#}
+{# Show a plausible goal, representative input, primary public operation, and user-relevant outcome. Imports, constructors, initialization, ID round trips, and default-field inspection alone do not qualify. Select exactly one surface: library, cli, agent, or gui. -#}
 {% if usage_surface == "library" -%}
 {% if usage_examples -%}
 {% for example in usage_examples -%}
+{{ example.summary }}
 
 ```{{ example.language }}
 {{ example.code }}
@@ -22,6 +22,7 @@ This document is canonical `README.mbt.md`; maintain `README.md` as the relative
 
 {% endfor -%}
 {% else -%}
+{# Link directly to a concrete runnable example; for interface-only libraries, the linked implementation Usage must demonstrate real integration. -#}
 {{ usage_guide.summary }}
 
 See [{{ usage_guide.title }}]({{ usage_guide.path }}).
@@ -33,6 +34,25 @@ See [{{ usage_guide.title }}]({{ usage_guide.path }}).
 
 ```bash
 {{ example.command }}
+```
+
+Expected result:
+
+```text
+{{ example.result }}
+```
+
+{% endfor -%}
+{% else -%}
+{{ [] | first }}
+{% endif -%}
+{% elif usage_surface == "agent" -%}
+{% if agent_usage_examples -%}
+{% for example in agent_usage_examples -%}
+{{ example.summary }}
+
+```text
+{{ example.prompt }}
 ```
 
 Expected result:
@@ -76,7 +96,7 @@ No prerequisites.
 
 ## Setup
 
-{# Steps acquire/install the consumer artifact and declare its imports or aliases; repository preparation belongs in AGENTS.md. -#}
+{# Steps only acquire/install the consumer artifact or declare dependencies, imports, and aliases. Execution, verification, and authentication belong in Usage or another end-user section; repository build/test/operations belong in AGENTS.md. -#}
 {% if setup_steps -%}
 {% for step in setup_steps -%}
 {{ loop.index }}. {{ step.description }}
@@ -88,6 +108,18 @@ No prerequisites.
 {% endfor -%}
 {% else -%}
 No setup is required.
+{% endif -%}
+{% elif entry_scope == "nested" -%}
+{% if usage_guide -%}
+
+## Usage
+
+{{ usage_guide.summary }}
+
+See [{{ usage_guide.title }}]({{ usage_guide.path }}).
+{% endif %}
+{% else -%}
+{{ [] | first }}
 {% endif -%}
 
 ## API
@@ -114,6 +146,8 @@ See [{{ api.guide_title }}]({{ api.guide_path }}).
 {{ [] | first }}
 {% endif -%}
 
+{% if entry_scope == "root" or entry_scope == "independent" -%}
+
 ## Development
 
 {{ development_summary }}
@@ -121,5 +155,5 @@ See [{{ api.guide_title }}]({{ api.guide_path }}).
 ## License
 
 {{ license }}
-
+{% endif %}
 _This README was generated from the [share-artifact skill](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/SKILL.md) and [README template](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/readme/template.md)._

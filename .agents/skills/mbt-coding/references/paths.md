@@ -12,3 +12,19 @@ let skill_dir = root
   |> @path.Path::join("skills")
   |> @path.Path::join(skill_name)
 ```
+
+Normalize a raw path before validating and storing a path-form invariant. Route construction through the invariant-preserving constructor instead of repeating terminal checks:
+
+```mbt check
+pub struct AbsolutePath {
+  path : @path.Path
+}
+
+pub fn AbsolutePath::AbsolutePath(path : @path.Path) -> AbsolutePath raise {
+  let normalized = path.normalize()
+  guard normalized.is_absolute() else {
+    fail("absolute path required")
+  }
+  { path: normalized }
+}
+```

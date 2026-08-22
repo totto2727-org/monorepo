@@ -23,7 +23,7 @@ Keep rules that describe a relationship between multiple values in the function 
 
 ## Collection invariants
 
-Do not construct a unique array with manual `contains`, `filter`, `fold`, or a local deduplication helper. When uniqueness is a domain invariant, store the values in a collection whose type guarantees uniqueness. Prefer the language's `Set` or a library set such as Effect `HashSet` for TypeScript and `@immut/hashset` or `@immut/sorted_set` for MoonBit. Convert the set to an array only at a consumer or API boundary that requires a sequence, such as serialization, presentation, interoperability, or a detached public snapshot.
+Do not construct a unique array with manual `contains`, `filter`, `fold`, or a local deduplication helper. When uniqueness is a domain invariant, store the values in a collection whose type guarantees uniqueness. Convert the set to an array only at a consumer or API boundary that requires a sequence, such as serialization, presentation, interoperability, or a detached public snapshot.
 
 Choose the collection by its observable semantics as well as uniqueness: insertion order versus comparison order, `Eq` and `Hash` identity, and mutable versus persistent updates. Do not replace an order-preserving representation with a sorted collection unless the domain contract explicitly requires sorted order.
 
@@ -33,27 +33,22 @@ If a private array exists only to stop callers from mutating it, prefer a readon
 
 ## Strict boundary conversion
 
-Keep untrusted or weakly typed values at the boundary where they enter or leave the program. Convert an external response into a wire model, convert the wire model into a validated domain model, convert the domain model into an outbound request model, and serialize only that request model. Apply the same rule to library values whose types are too broad to preserve domain invariants. Do not pass `any`, generic JSON, stringly typed identifiers, or parser contexts through internal application layers.
+Treat external bytes, text, JSON, TOML, CSV rows, request parameters, environment values, parser nodes, and weak library values as untrusted boundary input. Keep each value in the smallest adapter that owns its format and move it promptly through explicit representations:
+
+```text
+raw input -> format parsing and typed wire model -> semantic validation and normalization -> domain model
+domain model -> outbound wire model -> serialization
+```
+
+Successful format parsing proves only that the input follows the external syntax. Validate required structure, ranges, relationships, and other domain invariants before internal code consumes the value. Parsing, structural decoding, semantic validation, and domain construction may be composed in one decoder, but keep their responsibilities and failure categories distinguishable.
+
+Normalize once as part of the accepted-input contract, validate the normalized representation, and pass that same representation to execution. Do not pass raw text, generic JSON or maps, stringly typed identifiers, parser contexts, unvalidated wire models, or library-owned values through internal application layers. Keep inbound wire, domain, and outbound wire models separate when their contracts differ, and serialize only the outbound model.
+
+Do not parse an opaque payload that the application only relays and never inspects. Keep it isolated at the forwarding boundary instead.
 
 ## Path form invariants
 
 When internal code expects a specific path form, validate and normalize external raw paths or strings in a constructor or equivalent factory before passing them into internal layers. Represent relative paths such as `./...` or `../...`, absolute paths, and URI forms such as `file://...` with types that preserve their distinct invariants. Keep filesystem paths and URIs separate; validate a URI scheme before constructing its domain type. Do not repeat checks such as `is_absolute` in terminal functions.
-
-For example, normalize a MoonBit `Path` before checking and storing its absolute-path invariant:
-
-```mbt check
-pub struct AbsolutePath {
-  path : @path.Path
-}
-
-pub fn AbsolutePath::AbsolutePath(path : @path.Path) -> AbsolutePath raise {
-  let normalized = path.normalize()
-  guard normalized.is_absolute() else {
-    fail("absolute path required")
-  }
-  { path: normalized }
-}
-```
 
 ## State models
 
@@ -61,7 +56,9 @@ Represent each valid state as a distinct variant whose payload contains exactly 
 
 ## Failures
 
-Make failure visible in a function's type with `Result`, `Effect`, a typed error effect, or the closest language mechanism. Propagate failures to the application boundary by default. Catch only when the current layer can recover, must select a different behavior, or must translate an external failure into the boundary's error vocabulary. Define a custom error only when a caller needs to distinguish that failure or inspect structured context; do not create one merely to rename a generic failure.
+Make failure visible in a function's type with the language's typed failure mechanism. Propagate failures to the application boundary by default. Catch only when the current layer can recover, must select a different behavior, or must translate an external failure into the boundary's error vocabulary. Define a custom error only when a caller needs to distinguish that failure or inspect structured context; do not create one merely to rename a generic failure.
+
+When translating a failure, preserve the original cause and machine-readable context such as paths, identifiers, and nested values. Add human-facing context separately, and redact it at presentation or logging boundaries when required. Do not flatten values a caller may inspect into a message string.
 
 ## Side effects
 
@@ -70,6 +67,10 @@ Keep I/O, mutation, randomness, and time at program boundaries. Prefer pure func
 ## Naming
 
 Names state what callers can rely on, not how the implementation works. Reuse established domain vocabulary and avoid abbreviations unless they are standard in the domain.
+
+## Public surface
+
+Expose only the declarations callers need. Do not widen production visibility for a test; prefer the public contract or the language's white-box test mechanism for a stable internal invariant that cannot reasonably be observed through that contract.
 
 ## Testability
 

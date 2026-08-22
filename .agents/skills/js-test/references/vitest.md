@@ -16,9 +16,9 @@ Use a project-level `vp run --filter <project> test` task when the test belongs 
 
 - Import test APIs from the repository-supported Vite+ test entry point when established by surrounding code.
 - Keep tests isolated and deterministic; use Vitest lifecycle hooks only to create and dispose state owned by the current test scope.
-- Mock external boundaries, not the unit's internal implementation details.
+- Mock external boundaries, not the unit's internal implementation details. Dispose each mock, fake, timer, and resource in the test or fixture scope that created it.
 - Prefer observable results and typed errors over assertions about private call sequences.
-- Use the matcher that directly describes the contract, such as `toEqual`, `toMatchObject`, `toThrow`, or awaited `rejects`; do not reduce a richer assertion to a boolean or mutable sentinel.
+- Use the matcher that directly describes the contract: `toEqual` when the complete value matters, `toMatchObject` when omitted fields are intentionally outside the contract, and `toThrow` or awaited `rejects` for failures. Do not reduce a richer assertion to a boolean or mutable sentinel.
 - Use the smallest file-level or related-test command that proves the changed behavior, then use the project or root task when broader evidence is required.
 
 ## Assertion and exception anti-patterns
@@ -52,6 +52,8 @@ it("throws for invalid input", () => {
 ```
 
 Always await `resolves` and `rejects` expectations. Use explicit `try`/`catch` only when a property of the caught error is part of the contract and no direct matcher can express it.
+
+When a typed error payload is part of the contract, prefer an awaited structural matcher such as `rejects.toMatchObject(...)`. Catch explicitly only when no matcher can express the required identity or payload.
 
 ## Scope boundary
 

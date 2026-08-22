@@ -9,7 +9,7 @@ Use these libraries as defaults for the matching capability, then verify the cur
 | Server-driven Rust web UI                      | Topcoat with Datastar | Rust owns routing and HTML; Datastar owns browser actions and partial patches |
 | LLM completions, agents, tools, and embeddings | Rig                   | Keep provider-specific types behind an application boundary                   |
 | Code-defined graph workflow execution          | graph-flow            | Keep workflow definitions separate from runtime sessions and UI history       |
-| Wire-format parsing and serialization          | Serde                 | Parse external shape and primitive Rust types                                 |
+| Wire-format parsing and serialization          | Serde data formats    | Deserialize external syntax directly into typed wire models                   |
 | Semantic and business validation               | garde                 | Validate values only after successful deserialization                         |
 | Structured application and HTTP logging        | `tracing`             | Emit operational metadata without sensitive payloads                          |
 
@@ -39,23 +39,29 @@ Keep a serializable topology descriptor beside the executable graph when the UI 
 
 Wrap graph-flow at the application boundary before forking it. Modify or fork only when a confirmed API gap cannot be represented by an adapter or parallel metadata.
 
-## Serde then garde
+## Serde, garde, then domain construction
 
 Apply input handling in this order:
 
 ```text
-request bytes
-  -> Serde Deserialize
+request bytes or text
+  -> format-specific Serde deserializer
+  -> typed wire DTO
   -> garde Validate
+  -> TryFrom or domain constructor
   -> normalized domain command
   -> application or workflow execution
 ```
 
-Use Serde for structural parsing: object shape, field names, required fields, enums, numbers, strings, and unknown-field policy. Prefer `#[serde(deny_unknown_fields)]` for closed request objects so a form from one workflow cannot silently become valid input for another workflow.
+Use the data-format parser with Serde support: `serde_json` for JSON, `toml` for TOML, and `csv` record deserialization for CSV. Deserialize directly into a typed wire DTO when the input shape is known instead of keeping `serde_json::Value`, TOML values, string records, or maps in application code.
+
+Use Serde for structural decoding: object shape, field names, required fields, enums, numbers, strings, and unknown-field policy. Prefer `#[serde(deny_unknown_fields)]` for closed request objects so a form from one workflow cannot silently become valid input for another workflow.
 
 Use garde after deserialization for semantic rules such as non-blank text, length, numeric ranges, formats, nested values, cross-field relationships, and custom business policies. Keep parse errors and validation reports as different boundary error categories.
 
-Normalize only when the normalization is part of the accepted input contract. If validation applies to trimmed text, trim during deserialization or use an explicit custom garde validator; do not validate one representation and execute another without documenting the order.
+After validation, convert the DTO through `TryFrom` or an explicit domain constructor so internal code receives a type whose invariants hold. Keep domain-construction failures distinct from parser and garde failures.
+
+Normalize only when the normalization is part of the accepted input contract. If validation applies to trimmed text, normalize before or during validation and construct the domain value from that same representation; do not validate one representation and execute another without documenting the order.
 
 Keep workflow-specific DTOs and validators inside the workflow module. A generic web action should forward the selected workflow ID and raw input object to the workflow registry rather than know every workflow's fields.
 
@@ -80,5 +86,8 @@ For fast-moving or experimental libraries, verify the selected release and publi
 - [graph-flow 0.6 runner source](https://github.com/a-agmon/rs-graph-llm/blob/f18bf6a197fda9ee47f2ad21a625e985740e0cbb/graph-flow/src/runner.rs#L216-L259)
 - [Serde data model](https://serde.rs/data-model.html)
 - [Implementing a Serde deserializer](https://serde.rs/impl-deserializer.html)
+- [`serde_json` typed deserialization](https://docs.rs/serde_json/latest/serde_json/fn.from_slice.html)
+- [`toml` typed deserialization](https://docs.rs/toml/latest/toml/fn.from_str.html)
+- [`csv` Serde deserialization](https://docs.rs/csv/latest/csv/struct.Reader.html#method.deserialize)
 - [garde validation](https://docs.rs/garde/0.23.0/garde/)
 - [tracing documentation](https://docs.rs/tracing/latest/tracing/)

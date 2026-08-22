@@ -23,7 +23,7 @@ Place integration and black-box tests only in `<repository-root>/tests/`.
 
 ## Examples
 
-Write usage examples as rustdoc documentation tests on the public item or crate documentation they explain. Use a runnable Rust code block under an `# Examples` section and verify it with `cargo test --doc` or the repository's equivalent test task.
+Write usage examples as rustdoc documentation tests on the public item or crate documentation they explain. Use a runnable Rust code block under an `# Examples` section and verify it with `cargo test --doc`.
 
 Do not place usage examples in a standalone example test or an `examples/` directory.
 

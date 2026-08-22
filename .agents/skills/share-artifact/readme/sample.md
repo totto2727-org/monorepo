@@ -2,9 +2,9 @@
 
 A small MoonBit Fibonacci library for applications that need an integer sequence primitive.
 
-This document is canonical `README.mbt.md`; maintain `README.md` as the relative symlink `README.md -> README.mbt.md`.
-
 ## Usage
+
+Calculate the Fibonacci number at position 10 and verify the library returns 55.
 
 ```moonbit
 test "fib usage" {

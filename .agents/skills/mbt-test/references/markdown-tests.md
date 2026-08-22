@@ -4,15 +4,16 @@
 
 ## File format
 
-All tests when rewritten should be drafted in `.mbt.md` files (e.g., `multi_geometry.mbt.md`), except for `wbtest.mbt` which must remain as is due to constraints.
+Use `.mbt.md` only when the task explicitly calls for literate executable documentation or rewriting an existing black-box test as such. Ordinary unit and integration tests follow [`file-layout.md`](file-layout.md). White-box tests remain `_wbtest.mbt` because Markdown tests cannot provide the required white-box visibility.
 
 **Note on Filename**: The test file should be named `[Implementation File Name].md`. Do NOT include `_test` in the filename (e.g., `xy.mbt.md`, not `xy_test.mbt.md`).
 
 ### Code Blocks in Markdown
 
 - `mbt`: Highlighting only (not compiled).
-- `mbt check`: Highlighting and compiled. Use with explicit `test "title" { ... }` blocks.
-- `mbt test(async)`: Wrapper for async tests.
+- `mbt check`: Highlighting and compiled. Use with explicit `test "title" { ... }` or `async test "title" { ... }` blocks.
+
+For `async test`, follow [`execution.md`](execution.md#async-tests) for the required `moonbitlang/async` dependency, package import, target, and execution rules.
 
 **Important**: Code blocks **must not be indented**. Even when included in a list item, the code block fence (\`\`\`) and its content must start at the beginning of the line.
 

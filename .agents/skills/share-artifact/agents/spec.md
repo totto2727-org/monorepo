@@ -24,7 +24,8 @@ Render the sibling [template.md](template.md) as `AGENTS.md`. The minimum form u
 4. Architecture
 5. Development tools
 6. Package-specific rules when applicable
-7. Artifact-specific provenance footer
+7. MoonBit README maintenance when applicable
+8. Artifact-specific provenance footer
 
 The minimum form may be extended with repository-specific AI and developer sections, provided the required sections stay ordered, the extension does not become an end-user getting-started guide, and it retains the sibling [template.md](template.md) and [sample.md](sample.md) as the current authoring references.
 
@@ -58,6 +59,8 @@ When updating an existing project:
 
 Do not place an end-user project description, installation walkthrough, marketing highlights, or license text in AGENTS; move it to README. Do not create divergent `CLAUDE.md` content; make it the `AGENTS.md` alias. Do not create a package AGENTS file that repeats the root document; add one only for unique local rules. Do not conceal build or test commands in README: they belong in AGENTS under Development commands.
 
-## MoonBit documentation coordination
+## MoonBit README maintenance
 
-For MoonBit projects, apply the README specification’s MoonBit exception: render `readme/template.md` to `README.mbt.md`, create the relative symlink `README.md -> README.mbt.md`, and validate supported MoonBit blocks with `moon check README.mbt.md` and `moon test README.mbt.md`. This is authoring guidance for the AI/developer audience; the end-user document remains the canonical rendered README.
+For MoonBit projects, keep the canonical end-user content in the physical `README.mbt.md` file and maintain `README.md` as the relative symlink `README.md -> README.mbt.md`. Validate supported MoonBit blocks with `moon check README.mbt.md` and `moon test README.mbt.md`. This is maintainer guidance for AI agents and developers; never render canonical-file or symlink-maintenance instructions into the end-user README.
+
+This layout follows MoonBit’s official literate Markdown documentation: <https://docs.moonbitlang.com/en/latest/language/docs.html>. The relative symlink layout is documented in the official MoonBit tutorial: <https://docs.moonbitlang.com/en/latest/toolchain/moon/tutorial.html>.
