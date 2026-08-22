@@ -52,5 +52,5 @@ All references below are concrete MoonBit implementation guidance. Conceptual gu
 ## Related skills
 
 - `$lens` — authoritative Lens usage and MoonBit JSON boundary guidance; use [`json.md`](references/json.md) for raw-content fallback routing.
-- `$moonbit-orientation` — official MoonBit source-of-truth routing. Use the local skill when installed; otherwise fetch the [official MoonBit documentation](https://docs.moonbitlang.com/en/latest/) directly. Request `Accept: text/markdown` when the fetch client supports content negotiation.
+- `$moonbit-orientation` — official MoonBit source-of-truth routing. Use the local skill when installed; otherwise fetch the [official MoonBit documentation Markdown source index](https://raw.githubusercontent.com/moonbitlang/moonbit-docs/main/next/index.md) directly. For source links beginning with `/`, strip the leading slash and resolve the path under `https://raw.githubusercontent.com/moonbitlang/moonbit-docs/main/next/`.
 - [`mbt-test`](../mbt-test/SKILL.md) — tests executable through repository Vite+ tasks or `moon test`.

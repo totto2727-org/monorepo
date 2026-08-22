@@ -103,11 +103,12 @@ Place discovery, resolution, and domain rules in the library that owns the conce
 
 - [`js-coding`](../js-coding/SKILL.md) — TypeScript, Effect, Hono, Remix, and `@totto2727/fp`.
 - [`mbt-coding`](../mbt-coding/SKILL.md) — MoonBit language and CLI implementation practices.
-- [`rust-coding`](../rust-coding/SKILL.md) — Rust web, workflow, LLM, validation, and library-selection practices.
+- `$rust-coding` — Rust web, workflow, LLM, validation, and library-selection practices when the skill is installed.
 
 ## Related skills
 
-- [`share-test`](../share-test/SKILL.md), [`js-test`](../js-test/SKILL.md), [`mbt-test`](../mbt-test/SKILL.md), and [`rust-test`](../rust-test/SKILL.md) — testing philosophy and executable tests.
+- [`share-test`](../share-test/SKILL.md), [`js-test`](../js-test/SKILL.md), and [`mbt-test`](../mbt-test/SKILL.md) — testing philosophy and executable tests.
+- `$rust-test` — executable Rust test guidance when the skill is installed.
 - [`share-test-design-flow`](../share-test-design-flow/SKILL.md) — concrete test design and human-facing reporting.
-- `$moonbit-orientation` and `$building-components` — official documentation skills. Prefer the local skills when installed; otherwise fetch the [MoonBit documentation](https://docs.moonbitlang.com/en/latest/) or the Markdown-native [components.build specification](https://www.components.build/llms.txt) directly.
+- `$moonbit-orientation` and `$building-components` — official documentation skills. Prefer the local skills when installed; otherwise fetch the [MoonBit documentation Markdown source index](https://raw.githubusercontent.com/moonbitlang/moonbit-docs/main/next/index.md) or the Markdown-native [components.build specification](https://www.components.build/llms.txt) directly. Resolve MoonBit source paths beginning with `/` under `https://raw.githubusercontent.com/moonbitlang/moonbit-docs/main/next/` after stripping the leading slash.
 - [`share-artifact`](../share-artifact/SKILL.md) — durable README, AGENTS, and ADR authoring.
