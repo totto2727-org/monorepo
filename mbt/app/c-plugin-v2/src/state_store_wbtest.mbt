@@ -84,6 +84,22 @@ async test "StateStore load_lock - corrupt bytes are preserved" {
 }
 
 ///|
+async test "StateStore load_ownership_state - reports a missing file separately" {
+  @async.with_task_group() <| group => {
+    let root : @path.Path = @fs.tmpdir(prefix="c-plugin-v2-state-store-")
+    group.add_defer(() => @fs.rmdir(root.to_string(), recursive=true))
+    let path = root.join("missing-state.json")
+    try load_ownership_state(path) catch {
+      StateStoreError::NotFound(path=error_path) =>
+        inspect(error_path == path, content="true")
+      _ => fail("expected NotFound")
+    } noraise {
+      _ => fail("missing ownership state must fail")
+    }
+  }
+}
+
+///|
 async test "StateStore load_lock - unsupported version bytes are preserved" {
   @async.with_task_group() <| group => {
     let root : @path.Path = @fs.tmpdir(prefix="c-plugin-v2-state-store-")

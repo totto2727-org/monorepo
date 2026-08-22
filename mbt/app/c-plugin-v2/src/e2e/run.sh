@@ -10,7 +10,7 @@ if [[ $(pwd -P) != "$repository_root" ]]; then
   exit 2
 fi
 
-image='c-plugin-v2-e0-init:local'
+image='c-plugin-v2-sync:local'
 platform_args=()
 if [[ -n ${C_PLUGIN_E2E_PLATFORM:-} ]]; then
   platform_args=(--platform "$C_PLUGIN_E2E_PLATFORM")
@@ -62,6 +62,9 @@ docker build \
 
 docker run --rm "${platform_args[@]}" "$image" project
 docker run --rm "${platform_args[@]}" "$image" global
+docker run --rm "${platform_args[@]}" \
+  --entrypoint /sandbox/e2e/sync.sh \
+  "$image"
 
 snapshot_host_state >"$after_state"
 if ! cmp -s "$before_state" "$after_state"; then
@@ -70,4 +73,4 @@ if ! cmp -s "$before_state" "$after_state"; then
   exit 1
 fi
 
-printf 'PASS: c-plugin-v2 init Docker E2E\n'
+printf 'PASS: c-plugin-v2 init and sync Docker E2E\n'
