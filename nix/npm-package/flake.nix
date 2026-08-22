@@ -3,10 +3,19 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    moonbit-overlay = {
+      url = "github:totto2727-org/moonbit-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    { self, nixpkgs, ... }:
+    {
+      self,
+      nixpkgs,
+      moonbit-overlay,
+      ...
+    }:
     let
       supportedSystems = [
         "x86_64-linux"
@@ -21,6 +30,7 @@
         system:
         import ./lib/npm-utils.nix {
           pkgs = nixpkgs.legacyPackages.${system};
+          moonbit = moonbit-overlay.packages.${system}.moonbit_latest;
         }
       );
     in

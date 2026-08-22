@@ -1,4 +1,4 @@
-{ pkgs }:
+{ pkgs, moonbit }:
 
 {
   npmPackage =
@@ -9,6 +9,7 @@
       runtime ? "bun",
       registry ? if runtime == "uv" then "https://pypi.flatt.tech/simple/" else "https://npm.flatt.tech",
       additionalArgs ? "",
+      target ? "native",
     }:
     let
       packageSpec = "${packageName}@${version}";
@@ -30,6 +31,10 @@
           export UV_DEFAULT_INDEX=${registry}
           export PATH="${pkgs.lib.makeBinPath [ pkgs.uv ]}:$PATH"
           exec ${pkgs.uv}/bin/uvx ${additionalArgs} ${packageSpec} "$@"
+        '';
+        moon = ''
+          export PATH="${pkgs.lib.makeBinPath [ moonbit ]}:$PATH"
+          exec ${moonbit}/bin/moonx --target ${target} ${additionalArgs} ${packageSpec} "$@"
         '';
       };
       script =
