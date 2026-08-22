@@ -45,3 +45,5 @@ Delete `totto2727-dev-flow`. Move only its reusable ADR and artifact guidance in
 - [Roadmap strategic layer](2026-04-29-roadmap-strategic-layer.md)
 - [External review responsibility](2026-04-29-external-review-absorbs-self-review.md)
 - [Roadmap PR and CI observability](2026-05-03-pr-and-ci-roadmap-observability.md)
+
+> Superseded by [Prefer upstream documentation skills](2026-08-22-prefer-upstream-documentation-skills.md)
