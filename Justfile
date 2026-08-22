@@ -10,3 +10,5 @@ docker-build-sandbox-dev: docker-build-sandbox-base
 docker-build-sandbox-monorepo: docker-build-sandbox-dev
     docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox-monorepo:latest -f ./sandbox/sandbox-monorepo.Dockerfile ./sandbox
 
+c-plugin-v2-e2e-image:
+    docker build --file mbt/app/c-plugin-v2/src/e2e/Dockerfile --tag c-plugin-v2-e2e:local .
