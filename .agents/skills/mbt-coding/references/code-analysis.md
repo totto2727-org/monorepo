@@ -16,5 +16,7 @@ Use `moon ide` for symbol-aware navigation because it uses the compiler's semant
 
 ## Sources
 
+- Use the official `$moonbit-orientation` skill locally when installed for source selection and freshness checks.
 - [Official MoonBit Agent IDE documentation](https://docs.moonbitlang.com/en/latest/toolchain/moonide/index.html)
-- [Generated MoonBit Agent IDE reference](../../docs-moonbit/references/toolchain-moonide-index.md)
+
+If `$moonbit-orientation` is unavailable, fetch the [official documentation Markdown source index](https://raw.githubusercontent.com/moonbitlang/moonbit-docs/main/next/index.md) directly. For source links beginning with `/`, strip the leading slash and resolve the path under `https://raw.githubusercontent.com/moonbitlang/moonbit-docs/main/next/`.
