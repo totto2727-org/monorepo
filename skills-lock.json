@@ -5,7 +5,7 @@
       "source": "vercel/components.build",
       "sourceType": "github",
       "skillPath": "skills/building-components/SKILL.md",
-      "computedHash": "20889af7cb9b3abca1e38824f7fffaa873eb0cc4d45187967b97bd85462cf934"
+      "computedHash": "ca96444b70257eb3f4f4c76dfdd4a32312c835fe3c8755d2e3d75ac78d384bfd"
     },
     "commit": {
       "source": "totto2727-org/agent",
@@ -65,7 +65,7 @@
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/totto2727-coding/skills/mbt-coding/SKILL.md",
-      "computedHash": "977ab025172dab3218a2e33532aca041dee99e5c4d5db6edd77a790adb967417"
+      "computedHash": "89a58b9bbf81a3b02ee8925bff6e3dd11af46b9d8e72f6c463839fe45ebdb528"
     },
     "mbt-test": {
       "source": "totto2727-org/agent",
@@ -119,7 +119,7 @@
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/totto2727-coding/skills/share-coding/SKILL.md",
-      "computedHash": "7a4155a2dd082d96bd7796944673b627e5a4c8949dc6b0148d732df36e4da96d"
+      "computedHash": "1eea58372ced83aca77c1127f65072653b36e66fe42703009def94e482f58268"
     },
     "share-test": {
       "source": "totto2727-org/agent",
