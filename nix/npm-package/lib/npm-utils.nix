@@ -32,6 +32,10 @@
           export PATH="${pkgs.lib.makeBinPath [ pkgs.uv ]}:$PATH"
           exec ${pkgs.uv}/bin/uvx ${additionalArgs} ${packageSpec} "$@"
         '';
+        go = ''
+          export PATH="${pkgs.lib.makeBinPath [ pkgs.go ]}:$PATH"
+          exec ${pkgs.go}/bin/go run ${additionalArgs} ${packageSpec} "$@"
+        '';
         moon = ''
           export PATH="${pkgs.lib.makeBinPath [ moonbit ]}:$PATH"
           exec ${moonbit}/bin/moonx --target ${target} ${additionalArgs} ${packageSpec} "$@"
