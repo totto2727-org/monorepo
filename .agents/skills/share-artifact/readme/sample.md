@@ -1,14 +1,14 @@
 # moonbit-fib
 
-A small MoonBit Fibonacci library for users who need a clear recursive example.
+A small MoonBit Fibonacci library for applications that need an integer sequence primitive.
 
 This document is canonical `README.mbt.md`; maintain `README.md` as the relative symlink `README.md -> README.mbt.md`.
 
 ## Usage
 
 ```moonbit
-pub fn fib(n : Int) -> Int {
-  if n < 2 { n } else { fib(n - 1) + fib(n - 2) }
+test "fib usage" {
+  inspect(@fib.fib(10), content="55")
 }
 ```
 
@@ -16,24 +16,26 @@ pub fn fib(n : Int) -> Int {
 
 - Small public API
 
-- Checked MoonBit example
+- Supports non-negative `Int` positions on MoonBit targets
 
 ## Prerequisites
 
-- **MoonBit**: Install the MoonBit toolchain.
+- **MoonBit project**: Use a project that can consume packages from Mooncakes.
 
 ## Setup
 
-1. Clone the repository.
+1. Add the package to the consuming project.
 
 ```bash
-git clone https://example.com/moonbit-fib.git
+moon add example/moonbit-fib
 ```
 
-2. Run the example.
+2. Import the package in the consuming package's `moon.pkg`.
 
-```bash
-moon run
+```text
+import {
+  "example/moonbit-fib" @fib
+}
 ```
 
 ## API
@@ -42,9 +44,11 @@ moon run
 
 Returns the Fibonacci number at the requested zero-based position.
 
+Callers must pass a non-negative position; negative positions are outside the supported input range.
+
 ```moonbit
 test "fib usage" {
-  inspect(fib(10), content="55")
+  inspect(@fib.fib(10), content="55")
 }
 ```
 

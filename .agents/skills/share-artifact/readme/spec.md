@@ -1,6 +1,6 @@
 # README specification
 
-This specification defines the end-user-facing document. Its companion minimum form is [template.md](template.md), and [sample.md](sample.md) is a concrete rendered output. Read this specification before rendering or extending the template.
+This specification defines an end-user-facing project, module, or package entry README. Its companion minimum form is [template.md](template.md), and [sample.md](sample.md) is a concrete rendered output. Read this specification before rendering or extending the template. A nested purpose-specific document may use `README.md` as a directory index without adopting this template when it is not an end-user entrypoint; keep its audience explicit and do not use it to hide content required by the entry README.
 
 ## Audience and decision rule
 
@@ -10,9 +10,10 @@ This specification defines the end-user-facing document. Its companion minimum f
 | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------- | -------------------------------------- | --------------------------------------------------------------------- |
 | Project overview, user-visible features, usage examples, end-user prerequisites and setup, external documentation, and license | Yes                                    | No                                     | Explain the user outcome and the smallest usable path.                |
 | Public API reference and meaningful API usage                                                                                  | Yes                                    | No                                     | Keep the user-facing API entrypoint in README or link its full guide. |
+| User-visible targets, required credentials or configuration, constraints, and actionable error behavior                        | Yes                                    | No                                     | Include what an end user needs for successful use.                    |
 | Detailed build, test, lint, deploy, CI, task, or contributor commands                                                          | No                                     | Yes                                    | These are developer and AI execution instructions.                    |
 | Repository structure, architecture, package management, path aliases, conventions, development tools, and AI constraints       | No                                     | Yes                                    | These govern work on the repository.                                  |
-| Full CLI reference                                                                                                             | Brief summary and link only            | Yes                                    | Keep the complete operational reference with the developer audience.  |
+| Full CLI reference                                                                                                             | Inline when concise, otherwise link it | No                                     | Keep the source of truth in user documentation or generated help.     |
 | Contribution guidance                                                                                                          | Link to a dedicated guide when present | No                                     | Do not turn the README into a contributor manual.                     |
 | A cross-reference needed by both audiences                                                                                     | Brief summary and link                 | Detailed form for its primary audience | Keep one source of truth; do not duplicate the detailed text.         |
 
@@ -31,6 +32,24 @@ Render the sibling [template.md](template.md) as the project `README.md` unless 
 
 The minimum form may be extended with purpose-specific end-user sections, provided the required sections remain in this order, `License` stays the final section, and the extension does not introduce developer, contributor, AI, or internal-operation guidance. An extension must not replace the sibling template or sample with an old role-based template path.
 
+## Setup policy
+
+`Setup` is the smallest supported acquisition or installation path that lets an end user use the project from a consumer environment. Prefer a registry or package-manager dependency, an install command, a published release artifact, or a supported project-creation mechanism such as a repository template. A source checkout and build may appear only when building from source is itself a supported end-user distribution path; include only the steps needed to produce and use the distributed artifact.
+
+Do not satisfy `Setup` with repository preparation such as `git clone`, entering a developer shell, dependency synchronization for contributors, code generation, build verification, tests, lint, CI, or publishing commands. Move that material to `AGENTS.md`. When an end user needs no acquisition or installation step, pass an empty `setup_steps` list so the template renders `No setup is required.` instead of inventing a command.
+
+Keep `Prerequisites` limited to requirements a consumer must satisfy before setup, such as a runtime, supported target, account, credential, or external service. Put contributor-only toolchains and repository-development environments in `AGENTS.md`. When no prerequisite exists, pass an empty `prerequisites` list so the template renders `No prerequisites.` instead of inventing one. The overview must state the user outcome, and the usage example must exercise the installed or otherwise acquired public interface. Document user-visible constraints and actionable error behavior in `Usage`, `API`, or a purpose-specific end-user section whenever they are necessary for successful use; do not misclassify them as prerequisites.
+
+## Usage policy
+
+Put dependency declarations, imports, aliases, and other acquisition wiring in `Setup`; they do not satisfy `Usage` by themselves. Classify Usage by product surface and set the template's `usage_surface` to exactly one of the following values:
+
+1. `library` — show a small public API code example that demonstrates the main feature and an observable return value, assertion, state change, or effect. When inline code would be misleading or too large, pass an empty `usage_examples` list and set `usage_guide.title`, `usage_guide.path`, and `usage_guide.summary` to link directly to a concrete runnable or checked example.
+2. `cli` — show an installed command and a representative expected stdout, stderr, file, or state result. A command without its expected result does not satisfy Usage.
+3. `gui` — show a current real screenshot or image of the primary user-visible state, followed by a short description of the interaction and its result. A mock, concept image, or stale screenshot does not satisfy Usage.
+
+Reject any other surface. The direct example-link fallback applies only to `library`; reject a generic package page, project homepage, or API reference as the Usage destination for any surface.
+
 After `License`, append this exact artifact-specific provenance footer without a heading:
 
 ```markdown
@@ -43,11 +62,15 @@ The footer identifies only the sources used to create the current README; it is 
 
 Set the template's `api.mode` to exactly one of the following values after inspecting the public API and its publishing registry:
 
-1. `registry` — use this when a package registry provides a maintained API index, as MoonBit and JSR registries commonly do. Set `api.registry_name` and `api.registry_url`, link directly to the package's canonical API page, and do not duplicate the generated API list in README.
+1. `registry` — use this only when the registry actually renders a maintained, accessible API index, as MoonBit and JSR registries commonly do. Inspect the published page, set `api.registry_name` and `api.registry_url`, link directly to the canonical API index, and do not duplicate the generated API list in README.
 2. `inline` — use this when no registry supplies the API index and every meaningful public API can be explained concisely without making README difficult to navigate. Set `api.entries` and document every meaningful public API with its purpose and a representative usage example; do not omit an API merely to shorten the section.
 3. `guide` — use this when no registry supplies the API index and complete inline coverage would make README difficult to navigate. Create a detailed guide under `docs/`, set `api.guide_title`, `api.guide_path`, and `api.guide_summary`, then keep only that summary and relative guide link in README.
 
-Reject any other mode, an empty registry URL, partial inline coverage, or a guide link whose target does not exist. The API section is required even when its contents are delegated to a registry or `docs/` guide.
+Reject any other mode, an empty registry URL, a registry package landing page that does not expose the API, an inaccessible or suppressed API index, partial inline coverage, or a guide link whose target does not exist. The API section is required even when its contents are delegated to a registry or `docs/` guide.
+
+## CLI documentation policy
+
+For a command-line project, show an installed command and its representative expected result in `Usage`, then provide a maintained discovery path for the remaining commands and options. Keep a concise complete reference in README, link a detailed end-user guide under `docs/`, or point to generated help with the exact command needed to reach it, such as `tool --help`. Include nested help paths when discovery depends on a subcommand. A full CLI reference is end-user documentation and must never use `AGENTS.md` as its source of truth; `AGENTS.md` contains only repository development and operation instructions.
 
 ## Shared content and updates
 
@@ -64,7 +87,7 @@ When updating an existing project:
 
 ## Corrections for common mistakes
 
-Do not add AI rules such as “never use npx” to README; move them to `AGENTS.md` and retain only the Development link. Do not put detailed build, test, lint, or contributor setup commands in README; those commands fail the end-user test and belong in `AGENTS.md`. Do not add repository architecture or directory structure to README merely because it is useful to developers. Do not replace meaningful API usage with a symbol dump, an incomplete shortlist, or a bare link to a non-API package page.
+Do not add AI rules such as “never use npx” to README; move them to `AGENTS.md` and retain only the Development link. Do not put repository cloning, developer-shell entry, dependency synchronization, code generation, build verification, test, lint, CI, publishing, or contributor setup commands in README; those commands fail the end-user test and belong in `AGENTS.md`, except for the narrow supported source-distribution case in the Setup policy. Do not add repository architecture or directory structure to README merely because it is useful to developers. Do not replace meaningful API usage with a symbol dump, an incomplete shortlist, or a bare link to a non-API package page. Do not move user-facing CLI reference material or required runtime constraints into `AGENTS.md`.
 
 ## MoonBit exception
 

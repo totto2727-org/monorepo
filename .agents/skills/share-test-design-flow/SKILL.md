@@ -9,7 +9,7 @@ description: >-
 
 # Shared Test Design Flow Index
 
-This skill owns framework-agnostic test design and human-facing reporting. Testing philosophy belongs to share-test; executable implementation belongs to js-test or mbt-test.
+This skill owns framework-agnostic test design and human-facing reporting. Testing philosophy belongs to share-test; executable implementation belongs to js-test, mbt-test, or rust-test.
 
 ## Workflow
 
@@ -25,7 +25,7 @@ Produce qa-design.md and qa-flow.md together unless the user explicitly narrows 
 ## Related skills
 
 - [share-test](../share-test/SKILL.md) — language-independent testing philosophy.
-- [js-test](../js-test/SKILL.md) and [mbt-test](../mbt-test/SKILL.md) — executable test implementation.
+- [js-test](../js-test/SKILL.md), [mbt-test](../mbt-test/SKILL.md), and [rust-test](../rust-test/SKILL.md) — executable test implementation.
 
 ## Out of scope
 
