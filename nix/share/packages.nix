@@ -18,6 +18,12 @@ with pkgs;
   # Coding
   codex
   chezmoi
+  # MoonBit
+  (npm {
+    binName = "wt";
+    runtime = "moon";
+    packageName = "totto2727/wt";
+  })
   # npm
   (npm {
     binName = "ctx7";
