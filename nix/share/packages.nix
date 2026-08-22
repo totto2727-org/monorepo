@@ -30,6 +30,10 @@ with pkgs;
     packageName = "ctx7";
   })
   (npm {
+    binName = "cf";
+    packageName = "cf";
+  })
+  (npm {
     binName = "openshell";
     runtime = "uv";
     packageName = "openshell";
