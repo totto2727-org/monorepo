@@ -67,43 +67,17 @@ export default defineConfig({
         dependsOn: [
           'js:check',
           'mbt:check',
-          // 'ex:check'
         ],
       },
       ci: {
         command: '',
         dependsOn: ['w:check', 'w:test', 'w:build'],
       },
-      'ex:check': {
-        command: '',
-        dependsOn: ['ex:check:format', 'ex:check:compile'],
-      },
-      'ex:check:compile': {
-        command: 'mix compile',
-        input: [{ auto: true }, '!_build/**', '!deps/**'],
-      },
-      'ex:check:format': {
-        command: 'mix format --check-formatted',
-        input: [{ auto: true }, '!_build/**', '!deps/**'],
-      },
-      'ex:check:lint': {
-        command: 'mix lint',
-        input: [{ auto: true }, '!_build/**', '!deps/**'],
-      },
-      'ex:fix': {
-        command: 'mix format',
-        input: [{ auto: true }, '!_build/**', '!deps/**'],
-      },
-      'ex:test': {
-        command: 'mix test',
-        input: [{ auto: true }, '!_build/**', '!deps/**'],
-      },
       fix: {
         command: '',
         dependsOn: [
           'js:fix',
           'mbt:fix',
-          // 'ex:fix'
         ],
       },
       'js:check': {
@@ -153,7 +127,6 @@ export default defineConfig({
         dependsOn: [
           'js:test',
           'mbt:test',
-          // 'ex:test'
         ],
       },
       'w:build': {
