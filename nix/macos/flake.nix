@@ -32,10 +32,6 @@
       url = "github:sadjow/codex-cli-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    kanata-darwin-nix = {
-      url = "github:totto2727-org/kanata-darwin-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
@@ -49,7 +45,6 @@
       moonbit-overlay,
       vite-plus-overlay,
       codex-overlay,
-      kanata-darwin-nix,
     }:
     let
       hostname = "totto2727-macos";
@@ -64,7 +59,6 @@
           moonbit-overlay.overlays.default
           vite-plus-overlay.overlays.default
           codex-overlay.overlays.default
-          kanata-darwin-nix.overlays.default
         ];
       };
       npm = npmpkgs.lib.${pkgs.system}.npmPackage;
@@ -80,24 +74,10 @@
               nix.enable = false;
             }
             home-manager.darwinModules.home-manager
-            kanata-darwin-nix.darwinModules.default
             (
               (import ../share/home-manager.nix { inherit username homedir; })
               // {
                 system = import ../share/darwin-system.nix { inherit username; };
-
-                services = {
-                  kanata = {
-                    enable = true;
-                    keyboards = {
-                      default = {
-                        configFile = ./kanata.kbd;
-                        port = 5829;
-                        vkAgent.enable = true;
-                      };
-                    };
-                  };
-                };
 
                 homebrew = (import ../share/homebrew.nix) // {
                   brews = (import ../share/brews.nix) ++ [

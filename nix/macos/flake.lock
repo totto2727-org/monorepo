@@ -104,26 +104,6 @@
         "url": "https://flakehub.com/f/nix-community/home-manager/0.1"
       }
     },
-    "kanata-darwin-nix": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1787455518,
-        "narHash": "sha256-Igf417ncHU5dYcHuzS7wUtWv7XlRojCIdr8eOWEyjiE=",
-        "owner": "totto2727-org",
-        "repo": "kanata-darwin-nix",
-        "rev": "a65e4e9779e0ed7622c49a19865d323336f5bfb9",
-        "type": "github"
-      },
-      "original": {
-        "owner": "totto2727-org",
-        "repo": "kanata-darwin-nix",
-        "type": "github"
-      }
-    },
     "local-packages": {
       "inputs": {
         "nixpkgs": [
@@ -166,11 +146,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1787368352,
-        "narHash": "sha256-dAj5AVj6vyONbZNPhJjQhuTze4fVUVmHYTk4eFqA3Dw=",
+        "lastModified": 1787454322,
+        "narHash": "sha256-CFRXlwtPnWgpAEv0WXuYnD2AVbawLU3SNSipwRm91nI=",
         "owner": "totto2727",
         "repo": "moonbit-overlay",
-        "rev": "475dceb66e55ab83d79d681e744a897d2e106574",
+        "rev": "79c61e72bd2cc8f0367c5c807733b6ad2a5eb45c",
         "type": "github"
       },
       "original": {
@@ -235,7 +215,6 @@
       "inputs": {
         "codex-overlay": "codex-overlay",
         "home-manager": "home-manager",
-        "kanata-darwin-nix": "kanata-darwin-nix",
         "local-packages": "local-packages",
         "moonbit-overlay": "moonbit-overlay",
         "nix-darwin": "nix-darwin",
