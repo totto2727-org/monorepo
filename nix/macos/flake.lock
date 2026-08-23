@@ -104,6 +104,22 @@
         "url": "https://flakehub.com/f/nix-community/home-manager/0.1"
       }
     },
+    "local-packages": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "../share/packages",
+        "type": "path"
+      },
+      "original": {
+        "path": "../share/packages",
+        "type": "path"
+      },
+      "parent": []
+    },
     "moon-registry": {
       "flake": false,
       "locked": {
@@ -178,6 +194,9 @@
     },
     "npmpkgs": {
       "inputs": {
+        "moonbit-overlay": [
+          "moonbit-overlay"
+        ],
         "nixpkgs": [
           "nixpkgs"
         ]
@@ -196,6 +215,7 @@
       "inputs": {
         "codex-overlay": "codex-overlay",
         "home-manager": "home-manager",
+        "local-packages": "local-packages",
         "moonbit-overlay": "moonbit-overlay",
         "nix-darwin": "nix-darwin",
         "nixpkgs": "nixpkgs",

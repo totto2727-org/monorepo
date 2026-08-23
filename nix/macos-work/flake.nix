@@ -14,6 +14,11 @@
     npmpkgs = {
       url = "path:../npm-package";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.moonbit-overlay.follows = "moonbit-overlay";
+    };
+    local-packages = {
+      url = "path:../share/packages";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     moonbit-overlay = {
       url = "github:totto2727/moonbit-overlay";
@@ -30,6 +35,7 @@
       self,
       nixpkgs,
       npmpkgs,
+      local-packages,
       home-manager,
       nix-darwin,
       moonbit-overlay,
@@ -44,6 +50,7 @@
       pkgs = import nixpkgs {
         inherit system;
         overlays = [
+          local-packages.overlays.default
           moonbit-overlay.overlays.default
           vite-plus-overlay.overlays.default
         ];
