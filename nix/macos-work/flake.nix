@@ -103,6 +103,7 @@
                     ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).macos-work
                     ++ (with pkgs; [
                       docker
+                      kanata-with-cmd
                     ]);
 
                   programs =
