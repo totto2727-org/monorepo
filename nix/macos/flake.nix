@@ -33,7 +33,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     kanata-darwin-nix = {
-      url = "github:ryoppippi/kanata-darwin-nix";
+      url = "github:totto2727-org/kanata-darwin-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -84,14 +84,7 @@
             (
               (import ../share/home-manager.nix { inherit username homedir; })
               // {
-                system = (import ../share/darwin-system.nix { inherit username; }) // {
-                  activationScripts.preActivation.text = ''
-                    # launchd loads the Kanata jobs before the upstream module's
-                    # post-activation script creates these permission-stable paths.
-                    /bin/ln -sf ${pkgs.kanata}/bin/kanata /Applications/kanata
-                    /bin/ln -sf ${pkgs.kanata-vk-agent}/bin/kanata-vk-agent /Applications/kanata-vk-agent
-                  '';
-                };
+                system = import ../share/darwin-system.nix { inherit username; };
 
                 services = {
                   kanata = {
@@ -99,7 +92,6 @@
                     keyboards = {
                       default = {
                         configFile = ./kanata.kbd;
-                        extraArgs = [ "--no-wait" ];
                         port = 5829;
                         vkAgent.enable = true;
                       };
