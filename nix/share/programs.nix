@@ -2,7 +2,6 @@
 {
   direnv = import ./direnv.nix;
   zoxide = import ./zoxide.nix;
-  starship = import ./starship.nix;
   git = import ./git.nix;
   gh = import ./gh.nix { inherit pkgs; };
   delta = import ./delta.nix;

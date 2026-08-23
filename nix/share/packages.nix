@@ -9,30 +9,17 @@ with pkgs;
   fd
   rename
   fzf
-  starship
   # TUI
   neovim
+  zmx
   lazygit
   lazydocker
   yazi
+  witr
   # Coding
   codex
   chezmoi
-  # MoonBit
-  (npm {
-    binName = "wt";
-    runtime = "moon";
-    packageName = "totto2727/wt";
-  })
-  # npm
-  (npm {
-    binName = "ctx7";
-    packageName = "ctx7";
-  })
-  (npm {
-    binName = "cf";
-    packageName = "cf";
-  })
+  # uv
   (npm {
     binName = "openshell";
     runtime = "uv";

@@ -74,6 +74,7 @@
                     home-manager = "home-manager --flake ~/nix/sandbox#${username}-${system}";
                   };
                 };
+                starship = import ./starship.nix;
               };
 
               home.sessionVariables = import ../share/session-variables.nix;

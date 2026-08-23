@@ -5,12 +5,6 @@ let
 
   # --- shared wrappers (no secrets) ---
 
-  exocortex-mcp = writeShellScriptBin "exocortex-mcp" ''
-    exec ${pkgs.uv}/bin/uvx \
-      --from "git+https://github.com/fuwasegu/exocortex" \
-      exocortex --mode proxy --ensure-server "$@"
-  '';
-
   docker-credential-gh = writeShellScriptBin "docker-credential-gh" ''
     set -e
 
@@ -63,19 +57,29 @@ let
     }/bin/cf "$@"
   '';
 
-  macos-o = writeShellScriptBin "o" ''
-    export LINEAR_API_KEY="$(pass-cli get linear/api-key --quiet -f password)"
-    exec opencode "$@"
+  macos-wt = writeShellScriptBin "wt" ''
+    set -e
+
+    export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"
+    exec ${
+      (npm {
+        binName = "wt";
+        runtime = "moon";
+        packageName = "totto2727/wt";
+      })
+    }/bin/wt "$@"
   '';
 
-  macos-c = writeShellScriptBin "c" ''
-    export LINEAR_API_KEY="$(pass-cli get linear/api-key --quiet -f password)"
-    exec codex "$@"
-  '';
+  macos-ctx7 = writeShellScriptBin "ctx7" ''
+    set -e
 
-  macos-work-c = writeShellScriptBin "c" ''
-    export CLAUDE_CONFIG_DIR="$HOME/.claude-work"
-    exec claude "$@"
+    export CONTEXT7_API_KEY="$(pass-cli get context7/api-key --quiet -f password)"
+    exec ${
+      npm {
+        binName = "ctx7";
+        packageName = "ctx7";
+      }
+    }/bin/ctx7 "$@"
   '';
 
   macos-linear-mcp = writeShellScriptBin "linear-mcp" ''
@@ -87,19 +91,43 @@ let
       "$@"
   '';
 
-  # --- wrappers without pass-cli (sandbox, OpenShell injects env vars) ---
+  macos-c = writeShellScriptBin "c" ''
+    export LINEAR_API_KEY="$(pass-cli get linear/api-key --quiet -f password)"
+    exec ${pkgs.codex}/bin/codex "$@"
+  '';
+
+  macos-j = writeShellScriptBin "j" ''
+    export LINEAR_API_KEY="$(pass-cli get linear/api-key --quiet -f password)"
+    exec jcode "$@"
+  '';
+
+  # --- wrappers for macos-work
+  macos-work-c = writeShellScriptBin "c" ''
+    export CLAUDE_CONFIG_DIR="$HOME/.claude-work"
+    exec claude "$@"
+  '';
+
+  # --- wrappers for sandbox
 
   sandbox-bx = writeShellScriptBin "bx" ''
     exec $HOME/.local/bin/bx "$@"
   '';
 
-  sandbox-o = writeShellScriptBin "o" ''
-    exec opencode "$@"
-  '';
+  sandbox-cf = npm {
+    binName = "cf";
+    packageName = "cf";
+  };
 
-  sandbox-c = writeShellScriptBin "c" ''
-    exec codex "$@"
-  '';
+  sandbox-wt = npm {
+    binName = "wt";
+    runtime = "moon";
+    packageName = "totto2727/wt";
+  };
+
+  sandbox-ctx7 = npm {
+    binName = "ctx7";
+    packageName = "ctx7";
+  };
 
   sandbox-linear-mcp = writeShellScriptBin "linear-mcp" ''
     exec bunx mcp-remote \
@@ -109,29 +137,40 @@ let
       "$@"
   '';
 
+  sandbox-c = writeShellScriptBin "c" ''
+    exec ${pkgs.codex}/bin/codex "$@"
+  '';
+
+  sandbox-j = writeShellScriptBin "c" ''
+    exec jcode "$@"
+  '';
 in
 {
   macos = [
-    exocortex-mcp
     docker-credential-gh
     macos-bx
-    (lib.hiPrio macos-cf)
-    macos-o
-    macos-c
+    macos-cf
+    macos-wt
+    macos-ctx7
     macos-linear-mcp
+    macos-c
+    macos-j
   ];
 
   macos-work = [
     docker-credential-gh
+    macos-wt
     macos-work-c
   ];
 
   sandbox = [
-    exocortex-mcp
     docker-credential-gh
     sandbox-bx
-    sandbox-o
-    sandbox-c
+    sandbox-cf
+    sandbox-wt
+    sandbox-ctx7
     sandbox-linear-mcp
+    sandbox-c
+    sandbox-j
   ];
 }

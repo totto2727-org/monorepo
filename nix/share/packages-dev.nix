@@ -2,7 +2,6 @@
 with pkgs;
 [
   # Coding
-  lefthook
   just
   nixfmt
   duckdb
@@ -10,14 +9,10 @@ with pkgs;
   nodejs_24
   bun
   deno
-  typescript
-  typescript-language-server
+  vite-plus
   python3
-  pyright
   uv
   go
   rustup
-  beamPackages.erlang
-  vite-plus
   moonbit-bin.moonbit.latest
 ]

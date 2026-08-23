@@ -1,6 +1,4 @@
 [
-  "neurosnap/tap/zmx"
-  "arimxyer/tap/pass-cli"
   # Gnu
   "coreutils"
   "grep"

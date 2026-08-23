@@ -70,26 +70,18 @@
             {
               system = import ../share/darwin-system.nix { inherit username; };
               homebrew = (import ../share/homebrew.nix) // {
-                taps = (import ../share/taps.nix);
                 brews = (import ../share/brews.nix) ++ [
-                  "git"
                   "podman"
                   "zlib"
                   "sqlite"
-                  "gemini-cli"
                 ];
                 casks = (import ../share/casks.nix) ++ [
                   # Coding
                   "visual-studio-code"
-                  "cursor"
-                  "ghostty"
                   "claude"
                   "claude-code@latest"
                   "podman-desktop"
-                  "figma"
-                  "postman"
                   # Utility
-                  "slack"
                   "karabiner-elements"
                   "fuwasegu/tap/airlingua"
                 ];
@@ -120,8 +112,6 @@
                       zsh = (import ../share/zsh.nix { inherit pkgs; }) // {
                         initContent = ''
                                       eval "$(/opt/homebrew/bin/brew shellenv)"
-
-                                      GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)";
 
                                       if [[ -n "$CLAUDECODE" || ! -o interactive ]]; then
                                         return

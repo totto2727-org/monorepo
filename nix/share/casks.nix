@@ -8,6 +8,7 @@
   # Coding
   "warp"
   # Utility
+  "slack"
   "thaw"
   "macs-fan-control"
 ]

@@ -76,9 +76,6 @@
             {
               system = import ../share/darwin-system.nix { inherit username; };
               homebrew = (import ../share/homebrew.nix) // {
-                taps = (import ../share/taps.nix) ++ [
-                  "anomalyco/tap"
-                ];
                 brews = (import ../share/brews.nix) ++ [
                   "mas"
                   "tailscale"
@@ -97,15 +94,15 @@
                   # Game
                   "heroic"
                   # Utility
-                  "nordvpn"
-                  "1password"
-                  "Logi-options+"
-                  "raycast"
-                  "cleanmymac"
                   "discord"
-                  "notion-calendar"
-                  "balenaetcher"
                   "thunderbird"
+                  "notion-calendar"
+                  "1password"
+                  "raycast"
+                  "Logi-options+"
+                  "nordvpn"
+                  "cleanmymac"
+                  "balenaetcher"
                 ];
                 masApps = {
                   "Kindle" = 302584613;
@@ -131,22 +128,7 @@
                     })
                     ++ (import ../share/packages-dev.nix { inherit pkgs; })
                     ++ (import ../share/packages-macos.nix { inherit pkgs; })
-                    ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).macos
-                    ++ (with pkgs; [
-                      gopls
-                      air
-                      (npm {
-                        binName = "opencode";
-                        packageName = "@opencode-ai/cli";
-                        version = "beta";
-                        runtime = "node";
-                      })
-                      (npm {
-                        binName = "omo";
-                        packageName = "omo-ai";
-                        version = "beta";
-                      })
-                    ]);
+                    ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).macos;
 
                   programs =
                     (import ../share/programs.nix { inherit pkgs; })
@@ -157,8 +139,6 @@
                                       eval "$(/opt/homebrew/bin/brew shellenv)"
 
                                       . ~/.orbstack/shell/init.zsh
-
-                                      GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"
 
                                       if [[ ! -o interactive ]]; then
                                         return
