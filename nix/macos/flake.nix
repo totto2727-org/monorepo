@@ -87,6 +87,7 @@
                 casks = (import ../share/casks.nix) ++ [
                   # Browser
                   "zen"
+                  "brave-browser"
                   # Coding
                   "zed"
                   "orbstack"
