@@ -32,6 +32,10 @@
       url = "github:sadjow/codex-cli-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    kanata-darwin-nix = {
+      url = "github:ryoppippi/kanata-darwin-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -45,6 +49,7 @@
       moonbit-overlay,
       vite-plus-overlay,
       codex-overlay,
+      kanata-darwin-nix,
     }:
     let
       hostname = "totto2727-macos";
@@ -59,6 +64,7 @@
           moonbit-overlay.overlays.default
           vite-plus-overlay.overlays.default
           codex-overlay.overlays.default
+          kanata-darwin-nix.overlays.default
         ];
       };
       npm = npmpkgs.lib.${pkgs.system}.npmPackage;
@@ -73,52 +79,74 @@
             {
               nix.enable = false;
             }
-            {
-              system = import ../share/darwin-system.nix { inherit username; };
-              homebrew = (import ../share/homebrew.nix) // {
-                brews = (import ../share/brews.nix) ++ [
-                  "mas"
-                  "tailscale"
-                  "incus"
-                  "talosctl"
-                  "cloudflared"
-                  "pulumi"
-                ];
-                casks = (import ../share/casks.nix) ++ [
-                  # Browser
-                  "zen"
-                  "brave-browser"
-                  # Coding
-                  "zed"
-                  "orbstack"
-                  "chatgpt"
-                  # Game
-                  "heroic"
-                  # Utility
-                  "discord"
-                  "thunderbird"
-                  "notion-calendar"
-                  "1password"
-                  "raycast"
-                  "Logi-options+"
-                  "nordvpn"
-                  "cleanmymac"
-                  "balenaetcher"
-                ];
-                masApps = {
-                  "Kindle" = 302584613;
-                  "Mp3tag" = 1532597159;
-                  "Prime Video" = 545519333;
-                  "Slack for Desktop" = 803453959;
-                  "Tailscale" = 1475387142;
-                  "Steam Link" = 1246969117;
-                };
-              };
-            }
             home-manager.darwinModules.home-manager
+            kanata-darwin-nix.darwinModules.default
             (
               (import ../share/home-manager.nix { inherit username homedir; })
               // {
+                system = (import ../share/darwin-system.nix { inherit username; }) // {
+                  activationScripts.preActivation.text = ''
+                    # launchd loads the Kanata jobs before the upstream module's
+                    # post-activation script creates these permission-stable paths.
+                    /bin/ln -sf ${pkgs.kanata}/bin/kanata /Applications/kanata
+                    /bin/ln -sf ${pkgs.kanata-vk-agent}/bin/kanata-vk-agent /Applications/kanata-vk-agent
+                  '';
+                };
+
+                services = {
+                  kanata = {
+                    enable = true;
+                    keyboards = {
+                      default = {
+                        configFile = ./kanata.kbd;
+                        extraArgs = [ "--no-wait" ];
+                        port = 5829;
+                        vkAgent.enable = true;
+                      };
+                    };
+                  };
+                };
+
+                homebrew = (import ../share/homebrew.nix) // {
+                  brews = (import ../share/brews.nix) ++ [
+                    "mas"
+                    "tailscale"
+                    "incus"
+                    "talosctl"
+                    "cloudflared"
+                    "pulumi"
+                  ];
+                  casks = (import ../share/casks.nix) ++ [
+                    # Browser
+                    "zen"
+                    "brave-browser"
+                    # Coding
+                    "zed"
+                    "orbstack"
+                    "chatgpt"
+                    # Game
+                    "heroic"
+                    # Utility
+                    "discord"
+                    "thunderbird"
+                    "notion-calendar"
+                    "1password"
+                    "raycast"
+                    "Logi-options+"
+                    "nordvpn"
+                    "cleanmymac"
+                    "balenaetcher"
+                  ];
+                  masApps = {
+                    "Kindle" = 302584613;
+                    "Mp3tag" = 1532597159;
+                    "Prime Video" = 545519333;
+                    "Slack for Desktop" = 803453959;
+                    "Tailscale" = 1475387142;
+                    "Steam Link" = 1246969117;
+                  };
+                };
+
                 home-manager.backupFileExtension = "bak";
                 home-manager.users."${username}" = {
                   home.stateVersion = stateVersion;
