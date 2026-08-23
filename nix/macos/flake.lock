@@ -1,5 +1,25 @@
 {
   "nodes": {
+    "apple-container-overlay": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786956358,
+        "narHash": "sha256-tID2pttY4dFdBta9wccRBKtQwVG/DGBZbKcnI0ppg/8=",
+        "owner": "halfwhey",
+        "repo": "nix-apple-container",
+        "rev": "59cd21f5790dfc7e83be8c1e33459723a0ba9830",
+        "type": "github"
+      },
+      "original": {
+        "owner": "halfwhey",
+        "repo": "nix-apple-container",
+        "type": "github"
+      }
+    },
     "bun2nix": {
       "inputs": {
         "flake-parts": "flake-parts",
@@ -213,6 +233,7 @@
     },
     "root": {
       "inputs": {
+        "apple-container-overlay": "apple-container-overlay",
         "codex-overlay": "codex-overlay",
         "home-manager": "home-manager",
         "local-packages": "local-packages",

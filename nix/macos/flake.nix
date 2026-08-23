@@ -32,6 +32,10 @@
       url = "github:sadjow/codex-cli-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    apple-container-overlay = {
+      url = "github:halfwhey/nix-apple-container";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -45,6 +49,7 @@
       moonbit-overlay,
       vite-plus-overlay,
       codex-overlay,
+      apple-container-overlay,
     }:
     let
       hostname = "totto2727-macos";
@@ -74,10 +79,15 @@
               nix.enable = false;
             }
             home-manager.darwinModules.home-manager
+            apple-container-overlay.darwinModules.default
             (
               (import ../share/home-manager.nix { inherit username homedir; })
               // {
                 system = import ../share/darwin-system.nix { inherit username; };
+
+                services.containerization = {
+                  enable = true;
+                };
 
                 homebrew = (import ../share/homebrew.nix) // {
                   brews = (import ../share/brews.nix) ++ [
