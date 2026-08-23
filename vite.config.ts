@@ -64,10 +64,7 @@ export default defineConfig({
       },
       check: {
         command: '',
-        dependsOn: [
-          'js:check',
-          'mbt:check',
-        ],
+        dependsOn: ['js:check', 'mbt:check'],
       },
       ci: {
         command: '',
@@ -75,10 +72,7 @@ export default defineConfig({
       },
       fix: {
         command: '',
-        dependsOn: [
-          'js:fix',
-          'mbt:fix',
-        ],
+        dependsOn: ['js:fix', 'mbt:fix'],
       },
       'js:check': {
         command: 'vp check',
@@ -124,10 +118,7 @@ export default defineConfig({
       },
       test: {
         command: '',
-        dependsOn: [
-          'js:test',
-          'mbt:test',
-        ],
+        dependsOn: ['js:test', 'mbt:test'],
       },
       'w:build': {
         command: 'vp run -r build',
