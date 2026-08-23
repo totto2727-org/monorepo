@@ -111,15 +111,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1774518106,
-        "narHash": "sha256-4z//Ue34K/Of5fC7ZowQVhYUSBpqR9JOuaXy49J5IdI=",
-        "owner": "ryoppippi",
+        "lastModified": 1787455518,
+        "narHash": "sha256-Igf417ncHU5dYcHuzS7wUtWv7XlRojCIdr8eOWEyjiE=",
+        "owner": "totto2727-org",
         "repo": "kanata-darwin-nix",
-        "rev": "8e0a7d91f859dfc805a81be2226f04cd1220abec",
+        "rev": "a65e4e9779e0ed7622c49a19865d323336f5bfb9",
         "type": "github"
       },
       "original": {
-        "owner": "ryoppippi",
+        "owner": "totto2727-org",
         "repo": "kanata-darwin-nix",
         "type": "github"
       }
