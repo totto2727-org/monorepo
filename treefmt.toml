@@ -1,8 +1,3 @@
-[formatter.elixir]
-command = "mix"
-options = ["format"]
-includes = ["*.ex", "*.exs"]
-
 [formatter.go]
 command = "gofmt"
 options = ["-w"]

@@ -58,9 +58,6 @@
               pkgs.turso-cli
               # MoonBit
               pkgs.moonbit-bin.moonbit.latest
-              # Elixir
-              pkgs.beam29Packages.elixir_1_20
-              pkgs.beam29Packages.erlang
               # Util
               pkgs.just
               pkgs.treefmt

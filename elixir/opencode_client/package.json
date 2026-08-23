@@ -1,6 +1,0 @@
-{
-  "name": "opencode-client",
-  "private": true,
-  "description": "Package metadata for the OpenCode Elixir client.",
-  "type": "module"
-}
