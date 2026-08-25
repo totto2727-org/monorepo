@@ -25,11 +25,23 @@
       "skillPath": "plugins/external-search/skills/doc-search/SKILL.md",
       "computedHash": "50979524cfe0d97fdf9f7fd373b72d2211653626edb35f715e77ab1af30354f2"
     },
+    "document-e2e-scenarios": {
+      "source": "totto2727-org/e2e",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/document-e2e-scenarios/SKILL.md",
+      "computedHash": "2794049ed89db05349db1ea5bb77bc6a0aec6a4aab4159790650cfceb5eea83e"
+    },
     "html-doc": {
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/totto2727/skills/html-doc/SKILL.md",
       "computedHash": "bfb3b6617276298c8437f84a18e54b1b27a1d0837fa1131f299ac805763d43c0"
+    },
+    "implement-cli-e2e": {
+      "source": "totto2727-org/e2e",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/implement-cli-e2e/SKILL.md",
+      "computedHash": "fe101cb308ec7325effbc70a4133c1307e694f55ef154bd65be56f6b17137afb"
     },
     "js-coding": {
       "source": "totto2727-org/agent",
@@ -48,6 +60,12 @@
       "sourceType": "github",
       "skillPath": "plugins/symphony/skills/land/SKILL.md",
       "computedHash": "a734121d8beceaa7a4e568ba435b1a66eed67ae2c73c1f2e5caf02ab8b8b1c32"
+    },
+    "lens": {
+      "source": "totto2727-org/lens",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/lens/SKILL.md",
+      "computedHash": "f073cd36a21155966a9c1b2e8d280f6551e3d80b111e91a77fc8f952419806ca"
     },
     "linear": {
       "source": "totto2727-org/agent",
@@ -113,7 +131,7 @@
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/totto2727-coding/skills/share-artifact/SKILL.md",
-      "computedHash": "83fed034253a7f131189b186a3db965ddb9069dc728e6328b821ae87888f9890"
+      "computedHash": "dd1dd273f40ec4bba3991a38393ad11e1a5472d87a08bd82c78201f9729233d4"
     },
     "share-coding": {
       "source": "totto2727-org/agent",

@@ -5,12 +5,12 @@
 {# State the end-user outcome, not the repository implementation. -#}
 {{ overview }}
 
-{# Use root for the repository consumer entrypoint, independent only for a genuinely separate consumer entrypoint, and nested for a compact non-duplicating package or directory entry. -#}
-{% if entry_scope == "root" or entry_scope == "independent" -%}
+{# Root and independent entries own Usage. Nested entries must own distinct Usage or link concrete relevant Usage; common setup and project metadata stay at root. -#}
+{% if (entry_scope == "root" or entry_scope == "independent" or entry_scope == "nested") and usage_placement == "owned" -%}
 
 ## Usage
 
-{# Show a plausible goal, representative input, primary public operation, and user-relevant outcome. Imports, constructors, initialization, ID round trips, and default-field inspection alone do not qualify. Select exactly one surface: library, cli, agent, or gui. -#}
+{# Show a plausible goal, representative input, primary public operation, and user-relevant outcome. Do not narrate obvious one-shot command semantics such as "run once" or "without installing"; retain only user value, observable results, and actionable runtime constraints. Imports, constructors, initialization, ID round trips, and default-field inspection alone do not qualify. Validate executable MoonBit fences against this exact artifact; keep imports in package/frontmatter dependencies, reject no-work evidence, use existing meaningful or disposable validation context, and never add permanent documentation-only test scaffolding. Match Setup versions or current-tree context. Select exactly one surface: library, cli, agent, or gui. -#}
 {% if usage_surface == "library" -%}
 {% if usage_examples -%}
 {% for example in usage_examples -%}
@@ -21,11 +21,25 @@
 ```
 
 {% endfor -%}
+{% elif usage_links -%}
+{% if entry_scope == "root" -%}
+Choose the package Usage that matches your goal:
+
+{% for link in usage_links -%}
+
+- [{{ link.title }}]({{ link.path }}): {{ link.summary }}
+
+{% endfor -%}
 {% else -%}
+{{ [] | first }}
+{% endif -%}
+{% elif entry_scope == "root" or entry_scope == "independent" -%}
 {# Link directly to a concrete runnable example; for interface-only libraries, the linked implementation Usage must demonstrate real integration. -#}
 {{ usage_guide.summary }}
 
 See [{{ usage_guide.title }}]({{ usage_guide.path }}).
+{% else -%}
+{{ [] | first }}
 {% endif -%}
 {% elif usage_surface == "cli" -%}
 {% if cli_usage_examples -%}
@@ -72,6 +86,18 @@ Expected result:
 {% else -%}
 {{ [] | first }}
 {% endif -%}
+{% elif entry_scope == "nested" and usage_placement == "linked" -%}
+
+## Usage
+
+{{ usage_guide.summary }}
+
+See [{{ usage_guide.title }}]({{ usage_guide.path }}).
+{% else -%}
+{{ [] | first }}
+{% endif -%}
+
+{% if entry_scope == "root" or entry_scope == "independent" -%}
 
 ## Key features
 
@@ -96,10 +122,14 @@ No prerequisites.
 
 ## Setup
 
-{# Steps only acquire/install the consumer artifact or declare dependencies, imports, and aliases. Execution, verification, and authentication belong in Usage or another end-user section; repository build/test/operations belong in AGENTS.md. -#}
+{# Render only supported acquisition commands. Applications group each populated command list into one bash block under exactly one of Run without installing or Install, and render one nix block under Nix flake. Alternatives are parallel, never numbered. Omit obvious command effects, history, unsupported-route explanations, and maintainer CI/dev-shell/test-target context. Execution results remain in Usage, with one representative route per goal. -#}
+{% if usage_surface == "library" -%}
 {% if setup_steps -%}
 {% for step in setup_steps -%}
-{{ loop.index }}. {{ step.description }}
+{% if step.description is defined and step.description -%}
+{{ step.description }}
+
+{% endif -%}
 
 ```{{ step.language }}
 {{ step.command }}
@@ -109,17 +139,44 @@ No prerequisites.
 {% else -%}
 No setup is required.
 {% endif -%}
-{% elif entry_scope == "nested" -%}
-{% if usage_guide -%}
+{% elif usage_surface == "cli" or usage_surface == "agent" or usage_surface == "gui" -%}
+{% if temporary_setup_options -%}
 
-## Usage
+### Run without installing
 
-{{ usage_guide.summary }}
+```bash
+{% for option in temporary_setup_options -%}
+{{ option.command }}
+{% endfor -%}
+```
 
-See [{{ usage_guide.title }}]({{ usage_guide.path }}).
-{% endif %}
+{% endif -%}
+{% if persistent_setup_options -%}
+
+### Install
+
+```bash
+{% for option in persistent_setup_options -%}
+{{ option.command }}
+{% endfor -%}
+```
+
+{% endif -%}
+{% if consumer_flake_setup -%}
+
+### Nix flake
+
+```nix
+{{ consumer_flake_setup.code }}
+```
+
+{% endif -%}
+{% if not temporary_setup_options and not persistent_setup_options and not consumer_flake_setup -%}
+No setup is required.
+{% endif -%}
 {% else -%}
 {{ [] | first }}
+{% endif -%}
 {% endif -%}
 
 ## API

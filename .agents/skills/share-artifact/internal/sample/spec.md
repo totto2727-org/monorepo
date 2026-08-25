@@ -22,4 +22,4 @@ Keep the sample consistent with the sibling specification and byte-reproducible 
 
 ## Validation
 
-Render the sibling template with the recorded context under Jinja `StrictUndefined`, compare the result to the sample, and verify every provenance link and path. Reject samples whose validation fixture cannot reproduce them or identify its fixture, and reject raw links substituted for concrete rendered content.
+Render the sibling template with the recorded context under Jinja `StrictUndefined`, compare the result to the sample, and verify every provenance link and path. Run every additional valid branch and invalid or missing discriminator case declared by the fixture; those branch cases validate the template contract without becoming alternative sample files. For executable examples, record the exact rendered artifact path, validation command, dependency version or current-source context, and output proving that the artifact was compiled or tested; reject successful commands that performed no work. Reject samples whose validation fixture cannot reproduce them or identify its fixture, and reject raw links substituted for concrete rendered content.

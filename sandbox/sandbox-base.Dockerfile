@@ -11,11 +11,12 @@ RUN <<EOF
 apt-get update
 apt-get upgrade -y
 
-# For share
-apt-get install -y curl gcc make
+apt-get install -y 
 
-# For sandbox
 apt-get install -y \
+# For share
+curl gcc make \ 
+ # For sandbox
 ca-certificates \
 dnsutils \
 iproute2 \
@@ -25,10 +26,9 @@ net-tools \
 netcat-openbsd \
 openssh-sftp-server \
 procps \
-traceroute
-
+traceroute \
 # For nix
-apt-get install -y xz-utils git
+xz-utils git
 rm -rf /var/lib/apt/lists/*
 EOF
 
@@ -58,8 +58,6 @@ curl -fsSL https://nixos.org/nix/install | sh -s -- --no-daemon
 . ~/.nix-profile/etc/profile.d/nix.sh
 
 nix run home-manager/release-25.11 -- init --switch
-
-curl -fsSL https://opencode.ai/install | bash
 
 rm -rf ~/.cache /tmp/*
 nix-collect-garbage -d

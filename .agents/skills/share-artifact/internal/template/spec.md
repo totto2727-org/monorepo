@@ -22,4 +22,4 @@ The template must implement the sibling specification's mandatory form, and the 
 
 ## Validation
 
-Parse and render with Jinja `StrictUndefined` and `keep_trailing_newline=True`, using every required context. Confirm a removed required key raises `UndefinedError`, optional empty values do not render `None`, and the rendered result satisfies the sibling specification. Reject malformed Jinja, silent defaults for required values, and an internal `sample.md`.
+Parse and render with Jinja `StrictUndefined` and `keep_trailing_newline=True`, using every required context. When a required discriminator changes rendered sections or context, render every valid value and reject invalid or missing values instead of treating the sample's branch as complete coverage. Confirm a removed required key raises `UndefinedError`, optional empty values do not render `None`, and the rendered result satisfies the sibling specification. Reject malformed Jinja, silent defaults for required values, and an internal `sample.md`.
