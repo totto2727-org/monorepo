@@ -122,6 +122,14 @@
         "hono": "catalog:hono",
       },
     },
+    "js/app/vite-plugin-markdown-example": {
+      "name": "vite-plugin-markdown-example",
+      "devDependencies": {
+        "@totto2727/fp": "workspace:*",
+        "vite": "catalog:",
+        "vite-plugin-markdown": "workspace:*",
+      },
+    },
     "js/package/auth": {
       "name": "auth",
       "version": "0.0.0",
@@ -207,6 +215,17 @@
       },
       "peerDependencies": {
         "remix": "catalog:remix",
+      },
+    },
+    "js/package/vite-plugin-markdown": {
+      "name": "vite-plugin-markdown",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@totto2727/fp": "workspace:*",
+        "vite": "catalog:",
+      },
+      "peerDependencies": {
+        "vite": "catalog:vite",
       },
     },
     "js/package/vite-plugin-remix": {
@@ -1751,6 +1770,10 @@
     "velona": ["velona@0.8.0", "https://npm.flatt.tech/velona/-/velona-0.8.0.tgz", {}, "sha512-faID/zMe6Tdu1VPFEcFW2UA5sc4Tkh8DwXwNiuQUJSXj+wdEHpoaA/fSqHQnSMPjsl+8lpe+bij4E6/iJ3D5oA=="],
 
     "vite": ["@voidzero-dev/vite-plus-core@0.2.8", "https://npm.flatt.tech/@voidzero-dev/vite-plus-core/-/vite-plus-core-0.2.8.tgz", { "dependencies": { "@oxc-project/runtime": "=0.142.0", "@oxc-project/types": "=0.142.0", "lightningcss": "^1.33.0", "postcss": "^8.5.6", "yuku-codegen": "^0.5.44", "yuku-parser": "^0.5.44" }, "optionalDependencies": { "@voidzero-dev/vite-plus-darwin-arm64": "0.2.8", "@voidzero-dev/vite-plus-darwin-x64": "0.2.8", "@voidzero-dev/vite-plus-linux-arm64-gnu": "0.2.8", "@voidzero-dev/vite-plus-linux-arm64-musl": "0.2.8", "@voidzero-dev/vite-plus-linux-x64-gnu": "0.2.8", "@voidzero-dev/vite-plus-linux-x64-musl": "0.2.8", "@voidzero-dev/vite-plus-win32-arm64-msvc": "0.2.8", "@voidzero-dev/vite-plus-win32-x64-msvc": "0.2.8", "fsevents": "~2.3.3" }, "peerDependencies": { "@arethetypeswrong/core": "^0.18.1", "@types/node": "^20.19.0 || >=22.12.0", "@vitejs/devtools": "^0.4.0", "esbuild": "^0.27.0 || ^0.28.0", "jiti": ">=1.21.0", "less": "^4.0.0", "publint": "^0.3.8", "sass": "^1.70.0", "sass-embedded": "^1.70.0", "stylus": ">=0.54.8", "sugarss": "^5.0.0", "terser": "^5.16.0", "tsx": "^4.8.1", "typescript": "^5.0.0 || ^6.0.0 || ^7.0.0", "unplugin-unused": "^0.5.0", "unrun": "*", "yaml": "^2.4.2" }, "optionalPeers": ["@arethetypeswrong/core", "@types/node", "@vitejs/devtools", "esbuild", "jiti", "less", "publint", "sass", "sass-embedded", "stylus", "sugarss", "terser", "tsx", "typescript", "unplugin-unused", "unrun", "yaml"] }, "sha512-hqUJyozjE4HtJ3wwf2pOw6LnH/EF9W4+ys2s8arr/3fUdw64vzp/SfPFBVCxsGRv2UfjkIieOeZrQ1FH6Oa5Tw=="],
+
+    "vite-plugin-markdown": ["vite-plugin-markdown@workspace:js/package/vite-plugin-markdown"],
+
+    "vite-plugin-markdown-example": ["vite-plugin-markdown-example@workspace:js/app/vite-plugin-markdown-example"],
 
     "vite-plugin-remix": ["vite-plugin-remix@workspace:js/package/vite-plugin-remix"],
 
