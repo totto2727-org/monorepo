@@ -1,0 +1,14 @@
+import { defineConfig } from 'vite-plus'
+
+export default defineConfig({
+  run: {
+    tasks: {
+      check: {
+        command: 'vp check',
+      },
+      test: {
+        command: 'vp test run',
+      },
+    },
+  },
+})
