@@ -68,6 +68,8 @@
                 export NIX_LDFLAGS="$NIX_LDFLAGS -no_compact_unwind"
               ''}
 
+              # Enable vp env
+              . "$HOME/.vite-plus/env"
               # Enable Git Hook
               vp config
             '';
