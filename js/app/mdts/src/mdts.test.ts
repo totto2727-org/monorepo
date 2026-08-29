@@ -101,6 +101,8 @@ describe('mdts', () => {
       expect(response.body).toContain('<title>mdts preview</title>')
       expect(response.body).toContain('github-markdown-css')
       expect(response.body).toContain('katex.min.css')
+      expect(response.body).toContain('main { width: 100%;')
+      expect(response.body).not.toContain('width: min(100%, 60rem)')
       expect(response.body).toContain('article.markdown-body { background-color: transparent; }')
     } finally {
       await server.close()

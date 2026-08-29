@@ -58,7 +58,7 @@ const indexHtml = `<!doctype html>
       nav ul { display: grid; gap: 0.35rem; padding: 0; margin: 0; list-style: none; }
       nav a { display: block; padding: 0.65rem 0.75rem; border-radius: 0.5rem; color: inherit; text-decoration: none; overflow-wrap: anywhere; }
       nav a:hover, nav a[aria-current="page"] { background: #edf2ff; color: #2849a8; }
-      main { width: min(100%, 60rem); padding: 3rem clamp(1.5rem, 5vw, 5rem); }
+      main { width: 100%; padding: 3rem clamp(1.5rem, 5vw, 5rem); }
       article { min-width: 0; }
       article.markdown-body { background-color: transparent; }
       article pre { overflow: auto; }
