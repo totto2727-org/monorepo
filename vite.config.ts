@@ -37,9 +37,8 @@ export default defineConfig({
       typeCheck: true,
     },
     overrides: [
-      // Inline disables do not cover file-scope rules: https://github.com/oxc-project/oxc/issues/21072
       {
-        files: ['js/app/mdts-example/content/SKILL.md.ts'],
+        files: ['**/SKILL.md.ts'],
         rules: {
           'unicorn/filename-case': 'off',
         },

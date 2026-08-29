@@ -1,4 +1,7 @@
 export default {
+  lint: {
+    ignorePatterns: ['content/SKILL.md.ts'],
+  },
   run: {
     tasks: {
       build: {
