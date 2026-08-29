@@ -1,0 +1,218 @@
+import { TextlintKernelDescriptor } from '@textlint/kernel'
+import type { TextlintKernelRule } from '@textlint/kernel'
+import { moduleInterop } from '@textlint/module-interop'
+import markdownPluginModule from '@textlint/textlint-plugin-markdown'
+import { Array, Predicate } from 'effect'
+import { lint as lintWithMarkdownlint } from 'markdownlint/promise'
+import { createLinter } from 'textlint'
+import { generatedFileNotice } from 'vite-plugin-mdts'
+import type { CompiledMarkdownDocument } from 'vite-plugin-mdts'
+import { normalizePath } from 'vite-plus'
+
+import { compileResolvedMarkdownDocuments } from './build.ts'
+import { loadMdtsConfig } from './config.ts'
+import type { MdtsTextlintRulePreset, ResolvedMdtsConfig } from './config.ts'
+
+interface MdtsLintOptions {
+  readonly configFile?: string
+  readonly root: string
+}
+
+export type MdtsLintEngine = 'markdownlint' | 'textlint'
+export type MdtsLintSeverity = 'error' | 'info' | 'warning'
+
+export interface MdtsLintDiagnostic {
+  readonly column: number
+  readonly engine: MdtsLintEngine
+  readonly filePath: string
+  readonly line: number
+  readonly message: string
+  readonly ruleId: string
+  readonly severity: MdtsLintSeverity
+}
+
+export interface MdtsLintResult {
+  readonly diagnostics: readonly MdtsLintDiagnostic[]
+  readonly errorCount: number
+}
+
+const escapedGeneratedFileNotice = generatedFileNotice.replaceAll(/[.*+?^${}()|[\]\\]/gu, '\\$&')
+const generatedFrontMatter = new RegExp(
+  `^(?:---\\r?\\n[\\s\\S]*?\\r?\\n---\\r?\\n\\r?\\n)?${escapedGeneratedFileNotice}\\r?\\n\\r?\\n`,
+  'u',
+)
+
+const mappedDiagnostic = (
+  config: ResolvedMdtsConfig,
+  document: CompiledMarkdownDocument,
+  diagnostic: Omit<MdtsLintDiagnostic, 'column' | 'filePath' | 'line'> & {
+    readonly generatedColumn: number
+    readonly generatedLine: number
+  },
+): MdtsLintDiagnostic => {
+  const position = document.sourceMap[diagnostic.generatedLine - 1]
+  const normalizedRoot = normalizePath(config.root).replace(/\/$/u, '')
+  const normalizedSourcePath = normalizePath(document.sourcePath)
+  const rootPrefix = `${normalizedRoot}/`
+  return {
+    column: position ? position.column + diagnostic.generatedColumn - 1 : diagnostic.generatedColumn,
+    engine: diagnostic.engine,
+    filePath: normalizedSourcePath.startsWith(rootPrefix)
+      ? normalizedSourcePath.slice(rootPrefix.length)
+      : normalizedSourcePath,
+    line: position?.line ?? diagnostic.generatedLine,
+    message: diagnostic.message,
+    ruleId: diagnostic.ruleId,
+    severity: diagnostic.severity,
+  }
+}
+
+const lintMarkdownlint = async (
+  config: ResolvedMdtsConfig,
+  documents: readonly CompiledMarkdownDocument[],
+): Promise<readonly MdtsLintDiagnostic[]> => {
+  const { markdownlint } = config.lint
+  if (markdownlint === false) {
+    return []
+  }
+
+  const results = await lintWithMarkdownlint({
+    config: markdownlint.config,
+    customRules: markdownlint.customRules,
+    // oxlint-disable-next-line rules/prefer-is-nullish -- markdownlint uses null to disable front matter while undefined selects mdts defaults.
+    frontMatter: Predicate.isUndefined(markdownlint.frontMatter) ? generatedFrontMatter : markdownlint.frontMatter,
+    markdownItFactory: markdownlint.markdownItFactory,
+    noInlineConfig: markdownlint.noInlineConfig,
+    strings: Object.fromEntries(documents.map((document) => [document.fileName, document.source])),
+  })
+  const documentsByFileName = new Map(documents.map((document) => [document.fileName, document]))
+
+  return Object.entries(results).flatMap(([fileName, lintErrors]) => {
+    const document = documentsByFileName.get(fileName)
+    if (!document) {
+      return []
+    }
+    return lintErrors.map((lintError) =>
+      mappedDiagnostic(config, document, {
+        engine: 'markdownlint',
+        generatedColumn: lintError.errorRange?.[0] ?? 1,
+        generatedLine: lintError.lineNumber,
+        message: Predicate.isString(lintError.errorDetail)
+          ? `${lintError.ruleDescription}: ${lintError.errorDetail}`
+          : lintError.ruleDescription,
+        ruleId: lintError.ruleNames[0] ?? 'unknown',
+        severity: lintError.severity,
+      }),
+    )
+  })
+}
+
+const presetRules = (preset: MdtsTextlintRulePreset): readonly TextlintKernelRule[] => {
+  const normalizedPreset = moduleInterop(preset.preset)
+  return Object.entries(normalizedPreset.rules).map(([ruleKey, rule]) => {
+    const configured = preset.options?.[ruleKey]
+    const options =
+      Predicate.isNullish(configured) || configured === true
+        ? (normalizedPreset.rulesConfig[ruleKey] ?? true)
+        : configured
+    return {
+      options,
+      rule: moduleInterop(rule),
+      ruleId: `${preset.presetId}/${ruleKey}`,
+    }
+  })
+}
+
+const textlintSeverity = (severity: number): MdtsLintSeverity => {
+  if (severity === 2) {
+    return 'error'
+  }
+  if (severity === 1) {
+    return 'warning'
+  }
+  return 'info'
+}
+
+const lintTextlint = async (
+  config: ResolvedMdtsConfig,
+  documents: readonly CompiledMarkdownDocument[],
+): Promise<readonly MdtsLintDiagnostic[]> => {
+  const { textlint } = config.lint
+  if (textlint === false) {
+    return []
+  }
+
+  const rules = [
+    ...(textlint.rules ?? []).map((rule) => ({ ...rule, rule: moduleInterop(rule.rule) })),
+    ...(textlint.presets ?? []).flatMap(presetRules),
+  ]
+  if (Array.isReadonlyArrayEmpty(rules)) {
+    return []
+  }
+
+  const customPlugins = (textlint.plugins ?? []).map((plugin) => ({
+    ...plugin,
+    plugin: moduleInterop(plugin.plugin),
+  }))
+  const hasMarkdownPlugin = customPlugins.some((plugin) => plugin.pluginId === 'markdown')
+  const descriptor = new TextlintKernelDescriptor({
+    configBaseDir: config.root,
+    filterRules: (textlint.filterRules ?? []).map((filterRule) => ({
+      ...filterRule,
+      rule: moduleInterop(filterRule.rule),
+    })),
+    plugins: hasMarkdownPlugin
+      ? customPlugins
+      : [...customPlugins, { plugin: moduleInterop(markdownPluginModule), pluginId: 'markdown' }],
+    rules,
+  })
+  const linter = createLinter({ cwd: config.root, descriptor })
+  const results = await Promise.all(
+    documents.map(async (document) => ({
+      document,
+      result: await linter.lintText(document.source, document.fileName),
+    })),
+  )
+
+  return results.flatMap(({ document, result }) =>
+    result.messages.map((message) =>
+      mappedDiagnostic(config, document, {
+        engine: 'textlint',
+        generatedColumn: message.loc.start.column,
+        generatedLine: message.loc.start.line,
+        message: message.message,
+        ruleId: message.ruleId,
+        severity: textlintSeverity(message.severity),
+      }),
+    ),
+  )
+}
+
+const compareDiagnostics = (left: MdtsLintDiagnostic, right: MdtsLintDiagnostic): number =>
+  left.filePath.localeCompare(right.filePath) ||
+  left.line - right.line ||
+  left.column - right.column ||
+  left.engine.localeCompare(right.engine) ||
+  left.ruleId.localeCompare(right.ruleId)
+
+export const lintMarkdown = async (options: MdtsLintOptions): Promise<MdtsLintResult> => {
+  const config = await loadMdtsConfig({ command: 'build', ...options })
+  const documents = await compileResolvedMarkdownDocuments(config)
+  const diagnostics = [
+    ...(await lintMarkdownlint(config, documents)),
+    ...(await lintTextlint(config, documents)),
+  ].toSorted(compareDiagnostics)
+
+  return {
+    diagnostics,
+    errorCount: diagnostics.filter((diagnostic) => diagnostic.severity === 'error').length,
+  }
+}
+
+export const formatLintResult = (result: MdtsLintResult): string =>
+  result.diagnostics
+    .map(
+      (diagnostic) =>
+        `${diagnostic.filePath}:${diagnostic.line}:${diagnostic.column} ${diagnostic.severity} ${diagnostic.message} (${diagnostic.engine}/${diagnostic.ruleId})`,
+    )
+    .join('\n')

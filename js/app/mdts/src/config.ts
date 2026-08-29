@@ -1,9 +1,35 @@
 import type { createHtmlRenderer } from '@comark/html'
+import type {
+  TextlintKernelFilterRule,
+  TextlintKernelPlugin,
+  TextlintKernelRule,
+  TextlintRuleModule,
+  TextlintRuleOptions,
+} from '@textlint/kernel'
 import { Predicate, String } from 'effect'
+import type {
+  Configuration as MarkdownlintConfiguration,
+  MarkdownItFactory,
+  Rule as MarkdownlintRule,
+} from 'markdownlint'
 import { loadConfigFromFile, normalizePath } from 'vite-plus'
 import type { ConfigEnv, UserConfig } from 'vite-plus'
 
 export { defineNote, markdown, markdownDocumentsId, md, noteBody, noteRef } from 'vite-plugin-mdts'
+export type {
+  TextlintFilterRuleReporter,
+  TextlintKernelFilterRule,
+  TextlintKernelPlugin,
+  TextlintKernelRule,
+  TextlintPluginCreator,
+  TextlintRuleModule,
+  TextlintRuleOptions,
+} from '@textlint/kernel'
+export type {
+  Configuration as MarkdownlintConfiguration,
+  MarkdownItFactory,
+  Rule as MarkdownlintRule,
+} from 'markdownlint'
 export type {
   DefinedMarkdownNotes,
   MarkdownFrontmatterValue,
@@ -24,8 +50,38 @@ export interface MdtsPreviewConfig {
   readonly comark?: MdtsComarkOptions
 }
 
+export interface MdtsMarkdownlintConfig {
+  readonly config?: MarkdownlintConfiguration
+  readonly customRules?: MarkdownlintRule | MarkdownlintRule[]
+  readonly frontMatter?: RegExp | null
+  readonly markdownItFactory?: MarkdownItFactory
+  readonly noInlineConfig?: boolean
+}
+
+export interface MdtsTextlintRulePreset {
+  readonly options?: Readonly<Record<string, TextlintRuleOptions | boolean>>
+  readonly preset: {
+    readonly rules: Readonly<Record<string, TextlintRuleModule>>
+    readonly rulesConfig: Readonly<Record<string, TextlintRuleOptions | boolean>>
+  }
+  readonly presetId: string
+}
+
+export interface MdtsTextlintConfig {
+  readonly filterRules?: readonly TextlintKernelFilterRule[]
+  readonly plugins?: readonly TextlintKernelPlugin[]
+  readonly presets?: readonly MdtsTextlintRulePreset[]
+  readonly rules?: readonly TextlintKernelRule[]
+}
+
+export interface MdtsLintConfig {
+  readonly markdownlint?: false | MdtsMarkdownlintConfig
+  readonly textlint?: false | MdtsTextlintConfig
+}
+
 export interface MdtsConfig {
   readonly input?: string
+  readonly lint?: MdtsLintConfig
   readonly output?: string
   readonly preview?: MdtsPreviewConfig
   readonly vite?: UserConfig
@@ -34,6 +90,10 @@ export interface MdtsConfig {
 export interface ResolvedMdtsConfig {
   readonly configFile: string
   readonly input: string
+  readonly lint: {
+    readonly markdownlint: false | MdtsMarkdownlintConfig
+    readonly textlint: false | MdtsTextlintConfig
+  }
   readonly output: string
   readonly preview: {
     readonly comark: MdtsComarkOptions
@@ -103,6 +163,19 @@ export const loadMdtsConfig = async (options: LoadMdtsConfigOptions): Promise<Re
   return {
     configFile: loaded.path,
     input: resolveInput(config.input),
+    lint: {
+      markdownlint:
+        config.lint?.markdownlint === false
+          ? false
+          : {
+              ...config.lint?.markdownlint,
+              config: {
+                default: true,
+                ...config.lint?.markdownlint?.config,
+              },
+            },
+      textlint: config.lint?.textlint ?? {},
+    },
     output: resolveOutput(config.output),
     preview: {
       comark: config.preview?.comark ?? {},

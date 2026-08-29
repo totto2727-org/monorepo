@@ -1,4 +1,4 @@
-import { readFile, readdir, rm } from 'node:fs/promises'
+import { access, readFile, readdir, rm } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
 import { Effect, Predicate } from 'effect'
@@ -8,13 +8,21 @@ import { markdownDocumentsId } from 'vite-plugin-mdts'
 import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 
 import { buildMarkdown } from './build.ts'
+import { formatLintResult, lintMarkdown } from './lint.ts'
 import { createMarkdownPreview } from './preview.ts'
 
 const projectRoot = fileURLToPath(new URL('__fixtures__/basic/', import.meta.url))
+const lintProjectRoot = fileURLToPath(new URL('__fixtures__/lint/', import.meta.url))
 const exampleRoot = fileURLToPath(new URL('../../mdts-example/', import.meta.url))
+const lintOutputDirectory = fileURLToPath(new URL('__fixtures__/lint/dist/', import.meta.url))
 const outputDirectory = fileURLToPath(new URL('__fixtures__/basic/dist/', import.meta.url))
 
-const cleanOutput = (): Promise<void> => rm(outputDirectory, { force: true, recursive: true })
+const cleanOutput = async (): Promise<void> => {
+  await Promise.all([
+    rm(lintOutputDirectory, { force: true, recursive: true }),
+    rm(outputDirectory, { force: true, recursive: true }),
+  ])
+}
 
 const moduleSource = (value: unknown): string => {
   if (!Predicate.isObject(value)) {
@@ -52,6 +60,33 @@ describe('mdts', () => {
     )
     expect(outputs).not.toContain('index.html')
     expect(outputs.every((fileName) => !fileName.endsWith('.js'))).toBe(true)
+  })
+
+  test('lints generated Markdown with configured JS APIs and maps diagnostics to .md.ts lines', async () => {
+    // When
+    const result = await lintMarkdown({ root: lintProjectRoot })
+
+    // Then
+    expect(result.errorCount).toBe(2)
+    expect(result.diagnostics).toMatchObject([
+      {
+        engine: 'textlint',
+        filePath: 'content/lint-target.md.ts',
+        line: 7,
+        ruleId: 'writing/no-forbidden-word',
+        severity: 'error',
+      },
+      {
+        engine: 'markdownlint',
+        filePath: 'content/lint-target.md.ts',
+        line: 7,
+        ruleId: 'MD013',
+        severity: 'error',
+      },
+    ])
+    expect(formatLintResult(result)).toContain('content/lint-target.md.ts:7:')
+    expect(formatLintResult(result)).toContain('(markdownlint/MD013)')
+    await expect(access(lintOutputDirectory)).rejects.toThrow()
   })
 
   test('loads preview documents for Comark HTML rendering', async () => {

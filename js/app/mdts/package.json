@@ -14,11 +14,16 @@
   "dependencies": {
     "@comark/html": "catalog:markdown",
     "@effect/platform-node": "catalog:effect",
+    "@textlint/kernel": "catalog:markdown",
+    "@textlint/module-interop": "catalog:markdown",
+    "@textlint/textlint-plugin-markdown": "catalog:markdown",
     "beautiful-mermaid": "catalog:markdown",
     "effect": "catalog:effect",
     "github-markdown-css": "catalog:markdown",
     "katex": "catalog:markdown",
+    "markdownlint": "catalog:markdown",
     "shiki": "catalog:markdown",
+    "textlint": "catalog:markdown",
     "vite": "catalog:",
     "vite-plugin-mdts": "workspace:*",
     "vite-plus": "catalog:"
