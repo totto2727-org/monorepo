@@ -1,18 +1,20 @@
 import { markdown } from 'vite-plugin-markdown'
 import { defineConfig } from 'vite-plus'
 
-import { guide } from './content/guide.md.ts'
-
 export default defineConfig({
-  plugins: [markdown({ documents: { 'guide.md': guide } })],
+  plugins: [
+    markdown({
+      documents: {
+        'guide.md': './content/guide.md.ts',
+        'reference.md': './content/reference.md.ts',
+      },
+    }),
+  ],
   run: {
     tasks: {
       build: {
         command: 'vp build',
         input: [{ auto: true }, '!dist/**'],
-      },
-      check: {
-        command: 'vp check',
       },
     },
   },

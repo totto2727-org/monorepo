@@ -2,6 +2,7 @@ import { build } from 'vite'
 import type { Plugin, Rolldown } from 'vite'
 import { describe, expect, test } from 'vite-plus/test'
 
+import { formatMarkdownLink, parseLinkRequest } from './compiler.ts'
 import { markdown, md } from './index.ts'
 
 const virtualEntry = '\0vite-plugin-markdown-test-entry'
@@ -45,9 +46,9 @@ Items: ${itemCount}
 })
 
 describe('markdown', () => {
-  test('emits configured Markdown documents during a Vite build', async () => {
+  test('emits multiple Markdown documents and converts link imports', async () => {
     // Given
-    const source = '# Generated\n'
+    const projectRoot = new URL('__fixtures__/', import.meta.url).pathname
     const generatedAssets: Rolldown.OutputAsset[] = []
     const collectAssets = (): Plugin => ({
       generateBundle(_options, bundle) {
@@ -68,12 +69,43 @@ describe('markdown', () => {
       },
       configFile: false,
       logLevel: 'silent',
-      plugins: [markdown({ documents: { 'guide.md': source } }), virtualEntryPlugin(), collectAssets()],
+      plugins: [
+        markdown({
+          documents: {
+            'guide.md': './guide.md.ts',
+            'reference.md': './reference.md.ts',
+          },
+        }),
+        virtualEntryPlugin(),
+        collectAssets(),
+      ],
+      root: projectRoot,
     })
 
     // Then
-    const generatedAsset = generatedAssets.find((output) => output.fileName === 'guide.md')
+    const documents = Object.fromEntries(generatedAssets.map((asset) => [asset.fileName, asset.source]))
 
-    expect(generatedAsset).toMatchObject({ source, type: 'asset' })
+    expect(documents).toEqual({
+      'guide.md': '# Guide\n\n[Reference](reference.md)\n',
+      'reference.md': '# Reference\n',
+    })
+  })
+
+  test('uses text and hash query parameters for a link import', () => {
+    // Given
+    const request = {
+      hash: 'api',
+      path: './reference.md.ts',
+      query: 'link&text=Details&hash=api',
+      text: 'Details',
+    }
+
+    // When
+    const parsed = parseLinkRequest('./reference.md.ts?link&text=Details&hash=api')
+    const link = formatMarkdownLink({ destination: 'reference.md', request, title: 'Reference' })
+
+    // Then
+    expect(parsed).toEqual(request)
+    expect(link).toBe('[Details](reference.md#api)')
   })
 })

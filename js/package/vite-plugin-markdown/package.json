@@ -4,7 +4,12 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./client": "./src/client.d.ts"
+  },
+  "dependencies": {
+    "effect": "catalog:effect",
+    "typescript": "catalog:build"
   },
   "devDependencies": {
     "@totto2727/fp": "workspace:*",
