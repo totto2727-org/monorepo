@@ -1,8 +1,16 @@
 import { md } from 'vite-plugin-mdts'
+import type { MarkdownMetadata } from 'vite-plugin-mdts'
 
-export default md`# Preview plugins
+export const meta = {
+  frontmatter: {
+    name: 'preview-plugins',
+    description: 'Verifies frontmatter and configured Comark plugins in preview.',
+    'allowed-tools': 'Read',
+  },
+  title: 'Preview plugins',
+} satisfies MarkdownMetadata
 
-Configured plugins are rendered in the preview.[^preview]
+export default md`Configured plugins are rendered in the preview.[^preview]
 
 [^preview]: This footnote is enabled through mdts.config.ts.
 

@@ -13,6 +13,19 @@ import type { LinkRequest } from './compiler.ts'
 
 export type MarkdownTemplateValue = bigint | number | string
 
+export type MarkdownFrontmatterValue =
+  | boolean
+  | null
+  | number
+  | string
+  | readonly MarkdownFrontmatterValue[]
+  | { readonly [key: string]: MarkdownFrontmatterValue }
+
+export interface MarkdownMetadata {
+  readonly frontmatter?: Readonly<Record<string, MarkdownFrontmatterValue>>
+  readonly title: string
+}
+
 export interface MarkdownPluginOptions {
   readonly directory: string
 }

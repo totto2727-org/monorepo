@@ -10,7 +10,7 @@ export default defineConfig({
   preview: {
     comark: {
       components: { Math, Mermaid },
-      plugins: [footnotes(), math(), mermaid(), shiki()],
+      plugins: [footnotes(), math(), mermaid({ theme: 'tokyo-night', themeDark: 'tokyo-night' }), shiki()],
     },
   },
 })

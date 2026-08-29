@@ -36,10 +36,14 @@ describe('mdts', () => {
 
     // Then
     const guide = await readFile(`${outputDirectory}/guide.md`, 'utf-8')
+    const plugins = await readFile(`${outputDirectory}/plugins.md`, 'utf-8')
     const reference = await readFile(`${outputDirectory}/reference/api.md`, 'utf-8')
     const outputs = await readdir(outputDirectory, { recursive: true })
 
     expect(guide).toBe('# Guide\n\nRead the [API Reference](reference/api.md).\n')
+    expect(plugins).toBe(
+      '---\nname: preview-plugins\ndescription: Verifies frontmatter and configured Comark plugins in preview.\nallowed-tools: Read\n---\n\n# Preview plugins\n\nConfigured plugins are rendered in the preview.[^preview]\n\n[^preview]: This footnote is enabled through mdts.config.ts.\n\n> [!WARNING]\n  Alerts use GitHub-compatible markup and styles.\n',
+    )
     expect(reference).toBe('# API Reference\n\nThe API is ready.\n')
     expect(outputs).not.toContain('index.html')
     expect(outputs.every((fileName) => !fileName.endsWith('.js'))).toBe(true)
@@ -97,6 +101,7 @@ describe('mdts', () => {
       expect(response.body).toContain('<title>mdts preview</title>')
       expect(response.body).toContain('github-markdown-css')
       expect(response.body).toContain('katex.min.css')
+      expect(response.body).toContain('article.markdown-body { background-color: transparent; }')
     } finally {
       await server.close()
     }
@@ -137,8 +142,10 @@ describe('mdts', () => {
       // Then
       expect(response.status).toBe(200)
       expect(html).toBeTypeOf('string')
+      expect(html).toContain('<h1 id="preview-plugins">Preview plugins</h1>')
       expect(html).toContain('footnote')
       expect(html).toContain('class="markdown-alert markdown-alert-warning"')
+      expect(html).not.toContain('allowed-tools')
     } finally {
       await server.close()
     }

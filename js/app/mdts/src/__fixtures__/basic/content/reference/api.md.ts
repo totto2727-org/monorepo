@@ -4,7 +4,5 @@ export const meta = {
   title: 'API Reference',
 }
 
-export default md`# API Reference
-
-The API is ready.
+export default md`The API is ready.
 `

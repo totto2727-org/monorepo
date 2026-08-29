@@ -38,6 +38,12 @@ export default defineConfig({
     },
     overrides: [
       {
+        files: ['**/SKILL.md.ts'],
+        rules: {
+          'unicorn/filename-case': 'off',
+        },
+      },
+      {
         files: ['**/*.test.{ts,tsx}', '**/*_test-helper.{ts,tsx}', '**/__tests__/**/*.{ts,tsx}'],
         rules: {
           'no-await-in-loop': 'allow',

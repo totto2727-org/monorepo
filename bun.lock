@@ -241,6 +241,7 @@
       "name": "vite-plugin-mdts",
       "version": "0.0.0",
       "dependencies": {
+        "confbox": "catalog:markdown",
         "effect": "catalog:effect",
         "typescript": "catalog:build",
       },
@@ -335,6 +336,7 @@
     "markdown": {
       "@comark/html": "^0.6.2",
       "beautiful-mermaid": "^1.1.3",
+      "confbox": "^0.2.4",
       "github-markdown-css": "^5.9.0",
       "katex": "^0.17.0",
       "shiki": "^4.3.1",
@@ -1345,6 +1347,8 @@
     "commander": ["commander@15.0.0", "https://npm.flatt.tech/commander/-/commander-15.0.0.tgz", {}, "sha512-z67u4ZhzCL/Tydu1lJARtEZYWbWaN7oYLHbsuzocr6y4N6WZAagG3RQ4FW61V1/0+jImpj293XfrcYnd1qxtPg=="],
 
     "common-ancestor-path": ["common-ancestor-path@2.0.0", "https://npm.flatt.tech/common-ancestor-path/-/common-ancestor-path-2.0.0.tgz", {}, "sha512-dnN3ibLeoRf2HNC+OlCiNc5d2zxbLJXOtiZUudNFSXZrNSydxcCsSpRzXwfu7BBWCIfHPw+xTayeBvJCP/D8Ng=="],
+
+    "confbox": ["confbox@0.2.4", "", {}, "sha512-ysOGlgTFbN2/Y6Cg3Iye8YKulHw+R2fNXHrgSmXISQdMnomY6eNDprVdW9R5xBguEqI954+S6709UyiO7B+6OQ=="],
 
     "convert-source-map": ["convert-source-map@2.0.0", "https://npm.flatt.tech/convert-source-map/-/convert-source-map-2.0.0.tgz", {}, "sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg=="],
 

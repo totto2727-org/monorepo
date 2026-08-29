@@ -1,3 +1,4 @@
+import { stringifyYAML } from 'confbox'
 import { Predicate, String } from 'effect'
 import ts from 'typescript'
 
@@ -17,6 +18,16 @@ interface CompileMarkdownModuleOptions {
 export interface CompiledMarkdownModule {
   readonly code: string
   readonly source: string
+}
+
+interface StaticObject {
+  readonly [key: string]: StaticValue
+}
+type StaticValue = boolean | null | number | string | StaticValue[] | StaticObject
+
+interface MarkdownMetadata {
+  readonly frontmatter?: Readonly<Record<string, StaticValue>>
+  readonly title: string
 }
 
 interface FormatMarkdownLinkOptions {
@@ -100,13 +111,165 @@ const findMarkdownTemplate = (sourceFile: ts.SourceFile): ts.TemplateLiteral => 
   throw new MarkdownCompileError(sourceFile.fileName, 'expected a default export using the md tagged template')
 }
 
+const unwrapExpression = (expression: ts.Expression): ts.Expression => {
+  if (
+    ts.isAsExpression(expression) ||
+    ts.isParenthesizedExpression(expression) ||
+    ts.isSatisfiesExpression(expression) ||
+    ts.isTypeAssertionExpression(expression)
+  ) {
+    return unwrapExpression(expression.expression)
+  }
+  return expression
+}
+
+const findMetadataObject = (sourceFile: ts.SourceFile): ts.ObjectLiteralExpression | undefined => {
+  for (const statement of sourceFile.statements) {
+    if (!ts.isVariableStatement(statement)) {
+      continue
+    }
+
+    const exported =
+      ts.getModifiers(statement)?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword) ?? false
+    if (!exported) {
+      continue
+    }
+
+    for (const declaration of statement.declarationList.declarations) {
+      if (ts.isIdentifier(declaration.name) && declaration.name.text === 'meta' && declaration.initializer) {
+        const initializer = unwrapExpression(declaration.initializer)
+        return ts.isObjectLiteralExpression(initializer) ? initializer : undefined
+      }
+    }
+  }
+
+  return undefined
+}
+
+const staticPropertyName = (name: ts.PropertyName): string | undefined =>
+  ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name) ? name.text : undefined
+
+const readStaticValue = (expression: ts.Expression, sourceFile: ts.SourceFile): StaticValue => {
+  const value = unwrapExpression(expression)
+  if (ts.isStringLiteralLike(value)) {
+    return value.text
+  }
+  if (ts.isNumericLiteral(value)) {
+    return Number(value.text)
+  }
+  if (value.kind === ts.SyntaxKind.TrueKeyword) {
+    return true
+  }
+  if (value.kind === ts.SyntaxKind.FalseKeyword) {
+    return false
+  }
+  if (value.kind === ts.SyntaxKind.NullKeyword) {
+    return null
+  }
+  if (ts.isPrefixUnaryExpression(value) && ts.isNumericLiteral(value.operand)) {
+    const number = Number(value.operand.text)
+    if (value.operator === ts.SyntaxKind.MinusToken) {
+      return -number
+    }
+    if (value.operator === ts.SyntaxKind.PlusToken) {
+      return number
+    }
+  }
+  if (ts.isArrayLiteralExpression(value)) {
+    return value.elements.map((element) => {
+      if (ts.isSpreadElement(element)) {
+        throw new MarkdownCompileError(sourceFile.fileName, 'meta.frontmatter must not contain spread elements')
+      }
+      return readStaticValue(element, sourceFile)
+    })
+  }
+  if (ts.isObjectLiteralExpression(value)) {
+    const entries = value.properties.map((property): readonly [string, StaticValue] => {
+      if (!ts.isPropertyAssignment(property)) {
+        throw new MarkdownCompileError(
+          sourceFile.fileName,
+          'meta.frontmatter must contain only static property assignments',
+        )
+      }
+      const name = staticPropertyName(property.name)
+      if (!Predicate.isString(name)) {
+        throw new MarkdownCompileError(sourceFile.fileName, 'meta.frontmatter property names must be static')
+      }
+      return [name, readStaticValue(property.initializer, sourceFile)]
+    })
+    return Object.fromEntries(entries)
+  }
+
+  throw new MarkdownCompileError(
+    sourceFile.fileName,
+    'meta.frontmatter values must be static strings, numbers, booleans, null, arrays, or objects',
+  )
+}
+
+const readStaticObject = (value: ts.ObjectLiteralExpression, sourceFile: ts.SourceFile): StaticObject => {
+  const entries = value.properties.map((property): readonly [string, StaticValue] => {
+    if (!ts.isPropertyAssignment(property)) {
+      throw new MarkdownCompileError(
+        sourceFile.fileName,
+        'meta.frontmatter must contain only static property assignments',
+      )
+    }
+    const name = staticPropertyName(property.name)
+    if (!Predicate.isString(name)) {
+      throw new MarkdownCompileError(sourceFile.fileName, 'meta.frontmatter property names must be static')
+    }
+    return [name, readStaticValue(property.initializer, sourceFile)]
+  })
+  return Object.fromEntries(entries)
+}
+
+const readMarkdownMetadata = (sourceFile: ts.SourceFile): MarkdownMetadata => {
+  const metadata = findMetadataObject(sourceFile)
+  const properties = new Map<string, ts.Expression>()
+
+  for (const property of metadata?.properties ?? []) {
+    if (ts.isPropertyAssignment(property)) {
+      const name = staticPropertyName(property.name)
+      if (Predicate.isString(name)) {
+        properties.set(name, unwrapExpression(property.initializer))
+      }
+    }
+  }
+
+  const title = properties.get('title')
+  if (!title || !ts.isStringLiteralLike(title)) {
+    throw new MarkdownCompileError(sourceFile.fileName, 'expected a static meta.title string')
+  }
+
+  const frontmatter = properties.get('frontmatter')
+  if (!frontmatter) {
+    return { title: title.text }
+  }
+  if (!ts.isObjectLiteralExpression(frontmatter)) {
+    throw new MarkdownCompileError(sourceFile.fileName, 'meta.frontmatter must be a static object')
+  }
+
+  return { frontmatter: readStaticObject(frontmatter, sourceFile), title: title.text }
+}
+
+const prependMarkdownMetadata = (metadata: MarkdownMetadata, source: string): string => {
+  const document = `# ${metadata.title}\n\n${source.replace(/^\n+/u, '')}`
+  if (!metadata.frontmatter) {
+    return document
+  }
+  const frontmatter = stringifyYAML(metadata.frontmatter, { lineWidth: -1, noRefs: true })
+  return `---\n${frontmatter}\n---\n\n${document}`
+}
+
 export const compileMarkdownModule = async (options: CompileMarkdownModuleOptions): Promise<CompiledMarkdownModule> => {
   const sourceFile = ts.createSourceFile(options.id, options.code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
   const template = findMarkdownTemplate(sourceFile)
   const linkImports = findLinkImports(sourceFile)
+  const metadata = readMarkdownMetadata(sourceFile)
 
   if (ts.isNoSubstitutionTemplateLiteral(template)) {
-    return { code: `export default ${JSON.stringify(template.text)}\n`, source: template.text }
+    const source = prependMarkdownMetadata(metadata, template.text)
+    return { code: `export default ${JSON.stringify(source)}\n`, source }
   }
 
   const spans = template.templateSpans.map((span) => {
@@ -125,35 +288,12 @@ export const compileMarkdownModule = async (options: CompileMarkdownModuleOption
   const interpolations = await Promise.all(
     spans.map(async (span) => `${await options.resolveLink(span.specifier)}${span.literal}`),
   )
-  const source = `${template.head.text}${interpolations.join('')}`
+  const source = prependMarkdownMetadata(metadata, `${template.head.text}${interpolations.join('')}`)
   const dependencies = new Set(spans.map((span) => span.specifier))
 
   const imports = [...dependencies].map((specifier) => `import ${JSON.stringify(specifier)}`).join('\n')
 
   return { code: `${imports}\nexport default ${JSON.stringify(source)}\n`, source }
-}
-
-const findMetadataObject = (sourceFile: ts.SourceFile): ts.ObjectLiteralExpression | undefined => {
-  for (const statement of sourceFile.statements) {
-    if (!ts.isVariableStatement(statement)) {
-      continue
-    }
-
-    const exported =
-      ts.getModifiers(statement)?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword) ?? false
-    if (!exported) {
-      continue
-    }
-
-    for (const declaration of statement.declarationList.declarations) {
-      if (ts.isIdentifier(declaration.name) && declaration.name.text === 'meta' && declaration.initializer) {
-        const { initializer } = declaration
-        return ts.isObjectLiteralExpression(initializer) ? initializer : undefined
-      }
-    }
-  }
-
-  return undefined
 }
 
 export const readMarkdownTitle = (fileName: string): string => {
@@ -163,18 +303,5 @@ export const readMarkdownTitle = (fileName: string): string => {
   }
 
   const sourceFile = ts.createSourceFile(fileName, code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
-  const metadata = findMetadataObject(sourceFile)
-
-  for (const property of metadata?.properties ?? []) {
-    if (!ts.isPropertyAssignment(property)) {
-      continue
-    }
-
-    const name = ts.isIdentifier(property.name) || ts.isStringLiteral(property.name) ? property.name.text : undefined
-    if (name === 'title' && ts.isStringLiteralLike(property.initializer)) {
-      return property.initializer.text
-    }
-  }
-
-  throw new MarkdownCompileError(fileName, 'expected a static meta.title string for ?link imports')
+  return readMarkdownMetadata(sourceFile).title
 }

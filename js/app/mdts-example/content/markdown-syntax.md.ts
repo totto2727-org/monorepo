@@ -3,8 +3,6 @@ import { md } from 'vite-plugin-mdts'
 export const meta = { title: 'Markdown Syntax' }
 
 export default md`
-# Markdown Syntax
-
 This document demonstrates common CommonMark and GitHub Flavored Markdown syntax.
 
 ## Headings

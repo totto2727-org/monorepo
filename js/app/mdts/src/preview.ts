@@ -60,6 +60,7 @@ const indexHtml = `<!doctype html>
       nav a:hover, nav a[aria-current="page"] { background: #edf2ff; color: #2849a8; }
       main { width: min(100%, 60rem); padding: 3rem clamp(1.5rem, 5vw, 5rem); }
       article { min-width: 0; }
+      article.markdown-body { background-color: transparent; }
       article pre { overflow: auto; }
       .empty, .error { padding: 1rem; border-radius: 0.5rem; background: #fff; }
       .error { color: #b42318; }
