@@ -70,8 +70,29 @@ const app = document.querySelector('#app')
 let documents = []
 
 const selectedFileName = () => {
-  const requested = decodeURIComponent(window.location.hash.slice(1))
+  const requested = window.location.pathname
+    .slice(1)
+    .split('/')
+    .map(decodeURIComponent)
+    .join('/')
   return documents.some((document) => document.fileName === requested) ? requested : documents[0]?.fileName
+}
+
+const documentPath = (fileName) =>
+  '/' + fileName.split('/').map(encodeURIComponent).join('/')
+
+const navigateToDocument = (event) => {
+  const link = event.target instanceof Element ? event.target.closest('a') : undefined
+  const href = link?.getAttribute('href')
+  if (!href || href.startsWith('#') || /^[a-z]+:/u.test(href)) return
+
+  const target = new URL(href, window.location.href)
+  const fileName = target.pathname.slice(1).split('/').map(decodeURIComponent).join('/')
+  if (documents.some((document) => document.fileName === fileName)) {
+    event.preventDefault()
+    window.history.pushState({}, '', documentPath(fileName))
+    render()
+  }
 }
 
 const render = () => {
@@ -90,29 +111,19 @@ const render = () => {
   for (const entry of documents) {
     const item = document.createElement('li')
     const link = document.createElement('a')
-    link.href = '#' + encodeURIComponent(entry.fileName)
+    link.href = documentPath(entry.fileName)
     link.textContent = entry.fileName
     if (entry.fileName === selected) link.setAttribute('aria-current', 'page')
     item.append(link)
     list.append(item)
   }
   navigation.append(list)
+  navigation.addEventListener('click', navigateToDocument)
 
   const main = document.createElement('main')
   const article = document.createElement('article')
   article.innerHTML = documents.find((document) => document.fileName === selected).html
-  article.addEventListener('click', (event) => {
-    const link = event.target.closest('a')
-    const href = link?.getAttribute('href')
-    if (!href || href.startsWith('#') || /^[a-z]+:/u.test(href)) return
-
-    const target = new URL(href, 'https://mdts.local/' + selected)
-    const fileName = target.pathname.slice(1)
-    if (documents.some((document) => document.fileName === fileName)) {
-      event.preventDefault()
-      window.location.hash = encodeURIComponent(fileName)
-    }
-  })
+  article.addEventListener('click', navigateToDocument)
   main.append(article)
   app.replaceChildren(navigation, main)
 }
@@ -129,7 +140,7 @@ const load = async () => {
   }
 }
 
-window.addEventListener('hashchange', render)
+window.addEventListener('popstate', render)
 await load()
 `
 
@@ -162,7 +173,7 @@ const previewPlugin = (input: string): Plugin => {
         void (async () => {
           try {
             const url = new URL(request.url ?? '/', 'http://mdts.local')
-            if (url.pathname === '/' || url.pathname === '/index.html') {
+            if (url.pathname === '/' || url.pathname === '/index.html' || url.pathname.endsWith('.md')) {
               const html = await server.transformIndexHtml(url.pathname, indexHtml)
               response.statusCode = 200
               response.setHeader('Content-Type', 'text/html; charset=utf-8')

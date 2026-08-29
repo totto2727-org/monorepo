@@ -1,59 +1,46 @@
 #!/usr/bin/env node
 
-import { parseArgs } from 'node:util'
-
-import { Predicate } from 'effect'
+import { NodeRuntime, NodeServices } from '@effect/platform-node'
+import { Effect, Option } from 'effect'
+import { Command, Flag } from 'effect/unstable/cli'
 
 import { buildMarkdown } from './build.ts'
 import { createMarkdownPreview } from './preview.ts'
 
-const help = `mdts
+const configFlag = Flag.file('config').pipe(
+  Flag.withAlias('c'),
+  Flag.withDescription('Path to mdts.config.ts'),
+  Flag.optional,
+)
 
-Usage:
-  mdts build [--config <file>]
-  mdts preview [--config <file>]
-`
+const commandOptions = (config: Option.Option<string>) => ({
+  configFile: Option.getOrUndefined(config),
+  root: process.cwd(),
+})
 
-const main = async (): Promise<void> => {
-  const [command, ...args] = process.argv.slice(2)
-  if (Predicate.isNullish(command) || command === '--help' || command === '-h') {
-    process.stdout.write(help)
-    return
-  }
+const buildCommand = Command.make('build', { config: configFlag }, ({ config }) =>
+  Effect.tryPromise(() => buildMarkdown(commandOptions(config))),
+).pipe(Command.withDescription('Build Markdown documents'))
 
-  const parsed = parseArgs({
-    allowPositionals: false,
-    args,
-    options: {
-      config: { short: 'c', type: 'string' },
-      help: { short: 'h', type: 'boolean' },
-    },
-    strict: true,
-  })
-  if (parsed.values.help === true) {
-    process.stdout.write(help)
-    return
-  }
+const previewCommand = Command.make('preview', { config: configFlag }, ({ config }) =>
+  Effect.acquireRelease(
+    Effect.tryPromise(async () => {
+      const server = await createMarkdownPreview(commandOptions(config))
+      await server.listen()
+      server.printUrls()
+      server.bindCLIShortcuts({ print: true })
+      return server
+    }),
+    (server) => Effect.promise(() => server.close()),
+  ).pipe(Effect.andThen(Effect.never), Effect.scoped),
+).pipe(Command.withDescription('Preview Markdown documents'))
 
-  const options = {
-    configFile: parsed.values.config,
-    root: process.cwd(),
-  }
+const mdtsCommand = Command.make('mdts').pipe(
+  Command.withDescription('Build and preview Markdown documents'),
+  Command.withSubcommands([buildCommand, previewCommand]),
+)
 
-  if (command === 'build') {
-    await buildMarkdown(options)
-    return
-  }
+const program = Command.run(mdtsCommand, { version: '0.0.0' }).pipe(Effect.provide(NodeServices.layer))
 
-  if (command === 'preview') {
-    const server = await createMarkdownPreview(options)
-    await server.listen()
-    server.printUrls()
-    server.bindCLIShortcuts({ print: true })
-    return
-  }
-
-  throw new TypeError(`unknown mdts command: ${command}`)
-}
-
-await main()
+// oxlint-disable-next-line rules/no-effect-runtime-run -- CLI entrypoint executes the top-level mdts workflow once.
+NodeRuntime.runMain(program)

@@ -2,7 +2,8 @@ import { readFile, readdir, rm } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
 import { createHtmlRenderer } from '@comark/html'
-import { Predicate } from 'effect'
+import { Effect, Predicate } from 'effect'
+import { FetchHttpClient, HttpClient } from 'effect/unstable/http'
 import { markdownDocumentsId } from 'vite-plugin-mdts'
 import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 
@@ -66,6 +67,34 @@ describe('mdts', () => {
       await expect(renderHtml(reference)).resolves.toBe(
         '<h1 id="api-reference">API Reference</h1>\n<p>The API is ready.</p>',
       )
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('serves preview HTML at normal document paths', async () => {
+    // Given
+    const server = await createMarkdownPreview({ root: projectRoot })
+
+    try {
+      await server.listen()
+      const previewUrl = server.resolvedUrls?.local[0]
+      if (Predicate.isNullish(previewUrl)) {
+        throw new TypeError('expected a preview URL')
+      }
+
+      // When
+      const requestDocument = Effect.gen(function* () {
+        const client = yield* HttpClient.HttpClient
+        const response = yield* client.get(new URL('/reference/api.md', previewUrl).href)
+        return { body: yield* response.text, status: response.status }
+      }).pipe(Effect.provide(FetchHttpClient.layer))
+      // oxlint-disable-next-line rules/no-effect-runtime-run -- Test boundary executes one preview HTTP request workflow.
+      const response = await Effect.runPromise(requestDocument)
+
+      // Then
+      expect(response.status).toBe(200)
+      expect(response.body).toContain('<title>mdts preview</title>')
     } finally {
       await server.close()
     }

@@ -1,6 +1,6 @@
 # mdts CLI
 
-`mdts` builds `.md.ts` documents with Vite+ and serves an HTML preview rendered by Comark.
+`mdts` uses Effect's CLI API to build `.md.ts` documents with Vite+ and serve an HTML preview rendered by Comark.
 
 ## Configuration
 
@@ -29,4 +29,4 @@ mdts build
 mdts preview
 ```
 
-`mdts build` writes the generated Markdown files to `output`. `mdts preview` starts a Vite development server whose `index.html` lists every generated Markdown document and renders the selected document with `@comark/html`.
+`mdts build` writes the generated Markdown files to `output`. `mdts preview` starts a Vite development server whose `index.html` lists every generated Markdown document and renders the selected document with `@comark/html`. Documents use normal URL paths such as `/guide.md` and `/reference/api.md`, including direct navigation and browser history.

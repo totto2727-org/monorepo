@@ -109,6 +109,7 @@
       },
       "dependencies": {
         "@comark/html": "catalog:markdown",
+        "@effect/platform-node": "catalog:effect",
         "effect": "catalog:effect",
         "vite": "catalog:",
         "vite-plugin-mdts": "workspace:*",
