@@ -71,10 +71,7 @@ describe('markdown', () => {
       logLevel: 'silent',
       plugins: [
         markdown({
-          documents: {
-            'guide.md': './guide.md.ts',
-            'reference.md': './reference.md.ts',
-          },
+          directory: '.',
         }),
         virtualEntryPlugin(),
         collectAssets(),
@@ -86,8 +83,8 @@ describe('markdown', () => {
     const documents = Object.fromEntries(generatedAssets.map((asset) => [asset.fileName, asset.source]))
 
     expect(documents).toEqual({
-      'guide.md': '# Guide\n\n[Reference](reference.md)\n',
-      'reference.md': '# Reference\n',
+      'guide.md': '# Guide\n\n[Reference](reference/api.md)\n',
+      'reference/api.md': '# Reference\n',
     })
   })
 
