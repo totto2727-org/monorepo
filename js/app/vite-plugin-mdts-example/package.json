@@ -4,6 +4,7 @@
   "type": "module",
   "devDependencies": {
     "@totto2727/fp": "workspace:*",
+    "mdts": "workspace:*",
     "vite": "catalog:",
     "vite-plugin-mdts": "workspace:*"
   }

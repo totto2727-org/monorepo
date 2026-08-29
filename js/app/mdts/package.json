@@ -1,0 +1,24 @@
+{
+  "name": "mdts",
+  "version": "0.0.0",
+  "private": true,
+  "bin": {
+    "mdts": "./src/cli.ts"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./src/config.ts"
+  },
+  "dependencies": {
+    "@comark/html": "catalog:markdown",
+    "@effect/platform-node": "catalog:effect",
+    "effect": "catalog:effect",
+    "vite": "catalog:",
+    "vite-plugin-mdts": "workspace:*",
+    "vite-plus": "catalog:"
+  },
+  "devDependencies": {
+    "@totto2727/fp": "workspace:*",
+    "@types/node": "catalog:types"
+  }
+}

@@ -18,6 +18,7 @@ export interface MarkdownPluginOptions {
 }
 
 interface MarkdownPluginState {
+  command: 'build' | 'serve'
   directory: string
   root: string
   sourceDirectory: string
@@ -30,7 +31,7 @@ interface RenderMarkdownLinkOptions {
   readonly state: MarkdownPluginState
 }
 
-const virtualDocumentsId = 'virtual:vite-plugin-mdts/documents'
+export const markdownDocumentsId = 'virtual:vite-plugin-mdts/documents'
 const resolvedVirtualDocumentsId = '\0vite-plugin-mdts:documents'
 
 export const md = (strings: TemplateStringsArray, ...values: readonly MarkdownTemplateValue[]): string =>
@@ -80,14 +81,16 @@ const renderMarkdownLink = (options: RenderMarkdownLinkOptions): string => {
 }
 
 export const markdown = (options: MarkdownPluginOptions): Plugin => {
-  const state: MarkdownPluginState = { directory: '', root: '', sourceDirectory: '' }
+  const state: MarkdownPluginState = { command: 'build', directory: '', root: '', sourceDirectory: '' }
 
   return {
-    apply: 'build',
     buildStart() {
-      this.emitFile({ id: virtualDocumentsId, type: 'chunk' })
+      if (state.command === 'build') {
+        this.emitFile({ id: markdownDocumentsId, type: 'chunk' })
+      }
     },
     configResolved(config) {
+      state.command = config.command
       state.root = normalizePath(config.root).replace(/\/$/u, '')
       state.directory = normalizeDirectory(options.directory)
       state.sourceDirectory = String.isEmpty(state.directory) ? state.root : `${state.root}/${state.directory}`
@@ -117,7 +120,7 @@ export const markdown = (options: MarkdownPluginOptions): Plugin => {
     },
     name: 'vite-plugin-mdts',
     async resolveId(source, importer) {
-      if (source === virtualDocumentsId) {
+      if (source === markdownDocumentsId) {
         return resolvedVirtualDocumentsId
       }
 
@@ -165,7 +168,9 @@ export const markdown = (options: MarkdownPluginOptions): Plugin => {
         },
       })
 
-      this.emitFile({ fileName, source: compiled.source, type: 'asset' })
+      if (state.command === 'build') {
+        this.emitFile({ fileName, source: compiled.source, type: 'asset' })
+      }
       return { code: compiled.code, map: null }
     },
   }
