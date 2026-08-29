@@ -95,6 +95,50 @@ describe('mdts', () => {
       // Then
       expect(response.status).toBe(200)
       expect(response.body).toContain('<title>mdts preview</title>')
+      expect(response.body).toContain('github-markdown-css')
+      expect(response.body).toContain('katex.min.css')
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('applies configured Comark plugins to preview documents', async () => {
+    // Given
+    const server = await createMarkdownPreview({ root: projectRoot })
+
+    try {
+      await server.listen()
+      const previewUrl = server.resolvedUrls?.local[0]
+      if (Predicate.isNullish(previewUrl)) {
+        throw new TypeError('expected a preview URL')
+      }
+
+      // When
+      const requestDocuments = Effect.gen(function* () {
+        const client = yield* HttpClient.HttpClient
+        const response = yield* client.get(new URL('/__mdts/documents', previewUrl).href)
+        return { body: yield* response.text, status: response.status }
+      }).pipe(Effect.provide(FetchHttpClient.layer))
+      // oxlint-disable-next-line rules/no-effect-runtime-run -- Test boundary executes one preview HTTP request workflow.
+      const response = await Effect.runPromise(requestDocuments)
+      const documents: unknown = JSON.parse(response.body)
+      if (!Array.isArray(documents)) {
+        throw new TypeError('expected preview documents')
+      }
+      const previewDocuments = documents as readonly unknown[]
+      const pluginDocument = previewDocuments.find(
+        (document) => Predicate.isObject(document) && Reflect.get(document, 'fileName') === 'plugins.md',
+      )
+      if (!Predicate.isObject(pluginDocument)) {
+        throw new TypeError('expected the plugin preview document')
+      }
+      const html: unknown = Reflect.get(pluginDocument, 'html')
+
+      // Then
+      expect(response.status).toBe(200)
+      expect(html).toBeTypeOf('string')
+      expect(html).toContain('footnote')
+      expect(html).toContain('class="markdown-alert markdown-alert-warning"')
     } finally {
       await server.close()
     }

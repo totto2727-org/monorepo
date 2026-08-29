@@ -82,9 +82,35 @@ Use an [inline link](https://example.com), or write an autolink such as <https:/
 
 ![Comark banner](https://raw.githubusercontent.com/comarkdown/comark/main/assets/banner.jpg)
 
-## Code
+## Footnotes
+
+The optional [footnotes plugin](https://comark.dev/plugins/built-in/footnotes) adds references and definitions.[^comark]
+
+[^comark]: Comark renders this definition and links it back to the reference.
+
+## Math
+
+The optional [math plugin](https://comark.dev/plugins/built-in/math) renders inline math such as $E = mc^2$ and display math:
+
+$$
+x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}
+$$
+
+## Mermaid
+
+The optional [Mermaid plugin](https://comark.dev/plugins/built-in/mermaid) renders diagrams as inline SVG:
+
+~~~mermaid
+graph TD
+  A[Write Markdown] --> B[Run mdts preview]
+  B --> C[Render HTML]
+~~~
+
+## Code and syntax highlighting
 
 Inline code looks like \`const message = 'Hello, mdts'\`.
+
+The optional [Shiki plugin](https://comark.dev/plugins/built-in/shiki) highlights fenced code blocks with a language identifier:
 
 ~~~typescript
 const greeting = (name: string): string => \`Hello, \${name}!\`
