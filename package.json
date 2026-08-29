@@ -72,6 +72,9 @@
     "lint": {
       "ultracite": "7.10.2"
     },
+    "markdown": {
+      "@comark/html": "^0.6.2"
+    },
     "pulumi": {
       "@pulumi/aws": "^7.0.0",
       "@pulumi/awsx": "^3.0.0",
