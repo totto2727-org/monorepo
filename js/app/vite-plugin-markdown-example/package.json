@@ -1,0 +1,10 @@
+{
+  "name": "vite-plugin-markdown-example",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@totto2727/fp": "workspace:*",
+    "vite": "catalog:",
+    "vite-plugin-markdown": "workspace:*"
+  }
+}
