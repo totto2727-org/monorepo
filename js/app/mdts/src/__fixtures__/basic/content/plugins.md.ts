@@ -1,5 +1,12 @@
-import { md } from 'vite-plugin-mdts'
+import { defineNote, md, noteBody, noteRef } from 'vite-plugin-mdts'
 import type { MarkdownMetadata } from 'vite-plugin-mdts'
+
+const notes = defineNote([
+  {
+    body: md`This footnote is enabled through mdts.config.ts.`,
+    slug: 'preview-plugin',
+  },
+] as const)
 
 export const meta = {
   frontmatter: {
@@ -10,9 +17,9 @@ export const meta = {
   title: 'Preview plugins',
 } satisfies MarkdownMetadata
 
-export default md`Configured plugins are rendered in the preview.[^preview]
+export default md`Configured plugins are rendered in the preview.${noteRef(notes, 'preview-plugin')}
 
-[^preview]: This footnote is enabled through mdts.config.ts.
+${noteBody(notes, 'preview-plugin')}
 
 > [!WARNING]
   Alerts use GitHub-compatible markup and styles.

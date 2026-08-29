@@ -1,9 +1,9 @@
 import { build } from 'vite'
 import type { Plugin, Rolldown } from 'vite'
-import { describe, expect, test } from 'vite-plus/test'
+import { describe, expect, expectTypeOf, test } from 'vite-plus/test'
 
 import { compileMarkdownModule, formatMarkdownLink, parseLinkRequest } from './compiler.ts'
-import { markdown, md } from './index.ts'
+import { defineNote, markdown, md, noteBody, noteRef } from './index.ts'
 
 const virtualEntry = '\0vite-plugin-mdts-test-entry'
 
@@ -42,6 +42,91 @@ Items: ${itemCount}
 
     // Then
     expect(document).toBe('Run `vp build`.')
+  })
+})
+
+describe('Markdown notes', () => {
+  test('assigns sequential string indexes while preserving tuple types', () => {
+    // Given
+    const notes = defineNote([
+      {
+        body: md`
+First **note**.
+        `,
+        slug: 'first',
+      },
+      {
+        body: md`
+Second note.
+        `,
+        slug: 'second',
+      },
+    ] as const)
+
+    // Then
+    expect(notes).toEqual([
+      { body: 'First **note**.', index: '1', slug: 'first' },
+      { body: 'Second note.', index: '2', slug: 'second' },
+    ])
+    expectTypeOf(notes[0].index).toEqualTypeOf<'1'>()
+    expectTypeOf(notes[1].index).toEqualTypeOf<'2'>()
+    expectTypeOf(notes[1].slug).toEqualTypeOf<'second'>()
+  })
+
+  test('renders references and bodies from the same slug', () => {
+    // Given
+    const notes = defineNote([
+      {
+        body: md`
+First note.
+        `,
+        slug: 'first',
+      },
+      {
+        body: md`
+Second note.
+        `,
+        slug: 'second',
+      },
+    ] as const)
+
+    // Then
+    expect(noteRef(notes, 'second')).toBe('[^2]')
+    expect(noteBody(notes, 'first')).toBe('[^1]: First note.')
+  })
+
+  test('rejects duplicate and unknown slugs', () => {
+    // Given
+    const notes = defineNote([
+      {
+        body: md`
+Known note.
+        `,
+        slug: 'known',
+      },
+    ] as const)
+
+    // Then
+    expect(() =>
+      defineNote([
+        {
+          body: md`
+First note.
+          `,
+          slug: 'duplicate',
+        },
+        {
+          body: md`
+Second note.
+          `,
+          slug: 'duplicate',
+        },
+      ] as const),
+    ).toThrow('Duplicate Markdown note slug: duplicate')
+    expect(() => {
+      // @ts-expect-error -- Note slugs are restricted to values inferred from the tuple.
+      noteRef(notes, 'unknown')
+    }).toThrow('Unknown Markdown note slug: unknown')
   })
 })
 
@@ -84,7 +169,7 @@ describe('markdown', () => {
 
     expect(documents).toEqual({
       'guide.md':
-        "---\ndescription: Generated from TypeScript metadata.\ntags:\n  - markdown\n  - typescript\ndraft: false\nmetadata:\n  version: '1.0'\n---\n\n# Guide\n\n[Details](reference/api.md#api)\n",
+        "---\ndescription: Generated from TypeScript metadata.\ntags:\n  - markdown\n  - typescript\ndraft: false\nmetadata:\n  version: '1.0'\n---\n\n# Guide\n\n[Details](reference/api.md#api)[^1]\n\n[^1]: The link text and this definition share one typed slug.\n",
       'reference/api.md': '# Reference\n\n',
     })
   })
@@ -122,6 +207,26 @@ export default md\`Body.
 
     // Then
     await expect(compile).rejects.toThrow('expected a static meta.title string')
+  })
+
+  test('rejects note helper slugs missing from the defined tuple', async () => {
+    // Given
+    const code = [
+      "import { defineNote, md, noteRef } from 'vite-plugin-mdts'",
+      "const notes = defineNote([{ body: md`Known note.`, slug: 'known' }] as const)",
+      "export const meta = { title: 'Guide' }",
+      `export default md\`Body\${noteRef(notes, 'unknown')}\``,
+    ].join('\n')
+
+    // When
+    const compile = compileMarkdownModule({
+      code,
+      id: '/content/unknown-note.md.ts',
+      resolveLink: () => Promise.resolve(''),
+    })
+
+    // Then
+    await expect(compile).rejects.toThrow('Unknown Markdown note slug: unknown')
   })
 
   test('uses text and hash query parameters for a link import', () => {

@@ -30,6 +30,17 @@ interface MarkdownMetadata {
   readonly title: string
 }
 
+interface StaticMarkdownNote {
+  readonly body: string
+  readonly index: string
+  readonly slug: string
+}
+
+interface RenderedMarkdownInterpolation {
+  readonly dependency?: string
+  readonly value: string
+}
+
 interface FormatMarkdownLinkOptions {
   readonly destination: string
   readonly request: LinkRequest
@@ -149,6 +160,145 @@ const findMetadataObject = (sourceFile: ts.SourceFile): ts.ObjectLiteralExpressi
 const staticPropertyName = (name: ts.PropertyName): string | undefined =>
   ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name) ? name.text : undefined
 
+const objectProperty = (value: ts.ObjectLiteralExpression, name: string): ts.Expression | undefined => {
+  const property = value.properties.find(
+    (candidate) => ts.isPropertyAssignment(candidate) && staticPropertyName(candidate.name) === name,
+  )
+  return property && ts.isPropertyAssignment(property) ? unwrapExpression(property.initializer) : undefined
+}
+
+const readNoteBody = (value: ts.Expression, sourceFile: ts.SourceFile): string => {
+  if (!ts.isTaggedTemplateExpression(value) || !ts.isIdentifier(value.tag) || value.tag.text !== 'md') {
+    throw new MarkdownCompileError(sourceFile.fileName, 'Markdown note bodies must use the md tagged template')
+  }
+  if (!ts.isNoSubstitutionTemplateLiteral(value.template)) {
+    throw new MarkdownCompileError(sourceFile.fileName, 'Markdown note bodies must not contain interpolations')
+  }
+  return value.template.text.trim()
+}
+
+const readNoteCollections = (sourceFile: ts.SourceFile): ReadonlyMap<string, readonly StaticMarkdownNote[]> => {
+  const collections = new Map<string, readonly StaticMarkdownNote[]>()
+
+  for (const statement of sourceFile.statements) {
+    if (!ts.isVariableStatement(statement)) {
+      continue
+    }
+
+    for (const declaration of statement.declarationList.declarations) {
+      if (!ts.isIdentifier(declaration.name) || !declaration.initializer) {
+        continue
+      }
+      const initializer = unwrapExpression(declaration.initializer)
+      if (
+        !ts.isCallExpression(initializer) ||
+        !ts.isIdentifier(initializer.expression) ||
+        initializer.expression.text !== 'defineNote'
+      ) {
+        continue
+      }
+
+      const argument = initializer.arguments[0] && unwrapExpression(initializer.arguments[0])
+      if (initializer.arguments.length !== 1 || !argument || !ts.isArrayLiteralExpression(argument)) {
+        throw new MarkdownCompileError(sourceFile.fileName, 'defineNote must receive one static tuple')
+      }
+
+      const slugs = new Set<string>()
+      const notes = argument.elements.map((element, position): StaticMarkdownNote => {
+        if (ts.isSpreadElement(element)) {
+          throw new MarkdownCompileError(sourceFile.fileName, 'defineNote tuples must not contain spread elements')
+        }
+        const note = unwrapExpression(element)
+        if (!ts.isObjectLiteralExpression(note)) {
+          throw new MarkdownCompileError(sourceFile.fileName, 'defineNote tuples must contain static objects')
+        }
+
+        const slug = objectProperty(note, 'slug')
+        const body = objectProperty(note, 'body')
+        if (!slug || !ts.isStringLiteralLike(slug)) {
+          throw new MarkdownCompileError(sourceFile.fileName, 'Markdown note slugs must be static strings')
+        }
+        if (!body) {
+          throw new MarkdownCompileError(sourceFile.fileName, 'Markdown notes must define a body')
+        }
+        if (slugs.has(slug.text)) {
+          throw new MarkdownCompileError(sourceFile.fileName, `Duplicate Markdown note slug: ${slug.text}`)
+        }
+        slugs.add(slug.text)
+        return { body: readNoteBody(body, sourceFile), index: `${position + 1}`, slug: slug.text }
+      })
+      collections.set(declaration.name.text, notes)
+    }
+  }
+
+  return collections
+}
+
+const renderNoteInterpolation = (
+  expression: ts.CallExpression,
+  collections: ReadonlyMap<string, readonly StaticMarkdownNote[]>,
+  sourceFile: ts.SourceFile,
+): string | undefined => {
+  if (
+    !ts.isIdentifier(expression.expression) ||
+    (expression.expression.text !== 'noteRef' && expression.expression.text !== 'noteBody')
+  ) {
+    return undefined
+  }
+  const collectionName = expression.arguments[0] && unwrapExpression(expression.arguments[0])
+  const slug = expression.arguments[1] && unwrapExpression(expression.arguments[1])
+  if (
+    expression.arguments.length !== 2 ||
+    !collectionName ||
+    !ts.isIdentifier(collectionName) ||
+    !slug ||
+    !ts.isStringLiteralLike(slug)
+  ) {
+    throw new MarkdownCompileError(
+      sourceFile.fileName,
+      `${expression.expression.text} requires notes and a static slug`,
+    )
+  }
+
+  const notes = collections.get(collectionName.text)
+  if (!notes) {
+    throw new MarkdownCompileError(sourceFile.fileName, `Unknown Markdown note collection: ${collectionName.text}`)
+  }
+  const note = notes.find((candidate) => candidate.slug === slug.text)
+  if (!note) {
+    throw new MarkdownCompileError(sourceFile.fileName, `Unknown Markdown note slug: ${slug.text}`)
+  }
+  return expression.expression.text === 'noteRef' ? `[^${note.index}]` : `[^${note.index}]: ${note.body}`
+}
+
+const renderMarkdownInterpolation = async (
+  expression: ts.Expression,
+  linkImports: ReadonlyMap<string, string>,
+  noteCollections: ReadonlyMap<string, readonly StaticMarkdownNote[]>,
+  options: CompileMarkdownModuleOptions,
+  sourceFile: ts.SourceFile,
+): Promise<RenderedMarkdownInterpolation> => {
+  if (ts.isIdentifier(expression)) {
+    const specifier = linkImports.get(expression.text)
+    if (!Predicate.isString(specifier)) {
+      throw new MarkdownCompileError(options.id, `interpolation ${expression.text} is not a ?link default import`)
+    }
+    return { dependency: specifier, value: await options.resolveLink(specifier) }
+  }
+
+  if (ts.isCallExpression(expression)) {
+    const note = renderNoteInterpolation(expression, noteCollections, sourceFile)
+    if (Predicate.isString(note)) {
+      return { value: note }
+    }
+  }
+
+  throw new MarkdownCompileError(
+    options.id,
+    'md interpolations must reference a ?link import or a Markdown note helper',
+  )
+}
+
 const readStaticValue = (expression: ts.Expression, sourceFile: ts.SourceFile): StaticValue => {
   const value = unwrapExpression(expression)
   if (ts.isStringLiteralLike(value)) {
@@ -265,6 +415,7 @@ export const compileMarkdownModule = async (options: CompileMarkdownModuleOption
   const sourceFile = ts.createSourceFile(options.id, options.code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
   const template = findMarkdownTemplate(sourceFile)
   const linkImports = findLinkImports(sourceFile)
+  const noteCollections = readNoteCollections(sourceFile)
   const metadata = readMarkdownMetadata(sourceFile)
 
   if (ts.isNoSubstitutionTemplateLiteral(template)) {
@@ -272,24 +423,19 @@ export const compileMarkdownModule = async (options: CompileMarkdownModuleOption
     return { code: `export default ${JSON.stringify(source)}\n`, source }
   }
 
-  const spans = template.templateSpans.map((span) => {
-    if (!ts.isIdentifier(span.expression)) {
-      throw new MarkdownCompileError(options.id, 'md interpolations must reference a ?link default import')
-    }
-
-    const specifier = linkImports.get(span.expression.text)
-    if (!Predicate.isString(specifier)) {
-      throw new MarkdownCompileError(options.id, `interpolation ${span.expression.text} is not a ?link default import`)
-    }
-
-    return { literal: span.literal.text, specifier }
-  })
-
   const interpolations = await Promise.all(
-    spans.map(async (span) => `${await options.resolveLink(span.specifier)}${span.literal}`),
+    template.templateSpans.map(async (span) => ({
+      ...(await renderMarkdownInterpolation(span.expression, linkImports, noteCollections, options, sourceFile)),
+      literal: span.literal.text,
+    })),
   )
-  const source = prependMarkdownMetadata(metadata, `${template.head.text}${interpolations.join('')}`)
-  const dependencies = new Set(spans.map((span) => span.specifier))
+  const rendered = interpolations.map((interpolation) => `${interpolation.value}${interpolation.literal}`).join('')
+  const source = prependMarkdownMetadata(metadata, `${template.head.text}${rendered}`)
+  const dependencies = new Set(
+    interpolations.flatMap((interpolation) =>
+      Predicate.isString(interpolation.dependency) ? [interpolation.dependency] : [],
+    ),
+  )
 
   const imports = [...dependencies].map((specifier) => `import ${JSON.stringify(specifier)}`).join('\n')
 

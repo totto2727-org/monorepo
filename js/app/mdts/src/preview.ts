@@ -171,6 +171,22 @@ const markdownSource = (value: unknown): string | undefined => {
   return undefined
 }
 
+const previewMarkdownSource = (source: string): string => {
+  const opening = '---\n'
+  const closing = '\n---\n'
+  if (!source.startsWith(opening)) {
+    return source
+  }
+  const closingIndex = source.indexOf(closing, opening.length)
+  if (closingIndex === -1) {
+    return source
+  }
+
+  const frontmatter = source.slice(opening.length, closingIndex)
+  const document = source.slice(closingIndex + closing.length).replace(/^\n+/u, '')
+  return `~~~yaml\n${frontmatter}\n~~~\n\n${document}`
+}
+
 const outputFileName = (modulePath: string, input: string): string | undefined => {
   const normalizedPath = normalizePath(modulePath)
   const prefix = String.isEmpty(input) ? '/' : `/${input}/`
@@ -233,7 +249,7 @@ const previewPlugin = (input: string, comark: MdtsComarkOptions): Plugin => {
                 if (Predicate.isNullish(fileName) || Predicate.isNullish(source)) {
                   return undefined
                 }
-                return { fileName, html: await renderHtml(source) }
+                return { fileName, html: await renderHtml(previewMarkdownSource(source)) }
               }),
             )
             const responseBody = documents

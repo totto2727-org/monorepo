@@ -1,4 +1,19 @@
-import { md } from 'vite-plugin-mdts'
+import { defineNote, md, noteBody, noteRef } from 'vite-plugin-mdts'
+
+const notes = defineNote([
+  {
+    body: md`
+Comark renders this definition and links it back to the reference.
+    `,
+    slug: 'comark-footnotes',
+  },
+  {
+    body: md`
+The example configures the Mermaid tokyo-night theme for light and dark color schemes.
+    `,
+    slug: 'mermaid-theme',
+  },
+] as const)
 
 export const meta = { title: 'Markdown Syntax' }
 
@@ -82,9 +97,7 @@ Use an [inline link](https://example.com), or write an autolink such as <https:/
 
 ## Footnotes
 
-The optional [footnotes plugin](https://comark.dev/plugins/built-in/footnotes) adds references and definitions.[^comark]
-
-[^comark]: Comark renders this definition and links it back to the reference.
+The optional [footnotes plugin](https://comark.dev/plugins/built-in/footnotes) adds references and definitions.${noteRef(notes, 'comark-footnotes')}
 
 ## Math
 
@@ -96,7 +109,7 @@ $$
 
 ## Mermaid
 
-The optional [Mermaid plugin](https://comark.dev/plugins/built-in/mermaid) renders diagrams as inline SVG:
+The optional [Mermaid plugin](https://comark.dev/plugins/built-in/mermaid) renders diagrams as inline SVG.${noteRef(notes, 'mermaid-theme')}
 
 ~~~mermaid
 graph TD
@@ -135,4 +148,8 @@ Content after the rule.
 ## Escaping characters
 
 Backslashes keep punctuation literal: \\_not italic\\_ and \\# not a heading.
+
+${noteBody(notes, 'comark-footnotes')}
+
+${noteBody(notes, 'mermaid-theme')}
 `
