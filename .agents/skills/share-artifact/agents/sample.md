@@ -11,13 +11,11 @@ plugins/  Distributable plugins
 ### Execution rules
 
 - Run commands from the repository root.
-
 - Use vp for project tasks.
 
 ### Standard tasks
 
 - `vp run check` — Run checks.
-
 - `vp run test` — Run tests.
 
 ## Architecture
@@ -33,7 +31,6 @@ plugins/  Distributable plugins
 ## Development tools
 
 - **Vite+**: Runs repository tasks.
-
 - **MoonBit**: Checks MoonBit packages.
 
 ## Package-specific rules

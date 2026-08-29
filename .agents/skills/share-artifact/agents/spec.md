@@ -29,6 +29,8 @@ Render the sibling [template.md](template.md) as `AGENTS.md`. The minimum form u
 
 The minimum form may be extended with repository-specific AI and developer sections, provided the required sections stay ordered, the extension does not become an end-user getting-started guide, and it retains the sibling [template.md](template.md) and [sample.md](sample.md) as the current authoring references.
 
+Render consecutive single-paragraph bullet items as a tight list without blank lines between items. Keep one blank line before and after the list so adjacent headings and paragraphs remain distinct.
+
 End the file with this exact provenance footer without a heading:
 
 ```markdown
