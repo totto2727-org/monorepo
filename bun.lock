@@ -127,6 +127,7 @@
     "js/app/mdts-example": {
       "name": "mdts-example",
       "devDependencies": {
+        "@totto2727/fp": "workspace:*",
         "mdts": "workspace:*",
       },
     },

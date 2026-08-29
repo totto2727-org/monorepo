@@ -1,16 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": ["@totto2727/fp/tsconfig/vite"],
   "compilerOptions": {
-    "allowImportingTsExtensions": true,
-    "erasableSyntaxOnly": true,
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleDetection": "force",
-    "moduleResolution": "bundler",
-    "noEmit": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "ESNext",
     "types": ["mdts/client"]
   }
 }
