@@ -30,8 +30,8 @@ interface RenderMarkdownLinkOptions {
   readonly state: MarkdownPluginState
 }
 
-const virtualDocumentsId = 'virtual:vite-plugin-markdown/documents'
-const resolvedVirtualDocumentsId = '\0vite-plugin-markdown:documents'
+const virtualDocumentsId = 'virtual:vite-plugin-mdts/documents'
+const resolvedVirtualDocumentsId = '\0vite-plugin-mdts:documents'
 
 export const md = (strings: TemplateStringsArray, ...values: readonly MarkdownTemplateValue[]): string =>
   strings.map((segment, index) => `${segment}${values[index] ?? ''}`).join('')
@@ -115,7 +115,7 @@ export const markdown = (options: MarkdownPluginOptions): Plugin => {
       const value = renderMarkdownLink({ request, sourcePath, state })
       return `import ${JSON.stringify(sourcePath)}\nexport default ${JSON.stringify(value)}\n`
     },
-    name: 'vite-plugin-markdown',
+    name: 'vite-plugin-mdts',
     async resolveId(source, importer) {
       if (source === virtualDocumentsId) {
         return resolvedVirtualDocumentsId

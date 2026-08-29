@@ -1,4 +1,4 @@
-import { markdown } from 'vite-plugin-markdown'
+import { markdown } from 'vite-plugin-mdts'
 import { defineConfig } from 'vite-plus'
 
 export default defineConfig({

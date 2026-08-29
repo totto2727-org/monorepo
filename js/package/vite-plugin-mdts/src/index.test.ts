@@ -5,13 +5,13 @@ import { describe, expect, test } from 'vite-plus/test'
 import { formatMarkdownLink, parseLinkRequest } from './compiler.ts'
 import { markdown, md } from './index.ts'
 
-const virtualEntry = '\0vite-plugin-markdown-test-entry'
+const virtualEntry = '\0vite-plugin-mdts-test-entry'
 
 const virtualEntryPlugin = (): Plugin => ({
   load(id) {
     return id === virtualEntry ? 'export {}' : undefined
   },
-  name: 'vite-plugin-markdown-test-entry',
+  name: 'vite-plugin-mdts-test-entry',
   resolveId(id) {
     return id === virtualEntry ? virtualEntry : undefined
   },
@@ -58,7 +58,7 @@ describe('markdown', () => {
           }
         }
       },
-      name: 'vite-plugin-markdown-test-collector',
+      name: 'vite-plugin-mdts-test-collector',
     })
 
     // When

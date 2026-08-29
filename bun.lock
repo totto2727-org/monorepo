@@ -14,12 +14,6 @@
         "wrangler": "latest",
       },
     },
-    "elixir/opencode_client": {
-      "name": "opencode-client",
-    },
-    "elixir/symphony": {
-      "name": "symphony",
-    },
     "infra/aws": {
       "name": "@infra/aws",
       "devDependencies": {
@@ -122,12 +116,12 @@
         "hono": "catalog:hono",
       },
     },
-    "js/app/vite-plugin-markdown-example": {
-      "name": "vite-plugin-markdown-example",
+    "js/app/vite-plugin-mdts-example": {
+      "name": "vite-plugin-mdts-example",
       "devDependencies": {
         "@totto2727/fp": "workspace:*",
         "vite": "catalog:",
-        "vite-plugin-markdown": "workspace:*",
+        "vite-plugin-mdts": "workspace:*",
       },
     },
     "js/package/auth": {
@@ -217,8 +211,8 @@
         "remix": "catalog:remix",
       },
     },
-    "js/package/vite-plugin-markdown": {
-      "name": "vite-plugin-markdown",
+    "js/package/vite-plugin-mdts": {
+      "name": "vite-plugin-mdts",
       "version": "0.0.0",
       "dependencies": {
         "effect": "catalog:effect",
@@ -1567,8 +1561,6 @@
 
     "onetime": ["onetime@5.1.2", "https://npm.flatt.tech/onetime/-/onetime-5.1.2.tgz", { "dependencies": { "mimic-fn": "^2.1.0" } }, "sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg=="],
 
-    "opencode-client": ["opencode-client@workspace:elixir/opencode_client"],
-
     "option-t": ["option-t@56.1.2", "https://npm.flatt.tech/option-t/-/option-t-56.1.2.tgz", {}, "sha512-FEEXXhblMiDmQbXC/mBUT9VTHKt2V7nIWXEgPPsBP8bZXq4w3sejmWGPdZ+zoKL6GzQLRyYUeV6ZQ1zWH8GIUw=="],
 
     "oxc-minify": ["oxc-minify@0.121.0", "https://npm.flatt.tech/oxc-minify/-/oxc-minify-0.121.0.tgz", { "optionalDependencies": { "@oxc-minify/binding-android-arm-eabi": "0.121.0", "@oxc-minify/binding-android-arm64": "0.121.0", "@oxc-minify/binding-darwin-arm64": "0.121.0", "@oxc-minify/binding-darwin-x64": "0.121.0", "@oxc-minify/binding-freebsd-x64": "0.121.0", "@oxc-minify/binding-linux-arm-gnueabihf": "0.121.0", "@oxc-minify/binding-linux-arm-musleabihf": "0.121.0", "@oxc-minify/binding-linux-arm64-gnu": "0.121.0", "@oxc-minify/binding-linux-arm64-musl": "0.121.0", "@oxc-minify/binding-linux-ppc64-gnu": "0.121.0", "@oxc-minify/binding-linux-riscv64-gnu": "0.121.0", "@oxc-minify/binding-linux-riscv64-musl": "0.121.0", "@oxc-minify/binding-linux-s390x-gnu": "0.121.0", "@oxc-minify/binding-linux-x64-gnu": "0.121.0", "@oxc-minify/binding-linux-x64-musl": "0.121.0", "@oxc-minify/binding-openharmony-arm64": "0.121.0", "@oxc-minify/binding-wasm32-wasi": "0.121.0", "@oxc-minify/binding-win32-arm64-msvc": "0.121.0", "@oxc-minify/binding-win32-ia32-msvc": "0.121.0", "@oxc-minify/binding-win32-x64-msvc": "0.121.0" } }, "sha512-XziD0au8etayM2zJnqcSiW+Pn3hEpqHsbwfL7G4Ej0SwqfvbIjiEF1/uNqONuHl0n9LkLI1ez378vSWZRJZWAQ=="],
@@ -1717,8 +1709,6 @@
 
     "supports-color": ["supports-color@7.2.0", "https://npm.flatt.tech/supports-color/-/supports-color-7.2.0.tgz", { "dependencies": { "has-flag": "^4.0.0" } }, "sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw=="],
 
-    "symphony": ["symphony@workspace:elixir/symphony"],
-
     "tagged-tag": ["tagged-tag@1.0.0", "https://npm.flatt.tech/tagged-tag/-/tagged-tag-1.0.0.tgz", {}, "sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng=="],
 
     "tar": ["tar@7.5.22", "https://npm.flatt.tech/tar/-/tar-7.5.22.tgz", { "dependencies": { "@isaacs/fs-minipass": "^4.0.0", "chownr": "^3.0.0", "minipass": "^7.1.2", "minizlib": "^3.1.0", "yallist": "^5.0.0" } }, "sha512-MFO/QzvtAOmJbkhOaCTvbGcFN9L9b+JunIsDwaKljSOdcLMea3NJ1k9Usz/rjdfSXTq4dfzfeS7W4p4YOAAHeA=="],
@@ -1777,9 +1767,9 @@
 
     "vite": ["@voidzero-dev/vite-plus-core@0.2.8", "https://npm.flatt.tech/@voidzero-dev/vite-plus-core/-/vite-plus-core-0.2.8.tgz", { "dependencies": { "@oxc-project/runtime": "=0.142.0", "@oxc-project/types": "=0.142.0", "lightningcss": "^1.33.0", "postcss": "^8.5.6", "yuku-codegen": "^0.5.44", "yuku-parser": "^0.5.44" }, "optionalDependencies": { "@voidzero-dev/vite-plus-darwin-arm64": "0.2.8", "@voidzero-dev/vite-plus-darwin-x64": "0.2.8", "@voidzero-dev/vite-plus-linux-arm64-gnu": "0.2.8", "@voidzero-dev/vite-plus-linux-arm64-musl": "0.2.8", "@voidzero-dev/vite-plus-linux-x64-gnu": "0.2.8", "@voidzero-dev/vite-plus-linux-x64-musl": "0.2.8", "@voidzero-dev/vite-plus-win32-arm64-msvc": "0.2.8", "@voidzero-dev/vite-plus-win32-x64-msvc": "0.2.8", "fsevents": "~2.3.3" }, "peerDependencies": { "@arethetypeswrong/core": "^0.18.1", "@types/node": "^20.19.0 || >=22.12.0", "@vitejs/devtools": "^0.4.0", "esbuild": "^0.27.0 || ^0.28.0", "jiti": ">=1.21.0", "less": "^4.0.0", "publint": "^0.3.8", "sass": "^1.70.0", "sass-embedded": "^1.70.0", "stylus": ">=0.54.8", "sugarss": "^5.0.0", "terser": "^5.16.0", "tsx": "^4.8.1", "typescript": "^5.0.0 || ^6.0.0 || ^7.0.0", "unplugin-unused": "^0.5.0", "unrun": "*", "yaml": "^2.4.2" }, "optionalPeers": ["@arethetypeswrong/core", "@types/node", "@vitejs/devtools", "esbuild", "jiti", "less", "publint", "sass", "sass-embedded", "stylus", "sugarss", "terser", "tsx", "typescript", "unplugin-unused", "unrun", "yaml"] }, "sha512-hqUJyozjE4HtJ3wwf2pOw6LnH/EF9W4+ys2s8arr/3fUdw64vzp/SfPFBVCxsGRv2UfjkIieOeZrQ1FH6Oa5Tw=="],
 
-    "vite-plugin-markdown": ["vite-plugin-markdown@workspace:js/package/vite-plugin-markdown"],
+    "vite-plugin-mdts": ["vite-plugin-mdts@workspace:js/package/vite-plugin-mdts"],
 
-    "vite-plugin-markdown-example": ["vite-plugin-markdown-example@workspace:js/app/vite-plugin-markdown-example"],
+    "vite-plugin-mdts-example": ["vite-plugin-mdts-example@workspace:js/app/vite-plugin-mdts-example"],
 
     "vite-plugin-remix": ["vite-plugin-remix@workspace:js/package/vite-plugin-remix"],
 

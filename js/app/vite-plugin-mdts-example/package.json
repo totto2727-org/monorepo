@@ -1,10 +1,10 @@
 {
-  "name": "vite-plugin-markdown-example",
+  "name": "vite-plugin-mdts-example",
   "private": true,
   "type": "module",
   "devDependencies": {
     "@totto2727/fp": "workspace:*",
     "vite": "catalog:",
-    "vite-plugin-markdown": "workspace:*"
+    "vite-plugin-mdts": "workspace:*"
   }
 }
