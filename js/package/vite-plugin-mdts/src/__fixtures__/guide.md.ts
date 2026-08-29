@@ -1,4 +1,4 @@
-import { md } from 'vite-plugin-markdown'
+import { md } from 'vite-plugin-mdts'
 import reference from './reference/api.md.ts?text=Details&hash=api&link'
 
 export const meta = { title: 'Guide' }

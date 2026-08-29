@@ -1,4 +1,4 @@
-import { md } from 'vite-plugin-markdown'
+import { md } from 'vite-plugin-mdts'
 
 export const meta = { title: 'API Reference' }
 
