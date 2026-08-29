@@ -31,6 +31,7 @@ const indexHtml = `<!doctype html>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
     <title>mdts preview</title>
     <style>
       :root { font-family: ui-sans-serif, system-ui, sans-serif; color: #18212f; background: #f6f7f9; }
