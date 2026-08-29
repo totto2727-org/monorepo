@@ -1,4 +1,4 @@
-import { md } from 'vite-plugin-mdts'
+import { md } from 'mdts'
 
 import markdownSyntax from './markdown-syntax.md.ts?link'
 import reference from './reference/api.md.ts?link'

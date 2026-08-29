@@ -3,6 +3,17 @@ import { Predicate, String } from 'effect'
 import { loadConfigFromFile, normalizePath } from 'vite-plus'
 import type { ConfigEnv, UserConfig } from 'vite-plus'
 
+export { defineNote, markdown, markdownDocumentsId, md, noteBody, noteRef } from 'vite-plugin-mdts'
+export type {
+  DefinedMarkdownNotes,
+  MarkdownFrontmatterValue,
+  MarkdownMetadata,
+  MarkdownNote,
+  MarkdownNoteInput,
+  MarkdownPluginOptions,
+  MarkdownTemplateValue,
+} from 'vite-plugin-mdts'
+
 const defaultConfigFile = 'mdts.config.ts'
 const defaultInput = 'content'
 const defaultOutput = 'dist'

@@ -110,9 +110,11 @@
       "dependencies": {
         "@comark/html": "catalog:markdown",
         "@effect/platform-node": "catalog:effect",
+        "beautiful-mermaid": "catalog:markdown",
         "effect": "catalog:effect",
         "github-markdown-css": "catalog:markdown",
         "katex": "catalog:markdown",
+        "shiki": "catalog:markdown",
         "vite": "catalog:",
         "vite-plugin-mdts": "workspace:*",
         "vite-plus": "catalog:",
@@ -125,14 +127,7 @@
     "js/app/mdts-example": {
       "name": "mdts-example",
       "devDependencies": {
-        "@comark/html": "catalog:markdown",
-        "@totto2727/fp": "workspace:*",
-        "beautiful-mermaid": "catalog:markdown",
-        "katex": "catalog:markdown",
         "mdts": "workspace:*",
-        "shiki": "catalog:markdown",
-        "vite": "catalog:",
-        "vite-plugin-mdts": "workspace:*",
       },
     },
     "js/app/rss-graphql": {

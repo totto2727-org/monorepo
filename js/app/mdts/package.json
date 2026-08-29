@@ -7,14 +7,18 @@
   },
   "type": "module",
   "exports": {
-    ".": "./src/config.ts"
+    ".": "./src/config.ts",
+    "./client": "./src/client.d.ts",
+    "./comark": "./src/comark.ts"
   },
   "dependencies": {
     "@comark/html": "catalog:markdown",
     "@effect/platform-node": "catalog:effect",
+    "beautiful-mermaid": "catalog:markdown",
     "effect": "catalog:effect",
     "github-markdown-css": "catalog:markdown",
     "katex": "catalog:markdown",
+    "shiki": "catalog:markdown",
     "vite": "catalog:",
     "vite-plugin-mdts": "workspace:*",
     "vite-plus": "catalog:"

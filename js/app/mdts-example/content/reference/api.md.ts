@@ -1,4 +1,4 @@
-import { md } from 'vite-plugin-mdts'
+import { md } from 'mdts'
 
 export const meta = { title: 'API Reference' }
 

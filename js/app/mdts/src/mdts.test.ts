@@ -1,9 +1,9 @@
 import { readFile, readdir, rm } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
-import { createHtmlRenderer } from '@comark/html'
 import { Effect, Predicate } from 'effect'
 import { FetchHttpClient, HttpClient } from 'effect/unstable/http'
+import { createHtmlRenderer } from 'mdts/comark'
 import { markdownDocumentsId } from 'vite-plugin-mdts'
 import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 
@@ -11,6 +11,7 @@ import { buildMarkdown } from './build.ts'
 import { createMarkdownPreview } from './preview.ts'
 
 const projectRoot = fileURLToPath(new URL('__fixtures__/basic/', import.meta.url))
+const exampleRoot = fileURLToPath(new URL('../../mdts-example/', import.meta.url))
 const outputDirectory = fileURLToPath(new URL('__fixtures__/basic/dist/', import.meta.url))
 
 const cleanOutput = (): Promise<void> => rm(outputDirectory, { force: true, recursive: true })
@@ -154,6 +155,53 @@ describe('mdts', () => {
       expect(html).toContain('class="markdown-alert markdown-alert-warning"')
       expect(html.indexOf('language-yaml')).toBeLessThan(html.indexOf('id="preview-plugins"'))
       expect(html.indexOf('id="preview-plugins"')).toBeLessThan(html.indexOf('Configured plugins are rendered'))
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('renders every included Comark integration with only mdts installed', async () => {
+    // Given
+    const server = await createMarkdownPreview({ root: exampleRoot })
+
+    try {
+      await server.listen()
+      const previewUrl = server.resolvedUrls?.local[0]
+      if (Predicate.isNullish(previewUrl)) {
+        throw new TypeError('expected a preview URL')
+      }
+
+      // When
+      const requestDocuments = Effect.gen(function* () {
+        const client = yield* HttpClient.HttpClient
+        const response = yield* client.get(new URL('/__mdts/documents', previewUrl).href)
+        return { body: yield* response.text, status: response.status }
+      }).pipe(Effect.provide(FetchHttpClient.layer))
+      // oxlint-disable-next-line rules/no-effect-runtime-run -- Test boundary executes one preview HTTP request workflow.
+      const response = await Effect.runPromise(requestDocuments)
+      const documents: unknown = JSON.parse(response.body)
+      if (!Array.isArray(documents)) {
+        throw new TypeError('expected preview documents')
+      }
+      const previewDocuments = documents as readonly unknown[]
+      const syntaxDocument = previewDocuments.find(
+        (document) => Predicate.isObject(document) && Reflect.get(document, 'fileName') === 'markdown-syntax.md',
+      )
+      if (!Predicate.isObject(syntaxDocument)) {
+        throw new TypeError('expected the Markdown syntax preview document')
+      }
+      const html: unknown = Reflect.get(syntaxDocument, 'html')
+      if (!Predicate.isString(html)) {
+        throw new TypeError('expected rendered Markdown syntax HTML')
+      }
+
+      // Then
+      expect(response.status).toBe(200)
+      expect(html).toContain('class="katex"')
+      expect(html).toContain('class="mermaid"')
+      expect(html).toContain('<svg')
+      expect(html).toContain('class="shiki')
+      expect(html).toContain('class="footnote-ref"')
     } finally {
       await server.close()
     }

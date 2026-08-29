@@ -1,18 +1,10 @@
-import { markdown } from 'vite-plugin-mdts'
-import { defineConfig } from 'vite-plus'
-
-export default defineConfig({
-  plugins: [
-    markdown({
-      directory: './content',
-    }),
-  ],
+export default {
   run: {
     tasks: {
       build: {
-        command: 'vp build',
+        command: 'mdts build',
         input: [{ auto: true }, '!dist/**'],
       },
     },
   },
-})
+}

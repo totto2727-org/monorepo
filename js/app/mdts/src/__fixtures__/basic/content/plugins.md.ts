@@ -1,5 +1,5 @@
-import { defineNote, md, noteBody, noteRef } from 'vite-plugin-mdts'
-import type { MarkdownMetadata } from 'vite-plugin-mdts'
+import { defineNote, md, noteBody, noteRef } from 'mdts'
+import type { MarkdownMetadata } from 'mdts'
 
 const notes = defineNote([
   {

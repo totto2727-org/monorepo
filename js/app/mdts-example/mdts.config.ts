@@ -1,8 +1,5 @@
-import footnotes from '@comark/html/plugins/footnotes'
-import math, { Math } from '@comark/html/plugins/math'
-import mermaid, { Mermaid } from '@comark/html/plugins/mermaid'
-import shiki from '@comark/html/plugins/shiki'
 import { defineConfig } from 'mdts'
+import { footnotes, math, Math, mermaid, Mermaid, shiki } from 'mdts/comark'
 
 export default defineConfig({
   input: './content',

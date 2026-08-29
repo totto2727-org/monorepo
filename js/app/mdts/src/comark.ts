@@ -1,0 +1,5 @@
+export { createHtmlRenderer, renderHtml, renderHtmlFromDocument } from '@comark/html'
+export { default as footnotes } from '@comark/html/plugins/footnotes'
+export { default as math, Math } from '@comark/html/plugins/math'
+export { default as mermaid, Mermaid } from '@comark/html/plugins/mermaid'
+export { default as shiki } from '@comark/html/plugins/shiki'

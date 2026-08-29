@@ -1,4 +1,4 @@
-import { defineNote, md, noteBody, noteRef } from 'vite-plugin-mdts'
+import { defineNote, md, noteBody, noteRef } from 'mdts'
 
 const notes = defineNote([
   {
