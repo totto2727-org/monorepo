@@ -1,10 +1,14 @@
 {
-  "name": "vite-plugin-mdts-example",
+  "name": "mdts-example",
   "private": true,
   "type": "module",
   "devDependencies": {
+    "@comark/html": "catalog:markdown",
     "@totto2727/fp": "workspace:*",
+    "beautiful-mermaid": "catalog:markdown",
+    "katex": "catalog:markdown",
     "mdts": "workspace:*",
+    "shiki": "catalog:markdown",
     "vite": "catalog:",
     "vite-plugin-mdts": "workspace:*"
   }

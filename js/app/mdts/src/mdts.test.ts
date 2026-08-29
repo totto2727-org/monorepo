@@ -36,10 +36,14 @@ describe('mdts', () => {
 
     // Then
     const guide = await readFile(`${outputDirectory}/guide.md`, 'utf-8')
+    const plugins = await readFile(`${outputDirectory}/plugins.md`, 'utf-8')
     const reference = await readFile(`${outputDirectory}/reference/api.md`, 'utf-8')
     const outputs = await readdir(outputDirectory, { recursive: true })
 
     expect(guide).toBe('# Guide\n\nRead the [API Reference](reference/api.md).\n')
+    expect(plugins).toBe(
+      '---\nname: preview-plugins\ndescription: Verifies frontmatter and configured Comark plugins in preview.\nallowed-tools: Read\n---\n\n# Preview plugins\n\nConfigured plugins are rendered in the preview.[^1]\n\n[^1]: This footnote is enabled through mdts.config.ts.\n\n> [!WARNING]\n  Alerts use GitHub-compatible markup and styles.\n',
+    )
     expect(reference).toBe('# API Reference\n\nThe API is ready.\n')
     expect(outputs).not.toContain('index.html')
     expect(outputs.every((fileName) => !fileName.endsWith('.js'))).toBe(true)
@@ -95,6 +99,61 @@ describe('mdts', () => {
       // Then
       expect(response.status).toBe(200)
       expect(response.body).toContain('<title>mdts preview</title>')
+      expect(response.body).toContain('github-markdown-css')
+      expect(response.body).toContain('katex.min.css')
+      expect(response.body).toContain('main { width: 100%;')
+      expect(response.body).not.toContain('width: min(100%, 60rem)')
+      expect(response.body).toContain('article.markdown-body { background-color: transparent; }')
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('applies configured Comark plugins to preview documents', async () => {
+    // Given
+    const server = await createMarkdownPreview({ root: projectRoot })
+
+    try {
+      await server.listen()
+      const previewUrl = server.resolvedUrls?.local[0]
+      if (Predicate.isNullish(previewUrl)) {
+        throw new TypeError('expected a preview URL')
+      }
+
+      // When
+      const requestDocuments = Effect.gen(function* () {
+        const client = yield* HttpClient.HttpClient
+        const response = yield* client.get(new URL('/__mdts/documents', previewUrl).href)
+        return { body: yield* response.text, status: response.status }
+      }).pipe(Effect.provide(FetchHttpClient.layer))
+      // oxlint-disable-next-line rules/no-effect-runtime-run -- Test boundary executes one preview HTTP request workflow.
+      const response = await Effect.runPromise(requestDocuments)
+      const documents: unknown = JSON.parse(response.body)
+      if (!Array.isArray(documents)) {
+        throw new TypeError('expected preview documents')
+      }
+      const previewDocuments = documents as readonly unknown[]
+      const pluginDocument = previewDocuments.find(
+        (document) => Predicate.isObject(document) && Reflect.get(document, 'fileName') === 'plugins.md',
+      )
+      if (!Predicate.isObject(pluginDocument)) {
+        throw new TypeError('expected the plugin preview document')
+      }
+      const html: unknown = Reflect.get(pluginDocument, 'html')
+      if (!Predicate.isString(html)) {
+        throw new TypeError('expected rendered plugin HTML')
+      }
+
+      // Then
+      expect(response.status).toBe(200)
+      expect(html).toMatch(/^<pre language="yaml"/u)
+      expect(html).toContain('<pre language="yaml"><code class="language-yaml">')
+      expect(html).toContain('allowed-tools: Read')
+      expect(html).toContain('<h1 id="preview-plugins">Preview plugins</h1>')
+      expect(html).toContain('footnote')
+      expect(html).toContain('class="markdown-alert markdown-alert-warning"')
+      expect(html.indexOf('language-yaml')).toBeLessThan(html.indexOf('id="preview-plugins"'))
+      expect(html.indexOf('id="preview-plugins"')).toBeLessThan(html.indexOf('Configured plugins are rendered'))
     } finally {
       await server.close()
     }

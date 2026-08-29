@@ -1,15 +1,28 @@
 import { createHtmlRenderer } from '@comark/html'
-import { Predicate, String } from 'effect'
+import { Predicate, Schema, String } from 'effect'
 import { markdownDocumentsId } from 'vite-plugin-mdts'
 import { createServer, normalizePath } from 'vite-plus'
 import type { Plugin, ViteDevServer } from 'vite-plus'
 
 import { resolveMdtsViteConfig } from './build.ts'
 import { loadMdtsConfig } from './config.ts'
+import type { MdtsComarkOptions } from './config.ts'
 
 const documentsEndpoint = '/__mdts/documents'
 const previewClientId = '/@mdts/client'
 const resolvedPreviewClientId = '\0mdts:preview-client'
+const packageStylesheetUrl = (specifier: string): string => {
+  const path = normalizePath(decodeURIComponent(new URL(import.meta.resolve(specifier)).pathname)).replace(
+    /^\/(?=[A-Za-z]:\/)/u,
+    '',
+  )
+  return `/@fs/${path}`
+}
+const githubMarkdownStylesheet = packageStylesheetUrl('github-markdown-css/github-markdown.css')
+const katexStylesheet = packageStylesheetUrl('katex/dist/katex.min.css')
+const alertTypes = ['caution', 'important', 'note', 'tip', 'warning'] as const
+const AlertType = Schema.Literals(alertTypes)
+const isAlertType = Schema.is(AlertType)
 
 interface MdtsPreviewOptions {
   readonly configFile?: string
@@ -31,6 +44,9 @@ const indexHtml = `<!doctype html>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="${githubMarkdownStylesheet}" />
+    <link rel="stylesheet" href="${katexStylesheet}" />
     <title>mdts preview</title>
     <style>
       :root { font-family: ui-sans-serif, system-ui, sans-serif; color: #18212f; background: #f6f7f9; }
@@ -42,11 +58,10 @@ const indexHtml = `<!doctype html>
       nav ul { display: grid; gap: 0.35rem; padding: 0; margin: 0; list-style: none; }
       nav a { display: block; padding: 0.65rem 0.75rem; border-radius: 0.5rem; color: inherit; text-decoration: none; overflow-wrap: anywhere; }
       nav a:hover, nav a[aria-current="page"] { background: #edf2ff; color: #2849a8; }
-      main { width: min(100%, 60rem); padding: 3rem clamp(1.5rem, 5vw, 5rem); }
-      article { line-height: 1.7; }
-      article img { max-width: 100%; }
-      article pre { overflow: auto; padding: 1rem; border-radius: 0.5rem; background: #1f2937; color: #f9fafb; }
-      article code { font-family: ui-monospace, monospace; }
+      main { width: 100%; padding: 3rem clamp(1.5rem, 5vw, 5rem); }
+      article { min-width: 0; }
+      article.markdown-body { background-color: transparent; }
+      article pre { overflow: auto; }
       .empty, .error { padding: 1rem; border-radius: 0.5rem; background: #fff; }
       .error { color: #b42318; }
       @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } nav { border-right: 0; border-bottom: 1px solid #d9dee7; } main { padding-top: 2rem; } }
@@ -122,6 +137,7 @@ const render = () => {
 
   const main = document.createElement('main')
   const article = document.createElement('article')
+  article.className = 'markdown-body'
   article.innerHTML = documents.find((document) => document.fileName === selected).html
   article.addEventListener('click', navigateToDocument)
   main.append(article)
@@ -155,6 +171,22 @@ const markdownSource = (value: unknown): string | undefined => {
   return undefined
 }
 
+const previewMarkdownSource = (source: string): string => {
+  const opening = '---\n'
+  const closing = '\n---\n'
+  if (!source.startsWith(opening)) {
+    return source
+  }
+  const closingIndex = source.indexOf(closing, opening.length)
+  if (closingIndex === -1) {
+    return source
+  }
+
+  const frontmatter = source.slice(opening.length, closingIndex)
+  const document = source.slice(closingIndex + closing.length).replace(/^\n+/u, '')
+  return `~~~yaml\n${frontmatter}\n~~~\n\n${document}`
+}
+
 const outputFileName = (modulePath: string, input: string): string | undefined => {
   const normalizedPath = normalizePath(modulePath)
   const prefix = String.isEmpty(input) ? '/' : `/${input}/`
@@ -164,8 +196,26 @@ const outputFileName = (modulePath: string, input: string): string | undefined =
   return `${normalizedPath.slice(prefix.length, -'.md.ts'.length)}.md`
 }
 
-const previewPlugin = (input: string): Plugin => {
-  const renderHtml = createHtmlRenderer()
+const githubAlertComponent: NonNullable<MdtsComarkOptions['components']>[string] = {
+  handler: async ([, attributes, ...children], state) => {
+    const type = attributes.as
+    if (!isAlertType(type)) {
+      throw new TypeError('expected a GitHub alert type')
+    }
+    const title = `${type[0]?.toUpperCase()}${type.slice(1)}`
+    return `<div class="markdown-alert markdown-alert-${type}">\n<p class="markdown-alert-title">${title}</p>\n${await state.render(children)}\n</div>`
+  },
+  match: ([tag, attributes]) => tag === 'blockquote' && isAlertType(attributes.as),
+}
+
+const previewPlugin = (input: string, comark: MdtsComarkOptions): Plugin => {
+  const renderHtml = createHtmlRenderer({
+    ...comark,
+    components: {
+      ...comark.components,
+      'mdts-github-alert': githubAlertComponent,
+    },
+  })
 
   return {
     configureServer(server) {
@@ -199,7 +249,7 @@ const previewPlugin = (input: string): Plugin => {
                 if (Predicate.isNullish(fileName) || Predicate.isNullish(source)) {
                   return undefined
                 }
-                return { fileName, html: await renderHtml(source) }
+                return { fileName, html: await renderHtml(previewMarkdownSource(source)) }
               }),
             )
             const responseBody = documents
@@ -242,7 +292,7 @@ export const createMarkdownPreview = async (options: MdtsPreviewOptions): Promis
   return await createServer(
     resolveMdtsViteConfig(config, {
       appType: 'custom',
-      plugins: [previewPlugin(config.input)],
+      plugins: [previewPlugin(config.input, config.preview.comark)],
     }),
   )
 }

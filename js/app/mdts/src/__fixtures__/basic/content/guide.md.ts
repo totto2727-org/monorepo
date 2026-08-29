@@ -6,7 +6,5 @@ export const meta = {
   title: 'Guide',
 }
 
-export default md`# Guide
-
-Read the ${apiReference}.
+export default md`Read the ${apiReference}.
 `

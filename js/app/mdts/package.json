@@ -13,6 +13,8 @@
     "@comark/html": "catalog:markdown",
     "@effect/platform-node": "catalog:effect",
     "effect": "catalog:effect",
+    "github-markdown-css": "catalog:markdown",
+    "katex": "catalog:markdown",
     "vite": "catalog:",
     "vite-plugin-mdts": "workspace:*",
     "vite-plus": "catalog:"

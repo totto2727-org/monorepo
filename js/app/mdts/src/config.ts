@@ -1,3 +1,4 @@
+import type { createHtmlRenderer } from '@comark/html'
 import { Predicate, String } from 'effect'
 import { loadConfigFromFile, normalizePath } from 'vite-plus'
 import type { ConfigEnv, UserConfig } from 'vite-plus'
@@ -6,9 +7,16 @@ const defaultConfigFile = 'mdts.config.ts'
 const defaultInput = 'content'
 const defaultOutput = 'dist'
 
+export type MdtsComarkOptions = NonNullable<Parameters<typeof createHtmlRenderer>[0]>
+
+export interface MdtsPreviewConfig {
+  readonly comark?: MdtsComarkOptions
+}
+
 export interface MdtsConfig {
   readonly input?: string
   readonly output?: string
+  readonly preview?: MdtsPreviewConfig
   readonly vite?: UserConfig
 }
 
@@ -16,6 +24,9 @@ export interface ResolvedMdtsConfig {
   readonly configFile: string
   readonly input: string
   readonly output: string
+  readonly preview: {
+    readonly comark: MdtsComarkOptions
+  }
   readonly root: string
   readonly vite: UserConfig
 }
@@ -82,6 +93,9 @@ export const loadMdtsConfig = async (options: LoadMdtsConfigOptions): Promise<Re
     configFile: loaded.path,
     input: resolveInput(config.input),
     output: resolveOutput(config.output),
+    preview: {
+      comark: config.preview?.comark ?? {},
+    },
     root: options.root,
     vite: config.vite ?? {},
   }

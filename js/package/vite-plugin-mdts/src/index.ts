@@ -13,6 +13,40 @@ import type { LinkRequest } from './compiler.ts'
 
 export type MarkdownTemplateValue = bigint | number | string
 
+export type MarkdownFrontmatterValue =
+  | boolean
+  | null
+  | number
+  | string
+  | readonly MarkdownFrontmatterValue[]
+  | { readonly [key: string]: MarkdownFrontmatterValue }
+
+export interface MarkdownMetadata {
+  readonly frontmatter?: Readonly<Record<string, MarkdownFrontmatterValue>>
+  readonly title: string
+}
+
+export interface MarkdownNoteInput {
+  readonly body: string
+  readonly slug: string
+}
+
+export interface MarkdownNote extends MarkdownNoteInput {
+  readonly index: string
+}
+
+export type DefinedMarkdownNotes<
+  Notes extends readonly MarkdownNoteInput[],
+  Position extends readonly unknown[] = readonly [],
+> = Notes extends readonly []
+  ? readonly []
+  : Notes extends readonly [infer Note extends MarkdownNoteInput, ...infer Rest extends readonly MarkdownNoteInput[]]
+    ? readonly [
+        Readonly<Note & { readonly index: `${[...Position, unknown]['length']}` }>,
+        ...DefinedMarkdownNotes<Rest, readonly [...Position, unknown]>,
+      ]
+    : readonly MarkdownNote[]
+
 export interface MarkdownPluginOptions {
   readonly directory: string
 }
@@ -36,6 +70,37 @@ const resolvedVirtualDocumentsId = '\0vite-plugin-mdts:documents'
 
 export const md = (strings: TemplateStringsArray, ...values: readonly MarkdownTemplateValue[]): string =>
   strings.map((segment, index) => `${segment}${values[index] ?? ''}`).join('')
+
+export const defineNote = <const Notes extends readonly MarkdownNoteInput[]>(
+  notes: Notes,
+): DefinedMarkdownNotes<Notes> => {
+  const slugs = new Set<string>()
+  const definitions = notes.map((note, index) => {
+    if (slugs.has(note.slug)) {
+      throw new TypeError(`Duplicate Markdown note slug: ${note.slug}`)
+    }
+    slugs.add(note.slug)
+    return Object.freeze({ ...note, body: note.body.trim(), index: `${index + 1}` })
+  })
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Runtime mapping preserves tuple length, order, and the sequential indexes represented by DefinedMarkdownNotes.
+  return Object.freeze(definitions) as DefinedMarkdownNotes<Notes>
+}
+
+const findNote = <Notes extends readonly MarkdownNote[]>(notes: Notes, slug: Notes[number]['slug']): MarkdownNote => {
+  const note = notes.find((candidate) => candidate.slug === slug)
+  if (Predicate.isNullish(note)) {
+    throw new TypeError(`Unknown Markdown note slug: ${slug}`)
+  }
+  return note
+}
+
+export const noteRef = <Notes extends readonly MarkdownNote[]>(notes: Notes, slug: Notes[number]['slug']): string =>
+  `[^${findNote(notes, slug).index}]`
+
+export const noteBody = <Notes extends readonly MarkdownNote[]>(notes: Notes, slug: Notes[number]['slug']): string => {
+  const note = findNote(notes, slug)
+  return `[^${note.index}]: ${note.body}`
+}
 
 const normalizeDirectory = (directory: string): string => {
   const segments = normalizePath(directory)
