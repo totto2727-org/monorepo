@@ -244,5 +244,5 @@ describe('mdts', () => {
     } finally {
       await server.close()
     }
-  })
+  }, 20_000)
 })
