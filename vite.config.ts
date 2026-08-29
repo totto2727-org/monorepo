@@ -37,6 +37,7 @@ export default defineConfig({
       typeCheck: true,
     },
     overrides: [
+      // Inline disables do not cover file-scope rules: https://github.com/oxc-project/oxc/issues/21072
       {
         files: ['**/SKILL.md.ts'],
         rules: {
