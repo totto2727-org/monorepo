@@ -83,7 +83,7 @@ describe('markdown', () => {
     const documents = Object.fromEntries(generatedAssets.map((asset) => [asset.fileName, asset.source]))
 
     expect(documents).toEqual({
-      'guide.md': '# Guide\n\n[Reference](reference/api.md)\n',
+      'guide.md': '# Guide\n\n[Details](reference/api.md#api)\n',
       'reference/api.md': '# Reference\n',
     })
   })
@@ -93,12 +93,12 @@ describe('markdown', () => {
     const request = {
       hash: 'api',
       path: './reference.md.ts',
-      query: 'link&text=Details&hash=api',
+      query: 'text=Details&hash=api&link',
       text: 'Details',
     }
 
     // When
-    const parsed = parseLinkRequest('./reference.md.ts?link&text=Details&hash=api')
+    const parsed = parseLinkRequest('./reference.md.ts?text=Details&hash=api&link')
     const link = formatMarkdownLink({ destination: 'reference.md', request, title: 'Reference' })
 
     // Then
