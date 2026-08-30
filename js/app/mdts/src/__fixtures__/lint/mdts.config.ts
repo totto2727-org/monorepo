@@ -27,6 +27,7 @@ const writingPreset = {
 export default defineConfig({
   input: './content',
   lint: {
+    knip: false,
     markdownlint: {
       config: {
         default: false,

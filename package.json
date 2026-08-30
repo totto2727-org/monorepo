@@ -81,6 +81,7 @@
       "confbox": "^0.2.4",
       "github-markdown-css": "^5.9.0",
       "katex": "^0.17.0",
+      "knip": "^6.33.0",
       "markdownlint": "^0.41.1",
       "shiki": "^4.3.1",
       "slopless": "^0.2.36",

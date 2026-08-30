@@ -1,49 +1,27 @@
-import { markdown } from 'vite-plugin-mdts'
+import { NodeServices } from '@effect/platform-node'
+import { Effect, FileSystem } from 'effect'
+import {
+  compileMarkdownDocuments as compileLoadedMarkdownDocuments,
+  markdown,
+  markdownDocumentsId,
+} from 'vite-plugin-mdts'
 import type { CompiledMarkdownDocument } from 'vite-plugin-mdts'
-import { build, mergeConfig } from 'vite-plus'
-import type { InlineConfig, Plugin } from 'vite-plus'
+import { createServer, mergeConfig, normalizePath } from 'vite-plus'
+import type { InlineConfig, ViteDevServer } from 'vite-plus'
 
 import { loadMdtsConfig } from './config.ts'
 import type { ResolvedMdtsConfig } from './config.ts'
-
-const buildEntryId = 'virtual:mdts/build-entry'
-const resolvedBuildEntryId = '\0mdts:build-entry'
 
 interface MdtsCommandOptions {
   readonly configFile?: string
   readonly root: string
 }
 
-interface ExecuteMarkdownBuildOptions {
-  readonly onCompiled?: (document: CompiledMarkdownDocument) => void
-  readonly write: boolean
-}
-
-const buildEntryPlugin = (): Plugin => ({
-  generateBundle(_options, bundle) {
-    for (const [fileName, output] of Object.entries(bundle)) {
-      if (output.type === 'chunk' && output.facadeModuleId === resolvedBuildEntryId) {
-        Reflect.deleteProperty(bundle, fileName)
-      }
-    }
-  },
-  load(id) {
-    return id === resolvedBuildEntryId ? 'export {}\n' : undefined
-  },
-  name: 'mdts-build-entry',
-  resolveId(id) {
-    return id === buildEntryId ? resolvedBuildEntryId : undefined
-  },
-})
-
-export const resolveMdtsViteConfig = (
-  config: ResolvedMdtsConfig,
-  commandConfig: InlineConfig,
-  onCompiled?: (document: CompiledMarkdownDocument) => void,
-): InlineConfig => {
+export const resolveMdtsViteConfig = (config: ResolvedMdtsConfig, commandConfig: InlineConfig): InlineConfig => {
   const baseConfig: InlineConfig = {
+    appType: 'custom',
     configFile: false,
-    plugins: [markdown({ directory: config.input, onCompiled })],
+    plugins: [markdown({ directory: config.input })],
     publicDir: false,
     root: config.root,
   }
@@ -51,51 +29,39 @@ export const resolveMdtsViteConfig = (
 
   return {
     ...merged,
+    appType: 'custom',
     configFile: false,
     publicDir: false,
     root: config.root,
   }
 }
 
-const executeMarkdownBuild = async (
+const compileWithServer = async (
   config: ResolvedMdtsConfig,
-  options: ExecuteMarkdownBuildOptions,
-): Promise<void> => {
-  const userBuild = config.vite.build
-  const userRolldownOptions = userBuild?.rolldownOptions
-
-  await build(
-    resolveMdtsViteConfig(
-      config,
-      {
-        build: {
-          ...userBuild,
-          emptyOutDir: options.write,
-          outDir: config.output,
-          rolldownOptions: {
-            ...userRolldownOptions,
-            input: buildEntryId,
-          },
-          write: options.write,
-        },
-        plugins: [buildEntryPlugin()],
-      },
-      options.onCompiled,
-    ),
-  )
+  server: ViteDevServer,
+): Promise<readonly CompiledMarkdownDocument[]> => {
+  const loaded = await server.ssrLoadModule(markdownDocumentsId)
+  return compileLoadedMarkdownDocuments({
+    directory: config.input,
+    modules: loaded.default,
+    root: config.root,
+  })
 }
 
 export const compileResolvedMarkdownDocuments = async (
   config: ResolvedMdtsConfig,
+  server?: ViteDevServer,
 ): Promise<readonly CompiledMarkdownDocument[]> => {
-  const documents = new Map<string, CompiledMarkdownDocument>()
-  await executeMarkdownBuild(config, {
-    onCompiled: (document) => {
-      documents.set(document.sourcePath, document)
-    },
-    write: false,
-  })
-  return [...documents.values()]
+  if (server) {
+    return await compileWithServer(config, server)
+  }
+
+  const ownedServer = await createServer(resolveMdtsViteConfig(config, {}))
+  try {
+    return await compileWithServer(config, ownedServer)
+  } finally {
+    await ownedServer.close()
+  }
 }
 
 export const compileMarkdownDocuments = async (
@@ -105,7 +71,41 @@ export const compileMarkdownDocuments = async (
   return await compileResolvedMarkdownDocuments(config)
 }
 
+const outputDirectory = (config: ResolvedMdtsConfig): string => {
+  const normalizedOutput = normalizePath(config.output).replace(/\/$/u, '')
+  if (normalizedOutput.startsWith('/') || /^[A-Za-z]:\//u.test(normalizedOutput)) {
+    return normalizedOutput
+  }
+  return `${normalizePath(config.root).replace(/\/$/u, '')}/${normalizedOutput}`
+}
+
+const parentDirectory = (filePath: string): string => filePath.slice(0, filePath.lastIndexOf('/'))
+
+const writeMarkdownDocuments = (
+  config: ResolvedMdtsConfig,
+  documents: readonly CompiledMarkdownDocument[],
+): Effect.Effect<void, unknown, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const output = outputDirectory(config)
+    yield* fs.remove(output, { force: true, recursive: true })
+    yield* fs.makeDirectory(output, { recursive: true })
+    yield* Effect.forEach(
+      documents,
+      (document) => {
+        const outputPath = `${output}/${document.fileName}`
+        return Effect.gen(function* () {
+          yield* fs.makeDirectory(parentDirectory(outputPath), { recursive: true })
+          yield* fs.writeFileString(outputPath, document.source)
+        })
+      },
+      { concurrency: 'unbounded', discard: true },
+    )
+  })
+
 export const buildMarkdown = async (options: MdtsCommandOptions): Promise<void> => {
   const config = await loadMdtsConfig({ command: 'build', ...options })
-  await executeMarkdownBuild(config, { write: true })
+  const documents = await compileResolvedMarkdownDocuments(config)
+  // oxlint-disable-next-line rules/no-effect-runtime-run -- Public Promise API executes one filesystem workflow with the Node service layer.
+  await Effect.runPromise(writeMarkdownDocuments(config, documents).pipe(Effect.provide(NodeServices.layer)))
 }

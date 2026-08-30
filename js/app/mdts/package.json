@@ -21,6 +21,7 @@
     "effect": "catalog:effect",
     "github-markdown-css": "catalog:markdown",
     "katex": "catalog:markdown",
+    "knip": "catalog:markdown",
     "markdownlint": "catalog:markdown",
     "shiki": "catalog:markdown",
     "slopless": "catalog:markdown",

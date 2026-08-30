@@ -1,6 +1,6 @@
 # mdts CLI
 
-`mdts` uses Effect's CLI API to build `.md.ts` documents with Vite+ and serve an HTML preview rendered by Comark.
+`mdts` uses Effect's CLI API and Vite's SSR module runner to execute trusted `.md.ts` documents, build Markdown files, and serve an HTML preview rendered by Comark. Document modules may use normal TypeScript functions and imports. mdts collects every runtime `meta` and Markdown template before resolving deferred `?link` references, so reciprocal document links do not create module cycles.
 
 ## Configuration
 
@@ -50,15 +50,37 @@ export default defineConfig({
 Markdown modules also import their authoring helpers from `mdts`:
 
 ```ts
-import { defineNote, md, noteBody, noteRef } from 'mdts'
+import { defineMeta, defineNote, md, noteBody, noteRef } from 'mdts'
 import type { MarkdownMetadata } from 'mdts'
+
+const createTitle = (): string => 'Runtime title'
+
+export const meta = defineMeta({ title: createTitle() })
 ```
 
 The CLI loads only `mdts.config.ts`. It passes `configFile: false` to Vite+, so an existing `vite.config.ts` is ignored. The optional `vite` object is merged into the CLI defaults, while the project root, Markdown input, output directory, internal plugins, and disabled Vite config discovery remain owned by `mdts`.
 
 ### Lint configuration
 
-`mdts lint` compiles every `.md.ts` document in memory and validates the generated Markdown through the JavaScript APIs of [`markdownlint`](https://github.com/DavidAnson/markdownlint) and [`textlint`](https://github.com/textlint/textlint). It does not spawn either CLI and does not write or clear the configured output directory.
+`mdts lint` analyzes `.md.ts` source relationships through the JavaScript API of [`Knip`](https://knip.dev/reference/configuration) while compiling every document in memory for validation through the JavaScript APIs of [`markdownlint`](https://github.com/DavidAnson/markdownlint) and [`textlint`](https://github.com/textlint/textlint). It does not spawn any linter CLI and does not write or clear the configured output directory.
+
+Every linter has an execution `target` and `scope`. markdownlint and textlint use `{ target: 'source', scope: 'file' }` because their generated-Markdown diagnostics are mapped back to individual `.md.ts` files. Knip uses `{ target: 'source', scope: 'project' }` because unused-file detection requires the complete source import graph. These literal values document each engine's capability and are available in resolved configuration and diagnostics.
+
+Knip is enabled by default for its [`files` issue type](https://knip.dev/reference/issue-types) and requires a `package.json` in the mdts project root. Root-level `${input}/*.md.ts` documents are entries by default, while `${input}/**/*.md.ts` documents form the project. A nested Markdown source file that is not reachable from an entry is reported as `knip/files`. `lint.knip.entry`, `project`, and `ignoreFiles` customize those patterns, `rule` accepts `error`, `warn`, or `off`, and `knip: false` disables the engine.
+
+```ts
+import { defineConfig } from 'mdts'
+
+export default defineConfig({
+  lint: {
+    knip: {
+      entry: ['content/index.md.ts', 'content/guides/*.md.ts'],
+      ignoreFiles: ['content/drafts/**'],
+      project: ['content/**/*.md.ts'],
+    },
+  },
+})
+```
 
 `lint.markdownlint` accepts `config`, `customRules`, `frontMatter`, `markdownItFactory`, and `noInlineConfig`. The default configuration enables markdownlint's standard rules and treats generated YAML metadata plus the mdts generated-file notice as front matter, so rules validate the authored document rather than mdts boilerplate. Set `markdownlint: false` to disable this engine.
 
@@ -83,7 +105,7 @@ export default defineConfig({
 })
 ```
 
-Diagnostics point to the originating `.md.ts` file. Literal Markdown body lines map to their template-literal lines, generated metadata maps to the corresponding metadata expression, and rendered interpolations map to their TypeScript expression.
+Diagnostics point to the originating `.md.ts` file. Literal Markdown body lines map to their template-literal lines, generated metadata maps to the corresponding metadata expression, and rendered runtime interpolations map to their TypeScript call expression.
 
 ## Commands
 
@@ -93,4 +115,4 @@ mdts lint
 mdts preview
 ```
 
-`mdts build` writes the generated Markdown files to `output`. `mdts lint` reports markdownlint and textlint diagnostics and exits unsuccessfully when either engine reports an error-severity diagnostic. `mdts preview` starts a Vite development server whose `index.html` lists every generated Markdown document and renders the selected document with `@comark/html`. Documents use normal URL paths such as `/guide.md` and `/reference/api.md`, including direct navigation and browser history.
+`mdts build` executes every document module through Vite SSR and writes the resolved Markdown files to `output`. `mdts lint` runs Knip concurrently with the in-memory compilation pipeline, reports Knip, markdownlint, and textlint diagnostics, and exits unsuccessfully when any engine reports an error-severity diagnostic. `mdts preview` starts a Vite development server whose `index.html` lists every resolved Markdown document and renders the selected document with `@comark/html`. Documents use normal URL paths such as `/guide.md` and `/reference/api.md`, including direct navigation and browser history.

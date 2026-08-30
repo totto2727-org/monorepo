@@ -3,6 +3,7 @@ import type { TextlintKernelRule } from '@textlint/kernel'
 import { moduleInterop } from '@textlint/module-interop'
 import markdownPluginModule from '@textlint/textlint-plugin-markdown'
 import { Array, Predicate } from 'effect'
+import { createOptions, createSession } from 'knip/session'
 import { lint as lintWithMarkdownlint } from 'markdownlint/promise'
 import { createLinter } from 'textlint'
 import { generatedFileNotice } from 'vite-plugin-mdts'
@@ -11,14 +12,20 @@ import { normalizePath } from 'vite-plus'
 
 import { compileResolvedMarkdownDocuments } from './build.ts'
 import { loadMdtsConfig } from './config.ts'
-import type { MdtsTextlintPreset, MdtsTextlintRulePreset, ResolvedMdtsConfig } from './config.ts'
+import type {
+  MdtsLintScope,
+  MdtsLintTarget,
+  MdtsTextlintPreset,
+  MdtsTextlintRulePreset,
+  ResolvedMdtsConfig,
+} from './config.ts'
 
 interface MdtsLintOptions {
   readonly configFile?: string
   readonly root: string
 }
 
-export type MdtsLintEngine = 'markdownlint' | 'textlint'
+export type MdtsLintEngine = 'knip' | 'markdownlint' | 'textlint'
 export type MdtsLintSeverity = 'error' | 'info' | 'warning'
 
 export interface MdtsLintDiagnostic {
@@ -28,7 +35,9 @@ export interface MdtsLintDiagnostic {
   readonly line: number
   readonly message: string
   readonly ruleId: string
+  readonly scope: MdtsLintScope
   readonly severity: MdtsLintSeverity
+  readonly target: MdtsLintTarget
 }
 
 export interface MdtsLintResult {
@@ -42,6 +51,15 @@ const generatedFrontMatter = new RegExp(
   'u',
 )
 
+const relativeSourcePath = (config: ResolvedMdtsConfig, sourcePath: string): string => {
+  const normalizedRoot = normalizePath(config.root).replace(/\/$/u, '')
+  const normalizedSourcePath = normalizePath(sourcePath)
+  const rootPrefix = `${normalizedRoot}/`
+  return normalizedSourcePath.startsWith(rootPrefix)
+    ? normalizedSourcePath.slice(rootPrefix.length)
+    : normalizedSourcePath
+}
+
 const mappedDiagnostic = (
   config: ResolvedMdtsConfig,
   document: CompiledMarkdownDocument,
@@ -51,19 +69,16 @@ const mappedDiagnostic = (
   },
 ): MdtsLintDiagnostic => {
   const position = document.sourceMap[diagnostic.generatedLine - 1]
-  const normalizedRoot = normalizePath(config.root).replace(/\/$/u, '')
-  const normalizedSourcePath = normalizePath(document.sourcePath)
-  const rootPrefix = `${normalizedRoot}/`
   return {
     column: position ? position.column + diagnostic.generatedColumn - 1 : diagnostic.generatedColumn,
     engine: diagnostic.engine,
-    filePath: normalizedSourcePath.startsWith(rootPrefix)
-      ? normalizedSourcePath.slice(rootPrefix.length)
-      : normalizedSourcePath,
+    filePath: relativeSourcePath(config, document.sourcePath),
     line: position?.line ?? diagnostic.generatedLine,
     message: diagnostic.message,
     ruleId: diagnostic.ruleId,
+    scope: diagnostic.scope,
     severity: diagnostic.severity,
+    target: diagnostic.target,
   }
 }
 
@@ -101,7 +116,9 @@ const lintMarkdownlint = async (
           ? `${lintError.ruleDescription}: ${lintError.errorDetail}`
           : lintError.ruleDescription,
         ruleId: lintError.ruleNames[0] ?? 'unknown',
+        scope: markdownlint.scope,
         severity: lintError.severity,
+        target: markdownlint.target,
       }),
     )
   })
@@ -198,10 +215,59 @@ const lintTextlint = async (
         generatedLine: message.loc.start.line,
         message: message.message,
         ruleId: message.ruleId,
+        scope: textlint.scope,
         severity: textlintSeverity(message.severity),
+        target: textlint.target,
       }),
     ),
   )
+}
+
+const lintKnip = async (config: ResolvedMdtsConfig): Promise<readonly MdtsLintDiagnostic[]> => {
+  const { knip } = config.lint
+  if (knip === false || knip.rule === 'off') {
+    return []
+  }
+
+  const options = await createOptions({
+    cwd: config.root,
+    includedIssueTypes: ['files'],
+    isSession: true,
+    isShowProgress: false,
+    isUseTscFiles: false,
+  })
+  const configuredIgnoreFiles = options.parsedConfig.ignoreFiles
+  options.parsedConfig = {
+    ...options.parsedConfig,
+    entry: [...knip.entry],
+    ignoreFiles: [
+      ...(Predicate.isString(configuredIgnoreFiles) ? [configuredIgnoreFiles] : (configuredIgnoreFiles ?? [])),
+      ...(knip.ignoreFiles ?? []),
+    ],
+    project: [...knip.project],
+  }
+  options.rules = { ...options.rules, files: knip.rule }
+  const session = await createSession(options)
+  const issues = Object.values(session.getResults().issues.files).flatMap((records) => Object.values(records))
+
+  return issues.flatMap((issue): readonly MdtsLintDiagnostic[] => {
+    if (!issue.filePath.endsWith('.md.ts') || issue.severity === 'off') {
+      return []
+    }
+    return [
+      {
+        column: issue.col ?? 1,
+        engine: 'knip',
+        filePath: relativeSourcePath(config, issue.filePath),
+        line: issue.line ?? 1,
+        message: 'Markdown source file is not reachable from an entry document',
+        ruleId: issue.type,
+        scope: knip.scope,
+        severity: issue.severity === 'warn' ? 'warning' : 'error',
+        target: knip.target,
+      },
+    ]
+  })
 }
 
 const compareDiagnostics = (left: MdtsLintDiagnostic, right: MdtsLintDiagnostic): number =>
@@ -218,15 +284,16 @@ export const lintMarkdown = async (options: MdtsLintOptions): Promise<MdtsLintRe
     textlint === false || textlint.preset === false
       ? Promise.resolve(null)
       : builtInPreset(textlint.preset ?? 'en', textlint.presetOptions)
-  const [documents, builtInTextlintPreset] = await Promise.all([
+  const [documents, builtInTextlintPreset, knipDiagnostics] = await Promise.all([
     compileResolvedMarkdownDocuments(config),
     builtInTextlintPresetPromise,
+    lintKnip(config),
   ])
-  const engineDiagnostics = await Promise.all([
+  const fileDiagnostics = await Promise.all([
     lintMarkdownlint(config, documents),
     lintTextlint(config, documents, builtInTextlintPreset),
   ])
-  const diagnostics = engineDiagnostics.flat().toSorted(compareDiagnostics)
+  const diagnostics = [knipDiagnostics, ...fileDiagnostics].flat().toSorted(compareDiagnostics)
 
   return {
     diagnostics,
