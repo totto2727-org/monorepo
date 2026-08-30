@@ -234,6 +234,7 @@ const lintKnip = async (config: ResolvedMdtsConfig): Promise<readonly MdtsLintDi
     includedIssueTypes: ['files'],
     isSession: true,
     isShowProgress: false,
+    isUseTscFiles: false,
   })
   const configuredIgnoreFiles = options.parsedConfig.ignoreFiles
   options.parsedConfig = {

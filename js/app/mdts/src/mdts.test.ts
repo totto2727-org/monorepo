@@ -111,7 +111,7 @@ describe('mdts', () => {
     await expect(access(lintOutputDirectory)).rejects.toThrow()
   })
 
-  test('reports only Markdown source files unreachable from project entries through Knip', async () => {
+  test('reports unreachable Markdown sources even when tsconfig includes every document', async () => {
     // When
     const result = await lintMarkdown({ root: knipLintProjectRoot })
 
