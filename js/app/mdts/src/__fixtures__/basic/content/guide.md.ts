@@ -1,4 +1,4 @@
-import { md } from 'vite-plugin-mdts'
+import { md } from 'mdts'
 
 import apiReference from './reference/api.md.ts?link'
 

@@ -19,7 +19,8 @@ export const meta = {
   title: 'Guide',
 } satisfies MarkdownMetadata
 
-export default md`${reference}${noteRef(notes, 'reference-link')}
+export default md`
+${reference}${noteRef(notes, 'reference-link')}
 
 ${noteBody(notes, 'reference-link')}
 `

@@ -1,5 +1,5 @@
-import footnotes from '@comark/html/plugins/footnotes'
 import { defineConfig } from 'mdts'
+import { footnotes } from 'mdts/comark'
 
 export default defineConfig({
   input: './content',

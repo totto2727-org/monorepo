@@ -9,7 +9,10 @@ import {
   parseLinkRequest,
   readMarkdownTitle,
 } from './compiler.ts'
-import type { LinkRequest } from './compiler.ts'
+import type { LinkRequest, MarkdownSourcePosition } from './compiler.ts'
+
+export { generatedFileNotice } from './compiler.ts'
+export type { MarkdownSourcePosition } from './compiler.ts'
 
 export type MarkdownTemplateValue = bigint | number | string
 
@@ -49,6 +52,14 @@ export type DefinedMarkdownNotes<
 
 export interface MarkdownPluginOptions {
   readonly directory: string
+  readonly onCompiled?: (document: CompiledMarkdownDocument) => void
+}
+
+export interface CompiledMarkdownDocument {
+  readonly fileName: string
+  readonly source: string
+  readonly sourceMap: readonly MarkdownSourcePosition[]
+  readonly sourcePath: string
 }
 
 interface MarkdownPluginState {
@@ -69,7 +80,10 @@ export const markdownDocumentsId = 'virtual:vite-plugin-mdts/documents'
 const resolvedVirtualDocumentsId = '\0vite-plugin-mdts:documents'
 
 export const md = (strings: TemplateStringsArray, ...values: readonly MarkdownTemplateValue[]): string =>
-  strings.map((segment, index) => `${segment}${values[index] ?? ''}`).join('')
+  strings
+    .map((segment, index) => `${segment}${values[index] ?? ''}`)
+    .join('')
+    .trim()
 
 export const defineNote = <const Notes extends readonly MarkdownNoteInput[]>(
   notes: Notes,
@@ -231,6 +245,13 @@ export const markdown = (options: MarkdownPluginOptions): Plugin => {
             state,
           })
         },
+      })
+
+      options.onCompiled?.({
+        fileName,
+        source: compiled.source,
+        sourceMap: compiled.sourceMap,
+        sourcePath,
       })
 
       if (state.command === 'build') {

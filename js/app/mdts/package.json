@@ -7,14 +7,25 @@
   },
   "type": "module",
   "exports": {
-    ".": "./src/config.ts"
+    ".": "./src/config.ts",
+    "./client": "./src/client.d.ts",
+    "./comark": "./src/comark.ts"
   },
   "dependencies": {
     "@comark/html": "catalog:markdown",
     "@effect/platform-node": "catalog:effect",
+    "@textlint/kernel": "catalog:markdown",
+    "@textlint/module-interop": "catalog:markdown",
+    "@textlint/textlint-plugin-markdown": "catalog:markdown",
+    "beautiful-mermaid": "catalog:markdown",
     "effect": "catalog:effect",
     "github-markdown-css": "catalog:markdown",
     "katex": "catalog:markdown",
+    "markdownlint": "catalog:markdown",
+    "shiki": "catalog:markdown",
+    "slopless": "catalog:markdown",
+    "textlint": "catalog:markdown",
+    "textlint-rule-preset-ja-technical-writing": "catalog:markdown",
     "vite": "catalog:",
     "vite-plugin-mdts": "workspace:*",
     "vite-plus": "catalog:"

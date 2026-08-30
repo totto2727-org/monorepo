@@ -1,5 +1,5 @@
-import { md } from 'vite-plugin-mdts'
-import type { MarkdownMetadata } from 'vite-plugin-mdts'
+import { md } from 'mdts'
+import type { MarkdownMetadata } from 'mdts'
 
 export const meta = {
   frontmatter: {
