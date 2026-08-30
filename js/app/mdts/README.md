@@ -1,6 +1,6 @@
 # mdts CLI
 
-`mdts` uses Effect's CLI API to build `.md.ts` documents with Vite+ and serve an HTML preview rendered by Comark.
+`mdts` uses Effect's CLI API and Vite's SSR module runner to execute trusted `.md.ts` documents, build Markdown files, and serve an HTML preview rendered by Comark. Document modules may use normal TypeScript functions and imports. mdts collects every runtime `meta` and Markdown template before resolving deferred `?link` references, so reciprocal document links do not create module cycles.
 
 ## Configuration
 
@@ -50,8 +50,12 @@ export default defineConfig({
 Markdown modules also import their authoring helpers from `mdts`:
 
 ```ts
-import { defineNote, md, noteBody, noteRef } from 'mdts'
+import { defineMeta, defineNote, md, noteBody, noteRef } from 'mdts'
 import type { MarkdownMetadata } from 'mdts'
+
+const createTitle = (): string => 'Runtime title'
+
+export const meta = defineMeta({ title: createTitle() })
 ```
 
 The CLI loads only `mdts.config.ts`. It passes `configFile: false` to Vite+, so an existing `vite.config.ts` is ignored. The optional `vite` object is merged into the CLI defaults, while the project root, Markdown input, output directory, internal plugins, and disabled Vite config discovery remain owned by `mdts`.
@@ -83,7 +87,7 @@ export default defineConfig({
 })
 ```
 
-Diagnostics point to the originating `.md.ts` file. Literal Markdown body lines map to their template-literal lines, generated metadata maps to the corresponding metadata expression, and rendered interpolations map to their TypeScript expression.
+Diagnostics point to the originating `.md.ts` file. Literal Markdown body lines map to their template-literal lines, generated metadata maps to the corresponding metadata expression, and rendered runtime interpolations map to their TypeScript call expression.
 
 ## Commands
 
@@ -93,4 +97,4 @@ mdts lint
 mdts preview
 ```
 
-`mdts build` writes the generated Markdown files to `output`. `mdts lint` reports markdownlint and textlint diagnostics and exits unsuccessfully when either engine reports an error-severity diagnostic. `mdts preview` starts a Vite development server whose `index.html` lists every generated Markdown document and renders the selected document with `@comark/html`. Documents use normal URL paths such as `/guide.md` and `/reference/api.md`, including direct navigation and browser history.
+`mdts build` executes every document module through Vite SSR and writes the resolved Markdown files to `output`. `mdts lint` executes the same in-memory pipeline, reports markdownlint and textlint diagnostics, and exits unsuccessfully when either engine reports an error-severity diagnostic. `mdts preview` starts a Vite development server whose `index.html` lists every resolved Markdown document and renders the selected document with `@comark/html`. Documents use normal URL paths such as `/guide.md` and `/reference/api.md`, including direct navigation and browser history.

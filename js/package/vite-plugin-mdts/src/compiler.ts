@@ -1,5 +1,5 @@
 import { stringifyYAML } from 'confbox'
-import { Predicate, String } from 'effect'
+import { Array, Predicate, String } from 'effect'
 import ts from 'typescript'
 import { normalizePath } from 'vite'
 
@@ -312,7 +312,7 @@ const readModule = (
   module: unknown,
   sourcePath: string,
 ): { readonly body: MarkdownTemplate; readonly meta: MarkdownMetadata } => {
-  if (!Predicate.isObject(module) || Array.isArray(module)) {
+  if (!Predicate.isObject(module) || globalThis.Array.isArray(module)) {
     throw new MarkdownCompileError(sourcePath, 'the Markdown module must export an object')
   }
 
@@ -334,7 +334,7 @@ const sourcePathFromModulePath = (root: string, modulePath: string): string => {
 }
 
 const resolveDocuments = (options: CompileMarkdownDocumentsOptions): readonly ResolvedMarkdownDocument[] => {
-  if (!Predicate.isObject(options.modules) || Array.isArray(options.modules)) {
+  if (!Predicate.isObject(options.modules) || globalThis.Array.isArray(options.modules)) {
     throw new MarkdownCompileError(options.root, 'the Markdown document collection must be an object')
   }
 
@@ -440,7 +440,7 @@ const renderMappedBody = (
     )
   }
 
-  if (ts.isNoSubstitutionTemplateLiteral(template)) {
+  if (ts.isNoSubstitutionTemplateLiteral(template) && Array.isReadonlyArrayEmpty(current.body.values)) {
     return trimMappedMarkdown(
       mappedTemplateSource(
         current.body.strings[0] ?? '',
@@ -449,7 +449,7 @@ const renderMappedBody = (
       ),
     )
   }
-  if (template.templateSpans.length !== current.body.values.length) {
+  if (ts.isNoSubstitutionTemplateLiteral(template) || template.templateSpans.length !== current.body.values.length) {
     return trimMappedMarkdown(
       mappedSource(renderTemplateSource(current.body, current, documentsBySourcePath), current.syntax.bodyPosition),
     )
