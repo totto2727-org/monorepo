@@ -198,10 +198,8 @@ const compareDiagnostics = (left: MdtsLintDiagnostic, right: MdtsLintDiagnostic)
 export const lintMarkdown = async (options: MdtsLintOptions): Promise<MdtsLintResult> => {
   const config = await loadMdtsConfig({ command: 'build', ...options })
   const documents = await compileResolvedMarkdownDocuments(config)
-  const diagnostics = [
-    ...(await lintMarkdownlint(config, documents)),
-    ...(await lintTextlint(config, documents)),
-  ].toSorted(compareDiagnostics)
+  const engineDiagnostics = await Promise.all([lintMarkdownlint(config, documents), lintTextlint(config, documents)])
+  const diagnostics = engineDiagnostics.flat().toSorted(compareDiagnostics)
 
   return {
     diagnostics,
