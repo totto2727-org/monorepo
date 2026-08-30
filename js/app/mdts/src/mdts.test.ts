@@ -8,6 +8,7 @@ import { markdownDocumentsId } from 'vite-plugin-mdts'
 import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 
 import { buildMarkdown } from './build.ts'
+import { loadMdtsConfig } from './config.ts'
 import { formatLintResult, lintMarkdown } from './lint.ts'
 import { createMarkdownPreview } from './preview.ts'
 
@@ -39,6 +40,15 @@ beforeEach(cleanOutput)
 afterEach(cleanOutput)
 
 describe('mdts', () => {
+  test('enables markdownlint and disables textlint by default', async () => {
+    // When
+    const config = await loadMdtsConfig({ command: 'build', root: projectRoot })
+
+    // Then
+    expect(config.lint.markdownlint).toMatchObject({ config: { default: true } })
+    expect(config.lint.textlint).toBe(false)
+  })
+
   test('builds Markdown assets without loading vite.config.ts', async () => {
     // When
     await buildMarkdown({ root: projectRoot })

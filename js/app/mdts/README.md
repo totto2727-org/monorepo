@@ -62,7 +62,7 @@ The CLI loads only `mdts.config.ts`. It passes `configFile: false` to Vite+, so 
 
 `lint.markdownlint` accepts `config`, `customRules`, `frontMatter`, `markdownItFactory`, and `noInlineConfig`. The default configuration enables markdownlint's standard rules and treats generated YAML metadata plus the mdts generated-file notice as front matter, so rules validate the authored document rather than mdts boilerplate. Set `markdownlint: false` to disable this engine.
 
-`lint.textlint` accepts JavaScript API entries through `rules`, `presets`, `filterRules`, and `plugins`. mdts provides the standard Markdown processor automatically unless a plugin with `pluginId: 'markdown'` is configured. Presets use their exported `rules` and `rulesConfig`; `options` overrides individual preset rule settings. Install additional rules, presets, filters, or processors in the consuming project and import their modules from `mdts.config.ts`. Set `textlint: false` to disable this engine.
+Textlint is disabled by default and becomes active when `lint.textlint` includes at least one rule or preset. It accepts JavaScript API entries through `rules`, `presets`, `filterRules`, and `plugins`. mdts provides the standard Markdown processor automatically unless a plugin with `pluginId: 'markdown'` is configured. Presets use their exported `rules` and `rulesConfig`; `options` overrides individual preset rule settings. Install additional rules, presets, filters, or processors in the consuming project and import their modules from `mdts.config.ts`. Set `textlint: false` to disable this engine explicitly.
 
 For example, after installing `textlint-rule-preset-ja-technical-writing`, configure it directly through its JavaScript export:
 

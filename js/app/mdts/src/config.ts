@@ -174,7 +174,7 @@ export const loadMdtsConfig = async (options: LoadMdtsConfigOptions): Promise<Re
                 ...config.lint?.markdownlint?.config,
               },
             },
-      textlint: config.lint?.textlint ?? {},
+      textlint: config.lint?.textlint ?? false,
     },
     output: resolveOutput(config.output),
     preview: {
