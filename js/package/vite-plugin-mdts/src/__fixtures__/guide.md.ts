@@ -1,5 +1,5 @@
-import { defineNote, md, noteBody, noteRef } from 'vite-plugin-mdts'
-import type { MarkdownMetadata } from 'vite-plugin-mdts'
+import { defineMeta, defineNote, md, noteBody, noteRef } from 'vite-plugin-mdts'
+import type { MarkdownLinkReference, MarkdownTemplate } from 'vite-plugin-mdts'
 import reference from './reference/api.md.ts?text=Details&hash=api&link'
 
 const notes = defineNote([
@@ -9,18 +9,23 @@ const notes = defineNote([
   },
 ] as const)
 
-export const meta = {
+const description = (): string => 'Generated from runtime TypeScript metadata.'
+
+const renderReference = (link: MarkdownLinkReference): MarkdownTemplate =>
+  md`${link}${noteRef(notes, 'reference-link')}`
+
+export const meta = defineMeta({
   frontmatter: {
-    description: 'Generated from TypeScript metadata.',
+    description: description(),
     tags: ['markdown', 'typescript'],
     draft: false,
     metadata: { version: '1.0' },
   },
-  title: 'Guide',
-} satisfies MarkdownMetadata
+  title: ['Gu', 'ide'].join(''),
+})
 
 export default md`
-${reference}${noteRef(notes, 'reference-link')}
+${renderReference(reference)}
 
 ${noteBody(notes, 'reference-link')}
 `

@@ -1,12 +1,11 @@
 import { createHtmlRenderer } from '@comark/html'
-import { Predicate, Schema, String } from 'effect'
-import { markdownDocumentsId } from 'vite-plugin-mdts'
+import { Schema, String } from 'effect'
 import { createServer, normalizePath } from 'vite-plus'
 import type { Plugin, ViteDevServer } from 'vite-plus'
 
-import { resolveMdtsViteConfig } from './build.ts'
+import { compileResolvedMarkdownDocuments, resolveMdtsViteConfig } from './build.ts'
 import { loadMdtsConfig } from './config.ts'
-import type { MdtsComarkOptions } from './config.ts'
+import type { MdtsComarkOptions, ResolvedMdtsConfig } from './config.ts'
 
 const documentsEndpoint = '/__mdts/documents'
 const previewClientId = '/@mdts/client'
@@ -27,10 +26,6 @@ const isAlertType = Schema.is(AlertType)
 interface MdtsPreviewOptions {
   readonly configFile?: string
   readonly root: string
-}
-
-interface DocumentModule {
-  readonly default?: unknown
 }
 
 interface PreviewDocument {
@@ -160,17 +155,6 @@ window.addEventListener('popstate', render)
 await load()
 `
 
-const markdownSource = (value: unknown): string | undefined => {
-  if (Predicate.isString(value)) {
-    return value
-  }
-  if (Predicate.isObject(value)) {
-    const source = (value as DocumentModule).default
-    return Predicate.isString(source) ? source : undefined
-  }
-  return undefined
-}
-
 const previewMarkdownSource = (source: string): string => {
   const opening = '---\n'
   const closing = '\n---\n'
@@ -187,15 +171,6 @@ const previewMarkdownSource = (source: string): string => {
   return `~~~yaml\n${frontmatter}\n~~~\n\n${document}`
 }
 
-const outputFileName = (modulePath: string, input: string): string | undefined => {
-  const normalizedPath = normalizePath(modulePath)
-  const prefix = String.isEmpty(input) ? '/' : `/${input}/`
-  if (!normalizedPath.startsWith(prefix) || !normalizedPath.endsWith('.md.ts')) {
-    return undefined
-  }
-  return `${normalizedPath.slice(prefix.length, -'.md.ts'.length)}.md`
-}
-
 const githubAlertComponent: NonNullable<MdtsComarkOptions['components']>[string] = {
   handler: async ([, attributes, ...children], state) => {
     const type = attributes.as
@@ -208,11 +183,11 @@ const githubAlertComponent: NonNullable<MdtsComarkOptions['components']>[string]
   match: ([tag, attributes]) => tag === 'blockquote' && isAlertType(attributes.as),
 }
 
-const previewPlugin = (input: string, comark: MdtsComarkOptions): Plugin => {
+const previewPlugin = (config: ResolvedMdtsConfig): Plugin => {
   const renderHtml = createHtmlRenderer({
-    ...comark,
+    ...config.preview.comark,
     components: {
-      ...comark.components,
+      ...config.preview.comark.components,
       'mdts-github-alert': githubAlertComponent,
     },
   })
@@ -236,25 +211,16 @@ const previewPlugin = (input: string, comark: MdtsComarkOptions): Plugin => {
               return
             }
 
-            const loaded = await server.ssrLoadModule(markdownDocumentsId)
-            const modules: unknown = loaded.default
-            if (!Predicate.isObject(modules) || Array.isArray(modules)) {
-              throw new TypeError('vite-plugin-mdts returned an invalid document collection')
-            }
-
+            const compiled = await compileResolvedMarkdownDocuments(config, server)
             const documents = await Promise.all(
-              Object.entries(modules).map(async ([modulePath, module]): Promise<PreviewDocument | undefined> => {
-                const fileName = outputFileName(modulePath, input)
-                const source = markdownSource(module)
-                if (Predicate.isNullish(fileName) || Predicate.isNullish(source)) {
-                  return undefined
-                }
-                return { fileName, html: await renderHtml(previewMarkdownSource(source)) }
-              }),
+              compiled.map(
+                async (document): Promise<PreviewDocument> => ({
+                  fileName: document.fileName,
+                  html: await renderHtml(previewMarkdownSource(document.source)),
+                }),
+              ),
             )
-            const responseBody = documents
-              .flatMap((document) => (Predicate.isNullish(document) ? [] : [document]))
-              .toSorted((left, right) => left.fileName.localeCompare(right.fileName))
+            const responseBody = documents.toSorted((left, right) => left.fileName.localeCompare(right.fileName))
 
             response.statusCode = 200
             response.setHeader('Cache-Control', 'no-store')
@@ -267,9 +233,9 @@ const previewPlugin = (input: string, comark: MdtsComarkOptions): Plugin => {
       })
     },
     handleHotUpdate(context) {
-      const sourceDirectory = String.isEmpty(input)
+      const sourceDirectory = String.isEmpty(config.input)
         ? context.server.config.root
-        : `${context.server.config.root}/${input}`
+        : `${context.server.config.root}/${config.input}`
       const fileName = normalizePath(context.file)
       if (fileName.startsWith(`${normalizePath(sourceDirectory)}/`) && fileName.endsWith('.md.ts')) {
         context.server.ws.send({ type: 'full-reload' })
@@ -292,7 +258,7 @@ export const createMarkdownPreview = async (options: MdtsPreviewOptions): Promis
   return await createServer(
     resolveMdtsViteConfig(config, {
       appType: 'custom',
-      plugins: [previewPlugin(config.input, config.preview.comark)],
+      plugins: [previewPlugin(config)],
     }),
   )
 }

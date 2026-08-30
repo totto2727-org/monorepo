@@ -15,7 +15,7 @@ import type {
 import { loadConfigFromFile, normalizePath } from 'vite-plus'
 import type { ConfigEnv, UserConfig } from 'vite-plus'
 
-export { defineNote, markdown, markdownDocumentsId, md, noteBody, noteRef } from 'vite-plugin-mdts'
+export { defineMeta, defineNote, markdown, markdownDocumentsId, md, noteBody, noteRef } from 'vite-plugin-mdts'
 export type {
   TextlintFilterRuleReporter,
   TextlintKernelFilterRule,
@@ -32,11 +32,14 @@ export type {
 } from 'markdownlint'
 export type {
   DefinedMarkdownNotes,
+  MarkdownContent,
   MarkdownFrontmatterValue,
+  MarkdownLinkReference,
   MarkdownMetadata,
   MarkdownNote,
   MarkdownNoteInput,
   MarkdownPluginOptions,
+  MarkdownTemplate,
   MarkdownTemplateValue,
 } from 'vite-plugin-mdts'
 

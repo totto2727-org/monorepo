@@ -1,5 +1,7 @@
-import { md } from 'vite-plugin-mdts'
+import { defineMeta, md } from 'vite-plugin-mdts'
 
-export const meta = { title: 'Reference' }
+import guide from '../guide.md.ts?link'
 
-export default md``
+export const meta = defineMeta({ title: 'Reference' })
+
+export default md`Back to ${guide}.`

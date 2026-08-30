@@ -1,21 +1,12 @@
-import { build } from 'vite'
-import type { Plugin, Rolldown } from 'vite'
+import { createServer } from 'vite'
 import { describe, expect, expectTypeOf, test } from 'vite-plus/test'
 
-import { compileMarkdownModule, formatMarkdownLink, parseLinkRequest } from './compiler.ts'
-import { defineNote, markdown, md, noteBody, noteRef } from './index.ts'
+import trailingNewlineBody, { meta as trailingNewlineMeta } from './__fixtures__/trailing-newline.md.ts'
+import { compileMarkdownDocuments, formatMarkdownLink, parseLinkRequest } from './compiler.ts'
+import { defineMeta, defineNote, markdown, markdownDocumentsId, md, noteBody, noteRef } from './index.ts'
+import type { MarkdownLinkReference } from './index.ts'
 
-const virtualEntry = '\0vite-plugin-mdts-test-entry'
-
-const virtualEntryPlugin = (): Plugin => ({
-  load(id) {
-    return id === virtualEntry ? 'export {}' : undefined
-  },
-  name: 'vite-plugin-mdts-test-entry',
-  resolveId(id) {
-    return id === virtualEntry ? virtualEntry : undefined
-  },
-})
+const fixtureRoot = new URL('__fixtures__/', import.meta.url).pathname
 
 describe('md', () => {
   test('preserves Markdown syntax and interpolates TypeScript values', () => {
@@ -31,7 +22,11 @@ Items: ${itemCount}
 `
 
     // Then
-    expect(document).toBe('# Guide\n\nItems: 2')
+    expect(document).toEqual({
+      kind: 'vite-plugin-mdts/template',
+      strings: ['\n# ', '\n\nItems: ', '\n'],
+      values: ['Guide', 2],
+    })
   })
 
   test('emits escaped template delimiters as Markdown code delimiters', () => {
@@ -42,7 +37,11 @@ Items: ${itemCount}
     const document = md`Run \`${command}\`.`
 
     // Then
-    expect(document).toBe('Run `vp build`.')
+    expect(document).toEqual({
+      kind: 'vite-plugin-mdts/template',
+      strings: ['Run `', '`.'],
+      values: ['vp build'],
+    })
   })
 })
 
@@ -66,8 +65,16 @@ Second note.
 
     // Then
     expect(notes).toEqual([
-      { body: 'First **note**.', index: '1', slug: 'first' },
-      { body: 'Second note.', index: '2', slug: 'second' },
+      {
+        body: { kind: 'vite-plugin-mdts/template', strings: ['\nFirst **note**.\n        '], values: [] },
+        index: '1',
+        slug: 'first',
+      },
+      {
+        body: { kind: 'vite-plugin-mdts/template', strings: ['\nSecond note.\n        '], values: [] },
+        index: '2',
+        slug: 'second',
+      },
     ])
     expectTypeOf(notes[0].index).toEqualTypeOf<'1'>()
     expectTypeOf(notes[1].index).toEqualTypeOf<'2'>()
@@ -93,7 +100,11 @@ Second note.
 
     // Then
     expect(noteRef(notes, 'second')).toBe('[^2]')
-    expect(noteBody(notes, 'first')).toBe('[^1]: First note.')
+    expect(noteBody(notes, 'first')).toEqual({
+      kind: 'vite-plugin-mdts/template',
+      strings: ['[^1]: ', ''],
+      values: [notes[0].body],
+    })
   })
 
   test('rejects duplicate and unknown slugs', () => {
@@ -132,103 +143,130 @@ Second note.
 })
 
 describe('markdown', () => {
-  test('prepends metadata titles and frontmatter, emits documents, and converts link imports', async () => {
+  test('prepends metadata titles and frontmatter and converts link imports', async () => {
     // Given
-    const projectRoot = new URL('__fixtures__/', import.meta.url).pathname
-    const generatedAssets: Rolldown.OutputAsset[] = []
-    const collectAssets = (): Plugin => ({
-      generateBundle(_options, bundle) {
-        for (const output of Object.values(bundle)) {
-          if (output.type === 'asset') {
-            generatedAssets.push(output)
-          }
-        }
-      },
-      name: 'vite-plugin-mdts-test-collector',
-    })
-
-    // When
-    await build({
-      build: {
-        rolldownOptions: { input: virtualEntry },
-        write: false,
-      },
+    const server = await createServer({
+      appType: 'custom',
       configFile: false,
       logLevel: 'silent',
-      plugins: [
-        markdown({
-          directory: '.',
-        }),
-        virtualEntryPlugin(),
-        collectAssets(),
-      ],
-      root: projectRoot,
+      plugins: [markdown({ directory: '.' })],
+      root: fixtureRoot,
     })
 
-    // Then
-    const documents = Object.fromEntries(generatedAssets.map((asset) => [asset.fileName, asset.source]))
+    // When
+    const loaded = await server.ssrLoadModule(markdownDocumentsId)
+    const compiled = compileMarkdownDocuments({ directory: '.', modules: loaded.default, root: fixtureRoot })
+    await server.close()
 
+    // Then
+    const documents = Object.fromEntries(compiled.map((document) => [document.fileName, document.source]))
+    const guideDocument = compiled.find((document) => document.fileName === 'guide.md')
+    if (!guideDocument) {
+      throw new TypeError('expected the compiled guide document')
+    }
+    const helperLine = guideDocument.source
+      .split('\n')
+      .findIndex((line) => line.includes('[Details](reference/api.md#api)'))
+
+    expect(guideDocument.sourceMap[helperLine]).toEqual({ column: 3, line: 28 })
     expect(documents).toEqual({
       'guide.md':
-        "---\ndescription: Generated from TypeScript metadata.\ntags:\n  - markdown\n  - typescript\ndraft: false\nmetadata:\n  version: '1.0'\n---\n\n<!-- AI agents: This file is generated by mdts. Do not edit it directly. Edit the source .md.ts file instead. -->\n\n# Guide\n\n[Details](reference/api.md#api)[^1]\n\n[^1]: The link text and this definition share one typed slug.",
+        "---\ndescription: Generated from runtime TypeScript metadata.\ntags:\n  - markdown\n  - typescript\ndraft: false\nmetadata:\n  version: '1.0'\n---\n\n<!-- AI agents: This file is generated by mdts. Do not edit it directly. Edit the source .md.ts file instead. -->\n\n# Guide\n\n[Details](reference/api.md#api)[^1]\n\n[^1]: The link text and this definition share one typed slug.\n",
       'reference/api.md':
-        '<!-- AI agents: This file is generated by mdts. Do not edit it directly. Edit the source .md.ts file instead. -->\n\n# Reference\n\n',
+        '<!-- AI agents: This file is generated by mdts. Do not edit it directly. Edit the source .md.ts file instead. -->\n\n# Reference\n\nBack to [Guide](../guide.md).\n',
+      'trailing-newline.md':
+        '<!-- AI agents: This file is generated by mdts. Do not edit it directly. Edit the source .md.ts file instead. -->\n\n# Trailing newline\n\nBody.\n',
     })
   })
 
-  test('requires frontmatter values to be statically declared', async () => {
+  test('trims generated Markdown and appends exactly one trailing newline', () => {
     // Given
-    const code = `import { md } from 'vite-plugin-mdts'
-const description = 'dynamic'
-export const meta = { frontmatter: { description }, title: 'Guide' }
-export default md\`Body.
-\`
-`
+    const modules = {
+      '/trailing-newline.md.ts': { default: trailingNewlineBody, meta: trailingNewlineMeta },
+    }
 
     // When
-    const compile = compileMarkdownModule({
-      code,
-      id: '/content/dynamic-frontmatter.md.ts',
-      resolveLink: () => Promise.resolve(''),
-    })
+    const [compiled] = compileMarkdownDocuments({ directory: '.', modules, root: fixtureRoot })
+    if (!compiled) {
+      throw new TypeError('expected a compiled Markdown document')
+    }
 
     // Then
-    await expect(compile).rejects.toThrow('meta.frontmatter must contain only static property assignments')
+    expect(compiled).toMatchObject({
+      source:
+        '<!-- AI agents: This file is generated by mdts. Do not edit it directly. Edit the source .md.ts file instead. -->\n\n# Trailing newline\n\nBody.\n',
+      sourcePath: `${fixtureRoot}trailing-newline.md.ts`,
+    })
+    expect(compiled.sourceMap).toHaveLength(compiled.source.split('\n').length)
+    expect(compiled.sourceMap[4]).toEqual({ column: 4, line: 6 })
   })
 
-  test('requires a static metadata title', async () => {
-    // Given
-    const code = "import { md } from 'vite-plugin-mdts'\nexport default md`Body.\n`\n"
-
-    // When
-    const compile = compileMarkdownModule({
-      code,
-      id: '/content/missing-title.md.ts',
-      resolveLink: () => Promise.resolve(''),
-    })
-
+  test('validates metadata and compiled module exports at runtime', () => {
     // Then
-    await expect(compile).rejects.toThrow('expected a static meta.title string')
+    expect(() =>
+      defineMeta({
+        frontmatter: {
+          // @ts-expect-error -- Functions are intentionally rejected at the runtime boundary.
+          invalid: () => {},
+        },
+        title: 'Guide',
+      }),
+    ).toThrow('meta.frontmatter.invalid must contain only strings, numbers, booleans, null, arrays, or objects')
+    expect(() =>
+      compileMarkdownDocuments({
+        directory: '.',
+        modules: { '/trailing-newline.md.ts': { default: trailingNewlineBody } },
+        root: fixtureRoot,
+      }),
+    ).toThrow('meta must be an object')
+    expect(() =>
+      compileMarkdownDocuments({
+        directory: '.',
+        modules: { '/trailing-newline.md.ts': { default: 'Body.', meta: trailingNewlineMeta } },
+        root: fixtureRoot,
+      }),
+    ).toThrow('the default export must be created with the md tagged template')
   })
 
-  test('rejects note helper slugs missing from the defined tuple', async () => {
-    // Given
-    const code = [
-      "import { defineNote, md, noteRef } from 'vite-plugin-mdts'",
-      "const notes = defineNote([{ body: md`Known note.`, slug: 'known' }] as const)",
-      "export const meta = { title: 'Guide' }",
-      `export default md\`Body\${noteRef(notes, 'unknown')}\``,
-    ].join('\n')
+  test('requires a valid document collection', () => {
+    // Then
+    expect(() => compileMarkdownDocuments({ directory: '.', modules: null, root: fixtureRoot })).toThrow(
+      'the Markdown document collection must be an object',
+    )
+  })
 
-    // When
-    const compile = compileMarkdownModule({
-      code,
-      id: '/content/unknown-note.md.ts',
-      resolveLink: () => Promise.resolve(''),
-    })
+  test('rejects documents outside the configured directory', () => {
+    // Then
+    expect(() =>
+      compileMarkdownDocuments({
+        directory: 'content',
+        modules: {
+          '/trailing-newline.md.ts': { default: trailingNewlineBody, meta: trailingNewlineMeta },
+        },
+        root: fixtureRoot,
+      }),
+    ).toThrow('the Markdown document is outside the configured directory')
+  })
+
+  test('rejects links to documents outside the collected directory', () => {
+    // Given
+    const missingLink: MarkdownLinkReference = {
+      hash: undefined,
+      kind: 'vite-plugin-mdts/link',
+      targetPath: `${fixtureRoot}missing.md.ts`,
+      text: undefined,
+    }
 
     // Then
-    await expect(compile).rejects.toThrow('Unknown Markdown note slug: unknown')
+    expect(() =>
+      compileMarkdownDocuments({
+        directory: '.',
+        modules: {
+          '/trailing-newline.md.ts': { default: md`${missingLink}`, meta: trailingNewlineMeta },
+        },
+        root: fixtureRoot,
+      }),
+    ).toThrow('the linked document is outside the configured directory')
   })
 
   test('uses text and hash query parameters for a link import', () => {

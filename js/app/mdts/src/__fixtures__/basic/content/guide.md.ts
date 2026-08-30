@@ -1,10 +1,13 @@
-import { md } from 'mdts'
+import { defineMeta, md } from 'mdts'
+import type { MarkdownLinkReference, MarkdownTemplate } from 'mdts'
 
 import apiReference from './reference/api.md.ts?link'
 
-export const meta = {
-  title: 'Guide',
-}
+const renderReference = (reference: MarkdownLinkReference): MarkdownTemplate => md`Read the ${reference}.`
 
-export default md`Read the ${apiReference}.
+export const meta = defineMeta({
+  title: ['Gu', 'ide'].join(''),
+})
+
+export default md`${renderReference(apiReference)}
 `
