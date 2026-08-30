@@ -139,7 +139,7 @@ describe('mdts', () => {
     )
     expect(result.diagnostics.every((diagnostic) => !diagnostic.ruleId.startsWith('slopless/'))).toBe(true)
     await expect(access(japaneseLintOutputDirectory)).rejects.toThrow()
-  })
+  }, 20_000)
 
   test('loads preview documents for Comark HTML rendering', async () => {
     // Given

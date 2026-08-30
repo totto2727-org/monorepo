@@ -149,14 +149,14 @@ const textlintSeverity = (severity: number): MdtsLintSeverity => {
 const lintTextlint = async (
   config: ResolvedMdtsConfig,
   documents: readonly CompiledMarkdownDocument[],
+  builtInTextlintPreset: MdtsTextlintRulePreset | null,
 ): Promise<readonly MdtsLintDiagnostic[]> => {
   const { textlint } = config.lint
   if (textlint === false) {
     return []
   }
 
-  const builtInRules =
-    textlint.preset === false ? [] : presetRules(await builtInPreset(textlint.preset ?? 'en', textlint.presetOptions))
+  const builtInRules = builtInTextlintPreset ? presetRules(builtInTextlintPreset) : []
   const rules = [
     ...(textlint.rules ?? []).map((rule) => ({ ...rule, rule: moduleInterop(rule.rule) })),
     ...builtInRules,
@@ -213,8 +213,19 @@ const compareDiagnostics = (left: MdtsLintDiagnostic, right: MdtsLintDiagnostic)
 
 export const lintMarkdown = async (options: MdtsLintOptions): Promise<MdtsLintResult> => {
   const config = await loadMdtsConfig({ command: 'build', ...options })
-  const documents = await compileResolvedMarkdownDocuments(config)
-  const engineDiagnostics = await Promise.all([lintMarkdownlint(config, documents), lintTextlint(config, documents)])
+  const { textlint } = config.lint
+  const builtInTextlintPresetPromise: Promise<MdtsTextlintRulePreset | null> =
+    textlint === false || textlint.preset === false
+      ? Promise.resolve(null)
+      : builtInPreset(textlint.preset ?? 'en', textlint.presetOptions)
+  const [documents, builtInTextlintPreset] = await Promise.all([
+    compileResolvedMarkdownDocuments(config),
+    builtInTextlintPresetPromise,
+  ])
+  const engineDiagnostics = await Promise.all([
+    lintMarkdownlint(config, documents),
+    lintTextlint(config, documents, builtInTextlintPreset),
+  ])
   const diagnostics = engineDiagnostics.flat().toSorted(compareDiagnostics)
 
   return {
