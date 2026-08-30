@@ -13,13 +13,19 @@ import { formatLintResult, lintMarkdown } from './lint.ts'
 import { createMarkdownPreview } from './preview.ts'
 
 const projectRoot = fileURLToPath(new URL('__fixtures__/basic/', import.meta.url))
+const englishLintProjectRoot = fileURLToPath(new URL('__fixtures__/lint-en/', import.meta.url))
+const japaneseLintProjectRoot = fileURLToPath(new URL('__fixtures__/lint-ja/', import.meta.url))
 const lintProjectRoot = fileURLToPath(new URL('__fixtures__/lint/', import.meta.url))
 const exampleRoot = fileURLToPath(new URL('../../mdts-example/', import.meta.url))
+const englishLintOutputDirectory = fileURLToPath(new URL('__fixtures__/lint-en/dist/', import.meta.url))
+const japaneseLintOutputDirectory = fileURLToPath(new URL('__fixtures__/lint-ja/dist/', import.meta.url))
 const lintOutputDirectory = fileURLToPath(new URL('__fixtures__/lint/dist/', import.meta.url))
 const outputDirectory = fileURLToPath(new URL('__fixtures__/basic/dist/', import.meta.url))
 
 const cleanOutput = async (): Promise<void> => {
   await Promise.all([
+    rm(englishLintOutputDirectory, { force: true, recursive: true }),
+    rm(japaneseLintOutputDirectory, { force: true, recursive: true }),
     rm(lintOutputDirectory, { force: true, recursive: true }),
     rm(outputDirectory, { force: true, recursive: true }),
   ])
@@ -40,13 +46,13 @@ beforeEach(cleanOutput)
 afterEach(cleanOutput)
 
 describe('mdts', () => {
-  test('enables markdownlint and disables textlint by default', async () => {
+  test('enables markdownlint and selects the English textlint preset by default', async () => {
     // When
     const config = await loadMdtsConfig({ command: 'build', root: projectRoot })
 
     // Then
     expect(config.lint.markdownlint).toMatchObject({ config: { default: true } })
-    expect(config.lint.textlint).toBe(false)
+    expect(config.lint.textlint).toMatchObject({ preset: 'en' })
   })
 
   test('builds Markdown assets without loading vite.config.ts', async () => {
@@ -97,6 +103,42 @@ describe('mdts', () => {
     expect(formatLintResult(result)).toContain('content/lint-target.md.ts:7:')
     expect(formatLintResult(result)).toContain('(markdownlint/MD013)')
     await expect(access(lintOutputDirectory)).rejects.toThrow()
+  })
+
+  test('uses slopless for the default English textlint preset', async () => {
+    // When
+    const result = await lintMarkdown({ root: englishLintProjectRoot })
+
+    // Then
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        engine: 'textlint',
+        filePath: 'content/english.md.ts',
+        line: 7,
+        ruleId: 'slopless/cliches',
+      }),
+    )
+    expect(
+      result.diagnostics.every((diagnostic) => !diagnostic.ruleId.startsWith('preset-ja-technical-writing/')),
+    ).toBe(true)
+    await expect(access(englishLintOutputDirectory)).rejects.toThrow()
+  })
+
+  test('uses technical writing rules only when the Japanese textlint preset is selected', async () => {
+    // When
+    const result = await lintMarkdown({ root: japaneseLintProjectRoot })
+
+    // Then
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        engine: 'textlint',
+        filePath: 'content/japanese.md.ts',
+        line: 7,
+        ruleId: 'preset-ja-technical-writing/no-hankaku-kana',
+      }),
+    )
+    expect(result.diagnostics.every((diagnostic) => !diagnostic.ruleId.startsWith('slopless/'))).toBe(true)
+    await expect(access(japaneseLintOutputDirectory)).rejects.toThrow()
   })
 
   test('loads preview documents for Comark HTML rendering', async () => {

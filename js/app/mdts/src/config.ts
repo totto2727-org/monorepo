@@ -67,9 +67,13 @@ export interface MdtsTextlintRulePreset {
   readonly presetId: string
 }
 
+export type MdtsTextlintPreset = 'en' | 'ja'
+
 export interface MdtsTextlintConfig {
   readonly filterRules?: readonly TextlintKernelFilterRule[]
   readonly plugins?: readonly TextlintKernelPlugin[]
+  readonly preset?: false | MdtsTextlintPreset
+  readonly presetOptions?: Readonly<Record<string, TextlintRuleOptions | boolean>>
   readonly presets?: readonly MdtsTextlintRulePreset[]
   readonly rules?: readonly TextlintKernelRule[]
 }
@@ -174,7 +178,13 @@ export const loadMdtsConfig = async (options: LoadMdtsConfigOptions): Promise<Re
                 ...config.lint?.markdownlint?.config,
               },
             },
-      textlint: config.lint?.textlint ?? false,
+      textlint:
+        config.lint?.textlint === false
+          ? false
+          : {
+              preset: 'en',
+              ...config.lint?.textlint,
+            },
     },
     output: resolveOutput(config.output),
     preview: {

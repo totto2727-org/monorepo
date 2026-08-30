@@ -5,7 +5,6 @@ import { Effect, Option, String } from 'effect'
 import { Command, Flag } from 'effect/unstable/cli'
 
 import { buildMarkdown } from './build.ts'
-import { formatLintResult, lintMarkdown } from './lint.ts'
 import { createMarkdownPreview } from './preview.ts'
 
 const configFlag = Flag.file('config').pipe(
@@ -25,6 +24,7 @@ const buildCommand = Command.make('build', { config: configFlag }, ({ config }) 
 
 const lintCommand = Command.make('lint', { config: configFlag }, ({ config }) =>
   Effect.tryPromise(async () => {
+    const { formatLintResult, lintMarkdown } = await import('./lint.ts')
     const result = await lintMarkdown(commandOptions(config))
     const output = formatLintResult(result)
     if (String.isNonEmpty(output)) {

@@ -62,26 +62,22 @@ The CLI loads only `mdts.config.ts`. It passes `configFile: false` to Vite+, so 
 
 `lint.markdownlint` accepts `config`, `customRules`, `frontMatter`, `markdownItFactory`, and `noInlineConfig`. The default configuration enables markdownlint's standard rules and treats generated YAML metadata plus the mdts generated-file notice as front matter, so rules validate the authored document rather than mdts boilerplate. Set `markdownlint: false` to disable this engine.
 
-Textlint is disabled by default and becomes active when `lint.textlint` includes at least one rule or preset. It accepts JavaScript API entries through `rules`, `presets`, `filterRules`, and `plugins`. mdts provides the standard Markdown processor automatically unless a plugin with `pluginId: 'markdown'` is configured. Presets use their exported `rules` and `rulesConfig`; `options` overrides individual preset rule settings. Install additional rules, presets, filters, or processors in the consuming project and import their modules from `mdts.config.ts`. Set `textlint: false` to disable this engine explicitly.
+Textlint uses the built-in English preset by default. `preset: 'en'` runs [`slopless`](https://github.com/berelevant-ai/slopless), while `preset: 'ja'` runs [`textlint-rule-preset-ja-technical-writing`](https://github.com/textlint-ja/textlint-rule-preset-ja-technical-writing). The presets are not combined because slopless is English-only and the Japanese technical-writing rules enforce Japanese-specific sentence, punctuation, and character conventions. `presetOptions` overrides individual built-in rules. Set `preset: false` to use only custom rules and presets, or set `textlint: false` to disable the engine.
 
-For example, after installing `textlint-rule-preset-ja-technical-writing`, configure it directly through its JavaScript export:
+`lint.textlint` also accepts JavaScript API entries through `rules`, `presets`, `filterRules`, and `plugins`. mdts provides the standard Markdown processor automatically unless a plugin with `pluginId: 'markdown'` is configured. Custom presets use their exported `rules` and `rulesConfig`; `options` overrides individual preset rule settings. Install additional rules, presets, filters, or processors in the consuming project and import their modules from `mdts.config.ts`.
+
+Select and configure the built-in Japanese preset without installing it in the consuming project:
 
 ```ts
 import { defineConfig } from 'mdts'
-import technicalWriting from 'textlint-rule-preset-ja-technical-writing'
 
 export default defineConfig({
   lint: {
     textlint: {
-      presets: [
-        {
-          options: {
-            'sentence-length': { max: 120 },
-          },
-          preset: technicalWriting,
-          presetId: 'preset-ja-technical-writing',
-        },
-      ],
+      preset: 'ja',
+      presetOptions: {
+        'sentence-length': { max: 120 },
+      },
     },
   },
 })

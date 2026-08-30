@@ -23,7 +23,9 @@
     "katex": "catalog:markdown",
     "markdownlint": "catalog:markdown",
     "shiki": "catalog:markdown",
+    "slopless": "catalog:markdown",
     "textlint": "catalog:markdown",
+    "textlint-rule-preset-ja-technical-writing": "catalog:markdown",
     "vite": "catalog:",
     "vite-plugin-mdts": "workspace:*",
     "vite-plus": "catalog:"

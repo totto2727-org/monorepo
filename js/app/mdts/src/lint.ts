@@ -11,7 +11,7 @@ import { normalizePath } from 'vite-plus'
 
 import { compileResolvedMarkdownDocuments } from './build.ts'
 import { loadMdtsConfig } from './config.ts'
-import type { MdtsTextlintRulePreset, ResolvedMdtsConfig } from './config.ts'
+import type { MdtsTextlintPreset, MdtsTextlintRulePreset, ResolvedMdtsConfig } from './config.ts'
 
 interface MdtsLintOptions {
   readonly configFile?: string
@@ -123,6 +123,19 @@ const presetRules = (preset: MdtsTextlintRulePreset): readonly TextlintKernelRul
   })
 }
 
+const builtInPreset = async (
+  preset: MdtsTextlintPreset,
+  options: MdtsTextlintRulePreset['options'],
+): Promise<MdtsTextlintRulePreset> => {
+  const presetModule =
+    preset === 'en' ? await import('slopless') : await import('textlint-rule-preset-ja-technical-writing')
+  return {
+    options,
+    preset: presetModule.default,
+    presetId: preset === 'en' ? 'slopless' : 'preset-ja-technical-writing',
+  }
+}
+
 const textlintSeverity = (severity: number): MdtsLintSeverity => {
   if (severity === 2) {
     return 'error'
@@ -142,8 +155,11 @@ const lintTextlint = async (
     return []
   }
 
+  const builtInRules =
+    textlint.preset === false ? [] : presetRules(await builtInPreset(textlint.preset ?? 'en', textlint.presetOptions))
   const rules = [
     ...(textlint.rules ?? []).map((rule) => ({ ...rule, rule: moduleInterop(rule.rule) })),
+    ...builtInRules,
     ...(textlint.presets ?? []).flatMap(presetRules),
   ]
   if (Array.isReadonlyArrayEmpty(rules)) {

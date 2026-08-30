@@ -37,6 +37,7 @@ export default defineConfig({
     },
     textlint: {
       plugins: [{ plugin: markdownPlugin, pluginId: 'markdown' }],
+      preset: false,
       presets: [{ preset: writingPreset, presetId: 'writing' }],
     },
   },
