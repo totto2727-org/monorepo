@@ -470,11 +470,13 @@ const appendMappedMarkdown = (combined: MappedMarkdown, remaining: readonly Mapp
 const concatenateMappedMarkdown = (chunks: readonly MappedMarkdown[]): MappedMarkdown =>
   appendMappedMarkdown({ source: '', sourceMap: [] }, chunks)
 
-const removeLeadingNewlines = (markdown: MappedMarkdown): MappedMarkdown => {
-  const leadingNewlines = /^\n+/u.exec(markdown.source)?.[0].length ?? 0
+const trimMappedMarkdown = (markdown: MappedMarkdown): MappedMarkdown => {
+  const leadingWhitespace = /^\s*/u.exec(markdown.source)?.[0].length ?? 0
+  const trailingWhitespace = /\s*$/u.exec(markdown.source)?.[0].length ?? 0
+  const end = markdown.source.length - trailingWhitespace
   return {
-    source: markdown.source.slice(leadingNewlines),
-    sourceMap: markdown.sourceMap.slice(leadingNewlines),
+    source: markdown.source.slice(leadingWhitespace, end),
+    sourceMap: markdown.sourceMap.slice(leadingWhitespace, end),
   }
 }
 
@@ -482,7 +484,7 @@ const prependMarkdownMetadata = (metadata: MarkdownMetadata, body: MappedMarkdow
   const document = concatenateMappedMarkdown([
     mappedSource(`${generatedFileNotice}\n\n`, metadata.titlePosition),
     mappedSource(`# ${metadata.title}\n\n`, metadata.titlePosition),
-    removeLeadingNewlines(body),
+    trimMappedMarkdown(body),
   ])
   if (!metadata.frontmatter) {
     return document

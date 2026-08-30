@@ -80,7 +80,10 @@ export const markdownDocumentsId = 'virtual:vite-plugin-mdts/documents'
 const resolvedVirtualDocumentsId = '\0vite-plugin-mdts:documents'
 
 export const md = (strings: TemplateStringsArray, ...values: readonly MarkdownTemplateValue[]): string =>
-  strings.map((segment, index) => `${segment}${values[index] ?? ''}`).join('')
+  strings
+    .map((segment, index) => `${segment}${values[index] ?? ''}`)
+    .join('')
+    .trim()
 
 export const defineNote = <const Notes extends readonly MarkdownNoteInput[]>(
   notes: Notes,
