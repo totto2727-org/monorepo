@@ -53,7 +53,18 @@ export interface MdtsPreviewConfig {
   readonly comark?: MdtsComarkOptions
 }
 
-export interface MdtsMarkdownlintConfig {
+export type MdtsLintScope = 'file' | 'project'
+export type MdtsLintTarget = 'dist' | 'source'
+
+export interface MdtsLinterExecutionConfig<
+  Target extends MdtsLintTarget = MdtsLintTarget,
+  Scope extends MdtsLintScope = MdtsLintScope,
+> {
+  readonly scope?: Scope
+  readonly target?: Target
+}
+
+export interface MdtsMarkdownlintConfig extends MdtsLinterExecutionConfig<'source', 'file'> {
   readonly config?: MarkdownlintConfiguration
   readonly customRules?: MarkdownlintRule | MarkdownlintRule[]
   readonly frontMatter?: RegExp | null
@@ -72,7 +83,7 @@ export interface MdtsTextlintRulePreset {
 
 export type MdtsTextlintPreset = 'en' | 'ja'
 
-export interface MdtsTextlintConfig {
+export interface MdtsTextlintConfig extends MdtsLinterExecutionConfig<'source', 'file'> {
   readonly filterRules?: readonly TextlintKernelFilterRule[]
   readonly plugins?: readonly TextlintKernelPlugin[]
   readonly preset?: false | MdtsTextlintPreset
@@ -81,7 +92,17 @@ export interface MdtsTextlintConfig {
   readonly rules?: readonly TextlintKernelRule[]
 }
 
+export type MdtsKnipRule = 'error' | 'off' | 'warn'
+
+export interface MdtsKnipConfig extends MdtsLinterExecutionConfig<'source', 'project'> {
+  readonly entry?: readonly string[]
+  readonly ignoreFiles?: readonly string[]
+  readonly project?: readonly string[]
+  readonly rule?: MdtsKnipRule
+}
+
 export interface MdtsLintConfig {
+  readonly knip?: false | MdtsKnipConfig
   readonly markdownlint?: false | MdtsMarkdownlintConfig
   readonly textlint?: false | MdtsTextlintConfig
 }
@@ -98,8 +119,17 @@ export interface ResolvedMdtsConfig {
   readonly configFile: string
   readonly input: string
   readonly lint: {
-    readonly markdownlint: false | MdtsMarkdownlintConfig
-    readonly textlint: false | MdtsTextlintConfig
+    readonly knip:
+      | false
+      | (MdtsKnipConfig & {
+          readonly entry: readonly string[]
+          readonly project: readonly string[]
+          readonly rule: MdtsKnipRule
+          readonly scope: 'project'
+          readonly target: 'source'
+        })
+    readonly markdownlint: false | (MdtsMarkdownlintConfig & { readonly scope: 'file'; readonly target: 'source' })
+    readonly textlint: false | (MdtsTextlintConfig & { readonly scope: 'file'; readonly target: 'source' })
   }
   readonly output: string
   readonly preview: {
@@ -145,6 +175,57 @@ const resolveUserConfig = (value: unknown): MdtsConfig => {
   return value
 }
 
+const resolveKnipConfig = (knip: MdtsLintConfig['knip'], input: string): ResolvedMdtsConfig['lint']['knip'] => {
+  if (knip === false) {
+    return false
+  }
+  const defaultKnipEntry = String.isEmpty(input) ? '*.md.ts' : `${input}/*.md.ts`
+  const defaultKnipProject = String.isEmpty(input) ? '**/*.md.ts' : `${input}/**/*.md.ts`
+  return {
+    entry: knip?.entry ?? [defaultKnipEntry],
+    ...knip,
+    project: knip?.project ?? [defaultKnipProject],
+    rule: knip?.rule ?? 'error',
+    scope: 'project',
+    target: 'source',
+  }
+}
+
+const resolveMarkdownlintConfig = (
+  markdownlint: MdtsLintConfig['markdownlint'],
+): ResolvedMdtsConfig['lint']['markdownlint'] => {
+  if (markdownlint === false) {
+    return false
+  }
+  return {
+    ...markdownlint,
+    config: {
+      default: true,
+      ...markdownlint?.config,
+    },
+    scope: 'file',
+    target: 'source',
+  }
+}
+
+const resolveTextlintConfig = (textlint: MdtsLintConfig['textlint']): ResolvedMdtsConfig['lint']['textlint'] => {
+  if (textlint === false) {
+    return false
+  }
+  return {
+    preset: 'en',
+    ...textlint,
+    scope: 'file',
+    target: 'source',
+  }
+}
+
+const resolveLintConfig = (lint: MdtsLintConfig | undefined, input: string): ResolvedMdtsConfig['lint'] => ({
+  knip: resolveKnipConfig(lint?.knip, input),
+  markdownlint: resolveMarkdownlintConfig(lint?.markdownlint),
+  textlint: resolveTextlintConfig(lint?.textlint),
+})
+
 export const loadMdtsConfig = async (options: LoadMdtsConfigOptions): Promise<ResolvedMdtsConfig> => {
   const requestedConfigFile = normalizePath(options.configFile ?? defaultConfigFile)
   const normalizedRoot = normalizePath(options.root).replace(/\/$/u, '')
@@ -166,29 +247,12 @@ export const loadMdtsConfig = async (options: LoadMdtsConfigOptions): Promise<Re
     throw new TypeError(`could not load mdts config: ${configFile}`)
   }
   const config = resolveUserConfig(loaded.config)
+  const input = resolveInput(config.input)
 
   return {
     configFile: loaded.path,
-    input: resolveInput(config.input),
-    lint: {
-      markdownlint:
-        config.lint?.markdownlint === false
-          ? false
-          : {
-              ...config.lint?.markdownlint,
-              config: {
-                default: true,
-                ...config.lint?.markdownlint?.config,
-              },
-            },
-      textlint:
-        config.lint?.textlint === false
-          ? false
-          : {
-              preset: 'en',
-              ...config.lint?.textlint,
-            },
-    },
+    input,
+    lint: resolveLintConfig(config.lint, input),
     output: resolveOutput(config.output),
     preview: {
       comark: config.preview?.comark ?? {},

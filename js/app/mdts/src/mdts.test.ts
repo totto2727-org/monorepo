@@ -14,10 +14,12 @@ import { createMarkdownPreview } from './preview.ts'
 const projectRoot = fileURLToPath(new URL('__fixtures__/basic/', import.meta.url))
 const englishLintProjectRoot = fileURLToPath(new URL('__fixtures__/lint-en/', import.meta.url))
 const japaneseLintProjectRoot = fileURLToPath(new URL('__fixtures__/lint-ja/', import.meta.url))
+const knipLintProjectRoot = fileURLToPath(new URL('__fixtures__/lint-knip/', import.meta.url))
 const lintProjectRoot = fileURLToPath(new URL('__fixtures__/lint/', import.meta.url))
 const exampleRoot = fileURLToPath(new URL('../../mdts-example/', import.meta.url))
 const englishLintOutputDirectory = fileURLToPath(new URL('__fixtures__/lint-en/dist/', import.meta.url))
 const japaneseLintOutputDirectory = fileURLToPath(new URL('__fixtures__/lint-ja/dist/', import.meta.url))
+const knipLintOutputDirectory = fileURLToPath(new URL('__fixtures__/lint-knip/dist/', import.meta.url))
 const lintOutputDirectory = fileURLToPath(new URL('__fixtures__/lint/dist/', import.meta.url))
 const outputDirectory = fileURLToPath(new URL('__fixtures__/basic/dist/', import.meta.url))
 
@@ -25,6 +27,7 @@ const cleanOutput = async (): Promise<void> => {
   await Promise.all([
     rm(englishLintOutputDirectory, { force: true, recursive: true }),
     rm(japaneseLintOutputDirectory, { force: true, recursive: true }),
+    rm(knipLintOutputDirectory, { force: true, recursive: true }),
     rm(lintOutputDirectory, { force: true, recursive: true }),
     rm(outputDirectory, { force: true, recursive: true }),
   ])
@@ -41,6 +44,17 @@ describe('mdts', () => {
     // Then
     expect(config.lint.markdownlint).toMatchObject({ config: { default: true } })
     expect(config.lint.textlint).toMatchObject({ preset: 'en' })
+    expect(config.lint).toMatchObject({
+      knip: {
+        entry: ['content/*.md.ts'],
+        project: ['content/**/*.md.ts'],
+        rule: 'error',
+        scope: 'project',
+        target: 'source',
+      },
+      markdownlint: { scope: 'file', target: 'source' },
+      textlint: { scope: 'file', target: 'source' },
+    })
   })
 
   test('builds Markdown assets without loading vite.config.ts', async () => {
@@ -78,19 +92,80 @@ describe('mdts', () => {
         filePath: 'content/lint-target.md.ts',
         line: 7,
         ruleId: 'writing/no-forbidden-word',
+        scope: 'file',
         severity: 'error',
+        target: 'source',
       },
       {
         engine: 'markdownlint',
         filePath: 'content/lint-target.md.ts',
         line: 7,
         ruleId: 'MD013',
+        scope: 'file',
         severity: 'error',
+        target: 'source',
       },
     ])
     expect(formatLintResult(result)).toContain('content/lint-target.md.ts:7:')
     expect(formatLintResult(result)).toContain('(markdownlint/MD013)')
     await expect(access(lintOutputDirectory)).rejects.toThrow()
+  })
+
+  test('reports only Markdown source files unreachable from project entries through Knip', async () => {
+    // When
+    const result = await lintMarkdown({ root: knipLintProjectRoot })
+
+    // Then
+    expect(result).toEqual({
+      diagnostics: [
+        {
+          column: 1,
+          engine: 'knip',
+          filePath: 'content/nested/orphan.md.ts',
+          line: 1,
+          message: 'Markdown source file is not reachable from an entry document',
+          ruleId: 'files',
+          scope: 'project',
+          severity: 'error',
+          target: 'source',
+        },
+      ],
+      errorCount: 1,
+    })
+    expect(formatLintResult(result)).toBe(
+      'content/nested/orphan.md.ts:1:1 error Markdown source file is not reachable from an entry document (knip/files)',
+    )
+    await expect(access(knipLintOutputDirectory)).rejects.toThrow()
+  })
+
+  test('allows Knip unused Markdown files to be ignored from mdts config', async () => {
+    // When
+    const result = await lintMarkdown({
+      configFile: 'mdts.ignore.config.ts',
+      root: knipLintProjectRoot,
+    })
+
+    // Then
+    expect(result).toEqual({ diagnostics: [], errorCount: 0 })
+  })
+
+  test('maps the Knip warn rule to a warning without failing lint', async () => {
+    // When
+    const result = await lintMarkdown({
+      configFile: 'mdts.warn.config.ts',
+      root: knipLintProjectRoot,
+    })
+
+    // Then
+    expect(result.errorCount).toBe(0)
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        engine: 'knip',
+        filePath: 'content/nested/orphan.md.ts',
+        ruleId: 'files',
+        severity: 'warning',
+      }),
+    ])
   })
 
   test('uses slopless for the default English textlint preset', async () => {
