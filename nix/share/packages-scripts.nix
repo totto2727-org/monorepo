@@ -103,7 +103,6 @@ let
 
   # --- wrappers for macos-work
   macos-work-c = writeShellScriptBin "c" ''
-    export CLAUDE_CONFIG_DIR="$HOME/.claude-work"
     exec claude "$@"
   '';
 
@@ -146,6 +145,17 @@ let
   '';
 in
 {
+  sandbox = [
+    docker-credential-gh
+    sandbox-bx
+    sandbox-cf
+    sandbox-wt
+    sandbox-ctx7
+    sandbox-linear-mcp
+    sandbox-c
+    sandbox-j
+  ];
+
   macos = [
     docker-credential-gh
     macos-bx
@@ -161,16 +171,5 @@ in
     docker-credential-gh
     macos-wt
     macos-work-c
-  ];
-
-  sandbox = [
-    docker-credential-gh
-    sandbox-bx
-    sandbox-cf
-    sandbox-wt
-    sandbox-ctx7
-    sandbox-linear-mcp
-    sandbox-c
-    sandbox-j
   ];
 }
