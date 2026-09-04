@@ -10,6 +10,10 @@
       url = "path:../npm-package";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    jcode-overlay = {
+      url = "github:hypervideo/jcode-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -19,6 +23,7 @@
       nixpkgs,
       home-manager,
       npmpkgs,
+      jcode-overlay,
     }:
     let
       username = "totto2727";
@@ -27,6 +32,7 @@
       system = "x86_64-linux";
       pkgs = import nixpkgs {
         inherit system;
+        overlays = [ jcode-overlay.overlays.default ];
       };
       npm = npmpkgs.lib.${pkgs.system}.npmPackage;
     in

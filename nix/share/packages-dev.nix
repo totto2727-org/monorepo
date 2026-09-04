@@ -2,9 +2,8 @@
 with pkgs;
 [
   # Coding
-  just
-  nixfmt
   duckdb
+  lazydocker
   # Runtime
   nodejs_24
   bun
@@ -15,4 +14,5 @@ with pkgs;
   go
   rustup
   moonbit-bin.moonbit.latest
+  zmx
 ]

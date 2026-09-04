@@ -7,7 +7,6 @@
   LG = "lazygit";
   LD = "lazydocker";
   YZ = "yazi";
-  P = "podman.lima";
   G = "git";
   GB = "git branch";
   GC = "git commit";

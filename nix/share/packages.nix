@@ -9,15 +9,16 @@ with pkgs;
   fd
   rename
   fzf
+  bottom
+  witr
   # TUI
   neovim
-  zmx
   lazygit
-  lazydocker
   yazi
-  witr
+  jcode
   # Coding
-  codex
+  nixfmt
+  just
   chezmoi
   # uv
   (npm {

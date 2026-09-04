@@ -32,6 +32,10 @@
       url = "github:sadjow/codex-cli-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    jcode-overlay = {
+      url = "github:hypervideo/jcode-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     apple-container-overlay = {
       url = "github:halfwhey/nix-apple-container";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -49,6 +53,7 @@
       moonbit-overlay,
       vite-plus-overlay,
       codex-overlay,
+      jcode-overlay,
       apple-container-overlay,
     }:
     let
@@ -64,6 +69,7 @@
           moonbit-overlay.overlays.default
           vite-plus-overlay.overlays.default
           codex-overlay.overlays.default
+          jcode-overlay.overlays.default
         ];
       };
       npm = npmpkgs.lib.${pkgs.system}.npmPackage;
@@ -140,6 +146,7 @@
                     ++ (import ../share/packages-dev.nix { inherit pkgs; })
                     ++ (import ../share/packages-macos.nix { inherit pkgs; })
                     ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).macos;
+                    ++ (with pkgs; [ codex ])
 
                   programs =
                     (import ../share/programs.nix { inherit pkgs; })

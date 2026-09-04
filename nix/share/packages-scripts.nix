@@ -136,10 +136,6 @@ let
       "$@"
   '';
 
-  sandbox-c = writeShellScriptBin "c" ''
-    exec ${pkgs.codex}/bin/codex "$@"
-  '';
-
   sandbox-j = writeShellScriptBin "c" ''
     exec jcode "$@"
   '';
@@ -152,7 +148,6 @@ in
     sandbox-wt
     sandbox-ctx7
     sandbox-linear-mcp
-    sandbox-c
     sandbox-j
   ];
 
