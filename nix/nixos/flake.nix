@@ -71,8 +71,6 @@
                     mission-center
                     firefox
                     warp-terminal-experimental
-                    # TODO: Warpへの移行完了後にghosttyを削除する。
-                    ghostty
                     # CLI
                     unzip
                     fakeroot
