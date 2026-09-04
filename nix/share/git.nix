@@ -7,9 +7,6 @@
     "!**/*.local.template*"
   ];
   settings = {
-    commit = {
-      gpgSign = true;
-    };
     pull = {
       rebase = true;
       autostash = true;
