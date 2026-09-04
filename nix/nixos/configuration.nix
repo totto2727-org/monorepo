@@ -19,6 +19,7 @@
     "nix-command"
     "flakes"
   ];
+  nix.settings.auto-optimise-store = true;
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -55,14 +56,34 @@
     LC_TELEPHONE = "ja_JP.UTF-8";
     LC_TIME = "ja_JP.UTF-8";
   };
-  fonts.packages = with pkgs; [
-    ibm-plex
-    plemoljp
-    plemoljp-hs
-    plemoljp-nf
-    noto-fonts-cjk-sans
-    noto-fonts-cjk-serif
-  ];
+  i18n.inputMethod = {
+    type = "fcitx5";
+    enable = true;
+    fcitx5.waylandFrontend = true;
+    fcitx5.addons = with pkgs; [
+      pkgs.fcitx5-mozc
+      pkgs.fcitx5-gtk
+    ];
+  };
+  fonts = {
+    packages = with pkgs; [
+      ibm-plex
+      plemoljp
+      plemoljp-hs
+      plemoljp-nf
+      noto-fonts-cjk-sans
+      noto-fonts-cjk-serif
+    ];
+    fontDir.enable = true;
+    fontconfig = {
+      enable = true;
+      defaultFonts = {
+        serif = [ "IBM Plex Sans JP" ];
+        sansSerif = [ "IBM Plex Sans JP" ];
+        monospace = [ "PlemolJP Console NF" ];
+      };
+    };
+  };
 
   services.xserver.xkb = {
     layout = "us";
@@ -75,6 +96,7 @@
   };
   services.desktopManager.cosmic.enable = true;
   services.system76-scheduler.enable = true;
+  environment.sessionVariables.COSMIC_DATE_CONTROL_ENABLED = "1";
 
   hardware = {
     graphics = {
