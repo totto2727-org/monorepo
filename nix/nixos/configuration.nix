@@ -121,6 +121,7 @@
     isNormalUser = true;
     description = "totto2727";
     extraGroups = [
+      "gamemode"
       "networkmanager"
       "wheel"
     ];
@@ -136,5 +137,12 @@
     localNetworkGameTransfers.openFirewall = true;
   };
   programs.steam.gamescopeSession.enable = true;
-  programs.gamemode.enable = true;
+  programs.gamemode = {
+    enable = true;
+    settings.gpu = {
+      apply_gpu_optimisations = "accept-responsibility";
+      gpu_device = 1;
+      amd_performance_level = "high";
+    };
+  };
 }
