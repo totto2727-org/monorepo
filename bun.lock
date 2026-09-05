@@ -14,6 +14,12 @@
         "wrangler": "latest",
       },
     },
+    "go/e2e/c-plugin-v2": {
+      "name": "@go/c-plugin-v2-e2e",
+      "devDependencies": {
+        "vite-plus": "catalog:",
+      },
+    },
     "infra/aws": {
       "name": "@infra/aws",
       "devDependencies": {
@@ -515,6 +521,8 @@
     "@formatjs/intl-localematcher": ["@formatjs/intl-localematcher@0.8.13", "https://npm.flatt.tech/@formatjs/intl-localematcher/-/intl-localematcher-0.8.13.tgz", { "dependencies": { "@formatjs/fast-memoize": "3.1.7" } }, "sha512-kHEAFOkeJSPNi7c5PaKaRjxcBrJwzzt81ifUu+8uve1EDW/VJl83KsxmqgqNZLzcFEhSliZGvx3+pk/RH0IOmg=="],
 
     "@gar/promise-retry": ["@gar/promise-retry@1.0.3", "https://npm.flatt.tech/@gar/promise-retry/-/promise-retry-1.0.3.tgz", {}, "sha512-GmzA9ckNokPypTg10pgpeHNQe7ph+iIKKmhKu3Ob9ANkswreCx7R3cKmY781K8QK3AqVL3xVh9A42JvIAbkkSA=="],
+
+    "@go/c-plugin-v2-e2e": ["@go/c-plugin-v2-e2e@workspace:go/e2e/c-plugin-v2"],
 
     "@grpc/grpc-js": ["@grpc/grpc-js@1.14.4", "https://npm.flatt.tech/@grpc/grpc-js/-/grpc-js-1.14.4.tgz", { "dependencies": { "@grpc/proto-loader": "^0.8.0", "@js-sdsl/ordered-map": "^4.4.2" } }, "sha512-k9Dj3DV/itK9D06Y8f190Qgop7/Ui+D0njFV3LHMPwPT75DpXLQohE9Wmz0QElrJnzsjB7KPWiKJbOl7IPDArQ=="],
 

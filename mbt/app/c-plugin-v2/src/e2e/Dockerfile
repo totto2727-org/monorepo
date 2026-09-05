@@ -2,26 +2,38 @@ ARG SANDBOX_IMAGE=ghcr.io/totto2727-org/monorepo/sandbox-base@sha256:df12730051f
 
 FROM ${SANDBOX_IMAGE} AS builder
 
-ARG TARGETARCH
 USER sandbox
 WORKDIR /sandbox
 
-RUN case "$TARGETARCH" in \
-      amd64) moon_arch=x86_64 ;; \
-      arm64) moon_arch=aarch64 ;; \
-      *) printf 'Unsupported architecture: %s\n' "$TARGETARCH" >&2; exit 1 ;; \
+ARG MOONBIT_VERSION=0.10.7%2Bbc794d341
+ARG MOONBIT_CORE_SHA256=06922d35dd94dc0baea7682295fe6084f0d854eed3b497cd6b527f77d899a7f5
+
+RUN architecture=$(uname -m) && \
+    case "$architecture" in \
+      amd64|x86_64) moon_arch=x86_64 ;; \
+      arm64|aarch64) moon_arch=aarch64 ;; \
+      *) printf 'Unsupported architecture: %s\n' "$architecture" >&2; exit 1 ;; \
     esac && \
     cd /tmp && \
     moon_archive="moonbit-linux-$moon_arch.tar.gz" && \
-    curl -fsSLO "https://cli.moonbitlang.com/binaries/latest/$moon_archive" && \
-    curl -fsSLO "https://cli.moonbitlang.com/binaries/latest/$moon_archive.sha256" && \
+    core_archive="core-$MOONBIT_VERSION.tar.gz" && \
+    curl -fsSLo "$moon_archive" \
+      "https://cli.moonbitlang.com/binaries/$MOONBIT_VERSION/$moon_archive" && \
+    curl -fsSLo "$moon_archive.sha256" \
+      "https://cli.moonbitlang.com/binaries/$MOONBIT_VERSION/$moon_archive.sha256" && \
+    curl -fsSLo "$core_archive" \
+      "https://cli.moonbitlang.com/cores/$core_archive" && \
     sha256sum -c "$moon_archive.sha256" && \
+    printf '%s  %s\n' "$MOONBIT_CORE_SHA256" "$core_archive" | sha256sum -c - && \
+    rm -rf /sandbox/.moon/lib /sandbox/.moon/include && \
     tar -xzf "$moon_archive" -C /sandbox/.moon && \
+    tar -xzf "$core_archive" -C /sandbox/.moon/lib && \
     chmod +x /sandbox/.moon/bin/* /sandbox/.moon/bin/internal/tcc && \
     moon -C /sandbox/.moon/lib/core bundle --warn-list -a --all && \
-    rm "$moon_archive" "$moon_archive.sha256"
+    rm "$moon_archive" "$moon_archive.sha256" "$core_archive"
 
-COPY --chown=sandbox:sandbox . /tmp/monorepo
+COPY --chown=sandbox:sandbox moon.work /tmp/monorepo/moon.work
+COPY --chown=sandbox:sandbox mbt /tmp/monorepo/mbt
 
 RUN cd /tmp/monorepo && \
     moon update && \
@@ -39,15 +51,7 @@ USER sandbox
 WORKDIR /sandbox
 
 COPY --from=builder --chown=sandbox:sandbox /sandbox/.local/bin/c-plugin-v2 /sandbox/.local/bin/c-plugin-v2
-COPY --chown=sandbox:sandbox mbt/app/c-plugin-v2/src/e2e/init.sh /sandbox/e2e/init.sh
-COPY --chown=sandbox:sandbox mbt/app/c-plugin-v2/src/e2e/sync.sh /sandbox/e2e/sync.sh
-COPY --chown=sandbox:sandbox mbt/app/c-plugin-v2/src/e2e/sync_recursive.sh /sandbox/e2e/sync_recursive.sh
-COPY --chown=sandbox:sandbox mbt/app/c-plugin-v2/src/e2e/add.sh /sandbox/e2e/add.sh
-COPY --chown=sandbox:sandbox mbt/app/c-plugin-v2/src/e2e/remove.sh /sandbox/e2e/remove.sh
-COPY --chown=sandbox:sandbox mbt/app/c-plugin-v2/src/e2e/target_add.sh /sandbox/e2e/target_add.sh
-COPY --chown=sandbox:sandbox mbt/app/c-plugin-v2/src/e2e/target_remove.sh /sandbox/e2e/target_remove.sh
-
-RUN chmod +x /sandbox/.local/bin/c-plugin-v2 /sandbox/e2e/*.sh && \
+RUN chmod +x /sandbox/.local/bin/c-plugin-v2 && \
     ln -s /sandbox/.local/bin/c-plugin-v2 /sandbox/.local/bin/c-plugin
 
-ENTRYPOINT ["/sandbox/e2e/init.sh"]
+ENTRYPOINT ["sleep", "infinity"]
