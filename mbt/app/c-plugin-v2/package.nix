@@ -8,6 +8,7 @@
 let
   dependencies = {
     "mizchi/bit_lib" = "0.45.6";
+    "mizchi/bit_object" = "0.45.6";
     "mizchi/bit_osfs" = "0.45.6";
     "mizchi/tui" = "0.10.0";
     "moonbitlang/async" = "0.20.3";
