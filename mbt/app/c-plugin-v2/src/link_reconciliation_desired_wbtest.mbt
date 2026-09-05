@@ -114,6 +114,126 @@ async test "LinkReconciliation reconcile_skill_links 2 - preserves every unrecor
 }
 
 ///|
+async test "LinkReconciliation reconcile_skill_links 18 - force replaces files and links but preserves directories and neighbors" {
+  @async.with_task_group() <| group => {
+    let fixtures : Array[(UnmanagedCollisionFixture, Bool)] = [
+      (File, false),
+      (File, true),
+      (SameTargetSymlink, false),
+      (DifferentTargetSymlink, false),
+      (BrokenSymlink, false),
+      (Directory, false),
+    ]
+    for fixture in fixtures {
+      let temporary_root : @path.Path = @fs.tmpdir(
+        prefix="c-plugin-v2-force-collision-",
+      )
+      group.add_defer(() => {
+        @fs.rmdir(temporary_root.to_string(), recursive=true)
+      })
+      let root : @path.Path = @fs.realpath(temporary_root.to_string())
+      let managed_root = root.join(".agents").join("skills")
+      let link = managed_root.join("install")
+      let neighbor = managed_root.join("neighbor")
+      let target = root.join("cache").join("skills").join("install")
+      let other_target = root.join("cache").join("skills").join("other")
+      let state_path = reconciliation_state_path(
+        root.join(".agents").join("c-plugin-state.json"),
+      )
+      @fs.mkdir(managed_root.to_string(), recursive=true)
+      @fs.mkdir(target.to_string(), recursive=true)
+      @fs.mkdir(other_target.to_string(), recursive=true)
+      @fs.write_file(neighbor.to_string(), "neighbor", create_mode=CreateNew)
+      match fixture.0 {
+        File =>
+          @fs.write_file(link.to_string(), "foreign", create_mode=CreateNew)
+        Directory => {
+          @fs.mkdir(link.to_string())
+          @fs.write_file(
+            link.join("keep").to_string(),
+            "directory-content",
+            create_mode=CreateNew,
+          )
+        }
+        SameTargetSymlink =>
+          @fs.symlink(
+            target=target.relative(base=managed_root).to_string(),
+            link.to_string(),
+          )
+        DifferentTargetSymlink =>
+          @fs.symlink(
+            target=other_target.relative(base=managed_root).to_string(),
+            link.to_string(),
+          )
+        BrokenSymlink => @fs.symlink(target="missing-target", link.to_string())
+      }
+      let entry = OwnershipEntry::OwnershipEntry(
+        OwnershipLink::OwnershipLink(link),
+        target.relative(base=managed_root),
+        OwnershipResolvedTarget::OwnershipResolvedTarget(target),
+        OwnershipManagedRoot::OwnershipManagedRoot(managed_root),
+        OwnershipSource::from_local(
+          LocalOwnershipSource::LocalOwnershipSource(
+            RelativeSourcePath::RelativeSourcePath(
+              @path.Path("vendor/repository"),
+            ),
+            PluginName::PluginName("plugin"),
+            SkillName::SkillName("install"),
+          ),
+        ),
+      )
+      let desired_state = OwnershipState::OwnershipState([entry])
+      let previous_state = if fixture.1 {
+        desired_state
+      } else {
+        OwnershipState::empty()
+      }
+      let checkpoints : Array[OwnershipState] = []
+      let result = reconcile_skill_links(
+        state_path~,
+        desired_state~,
+        previous_ownership=PreviousOwnership::Trusted(previous_state),
+        collision_policy=ReplaceNonDirectory,
+        checkpoint_ownership_state=fn(_path, state) { checkpoints.push(state) },
+      )
+
+      inspect(@fs.read_file(neighbor.to_string()).text(), content="neighbor")
+      match fixture.0 {
+        Directory => {
+          debug_inspect(result.status, content="Partial")
+          inspect(result.durable_state == previous_state, content="true")
+          inspect(checkpoints.length(), content="0")
+          debug_inspect(
+            @fs.kind(link.to_string(), follow_symlink=false),
+            content="Directory",
+          )
+          inspect(
+            @fs.read_file(link.join("keep").to_string()).text(),
+            content="directory-content",
+          )
+        }
+        _ => {
+          debug_inspect(result.status, content="Complete")
+          inspect(result.durable_state == desired_state, content="true")
+          inspect(
+            checkpoints.length(),
+            content=if fixture.1 { "2" } else { "1" },
+          )
+          debug_inspect(
+            @fs.kind(link.to_string(), follow_symlink=false),
+            content="SymLink",
+          )
+          inspect(
+            @fs.realpath(link.to_string()),
+            content=@fs.realpath(target.to_string()),
+          )
+        }
+      }
+    }
+  }
+}
+
+///|
 async test "LinkReconciliation reconcile_skill_links 4 - refreshes same-target ownership metadata" {
   @async.with_task_group() <| group => {
     let temporary : @path.Path = @fs.tmpdir(prefix="c-plugin-v2-metadata-")

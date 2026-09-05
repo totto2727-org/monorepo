@@ -58,6 +58,7 @@ async fn sync_loaded_lock(
   runtime : Runtime,
   lock_path : @path.Path,
   lock : Lock,
+  collision_policy? : DesiredLinkCollisionPolicy = PreserveExisting,
 ) -> SyncLockResult {
   let repositories = resolve_repositories_for_sync(lock_path, lock) catch {
     DuplicateRepositoryIdentity(_) =>
@@ -96,6 +97,7 @@ async fn sync_loaded_lock(
     state_path~,
     desired_state=plan.ownership_state,
     previous_ownership~,
+    collision_policy~,
     checkpoint_ownership_state~,
   ) catch {
     error => raise Planning(reason=error.to_string())

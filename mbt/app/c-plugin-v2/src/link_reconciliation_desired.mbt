@@ -5,6 +5,7 @@ async fn reconcile_desired_entries(
   desired_state~ : OwnershipState,
   durable_state~ : OwnershipState,
   notices~ : Array[LinkReconciliationNotice],
+  collision_policy~ : DesiredLinkCollisionPolicy,
 ) -> (OwnershipState, LinkReconciliationResult?) {
   let mut durable_state = durable_state
   let desired_entries = desired_state.entries.to_array()
@@ -82,6 +83,51 @@ async fn reconcile_desired_entries(
       }
     }
     let mut should_create = false
+    let replace_existing = match collision_policy {
+      ReplaceNonDirectory =>
+        match kind {
+          Some(@fs.FileKind::Regular) | Some(@fs.FileKind::SymLink) => true
+          _ => false
+        }
+      PreserveExisting => false
+    }
+    if replace_existing {
+      match durable_state.entries.get(identity) {
+        Some(_) => {
+          let omitted = state_without_entry(durable_state, identity)
+          match
+            checkpoint_ownership(
+              io, state_path, durable_state, omitted, notices,
+            ) {
+            Written(state) => durable_state = state
+            HardStop(result) => return (durable_state, Some(result))
+          }
+        }
+        None => ()
+      }
+      (io.remove)(desired_entry.link.path) catch {
+        @os_error.OSError(_) as error if error.is_ENOENT() => ()
+        error => {
+          notices.push(
+            OperationFailed(
+              operation=RemoveLink,
+              path=desired_entry.link.path,
+              reason=error.to_string(),
+            ),
+          )
+          continue
+        }
+      }
+      match
+        create_desired_link(
+          io, state_path, durable_state, desired_entry, notices,
+        ) {
+        Created(state) => durable_state = state
+        Skipped => ()
+        CreationHardStop(result) => return (durable_state, Some(result))
+      }
+      continue
+    }
     match durable_state.entries.get(identity) {
       None =>
         match kind {
