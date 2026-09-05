@@ -100,6 +100,14 @@ test "relative paths reject traversal and absolute paths" {
     },
     "absolute plugin path",
   )
+  expect_rejection(
+    fn() -> Unit raise { Target::Target("../outside") |> ignore },
+    "target parent traversal",
+  )
+  expect_rejection(
+    fn() -> Unit raise { Target::Target("/absolute/target") |> ignore },
+    "absolute target path",
+  )
 }
 
 ///|
@@ -138,7 +146,7 @@ test "SkillName Compare::compare - uses lexical order" {
 
 ///|
 test "Target Compare::compare - uses normalized lexical path order" {
-  let agents = Target::Target("project/other/../.agents")
+  let agents = Target::Target("project/.agents")
   let cursor = Target::Target("project/.cursor")
   inspect(agents.compare(cursor), content="-1")
 }

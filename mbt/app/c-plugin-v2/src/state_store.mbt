@@ -2,6 +2,7 @@
 /// Typed failures returned by lock and ownership-state persistence operations.
 pub(all) suberror StateStoreError {
   AlreadyExists(path~ : @path.Path)
+  NotFound(path~ : @path.Path)
   Decode(path~ : @path.Path, reason~ : String)
   IO(path~ : @path.Path, reason~ : String)
 } derive(Debug, Eq)
@@ -9,6 +10,7 @@ pub(all) suberror StateStoreError {
 ///|
 async fn read_json(path : @path.Path) -> Json raise StateStoreError {
   let text = @fs.read_file(path.to_string()).text() catch {
+    @os_error.OSError(_) as error if error.is_ENOENT() => raise NotFound(path~)
     error => raise IO(path~, reason=error.to_string())
   }
   @json.parse(text) catch {
