@@ -27,7 +27,17 @@ jobs:
       - uses: ./.github/actions/setup-typescript
 
       - name: Run check, build, and test
-        shell: bash
-        run: |
-          eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
-          vp run ci
+        uses: ./.github/actions/measure-command
+        with:
+          command: |
+            eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
+            vp run ci
+
+      - name: Upload CI performance metrics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ci-performance-${{ github.run_attempt }}
+          path: ci-metrics
+          if-no-files-found: error
+          retention-days: 14
