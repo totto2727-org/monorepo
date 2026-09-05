@@ -231,6 +231,11 @@ async fn sync_lock(agents : String, lock : LockFile) -> Unit {
     .flat_map(resolved => resolved.iter())
     .collect()
     |> deduplicate_resolved_skills
+  for root in managed_skill_roots(agents, lock.skill_dirs) {
+    if !@fs.exists(root) {
+      @fs.mkdir(root, recursive=true)
+    }
+  }
   @async.all(
     skills.map(skill => {
       () => {

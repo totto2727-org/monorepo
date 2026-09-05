@@ -146,6 +146,51 @@ async test "create_skill_link overwrites existing symlink" {
 }
 
 ///|
+async test "sync_lock - creates every first skill link without a directory race" {
+  let root = @fs.tmpdir(prefix="c-plugin-sync-concurrent-")
+  let agents = @path.Path::join(root, ".agents").to_string()
+  let repo = @path.Path::join(root, "repository").to_string()
+  @fs.mkdir(agents, recursive=true)
+  @test_support.write_claude_marketplace(repo)
+  @test_support.write_skill(repo, "first")
+  @test_support.write_skill(repo, "second")
+  write_lock(agents, {
+    skill_dirs: [],
+    repositories: [
+      {
+        source_type: RepositoryLocal,
+        source: "./repository",
+        marketplace_kind: Claude,
+        commit_hash: None,
+        plugins: [
+          {
+            name: "plugin-a",
+            path: "plugins/plugin-a",
+            enabled_skills: ["first", "second"],
+          },
+        ],
+      },
+    ],
+  })
+  sync_lock(agents, read_lock(agents))
+  assert_true(
+    @fs.kind(
+      (agents |> @path.Path::join("skills") |> @path.Path::join("first")).to_string(),
+      follow_symlink=false,
+    ) ==
+    @fs.FileKind::SymLink,
+  )
+  assert_true(
+    @fs.kind(
+      (agents |> @path.Path::join("skills") |> @path.Path::join("second")).to_string(),
+      follow_symlink=false,
+    ) ==
+    @fs.FileKind::SymLink,
+  )
+  @fs.rmdir(root, recursive=true)
+}
+
+///|
 async test "clear_managed_links removes only symlinks from managed skill dirs" {
   let root = @fs.tmpdir(prefix="c-plugin-link-clear-")
   let agents = @path.Path::join(root, ".agents").to_string()
