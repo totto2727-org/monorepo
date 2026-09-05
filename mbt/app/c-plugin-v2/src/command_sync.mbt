@@ -48,8 +48,17 @@ struct SyncLockResult {
 ///|
 async fn sync_lock(runtime : Runtime, lock_path : @path.Path) -> SyncLockResult {
   let lock = runtime.load_lock(lock_path) catch {
-    error => raise Store(cause=error)
+    error => raise SyncError::Store(cause=error)
   }
+  sync_loaded_lock(runtime, lock_path, lock)
+}
+
+///|
+async fn sync_loaded_lock(
+  runtime : Runtime,
+  lock_path : @path.Path,
+  lock : Lock,
+) -> SyncLockResult {
   let repositories = resolve_repositories_for_sync(lock_path, lock) catch {
     DuplicateRepositoryIdentity(_) =>
       raise Planning(reason="duplicate repository identity in lock")
