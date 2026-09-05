@@ -25,14 +25,14 @@
 | CLI解析          | `totto2727/admiral`                                                                                                                    |
 | 対話入力         | `mizchi/tui`                                                                                                                           |
 | Git              | `mizchi/bit`モジュールをライブラリとして使用し、主に`mizchi/bit_lib`などのライブラリパッケージを利用する。`git`や`bit` CLIは起動しない |
-| パス             | `moonbitlang/x/path.Path`                                                                                                              |
+| パス             | filesystem境界では`moonbitlang/x/path.Path`、検証済みdomain値では`totto2727/x@0.3.0/path.AbsolutePath`と`RelativePath`                 |
 | ロック探索       | `totto2727/target-file-discovery`                                                                                                      |
 | JSON             | `totto2727/lens`と標準の`FromJson`、`ToJson`トレイト                                                                                   |
 | 非同期I/O        | `moonbitlang/async`                                                                                                                    |
 | 単体テスト       | テストごとの一時ルートを使用するMoonBitブラックボックス・ホワイトボックステスト                                                        |
 | E2Eテスト        | `src/e2e/`以下のShell駆動Dockerテスト                                                                                                  |
 
-すべての依存関係は、互換性を確認した正確なバージョンに固定します。最初の実装ゲートでは、Admiral、TUI、bit、Lens、target-file-discovery、async、`moonbitlang/x/path`を同時にimportする最小構成のnativeビルドを行います。未検証の依存関係の組み合わせでは実装を進めません。
+すべての依存関係は、互換性を確認した正確なバージョンに固定します。最初の実装ゲートでは、Admiral、TUI、bit、Lens、target-file-discovery、async、`moonbitlang/x/path`、`totto2727/x@0.3.0/path`を同時にimportする最小構成のnativeビルドを行います。未検証の依存関係の組み合わせでは実装を進めません。
 
 `mizchi/bit`は現在、自身を実験的実装と説明し、リポジトリ破損の可能性を警告しています。そのため、c-pluginではキャッシュしたcloneを破棄可能なデータとして扱い、依存バージョンを固定し、使用するclone、fetch、checkout、HEAD解決APIを正確にテストします。
 
@@ -446,6 +446,7 @@ Milestone 0は完了済みの本設計契約です。Milestone 1から7では、
 
 - MoonBit toolchainと`moon install`: https://docs.moonbitlang.com/en/latest/toolchain/moon/commands.html
 - `moonbitlang/x/path.Path` public API: https://github.com/moonbitlang/x/blob/main/path/pkg.generated.mbti
+- `totto2727/x@0.3.0/path`の検証済みpath値: https://mooncakes.io/docs/totto2727/x@0.3.0/path
 - Admiral: https://github.com/totto2727/admiral
 - mizchi/tui: https://github.com/mizchi/tui.mbt
 - mizchi/bit: https://github.com/bit-vcs/bit

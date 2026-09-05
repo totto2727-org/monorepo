@@ -14,12 +14,15 @@ async fn reconcile_stale_entries(
   for pair in stale_entries {
     let identity = pair.0
     let recorded_entry = pair.1
-    let recorded_root_kind = classify_link(io, recorded_entry.managed_root.path) catch {
+    let recorded_root_kind = classify_link(
+      io,
+      recorded_entry.managed_root.path.path,
+    ) catch {
       error => {
         notices.push(
           OperationFailed(
             operation=VerifyContainment,
-            path=recorded_entry.managed_root.path,
+            path=recorded_entry.managed_root.path.path,
             reason=error.to_string(),
           ),
         )
@@ -29,7 +32,7 @@ async fn reconcile_stale_entries(
     match recorded_root_kind {
       None => {
         let checkpointed_state = state_without_entry(durable_state, identity)
-        (io.checkpoint)(state_path.path, checkpointed_state) catch {
+        (io.checkpoint)(state_path.path.path, checkpointed_state) catch {
           error => {
             notices.push(
               CheckpointFailed(
@@ -56,7 +59,7 @@ async fn reconcile_stale_entries(
         notices.push(
           OperationFailed(
             operation=VerifyContainment,
-            path=recorded_entry.managed_root.path,
+            path=recorded_entry.managed_root.path.path,
             reason="recorded managed root must be a physical directory",
           ),
         )
@@ -68,7 +71,7 @@ async fn reconcile_stale_entries(
         notices.push(
           OperationFailed(
             operation=VerifyContainment,
-            path=recorded_entry.link.path,
+            path=recorded_entry.link.path.path,
             reason=error.to_string(),
           ),
         )
@@ -79,18 +82,18 @@ async fn reconcile_stale_entries(
       notices.push(
         OperationFailed(
           operation=VerifyContainment,
-          path=recorded_entry.link.path,
+          path=recorded_entry.link.path.path,
           reason="link parent resolves outside the recorded managed root",
         ),
       )
       continue
     }
-    let kind = classify_link(io, recorded_entry.link.path) catch {
+    let kind = classify_link(io, recorded_entry.link.path.path) catch {
       error => {
         notices.push(
           OperationFailed(
             operation=ClassifyLink,
-            path=recorded_entry.link.path,
+            path=recorded_entry.link.path.path,
             reason=error.to_string(),
           ),
         )
@@ -101,10 +104,10 @@ async fn reconcile_stale_entries(
     match kind {
       None => omit_ownership = true
       Some(@fs.FileKind::SymLink) => {
-        let target = try (io.realpath)(recorded_entry.link.path) catch {
+        let target = try (io.realpath)(recorded_entry.link.path.path) catch {
           @os_error.OSError(_) as error if error.is_ENOENT() => {
             notices.push(
-              BrokenOwnedLinkPreserved(path=recorded_entry.link.path),
+              BrokenOwnedLinkPreserved(path=recorded_entry.link.path.path),
             )
             omit_ownership = true
             None
@@ -113,7 +116,7 @@ async fn reconcile_stale_entries(
             notices.push(
               OperationFailed(
                 operation=ClassifyLink,
-                path=recorded_entry.link.path,
+                path=recorded_entry.link.path.path,
                 reason=error.to_string(),
               ),
             )
@@ -124,16 +127,16 @@ async fn reconcile_stale_entries(
         }
         match target {
           Some(live_target) if live_target ==
-            recorded_entry.resolved_target.path =>
+            recorded_entry.resolved_target.path.path =>
             match recheck_stale_link(io, recorded_entry) {
               Matching => {
-                (io.remove)(recorded_entry.link.path) catch {
+                (io.remove)(recorded_entry.link.path.path) catch {
                   @os_error.OSError(_) as error if error.is_ENOENT() => ()
                   error => {
                     notices.push(
                       OperationFailed(
                         operation=RemoveLink,
-                        path=recorded_entry.link.path,
+                        path=recorded_entry.link.path.path,
                         reason=error.to_string(),
                       ),
                     )
@@ -145,7 +148,7 @@ async fn reconcile_stale_entries(
               Missing => omit_ownership = true
               Replaced => {
                 notices.push(
-                  ReplacedOwnedPathPreserved(path=recorded_entry.link.path),
+                  ReplacedOwnedPathPreserved(path=recorded_entry.link.path.path),
                 )
                 omit_ownership = true
               }
@@ -153,14 +156,14 @@ async fn reconcile_stale_entries(
                 notices.push(
                   OperationFailed(
                     operation~,
-                    path=recorded_entry.link.path,
+                    path=recorded_entry.link.path.path,
                     reason~,
                   ),
                 )
             }
           Some(_) => {
             notices.push(
-              ReplacedOwnedPathPreserved(path=recorded_entry.link.path),
+              ReplacedOwnedPathPreserved(path=recorded_entry.link.path.path),
             )
             omit_ownership = true
           }
@@ -168,13 +171,15 @@ async fn reconcile_stale_entries(
         }
       }
       Some(_) => {
-        notices.push(ReplacedOwnedPathPreserved(path=recorded_entry.link.path))
+        notices.push(
+          ReplacedOwnedPathPreserved(path=recorded_entry.link.path.path),
+        )
         omit_ownership = true
       }
     }
     if omit_ownership {
       let checkpointed_state = state_without_entry(durable_state, identity)
-      (io.checkpoint)(state_path.path, checkpointed_state) catch {
+      (io.checkpoint)(state_path.path.path, checkpointed_state) catch {
         error => {
           notices.push(
             CheckpointFailed(

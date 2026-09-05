@@ -24,32 +24,32 @@ async test "LinkReconciliation reconcile_skill_links 3 - reconciles trusted stal
         "matching" =>
           @fs.symlink(
             target=entry.symlink_target.to_string(),
-            entry.link.path.to_string(),
+            entry.link.path.path.to_string(),
           )
         "removed-root" =>
-          @fs.rmdir(entry.managed_root.path.to_string(), recursive=true)
+          @fs.rmdir(entry.managed_root.path.path.to_string(), recursive=true)
         "missing" => ()
         "file" =>
           @fs.write_file(
-            entry.link.path.to_string(),
+            entry.link.path.path.to_string(),
             "foreign",
             create_mode=CreateNew,
           )
-        "directory" => @fs.mkdir(entry.link.path.to_string())
+        "directory" => @fs.mkdir(entry.link.path.path.to_string())
         "different" => {
           let other = target_root.join("different-other")
           @fs.mkdir(other.to_string())
           @fs.symlink(
-            target=other.relative(base=entry.managed_root.path).to_string(),
-            entry.link.path.to_string(),
+            target=other.relative(base=entry.managed_root.path.path).to_string(),
+            entry.link.path.path.to_string(),
           )
         }
         "broken" =>
-          @fs.symlink(target="missing-target", entry.link.path.to_string())
+          @fs.symlink(target="missing-target", entry.link.path.path.to_string())
         _ => fail("unexpected fixture")
       }
     }
-    let neighbor = entries[0].managed_root.path.join("foreign-neighbor")
+    let neighbor = entries[0].managed_root.path.path.join("foreign-neighbor")
     @fs.write_file(neighbor.to_string(), "keep", create_mode=CreateNew)
     let previous_state = OwnershipState::OwnershipState(entries)
     let desired_state = OwnershipState::OwnershipState([])
@@ -76,24 +76,24 @@ async test "LinkReconciliation reconcile_skill_links 3 - reconciles trusted stal
     inspect(result.notices.length(), content="4")
     inspect(@fs.read_file(neighbor.to_string()).text(), content="keep")
     inspect(
-      @fs.read_file(entries[2].link.path.to_string()).text(),
+      @fs.read_file(entries[2].link.path.path.to_string()).text(),
       content="foreign",
     )
     debug_inspect(
-      @fs.kind(entries[3].link.path.to_string(), follow_symlink=false),
+      @fs.kind(entries[3].link.path.path.to_string(), follow_symlink=false),
       content="Directory",
     )
     debug_inspect(
-      @fs.kind(entries[4].link.path.to_string(), follow_symlink=false),
+      @fs.kind(entries[4].link.path.path.to_string(), follow_symlink=false),
       content="SymLink",
     )
     debug_inspect(
-      @fs.kind(entries[5].link.path.to_string(), follow_symlink=false),
+      @fs.kind(entries[5].link.path.path.to_string(), follow_symlink=false),
       content="SymLink",
     )
     for index in [0, 1, 6] {
       let kind = @fs.kind(
-        entries[index].link.path.to_string(),
+        entries[index].link.path.path.to_string(),
         follow_symlink=false,
       ) catch {
         _ => @fs.FileKind::Unknown
@@ -101,7 +101,7 @@ async test "LinkReconciliation reconcile_skill_links 3 - reconciles trusted stal
       debug_inspect(kind, content="Unknown")
     }
     let removed_root_kind = @fs.kind(
-      entries[6].managed_root.path.to_string(),
+      entries[6].managed_root.path.path.to_string(),
       follow_symlink=false,
     ) catch {
       _ => @fs.FileKind::Unknown
@@ -126,11 +126,11 @@ async test "LinkReconciliation reconcile_skill_links 8 - isolates stale deletion
     let entry_b = stale_reconciliation_entry(managed_root, "b", target_b)
     @fs.symlink(
       target=entry_a.symlink_target.to_string(),
-      entry_a.link.path.to_string(),
+      entry_a.link.path.path.to_string(),
     )
     @fs.symlink(
       target=entry_b.symlink_target.to_string(),
-      entry_b.link.path.to_string(),
+      entry_b.link.path.path.to_string(),
     )
     let desired_state = OwnershipState::OwnershipState([])
     let result_a = reconcile_skill_links(
@@ -141,14 +141,14 @@ async test "LinkReconciliation reconcile_skill_links 8 - isolates stale deletion
     )
     debug_inspect(result_a.status, content="Complete")
     let removed_a = @fs.kind(
-      entry_a.link.path.to_string(),
+      entry_a.link.path.path.to_string(),
       follow_symlink=false,
     ) catch {
       _ => @fs.FileKind::Unknown
     }
     debug_inspect(removed_a, content="Unknown")
     debug_inspect(
-      @fs.kind(entry_b.link.path.to_string(), follow_symlink=false),
+      @fs.kind(entry_b.link.path.path.to_string(), follow_symlink=false),
       content="SymLink",
     )
     let result_b = reconcile_skill_links(
@@ -159,7 +159,7 @@ async test "LinkReconciliation reconcile_skill_links 8 - isolates stale deletion
     )
     debug_inspect(result_b.status, content="Complete")
     let removed_b = @fs.kind(
-      entry_b.link.path.to_string(),
+      entry_b.link.path.path.to_string(),
       follow_symlink=false,
     ) catch {
       _ => @fs.FileKind::Unknown
@@ -181,7 +181,7 @@ async test "LinkReconciliation reconcile_skill_links 11 - retries stale omission
     let entry = stale_reconciliation_entry(managed_root, "stale", target)
     @fs.symlink(
       target=entry.symlink_target.to_string(),
-      entry.link.path.to_string(),
+      entry.link.path.path.to_string(),
     )
     let previous = OwnershipState::OwnershipState([entry])
     let desired_state = OwnershipState::OwnershipState([])
@@ -205,7 +205,10 @@ async test "LinkReconciliation reconcile_skill_links 11 - retries stale omission
       }
       _ => fail("expected stale checkpoint failure")
     }
-    let removed = @fs.kind(entry.link.path.to_string(), follow_symlink=false) catch {
+    let removed = @fs.kind(
+      entry.link.path.path.to_string(),
+      follow_symlink=false,
+    ) catch {
       _ => @fs.FileKind::Unknown
     }
     debug_inspect(removed, content="Unknown")
@@ -277,7 +280,7 @@ async test "LinkReconciliation reconcile_skill_links 16 - preserves a foreign re
     )
     @fs.symlink(
       target=entry.symlink_target.to_string(),
-      entry.link.path.to_string(),
+      entry.link.path.path.to_string(),
     )
     let mut link_kind_calls = 0
     let mut remove_called = false
@@ -285,7 +288,7 @@ async test "LinkReconciliation reconcile_skill_links 16 - preserves a foreign re
     let io : LinkReconciliationIO = {
       mkdir: async fn(path) { @fs.mkdir(path.to_string(), recursive=true) },
       kind: async fn(path) {
-        if path == entry.link.path {
+        if path == entry.link.path.path {
           link_kind_calls = link_kind_calls + 1
           if link_kind_calls == 2 {
             @fs.remove(path.to_string())
@@ -320,11 +323,11 @@ async test "LinkReconciliation reconcile_skill_links 16 - preserves a foreign re
     inspect(result.durable_state.entries.length(), content="0")
     match result.notices[0] {
       ReplacedOwnedPathPreserved(path~) =>
-        inspect(path == entry.link.path, content="true")
+        inspect(path == entry.link.path.path, content="true")
       _ => fail("expected final-recheck replacement notice")
     }
     inspect(
-      @fs.realpath(entry.link.path.to_string()),
+      @fs.realpath(entry.link.path.path.to_string()),
       content=@fs.realpath(foreign_target.to_string()),
     )
   }

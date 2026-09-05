@@ -72,10 +72,10 @@ async fn write_lock(path : @path.Path) -> @path.Path {
 async test "discover_locks - finds the nearest project lock below the synthetic home" {
   with_lock_discovery_fixture(async fn(fixture) {
     let outer_lock = write_lock(
-      fixture.paths.home.join("workspace").join("c-plugin-lock.json"),
+      fixture.paths.home.path.join("workspace").join("c-plugin-lock.json"),
     )
     let nearest_lock = write_lock(
-      fixture.paths.home
+      fixture.paths.home.path
       .join("workspace")
       .join("package")
       .join("c-plugin-lock.json"),
@@ -92,9 +92,11 @@ async test "discover_locks - finds the nearest project lock below the synthetic 
 ///|
 async test "discover_locks - resolves the global lock exactly below the synthetic home" {
   with_lock_discovery_fixture(async fn(fixture) {
-    let global_lock = write_lock(fixture.paths.home.join("c-plugin-lock.json"))
+    let global_lock = write_lock(
+      fixture.paths.home.path.join("c-plugin-lock.json"),
+    )
     let _project_lock = write_lock(
-      fixture.paths.home
+      fixture.paths.home.path
       .join("workspace")
       .join("package")
       .join("c-plugin-lock.json"),
@@ -108,20 +110,20 @@ async test "discover_locks - resolves the global lock exactly below the syntheti
 async test "discover_locks - includes the nearest project lock and visible descendants recursively" {
   with_lock_discovery_fixture(async fn(fixture) {
     let nearest_lock = write_lock(
-      fixture.paths.home
+      fixture.paths.home.path
       .join("workspace")
       .join("package")
       .join("c-plugin-lock.json"),
     )
     let child_lock = write_lock(
-      fixture.paths.home
+      fixture.paths.home.path
       .join("workspace")
       .join("package")
       .join("child")
       .join("c-plugin-lock.json"),
     )
     let nested_lock = write_lock(
-      fixture.paths.home
+      fixture.paths.home.path
       .join("workspace")
       .join("package")
       .join("child")
@@ -141,7 +143,7 @@ async test "discover_locks - includes the nearest project lock and visible desce
 ///|
 async test "discover_locks - excludes descendants in gitignored directories" {
   with_lock_discovery_fixture(async fn(fixture) {
-    let project_root = fixture.paths.home.join("workspace").join("package")
+    let project_root = fixture.paths.home.path.join("workspace").join("package")
     let nearest_lock = write_lock(project_root.join("c-plugin-lock.json"))
     @fs.write_file(
       project_root.join(".gitignore").to_string(),
@@ -179,7 +181,7 @@ async test "discover_locks - does not search for project locks above the synthet
       LockFileNotFound(scope=Project, boundary~) => boundary.to_string()
       _ => "wrong error"
     }
-    inspect(detail, content=fixture.paths.home.to_string())
+    inspect(detail, content=fixture.paths.home.path.to_string())
     assert_true(@fs.exists(outside_lock.to_string()))
   })
 }
@@ -198,7 +200,7 @@ async test "discover_locks - reports a typed error when no project lock exists" 
       LockFileNotFound(scope=Project, boundary~) => boundary.to_string()
       _ => "wrong error"
     }
-    inspect(detail, content=fixture.paths.home.to_string())
+    inspect(detail, content=fixture.paths.home.path.to_string())
   })
 }
 
@@ -211,9 +213,9 @@ async test "discover_locks - rejects a cwd outside the synthetic home" {
     )
     @fs.mkdir(outside_cwd.to_string(), recursive=true)
     let paths = RuntimePaths::RuntimePaths(
-      fixture.paths.home,
+      fixture.paths.home.path,
       outside_cwd,
-      fixture.paths.cache_root,
+      fixture.paths.cache_root.path,
     )
     let detail = try {
       discover_locks(paths, LockDiscoveryOptions::Project(recursive=false))
@@ -223,7 +225,7 @@ async test "discover_locks - rejects a cwd outside the synthetic home" {
       LockFileNotFound(scope=Project, boundary~) => boundary.to_string()
       _ => "wrong error"
     }
-    inspect(detail, content=fixture.paths.home.to_string())
+    inspect(detail, content=fixture.paths.home.path.to_string())
     assert_true(@fs.exists(outside_lock.to_string()))
   })
 }
@@ -238,6 +240,6 @@ async test "discover_locks - reports a typed error when no global lock exists" {
       LockFileNotFound(scope=Global, boundary~) => boundary.to_string()
       _ => "wrong error"
     }
-    inspect(detail, content=fixture.paths.home.to_string())
+    inspect(detail, content=fixture.paths.home.path.to_string())
   })
 }

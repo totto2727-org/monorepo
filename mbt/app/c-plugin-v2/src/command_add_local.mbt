@@ -78,8 +78,11 @@ fn add_local_options(context : @admiral.Context) -> AddLocalOptions raise {
   guard source.has_prefix("./") else {
     raise AddLocalError::InvalidInput(reason="--local path must begin with ./")
   }
+  let normalized_source = @x_path.RelativePath::from_string(source) catch {
+    error => raise AddLocalError::InvalidInput(reason=error.to_string())
+  }
   let source_path = RelativeSourcePath::RelativeSourcePath(
-    @path.Path(source).normalize(),
+    normalized_source.path,
   ) catch {
     error => raise AddLocalError::InvalidInput(reason=error.to_string())
   }
@@ -97,7 +100,7 @@ fn resolve_add_repository_root(
   lock_path : @path.Path,
   source : RelativeSourcePath,
 ) -> RepositoryRoot raise AddLocalError {
-  RepositoryRoot::RepositoryRoot(lock_path.dirname().join(source.path)) catch {
+  RepositoryRoot::RepositoryRoot(lock_path.dirname().join(source.path.path)) catch {
     error =>
       raise AddLocalError::InvalidInput(
         reason=repository_root_error_reason(error),
@@ -199,7 +202,7 @@ async fn add_local(
   }
   let repository_root = resolve_add_repository_root(lock_path, options.source)
   let marketplace = read_marketplace_file(
-    repository_root.path.join(marketplace_manifest_path(options.kind)),
+    repository_root.path.path.join(marketplace_manifest_path(options.kind)),
     options.kind,
   ) catch {
     error => raise InvalidInput(reason=marketplace_read_error_reason(error))
