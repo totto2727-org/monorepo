@@ -43,6 +43,7 @@ COPY --chown=sandbox:sandbox mbt/app/c-plugin-v2/src/e2e/init.sh /sandbox/e2e/in
 COPY --chown=sandbox:sandbox mbt/app/c-plugin-v2/src/e2e/sync.sh /sandbox/e2e/sync.sh
 COPY --chown=sandbox:sandbox mbt/app/c-plugin-v2/src/e2e/sync_recursive.sh /sandbox/e2e/sync_recursive.sh
 COPY --chown=sandbox:sandbox mbt/app/c-plugin-v2/src/e2e/add.sh /sandbox/e2e/add.sh
+COPY --chown=sandbox:sandbox mbt/app/c-plugin-v2/src/e2e/target_add.sh /sandbox/e2e/target_add.sh
 
 RUN chmod +x /sandbox/.local/bin/c-plugin-v2 /sandbox/e2e/*.sh && \
     ln -s /sandbox/.local/bin/c-plugin-v2 /sandbox/.local/bin/c-plugin
