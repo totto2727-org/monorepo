@@ -51,6 +51,9 @@
               pkgs.deno
               pkgs.nodejs_24
               pkgs.vite-plus
+              # Go
+              pkgs.go
+              pkgs.golangci-lint
               # Nix
               pkgs.nixfmt
               # SQL
