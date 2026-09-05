@@ -12,7 +12,7 @@ Use `moon ide` for symbol-aware navigation because it uses the compiler's semant
 2. Run `moon ide doc '<query>'` to discover packages, types, methods, and their documentation.
 3. Run `moon ide peek-def <symbol>` to inspect a definition. Add `-loc filename:line[:col]` when the name is ambiguous in local context.
 4. Run `moon ide find-references <symbol>` before renaming a symbol, changing its signature, or modifying an invariant used by callers. The command performs a global search and does not currently accept `-loc`.
-5. Run the relevant repository `mbt:check` or package `check` task after the change; semantic navigation does not replace compilation and project checks.
+5. Run the target repository's defined check task (for example, `mbt:check` or package `check`, when available) after the change; semantic navigation does not replace compilation and project checks.
 
 ## Sources
 

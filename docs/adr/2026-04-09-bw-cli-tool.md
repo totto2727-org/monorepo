@@ -8,7 +8,7 @@ confirmed: true
 
 Cloudflare Browser Rendering REST API provides endpoints for common browser actions (screenshots, HTML capture, PDF generation, web scraping, crawling, etc.) without requiring code deployment. Currently, interacting with this API requires manual curl/HTTP calls with complex JSON payloads.
 
-A dedicated CLI tool (`bw`) wraps the API into ergonomic subcommands, following the same architecture as `c-plugin`.
+A dedicated CLI tool (`bw`) wraps the API into ergonomic subcommands, following the same architecture as [the archived CLI](https://github.com/totto2727-org/monorepo/blob/23983ed9065f6c078854aa4974e86303b8ef034e/docs/adr/2026-04-06-c-plugin-cli-tool.md).
 
 ## Decision
 
@@ -22,7 +22,7 @@ A dedicated CLI tool (`bw`) wraps the API into ergonomic subcommands, following 
 
 | Concern         | Choice                   | Rationale                              |
 | --------------- | ------------------------ | -------------------------------------- |
-| CLI framework   | `effect/unstable/cli`    | Same as c-plugin, bundled in Effect v4 |
+| CLI framework   | `effect/unstable/cli`    | Bundled in Effect v4                   |
 | HTTP client     | `effect/unstable/http`   | Provided by `NodeServices.layer`       |
 | Runtime         | `@effect/platform-node`  | Standard Effect Node.js platform layer |
 | Schema          | `effect` (Schema)        | Aligns with existing monorepo patterns |

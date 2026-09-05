@@ -22,8 +22,6 @@ jobs:
 
       - uses: ./.github/actions/setup-nix
 
-      - uses: ./.github/actions/setup-moonbit
-
       - uses: ./.github/actions/setup-typescript
 
       - name: Run check, build, and test

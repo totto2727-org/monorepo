@@ -7,7 +7,7 @@
 Apply CLI rules in this order:
 
 1. The `totto2727/admiral` version pinned by the target module and its current public API.
-2. The current Admiral-based implementations under `mbt/app/c-plugin`, `mbt/app/bw`, and `mbt/app/wt`.
+2. The Admiral-based [standalone CLI implementation](https://github.com/totto2727-org/c-plugin/tree/5d6f66a83be6ed23d16d3c8535722970e028a003/src).
 3. Examples in this guide.
 
 If this guide conflicts with the pinned Admiral API or those current implementations, follow Admiral and update this guide. Never restore direct `@argparse.Command` construction, manual parsing, or manual dispatch in `main.mbt` to preserve an older pattern.

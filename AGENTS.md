@@ -9,7 +9,7 @@
 ## Repository Structure
 
 ```bash
-eza --tree -L 2 -D js mbt go
+eza --tree -L 2 -D js nix infra sandbox
 ```
 
 ## Development Commands
@@ -18,7 +18,7 @@ eza --tree -L 2 -D js mbt go
 
 - **Never use `npx` or `bunx`** — always use `vp run`, `vp exec`, or `vpx` in that order
 - All commands must be run from the repository root unless noted otherwise
-- The task runner is Vite+ (`vp`) for every language. MoonBit tasks run `moon` once from the repository root.
+- The task runner is Vite+ (`vp`) for every language.
 - Basic task names are `setup`, `fix`, `check`, `build`, and `test`. A project may omit tasks that are not needed.
 - All tasks are defined in `vite.config.ts`. The `--cache` flag is no longer required — caching is on by default.
 
@@ -46,18 +46,14 @@ Languages whose toolchains support workspace-root execution expose root tasks as
 vp run js:check
 vp run js:fix
 vp run js:test
-vp run mbt:build
-vp run mbt:check
-vp run mbt:fix
-vp run mbt:test
 ```
 
 Do not create root language-level tasks for commands that require `-r`, package filters, or file paths. Define those in the relevant project and let `w:*` collect them.
-Language-specific details live in the language directory's `AGENTS.md` when needed, such as `js/AGENTS.md` or `mbt/AGENTS.md`.
+Language-specific details live in the language directory's `AGENTS.md` when needed, such as `js/AGENTS.md`.
 
 #### Root aggregate tasks
 
-Root aggregate tasks combine language-level root tasks. They are not full workspace fan-out tasks; use them when the operation is implemented by root language tasks such as `js:*` and `mbt:*`.
+Root aggregate tasks combine language-level root tasks. They are not full workspace fan-out tasks; use them when the operation is implemented by root language tasks such as `js:*`.
 
 ```bash
 vp run fix                    # Root language fix aggregate
@@ -80,7 +76,7 @@ vp run --parallel ci          # Run check / test / build across the workspace ig
 
 Run `vp run w:setup` first when generated outputs must exist before parallel CI-style execution.
 
-MoonBit packages do not define project-level Vite+ tasks and are not part of workspace fan-out. Use the root `mbt:*` tasks so Moon handles the full `moon.work` workspace once.
+This repository no longer contains a MoonBit workspace. Shared MoonBit GitHub Actions remain available to external repositories, but root tasks and CI do not run MoonBit commands.
 
 ### Targeting a single package
 

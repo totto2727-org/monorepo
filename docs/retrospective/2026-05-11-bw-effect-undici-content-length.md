@@ -44,4 +44,4 @@ Without `import 'undici'` as a side-effect, `globalThis.fetch` keeps using Node'
 
 ## Scope note
 
-`mdt` / `wt` / `c-plugin` use `@effect/platform-node` with the same shallow root import but do not perform any HTTP requests, so they are unaffected. No defensive change required there.
+`mdt` / `wt` / [the archived CLI](https://github.com/totto2727-org/monorepo/blob/23983ed9065f6c078854aa4974e86303b8ef034e/docs/adr/2026-04-06-c-plugin-cli-tool.md) use `@effect/platform-node` with the same shallow root import but do not perform any HTTP requests, so they are unaffected. No defensive change required there.

@@ -6,7 +6,6 @@ A multi-language monorepo using Bun workspaces and Vite+.
 
 ### Workspace per Language
 
-- `mbt/`: Moonbit Projects
 - `js/`: JavaScript Projects
 - `nix/`: Nix Projects
 - `elixir/`: Elixir Projects

@@ -64,13 +64,9 @@ export default defineConfig({
   },
   run: {
     tasks: {
-      build: {
-        command: '',
-        dependsOn: ['mbt:build'],
-      },
       check: {
         command: '',
-        dependsOn: ['js:check', 'mbt:check'],
+        dependsOn: ['js:check'],
       },
       ci: {
         command: '',
@@ -78,7 +74,7 @@ export default defineConfig({
       },
       fix: {
         command: '',
-        dependsOn: ['js:fix', 'mbt:fix'],
+        dependsOn: ['js:fix'],
       },
       'js:check': {
         command: 'vp check',
@@ -89,42 +85,9 @@ export default defineConfig({
       'js:test': {
         command: 'vp test',
       },
-      'mbt:build': {
-        command: 'moon build',
-        input: [{ auto: true }, '!moon.work', '!**/_build/**'],
-      },
-      'mbt:check': {
-        command: 'moon check',
-        input: [
-          { auto: true },
-          // これを除外しないとキャッシュできない？毎回変更している？暇なら詳細を調べること
-          '!moon.work',
-          '!**/_build/**',
-        ],
-      },
-      'mbt:fix': {
-        command: 'moon fmt',
-        input: [
-          { auto: true },
-          // これを除外しないとキャッシュできない？毎回変更している？暇なら詳細を調べること
-          '!moon.work',
-          '!**/_build/**',
-        ],
-      },
-      'mbt:test': {
-        // GitHub Actionsでmoonbit/asyncのエラーが発生するため
-        command: 'LD_LIBRARY_PATH="$MOONBIT_OPENSSL_LIBRARY_PATH" moon test --no-parallelize',
-        env: ['MOONBIT_OPENSSL_LIBRARY_PATH'],
-        input: [
-          { auto: true },
-          // これを除外しないとキャッシュできない？毎回変更している？暇なら詳細を調べること
-          '!moon.work',
-          '!**/_build/**',
-        ],
-      },
       test: {
         command: '',
-        dependsOn: ['js:test', 'mbt:test'],
+        dependsOn: ['js:test'],
       },
       'w:build': {
         command: 'vp run -r build',
