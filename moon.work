@@ -1,4 +1,0 @@
-members = [
-  "./mbt/app/c-plugin",
-  "./mbt/app/c-plugin-v2",
-]

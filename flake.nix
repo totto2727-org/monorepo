@@ -1,10 +1,6 @@
 {
   inputs = {
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
-    moonbit-overlay = {
-      url = "github:totto2727/moonbit-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     vite-plus-overlay = {
       url = "github:ryoppippi/nix-vite-plus";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -14,7 +10,6 @@
   outputs =
     {
       nixpkgs,
-      moonbit-overlay,
       vite-plus-overlay,
       ...
     }:
@@ -33,18 +28,12 @@
           pkgs = import nixpkgs {
             inherit system;
             overlays = [
-              moonbit-overlay.overlays.default
               vite-plus-overlay.overlays.default
             ];
           };
         in
         {
           default = pkgs.mkShell {
-            env = pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
-              MOONBIT_OPENSSL_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.openssl ];
-              MOONBIT_NEW_NATIVE = "1";
-            };
-
             packages = [
               # JS
               pkgs.bun
@@ -56,8 +45,6 @@
               # SQL
               pkgs.sqld
               pkgs.turso-cli
-              # MoonBit
-              pkgs.moonbit-bin.moonbit.latest
               # Util
               pkgs.just
               pkgs.treefmt
