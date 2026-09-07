@@ -61,13 +61,7 @@ let
     set -e
 
     export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"
-    exec ${
-      (npm {
-        binName = "wt";
-        runtime = "moon";
-        packageName = "totto2727/wt";
-      })
-    }/bin/wt "$@"
+    exec ${pkgs.wt}/bin/wt "$@"
   '';
 
   macos-ctx7 = writeShellScriptBin "ctx7" ''
