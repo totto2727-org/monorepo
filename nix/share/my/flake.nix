@@ -3,23 +3,13 @@
 
   inputs = {
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
-    # Published application locks predate some of their Mooncakes dependencies.
+    # The published wt lock predates one of its Mooncakes dependencies.
     moon-registry = {
       url = "git+https://mooncakes.io/git/index";
       flake = false;
     };
-    bw = {
-      url = "https://flakehub.com/f/totto2727-org/bw/0.1";
-      inputs.moon-registry.follows = "moon-registry";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     flowdeck = {
       url = "https://flakehub.com/f/totto2727-org/flowdeck/0.1";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    mdt = {
-      url = "https://flakehub.com/f/totto2727-org/mdt/0.1";
-      inputs.moon-registry.follows = "moon-registry";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     wt = {
@@ -33,17 +23,13 @@
     {
       self,
       nixpkgs,
-      bw,
       flowdeck,
-      mdt,
       wt,
       ...
     }:
     let
       applications = [
-        bw
         flowdeck
-        mdt
         wt
       ];
       supportedSystems = [

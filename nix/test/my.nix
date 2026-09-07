@@ -3,9 +3,7 @@ let
   macos = builtins.getFlake (toString ../share/my/macos);
   inherit (my.inputs.nixpkgs) lib;
   commonPackages = [
-    "bw"
     "flowdeck"
-    "mdt"
     "topcoat-cli"
     "wt"
   ];

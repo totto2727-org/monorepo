@@ -158,9 +158,9 @@
                       inherit pkgs npm;
                     })
                     ++ (with pkgs; [
-                      bw
                       flowdeck
-                      mdt
+                      # Includes both the macOS app and the gshift CLI.
+                      glossshift
                     ])
                     ++ (import ../share/packages-dev.nix { inherit pkgs; })
                     ++ (import ../share/packages-macos.nix { inherit pkgs; })
