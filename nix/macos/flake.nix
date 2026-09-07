@@ -157,15 +157,14 @@
                     (import ../share/packages.nix {
                       inherit pkgs npm;
                     })
-                    ++ (with pkgs; [
-                      flowdeck
-                      # Includes both the macOS app and the gshift CLI.
-                      glossshift
-                    ])
                     ++ (import ../share/packages-dev.nix { inherit pkgs; })
                     ++ (import ../share/packages-macos.nix { inherit pkgs; })
                     ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).macos
-                    ++ (with pkgs; [ codex ]);
+                    ++ (with pkgs; [
+                      codex
+                      flowdeck
+                      glossshift
+                    ]);
 
                   programs =
                     (import ../share/programs.nix { inherit pkgs; })
