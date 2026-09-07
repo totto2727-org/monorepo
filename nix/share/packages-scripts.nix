@@ -1,12 +1,4 @@
-{
-  pkgs,
-  npm,
-  wt ? npm {
-    binName = "wt";
-    runtime = "moon";
-    packageName = "totto2727/wt";
-  },
-}:
+{ pkgs, npm }:
 
 let
   inherit (pkgs) lib writeShellScriptBin;
@@ -69,7 +61,7 @@ let
     set -e
 
     export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"
-    exec ${wt}/bin/wt "$@"
+    exec ${pkgs.wt}/bin/wt "$@"
   '';
 
   macos-ctx7 = writeShellScriptBin "ctx7" ''

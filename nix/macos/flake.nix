@@ -164,10 +164,7 @@
                     ])
                     ++ (import ../share/packages-dev.nix { inherit pkgs; })
                     ++ (import ../share/packages-macos.nix { inherit pkgs; })
-                    ++ (import ../share/packages-scripts.nix {
-                      inherit pkgs npm;
-                      inherit (pkgs) wt;
-                    }).macos
+                    ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).macos
                     ++ (with pkgs; [ codex ]);
 
                   programs =
