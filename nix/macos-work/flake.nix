@@ -20,6 +20,14 @@
       url = "path:../share/packages";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    my = {
+      url = "path:../share/my";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    my-macos = {
+      url = "path:../share/my/macos";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     moonbit-overlay = {
       url = "github:totto2727/moonbit-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -40,6 +48,8 @@
       nixpkgs,
       npmpkgs,
       local-packages,
+      my,
+      my-macos,
       home-manager,
       nix-darwin,
       moonbit-overlay,
@@ -56,6 +66,8 @@
         inherit system;
         overlays = [
           local-packages.overlays.default
+          my.overlays.default
+          my-macos.overlays.default
           moonbit-overlay.overlays.default
           vite-plus-overlay.overlays.default
           jcode-overlay.overlays.default
@@ -104,6 +116,11 @@
                     (import ../share/packages.nix {
                       inherit pkgs npm;
                     })
+                    ++ (with pkgs; [
+                      bw
+                      flowdeck
+                      mdt
+                    ])
                     ++ (import ../share/packages-dev.nix { inherit pkgs; })
                     ++ (import ../share/packages-macos.nix { inherit pkgs; })
                     ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).macos-work
