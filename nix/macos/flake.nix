@@ -127,7 +127,7 @@
                     "chatgpt"
                     # Game
                     "heroic"
-                    "bluestack"
+                    "bluestacks"
                     # Utility
                     "discord"
                     "thunderbird"

@@ -190,11 +190,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788591053,
-        "narHash": "sha256-4V8Dq9Gq38NfujCuTtMtHdIw8zyvgBP/HojsW8fh4w8=",
+        "lastModified": 1788764524,
+        "narHash": "sha256-jUaaVRAFdH+1W7vh/oRbiaEiD8u27jwwNFEyUgA11ko=",
         "owner": "hypervideo",
         "repo": "jcode-nix",
-        "rev": "97dc35e91b725a0ea18748e27422c9c43d69acac",
+        "rev": "46861524c7f5b5f9ffc10e1030701c93f06ce43f",
         "type": "github"
       },
       "original": {
@@ -278,11 +278,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1788590867,
-        "narHash": "sha256-eoykhHAzkTNqw2cZRCHMVFUoRZ/TLRKPK1to+rpyAJE=",
+        "lastModified": 1788764910,
+        "narHash": "sha256-99h0jt0E6YATjUS175y6lfzcuj9b3PaOKZ/gm8K7lzY=",
         "owner": "totto2727",
         "repo": "moonbit-overlay",
-        "rev": "53bd8c8aeb3424e92da599d9367779f214285eb9",
+        "rev": "e825084dcd13fbcfdb892c707d79b8f830a18d93",
         "type": "github"
       },
       "original": {
