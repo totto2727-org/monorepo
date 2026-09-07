@@ -108,12 +108,14 @@
                     # Browser
                     "zen"
                     "brave-browser"
+                    "firefox"
                     # Coding
                     "zed"
                     "orbstack"
                     "chatgpt"
                     # Game
                     "heroic"
+                    "bluestack"
                     # Utility
                     "discord"
                     "thunderbird"
