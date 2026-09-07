@@ -40,7 +40,6 @@ In a consumer under `nix/`, add the shared inputs and use their overlays to sele
 
 Import `homeManagerModules.personal-apps` in a Home Manager configuration to install the selected tools, including both GlossShift binaries and `GlossShift.app`.
 The repository's [personal macOS configuration](../../macos/flake.nix) applies both overlays and retains the GitHub-token wrapper around `wt`.
-The work macOS configuration does not use these catalogs and retains its existing package selection and Mooncakes-based `wt` wrapper.
 For Linux, omit the `my-macos` input and overlay.
 
 ### Updating applications

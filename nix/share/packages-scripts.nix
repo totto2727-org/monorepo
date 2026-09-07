@@ -1,4 +1,12 @@
-{ pkgs, npm }:
+{
+  pkgs,
+  npm,
+  wt ? npm {
+    binName = "wt";
+    runtime = "moon";
+    packageName = "totto2727/wt";
+  },
+}:
 
 let
   inherit (pkgs) lib writeShellScriptBin;
@@ -57,16 +65,12 @@ let
     }/bin/cf "$@"
   '';
 
-  github-wt =
-    package:
-    writeShellScriptBin "wt" ''
-      set -e
+  macos-wt = writeShellScriptBin "wt" ''
+    set -e
 
-      export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"
-      exec ${package}/bin/wt "$@"
-    '';
-
-  macos-wt = github-wt pkgs.wt;
+    export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"
+    exec ${wt}/bin/wt "$@"
+  '';
 
   macos-ctx7 = writeShellScriptBin "ctx7" ''
     set -e
@@ -100,12 +104,6 @@ let
   '';
 
   # --- wrappers for macos-work
-  macos-work-wt = github-wt (npm {
-    binName = "wt";
-    runtime = "moon";
-    packageName = "totto2727/wt";
-  });
-
   macos-work-c = writeShellScriptBin "c" ''
     exec claude "$@"
   '';
@@ -168,7 +166,7 @@ in
 
   macos-work = [
     docker-credential-gh
-    macos-work-wt
+    macos-wt
     macos-work-c
   ];
 }
