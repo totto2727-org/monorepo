@@ -7,12 +7,6 @@
       "skillPath": "skills/building-components/SKILL.md",
       "computedHash": "20889af7cb9b3abca1e38824f7fffaa873eb0cc4d45187967b97bd85462cf934"
     },
-    "commit": {
-      "source": "totto2727-org/agent",
-      "sourceType": "github",
-      "skillPath": "plugins/symphony/skills/commit/SKILL.md",
-      "computedHash": "06d10dc8383be730a39d05cab053c4415399429868ce0a600ea5662e0600f223"
-    },
     "csv-analysis": {
       "source": "totto2727-org/agent",
       "sourceType": "github",
@@ -55,23 +49,11 @@
       "skillPath": "plugins/totto2727-coding/skills/js-test/SKILL.md",
       "computedHash": "b1a34bdc97d15dbd4542a5b8ecc536e924329de398587c990e4fb93f631fdb7a"
     },
-    "land": {
-      "source": "totto2727-org/agent",
-      "sourceType": "github",
-      "skillPath": "plugins/symphony/skills/land/SKILL.md",
-      "computedHash": "a734121d8beceaa7a4e568ba435b1a66eed67ae2c73c1f2e5caf02ab8b8b1c32"
-    },
     "lens": {
       "source": "totto2727-org/lens",
       "sourceType": "github",
       "skillPath": ".agents/skills/lens/SKILL.md",
       "computedHash": "f073cd36a21155966a9c1b2e8d280f6551e3d80b111e91a77fc8f952419806ca"
-    },
-    "linear": {
-      "source": "totto2727-org/agent",
-      "sourceType": "github",
-      "skillPath": "plugins/symphony/skills/linear/SKILL.md",
-      "computedHash": "f688f1f07f7b95f64fae91b6afa87b4a2daba7bf26b69124aedef60fcaf82f3f"
     },
     "macos-cli-rules": {
       "source": "totto2727-org/agent",
@@ -96,18 +78,6 @@
       "sourceType": "github",
       "skillPath": "skills/moonbit-orientation/SKILL.md",
       "computedHash": "a09b3d046f016875448f8d8b7e25c1e0e878648cb48740252fd110cd05b44e69"
-    },
-    "pull": {
-      "source": "totto2727-org/agent",
-      "sourceType": "github",
-      "skillPath": "plugins/symphony/skills/pull/SKILL.md",
-      "computedHash": "6d6ed8a69fccb1a48c9f84ee2bb1a2e90387b2f5443640bd063cc940534787f2"
-    },
-    "push": {
-      "source": "totto2727-org/agent",
-      "sourceType": "github",
-      "skillPath": "plugins/symphony/skills/push/SKILL.md",
-      "computedHash": "c25799e28b1c4a94ed04e24ed06eed323a6635f2271cd28d2475a6bbba27a7eb"
     },
     "realpath": {
       "source": "totto2727-org/agent",
