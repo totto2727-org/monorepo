@@ -59,14 +59,6 @@ let
       printf '%s\n' 'OpenConnector URL and token must not be empty.' >&2
       exit 1
     fi
-    case "$OPENCONNECTOR_BASE_URL" in
-      https://*) ;;
-      *://*)
-        printf '%s\n' 'OpenConnector requires an HTTPS origin.' >&2
-        exit 1
-        ;;
-      *) OPENCONNECTOR_BASE_URL="https://$OPENCONNECTOR_BASE_URL" ;;
-    esac
     OPENCONNECTOR_BASE_URL="''${OPENCONNECTOR_BASE_URL%/}"
     if ! [[ "$OPENCONNECTOR_BASE_URL" =~ ^https://[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?(:[0-9]+)?$ ]]; then
       printf '%s\n' 'OpenConnector requires a hostname-based HTTPS origin without credentials or a path.' >&2
