@@ -38,51 +38,11 @@ let
 
   # --- wrappers with pass-cli (macos) ---
 
-  macos-bx = writeShellScriptBin "bx" ''
-    export BRAVE_SEARCH_API_KEY="$(pass-cli get brave-search/api-key --quiet -f password)"
-    exec $HOME/.local/bin/bx "$@"
-  '';
-
-  macos-cf = writeShellScriptBin "cf" ''
-    set -e
-
-    CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet -f password)"
-    CLOUDFLARE_API_TOKEN="$(pass-cli get cloudflare/browser-rendering-api-key --quiet -f password)"
-    export CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_API_TOKEN
-    exec ${
-      npm {
-        binName = "cf";
-        packageName = "cf";
-      }
-    }/bin/cf "$@"
-  '';
-
   macos-wt = writeShellScriptBin "wt" ''
     set -e
 
     export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"
     exec ${pkgs.wt}/bin/wt "$@"
-  '';
-
-  macos-ctx7 = writeShellScriptBin "ctx7" ''
-    set -e
-
-    export CONTEXT7_API_KEY="$(pass-cli get context7/api-key --quiet -f password)"
-    exec ${
-      npm {
-        binName = "ctx7";
-        packageName = "ctx7";
-      }
-    }/bin/ctx7 "$@"
-  '';
-
-  macos-linear-mcp = writeShellScriptBin "linear-mcp" ''
-    export LINEAR_API_KEY="$(pass-cli get linear/api-key --quiet -f password)"
-    exec bunx mcp-remote \
-      https://mcp.linear.app/mcp \
-      --transport http-only \
-      --header "Authorization:Bearer ''${LINEAR_API_KEY}" \
-      "$@"
   '';
 
   macos-c = writeShellScriptBin "c" ''
@@ -91,7 +51,20 @@ let
   '';
 
   macos-j = writeShellScriptBin "j" ''
-    export LINEAR_API_KEY="$(pass-cli get linear/api-key --quiet -f password)"
+    set -e
+
+    OPENCONNECTOR_BASE_URL="$(pass-cli get open-connector/url --quiet --no-clipboard -f password)"
+    OPENCONNECTOR_TOKEN="$(pass-cli get open-connector/api-key --quiet --no-clipboard -f password)"
+    if [ -z "$OPENCONNECTOR_BASE_URL" ] || [ -z "$OPENCONNECTOR_TOKEN" ]; then
+      printf '%s\n' 'OpenConnector URL and token must not be empty.' >&2
+      exit 1
+    fi
+    OPENCONNECTOR_BASE_URL="''${OPENCONNECTOR_BASE_URL%/}"
+    if ! [[ "$OPENCONNECTOR_BASE_URL" =~ ^https://[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?(:[0-9]+)?$ ]]; then
+      printf '%s\n' 'OpenConnector requires a hostname-based HTTPS origin without credentials or a path.' >&2
+      exit 1
+    fi
+    export OPENCONNECTOR_BASE_URL OPENCONNECTOR_TOKEN
     exec jcode "$@"
   '';
 
@@ -102,33 +75,11 @@ let
 
   # --- wrappers for sandbox
 
-  sandbox-bx = writeShellScriptBin "bx" ''
-    exec $HOME/.local/bin/bx "$@"
-  '';
-
-  sandbox-cf = npm {
-    binName = "cf";
-    packageName = "cf";
-  };
-
   sandbox-wt = npm {
     binName = "wt";
     runtime = "moon";
     packageName = "totto2727/wt";
   };
-
-  sandbox-ctx7 = npm {
-    binName = "ctx7";
-    packageName = "ctx7";
-  };
-
-  sandbox-linear-mcp = writeShellScriptBin "linear-mcp" ''
-    exec bunx mcp-remote \
-      https://mcp.linear.app/mcp \
-      --transport http-only \
-      --header "Authorization:Bearer ''${LINEAR_API_KEY}" \
-      "$@"
-  '';
 
   sandbox-j = writeShellScriptBin "c" ''
     exec jcode "$@"
@@ -137,21 +88,13 @@ in
 {
   sandbox = [
     docker-credential-gh
-    sandbox-bx
-    sandbox-cf
     sandbox-wt
-    sandbox-ctx7
-    sandbox-linear-mcp
     sandbox-j
   ];
 
   macos = [
     docker-credential-gh
-    macos-bx
-    macos-cf
     macos-wt
-    macos-ctx7
-    macos-linear-mcp
     macos-c
     macos-j
   ];
