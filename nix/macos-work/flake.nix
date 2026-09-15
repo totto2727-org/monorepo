@@ -92,6 +92,7 @@
                   "visual-studio-code"
                   "claude"
                   "claude-code@latest"
+                  "anthropics/tap/ant"
                   "podman-desktop"
                   # Utility
                   "karabiner-elements"
@@ -114,8 +115,7 @@
                     ++ (import ../share/packages-macos.nix { inherit pkgs; })
                     ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).macos-work
                     ++ (with pkgs; [
-                      docker
-                      kanata-with-cmd
+                      krunkit
                     ]);
 
                   programs =
@@ -125,30 +125,17 @@
                       zsh = (import ../share/zsh.nix { inherit pkgs; }) // {
                         initContent = ''
                                       eval "$(/opt/homebrew/bin/brew shellenv)"
-
-                                      if [[ -n "$CLAUDECODE" || ! -o interactive ]]; then
-                                        return
-                                      fi
-
-                                      chpwd() {
-                                        eza -a --group-directories-first
-                                      }
                           	      '';
-                        shellAliases =
-                          (import ../share/shell-aliases.nix)
-                          // (import ../share/shell-aliases-macos.nix)
-                          // {
-                            pacli = ''
-                              /Applications/Prisma\ Access\ Agent.app/Contents/Helpers/pacli
-                            '';
-                          };
+                        shellAliases = (import ../share/shell-aliases.nix) // (import ../share/shell-aliases-macos.nix);
                       };
                     };
 
                   services = (import ../share/programs-macos.nix { inherit pkgs; }).services;
 
                   home.sessionVariables = import ../share/session-variables.nix;
-                  home.sessionPath = import ../share/session-path.nix;
+                  home.sessionPath = (import ../share/session-path.nix) ++ [
+                    "/Applications/Prisma Access Agent.app/Contents/Helpers"
+                  ];
                 };
               }
             )
