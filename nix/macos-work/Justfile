@@ -7,5 +7,3 @@ init-podman:
     podman machine stop && podman machine start
     podman run --rm -it --device /dev/dri --name gpu-info quay.io/slopezpa/fedora-vgpu vulkaninfo
 
-init-plantuml:
-    podman run -d -p 8080:8080 --read-only plantuml/plantuml-server:jetty
