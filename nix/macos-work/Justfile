@@ -7,3 +7,8 @@ init-podman:
     podman machine stop && podman machine start
     podman run --rm -it --device /dev/dri --name gpu-info quay.io/slopezpa/fedora-vgpu vulkaninfo
 
+install-vscode-extensions:
+    jq -r '.[]' vscode/extentions.json | xargs -I {} code --install-extension {}
+
+dump-vscode-extensions:
+    code --list-extensions | jq -R -s 'split("\n") | map(select(length > 0))' > vscode/extensions.json

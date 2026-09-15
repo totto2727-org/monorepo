@@ -4,32 +4,27 @@
 
 ### accessibility > point controll > trackpad
 
-- max scroll speed
-- enable drag by trackpad
-
-### accessibility > point controll > mause
-
-- max wheel speed
-- max scroll speed
-- enable drag by trackpad
-
-### control center
-
-- optimize
+- all true
+- all max
+- drag lock off
 
 ### desktop and dock
 
 - enable auto hidden
 - disable used apps
+- enable stage manager
+  - disable used apps
 
 ### do not disturb
 
-9:00~20:00
+8:00~20:00
 
 ### trackpad
 
-- speed level 6
+- speed level 6 (1 start)
 - click level low
+- enable silent click
+- check scroll and zoom/other gesture
 
 ### keyboard
 
@@ -39,7 +34,6 @@
 
 - remove ctrl + space shortcut
 - enable default function key
-- change language by capslock
 - use slash and backslash
 - disable input znnkaku number
 
@@ -53,6 +47,10 @@ defaults write -g ApplePressAndHoldEnabled -bool false
 - rename totto2727
 - reboot
 
+## safari
+
+- add 1password extention
+
 ## setup brew
 
 https://brew.sh/
@@ -62,15 +60,10 @@ https://brew.sh/
 https://docs.determinate.systems
 
 ```bash
-curl -L https://raw.githubusercontent.com/totto2727-dotfiles/nix/refs/heads/main/flake.nix > flake.nix
-curl -L https://github.com/totto2727-dotfiles/nix/blob/main/flake.lock > flake.lock
-nix run nix-darwin -- switch --flake .
-```
-
-## setup gh
-
-```bash
-gh auth login
+nix run nixpkgs#gh -- gh auth login
+nix run nixpkgs#gh -- gh repo clone totto2727-org/monorepo
+cd monorepo/nix
+nix run nixpkgs#just  -- just rebuild-macos
 ```
 
 ## setup chezmoi
@@ -79,22 +72,11 @@ gh auth login
 chezmoi init --apply https://github.com/totto2727-dotfiles/chezmoi.git
 ```
 
-## setup nix-repository
-
-```bash
-rm flake.nix flake.lock
-gh repo clone totto2727-dotfiles/nix
-cd nix
-task rebuild
-```
-
 ## setup base app
 
 - open 1password
-- open Edge
-  - enable Kagi extension
-  - change search engine to Kagi
-  - change home button to Kagi
+- open browser
+  - TODO
 - open and login logi-options+
   - restore backup
 
@@ -105,7 +87,7 @@ task rebuild
 
 ## setup karabiner driver and kanata
 
-https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/main/dist/Karabiner-DriverKit-VirtualHIDDevice-6.9.0.pkg
+https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/main/dist/Karabiner-DriverKit-VirtualHIDDevice-6.9.0.pkg or karabiner app
 
 ```bash
 /Applications/.Karabiner-VirtualHIDDevice-Manager.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Manager activate
@@ -113,22 +95,5 @@ https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/main/dist/
 
 ```bash
 karabiner
-# split terminal
 kanata
-```
-
-## VSCode(Cursor, Antigravity)
-
-### install vscode extensions
-
-```bash
-# mac/vscode
-jq -r '.[]' extentions.json | xargs -I {} cursor --install-extension {}
-```
-
-### update extension list
-
-```bash
-# mac/vscode
-cursor --list-extensions | jq -R -s 'split("\n") | map(select(length > 0))' > extensions.json
 ```
