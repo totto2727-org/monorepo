@@ -5,10 +5,6 @@ inputs:
   working-directory:
     description: Package directory, or workspace root when filters are provided.
     required: true
-  registry:
-    description: npm registry URL.
-    required: false
-    default: https://registry.npmjs.org
   filters:
     description: Optional pnpm workspace selectors, one per line. Enables recursive publication.
     required: false
@@ -21,7 +17,6 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       env:
-        NPM_REGISTRY: ${{ inputs.registry }}
         PUBLISH_FILTERS: ${{ inputs.filters }}
       run: |
         eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
@@ -33,7 +28,7 @@ runs:
         done <<< "$PUBLISH_FILTERS"
 
         if (( ${#filters[@]} > 0 )); then
-          vp pm publish -r --provenance --registry "$NPM_REGISTRY" "${filters[@]}"
+          vp pm publish -r --provenance "${filters[@]}"
         else
-          vp pm publish --provenance --registry "$NPM_REGISTRY"
+          vp pm publish --provenance
         fi
