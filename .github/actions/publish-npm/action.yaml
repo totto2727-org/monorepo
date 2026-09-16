@@ -35,12 +35,5 @@ runs:
         if (( ${#filters[@]} > 0 )); then
           vp pm publish -r --provenance --registry "$NPM_REGISTRY" "${filters[@]}"
         else
-          encoded_name=$(node --print "encodeURIComponent(require('./package.json').name)")
-          version=$(node --print "require('./package.json').version")
-          status=$(curl -sS -o /dev/null -w "%{http_code}" "${NPM_REGISTRY%/}/${encoded_name}/${version}")
-          case "$status" in
-            200) echo "v${version} already published. Skipping." ;;
-            404) vp pm publish --provenance --registry "$NPM_REGISTRY" ;;
-            *) echo "Registry lookup failed with HTTP ${status}." >&2; exit 1 ;;
-          esac
+          vp pm publish --provenance --registry "$NPM_REGISTRY"
         fi
