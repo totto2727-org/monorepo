@@ -1,31 +1,46 @@
 name: Publish to npm
-description: Publish the package in working-directory to npm via bun, skipping if the version is already published.
+description: Publish a package or filtered workspace packages to npm via VitePlus with provenance.
 
 inputs:
   working-directory:
-    description: Directory containing the package.json to publish.
+    description: Package directory, or workspace root when filters are provided.
     required: true
   registry:
     description: npm registry URL.
     required: false
     default: https://registry.npmjs.org
+  filters:
+    description: Optional pnpm workspace selectors, one per line. Enables recursive publication.
+    required: false
+    default: ""
 
 runs:
   using: composite
   steps:
-    - name: Publish npm package
+    - name: Publish npm packages
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       env:
         NPM_REGISTRY: ${{ inputs.registry }}
+        PUBLISH_FILTERS: ${{ inputs.filters }}
       run: |
         eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
-        ENCODED_NAME=$(bun --print "encodeURIComponent(require('./package.json').name)")
-        LOCAL_VERSION=$(bun --print "require('./package.json').version")
-        HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${NPM_REGISTRY}/${ENCODED_NAME}/${LOCAL_VERSION}")
+        filters=()
+        while IFS= read -r filter; do
+          filter="${filter%$'\r'}"
+          [[ -z "$filter" ]] && continue
+          filters+=(--filter "$filter")
+        done <<< "$PUBLISH_FILTERS"
 
-        if [ "$HTTP_STATUS" = "200" ]; then
-          echo "v${LOCAL_VERSION} already published. Skipping."
+        if (( ${#filters[@]} > 0 )); then
+          vp pm publish -r --provenance --registry "$NPM_REGISTRY" "${filters[@]}"
         else
-          bun publish --registry "${NPM_REGISTRY}"
+          encoded_name=$(node --print "encodeURIComponent(require('./package.json').name)")
+          version=$(node --print "require('./package.json').version")
+          status=$(curl -sS -o /dev/null -w "%{http_code}" "${NPM_REGISTRY%/}/${encoded_name}/${version}")
+          case "$status" in
+            200) echo "v${version} already published. Skipping." ;;
+            404) vp pm publish --provenance --registry "$NPM_REGISTRY" ;;
+            *) echo "Registry lookup failed with HTTP ${status}." >&2; exit 1 ;;
+          esac
         fi
