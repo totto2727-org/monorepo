@@ -1,5 +1,5 @@
 name: Publish to npm
-description: Publish a package or filtered workspace packages to npm via VitePlus with provenance.
+description: Stage a package or filtered workspace packages for npm publication via VitePlus with provenance.
 
 inputs:
   working-directory:
@@ -13,7 +13,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Publish npm packages
+    - name: Stage npm packages
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       env:
@@ -28,7 +28,7 @@ runs:
         done <<< "$PUBLISH_FILTERS"
 
         if (( ${#filters[@]} > 0 )); then
-          vp pm publish -r --provenance "${filters[@]}"
+          vp pm stage publish -r --provenance "${filters[@]}"
         else
-          vp pm publish --provenance
+          vp pm stage publish --provenance
         fi
