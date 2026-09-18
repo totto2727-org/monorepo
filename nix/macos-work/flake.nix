@@ -32,10 +32,6 @@
       url = "github:ryoppippi/nix-vite-plus";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    jcode-overlay = {
-      url = "github:hypervideo/jcode-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
@@ -49,7 +45,6 @@
       nix-darwin,
       moonbit-overlay,
       vite-plus-overlay,
-      jcode-overlay,
     }:
     let
       hostname = "AMADH5CQH14H3";
@@ -64,7 +59,6 @@
           my.overlays.default
           moonbit-overlay.overlays.default
           vite-plus-overlay.overlays.default
-          jcode-overlay.overlays.default
         ];
       };
       npm = npmpkgs.lib.${pkgs.system}.npmPackage;

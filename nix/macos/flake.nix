@@ -40,10 +40,6 @@
       url = "github:sadjow/codex-cli-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    jcode-overlay = {
-      url = "github:hypervideo/jcode-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     apple-container-overlay = {
       url = "github:halfwhey/nix-apple-container";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -63,7 +59,6 @@
       moonbit-overlay,
       vite-plus-overlay,
       codex-overlay,
-      jcode-overlay,
       apple-container-overlay,
     }:
     let
@@ -81,7 +76,6 @@
           moonbit-overlay.overlays.default
           vite-plus-overlay.overlays.default
           codex-overlay.overlays.default
-          jcode-overlay.overlays.default
         ];
       };
       npm = npmpkgs.lib.${pkgs.system}.npmPackage;
@@ -115,6 +109,7 @@
                     "talosctl"
                     "cloudflared"
                     "pulumi"
+                    "jcode"
                   ];
                   casks = (import ../share/casks.nix) ++ [
                     # Browser

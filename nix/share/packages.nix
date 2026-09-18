@@ -15,7 +15,6 @@ with pkgs;
   neovim
   lazygit
   yazi
-  jcode
   # Coding
   nixfmt
   just
