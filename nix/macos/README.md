@@ -60,10 +60,10 @@ https://brew.sh/
 https://docs.determinate.systems
 
 ```bash
-nix run nixpkgs#gh -- gh auth login
-nix run nixpkgs#gh -- gh repo clone totto2727-org/monorepo
+nix run nixpkgs#gh -- auth login
+nix run nixpkgs#gh -- repo clone totto2727-org/monorepo
 cd monorepo/nix
-nix run nixpkgs#just  -- just rebuild-macos
+nix run nixpkgs#just -- rebuild-macos
 ```
 
 ## setup chezmoi
