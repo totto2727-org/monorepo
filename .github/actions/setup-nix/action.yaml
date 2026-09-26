@@ -2,6 +2,10 @@ name: Setup Nix
 description: Install Determinate Nix, cache store paths, and prepare the development shell.
 
 inputs:
+  prepare-dev-shell:
+    description: Prepare the development shell. Disable for jobs that only need Nix itself.
+    required: false
+    default: 'true'
   dev-shell:
     description: Nix devShell attribute to prepare. Use the same shell in subsequent steps.
     required: false
@@ -20,6 +24,7 @@ runs:
         use-gha-cache: true
 
     - name: Prepare Nix development shell
+      if: ${{ inputs.prepare-dev-shell == 'true' }}
       shell: bash
       env:
         NIX_DEV_SHELL: ${{ inputs.dev-shell }}
