@@ -55,16 +55,8 @@ let
 
     OPENCONNECTOR_BASE_URL="$(pass-cli get open-connector/url --quiet --no-clipboard -f password)"
     OPENCONNECTOR_TOKEN="$(pass-cli get open-connector/api-key --quiet --no-clipboard -f password)"
-    if [ -z "$OPENCONNECTOR_BASE_URL" ] || [ -z "$OPENCONNECTOR_TOKEN" ]; then
-      printf '%s\n' 'OpenConnector URL and token must not be empty.' >&2
-      exit 1
-    fi
-    OPENCONNECTOR_BASE_URL="''${OPENCONNECTOR_BASE_URL%/}"
-    if ! [[ "$OPENCONNECTOR_BASE_URL" =~ ^https://[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?(:[0-9]+)?$ ]]; then
-      printf '%s\n' 'OpenConnector requires a hostname-based HTTPS origin without credentials or a path.' >&2
-      exit 1
-    fi
-    export OPENCONNECTOR_BASE_URL OPENCONNECTOR_TOKEN
+    TYPESAFE_API_KEY="$(pass-cli get type-safe/api-key --quiet --no-clipboard -f password)"
+    export OPENCONNECTOR_BASE_URL OPENCONNECTOR_TOKEN TYPESAFE_API_KEY
     exec jcode "$@"
   '';
 
