@@ -14,8 +14,8 @@ No provider API keys or gateway runtime tokens are created, stored, or exported 
 Run the maintained local checks and Pulumi-mocked regression tests from the repository root:
 
 ```bash
-vp run --filter @infra/cloudflare check
-vp run --filter @infra/cloudflare test
+vp check infra/cloudflare
+vp test run --dir infra/cloudflare
 ```
 
 The regression tests check resource inputs and connection outputs without accessing Cloudflare.

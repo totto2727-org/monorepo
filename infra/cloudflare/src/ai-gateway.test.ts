@@ -4,22 +4,20 @@ import { afterAll, beforeAll, describe, expect, test, vi } from 'vite-plus/test'
 const resources: pulumi.runtime.MockResourceArgs[] = []
 let outputs: { baseUrl: string; gatewayId: string }
 
+const mocks: pulumi.runtime.Mocks = {
+  call: (args) => {
+    throw new Error(`Unexpected provider invocation: ${args.token}`)
+  },
+  newResource: (args) => {
+    resources.push(args)
+    // oxlint-disable-next-line typescript/no-unsafe-assignment -- Pulumi declares mock inputs as any and expects them echoed as resource state.
+    return { id: 'provider-resource-id', state: args.inputs }
+  },
+}
+
 beforeAll(async () => {
   vi.stubEnv('CLOUDFLARE_ACCOUNT_ID', 'test-account')
-  await pulumi.runtime.setMocks(
-    {
-      call: (args) => {
-        throw new Error(`Unexpected provider invocation: ${args.token}`)
-      },
-      newResource: (args) => {
-        resources.push(args)
-        // oxlint-disable-next-line typescript/no-unsafe-assignment -- Pulumi declares mock inputs as any and expects them echoed as resource state.
-        return { id: 'provider-resource-id', state: args.inputs }
-      },
-    },
-    'cloudflare',
-    'production',
-  )
+  await pulumi.runtime.setMocks(mocks, 'cloudflare', 'production')
 
   const gateway = await import('./ai-gateway.ts')
   const { promise, resolve } = Promise.withResolvers<typeof outputs>()
@@ -57,5 +55,23 @@ describe('AI Gateway', () => {
       baseUrl: 'https://gateway.ai.cloudflare.com/v1/test-account/iac-prod-ai-gateway',
       gatewayId: 'iac-prod-ai-gateway',
     })
+  })
+
+  test('keeps non-production gateway names separate from production', async () => {
+    vi.resetModules()
+    await pulumi.runtime.setMocks(mocks, 'cloudflare', 'staging')
+    const config = await import('./config.ts')
+
+    expect(config.resourceName('ai-gateway')).toBe('iac-staging-ai-gateway')
+    expect(config.resourceName('ai-gateway')).not.toBe(outputs.gatewayId)
+  })
+
+  test('rejects a missing account before registering another gateway', async () => {
+    vi.resetModules()
+    // oxlint-disable-next-line unicorn/no-useless-undefined -- Vitest requires an explicit undefined value to remove the environment variable.
+    vi.stubEnv('CLOUDFLARE_ACCOUNT_ID', undefined)
+
+    await expect(import('./ai-gateway.ts')).rejects.toThrow('required CLOUDFLARE_ACCOUNT_ID')
+    expect(resources).toHaveLength(1)
   })
 })
