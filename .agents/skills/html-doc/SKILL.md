@@ -1,106 +1,53 @@
 ---
 name: html-doc
-description: Create standalone explanatory HTML documents with inline CSS and JavaScript, interactive diagrams, Mermaid support, code blocks, and lightweight canvas/CSS visualizations. Use when turning technical notes, algorithms, or API explanations into self-contained browser-readable documentation.
+description: >-
+  Create explanatory HTML documents from a reusable base template. Use when technical explanations, architecture notes, or algorithms should be delivered as browser-readable HTML.
 ---
 
-# HTML Doc Skill
+# HTML Documents
 
-Use this skill when the user asks for an explanatory HTML document, especially when the document should include dynamic movement, diagrams, charts, algorithm walkthroughs, or annotated code blocks.
+Use [templates/standalone.html](templates/standalone.html) as a base for an explanatory document that opens directly in a browser.
+Consult [documentation-principles](../../../totto2727-coding/skills/documentation-principles/SKILL.md) when deciding content, structure, or level of detail; reuse already-loaded guidance rather than rereading it for every document.
+The template is not a requirement to build a complex visualization or a polished website.
+A clear explanation with headings, prose, and a focused example may be the whole document.
 
-## Output Goal
+## Template contract
 
-Generate a single `.html` file that can be opened directly in a browser. Prefer one document per topic or module. The document is primarily for an agent or technically skilled maintainer, not a polished public website.
+Replace the following placeholders in the single `.html` file:
 
-## Default Format
+| Placeholder          | Content                                                           |
+| -------------------- | ----------------------------------------------------------------- |
+| `{{TITLE}}`          | Document title, used in the browser tab and existing hero heading |
+| `{{SUMMARY}}`        | The conclusion or central idea the reader needs first             |
+| `{{CONTENT}}`        | HTML sections that explain the topic                              |
+| `{{BOOTSTRAP_DATA}}` | Valid JSON for local demos, or `{}` when unused                   |
 
-Start from `templates/standalone.html` and replace the placeholders:
+The template already includes a hero section; do not duplicate it in `{{CONTENT}}`.
+Set the document's `lang` attribute to match the prose.
+Keep CSS and local behavior inline, and preserve identifiers, filenames, and equations accurately.
+Escape text and attribute values for their HTML context, including code samples.
+Serialize embedded JSON safely so a literal `</script>` cannot terminate its script element, for example by encoding `<` as `\u003c`.
+Treat generated HTML, stepper content, and scripts as trusted authored content, not as a safe container for arbitrary untrusted input.
 
-- `{{TITLE}}`
-- `{{SUMMARY}}`
-- `{{CONTENT}}`
-- `{{BOOTSTRAP_DATA}}`
+Add sections, navigation, grids, or disclosures only when they improve comprehension.
+Direct child sections of `main` with IDs are included in the template's automatic navigation.
 
-Keep CSS and local behavior inline. Mermaid is allowed through the built-in dynamic CDN loader in the template. If offline/no-network operation is required, avoid Mermaid and use SVG, Canvas, CSS boxes, or HTML tables instead.
+## Optional rendering and delivery constraints
 
-## Diagram Rules
+Diagrams and steppers are optional, even for algorithms or complex logic.
+Choose them only when they communicate something more clearly than prose or a focused example.
+The default template makes external RaTeX requests even without formulas, so a single HTML file is not automatically offline-ready.
 
-- Prefer Mermaid for flowcharts, sequence diagrams, state diagrams, class-ish overviews, and dependency graphs.
-- For complex logic, show both a compact implementation-shaped code sample in the project's language and a Mermaid flowchart. For simple logic, use either the code sample or the Mermaid flowchart, whichever is clearer.
-- Quote Mermaid node labels with `A["label"]` and decision labels with `B{"question"}`. Avoid raw semicolons, `<`, `>`, slash-heavy labels, and unescaped punctuation inside unquoted nodes because Mermaid parsing is fragile.
-- Mermaid diagrams rendered by the template are interactive: wheel to zoom, drag to pan, and use the reset button to restore the initial view. Do not add custom pan/zoom code in generated content.
-- Do not use PlantUML by default. Browser-side PlantUML usually needs a server endpoint, encoded URLs, or a large WASM/runtime dependency. If the user explicitly requests PlantUML, ask whether a server/CDN dependency is acceptable.
-- If Mermaid becomes awkward, use inline SVG for static diagrams, Canvas for dynamic algorithm motion, and CSS/HTML for small state-machine or matrix visualizations.
-- For algorithm explanations, include both a high-level flow diagram and one interactive stepper.
+Read only the relevant sections of [rendering.md](references/rendering.md):
 
-## Code Block Rules
+- [Online and offline dependencies](references/rendering.md#online-and-offline-dependencies) when deciding whether external resources are acceptable or preparing no-network delivery.
+- [Optional diagrams and interaction](references/rendering.md#optional-diagrams-and-interaction) when adding visuals or interactive examples.
+- [Code and math](references/rendering.md#code-and-math) when adding highlighted code or formulas.
 
-- Use `<pre><code class="language-...">` blocks.
-- Add `data-title="..."` when the code block needs a filename or label.
-- Keep code blocks plain text in generated content. Do not inject presentation markup or behavior outside the template.
-- Code block formatting is owned by `templates/standalone.html`. When generating a document, preserve `<pre><code class="language-...">...</code></pre>` exactly and let the template handle rendering.
-- The default template loads Shiki dynamically from CDN and replaces each source `<pre><code>` with Shiki's generated dark-theme HTML. If Shiki cannot load or a grammar fails, it falls back to a plain escaped `<pre><code>`.
-- `language-moonbit` is mapped to Shiki's `rust` grammar as an approximate fallback unless a better grammar is added later.
-- Do not put language-neutral pseudocode in code blocks. Convert it to a simplified code sample in the project's language. Omit incidental details such as null checks when they distract from the core algorithm.
+## Verification appropriate to the document
 
-## Math Rules
-
-- Do not put formulas in `language-text` code blocks.
-- Render formulas with RaTeX via `<span class="math" data-latex="..." data-fs="24"></span>` for inline or display math.
-- The template loads `ratex-wasm` from CDN and dynamically creates `<ratex-formula>` after fonts are ready. If RaTeX fails, the original LaTeX text remains visible.
-
-## Interaction Patterns
-
-Use the smallest interaction that improves understanding:
-
-- Stepper: for algorithms with a clear sequence.
-- Range slider: for parameterized geometry or numeric examples.
-- Toggle buttons: for comparing variants such as strict vs inclusive predicates.
-- Canvas: for geometric motion, clipping, interpolation, or distance visualization.
-- Details blocks: for expandable edge cases.
-
-## Recommended Content Structure
-
-```html
-<section class="hero-card">
-  <p class="eyebrow">module / algorithm name</p>
-  <h1>Short title</h1>
-  <p>One-paragraph summary.</p>
-</section>
-
-<section class="panel">
-  <h2>Core Idea</h2>
-  <p>Explain the invariant or mental model first.</p>
-</section>
-
-<section class="panel grid two">
-  <div>
-    <h2>Flow</h2>
-    <div class="mermaid">...</div>
-  </div>
-  <div>
-    <h2>State</h2>
-    <div class="viz" data-viz="...">...</div>
-  </div>
-</section>
-
-<section class="panel">
-  <h2>Implementation Notes</h2>
-  <pre data-title="example.mbt"><code class="language-moonbit">...</code></pre>
-</section>
-```
-
-## Authoring Guidance
-
-- Preserve identifiers exactly: function names, type names, enum variants, file names, and equations.
-- Prefer concise Japanese explanations if the repository/user context is Japanese. Keep code, HTML attributes, CSS class names, and identifiers in English.
-- Use `data-steps` JSON for steppers when the sequence is small. Use custom inline scripts only when the default template behavior is insufficient.
-- Avoid external assets except Mermaid. Images should be replaced with SVG/Canvas where possible.
-
-## Verification
-
-After creating an HTML document:
-
-1. Read the generated file enough to confirm placeholders were replaced.
-2. Check that `<style>` and `<script>` are present inline.
-3. Check that Mermaid diagrams use `<div class="mermaid">` and not Markdown fences.
-4. If practical, open the file path or run a lightweight static check; no build step is required.
+Check that placeholders are replaced, bootstrap data is valid JSON, and content and links remain readable in the intended delivery mode.
+Verify only the optional features actually used, including navigation targets, diagrams, formulas, controls, and narrow-screen layout when relevant.
+For no-network delivery, test with network access disabled and check for attempted external requests, not just visible fallback text.
+A static source check can establish structure but cannot establish browser rendering, interaction quality, or CDN availability.
+Report which checks were performed and any remaining limitations without presenting unexecuted checks as successful.

@@ -15,7 +15,3 @@ export class {Name} extends Data.TaggedError('http/error/{Name}') {
 ```
 
 Tag format: `http/error/{ErrorName}`
-
-### Examples
-
-- [email/sender.ts](../../../../../js/app/identity-provider/app/feature/email/sender.ts)

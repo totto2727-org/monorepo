@@ -17,31 +17,25 @@ For `async test`, follow [`execution.md`](execution.md#async-tests) for the requ
 
 **Important**: Code blocks **must not be indented**. Even when included in a list item, the code block fence (\`\`\`) and its content must start at the beginning of the line.
 
-### File Structure Definition
+### Document structure
 
-For `.mbt.md` files, follow the structure below.
+Group executable examples by the public behavior or function they explain.
+Use the structure below as an example, not a required document format.
 
-**Organization Rules:**
+For documents with several functions, headings and a short public API index can help readers navigate.
+Group trait methods under their type or trait when that makes the behavior easier to find.
 
-- Organize tests by function using **H3 headers**.
-- For **Trait implementations**:
-  - Use **H3** for the Trait name (if grouping by trait) or the Function Name directly.
-  - Use nested **H4 headers** for methods if needed.
-- **Top-Level "Public API" Section**:
-  - Nest trait implementations under the type they belong to using a bulleted list.
-  - Only list traits that are explicitly implemented in the file (ignore defaults).
-- Each section should contain:
-  1. **Test Design Flow**: One or more Mermaid `flowchart TD` diagrams summarizing conditions and cases. Include a flowchart even when the function has only one test case.
-     - Follow the [`share-test-design-flow` embedded function-flow rules](../../share-test-design-flow/references/qa-flow.md#embedded-executable-function-flows) for case boundaries, local numbering, assertion aggregation, title mapping, and split-flow hierarchy.
-     - Do not use a test case matrix or table.
-     - Use the function's argument names such as `arg1`, `arg2`, or `self` in decision nodes when identifying input conditions.
-     - Use the function named by the H3 header as the start node instead of adding a redundant method condition.
-     - Follow [`names.md`](names.md) for the MoonBit test-title syntax and required `panic_` prefix.
-     - Follow [`assertions.md`](assertions.md#direct-results-and-raised-errors) to use inspection APIs for direct results and `try!` plus a `panic_` title for expected raised errors.
-  2. **Implementation**: Code blocks with test implementations.
-- **Order matching**: The order of tests in the `## Test` section must strictly follow the order of the corresponding items in the `## Public API` section.
+Explain the relevant conditions and expected observations in the smallest useful form: prose, a table, or a diagram.
+A single case does not need a flowchart.
+Use [share-test-design](../../share-test-design/SKILL.md) when deciding coverage and evidence, rather than requiring a separate design artifact.
 
-#### Template
+Keep MoonBit-specific execution constraints:
+
+- Follow [`names.md`](names.md) for test-title syntax and the required `panic_` prefix for expected panics.
+- Follow [`assertions.md`](assertions.md#direct-results-and-raised-errors) for inspection APIs and `try!` in expected-error tests.
+- Keep executable examples close to the behavior they explain.
+
+#### Example with an optional flowchart
 
 ````markdown
 # [Implementation File Name] (e.g., xy.mbt)

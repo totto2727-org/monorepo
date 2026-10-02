@@ -23,8 +23,3 @@ export const app = factory.createApp()
 // entry.hono.ts
 app.route('/api/v1/{name}', SubApp.app)
 ```
-
-### Examples
-
-- Sub-app: [app.tsx](../../../../../js/app/identity-provider/app/app.tsx)
-- Worker integration: [worker.ts](../../../../../js/app/feed-platform-backend/src/worker/bff/worker.ts)

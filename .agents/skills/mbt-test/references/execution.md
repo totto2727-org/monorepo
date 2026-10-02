@@ -4,8 +4,6 @@
 
 ## Supported execution surface
 
-The following example applies only when the target repository defines an `mbt:test` task. This monorepo no longer contains MoonBit packages. Follow the standalone package's own test instructions instead.
-
 ```bash
 vp run mbt:test
 vp run --filter <project> test
@@ -23,4 +21,4 @@ Async tests may run in parallel. Keep their state independent, await every opera
 
 ## Scope boundary
 
-This reference covers only MoonBit test code executable through repository Vite+ tasks or `moon test`. Manual verification, visual or subjective inspection, and human-readable QA reports belong to `share-test-design-flow`.
+This reference covers only MoonBit test code executable through repository Vite+ tasks or `moon test`. Manual verification, visual or subjective inspection, and human-readable QA reports belong to `share-test-design`.

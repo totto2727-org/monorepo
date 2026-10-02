@@ -1,65 +1,43 @@
 ---
 name: realpath
 description: >-
-  This skill should be used when performing path operations across platforms.
-  Relevant when the user asks to calculate relative paths, convert to absolute
-  paths, or resolve symbolic links.
-  Common triggers: "relative path", "absolute path", "resolve symlink",
-  "realpath", "grealpath", "path calculation".
+  Calculate relative or canonical filesystem paths with realpath. Use for shell path calculations and symlink resolution.
 ---
 
-# Cross-Platform Path Operations with realpath
+# Filesystem Path Calculations
 
-## Platform Rule (CRITICAL)
+Use a path-aware tool rather than splitting strings on separators.
+In application code, prefer the language's path API instead of spawning a shell command.
 
-| Platform  | Command     | Notes                                                                                                                               |
-| --------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| **macOS** | `grealpath` | Requires GNU coreutils (`brew install coreutils`). See [macos-cli-rules](../macos-cli-rules/SKILL.md) for full GNU coreutils usage. |
-| **Linux** | `realpath`  | Available by default in GNU/Linux.                                                                                                  |
+## Choose the required semantics
 
-All examples below use `realpath`. **On macOS, replace every `realpath` with `grealpath`.**
+- Use canonicalization when the result must resolve filesystem symlinks.
+- Use a lexical path operation when the result must preserve symlinks or need not refer to an existing file.
+- Keep filesystem paths separate from URLs.
 
-## When to Use
+The examples below use GNU `realpath`.
+On macOS, GNU coreutils commonly provides it as `grealpath`; check the available implementation before relying on GNU options.
+This is not a requirement to replace unrelated shell utilities or install packages for every path operation.
 
-**ALWAYS** use `realpath` for:
+## Relative path
 
-- Calculating relative paths between files/directories
-- Converting relative paths to absolute paths
-- Resolving symbolic links to absolute paths
-
-**NEVER** manually calculate relative paths, use `cd`/`pwd` combinations, or use string manipulation for paths.
-
-## Relative Path Calculation
-
-Use `realpath --relative-to=<base>` to calculate relative paths:
+GNU `--relative-to` computes a path from a base directory to the target:
 
 ```bash
-# Calculate relative path from base directory to target
-realpath --relative-to=/home/user /home/user/test
-# Output: test
-
-# Calculate relative path from current directory
-realpath --relative-to=. ./subdir/file.txt
-# Output: subdir/file.txt
-
-# Calculate relative path between two specific paths
-realpath --relative-to=/path/to/base /path/to/base/subdir/file.txt
-# Output: subdir/file.txt
+realpath --relative-to=/home/user /home/user/project/file.txt
+# project/file.txt
 ```
 
-## Absolute Path Conversion
+Quote variable paths, for example `realpath --relative-to="$base" -- "$target"`.
+Use `grealpath` for this example when that is the installed GNU executable.
+
+## Canonical absolute path
 
 ```bash
-# Convert relative path to absolute path
-realpath ./subdir/file.txt
-# Output: /home/user/project/subdir/file.txt
-
-# Resolve symbolic links to absolute paths
-realpath symlink
-# Output: /home/user/project/actual/path
+realpath -- ./subdir/file.txt
+realpath -- ./symlink
 ```
 
-## Key Notes
-
-- The `--relative-to` option is a GNU extension — BSD `realpath` does not support it
-- Paths are normalized (removes `.` and `..` components)
+Canonicalization resolves symlinks and normalizes `.` and `..`.
+GNU `-e` requires every path component to exist; `-m` allows missing components.
+Choose deliberately when existence affects the task, and check command failures instead of treating empty output as a path.

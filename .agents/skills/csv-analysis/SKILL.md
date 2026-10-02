@@ -1,11 +1,7 @@
 ---
 name: csv-analysis
 description: >-
-  This skill should be used when analyzing CSV files with SQL queries.
-  Relevant when the user asks to query CSV data, filter rows, aggregate columns,
-  or explore tabular datasets.
-  Common triggers: "analyze this CSV", "query CSV", "filter CSV data",
-  "count rows in CSV", "summarize CSV".
+  Query CSV data with SQL. Use for filtering, aggregation, joins, or exploration of CSV datasets.
 ---
 
 # CSV Analysis with DuckDB

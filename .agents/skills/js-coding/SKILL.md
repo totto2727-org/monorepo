@@ -1,15 +1,13 @@
 ---
 name: js-coding
 description: >-
-  Index of concrete TypeScript production-code practices for this repository.
-  Use for Effect, Hono, Remix, or @totto2727/fp implementation. Apply
-  share-coding first for language-independent philosophy. Use js-test for
-  executable tests.
+  TypeScript implementation guidance for Effect, Hono, Remix, browser IME input, typed boundaries, and collections. Use when implementing or reviewing these concerns.
 ---
 
 # TypeScript Coding Index
 
-All references below are concrete TypeScript implementation guidance or an explicit upstream source index. Conceptual guidance belongs to [`share-coding`](../share-coding/SKILL.md).
+All references below are concrete TypeScript implementation guidance or an explicit upstream source index. Use [`share-coding`](../share-coding/SKILL.md) for language-independent design decisions.
+Read only the relevant reference; already available principles need not be reloaded.
 
 ## Type boundaries
 
@@ -32,6 +30,10 @@ All references below are concrete TypeScript implementation guidance or an expli
 - [`hono-subapp.md`](references/hono-subapp.md) — sub-application construction.
 - [`hono-errors.md`](references/hono-errors.md) — HTTP error types.
 - [`hono-ordering.md`](references/hono-ordering.md) — middleware registration order.
+
+## Browser input
+
+- [`ime-safe-enter-submit.md`](references/ime-safe-enter-submit.md) — read when adding or changing custom Enter-to-submit behavior, or fixing premature submission during IME conversion; routes to official Modern Web Guidance.
 
 ## Remix
 

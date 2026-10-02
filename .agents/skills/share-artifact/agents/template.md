@@ -1,5 +1,4 @@
-{# Extensions may add repository-specific AI or developer sections if they preserve this order, retain the CLAUDE.md -> AGENTS.md relative-symlink alias, and do not become an end-user getting-started guide. -#}
-
+{# Illustrative shape only: retain useful repository-specific instructions, not empty sections. #}
 # {{ project_name }}
 
 ## Repository structure
@@ -10,56 +9,36 @@
 
 ### Execution rules
 
-{% for rule in execution_rules -%}
-
-- {{ rule }}
-
-{% endfor -%}
+{{ command_location_and_environment }}
 
 ### Standard tasks
 
-{% for task in standard_tasks -%}
-
-- `{{ task.command }}` — {{ task.description }}
-
-{% endfor -%}
+{% for task in tasks %}
+- `{{ task.command }}`: {{ task.purpose }}
+{% endfor %}
 
 ## Architecture
 
-{% for section in architecture_sections -%}
-
-### {{ section.title }}
-
-{% for item in section['items'] -%}
-
-- {{ item }}
-
-{% endfor -%}
-{% endfor -%}
+{{ architecture_constraints }}
 
 ## Development tools
 
-{% for tool in development_tools -%}
-
-- **{{ tool.name }}**: {{ tool.description }}
-
-{% endfor -%}
-
-{% if package_rules -%}
+{{ tool_specific_notes }}
 
 ## Package-specific rules
 
-{% for rule in package_rules -%}
+{{ package_rules }}
 
-- {{ rule }}
+## Task-specific documentation
 
-{% endfor -%}
-{% endif -%}
+{% for link in documentation_links %}
+- When {{ link.task }}: [{{ link.title }}]({{ link.path }}).
+{% endfor %}
 
-{% if is_moonbit -%}
-
+{# Include when the repository uses the MoonBit physical README convention. #}
+{% if moonbit_readme %}
 ## MoonBit README maintenance
 
-Keep the canonical end-user content in the physical `README.mbt.md` file and maintain `README.md` as the relative symlink `README.md -> README.mbt.md`. Validate supported MoonBit blocks with `moon check README.mbt.md` and `moon test README.mbt.md`. Never render canonical-file or symlink-maintenance instructions into the end-user README.
+Keep consumer content in the physical `README.mbt.md` file with the relative symlink `README.md -> README.mbt.md`.
+Check supported executable examples against the actual package with `moon check README.mbt.md` and `moon test README.mbt.md`.
 {% endif %}
-_This AGENTS.md was generated from the [share-artifact skill](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/SKILL.md) and [AGENTS template](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/agents/template.md)._

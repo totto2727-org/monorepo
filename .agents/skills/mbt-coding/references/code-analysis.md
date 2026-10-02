@@ -6,13 +6,20 @@
 
 Use `moon ide` for symbol-aware navigation because it uses the compiler's semantic knowledge of the project. Use text search for filenames, string literals, comments, and broad discovery; do not rely on text matches alone when locating definitions or determining every reference to a symbol.
 
-## Investigation sequence
+## Choose by investigation need
 
-1. Run `moon ide outline <path/to/file_or_directory>` to understand the file or package structure before reading implementation details.
-2. Run `moon ide doc '<query>'` to discover packages, types, methods, and their documentation.
-3. Run `moon ide peek-def <symbol>` to inspect a definition. Add `-loc filename:line[:col]` when the name is ambiguous in local context.
-4. Run `moon ide find-references <symbol>` before renaming a symbol, changing its signature, or modifying an invariant used by callers. The command performs a global search and does not currently accept `-loc`.
-5. Run the target repository's defined check task (for example, `mbt:check` or package `check`, when available) after the change; semantic navigation does not replace compilation and project checks.
+These commands are alternatives for different questions, not a checklist before every edit.
+
+| Question                                                                       | Command                                                                                       |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| What declarations are in an unfamiliar file or package?                        | `moon ide outline <path/to/file_or_directory>`                                                |
+| Which package, type, or method provides this API?                              | `moon ide doc '<query>'`                                                                      |
+| Where is this symbol defined?                                                  | `moon ide peek-def <symbol>`; add `-loc filename:line[:col]` when local context is ambiguous. |
+| Which callers are affected by a rename, signature change, or shared invariant? | `moon ide find-references <symbol>`; this global search does not currently accept `-loc`.     |
+
+Check references before changes that affect callers.
+A local comment or spelling fix does not require every semantic query.
+For code changes, run the relevant repository `mbt:check` or package `check` task; semantic navigation does not replace compilation and project checks.
 
 ## Sources
 

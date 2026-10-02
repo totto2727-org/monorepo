@@ -57,4 +57,4 @@ When a typed error payload is part of the contract, prefer an awaited structural
 
 ## Scope boundary
 
-This reference covers only TypeScript test code executable through Vite+ and Vitest. Manual QA, subjective inspection, and human-readable reports belong to `share-test-design-flow`.
+This reference covers only TypeScript test code executable through Vite+ and Vitest. Manual QA, subjective inspection, and human-readable reports belong to `share-test-design`.

@@ -1,15 +1,13 @@
 ---
 name: rust-test
 description: >-
-  Rust test implementation, assertion, and file-placement rules. Use when
-  adding, moving, or reviewing Rust unit tests, integration or black-box tests,
-  and executable examples. Apply share-test first. Do not use for manual QA or
-  human reports.
+  Implement, place, or review Rust unit, integration, black-box, and rustdoc tests. Not for manual QA or test reports.
 ---
 
 # Rust Test Index
 
-Apply [`share-test`](../share-test/SKILL.md), then use the implementation reference below.
+Use [`share-test`](../share-test/SKILL.md) for test-quality decisions, and the reference below for implementation details.
+Read only the guidance relevant to the change; already available principles need not be reloaded.
 
 ## References
 
@@ -20,4 +18,4 @@ Apply [`share-test`](../share-test/SKILL.md), then use the implementation refere
 
 - [`share-coding`](../share-coding/SKILL.md) — language-independent production-code practices.
 - [`rust-coding`](../rust-coding/SKILL.md) — Rust production-code and library-selection practices.
-- [`share-test-design-flow`](../share-test-design-flow/SKILL.md) — concrete design and human-facing reporting.
+- [`share-test-design`](../share-test-design/SKILL.md) — test-design decisions and suitable evidence presentation.

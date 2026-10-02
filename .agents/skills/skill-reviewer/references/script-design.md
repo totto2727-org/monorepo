@@ -1,6 +1,8 @@
 # Script Design
 
-Read this reference when the target skill contains scripts or complex executable commands. Evaluate the interface from an agent's perspective rather than requiring a particular implementation language.
+Read this reference when the target skill contains scripts or complex executable commands.
+Interface and design advice here are review heuristics, not standard format constraints.
+Execution boundaries protect the review environment regardless of the target's design.
 
 ## Choose commands or scripts
 
@@ -23,7 +25,9 @@ For bundled scripts:
 
 ## Design an agent-usable interface
 
-Scripts used in normal operation must not depend on TTY prompts, password dialogs, or confirmation menus. Accept inputs through flags, environment variables, or standard input and fail promptly when required values are missing. Never pass ambient credentials or secrets merely to complete a review.
+For unattended execution, prefer inputs through flags, environment variables, or standard input and prompt failure when required values are missing.
+TTY prompts, password dialogs, or confirmation menus may block that use case, but are not Agent Skills format violations.
+Never pass ambient credentials or secrets merely to complete a review.
 
 Provide concise `--help` output with:
 

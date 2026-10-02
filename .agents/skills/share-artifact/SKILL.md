@@ -1,29 +1,24 @@
 ---
 name: share-artifact
 description: >-
-  Route README, AGENTS, and ADR authoring or review to the matching
-  specification, Jinja template, and sample. Use for creating or reviewing
-  README files, AGENTS.md guidance, or architecture decision records; do not
-  use for implementation or test workflows.
+  Document guidance and illustrative Jinja templates for README, AGENTS.md, and ADR authoring or review.
+  Use documentation-principles for shared writing principles and content quality.
 ---
 
 # Share artifact
 
-## Selection rule
+Use [documentation-principles](../documentation-principles/SKILL.md) for shared writing principles.
+This skill covers document-specific audiences, structure, file placement, and conventions.
 
-For a README, AGENTS, or ADR request, open the selected `spec.md`, use its `template.md`, and compare the result with `sample.md`.
-Read the internal contract that matches any specification, template, or sample maintenance task.
+## Choose a document
 
-## Table of contents
+- [README guidance](readme/spec.md): Consumer overview, usage, setup, and public reference.
+- [AGENTS guidance](agents/spec.md): Repository maintenance instructions and task-specific links.
+- [ADR guidance](adr/spec.md): Durable decisions, alternatives, and consequences.
 
-### Document slices
+Read only the guidance relevant to the task.
+Each document has a linked Jinja template showing its approximate shape and a concrete reference sample.
+Adapt the sections and examples to the project rather than reproducing the template or sample exactly.
+No scripted generation, fixed context interface, rendering tests, or attribution footer is required.
 
-- [README specification](readme/spec.md)
-- [AGENTS specification](agents/spec.md)
-- [ADR specification](adr/spec.md)
-
-### Internal contracts
-
-- [Specification contract](internal/spec/spec.md)
-- [Template contract](internal/template/spec.md)
-- [Sample contract](internal/sample/spec.md)
+For changes to these resources, see [Maintaining this skill](internal/README.md).

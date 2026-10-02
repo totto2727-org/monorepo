@@ -1,15 +1,13 @@
 ---
 name: mbt-coding
 description: >-
-  Index of concrete MoonBit production-code practices for this repository.
-  Apply share-coding first for language-independent principles. Use mbt-test
-  for executable tests. Load only the reference matching the implementation
-  concern.
+  MoonBit implementation guidance for typed boundaries, state, collections, errors, concurrency, and CLI design. Use when implementing or reviewing MoonBit production code.
 ---
 
 # MoonBit Coding Index
 
-All references below are concrete MoonBit implementation guidance. Conceptual guidance belongs to [`share-coding`](../share-coding/SKILL.md).
+All references below are concrete MoonBit implementation guidance. Use [`share-coding`](../share-coding/SKILL.md) for language-independent design decisions.
+Read only the relevant reference; already available principles need not be reloaded.
 
 ## Type boundaries
 
@@ -47,7 +45,7 @@ All references below are concrete MoonBit implementation guidance. Conceptual gu
 
 ## Code analysis
 
-- [`code-analysis.md`](references/code-analysis.md) — semantic navigation with `moon ide` before code changes.
+- [`code-analysis.md`](references/code-analysis.md) — symbol-aware navigation with `moon ide` for definitions, references, and change impact.
 
 ## Related skills
 

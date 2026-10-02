@@ -1,6 +1,8 @@
 # Triggering Evaluation
 
-Read this reference when a review needs detailed trigger diagnosis, evidence, or description optimization. Do not turn example query counts, run counts, thresholds, or split ratios from source guides into universal scoring requirements.
+Use this method for G2/G6 in a general review, or when a focused review covers activation or metadata changes.
+The minimum explicit, paraphrased, and adjacent-negative cases in `SKILL.md` are review requirements, not standard format constraints.
+Beyond those minimum cases, do not turn example query counts, run counts, thresholds, or split ratios into universal requirements.
 
 ## Design the query set
 
@@ -19,15 +21,19 @@ Include realistic context such as file paths, field names, personal background, 
 
 ## Execute and record evidence
 
-Ensure the skill is installed and discoverable by the target client. For each query, record whether the client loaded the target `SKILL.md` using an activation trace, tool history, verbose log, or equivalent artifact.
+For an authorized client evaluation, verify that the skill is installed and discoverable.
+For each query, record whether the client loaded the target `SKILL.md` using an activation trace, tool history, verbose log, or equivalent artifact.
+If a suitable client or trace is unavailable, keep concrete cases Designed and explain the limitation without blocking a structural review.
+A model's statement that it would use the skill is not an observed activation.
 
 Model activation may be nondeterministic. When a stable rate matters, run each query multiple times and record the fraction of activations. A single run can show one observed outcome but cannot establish a stable trigger rate.
 
 ## Avoid overfitting
 
-When optimizing a description, divide queries into fixed train and validation sets with both positive and negative cases represented in each set.
+For repeated description optimization, use separate revision and held-out query sets with positive and negative cases where relevant.
+This is unnecessary for a one-off structural review.
 
-1. Evaluate the current description on both sets.
+1. Establish the current description's baseline without exposing held-out results to the revision process.
 2. Use only train failures to guide revisions.
 3. Generalize from failure categories rather than copying exact query keywords.
 4. Select the best revision by validation behavior, not by the latest iteration number.

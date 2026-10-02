@@ -1,3 +1,5 @@
+<!-- Illustrative README for a hypothetical package, not a published dependency or verified product example. -->
+
 # moonbit-fib
 
 A small MoonBit Fibonacci library for applications that need an integer sequence primitive.
@@ -15,7 +17,6 @@ test "fib usage" {
 ## Key features
 
 - Small public API
-
 - Supports non-negative `Int` positions on MoonBit targets
 
 ## Prerequisites
@@ -50,10 +51,8 @@ test "fib API usage" {
 
 ## Development
 
-For project structure and development commands, see [AGENTS.md](./AGENTS.md).
+For project structure and development commands, see [AGENTS.md](../agents/sample.md).
 
 ## License
 
 MIT
-
-_This README was generated from the [share-artifact skill](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/SKILL.md) and [README template](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/readme/template.md)._

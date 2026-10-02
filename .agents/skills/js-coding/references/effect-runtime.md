@@ -16,8 +16,3 @@ Provide separate runtime variants per environment (production, development, test
 
 - Production: `Logger.consoleJson`
 - Development: `Logger.consolePretty()`
-
-## Reference Implementation
-
-- [runtime/server.ts](../../../../../js/app/feed-platform-backend/src/feature/runtime/server.ts) — Layer composition, ManagedRuntime, DisposableRuntime, environment selection
-- [runtime/hono.ts](../../../../../js/app/feed-platform-backend/src/feature/runtime/hono.ts) — `await using` middleware integration

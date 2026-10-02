@@ -1,10 +1,7 @@
 ---
 name: share-coding
 description: >-
-  Language-independent coding philosophy for production code. Use before a
-  language-specific coding skill when reasoning about types, effects, naming,
-  boundaries, abstractions, readability, or change scope. Do not use for test
-  implementation or language-specific APIs.
+  Language-independent production-code principles. Use for design decisions about types, boundaries, effects, abstractions, or recurring tasks.
 ---
 
 # Shared Coding Philosophy
@@ -100,6 +97,10 @@ Keep a wrapper only when it owns a real invariant, reusable policy, or typed bou
 
 Place discovery, resolution, and domain rules in the library that owns the concept. Entry points request resolved domain values rather than reimplementing filesystem walks, lookup rules, or naming policies.
 
+## Scheduling
+
+- [`scheduling.md`](references/scheduling.md) — read before implementing or changing scheduled jobs, periodic tasks, or polling loops; define timing, restart, overlap, missed-run, and retry semantics before selecting a scheduler.
+
 ## Concrete implementation skills
 
 - [`js-coding`](../js-coding/SKILL.md) — TypeScript, Effect, Hono, Remix, and `@totto2727/fp`.
@@ -110,7 +111,7 @@ Place discovery, resolution, and domain rules in the library that owns the conce
 
 - [`share-test`](../share-test/SKILL.md), [`js-test`](../js-test/SKILL.md), and [`mbt-test`](../mbt-test/SKILL.md) — testing philosophy and executable tests.
 - `$rust-test` — executable Rust test guidance when the skill is installed.
-- [`share-test-design-flow`](../share-test-design-flow/SKILL.md) — concrete test design and human-facing reporting.
+- [`share-test-design`](../share-test-design/SKILL.md) — test-design decisions and suitable evidence presentation.
 - `$moonbit-orientation` — official MoonBit documentation skill. Prefer the local skill when installed; otherwise fetch the [MoonBit documentation Markdown source index](https://raw.githubusercontent.com/moonbitlang/moonbit-docs/main/next/index.md) directly. Resolve source paths beginning with `/` under `https://raw.githubusercontent.com/moonbitlang/moonbit-docs/main/next/` after stripping the leading slash.
 - `$building-components` — official components.build documentation skill. Prefer the local skill when installed; otherwise fetch the Markdown-native [components.build specification](https://www.components.build/llms.txt) directly.
 - [`share-artifact`](../share-artifact/SKILL.md) — durable README, AGENTS, and ADR authoring.

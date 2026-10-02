@@ -1,6 +1,7 @@
 # Output Evaluation
 
-Read this reference when a review needs detailed functional evaluation, a quality baseline, or an iteration plan. Do not require a particular workspace layout or case count as an Agent Skills format constraint.
+Use this method for G6 in a general review, or when a focused review covers functional quality, baselines, or iteration.
+The normal and problem/edge cases required by `SKILL.md` are minimum review evidence, not Agent Skills format constraints.
 
 ## Define cases
 
@@ -9,9 +10,10 @@ Define each case with:
 - A realistic user prompt.
 - A human-readable expected output.
 - Required input files, if any.
-- Observable assertions after the first execution reveals what can be checked reliably.
+- Observable assertions derived from the expected behavior, refined when execution reveals an unreliable check rather than relaxed merely to fit the output.
 
-Begin with a small representative set. Vary phrasing and detail, and include at least one malformed, boundary, or ambiguous case.
+Include at least one normal and one problem or edge case for a general review.
+Add malformed, boundary, or ambiguous cases where they exercise a material risk.
 
 ## Isolate runs and choose a baseline
 
@@ -29,7 +31,8 @@ Store prompts, inputs, outputs, timing, and grading evidence so another reviewer
 
 Prefer assertions that are specific, observable, and tolerant of irrelevant wording differences. Reject assertions such as "the output is good" and brittle checks that require an exact phrase without a functional reason.
 
-For each assertion, record PASS or FAIL with a concrete output reference. Do not give the benefit of the doubt when evidence is missing.
+For each executed assertion, record PASS or FAIL with a concrete output reference.
+Mark concrete unexecuted cases Designed and absent evidence Missing, rather than inventing a pass or failure.
 
 - Use verification scripts for mechanical facts such as file existence, valid syntax, dimensions, or row counts.
 - Use human review for usefulness, visual quality, tone, organization, and qualities not captured by objective assertions.

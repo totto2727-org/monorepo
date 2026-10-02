@@ -5,9 +5,9 @@
 ## Rules
 
 - Use the pattern `test "[Target] [Method] - [Scenario]"` when no test-design ID is assigned.
-- For a function-scoped test-design flow, restart case numbering from `1` in each function section and use `test "[Target] [Method] N - [Scenario]"`.
+- If a design uses case IDs, include the relevant ID in the title, such as `test "[Target] [Method] N - [Scenario]"`.
 - Separate the function or method name and case number with a space, never a hyphen.
-- When a complex function is split into multiple flowcharts, hierarchical numbers are allowed as `test "[Target] [Method] N-N - [Scenario]"`. The first number must identify the corresponding split flowchart.
+- Hierarchical IDs may follow an existing design's grouping, such as `test "[Target] [Method] N-N - [Scenario]"`; they do not require a flowchart.
   - **Target**: The struct or function being tested.
   - **Method**: The specific method being tested (optional for simple functions).
   - **Scenario**: The condition or specific case being verified.

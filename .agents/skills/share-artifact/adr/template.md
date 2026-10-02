@@ -1,58 +1,39 @@
-{# Extensions may add purpose-specific sections only if they preserve every required section and comply with ADR scope, storage, confirmation, and immutability rules. A confirmed ADR body is immutable; supersede it with a new ADR instead. -#}
-
-{{ "---" }}
-confirmed: {{ confirmed | lower }}
+---
+confirmed: false
 scope: general
 ---
+
+{# Illustrative decision record: adapt metadata and alternatives to the project's ADR convention. #}
 
 # ADR: {{ title }}
 
 - **Filed at:** {{ filed_at }}
 - **Decision owner:** {{ decision_owner }}
 - **Origin:** {{ origin }}
-- **Storage path:** {{ storage_path }}
 
 ## Context
 
-{{ context }}
+{{ problem_constraints_and_forces }}
 
 ## Decision
 
-{{ decision }}
+{{ chosen_approach_and_reason }}
 
-<!-- prettier-ignore-start -->
+## Alternatives
 
-| Option | Summary | Result | Rationale |
-| --- | --- | --- | --- |
-{% for option in options -%}
-| {{ option.name }} | {{ option.summary }} | {{ option.result }} | {{ option.rationale }} |
-{% endfor -%}
-{{ "\n" -}}
-
-<!-- prettier-ignore-end -->
+{{ alternatives_and_trade_offs }}
 
 ## Consequences
 
-- **Added:** {{ consequences.added }}
-- **Existing impact:** {{ consequences.existing_impact }}
-- **Future constraints:** {{ consequences.future_constraints }}
-- **Costs and limitations:** {{ consequences.costs_and_limitations }}
+- **Added:** {{ additions }}
+- **Existing impact:** {{ existing_impact }}
+- **Future constraints:** {{ future_constraints }}
+- **Costs and limitations:** {{ costs_and_limitations }}
 
-{% if related_records -%}
+{% if related_records %}
 
 ## Related records
 
-{% for record in related_records -%}
+{{ related_record_links }}
 
-- [{{ record.title }}]({{ record.path }})
-
-{% endfor -%}
-{% endif -%}
-
-_This ADR was generated from the [share-artifact skill](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/SKILL.md) and [ADR template](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/adr/template.md)._
-{%- if superseded_by -%}
-{{ "\n\n" -}}
-
-> Superseded by [{{ superseded_by.title }}]({{ superseded_by.path }})
-
-{%- endif %}
+{% endif %}

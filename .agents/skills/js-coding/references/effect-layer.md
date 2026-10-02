@@ -58,12 +58,6 @@ export const remoteLayer = Layer.effect(Service, ...)
 | `Layer.effect`  | Defines a service with an effectful constructor   | Depends on other services              |
 | `Layer.scoped`  | Creates a service with lifecycle management       | Requires acquire/release               |
 
-### Examples
-
-- `Layer.succeed` — [env.ts](../../../../../js/app/feed-platform-backend/src/feature/env.ts)
-- `Layer.sync` / `Layer.effect` — [kysely.ts](../../../../../js/app/identity-provider/app/feature/db/kysely.ts)
-- `Layer.effect` with multiple deps — [better-auth.ts](../../../../../js/app/feed-platform-backend/src/feature/auth/better-auth.ts)
-
 ## Service Access
 
 Access services within `Effect.gen` using `yield*`:

@@ -1,10 +1,7 @@
 ---
 name: share-test
 description: >-
-  Language-independent testing philosophy. Use when deciding what makes a test
-  trustworthy and meaningful. Load js-test, mbt-test, or rust-test for
-  executable test implementation. Use share-test-design-flow for concrete
-  plans and reports.
+  Language-independent test-quality principles. Use when evaluating observable behavior, assertions, isolation, fixtures, or test trustworthiness.
 ---
 
 # Shared Testing Philosophy
@@ -51,7 +48,9 @@ Use [`github.com/totto2727-org/e2e`](https://github.com/totto2727-org/e2e) to im
 
 Each test has a single reason to fail. Multiple assertions are acceptable when one setup and one system-under-test invocation produce multiple observable facts that jointly describe one outcome.
 
-Do not treat a shared fixture as sufficient reason to combine cases. When verification requires invoking the system under test again with different arguments or input, define a separate test case for each invocation.
+Do not treat a shared fixture as sufficient reason to combine cases.
+Separate independently meaningful inputs into distinct cases, including parameterized cases where appropriate.
+Keep multiple invocations together when their ordered interaction is itself the behavior under test, such as a retry or state transition.
 
 A documented family-conformance exception may group multiple related functions when they intentionally implement the same branch contract and the test verifies that branch consistently across the whole family. Keep conversion rules, type-specific behavior, and unrelated branches out of such a grouped case.
 
@@ -63,7 +62,10 @@ Build only the state required by the behavior under test. Prefer small explicit 
 
 Test names communicate precondition, action, and expected result in domain language. Framework mechanics belong in the body, not in the name or human report.
 
-When test cases are numbered, include the case number in the executable test title so runtime output maps back to the design. Prefer numbering within a stable scope such as a function and format the title as `<scope> <number>` so adding a case does not renumber unrelated tests. Separate the scope and number with a space, never a hyphen. Hierarchical numbers such as `<scope> 1-1` are acceptable only when the design flow is split into matching top-level groups. Preserve any framework-required title prefix.
+When a design uses stable case IDs, include them in executable test titles when this helps readers connect results to the design.
+Prefer a local scope so adding a case does not renumber unrelated tests.
+Descriptive titles are sufficient when IDs add no value; neither numbering nor a diagram is required.
+Preserve any framework-required title prefix.
 
 ## Type integrity
 
@@ -75,6 +77,6 @@ Tests are consumers of the production contract. Do not weaken types, bypass cons
 - [`mbt-test`](../mbt-test/SKILL.md) — tests executable through repository Vite+ tasks or `moon test`.
 - [`rust-test`](../rust-test/SKILL.md) — Rust unit, integration, black-box, and documentation tests.
 
-## Concrete design flow
+## Test design decisions
 
-- [`share-test-design-flow`](../share-test-design-flow/SKILL.md) — concrete test cases, success-criterion coverage, manual and AI-driven verification, Mermaid flows, and reports for human review.
+- [`share-test-design`](../share-test-design/SKILL.md) — risk-based coverage, observable criteria, verification choices, and concise evidence presentation.
