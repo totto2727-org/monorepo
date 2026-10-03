@@ -1,2 +1,5 @@
 environment:
   - cloudflare/production
+config:
+  access:projektorDomain: projektor.totto2727.dev
+  access:cloudflareOsDomain: cloudflare.totto2727.dev
