@@ -59,20 +59,6 @@ vp check infra/cloudflare
 vp test run --dir infra/cloudflare
 ```
 
-## Deployment Access Applications
-
-After deployment, copy each AUD output into the corresponding deployment setting.
-
-| Application   | AUD output                   | Deployment setting                          |
-| ------------- | ---------------------------- | ------------------------------------------- |
-| Projektor     | `projektorAccessAudience`    | `wrangler.toml` → `vars.CF_ACCESS_AUDIENCE` |
-| Cloudflare OS | `cloudflareOsAccessAudience` | `deployment.jsonc` → `access.audience`      |
-
-```bash
-pulumi stack output projektorAccessAudience --cwd infra/cloudflare --stack production
-pulumi stack output cloudflareOsAccessAudience --cwd infra/cloudflare --stack production
-```
-
 ## References
 
 - [Cloudflare token permissions](https://developers.cloudflare.com/fundamentals/api/reference/permissions/)
