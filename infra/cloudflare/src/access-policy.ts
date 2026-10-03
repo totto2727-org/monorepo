@@ -20,16 +20,3 @@ export const allowSaml = new cloudflare.ZeroTrustAccessPolicy(
   },
   config.protectedResourceOptions('must-authenticate-with-saml'),
 )
-
-export const allowDeploymentAdmin = new cloudflare.ZeroTrustAccessPolicy(
-  config.resourceName('deployment-admin'),
-  {
-    accountId: config.accountID,
-    decision: 'allow',
-    includes: [{ email: { email: 'kaihatu.totto2727@gmail.com' } }],
-    name: config.resourceName('deployment-admin'),
-    requires: [{ group: { id: group.saml.id } }],
-    sessionDuration: '24h',
-  },
-  { protect: true },
-)

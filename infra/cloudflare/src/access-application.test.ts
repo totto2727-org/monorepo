@@ -69,7 +69,7 @@ describe('Deployment Access applications', () => {
           destinations: [{ type: 'public', uri: domain }],
           domain,
           name: `iac-prod-${name}`,
-          policies: [{ id: 'id-iac-prod-deployment-admin', precedence: 1 }],
+          policies: [{ id: 'id-iac-prod-must-authenticate-with-saml', precedence: 1 }],
           sessionDuration: '24h',
           type: 'self_hosted',
         },
@@ -77,15 +77,14 @@ describe('Deployment Access applications', () => {
     }
   })
 
-  test('allows only the deployment administrator and requires the SAML group', () => {
-    const policy = resources.find((resource) => resource.name === 'iac-prod-deployment-admin')
+  test('reuses the existing SAML policy without adding administrator rules', () => {
+    const policy = resources.find((resource) => resource.name === 'iac-prod-must-authenticate-with-saml')
     expect(policy).toMatchObject({
       inputs: {
         accountId: 'test-account',
         decision: 'allow',
-        includes: [{ email: { email: 'kaihatu.totto2727@gmail.com' } }],
-        name: 'iac-prod-deployment-admin',
-        requires: [{ group: { id: 'id-iac-prod-saml-access-group' } }],
+        includes: [{ group: { id: 'id-iac-prod-saml-access-group' } }],
+        name: 'iac-prod-must-authenticate-with-saml',
         sessionDuration: '24h',
       },
       type: policyType,
@@ -93,7 +92,7 @@ describe('Deployment Access applications', () => {
     expect(resources.find((resource) => resource.name === 'iac-prod-saml-access-group')).toMatchObject({
       inputs: { includes: [{ loginMethod: { id: 'id-iac-prod-aws-saml-identity-provider' } }] },
     })
-    expect(resources.filter((resource) => resource.type === policyType)).toHaveLength(2)
+    expect(resources.filter((resource) => resource.type === policyType)).toHaveLength(1)
   })
 
   test('creates ownership tags once and attaches them to both applications', () => {

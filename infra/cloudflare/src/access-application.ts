@@ -1,6 +1,6 @@
 import * as cloudflare from '@pulumi/cloudflare'
 
-import { allowDeploymentAdmin } from './access-policy.ts'
+import { allowSaml } from './access-policy.ts'
 import * as config from './config.ts'
 import { awsSaml } from './identity-provider.ts'
 
@@ -24,7 +24,7 @@ const createApplication = (name: string, domain: string) =>
       destinations: [{ type: 'public', uri: domain }],
       domain,
       name: config.resourceName(name),
-      policies: [{ id: allowDeploymentAdmin.id, precedence: 1 }],
+      policies: [{ id: allowSaml.id, precedence: 1 }],
       sessionDuration: '24h',
       tags: tags.map((tag) => tag.name),
       type: 'self_hosted',
