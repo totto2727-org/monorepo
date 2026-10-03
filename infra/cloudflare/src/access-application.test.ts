@@ -4,6 +4,13 @@ import { afterAll, beforeAll, describe, expect, test, vi } from 'vite-plus/test'
 const applicationType = 'cloudflare:index/zeroTrustAccessApplication:ZeroTrustAccessApplication'
 const policyType = 'cloudflare:index/zeroTrustAccessPolicy:ZeroTrustAccessPolicy'
 const tagType = 'cloudflare:index/zeroTrustAccessTag:ZeroTrustAccessTag'
+const tagNames = [
+  'environment:production',
+  'managed-by:pulumi',
+  'pulumi-project:cloudflare',
+  'pulumi-stack:production',
+  'repository:totto2727-org/monorepo',
+]
 const resources: pulumi.runtime.MockResourceArgs[] = []
 let outputs: {
   cloudflareOsAccessAudience: string
@@ -32,6 +39,7 @@ beforeAll(async () => {
   await pulumi.runtime.setMocks(mocks, 'cloudflare', 'production')
 
   const stack = await import('../index.ts')
+  const { projektorOAuthEndpoints } = await import('./access-application.ts')
   const { promise, resolve } = Promise.withResolvers<typeof outputs>()
   pulumi
     .all([
@@ -39,6 +47,7 @@ beforeAll(async () => {
       stack.cloudflareOsAccessDomain,
       stack.projektorAccessAudience,
       stack.projektorAccessDomain,
+      pulumi.all(projektorOAuthEndpoints.map((application) => application.urn)),
     ])
     .apply(([cloudflareOsAccessAudience, cloudflareOsAccessDomain, projektorAccessAudience, projektorAccessDomain]) => {
       resolve({ cloudflareOsAccessAudience, cloudflareOsAccessDomain, projektorAccessAudience, projektorAccessDomain })
@@ -54,7 +63,7 @@ afterAll(() => {
 describe('Deployment Access applications', () => {
   test('protects both fixed hostnames without hostname stack configuration', () => {
     const applications = resources.filter((resource) => resource.type === applicationType)
-    expect(applications).toHaveLength(2)
+    expect(applications).toHaveLength(4)
 
     for (const [name, domain] of [
       ['projektor', 'projektor.totto2727.dev'],
@@ -77,6 +86,37 @@ describe('Deployment Access applications', () => {
     }
   })
 
+  test('bypasses only OAuth discovery and token paths, leaving MCP and other paths under hostname protection', () => {
+    const applications = resources.filter((resource) => resource.type === applicationType)
+    const exceptions = applications.filter((application) => application.name.startsWith('iac-prod-projektor-oauth-'))
+
+    expect(exceptions).toHaveLength(2)
+    for (const [endpoint, domain] of [
+      ['discovery', 'projektor.totto2727.dev/.well-known/*'],
+      ['token', 'projektor.totto2727.dev/oauth/token'],
+    ]) {
+      expect(
+        exceptions.find((application) => application.name === `iac-prod-projektor-oauth-${endpoint}`)?.inputs,
+      ).toEqual({
+        accountId: 'test-account',
+        appLauncherVisible: false,
+        destinations: [{ type: 'public', uri: domain }],
+        domain,
+        name: `iac-prod-projektor-oauth-${endpoint}`,
+        policies: [
+          {
+            decision: 'bypass',
+            includes: [{ everyone: {} }],
+            name: `iac-prod-projektor-oauth-${endpoint}`,
+            precedence: 1,
+          },
+        ],
+        tags: tagNames,
+        type: 'self_hosted',
+      })
+    }
+  })
+
   test('reuses the existing SAML policy without adding administrator rules', () => {
     const policy = resources.find((resource) => resource.name === 'iac-prod-must-authenticate-with-saml')
     expect(policy).toMatchObject({
@@ -95,14 +135,7 @@ describe('Deployment Access applications', () => {
     expect(resources.filter((resource) => resource.type === policyType)).toHaveLength(1)
   })
 
-  test('creates ownership tags once and attaches them to both applications', () => {
-    const tagNames = [
-      'environment:production',
-      'managed-by:pulumi',
-      'pulumi-project:cloudflare',
-      'pulumi-stack:production',
-      'repository:totto2727-org/monorepo',
-    ]
+  test('creates ownership tags once and attaches them to all applications', () => {
     const registeredTags = resources.filter((resource) => resource.type === tagType)
     expect(registeredTags).toHaveLength(tagNames.length)
     expect(registeredTags).toMatchObject(tagNames.map((name) => ({ inputs: { accountId: 'test-account', name } })))
