@@ -1,13 +1,8 @@
 import * as cloudflare from '@pulumi/cloudflare'
-import * as pulumi from '@pulumi/pulumi'
 
 import { allowDeploymentAdmin } from './access-policy.ts'
 import * as config from './config.ts'
 import { awsSaml } from './identity-provider.ts'
-
-const settings = new pulumi.Config('access')
-const projektorDomain = settings.require('projektorDomain')
-const cloudflareOsDomain = settings.require('cloudflareOsDomain')
 
 const tags = Object.entries(config.accessApplicationTags).map(
   ([key, name]) =>
@@ -37,8 +32,8 @@ const createApplication = (name: string, domain: string) =>
     { protect: true },
   )
 
-export const projektor = createApplication('projektor', projektorDomain)
-export const cloudflareOs = createApplication('cloudflare-os', cloudflareOsDomain)
+export const projektor = createApplication('projektor', 'projektor.totto2727.dev')
+export const cloudflareOs = createApplication('cloudflare-os', 'cloudflare.totto2727.dev')
 
 export const projektorAccessAudience = projektor.aud
 export const projektorAccessDomain = projektor.domain

@@ -28,10 +28,7 @@ const mocks: pulumi.runtime.Mocks = {
 
 beforeAll(async () => {
   vi.stubEnv('CLOUDFLARE_ACCOUNT_ID', 'test-account')
-  pulumi.runtime.setAllConfig({
-    'access:cloudflareOsDomain': 'cloudflare.totto2727.dev',
-    'access:projektorDomain': 'projektor.totto2727.dev',
-  })
+  pulumi.runtime.setAllConfig({})
   await pulumi.runtime.setMocks(mocks, 'cloudflare', 'production')
 
   const stack = await import('../index.ts')
@@ -55,7 +52,7 @@ afterAll(() => {
 })
 
 describe('Deployment Access applications', () => {
-  test('protects each full hostname with only the administrator SAML policy', () => {
+  test('protects both fixed hostnames without hostname stack configuration', () => {
     const applications = resources.filter((resource) => resource.type === applicationType)
     expect(applications).toHaveLength(2)
 
@@ -123,20 +120,4 @@ describe('Deployment Access applications', () => {
       projektorAccessDomain: 'projektor.totto2727.dev',
     })
   })
-
-  test.each(['cloudflareOsDomain', 'projektorDomain'])(
-    'requires explicit %s configuration in another stack',
-    async (key) => {
-      vi.resetModules()
-      pulumi.runtime.setAllConfig({
-        [`access:${key === 'projektorDomain' ? 'cloudflareOsDomain' : 'projektorDomain'}`]: 'staging.example.com',
-      })
-      await pulumi.runtime.setMocks(mocks, 'cloudflare', 'staging')
-
-      await expect(import('./access-application.ts')).rejects.toThrow(
-        `Missing required configuration variable 'access:${key}'`,
-      )
-      expect(resources.filter((resource) => resource.type === applicationType)).toHaveLength(2)
-    },
-  )
 })
