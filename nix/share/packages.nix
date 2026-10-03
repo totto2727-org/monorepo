@@ -19,10 +19,12 @@ with pkgs;
   nixfmt
   just
   chezmoi
-  # uv
   (npm {
-    binName = "openshell";
-    runtime = "uv";
-    packageName = "openshell";
+    binName = "monid";
+    packageName = "@monid-ai/cli";
+  })
+  (npm {
+    binName = "@oomol-lab/oo-cli";
+    packageName = "oo";
   })
 ]
