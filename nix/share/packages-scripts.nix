@@ -46,7 +46,6 @@ let
   '';
 
   macos-c = writeShellScriptBin "c" ''
-    export LINEAR_API_KEY="$(pass-cli get linear/api-key --quiet -f password)"
     exec ${pkgs.codex}/bin/codex "$@"
   '';
 
@@ -55,8 +54,7 @@ let
 
     OPENCONNECTOR_BASE_URL="$(pass-cli get open-connector/url --quiet --no-clipboard -f password)"
     OPENCONNECTOR_TOKEN="$(pass-cli get open-connector/api-key --quiet --no-clipboard -f password)"
-    TYPESAFE_API_KEY="$(pass-cli get type-safe/api-key --quiet --no-clipboard -f password)"
-    export OPENCONNECTOR_BASE_URL OPENCONNECTOR_TOKEN TYPESAFE_API_KEY
+    export OPENCONNECTOR_BASE_URL OPENCONNECTOR_TOKEN
     exec jcode "$@"
   '';
 

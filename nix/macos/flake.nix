@@ -120,6 +120,7 @@
                     "zed"
                     "orbstack"
                     "chatgpt"
+                    "ghostex"
                     # Game
                     "heroic"
                     "bluestacks"

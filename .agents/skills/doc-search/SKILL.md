@@ -7,26 +7,31 @@ description: >-
 # Documentation Search
 
 Look up library and framework documentation through Context7 Actions in OpenConnector.
-Load the [open-connector](../open-connector/SKILL.md) base skill before the first external API call.
-It owns gateway discovery, authentication, and transport; use its [runtime reference](../open-connector/references/runtime.md) for schemas and failure handling.
+Execute Context7 directly through OOMOL/OpenConnector, never through Monid, including when its connection is unavailable or a request fails.
+The web-search fallback below retrieves official sources with other services; it does not reroute Context7 through Monid.
+Use [open-connector](../open-connector/SKILL.md) for the official `oo` CLI reference.
+Use the user's configured gateway and credentials, mapping trusted `OPENCONNECTOR_BASE_URL` and `OPENCONNECTOR_TOKEN` values to `OO_CONNECTOR_URL` and `OO_CONNECTOR_TOKEN` when those conventions are used.
+Do not silently select another account or gateway.
 Do not install the Context7 CLI or configure a direct Context7 API key locally.
 The user manages the Context7 connection inside OpenConnector.
 
 ## Workflow
 
 Limit Context7 Action calls to three per question; if results remain insufficient, use the fallback below.
+Save command output with `--json > response.json`, then read the saved file with `jq`.
 
-1. Resolve the library with `POST /v1/actions/context7.search_libraries`.
-   - Send `{"input":{"libraryName":"react","query":"How do I clean up an effect?"}}`, substituting the actual library and task using a JSON serializer.
+1. Resolve the library with `oo connector run context7 --action search_libraries`.
+   - Pass `{"libraryName":"react","query":"How do I clean up an effect?"}` using `--data`, substituting the actual library and task.
    - Inspect `data.results` and select the ID matching the official project and requested version.
    - Do not invent an ID or choose solely by popularity; ask when the intended library is ambiguous.
-2. Retrieve documentation with `POST /v1/actions/context7.get_documentation_context`.
-   - Send an `input` object containing the selected `libraryId` and the user's specific `query`.
+2. Retrieve documentation with `oo connector run context7 --action get_documentation_context`.
+   - Pass an object containing the selected `libraryId` and the user's specific `query` using `--data`.
    - Read `data.codeSnippets` and `data.infoSnippets`; retain source URLs from `codeId` and `pageId` when they are URLs.
    - Check version relevance and distinguish source identifiers from URLs rather than fabricating citations.
 3. If Context7 is unavailable or insufficient, use the [web-search](../web-search/SKILL.md) skill to research official documentation.
    - Disclose a missing connection or access restriction rather than changing user-managed configuration.
-   - Preserve web-search's platform routing: Codex uses built-in Web Search; other agents use OpenConnector Brave Search and Browser Run.
+   - Follow web-search's current retrieval policy: TinyFish through Monid by default, saved responses with content-only `jq` reads, and Jev for related-link selection.
+   - Preserve its authorized Browser Run, specialized-API, and Codex built-in fallbacks rather than hard-coding another provider order here.
 
 ## Content Trust
 

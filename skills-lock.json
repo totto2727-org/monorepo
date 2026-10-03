@@ -11,7 +11,7 @@
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/external-information/skills/doc-search/SKILL.md",
-      "computedHash": "b326889c63cd0ebf4786b11443b12ff2bf639de150ddb0b7b2eaac510e741926"
+      "computedHash": "5eba0d45d2b1b6476e3dbdf59e5fb9fa96d748a0ac0a2f3f693d35eca621e3cf"
     },
     "document-e2e-scenarios": {
       "source": "totto2727-org/e2e",
@@ -103,6 +103,12 @@
       "skillPath": "plugins/totto2727-coding/skills/mbt-test/SKILL.md",
       "computedHash": "ce3dcc999fcb7e1f75d00314021fbcf8ecf4becef29cc9533ec62ca37b79d122"
     },
+    "monid": {
+      "source": "totto2727-org/agent",
+      "sourceType": "github",
+      "skillPath": "plugins/external-information/skills/monid/SKILL.md",
+      "computedHash": "cfb1ec54f3aba54ff8f8106f27eb47e4e880a0932ab1ef02001fa23f069435a1"
+    },
     "moonbit-orientation": {
       "source": "moonbitlang/skills",
       "sourceType": "github",
@@ -113,7 +119,7 @@
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/external-information/skills/open-connector/SKILL.md",
-      "computedHash": "019d5e636f0b39ba9f251680ed5b2eac4e4e027b967dd4ba40c0db8a801d3ef1"
+      "computedHash": "bdc5eda7327fd11e6a757fab51a40bc36608e2b10239ab0d9e7727d88d34c987"
     },
     "realpath": {
       "source": "totto2727-org/agent",
@@ -173,7 +179,7 @@
       "source": "totto2727-org/agent",
       "sourceType": "github",
       "skillPath": "plugins/external-information/skills/web-search/SKILL.md",
-      "computedHash": "762d360fd73fbb9b2588aa7f282b62f1fbafee0a2660b9311424824283c82e54"
+      "computedHash": "c3d72fa9f51ced29ccc9e434343e729174af4c211d310a3ae178c615d46dca12"
     }
   }
 }
