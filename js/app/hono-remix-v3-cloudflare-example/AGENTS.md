@@ -20,7 +20,7 @@ Run-from-app-dir works too (`cd js/app/hono-remix-v3-cloudflare-example && vp ru
 
 ## Building Features
 
-Refer to `.claude/skills/remix/SKILL.md` for Remix UI / SSR guidance. Note that this app does **not** use `remix/fetch-router` or `remix/assets`; routing is Hono and bundling is Vite.
+Refer to the repository-owned [Remix skill](../../../.agents/skills/remix/SKILL.md) for Remix UI / SSR guidance. Note that this app does **not** use `remix/fetch-router` or `remix/assets`; routing is Hono and bundling is Vite.
 
 ## Starter Layout
 
