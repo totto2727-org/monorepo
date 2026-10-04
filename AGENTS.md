@@ -135,6 +135,15 @@ run: {
 
 ## Development Tools
 
+### Shared Skills
+
+When this repository is checked out at `workspace/monorepo/`, the parent workspace's `skills-lock.json` owns shared installed skills.
+Do not restore a duplicate lock or commit installer-managed skill copies or agent-specific links here.
+The repository-owned `feed-platform-local-runtime` and `remix` skills under `.agents/skills/` are not managed by that lock and remain local to this repository.
+For a standalone checkout, shared installed skills are not bundled. Use the workspace checkout or configure the needed skills outside this repository.
+
+### Toolchain
+
 - **Nix flakes + direnv** - Development environment for local use, CI, and sandbox images
 - **Vite+** (`vp`) - Unified toolchain wrapping Vite, Vitest, and monorepo task orchestration
 - **Ultracite** - Code quality (Oxlint + Oxfmt) — `ultracite check` / `ultracite fix`

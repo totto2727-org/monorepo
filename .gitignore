@@ -4,6 +4,12 @@ node_modules/
 .direnv/
 .sisyphus/
 .claude/worktrees/
+/.claude/skills/
+/.agent/skills/
+/.agents/skills/*
+!/.agents/skills/feed-platform-local-runtime/
+!/.agents/skills/remix/
+/skills-lock.json
 .playwright-mcp/
 .playwright-cli/
 dist/
