@@ -14,5 +14,4 @@ with pkgs;
   go
   rustup
   moonbit-bin.moonbit.latest
-  zmx
 ]

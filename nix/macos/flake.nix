@@ -109,7 +109,6 @@
                     "talosctl"
                     "cloudflared"
                     "pulumi"
-                    "jcode"
                   ];
                   casks = (import ../share/casks.nix) ++ [
                     # Browser

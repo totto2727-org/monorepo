@@ -20,11 +20,11 @@ with pkgs;
   just
   chezmoi
   (npm {
-    binName = "monid";
-    packageName = "@monid-ai/cli";
+    binName = "@monid-ai/cli";
+    packageName = "monid";
   })
   (npm {
-    binName = "@oomol-lab/oo-cli";
-    packageName = "oo";
+    binName = "oo";
+    packageName = "@oomol-lab/oo-cli";
   })
 ]
