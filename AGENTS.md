@@ -135,12 +135,13 @@ run: {
 
 ## Development Tools
 
-### Shared Skills
+### Skills
 
-When this repository is checked out at `workspace/monorepo/`, the parent workspace's `skills-lock.json` owns shared installed skills.
-Do not restore a duplicate lock or commit installer-managed skill copies or agent-specific links here.
-The repository-owned `feed-platform-local-runtime` and `remix` skills under `.agents/skills/` are not managed by that lock and remain local to this repository.
-For a standalone checkout, shared installed skills are not bundled. Use the workspace checkout or configure the needed skills outside this repository.
+Refer to skills by name.
+Add a source link only when useful.
+Do not commit installer-managed skill copies, agent-specific links, or installer lock files.
+The `feed-platform-local-runtime` and `remix` skills under `.agents/skills/` are repository-owned and remain local to this repository.
+Other installed skills are not bundled with this repository and must be provided by the agent environment.
 
 ### Toolchain
 
