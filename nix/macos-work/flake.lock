@@ -369,11 +369,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789712162,
-        "narHash": "sha256-aATi9VLStCqmaLL5c1M+0ZPwGk7wOc0wGSOiSlt4UPs=",
+        "lastModified": 1791198707,
+        "narHash": "sha256-KvtcdSV7O7klcyMl9uHqJ/VJzM0gPJXSkbTWXGw0Z6g=",
         "owner": "ryoppippi",
         "repo": "nix-vite-plus",
-        "rev": "17681eee8bafb11b4c63350c3da658e70d8b6aaa",
+        "rev": "af16f6183aec0717d8975ee858c910ab43babee6",
         "type": "github"
       },
       "original": {
