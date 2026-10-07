@@ -5,8 +5,8 @@ export default {
   run: {
     tasks: {
       build: {
+        cache: { input: [{ auto: true }, '!dist/**'] },
         command: 'mdts build',
-        input: [{ auto: true }, '!dist/**'],
       },
     },
   },

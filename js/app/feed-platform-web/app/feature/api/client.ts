@@ -1,6 +1,6 @@
 import type { TaggedErrorBaseType } from '@totto2727/fp/error'
 import { Context, Data, Effect, Layer, Schema } from 'effect'
-import { HttpClient, HttpClientRequest } from 'effect/unstable/http'
+import { HttpClient, HttpClientRequest } from 'effect/http'
 
 import * as Env from '#@/feature/env.ts'
 import * as HonoContext from '#@/feature/share/lib/hono/context.ts'

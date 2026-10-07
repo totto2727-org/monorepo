@@ -1,6 +1,6 @@
 import { graphqlServer } from '@hono/graphql-server'
 import { ManagedRuntime } from 'effect'
-import { FetchHttpClient } from 'effect/unstable/http'
+import { FetchHttpClient } from 'effect/http'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'

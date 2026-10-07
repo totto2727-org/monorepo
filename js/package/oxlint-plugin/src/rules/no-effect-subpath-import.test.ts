@@ -17,9 +17,12 @@ describe('isAllowedEffectImport', () => {
       expect(isAllowedEffectImport('@effect/platform-node')).toBe(true)
     })
 
-    test('effect/unstable/HttpClient (single segment under unstable/)', () => {
-      expect(isAllowedEffectImport('effect/unstable/HttpClient')).toBe(true)
-    })
+    test.each(['effect/http', 'effect/cli', 'effect/sql', 'effect/schema', 'effect/testing'])(
+      'namespace %s',
+      (source) => {
+        expect(isAllowedEffectImport(source)).toBe(true)
+      },
+    )
   })
 
   describe('disallowed subpath imports', () => {
@@ -31,9 +34,12 @@ describe('isAllowedEffectImport', () => {
       expect(isAllowedEffectImport('effect/Stream')).toBe(false)
     })
 
-    test('effect/unstable/foo/bar (double segment under unstable/)', () => {
-      expect(isAllowedEffectImport('effect/unstable/foo/bar')).toBe(false)
-    })
+    test.each(['effect/unstable/http', 'effect/http/HttpClient', 'effect/unknown'])(
+      'unsupported namespace %s',
+      (source) => {
+        expect(isAllowedEffectImport(source)).toBe(false)
+      },
+    )
   })
 })
 
@@ -57,8 +63,8 @@ runRuleTest('no-effect-subpath-import', rule, {
       name: '@effect package root import is allowed',
     },
     {
-      code: "import { Sql } from 'effect/unstable/sql'",
-      name: 'effect/unstable/<pkg> namespace import is allowed',
+      code: "import { SqlClient } from 'effect/sql'",
+      name: 'effect namespace import is allowed',
     },
     { code: "import { foo } from 'unrelated/deep/path'", name: 'unrelated package subpath is allowed' },
   ],

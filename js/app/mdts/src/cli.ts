@@ -2,12 +2,12 @@
 
 import { NodeRuntime, NodeServices } from '@effect/platform-node'
 import { Effect, Option, String } from 'effect'
-import { Command, Flag } from 'effect/unstable/cli'
+import { Command, Flag } from 'effect/cli'
 
 import { buildMarkdown } from './build.ts'
 import { createMarkdownPreview } from './preview.ts'
 
-const configFlag = Flag.file('config').pipe(
+const configFlag = Flag.File('config').pipe(
   Flag.withAlias('c'),
   Flag.withDescription('Path to mdts.config.ts'),
   Flag.optional,

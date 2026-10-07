@@ -1,6 +1,6 @@
 import { Effect, Layer, Predicate } from 'effect'
-import type { HttpClientRequest } from 'effect/unstable/http'
-import { HttpClient, HttpClientResponse } from 'effect/unstable/http'
+import type { HttpClientRequest } from 'effect/http'
+import { HttpClient, HttpClientResponse } from 'effect/http'
 import { Hono } from 'hono'
 import { contextStorage } from 'hono/context-storage'
 import { afterEach, describe, expect, it } from 'vite-plus/test'

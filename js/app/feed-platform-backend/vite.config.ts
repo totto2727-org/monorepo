@@ -16,13 +16,13 @@ export default defineConfig({
         dependsOn: ['setup:cloudflare:bff', 'setup:cloudflare:health'],
       },
       'setup:cloudflare:bff': {
+        cache: { input: taskInput.setup['cloudflare:bff'] },
         command:
           'wrangler types --env local --config src/worker/bff/wrangler.jsonc src/worker/bff/worker-configuration.d.ts',
-        input: taskInput.setup['cloudflare:bff'],
       },
       'setup:cloudflare:health': {
+        cache: { input: taskInput.setup['cloudflare:health'] },
         command: 'wrangler types --config src/worker/health/wrangler.jsonc src/worker/health/worker-configuration.d.ts',
-        input: taskInput.setup['cloudflare:health'],
       },
     },
   },

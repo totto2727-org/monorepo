@@ -1,5 +1,5 @@
 import { Effect, Layer } from 'effect'
-import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from 'effect/unstable/http'
+import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from 'effect/http'
 
 import * as Env from '#@/feature/env.ts'
 
