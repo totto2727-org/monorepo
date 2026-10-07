@@ -47,8 +47,8 @@ app.get('/', (c) =>
 Remix v3 のアセットサーバーを統合するミドルウェアファクトリー関数。
 
 ```ts
-import { createAssetServer } from 'remix/assets'
 import { remixAssetServer } from 'hono-remix-middleware/asset-server'
+import { createAssetServer } from 'remix/assets'
 
 const assetServer = createAssetServer({
   basePath: '/assets',

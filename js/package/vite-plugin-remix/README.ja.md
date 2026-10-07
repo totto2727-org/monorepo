@@ -25,8 +25,8 @@ bun add -D vite-plugin-remix
 ### `vite.config.ts`
 
 ```ts
-import { remix } from 'vite-plugin-remix'
 import { defineConfig } from 'vite'
+import { remix } from 'vite-plugin-remix'
 
 export default defineConfig({
   plugins: [remix({ clientEntry: 'app/assets/entry.ts' })],
