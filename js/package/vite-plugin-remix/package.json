@@ -17,6 +17,6 @@
   },
   "peerDependencies": {
     "remix": "catalog:remix",
-    "vite": "catalog:vite"
+    "vite": "catalog:"
   }
 }
