@@ -21,9 +21,9 @@ export default defineConfig({
   run: {
     tasks: {
       build: {
+        cache: { input: taskInput.build },
         command: 'vp build',
         dependsOn: ['setup'],
-        input: taskInput.build,
       },
       check: {
         command: 'vp check',
@@ -34,13 +34,13 @@ export default defineConfig({
         dependsOn: ['setup:cloudflare', 'setup:kysely'],
       },
       'setup:cloudflare': {
+        cache: { input: taskInput.setup.cloudflare },
         command: 'wrangler types',
-        input: taskInput.setup.cloudflare,
       },
       'setup:kysely': {
+        cache: { input: taskInput.setup.kysely },
         command:
           'mkdir -p app/feature/db && go run github.com/totto2727-org/atlas-to-kysely@main -i db/schema.hcl -o app/feature/db/generated.ts --camel-case',
-        input: taskInput.setup.kysely,
       },
     },
   },

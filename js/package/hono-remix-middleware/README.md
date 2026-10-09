@@ -47,8 +47,8 @@ A straightforward implementation that passes `c.render(content)`'s `content` dir
 Middleware factory function that integrates Remix v3's asset server.
 
 ```ts
-import { createAssetServer } from 'remix/assets'
 import { remixAssetServer } from 'hono-remix-middleware/asset-server'
+import { createAssetServer } from 'remix/assets'
 
 const assetServer = createAssetServer({
   basePath: '/assets',

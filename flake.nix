@@ -57,7 +57,7 @@
 
               # Enable vp env
               vp env setup
-              . "$HOME/.vite-plus/env"
+              eval "$(vp env print)"
               # Enable Git Hook
               vp config
             '';

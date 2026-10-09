@@ -1,5 +1,5 @@
 /**
- * Helpers for composing Vite+ task `input` arrays.
+ * Helpers for composing Vite+ task `cache.input` arrays.
  *
  * @example
  * ```ts
@@ -30,7 +30,7 @@ import { Record } from 'effect'
 export type TaskInputWithAuto = [{ auto: true }, ...string[]]
 
 /**
- * Build Vite+ task `input` arrays from a per-task list of generated outputs.
+ * Build Vite+ task `cache.input` arrays from a per-task list of generated outputs.
  *
  * Repeating identical exclusion globs across `prebuild:*`-style tasks
  * and the consuming `build` task is mechanical and easy to drift; this
@@ -40,9 +40,9 @@ export type TaskInputWithAuto = [{ auto: true }, ...string[]]
  * leading `!`). The helper returns:
  *
  * - `setup[*]`: `[{ auto: true }, ...negated paths for that single task]`
- *   — wire this into the matching task's `input`.
+ *   — wire this into the matching task's `cache.input`.
  * - `build`: `[{ auto: true }, ...all negated paths across every setup]`
- *   — wire this into the consuming `build` task's `input`.
+ *   — wire this into the consuming `build` task's `cache.input`.
  */
 export const defineTaskInputFromOutput = <
   const T extends Record<PropertyKey, string[]>,

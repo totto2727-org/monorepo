@@ -12,7 +12,11 @@ export const isAllowedEffectImport = (source: string): boolean => {
   if (/^@effect\/[^/]+$/u.test(source)) {
     return true
   }
-  if (/^effect\/unstable\/[^/]+$/u.test(source)) {
+  if (
+    /^effect\/(?:testing|ai|cli|cluster|devtools|encoding|eventlog|http|http-api|net|observability|persistence|process|reactivity|rpc|schema|socket|sql|workflow|workers)$/u.test(
+      source,
+    )
+  ) {
     return true
   }
   return false

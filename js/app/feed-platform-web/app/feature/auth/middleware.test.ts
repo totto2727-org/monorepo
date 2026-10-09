@@ -34,6 +34,13 @@ const makeApp = () =>
     .use('*', authMiddleware)
     .get('/test', (ctx) => ctx.json({ user: ctx.var.user }))
 
+const makeProtectedApp = () =>
+  new Hono<{ Variables: { user: { email: string; id: string } | null } }>()
+    .use('*', contextStorage())
+    .use('*', runtimeMiddleware)
+    .use('*', authMiddleware)
+    .get('/app/settings', requireAuthMiddleware, (ctx) => ctx.text(ctx.var.user?.email ?? 'missing'))
+
 beforeEach(() => {
   vi.clearAllMocks()
 })
@@ -68,13 +75,6 @@ describe('authMiddleware', () => {
 })
 
 describe('requireAuthMiddleware', () => {
-  const makeProtectedApp = () =>
-    new Hono<{ Variables: { user: { email: string; id: string } | null } }>()
-      .use('*', contextStorage())
-      .use('*', runtimeMiddleware)
-      .use('*', authMiddleware)
-      .get('/app/settings', requireAuthMiddleware, (ctx) => ctx.text(ctx.var.user?.email ?? 'missing'))
-
   it('redirects unauthenticated app requests to login with a return-to cookie', async () => {
     mockGetSession.mockResolvedValue(null)
     const app = makeProtectedApp()

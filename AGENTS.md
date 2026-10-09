@@ -114,7 +114,7 @@ Tasks are declared inside each package's `vite.config.ts` under `run.tasks`:
 run: {
   tasks: {
     setup: { command: '', dependsOn: ['setup:foo', 'setup:bar'] },
-    'setup:foo': { command: 'tool generate', input: [{ auto: true }, '!output/**'] },
+    'setup:foo': { command: 'tool generate', cache: { input: [{ auto: true }, '!output/**'] } },
     build: { command: 'vp build', dependsOn: ['setup'] },
   },
 }

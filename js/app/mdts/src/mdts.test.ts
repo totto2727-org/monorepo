@@ -2,7 +2,7 @@ import { access, readFile, readdir, rm } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
 import { Effect, Predicate } from 'effect'
-import { FetchHttpClient, HttpClient } from 'effect/unstable/http'
+import { FetchHttpClient, HttpClient } from 'effect/http'
 import { createHtmlRenderer } from 'mdts/comark'
 import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test'
 

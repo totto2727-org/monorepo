@@ -9,9 +9,8 @@ export const Service = Context.Service<Type>('@app/effect-hono/env/Service')
 //   - `wrangler dev` / `vite` (dev)   → `process.env.NODE_ENV = 'development'`
 //   - `wrangler deploy` / `vite build` → `process.env.NODE_ENV = 'production'`
 // ref: https://developers.cloudflare.com/workers/wrangler/bundling/#node_env
-export const layer = Layer.sync(
-  Service,
-  (): Type => (process.env.NODE_ENV === 'production' ? 'production' : 'development'),
+export const layer = Layer.sync(Service, (): Type =>
+  process.env.NODE_ENV === 'production' ? 'production' : 'development',
 )
 
 // test 用 layer。明示値で注入することで Vitest 上での Logger 形式や ENV 振る舞いを固定できる。

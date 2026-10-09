@@ -1,5 +1,5 @@
 import { Effect, Predicate, String } from 'effect'
-import { FetchHttpClient, HttpClient, HttpClientRequest } from 'effect/unstable/http'
+import { FetchHttpClient, HttpClient, HttpClientRequest } from 'effect/http'
 import { run } from 'remix/ui'
 import type { ImportGlobFunction } from 'vite'
 

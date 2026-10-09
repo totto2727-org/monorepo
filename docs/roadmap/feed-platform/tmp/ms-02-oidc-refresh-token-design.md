@@ -216,6 +216,7 @@ serverless 環境ではリクエスト間でメモリ共有不可のため、DB�
 ```ts
 // app/feature/auth/nonce-store.ts
 import type { Kysely } from 'kysely'
+
 import type { DB } from '#@/feature/db/generated'
 
 export interface NonceRecord {

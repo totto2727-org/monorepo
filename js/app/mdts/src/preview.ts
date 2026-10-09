@@ -213,12 +213,10 @@ const previewPlugin = (config: ResolvedMdtsConfig): Plugin => {
 
             const compiled = await compileResolvedMarkdownDocuments(config, server)
             const documents = await Promise.all(
-              compiled.map(
-                async (document): Promise<PreviewDocument> => ({
-                  fileName: document.fileName,
-                  html: await renderHtml(previewMarkdownSource(document.source)),
-                }),
-              ),
+              compiled.map(async (document): Promise<PreviewDocument> => ({
+                fileName: document.fileName,
+                html: await renderHtml(previewMarkdownSource(document.source)),
+              })),
             )
             const responseBody = documents.toSorted((left, right) => left.fileName.localeCompare(right.fileName))
 

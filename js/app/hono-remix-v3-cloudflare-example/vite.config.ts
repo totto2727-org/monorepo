@@ -7,8 +7,8 @@ export default defineConfig({
   run: {
     tasks: {
       build: {
+        cache: { input: [{ auto: true }, '!.wrangler/**', '!dist/**'] },
         command: 'vp build',
-        input: [{ auto: true }, '!.wrangler/**', '!dist/**'],
       },
     },
   },

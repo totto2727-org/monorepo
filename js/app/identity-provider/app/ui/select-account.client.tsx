@@ -1,5 +1,5 @@
 import { Effect, Schema, String } from 'effect'
-import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from 'effect/unstable/http'
+import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from 'effect/http'
 import { clientEntry, on } from 'remix/ui'
 import type { Handle, SerializableProps } from 'remix/ui'
 import { Button } from 'remix/ui/button'
