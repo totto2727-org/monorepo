@@ -30,14 +30,14 @@
   },
   "catalogs": {
     "auth": {
-      "@better-auth/oauth-provider": "1.6.12",
-      "@better-auth/passkey": "1.6.12",
+      "@better-auth/oauth-provider": "^1.6.12",
+      "@better-auth/passkey": "^1.6.12",
       "better-auth": "^1.6.12",
       "casbin": "^5.39.0",
       "jose": "^6.2.3"
     },
     "build": {
-      "@typescript/native-preview": "7.0.0-dev.20251117.1",
+      "@typescript/native-preview": "^7.0.0-dev.20251117.1",
       "typescript": "^5.9.2"
     },
     "cloudflare": {
@@ -49,7 +49,7 @@
       "kysely": "^0.29.2"
     },
     "dev": {
-      "@mikaelporttila/rss": "npm:@jsr/mikaelporttila__rss@1.1.3"
+      "@mikaelporttila/rss": "npm:@jsr/mikaelporttila__rss@^1.1.3"
     },
     "effect": {
       "@effect/platform-node": "^4.0.1",
@@ -70,7 +70,7 @@
       "@inlang/paraglide-js": "^2.18.1"
     },
     "lint": {
-      "ultracite": "7.10.2"
+      "ultracite": "^7.10.2"
     },
     "markdown": {
       "@comark/html": "^0.6.2",
@@ -95,7 +95,7 @@
       "@pulumi/pulumi": "^3.113.0"
     },
     "remix": {
-      "remix": "3.0.0-beta.2"
+      "remix": "^3.0.0-beta.2"
     },
     "storybook": {
       "storybook": "^10.4.1"
