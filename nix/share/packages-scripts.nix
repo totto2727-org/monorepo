@@ -52,14 +52,6 @@ let
   macos-j = writeShellScriptBin "j" ''
     set -e
 
-    OPENCONNECTOR_BASE_URL="$(pass-cli get open-connector/url --quiet --no-clipboard -f password)"
-    OPENCONNECTOR_TOKEN="$(pass-cli get open-connector/api-key --quiet --no-clipboard -f password)"
-    export OPENCONNECTOR_BASE_URL OPENCONNECTOR_TOKEN
-
-    CLOUDFLARE_ACCOUNT_ID="$(pass-cli get cloudflare/account-id --quiet --no-clipboard -f password)"
-    CLOUDFLARE_AI_GATEWAY_ID="$(pass-cli get cloudflare/ai-gateway-id --quiet --no-clipboard -f password)"
-    CLOUDFLARE_AI_GATEWAY_API_KEY="$(pass-cli get cloudflare/ai-gateway-api-key --quiet --no-clipboard -f password)"
-    export CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_AI_GATEWAY_ID CLOUDFLARE_AI_GATEWAY_API_KEY
     exec jcode "$@"
   '';
 
