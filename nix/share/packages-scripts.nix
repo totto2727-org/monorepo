@@ -49,22 +49,8 @@ let
   # --- wrappers with pass-cli (macos) ---
 
   openConnectorEnv = ''
-    set -e
-    set +x
-
-    if [ -z "''${OPENCONNECTOR_BASE_URL:-}" ]; then
-      OPENCONNECTOR_BASE_URL="$(${pkgs.pass-cli}/bin/pass-cli get open-connector/url --quiet --no-clipboard -f password)"
-    fi
-    if [ -z "''${OPENCONNECTOR_TOKEN:-}" ]; then
-      OPENCONNECTOR_TOKEN="$(${pkgs.pass-cli}/bin/pass-cli get open-connector/api-key --quiet --no-clipboard -f password)"
-    fi
-    export OPENCONNECTOR_BASE_URL OPENCONNECTOR_TOKEN
-
-    test -n "$OPENCONNECTOR_TOKEN"
-    case "$OPENCONNECTOR_BASE_URL" in
-      https://*) ;;
-      *) printf 'OpenConnector requires an HTTPS gateway URL.\n' >&2; exit 1 ;;
-    esac
+    export OPENCONNECTOR_BASE_URL="$(${pkgs.pass-cli}/bin/pass-cli get open-connector/url --quiet --no-clipboard -f password)"
+    export OPENCONNECTOR_TOKEN="$(${pkgs.pass-cli}/bin/pass-cli get open-connector/api-key --quiet --no-clipboard -f password)"
   '';
 
   macos-monid = writeShellScriptBin "monid" ''
@@ -133,11 +119,6 @@ let
   '';
 in
 {
-  shared = [
-    monid
-    oo
-  ];
-
   sandbox = [
     monid
     oo
@@ -156,8 +137,6 @@ in
   ];
 
   macos-work = [
-    macos-monid
-    macos-oo
     docker-credential-gh
     macos-wt
     macos-work-c

@@ -9,9 +9,6 @@ export default defineConfig({
       fix: {
         command: "nixfmt $(find . -name '*.nix')",
       },
-      test: {
-        command: 'nix build --impure --file share/tests/connector-wrappers.nix --no-link',
-      },
     },
   },
 })

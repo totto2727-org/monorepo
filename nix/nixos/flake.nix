@@ -65,7 +65,6 @@
                   (import ../share/packages.nix {
                     inherit pkgs npm;
                   })
-                  ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).shared
                   ++ (with pkgs; [
                     # GUI
                     xdg-user-dirs

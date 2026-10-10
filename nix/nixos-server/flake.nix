@@ -140,7 +140,6 @@
 
                 home.packages =
                   (import ../share/packages.nix { inherit pkgs npm; })
-                  ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).shared
                   ++ (import ../share/packages-dev.nix { inherit pkgs; })
                   ++ (with pkgs; [
                     docker
