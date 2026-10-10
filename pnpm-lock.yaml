@@ -37,6 +37,9 @@ catalogs:
       specifier: ^0.29.6
       version: 0.29.6
   default:
+    vite:
+      specifier: npm:@voidzero-dev/vite-plus-core@^1.1.0
+      version: 1.1.0
     vite-plus:
       specifier: ^1.1.0
       version: 1.1.0
@@ -138,8 +141,8 @@ catalogs:
       version: 25.9.9
 
 overrides:
-  vite: npm:@voidzero-dev/vite-plus-core@1.1.0
-  vitest: 5.0.3
+  vite@*: npm:@voidzero-dev/vite-plus-core@1.1.0
+  vitest@*: 5.0.3
 
 importers:
 
@@ -158,7 +161,7 @@ importers:
         specifier: catalog:lint
         version: 7.12.4(oxfmt@0.72.0(vite-plus@1.1.0(@opentelemetry/api@1.9.1)(@types/node@25.9.9)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(esbuild@0.28.2)(jiti@2.7.0)(typescript@5.9.3)(yaml@2.9.1)))(oxlint@1.87.0(oxlint-tsgolint@7.0.2003)(vite-plus@1.1.0(@opentelemetry/api@1.9.1)(@types/node@25.9.9)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(esbuild@0.28.2)(jiti@2.7.0)(typescript@5.9.3)(yaml@2.9.1)))
       vite:
-        specifier: npm:@voidzero-dev/vite-plus-core@1.1.0
+        specifier: 'catalog:'
         version: '@voidzero-dev/vite-plus-core@1.1.0(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(typescript@5.9.3)(yaml@2.9.1)'
       vite-plus:
         specifier: 'catalog:'
@@ -402,7 +405,7 @@ importers:
         specifier: catalog:markdown
         version: 12.0.2(supports-color@10.2.2)
       vite:
-        specifier: npm:@voidzero-dev/vite-plus-core@1.1.0
+        specifier: 'catalog:'
         version: '@voidzero-dev/vite-plus-core@1.1.0(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(typescript@5.9.3)(yaml@2.9.1)'
       vite-plugin-mdts:
         specifier: workspace:*
@@ -584,22 +587,19 @@ importers:
       typescript:
         specifier: catalog:build
         version: 5.9.3
-      vite:
-        specifier: npm:@voidzero-dev/vite-plus-core@1.1.0
-        version: '@voidzero-dev/vite-plus-core@1.1.0(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(typescript@5.9.3)(yaml@2.9.1)'
     devDependencies:
       '@totto2727/fp':
         specifier: workspace:*
         version: link:../fp
+      vite:
+        specifier: 'catalog:'
+        version: '@voidzero-dev/vite-plus-core@1.1.0(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(typescript@5.9.3)(yaml@2.9.1)'
 
   js/package/vite-plugin-remix:
     dependencies:
       effect:
         specifier: catalog:effect
         version: 4.0.2
-      vite:
-        specifier: npm:@voidzero-dev/vite-plus-core@1.1.0
-        version: '@voidzero-dev/vite-plus-core@1.1.0(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(typescript@5.9.3)(yaml@2.9.1)'
     devDependencies:
       '@totto2727/fp':
         specifier: workspace:*
@@ -607,6 +607,9 @@ importers:
       remix:
         specifier: catalog:remix
         version: 3.0.0-beta.2(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.3)
+      vite:
+        specifier: 'catalog:'
+        version: '@voidzero-dev/vite-plus-core@1.1.0(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(typescript@5.9.3)(yaml@2.9.1)'
 
   nix:
     devDependencies:
