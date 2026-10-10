@@ -5,6 +5,16 @@ let
 
   # --- shared wrappers (no secrets) ---
 
+  monid = npm {
+    binName = "monid";
+    packageName = "@monid-ai/cli";
+  };
+
+  oo = npm {
+    binName = "oo";
+    packageName = "@oomol-lab/oo-cli";
+  };
+
   docker-credential-gh = writeShellScriptBin "docker-credential-gh" ''
     set -e
 
@@ -37,6 +47,48 @@ let
   '';
 
   # --- wrappers with pass-cli (macos) ---
+
+  openConnectorEnv = ''
+    set -e
+    set +x
+
+    if [ -z "''${OPENCONNECTOR_BASE_URL:-}" ]; then
+      OPENCONNECTOR_BASE_URL="$(${pkgs.pass-cli}/bin/pass-cli get open-connector/url --quiet --no-clipboard -f password)"
+    fi
+    if [ -z "''${OPENCONNECTOR_TOKEN:-}" ]; then
+      OPENCONNECTOR_TOKEN="$(${pkgs.pass-cli}/bin/pass-cli get open-connector/api-key --quiet --no-clipboard -f password)"
+    fi
+    export OPENCONNECTOR_BASE_URL OPENCONNECTOR_TOKEN
+
+    test -n "$OPENCONNECTOR_TOKEN"
+    case "$OPENCONNECTOR_BASE_URL" in
+      https://*) ;;
+      *) printf 'OpenConnector requires an HTTPS gateway URL.\n' >&2; exit 1 ;;
+    esac
+  '';
+
+  macos-monid = writeShellScriptBin "monid" ''
+    ${openConnectorEnv}
+    umask 077
+
+    # Use a per-invocation gateway profile without changing saved Monid keys.
+    config_root="$(${pkgs.coreutils}/bin/mktemp -d "''${TMPDIR:-/tmp}/monid-gateway.XXXXXX")"
+    trap '${pkgs.coreutils}/bin/rm -rf -- "$config_root"' EXIT
+    export XDG_CONFIG_HOME="$config_root"
+    ${pkgs.coreutils}/bin/mkdir -p "$XDG_CONFIG_HOME/monid"
+    ${pkgs.jq}/bin/jq -n '{active_key: "gateway", last_update_check: (now | todate)}' > "$XDG_CONFIG_HOME/monid/config.yaml"
+    ${pkgs.jq}/bin/jq -n '{keys: {gateway: {key: env.OPENCONNECTOR_TOKEN, prefix: "gateway", added_at: (now | todate)}}}' > "$XDG_CONFIG_HOME/monid/credentials.yaml"
+    export MONID_API_BASE_URL="''${OPENCONNECTOR_BASE_URL%/}/v1/passthrough/monid"
+
+    ${monid}/bin/monid "$@"
+  '';
+
+  macos-oo = writeShellScriptBin "oo" ''
+    ${openConnectorEnv}
+    export OO_CONNECTOR_URL="$OPENCONNECTOR_BASE_URL"
+    export OO_CONNECTOR_TOKEN="$OPENCONNECTOR_TOKEN"
+    exec ${oo}/bin/oo "$@"
+  '';
 
   macos-wt = writeShellScriptBin "wt" ''
     set -e
@@ -81,13 +133,22 @@ let
   '';
 in
 {
+  shared = [
+    monid
+    oo
+  ];
+
   sandbox = [
+    monid
+    oo
     docker-credential-gh
     sandbox-wt
     sandbox-j
   ];
 
   macos = [
+    macos-monid
+    macos-oo
     docker-credential-gh
     macos-wt
     macos-c
@@ -95,6 +156,8 @@ in
   ];
 
   macos-work = [
+    macos-monid
+    macos-oo
     docker-credential-gh
     macos-wt
     macos-work-c
