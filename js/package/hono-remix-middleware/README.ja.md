@@ -7,7 +7,7 @@ Hono 組み込みの [`jsxRenderer`](https://hono.dev/docs/middleware/builtin/js
 ## インストール
 
 ```sh
-bun add hono-remix-middleware
+vp add hono-remix-middleware
 ```
 
 ## API
@@ -265,7 +265,7 @@ run({
 })
 ```
 
-アセットサーバーは `/assets/app/ui/counter.tsx` のような URL を実行時にコンパイルして配信するため、クライアントの動的 `import()` が直接動作します。Bun の workspace install 構造に合わせて `fileMap`/`allow` を適宜調整してください。
+アセットサーバーは `/assets/app/ui/counter.tsx` のような URL を実行時にコンパイルして配信するため、クライアントの動的 `import()` が直接動作します。このリポジトリでは pnpm のシンボリックリンクによる workspace install 構造に合わせて `fileMap`/`allow` を適宜調整してください。
 
 ---
 

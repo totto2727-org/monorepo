@@ -30,7 +30,7 @@ vp run --filter hono-remix-v3-cloudflare-example deploy     # wrangler deploy
 vp run --filter hono-remix-v3-cloudflare-example typecheck  # tsgo --noEmit
 ```
 
-`vp run <task>` はこのアプリディレクトリ内でも動作します。依存関係の解決はリポジトリルートで `bun install` を使用して行います。
+`vp run <task>` はこのアプリディレクトリ内でも動作します。依存関係の解決はリポジトリルートで `vp install --frozen-lockfile` を使用し、pnpm 経由で行います。
 
 ## ディレクトリ構造
 
