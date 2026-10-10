@@ -28,4 +28,5 @@ jobs:
         shell: bash
         run: |
           eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
+          just test-setup-typescript
           vp run ci
