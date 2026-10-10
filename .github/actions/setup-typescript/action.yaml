@@ -2,10 +2,15 @@ name: Setup TypeScript
 description: Install workspace packages with Vite+ from the root Nix development shell.
 
 inputs:
+  frozen:
+    description: Require the existing lockfile without updating it. Set to 'false' to allow updates.
+    required: false
+    default: 'true'
   install-args:
     description: |
       Extra arguments appended to `vp install`. Useful for narrowing the install graph
       to a single workspace and its dependencies, e.g. `--filter @totto2727/bw...`.
+      Use the `frozen` input to control lockfile updates instead of passing lockfile flags here.
     required: false
     default: ''
 
@@ -15,7 +20,14 @@ runs:
     - name: Install packages
       shell: bash
       env:
+        VP_FROZEN: ${{ inputs.frozen }}
         VP_INSTALL_ARGS: ${{ inputs.install-args }}
       run: |
+        lockfile_args=()
+        case "$VP_FROZEN" in
+          true) lockfile_args+=(--frozen-lockfile) ;;
+          false) lockfile_args+=(--no-frozen-lockfile) ;;
+          *) echo "::error::The frozen input must be 'true' or 'false'."; exit 1 ;;
+        esac
         eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
-        vp install $VP_INSTALL_ARGS
+        vp install "${lockfile_args[@]}" $VP_INSTALL_ARGS
