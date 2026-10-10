@@ -126,8 +126,11 @@ run: {
 
 ### Package Management
 
-- Bun workspaces with catalog mode for centralized dependency version management
-- All dependency versions are defined in root `package.json` catalogs
+- Node.js is the default runtime, pnpm is the sole repository package manager, and Vite+ remains the task and package-management entry point.
+- Workspace membership, centralized catalogs, overrides, build-script permissions, and the strict 24-hour release-age policy live in root `pnpm-workspace.yaml`.
+- Install from the repository root with `vp install --frozen-lockfile`. Refresh `pnpm-lock.yaml` deliberately with `vp install --no-frozen-lockfile` without bypassing release-age safeguards.
+- Preserve compatible caret ranges and the documented Vite+, Remix, and Better Auth exceptions in [README.md](./README.md#dependency-policy).
+- Bun is retained only where TypeScript must execute directly, currently the Pulumi projects. It is not used to install workspace dependencies.
 
 ### Path Aliases
 

@@ -1,6 +1,6 @@
 # Monorepo
 
-A multi-language monorepo using Bun workspaces and Vite+.
+A multi-language monorepo using Node.js, pnpm workspaces, and Vite+.
 
 ## Project Structure
 
@@ -32,7 +32,7 @@ A multi-language monorepo using Bun workspaces and Vite+.
 nix develop
 
 # Install dependencies
-vp i
+vp install --frozen-lockfile
 ```
 
 Run `direnv allow` once to load the development environment automatically.
@@ -45,11 +45,18 @@ Run `direnv allow` once to load the development environment automatically.
 
 Dependency updates stay within compatible manifest and catalog ranges by default. Do not use release-age exclusions or general dependency overrides to force a newer release to install.
 
-- Preserve the package manager's default release-age behavior and the existing registry configuration. Bun's default minimum release age is zero when no age gate is configured. This repository does not configure an age gate, lower an existing one, or add exclusions. [Bun's optional age gate](https://bun.com/docs/pm/cli/install#minimum-release-age) is not enabled by default, and its documentation's three-day example is not a default policy. Do not confuse this with another package manager's defaults.
-- Use the latest compatible installable release through the existing registry and review publication dates when refreshing the lockfile. Do not force a release through by changing security settings, adding arbitrary waiting periods, or adding automatic exclusions.
+- pnpm is the sole repository package manager, pinned to `11.21.0` in `package.json` and supplied by the existing root Nix input. Vite+ remains unchanged and dispatches `vp install` to pnpm. Workspace membership and catalogs live in `pnpm-workspace.yaml`, and `pnpm-lock.yaml` is the only repository dependency lockfile.
+- Preserve the existing registry configuration and [pnpm's release-age safeguards](https://pnpm.io/settings#minimumreleaseage): `minimumReleaseAge: 1440` and `minimumReleaseAgeStrict: true` enforce a 24-hour wait and reject missing publication timestamps. Do not lower the gate or add exclusions.
+- Use compatible caret ranges and the latest compatible mature release through the existing registry when deliberately refreshing the lockfile with `vp install --no-frozen-lockfile`. Use `vp install --frozen-lockfile` for reproducible local and CI installs. Do not force a release through by changing security settings or adding automatic exclusions.
 - The `vite` core alias and exact bundled `vitest` override are the only dependency override exceptions, as required by [Vite+ manual installation](https://viteplus.dev/guide/local-cli#manual-installation). Keep them aligned when [upgrading Vite+](https://viteplus.dev/guide/upgrade-project#updating-the-vitest-pin). The coverage provider must also match the bundled Vitest version because it declares an exact Vitest peer.
 - Remix remains a direct `remix` dependency with a caret beta range. The upper bound excludes beta.3 and later because their UI renderer no longer accepts the existing render-function props API. Later beta releases also remove the existing `Button` component API. Do not replace this with an `@remix-run/ui` dependency or migrate application JSX as part of a routine dependency update.
 - Better Auth stays below 1.7 while the application uses the 1.6 generic OAuth API (`issuer` and `signInWithOAuth2`). Prefer a compatible catalog range over an override or an unrelated source migration.
+- Lifecycle scripts are allowed only for the previously trusted `esbuild`, `msgpackr-extract`, `sharp`, and `workerd` packages, via pnpm's `allowBuilds` configuration. The previously untrusted `protobufjs` postinstall remains explicitly denied so pnpm can complete non-interactively without widening permissions. Review any new build-script requirement instead of automatically approving it.
+- The old Bun patch registration for `@better-auth/kysely-adapter@1.6.12` was already inactive with the resolved `1.6.33` dependency and is not carried into pnpm configuration. The patch file remains available for historical reference.
+
+### Bun Runtime Scope
+
+Node.js is the default JavaScript runtime. Bun remains in the development shell because `infra/aws/Pulumi.yaml` and `infra/cloudflare/Pulumi.yaml` select it to execute TypeScript directly. These projects still install dependencies through pnpm via Vite+. Shared global-tool wrappers and system runtime installations under `nix/` are separate from repository dependency management and are not migrated by this change. Historical ADRs and runtime compatibility examples may still mention Bun.
 
 ## License
 
