@@ -17,6 +17,6 @@
     "vite": "catalog:"
   },
   "peerDependencies": {
-    "vite": "catalog:vite"
+    "vite": "catalog:"
   }
 }
