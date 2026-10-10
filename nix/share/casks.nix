@@ -6,7 +6,7 @@
   # Browser
   "google-chrome"
   # Coding
-  "warp"
+  "cmux"
   # Utility
   "slack"
   "thaw"
