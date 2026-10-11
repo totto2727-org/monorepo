@@ -1,5 +1,5 @@
-import type { Handle, Props, RemixNode } from 'remix/ui'
-import { createElement } from 'remix/ui'
+import type { Handle, Props, RemixNode } from 'remix/component'
+import { createElement } from 'remix/component'
 
 type FrameLinkProps<T extends string> = Props<'a'> & {
   href: string

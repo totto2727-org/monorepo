@@ -13,7 +13,7 @@ vp run --filter hono-remix-v3-cloudflare-example dev        # vp dev — Workers
 vp run --filter hono-remix-v3-cloudflare-example start      # wrangler dev — Workers run on workerd against built output
 vp run --filter hono-remix-v3-cloudflare-example build      # vp build — emit Worker + client bundles (cached)
 vp run --filter hono-remix-v3-cloudflare-example deploy     # wrangler deploy
-vp run --filter hono-remix-v3-cloudflare-example typecheck  # tsgo --noEmit
+vp run --filter hono-remix-v3-cloudflare-example typecheck  # tsc --noEmit
 ```
 
 Run-from-app-dir works too (`cd js/app/hono-remix-v3-cloudflare-example && vp run build`). Install dependencies from the repo root with `vp install --frozen-lockfile`.
@@ -29,7 +29,7 @@ Use the `remix` skill for Remix UI / SSR guidance. Note that this app does **not
 - `app/controllers/home.tsx` owns the home page
 - `app/controllers/auth.tsx` owns the auth page
 - `app/ui/` holds the shared document and layout wrappers
-- `app/utils/render.tsx` wraps `remix/ui/server` `renderToStream` for HTML responses
+- `app/utils/render.tsx` wraps `remix/component/server` `renderToStream` for HTML responses
 - `app/assets/entry.ts` is the client entry served by Vite (referenced from `<script>` in the Document)
 
 ## Route Ownership

@@ -1,8 +1,7 @@
 import { Effect, String } from 'effect'
 import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from 'effect/http'
-import { clientEntry, on } from 'remix/ui'
-import type { Handle, SerializableProps } from 'remix/ui'
-import { Button } from 'remix/ui/button'
+import { clientEntry, on } from 'remix/component'
+import type { Handle, SerializableProps } from 'remix/component'
 
 export const LogoutButton = clientEntry(
   '/assets/app/ui/account.client.tsx#LogoutButton',
@@ -11,7 +10,7 @@ export const LogoutButton = clientEntry(
 
     return () => (
       <>
-        <Button
+        <button
           mix={on('click', () => {
             // oxlint-disable-next-line rules/no-effect-runtime-run -- Client event boundary executes one sign-out workflow Effect.
             void Effect.runPromise(
@@ -41,11 +40,11 @@ export const LogoutButton = clientEntry(
             )
           })}
           type='button'
-          tone='secondary'
+          data-tone='secondary'
           disabled={state.submitting}
         >
           {state.submitting ? 'ログアウト中...' : 'ログアウト'}
-        </Button>
+        </button>
         {String.isNonEmpty(state.error) ? <p role='alert'>{state.error}</p> : null}
       </>
     )

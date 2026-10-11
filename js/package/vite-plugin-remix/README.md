@@ -9,7 +9,7 @@ Reference: For SSR in arbitrary frameworks, see [`hono-remix-middleware`](../hon
 - Registers a Vite `client` environment and builds a client entry from a single file
 - Forces rollup to emit each `*.client.tsx` as an **individual chunk** (per-component lazy loading equivalent to Remix's asset server)
 - A `<Script>` component that switches the script URL between dev / prod
-- A `boot()` helper to pass `import.meta.glob` loaders into `remix/ui#run`
+- A `boot()` helper to pass `import.meta.glob` loaders into `remix/component#run`
 
 ## Installation
 

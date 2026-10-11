@@ -12,7 +12,7 @@ Two pages:
 | Layer               | Choice                                                                          |
 | ------------------- | ------------------------------------------------------------------------------- |
 | HTTP Router         | **Hono** (replacement for `remix/fetch-router`)                                 |
-| SSR / UI            | **Remix v3 `remix/ui` + `remix/ui/server`** (used as-is)                        |
+| SSR / UI            | **Remix v3 `remix/component` + `remix/component/server`** (used as-is)          |
 | Client bundle / dev | **Vite** + `@cloudflare/vite-plugin` (replacement for `remix/assets` runtime)   |
 | Runtime             | **Cloudflare Workers** (dev via workerd through Vite plugin, prod also Workers) |
 
@@ -27,7 +27,7 @@ vp run --filter hono-remix-v3-cloudflare-example dev        # vp dev — Worker 
 vp run --filter hono-remix-v3-cloudflare-example start      # wrangler dev — runs built output in workerd
 vp run --filter hono-remix-v3-cloudflare-example build      # vp build — generates both Worker and client bundles (cached)
 vp run --filter hono-remix-v3-cloudflare-example deploy     # wrangler deploy
-vp run --filter hono-remix-v3-cloudflare-example typecheck  # tsgo --noEmit
+vp run --filter hono-remix-v3-cloudflare-example typecheck  # tsc --noEmit
 ```
 
 `vp run <task>` works inside this app directory too. Dependency resolution is done with `vp install --frozen-lockfile` at the repository root, using pnpm.
@@ -60,7 +60,7 @@ sequenceDiagram
     participant Worker as Cloudflare Worker (workerd)
     participant Hono
     participant MW as remixRenderer middleware
-    participant RemixSSR as remix/ui/server renderToStream
+    participant RemixSSR as remix/component/server renderToStream
 
     Client->>Vite: GET /
     Note over Vite: Not a Vite asset path → forwarded to Worker
@@ -81,7 +81,7 @@ sequenceDiagram
     Note over Vite: Vite source path → transformed and served
     Vite-->>Client: entry.ts (JSX→JS, dependency pre-bundle, HMR injection)
 
-    Client->>Client: import('remix/ui').run({loadModule, resolveFrame})
+    Client->>Client: import('remix/component').run({loadModule, resolveFrame})
     Note over Client: run() traverses the DOM looking for hydration markers
     Client->>Client: loadModule resolves from in-memory components map
     Client->>Client: Counter component hydrates

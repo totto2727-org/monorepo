@@ -15,14 +15,15 @@ catalog:
 
 catalogs:
   auth:
-    '@better-auth/oauth-provider': ^1.6.33 <1.7.0
-    '@better-auth/passkey': ^1.6.33 <1.7.0
-    better-auth: ^1.6.33 <1.7.0
+    '@better-auth/oauth-provider': ^1.7.7
+    '@better-auth/passkey': ^1.7.7
+    better-auth: ^1.7.7
     casbin: ^5.51.1
     jose: ^6.2.12
   build:
-    '@typescript/native-preview': ^7.0.0-dev.20260707.2
-    typescript: ^5.9.3
+    typescript: ^7.0.2
+  compiler-api:
+    typescript: ^6.0.3
   cloudflare:
     '@cloudflare/vite-plugin': ^1.63.1
     wrangler: ^4.149.0
@@ -68,7 +69,7 @@ catalogs:
     '@pulumi/cloudflare': ^6.22.0
     '@pulumi/pulumi': ^3.268.0
   remix:
-    remix: ^3.0.0-beta.2 <3.0.0-beta.3
+    remix: ^3.0.0
   storybook:
     storybook: ^10.6.1
   types:

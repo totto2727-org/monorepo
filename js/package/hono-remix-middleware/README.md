@@ -1,6 +1,6 @@
 # hono-remix-middleware
 
-Following the same pattern as Hono's built-in [`jsxRenderer`](https://hono.dev/docs/middleware/builtin/jsx-renderer), this is middleware for calling **Remix v3's `remix/ui` SSR**.
+Following the same pattern as Hono's built-in [`jsxRenderer`](https://hono.dev/docs/middleware/builtin/jsx-renderer), this is middleware for calling **Remix v3's `remix/component` SSR**.
 
 Runtime / bundler agnostic, works on Cloudflare Workers / Node / Bun / Deno.
 
@@ -35,10 +35,10 @@ app.get('/', (c) =>
 )
 ```
 
-| Option               | Type                                           | Description                                                                                                                                 |
-| -------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `fetcher`            | `typeof fetch`                                 | Called when re-fetching a frame in nested SSR (`resolveFrame` in `remix/ui/server`). Typically pass `(req) => app.fetch(req)` as a closure. |
-| `resolveClientEntry` | `(entryId, component) => { exportName, href }` | Optional. Hook to compute `moduleUrl`/`exportName` from the clientEntry ID. Default is to strip the `/assets/` prefix.                      |
+| Option               | Type                                           | Description                                                                                                                                        |
+| -------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fetcher`            | `typeof fetch`                                 | Called when re-fetching a frame in nested SSR (`resolveFrame` in `remix/component/server`). Typically pass `(req) => app.fetch(req)` as a closure. |
+| `resolveClientEntry` | `(entryId, component) => { exportName, href }` | Optional. Hook to compute `moduleUrl`/`exportName` from the clientEntry ID. Default is to strip the `/assets/` prefix.                             |
 
 A straightforward implementation that passes `c.render(content)`'s `content` directly to `renderToStream`. Composing the Layout / Document is the handler's responsibility.
 
@@ -112,18 +112,18 @@ export default defineConfig({
 ```tsx:app/app.tsx
 import { Hono } from 'hono'
 import { remixRenderer } from 'hono-remix-middleware'
-import type { RemixNode } from 'remix/ui'
+import type { Handle, RemixNode } from 'remix/component'
 import { Script } from 'vite-plugin-remix/client'
 
-const Document = () => ({ title, children }: { title?: string; children?: RemixNode }) => (
+const Document = (handle: Handle<{ title?: string; children?: RemixNode }>) => () => (
   <html lang='en'>
     <head>
       <meta charSet='utf-8' />
       <meta name='viewport' content='width=device-width, initial-scale=1' />
-      <title>{title}</title>
+      <title>{handle.props.title}</title>
     </head>
     <body>
-      {children}
+      {handle.props.children}
       <Script devSrc='/app/assets/entry.ts' prodSrc='/assets/entry.js' />
     </body>
   </html>
@@ -249,7 +249,7 @@ export default app
 ```
 
 ```ts:app/assets/entry.ts
-import { run } from 'remix/ui'
+import { run } from 'remix/component'
 
 run({
   async loadModule(moduleUrl, exportName) {

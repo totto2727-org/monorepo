@@ -1,6 +1,6 @@
 import { Array, Predicate, String } from 'effect'
-import { clientEntry, css, on } from 'remix/ui'
-import type { Handle, SerializableProps } from 'remix/ui'
+import { clientEntry, css, on } from 'remix/component'
+import type { Handle, SerializableProps } from 'remix/component'
 
 interface Item {
   id: string

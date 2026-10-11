@@ -1,8 +1,7 @@
 import { Effect, Schema, String } from 'effect'
 import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from 'effect/http'
-import { clientEntry, on } from 'remix/ui'
-import type { Handle, SerializableProps } from 'remix/ui'
-import { Button } from 'remix/ui/button'
+import { clientEntry, on } from 'remix/component'
+import type { Handle, SerializableProps } from 'remix/component'
 
 const ContinueResponse = Schema.Struct({
   redirect: Schema.Literal(true),
@@ -19,7 +18,7 @@ export const SelectAccountButton = clientEntry(
 
     return () => (
       <>
-        <Button
+        <button
           mix={on('click', () => {
             // oxlint-disable-next-line rules/no-effect-runtime-run -- Client event boundary executes one Better Auth OAuth continue workflow.
             void Effect.runPromise(
@@ -63,7 +62,7 @@ export const SelectAccountButton = clientEntry(
           disabled={state.submitting}
         >
           {state.submitting ? '続行中...' : 'このアカウントで続行'}
-        </Button>
+        </button>
         {String.isNonEmpty(state.error) ? <p role='alert'>{state.error}</p> : null}
       </>
     )

@@ -5,6 +5,11 @@ description: Build and review Remix 3 applications using the `remix` npm package
 
 # Build a Remix App
 
+## Version boundary
+
+This repository uses stable Remix 3.0.0. Import the component runtime from `remix/component` and SSR from `remix/component/server`; set `jsxImportSource` to `remix/component`. Read props through `handle.props` and return a render function with no props argument. Browser `resolveFrame` receives `(src, options)`, with `options.signal` and `options.target`.
+The reference files below were written for the beta API. Do not copy their `remix/ui`, animation, primitive, or theme imports into stable-version code. The stable package does not export those beta subpaths. Use native elements and app-owned styles, and check the [official stable rendering guide](https://github.com/remix-run/remix/blob/main/packages/remix/guides/04-rendering-ui.md) and installed package exports before applying a beta example.
+
 Use this skill for end-to-end Remix app work. It should help the agent choose the right layer first, reach for the right package, and avoid the most common Remix-specific mistakes.
 
 ## What Remix Is
