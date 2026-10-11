@@ -66,7 +66,7 @@ export default defineConfig({
       },
       ci: {
         command: '',
-        dependsOn: ['w:check', 'w:test', 'w:build'],
+        dependsOn: ['w:check', 'w:test', 'w:build', 'test:publish-npm'],
       },
       fix: {
         command: '',
@@ -83,7 +83,11 @@ export default defineConfig({
       },
       test: {
         command: '',
-        dependsOn: ['js:test'],
+        dependsOn: ['js:test', 'test:publish-npm'],
+      },
+      'test:publish-npm': {
+        command: 'node --test .github/actions/publish-npm/action.test.mjs',
+        cache: false,
       },
       'w:build': {
         command: 'vp run -r build',
