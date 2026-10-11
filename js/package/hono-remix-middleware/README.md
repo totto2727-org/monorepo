@@ -7,7 +7,7 @@ Runtime / bundler agnostic, works on Cloudflare Workers / Node / Bun / Deno.
 ## Installation
 
 ```sh
-bun add hono-remix-middleware
+vp add hono-remix-middleware
 ```
 
 ## API
@@ -265,7 +265,7 @@ run({
 })
 ```
 
-The asset server compiles URLs like `/assets/app/ui/counter.tsx` at runtime and serves them, so the client's dynamic `import()` works directly. Just be careful to adjust `fileMap`/`allow` according to Bun's workspace install structure.
+The asset server compiles URLs like `/assets/app/ui/counter.tsx` at runtime and serves them, so the client's dynamic `import()` works directly. Adjust `fileMap`/`allow` for pnpm's symlinked workspace install structure when running in this repository.
 
 ---
 

@@ -36,9 +36,10 @@
           default = pkgs.mkShell {
             packages = [
               # JS
-              pkgs.bun
+              pkgs.bun # Pulumi directly executes TypeScript with Bun.
               pkgs.deno
               pkgs.nodejs_24
+              pkgs.pnpm
               pkgs.vite-plus
               # Nix
               pkgs.nixfmt

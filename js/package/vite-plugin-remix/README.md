@@ -14,7 +14,7 @@ Reference: For SSR in arbitrary frameworks, see [`hono-remix-middleware`](../hon
 ## Installation
 
 ```sh
-bun add -D vite-plugin-remix
+vp add -D vite-plugin-remix
 # peer: vite, remix
 ```
 

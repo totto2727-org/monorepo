@@ -14,7 +14,7 @@ Remix v3 のクライアントバンドルとハイドレーションを Vite �
 ## インストール
 
 ```sh
-bun add -D vite-plugin-remix
+vp add -D vite-plugin-remix
 # peer: vite, remix
 ```
 
