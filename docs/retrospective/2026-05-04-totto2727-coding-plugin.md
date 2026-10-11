@@ -80,7 +80,7 @@ rollback.
   so `\beffect-layer\b` matched the new `ts-effect-layer.md` filename. Three Step-6 ↔ Step-7 round-trips just to
   stabilize one TC's grep recipe.
 - **T28 grep target was incomplete.** task-plan.md T28 enumerated `effect-layer / effect-runtime / effect-hono /
-totto2727-fp` placeholder strings but missed `moonbit-bestpractice` (still present in 4 dev-workflow files at
+  totto2727-fp` placeholder strings but missed `moonbit-bestpractice` (still present in 4 dev-workflow files at
   `qa-analyst.md:46`, `specialist-implementer/SKILL.md:52`, `specialist-qa-analyst/SKILL.md:60`,
   `step-qa-design/SKILL.md:29` — plus `effect-*` glob in the last). T28 needed re-activation (T28-r2 = `309a84c`) to
   fix.
