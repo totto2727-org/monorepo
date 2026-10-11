@@ -5,9 +5,7 @@ packages:
   - nix
   - elixir/*
 
-minimumReleaseAge: 1440
 minimumReleaseAgeStrict: true
-savePrefix: '^'
 
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@^1.1.0
