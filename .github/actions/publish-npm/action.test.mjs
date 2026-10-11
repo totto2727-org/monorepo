@@ -27,11 +27,15 @@ async function runAction(t, { status = 200, filters = '', disconnect = false } =
   const registry = `http://127.0.0.1:${server.address().port}/`
   await writeFile(
     resolve(directory, 'package.json'),
-    JSON.stringify({
-      name: '@example/package',
-      version: '0.1.0',
-      publishConfig: { registry },
-    }),
+    `${JSON.stringify(
+      {
+        name: '@example/package',
+        version: '0.1.0',
+        publishConfig: { registry },
+      },
+      null,
+      2,
+    )}\n`,
   )
   await mkdir(resolve(directory, 'bin'))
   await writeFile(resolve(directory, 'bin/nix'), '#!/bin/sh\nexit 0\n', { mode: 0o755 })
