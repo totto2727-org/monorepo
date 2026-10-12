@@ -20,8 +20,6 @@ catalogs:
     better-auth: ^1.7.7
     casbin: ^5.51.1
     jose: ^6.2.12
-  build:
-    typescript: ^7.0.2
   compiler-api:
     typescript: ^6.0.3
   cloudflare:

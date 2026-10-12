@@ -20,14 +20,14 @@ The key point is that all Node-only APIs from Remix v3 (`remix/node-serve`, `rem
 
 ## Commands
 
-`build` is defined as a Vite+ task (in `vite.config.ts`), excluding `dist/**` and `.wrangler/**` from inputs so the cache works on re-run. `dev` / `start` / `deploy` / `typecheck` remain scripts in `package.json`. From the repository root, use `--filter` to target:
+`build` is defined as a Vite+ task (in `vite.config.ts`), excluding `dist/**` and `.wrangler/**` from inputs so the cache works on re-run. `dev` / `start` / `deploy` remain scripts in `package.json`. From the repository root, use `--filter` to target:
 
 ```sh
 vp run --filter hono-remix-v3-cloudflare-example dev        # vp dev — Worker runs inside Vite with HMR
 vp run --filter hono-remix-v3-cloudflare-example start      # wrangler dev — runs built output in workerd
 vp run --filter hono-remix-v3-cloudflare-example build      # vp build — generates both Worker and client bundles (cached)
 vp run --filter hono-remix-v3-cloudflare-example deploy     # wrangler deploy
-vp run --filter hono-remix-v3-cloudflare-example typecheck  # tsc --noEmit
+vp run js:check                                           # Workspace format, lint, and type check via vp check
 ```
 
 `vp run <task>` works inside this app directory too. Dependency resolution is done with `vp install --frozen-lockfile` at the repository root, using pnpm.

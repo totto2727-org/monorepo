@@ -6,14 +6,14 @@ Package management is pnpm (via `vp`), with Node.js as the default local runtime
 
 ## Commands
 
-`build` is a Vite+ task in `vite.config.ts`; `dev` / `start` / `deploy` / `typecheck` remain `package.json` scripts. From the repo root:
+`build` is a Vite+ task in `vite.config.ts`; `dev` / `start` / `deploy` remain `package.json` scripts. From the repo root:
 
 ```sh
 vp run --filter hono-remix-v3-cloudflare-example dev        # vp dev — Workers run inside Vite, HMR for client entry
 vp run --filter hono-remix-v3-cloudflare-example start      # wrangler dev — Workers run on workerd against built output
 vp run --filter hono-remix-v3-cloudflare-example build      # vp build — emit Worker + client bundles (cached)
 vp run --filter hono-remix-v3-cloudflare-example deploy     # wrangler deploy
-vp run --filter hono-remix-v3-cloudflare-example typecheck  # tsc --noEmit
+vp run js:check                                           # Workspace format, lint, and type check via vp check
 ```
 
 Run-from-app-dir works too (`cd js/app/hono-remix-v3-cloudflare-example && vp run build`). Install dependencies from the repo root with `vp install --frozen-lockfile`.

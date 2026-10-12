@@ -20,14 +20,14 @@
 
 ## コマンド
 
-`build` は Vite+ タスク（`vite.config.ts` 内）として定義され、`dist/**` と `.wrangler/**` を入力から除外してキャッシュが再実行時に機能するようにしています。`dev` / `start` / `deploy` / `typecheck` は `package.json` のスクリプトとして残っています。リポジトリルートからは `--filter` を使用してターゲットを指定します:
+`build` は Vite+ タスク（`vite.config.ts` 内）として定義され、`dist/**` と `.wrangler/**` を入力から除外してキャッシュが再実行時に機能するようにしています。`dev` / `start` / `deploy` は `package.json` のスクリプトとして残っています。リポジトリルートからは `--filter` を使用してターゲットを指定します:
 
 ```sh
 vp run --filter hono-remix-v3-cloudflare-example dev        # vp dev — Worker が Vite 内で HMR 付きで実行
 vp run --filter hono-remix-v3-cloudflare-example start      # wrangler dev — ビルド済み出力を workerd で実行
 vp run --filter hono-remix-v3-cloudflare-example build      # vp build — Worker とクライアントバンドルの両方を生成（キャッシュあり）
 vp run --filter hono-remix-v3-cloudflare-example deploy     # wrangler deploy
-vp run --filter hono-remix-v3-cloudflare-example typecheck  # tsc --noEmit
+vp run js:check                                           # Workspace format, lint, and type check via vp check
 ```
 
 `vp run <task>` はこのアプリディレクトリ内でも動作します。依存関係の解決はリポジトリルートで `vp install --frozen-lockfile` を使用し、pnpm 経由で行います。

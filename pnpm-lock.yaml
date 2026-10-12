@@ -18,10 +18,6 @@ catalogs:
     jose:
       specifier: ^6.2.12
       version: 6.2.12
-  build:
-    typescript:
-      specifier: ^7.0.2
-      version: 7.0.2
   cloudflare:
     '@cloudflare/vite-plugin':
       specifier: ^1.63.1
@@ -306,9 +302,6 @@ importers:
       remix-helper:
         specifier: workspace:*
         version: link:../../package/remix-helper
-      typescript:
-        specifier: catalog:build
-        version: 7.0.2
       wrangler:
         specifier: catalog:cloudflare
         version: 4.149.0(@types/node@25.9.9)
@@ -12422,6 +12415,7 @@ snapshots:
       '@typescript/typescript-sunos-x64': 7.0.2
       '@typescript/typescript-win32-arm64': 7.0.2
       '@typescript/typescript-win32-x64': 7.0.2
+    optional: true
 
   uc.micro@2.1.0: {}
 

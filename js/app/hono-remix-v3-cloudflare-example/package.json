@@ -8,8 +8,7 @@
   "scripts": {
     "deploy": "wrangler deploy",
     "dev": "vp dev",
-    "start": "wrangler dev",
-    "typecheck": "tsc --noEmit"
+    "start": "wrangler dev"
   },
   "dependencies": {
     "effect": "catalog:effect",
@@ -22,7 +21,6 @@
     "@cloudflare/vite-plugin": "catalog:cloudflare",
     "@totto2727/fp": "workspace:*",
     "remix-helper": "workspace:*",
-    "typescript": "catalog:build",
     "wrangler": "catalog:cloudflare"
   }
 }
