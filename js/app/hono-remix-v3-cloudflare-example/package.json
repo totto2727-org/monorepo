@@ -8,8 +8,7 @@
   "scripts": {
     "deploy": "wrangler deploy",
     "dev": "vp dev",
-    "start": "wrangler dev",
-    "typecheck": "tsgo --noEmit"
+    "start": "wrangler dev"
   },
   "dependencies": {
     "effect": "catalog:effect",

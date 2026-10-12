@@ -1,7 +1,7 @@
 import { getContext } from 'hono/context-storage'
 import { createFrameHelpers } from 'remix-helper'
-import type { Handle, RemixNode } from 'remix/ui'
-import { Frame, css } from 'remix/ui'
+import type { Handle, RemixNode } from 'remix/component'
+import { Frame, css } from 'remix/component'
 
 import type { FrameName } from '../routes.ts'
 import { Counter } from './counter.client.tsx'

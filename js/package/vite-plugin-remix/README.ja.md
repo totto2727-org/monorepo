@@ -9,7 +9,7 @@ Remix v3 のクライアントバンドルとハイドレーションを Vite �
 - Vite の `client` 環境を登録し、単一ファイルからクライアントエントリをビルドします
 - 各 `*.client.tsx` を rollup に **個別のチャンク** として出力させます (Remix のアセットサーバーに相当するコンポーネント単位の遅延読み込み)
 - 開発時/本番時でスクリプト URL を切り替える `<Script>` コンポーネント
-- `import.meta.glob` ローダーを `remix/ui#run` に渡すための `boot()` ヘルパー
+- `import.meta.glob` ローダーを `remix/component#run` に渡すための `boot()` ヘルパー
 
 ## インストール
 

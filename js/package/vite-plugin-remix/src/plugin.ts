@@ -2,7 +2,7 @@ import type { Plugin } from 'vite'
 
 export interface RemixPluginOptions {
   /**
-   * Path to the client entry that calls `run()` from `remix/ui`,
+   * Path to the client entry that calls `run()` from `remix/component`,
    * relative to the project root. Required — the plugin makes no
    * assumption about your directory layout.
    */

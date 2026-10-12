@@ -1,3 +1,5 @@
+import type { Handle } from 'remix/component'
+
 export interface ScriptProps {
   /**
    * URL served by Vite in dev. Should match the project-relative path
@@ -28,6 +30,6 @@ export interface ScriptProps {
  * entry instead.
  */
 export const Script =
-  () =>
+  (handle: Handle<ScriptProps>) =>
   // oxlint-disable-next-line rules/no-jsx-script-tag -- This component exists solely to emit a bare HTML <script> tag for Vite-powered SSR entry injection
-  ({ devSrc, prodSrc }: ScriptProps) => <script type='module' src={import.meta.env.DEV ? devSrc : prodSrc} />
+  () => <script type='module' src={import.meta.env.DEV ? handle.props.devSrc : handle.props.prodSrc} />

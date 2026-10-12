@@ -10,7 +10,7 @@
   "dependencies": {
     "confbox": "catalog:markdown",
     "effect": "catalog:effect",
-    "typescript": "catalog:build"
+    "typescript": "catalog:compiler-api"
   },
   "devDependencies": {
     "@totto2727/fp": "workspace:*",

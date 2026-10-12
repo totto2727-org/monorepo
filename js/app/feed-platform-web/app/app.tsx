@@ -55,14 +55,17 @@ const app: Hono<Env> = new Hono<Env>()
         }
         const auth = yield* BetterAuth.Service
         const { headers, response } = yield* Effect.tryPromise(() =>
-          auth.api.signInWithOAuth2({
+          auth.api.signInSocial({
             body: {
               callbackURL: '/api/v1/auth-callback',
-              providerId: 'identity-provider',
+              provider: 'identity-provider',
             },
             returnHeaders: true,
           }),
         )
+        if (!Predicate.isString(response.url)) {
+          return ctx.text('OAuth provider did not return a redirect URL', 502)
+        }
         return redirectWithHeaders(response.url, headers)
       }),
     ),

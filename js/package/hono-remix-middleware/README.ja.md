@@ -1,6 +1,6 @@
 # hono-remix-middleware
 
-Hono 組み込みの [`jsxRenderer`](https://hono.dev/docs/middleware/builtin/jsx-renderer) と同じパターンで、**Remix v3 の `remix/ui` SSR** を呼び出すミドルウェアです。
+Hono 組み込みの [`jsxRenderer`](https://hono.dev/docs/middleware/builtin/jsx-renderer) と同じパターンで、**Remix v3 の `remix/component` SSR** を呼び出すミドルウェアです。
 
 ランタイム／バンドラーに依存せず、Cloudflare Workers / Node / Bun / Deno で動作します。
 
@@ -35,10 +35,10 @@ app.get('/', (c) =>
 )
 ```
 
-| オプション           | 型                                             | 説明                                                                                                                                                        |
-| -------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `fetcher`            | `typeof fetch`                                 | ネストされた SSR でフレームを再取得する際に呼ばれます（`remix/ui/server` の `resolveFrame`）。通常はクロージャとして `(req) => app.fetch(req)` を渡します。 |
-| `resolveClientEntry` | `(entryId, component) => { exportName, href }` | 省略可能。clientEntry ID から `moduleUrl`/`exportName` を計算するフック。デフォルトは `/assets/` プレフィックスを除去します。                               |
+| オプション           | 型                                             | 説明                                                                                                                                                               |
+| -------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `fetcher`            | `typeof fetch`                                 | ネストされた SSR でフレームを再取得する際に呼ばれます（`remix/component/server` の `resolveFrame`）。通常はクロージャとして `(req) => app.fetch(req)` を渡します。 |
+| `resolveClientEntry` | `(entryId, component) => { exportName, href }` | 省略可能。clientEntry ID から `moduleUrl`/`exportName` を計算するフック。デフォルトは `/assets/` プレフィックスを除去します。                                      |
 
 シンプルな実装で、`c.render(content)` の `content` をそのまま `renderToStream` に渡します。Layout / Document の構成はハンドラーの責務です。
 
@@ -112,18 +112,18 @@ export default defineConfig({
 ```tsx:app/app.tsx
 import { Hono } from 'hono'
 import { remixRenderer } from 'hono-remix-middleware'
-import type { RemixNode } from 'remix/ui'
+import type { Handle, RemixNode } from 'remix/component'
 import { Script } from 'vite-plugin-remix/client'
 
-const Document = () => ({ title, children }: { title?: string; children?: RemixNode }) => (
+const Document = (handle: Handle<{ title?: string; children?: RemixNode }>) => () => (
   <html lang='en'>
     <head>
       <meta charSet='utf-8' />
       <meta name='viewport' content='width=device-width, initial-scale=1' />
-      <title>{title}</title>
+      <title>{handle.props.title}</title>
     </head>
     <body>
-      {children}
+      {handle.props.children}
       <Script devSrc='/app/assets/entry.ts' prodSrc='/assets/entry.js' />
     </body>
   </html>
@@ -249,7 +249,7 @@ export default app
 ```
 
 ```ts:app/assets/entry.ts
-import { run } from 'remix/ui'
+import { run } from 'remix/component'
 
 run({
   async loadModule(moduleUrl, exportName) {

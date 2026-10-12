@@ -1,8 +1,7 @@
 import { Effect, Predicate, String } from 'effect'
 import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from 'effect/http'
-import { clientEntry, css, on } from 'remix/ui'
-import type { Handle } from 'remix/ui'
-import { Button } from 'remix/ui/button'
+import { clientEntry, css, on } from 'remix/component'
+import type { Handle } from 'remix/component'
 
 const formStyle = css({
   display: 'flex',
@@ -72,9 +71,9 @@ export const MagicLinkForm = clientEntry('/assets/app/ui/login.client.tsx#MagicL
         required
         disabled={state.submitting}
       />
-      <Button type='submit' tone='primary' disabled={state.submitting}>
+      <button type='submit' data-tone='primary' disabled={state.submitting}>
         {state.submitting ? '送信中...' : 'マジックリンクを送信'}
-      </Button>
+      </button>
       {String.isNonEmpty(state.error) ? <p role='alert'>{state.error}</p> : null}
     </form>
   )

@@ -1,8 +1,8 @@
 import { Predicate, String } from 'effect'
 import type { MiddlewareHandler } from 'hono'
-import type { RemixNode } from 'remix/ui'
-import { renderToStream } from 'remix/ui/server'
-import type { RenderToStreamOptions } from 'remix/ui/server'
+import type { RemixNode } from 'remix/component'
+import { renderToStream } from 'remix/component/server'
+import type { RenderToStreamOptions } from 'remix/component/server'
 
 declare module 'hono' {
   interface ContextRenderer {
@@ -20,7 +20,7 @@ export interface ResolvedClientEntry {
  * Hook for translating a `clientEntry()` ID into the `moduleUrl` /
  * `exportName` pair the SSR should embed in the hydration data.
  *
- * The `component` argument matches what `remix/ui/server`'s
+ * The `component` argument matches what `remix/component/server`'s
  * `renderToStream` passes — typed loosely as `{ name?: string }` so
  * consumers don't need to depend on Remix's internal `EntryComponent`
  * type.

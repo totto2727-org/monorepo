@@ -1,6 +1,6 @@
 import { Effect, Predicate, String } from 'effect'
 import { FetchHttpClient, HttpClient, HttpClientRequest } from 'effect/http'
-import { run } from 'remix/ui'
+import { run } from 'remix/component'
 import type { ImportGlobFunction } from 'vite'
 
 export interface BootOptions {
@@ -45,7 +45,9 @@ export const boot = ({ components }: BootOptions): ReturnType<typeof run> =>
       }
       return await exported
     },
-    async resolveFrame(src: string, signal?: AbortSignal, target?: string) {
+    async resolveFrame(src, options) {
+      const signal = options?.signal
+      const target = options?.target
       const headers: Record<string, string> = { accept: 'text/html' }
       if (Predicate.isNotNullish(target) && String.isNonEmpty(target)) {
         headers['x-remix-target'] = target

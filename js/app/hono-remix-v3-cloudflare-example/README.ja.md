@@ -12,7 +12,7 @@
 | レイヤー                  | 選択肢                                                                         |
 | ------------------------- | ------------------------------------------------------------------------------ |
 | HTTP ルーター             | **Hono**（`remix/fetch-router` の代替）                                        |
-| SSR / UI                  | **Remix v3 `remix/ui` + `remix/ui/server`** （そのまま使用）                   |
+| SSR / UI                  | **Remix v3 `remix/component` + `remix/component/server`** （そのまま使用）     |
 | クライアントバンドル/開発 | **Vite** + `@cloudflare/vite-plugin`（`remix/assets` ランタイムの代替）        |
 | ランタイム                | **Cloudflare Workers**（開発は Vite プラグイン経由の workerd、本番も Workers） |
 
@@ -20,14 +20,14 @@
 
 ## コマンド
 
-`build` は Vite+ タスク（`vite.config.ts` 内）として定義され、`dist/**` と `.wrangler/**` を入力から除外してキャッシュが再実行時に機能するようにしています。`dev` / `start` / `deploy` / `typecheck` は `package.json` のスクリプトとして残っています。リポジトリルートからは `--filter` を使用してターゲットを指定します:
+`build` は Vite+ タスク（`vite.config.ts` 内）として定義され、`dist/**` と `.wrangler/**` を入力から除外してキャッシュが再実行時に機能するようにしています。`dev` / `start` / `deploy` は `package.json` のスクリプトとして残っています。リポジトリルートからは `--filter` を使用してターゲットを指定します:
 
 ```sh
 vp run --filter hono-remix-v3-cloudflare-example dev        # vp dev — Worker が Vite 内で HMR 付きで実行
 vp run --filter hono-remix-v3-cloudflare-example start      # wrangler dev — ビルド済み出力を workerd で実行
 vp run --filter hono-remix-v3-cloudflare-example build      # vp build — Worker とクライアントバンドルの両方を生成（キャッシュあり）
 vp run --filter hono-remix-v3-cloudflare-example deploy     # wrangler deploy
-vp run --filter hono-remix-v3-cloudflare-example typecheck  # tsgo --noEmit
+vp run js:check                                           # Workspace format, lint, and type check via vp check
 ```
 
 `vp run <task>` はこのアプリディレクトリ内でも動作します。依存関係の解決はリポジトリルートで `vp install --frozen-lockfile` を使用し、pnpm 経由で行います。
@@ -60,7 +60,7 @@ sequenceDiagram
     participant Worker as Cloudflare Worker (workerd)
     participant Hono
     participant MW as remixRenderer middleware
-    participant RemixSSR as remix/ui/server renderToStream
+    participant RemixSSR as remix/component/server renderToStream
 
     Client->>Vite: GET /
     Note over Vite: Vite アセットパスではない → Worker に転送
@@ -81,7 +81,7 @@ sequenceDiagram
     Note over Vite: Vite ソースパス → 変換されて配信
     Vite-->>Client: entry.ts (JSX→JS, 依存関係プリバンドル, HMR インジェクション)
 
-    Client->>Client: import('remix/ui').run({loadModule, resolveFrame})
+    Client->>Client: import('remix/component').run({loadModule, resolveFrame})
     Note over Client: run() が DOM を走査してハイドレーションマーカーを探す
     Client->>Client: loadModule がインメモリコンポーネントマップから解決
     Client->>Client: Counter コンポーネントがハイドレーション

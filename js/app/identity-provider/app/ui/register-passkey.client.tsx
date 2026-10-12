@@ -1,8 +1,7 @@
 import { Effect, Predicate, Schema, String } from 'effect'
 import { FetchHttpClient, HttpBody, HttpClient, HttpClientRequest } from 'effect/http'
-import { clientEntry, on } from 'remix/ui'
-import type { Handle } from 'remix/ui'
-import { Button } from 'remix/ui/button'
+import { clientEntry, on } from 'remix/component'
+import type { Handle } from 'remix/component'
 
 import { b64urlToBuf, bufToB64url } from '#@/ui/webauthn.ts'
 
@@ -38,7 +37,7 @@ export const PasskeyRegisterButton = clientEntry(
 
     return () => (
       <>
-        <Button
+        <button
           mix={on('click', () => {
             // oxlint-disable-next-line rules/no-effect-runtime-run -- Client event boundary executes one Passkey registration workflow Effect.
             void Effect.runPromise(
@@ -127,11 +126,11 @@ export const PasskeyRegisterButton = clientEntry(
             )
           })}
           type='button'
-          tone='primary'
+          data-tone='primary'
           disabled={state.submitting}
         >
           {state.submitting ? '登録中...' : 'Passkey を登録'}
-        </Button>
+        </button>
         {String.isNonEmpty(state.error) ? <p role='alert'>{state.error}</p> : null}
       </>
     )

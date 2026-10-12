@@ -1,5 +1,5 @@
-import { css } from 'remix/ui'
-import type { Handle } from 'remix/ui'
+import { css } from 'remix/component'
+import type { Handle } from 'remix/component'
 
 import { preserveReturnToLoginPath } from '#@/feature/auth/query-parameter.ts'
 import { PasskeyLoginButton } from '#@/ui/login-passkey.client.tsx'
