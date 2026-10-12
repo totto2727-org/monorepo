@@ -1,0 +1,49 @@
+name: Deploy with Alchemy
+description: Deploy an Alchemy stack and expose its URL from the stack output.
+
+inputs:
+  working-directory:
+    description: Directory containing alchemy.run.ts.
+    required: true
+  stack-name:
+    description: Stack name used to read the deployed output.
+    required: true
+  stage:
+    description: Deployment stage selected by the caller.
+    required: true
+  state-backend:
+    description: State backend configured by the stack.
+    required: false
+    default: cloudflare
+
+outputs:
+  url:
+    description: URL origin from the deployed stack's url output.
+    value: ${{ steps.deploy.outputs.url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Deploy stack
+      id: deploy
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        ALCHEMY_DEPLOY_STACK: ${{ inputs.stack-name }}
+        ALCHEMY_STAGE: ${{ inputs.stage }}
+        ALCHEMY_STATE_BACKEND: ${{ inputs.state-backend }}
+      run: |
+        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
+        vp exec alchemy deploy --stage "$ALCHEMY_STAGE" --yes
+        url="$(vp exec alchemy state read "$ALCHEMY_DEPLOY_STACK/$ALCHEMY_STAGE/output" --backend "$ALCHEMY_STATE_BACKEND" --no-input --log-level none \
+          | node -e '
+              let input = "";
+              process.stdin.on("data", (chunk) => { input += chunk; });
+              process.stdin.on("end", () => {
+                // Credential refresh can precede the JSON with a progress message.
+                const value = JSON.parse(input.slice(input.lastIndexOf("\n{") + 1));
+                process.stdout.write(new URL(value.url).origin);
+              });
+            ')"
+        echo "url=$url" >> "$GITHUB_OUTPUT"
+        echo "[Alchemy deployment ($ALCHEMY_STAGE)]($url)" >> "$GITHUB_STEP_SUMMARY"
