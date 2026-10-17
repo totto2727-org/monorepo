@@ -1,0 +1,8 @@
+**
+!nix
+!nix/share
+!nix/share/**
+!nix/npm-package
+!nix/npm-package/**
+!nix/sandbox
+!nix/sandbox/**
