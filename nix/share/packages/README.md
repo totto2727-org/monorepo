@@ -2,10 +2,32 @@
 
 | Package         | Definition     | Dependency lock            |
 | --------------- | -------------- | -------------------------- |
+| `monid`         | `monid.nix`    | Generated `monid-bun.nix`  |
 | `oo-cli` (`oo`) | `oo-cli.nix`   | Generated `oo-cli-bun.nix` |
 | `pass-cli`      | `pass-cli.nix` | `vendorHash`               |
 
 Run commands from the repository root.
+
+## monid
+
+### Update
+
+Update `version` and the source hash in `monid.nix`, then regenerate dependencies:
+
+```bash
+source=$(nix build ./nix/share/packages#monid.src --no-link --print-out-paths)
+nix run ./nix/share/packages#bun2nix -- \
+  --lock-file "$source/bun.lock" \
+  --output-file nix/share/packages/monid-bun.nix
+```
+
+### Validate
+
+```bash
+nix build ./nix/share/packages#monid --no-link
+nix run ./nix/share/packages#monid -- --version
+nix run ./nix/share/packages#monid -- --help
+```
 
 ## oo-cli
 

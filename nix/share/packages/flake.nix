@@ -25,6 +25,9 @@
     in
     {
       overlays.default = final: _prev: {
+        monid = final.callPackage ./monid.nix {
+          bun2nix = bun2nix.packages.${final.stdenv.buildPlatform.system}.default;
+        };
         oo-cli = final.callPackage ./oo-cli.nix {
           bun2nix = bun2nix.packages.${final.stdenv.buildPlatform.system}.default;
         };
@@ -40,7 +43,7 @@
           };
         in
         {
-          inherit (pkgs) oo-cli pass-cli;
+          inherit (pkgs) monid oo-cli pass-cli;
           inherit (bun2nix.packages.${system}) bun2nix;
         }
       );
