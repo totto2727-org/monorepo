@@ -7,7 +7,7 @@ A multi-language monorepo using Node.js, pnpm workspaces, and Vite+.
 ### Workspace per Language
 
 - `js/`: JavaScript Projects
-- `nix/`: Nix Projects, including [local CLI packages](./nix/share/packages/README.md)
+- `nix/`: Nix Projects
 - `elixir/`: Elixir Projects
 - `infra/`: Pulumi Projects
 - `sandbox/`: Sandbox Config

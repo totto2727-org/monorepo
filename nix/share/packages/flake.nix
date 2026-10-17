@@ -44,6 +44,5 @@
           inherit (bun2nix.packages.${system}) bun2nix;
         }
       );
-
     };
 }

@@ -10,7 +10,10 @@ let
     packageName = "@monid-ai/cli";
   };
 
-  oo = pkgs.oo-cli;
+  oo = npm {
+    binName = "oo";
+    packageName = "@oomol-lab/oo-cli";
+  };
 
   docker-credential-gh = writeShellScriptBin "docker-credential-gh" ''
     set -e
@@ -70,7 +73,7 @@ let
     ${openConnectorEnv}
     export OO_CONNECTOR_URL="$OPENCONNECTOR_BASE_URL"
     export OO_CONNECTOR_TOKEN="$OPENCONNECTOR_TOKEN"
-    exec ${oo}/bin/oo "$@"
+    exec ${pkgs.oo-cli}/bin/oo "$@"
   '';
 
   macos-wt = writeShellScriptBin "wt" ''
