@@ -15,6 +15,10 @@
     in
     {
       overlays.default = final: _prev: {
+        oo-cli = final.callPackage ./oo-cli.nix {
+          # The stable host package set can contain Bun without ESM bytecode support.
+          bun = nixpkgs.legacyPackages.${final.stdenv.buildPlatform.system}.bun;
+        };
         pass-cli = final.callPackage ./pass-cli.nix { };
       };
 
@@ -27,8 +31,12 @@
           };
         in
         {
-          inherit (pkgs) pass-cli;
+          inherit (pkgs) oo-cli pass-cli;
         }
       );
+
+      checks = forAllSystems (system: {
+        inherit (self.packages.${system}) oo-cli;
+      });
     };
 }

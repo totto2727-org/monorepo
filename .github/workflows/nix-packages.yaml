@@ -1,0 +1,39 @@
+name: Nix packages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'nix/share/packages/**'
+      - '.github/workflows/nix-packages.yaml'
+      - '.github/actions/setup-nix/**'
+  pull_request:
+    paths:
+      - 'nix/share/packages/**'
+      - '.github/workflows/nix-packages.yaml'
+      - '.github/actions/setup-nix/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: ./.github/actions/setup-nix
+        with:
+          prepare-dev-shell: 'false'
+      - name: Build and test local packages
+        run: nix flake check ./nix/share/packages --print-build-logs

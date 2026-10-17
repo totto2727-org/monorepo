@@ -104,6 +104,20 @@
         "type": "github"
       }
     },
+    "local-packages": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "path": "../share/packages",
+        "type": "path"
+      },
+      "original": {
+        "path": "../share/packages",
+        "type": "path"
+      },
+      "parent": []
+    },
     "moon-registry": {
       "flake": false,
       "locked": {
@@ -185,6 +199,22 @@
     },
     "nixpkgs": {
       "locked": {
+        "lastModified": 1791956154,
+        "narHash": "sha256-jBYGPi4udQ9uo4KQp9m2J0546nJVQitG15gvZSaVVAs=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "55bfb4d7437bd4e09ab7cba58a43bd68eb310044",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
         "lastModified": 1778003029,
         "narHash": "sha256-q/nkKLDtHIyLjZpKhWk3cSK5IYsFqtMd6UtXF3ddjgA=",
         "rev": "0c88e1f2bdb93d5999019e99cb0e61e1fe2af4c5",
@@ -218,8 +248,9 @@
       "inputs": {
         "home-manager": "home-manager",
         "jcode-overlay": "jcode-overlay",
+        "local-packages": "local-packages",
         "moonbit-overlay": "moonbit-overlay",
-        "nixpkgs": "nixpkgs",
+        "nixpkgs": "nixpkgs_2",
         "npmpkgs": "npmpkgs",
         "vite-plus-overlay": "vite-plus-overlay"
       }

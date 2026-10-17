@@ -10,10 +10,7 @@ let
     packageName = "@monid-ai/cli";
   };
 
-  oo = npm {
-    binName = "oo";
-    packageName = "@oomol-lab/oo-cli";
-  };
+  oo = pkgs.oo-cli;
 
   docker-credential-gh = writeShellScriptBin "docker-credential-gh" ''
     set -e
