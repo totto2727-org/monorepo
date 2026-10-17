@@ -1,10 +1,13 @@
 # syntax=docker/dockerfile:1
 
-FROM ghcr.io/totto2727-org/monorepo/sandbox-base:latest
+ARG SANDBOX_BASE_IMAGE=ghcr.io/totto2727-org/monorepo/sandbox-base:latest
+FROM ${SANDBOX_BASE_IMAGE}
 
-# Sparse-checkout `nix/share` + `nix/sandbox` from the monorepo (blobless partial
-# clone), then symlink ~/.local/share/sandbox-flake/nix to ~/nix so the flake alias
-# `~/nix/sandbox#sandbox-<arch>` resolves.
+# Keep every local flake input in the same source snapshot.
+COPY --chown=sandbox:sandbox nix/share /sandbox/nix/share
+COPY --chown=sandbox:sandbox nix/npm-package /sandbox/nix/npm-package
+COPY --chown=sandbox:sandbox nix/sandbox /sandbox/nix/sandbox
+
 ARG TARGETARCH
 RUN <<EOF
 case "$TARGETARCH" in
@@ -13,18 +16,20 @@ case "$TARGETARCH" in
   *) echo "unsupported TARGETARCH: $TARGETARCH" >&2; exit 1 ;;
 esac
 
-git clone --filter=tree:0 --no-checkout https://github.com/totto2727-org/monorepo.git ~/.local/share/sandbox-flake
-cd ~/.local/share/sandbox-flake
-git sparse-checkout init --cone
-git sparse-checkout set nix/share nix/sandbox
-git checkout
-ln -s ~/.local/share/sandbox-flake/nix ~/nix
-home-manager switch --flake ~/nix/sandbox#sandbox-${NIX_SYSTEM}
+# A Git flake preserves sibling path inputs within the source snapshot.
+git -C /sandbox/nix init
+git -C /sandbox/nix add .
+nix build ~/nix/sandbox#homeConfigurations.sandbox-${NIX_SYSTEM}.activationPackage --out-link /sandbox/home-manager-result
+/sandbox/home-manager-result/activate
+home-manager --version
+jcode --version
 
 chezmoi init https://github.com/totto2727-dotfiles/chezmoi.git
 chezmoi apply
+nix-collect-garbage -d
+rm -rf /sandbox/.cache
 EOF
 
-SHELL ["zsh", "-c"]
+SHELL ["/sandbox/.nix-profile/bin/zsh", "-e", "-c"]
 
-ENTRYPOINT [ "zsh" ]
+ENTRYPOINT ["/sandbox/.nix-profile/bin/zsh"]

@@ -11,17 +11,16 @@
       url = "path:../npm-package";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    local-packages.url = "path:../share/packages";
+    local-packages = {
+      url = "path:../share/packages";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     moonbit-overlay = {
       url = "github:totto2727/moonbit-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     vite-plus-overlay = {
       url = "github:ryoppippi/nix-vite-plus";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    jcode-overlay = {
-      url = "github:hypervideo/jcode-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -35,7 +34,6 @@
       home-manager,
       moonbit-overlay,
       vite-plus-overlay,
-      jcode-overlay,
     }:
     let
       username = "sandbox";
@@ -56,7 +54,6 @@
               local-packages.overlays.default
               moonbit-overlay.overlays.default
               vite-plus-overlay.overlays.default
-              jcode-overlay.overlays.default
             ];
           };
           npm = npmpkgs.lib.${system}.npmPackage;
@@ -74,16 +71,25 @@
                 (import ../share/packages.nix {
                   inherit pkgs npm;
                 })
+                ++ [
+                  pkgs.nodejs_24
+                  pkgs.pnpm
+                  (pkgs.vite-plus.override { nodejs = pkgs.nodejs_24; })
+                ]
                 ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).sandbox;
 
               programs = (import ../share/programs.nix { inherit pkgs; }) // {
                 home-manager.enable = true;
+                # gh-stack is not packaged in the sandbox's pinned nixpkgs.
+                gh = (import ../share/gh.nix { inherit pkgs; }) // {
+                  extensions = [ pkgs.gh-poi ];
+                };
                 zsh = (import ../share/zsh.nix { inherit pkgs; }) // {
                   shellAliases = (import ../share/shell-aliases.nix) // {
                     home-manager = "home-manager --flake ~/nix/sandbox#${username}-${system}";
                   };
                 };
-                starship = import ./starship.nix;
+                starship = import ../share/starship.nix;
               };
 
               home.sessionVariables = import ../share/session-variables.nix;

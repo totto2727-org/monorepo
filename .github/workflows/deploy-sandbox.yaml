@@ -82,7 +82,7 @@ jobs:
 
       - uses: ./.github/actions/docker-build-by-digest
         with:
-          context: ./sandbox
+          context: .
           file: ./sandbox/sandbox-dev.Dockerfile
           image: ${{ env.IMAGE_PREFIX }}/sandbox-dev
           platform: ${{ matrix.platform }}

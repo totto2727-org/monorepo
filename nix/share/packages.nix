@@ -10,7 +10,6 @@ with pkgs;
   rename
   fzf
   bottom
-  witr
   # TUI
   neovim
   lazygit
@@ -20,3 +19,4 @@ with pkgs;
   just
   chezmoi
 ]
+++ lib.optionals (pkgs ? witr) [ pkgs.witr ]
