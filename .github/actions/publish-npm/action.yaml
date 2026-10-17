@@ -6,7 +6,7 @@ inputs:
     description: Package directory, or workspace root when filters are provided.
     required: true
   filters:
-    description: Optional pnpm workspace selectors, one per line. Enables recursive publication.
+    description: Optional pnpm workspace selectors, one per line. Defaults to the current package.
     required: false
     default: ''
 
@@ -27,16 +27,8 @@ runs:
           filters+=(--filter "$filter")
         done <<< "$PUBLISH_FILTERS"
 
-        if (( ${#filters[@]} > 0 )); then
-          vp pm stage publish -r --provenance "${filters[@]}"
-        else
-          registry=$(node --print "require('./package.json').publishConfig?.registry || 'https://registry.npmjs.org'")
-          encoded_name=$(node --print "encodeURIComponent(require('./package.json').name)")
-          version=$(node --print "require('./package.json').version")
-          status=$(curl -sS -o /dev/null -w "%{http_code}" "${registry%/}/${encoded_name}/${version}")
-          case "$status" in
-            200) echo "v${version} already published. Skipping." ;;
-            404) vp pm stage publish --provenance ;;
-            *) echo "Registry lookup failed with HTTP ${status}." >&2; exit 1 ;;
-          esac
+        if (( ${#filters[@]} == 0 )); then
+          filters=(--filter .)
         fi
+        # Recursive publication also skips published versions for a single package.
+        vp pm stage publish -r --provenance "${filters[@]}"
